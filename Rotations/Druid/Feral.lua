@@ -195,34 +195,33 @@ if select(3, UnitClass("player")) == 11 then
 				if castSpell("player",cf,true) then return; end
 			end
 			if UnitBuffID("player",cf) then
-				if getPower("player") <= 35 and getSpellCD(tf) == 0 then
-					if castSpell("player",tf) then return; end
-				end
-				if getPower("player") >= 25 and getSRR()  < 1 and (hasGlyph(gsr) or getCombo() > 0) then
-					if castSpell("player",svr) then return; end
-				end
 				if UnitExists("target") ~= nil and getDistance("target") > 8 then
 		  			ClearTarget();
 		 		end
-	            if getNumEnnemies("player",8) >= 2 then
-		          	if swipeSoon == nil then
-		           		swipeSoon = GetTime();
-		           	end
-		           	if swipeSoon ~= nil and swipeSoon < GetTime() - 1 and getPower("player") >= 45 then
-		           		if castSpell("player",sw,true) then swipeSoon = nil; return; end
-		           	end
-		        else
-		        	if getNumEnnemies("player",8) < 2 and getPower("player") >= 35 then
-            			for i=1, GetTotalObjects(TYPE_UNIT) do
-         					local Guid = IGetObjectListEntry(i);
-         					ISetAsUnitID(Guid,"thisUnit");
-                			if UnitExists("thisUnit") ~= nil and UnitCanAttack("player","thisUnit") == 1 and getCreatureType("thisUnit") == true then
-               				 	swipeSoon = nil;
-                 				if castSpell("thisUnit",mgl,false) then return; end
-                			end
-               			end
-              		end
-		        end
+		 		if #getEnnemies("player",8) > 0 then
+		 			local enemiesInRange = getEnnemies("player",8)
+		 			if getPower("player") <= 35 and getSpellCD(tf) == 0 then
+						if castSpell("player",tf) then return; end
+					end
+					if getPower("player") >= 25 and getSRR()  < 1 and (hasGlyph(gsr) or getCombo() > 0) then
+						if castSpell("player",svr) then return; end
+					end
+		 			if #enemiesInRange == 1 and getPower("player") >= 35 then
+            			local Guid = enemiesInRange[1];
+         				ISetAsUnitID(Guid,"thisUnit");
+                		if UnitExists("thisUnit") ~= nil and UnitCanAttack("player","thisUnit") == 1 and getCreatureType("thisUnit") == true and getDistance("target")<6 then
+               			 	swipeSoon = nil;
+                			if castSpell("thisUnit",mgl,false) then return; end
+                		end
+               		elseif #enemiesInRange > 1 then
+	            	   	if swipeSoon == nil then
+		        	   		swipeSoon = GetTime();
+		        	   	end
+		        	   	if swipeSoon ~= nil and swipeSoon < GetTime() - 1 and getPower("player") >= 45 then
+		        	   		if castSpell("player",sw,true) then swipeSoon = nil; return; end
+		        	   	end
+		        	end
+		    	end
 		    end
 	    elseif BadBoy_data["Check Death Cat Mode"] == 0 then
 
@@ -492,7 +491,7 @@ if select(3, UnitClass("player")) == 11 then
 									ISetAsUnitID(Guid,"thisUnit");
 									if getFacing("player","thisUnit") == true
 										and getDebuffRemain("thisUnit",rk) < 3
-										and (UnitHealth("thisUnit") >= (150*UnitHealth("player")/100)*(GetNumGroupMembers()+1) or isDummy("thisUnit"))
+										--and (UnitHealth("thisUnit") >= (150*UnitHealth("player")/100)*(GetNumGroupMembers()+1) or isDummy("thisUnit"))
 									then
 										if castSpell("thisUnit",rk,false) then return; end								
 									end
