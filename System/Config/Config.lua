@@ -99,7 +99,7 @@ function ConfigFrame()
 		end)
 
 		configFrameText = configFrame:CreateFontString(nil, "ARTWORK");
-		configFrameText:SetFontObject("QuestTitleFontBlackShadow",17,"THICKOUTLINE");
+		configFrameText:SetFont("Fonts/FRIZQT__.TTF",17,"THICKOUTLINE");
 		configFrameText:SetTextHeight(17);
 		configFrameText:SetPoint("TOPLEFT",28, 0);
 		configFrameText:SetTextColor(225/255, 225/255, 225/255,1);

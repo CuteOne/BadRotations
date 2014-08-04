@@ -18,9 +18,8 @@ function DebugFrameCreation()
 		if debugHeight == nil then debugHeight = 26; end
 		function CreateDebugRow(value,textString)
 			_G["debug"..value.."Text"] = debugFrame:CreateFontString(nil, "OVERLAY");
-			_G["debug"..value.."Text"]:SetFontObject("QuestTitleFont",17,"THICKOUTLINE");
-			_G["debug"..value.."Text"]:SetTextHeight(17);
-			_G["debug"..value.."Text"]:SetPoint("TOPLEFT",5,-((value*20)));
+			_G["debug"..value.."Text"]:SetFont("Fonts/MORPHEUS.ttf",16,"THICKOUTLINE");
+			_G["debug"..value.."Text"]:SetPoint("TOPLEFT",5,-((value*20)+3));
 			_G["debug"..value.."Text"]:SetWordWrap(enable)
 			_G["debug"..value.."Text"]:SetTextColor(225/255, 225/255, 225/255,1);
 			_G["debug"..value.."Text"]:SetText(textString, 1, 1, 1, 0.7);
@@ -123,7 +122,7 @@ function DebugFrameCreation()
 		end)
 
 		debugFrameText = debugFrame:CreateFontString(nil, "ARTWORK");
-		debugFrameText:SetFontObject("QuestTitleFontBlackShadow",17,"THICKOUTLINE");
+		debugFrameText:SetFont("Fonts/MORPHEUS.ttf",16,"THICKOUTLINE");
 		debugFrameText:SetTextHeight(17);
 		debugFrameText:SetPoint("TOPLEFT",5, 0);
 		debugFrameText:SetTextColor(225/255, 225/255, 225/255,1);
@@ -132,7 +131,7 @@ function DebugFrameCreation()
 
 		SetDebugWidth(BadBoy_data.debugWidth);
 
-		CreateDebugRow(0,"|cff12C8FFTime |cffFF001E| |cffFFFFFFSpell Name |cffFF001E| |cff12C8FFSpell ID |cffFF001E| |cffFFFFFFLast Target")
+		CreateDebugRow(0,"|cff12C8FFTime|cffFF001E/|cffFFFFFFSpell Name|cffFF001E/|cff12C8FFSpell ID|cffFF001E/|cffFFFFFFTarget")
 
 		for i = 1, 25 do
 			CreateDebugRow(i,"")

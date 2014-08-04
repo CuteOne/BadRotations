@@ -44,8 +44,7 @@ function CreateNewBox(value,textString,minValue,maxValue,step,base,tip1,tip2,tip
 
 	_G["option"..value.."Box"]:SetValue(vValue);
 	_G["option"..value.."BoxText"] = _G["option"..value.."Box"]:CreateFontString(nil, "OVERLAY");
-	_G["option"..value.."BoxText"]:SetFontObject("QuestTitleFontBlackShadow", 17,"THICKOUTLINE");
-	_G["option"..value.."BoxText"]:SetTextHeight(18);
+	_G["option"..value.."BoxText"]:SetFont("Fonts/FRIZQT__.TTF",16,"THICKOUTLINE");
 	_G["option"..value.."BoxText"]:SetPoint("CENTER", 0 , 0);
 	_G["option"..value.."BoxText"]:SetTextColor(225/255, 225/255, 225/255,1);
 	_G["option"..value.."BoxText"]:SetText(vValue);

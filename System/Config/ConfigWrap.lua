@@ -173,7 +173,7 @@ function CreateNewWrap(value,textString)
 
 
 	_G["option"..value.."Text"] = configFrame:CreateFontString(nil, "ARTWORK");
-	_G["option"..value.."Text"]:SetFontObject("QuestTitleFontBlackShadow",17,"THICKOUTLINE");
+	_G["option"..value.."Text"]:SetFont("Fonts/FRIZQT__.TTF",17,"THICKOUTLINE");
 	_G["option"..value.."Text"]:SetTextHeight(17);
 	_G["option"..value.."Text"]:SetPoint("TOPLEFT",28,-((value*22)));
 	_G["option"..value.."Text"]:SetTextColor(225/255, 225/255, 225/255,1);

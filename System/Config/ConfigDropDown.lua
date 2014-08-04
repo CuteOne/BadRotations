@@ -9,7 +9,7 @@ function CreateNewDrop(value, textString, base, tip1, value1, value2, value3, va
 	end	
 	if tip == "CD" then 
 		tip = "|cffFFFFFFSets how you want this Cooldown to react. \n|cffD60000Never = Never use this CD. \n|cffFFBB00CDs = Use this CD when ActiveCooldowns Enabled. \n|cff15FF00Always = Always use this CD."; 
-		vvalues = {"|cffD60000Never", "|cffFFBB00CDs", "|cff15FF00Always"}
+		vvalues = {"|cffFF0000Never", "|cffFFDD11CDs", "|cff00FF00Always"}
 	end
 	if tip == "Auto" then 
 		tip = "|cffFFFFFFSets how you want this Ability to react."; 
@@ -47,8 +47,7 @@ function CreateNewDrop(value, textString, base, tip1, value1, value2, value3, va
 	end)
 
 	_G["option"..value.."DropText"] = _G["option"..value.."Drop"]:CreateFontString(nil, "OVERLAY");
-	_G["option"..value.."DropText"]:SetFontObject("QuestTitleFontBlackShadow", 17,"THICKOUTLINE");
-	_G["option"..value.."DropText"]:SetTextHeight(17);
+	_G["option"..value.."DropText"]:SetFont("Fonts/FRIZQT__.TTF",16,"THICKOUTLINE");
 	_G["option"..value.."DropText"]:SetPoint("CENTER", 0 , 0);
 	_G["option"..value.."DropText"]:SetTextColor(225/255, 225/255, 225/255,1);
 	_G["option"..value.."DropText"]:SetText(vvalues[vValue]);
