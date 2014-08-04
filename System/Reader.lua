@@ -117,7 +117,7 @@ function SuperReader(self, event, ...)
 	if event == "UNIT_SPELLCAST_SUCCEEDED" then
 		local SourceUnit 	= select(1,...);
 		local SpellID 		= select(5,...);
-		if SourceUnit == "player" and isKnown(SpellID) then
+		if SourceUnit == "player" then
 			--print(...)
 
 			local MyClass = UnitClass("player");
@@ -171,7 +171,7 @@ function SuperReader(self, event, ...)
 				LastFail 	= select(2,...) 
 				LastFailTime 	= GetTime()
 				tinsert(debugTable, 1, { textString = "|cffD90000"..LastFailTime.." |cff12C8FF| |cffFFFFFF"..LastFail.." |cff12C8FF| |cffD90000"..select(5,...).." |cff12C8FF| |cffD90000Failed" });
-				if #debugTable > 9 then tremove(debugTable, 10); end
+				if #debugTable > 99 then tremove(debugTable, 100); end
 				if BadBoy_data.ActualRow == 0 then debugRefresh(); end
 			end
 		end

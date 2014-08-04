@@ -140,8 +140,7 @@ function Hunter()
 
 			local numEnnemies = getNumEnnemies("target",10)
 			-- Focus Dump
-			if numEnnemies >= 2 and AoE >= 2 then
-				-- Multi-Shot
+			if numEnnemies >= 2 then				-- Multi-Shot
 				if _Focus > BadBoy_data["Box Multi-Shot"] and not UnitBuffID("pet",118455) or (_Focus > (BadBoy_data["Box Multi-Shot"]+20) and numEnnemies > 3) then
 					if castSpell("target",_MultiShot,false) then return; end
 				end		
@@ -153,7 +152,7 @@ function Hunter()
 			end		
 
 			-- Explosive Trap
-			if BadBoy_data["Check Explosive Trap"] == 1 
+			if canCast(_TrapLauncherExplosive) and BadBoy_data["Check Explosive Trap"] == 1 
 				and (BadBoy_data["Drop Explosive Trap"] == 3 or (BadBoy_data["Drop Explosive Trap"] == 2 and numEnnemies >= 3)) 
 				and getGround("target") == true 
 				and isMoving("target") == false
