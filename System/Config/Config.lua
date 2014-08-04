@@ -13,20 +13,19 @@ function ConfigFrame()
 		end
 
 		if BadBoy_data.configWidth == nil then BadBoy_data.configWidth = 250; end
+		if BadBoy_data.configAlpha == nil then BadBoy_data.configAlpha = 0.90; end
 		-- Config Frame
 		configHeight = 30
 		configFrame = CreateFrame("Frame", nil, UIParent);
-		configFrame:SetFrameStrata("BACKGROUND")
-		configFrame:SetAlpha(1);
+		--configFrame:SetAlpha(1);
 		configFrame:SetWidth(250);
 		configFrame:SetHeight(30);
-		configFrame.textureTopLeft = configFrame:CreateTexture(configFrame, "ARTWORK");
-		configFrame.textureTopLeft:SetAllPoints();
-		configFrame.textureTopLeft:SetWidth(BadBoy_data.configWidth);
-		configFrame.textureTopLeft:SetHeight(30);
-		configFrame.textureTopLeft:SetAlpha(0.90);
-		--configFrame.texture:SetTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]],0.25);
-		configFrame.textureTopLeft:SetTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]],0.25);
+		configFrame.texture = configFrame:CreateTexture(configFrame, "ARTWORK");
+		configFrame.texture:SetAllPoints();
+		configFrame.texture:SetWidth(BadBoy_data.configWidth);
+		configFrame.texture:SetHeight(30);
+		configFrame.texture:SetAlpha(BadBoy_data.configAlpha/100);
+		configFrame.texture:SetTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]]);
 
 		function SetConfigWidth(Width)
 			BadBoy_data.configWidth = Width
@@ -34,18 +33,39 @@ function ConfigFrame()
 		end
 
 		configFrame:SetScript("OnMouseWheel", function(self, delta)
-			local Go = false;
-			if delta < 0 and BadBoy_data.configWidth > 200 then
-				Go = true;
-			elseif delta > 0 and BadBoy_data.configWidth < 500 then
-				Go = true;
-			end
-			if Go == true then
-				SetConfigWidth(BadBoy_data.configWidth + delta*2)
+			if IsAltKeyDown() then
+				local Go = false;
+				if delta < 0 and BadBoy_data.configAlpha > 0 then
+					Go = true;
+				elseif delta > 0 and BadBoy_data.configAlpha < 100 then
+					Go = true;
+				end
+				if Go == true then
+					BadBoy_data.configAlpha = BadBoy_data.configAlpha + (delta*5)
+					configFrame.texture:SetAlpha(BadBoy_data.configAlpha/100);
+				end
+			else
+				local Go = false;
+				if delta < 0 and BadBoy_data.configWidth > 200 then
+					Go = true;
+				elseif delta > 0 and BadBoy_data.configWidth < 500 then
+					Go = true;
+				end
+				if Go == true then
+					SetConfigWidth(BadBoy_data.configWidth + delta*2)
+				end
 			end
 		end)
 
-		--configFrame.texture:SetTexture(25/255,25/255,25/255,1);
+		configFrame:SetScript("OnEnter", function(self)
+			GameTooltip:SetOwner(self, "BOTTOMLEFT", 250, 5);
+			GameTooltip:SetText("|cffD60000Roll mouse to adjust width.\n|cffFFFFFFLeft Click/Hold to move.\n|cffFFDD11Alt+Roll to adjust Config Alpha.", nil, nil, nil, nil, true);
+			GameTooltip:Show();
+		end)
+		configFrame:SetScript("OnLeave", function(self)
+			GameTooltip:Hide();
+		end)
+
 		configFrame:SetPoint(BadBoy_data.configanchor,BadBoy_data.configx,BadBoy_data.configy);
 		configFrame:SetClampedToScreen(true);
 		configFrame:SetScript("OnUpdate", configFrame_OnUpdate);
@@ -55,9 +75,6 @@ function ConfigFrame()
 		configFrame:RegisterForDrag("LeftButton");
 		configFrame:SetScript("OnDragStart", configFrame.StartMoving);
 		configFrame:SetScript("OnDragStop", configFrame.StopMovingOrSizing);
-
-
-
 
 		configFrameExitButton = CreateFrame("CheckButton", "MyButton", configFrame, "UIPanelButtonTemplate");
 		configFrameExitButton:SetAlpha(0.80);
@@ -80,8 +97,6 @@ function ConfigFrame()
 		configFrameExitButton:SetScript("OnLeave", function(self)
 			GameTooltip:Hide();
 		end)
-
-
 
 		configFrameText = configFrame:CreateFontString(nil, "ARTWORK");
 		configFrameText:SetFontObject("QuestTitleFontBlackShadow",17,"THICKOUTLINE");

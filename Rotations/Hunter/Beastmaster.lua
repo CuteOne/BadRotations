@@ -101,8 +101,8 @@ function Hunter()
 
 ]]
 			-- Single Kill Shot
-			if getHP("target") <= 20 and getSpellCD(_KillShot) == 0 and not isCasting() then
-				CastSpellByName(GetSpellInfo(_KillShot),"target"); return;
+			if getHP("target") <= 20 then
+				if castSpell("target",_KillShot,false) then return; end
 			end
 
 			-- Kill Command

@@ -17,11 +17,10 @@ function DebugFrameCreation()
 		-- CreateRow
 		if debugHeight == nil then debugHeight = 26; end
 		function CreateDebugRow(value,textString)
-			_G["debug"..value.."Text"] = debugFrame:CreateFontString(nil, "ARTWORK");
+			_G["debug"..value.."Text"] = debugFrame:CreateFontString(nil, "OVERLAY");
 			_G["debug"..value.."Text"]:SetFontObject("QuestTitleFont",17,"THICKOUTLINE");
 			_G["debug"..value.."Text"]:SetTextHeight(17);
 			_G["debug"..value.."Text"]:SetPoint("TOPLEFT",5,-((value*20)));
-			--_G["debug"..value.."Text"]:SetWidth(BadBoy_data.debugWidth);
 			_G["debug"..value.."Text"]:SetWordWrap(enable)
 			_G["debug"..value.."Text"]:SetTextColor(225/255, 225/255, 225/255,1);
 			_G["debug"..value.."Text"]:SetText(textString, 1, 1, 1, 0.7);
@@ -34,16 +33,15 @@ function DebugFrameCreation()
 		
 
 		debugFrame = CreateFrame("Frame", nil, UIParent);
-		debugFrame:SetFrameStrata("BACKGROUND")
-		debugFrame:SetAlpha(1);
+		--debugFrame:SetAlpha(1);
 		debugFrame:SetWidth(250);
 		debugFrame:SetHeight((BadBoy_data.shownRows*20)+20)
 		debugFrame.texture = debugFrame:CreateTexture(debugFrame, "ARTWORK");
 		debugFrame.texture:SetAllPoints();
 		debugFrame.texture:SetWidth(BadBoy_data.debugWidth);
 		debugFrame.texture:SetHeight(30);
-		debugFrame.texture:SetAlpha(BadBoy_data.debugAlpha);
-		debugFrame.texture:SetTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]],0.25);
+		debugFrame.texture:SetAlpha(BadBoy_data.debugAlpha/100);
+		debugFrame.texture:SetTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]]);
 
 		function SetDebugWidth(Width)
 			BadBoy_data.debugWidth = Width
@@ -98,7 +96,7 @@ function DebugFrameCreation()
 		debugFrameRowsButton:SetAlpha(0.80);
 		debugFrameRowsButton:SetWidth(30);
 		debugFrameRowsButton:SetHeight(18);
-		debugFrameRowsButton:SetPoint("TOPRIGHT", -25 , 0);
+		debugFrameRowsButton:SetPoint("TOPRIGHT", 0, 0);
 		debugFrameRowsButton:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]);
 		debugFrameRowsButton:RegisterForClicks("AnyUp");
 		debugFrameRowsButton:SetText(BadBoy_data.shownRows);
