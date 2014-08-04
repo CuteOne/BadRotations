@@ -1,0 +1,103 @@
+## Interface: 50400
+## Title: |cffD90000BadBoy
+## Notes: |cffD90000From/For/By CodeMyLife.
+## Author: CodeMyLife
+## Version: 1.0
+## SavedVariablesPerCharacter: BadBoy_data
+
+BadBoy.lua
+
+## System
+System\Core.lua
+System\Config.lua
+System\DebugFrame
+System\Reader.lua
+System\GeneralFunctions.lua
+System\ObjectsManagers.lua
+System\Beautycase.lua
+System\UI.lua
+
+## ClassLibs
+ClassLibs\Druid\Options.lua
+ClassLibs\Druid\Functions.lua
+ClassLibs\Druid\CuteBar.lua
+ClassLibs\Druid\SpellList.lua
+ClassLibs\Druid\Toggles.lua
+ClassLibs\Deathknight\Options.lua
+ClassLibs\Deathknight\Functions.lua
+ClassLibs\Hunter\Options.lua
+ClassLibs\Hunter\Functions.lua
+ClassLibs\Mage\Options.lua
+ClassLibs\Mage\Functions.lua
+ClassLibs\Monk\Options.lua
+ClassLibs\Monk\Functions.lua
+ClassLibs\Paladin\Options.lua
+ClassLibs\Paladin\Functions.lua
+ClassLibs\Priest\Options.lua
+ClassLibs\Priest\Functions.lua
+ClassLibs\Rogue\Options.lua
+ClassLibs\Rogue\Functions.lua
+ClassLibs\Shaman\Options.lua
+ClassLibs\Shaman\Functions.lua
+ClassLibs\Shaman\SpellList.lua
+ClassLibs\Shaman\Toggles.lua
+ClassLibs\Warlock\Options.lua
+ClassLibs\Warlock\Functions.lua
+ClassLibs\Warrior\Options.lua
+ClassLibs\Warrior\Functions.lua
+
+## Rotations
+Rotations\Deathknight\Blood.lua
+Rotations\Deathknight\Frost.lua
+Rotations\Deathknight\Unholy.lua
+Rotations\Druid\Feral.lua
+Rotations\Druid\Guardian.lua
+Rotations\Druid\Moonkin.lua
+Rotations\Druid\Restoration.lua
+Rotations\Hunter\Beastmaster.lua
+Rotations\Hunter\Marskmanship.lua
+Rotations\Hunter\Survival.lua
+Rotations\Mage\Arcane.lua
+Rotations\Mage\Fire.lua
+Rotations\Mage\Frost.lua
+Rotations\Monk\Brewmaster.lua
+Rotations\Monk\Mistweaver.lua
+Rotations\Monk\Windwalker.lua
+Rotations\Paladin\Holy.lua
+Rotations\Paladin\Protection.lua
+Rotations\Paladin\Retribution.lua
+Rotations\Priest\Discipline.lua
+Rotations\Priest\Holy.lua
+Rotations\Priest\Shadow.lua
+Rotations\Rogue\Assassination.lua
+Rotations\Rogue\Combat.lua
+Rotations\Rogue\Subtlety.lua
+Rotations\Shaman\Enhancement.lua
+Rotations\Shaman\Elemental.lua
+Rotations\Shaman\Restoration.lua
+Rotations\Warrior\Arms.lua
+Rotations\Warrior\Fury.lua
+Rotations\Warrior\Protection.lua
+Rotations\Warlock\Affliction.lua
+Rotations\Warlock\Demonology.lua
+Rotations\Warlock\Destruction.lua
+
+## PokeRotation
+Rotations\PokeRotation\PokeRotation\.lua
+Rotations\PokeRotation\PokeAbilities.lua
+Rotations\PokeRotation\PokeCollections.lua
+Rotations\PokeRotation\PokeData.lua
+Rotations\PokeRotation\PokeEngine.lua
+Rotations\PokeRotation\PokeSwapper.lua
+Rotations\PokeRotation\PokeUI.lua
+Rotations\PokeRotation\PokeUnitInfo.lua
+
+## Config
+System\Config\Config.lua
+System\Config\ConfigBox.lua
+System\Config\ConfigCheck.lua
+System\Config\ConfigDropDown.lua
+System\Config\ConfigText.lua
+System\Config\ConfigTitle.lua
+System\Config\ConfigWrap.lua
+
