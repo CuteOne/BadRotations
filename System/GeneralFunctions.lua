@@ -502,6 +502,14 @@ function getTotemDistance(Unit1)
 	end
 end
 
+function getCreatureType(tar)
+	local CreatureTypeList = {"Critter", "Totem", "Non-combat Pet", "Wild Pet"}
+	for i=1, #CreatureTypeList do
+		if UnitCreatureType(tar) == CreatureTypeList[i] then return false end
+	end
+	if not UnitIsBattlePet(tar) and not UnitIsWildBattlePet(tar) then return true else return false end
+end
+
 -- /dump UnitGUID("target")
 -- /dump getEnnemies("target",10)
 -- if #getEnnemies("target",10) >= 3 then
@@ -511,7 +519,7 @@ function getEnnemies(Target,Radius)
   		local Guid = IGetObjectListEntry(i);
   		ISetAsUnitID(Guid,"thisUnit");
   		if tonumber(string.sub(tostring(Guid), 5,5)) == 3 or isDummy("thisUnit") then
-	  		if CheckCreatureType("thisUnit") == true then
+	  		if getCreatureType("thisUnit") == true then
 	  			if UnitCanAttack("player","thisUnit") and not UnitIsDeadOrGhost("thisUnit") then
 	  				if getDistance(Target,"thisUnit") <= ((Radius + IGetFloatDescriptor(Guid,0x110))) then
 	  					GetLocation()
@@ -527,18 +535,11 @@ end
 -- if getNumEnnemies("target",10) >= 3 then
 function getNumEnnemies(Target,Radius)
   	local Units = 0;
-  	local function CheckCreatureType(tar)
-		local CreatureTypeList = {"Critter", "Totem", "Non-combat Pet", "Wild Pet"}
-		for i=1, #CreatureTypeList do
-			if UnitCreatureType(tar) == CreatureTypeList[i] then return false end
-		end
-		if not UnitIsBattlePet(tar) and not UnitIsWildBattlePet(tar) then return true else return false end
-	end
  	for i=1,GetTotalObjects(TYPE_UNIT) do
   		local Guid = IGetObjectListEntry(i);
  	  	ISetAsUnitID(Guid,"thisUnit");
  	  	if tonumber(string.sub(tostring(Guid), 5,5)) == 3 or isDummy("thisUnit") then
-	  		if CheckCreatureType("thisUnit") == true then
+	  		if getCreatureType("thisUnit") == true then
 	  			if UnitCanAttack("player","thisUnit") and not UnitIsDeadOrGhost("thisUnit") then
 	  				if getDistance(Target,"thisUnit") <= ((Radius + IGetFloatDescriptor(Guid,0x110))) then
 	  					Units = Units+1;
