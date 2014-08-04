@@ -63,7 +63,7 @@ function ConfigFrame()
 		configFrameExitButton:SetAlpha(0.80);
 		configFrameExitButton:SetWidth(21);
 		configFrameExitButton:SetHeight(21);
-		configFrameExitButton:SetPoint("TOPRIGHT", -1 , -3);
+		configFrameExitButton:SetPoint("TOPRIGHT", -3 , -3);
 		configFrameExitButton:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]);
 		configFrameExitButton:RegisterForClicks("AnyUp");
 		configFrameExitButton:SetText("X");

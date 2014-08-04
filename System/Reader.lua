@@ -139,11 +139,13 @@ function SuperReader(self, event, ...)
 				end						
 			end
 
-			if BadBoy_data["Check Debug"] == 1 and SpellID ~= 75 then
+			if BadBoy_data["Check Debug"] == 1 and SpellID ~= 75 and SpellID ~= 88263 then
 				LastSpell 	= select(2,...);
 				LastTime 	= GetTime();
 				if spellCastTarget then LastTar = spellCastTarget else LastTar = "Not Assigned" end
-				print("|cff12C8FF"..GetTimeString().." |cffFF001E| |cffFFFFFF"..LastSpell.." |cffFF001E| |cff12C8FF"..select(5,...).." |cffFF001E| |cffFFFFFF"..LastTar)
+				tinsert(debugTable, 1, { textString = "|cff12C8FF"..GetTimeString().." |cffFF001E| |cffFFFFFF"..LastSpell.." |cffFF001E| |cff12C8FF"..select(5,...).." |cffFF001E| |cffFFFFFF"..LastTar });
+				if #debugTable > 99 then tremove(debugTable, 100); end
+				if BadBoy_data.ActualRow == 0 then debugRefresh(); end
 			end
 		end			
 	end
@@ -168,7 +170,9 @@ function SuperReader(self, event, ...)
 			if BadBoy_data["Check Debug"] == 1 and UnitExists("target") ~= nil then
 				LastFail 	= select(2,...) 
 				LastFailTime 	= GetTime()
-				print("|cffD90000"..LastFailTime.." |cff12C8FF| |cffFFFFFF"..LastFail.." |cff12C8FF| |cffD90000"..select(5,...).." |cff12C8FF| |cffD90000Failed")
+				tinsert(debugTable, 1, { textString = "|cffD90000"..LastFailTime.." |cff12C8FF| |cffFFFFFF"..LastFail.." |cff12C8FF| |cffD90000"..select(5,...).." |cff12C8FF| |cffD90000Failed" });
+				if #debugTable > 9 then tremove(debugTable, 10); end
+				if BadBoy_data.ActualRow == 0 then debugRefresh(); end
 			end
 		end
 	end
