@@ -213,15 +213,15 @@ if select(3, UnitClass("player")) == 11 then
 		           	end
 		        else
 		        	if getNumEnnemies("player",8) < 2 and getPower("player") >= 35 then
-			        	for i=1, GetTotalObjects(TYPE_UNIT) do
-	  						local Guid = IGetObjectListEntry(i);
-	  						ISetAsUnitID(Guid,"thisUnit");
-		           			if UnitExists("thisUnit") ~= nil and UnitCanAttack("player","thisUnit") == 1 and getCreatureType("thisUnit") == true then
-		           				swipeSoon = nil;
-		           				if castSpell("thisUnit",mgl,false) then return; end
-		           			end
-		           		end
-		           	end
+            			for i=1, GetTotalObjects(TYPE_UNIT) do
+         					local Guid = IGetObjectListEntry(i);
+         					ISetAsUnitID(Guid,"thisUnit");
+                			if UnitExists("thisUnit") ~= nil and UnitCanAttack("player","thisUnit") == 1 and getCreatureType("thisUnit") == true then
+               				 	swipeSoon = nil;
+                 				if castSpell("thisUnit",mgl,false) then return; end
+                			end
+               			end
+              		end
 		        end
 		    end
 	    elseif BadBoy_data["Check Death Cat Mode"] == 0 then

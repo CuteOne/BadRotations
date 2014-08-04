@@ -80,6 +80,7 @@ ro3	=	139120	--Rune of Re-Origination: Mastery
 frf =	144865	--Feral Fury
 frr	=	146874 	--Feral Rage
 spd	=	81022	--Stampede
+rber=	26297	--Troll Racial: Berserking
 
 ------Forms------
 af	=	1066	--Aquatic Form

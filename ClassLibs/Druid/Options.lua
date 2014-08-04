@@ -44,6 +44,9 @@ end
 function textOp(string)
     return CreateNewText(thisConfig,string);
 end
+function wrapOp(string)
+    return CreateNewWrap(thisConfig,string);
+end
 function boxOp(string, minnum, maxnum, stepnum, defaultnum, tip)
     if tip == nil then
         return CreateNewBox(thisConfig,string, minnum, maxnum, stepnum, defaultnum);
@@ -52,7 +55,7 @@ function boxOp(string, minnum, maxnum, stepnum, defaultnum, tip)
     end
 end
 function dropOp(string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
-    return CreateNewDrop(thisConfig,string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10);
+    return CreateNewDrop(thisConfig, string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10);
 end
 
 -- Config Panel
@@ -63,24 +66,30 @@ function FeralCatConfig()
         titleOp("CuteOne Feral Cat");
                 -- Spacer
         textOp(" ");
-        CreateNewWrap(thisConfig,"--- General ---");
+        wrapOp("--- General ---");
 
             -- Death Cat
-            checkOp("Death Cat Mode","|cffFF0000I like kitties");
+            checkOp("Death Cat Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.");
             textOp("Death Cat Mode");
 
             -- Mark Of The Wild
-            checkOp("Mark of the Wild");
+            checkOp("Mark of the Wild","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Mark of Wild usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.");
             textOp(tostring(select(1,GetSpellInfo(mow))));
 
             -- Dummy DPS Test
-            checkOp("DPS Testing");
-            boxOp("DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts.")
+            checkOp("DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.");
+            boxOp("DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             textOp("DPS Testing");
+
+            -- Single/Multi Toggle
+            checkOp("Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Key Toggle|cffFFBB00.");
+            dropOp("Rotation Mode", 1, "Toggle")
+            textOp("Rotation Mode");
 
         -- Spacer
         textOp(" ");
-        textOp("--- Cooldowns ---");
+        wrapOp("--- Cooldowns ---");
+        --dropOp("Cooldown Key", 1, "Toggle")
 
             -- Agi Pot
             checkOp("Agi-Pot");
@@ -92,7 +101,7 @@ function FeralCatConfig()
         
         -- Spacer
         textOp(" ");
-        textOp("--- Defensive ---");
+        wrapOp("--- Defensive ---");
 
             -- Healthstone
             checkOp("Pot/Stoned");
@@ -116,7 +125,7 @@ function FeralCatConfig()
 
         -- Spacer --
         textOp(" ");
-        textOp("--- Interrupts ---");
+        wrapOp("--- Interrupts ---");
 
             -- Skull Bash
             checkOp("Skull Bash")
@@ -138,7 +147,7 @@ function FeralCatConfig()
 
         -- Spacer
         textOp(" ");
-        textOp("--- Utilities ---");
+        wrapOp("--- Utilities ---");
 
             -- PokeRotation
             checkOp("PokeRotation");
@@ -147,11 +156,6 @@ function FeralCatConfig()
             -- Debug
             checkOp("Debug");
             textOp("Debug");
-
-            -- AoE Toggle
-            checkOp("AoE Toggle");
-            dropOp("AoE Toggle", 1, "Toggle")
-            textOp("AoE Toggle");
 
        -- Bound
         CreateNewBound(thisConfig,"End"); 
