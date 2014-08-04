@@ -121,7 +121,7 @@ function Hunter()
 			end
 
 			-- Glaive Toss
-			if castSpell("target",_GlaiveToss,false) then return; end
+--			if castSpell("target",_GlaiveToss,false) then return; end
 
 			-- Misdirection function
 			Misdirection();
