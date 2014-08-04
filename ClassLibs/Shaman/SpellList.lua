@@ -1,5 +1,6 @@
 if select(3, UnitClass("player")) == 7 then
 
+_AncestralGuidance			=		108281
 _AncestralSpirit			=		2008
 _AncestralSwiftness			=		16188
 _Ascendance                 =       114049
@@ -18,6 +19,7 @@ _ElementalBlast				=		117014
 _FeralSpirit				=		51533
 _FireNova					=		1535
 _FlameShock                 =       8050
+_FrostShock 				=		8056
 _GhostWolf					=		2645
 _GreaterHealing             =       77472
 _HealingRain                =       73920
@@ -41,6 +43,7 @@ _Stormblast					=		115356
 _Stormstrike				=		17364
 _Thunderstorm				=		51490
 _UnleashElements            =       73680
+_UnleashedFury				=		117012
 _WaterShield                =       52127
 _WaterWalking				=		546
 _WindShear                  =       57994
@@ -73,6 +76,7 @@ _SearingTotem				=		3599
 _HealingStreamTotem			=		5394
 
 ------Procs------
+_SearingFlames				=		77657
 _UnleashFlame				=		73683
 
 ------Glyphs------

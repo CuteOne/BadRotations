@@ -95,18 +95,41 @@ function hasTotem()
         return false
     end 
 end
-
+function getSearingCount()
+    sfstack = select(4,UnitBuffID("player",_SearingFlames))
+    if UnitLevel("player") >= 34 then
+        if sfstack == nil then
+            return 0
+        else
+            return sfstack
+        end
+    else
+        return 5
+    end
+end
 function shouldBolt()
     local lightning = 0
     local lowestCD = 0
     if useAoE() then
-        if getSpellCD(_ChainLighting)==0 and UnitLevel("player")>=28 then
-            lightning = select(7,GetSpellInfo(_ChainLighting))/1000
+        if getSpellCD(_ChainLightning)==0 and UnitLevel("player")>=28 then
+            if UnitBuffID("player",_AncestralSwiftness) and (select(7,GetSpellInfo(_ChainLightning))/1000)<10 then
+                lightning = 0
+            else
+                lightning = select(7,GetSpellInfo(_ChainLightning))/1000
+            end
+        else
+            if UnitBuffID("player",_AncestralSwiftness) and (select(7,GetSpellInfo(_LightningBolt))/1000)<10 then
+                lightning = 0
+            else
+                lightning = select(7,GetSpellInfo(_LightningBolt))/1000
+            end
+        end
+    else
+        if UnitBuffID("player",_AncestralSwiftness) and (select(7,GetSpellInfo(_LightningBolt))/1000)<10 then
+            lightning = 0
         else
             lightning = select(7,GetSpellInfo(_LightningBolt))/1000
         end
-    else
-        lightning = select(7,GetSpellInfo(_LightningBolt))/1000
     end
     if UnitLevel("player") < 3 then
         lowestCD = lightning+1
@@ -129,7 +152,7 @@ function shouldBolt()
     end
     if lightning <= lowestCD then
         return true;
-    elseif isCasting("player") and lightning > lowestCD then
+    elseif isCasting("player") and (isCastingSpell(_LightningBolt) or isCastingSpell(_ChainLightning)) and lightning > lowestCD then
         StopCasting()
         return false;
     else

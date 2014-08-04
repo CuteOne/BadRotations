@@ -54,11 +54,13 @@ if select(3, UnitClass("player")) == 7 then
 			and not UnitBuffID("player",_GhostWolf)
 			and isMoving("player")
 			and not isCasting("player")
+			and getBuffRemain("player",_AscendanceBuff)==0
+			and (not isInCombat("player") or (isInCombat("player") and getDistance("target")>10))
 		then
 			if castSpell("player",_GhostWolf,true) then return; end
 		end
 	--Water Walking
-		if IsSwimming() then
+		if IsSwimming() and not isInCombat("player") and not UnitBuffID("player",_WaterWalking) then
 			if castSpell("player",_WaterWalking,true) then return; end
 		end
 	--Ancestral Spirit
@@ -78,6 +80,10 @@ if select(3, UnitClass("player")) == 7 then
 		then
 			if castSpell("player",_HealingSurge,true) then return; end
 		end
+	-- Spiritwalker's Grace
+		if isMoving("player") and isInCombat("player") then
+			if castSpell("player",_SpiritwalkersGrace,true) then return; end
+		end
 
 --------------
 --- Totems ---
@@ -90,13 +96,13 @@ if select(3, UnitClass("player")) == 7 then
 			if castSpell("player",_TotemRecall,true) then return; end
 		end
 	-- Earth
-		if isMoving("target") and getDistance("target") <= 10 then
+		if isMoving("target") and getDistance("target") <= 10 and getHP("target") <= 25 then
 			if castSpell("player",_EarthbindTotem,true) then return; end
 		end
 		if not isCasting("player") 
-			and isCasting("target") 
-			and getSpellCD(_WindSheer) > 0 
-			and getSpellCD(_Windsheer) < 12
+			and canInterrupt(_GroundingTotem, tonumber(BadBoy_data["Box Interrupts"]))
+			and getSpellCD(_WindShear) > 0 
+			and getSpellCD(_WindShear) < 12
 		then
 			if castSpell("player",_GroundingTotem,true) then return; end
 		end
@@ -146,8 +152,12 @@ if select(3, UnitClass("player")) == 7 then
 				if castSpell("player",_ShamanisticRage,true) then return; end
 			end
 	-- Astral Shift
-			if not isCasting("player") and getHP("player")<=30 then
+			if not isCasting("player") and getHP("player")<=40 then
 				if castSpell("player",_AstralShift,true) then return; end
+			end
+	-- Ancestral Guidance
+			if not isCasting("player") and getHP("player")<=50 and select(3,GetInstanceInfo())~=0 then
+				if castSpell("player",_AncestralGuidance,true) then return; end
 			end
 	-- Healing Surge
 			if getHP("player")<50 and getMWC() >= 3 and not isCasting("player") then
@@ -172,7 +182,7 @@ if select(3, UnitClass("player")) == 7 then
 --- Interrupts ---
 ------------------
 	-- Wind Shear
-		if canInterrupt(_WindShear) then
+		if canInterrupt(_WindShear, tonumber(BadBoy_data["Box Interrupts"])) then
 			if castSpell("target",_WindShear,false) then return; end
 		end
 
@@ -200,33 +210,24 @@ if select(3, UnitClass("player")) == 7 then
 -----------------------------
 --- Multi-Target Rotation ---
 -----------------------------
-		if getNumEnnemies("player",8) >= 3 and getDistance("target")<8 and useAoE() and isEnnemy("target") and isAlive("target") then
+		if getNumEnnemies("player",10) >= 3 and getDistance("target")<8 and useAoE() and isEnnemy("target") and isAlive("target") then
+	-- Flame Shock
+			if getDebuffRemain("target",_FlameShock) < 3 then
+				if castSpell("target",_FlameShock,false) then return; end								
+			end
 	-- Lava Lash
 			if getDebuffRemain("target",_FlameShock)>0 then
 				if castSpell("target",_LavaLash,false) then return; end
 			end
 	-- Fire Nova
-			if getDebuffRemain("target",_FireNova)>0 then
+			if getDebuffRemain("target",_FlameShock)>0 then
 				if castSpell("target",_FireNova,true) then return; end
-			end
-	-- Chain Lightning - 5 Maelstrom Weapon Stacks
-			if getHP("player")>=50 and shouldBolt() then
-				if castSpell("target",_ChainLightning,false) then return; end
 			end
 	-- Unleash Elements
 			if castSpell("target",_UnleashElements,true) then return; end
-	-- Flame Shock
-			if getNumEnnemies("player",8) >= 3 then
-				for i = 1, GetTotalObjects(TYPE_UNIT) do
-					local Guid = IGetObjectListEntry(i)
-					ISetAsUnitID(Guid,"thisUnit");
-					if getFacing("player","thisUnit") == true
-						and getDebuffRemain("thisUnit",_FlameShock) < 3
-						and getTimeToDie("thisUnit") >= 15
-					then
-						if castSpell("thisUnit",_FlameShock,false) then return; end								
-					end
-				end
+	-- Chain Lightning - 5 Maelstrom Weapon Stacks
+			if getHP("player")>=50 and shouldBolt() then
+				if castSpell("target",_ChainLightning,false) then return; end
 			end
 	-- Stormblast
 			if castSpell("target",_Stormblast,false) then return; end
@@ -237,18 +238,8 @@ if select(3, UnitClass("player")) == 7 then
 	-- Primal Strike
 				if castSpell("target",_PrimalStrike,false) then return; end
 			end
-	-- Lightning Bolt
-			--if getMWC() == 5 and getSpellCD(_ChainLightning) >= 2 then
-			--	if castSpell("target",_LightningBolt,false) then return; end
-			--end
-	-- Chain Lightning
-			--if getMWC() > 1 then
-			--	if castSpell("target",_ChainLightning,false) then return; end
-			--end
-	-- Lightning Bolt
-			--if getMWC() > 1 and getBuffRemain(_AscendanceBuff)==0 then
-			--	if castSpell("target",_LightningBolt,false) then return; end
-			--end 
+	-- Earth Shock
+			if castSpell("target",_EarthShock,false) then return; end
 		end --Multi-Target Rotation End
 
 ------------------------------
@@ -259,6 +250,10 @@ if select(3, UnitClass("player")) == 7 then
 	-- Elemental Blast
 			if getMWC()>=1 then
 				if castSpell("target",_ElementalBlast,false) then return; end
+			end
+	-- Unleash Elements
+			if isKnown(_UnleashedFury) then
+				if castSpell("target",_UnleashElements,true) then return; end
 			end
 	-- Lightning Bolt
 			if shouldBolt() and getHP("player")>=50 then
@@ -277,37 +272,21 @@ if select(3, UnitClass("player")) == 7 then
 				if castSpell("target",_PrimalStrike,false) then return; end
 			end
 	-- Flame Shock
-			if getDebuffRemain("target",_FlameShock)<=3 then
+			if getBuffRemain("player",_UnleashFlame)>0 and getDebuffRemain("target",_FlameShock)<3 then
 				if castSpell("target",_FlameShock,false) then return; end 
 			end
 	-- Lava Lash
-			if castSpell("target",_LavaLash,false) then return; end
+			if getSearingCount()==5 then
+				if castSpell("target",_LavaLash,false) then return; end
+			end					
 	-- Flame Shock
-			if getBuffRemain("player",_UnleashFlame)>0 and getDebuffRemain("target",_FlameShock)<10 then
+			if getBuffRemain("player",_UnleashFlame)>0 then
 				if castSpell("target",_FlameShock,false) then return; end 
 			end
 	-- Unleash Elements
 			if castSpell("target",_UnleashElements,true) then return; end
-	-- Frost Shock
-			if hasGlyph(_FrostShockGlyph) then
-				if castSpell("target",_FrostShock,false) then return; end
-			end
-	-- Lightning Bolt
-			--if getMWC()>=3 and getBuffRemain("player",_AscendanceBuff)==0 then
-			--	if castSpell("target",_LightningBolt,false) then return; end
-			--end
 	-- Earth Shock
-			if not hasGlyph(_FrostShockGlyph) then
-				if castSpell("target",_EarthShock,false) then return; end
-			end
-	-- Spiritwalker's Grace
-			if isMoving("player") then
-				if castSpell("player",_SpiritwalkersGrace,true) then return; end
-			end
-	-- Lightning Bolt
-			--if getMWC()>1 and getBuffRemain("player",_AscendanceBuff)==0 then
-			--	if castSpell("target",_LightningBolt,false) then return; end
-			--end
+			if castSpell("target",_EarthShock,false) then return; end	
 		end --Single Target Rotation End
 		if getDistance("target")<8 and isEnnemy("target") then
 			StartAttack()
