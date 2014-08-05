@@ -138,7 +138,7 @@ function SuperReader(self, event, ...)
 					focusBuilt = GetTime();
 				end						
 			end
-			if debugTable == nil then debugTable = { };
+			if debugTable == nil then debugTable = { }; end
 			if BadBoy_data["Check Debug"] == 1 and SpellID ~= 75 and SpellID ~= 88263 then
 				LastSpell 	= select(2,...);
 				LastTime 	= GetTime();
@@ -166,7 +166,7 @@ function SuperReader(self, event, ...)
 			if SpellID == 883 or SpellID == 83242 or SpellID == 83243 or SpellID == 83244 or SpellID == 83245 then
 				lastFailedWhistle = GetTime()
 			end
-			if debugTable == nil then debugTable = { };
+			if debugTable == nil then debugTable = { }; end
 			if BadBoy_data["Check Debug"] == 1 and UnitExists("target") ~= nil and SpellID ~= 75 then
 				LastFail 	= select(2,...) 
 				LastFailTime 	= GetTime()
