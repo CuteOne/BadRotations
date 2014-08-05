@@ -4,7 +4,7 @@ function DebugFrameCreation()
 		
 		-- Vars
 		if BadBoy_data.debugWidth == nil then 
-			BadBoy_data.debugWidth = 400;
+			BadBoy_data.debugWidth = 200;
 			BadBoy_data.debuganchor = "Center"
 			BadBoy_data.debugx = -200;
 			BadBoy_data.debugy = 100;
@@ -17,17 +17,94 @@ function DebugFrameCreation()
 		-- CreateRow
 		if debugHeight == nil then debugHeight = 26; end
 		function CreateDebugRow(value,textString)
-			_G["debug"..value.."Text"] = debugFrame:CreateFontString(debugFrame, "OVERLAY");
-			_G["debug"..value.."Text"]:SetFont("Fonts/MORPHEUS.ttf",16,"THICKOUTLINE");
-			_G["debug"..value.."Text"]:SetPoint("TOPLEFT",5,-((value*20)+3));
-			_G["debug"..value.."Text"]:SetWordWrap(enable)
-			_G["debug"..value.."Text"]:SetTextColor(225/255, 225/255, 225/255,1);
-			_G["debug"..value.."Text"]:SetText(textString, 1, 1, 1, 0.7);
+			ChatOverlay("Framing")
+			if value > 0 then
+				_G["debug"..value.."Frame"] = CreateFrame("CheckButton", "MyButton", debugFrame, "UIPanelButtonTemplate");
+				_G["debug"..value.."Frame"]:SetAlpha(0.10);
+				_G["debug"..value.."Frame"]:SetWidth(BadBoy_data.debugWidth);
+				_G["debug"..value.."Frame"]:SetHeight(20);
+				_G["debug"..value.."Frame"]:SetNormalTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]]);
+				_G["debug"..value.."Frame"]:SetPoint("TOPLEFT",0,-((value*20)));
+				_G["debug"..value.."Frame"]:SetAlpha(1);
+				_G["debug"..value.."Frame"]:SetScript("OnEnter", function(self)
+
+					GameTooltip:SetOwner(self, "BOTTOMLEFT", 250, 5);
+					if debugTable ~= nil and debugTable[value] ~= nil then
+						if debugTable[value].sourcename == nil then debugTable[value].sourcename = "No Caster"; end
+						if debugTable[value].sourceguid == nil then debugTable[value].sourceguid = "Invalid GUID"; end
+						if debugTable[value].spellid == nil then debugTable[value].spellid = "Invalid Spell ID"; end
+						if debugTable[value].spellname == nil then debugTable[value].spellname = "Invalid Spell Name"; end
+						if debugTable[value].destguid == nil then debugTable[value].destguid = "Invalid Dest Guid"; end
+						if debugTable[value].destname == nil then debugTable[value].destname = "Invalid Dest Name"; end
+						GameTooltip:SetText("|cffFF001ERoll Mouse to Scroll Rows\n|cffFFFFFFCaster: "..debugTable[value].sourcename..
+						  "\n|cffFFFFFFGuid: "..debugTable[value].sourceguid..
+						  "\n|cffFFDD11Casted: "..debugTable[value].spellname..
+						  "\n|cffFFDD11SpellID: "..debugTable[value].spellid..
+						  "\n|cff00FF00On Target: "..debugTable[value].destname..
+						  "\n|cff00FF00Guid: "..debugTable[value].destguid, nil, nil, nil, nil, true);
+						GameTooltip:Show();
+					end
+				end)
+				_G["debug"..value.."Frame"]:SetScript("OnLeave", function(self)
+					if tooltipLock ~= true then
+						GameTooltip:Hide();
+					end
+					tooltipLock = false;
+				end)
+
+				_G["debug"..value.."Frame"]:SetScript("OnMouseWheel", function(self, delta)
+					if IsAltKeyDown() then
+						local Go = false;
+						if delta < 0 and BadBoy_data.debugAlpha > 0 then
+							Go = true;
+						elseif delta > 0 and BadBoy_data.debugAlpha < 100 then
+							Go = true;
+						end
+						if Go == true then
+							BadBoy_data.debugAlpha = BadBoy_data.debugAlpha + (delta*5)
+							debugFrame.texture:SetAlpha(BadBoy_data.debugAlpha/100);
+						end
+					else			
+						local Go = false;
+						if delta < 0 and BadBoy_data.ActualRow < 100 and debugTable ~= nil and debugTable[BadBoy_data.ActualRow+BadBoy_data.shownRows] ~= nil then
+							Go = true;
+						elseif delta > 0 and BadBoy_data.ActualRow > 0 then
+							Go = true;
+						end
+						if Go == true then
+							BadBoy_data.ActualRow = BadBoy_data.ActualRow - delta
+							debugRefresh()
+						end
+					end
+				end)
+				_G["debug"..value.."Frame"]:SetScript("OnClick", function(self, button)
+					if button == "LeftButton" then 
+						if tooltipLock ~= true then
+							tooltipLock = true;
+						else
+							tooltipLock = false;
+							GameTooltip:Hide();
+						end
+					end	
+				end)
+
+
+
+				--_G["debug"..value.."Frame"]:Hide();
+				_G["debug"..value.."Text"] = _G["debug"..value.."Frame"]:CreateFontString(_G["debug"..value.."Frame"], "OVERLAY");
+				_G["debug"..value.."Text"]:SetAlpha(0.10);
+				_G["debug"..value.."Text"]:SetWidth(BadBoy_data.debugWidth);
+				_G["debug"..value.."Text"]:SetHeight(20);
+				_G["debug"..value.."Text"]:SetPoint("TOPLEFT",0,0);
+				_G["debug"..value.."Text"]:SetJustifyH("LEFT")
+				_G["debug"..value.."Text"]:SetAlpha(1);
+				_G["debug"..value.."Text"]:SetFont("Fonts/MORPHEUS.ttf",16,"THICKOUTLINE");
+				_G["debug"..value.."Text"]:SetText(textString, 1, 1, 1, 0.7);
+			end
 		end
 
 		debugFrame = CreateFrame("Frame", nil, UIParent);
-		--debugFrame:SetAlpha(1);
-		debugFrame:SetWidth(250);
+		debugFrame:SetWidth(BadBoy_data.debugWidth);
 		debugFrame:SetHeight((BadBoy_data.shownRows*20)+20)
 		debugFrame.texture = debugFrame:CreateTexture(debugFrame, "ARTWORK");
 		debugFrame.texture:SetAllPoints();
@@ -41,32 +118,6 @@ function DebugFrameCreation()
 			debugFrame:SetWidth(Width);
 		end
 
-		debugFrame:SetScript("OnMouseWheel", function(self, delta)
-			if IsAltKeyDown() then
-				local Go = false;
-				if delta < 0 and BadBoy_data.debugAlpha > 0 then
-					Go = true;
-				elseif delta > 0 and BadBoy_data.debugAlpha < 100 then
-					Go = true;
-				end
-				if Go == true then
-					BadBoy_data.debugAlpha = BadBoy_data.debugAlpha + (delta*5)
-					debugFrame.texture:SetAlpha(BadBoy_data.debugAlpha/100);
-				end
-			else			
-				local Go = false;
-				if delta < 0 and BadBoy_data.ActualRow < 100 and debugTable[BadBoy_data.ActualRow+BadBoy_data.shownRows] ~= nil then
-					Go = true;
-				elseif delta > 0 and BadBoy_data.ActualRow > 0 then
-					Go = true;
-				end
-				if Go == true then
-					BadBoy_data.ActualRow = BadBoy_data.ActualRow - delta
-					debugRefresh()
-				end
-			end
-		end)
-
 		debugFrame:SetPoint(BadBoy_data.debuganchor,BadBoy_data.debugx,BadBoy_data.debugy);
 		debugFrame:SetClampedToScreen(true);
 		debugFrame:SetScript("OnUpdate", debugFrame_OnUpdate);
@@ -78,18 +129,37 @@ function DebugFrameCreation()
 		debugFrame:SetScript("OnDragStop", debugFrame.StopMovingOrSizing);
 		debugFrame:SetScript("OnEnter", function(self)
 			GameTooltip:SetOwner(self, "BOTTOMLEFT", 250, 5);
-			GameTooltip:SetText("|cffD60000Roll mouse to scroll Rows.\n|cffFFFFFFLeft Click/Hold to move.\n|cffFFDD11Alt+Roll to adjust Debug Alpha.", nil, nil, nil, nil, true);
+			GameTooltip:SetText("|cffD60000Roll Mouse to adjust Width.\n|cffFFFFFFLeft Click/Hold to move.\n|cffFFDD11Alt+Roll to adjust Debug Alpha.", nil, nil, nil, nil, true);
 			GameTooltip:Show();
 		end)
 		debugFrame:SetScript("OnLeave", function(self)
 			GameTooltip:Hide();
 		end)
-
+		debugFrame:SetScript("OnMouseWheel", function(self, delta)
+			local Go = false;
+			if delta < 0 and BadBoy_data.debugWidth < 500 then
+				Go = true;
+			elseif delta > 0 and BadBoy_data.debugWidth > 0 then
+				Go = true;
+			end
+			if Go == true then
+				BadBoy_data.debugWidth = BadBoy_data.debugWidth + (delta*5)
+				debugFrame:SetWidth(BadBoy_data.debugWidth);
+				for i = 1, 25 do 
+					if _G["debug"..i.."Frame"]:GetWidth() ~= BadBoy_data.debugWidth then
+						_G["debug"..i.."Frame"]:SetWidth(BadBoy_data.debugWidth);
+					end
+					if _G["debug"..i.."Text"]:GetWidth() ~= BadBoy_data.debugWidth then
+						_G["debug"..i.."Text"]:SetWidth(BadBoy_data.debugWidth);
+					end
+				end
+			end
+		end)
 		debugFrameRowsButton = CreateFrame("CheckButton", "MyButton", debugFrame, "UIPanelButtonTemplate");
 		debugFrameRowsButton:SetAlpha(0.80);
 		debugFrameRowsButton:SetWidth(30);
 		debugFrameRowsButton:SetHeight(18);
-		debugFrameRowsButton:SetPoint("TOPRIGHT", 0, 0);
+		debugFrameRowsButton:SetPoint("TOPRIGHT", -1, -1);
 		debugFrameRowsButton:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]);
 		debugFrameRowsButton:RegisterForClicks("AnyUp");
 		debugFrameRowsButton:SetText(BadBoy_data.shownRows);
@@ -104,6 +174,7 @@ function DebugFrameCreation()
 				BadBoy_data.shownRows = BadBoy_data.shownRows + delta
 				debugFrameRowsButton:SetText(BadBoy_data.shownRows);
 				debugRefresh()
+				debugFrame:SetHeight((BadBoy_data.shownRows*20)+20);
 			end
 		end)
 		debugFrameRowsButton:SetScript("OnEnter", function(self)
@@ -117,41 +188,63 @@ function DebugFrameCreation()
 
 		debugFrameText = debugFrame:CreateFontString(nil, "ARTWORK");
 		debugFrameText:SetFont("Fonts/MORPHEUS.ttf",16,"THICKOUTLINE");
-		debugFrameText:SetTextHeight(17);
-		debugFrameText:SetPoint("TOPLEFT",5, 0);
+		debugFrameText:SetTextHeight(16);
+		debugFrameText:SetPoint("TOPLEFT",5, -2);
 		debugFrameText:SetTextColor(225/255, 225/255, 225/255,1);
+		debugFrameText:SetText("|cff12C8FFTime|cffFF001E/|cffFFFFFFSpell Name")
 
 		if BadBoy_data.debugShown == false then debugFrame:Hide(); else debugFrame:Show(); end
 
 		SetDebugWidth(BadBoy_data.debugWidth);
 
-		CreateDebugRow(0,"|cff12C8FFTime|cffFF001E/|cffFFFFFFSpell Name|cffFF001E/|cff12C8FFSpell ID|cffFF001E/|cffFFFFFFTarget")
+		--CreateDebugRow(0,"|cff12C8FFTime|cffFF001E/|cffFFFFFFSpell Name")
 
 		for i = 1, 25 do
 			CreateDebugRow(i,"")
 		end
 
 		function debugRefresh()
-			for i = 1, BadBoy_data.shownRows do
-				local debugSpellName = debugSpellName;
-				if debugTable[BadBoy_data.ActualRow+i] ~= nil then
-					debugSpellName = debugTable[BadBoy_data.ActualRow+i].textString;
-				else
-					debugSpellName = ""
+			if debugTable == nil then 			
+				for i = 1, BadBoy_data.shownRows do
+					local debugSpellName = ""
+					if _G["debug"..i.."Frame"]:IsShown() ~= 1 then
+						_G["debug"..i.."Text"]:Show();
+						_G["debug"..i.."Frame"]:Show();
+					end
+					_G["debug"..i.."Text"]:SetText(debugSpellName, 1, 1, 1, 0.7);
+				end 
+				for i = BadBoy_data.shownRows+1, 25 do
+					if _G["debug"..i.."Frame"]:IsShown() == 1 then
+						_G["debug"..i.."Text"]:Hide();
+						_G["debug"..i.."Frame"]:Hide();
+					end
 				end
-				if _G["debug"..i.."Text"]:IsShown() ~= 1 then
-					_G["debug"..i.."Text"]:Show();
+			else
+				for i = 1, BadBoy_data.shownRows do
+					local debugSpellName = debugSpellName;
+					if debugTable[BadBoy_data.ActualRow+i] ~= nil then
+						debugSpellName = debugTable[BadBoy_data.ActualRow+i].textString;
+					else
+						debugSpellName = ""
+					end
+					if _G["debug"..i.."Frame"]:IsShown() ~= 1 then
+						_G["debug"..i.."Text"]:Show();
+						_G["debug"..i.."Frame"]:Show();
+					end
+					_G["debug"..i.."Text"]:SetText(debugSpellName, 1, 1, 1, 0.7);
 				end
-				_G["debug"..i.."Text"]:SetText(debugSpellName, 1, 1, 1, 0.7);
+				for i = BadBoy_data.shownRows+1, 25 do
+					if _G["debug"..i.."Frame"]:IsShown() == 1 then
+						_G["debug"..i.."Text"]:Hide();
+						_G["debug"..i.."Frame"]:Hide();
+					end
+				end
 			end
-			for i = BadBoy_data.shownRows+1, 25 do
-				if _G["debug"..i.."Text"]:IsShown() == 1 then
-					_G["debug"..i.."Text"]:Hide();
-				end
-			end
+			
 			debugFrame:SetHeight((BadBoy_data.shownRows*20)+20);
 		end
 
     	debugLoaded = true;
+    	debugRefresh();
 	end
 end

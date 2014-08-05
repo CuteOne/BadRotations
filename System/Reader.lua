@@ -61,10 +61,26 @@ function SuperReader(self, event, ...)
     Rake_sDamage = Rake_sDamage or {}
     --Thrash_sDamage = Thrash_sDamage or {}
     if event == "COMBAT_LOG_EVENT_UNFILTERED" then
+    	
     	local param 		= select(2,...);
 		local source 		= select(4,...);
+		local sourceName	= select(5,...)
 		local spell 		= select(12,...);
         local destination 	= select(8,...);
+
+        -------------------------------------------
+        --- Debug ---------------------------------
+        if source == UnitGUID("player") and (param == "SPELL_CAST_SUCCESS" or param == "SPELL_CAST_FAILED") and BadBoy_data["Check Debug"] == 1 
+          and SpellID ~= 75 and SpellID ~= 88263 then -- Add spells we dont want to appear here.
+			if debugTable == nil then debugTable = { }; end
+        	local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
+        	local color = "";
+        	if param == "SPELL_CAST_SUCCESS" then color = "|cff12C8FF"; else color = "|cffFF001E"; end
+        	tinsert(debugTable, 1, { textString = color..string.sub(timeStamp,8).."|cffFF001E/|cffFFFFFF"..spellName , sourceguid = sourceGUID, sourcename = sourceName, spellid = spellID, spellname = spellName, destguid = destGUID, destname = destName })
+			if #debugTable > 99 then tremove(debugTable, 100); end
+			if BadBoy_data.ActualRow == 0 then debugRefresh(); end
+        end
+
 
         --print(param..", "..source..", "..spell)
         -- snapshot on spellcast
@@ -98,13 +114,6 @@ function SuperReader(self, event, ...)
         end
     end
 
-	-------------------------------------------
-	-- Debug Starts Here
-	
-	--print(event)
-	--print(...)
-
-
 	------------------------------------------
 	-- SpellCast Sents (used to define target)
 	if event == "UNIT_SPELLCAST_SENT" then
@@ -118,7 +127,6 @@ function SuperReader(self, event, ...)
 		local SourceUnit 	= select(1,...);
 		local SpellID 		= select(5,...);
 		if SourceUnit == "player" then
-			--print(...)
 
 			local MyClass = UnitClass("player");
 
@@ -138,15 +146,6 @@ function SuperReader(self, event, ...)
 					focusBuilt = GetTime();
 				end						
 			end
-			if debugTable == nil then debugTable = { }; end
-			if BadBoy_data["Check Debug"] == 1 and SpellID ~= 75 and SpellID ~= 88263 then
-				LastSpell 	= select(2,...);
-				LastTime 	= GetTime();
-				if spellCastTarget then LastTar = spellCastTarget else LastTar = "Not Assigned" end
-				tinsert(debugTable, 1, { textString = "|cff12C8FF"..GetTimeString().."|cffFF001E/|cffFFFFFF"..LastSpell.."|cffFF001E/|cff12C8FF"..select(5,...).."|cffFF001E/|cffFFFFFF"..LastTar });
-				if #debugTable > 99 then tremove(debugTable, 100); end
-				if BadBoy_data.ActualRow == 0 then debugRefresh(); end
-			end
 		end			
 	end
 
@@ -165,14 +164,6 @@ function SuperReader(self, event, ...)
 			-- Whistle failed
 			if SpellID == 883 or SpellID == 83242 or SpellID == 83243 or SpellID == 83244 or SpellID == 83245 then
 				lastFailedWhistle = GetTime()
-			end
-			if debugTable == nil then debugTable = { }; end
-			if BadBoy_data["Check Debug"] == 1 and UnitExists("target") ~= nil and SpellID ~= 75 then
-				LastFail 	= select(2,...) 
-				LastFailTime 	= GetTime()
-				tinsert(debugTable, 1, { textString = "|cffD90000"..LastFailTime.."|cff12C8FF/|cffFFFFFF"..LastFail.."|cff12C8FF/|cffD90000"..select(5,...).."|cff12C8FF/|cffD90000Failed" });
-				if #debugTable > 99 then tremove(debugTable, 100); end
-				if BadBoy_data.ActualRow == 0 then debugRefresh(); end
 			end
 		end
 	end
