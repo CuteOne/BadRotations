@@ -58,12 +58,10 @@ function Blood()
     		if castSpell("player",_RuneTap,true) then return; end
     	end
 
-
     	-- Empower Rune Weapon
         if getHP("player") <= getValue("Empower Rune Weapon") then
     		if castSpell("player",_EmpowerRuneWeapon,true) then return; end
     	end
-
 	end
 
 
@@ -79,7 +77,7 @@ function Blood()
 	-- Horn of Winter
 	if castSpell("player",_HornOfWinter,true) then return; end
 
-	if isInCombat("player") then
+	if isInCombat("player") and isAlive() and isEnnemy() then
 
 
     	-- Bone Shield
@@ -99,14 +97,23 @@ function Blood()
 	    	if castSpell("player",_BloodTap,true) then return; end
 	    end
 
+	    -- Rune Strike//Death Coil
+	    if getPower("player") >= 90 and getDistance("player","target") <= 4 then
+	    	if isKnown(_RuneStrike) then
+	    		if castSpell("target",_RuneStrike,false) then return; end
+	   		else
+	   			-- Death Coil
+	    		if castSpell("target",_DeathCoil,false) then return; end
+	    	end
+	    end
+
 	    -- Outbreak
 	    if UnitDebuffID("target",55095,"player") == nil then
 	    	if castSpell("target",_Outbreak,false) then return; end
 	    end
 
-	    
 	    -- Blood Boil
-	    if getDistance("target") < 5 and UnitDebuffID("target",55095,"player") ~= nil and getDebuffRemain("target",55095,"player") < 4 then
+	    if getDistance("player","target") < 5 and UnitDebuffID("target",55095,"player") ~= nil and getDebuffRemain("target",55095,"player") < 4 then
 	    	if castSpell("player",_BloodBoil,true) then return; end
 	    end
 
@@ -120,16 +127,23 @@ function Blood()
 	    	if castSpell("target",_PlagueStrike,false) then return; end
 	    end
 
-	    -- Heart Strike
+	    -- Heart Strike//Blood Strike
 	    if getRunes("blood") >= 1 then
-	    	if castSpell("target",_HeartStrike,false) then return; end
+	    	if isKnown(_HeartStrike) then
+	    		if castSpell("target",_HeartStrike,false) then return; end
+	    	else
+	    		-- Blood Strike
+	    		if getRunes("blood") == 2 then
+	    			if castSpell("target",_BloodStrike,false) then return; end
+	    		end
+	    	end
 	    end
 
 	    -- Death Strike
 	    if castSpell("target",_DeathStrike,false) then return; end
 	   
 	    -- Blood Boil
-	    if UnitBuffID("player",81141) ~= nil or BadBoy_data["AoE"] == 3 or getNumEnnemies("player",5) >= 3 then
+	    if UnitBuffID("player",81141) ~= nil and (BadBoy_data["AoE"] == 3 or getNumEnnemies("player",5)) >= 3 then
 	    	if castSpell("target",_BloodBoil,true) then return; end
 	    end
 
@@ -138,8 +152,12 @@ function Blood()
 	    	if castSpell("target",_SoulReaper,false) then return; end
 	    end
 
-	    -- Rune Strike
-	    if castSpell("target",_RuneStrike,false) then return; end
+	    -- Rune Strike//Death Coil
+	    if isKnown(_RuneStrike) and getDistance("player","target") <= 4 then
+	    	if castSpell("target",_RuneStrike,false) then return; end
+	    elseif getPower("player") >= 65 then
+	    	if castSpell("target",_DeathCoil,false) then return; end
+	    end
 
 	    -- Horn of Winter
 	    if castSpell("player",_HornOfWinter,false) then return; end

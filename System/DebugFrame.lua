@@ -17,7 +17,7 @@ function DebugFrameCreation()
 		-- CreateRow
 		if debugHeight == nil then debugHeight = 26; end
 		function CreateDebugRow(value,textString)
-			_G["debug"..value.."Text"] = debugFrame:CreateFontString(nil, "OVERLAY");
+			_G["debug"..value.."Text"] = debugFrame:CreateFontString(debugFrame, "OVERLAY");
 			_G["debug"..value.."Text"]:SetFont("Fonts/MORPHEUS.ttf",16,"THICKOUTLINE");
 			_G["debug"..value.."Text"]:SetPoint("TOPLEFT",5,-((value*20)+3));
 			_G["debug"..value.."Text"]:SetWordWrap(enable)

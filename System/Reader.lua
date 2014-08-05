@@ -170,7 +170,7 @@ function SuperReader(self, event, ...)
 			if BadBoy_data["Check Debug"] == 1 and UnitExists("target") ~= nil and SpellID ~= 75 then
 				LastFail 	= select(2,...) 
 				LastFailTime 	= GetTime()
-				tinsert(debugTable, 1, { textString = "|cffD90000"..LastFailTime.."|cff12C8FF/|cffFFFFFF"..LastFail.." |cff12C8FF/|cffD90000"..select(5,...).." |cff12C8FF/|cffD90000Failed" });
+				tinsert(debugTable, 1, { textString = "|cffD90000"..LastFailTime.."|cff12C8FF/|cffFFFFFF"..LastFail.."|cff12C8FF/|cffD90000"..select(5,...).."|cff12C8FF/|cffD90000Failed" });
 				if #debugTable > 99 then tremove(debugTable, 100); end
 				if BadBoy_data.ActualRow == 0 then debugRefresh(); end
 			end

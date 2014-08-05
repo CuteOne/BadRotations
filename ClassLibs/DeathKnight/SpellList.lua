@@ -9,6 +9,7 @@ _BloodParasite              =       49542
 _BloodPlague                =       59879
 _BloodPresence              =       48263
 _BloodRites                 =       50034
+_BloodStrike				=		45902
 _BloodTap                   =       45529
 _BoneShield                 =       49222
 _BrittleBones               =       81328
