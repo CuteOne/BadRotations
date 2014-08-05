@@ -6,7 +6,9 @@ if select(3, UnitClass("player")) == 11 then
 	    end
 	    KeyToggles()
 	    GroupInfo()
-
+	    if not canRun() then
+	    	return true
+	    end
 
 ---------------------------------------
 --- Ressurection/Dispelling/Healing ---
@@ -304,7 +306,9 @@ if select(3, UnitClass("player")) == 11 then
 	----------------------
 	--- Rotation Pause ---
 	----------------------
-				pause()
+				if pause() then
+					return true
+				end
 
 	--------------------------------------------------
 	--- In Combat - Dummy Test / Cat Form Maintain ---

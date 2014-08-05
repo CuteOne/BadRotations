@@ -2,15 +2,15 @@ if select(3, UnitClass("player")) == 11 then
 
 
     function SpecificToggle()
-        if BadBoy_data["Drop AoE Toggle"] == 1 then
+        if BadBoy_data["Drop Rotation Mode"] == 1 then
             return IsLeftControlKeyDown();
-        elseif BadBoy_data["Drop AoE Toggle"] == 2 then
+        elseif BadBoy_data["Drop Rotation Mode"] == 2 then
             return IsLeftShiftKeyDown();
-        elseif BadBoy_data["Drop AoE Toggle"] == 3 then
+        elseif BadBoy_data["Drop Rotation Mode"] == 3 then
             return IsRightControlKeyDown();
-        elseif BadBoy_data["Drop AoE Toggle"] == 4 then
+        elseif BadBoy_data["Drop Rotation Mode"] == 4 then
             return IsRightShiftKeyDown();
-        elseif BadBoy_data["Drop AoE Toggle"] == 5 then
+        elseif BadBoy_data["Drop Rotation Mode"] == 5 then
             return IsRightAltKeyDown();
         end
     end
