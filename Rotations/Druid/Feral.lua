@@ -198,25 +198,27 @@ if select(3, UnitClass("player")) == 11 then
 				if UnitExists("target") ~= nil and getDistance("target") > 8 then
 		  			ClearTarget();
 		 		end
-		 		local enemiesInRange = getEnnemies("player",8)
-		 		if #enemiesInRange > 0 then
+		 		local enemiesInRange = getNumEnnemies("player",8)
+		 		if enemiesInRange > 0 then
 		 			if getPower("player") <= 35 and getSpellCD(tf) == 0 then
 						if castSpell("player",tf) then return; end
 					end
 					if getPower("player") >= 25 and getSRR() < 1 and (hasGlyph(gsr) or getCombo() > 0) then
 						if castSpell("player",svr) then return; end
 					end
-		 			if getPower("player") >= 35 and #enemiesInRange == 1 then
-            			local Guid = enemiesInRange[1];
-         				ISetAsUnitID(Guid,"thisUnit");
-                		if UnitExists("thisUnit") ~= nil and UnitCanAttack("player","thisUnit") == 1 and getCreatureType("thisUnit") == true and getDistance("target") < 6 then
-               			 	if getFacing("thisUnit") == true then
-                				if castSpell("thisUnit",mgl,false) then swipeSoon = nil; return; end
-                			elseif getPower("player") >= 45 then
-                				if castSpell("player",sw,true) then swipeSoon = nil; return; end
+		 			if getPower("player") >= 35 and enemiesInRange == 1 then
+            			for i = 1, GetTotalObjects(TYPE_UNIT) do
+            				local Guid = IGetObjectListEntry(i);
+         					ISetAsUnitID(Guid,"thisUnit");
+                			if UnitCanAttack("player","thisUnit") == 1 and getCreatureType("thisUnit") == true then
+               			 		if getDistance("thisUnit") <= 4 and getFacing("thisUnit") == true then
+                					if castSpell("thisUnit",mgl,false) then swipeSoon = nil; return; end
+                				elseif getPower("player") >= 45 then
+                					if castSpell("player",sw,true) then swipeSoon = nil; return; end
+                				end
                 			end
                 		end
-               		elseif getPower("player") >= 45 and #enemiesInRange > 1 then
+               		elseif getPower("player") >= 45 and enemiesInRange > 1 then
 	            	   	if swipeSoon == nil then
 		        	   		swipeSoon = GetTime();
 		        	   	end

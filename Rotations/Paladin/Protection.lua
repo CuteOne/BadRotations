@@ -48,7 +48,7 @@ function PaladinProtection()
 					local Guid = IGetObjectListEntry(i)
 					ISetAsUnitID(Guid,"thisUnit");
 					if getFacing("player","thisUnit") == true and getDistance("player","thisUnit") <= 4 then
-						if castSpell("thisUnit",_ShieldOfTheRighteous,false) then return; end								
+						if castSpell("thisUnit",_ShieldOfTheRighteous,true) then return; end								
 					end
 				end	
 			end
