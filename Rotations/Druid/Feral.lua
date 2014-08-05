@@ -213,12 +213,11 @@ if select(3, UnitClass("player")) == 11 then
                 			if UnitCanAttack("player","thisUnit") == 1 and getCreatureType("thisUnit") == true then
                			 		if getDistance("thisUnit") <= 4 and getFacing("thisUnit") == true then
                 					if castSpell("thisUnit",mgl,false) then swipeSoon = nil; return; end
-                				elseif getPower("player") >= 45 then
-                					if castSpell("player",sw,true) then swipeSoon = nil; return; end
                 				end
                 			end
                 		end
-               		elseif getPower("player") >= 45 and enemiesInRange > 1 then
+                	end
+               		if getPower("player") >= 45 then
 	            	   	if swipeSoon == nil then
 		        	   		swipeSoon = GetTime();
 		        	   	end
