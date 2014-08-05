@@ -1,4 +1,3 @@
-
 function UnitBuffID(unit, spellID, filter)
 	local spellName = GetSpellInfo(spellID)
 	if filter == nil then
@@ -7,7 +6,6 @@ function UnitBuffID(unit, spellID, filter)
 		local exactSearch = strfind(strupper(filter), "EXACT")
 		local playerSearch = strfind(strupper(filter), "PLAYER")
 		if exactSearch then
-			--using the index does not support filter.
 			for i=1,40 do
 				local _, _, _, _, _, _, _, buffCaster, _, _, buffSpellID = UnitBuff(unit, i)
 				if buffSpellID ~= nil then
@@ -21,7 +19,6 @@ function UnitBuffID(unit, spellID, filter)
 				end
 			end
 		else
-			--just pass the filter to UnitBuff and return.
 			return UnitBuff(unit, spellName, nil, filter)
 		end
 	end
@@ -36,7 +33,6 @@ function UnitDebuffID(unit, spellID, filter)
 		local playerSearch = strfind(strupper(filter), "PLAYER")
 
 		if exactSearch then
-			--using the index does not support filter.
 			for i=1,40 do
 				local _, _, _, _, _, _, _, buffCaster, _, _, buffSpellID = UnitDebuff(unit, i)
 				if buffSpellID ~= nil then
@@ -50,11 +46,18 @@ function UnitDebuffID(unit, spellID, filter)
 				end
 			end
 		else
-			--just pass the filter to UnitDebuff and return.
 			return UnitDebuff(unit, spellName, nil, filter)
 		end
 	end
 end
+
+--[[           ]]		  --[[]]		--[[]]     --[[]] 
+--[[           ]]		 --[[  ]]		--[[  ]]   --[[]]
+--[[]]				    --[[    ]] 		--[[    ]] --[[]]
+--[[]]				   --[[      ]] 	--[[           ]]
+--[[]]				  --[[        ]]	--[[           ]]
+--[[           ]]	 --[[]]    --[[]]	--[[]]   --[[  ]]
+--[[           ]]	--[[]]      --[[]]	--[[]]     --[[]]
 
 -- if canAttack("player","target") then
 function canAttack(Unit1,Unit2)
@@ -242,18 +245,6 @@ function canUse(itemID)
 	end
 end
 
--- useItem(12345)
-function useItem(itemID)
-	if GetItemCount(itemID,false,false) > 0 then 
-		if select(2,GetItemCooldown(itemID))==0 then
-			RunMacroText("/use "..tostring(select(1,GetItemInfo(itemId))));
-		else
-			return false;
-		end
-	else
-		return false;
-	end
-end
 
 -- castGround("target",12345,40);
 function castGround(Unit,SpellID,maxDistance)
@@ -313,6 +304,13 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
   	return false;
 end
 
+--[[           ]]   --[[           ]]    --[[           ]]
+--[[           ]]   --[[           ]]    --[[           ]]
+--[[]]              --[[]]        		       --[[ ]]
+--[[]]   --[[  ]]	--[[           ]]          --[[ ]]
+--[[]]     --[[]]	--[[]]        		       --[[ ]]
+--[[           ]]   --[[           ]]          --[[ ]]
+--[[           ]]   --[[           ]]          --[[ ]]
 
 -- if getBuffRemain("target",12345) < 3 then
 function getBuffRemain(Unit,BuffID)
@@ -347,29 +345,6 @@ function getCombatTime()
 	return (math.floor(combatTime*1000)/1000);
 end
 
---if getFallTime() > 2 then
-function getFallTime()
-	--local fallStarted = 0
-	local fallTime = 0
-	if IsFalling()~=nil then
-		if fallStarted == 0 then
-			fallStarted = GetTime()
-		end
-		if fallStarted ~= nil then fallTime = (math.floor((GetTime() - fallStarted)*1000)/1000); end
-	end
-	if IsFalling()==nil then
-		fallStarted = 0
-		fallTime = 0
-	end
-	return fallTime
-end
-
-
--- if getCombo() >= 1 then
-function getCombo()
-	return GetComboPoints("player");
-end
-
 -- if getCreatureType(Unit) == true then
 function getCreatureType(Unit)
 	local CreatureTypeList = {"Critter", "Totem", "Non-combat Pet", "Wild Pet"}
@@ -377,6 +352,11 @@ function getCreatureType(Unit)
 		if UnitCreatureType(Unit) == CreatureTypeList[i] then return false; end
 	end
 	if not UnitIsBattlePet(Unit) and not UnitIsWildBattlePet(Unit) then return true; else return false; end
+end
+
+-- if getCombo() >= 1 then
+function getCombo()
+	return GetComboPoints("player");
 end
 
 -- if getDebuffRemain("target",12345) < 3 then
@@ -415,6 +395,24 @@ function getDistance(Unit1,Unit2)
 	end
 end
 
+--if getFallTime() > 2 then
+function getFallTime()
+	--local fallStarted = 0
+	local fallTime = 0
+	if IsFalling()~=nil then
+		if fallStarted == 0 then
+			fallStarted = GetTime()
+		end
+		if fallStarted ~= nil then fallTime = (math.floor((GetTime() - fallStarted)*1000)/1000); end
+	end
+	if IsFalling()==nil then
+		fallStarted = 0
+		fallTime = 0
+	end
+	return fallTime
+end
+
+
 -- if getFacing("target","player") == false then
 function getFacing(Unit1,Unit2)
 	if Unit2 == nil then Unit2 = "player"; end
@@ -448,42 +446,6 @@ function getPower(Unit)
 	return value; 
 end
 
--- Dem Bleeds
--- In a run once environment we shall create the Tooltip that we will be reading
--- all of the spell details from
-nGTT = CreateFrame( "GameTooltip", "MyScanningTooltip", nil, "GameTooltipTemplate" );
-nGTT:SetOwner( WorldFrame, "ANCHOR_NONE" );
-nGTT:AddFontStrings(nGTT:CreateFontString( "$parentTextLeft1", nil, "GameTooltipText" ),nGTT:CreateFontString( "$parentTextRight1", nil, "GameTooltipText" ) );
-function nDbDmg(tar, spellID, player)
-   	if GetCVar("DotDamage") == nil then
-      	RegisterCVar("DotDamage", 0)
-   	end
-   	nGTT:ClearLines()
-   	for i=1, 40 do
-      	if UnitDebuff(tar, i, player) == GetSpellInfo(spellID) then
-         	nGTT:SetUnitDebuff(tar, i, player)
-         	scanText=_G["MyScanningTooltipTextLeft2"]:GetText()
-         	local DoTDamage = scanText:match("([0-9]+%.?[0-9]*)")
-   			--if not issecure() then print(issecure()) end -- function is called inside the profile
-         	SetCVar("DotDamage", tonumber(DoTDamage))
-         	return tonumber(GetCVar("DotDamage"))
-      	end
-   	end
-end
-
-function getTotem(Target,Radius)
-	local totemsTable = { };
- 	for i=1, GetTotalObjects(TYPE_UNIT) do
-  		local Guid = IGetObjectListEntry(i);
-  		ISetAsUnitID(Guid,"thisUnit");
-		if getDistance(Target,"thisUnit") <= ((Radius + IGetFloatDescriptor(Guid,0x110))) then
-			local X1,Y1,Z1 = IGetLocation(Guid);
-			activeTotem = { guid = Guid, x = X1, y = Y1, z = Z1 };
-			break;
-		end
- 	end
-end
-
 --/dump TraceLine()
 -- /dump getTotemDistance("target")
 function getTotemDistance(Unit1)
@@ -502,13 +464,6 @@ function getTotemDistance(Unit1)
 	end
 end
 
-function getCreatureType(tar)
-	local CreatureTypeList = {"Critter", "Totem", "Non-combat Pet", "Wild Pet"}
-	for i=1, #CreatureTypeList do
-		if UnitCreatureType(tar) == CreatureTypeList[i] then return false end
-	end
-	if not UnitIsBattlePet(tar) and not UnitIsWildBattlePet(tar) then return true else return false end
-end
 
 -- /dump UnitGUID("target")
 -- /dump getEnnemies("target",10)
@@ -677,384 +632,15 @@ function getRegen(Unit)
 	return 1.0 / regen;
 end
 
--- if isAlive([Unit]) == true then
-function isAlive(Unit)
-	local Unit = Unit or "target";
-	if UnitIsDeadOrGhost(Unit) == nil then
-		return true;
-	else
-		return false;
-	end
-end
+--[[]]	   --[[]]		  --[[]]		--[[           ]]
+--[[]]	   --[[]]		 --[[  ]]		--[[           ]]
+--[[           ]]	    --[[    ]]		--[[ ]]
+--[[           ]]	   --[[      ]] 	--[[           ]]
+--[[           ]]	  --[[        ]]			  --[[ ]]
+--[[]]	   --[[]]	 --[[]]    --[[]]	--[[           ]]
+--[[]]	   --[[]]	--[[]]      --[[]]	--[[           ]]
 
-
-------Boss Check------
-for x=1,5 do
-    if UnitExists("boss1") then
-        boss1 = tonumber(UnitGUID("boss1"):sub(6,10), 16)
-    else
-        boss1 = 0
-    end
-    if UnitExists("boss2") then
-        boss2 = tonumber(UnitGUID("boss2"):sub(6,10), 16)
-    else
-        boss2 = 0
-    end
-    if UnitExists("boss3") then
-        boss3 = tonumber(UnitGUID("boss3"):sub(6,10), 16)
-    else
-        boss3 = 0
-    end
-    if UnitExists("boss4") then
-        boss4 = tonumber(UnitGUID("boss4"):sub(6,10), 16)
-    else
-        boss4 = 0
-    end
-    if UnitExists("boss5") then
-        boss5 = tonumber(UnitGUID("boss5"):sub(6,10), 16)
-    else
-        boss5 = 0
-    end
-end     
-BossUnits = {
-    -- Cataclysm Dungeons --
-    -- Abyssal Maw: Throne of the Tides
-    40586,      -- Lady Naz'jar
-    40765,      -- Commander Ulthok
-    40825,      -- Erunak Stonespeaker
-    40788,      -- Mindbender Ghur'sha
-    42172,      -- Ozumat
-    -- Blackrock Caverns
-    39665,      -- Rom'ogg Bonecrusher
-    39679,      -- Corla, Herald of Twilight
-    39698,      -- Karsh Steelbender
-    39700,      -- Beauty
-    39705,      -- Ascendant Lord Obsidius
-    -- The Stonecore
-    43438,      -- Corborus
-    43214,      -- Slabhide
-    42188,      -- Ozruk
-    42333,      -- High Priestess Azil
-    -- The Vortex Pinnacle
-    43878,      -- Grand Vizier Ertan
-    43873,      -- Altairus
-    43875,      -- Asaad
-    -- Grim Batol
-    39625,      -- General Umbriss
-    40177,      -- Forgemaster Throngus
-    40319,      -- Drahga Shadowburner
-    40484,      -- Erudax
-    -- Halls of Origination
-    39425,      -- Temple Guardian Anhuur
-    39428,      -- Earthrager Ptah
-    39788,      -- Anraphet
-    39587,      -- Isiset
-    39731,      -- Ammunae
-    39732,      -- Setesh
-    39378,      -- Rajh
-    -- Lost City of the Tol'vir
-    44577,      -- General Husam
-    43612,      -- High Prophet Barim
-    43614,      -- Lockmaw
-    49045,      -- Augh
-    44819,      -- Siamat
-    -- Zul'Aman
-    23574,      -- Akil'zon
-    23576,      -- Nalorakk
-    23578,      -- Jan'alai
-    23577,      -- Halazzi
-    24239,      -- Hex Lord Malacrass
-    23863,      -- Daakara
-    -- Zul'Gurub
-    52155,      -- High Priest Venoxis
-    52151,      -- Bloodlord Mandokir
-    52271,      -- Edge of Madness
-    52059,      -- High Priestess Kilnara
-    52053,      -- Zanzil
-    52148,      -- Jin'do the Godbreaker
-    -- End Time
-    54431,      -- Echo of Baine
-    54445,      -- Echo of Jaina
-    54123,      -- Echo of Sylvanas
-    54544,      -- Echo of Tyrande
-    54432,      -- Murozond
-    -- Hour of Twilight
-    54590,      -- Arcurion
-    54968,      -- Asira Dawnslayer
-    54938,      -- Archbishop Benedictus
-    -- Well of Eternity
-    55085,      -- Peroth'arn
-    54853,      -- Queen Azshara
-    54969,      -- Mannoroth
-    55419,      -- Captain Varo'then
-    
-    -- Mists of Pandaria Dungeons --
-    -- Scarlet Halls
-    59303,      -- Houndmaster Braun
-    58632,      -- Armsmaster Harlan
-    59150,      -- Flameweaver Koegler
-    -- Scarlet Monastery
-    59789,      -- Thalnos the Soulrender
-    59223,      -- Brother Korloff
-    3977,       -- High Inquisitor Whitemane
-    60040,      -- Commander Durand
-    -- Scholomance
-    58633,      -- Instructor Chillheart
-    59184,      -- Jandice Barov
-    59153,      -- Rattlegore
-    58722,      -- Lilian Voss
-    58791,      -- Lilian's Soul
-    59080,      -- Darkmaster Gandling
-    -- Stormstout Brewery
-    56637,      -- Ook-Ook
-    56717,      -- Hoptallus
-    59479,      -- Yan-Zhu the Uncasked
-    -- Tempe of the Jade Serpent
-    56448,      -- Wise Mari
-    56843,      -- Lorewalker Stonestep
-    59051,      -- Strife
-    59726,      -- Peril
-    58826,      -- Zao Sunseeker
-    56732,      -- Liu Flameheart
-    56762,      -- Yu'lon
-    56439,      -- Sha of Doubt
-    -- Mogu'shan Palace
-    61444,      -- Ming the Cunning
-    61442,      -- Kuai the Brute
-    61445,      -- Haiyan the Unstoppable
-    61243,      -- Gekkan
-    61398,      -- Xin the Weaponmaster
-    -- Shado-Pan Monastery
-    56747,      -- Gu Cloudstrike
-    56541,      -- Master Snowdrift
-    56719,      -- Sha of Violence
-    56884,      -- Taran Zhu
-    -- Gate of the Setting Sun
-    56906,      -- Saboteur Kip'tilak
-    56589,      -- Striker Ga'dok
-    56636,      -- Commander Ri'mok
-    56877,      -- Raigonn
-    -- Siege of Niuzao Temple
-    61567,      -- Vizier Jin'bak
-    61634,      -- Commander Vo'jak
-    61485,      -- General Pa'valak
-    62205,      -- Wing Leader Ner'onok
-
-    -- Training Dummies --
-    46647,      -- Level 85 Training Dummy
-    67127,      -- Level 90 Training Dummy
-    
-    -- Instance Bosses --
-    boss1,  --Boss 1
-    boss2,  --Boss 2    
-    boss3,  --Boss 3
-    boss4,  --Boss 4
-    boss5,  --Boss 5
-}
-
--- isBoss()
-function isBoss()
-    local BossUnits = BossUnits
-    
-    if UnitExists("target") then
-        local npcID = tonumber(UnitGUID("target"):sub(6,10), 16)
-        
-        if (UnitClassification("target") == "rare" or UnitClassification("target") == "rareelite" or UnitClassification("target") == "worldboss" or (UnitClassification("target") == "elite" and UnitLevel("target") >= UnitLevel("player")+3) or UnitLevel("target") < 0) 
-            --and select(2,IsInInstance())=="none" 
-            and not UnitIsTrivial("target")
-        then 
-            return true 
-        else
-            for i=1,#BossUnits do
-                if BossUnits[i] == npcID then 
-                    return true 
-                end
-            end
-            return false
-        end
-    else 
-        return false 
-    end
-end
-
-
---- if isBuffed()
-function isBuffed(UnitID,SpellID,TimeLeft) 
-  	if not TimeLeft then TimeLeft = 0 end
-  	--if type(SpellID) == "number" then SpellID = { SpellID } end 
-	for i=1,#SpellID do 
-		local spell = tostring(GetSpellInfo(SpellID[i]))
-		if spell then
-			local buff = select(7,UnitBuff(UnitID,spell)) 
-			if buff ~= nil and ( buff == 0 or buff - GetTime() > TimeLeft ) then return true end
-		end
-	end
-end
-
--- Dummy Check
-function isDummy(Unit)
-	if Unit == nil then Unit = "target"; else Unit = tostring(Unit) end
-    dummies = {
-        31146, --Raider's Training Dummy - Lvl ??
-        67127, --Training Dummy - Lvl 90
-        60197, --Scarlet Monastery Dummy
-        46647, --Training Dummy - Lvl 85
-        32546, --Ebon Knight's Training Dummy - Lvl 80
-        31144, --Training Dummy - Lvl 80
-        32667, --Training Dummy - Lvl 70
-        32542, --Disciple's Training Dummy - Lvl 65
-        32666, --Training Dummy - Lvl 60
-        32545, --Initiate's Training Dummy - Lvl 55 
-        32541, --Initiate's Training Dummy - Lvl 55 (Scarlet Enclave) 
-    }
-    for i=1, #dummies do
-        if UnitExists(Unit) then
-            dummyID = tonumber(UnitGUID(Unit):sub(-13, -9), 16)
-        else
-            dummyID = 0
-        end
-        if dummyID == dummies[i] then
-            return true
-        end 
-    end
-end
-
--- if isEnnemy([Unit])
-function isEnnemy(Unit)
-	local Unit = Unit or "target";
-	if UnitCanAttack("player",Unit) == 1 then
-		return true;
-	else
-		return false;
-	end
-end
-
---if isGarrMCd() then
-function isGarrMCd()
-	if UnitExists("target") 
-		and (UnitDebuffID("target",145832)
-            or UnitDebuffID("target",145171)
-            or UnitDebuffID("target",145065)
-            or UnitDebuffID("target",145071))
-    then 
-		return true
-	else 
-		return false 
-	end
-end
-
--- if isKnown(106832) then
-function isKnown(spellID)
-  local	spellName = GetSpellInfo(spellID)
-  if GetSpellBookItemInfo(spellName)~=nil then
-    return true
-  end
-  return false
-end
-
--- if isCasting() == true then
-function isCasting(Unit)
-	if Unit == nil then Unit = "player" end
-	if UnitCastingInfo(Unit) ~= nil
-	  or UnitChannelInfo(Unit) ~= nil 
-	  or (GetSpellCooldown(GetSpellInfo(61304)) ~= nil and GetSpellCooldown(GetSpellInfo(61304)) > 0.001) then 
-	  	return true; else return false; 
-	end
-end
-
--- if isLooting() then
-function isLooting()
-	if GetNumLootItems() > 0 then
-		return true
-	else
-		return false
-	end
-end
-
--- if isValidTarget("target") then
-function isValidTarget(Unit)
-	if UnitIsEnemy("player",Unit) then
-		if UnitExists(Unit) and not UnitIsDeadOrGhost(Unit) then return true; else return false; end
-	else
-		if UnitExists(Unit) then return true; else return false; end
-	end
-end
-
--- if not isMoving("target") then
-function isMoving(Unit)
-	if GetUnitSpeed(Unit) > 0 then return true; else return false; end
-end
-
--- if IsMovingTime(5) then
-function IsMovingTime(time)
-	if time == nil then time = 1 end
-	if GetUnitSpeed("player") > 0 then
-		if IsRunning == nil then
-			IsRunning = GetTime()
-			IsStanding = nil
-		end
-		if GetTime() - IsRunning > time then
-			return true
-		end
-	else
-		if IsStanding == nil then
-			IsStanding = GetTime()
-			IsRunning = nil
-		end
-		if GetTime() - IsStanding > time then
-			return false
-		end
-	end
-end
-
--- if isInCombat("target") then
-function isInCombat(Unit)
-	if UnitAffectingCombat(Unit) then return true; else return false; end
-end
-
--- if isInMelee() then
-function isInMelee(Unit)
-	if Unit == nil then Unit = "target"; end
-	if getDistance(Unit) < 4 then return true; else return false; end
-end
-
--- if IsInPvP() then
-function isInPvP()
-	local inpvp = GetPVPTimer()
-	if inpvp ~= 301000 and inpvp ~= -1 then
-		return true;
-	else
-		return false;
-	end
-end
-
--- if isSpellInRange(12345,"target") then
-function isSpellInRange(SpellID,Unit)
-	if IExists(UnitGUID(Unit)) then
-		if IsSpellInRange(tostring(GetSpellInfo(SpellID)),Unit) == 1 then return true; end
-	else 
-		return false;
-	end
-end
-
-
-
-
-
-function IsCastingSpell(spellID)
-	local spellName = GetSpellInfo(spellID)
-	local spellCasting = UnitCastingInfo("player")
-
-	if spellCasting == nil then
-		spellCasting = UnitChannelInfo("player")
-	end
-	if spellCasting == spellName then
-		return true
-	else
-		return false
-	end
-end
-
+-- if hasGlyph(1234) == true then 
 function hasGlyph(glyphid)
  	for i=1, 6 do
   		if select(4, GetGlyphSocketInfo(i)) == glyphid then return true; end
@@ -1062,6 +648,7 @@ function hasGlyph(glyphid)
  	return false;
 end
 
+-- if hasNoControl(12345) == true then
 function hasNoControl(spellID)
 	local eventIndex = C_LossOfControl.GetNumEvents()
 	while (eventIndex > 0) do
@@ -1132,26 +719,383 @@ function hasNoControl(spellID)
 	return false
 end
 
--- if pause() then
-function pause() --Pause
-	if (IsLeftAltKeyDown() == 1 and GetCurrentKeyBoardFocus() == nil)
-		or IsMounted()
-		or SpellIsTargeting()
-		or not UnitExists("target")
-		or UnitCastingInfo("player")
-		or UnitChannelInfo("player")
-		or UnitIsDeadOrGhost("player")
-		or UnitIsDeadOrGhost("target")
-		or UnitBuffID("player",80169) -- Eating
-		or UnitBuffID("player",87959) -- Drinking
-		or UnitBuffID("target",117961) --Impervious Shield - Qiang the Merciless
-		or UnitDebuffID("player",135147) --Dead Zone - Iron Qon: Dam'ren
-		or (((UnitHealth("target")/UnitHealthMax("target"))*100) > 10 and UnitBuffID("target",143593)) --Defensive Stance - General Nagrazim
-		or UnitBuffID("target",140296) --Conductive Shield - Thunder Lord / Lightning Guardian
-	then 
-		return true; 
+--[[           ]]	--[[           ]]
+--[[           ]]	--[[           ]]
+	 --[[ ]]		--[[ ]]
+	 --[[ ]]		--[[           ]]	
+	 --[[ ]]				  --[[ ]]
+--[[           ]]	--[[           ]]
+--[[           ]]	--[[           ]]
+
+-- if isAlive([Unit]) == true then
+function isAlive(Unit)
+	local Unit = Unit or "target";
+	if UnitIsDeadOrGhost(Unit) == nil then
+		return true;
 	else
 		return false;
+	end
+end
+
+-- isBoss()
+function isBoss()
+	------Boss Check------
+	for x=1,5 do
+	    if UnitExists("boss1") then
+	        boss1 = tonumber(UnitGUID("boss1"):sub(6,10), 16)
+	    else
+	        boss1 = 0
+	    end
+	    if UnitExists("boss2") then
+	        boss2 = tonumber(UnitGUID("boss2"):sub(6,10), 16)
+	    else
+	        boss2 = 0
+	    end
+	    if UnitExists("boss3") then
+	        boss3 = tonumber(UnitGUID("boss3"):sub(6,10), 16)
+	    else
+	        boss3 = 0
+	    end
+	    if UnitExists("boss4") then
+	        boss4 = tonumber(UnitGUID("boss4"):sub(6,10), 16)
+	    else
+	        boss4 = 0
+	    end
+	    if UnitExists("boss5") then
+	        boss5 = tonumber(UnitGUID("boss5"):sub(6,10), 16)
+	    else
+	        boss5 = 0
+	    end
+	end     
+	BossUnits = {
+	    -- Cataclysm Dungeons --
+	    -- Abyssal Maw: Throne of the Tides
+	    40586,      -- Lady Naz'jar
+	    40765,      -- Commander Ulthok
+	    40825,      -- Erunak Stonespeaker
+	    40788,      -- Mindbender Ghur'sha
+	    42172,      -- Ozumat
+	    -- Blackrock Caverns
+	    39665,      -- Rom'ogg Bonecrusher
+	    39679,      -- Corla, Herald of Twilight
+	    39698,      -- Karsh Steelbender
+	    39700,      -- Beauty
+	    39705,      -- Ascendant Lord Obsidius
+	    -- The Stonecore
+	    43438,      -- Corborus
+	    43214,      -- Slabhide
+	    42188,      -- Ozruk
+	    42333,      -- High Priestess Azil
+	    -- The Vortex Pinnacle
+	    43878,      -- Grand Vizier Ertan
+	    43873,      -- Altairus
+	    43875,      -- Asaad
+	    -- Grim Batol
+	    39625,      -- General Umbriss
+	    40177,      -- Forgemaster Throngus
+	    40319,      -- Drahga Shadowburner
+	    40484,      -- Erudax
+	    -- Halls of Origination
+	    39425,      -- Temple Guardian Anhuur
+	    39428,      -- Earthrager Ptah
+	    39788,      -- Anraphet
+	    39587,      -- Isiset
+	    39731,      -- Ammunae
+	    39732,      -- Setesh
+	    39378,      -- Rajh
+	    -- Lost City of the Tol'vir
+	    44577,      -- General Husam
+	    43612,      -- High Prophet Barim
+	    43614,      -- Lockmaw
+	    49045,      -- Augh
+	    44819,      -- Siamat
+	    -- Zul'Aman
+	    23574,      -- Akil'zon
+	    23576,      -- Nalorakk
+	    23578,      -- Jan'alai
+	    23577,      -- Halazzi
+	    24239,      -- Hex Lord Malacrass
+	    23863,      -- Daakara
+	    -- Zul'Gurub
+	    52155,      -- High Priest Venoxis
+	    52151,      -- Bloodlord Mandokir
+	    52271,      -- Edge of Madness
+	    52059,      -- High Priestess Kilnara
+	    52053,      -- Zanzil
+	    52148,      -- Jin'do the Godbreaker
+	    -- End Time
+	    54431,      -- Echo of Baine
+	    54445,      -- Echo of Jaina
+	    54123,      -- Echo of Sylvanas
+	    54544,      -- Echo of Tyrande
+	    54432,      -- Murozond
+	    -- Hour of Twilight
+	    54590,      -- Arcurion
+	    54968,      -- Asira Dawnslayer
+	    54938,      -- Archbishop Benedictus
+	    -- Well of Eternity
+	    55085,      -- Peroth'arn
+	    54853,      -- Queen Azshara
+	    54969,      -- Mannoroth
+	    55419,      -- Captain Varo'then
+	    
+	    -- Mists of Pandaria Dungeons --
+	    -- Scarlet Halls
+	    59303,      -- Houndmaster Braun
+	    58632,      -- Armsmaster Harlan
+	    59150,      -- Flameweaver Koegler
+	    -- Scarlet Monastery
+	    59789,      -- Thalnos the Soulrender
+	    59223,      -- Brother Korloff
+	    3977,       -- High Inquisitor Whitemane
+	    60040,      -- Commander Durand
+	    -- Scholomance
+	    58633,      -- Instructor Chillheart
+	    59184,      -- Jandice Barov
+	    59153,      -- Rattlegore
+	    58722,      -- Lilian Voss
+	    58791,      -- Lilian's Soul
+	    59080,      -- Darkmaster Gandling
+	    -- Stormstout Brewery
+	    56637,      -- Ook-Ook
+	    56717,      -- Hoptallus
+	    59479,      -- Yan-Zhu the Uncasked
+	    -- Tempe of the Jade Serpent
+	    56448,      -- Wise Mari
+	    56843,      -- Lorewalker Stonestep
+	    59051,      -- Strife
+	    59726,      -- Peril
+	    58826,      -- Zao Sunseeker
+	    56732,      -- Liu Flameheart
+	    56762,      -- Yu'lon
+	    56439,      -- Sha of Doubt
+	    -- Mogu'shan Palace
+	    61444,      -- Ming the Cunning
+	    61442,      -- Kuai the Brute
+	    61445,      -- Haiyan the Unstoppable
+	    61243,      -- Gekkan
+	    61398,      -- Xin the Weaponmaster
+	    -- Shado-Pan Monastery
+	    56747,      -- Gu Cloudstrike
+	    56541,      -- Master Snowdrift
+	    56719,      -- Sha of Violence
+	    56884,      -- Taran Zhu
+	    -- Gate of the Setting Sun
+	    56906,      -- Saboteur Kip'tilak
+	    56589,      -- Striker Ga'dok
+	    56636,      -- Commander Ri'mok
+	    56877,      -- Raigonn
+	    -- Siege of Niuzao Temple
+	    61567,      -- Vizier Jin'bak
+	    61634,      -- Commander Vo'jak
+	    61485,      -- General Pa'valak
+	    62205,      -- Wing Leader Ner'onok
+
+	    -- Training Dummies --
+	    46647,      -- Level 85 Training Dummy
+	    67127,      -- Level 90 Training Dummy
+	    
+	    -- Instance Bosses --
+	    boss1,  --Boss 1
+	    boss2,  --Boss 2    
+	    boss3,  --Boss 3
+	    boss4,  --Boss 4
+	    boss5,  --Boss 5
+	}
+    local BossUnits = BossUnits
+    
+    if UnitExists("target") then
+        local npcID = tonumber(UnitGUID("target"):sub(6,10), 16)
+        
+        if (UnitClassification("target") == "rare" or UnitClassification("target") == "rareelite" or UnitClassification("target") == "worldboss" or (UnitClassification("target") == "elite" and UnitLevel("target") >= UnitLevel("player")+3) or UnitLevel("target") < 0) 
+            --and select(2,IsInInstance())=="none" 
+            and not UnitIsTrivial("target")
+        then 
+            return true 
+        else
+            for i=1,#BossUnits do
+                if BossUnits[i] == npcID then 
+                    return true 
+                end
+            end
+            return false
+        end
+    else 
+        return false 
+    end
+end
+
+--- if isBuffed()
+function isBuffed(UnitID,SpellID,TimeLeft) 
+  	if not TimeLeft then TimeLeft = 0 end
+  	--if type(SpellID) == "number" then SpellID = { SpellID } end 
+	for i=1,#SpellID do 
+		local spell = tostring(GetSpellInfo(SpellID[i]))
+		if spell then
+			local buff = select(7,UnitBuff(UnitID,spell)) 
+			if buff ~= nil and ( buff == 0 or buff - GetTime() > TimeLeft ) then return true end
+		end
+	end
+end
+
+-- if isCasting() == true then
+function isCasting(Unit)
+	if Unit == nil then Unit = "player" end
+	if UnitCastingInfo(Unit) ~= nil
+	  or UnitChannelInfo(Unit) ~= nil 
+	  or (GetSpellCooldown(GetSpellInfo(61304)) ~= nil and GetSpellCooldown(GetSpellInfo(61304)) > 0.001) then 
+	  	return true; else return false; 
+	end
+end
+
+-- if isCastingSpell(12345) == true then
+function isCastingSpell(spellID)
+	local spellName = GetSpellInfo(spellID)
+	local spellCasting = UnitCastingInfo("player")
+
+	if spellCasting == nil then
+		spellCasting = UnitChannelInfo("player")
+	end
+	if spellCasting == spellName then
+		return true
+	else
+		return false
+	end
+end
+
+-- Dummy Check
+function isDummy(Unit)
+	if Unit == nil then Unit = "target"; else Unit = tostring(Unit) end
+    dummies = {
+        31146, --Raider's Training Dummy - Lvl ??
+        67127, --Training Dummy - Lvl 90
+        60197, --Scarlet Monastery Dummy
+        46647, --Training Dummy - Lvl 85
+        32546, --Ebon Knight's Training Dummy - Lvl 80
+        31144, --Training Dummy - Lvl 80
+        32667, --Training Dummy - Lvl 70
+        32542, --Disciple's Training Dummy - Lvl 65
+        32666, --Training Dummy - Lvl 60
+        32545, --Initiate's Training Dummy - Lvl 55 
+        32541, --Initiate's Training Dummy - Lvl 55 (Scarlet Enclave) 
+    }
+    for i=1, #dummies do
+        if UnitExists(Unit) then
+            dummyID = tonumber(UnitGUID(Unit):sub(-13, -9), 16)
+        else
+            dummyID = 0
+        end
+        if dummyID == dummies[i] then
+            return true
+        end 
+    end
+end
+
+-- if isEnnemy([Unit])
+function isEnnemy(Unit)
+	local Unit = Unit or "target";
+	if UnitCanAttack("player",Unit) == 1 then
+		return true;
+	else
+		return false;
+	end
+end
+
+--if isGarrMCd() then
+function isGarrMCd()
+	if UnitExists("target") 
+		and (UnitDebuffID("target",145832)
+            or UnitDebuffID("target",145171)
+            or UnitDebuffID("target",145065)
+            or UnitDebuffID("target",145071))
+    then 
+		return true;
+	else 
+		return false;
+	end
+end
+
+-- if isInCombat("target") then
+function isInCombat(Unit)
+	if UnitAffectingCombat(Unit) then return true; else return false; end
+end
+
+-- if isInMelee() then
+function isInMelee(Unit)
+	if Unit == nil then Unit = "target"; end
+	if getDistance(Unit) < 4 then return true; else return false; end
+end
+
+-- if IsInPvP() then
+function isInPvP()
+	local inpvp = GetPVPTimer()
+	if inpvp ~= 301000 and inpvp ~= -1 then
+		return true;
+	else
+		return false;
+	end
+end
+
+-- if isKnown(106832) then
+function isKnown(spellID)
+  	local	spellName = GetSpellInfo(spellID)
+  	if GetSpellBookItemInfo(spellName)~=nil then
+    	return true;
+  	end
+  	return false;
+end
+
+-- if isLooting() then
+function isLooting()
+	if GetNumLootItems() > 0 then
+		return true;
+	else
+		return false;
+	end
+end
+
+-- if not isMoving("target") then
+function isMoving(Unit)
+	if GetUnitSpeed(Unit) > 0 then return true; else return false; end
+end
+
+-- if IsMovingTime(5) then
+function IsMovingTime(time)
+	if time == nil then time = 1 end
+	if GetUnitSpeed("player") > 0 then
+		if IsRunning == nil then
+			IsRunning = GetTime();
+			IsStanding = nil;
+		end
+		if GetTime() - IsRunning > time then
+			return true;
+		end
+	else
+		if IsStanding == nil then
+			IsStanding = GetTime();
+			IsRunning = nil;
+		end
+		if GetTime() - IsStanding > time then
+			return false;
+		end
+	end
+end
+
+-- if isSpellInRange(12345,"target") then
+function isSpellInRange(SpellID,Unit)
+	if IExists(UnitGUID(Unit)) then
+		if IsSpellInRange(tostring(GetSpellInfo(SpellID)),Unit) == 1 then return true; end
+	else 
+		return false;
+	end
+end
+
+-- if isValidTarget("target") then
+function isValidTarget(Unit)
+	if UnitIsEnemy("player",Unit) then
+		if UnitExists(Unit) and not UnitIsDeadOrGhost(Unit) then return true; else return false; end
+	else
+		if UnitExists(Unit) then return true; else return false; end
 	end
 end
 
@@ -1224,37 +1168,74 @@ function Interrupts()
 	end
 end
 
+-- Dem Bleeds
+-- In a run once environment we shall create the Tooltip that we will be reading
+-- all of the spell details from
+nGTT = CreateFrame( "GameTooltip", "MyScanningTooltip", nil, "GameTooltipTemplate" );
+nGTT:SetOwner( WorldFrame, "ANCHOR_NONE" );
+nGTT:AddFontStrings(nGTT:CreateFontString( "$parentTextLeft1", nil, "GameTooltipText" ),nGTT:CreateFontString( "$parentTextRight1", nil, "GameTooltipText" ) );
+function nDbDmg(tar, spellID, player)
+   	if GetCVar("DotDamage") == nil then
+      	RegisterCVar("DotDamage", 0);
+   	end
+   	nGTT:ClearLines()
+   	for i=1, 40 do
+      	if UnitDebuff(tar, i, player) == GetSpellInfo(spellID) then
+         	nGTT:SetUnitDebuff(tar, i, player);
+         	scanText=_G["MyScanningTooltipTextLeft2"]:GetText();
+         	local DoTDamage = scanText:match("([0-9]+%.?[0-9]*)");
+   			--if not issecure() then print(issecure()); end -- function is called inside the profile
+         	SetCVar("DotDamage", tonumber(DoTDamage));
+         	return tonumber(GetCVar("DotDamage"));
+      	end
+   	end
+end
 
---[[
-
-
-
-
-
-
-
-
-
-
-]]
-
-
-
-
-
--- if isAlive([Unit]) == true then
-function isAlive(Unit)
-	local Unit = Unit or "target";
-	if UnitIsDeadOrGhost(Unit) == nil then
-		return true;
+-- if pause() then
+function pause() --Pause
+	if (IsLeftAltKeyDown() == 1 and GetCurrentKeyBoardFocus() == nil)
+		or IsMounted()
+		or SpellIsTargeting()
+		or not UnitExists("target")
+		or UnitCastingInfo("player")
+		or UnitChannelInfo("player")
+		or UnitIsDeadOrGhost("player")
+		or UnitIsDeadOrGhost("target")
+		or UnitBuffID("player",80169) -- Eating
+		or UnitBuffID("player",87959) -- Drinking
+		or UnitBuffID("target",117961) --Impervious Shield - Qiang the Merciless
+		or UnitDebuffID("player",135147) --Dead Zone - Iron Qon: Dam'ren
+		or (((UnitHealth("target")/UnitHealthMax("target"))*100) > 10 and UnitBuffID("target",143593)) --Defensive Stance - General Nagrazim
+		or UnitBuffID("target",140296) --Conductive Shield - Thunder Lord / Lightning Guardian
+	then 
+		return true; 
 	else
 		return false;
 	end
 end
 
+-- useItem(12345)
+function useItem(itemID)
+	if GetItemCount(itemID,false,false) > 0 then 
+		if select(2,GetItemCooldown(itemID))==0 then
+			RunMacroText("/use "..tostring(select(1,GetItemInfo(itemId))));
+		else
+			return false;
+		end
+	else
+		return false;
+	end
+end
 
+--[[           ]]	--[[           ]]	--[[           ]]
+--[[           ]]	--[[           ]]	--[[           ]]
+--[[]]				--[[]]				--[[]] 
+--[[]]				--[[           ]] 	--[[]]	 --[[  ]]
+--[[]]				--[[		   ]]	--[[]]     --[[]]
+--[[           ]]	--[[]]				--[[           ]]
+--[[           ]]	--[[]]      		--[[           ]]
 
-
+-- if isChecked("Debug") then
 function isChecked(Value)
 	if BadBoy_data["Check "..Value] == 1 then return true; else return false; end
 end
@@ -1264,7 +1245,7 @@ function isSelected(Value)
 	if BadBoy_data["Cooldowns"] == 3 or (BadBoy_data["Check "..Value] == 1 and (BadBoy_data["Drop "..Value] == 3 or BadBoy_data["Drop "..Value] == 2 and BadBoy_data["Cooldowns"] == 2)) then return true; else return false; end
 end
 
--- Combo get drop/box
+-- if getHP("player") <= getValue("Eternal Flame") then
 function getValue(Value)
 	if BadBoy_data["Drop "..Value] ~= nil then
 		return BadBoy_data["Drop "..Value];
@@ -1274,6 +1255,11 @@ function getValue(Value)
 		return 0;
 	end
 end
+
+
+
+
+
 
 
 
