@@ -86,6 +86,11 @@ function FeralCatConfig()
             dropOp("Rotation Mode", 1, "Toggle")
             textOp("Rotation Mode");
 
+            -- Rake Multi-Target
+            checkOp("Multi-Rake","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFMulti-Target Raking|cffFFBB00.");
+            textOp("Mutli-Rake");
+
+
         -- Spacer
         textOp(" ");
         wrapOp("--- Cooldowns ---");

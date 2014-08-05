@@ -490,15 +490,19 @@ if select(3, UnitClass("player")) == 11 then
 
 		-- Rake - Multi-Dot (AoE)
 							if getPower("player") >= 35 then
-								for i = 1, GetTotalObjects(TYPE_UNIT) do
-									local Guid = IGetObjectListEntry(i)
-									ISetAsUnitID(Guid,"thisUnit");
-									if getFacing("player","thisUnit") == true
-										and getDebuffRemain("thisUnit",rk) < 3
-										--and (UnitHealth("thisUnit") >= (150*UnitHealth("player")/100)*(GetNumGroupMembers()+1) or isDummy("thisUnit"))
-									then
-										if castSpell("thisUnit",rk,false) then return; end								
+								if BadBoy_data["Multi-Rake"] == 1 then
+									for i = 1, GetTotalObjects(TYPE_UNIT) do
+										local Guid = IGetObjectListEntry(i)
+										ISetAsUnitID(Guid,"thisUnit");
+										if getFacing("player","thisUnit") == true
+											and getDebuffRemain("thisUnit",rk) < 3
+											and getTimeToDie("thisUnit") > 5
+										then
+											if castSpell("thisUnit",rk,false) then return; end								
+										end
 									end
+								elseif getDebuffRemain("target",rk) < 3 then
+									if castSpell("thisUnit",rk,false) then return; end								
 								end
 							end
 		-- Swipe 
