@@ -178,7 +178,9 @@ function BadBoyRun()
 		elseif _MyClass == 5 then -- Priest
 			--Priest()
 		elseif _MyClass == 6 then -- Deathknight
-			--Deathknight()
+			if _MySpec == 1 then
+				Blood()
+			end
 		elseif _MyClass == 7 then -- Shaman
 			if _MySpec == 1 then
 				ShamanElemental();

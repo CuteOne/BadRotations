@@ -23,8 +23,10 @@ ClassLibs\Druid\Functions.lua
 ClassLibs\Druid\CuteBar.lua
 ClassLibs\Druid\SpellList.lua
 ClassLibs\Druid\Toggles.lua
-ClassLibs\Deathknight\Options.lua
 ClassLibs\Deathknight\Functions.lua
+ClassLibs\Deathknight\Options.lua
+ClassLibs\Deathknight\SpellList.lua
+ClassLibs\Deathknight\Toggles.lua
 ClassLibs\Hunter\Options.lua
 ClassLibs\Hunter\Functions.lua
 ClassLibs\Mage\Options.lua

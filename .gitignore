@@ -1,43 +1,4 @@
-# Windows image file caches
-Thumbs.db
-ehthumbs.db
-
-# Folder config file
-Desktop.ini
-
-# Recycle Bin used on file shares
-$RECYCLE.BIN/
-
-# Windows Installer files
-*.cab
-*.msi
-*.msm
-*.msp
-
-# =========================
-# Operating System Files
-# =========================
-
-# OSX
-# =========================
-
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Icon must ends with two \r.
-Icon
-
-# Thumbnails
-._*
-
-# Files that might appear on external disk
-.Spotlight-V100
-.Trashes
-
 Builder.lua
-ClassLibs/DeathKnight/Functions.lua
-ClassLibs/DeathKnight/Options.lua
 ClassLibs/Mage/Functions.lua
 ClassLibs/Mage/Options.lua
 ClassLibs/Monk/Functions.lua
@@ -51,9 +12,6 @@ ClassLibs/Warlock/Functions.lua
 ClassLibs/Warlock/Options.lua
 ClassLibs/Warrior/Functions.lua
 ClassLibs/Warrior/Options.lua
-Rotations/Deathknight/Blood.lua
-Rotations/Deathknight/Frost.lua
-Rotations/Deathknight/Unholy.lua
 Rotations/Druid/Guardian.lua
 Rotations/Druid/Moonkin.lua
 Rotations/Druid/Restoration.lua
@@ -66,7 +24,6 @@ Rotations/Monk/Brewmaster.lua
 Rotations/Monk/Mistweaver.lua
 Rotations/Monk/Windwalker.lua
 Rotations/Paladin/Holy.lua
-Rotations/Paladin/Retribution.lua
 Rotations/Priest/Discipline.lua
 Rotations/Priest/Holy.lua
 Rotations/Priest/Shadow.lua
@@ -76,8 +33,8 @@ Rotations/Rogue/Subtlety.lua
 Rotations/Shaman/Restoration.lua
 Rotations/Warlock/Affliction.lua
 Rotations/Warlock/Demonology.lua
-Rotations/Warlock/Destruction.lua
 Rotations/Warrior/Arms.lua
 Rotations/Warrior/Fury.lua
 Rotations/Warrior/Protection.lua
 ToDO.lua
+Rotations/Warlock/Destruction.lua
