@@ -522,7 +522,6 @@ function getEnnemies(Target,Radius)
 	  		if getCreatureType("thisUnit") == true then
 	  			if UnitCanAttack("player","thisUnit") and not UnitIsDeadOrGhost("thisUnit") then
 	  				if getDistance(Target,"thisUnit") <= ((Radius + IGetFloatDescriptor(Guid,0x110))) then
-	  					GetLocation()
 	   					tinsert(ennemiesTable,Guid);
 	   				end
 	  			end
