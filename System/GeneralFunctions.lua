@@ -443,7 +443,7 @@ end
 
 -- if getPower("target") <= 15 then 
 function getPower(Unit)
-	local value = 100 * UnitPower(Unit) / UnitPowerMax(Unit)
+	local value = 100 * UnitPower(Unit,3) / UnitPowerMax(Unit,3)
 	if _MyClass == 11 and UnitBuffID("player",106951) then value = value*2 end
 	return value; 
 end
