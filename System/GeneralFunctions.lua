@@ -68,6 +68,14 @@ function canAttack(Unit1,Unit2)
 	end
 end
 
+-- if canCast(12345,true)
+function canCast(SpellID,KnownSkip)
+  	if (KnownSkip == true or isKnown(SpellID)) and getSpellCD(SpellID) == 0 and not (UnitPower("player") < select(4,GetSpellInfo(SpellID))) 
+   	  and (MovementCheck == false or GlobalCooldown == 0 or isMoving("player") ~= true or UnitBuffID("player",79206) ~= nil) then
+      	return true;
+    end
+end
+
 -- if canDispel("target",SpellID) == true then
 function canDispel(Unit,spellID)
   	local HasValidDispel = false
@@ -257,13 +265,6 @@ function castGround(Unit,SpellID,maxDistance)
 		end
  	end
  	return false;
-end
-
-function canCast(SpellID,KnownSkip)
-  	if (KnownSkip == true or isKnown(SpellID)) and getSpellCD(SpellID) == 0 and not (UnitPower("player") < select(4,GetSpellInfo(SpellID))) 
-   	  and (MovementCheck == false or GlobalCooldown == 0 or isMoving("player") ~= true or UnitBuffID("player",79206) ~= nil) then
-      	return true;
-    end
 end
 
 -- castSpell("target",12345,true);
@@ -533,24 +534,6 @@ function getPetLineOfSight(Unit)
 		local X2,Y2,Z2 = IGetLocation(UnitGUID(Unit));
 		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then return true; else return false; end
 	else return true;
-	end
-end
-
--- if getBuffStacks(138756) > 0 then
-function getBuffStacks(unit,spellID)
-	if UnitBuffID(unit, spellID) then
-		return (select(7, UnitBuffID(unit, spellID)) - GetTime())
-	else
-		return 0
-	end
-end
-
--- if getDebuffStacks(138756) > 0 then
-function getDebuffStacks(unit,spellID)
-	if UnitDebuffID(unit, spellID, "player") then
-		return (select(7, UnitDebuffID(unit, spellID, "player")) - GetTime())
-	else
-		return 0
 	end
 end
 
@@ -1002,13 +985,13 @@ function isEnnemy(Unit)
 end
 
 --if isGarrMCd() then
-function isGarrMCd()
-	if UnitExists("target") 
-		and (UnitDebuffID("target",145832)
-            or UnitDebuffID("target",145171)
-            or UnitDebuffID("target",145065)
-            or UnitDebuffID("target",145071))
-    then 
+function isGarrMCd(Unit)
+	if Unit == nil then Unit = "target"; end
+	if UnitExists(Unit) 
+	  and (UnitDebuffID(Unit,145832)
+      or UnitDebuffID(Unit,145171)
+      or UnitDebuffID(Unit,145065)
+      or UnitDebuffID(Unit,145071)) then 
 		return true;
 	else 
 		return false;
