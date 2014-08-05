@@ -71,10 +71,10 @@ function Hunter()
 
 	if isInCombat("player") then
 		-- Deterrence
-		if BadBoy_data["Check Deterrence"] == 1 and _HP < BadBoy_data["Box Deterrence"] then
+		if BadBoy_data["Check Deterrence"] == 1 and _HP <= BadBoy_data["Box Deterrence"] then
 			if castSpell("player",_Deterrence) then return; end
 		end
-		if _HP < BadBoy_data["Check Feign Death"] and _HP < BadBoy_data["Box Feign Death"] then
+		if _HP < BadBoy_data["Check Feign Death"] and _HP <= BadBoy_data["Box Feign Death"] then
 			if castSpell("player",_FeignDeath) then return; end
 		end			
 		local canBestialWrath = false;
@@ -121,7 +121,7 @@ function Hunter()
 			end
 
 			-- Glaive Toss
---			if castSpell("target",_GlaiveToss,false) then return; end
+			if castSpell("target",_GlaiveToss,false) then return; end
 
 			-- Misdirection function
 			Misdirection();
@@ -141,12 +141,12 @@ function Hunter()
 			local numEnnemies = getNumEnnemies("target",10)
 			-- Focus Dump
 			if numEnnemies >= 2 then				-- Multi-Shot
-				if _Focus > BadBoy_data["Box Multi-Shot"] and not UnitBuffID("pet",118455) or (_Focus > (BadBoy_data["Box Multi-Shot"]+20) and numEnnemies > 3) then
+				if _Focus > 79 and not UnitBuffID("pet",118455) or (_Focus > (BadBoy_data["Box Multi-Shot"]+20) and numEnnemies > 3) then
 					if castSpell("target",_MultiShot,false) then return; end
 				end		
 			else
 				-- Arcane Shot
-				if _Focus >= BadBoy_data["Box Arcane Shot"] then
+				if _Focus >= 69 then
 					if castSpell("target",_ArcaneShot,false) then return; end
 				end
 			end		
