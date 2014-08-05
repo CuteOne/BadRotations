@@ -25,12 +25,6 @@ function DebugFrameCreation()
 			_G["debug"..value.."Text"]:SetText(textString, 1, 1, 1, 0.7);
 		end
 
-
-
-		debugTable = { };
-
-		
-
 		debugFrame = CreateFrame("Frame", nil, UIParent);
 		--debugFrame:SetAlpha(1);
 		debugFrame:SetWidth(250);
