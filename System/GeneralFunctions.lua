@@ -443,7 +443,7 @@ end
 
 -- if getPower("target") <= 15 then 
 function getPower(Unit)
-	local value = 100 * UnitPower(Unit,3) / UnitPowerMax(Unit,3)
+	local value = 100 * UnitPower(Unit) / UnitPowerMax(Unit)
 	if _MyClass == 11 and UnitBuffID("player",106951) then value = value*2 end
 	return value; 
 end
@@ -522,7 +522,7 @@ function getEnnemies(Target,Radius)
 	  		if getCreatureType("thisUnit") == true then
 	  			if UnitCanAttack("player","thisUnit") and not UnitIsDeadOrGhost("thisUnit") then
 	  				if getDistance(Target,"thisUnit") <= ((Radius + IGetFloatDescriptor(Guid,0x110))) then
-	  					GetLocation()
+	  					--GetLocation()
 	   					tinsert(ennemiesTable,Guid);
 	   				end
 	  			end

@@ -150,7 +150,7 @@ function shouldBolt()
             lowestCD = min(getSpellCD(_Stormstrike),getSpellCD(_FlameShock),getSpellCD(_LavaLash),getSpellCD(_UnleashElements))
         end
     end
-    if lightning <= lowestCD then
+    if lightning <= lowestCD and getTimeToDie("target") >= lightning then
         return true;
     elseif isCasting("player") and (isCastingSpell(_LightningBolt) or isCastingSpell(_ChainLightning)) and lightning > lowestCD then
         StopCasting()
