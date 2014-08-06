@@ -640,9 +640,12 @@ function UIUpdate()
 		local playerFocus = UnitPower("player");
 		local playerFocusMax = UnitPowerMax("player");
 		mainFrame:SetValue(playerFocus);
-		mainFrame.Text:SetText(playerFocus.."/"..playerFocusMax, 1, 1, 1, 0.7);
+		--mainFrame.Text:SetText(playerFocus.."/"..playerFocusMax, 1, 1, 1, 0.7);
 		mainFrame:SetMinMaxValues(0, playerFocusMax);
 	end
+	targetDistance = getDistance("player","target")
+	mainFrame.Text:SetText(targetDistance)
+
 
 	-- 0 - Mana
 	-- 1 - Rage

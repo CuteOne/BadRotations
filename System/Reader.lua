@@ -24,6 +24,7 @@ superReaderFrame:RegisterEvent("CHARACTER_POINTS_CHANGED");
 superReaderFrame:RegisterEvent("SPELLS_CHANGED");
 superReaderFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
 function SuperReader(self, event, ...)
+    if debugTable == nil then debugTable = { }; end
 
 	if event == "UI_ERROR_MESSAGE" then lastError = ...; lastErrorTime = GetTime() end
 
@@ -38,12 +39,20 @@ function SuperReader(self, event, ...)
 	-- Get Combat Time
 	if event == "PLAYER_REGEN_DISABLED" then
 		BadBoy_data["Combat Started"] = GetTime();
+		BadBoy_data.successCasts = 0;
+		BadBoy_data.failCasts = 0;
+		tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cffFF001E/"..getCombatTime().."/Entering Combat" , number = ":D" })
+		if #debugTable > 249 then tremove(debugTable, 250); end
+		if BadBoy_data.ActualRow == 0 then debugRefresh(); end
 		ChatOverlay("Entering Combat");
 		healthFrame.Border:SetTexture([[Interface\FullScreenTextures\LowHealth]],0.25);
 	end
 	if event == "PLAYER_REGEN_ENABLED" then
 		BadBoy_data["Combat Started"] = 0;
-		ChatOverlay("Leaving Combat");
+		tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cff12C8FF/"..getCombatTime().."/Leaving Combat" , number = ":D" })
+		if #debugTable > 249 then tremove(debugTable, 250); end
+		if BadBoy_data.ActualRow == 0 then debugRefresh(); end
+		ChatOverlay(BadBoy_data.successCasts.." Success//Failed"..BadBoy_data.failCasts);
 		healthFrame.Border:SetTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]],0.25);
 		-- clean up out of combat
         Rip_sDamage = {}
@@ -75,31 +84,34 @@ function SuperReader(self, event, ...)
         if BadBoy_data["Check Debug"] == 1 then
         	if source == UnitGUID("player") then
         		if param == "SPELL_CAST_SUCCESS" then
-          			if SpellID ~= 75 and SpellID ~= 88263 then -- Add spells we dont want to appear here.
-						if debugTable == nil then debugTable = { }; end
-        				local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
+        			local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
+        			if SpellID ~= 75 and SpellID ~= 88263 then -- Add spells we dont want to appear here.
         				local color = "|cff12C8FF";
-        				tinsert(debugTable, 1, { textString = color..string.sub(timeStamp,8).."|cffFF001E/|cffFFFFFF"..spellName , sourceguid = sourceGUID, sourcename = sourceName, spellid = spellID, spellname = spellName, destguid = destGUID, destname = destName })
-						if #debugTable > 99 then tremove(debugTable, 100); end
+        				if spellCastTarget == UnitName("target") then 
+        					destGUID = UnitGUID("target"); 
+        					Distance = targetDistance;
+        				end
+        				local Power = UnitPower("player");
+        				BadBoy_data.successCasts = BadBoy_data.successCasts + 1;
+        				tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName , sourceguid = sourceGUID, sourcename = sourceName, spellid = spellID, spellname = spellName, destguid = destGUID, destname = destName, distance = Distance, power = Power, number = BadBoy_data.successCasts })
+						if #debugTable > 249 then tremove(debugTable, 250); end
 						if BadBoy_data.ActualRow == 0 then debugRefresh(); end
 					end
         		end
            		if param == "SPELL_CAST_FAILED" then
-          			if SpellID ~= 75 and SpellID ~= 88263 then -- Add spells we dont want to appear here.
-						if debugTable == nil then debugTable = { }; end
-        				local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
-        				local color = "|cffFF001E";
-        				local lasterror, destGUID, distance, power = lasterror, destGUID, distance, power;
+        			local lasterror, destGUID, distance, power = lasterror, destGUID, distance, power;
+        			local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
+           			if tonumber(SpellID) ~= 75 and SpellID ~= 88263 then -- Add spells we dont want to appear here.
+						local color = "|cffFF001E";
         				if spellCastTarget == UnitName("target") then 
         					destGUID = UnitGUID("target"); 
-        					Distance = getDistance("player","target");
+        					Distance = targetDistance;
         				end
         				if lastError and lastErrorTime >= GetTime() - 0.2 then lasterror = lastError; end
-        				if sourceGUID == UnitGUID("player") then
-        					Power = UnitPower("player");
-        				end
-        				tinsert(debugTable, 1, { textString = color..string.sub(timeStamp,8).."|cffFF001E/|cffFFFFFF"..spellName , sourceguid = sourceGUID, sourcename = sourceName, spellid = spellID, spellname = spellName, destguid = destGUID, destname = spellCastTarget, distance = Distance, power = Power, uierror = lasterror })
-						if #debugTable > 99 then tremove(debugTable, 100); end
+        				local Power = UnitPower("player");
+        				BadBoy_data.failCasts = BadBoy_data.failCasts + 1;	
+        				tinsert(debugTable, 1, { textString = BadBoy_data.failCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName , sourceguid = sourceGUID, sourcename = sourceName, spellid = spellID, spellname = spellName, destguid = destGUID, destname = spellCastTarget, distance = Distance, power = Power, uierror = lasterror, number = BadBoy_data.failCasts })
+						if #debugTable > 249 then tremove(debugTable, 250); end
 						if BadBoy_data.ActualRow == 0 then debugRefresh(); end
 					end
         		end

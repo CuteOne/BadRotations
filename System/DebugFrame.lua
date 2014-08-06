@@ -10,6 +10,8 @@ function DebugFrameCreation()
 			BadBoy_data.debugy = 100;
 			BadBoy_data.ActualRow = 0;
 		end
+		BadBoy_data.successCasts = 0;
+		BadBoy_data.failCasts = 0;
 		if BadBoy_data.debugAlpha == nil then BadBoy_data.debugAlpha = 0.10; end
 		BadBoy_data.ActualRow = 0;
 		if BadBoy_data.shownRows == nil then BadBoy_data.shownRows = 10; end
@@ -18,13 +20,12 @@ function DebugFrameCreation()
 		if debugHeight == nil then debugHeight = 26; end
 		function CreateDebugRow(value,textString)
 			if value > 0 then
-				_G["debug"..value.."Frame"] = CreateFrame("CheckButton", "MyButton", debugFrame, "UIPanelButtonTemplate");
-				_G["debug"..value.."Frame"]:SetAlpha(0.10);
+				_G["debug"..value.."Frame"] = CreateFrame("Frame", "MyButton", debugFrame);
 				_G["debug"..value.."Frame"]:SetWidth(BadBoy_data.debugWidth);
 				_G["debug"..value.."Frame"]:SetHeight(20);
-				_G["debug"..value.."Frame"]:SetNormalTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]]);
+				--_G["debug"..value.."Frame"]:SetNormalTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]]); 
 				_G["debug"..value.."Frame"]:SetPoint("TOPLEFT",0,-((value*20)));
-				_G["debug"..value.."Frame"]:SetAlpha(1);
+				_G["debug"..value.."Frame"]:SetAlpha(BadBoy_data.debugAlpha);
 				_G["debug"..value.."Frame"]:SetScript("OnEnter", function(self)
 
 					GameTooltip:SetOwner(self, "BOTTOMLEFT", 250, 5);
@@ -55,51 +56,25 @@ function DebugFrameCreation()
 				end)
 
 				_G["debug"..value.."Frame"]:SetScript("OnMouseWheel", function(self, delta)
-					if IsAltKeyDown() then
-						local Go = false;
-						if delta < 0 and BadBoy_data.debugAlpha > 0 then
-							Go = true;
-						elseif delta > 0 and BadBoy_data.debugAlpha < 100 then
-							Go = true;
-						end
-						if Go == true then
-							BadBoy_data.debugAlpha = BadBoy_data.debugAlpha + (delta*5)
-							debugFrame.texture:SetAlpha(BadBoy_data.debugAlpha/100);
-						end
-					else			
-						local Go = false;
-						if delta < 0 and BadBoy_data.ActualRow < 100 and debugTable ~= nil and debugTable[BadBoy_data.ActualRow+BadBoy_data.shownRows] ~= nil then
-							Go = true;
-						elseif delta > 0 and BadBoy_data.ActualRow > 0 then
-							Go = true;
-						end
-						if Go == true then
-							BadBoy_data.ActualRow = BadBoy_data.ActualRow - delta
-							debugRefresh()
-						end
+					local Go = false;
+					if delta < 0 and BadBoy_data.ActualRow < 100 and debugTable ~= nil and debugTable[BadBoy_data.ActualRow+BadBoy_data.shownRows] ~= nil then
+						Go = true;
+					elseif delta > 0 and BadBoy_data.ActualRow > 0 then
+						Go = true;
+					end
+					if Go == true then
+						BadBoy_data.ActualRow = BadBoy_data.ActualRow - delta
+						debugRefresh()
 					end
 				end)
-				_G["debug"..value.."Frame"]:SetScript("OnClick", function(self, button)
-					if button == "LeftButton" then 
-						if tooltipLock ~= true then
-							tooltipLock = true;
-						else
-							tooltipLock = false;
-							GameTooltip:Hide();
-						end
-					end	
-				end)
-
-
 
 				--_G["debug"..value.."Frame"]:Hide();
 				_G["debug"..value.."Text"] = _G["debug"..value.."Frame"]:CreateFontString(_G["debug"..value.."Frame"], "OVERLAY");
-				_G["debug"..value.."Text"]:SetAlpha(0.10);
 				_G["debug"..value.."Text"]:SetWidth(BadBoy_data.debugWidth);
 				_G["debug"..value.."Text"]:SetHeight(20);
 				_G["debug"..value.."Text"]:SetPoint("TOPLEFT",0,0);
+				_G["debug"..value.."Text"]:SetAlpha(1)
 				_G["debug"..value.."Text"]:SetJustifyH("LEFT")
-				_G["debug"..value.."Text"]:SetAlpha(1);
 				_G["debug"..value.."Text"]:SetFont("Fonts/MORPHEUS.ttf",16,"THICKOUTLINE");
 				_G["debug"..value.."Text"]:SetText(textString, 1, 1, 1, 0.7);
 			end
@@ -138,22 +113,42 @@ function DebugFrameCreation()
 			GameTooltip:Hide();
 		end)
 		debugFrame:SetScript("OnMouseWheel", function(self, delta)
-			local Go = false;
-			if delta < 0 and BadBoy_data.debugWidth < 500 then
-				Go = true;
-			elseif delta > 0 and BadBoy_data.debugWidth > 0 then
-				Go = true;
-			end
-			if Go == true then
-				BadBoy_data.debugWidth = BadBoy_data.debugWidth + (delta*5)
-				debugFrame:SetWidth(BadBoy_data.debugWidth);
-				for i = 1, 25 do 
-					if _G["debug"..i.."Frame"]:GetWidth() ~= BadBoy_data.debugWidth then
-						_G["debug"..i.."Frame"]:SetWidth(BadBoy_data.debugWidth);
+			if IsAltKeyDown() then
+				local Go = false;
+				if delta < 0 and BadBoy_data.debugAlpha > 0 then
+					Go = true;
+				elseif delta > 0 and BadBoy_data.debugAlpha < 100 then
+					Go = true;
+				end
+				if Go == true then
+					BadBoy_data.debugAlpha = BadBoy_data.debugAlpha + (delta*5)
+					debugFrame.texture:SetAlpha(BadBoy_data.debugAlpha/100);
+					for i = 1, 25 do 
+						if _G["debug"..i.."Frame"]:GetAlpha() ~= BadBoy_data.debugAlpha/100 then
+							_G["debug"..i.."Frame"]:SetAlpha(BadBoy_data.debugAlpha/100);
+							debugFrameText:SetAlpha(BadBoy_data.debugAlpha/100);
+						end
 					end
-					if _G["debug"..i.."Text"]:GetWidth() ~= BadBoy_data.debugWidth then
-						_G["debug"..i.."Text"]:SetWidth(BadBoy_data.debugWidth);
+				end
+			else	
+				local Go = false;
+				if delta < 0 and BadBoy_data.debugWidth < 500 then
+					Go = true;
+				elseif delta > 0 and BadBoy_data.debugWidth > 0 then
+					Go = true;
+				end
+				if Go == true then
+					BadBoy_data.debugWidth = BadBoy_data.debugWidth + (delta*5)
+					debugFrame:SetWidth(BadBoy_data.debugWidth);
+					for i = 1, 25 do 
+						if _G["debug"..i.."Frame"]:GetWidth() ~= BadBoy_data.debugWidth then
+							_G["debug"..i.."Frame"]:SetWidth(BadBoy_data.debugWidth);
+						end
+						if _G["debug"..i.."Text"]:GetWidth() ~= BadBoy_data.debugWidth then
+							_G["debug"..i.."Text"]:SetWidth(BadBoy_data.debugWidth);
+						end
 					end
+					debugFrameText:SetWidth(BadBoy_data.debugWidth);
 				end
 			end
 		end)
@@ -188,12 +183,37 @@ function DebugFrameCreation()
 			GameTooltip:Hide();
 		end)
 
-		debugFrameText = debugFrame:CreateFontString(nil, "ARTWORK");
-		debugFrameText:SetFont("Fonts/MORPHEUS.ttf",16,"THICKOUTLINE");
+
+
+
+		debugFrameTopButton = CreateFrame("CheckButton", "MyButton", debugFrame, "UIPanelButtonTemplate");
+		debugFrameTopButton:SetAlpha(0.80);
+		debugFrameTopButton:SetWidth(30);
+		debugFrameTopButton:SetHeight(18);
+		debugFrameTopButton:SetPoint("TOPRIGHT", -31, -1);
+		debugFrameTopButton:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]);
+		debugFrameTopButton:RegisterForClicks("AnyUp");
+		debugFrameTopButton:SetText("Top");
+		debugFrameTopButton:SetScript("OnEnter", function(self)
+			GameTooltip:SetOwner(self, "BOTTOMRIGHT", 0, 5);
+			GameTooltip:SetText("|cffD60000Click to return to top.", nil, nil, nil, nil, true);
+			GameTooltip:Show();
+		end)
+		debugFrameTopButton:SetScript("OnLeave", function(self)
+			GameTooltip:Hide();
+		end)
+		debugFrameTopButton:SetScript("OnClick", function()
+			BadBoy_data.ActualRow = 0;
+			debugRefresh();
+		end)
+
+		debugFrameText = debugFrame:CreateFontString(debugFrame, "ARTWORK");
+		debugFrameText:SetFont("Fonts/MORPHEUS.ttf",17,"THICKOUTLINE");
 		debugFrameText:SetTextHeight(16);
-		debugFrameText:SetPoint("TOPLEFT",5, -2);
+		debugFrameText:SetPoint("TOPLEFT",5, -4);
+		debugFrameText:SetJustifyH("LEFT")
 		debugFrameText:SetTextColor(225/255, 225/255, 225/255,1);
-		debugFrameText:SetText("|cffFF001EBadBoy |cffFFFFFFDebug Frame")
+		debugFrameText:SetText("|cffFF001EBadBoy |cffFFFFFFDebug")
 
 		if BadBoy_data.debugShown == false then debugFrame:Hide(); else debugFrame:Show(); end
 
@@ -245,7 +265,23 @@ function DebugFrameCreation()
 			
 			debugFrame:SetHeight((BadBoy_data.shownRows*20)+20);
 		end
-
+		debugFrame.texture:SetAlpha(BadBoy_data.debugAlpha/100);
+		for i = 1, 25 do 
+			if _G["debug"..i.."Frame"]:GetAlpha() ~= BadBoy_data.debugAlpha/100 then
+				_G["debug"..i.."Frame"]:SetAlpha(BadBoy_data.debugAlpha/100);
+				debugFrameText:SetAlpha(BadBoy_data.debugAlpha/100);
+			end
+		end
+		debugFrameText:SetWidth(BadBoy_data.debugWidth);
+		debugFrame:SetWidth(BadBoy_data.debugWidth);
+		for i = 1, 25 do 
+			if _G["debug"..i.."Frame"]:GetWidth() ~= BadBoy_data.debugWidth then
+				_G["debug"..i.."Frame"]:SetWidth(BadBoy_data.debugWidth);
+			end
+			if _G["debug"..i.."Text"]:GetWidth() ~= BadBoy_data.debugWidth then
+				_G["debug"..i.."Text"]:SetWidth(BadBoy_data.debugWidth);
+			end
+		end
     	debugLoaded = true;
     	debugRefresh();
 	end

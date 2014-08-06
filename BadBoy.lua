@@ -22,13 +22,15 @@ function BadBoyRun()
 
 		["Check Debug"] = 0,
 		["Check PokeRotation"] = 0,
+		["successCasts"] = 0,
+		["failCasts"] = 0,
 	}; end
 
 	-- Run once.
 	ReaderRun();
 	-- Globals
 	if badboyColors == nil then
-		BadBoy_Colors = {
+		classColors = {
 			["Black"]		= {B=0.1, 	G=0.1,	R=0.12,	Hex="|cff191919"},
 			["Hunter"]		= {B=0.45,	G=0.83,	R=0.67,	Hex="|cffabd473"},
 			["Gray"]		= {B=0.2,	G=0.2,	R=0.2,	Hex="|cff333333"},
@@ -43,7 +45,14 @@ function BadBoyRun()
 			["Monk"]		= {B=0.59,	G=1,	R=0,	Hex="|cff00ff96"},
 			["Rogue"]		= {B=0.41,	G=0.96,	R=1,	Hex="|cfffff569"}
 		}
+		qualityColors = {
+			blue = "0070dd",
+			green = "1eff00",
+			white = "ffffff",
+			grey = "9d9d9d"
+		}
 	end
+
 
 	---------------------------------
 	-- Macro Toggle ON/OFF

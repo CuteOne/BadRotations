@@ -45,3 +45,31 @@ function frame:OnEvent(event, arg1)
 end
 frame:SetScript("OnEvent", frame.OnEvent);
 
+
+
+-- Sell Greys Macros
+SLASH_Greys1 = "/grey"
+SLASH_Greys2 = "/greys"
+function SlashCmdList.Greys(msg, editbox)
+	SellGreys();
+end
+
+function SellGreys()
+  	for bag = 0,4 do
+    	for slot = 1,GetContainerNumSlots(bag) do
+      		local item = GetContainerItemLink(bag,slot)
+      		if item then
+				-- Is it grey quality item?
+        		if string.find(item, qualityColors.grey) ~= nil then
+          			greyPrice = select(11, GetItemInfo(item)) * select(2, GetContainerItemInfo(bag, slot))
+          			if greyPrice > 0 then
+            			PickupContainerItem(bag, slot)
+            			PickupMerchantItem()
+            		end
+            	end
+            end
+        end
+    end
+    ChatOverlay("Sold Greys")
+end
+

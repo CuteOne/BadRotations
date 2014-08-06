@@ -102,7 +102,7 @@ function Blood()
 	    end
 
 	    -- Rune Strike//Death Coil
-	    if getPower("player") >= 90 and getDistance("player","target") <= 4 then
+	    if getPower("player") >= 90 then
 	    	if isKnown(_RuneStrike) then
 	    		if castSpell("target",_RuneStrike,false) then return; end
 	   		else
@@ -112,27 +112,27 @@ function Blood()
 	    end
 
 	    -- Outbreak
-	    if UnitDebuffID("target",55095,"player") == nil and  getDistance("player","target") <= 4 then
+	    if UnitDebuffID("target",55095,"player") == nil then
 	    	if castSpell("target",_Outbreak,false) then return; end
 	    end
 
 	    -- Blood Boil
-	    if getDistance("player","target") < 5 and UnitDebuffID("target",55095,"player") ~= nil and getDebuffRemain("target",55095,"player") < 4 then
+	    if UnitDebuffID("target",55095,"player") ~= nil and getDebuffRemain("target",55095,"player") < 4 then
 	    	if castSpell("player",_BloodBoil,true) then return; end
 	    end
 
 	    -- Frost Fever
-	    if getDistance("player","target") <= 30 and getDebuffRemain("target",55095,"player") < 4 then
+	    if getDebuffRemain("target",55095,"player") < 4 then
 	    	if castSpell("target",_FrostFever,false) then return; end
 	    end
 
 	    -- Plague Strike
-	    if getFacing("player","target") and getDistance("player","target") <= 4 and getDebuffRemain("target",55078,"player") < 4 then
+	    if getDebuffRemain("target",55078,"player") < 4 then
 	    	if castSpell("target",_PlagueStrike,false) then return; end
 	    end
 
 	    -- Heart Strike//Blood Strike
-	    if getRunes("blood") >= 1 and getDistance("player","target") <= 4 and getFacing("player","target") then
+	    if getRunes("blood") >= 1 then
 	    	if isKnown(_HeartStrike) then
 	    		if castSpell("target",_HeartStrike,false) then return; end
 	    	else
@@ -144,9 +144,7 @@ function Blood()
 	    end
 
 	    -- Death Strike
-	    if getDistance("player","target") <= 4 then
-	    	if castSpell("target",_DeathStrike,false) then return; end
-	    end
+	    if castSpell("target",_DeathStrike,false) then return; end
 	   
 	    -- Blood Boil
 	    if UnitBuffID("player",81141) ~= nil and (BadBoy_data["AoE"] == 3 or getNumEnnemies("player",5)) >= 3 then
@@ -154,12 +152,12 @@ function Blood()
 	    end
 
 	    -- Soul Reaper
-	    if getDistance("player","target") <= 4 and getHP("target") < 35 then
+	    if getHP("target") < 35 then
 	    	if castSpell("target",_SoulReaper,false) then return; end
 	    end
 
 	    -- Rune Strike//Death Coil
-	    if isKnown(_RuneStrike) and getDistance("player","target") <= 4 then
+	    if isKnown(_RuneStrike) then
 	    	if castSpell("target",_RuneStrike,false) then return; end
 	    elseif getPower("player") >= 65 then
 	    	if castSpell("target",_DeathCoil,false) then return; end
