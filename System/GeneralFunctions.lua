@@ -303,8 +303,8 @@ end
 -- castSpell("target",12345,true);
 function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
     if timersTable == nil then timersTable = {}; end
-	local Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,GlobalCooldown,PowerNeeded,CurrentPower,SpellRange = tostring(Unit),tonumber(SpellID),FacingCheck,MovementCheck,SpamAllowed,KnownSkip,select(7, GetSpellInfo(SpellID)),select(4,GetSpellInfo(SpellID)),UnitPower("player");
-  	local spellRange = select(9,GetSpellInfo(SpellID));
+	local Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,GlobalCooldown,PowerNeeded,CurrentPower,spellRange = tostring(Unit),tonumber(SpellID),FacingCheck,MovementCheck,SpamAllowed,KnownSkip,select(7, GetSpellInfo(SpellID)),select(4,GetSpellInfo(SpellID)),UnitPower("player"),select(9,GetSpellInfo(SpellID));
+  	--local spellRange = select(9,GetSpellInfo(SpellID));
   	if spellRange < 4 then spellRange = 4; end
   	if (Unit ~= nil and UnitIsFriend("player",Unit)) then FacingCheck = true; end
   	if not (CurrentPower < PowerNeeded) 
@@ -324,7 +324,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
        			end
 			end
 		elseif Unit ~= nil and (UnitGUID(Unit) == UnitGUID("player") 
-  		  or getFacingSightDistance("player",Unit) < SpellRange) then
+  		  or getFacingSightDistance("player",Unit) < spellRange) then
 			CastSpellByName(GetSpellInfo(SpellID),Unit);
 			return true;
 		end
@@ -1008,7 +1008,7 @@ end
 -- if isEnnemy([Unit])
 function isEnnemy(Unit)
 	local Unit = Unit or "target";
-	if UnitCanAttack("player",Unit) == 1 then
+	if UnitIsEnemy("player",Unit) then
 		return true;
 	else
 		return false;

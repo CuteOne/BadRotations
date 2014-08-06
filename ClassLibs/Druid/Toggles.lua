@@ -96,6 +96,8 @@ if select(3, UnitClass("player")) == 11 then
                     ThrashMode = 0
                     ChatOverlay("|cffD60000-Thrash Disabled-")
                 end
+            else
+                ThrashMode = 1
             end
         end 
     end
