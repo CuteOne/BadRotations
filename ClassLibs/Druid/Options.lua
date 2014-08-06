@@ -86,6 +86,11 @@ function FeralCatConfig()
             dropOp("Rotation Mode", 1, "Toggle")
             textOp("Rotation Mode");
 
+            -- Thrash Toggle
+            checkOp("Thrash Toggle","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFThrash Key Toggle|cffFFBB00.");
+            --dropOp("Thrash", 1, "Toggle")
+            textOp("Thrash Toggle");
+
             -- Rake Multi-Target
             checkOp("Multi-Rake","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFMulti-Target Raking|cffFFBB00.");
             textOp("Multi-Rake");

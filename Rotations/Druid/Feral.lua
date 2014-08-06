@@ -479,7 +479,12 @@ if select(3, UnitClass("player")) == 11 then
 							end
 
 		-- Thrash (AoE)
-							if getPower("player") >= 50 and (getDebuffRemain("target",thr) < 3 or (UnitBuffID("player",tf) and getDebuffRemain("target",thr) < 9)) and not isGarrMCd() then
+							if getPower("player") >= 50 
+								and (getDebuffRemain("target",thr) < 3 or (UnitBuffID("player",tf) 
+								and getDebuffRemain("target",thr) < 9)) 
+								and ThrashMode == 1
+								and not isGarrMCd() 
+							then
 								if castSpell("player",thr,true) then return; end
 							end
 
@@ -540,6 +545,7 @@ if select(3, UnitClass("player")) == 11 then
 								and getDebuffRemain("target",rp) > 3
 								and getDebuffRemain("target",rk) > 3
 								and getTimeToDie("target") >= 6
+								and ThrashMode == 1
 								and not isGarrMCd() 
 							then
 								if castSpell("player",thr,true) then return; end
@@ -567,7 +573,7 @@ if select(3, UnitClass("player")) == 11 then
 							end
 
 		--Thrash
-							if getPower("player") >= 50 and not UnitBuffID("player",cc) and getTimeToDie("target") >= 6 and not isGarrMCd() then
+							if getPower("player") >= 50 and not UnitBuffID("player",cc) and getTimeToDie("target") >= 6 and ThrashMode == 1 and not isGarrMCd() then
 								if (getDebuffRemain("target",thr) < 9 and getRoRoRemain() > 0 and getRoRoRemain() <= 1.5 and getDebuffRemain("target",rp)) 
 									or (getDebuffRemain("target",thr) <= 3 and getDebuffRemain("target",rp) > 3 and getDebuffRemain("target",rk) > 3)
 								then

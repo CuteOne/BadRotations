@@ -81,6 +81,22 @@ if select(3, UnitClass("player")) == 11 then
             else
                 BadBoy_data['Cooldowns'] = 1
             end
+        end
+
+        --Thrash Key Toggle
+        if ThrashTimer == nil then ThrashTimer = 0; end
+        if ThrashMode == nil then ThrashMode = 0; end
+        if IsRightAltKeyDown() == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - ThrashTimer > 0.25 then
+            ThrashTimer = GetTime()
+            if BadBoy_data['Check Thrash Toggle'] == 1 then
+                if ThrashMode==0 then
+                    ThrashMode = 1
+                    ChatOverlay("|cff15FF00-Thrash Enabled-")
+                elseif ThrashMode == 1 then
+                    ThrashMode = 0
+                    ChatOverlay("|cffD60000-Thrash Disabled-")
+                end
+            end
         end 
     end
 
