@@ -61,6 +61,10 @@ function BloodOptions()
     -- Wrapper
     CreateNewWrap(thisConfig,"----- Cooldowns -----")
 
+    -- Raise Dead
+    CreateNewCheck(thisConfig,"Raise Dead");
+    CreateNewDrop(thisConfig, "Raise Dead", 1, "CD")
+    CreateNewText(thisConfig,"Raise Dead");
 
     -- Wrapper
     CreateNewWrap(thisConfig,"----- DPS Tweaks -----")
@@ -147,6 +151,12 @@ function BloodOptions()
     -- PokeRotation
     CreateNewCheck(thisConfig,"PokeRotation");
     CreateNewText(thisConfig,"PokeRotation");
+
+    -- Worgen/Human
+    if select(2,UnitRace("player")) == "Worgen" then
+        CreateNewCheck(thisConfig,"Worgen/Human");
+        CreateNewText(thisConfig,"Worgen/Human");
+    end
 
     -- Debug
     CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start \n|cffFFFFFFChat Debug |cffFFBB00of casted spells.");

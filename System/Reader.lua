@@ -224,3 +224,100 @@ pokeEngineFrame:SetScript("OnEvent", PokeReader);
 --CHAT_MSG_PET_INFO → Communication
 
 end
+
+
+
+local waitTimeBeforeTransform = 1.5
+local EventFrame
+local race = select(2,UnitRace("player"))
+local class = select(2,UnitClass("player"))
+local waitTimerForTransformation = 0.5
+local numDruidFormZeroFires = 0
+
+if race == "Worgen" then
+
+	EventFrame = CreateFrame( "Frame", nil, UIParent )
+	
+	EventFrame:RegisterEvent( "PLAYER_REGEN_ENABLED" )
+	EventFrame:RegisterEvent( "PET_ATTACK_STOP" )
+	EventFrame:RegisterEvent( "COMBAT_LOG_EVENT_UNFILTERED" )
+
+	-- add shapeshift event for druids
+	if( class == "DRUID" ) then
+		EventFrame:RegisterEvent( "UPDATE_SHAPESHIFT_FORM" )
+	end
+	
+	-- Function: OnEvent
+	EventFrame:SetScript( "OnEvent", function( self, e, ... )
+		if EventFrame.HasTwoFormsBeenDetected then		
+			local _,SubEvent,SourceGUID,_,_,_,_,_,SpellID,_,_,EventMessage = ...;
+
+			-- if running wild cast is cancelled
+			if e == "COMBAT_LOG_EVENT_UNFILTERED" and SourceGUID == UnitGUID( "player" ) and SubEvent == "SPELL_CAST_FAILED" and SpellID == 87840 and EventMessage == SPELL_FAILED_INTERRUPTED then
+				self.IsTransformationPending = true
+				self.isTransformationDone = false
+			end
+			
+			-- if shapeshift form is updated ( 0 = Humanoid, 1 through 5/6 are animal forms)
+			if( e == "UPDATE_SHAPESHIFT_FORM" and class == "DRUID" ) then 
+			
+				if( GetShapeshiftForm() == 0 ) then
+					numDruidFormZeroFires = numDruidFormZeroFires + 1
+					
+					if ( numDruidFormZeroFires >= 2 ) then
+						numDruidFormZeroFires = 0
+						self.IsTransformationPending = true
+						self.isTransformationDone = false
+					end
+				else
+					numDruidFormZeroFires = 0
+					waitTimerForTransformation = 0
+					self.IsTransformationPending = false
+				end
+			end
+
+			-- if player enters rested state OR pet attack stops OR running wild/darkflight ends
+			if not self.isTransformationDone and ( e == "PLAYER_REGEN_ENABLED" or e == "PET_ATTACK_STOP" or ( ( e == "COMBAT_LOG_EVENT_UNFILTERED" and SourceGUID == UnitGUID( "player" ) ) and ( ( SubEvent == "SPELL_AURA_REMOVED" and SpellID == 68992 ) or ( SubEvent == "SPELL_AURA_REMOVED" and SpellID == 87840 ) ) ) ) then
+				
+				if( class ~= "DRUID" or ( class == "DRUID" and GetShapeshiftForm() == 0 ) ) then
+					self.IsTransformationPending = true
+					self.isTransformationDone = false
+				end
+			end
+		end
+	end );
+	
+
+	-- Function: OnUpdate
+	EventFrame:SetScript( "OnUpdate", function( self, e, ... )
+		local isTransformationUnlocked = true
+
+		self.HasTwoFormsBeenDetected = ( self.HasTwoFormsBeenDetected or isTransformationUnlocked )
+		
+		if self.IsTransformationPending and self.isTransformationDone then 
+			self.IsTransformationPending = false
+		end
+
+		if isTransformationUnlocked and self.IsTransformationPending and not self.isTransformationDone then
+			if waitTimerForTransformation <= 0 then
+				waitTimerForTransformation = GetTime() + waitTimeBeforeTransform
+			end
+		end
+
+		if isTransformationUnlocked and waitTimerForTransformation ~= 0 and waitTimerForTransformation <= GetTime() and not self.isTransformationDone then
+			
+			if( class ~= "DRUID" or ( class == "DRUID" and GetShapeshiftForm() == 0 ) ) then
+				if isChecked("Worgen/Human") then castSpell("player",68996,true) end
+			end
+
+			self.isTransformationDone = true
+			self.IsTransformationPending = false
+			waitTimerForTransformation = 0
+				
+		else
+			if not isTransformationUnlocked then
+				self.isTransformationDone = false
+			end
+		end
+	end );
+end

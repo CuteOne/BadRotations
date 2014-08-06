@@ -17,7 +17,6 @@ function DebugFrameCreation()
 		-- CreateRow
 		if debugHeight == nil then debugHeight = 26; end
 		function CreateDebugRow(value,textString)
-			ChatOverlay("Framing")
 			if value > 0 then
 				_G["debug"..value.."Frame"] = CreateFrame("CheckButton", "MyButton", debugFrame, "UIPanelButtonTemplate");
 				_G["debug"..value.."Frame"]:SetAlpha(0.10);
@@ -191,7 +190,7 @@ function DebugFrameCreation()
 		debugFrameText:SetTextHeight(16);
 		debugFrameText:SetPoint("TOPLEFT",5, -2);
 		debugFrameText:SetTextColor(225/255, 225/255, 225/255,1);
-		debugFrameText:SetText("|cff12C8FFTime|cffFF001E/|cffFFFFFFSpell Name")
+		debugFrameText:SetText("|cffFF001EBadBoy |cffFFFFFFDebug Frame")
 
 		if BadBoy_data.debugShown == false then debugFrame:Hide(); else debugFrame:Show(); end
 
