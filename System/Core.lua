@@ -55,11 +55,11 @@ function SlashCmdList.Greys(msg, editbox)
 end
 
 function SellGreys()
-  	for bag = 0,4 do
-    	for slot = 1,GetContainerNumSlots(bag) do
+  	for bag = 0, 4 do
+    	for slot = 1, GetContainerNumSlots(bag) do
       		local item = GetContainerItemLink(bag,slot)
       		if item then
-				-- Is it grey quality item?
+				    -- Is it grey quality item?
         		if string.find(item, qualityColors.grey) ~= nil then
           			greyPrice = select(11, GetItemInfo(item)) * select(2, GetContainerItemInfo(bag, slot))
           			if greyPrice > 0 then
@@ -70,6 +70,8 @@ function SellGreys()
             end
         end
     end
+    RepairAllItems(1);
+    RepairAllItems(0);
     ChatOverlay("Sold Greys")
 end
 
