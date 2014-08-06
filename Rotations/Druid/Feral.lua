@@ -178,10 +178,10 @@ if select(3, UnitClass("player")) == 11 then
 	-- Might of Ursoc / Frenzied Regeneration / Cat Form
 				if BadBoy_data["Check Frenzied Regen"] == 1 and (UnitBuffID("player",mu) or getHP("player") <= BadBoy_data["Box Frenzied Regen"]) then
 					if castSpell("player",mu,true) then return; end	
-					if UnitBuffID("player",bf) then
+					if UnitBuffID("player",bf) and getSpellCD(fr)==0 then
 						if castSpell("player",fr,true) then return; end
 					end
-					if UnitBuffID("player",bf) and getSpellCD(fr) > 0 then
+					if UnitBuffID("player",bf) then
 						if castSpell("player",cf,true) then return; end
 					end
 				end
@@ -529,7 +529,7 @@ if select(3, UnitClass("player")) == 11 then
 	 					if not useAoE() then 
 
 		-- Ferocious Bite (Kill)
-							if getFerociousBiteDamage() >= UnitHealth("target") and getCombo()>0 then
+							if getFerociousBiteDamage() >= UnitHealth("target") and getCombo()>0 and not isDummy() then
 								if castSpell("target",fb,false) then return; end
 							end
 
@@ -576,7 +576,7 @@ if select(3, UnitClass("player")) == 11 then
 		-- Ferocious Bite
 							if getPower("player") >= 25 and getRoRoRemain() == 0 and getSRR() > 0 and getCombo()>=5 then
 								if (getTimeToDie("target") <= 4 and getCombo() >= 5)
-									or (getDebuffRemain("target",rp) <= 4 and getHP("target") <=25)
+									or (getDebuffRemain("target",rp) <= 4 and getDebuffRemain("target",rp)>0 and getHP("target") <=25)
 									or (RPP() < 108 and getDebuffRemain("target",rp) > 6 and getDebuffRemain("target",thr) > 3 and getCombo() >= 5 and getPower("player") >= 50) 
 								then
 									if castSpell("target",fb,false) then return; end
