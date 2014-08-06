@@ -643,7 +643,7 @@ function UIUpdate()
 		mainFrame.Text:SetText(playerFocus.."/"..playerFocusMax, 1, 1, 1, 0.7);
 		mainFrame:SetMinMaxValues(0, playerFocusMax);
 	end
-	--targetDistance = getDistance("player","target")
+	targetDistance = getDistance("player","target")
 	--mainFrame.Text:SetText(targetDistance)
 
 
