@@ -160,7 +160,7 @@ function Blood()
 	    -- Rune Strike//Death Coil
 	    if isKnown(_RuneStrike) then
 	    	if castSpell("target",_RuneStrike,false) then return; end
-	    elseif getPower("player") >= 65 then
+	    elseif getPower("player") >= 40 then
 	    	if castSpell("target",_DeathCoil,false) then return; end
 	    end
 

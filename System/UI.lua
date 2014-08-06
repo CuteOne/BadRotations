@@ -118,7 +118,8 @@ function BadBoyFrame()
 	if 	AoEModes == nil then 
 		AoEModes = { 
 			[1] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "Recommended for one or two targets." },
-			[2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "Recommended for three targets or more." }
+			[2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "Recommended for three targets or more." },
+            [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "|cffFFDD11Recommended for \n|cffFFDD11Lazy people like me.", highlight = 1 }
 		};
 		AoEModesLoaded = "Basic AoE Modes";
 	end
@@ -144,8 +145,9 @@ function BadBoyFrame()
 	-- Cooldowns Button
 	if 	CooldownsModes == nil then 
 		CooldownsModes = { 
-			[1] = { mode = "None", value = 1 , overlay = "Cooldowns Disabled", tip = "No cooldowns will be used." },
-			[2] = { mode = "All", value = 2 , overlay = "Cooldowns Enabled", tip = "Includes Rapid Fire, Bestial Wrath and Focus Fire." }
+           	[1] = { mode = "None", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffFF0000No cooldowns will be used.", highlight = 0 },
+            [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "|cffFF0000Includes: \n|cffFFDD11Config's selected spells.", highlight = 1 },
+            [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "|cffFF0000Includes: \n|cffFFDD11None", highlight = 1 }
 		};
 		CooldownsModesLoaded = "Basic Cooldowns Modes";
 	end
@@ -542,6 +544,7 @@ function UIUpdate()
 	if BadBoy_data['Power'] == 1 and powerText:GetText() ~= "On" then powerText:SetText("On"); powerButton:SetNormalTexture([[Interface\BUTTONS\CheckButtonHilight]]); end
 	if BadBoy_data['Power'] == 0 and powerText:GetText() ~= "Off" then powerText:SetText("Off"); powerButton:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]); end
 	-- AoE Status
+	if BadBoy_data['AoE'] == nil then BadBoy_data['AoE'] = 1; end
 	local AoE = BadBoy_data['AoE'];
 	if AoEModes ~= nil and AoE ~= nil then 
 		if AoE == 0 then AoE = 1; end

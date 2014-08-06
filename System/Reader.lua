@@ -11,6 +11,7 @@ end
 -- Super Reader	--
 ------------------
 superReaderFrame = CreateFrame('Frame');
+superReaderFrame:RegisterEvent("MERCHANT_SHOW")
 superReaderFrame:RegisterEvent("PLAYER_REGEN_DISABLED");
 superReaderFrame:RegisterEvent("PLAYER_TALENT_UPDATE");
 superReaderFrame:RegisterEvent("PLAYER_REGEN_ENABLED");
@@ -34,6 +35,8 @@ function SuperReader(self, event, ...)
 	if event == "ACTIVE_TALENT_GROUP_CHANGED" then
 		currentConfig = nil;
 	end
+
+	if event == "MERCHANT_SHOW" then SellGreys(); end
 
 	------------------------------------------
 	-- Get Combat Time
