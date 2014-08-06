@@ -267,35 +267,65 @@ function castGround(Unit,SpellID,maxDistance)
  	return false;
 end
 
+-- if getFacingSightDistance("player","target") < 30 then
+function getFacingSightDistance(Unit1,Unit2)
+	if Unit2 == nil then Unit2 = Unit1; Unit1 = "player"; end
+	if IExists(UnitGUID(Unit1)) and IExists(UnitGUID(Unit2)) then
+		local X1,Y1,Z1,Angle1 = IGetLocation(UnitGUID(Unit1));
+		local X2,Y2,Z2 = IGetLocation(UnitGUID(Unit2));
+		local unitSize = IGetFloatDescriptor(UnitGUID(Unit2),0x110)
+		if ((X1-X2)*math.cos(-Angle1))-((Y1-Y2)*math.sin(-Angle1)) < 0 and TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
+			return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unitSize;
+		else
+			return 1000;
+		end
+	else
+		return 1000;
+	end
+end
+
+-- if getFacingSight("player","target") == true then
+function getFacingSight(Unit1,Unit2)
+	if Unit2 == nil then Unit2 = Unit1; Unit1 = "player"; end
+	if IExists(UnitGUID(Unit1)) and IExists(UnitGUID(Unit2)) then
+		local X1,Y1,Z1,Angle1 = IGetLocation(UnitGUID(Unit1));
+		local X2,Y2,Z2 = IGetLocation(UnitGUID(Unit2));
+		local unitSize = IGetFloatDescriptor(UnitGUID(Unit2),0x110)
+		if ((X1-X2)*math.cos(-Angle1))-((Y1-Y2)*math.sin(-Angle1)) < 0 and TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
+			return true;
+		else
+			return false;
+		end
+	else
+		return false;
+	end
+end
+
 -- castSpell("target",12345,true);
 function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
-  	if type(Unit) ~= "String" then Unit = tostring(Unit); end
-  	local GlobalCooldown = select(7, GetSpellInfo(SpellID));
-  	if MovementCheck == nil then MovementCheck = true; end
+    if timersTable == nil then timersTable = {}; end
+	local Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,GlobalCooldown,PowerNeeded,CurrentPower,SpellRange = tostring(Unit),tonumber(SpellID),FacingCheck,MovementCheck,SpamAllowed,KnownSkip,select(7, GetSpellInfo(SpellID)),select(4,GetSpellInfo(SpellID)),UnitPower("player"),select(9,GetSpellInfo(SpellID));
   	if (Unit ~= nil and UnitIsFriend("player",Unit)) then FacingCheck = true; end
-  	if not (UnitPower("player") < select(4,GetSpellInfo(SpellID))) 
+  	if not (CurrentPower < PowerNeeded) 
    	  and (MovementCheck == false or GlobalCooldown == 0 or isMoving("player") ~= true or UnitBuffID("player",79206) ~= nil)
       and getSpellCD(SpellID) == 0 and (KnownSkip == true or isKnown(SpellID)) then
     	if GlobalCooldown == 0 and (SpamAllowed == nil or SpamAllowed == false) then
       		if timersTable == nil or (timersTable ~= nil and (timersTable[SpellID] == nil or timersTable[SpellID] <= GetTime() -0.6)) then
-       			if Unit ~= nil and ((UnitGUID(Unit) == UnitGUID("player") or (KnownSkip or isKnown(SpellID)) and getLineOfSight("player",Unit) == true and (FacingCheck == true or getFacing("player",Unit)))) then
-         			if timersTable == nil then timersTable = {}; end
+       			if Unit ~= nil and (UnitGUID(Unit) == UnitGUID("player") or (KnownSkip or isKnown(SpellID)) and getFacingSightDistance("player",Unit) < SpellRange) then
         			timersTable[SpellID] = GetTime();
         			CastSpellByName(GetSpellInfo(SpellID),Unit);
         			return true;
     			end
        			if Unit == nil then
-        			if timersTable == nil then timersTable = {}; end
         			timersTable[SpellID] = GetTime();
         			CastSpellByName(GetSpellInfo(SpellID));
         			return true;
        			end
 			end
 		elseif Unit ~= nil and (UnitGUID(Unit) == UnitGUID("player") 
-	  		  or ((IsSpellInRange(GetSpellInfo(SpellID),Unit) == 1 or getDistance("target")<8) and getLineOfSight("player",Unit) == true
-	  		  and (FacingCheck == true or getFacing("player",Unit)))) then
-				CastSpellByName(GetSpellInfo(SpellID),Unit);
-				return true;
+  		  or getFacingSightDistance("player",Unit) < SpellRange) then
+			CastSpellByName(GetSpellInfo(SpellID),Unit);
+			return true;
 		end
 		if Unit == nil then
 			CastSpellByName(GetSpellInfo(SpellID));

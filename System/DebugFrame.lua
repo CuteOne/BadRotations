@@ -35,12 +35,15 @@ function DebugFrameCreation()
 						if debugTable[value].spellname == nil then debugTable[value].spellname = "Invalid Spell Name"; end
 						if debugTable[value].destguid == nil then debugTable[value].destguid = "Invalid Dest Guid"; end
 						if debugTable[value].destname == nil then debugTable[value].destname = "Invalid Dest Name"; end
-						GameTooltip:SetText("|cffFF001ERoll Mouse to Scroll Rows\n|cffFFFFFFCaster: "..debugTable[value].sourcename..
-						  "\n|cffFFFFFFGuid: "..debugTable[value].sourceguid..
-						  "\n|cffFFDD11Casted: "..debugTable[value].spellname..
-						  "\n|cffFFDD11SpellID: "..debugTable[value].spellid..
-						  "\n|cff00FF00On Target: "..debugTable[value].destname..
-						  "\n|cff00FF00Guid: "..debugTable[value].destguid, nil, nil, nil, nil, true);
+						if debugTable[value].power == nil then debugTable[value].power = "No Power Reported"; end
+						if debugTable[value].distance == nil then debugTable[value].distance = "No Distance Reported"; end
+						if debugTable[value].uierror == nil then debugTable[value].uierror = "No Error Reported"; end
+						GameTooltip:SetText("|cffFF001ERoll Mouse to Scroll Rows\n|cffFFFFFF"..debugTable[value].sourcename.." "..debugTable[value].sourceguid..
+						  "\n|cffFFDD11"..debugTable[value].spellname.." "..debugTable[value].spellid..
+						  "\n|cff00FF00On: "..debugTable[value].destname.." "..debugTable[value].destguid..
+						  "\n|cffFFFFFFPower: "..debugTable[value].power.."%"..
+						  "\n|cff00FF00Distance: "..debugTable[value].distance..
+						  "\n|cffFF0000"..debugTable[value].uierror, nil, nil, nil, nil, true);
 						GameTooltip:Show();
 					end
 				end)

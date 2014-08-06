@@ -25,6 +25,8 @@ superReaderFrame:RegisterEvent("SPELLS_CHANGED");
 superReaderFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
 function SuperReader(self, event, ...)
 
+	if event == "UI_ERROR_MESSAGE" then lastError = ...; lastErrorTime = GetTime() end
+
 	if event == "PLAYER_TALENT_UPDATE" then
 		currentConfig = nil;
 	end
@@ -70,16 +72,40 @@ function SuperReader(self, event, ...)
 
         -------------------------------------------
         --- Debug ---------------------------------
-        if source == UnitGUID("player") and (param == "SPELL_CAST_SUCCESS" or param == "SPELL_CAST_FAILED") and BadBoy_data["Check Debug"] == 1 
-          and SpellID ~= 75 and SpellID ~= 88263 then -- Add spells we dont want to appear here.
-			if debugTable == nil then debugTable = { }; end
-        	local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
-        	local color = "";
-        	if param == "SPELL_CAST_SUCCESS" then color = "|cff12C8FF"; else color = "|cffFF001E"; end
-        	tinsert(debugTable, 1, { textString = color..string.sub(timeStamp,8).."|cffFF001E/|cffFFFFFF"..spellName , sourceguid = sourceGUID, sourcename = sourceName, spellid = spellID, spellname = spellName, destguid = destGUID, destname = destName })
-			if #debugTable > 99 then tremove(debugTable, 100); end
-			if BadBoy_data.ActualRow == 0 then debugRefresh(); end
+        if BadBoy_data["Check Debug"] == 1 then
+        	if source == UnitGUID("player") then
+        		if param == "SPELL_CAST_SUCCESS" then
+          			if SpellID ~= 75 and SpellID ~= 88263 then -- Add spells we dont want to appear here.
+						if debugTable == nil then debugTable = { }; end
+        				local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
+        				local color = "|cff12C8FF";
+        				tinsert(debugTable, 1, { textString = color..string.sub(timeStamp,8).."|cffFF001E/|cffFFFFFF"..spellName , sourceguid = sourceGUID, sourcename = sourceName, spellid = spellID, spellname = spellName, destguid = destGUID, destname = destName })
+						if #debugTable > 99 then tremove(debugTable, 100); end
+						if BadBoy_data.ActualRow == 0 then debugRefresh(); end
+					end
+        		end
+           		if param == "SPELL_CAST_FAILED" then
+          			if SpellID ~= 75 and SpellID ~= 88263 then -- Add spells we dont want to appear here.
+						if debugTable == nil then debugTable = { }; end
+        				local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
+        				local color = "|cffFF001E";
+        				local lasterror, destGUID, distance, power = lasterror, destGUID, distance, power;
+        				if spellCastTarget == UnitName("target") then 
+        					destGUID = UnitGUID("target"); 
+        					Distance = getDistance("player","target");
+        				end
+        				if lastError and lastErrorTime >= GetTime() - 0.2 then lasterror = lastError; end
+        				if sourceGUID == UnitGUID("player") then
+        					Power = UnitPower("player");
+        				end
+        				tinsert(debugTable, 1, { textString = color..string.sub(timeStamp,8).."|cffFF001E/|cffFFFFFF"..spellName , sourceguid = sourceGUID, sourcename = sourceName, spellid = spellID, spellname = spellName, destguid = destGUID, destname = spellCastTarget, distance = Distance, power = Power, uierror = lasterror })
+						if #debugTable > 99 then tremove(debugTable, 100); end
+						if BadBoy_data.ActualRow == 0 then debugRefresh(); end
+					end
+        		end
+        	end
         end
+
 
 
         --print(param..", "..source..", "..spell)

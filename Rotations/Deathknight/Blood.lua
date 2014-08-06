@@ -90,7 +90,7 @@ function Blood()
     	end
 
     	-- Death and Decay
-		if isSelected("Death And Decay") and getRunes("unholy") > 1 then
+		if isSelected("Death And Decay") and (getRunes("unholy") > 1 or getRunes("death") > 1) then
 			if getGround("target") == true and isMoving("target") == false and UnitExists("target") and (isDummy("target") or getDistance("target","targettarget") <= 5) then
 				if castGround("target",_DeathAndDecay,30) then return; end
 			end
