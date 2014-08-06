@@ -1,3 +1,4 @@
+if select(3, UnitClass("player")) == 3 then
 -- Rotation
 function Hunter()
 	if Currentconfig ~= "Beastmaster CodeMyLife" then
@@ -166,4 +167,5 @@ function Hunter()
 			if castSpell("target",_CobraShot,false,false) then return; end
 		end
 	end
+end
 end

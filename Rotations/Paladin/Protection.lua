@@ -1,4 +1,4 @@
--- Rotation
+if select(3, UnitClass("player")) == 2 then
 function PaladinProtection()
 	if currentConfig ~= "Protection CodeMyLife" then
 		PaladinProtFunctions();
@@ -302,4 +302,5 @@ function PaladinProtection()
 			if castSpell("target",_HolyPrism,false) then return; end
 		end
 	end
+end
 end

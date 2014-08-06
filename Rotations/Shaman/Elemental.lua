@@ -1,3 +1,4 @@
+if select(3, UnitClass("player")) == 7 then
 -- Rotation
 function ShamanElemental()
 	if currentConfig ~= "Elemental CodeMyLife" then
@@ -217,4 +218,5 @@ function ShamanElemental()
 			if castSpell("target",_LightningBolt,false,false) then return; end
 		end
 	end
+end
 end

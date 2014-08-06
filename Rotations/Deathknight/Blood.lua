@@ -1,3 +1,4 @@
+if select(3, UnitClass("player")) == 6 then
 function Blood()
 	--ChatOverlay(getNumEnnemies("player",10))
 	if AoEModesLoaded ~= "Blood DK AoE Modes" then
@@ -172,7 +173,7 @@ function Blood()
 
 	end
 end
-
+end
 
 
 
