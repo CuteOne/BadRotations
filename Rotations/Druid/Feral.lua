@@ -177,12 +177,13 @@ if select(3, UnitClass("player")) == 11 then
 				end
 	-- Might of Ursoc / Frenzied Regeneration / Cat Form
 				if BadBoy_data["Check Frenzied Regen"] == 1 and (UnitBuffID("player",mu) or getHP("player") <= BadBoy_data["Box Frenzied Regen"]) then
+					if debugTable[1].spellid == nil then lastSpell = 0; else lastSpell = debugTable[1].spellid; end
 					if castSpell("player",mu,true) then return; end	
-					if UnitBuffID("player",bf) and getSpellCD(fr)==0 then
+					if UnitBuffID("player",bf) and getSpellCD(fr)==0 and lastSpell ~= fr then
 						if castSpell("player",fr,true) then return; end
 					end
 					if UnitBuffID("player",bf) then
-						if castSpell("player",cf,true) then return; end
+						CancelShapeshiftForm();--if castSpell("player",cf) then return; end
 					end
 				end
 			end
@@ -478,7 +479,7 @@ if select(3, UnitClass("player")) == 11 then
 							end
 
 		-- Thrash (AoE)
-							if getPower("player") >= 50 and (getDebuffRemain("target",thr) < 3 or (UnitBuffID("player",tf) and getDebuffRemain("target",thr) < 9)) then
+							if getPower("player") >= 50 and (getDebuffRemain("target",thr) < 3 or (UnitBuffID("player",tf) and getDebuffRemain("target",thr) < 9)) and not isGarrMCd() then
 								if castSpell("player",thr,true) then return; end
 							end
 
@@ -488,12 +489,12 @@ if select(3, UnitClass("player")) == 11 then
 							end	
 						
 		-- Rip (AoE)
-							if getPower("player") >= 30 and getCombo() >= 5 then
+							if getPower("player") >= 30 and getCombo() >= 5 and not isGarrMCd() then
 								if castSpell("target",rp,false) then return; end
 							end
 
 		-- Rake - Multi-Dot (AoE)
-							if getPower("player") >= 35 then
+							if getPower("player") >= 35 and not isGarrMCd() then
 								if BadBoy_data["Multi-Rake"] == 1 then
 									for i = 1, GetTotalObjects(TYPE_UNIT) do
 										local Guid = IGetObjectListEntry(i)
@@ -539,6 +540,7 @@ if select(3, UnitClass("player")) == 11 then
 								and getDebuffRemain("target",rp) > 3
 								and getDebuffRemain("target",rk) > 3
 								and getTimeToDie("target") >= 6
+								and not isGarrMCd() 
 							then
 								if castSpell("player",thr,true) then return; end
 							end
@@ -565,7 +567,7 @@ if select(3, UnitClass("player")) == 11 then
 							end
 
 		--Thrash
-							if getPower("player") >= 50 and not UnitBuffID("player",cc) and getTimeToDie("target") >= 6 then
+							if getPower("player") >= 50 and not UnitBuffID("player",cc) and getTimeToDie("target") >= 6 and not isGarrMCd() then
 								if (getDebuffRemain("target",thr) < 9 and getRoRoRemain() > 0 and getRoRoRemain() <= 1.5 and getDebuffRemain("target",rp)) 
 									or (getDebuffRemain("target",thr) <= 3 and getDebuffRemain("target",rp) > 3 and getDebuffRemain("target",rk) > 3)
 								then
@@ -589,7 +591,7 @@ if select(3, UnitClass("player")) == 11 then
 					  		end
 
 		-- Rip
-							if getSRR() > 1 and getTimeToDie("target") > 4 and getPower("player") >= 30 then
+							if getSRR() > 1 and getTimeToDie("target") > 4 and getPower("player") >= 30 and not isGarrMCd() then
 								if RPP() >= 95 and getTimeToDie("target") > 30 and getRoRoRemain() > 0.5 then
 									if (getCombo() >= 4 and getRoRoRemain() < 5) or (getCombo() == 5 and getRoRoRemain() < 11) then
 										if castSpell("target",rp,false) then return; end
@@ -610,7 +612,7 @@ if select(3, UnitClass("player")) == 11 then
 							end
 
 		-- Rake
-							if getSRR() > 1 and not UnitBuffID("player", prl) and getPower("player") >= 35 then --and getCombo() < 5 then
+							if getSRR() > 1 and not UnitBuffID("player", prl) and getPower("player") >= 35 and not isGarrMCd() then
 								if (getRoRoRemain() > 0.5 and getDebuffRemain("target",rk) < 9 and getRoRoRemain() <= 1.5)
 									or getDebuffRemain("target",rk) < 3
 									or (getRkOver() and (getBuffRemain("player",138756) == 0 or getBuffRemain("player",138756) >= 9))	
@@ -648,7 +650,7 @@ if select(3, UnitClass("player")) == 11 then
 								end
 
 			-- Rake - Filler
-								if not UnitBuffID("player",cc) and getRkFill() and getPower("player") >= 35 then
+								if not UnitBuffID("player",cc) and getRkFill() and getPower("player") >= 35 and not isGarrMCd() then
 									if castSpell("target",rk,false) then return; end
 								end
 
