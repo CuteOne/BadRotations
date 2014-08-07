@@ -23,7 +23,7 @@ local function EnteringCombat(self, event, ...)
 		BadBoy_data["Combat Started"] = GetTime();
 		--tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cffFF001E/"..getCombatTime().."/Entering Combat" , number = ":D" })
 		if debugTable ~= nil and #debugTable > 249 then tremove(debugTable, 250); end
-		if BadBoy_data.ActualRow == 0 then debugRefresh(); end
+		if debugRefresh ~= nil and BadBoy_data.ActualRow == 0 then debugRefresh(); end
 		ChatOverlay("|cffFF0000Entering Combat");
 		healthFrame.Border:SetTexture([[Interface\FullScreenTextures\LowHealth]],0.25);
 	end
