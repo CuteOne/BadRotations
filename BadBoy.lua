@@ -129,7 +129,6 @@ function BadBoyRun()
 
 	-- Mettre a jour les valeurs chaque frame.
 	function FrameUpdate(self, elapsed)
-		if isChecked("Throttle") and (throttleTime == nil or throttleTime >= GetTime() - getValue("Throttle")) then return false; end
 		profileStarts = GetTime();
 		UIUpdate();
 		DebugFrameCreation();
@@ -171,44 +170,45 @@ function BadBoyRun()
 		else
 			debugFrame:Hide();
 		end
-
-		PokeEngine();
-		local _MyClass = select(3,UnitClass("player"));
-		local _MySpec = GetSpecialization("player");
-		if _MyClass == 1 then -- Warrior
-			--Warrior()
-		elseif _MyClass == 2 then -- Paladin
-			if _MySpec == 2 then
-				PaladinProtection()
+		if isChecked("Throttle") and (throttleTime == nil or throttleTime <= GetTime() - getValue("Throttle")/1000) then
+			throttleTime = GetTime();
+			PokeEngine();
+			local _MyClass = select(3,UnitClass("player"));
+			local _MySpec = GetSpecialization("player");
+			if _MyClass == 1 then -- Warrior
+				--Warrior()
+			elseif _MyClass == 2 then -- Paladin
+				if _MySpec == 2 then
+					PaladinProtection()
+				end
+			elseif _MyClass == 3 then -- Hunter
+				Hunter();
+			elseif _MyClass == 4 then -- Rogue
+				--Rogue()
+			elseif _MyClass == 5 then -- Priest
+				--Priest()
+			elseif _MyClass == 6 then -- Deathknight
+				if _MySpec == 1 then
+					Blood()
+				end
+			elseif _MyClass == 7 then -- Shaman
+				if _MySpec == 1 then
+					ShamanElemental();
+				end
+				if _MySpec == 2 then
+					ShamanEnhancement();
+				end	
+				--Shaman()		
+			elseif _MyClass == 8 then -- Mage
+				--Mage()		
+			elseif _MyClass == 9 then -- Warlock
+				--Warlock()		
+			elseif _MyClass == 10 then -- Monk
+				--Monk()						
+			elseif _MyClass == 11 then -- Druid
+				Druid()
 			end
-		elseif _MyClass == 3 then -- Hunter
-			Hunter();
-		elseif _MyClass == 4 then -- Rogue
-			--Rogue()
-		elseif _MyClass == 5 then -- Priest
-			--Priest()
-		elseif _MyClass == 6 then -- Deathknight
-			if _MySpec == 1 then
-				Blood()
-			end
-		elseif _MyClass == 7 then -- Shaman
-			if _MySpec == 1 then
-				ShamanElemental();
-			end
-			if _MySpec == 2 then
-				ShamanEnhancement();
-			end	
-			--Shaman()		
-		elseif _MyClass == 8 then -- Mage
-			--Mage()		
-		elseif _MyClass == 9 then -- Warlock
-			--Warlock()		
-		elseif _MyClass == 10 then -- Monk
-			--Monk()						
-		elseif _MyClass == 11 then -- Druid
-			Druid()
 		end
-
 	end
 
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]

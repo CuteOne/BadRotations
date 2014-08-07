@@ -98,7 +98,7 @@ function SuperReader(self, event, ...)
         				BadBoy_data.successCasts = BadBoy_data.successCasts + 1;
         				tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName , sourceguid = sourceGUID, sourcename = sourceName, spellid = spellID, spellname = spellName, destguid = destGUID, destname = destName, distance = Distance, power = Power, number = BadBoy_data.successCasts })
 						if #debugTable > 249 then tremove(debugTable, 250); end
-						if BadBoy_data.ActualRow == 0 then debugRefresh(); end
+						if BadBoy_data.ActualRow == 0 and debugRefresh ~= nil then debugRefresh(); end
 					end
         		end
            		if param == "SPELL_CAST_FAILED" then
