@@ -129,6 +129,7 @@ function BadBoyRun()
 
 	-- Mettre a jour les valeurs chaque frame.
 	function FrameUpdate(self, elapsed)
+		if isChecked("Throttle") and (throttleTime == nil or throttleTime >= GetTime() - getValue("Throttle")) then return false; end
 		profileStarts = GetTime();
 		UIUpdate();
 		DebugFrameCreation();

@@ -148,6 +148,11 @@ function BloodOptions()
 	    CreateNewText(thisConfig,"Strangulate");
 	end	
 
+    -- Throttle
+    CreateNewCheck(thisConfig,"Throttle");
+    CreateNewBox(thisConfig, "Throttle", 0, 1000  , 5, 50 , "|cffFFBB00Time to throttle profile refiring.");
+    CreateNewText(thisConfig,"Throttle");
+
     -- PokeRotation
     CreateNewCheck(thisConfig,"PokeRotation");
     CreateNewText(thisConfig,"PokeRotation");

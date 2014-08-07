@@ -159,6 +159,11 @@ function FeralCatConfig()
         textOp(" ");
         wrapOp("--- Utilities ---");
 
+            -- Throttle
+            CreateNewCheck(thisConfig,"Throttle");
+            CreateNewBox(thisConfig, "Throttle", 0, 1000  , 5, 50 , "|cffFFBB00Time to throttle profile refiring.");
+            CreateNewText(thisConfig,"Throttle");
+            
             -- PokeRotation
             checkOp("PokeRotation");
             textOp("PokeRotation");
