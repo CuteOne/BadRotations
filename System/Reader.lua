@@ -115,7 +115,7 @@ function SuperReader(self, event, ...)
         				BadBoy_data.failCasts = BadBoy_data.failCasts + 1;	
         				tinsert(debugTable, 1, { textString = BadBoy_data.failCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName , sourceguid = sourceGUID, sourcename = sourceName, spellid = spellID, spellname = spellName, destguid = destGUID, destname = spellCastTarget, distance = Distance, power = Power, uierror = lasterror, number = BadBoy_data.failCasts })
 						if #debugTable > 249 then tremove(debugTable, 250); end
-						if BadBoy_data.ActualRow == 0 then debugRefresh(); end
+						if BadBoy_data.ActualRow == 0 and debugRefresh ~= nil then debugRefresh(); end
 					end
         		end
         	end
@@ -271,11 +271,11 @@ end
 local waitTimeBeforeTransform = 1.5
 local EventFrame
 local race = select(2,UnitRace("player"))
-local class = select(2,UnitClass("player"))
+local class = select(3,UnitClass("player"))
 local waitTimerForTransformation = 0.5
 local numDruidFormZeroFires = 0
 
-if race == "Worgen" then
+if race == "Worgen" and class ~= 11 then
 
 	EventFrame = CreateFrame( "Frame", nil, UIParent )
 	
@@ -283,11 +283,6 @@ if race == "Worgen" then
 	EventFrame:RegisterEvent( "PET_ATTACK_STOP" )
 	EventFrame:RegisterEvent( "COMBAT_LOG_EVENT_UNFILTERED" )
 
-	-- add shapeshift event for druids
-	if( class == "DRUID" ) then
-		EventFrame:RegisterEvent( "UPDATE_SHAPESHIFT_FORM" )
-	end
-	
 	-- Function: OnEvent
 	EventFrame:SetScript( "OnEvent", function( self, e, ... )
 		if EventFrame.HasTwoFormsBeenDetected then		
@@ -299,31 +294,10 @@ if race == "Worgen" then
 				self.isTransformationDone = false
 			end
 			
-			-- if shapeshift form is updated ( 0 = Humanoid, 1 through 5/6 are animal forms)
-			if( e == "UPDATE_SHAPESHIFT_FORM" and class == "DRUID" ) then 
-			
-				if( GetShapeshiftForm() == 0 ) then
-					numDruidFormZeroFires = numDruidFormZeroFires + 1
-					
-					if ( numDruidFormZeroFires >= 2 ) then
-						numDruidFormZeroFires = 0
-						self.IsTransformationPending = true
-						self.isTransformationDone = false
-					end
-				else
-					numDruidFormZeroFires = 0
-					waitTimerForTransformation = 0
-					self.IsTransformationPending = false
-				end
-			end
-
 			-- if player enters rested state OR pet attack stops OR running wild/darkflight ends
 			if not self.isTransformationDone and ( e == "PLAYER_REGEN_ENABLED" or e == "PET_ATTACK_STOP" or ( ( e == "COMBAT_LOG_EVENT_UNFILTERED" and SourceGUID == UnitGUID( "player" ) ) and ( ( SubEvent == "SPELL_AURA_REMOVED" and SpellID == 68992 ) or ( SubEvent == "SPELL_AURA_REMOVED" and SpellID == 87840 ) ) ) ) then
-				
-				if( class ~= "DRUID" or ( class == "DRUID" and GetShapeshiftForm() == 0 ) ) then
-					self.IsTransformationPending = true
-					self.isTransformationDone = false
-				end
+				self.IsTransformationPending = true
+				self.isTransformationDone = false
 			end
 		end
 	end );
@@ -346,11 +320,8 @@ if race == "Worgen" then
 		end
 
 		if isTransformationUnlocked and waitTimerForTransformation ~= 0 and waitTimerForTransformation <= GetTime() and not self.isTransformationDone then
-			
-			if( class ~= "DRUID" or ( class == "DRUID" and GetShapeshiftForm() == 0 ) ) then
-				if isChecked("Worgen/Human") then castSpell("player",68996,true) end
-			end
 
+			if isChecked("Worgen/Human") then castSpell("player",68996,true) end
 			self.isTransformationDone = true
 			self.IsTransformationPending = false
 			waitTimerForTransformation = 0

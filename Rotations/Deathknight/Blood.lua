@@ -80,6 +80,9 @@ function Blood()
 
 	if isInCombat("player") and isAlive() and isEnnemy() then
 
+
+
+
 		-- Raise Dead
 		if isSelected("Raise Dead") then
 			if castSpell("player",_RaiseDead,true) then return; end
@@ -91,16 +94,32 @@ function Blood()
     	end
 
     	-- Death and Decay
-		if isSelected("Death And Decay") and (getRunes("unholy") > 1 or getRunes("death") > 1) then
-			if getGround("target") == true and isMoving("target") == false and UnitExists("target") and (isDummy("target") or getDistance("target","targettarget") <= 5) then
-				if castGround("target",_DeathAndDecay,30) then return; end
-			end
+		if isSelected("Death And Decay") and (getRunes("unholy") >= 1 or getRunes("death") >= 1) then
+			--if getGround("target") == true and UnitExists("target") and ((isDummy("target") and getDistance("target","targettarget") <= 10) or getDistance("target","targettarget") <= 20) then
+				if castGroundBetween("target",_DeathAndDecay,30) then return; end
+			--end
 		end    	
-   
+
 	    -- Blood Tap
 	    if getBuffStacks("player",114851) >= 5 and canTap() then
 	    	if castSpell("player",_BloodTap,true) then return; end
 	    end
+
+
+--[[	-- When pulling, you’ll want to apply diseases using Outbreak. 
+		
+		-- Then you can Heart Strike with both Blood Runes, and use Death Strike to take advantage of the Death Strike mechanics (healing for damage taken in preceding 5 sec).
+
+		-- You’ll want to keep diseases active at all times. 
+		-- The most efficient way to refresh your diseases is with Blood Boil thanks to Scarlet Fever. 
+		-- However, if a disease expires, refresh the disease via Outbreak. 
+		-- If Outbreak is on cooldown, then use Icy Touch and/or Plague Strike.
+
+		-- Beyond diseases, you’ll want to Death Strike as much as possible with your Frost, Unholy, and Death Runes. 
+		-- Use Heart Strike with Blood Runes, and Rune Strike whenever all Runes are depleted or when you are capped with Runic Power. 
+		-- Soul Reaper replaces Heart Strike when your target has 35% or less Health.
+
+]]
 
 	    -- Rune Strike//Death Coil
 	    if getPower("player") >= 90 then

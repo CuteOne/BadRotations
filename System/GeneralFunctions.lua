@@ -267,6 +267,22 @@ function castGround(Unit,SpellID,maxDistance)
  	return false;
 end
 
+		--GetPointBetweenObjects(Player, Target, 5)
+		--Returns the point that is directly between the 2 objects and is DistanceFromObject1 yards from the first object. Both objects must be either game objects, units, or players.
+
+-- castGroundBetween("target",12345,40);
+function castGroundBetween(Unit,SpellID,maxDistance)
+	if IExists(UnitGUID(Unit)) and getSpellCD(SpellID) <= 0.4 and getLineOfSight("player", Unit) and getDistance("player", Unit) <= maxDistance then
+ 		CastSpellByName(GetSpellInfo(SpellID),"player");
+		if AreaSpellIsPending() then
+		local X, Y, Z = IGetLocation(UnitGUID(Unit));
+			CastAtLocation(GetPointBetweenObjects(Player, Target, getDistance("player", "target")/2));
+			return true;
+		end
+ 	end
+ 	return false;
+end
+
 -- if getFacingSightDistance("player","target") < 30 then
 function getFacingSightDistance(Unit1,Unit2)
 	if Unit2 == nil then Unit2 = Unit1; Unit1 = "player"; end
@@ -552,7 +568,7 @@ end
 function getGround(Unit)
 	if IExists(UnitGUID(Unit)) then
 		local X1,Y1,Z1 = IGetLocation(UnitGUID(Unit));
-		if TraceLine(X1,Y1,Z1,X1,Y1,Z1-2, 0x100) == nil then return false; else return true; end
+		if TraceLine(X1,Y1,Z1+2,X1,Y1,Z1-2, 0x10) == nil and TraceLine(X1,Y1,Z1+2,X1,Y1,Z1-4, 0x100) == nil then return false; else return true; end
 	else 
 		return false;
 	end
