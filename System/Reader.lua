@@ -102,44 +102,37 @@ local function SpellsChanged(self, event, ...)
 end
 Frame:SetScript("OnEvent", SpellsChanged)
 
-------------------
--- Totem Reader --
-local Frame = CreateFrame('Frame');
-Frame:RegisterEvent("PLAYER_TOTEM_UPDATE");
-local function TotemHolder(self, event, ...)
-	if event == "PLAYER_TOTEM_UPDATE" then
-    	local param 		= select(2,...);
-		local source 		= select(4,...);
-        if source == UnitGUID("player") and param == "SPELL_SUMMON" then
-        	activeTotem = destination;
-        end
-        if activeTotem == destination and param == "UNIT_DESTROYED" then
-        	activeTotem = nil;
-        end
-	end
-end
-Frame:SetScript("OnEvent", TotemHolder)
-
 -----------------------
 -- Combat Log Reader --
 local superReaderFrame = CreateFrame('Frame');
+superReaderFrame:RegisterEvent("PLAYER_TOTEM_UPDATE");
 superReaderFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
 superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SENT");
 superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
 superReaderFrame:RegisterEvent("UNIT_SPELLCAST_FAILED");
 function SuperReader(self, event, ...)
+
     if debugTable == nil then debugTable = { }; end
 
     Rip_sDamage = Rip_sDamage or {}
     Rake_sDamage = Rake_sDamage or {}
     --Thrash_sDamage = Thrash_sDamage or {}
-    if event == "COMBAT_LOG_EVENT_UNFILTERED" then
-    	
+    if event == "COMBAT_LOG_EVENT_UNFILTERED" and select(4,...) == UnitGUID("player") then
+
     	local param 		= select(2,...);
 		local source 		= select(4,...);
-		local sourceName	= select(5,...)
+		local sourceName	= select(5,...);
 		local spell 		= select(12,...);
         local destination 	= select(8,...);
+
+        ----------------
+        -- Fire Totem -- 
+        if param == "SPELL_SUMMON" and spell == _SearingTotem then
+        	activeTotem = destination;
+        end
+        if activeTotem == destination and param == "UNIT_DESTROYED" then
+        	activeTotem = nil;
+        end
 
         -------------------------------------------
         --- Debug ---------------------------------
