@@ -81,16 +81,6 @@ function FeralCatConfig()
             boxOp("DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             textOp("DPS Testing");
 
-            -- Single/Multi Toggle
-            checkOp("Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Key Toggle|cffFFBB00.");
-            dropOp("Rotation Mode", 1, "Toggle")
-            textOp("Rotation Mode");
-
-            -- Thrash Toggle
-            checkOp("Thrash Toggle","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFThrash Key Toggle|cffFFBB00.");
-            --dropOp("Thrash", 1, "Toggle")
-            textOp("Thrash Toggle");
-
             -- Rake Multi-Target
             checkOp("Multi-Rake","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFMulti-Target Raking|cffFFBB00.");
             textOp("Multi-Rake");
@@ -99,7 +89,6 @@ function FeralCatConfig()
         -- Spacer
         textOp(" ");
         wrapOp("--- Cooldowns ---");
-        --dropOp("Cooldown Key", 1, "Toggle")
 
             -- Agi Pot
             checkOp("Agi-Pot");
@@ -149,11 +138,44 @@ function FeralCatConfig()
             checkOp("Maim")
             textOp(tostring(select(1,GetSpellInfo(ma))))
 
-
-            -- Standard Interrupt
+            -- Interrupt Percentage
             checkOp("Interrupts");
             boxOp("Interrupts", 5, 95, 5, 0);
             textOp("Interrupt At");
+
+        -- Spacer
+        textOp(" ");
+        wrapOp("--- Toggle Keys ---");
+
+            -- Single/Multi Toggle
+            checkOp("Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.");
+            dropOp("Rotation Mode", 4, "Toggle")
+            textOp("Rotation");
+
+            --Cooldown Key Toggle
+            checkOp("Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.");
+            dropOp("Cooldown Mode", 3, "Toggle")
+            textOp("Cooldowns")
+
+            --Defensive Key Toggle
+            checkOp("Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.");
+            dropOp("Defensive Mode", 6, "Toggle")
+            textOp("Defensive")
+
+            --Interrupts Key Toggle
+            checkOp("Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.");
+            dropOp("Interrupt Mode", 6, "Toggle")
+            textOp("Interrupts")
+
+            -- Thrash Toggle
+            checkOp("Thrash Toggle","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFThrash Toggle Key|cffFFBB00.");
+            dropOp("Thrash Toggle", 6, "Toggle")
+            textOp("Thrash");
+
+            -- Symbiosis Toggle
+            checkOp("Symbiosis Toggle","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFSymbiosis Toggle Key|cffFFBB00.");
+            dropOp("Symbiosis Toggle", 5, "Toggle")
+            textOp("Symbiosis");
 
         -- Spacer
         textOp(" ");

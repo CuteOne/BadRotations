@@ -71,8 +71,12 @@ if select(3, UnitClass("player")) == 11 then
 	-- Mark of the Wild
 		   	if isChecked("Mark of the Wild") then
 			  	for i = 1, #nNova do
-		  			if tonumber(string.sub(tostring(Guid), 5,5)) == 0 and not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
-		  				if castSpell("player",mow) then return; end
+		  			if not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
+		  				if UnitPower("player") ~= UnitPower("player",0) then
+		  					CancelShapeshiftForm()
+		  				else
+		  					if castSpell("player",mow,true) then return; end
+		  				end
 			  		end
 				end 
 			end
@@ -482,6 +486,7 @@ if select(3, UnitClass("player")) == 11 then
 							if getPower("player") >= 50 
 								and (getDebuffRemain("target",thr) < 3 or (UnitBuffID("player",tf) 
 								and getDebuffRemain("target",thr) < 9)) 
+								and targetDistance <= 8
 								and ThrashMode == 1
 								and not isGarrMCd() 
 							then
@@ -494,7 +499,7 @@ if select(3, UnitClass("player")) == 11 then
 							end	
 						
 		-- Rip (AoE)
-							if getPower("player") >= 30 and getCombo() >= 5 and not isGarrMCd() then
+							if getPower("player") >= 30 and getCombo() >= 5 and targetDistance < 5 and not isGarrMCd() then
 								if castSpell("target",rp,false) then return; end
 							end
 
@@ -507,16 +512,17 @@ if select(3, UnitClass("player")) == 11 then
 										if getFacing("player","thisUnit") == true
 											and getDebuffRemain("thisUnit",rk) < 3
 											and getTimeToDie("thisUnit") > 5
+											and getDistance("thisUnit") < 5
 										then
 											if castSpell("thisUnit",rk,false) then return; end								
 										end
 									end
-								elseif getDebuffRemain("target",rk) < 3 then
-									if castSpell("thisUnit",rk,false) then return; end								
+								elseif getDebuffRemain("target",rk) < 3 and targetDistance < 5 then
+									if castSpell("target",rk,false) then return; end								
 								end
 							end
 		-- Swipe 
-							if getPower("player") >= 45 then
+							if getPower("player") >= 45 and targetDistance <= 8 then
 								if getSRR() <= 5 
 									or (UnitBuffID("player",tf) or UnitBuffID("player",ber))
 									or getSpellCD(tf) < 3
@@ -532,7 +538,7 @@ if select(3, UnitClass("player")) == 11 then
 	--- In Combat - Single-Target Rotation ---
 	------------------------------------------
 					
-	 					if not useAoE() then 
+	 					if not useAoE() and targetDistance < 5 then 
 
 		-- Ferocious Bite (Kill)
 							if getFerociousBiteDamage() >= UnitHealth("target") and getCombo()>0 and not isDummy() then

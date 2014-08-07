@@ -320,7 +320,6 @@ end
 function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
     if timersTable == nil then timersTable = {}; end
 	local Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,GlobalCooldown,PowerNeeded,CurrentPower,spellRange = tostring(Unit),tonumber(SpellID),FacingCheck,MovementCheck,SpamAllowed,KnownSkip,select(7, GetSpellInfo(SpellID)),select(4,GetSpellInfo(SpellID)),UnitPower("player"),select(9,GetSpellInfo(SpellID));
-  	--local spellRange = select(9,GetSpellInfo(SpellID));
   	if spellRange < 4 then spellRange = 4; end
   	if (Unit ~= nil and UnitIsFriend("player",Unit)) then FacingCheck = true; end
   	if not (CurrentPower < PowerNeeded) 
@@ -958,12 +957,14 @@ end
 --- if isBuffed()
 function isBuffed(UnitID,SpellID,TimeLeft) 
   	if not TimeLeft then TimeLeft = 0 end
-  	--if type(SpellID) == "number" then SpellID = { SpellID } end 
+  	if type(SpellID) == "number" then SpellID = { SpellID } end 
 	for i=1,#SpellID do 
 		local spell = tostring(GetSpellInfo(SpellID[i]))
 		if spell then
 			local buff = select(7,UnitBuff(UnitID,spell)) 
-			if buff ~= nil and ( buff == 0 or buff - GetTime() > TimeLeft ) then return true end
+			if buff ~= nil and ( buff == 0 or buff - GetTime() > TimeLeft ) then 
+				return true
+			end
 		end
 	end
 end
