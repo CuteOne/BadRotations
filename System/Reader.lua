@@ -151,10 +151,9 @@ function SuperReader(self, event, ...)
         				local color = "|cff12C8FF";
         				BadBoy_data.successCasts = BadBoy_data.successCasts + 1;
         				if sourceGUID == nil then debugSource = "" 	else debugSource = 	"\n|cffFFFFFF"..sourceName.." "..sourceGUID; end
-        				if destGUID == nil then debugTarget = "" 	else debugTarget = 	"\n|cff00FF00"..destName.." "..destGUID; end
         				if spellID == nil then debugSpell = "" 		else debugSpell = 	"\n|cffFFDD11"..spellName.." "..spellID; end
         				local Power = "\n|cffFFFFFFPower: "..UnitPower("player");
-        				tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName, toolTip = "|cffFF001ERoll Mouse to Scroll Rows"..debugSource.." "..debugSpell.." "..debugTarget.." "..Power });
+        				tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName, toolTip = "|cffFF001ERoll Mouse to Scroll Rows"..debugSource.." "..debugSpell.." "..Power });
 						if #debugTable > 249 then tremove(debugTable, 250); end
 						if BadBoy_data.ActualRow == 0 and debugRefresh ~= nil then debugRefresh(); end
 					end
