@@ -2,15 +2,15 @@ if select(3, UnitClass("player")) == 11 then
 
 
     function SpecificToggle()
-        if BadBoy_data["Drop Rotation Mode"] == 1 then
+        if getValue("Rotation Mode") == 1 then
             return IsLeftControlKeyDown();
-        elseif BadBoy_data["Drop Rotation Mode"] == 2 then
+        elseif getValue("Rotation Mode") == 2 then
             return IsLeftShiftKeyDown();
-        elseif BadBoy_data["Drop Rotation Mode"] == 3 then
+        elseif getValue("Rotation Mode") == 3 then
             return IsRightControlKeyDown();
-        elseif BadBoy_data["Drop Rotation Mode"] == 4 then
+        elseif getValue("Rotation Mode") == 4 then
             return IsRightShiftKeyDown();
-        elseif BadBoy_data["Drop Rotation Mode"] == 5 then
+        elseif getValue("Rotation Mode") == 5 then
             return IsRightAltKeyDown();
         end
     end
@@ -88,7 +88,7 @@ if select(3, UnitClass("player")) == 11 then
         if ThrashMode == nil then ThrashMode = 0; end
         if IsRightAltKeyDown() == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - ThrashTimer > 0.25 then
             ThrashTimer = GetTime()
-            if BadBoy_data['Check Thrash Toggle'] == 1 then
+            if isChecked("Thrash Toggle") then
                 if ThrashMode==0 then
                     ThrashMode = 1
                     ChatOverlay("|cff15FF00-Thrash Enabled-")
@@ -97,7 +97,7 @@ if select(3, UnitClass("player")) == 11 then
                     ChatOverlay("|cffD60000-Thrash Disabled-")
                 end
             else
-                ThrashMode = 1
+                ThrashMode = 0
             end
         end 
     end

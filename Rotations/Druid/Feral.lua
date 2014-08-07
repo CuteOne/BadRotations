@@ -69,7 +69,7 @@ if select(3, UnitClass("player")) == 11 then
 		  	and not IsFlying()
 		 then
 	-- Mark of the Wild
-		   	if BadBoy_data["Check Mark of the Wild"] == 1 then
+		   	if isChecked("Mark of the Wild") then
 			  	for i = 1, #nNova do
 		  			if tonumber(string.sub(tostring(Guid), 5,5)) == 0 and not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
 		  				if castSpell("player",mow) then return; end
@@ -78,7 +78,7 @@ if select(3, UnitClass("player")) == 11 then
 			end
 
 	-- Flask / Crystal
-			if BadBoy_data["Check Flask / Crystal"] == 1 then
+			if isChecked("Flask / Crystal") then
 				if (select(2,IsInInstance())=="raid" or select(2,IsInInstance())=="none") and not UnitBuffID("player",105689) then
 					if not UnitBuffID("player",127230) and canUse(86569) then
 						UseItemByName(tostring(select(1,GetItemInfo(86569))))
@@ -146,7 +146,7 @@ if select(3, UnitClass("player")) == 11 then
 ------------------
 --- Defensives ---
 ------------------
-		if BadBoy_data["Defensive"] == 1 then
+		if isChecked("Defensive") then
 			if not UnitBuffID("player", prl)
 				and not UnitBuffID("player", 80169) -- Food
 			  	and not UnitBuffID("player", 87959) -- Drink
@@ -156,7 +156,7 @@ if select(3, UnitClass("player")) == 11 then
 				and isInCombat("player")
 			then
 	-- Pot/Stoned
-				if BadBoy_data["Check Pot/Stoned"] == 1 and getHP("player") <= BadBoy_data["Box Pot/Stoned"] then
+				if isChecked("Pot/Stoned") and getHP("player") <= getValue("Pot/Stoned") then
 					if isInCombat("player") then
 						if canUse(5512) then
 							--useItem(5512)
@@ -168,15 +168,15 @@ if select(3, UnitClass("player")) == 11 then
 					end
 				end
 	-- Barkskin
-				if BadBoy_data["Check Barkskin"] == 1 and getHP("player") <= BadBoy_data["Box Barkskin"] then
+				if isChecked("Barkskin") and getHP("player") <= getValue("Barkskin") then
 					if castSpell("player",bar,true) then return; end
 				end
 	-- Survival Instincts
-				if BadBoy_data["Check Survival Instincts"] == 1 and getHP("player") <= BadBoy_data["Box Survival Instincts"] then
+				if isChecked("Survival Instincts") and getHP("player") <= getValue("Survival Instincts") then
 					if castSpell("player",si,true) then return; end
 				end
 	-- Might of Ursoc / Frenzied Regeneration / Cat Form
-				if BadBoy_data["Check Frenzied Regen"] == 1 and (UnitBuffID("player",mu) or getHP("player") <= BadBoy_data["Box Frenzied Regen"]) then
+				if isChecked("Frenzied Regen") and (UnitBuffID("player",mu) or getHP("player") <= getValue("Frenzied Regen")) then
 					if debugTable[1].spellid == nil then lastSpell = 0; else lastSpell = debugTable[1].spellid; end
 					if castSpell("player",mu,true) then return; end	
 					if UnitBuffID("player",bf) and getSpellCD(fr)==0 and lastSpell ~= fr then
@@ -193,7 +193,7 @@ if select(3, UnitClass("player")) == 11 then
 --- Death Cat ---
 -------------------
 	-- Target Free Carnage
-		if BadBoy_data["Check Death Cat Mode"] == 1 then
+		if isChecked("Death Cat Mode") then
 			if not UnitBuffID("player",cf) then
 				if castSpell("player",cf,true) then return; end
 			end
@@ -230,7 +230,7 @@ if select(3, UnitClass("player")) == 11 then
 		        	end
 		    	end
 		    end
-	    elseif BadBoy_data["Check Death Cat Mode"] == 0 then
+	    elseif not isChecked("Death Cat Mode") then
 
 ---------------------
 --- Out of Combat ---
@@ -315,12 +315,12 @@ if select(3, UnitClass("player")) == 11 then
 	--- In Combat - Dummy Test / Cat Form Maintain ---
 	--------------------------------------------------
 		-- Dummy Test
-				if BadBoy_data["Check DPS Testing"] == 1 then
+				if isChecked("DPS Testing") then
 					if UnitExists("target") then
-						if getCombatTime() >= (tonumber(BadBoy_data["Box DPS Testing"])*60) and isDummy() then  
+						if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then  
 							StopAttack()
 							ClearTarget()
-							print(tonumber(BadBoy_data["Box DPS Testing"]) .." Minute Dummy Test Concluded - Profile Stopped")
+							print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
 						end
 					end
 				end
@@ -331,26 +331,26 @@ if select(3, UnitClass("player")) == 11 then
 	------------------------------
 	--- In Combat - Interrupts ---
 	------------------------------
-					if BadBoy_data["Interrupts"] == 1 and UnitBuffID("player",cf) and not UnitBuffID("player",prl) then
+					if isChecked("Interrupts") and UnitBuffID("player",cf) and not UnitBuffID("player",prl) then
 		-- Skull Bash
-						if canInterrupt(sb, tonumber(BadBoy_data["Box Interrupts"])) 
-							and BadBoy_data["Check Skull Bash"]==1 
+						if canInterrupt(sb, tonumber(getValue("Interrupts"))) 
+							and isChecked("Skull Bash") 
 							and targetDistance<=13
 						then
 							if castSpell("target",sb,false) then return; end
 						end
 		-- Mighty Bash
-						if canInterrupt(mb, tonumber(BadBoy_data["Box Interrupts"])) 
-							and BadBoy_data["Check Mighty Bash"]==1 
-							and (getSpellCD(sb) < 14 or BadBoy_data["Check Skull Bash"]~=1) 
+						if canInterrupt(mb, tonumber(getValue("Interrupts"))) 
+							and isChecked("Mighty Bash")
+							and (getSpellCD(sb) < 14 or not isChecked("Skull Bash")) 
 							and targetDistance<=5
 						then
 							if castSpell("target",mb,false) then return; end
 						end
 		-- Maim (PvP)
-						if canInterrupt(ma, tonumber(BadBoy_data["Box Interrupts"])) 
-						 	and (getSpellCD(sb) < 14 or BadBoy_data["Check Skull Bash"]~=1)
-						 	and (getSpellCD(mb) < 49 or BadBoy_data["Check Mighty Bash"]~=1) 
+						if canInterrupt(ma, tonumber(getValue("Interrupts"))) 
+						 	and (getSpellCD(sb) < 14 or not isChecked("Skull Bash"))
+						 	and (getSpellCD(mb) < 49 or not isChecked("Mighty Bash")) 
 						 	and getCombo() > 0 
 						 	and UnitPower("player") >= 35 
 						 	and isInPvP() 
@@ -366,7 +366,7 @@ if select(3, UnitClass("player")) == 11 then
 					if useCDs() and UnitBuffID("player",cf) and not UnitBuffID("player",prl) and targetDistance<=5 then
 						if getSRR() > 0 and getBuffRemain("player",tf) > 0 then
 		-- Agi-Pot			
-							if canUse(76089) and getCombo() >= 4 and getHP("target") <= 25 and UnitInRaid("player") and BadBoy_data["Check Agi-Pot"] == 1 then
+							if canUse(76089) and getCombo() >= 4 and getHP("target") <= 25 and UnitInRaid("player") and isChecked("Agi-Pot") then
 								--useItem(76089)
 								UseItemByName(tostring(select(1,GetItemInfo(76089))))
 							end
@@ -500,7 +500,7 @@ if select(3, UnitClass("player")) == 11 then
 
 		-- Rake - Multi-Dot (AoE)
 							if getPower("player") >= 35 and not isGarrMCd() then
-								if BadBoy_data["Check Multi-Rake"] == 1 then
+								if isChecked("Multi-Rake") then
 									for i = 1, GetTotalObjects(TYPE_UNIT) do
 										local Guid = IGetObjectListEntry(i)
 										ISetAsUnitID(Guid,"thisUnit");
