@@ -27,9 +27,9 @@ function Blood()
 
 	if UnitAffectingCombat("player") then
 		-- Mind Freeze
-		-- Rebuke
-		if isChecked("MindFreeze") then
-			if canInterrupt(_MindFreeze, value("Mind Freeze")) and getDistance("player","target") <= 4 then
+		-- Mind Freeze
+		if isChecked("Mind Freeze") then
+			if canInterrupt(_MindFreeze, getValue("Mind Freeze")) and getDistance("player","target") <= 4 then
 				castSpell("target",_MindFreeze,false);
 			end
 		end
@@ -143,7 +143,7 @@ function Blood()
 					for i = 1, GetTotalObjects(TYPE_UNIT) do
 						local Guid = IGetObjectListEntry(i)
 						ISetAsUnitID(Guid,"thisUnit");
-						if getDebuffRemain("thisUnit",55078,"player") >= 2 and getFacingSightDistance("player","thisUnit") <= 10 then
+						if getDebuffRemain("thisUnit",55078,"player") >= 2 and getDistance("player","thisUnit") <= 10 then
 							if castSpell("thisUnit",_Pestilence,true) then return; end								
 						end
 					end	
@@ -152,13 +152,13 @@ function Blood()
 	    end
 
 	    -- Outbreak
-	    if UnitDebuffID("target",55095,"player") == nil then
+	    if UnitDebuffID("target",55078,"player") == nil then
 	    	if castSpell("target",_Outbreak,false) then return; end
 	    end
 
 	    -- Icy Touch
 	    if (runesFrost >= 1 or runesDeath >= 1) and getDebuffRemain("target",55095) < 4 then
-		    --if castSpell("target",_IcyTouch,false) then return; end
+		    if castSpell("target",_IcyTouch,false) then return; end
 	    end
 
 	    -- Plague Strike
@@ -169,7 +169,7 @@ function Blood()
 	    local numEnnemies = getNumEnnemies("target", 10)
 
 	    -- Pestilence
-	    if numEnnemies > 2 and runesBlood >= 1 then
+	    if numEnnemies >= 2 and runesBlood >= 1 then
 			if canCast(_Pestilence) then
 				if getDebuffRemain("target",55078,"player") >= 2 then
 					for i = 1, GetTotalObjects(TYPE_UNIT) do
@@ -185,12 +185,12 @@ function Blood()
 
 
 	    -- Blood Boil
-	    if targetDistance <= 5 and runesBlood > 1 and (getDebuffRemain("target",55078,"player") < 6 or numEnnemies >= 3) then
+	    if targetDistance <= 5 and runesBlood > 1 and ((UnitDebuffID("target",55078,"player") ~= nil and getDebuffRemain("target",55078) < 6) or numEnnemies > 3) then
 	    	if castSpell("player",_BloodBoil,true) then return; end
 	    end
 
 	    -- Heart Strike//Blood Strike
-	    if runesBlood > 1 or runesDeath > 1 then
+	    if runesBlood > 1 or (runesBlood >= 1 and UnitDebuffID("target",55078,"player") ~= nil) then
 	    	if isKnown(_HeartStrike) then
 	    		if castSpell("target",_HeartStrike,false) then return; end
 	    	else

@@ -71,7 +71,7 @@ if not DeathknightFunctions then
 		    return unholyRunes;
 		elseif Type == "death" then
 		  	local deathRunes = 0;
-		  	for i = 1, 4 do
+		  	for i = 3, 6 do
 		  		if select(3, GetRuneCooldown(i)) and GetRuneType(i) == 4 then
 					deathRunes = deathRunes + 1;
 				end
