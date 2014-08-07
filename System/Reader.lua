@@ -90,11 +90,11 @@ Frame:SetScript("OnEvent", UiErrorMessages)
 
 --------------------
 -- Spells Changed --
-local superReaderFrame = CreateFrame('Frame');
-superReaderFrame:RegisterEvent("PLAYER_TALENT_UPDATE");
-superReaderFrame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
-superReaderFrame:RegisterEvent("CHARACTER_POINTS_CHANGED");
-superReaderFrame:RegisterEvent("SPELLS_CHANGED");
+local Frame = CreateFrame('Frame');
+Frame:RegisterEvent("PLAYER_TALENT_UPDATE");
+Frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
+Frame:RegisterEvent("CHARACTER_POINTS_CHANGED");
+Frame:RegisterEvent("SPELLS_CHANGED");
 local function SpellsChanged(self, event, ...)
 	if event == "PLAYER_TALENT_UPDATE" or event == "ACTIVE_TALENT_GROUP_CHANGED" or event == "CHARACTER_POINTS_CHANGED" or event == "SPELLS_CHANGED" then
 		currentConfig = nil;
@@ -105,7 +105,7 @@ Frame:SetScript("OnEvent", SpellsChanged)
 ------------------
 -- Totem Reader --
 local Frame = CreateFrame('Frame');
-superReaderFrame:RegisterEvent("PLAYER_TOTEM_UPDATE");
+Frame:RegisterEvent("PLAYER_TOTEM_UPDATE");
 local function TotemHolder(self, event, ...)
 	if event == "PLAYER_TOTEM_UPDATE" then
     	local param 		= select(2,...);

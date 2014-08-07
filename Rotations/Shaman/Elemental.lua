@@ -56,7 +56,7 @@ function ShamanElemental()
 
 	if isInCombat("player") then
 
-		if isAlive() and isEnnemy() and getLineOfSight("player","target") == true and getFacing("player","target") == true then
+		if isAlive() and (isEnnemy() or isDummy("target")) and getLineOfSight("player","target") == true and getFacing("player","target") == true then
 
 			-- jade_serpent_potion,if=time>60&(pet.primal_fire_elemental.active|pet.greater_fire_elemental.active|target.time_to_die<=60)
 			-- berserking,if=!buff.bloodlust.up&!buff.elemental_mastery.up&(set_bonus.tier15_4pc_caster=1|(buff.ascendance.cooldown_remains=0&(dot.flame_shock.remains>buff.ascendance.duration|level<87)))
@@ -198,7 +198,7 @@ function ShamanElemental()
 
 			---- # Keep Searing Totem up, unless Fire Elemental Totem is coming off cooldown in the next 20 seconds
 			-- searing_totem,if=cooldown.fire_elemental_totem.remains>20&!totem.fire.active
-			if not isFireTotem(_FireElementalTotem) and (not isFireTotem(_SearingTotem) or getTotemDistance("target") > 25) and getDistance("target") <= 25 and (isSelected("Fire Elemental") ~= true or GetSpellCD(_FireElementalTotem) > 20) then
+			if isFireTotem(_FireElementalTotem) == false and (isFireTotem(_SearingTotem) == false or getTotemDistance("target") > 25) and getDistance("target") <= 25 and (isSelected("Fire Elemental") ~= true or GetSpellCD(_FireElementalTotem) > 20) then
 				if activeTotem == nil then
 					if castSpell("player",_SearingTotem,true) then return; end
 				end
