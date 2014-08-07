@@ -9,10 +9,10 @@ if select(3,UnitClass("player")) == 7 then
 --[[]]              --[[           ]]   --[[]]     --[[]]   --[[           ]]        --[[ ]]        --[[           ]]   --[[           ]]   --[[]]     --[[]]
  
 function isFireTotem(SpellID)
-    if select(2,GetTotemInfo(1)) ~= tostring(GetSpellInfo(SpellID)) then return true; else return false; end
+    if select(2,GetTotemInfo(1)) == tostring(GetSpellInfo(SpellID)) then return true; else return false; end
 end
 function isAirTotem(SpellID)
-    if select(2,GetTotemInfo(4)) ~= tostring(GetSpellInfo(SpellID)) then return true; else return false; end
+    if select(2,GetTotemInfo(4)) == tostring(GetSpellInfo(SpellID)) then return true; else return false; end
 end
 
 --[[           ]]   --[[]]              --[[           ]]
