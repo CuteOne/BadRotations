@@ -146,14 +146,14 @@ function Blood()
 	    end
 
 	    -- Pestilence
-	    if runesBlood >= 1 then
+	    if runesBlood >= 1 or runesDeath >= 1 and (pestiTimer == nil or pestiTimer <= GetTime() - 2) then
 			if canCast(_Pestilence) then
 				if getDebuffRemain("target",55078) == 0 then
 					for i = 1, GetTotalObjects(TYPE_UNIT) do
 						local Guid = IGetObjectListEntry(i)
 						ISetAsUnitID(Guid,"thisUnit");
 						if getDebuffRemain("thisUnit",55078,"player") >= 2 and getDistance("player","thisUnit") <= 10 then
-							if castSpell("thisUnit",_Pestilence,true) then return; end								
+							if castSpell("thisUnit",_Pestilence,true) then pestiTimer = GetTime(); return; end								
 						end
 					end	
 				end
@@ -178,14 +178,14 @@ function Blood()
 	    local numEnnemies = getNumEnnemies("target", 10)
 
 	    -- Pestilence
-	    if numEnnemies >= 2 and runesBlood >= 1 then
+	    if numEnnemies > 2 and (runesBlood >= 1 or runesDeath >= 1) and (pestiTimer == nil or pestiTimer <= GetTime() - 2) then
 			if canCast(_Pestilence) then
 				if getDebuffRemain("target",55078,"player") >= 2 then
 					for i = 1, GetTotalObjects(TYPE_UNIT) do
 						local Guid = IGetObjectListEntry(i)
 						ISetAsUnitID(Guid,"thisUnit");
 						if getDistance("target",thisUnit) <= 5 then
-							if castSpell("target",_Pestilence,true) then return; end								
+							if castSpell("target",_Pestilence,true) then pestiTimer = GetTime(); return; end								
 						end
 					end	
 				end

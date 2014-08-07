@@ -21,10 +21,8 @@ Frame:RegisterEvent("PLAYER_REGEN_DISABLED");
 local function EnteringCombat(self, event, ...)
 	if event == "PLAYER_REGEN_DISABLED" then
 		BadBoy_data["Combat Started"] = GetTime();
-		BadBoy_data.successCasts = 0;
-		BadBoy_data.failCasts = 0;
 		--tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cffFF001E/"..getCombatTime().."/Entering Combat" , number = ":D" })
-		if #debugTable > 249 then tremove(debugTable, 250); end
+		if debugTable ~= nil and #debugTable > 249 then tremove(debugTable, 250); end
 		if BadBoy_data.ActualRow == 0 then debugRefresh(); end
 		ChatOverlay("|cffFF0000Entering Combat");
 		healthFrame.Border:SetTexture([[Interface\FullScreenTextures\LowHealth]],0.25);
@@ -38,6 +36,8 @@ local Frame = CreateFrame('Frame');
 Frame:RegisterEvent("PLAYER_REGEN_ENABLED");
 local function LeavingCombat(self, event, ...)
 	if event == "PLAYER_REGEN_ENABLED" then
+		BadBoy_data.successCasts = 0;
+		BadBoy_data.failCasts = 0;
 		BadBoy_data["Combat Started"] = 0;
 		--tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cff12C8FF/"..getCombatTime().."/Leaving Combat" , number = ":D" })
 		if #debugTable > 249 then tremove(debugTable, 250); end
