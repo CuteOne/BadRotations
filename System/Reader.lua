@@ -111,13 +111,12 @@ superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SENT");
 superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
 superReaderFrame:RegisterEvent("UNIT_SPELLCAST_FAILED");
 function SuperReader(self, event, ...)
-
     if debugTable == nil then debugTable = { }; end
 
     Rip_sDamage = Rip_sDamage or {}
     Rake_sDamage = Rake_sDamage or {}
     --Thrash_sDamage = Thrash_sDamage or {}
-    if event == "COMBAT_LOG_EVENT_UNFILTERED" and select(4,...) == UnitGUID("player") then
+    if event == "COMBAT_LOG_EVENT_UNFILTERED" then
 
     	local param 		= select(2,...);
 		local source 		= select(4,...);
@@ -127,10 +126,10 @@ function SuperReader(self, event, ...)
 
         ----------------
         -- Fire Totem -- 
-        if param == "SPELL_SUMMON" and spell == _SearingTotem then
+        if source == UnitGUID("player") and  param == "SPELL_SUMMON" and spell == _SearingTotem then
         	activeTotem = destination;
         end
-        if activeTotem == destination and param == "UNIT_DESTROYED" then
+        if param == "UNIT_DESTROYED" and activeTotem == destination then
         	activeTotem = nil;
         end
 
