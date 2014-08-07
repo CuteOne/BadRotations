@@ -67,6 +67,13 @@ function hasFire()
         return false
     end
 end
+function hasWater()
+    if GetTotemTimeLeft(3) > 0 then
+        return true
+    else
+        return false
+    end
+end
 function useCDs()
     if (BadBoy_data['Cooldowns'] == 1 and isBoss()) or BadBoy_data['Cooldowns'] == 2 then
         return true

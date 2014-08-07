@@ -55,7 +55,7 @@ if select(3, UnitClass("player")) == 7 then
 			and isMoving("player")
 			and not isCasting("player")
 			and getBuffRemain("player",_AscendanceBuff)==0
-			and (not isInCombat("player") or (isInCombat("player") and getDistance("target")>10))
+			and (not isInCombat("player") or (isInCombat("player") and targetDistance>10))
 		then
 			if castSpell("player",_GhostWolf,true) then return; end
 		end
@@ -96,7 +96,7 @@ if select(3, UnitClass("player")) == 7 then
 			if castSpell("player",_TotemRecall,true) then return; end
 		end
 	-- Earth
-		if isMoving("target") and getDistance("target") <= 10 and getHP("target") <= 25 then
+		if isMoving("target") and targetDistance <= 10 and getHP("target") <= 25 then
 			if castSpell("player",_EarthbindTotem,true) then return; end
 		end
 		if not isCasting("player") 
@@ -109,17 +109,17 @@ if select(3, UnitClass("player")) == 7 then
 		if hasNoControl(_TremorTotem) then
 			if castSpell("player",_TremorTotem,true) then return; end
 		end
-		if useCDs() and getSpellCD(_FireElementalTotem) > 0 and getDistance("target") <= 10 and isInCombat("player") then
+		if useCDs() and getSpellCD(_FireElementalTotem) > 0 and targetDistance <= 10 and isInCombat("player") then
 			if castSpell("player",_EarthElementalTotem,true) then return; end
 		end
 	-- Fire
-		if useCDs() and getDistance("target") <= 10 and isInCombat("player") then
+		if useCDs() and targetDistance <= 10 and isInCombat("player") then
 			if castSpell("player",_FireElementalTotem,true) then return; end
 		end
-		if (not hasFire() or (hasFire() and getTotemDistance("target") > 20)) and getDistance("target")<=20 and getNumEnnemies("player",8)<6 and isInCombat("player") then
+		if (not hasFire() or (hasFire() and getTotemDistance("target") > 20)) and targetDistance<=20 and getNumEnnemies("player",8)<6 and isInCombat("player") then
 			if castSpell("player",_SearingTotem,true) then return; end
 		end
-		if (not hasFire() or (hasFire() and getTotemDistance("target") > 8)) and getDistance("target")<=8 and getNumEnnemies("player",8)>=6 and isInCombat("player") then
+		if (not hasFire() or (hasFire() and getTotemDistance("target") > 8)) and targetDistance<8 and getNumEnnemies("player",8)>=6 and isInCombat("player") then
 			if castSpell("player",_MagmaTotem,true) then return; end
 		end
 	-- Wind
@@ -129,11 +129,11 @@ if select(3, UnitClass("player")) == 7 then
 		if getNumEnnemies("player",8)>3 then
 			if castSpell("player",_CapacitorTotem,true) then return; end
 		end
-		if useCDs() and getDistance("target")<8 and isInCombat("player") then
+		if useCDs() and targetDistance<5 and isInCombat("player") then
 			if castSpell("player",_StormlashTotem,true) then return; end
 		end
 	-- Water
-		if getHP("player") < 25 then
+		if getHP("player") < 25 and not hasWater() then
 			if castSpell("player",_HealingStreamTotem,true) then return; end
 		end
 	-- Heart?!?!!
@@ -164,7 +164,7 @@ if select(3, UnitClass("player")) == 7 then
 				if castSpell("player",_HealingSurge,true) then return; end
 			end
 	-- Frost Shock
-			if isMoving("target") and getDistance("target")>=10 and getHP("target")<25 then
+			if isMoving("target") and targetDistance>=10 and getHP("target")<25 then
 				if castSpell("target",_FrostShock,false) then return; end
 			end
 	-- Purge
@@ -189,7 +189,7 @@ if select(3, UnitClass("player")) == 7 then
 -----------------
 --- Cooldowns ---
 -----------------
-		if useCDs() and getDistance("target") < 8 and isInCombat("player") then
+		if useCDs() and targetDistance<5 and isInCombat("player") then
 	-- Feral Spirit		
 			if castSpell("player",_FeralSpirit,true) then return; end	
 	-- Elemental Mastery
@@ -210,7 +210,7 @@ if select(3, UnitClass("player")) == 7 then
 -----------------------------
 --- Multi-Target Rotation ---
 -----------------------------
-		if getNumEnnemies("player",10) >= 3 and getDistance("target")<8 and useAoE() and isEnnemy("target") and isAlive("target") then
+		if getNumEnnemies("player",10) >= 3 and targetDistance<5 and useAoE() and isEnnemy("target") and isAlive("target") then
 	-- Flame Shock
 			if getDebuffRemain("target",_FlameShock) < 3 then
 				if castSpell("target",_FlameShock,false) then return; end								
@@ -245,7 +245,7 @@ if select(3, UnitClass("player")) == 7 then
 ------------------------------
 --- Single Target Rotation ---
 ------------------------------
-		if getNumEnnemies("player",8) < 3 and getDistance("target")<8 and not useAoE() and isEnnemy("target") and isAlive("target") then
+		if getNumEnnemies("player",8) < 3 and targetDistance<5 and not useAoE() and isEnnemy("target") and isAlive("target") then
 		
 	-- Elemental Blast
 			if getMWC()>=1 then
@@ -288,7 +288,7 @@ if select(3, UnitClass("player")) == 7 then
 	-- Earth Shock
 			if castSpell("target",_EarthShock,false) then return; end	
 		end --Single Target Rotation End
-		if getDistance("target")<8 and isEnnemy("target") then
+		if targetDistance<5 and isEnnemy("target") then
 			StartAttack()
 		end
 	end --Class Function End

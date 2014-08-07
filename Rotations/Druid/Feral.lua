@@ -24,7 +24,7 @@ if select(3, UnitClass("player")) == 11 then
 		  	and not UnitIsDeadOrGhost("player")
 		  	and not IsMounted()
 		  	and not IsFlying()
-		  	and getDistance("target") <= 40
+		  	and targetDistance <= 40
 		then
 	-- Rebirth
 			if isInCombat("player")	and UnitBuffID("player",ps) then
@@ -131,7 +131,7 @@ if select(3, UnitClass("player")) == 11 then
 			if castSpell("player",af) then return; end
    		end
 	-- Cat Form   		
-   		if isValidTarget("target") and IsFlying()==nil and getDistance("target")<=40 and not UnitBuffID("player",cf) and canAttack("player", "target") then
+   		if isValidTarget("target") and IsFlying()==nil and targetDistance<=40 and not UnitBuffID("player",cf) and canAttack("player", "target") then
 			if castSpell("player",cf) then return; end
    		end
    	-- PowerShift
@@ -198,7 +198,7 @@ if select(3, UnitClass("player")) == 11 then
 				if castSpell("player",cf,true) then return; end
 			end
 			if UnitBuffID("player",cf) and getPower("player") >= 25 then
-				if UnitExists("target") ~= nil and getDistance("target") > 8 then
+				if UnitExists("target") ~= nil and targetDistance > 8 then
 		  			ClearTarget();
 		 		end
 		 		local enemiesInRange = getNumEnnemies("player",8)
@@ -237,7 +237,7 @@ if select(3, UnitClass("player")) == 11 then
 ---------------------
 		    if not isInCombat("player") then
 
-	   		 	if UnitIsDeadOrGhost("target") ~= 1 and UnitExists("target") and canAttack("player", "target") and UnitBuffID("player",cf) and getDistance("target")<=20 then	
+	   		 	if UnitIsDeadOrGhost("target") ~= 1 and UnitExists("target") and canAttack("player", "target") and UnitBuffID("player",cf) and targetDistance<=20 then	
 
 	--------------------------------------
 	--- Out of Combat - Symbiosis Apply---
@@ -326,7 +326,7 @@ if select(3, UnitClass("player")) == 11 then
 				end
 
 		-- Cat Form Check
-				if UnitBuffID("player",cf) and getDistance("target")<=20 then 
+				if UnitBuffID("player",cf) and targetDistance<=20 then 
 
 	------------------------------
 	--- In Combat - Interrupts ---
@@ -335,7 +335,7 @@ if select(3, UnitClass("player")) == 11 then
 		-- Skull Bash
 						if canInterrupt(sb, tonumber(BadBoy_data["Box Interrupts"])) 
 							and BadBoy_data["Check Skull Bash"]==1 
-							and getDistance("target")<=13
+							and targetDistance<=13
 						then
 							if castSpell("target",sb,false) then return; end
 						end
@@ -343,7 +343,7 @@ if select(3, UnitClass("player")) == 11 then
 						if canInterrupt(mb, tonumber(BadBoy_data["Box Interrupts"])) 
 							and BadBoy_data["Check Mighty Bash"]==1 
 							and (getSpellCD(sb) < 14 or BadBoy_data["Check Skull Bash"]~=1) 
-							and getDistance("target")<=5
+							and targetDistance<=5
 						then
 							if castSpell("target",mb,false) then return; end
 						end
@@ -354,7 +354,7 @@ if select(3, UnitClass("player")) == 11 then
 						 	and getCombo() > 0 
 						 	and UnitPower("player") >= 35 
 						 	and isInPvP() 
-						 	and getDistance("target")<=5
+						 	and targetDistance<=5
 						then 
 						 	if castSpell("target",ma,false) then return; end
 						end
@@ -363,7 +363,7 @@ if select(3, UnitClass("player")) == 11 then
 	-----------------------------
 	--- In Combat - Cooldowns ---
 	-----------------------------
-					if useCDs() and UnitBuffID("player",cf) and not UnitBuffID("player",prl) and getDistance("target")<=5 then
+					if useCDs() and UnitBuffID("player",cf) and not UnitBuffID("player",prl) and targetDistance<=5 then
 						if getSRR() > 0 and getBuffRemain("player",tf) > 0 then
 		-- Agi-Pot			
 							if canUse(76089) and getCombo() >= 4 and getHP("target") <= 25 and UnitInRaid("player") and BadBoy_data["Check Agi-Pot"] == 1 then
@@ -500,7 +500,7 @@ if select(3, UnitClass("player")) == 11 then
 
 		-- Rake - Multi-Dot (AoE)
 							if getPower("player") >= 35 and not isGarrMCd() then
-								if BadBoy_data["Multi-Rake"] == 1 then
+								if BadBoy_data["Check Multi-Rake"] == 1 then
 									for i = 1, GetTotalObjects(TYPE_UNIT) do
 										local Guid = IGetObjectListEntry(i)
 										ISetAsUnitID(Guid,"thisUnit");
