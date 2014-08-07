@@ -13,9 +13,9 @@ function Blood()
 	local runesFrost = getRunes("frost");
 	local runesDeath = getRunes("death");
 
-	local numEnnemies = numEnnemies;
+	local numEnnemies;
 	local meleeEnnemies = getNumEnnemies("player",4);
-	if getDistance("player","target") < 5 then
+	if targetDistance < 5 then
 		numEnnemies = getNumEnnemies("target",10);
 	else
 		numEnnemies = getNumEnnemies("player",10);
@@ -26,7 +26,7 @@ function Blood()
 	if IsMounted("player") then return false; end
 
 	if UnitAffectingCombat("player") then
-		-- Mind Freeze
+
 		-- Mind Freeze
 		if isChecked("Mind Freeze") then
 			if canInterrupt(_MindFreeze, getValue("Mind Freeze")) and getDistance("player","target") <= 4 then
@@ -73,10 +73,16 @@ function Blood()
 
 	if isCasting() then return false; end
 
-    -- Blood Presence
-    if UnitLevel("player") >= 57 then
-    	if UnitBuffID("player",_BloodPresence) == nil then
+    -- Presence
+    if isKnown(_BloodPresence) and isChecked("Presence") then
+    	if getValue("Presence") == 1 and UnitBuffID("player",_BloodPresence) == nil then
     		if castSpell("player",_BloodPresence,true) then return; end
+    	elseif getValue("Presence") == 2 and UnitBuffID("player",_FrostPresence) == nil then
+    		if castSpell("player",_FrostPresence,true) then return; end
+    	end
+    elseif isChecked("Frost Presence") then
+    	if getValue("Presence") == 2 and UnitBuffID("player",_FrostPresence) == nil then
+    		if castSpell("player",_FrostPresence,true) then return; end
     	end
     end
 
@@ -86,7 +92,10 @@ function Blood()
 	if isInCombat("player") and isAlive() and isEnnemy() then
 
 
-
+	    -- Death Siphon
+	    if runesDeath >= 1 and getHP("player") <= 70 then
+	    	if castSpell("target",_DeathSiphon,false) then return; end
+	    end
 
 		-- Raise Dead
 		if isSelected("Raise Dead") then

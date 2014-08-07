@@ -48,10 +48,13 @@ function BloodOptions()
 
     -- Blood Presence
     if isKnown(_BloodPresence) then
-    	CreateNewCheck(thisConfig,"Blood Presence");
-    	CreateNewText(thisConfig,"Blood Presence");
-	end
-
+    	CreateNewCheck(thisConfig,"Presence");
+        CreateNewDrop(thisConfig, "Presence", 1, "Choose Presence to use.", "|cffFF0000Blood", "|cff00EEFFFrost")
+    	CreateNewText(thisConfig,"Presence");
+	else
+        CreateNewCheck(thisConfig,"Frost Presence");
+        CreateNewText(thisConfig,"Frost Presence");
+    end
     -- Bone Shield
     if isKnown(_BoneShield) then
 	    CreateNewCheck(thisConfig,"Bone Shield");

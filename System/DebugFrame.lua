@@ -27,24 +27,10 @@ function DebugFrameCreation()
 				_G["debug"..value.."Frame"]:SetPoint("TOPLEFT",0,-((value*20)));
 				_G["debug"..value.."Frame"]:SetAlpha(BadBoy_data.debugAlpha);
 				_G["debug"..value.."Frame"]:SetScript("OnEnter", function(self)
-
-					GameTooltip:SetOwner(self, "BOTTOMLEFT", 250, 5);
-					if debugTable ~= nil and debugTable[value] ~= nil then
-						if debugTable[value].sourcename == nil then debugTable[value].sourcename = "No Caster"; end
-						if debugTable[value].sourceguid == nil then debugTable[value].sourceguid = "Invalid GUID"; end
-						if debugTable[value].spellid == nil then debugTable[value].spellid = "Invalid Spell ID"; end
-						if debugTable[value].spellname == nil then debugTable[value].spellname = "Invalid Spell Name"; end
-						if debugTable[value].destguid == nil then debugTable[value].destguid = "Invalid Dest Guid"; end
-						if debugTable[value].destname == nil then debugTable[value].destname = "Invalid Dest Name"; end
-						if debugTable[value].power == nil then debugTable[value].power = "No Power Reported"; end
-						if debugTable[value].distance == nil then debugTable[value].distance = "No Distance Reported"; end
-						if debugTable[value].uierror == nil then debugTable[value].uierror = "No Error Reported"; end
-						GameTooltip:SetText("|cffFF001ERoll Mouse to Scroll Rows\n|cffFFFFFF"..debugTable[value].sourcename.." "..debugTable[value].sourceguid..
-						  "\n|cffFFDD11"..debugTable[value].spellname.." "..debugTable[value].spellid..
-						  "\n|cff00FF00On: "..debugTable[value].destname.." "..debugTable[value].destguid..
-						  "\n|cffFFFFFFPower: "..debugTable[value].power.."%"..
-						  "\n|cff00FF00Distance: "..debugTable[value].distance..
-						  "\n|cffFF0000"..debugTable[value].uierror, nil, nil, nil, nil, true);
+					local MyValue = value;
+					if debugTable ~= nil and debugTable[MyValue+BadBoy_data.ActualRow] ~= nil then
+						GameTooltip:SetOwner(self, "BOTTOMLEFT", 250, 5);
+						GameTooltip:SetText(debugTable[MyValue+BadBoy_data.ActualRow].toolTip, nil, nil, nil, nil, false);
 						GameTooltip:Show();
 					end
 				end)
@@ -228,7 +214,7 @@ function DebugFrameCreation()
 		function debugRefresh()
 			if debugTable == nil then 			
 				for i = 1, BadBoy_data.shownRows do
-					local debugSpellName = ""
+					local debugSpellName, debugSpellTip = "", ""
 					if _G["debug"..i.."Frame"]:IsShown() ~= 1 then
 						_G["debug"..i.."Text"]:Show();
 						_G["debug"..i.."Frame"]:Show();
@@ -243,17 +229,20 @@ function DebugFrameCreation()
 				end
 			else
 				for i = 1, BadBoy_data.shownRows do
-					local debugSpellName = debugSpellName;
+					local debugSpellName, debugSpellTip;
 					if debugTable[BadBoy_data.ActualRow+i] ~= nil then
 						debugSpellName = debugTable[BadBoy_data.ActualRow+i].textString;
 					else
-						debugSpellName = ""
+						debugSpellName = "";
 					end
+
 					if _G["debug"..i.."Frame"]:IsShown() ~= 1 then
 						_G["debug"..i.."Text"]:Show();
 						_G["debug"..i.."Frame"]:Show();
 					end
+
 					_G["debug"..i.."Text"]:SetText(debugSpellName, 1, 1, 1, 0.7);
+
 				end
 				for i = BadBoy_data.shownRows+1, 25 do
 					if _G["debug"..i.."Frame"]:IsShown() == 1 then

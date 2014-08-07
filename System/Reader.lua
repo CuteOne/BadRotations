@@ -1,75 +1,134 @@
 function ReaderRun()
+--------------
+-- Readers	--
+--------------
 
--- Return Time in minuts/seconds.
-local function GetTimeString()
-	local TimeString = nil;
-	TimeString = tostring(math.floor(GetTime()*100)/100);
-	return TimeString
+-------------------
+-- Merchant Show --
+local Frame = CreateFrame('Frame');
+Frame:RegisterEvent("MERCHANT_SHOW");
+local function MerchantShow(self, event, ...)
+	if event == "MERCHANT_SHOW" then
+		SellGreys();
+	end
 end
+Frame:SetScript("OnEvent", MerchantShow);
 
-------------------
--- Super Reader	--
-------------------
-superReaderFrame = CreateFrame('Frame');
-superReaderFrame:RegisterEvent("MERCHANT_SHOW")
-superReaderFrame:RegisterEvent("PLAYER_REGEN_DISABLED");
-superReaderFrame:RegisterEvent("PLAYER_TALENT_UPDATE");
-superReaderFrame:RegisterEvent("PLAYER_REGEN_ENABLED");
-superReaderFrame:RegisterEvent("PLAYER_TOTEM_UPDATE");
-superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SENT");
-superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
-superReaderFrame:RegisterEvent("UNIT_SPELLCAST_FAILED");
-superReaderFrame:RegisterEvent("UI_ERROR_MESSAGE");
-superReaderFrame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
-superReaderFrame:RegisterEvent("CHARACTER_POINTS_CHANGED");
-superReaderFrame:RegisterEvent("SPELLS_CHANGED");
-superReaderFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
-function SuperReader(self, event, ...)
-    if debugTable == nil then debugTable = { }; end
-
-	if event == "UI_ERROR_MESSAGE" then lastError = ...; lastErrorTime = GetTime() end
-
-	if event == "PLAYER_TALENT_UPDATE" then
-		currentConfig = nil;
-	end
-	if event == "ACTIVE_TALENT_GROUP_CHANGED" then
-		currentConfig = nil;
-	end
-
-	if event == "MERCHANT_SHOW" then SellGreys(); end
-
-	------------------------------------------
-	-- Get Combat Time
+---------------------
+-- Entering Combat --
+local Frame = CreateFrame('Frame');
+Frame:RegisterEvent("PLAYER_REGEN_DISABLED");
+local function EnteringCombat(self, event, ...)
 	if event == "PLAYER_REGEN_DISABLED" then
 		BadBoy_data["Combat Started"] = GetTime();
 		BadBoy_data.successCasts = 0;
 		BadBoy_data.failCasts = 0;
-		tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cffFF001E/"..getCombatTime().."/Entering Combat" , number = ":D" })
+		--tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cffFF001E/"..getCombatTime().."/Entering Combat" , number = ":D" })
 		if #debugTable > 249 then tremove(debugTable, 250); end
 		if BadBoy_data.ActualRow == 0 then debugRefresh(); end
-		ChatOverlay("Entering Combat");
+		ChatOverlay("|cffFF0000Entering Combat");
 		healthFrame.Border:SetTexture([[Interface\FullScreenTextures\LowHealth]],0.25);
 	end
+end
+Frame:SetScript("OnEvent", EnteringCombat);
+
+-------------------
+-- Leving Combat --
+local Frame = CreateFrame('Frame');
+Frame:RegisterEvent("PLAYER_REGEN_ENABLED");
+local function LeavingCombat(self, event, ...)
 	if event == "PLAYER_REGEN_ENABLED" then
 		BadBoy_data["Combat Started"] = 0;
-		tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cff12C8FF/"..getCombatTime().."/Leaving Combat" , number = ":D" })
+		--tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cff12C8FF/"..getCombatTime().."/Leaving Combat" , number = ":D" })
 		if #debugTable > 249 then tremove(debugTable, 250); end
 		if BadBoy_data.ActualRow == 0 then debugRefresh(); end
-		ChatOverlay(BadBoy_data.successCasts.." Success//Failed"..BadBoy_data.failCasts);
+		ChatOverlay("|cffFF0000Leaving Combat");
 		healthFrame.Border:SetTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]],0.25);
 		-- clean up out of combat
         Rip_sDamage = {}
         Rake_sDamage = {}
         Thrash_sDamage = {}
 	end
+end
+Frame:SetScript("OnEvent", LeavingCombat);
 
+-----------------------
+-- UI Error Messages --
+local Frame = CreateFrame('Frame');
+Frame:RegisterEvent("UI_ERROR_MESSAGE");
+local function UiErrorMessages(self, event, ...)
+	if event == "UI_ERROR_MESSAGE" then 
+		lastError = ...; lastErrorTime = GetTime(); 
+	  	local Events = (...)
+	  	-- print(...)
+	  	if Events == ERR_PET_SPELL_DEAD  then
+			BadBoy_data["Pet Dead"] = true;
+			BadBoy_data["Pet Whistle"] = false;
+		end
+		if Events == PETTAME_NOTDEAD.. "." then
+			BadBoy_data["Pet Dead"] = false;
+			BadBoy_data["Pet Whistle"] = true;
+		end
+		if Events == SPELL_FAILED_ALREADY_HAVE_PET then
+			BadBoy_data["Pet Dead"] = true;
+			BadBoy_data["Pet Whistle"] = false;
+		end
+		if Events == PETTAME_CANTCONTROLEXOTIC.. "." then
+			if BadBoy_data["Box PetManager"] < 5 then
+				BadBoy_data["Box PetManager"] = BadBoy_data["Box PetManager"] + 1;
+			else
+				BadBoy_data["Box PetManager"] = 1;
+			end
+		end
+		if Events == PETTAME_NOPETAVAILABLE.. "." then
+			BadBoy_data["Pet Dead"] = false;
+			BadBoy_data["Pet Whistle"] = true;
+		end
+	end
+end
+Frame:SetScript("OnEvent", UiErrorMessages)
 
-	------------------------------------------
-	-- Spells changed // reload configs	
-	--if event == "CHARACTER_POINTS_CHANGED" or event == "SPELLS_CHANGED" then
-	--	FeralCatConfig();
-	--	ChatOverlay("Config Updated");
-	--end
+--------------------
+-- Spells Changed --
+local superReaderFrame = CreateFrame('Frame');
+superReaderFrame:RegisterEvent("PLAYER_TALENT_UPDATE");
+superReaderFrame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
+superReaderFrame:RegisterEvent("CHARACTER_POINTS_CHANGED");
+superReaderFrame:RegisterEvent("SPELLS_CHANGED");
+local function SpellsChanged(self, event, ...)
+	if event == "PLAYER_TALENT_UPDATE" or event == "ACTIVE_TALENT_GROUP_CHANGED" or event == "CHARACTER_POINTS_CHANGED" or event == "SPELLS_CHANGED" then
+		currentConfig = nil;
+	end
+end
+Frame:SetScript("OnEvent", SpellsChanged)
+
+------------------
+-- Totem Reader --
+local Frame = CreateFrame('Frame');
+superReaderFrame:RegisterEvent("PLAYER_TOTEM_UPDATE");
+local function TotemHolder(self, event, ...)
+	if event == "PLAYER_TOTEM_UPDATE" then
+    	local param 		= select(2,...);
+		local source 		= select(4,...);
+        if source == UnitGUID("player") and param == "SPELL_SUMMON" then
+        	activeTotem = destination;
+        end
+        if activeTotem == destination and param == "UNIT_DESTROYED" then
+        	activeTotem = nil;
+        end
+	end
+end
+Frame:SetScript("OnEvent", TotemHolder)
+
+-----------------------
+-- Combat Log Reader --
+local superReaderFrame = CreateFrame('Frame');
+superReaderFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
+superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SENT");
+superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
+superReaderFrame:RegisterEvent("UNIT_SPELLCAST_FAILED");
+function SuperReader(self, event, ...)
+    if debugTable == nil then debugTable = { }; end
 
     Rip_sDamage = Rip_sDamage or {}
     Rake_sDamage = Rake_sDamage or {}
@@ -90,30 +149,32 @@ function SuperReader(self, event, ...)
         			local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
         			if SpellID ~= 75 and SpellID ~= 88263 then -- Add spells we dont want to appear here.
         				local color = "|cff12C8FF";
-        				if spellCastTarget == UnitName("target") then 
-        					destGUID = UnitGUID("target"); 
-        					Distance = targetDistance;
-        				end
-        				local Power = UnitPower("player");
         				BadBoy_data.successCasts = BadBoy_data.successCasts + 1;
-        				tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName , sourceguid = sourceGUID, sourcename = sourceName, spellid = spellID, spellname = spellName, destguid = destGUID, destname = destName, distance = Distance, power = Power, number = BadBoy_data.successCasts })
+        				if sourceGUID == nil then debugSource = "" 	else debugSource = 	"\n|cffFFFFFF"..sourceName.." "..sourceGUID; end
+        				if destGUID == nil then debugTarget = "" 	else debugTarget = 	"\n|cff00FF00"..destName.." "..destGUID; end
+        				if spellID == nil then debugSpell = "" 		else debugSpell = 	"\n|cffFFDD11"..spellName.." "..spellID; end
+        				local Power = "\n|cffFFFFFFPower: "..UnitPower("player");
+        				tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName, toolTip = "|cffFF001ERoll Mouse to Scroll Rows"..debugSource.." "..debugSpell.." "..debugTarget.." "..Power });
 						if #debugTable > 249 then tremove(debugTable, 250); end
 						if BadBoy_data.ActualRow == 0 and debugRefresh ~= nil then debugRefresh(); end
 					end
         		end
+
            		if param == "SPELL_CAST_FAILED" then
         			local lasterror, destGUID, distance, power = lasterror, destGUID, distance, power;
         			local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
-           			if tonumber(SpellID) ~= 75 and SpellID ~= 88263 then -- Add spells we dont want to appear here.
+           			if SpellID ~= 75 and SpellID ~= 88263 then -- Add spells we dont want to appear here.
 						local color = "|cffFF001E";
         				if spellCastTarget == UnitName("target") then 
         					destGUID = UnitGUID("target"); 
         					Distance = targetDistance;
         				end
-        				if lastError and lastErrorTime >= GetTime() - 0.2 then lasterror = lastError; end
-        				local Power = UnitPower("player");
+        				if lastError and lastErrorTime >= GetTime() - 0.2 then lasterror = "\n|cffFF0000 "..lastError; else lasterror = ""; end
         				BadBoy_data.failCasts = BadBoy_data.failCasts + 1;	
-        				tinsert(debugTable, 1, { textString = BadBoy_data.failCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName , sourceguid = sourceGUID, sourcename = sourceName, spellid = spellID, spellname = spellName, destguid = destGUID, destname = spellCastTarget, distance = Distance, power = Power, uierror = lasterror, number = BadBoy_data.failCasts })
+        				if sourceGUID == nil then debugSource = "" 	else debugSource = 	"\n|cffFFFFFF"..sourceName..sourceGUID; end
+        				if spellID == nil then debugSpell = "" 		else debugSpell = 	"\n|cffFFDD11"..spellID..spellName; end
+        				local Power = "\n|cffFFFFFFPower: "..UnitPower("player");
+        				tinsert(debugTable, 1, { textString = BadBoy_data.failCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName, toolTip = "|cffFF001ERoll Mouse to Scroll Rows"..debugSource.." "..debugSpell.." "..Power.." "..lasterror });
 						if #debugTable > 249 then tremove(debugTable, 250); end
 						if BadBoy_data.ActualRow == 0 and debugRefresh ~= nil then debugRefresh(); end
 					end
@@ -122,37 +183,32 @@ function SuperReader(self, event, ...)
         end
 
 
+        if MyClass == 11 then
+	        --print(param..", "..source..", "..spell)
+	        -- snapshot on spellcast
+	        if source == UnitGUID("player") and param == "SPELL_CAST_SUCCESS" then
+	            if spell == 1079 then
+	                Rip_sDamage_cast = CRPD()
+	            elseif spell == 1822 then
+	                Rake_sDamage_cast = CRKD()
+	            --elseif spell == 106830 then
+	            --    WA_calcStats_feral()
+	            --    Thrash_sDamage_cast = WA_stats_ThrashTick
+	            end
+	            
+	            -- but only record the snapshot if it successfully applied
+	        elseif source == UnitGUID("player") and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") then
+	            --print(source..", "..spell..", "..destination)
+	            if spell == 1079 then
+	                Rip_sDamage[destination] = Rip_sDamage_cast
 
-        --print(param..", "..source..", "..spell)
-        -- snapshot on spellcast
-        if source == UnitGUID("player") and param == "SPELL_CAST_SUCCESS" then
-            if spell == 1079 then
-                Rip_sDamage_cast = CRPD()
-            elseif spell == 1822 then
-                Rake_sDamage_cast = CRKD()
-            --elseif spell == 106830 then
-            --    WA_calcStats_feral()
-            --    Thrash_sDamage_cast = WA_stats_ThrashTick
-            end
-            
-            -- but only record the snapshot if it successfully applied
-        elseif source == UnitGUID("player") and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") then
-            --print(source..", "..spell..", "..destination)
-            if spell == 1079 then
-                Rip_sDamage[destination] = Rip_sDamage_cast
-
-            elseif spell == 1822 then
-                Rake_sDamage[destination] = Rake_sDamage_cast
-            --elseif spell == 106830 then
-           --     Thrash_sDamage[destination] = Thrash_sDamage_cast
-            end
-        end
-        if source == UnitGUID("player") and param == "SPELL_SUMMON" then
-        	activeTotem = destination;
-        end
-        if activeTotem == destination and param == "UNIT_DESTROYED" then
-        	activeTotem = nil;
-        end
+	            elseif spell == 1822 then
+	                Rake_sDamage[destination] = Rake_sDamage_cast
+	            --elseif spell == 106830 then
+	           --     Thrash_sDamage[destination] = Thrash_sDamage_cast
+	            end
+	        end
+	    end
     end
 
 	------------------------------------------
@@ -207,43 +263,6 @@ function SuperReader(self, event, ...)
 				lastFailedWhistle = GetTime()
 			end
 		end
-	end
-
-
-	----------------------
-	-- UI ERROR MESSAGE
-	if event == "UI_ERROR_MESSAGE" then
-	  	local Events = (...)
-	  	-- print(...)
-	  	if Events == ERR_PET_SPELL_DEAD  then
-			BadBoy_data["Pet Dead"] = true;
-			BadBoy_data["Pet Whistle"] = false;
-		end
-		if Events == PETTAME_NOTDEAD.. "." then
-			BadBoy_data["Pet Dead"] = false;
-			BadBoy_data["Pet Whistle"] = true;
-		end
-		if Events == SPELL_FAILED_ALREADY_HAVE_PET then
-			BadBoy_data["Pet Dead"] = true;
-			BadBoy_data["Pet Whistle"] = false;
-		end
-		if Events == PETTAME_CANTCONTROLEXOTIC.. "." then
-			if BadBoy_data["Box PetManager"] < 5 then
-				BadBoy_data["Box PetManager"] = BadBoy_data["Box PetManager"] + 1;
-			else
-				BadBoy_data["Box PetManager"] = 1;
-			end
-		end
-		if Events == PETTAME_NOPETAVAILABLE.. "." then
-			BadBoy_data["Pet Dead"] = false;
-			BadBoy_data["Pet Whistle"] = true;
-		end
-	end
-
-
-
-	if event == "ACTIVE_TALENT_GROUP_CHANGED" then
-		BadBoy_data.playerSpec = GetSpecialization("player");
 	end
 end
 
