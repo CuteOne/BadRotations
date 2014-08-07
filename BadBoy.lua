@@ -8,7 +8,6 @@ function BadBoyRun()
 		["anchor"] = "BOTTOM",
 		["x"] = -20,
 		["y"] = 130.0000061548516,
-
 		["configShown"] = true,
 		["configanchor"] = "RIGHT",
 		["configx"] = -140,
@@ -24,6 +23,7 @@ function BadBoyRun()
 		["Check PokeRotation"] = 0,
 		["successCasts"] = 0,
 		["failCasts"] = 0,
+		["Check PokeRotation"] = 0,
 	}; end
 
 	-- Run once.
@@ -172,7 +172,7 @@ function BadBoyRun()
 		end
 		if isChecked("Throttle") and (throttleTime == nil or throttleTime <= GetTime() - getValue("Throttle")/1000) then
 			throttleTime = GetTime();
-			PokeEngine();
+			--PokeEngine();
 			local _MyClass = select(3,UnitClass("player"));
 			local _MySpec = GetSpecialization("player");
 			if _MyClass == 1 then -- Warrior
@@ -226,4 +226,3 @@ function BadBoyRun()
 	ConfigFrame();
 	ChatOverlay("-= BadBoy Loaded =-")
 end
-

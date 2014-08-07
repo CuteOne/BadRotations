@@ -47,7 +47,7 @@ if not DeathknightFunctions then
 		Type = string.lower(Type);
   		if Type == "frost" then
 		  	local frostRunes = 0;
-		  	for i = 1, 2 do
+		  	for i = 5, 6 do
 		  		if select(3, GetRuneCooldown(i)) and GetRuneType(i) == 3 then
 					frostRunes = frostRunes + 1;
 				end
@@ -64,7 +64,7 @@ if not DeathknightFunctions then
 		elseif Type == "unholy" then
 		  	local unholyRunes = 0;
 		  	for i = 3, 4 do
-		  		if select(3, GetRuneCooldown(i)) and GetRuneType(i) == 3 then
+		  		if select(3, GetRuneCooldown(i)) and GetRuneType(i) == 2 then
 					unholyRunes = unholyRunes + 1;
 				end
 			end
