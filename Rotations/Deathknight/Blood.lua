@@ -21,6 +21,8 @@ function Blood()
 		numEnnemies = getNumEnnemies("player",10);
 	end
 
+	targetEnnemies = getEnnemies("target",10)
+
 	-- Food/Invis Check
 	if canRun() ~= true or UnitInVehicle("Player") then return false; end
 	if IsMounted("player") then return false; end
@@ -87,10 +89,11 @@ function Blood()
     end
 
 	-- Horn of Winter
-	if castSpell("player",_HornOfWinter,true) then return; end
+	if getBuffRemain("player",_HornOfWinter) <= 4 then
+		if castSpell("player",_HornOfWinter,true) then return; end
+	end
 
-	if isInCombat("player") and isAlive() and isEnnemy() then
-
+	if isInCombat("player") and isAlive() and (isEnnemy() or isDummy("target")) then
 
 	    -- Death Siphon
 	    if runesDeath >= 1 and getHP("player") <= 70 then
@@ -145,19 +148,26 @@ function Blood()
 	    	end
 	    end
 
-	    -- Pestilence
+	    -- Pestilence - Bring
+	    local PestiSpell;
+	    if isKnown(_RoilingBlood) then PestiSpell = _BloodBoil; else PestiSpell = _Pestilence; end	    
 	    if runesBlood >= 1 or runesDeath >= 1 and (pestiTimer == nil or pestiTimer <= GetTime() - 2) then
 			if canCast(_Pestilence) then
 				if getDebuffRemain("target",55078) == 0 then
-					for i = 1, GetTotalObjects(TYPE_UNIT) do
-						local Guid = IGetObjectListEntry(i)
+					for i = 1, #targetEnnemies do
+						local Guid = targetEnnemies[i]
 						ISetAsUnitID(Guid,"thisUnit");
-						if getDebuffRemain("thisUnit",55078,"player") >= 2 and getDistance("player","thisUnit") <= 10 then
+						if getCreatureType("thisUnit") == true and getDebuffRemain("thisUnit",55078,"player") >= 2 and getDistance("player","thisUnit") <= 10 then
 							if castSpell("thisUnit",_Pestilence,true) then pestiTimer = GetTime(); return; end								
 						end
 					end	
 				end
 			end
+	    end
+
+	    -- Blood Boil - Refresh
+	    if targetDistance <= 10 and (runesBlood >= 1 or runesDeath >= 1) and ((UnitDebuffID("target",55078,"player") ~= nil and getDebuffRemain("target",55078) < 6)) then
+	    	if castSpell("player",_BloodBoil,true) then return; end
 	    end
 
 	    -- Outbreak
@@ -177,33 +187,29 @@ function Blood()
 
 	    local numEnnemies = getNumEnnemies("target", 10)
 
-	    -- Pestilence
+	    -- Pestilence/Rolling Blood - Spread
 	    if numEnnemies > 2 and (runesBlood >= 1 or runesDeath >= 1) and (pestiTimer == nil or pestiTimer <= GetTime() - 2) then
-			if canCast(_Pestilence) then
+			if canCast(PestiSpell) then
 				if getDebuffRemain("target",55078,"player") >= 2 then
-					for i = 1, GetTotalObjects(TYPE_UNIT) do
-						local Guid = IGetObjectListEntry(i)
+					for i = 1, #targetEnnemies do
+						local Guid = targetEnnemies[i]
 						ISetAsUnitID(Guid,"thisUnit");
-						if getDistance("target",thisUnit) <= 5 then
-							if castSpell("target",_Pestilence,true) then pestiTimer = GetTime(); return; end								
+						if getCreatureType("thisUnit") == true and UnitDebuffID("thisUnit",55078) == nil and getDistance("player",thisUnit) <= 5 then
+							if castSpell("target",PestiSpell,true) then pestiTimer = GetTime(); return; end								
 						end
 					end	
 				end
 			end
 	    end
 
-
-	    -- Blood Boil
-	    if targetDistance <= 5 and runesBlood > 1 and ((UnitDebuffID("target",55078,"player") ~= nil and getDebuffRemain("target",55078) < 6) or numEnnemies > 3) then
-	    	if castSpell("player",_BloodBoil,true) then return; end
-	    end
-
 	    -- Heart Strike//Blood Strike
-	    if runesBlood > 1 or (runesBlood >= 1 and UnitDebuffID("target",55078,"player") ~= nil) then
-	    	if isKnown(_HeartStrike) then
+	    if runesBlood > 1 or (runesBlood > 1 and UnitDebuffID("target",55078,"player") ~= nil) then
+	    	if isKnown(_HeartStrike) and numEnnemies < 3 then
 	    		if castSpell("target",_HeartStrike,false) then return; end
-	    	else
+	    	elseif isKnown(_HeartStrike) == false and numEnnemies < 3 then
 	    		if castSpell("target",_BloodStrike,false) then return; end
+	    	else
+	    		if castSpell("player",_BloodBoil,true) then return; end
 	    	end
 	    end
 
@@ -215,7 +221,7 @@ function Blood()
 	    	if castSpell("target",_DeathStrike,false) then return; end
 	    end
 	   
-	    -- Blood Boil
+	    -- Blood Boil - Scarlet Fever
 	    if targetDistance <= 5 and UnitBuffID("player",81141) ~= nil then
 	    	if castSpell("player",_BloodBoil,true) then return; end
 	    end

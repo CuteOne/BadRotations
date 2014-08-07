@@ -170,8 +170,8 @@ function BadBoyRun()
 		else
 			debugFrame:Hide();
 		end
-		if isChecked("Throttle") and (throttleTime == nil or throttleTime <= GetTime() - getValue("Throttle")/1000) then
-			throttleTime = GetTime();
+		--if isChecked("Throttle") and (throttleTime == nil or throttleTime <= GetTime() - getValue("Throttle")/1000) then
+			--throttleTime = GetTime();
 			--PokeEngine();
 			local _MyClass = select(3,UnitClass("player"));
 			local _MySpec = GetSpecialization("player");
@@ -208,7 +208,7 @@ function BadBoyRun()
 			elseif _MyClass == 11 then -- Druid
 				Druid()
 			end
-		end
+		--end
 	end
 
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
