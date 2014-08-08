@@ -2,6 +2,7 @@ if select(3, UnitClass("player")) == 2 then
 function PaladinProtection()
 	if currentConfig ~= "Protection CodeMyLife" then
 		PaladinProtFunctions();
+		PaladinProtToggles();
 		PaladinProtConfig();
 		currentConfig = "Protection CodeMyLife";
 	end

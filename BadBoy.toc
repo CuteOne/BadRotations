@@ -29,12 +29,16 @@ ClassLibs\Deathknight\SpellList.lua
 ClassLibs\Deathknight\Toggles.lua
 ClassLibs\Hunter\Options.lua
 ClassLibs\Hunter\Functions.lua
+ClassLibs\Hunter\SpellList.lua
+ClassLibs\Hunter\Toggles.lua
 ClassLibs\Mage\Options.lua
 ClassLibs\Mage\Functions.lua
 ClassLibs\Monk\Options.lua
 ClassLibs\Monk\Functions.lua
 ClassLibs\Paladin\Options.lua
 ClassLibs\Paladin\Functions.lua
+ClassLibs\Paladin\SpellList.lua
+ClassLibs\Paladin\Toggles.lua
 ClassLibs\Priest\Options.lua
 ClassLibs\Priest\Functions.lua
 ClassLibs\Rogue\Options.lua

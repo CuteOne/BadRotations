@@ -128,7 +128,7 @@ if select(3, UnitClass("player")) == 7 then
 		if hasNoControl(_WindwalkTotem) then
 			if castSpell("player",_WindwalkTotem,true) then return; end
 		end
-		if getNumEnnemies("player",8)>3 and isInCombat("player") and targetDistance<5then
+		if getNumEnnemies("player",8)>3 and isInCombat("player") and targetDistance<5 then
 			if castSpell("player",_CapacitorTotem,true) then return; end
 		end
 		if useCDs() and targetDistance<5 and isInCombat("player") then

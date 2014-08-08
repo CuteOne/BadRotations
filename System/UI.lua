@@ -118,16 +118,22 @@ function BadBoyFrame()
 		if BadBoy_data['Power'] ~= 0 then
 			BadBoy_data['Power'] = 0;
 			mainText:SetText("Off");
+			GameTooltip:SetText("|cff00FF00Enable |cffFF0000BadBoy", 225/255, 225/255, 225/255);
 			mainButton:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]); 
 		else
 			BadBoy_data['Power'] = 1;
+			GameTooltip:SetText("|cffFF0000Disable BadBoy", 225/255, 225/255, 225/255);
 			mainButton:SetNormalTexture([[Interface\BUTTONS\CheckButtonHilight]]); 
 			mainText:SetText("On");
 		end
 	end )
 	mainButton:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(mainButton, 0 , 0);
-		GameTooltip:SetText("Close Buttons Frame ", 225/255, 225/255, 225/255);
+		if BadBoy_data['Power'] == 1 then
+			GameTooltip:SetText("|cffFF0000Disable BadBoy", 225/255, 225/255, 225/255);
+		else
+			GameTooltip:SetText("|cff00FF00Enable |cffFF0000BadBoy", 225/255, 225/255, 225/255);
+		end
 		GameTooltip:Show();
 	end)
 	mainButton:SetScript("OnLeave", function(self)

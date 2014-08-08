@@ -3,6 +3,7 @@ if select(3, UnitClass("player")) == 3 then
 function Hunter()
 	if Currentconfig ~= "Beastmaster CodeMyLife" then
 		BeastConfig();
+		HunterBeastToggles();
 		Currentconfig = "Beastmaster CodeMyLife";
 	end
 
