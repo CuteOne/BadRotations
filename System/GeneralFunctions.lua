@@ -1023,7 +1023,7 @@ end
 -- if isEnnemy([Unit])
 function isEnnemy(Unit)
 	local Unit = Unit or "target";
-	if UnitIsEnemy("player",Unit) then
+	if UnitCanAttack(Unit,"player") then
 		return true;
 	else
 		return false;
