@@ -25,7 +25,6 @@ local function EnteringCombat(self, event, ...)
 		if debugTable ~= nil and #debugTable > 249 then tremove(debugTable, 250); end
 		if debugRefresh ~= nil and BadBoy_data.ActualRow == 0 then debugRefresh(); end
 		ChatOverlay("|cffFF0000Entering Combat");
-		healthFrame.Border:SetTexture([[Interface\FullScreenTextures\LowHealth]],0.25);
 	end
 end
 Frame:SetScript("OnEvent", EnteringCombat);
@@ -43,7 +42,6 @@ local function LeavingCombat(self, event, ...)
 		if #debugTable > 249 then tremove(debugTable, 250); end
 		if BadBoy_data.ActualRow == 0 then debugRefresh(); end
 		ChatOverlay("|cffFF0000Leaving Combat");
-		healthFrame.Border:SetTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]],0.25);
 		-- clean up out of combat
         Rip_sDamage = {}
         Rake_sDamage = {}
@@ -157,7 +155,7 @@ function SuperReader(self, event, ...)
 
         ----------------
         -- Fire Totem -- 
-        if source == UnitGUID("player") and  param == "SPELL_SUMMON" and spell == _SearingTotem then
+        if source == UnitGUID("player") and  param == "SPELL_SUMMON" and (spell == _SearingTotem or spell == _MagmaTotem) then
         	activeTotem = destination;
         end
         if param == "UNIT_DESTROYED" and activeTotem == destination then

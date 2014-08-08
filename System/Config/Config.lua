@@ -87,6 +87,7 @@ function ConfigFrame()
 
 		configFrameExitButton:SetScript("OnClick", function()
 			BadBoy_data.configShown = false;
+			configFrame:Hide()
 		end )
 
 		configFrameExitButton:SetScript("OnEnter", function(self)
@@ -103,8 +104,6 @@ function ConfigFrame()
 		configFrameText:SetTextHeight(17);
 		configFrameText:SetPoint("TOPLEFT",28, 0);
 		configFrameText:SetTextColor(225/255, 225/255, 225/255,1);
-
-		if BadBoy_data.configShown == false then configFrame:Hide(); else configFrame:Show(); end
 
 	    doneConfig = true;
 		SetConfigWidth(BadBoy_data.configWidth);

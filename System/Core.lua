@@ -1,16 +1,18 @@
-
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[---------          ---           --------       -------           --------------------------------------------------------------------------------------------------------------------]]
---[[---------  -----  ----   ---------------  ----  -------  --------  ---------------------------------------------------------------------------------------------------]]
---[[---------  ----  -----           ------  ------  ------  ---------  ----------------------------------------------------------------------------------------------------------]]
---[[---------       ------  --------------             ----  ---------  -------------------------------------------------------------------------------------------------------------]]
---[[---------  ----  -----  -------------  ----------  ----  --------  -------------------------------------------------------------------------------------------------]]
---[[---------  -----  ----           ---  ------------  ---            -------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
+function BadBoyEngine()
+    -- Hidden Frame
+    if Pulse_Engine == nil then 
+        Pulse_Engine = CreateFrame("Frame", nil, UIParent);
+        Pulse_Engine:SetScript("OnUpdate", FrameUpdate);
+        Pulse_Engine:SetPoint("TOPLEFT",0,0);
+        Pulse_Engine:SetHeight(1);
+        Pulse_Engine:SetWidth(1);
+        Pulse_Engine:Show();
+    end
+end
 
 -- Chat Overlay: Originally written by Sheuron.
 local function onUpdate(self,elapsed) 
-  	if self.time < GetTime() - 2.0 then if self:GetAlpha() == 0 then self:Hide(); else self:SetAlpha(self:GetAlpha() - 0.02); end end 
+    if self.time < GetTime() - 2.0 then if self:GetAlpha() == 0 then self:Hide(); else self:SetAlpha(self:GetAlpha() - 0.02); end end 
 end
 chatOverlay = CreateFrame("Frame",nil,ChatFrame1); 
 chatOverlay:SetSize(ChatFrame1:GetWidth(),50);
@@ -24,12 +26,93 @@ chatOverlay.texture:SetAllPoints();
 chatOverlay.texture:SetTexture(0,0,0,.50);
 chatOverlay.time = 0;
 function ChatOverlay(message) 
-	chatOverlay:SetSize(ChatFrame1:GetWidth(),50);
-  	chatOverlay.text:SetText(message);
-  	chatOverlay:SetAlpha(1);
-  	chatOverlay.time = GetTime(); 
-  	chatOverlay:Show(); 
-end	
+    chatOverlay:SetSize(ChatFrame1:GetWidth(),50);
+    chatOverlay.text:SetText(message);
+    chatOverlay:SetAlpha(1);
+    chatOverlay.time = GetTime(); 
+    chatOverlay:Show(); 
+end 
+
+function BadBoyMinimapButton()
+
+    local dragMode = nil --"free", nil
+    
+    local function moveButton(self)
+        local centerX, centerY = Minimap:GetCenter()
+        local x, y = GetCursorPosition()
+        x, y = x / self:GetEffectiveScale() - centerX, y / self:GetEffectiveScale() - centerY
+        centerX, centerY = math.abs(x), math.abs(y)
+        centerX, centerY = (centerX / math.sqrt(centerX^2 + centerY^2)) * 76, (centerY / sqrt(centerX^2 + centerY^2)) * 76
+        centerX = x < 0 and -centerX or centerX
+        centerY = y < 0 and -centerY or centerY
+        self:ClearAllPoints()
+        self:SetPoint("CENTER", centerX, centerY)
+    end
+
+    local button = CreateFrame("Button", "BadBoyButton", Minimap)
+    button:SetHeight(25)
+    button:SetWidth(25)
+    button:SetFrameStrata("MEDIUM")
+    button:SetPoint("CENTER", 75.70,-6.63)
+    button:SetMovable(true)
+    button:SetUserPlaced(true)
+    button:SetNormalTexture("Interface\\HelpFrame\\HotIssueIcon.blp")
+    button:SetPushedTexture("Interface\\HelpFrame\\HotIssueIcon.blp")
+    button:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-Background.blp")
+
+    button:SetScript("OnMouseDown", function(self, button)
+        if IsShiftKeyDown() and IsAltKeyDown() then
+            self:SetScript("OnUpdate", moveButton)
+        end
+    end)
+    button:SetScript("OnMouseUp", function(self)
+        self:SetScript("OnUpdate", nil)
+    end)
+    button:SetScript("OnClick", function(self, button)
+        if button == "LeftButton" then 
+            if IsShiftKeyDown() and not IsAltKeyDown() then 
+                if BadBoy_data["Main"] == 1 then 
+                    BadBoy_data["Main"] = 0;
+                    mainButton:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]); mainText:SetText("Off"); mainButton:Hide();
+                else 
+                    BadBoy_data["Main"] = 1;
+                    mainButton:SetNormalTexture([[Interface\BUTTONS\CheckButtonHilight]]); mainText:SetText("On"); mainButton:Show()
+                end
+            elseif not IsShiftKeyDown() and not IsAltKeyDown() then 
+                if BadBoy_data.configShown == false then
+                    configFrame:Show();
+                    BadBoy_data.configShown = true;
+                else
+                    configFrame:Hide();
+                    BadBoy_data.configShown = false;
+                end
+            end
+        end 
+    end)
+    button:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(Minimap, "ANCHOR_CURSOR", 50 , 50);
+        GameTooltip:SetText("BadBoy Ultimate Raiding Routine", 214/255, 25/255, 25/255);
+        GameTooltip:AddLine("By CodeMyLife and CuteOne ");
+        GameTooltip:AddLine("Left Click to toggle config frame", 1, 1, 1, 1);
+        GameTooltip:AddLine("Shift+Left Click to toggle main frame", 1, 1, 1, 1);
+        GameTooltip:AddLine("Alt+Shift+LeftButton to drag", 1, 1, 1, 1);
+        GameTooltip:Show();
+    end)
+    button:SetScript("OnLeave", function(self)
+        GameTooltip:Hide();
+    end)
+
+end
+
+--[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
+--[[---------          ---           --------       -------           --------------------------------------------------------------------------------------------------------------------]]
+--[[---------  -----  ----   ---------------  ----  -------  --------  ---------------------------------------------------------------------------------------------------]]
+--[[---------  ----  -----           ------  ------  ------  ---------  ----------------------------------------------------------------------------------------------------------]]
+--[[---------       ------  --------------             ----  ---------  -------------------------------------------------------------------------------------------------------------]]
+--[[---------  ----  -----  -------------  ----------  ----  --------  -------------------------------------------------------------------------------------------------]]
+--[[---------  -----  ----           ---  ------------  ---            -------------------------------------------------------------------------------------------------------------------]]
+--[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
+
 
 
 local frame = CreateFrame("FRAME");

@@ -500,7 +500,7 @@ function getTotemDistance(Unit1)
 	if activeTotem ~= nil and IExists(UnitGUID(Unit1)) and IExists(activeTotem) then
 		local X1,Y1,Z1 = IGetLocation(UnitGUID(Unit1));
 		local X2,Y2,Z2 = IGetLocation(activeTotem);
-		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 1, 0x10) == nil then 
+		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then 
 			local unitSize = IGetFloatDescriptor(UnitGUID(Unit1),0x110); 
 			return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unitSize;
 		else

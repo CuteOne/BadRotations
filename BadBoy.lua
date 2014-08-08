@@ -117,7 +117,6 @@ function BadBoyRun()
 		end
 	end
 
-
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
@@ -129,27 +128,17 @@ function BadBoyRun()
 
 	-- Mettre a jour les valeurs chaque frame.
 	function FrameUpdate(self, elapsed)
+		-- global vars
+		targetDistance = getDistance("player","target");
 		profileStarts = GetTime();
-		UIUpdate();
+		--UIUpdate();
 		DebugFrameCreation();
-		-- And to update our users Health and Sort :)
+
 		if NovaEngineUpdate == nil then NovaEngineUpdate = GetTime(); end
 		if NovaEngineUpdate and NovaEngineUpdate <= GetTime() - 0.5 then
 			NovaEngineUpdate = GetTime()
 			nNova:Update()
-			--ScanObjects();
 		end
-
-		
-		-- Runs every tick.
-		--ToolTipEngine();
-		--Interrupts();
-
-
-		local _, _, anchor, x, y = mainFrame:GetPoint(1);
-		BadBoy_data.x = x;
-		BadBoy_data.y = y;
-		BadBoy_data.anchor = anchor;
 
 		local _, _, anchor, x, y = configFrame:GetPoint(1);
 		BadBoy_data.configx = x;
@@ -161,57 +150,50 @@ function BadBoyRun()
 		BadBoy_data.debugy = y;
 		BadBoy_data.debuganchor = anchor;
 
-		--local _, _, anchor, x, y = pokeValueFrame:GetPoint(1);
-		--BadBoy_data.pokeValuex = x;
-		--BadBoy_data.pokeValuey = y;
-		--BadBoy_data.pokeValueanchor = anchor;
 		if BadBoy_data["Check Debug"] == 1 then
 			debugFrame:Show();
 		else
 			debugFrame:Hide();
 		end
-		--if isChecked("Throttle") and (throttleTime == nil or throttleTime <= GetTime() - getValue("Throttle")/1000) then
-			--throttleTime = GetTime();
-			--PokeEngine();
-			local _MyClass = select(3,UnitClass("player"));
-			local _MySpec = GetSpecialization("player");
-			if _MyClass == 1 then -- Warrior
-				--Warrior()
-			elseif _MyClass == 2 then -- Paladin
-				if _MySpec == 2 then
-					PaladinProtection()
-				end
-			elseif _MyClass == 3 then -- Hunter
-				Hunter();
-			elseif _MyClass == 4 then -- Rogue
-				--Rogue()
-			elseif _MyClass == 5 then -- Priest
-				--Priest()
-			elseif _MyClass == 6 then -- Deathknight
-				if _MySpec == 1 then
-					Blood()
-				end
-			elseif _MyClass == 7 then -- Shaman
-				if _MySpec == 1 then
-					ShamanElemental();
-				end
-				if _MySpec == 2 then
-					ShamanEnhancement();
-				end	
-				if _MySpec == 3 then
-					ShamanRestoration();
-				end					
-				--Shaman()		
-			elseif _MyClass == 8 then -- Mage
-				--Mage()		
-			elseif _MyClass == 9 then -- Warlock
-				--Warlock()		
-			elseif _MyClass == 10 then -- Monk
-				--Monk()						
-			elseif _MyClass == 11 then -- Druid
-				Druid()
+
+		local _MyClass = select(3,UnitClass("player"));
+		local _MySpec = GetSpecialization("player");
+		if _MyClass == 1 then -- Warrior
+			--Warrior()
+		elseif _MyClass == 2 then -- Paladin
+			if _MySpec == 2 then
+				PaladinProtection()
 			end
-		--end
+		elseif _MyClass == 3 then -- Hunter
+			Hunter();
+		elseif _MyClass == 4 then -- Rogue
+			--Rogue()
+		elseif _MyClass == 5 then -- Priest
+			--Priest()
+		elseif _MyClass == 6 then -- Deathknight
+			if _MySpec == 1 then
+				Blood()
+			end
+		elseif _MyClass == 7 then -- Shaman
+			if _MySpec == 1 then
+				ShamanElemental();
+			end
+			if _MySpec == 2 then
+				ShamanEnhancement();
+			end	
+			if _MySpec == 3 then
+				ShamanRestoration();
+			end					
+			--Shaman()		
+		elseif _MyClass == 8 then -- Mage
+			--Mage()		
+		elseif _MyClass == 9 then -- Warlock
+			--Warlock()		
+		elseif _MyClass == 10 then -- Monk
+			--Monk()						
+		elseif _MyClass == 11 then -- Druid
+			Druid()
+		end
 	end
 
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]

@@ -95,9 +95,9 @@ function ShamanElemental()
 				end
 
 				-- magma_totem,if=active_enemies>2&!totem.fire.active
-				if GetTotemInfo(1) == false and getDistance("player","target") < 10 then
+				if  (not (hasMagma() or hasFireElemental()) or (hasMagma() and getTotemDistance("target") > 8)) and targetDistance<8 and getNumEnnemies("player",8) > 2 and isInCombat("player") then
 					if castSpell("player",_MagmaTotem,true) then return; end
-				end		
+				end
 
 				-- lava_burst,if=active_enemies<3&dot.flame_shock.remains>cast_time&cooldown_react
 				if numEnnemies == 2 and getDebuffRemain("target",_FlameShock) > select(7,GetSpellInfo(_LavaBurst))/1000 and getSpellCD(_LavaBurst) == 0 then
