@@ -61,6 +61,14 @@ if select(3, UnitClass("player")) == 11 then
             end
         end
 
+        function UpdateButton(Name)
+            _G["text"..Name]:SetText(BadBoy_data[tostring(Name)].mode); 
+            if _G[Name.."Modes"][BadBoy_data[tostring(Name)]].highlight == 0 then
+                _G["button"..Name]:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]); 
+            else
+                _G["button"..Name]:SetNormalTexture([[Interface\BUTTONS\CheckButtonHilight]]); 
+            end
+        end
 
         --AoE Key Toggle
         if AOETimer == nil then AOETimer = 0; end
@@ -71,6 +79,7 @@ if select(3, UnitClass("player")) == 11 then
             else
                 BadBoy_data['AoE'] = 1
             end
+            UpdateButton("AoE")
         end
 
         --Cooldown Key Toggle

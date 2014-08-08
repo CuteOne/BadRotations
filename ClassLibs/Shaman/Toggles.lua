@@ -106,6 +106,7 @@ if select(3, UnitClass("player")) == 7 then
                 [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "Recommended for three targets or more.", highlight = 0 },
                 [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "Recommended for lazy people like me.", highlight = 1 }
             };
+            CreateButton("AoE",0.5,1);
             AoEModesLoaded = "CML Elemental AoE Modes";
         end
         -- Interrupts Button
@@ -114,6 +115,7 @@ if select(3, UnitClass("player")) == 7 then
                 [1] = { mode = "None", value = 1 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0 },
                 [2] = { mode = "All", value = 2 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1 }
             };
+            CreateButton("Interrupts",1.5,1);
             InterruptsModesLoaded = "CML Elemental Interrupts Modes";
         end
 
@@ -123,6 +125,7 @@ if select(3, UnitClass("player")) == 7 then
                 [1] = { mode = "None", value = 1 , overlay = "Defensive Disabled", tip = "No Defensive Cooldowns will be used.", highlight = 0 },
                 [2] = { mode = "All", value = 2 , overlay = "Defensive Enabled", tip = "Includes Deterrence.", highlight = 1 }
             };
+            CreateButton("Defensive",1,0);
             DefensiveModesLoaded = "CML Elemental Defensive Modes";
         end
         -- Cooldowns Button
@@ -132,6 +135,7 @@ if select(3, UnitClass("player")) == 7 then
                 [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "Includes config's selected spells.", highlight = 1 },
                 [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "Includes Ascendance, Stormlash.", highlight = 1 }
             };
+            CreateButton("Cooldowns",2,0);
             CooldownsModesLoaded = "CML Elemental Cooldowns Modes";
         end
     end

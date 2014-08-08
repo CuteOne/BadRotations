@@ -1,29 +1,40 @@
 
 function BadBoyFrame()
 
+    function UpdateButton(Name)
+    	local Name = tostring(Name);
+        _G["text"..Name]:SetText(_G[Name.."Modes"][BadBoy_data[Name]].mode); 
+        if _G[Name.."Modes"][BadBoy_data[Name]].highlight == 0 then
+            _G["button"..Name]:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]); 
+        else
+            _G["button"..Name]:SetNormalTexture([[Interface\BUTTONS\CheckButtonHilight]]); 
+        end
+    end	
+
 	function ToggleAoE()
 		if BadBoy_data['AoE'] == 0 or BadBoy_data['AoE'] == nil then BadBoy_data['AoE'] = 1; end
 		for i = 1, #AoEModes do
 			if BadBoy_data['AoE'] == i then
 	        	local function ResetTip()
-	        		GameTooltip:SetOwner(aoeButton, configFrame, 0 , 0);
+	        		GameTooltip:SetOwner(mainButton, configFrame, 0 , 0);
 					GameTooltip:SetText(AoEModes[BadBoy_data['AoE']].tip, 225/255, 225/255, 225/255, nil, true);
 					GameTooltip:Show();
 				end
 				if #AoEModes > i then
 		    		BadBoy_data['AoE'] = i+1;
 	        		ChatOverlay("\124cFF3BB0FF"..AoEModes[i+1].overlay);	
+	        		UpdateButton("AoE");
 	        		ResetTip();
 	        		break;
 	        	else 
 	        		BadBoy_data['AoE'] = 1;
+	        		UpdateButton("AoE");
 	        		ChatOverlay("\124cFF3BB0FF"..AoEModes[1].overlay);
 	        		ResetTip();
 	        	end
 	        end
 		end
 	end
-
 	---------------------------
 	--     Basic Values      --
 	---------------------------
@@ -172,8 +183,6 @@ function BadBoyFrame()
 		if _G[Name.."Modes"] == nil then print("No table found for ".. Name); _G[Name.."Modes"] = tostring(Name); else _G[Name.."Modes"] = _G[Name.."Modes"] end
 		local modeValue;
 		if BadBoy_data[tostring(Name)] == nil then BadBoy_data[tostring(Name)] = 1; modeValue = 1 else modeValue = BadBoy_data[tostring(Name)] end
-		--print(modeValue)
-		_G["text"..Name]:SetText(); 			
 		_G["button"..Name]:SetScript("OnClick", function()
 			if BadBoy_data[tostring(Name)] == 0 or BadBoy_data[tostring(Name)] == nil then BadBoy_data[tostring(Name)] = 1; end
 			for i = 1, #_G[Name.."Modes"] do
