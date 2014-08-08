@@ -68,6 +68,27 @@ function hasFire()
         return false
     end
 end
+function hasSearing()
+    if select(2, GetTotemInfo(1)) == GetSpellInfo(_SearingTotem) then
+        return true
+    else
+        return false
+    end
+end
+function hasMagma()
+    if select(2, GetTotemInfo(1)) == GetSpellInfo(_MagmaTotem) then
+        return true
+    else
+        return false
+    end
+end
+function hasFireElemental()
+    if select(2, GetTotemInfo(1)) == GetSpellInfo(_FireElementalTotem) then
+        return true
+    else
+        return false
+    end
+end 
 function hasWater()
     if GetTotemTimeLeft(3) > 0 then
         return true

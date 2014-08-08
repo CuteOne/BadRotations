@@ -11,26 +11,27 @@ if select(3, UnitClass("player")) == 7 then
 -------------------------------------
 --- Shields Up! / Weapons Online! ---
 -------------------------------------
-	--Lightning Shield		
-		if getBuffRemain("player",_LightningShield)<10 and getPower("player")>=75 then
-			if castSpell("player",_LightningShield,true) then return; end
+		if not IsMounted() then
+	-- Lightning Shield		
+			if getBuffRemain("player",_LightningShield)<10 and getPower("player")>=75 then
+				if castSpell("player",_LightningShield,true) then return; end
+			end
+	-- Water Shield
+			if getBuffRemain("player",_WaterShield)<10 and getPower("player")<25 then
+				if castSpell("player",_WaterShield,true) then return; end
+			end
+	-- Windfury/Flametongue Mainhand
+			if UnitLevel("player") >= 30 and getMainRemain()<5 then
+				if castSpell("player",_WindfuryWeapon,true) then return; end
+			end
+			if UnitLevel("player") < 30 and getMainRemain()<5 then
+				if castSpell("player",_FlametongueWeapon,true) then return; end
+			end
+	-- Flametongue Offhand
+			if getOffRemain()<5 then
+				if castSpell("player",_FlametongueWeapon,true) then return; end
+			end
 		end
-	--Water Shield
-		if getBuffRemain("player",_WaterShield)<10 and getPower("player")<25 then
-			if castSpell("player",_WaterShield,true) then return; end
-		end
-	--Windfury/Flametongue Mainhand
-		if UnitLevel("player") >= 30 and getMainRemain()<5 then
-			if castSpell("player",_WindfuryWeapon,true) then return; end
-		end
-		if UnitLevel("player") < 30 and getMainRemain()<5 then
-			if castSpell("player",_FlametongueWeapon,true) then return; end
-		end
-	--Flametongue Offhand
-		if getOffRemain()<5 then
-			if castSpell("player",_FlametongueWeapon,true) then return; end
-		end
-
 ------------------
 --- Dummy Test ---
 ------------------
@@ -49,7 +50,7 @@ if select(3, UnitClass("player")) == 7 then
 -----------------------
 --- Doge/Jebus Mode ---
 -----------------------
-	--Ghost Wolf
+	-- Ghost Wolf
 		if not IsMounted()
 			and not UnitBuffID("player",_GhostWolf)
 			and isMoving("player")
@@ -59,11 +60,11 @@ if select(3, UnitClass("player")) == 7 then
 		then
 			if castSpell("player",_GhostWolf,true) then return; end
 		end
-	--Water Walking
+	-- Water Walking
 		if IsSwimming() and not isInCombat("player") and not UnitBuffID("player",_WaterWalking) then
 			if castSpell("player",_WaterWalking,true) then return; end
 		end
-	--Ancestral Spirit
+	-- Ancestral Spirit
 		if not isAlive("mouseover") 
 			and not isEnnemy("mouseover") 
 			and not isCasting("player")
@@ -72,7 +73,7 @@ if select(3, UnitClass("player")) == 7 then
 		then
 			if castSpell("mouseover",_AncestralSpirit,true) then return; end
 		end
-	--Healing Surge
+	-- Healing Surge
 		if not isInCombat("player")
 			and getHP("player") < 75
 			and not isCasting("player")
@@ -114,20 +115,20 @@ if select(3, UnitClass("player")) == 7 then
 			if castSpell("player",_EarthElementalTotem,true) then return; end
 		end
 	-- Fire
-		if useCDs() and targetDistance <= 10 and isInCombat("player") then
+		if useCDs() and targetDistance <= 10 and isInCombat("player") and (not hasFire() or hasSearing()) then
 			if castSpell("player",_FireElementalTotem,true) then return; end
 		end
-		if (not hasFire() or (hasFire() and getTotemDistance("target") > 20)) and targetDistance<=20 and getNumEnnemies("player",8)<6 and isInCombat("player") then
+		if (not (hasSearing() and hasFireElemental()) or (hasSearing() and getTotemDistance("target") > 20)) and targetDistance<=20 and getNumEnnemies("player",8)<6 and isInCombat("player") then
 			if castSpell("player",_SearingTotem,true) then return; end
 		end
-		if (not hasFire() or (hasFire() and getTotemDistance("target") > 8)) and targetDistance<8 and getNumEnnemies("player",8)>=6 and isInCombat("player") then
+		if (not (hasMagma() and hasFireElemental()) or (hasMagma() and getTotemDistance("target") > 8)) and targetDistance<8 and getNumEnnemies("player",8)>=6 and isInCombat("player") then
 			if castSpell("player",_MagmaTotem,true) then return; end
 		end
 	-- Wind
 		if hasNoControl(_WindwalkTotem) then
 			if castSpell("player",_WindwalkTotem,true) then return; end
 		end
-		if getNumEnnemies("player",8)>3 then
+		if getNumEnnemies("player",8)>3 and isInCombat("player") and targetDistance<5then
 			if castSpell("player",_CapacitorTotem,true) then return; end
 		end
 		if useCDs() and targetDistance<5 and isInCombat("player") then
@@ -230,11 +231,14 @@ if select(3, UnitClass("player")) == 7 then
 			if getHP("player")>=50 and shouldBolt() then
 				if castSpell("target",_ChainLightning,false) then return; end
 			end
-	-- Stormblast
-			if castSpell("target",_Stormblast,false) then return; end
 			if UnitLevel("player") >= 26 then
+				if getBuffRemain("player",_AscendanceBuff)>0 then
+	-- Stormblast
+					if castSpell("target",_Stormblast,false,false,false,true) then return; end
+				else
 	-- Stormstrike
-				if castSpell("target",_Stormstrike,false) then return; end
+					if castSpell("target",_Stormstrike,false,false,false,true) then return; end
+				end
 			else
 	-- Primal Strike
 				if castSpell("target",_PrimalStrike,false) then return; end
@@ -263,7 +267,7 @@ if select(3, UnitClass("player")) == 7 then
 			if UnitLevel("player") >= 26 then
 				if getBuffRemain("player",_AscendanceBuff)>0 then
 	-- Stormblast
-					if castSpell("target",_Stormblast,false) then return; end
+					if castSpell("target",_Stormblast,false,false,false,true) then return; end
 				else
 	-- Stormstrike
 					if castSpell("target",_Stormstrike,false,false,false,true) then return; end
