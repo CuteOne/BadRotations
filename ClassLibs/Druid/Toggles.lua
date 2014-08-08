@@ -108,7 +108,7 @@ if select(3, UnitClass("player")) == 11 then
 
         --Thrash Key Toggle
         if ThrashTimer == nil then ThrashTimer = 0; end
-        if ThrashMode == nil then ThrashMode = 0; end
+        if ThrashMode == nil then ThrashMode = 1; end
         if SpecificToggle("Thrash Toggle") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - ThrashTimer > 0.25 then
             ThrashTimer = GetTime()
             if isChecked("Thrash Toggle") then
@@ -126,7 +126,7 @@ if select(3, UnitClass("player")) == 11 then
 
         --Symbiosis Key Toggle
         if SymTimer == nil then SymTimer = 0; end
-        if SymMode == nil then SymMode = 0; end
+        if SymMode == nil then SymMode = 1; end
         if SpecificToggle("Symbiosis Toggle") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - SymTimer > 0.25 then
             SymTimer = GetTime()
             if isChecked("Symbiosis Toggle") then

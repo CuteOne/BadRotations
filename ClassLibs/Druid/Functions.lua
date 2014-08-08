@@ -112,9 +112,35 @@ function getRkOver()
     end
 end
 
+------Member Check------
+function CalculateHP(unit)
+  incomingheals = UnitGetIncomingHeals(unit) or 0
+  return 100 * ( UnitHealth(unit) + incomingheals ) / UnitHealthMax(unit)
+end
+
+function GroupInfo()
+    members, group = { { Unit = "player", HP = CalculateHP("player") } }, { low = 0, tanks = { } }      
+    group.type = IsInRaid() and "raid" or "party" 
+    group.number = GetNumGroupMembers()
+    if group.number > 0 then
+        for i=1,group.number do 
+            if canHeal(group.type..i) then 
+                local unit, hp = group.type..i, CalculateHP(group.type..i) 
+                table.insert( members,{ Unit = unit, HP = hp } ) 
+                if hp < 90 then group.low = group.low + 1 end 
+                if UnitGroupRolesAssigned(unit) == "TANK" then table.insert(group.tanks,unit) end 
+            end 
+        end 
+        if group.type == "raid" and #members > 1 then table.remove(members,1) end 
+        table.sort(members, function(x,y) return x.HP < y.HP end)
+        --local customtarget = canHeal("target") and "target" -- or CanHeal("mouseover") and GetMouseFocus() ~= WorldFrame and "mouseover" 
+        --if customtarget then table.sort(members, function(x) return UnitIsUnit(customtarget,x.Unit) end) end 
+    end
+end
+
 --Symbiosis Priority Cast
-function classPrio(t)
-    local class = select(3,UnitClass(t))
+function classPrio(unit)
+    local class = select(3,UnitClass(unit))
    
     if class == 1 then --Warrior
             return 1
@@ -154,10 +180,10 @@ local symIDs = {
  110491 --Warrior
 }
  
-function HasSymb( t )
+function HasSymb(unit)
     for i=1, #symIDs do
-        local hasSym = select(15,UnitBuffID(t,symIDs[i]))
-        local class = select(3,UnitClass( t ))
+        local hasSym = select(15,UnitBuffID(unit,symIDs[i]))
+        local class = select(3,UnitClass(unit))
  
         if hasSym or class == 11 then
                 return true
@@ -174,7 +200,7 @@ function SymMem()
     symgroup.number = GetNumGroupMembers()
     if symgroup.number > 0 then   
         for i=1,symgroup.number do
-            if CanHeal(symgroup.type..i) and not HasSymb(symgroup.type..i) then
+            if canHeal(symgroup.type..i) and not HasSymb(symgroup.type..i) then
                 local unit, prio, class, classID = symgroup.type..i, classPrio(symgroup.type..i), select(2, UnitClass(symgroup.type..i)), select(3,UnitClass(symgroup.type..i))
                 table.insert( symmem,{ Unit = unit, Prio = prio, Class = class, ClassID = classID } )
  
@@ -186,19 +212,6 @@ function SymMem()
         table.sort(symmem, function(x,y) return x.Prio < y.Prio end)
   --  local customtarget = CanHeal("target") and "target" -- or CanHeal("mouseover") and GetMouseFocus() ~= WorldFrame and "mouseover"
   --  if customtarget then table.sort(symmem, function(x) return UnitIsUnit(customtarget,x.Unit) end) end
-    end
-end
-
-function GroupInfo()
-    members, group = { { Unit = "player" } }, { low = 0, tanks = { } }      
-    group.type = IsInRaid() and "raid" or "party" 
-    group.number = GetNumGroupMembers()
-    if group.number > 0 then
-        for i=1,group.number do 
-            local unit = group.type..i
-            table.insert( members,{ Unit = unit } ) 
-        end 
-        if group.type == "raid" and #members > 1 then table.remove(members,1) end    
     end
 end
 

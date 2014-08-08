@@ -69,9 +69,9 @@ if select(3, UnitClass("player")) == 11 then
 		  	and not IsFlying()
 		 then
 	-- Mark of the Wild
-		   	if isChecked("Mark of the Wild") then
-			  	for i = 1, #nNova do
-		  			if not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
+		   	if isChecked("Mark of the Wild") and not UnitExists("mouseover") then
+			  	for i = 1, #members do
+		  			if not isBuffed(members[i].Unit,{115921,20217,1126,90363}) and (#members==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
 		  				if UnitPower("player") ~= UnitPower("player",0) then
 		  					CancelShapeshiftForm()
 		  				else
@@ -150,7 +150,7 @@ if select(3, UnitClass("player")) == 11 then
 ------------------
 --- Defensives ---
 ------------------
-		if isChecked("Defensive") then
+		if isChecked("Defensive Mode") then
 			if not UnitBuffID("player", prl)
 				and not UnitBuffID("player", 80169) -- Food
 			  	and not UnitBuffID("player", 87959) -- Drink
@@ -335,7 +335,7 @@ if select(3, UnitClass("player")) == 11 then
 	------------------------------
 	--- In Combat - Interrupts ---
 	------------------------------
-					if isChecked("Interrupts") and UnitBuffID("player",cf) and not UnitBuffID("player",prl) then
+					if isChecked("Interrupt Mode") and UnitBuffID("player",cf) and not UnitBuffID("player",prl) then
 		-- Skull Bash
 						if canInterrupt(sb, tonumber(getValue("Interrupts"))) 
 							and isChecked("Skull Bash") 
@@ -426,35 +426,26 @@ if select(3, UnitClass("player")) == 11 then
 				            if castSpell("player",sympal,true) then return; end
 				        end
 				        if isKnown(symdk) and sir(gsi(rk),t)~=1 and sir(gsi(rc),t)==1 and pow>=40 then
-				           -- cast(gsi(symdk))
+				           	if castSpell("target",symdk,false) then return; end
 				        end
-				        -- if isKnown(symhun) and getSpellCD(symhun)==0 then
-				        --     local threat={UnitDetailedThreatSituation(p,t)}
-				        --     if (threat[1]==1 or (threat[5] ~=nil and threat[5]>25000 and threat[3]>90)) then
-				        --     --    cast(gsi(symhun))
-				        --     end
-				        -- end
-				        -- if isKnown(symloc) then
-				        -- 	return false
-				        -- end
-				        -- if isKnown(symrog) then
-				        --     if cps == nil then
-				        --         cps = 0
-				        --     end
-				        --     if outcom then
-				        --         cps = 0
-				        --     end
-				        --     local ComboPoints = GetComboPoints("player", "target")
-				        --     if UnitExists(t) and ComboPoints ~= cps and check(symrog) and cps~=0 then
-				        --     --    cast(gsi(symrog),t)
-				        --     end
-				        -- end
-				        -- if isKnown(symmag) and getSpellCD(symmag)==0 and php<=25 then
-				        --     cast(gsi(symmag))
-				        -- end
-				        -- if isKnown(symmon) then
-				        --     return false   
-				        -- end
+				        if isKnown(symhun) and getSpellCD(symhun)==0 then
+				            local threat={UnitDetailedThreatSituation(p,t)}
+				            if (threat[1]==1 or (threat[5] ~=nil and threat[5]>25000 and threat[3]>90)) then
+				            	if castSpell("player",symhun,true) then return; end
+				            end
+				        end
+				        if isKnown(symloc) then
+				         	return false
+				        end
+				        if isKnown(symrog) then
+				            return false
+				        end
+				        if isKnown(symmag) and getSpellCD(symmag)==0 and getHP("player")<=25 then
+				            if castSpell("player",symmag,true) then return; end
+				        end
+				        if isKnown(symmon) then
+				            return false   
+				        end
 					end		
 	-----------------------------------------
 	--- In Combat - Multi-Target Rotation ---

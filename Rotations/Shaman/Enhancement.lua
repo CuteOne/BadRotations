@@ -67,7 +67,8 @@ if select(3, UnitClass("player")) == 7 then
 		if not isAlive("mouseover") 
 			and not isEnnemy("mouseover") 
 			and not isCasting("player")
-			and not isInCombat("player") 
+			and not isInCombat("player")
+			and UnitIsPlayer("mouseover") 
 		then
 			if castSpell("mouseover",_AncestralSpirit,true) then return; end
 		end

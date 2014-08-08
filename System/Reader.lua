@@ -102,6 +102,48 @@ local function SpellsChanged(self, event, ...)
 end
 Frame:SetScript("OnEvent", SpellsChanged)
 
+--------------------
+-- Bleed Recorder --
+local Frame = CreateFrame('Frame');
+Frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
+local function BleedDamage(self, event, ...)
+	Rip_sDamage = Rip_sDamage or {}
+    Rake_sDamage = Rake_sDamage or {}
+    --Thrash_sDamage = Thrash_sDamage or {}
+    if event == "COMBAT_LOG_EVENT_UNFILTERED" then
+    	local param 		= select(2,...);
+		local source 		= select(4,...);
+		local spell 		= select(12,...);
+        local destination 	= select(8,...);
+
+        --print(param..", "..source..", "..spell)
+        -- snapshot on spellcast
+        if source == UnitGUID("player") and param == "SPELL_CAST_SUCCESS" then
+            if spell == 1079 then
+                Rip_sDamage_cast = CRPD()
+            elseif spell == 1822 then
+                Rake_sDamage_cast = CRKD()
+            --elseif spell == 106830 then
+            --    WA_calcStats_feral()
+            --    Thrash_sDamage_cast = WA_stats_ThrashTick
+            end
+            
+            -- but only record the snapshot if it successfully applied
+        elseif source == UnitGUID("player") and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") then
+            --print(source..", "..spell..", "..destination)
+            if spell == 1079 then
+                Rip_sDamage[destination] = Rip_sDamage_cast
+
+            elseif spell == 1822 then
+                Rake_sDamage[destination] = Rake_sDamage_cast
+            --elseif spell == 106830 then
+           --     Thrash_sDamage[destination] = Thrash_sDamage_cast
+            end
+        end
+    end
+end
+Frame:SetScript("OnEvent", BleedDamage)
+
 -----------------------
 -- Combat Log Reader --
 local superReaderFrame = CreateFrame('Frame');
@@ -113,9 +155,6 @@ superReaderFrame:RegisterEvent("UNIT_SPELLCAST_FAILED");
 function SuperReader(self, event, ...)
     if debugTable == nil then debugTable = { }; end
 
-    Rip_sDamage = Rip_sDamage or {}
-    Rake_sDamage = Rake_sDamage or {}
-    --Thrash_sDamage = Thrash_sDamage or {}
     if event == "COMBAT_LOG_EVENT_UNFILTERED" then
 
     	local param 		= select(2,...);
@@ -172,34 +211,6 @@ function SuperReader(self, event, ...)
         		end
         	end
         end
-
-
-        if MyClass == 11 then
-	        --print(param..", "..source..", "..spell)
-	        -- snapshot on spellcast
-	        if source == UnitGUID("player") and param == "SPELL_CAST_SUCCESS" then
-	            if spell == 1079 then
-	                Rip_sDamage_cast = CRPD()
-	            elseif spell == 1822 then
-	                Rake_sDamage_cast = CRKD()
-	            --elseif spell == 106830 then
-	            --    WA_calcStats_feral()
-	            --    Thrash_sDamage_cast = WA_stats_ThrashTick
-	            end
-	            
-	            -- but only record the snapshot if it successfully applied
-	        elseif source == UnitGUID("player") and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") then
-	            --print(source..", "..spell..", "..destination)
-	            if spell == 1079 then
-	                Rip_sDamage[destination] = Rip_sDamage_cast
-
-	            elseif spell == 1822 then
-	                Rake_sDamage[destination] = Rake_sDamage_cast
-	            --elseif spell == 106830 then
-	           --     Thrash_sDamage[destination] = Thrash_sDamage_cast
-	            end
-	        end
-	    end
     end
 
 	------------------------------------------

@@ -955,16 +955,14 @@ function isBoss()
 end
 
 --- if isBuffed()
-function isBuffed(UnitID,SpellID,TimeLeft) 
+function isBuffed(UnitID,SpellID,TimeLeft,Filter) 
   	if not TimeLeft then TimeLeft = 0 end
   	if type(SpellID) == "number" then SpellID = { SpellID } end 
 	for i=1,#SpellID do 
-		local spell = tostring(GetSpellInfo(SpellID[i]))
+		local spell, rank = GetSpellInfo(SpellID[i])
 		if spell then
-			local buff = select(7,UnitBuff(UnitID,spell)) 
-			if buff ~= nil and ( buff == 0 or buff - GetTime() > TimeLeft ) then 
-				return true
-			end
+			local buff = select(7,UnitBuff(UnitID,spell,rank,Filter)) 
+			if buff and ( buff == 0 or buff - GetTime() > TimeLeft ) then return true; end
 		end
 	end
 end
