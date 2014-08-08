@@ -85,14 +85,6 @@ function BadBoyFrame()
 	---------------------------
 	--     Main Frame UI     --
 	---------------------------
-	-- Power Button
---[[	buttonsTable = { 
-		["Config"] 		= { x = 4, y = 2 },
-		["AoE"] 		= { x = 1, y = 1 },
-		["Cooldowns"] 	= { x = 2, y = 1 },
-		["Config"] 		= { x = 3, y = 1 },
-		["Interrupts"] 	= { x = 4, y = 1 }
-	}]]
 
 	local buttonWidth = 32;
 	local buttonHeight = 18;
@@ -246,25 +238,4 @@ function BadBoyFrame()
 			_G["button"..Name]:SetNormalTexture([[Interface\BUTTONS\CheckButtonHilight]]); 
 		end
 	end
-
-
-
 end
-
-
-
---[[                                          
-										Pulse
-
-function UIUpdate()
-
-	if BadBoy_data.frameShown == false then
-		if mainFrame:IsShown() == 1 then
-			mainFrame:Hide();
-		end
-	elseif BadBoy_data.frameShown == true then
-		if mainFrame:IsShown() ~= 1 then
-			mainFrame:Show();
-		end
-	end
-end]]
