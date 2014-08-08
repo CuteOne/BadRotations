@@ -11,8 +11,9 @@ if select(3,UnitClass("player")) == 7 then
 function isFireTotem(SpellID)
     if tostring(select(2,GetTotemInfo(1))) == tostring(GetSpellInfo(SpellID)) then return true; else return false; end
 end
+
 function isAirTotem(SpellID)
-    if select(2,GetTotemInfo(4)) == tostring(GetSpellInfo(SpellID)) then return true; else return false; end
+    if tostring(select(2,GetTotemInfo(4))) == tostring(GetSpellInfo(SpellID)) then return true; else return false; end
 end
 
 --[[           ]]   --[[]]              --[[           ]]
@@ -182,6 +183,37 @@ end
 
 
 
+    function EarthShield()
+        CEarthShield = false
+        if UnitExists("focus") ~= nil and UnitBuffID("focus", 52127) ~= nil then
+            CEarthShield = true
+        end
+        if CEarthShield == false then
+            for i=1, #nNova do  
+                if UnitBuffID(nNova[i].unit, 974, "PLAYER")
+                  and (select(7, UnitBuffID(nNova[i].unit, 974, "PLAYER")) - GetTime() > 1 or select(4, UnitBuffID(nNova[i].unit, 974, "PLAYER")) > 1)
+                  and (UnitThreatSituation(nNova[i].unit) == 3 or not UnitAffectingCombat(nNova[i].unit)) then
+                    CEarthShield = true
+                end
+            end
+        end
+        if CEarthShield == false then
+            if #nNova > 1 then
+                if UnitExists("focus") then
+                    if not UnitBuffID(nNova[i].unit, 52127) then
+                        return true, i
+                    end
+                end
+                for i=1, #nNova do
+                    if select(3,UnitClass(nNova[i].unit)) ~= 7 and UnitThreatSituation(nNova[i].unit) == 3 
+                      and not UnitBuffID(nNova[i].unit, 52127) and nNova[i].role == "TANK" then
+                        return true, i
+                    end
+                end
+            end
+        end 
+        return false, 1
+    end
 
 
 

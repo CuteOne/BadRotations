@@ -134,7 +134,7 @@ function BadBoyRun()
 		DebugFrameCreation();
 		-- And to update our users Health and Sort :)
 		if NovaEngineUpdate == nil then NovaEngineUpdate = GetTime(); end
-		if BadBoy_data["Check Interrupts"] == 1 and NovaEngineUpdate and NovaEngineUpdate <= GetTime() - 0.5 then
+		if NovaEngineUpdate and NovaEngineUpdate <= GetTime() - 0.5 then
 			NovaEngineUpdate = GetTime()
 			nNova:Update()
 			--ScanObjects();
@@ -198,6 +198,9 @@ function BadBoyRun()
 				if _MySpec == 2 then
 					ShamanEnhancement();
 				end	
+				if _MySpec == 3 then
+					ShamanRestoration();
+				end					
 				--Shaman()		
 			elseif _MyClass == 8 then -- Mage
 				--Mage()		

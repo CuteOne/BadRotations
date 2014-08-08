@@ -267,6 +267,100 @@ end
 --[[]]	  --[[]]	--[[           ]]	--[[           ]]		 --[[ ]]		--[[           ]]
 --[[]]	   --[[]]	--[[           ]] 	--[[           ]]		 --[[ ]]		--[[           ]]
 
+function RestorationConfig()
+    --if not doneConfig then
+        thisConfig = 0
+        -- Title
+        CreateNewTitle(thisConfig,"|cff00EEFFRestoration |cffFF0000CodeMyLife");
+
+        -- Wrapper
+        CreateNewWrap(thisConfig,"----- Buffs -----");
+
+        -- Earthliving Weapon
+        CreateNewCheck(thisConfig,"Earthliving Weapon");
+        CreateNewText(thisConfig,"Earthliving Weapon");
+
+        -- Water Shield
+        CreateNewCheck(thisConfig,"Water Shield");
+        CreateNewText(thisConfig,"Water Shield");
+
+        -- Wrapper
+        CreateNewWrap(thisConfig,"----- Cooldowns -----")
+
+        -- Ascendance
+        CreateNewCheck(thisConfig,"Ascendance");
+        CreateNewDrop(thisConfig, "Ascendance", 1, "CD")
+        CreateNewText(thisConfig,"Ascendance");
+
+        -- Fire Elemental
+        CreateNewCheck(thisConfig,"Fire Elemental");
+        CreateNewDrop(thisConfig, "Fire Elemental", 1, "CD")
+        CreateNewText(thisConfig,"Fire Elemental");
+
+        -- Stormlash
+        CreateNewCheck(thisConfig,"Stormlash");
+        CreateNewDrop(thisConfig, "Stormlash", 1, "CD")
+        CreateNewText(thisConfig,"Stormlash");
+
+        -- Unleash Element
+        CreateNewCheck(thisConfig,"Unleash Element");
+        CreateNewDrop(thisConfig, "Unleash Element", 1, "CD")
+        CreateNewText(thisConfig,"Unleash Element");
+
+        -- Wrapper
+        CreateNewWrap(thisConfig,"----- DPS Tweaks -----")
+
+        -- EarthQuake
+        CreateNewCheck(thisConfig,"EarthQuake");
+        CreateNewDrop(thisConfig, "EarthQuake", 1, "CD")
+        CreateNewText(thisConfig,"EarthQuake");
+
+        -- Thunderstorm
+        CreateNewCheck(thisConfig,"Thunderstorm");
+        CreateNewDrop(thisConfig, "Thunderstorm", 1, "CD")
+        CreateNewText(thisConfig,"Thunderstorm");
+
+        -- Wrapper
+        CreateNewWrap(thisConfig,"------ Defensive -------");
+
+        -- Astral Shift
+        CreateNewCheck(thisConfig,"Astral Shift");
+        CreateNewBox(thisConfig, "Astral Shift", 0, 100  , 5, 30, "|cffFFBB00Under what %HP to use |cffFFFFFFAstral Shit");
+        CreateNewText(thisConfig,"Astral Shift");
+
+        -- Healing Stream
+        CreateNewCheck(thisConfig,"Healing Stream");
+        CreateNewBox(thisConfig, "Healing Stream", 0, 100  , 5, 50, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream");
+        CreateNewText(thisConfig,"Healing Stream");
+
+        -- Shamanistic Rage
+        CreateNewCheck(thisConfig,"Shamanistic Rage");
+        CreateNewBox(thisConfig, "Shamanistic Rage", 0, 100  , 5, 70, "|cffFFBB00Under what %HP to use |cffFFFFFFShamanistic Rage");
+        CreateNewText(thisConfig,"Shamanistic Rage");
+
+        -- Wrapper
+        CreateNewWrap(thisConfig,"-------- General -------");
+
+        -- Standard Interrupt
+        CreateNewCheck(thisConfig,"Wind Shear");
+        CreateNewBox(thisConfig, "Wind Shear", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to |cffFFFFFFWind Shear.");
+        CreateNewText(thisConfig,"Wind Shear");
+
+        -- PokeRotation
+        CreateNewCheck(thisConfig,"PokeRotation");
+        CreateNewText(thisConfig,"PokeRotation");
+
+        -- Debug
+        CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start |cffFFFFFFChat Debug |cffFFBB00of casted spells.");
+        CreateNewText(thisConfig,"Debug");
+
+       -- Bound
+        CreateNewBound(thisConfig,"End"); 
+
+        doneConfig = true;
+        WrapsManager();
+    --end
+end
 --[[           ]]	--[[]]	   --[[]]	--[[]]	   --[[]]	--[[   		   ]]	--[[   		   ]]	--[[   		   ]]	--[[           ]]	--[[]]	   --[[]]
 --[[           ]]	--[[]]	   --[[]]	--[[  ]]   --[[]]	--[[   		   ]]	--[[   		   ]]	--[[   		   ]]	--[[           ]]	--[[  ]]   --[[]]
 --[[]]				--[[]]	   --[[]]	--[[    ]] --[[]]   --[[]]					 --[[ ]]			 --[[ ]]		--[[]]	   --[[]]	--[[    ]] --[[]]
