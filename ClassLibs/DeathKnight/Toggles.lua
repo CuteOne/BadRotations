@@ -9,14 +9,17 @@ function BloodToggles()
             [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "|cffFF0000Recommended for \n|cffFFDD11AoE(3+).", highlight = 0 },
             [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "|cffFFDD11Recommended for \n|cffFFDD11Lazy people like me.", highlight = 1 }
         };
+        CreateButton("AoE",1.5,1);
         AoEModesLoaded = "Blood DK AoE Modes";
     end
+
     -- Interrupts Button
     if  InterruptsModesLoaded ~= "Blood DK Interrupts Modes" then 
         InterruptsModes = { 
             [1] = { mode = "None", value = 1 , overlay = "Interrupts Disabled", tip = "|cffFF0000No Interrupts will be used.", highlight = 0 },
             [2] = { mode = "All", value = 2 , overlay = "Interrupts Enabled", tip = "|cffFF0000Includes: \n|cffFFDD11Mind Freeze.", highlight = 1 }
         };
+        CreateButton("Interrupts",0.5,1);
         InterruptsModesLoaded = "Blood DK Interrupts Modes";
     end
 
@@ -26,8 +29,10 @@ function BloodToggles()
             [1] = { mode = "None", value = 1 , overlay = "Defensive Disabled", tip = "|cffFF0000No Defensive Cooldowns will be used.", highlight = 0 },
             [2] = { mode = "All", value = 2 , overlay = "Defensive Enabled", tip = "|cffFF0000Includes: \n|cffFFDD11Blood Tap, \nBlood Truc, \nGuardian of Ancient Kings.", highlight = 1 }
         };
+        CreateButton("Defensive",1,0);
         DefensiveModesLoaded = "Blood DK Defensive Modes";
     end
+
     -- Cooldowns Button
     if  CooldownsModesLoaded ~= "Blood DK Cooldowns Modes" then 
         CooldownsModes = { 
@@ -35,6 +40,7 @@ function BloodToggles()
             [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "|cffFF0000Includes: \n|cffFFDD11Config's selected spells.", highlight = 1 },
             [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "|cffFF0000Includes: \n|cffFFDD11Blood Fru, \nHBlood Fâché.", highlight = 1 }
         };
+        CreateButton("Cooldowns",2,0);
         CooldownsModesLoaded = "Blood DK Cooldowns Modes";
     end
 end
