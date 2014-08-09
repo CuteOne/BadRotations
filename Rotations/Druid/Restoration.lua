@@ -46,6 +46,14 @@ function DruidRestoration()
 		if canCast(145205) and (shroomsTable == nil or #shroomsTable == 0) then
 			if castHealGround(145205,10,100,3) then return; end
 		end
+		-- Mushroom Replace
+		if canCast(145205) and (shroomsTable ~= nil and #shroomsTable ~= 0) then
+			ISetAsUnitID(shroomsTable[1],"myShroom")
+			local allies10Yards = getAllies("myShroom",10)
+			if #allies10Yards < 3 then
+				if castHealGround(145205,10,100,3) then return; end
+			end		
+		end		
 		
 		-- Swiftmend (Unglyphed)
 		if hasGlyph(145529) ~= true then

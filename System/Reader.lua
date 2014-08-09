@@ -167,10 +167,10 @@ function SuperReader(self, event, ...)
         if source == UnitGUID("player") and  param == "SPELL_SUMMON" and (spell == 147349 or spell == 145205) then
         	if shroomsTable == nil then shroomsTable = { } end
         	if shroomsTable[destination] == nil then
-        		shroomsTable[destination] = destination;
+        		shroomsTable[1] = destination;
         	end
         end
-        if param == "UNIT_DIED" and shroomsTable ~= nil and shroomsTable[destination] ~= nil then
+        if (param == "UNIT_DIED" or  param == "UNIT_DESTROYED") and shroomsTable ~= nil and shroomsTable[1] == destination then
         	shroomsTable = { };
         end        
 
