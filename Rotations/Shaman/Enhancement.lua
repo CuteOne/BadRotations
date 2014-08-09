@@ -38,11 +38,11 @@ if select(3, UnitClass("player")) == 7 then
 	-- Dummy Test
 		if BadBoy_data["Check DPS Testing"] == 1 then
 			if UnitExists("target") then
-				if getCombatTime() >= (tonumber(BadBoy_data["Box DPS Testing"])*60) and isDummy() then  
+				if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then  
 					if castSpell("player",_TotemRecall,true) and hasTotem() then return; end
 					StopAttack()
 					ClearTarget()
-					print(tonumber(BadBoy_data["Box DPS Testing"]) .." Minute Dummy Test Concluded - Profile Stopped")
+					ChatOverlay(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
 				end
 			end
 		end
@@ -102,7 +102,7 @@ if select(3, UnitClass("player")) == 7 then
 			if castSpell("player",_EarthbindTotem,true) then return; end
 		end
 		if not isCasting("player") 
-			and canInterrupt(_GroundingTotem, tonumber(BadBoy_data["Box Interrupts"]))
+			and canInterrupt(_GroundingTotem, tonumber(getValue("Interrupts")))
 			and getSpellCD(_WindShear) > 0 
 			and getSpellCD(_WindShear) < 12
 		then
@@ -118,10 +118,10 @@ if select(3, UnitClass("player")) == 7 then
 		if useCDs() and targetDistance <= 10 and isInCombat("player") and (not hasFire() or hasSearing()) then
 			if castSpell("player",_FireElementalTotem,true) then return; end
 		end
-		if (not (hasSearing() and hasFireElemental()) or (hasSearing() and getTotemDistance("target") > 20)) and targetDistance<=20 and getNumEnnemies("player",8)<6 and isInCombat("player") then
+		if (not (hasSearing() or hasFireElemental()) or (hasSearing() and getTotemDistance("target") > 20)) and targetDistance<=20 and getNumEnnemies("player",8)<6 and isInCombat("player") then
 			if castSpell("player",_SearingTotem,true) then return; end
 		end
-		if (not (hasMagma() and hasFireElemental()) or (hasMagma() and getTotemDistance("target") > 8)) and targetDistance<8 and getNumEnnemies("player",8)>=6 and isInCombat("player") then
+		if (not (hasMagma() or hasFireElemental()) or (hasMagma() and getTotemDistance("target") > 8)) and targetDistance<8 and getNumEnnemies("player",8)>=6 and isInCombat("player") then
 			if castSpell("player",_MagmaTotem,true) then return; end
 		end
 	-- Wind
@@ -184,7 +184,8 @@ if select(3, UnitClass("player")) == 7 then
 --- Interrupts ---
 ------------------
 	-- Wind Shear
-		if canInterrupt(_WindShear, tonumber(BadBoy_data["Box Interrupts"])) then
+		if canInterrupt(_WindShear, tonumber(getValue("Interrupts"))) then
+			ChatOverlay(canInterrupt(_WindShear, tonumber(getValue("Interrupts"))))
 			if castSpell("target",_WindShear,false) then return; end
 		end
 
