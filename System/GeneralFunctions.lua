@@ -353,14 +353,14 @@ end
 
 -- if castHealGround(_HealingRain,18,80,3) then 
 function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
-	lowHPTargets = { }
+	local lowHPTargets = { }
 	for i = 1, #nNova do
 		if nNova[i].hp <= Health then
 			local X, Y, Z = IGetLocation(UnitGUID(nNova[i].unit))
 			tinsert(lowHPTargets, { unit = nNova[i].unit, x = X, y = Y, z = Z })
 		end
 	end
-	if #lowHPTargets > NumberOfPlayers then
+	if #lowHPTargets >= NumberOfPlayers then
 		for i = 1, #lowHPTargets do
 			for j = 1, #lowHPTargets do
 				if lowHPTargets[i].unit ~= lowHPTargets[j].unit then
