@@ -202,7 +202,7 @@
 ---- Returns tooltip damage
 
 --[[ function pause() --Pause ]]
----- returns true if pause is engaged
+---- Returns true if pause is engaged
 
 --[[ function useItem(itemID) ]]
 ---- Uses item via ID
@@ -215,7 +215,6 @@
 --[[           ]]	--[[]]				--[[           ]]
 --[[           ]]	--[[]]      		--[[           ]]
 
--- if isChecked("Debug") then
 --[[ function isChecked(Value) ]]
 ---- Returns true if Value Checkbox is checked in UI
 

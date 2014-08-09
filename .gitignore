@@ -14,7 +14,6 @@ ClassLibs/Warrior/Functions.lua
 ClassLibs/Warrior/Options.lua
 Rotations/Druid/Guardian.lua
 Rotations/Druid/Moonkin.lua
-Rotations/Druid/Restoration.lua
 Rotations/Hunter/Marskmanship.lua
 Rotations/Hunter/Survival.lua
 Rotations/Mage/Arcane.lua
@@ -30,7 +29,6 @@ Rotations/Priest/Shadow.lua
 Rotations/Rogue/Assassination.lua
 Rotations/Rogue/Combat.lua
 Rotations/Rogue/Subtlety.lua
-Rotations/Shaman/Restoration.lua
 Rotations/Warlock/Affliction.lua
 Rotations/Warlock/Demonology.lua
 Rotations/Warrior/Arms.lua

@@ -221,7 +221,7 @@ end
         if CEarthShield == false then
             if #nNova > 1 then
                 if UnitExists("focus") then
-                    if not UnitBuffID(nNova[i].unit, 52127) then
+                    if not UnitBuffID("focus", 52127) then
                         return true, i
                     end
                 end

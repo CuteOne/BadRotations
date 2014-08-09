@@ -150,7 +150,7 @@ function BadBoyFrame()
 	mainText = mainButton:CreateFontString(nil, "OVERLAY");
 	mainText:SetFont("Fonts/FRIZQT__.TTF",17,"THICKOUTLINE");
 	mainText:SetTextHeight(9);
-	mainText:SetPoint("CENTER",0,0);
+	mainText:SetPoint("CENTER",0,-1);
 	mainText:SetTextColor(.90,.90,.90,1);
 	if BadBoy_data['Power'] == 0 then
 		BadBoy_data['Power'] = 0;
@@ -177,7 +177,7 @@ function BadBoyFrame()
 		_G["text"..Name] = _G["button"..Name]:CreateFontString(nil, "OVERLAY");
 		_G["text"..Name]:SetFont("Fonts/FRIZQT__.TTF",17,"THICKOUTLINE");
 		_G["text"..Name]:SetTextHeight(9);
-		_G["text"..Name]:SetPoint("CENTER",0,0);
+		_G["text"..Name]:SetPoint("CENTER",0,-1);
 		_G["text"..Name]:SetTextColor(.90,.90,.90,1);	
 		local modeTable;		
 		if _G[Name.."Modes"] == nil then print("No table found for ".. Name); _G[Name.."Modes"] = tostring(Name); else _G[Name.."Modes"] = _G[Name.."Modes"] end

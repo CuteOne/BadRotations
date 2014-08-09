@@ -152,4 +152,48 @@ if select(3, UnitClass("player")) == 11 then
         end  
     end
 
+
+
+--[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]
+--[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]
+--[[]]     --[[]]   --[[]]              --[[]]                   --[[ ]]        --[[]]     --[[]]
+--[[           ]]   --[[           ]]   --[[           ]]        --[[ ]]        --[[]]     --[[]]
+--[[        ]]      --[[]]                         --[[]]        --[[ ]]        --[[]]     --[[]]
+--[[]]    --[[]]    --[[           ]]   --[[           ]]        --[[ ]]        --[[           ]]
+--[[]]     --[[]]   --[[           ]]   --[[           ]]        --[[ ]]        --[[           ]]
+
+
+    function RestorationToggles()
+        -- Aoe Button
+        if  HealingModesLoaded ~= "Masou Restoration Healing Modes" then 
+            HealingModes = { 
+                [1] = { mode = "Off", value = 1 , overlay = "Healing Enabled", tip = "Will allow healing.", highlight = 0 },
+                [2] = { mode = "On", value = 2 , overlay = "Healing Disabled", tip = "Will not allow healing.", highlight = 0 },
+             };
+            CreateButton("Healing",0,1);
+            HealingLoaded = "Masou Restoration Healing Modes";
+        end
+        -- Defensive Button
+        if  DefensiveModesLoaded ~= "Masou Restoration Defensive Modes" then 
+            DefensiveModes = { 
+                [1] = { mode = "None", value = 1 , overlay = "Defensive Disabled", tip = "No Defensive Cooldowns will be used.", highlight = 0 },
+                [2] = { mode = "All", value = 2 , overlay = "Defensive Enabled", tip = "|cffFF0000Includes: \n|cffFFdd11Barkskin.", highlight = 1 }
+            };
+            CreateButton("Healing",1,0);
+            DefensiveModesLoaded = "Masou Restoration Defensive Modes";
+        end
+        -- Cooldowns Button
+        if  CooldownsModesLoaded ~= "Masou Restoration Cooldowns Modes" then 
+            CooldownsModes = { 
+                [1] = { mode = "None", value = 1 , overlay = "Cooldowns Disabled", tip = "No cooldowns will be used.", highlight = 0 },
+                [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "Includes config's selected spells.", highlight = 1 },
+                [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "|cffFF0000Includes: \n|cffFFdd11Tranquility.", highlight = 1 }
+            };
+            CreateButton("Healing",1,1);
+            CooldownsModesLoaded = "Masou Restoration Cooldowns Modes";
+        end
+    end
+
+
+
 end

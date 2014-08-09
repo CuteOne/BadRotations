@@ -210,3 +210,50 @@ end
 --[[        ]]      --[[]]                         --[[]]        --[[ ]]        --[[]]     --[[]]
 --[[]]    --[[]]    --[[           ]]   --[[           ]]        --[[ ]]        --[[           ]]
 --[[]]     --[[]]   --[[           ]]   --[[           ]]        --[[ ]]        --[[           ]]
+
+
+function RestorationConfig()
+    thisConfig = 0
+    -- Title
+    CreateNewTitle(thisConfig,"|cff00EEFFRestoration |cffFF0000Masoud");
+
+    -- Wrapper
+    CreateNewWrap(thisConfig,"----- Buffs -----");
+
+    -- Mark Of The Wild
+    CreateNewCheck(thisConfig,"Mark Of The Wild");
+    CreateNewText(thisConfig,"Mark Of The Wild");
+
+    -- Wrapper
+    CreateNewWrap(thisConfig,"----- Healing -----")
+
+    -- Healing Touch
+    CreateNewCheck(thisConfig,"Healing Touch");
+    CreateNewBox(thisConfig, "Healing Touch", 0, 100  , 5, 35, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Touch");
+    CreateNewText(thisConfig,"Healing Touch");
+
+    -- Wrapper
+    CreateNewWrap(thisConfig,"------ Defensive -------");
+
+    -- Barkskin
+    CreateNewCheck(thisConfig,"Barkskin");
+    CreateNewBox(thisConfig, "Barkskin", 0, 100  , 5, 30, "|cffFFBB00Under what %HP to use |cffFFFFFFBarkskin");
+    CreateNewText(thisConfig,"Barkskin");
+
+    -- Wrapper
+    CreateNewWrap(thisConfig,"-------- General -------");
+
+    -- PokeRotation
+    CreateNewCheck(thisConfig,"PokeRotation");
+    CreateNewText(thisConfig,"PokeRotation");
+
+    -- Debug
+    CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start |cffFFFFFFChat Debug |cffFFBB00of casted spells.");
+    CreateNewText(thisConfig,"Debug");
+
+   -- Bound
+    CreateNewBound(thisConfig,"End"); 
+
+    doneConfig = true;
+    WrapsManager();
+end

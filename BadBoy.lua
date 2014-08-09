@@ -192,7 +192,12 @@ function BadBoyRun()
 		elseif _MyClass == 10 then -- Monk
 			--Monk()						
 		elseif _MyClass == 11 then -- Druid
-			Druid()
+			if _MySpec == 2 then
+				Druid()
+			end		
+			if _MySpec == 4 then
+				DruidRestoration();
+			end		
 		end
 	end
 

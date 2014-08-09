@@ -512,6 +512,19 @@ function getTotemDistance(Unit1)
 end
 
 
+function getAllies(Target,Radius)
+	local alliesTable = {};
+ 	for i=1, #nNova do
+		if not UnitIsDeadOrGhost(nNova[i].unit) then
+			if getDistance(Target,nNova[i].unit) <= Radius then
+				tinsert(alliesTable,Guid);
+			end
+		end
+ 	end
+ 	return alliesTable;
+end
+
+
 -- /dump UnitGUID("target")
 -- /dump getEnnemies("target",10)
 -- if #getEnnemies("target",10) >= 3 then
