@@ -16,7 +16,7 @@ function DruidRestoration()
 
 	-- Barkskin if < 30%
 	if isChecked("Barkskin") and getHP("player") <= getValue("Barkskin") then
-		if castSpell("player",_Barkskin,true) then return; end
+		if castSpell("player",22812,true) then return; end
 	end
 
 
@@ -42,18 +42,32 @@ function DruidRestoration()
 			end
 		end
 
-		-- Swiftmend
-		local allies10Yards;
-		if getBuffRemain(nNova[1].unit,774) > 1 or getBuffRemain(nNova[1].unit,8936) > 1 then
-			allies10Yards = getAllies(nNova[1].unit,10)
-			if #allies10Yards >= 3 then
-				local count = 0;
-				for i = 1, #allies10Yards do
-					if getHP(allies10Yards[i]) < 90 then
-						count = count + 1
+		-- Mushrooms
+		if canCast(145205) and (shroomsTable == nil or #shroomsTable == 0) then
+			if castHealGround(145205,10,100,3) then return; end
+		end
+		
+		-- Swiftmend (Unglyphed)
+		if hasGlyph(145529) ~= true then
+			local allies10Yards;
+			if getBuffRemain(nNova[1].unit,774) > 1 or getBuffRemain(nNova[1].unit,8936) > 1 then
+				allies10Yards = getAllies(nNova[1].unit,10)
+				if #allies10Yards >= 3 then
+					local count = 0;
+					for i = 1, #allies10Yards do
+						if getHP(allies10Yards[i]) < 100 then
+							count = count + 1
+						end
+					end
+					if count > 3 then
+						if castSpell(nNova[1].unit,18562,true) then return; end
 					end
 				end
-				if count > 3 then
+			end
+		else
+			-- Swiftmend (Glyphed)
+			if getBuffRemain("player", 100977) < 3 then
+				if getBuffRemain(nNova[1].unit,774) > 1 or getBuffRemain(nNova[1].unit,8936) > 1 then
 					if castSpell(nNova[1].unit,18562,true) then return; end
 				end
 			end
@@ -71,7 +85,7 @@ function DruidRestoration()
  		-- Regrowth
 		if isChecked("Regrowth") then
 			for i = 1, #nNova do
-				if nNova[i].hp <= getValue("Regrowth") and getBuffRemain(nNova[i].unit,8936) < 3 then
+				if nNova[i].hp <= getValue("Regrowth") then
 					if castSpell(nNova[i].unit,8936,true) then return; end
 				end
 			end

@@ -162,6 +162,18 @@ function SuperReader(self, event, ...)
         	activeTotem = nil;
         end
 
+        -------------------
+        -- Wild Mushroom --
+        if source == UnitGUID("player") and  param == "SPELL_SUMMON" and (spell == 147349 or spell == 145205) then
+        	if shroomsTable == nil then shroomsTable = { } end
+        	if shroomsTable[destination] == nil then
+        		shroomsTable[destination] = destination;
+        	end
+        end
+        if param == "UNIT_DIED" and shroomsTable ~= nil and shroomsTable[destination] ~= nil then
+        	shroomsTable = { };
+        end        
+
         -------------------------------------------
         --- Debug ---------------------------------
         if BadBoy_data["Check Debug"] == 1 then
