@@ -166,7 +166,7 @@ if not metaTable1 then
 		  or SpecialHealUnit(tar))	
 		  and CheckBadDebuff(tar)
 		  and CheckCreatureType(tar)
-		  and getLineOfSight(tar, 3)
+		  and getLineOfSight("player", tar)
 		then return true else return false end
 	end
 

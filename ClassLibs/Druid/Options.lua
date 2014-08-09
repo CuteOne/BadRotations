@@ -227,9 +227,24 @@ function RestorationConfig()
     -- Wrapper
     CreateNewWrap(thisConfig,"----- Healing -----")
 
+    -- Lifebloom
+    CreateNewCheck(thisConfig,"Lifebloom");
+    CreateNewBox(thisConfig, "Lifebloom", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFLifebloom |cffFFBB00on Focus.");
+    CreateNewText(thisConfig,"Lifebloom");
+
+    -- Regrowth
+    CreateNewCheck(thisConfig,"Regrowth");
+    CreateNewBox(thisConfig, "Regrowth", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFRegrowth.");
+    CreateNewText(thisConfig,"Regrowth");
+
+    -- Rejuvenation
+    CreateNewCheck(thisConfig,"Rejuvenation");
+    CreateNewBox(thisConfig, "Rejuvenation", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFRejuvenation.");
+    CreateNewText(thisConfig,"Rejuvenation");
+
     -- Healing Touch
     CreateNewCheck(thisConfig,"Healing Touch");
-    CreateNewBox(thisConfig, "Healing Touch", 0, 100  , 5, 35, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Touch");
+    CreateNewBox(thisConfig, "Healing Touch", 0, 100  , 5, 35, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Touch.");
     CreateNewText(thisConfig,"Healing Touch");
 
     -- Wrapper

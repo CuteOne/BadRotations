@@ -302,14 +302,14 @@ function RestorationConfig()
         CreateNewDrop(thisConfig, "Stormlash", 1, "CD")
         CreateNewText(thisConfig,"Stormlash");
 
+        -- Wrapper
+        CreateNewWrap(thisConfig,"----- DPS Tweaks -----")
+
         -- Unleash Element
         CreateNewCheck(thisConfig,"Unleash Element");
         CreateNewDrop(thisConfig, "Unleash Element", 1, "CD")
         CreateNewText(thisConfig,"Unleash Element");
-
-        -- Wrapper
-        CreateNewWrap(thisConfig,"----- DPS Tweaks -----")
-
+        
         -- EarthQuake
         CreateNewCheck(thisConfig,"EarthQuake");
         CreateNewDrop(thisConfig, "EarthQuake", 1, "CD")

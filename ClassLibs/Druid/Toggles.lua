@@ -1,6 +1,5 @@
 if select(3, UnitClass("player")) == 11 then
 
-
     function KeyToggles()
      -- AoE Button
         if AoEModesLoaded ~= "Cute AoE Modes" then 
@@ -179,7 +178,7 @@ if select(3, UnitClass("player")) == 11 then
                 [1] = { mode = "None", value = 1 , overlay = "Defensive Disabled", tip = "No Defensive Cooldowns will be used.", highlight = 0 },
                 [2] = { mode = "All", value = 2 , overlay = "Defensive Enabled", tip = "|cffFF0000Includes: \n|cffFFdd11Barkskin.", highlight = 1 }
             };
-            CreateButton("Healing",1,0);
+            CreateButton("Defensive",1,0);
             DefensiveModesLoaded = "Masou Restoration Defensive Modes";
         end
         -- Cooldowns Button
@@ -189,7 +188,7 @@ if select(3, UnitClass("player")) == 11 then
                 [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "Includes config's selected spells.", highlight = 1 },
                 [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "|cffFF0000Includes: \n|cffFFdd11Tranquility.", highlight = 1 }
             };
-            CreateButton("Healing",1,1);
+            CreateButton("Cooldowns",1,1);
             CooldownsModesLoaded = "Masou Restoration Cooldowns Modes";
         end
     end

@@ -351,6 +351,47 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
   	return false;
 end
 
+-- if castHealGround(_HealingRain,18,80,3) then 
+function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
+	lowHPTargets = { }
+	for i = 1, #nNova do
+		if nNova[i].hp <= Health then
+			local X, Y, Z = IGetLocation(UnitGUID(nNova[i].unit))
+			tinsert(lowHPTargets, { unit = nNova[i].unit, x = X, y = Y, z = Z })
+		end
+	end
+	if #lowHPTargets > NumberOfPlayers then
+		for i = 1, #lowHPTargets do
+			for j = 1, #lowHPTargets do
+				if lowHPTargets[i].unit ~= lowHPTargets[j].unit then
+					if math.sqrt(((lowHPTargets[j].x-lowHPTargets[i].x)^2)+((lowHPTargets[j].y-lowHPTargets[i].y)^2)) < Radius then
+						for k = 1, #lowHPTargets do
+							if lowHPTargets[i].unit ~= lowHPTargets[k].unit and lowHPTargets[j].unit ~= lowHPTargets[k].unit then
+								if math.sqrt(((lowHPTargets[k].x-lowHPTargets[i].x)^2)+((lowHPTargets[k].y-lowHPTargets[i].y)^2)) < Radius and math.sqrt(((lowHPTargets[k].x-lowHPTargets[j].x)^2)+((lowHPTargets[k].y-lowHPTargets[j].y)^2)) < Radius then
+									foundTargets = { }
+									tinsert(foundTargets, { unit = lowHPTargets[i].unit, x = lowHPTargets[i].x, y = lowHPTargets[i].y, z = lowHPTargets[i].z })
+									tinsert(foundTargets, { unit = lowHPTargets[j].unit, x = lowHPTargets[j].x, y = lowHPTargets[j].y, z = lowHPTargets[i].z })
+									tinsert(foundTargets, { unit = lowHPTargets[k].unit, x = lowHPTargets[k].x, y = lowHPTargets[k].y, z = lowHPTargets[i].z })
+		end end end end end end end
+		local medX,medY,medZ = 0,0,0;
+		if foundTargets ~= nil and #foundTargets >= NumberOfPlayers then
+			for i = 1, 3 do
+				medX = medX + foundTargets[i].x
+				medY = medY + foundTargets[i].y
+				medZ = medZ + foundTargets[i].z
+			end
+			medX,medY,medZ = medX/3,medY/3,medZ/3
+			local myX, myY = IGetLocation(UnitGUID("player"));
+			if math.sqrt(((medX-myX)^2)+((medY-myY)^2)) < 40 then
+		 		CastSpellByName(GetSpellInfo(SpellID),"player");
+				if AreaSpellIsPending() then
+					CastAtLocation(medX,medY,medZ);
+					return true;
+		end end end
+	end
+	return false;
+end
+
 --[[           ]]   --[[           ]]    --[[           ]]
 --[[           ]]   --[[           ]]    --[[           ]]
 --[[]]              --[[]]        		       --[[ ]]
@@ -370,7 +411,7 @@ end
 -- if getBuffStacks(138756) > 0 then
 function getBuffStacks(unit,BuffID)
 	if UnitBuffID(unit, BuffID) then
-		return (select(7, UnitBuffID(unit, BuffID)) - GetTime())
+		return (select(4, UnitBuffID(unit, BuffID)))
 	else
 		return 0
 	end
@@ -517,7 +558,7 @@ function getAllies(Target,Radius)
  	for i=1, #nNova do
 		if not UnitIsDeadOrGhost(nNova[i].unit) then
 			if getDistance(Target,nNova[i].unit) <= Radius then
-				tinsert(alliesTable,Guid);
+				tinsert(alliesTable,nNova[i].unit);
 			end
 		end
  	end
