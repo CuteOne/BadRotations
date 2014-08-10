@@ -9,6 +9,7 @@ if select(3, UnitClass("player")) == 11 then
                 [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 1 }
             };
            AoEModes = CustomAoEModes
+           CreateButton("AoE",1,0)
            AoEModesLoaded = "Cute AoE Modes";
         end
             
@@ -20,6 +21,7 @@ if select(3, UnitClass("player")) == 11 then
                 [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 2 }
             };
            CooldownsModes = CustomCooldownsModes
+           CreateButton("Cooldowns",2,0)
            CooldownsModesLoaded = "Cute Cooldowns Modes";
         end
 
@@ -30,6 +32,7 @@ if select(3, UnitClass("player")) == 11 then
                 [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 2 }
             };
             DefensiveModes = CustomDefensiveModes
+            CreateButton("Defensive",3,0)
             DefensiveModesLoaded = "Cute Defensive Modes";
         end
 
@@ -40,9 +43,29 @@ if select(3, UnitClass("player")) == 11 then
                 [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 2 }
             };
             InterruptsModes = CustomInterruptsModes
+            CreateButton("Interrupts",4,0)
             InterruptsModesLoaded = "Cute Interrupt Modes";
         end
-
+     -- Thrash Button
+        if ThrashModesLoaded ~= "Cute Thrash Modes" then 
+            CustomThrashModes = { 
+                [1] = { mode = "On", value = 1 , overlay = "Thrash Enabled", tip = "Includes Basic Interrupts.", highlight = 1 },
+                [2] = { mode = "Off", value = 2 , overlay = "Thrash Disabled", tip = "No Interrupts will be used.", highlight = 2 }
+            };
+            ThrashModes = CustomThrashModes
+            CreateButton("Thrash",1,-1)
+            ThrashModesLoaded = "Cute Thrash Modes";
+        end
+     -- Symbiosis Button
+        if SymbiosisModesLoaded ~= "Cute Symbiosis Modes" then 
+            CustomSymbiosisModes = { 
+                [1] = { mode = "On", value = 1 , overlay = "Symbiosis Enabled", tip = "Includes Basic Interrupts.", highlight = 1 },
+                [2] = { mode = "Off", value = 2 , overlay = "Symbiosis Disabled", tip = "No Interrupts will be used.", highlight = 2 }
+            };
+            SymbiosisModes = CustomSymbiosisModes
+            CreateButton("Symbiosis",3,-1)
+            SymbiosisModesLoaded = "Cute Symbiosis Modes";
+        end
 
         function SpecificToggle(toggle)
             if getValue(toggle) == 1 then
@@ -57,15 +80,6 @@ if select(3, UnitClass("player")) == 11 then
                 return IsRightAltKeyDown();
             elseif getValue(toggle) == 6 then
                 return 0
-            end
-        end
-
-        function UpdateButton(Name)
-            _G["text"..Name]:SetText(BadBoy_data[tostring(Name)].mode); 
-            if _G[Name.."Modes"][BadBoy_data[tostring(Name)]].highlight == 0 then
-                _G["button"..Name]:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]); 
-            else
-                _G["button"..Name]:SetNormalTexture([[Interface\BUTTONS\CheckButtonHilight]]); 
             end
         end
 
@@ -90,6 +104,7 @@ if select(3, UnitClass("player")) == 11 then
             else
                 BadBoy_data['Cooldowns'] = 1
             end
+            UpdateButton("Cooldowns")
         end
 
         --Defensive Key Toggle
@@ -101,6 +116,7 @@ if select(3, UnitClass("player")) == 11 then
             else
                 BadBoy_data['Defensive'] = 1
             end
+            UpdateButton("Defensive")
         end
 
         --Interrupt Key Toggle
@@ -112,6 +128,7 @@ if select(3, UnitClass("player")) == 11 then
             else
                 BadBoy_data['Interrupts'] = 1
             end
+            UpdateButton("Interrupts")
         end
 
         --Thrash Key Toggle
@@ -119,17 +136,12 @@ if select(3, UnitClass("player")) == 11 then
         if ThrashMode == nil then ThrashMode = 1; end
         if SpecificToggle("Thrash Toggle") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - ThrashTimer > 0.25 then
             ThrashTimer = GetTime()
-            if isChecked("Thrash Toggle") then
-                if ThrashMode==0 then
-                    ThrashMode = 1
-                    ChatOverlay("|cff15FF00-Thrash Enabled-")
-                elseif ThrashMode == 1 then
-                    ThrashMode = 0
-                    ChatOverlay("|cffD60000-Thrash Disabled-")
-                end
+            if BadBoy_data['Thrash'] ~= #ThrashModes then
+                BadBoy_data['Thrash'] = BadBoy_data['Thrash']+1
             else
-                return false
+                BadBoy_data['Thrash'] = 1
             end
+            UpdateButton("Thrash")
         end
 
         --Symbiosis Key Toggle
@@ -137,20 +149,14 @@ if select(3, UnitClass("player")) == 11 then
         if SymMode == nil then SymMode = 1; end
         if SpecificToggle("Symbiosis Toggle") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - SymTimer > 0.25 then
             SymTimer = GetTime()
-            if isChecked("Symbiosis Toggle") then
-                if SymMode==0 then
-                    SymMode = 1
-                    ChatOverlay("|cff15FF00-Symbiosis Enabled-")
-                elseif SymMode == 1 then
-                    SymMode = 0
-                    ChatOverlay("|cffD60000-Symbiosis Disabled-")
-                end
+            if BadBoy_data['Symbiosis'] ~= #SymbiosisModes then
+                BadBoy_data['Symbiosis'] = BadBoy_data['Symbiosis']+1
             else
-                return false
+                BadBoy_data['Symbiosis'] = 1
             end
-        end  
+            UpdateButton("Symbiosis")
+        end
     end
-
 
 
 --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]

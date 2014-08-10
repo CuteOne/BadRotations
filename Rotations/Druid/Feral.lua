@@ -197,12 +197,12 @@ if select(3, UnitClass("player")) == 11 then
 --- Death Cat ---
 -------------------
 	-- Target Free Carnage
-		if isChecked("Death Cat Mode") then
+		if isChecked("Death Cat Mode") and not (IsMounted() or IsFlying() or isCasting("player")) then
 			if not UnitBuffID("player",cf) then
 				if castSpell("player",cf,true) then return; end
 			end
 			if UnitBuffID("player",cf) and getPower("player") >= 25 then
-				if UnitExists("target") ~= nil and targetDistance > 8 then
+				if UnitExists("target") ~= nil and isEnnemy("target") and targetDistance > 8 then
 		  			ClearTarget();
 		 		end
 		 		local enemiesInRange = getNumEnnemies("player",8)
@@ -224,7 +224,7 @@ if select(3, UnitClass("player")) == 11 then
                 			end
                 		end
                 	end
-               		if getPower("player") >= 45 then
+               		if getPower("player") >= 45 and enemiesInRange > 1 then
 	            	   	if swipeSoon == nil then
 		        	   		swipeSoon = GetTime();
 		        	   	end
