@@ -195,7 +195,8 @@ if not metaTable1 then
 		function o:CalcHP()
 --			print("calculating HP")
 			local incomingheals = UnitGetIncomingHeals(o.unit) and UnitGetIncomingHeals(o.unit) or 0
-			local nAbsorbs = ( 25*UnitGetTotalAbsorbs(o.unit)/100 )
+			local nAbsorbs;
+			if isChecked("No Absorbs") ~= 1 then nAbsorbs = ( 25*UnitGetTotalAbsorbs(o.unit)/100 ); else nAbsorbs = 0; end
 			local PercentWithIncoming = 100 * ( UnitHealth(o.unit) + incomingheals + nAbsorbs ) / UnitHealthMax(o.unit)
 			if o.role == "TANK" then PercentWithIncoming = PercentWithIncoming - 5 end -- Using the group role assigned to the Unit
 			if UnitIsDeadOrGhost(o.unit) == 1 then PercentWithIncoming = 250 end -- Place Dead players at the end of the list

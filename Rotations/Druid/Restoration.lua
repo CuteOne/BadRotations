@@ -25,7 +25,38 @@ function DruidRestoration()
 
 	if isInCombat("player") then
 
-		--if isAlive() and (isEnnemy() or isDummy("target")) and getLineOfSight("player","target") == true and getFacing("player","target") == true then
+
+		-- DPS Managements
+		if BadBoy_data["DPS"] == 2 and IsLeftShiftKeyDown() then
+			if targetDistance <= 5 then
+				--- Catform
+		  		if not UnitBuffID("player",768) and not UnitBuffID("player",783) and not UnitBuffID("player",5487) then 
+					if castSpell("player",768) then return; end
+				end
+				-- Ferocious Bite
+				if getCombo() == 5 and UnitBuffID("player",768) ~= nil then 
+					if castSpell("target",22568,false) then return; end
+				end
+				-- Rake
+				if getDebuffRemain("target",1822) < 2 then 
+					if castSpell("target",1822) then return; end
+				end
+				-- Mangle
+				if castSpell("target",33876) then return; end
+			else
+				if UnitBuffID("player",768) ~= nil then 
+					CancelShapeshiftForm();
+				end
+				-- Moonfire
+				if getDebuffRemain("target",8921) < 3 or isMoving("player")then
+					if castSpell("target",8921) then return; end
+				end
+				-- Wrath
+				if castSpell("target",5176) then return; end
+
+			end
+		end
+
 
         -- Healing Touch via Ns
 		if isChecked("Healing Touch Ns") and nNova[1].hp <= getValue("Healing Touch Ns") then
@@ -65,13 +96,13 @@ function DruidRestoration()
 		-- Mushroom Replace
 		if isChecked("Wild Mushrooms") and canCast(145205,false,false) and (shroomsTable ~= nil and #shroomsTable ~= 0) then
 			ISetAsUnitID(shroomsTable[1],"myShroom")
-			local allies10Yards = getAllies("myShroom",10)
-			if #allies10Yards < getValue("Wild Mushrooms Count") then
+			local allies15Yards = getAllies("myShroom",15)
+			if #allies15Yards < getValue("Wild Mushrooms Count") then
 				if castHealGround(145205,15,getValue("Wild Mushrooms") ,getValue("Wild Mushrooms Count")) then return; end
 			else
 				local found = 0;
-				for i = 1, #allies10Yards do
-					if getHP(allies10Yards[i]) <= getValue("Wild Mushrooms Bloom") then
+				for i = 1, #allies15Yards do
+					if getHP(allies15Yards[i]) <= getValue("Wild Mushrooms Bloom") then
 						found = found + 1;
 					end
 				end
@@ -106,12 +137,12 @@ function DruidRestoration()
 		end
 
 		-- Genesis
-		if isChecked("Genesis") and canCast(145518) then
+		if isChecked("Genesis") and canCast(145518) and (lastGenesis == nil or lastGenesis <= GetTime() - 10) then
 			local GenCount=0
 			for i=1, #nNova do
 				if nNova[i].hp <= getValue("Genesis") and getBuffRemain(nNova[i].unit,774) > 2 then 	
 					GenCount = GenCount + 1
-					if GenCount >= getValue("Genesis Count") then if castSpell("player",145518,true) then return; end end 	
+					if GenCount >= getValue("Genesis Count") then if castSpell("player",145518,true) then lastGenesis = GetTime(); return; end end 	
 				end
 			end
 		end
@@ -119,7 +150,7 @@ function DruidRestoration()
  		-- Rejuvenation
 		if isChecked("Rejuvenation") then
 			for i = 1, #nNova do
-				if nNova[i].hp <= getValue("Rejuvenation") and getBuffRemain(nNova[i].unit,774) < 2 then
+				if nNova[i].hp <= getValue("Rejuvenation") and getBuffRemain(nNova[i].unit,774) == 0 then
 					if castSpell(nNova[i].unit,774,true) then return; end
 				end
 			end
@@ -135,7 +166,6 @@ function DruidRestoration()
 		end
 
 
-		--end
 	end
 end
 end

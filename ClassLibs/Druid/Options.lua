@@ -234,6 +234,13 @@ function RestorationConfig()
     CreateNewText(thisConfig,"Innervate");   
 
     -- Wrapper
+    CreateNewWrap(thisConfig,"----- Healing Engine -----")
+
+    -- No Absorbs
+    CreateNewCheck(thisConfig,"No Absorbs");
+    CreateNewText(thisConfig,"No Absorbs");
+
+    -- Wrapper
     CreateNewWrap(thisConfig,"----- AoE Healing -----")
 
     -- Genesis
