@@ -226,7 +226,13 @@ function RestorationConfig()
 
 
     -- Wrapper
-    CreateNewWrap(thisConfig,"---- Cooldowns ----");
+    CreateNewWrap(thisConfig,"----- Cooldowns -----");
+
+
+    -- Incarnation
+    CreateNewCheck(thisConfig,"Innervate");
+    CreateNewBox(thisConfig, "Innervate", 0, 100  , 5, 80, "|cffFFBB00Under what %HP Mana to use |cffFFFFFFInnervate.");
+    CreateNewText(thisConfig,"Innervate");   
 
     -- Innervate
     CreateNewCheck(thisConfig,"Innervate");
@@ -234,7 +240,7 @@ function RestorationConfig()
     CreateNewText(thisConfig,"Innervate");   
 
     -- Wrapper
-    CreateNewWrap(thisConfig,"----- Healing Engine -----")
+    CreateNewWrap(thisConfig,"--- Healing Engine ---")
 
     -- No Absorbs
     CreateNewCheck(thisConfig,"No Absorbs");
@@ -252,26 +258,26 @@ function RestorationConfig()
     CreateNewBox(thisConfig, "Genesis Count", 0, 25  , 1, 5, "|cffFFBB00Number of members under Genesis treshold needed to use |cffFFFFFFGenesis.");
     CreateNewText(thisConfig,"Genesis Count");
 
-    -- Wild Mushrooms
-    CreateNewCheck(thisConfig,"Wild Mushrooms");
-    CreateNewBox(thisConfig, "Wild Mushrooms", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFWild Mushrooms.");
-    CreateNewText(thisConfig,"Wild Mushrooms");
+    -- Mushrooms
+    CreateNewCheck(thisConfig,"Mushrooms");
+    CreateNewBox(thisConfig, "Mushrooms", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFWild Mushrooms.");
+    CreateNewText(thisConfig,"Mushrooms");
 
-    -- Wild Mushrooms Count
-    CreateNewBox(thisConfig, "Wild Mushrooms Count", 0, 25  , 1, 5, "|cffFFBB00Number of members under Wild Mushrooms treshold needed to use |cffFFFFFFWild Mushrooms.");
-    CreateNewText(thisConfig,"Wild Mushrooms Count");
+    -- Mushrooms Count
+    CreateNewBox(thisConfig, "Mushrooms Count", 0, 25  , 1, 5, "|cffFFBB00Number of members under Wild Mushrooms treshold needed to use |cffFFFFFFWild Mushrooms.");
+    CreateNewText(thisConfig,"Mushrooms Count");
 
-    -- Wild Mushrooms Bloom
-    CreateNewCheck(thisConfig,"Wild Mushrooms Bloom");
-    CreateNewBox(thisConfig, "Wild Mushrooms Bloom", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFWild Mushrooms Bloom.");
-    CreateNewText(thisConfig,"Wild Mushrooms Bloom");
+    -- Mushrooms Bloom
+    CreateNewCheck(thisConfig,"Mushrooms Bloom");
+    CreateNewBox(thisConfig, "Mushrooms Bloom", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFWild Mushrooms Bloom.");
+    CreateNewText(thisConfig,"Mushrooms Bloom");
 
-    -- Wild Mushrooms Bloom Count
-    CreateNewBox(thisConfig, "Wild Mushrooms Bloom Count", 0, 25  , 1, 5, "|cffFFBB00Number of members under Wild Mushrooms Bloom treshold needed to use |cffFFFFFFWild Mushrooms Bloom.");
-    CreateNewText(thisConfig,"Wild Mushrooms Bloom Count");
+    -- Mushrooms Bloom Count
+    CreateNewBox(thisConfig, "Mushrooms Bloom Count", 0, 25  , 1, 5, "|cffFFBB00Number of members under Wild Mushrooms Bloom treshold needed to use |cffFFFFFFWild Mushrooms Bloom.");
+    CreateNewText(thisConfig,"Mushrooms Bloom Count");
 
     -- Wrapper
-    CreateNewWrap(thisConfig,"----- Healing -----")
+    CreateNewWrap(thisConfig,"------ Healing ------")
 
     -- Lifebloom
     CreateNewCheck(thisConfig,"Lifebloom");
@@ -280,8 +286,18 @@ function RestorationConfig()
 
     -- Regrowth
     CreateNewCheck(thisConfig,"Regrowth");
-    CreateNewBox(thisConfig, "Regrowth", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFRegrowth.");
+    CreateNewBox(thisConfig, "Regrowth", 0, 100  , 5, 65, "|cffFFBB00Under what %HP to use |cffFFFFFFRegrowth.");
     CreateNewText(thisConfig,"Regrowth");
+
+    -- Regrowth
+    CreateNewBox(thisConfig, "Regrowth Tank", 0, 100  , 5, 80, "|cffFFBB00Under what %HP to use |cffFFFFFFRegrowth|cffFFBB00 on Tanks.");
+    CreateNewText(thisConfig,"Regrowth Tank");
+
+    -- Regrowth Omen
+    CreateNewCheck(thisConfig,"Regrowth Omen");
+    CreateNewBox(thisConfig, "Regrowth Omen", 0, 100  , 5, 80, "|cffFFBB00Under what %HP to use |cffFFFFFFRegrowth|cffFFBB00 with Omen of Clarity.");
+    CreateNewText(thisConfig,"Regrowth Omen");
+
 
     -- Rejuvenation
     CreateNewCheck(thisConfig,"Rejuvenation");
