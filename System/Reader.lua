@@ -3,8 +3,21 @@ function ReaderRun()
 -- Readers	--
 --------------
 
--------------------
--- Merchant Show --
+--------------------------
+--[[ isStanding Frame --]]
+local DontMoveStartTime = nil;
+CreateFrame("Frame"):SetScript("OnUpdate", function ()
+	if GetUnitSpeed("Player") == 0 then
+		if not DontMoveStartTime then
+			DontMoveStartTime = GetTime();
+		end
+	else
+		DontMoveStartTime = nil;
+	end
+end);
+
+-----------------------
+--[[ Merchant Show --]]
 local Frame = CreateFrame('Frame');
 Frame:RegisterEvent("MERCHANT_SHOW");
 local function MerchantShow(self, event, ...)
@@ -14,8 +27,8 @@ local function MerchantShow(self, event, ...)
 end
 Frame:SetScript("OnEvent", MerchantShow);
 
----------------------
--- Entering Combat --
+-------------------------
+--[[ Entering Combat --]]
 local Frame = CreateFrame('Frame');
 Frame:RegisterEvent("PLAYER_REGEN_DISABLED");
 local function EnteringCombat(self, event, ...)
@@ -29,8 +42,8 @@ local function EnteringCombat(self, event, ...)
 end
 Frame:SetScript("OnEvent", EnteringCombat);
 
--------------------
--- Leving Combat --
+-----------------------
+--[[ Leving Combat --]]
 local Frame = CreateFrame('Frame');
 Frame:RegisterEvent("PLAYER_REGEN_ENABLED");
 local function LeavingCombat(self, event, ...)
@@ -50,8 +63,8 @@ local function LeavingCombat(self, event, ...)
 end
 Frame:SetScript("OnEvent", LeavingCombat);
 
------------------------
--- UI Error Messages --
+---------------------------
+--[[ UI Error Messages --]]
 local Frame = CreateFrame('Frame');
 Frame:RegisterEvent("UI_ERROR_MESSAGE");
 local function UiErrorMessages(self, event, ...)
@@ -87,7 +100,7 @@ end
 Frame:SetScript("OnEvent", UiErrorMessages)
 
 --------------------
--- Spells Changed --
+--[[ Spells Changed --]]
 local Frame = CreateFrame('Frame');
 Frame:RegisterEvent("PLAYER_TALENT_UPDATE");
 Frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
@@ -101,8 +114,8 @@ end
 Frame:SetScript("OnEvent", SpellsChanged)
 
 
------------------------
--- Combat Log Reader --
+---------------------------
+--[[ Combat Log Reader --]]
 local superReaderFrame = CreateFrame('Frame');
 superReaderFrame:RegisterEvent("PLAYER_TOTEM_UPDATE");
 superReaderFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
@@ -124,8 +137,8 @@ function SuperReader(self, event, ...)
 		local spell 		= select(12,...);
         local destination 	= select(8,...);
 
-		--------------------
-		-- Bleed Recorder --
+		------------------------
+		--[[ Bleed Recorder --]]
 		if select(3, UnitClass("player")) == 11 then
 	        --print(param..", "..source..", "..spell)
 	        -- snapshot on spellcast
@@ -153,8 +166,8 @@ function SuperReader(self, event, ...)
 	        end
 	    end
 
-        ----------------
-        -- Fire Totem -- 
+        --------------------
+        --[[ Fire Totem --]] 
         if source == UnitGUID("player") and  param == "SPELL_SUMMON" and (spell == _SearingTotem or spell == _MagmaTotem) then
         	activeTotem = destination;
         end
@@ -162,8 +175,8 @@ function SuperReader(self, event, ...)
         	activeTotem = nil;
         end
 
-        -------------------
-        -- Wild Mushroom --
+        -----------------------
+        --[[ Wild Mushroom --]]
         if source == UnitGUID("player") and  param == "SPELL_SUMMON" and (spell == 147349 or spell == 145205) then
         	if shroomsTable == nil then shroomsTable = { } end
         	if shroomsTable[destination] == nil then
@@ -174,8 +187,8 @@ function SuperReader(self, event, ...)
         	shroomsTable = { };
         end        
 
-        -------------------------------------------
-        --- Debug ---------------------------------
+        ---------------
+        --[[ Debug --]]
         if BadBoy_data["Check Debug"] == 1 then
         	if source == UnitGUID("player") then
         		if param == "SPELL_CAST_SUCCESS" then

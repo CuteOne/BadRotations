@@ -1,5 +1,4 @@
 function BadBoyRun()
-
 	if BadBoy_data == nil then BadBoy_data = {
 		["Power"] = 1,
 		["Currentconfig"] = " ",

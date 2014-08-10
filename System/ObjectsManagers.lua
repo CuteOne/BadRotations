@@ -194,6 +194,7 @@ if not metaTable1 then
 		-- We are checking the HP of the person through their own function.
 		function o:CalcHP()
 --			print("calculating HP")
+
 			local incomingheals = UnitGetIncomingHeals(o.unit) and UnitGetIncomingHeals(o.unit) or 0
 			local nAbsorbs;
 			if isChecked("No Absorbs") ~= 1 then nAbsorbs = ( 25*UnitGetTotalAbsorbs(o.unit)/100 ); else nAbsorbs = 0; end
@@ -241,6 +242,7 @@ if not metaTable1 then
 		function o:UpdateUnit()
 			o.name = UnitName(o.unit) -- return Name of unit
 			o.guid = o:nGUID(); -- return real GUID of unit
+			o.role = UnitGroupRolesAssigned(o.unit) -- role from raid frame
 			o.guidsh = select(2, o:nGUID()); -- return Short GUID of unit
 			o.dispel = o:Dispel(o.unit); -- return true if unit should be dispelled
 			o.hp = o:CalcHP(); -- return unit HP
@@ -261,7 +263,7 @@ if not metaTable1 then
 	function SetupTables() -- Creating the cache (we use this to check if some1 is already in the table)
 		setmetatable(nNova, metaTable1) -- Set the metaTable of Main to Meta)
 		function nNova:Update(MO)
-			local MouseoverCheck = MO or true;
+			local MouseoverCheck = true;
 			-- This is for special situations, IE world healing or NPC healing in encounters
 			local SpecialTargets = { "mouseover","target","focus" };
 			for p=1, #SpecialTargets do

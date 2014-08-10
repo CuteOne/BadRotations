@@ -1,3 +1,4 @@
+if select(3, UnitClass("player")) == 11 then
 --[[]]     --[[]]   --[[           ]]   --[[           ]]   --[[]]     --[[]]   
 --[[ ]]   --[[ ]]   --[[           ]]   --[[           ]]   --[[  ]]   --[[]]   
 --[[           ]]   --[[]]     --[[]]   --[[]]     --[[]]   --[[    ]] --[[]]       
@@ -213,124 +214,137 @@ end
 
 
 function RestorationConfig()
-    thisConfig = 0
-    -- Title
-    CreateNewTitle(thisConfig,"|cff00EEFFRestoration |cffFF0000Masoud");
+    if currentConfig ~= "Restoration Masou" then
+        thisConfig = 0
+        -- Title
+        CreateNewTitle(thisConfig,"|cff00EEFFRestoration |cffFF0000Masoud");
 
-    -- Wrapper
-    CreateNewWrap(thisConfig,"----- Buffs -----");
+        -- Wrapper
+        CreateNewWrap(thisConfig,"----- Buffs -----");
 
-    -- Mark Of The Wild
-    CreateNewCheck(thisConfig,"Mark Of The Wild");
-    CreateNewText(thisConfig,"Mark Of The Wild");
-
-
-    -- Wrapper
-    CreateNewWrap(thisConfig,"----- Cooldowns -----");
+        -- Mark Of The Wild
+        CreateNewCheck(thisConfig,"Mark Of The Wild");
+        CreateNewText(thisConfig,"Mark Of The Wild");
 
 
-    -- Incarnation
-    CreateNewCheck(thisConfig,"Innervate");
-    CreateNewBox(thisConfig, "Innervate", 0, 100  , 5, 80, "|cffFFBB00Under what %HP Mana to use |cffFFFFFFInnervate.");
-    CreateNewText(thisConfig,"Innervate");   
-
-    -- Innervate
-    CreateNewCheck(thisConfig,"Innervate");
-    CreateNewBox(thisConfig, "Innervate", 0, 100  , 5, 80, "|cffFFBB00Under what %HP Mana to use |cffFFFFFFInnervate.");
-    CreateNewText(thisConfig,"Innervate");   
-
-    -- Wrapper
-    CreateNewWrap(thisConfig,"--- Healing Engine ---")
-
-    -- No Absorbs
-    CreateNewCheck(thisConfig,"No Absorbs");
-    CreateNewText(thisConfig,"No Absorbs");
-
-    -- Wrapper
-    CreateNewWrap(thisConfig,"----- AoE Healing -----")
-
-    -- Genesis
-    CreateNewCheck(thisConfig,"Genesis");
-    CreateNewBox(thisConfig, "Genesis", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFGenesis.");
-    CreateNewText(thisConfig,"Genesis");
-
-    -- Genesis Count
-    CreateNewBox(thisConfig, "Genesis Count", 0, 25  , 1, 5, "|cffFFBB00Number of members under Genesis treshold needed to use |cffFFFFFFGenesis.");
-    CreateNewText(thisConfig,"Genesis Count");
-
-    -- Mushrooms
-    CreateNewCheck(thisConfig,"Mushrooms");
-    CreateNewBox(thisConfig, "Mushrooms", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFWild Mushrooms.");
-    CreateNewText(thisConfig,"Mushrooms");
-
-    -- Mushrooms Count
-    CreateNewBox(thisConfig, "Mushrooms Count", 0, 25  , 1, 5, "|cffFFBB00Number of members under Wild Mushrooms treshold needed to use |cffFFFFFFWild Mushrooms.");
-    CreateNewText(thisConfig,"Mushrooms Count");
-
-    -- Mushrooms Bloom
-    CreateNewCheck(thisConfig,"Mushrooms Bloom");
-    CreateNewBox(thisConfig, "Mushrooms Bloom", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFWild Mushrooms Bloom.");
-    CreateNewText(thisConfig,"Mushrooms Bloom");
-
-    -- Mushrooms Bloom Count
-    CreateNewBox(thisConfig, "Mushrooms Bloom Count", 0, 25  , 1, 5, "|cffFFBB00Number of members under Wild Mushrooms Bloom treshold needed to use |cffFFFFFFWild Mushrooms Bloom.");
-    CreateNewText(thisConfig,"Mushrooms Bloom Count");
-
-    -- Wrapper
-    CreateNewWrap(thisConfig,"------ Healing ------")
-
-    -- Lifebloom
-    CreateNewCheck(thisConfig,"Lifebloom");
-    CreateNewBox(thisConfig, "Lifebloom", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFLifebloom |cffFFBB00on Focus.");
-    CreateNewText(thisConfig,"Lifebloom");
-
-    -- Regrowth
-    CreateNewCheck(thisConfig,"Regrowth");
-    CreateNewBox(thisConfig, "Regrowth", 0, 100  , 5, 65, "|cffFFBB00Under what %HP to use |cffFFFFFFRegrowth.");
-    CreateNewText(thisConfig,"Regrowth");
-
-    -- Regrowth
-    CreateNewBox(thisConfig, "Regrowth Tank", 0, 100  , 5, 80, "|cffFFBB00Under what %HP to use |cffFFFFFFRegrowth|cffFFBB00 on Tanks.");
-    CreateNewText(thisConfig,"Regrowth Tank");
-
-    -- Regrowth Omen
-    CreateNewCheck(thisConfig,"Regrowth Omen");
-    CreateNewBox(thisConfig, "Regrowth Omen", 0, 100  , 5, 80, "|cffFFBB00Under what %HP to use |cffFFFFFFRegrowth|cffFFBB00 with Omen of Clarity.");
-    CreateNewText(thisConfig,"Regrowth Omen");
+        -- Wrapper
+        CreateNewWrap(thisConfig,"----- Cooldowns -----");
 
 
-    -- Rejuvenation
-    CreateNewCheck(thisConfig,"Rejuvenation");
-    CreateNewBox(thisConfig, "Rejuvenation", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFRejuvenation.");
-    CreateNewText(thisConfig,"Rejuvenation");
+        -- Incarnation
+        CreateNewCheck(thisConfig,"Innervate");
+        CreateNewBox(thisConfig, "Innervate", 0, 100  , 5, 80, "|cffFFBB00Under what %HP Mana to use |cffFFFFFFInnervate.");
+        CreateNewText(thisConfig,"Innervate");   
 
-    -- Healing Touch
-    CreateNewCheck(thisConfig,"Healing Touch Ns");
-    CreateNewBox(thisConfig, "Healing Touch Ns", 0, 100  , 5, 35, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Touch.");
-    CreateNewText(thisConfig,"Healing Touch Ns");
+        -- Innervate
+        CreateNewCheck(thisConfig,"Innervate");
+        CreateNewBox(thisConfig, "Innervate", 0, 100  , 5, 80, "|cffFFBB00Under what %HP Mana to use |cffFFFFFFInnervate.");
+        CreateNewText(thisConfig,"Innervate");   
 
-    -- Wrapper
-    CreateNewWrap(thisConfig,"------ Defensive -------");
+        -- Wrapper
+        CreateNewWrap(thisConfig,"--- Healing Engine ---")
 
-    -- Barkskin
-    CreateNewCheck(thisConfig,"Barkskin");
-    CreateNewBox(thisConfig, "Barkskin", 0, 100  , 5, 30, "|cffFFBB00Under what %HP to use |cffFFFFFFBarkskin");
-    CreateNewText(thisConfig,"Barkskin");
+        -- No Absorbs
+        CreateNewCheck(thisConfig,"No Absorbs");
+        CreateNewText(thisConfig,"No Absorbs");
 
-    -- Wrapper
-    CreateNewWrap(thisConfig,"-------- General -------");
+        -- Wrapper
+        CreateNewWrap(thisConfig,"----- AoE Healing -----")
 
-    -- PokeRotation
-    CreateNewCheck(thisConfig,"PokeRotation");
-    CreateNewText(thisConfig,"PokeRotation");
+        -- Genesis
+        CreateNewCheck(thisConfig,"Genesis");
+        CreateNewBox(thisConfig, "Genesis", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFGenesis.");
+        CreateNewText(thisConfig,"Genesis");
 
-    -- Debug
-    CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start |cffFFFFFFChat Debug |cffFFBB00of casted spells.");
-    CreateNewText(thisConfig,"Debug");
+        -- Genesis Count
+        CreateNewBox(thisConfig, "Genesis Count", 0, 25  , 1, 5, "|cffFFBB00Number of members under Genesis treshold needed to use |cffFFFFFFGenesis.");
+        CreateNewText(thisConfig,"Genesis Count");
 
-   -- Bound
-    CreateNewBound(thisConfig,"End"); 
+        -- Mushrooms
+        CreateNewCheck(thisConfig,"Mushrooms");
+        CreateNewBox(thisConfig, "Mushrooms", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFWild Mushrooms.");
+        CreateNewText(thisConfig,"Mushrooms");
 
-    doneConfig = true;
-    WrapsManager();
+        -- Mushrooms Count
+        CreateNewBox(thisConfig, "Mushrooms Count", 0, 25  , 1, 5, "|cffFFBB00Number of members under Wild Mushrooms treshold needed to use |cffFFFFFFWild Mushrooms.");
+        CreateNewText(thisConfig,"Mushrooms Count");
+
+        -- Mushrooms Bloom
+        CreateNewCheck(thisConfig,"Mushrooms Bloom");
+        CreateNewBox(thisConfig, "Mushrooms Bloom", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFWild Mushrooms Bloom.");
+        CreateNewText(thisConfig,"Mushrooms Bloom");
+
+        -- Mushrooms Bloom Count
+        CreateNewBox(thisConfig, "Mushrooms Bloom Count", 0, 25  , 1, 5, "|cffFFBB00Number of members under Wild Mushrooms Bloom treshold needed to use |cffFFFFFFWild Mushrooms Bloom.");
+        CreateNewText(thisConfig,"Mushrooms Bloom Count");
+
+        -- Wrapper
+        CreateNewWrap(thisConfig,"------ Healing ------")
+
+        -- Lifebloom
+        CreateNewCheck(thisConfig,"Lifebloom");
+        CreateNewBox(thisConfig, "Lifebloom", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFLifebloom |cffFFBB00on Focus.");
+        CreateNewText(thisConfig,"Lifebloom");
+
+        -- Regrowth
+        CreateNewCheck(thisConfig,"Regrowth");
+        CreateNewBox(thisConfig, "Regrowth", 0, 100  , 5, 65, "|cffFFBB00Under what %HP to use |cffFFFFFFRegrowth.");
+        CreateNewText(thisConfig,"Regrowth");
+
+        -- Regrowth
+        CreateNewBox(thisConfig, "Regrowth Tank", 0, 100  , 5, 80, "|cffFFBB00Under what %HP to use |cffFFFFFFRegrowth|cffFFBB00 on Tanks.");
+        CreateNewText(thisConfig,"Regrowth Tank");
+
+        -- Regrowth Omen
+        CreateNewCheck(thisConfig,"Regrowth Omen");
+        CreateNewBox(thisConfig, "Regrowth Omen", 0, 100  , 5, 80, "|cffFFBB00Under what %HP to use |cffFFFFFFRegrowth|cffFFBB00 with Omen of Clarity.");
+        CreateNewText(thisConfig,"Regrowth Omen");
+
+
+        -- Rejuvenation
+        CreateNewCheck(thisConfig,"Rejuvenation");
+        CreateNewBox(thisConfig, "Rejuvenation", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFRejuvenation.");
+        CreateNewText(thisConfig,"Rejuvenation");
+
+        -- Healing Touch
+        CreateNewCheck(thisConfig,"Healing Touch Ns");
+        CreateNewBox(thisConfig, "Healing Touch Ns", 0, 100  , 5, 35, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Touch.");
+        CreateNewText(thisConfig,"Healing Touch Ns");
+
+        -- Wrapper
+        CreateNewWrap(thisConfig,"------ Defensive -------");
+
+
+        -- Healthstone
+        CreateNewCheck(thisConfig,"Healthstone");
+        CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 25, "|cffFFBB00Under what %HP to use |cffFFFFFFHealthstone");
+        CreateNewText(thisConfig,"Healthstone");
+
+        -- Barkskin
+        CreateNewCheck(thisConfig,"Barkskin");
+        CreateNewBox(thisConfig, "Barkskin", 0, 100  , 5, 40, "|cffFFBB00Under what %HP to use |cffFFFFFFBarkskin");
+        CreateNewText(thisConfig,"Barkskin");
+
+        -- Wrapper
+        CreateNewWrap(thisConfig,"-------- General -------");
+
+        -- PokeRotation
+        CreateNewCheck(thisConfig,"PokeRotation");
+        CreateNewText(thisConfig,"PokeRotation");
+
+        -- Debug
+        CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start |cffFFFFFFChat Debug |cffFFBB00of casted spells.");
+        CreateNewText(thisConfig,"Debug");
+
+       -- Bound
+        CreateNewBound(thisConfig,"End"); 
+
+        doneConfig = true;
+        WrapsManager();
+    end
+end
+
+
+
+
 end

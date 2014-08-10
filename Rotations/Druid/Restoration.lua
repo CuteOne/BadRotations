@@ -6,19 +6,31 @@ function DruidRestoration()
 		currentConfig = "Restoration Masou";
 	end
 
+		if IsStandingTime(5) then
+			ChatOverlay("Standing")
+		end
+
+	if IsLeftControlKeyDown() then return; end
+
 	-- Food/Invis Check
-	if canRun() ~= true or UnitInVehicle("Player") then return false; end
+	if canRun() ~= true then return false; end
 
 --[[ 	-- On GCD After here, palce out of combats spells here
-]]
-
-	if isCasting() then return false; end
+]]	if isCasting() then return false; end
 
 	-- Barkskin if < 30%
 	if isChecked("Barkskin") and getHP("player") <= getValue("Barkskin") then
 		if castSpell("player",22812,true) then return; end
 	end
 
+	-- Healthstone
+	if isChecked("Healthstone") and getHP("player") <= getValue("Healthstone") then
+		if canUse(5512) then
+			UseItemByName(tostring(select(1,GetItemInfo(5512))))
+		elseif canUse(76097) then
+			UseItemByName(tostring(select(1,GetItemInfo(76097))))
+		end
+	end
 
 --[[ 	-- Combats Starts Here
 ]]
@@ -139,14 +151,30 @@ function DruidRestoration()
 				if castSpell("focus",33763,true) then return; end
 			end
 		end		
+		
 
- 		-- Healing Touch via Sage Mender
- 		local SMName, _, _, SMcount, _, _, SMexpirationTime = UnitBuffID("player", 144871) --Sage Mender - 2p bonus tier 16  
-		if SMName and  SMcount >= 5   then
-			if isChecked("Healing Touch") and nNova[1].hp <= getValue("Healing Touch") then
-				if castSpell(nNova[1].unit,5185,true) then return; end
+      	-- Lifebloom - Refresh if over treshold
+      	if isChecked("Lifebloom") then
+			if getHP("focus") >= getValue("Lifebloom") and (getBuffRemain("focus",33763) < 4 and getBuffStacks("focus",33763) == 3 ) then
+				if castSpell("focus",33763,true) then return; end
+			end
+		end		
+
+
+		-- Lifebloom - Force Stacks
+		if isChecked("Lifebloom") then
+			if  (getBuffStacks("focus",33763) < 3 ) then
+				if castSpell("focus",33763,true) then return; end
 			end
 		end
+
+		-- Healing Touch via Sage Mender
+ 		local SMName, _, _, SMcount, _, _, SMexpirationTime = UnitBuffID("player", 144871) --Sage Mender - 2p bonus tier 16  
+		if SMName and  SMcount >= 5   then
+			if isChecked("Healing Touch Sm") and nNova[1].hp <= getValue("Healing Touch Sm") then
+				if castSpell(nNova[1].unit,5185,true) then return; end
+			end
+		end		
 
 		-- Innervate
 		if getMana("player") <= getValue("Innervate") then
@@ -223,7 +251,7 @@ function DruidRestoration()
 		end
 
  		-- Regrowth
-		if isChecked("Regrowth") then
+		if isChecked("Regrowth") and isStanding(0.3) then
 			for i = 1, #nNova do
 				if (nNova[i].role == "TANK" and nNova[i].hp <= getValue("Regrowth Tank")) or (nNova[i].role ~= "TANK" and nNova[i].hp <= getValue("Regrowth")) then
 					if castSpell(nNova[i].unit,8936,true) then return; end

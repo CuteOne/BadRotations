@@ -224,6 +224,8 @@ function canRun()
 	if BadBoy_data['Pause'] ~= 1 then
 		if BadBoy_data["Power"] == 1 and isAlive("player") then
 			if SpellIsTargeting()
+			  or UnitInVehicle("Player")
+			  or IsMounted("player")
 			  or UnitIsDeadOrGhost("player") ~= nil
 			  or UnitBuffID("player",11392) ~= nil
 			  or UnitBuffID("player",80169) ~= nil 
@@ -1159,6 +1161,37 @@ function IsMovingTime(time)
 			IsRunning = nil;
 		end
 		if GetTime() - IsStanding > time then
+			return false;
+		end
+	end
+end
+
+function getStandingTime()
+	return DontMoveStartTime and GetTime() - DontMoveStartTime or nil;
+end
+
+-- 
+function isStanding(Seconds)
+	return DontMoveStartTime and GetPlayerDontMoveTime() >= Seconds or false;
+end
+
+-- if IsStandingTime(5) then
+function IsStandingTime(time)
+	if time == nil then time = 1 end
+	if GetUnitSpeed("player") == 0 then
+		if IsStanding == nil then
+			IsStanding = GetTime();
+			IsRunning = nil;
+		end
+		if GetTime() - IsStanding > time then
+			return true;
+		end
+	else
+		if IsRunning == nil then
+			IsRunning = GetTime();
+			IsStanding = nil;
+		end
+		if GetTime() - IsRunning > time then
 			return false;
 		end
 	end

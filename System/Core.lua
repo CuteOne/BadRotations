@@ -1,14 +1,24 @@
+function BadBoyUpdate()
+    if FireHack == nil then 
+        ChatOverlay("FireHack not Loaded."); 
+        return;
+    else 
+        FrameUpdate(); 
+    end
+end
+
 function BadBoyEngine()
     -- Hidden Frame
     if Pulse_Engine == nil then 
         Pulse_Engine = CreateFrame("Frame", nil, UIParent);
-        Pulse_Engine:SetScript("OnUpdate", FrameUpdate);
+        Pulse_Engine:SetScript("OnUpdate", BadBoyUpdate);
         Pulse_Engine:SetPoint("TOPLEFT",0,0);
         Pulse_Engine:SetHeight(1);
         Pulse_Engine:SetWidth(1);
         Pulse_Engine:Show();
     end
 end
+
 
 -- Chat Overlay: Originally written by Sheuron.
 local function onUpdate(self,elapsed) 
