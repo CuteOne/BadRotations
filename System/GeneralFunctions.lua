@@ -1172,7 +1172,7 @@ end
 
 -- 
 function isStanding(Seconds)
-	return DontMoveStartTime and GetPlayerDontMoveTime() >= Seconds or false;
+	return DontMoveStartTime and getStandingTime() >= Seconds or false;
 end
 
 -- if IsStandingTime(5) then

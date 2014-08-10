@@ -6,10 +6,6 @@ function DruidRestoration()
 		currentConfig = "Restoration Masou";
 	end
 
-		if IsStandingTime(5) then
-			ChatOverlay("Standing")
-		end
-
 	if IsLeftControlKeyDown() then return; end
 
 	-- Food/Invis Check
@@ -147,7 +143,7 @@ function DruidRestoration()
 
 		-- Lifebloom
 		if isChecked("Lifebloom") then
-			if getHP("focus") <= getValue("Lifebloom") and (getBuffRemain("focus",33763) < 4 or getBuffStacks("focus",33763) < 3) then
+			if getHP("focus") <= getValue("Lifebloom") and getBuffStacks("focus",33763) < 3 then
 				if castSpell("focus",33763,true) then return; end
 			end
 		end		

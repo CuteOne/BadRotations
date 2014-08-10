@@ -248,6 +248,18 @@ function RestorationConfig()
         CreateNewCheck(thisConfig,"No Absorbs");
         CreateNewText(thisConfig,"No Absorbs");
 
+        -- Mouseover Healing
+        CreateNewCheck(thisConfig,"Mouseover Healing");
+        CreateNewText(thisConfig,"Mouseover Healing");
+
+        -- Heal Pets
+        CreateNewCheck(thisConfig,"Heal Pets");
+        CreateNewText(thisConfig,"Heal Pets");
+
+        -- Blacklist
+        CreateNewCheck(thisConfig,"Blacklist");
+        CreateNewText(thisConfig,"Blacklist");
+
         -- Wrapper
         CreateNewWrap(thisConfig,"----- AoE Healing -----")
 

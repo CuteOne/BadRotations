@@ -49,10 +49,11 @@ if not metaTable1 then
 		128353, -- Dissonance Field 4
 	} -- This is where we house the Debuffs that are bad for our users, and should not be healed when they have it
 	local SpecialHealUnitList = {
-		71604, -- Immersus Oozes
-		6459, -- Boss#3 SoO
-		6460, -- Boss#3 SoO
-		6464, -- Boss#3 SoO
+		--[69334] = "That Panda there",
+		[71604] = "Immersus Oozes" , 
+		[6459] = "Boss#3 SoO",
+		[6460] = "Boss#3 SoO",
+		[6464] = "Boss#3 SoO"
 	};
 	local SavedSpecialTargets = {
 		["target"] = nil,
@@ -121,14 +122,8 @@ if not metaTable1 then
 	function Nova_GUID(unit)
   		local nShortHand = ""
   		if UnitExists(unit) then
-   			if UnitIsPlayer(unit) then
-    			targetGUID = UnitGUID(unit)
-   			else
-    			targetGUID = tonumber((UnitGUID(unit)):sub(-12, -9), 16)
-   			end
-   
-   			nShortHand = string.sub(tostring(UnitGUID(unit)), -5, -1)
-   			
+    		targetGUID = UnitGUID(unit)
+    		nShortHand = tonumber(UnitGUID(unit):sub(6, 10), 16)
   		end
   		return targetGUID, nShortHand
  	end
@@ -163,7 +158,7 @@ if not metaTable1 then
 	-- Verifying the target is a Valid Healing target
 	function HealCheck(tar)
 		if ((UnitCanCooperate("player",tar) and not UnitIsCharmed(tar) and not UnitIsDeadOrGhost(tar) and UnitIsConnected(tar)) 
-		  or SpecialHealUnit(tar))	
+		  or SpecialHealUnitList[tonumber(select(2,Nova_GUID(tar)))] ~= nil	or (isChecked("Heal Pets") and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
 		  and CheckBadDebuff(tar)
 		  and CheckCreatureType(tar)
 		  and getLineOfSight("player", tar)
@@ -218,24 +213,24 @@ if not metaTable1 then
 					end
 				end
 			end	
+			if isChecked("Blacklist") then
+				for i = 1, #BadBoy_data.blackList do 
+					if o.guid == BadBoy_data.blackList[i].guid then
+						PercentWithIncoming, ActualWithIncoming, nAbsorbs = PercentWithIncoming + 101, ActualWithIncoming + 101, nAbsorbs +101
+						break;
+					end
+				end
+			end
 			return PercentWithIncoming, ActualWithIncoming, nAbsorbs
 		end
 
 		function o:nGUID()
-			local nSH = nil
-			if UnitExists(o.unit) then
-				if UnitIsPlayer(o.unit) then
-					targetGUID = UnitGUID(o.unit)
-				else
-					targetGUID = tonumber((UnitGUID(o.unit)):sub(-12, -9), 16)
-				end
-			end
-			if string.len(tostring(targetGUID)) > 5 then
-				nSH = string.sub(tostring(targetGUID), -5, -1)
-			else
-				nSH = tostring(targetGUID)
-			end
-			return targetGUID, nSH
+	  		local nShortHand = ""
+	  		if UnitExists(unit) then
+	    		targetGUID = UnitGUID(unit)
+	    		nShortHand = tonumber(UnitGUID(unit):sub(6, 10), 16)
+	  		end
+	  		return targetGUID, nShortHand
 		end
 
 		-- Updating the values of the Unit
@@ -265,7 +260,7 @@ if not metaTable1 then
 		function nNova:Update(MO)
 			local MouseoverCheck = true;
 			-- This is for special situations, IE world healing or NPC healing in encounters
-			local SpecialTargets = { "mouseover","target","focus" };
+			if isChecked("Mouseover Healing") then SpecialTargets = { "mouseover","target","focus" }; else SpecialTargets = {}; end
 			for p=1, #SpecialTargets do
 				-- Checking if Unit Exists and it's possible to heal them
 				if UnitExists(SpecialTargets[p]) and HealCheck(SpecialTargets[p]) then

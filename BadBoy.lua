@@ -73,6 +73,8 @@ function BadBoyRun()
 		ToggleAoE();
 	end
 
+
+
 	SLASH_Cooldowns1 = "/Cooldowns"
 	function SlashCmdList.Cooldowns(msg, editbox)
 		if BadBoy_data['Cooldowns'] == 1 then
@@ -83,6 +85,44 @@ function BadBoyRun()
 			BadBoy_data['Cooldowns'] = 1;
 		end
 	end
+
+	SLASH_BlackList1, SLASH_BlackList2 = "/blacklist", "/bbb"
+	function SlashCmdList.BlackList(msg, editbox)
+		if BadBoy_data.blackList == nil then BadBoy_data.blackList = { }; end
+
+		if msg == "dump" then
+			print("|cffFF0000BadBoy Blacklist:");
+			if #BadBoy_data.blackList == (0 or nil) then print("|cffFFDD11Empty"); end
+			if BadBoy_data.blackList then
+				for i = 1, #BadBoy_data.blackList do
+					print("|cffFFDD11- "..BadBoy_data.blackList[i].name)
+				end
+			end
+		elseif msg == "clear" then
+			BadBoy_data.blackList = { }
+			print("|cffFF0000BadBoy Blacklist Cleared");
+		else
+			if UnitExists("mouseover") then
+				local mouseoverName = UnitName("mouseover");
+				local mouseoverGUID = UnitGUID("mouseover");
+				-- Now we're trying to find that unit in the blackList table to remove
+				local found;
+				for k,v in pairs(BadBoy_data.blackList) do
+					-- Now we're trying to find that unit in the Cache table to remove
+					if UnitGUID("mouseover") == v.guid then
+						tremove(BadBoy_data.blackList, k)
+						print("|cffFFDD11"..mouseoverName.."|cffFF0000 Removed from Blacklist");
+						found = true
+						--blackList[k] = nil;
+					end
+				end
+				if not found then
+					print("|cffFFDD11"..mouseoverName.."|cffFF0000 Added to Blacklist");
+					tinsert(BadBoy_data.blackList, { guid = mouseoverGUID, name = mouseoverName});
+				end
+			end
+		end
+	end	
 
 	SLASH_Pause1 = "/Pause"
 	function SlashCmdList.Pause(msg, editbox)
@@ -115,7 +155,6 @@ function BadBoyRun()
 			return MyCD
 		end
 	end
-
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
@@ -136,7 +175,7 @@ function BadBoyRun()
 		if NovaEngineUpdate == nil then NovaEngineUpdate = GetTime(); end
 		if NovaEngineUpdate and NovaEngineUpdate <= GetTime() - 0.5 then
 			NovaEngineUpdate = GetTime()
-			nNova:Update()
+			nNova:Update(true)
 		end
 
 		local _, _, anchor, x, y = configFrame:GetPoint(1);

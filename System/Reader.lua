@@ -3,18 +3,23 @@ function ReaderRun()
 -- Readers	--
 --------------
 
---------------------------
+----------------------
 --[[ isStanding Frame --]]
-local DontMoveStartTime = nil;
-CreateFrame("Frame"):SetScript("OnUpdate", function ()
-	if GetUnitSpeed("Player") == 0 then
-		if not DontMoveStartTime then
-			DontMoveStartTime = GetTime();
+
+
+DontMoveStartTime = nil;
+
+CreateFrame("Frame"):SetScript("OnUpdate",
+    function ()
+		if GetUnitSpeed("Player") == 0 then
+			if not DontMoveStartTime then
+				DontMoveStartTime = GetTime();
+			end
+		else
+			DontMoveStartTime = nil;
 		end
-	else
-		DontMoveStartTime = nil;
 	end
-end);
+);
 
 -----------------------
 --[[ Merchant Show --]]
