@@ -224,6 +224,45 @@ function RestorationConfig()
     CreateNewCheck(thisConfig,"Mark Of The Wild");
     CreateNewText(thisConfig,"Mark Of The Wild");
 
+
+    -- Wrapper
+    CreateNewWrap(thisConfig,"---- Cooldowns ----");
+
+    -- Innervate
+    CreateNewCheck(thisConfig,"Innervate");
+    CreateNewBox(thisConfig, "Innervate", 0, 100  , 5, 80, "|cffFFBB00Under what %HP Mana to use |cffFFFFFFInnervate.");
+    CreateNewText(thisConfig,"Innervate");   
+
+    -- Wrapper
+    CreateNewWrap(thisConfig,"----- AoE Healing -----")
+
+    -- Genesis
+    CreateNewCheck(thisConfig,"Genesis");
+    CreateNewBox(thisConfig, "Genesis", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFGenesis.");
+    CreateNewText(thisConfig,"Genesis");
+
+    -- Genesis Count
+    CreateNewBox(thisConfig, "Genesis Count", 0, 25  , 1, 5, "|cffFFBB00Number of members under Genesis treshold needed to use |cffFFFFFFGenesis.");
+    CreateNewText(thisConfig,"Genesis Count");
+
+    -- Wild Mushrooms
+    CreateNewCheck(thisConfig,"Wild Mushrooms");
+    CreateNewBox(thisConfig, "Wild Mushrooms", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFWild Mushrooms.");
+    CreateNewText(thisConfig,"Wild Mushrooms");
+
+    -- Wild Mushrooms Count
+    CreateNewBox(thisConfig, "Wild Mushrooms Count", 0, 25  , 1, 5, "|cffFFBB00Number of members under Wild Mushrooms treshold needed to use |cffFFFFFFWild Mushrooms.");
+    CreateNewText(thisConfig,"Wild Mushrooms Count");
+
+    -- Wild Mushrooms Bloom
+    CreateNewCheck(thisConfig,"Wild Mushrooms Bloom");
+    CreateNewBox(thisConfig, "Wild Mushrooms Bloom", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFWild Mushrooms Bloom.");
+    CreateNewText(thisConfig,"Wild Mushrooms Bloom");
+
+    -- Wild Mushrooms Bloom Count
+    CreateNewBox(thisConfig, "Wild Mushrooms Bloom Count", 0, 25  , 1, 5, "|cffFFBB00Number of members under Wild Mushrooms Bloom treshold needed to use |cffFFFFFFWild Mushrooms Bloom.");
+    CreateNewText(thisConfig,"Wild Mushrooms Bloom Count");
+
     -- Wrapper
     CreateNewWrap(thisConfig,"----- Healing -----")
 
@@ -243,9 +282,9 @@ function RestorationConfig()
     CreateNewText(thisConfig,"Rejuvenation");
 
     -- Healing Touch
-    CreateNewCheck(thisConfig,"Healing Touch");
-    CreateNewBox(thisConfig, "Healing Touch", 0, 100  , 5, 35, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Touch.");
-    CreateNewText(thisConfig,"Healing Touch");
+    CreateNewCheck(thisConfig,"Healing Touch Ns");
+    CreateNewBox(thisConfig, "Healing Touch Ns", 0, 100  , 5, 35, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Touch.");
+    CreateNewText(thisConfig,"Healing Touch Ns");
 
     -- Wrapper
     CreateNewWrap(thisConfig,"------ Defensive -------");

@@ -2,7 +2,7 @@ function CreateNewBox(value,textString,minValue,maxValue,step,base,tip1,tip2,tip
 
 
 	local vValue = BadBoy_data["Box "..textString]
-
+	if BadBoy_data["Box "..textString] == nil then BadBoy_data["Box "..textString] = base; end
 
 	if base == nil then base = 5 end
 	if vValue == nil then vValue = base end
@@ -48,5 +48,4 @@ function CreateNewBox(value,textString,minValue,maxValue,step,base,tip1,tip2,tip
 	_G["option"..value.."BoxText"]:SetPoint("CENTER", 0 , 0);
 	_G["option"..value.."BoxText"]:SetTextColor(225/255, 225/255, 225/255,1);
 	_G["option"..value.."BoxText"]:SetText(vValue);
-	if BadBoy_data["Box "..textString] == nil then BadBoy_data["Box "..textString] = base; print("yo"..textString ) end
 end

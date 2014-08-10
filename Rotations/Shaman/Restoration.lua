@@ -67,7 +67,7 @@ function ShamanRestoration()
 		if UnitBuffID("player",2645) ~= nil then return; end
 		
 		-- Healing Rain
-		if canCast(_HealingRain) then
+		if nNova[3] and nNova[3].hp < getValue("Healing Rain") and canCast(_HealingRain) then
 			if castHealGround(_HealingRain,18,80,3) then return; end
 		end
 
@@ -77,7 +77,7 @@ function ShamanRestoration()
 		end
 		
 		-- Healing Tide Totem
-		if nNova[1].hp <= getValue("Healing Tide") then
+		if nNova[3] and nNova[3].hp <= getValue("Healing Tide") then
 			if castSpell("player",_HealingTide,true) then return; end
 		end
 
@@ -99,8 +99,6 @@ function ShamanRestoration()
 			if castSpell(earthTarget,_EarthShield,true) then return; end
 		end
 
-		-- Healing Rain
-		-- {"73920",{"73920.stopcasting","!player.moving","HealingRain.pqikeybind","@CML.HealingRain()"},"ground"},
 
 		-- Chain Heal
 		local allies30Yards = getAllies(nNova[1].unit,30)

@@ -1,5 +1,6 @@
 function CreateNewCheck(value, textString, tip1)
 
+	if BadBoy_data["Check "..textString] == nil then BadBoy_data["Check "..textString] = 1; end
 
 	_G["option"..value.."Check"] = CreateFrame("CheckButton", "MyButton", configFrame, "UIPanelButtonTemplate");
 	_G["option"..value.."Check"]:SetAlpha(0.80);
@@ -37,5 +38,4 @@ function CreateNewCheck(value, textString, tip1)
 	else 
 		_G["option"..value.."Check"]:SetText("X"); 
 	end
-	if BadBoy_data["Check "..textString] == nil then BadBoy_data["Check "..textString] = 1; end
 end

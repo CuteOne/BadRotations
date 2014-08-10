@@ -90,6 +90,11 @@ function ElementalConfig()
         CreateNewBox(thisConfig, "Healing Stream", 0, 100  , 5, 50, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream");
         CreateNewText(thisConfig,"Healing Stream");
 
+        -- Healing Rain
+        CreateNewCheck(thisConfig,"Healing Rain");
+        CreateNewBox(thisConfig, "Healing Rain", 0, 100  , 5, 50, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream");
+        CreateNewText(thisConfig,"Healing Rain");
+
         -- Shamanistic Rage
         CreateNewCheck(thisConfig,"Shamanistic Rage");
         CreateNewBox(thisConfig, "Shamanistic Rage", 0, 100  , 5, 70, "|cffFFBB00Under what %HP to use |cffFFFFFFShamanistic Rage");
