@@ -358,6 +358,12 @@ function RestorationConfig()
         CreateNewCheck(thisConfig,"Healing Touch Ns");
         CreateNewBox(thisConfig, "Healing Touch Ns", 0, 100  , 5, 35, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Touch.");
         CreateNewText(thisConfig,"Healing Touch Ns");
+        
+        -- Swiftmend
+        CreateNewCheck(thisConfig,"Swiftmend");
+        CreateNewBox(thisConfig, "Swiftmend", 0, 100  , 5, 35, "|cffFFBB00Under what %HP to use |cffFFFFFFSwiftmend.");
+        CreateNewText(thisConfig,"Swiftmend");
+        
 
         -- Wrapper
         CreateNewWrap(thisConfig,"----- AoE Healing -----")
