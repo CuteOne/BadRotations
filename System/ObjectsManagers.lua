@@ -189,8 +189,8 @@ if not metaTable1 then
 		-- We are checking the HP of the person through their own function.
 		function o:CalcHP()
 --			print("calculating HP")
-
-			local incomingheals = UnitGetIncomingHeals(o.unit) and UnitGetIncomingHeals(o.unit) or 0
+			local incomingheals
+			if isChecked("No Incoming Heals") ~= 1 then incomingheals = UnitGetIncomingHeals(o.unit); else incomingheals = 0; end
 			local nAbsorbs;
 			if isChecked("No Absorbs") ~= 1 then nAbsorbs = ( 25*UnitGetTotalAbsorbs(o.unit)/100 ); else nAbsorbs = 0; end
 			local PercentWithIncoming = 100 * ( UnitHealth(o.unit) + incomingheals + nAbsorbs ) / UnitHealthMax(o.unit)
@@ -213,10 +213,10 @@ if not metaTable1 then
 					end
 				end
 			end	
-			if isChecked("Blacklist") then
+			if isChecked("Blacklist") and BadBoy_data.blackList ~= nil then
 				for i = 1, #BadBoy_data.blackList do 
 					if o.guid == BadBoy_data.blackList[i].guid then
-						PercentWithIncoming, ActualWithIncoming, nAbsorbs = PercentWithIncoming + 101, ActualWithIncoming + 101, nAbsorbs +101
+						PercentWithIncoming, ActualWithIncoming, nAbsorbs = PercentWithIncoming + getValue("Blacklist") , ActualWithIncoming + getValue("Blacklist") , nAbsorbs + getValue("Blacklist");
 						break;
 					end
 				end

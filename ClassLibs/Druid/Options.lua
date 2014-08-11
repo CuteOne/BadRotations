@@ -262,12 +262,12 @@ function RestorationConfig()
 
             -- Lifebloom Tol
             CreateNewCheck(thisConfig,"Lifebloom Tol");
-            CreateNewBox(thisConfig, "Lifebloom Tol", 0, 100  , 5, 100, "|cffFFBB00Under what %HP to use |cffFFFFFFLifebloom while in Tree of Life.");
+            CreateNewBox(thisConfig, "Lifebloom Tol", 0, 100  , 5, 100, "|cffFFBB00Under what %HP to use |cffFFFFFFLifebloom|cffFFBB00 while in Tree of Life.");
             CreateNewText(thisConfig,"Lifebloom Tol");
 
             -- Rejuvenation Tol
             CreateNewCheck(thisConfig,"Rejuvenation Tol");
-            CreateNewBox(thisConfig, "Rejuvenation Tol", 0, 100  , 5, 90, "|cffFFBB00Under what %HP to use |cffFFFFFFRejuvenation while in Tree of Life. \n|cffFFDD11Used after Rejuvenation if Rejuvenation All Tol is not selected.");
+            CreateNewBox(thisConfig, "Rejuvenation Tol", 0, 100  , 5, 90, "|cffFFBB00Under what %HP to use |cffFFFFFFRejuvenation|cffFFBB00 while in Tree of Life. \n|cffFFDD11Used after Rejuvenation if Rejuvenation All Tol is not selected.");
             CreateNewText(thisConfig,"Rejuvenation Tol");
 
             -- Rejuvenation All Tol
@@ -276,26 +276,26 @@ function RestorationConfig()
 
             -- Regrowth Tol
             CreateNewCheck(thisConfig,"Regrowth Tol");
-            CreateNewBox(thisConfig, "Regrowth Tol", 0, 100  , 5, 40, "|cffFFBB00Under what %HP to use |cffFFFFFFRegrowth while in Tree of Life.");
+            CreateNewBox(thisConfig, "Regrowth Tol", 0, 100  , 5, 40, "|cffFFBB00Under what %HP to use |cffFFFFFFRegrowth|cffFFBB00 while in Tree of Life.");
             CreateNewText(thisConfig,"Regrowth Tol");
 
             -- Regrowth Tank Tol
             CreateNewCheck(thisConfig,"Regrowth Tank Tol");
-            CreateNewBox(thisConfig, "Regrowth Tank Tol", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFRegrowth on tanks while in Tree of Life .");
+            CreateNewBox(thisConfig, "Regrowth Tank Tol", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFRegrowth|cffFFBB00 on tanks while in Tree of Life .");
             CreateNewText(thisConfig,"Regrowth Tank Tol");
 
             -- Regrowth Omen Tol
             CreateNewCheck(thisConfig,"Regrowth Omen Tol");
-            CreateNewBox(thisConfig, "Regrowth Omen Tol", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFRegrowth while in Tree of Life and Omen proc.");
+            CreateNewBox(thisConfig, "Regrowth Omen Tol", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFRegrowth|cffFFBB00 while in Tree of Life and Omen proc.");
             CreateNewText(thisConfig,"Regrowth Omen Tol");
 
             -- WildGrowth Tol
             CreateNewCheck(thisConfig,"WildGrowth Tol");
-            CreateNewBox(thisConfig, "WildGrowth Tol", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFWildGrowth while in Tree of Life.");
+            CreateNewBox(thisConfig, "WildGrowth Tol", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFWildGrowth|cffFFBB00 while in Tree of Life.");
             CreateNewText(thisConfig,"WildGrowth Tol");
 
             -- Mushrooms Bloom Count
-            CreateNewBox(thisConfig, "WildGrowth Tol Count", 1, 25  , 1, 5, "|cffFFBB00Number of members under WildGrowth Tol treshold needed to use |cffFFFFFFWildGrowth while in Tree of Life.");
+            CreateNewBox(thisConfig, "WildGrowth Tol Count", 1, 25  , 1, 5, "|cffFFBB00Number of members under WildGrowth Tol treshold needed to use |cffFFFFFFWildGrowth|cffFFBB00 while in Tree of Life.");
             CreateNewText(thisConfig,"WildGrowth Tol Count");
         end
 
@@ -329,21 +329,21 @@ function RestorationConfig()
 
         -- Rejuvenation Tank
         CreateNewCheck(thisConfig,"Rejuvenation Tank");
-        CreateNewBox(thisConfig, "Rejuvenation Tank", 0, 100  , 5, 65, "|cffFFBB00Under what %HP to use |cffFFFFFFRejuvenation|cffFFBB00 on Tanks.");
+        CreateNewBox(thisConfig, "Rejuvenation Tank", 0, 100  , 5, 65, "|cffFFBB00Under what %HP to use |cffFFFFFFRejuvenation |cffFFBB00on Tanks.");
         CreateNewText(thisConfig,"Rejuvenation Tank");
 
         -- Rejuvenation Meta
-        CreateNewCheck(thisConfig,"Rejuvenation Meta", "Check to force rejuv on all targets(meta proc).");
+        CreateNewCheck(thisConfig,"Rejuvenation Meta", "Check to force rejuv |cffFFBB00on all targets(meta proc).");
         CreateNewText(thisConfig,"Rejuvenation Meta");
 
         -- Rejuvenation All
-        CreateNewCheck(thisConfig,"Rejuvenation All", "Check to force rejuv on all targets(low prio).");
+        CreateNewCheck(thisConfig,"Rejuvenation All", "Check to force rejuv |cffFFBB00on all targets(low prio).");
         CreateNewText(thisConfig,"Rejuvenation All");
 
         -- Rejuvenation Filler
-        CreateNewCheck(thisConfig,"Rejuvenation Filler");
-        CreateNewBox(thisConfig, "Rejuvenation Filler", 0, 100  , 5, 65, "|cffFFBB00Under what %HP to use |cffFFFFFFRejuvenation|cffFFBB00 as Filler.");
-        CreateNewText(thisConfig,"Rejuvenation Filler");
+        CreateNewCheck(thisConfig,"Rejuv Filler Count");
+        CreateNewBox(thisConfig, "Rejuv Filler Count", 1, 25  , 1, 5, "|cffFFBB00Number of members to keep |cffFFFFFFRejuvenation |cffFFBB00as Filler.");
+        CreateNewText(thisConfig,"Rejuv Filler Count");
 
         -- Healing Touch
         CreateNewCheck(thisConfig,"Healing Touch Ns");
@@ -373,7 +373,7 @@ function RestorationConfig()
 
         -- Genesis Filler
         CreateNewCheck(thisConfig,"Genesis Filler");
-        CreateNewBox(thisConfig, "Genesis Filler", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFGenesis as Filler(low prio).");
+        CreateNewBox(thisConfig, "Genesis Filler", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFGenesis |cffFFBB00as Filler(low prio).");
         CreateNewText(thisConfig,"Genesis Filler");
 
         -- Mushrooms
@@ -447,7 +447,12 @@ function RestorationConfig()
 
         -- Blacklist
         CreateNewCheck(thisConfig,"Blacklist");
+        CreateNewBox(thisConfig, "Blacklist", 0, 105  , 5, 105, "|cffFFBB00How much HP do we want to add to |cffFFDD00Blacklisted |cffFFBB00units.");
         CreateNewText(thisConfig,"Blacklist");
+
+        -- No Incoming Heals
+        CreateNewCheck(thisConfig,"No Incoming Heals");
+        CreateNewText(thisConfig,"No Incoming Heals");
 
         -- Wrapper
         CreateNewWrap(thisConfig,"-------- General -------");

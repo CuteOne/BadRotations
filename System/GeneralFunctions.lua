@@ -280,8 +280,28 @@ function castGroundBetween(Unit,SpellID,maxDistance)
  	return false;
 end
 
-
-
+-- if shouldNotOverheal(spellCastTarget) > 80 then 
+function shouldNotOverheal(Unit)    
+	local myIncomingHeal = UnitGetIncomingHeals(Unit, "player") or 0
+	local allIncomingHeal = UnitGetIncomingHeals(Unit) or 0
+	local overheal = 0
+	if myIncomingHeal >= allIncomingHeal then
+		overheal = 0
+	else
+		overheal = allIncomingHeal - myIncomingHeal
+	end
+	local CurShield = UnitHealth(Unit)
+	if UnitDebuffID("player",142861) then --Ancient Miasma
+		CurShield = select(15,UnitDebuffID(Unit, 142863)) or select(15,UnitDebuffID(Unit, 142864)) or select(15,UnitDebuffID(Unit, 142865)) or (UnitHealthMax(Unit) / 2) 
+		overheal = 0
+	end
+	local overhealth = 100 * (CurShield+ overheal ) / UnitHealthMax(Unit)
+	if overhealth and overheal then
+		return overhealth, overheal
+	else
+		return 0, 0
+	end
+end
 
 -- if castHealGround(_HealingRain,18,80,3) then 
 function castHealGround(SpellID,Radius,Health,NumberOfPlayers)

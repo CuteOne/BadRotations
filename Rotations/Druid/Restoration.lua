@@ -14,11 +14,13 @@ function DruidRestoration()
 	end
 
 	--[[ 7 - Stop Casting--(perevent from over healing when u cast somthing can heal target)]]
-	local noOverHealSpells = { 5185, 8936 }
-	local castingSpell = UnitCastingInfo("player")
-	if castingSpell ~= nil then 
-		for i = 1, #noOverHealSpells do
-			if GetSpellInfo(noOverHealSpells[i]) == castingSpell and getHP(spellCastTarget) >= 100 then RunMacroText("/stopcasting"); return; end
+	if isChecked("Overhealing Cancel Cast") and shouldNotOverheal(spellCastTarget) > getValue("Overhealing Cancel Cast") then
+		local noOverHealSpells = { 5185, 8936, 50464,  }
+		local castingSpell = UnitCastingInfo("player")
+		if castingSpell ~= nil then 
+			for i = 1, #noOverHealSpells do
+				if GetSpellInfo(noOverHealSpells[i]) == castingSpell then RunMacroText("/stopcasting"); return; end
+			end
 		end
 	end
 
@@ -330,7 +332,6 @@ function DruidRestoration()
 		end
 
 		--[[ 24 - WildGrowth all--(Use on all with out health check only with player count check)(some time in fight u need check it fast)]]
-		
 		if isChecked("WildGrowth All") then
 		    for i = 1, #nNova do
 		    	local allies30Yards = getAllies(nNova[i].unit,30);
@@ -339,7 +340,6 @@ function DruidRestoration()
 				end
 			end
 		end		
-
 
 		--[[ 25 - WildGrowth--(Use with health and player count check)]]
 		for i = 1, #nNova do
@@ -453,16 +453,23 @@ function DruidRestoration()
 				end 	
 			end
 		end
+
 		--[[ 38 - use Rejuvenation for filler--(we can up reju on 5 or 6 player or custome value all time)]]
-		if isChecked("Rejuvenation") then
+		if isChecked("Rejuv Filler Count") then
+			local numberRejuvUps = 0;
 			for i = 1, #nNova do
-				if getBuffRemain(nNova[i].unit,774) == 0 and nNova[i].hp <= getValue("Rejuvenation Filler")then
-					if castSpell(nNova[i].unit,774,true) then return; 
+				if getBuffRemain(nNova[i].unit,774) ~= 0 then
+					numberRejuvUps = numberRejuvUps + 1;
+				end
+			end
+			if numberRejuvUps < getValue("Rejuv Filler Count") then
+				for i = 1, #nNova do
+					if getBuffRemain(nNova[i].unit,774) == 0 then	
+						if castSpell(nNova[i].unit,774,true) then return; end
 					end
 				end
 			end
 		end
-
 	end
 end
 end
