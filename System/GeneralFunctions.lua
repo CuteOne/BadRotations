@@ -1382,9 +1382,11 @@ end
 
 -- if shouldStopCasting(12345) then
 function shouldStopCasting(Spell)
+
 	if UnitExists("boss1") then
 		local Boss1Cast, Boss1CastEnd, PlayerCastEnd, StopCasting = Boss1Cast, Boss1CastEnd, PlayerCastEnd, false
 		local MySpellCastTime = (GetTime()*1000) + select(7,GetSpellInfo(Spell))
+		local StopCasting = false;
 		local ShouldContinue = {
 			1022, -- Hand of Protection
 			31821, -- Devotion
@@ -1400,7 +1402,7 @@ function shouldStopCasting(Spell)
 		for i = 1, #ShouldContinue do
 			if UnitBuffID("player", ShouldContinue[i]) and (select(7,UnitBuffID("player", ShouldContinue[i]))*1000)+50 > Boss1CastEnd then xrn:message("\124cFFFFFFFFStopper Safety Found") return true end
 		end
-		if not UnitCastingInfo("player") and not UnitChannelInfo("player") and MySpellCastTime and SetStopTime and MySpellCastTime > Boss1CastEnd then xrn:message("\124cFFD93B3BStop for "..Boss1Cast) return false end
+		if not UnitCastingInfo("player") and not UnitChannelInfo("player") and MySpellCastTime and SetStopTime and MySpellCastTime > Boss1CastEnd then ChatOverlay("\124cFFD93B3BStop for "..Boss1Cast) return false end
 
 		for j = 1, #ShouldStop do
 			if Boss1Cast == select(1,GetSpellInfo(ShouldStop[j])) then 
