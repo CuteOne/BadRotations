@@ -1414,7 +1414,7 @@ function shouldStopCasting(Spell)
 				end
 			end
 		end
-		return (StopCasting == false)
+		return StopCasting == true
 	end
 end
 
