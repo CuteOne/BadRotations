@@ -73,11 +73,27 @@ function DruidRestoration()
 		end
 
 		--[[ 4 - Dispel --(U can Dispel  While in cat form)]]
-		for i = 1, #nNova do
-			if nNova[i].dispel == true then
-				if castSpell(nNova[i].unit,88423, true) then return; end
+		if isChecked("Nature's Cure") then
+			if getValue("Nature's Cure") == 1 then
+				if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
+					for i = 1, #nNova do
+						if nNova[i].guid == UnitGUID("mouseover") and nNova[i].dispel == true then
+							if castSpell(nNova[i].unit,88423, true) then return; end
+						end
+					end		
+				end		
+			elseif getValue("Nature's Cure") == 2 then
+				for i = 1, #nNova do
+					if nNova[i].dispel == true then
+						if castSpell(nNova[i].unit,88423, true) then return; end
+					end
+				end
 			end
 		end
+
+
+
+
 
 		--[[ 5 - DPs --(range and  melee)]]
 		if BadBoy_data["DPS"] == 2 then
@@ -115,6 +131,7 @@ function DruidRestoration()
 				end	
 			end
 		end
+
 		--[[ 6 - Genesis--(WITH Hotkey)]]
 		if isChecked("Genesis Toggle") and SpecificToggle("Genesis Toggle") == 1 and GetCurrentKeyBoardFocus() == nil then 
 			if canCast(145518) and (lastGenesis == nil or lastGenesis <= GetTime() - 10) then

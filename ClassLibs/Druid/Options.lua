@@ -227,6 +227,11 @@ function RestorationConfig()
         CreateNewCheck(thisConfig,"Mark Of The Wild");
         CreateNewText(thisConfig,"Mark Of The Wild");
 
+        -- Nature's Cure
+        CreateNewCheck(thisConfig,"Nature's Cure")
+        CreateNewDrop(thisConfig,"Nature's Cure", 1, "|cffFFBB00Choose between |cffFFFFFFRaid |cffFFBB00or |cffFFFFFFMouseover |cffFFBB00dispels.", "|cffFFDD11Mouse", "|cff00FF00Raid")
+        CreateNewText(thisConfig,"Nature's Cure"); 
+
         -- Wrapper
         CreateNewWrap(thisConfig,"----- Cooldowns -----");
 
