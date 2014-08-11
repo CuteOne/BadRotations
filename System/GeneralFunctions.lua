@@ -350,7 +350,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 	if shouldStopCasting(SpellID) ~= true then
 	    if timersTable == nil then timersTable = {}; end
 		local Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,GlobalCooldown,PowerNeeded,CurrentPower,spellRange = tostring(Unit),tonumber(SpellID),FacingCheck,MovementCheck,SpamAllowed,KnownSkip,select(7, GetSpellInfo(SpellID)),select(4,GetSpellInfo(SpellID)),UnitPower("player"),select(9,GetSpellInfo(SpellID));
-	  	if spellRange < 4 then spellRange = 4; end
+	  	if spellRange == nil or spellRange < 4 then spellRange = 4; end
 	  	if (Unit ~= nil and UnitIsFriend("player",Unit)) then FacingCheck = true; end
 	  	if not (CurrentPower < PowerNeeded) 
 	   	  and (MovementCheck == false or GlobalCooldown == 0 or isMoving("player") ~= true or UnitBuffID("player",79206) ~= nil)

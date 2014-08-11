@@ -74,7 +74,7 @@ function DruidRestoration()
 
 		--[[ 4 - Dispel --(U can Dispel  While in cat form)]]
 		if isChecked("Nature's Cure") then
-			if getValue("Nature's Cure") == 1 then
+			if getValue("Nature's Cure") == 1 then -- Mouse Match
 				if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
 					for i = 1, #nNova do
 						if nNova[i].guid == UnitGUID("mouseover") and nNova[i].dispel == true then
@@ -82,18 +82,36 @@ function DruidRestoration()
 						end
 					end		
 				end		
-			elseif getValue("Nature's Cure") == 2 then
+			elseif getValue("Nature's Cure") == 2 then -- Raid Match
 				for i = 1, #nNova do
 					if nNova[i].dispel == true then
 						if castSpell(nNova[i].unit,88423, true) then return; end
 					end
 				end
+			elseif getValue("Nature's Cure") == 3 then -- Mouse All
+				if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
+				    for n = 1,40 do 
+				      	local buff,_,_,count,bufftype,duration = UnitDebuff("mouseover", n)
+			      		if buff then 
+			        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then if castSpell("mouseover",88423, true) then return; end end 
+			      		else
+			        		break;
+			      		end   
+				  	end
+				end		
+			elseif getValue("Nature's Cure") == 3 then -- Raid All
+				for i = 1, #nNova do
+				    for n = 1,40 do 
+				      	local buff,_,_,count,bufftype,duration = UnitDebuff(nNova[i].unit, n)
+			      		if buff then 
+			        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then if castSpell(nNova[i].unit,88423, true) then return; end end 
+			      		else
+			        		break;
+			      		end 
+				  	end
+				end	
 			end
 		end
-
-
-
-
 
 		--[[ 5 - DPs --(range and  melee)]]
 		if BadBoy_data["DPS"] == 2 then

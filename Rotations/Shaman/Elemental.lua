@@ -29,7 +29,7 @@ function ShamanElemental()
 	end
 	-- Healing Stream if < 50%
 	if BadBoy_data["Check Healing Stream"] == 1 and getHP("player") <= BadBoy_data["Box Healing Stream"] then
-		if castSpell("player",_HealingStream,true) then return; end
+		if castSpell("player",_HealingStreamTotem,true) then return; end
 	end
 	-- Shamanistic Rage if < 80%
 	if BadBoy_data["Check Shamanistic Rage"] == 1 and getHP("player") <= BadBoy_data["Box Shamanistic Rage"] then
