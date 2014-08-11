@@ -1,25 +1,20 @@
 function ReaderRun()
---------------
--- Readers	--
---------------
+---------------
+--[[ Readers ]]
+---------------
 
 ----------------------
 --[[ isStanding Frame --]]
-
-
 DontMoveStartTime = nil;
-
-CreateFrame("Frame"):SetScript("OnUpdate",
-    function ()
-		if GetUnitSpeed("Player") == 0 then
-			if not DontMoveStartTime then
-				DontMoveStartTime = GetTime();
-			end
-		else
-			DontMoveStartTime = nil;
+CreateFrame("Frame"):SetScript("OnUpdate", function ()
+	if GetUnitSpeed("Player") == 0 then
+		if not DontMoveStartTime then
+			DontMoveStartTime = GetTime();
 		end
+	else
+		DontMoveStartTime = nil;
 	end
-);
+end);
 
 -----------------------
 --[[ Merchant Show --]]
@@ -233,15 +228,15 @@ function SuperReader(self, event, ...)
         end
     end
 
-	------------------------------------------
-	-- SpellCast Sents (used to define target)
+	-------------------------------------------------
+	--[[ SpellCast Sents (used to define target) --]]
 	if event == "UNIT_SPELLCAST_SENT" then
 		spellCastTarget = select(4,...);
 		--print("UNIT_SPELLCAST_SENT spellCastTarget = "..spellCastTarget);
 	end
 
-	----------------------
-	-- SpellCast Succeeded
+	-----------------------------
+	--[[ SpellCast Succeeded --]]
 	if event == "UNIT_SPELLCAST_SUCCEEDED" then
 		local SourceUnit 	= select(1,...);
 		local SpellID 		= select(5,...);
@@ -268,8 +263,8 @@ function SuperReader(self, event, ...)
 		end			
 	end
 
-	----------------------
-	-- SpellCast Failed
+	--------------------------
+	--[[ SpellCast Failed --]]
 	if event == "UNIT_SPELLCAST_FAILED" then
 		local SourceUnit 	= select(1,...)
 		local SpellID 		= select(5,...)
@@ -293,7 +288,7 @@ superReaderFrame:SetScript("OnEvent", SuperReader)
 
 
 ----------------
--- Poke Setup --
+--[[ Poke Setup --]]
 ----------------
 pokeEngineFrame = CreateFrame('Frame');
 pokeEngineFrame:RegisterEvent("CHAT_MSG_PET_BATTLE_COMBAT_LOG");

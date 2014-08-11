@@ -43,9 +43,14 @@
 --[[ function castGround(Unit,SpellID,maxDistance) ]]
 ---- Used to cast Spells on ground. Returns true if everything passes.
 
+--[[ function castGroundBetween(Unit,SpellID,maxDistance) ]]
+---- Used to ground cast between yourself and target. Returns true if everything passes.
+
+--[[ function castHealGround(SpellID,Radius,Health,NumberOfPlayers) ]]
+---- Used to ground cast between lowest nNova members. Returns true if everything passes.
+
 --[[ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip) ]]	
 ---- Used to cast Spells. Returns true if everything passes.
-
 
 --[[           ]]   --[[           ]]    --[[           ]]
 --[[           ]]   --[[           ]]    --[[           ]]
@@ -55,77 +60,89 @@
 --[[           ]]   --[[           ]]          --[[ ]]
 --[[           ]]   --[[           ]]          --[[ ]]
 
---[[ function getBuffRemain(Unit,BuffID) ]] 
+--[[ function getAllies(Target,Radius) ]] -- Table 
+---- Returns a table of the allies found within Radius of the target
+
+--[[ function getBuffRemain(Unit,BuffID) ]] -- Num
 ---- Returns how long remain on this Unit's buff.
 
---[[ function getBuffStacks(Unit,BuffID) ]]
+--[[ function getBuffStacks(Unit,BuffID) ]] -- Num
 ---- Returns number of stacks of this Unit's buff.
 
---[[ function getCombatTime()]]
+--[[ function getCombatTime()]] -- Num
 ---- Returns time since combat started.
 
---[[ function getCreatureType(Unit) ]]
+--[[ function getCreatureType(Unit) ]] -- Bool
 ---- Returns true if Unit is not a pet battle or a totem.
 
---[[ function getCombo() ]]			
+--[[ function getCombo() ]] -- Num
 ---- Returns combo points on current target.
 
---[[ function getDebuffRemain(Unit,DebuffID) ]] 
+--[[ function getDebuffRemain(Unit,DebuffID) ]] -- Num
 ---- Returns how long remain on this Unit's Debuff.
 
---[[ function getDebuffStacks(Unit,DebuffID)  ]]
+--[[ function getDebuffStacks(Unit,DebuffID)  ]] -- Num
 ---- Returns number of stacks of this Unit's Debuff.
 
---[[ function getDistance(Unit1,Unit2) ]]
+--[[ function getDistance(Unit1,Unit2) ]] -- Num
 ---- Returns distance to target in yards.
 
---[[ function getFallTime() ]]	
----- Returns the time the character has been falling.
-
---[[ function getFacing(Unit1,Unit2) ]]	
----- Returns true if Unit1 is facing Unit2
-
---[[ function getHP(Unit) ]]	
----- Returns Unit HP %
-
---[[ function getMana(Unit) ]]	
----- Returns Unit Mana %
-
---[[ function getPower(Unit) ]]
----- Returns Unit Power %
-
---[[ function getTotemDistance(Unit1) ]]
----- Returns distance from totem to target
-
---[[ function getEnnemies(Target,Radius) ]]
+--[[ function getEnnemies(Target,Radius) ]] -- Table
 ---- Returns a table of the ennemies found within Radius of the target
 
---[[ function getNumEnnemies(Target,Radius) ]]
----- Returns number of ennemies found within Radius of the target
+--[[ function getFacing(Unit1,Unit2) ]]	-- Bool
+---- Returns true if Unit1 is facing Unit2
 
---[[ function getLineOfSight(Unit1,Unit2) ]]
----- Returns true if the Unit1 can see Unit2
+--[[ function getFacingSight(Unit1,Unit2) ]] -- Bool
+---- Returns true if Unit2 is in line of sight and in front of Unit1.
 
---[[ function getGround(Unit) ]]
+--[[ function getFacingSightDistance(Unit1,Unit2) ]] -- Num
+---- Returns range if in front and in sight, otherwise returns 1000.
+
+--[[ function getFallTime() ]] -- Num
+---- Returns the time the character has been falling.
+
+--[[ function getGround(Unit) ]] -- Bool
 ---- Returns true if ground is found under the target
 
---[[ function getPetLineOfSight(Unit) ]]
+--[[ function getHP(Unit) ]] -- Num	
+---- Returns Unit HP %
+
+--[[ function getLineOfSight(Unit1,Unit2) ]] -- Bool
+---- Returns true if the Unit1 can see Unit2
+
+--[[ function getMana(Unit) ]] -- Num	
+---- Returns Unit Mana %
+
+--[[ function getNumEnnemies(Target,Radius) ]] -- Num
+---- Returns number of ennemies found within Radius of the target
+
+--[[ function getPetLineOfSight(Unit) ]] -- Bool
 ---- Returns true if our pet is in sight of target
 
---[[ function getSpellCD(SpellID) ]]
----- Returns how long remain until the CD is ready
+--[[ function getPower(Unit) ]] -- Num
+---- Returns Unit Power %
 
---[[ function round2(num, idp) ]]
+--[[ function getRegen(Unit) ]] -- Num
+---- Returns power regen rate of Unit
+
+--[[ function round2(num, idp) ]] -- Num
 ---- Used to round numbers
 
---[[ function getTimeToDie(unit) ]]
+--[[ function getSpellCD(SpellID) ]] -- Num
+---- Returns how long remain until the CD is ready
+
+--[[ function getTimeToDie(unit) ]] -- Num
 ---- Returns approximative Time To Die for Unit
 
---[[ function getTimeToMax(Unit) ]]
+--[[ function getTimeToMax(Unit) ]] -- Num
 ---- Returns how long it will take until our ressources are maxed
 
---[[ function getRegen(Unit) ]]
----- Returns power regen rate of Unit
+--[[ function getTotemDistance(Unit1) ]] -- Num
+---- Returns distance from totem to target
+
+--[[ function getVengeance() ]] -- Num
+---- Returns player vengeance(considers classes)
 
 --[[]]	   --[[]]		  --[[]]		--[[           ]]
 --[[]]	   --[[]]		 --[[  ]]		--[[           ]]
@@ -167,7 +184,6 @@
 --[[ function isEnnemy(Unit) ]]
 ---- Returns true if we can attack the Unit
 
-
 --[[ function isGarrMCd(Unit) ]]
 ---- Returns true if Unit if affected by Garrosh MC
 
@@ -206,6 +222,9 @@
 
 --[[ function useItem(itemID) ]]
 ---- Uses item via ID
+
+--[[ function shouldStopCasting(SpellID)]]
+---- Built into casts methods. Prevents spell locking.
 
 --[[           ]]	--[[           ]]	--[[           ]]
 --[[           ]]	--[[           ]]	--[[           ]]

@@ -35,11 +35,11 @@ chatOverlay.texture = chatOverlay:CreateTexture();
 chatOverlay.texture:SetAllPoints();
 chatOverlay.texture:SetTexture(0,0,0,.50);
 chatOverlay.time = 0;
-function ChatOverlay(message) 
+function ChatOverlay(Message, FadingTime) 
     chatOverlay:SetSize(ChatFrame1:GetWidth(),50);
-    chatOverlay.text:SetText(message);
+    chatOverlay.text:SetText(Message);
     chatOverlay:SetAlpha(1);
-    chatOverlay.time = GetTime(); 
+    if FadingTime == nil then chatOverlay.time = GetTime(); else chatOverlay.time = GetTime() - 2 + FadingTime; end
     chatOverlay:Show(); 
 end 
 

@@ -177,19 +177,21 @@ if select(3, UnitClass("player")) == 11 then
             elseif getValue(toggle) == 2 then
                 return IsLeftShiftKeyDown();
             elseif getValue(toggle) == 3 then
-                return IsRightControlKeyDown();
+                return IsLeftAltKeyDown();
             elseif getValue(toggle) == 4 then
-                return IsRightShiftKeyDown();
+                return IsRightControlKeyDown();
             elseif getValue(toggle) == 5 then
-                return IsRightAltKeyDown();
+                return IsRightShiftKeyDown();
             elseif getValue(toggle) == 6 then
+                return IsRightAltKeyDown();
+            elseif getValue(toggle) == 7 then
                 return 0
             end
         end
 
 
 
-        
+
         -- Healing Button
         if  HealingModesLoaded ~= "Masou Restoration Healing Modes" then 
             HealingModes = { 

@@ -54,6 +54,24 @@ function CreateNewWrap(value,textString)
  		if _G["option"..Row.."Box"] ~= nil then _G["option"..Row.."Box"]:Hide(); end
  	end
 
+ 	function ClearRow(Row)
+ 		if _G["option"..Row.."Text"] ~= nil then _G["option"..Row.."Text"]:Hide(); end
+ 		if _G["option"..Row.."Drop"] ~= nil then _G["option"..Row.."Drop"]:Hide(); end
+ 		if _G["option"..Row.."Check"] ~= nil then _G["option"..Row.."Check"]:Hide(); end
+ 		if _G["option"..Row.."Box"] ~= nil then _G["option"..Row.."Box"]:Hide(); end 		
+ 		if _G["option"..Row.."Text"] ~= nil then _G["option"..Row.."Text"] = nil ; end
+ 		if _G["option"..Row.."Drop"] ~= nil then _G["option"..Row.."Drop"] = nil ; end
+ 		if _G["option"..Row.."Check"] ~= nil then _G["option"..Row.."Check"] = nil ; end
+ 		if _G["option"..Row.."Box"] ~= nil then _G["option"..Row.."Box"] = nil ; end
+ 	end	
+
+ 	function ClearConfig()
+ 		for i = 0, thisConfig do
+ 			ClearRow(i);
+ 			configFrame:SetHeight(30)
+ 		end
+ 	end
+
  	function ReviveRow(Row)
  		if _G["option"..Row.."Text"] ~= nil then _G["option"..Row.."Text"]:Show(); end
  		if _G["option"..Row.."Drop"] ~= nil then _G["option"..Row.."Drop"]:Show(); end
