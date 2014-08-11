@@ -354,11 +354,17 @@ function RestorationConfig()
         CreateNewBox(thisConfig, "Rejuv Filler Count", 1, 25  , 1, 5, "|cffFFBB00Number of members to keep |cffFFFFFFRejuvenation |cffFFBB00as Filler.");
         CreateNewText(thisConfig,"Rejuv Filler Count");
 
-        -- Healing Touch
+        -- Healing Touch Ns
         CreateNewCheck(thisConfig,"Healing Touch Ns");
-        CreateNewBox(thisConfig, "Healing Touch Ns", 0, 100  , 5, 35, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Touch.");
+        CreateNewBox(thisConfig, "Healing Touch Ns", 0, 100  , 5, 25, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Touch|cffFFBB00 with |cffFFFFFFNature Swiftness.");
         CreateNewText(thisConfig,"Healing Touch Ns");
+  
+        -- Healing Touch Sm
+        CreateNewCheck(thisConfig,"Healing Touch Sm");
+        CreateNewBox(thisConfig, "Healing Touch Sm", 0, 100  , 5, 70, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Touch|cffFFBB00 for |cffFFFFFF Sage Mender.");
+        CreateNewText(thisConfig,"Healing Touch Sm");      
         
+
         -- Swiftmend
         CreateNewCheck(thisConfig,"Swiftmend");
         CreateNewBox(thisConfig, "Swiftmend", 0, 100  , 5, 35, "|cffFFBB00Under what %HP to use |cffFFFFFFSwiftmend.");
@@ -430,6 +436,11 @@ function RestorationConfig()
         CreateNewCheck(thisConfig,"Barkskin");
         CreateNewBox(thisConfig, "Barkskin", 0, 100  , 5, 40, "|cffFFBB00Under what %HP to use |cffFFFFFFBarkskin");
         CreateNewText(thisConfig,"Barkskin");
+
+        -- Might of Ursoc
+        CreateNewCheck(thisConfig,"Might of Ursoc");
+        CreateNewBox(thisConfig, "Might of Ursoc", 0, 100  , 5, 20, "|cffFFBB00Under what %HP to use |cffFFFFFFMight of Ursoc");
+        CreateNewText(thisConfig,"Might of Ursoc");        
 
         -- Hotkeys
         CreateNewWrap(thisConfig,"------ Toggles -------");
