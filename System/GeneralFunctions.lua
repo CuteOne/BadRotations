@@ -309,7 +309,7 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 		local lowHPTargets, foundTargets = { }, { }
 		for i = 1, #nNova do
 			if nNova[i].hp <= Health then
-				if UnitExists(nNova[i].unit) then
+				if UnitExists(nNova[i].unit) and IGetLocation(UnitGUID(nNova[i].unit)) ~= nil then
 					local X, Y, Z = IGetLocation(UnitGUID(nNova[i].unit))
 					tinsert(lowHPTargets, { unit = nNova[i].unit, x = X, y = Y, z = Z })
 		end end end
