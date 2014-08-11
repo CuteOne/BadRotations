@@ -157,7 +157,7 @@ function DruidRestoration()
 		--[[ 6 - Genesis--(WITH Hotkey)]]
 		if isChecked("Genesis Toggle") and SpecificToggle("Genesis Toggle") == 1 and GetCurrentKeyBoardFocus() == nil then 
 			if canCast(145518) then
-				if castSpell("player",145518,true) then return; end
+				if castSpell("player",145518,true,true) then return; end
 			end		
 		end	
 
@@ -364,7 +364,7 @@ function DruidRestoration()
 			for i=1, #nNova do
 				if nNova[i].hp <= getValue("Genesis") and getBuffRemain(nNova[i].unit,774) > 2 then 	
 					GenCount = GenCount + 1
-					if GenCount >= getValue("Genesis Count") then if castSpell("player",145518,true) then return; end end 	
+					if GenCount >= getValue("Genesis Count") then if castSpell("player",145518,true,true) then return; end end 	
 				end
 			end
 		end
@@ -380,17 +380,19 @@ function DruidRestoration()
 		end		
 
 		--[[ 25 - WildGrowth--(Use with health and player count check)]]
-		for i = 1, #nNova do
-			local allies40Yards = getAllies(nNova[i].unit,40)
-			if #allies40Yards >= 3 then
-				local count = 0;
-				for j = 1, #allies40Yards do
-					if getHP(allies40Yards[j]) < 90 then
-						count = count + 1
+		if isChecked("WildGrowth") then
+			for i = 1, #nNova do
+				local allies40Yards = getAllies(nNova[i].unit,40)
+				if #allies40Yards >= 3 then
+					local count = 0;
+					for j = 1, #allies40Yards do
+						if getHP(allies40Yards[j]) < getValue("WildGrowth") then
+							count = count + 1
+						end
 					end
-				end
-				if count > 3 then
-					if castSpell(nNova[i].unit,48438,true) then return; end
+					if count > isChecked("WildGrowth Count") then
+						if castSpell(nNova[i].unit,48438,true) then return; end
+					end
 				end
 			end
 		end
@@ -487,7 +489,7 @@ function DruidRestoration()
 		if isChecked("Genesis Filler") and canCast(145518) then
 			for i=1, #nNova do
 				if nNova[i].hp <= getValue("Genesis Filler") and getBuffRemain(nNova[i].unit,774) > 3 then 	
-				    if castSpell("player",145518,true) then return; end 
+				    if castSpell("player",145518,true,true) then return; end 
 				end 	
 			end
 		end

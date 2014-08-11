@@ -362,6 +362,15 @@ function RestorationConfig()
         -- Wrapper
         CreateNewWrap(thisConfig,"----- AoE Healing -----")
 
+        -- WildGrowth
+        CreateNewCheck(thisConfig,"WildGrowth");
+        CreateNewBox(thisConfig, "WildGrowth", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFWildGrowth.");
+        CreateNewText(thisConfig,"WildGrowth");
+
+        -- WildGrowth Count
+        CreateNewBox(thisConfig, "WildGrowth Count", 1, 25  , 1, 5, "|cffFFBB00Number of members under WildGrowth treshold needed to use |cffFFFFFFWildGrowth.");
+        CreateNewText(thisConfig,"WildGrowth Count");
+
         -- WildGrowth All
         CreateNewCheck(thisConfig,"WildGrowth All");
         CreateNewBox(thisConfig, "WildGrowth All", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFWildGrowth.");
