@@ -38,7 +38,7 @@ function DruidRestoration()
 	if isChecked("Mark of the Wild") then
 		for i = 1, #nNova do
 	  		if not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) then
-	  			if castSpell("player",1126,true) then return; end
+	  			--if castSpell("player",1126,true) then return; end
 			end 
 		end
 	end
@@ -93,7 +93,9 @@ function DruidRestoration()
 				    for n = 1,40 do 
 				      	local buff,_,_,count,bufftype,duration = UnitDebuff("mouseover", n)
 			      		if buff then 
-			        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then if castSpell("mouseover",88423, true) then return; end end 
+			        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then 
+			        			if castSpell("mouseover",88423, true) then return; end 
+			        		end 
 			      		else
 			        		break;
 			      		end   
@@ -104,7 +106,9 @@ function DruidRestoration()
 				    for n = 1,40 do 
 				      	local buff,_,_,count,bufftype,duration = UnitDebuff(nNova[i].unit, n)
 			      		if buff then 
-			        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then if castSpell(nNova[i].unit,88423, true) then return; end end 
+			        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then 
+			        			if castSpell(nNova[i].unit,88423, true) then return; end 
+			        		end 
 			      		else
 			        		break;
 			      		end 
@@ -172,8 +176,7 @@ function DruidRestoration()
 							end
 						end
 						if count >= getValue("Force of Nature Count") and (lastFon  == nil or lastFon  <= GetTime() - 2) then -- Set Delay for Cast
-							if castSpell(nNova[i].unit,102693,true) then lastFon = GetTime() return; 
-							end
+							if castSpell(nNova[i].unit,102693,true) then lastFon = GetTime() return; end
 						end
 					end
 				end

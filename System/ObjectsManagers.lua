@@ -308,12 +308,21 @@ if not metaTable1 then
 			table.sort(nNova, function(x,y)
 				return x.hp < y.hp;
 			end)			
+
+			-- Sorting with the Role
+			table.sort(nNova, function(x,y)
+				if x.role and y.role then return x.role > y.role;
+				elseif x.role then return true;
+				elseif y.role then return false; end
+			end)
+			
 			-- Sorting with the ValitTarget
 			table.sort(nNova, function(x,y)
 				if x.range and y.range then return x.range > y.range;
 				elseif x.range then return true;
 				elseif y.range then return false; end
 			end)
+			
 --[[			for i = 1, #nNova do
 				table.sort(nNova[i].Distances, function(x,y)
 					return x.dist < y.dist

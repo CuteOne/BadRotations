@@ -195,8 +195,8 @@ if select(3, UnitClass("player")) == 11 then
         -- Healing Button
         if  HealingModesLoaded ~= "Masou Restoration Healing Modes" then 
             HealingModes = { 
-                [1] = { mode = "Off", value = 1 , overlay = "Healing Enabled", tip = "Will allow healing.", highlight = 0 },
-                [2] = { mode = "On", value = 2 , overlay = "Healing Disabled", tip = "Will not allow healing.", highlight = 1 },
+                [1] = { mode = "Off", value = 1 , overlay = "Healing Disabled", tip = "Will not allow healing.", highlight = 0 },
+                [2] = { mode = "On", value = 2 , overlay = "Healing Enabled", tip = "Will allow healing.", highlight = 1 },
              };
             CreateButton("Healing",1,0);
             HealingModesLoaded = "Masou Restoration Healing Modes";
