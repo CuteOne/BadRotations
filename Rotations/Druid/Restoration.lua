@@ -10,7 +10,7 @@ function DruidRestoration()
 	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then ChatOverlay("|cffFF0000BadBoy Paused", 0); return; end
 	-- Focus Toggle
 	if isChecked("Focus Toggle") and SpecificToggle("Focus Toggle") == 1 then 
-		if UnitExists("mouseover") then RunMacroText("/focus mouseover"); return; end
+		RunMacroText("/focus mouseover");
 	end
 
 	--[[ 7 - Stop Casting--(perevent from over healing when u cast somthing can heal target)]]
