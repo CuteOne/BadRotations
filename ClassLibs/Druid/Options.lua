@@ -229,7 +229,7 @@ function RestorationConfig()
 
         -- Nature's Cure
         CreateNewCheck(thisConfig,"Nature's Cure")
-        CreateNewDrop(thisConfig,"Nature's Cure", 1, "|cffFFBB00MMouse:|cffFFFFFFMouse / Match List. \n|cffFFBB00MRaid:|cffFFFFFFRaid / Match List. \n|cffFFBB00AMouse:|cffFFFFFFMouse / All. \n|cffFFBB00ARaid:|cffFFFFFFMouse / Match List.", 
+        CreateNewDrop(thisConfig,"Nature's Cure", 1, "|cffFFBB00MMouse:|cffFFFFFFMouse / Match List. \n|cffFFBB00MRaid:|cffFFFFFFRaid / Match List. \n|cffFFBB00AMouse:|cffFFFFFFMouse / All. \n|cffFFBB00ARaid:|cffFFFFFFRaid / All.", 
             "|cffFFDD11MMouse", 
             "|cffFFDD11MRaid",
             "|cff00FF00AMouse",
