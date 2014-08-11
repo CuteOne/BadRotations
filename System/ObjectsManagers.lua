@@ -190,7 +190,7 @@ if not metaTable1 then
 		function o:CalcHP()
 --			print("calculating HP")
 			local incomingheals
-			if isChecked("No Incoming Heals") ~= 1 then incomingheals = UnitGetIncomingHeals(o.unit); else incomingheals = 0; end
+			if isChecked("No Incoming Heals") ~= 1 then incomingheals = UnitGetIncomingHeals(o.unit) or 0; else incomingheals = 0; end
 			local nAbsorbs;
 			if isChecked("No Absorbs") ~= 1 then nAbsorbs = ( 25*UnitGetTotalAbsorbs(o.unit)/100 ); else nAbsorbs = 0; end
 			local PercentWithIncoming = 100 * ( UnitHealth(o.unit) + incomingheals + nAbsorbs ) / UnitHealthMax(o.unit)
