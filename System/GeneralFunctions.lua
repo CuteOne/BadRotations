@@ -309,10 +309,10 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 		local lowHPTargets, foundTargets = { }, { }
 		for i = 1, #nNova do
 			if nNova[i].hp <= Health then
-				--if UnitExists(nNova[i].guid)) then
+				if UnitExists(nNova[i].unit) then
 					local X, Y, Z = IGetLocation(UnitGUID(nNova[i].unit))
 					tinsert(lowHPTargets, { unit = nNova[i].unit, x = X, y = Y, z = Z })
-		end end --end
+		end end end
 		if #lowHPTargets >= NumberOfPlayers then
 			for i = 1, #lowHPTargets do
 				for j = 1, #lowHPTargets do
@@ -1384,7 +1384,7 @@ end
 function shouldStopCasting(Spell)
 	if UnitExists("boss1") then
 		local Boss1Cast, Boss1CastEnd, PlayerCastEnd, StopCasting = Boss1Cast, Boss1CastEnd, PlayerCastEnd, false
-		local MySpellCastTime = (GetTime()*1000) + select(7,GetSpellInfo(spell))
+		local MySpellCastTime = (GetTime()*1000) + select(7,GetSpellInfo(Spell))
 		local ShouldContinue = {
 			1022, -- Hand of Protection
 			31821, -- Devotion
@@ -1396,7 +1396,7 @@ function shouldStopCasting(Spell)
 			143343, -- Deafening Screech(Thok)
 		}
 		if UnitCastingInfo("boss1") then Boss1Cast,_,_,_,_,Boss1CastEnd = UnitCastingInfo("boss1") elseif UnitChannelInfo("boss1") then Boss1Cast,_,_,_,_,Boss1CastEnd = UnitChannelInfo("boss1") else return true end
-		if UnitCastingInfo("player") then PlayerCastEnd = select(6,UnitCastingInfo("player")) elseif UnitChannelInfo("player") then PlayerCastEnd = select(6,UnitChannelInfo("player")) else PlayerCastEnd = select(7,GetSpellInfo(spell)) + GetTime() end
+		if UnitCastingInfo("player") then PlayerCastEnd = select(6,UnitCastingInfo("player")) elseif UnitChannelInfo("player") then PlayerCastEnd = select(6,UnitChannelInfo("player")) else PlayerCastEnd = select(7,GetSpellInfo(Spell)) + GetTime() end
 		for i = 1, #ShouldContinue do
 			if UnitBuffID("player", ShouldContinue[i]) and (select(7,UnitBuffID("player", ShouldContinue[i]))*1000)+50 > Boss1CastEnd then xrn:message("\124cFFFFFFFFStopper Safety Found") return true end
 		end

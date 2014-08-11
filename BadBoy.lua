@@ -175,7 +175,7 @@ function BadBoyRun()
 		if NovaEngineUpdate == nil then NovaEngineUpdate = GetTime(); end
 		if NovaEngineUpdate and NovaEngineUpdate <= GetTime() - 0.5 then
 			NovaEngineUpdate = GetTime()
-			nNova:Update(true)
+			nNova:Update()
 		end
 
 		local _, _, anchor, x, y = configFrame:GetPoint(1);

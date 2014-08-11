@@ -86,12 +86,10 @@ if not metaTable1 then
 		end
 	end
 	
-
 	metaTable1.__index =  {-- Setting the Metamethod of Index for our Main Table
 		name = "Healing Table",
 		author = "Bubba",
 	}
-
 
 	-- Creating a default Unit to default to on a check
 	memberSetup.__index = {
@@ -104,7 +102,6 @@ if not metaTable1 then
 		guidsh = 0,
 	}
 	
-
 	-- If ever somebody enters or leaves the raid, wipe the entire Table
 	local updateHealingTable = CreateFrame("frame", nil)
 	updateHealingTable:RegisterEvent("GROUP_ROSTER_UPDATE")
@@ -114,11 +111,6 @@ if not metaTable1 then
 		SetupTables()
 	end)
 
-	function GetAbsorbAmountOnUnit(tar)
-		return 0
-	end
-
-	-- Will be replaced when placed in Data File
 	function Nova_GUID(unit)
   		local nShortHand = ""
   		if UnitExists(unit) then
@@ -157,7 +149,10 @@ if not metaTable1 then
 
 	-- Verifying the target is a Valid Healing target
 	function HealCheck(tar)
-		if ((UnitCanCooperate("player",tar) and not UnitIsCharmed(tar) and not UnitIsDeadOrGhost(tar) and UnitIsConnected(tar)) 
+		if ((UnitCanCooperate("player",tar) 
+		  and not UnitIsCharmed(tar) 
+		  and not UnitIsDeadOrGhost(tar) 
+		  and UnitIsConnected(tar)) 
 		  or SpecialHealUnitList[tonumber(select(2,Nova_GUID(tar)))] ~= nil	or (isChecked("Heal Pets") and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
 		  and CheckBadDebuff(tar)
 		  and CheckCreatureType(tar)
@@ -167,7 +162,7 @@ if not metaTable1 then
 
 	function memberSetup:new(unit)
 		-- Seeing if we have already cached this unit before
-		if memberSetup.cache[select(2, Nova_GUID(unit))] then return false end
+		if memberSetup.cache[Nova_GUID(unit)] then return false end
 		local o = {}
 		setmetatable(o, memberSetup)
 		if unit and type(unit) == "string" then
