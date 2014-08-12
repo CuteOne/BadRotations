@@ -580,7 +580,7 @@ function DruidRestoration()
 		--[[ 30 - WildMushroom--(Replace )]]
 		if isChecked("Mushrooms") == true and canCast(145205,false,false) and (shroomsTable ~= nil and #shroomsTable ~= 0) then
 			ISetAsUnitID(shroomsTable[1],"myShroom")
-			
+			local allies10Yards = getAllies("myShroom",10)
 			if #allies10Yards < getValue("Mushrooms Count") then
 				if castHealGround(145205,15,getValue("Mushrooms") ,getValue("Mushrooms Count")) then print("30 - Replace"); return; end
 			end
