@@ -75,6 +75,13 @@ if not metaTable1 then
 		{ debuff = 145263 , value = 20 }, -- Proving Grounds Healer Debuff.
 	};
 
+	local roleTable = {
+		["Oto the Protector"] = "TANK",
+		["Sooli the Survivalist"] = "DPS",
+		["Ki the Assassin"] = "DPS", 
+		["Kavan the Arcanist"] = "DPS",
+	};
+
 	metaTable1.__call = function(_, ...) -- (_, forceRetable, excludePets, onlyInRange) [Not Implemented]
 		local group =  IsInRaid() and "raid" or "party" -- Determining if the UnitID will be raid or party based
 		local groupSize = IsInRaid() and GetNumGroupMembers() or GetNumGroupMembers() - 1 -- If in raid, we check the entire raid. If in party, we remove one from max to account for the player.
@@ -232,7 +239,15 @@ if not metaTable1 then
 		function o:UpdateUnit()
 			o.name = UnitName(o.unit) -- return Name of unit
 			o.guid = o:nGUID(); -- return real GUID of unit
-			o.role = UnitGroupRolesAssigned(o.unit) -- role from raid frame
+
+			local roleFinder = roleFinder;
+			if UnitGroupRolesAssigned(o.unit) == "NONE" then
+				if roleTable[UnitName(o.unit)] ~= nil then
+					o.role = roleTable[UnitName(o.unit)];
+				else
+					o.role = UnitGroupRolesAssigned(o.unit)
+				end
+			end -- role from raid frame
 			o.guidsh = select(2, o:nGUID()); -- return Short GUID of unit
 			o.dispel = o:Dispel(o.unit); -- return true if unit should be dispelled
 			o.hp = o:CalcHP(); -- return unit HP

@@ -268,9 +268,7 @@ function RestorationConfig()
             CreateNewCheck(thisConfig,"WildGrowth SotF Count");
             CreateNewBox(thisConfig, "WildGrowth SotF Count", 1, 25  , 1, 3, "|cffFFBB00Number of members under Force of Nature treshold needed to use |cffFFFFFFSwiftmend.");
             CreateNewText(thisConfig,"WildGrowth SotF Count"); 
-        end
-            
-        if isKnown(106737) then
+        elseif isKnown(106737) then
             -- Force of Nature
             CreateNewCheck(thisConfig,"Force of Nature");
             CreateNewBox(thisConfig, "Force of Nature", 0, 100  , 5, 45, "|cffFFBB00Under what %HP to use |cffFFFFFFForce of Nature.");
@@ -317,9 +315,6 @@ function RestorationConfig()
             -- Mushrooms Bloom Count
             CreateNewBox(thisConfig, "WildGrowth Tol Count", 1, 25  , 1, 5, "|cffFFBB00Number of members under WildGrowth Tol treshold needed to use |cffFFFFFFWildGrowth|cffFFBB00 while in Tree of Life.");
             CreateNewText(thisConfig,"WildGrowth Tol Count");
-        else
-            -- Wrapper
-            CreateNewWrap(thisConfig,"---- FoN/Tol ----")
         end
 
 
