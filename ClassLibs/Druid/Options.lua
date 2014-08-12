@@ -355,7 +355,7 @@ function RestorationConfig()
         CreateNewBox(thisConfig, "Rejuv Filler Count", 1, 25  , 1, 5, "|cffFFBB00Number of members to keep |cffFFFFFFRejuvenation |cffFFBB00as Filler.");
         CreateNewText(thisConfig,"Rejuv Filler Count");
 
-        -- Rejuvenation Tank
+        -- Rejuvenation Debuff
         CreateNewCheck(thisConfig,"Rejuvenation Debuff");
         CreateNewBox(thisConfig, "Rejuvenation Debuff", 0, 100  , 5, 65, "|cffFFBB00Under what %HP to use |cffFFFFFFRejuvenation |cffFFBB00on Debuffed units.");
         CreateNewText(thisConfig,"Rejuvenation Debuff");
@@ -503,6 +503,10 @@ function RestorationConfig()
 
         -- Wrapper
         CreateNewWrap(thisConfig,"-------- General -------");
+
+        -- Zoo Master
+        CreateNewCheck(thisConfig,"Zoo Master");
+        CreateNewText(thisConfig,"Zoo Master");
 
         -- Lag Tolerance
         CreateNewCheck(thisConfig,"Lag Tolerance");

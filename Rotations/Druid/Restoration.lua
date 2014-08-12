@@ -13,15 +13,18 @@ function DruidRestoration()
 		RunMacroText("/focus mouseover");
 	end
 
-	--[[ Flying Form ]]
-	if (getFallTime() > 1 or outOfWater()) and not isInCombat("player") and IsFlyableArea() then
-		if not (UnitBuffID("player", sff) or UnitBuffID("player", flf)) then
-			if castSpell("player", sff) then return; elseif castSpell("player", flf) then return; end
+	if isChecked("Zoo Master") and IsOutdoors() then
+		--[[ Flying Form ]]
+		if (getFallTime() > 1 or outOfWater()) and not isInCombat("player") and IsFlyableArea() then
+			if not (UnitBuffID("player", sff) or UnitBuffID("player", flf)) then
+				if castSpell("player", sff) then return; elseif castSpell("player", flf) then return; end
+			end
+		--[[ Aquatic Form ]]
+		elseif IsSwimming() and not UnitBuffID("player",af) and not UnitExists("target") then
+			if castSpell("player",af) then return; end
+		elseif IsFalling() == nil and IsSwimming() == nil and IsFlying() == nil and UnitBuffID("player",783) == nil and UnitBuffID("player", sff) == nil and UnitBuffID("player", flf) == nil then
+			if castSpell("player",783) then return; end 
 		end
-	end
-	--[[ Aquatic Form ]]
-	if IsSwimming() and not UnitBuffID("player",af) and not UnitExists("target") then
-		if castSpell("player",af) then return; end
 	end
 
 	-- Stop in other forms
@@ -92,7 +95,7 @@ function DruidRestoration()
 
 	--[[ 1 - Buff Out of Combat]]
 	-- Mark of the Wild
-	if isChecked("Mark of the Wild") and (lastMotw == nil or lastMotw <= GetTime() - 5) then
+	if isChecked("Mark of the Wild") == true and (lastMotw == nil or lastMotw <= GetTime() - 5) then
 		for i = 1, #nNova do
 	  		if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) then
 	  			if castSpell("player",1126,true) then lastMotw = GetTime(); return; end
@@ -302,7 +305,7 @@ function DruidRestoration()
 						if castSpell(nNova[1].unit,18562,true,false) then return; end
 					end
 				end
-			end		
+			end
 		end
 
 		--[[ 12 - Innervate]]
