@@ -19,8 +19,8 @@ function DruidRestoration()
 		local myDistance = getDistance("player", "focus");
 		local myTankFollowDistance = getValue("Follow Tank");
 		local myDistanceToMove = myDistance - myTankFollowDistance;
-		if IExists(Player) and IExists(Focus) then
-			IMoveTo(GetPointBetweenObjects(Player, Focus, myDistanceToMove+5));
+		if Player ~= nil and Focus ~= nil then
+			MoveTo (GetPointBetweenObjects(Player, Focus, myDistanceToMove+5));
 		end
 	end
 		
