@@ -384,6 +384,51 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
   	return false;
 end
 
+function castMouseoverHealing(Class)
+	--if UnitAffectingCombat("player") then
+		local spellTable = { 
+			["Druid"] = { heal = 8936, dispel = 88423 },
+		}
+		local npcTable = { 
+			61636, -- Random panda
+			71604, -- Contaminated Puddle- Immerseus - SoO
+			71995, -- Norushen
+			71996, -- Norushen
+			72000, -- Norushen
+			71357, -- Wrathion
+		}
+		local SpecialTargets = { "mouseover", "target", "focus" }
+		local dispelid = spellTable[Class].dispel
+		for i = 1, #SpecialTargets do
+			local target = SpecialTargets[i]
+			if UnitExists(target) and not UnitIsPlayer(target) then
+				local npcID = tonumber(UnitGUID(target):sub(6,10), 16) 				
+				for i = 1, #npcTable do
+					if npcID == npcTable[i] then
+						print("try")
+						-- Dispel
+						for n = 1,40 do 
+					      	local buff,_,_,count,bufftype,duration = UnitDebuff(target, n)
+				      		if buff then 
+				        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then 
+				        			if castSpell(target,88423, true,false) then return; end 
+				        		end 
+				      		else
+				        		break;
+				      		end   
+					  	end
+					  	-- Heal
+						local npcHP = getHP(target)	
+						if npcHP < 101 then	
+							if castSpell(target,spellTable[Class].heal,true) then return; end
+						end
+					end
+				end
+			end
+		end
+	--end
+end
+
 --[[           ]]   --[[           ]]    --[[           ]]
 --[[           ]]   --[[           ]]    --[[           ]]
 --[[]]              --[[]]        		       --[[ ]]

@@ -15,7 +15,7 @@ function DruidRestoration()
 
 	--[[ 7 - Stop Casting--(perevent from over healing when u cast somthing can heal target)]]
 	if isChecked("Overhealing Cancel") and isCasting() and shouldNotOverheal(spellCastTarget) > getValue("Overhealing Cancel") then
-		local noOverHealSpells = { 5185, 8936, 50464,  }
+		local noOverHealSpells = { 5185, 8936, 50464 }
 		local castingSpell = UnitCastingInfo("player")
 		if castingSpell ~= nil then 
 			for i = 1, #noOverHealSpells do
@@ -35,6 +35,9 @@ function DruidRestoration()
 	end
 --[[ 	-- Combats Starts Here
 ]]
+
+	-- Mouseover/Target/Focus support
+	castMouseoverHealing("Druid");
 
 	--[[ 1 - Buff Out of Combat]]
 	-- Mark of the Wild

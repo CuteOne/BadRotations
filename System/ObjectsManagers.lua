@@ -149,18 +149,15 @@ if not metaTable1 then
 
 	-- Verifying the target is a Valid Healing target
 	function HealCheck(tar)
-		if UnitCanCooperate("player",tar) and not UnitIsCharmed(tar) and not UnitIsDeadOrGhost(tar) and UnitIsConnected(tar)
-		  and CheckBadDebuff(tar) and CheckCreatureType(tar) and getLineOfSight("player", tar) then
-			return true;
-		elseif isChecked("Special Heal") == true then 
-			if (getValue("Special Heal") == 2 and SpecialHealUnitList[tonumber(select(2,Nova_GUID(tar)))] ~= nil) or getValue("Special Heal") == 1 then
-				return true;
-			end
-		elseif isChecked("Heal Pets") == true and (UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")) then 
-			return true;
-		else 
-			return false;
-		end
+		if ((UnitCanCooperate("player",tar) 
+		  and not UnitIsCharmed(tar) 
+		  and not UnitIsDeadOrGhost(tar) 
+		  and UnitIsConnected(tar)) 
+		  or SpecialHealUnitList[tonumber(select(2,Nova_GUID(tar)))] ~= nil	or (isChecked("Heal Pets") and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
+		  and CheckBadDebuff(tar)
+		  and CheckCreatureType(tar)
+		  and getLineOfSight("player", tar)
+		then return true else return false end
 	end
 
 	function memberSetup:new(unit)
@@ -256,33 +253,31 @@ if not metaTable1 then
 	function SetupTables() -- Creating the cache (we use this to check if some1 is already in the table)
 		setmetatable(nNova, metaTable1) -- Set the metaTable of Main to Meta)
 		function nNova:Update(MO)
-			local SpecialTargets = { "mouseover","target","focus" };
 			local MouseoverCheck = true;
 			-- This is for special situations, IE world healing or NPC healing in encounters
-			if isChecked("Special Heal") == true or isChecked("Special Heal") == nil then
-				for p=1, #SpecialTargets do
-					-- Checking if Unit Exists and it's possible to heal them
-					if UnitExists(SpecialTargets[p]) and HealCheck(SpecialTargets[p]) then
-						if not memberSetup.cache[select(2, Nova_GUID(SpecialTargets[p]))] then
-							local SpecialCase = memberSetup:new(SpecialTargets[p]);
-							if SpecialCase then
-								-- Creating a new user, if not already tabled, will return with the User
-								for j=1, #nNova do
-									if nNova[j].unit == SpecialTargets[p] then
-										-- Now we add the Unit we just created to the Main Table
-										for k,v in pairs(memberSetup.cache) do
-											if nNova[j].guidsh == k then
-												memberSetup.cache[k] = nil;
-											end
+			if isChecked("Mouseover Healing") then SpecialTargets = { "mouseover","target","focus" }; else SpecialTargets = {}; end
+			for p=1, #SpecialTargets do
+				-- Checking if Unit Exists and it's possible to heal them
+				if UnitExists(SpecialTargets[p]) and HealCheck(SpecialTargets[p]) then
+					if not memberSetup.cache[select(2, Nova_GUID(SpecialTargets[p]))] then
+						local SpecialCase = memberSetup:new(SpecialTargets[p]);
+						if SpecialCase then
+							-- Creating a new user, if not already tabled, will return with the User
+							for j=1, #nNova do
+								if nNova[j].unit == SpecialTargets[p] then
+									-- Now we add the Unit we just created to the Main Table
+									for k,v in pairs(memberSetup.cache) do
+										if nNova[j].guidsh == k then
+											memberSetup.cache[k] = nil;
 										end
-										tremove(nNova, j);
-										break
 									end
+									tremove(nNova, j);
+									break
 								end
 							end
-							tinsert(nNova, SpecialCase);
-							SavedSpecialTargets[SpecialTargets[p]] = select(2, Nova_GUID(SpecialTargets[p]));
 						end
+						tinsert(nNova, SpecialCase);
+						SavedSpecialTargets[SpecialTargets[p]] = select(2, Nova_GUID(SpecialTargets[p]));
 					end
 				end
 			end
@@ -314,20 +309,20 @@ if not metaTable1 then
 				return x.hp < y.hp;
 			end)			
 
-			-- Sorting with the Role
-			table.sort(nNova, function(x,y)
-				if x.role and y.role then return x.role > y.role;
-				elseif x.role then return true;
-				elseif y.role then return false; end
-			end)
-
 			-- Sorting with the ValitTarget
 			table.sort(nNova, function(x,y)
 				if x.range and y.range then return x.range > y.range;
 				elseif x.range then return true;
 				elseif y.range then return false; end
 			end)
-			
+
+			-- Sorting with the Role
+			table.sort(nNova, function(x,y)
+				if x.role and y.role then return x.role > y.role;
+				elseif x.role then return true;
+				elseif y.role then return false; end
+			end)	
+					
 --[[			for i = 1, #nNova do
 				table.sort(nNova[i].Distances, function(x,y)
 					return x.dist < y.dist
