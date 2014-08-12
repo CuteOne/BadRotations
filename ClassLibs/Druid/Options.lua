@@ -355,6 +355,11 @@ function RestorationConfig()
         CreateNewBox(thisConfig, "Rejuv Filler Count", 1, 25  , 1, 5, "|cffFFBB00Number of members to keep |cffFFFFFFRejuvenation |cffFFBB00as Filler.");
         CreateNewText(thisConfig,"Rejuv Filler Count");
 
+        -- Rejuvenation Tank
+        CreateNewCheck(thisConfig,"Rejuvenation Debuff");
+        CreateNewBox(thisConfig, "Rejuvenation Debuff", 0, 100  , 5, 65, "|cffFFBB00Under what %HP to use |cffFFFFFFRejuvenation |cffFFBB00on Debuffed units.");
+        CreateNewText(thisConfig,"Rejuvenation Debuff");
+
         -- Healing Touch Ns
         CreateNewCheck(thisConfig,"Healing Touch Ns");
         CreateNewBox(thisConfig, "Healing Touch Ns", 0, 100  , 5, 25, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Touch|cffFFBB00 with |cffFFFFFFNature Swiftness.");

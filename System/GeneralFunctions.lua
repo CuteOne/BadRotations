@@ -385,12 +385,11 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 end
 
 function castMouseoverHealing(Class)
-	--if UnitAffectingCombat("player") then
+	if UnitAffectingCombat("player") then
 		local spellTable = { 
 			["Druid"] = { heal = 8936, dispel = 88423 },
 		}
 		local npcTable = { 
-			61636, -- Random panda
 			71604, -- Contaminated Puddle- Immerseus - SoO
 			71995, -- Norushen
 			71996, -- Norushen
@@ -419,14 +418,14 @@ function castMouseoverHealing(Class)
 					  	end
 					  	-- Heal
 						local npcHP = getHP(target)	
-						if npcHP < 101 then	
+						if npcHP < 100 then	
 							if castSpell(target,spellTable[Class].heal,true) then return; end
 						end
 					end
 				end
 			end
 		end
-	--end
+	end
 end
 
 --[[           ]]   --[[           ]]    --[[           ]]
@@ -1293,7 +1292,7 @@ end
 
 -- 
 function isStanding(Seconds)
-	return DontMoveStartTime and getStandingTime() >= Seconds or false;
+	return IsFalling() == nil and DontMoveStartTime and getStandingTime() >= Seconds or false;
 end
 
 -- if IsStandingTime(5) then

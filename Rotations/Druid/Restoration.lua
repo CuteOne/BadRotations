@@ -13,6 +13,55 @@ function DruidRestoration()
 		RunMacroText("/focus mouseover");
 	end
 
+	-- Stop in other forms
+	if UnitBuffID("player",768) ~= nil then -- Kitty
+		if UnitBuffID("player", 5215) ~= nil or UnitBuffID("player", 1850) ~= nil then -- Prowl or Dash
+			return false;
+		end
+	elseif UnitBuffID("player",783) ~= nil then -- Travel
+		return false;
+	elseif UnitBuffID("player", flf) or UnitBuffID("player", sff) then -- Flight Form
+		return false;
+	elseif UnitBuffID("player", af) then
+		return false;
+	end
+	-- Flying Form
+	if (getFallTime() > 1 or outOfWater()) and not isInCombat("player") and IsFlyableArea() then
+		if not (UnitBuffID("player", sff) or UnitBuffID("player", flf)) then
+			if castSpell("player", sff) then return; elseif castSpell("player", flf) then return; end
+		end
+	end
+	-- Aquatic Form
+	if IsSwimming() and not UnitBuffID("player",af) and not UnitExists("target") then
+		if castSpell("player",af) then return; end
+	end
+
+
+	--[[ Rebirth ]]
+	if isInCombat("player")	then
+		if castSpell("mouseover",20484,true,true) then return; end
+	end
+
+	--[[ Revive ]]
+	if not isInCombat("player") then
+		if castSpell("mouseover",50769,true,true) then return; end
+	end
+
+	--[[ Hot Friendly Dot ]]
+	if friendlyDot ~= nil then
+		for i = 1, #nNova do
+			if friendlyDot[nNova[i].guid] ~= nil then
+				if GetTime() - friendlyDot[nNova[i].guid] < 3 then
+					if isChecked("Rejuvenation Debuff") and getBuffRemain(nNova[i].unit, 774) == 0 then
+						if castSpell(nNova[i].unit, 774, true, false) then return; end
+					end
+				else
+					friendlyDot[nNova[i].guid] = nil;
+				end
+			end
+		end
+	end
+
 	--[[ 7 - Stop Casting--(perevent from over healing when u cast somthing can heal target)]]
 	if isChecked("Overhealing Cancel") and isCasting() and shouldNotOverheal(spellCastTarget) > getValue("Overhealing Cancel") then
 		local noOverHealSpells = { 5185, 8936, 50464 }
@@ -36,7 +85,7 @@ function DruidRestoration()
 --[[ 	-- Combats Starts Here
 ]]
 
-	-- Mouseover/Target/Focus support
+	--[[ Mouseover/Target/Focus support]]
 	castMouseoverHealing("Druid");
 
 	--[[ 1 - Buff Out of Combat]]

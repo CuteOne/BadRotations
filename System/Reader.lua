@@ -134,6 +134,7 @@ superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SENT");
 superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
 superReaderFrame:RegisterEvent("UNIT_SPELLCAST_FAILED");
 function SuperReader(self, event, ...)
+	if friendlyDot == nil then friendlyDot = { }; end
     if debugTable == nil then debugTable = { }; end
 
     if select(3, UnitClass("player")) == 11 then Rip_sDamage = Rip_sDamage or {}; Rake_sDamage = Rake_sDamage or {}; end
@@ -142,11 +143,22 @@ function SuperReader(self, event, ...)
     
     if event == "COMBAT_LOG_EVENT_UNFILTERED" then
 
+    	local timestamp 	= select(1,...);
     	local param 		= select(2,...);
 		local source 		= select(4,...);
 		local sourceName	= select(5,...);
-		local spell 		= select(12,...);
         local destination 	= select(8,...);
+		local spell 		= select(12,...);
+
+		------------------------
+		--[[ Debuff/Rejuv --]]
+		if param == "SPELL_PERIODIC_DAMAGE" then
+			ISetAsUnitID(destination,"poorguy");
+			if not UnitIsFriend("player","poorguy") then
+				friendlyDot[destination] = GetTime();
+				print(UnitName("poorguy"))
+			end
+		end
 
 		------------------------
 		--[[ Bleed Recorder --]]
