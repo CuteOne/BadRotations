@@ -250,10 +250,27 @@ function RestorationConfig()
         CreateNewBox(thisConfig, "Innervate", 0, 100  , 5, 80, "|cffFFBB00Under what %Mana to use |cffFFFFFFInnervate.");
         CreateNewText(thisConfig,"Innervate");   
 
-        if isKnown(106737) then
-            -- Wrapper
-            CreateNewWrap(thisConfig,"---- Force of Nature----")
+        -- Wrapper
+        CreateNewWrap(thisConfig,"-- Level 60 Talent --")
 
+        if isKnown(114107) then
+            -- Harmoney SotF
+            CreateNewCheck(thisConfig,"Harmoney SotF");
+            CreateNewBox(thisConfig, "Harmoney SotF", 0, 100  , 5, 40, "|cffFFBB00Under what %HP to use |cffFFFFFFRegrowth|cffFFBB00 to refresh Harmoney.");
+            CreateNewText(thisConfig,"Harmoney SotF");
+
+            -- WildGrowth SotF
+            CreateNewCheck(thisConfig,"WildGrowth SotF");
+            CreateNewBox(thisConfig, "WildGrowth SotF", 0, 100  , 5, 45, "|cffFFBB00Under what %HP to use |cffFFFFFFSwiftmend.");
+            CreateNewText(thisConfig,"WildGrowth SotF"); 
+
+            -- WildGrowth SotF Count
+            CreateNewCheck(thisConfig,"WildGrowth SotF Count");
+            CreateNewBox(thisConfig, "WildGrowth SotF Count", 1, 25  , 1, 3, "|cffFFBB00Number of members under Force of Nature treshold needed to use |cffFFFFFFSwiftmend.");
+            CreateNewText(thisConfig,"WildGrowth SotF Count"); 
+        end
+            
+        if isKnown(106737) then
             -- Force of Nature
             CreateNewCheck(thisConfig,"Force of Nature");
             CreateNewBox(thisConfig, "Force of Nature", 0, 100  , 5, 45, "|cffFFBB00Under what %HP to use |cffFFFFFFForce of Nature.");
@@ -264,9 +281,6 @@ function RestorationConfig()
             CreateNewBox(thisConfig, "Force of Nature Count", 1, 25  , 1, 3, "|cffFFBB00Number of members under Force of Nature treshold needed to use |cffFFFFFFForce of Nature.");
             CreateNewText(thisConfig,"Force of Nature Count"); 
         elseif isKnown(106731) then
-            -- Wrapper
-            CreateNewWrap(thisConfig,"---- Tree of Life ----")
-
             -- Lifebloom Tol
             CreateNewCheck(thisConfig,"Lifebloom Tol");
             CreateNewText(thisConfig,"Lifebloom Tol");
@@ -370,13 +384,17 @@ function RestorationConfig()
         CreateNewBox(thisConfig, "Healing Touch Sm", 0, 100  , 5, 70, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Touch|cffFFBB00 for |cffFFFFFF Sage Mender.");
         CreateNewText(thisConfig,"Healing Touch Sm");      
         
+        if isKnown(114107) ~= true then
+            -- Swiftmend
+            CreateNewCheck(thisConfig,"Swiftmend");
+            CreateNewBox(thisConfig, "Swiftmend", 0, 100  , 5, 35, "|cffFFBB00Under what %HP to use |cffFFFFFFSwiftmend.");
+            CreateNewText(thisConfig,"Swiftmend");
 
-        -- Swiftmend
-        CreateNewCheck(thisConfig,"Swiftmend");
-        CreateNewBox(thisConfig, "Swiftmend", 0, 100  , 5, 35, "|cffFFBB00Under what %HP to use |cffFFFFFFSwiftmend.");
-        CreateNewText(thisConfig,"Swiftmend");
-        
-
+            -- Harmoney
+            CreateNewCheck(thisConfig,"Swiftmend Harmoney");
+            CreateNewBox(thisConfig, "Swiftmend Harmoney", 0, 100  , 5, 40, "|cffFFBB00Under what %HP to use |cffFFFFFFSwiftmend|cffFFBB00 to refresh Harmoney.");
+            CreateNewText(thisConfig,"Swiftmend Harmoney");        
+        end
         -- Wrapper
         CreateNewWrap(thisConfig,"----- AoE Healing -----")
 

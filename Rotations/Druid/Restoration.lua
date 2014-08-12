@@ -13,7 +13,7 @@ function DruidRestoration()
 		RunMacroText("/focus mouseover");
 	end
 
-	if isChecked("Zoo Master") and IsOutdoors() then
+	if isChecked("Zoo Master") and IsOutdoors() and not IsMounted("player") then
 		--[[ Flying Form ]]
 		if (getFallTime() > 1 or outOfWater()) and not isInCombat("player") and IsFlyableArea() then
 			if not (UnitBuffID("player", sff) or UnitBuffID("player", flf)) then
@@ -22,7 +22,7 @@ function DruidRestoration()
 		--[[ Aquatic Form ]]
 		elseif IsSwimming() and not UnitBuffID("player",af) and not UnitExists("target") then
 			if castSpell("player",af) then return; end
-		elseif IsFalling() == nil and IsSwimming() == nil and IsFlying() == nil and UnitBuffID("player",783) == nil and UnitBuffID("player", sff) == nil and UnitBuffID("player", flf) == nil then
+		elseif IsMovingTime(2) and IsFalling() == nil and IsSwimming() == nil and IsFlying() == nil and UnitBuffID("player",783) == nil and UnitBuffID("player", sff) == nil and UnitBuffID("player", flf) == nil then
 			if castSpell("player",783) then return; end 
 		end
 	end
@@ -43,7 +43,7 @@ function DruidRestoration()
 
 
 	--[[ Rebirth ]]
-	if isInCombat("player")	then
+	if isInCombat("player")	and UnitIsDeadOrGhost("mouseover") ~= nil and UnitIsFriend("mouseover") ~= nil then
 		if castSpell("mouseover",20484,true,true) then return; end
 	end
 
@@ -104,6 +104,56 @@ function DruidRestoration()
 	end
 
 	if BadBoy_data["Healing"] == 2 then
+
+		local function SwiftMender(Time)
+			if Time == nil then
+				if isChecked("Swiftmend") then
+					if hasGlyph(145529) ~= true then
+						local allies10Yards;
+						if getBuffRemain(nNova[1].unit,774) > 1 or getBuffRemain(nNova[1].unit,8936) > 1 then
+							allies10Yards = getAllies(nNova[1].unit,10)
+							if #allies10Yards >= 3 then
+								local count = 0;
+								for i = 1, #allies10Yards do
+									if getHP(allies10Yards[i]) < 100 then
+										count = count + 1
+									end
+								end
+								if count > 3 then
+									if castSpell(nNova[1].unit,18562,true,false) then return; end
+								end
+							end
+						end
+					else
+						if nNova[1].hp <= getValue("Swiftmend") then
+							if getBuffRemain(nNova[1].unit,774) > 1 or getBuffRemain(nNova[1].unit,8936) > 1 then
+								if castSpell(nNova[1].unit,18562,true,false) then return; end
+							end
+						end
+					end
+				end
+			else
+				if Time < 1 then
+					for i = 1, #nNova do
+						if getBuffRemain(nNova[i].unit,774) > 1 or getBuffRemain(nNova[i].unit,8936) > 1 then
+							if castSpell(nNova[i].unit,18562,true,false) then return; end
+						end
+					end
+				end
+				local found = false;
+				for i = 1, #nNova do
+					if getBuffRemain(nNova[i].unit,774) > 2 or getBuffRemain(nNova[i].unit,8936) > 2 then
+						found = true;
+						break;
+					end
+				end	
+				if found ~= true then
+					if castSpell(nNova[i].unit,774,true,false) then return; end
+				end
+			end
+
+		end
+
 		--[[ 2 - Defencive --(U can use Defencive in cat form)]]
 		-- Barkskin if < 30%
 		if isChecked("Barkskin") and getHP("player") <= getValue("Barkskin") then
@@ -282,35 +332,13 @@ function DruidRestoration()
 		end
 
 		--[[ 11 - Swiftmend--(cast if hp < value, Glyped or unGlyphed)]]
-		if isChecked("Swiftmend") then
-			if hasGlyph(145529) ~= true then
-				local allies10Yards;
-				if getBuffRemain(nNova[1].unit,774) > 1 or getBuffRemain(nNova[1].unit,8936) > 1 then
-					allies10Yards = getAllies(nNova[1].unit,10)
-					if #allies10Yards >= 3 then
-						local count = 0;
-						for i = 1, #allies10Yards do
-							if getHP(allies10Yards[i]) < 100 then
-								count = count + 1
-							end
-						end
-						if count > 3 then
-							if castSpell(nNova[1].unit,18562,true,false) then return; end
-						end
-					end
-				end
-			else
-				if nNova[1].hp <= getValue("Swiftmend") then
-					if getBuffRemain(nNova[1].unit,774) > 1 or getBuffRemain(nNova[1].unit,8936) > 1 then
-						if castSpell(nNova[1].unit,18562,true,false) then return; end
-					end
-				end
-			end
+		if isKnown(114107) ~= true then
+			SwiftMender();
 		end
 
 		--[[ 12 - Innervate]]
-		if UnitAffectingCombat("plater") and getMana("player") <= getValue("Innervate") then
-			if castSpell("player",29166,true) then return; end
+		if UnitAffectingCombat("player") and getMana("player") <= getValue("Innervate") then
+			if castSpell("player",29166,true,false) then return; end
 		end
 
 		--[[ 13 - WildGrowth Tol --(Tree of Life)]]
@@ -416,14 +444,28 @@ function DruidRestoration()
 			end
 		end
 
-		--[[ 22 - Swiftmend Harmony]]
-		if isChecked("Swiftmend Harmoney") then
-			if getBuffRemain("player", 100977) < 3 then
-				if getBuffRemain(nNova[1].unit,774) > 1 or getBuffRemain(nNova[1].unit,8936) > 1 then
-					if castSpell(nNova[1].unit,18562,true,false) then return; end
+		--[[ 22 - Harmony]]
+		if isKnown(114107) ~= true then
+			if UnitAffectingCombat("player") and isChecked("Swiftmend Harmoney") then
+				if getBuffRemain("player", 100977) < 3 then
+					if getBuffRemain(nNova[1].unit,774) > 1 or getBuffRemain(nNova[1].unit,8936) > 1 then
+						-- Swiftmend
+						if castSpell(nNova[1].unit,18562,true,false) then return; end
+					end
 				end
 			end
-		end
+		else
+			if isChecked("Harmoney SotF") and getBuffRemain("player", 100977) < 3 then
+				-- Natures Swiftness
+				if castSpell("player",132158,true) then return; end
+		   		-- Healing Touch
+			   	if UnitBuffID("player",132158) then 
+			   		if castSpell(nNova[1].unit,5185,true,false) then return; end
+			    end
+			    -- Regrowth
+				if castSpell(nNova[1].unit,8936,true) then return; end
+			end
+		end			
 
 		--[[ 23 - Genesis--(With out Hotkey)]]
 		if isChecked("Genesis") and canCast(145518,false,false) then
@@ -448,19 +490,37 @@ function DruidRestoration()
 
 		--[[ 25 - WildGrowth--(Use with health and player count check)]]
 		if isChecked("WildGrowth") then
-			for i = 1, #nNova do
-				local allies40Yards = getAllies(nNova[i].unit,40)
-				if #allies40Yards >= 3 then
-					local count = 0;
-					for j = 1, #allies40Yards do
-						if getHP(allies40Yards[j]) < getValue("WildGrowth") then
-							count = count + 1
+			if isKnown(114107) ~= true and getSpellCD(48438) < 2 then
+				for i = 1, #nNova do
+					local allies40Yards = getAllies(nNova[i].unit,40)
+					if #allies40Yards >= 3 then
+						local count = 0;
+						for j = 1, #allies40Yards do
+							if getHP(allies40Yards[j]) < getValue("WildGrowth") then
+								count = count + 1
+							end
+						end
+						if count > getValue("WildGrowth Count") then
+							if castSpell(nNova[i].unit,48438,true,false) then return; end
 						end
 					end
-					if count > getValue("WildGrowth Count") then
-						if castSpell(nNova[i].unit,48438,true,false) then return; end
-					end
 				end
+			elseif getSpellCD(48438) < 2 then
+				for i = 1, #nNova do
+					local allies40Yards = getAllies(nNova[i].unit,40)
+					if #allies40Yards >= 3 then
+						local count = 0;
+						for j = 1, #allies40Yards do
+							if getHP(allies40Yards[j]) < getValue("WildGrowth SotF") then
+								count = count + 1
+							end
+						end
+						if count > getValue("WildGrowth SotF Count") then
+							SwiftMender(getSpellCD(48438));
+							if castSpell(nNova[i].unit,48438,true,false) then return; end
+						end
+					end
+				end				
 			end
 		end
 

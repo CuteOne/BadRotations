@@ -1298,7 +1298,7 @@ end
 -- if IsStandingTime(5) then
 function IsStandingTime(time)
 	if time == nil then time = 1 end
-	if GetUnitSpeed("player") == 0 then
+	if not IsFalling() and GetUnitSpeed("player") == 0 then
 		if IsStanding == nil then
 			IsStanding = GetTime();
 			IsRunning = nil;
