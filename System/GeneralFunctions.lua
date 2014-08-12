@@ -282,8 +282,10 @@ function castGroundBetween(Unit,SpellID,maxDistance)
 end
 
 -- if shouldNotOverheal(spellCastTarget) > 80 then 
-function shouldNotOverheal(Unit)    
-	local myIncomingHeal = UnitGetIncomingHeals(Unit, "player") or 0;
+function shouldNotOverheal(Unit)  
+	local myIncomingHeal, allIncomingHeal = 0, 0 
+	if UnitGetIncomingHeals(Unit, "player") ~= nil then myIncomingHeal = UnitGetIncomingHeals(Unit, "player"); end
+	if UnitGetIncomingHeals(Unit) ~= nil then allIncomingHeal = UnitGetIncomingHeals(Unit); end
 	local allIncomingHeal = UnitGetIncomingHeals(Unit) or 0;
 	local overheal = 0;
 	if myIncomingHeal >= allIncomingHeal then

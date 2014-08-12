@@ -70,21 +70,20 @@ function BadBoyRun()
 
 	SLASH_AoE1 = "/aoe"
 	function SlashCmdList.AoE(msg, editbox)
-		ToggleAoE();
+		ToggleValue("AoE");
 	end
 
 
 
 	SLASH_Cooldowns1 = "/Cooldowns"
 	function SlashCmdList.Cooldowns(msg, editbox)
-		if BadBoy_data['Cooldowns'] == 1 then
-	        ChatOverlay("\124cFF3BB0FFCooldowns Activated");
-			BadBoy_data['Cooldowns'] = 2;
-		else
-	        ChatOverlay("\124cFFED0000Cooldowns Disabled");
-			BadBoy_data['Cooldowns'] = 1;
-		end
+		ToggleValue("Cooldowns");
 	end
+
+	SLASH_DPS1 = "/DPS"
+	function SlashCmdList.DPS(msg, editbox)
+		ToggleValue("DPS");
+	end	
 
 	SLASH_BlackList1, SLASH_BlackList2 = "/blacklist", "/bbb"
 	function SlashCmdList.BlackList(msg, editbox)

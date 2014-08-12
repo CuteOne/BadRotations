@@ -14,7 +14,7 @@ function DruidRestoration()
 	end
 
 	--[[ 7 - Stop Casting--(perevent from over healing when u cast somthing can heal target)]]
-	if isChecked("Overhealing Cancel Cast") and shouldNotOverheal(spellCastTarget) > getValue("Overhealing Cancel Cast") then
+	if isChecked("Overhealing Cancel") and isCasting() and shouldNotOverheal(spellCastTarget) > getValue("Overhealing Cancel") then
 		local noOverHealSpells = { 5185, 8936, 50464,  }
 		local castingSpell = UnitCastingInfo("player")
 		if castingSpell ~= nil then 
@@ -301,7 +301,7 @@ function DruidRestoration()
 		--[[ 16 - reju All Tol --(use reju on all with out health check only Reju buff check)]]
 		if isKnown(106731) and UnitBuffID("player", 33891) and isChecked("Rejuvenation All Tol") then
 	        for i = 1, #nNova do
-		       	if getBuffRemain(nNova[i].unit,774) == 0 then
+		       	if getBuffRemain(nNova[i].unit,774) == 0 and nNova[i].hp <= 100 then
 			        if castSpell(nNova[i].unit,774,true,false) then return; end
 		        end
 	        end
@@ -453,7 +453,7 @@ function DruidRestoration()
 		--[[ 32 - Rejuvenation all--(if meta proc)(137331 buff id)]]
 		if isChecked("Rejuvenation Meta") and getBuffRemain("player",137331) > 0 then
 			for i = 1, #nNova do
-				if getBuffRemain(nNova[i].unit,774) == 0 then
+				if getBuffRemain(nNova[i].unit,774) == 0 and nNova[i].hp <= 100 then
 					if castSpell(nNova[i].unit,774,true,false) then return; end
 				end
 			end

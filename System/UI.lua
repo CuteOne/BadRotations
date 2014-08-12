@@ -11,28 +11,32 @@ function BadBoyFrame()
         end
     end	
 
-	function ToggleAoE()
-		if BadBoy_data['AoE'] == 0 or BadBoy_data['AoE'] == nil then BadBoy_data['AoE'] = 1; end
-		for i = 1, #AoEModes do
-			if BadBoy_data['AoE'] == i then
-	        	local function ResetTip()
-	        		GameTooltip:SetOwner(mainButton, configFrame, 0 , 0);
-					GameTooltip:SetText(AoEModes[BadBoy_data['AoE']].tip, 225/255, 225/255, 225/255, nil, true);
-					GameTooltip:Show();
-				end
-				if #AoEModes > i then
-		    		BadBoy_data['AoE'] = i+1;
-	        		ChatOverlay("\124cFF3BB0FF"..AoEModes[i+1].overlay);	
-	        		UpdateButton("AoE");
-	        		ResetTip();
-	        		break;
-	        	else 
-	        		BadBoy_data['AoE'] = 1;
-	        		UpdateButton("AoE");
-	        		ChatOverlay("\124cFF3BB0FF"..AoEModes[1].overlay);
-	        		ResetTip();
-	        	end
-	        end
+
+	function ToggleValue(toggleValue)
+		if BadBoy_data[toggleValue] == 0 or BadBoy_data[toggleValue] == nil then BadBoy_data[toggleValue] = 1; end
+		local mode = _G[tostring(toggleValue).."Modes"]
+		if mode then
+			for i = 1, #mode do
+				if BadBoy_data[toggleValue] == i then
+		        	local function ResetTip()
+		        		GameTooltip:SetOwner(mainButton, configFrame, 0 , 0);
+						GameTooltip:SetText(mode[BadBoy_data[toggleValue]].tip, 225/255, 225/255, 225/255, nil, true);
+						GameTooltip:Show();
+					end
+					if #mode > i then
+			    		BadBoy_data[toggleValue] = i+1;
+		        		ChatOverlay("\124cFF3BB0FF"..mode[i+1].overlay);	
+		        		UpdateButton(toggleValue);
+		        		ResetTip();
+		        		break;
+		        	else 
+		        		BadBoy_data[toggleValue] = 1;
+		        		UpdateButton(toggleValue);
+		        		ChatOverlay("\124cFF3BB0FF"..mode[1].overlay);
+		        		ResetTip();
+		        	end
+		        end
+			end
 		end
 	end
 	---------------------------
