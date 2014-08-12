@@ -314,7 +314,7 @@ function DruidRestoration()
 
 		--[[ 6 - Genesis--(WITH Hotkey)]]
 		if isChecked("Genesis Toggle") and SpecificToggle("Genesis Toggle") == 1 and GetCurrentKeyBoardFocus() == nil then 
-			if canCast(145518) then
+			if canCast(145518,false,false) then
 				if castSpell("player",145518,true,false) then return; end
 			end		
 		end	
