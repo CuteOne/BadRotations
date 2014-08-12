@@ -478,9 +478,10 @@ function RestorationConfig()
         CreateNewCheck(thisConfig,"No Absorbs");
         CreateNewText(thisConfig,"No Absorbs");
 
-        -- Mouseover Healing
-        CreateNewCheck(thisConfig,"Mouseover Healing");
-        CreateNewText(thisConfig,"Mouseover Healing");
+        -- Special Heal
+        CreateNewCheck(thisConfig,"Special Heal");
+        CreateNewDrop(thisConfig,"Special Heal", 2, "|cffFFDD11Select wich targets you want to add to engine:Mouseover/Focus/Target Heal. \n|cffFF0000All: |cffFFDD11All targets. \n|cffFF0000Special: |cffFFDD11Only special Units.", "|cffFF0000All", "|cffFFDD11Special")
+        CreateNewText(thisConfig,"Special Heal");
 
         -- Heal Pets
         CreateNewCheck(thisConfig,"Heal Pets");
