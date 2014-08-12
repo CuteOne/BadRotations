@@ -7,7 +7,7 @@ function DruidRestoration()
 	end
 
 	local favoriteTank = { name = "NONE" , health = 0};
-	if favoriteTank.name == "NONE" then
+	if UnitExists("focus") == nil and favoriteTank.name == "NONE" then
 		for i = 1, # nNova do
 			if UnitIsDeadOrGhost("focus") == nil and nNova[i].role == "TANK" and UnitHealthMax(nNova[i].unit) > favoriteTank.health then
 				favoriteTank = { name = UnitName(nNova[i].unit), health = UnitHealthMax(nNova[i].unit) }
@@ -15,7 +15,7 @@ function DruidRestoration()
 			end
 		end
 	end
-	if UnitIsDeadOrGhost("focus") == nil and UnitExists("focus") ~= nil and getDistance("player", "focus") > getValue("Follow Tank") then
+	if GetUnitSpeed("focus") == 0 and isStanding(0.5) and UnitCastingInfo("player") == nil and UnitChannelInfo("player") == nil and UnitIsDeadOrGhost("focus") == nil and UnitExists("focus") ~= nil and getDistance("player", "focus") > getValue("Follow Tank") then
 		local myDistance = getDistance("player", "focus");
 		local myTankFollowDistance = getValue("Follow Tank");
 		local myDistanceToMove = myDistance - myTankFollowDistance;
@@ -115,8 +115,6 @@ function DruidRestoration()
 --[[ 	-- Combats Starts Here
 ]]
 
-
-
 	--[[ 1 - Buff Out of Combat]]
 	-- Mark of the Wild
 	if isChecked("Mark of the Wild") == true and (lastMotw == nil or lastMotw <= GetTime() - 5) then
@@ -128,7 +126,6 @@ function DruidRestoration()
 	end
 
 	if BadBoy_data["Healing"] == 2 then
-
 
 		--[[ 4 - Dispel --(U can Dispel  While in cat form)]]
 		if isChecked("Nature's Cure") then
@@ -556,12 +553,12 @@ function DruidRestoration()
 
 		--[[ 26 - WildMushroom--(if not any mushroom active )]]
 		if isChecked("Mushrooms") and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
-			if castHealGround(145205,15,100,getValue("Mushrooms Count")) then return; end
+			if castHealGround(145205,15,100,getValue("Mushrooms Count")) then print("26 - First Mushies"); return; end
 		end
 
 		--[[ 27 - WildMushroom--(tank check(if not any mushroom active )]]
 		if isChecked("Mushrooms") and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
-			if castHealGround(145205,15,100,getValue("Mushrooms Count")) then return; end
+			if castHealGround(145205,15,100,getValue("Mushrooms Count")) then print("27 - Tank if None"); return; end
 		end		
 
 
@@ -581,11 +578,11 @@ function DruidRestoration()
 		end
 
 		--[[ 30 - WildMushroom--(Replace )]]
-		if isChecked("Mushrooms") and canCast(145205,false,false) and (shroomsTable ~= nil and #shroomsTable ~= 0) then
+		if isChecked("Mushrooms") == true and canCast(145205,false,false) and (shroomsTable ~= nil and #shroomsTable ~= 0) then
 			ISetAsUnitID(shroomsTable[1],"myShroom")
 			
 			if #allies10Yards < getValue("Mushrooms Count") then
-				if castHealGround(145205,15,getValue("Mushrooms") ,getValue("Mushrooms Count")) then return; end
+				if castHealGround(145205,15,getValue("Mushrooms") ,getValue("Mushrooms Count")) then print("30 - Replace"); return; end
 			end
 		end		
 
@@ -593,7 +590,7 @@ function DruidRestoration()
 		if isChecked("Mushrooms Tank") and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
 			for i = 1, nNova do
 				if nNova[i].role == "TANK" and nNova[i].hp <= getValue("Mushrooms Tank") then
-					if castGround(nNova[i].unit, 145205, 40) then return; end
+					if castGround(nNova[i].unit, 145205, 40) then print("31 - Replace Tank"); return; end
 				end
 			end
 		end	

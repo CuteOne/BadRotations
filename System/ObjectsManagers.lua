@@ -191,31 +191,32 @@ if not metaTable1 then
 		-- We are checking the HP of the person through their own function.
 		function o:CalcHP()
 --			print("calculating HP")
-			local incomingheals
-			if isChecked("No Incoming Heals") ~= 1 then incomingheals = UnitGetIncomingHeals(o.unit) or 0; else incomingheals = 0; end
+			local incomingheals;
+			if isChecked("No Incoming Heals") ~= true then incomingheals = UnitGetIncomingHeals(o.unit) or 0; else incomingheals = 0; end
 			local nAbsorbs;
-			if isChecked("No Absorbs") ~= 1 then nAbsorbs = ( 25*UnitGetTotalAbsorbs(o.unit)/100 ); else nAbsorbs = 0; end
-			local PercentWithIncoming = 100 * ( UnitHealth(o.unit) + incomingheals + nAbsorbs ) / UnitHealthMax(o.unit)
-			if o.role == "TANK" then PercentWithIncoming = PercentWithIncoming - 5 end -- Using the group role assigned to the Unit
-			if UnitIsDeadOrGhost(o.unit) == 1 then PercentWithIncoming = 250 end -- Place Dead players at the end of the list
-			if o.dispel then PercentWithIncoming = PercentWithIncoming - 2 end -- Using Dispel Check to see if we should give bonus weight
+			if isChecked("No Absorbs") ~= true then nAbsorbs = ( 25*UnitGetTotalAbsorbs(o.unit)/100 ); else nAbsorbs = 0; end
+			local PercentWithIncoming = 100 * ( UnitHealth(o.unit) + incomingheals + nAbsorbs ) / UnitHealthMax(o.unit);
+			if o.role == "TANK" then PercentWithIncoming = PercentWithIncoming - 5; end -- Using the group role assigned to the Unit
+			if UnitIsDeadOrGhost(o.unit) == 1 then PercentWithIncoming = 250; end -- Place Dead players at the end of the list
+			if o.dispel then PercentWithIncoming = PercentWithIncoming - 2; end -- Using Dispel Check to see if we should give bonus weight
+			if o.threat then PercentWithIncoming = PercentWithIncoming - 3; end
 			if o.guidsh == 72218  then PercentWithIncoming = PercentWithIncoming - 5 end -- Tank in Proving Grounds
 			local ActualWithIncoming = ( UnitHealthMax(o.unit) - ( UnitHealth(o.unit) + incomingheals ) )
 			for i = 1, #SpecificHPBuffs do
 				if UnitDebuffID(o.unit, SpecificHPBuffs[i].buff) ~= nil then
 					if PercentWithIncoming > SpecificHPBuffs[i].value then
-						PercentWithIncoming = SpecificHPBuffs[i].value
+						PercentWithIncoming = SpecificHPBuffs[i].value;
 					end
 				end
 			end	
 			for i = 1, #SpecificHPDebuffs do
 				if UnitDebuffID(o.unit, SpecificHPDebuffs[i].debuff) ~= nil then
 					if PercentWithIncoming > SpecificHPDebuffs[i].value then
-						PercentWithIncoming = SpecificHPDebuffs[i].value
+						PercentWithIncoming = SpecificHPDebuffs[i].value;
 					end
 				end
 			end	
-			if isChecked("Blacklist") and BadBoy_data.blackList ~= nil then
+			if isChecked("Blacklist") == true and BadBoy_data.blackList ~= nil then
 				for i = 1, #BadBoy_data.blackList do 
 					if o.guid == BadBoy_data.blackList[i].guid then
 						PercentWithIncoming, ActualWithIncoming, nAbsorbs = PercentWithIncoming + getValue("Blacklist") , ActualWithIncoming + getValue("Blacklist") , nAbsorbs + getValue("Blacklist");
@@ -223,7 +224,7 @@ if not metaTable1 then
 					end
 				end
 			end
-			return PercentWithIncoming, ActualWithIncoming, nAbsorbs
+			return PercentWithIncoming, ActualWithIncoming, nAbsorbs;
 		end
 
 		function o:nGUID()
@@ -250,9 +251,9 @@ if not metaTable1 then
 			end -- role from raid frame
 			o.guidsh = select(2, o:nGUID()); -- return Short GUID of unit
 			o.dispel = o:Dispel(o.unit); -- return true if unit should be dispelled
+			o.threat = UnitThreatSituation(o.unit); -- return unit's threat situation(1-4)
 			o.hp = o:CalcHP(); -- return unit HP
 			o.absorb = select(3, o:CalcHP()); -- return unit Absorb
-			o.threat = UnitThreatSituation(o.unit); -- return unit's threat situation(1-4)
 			o.target = tostring(o.unit).."target"; -- return target's target
 			memberSetup.cache[select(2, Nova_GUID(o.unit))] = o;
 		end
