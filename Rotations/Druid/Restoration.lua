@@ -13,6 +13,17 @@ function DruidRestoration()
 		RunMacroText("/focus mouseover");
 	end
 
+	--[[ Flying Form ]]
+	if (getFallTime() > 1 or outOfWater()) and not isInCombat("player") and IsFlyableArea() then
+		if not (UnitBuffID("player", sff) or UnitBuffID("player", flf)) then
+			if castSpell("player", sff) then return; elseif castSpell("player", flf) then return; end
+		end
+	end
+	--[[ Aquatic Form ]]
+	if IsSwimming() and not UnitBuffID("player",af) and not UnitExists("target") then
+		if castSpell("player",af) then return; end
+	end
+
 	-- Stop in other forms
 	if UnitBuffID("player",768) ~= nil then -- Kitty
 		if UnitBuffID("player", 5215) ~= nil or UnitBuffID("player", 1850) ~= nil then -- Prowl or Dash
@@ -25,16 +36,7 @@ function DruidRestoration()
 	elseif UnitBuffID("player", af) then
 		return false;
 	end
-	-- Flying Form
-	if (getFallTime() > 1 or outOfWater()) and not isInCombat("player") and IsFlyableArea() then
-		if not (UnitBuffID("player", sff) or UnitBuffID("player", flf)) then
-			if castSpell("player", sff) then return; elseif castSpell("player", flf) then return; end
-		end
-	end
-	-- Aquatic Form
-	if IsSwimming() and not UnitBuffID("player",af) and not UnitExists("target") then
-		if castSpell("player",af) then return; end
-	end
+
 
 
 	--[[ Rebirth ]]
@@ -124,6 +126,7 @@ function DruidRestoration()
 			end
 		end
 
+		-- MoU Attacks
 		if UnitBuffID("player",5487) ~= nil and UnitBuffID("player",106922) ~= nil then
 			if castSpell("target",33878,false,false) then return; end
 			if getDebuffStacks("target",33745) < 3 or getDebuffRemain("target",33745) < 3 then

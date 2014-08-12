@@ -154,7 +154,7 @@ function SuperReader(self, event, ...)
 		--[[ Debuff/Rejuv --]]
 		if param == "SPELL_PERIODIC_DAMAGE" then
 			ISetAsUnitID(destination,"poorguy");
-			if not UnitIsFriend("player","poorguy") then
+			if UnitIsFriend("player","poorguy") then
 				friendlyDot[destination] = GetTime();
 				print(UnitName("poorguy"))
 			end
