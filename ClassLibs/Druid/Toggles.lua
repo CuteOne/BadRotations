@@ -185,7 +185,7 @@ if select(3, UnitClass("player")) == 11 then
             elseif getValue(toggle) == 6 then
                 return IsRightAltKeyDown();
             elseif getValue(toggle) == 7 then
-                return 0
+                return 1
             end
         end
 

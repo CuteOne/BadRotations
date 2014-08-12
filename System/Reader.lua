@@ -3,7 +3,18 @@ function ReaderRun()
 --[[ Readers ]]
 ---------------
 
-----------------------
+-------------------
+--[[ Auto Join --]]
+local Frame = CreateFrame('Frame');
+Frame:RegisterEvent("LFG_PROPOSAL_SHOW");
+local function MerchantShow(self, event, ...)
+	if event == "LFG_PROPOSAL_SHOW" then
+		AcceptProposal()
+	end
+end
+Frame:SetScript("OnEvent", MerchantShow);
+
+--------------------------
 --[[ isStanding Frame --]]
 DontMoveStartTime = nil;
 CreateFrame("Frame"):SetScript("OnUpdate", function ()
@@ -99,7 +110,7 @@ local function UiErrorMessages(self, event, ...)
 end
 Frame:SetScript("OnEvent", UiErrorMessages)
 
---------------------
+------------------------
 --[[ Spells Changed --]]
 local Frame = CreateFrame('Frame');
 Frame:RegisterEvent("PLAYER_TALENT_UPDATE");
@@ -287,9 +298,8 @@ superReaderFrame:SetScript("OnEvent", SuperReader)
 
 
 
-----------------
+--------------------
 --[[ Poke Setup --]]
-----------------
 pokeEngineFrame = CreateFrame('Frame');
 pokeEngineFrame:RegisterEvent("CHAT_MSG_PET_BATTLE_COMBAT_LOG");
 function PokeReader(self, event, ...)
@@ -301,8 +311,6 @@ pokeEngineFrame:SetScript("OnEvent", PokeReader);
 --CHAT_MSG_PET_INFO → Communication
 
 end
-
-
 
 local waitTimeBeforeTransform = 1.5
 local EventFrame
@@ -367,5 +375,5 @@ if race == "Worgen" and class ~= 11 then
 				self.isTransformationDone = false
 			end
 		end
-	end );
+	end);
 end

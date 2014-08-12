@@ -28,21 +28,23 @@ function DruidRestoration()
 	if canRun() ~= true then return false; end
 
 --[[ 	-- On GCD After here, palce out of combats spells here
-]]	if isCasting() then return false; end
-
+]]	if isChecked("LagTolerance") == true then 
+		if isCastingTime(getValue("Lag Tolerance")) == true then return false; end
+	else
+		if isCasting() then return false; end
+	end
 --[[ 	-- Combats Starts Here
 ]]
 
 	--[[ 1 - Buff Out of Combat]]
 	-- Mark of the Wild
-	if isChecked("Mark of the Wild") then
+	if isChecked("Mark of the Wild") and (lastMotw == nil or lastMotw <= GetTime() - 5) then
 		for i = 1, #nNova do
-	  		if not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) then
-	  			--if castSpell("player",1126,true) then return; end
+	  		if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) then
+	  			if castSpell("player",1126,true) then lastMotw = GetTime(); return; end
 			end 
 		end
 	end
-
 
 	if BadBoy_data["Healing"] == 2 then
 		--[[ 2 - Defencive --(U can use Defencive in cat form)]]
@@ -56,13 +58,26 @@ function DruidRestoration()
 			if castSpell("player",106922,true,false) then return; end
 		end
 
+		-- Bear Management(MoU)
+		if UnitBuffID("player",5487) ~= nil and UnitBuffID("player",106922) ~= nil then
+			if UnitPower("player",SPELL_POWER_RAGE) >= 60 then
+				if castSpell("player",22842,true,false) then return; end
+			end
+		end
+
 		-- Healthstone
 		if isChecked("Healthstone") and getHP("player") <= getValue("Healthstone") then
 			if canUse(5512) ~= false then
 				UseItemByName(tostring(select(1,GetItemInfo(5512))))
-			elseif canUse(76097) ~= false then
-				UseItemByName(tostring(select(1,GetItemInfo(76097))))
 			end
+		end
+
+		if UnitBuffID("player",5487) ~= nil and UnitBuffID("player",106922) ~= nil then
+			if castSpell("target",33878,false,false) then return; end
+			if getDebuffStacks("target",33745) < 3 or getDebuffRemain("target",33745) < 3 then
+				if castSpell("target",33745,false,false) then return; end
+			end
+			return;
 		end
 
 		--[[ 3 - NS healing Touch --(U can NS healing Touch While in cat form)]]
@@ -106,7 +121,7 @@ function DruidRestoration()
 			      		end   
 				  	end
 				end		
-			elseif getValue("Nature's Cure") == 3 then -- Raid All
+			elseif getValue("Nature's Cure") == 4 then -- Raid All
 				for i = 1, #nNova do
 				    for n = 1,40 do 
 				      	local buff,_,_,count,bufftype,duration = UnitDebuff(nNova[i].unit, n)
@@ -123,7 +138,7 @@ function DruidRestoration()
 		end
 
 		--[[ 5 - DPs --(range and  melee)]]
-		if BadBoy_data["DPS"] == 2 then
+		if BadBoy_data["DPS"] == 2 and UnitExists("target") then
 			if isChecked("DPS Toggle") and SpecificToggle("DPS Toggle") == 1  then
 				if targetDistance <= 5 then
 					--- Catform
@@ -236,7 +251,7 @@ function DruidRestoration()
 		end
 
 		--[[ 12 - Innervate]]
-		if getMana("player") <= getValue("Innervate") then
+		if UnitAffectingCombat("plater") and getMana("player") <= getValue("Innervate") then
 			if castSpell("player",29166,true) then return; end
 		end
 
@@ -261,9 +276,9 @@ function DruidRestoration()
 		--[[ 14 - Regrowth  Tol]]
 		if isKnown(106731) and UnitBuffID("player", 33891) and isChecked("Regrowth Tol") then
 			for i = 1, #nNova do
-			    if (nNova[i].role == "TANK" and nNova[i].hp <= getValue("Regrowth Tank Tol")) 
-				  or (nNova[i].role ~= "TANK" and nNova[i].hp <= getValue("Regrowth Tol")) 
-			      or (nNova[i].hp <= getValue("Regrowth Omen Tol") and UnitBuffID("player",113043))  then
+			    if (isChecked("Regrowth Tank Tol") and nNova[i].role == "TANK" and nNova[i].hp <= getValue("Regrowth Tank Tol")) 
+				  or (isChecked("Regrowth Tol") and nNova[i].role ~= "TANK" and nNova[i].hp <= getValue("Regrowth Tol")) 
+			      or (isChecked("Regrowth Omen Tol") and nNova[i].hp <= getValue("Regrowth Omen Tol") and getBuffRemain("player",16870) > 1)  then
 					if castSpell(nNova[i].unit,8936,true,false) then return; end
 		        end
 	        end
@@ -293,7 +308,7 @@ function DruidRestoration()
 		end
 
 		--[[ 17 - Lifebloom - ToL support]]
-		if isKnown(106731) and UnitBuffID("player", 33891) then
+		if isKnown(106731) and UnitBuffID("player", 33891) and isChecked("Lifebloom Tol") then
 			for i = 1, #nNova do
 				if getBuffRemain(nNova[i].unit,33763) == 0 then
 					if castSpell(nNova[i].unit,33763,true,false) then return; end
@@ -317,14 +332,13 @@ function DruidRestoration()
 		end
 
 		--[[ 18 - reju Tol --( use reju on player with health check if not lifebloom tol check)]]
-		if isKnown(106731) and UnitBuffID("player", 33891) and isChecked("Rejuvenation All Tol") == false then
+		if isKnown(106731) and UnitBuffID("player", 33891) and isChecked("Rejuvenation Tol") == false then
 	        for i = 1, #nNova do
 		       	if nNova[i].hp <= getValue("Rejuvenation Tol") and getBuffRemain(nNova[i].unit,774) == 0 then
 			        if castSpell(nNova[i].unit,774,true,false) then return; end
 		        end
 	        end
 		end
-
 
 		--[[ 19 - Regrowth --(cast regrowth on all usualy between 30 - 40)]]
 		if isChecked("Regrowth") and isStanding(0.3) then
@@ -334,16 +348,6 @@ function DruidRestoration()
 				end
 			end
 		end
-
-		--[[ 20 - OmenRegrowth--(usualy use omen regrowth on tank even if his health full becuse Living Seed) and (if health other memeber +90)]]
-		if isChecked("Regrowth Omen") and getBuffRemain("player",16870) ~= 0 then
-			for i = 1, #nNova do
-				if nNova[i].role == "TANK" or nNova[i].hp <= getValue("Regrowth Omen") then
-					if castSpell(nNova[i].unit,8936,true) then return; end
-				end
-			end
-			if getBuffRemain("player",16870) < 2 and castSpell(nNova[1].unit,8936,true,false) then return; end
-		end		
 
 		--[[ 21 - Regrowth Tank --(cast regrowth on tank usualy between 45 - 60 )]]
 		if isChecked("Regrowth Tank") and isStanding(0.3) then
@@ -364,7 +368,7 @@ function DruidRestoration()
 		end
 
 		--[[ 23 - Genesis--(With out Hotkey)]]
-		if isChecked("Genesis") and canCast(145518) then
+		if isChecked("Genesis") and canCast(145518,false,false) then
 			local GenCount=0
 			for i=1, #nNova do
 				if nNova[i].hp <= getValue("Genesis") and getBuffRemain(nNova[i].unit,774) > 2 then 	
@@ -382,7 +386,7 @@ function DruidRestoration()
 		            if castSpell(nNova[i].unit,48438,true,false) then return; end
 				end
 			end
-		end		
+		end	
 
 		--[[ 25 - WildGrowth--(Use with health and player count check)]]
 		if isChecked("WildGrowth") then
@@ -466,7 +470,7 @@ function DruidRestoration()
 		end
 
 		--[[ 34 - OmenRegrowth--()]]
-		if isChecked("Regrowth Omen") and UnitBuffID("player",113043) then
+		if isChecked("Regrowth Omen") and isStanding(0.3) and UnitBuffID("player",16870) then
 			for i = 1, #nNova do
 				if nNova[i].hp <= getValue("Regrowth Omen") then
 					if castSpell(nNova[i].unit,8936,true) then return; end
@@ -491,7 +495,7 @@ function DruidRestoration()
 		end
 
 		--[[ 37 - Genesis --(if reju buff remain and health < 60 or custome on single target)]]
-		if isChecked("Genesis Filler") and canCast(145518) then
+		if isChecked("Genesis Filler") and canCast(145518,false,false) then
 			for i=1, #nNova do
 				if nNova[i].hp <= getValue("Genesis Filler") and getBuffRemain(nNova[i].unit,774) > 3 then 	
 				    if castSpell("player",145518,true,false) then return; end 

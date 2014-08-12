@@ -263,15 +263,12 @@ function RestorationConfig()
             CreateNewCheck(thisConfig,"Force of Nature Count");
             CreateNewBox(thisConfig, "Force of Nature Count", 1, 25  , 1, 3, "|cffFFBB00Number of members under Force of Nature treshold needed to use |cffFFFFFFForce of Nature.");
             CreateNewText(thisConfig,"Force of Nature Count"); 
-        end            
-
-        if isKnown(106731) then
+        elseif isKnown(106731) then
             -- Wrapper
             CreateNewWrap(thisConfig,"---- Tree of Life ----")
 
             -- Lifebloom Tol
             CreateNewCheck(thisConfig,"Lifebloom Tol");
-            CreateNewBox(thisConfig, "Lifebloom Tol", 0, 100  , 5, 100, "|cffFFBB00Under what %HP to use |cffFFFFFFLifebloom|cffFFBB00 while in Tree of Life.");
             CreateNewText(thisConfig,"Lifebloom Tol");
 
             -- Rejuvenation Tol
@@ -306,7 +303,11 @@ function RestorationConfig()
             -- Mushrooms Bloom Count
             CreateNewBox(thisConfig, "WildGrowth Tol Count", 1, 25  , 1, 5, "|cffFFBB00Number of members under WildGrowth Tol treshold needed to use |cffFFFFFFWildGrowth|cffFFBB00 while in Tree of Life.");
             CreateNewText(thisConfig,"WildGrowth Tol Count");
+        else
+            -- Wrapper
+            CreateNewWrap(thisConfig,"---- FoN/Tol ----")
         end
+
 
         -- Wrapper
         CreateNewWrap(thisConfig,"------ Healing ------")
@@ -491,6 +492,11 @@ function RestorationConfig()
 
         -- Wrapper
         CreateNewWrap(thisConfig,"-------- General -------");
+
+        -- Lag Tolerance
+        CreateNewCheck(thisConfig,"Lag Tolerance");
+        CreateNewBox(thisConfig, "Lag Tolerance", 0, 400  , 5, 30, "|cffFFBB00You know...");
+        CreateNewText(thisConfig,"Lag Tolerance");
 
         -- PokeRotation
         CreateNewCheck(thisConfig,"PokeRotation");

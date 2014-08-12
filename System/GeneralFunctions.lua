@@ -70,7 +70,8 @@ end
 
 -- if canCast(12345,true)
 function canCast(SpellID,KnownSkip,MovementCheck)
-  	if (KnownSkip == true or isKnown(SpellID)) and getSpellCD(SpellID) == 0 and not (UnitPower("player") < select(4,GetSpellInfo(SpellID))) 
+	local lagTolerance = getValue("Lag Tolerance") or 0;
+  	if (KnownSkip == true or isKnown(SpellID)) and getSpellCD(SpellID) <= lagTolerance and not (UnitPower("player") < select(4,GetSpellInfo(SpellID))) 
    	  and (MovementCheck == false or GlobalCooldown == 0 or isMoving("player") ~= true or UnitBuffID("player",79206) ~= nil) then
       	return true;
     end
@@ -282,36 +283,36 @@ end
 
 -- if shouldNotOverheal(spellCastTarget) > 80 then 
 function shouldNotOverheal(Unit)    
-	local myIncomingHeal = UnitGetIncomingHeals(Unit, "player") or 0
-	local allIncomingHeal = UnitGetIncomingHeals(Unit) or 0
-	local overheal = 0
+	local myIncomingHeal = UnitGetIncomingHeals(Unit, "player") or 0;
+	local allIncomingHeal = UnitGetIncomingHeals(Unit) or 0;
+	local overheal = 0;
 	if myIncomingHeal >= allIncomingHeal then
-		overheal = 0
+		overheal = 0;
 	else
-		overheal = allIncomingHeal - myIncomingHeal
+		overheal = allIncomingHeal - myIncomingHeal;
 	end
-	local CurShield = UnitHealth(Unit)
+	local CurShield = UnitHealth(Unit);
 	if UnitDebuffID("player",142861) then --Ancient Miasma
-		CurShield = select(15,UnitDebuffID(Unit, 142863)) or select(15,UnitDebuffID(Unit, 142864)) or select(15,UnitDebuffID(Unit, 142865)) or (UnitHealthMax(Unit) / 2) 
-		overheal = 0
+		CurShield = select(15,UnitDebuffID(Unit, 142863)) or select(15,UnitDebuffID(Unit, 142864)) or select(15,UnitDebuffID(Unit, 142865)) or (UnitHealthMax(Unit) / 2);
+		overheal = 0;
 	end
-	local overhealth = 100 * (CurShield+ overheal ) / UnitHealthMax(Unit)
+	local overhealth = 100 * (CurShield+ overheal ) / UnitHealthMax(Unit);
 	if overhealth and overheal then
-		return overhealth, overheal
+		return overhealth, overheal;
 	else
-		return 0, 0
+		return 0, 0;
 	end
 end
 
 -- if castHealGround(_HealingRain,18,80,3) then 
 function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
-	if shouldStopCasting(SpellID) ~= true then --print("try")
-		local lowHPTargets, foundTargets = { }, { }
+	if shouldStopCasting(SpellID) ~= true then
+		local lowHPTargets, foundTargets = { }, { };
 		for i = 1, #nNova do
 			if nNova[i].hp <= Health then
 				if IExists(nNova[i].guid) and IGetLocation(nNova[i].guid) ~= nil then
-					local X, Y, Z = IGetLocation(UnitGUID(nNova[i].unit))
-					tinsert(lowHPTargets, { unit = nNova[i].unit, x = X, y = Y, z = Z })
+					local X, Y, Z = IGetLocation(UnitGUID(nNova[i].unit));
+					tinsert(lowHPTargets, { unit = nNova[i].unit, x = X, y = Y, z = Z });
 		end end end
 		if #lowHPTargets >= NumberOfPlayers then
 			for i = 1, #lowHPTargets do
@@ -321,17 +322,16 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 							for k = 1, #lowHPTargets do
 								if lowHPTargets[i].unit ~= lowHPTargets[k].unit and lowHPTargets[j].unit ~= lowHPTargets[k].unit then
 									if math.sqrt(((lowHPTargets[k].x-lowHPTargets[i].x)^2)+((lowHPTargets[k].y-lowHPTargets[i].y)^2)) < Radius and math.sqrt(((lowHPTargets[k].x-lowHPTargets[j].x)^2)+((lowHPTargets[k].y-lowHPTargets[j].y)^2)) < Radius then
-										tinsert(foundTargets, { unit = lowHPTargets[i].unit, x = lowHPTargets[i].x, y = lowHPTargets[i].y, z = lowHPTargets[i].z })
-										tinsert(foundTargets, { unit = lowHPTargets[j].unit, x = lowHPTargets[j].x, y = lowHPTargets[j].y, z = lowHPTargets[i].z })
-										tinsert(foundTargets, { unit = lowHPTargets[k].unit, x = lowHPTargets[k].x, y = lowHPTargets[k].y, z = lowHPTargets[i].z })
+										tinsert(foundTargets, { unit = lowHPTargets[i].unit, x = lowHPTargets[i].x, y = lowHPTargets[i].y, z = lowHPTargets[i].z });
+										tinsert(foundTargets, { unit = lowHPTargets[j].unit, x = lowHPTargets[j].x, y = lowHPTargets[j].y, z = lowHPTargets[i].z });
+										tinsert(foundTargets, { unit = lowHPTargets[k].unit, x = lowHPTargets[k].x, y = lowHPTargets[k].y, z = lowHPTargets[i].z });
 			end end end end end end end
-			--print("O.O")
 			local medX,medY,medZ = 0,0,0;
 			if foundTargets ~= nil and #foundTargets >= NumberOfPlayers then
 				for i = 1, 3 do
-					medX = medX + foundTargets[i].x
-					medY = medY + foundTargets[i].y
-					medZ = medZ + foundTargets[i].z
+					medX = medX + foundTargets[i].x;
+					medY = medY + foundTargets[i].y;
+					medZ = medZ + foundTargets[i].z;
 				end
 				medX,medY,medZ = medX/3,medY/3,medZ/3
 				local myX, myY = IGetLocation(UnitGUID("player"));
@@ -344,20 +344,20 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 	return false;
 end
 
-
 -- castSpell("target",12345,true);
 function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
+	local lagTolerance = getValue("Lag Tolerance") or 0;
 	if shouldStopCasting(SpellID) ~= true then
 	    if timersTable == nil then timersTable = {}; end
 		local Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,GlobalCooldown,PowerNeeded,CurrentPower,spellRange = tostring(Unit),tonumber(SpellID),FacingCheck,MovementCheck,SpamAllowed,KnownSkip,select(7, GetSpellInfo(SpellID)),select(4,GetSpellInfo(SpellID)),UnitPower("player"),select(9,GetSpellInfo(SpellID));
 	  	if spellRange == nil or spellRange < 4 then spellRange = 4; end
 	  	if (Unit ~= nil and UnitIsFriend("player",Unit)) then FacingCheck = true; end
 	  	if not (CurrentPower < PowerNeeded) 
-	   	  and (MovementCheck == false or GlobalCooldown == 0 or isMoving("player") ~= true or UnitBuffID("player",79206) ~= nil)
-	      and getSpellCD(SpellID) == 0 and (KnownSkip == true or isKnown(SpellID)) then
-	    	if GlobalCooldown == 0 and (SpamAllowed == nil or SpamAllowed == false) then
+	   	  and (MovementCheck == false or GlobalCooldown <= lagTolerance or isMoving("player") ~= true or UnitBuffID("player",79206) ~= nil)
+	      and getSpellCD(SpellID) <= lagTolerance and (KnownSkip == true or isKnown(SpellID)) then
+	    	if GlobalCooldown <= lagTolerance and (SpamAllowed == nil or SpamAllowed == false) then
 	      		if timersTable == nil or (timersTable ~= nil and (timersTable[SpellID] == nil or timersTable[SpellID] <= GetTime() -0.6)) then
-	       			if Unit ~= nil and (UnitGUID(Unit) == UnitGUID("player") or (KnownSkip or isKnown(SpellID)) and getFacingSightDistance("player",Unit) < spellRange) then
+	       			if Unit ~= nil and (UnitGUID(Unit) == UnitGUID("player") or (KnownSkip or isKnown(SpellID)) and getDistance("player",Unit) < spellRange and getLineOfSight("player",Unit) == true) then
 	        			timersTable[SpellID] = GetTime();
 	        			CastSpellByName(GetSpellInfo(SpellID),Unit);
 	        			return true;
@@ -369,7 +369,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 	       			end
 				end
 			elseif Unit ~= nil and (UnitGUID(Unit) == UnitGUID("player") 
-	  		  or getFacingSightDistance("player",Unit) < spellRange) then
+	  		  or getDistance("player",Unit) < spellRange and getLineOfSight("player",Unit) == true) then
 				CastSpellByName(GetSpellInfo(SpellID),Unit);
 				return true;
 			end
@@ -637,7 +637,8 @@ function getLineOfSight(Unit1,Unit2)
 		local X1,Y1,Z1 = IGetLocation(UnitGUID(Unit1));
 		local X2,Y2,Z2 = IGetLocation(UnitGUID(Unit2));
 		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then return true; else return false; end
-	else return true;
+	else 
+		return true;
 	end
 end
 
@@ -1060,6 +1061,23 @@ function isBuffed(UnitID,SpellID,TimeLeft,Filter)
 	end
 end
 
+function isCastingTime(lagTolerance)
+	local lagTolerance = lagTolerance or 0;
+	if UnitCastingInfo("player") ~= nil then
+		if select(6,UnitCastingInfo("player")) - GetTime() <= lagTolerance then
+			return true;
+		end
+	elseif UnitChannelInfo("player") ~= nil then
+		if select(6,UnitChannelInfo("player")) - GetTime() <= lagTolerance then
+			return true;
+		end
+	elseif (GetSpellCooldown(GetSpellInfo(61304)) ~= nil and GetSpellCooldown(GetSpellInfo(61304)) <= lagTolerance) then 
+	  	return true; 
+	else 
+		return false; 
+	end
+end	
+
 -- if isCasting() == true then
 function isCasting(Unit)
 	if Unit == nil then Unit = "player" end
@@ -1200,6 +1218,25 @@ function IsMovingTime(time)
 		if GetTime() - IsStanding > time then
 			return false;
 		end
+	end
+end
+
+function isPlayer(Unit)
+	if UnitExists(Unit) == nil then return false; end
+	if UnitIsPlayer(Unit) == 1 then
+		return true;
+	elseif UnitIsPlayer(Unit) == nil then
+		local playerNPC = {
+			[72218] = "Oto the Protector",
+			[72219] = "Ki the Asssassin",
+			[72220] = "Sooli the Survivalist",
+			[72221] = "Kavan the Arcanist",
+		}
+		if playerNPC[tonumber(UnitGUID(Unit):sub(6, 10), 16)] ~= nil then
+			return true;
+		end
+	else
+		return false;
 	end
 end
 
