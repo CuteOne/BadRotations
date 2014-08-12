@@ -6,6 +6,29 @@ function DruidRestoration()
 		currentConfig = "Restoration Masou";
 	end
 
+	local favoriteTank = { name = "NONE" , health = 0};
+	if favoriteTank.name == "NONE" then
+		for i = 1, # nNova do
+			if UnitIsDeadOrGhost("focus") == nil and nNova[i].role == "TANK" and UnitHealthMax(nNova[i].unit) > favoriteTank.health then
+				favoriteTank = { name = UnitName(nNova[i].unit), health = UnitHealthMax(nNova[i].unit) }
+				RunMacroText("/focus "..favoriteTank.name)
+			end
+		end
+	end
+	if UnitIsDeadOrGhost("focus") == nil and UnitExists("focus") ~= nil and getDistance("player", "focus") > getValue("Follow Tank") then
+		local myDistance = getDistance("player", "focus");
+		local myTankFollowDistance = getValue("Follow Tank");
+		local myDistanceToMove = myDistance - myTankFollowDistance;
+		MoveTo (GetPointBetweenObjects(Player, Focus, myDistanceToMove+5));
+	end
+		
+	if UnitIsDeadOrGhost("focus") then
+		if favoriteTank.name ~= "NONE" then
+			favoriteTank = { name = "NONE" , health = 0};
+			ClearFocus()
+		end
+	end
+
 	-- Pause toggle
 	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then ChatOverlay("|cffFF0000BadBoy Paused", 0); return; end
 	-- Focus Toggle
@@ -43,7 +66,7 @@ function DruidRestoration()
 
 
 	--[[ Rebirth ]]
-	if isInCombat("player")	and UnitIsDeadOrGhost("mouseover") ~= nil and UnitIsFriend("mouseover") ~= nil then
+	if isInCombat("player")	and UnitIsDeadOrGhost("mouseover") ~= nil and UnitIsFriend("player","mouseover") ~= nil then
 		if castSpell("mouseover",20484,true,true) then return; end
 	end
 
@@ -90,8 +113,7 @@ function DruidRestoration()
 --[[ 	-- Combats Starts Here
 ]]
 
-	--[[ Mouseover/Target/Focus support]]
-	castMouseoverHealing("Druid");
+
 
 	--[[ 1 - Buff Out of Combat]]
 	-- Mark of the Wild
@@ -105,6 +127,57 @@ function DruidRestoration()
 
 	if BadBoy_data["Healing"] == 2 then
 
+
+		--[[ 4 - Dispel --(U can Dispel  While in cat form)]]
+		if isChecked("Nature's Cure") then
+			if getValue("Nature's Cure") == 1 then -- Mouse Match
+				if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
+					for i = 1, #nNova do
+						if nNova[i].guid == UnitGUID("mouseover") and nNova[i].dispel == true then
+							if castSpell(nNova[i].unit,88423, true,false) then return; end
+						end
+					end		
+				end		
+			elseif getValue("Nature's Cure") == 2 then -- Raid Match
+				for i = 1, #nNova do
+					if nNova[i].dispel == true then
+						if castSpell(nNova[i].unit,88423, true,false) then return; end
+					end
+				end
+			elseif getValue("Nature's Cure") == 3 then -- Mouse All
+				if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
+				    for n = 1,40 do 
+				      	local buff,_,_,count,bufftype,duration = UnitDebuff("mouseover", n)
+			      		if buff then 
+			        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then 
+			        			if castSpell("mouseover",88423, true,false) then return; end 
+			        		end 
+			      		else
+			        		break;
+			      		end   
+				  	end
+				end		
+			elseif getValue("Nature's Cure") == 4 then -- Raid All
+				for i = 1, #nNova do
+				    for n = 1,40 do 
+				      	local buff,_,_,count,bufftype,duration = UnitDebuff(nNova[i].unit, n)
+			      		if buff then 
+			        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then 
+			        			if castSpell(nNova[i].unit,88423, true,false) then return; end 
+			        		end 
+			      		else
+			        		break;
+			      		end 
+				  	end
+				end	
+			end
+		end
+
+
+		--[[ Mouseover/Target/Focus support]]
+		castMouseoverHealing("Druid");
+
+		-- SwiftMender
 		local function SwiftMender(Time)
 			if Time == nil then
 				if isChecked("Swiftmend") then
@@ -198,51 +271,6 @@ function DruidRestoration()
 		   	if UnitBuffID("player",132158) then 
 		   		if castSpell(nNova[1].unit,5185,true,false) then return; end
 		    end
-		end
-
-		--[[ 4 - Dispel --(U can Dispel  While in cat form)]]
-		if isChecked("Nature's Cure") then
-			if getValue("Nature's Cure") == 1 then -- Mouse Match
-				if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
-					for i = 1, #nNova do
-						if nNova[i].guid == UnitGUID("mouseover") and nNova[i].dispel == true then
-							if castSpell(nNova[i].unit,88423, true,false) then return; end
-						end
-					end		
-				end		
-			elseif getValue("Nature's Cure") == 2 then -- Raid Match
-				for i = 1, #nNova do
-					if nNova[i].dispel == true then
-						if castSpell(nNova[i].unit,88423, true,false) then return; end
-					end
-				end
-			elseif getValue("Nature's Cure") == 3 then -- Mouse All
-				if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
-				    for n = 1,40 do 
-				      	local buff,_,_,count,bufftype,duration = UnitDebuff("mouseover", n)
-			      		if buff then 
-			        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then 
-			        			if castSpell("mouseover",88423, true,false) then return; end 
-			        		end 
-			      		else
-			        		break;
-			      		end   
-				  	end
-				end		
-			elseif getValue("Nature's Cure") == 4 then -- Raid All
-				for i = 1, #nNova do
-				    for n = 1,40 do 
-				      	local buff,_,_,count,bufftype,duration = UnitDebuff(nNova[i].unit, n)
-			      		if buff then 
-			        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then 
-			        			if castSpell(nNova[i].unit,88423, true,false) then return; end 
-			        		end 
-			      		else
-			        		break;
-			      		end 
-				  	end
-				end	
-			end
 		end
 
 		--[[ 5 - DPs --(range and  melee)]]

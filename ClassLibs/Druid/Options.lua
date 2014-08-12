@@ -517,6 +517,13 @@ function RestorationConfig()
         -- Wrapper
         CreateNewWrap(thisConfig,"-------- General -------");
 
+
+        -- Follow Tank
+        CreateNewCheck(thisConfig,"Follow Tank");
+        CreateNewBox(thisConfig, "Follow Tank", 0, 40  , 1, 30, "|cffFFBB00Range from focus...");
+        CreateNewText(thisConfig,"Follow Tank");
+
+
         -- Zoo Master
         CreateNewCheck(thisConfig,"Zoo Master");
         CreateNewText(thisConfig,"Zoo Master");
