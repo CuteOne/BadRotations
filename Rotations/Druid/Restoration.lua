@@ -45,7 +45,7 @@ function DruidRestoration()
 	end
 
 	--[[ Revive ]]
-	if not isInCombat("player") then
+	if not isInCombat("player") and UnitIsDeadOrGhost("mouseover") ~= nil then
 		if castSpell("mouseover",50769,true,true) then return; end
 	end
 
