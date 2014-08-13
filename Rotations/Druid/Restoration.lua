@@ -559,30 +559,6 @@ function DruidRestoration()
 			end
 		end
 
-		--[[ 27 - WildMushroom--(tank check(if not any mushroom active )]]
-		if isChecked("Mushrooms") and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
-			if castHealGround(145205,15,100,getValue("Mushrooms Count")) then 
-				-- print("27 - Tank if None"); 
-				return; 
-			end
-		end		
-
-
-		--[[ 28 - LifebloomFocus--(Refresh if over treshold)]]
-      	if isChecked("Lifebloom") then
-			if getHP("focus") >= getValue("Lifebloom") and (getBuffRemain("focus",33763) < 4 and getBuffStacks("focus",33763) == 3 ) then
-				if castSpell("focus",33763,true,false) then return; end
-			end
-		end	
-		--[[ 29 - Rejuvenation--(check health and Buff)]]
-		if isChecked("Rejuvenation") then
-			for i = 1, #nNova do
-				if nNova[i].hp <= getValue("Rejuvenation") and getBuffRemain(nNova[i].unit,774) == 0 then
-					if castSpell(nNova[i].unit,774,true,false) then return; end
-				end
-			end
-		end
-
 		--[[ 30 - WildMushroom--(Replace )]]
 		if isChecked("Mushrooms") == true and canCast(145205,false,false) and (shroomsTable ~= nil and #shroomsTable ~= 0) then
 			ISetAsUnitID(shroomsTable[1],"myShroom")
@@ -594,6 +570,30 @@ function DruidRestoration()
 				end
 			end
 		end		
+
+		--[[ 27 - WildMushroom--(tank check(if not any mushroom active )]]
+		if isChecked("Mushrooms") and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
+			if castHealGround(145205,15,100,getValue("Mushrooms Count")) then 
+				-- print("27 - Tank if None"); 
+				return; 
+			end
+		end		
+
+		--[[ 28 - LifebloomFocus--(Refresh if over treshold)]]
+      	if isChecked("Lifebloom") then
+			if getHP("focus") >= getValue("Lifebloom") and (getBuffRemain("focus",33763) < 4 and getBuffStacks("focus",33763) == 3 ) then
+				if castSpell("focus",33763,true,false) then return; end
+			end
+		end	
+
+		--[[ 29 - Rejuvenation--(check health and Buff)]]
+		if isChecked("Rejuvenation") then
+			for i = 1, #nNova do
+				if nNova[i].hp <= getValue("Rejuvenation") and getBuffRemain(nNova[i].unit,774) == 0 then
+					if castSpell(nNova[i].unit,774,true,false) then return; end
+				end
+			end
+		end
 
 		--[[ 31- WildMushroom tank--(Replace all)]]
 		if isChecked("Mushrooms Tank") and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
