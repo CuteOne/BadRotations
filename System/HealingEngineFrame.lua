@@ -9,7 +9,7 @@ function EngineFrameCreation()
 			BadBoy_data.enginex = -200;
 			BadBoy_data.enginey = 100;
 			BadBoy_data.engineActualRow = 0;
-			BadBoy_data.engineAlpha = 0.95;
+			BadBoy_data.engineAlpha = 95;
 			BadBoy_data.engineRows = 5;
 		end
 
@@ -27,7 +27,7 @@ function EngineFrameCreation()
 				_G["engine"..value.."Frame"]:SetHeight(20);
 				--_G["engine"..value.."Frame"]:SetNormalTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]]); 
 				_G["engine"..value.."Frame"]:SetPoint("TOPLEFT",0,-((value*20)));
-				_G["engine"..value.."Frame"]:SetAlpha(BadBoy_data.engineAlpha);
+				_G["engine"..value.."Frame"]:SetAlpha(BadBoy_data.engineAlpha/100);
 				_G["engine"..value.."Frame"]:SetScript("OnEnter", function(self)
 					local MyValue = value;
 					if nNova ~= nil and nNova[MyValue+BadBoy_data.engineActualRow] ~= nil then

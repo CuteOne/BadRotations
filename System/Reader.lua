@@ -8,8 +8,10 @@ function ReaderRun()
 local Frame = CreateFrame('Frame');
 Frame:RegisterEvent("LFG_PROPOSAL_SHOW");
 local function MerchantShow(self, event, ...)
-	if event == "LFG_PROPOSAL_SHOW" then
-		AcceptProposal()
+	if isChecked("Accept Queues") == true then
+		if event == "LFG_PROPOSAL_SHOW" then
+			AcceptProposal()
+		end
 	end
 end
 Frame:SetScript("OnEvent", MerchantShow);

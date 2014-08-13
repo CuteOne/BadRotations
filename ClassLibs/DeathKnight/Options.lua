@@ -135,7 +135,7 @@ function BloodOptions()
     CreateNewWrap(thisConfig,"-------- Healing -------");
 
     -- Wrapper
-    CreateNewWrap(thisConfig,"-------- General -------");
+    CreateNewWrap(thisConfig,"-------- Utilities -------");
 
     -- Mind Freeze
     if isKnown(_MindFreeze) then
@@ -151,32 +151,17 @@ function BloodOptions()
 	    CreateNewText(thisConfig,"Strangulate");
 	end	
 
-    -- Throttle
-    CreateNewCheck(thisConfig,"Throttle");
-    CreateNewBox(thisConfig, "Throttle", 0, 1000  , 5, 50 , "|cffFFBB00Time to throttle profile refiring.");
-    CreateNewText(thisConfig,"Throttle");
-
-    -- PokeRotation
-    CreateNewCheck(thisConfig,"PokeRotation");
-    CreateNewText(thisConfig,"PokeRotation");
-
     -- Worgen/Human
     if select(2,UnitRace("player")) == "Worgen" then
         CreateNewCheck(thisConfig,"Worgen/Human");
         CreateNewText(thisConfig,"Worgen/Human");
     end
 
-    -- Debug
-    CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start \n|cffFFFFFFChat Debug |cffFFBB00of casted spells.");
-    CreateNewText(thisConfig,"Debug");
 
-   -- Bound
-    CreateNewBound(thisConfig,"End"); 
+    -- General Configs
+    CreateGeneralsConfig();
 
-    doneConfig = true;
     WrapsManager();
-
-
 end
 
 --[[           ]]	--[[           ]]	--[[           ]] 	--[[           ]]	--[[           ]]

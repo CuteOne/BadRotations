@@ -167,25 +167,16 @@ function PaladinProtConfig()
     CreateNewText(thisConfig,"Hand Of Sacrifice");   
 
     -- Wrapper
-    CreateNewWrap(thisConfig,"-------- General -------");
+    CreateNewWrap(thisConfig,"-------- Utilities -------");
 
     -- Rebuke
     CreateNewCheck(thisConfig,"Rebuke");
     CreateNewBox(thisConfig, "Rebuke", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFRebuke.");
     CreateNewText(thisConfig,"Rebuke");
+    
+    -- General Configs
+    CreateGeneralsConfig();
 
-    -- PokeRotation
-    CreateNewCheck(thisConfig,"PokeRotation");
-    CreateNewText(thisConfig,"PokeRotation");
-
-    -- Debug
-    CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start \n|cffFFFFFFChat Debug |cffFFBB00of casted spells.");
-    CreateNewText(thisConfig,"Debug");
-
-   -- Bound
-    CreateNewBound(thisConfig,"End"); 
-
-    doneConfig = true;
     WrapsManager();
 end
 

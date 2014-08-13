@@ -111,3 +111,64 @@ function ConfigFrame()
 end
 
 
+function CreateGeneralsConfig()
+
+    -- Wrapper -----------------------------------------
+    CreateNewWrap(thisConfig,"--- Healing Engine ----");
+
+    -- Heal Pets
+    CreateNewCheck(thisConfig,"Heal Pets");
+    CreateNewText(thisConfig,"Heal Pets");
+
+    -- Special Heal
+    CreateNewCheck(thisConfig,"Special Heal");
+    CreateNewDrop(thisConfig,"Special Heal", 2, "|cffFFDD11Select wich targets you want to add to engine:Mouseover/Focus/Target Heal. \n|cffFF0000All: |cffFFDD11All targets. \n|cffFF0000Special: |cffFFDD11Only special Units.", "|cffFF0000All", "|cffFFDD11Special")
+    CreateNewText(thisConfig,"Special Heal");
+
+    -- Special Priority
+    CreateNewCheck(thisConfig,"Special Priority","|cffFFBB00Priorise Special targets.");     
+    CreateNewText(thisConfig,"Special Priority");
+
+    -- Blacklist
+    CreateNewCheck(thisConfig,"Blacklist");
+    CreateNewBox(thisConfig, "Blacklist", 0, 105  , 5, 105, "|cffFFBB00How much |cffFF0000%HP|cffFFBB00 do we want to add to |cffFFDD00Blacklisted |cffFFBB00units.");
+    CreateNewText(thisConfig,"Blacklist");
+
+    -- No Absorbs
+    CreateNewCheck(thisConfig,"No Absorbs");
+    CreateNewText(thisConfig,"No Absorbs"); 
+
+    -- No Incoming Heals
+    CreateNewCheck(thisConfig,"No Incoming Heals");
+    CreateNewText(thisConfig,"No Incoming Heals");
+
+    -- Overhealing Cancel Cast
+    CreateNewCheck(thisConfig,"Overhealing Cancel");       
+    CreateNewBox(thisConfig, "Overhealing Cancel", 100, 200  , 5, 100, "|cffFFBB00Stop casting heal if target is going to have over this amount of HP after heal.");
+    CreateNewText(thisConfig,"Overhealing Cancel");
+
+    -- Engine Debug
+    CreateNewCheck(thisConfig,"Engine Debug");       
+    CreateNewBox(thisConfig, "Engine Debug", 0, 1000  , 5, 0, "|cffFFBB00Time to wait before refreshing engine.");
+    CreateNewText(thisConfig,"Engine Debug");
+
+    -- Engine Refresh
+    CreateNewCheck(thisConfig,"Engine Refresh");       
+    CreateNewBox(thisConfig, "Engine Refresh", 0, 1000  , 5, 0, "|cffFFBB00Time to wait before refreshing engine.");
+    CreateNewText(thisConfig,"Engine Refresh");
+	
+    -- Wrapper -----------------------------------------
+    CreateNewWrap(thisConfig,"--------- General -------");
+
+    -- PokeRotation
+    CreateNewCheck(thisConfig,"PokeRotation");
+    CreateNewText(thisConfig,"PokeRotation");
+
+    -- Debug
+    CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start |cffFFFFFFChat Debug |cffFFBB00of casted spells.");
+    CreateNewText(thisConfig,"Debug");
+
+   -- Bound
+    CreateNewBound(thisConfig,"End"); 
+    doneConfig = true;
+end

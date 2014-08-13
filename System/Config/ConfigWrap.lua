@@ -166,12 +166,6 @@ function CreateNewWrap(value,textString)
 
 
 
-
-
-
-
-
-
 	_G["option"..value.."Check"]:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(self, "BOTTOMLEFT", 225, 5);
 		if tip1 ~= nil then GameTooltip:SetText(tip1, nil, nil, nil, nil, true); else GameTooltip:SetText("|cff15FF00Shows|cffFFFFFF/|cffD60000Hide |cffFFFFFFThis Wrap|cffFFBB00.", nil, nil, nil, nil, true); end
@@ -186,10 +180,6 @@ function CreateNewWrap(value,textString)
 	end
 
 
-
-
-
-
 	_G["option"..value.."Text"] = configFrame:CreateFontString(nil, "ARTWORK");
 	_G["option"..value.."Text"]:SetFont("Fonts/FRIZQT__.TTF",17,"THICKOUTLINE");
 	_G["option"..value.."Text"]:SetTextHeight(17);
@@ -201,7 +191,5 @@ function CreateNewWrap(value,textString)
 		configFrame:SetHeight(configHeight+5);
 	end
 	thisConfig = thisConfig + 1
-
-
 
 end

@@ -101,25 +101,16 @@ function ElementalConfig()
         CreateNewText(thisConfig,"Shamanistic Rage");
 
         -- Wrapper
-        CreateNewWrap(thisConfig,"-------- General -------");
+        CreateNewWrap(thisConfig,"-------- Utilities -------");
 
         -- Standard Interrupt
         CreateNewCheck(thisConfig,"Wind Shear");
         CreateNewBox(thisConfig, "Wind Shear", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to |cffFFFFFFWind Shear.");
         CreateNewText(thisConfig,"Wind Shear");
 
-        -- PokeRotation
-        CreateNewCheck(thisConfig,"PokeRotation");
-        CreateNewText(thisConfig,"PokeRotation");
+        -- General Configs
+        CreateGeneralsConfig();
 
-        -- Debug
-        CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start |cffFFFFFFChat Debug |cffFFBB00of casted spells.");
-        CreateNewText(thisConfig,"Debug");
-
-       -- Bound
-        CreateNewBound(thisConfig,"End"); 
-
-        doneConfig = true;
         WrapsManager();
     --end
 end
@@ -245,22 +236,10 @@ function EnhancementConfig()
             boxOp("Interrupts", 5, 95, 5, 0);
             textOp("Interrupt At");
 
-        -- Spacer
-        textOp(" ");
-        wrapOp("--- Utilities ---");
 
-            -- PokeRotation
-            checkOp("PokeRotation");
-            textOp("PokeRotation");
+        -- General Configs
+        CreateGeneralsConfig();
 
-            -- Debug
-            checkOp("Debug");
-            textOp("Debug");
-
-       -- Bound
-        CreateNewBound(thisConfig,"End"); 
-
-        doneConfig = true;
         WrapsManager();
     --end
 end
@@ -344,25 +323,17 @@ function RestorationConfig()
         CreateNewText(thisConfig,"Shamanistic Rage");
 
         -- Wrapper
-        CreateNewWrap(thisConfig,"-------- General -------");
+        CreateNewWrap(thisConfig,"-------- Utilities -------");
 
         -- Standard Interrupt
         CreateNewCheck(thisConfig,"Wind Shear");
         CreateNewBox(thisConfig, "Wind Shear", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to |cffFFFFFFWind Shear.");
         CreateNewText(thisConfig,"Wind Shear");
 
-        -- PokeRotation
-        CreateNewCheck(thisConfig,"PokeRotation");
-        CreateNewText(thisConfig,"PokeRotation");
-
-        -- Debug
-        CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start |cffFFFFFFChat Debug |cffFFBB00of casted spells.");
-        CreateNewText(thisConfig,"Debug");
-
-       -- Bound
-        CreateNewBound(thisConfig,"End"); 
-
-        doneConfig = true;
+        
+        -- General Configs
+        CreateGeneralsConfig();
+        
         WrapsManager();
     --end
 end

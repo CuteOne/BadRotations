@@ -9,7 +9,7 @@ function CreateNewTitle(value,textString)
 	_G["option"..value.."Text"]:SetTextHeight(17);
 	_G["option"..value.."Text"]:SetPoint("TOPLEFT", 3, -3);
 	_G["option"..value.."Text"]:SetTextColor(214/255, 0/255, 0/255,1);
-	_G["option"..value.."Text"]:SetText(textString);
+	_G["option"..value.."Text"]:SetText(classColors[select(3,UnitClass("player"))].hex..textString);
 	if (value*22)+26 > configHeight then
 		configHeight = (value*22)+26
 		configFrame:SetHeight(configHeight);

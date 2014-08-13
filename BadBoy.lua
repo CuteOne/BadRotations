@@ -207,13 +207,13 @@ function BadBoyRun()
 		BadBoy_data.enginey = y;
 		BadBoy_data.engineanchor = anchor;
 
-		if BadBoy_data["Check Debug"] == true then
+		if BadBoy_data["Check Debug"] == 1 then
 			debugFrame:Show();
 		else
 			debugFrame:Hide();
 		end
 
-		if BadBoy_data["Engine Debug"] == true then
+		if BadBoy_data["Check Engine Debug"] == 1 then
 			engineFrame:Show();
 		else
 			engineFrame:Hide();

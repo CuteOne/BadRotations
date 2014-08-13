@@ -157,7 +157,7 @@ function Blood()
 					for i = 1, #targetEnnemies do
 						local Guid = targetEnnemies[i]
 						ISetAsUnitID(Guid,"thisUnit");
-						if getCreatureType("thisUnit") == true and getDebuffRemain("thisUnit",55078,"player") >= 2 and getDistance("player","thisUnit") <= 10 then
+						if getCreatureType("thisUnit") == true and getDebuffRemain("thisUnit",55078,"player") >= 2 then
 							if castSpell("thisUnit",_Pestilence,true) then pestiTimer = GetTime(); return; end								
 						end
 					end	
@@ -194,7 +194,7 @@ function Blood()
 					for i = 1, #targetEnnemies do
 						local Guid = targetEnnemies[i]
 						ISetAsUnitID(Guid,"thisUnit");
-						if getCreatureType("thisUnit") == true and UnitDebuffID("thisUnit",55078) == nil and getDistance("player",thisUnit) <= 5 then
+						if getCreatureType("thisUnit") == true and UnitDebuffID("thisUnit",55078) == nil then
 							if castSpell("target",PestiSpell,true) then pestiTimer = GetTime(); return; end								
 						end
 					end	

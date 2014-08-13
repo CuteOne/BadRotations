@@ -260,7 +260,7 @@ function DruidRestoration()
 
 		--[[ 5 - DPs --(range and  melee)]]
 		if BadBoy_data["DPS"] == 2 and UnitExists("target") and isEnnemy() then
-			if isChecked("DPS Toggle") and SpecificToggle("DPS Toggle") == 1  then
+			if isChecked("DPS Toggle") == true and SpecificToggle("DPS Toggle") == 1  then
 				if targetDistance <= 5 then
 					--- Catform
 			  		if not UnitBuffID("player",768) and not UnitBuffID("player",783) and not UnitBuffID("player",5487) then 
@@ -296,7 +296,7 @@ function DruidRestoration()
 		end
 
 		--[[ 6 - Genesis--(WITH Hotkey)]]
-		if isChecked("Genesis Toggle") and SpecificToggle("Genesis Toggle") == 1 and GetCurrentKeyBoardFocus() == nil then 
+		if isChecked("Genesis Toggle") == true and SpecificToggle("Genesis Toggle") == 1 and GetCurrentKeyBoardFocus() == nil then 
 			if canCast(145518,false,false) then
 				if castSpell("player",145518,true,false) then return; end
 			end		
@@ -327,14 +327,14 @@ function DruidRestoration()
 		--[[ 9 - HealingTouch Sm]]
  		local SMName, _, _, SMcount, _, _, SMexpirationTime = UnitBuffID("player", 144871) --Sage Mender - 2p bonus tier 16  
 		if SMName and  SMcount >= 5   then
-			if isChecked("Healing Touch Sm") and nNova[1].hp <= getValue("Healing Touch Sm") then
+			if isChecked("Healing Touch Sm") == true and nNova[1].hp <= getValue("Healing Touch Sm") then
 				if castSpell(nNova[1].unit,5185,true) then return; end
 			end
 		end		
 
 		--[[ 10 - WildMushroom Bloom]]
 		local allies10Yards = getAllies("myShroom",10)
-		if isChecked("Mushrooms Bloom") and #allies10Yards >= getValue("Mushrooms Bloom Count") then
+		if isChecked("Mushrooms Bloom") == true and #allies10Yards >= getValue("Mushrooms Bloom Count") then
 			local found = 0;
 			for i = 1, #allies10Yards do
 				if getHP(allies10Yards[i]) <= getValue("Mushrooms Bloom") then
@@ -558,7 +558,7 @@ function DruidRestoration()
 		end		
 
 		--[[ 27 - WildMushroom--(tank check(if not any mushroom active )]]
-		if isChecked("Mushrooms") and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
+		if isChecked("Mushrooms") == true and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
 			if castHealGround(145205,15,100,getValue("Mushrooms Count")) then 
 				-- print("27 - Tank if None"); 
 				return; 
@@ -566,14 +566,14 @@ function DruidRestoration()
 		end		
 
 		--[[ 28 - LifebloomFocus--(Refresh if over treshold)]]
-      	if isChecked("Lifebloom") then
+      	if isChecked("Lifebloom") == true then
 			if getHP("focus") >= getValue("Lifebloom") and (getBuffRemain("focus",33763) < 4 and getBuffStacks("focus",33763) == 3 ) then
 				if castSpell("focus",33763,true,false) then return; end
 			end
 		end	
 
 		--[[ 29 - Rejuvenation--(check health and Buff)]]
-		if isChecked("Rejuvenation") then
+		if isChecked("Rejuvenation") == true then
 			for i = 1, #nNova do
 				if nNova[i].hp <= getValue("Rejuvenation") and getBuffRemain(nNova[i].unit,774) == 0 then
 					if castSpell(nNova[i].unit,774,true,false) then return; end
@@ -582,11 +582,11 @@ function DruidRestoration()
 		end
 
 		--[[ Hot Friendly Dot ]]
-		if friendlyDot ~= nil then
+		if  isChecked("Rejuvenation Debuff") == true and friendlyDot ~= nil then
 			for i = 1, #nNova do
 				if friendlyDot[nNova[i].guid] ~= nil then
 					if GetTime() - friendlyDot[nNova[i].guid] < 3 then
-						if isChecked("Rejuvenation Debuff") and getBuffRemain(nNova[i].unit, 774) == 0 then
+						if getBuffRemain(nNova[i].unit, 774) == 0 then
 							if castSpell(nNova[i].unit, 774, true, false) then return; end
 						end
 					else
@@ -609,7 +609,7 @@ function DruidRestoration()
 		end	
 
 		--[[ 32 - Rejuvenation all--(if meta proc)(137331 buff id)]]
-		if isChecked("Rejuvenation Meta") and getBuffRemain("player",137331) > 0 then
+		if isChecked("Rejuvenation Meta") == true and getBuffRemain("player",137331) > 0 then
 			for i = 1, #nNova do
 				if getBuffRemain(nNova[i].unit,774) == 0 and nNova[i].hp <= 100 then
 					if castSpell(nNova[i].unit,774,true,false) then return; end
@@ -618,7 +618,7 @@ function DruidRestoration()
 		end
 
 		--[[ 33 - reju All --(use reju on all with out health check only Reju buff check)]]
-		if isChecked("Rejuvenation All") then
+		if isChecked("Rejuvenation All") == true then
 			for i = 1, #nNova do
 				if getBuffRemain(nNova[i].unit,774) == 0 then
 					if castSpell(nNova[i].unit,774,true,false) then return; 
@@ -628,7 +628,7 @@ function DruidRestoration()
 		end
 
 		--[[ 34 - OmenRegrowth--()]]
-		if isChecked("Regrowth Omen") and isStanding(0.3) and UnitBuffID("player",16870) then
+		if isChecked("Regrowth Omen") == true and isStanding(0.3) and UnitBuffID("player",16870) then
 			for i = 1, #nNova do
 				if nNova[i].hp <= getValue("Regrowth Omen") then
 					if castSpell(nNova[i].unit,8936,true) then return; end
@@ -637,14 +637,14 @@ function DruidRestoration()
 		end
 
 		--[[ 35 - Lifebloom - --(Force Stacks)]]
-		if isChecked("Lifebloom") then
+		if isChecked("Lifebloom") == true then
 			if getBuffStacks("focus",33763) < 3 then
 				if castSpell("focus",33763,true,false) then return; end
 			end
 		end	
 
 		--[[ 36 - Rejuvenation Tank]]
-		if isChecked("Rejuvenation") then
+		if isChecked("Rejuvenation") == true then
 			for i = 1, #nNova do
 				if nNova[i].role == "TANK" and nNova[i].hp <= getValue("Rejuvenation Tank") and getBuffRemain(nNova[i].unit,774) == 0 then
 					if castSpell(nNova[i].unit,774,true,false) then return; end
@@ -653,7 +653,7 @@ function DruidRestoration()
 		end
 
 		--[[ 37 - Genesis --(if reju buff remain and health < 60 or custome on single target)]]
-		if isChecked("Genesis Filler") and canCast(145518,false,false) then
+		if isChecked("Genesis Filler") == true and canCast(145518,false,false) then
 			for i=1, #nNova do
 				if nNova[i].hp <= getValue("Genesis Filler") and getBuffRemain(nNova[i].unit,774) > 3 then 	
 				    if castSpell("player",145518,true,false) then return; end 
@@ -662,7 +662,7 @@ function DruidRestoration()
 		end
 
 		--[[ 38 - use Rejuvenation for filler--(we can up reju on 5 or 6 player or custome value all time)]]
-		if isChecked("Rejuv Filler Count") then
+		if isChecked("Rejuv Filler Count") == true then
 			local numberRejuvUps = 0;
 			for i = 1, #nNova do
 				if getBuffRemain(nNova[i].unit,774) ~= 0 then

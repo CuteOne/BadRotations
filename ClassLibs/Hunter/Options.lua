@@ -115,7 +115,7 @@ function BeastConfig()
 
 
     -- Wrapper
-    CreateNewWrap(thisConfig,"-------- General -------");
+    CreateNewWrap(thisConfig,"-------- Utilities -------");
 
     -- Auto-Aspect Toggle
     CreateNewCheck(thisConfig,"Auto-Cheetah");
@@ -127,16 +127,10 @@ function BeastConfig()
     CreateNewBox(thisConfig, "Counter Shot", 0, 100  , 5, 35 , "|cffFFDD11Over what % of cast we want to |cffFFFFFFCounter Shot.");
     CreateNewText(thisConfig,"Counter Shot");
 
-    -- PokeRotation
-    --CreateNewCheck(thisConfig,"PokeRotation");
-   -- CreateNewText(thisConfig,"PokeRotation");
 
-    -- Debug
-    CreateNewCheck(thisConfig,"Debug", "|cffFFDD11Check this to start |cffFFFFFFChat Debug |cffFFDD11of casted spells.");
-    CreateNewText(thisConfig,"Debug");
+    -- General Configs
+    CreateGeneralsConfig();
 
-   -- Bound
-    CreateNewBound(thisConfig,"End"); 
     WrapsManager();
 end
 
