@@ -271,7 +271,7 @@ if not metaTable1 then
 		function nNova:Update(MO)
 			local MouseoverCheck = true;
 			-- This is for special situations, IE world healing or NPC healing in encounters
-			if isChecked("Mouseover Healing") then SpecialTargets = { "mouseover","target","focus" }; else SpecialTargets = {}; end
+			if isChecked("Special Heal") == true then SpecialTargets = { "mouseover","target","focus" }; else SpecialTargets = {}; end
 			for p=1, #SpecialTargets do
 				-- Checking if Unit Exists and it's possible to heal them
 				if UnitExists(SpecialTargets[p]) and HealCheck(SpecialTargets[p]) then
@@ -346,7 +346,7 @@ if not metaTable1 then
 					return x.dist < y.dist
 				end)
 			end]]
-			
+			if isChecked("Special Priority") == true then
 			 	if UnitExists("focus") and memberSetup.cache[select(2, Nova_GUID("focus"))] then
 					table.sort(nNova, function(x)return UnitIsUnit(x.unit, "focus") end);
 				end
@@ -356,6 +356,7 @@ if not metaTable1 then
 				if UnitExists("mouseover") and memberSetup.cache[select(2, Nova_GUID("mouseover"))] then
 					table.sort(nNova, function(x)return UnitIsUnit(x.unit, "mouseover") end);
 				end
+			end
 		end
 		-- We are creating the initial Main Table
 		nNova();

@@ -511,6 +511,10 @@ function RestorationConfig()
         CreateNewDrop(thisConfig,"Special Heal", 2, "|cffFFDD11Select wich targets you want to add to engine:Mouseover/Focus/Target Heal. \n|cffFF0000All: |cffFFDD11All targets. \n|cffFF0000Special: |cffFFDD11Only special Units.", "|cffFF0000All", "|cffFFDD11Special")
         CreateNewText(thisConfig,"Special Heal");
 
+        -- Special Priority
+        CreateNewCheck(thisConfig,"Special Priority","|cffFFBB00Priorise Special targets.");     
+        CreateNewText(thisConfig,"Special Priority");
+
         -- Heal Pets
         CreateNewCheck(thisConfig,"Heal Pets");
         CreateNewText(thisConfig,"Heal Pets");
@@ -519,6 +523,7 @@ function RestorationConfig()
         CreateNewCheck(thisConfig,"Blacklist");
         CreateNewBox(thisConfig, "Blacklist", 0, 105  , 5, 105, "|cffFFBB00How much HP do we want to add to |cffFFDD00Blacklisted |cffFFBB00units.");
         CreateNewText(thisConfig,"Blacklist");
+
 
         -- No Incoming Heals
         CreateNewCheck(thisConfig,"No Incoming Heals");
