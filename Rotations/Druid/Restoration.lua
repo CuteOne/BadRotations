@@ -69,28 +69,13 @@ function DruidRestoration()
 
 
 	--[[ Rebirth ]]
-	if isInCombat("player")	and UnitIsDeadOrGhost("mouseover") ~= nil and UnitIsFriend("player","mouseover") ~= nil then
+	if isInCombat("player")	and isStanding(0.3) and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("player","mouseover") and not UnitIsUnit("player","traget") then
 		if castSpell("mouseover",20484,true,true) then return; end
 	end
 
 	--[[ Revive ]]
-	if not isInCombat("player") and UnitIsDeadOrGhost("mouseover") ~= nil then
+	if not isInCombat("player") and isStanding(0.3)  and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("player","mouseover") then
 		if castSpell("mouseover",50769,true,true) then return; end
-	end
-
-	--[[ Hot Friendly Dot ]]
-	if friendlyDot ~= nil then
-		for i = 1, #nNova do
-			if friendlyDot[nNova[i].guid] ~= nil then
-				if GetTime() - friendlyDot[nNova[i].guid] < 3 then
-					if isChecked("Rejuvenation Debuff") and getBuffRemain(nNova[i].unit, 774) == 0 then
-						if castSpell(nNova[i].unit, 774, true, false) then return; end
-					end
-				else
-					friendlyDot[nNova[i].guid] = nil;
-				end
-			end
-		end
 	end
 
 	--[[ 7 - Stop Casting--(perevent from over healing when u cast somthing can heal target)]]
@@ -173,6 +158,20 @@ function DruidRestoration()
 			end
 		end
 
+		--[[ Hot Friendly Dot ]]
+		if friendlyDot ~= nil then
+			for i = 1, #nNova do
+				if friendlyDot[nNova[i].guid] ~= nil then
+					if GetTime() - friendlyDot[nNova[i].guid] < 3 then
+						if isChecked("Rejuvenation Debuff") and getBuffRemain(nNova[i].unit, 774) == 0 then
+							if castSpell(nNova[i].unit, 774, true, false) then return; end
+						end
+					else
+						friendlyDot[nNova[i].guid] = nil;
+					end
+				end
+			end
+		end
 
 		--[[ Mouseover/Target/Focus support]]
 		castMouseoverHealing("Druid");

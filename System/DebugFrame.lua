@@ -12,7 +12,7 @@ function DebugFrameCreation()
 		end
 		BadBoy_data.successCasts = 0;
 		BadBoy_data.failCasts = 0;
-		if BadBoy_data.debugAlpha == nil then BadBoy_data.debugAlpha = 0.10; end
+		if BadBoy_data.debugAlpha == nil then BadBoy_data.debugAlpha = 0.90; end
 		BadBoy_data.ActualRow = 0;
 		if BadBoy_data.shownRows == nil then BadBoy_data.shownRows = 10; end
 		-- /run CreateDebugRow(0, "Spell Name")

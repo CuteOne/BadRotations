@@ -487,6 +487,16 @@ function RestorationConfig()
         -- Wrapper
         CreateNewWrap(thisConfig,"--- Healing Engine ---")
 
+        -- Engine Debug
+        CreateNewCheck(thisConfig,"Engine Debug");       
+        CreateNewBox(thisConfig, "Engine Debug", 0, 1000  , 5, 0, "|cffFFBB00Time to wait before refreshing engine.");
+        CreateNewText(thisConfig,"Engine Debug");
+
+        -- Engine Refresh
+        CreateNewCheck(thisConfig,"Engine Refresh");       
+        CreateNewBox(thisConfig, "Engine Refresh", 0, 1000  , 5, 0, "|cffFFBB00Time to wait before refreshing engine.");
+        CreateNewText(thisConfig,"Engine Refresh");
+
         -- Overhealing Cancel Cast
         CreateNewCheck(thisConfig,"Overhealing Cancel");       
         CreateNewBox(thisConfig, "Overhealing Cancel", 100, 200  , 5, 100, "|cffFFBB00Stop casting heal if target is going to have over this amount of HP after heal.");

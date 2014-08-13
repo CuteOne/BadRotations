@@ -320,10 +320,18 @@ if not metaTable1 then
 					end
 				end
 			end
+
 			-- We are sorting by Health first
 			table.sort(nNova, function(x,y)
 				return x.hp < y.hp;
 			end)			
+
+			-- Sorting with the Role
+			table.sort(nNova, function(x,y)
+				if x.role and y.role then return x.role > y.role;
+				elseif x.role then return true;
+				elseif y.role then return false; end
+			end)	
 
 			-- Sorting with the ValitTarget
 			table.sort(nNova, function(x,y)
@@ -332,19 +340,13 @@ if not metaTable1 then
 				elseif y.range then return false; end
 			end)
 
-			-- Sorting with the Role
-			table.sort(nNova, function(x,y)
-				if x.role and y.role then return x.role > y.role;
-				elseif x.role then return true;
-				elseif y.role then return false; end
-			end)	
 					
 --[[			for i = 1, #nNova do
 				table.sort(nNova[i].Distances, function(x,y)
 					return x.dist < y.dist
 				end)
 			end]]
-			if Coolprefix and _G[Coolprefix.."MouseoverHealing_enable"] then
+			
 			 	if UnitExists("focus") and memberSetup.cache[select(2, Nova_GUID("focus"))] then
 					table.sort(nNova, function(x)return UnitIsUnit(x.unit, "focus") end);
 				end
@@ -354,7 +356,6 @@ if not metaTable1 then
 				if UnitExists("mouseover") and memberSetup.cache[select(2, Nova_GUID("mouseover"))] then
 					table.sort(nNova, function(x)return UnitIsUnit(x.unit, "mouseover") end);
 				end
-			end
 		end
 		-- We are creating the initial Main Table
 		nNova();

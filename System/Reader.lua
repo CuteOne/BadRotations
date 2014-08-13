@@ -156,7 +156,7 @@ function SuperReader(self, event, ...)
 			ISetAsUnitID(destination,"poorguy");
 			if UnitIsFriend("player","poorguy") then
 				friendlyDot[destination] = GetTime();
-				print(UnitName("poorguy"))
+				--print(UnitName("poorguy"))
 			end
 		end
 
