@@ -158,20 +158,6 @@ function DruidRestoration()
 			end
 		end
 
-		--[[ Hot Friendly Dot ]]
-		if friendlyDot ~= nil then
-			for i = 1, #nNova do
-				if friendlyDot[nNova[i].guid] ~= nil then
-					if GetTime() - friendlyDot[nNova[i].guid] < 3 then
-						if isChecked("Rejuvenation Debuff") and getBuffRemain(nNova[i].unit, 774) == 0 then
-							if castSpell(nNova[i].unit, 774, true, false) then return; end
-						end
-					else
-						friendlyDot[nNova[i].guid] = nil;
-					end
-				end
-			end
-		end
 
 		--[[ Mouseover/Target/Focus support]]
 		castMouseoverHealing("Druid");
@@ -591,6 +577,21 @@ function DruidRestoration()
 			for i = 1, #nNova do
 				if nNova[i].hp <= getValue("Rejuvenation") and getBuffRemain(nNova[i].unit,774) == 0 then
 					if castSpell(nNova[i].unit,774,true,false) then return; end
+				end
+			end
+		end
+
+		--[[ Hot Friendly Dot ]]
+		if friendlyDot ~= nil then
+			for i = 1, #nNova do
+				if friendlyDot[nNova[i].guid] ~= nil then
+					if GetTime() - friendlyDot[nNova[i].guid] < 3 then
+						if isChecked("Rejuvenation Debuff") and getBuffRemain(nNova[i].unit, 774) == 0 then
+							if castSpell(nNova[i].unit, 774, true, false) then return; end
+						end
+					else
+						friendlyDot[nNova[i].guid] = nil;
+					end
 				end
 			end
 		end
