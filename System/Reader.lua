@@ -162,7 +162,7 @@ function SuperReader(self, event, ...)
 
 		------------------------
 		--[[ Bleed Recorder --]]
-		if select(3, UnitClass("player")) == 11 then
+		if select(3, UnitClass("player")) == 11 and GetSpecialization("player") == 2 then
 	        --print(param..", "..source..", "..spell)
 	        -- snapshot on spellcast
 	        if source == UnitGUID("player") and param == "SPELL_CAST_SUCCESS" then
