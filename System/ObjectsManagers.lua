@@ -211,9 +211,9 @@ if not metaTable1 then
 			end	
 			for i = 1, #SpecificHPDebuffs do
 				if UnitDebuffID(o.unit, SpecificHPDebuffs[i].debuff) ~= nil then
-					if PercentWithIncoming > SpecificHPDebuffs[i].value then
-						PercentWithIncoming = SpecificHPDebuffs[i].value;
-					end
+					--if PercentWithIncoming > SpecificHPDebuffs[i].value then
+						PercentWithIncoming = PercentWithIncoming - SpecificHPDebuffs[i].value;
+					--end
 				end
 			end	
 			if isChecked("Blacklist") == true and BadBoy_data.blackList ~= nil then
