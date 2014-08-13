@@ -207,18 +207,17 @@ function BadBoyRun()
 		BadBoy_data.enginey = y;
 		BadBoy_data.engineanchor = anchor;
 
-		if BadBoy_data["Check Debug"] == 1 then
+		if BadBoy_data["Check Debug"] == true then
 			debugFrame:Show();
 		else
 			debugFrame:Hide();
 		end
---[[
-		if BadBoy_data["Engine Debug"] == 1 then
+
+		if BadBoy_data["Engine Debug"] == true then
 			engineFrame:Show();
 		else
 			engineFrame:Hide();
 		end
-]]
 		local _MyClass = select(3,UnitClass("player"));
 		local _MySpec = GetSpecialization("player");
 		if _MyClass == 1 then -- Warrior

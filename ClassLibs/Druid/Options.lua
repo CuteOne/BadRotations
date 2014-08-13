@@ -218,7 +218,7 @@ function RestorationConfig()
         ClearConfig();
         thisConfig = 0
         -- Title
-        CreateNewTitle(thisConfig,"|cff00EEFFRestoration |cffFF0000Masoud");
+        CreateNewTitle(thisConfig,"Restoration |cffFF0000Masoud");
 
         -- Wrapper
         CreateNewWrap(thisConfig,"----- Buffs -----");
@@ -535,18 +535,13 @@ function RestorationConfig()
 
         -- Follow Tank
         CreateNewCheck(thisConfig,"Follow Tank");
-        CreateNewBox(thisConfig, "Follow Tank", 0, 40  , 1, 30, "|cffFFBB00Range from focus...");
+        CreateNewBox(thisConfig, "Follow Tank", 10, 40  , 1, 25, "|cffFFBB00Range from focus...");
         CreateNewText(thisConfig,"Follow Tank");
 
 
         -- Zoo Master
         CreateNewCheck(thisConfig,"Zoo Master");
         CreateNewText(thisConfig,"Zoo Master");
-
-        -- Lag Tolerance
-        CreateNewCheck(thisConfig,"Lag Tolerance");
-        CreateNewBox(thisConfig, "Lag Tolerance", 0, 400  , 5, 30, "|cffFFBB00You know...");
-        CreateNewText(thisConfig,"Lag Tolerance");
 
         -- PokeRotation
         CreateNewCheck(thisConfig,"PokeRotation");
