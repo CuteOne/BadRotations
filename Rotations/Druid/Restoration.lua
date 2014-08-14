@@ -542,7 +542,7 @@ function DruidRestoration()
 		end
 
 		--[[ 26 - WildMushroom--(if not any mushroom active )]]
-		if isChecked("Mushrooms") == true and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
+		if isChecked("Mushrooms on Tank") ~= true and isChecked("Mushrooms") == true and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
 			if castHealGround(145205,15,100,getValue("Mushrooms Count")) then 
 				-- print("26 - First Mushies"); 
 				return; 
@@ -550,7 +550,7 @@ function DruidRestoration()
 		end
 
 		--[[ 30 - WildMushroom--(Replace )]]
-		if isChecked("Mushrooms") == true and canCast(145205,false,false) and (shroomsTable ~= nil and #shroomsTable ~= 0) then
+		if isChecked("Mushrooms on Tank") ~= true and isChecked("Mushrooms") == true and canCast(145205,false,false) and (shroomsTable ~= nil and #shroomsTable ~= 0) then
 			ISetAsUnitID(shroomsTable[1],"myShroom")
 			local allies10Yards = getAllies("myShroom",10)
 			if #allies10Yards < getValue("Mushrooms Count") then
@@ -562,7 +562,7 @@ function DruidRestoration()
 		end		
 
 		--[[ 27 - WildMushroom--(tank check(if not any mushroom active )]]
-		if isChecked("Mushrooms") == true and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
+		if isChecked("Mushrooms on Tank") ~= true and isChecked("Mushrooms") == true and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
 			if castHealGround(145205,15,100,getValue("Mushrooms Count")) then 
 				-- print("27 - Tank if None"); 
 				return; 
@@ -586,7 +586,7 @@ function DruidRestoration()
 		end
 
 		--[[ Hot Friendly Dot ]]
-		if  isChecked("Rejuvenation Debuff") == true and friendlyDot ~= nil then
+		if isChecked("Rejuvenation Debuff") == true and friendlyDot ~= nil then
 			for i = 1, #nNova do
 				if friendlyDot[nNova[i].guid] ~= nil then
 					if GetTime() - friendlyDot[nNova[i].guid] < 3 then
@@ -601,14 +601,14 @@ function DruidRestoration()
 		end
 
 		--[[ 31- WildMushroom tank--(Replace all)]]
-		if isChecked("Mushrooms Tank") == true and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
-			for i = 1, nNova do
-				if nNova[i].role == "TANK" and nNova[i].hp <= getValue("Mushrooms Tank") then
-					if castGround(nNova[i].unit, 145205, 40) then 
-						--print("31 - Replace Tank"); 
-						return; 
-					end
+		if isChecked("Mushrooms on Tank") == true and GetUnitSpeed("focus") == 0 and canCast(145205,false,false) then
+			if shroomsTable ~= nil and #shroomsTable ~= 0 then
+				ISetAsUnitID(shroomsTable[1],"myShroom")
+				if getDistance("focus","myShroom") > 10 then
+					if castGround("focus", 145205, 40) then return; end
 				end
+			else
+				if castGround("focus", 145205, 40) then return; end
 			end
 		end	
 

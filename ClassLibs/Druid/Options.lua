@@ -407,6 +407,10 @@ function RestorationConfig()
         CreateNewBox(thisConfig, "Genesis Filler", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFGenesis |cffFFBB00as Filler(low prio).");
         CreateNewText(thisConfig,"Genesis Filler");
 
+        -- Mushrooms on Tank
+        CreateNewCheck(thisConfig,"Mushrooms on Tank");
+        CreateNewText(thisConfig,"Mushrooms on Tank");
+
         -- Mushrooms
         CreateNewCheck(thisConfig,"Mushrooms");
         CreateNewBox(thisConfig, "Mushrooms", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFWild Mushrooms.");
