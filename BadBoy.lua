@@ -175,7 +175,7 @@ function BadBoyRun()
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 
 	-- Mettre a jour les valeurs chaque frame.
-	function FrameUpdate(self, elapsed)
+	function FrameUpdate(self)
 		-- global vars
 		targetDistance = getDistance("player","target");
 		profileStarts = GetTime();

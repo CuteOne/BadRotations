@@ -16,8 +16,8 @@ function Blood()
 	local numEnnemies;
 	local meleeEnnemies = getNumEnnemies("player",4);
 	if targetDistance < 5 then
-		numEnnemies = getNumEnnemies("target",10);
-	else
+		--numEnnemies = getNumEnnemies("target",10);
+	--else
 		numEnnemies = getNumEnnemies("player",10);
 	end
 
@@ -30,44 +30,44 @@ function Blood()
 	if UnitAffectingCombat("player") then
 
 		-- Mind Freeze
-		if isChecked("Mind Freeze") then
+		if isChecked("Mind Freeze") == true then
 			if canInterrupt(_MindFreeze, getValue("Mind Freeze")) and getDistance("player","target") <= 4 then
 				castSpell("target",_MindFreeze,false);
 			end
 		end
 
     	-- Anti Magic Shell
-    	if getHP("player") <= getValue("Anti-Magic Shell") then
+    	if isChecked("Anti-Magic Shell") == true and getHP("player") <= getValue("Anti-Magic Shell") then
     		if castSpell("player",_AntiMagicShell,true) then return; end
     	end
 
     	-- Dancing Rune Weapon
-    	if getHP("player") <= getValue("Dancing Rune Weapon") then
+    	if isChecked("Dancing Rune Weapon") == true and getHP("player") <= getValue("Dancing Rune Weapon") then
     		if castSpell("player",_DancingRuneWeapon,true) then return; end
     	end
 
     	-- Conversion
-        if getHP("player") <= getValue("Conversion") then
+        if isChecked("Conversion") == true and getHP("player") <= getValue("Conversion") then
     		if castSpell("player",_Conversion,true) then return; end
     	end
 
     	-- Vampiric Blood
-        if getHP("player") <= getValue("Vampiric Blood") then
+        if isChecked("Vampiric Blood") == true and getHP("player") <= getValue("Vampiric Blood") then
     		if castSpell("player",_VampiricBlood,true) then return; end
     	end
 
     	-- Icebound Fortitude
-        if getHP("player") <= getValue("Icebound Fortitude") then
+        if isChecked("Icebound Fortitude") == true and getHP("player") <= getValue("Icebound Fortitude") then
     		if castSpell("player",_IceboundFortitude,true) then return; end
     	end
 
     	-- Rune Tap
-        if getHP("player") <= getValue("Rune Tap") then
+        if isChecked("Rune Tap") == true and getHP("player") <= getValue("Rune Tap") then
     		if castSpell("player",_RuneTap,true) then return; end
     	end
 
     	-- Empower Rune Weapon
-        if getHP("player") <= getValue("Empower Rune Weapon") then
+        if isChecked("Empower Rune Weapon") == true and getHP("player") <= getValue("Empower Rune Weapon") then
     		if castSpell("player",_EmpowerRuneWeapon,true) then return; end
     	end
 	end

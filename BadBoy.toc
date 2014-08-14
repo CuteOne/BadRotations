@@ -36,6 +36,8 @@ ClassLibs\Mage\Options.lua
 ClassLibs\Mage\Functions.lua
 ClassLibs\Monk\Options.lua
 ClassLibs\Monk\Functions.lua
+ClassLibs\Monk\SpellList.lua
+ClassLibs\Monk\Toggles.lua
 ClassLibs\Paladin\Options.lua
 ClassLibs\Paladin\Functions.lua
 ClassLibs\Paladin\SpellList.lua
