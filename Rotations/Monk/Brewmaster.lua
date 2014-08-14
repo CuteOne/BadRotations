@@ -1,12 +1,11 @@
 if select(3,UnitClass("player")) == 10 then
 
 function BrewmasterMonk()
-	--ChatOverlay(getNumEnnemies("player",10))
 	if AoEModesLoaded ~= "Brew Monk AoE Modes" then
 		MonkBrewToggles();
 		MonkBrewConfig();
 	end
-	-- Barrel Thrower
+-- Barrel Thrower
 	if SpellIsTargeting() then
 		if UnitExists("target") then
 			local X, Y, Z = IGetLocation(UnitGUID("target"));
@@ -15,12 +14,12 @@ function BrewmasterMonk()
 			return true;
 		end
 	end
-	-- Locals
+-- Locals
 	local chi = UnitPower("player", SPELL_POWER_CHI);
 	local energy = getPower("player");
 	local myHP = getHP("player");
 	local ennemyUnits = getNumEnnemies("player", 5)
-	-- Food/Invis Check
+-- Food/Invis Check
 	if canRun() ~= true or UnitInVehicle("Player") then return false; end
 	if IsMounted("player") then return false; end
     GroupInfo()
@@ -102,7 +101,7 @@ function BrewmasterMonk()
 ---------------------
 	if not isInCombat("player") then
 		if canAttack("target","player") and not UnitIsDeadOrGhost("target") then
-		   	-- Dazzling Brew
+-- Dazzling Brew
 			if isChecked("Dazzling Brew") == true then
 				if targetDistance <= 40 and getGround("target") == true and UnitExists("target") and (isDummy("target") or getDistance("target","targettarget") <= 15) then
 					 CastSpellByName(GetSpellInfo(115180),nil);
@@ -122,7 +121,7 @@ function BrewmasterMonk()
 			return true
 		end
 
-		-- Quaking Palm
+		--[[Quaking Palm]]
 		if canInterrupt(_QuakingPalm,tonumber(getValue("Quaking Palm"))) then
 			if castSpell("target",_QuakingPalm,false) then return; end
 		end
@@ -135,8 +134,6 @@ function BrewmasterMonk()
 
 	if isCasting() then return false; end
 
-
-	--castGroundBetween("target",115180,40)
 	if targetDistance >= 4 and targetDistance <= 40 then
 
 		--[[Chi Wave]]

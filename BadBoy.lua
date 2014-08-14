@@ -245,10 +245,17 @@ function BadBoyRun()
 			end	
 			if _MySpec == 3 then
 				ShamanRestoration();
-			end					
-			--Shaman()		
+			end				
 		elseif _MyClass == 8 then -- Mage
-			--Mage()		
+			if _MySpec == 1 then
+				ArcaneMage();
+			end
+			if _MySpec == 2 then
+				FireMage();
+			end	
+			if _MySpec == 3 then
+				FrostMage();
+			end			
 		elseif _MyClass == 9 then -- Warlock
 			--Warlock()		
 		elseif _MyClass == 10 then -- Monk

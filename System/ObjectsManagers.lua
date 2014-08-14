@@ -30,7 +30,7 @@ if not metaTable1 then
 		{ id = 144351, stacks = 0 }, -- Sha of Pride
 		{ id = 146902, stacks = 0 }, -- Galakras(Korga Poisons)
 		{ id = 143432, stacks = 0 }, -- General Nazgrim
-		{ id = 142913, stacks = 0 }, -- Malkorok(Displaced Energy)
+		{ id = 142913, stacks = 0, range = 10}, -- Malkorok(Displaced Energy)
 		{ id = 115181, stacks = 0 }, -- Spoils of Pandaria(Breath of Fire)
 		{ id = 143791, stacks = 0 }, -- Thok(Corrosive Blood)
 
@@ -176,7 +176,12 @@ if not metaTable1 then
 			for i = 1, #DispelID do
 				if UnitDebuff(o.unit,GetSpellInfo(DispelID[i].id)) ~= nil and DispelID[i].id ~= nil then 
 					if select(4,UnitDebuff(o.unit,GetSpellInfo(DispelID[i].id))) >= DispelID[i].stacks then
-						return true
+						if DispelID[i].range ~= nil then
+							if #getAllies(o.unit,DispelID[i].range) > 1 then
+								return false;
+							end
+						end
+						return true;
 					end
 				end
 			end	

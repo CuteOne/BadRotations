@@ -34,6 +34,8 @@ ClassLibs\Hunter\SpellList.lua
 ClassLibs\Hunter\Toggles.lua
 ClassLibs\Mage\Options.lua
 ClassLibs\Mage\Functions.lua
+ClassLibs\Mage\SpellList.lua
+ClassLibs\Mage\Toggles.lua
 ClassLibs\Monk\Options.lua
 ClassLibs\Monk\Functions.lua
 ClassLibs\Monk\SpellList.lua
@@ -44,16 +46,24 @@ ClassLibs\Paladin\SpellList.lua
 ClassLibs\Paladin\Toggles.lua
 ClassLibs\Priest\Options.lua
 ClassLibs\Priest\Functions.lua
+ClassLibs\Priest\SpellList.lua
+ClassLibs\Priest\Toggles.lua
 ClassLibs\Rogue\Options.lua
 ClassLibs\Rogue\Functions.lua
+ClassLibs\Rogue\SpellList.lua
+ClassLibs\Rogue\Toggles.lua
 ClassLibs\Shaman\Options.lua
 ClassLibs\Shaman\Functions.lua
 ClassLibs\Shaman\SpellList.lua
 ClassLibs\Shaman\Toggles.lua
 ClassLibs\Warlock\Options.lua
 ClassLibs\Warlock\Functions.lua
+ClassLibs\Warlock\SpellList.lua
+ClassLibs\Warlock\Toggles.lua
 ClassLibs\Warrior\Options.lua
 ClassLibs\Warrior\Functions.lua
+ClassLibs\Warrior\SpellList.lua
+ClassLibs\Warrior\Toggles.lua
 
 ## Rotations
 Rotations\Deathknight\Blood.lua
