@@ -67,6 +67,7 @@ if select(3, UnitClass("player")) == 11 then
 		  	and not UnitIsDeadOrGhost("player")
 		  	and not IsMounted()
 		  	and not IsFlying()
+		  	and not isInCombat("player")
 		 then
 	-- Mark of the Wild
 		   	if isChecked("Mark of the Wild") and not UnitExists("mouseover") then
@@ -456,7 +457,7 @@ if select(3, UnitClass("player")) == 11 then
 							local ennemiesList = getEnnemies("player",10)
 							for i = 1, #ennemiesList do
 			  					ISetAsUnitID(IGetObjectListEntry(i),"thisUnit");
-								if getDistance("player", "thisUnit") < 10 then
+								if getDistance("player", "thisUnit") < 10 and getFacing("player","thisUnit")==true then
 									if not UnitDebuffID("thisUnit",wa) or select(4,UnitDebuffID("thisUnit",wa)) < 3 then
 										if castSpell("thisUnit",ff,true) then return; end
 									end

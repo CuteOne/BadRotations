@@ -192,7 +192,7 @@ if select(3, UnitClass("player")) == 7 then
 -----------------
 --- Cooldowns ---
 -----------------
-		if useCDs() and targetDistance<5 and isInCombat("player") then
+		if useCDs() and targetDistance<5 and isInCombat("player") and hasFire() then
 	-- Feral Spirit		
 			if castSpell("player",_FeralSpirit,true) then return; end	
 	-- Elemental Mastery
@@ -200,7 +200,9 @@ if select(3, UnitClass("player")) == 7 then
 	-- Ancestral Swiftness
 			if castSpell("player",_AncestralSwiftness,true) then return; end
 	-- Ascendance
-			if castSpell("player",_Ascendance,true) then return; end
+			if getBuffRemain("player",_AscendanceBuff) == 0 then
+				if castSpell("player",_Ascendance,true) then return; end
+			end
 		end
 
 -------------
@@ -251,48 +253,49 @@ if select(3, UnitClass("player")) == 7 then
 ------------------------------
 --- Single Target Rotation ---
 ------------------------------
-		if getNumEnnemies("player",8) < 3 and targetDistance<5 and not useAoE() and isEnnemy("target") and isAlive("target") then
-		
-	-- Elemental Blast
-			if getMWC()>=1 then
-				if castSpell("target",_ElementalBlast,false) then return; end
-			end
-	-- Unleash Elements
-			if isKnown(_UnleashedFury) then
-				if castSpell("target",_UnleashElements,true) then return; end
-			end
+		if getNumEnnemies("player",8) < 3 and targetDistance<5 and not useAoE() and isEnnemy("target") and isAlive("target") then		
+			if getMWC()==5 then
 	-- Lightning Bolt
-			if shouldBolt() and getHP("player")>=50 then
 				if castSpell("target",_LightningBolt,false) then return; end
-			end
-			if UnitLevel("player") >= 26 then
-				if getBuffRemain("player",_AscendanceBuff)>0 then
+	 		end
+	 		if UnitLevel("player") >= 26 then
+	 			if getBuffRemain("player",_AscendanceBuff)>0 then
 	-- Stormblast
-					if castSpell("target",_Stormblast,false,false,false,true) then return; end
-				else
+	 				if castSpell("target",_Stormblast,false,false,false,true) then return; end
+	 			else
 	-- Stormstrike
-					if castSpell("target",_Stormstrike,false,false,false,true) then return; end
-				end
-			else
+	 				if castSpell("target",_Stormstrike,false,false,false,true) then return; end
+	 			end
+	 		else
 	-- Primal Strike
-				if castSpell("target",_PrimalStrike,false) then return; end
+	 			if castSpell("target",_PrimalStrike,false) then return; end
+	 		end
+	-- Flame Shock	
+			if getDebuffRemain("target",_FlameShock)==0 and getBuffRemain("player",_UnleashFlame)>0 then
+					if castSpell("target",_FlameShock,false) then return; end
 			end
 	-- Flame Shock
-			if getBuffRemain("player",_UnleashFlame)>0 and getDebuffRemain("target",_FlameShock)<3 then
-				if castSpell("target",_FlameShock,false) then return; end 
+			if getDebuffRemain("target",_FlameShock)>0 and getBuffRemain("player",_UnleashFlame)>0 then
+					if castSpell("target",_FlameShock,false) then return; end
+			end
+	-- Flame Shock
+			if getDebuffRemain("target",_FlameShock)==0 and getBuffRemain("player",_UnleashFlame)==0 and getSpellCD(_UnleashElements)>5 then
+					if castSpell("target",_FlameShock,false) then return; end
 			end
 	-- Lava Lash
-			if getSearingCount()==5 then
-				if castSpell("target",_LavaLash,false) then return; end
-			end					
-	-- Flame Shock
-			if getBuffRemain("player",_UnleashFlame)>0 then
-				if castSpell("target",_FlameShock,false) then return; end 
+			if castSpell("target",_LavaLash,false) then return; end
+	-- Fire Nova
+			if getDebuffRemain("target",_FlameShock)>0 and getNumEnnemies("player",10)>1 then
+				if castSpell("target",_FireNova,true) then return; end
 			end
 	-- Unleash Elements
-			if castSpell("target",_UnleashElements,true) then return; end
+			if castSpell("target",_UnleashElements,false) then return; end
 	-- Earth Shock
-			if castSpell("target",_EarthShock,false) then return; end	
+			if castSpell("target",_EarthShock,false) then return; end
+	-- Lightning Bolt
+			if shouldBolt() then
+				if castSpell("target",_LightningBolt,false) then return; end
+			end
 		end --Single Target Rotation End
 		if targetDistance<5 and isEnnemy("target") then
 			StartAttack()
