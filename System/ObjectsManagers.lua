@@ -245,9 +245,9 @@ if not metaTable1 then
 			if UnitGroupRolesAssigned(o.unit) == "NONE" then
 				if roleTable[UnitName(o.unit)] ~= nil then
 					o.role = roleTable[UnitName(o.unit)];
-				else
-					o.role = UnitGroupRolesAssigned(o.unit)
 				end
+			else
+				o.role = UnitGroupRolesAssigned(o.unit)
 			end -- role from raid frame
 			o.guidsh = select(2, o:nGUID()); -- return Short GUID of unit
 			o.dispel = o:Dispel(o.unit); -- return true if unit should be dispelled
