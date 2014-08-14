@@ -204,12 +204,24 @@ if not metaTable1 then
 			local ActualWithIncoming = ( UnitHealthMax(o.unit) - ( UnitHealth(o.unit) + incomingheals ) )
 
 			local SpecificHPBuffs = { 
-				{ buff = 142865 , value = 75 }, -- Strong Ancient Barrier (Green)
-				{ buff = 142864 , value = 50 }, -- Ancient Barrier (Yellow)
-				{ buff = 142863 , value = 25 }, -- Weak Ancient Barrier (Red)
+				{ buff = 142865 , value = select(15,UnitDebuffID(o.unit,142865)) }, -- Strong Ancient Barrier (Green)
+				{ buff = 142864 , value = select(15,UnitDebuffID(o.unit,142864)) }, -- Ancient Barrier (Yellow)
+				{ buff = 142863 , value = select(15,UnitDebuffID(o.unit,142863)) }, -- Weak Ancient Barrier (Red)
 			};
 
-
+			if UnitDebuffID(o.unit, 142861) ~= nil then -- If Miasma found
+				local shieldFound = false; -- set this local
+				for i = 1, #SpecificHPBuffs do -- start nomber of buff iteration
+					if UnitDebuffID(o.unit, SpecificHPBuffs[i].buff) ~= nil then -- if buff found
+						if SpecificHPBuffs[i].value ~= nil and PercentWithIncoming > SpecificHPBuffs[i].value then -- if we have this buff we set its amount
+							shieldFound = true; -- if we get a match we declare it and break out of iteration
+							PercentWithIncoming = SpecificHPBuffs[i].value;
+							break;
+						end
+					end
+				end	
+				PercentWithIncoming = PercentWithIncoming/2 -- no mather what as long as we are on miasma buff our life is cut in half
+			end
 
 			for i = 1, #SpecificHPDebuffs do
 				if UnitDebuffID(o.unit, SpecificHPDebuffs[i].debuff) ~= nil then
