@@ -69,8 +69,13 @@ if select(3, UnitClass("player")) == 10 then
 --- Defensives ---
 ------------------
 	--	Expel Harm
-		if getHP("player")<=80 and (getChiMax("player")-getChi("player"))>=2 and getPower("player")>=40 and not isCasting("player") then
-			if castSpell("player",_ExpelHarm,true) then return; end
+		if getHP("player")<=80 and getPower("player")>=40 and not isCasting("player") then
+			if isInCombat("player") and (getChiMax("player")-getChi("player"))>=2 then
+				if castSpell("player",_ExpelHarm,true) then return; end
+			end
+			if not isInCombat("player") and getNumEnemies("player",10)==0 then
+				if castSpell("player",_ExpelHarm,true) then return; end
+			end
 		end
 	-- Touch of Karma
 		if getHP("player")<=50 and canAttack("target","player") and not UnitIsDeadOrGhost("target") then
