@@ -239,7 +239,7 @@ function EngineFrameCreation()
 						local healthDisplay = "|cffFF0000"..math.floor(nNova[BadBoy_data.engineActualRow+i].hp) or 0;
 						local roleDisplay = "|cffFFBB00 "..nNova[BadBoy_data.engineActualRow+i].role or " |cffFFBB00NONE";
 						local nameDisplay = nameDisplay;
-						if classColors[select(3,UnitClass(nNova[BadBoy_data.engineActualRow+i].unit))].hex ~= nil and nNova[BadBoy_data.engineActualRow+i].name ~= nil then
+						if select(3,UnitClass(nNova[BadBoy_data.engineActualRow+i].unit)) ~= nil and nNova[BadBoy_data.engineActualRow+i].name ~= nil then
 							nameDisplay = classColors[select(3,UnitClass(nNova[BadBoy_data.engineActualRow+i].unit))].hex.." "..nNova[BadBoy_data.engineActualRow+i].name;
 						else 
 							nameDisplay = " No Name";

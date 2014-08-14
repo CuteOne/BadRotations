@@ -199,7 +199,7 @@ if not metaTable1 then
 			if o.role == "TANK" then PercentWithIncoming = PercentWithIncoming - 5; end -- Using the group role assigned to the Unit
 			if UnitIsDeadOrGhost(o.unit) == 1 then PercentWithIncoming = 250; end -- Place Dead players at the end of the list
 			if o.dispel then PercentWithIncoming = PercentWithIncoming - 2; end -- Using Dispel Check to see if we should give bonus weight
-			if o.threat then PercentWithIncoming = PercentWithIncoming - 3; end
+			if o.threat == 3 then PercentWithIncoming = PercentWithIncoming - 3; end
 			if o.guidsh == 72218  then PercentWithIncoming = PercentWithIncoming - 5 end -- Tank in Proving Grounds
 			local ActualWithIncoming = ( UnitHealthMax(o.unit) - ( UnitHealth(o.unit) + incomingheals ) )
 			for i = 1, #SpecificHPBuffs do

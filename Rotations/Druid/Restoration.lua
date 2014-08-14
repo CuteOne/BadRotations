@@ -645,12 +645,12 @@ function DruidRestoration()
 
 		--[[ 36 - Rejuvenation Tank]]
 		if isChecked("Rejuvenation") == true then
-			for i = 1, #nNova do
-				if nNova[i].role == "TANK" and nNova[i].hp <= getValue("Rejuvenation Tank") and getBuffRemain(nNova[i].unit,774) == 0 then
-					if castSpell(nNova[i].unit,774,true,false) then return; end
-				end
-			end
-		end
+   			for i = 1, #nNova do
+    			if (nNova[i].role == "TANK" or UnitGroupRolesAssigned(nNova[i].unit) == "TANK") and nNova[i].hp <= getValue("Rejuvenation Tank") and getBuffRemain(nNova[i].unit,774) == 0 then
+     				if castSpell(nNova[i].unit,774,true,false) then return; end
+    			end
+   			end
+  		end
 
 		--[[ 37 - Genesis --(if reju buff remain and health < 60 or custome on single target)]]
 		if isChecked("Genesis Filler") == true and canCast(145518,false,false) then
