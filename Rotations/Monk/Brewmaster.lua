@@ -1,28 +1,16 @@
 if select(3,UnitClass("player")) == 10 then
 
-function Brewmaster()
+function BrewmasterMonk()
 	--ChatOverlay(getNumEnnemies("player",10))
-	if AoEModesLoaded ~= "Blood DK AoE Modes" then
-		BloodOptions();
-		BloodToggles();
+	if AoEModesLoaded ~= "Brew Monk AoE Modes" then
+		MonkBrewConfig();
+		MonkBrewToggles();
 	end
 
 	-- Locals
-	local runicPower = UnitPower("player");
-	local runesBlood = getRunes("blood");
-	local runesUnholy = getRunes("unholy");
-	local runesFrost = getRunes("frost");
-	local runesDeath = getRunes("death");
-
-	local numEnnemies;
-	local meleeEnnemies = getNumEnnemies("player",4);
-	if targetDistance < 5 then
-		--numEnnemies = getNumEnnemies("target",10);
-	--else
-		numEnnemies = getNumEnnemies("player",10);
-	end
-
-	targetEnnemies = getEnnemies("target",10)
+	local chi = UnitPower("player", SPELL_POWER_CHI);
+	local energy = getPower("player");
+	local myHP = getHP("player");
 
 	-- Food/Invis Check
 	if canRun() ~= true or UnitInVehicle("Player") then return false; end
@@ -31,225 +19,106 @@ function Brewmaster()
 	if UnitAffectingCombat("player") then
 
 		-- Mind Freeze
-		if isChecked("Mind Freeze") == true then
-			if canInterrupt(_MindFreeze, getValue("Mind Freeze")) and getDistance("player","target") <= 4 then
-				castSpell("target",_MindFreeze,false);
-			end
-		end
+		--if isChecked("Mind Freeze") == true then
+			--if canInterrupt(_MindFreeze, getValue("Mind Freeze")) and getDistance("player","target") <= 4 then
+				--castSpell("target",_MindFreeze,false);
+			--end
+		--end
 
-    	-- Anti Magic Shell
-    	if isChecked("Anti-Magic Shell") == true and getHP("player") <= getValue("Anti-Magic Shell") then
-    		if castSpell("player",_AntiMagicShell,true) then return; end
+    	-- Fortifying Brew
+    	if isChecked("Fortifying Brew") == true and myHP <= getValue("Fortifying Brew") then
+    		if castSpell("player",115203,true) then return; end
     	end
 
-    	-- Dancing Rune Weapon
-    	if isChecked("Dancing Rune Weapon") == true and getHP("player") <= getValue("Dancing Rune Weapon") then
-    		if castSpell("player",_DancingRuneWeapon,true) then return; end
-    	end
-
-    	-- Conversion
-        if isChecked("Conversion") == true and getHP("player") <= getValue("Conversion") then
-    		if castSpell("player",_Conversion,true) then return; end
-    	end
-
-    	-- Vampiric Blood
-        if isChecked("Vampiric Blood") == true and getHP("player") <= getValue("Vampiric Blood") then
-    		if castSpell("player",_VampiricBlood,true) then return; end
-    	end
-
-    	-- Icebound Fortitude
-        if isChecked("Icebound Fortitude") == true and getHP("player") <= getValue("Icebound Fortitude") then
-    		if castSpell("player",_IceboundFortitude,true) then return; end
-    	end
-
-    	-- Rune Tap
-        if isChecked("Rune Tap") == true and getHP("player") <= getValue("Rune Tap") then
-    		if castSpell("player",_RuneTap,true) then return; end
-    	end
-
-    	-- Empower Rune Weapon
-        if isChecked("Empower Rune Weapon") == true and getHP("player") <= getValue("Empower Rune Weapon") then
-    		if castSpell("player",_EmpowerRuneWeapon,true) then return; end
-    	end
-	end
-
+    end
 
 	if isCasting() then return false; end
 
-    -- Presence
-    if isKnown(_BloodPresence) and isChecked("Presence") then
-    	if getValue("Presence") == 1 and UnitBuffID("player",_BloodPresence) == nil then
-    		if castSpell("player",_BloodPresence,true) then return; end
-    	elseif getValue("Presence") == 2 and UnitBuffID("player",_FrostPresence) == nil then
-    		if castSpell("player",_FrostPresence,true) then return; end
-    	end
-    elseif isChecked("Frost Presence") then
-    	if getValue("Presence") == 2 and UnitBuffID("player",_FrostPresence) == nil then
-    		if castSpell("player",_FrostPresence,true) then return; end
+--[[Buffs:
+Maintain these buffs at all times.
+
+Stance: Stance of the Sturdy Ox
+Statue: Summon Black Ox Statue
+
+Chi Builders:
+Follow this priority to generate Chi.
+
+Keg Smash on cooldown when at < 3 Chi. Applies Weakened Blows.
+Expel Harm when you are not at full health.
+Jab use to build Chi and prevent Energy capping.
+Chi Finishers:
+Follow this priority to spend Chi.
+
+Purifying Brew to remove your Stagger DoT when Yellow or Red.
+Elusive Brew if > 10 stacks. Delay up to 10-15 sec for anticipated damage.
+Guard on cooldown. Delay up to 10-15 sec for anticipated damage.
+Blackout Kick as often as possible. Aim for ~80% uptime on Shuffle.
+Tiger Palm does not cost Chi, but is used like a finisher (see explanation).
+The Brewmaster Monk single target tanking priority involves building and then spending Chi on abilities that improve your damage and survivability. For building Chi, you want to cast Keg Smash on cooldown as long as you have < 3 Chi or if Weakened Blows might drop. Cast Expel Harm if you are below 100% health and remember that you can spam cast Expel Harm if you are 35% health thanks to Desperate Measures. Otherwise, use Jab as your go-to Chi builder.
+
+Spending Chi is a bit more complicated than building Chi. Your first priority is to use Purifying Brew when your Stagger DoT is in its Yellow (moderate damage) or Red (high damage) stages. After this, use Elusive Brew when you have > 10 stacks of Brewing: Elusive Brew to prevent the stacks from capping. This ability may be delayed by 10-15 sec if you are expecting a spike in physical damage. Next, use Guard on cooldown, except when you might need to delay by 10-15 sec to mitigate any spike damage. Cast Blackout Kick as often as possible to activate Shuffle. Generally, you want to obtain an ~80% uptime on Shuffle as any higher uptime reduces how often you can use Guard.
+
+Tiger Palm is a unique ability thanks to Brewmaster Training. For Brewmasters, Tiger Palm has no Chi cost and provides both the Tiger Power and Power Guard buffs. Tiger Power is easy to maintain as you will almost always cast Tiger Palm once every 20 sec, but Power Guard requires some planning. It is ideal to have Power Guard for each Guard. In most situations, you will have a Power Guard in time for each Guard, but if you need to use Guard for a large hit you should make sure to use Tiger Palm just before Guard is required.
+
+Finally, one last ability needs to considered for effective Brewmaster Tanking: Gift of the Ox. This ability places Healing Spheres on the ground that you can move over for a decently sized heal. You should save ~3 spheres at all times and consume other spheres as they appear. Only consume the 3 reserved Spheres when you need a large heal to help recover from a major attack.
+
+AoE Rotation
+
+Dizzying Haze
+Breath of Fire
+Spinning Crane Kick
+AoE tanking is pretty straight forward for Brewmasters. At 2 targets, continue with the single target rotation and switch between the targets as needed to maintain threat. With 3+ targets, maintain the Dizzying Haze debuff that is applied by Keg Smash and the DoT from Breath of Fire. At 10+ targets, spam Spinning Crane Kick to generate Chi and spend the Chi as you normally would. Also, remember to maintain Shuffle with Blackout Kick at all times.
+
+Effective Cooldowns
+
+These effective cooldowns are available if you chose them in your talent build.
+
+Chi Wave Use for self-healing or to help with AoE threat.
+Dampen Harm Use often to reduce damage. Line up with spike damage when possible.
+These are effective cooldowns to try and incorporate into most all encounters.
+
+Avert Harm Use as needed to reduce raid damage. Stack with other survival cooldowns.
+Fortifying Brew Use as needed to mitigate damage or to stay alive during an emergency.
+Nimble Brew Use to remove and/or prevent crowd control effects.
+Provoke Use on an enemy for a single taunt or on Summon Black Ox Statue for an AoE taunt.
+Touch of Death Be a ninja and try to time this when boss health < your health.
+Zen Meditation Use proactively to reduce the damage of one large magic attack by 90%.
+
+
+]]
+    -- Stance
+	local myStance = GetShapeshiftForm()
+    if isChecked("Stance") then
+    	if getValue("Stance") == 1 and myStance ~= 1 then
+    		if castSpell("player",115069,true) then return; end
+    	elseif getValue("Stance") == 2 and myStance ~= 2 then
+    		if castSpell("player",103985,true) then return; end
     	end
     end
 
-	-- Horn of Winter
-	if getBuffRemain("player",_HornOfWinter) <= 4 then
-		if castSpell("player",_HornOfWinter,true) then return; end
+    -- Legacy of the Emperor
+	local lastLegacy;
+	if isChecked("Legacy of the Emperor") == true and (lastLegacy == nil or lastLegacy <= GetTime() - 5) then
+		for i = 1, #nNova do
+	  		if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) then
+	  			if castSpell("player",115921,true) then lastLegacy = GetTime(); return; end
+			end 
+		end
 	end
+
 
 	if isInCombat("player") and isAlive() and (isEnnemy() or isDummy("target")) then
 
-	    -- Death Siphon
-	    if runesDeath >= 1 and getHP("player") <= 70 then
-	    	if castSpell("target",_DeathSiphon,false) then return; end
+
+	    -- Jab
+	    if energy >= 40 then
+	    	if castSpell("target",115698,false) then return; end
 	    end
 
-		-- Raise Dead
-		if isSelected("Raise Dead") then
-			if castSpell("player",_RaiseDead,true) then return; end
-		end
-
-    	-- Bone Shield
-    	if isChecked("Bone Shield") and UnitBuffID("player",_BoneShield) == nil then
-    		if castSpell("player",_BoneShield,true) then return; end
-    	end
-
-    	-- Death and Decay
-		if isSelected("Death And Decay") and (getRunes("unholy") >= 1 or getRunes("death") >= 1) then
-			if getGround("target") == true and UnitExists("target") and ((isDummy("target") and getDistance("target","targettarget") <= 10) or getDistance("target","targettarget") <= 20) then
-				if castGroundBetween("target",_DeathAndDecay,30) then return; end
-			end
-		end    	
-
-	    -- Blood Tap
-	    if getBuffStacks("player",114851) >= 5 and canTap() then
-	    	if castSpell("player",_BloodTap,true) then return; end
-	    end
-
-
---[[	-- When pulling, you’ll want to apply diseases using Outbreak. 
-		
-		-- Then you can Heart Strike with both Blood Runes, and use Death Strike to take advantage of the Death Strike mechanics (healing for damage taken in preceding 5 sec).
-
-		-- You’ll want to keep diseases active at all times. 
-		-- The most efficient way to refresh your diseases is with Blood Boil thanks to Scarlet Fever. 
-		-- However, if a disease expires, refresh the disease via Outbreak. 
-		-- If Outbreak is on cooldown, then use Icy Touch and/or Plague Strike.
-
-		-- Beyond diseases, you’ll want to Death Strike as much as possible with your Frost, Unholy, and Death Runes. 
-		-- Use Heart Strike with Blood Runes, and Rune Strike whenever all Runes are depleted or when you are capped with Runic Power. 
-		-- Soul Reaper replaces Heart Strike when your target has 35% or less Health.
-
-]]
-
-	    -- Rune Strike//Death Coil
-	    if runicPower >= 90 then
-	    	if isKnown(_RuneStrike) then
-	    		if castSpell("target",_RuneStrike,false) then return; end
-	   		else
-	   			-- Death Coil
-	    		if castSpell("target",_DeathCoil,false) then return; end
-	    	end
-	    end
-
-	    -- Pestilence - Bring
-	    local PestiSpell;
-	    if isKnown(_RoilingBlood) then PestiSpell = _BloodBoil; else PestiSpell = _Pestilence; end	    
-	    if runesBlood >= 1 or runesDeath >= 1 and (pestiTimer == nil or pestiTimer <= GetTime() - 2) then
-			if canCast(_Pestilence) then
-				if getDebuffRemain("target",55078) == 0 then
-					for i = 1, #targetEnnemies do
-						local Guid = targetEnnemies[i]
-						ISetAsUnitID(Guid,"thisUnit");
-						if getCreatureType("thisUnit") == true and getDebuffRemain("thisUnit",55078,"player") >= 2 then
-							if castSpell("thisUnit",_Pestilence,true) then pestiTimer = GetTime(); return; end								
-						end
-					end	
-				end
-			end
-	    end
-
-	    -- Blood Boil - Refresh
-	    if targetDistance <= 10 and (runesBlood >= 1 or runesDeath >= 1) and ((UnitDebuffID("target",55078,"player") ~= nil and getDebuffRemain("target",55078) < 6)) then
-	    	if castSpell("player",_BloodBoil,true) then return; end
-	    end
-
-	    -- Outbreak
-	    if UnitDebuffID("target",55078,"player") == nil then
-	    	if castSpell("target",_Outbreak,false) then return; end
-	    end
-
-	    -- Icy Touch
-	    if (runesFrost >= 1 or runesDeath >= 1) and getDebuffRemain("target",55095) < 4 then
-		    if castSpell("target",_IcyTouch,false) then return; end
-	    end
-
-	    -- Plague Strike
-	    if (runesUnholy >= 1 or runesDeath >= 1) and getDebuffRemain("target",55078) < 4 then
-	    	if castSpell("target",_PlagueStrike,false) then return; end
-	    end
-
-	    local numEnnemies = getNumEnnemies("target", 10)
-
-	    -- Pestilence/Rolling Blood - Spread
-	    if numEnnemies > 2 and (runesBlood >= 1 or runesDeath >= 1) and (pestiTimer == nil or pestiTimer <= GetTime() - 2) then
-			if canCast(PestiSpell) then
-				if getDebuffRemain("target",55078,"player") >= 2 then
-					for i = 1, #targetEnnemies do
-						local Guid = targetEnnemies[i]
-						ISetAsUnitID(Guid,"thisUnit");
-						if getCreatureType("thisUnit") == true and UnitDebuffID("thisUnit",55078) == nil then
-							if castSpell("target",PestiSpell,true) then pestiTimer = GetTime(); return; end								
-						end
-					end	
-				end
-			end
-	    end
-
-	    -- Heart Strike//Blood Strike
-	    if runesBlood > 1 or (runesBlood > 1 and UnitDebuffID("target",55078,"player") ~= nil) then
-	    	if isKnown(_HeartStrike) and numEnnemies < 3 then
-	    		if castSpell("target",_HeartStrike,false) then return; end
-	    	elseif isKnown(_HeartStrike) == false and numEnnemies < 3 then
-	    		if castSpell("target",_BloodStrike,false) then return; end
-	    	else
-	    		if castSpell("player",_BloodBoil,true) then return; end
-	    	end
-	    end
-
-	    -- Death Strike
-	    if (runesFrost >= 1 and runesUnholy >= 1) 
-	      or (runesFrost >= 1 and runesDeath >= 1)
-	      or (runesDeath >= 1 and runesUnholy >= 1)
-	      or (runesDeath >= 2) then
-	    	if castSpell("target",_DeathStrike,false) then return; end
-	    end
-	   
-	    -- Blood Boil - Scarlet Fever
-	    if targetDistance <= 5 and UnitBuffID("player",81141) ~= nil then
-	    	if castSpell("player",_BloodBoil,true) then return; end
-	    end
-
-	    -- Icy Touch
-	    if runesFrost > 1 then
-	    	if castSpell("target",_IcyTouch,false) then return; end
-	    end
-
-	    -- Soul Reaper
-	    if getHP("target") < 35 then
-	    	if castSpell("target",_SoulReaper,false) then return; end
-	    end
-
-	    -- Rune Strike//Death Coil
-	    if runicPower >= 40 then
-		    if isKnown(_RuneStrike) then
-		    	if castSpell("target",_RuneStrike,false) then return; end
-		    else
-		    	if castSpell("target",_DeathCoil,false) then return; end
-		    end
-		end
-
-	    -- Horn of Winter
-	    if UnitBuffID("player",_HornOfWinter) == nil then
-	    	if castSpell("player",_HornOfWinter,true) then return; end
-	    end
+	    -- Jab
+	    if energy >= 40 then
+	    	if castSpell("target",115698,false) then return; end
+	    end	    
 
 		--ChatOverlay("A L'ATTAQUE");
 

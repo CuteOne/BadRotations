@@ -65,11 +65,6 @@ if not metaTable1 then
 		145263, -- Proving Grounds Healer Debuff.
 	};
 	
-	local SpecificHPBuffs = { 
-		{ buff = 142865 , value = 75 }, -- Strong Ancient Barrier (Green)
-		{ buff = 142864 , value = 50 }, -- Ancient Barrier (Yellow)
-		{ buff = 142863 , value = 25 }, -- Weak Ancient Barrier (Red)
-	};
 
 	local SpecificHPDebuffs = { 
 		{ debuff = 145263 , value = 20 }, -- Proving Grounds Healer Debuff.
@@ -202,13 +197,26 @@ if not metaTable1 then
 			if o.threat == 3 then PercentWithIncoming = PercentWithIncoming - 3; end
 			if o.guidsh == 72218  then PercentWithIncoming = PercentWithIncoming - 5 end -- Tank in Proving Grounds
 			local ActualWithIncoming = ( UnitHealthMax(o.unit) - ( UnitHealth(o.unit) + incomingheals ) )
-			for i = 1, #SpecificHPBuffs do
-				if UnitDebuffID(o.unit, SpecificHPBuffs[i].buff) ~= nil then
-					if PercentWithIncoming > SpecificHPBuffs[i].value then
-						PercentWithIncoming = SpecificHPBuffs[i].value;
+
+			local SpecificHPBuffs = { 
+				{ buff = 142865 , value = 75 }, -- Strong Ancient Barrier (Green)
+				{ buff = 142864 , value = 50 }, -- Ancient Barrier (Yellow)
+				{ buff = 142863 , value = 25 }, -- Weak Ancient Barrier (Red)
+			};
+
+			if UnitDebuffID(o.unit, 142861) ~= nil then
+				local shieldFound = false;
+				for i = 1, #SpecificHPBuffs do
+					if UnitDebuffID(o.unit, SpecificHPBuffs[i].buff) ~= nil then
+						if PercentWithIncoming > SpecificHPBuffs[i].value then
+							shieldFound = true;
+							PercentWithIncoming = SpecificHPBuffs[i].value;
+						end
 					end
-				end
-			end	
+				end	
+				if shieldFound == false then PercentWithIncoming = 0; end
+			end
+
 			for i = 1, #SpecificHPDebuffs do
 				if UnitDebuffID(o.unit, SpecificHPDebuffs[i].debuff) ~= nil then
 					--if PercentWithIncoming > SpecificHPDebuffs[i].value then
