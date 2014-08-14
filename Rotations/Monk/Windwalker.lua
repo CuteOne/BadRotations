@@ -68,9 +68,13 @@ if select(3, UnitClass("player")) == 10 then
 ------------------
 --- Defensives ---
 ------------------
+	--	Expel Harm
+		if getHP("player")<=80 and (getChiMax("player")-getChi("player"))>=2 and getPower("player")>=40 and not isCasting("player") then
+			if castSpell("player",_ExpelHarm,true) then return; end
+		end
 	-- Touch of Karma
 		if getHP("player")<=50 and canAttack("target","player") and not UnitIsDeadOrGhost("target") then
-			if castSpell("target",_TouchofKarma,true) then return; end
+			if castSpell("target",_TouchofKarma,false) then return; end
 		end
 	-- Fortifying Brew
 		if getHP("player")<=40 then
@@ -94,7 +98,7 @@ if select(3, UnitClass("player")) == 10 then
 -----------------
 --- In Combat ---
 -----------------
-		if isInCombat("player") then			
+		if isInCombat("player") and canAttack("target","player") and not UnitIsDeadOrGhost("target") then			
 	
 	----------------------
 	--- Rotation Pause ---
@@ -150,10 +154,9 @@ if select(3, UnitClass("player")) == 10 then
 				if castSpell("player",_FistsOfFury,true) then return; end
 			end
 		-- Tiger Palm
-			if getChi("player")
-				and (getBuffRemain("player",_TigerPower)<=3
-				or (getBuffRemain("player",_TigerPower)==0 and getRSR()>1 and getTimeToMax("player")>1)
-				or (getBuffRemain("player",_ComboBreakerTigerPalm)>0 and (getBuffRemain("player",_ComboBreakerTigerPalm)<=2 or getTimeToMax("player")>=2)))
+			if (getBuffRemain("player",_TigerPower)<=3 and getChi("player")>=1)
+				or (getBuffRemain("player",_TigerPower)==0 and getRSR()>1 and getTimeToMax("player")>1 and getChi("player")>=1)
+				or (getBuffRemain("player",_ComboBreakerTigerPalm)>0 and (getBuffRemain("player",_ComboBreakerTigerPalm)<=2 or getTimeToMax("player")>=2))
 			then
 				if castSpell("target",_TigerPalm,false) then return; end
 			end
@@ -162,11 +165,11 @@ if select(3, UnitClass("player")) == 10 then
 				if castSpell("player",_ChiWave,true) then return; end
 			end
 		-- Blackout Kick
-			if (getBuffRemain("player",_ComboBreakerBlackoutKick)>0	or (getPower("player")+getRegen("player")*getRSRCD()>=40)) and getChi("player") >= 2 then
+			if (getBuffRemain("player",_ComboBreakerBlackoutKick)>0	or (getPower("player")+getRegen("player")*getRSRCD()>=40 and getChi("player")>=2)) then
 				if castSpell("target",_BlackoutKick,false) then return; end
 			end
 		-- Jab
-			if (getChiMax("player")-getChi("player"))>=2 and getPower("player")>=40 then
+			if (getChiMax("player")-getChi("player"))>=2 and getPower("player")>=40 and (getHP("player")>=80 or getSpellCD(_ExpelHarm)>0) then
 				if castSpell("target",_Jab,false) then return; end
 			end
 		end --In Combat End	
