@@ -495,8 +495,8 @@ function WindwalkerConfig()
             textOp("Interrupts")
 
             -- Chi Builder Toggle
-            checkOp("Builder Toggle","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFThrash Toggle Key|cffFFBB00.");
-            dropOp("Builder Toggle", 6, "Toggle")
+            checkOp("Builder Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFThrash Toggle Key|cffFFBB00.");
+            dropOp("Builder Mode", 5, "Toggle")
             textOp("Chi Builder");
 
         -- General Configs

@@ -4,6 +4,7 @@ if select(3, UnitClass("player")) == 10 then
 	        WindwalkerConfig();
 	        Currentconfig = "Windwalker CuteOne";
 	    end
+	    WindwalkerToggles()
 	    GroupInfo()
 	    if not canRun() then
 	    	return true
@@ -73,7 +74,7 @@ if select(3, UnitClass("player")) == 10 then
 			if isInCombat("player") and (getChiMax("player")-getChi("player"))>=2 then
 				if castSpell("player",_ExpelHarm,true) then return; end
 			end
-			if not isInCombat("player") and getNumEnemies("player",10)==0 then
+			if not isInCombat("player") and getNumEnnemies("player",10)==0 then
 				if castSpell("player",_ExpelHarm,true) then return; end
 			end
 		end
@@ -95,7 +96,7 @@ if select(3, UnitClass("player")) == 10 then
 ---------------------
 		if not isInCombat("player") then
 	--Expel Harm (Chi Builer)
-			if (getChiMax("player")-getChi("player"))>=2 and getPower("player")>=40 and not isCasting("player") then
+			if BadBoy_data['Builder']==1 and (getChiMax("player")-getChi("player"))>=2 and getPower("player")>=40 and not isCasting("player") then
 				if castSpell("player",_ExpelHarm,true) then return; end
 			end
 		end
@@ -132,6 +133,10 @@ if select(3, UnitClass("player")) == 10 then
 		-- Quaking Palm
 			if canInterrupt(_QuakingPalm,tonumber(getValue("Interrupts"))) then
 				if castSpell("target",_QuakingPalm,false) then return; end
+			end
+		-- Spear Hand Strike
+			if canInterrupt(_SpearHandStrike,tonumber(getValue("Interrupts"))) and getSpellCD(_QuakingPalm)>0 and getSpellCD(_QuakingPalm)<119 then
+				if castSpell("target",_SpearHandStrike,false) then return; end
 			end
 	-----------------------------
 	--- In Combat - Cooldowns ---
@@ -179,7 +184,7 @@ if select(3, UnitClass("player")) == 10 then
 			end
 		end --In Combat End	
 	-- Start Attack
-		if targetDistance<5 and isEnnemy("target") then
+		if targetDistance<5 and isEnnemy("target") and not UnitIsDeadOrGhost("target") then
 			StartAttack()
 		end
 	end
