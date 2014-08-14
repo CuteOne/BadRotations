@@ -35,7 +35,9 @@ local Frame = CreateFrame('Frame');
 Frame:RegisterEvent("MERCHANT_SHOW");
 local function MerchantShow(self, event, ...)
 	if event == "MERCHANT_SHOW" then
-		SellGreys();
+		if isChecked("Auto-Sell/Repair") == true then
+			SellGreys();
+		end
 	end
 end
 Frame:SetScript("OnEvent", MerchantShow);

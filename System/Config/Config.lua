@@ -135,11 +135,11 @@ function CreateGeneralsConfig()
     CreateNewText(thisConfig,"Blacklist");
 
     -- No Absorbs
-    CreateNewCheck(thisConfig,"No Absorbs");
+    CreateNewCheck(thisConfig,"No Absorbs","Uncheck this if you want to prevent overhealing shielded units. If checked, it will add shieldBuffValue/4 to hp.");
     CreateNewText(thisConfig,"No Absorbs"); 
 
     -- No Incoming Heals
-    CreateNewCheck(thisConfig,"No Incoming Heals");
+    CreateNewCheck(thisConfig,"No Incoming Heals","Uncheck this if you want to prevent overhealing units. If checked, it will add incoming health from other healers to hp.");
     CreateNewText(thisConfig,"No Incoming Heals");
 
     -- Overhealing Cancel Cast
@@ -149,7 +149,6 @@ function CreateGeneralsConfig()
 
     -- Engine Debug
     CreateNewCheck(thisConfig,"Engine Debug");       
-    CreateNewBox(thisConfig, "Engine Debug", 0, 1000  , 5, 0, "|cffFFBB00Time to wait before refreshing engine.");
     CreateNewText(thisConfig,"Engine Debug");
 
     -- Engine Refresh
@@ -160,9 +159,13 @@ function CreateGeneralsConfig()
     -- Wrapper -----------------------------------------
     CreateNewWrap(thisConfig,"--------- General -------");
 
-    -- PokeRotation
-    CreateNewCheck(thisConfig,"PokeRotation");
-    CreateNewText(thisConfig,"PokeRotation");
+    -- Auto-Sell/Repair
+    CreateNewCheck(thisConfig,"Auto-Sell/Repair");
+    CreateNewText(thisConfig,"Auto-Sell/Repair");
+
+    -- Accept Queues
+    CreateNewCheck(thisConfig,"Accept Queues");
+    CreateNewText(thisConfig,"Accept Queues");
 
     -- Debug
     CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start |cffFFFFFFChat Debug |cffFFBB00of casted spells.");
