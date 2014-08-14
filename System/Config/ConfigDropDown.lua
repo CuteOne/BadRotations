@@ -3,9 +3,13 @@ function CreateNewDrop(value, textString, base, tip1, value1, value2, value3, va
 	local vvalues = { value1, value2, value3, value4, value5, value6, value7, value8, value9, value10 }
 	local vValue = tonumber(BadBoy_data["Drop "..textString])
 	local tip = tip1
-	if tip == "Toggle" then 
+	if tip == "Toggle2" then 
 		tip = "|cffFFFFFFSet wich button you want as toggle for \n"..textString.."."; 
 		vvalues = {"|cffFFBB00LeftCtrl", "|cffFFBB00LeftShift", "|cffFFBB00LeftAlt", "|cffFFBB00RightCtrl", "|cffFFBB00RightShift", "|cffFFBB00RightAlt", "|cffFFBB00None"}
+	end	
+	if tip == "Toggle" then 
+		tip = "|cffFFFFFFSet wich button you want as toggle for \n"..textString.."."; 
+		vvalues = {"|cffFFBB00LeftCtrl", "|cffFFBB00LeftShift", "|cffFFBB00RightCtrl", "|cffFFBB00RightShift", "|cffFFBB00RightAlt", "|cffFFBB00None"}
 	end	
 	if tip == "CD" then 
 		tip = "|cffFFFFFFSets how you want this Cooldown to react. \n|cffD60000Never = Never use this CD. \n|cffFFBB00CDs = Use this CD when ActiveCooldowns Enabled. \n|cff15FF00Always = Always use this CD."; 

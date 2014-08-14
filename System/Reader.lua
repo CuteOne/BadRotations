@@ -223,7 +223,7 @@ function SuperReader(self, event, ...)
         				BadBoy_data.successCasts = BadBoy_data.successCasts + 1;
         				if sourceGUID == nil then debugSource = "" 	else debugSource = 	"\n|cffFFFFFF"..sourceName.." "..sourceGUID; end
         				if spellID == nil then debugSpell = "" 		else debugSpell = 	"\n|cffFFDD11"..spellName.." "..spellID; end
-        				ISetAsUnitID(currentTarget,"castUnit"); targetName = UnitName("castUnit");
+        				if currentTarget ~= nil then ISetAsUnitID(currentTarget,"castUnit"); targetName = UnitName("castUnit"); end
         				if currentTarget == nil then targetUnit = "" else targetUnit = 	"\n|cffFFDD11"..targetName.." "..currentTarget; end
         				local Power = "\n|cffFFFFFFPower: "..UnitPower("player");
         				tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName, toolTip = "|cffFF001ERoll Mouse to Scroll Rows"..debugSource.." "..debugSpell.." "..Power..targetUnit });
