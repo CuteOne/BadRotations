@@ -118,7 +118,10 @@ function canDispel(Unit,spellID)
 
 		end
 		if ClassNum == 10 then --Monk
-
+			-- Detox
+			if spellID == 115450 and (debuffType == "Poison" or debuffType == "Disease") then
+				ValidDebuffType = true
+			end
   		end
 		if ClassNum == 11 then --Druid  			
   			-- Remove Corruption
@@ -613,6 +616,14 @@ function getPower(Unit)
 	local value = 100 * UnitPower(Unit) / UnitPowerMax(Unit)
 	if _MyClass == 11 and UnitBuffID("player",106951) then value = value*2 end
 	return value; 
+end
+
+function getChi(Unit)
+	return UnitPower(Unit,12)
+end
+
+function getChiMax(Unit)
+	return UnitPowerMax(Unit,12) 
 end
 
 --/dump TraceLine()

@@ -391,32 +391,27 @@ end
 
 
 -- Config Panel
-function MonkWind()
+function WindwalkerConfig()
     --if not doneConfig then
         thisConfig = 0
         -- Title
-        titleOp("CuteOne Feral Cat");
+        titleOp("CuteOne Windwalker");
                 -- Spacer
         textOp(" ");
         wrapOp("--- General ---");
 
             -- Death Cat
-            checkOp("Death Cat Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.");
-            textOp("Death Cat Mode");
+            --checkOp("Death Cat Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.");
+            --textOp("Death Cat Mode");
 
             -- Mark Of The Wild
-            checkOp("Mark of the Wild","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Mark of Wild usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.");
-            textOp(tostring(select(1,GetSpellInfo(mow))));
+            --checkOp("Mark of the Wild","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Mark of Wild usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.");
+            --textOp(tostring(select(1,GetSpellInfo(mow))));
 
             -- Dummy DPS Test
             checkOp("DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.");
             boxOp("DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             textOp("DPS Testing");
-
-            -- Rake Multi-Target
-            checkOp("Multi-Rake","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFMulti-Target Raking|cffFFBB00.");
-            textOp("Multi-Rake");
-
 
         -- Spacer
         textOp(" ");
@@ -440,35 +435,35 @@ function MonkWind()
             textOp("Pot/Stoned");
 
             -- Barkskin
-            checkOp("Barkskin");
-            boxOp("Barkskin", 0, 100, 5, 50);
-            textOp(tostring(select(1,GetSpellInfo(bar))));
+            --checkOp("Barkskin");
+            --boxOp("Barkskin", 0, 100, 5, 50);
+            --textOp(tostring(select(1,GetSpellInfo(bar))));
 
             -- Survival Instincts
-            checkOp("Survival Instincts");
-            boxOp("Survival Instincts", 0, 100, 5, 40);
-            textOp(tostring(select(1,GetSpellInfo(si))));
+            --checkOp("Survival Instincts");
+            --boxOp("Survival Instincts", 0, 100, 5, 40);
+            --textOp(tostring(select(1,GetSpellInfo(si))));
 
             -- Frenzied Regeneration
-            checkOp("Frenzied Regen");
-             boxOp("Frenzied Regen", 0, 100, 5, 30);
-            textOp(tostring(select(1,GetSpellInfo(fr))));
+            --checkOp("Frenzied Regen");
+            --boxOp("Frenzied Regen", 0, 100, 5, 30);
+            --textOp(tostring(select(1,GetSpellInfo(fr))));
 
         -- Spacer --
         textOp(" ");
         wrapOp("--- Interrupts ---");
 
             -- Skull Bash
-            checkOp("Skull Bash")
-            textOp(tostring(select(1,GetSpellInfo(sb))))
+            --checkOp("Skull Bash")
+            --textOp(tostring(select(1,GetSpellInfo(sb))))
 
             -- Mighty Bash
-            checkOp("Mighty Bash")
-            textOp(tostring(select(1,GetSpellInfo(mb))))
+            --checkOp("Mighty Bash")
+            --textOp(tostring(select(1,GetSpellInfo(mb))))
 
             -- Maim
-            checkOp("Maim")
-            textOp(tostring(select(1,GetSpellInfo(ma))))
+            --checkOp("Maim")
+            --textOp(tostring(select(1,GetSpellInfo(ma))))
 
             -- Interrupt Percentage
             checkOp("Interrupts");
@@ -499,15 +494,10 @@ function MonkWind()
             dropOp("Interrupt Mode", 6, "Toggle")
             textOp("Interrupts")
 
-            -- Thrash Toggle
-            checkOp("Thrash Toggle","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFThrash Toggle Key|cffFFBB00.");
-            dropOp("Thrash Toggle", 6, "Toggle")
-            textOp("Thrash");
-
-            -- Symbiosis Toggle
-            checkOp("Symbiosis Toggle","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFSymbiosis Toggle Key|cffFFBB00.");
-            dropOp("Symbiosis Toggle", 5, "Toggle")
-            textOp("Symbiosis");
+            -- Chi Builder Toggle
+            checkOp("Builder Toggle","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFThrash Toggle Key|cffFFBB00.");
+            dropOp("Builder Toggle", 6, "Toggle")
+            textOp("Chi Builder");
 
         -- General Configs
         CreateGeneralsConfig();
