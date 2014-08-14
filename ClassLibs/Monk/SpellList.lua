@@ -53,6 +53,28 @@ if select(3,UnitClass("player")) == 10 then
             CreateButton("Cooldowns",2,0)
             CooldownsModesLoaded = "Brew Monk Cooldowns Modes";
         end
+
+
+
+        function SpecificToggle(toggle)
+            if getValue(toggle) == 1 then
+                return IsLeftControlKeyDown();
+            elseif getValue(toggle) == 2 then
+                return IsLeftShiftKeyDown();
+            elseif getValue(toggle) == 3 then
+                return IsLeftAltKeyDown();
+            elseif getValue(toggle) == 4 then
+                return IsRightControlKeyDown();
+            elseif getValue(toggle) == 5 then
+                return IsRightShiftKeyDown();
+            elseif getValue(toggle) == 6 then
+                return IsRightAltKeyDown();
+            elseif getValue(toggle) == 7 then
+                return 1
+            end
+        end
+
+
     end
 
 
@@ -74,7 +96,7 @@ function MonkBrewConfig()
         ClearConfig();
         thisConfig = 0
         -- Title
-        CreateNewTitle(thisConfig,"Restoration |cffFF0000Masoud");
+        CreateNewTitle(thisConfig,"Brewmaster |cffFF0000CodeMyLife");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"---------- Buffs ---------");
@@ -88,6 +110,9 @@ function MonkBrewConfig()
         CreateNewCheck(thisConfig,"Legacy of the Emperor");
         CreateNewText(thisConfig,"Legacy of the Emperor");
 
+        -- Detox
+        CreateNewCheck(thisConfig,"Detox");
+        CreateNewText(thisConfig,"Detox");
 
 
 
@@ -129,21 +154,25 @@ function MonkBrewConfig()
         CreateNewBox(thisConfig, "Guard", 0, 100  , 5, 70, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFGuard");
         CreateNewText(thisConfig,"Guard");        
 
-        -- Wrapper -----------------------------------------
-        CreateNewWrap(thisConfig,"-------- Toggles --------");
-
-        -- Pause Toggle
-        CreateNewCheck(thisConfig,"Pause Toggle");
-        CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle")
-        CreateNewText(thisConfig,"Pause Toggle");  
-
-        -- Focus Toggle
-        CreateNewCheck(thisConfig,"Focus Toggle");
-        CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle")
-        CreateNewText(thisConfig,"Focus Toggle"); 
+        -- Dazzling Brew
+        CreateNewCheck(thisConfig,"Dazzling Brew");
+        CreateNewText(thisConfig,"Dazzling Brew");        
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Utilities ------");
+    	-- Spear and Strike
+	    CreateNewCheck(thisConfig,"Spear and Strike");
+	    CreateNewBox(thisConfig, "Spear and Strike", 0, 100  , 5, 60 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFSpear and Strike.");
+	    CreateNewText(thisConfig,"Spear and Strike");
+
+    	-- Quaking Palm
+	    CreateNewCheck(thisConfig,"Quaking Palm");
+	    CreateNewBox(thisConfig, "Quaking Palm", 0, 100  , 5, 30 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFQuaking Palm.");
+	    CreateNewText(thisConfig,"Quaking Palm");	    
+
+        -- Resuscitate
+        CreateNewCheck(thisConfig,"Resuscitate");
+        CreateNewText(thisConfig,"Resuscitate");    
 
         -- Focus Toggle
         CreateNewCheck(thisConfig,"Roll");

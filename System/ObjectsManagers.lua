@@ -204,18 +204,7 @@ if not metaTable1 then
 				{ buff = 142863 , value = 25 }, -- Weak Ancient Barrier (Red)
 			};
 
-			if UnitDebuffID(o.unit, 142861) ~= nil then
-				local shieldFound = false;
-				for i = 1, #SpecificHPBuffs do
-					if UnitDebuffID(o.unit, SpecificHPBuffs[i].buff) ~= nil then
-						if PercentWithIncoming > SpecificHPBuffs[i].value then
-							shieldFound = true;
-							PercentWithIncoming = SpecificHPBuffs[i].value;
-						end
-					end
-				end	
-				if shieldFound == false then PercentWithIncoming = 0; end
-			end
+
 
 			for i = 1, #SpecificHPDebuffs do
 				if UnitDebuffID(o.unit, SpecificHPDebuffs[i].debuff) ~= nil then
