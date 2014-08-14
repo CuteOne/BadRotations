@@ -255,7 +255,7 @@ function BadBoyRun()
 			if _MySpec == 1 then
 				BrewmasterMonk()
 			elseif _MySpec == 3 then
-				WindWalkerMonk()
+				WindwalkerMonk()
 			end
 		elseif _MyClass == 11 then -- Druid
 			if _MySpec == 2 then
