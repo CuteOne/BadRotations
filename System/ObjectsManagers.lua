@@ -210,17 +210,15 @@ if not metaTable1 then
 			};
 
 			if UnitDebuffID(o.unit, 142861) ~= nil then -- If Miasma found
-				local shieldFound = false; -- set this local
 				for i = 1, #SpecificHPBuffs do -- start nomber of buff iteration
 					if UnitDebuffID(o.unit, SpecificHPBuffs[i].buff) ~= nil then -- if buff found
-						if SpecificHPBuffs[i].value ~= nil and PercentWithIncoming > SpecificHPBuffs[i].value then -- if we have this buff we set its amount
-							shieldFound = true; -- if we get a match we declare it and break out of iteration
-							PercentWithIncoming = SpecificHPBuffs[i].value;
+						if SpecificHPBuffs[i].value ~= nil then
+							PercentWithIncoming = 100 + SpecificHPBuffs[i].value; -- we set its amount + 100 to make sure its within 50-100 range
 							break;
 						end
 					end
 				end	
-				PercentWithIncoming = PercentWithIncoming/2 -- no mather what as long as we are on miasma buff our life is cut in half
+				PercentWithIncoming = PercentWithIncoming/2 -- no mather what as long as we are on miasma buff our life is cut in half so unshielded ends up 0-50
 			end
 
 			for i = 1, #SpecificHPDebuffs do
