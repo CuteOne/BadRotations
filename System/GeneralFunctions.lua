@@ -364,21 +364,25 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 	      		if timersTable == nil or (timersTable ~= nil and (timersTable[SpellID] == nil or timersTable[SpellID] <= GetTime() -0.6)) then
 	       			if Unit ~= nil and (UnitGUID(Unit) == UnitGUID("player") or (KnownSkip or isKnown(SpellID)) and getDistance("player",Unit) < spellRange and getLineOfSight("player",Unit) == true) then
 	        			timersTable[SpellID] = GetTime();
+	        			currentTarget = UnitGUID(Unit);
 	        			CastSpellByName(GetSpellInfo(SpellID),Unit);
 	        			return true;
 	    			end
 	       			if Unit == nil then
 	        			timersTable[SpellID] = GetTime();
+	        			currentTarget = UnitGUID(Unit);
 	        			CastSpellByName(GetSpellInfo(SpellID));
 	        			return true;
 	       			end
 				end
 			elseif Unit ~= nil and (UnitGUID(Unit) == UnitGUID("player") 
 	  		  or getDistance("player",Unit) < spellRange and getLineOfSight("player",Unit) == true) then
+	        	currentTarget = UnitGUID(Unit);
 				CastSpellByName(GetSpellInfo(SpellID),Unit);
 				return true;
 			end
 			if Unit == nil then
+	        	currentTarget = UnitGUID(Unit);
 				CastSpellByName(GetSpellInfo(SpellID));
 	      		return true;
 	    	end

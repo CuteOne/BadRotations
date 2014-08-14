@@ -248,14 +248,18 @@ function DruidRestoration()
 
 		--[[ 3 - NS healing Touch --(U can NS healing Touch While in cat form)]]
         -- Healing Touch via Ns
-		if isChecked("Healing Touch Ns") and nNova[1].hp <= getValue("Healing Touch Ns") then
-		   	if castSpell("player",132158,true) then 
-		   		if castSpell(nNova[1].unit,5185,true,false) then return; end 
-		   	end
-		  	-- For lag  
-		   	if UnitBuffID("player",132158) then 
-		   		if castSpell(nNova[1].unit,5185,true,false) then return; end
-		    end
+		if isChecked("Healing Touch Ns") then
+			for i = 1, #nNova do
+				if nNova[i].hp <= getValue("Healing Touch Ns") and getDistance(nNova[i].unit,"player") < 40 then
+				   	if castSpell("player",132158,true) then 
+				   		if castSpell(nNova[i].unit,5185,true,false) then return; end 
+				   	end
+				  	-- For lag  
+				   	if UnitBuffID("player",132158) then 
+				   		if castSpell(nNova[i].unit,5185,true,false) then return; end
+				    end
+				end
+			end
 		end
 
 		--[[ 5 - DPs --(range and  melee)]]
