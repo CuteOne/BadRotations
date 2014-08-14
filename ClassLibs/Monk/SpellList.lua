@@ -108,14 +108,20 @@ function MonkBrewConfig()
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------- Defensive ------");
 
+
+        -- Expel Harm
+        CreateNewCheck(thisConfig,"Expel Harm");
+        CreateNewBox(thisConfig, "Expel Harm", 0, 100  , 5, 80, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFExpel Harm");
+        CreateNewText(thisConfig,"Expel Harm");
+
         -- Healthstone
         CreateNewCheck(thisConfig,"Healthstone");
-        CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
+        CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
         CreateNewText(thisConfig,"Healthstone");
 
         -- Fortifying Brew
         CreateNewCheck(thisConfig,"Fortifying Brew");
-        CreateNewBox(thisConfig, "Fortifying Brew", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
+        CreateNewBox(thisConfig, "Fortifying Brew", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
         CreateNewText(thisConfig,"Fortifying Brew");
 
         -- Guard

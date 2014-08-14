@@ -46,6 +46,8 @@ Follow this priority to generate Chi.
 Keg Smash on cooldown when at < 3 Chi. Applies Weakened Blows.
 Expel Harm when you are not at full health.
 Jab use to build Chi and prevent Energy capping.
+
+
 Chi Finishers:
 Follow this priority to spend Chi.
 
@@ -107,18 +109,44 @@ Zen Meditation Use proactively to reduce the damage of one large magic attack by
 	end
 
 
-	if isInCombat("player") and isAlive() and (isEnnemy() or isDummy("target")) then
+	if isInCombat("player") and isAlive() and (isEnnemy() or isDummy("target")) and targetDistance <= 4 then
 
+		--[[Keg Smash on cooldown when at < 3 Chi. Applies Weakened Blows.]]
+	    if chi < 3 then
+	    	if castSpell("target",121253,false) then return; end
+	    end		
 
-	    -- Jab
-	    if energy >= 40 then
+		--[[Expel Harm when you are not at full health.]]
+		if energy >= 40 and myHP <= getValue("Expel Harm") and chi < 4 then
+	    	if castSpell("player",115072,true) then return; end
+	    end	  
+
+		--[[Jab use to build Chi and prevent Energy capping.]]
+	    if energy >= 40 and chi < 4 then
 	    	if castSpell("target",115698,false) then return; end
-	    end
+	    end	 
 
-	    -- Jab
-	    if energy >= 40 then
-	    	if castSpell("target",115698,false) then return; end
-	    end	    
+		--[[Purifying Brew to remove your Stagger DoT when Yellow or Red.]]
+
+		--[[Elusive Brew if > 10 stacks. Delay up to 10-15 sec for anticipated damage.]]
+
+		--[[Guard on cooldown. Delay up to 10-15 sec for anticipated damage.]]
+	    if chi >= 2 then
+	    	if castSpell("player",115295,true) then return; end
+	    end		
+
+		--[[Blackout Kick as often as possible. Aim for ~80% uptime on Shuffle.]]
+	    if chi >= 2 and getBuffRemain("player",115307) == 0 then
+	    	if castSpell("target",100784,true) then return; end
+	    end	
+
+		--[[Tiger Palm does not cost Chi, but is used like a finisher (Tiger Power).]]
+	    if getBuffRemain("player",125359) < 2 then
+	    	if castSpell("target",100787,true) then return; end
+	    end			
+
+			
+   
 
 		--ChatOverlay("A L'ATTAQUE");
 
