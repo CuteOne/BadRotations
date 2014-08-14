@@ -6,7 +6,7 @@ function BrewmasterMonk()
 		MonkBrewToggles();
 		MonkBrewConfig();
 	end
-
+	-- Barrel Thrower
 	if SpellIsTargeting() then
 		if UnitExists("target") then
 			local X, Y, Z = IGetLocation(UnitGUID("target"));
@@ -15,18 +15,15 @@ function BrewmasterMonk()
 			return true;
 		end
 	end
-
 	-- Locals
 	local chi = UnitPower("player", SPELL_POWER_CHI);
 	local energy = getPower("player");
 	local myHP = getHP("player");
 	local ennemyUnits = getNumEnnemies("player", 5)
 	-- Food/Invis Check
-	--if canRun() ~= true or UnitInVehicle("Player") then return false; end
+	if canRun() ~= true or UnitInVehicle("Player") then return false; end
 	if IsMounted("player") then return false; end
-
     GroupInfo()
-
 ---------------------------------------
 --- Ressurection/Dispelling/Healing ---
 ---------------------------------------
@@ -104,14 +101,10 @@ function BrewmasterMonk()
 --- Out of Combat ---
 ---------------------
 	if not isInCombat("player") then
---Expel Harm (Chi Builer)
-		if (getChiMax("player")-getChi("player"))>=2 and getPower("player")>=40 and not isCasting("player") then
-			if castSpell("player",_ExpelHarm,true) then return; end
-		end
 		if canAttack("target","player") and not UnitIsDeadOrGhost("target") then
 		   	-- Dazzling Brew
 			if isChecked("Dazzling Brew") == true then
-				if getGround("target") == true and UnitExists("target") and (isDummy("target") or getDistance("target","targettarget") <= 15) then
+				if targetDistance <= 40 and getGround("target") == true and UnitExists("target") and (isDummy("target") or getDistance("target","targettarget") <= 15) then
 					 CastSpellByName(GetSpellInfo(115180),nil);
 					 return;
 				end
@@ -144,17 +137,19 @@ function BrewmasterMonk()
 
 
 	--castGroundBetween("target",115180,40)
-	if targetDistance >= 4 then
+	if targetDistance >= 4 and targetDistance <= 40 then
 
-    	-- Dazzling Brew
+		--[[Chi Wave]]
+	    if castSpell("target",115098,false) then return; end
+
+    	--[[Dazzling Brew]]
 		if isChecked("Dazzling Brew") == true then
-			if getGround("target") == true and UnitExists("target") and (isDummy("target") or getDistance("target","targettarget") <= 15) then
+			if getGround("target") == true and UnitExists("target") and not UnitIsDeadOrGhost("target") then
 				if castSpell("player",115180,true,false) then return; end
 			end
 		end   
 		
-		--[[Chi Wave]]
-	    if castSpell("target",115098,false) then return; end
+
 
 
 	else
@@ -162,43 +157,43 @@ function BrewmasterMonk()
 
 
 		--[[Chi Wave]]
-	    if castSpell("target",115098,false) then return; end
+	    if castSpell("target",_ChiWave,false) then return; end
 
 	
 
 		--[[Breath of Fire if >= 3 targets dump.]]
 	    if chi >= 3 and ennemyUnits > 2 then
-	    	if castSpell("target",115181,false) then return; end
+	    	if castSpell("target",_BreathOfFire,false) then return; end
 	    end	
 
 		--[[Blackout Kick dump.]]
 	    if chi >= 3 then
-	    	if castSpell("target",100784,true) then return; end
+	    	if castSpell("target",_BlackoutKick,true) then return; end
 	    end	
 
 		--[[Keg Smash on cooldown when at < 3 Chi. Applies Weakened Blows.]]
 	    if chi < 3 then
-	    	if castSpell("target",121253,false) then return; end
+	    	if castSpell("target",_KegSmash,false) then return; end
 	    end		
 
 		--[[Tiger Palm does not cost Chi, but is used like a finisher (Tiger Power).]]
 	    if getBuffRemain("player",125359) < 2 then
-	    	if castSpell("target",100787,true) then return; end
+	    	if castSpell("target",_TigerPalm,true) then return; end
 	    end	
 
 		--[[Expel Harm when you are not at full health.]]
 		if energy >= 40 and myHP <= getValue("Expel Harm") then
-	    	if castSpell("player",115072,true) then return; end
+	    	if castSpell("player",_ExpelHarm,true) then return; end
 	    end	  
 
 		--[[Touch of Death]]
 	    if chi >= 3 and myHP > getHP("target") then
-	    	if castSpell("target",115080,false) then return; end
+	    	if castSpell("target",_TouchOfDeath,false) then return; end
 	    end		
 
 		--[[Jab use to build Chi and prevent Energy capping.]]
     	if (energy > 70 and chi < 4) or energy >= 90 then
-    		if castSpell("target",115698,false) then return; end
+    		if castSpell("target",_Jab,false) then return; end
     	end
 
 
@@ -209,21 +204,21 @@ function BrewmasterMonk()
 
 		--[[Guard on cooldown. Delay up to 10-15 sec for anticipated damage.]]
 	    if chi >= 2 and getBuffRemain("player",118636) > 1 then
-	    	if castSpell("player",115295,true) then return; end
+	    	if castSpell("player",_Guard,true) then return; end
 	    end		
 
 		--[[Breath of Fire if > 3 targets]]
 	    if chi >= 2 and ennemyUnits > 2 then
-	    	if castSpell("target",115181,false) then return; end
+	    	if castSpell("target",_BreathOfFire,false) then return; end
 	    end	
 
 		--[[Blackout Kick as often as possible. Aim for ~80% uptime on Shuffle.]]
 	    if (chi == 2 and getBuffRemain("player",115307) == 0) or chi >= 3 then
-	    	if castSpell("target",100784,true) then return; end
+	    	if castSpell("target",_BlackoutKick,true) then return; end
 	    end	
 
 		--[[Tiger Palm filler.]]
-	    if castSpell("target",100787,true) then return; end			
+	    if castSpell("target",_TigerPalm,true) then return; end			
   
 	end
 

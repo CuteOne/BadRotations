@@ -86,10 +86,10 @@ if select(3,UnitClass("player")) == 10 then
 --[[           ]]	--[[]]	  --[[]]	--[[           ]]	--[[ ]]   --[[ ]]
 --[[           ]]	--[[]]	   --[[]]	--[[           ]]	 --[[]]   --[[]]
 
-
-
-
-
+_Guard							=   115295  --Guard
+_BreathOfFire					=   115181  --Breath Of Fire
+_KegSmash						=	121253	--Keg Smash
+_DazzlingBrew					= 	115180  --Dazzling Brew
 
 function MonkBrewConfig()
     if currentConfig ~= "Brewmaster CodeMyLife" then
