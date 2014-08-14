@@ -252,7 +252,11 @@ function BadBoyRun()
 		elseif _MyClass == 9 then -- Warlock
 			--Warlock()		
 		elseif _MyClass == 10 then -- Monk
-			--Monk()						
+			if _MySpec == 1 then
+				BrewmasterMonk()
+			elseif _MySpec == 3 then
+				WindWalkerMonk()
+			end
 		elseif _MyClass == 11 then -- Druid
 			if _MySpec == 2 then
 				Druid()
