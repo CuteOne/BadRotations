@@ -443,6 +443,13 @@ end
 --[[           ]]   --[[           ]]          --[[ ]]
 --[[           ]]   --[[           ]]          --[[ ]]
 
+--Calculate Agility
+function getAgility()
+    local AgiBase, AgiStat, AgiPos, AgiNeg = UnitStat("player",2)
+    local Agi = AgiBase + AgiPos + AgiNeg
+    return Agi
+end
+
 -- if getAllies("player",40) > 5 then
 function getAllies(Unit,Radius)
 	local alliesTable = {};
