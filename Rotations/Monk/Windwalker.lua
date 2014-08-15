@@ -145,29 +145,34 @@ if select(3, UnitClass("player")) == 10 then
 	-----------------------------
 	--- In Combat - Cooldowns ---
 	-----------------------------
-		-- Energizing Brew
-			if getTimeToMax("player")>5 then
-				if castSpell("player",_EnergizingBrew,true) then return; end
-			end
+		
 	--------------------------------
 	--- In Combat - All Rotation ---
 	--------------------------------
 		-- Touch of Death
-			if UnitBuffID("player",_DeathNote) and targetDistance<3.5 then
+			if UnitBuffID("player",_DeathNote) and targetDistance<3.5 and getBuffRemain("player",_SpinningCraneKick)==0 then
 				if castSpell("target",_TouchOfDeath,false) then return; end
 			end
 		-- Chi Brew
-			if getChi("player")<=2 and (getAgility() > AgiSnap or (getCharges(_ChiBrew)==1 and getRecharge(_ChiBrew)<=10) or getCharges(_ChiBrew)==2 or getTimeToDie("target")<(getCharges(_ChiBrew)*10)) then
+			if getChi("player")<=2 and (getAgility() > AgiSnap or (getCharges(_ChiBrew)==1 and getRecharge(_ChiBrew)<=10) or getCharges(_ChiBrew)==2 or getTimeToDie("target")<(getCharges(_ChiBrew)*10)) and getBuffRemain("player",_SpinningCraneKick)==0 then
 				if castSpell("player",_ChiBrew,true) then return; end
 			end
 		-- Tiger Palm
-			if  targetDistance<3.5 and getBuffRemain("player",_TigerPower)<=3 and getChi("player")>=1 then
+			if  targetDistance<3.5 and getBuffRemain("player",_TigerPower)<=3 and getChi("player")>=1 and getBuffRemain("player",_SpinningCraneKick)==0 then
 				if castSpell("target",_TigerPalm,false) then return; end
 			end
-		-- Raising Sun Kick
+		-- Tigereye Brew
 
+		-- Energizing Brew
+			if getTimeToMax("player")>5 and getBuffRemain("player",_SpinningCraneKick)==0 then
+				if castSpell("player",_EnergizingBrew,true) then return; end
+			end
+		-- Raising Sun Kick
+			if getRSR()==0 and getBuffRemain("player",_SpinningCraneKick)==0 then
+				if castSpell("target",_RaisingSunKick,false) then return; end
+			end
 		-- Tiger Palm
-			if  targetDistance<3.5 and getBuffRemain("player",_TigerPower)==0 and getRSR()>1 and getTimeToMax("player")>1 and getChi("player")>=1 then
+			if  targetDistance<3.5 and getBuffRemain("player",_TigerPower)==0 and getRSR()>1 and getTimeToMax("player")>1 and getChi("player")>=1 and getBuffRemain("player",_SpinningCraneKick)==0 then
 				if castSpell("target",_TigerPalm,false) then return; end
 			end
 
@@ -176,14 +181,16 @@ if select(3, UnitClass("player")) == 10 then
 	-----------------------------------------
 			if useAoE() then
 		--	Spinning Crane Kick
-
+				if getPower("player")>=40 and getBuffRemain("player",_TigerPower)>2 and getBuffRemain("player",_SpinningCraneKick)==0 then
+					if castSpell("player",_SpinningCraneKick,true) then return; end
+				end
 			end
 	------------------------------------------
 	--- In Combat - Single-Target Rotation ---
 	------------------------------------------
 			if not useAoE() then
 		-- Raising Sun Kick
-
+				if castSpell("target",_RaisingSunKick,false) then return; end
 		-- Fists of Fury
 				if getSpellCD(_EnergizingBrew)==0 
 					and getTimeToMax("player")>4 
