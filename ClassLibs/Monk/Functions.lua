@@ -146,19 +146,4 @@ function useAoE()
     end
 end
 
---Calculate Agility
-function getAgility()
-    local AgiBase, AgiStat, AgiPos, AgiNeg = UnitStat("player",2)
-    local Agi = AgiBase + AgiPos + AgiNeg
-    return Agi
-end
-
--- if AgiSnap == nil then AgiSnap = 0; end
--- if isInCombat("player") and AgiSnap == 0 then
--- 	AgiSnap = getAgility()
--- end
--- if not isInCombat("player") and AgiSnap>0 then
--- 	AgiSnap = 0
--- end
-
 end
