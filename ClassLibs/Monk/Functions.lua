@@ -35,7 +35,6 @@ if select(3,UnitClass("player")) == 10 then
  --[[]]   --[[]]	--[[           ]]	--[[]]	   --[[]]	--[[         ]]
 ------Abilities------
 _BlackoutKick           	=   100784  --Blackout Kick
-_ChiBrew					=	115399	--Chi Brew
 _ChiWave                	=   115098  --Chi Wave
 _CracklingJadeLightning 	=   117952  --Crackling Jade Lightning
 _DampenHarm             	=   122278  --Dampen Harm
@@ -57,7 +56,7 @@ _Paralysis					=   115078  --Paralysis
 _Provoke					=   115546  --Provoke
 _QuakingPalm				=   107079  --Quaking Palm
 _Resuscitate				=   115178  --Resuscitate
-_Roll						=   121827--109132  --Roll
+_Roll						=   109132  --Roll
 _RaisingSunKick				=   107428  --Raising Sun Kick
 _SpinningCraneKick			=   101546  --Spinning Crane Kick
 _SpinningFireBlossom		=   115073  --Spinning Fire Blossom
@@ -136,29 +135,6 @@ end
 -- Fists of Fury Haste
 function getFistsOfFuryHaste()
 	return (4 / (1 + UnitSpellHaste("player") / 100))
-end
-
-function useAoE()
-    if ((BadBoy_data['AoE'] == 1 and getNumEnnemies("player",8) >= 3) or BadBoy_data['AoE'] == 2) and UnitLevel("player")>=46 then
-        return true
-    else
-        return false
-    end
-end
-
---Calculate Agility
-function getAgility()
-    local AgiBase, AgiStat, AgiPos, AgiNeg = UnitStat("player",2)
-    local Agi = AgiBase + AgiPos + AgiNeg
-    return Agi
-end
-
-if AgiSnap == nil then AgiSnap = 0; end
-if isInCombat("player") and AgiSnap == 0 then
-	AgiSnap = getAgility()
-end
-if not isInCombat("player") and AgiSnap>0 then
-	AgiSnap = 0
 end
 
 end
