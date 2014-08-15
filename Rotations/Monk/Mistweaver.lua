@@ -5,6 +5,7 @@ function MistweaverMonk()
 		MonkMistToggles();
 		MonkMistConfig();
 	end
+		ChatOverlay("O.O")
 -- Healing Sheres
 	if SpellIsTargeting() then
 		if UnitExists("target") then
@@ -16,6 +17,7 @@ function MistweaverMonk()
 	end
 -- Locals
 	local chi = UnitPower("player", SPELL_POWER_CHI);
+	local chiMax = UnitPowerMax("player", SPELL_POWER_CHI)
 	local energy = getPower("player");
 	local myHP = getHP("player");
 	local ennemyUnits = getNumEnnemies("player", 5)
@@ -116,7 +118,7 @@ function MistweaverMonk()
 -----------------
 --- In Combat ---
 -----------------
-	if isInCombat("player") and canAttack("target","player") and not UnitIsDeadOrGhost("target") then			
+	--if isInCombat("player") and canAttack("target","player") and not UnitIsDeadOrGhost("target") then			
 ----------------------
 --- Rotation Pause ---
 ----------------------
@@ -125,165 +127,273 @@ function MistweaverMonk()
 		end
 
 
+------Abilities------
+_BlackoutKick           	=   100784  --Blackout Kick
+_ChiWave                	=   115098  --Chi Wave
+_CracklingJadeLightning 	=   117952  --Crackling Jade Lightning
+_DampenHarm             	=   122278  --Dampen Harm
+_Disable                	=   116095  --Disable
+_Detox                  	=   115450  --Detox
+_EnergizingBrew				=   115288  --Energizing Brew
+_ExpelHarm					=   115072  --Expel Harm
+_FistsOfFury				=   113656  --Fists of Fury
+_FlyingSerpentKick			=   101545  --Flying Serpent Kick
+_FortifyingBrew				=   115203  --Fortifying Brew
+_GrapleWaepon				=   117368  --Grapple Weapon
+_InvokeXuen					=   123904  --Invoke Xuen
+_Jab						=   115698  --Jab
+_LegacyOfTheEmperor			=   115921  --Legacy of the Emperor
+_LegSweep					=   119381  --Leg Sweep
+_LegacyOfTheWhiteTiger		=   116781  --Legacy of the White Tiger
+_NimbleBrew					=   137562  --Nimble Brew
+_Paralysis					=   115078  --Paralysis
+_Provoke					=   115546  --Provoke
+_QuakingPalm				=   107079  --Quaking Palm
+_Resuscitate				=   115178  --Resuscitate
+_Roll						=   109132  --Roll
+_RaisingSunKick				=   107428  --Raising Sun Kick
+_SpinningCraneKick			=   101546  --Spinning Crane Kick
+_SpinningFireBlossom		=   115073  --Spinning Fire Blossom
+_StanceOfTheFierceTiger		=   103985  --Stance of the Fierce Tiger
+_SpearHandStrike			=   116705  --Spear Hand Strike
+_TigereyeBrew				=   116740  --Tigereye Brew
+_TigerPalm					=   100787  --Tiger Palm
+_TouchOfDeath				=   115080  --Touch of Death
+_TouchOfKarma 				=   122470  --Touch of Karma
+_ZenPilgramage				=   126892  --Zen Pilgramage
+_ZenSphere					=   124081  --Zen Sphere
 
---[["TaMere","@CML.SoothingStops()"},]]
+------Buffs/Debuffs------
+_DeathNote					=   121125 --Tracking Touch of Death Availability
+_TigerPower					=   125359 --Tiger Power
+_ComboBreakerTigerPalm		=   118864 --Combo Breaker: Tiger Palm
+_ComboBreakerBlackoutKick	=   116768 --Combo Breaker: Blackout Kick
+_ZenSphereBuff				=   124081 --Zen Sphere Buff
+_TigereyeBrewStacks			=   125195 --Tigereye Brew Stacks
+_DisableDebuff				=   116706 --Disable (root)
 
--- Expel Harm
---[["115072",{"ExpelHarm.novaHealing(0)"}},]]
-
--- Summon Jade Serpent Statue
---[["115313","JadeSerpentStatue.pqikeybind","ground"},]]
-
--- Detox
---[["115450",{"Detox.maincheck","@CML.Dispel()"}},]]
-
-
---------------------------------------------------Cooldowns------------------------------------------------
--- Invoke Xuen, the White Tiger
---[["123904",{"InvokeXuen.coolHealing(MembersforCooldowns)"}},]]
-
--- Revival
---[["115310",{"Revival.coolHealing(MembersforCooldowns)"}},]]
-
--- Spinning Crane Kick
---[["101546",{"SpinningCraneKick.coolHealing(MembersforCooldowns)"}},]]
-
-
---------------------------------------------------Healing Rotation-----------------------------------------
--- Life Cocoon
---[["116849",{"LifeCocoon.novaHealing(1)"}},]]
--- Uplift
---[["116670","@CML.Uplift()"},]]
--- Renewing Mist
---[["115151",{"@CML.ReMs()"}},]]
---[["115151","player.chi < 5"},]]
-
--- Mana Tea without Glyph of Mana Tea 
---[["123761",{"@CML.IsGlyphed(123763,false)","123761.stopcasting","!player.moving","player.buff(115867).count >= 10","ManaTea.pqiMana(0)"}},]] 
-
--- Mana Tea with Glyph of Mana Tea 
---[["!123761",{"@CML.IsGlyphed(123763,true)","player.buff(115867).count >= 2","ManaTea.pqiMana(0)"}},]] 
-
--- Chi Wave
---[["115098",{"ChiWave.novaHealing(1)"}},]]
-
--- Surging Mist/Vital Mists
---[["116694",{"player.buff(118674).count = 5","SurgingMist.novaHealing(1)"}},]] 
-
--- Enveloping Mist
---[["124682",{"@CML.EnvelopingMist()"}},]]
-
--- Surging Mist  
---[["116694",{"@CML.SurgingMist()"}},]]  
-
--- Soothing Mist
---[["115175",{"115175.stopcasting","SoothingMist.novaHealing(1)"}},]]
-
--- Legendary Meta Support
---[["!108557",{"player.buff(137331)","108557.multiTarget","!modifier.last"}},]] -- Jab
-
--- Mana Management
---[["!100784", {"player.buff(139597)","100784.multiTarget","player.aoe != 1"}},]] -- Blackout Kick/Muscle Memory
-
---[["!100787", {"player.buff(139597)","100787.multiTarget"}},]] -- Tiger Palm/Muscle Memory
-
--- Touch of Death
---[["115080",{"115080.multiTarget","player.buff(121125)"}},]]
-
-------------------------------------------------Multi target-----------------------------------------------
--- Rushing Jade Wind  
---[["116847",{"talent(16)","player.aoe != 1"}},]]
-
--- Spinning Crane Kick    
---[["101546","player.aoe != 1"},]]    
-
--------------------------------------------------Mist------------------------------------------------------
--- Blackout Kick/Max Chi and no Serpent's Zeal
---[["100784",{"player.mode = 1","player.chi = 5","!player.buff(127722)","100784.multiTarget"}},]] 
-
- -- Blackout Kick/Muscle Memory and no Serpent's Zeal
---[["100784",{"player.mode = 1","player.chi >= 2","player.buff(139597)","!player.buff(127722)","100784.multiTarget"}},]]
-
--- Jab/no Muscle Memory and no Serpent's Zeal
---[["108557",{"player.mode = 1","player.chi < 5","!player.buff(139597)","!player.buff(127722)","108557.multiTarget"}},]] 
-
--------------------------------------------------Fist------------------------------------------------------
--- Blackout Kick/Max Chi and no Serpent's Zeal
---[["100784",{"player.mode = 2","player.chi = 5","!player.buff(127722)","100784.multiTarget"}},]] 
-
--- Blackout Kick/Muscle Memory and no Serpent's Zeal
---[["100784",{"player.mode = 2","player.chi >= 2","player.buff(139597)","!player.buff(127722)","100784.multiTarget"}},]] 
-
--- Blackout Kick/Max Chi and Muscle Memory and no Serpent's Zeal
---[["100784",{"player.mode = 2","player.chi = 5","player.buff(139597)","!player.buff(127722)","100784.multiTarget"}},]] 
-
--- Tiger Palm/Chi Dump
---[["100787",{"player.mode = 2","player.chi = 5","100787.multiTarget"}},]] 
-
--- Jab/no Muscle Memory
---[["108557",{"player.mode = 2","player.chi < 5","!player.buff(127722)","108557.multiTarget"}},]] 
-
--- Jab/no Serpent's Zeal
---[["108557",{"player.mode = 2","player.chi < 5","!player.buff(139597)","108557.multiTarget"}},]] 
--------------------------------------------------Light------------------------------------------------------
-
--- Jab/no Chi
---[["108557",{"player.mode = 3","player.chi < 1","player.buff(139597)","108557.multiTarget"}},]] 
-
--- Blackout Kick/Muscle Memory
---[["100784",{"player.mode = 3","player.chi >= 2","player.buff(139597)","100784.multiTarget"}},]] 
-
--- Blackout Kick/no Serpent's Zeal
---[["100784",{"player.mode = 3","player.chi >= 3","!player.buff(127722)","100784.multiTarget"}},]] 
-
--- Tiger Palm/Muscle Memory
---[["100787",{"player.mode = 3","player.chi >= 1","player.buff(139597)","100787.multiTarget"}},]]
-
--- Tiger Palm/no Tiger Power
---[["100787",{"player.mode = 3","player.chi >= 1","!player.buff(125359)","100787.multiTarget"}},]] 
-
--- Crackling Jade Lightning/no Muscle Memory
---[["117952",{"player.mode = 3","player.chi < 5","!player.buff(139597)","117952.multiTarget"}},]] 
-
--- Crackling Jade Lightning/no Muscle Memory and no Lucidity
---[["117952",{"player.mode = 3","player.chi < 5","!player.buff(137331)","!player.buff(139597)","!player.moving","player.mana > 15","117952.multiTarget"}},]] 
-
--- Blackout Kick/Max Chi
---[["100784",{"player.mode = 3","player.chi = 5","100784.multiTarget"}},]] 
-
-------------------------------------------------Out of Combat----------------------------------------------
-
---[["TaMere","@CML.SoothingStops()"},]]
--- Healing Sphere
---[["115460",{"HealingSpheresKey.pqikeybind"},"ground"},]]
--- Expel Harm
---[["115072",{"ExpelHarm.novaHealing(0)"}},]]
--- Fortifying Brew
---[["115203",{"FortifyingBrew.novaHealing(0)"}},]]
--- Healthstone   
---[["#5512",{"@CML.HealthStone()","Healthstone.novaHealing(0)"}},]]
--- Legacy of The Emperor               
---[["115921",{"LegacyOfTheEmperor.pqivalue = 1","!player.hasaura(1)"},"player"},]]
--- Summon Jade Serpent Statue
---[["115313","JadeSerpentStatue.pqikeybind","ground"},]]
--- Renewing Mist
---[["115151","@CML.ReMs()"},]]
--- Surging Mist/Vital Mists
---[["116694",{"player.buff(118674).count = 5","SurgingMist.novaHealing(1)"},nil},]] -- need to check
--- Uplift
---[["116670","@CML.Uplift()"},]]
--- Stance of the Jade Serpent
---[["115070",{"player.seal != 1"}},]]
--- Mana Tea without Glyph of Mana Tea 
---[["123761",{"@CML.IsGlyphed(123763,false)","123761.stopcasting","!player.moving","player.buff(115867).count >= 10","ManaTea.pqiMana(0)"}},]] 
--- Mana Tea with Glyph of Mana Tea 
---[["123761",{"@CML.IsGlyphed(123763,true)","player.buff(115867).count >= 2","ManaTea.pqiMana(0)"}},]]
+------Racials------
+_GiftOfTheNaaru			 =   59547   --Gift of the Naaru
 
 
+_RenewingMist			=	115151;
+
+
+		ChatOverlay("O.O")
+
+		--[["TaMere","@CML.SoothingStops()"},]]
+
+		-- Expel Harm
+		--[["115072",{"ExpelHarm.novaHealing(0)"}},]]
+		if chi < chiMax and getHP("player") <= getValue("Expel Harm") then
+			if castSpell("player",_ExpelHarm, true) then return; end
+		end
+
+		-- Summon Jade Serpent Statue
+		--[["115313","JadeSerpentStatue.pqikeybind","ground"},]]
+
+		-- Detox
+		--[["115450",{"Detox.maincheck","@CML.Dispel()"}},]]
+		if isChecked("Detox") then
+			if getValue("Detox") == 1 then -- Mouse Match
+				if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
+					for i = 1, #nNova do
+						if nNova[i].guid == UnitGUID("mouseover") and nNova[i].dispel == true then
+							if castSpell(nNova[i].unit,_Detox, true,false) then return; end
+						end
+					end		
+				end		
+			elseif getValue("Detox") == 2 then -- Raid Match
+				for i = 1, #nNova do
+					if nNova[i].dispel == true then
+						if castSpell(nNova[i].unit,_Detox, true,false) then return; end
+					end
+				end
+			elseif getValue("Detox") == 3 then -- Mouse All
+				if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
+				    for n = 1,40 do 
+				      	local buff,_,_,count,bufftype,duration = UnitDebuff("mouseover", n)
+			      		if buff then 
+			        		if bufftype == "Magic" or bufftype == "Disease" or bufftype == "Poison" then 
+			        			if castSpell("mouseover",_Detox, true,false) then return; end 
+			        		end 
+			      		else
+			        		break;
+			      		end   
+				  	end
+				end		
+			elseif getValue("Detox") == 4 then -- Raid All
+				for i = 1, #nNova do
+				    for n = 1,40 do 
+				      	local buff,_,_,count,bufftype,duration = UnitDebuff(nNova[i].unit, n)
+			      		if buff then 
+			        		if bufftype == "Magic" or bufftype == "Disease" or bufftype == "Poison" then 
+			        			if castSpell(nNova[i].unit,_Detox, true,false) then return; end 
+			        		end 
+			      		else
+			        		break;
+			      		end 
+				  	end
+				end	
+			end
+		end
+
+		--------------------------------------------------Cooldowns------------------------------------------------
+		-- Invoke Xuen, the White Tiger
+		--[["123904",{"InvokeXuen.coolHealing(MembersforCooldowns)"}},]]
+
+		-- Revival
+		--[["115310",{"Revival.coolHealing(MembersforCooldowns)"}},]]
+
+		-- Spinning Crane Kick
+		--[["101546",{"SpinningCraneKick.coolHealing(MembersforCooldowns)"}},]]
+
+
+		--------------------------------------------------Healing Rotation-----------------------------------------
+		-- Life Cocoon
+		--[["116849",{"LifeCocoon.novaHealing(1)"}},]]
+
+		-- Uplift
+		--[["116670","@CML.Uplift()"},]]
+
+		-- Renewing Mist
+		--[["115151",{"@CML.ReMs()"}},]]
+		--[["115151","player.chi < 5"},]]
+		if isChecked("Renewing Mist") == true and canCast(_RenewingMist) == true then
+			for i = 1, #nNova do
+				if nNova[i].hp <= getValue("Renewing Mist") then
+					if castSpell(nNova[i].unit,_RenewingMist,true) then return; end
+				end
+			end
+		end
+
+		-- Mana Tea without Glyph of Mana Tea 
+		--[["123761",{"@CML.IsGlyphed(123763,false)","123761.stopcasting","!player.moving","player.buff(115867).count >= 10","ManaTea.pqiMana(0)"}},]] 
+
+		-- Mana Tea with Glyph of Mana Tea 
+		--[["!123761",{"@CML.IsGlyphed(123763,true)","player.buff(115867).count >= 2","ManaTea.pqiMana(0)"}},]] 
+
+		-- Chi Wave
+		--[["115098",{"ChiWave.novaHealing(1)"}},]]
+
+
+		-- Surging Mist/Vital Mists
+		--[["116694",{"player.buff(118674).count = 5","SurgingMist.novaHealing(1)"}},]] 
+
+		-- Enveloping Mist
+		--[["124682",{"@CML.EnvelopingMist()"}},]]
+
+		-- Surging Mist  
+		--[["116694",{"@CML.SurgingMist()"}},]]  
+
+		-- Soothing Mist
+		--[["115175",{"115175.stopcasting","SoothingMist.novaHealing(1)"}},]]
+
+		-- Legendary Meta Support
+		--[["!108557",{"player.buff(137331)","108557.multiTarget","!modifier.last"}},]] -- Jab
+
+		-- Mana Management
+		--[["!100784", {"player.buff(139597)","100784.multiTarget","player.aoe != 1"}},]] -- Blackout Kick/Muscle Memory
+
+		--[["!100787", {"player.buff(139597)","100787.multiTarget"}},]] -- Tiger Palm/Muscle Memory
+
+		-- Touch of Death
+		--[["115080",{"115080.multiTarget","player.buff(121125)"}},]]
+
+		------------------------------------------------Multi target-----------------------------------------------
+		-- Rushing Jade Wind  
+		--[["116847",{"talent(16)","player.aoe != 1"}},]]
+
+		-- Spinning Crane Kick    
+		--[["101546","player.aoe != 1"},]]    
+
+		-------------------------------------------------Mist------------------------------------------------------
+		-- Blackout Kick/Max Chi and no Serpent's Zeal
+		--[["100784",{"player.mode = 1","player.chi = 5","!player.buff(127722)","100784.multiTarget"}},]] 
+
+		 -- Blackout Kick/Muscle Memory and no Serpent's Zeal
+		--[["100784",{"player.mode = 1","player.chi >= 2","player.buff(139597)","!player.buff(127722)","100784.multiTarget"}},]]
+
+		-- Jab/no Muscle Memory and no Serpent's Zeal
+		--[["108557",{"player.mode = 1","player.chi < 5","!player.buff(139597)","!player.buff(127722)","108557.multiTarget"}},]] 
+
+		-------------------------------------------------Fist------------------------------------------------------
+		-- Blackout Kick/Max Chi and no Serpent's Zeal
+		--[["100784",{"player.mode = 2","player.chi = 5","!player.buff(127722)","100784.multiTarget"}},]] 
+
+		-- Blackout Kick/Muscle Memory and no Serpent's Zeal
+		--[["100784",{"player.mode = 2","player.chi >= 2","player.buff(139597)","!player.buff(127722)","100784.multiTarget"}},]] 
+
+		-- Blackout Kick/Max Chi and Muscle Memory and no Serpent's Zeal
+		--[["100784",{"player.mode = 2","player.chi = 5","player.buff(139597)","!player.buff(127722)","100784.multiTarget"}},]] 
+
+		-- Tiger Palm/Chi Dump
+		--[["100787",{"player.mode = 2","player.chi = 5","100787.multiTarget"}},]] 
+
+		-- Jab/no Muscle Memory
+		--[["108557",{"player.mode = 2","player.chi < 5","!player.buff(127722)","108557.multiTarget"}},]] 
+
+		-- Jab/no Serpent's Zeal
+		--[["108557",{"player.mode = 2","player.chi < 5","!player.buff(139597)","108557.multiTarget"}},]] 
+		-------------------------------------------------Light------------------------------------------------------
+
+		-- Jab/no Chi
+		--[["108557",{"player.mode = 3","player.chi < 1","player.buff(139597)","108557.multiTarget"}},]] 
+
+		-- Blackout Kick/Muscle Memory
+		--[["100784",{"player.mode = 3","player.chi >= 2","player.buff(139597)","100784.multiTarget"}},]] 
+
+		-- Blackout Kick/no Serpent's Zeal
+		--[["100784",{"player.mode = 3","player.chi >= 3","!player.buff(127722)","100784.multiTarget"}},]] 
+
+		-- Tiger Palm/Muscle Memory
+		--[["100787",{"player.mode = 3","player.chi >= 1","player.buff(139597)","100787.multiTarget"}},]]
+
+		-- Tiger Palm/no Tiger Power
+		--[["100787",{"player.mode = 3","player.chi >= 1","!player.buff(125359)","100787.multiTarget"}},]] 
+
+		-- Crackling Jade Lightning/no Muscle Memory
+		--[["117952",{"player.mode = 3","player.chi < 5","!player.buff(139597)","117952.multiTarget"}},]] 
+
+		-- Crackling Jade Lightning/no Muscle Memory and no Lucidity
+		--[["117952",{"player.mode = 3","player.chi < 5","!player.buff(137331)","!player.buff(139597)","!player.moving","player.mana > 15","117952.multiTarget"}},]] 
+
+		-- Blackout Kick/Max Chi
+		--[["100784",{"player.mode = 3","player.chi = 5","100784.multiTarget"}},]] 
+
+		------------------------------------------------Out of Combat----------------------------------------------
+
+		--[["TaMere","@CML.SoothingStops()"},]]
+		-- Healing Sphere
+		--[["115460",{"HealingSpheresKey.pqikeybind"},"ground"},]]
+		-- Expel Harm
+		--[["115072",{"ExpelHarm.novaHealing(0)"}},]]
+		-- Fortifying Brew
+		--[["115203",{"FortifyingBrew.novaHealing(0)"}},]]
+		-- Healthstone   
+		--[["#5512",{"@CML.HealthStone()","Healthstone.novaHealing(0)"}},]]
+		-- Legacy of The Emperor               
+		--[["115921",{"LegacyOfTheEmperor.pqivalue = 1","!player.hasaura(1)"},"player"},]]
+		-- Summon Jade Serpent Statue
+		--[["115313","JadeSerpentStatue.pqikeybind","ground"},]]
+		-- Renewing Mist
+		--[["115151","@CML.ReMs()"},]]
+		-- Surging Mist/Vital Mists
+		--[["116694",{"player.buff(118674).count = 5","SurgingMist.novaHealing(1)"},nil},]] -- need to check
+		-- Uplift
+		--[["116670","@CML.Uplift()"},]]
+		-- Stance of the Jade Serpent
+		--[["115070",{"player.seal != 1"}},]]
+		-- Mana Tea without Glyph of Mana Tea 
+		--[["123761",{"@CML.IsGlyphed(123763,false)","123761.stopcasting","!player.moving","player.buff(115867).count >= 10","ManaTea.pqiMana(0)"}},]] 
+		-- Mana Tea with Glyph of Mana Tea 
+		--[["123761",{"@CML.IsGlyphed(123763,true)","player.buff(115867).count >= 2","ManaTea.pqiMana(0)"}},]]
 
 
 
-	end
+
+
+	--end
 
 end
 

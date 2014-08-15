@@ -372,6 +372,7 @@ function RestorationConfig()
             CreateNewBox(thisConfig, "Swiftmend Harmoney", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFSwiftmend|cffFFBB00 to refresh Harmoney.");
             CreateNewText(thisConfig,"Swiftmend Harmoney");        
         end
+
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"----- AoE Healing -----");
 
@@ -473,20 +474,14 @@ function RestorationConfig()
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Utilities ------");
 
-        -- Accept Queues
-        CreateNewCheck(thisConfig,"Accept Queues");
-        CreateNewText(thisConfig,"Accept Queues");
-
         -- Follow Tank
         CreateNewCheck(thisConfig,"Follow Tank");
         CreateNewBox(thisConfig, "Follow Tank", 10, 40  , 1, 25, "|cffFFBB00Range from focus...");
         CreateNewText(thisConfig,"Follow Tank");
 
-
         -- Zoo Master
         CreateNewCheck(thisConfig,"Zoo Master");
         CreateNewText(thisConfig,"Zoo Master");
-
 
         -- General Configs
         CreateGeneralsConfig();

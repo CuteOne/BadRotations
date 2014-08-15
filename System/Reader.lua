@@ -3,6 +3,9 @@ function ReaderRun()
 --[[ Readers ]]
 ---------------
 
+-- Vars
+if AgiSnap == nil then AgiSnap = 0; end
+
 -------------------
 --[[ Auto Join --]]
 local Frame = CreateFrame('Frame');
@@ -48,6 +51,7 @@ local Frame = CreateFrame('Frame');
 Frame:RegisterEvent("PLAYER_REGEN_DISABLED");
 local function EnteringCombat(self, event, ...)
 	if event == "PLAYER_REGEN_DISABLED" then
+		AgiSnap = getAgility();
 		BadBoy_data["Combat Started"] = GetTime();
 		--tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cffFF001E/"..getCombatTime().."/Entering Combat" , number = ":D" })
 		if debugTable ~= nil and #debugTable > 249 then tremove(debugTable, 250); end
@@ -63,6 +67,7 @@ local Frame = CreateFrame('Frame');
 Frame:RegisterEvent("PLAYER_REGEN_ENABLED");
 local function LeavingCombat(self, event, ...)
 	if event == "PLAYER_REGEN_ENABLED" then
+		AgiSnap = 0;
 		BadBoy_data.successCasts = 0;
 		BadBoy_data.failCasts = 0;
 		BadBoy_data["Combat Started"] = 0;

@@ -295,48 +295,83 @@ function MonkMistConfig()
         CreateNewCheck(thisConfig,"Legacy of the Emperor");
         CreateNewText(thisConfig,"Legacy of the Emperor");
 
-        -- Detox
-        CreateNewCheck(thisConfig,"Detox");
-        CreateNewText(thisConfig,"Detox");
-
-
-
+        -- Nature's Cure
+        CreateNewCheck(thisConfig,"Detox")
+        CreateNewDrop(thisConfig,"Detox", 1, "|cffFFBB00MMouse:|cffFFFFFFMouse / Match List. \n|cffFFBB00MRaid:|cffFFFFFFRaid / Match List. \n|cffFFBB00AMouse:|cffFFFFFFMouse / All. \n|cffFFBB00ARaid:|cffFFFFFFRaid / All.", 
+            "|cffFFDD11MMouse", 
+            "|cffFFDD11MRaid",
+            "|cff00FF00AMouse",
+            "|cff00FF00ARaid")
+        CreateNewText(thisConfig,"Detox"); 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Cooldowns ------");
 
 
+        -- Wrapper -----------------------------------------
+        CreateNewWrap(thisConfig,"---- Level 60 Talent ---");
+
+
+        -- Wrapper -----------------------------------------
+        CreateNewWrap(thisConfig,"--------- Healing -------");
+
+        -- Renewing Mist
+        CreateNewCheck(thisConfig,"Renewing Mist");
+        CreateNewBox(thisConfig, "Renewing Mist", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRenewing Mist.");
+        CreateNewText(thisConfig,"Renewing Mist");
+
+        -- Wrapper -----------------------------------------
+        CreateNewWrap(thisConfig,"----- AoE Healing -----");
 
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------- Defensive ------");
-
 
         -- Expel Harm
         CreateNewCheck(thisConfig,"Expel Harm");
         CreateNewBox(thisConfig, "Expel Harm", 0, 100  , 5, 80, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFExpel Harm");
         CreateNewText(thisConfig,"Expel Harm");
 
+        -- Fortifying Brew
+        CreateNewCheck(thisConfig,"Fortifying Brew");
+        CreateNewBox(thisConfig, "Fortifying Brew", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
+        CreateNewText(thisConfig,"Fortifying Brew");
+               
         -- Healthstone
         CreateNewCheck(thisConfig,"Healthstone");
         CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
         CreateNewText(thisConfig,"Healthstone");
 
-        -- Fortifying Brew
-        CreateNewCheck(thisConfig,"Fortifying Brew");
-        CreateNewBox(thisConfig, "Fortifying Brew", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
-        CreateNewText(thisConfig,"Fortifying Brew");
+        -- Wrapper -----------------------------------------
+        CreateNewWrap(thisConfig,"-------- Toggles --------");
 
-        -- Guard
-        CreateNewCheck(thisConfig,"Guard");
-        CreateNewBox(thisConfig, "Guard", 0, 100  , 5, 70, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFGuard");
-        CreateNewText(thisConfig,"Guard");        
+        -- Uplift Toggle
+        CreateNewCheck(thisConfig,"Uplift Toggle");
+        CreateNewDrop(thisConfig,"Uplift Toggle", 4, "Toggle2")
+        CreateNewText(thisConfig,"Uplift Toggle");      
 
-        -- Dazzling Brew
-        CreateNewCheck(thisConfig,"Dazzling Brew");
-        CreateNewText(thisConfig,"Dazzling Brew");        
+        -- Pause Toggle
+        CreateNewCheck(thisConfig,"Pause Toggle");
+        CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
+        CreateNewText(thisConfig,"Pause Toggle");  
+
+        -- Focus Toggle
+        CreateNewCheck(thisConfig,"Focus Toggle");
+        CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle2")
+        CreateNewText(thisConfig,"Focus Toggle"); 
+
+        -- DPS Toggle
+        CreateNewCheck(thisConfig,"DPS Toggle");
+        CreateNewDrop(thisConfig,"DPS Toggle", 1, "Toggle2")
+        CreateNewText(thisConfig,"DPS Toggle"); 
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Utilities ------");
+
+        -- Follow Tank
+        CreateNewCheck(thisConfig,"Follow Tank");
+        CreateNewBox(thisConfig, "Follow Tank", 10, 40  , 1, 25, "|cffFFBB00Range from focus...");
+        CreateNewText(thisConfig,"Follow Tank");
+
         -- Spear Hand Strike
         CreateNewCheck(thisConfig,"Spear Hand Strike");
         CreateNewBox(thisConfig, "Spear Hand Strike", 0, 100  , 5, 60 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFSpear and Strike.");
@@ -351,9 +386,10 @@ function MonkMistConfig()
         CreateNewCheck(thisConfig,"Resuscitate");
         CreateNewText(thisConfig,"Resuscitate");    
 
-        -- Focus Toggle
+        -- Roll
         CreateNewCheck(thisConfig,"Roll");
-        CreateNewText(thisConfig,"Roll");         
+        CreateNewText(thisConfig,"Roll");  
+       
 
         -- General Configs
         CreateGeneralsConfig();
