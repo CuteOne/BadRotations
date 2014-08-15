@@ -414,39 +414,39 @@ if select(3, UnitClass("player")) == 11 then
 	-----------------------------------
 		-- Symbiosis				
 					if getBuffRemain("player",sym)>0 then
-					    if isKnown(symwar) and getSpellCD(symwar)==0 and useCDs() then
-					        if castSpell("target",symwar,false) then return; end
-					    end
-					    if isKnown(symsha) and getSpellCD(symsha)==0 and useCDs() then
-					        if castSpell("target",symsha,false) then return; end
-					    end
-				        if isKnown(sympri) and getSpellCD(sympri)==0 and getHP("player")<=25 then
-				            if castSpell("player",sympri,true) then return; end
-				        end
-				        if isKnown(sympal) and getSpellCD(sympal)==0 and getHP("player")<=25 then
-				            if castSpell("player",sympal,true) then return; end
-				        end
-				        if isKnown(symdk) and sir(gsi(rk),t)~=1 and sir(gsi(rc),t)==1 and pow>=40 then
-				           	if castSpell("target",symdk,false) then return; end
-				        end
-				        if isKnown(symhun) and getSpellCD(symhun)==0 then
-				            local threat={UnitDetailedThreatSituation(p,t)}
-				            if (threat[1]==1 or (threat[5] ~=nil and threat[5]>25000 and threat[3]>90)) then
-				            	if castSpell("player",symhun,true) then return; end
-				            end
-				        end
-				        if isKnown(symloc) then
-				         	return false
-				        end
-				        if isKnown(symrog) then
-				            return false
-				        end
-				        if isKnown(symmag) and getSpellCD(symmag)==0 and getHP("player")<=25 then
-				            if castSpell("player",symmag,true) then return; end
-				        end
-				        if isKnown(symmon) then
-				            return false   
-				        end
+					    -- if isKnown(symwar) and getSpellCD(symwar)==0 and useCDs() then
+					    --     if castSpell("target",symwar,false) then return; end
+					    -- end
+					    -- if isKnown(symsha) and getSpellCD(symsha)==0 and useCDs() then
+					    --     if castSpell("target",symsha,false) then return; end
+					    -- end
+				     --    if isKnown(sympri) and getSpellCD(sympri)==0 and getHP("player")<=25 then
+				     --        if castSpell("player",sympri,true) then return; end
+				     --    end
+				     --    if isKnown(sympal) and getSpellCD(sympal)==0 and getHP("player")<=25 then
+				     --        if castSpell("player",sympal,true) then return; end
+				     --    end
+				     --    if isKnown(symdk) and sir(gsi(rk),t)~=1 and sir(gsi(rc),t)==1 and pow>=40 then
+				     --       	if castSpell("target",symdk,false) then return; end
+				     --    end
+				     --    if isKnown(symhun) and getSpellCD(symhun)==0 then
+				     --        local threat={UnitDetailedThreatSituation("player","target")}
+				     --        if (threat[1]==1 or (threat[5] ~=nil and threat[5]>25000 and threat[3]>90)) then
+				     --        	if castSpell("player",symhun,true) then return; end
+				     --        end
+				     --    end
+				     --    if isKnown(symloc) then
+				     --     	return false
+				     --    end
+				     --    if isKnown(symrog) then
+				     --        return false
+				     --    end
+				     --    if isKnown(symmag) and getSpellCD(symmag)==0 and getHP("player")<=25 then
+				     --        if castSpell("player",symmag,true) then return; end
+				     --    end
+				     --    if isKnown(symmon) then
+				     --        return false   
+				     --    end
 					end		
 	-----------------------------------------
 	--- In Combat - Multi-Target Rotation ---
