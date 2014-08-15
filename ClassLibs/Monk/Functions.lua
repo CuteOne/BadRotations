@@ -153,12 +153,12 @@ function getAgility()
     return Agi
 end
 
-if AgiSnap == nil then AgiSnap = 0; end
-if isInCombat("player") and AgiSnap == 0 then
-	AgiSnap = getAgility()
-end
-if not isInCombat("player") and AgiSnap>0 then
-	AgiSnap = 0
-end
+-- if AgiSnap == nil then AgiSnap = 0; end
+-- if isInCombat("player") and AgiSnap == 0 then
+-- 	AgiSnap = getAgility()
+-- end
+-- if not isInCombat("player") and AgiSnap>0 then
+-- 	AgiSnap = 0
+-- end
 
 end
