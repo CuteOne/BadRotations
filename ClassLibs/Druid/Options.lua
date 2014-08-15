@@ -452,22 +452,22 @@ function RestorationConfig()
 
         -- Genesis Toggle
         CreateNewCheck(thisConfig,"Genesis Toggle");
-        CreateNewDrop(thisConfig,"Genesis Toggle", 4, "Toggle")
+        CreateNewDrop(thisConfig,"Genesis Toggle", 4, "Toggle2")
         CreateNewText(thisConfig,"Genesis Toggle");      
 
         -- Pause Toggle
         CreateNewCheck(thisConfig,"Pause Toggle");
-        CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle")
+        CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
         CreateNewText(thisConfig,"Pause Toggle");  
 
         -- Focus Toggle
         CreateNewCheck(thisConfig,"Focus Toggle");
-        CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle")
+        CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle2")
         CreateNewText(thisConfig,"Focus Toggle"); 
 
         -- DPS Toggle
         CreateNewCheck(thisConfig,"DPS Toggle");
-        CreateNewDrop(thisConfig,"DPS Toggle", 1, "Toggle")
+        CreateNewDrop(thisConfig,"DPS Toggle", 1, "Toggle2")
         CreateNewText(thisConfig,"DPS Toggle"); 
 
         -- Wrapper -----------------------------------------

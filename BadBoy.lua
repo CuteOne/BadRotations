@@ -224,7 +224,7 @@ function BadBoyRun()
 			--Warrior()
 		elseif _MyClass == 2 then -- Paladin
 			if _MySpec == 2 then
-				PaladinProtection()
+				PaladinProtection();
 			end
 		elseif _MyClass == 3 then -- Hunter
 			Hunter();
@@ -234,7 +234,7 @@ function BadBoyRun()
 			--Priest()
 		elseif _MyClass == 6 then -- Deathknight
 			if _MySpec == 1 then
-				Blood()
+				Blood();
 			end
 		elseif _MyClass == 7 then -- Shaman
 			if _MySpec == 1 then
@@ -260,13 +260,15 @@ function BadBoyRun()
 			--Warlock()		
 		elseif _MyClass == 10 then -- Monk
 			if _MySpec == 1 then
-				BrewmasterMonk()
+				BrewmasterMonk();
+			elseif _MySpec == 2 then
+				MistweaverMonk();
 			elseif _MySpec == 3 then
-				WindwalkerMonk()
+				WindwalkerMonk();
 			end
 		elseif _MyClass == 11 then -- Druid
 			if _MySpec == 2 then
-				Druid()
+				Druid();
 			end		
 			if _MySpec == 4 then
 				DruidRestoration();

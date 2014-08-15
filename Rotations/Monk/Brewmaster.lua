@@ -29,7 +29,6 @@ function BrewmasterMonk()
 	if isValidTarget("mouseover")
 		and UnitIsDeadOrGhost("mouseover") 
 		and UnitIsPlayer("mouseover") 
-		and not UnitBuffID("player", prl)
 		and not UnitBuffID("player", 80169) -- Food
   		and not UnitBuffID("player", 87959) -- Drink
  	 	and UnitCastingInfo("player") == nil
@@ -93,7 +92,11 @@ function BrewmasterMonk()
 	end
 -- Nimble Brew
 	if hasNoControl() then
-		if castSpell("player",_NimbleBrew,true) then return; end
+		if castSpell("player",_NimbleBrew,true) then 
+			return; 
+		elseif castSpell("player",_TigersLust,true) then 
+			return;
+		end
 	end
 
 ---------------------
@@ -122,8 +125,13 @@ function BrewmasterMonk()
 		end
 
 		--[[Quaking Palm]]
-		if canInterrupt(_QuakingPalm,tonumber(getValue("Quaking Palm"))) then
+		if isChecked("Quaking Palm") and canInterrupt(_QuakingPalm,tonumber(getValue("Quaking Palm"))) then
 			if castSpell("target",_QuakingPalm,false) then return; end
+		end
+
+		--[[Spear Hand Strike]]
+		if isChecked("Spear Hand Strike") and canInterrupt(_SpearHandStrike,tonumber(getValue("Spear Hand Strike"))) then
+			if castSpell("target",_SpearHandStrike,false) then return; end
 		end
 
     	--[[Fortifying Brew]]
@@ -134,14 +142,14 @@ function BrewmasterMonk()
 
 	if isCasting() then return false; end
 
-	if targetDistance >= 4 and targetDistance <= 40 then
+	if targetDistance > 5 and targetDistance <= 40 and UnitExists("target") and not UnitIsDeadOrGhost("target") then
 
 		--[[Chi Wave]]
 	    if castSpell("target",115098,false) then return; end
 
     	--[[Dazzling Brew]]
 		if isChecked("Dazzling Brew") == true then
-			if getGround("target") == true and UnitExists("target") and not UnitIsDeadOrGhost("target") then
+			if UnitExists("target") and not UnitIsDeadOrGhost("target") and getCreatureType("target") == true and getGround("target") == true then
 				if castSpell("player",115180,true,false) then return; end
 			end
 		end   
@@ -149,14 +157,12 @@ function BrewmasterMonk()
 
 
 
-	else
+	elseif UnitExists("target") and not UnitIsDeadOrGhost("target") and isEnnemy("target") == true and getCreatureType("target") == true then
 
 
 
 		--[[Chi Wave]]
 	    if castSpell("target",_ChiWave,false) then return; end
-
-	
 
 		--[[Breath of Fire if >= 3 targets dump.]]
 	    if chi >= 3 and ennemyUnits > 2 then
@@ -205,12 +211,12 @@ function BrewmasterMonk()
 	    end		
 
 		--[[Breath of Fire if > 3 targets]]
-	    if chi >= 2 and ennemyUnits > 2 then
+	    if chi >= 3 and ennemyUnits > 2 then
 	    	if castSpell("target",_BreathOfFire,false) then return; end
 	    end	
 
 		--[[Blackout Kick as often as possible. Aim for ~80% uptime on Shuffle.]]
-	    if (chi == 2 and getBuffRemain("player",115307) == 0) or chi >= 3 then
+	    if (chi >= 3 and getBuffRemain("player",115307) <= 1) or chi >= 3 then
 	    	if castSpell("target",_BlackoutKick,true) then return; end
 	    end	
 

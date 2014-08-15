@@ -85,7 +85,7 @@ function canDispel(Unit,spellID)
   	while debuff do
   		local debuffType = select(5, UnitDebuffID(Unit, i))
   		local debuffid = select(11, UnitDebuffID(Unit, i)) 
-  		local ClassNum = select(3, UnitClass(Unit)) 	
+  		local ClassNum = select(3, UnitClass("player")) 	
   		local ValidDebuffType = false	
 		if ClassNum == 1 then --Warrior
 
