@@ -571,7 +571,7 @@ function DruidRestoration()
 
 		--[[ 28 - LifebloomFocus--(Refresh if over treshold)]]
       	if isChecked("Lifebloom") == true then
-			if getHP("focus") >= getValue("Lifebloom") and (getBuffRemain("focus",33763) < 4 and getBuffStacks("focus",33763) == 3 ) then
+			if not UnitIsDeadOrGhost("focus") and getHP("focus") >= getValue("Lifebloom") and (getBuffRemain("focus",33763) < 4 and getBuffStacks("focus",33763) == 3 ) then
 				if castSpell("focus",33763,true,false) then return; end
 			end
 		end	
