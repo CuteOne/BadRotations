@@ -473,6 +473,11 @@ function getBuffStacks(unit,BuffID)
 	end
 end
 
+-- if getCharges(115399) > 0 then
+function getCharges(spellID)
+	return select(1, GetSpellCharges(spellID))
+end
+
 -- if getCombatTime() <= 5 then
 function getCombatTime()
 	local combatStarted = BadBoy_data["Combat Started"];
@@ -620,6 +625,16 @@ function getPower(Unit)
 	local value = 100 * UnitPower(Unit) / UnitPowerMax(Unit)
 	if _MyClass == 11 and UnitBuffID("player",106951) then value = value*2 end
 	return value; 
+end
+
+function getRecharge(spellID)
+	local charges, maxCharges, chargeStart, chargeDuration = GetSpellCharges(spellID)
+	if charges < maxCharges then
+		chargeEnd = chargeStart + chargeDuration
+		return chargeEnd - GetTime()
+	else
+		return 0
+	end
 end
 
 function getChi(Unit)
