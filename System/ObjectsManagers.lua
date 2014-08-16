@@ -202,7 +202,7 @@ if not metaTable1 then
 			if o.threat == 3 then PercentWithIncoming = PercentWithIncoming - 3; end
 			if o.guidsh == 72218  then PercentWithIncoming = PercentWithIncoming - 5 end -- Tank in Proving Grounds
 			local ActualWithIncoming = ( UnitHealthMax(o.unit) - ( UnitHealth(o.unit) + incomingheals ) )
-
+ 			if not UnitInRange(o.unit) and not UnitIsUnit("player", o.unit) then PercentWithIncoming = 250; end
 			-- Malkorok
 			local SpecificHPBuffs = { 
 				{ buff = 142865 , value = select(15,UnitDebuffID(o.unit,142865)) }, -- Strong Ancient Barrier (Green)

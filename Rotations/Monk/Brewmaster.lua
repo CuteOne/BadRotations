@@ -72,11 +72,17 @@ function BrewmasterMonk()
 	    	end
 	    end
 	   	if not UnitExists("mouseover") then
+	   		local legacyTimer;
 		  	for i = 1, #members do
 		  		if (#members==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
 -- Legacy of the Emperor
 		  			if not isBuffed(members[i].Unit,{115921,20217,1126,90363}) then
-						if castSpell("player",_LegacyOfTheEmperor,true) then return; end
+		  				if legacyTimer == nil then
+		  					legacyTimer = GetTime();
+		  				end
+		  				if legacyTimer and legacyTimer <= GetTime() - 1 then
+		  					if castSpell("player",_LegacyOfTheEmperor,true) then legacyTimer = nil; return; end
+		  				end
 			  		end
 		  		end
 			end 
@@ -87,7 +93,7 @@ function BrewmasterMonk()
 --- Defensives ---
 ------------------
 --	Expel Harm
-	if getHP("player")<=80 and (getChiMax("player")-getChi("player"))>=2 and getPower("player")>=40 and not isCasting("player") then
+	if getHP("player") <= 80 and (getChiMax("player") - getChi("player")) >= 2 and getPower("player") >= 40 and not isCasting("player") then
 		if castSpell("player",_ExpelHarm,true) then return; end
 	end
 -- Nimble Brew
@@ -145,7 +151,7 @@ function BrewmasterMonk()
 	if targetDistance > 5 and targetDistance <= 40 and UnitExists("target") and not UnitIsDeadOrGhost("target") then
 
 		--[[Chi Wave]]
-	    if castSpell("target",115098,false) then return; end
+	    if UnitExists("target") and not UnitIsDeadOrGhost("target") and getCreatureType("target") == true and castSpell("target",115098,false) then return; end
 
     	--[[Dazzling Brew]]
 		if isChecked("Dazzling Brew") == true then
@@ -153,9 +159,6 @@ function BrewmasterMonk()
 				if castSpell("player",115180,true,false) then return; end
 			end
 		end   
-		
-
-
 
 	elseif UnitExists("target") and not UnitIsDeadOrGhost("target") and isEnnemy("target") == true and getCreatureType("target") == true then
 
@@ -206,7 +209,7 @@ function BrewmasterMonk()
 		--[[Elusive Brew if > 10 stacks. Delay up to 10-15 sec for anticipated damage.]]
 
 		--[[Guard on cooldown. Delay up to 10-15 sec for anticipated damage.]]
-	    if chi >= 2 and getBuffRemain("player",118636) > 1 then
+	    if chi >= 2 and getBuffRemain("player",118636) > 1  and getHP("player") <= getValue("Guard") then
 	    	if castSpell("player",_Guard,true) then return; end
 	    end		
 

@@ -308,16 +308,32 @@ function MonkMistConfig()
 
 
         -- Wrapper -----------------------------------------
-        CreateNewWrap(thisConfig,"---- Level 60 Talent ---");
-
-
-        -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"--------- Healing -------");
+
+        -- Chi Wave
+        CreateNewCheck(thisConfig,"Chi Wave");
+        CreateNewBox(thisConfig, "Chi Wave", 0, 100  , 5, 55, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFChi Wave.");
+        CreateNewText(thisConfig,"Chi Wave");
+
+        -- Enveloping Mist
+        CreateNewCheck(thisConfig,"Enveloping Mist");
+        CreateNewBox(thisConfig, "Enveloping Mist", 0, 100  , 5, 45, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFEnveloping Mist.");
+        CreateNewText(thisConfig,"Enveloping Mist");
 
         -- Renewing Mist
         CreateNewCheck(thisConfig,"Renewing Mist");
         CreateNewBox(thisConfig, "Renewing Mist", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRenewing Mist.");
         CreateNewText(thisConfig,"Renewing Mist");
+ 
+        -- Soothing Mist
+        CreateNewCheck(thisConfig,"Soothing Mist");
+        CreateNewBox(thisConfig, "Soothing Mist", 0, 100  , 5, 75, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFSoothing Mist.");
+        CreateNewText(thisConfig,"Soothing Mist");
+        
+        -- Surging Mist
+        CreateNewCheck(thisConfig,"Surging Mist");
+        CreateNewBox(thisConfig, "Surging Mist", 0, 100  , 5, 65, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFSurging Mist.");
+        CreateNewText(thisConfig,"Surging Mist");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"----- AoE Healing -----");

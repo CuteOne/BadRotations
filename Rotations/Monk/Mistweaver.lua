@@ -5,7 +5,6 @@ function MistweaverMonk()
 		MonkMistToggles();
 		MonkMistConfig();
 	end
-		ChatOverlay("O.O")
 -- Healing Sheres
 	if SpellIsTargeting() then
 		if UnitExists("target") then
@@ -16,6 +15,7 @@ function MistweaverMonk()
 		end
 	end
 -- Locals
+	local isSoothing = UnitChannelInfo("player") == GetSpellInfo(_SoothingMist) or nil;
 	local chi = UnitPower("player", SPELL_POWER_CHI);
 	local chiMax = UnitPowerMax("player", SPELL_POWER_CHI)
 	local energy = getPower("player");
@@ -122,9 +122,12 @@ function MistweaverMonk()
 ----------------------
 --- Rotation Pause ---
 ----------------------
-		if pause() then
-			return true
-		end
+	-- Pause toggle
+	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then ChatOverlay("|cffFF0000BadBoy Paused", 0); return; end
+	-- Focus Toggle
+	if isChecked("Focus Toggle") and SpecificToggle("Focus Toggle") == 1 then 
+		RunMacroText("/focus mouseover");
+	end
 
 
 ------Abilities------
@@ -173,13 +176,15 @@ _TigereyeBrewStacks			=   125195 --Tigereye Brew Stacks
 _DisableDebuff				=   116706 --Disable (root)
 
 ------Racials------
-_GiftOfTheNaaru			 =   59547   --Gift of the Naaru
+_GiftOfTheNaaru			 	=   59547   --Gift of the Naaru
 
+_EnvelopingMist				=	124682;
+_RenewingMist				=	115151;
+_SerpentsZeal				=	127722;
+_SoothingMist				=	115175;
+_SurgingMist				=	116694;
+_VitalMists 				=	118674;
 
-_RenewingMist			=	115151;
-
-
-		ChatOverlay("O.O")
 
 		--[["TaMere","@CML.SoothingStops()"},]]
 
@@ -275,29 +280,81 @@ _RenewingMist			=	115151;
 
 		-- Chi Wave
 		--[["115098",{"ChiWave.novaHealing(1)"}},]]
-
+		if isChecked("Chi Wave") == true and canCast(_ChiWave) == true then
+			for i = 1, #nNova do
+				if nNova[i].hp <= getValue("Chi Wave") then
+					if castSpell(nNova[i].unit,_ChiWave,true) then return; end
+				end
+			end
+		end		
 
 		-- Surging Mist/Vital Mists
 		--[["116694",{"player.buff(118674).count = 5","SurgingMist.novaHealing(1)"}},]] 
 
 		-- Enveloping Mist
 		--[["124682",{"@CML.EnvelopingMist()"}},]]
+		if isChecked("Enveloping Mist") == true and isSoothing and chi >= 3 then
+			if getHP("current") <= getValue("Enveloping Mist") then
+				CastSpellByName(GetSpellInfo(124682))
+				if castSpell("current", _EnvelopingMist, true, true) then return; end
+			end
+		end
 
 		-- Surging Mist  
 		--[["116694",{"@CML.SurgingMist()"}},]]  
+		if isSoothing then
+			if getHP("current") <= getValue("Surging Mist") then
+				if castSpell("current", _SurgingMist, true) then return; end
+			end
+		end
 
 		-- Soothing Mist
 		--[["115175",{"115175.stopcasting","SoothingMist.novaHealing(1)"}},]]
+		if isChecked("Soothing Mist") == true and canCast(_SoothingMist) == true and getMana("player") >= 12 then
+			if isSoothing ~= true then
+				for i = 1, #nNova do
+					if nNova[i].hp <= getValue("Soothing Mist") then
+						if castSpell(nNova[i].unit,_SoothingMist,true) then return; end
+					end
+				end
+			else
+				if getHP("current") >= 100 then
+					SpellStopCasting(); return;
+				end
+			end
+		end
 
 		-- Legendary Meta Support
 		--[["!108557",{"player.buff(137331)","108557.multiTarget","!modifier.last"}},]] -- Jab
 
-		-- Mana Management
-		--[["!100784", {"player.buff(139597)","100784.multiTarget","player.aoe != 1"}},]] -- Blackout Kick/Muscle Memory
+		--[[ Mana Management]] 
+		if targetDistance < 5 then
+			-- Blackout Kick/Serpents Zeal
+			if getBuffRemain("player",_SerpentsZeal) <= 3 and chi >= 2 then
+				if castSpell("target",_BlackoutKick,false) then return; end
+			end
+			-- Tiger Palm/Vital Mists
+			if getBuffRemain("player",_VitalMists) <= 3 and chi >= 1 then
+				if castSpell("target",_TigerPalm,false) then return; end
+			end
+			-- Touch of Death
+			if chi >= 3 and getBuffRemain("player",121125) > 0 then
+				if castSpell("target",_TouchOfDeath,false) then return; end
+			end
+			-- Blackout Kick/Serpents Zeal
+			if getBuffRemain("player",_SerpentsZeal) <= 15 and chi >= chiMax-2 then
+				if castSpell("target",_BlackoutKick,false) then return; end
+			end			
+			-- Tiger Palm/Vital Mists
+			if chi >= chiMax-1 then
+				if castSpell("target",_TigerPalm,false) then return; end
+			end			
+			if castSpell("target",_Jab,false) then return; end
+		end
 
-		--[["!100787", {"player.buff(139597)","100787.multiTarget"}},]] -- Tiger Palm/Muscle Memory
 
-		-- Touch of Death
+
+
 		--[["115080",{"115080.multiTarget","player.buff(121125)"}},]]
 
 		------------------------------------------------Multi target-----------------------------------------------
