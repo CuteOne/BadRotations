@@ -45,6 +45,7 @@ _EnergizingBrew				=   115288  --Energizing Brew
 _ExpelHarm					=   115072  --Expel Harm
 _FistsOfFury				=   113656  --Fists of Fury
 _FlyingSerpentKick			=   101545  --Flying Serpent Kick
+_FlyingSerpentKickEnd       =   115057  --Flying Serpent Kick End
 _FortifyingBrew				=   115203  --Fortifying Brew
 _GrapleWaepon				=   117368  --Grapple Weapon
 _InvokeXuen					=   123904  --Invoke Xuen
@@ -140,6 +141,19 @@ end
 
 function useAoE()
     if ((BadBoy_data['AoE'] == 1 and getNumEnnemies("player",8) >= 3) or BadBoy_data['AoE'] == 2) and UnitLevel("player")>=46 then
+        return true
+    else
+        return false
+    end
+end
+
+function canFSK(unit)
+    if ((targetDistance <= 8 and isInCombat("player")) or (targetDistance < 60 and targetDistance > 8 and getFacing("player",unit))) 
+        and not hasGlyph(1017) 
+        and getSpellCD(_FlyingSerpentKick)==0 
+        and select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" 
+        and not UnitIsDeadOrGhost(unit)
+    then
         return true
     else
         return false

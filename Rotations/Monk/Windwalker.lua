@@ -19,13 +19,12 @@ if select(3, UnitClass("player")) == 10 then
 		  	and not UnitIsDeadOrGhost("player")
 		  	and not IsMounted()
 		  	and not IsFlying()
-		  	and targetDistance <= 40
 		then
 	-- Detox
 			if canDispel("player",_Detox) then
 				if castSpell("player",_Detox,true) then return; end
 			end
-			if canDispel("mouseover",_Detox) and UnitIsPlayer("mouseover") and not UnitIsDeadOrGhost("mouseover") and isValidTarget("mouseover") then
+			if canDispel("mouseover",_Detox) and UnitIsPlayer("mouseover") and not UnitIsDeadOrGhost("mouseover") then
 				if castSpell("mouseover",_Detox,true) then return; end
 			end
 	-- Resuscitate
@@ -89,7 +88,7 @@ if select(3, UnitClass("player")) == 10 then
 ---------------------
 --- Out of Combat ---
 ---------------------
-		if not isInCombat("player") then
+		if not isInCombat("player") and not IsMounted() then
 	-- Expel Harm (Chi Builer)
 			if BadBoy_data['Builder']==1 and (getChiMax("player")-getChi("player"))>=2 and getPower("player")>=40 and not isCasting("player") then
 				if castSpell("player",_ExpelHarm,true) then return; end
@@ -99,6 +98,13 @@ if select(3, UnitClass("player")) == 10 then
 				if select(2,IsInInstance())=="none" and #members==1 then
 					if castSpell("target",_Provoke,true) then return; end
 				end
+			end
+	-- Flying Serpent Kick
+			if canFSK("target") then
+				if castSpell("player",_FlyingSerpentKick,false) then return; end
+			end
+			if targetDistance < 10 and select(3,GetSpellInfo(101545)) == "INTERFACE\\ICONS\\priest_icon_chakra_green" then
+				if castSpell("player",_FlyingSerpentKickEnd,false) then return; end
 			end
 		end
 
@@ -184,7 +190,7 @@ if select(3, UnitClass("player")) == 10 then
 				if getPower("player")>=40 and getBuffRemain("player",_TigerPower)>2 and getBuffRemain("player",_SpinningCraneKick)==0 then
 					if castSpell("player",_SpinningCraneKick,true) then return; end
 				end
-			end
+			end --End Multitarget Rotation
 	------------------------------------------
 	--- In Combat - Single-Target Rotation ---
 	------------------------------------------
@@ -222,7 +228,14 @@ if select(3, UnitClass("player")) == 10 then
 				if getPower("player")+getRegen("player")*getRSRCD()>=40 and getChi("player")>=2 and targetDistance<3.5 then
 					if castSpell("target",_BlackoutKick,false) then return; end
 				end
+			end -- End Single Target Rotation
+		-- Flying Serpent Kick
+			if canFSK("target") then
+				if castSpell("player",_FlyingSerpentKick,false) then return; end
 			end
+			if targetDistance < 10 and select(3,GetSpellInfo(101545)) == "INTERFACE\\ICONS\\priest_icon_chakra_green" then
+				if castSpell("player",_FlyingSerpentKickEnd,false) then return; end
+			end 
 		end --In Combat End	
 	-- Start Attack
 		if targetDistance<3.5 and isEnnemy("target") and not UnitIsDeadOrGhost("target") then
