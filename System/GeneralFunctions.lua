@@ -100,7 +100,8 @@ function canDispel(Unit,spellID)
 		typesList = { }
 	end
 	if ClassNum == 7 then --Shaman
-		if spellID == 51886 and typesList = { "Curse" } -- Cleanse Spirit
+		-- Cleanse Spirit
+		if spellID == 51886 then typesList = { "Curse" } end 
 	end
 	if ClassNum == 8 then --Mage
 		typesList = { }
