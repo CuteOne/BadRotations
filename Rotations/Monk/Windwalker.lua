@@ -12,11 +12,7 @@ if select(3, UnitClass("player")) == 10 then
 ---------------------------------------
 --- Ressurection/Dispelling/Healing ---
 ---------------------------------------
-		if isValidTarget("mouseover")
-			and UnitIsDeadOrGhost("mouseover") 
-			and UnitIsPlayer("mouseover") 
-			and not UnitBuffID("player", prl)
-			and not UnitBuffID("player", 80169) -- Food
+		if not UnitBuffID("player", 80169) -- Food
 	  		and not UnitBuffID("player", 87959) -- Drink
 	 	 	and UnitCastingInfo("player") == nil
 	 	 	and UnitChannelInfo("player") == nil 
@@ -29,11 +25,11 @@ if select(3, UnitClass("player")) == 10 then
 			if canDispel("player",_Detox) then
 				if castSpell("player",_Detox,true) then return; end
 			end
-			if canDispel("mouseover",_Detox) then
+			if canDispel("mouseover",_Detox) and UnitIsPlayer("mouseover") and not UnitIsDeadOrGhost("mouseover") and isValidTarget("mouseover") then
 				if castSpell("mouseover",_Detox,true) then return; end
 			end
 	-- Resuscitate
-			if not isInCombat("player") then
+			if not isInCombat("player") and UnitIsDeadOrGhost("mouseover") and UnitIsPlayer("mouseover") then
 				if castSpell("mouseover",_Resuscitate,true) then return; end
 			end
 		end
@@ -150,7 +146,7 @@ if select(3, UnitClass("player")) == 10 then
 	--- In Combat - All Rotation ---
 	--------------------------------
 		-- Touch of Death
-			if UnitBuffID("player",_DeathNote) and targetDistance<3.5 and getBuffRemain("player",_SpinningCraneKick)==0 then
+			if (UnitBuffID("player",_DeathNote) or UnitHealth("target")<=UnitHealth("player")) and not UnitIsPlayer("target") and targetDistance<3.5 and getBuffRemain("player",_SpinningCraneKick)==0 then
 				if castSpell("target",_TouchOfDeath,false) then return; end
 			end
 		-- Chi Brew
@@ -180,6 +176,10 @@ if select(3, UnitClass("player")) == 10 then
 	--- In Combat - Multi-Target Rotation ---
 	-----------------------------------------
 			if useAoE() then
+		-- Raising Sun Kick
+				if getChi("player")>=4 then
+					if castSpell("target",_RaisingSunKick,false) then return; end
+				end
 		--	Spinning Crane Kick
 				if getPower("player")>=40 and getBuffRemain("player",_TigerPower)>2 and getBuffRemain("player",_SpinningCraneKick)==0 then
 					if castSpell("player",_SpinningCraneKick,true) then return; end

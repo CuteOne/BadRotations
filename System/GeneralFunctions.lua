@@ -77,43 +77,6 @@ function canCast(SpellID,KnownSkip,MovementCheck)
     end
 end
 
-
- function ValidDispel(call)
-   local HasValidDispel = false
-   local i = 1
-   local debuff = UnitDebuff(t, i)
-   while debuff do
-    local debuffType = select(5, UnitDebuff(t, i))
-    local debuffid = select(11, UnitDebuff(t, i)) 
-    local PQ_Class = select(2, UnitClass(call))  
-    local ValidDebuffType = false 
-  if PQ_Class == "DRUID" then     
-     if debuffType == "Poison" or debuffType == "Curse" then
-      ValidDebuffType = true
-     --elseif PQR_SpellAvailable(122288) and debuffType == "Disease" then --Cleanse from Paladin Symbiosis
-      --ValidDebuffType = true
-     end
-    end
-    if PQ_Class == "MONK" then
-     if debuffType == "Poison" or debuffType == "Disease" then
-      ValidDebuffType = true
-     end
-    end  
-    
-    if ValidDebuffType
-    and debuffid ~= 138732 --Ionization from Jin'rokh the Breaker - ptr
-  and debuffid ~= 138733 --Ionization from Jin'rokh the Breaker - live
-  then
-     HasValidDispel = true
-    end
-    i = i + 1
-    debuff = UnitDebuff(t, i)
-   end
- return HasValidDispel
-end
-
-
-
 -- if canDispel("target",SpellID) == true then
 function canDispel(Unit,spellID)
   	local HasValidDispel = false
@@ -137,7 +100,7 @@ function canDispel(Unit,spellID)
 		typesList = { }
 	end
 	if ClassNum == 7 then --Shaman
-		typesList = { "Curse" } -- Cleanse Spirit
+		if spellID == 51886 and typesList = { "Curse" } -- Cleanse Spirit
 	end
 	if ClassNum == 8 then --Mage
 		typesList = { }
