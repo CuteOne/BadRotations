@@ -26,6 +26,12 @@ function BrewmasterMonk()
 ---------------------------------------
 --- Ressurection/Dispelling/Healing ---
 ---------------------------------------
+		if isChecked("Detox") == true and canDispel("player",_Detox) then
+			if castSpell("player",_Detox,true) then return; end
+		end
+		if isChecked("Detox") == true and canDispel("mouseover",_Detox) then
+			if castSpell("mouseover",_Detox,true) then return; end
+		end
 	if isValidTarget("mouseover")
 		and UnitIsDeadOrGhost("mouseover") 
 		and UnitIsPlayer("mouseover") 
@@ -38,13 +44,9 @@ function BrewmasterMonk()
 	  	and not IsFlying()
 	  	and targetDistance <= 40
 	then
+	ChatOverlay("O.O")
 -- Detox
-		if isChecked("Detox") == true and canDispel("player",_Detox) then
-			if castSpell("player",_Detox,true) then return; end
-		end
-		if isChecked("Detox") == true and canDispel("mouseover",_Detox) then
-			if castSpell("mouseover",_Detox,true) then return; end
-		end
+
 -- Resuscitate
 		if isChecked("Resuscitate") == true and not isInCombat("player") then
 			if castSpell("mouseover",_Resuscitate,true) then return; end

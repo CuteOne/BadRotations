@@ -77,75 +77,107 @@ function canCast(SpellID,KnownSkip,MovementCheck)
     end
 end
 
+
+ function ValidDispel(call)
+   local HasValidDispel = false
+   local i = 1
+   local debuff = UnitDebuff(t, i)
+   while debuff do
+    local debuffType = select(5, UnitDebuff(t, i))
+    local debuffid = select(11, UnitDebuff(t, i)) 
+    local PQ_Class = select(2, UnitClass(call))  
+    local ValidDebuffType = false 
+  if PQ_Class == "DRUID" then     
+     if debuffType == "Poison" or debuffType == "Curse" then
+      ValidDebuffType = true
+     --elseif PQR_SpellAvailable(122288) and debuffType == "Disease" then --Cleanse from Paladin Symbiosis
+      --ValidDebuffType = true
+     end
+    end
+    if PQ_Class == "MONK" then
+     if debuffType == "Poison" or debuffType == "Disease" then
+      ValidDebuffType = true
+     end
+    end  
+    
+    if ValidDebuffType
+    and debuffid ~= 138732 --Ionization from Jin'rokh the Breaker - ptr
+  and debuffid ~= 138733 --Ionization from Jin'rokh the Breaker - live
+  then
+     HasValidDispel = true
+    end
+    i = i + 1
+    debuff = UnitDebuff(t, i)
+   end
+ return HasValidDispel
+end
+
+
+
 -- if canDispel("target",SpellID) == true then
 function canDispel(Unit,spellID)
   	local HasValidDispel = false
-  	local i = 1
-  	local debuff = UnitDebuffID(Unit, i)
-  	while debuff do
-  		local debuffType = select(5, UnitDebuffID(Unit, i))
-  		local debuffid = select(11, UnitDebuffID(Unit, i)) 
-  		local ClassNum = select(3, UnitClass("player")) 	
-  		local ValidDebuffType = false	
-		if ClassNum == 1 then --Warrior
-
-		end
-		if ClassNum == 2 then --Paladin
-
-		end
-		if ClassNum == 3 then --Hunter
-
-		end
-		if ClassNum == 4 then --Rogue
-
-		end
-		if ClassNum == 9 then --Priest
-
-		end
-		if ClassNum == 9 then --Death Knight
-
-		end
-		if ClassNum == 9 then --Shaman
-			-- Cleanse Spirit
-			if spellID == 51886 and (debuffType == "Curse") then
-				ValidDebuffType = true
-			end
-		end
-		if ClassNum == 9 then --Mage
-
-		end
-		if ClassNum == 9 then --Warlock
-
-		end
-		if ClassNum == 10 then --Monk
-			-- Detox
-			if spellID == 115450 and (debuffType == "Poison" or debuffType == "Disease") then
-				ValidDebuffType = true
-			end
+  	local ClassNum = select(3, UnitClass("player")) 
+	if ClassNum == 1 then --Warrior
+		typesList = { }
+	end
+	if ClassNum == 2 then --Paladin
+		typesList = { }
+	end
+	if ClassNum == 3 then --Hunter
+		typesList = { }
+	end
+	if ClassNum == 4 then --Rogue
+		typesList = { }
+	end
+	if ClassNum == 5 then --Priest
+		typesList = { }
+	end
+	if ClassNum == 6 then --Death Knight
+		typesList = { }
+	end
+	if ClassNum == 7 then --Shaman
+		typesList = { "Curse" } -- Cleanse Spirit
+	end
+	if ClassNum == 8 then --Mage
+		typesList = { }
+	end
+	if ClassNum == 9 then --Warlock
+		typesList = { }
+	end
+	if ClassNum == 10 then --Monk
+		typesList = { "Poison", "Disease" } -- Detox
+	end
+	if ClassNum == 11 then --Druid  			
+		-- Remove Corruption
+		if spellID == 2782 then typesList = { "Poison", "Curse" } end 
+		-- Nature's Cure
+		if spellID == 88423 then typesList = { "Poison", "Curse", "Magic" } end 
+		-- Symbiosis: Cleanse
+		if spellID == 122288 then typesList = { "Poison", "Disease" } end 
+	end		
+	local function ValidType(debuffType)
+  		for i = 1, #typesList do
+  			if typesList[i] == debuffType then
+  				return true;
+  			else
+  				return false;
+  			end
   		end
-		if ClassNum == 11 then --Druid  			
-  			-- Remove Corruption
-  			if spellID == 2782 and (debuffType == "Poison" or debuffType == "Curse") then
-  				ValidDebuffType = true
-  			end
-  			-- Nature's Cure
-  			if spellID == 88423 and (debuffType == "Poison" or debuffType == "Curse" or debuffType == "Magic") then
-  				ValidDebuffType = true
-  			end
-  			-- Symbiosis: Cleanse
-  			if spellID == 122288 and (debuffType == "Poison" or debuffType == "Disease") then
-  				ValidDebuffType = true
-  			end
-  		end		
+  	end
+	local ValidDebuffType = false
+	local i = 1
+  	while UnitDebuff(Unit, i) do
+  		local _, _, _, _, debuffType, _, _, _, _, _, debuffid = UnitDebuff(Unit, i)
   		-- Blackout Debuffs
-  		if ValidDebuffType
+  		if debuffType and ValidType(debuffType)
   			and debuffid ~= 138732 --Ionization from Jin'rokh the Breaker - ptr
 			and debuffid ~= 138733 --Ionization from Jin'rokh the Breaker - live
 		then
   			HasValidDispel = true
+  			break;
   		end
   		i = i + 1
-  		debuff = UnitDebuffID(t, i)
   	end
 	return HasValidDispel
 end
