@@ -231,7 +231,7 @@ function BadBoyRun()
 			Hunter();
 		elseif _MyClass == 4 then -- Rogue
 			if _MySpec == 1 then
-				AssassRogue();
+				AssassinationRogue();
 			elseif _MySpec == 2 then
 				CombatRogue();
 			elseif _MySpec == 3 then
@@ -275,7 +275,7 @@ function BadBoyRun()
 			end
 		elseif _MyClass == 11 then -- Druid
 			if _MySpec == 2 then
-				Druid();
+				DruidFeral();
 			end		
 			if _MySpec == 4 then
 				DruidRestoration();

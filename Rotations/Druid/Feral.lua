@@ -1,5 +1,5 @@
 if select(3, UnitClass("player")) == 11 then
-	function Druid()
+	function DruidFeral()
 	    if Currentconfig ~= "Feral CuteOne" then
 	        FeralCatConfig();
 	        Currentconfig = "Feral CuteOne";
@@ -13,8 +13,7 @@ if select(3, UnitClass("player")) == 11 then
 ---------------------------------------
 --- Ressurection/Dispelling/Healing ---
 ---------------------------------------
-		if isValidTarget("mouseover")
-			and UnitIsDeadOrGhost("mouseover") 
+		if  
 			and UnitIsPlayer("mouseover") 
 			and not UnitBuffID("player", prl)
 			and not UnitBuffID("player", 80169) -- Food
@@ -27,7 +26,7 @@ if select(3, UnitClass("player")) == 11 then
 		  	and targetDistance <= 40
 		then
 	-- Rebirth
-			if isInCombat("player")	and UnitBuffID("player",ps) then
+			if isInCombat("player")	and UnitBuffID("player",ps) and UnitIsDeadOrGhost("mouseover") then
 				if castSpell("mouseover",rb,true) then return; end
 			end
 
