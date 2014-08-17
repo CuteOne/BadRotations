@@ -147,12 +147,33 @@ function useAoE()
     end
 end
 
+function getFacingDistance()
+    if IExists(UnitGUID("player")) and IExists(UnitGUID("target")) then
+        local Y1,X1,Z1,Angle1 = IGetLocation(UnitGUID("player"));
+        local Y2,X2 = IGetLocation(UnitGUID("target"));
+        local deltaY = Y2 - Y1
+        local deltaX = X2 - X1
+        Angle1 = math.deg(math.abs(Angle1-math.pi*2))
+        if deltaX > 0 then
+            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
+        elseif deltaX <0 then
+            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
+        end
+        return round2(math.tan(math.abs(Angle2 - Angle1)*math.pi/180)*targetDistance*10000)/10000
+    else
+        return 1000
+    end
+end
+
 function canFSK(unit)
     if ((targetDistance <= 8 and isInCombat("player")) or (targetDistance < 60 and targetDistance > 8 and getFacing("player",unit))) 
         and not hasGlyph(1017) 
         and getSpellCD(_FlyingSerpentKick)==0 
+        and getFacingDistance() <= 7
         and select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" 
         and not UnitIsDeadOrGhost(unit)
+        and getTimeToDie(unit) > 2
+        and not IsSwimming()
     then
         return true
     else

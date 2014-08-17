@@ -9,6 +9,7 @@ if select(3, UnitClass("player")) == 10 then
 	    if not canRun() then
 	    	return true
 	    end
+
 ---------------------------------------
 --- Ressurection/Dispelling/Healing ---
 ---------------------------------------
@@ -94,7 +95,7 @@ if select(3, UnitClass("player")) == 10 then
 				if castSpell("player",_ExpelHarm,true) then return; end
 			end
 	-- Provoke
-			if not IsMounted() and canAttack("target","player") and not UnitIsDeadOrGhost("target") then
+			if not IsMounted() and canAttack("target","player") and not UnitIsDeadOrGhost("target") and getSpellCD(_FlyingSerpentKick)>1 and targetDistance > 10 then
 				if select(2,IsInInstance())=="none" and #members==1 then
 					if castSpell("target",_Provoke,true) then return; end
 				end
@@ -151,6 +152,14 @@ if select(3, UnitClass("player")) == 10 then
 	--------------------------------
 	--- In Combat - All Rotation ---
 	--------------------------------
+		-- Crackling Jade Lightning
+			if targetDistance >= 8 and getSpellCD(_FlyingSerpentKick)>1 and isInCombat("player") and getPower("player")>20 and (getChiMax("player")-getChi("player"))>=2 then
+				if castSpell("target",_CracklingJadeLightning,false) then return; end
+			end
+		-- Spinning Fire Blossom
+			if targetDistance < 50 and targetDistance >= 8 and getSpellCD(_FlyingSerpentKick)>1 and isInCombat("player") and getChi("player")>=1 and (getChiMax("player")-getChi("player"))<2 and getFacingDistance()<2 then
+				if castSpell("target",_SpinningFireBlossom,false) then return; end
+			end 
 		-- Touch of Death
 			if (UnitBuffID("player",_DeathNote) or UnitHealth("target")<=UnitHealth("player")) and not UnitIsPlayer("target") and targetDistance<3.5 and getBuffRemain("player",_SpinningCraneKick)==0 then
 				if castSpell("target",_TouchOfDeath,false) then return; end
