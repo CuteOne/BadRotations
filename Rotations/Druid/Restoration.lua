@@ -5,6 +5,51 @@ function DruidRestoration()
 		RestorationToggles();
 		currentConfig = "Restoration Masou";
 	end
+--[[
+	if IExists(UnitGUID("player")) and IExists(UnitGUID("target")) then
+		local Y1,X1,Z1,Angle1 = IGetLocation(UnitGUID("player"));
+		local Y2,X2 = IGetLocation(UnitGUID("target"));
+		local deltaY = Y2 - Y1
+		local deltaX = X2 - X1
+		if deltaX > 0 and deltaY > 0 then
+			angleInDegrees = math.atan(deltaY/deltaX)+(math.pi/2)+math.pi
+		elseif
+			deltaX < 0 and deltaY > 0 then
+			angleInDegrees = math.atan(deltaY/deltaX)+(math.pi/2)
+		elseif
+			deltaX < 0 and deltaY < 0 then
+			angleInDegrees = math.atan(deltaY/deltaX)+(math.pi/2)
+		elseif deltaX > 0 and deltaY < 0 then
+			angleInDegrees = (math.atan(deltaY/deltaX))+(math.pi/2)+math.pi
+		end
+		angleDifference = math.abs((angleInDegrees/math.pi*180) - (math.abs(Angle1-math.pi*2)/math.pi*180))
+		ChatOverlay((angleInDegrees/math.pi*180).." "..(math.abs(Angle1-math.pi*2)/math.pi*180))
+]]
+
+	if getFacingSightDistance("player","target") < 30 then ChatOverlay(":D",0) end
+
+    --[[if IExists(UnitGUID("player")) and IExists(UnitGUID("target")) then
+        local Y1,X1,Z1,Angle1 = IGetLocation(UnitGUID("player"));
+        local Y2,X2 = IGetLocation(UnitGUID("target"));
+        local deltaY = Y2 - Y1
+        local deltaX = X2 - X1
+        Angle1 = math.deg(math.abs(Angle1-math.pi*2))
+        if deltaX > 0 then
+            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
+        elseif deltaX <0 then
+            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
+        end
+        ChatOverlay(round2(math.tan(math.abs(Angle2 - Angle1)*math.pi/180)*targetDistance*10000)/10000)
+    else
+        return 1000
+    end	
+	if tamer == nil then return true end]]
+
+	--∙ Si deltaX>0,deltaY>0:θ est valide.
+	--∙ Si deltaX<0,deltaY>0: on calcule le bon angle en faisant θ+180°.
+	--∙ Si deltaX<0,deltaY<0: on calcule le bon angle en faisant θ+180°.
+	--∙ Si deltaX>0,deltaY<0: on calcule le bon angle en faisant θ+360°.
+
 
 	if isChecked("Follow Tank") == true then
 		local favoriteTank = { name = "NONE" , health = 0};

@@ -563,39 +563,17 @@ function getFallTime()
 	return fallTime
 end
 
--- if getExactFacing("target","player") < 40 then
-function getExactFacing(Unit1,Unit2)
+-- if getFacing("target","player") == false then
+function getFacing(Unit1,Unit2,Degrees)
+	if Degrees == nil then Degrees = 90; end
 	if Unit2 == nil then Unit2 = "player"; end
 	if IExists(UnitGUID(Unit1)) and IExists(UnitGUID(Unit2)) then
+		local Angle1,Angle2,Angle3;
 		local Y1,X1,Z1,Angle1 = IGetLocation(UnitGUID(Unit1));
         local Y2,X2 = IGetLocation(UnitGUID(Unit2));
         local deltaY = Y2 - Y1
         local deltaX = X2 - X1
         Angle1 = math.deg(math.abs(Angle1-math.pi*2))
-        if deltaX > 0 then
-            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
-        elseif deltaX < 0 then
-            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
-        end
-        if Angle2-Angle1 > 180 then
-        	Angle3 = math.abs(Angle2-Angle1-360)
-        else
-        	Angle3 = math.abs(Angle2-Angle1)
-        end
-	end
-    if Angle3 == nil then Angle3 = 1000; end
-    return Angle3;
-end
-
--- if getFacing("target","player") == false then
-function getFacing(Unit1,Unit2)
-		if Unit2 == nil then Unit2 = "player"; end
-		if IExists(UnitGUID(Unit1)) and IExists(UnitGUID(Unit2)) then
-		local Y1,X1,Z1,Angle1 = IGetLocation(UnitGUID(Unit1));
-        local Y2,X2 = IGetLocation(UnitGUID(Unit2));
-        local deltaY = Y2 - Y1
-        local deltaX = X2 - X1
-        Angle1 = math.deg(math.abs(Angle-math.pi*2))
         if deltaX > 0 then
             Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
         elseif deltaX <0 then
@@ -606,41 +584,69 @@ function getFacing(Unit1,Unit2)
         else
         	Angle3 = math.abs(Angle2-Angle1)
         end
-        if Angle3 < 90 then return true; else return false; end
+        if Angle3 < Degrees then return true; else return false; end
 	end
 end
 
 -- if getFacingSight("player","target") == true then
-function getFacingSight(Unit1,Unit2)
-	if Unit2 == nil then Unit2 = Unit1; Unit1 = "player"; end
+function getFacingSight(Unit1,Unit2,Degrees)
+	if Degrees == nil then Degrees = 90; end
+	if Unit2 == nil then Unit2 = "player"; end
 	if IExists(UnitGUID(Unit1)) and IExists(UnitGUID(Unit2)) then
-		local X1,Y1,Z1,Angle1 = IGetLocation(UnitGUID(Unit1));
-		local X2,Y2,Z2 = IGetLocation(UnitGUID(Unit2));
-		if ((X1-X2)*math.cos(-Angle1))-((Y1-Y2)*math.sin(-Angle1)) < 0 and TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
-			return true;
-		else
-			return false;
+		local Angle1,Angle2,Angle3;
+		local Y1,X1,Z1,Angle1 = IGetLocation(UnitGUID(Unit1));
+        local Y2,X2,Z2 = IGetLocation(UnitGUID(Unit2));
+        local deltaY = Y2 - Y1
+        local deltaX = X2 - X1
+        Angle1 = math.deg(math.abs(Angle1-math.pi*2))
+        if deltaX > 0 then
+            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
+        elseif deltaX <0 then
+            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
+        end
+        if Angle2-Angle1 > 180 then
+        	Angle3 = math.abs(Angle2-Angle1-360)
+        else
+        	Angle3 = math.abs(Angle2-Angle1)
+        end
+        if Angle3 < Degrees then
+        	if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
+				return true;
+			end
 		end
-	else
-		return false;
 	end
+	return false;
 end
 
--- if getFacingSightDistance("player","target") < 30 then
-function getFacingSightDistance(Unit1,Unit2)
-	if Unit2 == nil then Unit2 = Unit1; Unit1 = "player"; end
+-- if getFacingSightDistance("player","target",45) < 30 then
+function getFacingSightDistance(Unit1,Unit2,Degrees)
+	if Degrees == nil then Degrees = 90; end
+	if Unit2 == nil then Unit2 = "player"; end
 	if IExists(UnitGUID(Unit1)) and IExists(UnitGUID(Unit2)) then
-		local X1,Y1,Z1,Angle1 = IGetLocation(UnitGUID(Unit1));
-		local X2,Y2,Z2 = IGetLocation(UnitGUID(Unit2));
-		local unit2Size = IGetFloatDescriptor(UnitGUID(Unit2),0x110)
-		if ((X1-X2)*math.cos(-Angle1))-((Y1-Y2)*math.sin(-Angle1)) < 0 and TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
-			return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unit2Size;
-		else
-			return 1000;
+		local Angle1,Angle2,Angle3;
+		local Y1,X1,Z1,Angle1 = IGetLocation(UnitGUID(Unit1));
+        local Y2,X2,Z2 = IGetLocation(UnitGUID(Unit2));
+        local deltaY = Y2 - Y1
+        local deltaX = X2 - X1
+        local unit2Size = IGetFloatDescriptor(UnitGUID(Unit2),0x110); 
+        Angle1 = math.deg(math.abs(Angle1-math.pi*2))
+        if deltaX > 0 then
+            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
+        elseif deltaX <0 then
+            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
+        end
+        if Angle2-Angle1 > 180 then
+        	Angle3 = math.abs(Angle2-Angle1-360)
+        else
+        	Angle3 = math.abs(Angle2-Angle1)
+        end
+        if Angle3 < Degrees then
+        	if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
+				return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unit2Size
+			end
 		end
-	else
-		return 1000;
 	end
+	return 1000;
 end
 
 -- if getHP("player") then
