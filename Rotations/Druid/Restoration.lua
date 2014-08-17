@@ -5,52 +5,6 @@ function DruidRestoration()
 		RestorationToggles();
 		currentConfig = "Restoration Masou";
 	end
---[[
-	if IExists(UnitGUID("player")) and IExists(UnitGUID("target")) then
-		local Y1,X1,Z1,Angle1 = IGetLocation(UnitGUID("player"));
-		local Y2,X2 = IGetLocation(UnitGUID("target"));
-		local deltaY = Y2 - Y1
-		local deltaX = X2 - X1
-		if deltaX > 0 and deltaY > 0 then
-			angleInDegrees = math.atan(deltaY/deltaX)+(math.pi/2)+math.pi
-		elseif
-			deltaX < 0 and deltaY > 0 then
-			angleInDegrees = math.atan(deltaY/deltaX)+(math.pi/2)
-		elseif
-			deltaX < 0 and deltaY < 0 then
-			angleInDegrees = math.atan(deltaY/deltaX)+(math.pi/2)
-		elseif deltaX > 0 and deltaY < 0 then
-			angleInDegrees = (math.atan(deltaY/deltaX))+(math.pi/2)+math.pi
-		end
-		angleDifference = math.abs((angleInDegrees/math.pi*180) - (math.abs(Angle1-math.pi*2)/math.pi*180))
-		ChatOverlay((angleInDegrees/math.pi*180).." "..(math.abs(Angle1-math.pi*2)/math.pi*180))
-]]
-
-	if getFacingSightDistance("player","target") < 30 then ChatOverlay(":D",0) end
-
-    --[[if IExists(UnitGUID("player")) and IExists(UnitGUID("target")) then
-        local Y1,X1,Z1,Angle1 = IGetLocation(UnitGUID("player"));
-        local Y2,X2 = IGetLocation(UnitGUID("target"));
-        local deltaY = Y2 - Y1
-        local deltaX = X2 - X1
-        Angle1 = math.deg(math.abs(Angle1-math.pi*2))
-        if deltaX > 0 then
-            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
-        elseif deltaX <0 then
-            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
-        end
-        ChatOverlay(round2(math.tan(math.abs(Angle2 - Angle1)*math.pi/180)*targetDistance*10000)/10000)
-    else
-        return 1000
-    end	
-	if tamer == nil then return true end]]
-
-	--∙ Si deltaX>0,deltaY>0:θ est valide.
-	--∙ Si deltaX<0,deltaY>0: on calcule le bon angle en faisant θ+180°.
-	--∙ Si deltaX<0,deltaY<0: on calcule le bon angle en faisant θ+180°.
-	--∙ Si deltaX>0,deltaY<0: on calcule le bon angle en faisant θ+360°.
-
-
 	if isChecked("Follow Tank") == true then
 		local favoriteTank = { name = "NONE" , health = 0};
 		if UnitExists("focus") == nil and favoriteTank.name == "NONE" then
@@ -213,7 +167,7 @@ function DruidRestoration()
 				if isChecked("Swiftmend") then
 					if hasGlyph(145529) ~= true then
 						local allies10Yards;
-						if getBuffRemain(nNova[1].unit,774) > 1 or getBuffRemain(nNova[1].unit,8936) > 1 then
+						if getBuffRemain(nNova[1].unit,774,"player") > 1 or getBuffRemain(nNova[1].unit,8936,"player") > 1 then
 							allies10Yards = getAllies(nNova[1].unit,10)
 							if #allies10Yards >= 3 then
 								local count = 0;
@@ -229,7 +183,7 @@ function DruidRestoration()
 						end
 					else
 						if nNova[1].hp <= getValue("Swiftmend") then
-							if getBuffRemain(nNova[1].unit,774) > 1 or getBuffRemain(nNova[1].unit,8936) > 1 then
+							if getBuffRemain(nNova[1].unit,774,"player") > 1 or getBuffRemain(nNova[1].unit,8936,"player") > 1 then
 								if castSpell(nNova[1].unit,18562,true,false) then return; end
 							end
 						end
@@ -238,14 +192,14 @@ function DruidRestoration()
 			else
 				if Time < 1 then
 					for i = 1, #nNova do
-						if getBuffRemain(nNova[i].unit,774) > 1 or getBuffRemain(nNova[i].unit,8936) > 1 then
+						if getBuffRemain(nNova[i].unit,774,"player") > 1 or getBuffRemain(nNova[i].unit,8936,"player") > 1 then
 							if castSpell(nNova[i].unit,18562,true,false) then return; end
 						end
 					end
 				end
 				local found = false;
 				for i = 1, #nNova do
-					if getBuffRemain(nNova[i].unit,774) > 2 or getBuffRemain(nNova[i].unit,8936) > 2 then
+					if getBuffRemain(nNova[i].unit,774,"player") > 2 or getBuffRemain(nNova[i].unit,8936,"player") > 2 then
 						found = true;
 						break;
 					end
@@ -449,7 +403,7 @@ function DruidRestoration()
 		--[[ 16 - reju All Tol --(use reju on all with out health check only Reju buff check)]]
 		if isKnown(106731) and UnitBuffID("player", 33891) and isChecked("Rejuvenation All Tol") == true then
 	        for i = 1, #nNova do
-		       	if getBuffRemain(nNova[i].unit,774) == 0 and nNova[i].hp <= 100 then
+		       	if getBuffRemain(nNova[i].unit,774,"player") == 0 and nNova[i].hp <= 100 then
 			        if castSpell(nNova[i].unit,774,true,false) then return; end
 		        end
 	        end
@@ -458,7 +412,7 @@ function DruidRestoration()
 		--[[ 17 - Lifebloom - ToL support]]
 		if isKnown(106731) and UnitBuffID("player", 33891) and isChecked("Lifebloom Tol") == true  then
 			for i = 1, #nNova do
-				if getBuffRemain(nNova[i].unit,33763) == 0 then
+				if getBuffRemain(nNova[i].unit,33763,"player") == 0 then
 					if castSpell(nNova[i].unit,33763,true,false) then return; end
 				end
 			end
@@ -473,7 +427,7 @@ function DruidRestoration()
 				end
 			end		
 			for i = 1, #nNova do
-				if getBuffStacks(nNova[i].unit,33763) == 3 and getBuffRemain(nNova[i].unit, 33763) < 3 then
+				if getBuffStacks(nNova[i].unit,33763) == 3 and getBuffRemain(nNova[i].unit, 33763,"player") < 3 then
 					if castSpell(nNova[i].unit,33763,true,false) then return; end
 				end
 			end	
@@ -482,7 +436,7 @@ function DruidRestoration()
 		--[[ 18 - reju Tol --( use reju on player with health check if not lifebloom tol check)]]
 		if isKnown(106731) and UnitBuffID("player", 33891) and isChecked("Lifebloom Tol") == true and isChecked("Lifebloom Tol") == false then
 	        for i = 1, #nNova do
-		       	if nNova[i].hp <= getValue("Rejuvenation Tol") and getBuffRemain(nNova[i].unit,774) == 0 then
+		       	if nNova[i].hp <= getValue("Rejuvenation Tol") and getBuffRemain(nNova[i].unit,774,"player") == 0 then
 			        if castSpell(nNova[i].unit,774,true,false) then return; end
 		        end
 	        end
@@ -510,7 +464,7 @@ function DruidRestoration()
 		if isKnown(114107) ~= true then
 			if UnitAffectingCombat("player") and isChecked("Swiftmend Harmoney") then
 				if getBuffRemain("player", 100977) < 3 then
-					if getBuffRemain(nNova[1].unit,774) > 1 or getBuffRemain(nNova[1].unit,8936) > 1 then
+					if getBuffRemain(nNova[1].unit,774,"player") > 1 or getBuffRemain(nNova[1].unit,8936,"player") > 1 then
 						-- Swiftmend
 						if castSpell(nNova[1].unit,18562,true,false) then return; end
 					end
@@ -533,7 +487,7 @@ function DruidRestoration()
 		if isChecked("Genesis") == true and canCast(145518,false,false) then
 			local GenCount=0
 			for i=1, #nNova do
-				if nNova[i].hp <= getValue("Genesis") and getBuffRemain(nNova[i].unit,774) > 2 then 	
+				if nNova[i].hp <= getValue("Genesis") and getBuffRemain(nNova[i].unit,774,"player") > 2 then 	
 					GenCount = GenCount + 1
 					if GenCount >= getValue("Genesis Count") then if castSpell("player",145518,true,false) then return; end end 	
 				end
@@ -616,7 +570,7 @@ function DruidRestoration()
 
 		--[[ 28 - LifebloomFocus--(Refresh if over treshold)]]
       	if isChecked("Lifebloom") == true then
-			if not UnitIsDeadOrGhost("focus") and getHP("focus") >= getValue("Lifebloom") and (getBuffRemain("focus",33763) < 4 and getBuffStacks("focus",33763) == 3 ) then
+			if not UnitIsDeadOrGhost("focus") and getHP("focus") >= getValue("Lifebloom") and (getBuffRemain("focus",33763,"player") < 4 and getBuffStacks("focus",33763) == 3 ) then
 				if castSpell("focus",33763,true,false) then return; end
 			end
 		end	
@@ -624,7 +578,7 @@ function DruidRestoration()
 		--[[ 29 - Rejuvenation--(check health and Buff)]]
 		if isChecked("Rejuvenation") == true then
 			for i = 1, #nNova do
-				if nNova[i].hp <= getValue("Rejuvenation") and getBuffRemain(nNova[i].unit,774) == 0 then
+				if nNova[i].hp <= getValue("Rejuvenation") and getBuffRemain(nNova[i].unit,774,"player") == 0 then
 					if castSpell(nNova[i].unit,774,true,false) then return; end
 				end
 			end
@@ -635,7 +589,7 @@ function DruidRestoration()
 			for i = 1, #nNova do
 				if friendlyDot[nNova[i].guid] ~= nil then
 					if GetTime() - friendlyDot[nNova[i].guid] < 3 then
-						if getBuffRemain(nNova[i].unit, 774) == 0 then
+						if getBuffRemain(nNova[i].unit, 774,"player") == 0 then
 							if castSpell(nNova[i].unit, 774, true, false) then return; end
 						end
 					else
@@ -660,7 +614,7 @@ function DruidRestoration()
 		--[[ 32 - Rejuvenation all--(if meta proc)(137331 buff id)]]
 		if isChecked("Rejuvenation Meta") == true and getBuffRemain("player",137331) > 0 then
 			for i = 1, #nNova do
-				if getBuffRemain(nNova[i].unit,774) == 0 and nNova[i].hp <= 100 then
+				if getBuffRemain(nNova[i].unit,774,"player") == 0 and nNova[i].hp <= 100 then
 					if castSpell(nNova[i].unit,774,true,false) then return; end
 				end
 			end
@@ -669,7 +623,7 @@ function DruidRestoration()
 		--[[ 33 - reju All --(use reju on all with out health check only Reju buff check)]]
 		if isChecked("Rejuvenation All") == true then
 			for i = 1, #nNova do
-				if getBuffRemain(nNova[i].unit,774) == 0 then
+				if getBuffRemain(nNova[i].unit,774,"player") == 0 then
 					if castSpell(nNova[i].unit,774,true,false) then return; 
 					end
 				end
@@ -695,7 +649,7 @@ function DruidRestoration()
 		--[[ 36 - Rejuvenation Tank]]
 		if isChecked("Rejuvenation") == true then
    			for i = 1, #nNova do
-    			if (nNova[i].role == "TANK" or UnitGroupRolesAssigned(nNova[i].unit) == "TANK") and nNova[i].hp <= getValue("Rejuvenation Tank") and getBuffRemain(nNova[i].unit,774) == 0 then
+    			if (nNova[i].role == "TANK" or UnitGroupRolesAssigned(nNova[i].unit) == "TANK") and nNova[i].hp <= getValue("Rejuvenation Tank") and getBuffRemain(nNova[i].unit,774,"player") == 0 then
      				if castSpell(nNova[i].unit,774,true,false) then return; end
     			end
    			end
@@ -704,7 +658,7 @@ function DruidRestoration()
 		--[[ 37 - Genesis --(if reju buff remain and health < 60 or custome on single target)]]
 		if isChecked("Genesis Filler") == true and canCast(145518,false,false) then
 			for i=1, #nNova do
-				if nNova[i].hp <= getValue("Genesis Filler") and getBuffRemain(nNova[i].unit,774) > 3 then 	
+				if nNova[i].hp <= getValue("Genesis Filler") and getBuffRemain(nNova[i].unit,774,"player") > 3 then 	
 				    if castSpell("player",145518,true,false) then return; end 
 				end 	
 			end
@@ -714,13 +668,13 @@ function DruidRestoration()
 		if isChecked("Rejuv Filler Count") == true then
 			local numberRejuvUps = 0;
 			for i = 1, #nNova do
-				if getBuffRemain(nNova[i].unit,774) ~= 0 then
+				if getBuffRemain(nNova[i].unit,774,"player") ~= 0 then
 					numberRejuvUps = numberRejuvUps + 1;
 				end
 			end
 			if numberRejuvUps < getValue("Rejuv Filler Count") then
 				for i = 1, #nNova do
-					if getBuffRemain(nNova[i].unit,774) == 0 then	
+					if getBuffRemain(nNova[i].unit,774,"player") == 0 then	
 						if castSpell(nNova[i].unit,774,true,false) then return; end
 					end
 				end

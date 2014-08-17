@@ -357,7 +357,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 	      and getSpellCD(SpellID) <= lagTolerance and (KnownSkip == true or isKnown(SpellID)) then
 	    	if GlobalCooldown <= lagTolerance and (SpamAllowed == nil or SpamAllowed == false) then
 	      		if timersTable == nil or (timersTable ~= nil and (timersTable[SpellID] == nil or timersTable[SpellID] <= GetTime() -0.6)) then
-	       			if Unit ~= nil and (UnitGUID(Unit) == UnitGUID("player") or (KnownSkip or isKnown(SpellID)) and getDistance("player",Unit) < spellRange and getLineOfSight("player",Unit) == true) then
+	       			if Unit ~= nil and (UnitGUID(Unit) == UnitGUID("player") or (KnownSkip or isKnown(SpellID)) and getFacingSightDistance("player",Unit) < spellRange) then
 	        			timersTable[SpellID] = GetTime();
 	        			currentTarget = UnitGUID(Unit);
 	        			CastSpellByName(GetSpellInfo(SpellID),Unit);
@@ -371,7 +371,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 	       			end
 				end
 			elseif Unit ~= nil and (UnitGUID(Unit) == UnitGUID("player") 
-	  		  or getDistance("player",Unit) < spellRange and getLineOfSight("player",Unit) == true) then
+	  		  or (getDistance("player",Unit) < spellRange and getLineOfSight("player",Unit) == true)) then
 	        	currentTarget = UnitGUID(Unit);
 				CastSpellByName(GetSpellInfo(SpellID),Unit);
 				return true;
