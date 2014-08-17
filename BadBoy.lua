@@ -230,7 +230,13 @@ function BadBoyRun()
 		elseif _MyClass == 3 then -- Hunter
 			Hunter();
 		elseif _MyClass == 4 then -- Rogue
-			--Rogue()
+			if _MySpec == 1 then
+				AssassRogue();
+			elseif _MySpec == 2 then
+				CombatRogue();
+			elseif _MySpec == 3 then
+				SubRogue();
+			end
 		elseif _MyClass == 5 then -- Priest
 			--Priest()
 		elseif _MyClass == 6 then -- Deathknight

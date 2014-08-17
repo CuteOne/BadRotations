@@ -640,7 +640,7 @@ function DruidRestoration()
 		end
 
 		--[[ 35 - Lifebloom - --(Force Stacks)]]
-		if isChecked("Lifebloom") == true then
+		if isChecked("Lifebloom") == true and not UnitIsDeadOrGhost("focus") then
 			if getBuffStacks("focus",33763) < 3 then
 				if castSpell("focus",33763,true,false) then return; end
 			end

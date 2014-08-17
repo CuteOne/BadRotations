@@ -49,7 +49,8 @@ if not metaTable1 then
 		128353, -- Dissonance Field 4
 	} -- This is where we house the Debuffs that are bad for our users, and should not be healed when they have it
 	local SpecialHealUnitList = {
-		--[69334] = "That Panda there",
+		[65078] = "Meng Meng",
+		[69334] = "That Panda there",
 		[71604] = "Immersus Oozes" , 
 		[6459] = "Boss#3 SoO",
 		[6460] = "Boss#3 SoO",
@@ -202,7 +203,7 @@ if not metaTable1 then
 			if o.threat == 3 then PercentWithIncoming = PercentWithIncoming - 3; end
 			if o.guidsh == 72218  then PercentWithIncoming = PercentWithIncoming - 5 end -- Tank in Proving Grounds
 			local ActualWithIncoming = ( UnitHealthMax(o.unit) - ( UnitHealth(o.unit) + incomingheals ) )
- 			if not UnitInRange(o.unit) and not UnitIsUnit("player", o.unit) then PercentWithIncoming = 250; end
+ 			if not UnitInRange(o.unit) and not UnitIsUnit("player", o.unit) then if getDistance("player", o.unit) > 40 then PercentWithIncoming = 250; end end
 			-- Malkorok
 			local SpecificHPBuffs = { 
 				{ buff = 142865 , value = select(15,UnitDebuffID(o.unit,142865)) }, -- Strong Ancient Barrier (Green)
@@ -353,13 +354,31 @@ if not metaTable1 then
 			end]]
 			if isChecked("Special Priority") == true then
 			 	if UnitExists("focus") and memberSetup.cache[select(2, Nova_GUID("focus"))] then
-					table.sort(nNova, function(x)return UnitIsUnit(x.unit, "focus") end);
+					table.sort(nNova, function(x)
+						if x.unit == "focus" then
+							return true;
+						else
+							return false;
+						end
+					end);
 				end
 				if UnitExists("target") and memberSetup.cache[select(2, Nova_GUID("target"))] then
-					table.sort(nNova, function(x)return UnitIsUnit(x.unit, "target") end);
+					table.sort(nNova, function(x)
+						if x.unit == "target" then
+							return true;
+						else
+							return false;
+						end
+					end);
 				end
 				if UnitExists("mouseover") and memberSetup.cache[select(2, Nova_GUID("mouseover"))] then
-					table.sort(nNova, function(x)return UnitIsUnit(x.unit, "mouseover") end);
+					table.sort(nNova, function(x)
+						if x.unit == "mouseover" then
+							return true;
+						else
+							return false;
+						end
+					end);
 				end
 			end
 		end
