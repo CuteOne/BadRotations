@@ -4,8 +4,6 @@ ClassLibs/Mage/Options.lua
 ClassLibs/New Options.lua
 ClassLibs/Priest/Functions.lua
 ClassLibs/Priest/Options.lua
-ClassLibs/Rogue/Functions.lua
-ClassLibs/Rogue/Options.lua
 ClassLibs/Warlock/Functions.lua
 ClassLibs/Warlock/Options.lua
 ClassLibs/Warrior/Functions.lua
@@ -21,7 +19,6 @@ Rotations/Paladin/Holy.lua
 Rotations/Priest/Discipline.lua
 Rotations/Priest/Holy.lua
 Rotations/Priest/Shadow.lua
-Rotations/Rogue/Assassination.lua
 Rotations/Rogue/Combat.lua
 Rotations/Rogue/Subtlety.lua
 Rotations/Warlock/Affliction.lua
