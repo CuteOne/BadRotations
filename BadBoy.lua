@@ -234,7 +234,7 @@ function BadBoyRun()
 				AssassinationRogue();
 			elseif _MySpec == 2 then
 				CombatRogue();
-			elseif _MySpec == 3 then
+			else
 				SubRogue();
 			end
 		elseif _MyClass == 5 then -- Priest
