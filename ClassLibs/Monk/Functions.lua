@@ -77,7 +77,6 @@ _TigerPower					=   125359 --Tiger Power
 _ComboBreakerTigerPalm		=   118864 --Combo Breaker: Tiger Palm
 _ComboBreakerBlackoutKick	=   116768 --Combo Breaker: Blackout Kick
 _ZenSphereBuff				=   124081 --Zen Sphere Buff
-_TigereyeBrewStacks			=   125195 --Tigereye Brew Stacks
 _DisableDebuff				=   116706 --Disable (root)
 
 ------Racials------
@@ -166,7 +165,7 @@ function getFacingDistance()
 end
 
 function canFSK(unit)
-    if ((targetDistance <= 8 and isInCombat("player")) or (targetDistance < 60 and targetDistance > 8 and getExactFacing("player",unit)<180)) 
+    if ((targetDistance <= 8 and isInCombat("player")) or (targetDistance < 60 and targetDistance > 8 and getFacing("player",unit))) 
         and not hasGlyph(1017) 
         and getSpellCD(_FlyingSerpentKick)==0 
         and getFacingDistance() <= 7
@@ -178,6 +177,14 @@ function canFSK(unit)
         return true
     else
         return false
+    end
+end
+
+function getTigereyeRemain()
+    if getBuffStacks("player",_TigereyeBrew) > 0 then
+        return 0
+    else
+        return getBuffRemain("player",_TigereyeBrew)
     end
 end
 

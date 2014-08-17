@@ -174,13 +174,10 @@ if select(3, UnitClass("player")) == 10 then
 				if castSpell("target",_TigerPalm,false) then return; end
 			end
 		-- Tigereye Brew
-			--tigereye_brew,if=buff.tigereye_brew_use.down&buff.tigereye_brew.stack=20
-			--tigereye_brew,if=buff.tigereye_brew_use.down&trinket.proc.agility.react
-			--tigereye_brew,if=buff.tigereye_brew_use.down&chi>=2&(trinket.proc.agility.react|trinket.proc.strength.react|buff.tigereye_brew.stack>=15|target.time_to_die<40)&debuff.rising_sun_kick.up&buff.tiger_power.up
-			if getBuffRemain("player",_TigereyeBrew)==0 
-				and (getBuffStacks("player",_TigereyeBrewStacks)==20
+			if getTigereyeRemain()==0 
+				and (getBuffStacks("player",_TigereyeBrew)==20
 					or getAgility() > AgiSnap
-					or (getChi("player")>=2 and (getAgility() > AgiSnap or getBuffStacks("player",_TigereyeBrewStacks)>=15 or getTimeToDie("target")<40) and getDebuffRemain("target",_RaisingSunKick)>0 and getBuffRemain("player",_TigerPower)>0))
+					or (getChi("player")>=2 and (getAgility() > AgiSnap or getBuffStacks("player",_TigereyeBrew)>=15 or getTimeToDie("target")<40) and getDebuffRemain("target",_RaisingSunKick)>0 and getBuffRemain("player",_TigerPower)>0))
 			then
 				if castSpell("player",_TigereyeBrew,true) then return; end
 			end
@@ -222,7 +219,7 @@ if select(3, UnitClass("player")) == 10 then
 					and getBuffRemain("player",_TigerPower)>4 
 					and getChi("player")>=3 
 					and not isStanding(0.5) 
-					and getExactFacing("player","target")<180 
+					and getFacing("player","target") 
 					and targetDistance < 3.5
 				then
 					if castSpell("player",_FistsOfFury,true) then return; end
