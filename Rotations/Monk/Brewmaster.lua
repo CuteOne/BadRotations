@@ -5,6 +5,20 @@ function BrewmasterMonk()
 		MonkBrewToggles();
 		MonkBrewConfig();
 	end
+
+
+	if IExists(UnitGUID("player")) and IExists(UnitGUID("target")) then
+		local X1,Y1,Z1,Angle1 = IGetLocation(UnitGUID("player"));
+		local X2,Y2 = IGetLocation(UnitGUID("target"));
+		--ChatOverlay(((X1-X2)*math.cos(-Angle1))-((Y1-Y2)*math.sin(-Angle1)))
+		local deltaY = Y2 - Y1
+		local deltaX = X2 - X1
+		angleInDegrees = math.atan(deltaY / deltaX) * 180 / 3.1416
+		ChatOverlay(angleInDegrees)
+	end
+	if tamer == nil then return true end
+
+
 -- Barrel Thrower
 	if SpellIsTargeting() then
 		if UnitExists("target") then
@@ -26,14 +40,7 @@ function BrewmasterMonk()
 ---------------------------------------
 --- Ressurection/Dispelling/Healing ---
 ---------------------------------------
-		if isChecked("Detox") == true and canDispel("player",_Detox) then
-			if castSpell("player",_Detox,true) then return; end
-		end
-		if isChecked("Detox") == true and canDispel("mouseover",_Detox) then
-			if castSpell("mouseover",_Detox,true) then return; end
-		end
 	if isValidTarget("mouseover")
-		and UnitIsDeadOrGhost("mouseover") 
 		and UnitIsPlayer("mouseover") 
 		and not UnitBuffID("player", 80169) -- Food
   		and not UnitBuffID("player", 87959) -- Drink
@@ -42,13 +49,16 @@ function BrewmasterMonk()
 	  	and not UnitIsDeadOrGhost("player")
 	  	and not IsMounted()
 	  	and not IsFlying()
-	  	and targetDistance <= 40
 	then
-	ChatOverlay("O.O")
 -- Detox
-
+		if isChecked("Detox") == true and canDispel("player",_Detox) then
+			if castSpell("player",_Detox,true) then return; end
+		end
+		if isChecked("Detox") == true and canDispel("mouseover",_Detox) and not UnitIsDeadOrGhost("mouseover") then
+			if castSpell("mouseover",_Detox,true) then return; end
+		end
 -- Resuscitate
-		if isChecked("Resuscitate") == true and not isInCombat("player") then
+		if isChecked("Resuscitate") == true and not isInCombat("player") and UnitIsDeadOrGhost("mouseover") then
 			if castSpell("mouseover",_Resuscitate,true) then return; end
 		end
 	end
@@ -170,7 +180,7 @@ function BrewmasterMonk()
 	    if castSpell("target",_ChiWave,false) then return; end
 
 		--[[Breath of Fire if >= 3 targets dump.]]
-	    if chi >= 3 and ennemyUnits > 2 then
+	    if chi >= 3 and ennemyUnits > 2 and getExactFacing("player","target") < 30 then
 	    	if castSpell("target",_BreathOfFire,false) then return; end
 	    end	
 
@@ -199,9 +209,15 @@ function BrewmasterMonk()
 	    	if castSpell("target",_TouchOfDeath,false) then return; end
 	    end		
 
-		--[[Jab use to build Chi and prevent Energy capping.]]
+	    --[[Build Chi and prevent Energy capping.]]
     	if (energy > 70 and chi < 4) or energy >= 90 then
-    		if castSpell("target",_Jab,false) then return; end
+    		if ennemyUnits > 2 then
+    			--[[Spinning Crane Kick]]
+    			if castSpell("target",101546,false) then return; end
+    		else
+    			--[[Jab]]
+    			if castSpell("target",_Jab,false) then return; end
+    		end    		
     	end
 
 
