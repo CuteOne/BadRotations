@@ -100,8 +100,7 @@ function canDispel(Unit,spellID)
 		typesList = { }
 	end
 	if ClassNum == 7 then --Shaman
-		-- Cleanse Spirit
-		if spellID == 51886 then typesList = { "Curse" } end 
+		if spellID == 51886 then typesList = { "Curse" } end -- Cleanse Spirit
 	end
 	if ClassNum == 8 then --Mage
 		typesList = { }
@@ -460,17 +459,17 @@ function getAllies(Unit,Radius)
 end
 
 -- if getBuffRemain("target",12345) < 3 then
-function getBuffRemain(Unit,BuffID)
+function getBuffRemain(Unit,BuffID,Source)
 	if UnitBuffID(Unit,BuffID) ~= nil then
-		return (select(7,UnitBuffID(Unit,BuffID)) - GetTime());
+		return (select(7,UnitBuffID(Unit,BuffID,Source)) - GetTime());
 	end
 	return 0;
 end
 
 -- if getBuffStacks(138756) > 0 then
-function getBuffStacks(unit,BuffID)
+function getBuffStacks(unit,BuffID,Source)
 	if UnitBuffID(unit, BuffID) then
-		return (select(4, UnitBuffID(unit, BuffID)))
+		return (select(4, UnitBuffID(unit, BuffID,Source)))
 	else
 		return 0
 	end
@@ -564,19 +563,50 @@ function getFallTime()
 	return fallTime
 end
 
--- if getFacing("target","player") == false then
-function getFacing(Unit1,Unit2)
+-- if getExactFacing("target","player") < 40 then
+function getExactFacing(Unit1,Unit2)
 	if Unit2 == nil then Unit2 = "player"; end
 	if IExists(UnitGUID(Unit1)) and IExists(UnitGUID(Unit2)) then
-		local X1,Y1,Z1,Angle1 = IGetLocation(UnitGUID(Unit1));
-		local X2,Y2 = IGetLocation(UnitGUID(Unit2));
-		if ((X1-X2)*math.cos(-Angle1))-((Y1-Y2)*math.sin(-Angle1)) < 0 then
-			return true;
-		else
-			return false;
-		end
-	else
-		return false;
+		local Y1,X1,Z1,Angle1 = IGetLocation(UnitGUID(Unit1));
+        local Y2,X2 = IGetLocation(UnitGUID(Unit2));
+        local deltaY = Y2 - Y1
+        local deltaX = X2 - X1
+        Angle1 = math.deg(math.abs(Angle1-math.pi*2))
+        if deltaX > 0 then
+            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
+        elseif deltaX < 0 then
+            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
+        end
+        if Angle2-Angle1 > 180 then
+        	Angle3 = math.abs(Angle2-Angle1-360)
+        else
+        	Angle3 = math.abs(Angle2-Angle1)
+        end
+	end
+    if Angle3 == nil then Angle3 = 1000; end
+    return Angle3;
+end
+
+-- if getFacing("target","player") == false then
+function getFacing(Unit1,Unit2)
+		if Unit2 == nil then Unit2 = "player"; end
+		if IExists(UnitGUID(Unit1)) and IExists(UnitGUID(Unit2)) then
+		local Y1,X1,Z1,Angle1 = IGetLocation(UnitGUID(Unit1));
+        local Y2,X2 = IGetLocation(UnitGUID(Unit2));
+        local deltaY = Y2 - Y1
+        local deltaX = X2 - X1
+        Angle1 = math.deg(math.abs(Angle-math.pi*2))
+        if deltaX > 0 then
+            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
+        elseif deltaX <0 then
+            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
+        end
+        if Angle2-Angle1 > 180 then
+        	Angle3 = math.abs(Angle2-Angle1-360)
+        else
+        	Angle3 = math.abs(Angle2-Angle1)
+        end
+        if Angle3 < 90 then return true; else return false; end
 	end
 end
 
