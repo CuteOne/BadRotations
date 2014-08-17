@@ -9,7 +9,6 @@ if select(3, UnitClass("player")) == 10 then
 	    if not canRun() then
 	    	return true
 	    end
-
 ---------------------------------------
 --- Ressurection/Dispelling/Healing ---
 ---------------------------------------
@@ -113,7 +112,9 @@ if select(3, UnitClass("player")) == 10 then
 --- In Combat ---
 -----------------
 		if isInCombat("player") and canAttack("target","player") and not UnitIsDeadOrGhost("target") then			
-	
+			if isCastingSpell(_CracklingJadeLightning) and targetDistance < 3.5 then
+				RunMacroText("/stopcasting")
+			end
 	----------------------
 	--- Rotation Pause ---
 	----------------------
@@ -153,11 +154,11 @@ if select(3, UnitClass("player")) == 10 then
 	--- In Combat - All Rotation ---
 	--------------------------------
 		-- Crackling Jade Lightning
-			if targetDistance >= 8 and getSpellCD(_FlyingSerpentKick)>1 and isInCombat("player") and getPower("player")>20 and (getChiMax("player")-getChi("player"))>=2 then
+			if targetDistance >= 8 and getSpellCD(_FlyingSerpentKick)>1 and isInCombat("player") and getPower("player")>20 and (getChiMax("player")-getChi("player"))>=2 and not isCastingSpell(_CracklingJadeLightning) then
 				if castSpell("target",_CracklingJadeLightning,false) then return; end
 			end
 		-- Spinning Fire Blossom
-			if targetDistance < 50 and targetDistance >= 8 and getSpellCD(_FlyingSerpentKick)>1 and isInCombat("player") and getChi("player")>=1 and (getChiMax("player")-getChi("player"))<2 and getFacingDistance()<2 then
+			if targetDistance < 50 and targetDistance >= 8 and getSpellCD(_FlyingSerpentKick)>1 and isInCombat("player") and getChi("player")>=1 and (getChiMax("player")-getChi("player"))<2 and getFacingDistance()<3.5 then
 				if castSpell("target",_SpinningFireBlossom,false) then return; end
 			end 
 		-- Touch of Death
@@ -173,7 +174,16 @@ if select(3, UnitClass("player")) == 10 then
 				if castSpell("target",_TigerPalm,false) then return; end
 			end
 		-- Tigereye Brew
-
+			--tigereye_brew,if=buff.tigereye_brew_use.down&buff.tigereye_brew.stack=20
+			--tigereye_brew,if=buff.tigereye_brew_use.down&trinket.proc.agility.react
+			--tigereye_brew,if=buff.tigereye_brew_use.down&chi>=2&(trinket.proc.agility.react|trinket.proc.strength.react|buff.tigereye_brew.stack>=15|target.time_to_die<40)&debuff.rising_sun_kick.up&buff.tiger_power.up
+			if getBuffRemain("player",_TigereyeBrew)==0 
+				and (getBuffStacks("player",_TigereyeBrewStacks)==20
+					or getAgility() > AgiSnap
+					or (getChi("player")>=2 and (getAgility() > AgiSnap or getBuffStacks("player",_TigereyeBrewStacks)>=15 or getTimeToDie("target")<40) and getDebuffRemain("target",_RaisingSunKick)>0 and getBuffRemain("player",_TigerPower)>0))
+			then
+				if castSpell("player",_TigereyeBrew,true) then return; end
+			end
 		-- Energizing Brew
 			if getTimeToMax("player")>5 and getBuffRemain("player",_SpinningCraneKick)==0 then
 				if castSpell("player",_EnergizingBrew,true) then return; end
@@ -196,7 +206,7 @@ if select(3, UnitClass("player")) == 10 then
 					if castSpell("target",_RaisingSunKick,false) then return; end
 				end
 		--	Spinning Crane Kick
-				if getPower("player")>=40 and getBuffRemain("player",_TigerPower)>2 and getBuffRemain("player",_SpinningCraneKick)==0 then
+				if getPower("player")>=40 and getBuffRemain("player",_TigerPower)>2 and getBuffRemain("player",_SpinningCraneKick)==0 and not isCastingSpell(_SpinningCraneKick) then
 					if castSpell("player",_SpinningCraneKick,true) then return; end
 				end
 			end --End Multitarget Rotation
@@ -212,7 +222,7 @@ if select(3, UnitClass("player")) == 10 then
 					and getBuffRemain("player",_TigerPower)>4 
 					and getChi("player")>=3 
 					and not isStanding(0.5) 
-					and getFacing("player","target")==true 
+					and getExactFacing("player","target")<180 
 					and targetDistance < 3.5
 				then
 					if castSpell("player",_FistsOfFury,true) then return; end

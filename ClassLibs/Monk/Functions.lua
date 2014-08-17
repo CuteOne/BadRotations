@@ -166,7 +166,7 @@ function getFacingDistance()
 end
 
 function canFSK(unit)
-    if ((targetDistance <= 8 and isInCombat("player")) or (targetDistance < 60 and targetDistance > 8 and getFacing("player",unit))) 
+    if ((targetDistance <= 8 and isInCombat("player")) or (targetDistance < 60 and targetDistance > 8 and getExactFacing("player",unit)<180)) 
         and not hasGlyph(1017) 
         and getSpellCD(_FlyingSerpentKick)==0 
         and getFacingDistance() <= 7
