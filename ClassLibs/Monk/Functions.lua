@@ -77,7 +77,6 @@ _TigerPower					=   125359 --Tiger Power
 _ComboBreakerTigerPalm		=   118864 --Combo Breaker: Tiger Palm
 _ComboBreakerBlackoutKick	=   116768 --Combo Breaker: Blackout Kick
 _ZenSphereBuff				=   124081 --Zen Sphere Buff
-_TigereyeBrewStacks			=   125195 --Tigereye Brew Stacks
 _DisableDebuff				=   116706 --Disable (root)
 
 ------Racials------
@@ -178,6 +177,14 @@ function canFSK(unit)
         return true
     else
         return false
+    end
+end
+
+function getTigereyeRemain()
+    if getBuffStacks("player",_TigereyeBrew) > 0 then
+        return 0
+    else
+        return getBuffRemain("player",_TigereyeBrew)
     end
 end
 
