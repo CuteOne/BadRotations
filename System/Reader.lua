@@ -182,7 +182,6 @@ function SuperReader(self, event, ...)
 		--------------------------------------
 		--[[ Pick Pocket Success Recorder --]]
 		if param == "SPELL_CAST_SUCCESS" and spell==921 then 
-			print("Pick Pocket Successful")
 			canPickpocket = false; 
 		end
 		
