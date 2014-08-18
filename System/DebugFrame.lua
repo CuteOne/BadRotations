@@ -75,6 +75,7 @@ function DebugFrameCreation()
 		debugFrame.texture:SetHeight(30);
 		debugFrame.texture:SetAlpha(BadBoy_data.debugAlpha/100);
 		debugFrame.texture:SetTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]]);
+		CreateBorder(debugFrame, 8, 0.6, 0.6, 0.6);
 
 		function SetDebugWidth(Width)
 			BadBoy_data.debugWidth = Width

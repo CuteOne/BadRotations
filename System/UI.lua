@@ -15,17 +15,10 @@ function BadBoyFrame()
     function GarbageButtons()
 		for i = 1, #buttonsTable do
 			local Name = buttonsTable[i].name
-			local x = buttonsTable[i].bx
-			local y = buttonsTable[i].by
-			_G["button"..Name]:SetWidth(BadBoy_data["buttonSize"]);
-			_G["button"..Name]:SetHeight(BadBoy_data["buttonSize"]);
-			_G["button"..Name]:SetPoint("LEFT",x*(BadBoy_data["buttonSize"]),y*(BadBoy_data["buttonSize"]));
-			_G["text"..Name]:SetTextHeight(BadBoy_data["buttonSize"]/3);
-			_G["text"..Name]:SetPoint("CENTER",0,-(BadBoy_data["buttonSize"]/4));
-			_G["frame"..Name]:SetWidth(BadBoy_data["buttonSize"]*1.67);
-			_G["frame"..Name]:SetHeight(BadBoy_data["buttonSize"]*1.67);
-			_G["frame"..Name].texture:SetWidth(BadBoy_data["buttonSize"]*1.67);
-			_G["frame"..Name].texture:SetHeight(BadBoy_data["buttonSize"]*1.67);
+			_G["button"..Name]:Hide();
+			_G["text"..Name]:Hide();
+			_G["frame"..Name].texture:Hide();
+			_G[Name.."Modes"] = nil;
 		end
 	end
 
@@ -140,7 +133,7 @@ function BadBoyFrame()
 	mainButton:RegisterForDrag("LeftButton");
 	mainButton:SetScript("OnDragStart", mainButton.StartMoving);
 	mainButton:SetScript("OnDragStop", mainButton.StopMovingOrSizing);
-	CreateBorder(mainButton, 6, 0.6, 0.6, 0.6)
+	CreateBorder(mainButton, 8, 0.6, 0.6, 0.6)
 	if BadBoy_data["Power"] == 1 then mainButton:SetNormalTexture(backIconOn); else mainButton:SetNormalTexture(backIconOff); end
 
 	mainButton:SetScript("OnClick", function()
@@ -254,7 +247,7 @@ function BadBoyFrame()
 		_G["button"..Name]:RegisterForClicks("AnyUp");
 		if type(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon) == "number" then Icon = select(3,GetSpellInfo(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon)); else Icon = _G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon; end
 		_G["button"..Name]:SetNormalTexture(Icon or emptyIcon); 
-		CreateBorder(_G["button"..Name], 6, 0.6, 0.6, 0.6)
+		CreateBorder(_G["button"..Name], 8, 0.6, 0.6, 0.6)
 		_G["text"..Name] = _G["button"..Name]:CreateFontString(nil, "OVERLAY");
 		_G["text"..Name]:SetFont("Fonts/FRIZQT__.TTF",17,"THICKOUTLINE");
 		_G["text"..Name]:SetTextHeight(BadBoy_data["buttonSize"]/3);

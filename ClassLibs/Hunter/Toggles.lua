@@ -1,6 +1,7 @@
 if select(3, UnitClass("player")) == 3 then
 
     function HunterBeastToggles()
+        GarbageButtons();
         -- Aoe Button
         if  AoEModesLoaded ~= "CML Beast AoE Modes" then 
             AoEModes = { 

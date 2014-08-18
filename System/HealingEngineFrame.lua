@@ -80,6 +80,7 @@ function EngineFrameCreation()
 		engineFrame.texture:SetHeight(30);
 		engineFrame.texture:SetAlpha(BadBoy_data.engineAlpha/100);
 		engineFrame.texture:SetTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]]);
+		CreateBorder(engineFrame, 8, 0.6, 0.6, 0.6);
 
 		function SetDebugWidth(Width)
 			BadBoy_data.engineWidth = Width;

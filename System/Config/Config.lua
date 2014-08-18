@@ -26,6 +26,7 @@ function ConfigFrame()
 		configFrame.texture:SetHeight(30);
 		configFrame.texture:SetAlpha(BadBoy_data.configAlpha/100);
 		configFrame.texture:SetTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]]);
+		CreateBorder(configFrame, 8, 0.6, 0.6, 0.6)
 
 		function SetConfigWidth(Width)
 			BadBoy_data.configWidth = Width
