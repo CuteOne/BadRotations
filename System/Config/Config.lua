@@ -107,6 +107,7 @@ function ConfigFrame()
 
 	    doneConfig = true;
 		SetConfigWidth(BadBoy_data.configWidth);
+		if BadBoy_data["configShown"] ~= true then configFrame:Hide(); end
 	end
 end
 

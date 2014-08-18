@@ -72,6 +72,8 @@ _WoundPoison   			= 8679
 _FindWeakness			= 	91021
 _Anticipation 			= 114015
 
+
+
 leftPoisonsTable = { 
 	{ 	name = "Crippling Poison" ,  	ID = 3408 	},
 	{ 	name = "Mind-Numbling Poison" , ID = 5761 	},
@@ -119,6 +121,9 @@ castSpell("player",_FanOfKnives,true    ,false)]]
 	local numEnnemies;
 	local meleeEnnemies = getNumEnnemies("player",10);
 
+
+
+
 	-- Food/Invis Check
 	if canRun() ~= true or UnitInVehicle("Player") then return false; end
 	if IsMounted("player") then return false; end
@@ -138,6 +143,14 @@ castSpell("player",_FanOfKnives,true    ,false)]]
 
 
 	if UnitAffectingCombat("player") and isEnnemy("target") then
+
+		-- Levleling 1-10
+		if UnitLevel("player") < 10 then
+			-- Hemorrhage maintain bleed
+			if combo >= 1 then
+			  	if castSpell("target",_Eviscerate,false,false) then return; end
+			end
+		end
 
 		-- Feint
 		if isChecked("Feint") == true and getHP("player") <= getValue("Feint") and getBuffRemain("player",1966) < 1 then
@@ -210,7 +223,7 @@ castSpell("player",_FanOfKnives,true    ,false)]]
 			if combo > 4 and getBuffRemain("player",_SliceAndDice) > 5 then
 				if castSpell("target",_Eviscerate,false,false) then return; end
 			end	
-			-- Hemorrhage maintain bleed
+			-- Hemorrhage dump
 			if energy >= 90 then
 			  	if castSpell("target",_Hemorrhage,false,false) then return; end
 			end					
