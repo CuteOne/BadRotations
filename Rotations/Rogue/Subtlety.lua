@@ -129,7 +129,7 @@ castSpell("player",_FanOfKnives,true    ,false)]]
 	if IsMounted("player") then return false; end
 
 	-- Stealth before fight
-	if not UnitAffectingCombat("player") and ((getValue("Stealth") == 2 and getBuffRemain("player",105697) > 0) or getValue("Stealth") == 1) and isChecked("Stealth") == true and UnitBuffID("player",1784) == nil then
+	if not UnitAffectingCombat("player") and (leftCombat == nil or leftCombat <= GetTime() - 2) and ((getValue("Stealth") == 2 and getBuffRemain("player",105697) > 0) or getValue("Stealth") == 1) and isChecked("Stealth") == true and UnitBuffID("player",1784) == nil then
 		if stealthTimer == nil or stealthTimer <= 2 then
 			if castSpell("player",1784,true,false) then return; end
 		end
@@ -147,7 +147,7 @@ castSpell("player",_FanOfKnives,true    ,false)]]
 		-- Levleling 1-10
 		if UnitLevel("player") < 10 then
 			-- Hemorrhage maintain bleed
-			if combo >= 1 then
+			if combo >= 2 then
 			  	if castSpell("target",_Eviscerate,false,false) then return; end
 			end
 		end
