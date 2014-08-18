@@ -9,8 +9,7 @@ function BadBoyFrame()
 
     function UpdateButton(Name)
     	local Name = tostring(Name);
-        _G["text"..Name]:SetText(_G[Name.."Modes"][BadBoy_data[Name]].mode); 
-        _G["button"..Name]:SetNormalTexture(_G[Name.."Modes"][BadBoy_data[Name]].icon);
+    	_G["text"..Name]:Click("LeftButton", true)
     end	
 
 
