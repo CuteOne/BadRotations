@@ -13,8 +13,7 @@ if select(3, UnitClass("player")) == 11 then
 ---------------------------------------
 --- Ressurection/Dispelling/Healing ---
 ---------------------------------------
-		if UnitIsPlayer("mouseover") 
-			and not UnitBuffID("player", prl)
+		if not UnitBuffID("player", prl)
 			and not UnitBuffID("player", 80169) -- Food
 	  		and not UnitBuffID("player", 87959) -- Drink
 	 	 	and UnitCastingInfo("player") == nil
@@ -25,18 +24,20 @@ if select(3, UnitClass("player")) == 11 then
 		  	and targetDistance <= 40
 		then
 	-- Rebirth
-			if isInCombat("player")	and UnitBuffID("player",ps) and UnitIsDeadOrGhost("mouseover") then
+			if isInCombat("player")	and UnitBuffID("player",ps) and UnitIsDeadOrGhost("mouseover") and UnitIsPlayer("mouseover") then
 				if castSpell("mouseover",rb,true) then return; end
 			end
 
 			if not isInCombat("player") then
 	-- Revive
-				if castSpell("mouseover",rv,true) then return; end
+				if UnitIsDeadOrGhost("mouseover") and UnitIsPlayer("mouseover") then
+					if castSpell("mouseover",rv,true) then return; end
+				end
 	-- Remove Corruption			
 				if canDispel("player", rc) then
 					if castSpell("player",rc,true) then return; end
 				end
-				if canDispel("mouseover", rc) then
+				if canDispel("mouseover", rc) and not UnitIsDeadOrGhost("mouseover") and UnitIsPlayer("mouseover") then
 					if castSpell("mouseover",rc,true) then return; end
 				end
 				if canDispel("target", rc) then
@@ -55,8 +56,6 @@ if select(3, UnitClass("player")) == 11 then
 -------------
 --- Buffs ---
 -------------	    	
-	-- precombat=flask,type=spring_blossoms
-	-- precombat+=/food,type=sea_mist_rice_noodles
 		if not UnitBuffID("player", prl)
 			and not UnitBuffID("player", 80169) -- Food
 		  	and not UnitBuffID("player", 87959) -- Drink
@@ -160,7 +159,7 @@ if select(3, UnitClass("player")) == 11 then
 			then
 	-- Pot/Stoned
 				if isChecked("Pot/Stoned") and getHP("player") <= getValue("Pot/Stoned") then
-					if isInCombat("player") then
+					if isInCombat("player") and usePot then
 						if canUse(5512) then
 							--useItem(5512)
 							UseItemByName(tostring(select(1,GetItemInfo(5512))))
@@ -369,7 +368,7 @@ if select(3, UnitClass("player")) == 11 then
 					if useCDs() and UnitBuffID("player",cf) and not UnitBuffID("player",prl) and targetDistance<=5 then
 						if getSRR() > 0 and getBuffRemain("player",tf) > 0 then
 		-- Agi-Pot			
-							if canUse(76089) and getCombo() >= 4 and getHP("target") <= 25 and UnitInRaid("player") and isChecked("Agi-Pot") then
+							if usePot and canUse(76089) and getCombo() >= 4 and getHP("target") <= 25 then --and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") then
 								--useItem(76089)
 								UseItemByName(tostring(select(1,GetItemInfo(76089))))
 							end
@@ -378,7 +377,7 @@ if select(3, UnitClass("player")) == 11 then
 								if castSpell("player",rber) then return; end
 							end
 		-- Profession: Engineering Hands
-							if getPower("player") >= 75 and GetInventoryItemCooldown("player",10) == 0 and not UnitBuffID("player",ber) then
+							if getPower("player") >= 75 and GetInventoryItemCooldown("player",10) == 0 and not UnitBuffID("player",ber) and getBuffRemain("player",96228)==0 then
 								UseInventoryItem(10)
 							end
 		-- Berserk

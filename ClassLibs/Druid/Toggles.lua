@@ -4,9 +4,9 @@ if select(3, UnitClass("player")) == 11 then
      -- AoE Button
         if AoEModesLoaded ~= "Cute AoE Modes" then 
             CustomAoEModes = { 
-                [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 3 },  
-                [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 2 },
-                [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 1 }
+                [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = sw },  
+                [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = sw },
+                [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = mgl }
             };
            AoEModes = CustomAoEModes
            CreateButton("AoE",1,0)
@@ -16,9 +16,9 @@ if select(3, UnitClass("player")) == 11 then
      -- Cooldowns Button
         if CooldownsModesLoaded ~= "Cute Cooldowns Modes" then 
             CustomCooldownsModes = { 
-                [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1 },  
-                [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1 },
-                [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 2 }
+                [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = ber },  
+                [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = ber },
+                [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = ber }
             };
            CooldownsModes = CustomCooldownsModes
            CreateButton("Cooldowns",2,0)
@@ -28,8 +28,8 @@ if select(3, UnitClass("player")) == 11 then
      -- Defensive Button
         if DefensiveModesLoaded ~= "Cute Defensive Modes" then 
             CustomDefensiveModes = { 
-                [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1 },
-                [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 2 }
+                [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = si },
+                [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = si }
             };
             DefensiveModes = CustomDefensiveModes
             CreateButton("Defensive",3,0)
@@ -39,8 +39,8 @@ if select(3, UnitClass("player")) == 11 then
      -- Interrupts Button
         if InterruptsModesLoaded ~= "Cute Interrupt Modes" then 
             CustomInterruptsModes = { 
-                [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1 },
-                [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 2 }
+                [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = sb },
+                [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = sb }
             };
             InterruptsModes = CustomInterruptsModes
             CreateButton("Interrupts",4,0)
@@ -49,21 +49,21 @@ if select(3, UnitClass("player")) == 11 then
      -- Thrash Button
         if ThrashModesLoaded ~= "Cute Thrash Modes" then 
             CustomThrashModes = { 
-                [1] = { mode = "On", value = 1 , overlay = "Thrash Enabled", tip = "Includes Basic Interrupts.", highlight = 1 },
-                [2] = { mode = "Off", value = 2 , overlay = "Thrash Disabled", tip = "No Interrupts will be used.", highlight = 2 }
+                [1] = { mode = "On", value = 1 , overlay = "Thrash Enabled", tip = "Rotation will use Thrash", highlight = 1, icon = thr },
+                [2] = { mode = "Off", value = 2 , overlay = "Thrash Disabled", tip = "Rotation will not use Thrash", highlight = 0, icon = thr }
             };
             ThrashModes = CustomThrashModes
-            CreateButton("Thrash",1,-1)
+            CreateButton("Thrash",5,0)
             ThrashModesLoaded = "Cute Thrash Modes";
         end
      -- Symbiosis Button
         if SymbiosisModesLoaded ~= "Cute Symbiosis Modes" then 
             CustomSymbiosisModes = { 
-                [1] = { mode = "On", value = 1 , overlay = "Symbiosis Enabled", tip = "Includes Basic Interrupts.", highlight = 1 },
-                [2] = { mode = "Off", value = 2 , overlay = "Symbiosis Disabled", tip = "No Interrupts will be used.", highlight = 2 }
+                [1] = { mode = "On", value = 1 , overlay = "Symbiosis Enabled", tip = "Rotation will auto-select Symbiosis target.", highlight = 1, icon = sym },
+                [2] = { mode = "Off", value = 2 , overlay = "Symbiosis Disabled", tip = "Rotation will not auto-select Symbiosis target.", highlight = 0, icon = sym }
             };
             SymbiosisModes = CustomSymbiosisModes
-            CreateButton("Symbiosis",3,-1)
+            CreateButton("Symbiosis",6,0)
             SymbiosisModesLoaded = "Cute Symbiosis Modes";
         end
 

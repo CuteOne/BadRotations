@@ -6,6 +6,7 @@ function ReaderRun()
 -- Vars
 if AgiSnap == nil then AgiSnap = 0; end
 if canPickpocket == nil then canPickpocket = true; end
+if usePot == nil then usePot = true; end
 
 -------------------
 --[[ Auto Join --]]
@@ -69,6 +70,8 @@ Frame:RegisterEvent("PLAYER_REGEN_ENABLED");
 local function LeavingCombat(self, event, ...)
 	if event == "PLAYER_REGEN_ENABLED" then
 		AgiSnap = 0;
+		usePot = true;
+		leftCombat = GetTime();
 		BadBoy_data.successCasts = 0;
 		BadBoy_data.failCasts = 0;
 		BadBoy_data["Combat Started"] = 0;
@@ -185,6 +188,20 @@ function SuperReader(self, event, ...)
 			canPickpocket = false; 
 		end
 		
+		--------------------------------------
+		--[[ Item Use Success Recorder --]]
+		if param == "SPELL_CAST_SUCCESS" and isInCombat("player") then 
+			if spell == 105697 then --Virmen's Bite Buff
+				usePot = false;
+			end
+			if spell == 105708 then --Healing Potions
+				usePot = false;
+			end
+			-- if spell == 126734 then --Synapse Spring
+			-- 	useSynapse = false;
+			-- end 
+		end
+
 		------------------------
 		--[[ Bleed Recorder --]]
 		if select(3, UnitClass("player")) == 11 and GetSpecialization("player") == 2 then
