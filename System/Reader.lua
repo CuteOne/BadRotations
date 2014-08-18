@@ -91,6 +91,7 @@ local function UiErrorMessages(self, event, ...)
 	if event == "UI_ERROR_MESSAGE" then 
 		lastError = ...; lastErrorTime = GetTime(); 
 	  	local Events = (...)
+	  	local msg = select(1, ...)
 	  	-- print(...)
 	  	if Events == ERR_PET_SPELL_DEAD  then
 			BadBoy_data["Pet Dead"] = true;
@@ -114,6 +115,15 @@ local function UiErrorMessages(self, event, ...)
 		if Events == PETTAME_NOPETAVAILABLE.. "." then
 			BadBoy_data["Pet Dead"] = false;
 			BadBoy_data["Pet Whistle"] = true;
+		end
+		if Events == SPELL_FAILED_TARGET_NO_POCKETS then
+			BadBoy_data["Pickpocket"] = false;
+		end
+		if Events == ERR_ALREADY_PICKPOCKETED then
+			BadBoy_data["Pickpocket"] = false;
+		end
+		if Events == ERR_NO_LOOT then
+			BadBoy_data["Pickpocket"] = false
 		end
 	end
 end

@@ -7,7 +7,7 @@ if select(3, UnitClass("player")) == 4 then
   --[[        ]]               --[[]]              --[[]]     --[[        ]]               --[[]]              --[[]]
  --[[]]    --[[]]   --[[           ]]   --[[           ]]    --[[]]    --[[]]   --[[           ]]   --[[           ]]   
 --[[]]      --[[]]  --[[           ]]   --[[           ]]   --[[]]      --[[]]  --[[           ]]   --[[           ]]
-function WindwalkerToggles()
+function AssToggles()
         -- AoE Button
         if AoEModesLoaded ~= "Cute AoE Modes" then 
             CustomAoEModes = { 
@@ -63,7 +63,7 @@ function WindwalkerToggles()
             };
             PickerModes = CustomPickerModes
             CreateButton("Picker",5,0)
-            BuilderModesLoaded = "Cute Pick Pocket Modes";
+            PickerModesLoaded = "Cute Pick Pocket Modes";
         end
 
         function SpecificToggle(toggle)
