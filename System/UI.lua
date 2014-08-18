@@ -1,14 +1,16 @@
 
 function BadBoyFrame()
 
+	emptyIcon = [[Interface\FrameGeneral\UI-Background-Marble]]
+	backIconOn = [[Interface\ICONS\Spell_Holy_PowerWordShield]]
+	backIconOff = [[Interface\ICONS\SPELL_HOLY_DEVOTIONAURA]]
+	genericIconOff = [[Interface\GLUES\CREDITS\Arakkoa1]]
+	genericIconOn = [[Interface\BUTTONS\UI-Debuff-Border]]
+
     function UpdateButton(Name)
     	local Name = tostring(Name);
         _G["text"..Name]:SetText(_G[Name.."Modes"][BadBoy_data[Name]].mode); 
-        if _G[Name.."Modes"][BadBoy_data[Name]].highlight == 0 then
-            _G["button"..Name]:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]); 
-        else
-            _G["button"..Name]:SetNormalTexture([[Interface\BUTTONS\CheckButtonHilight]]); 
-        end
+        _G["button"..Name]:SetNormalTexture(_G[Name.."Modes"][BadBoy_data[Name]].icon);
     end	
 
 
@@ -53,17 +55,17 @@ function BadBoyFrame()
 	-- Aoe Button
 	if 	AoEModes == nil then 
 		AoEModes = { 
-			[1] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "Recommended for one or two targets.", highlight = 0 },
-			[2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "Recommended for three targets or more.", highlight = 0 },
-            [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "|cffFFDD11Recommended for \n|cffFFDD11Lazy people like me.", highlight = 1 }
+			[1] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "Recommended for one or two targets.", highlight = 0, icon = "Interface\ICONS\Spell_Fire_LavaSpawn"},
+			[2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "Recommended for three targets or more.", highlight = 0, icon = "Interface\ICONS\Spell_Fire_LavaSpawn" },
+            [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "|cffFFDD11Recommended for \n|cffFFDD11Lazy people like me.", highlight = 1, icon = "Interface\ICONS\Spell_Fire_LavaSpawn"}
 		};
 		AoEModesLoaded = "Basic AoE Modes";
 	end
 	-- Interrupts Button
 	if 	InterruptsModes == nil then 
 		InterruptsModes = { 
-			[1] = { mode = "No", value = 1 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.",highlight = 0 },
-			[2] = { mode = "All", value = 2 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1 }
+			[1] = { mode = "No", value = 1 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.",highlight = 0, icon = "Interface\ICONS\Spell_Fire_LavaSpawn" },
+			[2] = { mode = "All", value = 2 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = "Interface\ICONS\Spell_Fire_LavaSpawn" }
 		};
 		InterruptsModesLoaded = "Basic Interrupts Modes";
 	end
@@ -72,8 +74,8 @@ function BadBoyFrame()
 	-- Defensive Button
 	if 	DefensiveModes == nil then 
 		DefensiveModes = { 
-			[1] = { mode = "No", value = 1 , overlay = "Defensive Disabled", tip = "No cooldowns will be used." , highlight = 0 },
-			[2] = { mode = "All", value = 2 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1 }
+			[1] = { mode = "No", value = 1 , overlay = "Defensive Disabled", tip = "No cooldowns will be used." , highlight = 0, icon = "Interface\ICONS\Spell_Fire_LavaSpawn" },
+			[2] = { mode = "All", value = 2 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = "Interface\ICONS\Spell_Fire_LavaSpawn" }
 		};
 		DefensiveModesLoaded = "Basic Defensive Modes";
 	end
@@ -81,9 +83,9 @@ function BadBoyFrame()
 	-- Cooldowns Button
 	if 	CooldownsModes == nil then 
 		CooldownsModes = { 
-           	[1] = { mode = "No", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffFF0000No cooldowns will be used.", highlight = 0 },
-            [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "|cffFF0000Includes: \n|cffFFDD11Config's selected spells.", highlight = 1 },
-            [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "|cffFF0000Includes: \n|cffFFDD11None", highlight = 1 }
+           	[1] = { mode = "No", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffFF0000No cooldowns will be used.", highlight = 0, icon = "Interface\ICONS\Spell_Fire_LavaSpawn" },
+            [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "|cffFF0000Includes: \n|cffFFDD11Config's selected spells.", highlight = 1, icon = "Interface\ICONS\Spell_Fire_LavaSpawn" },
+            [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "|cffFF0000Includes: \n|cffFFDD11None", highlight = 1, icon = "Interface\ICONS\Spell_Fire_LavaSpawn" }
 		};
 		CooldownsModesLoaded = "Basic Cooldowns Modes";
 	end
@@ -91,8 +93,8 @@ function BadBoyFrame()
 	-- Interrupts Button
 	if InterruptsModes == nil then 
 		InterruptsModes = { 
-			[1] = { mode = "No", value = 1 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0 },
-			[2] = { mode = "All", value = 2 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1 }
+			[1] = { mode = "No", value = 1 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = "Interface\ICONS\Spell_Fire_LavaSpawn" },
+			[2] = { mode = "All", value = 2 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = "Interface\ICONS\Spell_Fire_LavaSpawn" }
 		};
 		InterruptsModesLoaded = "Basic Interrupts Modes";
 	end
@@ -101,10 +103,17 @@ function BadBoyFrame()
 	--     Main Frame UI     --
 	---------------------------
 
-	local buttonWidth = 32;
-	local buttonHeight = 18;
 
-	mainButton = CreateFrame("Button", "MyButton", configButton, "UIPanelButtonTemplate");
+
+	BadBoy_data["buttonSize"] = BadBoy_data["buttonSize"] or 32;
+
+
+	buttonSize = BadBoy_data["buttonSize"]
+	buttonWidth = BadBoy_data["buttonSize"];
+	buttonHeight = BadBoy_data["buttonSize"];
+
+
+	mainButton = CreateFrame("Button", "MyButton", configButton, "SecureHandlerClickTemplate");
 	mainButton:SetWidth(buttonWidth);
 	mainButton:SetHeight(buttonHeight);
 	mainButton:RegisterForClicks("AnyUp");
@@ -115,31 +124,32 @@ function BadBoyFrame()
 	mainButton:RegisterForDrag("LeftButton");
 	mainButton:SetScript("OnDragStart", mainButton.StartMoving);
 	mainButton:SetScript("OnDragStop", mainButton.StopMovingOrSizing);
+	--mainButton:LockHighlight();
+	--mainButton:SetButtonState("PUSHED", true)
 	--mainButton:SetScript("OnUpdate", mainFrame_OnUpdate);
-	if BadBoy_data["Power"] == 1 then 
-		mainButton:SetNormalTexture([[Interface\BUTTONS\CheckButtonHilight]]); 
-	else 
-		mainButton:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]); 
-	end
+	if BadBoy_data["Power"] == 1 then mainButton:SetNormalTexture(backIconOn); else mainButton:SetNormalTexture(backIconOff); end
+
 	mainButton:SetScript("OnClick", function()
 		if BadBoy_data['Power'] ~= 0 then
 			BadBoy_data['Power'] = 0;
+			mainButton:SetNormalTexture(backIconOff); 
 			mainText:SetText("Off");
-			GameTooltip:SetText("|cff00FF00Enable |cffFF0000BadBoy", 225/255, 225/255, 225/255);
-			mainButton:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]); 
+			GameTooltip:SetText("|cff00FF00Enable |cffFF0000BadBoy \n|cffFFDD11Hold Left Alt and scroll mouse to adjust size.", 225/255, 225/255, 225/255);
+			mainButtonFrame.texture:SetTexture(genericIconOff);
 		else
 			BadBoy_data['Power'] = 1;
-			GameTooltip:SetText("|cffFF0000Disable BadBoy", 225/255, 225/255, 225/255);
-			mainButton:SetNormalTexture([[Interface\BUTTONS\CheckButtonHilight]]); 
+			GameTooltip:SetText("|cffFF0000Disable BadBoy \n|cffFFDD11Hold Left Alt and scroll mouse to adjust size.", 225/255, 225/255, 225/255);
 			mainText:SetText("On");
+			mainButton:SetNormalTexture(backIconOn);
+			mainButtonFrame.texture:SetTexture(genericIconOn);
 		end
 	end )
 	mainButton:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(mainButton, 0 , 0);
 		if BadBoy_data['Power'] == 1 then
-			GameTooltip:SetText("|cffFF0000Disable BadBoy", 225/255, 225/255, 225/255);
+			GameTooltip:SetText("|cffFF0000Disable BadBoy \n|cffFFDD11Hold Left Alt and scroll mouse to adjust size.", 225/255, 225/255, 225/255);
 		else
-			GameTooltip:SetText("|cff00FF00Enable |cffFF0000BadBoy", 225/255, 225/255, 225/255);
+			GameTooltip:SetText("|cff00FF00Enable |cffFF0000BadBoy \n|cffFFDD11Hold Left Alt and scroll mouse to adjust size.", 225/255, 225/255, 225/255);
 		end
 		GameTooltip:Show();
 	end)
@@ -150,43 +160,110 @@ function BadBoyFrame()
 		BadBoy_data.y = y;
 		BadBoy_data.anchor = anchor;
 	end)
+	mainButton:SetScript("OnMouseWheel", function(self, delta)
+		if IsLeftAltKeyDown() then
+			local Go = false;
+			if delta < 0 and BadBoy_data["buttonSize"] > 1 then
+				Go = true;
+			elseif delta > 0 and BadBoy_data["buttonSize"] < 50 then
+				Go = true;
+			end
+			if Go == true then
+				BadBoy_data["buttonSize"] = BadBoy_data["buttonSize"] + delta
+				mainButton:SetWidth(BadBoy_data["buttonSize"]);
+				mainButton:SetHeight(BadBoy_data["buttonSize"]);
+				mainText:SetTextHeight(BadBoy_data["buttonSize"]/3);
+				mainText:SetPoint("CENTER",0,-(BadBoy_data["buttonSize"]/4));
+				mainButtonFrame:SetWidth(BadBoy_data["buttonSize"]);
+				mainButtonFrame:SetHeight(BadBoy_data["buttonSize"]);
+				mainButtonFrame.texture:SetWidth(BadBoy_data["buttonSize"]);
+				mainButtonFrame.texture:SetHeight(BadBoy_data["buttonSize"]);
+				buttonsResize()		
+			end
+		end
+	end)
+
+	function buttonsResize()
+		for i = 1, #buttonsTable do
+			local Name = buttonsTable[i].name
+			local x = buttonsTable[i].bx
+			local y = buttonsTable[i].by
+			_G["button"..Name]:SetWidth(BadBoy_data["buttonSize"]);
+			_G["button"..Name]:SetHeight(BadBoy_data["buttonSize"]);
+			_G["button"..Name]:SetPoint("LEFT",x*(BadBoy_data["buttonSize"]),y*(BadBoy_data["buttonSize"]));
+			_G["text"..Name]:SetTextHeight(BadBoy_data["buttonSize"]/3);
+			_G["text"..Name]:SetPoint("CENTER",0,-(BadBoy_data["buttonSize"]/4));
+			_G["frame"..Name]:SetWidth(BadBoy_data["buttonSize"]);
+			_G["frame"..Name]:SetHeight(BadBoy_data["buttonSize"]);
+			_G["frame"..Name].texture:SetWidth(BadBoy_data["buttonSize"]);
+			_G["frame"..Name].texture:SetHeight(BadBoy_data["buttonSize"]);
+		end
+	end
+
+	mainButtonFrame = CreateFrame("Frame", nil, mainButton);
+	mainButtonFrame:SetWidth(BadBoy_data["buttonSize"]);
+	mainButtonFrame:SetHeight(BadBoy_data["buttonSize"]);
+	mainButtonFrame:SetPoint("CENTER")
+	mainButtonFrame.texture = mainButtonFrame:CreateTexture(mainButton, "BACKGROUND");
+	mainButtonFrame.texture:SetAllPoints();
+	mainButtonFrame.texture:SetWidth(BadBoy_data["buttonSize"]);
+	mainButtonFrame.texture:SetHeight(BadBoy_data["buttonSize"]);
+	mainButtonFrame.texture:SetAlpha(100);
+	mainButtonFrame.texture:SetTexture(genericIconOn);
 
 	mainText = mainButton:CreateFontString(nil, "OVERLAY");
 	mainText:SetFont("Fonts/FRIZQT__.TTF",17,"THICKOUTLINE");
-	mainText:SetTextHeight(9);
-	mainText:SetPoint("CENTER",0,-1);
+	mainText:SetTextHeight(BadBoy_data["buttonSize"]/3);
+	mainText:SetPoint("CENTER",0,-(BadBoy_data["buttonSize"]/4));
 	mainText:SetTextColor(.90,.90,.90,1);
 	if BadBoy_data['Power'] == 0 then
 		BadBoy_data['Power'] = 0;
 		mainText:SetText("Off");
-		mainButton:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]); 
+		mainButtonFrame.texture:SetTexture(genericIconOff);
 	else
 		BadBoy_data['Power'] = 1;
-		mainButton:SetNormalTexture([[Interface\BUTTONS\CheckButtonHilight]]); 
 		mainText:SetText("On");
+		mainButtonFrame.texture:SetTexture(genericIconOn);
 	end
+
+	buttonsTable = { };
 
 	-- /run CreateButton("AoE",2,2)
 	function CreateButton(Name,x,y)
-		_G["button"..Name] = CreateFrame("Button", "MyButton", mainButton, "UIPanelButtonTemplate");
-		_G["button"..Name]:SetWidth(buttonWidth);
-		_G["button"..Name]:SetHeight(buttonHeight);
-		_G["button"..Name]:SetPoint("LEFT",x*(buttonWidth),y*(buttonHeight));
+		local Icon;
+		tinsert(buttonsTable, { name = Name, bx = x, by = y })
+		_G["button"..Name] = CreateFrame("Button", "MyButton", mainButton, "SecureHandlerClickTemplate");
+		_G["button"..Name]:SetWidth(BadBoy_data["buttonSize"]);
+		_G["button"..Name]:SetHeight(BadBoy_data["buttonSize"]);
+		_G["button"..Name]:SetPoint("LEFT",x*(BadBoy_data["buttonSize"]),y*(BadBoy_data["buttonSize"]));
 		_G["button"..Name]:RegisterForClicks("AnyUp");
-		if BadBoy_data[tostring(Name)] == 1 then 
-			_G["button"..Name]:SetNormalTexture([[Interface\BUTTONS\CheckButtonHilight]]); 
-		else 
-			_G["button"..Name]:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]); 
-		end		
+		if type(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon) == "number" then Icon = select(3,GetSpellInfo(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon)); else Icon = _G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon; end
+		_G["button"..Name]:SetNormalTexture(Icon or emptyIcon); 
 		_G["text"..Name] = _G["button"..Name]:CreateFontString(nil, "OVERLAY");
 		_G["text"..Name]:SetFont("Fonts/FRIZQT__.TTF",17,"THICKOUTLINE");
-		_G["text"..Name]:SetTextHeight(9);
-		_G["text"..Name]:SetPoint("CENTER",0,-1);
-		_G["text"..Name]:SetTextColor(.90,.90,.90,1);	
+		_G["text"..Name]:SetTextHeight(BadBoy_data["buttonSize"]/3);
+		_G["text"..Name]:SetPoint("CENTER",0,-(BadBoy_data["buttonSize"]/4));
+		_G["text"..Name]:SetTextColor(1,1,1,1);
+
+		_G["frame"..Name] = CreateFrame("Frame", nil, _G["button"..Name]);
+		_G["frame"..Name]:SetWidth(BadBoy_data["buttonSize"]);
+		_G["frame"..Name]:SetHeight(BadBoy_data["buttonSize"]);
+		_G["frame"..Name]:SetAllPoints();
+		_G["frame"..Name]:SetPoint("CENTER")
+		_G["frame"..Name].texture = _G["button"..Name]:CreateTexture(_G["button"..Name], "OVERLAY");
+		_G["frame"..Name].texture:SetAllPoints();
+		_G["frame"..Name].texture:SetWidth(BadBoy_data["buttonSize"]);
+		_G["frame"..Name].texture:SetHeight(BadBoy_data["buttonSize"]);
+		_G["frame"..Name].texture:SetAlpha(100);
+		_G["frame"..Name].texture:SetTexture(genericIconOn);
+
+
 		local modeTable;		
 		if _G[Name.."Modes"] == nil then print("No table found for ".. Name); _G[Name.."Modes"] = tostring(Name); else _G[Name.."Modes"] = _G[Name.."Modes"] end
 		local modeValue;
 		if BadBoy_data[tostring(Name)] == nil then BadBoy_data[tostring(Name)] = 1; modeValue = 1 else modeValue = BadBoy_data[tostring(Name)] end
+		
+
 		_G["button"..Name]:SetScript("OnClick", function()
 			if BadBoy_data[tostring(Name)] == 0 or BadBoy_data[tostring(Name)] == nil then BadBoy_data[tostring(Name)] = 1; end
 			for i = 1, #_G[Name.."Modes"] do
@@ -196,14 +273,17 @@ function BadBoyFrame()
 						GameTooltip:SetText(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].tip, 225/255, 225/255, 225/255, nil, true);
 						GameTooltip:Show();
 					end
+					local Icon;
 					if #_G[Name.."Modes"] > i then
 						newI = i + 1
 			    		BadBoy_data[tostring(Name)] = newI;
-						_G["text"..Name]:SetText(_G[Name.."Modes"][newI].mode); 	
+						_G["text"..Name]:SetText(_G[Name.."Modes"][newI].mode); 
+						if type(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon) == "number" then Icon = select(3,GetSpellInfo(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon)); else Icon = _G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon; end
+						_G["button"..Name]:SetNormalTexture(Icon or emptyIcon); 
 						if _G[Name.."Modes"][newI].highlight == 0 then
-							_G["button"..Name]:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]); 
+							_G["frame"..Name].texture:SetTexture(genericIconOff); 
 						else
-							_G["button"..Name]:SetNormalTexture([[Interface\BUTTONS\CheckButtonHilight]]); 
+							_G["frame"..Name].texture:SetTexture(genericIconOn);
 						end
 
 		        		ChatOverlay("\124cFF3BB0FF".._G[Name.."Modes"][newI].overlay);	
@@ -211,11 +291,13 @@ function BadBoyFrame()
 		        		break;
 		        	else 
 		        		BadBoy_data[tostring(Name)] = 1;
-						_G["text"..Name]:SetText(_G[Name.."Modes"][1].mode); 	
+						_G["text"..Name]:SetText(_G[Name.."Modes"][1].mode);		
+						if type(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon) == "number" then Icon = select(3,GetSpellInfo(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon)); else Icon = _G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon; end
+						_G["button"..Name]:SetNormalTexture(Icon or emptyIcon); 
 						if _G[Name.."Modes"][1].highlight == 0 then
-							_G["button"..Name]:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]); 
+							_G["frame"..Name].texture:SetTexture(genericIconOff);
 						else
-							_G["button"..Name]:SetNormalTexture([[Interface\BUTTONS\CheckButtonHilight]]); 
+							_G["frame"..Name].texture:SetTexture(genericIconOn);
 						end
 		        		ChatOverlay("\124cFF3BB0FF".._G[Name.."Modes"][1].overlay);
 		        		ResetTip();
@@ -238,7 +320,7 @@ function BadBoyFrame()
 		end)
 		_G["button"..Name]:SetScript("OnEnter", function(self)
 			GameTooltip:SetOwner(_G["button"..Name], UIParent, 0 , 0);
-			GameTooltip:SetText(actualTip, 225/255, 225/255, 225/255, nil, true);
+			GameTooltip:SetText(_G[Name.."Modes"][BadBoy_data[Name]].tip, 225/255, 225/255, 225/255, nil, true);
 			GameTooltip:Show();
 		end)
 		_G["button"..Name]:SetScript("OnLeave", function(self)
@@ -246,9 +328,9 @@ function BadBoyFrame()
 		end)
 		_G["text"..Name]:SetText(_G[Name.."Modes"][modeValue].mode); 	
 		if _G[Name.."Modes"][modeValue].highlight == 0 then
-			_G["button"..Name]:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]); 
+			_G["frame"..Name].texture:SetTexture(genericIconOff);
 		else
-			_G["button"..Name]:SetNormalTexture([[Interface\BUTTONS\CheckButtonHilight]]); 
+			_G["frame"..Name].texture:SetTexture(genericIconOn);
 		end
 	end
 end

@@ -361,12 +361,14 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 	        			timersTable[SpellID] = GetTime();
 	        			currentTarget = UnitGUID(Unit);
 	        			CastSpellByName(GetSpellInfo(SpellID),Unit);
+						if BadBoy_data["Power"] == 1 then mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID))); end
 	        			return true;
 	    			end
 	       			if Unit == nil then
 	        			timersTable[SpellID] = GetTime();
 	        			currentTarget = UnitGUID(Unit);
 	        			CastSpellByName(GetSpellInfo(SpellID));
+						if BadBoy_data["Power"] == 1 then mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID))); end
 	        			return true;
 	       			end
 				end
@@ -374,11 +376,13 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 	  		  or (getDistance("player",Unit) < spellRange and getLineOfSight("player",Unit) == true)) then
 	        	currentTarget = UnitGUID(Unit);
 				CastSpellByName(GetSpellInfo(SpellID),Unit);
+				if BadBoy_data["Power"] == 1 then mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID))); end
 				return true;
 			end
 			if Unit == nil then
 	        	currentTarget = UnitGUID(Unit);
 				CastSpellByName(GetSpellInfo(SpellID));
+				if BadBoy_data["Power"] == 1 then mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID))); end
 	      		return true;
 	    	end
 	  	end

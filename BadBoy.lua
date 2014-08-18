@@ -12,22 +12,22 @@ function BadBoyRun()
 		["configx"] = -140,
 		["configy"] = -135,
 		["configWidth"] = 250,
-		["engineAlpha"] = 90,
-		["debugAlpha"] = 90,
 		["configAlpha"] = 90,
-		["Check Engine Debug"] = 0,
-		["Check Debug"] = 0,
+
 
 		["AoE"] = 3,
 		["Cooldowns"] = 2,
 		["Defensive"] = 1,
 		["Interrupts"] = 1,
 
+		["Check Engine Debug"] = 0,
 		["Check Debug"] = 0,
 		["Check PokeRotation"] = 0,
 		["successCasts"] = 0,
 		["failCasts"] = 0,
 		["Check PokeRotation"] = 0,
+		["engineAlpha"] = 90,
+		["debugAlpha"] = 90,
 	}; end
 
 	-- Run once.

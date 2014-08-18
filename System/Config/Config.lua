@@ -71,7 +71,6 @@ function ConfigFrame()
 		configFrame:SetScript("OnUpdate", configFrame_OnUpdate);
 		configFrame:EnableMouse(true);
 		configFrame:SetMovable(true);
-		configFrame:SetClampedToScreen(true);
 		configFrame:RegisterForDrag("LeftButton");
 		configFrame:SetScript("OnDragStart", configFrame.StartMoving);
 		configFrame:SetScript("OnDragStop", configFrame.StopMovingOrSizing);
