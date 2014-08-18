@@ -9,7 +9,7 @@ function BadBoyFrame()
 
     function UpdateButton(Name)
     	local Name = tostring(Name);
-    	_G["text"..Name]:Click("LeftButton", true)
+    	_G["button"..Name]:Click("LeftButton", true)
     end	
 
 
