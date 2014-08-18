@@ -86,8 +86,8 @@
 local addonName = select(1, GetAddOnInfo('!Beautycase'))
 local formatName = '|cffFF0000'..addonName
 
-local textureNormal = 'Interface\\AddOns\\!Beautycase\\media\\textureNormal'
-local textureShadow = 'Interface\\AddOns\\!Beautycase\\media\\textureShadow'
+local textureNormal = [[Interface\AddOns\BadBoy\System\media\textureNormal]]
+local textureShadow = [[[Interface\AddOns\BadBoy\System\media\textureShadow]]
 
 local function GetBorder(self)
     if (self.beautyBorder) then

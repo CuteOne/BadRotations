@@ -5,7 +5,7 @@ function BadBoyFrame()
 	backIconOn = [[Interface\ICONS\Spell_Holy_PowerWordShield]]
 	backIconOff = [[Interface\ICONS\SPELL_HOLY_DEVOTIONAURA]]
 	genericIconOff = [[Interface\GLUES\CREDITS\Arakkoa1]]
-	genericIconOn = [[Interface\BUTTONS\UI-Debuff-Border]]
+	genericIconOn = [[Interface/BUTTONS/CheckButtonGlow]]
 
     function UpdateButton(Name)
     	local Name = tostring(Name);
@@ -22,10 +22,10 @@ function BadBoyFrame()
 			_G["button"..Name]:SetPoint("LEFT",x*(BadBoy_data["buttonSize"]),y*(BadBoy_data["buttonSize"]));
 			_G["text"..Name]:SetTextHeight(BadBoy_data["buttonSize"]/3);
 			_G["text"..Name]:SetPoint("CENTER",0,-(BadBoy_data["buttonSize"]/4));
-			_G["frame"..Name]:SetWidth(BadBoy_data["buttonSize"]);
-			_G["frame"..Name]:SetHeight(BadBoy_data["buttonSize"]);
-			_G["frame"..Name].texture:SetWidth(BadBoy_data["buttonSize"]);
-			_G["frame"..Name].texture:SetHeight(BadBoy_data["buttonSize"]);
+			_G["frame"..Name]:SetWidth(BadBoy_data["buttonSize"]*2);
+			_G["frame"..Name]:SetHeight(BadBoy_data["buttonSize"]*2);
+			_G["frame"..Name].texture:SetWidth(BadBoy_data["buttonSize"]*2);
+			_G["frame"..Name].texture:SetHeight(BadBoy_data["buttonSize"]*2);
 		end
 	end
 
@@ -121,7 +121,6 @@ function BadBoyFrame()
 	---------------------------
 
 
-
 	BadBoy_data["buttonSize"] = BadBoy_data["buttonSize"] or 32;
 
 
@@ -141,9 +140,7 @@ function BadBoyFrame()
 	mainButton:RegisterForDrag("LeftButton");
 	mainButton:SetScript("OnDragStart", mainButton.StartMoving);
 	mainButton:SetScript("OnDragStop", mainButton.StopMovingOrSizing);
-	--mainButton:LockHighlight();
-	--mainButton:SetButtonState("PUSHED", true)
-	--mainButton:SetScript("OnUpdate", mainFrame_OnUpdate);
+	CreateBorder(mainButton, 2, 0.6, 0.6, 0.6)
 	if BadBoy_data["Power"] == 1 then mainButton:SetNormalTexture(backIconOn); else mainButton:SetNormalTexture(backIconOff); end
 
 	mainButton:SetScript("OnClick", function()
@@ -191,10 +188,10 @@ function BadBoyFrame()
 				mainButton:SetHeight(BadBoy_data["buttonSize"]);
 				mainText:SetTextHeight(BadBoy_data["buttonSize"]/3);
 				mainText:SetPoint("CENTER",0,-(BadBoy_data["buttonSize"]/4));
-				mainButtonFrame:SetWidth(BadBoy_data["buttonSize"]);
-				mainButtonFrame:SetHeight(BadBoy_data["buttonSize"]);
-				mainButtonFrame.texture:SetWidth(BadBoy_data["buttonSize"]);
-				mainButtonFrame.texture:SetHeight(BadBoy_data["buttonSize"]);
+				mainButtonFrame:SetWidth(BadBoy_data["buttonSize"]*2);
+				mainButtonFrame:SetHeight(BadBoy_data["buttonSize"]*2);
+				mainButtonFrame.texture:SetWidth(BadBoy_data["buttonSize"]*2);
+				mainButtonFrame.texture:SetHeight(BadBoy_data["buttonSize"]*2);
 				buttonsResize()		
 			end
 		end
@@ -210,25 +207,24 @@ function BadBoyFrame()
 			_G["button"..Name]:SetPoint("LEFT",x*(BadBoy_data["buttonSize"]),y*(BadBoy_data["buttonSize"]));
 			_G["text"..Name]:SetTextHeight(BadBoy_data["buttonSize"]/3);
 			_G["text"..Name]:SetPoint("CENTER",0,-(BadBoy_data["buttonSize"]/4));
-			_G["frame"..Name]:SetWidth(BadBoy_data["buttonSize"]);
-			_G["frame"..Name]:SetHeight(BadBoy_data["buttonSize"]);
-			_G["frame"..Name].texture:SetWidth(BadBoy_data["buttonSize"]);
-			_G["frame"..Name].texture:SetHeight(BadBoy_data["buttonSize"]);
+			_G["frame"..Name]:SetWidth(BadBoy_data["buttonSize"]*2);
+			_G["frame"..Name]:SetHeight(BadBoy_data["buttonSize"]*2);
+			_G["frame"..Name].texture:SetWidth(BadBoy_data["buttonSize"]*2);
+			_G["frame"..Name].texture:SetHeight(BadBoy_data["buttonSize"]*2);
 		end
 	end
 
 	mainButtonFrame = CreateFrame("Frame", nil, mainButton);
-	mainButtonFrame:SetWidth(BadBoy_data["buttonSize"]);
-	mainButtonFrame:SetHeight(BadBoy_data["buttonSize"]);
+	mainButtonFrame:SetWidth(BadBoy_data["buttonSize"]*2);
+	mainButtonFrame:SetHeight(BadBoy_data["buttonSize"]*2);
 	mainButtonFrame:SetPoint("CENTER")
 	mainButtonFrame.texture = mainButtonFrame:CreateTexture(mainButton, "BACKGROUND");
 	mainButtonFrame.texture:SetAllPoints();
-	mainButtonFrame.texture:SetWidth(BadBoy_data["buttonSize"]);
-	mainButtonFrame.texture:SetHeight(BadBoy_data["buttonSize"]);
+	mainButtonFrame.texture:SetWidth(BadBoy_data["buttonSize"]*2);
+	mainButtonFrame.texture:SetHeight(BadBoy_data["buttonSize"]*2);
 	mainButtonFrame.texture:SetAlpha(100);
 	mainButtonFrame.texture:SetTexture(genericIconOn);
 
-	CreateBorder(mainButtonFrame, 1, 0, 0, 0)
 
 	mainText = mainButton:CreateFontString(nil, "OVERLAY");
 	mainText:SetFont("Fonts/FRIZQT__.TTF",17,"THICKOUTLINE");
@@ -254,10 +250,11 @@ function BadBoyFrame()
 		_G["button"..Name] = CreateFrame("Button", "MyButton", mainButton, "SecureHandlerClickTemplate");
 		_G["button"..Name]:SetWidth(BadBoy_data["buttonSize"]);
 		_G["button"..Name]:SetHeight(BadBoy_data["buttonSize"]);
-		_G["button"..Name]:SetPoint("LEFT",x*(BadBoy_data["buttonSize"]),y*(BadBoy_data["buttonSize"]));
+		_G["button"..Name]:SetPoint("LEFT",x*(BadBoy_data["buttonSize"])+(x*3),y*(BadBoy_data["buttonSize"])+(y*3));
 		_G["button"..Name]:RegisterForClicks("AnyUp");
 		if type(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon) == "number" then Icon = select(3,GetSpellInfo(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon)); else Icon = _G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon; end
 		_G["button"..Name]:SetNormalTexture(Icon or emptyIcon); 
+		CreateBorder(_G["button"..Name], 2, 0.6, 0.6, 0.6)
 		_G["text"..Name] = _G["button"..Name]:CreateFontString(nil, "OVERLAY");
 		_G["text"..Name]:SetFont("Fonts/FRIZQT__.TTF",17,"THICKOUTLINE");
 		_G["text"..Name]:SetTextHeight(BadBoy_data["buttonSize"]/3);
@@ -265,17 +262,15 @@ function BadBoyFrame()
 		_G["text"..Name]:SetTextColor(1,1,1,1);
 
 		_G["frame"..Name] = CreateFrame("Frame", nil, _G["button"..Name]);
-		_G["frame"..Name]:SetWidth(BadBoy_data["buttonSize"]);
-		_G["frame"..Name]:SetHeight(BadBoy_data["buttonSize"]);
-		_G["frame"..Name]:SetAllPoints();
+		_G["frame"..Name]:SetWidth(BadBoy_data["buttonSize"]*2);
+		_G["frame"..Name]:SetHeight(BadBoy_data["buttonSize"]*2);
 		_G["frame"..Name]:SetPoint("CENTER")
-		_G["frame"..Name].texture = _G["button"..Name]:CreateTexture(_G["button"..Name], "OVERLAY");
+		_G["frame"..Name].texture = _G["frame"..Name]:CreateTexture(_G["button"..Name], "OVERLAY");
 		_G["frame"..Name].texture:SetAllPoints();
-		_G["frame"..Name].texture:SetWidth(BadBoy_data["buttonSize"]);
-		_G["frame"..Name].texture:SetHeight(BadBoy_data["buttonSize"]);
+		_G["frame"..Name].texture:SetWidth(BadBoy_data["buttonSize"]*2);
+		_G["frame"..Name].texture:SetHeight(BadBoy_data["buttonSize"]*2);
 		_G["frame"..Name].texture:SetAlpha(100);
 		_G["frame"..Name].texture:SetTexture(genericIconOn);
-		CreateBorder(_G["frame"..Name], 1, 0, 0, 0)
 
 
 		local modeTable;		
