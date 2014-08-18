@@ -12,6 +12,24 @@ function BadBoyFrame()
     	_G["button"..Name]:Click("LeftButton", true)
     end	
 
+    function GarbageButtons()
+		for i = 1, #buttonsTable do
+			local Name = buttonsTable[i].name
+			local x = buttonsTable[i].bx
+			local y = buttonsTable[i].by
+			_G["button"..Name]:SetWidth(BadBoy_data["buttonSize"]);
+			_G["button"..Name]:SetHeight(BadBoy_data["buttonSize"]);
+			_G["button"..Name]:SetPoint("LEFT",x*(BadBoy_data["buttonSize"]),y*(BadBoy_data["buttonSize"]));
+			_G["text"..Name]:SetTextHeight(BadBoy_data["buttonSize"]/3);
+			_G["text"..Name]:SetPoint("CENTER",0,-(BadBoy_data["buttonSize"]/4));
+			_G["frame"..Name]:SetWidth(BadBoy_data["buttonSize"]);
+			_G["frame"..Name]:SetHeight(BadBoy_data["buttonSize"]);
+			_G["frame"..Name].texture:SetWidth(BadBoy_data["buttonSize"]);
+			_G["frame"..Name].texture:SetHeight(BadBoy_data["buttonSize"]);
+		end
+	end
+
+
 
 	function ToggleValue(toggleValue)
 		if BadBoy_data[toggleValue] == 0 or BadBoy_data[toggleValue] == nil then BadBoy_data[toggleValue] = 1; end
@@ -210,6 +228,8 @@ function BadBoyFrame()
 	mainButtonFrame.texture:SetAlpha(100);
 	mainButtonFrame.texture:SetTexture(genericIconOn);
 
+	CreateBorder(mainButtonFrame, 1, 0, 0, 0)
+
 	mainText = mainButton:CreateFontString(nil, "OVERLAY");
 	mainText:SetFont("Fonts/FRIZQT__.TTF",17,"THICKOUTLINE");
 	mainText:SetTextHeight(BadBoy_data["buttonSize"]/3);
@@ -255,6 +275,7 @@ function BadBoyFrame()
 		_G["frame"..Name].texture:SetHeight(BadBoy_data["buttonSize"]);
 		_G["frame"..Name].texture:SetAlpha(100);
 		_G["frame"..Name].texture:SetTexture(genericIconOn);
+		CreateBorder(_G["frame"..Name], 1, 0, 0, 0)
 
 
 		local modeTable;		
