@@ -122,9 +122,9 @@ if select(3, UnitClass("player")) == 10 then
 				return true
 			end
 
-	--------------------------------------------------
-	--- In Combat - Dummy Test / Cat Form Maintain ---
-	--------------------------------------------------
+	------------------------------
+	--- In Combat - Dummy Test ---
+	------------------------------
 		-- Dummy Test
 			if isChecked("DPS Testing") then
 				if UnitExists("target") then

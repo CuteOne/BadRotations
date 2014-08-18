@@ -5,6 +5,7 @@ function ReaderRun()
 
 -- Vars
 if AgiSnap == nil then AgiSnap = 0; end
+if canPickpocket == nil then canPickpocket = true; end
 
 -------------------
 --[[ Auto Join --]]
@@ -91,7 +92,6 @@ local function UiErrorMessages(self, event, ...)
 	if event == "UI_ERROR_MESSAGE" then 
 		lastError = ...; lastErrorTime = GetTime(); 
 	  	local Events = (...)
-	  	local msg = select(1, ...)
 	  	-- print(...)
 	  	if Events == ERR_PET_SPELL_DEAD  then
 			BadBoy_data["Pet Dead"] = true;
@@ -117,13 +117,13 @@ local function UiErrorMessages(self, event, ...)
 			BadBoy_data["Pet Whistle"] = true;
 		end
 		if Events == SPELL_FAILED_TARGET_NO_POCKETS then
-			BadBoy_data["Pickpocket"] = false;
+			canPickpocket = false;
 		end
 		if Events == ERR_ALREADY_PICKPOCKETED then
-			BadBoy_data["Pickpocket"] = false;
+			canPickpocket = false;
 		end
 		if Events == ERR_NO_LOOT then
-			BadBoy_data["Pickpocket"] = false
+			canPickpocket = false;
 		end
 	end
 end
@@ -179,6 +179,12 @@ function SuperReader(self, event, ...)
 			end
 		end
 
+		--------------------------------------
+		--[[ Pick Pocket Success Recorder --]]
+		if param == "SPELL_CAST_SUCCESS" and spell==921 then 
+			canPickpocket = false; 
+		end
+		
 		------------------------
 		--[[ Bleed Recorder --]]
 		if select(3, UnitClass("player")) == 11 and GetSpecialization("player") == 2 then
