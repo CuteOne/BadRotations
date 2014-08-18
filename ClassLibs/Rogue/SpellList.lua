@@ -3,13 +3,16 @@ if select(3, UnitClass("player")) == 4 then
 
 _AdrenalineRush			= 13750
 _Ambush     			= 8676
+_Anticipation 			= 114015
 _Backstab     			= 53 
 _Berserking  			= 26297
 _BladeFlurry			= 13877
-_Blind          		= 2094 
+_Blind          		= 2094
+_Blindside				= 121153 
 _BloodFury				= 20572      
 _CheapShot      		= 1833  
 _CloakOfShadows 		= 31224 
+_CombatReadiness		= 74001
 _CrimsonTempest 		= 121411
 _CripplingPoison  		= 3408 
 _DeadlyPoison   		= 2823 
@@ -17,13 +20,14 @@ _DeadlyThrow    		= 26679
 _DisarmTrap    			= 1842
 _Dismantle    			= 51722
 _Dispatch				= 111240
-_Distract    			= 1725
-_Evasion    			= 5277 
+_Distract    			= 1725 
 _Envenom				= 32645
+_Evasion    			= 5277
 _Eviscerate     		= 2098 
 _ExposeArmor    		= 8647 
 _FanOfKnives   			= 51723 
 _Feint     				= 1966
+_FindWeakness			= 91021
 _Garrote    			= 703 
 _Gouge     				= 1776 
 _Hemorrhage    			= 16511
@@ -58,10 +62,10 @@ _Sprint     			= 2983
 _Stealth    			= 115191
 _Throw     				= 121733 
 _TricksOfTheTrade  		= 57934 
-_Vanish     			= 1856 
+_Vanish     			= 1856
+_VanishBuff				= 11327
+_Vendetta				= 79140 
 _WoundPoison   			= 8679
-_FindWeakness			= 	91021
-_Anticipation 			= 114015
 
 
 end

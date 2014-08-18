@@ -85,7 +85,7 @@ if select(3, UnitClass("player")) == 4 then
 				end
 	-- Combat Readiness
 				if getHP("player")<40 then
-					if castSpell("target",_CombatReadiness) then return; end
+					if castSpell("player",_CombatReadiness) then return; end
 				end
 	-- Recuperate
 				if getHP("player")<30 and getCombo()>3 and getBuffRemain("player",_Recuperate)==0 then
