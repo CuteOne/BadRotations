@@ -46,6 +46,19 @@ function dropOp(string, base, tip1, value1, value2, value3, value4, value5, valu
     return CreateNewDrop(thisConfig, string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10);
 end
 
+-- Config Panel
+function NewMonkConfig()
+    --if not doneConfig then
+        thisConfig = 0
+        -- Title
+        titleOp("CuteOne New Monk");
+                -- Spacer
+        CreateGeneralsConfig();
+
+        WrapsManager();
+    --end
+end
+
 --[[           ]]	--[[           ]]	--[[           ]]	--[[]] 	   --[[]]
 --[[           ]]	--[[           ]]	--[[           ]]	--[[]] 	   --[[]]	
 --[[]]	   --[[]]	--[[]]	   --[[]]	--[[]]				--[[ ]]   --[[ ]]

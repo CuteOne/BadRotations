@@ -58,7 +58,7 @@ function WindwalkerToggles()
         if PickerModesLoaded ~= "Cute Pick Pocket Modes" then 
             CustomPickerModes = { 
                 [1] = { mode = "Auto", value = 2 , overlay = "Auto Pick Pocket Enabled", tip = "Profile will attempt to Pick Pocket prior to combat."},
-                [2] = { mode = "Only", value = 1 , overlay = "Only Pick Pocket Enabled", tip = "Profile will attempt to Sap and only Pick Pocket, no combat."}
+                [2] = { mode = "Only", value = 1 , overlay = "Only Pick Pocket Enabled", tip = "Profile will attempt to Sap and only Pick Pocket, no combat."},
                 [3] = { mode = "Off", value = 3, overlay = "Pick Pocket Disabled", tip = "Profile will not use Pick Pocket."}
             };
             PickerModes = CustomPickerModes

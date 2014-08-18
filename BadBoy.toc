@@ -82,6 +82,7 @@ Rotations\Mage\Frost.lua
 Rotations\Monk\Brewmaster.lua
 Rotations\Monk\Mistweaver.lua
 Rotations\Monk\Windwalker.lua
+Rotations\Monk\NewMonk.lua
 Rotations\Paladin\Holy.lua
 Rotations\Paladin\Protection.lua
 Rotations\Paladin\Retribution.lua

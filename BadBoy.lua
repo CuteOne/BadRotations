@@ -266,6 +266,9 @@ function BadBoyRun()
 		elseif _MyClass == 9 then -- Warlock
 			--Warlock()		
 		elseif _MyClass == 10 then -- Monk
+			if _MySpec == nil then
+				NewMonk();
+			end
 			if _MySpec == 1 then
 				BrewmasterMonk();
 			elseif _MySpec == 2 then

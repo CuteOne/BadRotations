@@ -13,8 +13,7 @@ if select(3, UnitClass("player")) == 11 then
 ---------------------------------------
 --- Ressurection/Dispelling/Healing ---
 ---------------------------------------
-		if  
-			and UnitIsPlayer("mouseover") 
+		if UnitIsPlayer("mouseover") 
 			and not UnitBuffID("player", prl)
 			and not UnitBuffID("player", 80169) -- Food
 	  		and not UnitBuffID("player", 87959) -- Drink
