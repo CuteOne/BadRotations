@@ -5,6 +5,7 @@ if select(3, UnitClass("player")) == 4 then
 			Currentconfig = "Assassination CuteOne"
 		end
 		AssToggles();
+		ChatOverlay(canPickpocket)
 --------------
 --- Poison ---
 --------------
@@ -26,9 +27,15 @@ if select(3, UnitClass("player")) == 4 then
 		if not UnitBuffID("player",_Stealth) and canAttack("player","target") and not UnitIsDeadOrGhost("target") and targetDistance < 20 then
 			if castSpell("player",_Stealth) then return; end
 		end
-		if canAttack("player","target") and not UnitIsDeadOrGhost("target") and targetDistance < 20 then
+		if canAttack("player","target") and not UnitIsDeadOrGhost("target") and targetDistance < 8 then
 	-- Sap
-
+			if noattack() and getDebuffRemain("target",_Sap)==0 and UnitBuffID("player",_Stealth) and UnitLevel("player")>=15 then
+				if castSpell("target",_Sap) then return; end
+			end
+	-- Pick Pocket
+			if canPP() and not isPicked() and UnitBuffID("player",_Stealth) and UnitLevel("player")>=15 then
+				if castSpell("target",_PickPocket) then return; end
+			end
 		end	
 	end
 end
