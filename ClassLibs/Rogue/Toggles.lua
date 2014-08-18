@@ -11,9 +11,9 @@ function AssToggles()
         -- AoE Button
         if AoEModesLoaded ~= "Cute AoE Modes" then 
             CustomAoEModes = { 
-                [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range."},  
-                [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used."},
-                [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used."}
+                [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = _FanOfKnives},  
+                [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = _FanOfKnives},
+                [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = _Mutilate}
             };
            AoEModes = CustomAoEModes
            CreateButton("AoE",1,0)
@@ -23,9 +23,9 @@ function AssToggles()
      -- Cooldowns Button
         if CooldownsModesLoaded ~= "Cute Cooldowns Modes" then 
             CustomCooldownsModes = { 
-                [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection."},  
-                [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target."},
-                [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used."}
+                [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = _ShadowBlades},  
+                [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = _ShadowBlades},
+                [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = _ShadowBlades}
             };
            CooldownsModes = CustomCooldownsModes
            CreateButton("Cooldowns",2,0)
@@ -35,8 +35,8 @@ function AssToggles()
      -- Defensive Button
         if DefensiveModesLoaded ~= "Cute Defensive Modes" then 
             CustomDefensiveModes = { 
-                [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns."},
-                [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used."}
+                [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = _Evasion},
+                [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = _Evasion}
             };
             DefensiveModes = CustomDefensiveModes
             CreateButton("Defensive",3,0)
@@ -46,8 +46,8 @@ function AssToggles()
      -- Interrupts Button
         if InterruptsModesLoaded ~= "Cute Interrupt Modes" then 
             CustomInterruptsModes = { 
-                [1] = { mode = "On", value = 2 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts."},
-                [2] = { mode = "Off", value = 1 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used."}
+                [1] = { mode = "On", value = 2 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = _Kick},
+                [2] = { mode = "Off", value = 1 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = _Kick}
             };
             InterruptsModes = CustomInterruptsModes
             CreateButton("Interrupts",4,0)
@@ -57,9 +57,9 @@ function AssToggles()
      -- Pick Pocket Button
         if PickerModesLoaded ~= "Cute Pick Pocket Modes" then 
             CustomPickerModes = { 
-                [1] = { mode = "Auto", value = 2 , overlay = "Auto Pick Pocket Enabled", tip = "Profile will attempt to Pick Pocket prior to combat."},
-                [2] = { mode = "Only", value = 1 , overlay = "Only Pick Pocket Enabled", tip = "Profile will attempt to Sap and only Pick Pocket, no combat."},
-                [3] = { mode = "Off", value = 3, overlay = "Pick Pocket Disabled", tip = "Profile will not use Pick Pocket."}
+                [1] = { mode = "Auto", value = 2 , overlay = "Auto Pick Pocket Enabled", tip = "Profile will attempt to Pick Pocket prior to combat.", highlight = 1, icon = _PickPocket},
+                [2] = { mode = "Only", value = 1 , overlay = "Only Pick Pocket Enabled", tip = "Profile will attempt to Sap and only Pick Pocket, no combat.", highlight = 0, icon = _PickPocket},
+                [3] = { mode = "Off", value = 3, overlay = "Pick Pocket Disabled", tip = "Profile will not use Pick Pocket.", highlight = 0, icon = _PickPocket}
             };
             PickerModes = CustomPickerModes
             CreateButton("Picker",5,0)

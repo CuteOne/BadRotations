@@ -118,7 +118,7 @@ if select(3, UnitClass("player")) == 4 then
 	-----------------
 			if not UnitBuffID("player",_Stealth) and targetDistance<=8 and useCDs() then
 	-- Preparation
-				if getBuffRemain("player",_VanishBuff)==0 and getSpellCD("player",_Vanish)>60 then
+				if getBuffRemain("player",_VanishBuff)==0 and getSpellCD(_Vanish)>60 then
 					if castSpell("player",_Preparation) then return; end
 				end
 	-- Vanish
@@ -136,45 +136,90 @@ if select(3, UnitClass("player")) == 4 then
 	-- Vendetta
 				if castSpell("target",_Vendetta) then return; end
 			end
-
-	--------------------
-	--- All Rotation ---
-	--------------------
-			if not UnitBuffID("player",_Stealth) and targetDistance<=8 then
-	-- Slice and Dice
-				if getSndr()<2 and getCombo()>0 and getPower("player")>=25 then
-					if castSpell("player",_SliceAndDice) then return; end
+	-------------------------
+	--- Multiple Rotation ---
+	-------------------------
+			if not UnitBuffID("player",_Stealth) and targetDistance<=8 and useAoE() then
+				local ennemyCount = getNumEnnemies("player",10)
+				if ennemyCount>8 then
+					if getCombo()<5 then
+						if castSpell("player",_FanOfKnives) then return; end
+					else
+						if castSpell("target",_Envenom) then return; end
+					end
 				end
-	-- Dispatch
-				if getRupr()<2 and getPower("player")>90 then
-					if castSpell("target",_Dispatch) then return; end
+				if ennemyCount>=4 and ennemyCount<=8 then
+					if getRupr()<3 and getCombo()>3 then
+						for i = 1, GetTotalObjects(TYPE_UNIT) do
+							local Guid = IGetObjectListEntry(i)
+							ISetAsUnitID(Guid,"thisUnit");
+							if getFacing("player","thisUnit") == true
+								and getDebuffRemain("thisUnit",_Rupture) < 3
+								and getTimeToDie("thisUnit") > 5
+								and getDistance("thisUnit") < 5
+								and getCombo()
+							then
+								if castSpell("target",_Rupture) then return;end								
+							end
+						end
+					elseif getCombo()>4 and getRupr()>=3 then
+						if castSpell("target",_Envenom) then return; end
+					else
+						if castSpell("player",_FanOfKnives) then return; end
+					end
 				end
-	-- Mutilate
+			end
+	-----------------------
+	--- Single Rotation ---
+	-----------------------
+			if not UnitBuffID("player",_Stealth) and targetDistance<=8 and not useAoE() then
+	-- Dispatch/Mutilate
 				if getRupr()<2 and getPower("player")>90 then
-					if castSpell("target",_Mutilate) then return; end
+					if UnitLevel("player")>40 and (getHP("target")<35 or getBuffRemain("player",_Blindside)>0) then 
+						if castSpell("target",_Dispatch) then return; end
+					else
+						if castSpell("target",_Mutilate) then return; end
+					end
 				end
 	-- Marked for Death
-				if getCombo()==0 then
-					if castSpell("target",_MarkedForDeath) then return; end
-				end
-	-- Rupture
-				if getSndr()>0 and getCombo()>0 and (getRupr()<2 or (getCombo()==5 and getRupr()<3)) then
-					if castSpell("target",_Rupture) then return; end
-				end
-	-- Fan of Knives
-				if getSndr()>0 and getCombo() < 5 and getNumEnnemies("player",10)>=4 then
-					if castSpell("target",_FanOfKnives) then return; end
-				end
+				-- if getCombo()==0 then
+				-- 	if castSpell("target",_MarkedForDeath) then return; end
+				-- end
 	-- Envenom
 				if getSndr()>0 and (getCombo()>4 or (getCombo()>=2 and getSndr()<3)) then
 					if castSpell("target",_Envenom) then return; end
 				end
-	-- Dispatch
-				if getCombo()<5 then
-					if castSpell("target",_Dispatch) then return; end
+	-- Rupture
+				if getSndr()>0 and getCombo()>0 and (getRupr()<2 or (getCombo()==5 and getRupr()<3)) then
+					if getNumEnnemies("player",10)>1 then
+						for i = 1, GetTotalObjects(TYPE_UNIT) do
+							local Guid = IGetObjectListEntry(i)
+							ISetAsUnitID(Guid,"thisUnit");
+							if getFacing("player","thisUnit") == true
+								and getDebuffRemain("thisUnit",_Rupture) < 3
+								and getTimeToDie("thisUnit") > 5
+								and getDistance("thisUnit") < 5
+								and getCombo()
+							then
+								if castSpell("target",_Rupture) then return;end								
+							end
+						end
+					else
+						if castSpell("target",_Rupture) then return; end
+					end
 				end
-	-- Mutilate
-				if castSpell("target",_Mutilate) then return; end
+	-- Slice and Dice
+				if getSndr()<2 and getCombo()>0 and getPower("player")>=25 then
+					if castSpell("player",_SliceAndDice) then return; end
+				end
+	-- Dispatch/Mutilate
+				if getCombo()<5 then
+					if UnitLevel("player")>40 and (getHP("target")<35 or getBuffRemain("player",_Blindside)>0) then 
+						if castSpell("target",_Dispatch) then return; end
+					else
+						if castSpell("target",_Mutilate) then return; end
+					end
+				end
 			end --End Rotation
 	-- Start Attack
 			if not UnitBuffID("player",_Stealth) then
