@@ -517,33 +517,29 @@ function DruidRestoration()
 		if isChecked("WildGrowth") == true then
 			if isKnown(114107) ~= true and getSpellCD(48438) < 2 then
 				for i = 1, #nNova do
-					if nNova[i].hp < getValue("WildGrowth") then
-						local allies30Yards = 0;
-						for j = 1, # nNova do
-							if nNova[i].unit ~= nNova[j].unit and nNova[j].hp > getValue("WildGrowth") and getDistance(nNova[i].unit,nNova[j].unit) <= 30 then
-								allies30Yards = allies30Yards + 1;
-								if allies30Yards > getValue("WildGrowth Count") then break; end
-							end
+					local allies30Yards = 0;
+					for j = 1, # nNova do
+						if nNova[j].hp > getValue("WildGrowth") and getDistance(nNova[i].unit,nNova[j].unit) <= 30 then
+							allies30Yards = allies30Yards + 1;
+							if allies30Yards > getValue("WildGrowth Count") then break; end
 						end
-						if allies30Yards > getValue("WildGrowth Count") then
-							if castSpell(nNova[i].unit,48438,true,false) then return; end
-						end
+					end
+					if allies30Yards > getValue("WildGrowth Count") then
+						if castSpell(nNova[i].unit,48438,true,false) then return; end
 					end
 				end
 			elseif getSpellCD(48438) < 2 then
 				for i = 1, #nNova do
-					if nNova[i].hp < getValue("WildGrowth") then
-						local allies30Yards = 0;
-						for j = 1, # nNova do
-							if nNova[i].unit ~= nNova[j].unit and nNova[j].hp > getValue("WildGrowth SotF") and getDistance(nNova[i].unit,nNova[j].unit) <= 30 then
-								allies30Yards = allies30Yards + 1;
-								if allies30Yards > getValue("WildGrowth Count") then break; end
-							end
+					local allies30Yards = 0;
+					for j = 1, # nNova do
+						if nNova[j].hp > getValue("WildGrowth SotF") and getDistance(nNova[i].unit,nNova[j].unit) <= 30 then
+							allies30Yards = allies30Yards + 1;
+							if allies30Yards > getValue("WildGrowth Count") then break; end
 						end
-						if allies30Yards > getValue("WildGrowth SotF Count") then
-							SwiftMender(getSpellCD(48438));
-							if castSpell(nNova[i].unit,48438,true,false) then return; end
-						end
+					end
+					if allies30Yards > getValue("WildGrowth SotF Count") then
+						SwiftMender(getSpellCD(48438));
+						if castSpell(nNova[i].unit,48438,true,false) then return; end
 					end
 				end				
 			end
