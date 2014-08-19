@@ -156,7 +156,7 @@ if not metaTable1 then
 		  and not UnitIsCharmed(tar) 
 		  and not UnitIsDeadOrGhost(tar) 
 		  and UnitIsConnected(tar)) 
-		  or SpecialHealUnitList[tonumber(select(2,Nova_GUID(tar)))] ~= nil	or (isChecked("Heal Pets") and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
+		  or SpecialHealUnitList[tonumber(select(2,Nova_GUID(tar)))] ~= nil	or (isChecked("Heal Pets") == true and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
 		  and CheckBadDebuff(tar)
 		  and CheckCreatureType(tar)
 		  and getLineOfSight("player", tar)
