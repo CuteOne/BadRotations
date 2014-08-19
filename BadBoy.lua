@@ -227,7 +227,13 @@ function BadBoyRun()
 		local _MyClass = select(3,UnitClass("player"));
 		local _MySpec = GetSpecialization("player");
 		if _MyClass == 1 then -- Warrior
-			--Warrior()
+			if _MySpec == 2 then
+				--FuryWarrior()
+			elseif _MySpec == 3 then
+				ProtectionWarrior()
+			else
+				--ArmsWarrior()
+			end
 		elseif _MyClass == 2 then -- Paladin
 			if _MySpec == 2 then
 				PaladinProtection();
