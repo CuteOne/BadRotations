@@ -13,9 +13,9 @@ if select(3, UnitClass("player")) == 7 then
      -- AoE Button
         if AoEModesLoaded ~= "Cute AoE Modes" then 
             CustomAoEModes = { 
-                [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range."},  
-                [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used."},
-                [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used."}
+                [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = _ChainLightning},  
+                [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = _ChainLightning},
+                [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = _LightningBolt}
             };
            AoEModes = CustomAoEModes
            CreateButton("AoE",1,0)
@@ -25,9 +25,9 @@ if select(3, UnitClass("player")) == 7 then
      -- Cooldowns Button
         if CooldownsModesLoaded ~= "Cute Cooldowns Modes" then 
             CustomCooldownsModes = { 
-                [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection."},  
-                [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target."},
-                [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used."}
+                [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = _Ascendance},  
+                [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = _Ascendance},
+                [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = _Ascendance}
             };
            CooldownsModes = CustomCooldownsModes
            CreateButton("Cooldowns",2,0)
@@ -37,8 +37,8 @@ if select(3, UnitClass("player")) == 7 then
      -- Defensive Button
         if DefensiveModesLoaded ~= "Cute Defensive Modes" then 
             CustomDefensiveModes = { 
-                [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns."},
-                [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used."}
+                [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = _ShamanisticRage},
+                [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = _ShamanisticRage}
             };
             DefensiveModes = CustomDefensiveModes
             CreateButton("Defensive",3,0)
@@ -48,8 +48,8 @@ if select(3, UnitClass("player")) == 7 then
      -- Interrupts Button
         if InterruptsModesLoaded ~= "Cute Interrupt Modes" then 
             CustomInterruptsModes = { 
-                [1] = { mode = "On", value = 2 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts."},
-                [2] = { mode = "Off", value = 1 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used."}
+                [1] = { mode = "On", value = 2 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = _WindShear},
+                [2] = { mode = "Off", value = 1 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = _WindShear}
             };
             InterruptsModes = CustomInterruptsModes
             CreateButton("Interrupts",4,0)

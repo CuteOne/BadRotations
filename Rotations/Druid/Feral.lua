@@ -368,7 +368,7 @@ if select(3, UnitClass("player")) == 11 then
 					if useCDs() and UnitBuffID("player",cf) and not UnitBuffID("player",prl) and targetDistance<=5 then
 						if getSRR() > 0 and getBuffRemain("player",tf) > 0 then
 		-- Agi-Pot			
-							if usePot and canUse(76089) and getCombo() >= 4 and getHP("target") <= 25 then --and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") then
+							if usePot and canUse(76089) and getCombo() >= 4 and getHP("target") <= 25 and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") then
 								--useItem(76089)
 								UseItemByName(tostring(select(1,GetItemInfo(76089))))
 							end
