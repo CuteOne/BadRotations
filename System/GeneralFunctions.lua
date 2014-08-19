@@ -654,6 +654,11 @@ end
 
 -- if getHP("player") then
 function getHP(Unit)
+	for i = 1, #nNova do
+		if nNova[i].guid == UnitGUID(Unit) then
+			return nNova[i].hp;
+		end
+	end
 	if isChecked("No Incoming Heals") ~= true then
 		return 100*(UnitHealth(Unit)+UnitGetIncomingHeals("player"))/UnitHealthMax(Unit); 
 	else
