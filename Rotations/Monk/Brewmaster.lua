@@ -6,19 +6,6 @@ function BrewmasterMonk()
 		MonkBrewConfig();
 	end
 
-
-	if IExists(UnitGUID("player")) and IExists(UnitGUID("target")) then
-		local X1,Y1,Z1,Angle1 = IGetLocation(UnitGUID("player"));
-		local X2,Y2 = IGetLocation(UnitGUID("target"));
-		--ChatOverlay(((X1-X2)*math.cos(-Angle1))-((Y1-Y2)*math.sin(-Angle1)))
-		local deltaY = Y2 - Y1
-		local deltaX = X2 - X1
-		angleInDegrees = math.atan(deltaY / deltaX) * 180 / 3.1416
-		ChatOverlay(angleInDegrees)
-	end
-	if tamer == nil then return true end
-
-
 -- Barrel Thrower
 	if SpellIsTargeting() then
 		if UnitExists("target") then

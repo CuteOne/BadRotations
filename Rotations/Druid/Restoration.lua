@@ -434,12 +434,21 @@ function DruidRestoration()
 		end
 
 		--[[ 18 - reju Tol --( use reju on player with health check if not lifebloom tol check)]]
-		if isKnown(106731) and UnitBuffID("player", 33891) and isChecked("Lifebloom Tol") == true and isChecked("Lifebloom Tol") == false then
+		if isKnown(106731) and UnitBuffID("player", 33891) and isChecked("Lifebloom Tol") == false then
 	        for i = 1, #nNova do
 		       	if nNova[i].hp <= getValue("Rejuvenation Tol") and getBuffRemain(nNova[i].unit,774,"player") == 0 then
 			        if castSpell(nNova[i].unit,774,true,false) then return; end
 		        end
 	        end
+		end
+
+		--[[ 18.5 - LifeBloom Fast Swich]]
+		if isChecked("Lifebloom") == true then
+	    	for i = 1, #nNova do
+				if not UnitIsDeadOrGhost("focus") and (getBuffStacks(nNova[i].unit,33763) == 3) and (getBuffStacks("focus",33763) == 0) then
+					if castSpell("focus",33763,true,false) then return; end
+				end
+			end		
 		end
 
 		--[[ 19 - Regrowth --(cast regrowth on all usualy between 30 - 40)]]

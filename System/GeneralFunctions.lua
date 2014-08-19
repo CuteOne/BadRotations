@@ -410,7 +410,6 @@ function castMouseoverHealing(Class)
 				local npcID = tonumber(UnitGUID(target):sub(6,10), 16) 				
 				for i = 1, #npcTable do
 					if npcID == npcTable[i] then
-						print("try")
 						-- Dispel
 						for n = 1,40 do 
 					      	local buff,_,_,count,bufftype,duration = UnitDebuff(target, n)

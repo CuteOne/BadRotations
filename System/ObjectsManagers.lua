@@ -25,7 +25,7 @@ if not metaTable1 then
 	metaTable1 = {} -- This will be the MetaTable attached to our Main Table that the world will see
 	local DispelID = {
 		{ id = 143579, stacks = 3 }, -- Immersius
-		{ id = 143434, stacks = 0 }, -- Fallen Protectors
+		{ id = 143434, stacks = 3 }, -- Fallen Protectors
 		{ id = 144514, stacks = 0 }, -- Norushen
 		{ id = 144351, stacks = 0 }, -- Sha of Pride
 		{ id = 146902, stacks = 0 }, -- Galakras(Korga Poisons)
@@ -312,20 +312,17 @@ if not metaTable1 then
 				end
 			end
 
-			for i=1, #nNova do
-				-- We are updating all of the User Info (Health/Range/Name)
-				nNova[i]:UpdateUnit();
-			end
-
 			for p=1, #SpecialTargets do
-				if not UnitExists(SpecialTargets[p]) then
-					for j=1, #nNova do
-						-- Trying to find a case of the unit inside the Main Table to remove
-						if nNova[j].unit == SpecialTargets[p] then
-							tremove(nNova, j);
-							break;
-						end
+				local removedTarget = false;
+				for j=1, #nNova do
+					-- Trying to find a case of the unit inside the Main Table to remove
+					if nNova[j].unit == SpecialTargets[p] and (nNova[j].guid ~= 0 and nNova[j].guid ~= UnitGUID(SpecialTargets[p])) then
+						tremove(nNova, j);
+						removedTarget = true;
+						break;
 					end
+				end
+				if removedTarget == true then
 					for k,v in pairs(memberSetup.cache) do
 						-- Now we're trying to find that unit in the Cache table to remove
 						if SpecialTargets[p] == v.unit then
@@ -333,6 +330,11 @@ if not metaTable1 then
 						end
 					end
 				end
+			end
+
+			for i=1, #nNova do
+				-- We are updating all of the User Info (Health/Range/Name)
+				nNova[i]:UpdateUnit();
 			end
 
 			-- We are sorting by Health first

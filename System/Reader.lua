@@ -21,6 +21,17 @@ local function MerchantShow(self, event, ...)
 end
 Frame:SetScript("OnEvent", MerchantShow);
 
+-------------------
+--[[ MouseOut --]]
+local Frame = CreateFrame('Frame');
+Frame:RegisterEvent("CURSOR_UPDATE");
+local function MouseOut(self, event, ...)
+	if UnitExists("mouseover") ~= nil then
+		--ClearMouseOver();
+	end
+end
+Frame:SetScript("OnEvent", MouseOut);
+
 --------------------------
 --[[ isStanding Frame --]]
 DontMoveStartTime = nil;
