@@ -463,7 +463,7 @@ end
 
 -- if getBuffRemain("target",12345) < 3 then
 function getBuffRemain(Unit,BuffID,Source)
-	if UnitBuffID(Unit,BuffID) ~= nil then
+	if UnitBuffID(Unit,BuffID,Source) ~= nil then
 		return (select(7,UnitBuffID(Unit,BuffID,Source)) - GetTime());
 	end
 	return 0;
