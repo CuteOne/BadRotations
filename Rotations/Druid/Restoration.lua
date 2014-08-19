@@ -519,7 +519,7 @@ function DruidRestoration()
 				for i = 1, #nNova do
 					local allies30Yards = 0;
 					for j = 1, # nNova do
-						if nNova[j].hp > getValue("WildGrowth") and getDistance(nNova[i].unit,nNova[j].unit) <= 30 then
+						if nNova[j].hp < getValue("WildGrowth") and getDistance(nNova[i].unit,nNova[j].unit) <= 30 then
 							allies30Yards = allies30Yards + 1;
 							if allies30Yards > getValue("WildGrowth Count") then break; end
 						end
@@ -532,7 +532,7 @@ function DruidRestoration()
 				for i = 1, #nNova do
 					local allies30Yards = 0;
 					for j = 1, # nNova do
-						if nNova[j].hp > getValue("WildGrowth SotF") and getDistance(nNova[i].unit,nNova[j].unit) <= 30 then
+						if nNova[j].hp < getValue("WildGrowth SotF") and getDistance(nNova[i].unit,nNova[j].unit) <= 30 then
 							allies30Yards = allies30Yards + 1;
 							if allies30Yards > getValue("WildGrowth Count") then break; end
 						end
