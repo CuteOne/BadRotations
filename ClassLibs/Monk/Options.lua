@@ -67,298 +67,96 @@ end
 --[[           ]]	--[[]]	  --[[]]	--[[           ]]	--[[ ]]   --[[ ]]
 --[[           ]]	--[[]]	   --[[]]	--[[           ]]	 --[[]]   --[[]]
 
-
-
-
-
-
 function MonkBrewConfig()
     if currentConfig ~= "Brewmaster CodeMyLife" then
         ClearConfig();
         thisConfig = 0
         -- Title
-        CreateNewTitle(thisConfig,"Restoration |cffFF0000Masoud");
+        CreateNewTitle(thisConfig,"Brewmaster |cffFF0000CodeMyLife");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"---------- Buffs ---------");
 
-        -- Mark Of The Wild
-        CreateNewCheck(thisConfig,"Mark Of The Wild");
-        CreateNewText(thisConfig,"Mark Of The Wild");
+        -- Stance
+        CreateNewCheck(thisConfig,"Stance");
+        CreateNewDrop(thisConfig, "Stance", 1, "Choose Stance to use.", "|cffFFBB00Ox", "|cff0077FFTiger")
+        CreateNewText(thisConfig,"Stance");
 
-        -- Nature's Cure
-        CreateNewCheck(thisConfig,"Nature's Cure")
-        CreateNewDrop(thisConfig,"Nature's Cure", 1, "|cffFFBB00MMouse:|cffFFFFFFMouse / Match List. \n|cffFFBB00MRaid:|cffFFFFFFRaid / Match List. \n|cffFFBB00AMouse:|cffFFFFFFMouse / All. \n|cffFFBB00ARaid:|cffFFFFFFRaid / All.", 
-            "|cffFFDD11MMouse", 
-            "|cffFFDD11MRaid",
-            "|cff00FF00AMouse",
-            "|cff00FF00ARaid")
-        CreateNewText(thisConfig,"Nature's Cure"); 
+        -- Legacy of the Emperor
+        CreateNewCheck(thisConfig,"Legacy of the Emperor");
+        CreateNewText(thisConfig,"Legacy of the Emperor");
+
+        -- Detox
+        CreateNewCheck(thisConfig,"Detox");
+        CreateNewText(thisConfig,"Detox");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Cooldowns ------");
 
 
-        -- Incarnation
-        CreateNewCheck(thisConfig,"Incarnation");
-        CreateNewBox(thisConfig, "Incarnation", 0, 100  , 5, 45, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFIncarnation.");
-        CreateNewText(thisConfig,"Incarnation");   
-
-        -- Innervate
-        CreateNewCheck(thisConfig,"Innervate");
-        CreateNewBox(thisConfig, "Innervate", 0, 100  , 5, 80, "|cffFFBB00Under what |cff297BFF%Mana|cffFFBB00 to use |cffFFFFFFInnervate.");
-        CreateNewText(thisConfig,"Innervate");   
-
-        -- Wrapper -----------------------------------------
-        CreateNewWrap(thisConfig,"---- Level 60 Talent ---");
-
-        if isKnown(114107) then
-            -- Harmoney SotF
-            CreateNewCheck(thisConfig,"Harmoney SotF");
-            CreateNewBox(thisConfig, "Harmoney SotF", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRegrowth|cffFFBB00 to refresh Harmoney.");
-            CreateNewText(thisConfig,"Harmoney SotF");
-
-            -- WildGrowth SotF
-            CreateNewCheck(thisConfig,"WildGrowth SotF");
-            CreateNewBox(thisConfig, "WildGrowth SotF", 0, 100  , 5, 45, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFSwiftmend.");
-            CreateNewText(thisConfig,"WildGrowth SotF"); 
-
-            -- WildGrowth SotF Count
-            CreateNewCheck(thisConfig,"WildGrowth SotF Count");
-            CreateNewBox(thisConfig, "WildGrowth SotF Count", 1, 25  , 1, 3, "|cffFFBB00Number of members under Force of Nature treshold needed to use |cffFFFFFFSwiftmend.");
-            CreateNewText(thisConfig,"WildGrowth SotF Count"); 
-        elseif isKnown(106737) then
-            -- Force of Nature
-            CreateNewCheck(thisConfig,"Force of Nature");
-            CreateNewBox(thisConfig, "Force of Nature", 0, 100  , 5, 45, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFForce of Nature.");
-            CreateNewText(thisConfig,"Force of Nature"); 
-
-            -- Force of Nature Count
-            CreateNewCheck(thisConfig,"Force of Nature Count");
-            CreateNewBox(thisConfig, "Force of Nature Count", 1, 25  , 1, 3, "|cffFFBB00Number of members under Force of Nature treshold needed to use |cffFFFFFFForce of Nature.");
-            CreateNewText(thisConfig,"Force of Nature Count"); 
-        elseif isKnown(106731) then
-            -- Lifebloom Tol
-            CreateNewCheck(thisConfig,"Lifebloom Tol");
-            CreateNewText(thisConfig,"Lifebloom Tol");
-
-            -- Rejuvenation Tol
-            CreateNewCheck(thisConfig,"Rejuvenation Tol");
-            CreateNewBox(thisConfig, "Rejuvenation Tol", 0, 100  , 5, 90, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRejuvenation|cffFFBB00 while in Tree of Life. \n|cffFFDD11Used after Rejuvenation if Rejuvenation All Tol is not selected.");
-            CreateNewText(thisConfig,"Rejuvenation Tol");
-
-            -- Rejuvenation All Tol
-            CreateNewCheck(thisConfig,"Rejuvenation All Tol");
-            CreateNewText(thisConfig,"Rejuvenation All Tol");
-
-            -- Regrowth Tol
-            CreateNewCheck(thisConfig,"Regrowth Tol");
-            CreateNewBox(thisConfig, "Regrowth Tol", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRegrowth|cffFFBB00 while in Tree of Life.");
-            CreateNewText(thisConfig,"Regrowth Tol");
-
-            -- Regrowth Tank Tol
-            CreateNewCheck(thisConfig,"Regrowth Tank Tol");
-            CreateNewBox(thisConfig, "Regrowth Tank Tol", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRegrowth|cffFFBB00 on tanks while in Tree of Life .");
-            CreateNewText(thisConfig,"Regrowth Tank Tol");
-
-            -- Regrowth Omen Tol
-            CreateNewCheck(thisConfig,"Regrowth Omen Tol");
-            CreateNewBox(thisConfig, "Regrowth Omen Tol", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRegrowth|cffFFBB00 while in Tree of Life and Omen proc.");
-            CreateNewText(thisConfig,"Regrowth Omen Tol");
-
-            -- WildGrowth Tol
-            CreateNewCheck(thisConfig,"WildGrowth Tol");
-            CreateNewBox(thisConfig, "WildGrowth Tol", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFWildGrowth|cffFFBB00 while in Tree of Life.");
-            CreateNewText(thisConfig,"WildGrowth Tol");
-
-            -- Mushrooms Bloom Count
-            CreateNewBox(thisConfig, "WildGrowth Tol Count", 1, 25  , 1, 5, "|cffFFBB00Number of members under WildGrowth Tol treshold needed to use |cffFFFFFFWildGrowth|cffFFBB00 while in Tree of Life.");
-            CreateNewText(thisConfig,"WildGrowth Tol Count");
-        end
-
-
-        -- Wrapper -----------------------------------------
-        CreateNewWrap(thisConfig,"--------- Healing -------");
-
-        -- Lifebloom
-        CreateNewCheck(thisConfig,"Lifebloom");
-        CreateNewBox(thisConfig, "Lifebloom", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to |cffFFFFFFlet Lifebloom Bloom |cffFFBB00on Focus.");
-        CreateNewText(thisConfig,"Lifebloom");
-
-        -- Regrowth
-        CreateNewCheck(thisConfig,"Regrowth");
-        CreateNewBox(thisConfig, "Regrowth", 0, 100  , 5, 65, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRegrowth.");
-        CreateNewText(thisConfig,"Regrowth");
-
-        -- Regrowth Tank
-        CreateNewCheck(thisConfig,"Regrowth Tank");
-        CreateNewBox(thisConfig, "Regrowth Tank", 0, 100  , 5, 55, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRegrowth|cffFFBB00 on Tanks.");
-        CreateNewText(thisConfig,"Regrowth Tank");
-
-        -- Regrowth Omen
-        CreateNewCheck(thisConfig,"Regrowth Omen");
-        CreateNewBox(thisConfig, "Regrowth Omen", 0, 100  , 5, 80, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRegrowth|cffFFBB00 with Omen of Clarity.");
-        CreateNewText(thisConfig,"Regrowth Omen");
-
-        -- Rejuvenation
-        CreateNewCheck(thisConfig,"Rejuvenation");
-        CreateNewBox(thisConfig, "Rejuvenation", 0, 100  , 5, 80, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRejuvenation.");
-        CreateNewText(thisConfig,"Rejuvenation");
-
-        -- Rejuvenation Tank
-        CreateNewCheck(thisConfig,"Rejuvenation Tank");
-        CreateNewBox(thisConfig, "Rejuvenation Tank", 0, 100  , 5, 65, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRejuvenation |cffFFBB00on Tanks.");
-        CreateNewText(thisConfig,"Rejuvenation Tank");
-
-        -- Rejuvenation Meta
-        CreateNewCheck(thisConfig,"Rejuvenation Meta", "Check to force rejuv |cffFFBB00on all targets(meta proc).");
-        CreateNewText(thisConfig,"Rejuvenation Meta");
-
-        -- Rejuvenation All
-        CreateNewCheck(thisConfig,"Rejuvenation All", "Check to force rejuv |cffFFBB00on all targets(low prio).");
-        CreateNewText(thisConfig,"Rejuvenation All");
-
-        -- Rejuvenation Filler
-        CreateNewCheck(thisConfig,"Rejuv Filler Count");
-        CreateNewBox(thisConfig, "Rejuv Filler Count", 1, 25  , 1, 5, "|cffFFBB00Number of members to keep |cffFFFFFFRejuvenation |cffFFBB00as Filler.");
-        CreateNewText(thisConfig,"Rejuv Filler Count");
-
-        -- Rejuvenation Debuff
-        CreateNewCheck(thisConfig,"Rejuvenation Debuff");
-        CreateNewBox(thisConfig, "Rejuvenation Debuff", 0, 100  , 5, 65, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRejuvenation |cffFFBB00on Debuffed units.");
-        CreateNewText(thisConfig,"Rejuvenation Debuff");
-
-        -- Healing Touch Ns
-        CreateNewCheck(thisConfig,"Healing Touch Ns");
-        CreateNewBox(thisConfig, "Healing Touch Ns", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealing Touch|cffFFBB00 with |cffFFFFFFNature Swiftness.");
-        CreateNewText(thisConfig,"Healing Touch Ns");
-  
-        -- Healing Touch Sm
-        CreateNewCheck(thisConfig,"Healing Touch Sm");
-        CreateNewBox(thisConfig, "Healing Touch Sm", 0, 100  , 5, 70, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealing Touch|cffFFBB00 for |cffFFFFFF Sage Mender.");
-        CreateNewText(thisConfig,"Healing Touch Sm");      
-        
-        if isKnown(114107) ~= true then
-            -- Swiftmend
-            CreateNewCheck(thisConfig,"Swiftmend");
-            CreateNewBox(thisConfig, "Swiftmend", 0, 100  , 5, 35, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFSwiftmend.");
-            CreateNewText(thisConfig,"Swiftmend");
-
-            -- Harmoney
-            CreateNewCheck(thisConfig,"Swiftmend Harmoney");
-            CreateNewBox(thisConfig, "Swiftmend Harmoney", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFSwiftmend|cffFFBB00 to refresh Harmoney.");
-            CreateNewText(thisConfig,"Swiftmend Harmoney");        
-        end
-        -- Wrapper -----------------------------------------
-        CreateNewWrap(thisConfig,"----- AoE Healing -----");
-
-        -- WildGrowth
-        CreateNewCheck(thisConfig,"WildGrowth");
-        CreateNewBox(thisConfig, "WildGrowth", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFWildGrowth.");
-        CreateNewText(thisConfig,"WildGrowth");
-
-        -- WildGrowth Count
-        CreateNewBox(thisConfig, "WildGrowth Count", 1, 25  , 1, 5, "|cffFFBB00Number of members under WildGrowth treshold needed to use |cffFFFFFFWildGrowth.");
-        CreateNewText(thisConfig,"WildGrowth Count");
-
-        -- WildGrowth All
-        CreateNewCheck(thisConfig,"WildGrowth All");
-        CreateNewBox(thisConfig, "WildGrowth All", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFWildGrowth.");
-        CreateNewText(thisConfig,"WildGrowth All");
-        
-        -- WildGrowth All Count
-        CreateNewBox(thisConfig, "WildGrowth All Count", 1, 25  , 1, 5, "|cffFFBB00Number of members under WildGrowth treshold needed to use |cffFFFFFFWildGrowth.");
-        CreateNewText(thisConfig,"WildGrowth All Count");
-
-        -- Genesis
-        CreateNewCheck(thisConfig,"Genesis");
-        CreateNewBox(thisConfig, "Genesis", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFGenesis.");
-        CreateNewText(thisConfig,"Genesis");
-
-        -- Genesis Count
-        CreateNewBox(thisConfig, "Genesis Count", 1, 25  , 1, 5, "|cffFFBB00Number of members under Genesis treshold needed to use |cffFFFFFFGenesis.");
-        CreateNewText(thisConfig,"Genesis Count");
-
-        -- Genesis Filler
-        CreateNewCheck(thisConfig,"Genesis Filler");
-        CreateNewBox(thisConfig, "Genesis Filler", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFGenesis |cffFFBB00as Filler(low prio).");
-        CreateNewText(thisConfig,"Genesis Filler");
-
-        -- Mushrooms
-        CreateNewCheck(thisConfig,"Mushrooms");
-        CreateNewBox(thisConfig, "Mushrooms", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFWild Mushrooms.");
-        CreateNewText(thisConfig,"Mushrooms");
-
-        -- Mushrooms Count
-        CreateNewBox(thisConfig, "Mushrooms Count", 1, 25  , 1, 5, "|cffFFBB00Number of members under Wild Mushrooms treshold needed to use |cffFFFFFFWild Mushrooms.");
-        CreateNewText(thisConfig,"Mushrooms Count");
-
-        -- Mushrooms Bloom
-        CreateNewCheck(thisConfig,"Mushrooms Bloom");
-        CreateNewBox(thisConfig, "Mushrooms Bloom", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFWild Mushrooms Bloom.");
-        CreateNewText(thisConfig,"Mushrooms Bloom");
-
-        -- Mushrooms Bloom Count
-        CreateNewBox(thisConfig, "Mushrooms Bloom Count", 1, 25  , 1, 5, "|cffFFBB00Number of members under Wild Mushrooms Bloom treshold needed to use |cffFFFFFFWild Mushrooms Bloom.");
-        CreateNewText(thisConfig,"Mushrooms Bloom Count");
-
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------- Defensive ------");
 
+        -- Dazzling Brew
+        CreateNewCheck(thisConfig,"Dazzling Brew");
+        CreateNewText(thisConfig,"Dazzling Brew");      
+
+        -- Expel Harm
+        CreateNewCheck(thisConfig,"Expel Harm");
+        CreateNewBox(thisConfig, "Expel Harm", 0, 100  , 5, 80, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFExpel Harm");
+        CreateNewText(thisConfig,"Expel Harm");
+
+        -- Elusive Brew
+        CreateNewCheck(thisConfig,"Elusive Brew");
+        CreateNewBox(thisConfig, "Elusive Brew", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFElusive Brew");
+        CreateNewText(thisConfig,"Elusive Brew");     
+
+        -- Fortifying Brew
+        CreateNewCheck(thisConfig,"Fortifying Brew");
+        CreateNewBox(thisConfig, "Fortifying Brew", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
+        CreateNewText(thisConfig,"Fortifying Brew");
+
+        -- Guard
+        CreateNewCheck(thisConfig,"Guard");
+        CreateNewBox(thisConfig, "Guard", 0, 100  , 5, 70, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFGuard");
+        CreateNewText(thisConfig,"Guard");   
+
         -- Healthstone
         CreateNewCheck(thisConfig,"Healthstone");
-        CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
+        CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
         CreateNewText(thisConfig,"Healthstone");
-
-        -- Barkskin
-        CreateNewCheck(thisConfig,"Barkskin");
-        CreateNewBox(thisConfig, "Barkskin", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFBarkskin");
-        CreateNewText(thisConfig,"Barkskin");
-
-        -- Might of Ursoc
-        CreateNewCheck(thisConfig,"Might of Ursoc");
-        CreateNewBox(thisConfig, "Might of Ursoc", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFMight of Ursoc");
-        CreateNewText(thisConfig,"Might of Ursoc");        
-
-        -- Wrapper -----------------------------------------
-        CreateNewWrap(thisConfig,"-------- Toggles --------");
-
-        -- Genesis Toggle
-        CreateNewCheck(thisConfig,"Genesis Toggle");
-        CreateNewDrop(thisConfig,"Genesis Toggle", 4, "Toggle")
-        CreateNewText(thisConfig,"Genesis Toggle");      
-
-        -- Pause Toggle
-        CreateNewCheck(thisConfig,"Pause Toggle");
-        CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle")
-        CreateNewText(thisConfig,"Pause Toggle");  
-
-        -- Focus Toggle
-        CreateNewCheck(thisConfig,"Focus Toggle");
-        CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle")
-        CreateNewText(thisConfig,"Focus Toggle"); 
-
-        -- DPS Toggle
-        CreateNewCheck(thisConfig,"DPS Toggle");
-        CreateNewDrop(thisConfig,"DPS Toggle", 1, "Toggle")
-        CreateNewText(thisConfig,"DPS Toggle"); 
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Utilities ------");
 
-        -- Accept Queues
-        CreateNewCheck(thisConfig,"Accept Queues");
-        CreateNewText(thisConfig,"Accept Queues");
-
-        -- Follow Tank
-        CreateNewCheck(thisConfig,"Follow Tank");
-        CreateNewBox(thisConfig, "Follow Tank", 10, 40  , 1, 25, "|cffFFBB00Range from focus...");
-        CreateNewText(thisConfig,"Follow Tank");
+     
+        -- Angry Monk
+        CreateNewCheck(thisConfig,"Angry Monk","|cffFF0000Disable Combat Check.");
+        CreateNewText(thisConfig,"Angry Monk");  
 
 
-        -- Zoo Master
-        CreateNewCheck(thisConfig,"Zoo Master");
-        CreateNewText(thisConfig,"Zoo Master");
+        -- Clash
+        CreateNewCheck(thisConfig,"Clash");
+        CreateNewText(thisConfig,"Clash");  
+
+
+        -- Resuscitate
+        CreateNewCheck(thisConfig,"Resuscitate");
+        CreateNewText(thisConfig,"Resuscitate");    
+
+        -- Roll
+        CreateNewCheck(thisConfig,"Roll");
+        CreateNewText(thisConfig,"Roll");         
+
+        -- Quaking Palm
+        CreateNewCheck(thisConfig,"Quaking Palm");
+        CreateNewBox(thisConfig, "Quaking Palm", 0, 100  , 5, 30 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFQuaking Palm.");
+        CreateNewText(thisConfig,"Quaking Palm");  
+
+        -- Spear Hand Strike
+        CreateNewCheck(thisConfig,"Spear Hand Strike");
+        CreateNewBox(thisConfig, "Spear Hand Strike", 0, 100  , 5, 60 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFSpear and Strike.");
+        CreateNewText(thisConfig,"Spear Hand Strike");
 
 
         -- General Configs
@@ -369,10 +167,6 @@ function MonkBrewConfig()
     end
 end
 
-
-
-
-
 --[[]]     --[[]]	--[[           ]]	--[[           ]]	--[[           ]]
 --[[ ]]   --[[ ]] 		 --[[ ]]		--[[           ]]	--[[           ]]
 --[[           ]] 		 --[[ ]]		--[[]]	   				 --[[ ]]
@@ -381,17 +175,144 @@ end
 --[[]]	   --[[]]		 --[[ ]]		--[[           ]]		 --[[ ]]
 --[[]]	   --[[]]	--[[           ]]	--[[           ]]		 --[[ ]]
 
+function MonkMistConfig()
+    if currentConfig ~= "Mistweaver CodeMyLife" then
+        ClearConfig();
+        thisConfig = 0
+        -- Title
+        CreateNewTitle(thisConfig,"Mistweaver |cffFF0000CodeMyLife");
+
+        -- Wrapper -----------------------------------------
+        CreateNewWrap(thisConfig,"---------- Buffs ---------");
+
+        -- Stance
+        CreateNewCheck(thisConfig,"Stance");
+        CreateNewDrop(thisConfig, "Stance", 1, "Choose Stance to use.", "|cff00FF55Serpent", "|cff0077FFTiger")
+        CreateNewText(thisConfig,"Stance");
+
+        -- Legacy of the Emperor
+        CreateNewCheck(thisConfig,"Legacy of the Emperor");
+        CreateNewText(thisConfig,"Legacy of the Emperor");
+
+        -- Nature's Cure
+        CreateNewCheck(thisConfig,"Detox")
+        CreateNewDrop(thisConfig,"Detox", 1, "|cffFFBB00MMouse:|cffFFFFFFMouse / Match List. \n|cffFFBB00MRaid:|cffFFFFFFRaid / Match List. \n|cffFFBB00AMouse:|cffFFFFFFMouse / All. \n|cffFFBB00ARaid:|cffFFFFFFRaid / All.", 
+            "|cffFFDD11MMouse", 
+            "|cffFFDD11MRaid",
+            "|cff00FF00AMouse",
+            "|cff00FF00ARaid")
+        CreateNewText(thisConfig,"Detox"); 
+        -- Wrapper -----------------------------------------
+        CreateNewWrap(thisConfig,"------ Cooldowns ------");
 
 
+        -- Wrapper -----------------------------------------
+        CreateNewWrap(thisConfig,"--------- Healing -------");
+
+        -- Chi Wave
+        CreateNewCheck(thisConfig,"Chi Wave");
+        CreateNewBox(thisConfig, "Chi Wave", 0, 100  , 5, 55, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFChi Wave.");
+        CreateNewText(thisConfig,"Chi Wave");
+
+        -- Enveloping Mist
+        CreateNewCheck(thisConfig,"Enveloping Mist");
+        CreateNewBox(thisConfig, "Enveloping Mist", 0, 100  , 5, 45, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFEnveloping Mist.");
+        CreateNewText(thisConfig,"Enveloping Mist");
+
+        -- Renewing Mist
+        CreateNewCheck(thisConfig,"Renewing Mist");
+        CreateNewBox(thisConfig, "Renewing Mist", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRenewing Mist.");
+        CreateNewText(thisConfig,"Renewing Mist");
+ 
+        -- Soothing Mist
+        CreateNewCheck(thisConfig,"Soothing Mist");
+        CreateNewBox(thisConfig, "Soothing Mist", 0, 100  , 5, 75, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFSoothing Mist.");
+        CreateNewText(thisConfig,"Soothing Mist");
+        
+        -- Surging Mist
+        CreateNewCheck(thisConfig,"Surging Mist");
+        CreateNewBox(thisConfig, "Surging Mist", 0, 100  , 5, 65, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFSurging Mist.");
+        CreateNewText(thisConfig,"Surging Mist");
+
+        -- Wrapper -----------------------------------------
+        CreateNewWrap(thisConfig,"----- AoE Healing -----");
 
 
+        -- Wrapper -----------------------------------------
+        CreateNewWrap(thisConfig,"------- Defensive ------");
 
+        -- Expel Harm
+        CreateNewCheck(thisConfig,"Expel Harm");
+        CreateNewBox(thisConfig, "Expel Harm", 0, 100  , 5, 80, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFExpel Harm");
+        CreateNewText(thisConfig,"Expel Harm");
 
+        -- Fortifying Brew
+        CreateNewCheck(thisConfig,"Fortifying Brew");
+        CreateNewBox(thisConfig, "Fortifying Brew", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
+        CreateNewText(thisConfig,"Fortifying Brew");
+               
+        -- Healthstone
+        CreateNewCheck(thisConfig,"Healthstone");
+        CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
+        CreateNewText(thisConfig,"Healthstone");
 
+        -- Wrapper -----------------------------------------
+        CreateNewWrap(thisConfig,"-------- Toggles --------");
 
+        -- Uplift Toggle
+        CreateNewCheck(thisConfig,"Uplift Toggle");
+        CreateNewDrop(thisConfig,"Uplift Toggle", 4, "Toggle2")
+        CreateNewText(thisConfig,"Uplift Toggle");      
 
+        -- Pause Toggle
+        CreateNewCheck(thisConfig,"Pause Toggle");
+        CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
+        CreateNewText(thisConfig,"Pause Toggle");  
 
+        -- Focus Toggle
+        CreateNewCheck(thisConfig,"Focus Toggle");
+        CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle2")
+        CreateNewText(thisConfig,"Focus Toggle"); 
 
+        -- DPS Toggle
+        CreateNewCheck(thisConfig,"DPS Toggle");
+        CreateNewDrop(thisConfig,"DPS Toggle", 1, "Toggle2")
+        CreateNewText(thisConfig,"DPS Toggle"); 
+
+        -- Wrapper -----------------------------------------
+        CreateNewWrap(thisConfig,"------ Utilities ------");
+
+        -- Follow Tank
+        CreateNewCheck(thisConfig,"Follow Tank");
+        CreateNewBox(thisConfig, "Follow Tank", 10, 40  , 1, 25, "|cffFFBB00Range from focus...");
+        CreateNewText(thisConfig,"Follow Tank");
+
+        -- Spear Hand Strike
+        CreateNewCheck(thisConfig,"Spear Hand Strike");
+        CreateNewBox(thisConfig, "Spear Hand Strike", 0, 100  , 5, 60 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFSpear and Strike.");
+        CreateNewText(thisConfig,"Spear Hand Strike");
+
+        -- Quaking Palm
+        CreateNewCheck(thisConfig,"Quaking Palm");
+        CreateNewBox(thisConfig, "Quaking Palm", 0, 100  , 5, 30 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFQuaking Palm.");
+        CreateNewText(thisConfig,"Quaking Palm");       
+
+        -- Resuscitate
+        CreateNewCheck(thisConfig,"Resuscitate");
+        CreateNewText(thisConfig,"Resuscitate");    
+
+        -- Roll
+        CreateNewCheck(thisConfig,"Roll");
+        CreateNewText(thisConfig,"Roll");  
+       
+
+        -- General Configs
+        CreateGeneralsConfig();
+
+        
+        WrapsManager();
+    end
+end
 
 --[[]] 	   --[[]]	--[[           ]]	--[[]]	   --[[]]	--[[         ]]
 --[[]] 	   --[[]]		  --[[]]		--[[  ]]   --[[]]	--[[          ]]

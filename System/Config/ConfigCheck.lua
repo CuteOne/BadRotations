@@ -4,8 +4,8 @@ function CreateNewCheck(value, textString, tip1)
 
 	_G["option"..value.."Check"] = CreateFrame("CheckButton", "MyButton", configFrame, "UIPanelButtonTemplate");
 	_G["option"..value.."Check"]:SetAlpha(0.80);
-	_G["option"..value.."Check"]:SetWidth(19);
-	_G["option"..value.."Check"]:SetHeight(19);
+	_G["option"..value.."Check"]:SetWidth(21);
+	_G["option"..value.."Check"]:SetHeight(21);
 	_G["option"..value.."Check"]:SetPoint("TOPLEFT", 5 , -((value*22)));
 	_G["option"..value.."Check"]:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]);
 	_G["option"..value.."Check"]:RegisterForClicks("AnyUp");
@@ -18,7 +18,7 @@ function CreateNewCheck(value, textString, tip1)
             ChatOverlay("|cFFED0000"..textString.." Disabled");
         else
             BadBoy_data["Check "..textString] = 1;
-            _G["option"..value.."Check"]:SetText("X");
+            _G["option"..value.."Check"]:SetText(" X");
             ChatOverlay("|cff15FF00"..textString.." Enabled");
         end
 	end )
@@ -36,6 +36,6 @@ function CreateNewCheck(value, textString, tip1)
 	if BadBoy_data["Check "..textString] ~= 1 then 
 		_G["option"..value.."Check"]:SetText(" "); 
 	else 
-		_G["option"..value.."Check"]:SetText("X"); 
+		_G["option"..value.."Check"]:SetText(" X"); 
 	end
 end

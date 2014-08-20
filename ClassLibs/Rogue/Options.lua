@@ -235,6 +235,12 @@ function SubOptions()
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------- Defensive ------");
 
+
+        -- Evasion
+        CreateNewCheck(thisConfig,"Evasion");
+        CreateNewBox(thisConfig, "Evasion", 0, 100  , 5, 30 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFEvasion.");
+        CreateNewText(thisConfig,"Evasion");
+
      	-- Feint
 	    CreateNewCheck(thisConfig,"Feint");
 	    CreateNewBox(thisConfig, "Feint", 0, 100  , 5, 50 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFFeint.");

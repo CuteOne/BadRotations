@@ -514,17 +514,17 @@ function getCombo()
 end
 
 -- if getDebuffRemain("target",12345) < 3 then
-function getDebuffRemain(Unit,DebuffID)
-	if UnitDebuffID(Unit,DebuffID,"player") ~= nil then
-		return (select(7,UnitDebuffID(Unit,DebuffID,"player")) - GetTime());
+function getDebuffRemain(Unit,DebuffID,Source)
+	if UnitDebuffID(Unit,DebuffID,Source) ~= nil then
+		return (select(7,UnitDebuffID(Unit,DebuffID,Source)) - GetTime());
 	end
 	return 0;
 end
 
 -- if getDebuffStacks("target",138756) > 0 then
-function getDebuffStacks(Unit,DebuffID)
-	if UnitDebuffID(Unit, DebuffID, "player") then
-		return (select(7, UnitDebuffID(Unit, DebuffID, "player")) - GetTime());
+function getDebuffStacks(Unit,DebuffID,Source)
+	if UnitDebuffID(Unit, DebuffID, Source) then
+		return (select(7, UnitDebuffID(Unit, DebuffID, Source)) - GetTime());
 	else
 		return 0;
 	end
@@ -573,21 +573,23 @@ function getFacing(Unit1,Unit2,Degrees)
 	if IExists(UnitGUID(Unit1)) and IExists(UnitGUID(Unit2)) then
 		local Angle1,Angle2,Angle3;
 		local Y1,X1,Z1,Angle1 = IGetLocation(UnitGUID(Unit1));
-        local Y2,X2 = IGetLocation(UnitGUID(Unit2));
-        local deltaY = Y2 - Y1
-        local deltaX = X2 - X1
-        Angle1 = math.deg(math.abs(Angle1-math.pi*2))
-        if deltaX > 0 then
-            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
-        elseif deltaX <0 then
-            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
-        end
-        if Angle2-Angle1 > 180 then
-        	Angle3 = math.abs(Angle2-Angle1-360)
-        else
-        	Angle3 = math.abs(Angle2-Angle1)
-        end
-        if Angle3 < Degrees then return true; else return false; end
+        local Y2,X2,Z2,Angle2 = IGetLocation(UnitGUID(Unit2));
+	        if Y1 and X1 and Z1 and Angle1 and Y2 and X2 and Z2 and Angle2 then
+	        local deltaY = Y2 - Y1
+	        local deltaX = X2 - X1
+	        Angle1 = math.deg(math.abs(Angle1-math.pi*2))
+	        if deltaX > 0 then
+	            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
+	        elseif deltaX <0 then
+	            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
+	        end
+	        if Angle2-Angle1 > 180 then
+	        	Angle3 = math.abs(Angle2-Angle1-360)
+	        else
+	        	Angle3 = math.abs(Angle2-Angle1)
+	        end
+	        if Angle3 < Degrees then return true; else return false; end
+	    end
 	end
 end
 
@@ -598,23 +600,25 @@ function getFacingSight(Unit1,Unit2,Degrees)
 	if IExists(UnitGUID(Unit1)) and IExists(UnitGUID(Unit2)) then
 		local Angle1,Angle2,Angle3;
 		local Y1,X1,Z1,Angle1 = IGetLocation(UnitGUID(Unit1));
-        local Y2,X2,Z2 = IGetLocation(UnitGUID(Unit2));
-        local deltaY = Y2 - Y1
-        local deltaX = X2 - X1
-        Angle1 = math.deg(math.abs(Angle1-math.pi*2))
-        if deltaX > 0 then
-            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
-        elseif deltaX <0 then
-            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
-        end
-        if Angle2-Angle1 > 180 then
-        	Angle3 = math.abs(Angle2-Angle1-360)
-        else
-        	Angle3 = math.abs(Angle2-Angle1)
-        end
-        if Angle3 < Degrees then
-        	if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
-				return true;
+        local Y2,X2,Z2,Angle2 = IGetLocation(UnitGUID(Unit2));
+        if Y1 and X1 and Z1 and Angle1 and Y2 and X2 and Z2 and Angle2 then
+	        local deltaY = Y2 - Y1
+	        local deltaX = X2 - X1
+	        Angle1 = math.deg(math.abs(Angle1-math.pi*2))
+	        if deltaX > 0 then
+	            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
+	        elseif deltaX <0 then
+	            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
+	        end
+	        if Angle2-Angle1 > 180 then
+	        	Angle3 = math.abs(Angle2-Angle1-360)
+	        else
+	        	Angle3 = math.abs(Angle2-Angle1)
+	        end
+	        if Angle3 < Degrees then
+	        	if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
+					return true;
+				end
 			end
 		end
 	end
@@ -628,24 +632,26 @@ function getFacingSightDistance(Unit1,Unit2,Degrees)
 	if IExists(UnitGUID(Unit1)) and IExists(UnitGUID(Unit2)) then
 		local Angle1,Angle2,Angle3;
 		local Y1,X1,Z1,Angle1 = IGetLocation(UnitGUID(Unit1));
-        local Y2,X2,Z2 = IGetLocation(UnitGUID(Unit2));
-        local deltaY = Y2 - Y1
-        local deltaX = X2 - X1
-        local unit2Size = IGetFloatDescriptor(UnitGUID(Unit2),0x110); 
-        Angle1 = math.deg(math.abs(Angle1-math.pi*2))
-        if deltaX > 0 then
-            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
-        elseif deltaX <0 then
-            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
-        end
-        if Angle2-Angle1 > 180 then
-        	Angle3 = math.abs(Angle2-Angle1-360)
-        else
-        	Angle3 = math.abs(Angle2-Angle1)
-        end
-        if Angle3 < Degrees then
-        	if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
-				return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unit2Size
+        local Y2,X2,Z2,Angle2 = IGetLocation(UnitGUID(Unit2));
+        if Y1 and X1 and Z1 and Angle1 and Y2 and X2 and Z2 and Angle2 then
+	        local deltaY = Y2 - Y1
+	        local deltaX = X2 - X1
+	        local unit2Size = IGetFloatDescriptor(UnitGUID(Unit2),0x110); 
+	        Angle1 = math.deg(math.abs(Angle1-math.pi*2))
+	        if deltaX > 0 then
+	            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
+	        elseif deltaX < 0 then
+	            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
+	        end
+	        if Angle2-Angle1 > 180 then
+	        	Angle3 = math.abs(Angle2-Angle1-360)
+	        else
+	        	Angle3 = math.abs(Angle2-Angle1)
+	        end
+	        if Angle3 < Degrees then
+	        	if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
+					return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unit2Size
+				end
 			end
 		end
 	end

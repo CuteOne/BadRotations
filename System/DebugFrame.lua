@@ -1,7 +1,6 @@
 -- /run DebugFrameCreation()
 function DebugFrameCreation()
-	if debugLoaded ~= true then
-		
+	if debugLoaded ~= true then		
 		-- Vars
 		if BadBoy_data.debugWidth == nil then 
 			BadBoy_data.debugWidth = 200;
@@ -15,7 +14,6 @@ function DebugFrameCreation()
 		if BadBoy_data.debugAlpha == nil then BadBoy_data.debugAlpha = 0.90; end
 		BadBoy_data.ActualRow = 0;
 		if BadBoy_data.shownRows == nil then BadBoy_data.shownRows = 10; end
-		-- /run CreateDebugRow(0, "Spell Name")
 		-- CreateRow
 		if debugHeight == nil then debugHeight = 26; end
 		function CreateDebugRow(value,textString)
@@ -23,7 +21,6 @@ function DebugFrameCreation()
 				_G["debug"..value.."Frame"] = CreateFrame("Frame", "MyButton", debugFrame);
 				_G["debug"..value.."Frame"]:SetWidth(BadBoy_data.debugWidth);
 				_G["debug"..value.."Frame"]:SetHeight(20);
-				--_G["debug"..value.."Frame"]:SetNormalTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]]); 
 				_G["debug"..value.."Frame"]:SetPoint("TOPLEFT",0,-((value*20)));
 				_G["debug"..value.."Frame"]:SetAlpha(BadBoy_data.debugAlpha);
 				_G["debug"..value.."Frame"]:SetScript("OnEnter", function(self)
@@ -40,7 +37,6 @@ function DebugFrameCreation()
 					end
 					tooltipLock = false;
 				end)
-
 				_G["debug"..value.."Frame"]:SetScript("OnMouseWheel", function(self, delta)
 					local Go = false;
 					if delta < 0 and BadBoy_data.ActualRow < 100 and debugTable ~= nil and debugTable[BadBoy_data.ActualRow+BadBoy_data.shownRows] ~= nil then
@@ -53,8 +49,6 @@ function DebugFrameCreation()
 						debugRefresh()
 					end
 				end)
-
-				--_G["debug"..value.."Frame"]:Hide();
 				_G["debug"..value.."Text"] = _G["debug"..value.."Frame"]:CreateFontString(_G["debug"..value.."Frame"], "OVERLAY");
 				_G["debug"..value.."Text"]:SetWidth(BadBoy_data.debugWidth);
 				_G["debug"..value.."Text"]:SetHeight(20);
@@ -75,7 +69,7 @@ function DebugFrameCreation()
 		debugFrame.texture:SetHeight(30);
 		debugFrame.texture:SetAlpha(BadBoy_data.debugAlpha/100);
 		debugFrame.texture:SetTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]]);
-		CreateBorder(debugFrame, 8, 0.6, 0.6, 0.6);
+		CreateBorder(debugFrame, 8, 0.6, 0.6, 0.6, 3, 3, 3, 3, 3, 3, 3, 3 );
 
 		function SetDebugWidth(Width)
 			BadBoy_data.debugWidth = Width
@@ -169,10 +163,6 @@ function DebugFrameCreation()
 		debugFrameRowsButton:SetScript("OnLeave", function(self)
 			GameTooltip:Hide();
 		end)
-
-
-
-
 		debugFrameTopButton = CreateFrame("CheckButton", "MyButton", debugFrame, "UIPanelButtonTemplate");
 		debugFrameTopButton:SetAlpha(0.80);
 		debugFrameTopButton:SetWidth(30);
@@ -193,7 +183,6 @@ function DebugFrameCreation()
 			BadBoy_data.ActualRow = 0;
 			debugRefresh();
 		end)
-
 		debugFrameText = debugFrame:CreateFontString(debugFrame, "ARTWORK");
 		debugFrameText:SetFont("Fonts/MORPHEUS.ttf",17,"THICKOUTLINE");
 		debugFrameText:SetTextHeight(16);
@@ -201,17 +190,11 @@ function DebugFrameCreation()
 		debugFrameText:SetJustifyH("LEFT")
 		debugFrameText:SetTextColor(225/255, 225/255, 225/255,1);
 		debugFrameText:SetText("|cffFF001EBadBoy |cffFFFFFFDebug")
-
 		if BadBoy_data.debugShown == false then debugFrame:Hide(); else debugFrame:Show(); end
-
 		SetDebugWidth(BadBoy_data.debugWidth);
-
-		--CreateDebugRow(0,"|cff12C8FFTime|cffFF001E/|cffFFFFFFSpell Name")
-
 		for i = 1, 25 do
 			CreateDebugRow(i,"")
 		end
-
 		function debugRefresh()
 			if debugTable == nil then 			
 				for i = 1, BadBoy_data.shownRows do
@@ -252,7 +235,6 @@ function DebugFrameCreation()
 					end
 				end
 			end
-			
 			debugFrame:SetHeight((BadBoy_data.shownRows*20)+20);
 		end
 		debugFrame.texture:SetAlpha(BadBoy_data.debugAlpha/100);

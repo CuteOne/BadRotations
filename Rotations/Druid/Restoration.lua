@@ -168,12 +168,12 @@ function DruidRestoration()
 					if hasGlyph(145529) ~= true then
 						local allies10Yards;
 						if getBuffRemain(nNova[1].unit,774,"player") > 1 or getBuffRemain(nNova[1].unit,8936,"player") > 1 then
-							allies10Yards = getAllies(nNova[1].unit,10)
+							allies10Yards = getAllies(nNova[1].unit,10);
 							if #allies10Yards >= 3 then
 								local count = 0;
 								for i = 1, #allies10Yards do
 									if getHP(allies10Yards[i]) < 100 then
-										count = count + 1
+										count = count + 1;
 									end
 								end
 								if count > 3 then
@@ -232,7 +232,7 @@ function DruidRestoration()
 		-- Healthstone
 		if isChecked("Healthstone") and getHP("player") <= getValue("Healthstone") then
 			if canUse(5512) ~= false then
-				UseItemByName(tostring(select(1,GetItemInfo(5512))))
+				UseItemByName(tostring(select(1,GetItemInfo(5512))));
 			end
 		end
 
@@ -311,16 +311,16 @@ function DruidRestoration()
 		if isKnown(102693) then --FOn Spell ID
 		    if isChecked("Force of Nature") then 
 		        for i = 1, #nNova do
-		            local allies10Yards = getAllies(nNova[i].unit,10)
+		            local allies10Yards = getAllies(nNova[i].unit,10);
 					if #allies10Yards >=  getValue("Force of Nature Count") then
 						local count = 0;
 						for j = 1, #allies10Yards do
 							if getHP(allies10Yards[j]) < getValue("Force of Nature") then
-								count = count + 1
+								count = count + 1;
 							end
 						end
 						if count >= getValue("Force of Nature Count") and (lastFon  == nil or lastFon  <= GetTime() - 2) then -- Set Delay for Cast
-							if castSpell(nNova[i].unit,102693,true,false) then lastFon = GetTime() return; end
+							if castSpell(nNova[i].unit,102693,true,false) then lastFon = GetTime(); return; end
 						end
 					end
 				end
@@ -360,12 +360,12 @@ function DruidRestoration()
 		--[[ 13 - WildGrowth Tol --(Tree of Life)]]
 		if isKnown(106731) and UnitBuffID("player", 33891) and isChecked("WildGrowth Tol") then
 	        for i = 1, #nNova do
-		        local allies30Yards = getAllies(nNova[i].unit,30)
+		        local allies30Yards = getAllies(nNova[i].unit,30);
 		        if #allies30Yards >= getValue("WildGrowth Tol Count") then
 			        local count = 0;
 			        for j = 1, #allies30Yards do
 				        if getHP(allies30Yards[j]) < getValue("WildGrowth Tol") then
-				            count = count + 1
+				            count = count + 1;
 				        end
 			        end
 	                if count > getValue("WildGrowth Tol Count") then
@@ -376,7 +376,7 @@ function DruidRestoration()
 		end
 
 		--[[ 14 - Regrowth  Tol]]
-		if isKnown(106731) and UnitBuffID("player", 33891) and isChecked("Regrowth Tol") then
+		if isKnown(106731) and UnitBuffID("player", 33891) then
 			for i = 1, #nNova do
 			    if (isChecked("Regrowth Tank Tol") and nNova[i].role == "TANK" and nNova[i].hp <= getValue("Regrowth Tank Tol")) 
 				  or (isChecked("Regrowth Tol") and nNova[i].role ~= "TANK" and nNova[i].hp <= getValue("Regrowth Tol")) 
@@ -463,7 +463,7 @@ function DruidRestoration()
 		--[[ 21 - Regrowth Tank --(cast regrowth on tank usualy between 45 - 60 )]]
 		if isChecked("Regrowth Tank") == true and isStanding(0.3) then
 			for i = 1, #nNova do
-				if (nNova[i].role == "TANK" and nNova[i].hp <= getValue("Regrowth Tank")) or (nNova[i].role ~= "TANK" and nNova[i].hp <= getValue("Regrowth")) then
+				if (nNova[i].role == "TANK" and nNova[i].hp <= getValue("Regrowth Tank")) then
 					if castSpell(nNova[i].unit,8936,true) then return; end
 				end
 			end
@@ -547,10 +547,7 @@ function DruidRestoration()
 
 		--[[ 26 - WildMushroom--(if not any mushroom active )]]
 		if isChecked("Mushrooms on Tank") ~= true and isChecked("Mushrooms") == true and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
-			if castHealGround(145205,15,100,getValue("Mushrooms Count")) then 
-				-- print("26 - First Mushies"); 
-				return; 
-			end
+			if castHealGround(145205,15,100,getValue("Mushrooms Count")) then return; end
 		end
 
 		--[[ 30 - WildMushroom--(Replace )]]
@@ -558,19 +555,13 @@ function DruidRestoration()
 			ISetAsUnitID(shroomsTable[1],"myShroom")
 			local allies10Yards = getAllies("myShroom",10)
 			if #allies10Yards < getValue("Mushrooms Count") then
-				if castHealGround(145205,15,getValue("Mushrooms") ,getValue("Mushrooms Count")) then 
-					--print("30 - Replace"); 
-					return; 
-				end
+				if castHealGround(145205,15,getValue("Mushrooms") ,getValue("Mushrooms Count")) then return; end
 			end
 		end		
 
 		--[[ 27 - WildMushroom--(tank check(if not any mushroom active )]]
 		if isChecked("Mushrooms on Tank") ~= true and isChecked("Mushrooms") == true and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
-			if castHealGround(145205,15,100,getValue("Mushrooms Count")) then 
-				-- print("27 - Tank if None"); 
-				return; 
-			end
+			if castHealGround(145205,15,100,getValue("Mushrooms Count")) then return; end
 		end		
 
 		--[[ 28 - LifebloomFocus--(Refresh if over treshold)]]
@@ -629,8 +620,7 @@ function DruidRestoration()
 		if isChecked("Rejuvenation All") == true then
 			for i = 1, #nNova do
 				if getBuffRemain(nNova[i].unit,774,"player") == 0 then
-					if castSpell(nNova[i].unit,774,true,false) then return; 
-					end
+					if castSpell(nNova[i].unit,774,true,false) then return; end
 				end
 			end
 		end

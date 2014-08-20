@@ -1,4 +1,3 @@
-
 function BadBoyFrame()
 
 	emptyIcon = [[Interface\FrameGeneral\UI-Background-Marble]]
@@ -21,8 +20,6 @@ function BadBoyFrame()
 			_G[Name.."Modes"] = nil;
 		end
 	end
-
-
 
 	function ToggleValue(toggleValue)
 		if BadBoy_data[toggleValue] == 0 or BadBoy_data[toggleValue] == nil then BadBoy_data[toggleValue] = 1; end
@@ -113,14 +110,11 @@ function BadBoyFrame()
 	--     Main Frame UI     --
 	---------------------------
 
-
 	BadBoy_data["buttonSize"] = BadBoy_data["buttonSize"] or 32;
-
 
 	buttonSize = BadBoy_data["buttonSize"]
 	buttonWidth = BadBoy_data["buttonSize"];
 	buttonHeight = BadBoy_data["buttonSize"];
-
 
 	mainButton = CreateFrame("Button", "MyButton", configButton, "SecureHandlerClickTemplate");
 	mainButton:SetWidth(buttonWidth);
@@ -133,20 +127,17 @@ function BadBoyFrame()
 	mainButton:RegisterForDrag("LeftButton");
 	mainButton:SetScript("OnDragStart", mainButton.StartMoving);
 	mainButton:SetScript("OnDragStop", mainButton.StopMovingOrSizing);
-	CreateBorder(mainButton, 8, 0.6, 0.6, 0.6)
+	CreateBorder(mainButton, 8, 0.6, 0.6, 0.6);
 	if BadBoy_data["Power"] == 1 then mainButton:SetNormalTexture(backIconOn); else mainButton:SetNormalTexture(backIconOff); end
-
 	mainButton:SetScript("OnClick", function()
 		if BadBoy_data['Power'] ~= 0 then
 			BadBoy_data['Power'] = 0;
 			mainButton:SetNormalTexture(backIconOff); 
-			mainText:SetText("Off");
 			GameTooltip:SetText("|cff00FF00Enable |cffFF0000BadBoy \n|cffFFDD11Hold Left Alt and scroll mouse to adjust size.", 225/255, 225/255, 225/255);
 			mainButtonFrame.texture:SetTexture(genericIconOff);
 		else
 			BadBoy_data['Power'] = 1;
 			GameTooltip:SetText("|cffFF0000Disable BadBoy \n|cffFFDD11Hold Left Alt and scroll mouse to adjust size.", 225/255, 225/255, 225/255);
-			mainText:SetText("On");
 			mainButton:SetNormalTexture(backIconOn);
 			mainButtonFrame.texture:SetTexture(genericIconOn);
 		end
@@ -218,7 +209,6 @@ function BadBoyFrame()
 	mainButtonFrame.texture:SetAlpha(100);
 	mainButtonFrame.texture:SetTexture(genericIconOn);
 
-
 	mainText = mainButton:CreateFontString(nil, "OVERLAY");
 	mainText:SetFont("Fonts/FRIZQT__.TTF",17,"THICKOUTLINE");
 	mainText:SetTextHeight(BadBoy_data["buttonSize"]/3);
@@ -247,13 +237,12 @@ function BadBoyFrame()
 		_G["button"..Name]:RegisterForClicks("AnyUp");
 		if type(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon) == "number" then Icon = select(3,GetSpellInfo(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon)); else Icon = _G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon; end
 		_G["button"..Name]:SetNormalTexture(Icon or emptyIcon); 
-		CreateBorder(_G["button"..Name], 8, 0.6, 0.6, 0.6)
+		CreateBorder(_G["button"..Name], 8, 0.6, 0.6, 0.6);
 		_G["text"..Name] = _G["button"..Name]:CreateFontString(nil, "OVERLAY");
 		_G["text"..Name]:SetFont("Fonts/FRIZQT__.TTF",17,"THICKOUTLINE");
 		_G["text"..Name]:SetTextHeight(BadBoy_data["buttonSize"]/3);
 		_G["text"..Name]:SetPoint("CENTER",0,-(BadBoy_data["buttonSize"]/4));
 		_G["text"..Name]:SetTextColor(1,1,1,1);
-
 		_G["frame"..Name] = CreateFrame("Frame", nil, _G["button"..Name]);
 		_G["frame"..Name]:SetWidth(BadBoy_data["buttonSize"]*1.67);
 		_G["frame"..Name]:SetHeight(BadBoy_data["buttonSize"]*1.67);
@@ -265,12 +254,10 @@ function BadBoyFrame()
 		_G["frame"..Name].texture:SetAlpha(100);
 		_G["frame"..Name].texture:SetTexture(genericIconOn);
 
-
 		local modeTable;		
 		if _G[Name.."Modes"] == nil then print("No table found for ".. Name); _G[Name.."Modes"] = tostring(Name); else _G[Name.."Modes"] = _G[Name.."Modes"] end
 		local modeValue;
 		if BadBoy_data[tostring(Name)] == nil then BadBoy_data[tostring(Name)] = 1; modeValue = 1 else modeValue = BadBoy_data[tostring(Name)] end
-		
 
 		_G["button"..Name]:SetScript("OnClick", function()
 			if BadBoy_data[tostring(Name)] == 0 or BadBoy_data[tostring(Name)] == nil then BadBoy_data[tostring(Name)] = 1; end

@@ -183,6 +183,8 @@ function BadBoyRun()
 	function FrameUpdate(self)
 		-- global vars
 		targetDistance = getDistance("player","target");
+		displayDistance = math.floor(targetDistance*100)/100
+		mainText:SetText(displayDistance);
 		profileStarts = GetTime();
 		--UIUpdate();
 		DebugFrameCreation();

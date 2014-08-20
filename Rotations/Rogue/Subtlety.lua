@@ -136,9 +136,8 @@ castSpell("player",_FanOfKnives,true    ,false)]]
 	end
 
 	-- Ambush
-	if (UnitBuffID("player",1784) ~= nil or UnitBuffID("player",58984) ~= nil or UnitBuffID("player",1856) ~= nil) and (energy >= 60 or (_ShadowDance and energy >= 40)) and getFacing("player","target") == true and getFacing("target","player") == false then
-	  	castSpell("target",_Ambush,false,false) 
-	  	return true
+	if getDistance("player","target") < 2.5 and (UnitBuffID("player",1784) ~= nil or UnitBuffID("player",58984) ~= nil or UnitBuffID("player",1856) ~= nil) and (energy >= 60 or (_ShadowDance and energy >= 40)) and getFacing("player","target") == true and getFacing("target","player") == false then
+	  	if castSpell("target",_Ambush,false,false) then return true; end
 	end
 
 
@@ -147,9 +146,14 @@ castSpell("player",_FanOfKnives,true    ,false)]]
 		-- Levleling 1-10
 		if UnitLevel("player") < 10 then
 			-- Hemorrhage maintain bleed
-			if combo >= 2 then
+			if combo >= 3 then
 			  	if castSpell("target",_Eviscerate,false,false) then return; end
 			end
+		end
+
+		-- Evasion
+		if isChecked("Evasion") == true and UnitThreatSituation("player") == 3 and getHP("player") <= getValue("Evasion") then
+			if castSpell("player",_Evasion,true,false) then return; end
 		end
 
 		-- Feint

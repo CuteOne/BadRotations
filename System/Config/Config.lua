@@ -17,7 +17,6 @@ function ConfigFrame()
 		-- Config Frame
 		configHeight = 30
 		configFrame = CreateFrame("Frame", nil, UIParent);
-		--configFrame:SetAlpha(1);
 		configFrame:SetWidth(250);
 		configFrame:SetHeight(30);
 		configFrame.texture = configFrame:CreateTexture(configFrame, "ARTWORK");
@@ -26,8 +25,8 @@ function ConfigFrame()
 		configFrame.texture:SetHeight(30);
 		configFrame.texture:SetAlpha(BadBoy_data.configAlpha/100);
 		configFrame.texture:SetTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]]);
-		CreateBorder(configFrame, 8, 0.6, 0.6, 0.6)
-
+		CreateBorder(configFrame, 8, 0.6, 0.6, 0.6, 3, 3, 3, 3, 3, 3, 3, 3 )
+    CreateBorder(myFrame, borderSize, r, g, b, uL1, uL2, uR1, uR2, bL1, bL2, bR1, bR2)
 		function SetConfigWidth(Width)
 			BadBoy_data.configWidth = Width
 			configFrame:SetWidth(Width);
@@ -83,7 +82,7 @@ function ConfigFrame()
 		configFrameExitButton:SetPoint("TOPRIGHT", -3 , -3);
 		configFrameExitButton:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]);
 		configFrameExitButton:RegisterForClicks("AnyUp");
-		configFrameExitButton:SetText("X");
+		configFrameExitButton:SetText(" X");
 
 		configFrameExitButton:SetScript("OnClick", function()
 			BadBoy_data.configShown = false;

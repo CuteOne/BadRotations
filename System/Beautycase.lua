@@ -99,7 +99,7 @@ end
 
 function GetBorderInfo(self)
     if (not self) then
-        print(formatName..' error:|r This frame does not exist!') 
+        --print(formatName..' error:|r This frame does not exist!') 
     elseif (self.beautyBorder) then
         local tex = self.beautyBorder[1]:GetTexture()
         local size = self.beautyBorder[1]:GetSize()
@@ -107,19 +107,19 @@ function GetBorderInfo(self)
         
         return size, tex, r, g, b, a
     else
-        print(formatName..' error:|r Invalid frame! This object has no '..addonName..' border')   
+        --print(formatName..' error:|r Invalid frame! This object has no '..addonName..' border')   
     end
 end
 
 local function SetBorderPadding(self, uL1, ...)
     if (not self) then
-        print(formatName..' error:|r This frame does not exist!') 
+        --print(formatName..' error:|r This frame does not exist!') 
         return
     end
     
     if (not self:IsObjectType('Frame')) then
         local frame  = 'frame'
-        print(formatName..' error:|r The entered object is not a '..frame..'!') 
+        --print(formatName..' error:|r The entered object is not a '..frame..'!') 
         return
     end
     
@@ -156,13 +156,13 @@ function ColorBorder(self, ...)
     local r, g, b, a = ...
     
     if (not self) then
-        print(formatName..' error:|r This frame does not exist!') 
+        --print(formatName..' error:|r This frame does not exist!') 
     elseif (self.beautyBorder) then
         for i = 1, 8 do
             self.beautyBorder[i]:SetVertexColor(r, g, b, a or 1)
         end
     else
-        print(formatName..' error:|r Invalid frame! This object has no '..addonName..' border')  
+        --print(formatName..' error:|r Invalid frame! This object has no '..addonName..' border')  
     end
 end
 
@@ -170,88 +170,88 @@ function ColorBorderShadow(self, ...)
     local r, g, b, a = ...
     
     if (not self) then
-        print(formatName..' error:|r This frame does not exist!') 
+        --print(formatName..' error:|r This frame does not exist!') 
     elseif (self.beautyShadow) then
         for i = 1, 8 do
             self.beautyShadow[i]:SetVertexColor(r, g, b, a or 1)
         end
     else
-        print(formatName..' error:|r Invalid frame! This object has no '..addonName..' border')  
+        --print(formatName..' error:|r Invalid frame! This object has no '..addonName..' border')  
     end
 end
 
 function SetBorderTexture(self, texture)
     if (not self) then
-        print(formatName..' error:|r This frame does not exist!') 
+        --print(formatName..' error:|r This frame does not exist!') 
     elseif (self.beautyBorder) then
         for i = 1, 8 do
             self.beautyBorder[i]:SetTexture(texture)
         end
     else
-        print(formatName..' error:|r Invalid frame! This object has no '..addonName..' border')  
+        --print(formatName..' error:|r Invalid frame! This object has no '..addonName..' border')  
     end
 end
 
 function SetBorderShadowTexture(self, texture)
     if (not self) then
-        print(formatName..' error:|r This frame does not exist!') 
+        --print(formatName..' error:|r This frame does not exist!') 
     elseif (self.beautyShadow) then
         for i = 1, 8 do
             self.beautyShadow[i]:SetTexture(texture)
         end
     else
-        print(formatName..' error:|r Invalid frame! This object has no '..addonName..' border')  
+        --print(formatName..' error:|r Invalid frame! This object has no '..addonName..' border')  
     end
 end
 
 local function SetBorderSize(self, size)
     if (not self) then
-        print(formatName..' error:|r This frame does not exist!') 
+        --print(formatName..' error:|r This frame does not exist!') 
     elseif (self.beautyShadow) then
         for i = 1, 8 do
             self.beautyBorder[i]:SetSize(size, size) 
             self.beautyShadow[i]:SetSize(size, size) 
         end
     else
-        print(formatName..' error:|r Invalid frame! This object has no '..addonName..' border')  
+        --print(formatName..' error:|r Invalid frame! This object has no '..addonName..' border')  
     end
 end
 
 local function HideBorder(self)
     if (not self) then
-        print(formatName..' error:|r This frame does not exist!') 
+        --print(formatName..' error:|r This frame does not exist!') 
     elseif (self.beautyShadow) then
         for i = 1, 8 do
             self.beautyBorder[i]:Hide()
             self.beautyShadow[i]:Hide()
         end
     else
-        print(formatName..' error:|r Invalid frame! This object has no '..addonName..' border')  
+        --print(formatName..' error:|r Invalid frame! This object has no '..addonName..' border')  
     end
 end
 
 local function ShowBorder(self)
     if (not self) then
-        print(formatName..' error:|r This frame does not exist!') 
+        --print(formatName..' error:|r This frame does not exist!') 
     elseif (self.beautyShadow) then
         for i = 1, 8 do
             self.beautyBorder[i]:Show()
             self.beautyShadow[i]:Show()
         end
     else
-        print(formatName..' error:|r Invalid frame! This object has no '..addonName..' border')  
+        --print(formatName..' error:|r Invalid frame! This object has no '..addonName..' border')  
     end
 end
 
 local function ApplyBorder(self, borderSize, R, G, B, uL1, ...)
     if (not self) then
-        print(formatName..' error:|r This frame does not exist!') 
+        --print(formatName..' error:|r This frame does not exist!') 
         return
     end
     
     if (not self:IsObjectType('Frame')) then
         local frame  = 'frame'
-        print(formatName..' error:|r The entered object is not a '..frame..'!') 
+        --print(formatName..' error:|r The entered object is not a '..frame..'!') 
         return
     end
     
