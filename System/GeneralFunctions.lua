@@ -61,10 +61,10 @@ end
 
 -- if canAttack("player","target") then
 function canAttack(Unit1,Unit2)
-	if UnitCanAttack("player","target") == 1 then
+	if Unit1 == nil then Unit1 = "player"; end
+	if Unit2 == nil then Unit2 = "target"; end
+	if UnitCanAttack(Unit1,Unit2) == 1 then
 		return true;
-	else
-		return false;
 	end
 end
 
@@ -1602,7 +1602,7 @@ end
 
 -- if isChecked("Debug") then
 function isChecked(Value)
-	if BadBoy_data["Check "..Value] == 1 then return true; else return false; end
+	if BadBoy_data["Check "..Value] == 1 then return true; end
 end
 
 -- if isSelected("Stormlash Totem") then

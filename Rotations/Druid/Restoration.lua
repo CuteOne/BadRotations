@@ -102,7 +102,7 @@ function DruidRestoration()
 
 	--[[ 1 - Buff Out of Combat]]
 	-- Mark of the Wild
-	if isChecked("Mark of the Wild") == true and (lastMotw == nil or lastMotw <= GetTime() - 5) then
+	if isChecked("Mark of the Wild") == true and canCast(1126,false,true) and (lastMotw == nil or lastMotw <= GetTime() - 5) then
 		for i = 1, #nNova do
 	  		if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) then
 	  			if castSpell("player",1126,true) then lastMotw = GetTime(); return; end
@@ -113,7 +113,7 @@ function DruidRestoration()
 	if BadBoy_data["Healing"] == 2 then
 
 		--[[ 4 - Dispel --(U can Dispel  While in cat form)]]
-		if isChecked("Nature's Cure") then
+		if isChecked("Nature's Cure") and canCast(88423,false,false) then
 			if getValue("Nature's Cure") == 1 then -- Mouse Match
 				if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
 					for i = 1, #nNova do
@@ -163,52 +163,53 @@ function DruidRestoration()
 
 		-- SwiftMender
 		local function SwiftMender(Time)
-			if Time == nil then
-				if isChecked("Swiftmend") then
-					if hasGlyph(145529) ~= true then
-						local allies10Yards;
-						if getBuffRemain(nNova[1].unit,774,"player") > 1 or getBuffRemain(nNova[1].unit,8936,"player") > 1 then
-							allies10Yards = getAllies(nNova[1].unit,10);
-							if #allies10Yards >= 3 then
-								local count = 0;
-								for i = 1, #allies10Yards do
-									if getHP(allies10Yards[i]) < 100 then
-										count = count + 1;
+			if canCast(18562,false,false) then
+				if Time == nil then
+					if isChecked("Swiftmend") then
+						if hasGlyph(145529) ~= true then
+							local allies10Yards;
+							if getBuffRemain(nNova[1].unit,774,"player") > 1 or getBuffRemain(nNova[1].unit,8936,"player") > 1 then
+								allies10Yards = getAllies(nNova[1].unit,10);
+								if #allies10Yards >= 3 then
+									local count = 0;
+									for i = 1, #allies10Yards do
+										if getHP(allies10Yards[i]) < 100 then
+											count = count + 1;
+										end
+									end
+									if count > 3 then
+										if castSpell(nNova[1].unit,18562,true,false) then return; end
 									end
 								end
-								if count > 3 then
+							end
+						else
+							if nNova[1].hp <= getValue("Swiftmend") then
+								if getBuffRemain(nNova[1].unit,774,"player") > 1 or getBuffRemain(nNova[1].unit,8936,"player") > 1 then
 									if castSpell(nNova[1].unit,18562,true,false) then return; end
 								end
 							end
 						end
-					else
-						if nNova[1].hp <= getValue("Swiftmend") then
-							if getBuffRemain(nNova[1].unit,774,"player") > 1 or getBuffRemain(nNova[1].unit,8936,"player") > 1 then
-								if castSpell(nNova[1].unit,18562,true,false) then return; end
+					end
+				else
+					if Time < 1 then
+						for i = 1, #nNova do
+							if getBuffRemain(nNova[i].unit,774,"player") > 1 or getBuffRemain(nNova[i].unit,8936,"player") > 1 then
+								if castSpell(nNova[i].unit,18562,true,false) then return; end
 							end
 						end
 					end
-				end
-			else
-				if Time < 1 then
+					local found = false;
 					for i = 1, #nNova do
-						if getBuffRemain(nNova[i].unit,774,"player") > 1 or getBuffRemain(nNova[i].unit,8936,"player") > 1 then
-							if castSpell(nNova[i].unit,18562,true,false) then return; end
+						if getBuffRemain(nNova[i].unit,774,"player") > 2 or getBuffRemain(nNova[i].unit,8936,"player") > 2 then
+							found = true;
+							break;
 						end
+					end	
+					if found ~= true then
+						if castSpell(nNova[i].unit,774,true,false) then return; end
 					end
-				end
-				local found = false;
-				for i = 1, #nNova do
-					if getBuffRemain(nNova[i].unit,774,"player") > 2 or getBuffRemain(nNova[i].unit,8936,"player") > 2 then
-						found = true;
-						break;
-					end
-				end	
-				if found ~= true then
-					if castSpell(nNova[i].unit,774,true,false) then return; end
 				end
 			end
-
 		end
 
 		--[[ 2 - Defencive --(U can use Defencive in cat form)]]
@@ -247,7 +248,7 @@ function DruidRestoration()
 
 		--[[ 3 - NS healing Touch --(U can NS healing Touch While in cat form)]]
         -- Healing Touch via Ns
-		if isChecked("Healing Touch Ns") then
+		if isChecked("Healing Touch Ns") and canCast(5185,false,false) then
 			for i = 1, #nNova do
 				if nNova[i].hp <= getValue("Healing Touch Ns") and getDistance(nNova[i].unit,"player") < 40 then
 				   	if castSpell("player",132158,true) then 
@@ -309,7 +310,7 @@ function DruidRestoration()
 
 		--[[ 8 - Force Of Nature]]
 		if isKnown(102693) then --FOn Spell ID
-		    if isChecked("Force of Nature") then 
+		    if isChecked("Force of Nature") and canCast(102693,false,false) then 
 		        for i = 1, #nNova do
 		            local allies10Yards = getAllies(nNova[i].unit,10);
 					if #allies10Yards >=  getValue("Force of Nature Count") then
@@ -337,7 +338,7 @@ function DruidRestoration()
 
 		--[[ 10 - WildMushroom Bloom]]
 		local allies10Yards = getAllies("myShroom",10)
-		if isChecked("Mushrooms Bloom") == true and #allies10Yards >= getValue("Mushrooms Bloom Count") then
+		if isChecked("Mushrooms Bloom") == true and canCast(102791,false,false) and #allies10Yards >= getValue("Mushrooms Bloom Count") then
 			local found = 0;
 			for i = 1, #allies10Yards do
 				if getHP(allies10Yards[i]) <= getValue("Mushrooms Bloom") then
