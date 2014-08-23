@@ -188,8 +188,8 @@ function DruidRestoration()
 					if isChecked("Swiftmend") then
 						if hasGlyph(145529) ~= true then
 							local allies10Yards;
-							if getBuffRemain(nNova[1].unit,774,"player") > 1 or getBuffRemain(nNova[1].unit,8936,"player") > 1 then
-								allies10Yards = getAllies(nNova[1].unit,10);
+							if getBuffRemain(lowestUnit,774,"player") > 1 or getBuffRemain(lowestUnit,8936,"player") > 1 then
+								allies10Yards = getAllies(lowestUnit,10);
 								if #allies10Yards >= 3 then
 									local count = 0;
 									for i = 1, #allies10Yards do
@@ -198,14 +198,14 @@ function DruidRestoration()
 										end
 									end
 									if count > 3 then
-										if castSpell(nNova[1].unit,18562,true,false) then return; end
+										if castSpell(lowestUnit,18562,true,false) then return; end
 									end
 								end
 							end
 						else
-							if nNova[1].hp <= getValue("Swiftmend") then
-								if getBuffRemain(nNova[1].unit,774,"player") > 1 or getBuffRemain(nNova[1].unit,8936,"player") > 1 then
-									if castSpell(nNova[1].unit,18562,true,false) then return; end
+							if lowestHP <= getValue("Swiftmend") then
+								if getBuffRemain(lowestUnit,774,"player") > 1 or getBuffRemain(lowestUnit,8936,"player") > 1 then
+									if castSpell(lowestUnit,18562,true,false) then return; end
 								end
 							end
 						end
@@ -351,8 +351,8 @@ function DruidRestoration()
 		--[[ 9 - HealingTouch Sm]]
  		local SMName, _, _, SMcount, _, _, SMexpirationTime = UnitBuffID("player", 144871) --Sage Mender - 2p bonus tier 16  
 		if SMName and  SMcount >= 5   then
-			if isChecked("Healing Touch Sm") == true and nNova[1].hp <= getValue("Healing Touch Sm") then
-				if castSpell(nNova[1].unit,5185,true) then return; end
+			if isChecked("Healing Touch Sm") == true and lowestHP <= getValue("Healing Touch Sm") then
+				if castSpell(lowestUnit,5185,true) then return; end
 			end
 		end		
 
@@ -494,9 +494,9 @@ function DruidRestoration()
 		if isKnown(114107) ~= true then
 			if UnitAffectingCombat("player") and isChecked("Swiftmend Harmoney") then
 				if getBuffRemain("player", 100977) < 3 then
-					if getBuffRemain(nNova[1].unit,774,"player") > 1 or getBuffRemain(nNova[1].unit,8936,"player") > 1 then
+					if getBuffRemain(lowestUnit,774,"player") > 1 or getBuffRemain(lowestUnit,8936,"player") > 1 then
 						-- Swiftmend
-						if castSpell(nNova[1].unit,18562,true,false) then return; end
+						if castSpell(lowestUnit,18562,true,false) then return; end
 					end
 				end
 			end
@@ -506,10 +506,10 @@ function DruidRestoration()
 				if castSpell("player",132158,true) then return; end
 		   		-- Healing Touch
 			   	if UnitBuffID("player",132158) then 
-			   		if castSpell(nNova[1].unit,5185,true,false) then return; end
+			   		if castSpell(lowestUnit,5185,true,false) then return; end
 			    end
 			    -- Regrowth
-				if castSpell(nNova[1].unit,8936,true) then return; end
+				if castSpell(lowestUnit,8936,true) then return; end
 			end
 		end			
 

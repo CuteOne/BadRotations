@@ -194,7 +194,7 @@ function BadBoyRun()
 		if currentTarget ~= nil then ISetAsUnitID(currentTarget,"current"); end		
 
 		if NovaEngineUpdate == nil then NovaEngineUpdate = GetTime(); end
-		if NovaEngineUpdate and NovaEngineUpdate <= GetTime() - getValue("Engine Refresh") then
+		if NovaEngineUpdate and NovaEngineUpdate <= GetTime() - getValue("Engine Refresh")/1000 then
 			NovaEngineUpdate = GetTime()
 			nNova:Update()
 			engineRefresh()
