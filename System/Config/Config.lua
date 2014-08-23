@@ -167,6 +167,10 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Accept Queues");
     CreateNewText(thisConfig,"Accept Queues");
 
+    -- PokeRotation
+    CreateNewCheck(thisConfig,"PokeRotation", "|cffFFBB00Check this to start PokeRotation.");
+    CreateNewText(thisConfig,"PokeRotation");
+
     -- Debug
     CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start |cffFFFFFFChat Debug |cffFFBB00of casted spells.");
     CreateNewText(thisConfig,"Debug");

@@ -193,14 +193,20 @@ function SubOptions()
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"---------- Buffs ---------");
 
-        -- Stance
+
+        -- Stealth Timer
+        CreateNewCheck(thisConfig,"Stealth Timer");
+        CreateNewBox(thisConfig, "Stealth Timer", 0, 10  , 1, 2 , "|cffFFBB00How long to wait(seconds) before using \n|cffFFFFFFStealth.");
+        CreateNewText(thisConfig,"Stealth Timer");
+
+        -- Stealth
         CreateNewCheck(thisConfig,"Stealth");
-        CreateNewDrop(thisConfig,"Stealth",1,"Stealthing method.","Always","PrePot");
+        CreateNewDrop(thisConfig,"Stealth",1,"Stealthing method.","|cff00FF00Always","|cffFFDD00PrePot","|cffFF000030Yards");
         CreateNewText(thisConfig,"Stealth");
 
         -- Left Poison
         CreateNewCheck(thisConfig,"Left Poison");
-        CreateNewDrop(thisConfig,"Left Poison",3,"Left Hand poison.","Crip","Mind","Leech");
+        CreateNewDrop(thisConfig,"Left Poison",3,"Left Hand poison.","|cff6600FFCrip","|cffA299B0Mind","|cff00CF1CLeech");
         CreateNewText(thisConfig,"Left Poison");
 
         -- Right Poison

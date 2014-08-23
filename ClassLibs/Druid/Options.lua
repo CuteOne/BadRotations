@@ -62,6 +62,7 @@ end
 -- Config Panel
 function FeralCatConfig()
     --if not doneConfig then
+        ClearConfig();
         thisConfig = 0
         -- Title
         titleOp("CuteOne Feral Cat");

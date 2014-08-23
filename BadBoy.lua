@@ -181,12 +181,12 @@ function BadBoyRun()
 
 	-- Mettre a jour les valeurs chaque frame.
 	function FrameUpdate(self)
+		PokeEngine();
 		-- global vars
 		targetDistance = getDistance("player","target");
 		displayDistance = math.floor(targetDistance*100)/100
 		mainText:SetText(displayDistance);
 		profileStarts = GetTime();
-		--UIUpdate();
 		DebugFrameCreation();
 		EngineFrameCreation();
 

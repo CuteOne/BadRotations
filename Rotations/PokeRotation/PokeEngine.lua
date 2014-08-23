@@ -193,7 +193,7 @@ function PokeEngine()
 	--print("pulse")
 		-- Rotation
 
-		if inBattle and ObjectiveValue == 1 and BadBoy_data["Check PokeRotation"] == 1 then
+		if inBattle and BadBoy_data["Check PokeRotation"] == 1 then
 			startWaiting = nil;
 			rotationRun = true;
 			HealingDone = nil;

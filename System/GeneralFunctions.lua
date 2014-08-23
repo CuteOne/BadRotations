@@ -539,10 +539,10 @@ function getDistance(Unit1,Unit2)
 		local unitSize = 0;
 		if UnitGUID(Unit1) ~= UnitGUID("player") then 
 			unitSize = IGetFloatDescriptor(UnitGUID(Unit1),0x110); 
-		end
-		if UnitGUID(Unit2) ~= UnitGUID("player") then 
+		elseif UnitGUID(Unit2) ~= UnitGUID("player") then 
 			unitSize = IGetFloatDescriptor(UnitGUID(Unit2),0x110); 
 		end
+		if isDummy(Unit1) or isDummy(Unit2) then unitSize = 1; end
 		return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unitSize;
 	else 
 		return 1000;

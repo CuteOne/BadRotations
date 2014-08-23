@@ -49,7 +49,7 @@ function Hunter()
 	end
 
 	-- Pet Management
-	if UnitExists("pet") == nil then
+	if isChecked("Auto Call Pet") == true and UnitExists("pet") == nil then
 		if waitForPetToAppear ~= nil and waitForPetToAppear < GetTime() - 2 then
 			if lastFailedWhistle and lastFailedWhistle > GetTime() - 3 then
 				if castSpell("player",_RevivePet) then return; end
@@ -108,7 +108,7 @@ function Hunter()
 			end
 
 			-- Kill Command
-			if  _Focus >= 40 and _PetDistance <= 25 and getLineOfSight("pet","target") then
+			if  UnitExists("pet") and _Focus >= 40 and _PetDistance <= 25 and getLineOfSight("pet","target") then
 				--GetTime() - bestialWrathCast <=1
 				if castSpell("target",_KillCommand,false) then return; end
 			end

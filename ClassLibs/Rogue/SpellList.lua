@@ -1,6 +1,5 @@
 if select(3, UnitClass("player")) == 4 then
 
-
 _AdrenalineRush			= 13750
 _Ambush     			= 8676
 _Anticipation 			= 114015

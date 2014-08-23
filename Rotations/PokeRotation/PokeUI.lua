@@ -196,32 +196,6 @@ function PokeUI()
 	if BadBoy_data.pokeValuex == nil then BadBoy_data.pokeValuex = 0 end
 	if BadBoy_data.pokeValuey == nil then BadBoy_data.pokeValuey = 0 end
 
-	-----------------------
-	-- Abilities Display --
-	-----------------------
-	if C_PetBattles.IsInBattle() then
-		pokeEnnemyFrame:Show()
-		tipsToDisplay = 0;
-		for i = 1, 10 do
-			if _G["poke"..i.."Buff"] and _G["poke"..i.."Buff"]:IsMouseOver(0, 0, 0, 0) then
-				tipsToDisplay = 1;	 	
-				ChangeTip(1,select(2,C_PetBattles.GetAbilityInfoByID(_G["poke"..i.."Value"])));
-			end
-		end
-		for i = 1, 10 do
-			if _G["poke"..i.."EnnemyBuff"] and _G["poke"..i.."EnnemyBuff"]:IsMouseOver(0, 0, 0, 0) then
-				tipsToDisplay = 1;	 	
-				ChangeTip(1,select(2,C_PetBattles.GetAbilityInfoByID(_G["poke"..i.."EnnemyValue"])));
-			end
-		end		
-		if tipsToDisplay == 0 then 
-			ChangeTip(1,"");
-		end
-	else
-		pokeEnnemyFrame:Hide()
-		pokePlayerFrame:Hide()
-	end
-
 	-- if Attacking BadBoy_data.abilitiesOnCD == 1
 	if C_PetBattles.GetAbilityState(1, activePetSlot, 1) ~= true and C_PetBattles.GetAbilityState(1, activePetSlot, 2) ~= true and C_PetBattles.GetAbilityState(1, activePetSlot, 3) ~= true then
 		if BadBoy_data.abilitiesOnCD ~= 1 then
