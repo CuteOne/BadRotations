@@ -133,7 +133,7 @@ function DruidRestoration()
 	if BadBoy_data["Healing"] == 2 then
 
 		--[[ 4 - Dispel --(U can Dispel  While in cat form)]]
-		if isChecked("Nature's Cure") and canCast(88423,false,false) then
+		if isChecked("Nature's Cure") and canCast(88423,false,false) and not (getBossID("boss1") == 71734 and not UnitBuffID("player",144359)) then
 			if getValue("Nature's Cure") == 1 then -- Mouse Match
 				if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
 					for i = 1, #nNova do

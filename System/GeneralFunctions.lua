@@ -744,6 +744,15 @@ function getEnnemies(Unit,Radius)
  	return ennemiesTable;
 end
 
+-- if getBossID("boss1") == 71734 then
+function getBossID(BossUnitID)
+	local UnitConvert = 0;
+	if UnitExists(BossUnitID) then
+		UnitConvert = tonumber(UnitGUID(BossUnitID):sub(6,10), 16)
+	end
+	return UnitConvert;
+end
+
 -- if getNumEnnemies("target",10) >= 3 then
 function getNumEnnemies(Unit,Radius)
   	local Units = 0;
