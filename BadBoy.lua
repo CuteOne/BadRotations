@@ -181,6 +181,8 @@ function BadBoyRun()
 
 	-- Mettre a jour les valeurs chaque frame.
 	function FrameUpdate(self)
+		if randomReady == nil then randomReady = math.random(8,15); end
+		if readyToAccept and readyToAccept <= GetTime() - 5 then AcceptProposal(); readyToAccept = nil; randomReady = nil; end
 		PokeEngine();
 		-- global vars
 		targetDistance = getDistance("player","target");

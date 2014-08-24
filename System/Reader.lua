@@ -15,7 +15,7 @@ Frame:RegisterEvent("LFG_PROPOSAL_SHOW");
 local function MerchantShow(self, event, ...)
 	if isChecked("Accept Queues") == true then
 		if event == "LFG_PROPOSAL_SHOW" then
-			AcceptProposal()
+			readyToAccept = GetTime();
 		end
 	end
 end
