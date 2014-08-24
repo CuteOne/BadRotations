@@ -167,6 +167,10 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Accept Queues");
     CreateNewText(thisConfig,"Accept Queues");
 
+    -- Overlay Messages
+    CreateNewCheck(thisConfig,"Overlay Messages", "|cffFFBB00Check this to enable Chat Overlay Messages.");
+    CreateNewText(thisConfig,"Overlay Messages");
+
     -- PokeRotation
     CreateNewCheck(thisConfig,"PokeRotation", "|cffFFBB00Check this to start PokeRotation.");
     CreateNewText(thisConfig,"PokeRotation");

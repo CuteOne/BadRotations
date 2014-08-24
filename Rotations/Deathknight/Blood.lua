@@ -7,21 +7,7 @@ function Blood()
 	end
 
 	-- Locals
-	local runicPower = UnitPower("player");
-	local runesBlood = getRunes("blood");
-	local runesUnholy = getRunes("unholy");
-	local runesFrost = getRunes("frost");
-	local runesDeath = getRunes("death");
-
-	local numEnnemies;
-	local meleeEnnemies = getNumEnnemies("player",4);
-	if targetDistance < 5 then
-		--numEnnemies = getNumEnnemies("target",10);
-	--else
-		numEnnemies = getNumEnnemies("player",10);
-	end
-
-	targetEnnemies = getEnnemies("target",10)
+	local runicPower, runesBlood, runesUnholy, runesFrost, runesDeath, meleeEnnemies, targetEnnemies = UnitPower("player"), getRunes("blood"), getRunes("unholy"), getRunes("frost"), getRunes("death"), getNumEnnemies("player",4), getEnnemies("target",10);
 
 	-- Food/Invis Check
 	if canRun() ~= true or UnitInVehicle("Player") then return false; end
@@ -152,13 +138,13 @@ function Blood()
 	    local PestiSpell;
 	    if isKnown(_RoilingBlood) then PestiSpell = _BloodBoil; else PestiSpell = _Pestilence; end	    
 	    if runesBlood >= 1 or runesDeath >= 1 and (pestiTimer == nil or pestiTimer <= GetTime() - 2) then
-			if canCast(_Pestilence) then
+			if canCast(PestiSpell) then
 				if getDebuffRemain("target",55078) == 0 then
 					for i = 1, #targetEnnemies do
 						local Guid = targetEnnemies[i]
 						ISetAsUnitID(Guid,"thisUnit");
 						if getCreatureType("thisUnit") == true and getDebuffRemain("thisUnit",55078,"player") >= 2 then
-							if castSpell("thisUnit",_Pestilence,true) then pestiTimer = GetTime(); return; end								
+							if castSpell("thisUnit",PestiSpell,true) then pestiTimer = GetTime(); return; end								
 						end
 					end	
 				end

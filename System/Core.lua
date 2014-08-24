@@ -36,11 +36,13 @@ chatOverlay.texture:SetAllPoints();
 chatOverlay.texture:SetTexture(0,0,0,.50);
 chatOverlay.time = 0;
 function ChatOverlay(Message, FadingTime) 
-    chatOverlay:SetSize(ChatFrame1:GetWidth(),50);
-    chatOverlay.text:SetText(Message);
-    chatOverlay:SetAlpha(1);
-    if FadingTime == nil then chatOverlay.time = GetTime(); else chatOverlay.time = GetTime() - 2 + FadingTime; end
-    chatOverlay:Show(); 
+    if isChecked("Overlay Messages") then
+        chatOverlay:SetSize(ChatFrame1:GetWidth(),50);
+        chatOverlay.text:SetText(Message);
+        chatOverlay:SetAlpha(1);
+        if FadingTime == nil then chatOverlay.time = GetTime(); else chatOverlay.time = GetTime() - 2 + FadingTime; end
+        chatOverlay:Show(); 
+    end
 end 
 
 function BadBoyMinimapButton()
