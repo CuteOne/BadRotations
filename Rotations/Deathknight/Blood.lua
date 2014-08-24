@@ -16,14 +16,14 @@ function Blood()
 	if UnitAffectingCombat("player") then
 
 		-- Mind Freeze
-		if isChecked("Mind Freeze") == true then
-			if canInterrupt(_MindFreeze, getValue("Mind Freeze")) and getDistance("player","target") <= 4 then
+		if isChecked("Mind Freeze") == true and targetDistance <= 4 then
+			if canInterrupt(_MindFreeze, getValue("Mind Freeze")) then
 				castSpell("target",_MindFreeze,false);
 			end
 		end
 
     	-- Anti Magic Shell
-    	if isChecked("Anti-Magic Shell") == true and getHP("player") <= getValue("Anti-Magic Shell") then
+    	if isChecked("Anti-Magic Shell") == true and getHP("player") <= getValue("Anti-Magic Shell") and targetDistance <= 20 then
     		if castSpell("player",_AntiMagicShell,true) then return; end
     	end
 
@@ -108,25 +108,9 @@ function Blood()
 	    	if castSpell("player",_BloodTap,true) then return; end
 	    end
 
-
---[[	-- When pulling, you’ll want to apply diseases using Outbreak. 
-		
-		-- Then you can Heart Strike with both Blood Runes, and use Death Strike to take advantage of the Death Strike mechanics (healing for damage taken in preceding 5 sec).
-
-		-- You’ll want to keep diseases active at all times. 
-		-- The most efficient way to refresh your diseases is with Blood Boil thanks to Scarlet Fever. 
-		-- However, if a disease expires, refresh the disease via Outbreak. 
-		-- If Outbreak is on cooldown, then use Icy Touch and/or Plague Strike.
-
-		-- Beyond diseases, you’ll want to Death Strike as much as possible with your Frost, Unholy, and Death Runes. 
-		-- Use Heart Strike with Blood Runes, and Rune Strike whenever all Runes are depleted or when you are capped with Runic Power. 
-		-- Soul Reaper replaces Heart Strike when your target has 35% or less Health.
-
-]]
-
-	    -- Rune Strike//Death Coil
+	    -- Runic Dump
 	    if runicPower >= 90 then
-	    	if isKnown(_RuneStrike) then
+	    	if isKnown(_RuneStrike) and targetDistance < 4 then
 	    		if castSpell("target",_RuneStrike,false) then return; end
 	   		else
 	   			-- Death Coil
@@ -139,12 +123,17 @@ function Blood()
 	    if isKnown(_RoilingBlood) then PestiSpell = _BloodBoil; else PestiSpell = _Pestilence; end	    
 	    if runesBlood >= 1 or runesDeath >= 1 and (pestiTimer == nil or pestiTimer <= GetTime() - 2) then
 			if canCast(PestiSpell) then
-				if getDebuffRemain("target",55078) == 0 then
+				pestiTimer = GetTime(); 
+				if not UnitDebuffID("target",55078,"player") then
 					for i = 1, #targetEnnemies do
 						local Guid = targetEnnemies[i]
 						ISetAsUnitID(Guid,"thisUnit");
 						if getCreatureType("thisUnit") == true and getDebuffRemain("thisUnit",55078,"player") >= 2 then
-							if castSpell("thisUnit",PestiSpell,true) then pestiTimer = GetTime(); return; end								
+							if PestiSpell == _BloodBoil then
+								if castSpell("player",PestiSpell,true) then return; end	
+							else	
+								if castSpell("thisUnit",PestiSpell,true) then return; end	
+							end						
 						end
 					end	
 				end
@@ -152,7 +141,7 @@ function Blood()
 	    end
 
 	    -- Blood Boil - Refresh
-	    if targetDistance <= 10 and (runesBlood >= 1 or runesDeath >= 1) and ((UnitDebuffID("target",55078,"player") ~= nil and getDebuffRemain("target",55078) < 6)) then
+	    if targetDistance <= 5 and (runesBlood >= 1 or runesDeath >= 1) and ((UnitDebuffID("target",55078,"player") ~= nil and getDebuffRemain("target",55078,"player") < 6)) then
 	    	if castSpell("player",_BloodBoil,true) then return; end
 	    end
 
@@ -161,27 +150,30 @@ function Blood()
 	    	if castSpell("target",_Outbreak,false) then return; end
 	    end
 
-	    -- Icy Touch
-	    if (runesFrost >= 1 or runesDeath >= 1) and getDebuffRemain("target",55095) < 4 then
-		    if castSpell("target",_IcyTouch,false) then return; end
-	    end
-
 	    -- Plague Strike
 	    if (runesUnholy >= 1 or runesDeath >= 1) and getDebuffRemain("target",55078) < 4 then
 	    	if castSpell("target",_PlagueStrike,false) then return; end
 	    end
 
-	    local numEnnemies = getNumEnnemies("target", 10)
+	    -- Icy Touch
+	    if (runesFrost >= 1 or (runesDeath >= 1 and getDebuffRemain("target",55078) > 4)) and getDebuffRemain("target",55095) < 4 then
+		    if castSpell("target",_IcyTouch,false) then return; end
+	    end
 
 	    -- Pestilence/Rolling Blood - Spread
-	    if numEnnemies > 2 and (runesBlood >= 1 or runesDeath >= 1) and (pestiTimer == nil or pestiTimer <= GetTime() - 2) then
+	    if #targetEnnemies > 2 and (runesBlood >= 1 or runesDeath >= 1) and (pestiTimer == nil or pestiTimer <= GetTime() - 1) then
 			if canCast(PestiSpell) then
+				pestiTimer = GetTime();
 				if getDebuffRemain("target",55078,"player") >= 2 then
 					for i = 1, #targetEnnemies do
 						local Guid = targetEnnemies[i]
 						ISetAsUnitID(Guid,"thisUnit");
 						if getCreatureType("thisUnit") == true and UnitDebuffID("thisUnit",55078) == nil then
-							if castSpell("target",PestiSpell,true) then pestiTimer = GetTime(); return; end								
+							if PestiSpell == _BloodBoil then
+								if castSpell("player",PestiSpell,true) then return; end	
+							else	
+								if castSpell("target",PestiSpell,true) then return; end	
+							end								
 						end
 					end	
 				end
@@ -189,10 +181,10 @@ function Blood()
 	    end
 
 	    -- Heart Strike//Blood Strike
-	    if runesBlood > 1 or (runesBlood > 1 and UnitDebuffID("target",55078,"player") ~= nil) then
-	    	if isKnown(_HeartStrike) and numEnnemies < 3 then
+	    if runesBlood > 1 or (runesDeath > 1 and UnitDebuffID("target",55078,"player") ~= nil) then
+	    	if isKnown(_HeartStrike) and #targetEnnemies < 3 then
 	    		if castSpell("target",_HeartStrike,false) then return; end
-	    	elseif isKnown(_HeartStrike) == false and numEnnemies < 3 then
+	    	elseif isKnown(_HeartStrike) == false and #targetEnnemies < 3 then
 	    		if castSpell("target",_BloodStrike,false) then return; end
 	    	else
 	    		if castSpell("player",_BloodBoil,true) then return; end
@@ -200,7 +192,7 @@ function Blood()
 	    end
 
 	    -- Death Strike
-	    if (runesFrost >= 1 and runesUnholy >= 1) 
+	    if UnitDebuffID("target",55078,"player") ~= nil and (runesFrost >= 1 and runesUnholy >= 1) 
 	      or (runesFrost >= 1 and runesDeath >= 1)
 	      or (runesDeath >= 1 and runesUnholy >= 1)
 	      or (runesDeath >= 2) then
@@ -224,7 +216,7 @@ function Blood()
 
 	    -- Rune Strike//Death Coil
 	    if runicPower >= 40 then
-		    if isKnown(_RuneStrike) then
+		    if isKnown(_RuneStrike) and targetDistance < 5 then
 		    	if castSpell("target",_RuneStrike,false) then return; end
 		    else
 		    	if castSpell("target",_DeathCoil,false) then return; end
@@ -235,9 +227,6 @@ function Blood()
 	    if UnitBuffID("player",_HornOfWinter) == nil then
 	    	if castSpell("player",_HornOfWinter,true) then return; end
 	    end
-
-		--ChatOverlay("A L'ATTAQUE");
-
 	end
 end
 end
