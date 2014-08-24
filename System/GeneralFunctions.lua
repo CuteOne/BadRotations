@@ -346,10 +346,10 @@ end
 
 -- castSpell("target",12345,true);
 function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
-	local lagTolerance = getValue("Lag Tolerance") or 0;
+	local lagTolerance = 0;
 	if shouldStopCasting(SpellID) ~= true then
 	    if timersTable == nil then timersTable = {}; end
-		local Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,GlobalCooldown,PowerNeeded,CurrentPower,spellRange = tostring(Unit),tonumber(SpellID),FacingCheck,MovementCheck,SpamAllowed,KnownSkip,select(7, GetSpellInfo(SpellID)),select(4,GetSpellInfo(SpellID)),UnitPower("player"),select(9,GetSpellInfo(SpellID));
+		local Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,GlobalCooldown,PowerNeeded,CurrentPower,spellRange = tostring(Unit),tonumber(SpellID),FacingCheck,MovementCheck,SpamAllowed,KnownSkip,select(7, GetSpellInfo(61304)),select(4,GetSpellInfo(SpellID)),UnitPower("player"),select(9,GetSpellInfo(SpellID));
 	  	if spellRange == nil or spellRange < 4 then spellRange = 4; end
 	  	if (Unit ~= nil and UnitIsFriend("player",Unit)) then FacingCheck = true; end
 	  	if not (CurrentPower < PowerNeeded) 

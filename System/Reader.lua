@@ -8,8 +8,8 @@ if AgiSnap == nil then AgiSnap = 0; end
 if canPickpocket == nil then canPickpocket = true; end
 if usePot == nil then usePot = true; end
 
--------------------
---[[ Auto Join --]]
+----------------
+--[[ Auto Join]]
 local Frame = CreateFrame('Frame');
 Frame:RegisterEvent("LFG_PROPOSAL_SHOW");
 local function MerchantShow(self, event, ...)
@@ -20,6 +20,21 @@ local function MerchantShow(self, event, ...)
 	end
 end
 Frame:SetScript("OnEvent", MerchantShow);
+
+--------------
+--[[ Eclipse]]
+local Frame = CreateFrame('Frame');
+Frame:RegisterEvent("ECLIPSE_DIRECTION_CHANGE");
+local function Eclipse(self, event, ...)
+	if event == "ECLIPSE_DIRECTION_CHANGE" then
+		if select(1,...) == "sun" then
+			eclipseDirection = 1;
+		else
+			eclipseDirection = 0;
+		end
+	end
+end
+Frame:SetScript("OnEvent", Eclipse);
 
 --------------------------
 --[[ isStanding Frame --]]

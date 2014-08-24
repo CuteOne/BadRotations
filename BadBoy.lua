@@ -290,6 +290,9 @@ function BadBoyRun()
 				WindwalkerMonk();
 			end
 		elseif _MyClass == 11 then -- Druid
+			if _MySpec == 1 then
+				DruidMoonkin();
+			end					
 			if _MySpec == 2 then
 				DruidFeral();
 			end		
