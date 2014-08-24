@@ -327,5 +327,12 @@ function BadBoyFrame()
 		else
 			_G["frame"..Name].texture:SetTexture(genericIconOn);
 		end
+        if BadBoy_data["Main"] == 1 then 
+            BadBoy_data["Main"] = 0;
+            mainButton:Hide();
+        else 
+            BadBoy_data["Main"] = 1;
+            mainButton:Show()
+        end
 	end
 end

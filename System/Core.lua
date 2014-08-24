@@ -85,10 +85,10 @@ function BadBoyMinimapButton()
             if IsShiftKeyDown() and not IsAltKeyDown() then 
                 if BadBoy_data["Main"] == 1 then 
                     BadBoy_data["Main"] = 0;
-                    mainButton:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]); mainText:SetText("Off"); mainButton:Hide();
+                    mainButton:Hide();
                 else 
                     BadBoy_data["Main"] = 1;
-                    mainButton:SetNormalTexture([[Interface\BUTTONS\CheckButtonHilight]]); mainText:SetText("On"); mainButton:Show()
+                    mainButton:Show()
                 end
             elseif not IsShiftKeyDown() and not IsAltKeyDown() then 
                 if BadBoy_data.configShown == false then
