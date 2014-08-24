@@ -6,10 +6,7 @@ ClassLibs/Priest/Functions.lua
 ClassLibs/Priest/Options.lua
 ClassLibs/Warlock/Functions.lua
 ClassLibs/Warlock/Options.lua
-ClassLibs/Warrior/Functions.lua
-ClassLibs/Warrior/Options.lua
 Rotations/Druid/Guardian.lua
-Rotations/Druid/Moonkin.lua
 Rotations/Hunter/Marskmanship.lua
 Rotations/Hunter/Survival.lua
 Rotations/Mage/Arcane.lua
@@ -24,6 +21,5 @@ Rotations/Warlock/Affliction.lua
 Rotations/Warlock/Demonology.lua
 Rotations/Warrior/Arms.lua
 Rotations/Warrior/Fury.lua
-Rotations/Warrior/Protection.lua
 ToDO.lua
 Rotations/Warlock/Destruction.lua
