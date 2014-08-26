@@ -2,8 +2,6 @@ Builder.lua
 ClassLibs/Mage/Functions.lua
 ClassLibs/Mage/Options.lua
 ClassLibs/New Options.lua
-ClassLibs/Priest/Functions.lua
-ClassLibs/Priest/Options.lua
 ClassLibs/Warlock/Functions.lua
 ClassLibs/Warlock/Options.lua
 Rotations/Druid/Guardian.lua
@@ -15,7 +13,6 @@ Rotations/Mage/Frost.lua
 Rotations/Paladin/Holy.lua
 Rotations/Priest/Discipline.lua
 Rotations/Priest/Holy.lua
-Rotations/Priest/Shadow.lua
 Rotations/Rogue/Combat.lua
 Rotations/Warlock/Affliction.lua
 Rotations/Warlock/Demonology.lua
