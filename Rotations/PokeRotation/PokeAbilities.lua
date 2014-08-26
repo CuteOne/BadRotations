@@ -260,35 +260,34 @@ function PokeAbilities()
 		function Switch()
 			AbilityCast(SuicideList)
 			-- Make sure we are not rooted.
-		  	if canSwapOut then
-				if (myPets[myPetSlot].health <= BadBoy_data["Box Swap Out Health"] and BadBoy_data["Check Swap Out Health"] == 1)
-				  or (isChecked("Pet Leveling") and myPetSlot == 1) then
-					if myPets[1].health <= SwapOutHealthValue or nmePets[nmePetSlot].health < 100 then
-						if GetPetStrenght(2) > GetPetStrenght(3) 
-						  and Pet2HP >= getValue("Swap in Health") then
+		  	if canSwapOut or myPets[myPetSlot].health == 0 then
+				if myPetSlot == 1 and myPets[1].health <= BadBoy_data["Box Swap Out Health"] and BadBoy_data["Check Swap in Health"] == 1
+				  or isChecked("Pet Leveling") and myPetSlot == 1 then
+					if myPets[1].health <= BadBoy_data["Box Swap Out Health"] or nmePets[nmePetSlot].health < 100 then
+						if GetPetStrenght(2) >= GetPetStrenght(3) 
+						  and myPets[2].health >= BadBoy_data["Box Swap in Health"] then
 							C_PetBattles.ChangePet(2);
-						elseif myPets[3].health >= getValue("Swap in Health") 
-						  or myPets[1].health == 0 then
+						else 
 							C_PetBattles.ChangePet(3);	
 						end
-					elseif myPetSlot == 2 then
-						if GetPetStrenght(1) > GetPetStrenght(3)
-						  and myPets[1].health >= getValue("Swap in Health") 
-						  and not ( isChecked("Pet Leveling") and getValue("Pet Leveling") > C_PetBattles.GetLevel(1, 1) ) then
-							C_PetBattles.ChangePet(1);
-						elseif myPets[3].health >= getValue("Swap in Health") or Pet2HP == 0 then
-							C_PetBattles.ChangePet(3);	
-						end
-					elseif myPetSlot == 3 then
-						if GetPetStrenght(1) > GetPetStrenght(2) 
-						  and myPets[1].health >= getValue("Swap in Health") 
-						  and not ( isChecked("Pet Leveling") and getValue("Pet Leveling") > C_PetBattles.GetLevel(1, 1) ) then
-							C_PetBattles.ChangePet(1);
-						elseif Pet2HP >= getValue("Swap in Health") or myPets[3].health == 0 then
-							C_PetBattles.ChangePet(2);	
-						elseif Pet2HP == 0 and myPets[3].health == 0 then
-							C_PetBattles.ChangePet(1);
-						end
+					end
+				elseif myPetSlot == 2 and myPets[2].health < BadBoy_data["Box Swap Out Health"] then
+					if GetPetStrenght(1) > GetPetStrenght(3)
+					  and myPets[1].health >= BadBoy_data["Box Swap in Health"]
+					  and not ( isChecked("Pet Leveling") and getValue("Pet Leveling Max") > C_PetBattles.GetLevel(1, 1) ) then
+						C_PetBattles.ChangePet(1);
+					elseif myPets[3].health >= BadBoy_data["Box Swap in Health"] or myPets[2].health == 0 then
+						C_PetBattles.ChangePet(3);	
+					end
+				elseif myPetSlot == 3 and myPets[3].health < BadBoy_data["Box Swap Out Health"] then
+					if GetPetStrenght(1) > GetPetStrenght(2)
+					  and myPets[1].health >= BadBoy_data["Box Swap in Health"]
+					  and not ( isChecked("Pet Leveling") and getValue("Pet Leveling Max") > C_PetBattles.GetLevel(1, 1) ) then
+						C_PetBattles.ChangePet(1);
+					elseif myPets[3].health == 0 and myPets[2].health > 0 or myPets[2].health >= BadBoy_data["Box Swap in Health"] then
+						C_PetBattles.ChangePet(2);	
+					elseif myPets[3].health == 0 and myPets[2].health == 0 then
+						C_PetBattles.ChangePet(1);
 					end
 				end
 			end

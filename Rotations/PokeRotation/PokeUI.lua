@@ -1,7 +1,7 @@
 function PokeUI()
 
 	if not PokeUILoaded then
-		PokeUILoaded= true;
+		PokeUILoaded = true;
 		if pokeFrame == nil then
 			BadBoy_data.wait = 1;
 			pokeFrame = true
@@ -190,45 +190,10 @@ function PokeUI()
 		end
 	end
 
-	--PlayerBuffDisplay();
-	--EnnemyBuffDisplay();
+	PlayerBuffDisplay();
+	EnnemyBuffDisplay();
 	if BadBoy_data.pokeValueanchor == nil then BadBoy_data.pokeValueanchor = "CENTER" end
 	if BadBoy_data.pokeValuex == nil then BadBoy_data.pokeValuex = 0 end
 	if BadBoy_data.pokeValuey == nil then BadBoy_data.pokeValuey = 0 end
 
-	-- if Attacking BadBoy_data.abilitiesOnCD == 1
-	if C_PetBattles.GetAbilityState(1, activePetSlot, 1) ~= true and C_PetBattles.GetAbilityState(1, activePetSlot, 2) ~= true and C_PetBattles.GetAbilityState(1, activePetSlot, 3) ~= true then
-		if BadBoy_data.abilitiesOnCD ~= 1 then
-			BadBoy_data.abilitiesOnCD = 1
-		end
-	else
-		if BadBoy_data.abilitiesOnCD ~= 0 then
-			BadBoy_data.abilitiesOnCD = 0
-		end
-	end
-	-- if Attacking if wait == 0 then print Attacking and set wait = 2
-	if BadBoy_data.abilitiesOnCD == 1 then
-		if BadBoy_data.wait ~= 2 then
-			--print("ATTACKING "..BadBoy_data.wait)
-			waiter = nil;
-			BadBoy_data.wait = 2;
-		end
-		--if pokeValueFrame.Border ~= nil then pokeValueFrame.Border:SetTexture([[Interface\FullScreenTextures\LowHealth]]); end
-	end
-	-- if attack completed and wait == 2 and waiter == nil then set waiter = GetTime() wait = 1
-	if BadBoy_data.abilitiesOnCD == 0 and BadBoy_data.wait == 2 then
-		if waiter == nil then
-			waiter = GetTime();
-			--print("WAIT")
-			BadBoy_data.wait = 1;
-		end
-	end
-	-- if wait == 1 and waiter ~= nil and waiter <= GetTime()-0.1 then print Go set waiter = nil wait = 3 
-	if BadBoy_data.abilitiesOnCD == 0 and BadBoy_data.wait == 0 and waiter and waiter <= GetTime() - 0.1 then
-		if BadBoy_data.wait ~= 3 then
-			--print(BadBoy_data.wait.. BadBoy_data.abilitiesOnCD)
-			BadBoy_data.wait = 3; 
-			--pokeValueFrame.Border:SetTexture([[Interface\FullScreenTextures\OutOfControl]]);
-		end
-	end
 end

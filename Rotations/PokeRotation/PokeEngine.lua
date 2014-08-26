@@ -5,9 +5,9 @@ function PokeEngine()
 		PokeData();
 		PokeCollections();
 		PokeAbilities();
-		PokeUI();
 		PokeRotationStarted = true;
 	end
+	PokeUI();
 
 	--------------------------
 	-- Battle States & Vars --
@@ -136,7 +136,6 @@ function PokeEngine()
 		if inBattle and BadBoy_data["Check PokeRotation"] == 1 then
 			
 			Switch();
-			PassTurn();
 			SimpleHealing();
 			CapturePet();
 			PassTurn();
