@@ -4,28 +4,38 @@ function PokeAbilities()
 	if not PetFunctions then
 		PetFunctions = true
 		
+
+		function pokeTimers()
+			-- In Battle timer
+			if inBattle then
+				if inBattleTimer == 0 then 
+					inBattleTimer = GetTime()
+				end
+			elseif inBattleTimer ~= 0 then
+				ChatOverlay("\124cFF9999FFBattle Ended "..GetBattleTime().." Min. "..select(2,GetBattleTime()).." Secs.")
+				inBattleTimer = 0
+			end
+			-- Out of Battle timer
+			if not inBattle then
+				if outOfBattleTimer == 0 then 
+					outOfBattleTimer = GetTime()
+				end
+			elseif outOfBattleTimer ~= 0 then
+				outOfBattleTimer = 0
+			end
+		end
+
 		-- AbilitySpam(Ability) - Cast this single ability with checks.	
 		AbilitySpam = nil
 		function AbilitySpam(Ability)
-			if rotationRun == true then
-				if PetAbilitiesTable[activePetSlot].A1 == Ability and C_PetBattles.GetAbilityState(1, activePetSlot, 1) == true then
-					--pokeValueFrame.valueText:SetText("1", 1, 1, 1, 0.7);
-					BadBoy_data.pokeAttack = 1
-					BadBoy_data.wait = 0
-					rotationRun = false		   
-				end
-				if PetAbilitiesTable[activePetSlot].A2 == Ability and C_PetBattles.GetAbilityState(1, activePetSlot, 2) == true then
-					--pokeValueFrame.valueText:SetText("2", 1, 1, 1, 0.7);
-					BadBoy_data.pokeAttack = 2
-					BadBoy_data.wait = 0
-					rotationRun = false
-				end
-				if PetAbilitiesTable[activePetSlot].A3 == Ability and C_PetBattles.GetAbilityState(1, activePetSlot, 3) == true then
-					--pokeValueFrame.valueText:SetText("3", 1, 1, 1, 0.7);
-					BadBoy_data.pokeAttack = 3
-					BadBoy_data.wait = 0
-					rotationRun = false
-				end
+			if myPets[myPetSlot].a1 == Ability and C_PetBattles.GetAbilityState(1, myPetSlot, 1) == true then
+				C_PetBattles.UseAbility(1);  
+			end
+			if myPets[myPetSlot].a2 == Ability and C_PetBattles.GetAbilityState(1, myPetSlot, 2) == true then
+				C_PetBattles.UseAbility(2);
+			end
+			if myPets[myPetSlot].a3 == Ability and C_PetBattles.GetAbilityState(1, myPetSlot, 3) == true then
+				C_PetBattles.UseAbility(3);
 			end
 		end	
 					
@@ -73,15 +83,15 @@ function PokeAbilities()
 		-- CapturePet() - Test for targets to trap.
 		function CapturePet()
 		  	if inBattle 
-		  	  and C_PetBattles.GetBreedQuality(2, NmeactivePetSlot) >= CaptureValue 
-		  	  and C_PetJournal.GetNumCollectedInfo(C_PetBattles.GetPetSpeciesID(2,NmeactivePetSlot)) < NumberOfPetsValue
+		  	  and C_PetBattles.GetBreedQuality(2, nmePetSlot) >= CaptureValue 
+		  	  and C_PetJournal.GetNumCollectedInfo(C_PetBattles.GetPetSpeciesID(2,nmePetSlot)) < NumberOfPetsValue
 		  	  and CaptureCheck then
-			  	if NmeactivePetHP <= 35 
+			  	if nmePets[myPetSlot].health <= 35 
 			  	  and C_PetBattles.IsTrapAvailable() then
 					BadBoy_data.pokeAttack = 8;
 					BadBoy_data.wait = 0
 					ChatOverlay("\124cFFFFFFFFTrapping pet")
-				elseif NmeactivePetHP <= 65 then
+				elseif nmePets[myPetSlot].health <= 65 then
 					if Stun ~= nil then Stun() end 
 					if SimplePunch ~= nil then SimplePunch(3) end 
 					if SimplePunch ~= nil then SimplePunch(2) end 
@@ -106,27 +116,15 @@ function PokeAbilities()
 				return 0 
 			end
 		end
-		
-		-- Return the number of abilities the pet have according to his level.
-		function GetNumofPetAbilities(PetSlot)
-			local 	Petlevel = C_PetBattles.GetLevel(1, PetSlot)
-			if Petlevel >= 4 then 
-				return 3
-			elseif Petlevel >= 2 then
-				return 2
-			else
-				return 1
-			end
-		end
-		
+
 		-- Call to see pet strenghts based on IsPetAttack() lists.
 		function GetPetStrenght(PetSlot)
-			if PetHPTable[PetSlot] ~= 0 then
+			if myPets[myPetSlot].healthTable[PetSlot] ~= 0 then
 				local IsPetStrenght = 0
 				
 				local petGUID, ability1, ability2, ability3, locked = C_PetJournal.GetPetLoadOutInfo(PetSlot)
 				local Abilities = { ability1, ability2, ability3 }
-				for i = 1, GetNumofPetAbilities(PetSlot) do
+				for i = 1, numOfAbilities do
 		
 					if AbilityTest(Abilities[i]) == 3 
 					  and IsPetAttack(Abilities[i]) then
@@ -151,7 +149,7 @@ function PokeAbilities()
 					return true     
 				end
 			end
-			if NmePetPercent <= 40 then
+			if nmePets[nmePetSlot].health <= 40 then
 				for i = 1, #CantDieList do
 					local Poke_Ability = CantDieList[i]
 					if IsBuffed(Poke_Ability,2,Poke_Ability) then -- Si Aura = Buff 
@@ -219,21 +217,21 @@ function PokeAbilities()
 		
 		-- Health from journal
 		function JournalHealth(PetSlot)
-			PetHealth = 100 * (select(1,C_PetJournal.GetPetStats(C_PetJournal.GetPetLoadOutInfo(PetSlot))) / select(2,C_PetJournal.GetPetStats(C_PetJournal.GetPetLoadOutInfo(PetSlot))) )
-			if PetHealth == nil then
+			myPets[myPetSlot].health = 100 * (select(1,C_PetJournal.GetPetStats(C_PetJournal.GetPetLoadOutInfo(PetSlot))) / select(2,C_PetJournal.GetPetStats(C_PetJournal.GetPetLoadOutInfo(PetSlot))) )
+			if myPets[myPetSlot].health == nil then
 				return 0
 			else
-				return PetHealth
+				return myPets[myPetSlot].health
 			end
 		end
 		
 		-- Health from journal by GUID
 		function JournalHealthGUID(PetGUID)
-			PetHealth = 100 * (select(1,C_PetJournal.GetPetStats(PetGUID)) / select(2,C_PetJournal.GetPetStats(PetGUID)) )
-			if PetHealth == nil then
+			myPets[myPetSlot].health = 100 * (select(1,C_PetJournal.GetPetStats(PetGUID)) / select(2,C_PetJournal.GetPetStats(PetGUID)) )
+			if myPets[myPetSlot].health == nil then
 				return 0
 			else
-				return PetHealth
+				return myPets[myPetSlot].health
 			end
 		end
 		
@@ -241,19 +239,19 @@ function PokeAbilities()
 		function PetLevel(PetSlot)
 			if inBattle then
 				if PetSlot == nil then return 1 end
-				local MyPetLevel = C_PetBattles.GetLevel(1, PetSlot)
-				if MyPetLevel == nil then MyPetLevel = 1 end
-				return MyPetLevel
+				local myPetLevel = C_PetBattles.GetLevel(1, PetSlot)
+				if myPetLevel == nil then myPetLevel = 1 end
+				return myPetLevel
 			end
 			if not inBattle then
 				if PetSlot == nil then 
 					PetSlot = 1 
 				else
-					local MyPetLevel = select(3, C_PetJournal.GetPetInfoByPetID(C_PetJournal.GetPetLoadOutInfo(PetSlot)))
-					if MyPetLevel == nil then 
-						MyPetLevel = 1 
+					local myPetLevel = select(3, C_PetJournal.GetPetInfoByPetID(C_PetJournal.GetPetLoadOutInfo(PetSlot)))
+					if myPetLevel == nil then 
+						myPetLevel = 1 
 					end
-					return tonumber(MyPetLevel)
+					return tonumber(myPetLevel)
 				end
 			end
 		end	
@@ -263,57 +261,33 @@ function PokeAbilities()
 			AbilityCast(SuicideList)
 			-- Make sure we are not rooted.
 		  	if CanSwapOut then
-				if PetHP <= SwapOutHealthValue 
-				  and SwapOutHealthCheck
-				  or PetLevelingCheck and activePetSlot == 1 then
-					if activePetSlot == 1 
-					  and Pet1HP <= SwapOutHealthValue 
-					  or NMEPetHP < 100 then
+				if (myPets[myPetSlot].health <= getValue("Pet Swapout Health") and isChecked("Pet Swapout Health"))
+				  or (isChecked("Pet Leveling") and myPetSlot == 1) then
+					if myPets[1].health <= SwapOutHealthValue or nmePets[nmePetSlot].health < 100 then
 						if GetPetStrenght(2) > GetPetStrenght(3) 
-						  and Pet2HP >= SwapInHealthValue then
-							--pokeValueFrame.valueText:SetText("Pet 2", 1, 1, 1, 0.7);
-							BadBoy_data.pokeAttack = 6
-							BadBoy_data.wait = 0
-							rotationRun = false;
-						elseif Pet3HP >= SwapInHealthValue 
-						  or Pet1HP == 0 then
-							--pokeValueFrame.valueText:SetText("Pet 3", 1, 1, 1, 0.7);
-							BadBoy_data.pokeAttack = 7	
-							BadBoy_data.wait = 0
-							rotationRun = false;
+						  and Pet2HP >= getValue("Pet Swapin Health") then
+							C_PetBattles.ChangePet(2);
+						elseif Pet3HP >= getValue("Pet Swapin Health") 
+						  or myPets[1].health == 0 then
+							C_PetBattles.ChangePet(3);	
 						end
-					elseif activePetSlot == 2 then
+					elseif myPetSlot == 2 then
 						if GetPetStrenght(1) > GetPetStrenght(3)
-						  and Pet1HP >= SwapInHealthValue 
-						  and not ( PetLevelingCheck and PetLevelingValue > C_PetBattles.GetLevel(1, 1) ) then
-							--pokeValueFrame.valueText:SetText("Pet 1", 1, 1, 1, 0.7);
-							BadBoy_data.pokeAttack = 5	
-							BadBoy_data.wait = 0
-							rotationRun = false;
-						elseif Pet3HP >= SwapInHealthValue or Pet2HP == 0 then
-							--pokeValueFrame.valueText:SetText("Pet 3", 1, 1, 1, 0.7);
-							BadBoy_data.pokeAttack = 7	
-							BadBoy_data.wait = 0
-							rotationRun = false;
+						  and myPets[1].health >= getValue("Pet Swapin Health") 
+						  and not ( isChecked("Pet Leveling") and getValue("Pet Leveling") > C_PetBattles.GetLevel(1, 1) ) then
+							C_PetBattles.ChangePet(1);
+						elseif Pet3HP >= getValue("Pet Swapin Health") or Pet2HP == 0 then
+							C_PetBattles.ChangePet(3);	
 						end
-					elseif activePetSlot == 3 then
+					elseif myPetSlot == 3 then
 						if GetPetStrenght(1) > GetPetStrenght(2) 
-						  and Pet1HP >= SwapInHealthValue 
-						  and not ( PetLevelingCheck and PetLevelingValue > C_PetBattles.GetLevel(1, 1) ) then
-							--pokeValueFrame.valueText:SetText("Pet 1", 1, 1, 1, 0.7);
-							BadBoy_data.pokeAttack = 5	
-							BadBoy_data.wait = 0
-							rotationRun = false;
-						elseif Pet2HP >= SwapInHealthValue or Pet3HP == 0 then
-							--pokeValueFrame.valueText:SetText("Pet 2", 1, 1, 1, 0.7);
-							BadBoy_data.pokeAttack = 6	
-							BadBoy_data.wait = 0
-							rotationRun = false;
+						  and myPets[1].health >= getValue("Pet Swapin Health") 
+						  and not ( isChecked("Pet Leveling") and getValue("Pet Leveling") > C_PetBattles.GetLevel(1, 1) ) then
+							C_PetBattles.ChangePet(1);
+						elseif Pet2HP >= getValue("Pet Swapin Health") or Pet3HP == 0 then
+							C_PetBattles.ChangePet(2);	
 						elseif Pet2HP == 0 and Pet3HP == 0 then
-							--pokeValueFrame.valueText:SetText("Pet 1", 1, 1, 1, 0.7);
-							BadBoy_data.pokeAttack = 5	
-							BadBoy_data.wait = 0
-							rotationRun = false;
+							C_PetBattles.ChangePet(1);
 						end
 					end
 				end
@@ -337,7 +311,7 @@ function PokeAbilities()
 		-- Abilities that are stronger if the enemy have more health than us.
 		Comeback = nil
 		function Comeback()
-			if PetHP < NmePetPercent 
+			if myPets[myPetSlot].health < nmePets[nmePetSlot].health 
 			  and not Immunity() then
 				AbilityCast(ComebackList)
 			end
@@ -354,7 +328,7 @@ function PokeAbilities()
 		-- Debuff to cast on ennemy.
 		DeBuff = nil
 		function DeBuff()		
-			if NmePetPercent >= 45 
+			if nmePets[nmePetSlot].health >= 45 
 			  and not Immunity() then
 				for i = 1, #DeBuffList do
 					if not IsBuffed(DeBuffList[i], 2) then
@@ -392,7 +366,7 @@ function PokeAbilities()
 		-- Apocalypse
 		DelayFifteenTurn = nil
 		function DelayFifteenTurn()
-			if NmeactivePetSlot == 1 then 
+			if nmePetSlot == 1 then 
 				AbilityCast(FifteenTurnList)
 			end
 		end
@@ -400,7 +374,7 @@ function PokeAbilities()
 		-- Damage in three turn
 		DelayThreeTurn = nil
 		function DelayThreeTurn()
-			if NmeactivePetSlot ~= 3 then
+			if nmePetSlot ~= 3 then
 				AbilityCast(ThreeTurnList)	
 			end
 		end
@@ -408,7 +382,7 @@ function PokeAbilities()
 		-- Damage in one turn.
 		DelayOneTurn = nil
 		function DelayOneTurn()
-			if not ( NmeactivePetSlot == 3 and NmeactivePetHP <= 30 ) then
+			if not ( nmePetSlot == 3 and nmePets[myPetSlot].health <= 30 ) then
 				AbilityCast(OneTurnList)
 			end
 		end
@@ -416,7 +390,7 @@ function PokeAbilities()
 		-- Execute if enemi pet is under 30%.
 		Execute = nil
 		function Execute()
-			if NmePetPercent <= 60 
+			if nmePets[nmePetSlot].health <= 60 
 			  and not Immunity() then
 				AbilityCast(ExecuteList)
 			end
@@ -425,8 +399,8 @@ function PokeAbilities()
 		-- Buffs that heal us.
 		HoTBuff = nil
 		function HoTBuff()
-			if PetHP < ( PetHealValue + 10 )
-			  and not ( nmePetHP < 40 and enemyPetSlot == 3 ) then
+			if myPets[myPetSlot].health < ( PetHealValue + 10 )
+			  and not ( myPets[myPetSlot].health < 40 and enemyPetSlot == 3 ) then
 				for i = 1, #HoTList do
 					for j = 1, #HoTBuffList do
 						local Poke_Ability = HoTBuffList[j]			
@@ -441,7 +415,7 @@ function PokeAbilities()
 		-- Suicide if under 20% Health.
 		Kamikaze = nil
 		function Kamikaze()
-			if PetHP < 20 
+			if myPets[myPetSlot].health < 20 
 			  and not Immunity() then
 				AbilityCast(KamikazeList)
 			end
@@ -449,15 +423,15 @@ function PokeAbilities()
 		
 		LastStand = nil
 		function LastStand()
-			if PetHP < 25 then
+			if myPets[myPetSlot].health < 25 then
 				AbilityCast(LastStandList)
 			end
 		end
 		
 		LifeExchange = nil
 		function LifeExchange()
-			if PetHP < 35
-			  and nmePetHP > 70 then
+			if myPets[myPetSlot].health < 35
+			  and myPets[myPetSlot].health > 70 then
 				AbilityCast(LifeExchangeList)	
 			end
 		end
@@ -465,10 +439,7 @@ function PokeAbilities()
 		PassTurn = nil
 		function PassTurn()
 			if IsMultiBuffed(StunnedDebuffs, 1) then -- if we are stunned
-				pokeValueFrame.valueText:SetText("Pass", 1, 1, 1, 0.7); -- skip turn
-				BadBoy_data.pokeAttack = 4
-				BadBoy_data.wait = 0
-				rotationRun = false;
+				C_PetBattles.SkipTurn();
 			end
 		end
 		
@@ -490,8 +461,8 @@ function PokeAbilities()
 		-- List of Buffs that we want to cast on us.
 		SelfBuff = nil
 		function SelfBuff()
-			if activePetHP > 15
-			  and not ( NmePetPercent <= 40 and NmeactivePetSlot == 3 ) then
+			if myPets[myPetSlot].health > 15
+			  and not ( nmePets[nmePetSlot].health <= 40 and nmePetSlot == 3 ) then
 				if not IsMultiBuffed(SelfBuffList, 1) then		
 					AbilityCast(SelfBuffList)
 				end
@@ -503,8 +474,7 @@ function PokeAbilities()
 			end
 		end
 		
-		
-		-- Direct Healing
+		-- Direct Healing.
 		SimpleHealing = nil
 		function SimpleHealing()
 			if PetPercent < PetHealValue
@@ -513,6 +483,7 @@ function PokeAbilities()
 			end	
 		end
 		
+		-- Basic High Damage Attack.
 		SimpleHighPunch = nil
 		function SimpleHighPunch(HighDmgCheck)
 			if not Immunity() then
@@ -532,8 +503,8 @@ function PokeAbilities()
 		
 		ShieldBuff = nil
 		function ShieldBuff()
-			if not ( NmePetPercent <= 30 
-			  and NmeactivePetSlot == 3 ) then
+			if not ( nmePets[nmePetSlot].health <= 30 
+			  and nmePetSlot == 3 ) then
 			  	if not IsMultiBuffed(ShieldBuffList, 1) then		
 					AbilityCast(ShieldBuffList)
 				end
@@ -560,7 +531,7 @@ function PokeAbilities()
 		
 		SpeedDeBuff = nil
 		function SpeedDeBuff()		
-			if NmePetPercent >= 45 
+			if nmePets[nmePetSlot].health >= 45 
 			  and myspeed < nmespeed 
 			  and myspeed > ( 3 * nmespeed / 4 ) then
 				for i = 1, #SpeedDeBuffList do
@@ -585,8 +556,8 @@ function PokeAbilities()
 		
 		TeamDebuff = nil
 		function TeamDebuff()
-			if not ( NmeactivePetSlot == 3
-			  and NmePetPercent <= 55 ) then
+			if not ( nmePetSlot == 3
+			  and nmePets[nmePetSlot].health <= 55 ) then
 				for i = 1, #TeamDebuffList do
 					local found = false		
 				
@@ -613,8 +584,8 @@ function PokeAbilities()
 
 		TeamHealBuffs = nil
 		function TeamHealBuffs()
-			if PetHP < PetHealValue
-			  and not ( nmePetHP < 40 and enemyPetSlot == 3 ) then
+			if myPets[myPetSlot].health < PetHealValue
+			  and not ( myPets[myPetSlot].health < 40 and enemyPetSlot == 3 ) then
 				for i = 1, #TeamHealBuffsAbilities do
 			
 					local found = false		
@@ -640,7 +611,7 @@ function PokeAbilities()
 		-- Abilities that last three turns that does high damage.
 		ThreeTurnHighDamage = nil
 		function ThreeTurnHighDamage()
-			if PetHP > 60 then
+			if myPets[myPetSlot].health > 60 then
 				AbilityCast(ThreeTurnHighDamageList)
 			end
 		end
@@ -649,59 +620,12 @@ function PokeAbilities()
 		Turrets = nil
 		function Turrets(HighDmgCheck)
 			if WeatherID ~= 454 
-			  and not ( NmeactivePetSlot == 3
-		  	  and NmePetPercent <= 55 ) then
+			  and not ( nmePetSlot == 3
+		  	  and nmePets[nmePetSlot].health <= 55 ) then
 				AbilityCast(TurretsList, HighDmgCheck)
 			end
 		end
 
-	end
-
-	--[[                                       Normal Rotation                                             ]]
-
-	-- Rotation
-	
-	if inBattle and ObjectiveValue == 1 and BadBoy_data.wait == 1 and BadBoy_data["Check PokeRotation"] == 1 then
-		rotationRun = true
-		HealingDone = nil
-		Switch();
-		SimpleHealing();
-		CapturePet();
-		PassTurn();
-		Deflect();
-		Execute();
-		Kamikaze();
-		LastStand();
-		ShieldBuff();
-		LifeExchange();
-		DelayFifteenTurn();
-		DelayThreeTurn();
-		DelayOneTurn();
-		TeamHealBuffs();
-		HoTBuff();
-		HighDamageIfBuffed();
-		SelfBuff();
-		DamageBuff();
-		SpeedDeBuff();
-		AoEPunch();
-		ThreeTurnHighDamage();
-		Turrets(1);
-		SimpleHighPunch(1);
-		SimplePunch(1);
-		SimpleHighPunch(2);
-		DeBuff();
-		Soothe();
-		Stun();
-		TeamDebuff();
-		Turrets(2);
-		SpeedBuff();
-		QuickPunch();
-		Comeback();
-		SimplePunch(2);
-		Turrets(3);
-		SimpleHighPunch(3);
-		SimplePunch(3);
-		rotationRun = false;
 	end
 end
 

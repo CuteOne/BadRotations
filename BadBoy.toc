@@ -103,7 +103,6 @@ Rotations\Warlock\Demonology.lua
 Rotations\Warlock\Destruction.lua
 
 ## PokeRotation
-Rotations\PokeRotation\PokeRotation\.lua
 Rotations\PokeRotation\PokeAbilities.lua
 Rotations\PokeRotation\PokeCollections.lua
 Rotations\PokeRotation\PokeData.lua

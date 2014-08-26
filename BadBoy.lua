@@ -253,7 +253,9 @@ function BadBoyRun()
 				SubRogue();
 			end
 		elseif _MyClass == 5 then -- Priest
-			--Priest()
+			if _MySpec == 3 then
+				PriestShadow();
+			end
 		elseif _MyClass == 6 then -- Deathknight
 			if _MySpec == 1 then
 				Blood();

@@ -229,8 +229,9 @@ function canRun()
 			  or UnitBuffID("player",11392) ~= nil
 			  or UnitBuffID("player",80169) ~= nil 
 			  or UnitBuffID("player",87959) ~= nil
-			  or UnitBuffID("player",104934) ~= nil then
-				return false;
+			  or UnitBuffID("player",104934) ~= nil 
+			  or UnitBuffID("player",9265) ~= nil then -- Deep Sleep(SM)
+				return nil;
 			else
 				return true;
 			end
@@ -593,6 +594,39 @@ function getFacing(Unit1,Unit2,Degrees)
 	end
 end
 
+
+
+
+--[[function getFacing(Unit1, Unit2)
+ 	if not Unit2 then Unit2 = 'player'; end
+ 	if not Unit1 then Unit1 = 'target'; end
+ 	local X, Y, Z, Rotation = IGetLocation(UnitGUID(Unit2));
+ 	local OtherX, OtherY = IGetLocation(UnitGUID(Unit1));
+ 	return ((X - OtherX) * math.cos(-Rotation)) - ((Y - OtherY) * math.sin(-Rotation)) < 0;
+end
+
+function faceLocation(X, Y)
+ 	local PlayerX, PlayerY = IGetLocation(UnitGUID("player"));
+ 	if rad(atan2(Y - PlayerY, X - PlayerX)) < 0 then
+  		FaceDirection(rad(atan2(Y - PlayerY, X - PlayerX) + 360));
+ 	else
+  		FaceDirection(rad(atan2(Y - PlayerY, X - PlayerX)));
+ 	end
+ 	return;
+end
+
+function face(unit)
+ 	faceLocation(IGetLocation(UnitGUID(unit)));
+ 	return;
+end
+]]
+
+
+
+
+
+
+
 -- if getFacingSight("player","target") == true then
 function getFacingSight(Unit1,Unit2,Degrees)
 	if Degrees == nil then Degrees = 90; end
@@ -731,14 +765,12 @@ function getEnnemies(Unit,Radius)
  	for i=1, GetTotalObjects(TYPE_UNIT) do
   		local Guid = IGetObjectListEntry(i);
   		ISetAsUnitID(Guid,"thisUnit");
-  		if tonumber(string.sub(tostring(Guid), 5,5)) == 3 or isDummy("thisUnit") then
-	  		if getCreatureType("thisUnit") == true then
-	  			if UnitCanAttack("player","thisUnit") and not UnitIsDeadOrGhost("thisUnit") then
-	  				if getDistance(Unit,"thisUnit") <= ((Radius + IGetFloatDescriptor(Guid,0x110))) then
-	   					tinsert(ennemiesTable,Guid);
-	   				end
-	  			end
-	  		end
+  		if (tonumber(string.sub(tostring(Guid), 5,5)) == 3 and getCreatureType("thisUnit") == true) or isDummy("thisUnit") then
+  			if UnitCanAttack("thisUnit","player") and not UnitIsDeadOrGhost("thisUnit") then
+  				if getDistance(Unit,"thisUnit") <= Radius then
+   					tinsert(ennemiesTable,Guid);
+   				end
+  			end
   		end
  	end
  	return ennemiesTable;
@@ -788,9 +820,7 @@ end
 function getGround(Unit)
 	if IExists(UnitGUID(Unit)) then
 		local X1,Y1,Z1 = IGetLocation(UnitGUID(Unit));
-		if TraceLine(X1,Y1,Z1+2,X1,Y1,Z1-2, 0x10) == nil and TraceLine(X1,Y1,Z1+2,X1,Y1,Z1-4, 0x100) == nil then return false; else return true; end
-	else 
-		return false;
+		if TraceLine(X1,Y1,Z1+2,X1,Y1,Z1-2, 0x10) == nil and TraceLine(X1,Y1,Z1+2,X1,Y1,Z1-4, 0x100) == nil then return nil; else return true; end
 	end
 end
 
@@ -819,6 +849,11 @@ end
 function round2(num, idp)
   mult = 10^(idp or 0)
   return math.floor(num * mult + 0.5) / mult
+end
+
+-- if getTalent(8) == true then
+function getTalent(Index)
+	return select(5, GetTalentInfo(Index)) or false
 end
 
 -- if getTimeToDie("target") >= 6 then
@@ -1320,8 +1355,8 @@ end
 
 -- if isKnown(106832) then
 function isKnown(spellID)
-  	local	spellName = GetSpellInfo(spellID)
-  	if GetSpellBookItemInfo(spellName)~=nil then
+  	local spellName = GetSpellInfo(spellID)
+  	if GetSpellBookItemInfo(spellName) ~=nil then
     	return true;
   	end
   	return false;

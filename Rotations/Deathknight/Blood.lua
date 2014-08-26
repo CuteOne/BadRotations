@@ -7,7 +7,7 @@ function Blood()
 	end
 
 	-- Locals
-	local runicPower, runesBlood, runesUnholy, runesFrost, runesDeath, meleeEnnemies, targetEnnemies = UnitPower("player"), getRunes("blood"), getRunes("unholy"), getRunes("frost"), getRunes("death"), getNumEnnemies("player",4), getEnnemies("target",10);
+	local runicPower, runesBlood, runesUnholy, runesFrost, runesDeath = UnitPower("player"), getRunes("blood"), getRunes("unholy"), getRunes("frost"), getRunes("death")
 
 	-- Food/Invis Check
 	if canRun() ~= true or UnitInVehicle("Player") then return false; end
@@ -59,7 +59,7 @@ function Blood()
 	end
 
 
-	if isCasting() then return false; end
+	if isCasting() or getSpellCD(61304) > 0 then return false; end
 
     -- Presence
     if isKnown(_BloodPresence) and isChecked("Presence") then
@@ -118,21 +118,24 @@ function Blood()
 	    	end
 	    end
 
+	    if ScanTimer == nil or ScanTimer <= GetTime() - 1 then
+	    	meleeEnnemies, targetEnnemies, ScanTimer = getNumEnnemies("player",4), getEnnemies("target",10), GetTime(); 
+	    end
+
 	    -- Pestilence - Bring
 	    local PestiSpell;
 	    if isKnown(_RoilingBlood) then PestiSpell = _BloodBoil; else PestiSpell = _Pestilence; end	    
-	    if runesBlood >= 1 or runesDeath >= 1 and (pestiTimer == nil or pestiTimer <= GetTime() - 2) then
+	    if targetDistance < 8 and (runesBlood >= 1 or runesDeath >= 1) and (pestiTimer == nil or pestiTimer <= GetTime() - 2) then
 			if canCast(PestiSpell) then
-				pestiTimer = GetTime(); 
 				if not UnitDebuffID("target",55078,"player") then
 					for i = 1, #targetEnnemies do
 						local Guid = targetEnnemies[i]
 						ISetAsUnitID(Guid,"thisUnit");
-						if getCreatureType("thisUnit") == true and getDebuffRemain("thisUnit",55078,"player") >= 2 then
+						if getCreatureType("thisUnit") == true and getDebuffRemain("thisUnit",55078,"player") >= 2 and getDistance("target","thisUnit") < 8 then
 							if PestiSpell == _BloodBoil then
-								if castSpell("player",PestiSpell,true) then return; end	
+								if castSpell("player",PestiSpell,true) then pestiTimer = GetTime(); return; end	
 							else	
-								if castSpell("thisUnit",PestiSpell,true) then return; end	
+								if castSpell("thisUnit",PestiSpell,true) then pestiTimer = GetTime(); return; end	
 							end						
 						end
 					end	
@@ -151,28 +154,27 @@ function Blood()
 	    end
 
 	    -- Plague Strike
-	    if (runesUnholy >= 1 or runesDeath >= 1) and getDebuffRemain("target",55078) < 4 then
+	    if (runesUnholy >= 1 or runesDeath >= 1) and getDebuffRemain("target",55078,"player") < 4 then
 	    	if castSpell("target",_PlagueStrike,false) then return; end
 	    end
 
 	    -- Icy Touch
-	    if (runesFrost >= 1 or (runesDeath >= 1 and getDebuffRemain("target",55078) > 4)) and getDebuffRemain("target",55095) < 4 then
+	    if (runesFrost >= 1 or (runesDeath >= 1 and getDebuffRemain("target",55078,"player") > 4)) and getDebuffRemain("target",55095) < 4 then
 		    if castSpell("target",_IcyTouch,false) then return; end
 	    end
 
 	    -- Pestilence/Rolling Blood - Spread
-	    if #targetEnnemies > 2 and (runesBlood >= 1 or runesDeath >= 1) and (pestiTimer == nil or pestiTimer <= GetTime() - 1) then
+	    if targetDistance < 8 and #targetEnnemies > 2 and (runesBlood >= 1 or runesDeath >= 1) and (pestiTimer == nil or pestiTimer <= GetTime() - 1) then
 			if canCast(PestiSpell) then
-				pestiTimer = GetTime();
 				if getDebuffRemain("target",55078,"player") >= 2 then
 					for i = 1, #targetEnnemies do
 						local Guid = targetEnnemies[i]
 						ISetAsUnitID(Guid,"thisUnit");
-						if getCreatureType("thisUnit") == true and UnitDebuffID("thisUnit",55078) == nil then
+						if getCreatureType("thisUnit") == true and UnitDebuffID("thisUnit",55078,"player") == nil and getDistance("target","thisUnit") < 8 then
 							if PestiSpell == _BloodBoil then
-								if castSpell("player",PestiSpell,true) then return; end	
+								if castSpell("player",PestiSpell,true) then pestiTimer = GetTime(); return; end	
 							else	
-								if castSpell("target",PestiSpell,true) then return; end	
+								if castSpell("target",PestiSpell,true) then pestiTimer = GetTime(); return; end	
 							end								
 						end
 					end	

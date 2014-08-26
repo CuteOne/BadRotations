@@ -133,7 +133,7 @@ frame:RegisterEvent("PLAYER_LOGOUT");
 
 function frame:OnEvent(event, arg1)
  	if event == "ADDON_LOADED" and arg1 == "BadBoy" then
- 		ChatOverlay("Addons Loaded. Starting BadBoy.");
+ 		--ChatOverlay("Addons Loaded. Starting BadBoy.");
  		BadBoy_data = BadBoy_data;
  		BadBoyRun();
 	end

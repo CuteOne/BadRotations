@@ -376,7 +376,7 @@ superReaderFrame:SetScript("OnEvent", SuperReader)
 pokeEngineFrame = CreateFrame('Frame');
 pokeEngineFrame:RegisterEvent("CHAT_MSG_PET_BATTLE_COMBAT_LOG");
 function PokeReader(self, event, ...)
-	-- print("Round 6")
+	turnDone = nil;
 end
 pokeEngineFrame:SetScript("OnEvent", PokeReader);
 --CHAT_MSG_PET_BATTLE_COMBAT_LOG → ?

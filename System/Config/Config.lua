@@ -171,15 +171,312 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Overlay Messages", "|cffFFBB00Check this to enable Chat Overlay Messages.");
     CreateNewText(thisConfig,"Overlay Messages");
 
+    -- Debug
+    CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start |cffFFFFFFChat Debug |cffFFBB00of casted spells.");
+    CreateNewText(thisConfig,"Debug");
+
+    -- Wrapper -----------------------------------------
+    CreateNewWrap(thisConfig,"--------- PokeRotation -------");
+
     -- PokeRotation
     CreateNewCheck(thisConfig,"PokeRotation", "|cffFFBB00Check this to start PokeRotation.");
     CreateNewText(thisConfig,"PokeRotation");
 
-    -- Debug
-    CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start |cffFFFFFFChat Debug |cffFFBB00of casted spells.");
-    CreateNewText(thisConfig,"Debug");
+	CreateNewText(thisConfig,"In Battle");
+
+	--PetLevelingValue			= 6
+	CreateNewCheck(thisConfig,"Pet Leveling Value");
+	CreateNewBox(thisConfig, "Pet Leveling Value", 1, 25  , 1, 6, "|cffFFBB00Pet Leveling minimum pet level");
+	CreateNewText(thisConfig,"Pet Leveling Value");
+
+	--PetHealValue				= 65
+	CreateNewCheck(thisConfig,"Pet Heal Value");
+	CreateNewBox(thisConfig, "Pet Heal Value", 0, 1000  , 5, 0, "|cffFFBB00Set pet healing value");
+	CreateNewText(thisConfig,"Pet Heal Value");
+
+	--CaptureValue				= 4
+	CreateNewCheck(thisConfig,"Pet Capture Value");
+	CreateNewBox(thisConfig, "Pet Capture Value", 1, 4  , 1, 4, "|cffFFBB00Set pet Rarity Capture Treshold");
+	CreateNewText(thisConfig,"Pet Capture Value");
+
+	--NumberOfPetsValue			= 1
+	CreateNewCheck(thisConfig,"Number of Pets value");
+	CreateNewBox(thisConfig, "Number of Pets value", 1, 3  , 1, 1, "|cffFFBB00Set number of pets of each kind to capture");
+	CreateNewText(thisConfig,"Number of Pets value");
+
+	CreateNewText(thisConfig,"Out of Battle");
+
+	--ReviveBattlePetsValue		= 1
+	CreateNewCheck(thisConfig,"Revive Battle Pets Value");
+	CreateNewBox(thisConfig, "Revive Battle Pets Value", 1, 100  , 5, 60, "|cffFFBB00Set Revive Battle Pets Value");
+	CreateNewText(thisConfig,"Revive Battle Pets Value");
+
+	--AutoClickerValue			= 1
+	CreateNewCheck(thisConfig,"Auto Clicker Range");
+	CreateNewBox(thisConfig, "Auto Clicker Range", 0, 200  , 5, 30, "|cffFFBB00Set Auto Clicker range");
+	CreateNewText(thisConfig,"Auto Clicker Range");
+
+	--LevelingPriorityValue 		= 3
+	CreateNewCheck(thisConfig,"Leveling Priority");
+	CreateNewBox(thisConfig, "Leveling Priority", 1, 4  , 1, 4, "|cffFFBB00Set Leveling Priority");
+	CreateNewText(thisConfig,"Leveling Priority");
+
+	--LevelingRarityValue 		= 4
+	CreateNewCheck(thisConfig,"Leveling Rarity");
+	CreateNewBox(thisConfig, "Leveling Rarity", 1, 4  , 1, 4, "|cffFFBB00Set Leveling Rarity");
+	CreateNewText(thisConfig,"Leveling Rarity");
+
+	--SwapInHealthValue			= 65
+	CreateNewCheck(thisConfig,"Swap in Health Value");
+	CreateNewBox(thisConfig, "Swap in Health Value", 1, 100  , 1, 60, "|cffFFBB00Set Swap in Health Value");
+	CreateNewText(thisConfig,"Swap in Health Value");
+
+	--SwapOutHealthValue			= 35
+	CreateNewCheck(thisConfig,"Swap Out Health Value");
+	CreateNewBox(thisConfig, "Swap Out Health Value", 1, 100  , 1, 30, "|cffFFBB00Set Swap Out Health Value");
+	CreateNewText(thisConfig,"Swap Out Health Value");
+
+	--SwapOutHealthCheck			= true
+	CreateNewCheck(thisConfig,"Swap Out Health");
+	CreateNewDrop(thisConfig, "Swap Out Health", "|cffFFBB00Select true or false.","true","false");
+	CreateNewText(thisConfig,"Swap Out Health");
+
+	-- Pause Toggle
+    CreateNewCheck(thisConfig,"Pause Toggle");
+    CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle2")
+    CreateNewText(thisConfig,"Pause Toggle"); 
+
+
+
+
+
+
+
+
+
 
    -- Bound
     CreateNewBound(thisConfig,"End"); 
     doneConfig = true;
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--[[
+
+
+
+if CODEMYLIFE_POKEROTATION == nil then
+	PQIconfig = {
+		name	= "PokeRotation",
+		author	= "CodeMyLife",
+		abilities = {
+		
+			{	name = "Objective",
+				enable = true,
+				tooltip = "|cffFFFFFFWhat's your primary objective.",
+				widget = { type = 'select',
+					values = {"Pet Leveling","PvP","Beasts of Fables","Masters"},
+					value = 1,
+					tooltip = "|cffFFFFFFSelect one!",
+					width  = 110,
+				},
+			},
+			
+			---- Pet Healing  ----
+			{ 	name	= "Pet Heal",
+				enable	= true,
+				tooltip	= "|cffFFFFFFIn Battle - |cff33CCFFMinimum pet |cffFFFFFFHealth Value |cff33CCFFto use their |cffFFFFFFhealing Abilities|cff33CCFF.",
+				widget	= { type = "numBox",
+					value	= 70,
+					step	= 5,
+					tooltip	= "|cffFFFFFFIn Battle - |cff33CCFFMinimum pet |cffFFFFFFHealth Value |cff33CCFFto use their |cffFFFFFFhealing Abilities|cff33CCFF.",
+				},
+			},
+				
+			----  Swap Out Treshold  ----
+			{ 	name	= "Swap Out Health",
+				enable	= true,
+				tooltip	= "|cffFFFFFFIn Battle - |cff33CCFFMinimum pet |cffFFFFFFHealth Value |cff33CCFFto |cffFFFFFFSwap-out pet 1 and 2|cff33CCFF. |cffFFFFFFPet 3 will always fight until death|cff33CCFF.",
+				widget	= { type = "numBox",
+					value	= 25,
+					step	= 5,
+					tooltip	= "|cffFFFFFFIn Battle - |cff33CCFFMinimum pet |cffFFFFFFHealth Value |cff33CCFFto |cffFFFFFFSwap-Out Pets|cff33CCFF.",
+				},
+			},
+			
+			----  Swap In Treshold  ----
+			{ 	name	= "Swap In Health",
+				enable	= true,
+				tooltip	= "|cffFFFFFFIn Battle - |cff33CCFFCheck to |cffFFFFFFActivate Pet Switching|cff33CCFF.",
+				widget	= { type = "numBox",
+					value	= 35,
+					step	= 5,
+					tooltip	= "|cffFFFFFFIn Battle - |cff33CCFFMinimum |cffFFFFFFHealth to |cffFFFFFFSwap Pets In|cff33CCFF.",
+				},
+			},
+			
+			----  Capture Treshold  ----
+			{ 	name	= "Capture",
+				enable	= true,
+				tooltip	= "|cffFFFFFFIn Battle - |cff33CCFFMinimum pet rarity to Capture: |cff"..(RarityColorsTable[1].Color).."1-Poor |cff"..(RarityColorsTable[2].Color).."2-Common |cff"..(RarityColorsTable[3].Color).."3-Uncommon |cff"..(RarityColorsTable[4].Color).."4-Rare.",
+				widget = { type = 'select',
+					values = {"|cff"..(RarityColorsTable[1].Color).."Poor","|cff"..(RarityColorsTable[2].Color).."Common","|cff"..(RarityColorsTable[3].Color).."Uncommun","|cff"..(RarityColorsTable[4].Color).."Rare"},
+					value = 4,
+					tooltip = "|cffFFFFFFIn Battle - |cff33CCFFMinimum pet rarity to Capture: |cff"..(RarityColorsTable[1].Color).."1-Poor |cff"..(RarityColorsTable[2].Color).."2-Common |cff"..(RarityColorsTable[3].Color).."3-Uncommon |cff"..(RarityColorsTable[4].Color).."4-Rare.",
+					width  = 80,
+					
+				},
+				newSection = true,	
+			},
+			
+			----  Number of Pets to Capture  ----
+			{ 	name	= "Number Of Pets",
+				enable	= true,
+				tooltip	= "|cffFFFFFFIn Battle - |cff33CCFFCheck to |cffFFFFFFManage How Many Pets of Each Kind |cff33CCFFyou want to |cffFFFFFFCapture|cff33CCFF.",
+				widget	= { type = "numBox",
+					min		= 1,
+					max		= 3,
+					value	= 1,
+					step	= 1,
+					tooltip	= "|cffFFFFFFIn Battle - |cff33CCFFHow Many |cffFFFFFFPets of Each Kind do you want to |cffFFFFFFCapture|cff33CCFF.",
+				},
+			},
+			
+			----  Revive Battle Pets ----
+			{ 	name	= "Revive Battle Pets",
+				enable	= true,
+				tooltip	= "|cffFFFFFFOut of Battle - |cff33CCFFCheck to |cffFFFFFFActivate Revive Battle Pets|cff33CCFF..",
+				widget	= { type = "numBox",
+					value	= 70,
+					step	= 5,
+					tooltip	= "|cffFFFFFFOut of Battle - |cff33CCFFMinimum |cffFFFFFFTeam Health Value |cff33CCFFto use |cffFFFFFFRevive Battle Pets|cff33CCFF.",
+				},
+				newSection = true,
+			},
+			
+			----  Pet Leveling  ----		    
+		    { 	name	= "Pet Leveling",
+				tooltip	= "|cffFFFFFFIn Battle - |cff33CCFFCheck this to |cffFFFFFFMake your Pet in Slot 1 Level Quick. It will interact only once |cff33CCFFand hide behind other pets.",
+				enable	= true,
+				widget	= { type = "numBox",
+					min		= 1,
+					max		= 25,
+					value	= 25,
+					step	= 1,
+					tooltip	= "|cffFFFFFFIn Battle - |cff33CCFFSet this value to the |cffFFFFFFlevel |cff33CCFFyou want |cffFFFFFFto consider the pet high level enough to fight|cffFF0000(cancels Pet Leveling).",
+				},
+			},
+			
+			----  Leveling Priority  ----
+			{ 	name	= "Leveling Priority",
+				enable	= true,
+				tooltip	= "|cffFFFFFFOut of Battle - |cff33CCFFChoose the desired Table sorting for Pet Leveling",
+				widget = { type = 'select',
+					values = {"|cff"..(RarityColorsTable[3].Color).."Low Level","|cffFF0000High Level","|cffFFFFFFNon-Wilds|cff33CCFF/|cff"..(RarityColorsTable[3].Color).."Low Level","|cffFFFFFFNon-Wilds|cff33CCFF/|cffFF0000HighLevel"},
+					value = 3,
+					tooltip = "|cff"..(RarityColorsTable[3].Color).."Low Level |cff33CCFFwill add priority to |cff"..(RarityColorsTable[3].Color).."Low Level Pets. |cffFFFFFFNon-Wild |cff33CCFFwill add priority to |cffFFFFFFNon-Wild Pets. |cffFFFFFFFavorite |cff33CCFFis |cffFFFFFFTop Priority |cff33CCFFby |cffFFFFFFDefault.",
+					width  = 120,
+					
+				},	
+			},
+			
+			----  Leveling Rarity  ----
+			{ 	name	= "Leveling Rarity",
+				enable	= true,
+				tooltip	= "|cffFFFFFFOut of Battle - |cff33CCFFMinimum pet rarity to Level: |cff"..(RarityColorsTable[1].Color).."1-Poor |cff"..(RarityColorsTable[2].Color).."2-Common |cff"..(RarityColorsTable[3].Color).."3-Uncommon |cff"..(RarityColorsTable[4].Color).."4-Rare.",
+				widget = { type = 'select',
+					values = {"|cff"..(RarityColorsTable[1].Color).."Poor","|cff"..(RarityColorsTable[2].Color).."Common","|cff"..(RarityColorsTable[3].Color).."Uncommun","|cff"..(RarityColorsTable[4].Color).."Rare"},
+					value = 4,
+					tooltip = "|cffFFFFFFIn Battle - |cff33CCFFMinimum pet rarity to Level: |cff"..(RarityColorsTable[1].Color).."1-Poor |cff"..(RarityColorsTable[2].Color).."2-Common |cff"..(RarityColorsTable[3].Color).."3-Uncommon |cff"..(RarityColorsTable[4].Color).."4-Rare.",
+					width  = 80,
+					
+				},	
+			},
+			
+			----  Pet Swapper  ----
+			{ 	name	= "Pet Swap Max",
+				enable	= true,
+				tooltip	= "|cffFFFFFFOut of Battle - |cff33CCFFCheck to |cffFFFFFFActivate Pet Swapper|cff33CCFF.",
+				widget	= { type = "numBox",
+					min		= 2,
+					max		= 25,
+					value	= 25,
+					step	= 1,
+					tooltip	= "|cffFFFFFFOut of Battle - |cff33CCFFDesired |cffFFFFFFMaximum Slot 1 Level|cff33CCFF.",
+				},
+			},
+			{ 	name	= "Pet Swap Min",
+				enable	= true,
+				tooltip	= "|cffFFFFFFOut of Battle - |cff33CCFFCheck to |cffFFFFFFActivate Pet Swapper|cff33CCFF.",
+				widget	= { type = "numBox",
+					min		= 1,
+					max		= 25,
+					value	= 1,
+					step	= 1,
+					tooltip	= "|cffFFFFFFOut of Battle - |cff33CCFFDesired |cffFFFFFFMinimum Slot 1 Level|cff33CCFF.",
+				},
+			},
+			
+			----  Auto Clicker  ----
+			{ 	name = "Auto Clicker",
+				enable = false,
+				tooltip = "|cffFFFFFFOut of Battle - |cff33CCFFChase Pets!",
+			 	widget = { type = 'txtbox', 
+			    	value = '"Pet Name"', 
+			   		width = 80,
+					tooltip = "|cffFFFFFFOut of Battle - |cff33CCFFEnter the |cffFFFFFFExact Pet Name |cff33CCFFyou want |cffFFFFFFTo Chase|cff33CCFF.",
+				},
+				newSection = true,
+			 },
+			 
+			 ----  Follower Distance  ----
+			{ 	name = "Follower Distance",
+				enable = false,
+				tooltip = "|cffFFFFFFOut of Battle - |cff33CCFFActivate |cffFFFFFFFollower Max Distance|cff33CCFF.",
+				widget	= { type = "numBox",
+					min		= 10,
+					max		= 300,
+					value	= 30,
+					step	= 10,
+					tooltip	= "|cffFFFFFFOut of Battle - |cff33CCFFSet this value to the |cffFFFFFFRange |cff33CCFFyou want to |cffFFFFFF consider the pet close enough to follow it|cff33CCFF.",
+				},
+			},
+			
+			----  PvP  ----
+			{ 	name	= "PvP",
+				enable	= false,
+				tooltip	= "|cffFFFFFFQueue for PvP Match|cff33CCFF.",
+				widget	= { type = "numBox",
+					min		= 1,
+					max		= 3,
+					value	= 1,
+					step	= 1,
+					tooltip	= "|cffFFFFFFPet Slot |cff33CCFFto use on |cffFFFFFFPvP Match Start|cff33CCFF.",
+				},
+				newSection = true,
+			},
+		},		
+		
+		----  Pause  ----
+		hotkeys = {
+			{	name	= "Pause",
+				enable	= true,
+				hotkeys	= {'la'},
+				tooltip	= "|cff33CCFFAssign |cffFFFFFFPause |cff33CCFFKeybind.",
+			},
+		},
+	}
+	CODEMYLIFE_POKEROTATION = PQI:AddRotation(PQIconfig)
+end]]

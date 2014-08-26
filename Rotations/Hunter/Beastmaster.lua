@@ -19,7 +19,7 @@ function Hunter()
 	local killCommandCD = getSpellCD(_KillCommand);
 
 	-- Food/Invis Check
-	if canRun() ~= true or UnitInVehicle("Player") then return false; end
+	if not canRun() or UnitInVehicle("Player") then return false; end
 	if IsMounted("player") then waitForPetToAppear = nil; return false; end
 
 	-- Counter Shot
