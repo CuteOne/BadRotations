@@ -119,7 +119,7 @@ function PokeAbilities()
 
 		-- Call to see pet strenghts based on IsPetAttack() lists.
 		function GetPetStrenght(PetSlot)
-			if myPets[myPetSlot].healthTable[PetSlot] ~= 0 then
+			if myPets[PetSlot].health ~= nil then
 				local IsPetStrenght = 0
 				
 				local petGUID, ability1, ability2, ability3, locked = C_PetJournal.GetPetLoadOutInfo(PetSlot)
@@ -217,76 +217,76 @@ function PokeAbilities()
 		
 		-- Health from journal
 		function JournalHealth(PetSlot)
-			myPets[myPetSlot].health = 100 * (select(1,C_PetJournal.GetPetStats(C_PetJournal.GetPetLoadOutInfo(PetSlot))) / select(2,C_PetJournal.GetPetStats(C_PetJournal.GetPetLoadOutInfo(PetSlot))) )
-			if myPets[myPetSlot].health == nil then
+			local petHealth = 100 * (select(1,C_PetJournal.GetPetStats(C_PetJournal.GetPetLoadOutInfo(PetSlot))) / select(2,C_PetJournal.GetPetStats(C_PetJournal.GetPetLoadOutInfo(PetSlot))) )
+			if petHealth == nil then
 				return 0
 			else
-				return myPets[myPetSlot].health
+				return petHealth
 			end
 		end
 		
 		-- Health from journal by GUID
 		function JournalHealthGUID(PetGUID)
-			myPets[myPetSlot].health = 100 * (select(1,C_PetJournal.GetPetStats(PetGUID)) / select(2,C_PetJournal.GetPetStats(PetGUID)) )
-			if myPets[myPetSlot].health == nil then
+			local PetHealth = 100 * (select(1,C_PetJournal.GetPetStats(PetGUID)) / select(2,C_PetJournal.GetPetStats(PetGUID)) )
+			if PetHealth == nil then
 				return 0
 			else
-				return myPets[myPetSlot].health
+				return PetHealth
 			end
 		end
 		
 		-- PetLevel
 		function PetLevel(PetSlot)
+			local myPetLevel;
 			if inBattle then
 				if PetSlot == nil then return 1 end
-				local myPetLevel = C_PetBattles.GetLevel(1, PetSlot)
+				myPetLevel = C_PetBattles.GetLevel(1, PetSlot)
 				if myPetLevel == nil then myPetLevel = 1 end
-				return myPetLevel
 			end
 			if not inBattle then
 				if PetSlot == nil then 
 					PetSlot = 1 
 				else
-					local myPetLevel = select(3, C_PetJournal.GetPetInfoByPetID(C_PetJournal.GetPetLoadOutInfo(PetSlot)))
+					myPetLevel = select(3, C_PetJournal.GetPetInfoByPetID(C_PetJournal.GetPetLoadOutInfo(PetSlot)))
 					if myPetLevel == nil then 
 						myPetLevel = 1 
 					end
-					return tonumber(myPetLevel)
 				end
 			end
+			return tonumber(myPetLevel)
 		end	
 
 		-- Switch Pet
 		function Switch()
 			AbilityCast(SuicideList)
 			-- Make sure we are not rooted.
-		  	if CanSwapOut then
-				if (myPets[myPetSlot].health <= getValue("Pet Swapout Health") and isChecked("Pet Swapout Health"))
+		  	if canSwapOut then
+				if (myPets[myPetSlot].health <= BadBoy_data["Box Swap Out Health"] and BadBoy_data["Check Swap Out Health"] == 1)
 				  or (isChecked("Pet Leveling") and myPetSlot == 1) then
 					if myPets[1].health <= SwapOutHealthValue or nmePets[nmePetSlot].health < 100 then
 						if GetPetStrenght(2) > GetPetStrenght(3) 
-						  and Pet2HP >= getValue("Pet Swapin Health") then
+						  and Pet2HP >= getValue("Swap in Health") then
 							C_PetBattles.ChangePet(2);
-						elseif Pet3HP >= getValue("Pet Swapin Health") 
+						elseif myPets[3].health >= getValue("Swap in Health") 
 						  or myPets[1].health == 0 then
 							C_PetBattles.ChangePet(3);	
 						end
 					elseif myPetSlot == 2 then
 						if GetPetStrenght(1) > GetPetStrenght(3)
-						  and myPets[1].health >= getValue("Pet Swapin Health") 
+						  and myPets[1].health >= getValue("Swap in Health") 
 						  and not ( isChecked("Pet Leveling") and getValue("Pet Leveling") > C_PetBattles.GetLevel(1, 1) ) then
 							C_PetBattles.ChangePet(1);
-						elseif Pet3HP >= getValue("Pet Swapin Health") or Pet2HP == 0 then
+						elseif myPets[3].health >= getValue("Swap in Health") or Pet2HP == 0 then
 							C_PetBattles.ChangePet(3);	
 						end
 					elseif myPetSlot == 3 then
 						if GetPetStrenght(1) > GetPetStrenght(2) 
-						  and myPets[1].health >= getValue("Pet Swapin Health") 
+						  and myPets[1].health >= getValue("Swap in Health") 
 						  and not ( isChecked("Pet Leveling") and getValue("Pet Leveling") > C_PetBattles.GetLevel(1, 1) ) then
 							C_PetBattles.ChangePet(1);
-						elseif Pet2HP >= getValue("Pet Swapin Health") or Pet3HP == 0 then
+						elseif Pet2HP >= getValue("Swap in Health") or myPets[3].health == 0 then
 							C_PetBattles.ChangePet(2);	
-						elseif Pet2HP == 0 and Pet3HP == 0 then
+						elseif Pet2HP == 0 and myPets[3].health == 0 then
 							C_PetBattles.ChangePet(1);
 						end
 					end

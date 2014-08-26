@@ -21,6 +21,7 @@ function PokeEngine()
 	-- Revive Pets --
 	-----------------
 	if not inBattle then
+		PetSwapper();
 		if startWaiting == nil then startWaiting = GetTime(); end
 		if startWaiting ~= nil and startWaiting <= GetTime() - 2 then
 			for i = 1, #MopList do
@@ -34,13 +35,12 @@ function PokeEngine()
 			if getSpellCD(125439) == 0 then
 				if castSpell("player",125439,true) then return; end
 			end
-			ChatOverLay("Healed pets ")
-			PokeSwapper();
+			ChatOverlay("Healed pets ")
 		end
 	end
 
-	if inBattle and not turnDone then
-
+	if inBattle then
+		startWaiting = nil;
 		--[[Pets Tables]]
 		myPets = {
 			{
@@ -108,31 +108,35 @@ function PokeEngine()
 		};
 
 		--[[Active Pet Slots]]
-		myPetSlot = C_PetBattles.GetActivePet(1)
+		myPetSlot = C_PetBattles.GetActivePet(1);
 		nmePetSlot = C_PetBattles.GetActivePet(2);
 
 		--[[Can]]
-		canSwapOut = C_PetBattles.CanActivePetSwapOut()
-		canTrap = C_PetBattles.IsTrapAvailable()
+		canSwapOut = C_PetBattles.CanActivePetSwapOut();
+		canTrap = C_PetBattles.IsTrapAvailable();
 
 		--[[Get]]
-		petGUID, ability1, ability2, ability3, locked = C_PetJournal.GetPetLoadOutInfo(myPetSlot)
-		getAverageHP = (myPets[1].health + myPets[2].health + myPets[3].health) / 3		-- Buffs
-		getAuras = C_PetBattles.GetNumAuras(1, myPetSlot)
-		getNmeAuras = C_PetBattles.GetNumAuras(2, nmePetSlot)
-		getWeather = C_PetBattles.GetAuraInfo(0, 0, 1)
-		getSpeed = C_PetBattles.GetSpeed(1, myPetSlot)
-		getNmeSpeed = C_PetBattles.GetSpeed(2, nmePetSlot)
+		petGUID, ability1, ability2, ability3, locked = C_PetJournal.GetPetLoadOutInfo(myPetSlot);
+		getAverageHP = (myPets[1].health + myPets[2].health + myPets[3].health) / 3;		-- Buffs
+		getAuras = C_PetBattles.GetNumAuras(1, myPetSlot);
+		getNmeAuras = C_PetBattles.GetNumAuras(2, nmePetSlot);
+		getWeather = C_PetBattles.GetAuraInfo(0, 0, 1);
+		getSpeed = C_PetBattles.GetSpeed(1, myPetSlot);
+		getNmeSpeed = C_PetBattles.GetSpeed(2, nmePetSlot);
 
 		--[[Number of Abilities the actual pet is using.]]
 		myPetLevel = C_PetBattles.GetLevel(1, myPetSlot)
 		if myPetLevel >= 4 then numOfAbilities = 3 elseif myPetLevel >= 2 then numOfAbilities = 2 else numOfAbilities = 1 end
 
+
+		PetSwapper();
+
 		--[[                                       Normal Rotation                                             ]]
 
 		if inBattle and BadBoy_data["Check PokeRotation"] == 1 then
+			
 			Switch();
-
+			PassTurn();
 			SimpleHealing();
 			CapturePet();
 			PassTurn();

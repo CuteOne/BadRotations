@@ -176,7 +176,7 @@ function CreateGeneralsConfig()
     CreateNewText(thisConfig,"Debug");
 
     -- Wrapper -----------------------------------------
-    CreateNewWrap(thisConfig,"--------- PokeRotation -------");
+    CreateNewWrap(thisConfig,"----- PokeRotation -----");
 
     -- PokeRotation
     CreateNewCheck(thisConfig,"PokeRotation", "|cffFFBB00Check this to start PokeRotation.");
@@ -184,37 +184,43 @@ function CreateGeneralsConfig()
 
 	CreateNewText(thisConfig,"In Battle");
 
-	--PetLevelingValue			= 6
-	CreateNewCheck(thisConfig,"Pet Leveling Value");
-	CreateNewBox(thisConfig, "Pet Leveling Value", 1, 25  , 1, 6, "|cffFFBB00Pet Leveling minimum pet level");
-	CreateNewText(thisConfig,"Pet Leveling Value");
 
 	--PetHealValue				= 65
-	CreateNewCheck(thisConfig,"Pet Heal Value");
-	CreateNewBox(thisConfig, "Pet Heal Value", 0, 1000  , 5, 0, "|cffFFBB00Set pet healing value");
-	CreateNewText(thisConfig,"Pet Heal Value");
+	CreateNewCheck(thisConfig,"Pet Heal");
+	CreateNewBox(thisConfig, "Pet Heal", 1, 100  , 5, 60, "|cffFFBB00Set pet healing value");
+	CreateNewText(thisConfig,"Pet Heal");
 
 	--CaptureValue				= 4
-	CreateNewCheck(thisConfig,"Pet Capture Value");
-	CreateNewBox(thisConfig, "Pet Capture Value", 1, 4  , 1, 4, "|cffFFBB00Set pet Rarity Capture Treshold");
-	CreateNewText(thisConfig,"Pet Capture Value");
+	CreateNewCheck(thisConfig,"Pet Capture");
+	CreateNewBox(thisConfig, "Pet Capture", 1, 4  , 1, 4, "|cffFFBB00Set pet Rarity Capture Treshold");
+	CreateNewText(thisConfig,"Pet Capture");
 
 	--NumberOfPetsValue			= 1
-	CreateNewCheck(thisConfig,"Number of Pets value");
-	CreateNewBox(thisConfig, "Number of Pets value", 1, 3  , 1, 1, "|cffFFBB00Set number of pets of each kind to capture");
-	CreateNewText(thisConfig,"Number of Pets value");
+	CreateNewCheck(thisConfig,"Number of Pets");
+	CreateNewBox(thisConfig, "Number of Pets", 1, 3  , 1, 1, "|cffFFBB00Set number of pets of each kind to capture");
+	CreateNewText(thisConfig,"Number of Pets");
 
 	CreateNewText(thisConfig,"Out of Battle");
 
 	--ReviveBattlePetsValue		= 1
-	CreateNewCheck(thisConfig,"Revive Battle Pets Value");
-	CreateNewBox(thisConfig, "Revive Battle Pets Value", 1, 100  , 5, 60, "|cffFFBB00Set Revive Battle Pets Value");
-	CreateNewText(thisConfig,"Revive Battle Pets Value");
+	CreateNewCheck(thisConfig,"Revive Battle Pets");
+	CreateNewBox(thisConfig, "Revive Battle Pets", 1, 100  , 5, 60, "|cffFFBB00Set Revive Battle Pets Average Health.");
+	CreateNewText(thisConfig,"Revive Battle Pets");
 
 	--AutoClickerValue			= 1
 	CreateNewCheck(thisConfig,"Auto Clicker Range");
-	CreateNewBox(thisConfig, "Auto Clicker Range", 0, 200  , 5, 30, "|cffFFBB00Set Auto Clicker range");
+	CreateNewBox(thisConfig, "Auto Clicker Range", 0, 200  , 5, 30, "|cffFFBB00Set Auto Clicker range.");
 	CreateNewText(thisConfig,"Auto Clicker Range");
+
+	--PetLevelingValue			= 6
+	CreateNewCheck(thisConfig,"Pet Leveling");
+	CreateNewBox(thisConfig, "Pet Leveling", 1, 25  , 1, 6, "|cffFFBB00Pet Leveling minimum pet level");
+	CreateNewText(thisConfig,"Pet Leveling");
+
+	--PetLevelingValue			= 6
+	CreateNewCheck(thisConfig,"Pet Leveling Max");
+	CreateNewBox(thisConfig, "Pet Leveling Max", 1, 25  , 1, 6, "|cffFFBB00Pet Leveling maximum pet level");
+	CreateNewText(thisConfig,"Pet Leveling Max");
 
 	--LevelingPriorityValue 		= 3
 	CreateNewCheck(thisConfig,"Leveling Priority");
@@ -227,18 +233,12 @@ function CreateGeneralsConfig()
 	CreateNewText(thisConfig,"Leveling Rarity");
 
 	--SwapInHealthValue			= 65
-	CreateNewCheck(thisConfig,"Swap in Health Value");
-	CreateNewBox(thisConfig, "Swap in Health Value", 1, 100  , 1, 60, "|cffFFBB00Set Swap in Health Value");
-	CreateNewText(thisConfig,"Swap in Health Value");
+	CreateNewCheck(thisConfig,"Swap in Health");
+	CreateNewBox(thisConfig, "Swap in Health", 1, 100  , 1, 60, "|cffFFBB00Minimum Health to Swap Pet in.");
+	CreateNewText(thisConfig,"Swap in Health");
 
 	--SwapOutHealthValue			= 35
-	CreateNewCheck(thisConfig,"Swap Out Health Value");
-	CreateNewBox(thisConfig, "Swap Out Health Value", 1, 100  , 1, 30, "|cffFFBB00Set Swap Out Health Value");
-	CreateNewText(thisConfig,"Swap Out Health Value");
-
-	--SwapOutHealthCheck			= true
-	CreateNewCheck(thisConfig,"Swap Out Health");
-	CreateNewDrop(thisConfig, "Swap Out Health", "|cffFFBB00Select true or false.","true","false");
+	CreateNewBox(thisConfig, "Swap Out Health", 1, 100  , 1, 30, "|cffFFBB00Set Swap Out Health Treshold");
 	CreateNewText(thisConfig,"Swap Out Health");
 
 	-- Pause Toggle
