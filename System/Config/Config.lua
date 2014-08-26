@@ -184,7 +184,6 @@ function CreateGeneralsConfig()
 
 	CreateNewText(thisConfig,"In Battle");
 
-
 	--PetHealValue				= 65
 	CreateNewCheck(thisConfig,"Pet Heal");
 	CreateNewBox(thisConfig, "Pet Heal", 1, 100  , 5, 60, "|cffFFBB00Set pet healing value");
@@ -196,7 +195,6 @@ function CreateGeneralsConfig()
 	CreateNewText(thisConfig,"Pet Capture");
 
 	--NumberOfPetsValue			= 1
-	CreateNewCheck(thisConfig,"Number of Pets");
 	CreateNewBox(thisConfig, "Number of Pets", 1, 3  , 1, 1, "|cffFFBB00Set number of pets of each kind to capture");
 	CreateNewText(thisConfig,"Number of Pets");
 
@@ -204,7 +202,6 @@ function CreateGeneralsConfig()
 
 	--ReviveBattlePetsValue		= 1
 	CreateNewCheck(thisConfig,"Revive Battle Pets");
-	CreateNewBox(thisConfig, "Revive Battle Pets", 1, 100  , 5, 60, "|cffFFBB00Set Revive Battle Pets Average Health.");
 	CreateNewText(thisConfig,"Revive Battle Pets");
 
 	--AutoClickerValue			= 1

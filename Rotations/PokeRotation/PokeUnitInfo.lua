@@ -98,3 +98,17 @@ function PetSwapper()
 		end
 	end
 end
+
+function getPets(Radius)
+	local petsTable = { };
+ 	for i=1, GetTotalObjects(TYPE_UNIT) do
+  		local Guid = IGetObjectListEntry(i);
+  		ISetAsUnitID(Guid,"thisUnit");
+  		if (tonumber(string.sub(tostring(Guid), 5,5)) == 3 and UnitCreatureType("thisUnit") == "Wild Pet") then
+			if getDistance("player","thisUnit") <= Radius then
+				tinsert(petsTable,Guid);
+			end
+  		end
+ 	end
+ 	return petsTable;
+end

@@ -83,14 +83,13 @@ function PokeAbilities()
 		-- CapturePet() - Test for targets to trap.
 		function CapturePet()
 		  	if inBattle 
-		  	  and C_PetBattles.GetBreedQuality(2, nmePetSlot) >= CaptureValue 
-		  	  and C_PetJournal.GetNumCollectedInfo(C_PetBattles.GetPetSpeciesID(2,nmePetSlot)) < NumberOfPetsValue
-		  	  and CaptureCheck then
+		  	  and C_PetBattles.GetBreedQuality(2, nmePetSlot) >= getValue("Pet Capture") 
+		  	  and C_PetJournal.GetNumCollectedInfo(C_PetBattles.GetPetSpeciesID(2,nmePetSlot)) < getValue("Number of Pets") 
+		  	  and isChecked("Pet Capture") then
 			  	if nmePets[myPetSlot].health <= 35 
 			  	  and C_PetBattles.IsTrapAvailable() then
-					BadBoy_data.pokeAttack = 8;
-					BadBoy_data.wait = 0
 					ChatOverlay("\124cFFFFFFFFTrapping pet")
+					C_PetBattles.UseTrap()
 				elseif nmePets[myPetSlot].health <= 65 then
 					if Stun ~= nil then Stun() end 
 					if SimplePunch ~= nil then SimplePunch(3) end 
