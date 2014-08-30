@@ -447,6 +447,7 @@ function PokeCollections()
 			383, -- Leech Life
 			389, -- Overtune
 			501, -- Flame Breath
+			504, -- Alpha Strike
 			509, -- Surge
 			-- Three Turns
 			124, -- Rampage
@@ -569,9 +570,9 @@ function PokeCollections()
 		 
 		 -- Pass Turn
 		StunnedDebuffs = {
-			498,
-			822,
-			927,
+			499,
+			823,
+			928,
 		}
 		
 		StunList = { 

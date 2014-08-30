@@ -273,7 +273,7 @@ function SuperReader(self, event, ...)
         	if source == UnitGUID("player") then
         		if param == "SPELL_CAST_SUCCESS" then
         			local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
-        			if SpellID ~= 75 and SpellID ~= 88263 then -- Add spells we dont want to appear here.
+        			if SpellID ~= 75 and SpellID ~= 88263 and SpellID ~= 172 then -- Add spells we dont want to appear here.
         				local color = "|cff12C8FF";
         				BadBoy_data.successCasts = BadBoy_data.successCasts + 1;
         				if sourceGUID == nil then debugSource = "" 	else debugSource = 	"\n|cffFFFFFF"..sourceName.." "..sourceGUID; end

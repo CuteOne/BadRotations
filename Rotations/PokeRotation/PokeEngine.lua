@@ -24,9 +24,17 @@ function PokeEngine()
 		PetSwapper();
 		if startWaiting == nil then startWaiting = GetTime(); end
 		if startWaiting ~= nil and startWaiting <= GetTime() - 2 then
-			for i = 1, #MopList do
-				if UnitExists("target") == nil then
-					RunMacroText("/target "..MopList[i]);
+			if UnitExists("target") == nil then
+				local petsInRange = getPets(getValue("Auto Clicker Range"));
+				for i = 1, #petsInRange do
+					local Guid = petsInRange[i];
+  					ISetAsUnitID(Guid,"thisPet");
+					for j = 1, #MopList do
+						if UnitName("thisPet") == MopList[j] then
+							TargetUnit("thisPet");
+							break;
+						end
+					end
 				end
 			end
 			if UnitExists("target") == 1 and (spamPrevention == nil or spamPrevention <= GetTime() - 2) then spamPrevention = GetTime(); InteractUnit("target"); end
