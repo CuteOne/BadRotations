@@ -229,14 +229,14 @@ function BadBoyFrame()
 	-- /run CreateButton("AoE",2,2)
 	function CreateButton(Name,x,y)
 		local Icon;
+		if BadBoy_data[Name] == nil then BadBoy_data[Name] = 1; end
 		tinsert(buttonsTable, { name = Name, bx = x, by = y })
 		_G["button"..Name] = CreateFrame("Button", "MyButton", mainButton, "SecureHandlerClickTemplate");
 		_G["button"..Name]:SetWidth(BadBoy_data["buttonSize"]);
 		_G["button"..Name]:SetHeight(BadBoy_data["buttonSize"]);
 		_G["button"..Name]:SetPoint("LEFT",x*(BadBoy_data["buttonSize"])+(x*2),y*(BadBoy_data["buttonSize"])+(y*2));
 		_G["button"..Name]:RegisterForClicks("AnyUp");
-		if type(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon) == "number" then Icon = select(3,GetSpellInfo(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon)); else Icon = _G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon; end
-		_G["button"..Name]:SetNormalTexture(Icon or emptyIcon); 
+  		if _G[Name.."Modes"][BadBoy_data[Name]].icon ~= nil and type(_G[Name.."Modes"][BadBoy_data[Name]].icon) == "number" then Icon = select(3,GetSpellInfo(_G[Name.."Modes"][BadBoy_data[Name]].icon)); else Icon = _G[Name.."Modes"][BadBoy_data[Name]].icon; end		_G["button"..Name]:SetNormalTexture(Icon or emptyIcon); 
 		CreateBorder(_G["button"..Name], 8, 0.6, 0.6, 0.6);
 		_G["text"..Name] = _G["button"..Name]:CreateFontString(nil, "OVERLAY");
 		_G["text"..Name]:SetFont("Fonts/FRIZQT__.TTF",17,"THICKOUTLINE");
