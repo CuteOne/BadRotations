@@ -134,6 +134,12 @@ function BloodOptions()
    -- Wrapper
     CreateNewWrap(thisConfig,"-------- Healing -------");
 
+    -- Death Siphon
+    CreateNewCheck(thisConfig,"Death Siphon");
+    CreateNewBox(thisConfig, "Death Siphon", 0, 100  , 1, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFDeath Siphon");
+    CreateNewText(thisConfig,"Death Siphon");
+    
+
     -- Wrapper
     CreateNewWrap(thisConfig,"-------- Utilities -------");
 

@@ -221,7 +221,7 @@ function CreateGeneralsConfig()
 
 	--LevelingPriorityValue 		= 3
 	CreateNewCheck(thisConfig,"Leveling Priority");
-	CreateNewBox(thisConfig, "Leveling Priority", 1, 4  , 1, 4, "|cffFFBB00Set Leveling Priority");
+	CreateNewBox(thisConfig, "Leveling Priority", 1,"High" , "Low" , "HighWild", "LowWild");
 	CreateNewText(thisConfig,"Leveling Priority");
 
 	--LevelingRarityValue 		= 4

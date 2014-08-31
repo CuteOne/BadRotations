@@ -86,11 +86,11 @@ function PokeAbilities()
 		  	  and C_PetBattles.GetBreedQuality(2, nmePetSlot) >= getValue("Pet Capture") 
 		  	  and C_PetJournal.GetNumCollectedInfo(C_PetBattles.GetPetSpeciesID(2,nmePetSlot)) < getValue("Number of Pets") 
 		  	  and isChecked("Pet Capture") then
-			  	if nmePets[myPetSlot].health <= 35 
+			  	if nmePets[nmePetSlot].health <= 35 
 			  	  and C_PetBattles.IsTrapAvailable() then
 					ChatOverlay("\124cFFFFFFFFTrapping pet")
 					C_PetBattles.UseTrap()
-				elseif nmePets[myPetSlot].health <= 65 then
+				elseif nmePets[nmePetSlot].health <= 65 then
 					if Stun ~= nil then Stun() end 
 					if SimplePunch ~= nil then SimplePunch(3) end 
 					if SimplePunch ~= nil then SimplePunch(2) end 
@@ -380,7 +380,7 @@ function PokeAbilities()
 		-- Damage in one turn.
 		DelayOneTurn = nil
 		function DelayOneTurn()
-			if not ( nmePetSlot == 3 and nmePets[myPetSlot].health <= 30 ) then
+			if not ( nmePetSlot == 3 and nmePets[nmePetSlot].health <= 30 ) then
 				AbilityCast(OneTurnList)
 			end
 		end

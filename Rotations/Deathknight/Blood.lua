@@ -82,7 +82,7 @@ function Blood()
 	if isInCombat("player") and isAlive() and (isEnnemy() or isDummy("target")) then
 
 	    -- Death Siphon
-	    if runesDeath >= 1 and getHP("player") <= 70 then
+	    if runesDeath >= 1 and getHP("player") <= getValue("Death Siphon") then
 	    	if castSpell("target",_DeathSiphon,false) then return; end
 	    end
 
