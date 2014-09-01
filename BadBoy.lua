@@ -299,6 +299,9 @@ function BadBoyRun()
 			end					
 			if _MySpec == 2 then
 				DruidFeral();
+			end				
+			if _MySpec == 3 then
+				DruidGuardian();
 			end		
 			if _MySpec == 4 then
 				DruidRestoration();
