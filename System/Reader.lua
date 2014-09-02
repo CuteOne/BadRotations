@@ -153,10 +153,12 @@ local Frame = CreateFrame('Frame');
 Frame:RegisterEvent("PLAYER_TALENT_UPDATE");
 Frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
 Frame:RegisterEvent("CHARACTER_POINTS_CHANGED");
-Frame:RegisterEvent("SPELLS_CHANGED");
 local function SpellsChanged(self, event, ...)
-	if event == "PLAYER_TALENT_UPDATE" or event == "ACTIVE_TALENT_GROUP_CHANGED" or event == "CHARACTER_POINTS_CHANGED" or event == "SPELLS_CHANGED" then
+	if event == "PLAYER_TALENT_UPDATE" or event == "ACTIVE_TALENT_GROUP_CHANGED" or event == "CHARACTER_POINTS_CHANGED" then
 		currentConfig = nil;
+
+print("RELOAD OCCURED")
+
 	end
 end
 Frame:SetScript("OnEvent", SpellsChanged)

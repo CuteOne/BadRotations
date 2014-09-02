@@ -124,9 +124,11 @@ function DruidRestoration()
 	-- Mark of the Wild
 	if isChecked("Mark Of The Wild") == true and canCast(1126,false,false) and (lastMotw == nil or lastMotw <= GetTime() - 5) then
 		for i = 1, #nNova do
-	  		if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) then
-	  			if castSpell("player",1126,true) then lastMotw = GetTime(); return; end
-			end 
+			if nNova[i].hp < 249 then
+		  		if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) then
+		  			if castSpell("player",1126,true) then lastMotw = GetTime(); return; end
+				end 
+			end
 		end
 	end
 
@@ -144,7 +146,7 @@ function DruidRestoration()
 				end		
 			elseif getValue("Nature's Cure") == 2 then -- Raid Match
 				for i = 1, #nNova do
-					if nNova[i].dispel == true then
+					if nNova[i].hp < 249 and nNova[i].dispel == true then
 						if castSpell(nNova[i].unit,88423, true,false) then return; end
 					end
 				end
@@ -163,16 +165,18 @@ function DruidRestoration()
 				end		
 			elseif getValue("Nature's Cure") == 4 then -- Raid All
 				for i = 1, #nNova do
-				    for n = 1,40 do 
-				      	local buff,_,_,count,bufftype,duration = UnitDebuff(nNova[i].unit, n)
-			      		if buff then 
-			        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then 
-			        			if castSpell(nNova[i].unit,88423, true,false) then return; end 
-			        		end 
-			      		else
-			        		break;
-			      		end 
-				  	end
+					if nNova[i].hp < 249 then
+					    for n = 1,40 do 
+					      	local buff,_,_,count,bufftype,duration = UnitDebuff(nNova[i].unit, n)
+				      		if buff then 
+				        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then 
+				        			if castSpell(nNova[i].unit,88423, true,false) then return; end 
+				        		end 
+				      		else
+				        		break;
+				      		end 
+					  	end
+					  end
 				end	
 			end
 		end
@@ -226,7 +230,11 @@ function DruidRestoration()
 						end
 					end	
 					if found ~= true then
-						if castSpell(nNova[i].unit,774,true,false) then return; end
+						for i = 1, #nNova do
+							if nNova[i].hp < 249 then
+								if castSpell(nNova[i].unit,774,true,false) then return; end
+							end
+						end
 					end
 				end
 			end
@@ -332,16 +340,18 @@ function DruidRestoration()
 		if isKnown(102693) then --FOn Spell ID
 		    if isChecked("Force of Nature") and canCast(102693,false,false) and lowestHP < getValue("Force of Nature") then 
 		        for i = 1, #nNova do
-		            local allies10Yards = getAllies(nNova[i].unit,10);
-					if #allies10Yards >=  getValue("Force of Nature Count") then
-						local count = 0;
-						for j = 1, #allies10Yards do
-							if getHP(allies10Yards[j]) < getValue("Force of Nature") then
-								count = count + 1;
+		        	if nNova[i].hp < 249 then
+			            local allies10Yards = getAllies(nNova[i].unit,10);
+						if #allies10Yards >=  getValue("Force of Nature Count") then
+							local count = 0;
+							for j = 1, #allies10Yards do
+								if getHP(allies10Yards[j]) < getValue("Force of Nature") then
+									count = count + 1;
+								end
 							end
-						end
-						if count >= getValue("Force of Nature Count") and (lastFon  == nil or lastFon  <= GetTime() - 2) then -- Set Delay for Cast
-							if castSpell(nNova[i].unit,102693,true,false) then lastFon = GetTime(); return; end
+							if count >= getValue("Force of Nature Count") and (lastFon  == nil or lastFon  <= GetTime() - 2) then -- Set Delay for Cast
+								if castSpell(nNova[i].unit,102693,true,false) then lastFon = GetTime(); return; end
+							end
 						end
 					end
 				end
@@ -381,29 +391,33 @@ function DruidRestoration()
 		--[[ 13 - WildGrowth Tol --(Tree of Life)]]
 		if isKnown(106731) and isChecked("WildGrowth Tol") and UnitBuffID("player", 33891) and canCast(48438,false,false) and lowestHP < getValue("WildGrowth Tol") then
 	        for i = 1, #nNova do
-		        local allies30Yards = getAllies(nNova[i].unit,30);
-		        if #allies30Yards >= getValue("WildGrowth Tol Count") then
-			        local count = 0;
-			        for j = 1, #allies30Yards do
-				        if getHP(allies30Yards[j]) < getValue("WildGrowth Tol") then
-				            count = count + 1;
+	        	if nNova[i].hp < 249 then
+			        local allies30Yards = getAllies(nNova[i].unit,30);
+			        if #allies30Yards >= getValue("WildGrowth Tol Count") then
+				        local count = 0;
+				        for j = 1, #allies30Yards do
+					        if getHP(allies30Yards[j]) < getValue("WildGrowth Tol") then
+					            count = count + 1;
+					        end
 				        end
-			        end
-	                if count > getValue("WildGrowth Tol Count") then
-	                    if castSpell(nNova[i].unit,48438,true,false) then return; end
-	                end
-			    end
+		                if count > getValue("WildGrowth Tol Count") then
+		                    if castSpell(nNova[i].unit,48438,true,false) then return; end
+		                end
+				    end
+				end
           	end
 		end
 
 		--[[ 14 - Regrowth  Tol]]
 		if isKnown(106731) and UnitBuffID("player", 33891) and canCast(8936,false,false) and (lowestHP < getValue("Regrowth Tank Tol") or lowestHP < getValue("Regrowth Tol") or lowestHP < getValue("Regrowth Omen Tol")) then
 			for i = 1, #nNova do
-			    if (isChecked("Regrowth Tank Tol") and nNova[i].role == "TANK" and nNova[i].hp <= getValue("Regrowth Tank Tol")) 
-				  or (isChecked("Regrowth Tol") and nNova[i].role ~= "TANK" and nNova[i].hp <= getValue("Regrowth Tol")) 
-			      or (isChecked("Regrowth Omen Tol") and nNova[i].hp <= getValue("Regrowth Omen Tol") and getBuffRemain("player",16870) > 1)  then
-					if castSpell(nNova[i].unit,8936,true,false) then return; end
-		        end
+				if nNova[i].hp < 249 then
+				    if (isChecked("Regrowth Tank Tol") and nNova[i].role == "TANK" and nNova[i].hp <= getValue("Regrowth Tank Tol")) 
+					  or (isChecked("Regrowth Tol") and nNova[i].role ~= "TANK" and nNova[i].hp <= getValue("Regrowth Tol")) 
+				      or (isChecked("Regrowth Omen Tol") and nNova[i].hp <= getValue("Regrowth Omen Tol") and getBuffRemain("player",16870) > 1)  then
+						if castSpell(nNova[i].unit,8936,true,false) then return; end
+			        end
+			    end
 	        end
 		end
 
@@ -414,7 +428,7 @@ function DruidRestoration()
 			end
 			if isChecked("Mushrooms Tank Tol") and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
 				for i = 1, nNova do
-					if nNova[i].role == "TANK" then
+					if nNova[i].hp < 249 and nNova[i].role == "TANK" then
 						if castGround(nNova[i].unit, 145205, 40) then return; end
 					end
 				end
@@ -424,7 +438,7 @@ function DruidRestoration()
 		--[[ 16 - reju All Tol --(use reju on all with out health check only Reju buff check)]]
 		if isKnown(106731) and isChecked("Rejuvenation All Tol") and UnitBuffID("player", 33891) and canCast(774,false,false) then
 	        for i = 1, #nNova do
-		       	if getBuffRemain(nNova[i].unit,774,"player") == 0 then
+		       	if nNova[i].hp < 249 and getBuffRemain(nNova[i].unit,774,"player") == 0 then
 			        if castSpell(nNova[i].unit,774,true,false) then return; end
 		        end
 	        end
@@ -433,22 +447,22 @@ function DruidRestoration()
 		--[[ 17 - Lifebloom - ToL support]]
 		if isKnown(106731) and UnitBuffID("player", 33891) and isChecked("Lifebloom Tol") == true and canCast(33763,false,false) then
 			for i = 1, #nNova do
-				if getBuffRemain(nNova[i].unit,33763,"player") == 0 then
+				if nNova[i].hp < 249 and getBuffRemain(nNova[i].unit,33763,"player") == 0 then
 					if castSpell(nNova[i].unit,33763,true,false) then return; end
 				end
 			end
 			for i = 1, #nNova do
-				if getBuffStacks(nNova[i].unit,33763) == 1 then
+				if nNova[i].hp < 249 and getBuffStacks(nNova[i].unit,33763) == 1 then
 					if castSpell(nNova[i].unit,33763,true,false) then return; end
 				end
 			end	
 			for i = 1, #nNova do
-				if getBuffStacks(nNova[i].unit,33763) == 2 then
+				if nNova[i].hp < 249 and getBuffStacks(nNova[i].unit,33763) == 2 then
 					if castSpell(nNova[i].unit,33763,true,false) then return; end
 				end
 			end		
 			for i = 1, #nNova do
-				if getBuffStacks(nNova[i].unit,33763) == 3 and getBuffRemain(nNova[i].unit, 33763,"player") < 3 then
+				if nNova[i].hp < 249 and getBuffStacks(nNova[i].unit,33763) == 3 and getBuffRemain(nNova[i].unit, 33763,"player") < 3 then
 					if castSpell(nNova[i].unit,33763,true,false) then return; end
 				end
 			end	
@@ -466,7 +480,7 @@ function DruidRestoration()
 		--[[ 18.5 - LifeBloom Fast Swich]]
 		if isChecked("Lifebloom") and canCast(33763,false,false) then
 	    	for i = 1, #nNova do
-				if not UnitIsDeadOrGhost("focus") and (getBuffStacks(nNova[i].unit,33763) == 3) and (getBuffStacks("focus",33763) == 0) then
+				if nNova[i].hp < 249 and (not UnitIsDeadOrGhost("focus") and getBuffStacks(nNova[i].unit,33763) == 3) and getBuffStacks("focus",33763) == 0 then
 					if castSpell("focus",33763,true,false) then return; end
 				end
 			end		
@@ -527,9 +541,11 @@ function DruidRestoration()
 		--[[ 24 - WildGrowth all--(Use on all with out health check only with player count check)(some time in fight u need check it fast)]]
 		if isChecked("WildGrowth All") and canCast(48438,false,false) then
 		    for i = 1, #nNova do
-		    	local allies30Yards = getAllies(nNova[i].unit,30);
-			    if #allies30Yards >= getValue("WildGrowth All Count") then
-		            if castSpell(nNova[i].unit,48438,true,false) then return; end
+		    	if nNova[i].hp < 249 then
+			    	local allies30Yards = getAllies(nNova[i].unit,30);
+				    if #allies30Yards >= getValue("WildGrowth All Count") then
+			            if castSpell(nNova[i].unit,48438,true,false) then return; end
+					end
 				end
 			end
 		end	
@@ -604,7 +620,7 @@ function DruidRestoration()
 		--[[ Hot Friendly Dot ]]
 		if isChecked("Rejuvenation Debuff") and friendlyDot ~= nil and canCast(774,false,false) and lowestHP < getValue("Rejuvenation Debuff") then
 			for i = 1, #nNova do
-				if friendlyDot[nNova[i].guid] ~= nil then
+				if nNova[i].hp < 249 and friendlyDot[nNova[i].guid] ~= nil then
 					if GetTime() - friendlyDot[nNova[i].guid] < 3 then
 						if getBuffRemain(nNova[i].unit, 774,"player") == 0 then
 							if castSpell(nNova[i].unit, 774, true, false) then return; end
@@ -640,7 +656,7 @@ function DruidRestoration()
 		--[[ 33 - reju All --(use reju on all with out health check only Reju buff check)]]
 		if isChecked("Rejuvenation All") and canCast(774,false,false) then
 			for i = 1, #nNova do
-				if getBuffRemain(nNova[i].unit,774,"player") == 0 then
+				if nNova[i].hp < 249 and getBuffRemain(nNova[i].unit,774,"player") == 0 then
 					if castSpell(nNova[i].unit,774,true,false) then return; end
 				end
 			end
@@ -690,7 +706,7 @@ function DruidRestoration()
 			end
 			if numberRejuvUps < getValue("Rejuv Filler Count") then
 				for i = 1, #nNova do
-					if getBuffRemain(nNova[i].unit,774,"player") == 0 then	
+					if nNova[i].hp < 249 and getBuffRemain(nNova[i].unit,774,"player") == 0 then	
 						if castSpell(nNova[i].unit,774,true,false) then return; end
 					end
 				end

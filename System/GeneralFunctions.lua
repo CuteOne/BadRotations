@@ -1297,7 +1297,7 @@ function isDummy(Unit)
         32541, --Initiate's Training Dummy - Lvl 55 (Scarlet Enclave) 
     }
     for i=1, #dummies do
-        if UnitExists(Unit) then
+        if UnitExists(Unit) and UnitGUID(Unit) then
             dummyID = tonumber(UnitGUID(Unit):sub(-13, -9), 16)
         else
             dummyID = 0
