@@ -243,7 +243,109 @@ function CreateGeneralsConfig()
     CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle2")
     CreateNewText(thisConfig,"Pause Toggle"); 
 
+    -- Wrapper -----------------------------------------
+    CreateNewWrap(thisConfig,"--------- Hacks ---------");
 
+    -- PokeRotation
+    CreateNewCheck(thisConfig,"Fly Hack", "|cffFFBB00Sets the Fly Hack state.");
+    CreateNewText(thisConfig,"Fly Hack");
+
+    CreateNewCheck(thisConfig,"Hover Hack", "|cffFFBB00Sets the Hover Hack state.");
+    CreateNewText(thisConfig,"Hover Hack");
+
+    CreateNewCheck(thisConfig,"Water Walking", "|cffFFBB00Sets the Water Walking Hack state.");
+    CreateNewText(thisConfig,"Water Walking");
+
+    CreateNewCheck(thisConfig,"Climb Hack", "|cffFFBB00Sets the Climb Hack state.");
+    CreateNewText(thisConfig,"Climb Hack");
+
+-- Hack Functions
+
+
+-- SetClimbHack ([State])
+-- Sets the climb hacks state. Its toggled if State is nil or not passed.
+
+
+-- SetMovingLootHack ([State])
+-- Sets the moving loot hacks state. Its toggled if State is nil or not passed.
+
+-- GetMovingLootHack ()
+-- Gets the moving loot hacks state.
+
+-- SetObscureTargetHack ([State])
+-- Sets the obscure target hacks state. Its toggled if State is nil or not passed.
+
+-- GetObscureTargetHack ()
+-- Gets the obscure target hacks state.
+
+-- SetSpectatorHack ([State])
+-- Sets the spectator hack state. Its toggled if State is nil or not passed.
+
+-- GetSpectatorHack ()
+-- Gets the spectator hack state.
+
+-- SetM2Collision ([State])
+-- Sets the M2 collsion state. Its toggled if State is nil or not passed.
+
+-- GetM2Collsion ()
+-- Gets the M2 collsion state.
+
+-- SetWMOCollision ([State])
+-- Sets the WMO collsion state. Its toggled if State is nil or not passed.
+
+-- GetWMOCollsion ()
+-- Gets the WMO collsion state.
+
+-- SetTerrainCollision ([State])
+-- Sets the terrain collsion state. Its toggled if State is nil or not passed.
+
+-- GetTerrainCollsion ()
+-- Gets the terrain collsion state.
+
+-- SetLiquidCollision ([State])
+-- Sets the liquid collsion state. Its toggled if State is nil or not passed.
+
+-- GetLiquidCollsion ()
+-- Gets the liquid collsion state.
+
+-- SetM2Rendering ([State])
+-- Sets the M2 rendering state. Its toggled if State is nil or not passed.
+
+-- GetM2Rendering ()
+-- Gets the M2 rendering state.
+
+-- SetWMORendering ([State])
+-- Sets the WMO rendering state. Its toggled if State is nil or not passed.
+
+-- GetWMORendering ()
+-- Gets the WMO rendering state.
+
+-- SetTerrainRendering ([State])
+-- Sets the terrain rendering state. Its toggled if State is nil or not passed.
+
+-- GetTerrainRendering ()
+-- Gets the terrain rendering state.
+
+-- SetLiquidRendering ([State])
+-- Sets the liquid rendering state. Its toggled if State is nil or not passed.
+
+-- GetLiquidRendering ()
+-- Gets the liquid rendering state.
+
+-- SetTrackingState (Type, [State])
+-- Sets tracking by type. Types are: Friendly, Neutral, Enemies, Players, FriendlyPlayers, EnemyPlayers, Rares, Objects, Moving, Attackable, and Chests.
+
+-- GetTrackingState (Type or Name)
+-- Sets tracking by type. Types are: Friendly, Neutral, Enemies, Players, FriendlyPlayers, EnemyPlayers, Rares, Objects, Moving, Attackable, and Chests.
+
+-- TrackByName (Name)
+-- Tracks objects with a specific name.
+
+-- TrackByID (ID)
+-- Tracks objects with a specific ID.
+
+-- TrackPartial (Name)
+-- Tracks objects with whose names contain a name.
 
 
 

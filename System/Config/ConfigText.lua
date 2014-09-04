@@ -1,12 +1,9 @@
 function CreateNewText(value,textString)
 
-
-
-	
 	_G["option"..value.."Text"] = configFrame:CreateFontString(nil, "ARTWORK");
 	_G["option"..value.."Text"]:SetFont("Fonts/FRIZQT__.TTF",15,"THICKOUTLINE");
-	_G["option"..value.."Text"]:SetTextHeight(15);
-	_G["option"..value.."Text"]:SetPoint("TOPLEFT",28,-((value*22)+6));
+	_G["option"..value.."Text"]:SetTextHeight(16);
+	_G["option"..value.."Text"]:SetPoint("TOPLEFT",28,-(value*22));
 	_G["option"..value.."Text"]:SetTextColor(225/255, 225/255, 225/255,1);
 	_G["option"..value.."Text"]:SetText(textString, 1, 1, 1, 0.7);
 	if (value*22)+26 > configHeight then

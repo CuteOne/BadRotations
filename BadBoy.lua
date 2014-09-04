@@ -181,6 +181,17 @@ function BadBoyRun()
 
 	-- Mettre a jour les valeurs chaque frame.
 	function FrameUpdate(self)
+
+	    if isChecked("Fly") and GetFlyHack() == false then SetFlyHack(true) end
+	    if not isChecked("Fly") and GetFlyHack() == true then SetFlyHack(false) end
+	    if isChecked("Hover") and GetHoverHack() == false then SetHoverHack(true) end
+	    if not isChecked("Hover") and GetHoverHack() == true then SetHoverHack(false) end
+	    if isChecked("Water Walking") and GetWaterWalkHack() == false then SetWaterWalkHack(true) end
+	    if not isChecked("Water Walking") and GetWaterWalkHack() == true then SetWaterWalkHack(false) end
+	    if isChecked("Climb") and GetWaterWalkHack() == false then SetWaterWalkHack(true) end
+	    if not isChecked("Climb") and GetWaterWalkHack() == true then SetWaterWalkHack(false) end
+
+
 		if randomReady == nil then randomReady = math.random(8,15); end
 		if readyToAccept and readyToAccept <= GetTime() - 5 then AcceptProposal(); readyToAccept = nil; randomReady = nil; end
 		PokeEngine();

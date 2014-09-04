@@ -348,7 +348,7 @@ end
 -- castSpell("target",12345,true);
 function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 	local lagTolerance = 0;
-	if shouldStopCasting(SpellID) ~= true then
+	if shouldStopCasting(SpellID) ~= true and not UnitIsDeadOrGhost(Unit) then
 	    if timersTable == nil then timersTable = {}; end
 		local Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,GlobalCooldown,PowerNeeded,CurrentPower,spellRange = tostring(Unit),tonumber(SpellID),FacingCheck,MovementCheck,SpamAllowed,KnownSkip,select(7, GetSpellInfo(61304)),select(4,GetSpellInfo(SpellID)),UnitPower("player"),select(9,GetSpellInfo(SpellID));
 	  	if spellRange == nil or spellRange < 4 then spellRange = 4; end
@@ -538,9 +538,9 @@ function getDistance(Unit1,Unit2)
 		local X1,Y1,Z1 = IGetLocation(UnitGUID(Unit1));
 		local X2,Y2,Z2 = IGetLocation(UnitGUID(Unit2));
 		local unitSize = 0;
-		if UnitGUID(Unit1) ~= UnitGUID("player") then 
+		if UnitGUID(Unit1) ~= UnitGUID("player") and UnitCanAttack(Unit1,"player") then 
 			unitSize = IGetFloatDescriptor(UnitGUID(Unit1),0x110); 
-		elseif UnitGUID(Unit2) ~= UnitGUID("player") then 
+		elseif UnitGUID(Unit2) ~= UnitGUID("player") and UnitCanAttack(Unit2,"player") then 
 			unitSize = IGetFloatDescriptor(UnitGUID(Unit2),0x110); 
 		end
 		if isDummy(Unit1) or isDummy(Unit2) then unitSize = 1; end

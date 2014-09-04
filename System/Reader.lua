@@ -93,11 +93,12 @@ local function LeavingCombat(self, event, ...)
 		--tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cff12C8FF/"..getCombatTime().."/Leaving Combat" , number = ":D" })
 		if #debugTable > 249 then tremove(debugTable, 250); end
 		if BadBoy_data.ActualRow == 0 then debugRefresh(); end
-		ChatOverlay("|cffFF0000Leaving Combat");
+		ChatOverlay("|cff00FF00Leaving Combat");
 		-- clean up out of combat
         Rip_sDamage = {}
         Rake_sDamage = {}
         Thrash_sDamage = {}
+        petAttacking = false;
 	end
 end
 Frame:SetScript("OnEvent", LeavingCombat);
@@ -156,9 +157,7 @@ Frame:RegisterEvent("CHARACTER_POINTS_CHANGED");
 local function SpellsChanged(self, event, ...)
 	if event == "PLAYER_TALENT_UPDATE" or event == "ACTIVE_TALENT_GROUP_CHANGED" or event == "CHARACTER_POINTS_CHANGED" then
 		currentConfig = nil;
-
-print("RELOAD OCCURED")
-
+		print("|cffFF0000Config Reloaded");
 	end
 end
 Frame:SetScript("OnEvent", SpellsChanged)

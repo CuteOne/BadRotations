@@ -1,12 +1,12 @@
-function CreateNewCheck(value, textString, tip1)
-
-	if BadBoy_data["Check "..textString] == nil then BadBoy_data["Check "..textString] = 1; end
+function CreateNewCheck(value, textString, tip1, state)
+	if state == nil then state = 0 end
+	if BadBoy_data["Check "..textString] == nil then BadBoy_data["Check "..textString] = state; end
 
 	_G["option"..value.."Check"] = CreateFrame("CheckButton", "MyButton", configFrame, "UIPanelButtonTemplate");
 	_G["option"..value.."Check"]:SetAlpha(0.80);
 	_G["option"..value.."Check"]:SetWidth(21);
 	_G["option"..value.."Check"]:SetHeight(21);
-	_G["option"..value.."Check"]:SetPoint("TOPLEFT", 5 , -((value*22)));
+	_G["option"..value.."Check"]:SetPoint("TOPLEFT", 5 , -(value*22));
 	_G["option"..value.."Check"]:SetNormalTexture([[Interface\BUTTONS\ButtonHilight-SquareQuickslot]]);
 	_G["option"..value.."Check"]:RegisterForClicks("AnyUp");
 
