@@ -1664,14 +1664,51 @@ function getValue(Value)
 		return 0;
 	end
 end
+		
+--[[Taunts Table!! load once]]
+tauntsTable = {
+	{ spell = 143436, stacks = 1 }, --Immerseus/71543               143436 - Corrosive Blast                             == 1x
+	{ spell = 146124, stacks = 3 }, --Norushen/72276                146124 - Self Doubt                                  >= 3x
+	{ spell = 144358, stacks = 1 }, --Sha of Pride/71734            144358 - Wounded Pride                               == 1x
+	{ spell = 147029, stacks = 3 }, --Galakras/72249                147029 - Flames of Galakrond                         == 3x
+	{ spell = 144467, stacks = 2 }, --Iron Juggernaut/71466         144467 - Ignite Armor                                >= 2x
+	{ spell = 144215, stacks = 6 }, --Kor'Kron Dark Shaman/71859    144215 - Froststorm Strike (Earthbreaker Haromm)     >= 6x
+	{ spell = 143494, stacks = 3 }, --General Nazgrim/71515         143494 - Sundering Blow                              >= 3x
+	{ spell = 142990, stacks = 12 }, --Malkorok/71454                142990 - Fatal Strike                                == 12x
+	{ spell = 143426, stacks = 2 }, --Thok the Bloodthirsty/71529   143426 - Fearsome Roar                               == 2x
+	{ spell = 143780, stacks = 2 }, --Thok (Saurok eaten)           143780 - Acid Breath                                 == 2x
+	{ spell = 143773, stacks = 3 }, --Thok (Jinyu eaten)            143773 - Freezing Breath                             == 3x
+	{ spell = 143767, stacks = 2 }, --Thok (Yaungol eaten)          143767 - Scorching Breath                            == 2x
+	{ spell = 145183, stacks = 3 } --Garrosh/71865                 145183 - Gripping Despair                            >= 3x
+};
 
+--[[Taunt function!! load once]]
+function ShouldTaunt()
+	if not UnitIsUnit("player","boss1target") 
+	  and UnitThreatSituation("player") ~= 3 then
 
+	  	for i = 1, #tauntsTable do
+	  		if not UnitDebuffID("player",tauntsTable[i].spell) and UnitDebuffID("boss1target",tauntsTable[i].spell) and getDebuffStacks("boss1target",tauntsTable[i].spell) >= tauntsTable[i].stacks then
+	  			TargetUnit("boss1");
+	  			return true;
+	  		end
+	  	end
 
+	  	--[[Swap back to Wavebinder Kardris]]
+	  	if getBossID("target") ~= 71858 then
+	  		if UnitDebuffID("player", 144215) and getDebuffStacks("player",144215) >= 6 then
+	  			if getBossID("boss1") == 71858 then
+	  				TargetUnit("boss1");
+	  				return true;
+	  			else
+	  				TargetUnit("boss2");
+	  				return true;
+	  			end
+	  		end
+	  	end
 
-
-
-
-
+	end
+end
 
 
 

@@ -175,6 +175,10 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start |cffFFFFFFChat Debug |cffFFBB00of casted spells.");
     CreateNewText(thisConfig,"Debug");
 
+    -- Auto Taunts
+    CreateNewCheck(thisConfig,"Auto Taunts");
+    CreateNewText(thisConfig,"Auto Taunts");
+
     -- Wrapper -----------------------------------------
     CreateNewWrap(thisConfig,"----- PokeRotation -----");
 
