@@ -29,11 +29,11 @@ function BadBoyRun()
 		["engineAlpha"] = 90,
 		["debugAlpha"] = 90,
 	}; end
-	
-	BadBoy_data["Fly Hack"] = 0;
-	BadBoy_data["Hover Hack"] = 0;
-	BadBoy_data["Water Walking"] = 0;
-	BadBoy_data["Climb Hack"] = 0;
+
+	BadBoy_data["Check Fly Hack"] = 0;
+	BadBoy_data["Check Hover Hack"] = 0;
+	BadBoy_data["Check Water Walking"] = 0;
+	BadBoy_data["Check Climb Hack"] = 0;
 
 	-- Run once.
 	ReaderRun();
