@@ -34,6 +34,7 @@ function BadBoyRun()
 	BadBoy_data["Check Hover Hack"] = 0;
 	BadBoy_data["Check Water Walking"] = 0;
 	BadBoy_data["Check Climb Hack"] = 0;
+	BadBoy_data["Check Track Attackable"] = 0;
 
 	-- Run once.
 	ReaderRun();
@@ -195,6 +196,8 @@ function BadBoyRun()
 	    if not isChecked("Water Walking") and GetWaterWalkHack() == true then SetWaterWalkHack(false) end
 	    if isChecked("Climb Hack") and GetWaterWalkHack() == false then SetWaterWalkHack(true) end
 	    if not isChecked("Climb Hack") and GetWaterWalkHack() == true then SetWaterWalkHack(false) end
+	    if isChecked("Track Attackable") and GetTrackingState("Attackable") == false then SetTrackingState("Attackable",true) end
+	    if not isChecked("Track Attackable") and GetTrackingState("Attackable") == true then SetTrackingState("Attackable",false) end
 
 
 		if randomReady == nil then randomReady = math.random(8,15); end

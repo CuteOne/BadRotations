@@ -263,6 +263,18 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Climb Hack", "|cffFFBB00Sets the Climb Hack state.");
     CreateNewText(thisConfig,"Climb Hack");
 
+    CreateNewCheck(thisConfig,"Track Attackable", "|cffFFBB00Sets the Track Attackable Hack state.");
+    CreateNewText(thisConfig,"Track Attackable");
+
+
+-- SetTrackingState (Type, [State])
+-- Sets tracking by type. Types are: Friendly, Neutral, Enemies, Players, FriendlyPlayers, EnemyPlayers, Rares, Objects, Moving, Attackable, and Chests.
+
+-- GetTrackingState (Type or Name)
+-- Sets tracking by type. Types are: Friendly, Neutral, Enemies, Players, FriendlyPlayers, EnemyPlayers, Rares, Objects, Moving, Attackable, and Chests.
+
+
+
 -- Hack Functions
 
 -- SetMovingLootHack ([State])
