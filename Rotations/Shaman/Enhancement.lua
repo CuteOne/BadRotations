@@ -173,10 +173,10 @@ if select(3, UnitClass("player")) == 7 then
 			
 	-- Cleanse Spirit
 			if canDispel("player",_CleanseSpirit) then
-				if castSpells("player",_CleanseSpirit,true) then return; end
+				if castSpell("player",_CleanseSpirit,true) then return; end
 			end
-			if canDispel("mouseover",_CleanseSpirit) then
-				if castSpells("mouseover",_CleanseSpirit,true) then return; end
+			if canDispel("mouseover",_CleanseSpirit) and UnitIsPlayer("mouseover") then
+				if castSpell("mouseover",_CleanseSpirit,true) then return; end
 			end
 		end
 
