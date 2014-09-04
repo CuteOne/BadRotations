@@ -1684,30 +1684,29 @@ tauntsTable = {
 
 --[[Taunt function!! load once]]
 function ShouldTaunt()
-	if not UnitIsUnit("player","boss1target") 
-	  and UnitThreatSituation("player") ~= 3 then
 
+	--[[Normal boss1 taunt method]]
+	if not UnitIsUnit("player","boss1target") then
 	  	for i = 1, #tauntsTable do
 	  		if not UnitDebuffID("player",tauntsTable[i].spell) and UnitDebuffID("boss1target",tauntsTable[i].spell) and getDebuffStacks("boss1target",tauntsTable[i].spell) >= tauntsTable[i].stacks then
 	  			TargetUnit("boss1");
 	  			return true;
 	  		end
 	  	end
-
-	  	--[[Swap back to Wavebinder Kardris]]
-	  	if getBossID("target") ~= 71858 then
-	  		if UnitDebuffID("player", 144215) and getDebuffStacks("player",144215) >= 6 then
-	  			if getBossID("boss1") == 71858 then
-	  				TargetUnit("boss1");
-	  				return true;
-	  			else
-	  				TargetUnit("boss2");
-	  				return true;
-	  			end
-	  		end
-	  	end
-
 	end
+
+  	--[[Swap back to Wavebinder Kardris]]
+  	if getBossID("target") ~= 71858 then
+  		if UnitDebuffID("player", 144215) and getDebuffStacks("player",144215) >= 6 then
+  			if getBossID("boss1") == 71858 then
+  				TargetUnit("boss1");
+  				return true;
+  			else
+  				TargetUnit("boss2");
+  				return true;
+  			end
+  		end
+  	end
 end
 
 
