@@ -22,31 +22,56 @@ function BadBoyFrame()
 	end
 
 	function ToggleValue(toggleValue)
-		if BadBoy_data[toggleValue] == 0 or BadBoy_data[toggleValue] == nil then BadBoy_data[toggleValue] = 1; end
-		local mode = _G[tostring(toggleValue).."Modes"]
-		if mode then
-			for i = 1, #mode do
-				if BadBoy_data[toggleValue] == i then
-		        	local function ResetTip()
-		        		GameTooltip:SetOwner(mainButton, configFrame, 0 , 0);
-						GameTooltip:SetText(mode[BadBoy_data[toggleValue]].tip, 225/255, 225/255, 225/255, nil, true);
-						GameTooltip:Show();
+
+
+
+		if BadBoy_data[tostring(toggleValue)] == 0 or BadBoy_data[tostring(toggleValue)] == nil then BadBoy_data[tostring(toggleValue)] = 1; end
+		for i = 1, #_G[toggleValue.."Modes"] do
+			if BadBoy_data[tostring(toggleValue)] == i then
+	        	local function ResetTip()
+	        		GameTooltip:SetOwner(_G["button"..toggleValue], mainButton, 0 , 0);
+					GameTooltip:SetText(_G[toggleValue.."Modes"][BadBoy_data[tostring(toggleValue)]].tip, 225/255, 225/255, 225/255, nil, true);
+					GameTooltip:Show();
+				end
+				local Icon;
+				if #_G[toggleValue.."Modes"] > i then
+					newI = i + 1
+		    		BadBoy_data[tostring(toggleValue)] = newI;
+					_G["text"..toggleValue]:SetText(_G[toggleValue.."Modes"][newI].mode); 
+					if type(_G[toggleValue.."Modes"][BadBoy_data[tostring(toggleValue)]].icon) == "number" then Icon = select(3,GetSpellInfo(_G[toggleValue.."Modes"][BadBoy_data[tostring(toggleValue)]].icon)); else Icon = _G[toggleValue.."Modes"][BadBoy_data[tostring(toggleValue)]].icon; end
+					_G["button"..toggleValue]:SetNormalTexture(Icon or emptyIcon); 
+					if _G[toggleValue.."Modes"][newI].highlight == 0 then
+						_G["frame"..toggleValue].texture:SetTexture(genericIconOff); 
+					else
+						_G["frame"..toggleValue].texture:SetTexture(genericIconOn);
 					end
-					if #mode > i then
-			    		BadBoy_data[toggleValue] = i+1;
-		        		ChatOverlay("\124cFF3BB0FF"..mode[i+1].overlay);	
-		        		UpdateButton(toggleValue);
-		        		ResetTip();
-		        		break;
-		        	else 
-		        		BadBoy_data[toggleValue] = 1;
-		        		UpdateButton(toggleValue);
-		        		ChatOverlay("\124cFF3BB0FF"..mode[1].overlay);
-		        		ResetTip();
-		        	end
-		        end
-			end
+
+	        		ChatOverlay("\124cFF3BB0FF".._G[toggleValue.."Modes"][newI].overlay);	
+	        		ResetTip();
+	        		break;
+	        	else 
+	        		BadBoy_data[tostring(toggleValue)] = 1;
+					_G["text"..toggleValue]:SetText(_G[toggleValue.."Modes"][1].mode);		
+					if type(_G[toggleValue.."Modes"][BadBoy_data[tostring(toggleValue)]].icon) == "number" then Icon = select(3,GetSpellInfo(_G[toggleValue.."Modes"][BadBoy_data[tostring(toggleValue)]].icon)); else Icon = _G[toggleValue.."Modes"][BadBoy_data[tostring(toggleValue)]].icon; end
+					_G["button"..toggleValue]:SetNormalTexture(Icon or emptyIcon); 
+					if _G[toggleValue.."Modes"][1].highlight == 0 then
+						_G["frame"..toggleValue].texture:SetTexture(genericIconOff);
+					else
+						_G["frame"..toggleValue].texture:SetTexture(genericIconOn);
+					end
+	        		ChatOverlay("\124cFF3BB0FF".._G[toggleValue.."Modes"][1].overlay);
+	        		ResetTip();
+	        	end
+	        	break;
+	        end
 		end
+
+
+
+
+
+
+
 	end
 	---------------------------
 	--     Basic Values      --

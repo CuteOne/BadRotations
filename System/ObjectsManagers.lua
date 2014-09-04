@@ -69,6 +69,11 @@ if not metaTable1 then
 
 	local SpecificHPDebuffs = { 
 		{ debuff = 145263 , value = 20 }, -- Proving Grounds Healer Debuff.
+		{ debuff = 145832 , value = 250 },
+    	{ debuff = 145171 , value = 250 },
+    	{ debuff = 145065 , value = 250 },
+    	{ debuff = 145071 , value = 250 },
+
 	};
 
 	local roleTable = {

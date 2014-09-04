@@ -261,11 +261,6 @@ function CreateGeneralsConfig()
 
 -- Hack Functions
 
-
--- SetClimbHack ([State])
--- Sets the climb hacks state. Its toggled if State is nil or not passed.
-
-
 -- SetMovingLootHack ([State])
 -- Sets the moving loot hacks state. Its toggled if State is nil or not passed.
 
