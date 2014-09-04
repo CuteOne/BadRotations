@@ -263,9 +263,45 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Climb Hack", "|cffFFBB00Sets the Climb Hack state.");
     CreateNewText(thisConfig,"Climb Hack");
 
-    CreateNewCheck(thisConfig,"Track Attackable", "|cffFFBB00Sets the Track Attackable Hack state.");
-    CreateNewText(thisConfig,"Track Attackable");
+    -- Wrapper -----------------------------------------
+    CreateNewWrap(thisConfig,"--------- Trackings ---------");
 
+    CreateNewCheck(thisConfig,"Friends");
+    CreateNewText(thisConfig,"Friends");
+
+    CreateNewCheck(thisConfig,"Neutral");
+    CreateNewText(thisConfig,"Neutral");
+
+    CreateNewCheck(thisConfig,"Enemies");
+    CreateNewText(thisConfig,"Enemies");
+
+    CreateNewCheck(thisConfig,"Players");
+    CreateNewText(thisConfig,"Players");
+
+    CreateNewCheck(thisConfig,"FriendlyPlayers");
+    CreateNewText(thisConfig,"FriendlyPlayers");
+
+    CreateNewCheck(thisConfig,"EnemyPlayers");
+    CreateNewText(thisConfig,"EnemyPlayers");
+
+    CreateNewCheck(thisConfig,"Rares");
+    CreateNewText(thisConfig,"Rares");
+
+    CreateNewCheck(thisConfig,"Objects");
+    CreateNewText(thisConfig,"Objects");
+
+    CreateNewCheck(thisConfig,"Moving");
+    CreateNewText(thisConfig,"Moving");
+
+    CreateNewCheck(thisConfig,"Attackable");
+    CreateNewText(thisConfig,"Attackable");
+
+    CreateNewCheck(thisConfig,"Chests");
+    CreateNewText(thisConfig,"Chests");
+
+    
+
+-- .
 
 -- SetTrackingState (Type, [State])
 -- Sets tracking by type. Types are: Friendly, Neutral, Enemies, Players, FriendlyPlayers, EnemyPlayers, Rares, Objects, Moving, Attackable, and Chests.
