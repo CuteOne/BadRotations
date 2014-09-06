@@ -254,7 +254,6 @@ if select(3, UnitClass("player")) == 11 then
 
 
 
-
         -- Healing Button
         if  HealingModesLoaded ~= "Masou Restoration Healing Modes" then 
             HealingModes = { 
@@ -325,7 +324,6 @@ if select(3, UnitClass("player")) == 11 then
 --[[           ]]   --[[           ]]   --[[]]      --[[]]  --[[]]     --[[]]
 
 
-
     function GuardianToggles()
         -- Aoe Button
         if  AoEModesLoaded ~= "Guardian Druid AoE Modes" then 
@@ -350,8 +348,8 @@ if select(3, UnitClass("player")) == 11 then
         -- Defensive Button
         if  DefensiveModesLoaded ~= "Guardian Druid Defensive Modes" then 
             DefensiveModes = { 
-                [1] = { mode = "None", value = 1 , overlay = "Defensive Disabled", tip = "|cffC0C0C0Defensive \n|cffFF0000No Defensive Cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
-                [2] = { mode = "All", value = 2 , overlay = "Defensive Enabled", tip = "|cffC0C0C0Defensive \n|cffFF0000Spells Included: \n|cffFFDD11Fortifying Brew, \nElusive Brew, \nGuard", highlight = 1, icon = 115203 }
+                [1] = { mode = "SD", value = 1 , overlay = "SD Mode", tip = "|cffC0C0C0Defensive \n|cffFF0000SD Mode", highlight = 1, icon = 62606 },
+                [2] = { mode = "FR", value = 2 , overlay = "FR Mode", tip = "|cffC0C0C0Defensive \n|cffFF0000FR Mode", highlight = 1, icon = 22842 }
             };
             CreateButton("Defensive",1.5,1)
             DefensiveModesLoaded = "Guardian Druid Defensive Modes";
@@ -384,6 +382,5 @@ if select(3, UnitClass("player")) == 11 then
                 return 1
             end
         end
-
     end
 end

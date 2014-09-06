@@ -609,7 +609,6 @@ end
 --[[]]     --[[]]   --[[]]                --[[        ]]    --[[        ]]
 --[[           ]]   --[[           ]]    --[[]]    --[[]]   --[[]]    --[[]]        
 --[[           ]]   --[[           ]]   --[[]]      --[[]]  --[[]]     --[[]]
-
 function GuardianConfig()
     if currentConfig ~= "Guardian Masoud" then
         ClearConfig();
@@ -624,48 +623,16 @@ function GuardianConfig()
         CreateNewCheck(thisConfig,"Mark Of The Wild");
         CreateNewText(thisConfig,"Mark Of The Wild");
 
-        -- Nature's Cure
-        CreateNewCheck(thisConfig,"Nature's Cure")
-        CreateNewDrop(thisConfig,"Nature's Cure", 1, "|cffFFBB00MMouse:|cffFFFFFFMouse / Match List. \n|cffFFBB00MRaid:|cffFFFFFFRaid / Match List. \n|cffFFBB00AMouse:|cffFFFFFFMouse / All. \n|cffFFBB00ARaid:|cffFFFFFFRaid / All.", 
-            "|cffFFDD11MMouse", 
-            "|cffFFDD11MRaid",
-            "|cff00FF00AMouse",
-            "|cff00FF00ARaid")
-        CreateNewText(thisConfig,"Nature's Cure"); 
+        
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Cooldowns ------");
 
-        -- Force Of Nature
-        CreateNewCheck(thisConfig,"Force Of Nature");
-        CreateNewText(thisConfig,"Force Of Nature");  
-
-        -- Natures Vigil
-        CreateNewCheck(thisConfig,"Natures Vigil");
-        CreateNewText(thisConfig,"Natures Vigil");  
-
-        -- Starfall
-        CreateNewCheck(thisConfig,"Starfall");
-        CreateNewText(thisConfig,"Starfall");   
-
-        -- Incarnation
-        CreateNewCheck(thisConfig,"Incarnation");
-        CreateNewBox(thisConfig, "Incarnation", 0, 100  , 5, 45, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFIncarnation.");
-        CreateNewText(thisConfig,"Incarnation");   
-
-        -- Innervate
-        CreateNewCheck(thisConfig,"Innervate");
-        CreateNewBox(thisConfig, "Innervate", 0, 100  , 5, 80, "|cffFFBB00Under what |cff297BFF%Mana|cffFFBB00 to use |cffFFFFFFInnervate.");
-        CreateNewText(thisConfig,"Innervate");   
-
+  
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"--------- Healing -------");
 
-        -- Healing Touch Ns
-        CreateNewCheck(thisConfig,"Healing Touch Ns");
-        CreateNewBox(thisConfig, "Healing Touch Ns", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealing Touch|cffFFBB00 with |cffFFFFFFNature Swiftness.");
-        CreateNewText(thisConfig,"Healing Touch Ns");
-
+        
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------- Defensive ------");
 
@@ -673,7 +640,10 @@ function GuardianConfig()
         CreateNewCheck(thisConfig,"Healthstone");
         CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
         CreateNewText(thisConfig,"Healthstone");
-
+        -- Survival Instincts
+        CreateNewCheck(thisConfig,"Survival Instincts");
+        CreateNewBox(thisConfig, "Survival Instincts", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFSurvival Instincts");
+        CreateNewText(thisConfig,"Survival Instincts");
         -- Barkskin
         CreateNewCheck(thisConfig,"Barkskin");
         CreateNewBox(thisConfig, "Barkskin", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFBarkskin");
@@ -686,7 +656,11 @@ function GuardianConfig()
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"-------- Toggles --------");
-
+       
+        -- Maul Toggle
+        CreateNewCheck(thisConfig,"Maul Toggle");
+        CreateNewDrop(thisConfig,"Maul Toggle", 3, "Toggle2")
+        CreateNewText(thisConfig,"Maul Toggle");
         -- Pause Toggle
         CreateNewCheck(thisConfig,"Pause Toggle");
         CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
@@ -715,6 +689,7 @@ function GuardianConfig()
         
         WrapsManager();
     end
+
 end
 
 end

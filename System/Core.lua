@@ -286,3 +286,18 @@ end)
 hooksecurefunc(GameTooltip, "SetGlyphByID", function(self, id)
     if id then addLine(self, id, types.glyph) end
 end)
+
+local petAbilityTooltipID = false;
+local orig_SharedPetBattleAbilityTooltip_SetAbility = SharedPetBattleAbilityTooltip_SetAbility
+function SharedPetBattleAbilityTooltip_SetAbility(self, abilityInfo, additionalText)
+  orig_SharedPetBattleAbilityTooltip_SetAbility(self, abilityInfo, additionalText)
+  petAbilityTooltipID = abilityInfo:GetAbilityID()
+end
+PetBattlePrimaryAbilityTooltip:HookScript('OnShow', function(self)
+      local name = self.Name:GetText()
+      self.Name:SetText(name .. ' (ID: ' .. petAbilityTooltipID .. ')')
+end)
+PetJournalPrimaryAbilityTooltip:HookScript('OnShow', function(self)
+      local name = self.Name:GetText()
+      self.Name:SetText(name .. ' (ID: ' .. petAbilityTooltipID .. ')')
+end)

@@ -1,6 +1,6 @@
 function DruidGuardian()
     if currentConfig ~= "Guardian Masoud" then
-		GuardianConfig()
+    	GuardianConfig()
 		GuardianToggles();
 		currentConfig = "Guardian Masoud";
 	end
@@ -104,53 +104,113 @@ function DruidGuardian()
 ]]
 
 	if UnitAffectingCombat("player") then
-			--Single target Rotation
+local isTanking2 = select(2,UnitDetailedThreatSituation("player", "target")) --player is under 100% of threat but is current target
+local isTanking3 = select(3,UnitDetailedThreatSituation("player", "target")) --player has 100% of theat and is current target		
+local Sd = UnitBuffID("player",132402)
+local SdBuff = select(4,UnitBuffID("player",132402))			
+local HasTierCount = select(4,UnitBuffID("player",138217))
+		--Single target Rotation
 
-			--thrash_bear,if=debuff.weakened_blows.remains<3
-			if targetDistance <= 8 and getDebuffRemain("target",115798,"player") < 3 then
- 				if castSpell("target",77758,true) then return; end 
- 			end
-
-			--Mangle
-			if castSpell("target",33878,false) then return; end
-
-			--Thrash
-			if targetDistance <= 8 and getDebuffRemain("target",77758,"player") < 2 then
- 				if castSpell("target",77758,true) then return; end 
- 			end
-
-			if ScanTimer == nil or ScanTimer <= GetTime() - 1 then
-	    		meleeEnnemies, targetEnnemies, ScanTimer = getNumEnnemies("player",8), getEnnemies("target",10), GetTime(); 
-	    	end
-
-	    	if canCast(77758) then
-				for i = 1, #targetEnnemies do
-					local Guid = targetEnnemies[i]
-					ISetAsUnitID(Guid,"thisUnit");
-					if getCreatureType("thisUnit") == true and getDebuffRemain("thisUnit",77758,"player") < 2 and getDistance("player","thisUnit") <= 8 then	
-						if castSpell("player",77758,true) then return; end	
-					end
-				end	
+		--thrash_bear,if=debuff.weakened_blows.remains<3
+		
+		if  UnitBuffID("player",5487) then
+		if targetDistance <= 8 and getDebuffRemain("target",115798,"player") < 3 then
+				if castSpell("target",77758,true) then return; end 
 			end
-	   
-			--Siwpe
-			if meleeEnnemies > 2 then 
-			 	if castSpell("player",779,true) then print(">2"); return; end 
+        end
+		--Mangle
+		if  UnitBuffID("player",5487) then
+		if castSpell("target",33878,false) then return; end end
+        -- Maul
+		if  UnitBuffID("player",5487) then 
+		if isChecked("Maul Toggle") == true and SpecificToggle("Maul Toggle") == 1 then
+		if castSpell("target",6807,false) then return; end 
+		end end
+		-- SD
+		if BadBoy_data["Defensive"] == 1 then
+		if  UnitBuffID("player",5487) then
+		if UnitPower("player",SPELL_POWER_RAGE) > 59 
+        and not UnitBuffID("player", 62606) 
+		and isTanking2 or isTanking3
+		then
+		if castSpell("player",62606,true) then return; end
+		end end end
+		-- FR
+		if BadBoy_data["Defensive"] == 2 then
+		if  UnitBuffID("player",5487) then
+		if getHP("player") < 85 and UnitPower("player",SPELL_POWER_RAGE) > 40 then
+		if castSpell("player",22842,true) then return; end
+		end end end
+		-- SD In FR Mode
+		if BadBoy_data["Defensive"] == 2 then
+		if  UnitBuffID("player",5487) then
+		if  UnitPower("player",SPELL_POWER_RAGE) > 90 then
+		if castSpell("player",62606,true) then return; end
+		end end end
+		--Thrash
+		if  UnitBuffID("player",5487) then
+		if targetDistance <= 8 and getDebuffRemain("target",77758,"player") < 2 then
+				if castSpell("target",77758,true) then return; end 
 			end
-
-			--Maul 
-			--if UnitBuffID("player",135288) or UnitPower("player",SPELL_POWER_RAGE) >= 90 then
-				--if castSpell("target",6807,false) then return; end 
-			--end
-
-			--Faerie Fire 
-			if getDebuffRemain("target",770,"player") < 2 then
-			 	if castSpell("target",770,true) then return; end 
+        end
+		if ScanTimer == nil or ScanTimer <= GetTime() - 1 then
+    		meleeEnnemies, targetEnnemies, ScanTimer = getNumEnnemies("player",8), getEnnemies("target",10), GetTime(); 
+    	end
+        if  UnitBuffID("player",5487) then
+    	if canCast(77758) then
+			for i = 1, #targetEnnemies do
+				local Guid = targetEnnemies[i]
+				ISetAsUnitID(Guid,"thisUnit");
+				if getCreatureType("thisUnit") == true and getDebuffRemain("thisUnit",77758,"player") < 2 and getDistance("player","thisUnit") <= 8 then	
+					if castSpell("player",77758,true) then return; end	
+				end
 			end	
-
-			--Lacerate 
-			if castSpell("target",33745,false) then return; end	
-
 		end
+        end
+		--Siwpe
+		if  UnitBuffID("player",5487) then
+		if meleeEnnemies > 1 then 
+		 	if castSpell("player",779,true) then return; end 
+		end
+        end
+		
+
+		--Faerie Fire 
+		if  UnitBuffID("player",5487) then
+		if getDebuffRemain("target",770,"player") < 3 then
+		 	if castSpell("target",770,true) then return; end 
+		end	
+        end
+		--Lacerate 
+		if  UnitBuffID("player",5487) then
+		if castSpell("target",33745,false) then return; end	
+        end
+	    --Maul 
+		if UnitBuffID("player",5487) then
+        if Sd and SdBuff > 2
+        and isTanking2 or isTanking3
+        and UnitPower("player",SPELL_POWER_RAGE) > 80
+        and getHP("player") > 75
+        and UnitBuffID("player",135288) then
+        if castSpell("target",6807,false) then return; end	
+        elseif 
+        UnitPower("player",SPELL_POWER_RAGE) > 30
+        and getHP("player") > 75
+        and not isTanking2 or not isTanking3 then
+        if castSpell("target",6807,false) then return; end	
+
+        end
+        end
+		--FR
+		if  UnitBuffID("player",5487) then
+		if not UnitBuffID("player",138217) then
+        if Sd and SdBuff >= 2
+           and UnitPower("player",SPELL_POWER_RAGE) > 59 
+            and getHP("player")< 75 then
+            CastSpellByName(tostring(GetSpellInfo(22842)))
+        end
+        end
+	    end
+	
 	end
 end

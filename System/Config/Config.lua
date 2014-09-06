@@ -264,7 +264,7 @@ function CreateGeneralsConfig()
     CreateNewText(thisConfig,"Climb Hack");
 
     -- Wrapper -----------------------------------------
-    CreateNewWrap(thisConfig,"--------- Trackings ---------");
+    CreateNewWrap(thisConfig,"-------- Trackings -------");
 
     CreateNewCheck(thisConfig,"Friends");
     CreateNewText(thisConfig,"Friends");
@@ -299,7 +299,7 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Chests");
     CreateNewText(thisConfig,"Chests");
 
-    
+
 
 -- .
 

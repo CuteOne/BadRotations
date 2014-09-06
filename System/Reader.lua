@@ -218,6 +218,35 @@ function SuperReader(self, event, ...)
 			-- end 
 		end
 
+
+		------------------------
+		--[[ Pet Manager --]]
+		if select(3, UnitClass("player")) == 9 then
+	        if source == UnitGUID("player") and param == "SPELL_CAST_SUCCESS" then
+	        	if spell == 688 or spell == 112866 then
+	        		petSummoned = 1;
+	        		petSummonedTime = GetTime();
+	        	end
+	        	if spell == 697 or spell == 112867 then
+	        		petSummoned = 2;
+	        		petSummonedTime = GetTime();
+	        	end	 
+	        	if spell == 691 or spell == 112869 then
+	        		petSummoned = 3;
+	        		petSummonedTime = GetTime();
+	        	end   	 
+	        	if spell == 712 or spell == 112868 then
+	        		petSummoned = 4;
+	        		petSummonedTime = GetTime();
+	        	end 	 
+	        	if spell == 30146 or spell == 112870 then
+	        		petSummoned = 5;
+	        		petSummonedTime = GetTime();
+	        	end     	
+			end
+		end
+
+
 		------------------------
 		--[[ Bleed Recorder --]]
 		if select(3, UnitClass("player")) == 11 and GetSpecialization("player") == 2 then

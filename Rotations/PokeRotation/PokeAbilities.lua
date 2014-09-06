@@ -257,7 +257,8 @@ function PokeAbilities()
 
 		-- Switch Pet
 		function Switch()
-			AbilityCast(SuicideList)
+			-- Suicide
+			if not (isChecked("Pet Leveling") and myPetSlot == 1) then AbilityCast(SuicideList); end
 			-- Make sure we are not rooted.
 		  	if canSwapOut or myPets[myPetSlot].health == 0 then
 				if myPetSlot == 1 and myPets[1].health <= BadBoy_data["Box Swap Out Health"] and BadBoy_data["Check Swap in Health"] == 1
