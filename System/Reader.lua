@@ -135,6 +135,9 @@ local function UiErrorMessages(self, event, ...)
 			BadBoy_data["Pet Dead"] = false;
 			BadBoy_data["Pet Whistle"] = true;
 		end
+		if Events == SPELL_FAILED_TARGET_NO_WEAPONS then
+			isDisarmed = true;
+		end
 		if Events == SPELL_FAILED_TARGET_NO_POCKETS then
 			canPickpocket = false;
 		end
@@ -392,6 +395,48 @@ function SuperReader(self, event, ...)
 			-- Whistle failed
 			if SpellID == 883 or SpellID == 83242 or SpellID == 83243 or SpellID == 83244 or SpellID == 83245 then
 				lastFailedWhistle = GetTime()
+			end
+		end
+	end
+
+	-----------------------------
+	--[[ Spell Failed Immune --]]
+	if event == "SPELL_FAILED_IMMUNE" then
+		local SourceUnit	= select(1,...)
+		local SpellID 		= select(5,...)
+		local isDisarmed = false
+		if SourceUnit == "player" and isKnown(SpellID) then
+  			-- Disarm - Warrior
+  			if SpellID == 676 then
+				isDisarmed = true;
+			end
+			-- Clench - Hunter (Scorpid Pet)
+			if SpellID == 50541 then
+				isDisarmed = true;
+			end
+			-- Dismantle - Rogue
+			if SpellID == 51722 then
+				isDisarmed = true;
+			end
+			-- Psychic Horror - Priest
+			if SpellID == 64058 then
+				isDisarmed = true;
+			end
+			-- Snatch - Hunter (Bird of Prey Pet)
+			if SpellID == 91644 then
+				isDisarmed = true;
+			end
+			-- Grapple Weapon - Monk
+			if SpellID == 117368 then
+				isDisarmed = true;
+			end
+			-- Disarm - Warlock (Voidreaver/Voidlord Pet)
+			if SpellID == 118093 then
+				isDisarmed = true;
+			end
+			-- Ring of Peace - Monk
+			if SpellID == 137461 or SpellID == 140023 then
+				isDisarmed = true;
 			end
 		end
 	end

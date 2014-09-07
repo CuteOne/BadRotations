@@ -20,12 +20,16 @@ if select(3, UnitClass("player")) == 4 then
 		if getBuffRemain("player",_LeechingPoison)<5 and not isMoving("player") and not isCasting("player")  then
 			if castSpell("player",_LeechingPoison) then return; end
 		end
----------------
---- Healing ---
----------------
+----------------------
+--- Healing/Dispel ---
+----------------------
 	-- Recuperate
 		if getHP("player") < 80 and getBuffRemain("player",_Recuperate)==0 and getCombo()>0 then
 			if castSpell("player",_Recuperate) then return; end
+		end
+	-- Cloak of Shadows
+		if canDispel("player") then
+			if castSpell("player",_CloakOfShadows) then return; end
 		end
 --------------
 --- Opener ---
@@ -79,6 +83,10 @@ if select(3, UnitClass("player")) == 4 then
 	--- Defensive ---
 	-----------------
 			if not UnitBuffID("player",_Stealth) then
+	-- Dismantle
+				if canDisarm("target") then
+					if castSpell("target",_Dismantle) then return; end
+				end
 	-- Evasion
 				if getHP("player")<50 then
 					if castSpell("player",_Evasion) then return; end

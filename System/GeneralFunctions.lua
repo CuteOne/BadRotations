@@ -77,6 +77,25 @@ function canCast(SpellID,KnownSkip,MovementCheck)
     end
 end
 
+function canDisarm(Unit)
+	if DisarmedTarget == nil then DisarmedTarget = 0 end
+	if isDisarmed == true then
+		if UnitExists(Unit) and UnitGUID(Unit)~=DisarmedTarget then
+			DisarmedTarget = UnitGUID(Unit)
+			return false
+		else
+			isDisarmed = false
+			return true
+		end
+	end
+	if not isInCombat("player") or UnitExists(Unit) then
+		if not isInCombat("player") or UnitGUID(Unit)~=DisarmedTarget then
+			isDisarmed = false
+			return true
+		end
+	end
+end
+
 -- if canDispel("target",SpellID) == true then
 function canDispel(Unit,spellID)
   	local HasValidDispel = false
@@ -91,7 +110,8 @@ function canDispel(Unit,spellID)
 		typesList = { }
 	end
 	if ClassNum == 4 then --Rogue
-		typesList = { }
+		-- Cloak of Shadows
+		if spellID == 31224 then typesList = { "Poison", "Curse", "Disease", "Magic" } end
 	end
 	if ClassNum == 5 then --Priest
 		typesList = { }
