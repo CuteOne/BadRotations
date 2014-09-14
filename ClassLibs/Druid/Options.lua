@@ -177,7 +177,7 @@ function FeralCatConfig()
         titleOp("CuteOne Feral Cat");
                 -- Spacer
         textOp(" ");
-        wrapOp("--- General ---");
+        wrapOp("--- General (Profile) ---");
 
             -- Death Cat
             checkOp("Death Cat Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.");
@@ -200,6 +200,13 @@ function FeralCatConfig()
         -- Spacer
         textOp(" ");
         wrapOp("--- Cooldowns ---");
+
+            -- Dream of Cenarius Auto-Heal
+            checkOp("Auto Heal")
+            dropOp("Auto Heal", 1, "|cffFFFFFFSelect Target to Auto-Heal", 
+                "|cffFFDD11LowestHP",
+                "|cffFFDD11Self")
+            textOp("Auto-Heal (DoC)");
 
             -- Agi Pot
             checkOp("Agi-Pot");

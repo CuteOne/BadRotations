@@ -289,11 +289,7 @@ if select(3, UnitClass("player")) == 11 then
 								if castSpell("target",rvg,false) then return; end 	--Ravage
 							end
 						elseif canShred() then
-							if hasGlyph(gsh) then
-								if castSpell("target",shg) then return; end --Glyphed Shred
-							else
-								if castSpell("target",shr) then return; end --Shred
-							end
+							if castSpell("target",shr) then return; end --Shred
 						else
 							if castSpell("target",mgl) then return; end --Mangle
 						end
@@ -569,7 +565,7 @@ if select(3, UnitClass("player")) == 11 then
 
 		--Thrash
 							if getPower("player") >= 50 and not UnitBuffID("player",cc) and getTimeToDie("target") >= 6 and ThrashMode == 1 and not isGarrMCd() then
-								if (getDebuffRemain("target",thr) < 9 and getRoRoRemain() > 0 and getRoRoRemain() <= 1.5 and getDebuffRemain("target",rp)) 
+								if (getDebuffRemain("target",thr) < 9 and getRoRoRemain() > 0 and getRoRoRemain() <= 1.5 and getDebuffRemain("target",rp) > 3) 
 									or (getDebuffRemain("target",thr) <= 3 and getDebuffRemain("target",rp) > 3 and getDebuffRemain("target",rk) > 3)
 								then
 									if castSpell("player",thr,true) then return; end
@@ -588,7 +584,12 @@ if select(3, UnitClass("player")) == 11 then
 
 		-- Healing Touch
 							if getBuffRemain("player", ps) > 0 and getBuffRemain("player", dcd) == 0 and (getBuffRemain("player", ps) <= 1.5 or getCombo() >= 4) then
-					  			if castSpell(nNova[1].unit,ht) then return; end
+								if getValue("Auto Heal")==1 then
+					  				if castSpell(nNova[1].unit,ht) then return; end
+					  			end
+					  			if getValue("Auto Heal")==2 then
+					  				if castSpell("player",ht) then return; end
+					  			end
 					  		end
 
 		-- Rip
@@ -655,19 +656,14 @@ if select(3, UnitClass("player")) == 11 then
 									if castSpell("target",rk,false) then return; end
 								end
 
-			-- Shred
+			-- Shred/Mangle
 								if canShred() and not UnitBuffID("player",inb) and getPower("player") >= 40 then
-									if UnitBuff("player",ber) or getRegen("player") >= 15 then
-										if hasGlyph(gsr) then
-											if castSpell("target",shg,false) then return; end
-										else
-											if castSpell("target",shr,false) then return; end
-										end
+									if getBuffRemain("player",ber) > 0 or getRegen("player") >= 15 then
+										if castSpell("target",shr,false) then return; end
+									elseif not UnitBuffID("player",inb) and getPower("player") >= 35 then
+										if castSpell("target",mgl,false) then return; end
 									end
-								end
-
-			-- Mangle
-								if not UnitBuffID("player",inb) and getPower("player") >= 35 then
+								elseif not UnitBuffID("player",inb) and getPower("player") >= 35 then
 									if castSpell("target",mgl,false) then return; end
 								end
 							end   
