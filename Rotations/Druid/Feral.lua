@@ -629,6 +629,7 @@ if select(3, UnitClass("player")) == 11 then
 								or ((getCombo()<5 and getDebuffRemain("target",rp)<3) or (getCombo()==0 and getSRR()<2))
 								or getTimeToDie("target")<=8.5
 								or (getBuffRemain("player",tf)>0 or getBuffRemain("player",ber)>0)
+								or (getSpellCD(tf)<2 and getPower("player")>35 and not UnitBuffID("player",ber) and not UnitBuffID("player",cc))
 								or getTimeToMax("player")<=1
 							then
 			-- Ravage Opener
