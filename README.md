@@ -3,46 +3,48 @@ BadBoy
 
 BadBoy Ultimate Raider
 
----===Raid Ready===---
-Blood Death Knight
-Beastmaster Hunter
-Elemental Shaman
-Feral Druid
-Restoration Druid
+<b>===Profile Statuses===</b>
 
----===90 Ready / Finalizing===---
-Moonkin Druid
-Brewmaster Monk
-Mistweaver Monk
-Protection Paladin
-Shadow Priest
-Subtly Rogue
-Enhancement Shaman
-Protection Warrior
+<b>---Raid Ready---</b><br>
+Blood Death Knight<br>
+Beastmaster Hunter<br>
+Elemental Shaman<br>
+Feral Druid<br>
+Restoration Druid<br>
 
----===In Development===---
-Assassination Rogue
-Windwalker Monk
-Restoration Shaman
+<b>---90 Ready / Finalizing---</b><br>
+Moonkin Druid<br>
+Brewmaster Monk<br>
+Mistweaver Monk<br>
+Protection Paladin<br>
+Shadow Priest<br>
+Subtly Rogue<br>
+Enhancement Shaman<br>
+Protection Warrior<br>
 
----===Level 1-10 Profiles===---
-Monk
+<b>---In Development---</b><br>
+Assassination Rogue<br>
+Windwalker Monk<br>
+Restoration Shaman<br>
+
+<b>---Level 1-10 Profiles---</b><br>
+Monk<br>
 
 
----====Pending Development===---
-Frost Death Knight
-Unholy Death Knight
-Marskmanship Hunter
-Survival Hunter
-Arcane Mage
-Fire Mage
-Frost Mage
-Holy Paladin
-Retribution Paladin
-Discipline Priest
-Holy Priest
-Combat Rogue
-Affliction Warlock
-Demonology Warlock
-Arms Warrior
-Fury Warrior
+<b>---Pending Development---</b><br>
+Frost Death Knight<br>
+Unholy Death Knight<br>
+Marskmanship Hunter<br>
+Survival Hunter<br>
+Arcane Mage<br>
+Fire Mage<br>
+Frost Mage<br>
+Holy Paladin<br>
+Retribution Paladin<br>
+Discipline Priest<br>
+Holy Priest<br>
+Combat Rogue<br>
+Affliction Warlock<br>
+Demonology Warlock<br>
+Arms Warrior<br>
+Fury Warrior<br>
