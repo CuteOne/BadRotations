@@ -1,92 +1,119 @@
 if select(3, UnitClass("player")) == 2 then
-function PaladinProtection()
-	if currentConfig ~= "Protection CodeMyLife" then
-		PaladinProtFunctions();
-		PaladinProtToggles();
-		PaladinProtConfig();
-		currentConfig = "Protection CodeMyLife";
-	end
+	function PaladinProtection()
+	-- Init Protection specific funnctions, toggles and configs.
+		if currentConfig ~= "Protection CodeMyLife" then --Where is currentConfig set? Is this only used for init?
+			PaladinProtFunctions(); --Prot functions is SacredShield and GetHolyGen
+			PaladinProtToggles(); -- Setting up Toggles, AoE, Interrupt, Defensive CD, CD, Healing
+			PaladinProtConfig(); -- Reading Config values from gui?
+			currentConfig = "Protection CodeMyLife";
+		end
 
-	-- Locals
+	-- Locals Variables
 	local _HolyPower = UnitPower("player", 9);
-	local numEnnemies = numEnnemies;
-	local meleeEnnemies = getNumEnnemies("player",4);
-	if getDistance("player","target") < 25 then
+	local numEnnemies = numEnnemies;  --Why are we declaring this? Should we not initialise? Its not a global variables so it will be overwritten each time?
+	local meleeEnnemies = getNumEnnemies("player",4); --Get number of enemies within melee range. Does this also work for large hotboxes?
+	
+	if getDistance("player","target") < 25 then   --Do not understand this, why are we not just getting TargetProximityTargets and PlayerProximityTargets?
 		numEnnemies = getNumEnnemies("target",10);
 	else
 		numEnnemies = getNumEnnemies("player",10);
 	end
 
-	-- Food/Invis Check
-	if canRun() ~= true or UnitInVehicle("Player") then return false; end
-	if IsMounted("player") then waitForPetToAppear = nil; return false; end
+	-- Food/Invis Check   Hm here we are checking if we should abort the rotation pulse due to if we are a vehicle or some stuff
+	-- canRun is already checking UnitInVehicle and some other stuff im not sure about.
+	if canRun() ~= true or UnitInVehicle("Player") then 
+		return false; 
+	end
+	
+	if IsMounted("player") then  --canRun is already checking for mounted and we will not get here.
+		waitForPetToAppear = nil;  --Why? Is this from hunter rotation? What pet are we waiting for?
+		return false; 
+	end
 
 	if UnitAffectingCombat("player") then
 		-- Rebuke
-		if isChecked("Rebuke") then
-			if canInterrupt(_Rebuke, tonumber(BadBoy_data["Box Rebuke"])) and getDistance("player","target") <= 4 then
+		if isChecked("Rebuke") then --Hm we have InterruptsModes from Prot Toggles, why are we checking for Rebuke? There are more ways to interrupt then Rebuke.
+			if canInterrupt(_Rebuke, tonumber(BadBoy_data["Box Rebuke"])) and getDistance("player","target") <= 4 then  --We are checking for 4 but rebuke have 5 yards range?
 				castSpell("target",_Rebuke,false);
+				-- Other interrupts are, binding light, Fist of Justice, Which have different ranges.
+				--Should we not return if successful? castSpell returns either true or false
 			end
 		end
+		--Here comes defensive CDs, however we are not checking if we have already done one CD, only checking for HP, should add check for other CDs timers.
+		-- Also in the toggles there is a DefensiveModes table, are we not using this?
+		 -- Missing LayOnHands and Divine Shield, also perhaps Avenging Wrath for increased self healing.
 		-- Ardent Defender
 		if BadBoy_data["Check Ardent Defender"] == 1 and getHP("player") <= BadBoy_data["Box Ardent Defender"] then
-			if castSpell("player",_ArdentDefender,true) then return; end
+			if castSpell("player",_ArdentDefender,true) then 
+				return;  --Here we return as we should
+			end
 		end
 		-- Divine Protection
-		if BadBoy_data["Check Divine Protection"] == 1 and getHP("player") <= BadBoy_data["Box Divine Protection"] then
-			if castSpell("player",_DivineProtection,true) then return; end
+		if BadBoy_data["Check Divine Protection"] == 1 and getHP("player") <= BadBoy_data["Box Divine Protection"] then -- Should we check if damage is physical?
+			if castSpell("player",_DivineProtection,true) then 
+				return; 
+			end
 		end
 		-- Guardian of the Ancient Kings
-		if BadBoy_data["Check GotAK Prot"] == 1 and getHP("player") <= BadBoy_data["Box GotAK Prot"] then
-			if castSpell("player",_GuardianOfAncientKings,true) then return; end
+		if BadBoy_data["Check GotAK Prot"] == 1 and getHP("player") <= BadBoy_data["Box GotAK Prot"] then 
+			if castSpell("player",_GuardianOfAncientKings,true) then 
+				return; 
+			end
 		end
 		-- shield_of_the_righteous,if=holy_power>=5|buff.divine_purpose.react|incoming_damage_1500ms>=health.max*0.3
-		if canCast(_ShieldOfTheRighteous) and isInCombat("player") and _HolyPower >= 5 then
+		--Here we are casting Shield of Right but we are not checking for using WoD instead? The above comments is if we divine purpose and need to use it?
+		if canCast(_ShieldOfTheRighteous) and isInCombat("player") and _HolyPower >= 5 then -- Already checked if we are in combat, HolyPower cant be larger then 5?
 			if getDistance("player","target") <= 4 then
-				if castSpell("target",_ShieldOfTheRighteous,false) then return; end
+				if castSpell("target",_ShieldOfTheRighteous,false) then 
+					return; 
+				end
 			else
+				-- we our target is not in melee range, check for target that we can cast on that is.
 				for i = 1, GetTotalObjects(TYPE_UNIT) do
 					local Guid = IGetObjectListEntry(i)
 					ISetAsUnitID(Guid,"thisUnit");
 					if getFacing("player","thisUnit") == true and getDistance("player","thisUnit") <= 4 then
-						if castSpell("thisUnit",_ShieldOfTheRighteous,true) then return; end								
+						if castSpell("thisUnit",_ShieldOfTheRighteous,true) then 
+							return; 
+						end								
 					end
 				end	
 			end
 		end
-	end
+	end --We are we stopping the incombat check here?
 
 
 --[[ 	-- On GCD After here
 ]]
 
-	if isCasting() then return false; end
-
-
-	-- flask,type=earth
-	-- food,type=chun_tian_spring_rolls
-
-	-- blessing_of_kings,if=(!aura.str_agi_int.up)&(aura.mastery.up)
-	-- blessing_of_might,if=!aura.mastery.up
+	if isCasting() then 
+		return false; 
+	end
 
 	-- Righteous Fury
+	-- Should this not be the first thing we are checking?
 	if isChecked("Righteous Fury") then
 		if UnitBuffID("player",_RighteousFury)== nil then
 			if castSpell("player",_RighteousFury, true) then return; end
 		end
 	end
 
-	-- Seal
+	-- Seal logic, should be a Paladin function for easier to read code.
+	--  it seems regardless if seal = 1 or 2 we cast seal of insight?
 	if isChecked("Seal") then
 		local seal = getValue("Seal");
  		if seal == 1 then 
  			if GetShapeshiftForm() ~= 3 then 
- 				if castSpell("player",_SealOfInsight,true) then return; end 
+ 				if castSpell("player",_SealOfInsight,true) then 
+					return; 
+				end 
  			end 
  		end
 		if seal == 2 then 
 			if GetShapeshiftForm() ~= 1 then 
- 				if castSpell("player",_SealOfInsight,true) then return; end 
+ 				if castSpell("player",_SealOfInsight,true) then --Should be changed to SealOfTruth
+					return; 
+				end 
 			end 
 		end
 		if seal == 3 then
@@ -105,34 +132,50 @@ function PaladinProtection()
 	end
 
 	-- sacred_shield,if=talent.sacred_shield.enabled&target.dot.sacred_shield.remains<5
-	if isKnown(_SacredShield) and SacredShield() == true then
-		if castSpell("player",_SacredShield,true) then return; end
+	if isKnown(_SacredShield) and SacredShield() == true then  --Should add isKnown to the SacredShield function to easier read.
+		if castSpell("player",_SacredShield,true) then 
+			return; 
+		end
 	end
 
 --[[ 	-- Combats Starts Here
 ]]
-
+	-- Hm we already had that check before? Why is the code above not incombat valid?
 	if isInCombat("player") then
-
 		-- Lay on Hands
+		-- This should be moved to Defensive CDs
 		if getHP("player") <= getValue("Lay On Hands") then
-			if castSpell("player",_LayOnHands,true) then return; end
+			if castSpell("player",_LayOnHands,true) then 
+				return; 
+			end
+			-- If we dont need Lay of Hands, check if the raid needs.
+			-- Should be careful, if its a tank we in some cases do not want to give them forebarance?
 		elseif nNova[1].hp <= getValue("Lay On Hands") then
-			if castSpell(nNova[1].unit,_LayOnHands,true) then return; end
+			if castSpell(nNova[1].unit,_LayOnHands,true) then 
+				return; 
+			end
 		end
 
 		-- Eternal Flame/Word Of Glory
 		if isKnown(_EternalFlame) then
 			if getHP("player") <= getValue("Self Flame") and not UnitBuffID("player",_EternalFlame) then
-				if castSpell("player",_EternalFlame,true) then return; end
-			elseif nNova[1].hp <= getValue("Eternal Flame") then
-				if castSpell(nNova[1].unit,_EternalFlame,true) and not UnitBuffID(nNova[1].unit,_EternalFlame) then return; end
+				if castSpell("player",_EternalFlame,true) then 
+					return; 
+				end
+			elseif nNova[1].hp <= getValue("Eternal Flame") then --we do not check if we are supposed to heal party here.
+				if castSpell(nNova[1].unit,_EternalFlame,true) and not UnitBuffID(nNova[1].unit,_EternalFlame) then 
+					return; 
+				end
 			end
 		else
 			if getHP("player") <= getValue("Self Glory") and getBuffStacks("player",114637) > 3 then
-				if castSpell("player",_WordOfGlory,true) then return; end
+				if castSpell("player",_WordOfGlory,true) then 
+					return; 
+				end
 			elseif nNova[1].hp <= getValue("Word Of Glory") then
-				if castSpell(nNova[1].unit,_WordOfGlory,true) then return; end
+				if castSpell(nNova[1].unit,_WordOfGlory,true) then 
+					return; 
+				end
 			end
 		end
 
