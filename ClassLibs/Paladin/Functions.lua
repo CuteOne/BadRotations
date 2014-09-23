@@ -118,6 +118,22 @@ end
 --[[]]	   --[[]]	--[[           ]]	--[[           ]]		 --[[]]
 --[[]]	   --[[]]	--[[           ]]	--[[           ]]		 --[[]]
  
+
+    function PaladinHolyFunctions()
+
+
+        function GetHolyGen()
+            local Delay = 0.3;
+            if UnitPower("player", 9) <= 4 and getSpellCD(_CrusaderStrike) < Delay or getSpellCD(_Judgment) < Delay or UnitBuffID("player", 85416) then 
+                return true;
+            else
+                return false;
+            end
+        end
+        
+    end
+
+
 --[[           ]]	--[[         ]]		--[[           ]] 	
 --[[           ]]	--[[          ]]	--[[           ]] 	
 --[[]]				--[[]]	   --[[]]	--[[]]				
@@ -135,13 +151,6 @@ end
 --[[]] 				--[[]]	   --[[]]	--[[           ]]		 --[[ ]]
 
     function PaladinProtFunctions()
-
-
-
-
-
-
-
 
         function SacredShield()
             local SacredShieldCheck = BadBoy_data["Check Sacred Shield"];
@@ -179,6 +188,19 @@ end
 --[[]]	   --[[]] 	--[[           ]]		 --[[ ]]
 
 
+    function PaladinRetFunctions()
+
+
+        function GetHolyGen()
+            local Delay = 0.3;
+            if UnitPower("player", 9) <= 4 and getSpellCD(_CrusaderStrike) < Delay or getSpellCD(_Judgment) < Delay or UnitBuffID("player", 85416) then 
+                return true;
+            else
+                return false;
+            end
+        end
+
+    end
 
 
 
