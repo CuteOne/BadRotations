@@ -9,16 +9,21 @@ if select(3, UnitClass("player")) == 2 then
 		end
 
 		-- Locals Variables
-		local _HolyPower = UnitPower("player", 9);
-		local numEnnemies = numEnnemies;  --Why are we declaring this? Should we not initialise? Its not a global variables so it will be overwritten each time?
-		local meleeEnnemies = getNumEnnemies("player",4); --Get number of enemies within melee range. Does this also work for large hotboxes?
-	
-		if getDistance("player","target") < 25 then   --Do not understand this, why are we not just getting TargetProximityTargets and PlayerProximityTargets?
-			numEnnemies = getNumEnnemies("target",10);
-		else
-			numEnnemies = getNumEnnemies("player",10);
-		end
-
+		_HolyPower = UnitPower("player", 9);
+		-- Aoe Affects
+		-- Concentration, around player X yards
+		-- Holy Wrath, 10 yards, but divided so only max damage regarldess how many
+		-- Hammer Of Righteous, 8 yards from the target
+		-- Blinding Light 10 yards from player
+		-- Lights hammer 10 yards around groundarea
+		-- Holy Prism If target ally, give damage 15 yards from ally, if on enemy heal 15 yards around target
+		
+		--Get 
+		numberOfTargetsMelee = getNumEnnemies("player",4); --Get number of enemies within melee range. Does this also work for large hotboxes?
+		--numberOfTargetsAroundTarget = getNumEnnemies("target",10);
+		--numberOfTargetsTenYards = getNumEnnemies("player",10);
+		numberOfTargetsHolyPrismDamage = getNumEnnemies("player",15);
+		
 		-- canRun is already checking UnitInVehicle and some other stuff im not sure about.
 		if canRun() ~= true then 
 			return false; 
@@ -76,7 +81,6 @@ if select(3, UnitClass("player")) == 2 then
 
 			-- Handle the use of HolyPower
 			if ProtPaladinHolyPowerConsumers() then
-				-- Do not return here since they are off cd
 			end
 		
 			if ProtPaladingHolyPowerCreaters() then -- Handle the normal rotation including not createers
