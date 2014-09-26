@@ -7,7 +7,7 @@ if select(3,UnitClass("player")) == 2 then
 --[[]]	   --[[]]	--[[           ]]	--[[           ]]		 --[[]]
 --[[]]	   --[[]]	--[[           ]]	--[[           ]]		 --[[]]
  
-function PaladinHolyConfig()
+function PaladinHolyOptions()
 
     ClearConfig();
 
@@ -176,7 +176,7 @@ This function will use table row #1.]]
 
 
 
-function PaladinProtConfig()
+function PaladinProtOptions()
 
     ClearConfig();
 
@@ -321,7 +321,7 @@ end
 --[[]]	  --[[]]	--[[           ]]	 	 --[[ ]]		
 --[[]]	   --[[]] 	--[[           ]]		 --[[ ]]
 
-function PaladinRetConfig()
+function PaladinRetOptions()
 
     ClearConfig();
 

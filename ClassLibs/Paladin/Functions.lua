@@ -179,10 +179,10 @@ if select(3,UnitClass("player")) == 2 then
 		end
 		
 		function ProtPaladinSurvivalSelf() -- Check if we are close to dying and act accoridingly
-			local _HolyPower = UnitPower("player", 9);
 			local playerHP = getHP("player")
 			
 			-- Lay on Hands
+			-- Need to check for forebarance
 			if getHP("player") <= getValue("Lay On Hands") then
 				if castSpell("player",_LayOnHands,true) then 
 					return; 
@@ -256,13 +256,6 @@ if select(3,UnitClass("player")) == 2 then
 	
 		-- Handles Seal logic dependent on situation
 		function ProtPaladinSealLogic()
-		-- Seems to have 2 values Check Seal 0 = not checked, 1 = checked
-		-- Drop Seal:  1 = Insight,  2 = Truth, 3 = Swap, 
-		-- Prot have 3 Seals, 
-		--		Seal of Truth which gives 12% more damage and applies census
-		--		Seal of Righteousness give 9% damage to all anemies around u
-		--		Seal of insight, boost healing spells by 5%, chance to heal close wounded ally
-		-- Seal of Insight is pretty much the only one to use, but the options is there.
 			local seal = getValue("Seal");
 			local numEnnemies = getNumEnnemies("player",4) -- Should perhaps get this as parameter to get better performance.
 			if seal == 1 then 
@@ -275,8 +268,7 @@ if select(3,UnitClass("player")) == 2 then
 			end
 			if seal == 2 then 
 				if GetShapeshiftForm() ~= 1 then 
-					if castSpell("player",_SealOfThruth,true) then --Should be changed to SealOfTruth
-						return; 
+					if castSpell("player",_SealOfThruth,true) then 
 					end 
 				end 
 			end
@@ -312,13 +304,20 @@ if select(3,UnitClass("player")) == 2 then
 			-- Cast Eternal Flame/Word if we are below HP threshold
 			-- Cast Eternal Flame/Word if party member is below HP threshold and config set
 			
-			-- Eternal Flame/Word Of Glory
+			-- Once you have cast your initial EF, be sure to recast EF with 3 HoPo every ~25 seconds to ensure the HoT does not fall off. 
+			--As a general rule, recast it whenever you have 3 HoPo and less than 5 seconds remaining on the HoT. If you need those HoPo for a ShoR for a boss special ability, 
+			--then delay the EF or try to juggle things so that you refresh the EF earlier.
 			if isKnown(_EternalFlame) then
-				if getHP("player") <= getValue("Self Flame") and not UnitBuffID("player",_EternalFlame) then
-					if castSpell("player",_EternalFlame,true) then 
+				-- First prio is to keep Eternal Flame HoT on our selfs
+				if _HolyPower > 2 and not isBuffed("player", _EternalFlame, 5) then 
+					if castSpell("player",_EternalFlame) then 
 						return; 
 					end
-				elseif nNova[1].hp <= getValue("Eternal Flame") then --we do not check if we are supposed to heal party here. Should be added
+					--CastSpellByName(GetSpellInfo(_EternalFlame),"player")
+				end
+				-- Here we should have EF blankets on prio target such as other tank and one healer or something,
+				-- Should be configurable on how many we should blanket
+				if nNova[1].hp <= getValue("Eternal Flame") then --we do not check if we are supposed to heal party here. Should be added
 					if castSpell(nNova[1].unit,_EternalFlame,true) and not UnitBuffID(nNova[1].unit,_EternalFlame) then 
 						return; 
 					end
@@ -334,7 +333,6 @@ if select(3,UnitClass("player")) == 2 then
 					end
 				end
 			end
-
 			-- sacred_shield,if=talent.sacred_shield.enabled
 			-- We are not raid shielding here.
 			if isKnown(_SacredShield) then
@@ -540,11 +538,13 @@ if select(3,UnitClass("player")) == 2 then
 			end
 
 			-- holy_prism,if=talent.holy_prism.enabled
-			if numEnnemies > 1 then
+			-- Cast Holy Prism on youself if you have more then one enemy 15 yards around u.
+			if numberOfTargetsHolyPrismDamage > 1 then
 				if castSpell("player",_HolyPrism,false) then 
 					return; 
 				end
 			else
+				--Otherwise cast it on target
 				if castSpell("target",_HolyPrism,false) then 
 					return; 
 				end
