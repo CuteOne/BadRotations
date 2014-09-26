@@ -213,15 +213,29 @@ if select(3, UnitClass("player")) == 11 then
 
         --Thrash Key Toggle
         if ThrashTimer == nil then ThrashTimer = 0; end
-        if ThrashMode == nil then ThrashMode = 1; end
         if SpecificToggle("Thrash Toggle") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - ThrashTimer > 0.25 then
             ThrashTimer = GetTime()
-            if BadBoy_data['Thrash'] ~= #ThrashModes then
-                BadBoy_data['Thrash'] = BadBoy_data['Thrash']+1
-            else
+            toggled = 0
+            print(BadBoy_data['Thrash'])
+            if BadBoy_data['Thrash'] == 2 and toggled == 0 then
+                print("Setting Thrash to Mode 1")
                 BadBoy_data['Thrash'] = 1
+                toggled = 1
             end
-            UpdateButton("Thrash")
+            if BadBoy_data['Thrash'] == 1 and toggled == 0 then
+                print("Setting Thrash to Mode 2")
+                BadBoy_data['Thrash'] = 2
+                toggled = 1
+            end
+            -- else
+            --     print("Setting Thrash to Mode 1")
+            --     BadBoy_data['Thrash'] = 1
+            -- end
+            print(BadBoy_data['Thrash'])
+            if toggled == 1 then
+                UpdateButton("Thrash")
+            end
+            print(BadBoy_data['Thrash'])
         end
 
         --Symbiosis Key Toggle

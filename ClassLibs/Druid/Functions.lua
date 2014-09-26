@@ -308,6 +308,14 @@ function useAoE()
     end
 end
 
+function useThrash()
+    if BadBoy_data['Thrash']==1 then
+        return true
+    else
+        return false
+    end
+end
+
 -- function usePot()
 --     if isInCombat("player") and getBuffRemain("player",105697)>0 then
 --         return false

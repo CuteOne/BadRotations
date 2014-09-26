@@ -92,32 +92,30 @@ if select(3, UnitClass("player")) == 11 then
 ----------------------
 --- Pre-Pot Assist ---
 ----------------------
+		if UnitBuffID("player",105697) then
 	-- Cast Form
-		if UnitBuffID("player",105697)
-			and not UnitBuffID("player",cf)
-			and not IsFlying()
-		then
-			if castSpell("player",cf) then return; end
-		end
+			if not UnitBuffID("player",cf)
+				and not IsFlying()
+			then
+				if castSpell("player",cf) then return; end
+			end
 
 	-- Prowl
-		if not UnitBuffID("player", tf)
-			and UnitBuffID("player", cf)
-			and not isInCombat("player")
-			and UnitBuffID("player",105697)
-		then
-			if castSpell("player",prl) then return; end
-		end
+			if not UnitBuffID("player", tf)
+				and UnitBuffID("player", cf)
+				and not isInCombat("player")
+			then
+				if castSpell("player",prl) then return; end
+			end
 
 	-- Stampeding Roar
-		if UnitBuffID("player", tf)
-			and UnitBuffID("player", cf)
-			and isMoving("player")
-			and UnitBuffID("player",105697)
-		then
-			if castSpell("player",sro) then return; end
+			if UnitBuffID("player", tf)
+				and UnitBuffID("player", cf)
+				and isMoving("player")
+			then
+				if castSpell("player",sro) then return; end
+			end
 		end
-
 
 -------------
 --- Forms ---
@@ -133,7 +131,7 @@ if select(3, UnitClass("player")) == 11 then
 			if castSpell("player",af) then return; end
    		end
 	-- Cat Form   		
-   		if isValidTarget("target") and IsFlying()==nil and targetDistance<=40 and not UnitBuffID("player",cf) and canAttack("player", "target") then
+   		if ((isValidTarget("target") and canAttack("player", "target") and targetDistance<=40) or (isMoving("player") and not UnitBuffID("player",trf))) and IsFlying()==nil and not UnitBuffID("player",cf) then
 			if castSpell("player",cf) then return; end
    		end
    	-- PowerShift
@@ -472,7 +470,7 @@ if select(3, UnitClass("player")) == 11 then
 								and (getDebuffRemain("target",thr) < 3 or (UnitBuffID("player",tf) 
 								and getDebuffRemain("target",thr) < 9)) 
 								and targetDistance <= 8
-								and ThrashMode == 1
+								and useThrash()
 								and not isGarrMCd() 
 							then
 								if castSpell("player",thr,true) then return; end
@@ -536,7 +534,7 @@ if select(3, UnitClass("player")) == 11 then
 								and getDebuffRemain("target",rp) > 3
 								and getDebuffRemain("target",rk) > 3
 								and getTimeToDie("target") >= 6
-								and ThrashMode == 1
+								and useThrash()
 								and not isGarrMCd() 
 							then
 								if castSpell("player",thr,true) then return; end
@@ -564,7 +562,7 @@ if select(3, UnitClass("player")) == 11 then
 							end
 
 		--Thrash
-							if getPower("player") >= 50 and not UnitBuffID("player",cc) and getTimeToDie("target") >= 6 and ThrashMode == 1 and not isGarrMCd() then
+							if getPower("player") >= 50 and not UnitBuffID("player",cc) and getTimeToDie("target") >= 6 and useThrash() and not isGarrMCd() then
 								if (getDebuffRemain("target",thr) < 9 and getRoRoRemain() > 0 and getRoRoRemain() <= 1.5 and getDebuffRemain("target",rp) > 3) 
 									or (getDebuffRemain("target",thr) <= 3 and getDebuffRemain("target",rp) > 3 and getDebuffRemain("target",rk) > 3)
 								then
@@ -576,7 +574,7 @@ if select(3, UnitClass("player")) == 11 then
 							if getPower("player") >= 25 and getRoRoRemain() == 0 and getSRR() > 0 and getCombo()>=5 then
 								if (getTimeToDie("target") <= 4 and getCombo() >= 5)
 									or (getDebuffRemain("target",rp) <= 4 and getDebuffRemain("target",rp)>0 and getHP("target") <=25)
-									or (RPP() < 108 and getDebuffRemain("target",rp) > 6 and getDebuffRemain("target",thr) > 3 and getCombo() >= 5 and getPower("player") >= 50) 
+									or (RPP() < 108 and getDebuffRemain("target",rp) > 6 and (getDebuffRemain("target",thr) > 3 or not useThrash()) and getCombo() >= 5 and getPower("player") >= 50) 
 								then
 									if castSpell("target",fb,false) then return; end
 								end
