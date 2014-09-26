@@ -448,7 +448,7 @@ if select(3, UnitClass("player")) == 11 then
 							local ennemiesList = getEnnemies("player",10)
 							for i = 1, #ennemiesList do
 			  					ISetAsUnitID(IGetObjectListEntry(i),"thisUnit");
-								if getDistance("player", "thisUnit") < 10 and getFacing("player","thisUnit")==true then
+								if getDistance("player", "thisUnit") < 10 and getFacing("player","thisUnit")==true and getSpellCD(ff) == 0 then
 									if not UnitDebuffID("thisUnit",wa) or select(4,UnitDebuffID("thisUnit",wa)) < 3 then
 										if castSpell("thisUnit",ff,true) then return; end
 									end
