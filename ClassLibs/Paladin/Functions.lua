@@ -1,12 +1,4 @@
 if select(3,UnitClass("player")) == 2 then
-	--[[           ]]	--[[]]	   --[[]]	--[[]]	   --[[]]	--[[   		   ]]	--[[   		   ]]	--[[   		   ]]	--[[           ]]	--[[]]	   --[[]]
-	--[[           ]]	--[[]]	   --[[]]	--[[  ]]   --[[]]	--[[   		   ]]	--[[   		   ]]	--[[   		   ]]	--[[           ]]	--[[  ]]   --[[]]
-	--[[]]				--[[]]	   --[[]]	--[[    ]] --[[]]   --[[]]					 --[[ ]]			 --[[ ]]		--[[]]	   --[[]]	--[[    ]] --[[]]
-	--[[           ]]	--[[]]	   --[[]]	--[[           ]]	--[[]]					 --[[ ]]			 --[[ ]]		--[[]]	   --[[]]	--[[           ]]
-	--[[           ]]	--[[]]	   --[[]]	--[[   		   ]]	--[[]]					 --[[ ]]			 --[[ ]]		--[[]]	   --[[]]	--[[   		   ]]
-	--[[]]	   			--[[           ]]	--[[]]	 --[[  ]]	--[[   		   ]]		 --[[ ]]		--[[   		   ]]	--[[           ]]	--[[]]	 --[[  ]]
-	--[[]]	   			--[[           ]]	--[[]]	   --[[]]	--[[   		   ]]		 --[[ ]]		--[[   		   ]]	--[[           ]]	--[[]]	   --[[]]
-
 	_ArdentDefender             =   31850
 	_AvengersShield             =   31935
 	_AvengingWrath              =   31884
@@ -110,31 +102,16 @@ if select(3,UnitClass("player")) == 2 then
 		end
 	end
 
---[[]]	   --[[]]	--[[           ]]	--[[]]				--[[]]	  --[[]]
---[[]]	   --[[]]	--[[           ]]	--[[]]				--[[]]	  --[[]]
---[[           ]]	--[[]]	   --[[]]	--[[]]				   --[[    ]]	   
---[[           ]]	--[[]]	   --[[]]	--[[]]				   --[[    ]]
---[[           ]]	--[[]]	   --[[]]	--[[]]					 --[[]]
---[[]]	   --[[]]	--[[           ]]	--[[           ]]		 --[[]]
---[[]]	   --[[]]	--[[           ]]	--[[           ]]		 --[[]]
- 
---[[           ]]	--[[         ]]		--[[           ]] 	
---[[           ]]	--[[          ]]	--[[           ]] 	
---[[]]				--[[]]	   --[[]]	--[[]]				
---[[]]				--[[]]	   --[[]]	--[[           ]] 	
---[[]]				--[[]]	   --[[]]		   	   --[[]]	
---[[   		   ]]	--[[          ]]	--[[           ]] 	
---[[   		   ]]	--[[         ]] 	--[[           ]] 	
-
---[[           ]]	--[[           ]]	--[[           ]] 	--[[           ]]
---[[           ]]	--[[           ]]	--[[           ]] 	--[[           ]]
---[[]]	   --[[]]	--[[]]	   --[[]]	--[[]]	   --[[]]		 --[[ ]]
---[[         ]]		--[[         ]]	    --[[]]	   --[[]]		 --[[ ]]
---[[       ]]		--[[        ]]		--[[]]	   --[[]]		 --[[ ]]
---[[]]				--[[]]	  --[[]]	--[[           ]]	 	 --[[ ]]		
---[[]] 				--[[]]	   --[[]]	--[[           ]]		 --[[ ]]
-
     function PaladinProtFunctions()
+		
+		-- Utility functions
+		-- Hand of Salvation, Hand of Sacrifice
+		-- Blinding Light
+		-- Turn Evil
+		function ProtPaladinUtility()
+		end
+
+	
         function SacredShield()
             local SacredShieldCheck = BadBoy_data["Check Sacred Shield"];
             local SacredShield = BadBoy_data["Box Sacred Shield"];
@@ -252,12 +229,10 @@ if select(3,UnitClass("player")) == 2 then
 			--Blessings Logic here
 			
 		end
-
 	
 		-- Handles Seal logic dependent on situation
 		function ProtPaladinSealLogic()
 			local seal = getValue("Seal");
-			local numEnnemies = getNumEnnemies("player",4) -- Should perhaps get this as parameter to get better performance.
 			if seal == 1 then 
 				if GetShapeshiftForm() ~= 3 then 
 					if castSpell("player",_SealOfInsight,true) then 
@@ -279,7 +254,7 @@ if select(3,UnitClass("player")) == 2 then
 							return; 
 						end
 					end 
-				elseif getHP("player") > 60 and numEnnemies < 3 then 
+				elseif getHP("player") > 60 and numberOfTargetsMelee < 3 then 
 					if GetShapeshiftForm() ~= 1 then 
 						if castSpell("player",_SealOfThruth,true) then 
 							return; 
@@ -313,164 +288,92 @@ if select(3,UnitClass("player")) == 2 then
 					if castSpell("player",_EternalFlame) then 
 						return; 
 					end
-					--CastSpellByName(GetSpellInfo(_EternalFlame),"player")
 				end
-				-- Here we should have EF blankets on prio target such as other tank and one healer or something,
-				-- Should be configurable on how many we should blanket
-				if nNova[1].hp <= getValue("Eternal Flame") then --we do not check if we are supposed to heal party here. Should be added
-					if castSpell(nNova[1].unit,_EternalFlame,true) and not UnitBuffID(nNova[1].unit,_EternalFlame) then 
-						return; 
+				-- TODO Here we should have EF blankets on prio target such as other tank and one healer or something,
+				-- TODO Should be configurable on how many we should blanket, overkill maybe
+				if BadBoy_data["healing"] == 3 and _HolyPower > 2 then
+					if nNova[1].hp <= getValue("Eternal Flame") and not isBuffed("player", _EternalFlame) then
+						if castSpell(nNova[1].unit,_EternalFlame,true) then 
+							return; 
+						end
 					end
 				end
 			else
-				if getHP("player") <= getValue("Self Glory") and getBuffStacks("player",114637) > 3 then
+				if (getHP("player") <= 80 and _HolyPower > 2) then 
 					if castSpell("player",_WordOfGlory,true) then 
 						return; 
 					end
-				elseif nNova[1].hp <= getValue("Word Of Glory") then
+				elseif BadBoy_data["healing"] == 3 and nNova[1].hp <= 60 then
 					if castSpell(nNova[1].unit,_WordOfGlory,true) then 
 						return; 
 					end
 				end
 			end
-			-- sacred_shield,if=talent.sacred_shield.enabled
-			-- We are not raid shielding here.
-			if isKnown(_SacredShield) then
-				if isChecked("Sacred Shield") and UnitBuffID("player",_SacredShield) == nil then
-					if castSpell("player",_SacredShield,true) then return; end
-				end	
-			end
+			--Todo we should/could add same logic as eternal flame, shielding tank and priotised group members.
+			-- Todo, fix sacred shield, now no config values
+			--if isKnown(_SacredShield) then
+			--	if isChecked("Sacred Shield") and not isBuffed("player", _SacredShield, 5) then
+			--		if castSpell("player",_SacredShield,true) then 
+			--			return; 
+			--		end
+			--	end	
+			--end
 			
 			-- shield_of_the_righteous,if=holy_power>=5|buff.divine_purpose.react|incoming_damage_1500ms>=health.max*0.3
-			if canCast(_ShieldOfTheRighteous) and _HolyPower == 5 then 
+			if canCast(_ShieldOfTheRighteous) and _HolyPower > 4 then 
 				if getDistance("player","target") <= 4 then
 					if castSpell("target",_ShieldOfTheRighteous,false) then 
 						return; 
 					end
-				else
-					-- we our target is not in melee range, check for target that we can cast on that is.
-					for i = 1, GetTotalObjects(TYPE_UNIT) do
-						local Guid = IGetObjectListEntry(i)
-						ISetAsUnitID(Guid,"thisUnit");
-						if getFacing("player","thisUnit") == true and getDistance("player","thisUnit") <= 4 then
-							if castSpell("thisUnit",_ShieldOfTheRighteous,true) then 
-								return; 
-							end								
-						end
-					end	
 				end
+				--Todo, we could check other targets to use HP on but this should be controlled by config.
 			end
 		end
 		
 		function ProtPaladingHolyPowerCreaters() -- Handle the normal rotation
-			-- judgment,if=talent.sanctified_wrath.enabled&buff.avenging_wrath.react
-			-- Grand Crusader
-			-- We should cast Avengers Shield if we have Grand Crusader buff which proccs Holy Power
-			if canCast(_AvengersShield) == true and UnitBuffID("player", 85416) ~= nil then
-				if getLineOfSight("player","thisUnit") and getDistance("player","target") <= 30 then
-					if castSpell("target",_AvengersShield,false) then 
-						return; 
-					end	
-				else
-					for i = 1, GetTotalObjects(TYPE_UNIT) do
-						local Guid = IGetObjectListEntry(i)
-						ISetAsUnitID(Guid,"thisUnit");
-						if getLineOfSight("player","thisUnit") == true and getFacing("player","thisUnit") == true and getDistance("player","thisUnit") <= 30 then
-							if isCasting("thisUnit") then
-								if castSpell("thisUnit",_AvengersShield,false) then 
-									return; 
-								end	
-							else 
-								ISetAsUnitID(Guid,"validUnit");
-							end							
-						end
-					end
-					
-					if UnitExists("validUnit") then 
-						if castSpell("validUnit",_AvengersShield,false) then 
-							return; 
-						end	
-					end
-				end
-			end		
-
-			-- wait,sec=cooldown.judgment.remains,if=talent.sanctified_wrath.enabled&cooldown.judgment.remains>0&cooldown.judgment.remains<=0.5
-			local strike = strike; -- We use either Crusader Strike or Hammer of Right dependent on how mnya unfriendly
-			if BadBoy_data["AoE"] == 3 or meleeEnnemies > 2 then 
+			local strike = strike; -- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
+			if BadBoy_data["AoE"] == 2 or (BadBoy_data["AoE"] == 3 and numberOfTargetsMelee > 2) then  --If Toggle to 2(AoE) or 3(Auto and more then 2 targets, its actually 4 but its just simplier to do aoe
 				strike = _HammerOfTheRighteous; 
 			else 
 				strike = _CrusaderStrike; 
-			end --Where is BadBoy_data[] taken from?
+			end
 			
-			-- crusader_strike
 			if isInMelee() then
 				if castSpell("target",strike,false) then 
 					return; 
 				end
-			else
-				for i = 1, GetTotalObjects(TYPE_UNIT) do
-					local Guid = IGetObjectListEntry(i)
-					ISetAsUnitID(Guid,"thisUnit");
-					if getFacing("player","thisUnit") == true and isInMelee("thisUnit") then
-						if castSpell("thisUnit",strike,false) then 
-							return; 
-						end								
+			end
+			
+			
+			if canCast(_AvengersShield) == true and UnitBuffID("player", 85416) ~= nil then
+				if getLineOfSight("player","target") and getDistance("player","target") <= 30 then
+					if castSpell("target",_AvengersShield,false) then 
+						return; 
 					end
 				end
-			end				
-
-			-- wait,sec=cooldown.crusader_strike.remains,if=cooldown.crusader_strike.remains>0&cooldown.crusader_strike.remains<=0.5
-			-- judgment
+			-- Todo We could add functionality that cycle all unit to find one in melee and/or is casting
+			-- Removed due to low performance
+			end		
+		
 			if canCast(_Judgment) and getDistance("player","target") <= 30 then
 				if castSpell("target",_Judgment,true) then 
 					return; 
 				end
-			elseif canCast(_Judgment) then
-				for i = 1, GetTotalObjects(TYPE_UNIT) do
-					local Guid = IGetObjectListEntry(i)
-					ISetAsUnitID(Guid,"thisUnit");
-					if getDistance("player","thisUnit") <= 30 then
-						if castSpell("thisUnit",_Judgment,true) then 
-							return; 
-						end								
-					end
-				end
-			end	
-		
-			-- wait,sec=cooldown.judgment.remains,if=cooldown.judgment.remains>0&cooldown.judgment.remains<=0.5&(cooldown.crusader_strike.remains-cooldown.judgment.remains)>=0.5
-			if GetHolyGen() == true then 
-				return; 
 			end
-
+			-- Todo We could add functionality that cycle all unit to find one in melee
+			-- Removed due to low performance
+		
 			-- avengers_shield
 			if canCast(_AvengersShield) == true then
-				if getLineOfSight("player","thisUnit") and getDistance("player","target") <= 30 then
+				if getLineOfSight("player","target") and getDistance("player","target") <= 30 then
 					if castSpell("target",_AvengersShield,false) then 
 						return; 
 					end	
-				else
-					for i = 1, GetTotalObjects(TYPE_UNIT) do
-						local Guid = IGetObjectListEntry(i)
-						ISetAsUnitID(Guid,"thisUnit");
-						if getLineOfSight("player","thisUnit") == true and getFacing("player","thisUnit") == true and getDistance("player","thisUnit") <= 30 then
-							if isCasting("thisUnit") then
-								if castSpell("thisUnit",_AvengersShield,false) then 
-									return; 
-								end	
-							else 
-								ISetAsUnitID(Guid,"validUnit");
-							end							
-						end
-					end
-					if UnitExists("validUnit") then 
-						if castSpell("validUnit",_AvengersShield,false) then 
-							return; 
-						end	
-					end
 				end
 			end					 
-
-			-- execution_sentence,if=talent.execution_sentence.enabled
+			-- Todo We could add functionality that cycle all unit to find one in melee and/or is casting
+			-- Removed due to low performance
+			
 			if isSelected("Execution Sentence") then
 				if (isDummy("target") or (UnitHealth("target") >= 150*UnitHealthMax("player")/100)) then
 					if castSpell("target",_ExecutionSentence,false) then 
@@ -492,48 +395,21 @@ if select(3,UnitClass("player")) == 2 then
 			if canCast(_HammerOfWrath) and getLineOfSight("player","target") and getDistance("player","target") <= 30 and getHP("target") <= 20 then
 				if castSpell("target",_HammerOfWrath,false) then 
 					return; 
-				end
-			elseif canCast(_HammerOfWrath) then
-				for i = 1, GetTotalObjects(TYPE_UNIT) do
-					local Guid = IGetObjectListEntry(i)
-					ISetAsUnitID(Guid,"thisUnit");
-					if getHP("thisUnit") <= 20 and getLineOfSight("player","thisUnit") and getDistance("player","thisUnit") < 30 and getFacing("player","thisUnit") == true then
-						if castSpell("thisUnit",_HammerOfWrath,false) then 
-							return; 
-						end								
-					end
 				end			
 			end
+			-- Todo We could add functionality that cycle all unit to find one in melee that have low HPand/or is casting
+			-- Removed due to low performance
+			
 			-- holy_wrath
-			if canCast(_HolyWrath) and isInMelee("target") then
+			if canCast(_HolyWrath) and isInMelee("target") then --Should check number of targets in melee
 				if castSpell("target",_HolyWrath,true) then 
 					return; 
 				end
-			elseif canCast(_HolyWrath) then
-				for i = 1, GetTotalObjects(TYPE_UNIT) do
-					local Guid = IGetObjectListEntry(i)
-					ISetAsUnitID(Guid,"thisUnit");
-					if getDistance("player","thisUnit") < 10 then
-						if castSpell("thisUnit",_HolyWrath,true) then 
-							return; 
-						end								
-					end
-				end	
 			end
 			-- consecration,if=target.debuff.flying.down&!ticking
-			if canCast(_Consecration) and isInMelee() then
+			if canCast(_Consecration) and isInMelee() then --Should check number of targets in melee
 				if castSpell("target",_Consecration,true) then 
 					return; 
-				end
-			elseif canCast(_Consecration) then
-				for i = 1, GetTotalObjects(TYPE_UNIT) do
-					local Guid = IGetObjectListEntry(i)
-					ISetAsUnitID(Guid,"thisUnit");
-					if getDistance("player","thisUnit") < 10 then
-						if castSpell("thisUnit",_Consecration,true) then 
-							return; 
-						end								
-					end
 				end	
 			end
 
@@ -544,16 +420,17 @@ if select(3,UnitClass("player")) == 2 then
 					return; 
 				end
 			else
-				--Otherwise cast it on target
+				--Otherwise cast it on targeta
 				if castSpell("target",_HolyPrism,false) then 
 					return; 
 				end
 			end
 		end
 		
+		-- Todo: Create logic for when to use it, proccs or whatever
+		-- 			Also toggle/configuration for more flexibility, at the moment its on or off
 		function ProtPaladinOffensiveCooldowns() -- Handles the usage of offensive CDs if toggled
 			-- avenging_wrath
-			-- No logic here, we should use this as either protection or dps boost. Should be part of Defensive CDs
 			if isInMelee() and isSelected("Avenging Wrath") then
 				if castSpell("player",_AvengingWrath,true) then 
 					return; 
