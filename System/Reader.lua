@@ -159,8 +159,11 @@ Frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
 Frame:RegisterEvent("CHARACTER_POINTS_CHANGED");
 local function SpellsChanged(self, event, ...)
 	if event == "PLAYER_TALENT_UPDATE" or event == "ACTIVE_TALENT_GROUP_CHANGED" or event == "CHARACTER_POINTS_CHANGED" then
-		currentConfig = nil;
-		print("|cffFF0000Config Reloaded");
+		if not configThrottle or configThrottle <= GetTime() - 5 then
+			configThrottle = GetTime();
+			currentConfig = nil;
+			print("|cffFF0000Config Reloaded");
+		end
 	end
 end
 Frame:SetScript("OnEvent", SpellsChanged)

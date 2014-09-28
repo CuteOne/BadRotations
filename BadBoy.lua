@@ -94,7 +94,11 @@ function BadBoyRun()
 		ToggleValue("AoE");
 	end
 
-
+	SLASH_FHStop1 = "/fhstop"
+	function SlashCmdList.FHStop(msg, editbox)
+		StopFalling();
+		StopMoving();
+	end
 
 	SLASH_Cooldowns1 = "/Cooldowns"
 	function SlashCmdList.Cooldowns(msg, editbox)
