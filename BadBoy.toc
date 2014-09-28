@@ -17,6 +17,7 @@ System\GeneralFunctions.lua
 System\ObjectsManagers.lua
 System\Beautycase.lua
 System\UI.lua
+System\UsefulFeatures.lua
 
 ## ClassLibs
 ClassLibs\Druid\Options.lua

@@ -10,6 +10,9 @@ if select(3, UnitClass("player")) == 11 then
 	    	return true
 	    end
 
+	-- Prevent Cancelling tranquility
+	    if UnitChannelInfo("player") == GetSpellInfo(tq) then ChatOverlay("Casting Tranquility"); return false; end 
+
 ---------------------------------------
 --- Ressurection/Dispelling/Healing ---
 ---------------------------------------
