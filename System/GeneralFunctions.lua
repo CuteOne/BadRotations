@@ -1681,7 +1681,7 @@ end
 
 -- if isSelected("Stormlash Totem") then
 function isSelected(Value)
-	if BadBoy_data["Cooldowns"] == 3 or (BadBoy_data["Check "..Value] == 1 and (BadBoy_data["Drop "..Value] == 3 or BadBoy_data["Drop "..Value] == 2 and BadBoy_data["Cooldowns"] == 2)) then return true; else return false; end
+	if BadBoy_data["Cooldowns"] == 3 or (BadBoy_data["Check "..Value] == 1 and (BadBoy_data["Drop "..Value] == 3 or (BadBoy_data["Drop "..Value] == 2 and BadBoy_data["Cooldowns"] == 2))) then return true; else return false; end
 end
 
 -- if getHP("player") <= getValue("Eternal Flame") then

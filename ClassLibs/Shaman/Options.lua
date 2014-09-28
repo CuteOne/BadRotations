@@ -103,6 +103,16 @@ function ElementalConfig()
         -- Wrapper
         CreateNewWrap(thisConfig,"-------- Utilities -------");
 
+        -- Healing Surge Toggle
+        CreateNewCheck(thisConfig,"Healing Surge Toggle");
+        CreateNewDrop(thisConfig,"Healing Surge Toggle", 4, "Toggle2")
+        CreateNewText(thisConfig,"Healing Surge Toggle");      
+
+        -- Pause Toggle
+        CreateNewCheck(thisConfig,"Pause Toggle");
+        CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
+        CreateNewText(thisConfig,"Pause Toggle");  
+
         -- Standard Interrupt
         CreateNewCheck(thisConfig,"Wind Shear");
         CreateNewBox(thisConfig, "Wind Shear", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to |cffFFFFFFWind Shear.");

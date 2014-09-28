@@ -7,6 +7,9 @@ function ShamanElemental()
 		currentConfig = "Elemental CodeMyLife";
 	end
 
+	-- Pause toggle
+	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then ChatOverlay("|cffFF0000BadBoy Paused", 0); return; end
+
 	-- Food/Invis Check
 	if canRun() ~= true or UnitInVehicle("Player") then return false; end
 	if IsMounted("player") then waitForPetToAppear = nil; return false; end
@@ -49,6 +52,9 @@ function ShamanElemental()
 		if castSpell("player",_LightningShield,true) then return; end
 	end
 
+	if isChecked("Healing Surge Toggle") and SpecificToggle("Healing Surge Toggle") == 1 and GetCurrentKeyBoardFocus() == nil then
+		if castSpell("player",_HealingSurge,true,true) then return; end
+	end
 
 
 --[[ 	-- Combats Starts Here
