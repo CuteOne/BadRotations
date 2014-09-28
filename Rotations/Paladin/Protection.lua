@@ -1,46 +1,68 @@
+	--	Todos
+	-- ProtPaladinDispells() -- Handling the dispelling self and party
+	-- Divine Shield Taunting. ie taunt and use Divine Shield gives 3 seconds being attacked with immunity but still being fixated.
+	-- Other to think about
+	-- HandsLogic, including removal of debuffs via protection
+	-- TankManager, including salvation on self, checking what to tank and not to tank(boss debuff forcing tank switch etc, taunting if party member is being attacked etc.
+	
 if select(3, UnitClass("player")) == 2 then
 	function PaladinProtection()
-	-- Init Protection specific funnctions, toggles and configs.
-		if currentConfig ~= "Protection CodeMyLife" then --Where is currentConfig set? Is this only used for init?
-			PaladinProtFunctions(); --Prot functions is SacredShield and GetHolyGen
-			PaladinProtToggles(); -- Setting up Toggles, AoE, Interrupt, Defensive CD, CD, Healing
-			PaladinProtOptions(); -- Reading Config values from gui?
+		-- Init if this is the first time we are running.
+		if currentConfig ~= "Protection CodeMyLife" then 
+			PaladinProtFunctions();
+			PaladinProtToggles();
+			PaladinProtOptions();
 			currentConfig = "Protection CodeMyLife";
 		end
-
-		-- Locals Variables
-		_HolyPower = UnitPower("player", 9);
-		-- Aoe Affects
-		-- Concentration, around player X yards
-		-- Holy Wrath, 10 yards, but divided so only max damage regarldess how many
-		-- Hammer Of Righteous, 8 yards from the target
-		-- Blinding Light 10 yards from player
-		-- Lights hammer 10 yards around groundarea
-		-- Holy Prism If target ally, give damage 15 yards from ally, if on enemy heal 15 yards around target
 		
-		--Get 
+		-- Manual Input
+		-- Todo, add this to GUI
+		if IsLeftShiftKeyDown() then -- Pause the script, keybind in wow wo shift+1 etc for manual cast
+			return true
+		end
+		if IsLeftControlKeyDown() then
+			return true
+		end	
+		if IsLeftAltKeyDown() then
+			--Heal
+		end
+		if IsRightControlKeyDown() then
+		end
+		if IsRightShiftKeyDown() then
+			--Interrupt
+		end
+		if IsRightAltKeyDown() then 
+		end
+		
+		if IsMouseButtonDown(1) then -- Mousebutton 1-5
+		end
+		
+
+		
+		-- Set Global variables that will be used.
+		_HolyPower = UnitPower("player", 9);
 		numberOfTargetsMelee = getNumEnnemies("player",4); --Get number of enemies within melee range. Does this also work for large hotboxes?
+		numberOfTargetsHolyPrismDamage = getNumEnnemies("player",15);
 		--numberOfTargetsAroundTarget = getNumEnnemies("target",10);
 		--numberOfTargetsTenYards = getNumEnnemies("player",10);
-		numberOfTargetsHolyPrismDamage = getNumEnnemies("player",15);
 		
-		-- canRun is already checking UnitInVehicle and some other stuff im not sure about.
+		-- Check if we should run the rotation
 		if canRun() ~= true then 
 			return false; 
 		end
 
-		if UnitAffectingCombat("player") then
-		--	Todos
-		-- ProtPaladinDispells() -- Handling the dispelling self and party
-		-- Divine Shield Taunting. ie taunt and use Divine Shield gives 3 seconds being attacked with immunity but still being fixated.
-		-- Other to think about
-		-- HandsLogic, including removal of debuffs via protection
-		-- TankManager, including salvation on self, checking what to tank and not to tank(boss debuff forcing tank switch etc, taunting if party member is being attacked etc.
+		-- Only run rotation if we or our target is in combat.
+		if UnitAffectingCombat("player") or UnitAffectingCombat("target") then
+			
+			--Todo SpecialEvent, checks if there is something that are special that we need to handle
+			-- Auto attack
+			RunMacroText("/startattack");
 		
 			-- If we are close to dying
 			if ProtPaladinSurvivalSelf() then -- Check if we are close to dying and act accoridingly
-				return -- This is perhaps not true since some of this are not on GCD?
+				return 
 			end
+			
 			-- If someone else is close to dying
 			if ProtPaladinSurvivalOther() then -- Check if raidmember are close to dying and act accoridingly
 				return
@@ -53,19 +75,22 @@ if select(3, UnitClass("player")) == 2 then
 				end 
 			end
 			
-			-- Wrong place but if we are casting dont interuppt
-			if isCasting() then -- This needs to be investigated, where should we stop an cast or not
+			-- Dispell Logics Todo, includes removal using Divine Shield and Hand of Protection
+			-- if ProtPaladinDispell() then
+			--end
+			
+			-- If we are already casting then dont continue
+			if isCasting() then 
 				return false; 
 			end
 			
-			-- auto_attack
-			if isInMelee() and getFacing("player","target") == true then
-				RunMacroText("/startattack");
+			if ProtPaladinUtility() then
 			end
+			
 		
 			-- Check if we are missing any buffs
 			if ProtPaladinBuffs() then -- Make sure that we are buffed, 2 modes, inCombat and Out Of Combat, Blessings, RF, 
-				return; -- We are missing functionality regarding blessings here
+				return; 
 			end
 		
 			-- Seal logic
@@ -81,9 +106,10 @@ if select(3, UnitClass("player")) == 2 then
 
 			-- Handle the use of HolyPower
 			if ProtPaladinHolyPowerConsumers() then
+				-- Dont return since this is off GCD
 			end
 		
-			if ProtPaladingHolyPowerCreaters() then -- Handle the normal rotation including not createers
+			if ProtPaladingHolyPowerCreaters() then -- Handle the normal rotation
 				return
 			end
 		end
