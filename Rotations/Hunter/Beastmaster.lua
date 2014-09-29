@@ -143,7 +143,7 @@ function Hunter()
 			local numEnnemies = getNumEnnemies("target",10)
 			-- Focus Dump
 			if numEnnemies >= 2 then				-- Multi-Shot
-				if _Focus > 79 and not UnitBuffID("pet",118455) or (_Focus > (BadBoy_data["Box Multi-Shot"]+20) and numEnnemies > 3) then
+				if _Focus > 79 and not UnitBuffID("pet",118455) or _Focus > 99 then
 					if castSpell("target",_MultiShot,false) then return; end
 				end		
 			else
