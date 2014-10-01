@@ -574,7 +574,7 @@ if select(3, UnitClass("player")) == 11 then
 							end
 
 		-- Ferocious Bite
-							if getPower("player") >= 25 and getRoRoRemain() == 0 and getSRR() > 0 and getCombo()>=5 then
+							if getPower("player") >= 25 and getRoRoRemain() == 0 and getSRR() > 0 then
 								if (getTimeToDie("target") <= 4 and getCombo() >= 5)
 									or (getDebuffRemain("target",rp) <= 4 and getDebuffRemain("target",rp)>0 and getHP("target") <=25)
 									or (RPP() < 108 and getDebuffRemain("target",rp) > 6 and (getDebuffRemain("target",thr) > 3 or not useThrash()) and getCombo() >= 5 and getPower("player") >= 50) 
