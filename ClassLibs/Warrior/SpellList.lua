@@ -10,6 +10,10 @@ ShieldBarrier		= 112048;
 ShieldBlock			= 2565;
 
 --Arms--
+MortalStrike		= 12294;
+Overpower			= 7384;
+SweepingStrikes		= 12328;
+Slam				= 1464;
 
 --Fury--
 Bloodthirst 		= 23881;
@@ -52,6 +56,9 @@ BattleShout 		= 6673;
 BerserkerRage 		= 18499;
 CommandingShout 	= 469;
 
+--Debuffs--
+DeepWounds			= 115767;
+
 --Stance--
 BattleStance 		= 2457;
 BerserkerStance 	= 2458;
@@ -78,6 +85,7 @@ Enrage				= 12880;
 Incite				= 122016;
 MeatCleaver			= 85739;
 RagingBlowProc		= 131116;
+SuddenExecute		= 139958;
 Ultimatum			= 122510;
 WildStrikeProc		= 46916;
 
