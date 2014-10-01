@@ -190,7 +190,6 @@ function BadBoyRun()
 
 	--[[This function is refired everytime wow ticks. This frame is located in Core.lua]]
 	function FrameUpdate(self)
-
 		-- UsefulFeatures();
 
 		if randomReady == nil then randomReady = math.random(8,15); end
@@ -247,11 +246,12 @@ function BadBoyRun()
 		local _MySpec = GetSpecialization("player");
 		if _MyClass == 1 then -- Warrior
 			if _MySpec == 2 then
-				--FuryWarrior()
+				FuryWarrior()
 			elseif _MySpec == 3 then
 				ProtectionWarrior()
 			else
-				--ArmsWarrior()
+				ArmsWarrior()
+
 			end
 		elseif _MyClass == 2 then -- Paladin
 			if _MySpec == 1 then

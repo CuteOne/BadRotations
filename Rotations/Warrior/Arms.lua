@@ -1,14 +1,16 @@
 if select(3,UnitClass("player")) == 1 then
 
-function ProtectionWarrior()
-	if AoEModesLoaded ~= "Prot Warrior AoE Modes" then
-		WarriorProtToggles();
-		WarriorProtConfig();
+function ArmsWarrior()
+	if AoEModesLoaded ~= "Arms Warrior AoE Modes" then
+		WarriorArmsToggles();
+		WarriorArmsConfig();
 	end
+
 -- Locals
 	local rage = UnitPower("player");
 	local myHP = getHP("player");
 	local ennemyUnits = getNumEnnemies("player", 5)
+
 -- Food/Invis Check
 	if canRun() ~= true or UnitInVehicle("Player") then return false; end
 	if IsMounted("player") then return false; end
@@ -96,28 +98,7 @@ function ProtectionWarrior()
 
 		    -- berserker_rage,if=buff.enrage.down&rage<=rage.max-10
 
-		    --[[shield_block]]
-		    if isChecked("Shield Block") == true and rage > 60 and UnitBuffID("player",132404) == nil then
-		    	if UnitThreatSituation("player") == 3 and myHP <= getValue("Shield Block") then
-		    		if castSpell("player",2565,true,false) then return; end
-		    	end
-		    end
-
-		    -- shield_barrier,if=incoming_damage_1500ms>health.max*0.3|rage>rage.max-20
-		    -- shield_wall,if=incoming_damage_2500ms>health.max*0.6
-		    -- Leap
-		    -- dps_cds=avatar,if=enabled
-		    -- dps_cds+=/bloodbath,if=enabled
-		    -- dps_cds+=/dragon_roar,if=enabled
-		    -- dps_cds+=/shattering_throw   
-		    -- dps_cds+=/skull_banner
-		    -- dps_cds+=/recklessness
-		    -- dps_cds+=/storm_bolt,if=enabled   
-		    -- dps_cds+=/shockwave,if=enabled
-		    -- dps_cds+=/bladestorm,if=enabled
-
-		    --[[normal_rotation=shield_slam]]
-		    if castSpell("target",23922,false,false) then return; end
+		    if castSpell("target",12294,false,false) then return; end 
 
 		    --[[Cleave if numEnnemies > 2]] 
 		    if ennemyUnits > 2 then
@@ -127,13 +108,10 @@ function ProtectionWarrior()
 		    	end
 		    end
 
-		    --[[heroic_strike,if=buff.ultimatum.up|buff.glyph_incite.up]] 
-		    if (ennemyUnits < 3 or isKnown(845) ~= true) and (rage >= UnitPowerMax("player") - 10 or UnitBuffID("player",122510) ~= nil or UnitBuffID("player",122016) ~= nil) then
+		    --[[heroic_strike]] 
+		    if (ennemyUnits < 3 or isKnown(845) ~= true) and (rage >= UnitPowerMax("player") - 10) then
 			    if castSpell("target",78,false,false) then return; end
 			end    	
-
-		    --[[normal_rotation+=/revenge]]
-		    if castSpell("target",6572,false,false) then return; end
 
 		    --[[normal_rotation+=/battle_shout,if=rage<=rage.max-20]]
 		    if isChecked("Shout") == true and rage < UnitPowerMax("player") - 20 then 
@@ -161,8 +139,6 @@ function ProtectionWarrior()
 		    	if castSpell("target",34428,false,false) then return; end 
 		    end
 
-		    --[[normal_rotation+=/devastate]]
-		    if castSpell("target",7386,false,false) then return; end 
 		end
 	end
 end
