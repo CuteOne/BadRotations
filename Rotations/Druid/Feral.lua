@@ -125,8 +125,10 @@ if select(3, UnitClass("player")) == 11 then
 ------------- 		
 	-- Flying Form
 		if (getFallTime() > 1 or outOfWater()) and not isInCombat("player") and IsFlyableArea() then
-			if not (UnitBuffID("player", sff) or UnitBuffID("player", flf)) then
+			if not (UnitBuffID("player", sff) or UnitBuffID("player", flf)) and UnitLevel("player")>=58 then
 				if castSpell("player", sff) then return; elseif castSpell("player", flf) then return; end
+			else
+				if castSpell("player",cf) then return; end
 			end
 		end
 	-- Aquatic Form
@@ -134,7 +136,7 @@ if select(3, UnitClass("player")) == 11 then
 			if castSpell("player",af) then return; end
    		end
 	-- Cat Form   		
-   		if ((isValidTarget("target") and canAttack("player", "target") and targetDistance<=40) or (isMoving("player") and not UnitBuffID("player",trf))) and IsFlying()==nil and not UnitBuffID("player",cf) then
+   		if ((isValidTarget("target") and canAttack("player", "target") and targetDistance<=40) or (isMoving("player") and not UnitBuffID("player",trf) and not IsFalling())) and IsFlying()==nil and not UnitBuffID("player",cf) and getFallTime()==0 then
 			if castSpell("player",cf) then return; end
    		end
    	-- PowerShift
