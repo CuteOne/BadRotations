@@ -25,7 +25,7 @@ function WarriorArmsConfig()
 
         -- Shout
         CreateNewCheck(thisConfig,"Shout");
-        CreateNewDrop(thisConfig, "Shout", 1, "Choose Shout to use.", "|cffFFBB00Battle", "|cff0077FFBattle")
+        CreateNewDrop(thisConfig, "Shout", 1, "Choose Shout to use.", "|cffFFBB00Commanding", "|cff0077FFBattle")
         CreateNewText(thisConfig,"Shout");
 
         -- Wrapper -----------------------------------------
@@ -91,12 +91,17 @@ function WarriorFuryConfig()
         CreateNewText(thisConfig,"Stance");
 
         -- Shout
-        CreateNewCheck(thisConfig,"Shout");
-        CreateNewDrop(thisConfig, "Shout", 1, "Choose Shout to use.", "|cffFFBB00Battle", "|cff0077FFBattle")
-        CreateNewText(thisConfig,"Shout");
+		CreateNewCheck(thisConfig,"Battle");
+        CreateNewText(thisConfig,"Battle"); 
+		
+		CreateNewCheck(thisConfig,"Commanding");
+        CreateNewText(thisConfig,"Commanding"); 
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Cooldowns ------");
+		
+		CreateNewCheck(thisConfig,"Shattering Throw");
+        CreateNewText(thisConfig,"Shattering Throw"); 
 
         -- Wrapper ------------------------------------------
         CreateNewWrap(thisConfig,"------- Defensive ------");
@@ -117,6 +122,11 @@ function WarriorFuryConfig()
         CreateNewCheck(thisConfig,"Pummel");
         CreateNewBox(thisConfig, "Pummel", 0, 100  , 5, 60 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFPummel.");
         CreateNewText(thisConfig,"Pummel");
+		
+		-- Disrupting Shout
+        CreateNewCheck(thisConfig,"Disrupting Shout");
+        CreateNewBox(thisConfig, "Disrupting Shout", 0, 100  , 5, 60 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFDisrupting Shout.");
+        CreateNewText(thisConfig,"Disrupting Shout");
 
         if isKnown(107079) then
             -- Quaking Palm

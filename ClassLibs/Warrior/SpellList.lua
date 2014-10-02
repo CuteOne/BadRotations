@@ -87,7 +87,11 @@ MeatCleaver			= 85739;
 RagingBlowProc		= 131116;
 SuddenExecute		= 139958;
 Ultimatum			= 122510;
-WildStrikeProc		= 46916;
+Bloodsurge			= 46916;
+
+--Trinkets--
+Determination		= 146250;
+Outrage				= 146245;
 
 --Glyphs--
 
