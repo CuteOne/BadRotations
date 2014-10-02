@@ -11,6 +11,11 @@ function ArmsWarrior()
 	local myHP = getHP("player");
 	local ennemyUnits = getNumEnnemies("player", 5)
 
+	local GT = GetTime()
+	local CS_START, CS_DURATION = GetSpellCooldown(ColossusSmash)
+	local CS_COOLDOWN = (CS_START - GT + CS_DURATION)
+	local BLADESTORM = UnitBuffID("player",Bladestorm)
+
 -- Food/Invis Check
 	if canRun() ~= true or UnitInVehicle("Player") then return false; end
 	if IsMounted("player") then return false; end
@@ -93,7 +98,7 @@ function ArmsWarrior()
         if isChecked("Recklessness") == true then
         	if getValue("Recklessness") == 2 and isBoss("target") or isDummy("target") then
         		if not isKnown(Bloodbath) 
-        			and ((getSpellCD(ColossusSmash) < 2 or getDebuffRemain(ColossusSmash) >= 5)
+        			and ((getSpellCD(ColossusSmash) < 2 or getDebuffRemain("target",ColossusSmash) >= 5)
         			and ((getTimeToDie("target") > 192*CD_Reduction_Value) or getHP("target") < 20))
         			or UnitBuffID("player",Bloodbath)
         			and ((getTimeToDie("target") > 192*CD_Reduction_Value) 
@@ -105,7 +110,7 @@ function ArmsWarrior()
 		     	end
         	elseif getValue("Recklessness") == 1 then
         		if not isKnown(Bloodbath) 
-        			and ((getSpellCD(ColossusSmash) < 2 or getDebuffRemain(ColossusSmash) >= 5)
+        			and ((getSpellCD(ColossusSmash) < 2 or getDebuffRemain("target",ColossusSmash) >= 5)
         			and ((getTimeToDie("target") > 192*CD_Reduction_Value) or getHP("target") < 20))
         			or UnitBuffID("player",Bloodbath)
         			and ((getTimeToDie("target") > 192*CD_Reduction_Value) 
@@ -147,13 +152,13 @@ function ArmsWarrior()
         -- actions+=/avatar,if=enabled&(buff.recklessness.up|target.time_to_die<=25)
         if isChecked("Avatar") == true then
         	if getValue("Avatar") == 2 and isBoss("target") or isDummy("target") then
-        		if UnitBuffID("player",Recklessness) or getTimeToDie <= 25 then
+        		if UnitBuffID("player",Recklessness) or getTimeToDie("target") <= 25 then
 	        		if castSpell("player",Avatar,true) then
 	        			return;
 	        		end
 	        	end
         	elseif getValue("Avatar") == 1 then
-        		if UnitBuffID("player",Recklessness) or getTimeToDie <= 25 then
+        		if UnitBuffID("player",Recklessness) or getTimeToDie("target") <= 25 then
 	        		if castSpell("player",Avatar,true) then
 	        			return;
 	        		end
@@ -162,29 +167,34 @@ function ArmsWarrior()
         end
 
         -- Racial
-        -- actions+=/blood_fury,if=buff.cooldown_reduction.down&(buff.bloodbath.up|(!talent.bloodbath.enabled&debuff.colossus_smash.up))|buff.cooldown_reduction.up&buff.recklessness.up
-		-- actions+=/berserking,if=buff.cooldown_reduction.down&(buff.bloodbath.up|(!talent.bloodbath.enabled&debuff.colossus_smash.up))|buff.cooldown_reduction.up&buff.recklessness.up
-        if isChecked("Racial") == true then
+        -- if=buff.cooldown_reduction.down&(buff.bloodbath.up|(!talent.bloodbath.enabled&debuff.colossus_smash.up))|buff.cooldown_reduction.up&buff.recklessness.up
+		if isChecked("Racial") == true then
         	if getValue("Racial") == 2 and isBoss("target") or isDummy("target") then
-        		if select(2, UnitRace("player")) == "Troll" then
-	        		if castSpell("player",26297,true) then
-	        			return;
-	        		end
-	        	elseif select(2, UnitRace("player")) == "Orc" then
-	        		if castSpell("player",20572,true) then
-	        			return;
-	        		end
-	        	end
+        		if CD_Reduction_Value == 1 and (UnitBuffID("player",Bloodbath) or (not isKnown(Bloodbath) and UnitDebuffID("target",ColossusSmash)))
+        		or CD_Reduction_Value ~= 1 and UnitBuffID("player",Recklessness) then
+	        		if select(2, UnitRace("player")) == "Troll" then
+		        		if castSpell("player",26297,true) then
+		        			return;
+		        		end
+		        	elseif select(2, UnitRace("player")) == "Orc" then
+		        		if castSpell("player",20572,true) then
+		        			return;
+		        		end
+		        	end
+		        end
         	elseif getValue("Racial") == 1 then
-        		if select(2, UnitRace("player")) == "Troll" then
-	        		if castSpell("player",26297,true) then
-	        			return;
-	        		end
-	        	elseif select(2, UnitRace("player")) == "Orc" then
-	        		if castSpell("player",20572,true) then
-	        			return;
-	        		end
-	        	end
+        		if CD_Reduction_Value == 1 and (UnitBuffID("player",Bloodbath) or (not isKnown(Bloodbath) and UnitDebuffID("target",ColossusSmash)))
+        		or CD_Reduction_Value ~= 1 and UnitBuffID("player",Recklessness) then
+	        		if select(2, UnitRace("player")) == "Troll" then
+		        		if castSpell("player",26297,true) then
+		        			return;
+		        		end
+		        	elseif select(2, UnitRace("player")) == "Orc" then
+		        		if castSpell("player",20572,true) then
+		        			return;
+		        		end
+		        	end
+		        end
         	end
         end
 
@@ -286,7 +296,18 @@ function ArmsWarrior()
 			end
 			-- # Use cancelaura (in-game) to stop bladestorm if CS comes off cooldown during it for any reason.
 			-- actions.single_target+=/bladestorm,if=enabled,interrupt_if=!cooldown.colossus_smash.remains
-
+			if isChecked("AutoBladestorm") == true then
+				if (CS_COOLDOWN <= 1 or canCast(ColossusSmash,true)) and BLADESTORM ~= nil then
+					RunMacroText("/cancelaura bladestorm")
+					return false;
+					else
+						if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+					  		if castSpell("target",Bladestorm,true) then
+					   		return;
+					  		end
+					 	end
+				end
+			end
 			-- actions.single_target+=/mortal_strike
 			if castSpell("target",MortalStrike,false,false) then
 					return;
@@ -298,13 +319,15 @@ function ArmsWarrior()
 				end
 			end
 			-- actions.single_target+=/dragon_roar,if=enabled&debuff.colossus_smash.down
-			if getDistance("player","target") <= 8 and not UnitDebuffID("target",ColossusSmash,"player") then
-				if castSpell("target",DragonRoar,false,false) then
-					return;
+			if isChecked("AutoDragonRoar") == true then
+				if getDistance("player","target") <= 8 and not UnitDebuffID("target",ColossusSmash,"player") then
+					if castSpell("target",DragonRoar,false,false) then
+						return;
+					end
 				end
 			end
 			-- actions.single_target+=/execute,if=buff.sudden_execute.down|buff.taste_for_blood.down|rage>90|target.time_to_die<12
-			if UnitBuffID("player",SuddenExecute) or not UnitBuffID("player",TasteForBlood) or rage > 90 or getTimeToDie("target") < 12 then
+			if UnitBuffID("player",SuddenExecute) or not UnitBuffID("player",TasteforBlood) or rage > 90 or getTimeToDie("target") < 12 then
 				if castSpell("target",Execute,false,false) then
 					return;
 				end
