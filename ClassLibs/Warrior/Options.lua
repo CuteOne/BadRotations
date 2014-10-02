@@ -136,10 +136,10 @@ function WarriorFuryConfig()
         end    
 
         -- General Configs
-        CreateGeneralsConfig();
+        --CreateGeneralsConfig();
 
         
-        WrapsManager();
+        --WrapsManager();
     end
 end
 

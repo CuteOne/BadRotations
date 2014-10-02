@@ -86,6 +86,7 @@ Incite				= 122016;
 MeatCleaver			= 85739;
 RagingBlowProc		= 131116;
 SuddenExecute		= 139958;
+TasteforBlood		= 60503;
 Ultimatum			= 122510;
 Bloodsurge			= 46916;
 
