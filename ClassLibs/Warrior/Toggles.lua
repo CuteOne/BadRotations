@@ -60,48 +60,39 @@ if select(3, UnitClass("player")) == 1 then
         end
     end
 
-   function WarriorFuryToggles()
-        --AoEModesLoaded = "Fury Warrior AoE Modes";
+  function FuryToggles()
 
-        -- Aoe Button
-		if AoEModesLoaded ~= "Fury Warrior AoE Modes" then 
-        CustomAoEModes = { 
-            [1] = { mode = "One", value = 1 , overlay = "Single Target Enabled", tip = "Single Target Mode", highlight = 0, icon = HeroicStrike },
+		  -- AoE Button
+        if AoEModesLoaded ~= "Fury Warrior AoE Modes" then 
+            CustomAoEModes = { 
+			[1] = { mode = "One", value = 1 , overlay = "Single Target Enabled", tip = "Single Target Mode", highlight = 0, icon = HeroicStrike },
             [2] = { mode = "Two", value = 2 , overlay = "Two Target Enabled", tip = "Two Target Mode", highlight = 0, icon = Cleave },
             [3] = { mode = "Three", value = 3 , overlay = "Three Target Enabled", tip = "Three Target Mode", highlight = 1, icon = Whirlwind },
 			[4] = { mode = "Four", value = 4 , overlay = "Four Target Enabled", tip = "Four Target Mode", highlight = 1, icon = Bladestorm }
-        };
-		AoEModes = CustomAoEModes
-        CreateButton("AoE",1,0)
-		AoEModesLoaded = "Fury Warrior AoE Modes";
-		end
-
-        -- Interrupts Button
-        InterruptsModes = { 
-            [1] = { mode = "None", value = 1 , overlay = "Interrupts Disabled", tip = "|cffC0C0C0Interrupts \n|cffFF0000No Interrupts will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
-            [2] = { mode = "All", value = 2 , overlay = "Interrupts Enabled", tip = "Spells Included: Pummel/Disruption Shout", highlight = 1, icon = 6552 }
-        };
-        CreateButton("Interrupts",2,0)
+            };
+           AoEModes = CustomAoEModes
+           CreateButton("AoE",1,0)
+           AoEModesLoaded = "Fury Warrior AoE Modes";
+        end
 		
-        function SpecificToggle(toggle)
+      function SpecificToggle(toggle)
             if getValue(toggle) == 1 then
                 return IsLeftControlKeyDown();
             elseif getValue(toggle) == 2 then
                 return IsLeftShiftKeyDown();
             elseif getValue(toggle) == 3 then
-                return IsLeftAltKeyDown();
-            elseif getValue(toggle) == 4 then
                 return IsRightControlKeyDown();
-            elseif getValue(toggle) == 5 then
+            elseif getValue(toggle) == 4 then
                 return IsRightShiftKeyDown();
-            elseif getValue(toggle) == 6 then
+            elseif getValue(toggle) == 5 then
                 return IsRightAltKeyDown();
-            elseif getValue(toggle) == 7 then
-                return 1
+            elseif getValue(toggle) == 6 then
+                return 0
             end
         end
-		
-		if AOETimer == nil then AOETimer = 0; end
+
+        --AoE Key Toggle
+        if AOETimer == nil then AOETimer = 0; end
         if SpecificToggle("Rotation Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - AOETimer > 0.25 then
             AOETimer = GetTime()
             if BadBoy_data['AoE'] ~= #AoEModes then
@@ -110,7 +101,7 @@ if select(3, UnitClass("player")) == 1 then
                 BadBoy_data['AoE'] = 1
             end
             UpdateButton("AoE")
-        end
+        end	
 		
     end
 

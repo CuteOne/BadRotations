@@ -2,10 +2,11 @@ if select(3,UnitClass("player")) == 1 then
 
 function FuryWarrior()
 
-if AoEModesLoaded ~= "Fury Warrior AoE Modes" then
-	WarriorFuryToggles();
+if Currentconfig ~= "Fury Avery/Chumii" then
 	WarriorFuryConfig();
+	Currentconfig = "Fury Avery/Chumii";
 end
+FuryToggles()
 
 -- Locals
 local RAGE = UnitPower("player");
@@ -169,7 +170,10 @@ end
 ----------------
 
 elseif UnitExists("target") and not UnitIsDeadOrGhost("target") and isEnnemy("target") == true and getCreatureType("target") == true then
-			
+
+--singletarget start
+if BadBoy_data['AoE'] == 1 then
+
 --berserker_rage,if=buff.enrage.remains<1&cooldown.bloodthirst.remains>1
 if ENRAGED ~= nil then
 	if (ENRAGE_TIMER - GT < 1) and BT_COOLDOWN > 1 then
@@ -337,6 +341,8 @@ if CS_COOLDOWN >= 2 and RAGE >= 70 then
 		return;
 	end
 end	
+
+end	--singletarget end
 			
 			end
 		end
