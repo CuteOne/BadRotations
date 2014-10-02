@@ -20,8 +20,13 @@ function WarriorArmsConfig()
 
         -- Pause Toggle
         CreateNewCheck(thisConfig,"Pause Toggle");
-        CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
-        CreateNewText(thisConfig,"Pause Toggle");
+        CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle2")
+        CreateNewText(thisConfig,"Pause Key");
+
+        -- Heroic Leap
+        CreateNewCheck(thisConfig,"HeroicLeapKey");
+        CreateNewDrop(thisConfig,"HeroicLeapKey", 2, "Toggle2")
+        CreateNewText(thisConfig,"Heroic Leap Key");
 
         -- Wrapper -------------------------------------------
         CreateNewWrap(thisConfig,"---------- Buffs ---------");
@@ -33,7 +38,7 @@ function WarriorArmsConfig()
 
         -- Shout
         CreateNewCheck(thisConfig,"Shout");
-        CreateNewDrop(thisConfig, "Shout", 1, "Choose Shout to use.", "|cffFFBB00Commanding", "|cff0077FFBattle")
+        CreateNewDrop(thisConfig, "Shout", 1, "Choose Shout to use.", "|cffFFBB00Command", "|cff0077FFBattle")
         CreateNewText(thisConfig,"Shout");
 
         -- Shout OOC
@@ -45,22 +50,22 @@ function WarriorArmsConfig()
 
         -- Recklessness
         CreateNewCheck(thisConfig,"Recklessness");
-        CreateNewDrop(thisConfig, "Recklessness", 1, "Choose Shout to use.", "|cffFFBB00Always", "|cff0077FFBossDummy")
+        CreateNewDrop(thisConfig, "Recklessness", 1, "Use Recklessness always or only on Boss/Dummy", "|cffFFBB00Always", "|cff0077FFBoss")
         CreateNewText(thisConfig,"Recklessness"); 
 
         -- SkullBanner
         CreateNewCheck(thisConfig,"SkullBanner");
-        CreateNewDrop(thisConfig, "SkullBanner", 1, "Choose Shout to use.", "|cffFFBB00Always", "|cff0077FFBossDummy")
+        CreateNewDrop(thisConfig, "SkullBanner", 1, "Use Skull Banner always or only on Boss/Dummy", "|cffFFBB00Always", "|cff0077FFBoss")
         CreateNewText(thisConfig,"SkullBanner"); 
 
         -- Avatar
         CreateNewCheck(thisConfig,"Avatar");
-        CreateNewDrop(thisConfig, "Avatar", 1, "Choose Shout to use.", "|cffFFBB00Always", "|cff0077FFBossDummy")
+        CreateNewDrop(thisConfig, "Avatar", 1, "Use Avatar always or only on Boss/Dummy", "|cffFFBB00Always", "|cff0077FFBoss")
         CreateNewText(thisConfig,"Avatar"); 
 
         -- Racial
         CreateNewCheck(thisConfig,"Racial");
-        CreateNewDrop(thisConfig, "Racial", 1, "Choose Shout to use.", "|cffFFBB00Always", "|cff0077FFBossDummy")
+        CreateNewDrop(thisConfig, "Racial", 1, "Use Racial always or only on Boss/Dummy", "|cffFFBB00Always", "|cff0077FFBoss")
         CreateNewText(thisConfig,"Racial (Orc / Troll)");
 
         -- Wrapper ------------------------------------------
@@ -120,11 +125,11 @@ function WarriorArmsConfig()
 
         -- Bladestorm ST
         CreateNewCheck(thisConfig, "AutoBladestorm","Uncheck if you want to cast Bladestorm manually in Single Target Rotation");
-        CreateNewText(thisConfig, "Auto Bladestorm Single Target");
+        CreateNewText(thisConfig, "Bladestorm Single Target");
 
         -- DragonRoar ST
         CreateNewCheck(thisConfig, "AutoDragonRoar","Uncheck if you want to cast Dragon Roar manually in Single Target Rotation");
-        CreateNewText(thisConfig, "Auto Dragon Roar Single Target");
+        CreateNewText(thisConfig, "Dragon Roar Single Target");
 
         -- General Configs
         CreateGeneralsConfig();

@@ -29,10 +29,22 @@ end
 -- Pause 
 	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then ChatOverlay("|cffFF0000BadBoy Paused", 0); return; end
 
+-- HeroicLeapKey 
+	 if isChecked("HeroicLeapKey") and SpecificToggle("HeroicLeapKey") == 1 then 
+ 		if not GetCurrentKeyBoardFocus() and not IsMouselooking() then
+   			CastSpellByName(GetSpellInfo(6544))
+   		if SpellIsTargeting() then 
+   			CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop() 
+   			return true;
+  		end
+  	end
+ 	end
+
 	if not isInCombat("player") then
 ---------------------
 --- Out of Combat ---
 ---------------------
+
 
 -- Shout
 	if isChecked("ShoutOOC") == true then
