@@ -9,30 +9,74 @@ if select(3, UnitClass("player")) == 1 then
 --[[]]      --[[]]	--[[]]	   --[[]]	--[[]] 	   --[[]]	--[[           ]]
 
 function WarriorArmsConfig()
-    if currentConfig ~= "Fury Avery/Chumii" then
+    if currentConfig ~= "Arms Avery/Chumii" then
         ClearConfig();
         thisConfig = 0;
         -- Title
-        CreateNewTitle(thisConfig,"Fury |cffFF0000Avery/Chumii");
+        CreateNewTitle(thisConfig,"Arms |cffFF0000Avery/Chumii");
 
         -- Wrapper -------------------------------------------
         CreateNewWrap(thisConfig,"---------- Buffs ---------");
 
-        -- Stance
-        CreateNewCheck(thisConfig,"Stance");
-        CreateNewDrop(thisConfig, "Stance", 1, "Choose Stance to use.", "|cffFFBB00Defensive", "|cff0077FFBattle")
-        CreateNewText(thisConfig,"Stance");
+        -- -- Stance
+        -- CreateNewCheck(thisConfig,"Stance");
+        -- CreateNewDrop(thisConfig, "Stance", 1, "Choose Stance to use.", "|cffFFBB00Defensive", "|cff0077FFBattle")
+        -- CreateNewText(thisConfig,"Stance");
 
         -- Shout
         CreateNewCheck(thisConfig,"Shout");
         CreateNewDrop(thisConfig, "Shout", 1, "Choose Shout to use.", "|cffFFBB00Commanding", "|cff0077FFBattle")
         CreateNewText(thisConfig,"Shout");
 
+        -- Shout OOC
+        CreateNewCheck(thisConfig, "ShoutOOC","Uncheck this if you want to use the selected Shout only while in combat");
+        CreateNewText(thisConfig, "Shout out of Combat");
+
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Cooldowns ------");
 
+        -- Recklessness
+        CreateNewCheck(thisConfig,"Recklessness");
+        CreateNewDrop(thisConfig, "Recklessness", 1, "Choose Shout to use.", "|cffFFBB00Always", "|cff0077FFBossDummy")
+        CreateNewText(thisConfig,"Recklessness"); 
+
+        -- SkullBanner
+        CreateNewCheck(thisConfig,"SkullBanner");
+        CreateNewDrop(thisConfig, "SkullBanner", 1, "Choose Shout to use.", "|cffFFBB00Always", "|cff0077FFBossDummy")
+        CreateNewText(thisConfig,"SkullBanner"); 
+
+        -- Avatar
+        CreateNewCheck(thisConfig,"Avatar");
+        CreateNewDrop(thisConfig, "Avatar", 1, "Choose Shout to use.", "|cffFFBB00Always", "|cff0077FFBossDummy")
+        CreateNewText(thisConfig,"Avatar"); 
+
+        -- Racial
+        CreateNewCheck(thisConfig,"Racial");
+        CreateNewDrop(thisConfig, "Racial", 1, "Choose Shout to use.", "|cffFFBB00Always", "|cff0077FFBossDummy")
+        CreateNewText(thisConfig,"Racial (Orc / Troll)");
+
         -- Wrapper ------------------------------------------
         CreateNewWrap(thisConfig,"------- Defensive ------");
+
+        -- Die by the Sword
+        CreateNewCheck(thisConfig,"DiebytheSword");
+        CreateNewBox(thisConfig, "DiebytheSword", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDie by the Sword");
+        CreateNewText(thisConfig,"DiebytheSword");
+
+        -- Rallying Cry
+        CreateNewCheck(thisConfig,"RallyingCry");
+        CreateNewBox(thisConfig, "RallyingCry", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRallying Cry");
+        CreateNewText(thisConfig,"RallyingCry");
+
+        -- Shield Wall
+        CreateNewCheck(thisConfig,"ShieldWall");
+        CreateNewBox(thisConfig, "ShieldWall", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFShield Wall");
+        CreateNewText(thisConfig,"ShieldWall");
+
+        -- Def Stance
+        CreateNewCheck(thisConfig,"DefensiveStance");
+        CreateNewBox(thisConfig, "DefensiveStance", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDefensive Stance");
+        CreateNewText(thisConfig,"DefensiveStance");
 
         -- Healthstone
         CreateNewCheck(thisConfig,"Healthstone");
@@ -58,6 +102,11 @@ function WarriorArmsConfig()
             CreateNewText(thisConfig,"Quaking Palm");   
         end    
 
+        -- Dummy DPS Test
+            CreateNewCheck(thisConfig,"DPS Testing");
+            CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 5, "Set to desired time for test in minutes. Min: 1 / Max: 15 / Interval: 1");
+            CreateNewText(thisConfig,"DPS Testing");
+
         -- General Configs
         CreateGeneralsConfig();
 
@@ -65,7 +114,6 @@ function WarriorArmsConfig()
         WrapsManager();
     end
 end
-
 --[[           ]]	--[[]]	   --[[]]	--[[           ]]	--[[]]	  --[[]]
 --[[           ]]	--[[]]	   --[[]]	--[[           ]]	--[[]]	  --[[]]
 --[[]] 				--[[]]	   --[[]]	--[[]]	   --[[]]	   --[[    ]]	
