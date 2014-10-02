@@ -7,10 +7,10 @@ function ArmsWarrior()
 	-- end
 
 if Currentconfig ~= "Arms Avery/Chumii" then
-	WarriorArmsConfig();
-	Currentconfig = "Arms Avery/Chumii";
+ WarriorArmsConfig();
+ WarriorArmsToggles();
+ Currentconfig = "Arms Avery/Chumii";
 end
-WarriorArmsToggles();
 
 -- Locals
 	local rage = UnitPower("player");
