@@ -12,8 +12,12 @@ if Currentconfig ~= "Arms Avery/Chumii" then
  Currentconfig = "Arms Avery/Chumii";
 end
 if SpecificToggle("Rotation Mode") == 1 then
-	ToggleValue("AoE");
+ if myTimer == nil or myTimer <= GetTime() -0.7 then
+  myTimer = GetTime()
+  ToggleValue("AoE");
+ end
 end
+
 
 -- Locals
 	local rage = UnitPower("player");
@@ -490,11 +494,48 @@ end
 				-- actions.aoe+=/thunder_clap,target=2,if=dot.deep_wounds.attack_power*1.1<stat.attack_power
 
 				-- actions.aoe+=/mortal_strike,if=active_enemies=2|rage<50
+				if rage < 50 then
+					if castSpell("target",MortalStrike,false,false) then
+						return;
+					end
+				end				
 				-- actions.aoe+=/execute,if=buff.sudden_execute.down&active_enemies=2
+				if not UnitBuffID("player",SuddenExecute) then
+					if castSpell("target",Execute,false,false) then
+						return;
+					end
+				end
 				-- actions.aoe+=/slam,if=buff.sweeping_strikes.up&debuff.colossus_smash.up
+				if UnitBuffID("player",SweepingStrikes) and UnitDebuffID("target",ColossusSmash) then
+					if castSpell("target",Slam,false,false) then
+						return;
+					end
+				end
 				-- actions.aoe+=/overpower,if=active_enemies=2
+				if castSpell("target",Overpower,false,false) then
+						return;
+				end
 				-- actions.aoe+=/slam,if=buff.sweeping_strikes.up
+				if UnitBuffID("player",SweepingStrikes) then
+					if castSpell("target",Slam,false,false) then
+						return;
+					end
+				end
 				-- actions.aoe+=/battle_shout
+				if isChecked("Shout") == true then
+					--Commanding
+					if getValue("Shout") == 1 then
+						if castSpell("player",CommandingShout,true) then
+							return;
+						end
+					end
+					-- Battle
+					if getValue("Shout") == 2 then
+						if castSpell("player",BattleShout,true) then
+							return;
+						end
+					end
+				end
 			end
 
 		end
