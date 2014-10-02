@@ -107,6 +107,17 @@ function WarriorArmsConfig()
             CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 5, "Set to desired time for test in minutes. Min: 1 / Max: 15 / Interval: 1");
             CreateNewText(thisConfig,"DPS Testing");
 
+        -- Wrapper ---------------------------------------------
+        CreateNewWrap(thisConfig,"---------- Misc -----------");
+
+        -- Bladestorm ST
+        CreateNewCheck(thisConfig, "AutoBladestorm","Uncheck if you want to cast Bladestorm manually in Single Target Rotation");
+        CreateNewText(thisConfig, "Auto Bladestorm Single Target");
+
+        -- DragonRoar ST
+        CreateNewCheck(thisConfig, "AutoDragonRoar","Uncheck if you want to cast Dragon Roar manually in Single Target Rotation");
+        CreateNewText(thisConfig, "Auto Dragon Roar Single Target");
+
         -- General Configs
         CreateGeneralsConfig();
 
