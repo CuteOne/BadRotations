@@ -20,8 +20,8 @@ function ArmsWarrior()
 	if canRun() ~= true or UnitInVehicle("Player") then return false; end
 	if IsMounted("player") then return false; end
 
-
-
+-- Pause 
+	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then ChatOverlay("|cffFF0000BadBoy Paused", 0); return; end
 
 	if not isInCombat("player") then
 ---------------------

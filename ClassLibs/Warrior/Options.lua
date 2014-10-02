@@ -16,6 +16,14 @@ function WarriorArmsConfig()
         CreateNewTitle(thisConfig,"Arms |cffFF0000Avery/Chumii");
 
         -- Wrapper -------------------------------------------
+        CreateNewWrap(thisConfig,"---------- Keys ----------");
+
+        -- Pause Toggle
+        CreateNewCheck(thisConfig,"Pause Toggle");
+        CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
+        CreateNewText(thisConfig,"Pause Toggle");
+
+        -- Wrapper -------------------------------------------
         CreateNewWrap(thisConfig,"---------- Buffs ---------");
 
         -- -- Stance
@@ -139,7 +147,7 @@ function WarriorFuryConfig()
         ClearConfig();
         thisConfig = 0;
         -- Title
-        CreateNewTitle(thisConfig,"Fury |cffFF0000Avery/Chumii");
+        CreateNewTitle(thisConfig,"Fury |cffFF0000Avery/Chumii");  
 
         -- Wrapper -------------------------------------------
         CreateNewWrap(thisConfig,"---------- Buffs ---------");
