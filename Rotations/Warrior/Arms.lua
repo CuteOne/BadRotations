@@ -218,16 +218,68 @@ end
 ------------------
 --- Defensives ---
 ------------------
---[[ Berserker Regeneration
-	if getHP("player") <= 60 and getPower("player") >= 40 and not isCasting("player") then
-		if castSpell("player",12345,true) then return; end
-	end]]
---[[ Berserker Rage
-	if hasNoControl() then
-		if castSpell("player",12345,true) then 
-			return;
+		-- Die by the Sword
+		if isChecked("DiebytheSword") == true 
+			and isInCombat("player")
+			and not UnitIsDeadOrGhost("player") then
+			if getHP("player") <= getValue("DiebytheSword") then
+				if castSpell("player",DiebytheSword,true) then
+					return;
+				end
+			end
 		end
-	end]]
+
+		-- Rallying Cry
+		if isChecked("RallyingCry") == true 
+			and isInCombat("player")
+			and not UnitIsDeadOrGhost("player") then
+			if getHP("player") <= getValue("RallyingCry") then
+				if castSpell("player",RallyingCry,true) then
+					return;
+				end
+			end
+		end
+
+		-- ShieldWall
+		if isChecked("ShieldWall") == true 
+			and isInCombat("player")
+			and not UnitIsDeadOrGhost("player") then
+			if getHP("player") <= getValue("ShieldWall") then
+				if castSpell("player",ShieldWall,true) then
+					return;
+				end
+			end
+		end
+
+		-- Healthstone
+        if isChecked("Healthstone") == true 
+			and isInCombat("player")
+			and not UnitIsDeadOrGhost("player") then
+			if getHP("player") <= getValue("Healthstone") then
+				if canUse(5512) then
+					UseItemByName(tostring(select(1,GetItemInfo(5512))))
+			end
+		end
+
+		-- Def Stance
+		if isChecked("DefensiveStance") == true 
+			and isInCombat("player")
+			and not UnitIsDeadOrGhost("player") then
+			if getHP("player") <= getValue("DefensiveStance") and GetShapeshiftForm() ~= 2 then
+				if castSpell("player",DefensiveStance,true) then
+					return;
+				end
+			end
+			elseif getHP("player") > getValue("DefensiveStance") and GetShapeshiftForm() ~= 1 then
+				if castSpell("player",BattleStance,true) then
+					return;
+				end
+			end  
+		end
+
+------------------
+--- Interrupts ---
+------------------
 
 		--[[Quaking Palm]]
 		if isChecked("Quaking Palm") and canInterrupt(107079,tonumber(getValue("Quaking Palm"))) then
@@ -245,12 +297,12 @@ end
 --- Out of Range ---
 --------------------
 
-			-- --[[Charge]]
-			-- if isChecked("Charge") == true and canAttack("target","player") and not UnitIsDeadOrGhost("target") and getDistance("player","target") > 10 then
-			-- 	if targetDistance <= 40 and getGround("target") == true and UnitExists("target") then
-			-- 		if castSpell("target",100,false,false) then return; end
-			-- 	end
-			-- end
+			--Auto Charge
+			if isChecked("Charge") == true and canAttack("target","player") and not UnitIsDeadOrGhost("target") and getDistance("player","target") > 10 then
+				if targetDistance <= 40 and getGround("target") == true and UnitExists("target") then
+					if castSpell("target",100,false,false) then return; end
+				end
+			end
 
 		elseif UnitExists("target") and not UnitIsDeadOrGhost("target") and isEnnemy("target") == true and getCreatureType("target") == true then
 ----------------
@@ -292,106 +344,106 @@ end
 				end
 			end
 
-
 ---------------------
 --- Single Target ---
 ---------------------
-
-			-- actions.single_target=heroic_strike,if=rage>115|(debuff.colossus_smash.up&rage>60&set_bonus.tier16_2pc_melee)
-			if rage >= 115 or (UnitDebuffID("target",ColossusSmash,"player") and rage >= 60) then
-				if castSpell("target",HeroicStrike,false,false) then
-					return;
+			if not useAoE() and targetDistance < 5 then 
+				-- actions.single_target=heroic_strike,if=rage>115|(debuff.colossus_smash.up&rage>60&set_bonus.tier16_2pc_melee)
+				if rage >= 115 or (UnitDebuffID("target",ColossusSmash,"player") and rage >= 60) then
+					if castSpell("target",HeroicStrike,false,false) then
+						return;
+					end
 				end
-			end
-			-- actions.single_target+=/mortal_strike,if=dot.deep_wounds.remains<1.0|buff.enrage.down|rage<10
-			if getDebuffRemain("target",DeepWounds,"player") <= 1 or not UnitBuffID("player",Enrage) or rage <= 10 then
+				-- actions.single_target+=/mortal_strike,if=dot.deep_wounds.remains<1.0|buff.enrage.down|rage<10
+				if getDebuffRemain("target",DeepWounds,"player") <= 1 or not UnitBuffID("player",Enrage) or rage <= 10 then
+					if castSpell("target",MortalStrike,false,false) then
+						return;
+					end
+				end
+				-- actions.single_target+=/colossus_smash,if=debuff.colossus_smash.remains<1.0
+				if getDebuffRemain("target",ColossusSmash,"player") <= 1 then
+					if castSpell("target",ColossusSmash,false,false) then
+						return;
+					end
+				end
+				-- # Use cancelaura (in-game) to stop bladestorm if CS comes off cooldown during it for any reason.
+				-- actions.single_target+=/bladestorm,if=enabled,interrupt_if=!cooldown.colossus_smash.remains
+				if isChecked("AutoBladestorm") == true then
+					if (CS_COOLDOWN <= 1 or canCast(ColossusSmash,true)) and BLADESTORM ~= nil then
+						RunMacroText("/cancelaura bladestorm")
+						return false;
+						else
+							if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+						  		if castSpell("target",Bladestorm,true) then
+						   		return;
+						  		end
+						 	end
+					end
+				end
+				-- actions.single_target+=/mortal_strike
 				if castSpell("target",MortalStrike,false,false) then
-					return;
-				end
-			end
-			-- actions.single_target+=/colossus_smash,if=debuff.colossus_smash.remains<1.0
-			if getDebuffRemain("target",ColossusSmash,"player") <= 1 then
-				if castSpell("target",ColossusSmash,false,false) then
-					return;
-				end
-			end
-			-- # Use cancelaura (in-game) to stop bladestorm if CS comes off cooldown during it for any reason.
-			-- actions.single_target+=/bladestorm,if=enabled,interrupt_if=!cooldown.colossus_smash.remains
-			if isChecked("AutoBladestorm") == true then
-				if (CS_COOLDOWN <= 1 or canCast(ColossusSmash,true)) and BLADESTORM ~= nil then
-					RunMacroText("/cancelaura bladestorm")
-					return false;
-					else
-						if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
-					  		if castSpell("target",Bladestorm,true) then
-					   		return;
-					  		end
-					 	end
-				end
-			end
-			-- actions.single_target+=/mortal_strike
-			if castSpell("target",MortalStrike,false,false) then
-					return;
-				end
-			-- actions.single_target+=/storm_bolt,if=enabled&debuff.colossus_smash.up
-			if UnitDebuffID("target",ColossusSmash,"player") and getDistance("player","target") <= 30 then
-				if castSpell("target",StormBolt,false,false) then
-					return;
-				end
-			end
-			-- actions.single_target+=/dragon_roar,if=enabled&debuff.colossus_smash.down
-			if isChecked("AutoDragonRoar") == true then
-				if getDistance("player","target") <= 8 and not UnitDebuffID("target",ColossusSmash,"player") then
-					if castSpell("target",DragonRoar,false,false) then
+						return;
+					end
+				-- actions.single_target+=/storm_bolt,if=enabled&debuff.colossus_smash.up
+				if UnitDebuffID("target",ColossusSmash,"player") and getDistance("player","target") <= 30 then
+					if castSpell("target",StormBolt,false,false) then
 						return;
 					end
 				end
-			end
-			-- actions.single_target+=/execute,if=buff.sudden_execute.down|buff.taste_for_blood.down|rage>90|target.time_to_die<12
-			if UnitBuffID("player",SuddenExecute) or not UnitBuffID("player",TasteforBlood) or rage > 90 or getTimeToDie("target") < 12 then
+				-- actions.single_target+=/dragon_roar,if=enabled&debuff.colossus_smash.down
+				if isChecked("AutoDragonRoar") == true then
+					if getDistance("player","target") <= 8 and not UnitDebuffID("target",ColossusSmash,"player") then
+						if castSpell("target",DragonRoar,false,false) then
+							return;
+						end
+					end
+				end
+				-- actions.single_target+=/execute,if=buff.sudden_execute.down|buff.taste_for_blood.down|rage>90|target.time_to_die<12
+				if UnitBuffID("player",SuddenExecute) or not UnitBuffID("player",TasteforBlood) or rage > 90 or getTimeToDie("target") < 12 then
+					if castSpell("target",Execute,false,false) then
+						return;
+					end
+				end
+				-- # Slam is preferable to overpower with crit procs/recklessness.
+				-- actions.single_target+=/slam,if=target.health.pct>=20&(trinket.stacking_stat.crit.stack>=10|buff.recklessness.up)
+				if getHP("target") >= 20 and (getBuffStacks("player",146293) >= 10 or UnitBuffID("player",Recklessness)) then
+					if castSpell("target",Slam,false,false) then
+						return;
+					end
+				end
+				-- actions.single_target+=/overpower,if=target.health.pct>=20&rage<100|buff.sudden_execute.up
+				if getHP("target") >= 20 and rage < 100 or UnitBuffID("player",SuddenExecute) then
+					if castSpell("target",Overpower,false,false) then
+						return;
+					end
+				end
+				-- actions.single_target+=/execute
 				if castSpell("target",Execute,false,false) then
-					return;
+						return;
 				end
-			end
-			-- # Slam is preferable to overpower with crit procs/recklessness.
-			-- actions.single_target+=/slam,if=target.health.pct>=20&(trinket.stacking_stat.crit.stack>=10|buff.recklessness.up)
-			if getHP("target") >= 20 and (getBuffStacks("player",146293) >= 10 or UnitBuffID("player",Recklessness)) then
-				if castSpell("target",Slam,false,false) then
-					return;
-				end
-			end
-			-- actions.single_target+=/overpower,if=target.health.pct>=20&rage<100|buff.sudden_execute.up
-			if getHP("target") >= 20 and rage < 100 or UnitBuffID("player",SuddenExecute) then
-				if castSpell("target",Overpower,false,false) then
-					return;
-				end
-			end
-			-- actions.single_target+=/execute
-			if castSpell("target",Execute,false,false) then
-					return;
-			end
-			-- actions.single_target+=/slam,if=target.health.pct>=20
-			if getHP("target") >= 20 then
-				if castSpell("target",Slam,false,false) then
-					return;
-				end
-			end
-			-- actions.single_target+=/heroic_throw
-			if castSpell("target",HeroicThrow,false,false) then
-					return;
-			end
-			-- actions.single_target+=/battle_shout
-			if isChecked("Shout") == true then
-				--Commanding
-				if getValue("Shout") == 1 then
-					if castSpell("player",CommandingShout,true) then
+				-- actions.single_target+=/slam,if=target.health.pct>=20
+				if getHP("target") >= 20 then
+					if castSpell("target",Slam,false,false) then
 						return;
 					end
 				end
-				-- Battle
-				if getValue("Shout") == 2 then
-					if castSpell("player",BattleShout,true) then
+				-- actions.single_target+=/heroic_throw
+				if castSpell("target",HeroicThrow,false,false) then
 						return;
+				end
+				-- actions.single_target+=/battle_shout
+				if isChecked("Shout") == true then
+					--Commanding
+					if getValue("Shout") == 1 then
+						if castSpell("player",CommandingShout,true) then
+							return;
+						end
+					end
+					-- Battle
+					if getValue("Shout") == 2 then
+						if castSpell("player",BattleShout,true) then
+							return;
+						end
 					end
 				end
 			end
@@ -399,19 +451,37 @@ end
 -----------
 --- AoE ---
 -----------
-
-			-- actions.aoe=sweeping_strikes
-			-- actions.aoe+=/cleave,if=rage>110&active_enemies<=4
-			-- actions.aoe+=/bladestorm,if=enabled&(buff.bloodbath.up|!talent.bloodbath.enabled)
-			-- actions.aoe+=/dragon_roar,if=enabled&debuff.colossus_smash.down
-			-- actions.aoe+=/colossus_smash,if=debuff.colossus_smash.remains<1
-			-- actions.aoe+=/thunder_clap,target=2,if=dot.deep_wounds.attack_power*1.1<stat.attack_power
-			-- actions.aoe+=/mortal_strike,if=active_enemies=2|rage<50
-			-- actions.aoe+=/execute,if=buff.sudden_execute.down&active_enemies=2
-			-- actions.aoe+=/slam,if=buff.sweeping_strikes.up&debuff.colossus_smash.up
-			-- actions.aoe+=/overpower,if=active_enemies=2
-			-- actions.aoe+=/slam,if=buff.sweeping_strikes.up
-			-- actions.aoe+=/battle_shout
+			if useAoE() then
+				-- actions.aoe=sweeping_strikes
+				if not UnitBuffID("player",SweepingStrikes) then
+					if castSpell("player",SweepingStrikes,true) then
+						return;
+					end
+				end
+				-- actions.aoe+=/cleave,if=rage>110&active_enemies<=4
+				if rage > 110 and getNumEnnemies("player",10) <= 4) then
+					if castSpell("target",Cleave,false,false) then
+						return;
+					end
+				end
+				-- actions.aoe+=/bladestorm,if=enabled&(buff.bloodbath.up|!talent.bloodbath.enabled)
+				if isKnown(Bladestorm) then
+					if UnitBuffID("player",Bloodbath) or not isKnown(Bloodbath) then
+						if castSpell("target",Bladestorm,true) then
+							return;
+						end
+					end
+				end
+				-- actions.aoe+=/dragon_roar,if=enabled&debuff.colossus_smash.down
+				-- actions.aoe+=/colossus_smash,if=debuff.colossus_smash.remains<1
+				-- actions.aoe+=/thunder_clap,target=2,if=dot.deep_wounds.attack_power*1.1<stat.attack_power
+				-- actions.aoe+=/mortal_strike,if=active_enemies=2|rage<50
+				-- actions.aoe+=/execute,if=buff.sudden_execute.down&active_enemies=2
+				-- actions.aoe+=/slam,if=buff.sweeping_strikes.up&debuff.colossus_smash.up
+				-- actions.aoe+=/overpower,if=active_enemies=2
+				-- actions.aoe+=/slam,if=buff.sweeping_strikes.up
+				-- actions.aoe+=/battle_shout
+			end
 
 		end
 	end
