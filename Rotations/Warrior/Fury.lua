@@ -4,9 +4,9 @@ function FuryWarrior()
 
 if Currentconfig ~= "Fury Avery/Chumii" then
 WarriorFuryConfig();
+FuryToggles()
 Currentconfig = "Fury Avery/Chumii";
 end
-FuryToggles()
 
 -- Locals
 local RAGE = UnitPower("player");

@@ -17,8 +17,8 @@ if select(3, UnitClass("player")) == 1 then
                 [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = Cleave },
                 [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = MortalStrike }
             };
-           AoEModes = CustomAoEModes
-           CreateButton("AoE",1,0)
+           AoEModes = CustomAoEModes;
+           CreateButton("AoE",1,0);
            AoEModesLoaded = "Arms Warrior AoE Modes";
         end
 

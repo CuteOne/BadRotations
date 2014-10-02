@@ -11,6 +11,9 @@ if Currentconfig ~= "Arms Avery/Chumii" then
  WarriorArmsToggles();
  Currentconfig = "Arms Avery/Chumii";
 end
+if SpecificToggle("Rotation Mode") == 1 then
+	ToggleValue("AoE");
+end
 
 -- Locals
 	local rage = UnitPower("player");
