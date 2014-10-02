@@ -432,7 +432,7 @@ function ArmsWarrior()
 	end
 end
 end
-=======
+
 if select(3,UnitClass("player")) == 1 then
 
 function ArmsWarrior()
