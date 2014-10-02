@@ -118,6 +118,7 @@ if isChecked("Pummel") == true and canInterrupt(Pummel,tonumber(getValue("Pummel
 			if castSpell("target",Pummel,false) then
 				return; 
 			end
+		end
 	elseif isChecked("Disrupting Shout") == false then
 		if castSpell("target",Pummel,false) then
 			return; 
