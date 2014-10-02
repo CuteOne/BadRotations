@@ -22,46 +22,60 @@ function BadBoyFrame()
 	end
 
 	function ToggleValue(toggleValue)
-
-
-
-		if BadBoy_data[tostring(toggleValue)] == 0 or BadBoy_data[tostring(toggleValue)] == nil then BadBoy_data[tostring(toggleValue)] = 1; end
-		for i = 1, #_G[toggleValue.."Modes"] do
+		-- prevent nil fails
+		if BadBoy_data[tostring(toggleValue)] == nil then BadBoy_data[tostring(toggleValue)] = 1; end
+		-- Scan Table and find wich mode = our i
+		for i = 0, #_G[toggleValue.."Modes"] do
 			if BadBoy_data[tostring(toggleValue)] == i then
+				-- when we find a match, we reset tooltip
 	        	local function ResetTip()
 	        		GameTooltip:SetOwner(_G["button"..toggleValue], mainButton, 0 , 0);
 					GameTooltip:SetText(_G[toggleValue.."Modes"][BadBoy_data[tostring(toggleValue)]].tip, 225/255, 225/255, 225/255, nil, true);
 					GameTooltip:Show();
 				end
 				local Icon;
+				-- see if we can go higher in modes is #modes > i
 				if #_G[toggleValue.."Modes"] > i then
+					-- calculate newI
 					newI = i + 1
+					-- We set the value in DB
 		    		BadBoy_data[tostring(toggleValue)] = newI;
+		    		-- We define the button text
 					_G["text"..toggleValue]:SetText(_G[toggleValue.."Modes"][newI].mode); 
+					-- We define the icon
 					if type(_G[toggleValue.."Modes"][BadBoy_data[tostring(toggleValue)]].icon) == "number" then Icon = select(3,GetSpellInfo(_G[toggleValue.."Modes"][BadBoy_data[tostring(toggleValue)]].icon)); else Icon = _G[toggleValue.."Modes"][BadBoy_data[tostring(toggleValue)]].icon; end
 					_G["button"..toggleValue]:SetNormalTexture(Icon or emptyIcon); 
+					-- we set the highlight mode
 					if _G[toggleValue.."Modes"][newI].highlight == 0 then
 						_G["frame"..toggleValue].texture:SetTexture(genericIconOff); 
 					else
 						_G["frame"..toggleValue].texture:SetTexture(genericIconOn);
 					end
-
+					-- We tell the user we changed mode
 	        		ChatOverlay("\124cFF3BB0FF".._G[toggleValue.."Modes"][newI].overlay);	
+	        		-- We reset the tip
 	        		ResetTip();
 	        		break;
 	        	else 
+	        		-- if cannot go higher we define mode to 1.
 	        		BadBoy_data[tostring(toggleValue)] = 1;
+	        		-- define text
 					_G["text"..toggleValue]:SetText(_G[toggleValue.."Modes"][1].mode);		
+					-- define icon
 					if type(_G[toggleValue.."Modes"][BadBoy_data[tostring(toggleValue)]].icon) == "number" then Icon = select(3,GetSpellInfo(_G[toggleValue.."Modes"][BadBoy_data[tostring(toggleValue)]].icon)); else Icon = _G[toggleValue.."Modes"][BadBoy_data[tostring(toggleValue)]].icon; end
 					_G["button"..toggleValue]:SetNormalTexture(Icon or emptyIcon); 
+					-- define highlight
 					if _G[toggleValue.."Modes"][1].highlight == 0 then
 						_G["frame"..toggleValue].texture:SetTexture(genericIconOff);
 					else
 						_G["frame"..toggleValue].texture:SetTexture(genericIconOn);
 					end
+					-- We tell the user we changed mode
 	        		ChatOverlay("\124cFF3BB0FF".._G[toggleValue.."Modes"][1].overlay);
+	        		-- We reset the tip
 	        		ResetTip();
 	        	end
+	        	-- we have our match so we exit that iteration
 	        	break;				
 
 	        end
@@ -77,7 +91,6 @@ function BadBoyFrame()
 
 	function UpdateButton(Name)
     	local Name = tostring(Name);
-    	--_G["button"..Name]:Click("LeftButton", true)
     	ToggleValue(Name)
     end	
 	---------------------------

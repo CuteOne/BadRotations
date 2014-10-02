@@ -1616,11 +1616,7 @@ function useItem(itemID)
 	if GetItemCount(itemID,false,false) > 0 then 
 		if select(2,GetItemCooldown(itemID))==0 then
 			RunMacroText("/use "..tostring(select(1,GetItemInfo(itemId))));
-		else
-			return false;
 		end
-	else
-		return false;
 	end
 end
 

@@ -167,11 +167,6 @@ if select(3, UnitClass("player")) == 11 then
         if AOETimer == nil then AOETimer = 0; end
         if SpecificToggle("Rotation Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - AOETimer > 0.25 then
             AOETimer = GetTime()
-            if BadBoy_data['AoE'] ~= #AoEModes then
-                BadBoy_data['AoE'] = BadBoy_data['AoE']+1
-            else
-                BadBoy_data['AoE'] = 1
-            end
             UpdateButton("AoE")
         end
 
@@ -179,11 +174,6 @@ if select(3, UnitClass("player")) == 11 then
         if CDTimer == nil then CDTimer = 0; end
         if SpecificToggle("Cooldown Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - CDTimer > 0.25 then
             CDTimer = GetTime()
-            if BadBoy_data['Cooldowns'] ~= #CooldownsModes then
-                BadBoy_data['Cooldowns'] = BadBoy_data['Cooldowns']+1
-            else
-                BadBoy_data['Cooldowns'] = 1
-            end
             UpdateButton("Cooldowns")
         end
 
@@ -191,11 +181,6 @@ if select(3, UnitClass("player")) == 11 then
         if DefTimer == nil then DefTimer = 0; end
         if SpecificToggle("Defensive Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - DefTimer > 0.25 then
             DefTimer = GetTime()
-            if BadBoy_data['Defensive'] ~= #DefensiveModes then
-                BadBoy_data['Defensive'] = BadBoy_data['Defensive']+1
-            else
-                BadBoy_data['Defensive'] = 1
-            end
             UpdateButton("Defensive")
         end
 
@@ -203,11 +188,6 @@ if select(3, UnitClass("player")) == 11 then
         if IntTimer == nil then IntTimer = 0; end
         if SpecificToggle("Interrupt Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - IntTimer > 0.25 then
             IntTimer = GetTime()
-            if BadBoy_data['Interrupts'] ~= #InterruptsModes then
-                BadBoy_data['Interrupts'] = BadBoy_data['Interrupts']+1
-            else
-                BadBoy_data['Interrupts'] = 1
-            end
             UpdateButton("Interrupts")
         end
 
@@ -215,11 +195,6 @@ if select(3, UnitClass("player")) == 11 then
         if ThrashTimer == nil then ThrashTimer = 0; end
         if SpecificToggle("Thrash Toggle") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - ThrashTimer > 0.25 then
             ThrashTimer = GetTime()
-            if BadBoy_data['Thrash'] ~= #ThrashModes then
-                BadBoy_data['Thrash'] = BadBoy_data['Thrash']+1
-            else
-                BadBoy_data['Thrash'] = 1
-            end
             UpdateButton("Thrash")
         end
 
@@ -228,11 +203,6 @@ if select(3, UnitClass("player")) == 11 then
         if SymMode == nil then SymMode = 1; end
         if SpecificToggle("Symbiosis Toggle") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - SymTimer > 0.25 then
             SymTimer = GetTime()
-            if BadBoy_data['Symbiosis'] ~= #SymbiosisModes then
-                BadBoy_data['Symbiosis'] = BadBoy_data['Symbiosis']+1
-            else
-                BadBoy_data['Symbiosis'] = 1
-            end
             UpdateButton("Symbiosis")
         end
     end
