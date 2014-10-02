@@ -104,7 +104,8 @@ function BadBoyMinimapButton()
     button:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(Minimap, "ANCHOR_CURSOR", 50 , 50);
         GameTooltip:SetText("BadBoy The Ultimate Raider", 214/255, 25/255, 25/255);
-        GameTooltip:AddLine("CodeMyLife - CuteOne - Masoud - Gabbz ");
+        GameTooltip:AddLine("CodeMyLife - CuteOne - Masoud"); 
+        GameTooltip:AddLine("Gabbz - Chumii - AveryKey");
         GameTooltip:AddLine("Left Click to toggle config frame", 1, 1, 1, 1);
         GameTooltip:AddLine("Shift+Left Click to toggle main frame", 1, 1, 1, 1);
         GameTooltip:AddLine("Alt+Shift+LeftButton to drag", 1, 1, 1, 1);
@@ -134,7 +135,6 @@ frame:RegisterEvent("PLAYER_LOGOUT");
 function frame:OnEvent(event, arg1)
  	if event == "ADDON_LOADED" and arg1 == "BadBoy" then
  		--ChatOverlay("Addons Loaded. Starting BadBoy.");
- 		BadBoy_data = BadBoy_data;
  		BadBoyRun();
 	end
 end
