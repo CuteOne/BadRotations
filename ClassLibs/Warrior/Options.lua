@@ -182,12 +182,23 @@ function WarriorFuryConfig()
             CreateNewBox(thisConfig, "Quaking Palm", 0, 100  , 5, 30 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFQuaking Palm.");
             CreateNewText(thisConfig,"Quaking Palm");   
         end    
+		
+		-- Wrapper -------------------------------------------
+        CreateNewWrap(thisConfig,"------ Toggle Keys ------");
 
-        -- General Configs
-        --CreateGeneralsConfig();
-
-        
-        --WrapsManager();
+        -- Single/Multi Toggle
+		CreateNewCheck(thisConfig,"Rotation Mode");
+		CreateNewDrop(thisConfig, "Rotation Mode", 5, "Toggle")
+        CreateNewText(thisConfig,"Rotation");
+		
+		--Interrupts Key Toggle
+		CreateNewCheck(thisConfig,"Interrupt Mode");
+		CreateNewDrop(thisConfig, "Interrupt Mode", 6, "Toggle")
+		CreateNewText(thisConfig,"Interrupts")
+		
+        -- Healing/general/poke/hacks/tracking
+        CreateGeneralsConfig();
+        WrapsManager();
     end
 end
 
