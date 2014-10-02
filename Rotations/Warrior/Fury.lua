@@ -9,6 +9,7 @@ end
 
 -- Locals
 local RAGE = UnitPower("player");
+local PLAYERHP = 100*(UnitHealth("player")/UnitHealthMax("player"))
 local TARGETHP = 100*(UnitHealth("target")/UnitHealthMax("target"))
 	
 --Cooldowns
@@ -42,10 +43,6 @@ end
 if IsMounted("player") then 
 	return false; 
 end
-
-------------------
---- Defensives ---
-------------------
 
 if not isInCombat("player") then
 
@@ -83,6 +80,12 @@ elseif isChecked("Commanding") == true then
 	if COMMANDINGSHOUT == nil then
 		if castSpell("player",CommandingShout,true) then 
 			return; 
+		end  
+	end
+else 
+	if BATTLESHOUT == nil then
+		if castSpell("player",BattleShout,true) then
+			return;
 		end  
 	end
 end
@@ -133,6 +136,15 @@ if isChecked("Disrupting Shout") == true and canInterrupt(DisruptingShout,tonumb
 	end
 end
 
+--Healthstone
+if isChecked("Healthstone") then
+	if PLAYERHP <= getValue("Healthstone") then
+		if canUse(5512) then
+			UseItemByName(tostring(select(1,GetItemInfo(5512))))
+		end
+	end
+end
+				
 if isCasting() then 
 	return false; 
 end
@@ -302,7 +314,13 @@ if RAGE < 70 then
     elseif isChecked("Commanding") == true then
 		if castSpell("player",CommandingShout,true) then 
 			return; 
-		end  
+		end 
+	else 
+		if BATTLESHOUT == nil then
+			if castSpell("player",BattleShout,true) then
+				return;
+			end  
+		end
 	end
 end 
 			
