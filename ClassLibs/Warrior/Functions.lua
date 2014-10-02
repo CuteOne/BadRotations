@@ -54,7 +54,7 @@ end
 
 -- AoE 
 function useAoE()
-    if (BadBoy_data['AoE'] == 1 and getNumEnnemies("player",10) >= 4) or BadBoy_data['AoE'] == 2 then
+    if (BadBoy_data['AoE'] == 1 and getNumEnnemies("player",10) >= 2) or BadBoy_data['AoE'] == 2 then
         return true
     else
         return false

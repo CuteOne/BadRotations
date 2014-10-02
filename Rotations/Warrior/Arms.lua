@@ -459,7 +459,7 @@ end
 					end
 				end
 				-- actions.aoe+=/cleave,if=rage>110&active_enemies<=4
-				if rage > 110 and getNumEnnemies("player",10) <= 4) then
+				if rage > 110 and getNumEnnemies("player",10) <= 4 then
 					if castSpell("target",Cleave,false,false) then
 						return;
 					end
@@ -473,8 +473,19 @@ end
 					end
 				end
 				-- actions.aoe+=/dragon_roar,if=enabled&debuff.colossus_smash.down
+				if getDistance("player","target") <= 8 and not UnitDebuffID("target",ColossusSmash,"player") then
+						if castSpell("target",DragonRoar,false,false) then
+							return;
+						end
+					end
 				-- actions.aoe+=/colossus_smash,if=debuff.colossus_smash.remains<1
+				if getDebuffRemain("target",ColossusSmash,"player") <= 1 then
+					if castSpell("target",ColossusSmash,false,false) then
+						return;
+					end
+				end
 				-- actions.aoe+=/thunder_clap,target=2,if=dot.deep_wounds.attack_power*1.1<stat.attack_power
+
 				-- actions.aoe+=/mortal_strike,if=active_enemies=2|rage<50
 				-- actions.aoe+=/execute,if=buff.sudden_execute.down&active_enemies=2
 				-- actions.aoe+=/slam,if=buff.sweeping_strikes.up&debuff.colossus_smash.up
