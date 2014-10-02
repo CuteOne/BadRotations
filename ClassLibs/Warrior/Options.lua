@@ -102,28 +102,24 @@ function WarriorArmsConfig()
         CreateNewText(thisConfig,"Healthstone");
 
         -- Wrapper ---------------------------------------------
-        CreateNewWrap(thisConfig,"-------- Utilities --------");
+        CreateNewWrap(thisConfig,"-------- Interrupts --------"); 
 
-        -- Charge
-        CreateNewCheck(thisConfig,"Charge");
-        CreateNewText(thisConfig,"Charge"); 
-        
         -- Pummel
         CreateNewCheck(thisConfig,"Pummel");
         CreateNewBox(thisConfig, "Pummel", 0, 100  , 5, 60 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFPummel.");
         CreateNewText(thisConfig,"Pummel");
 
-        if isKnown(107079) then
-            -- Quaking Palm
-            CreateNewCheck(thisConfig,"Quaking Palm");
-            CreateNewBox(thisConfig, "Quaking Palm", 0, 100  , 5, 30 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFQuaking Palm.");
-            CreateNewText(thisConfig,"Quaking Palm");   
-        end    
+        -- Disrupting Shout
+        CreateNewCheck(thisConfig,"Disrupting Shout");
+        CreateNewBox(thisConfig, "Disrupting Shout", 0, 100  , 5, 60 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFDisrupting Shout.");
+        CreateNewText(thisConfig,"Disrupting Shout");
 
-        -- Dummy DPS Test
-            CreateNewCheck(thisConfig,"DPS Testing");
-            CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 5, "Set to desired time for test in minutes. Min: 1 / Max: 15 / Interval: 1");
-            CreateNewText(thisConfig,"DPS Testing");
+        if isKnown(107079) then
+        -- Quaking Palm
+        CreateNewCheck(thisConfig,"Quaking Palm");
+        CreateNewBox(thisConfig, "Quaking Palm", 0, 100  , 5, 30 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFQuaking Palm.");
+        CreateNewText(thisConfig,"Quaking Palm");   
+        end    
 
         -- Wrapper ---------------------------------------------
         CreateNewWrap(thisConfig,"---------- Misc -----------");
@@ -136,10 +132,17 @@ function WarriorArmsConfig()
         CreateNewCheck(thisConfig, "AutoDragonRoar","Uncheck if you want to cast Dragon Roar manually in Single Target Rotation");
         CreateNewText(thisConfig, "Dragon Roar Single Target");
 
-        -- General Configs
-        CreateGeneralsConfig();
+        -- Charge
+        CreateNewCheck(thisConfig,"Charge");
+        CreateNewText(thisConfig,"Charge");
 
-        
+        -- Dummy DPS Test
+        CreateNewCheck(thisConfig,"DPS Testing");
+        CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 5, "Set to desired time for test in minutes. Min: 1 / Max: 15 / Interval: 1");
+        CreateNewText(thisConfig,"DPS Testing");
+
+        -- General Configs
+        CreateGeneralsConfig();        
         WrapsManager();
     end
 end

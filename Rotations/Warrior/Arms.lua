@@ -1,10 +1,6 @@
 if select(3,UnitClass("player")) == 1 then
 
 function ArmsWarrior()
-	-- if AoEModesLoaded ~= "Arms Warrior AoE Modes" then
-	-- 	WarriorArmsToggles();
-	-- 	WarriorArmsConfig();
-	-- end
 
 if Currentconfig ~= "Arms Avery/Chumii" then
  WarriorArmsConfig();
@@ -18,7 +14,6 @@ if SpecificToggle("Rotation Mode") == 1 then
  end
 end
 
-
 -- Locals
 	local rage = UnitPower("player");
 	local myHP = getHP("player");
@@ -28,6 +23,8 @@ end
 	local CS_START, CS_DURATION = GetSpellCooldown(ColossusSmash)
 	local CS_COOLDOWN = (CS_START - GT + CS_DURATION)
 	local BLADESTORM = UnitBuffID("player",Bladestorm)
+	local DS_START, DS_DURATION = GetSpellCooldown(DisruptingShout)
+	local DS_COOLDOWN = (DS_START - GT + DS_DURATION)
 
 -- Food/Invis Check
 	if canRun() ~= true or UnitInVehicle("Player") then return false; end
@@ -52,7 +49,6 @@ end
 --- Out of Combat ---
 ---------------------
 
-
 -- Shout
 	if isChecked("ShoutOOC") == true then
 		if isChecked("Shout") == true then
@@ -71,28 +67,12 @@ end
 		end
 	end
 
-
-		-- --[[Stance]]
-		-- if isChecked("Stance") == true then
-		-- 	--[[Defensive]]
-		-- 	if getValue("Stance") == 1 then
-	 -- 			if GetShapeshiftForm() ~= 2 then 
-	 -- 				if castSpell("player",DefensiveStance,true) then return; end 
-	 -- 			end
-	 -- 		--[[Battle]]
-	 -- 		elseif getValue("Stance") == 2 then
-	 -- 			if GetShapeshiftForm() ~= 1 then 
-	 -- 				if castSpell("player",BattleStance,true) then return; end 
-	 -- 			end
-	 -- 		end
-	 -- 	end
-
-		-- --[[Charge if getDistance > 10]]
-		-- if isChecked("Charge") == true and canAttack("target","player") and not UnitIsDeadOrGhost("target") and getDistance("player","target") > 10 then
-		-- 	if targetDistance <= 40 and getGround("target") == true and UnitExists("target") then
-		-- 		if castSpell("target",100,false,false) then return; end
-		-- 	end
-		-- end
+	--[[Charge if getDistance > 10]]
+		if isChecked("Charge") == true and canAttack("target","player") and not UnitIsDeadOrGhost("target") and getDistance("player","target") > 10 then
+			if targetDistance <= 40 and getGround("target") == true and UnitExists("target") then
+				if castSpell("target",100,false,false) then return; end
+			end
+		end
 
 	end
 	if pause() ~= true and isInCombat("player") and canAttack("target","player") and not UnitIsDeadOrGhost("target") then			
@@ -283,19 +263,37 @@ end
 				end
 			end  
 		end
-
 ------------------
 --- Interrupts ---
 ------------------
 
-		--[[Quaking Palm]]
+		--Quaking Palm
 		if isChecked("Quaking Palm") and canInterrupt(107079,tonumber(getValue("Quaking Palm"))) then
-			if castSpell("target",107079,false) then return; end
+			if castSpell("target",107079,false) then
+				return;
+			end
 		end
 
-		--[[Pummel]]
-		if isChecked("Pummel") and canInterrupt(6552,tonumber(getValue("Pummel"))) then
-			if castSpell("target",6552,false) then return; end
+		--Pummel
+		if isChecked("Pummel") == true and canInterrupt(Pummel,tonumber(getValue("Pummel"))) then
+			if isChecked("Disrupting Shout") == true then
+				if (DS_COOLDOWN <= 39  and DS_COOLDOWN > 0) then
+					if castSpell("target",Pummel,false) then
+						return; 
+					end
+				end
+			elseif isChecked("Disrupting Shout") == false then
+				if castSpell("target",Pummel,false) then
+					return; 
+				end
+			end
+		end
+
+		--Disrupting Shout
+		if isChecked("Disrupting Shout") == true and canInterrupt(DisruptingShout,tonumber(getValue("Disrupting Shout"))) then
+			if castSpell("target",DisruptingShout,false) then
+				return; 
+			end
 		end
 
 		if isCasting() then return false; end
@@ -492,7 +490,11 @@ end
 					end
 				end
 				-- actions.aoe+=/thunder_clap,target=2,if=dot.deep_wounds.attack_power*1.1<stat.attack_power
-
+				if not UnitDebuffID("target",DeepWounds,"player") then
+					if castSpell("target",ThunderClap,true) then
+						return;
+					end
+				end
 				-- actions.aoe+=/mortal_strike,if=active_enemies=2|rage<50
 				if rage < 50 then
 					if castSpell("target",MortalStrike,false,false) then
