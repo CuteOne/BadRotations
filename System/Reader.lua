@@ -252,6 +252,21 @@ function SuperReader(self, event, ...)
 			end
 		end
 
+		------------------------
+		--[[ Bleed Recorder (Warrior) --]]
+		if select(3, UnitClass("player")) == 1 and GetSpecialization("player") == 1 then
+	        -- snapshot on spellcast
+	        if source == UnitGUID("player") and param == "SPELL_CAST_SUCCESS" then
+	            if spell == 115767 then
+	                deepWoundsCastAP = UnitAttackPower("player");
+	            end
+	        -- but only record the snapshot if it successfully applied
+	        elseif source == UnitGUID("player") and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") and deepWoundsCastAP ~= nil then
+	            if spell == 115767 then
+	                deepWoundsStoredAP = deepWoundsCastAP
+	            end
+	        end
+	    end
 
 		------------------------
 		--[[ Bleed Recorder --]]
