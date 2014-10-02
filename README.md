@@ -21,6 +21,7 @@ Shadow Priest<br>
 Subtly Rogue<br>
 Enhancement Shaman<br>
 Protection Warrior<br>
+Arms Warrior<br>
 
 <b>---In Development---</b><br>
 Assassination Rogue<br>
@@ -46,5 +47,4 @@ Holy Priest<br>
 Combat Rogue<br>
 Affliction Warlock<br>
 Demonology Warlock<br>
-Arms Warrior<br>
 Fury Warrior<br>
