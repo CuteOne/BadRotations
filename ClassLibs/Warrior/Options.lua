@@ -248,11 +248,11 @@ end
 end
 
 function WarriorProtConfig()
-if currentConfig ~= "Protection CodeMyLife" then
+if currentConfig ~= "Protection Chumii" then
 ClearConfig();
 thisConfig = 0;
 -- Title
-CreateNewTitle(thisConfig,"Protection |cffFF0000CodeMyLife");
+CreateNewTitle(thisConfig,"Protection |cffFF0000Chumii");
 
 -- Wrapper
 CreateNewWrap(thisConfig,"---------- Keys ----------");
@@ -276,6 +276,16 @@ CreateNewText(thisConfig,"Rotation Down");
 CreateNewCheck(thisConfig,"HeroicLeapKey");
 CreateNewDrop(thisConfig,"HeroicLeapKey", 2, "Toggle2")
 CreateNewText(thisConfig,"Heroic Leap Key");
+
+-- Demo Banner
+CreateNewCheck(thisConfig,"DemoBannerKey");
+CreateNewDrop(thisConfig,"DemoBannerKey", 5, "Toggle2")
+CreateNewText(thisConfig,"Demo Banner Key");
+
+-- Mocking Banner
+CreateNewCheck(thisConfig,"MockingBannerKey");
+CreateNewDrop(thisConfig,"MockingBannerKey", 7, "Toggle2")
+CreateNewText(thisConfig,"Mocking Banner Key");
 
 -- Wrapper 
 CreateNewWrap(thisConfig,"---------- Buffs ---------");
@@ -361,14 +371,6 @@ end
 
 -- Wrapper 
 CreateNewWrap(thisConfig,"---------- Misc -----------");
-
--- Bladestorm ST
-CreateNewCheck(thisConfig, "AutoBladestorm","Uncheck if you want to cast Bladestorm manually in Single Target Rotation");
-CreateNewText(thisConfig, "Bladestorm Single Target");
-
--- DragonRoar ST
-CreateNewCheck(thisConfig, "AutoDragonRoar","Uncheck if you want to cast Dragon Roar manually in Single Target Rotation");
-CreateNewText(thisConfig, "Dragon Roar Single Target");
 
 -- Charge
 CreateNewCheck(thisConfig,"Charge");

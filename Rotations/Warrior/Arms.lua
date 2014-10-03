@@ -479,10 +479,10 @@ end
 				end
 				-- actions.aoe+=/dragon_roar,if=enabled&debuff.colossus_smash.down
 				if getDistance("player","target") <= 8 and not UnitDebuffID("target",ColossusSmash,"player") then
-						if castSpell("target",DragonRoar,false,false) then
-							return;
-						end
+					if castSpell("target",DragonRoar,false,false) then
+						return;
 					end
+				end
 				-- actions.aoe+=/colossus_smash,if=debuff.colossus_smash.remains<1
 				if getDebuffRemain("target",ColossusSmash,"player") <= 1 then
 					if castSpell("target",ColossusSmash,false,false) then

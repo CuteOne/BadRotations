@@ -115,25 +115,26 @@ if select(3, UnitClass("player")) == 1 then
    function WarriorProtToggles()
         AoEModesLoaded = "Prot Warrior AoE Modes";
 
-        if AoEModesLoaded ~= "Prot Warrior AoE Modes" then 
-            CustomAoEModes = { 
-                [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 0, icon = ThunderClap },  
-                [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = Cleave },
-                [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = Devastate }
-            };
-           AoEModes = CustomAoEModes
-           print("AOE BUTTON");
-           CreateButton("AoE",1,0)
-           AoEModesLoaded = "Prot Warrior AoE Modes";
-        end
+        -- if AoEModesLoaded ~= "Prot Warrior AoE Modes" then 
+        --     CustomAoEModes = { 
+        --         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 0, icon = ThunderClap },  
+        --         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = Cleave },
+        --         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = Devastate }
+        --     };
+        --    AoEModes = CustomAoEModes
+        --    print("AOE BUTTON");
+        --    CreateButton("AoE",1,0)
+        --    AoEModesLoaded = "Prot Warrior AoE Modes";
+        -- end
 
-        -- -- Aoe Button
-        -- AoEModes = { 
-        --     [1] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Recommended for \n|cff00FF00Single Target (1-2)", highlight = 0, icon = 78 },
-        --     [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Recommended for \n|cffFF0000AoE (3+)", highlight = 0, icon = 845 },
-        --     [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Auto-AoE", highlight = 1, icon = 84615 }
-        -- };
-        -- CreateButton("AoE",1,0)
+        -- Aoe Button
+        AoEModes = { 
+
+            [1] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Auto-AoE", highlight = 0, icon = ThunderClap  },
+            [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Recommended for \n|cffFF0000AoE (3+)", highlight = 0, icon = Cleave },
+            [3] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Recommended for \n|cff00FF00Single Target (1-2)", highlight = 0, icon = Devastate }
+        };
+        CreateButton("AoE",1,0)
 
         -- -- Interrupts Button
         -- InterruptsModes = { 
