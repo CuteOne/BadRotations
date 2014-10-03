@@ -68,11 +68,11 @@ if select(3, UnitClass("player")) == 1 then
         if AOETimer == nil then AOETimer = 0; end
         if SpecificToggle("Rotation Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - AOETimer > 0.25 then
             AOETimer = GetTime()
-            if BadBoy_data['AoE'] ~= #AoEModes then
-                BadBoy_data['AoE'] = BadBoy_data['AoE']+1
-            else
-                BadBoy_data['AoE'] = 1
-            end
+            -- if BadBoy_data['AoE'] ~= #AoEModes then
+            --     BadBoy_data['AoE'] = BadBoy_data['AoE']+1
+            -- else
+            --     BadBoy_data['AoE'] = 1
+            -- end
             UpdateButton("AoE")
         end
 
