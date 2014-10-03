@@ -23,10 +23,15 @@ function WarriorArmsConfig()
         CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle2")
         CreateNewText(thisConfig,"Pause Key");
 
-        -- Single/Multi Toggle
-        CreateNewCheck(thisConfig,"Rotation Mode","Switch through Rotation Mode (Single Target / Multi Target / Auto AoE)");
-        CreateNewDrop(thisConfig,"Rotation Mode", 3, "Toggle2")
-        CreateNewText(thisConfig,"Rotation Mode");
+        -- Single/Multi Toggle Up
+        CreateNewCheck(thisConfig,"Rotation Up","Switch through Rotation Mode (Single Target / Multi Target / Auto AoE)");
+        CreateNewDrop(thisConfig,"Rotation Up", 3, "Toggle2")
+        CreateNewText(thisConfig,"Rotation Up");
+
+        -- Single/Multi Toggle Down
+        CreateNewCheck(thisConfig,"Rotation Down","Switch through Rotation Mode ( Auto AoE / Multi Target / Single Target)");
+        CreateNewDrop(thisConfig,"Rotation Down", 1, "Toggle2")
+        CreateNewText(thisConfig,"Rotation Down");
 
         -- Heroic Leap
         CreateNewCheck(thisConfig,"HeroicLeapKey");
