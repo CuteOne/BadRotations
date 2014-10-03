@@ -221,9 +221,7 @@ end
 --- Defensives ---
 ------------------
 		-- Die by the Sword
-		if isChecked("DiebytheSword") == true 
-			and isInCombat("player")
-			and not UnitIsDeadOrGhost("player") then
+		if isChecked("DiebytheSword") == true then
 			if getHP("player") <= getValue("DiebytheSword") then
 				if castSpell("player",DiebytheSword,true) then
 					return;
@@ -232,9 +230,7 @@ end
 		end
 
 		-- Rallying Cry
-		if isChecked("RallyingCry") == true 
-			and isInCombat("player")
-			and not UnitIsDeadOrGhost("player") then
+		if isChecked("RallyingCry") == true then
 			if getHP("player") <= getValue("RallyingCry") then
 				if castSpell("player",RallyingCry,true) then
 					return;
@@ -243,9 +239,7 @@ end
 		end
 
 		-- ShieldWall
-		if isChecked("ShieldWall") == true 
-			and isInCombat("player")
-			and not UnitIsDeadOrGhost("player") then
+		if isChecked("ShieldWall") == true then
 			if getHP("player") <= getValue("ShieldWall") then
 				if castSpell("player",ShieldWall,true) then
 					return;
@@ -254,23 +248,18 @@ end
 		end
 
 		-- Healthstone
-        if isChecked("Healthstone") == true 
-			and isInCombat("player")
-			and not UnitIsDeadOrGhost("player") then
+        if isChecked("Healthstone") == true then
 			if getHP("player") <= getValue("Healthstone") then
 					useItem(5512)
 			end
 		end
 
 		-- Def Stance
-		if isChecked("DefensiveStance") == true 
-			and isInCombat("player")
-			and not UnitIsDeadOrGhost("player") then
+		if isChecked("DefensiveStance") == true then
 			if getHP("player") <= getValue("DefensiveStance") and GetShapeshiftForm() ~= 2 then
 				if castSpell("player",DefensiveStance,true) then
 					return;
 				end
-			end
 			elseif getHP("player") > getValue("DefensiveStance") and GetShapeshiftForm() ~= 1 then
 				if castSpell("player",BattleStance,true) then
 					return;
@@ -554,4 +543,4 @@ end
 		end
 	end
 end
-
+end

@@ -133,9 +133,16 @@ CreateNewCheck(thisConfig,"DPS Testing");
 CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 5, "Set to desired time for test in minutes. Min: 1 / Max: 15 / Interval: 1");
 CreateNewText(thisConfig,"DPS Testing");
 
--- General Configs
-CreateGeneralsConfig();        
+-- Show more
+CreateNewCheck(thisConfig,"Showmore","Check if you want the options for Healing/General/Poke/Hacks/Tracking - Reload after checking");
+CreateNewText(thisConfig,"Show More");
+
+-- Healing/general/poke/hacks/tracking
+if isChecked("Showmore") == true then
+CreateGeneralsConfig();
 WrapsManager();
+end
+
 end
 end
 
