@@ -8,12 +8,10 @@ FuryToggles()
 Currentconfig = "Fury Avery/Chumii";
 end
 
-if SpecificToggle("Rotation Mode") == 1 then
-	 if myTimer == nil or myTimer <= GetTime() -0.7 then
-	  myTimer = GetTime()
-	  ToggleValue("AoE");
-	 end
-	end
+if SpecificToggle("Rotation Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - AOETimer > 0.25 then
+AOETimer = GetTime()
+ToggleValue("AoE");
+end
 
 -- Locals
 local RAGE = UnitPower("player");
