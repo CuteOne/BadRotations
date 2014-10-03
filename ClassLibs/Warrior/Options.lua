@@ -188,6 +188,13 @@ CreateNewWrap(thisConfig,"Utilities");
 CreateNewCheck(thisConfig,"Charge","Check if you want to use charge when out of range");
 CreateNewText(thisConfig,"Charge"); 
 
+--Heroic Leap
+CreateNewCheck(thisConfig,"HeroicLeap","Check if you want to use the heroic leap key, middle mouse button");
+CreateNewText(thisConfig,"Heroic Leap"); 
+
+-- Wrapper
+CreateNewWrap(thisConfig,"Interrupts");
+
 -- Pummel
 CreateNewCheck(thisConfig,"Pummel","Check if you want to use Pummel automatically");
 CreateNewBox(thisConfig, "Pummel", 0, 100  , 5, 60 , "Over what % of cast we want to Pummel.");
@@ -206,7 +213,11 @@ CreateNewText(thisConfig,"Quaking Palm");
 end    
 
 -- Wrapper
-CreateNewWrap(thisConfig,"Keys");
+CreateNewWrap(thisConfig,"Toggles");
+
+--automatic aoe
+CreateNewCheck(thisConfig,"AutoAoE","Check if you want to use automatic AoE, tarplus/minus wont do anything until you toggle this off");
+CreateNewText(thisConfig,"Auto AoE"); 
 
 -- Single/Multi Toggle Up
 CreateNewCheck(thisConfig,"Rotation Up","Switch through Rotation Modes (1 target/2 targets/3 targets/4+targets)");
@@ -220,6 +231,9 @@ CreateNewText(thisConfig,"Tar Minus");
 
 -- Wrapper
 CreateNewWrap(thisConfig,"Other");
+
+--CreateNewCheck(thisConfig,"MouseClick","Check if you want to have the mouse click when you have a clickable spell up, ex: demo banner, raid markers");
+--CreateNewText(thisConfig,"Mouse Click"); 
 
 CreateNewCheck(thisConfig,"Showmore","Check if you want the options for Healing/General/Poke/Hacks/Tracking - Reload after checking");
 CreateNewText(thisConfig,"Show More");
