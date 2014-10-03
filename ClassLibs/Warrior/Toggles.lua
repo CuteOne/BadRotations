@@ -11,17 +11,29 @@ if select(3, UnitClass("player")) == 1 then
    function WarriorArmsToggles()
        
         -- AoE Button
-        if AoEModesLoaded ~= "Arms Warrior AoE Modes" then
-            CustomAoEModes = {
-            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip ="Automatic Rotation Mode based on number of targets in range", highlight = 0, icon = SweepingStrikes },
-            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip ="Multiple Target Rotation", highlight = 0, icon = Cleave },
-            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip ="Multiple Target Rotation", highlight = 0, icon = MortalStrike }
+        -- if AoEModesLoaded ~= "Arms Warrior AoE Modes" then
+        --     CustomAoEModes = {
+        --     [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip ="Automatic Rotation Mode based on number of targets in range", highlight = 0, icon = SweepingStrikes },
+        --     [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip ="Multiple Target Rotation", highlight = 0, icon = Cleave },
+        --     [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip ="Multiple Target Rotation", highlight = 0, icon = MortalStrike }
+        --     };
+        --     AoEModes = CustomAoEModes
+        --     CreateButton("AoE",1,0)
+        --     AoEModesLoaded = "Arms Warrior AoE Modes";
+        -- end
+
+        if AoEModesLoaded ~= "Arms Warrior AoE Modes" then 
+            CustomAoEModes = { 
+                [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 0, icon = SweepingStrikes },  
+                [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = Cleave },
+                [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = MortalStrike }
             };
-            AoEModes = CustomAoEModes
-            CreateButton("AoE",1,0)
-            AoEModesLoaded = "Arms Warrior AoE Modes";
+           AoEModes = CustomAoEModes
+           CreateButton("AoE",1,0)
+           AoEModesLoaded = "Arms Warrior AoE Modes";
         end
 
+        
 
         function SpecificToggle(toggle)
             if getValue(toggle) == 1 then
