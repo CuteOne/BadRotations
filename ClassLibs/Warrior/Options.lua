@@ -151,7 +151,7 @@ if currentConfig ~= "Fury Avery/Chumii" then
 ClearConfig();
 thisConfig = 0;
 -- Title
-CreateNewTitle(thisConfig,"Fury Avery/Chumii");  
+CreateNewTitle(thisConfig,"Fury Warrior");  
 
 -- Wrapper 
 CreateNewWrap(thisConfig,"Buffs");
