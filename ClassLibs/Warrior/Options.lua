@@ -220,10 +220,18 @@ function WarriorFuryConfig()
             CreateNewText(thisConfig,"Quaking Palm");   
         end    
 		
-		 -- Single/Multi Toggle
-        CreateNewCheck(thisConfig,"Rotation Mode");
-		CreateNewDrop(thisConfig, "Rotation Mode", 4, "Toggle")
-        CreateNewText(thisConfig,"Rotation");
+		-- Wrapper ---------------------------------------------
+        CreateNewWrap(thisConfig,"-------- Keys --------");
+		
+		-- Single/Multi Toggle Up
+        CreateNewCheck(thisConfig,"Rotation Up","Switch through Rotation Mode (Single Target / Multi Target / Auto AoE)");
+        CreateNewDrop(thisConfig,"Rotation Up", 1, "Toggle")
+        CreateNewText(thisConfig,"Rotation Up");
+
+        -- Single/Multi Toggle Down
+        CreateNewCheck(thisConfig,"Rotation Down","Switch through Rotation Mode ( Auto AoE / Multi Target / Single Target)");
+        CreateNewDrop(thisConfig,"Rotation Down", 2, "Toggle")
+        CreateNewText(thisConfig,"Rotation Down");
 		
         -- Healing/general/poke/hacks/tracking
         CreateGeneralsConfig();

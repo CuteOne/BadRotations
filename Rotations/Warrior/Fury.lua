@@ -8,9 +8,23 @@ FuryToggles()
 Currentconfig = "Fury Avery/Chumii";
 end
 
-if SpecificToggle("Rotation Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - AOETimer > 0.25 then
-AOETimer = GetTime()
-ToggleValue("AoE");
+if AOETimer == nil then AOETimer = 0; end
+if isChecked("Rotation Up") then
+		if SpecificToggle("Rotation Up") == 1 and GetCurrentKeyBoardFocus() == nil then
+	 	if GetTime() - AOETimer > 0.25 then
+	  		AOETimer = GetTime()
+	  		ToggleValue("AoE");
+	 	end
+	end
+end
+
+if isChecked("Rotation Down") then
+    if SpecificToggle("Rotation Down") == 1 and GetCurrentKeyBoardFocus() == nil then
+	 	if GetTime() - AOETimer > 0.25 then
+	  		AOETimer = GetTime()
+	  		ToggleMinus("AoE");
+	 	end
+	end
 end
 
 -- Locals
@@ -178,7 +192,9 @@ end
 
 elseif UnitExists("target") and not UnitIsDeadOrGhost("target") and isEnnemy("target") == true and getCreatureType("target") == true then
 
---singletarget start
+----------------
+--- Single ---
+----------------
 if BadBoy_data['AoE'] == 1 then
 
 --berserker_rage,if=buff.enrage.remains<1&cooldown.bloodthirst.remains>1
@@ -350,9 +366,13 @@ end
 end	
 
 end	
---singletarget end
+----------------
+--- Single ---
+----------------
 
---twotarget start
+----------------
+--- Two ---
+----------------
 if BadBoy_data['AoE'] == 2 then
 --buff.enrage.remains<1&cooldown.bloodthirst.remains>1)
 if ENRAGED ~= nil then
@@ -454,9 +474,13 @@ return;
 end
 
 end
---twotarget end
+----------------
+--- Two ---
+----------------
 
---threetarget start
+----------------
+--- Three ---
+----------------
 if BadBoy_data['AoE'] == 3 then
 
 --buff.enrage.remains<1&cooldown.bloodthirst.remains>1)
@@ -545,9 +569,13 @@ return;
 end
 
 end
---threetarget end
+----------------
+--- Three ---
+----------------
 
---fourtarget start
+----------------
+--- Four ---
+----------------
 if BadBoy_data['AoE'] == 4 then
 
 --buff.enrage.remains<1&cooldown.bloodthirst.remains>1)
@@ -629,7 +657,9 @@ end
 end
 
 end
---fourtarget end
+----------------
+--- Four ---
+----------------
 
 end
 end
