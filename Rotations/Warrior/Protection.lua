@@ -1,10 +1,27 @@
 if select(3,UnitClass("player")) == 1 then
 
 function ProtectionWarrior()
-	if AoEModesLoaded ~= "Prot Warrior AoE Modes" then
-		WarriorProtToggles();
-		WarriorProtConfig();
+if Currentconfig ~= "Protection CodeMyLife" then
+ WarriorProtConfig();
+ WarriorProtToggles()
+ Currentconfig = "Protection CodeMyLife";
+end
+if isChecked("Rotation Up") then
+		if SpecificToggle("Rotation Up") == 1 and GetCurrentKeyBoardFocus() == nil then
+	 	if myTimer == nil or myTimer <= GetTime() -0.7 then
+	  		myTimer = GetTime()
+	  		ToggleValue("AoE");
+	 	end
 	end
+end
+if isChecked("Rotation Down") then
+    if SpecificToggle("Rotation Down") == 1 and GetCurrentKeyBoardFocus() == nil then
+	 	if myTimer == nil or myTimer <= GetTime() -0.7 then
+	  		myTimer = GetTime()
+	  		ToggleMinus("AoE");
+	 	end
+	end
+end
 -- Locals
 	local rage = UnitPower("player");
 	local myHP = getHP("player");
@@ -16,16 +33,7 @@ function ProtectionWarrior()
 ------------------
 --- Defensives ---
 ------------------
---[[ Berserker Regeneration
-	if getHP("player") <= 60 and getPower("player") >= 40 and not isCasting("player") then
-		if castSpell("player",12345,true) then return; end
-	end]]
---[[ Berserker Rage
-	if hasNoControl() then
-		if castSpell("player",12345,true) then 
-			return;
-		end
-	end]]
+
 
 
 	if not isInCombat("player") then
@@ -33,21 +41,6 @@ function ProtectionWarrior()
 --- Out of Combat ---
 ---------------------
 		
-		--[[Stance]]
-		if isChecked("Stance") == true then
-			--[[Defensive]]
-			if getValue("Stance") == 1 then
-	 			if GetShapeshiftForm() ~= 2 then 
-	 				if castSpell("player",71,true) then return; end 
-	 			end
-	 		--[[Battle]]
-	 		elseif getValue("Stance") == 2 then
-	 			if GetShapeshiftForm() ~= 1 then 
-	 				if castSpell("player",2457,true) then return; end 
-	 			end
-	 		end
-	 	end
-
 		--[[Charge if getDistance > 10]]
 		if isChecked("Charge") == true and canAttack("target","player") and not UnitIsDeadOrGhost("target") and getDistance("player","target") > 10 then
 			if targetDistance <= 40 and getGround("target") == true and UnitExists("target") then
@@ -61,20 +54,7 @@ function ProtectionWarrior()
 --- In Combat ---
 -----------------
 
-		--[[Quaking Palm]]
-		if isChecked("Quaking Palm") and canInterrupt(107079,tonumber(getValue("Quaking Palm"))) then
-			if castSpell("target",107079,false) then return; end
-		end
-
-		--[[Pummel]]
-		if isChecked("Pummel") and canInterrupt(6552,tonumber(getValue("Pummel"))) then
-			if castSpell("target",6552,false) then return; end
-		end
-
-    	--[[Last Stand]]
-    	if isChecked("Last Stand") == true and myHP <= getValue("Last Stand") then
-    		if castSpell("player",12975,true) then return; end
-    	end
+		
 
 		if isCasting() then return false; end
 		if targetDistance > 5 and targetDistance <= 40 then
@@ -93,76 +73,64 @@ function ProtectionWarrior()
 ----------------
 --- In Range ---
 ----------------
+		
+		-- Shield Block / Barrier
+		if getValue("BlockBarrier") == 1 and not UnitBuffID("player",ShieldBlockBuff) then
+			if castSpell("player",ShieldBlock,true) then
+				return;
+			end
+		elseif getValue("BlockBarrier") == 2 and not UnitBuffID("player",ShieldBarrierBuff) and rage >= 50 then
+			if castSpell("player",ShieldBarrier,true) then
+				return
+			end
+		end
 
-		    -- berserker_rage,if=buff.enrage.down&rage<=rage.max-10
+---------------------
+--- Single Target ---
+---------------------
 
-		    --[[shield_block]]
-		    if isChecked("Shield Block") == true and rage > 60 and UnitBuffID("player",132404) == nil then
-		    	if UnitThreatSituation("player") == 3 and myHP <= getValue("Shield Block") then
-		    		if castSpell("player",2565,true,false) then return; end
-		    	end
-		    end
+		-- shield slam on cd / sword and board proc
+		if castSpell("target",ShieldSlam,false,false) then
+			return;
+		end		
+		-- revenge on cd
+		if castSpell("target",Revenge,false,false) then
+			return;
+		end			
+		-- shout if need rage
+		if rage < 40 then
+			if castSpell("target",CommandingShout,false,false) then
+				return;
+			end	
+		end
+		-- thunderclap if weakened blows missing
+		if not UnitDebuffID("target",WeakenedBlows) then
+			if castSpell("target",ThunderClap,true) then
+				return;
+			end
+		end			
+		-- heroic strike on ultimatum proc
+		if rage > 100 or UnitBuffID("player",Ultimatum) then
+			if castSpell("target",HeroicStrike,false,false) then
+				return;
+			end
+		end
+		-- devastate filler
+		if castSpell("target",Devastate,false,false,false,true) then
+			return;
+		end	
 
-		    -- shield_barrier,if=incoming_damage_1500ms>health.max*0.3|rage>rage.max-20
-		    -- shield_wall,if=incoming_damage_2500ms>health.max*0.6
-		    -- Leap
-		    -- dps_cds=avatar,if=enabled
-		    -- dps_cds+=/bloodbath,if=enabled
-		    -- dps_cds+=/dragon_roar,if=enabled
-		    -- dps_cds+=/shattering_throw   
-		    -- dps_cds+=/skull_banner
-		    -- dps_cds+=/recklessness
-		    -- dps_cds+=/storm_bolt,if=enabled   
-		    -- dps_cds+=/shockwave,if=enabled
-		    -- dps_cds+=/bladestorm,if=enabled
+--------------------
+--- Multi Target ---
+--------------------
 
-		    --[[normal_rotation=shield_slam]]
-		    if castSpell("target",23922,false,false) then return; end
+		-- thunderclap on cd		
+		-- t4 talent (shockwave/bladestorm/dragonroar)
+		-- shield slam on cd / sword and board proc
+		-- revenge on cd
+		-- devastate filler
+		-- cleave on ultimatum
 
-		    --[[Cleave if numEnnemies > 2]] 
-		    if ennemyUnits > 2 then
-		    	if rage >= UnitPowerMax("player") - 10 then castSpell("target",845,false,false); end
-		    	if getDistance("player","target") <= 6 then
-		    		if castSpell("target",6343,false,false) then return; end 
-		    	end
-		    end
-
-		    --[[heroic_strike,if=buff.ultimatum.up|buff.glyph_incite.up]] 
-		    if (ennemyUnits < 3 or isKnown(845) ~= true) and (rage >= UnitPowerMax("player") - 10 or UnitBuffID("player",122510) ~= nil or UnitBuffID("player",122016) ~= nil) then
-			    if castSpell("target",78,false,false) then return; end
-			end    	
-
-		    --[[normal_rotation+=/revenge]]
-		    if castSpell("target",6572,false,false) then return; end
-
-		    --[[normal_rotation+=/battle_shout,if=rage<=rage.max-20]]
-		    if isChecked("Shout") == true and rage < UnitPowerMax("player") - 20 then 
-		    	if getValue("Shout") == 1 then
-		    		if castSpell("target",6673,true,false) then return; end  
-		    	else
-		    		if castSpell("target",469,true,false) then return; end  
-		    	end
-		    end 
-
-		    --[[normal_rotation+=/thunder_clap]]
-		    if getDistance("player","target") <= 6 then
-		    	if castSpell("target",6343,false,false) then return; end 
-		    end
-
-		    --normal_rotation+=/demoralizing_shout
-
-		    --[[normal_rotation+=/impending_victory,if=enabled]]
-		    if isKnown(103840) == true then
-		    	if castSpell("target",103840,false,false) then return; end 
-		    end  
-
-		    --[[normal_rotation+=/victory_rush,if=!talent.impending_victory.enabled]]  
-		    if isKnown(103840) ~= true and getHP("target") <= 20 then
-		    	if castSpell("target",34428,false,false) then return; end 
-		    end
-
-		    --[[normal_rotation+=/devastate]]
-		    if castSpell("target",7386,false,false) then return; end 
 		end
 	end
 end

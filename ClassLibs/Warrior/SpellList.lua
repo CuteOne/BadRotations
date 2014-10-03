@@ -7,7 +7,9 @@ LastStand			= 12975;
 ShieldSlam			= 23922;
 Revenge				= 6572;
 ShieldBarrier		= 112048;
+ShieldBarrierBuff	= 112048;
 ShieldBlock			= 2565;
+ShieldBlockBuff		= 132404;
 
 --Arms--
 MortalStrike		= 12294;
