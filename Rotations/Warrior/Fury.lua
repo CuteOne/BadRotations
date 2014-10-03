@@ -72,26 +72,8 @@ if not isInCombat("player") then
 --- Out of Combat ---
 ---------------------
 
---Stance
-if isChecked("Stance") == true then
---Defensive
-if getValue("Stance") == 1 then
-if GetShapeshiftForm() ~= 2 then 
-if castSpell("player",DefensiveStance,true) then
-return; 
-end 
-end
---Battle
-elseif getValue("Stance") == 2 then
-if GetShapeshiftForm() ~= 1 then 
-if castSpell("player",BattleStance,true) then 
-return; 
-end 
-end
-end
-end
-
 --Shouts
+if isMoving("player") == true then
 if isChecked("Battle") == true then
 if BATTLESHOUT == nil then
 if castSpell("player",BattleShout,true) then
@@ -109,6 +91,7 @@ if BATTLESHOUT == nil then
 if castSpell("player",BattleShout,true) then
 return;
 end  
+end
 end
 end
 
@@ -223,7 +206,7 @@ end
 end
 
 --storm_bolt,if=enabled&buff.cooldown_reduction.up&debuff.colossus_smash.up
-if IsPlayerSpell(StormBolt) == true and IsSpellInRange(GetSpellInfo(StormBolt),"target") == 1 then
+if IsPlayerSpell(StormBolt) == true then
 if CS_DEBUFF ~= nil then
 if castSpell("target",StormBolt,true,false) then
 return;
@@ -407,7 +390,7 @@ end
 end
 
 --storm_bolt,if=enabled&debuff.colossus_smash.up
-if IsPlayerSpell(StormBolt) == true and IsSpellInRange(GetSpellInfo(StormBolt),"target") == 1 then
+if IsPlayerSpell(StormBolt) == true then
 if CS_DEBUFF ~= nil then
 if castSpell("target",StormBolt,true,false) then
 return;
@@ -516,7 +499,7 @@ end
 end
 
 --storm_bolt,if=enabled&debuff.colossus_smash.up
-if IsPlayerSpell(StormBolt) == true and IsSpellInRange(GetSpellInfo(StormBolt),"target") == 1 then
+if IsPlayerSpell(StormBolt) == true then
 if CS_DEBUFF ~= nil then
 if castSpell("target",StormBolt,true,false) then
 return;
@@ -628,7 +611,7 @@ return;
 end
 
 --storm_bolt,if=enabled
-if IsPlayerSpell(StormBolt) == true and IsSpellInRange(GetSpellInfo(StormBolt),"target") == 1 then
+if IsPlayerSpell(StormBolt) == true then
 if castSpell("target",StormBolt,true,false) then
 return;
 end

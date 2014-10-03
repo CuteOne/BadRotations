@@ -94,6 +94,9 @@ Bloodsurge			= 46916;
 Determination		= 146250;
 Outrage				= 146245;
 
+--Racials--
+QuakingPalm			= 107079;
+
 --Glyphs--
 
 end
