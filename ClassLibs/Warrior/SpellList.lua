@@ -58,6 +58,7 @@ CommandingShout 	= 469;
 
 --Debuffs--
 DeepWounds			= 115767;
+WeakenedBlows		= 115798;
 
 --Stance--
 BattleStance 		= 2457;
