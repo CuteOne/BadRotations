@@ -8,6 +8,13 @@ FuryToggles()
 Currentconfig = "Fury Avery/Chumii";
 end
 
+if SpecificToggle("Rotation Mode") == 1 then
+	 if myTimer == nil or myTimer <= GetTime() -0.7 then
+	  myTimer = GetTime()
+	  ToggleValue("AoE");
+	 end
+	end
+
 -- Locals
 local RAGE = UnitPower("player");
 local PLAYERHP = 100*(UnitHealth("player")/UnitHealthMax("player"))
