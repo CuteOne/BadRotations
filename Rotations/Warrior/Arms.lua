@@ -7,11 +7,13 @@ if Currentconfig ~= "Arms Avery/Chumii" then
  WarriorArmsToggles();
  Currentconfig = "Arms Avery/Chumii";
 end
-if SpecificToggle("Rotation Mode") == 1 then
- if myTimer == nil or myTimer <= GetTime() -0.7 then
-  myTimer = GetTime()
-  ToggleValue("AoE");
- end
+if isChecked("Rotation Mode") then
+	if SpecificToggle("Rotation Mode") == 1 then
+	 if myTimer == nil or myTimer <= GetTime() -0.7 then
+	  myTimer = GetTime()
+	  ToggleValue("AoE");
+	 end
+	end
 end
 
 -- Locals
