@@ -189,7 +189,9 @@ function Blood()
 	    	elseif isKnown(_HeartStrike) == false and #targetEnnemies < 3 then
 	    		if castSpell("target",_BloodStrike,false) then return; end
 	    	else
-	    		if castSpell("player",_BloodBoil,true) then return; end
+				if targetDistance <= 5 then
+					if castSpell("player",_BloodBoil,true) then return; end
+				end
 	    	end
 	    end
 
