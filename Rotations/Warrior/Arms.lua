@@ -4,7 +4,7 @@ function ArmsWarrior()
 
 if Currentconfig ~= "Arms Avery/Chumii" then
  WarriorArmsConfig();
- WarriorArmsToggles();
+ WarriorArmsToggles()
  Currentconfig = "Arms Avery/Chumii";
 end
 if isChecked("Rotation Up") then

@@ -10,41 +10,18 @@ if select(3, UnitClass("player")) == 1 then
 
    function WarriorArmsToggles()
        
-        --- AoE Button
-        if AoEModesLoaded ~= "Arms Warrior AoE Modes" then 
-            CustomAoEModes = { 
-                [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = SweepingStrikes },  
-                [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = Cleave },
-                [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = MortalStrike }
+        -- AoE Button
+        if AoEModesLoaded ~= "Arms Warrior AoE Modes" then
+            CustomAoEModes = {
+            [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip ="Automatic Rotation Mode based on number of targets in range", highlight = 0, icon = SweepingStrikes },
+            [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip ="Multiple Target Rotation", highlight = 0, icon = Cleave },
+            [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip ="Multiple Target Rotation", highlight = 0, icon = MortalStrike }
             };
-           AoEModes = CustomAoEModes;
-           CreateButton("AoE",1,0);
-           AoEModesLoaded = "Arms Warrior AoE Modes";
+            AoEModes = CustomAoEModes
+            CreateButton("AoE",1,0)
+            AoEModesLoaded = "Arms Warrior AoE Modes";
         end
 
-
-
-        -- Interrupts Button
-        -- InterruptsModes = { 
-        --     [1] = { mode = "None", value = 1 , overlay = "Interrupts Disabled", tip = "|cffC0C0C0Interrupts \n|cffFF0000No Interrupts will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
-        --     [2] = { mode = "All", value = 2 , overlay = "Interrupts Enabled", tip = "|cffC0C0C0Interrupts \n|cffFF0000Spells Included: \n|cffFFDD11Pummel.", highlight = 1, icon = 6552 }
-        -- };
-        -- CreateButton("Interrupts",1,0)
-
-        -- Defensive Button
-        -- DefensiveModes = { 
-        --     [1] = { mode = "None", value = 1 , overlay = "Defensive Disabled", tip = "|cffC0C0C0Defensive \n|cffFF0000No Defensive Cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
-        --     [2] = { mode = "All", value = 2 , overlay = "Defensive Enabled", tip = "|cffC0C0C0Defensive \n|cffFF0000Spells Included: \n|cffFFDD11Shield Wall, \nLast Stand.", highlight = 1, icon = 871 }
-        -- };
-        -- CreateButton("Defensive",1.5,1)
-
-        -- Cooldowns Button
-        -- CooldownsModes = { 
-        --     [1] = { mode = "None", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffC0C0C0Cooldowns \n|cffFF0000No cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
-        --     [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "|cffC0C0C0Cooldowns \n|cffFF0000Spells Included: \n|cffFFDD11Config's selected spells.", highlight = 1, icon = [[INTERFACE\ICONS\inv_misc_blackironbomb]]},
-        --     [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "|cffC0C0C0Cooldowns \n|cffFF0000Spells Included: \n|cffFFDD11Berserker Rage, \nBlood Bath.", highlight = 1, icon = 18499 }
-        -- };
-        -- CreateButton("Cooldowns",2,0)
 
         function SpecificToggle(toggle)
             if getValue(toggle) == 1 then
@@ -63,6 +40,19 @@ if select(3, UnitClass("player")) == 1 then
                 return 1
             end
         end
+
+         --AoE Key Toggle
+        if AOETimer == nil then AOETimer = 0; end
+        if SpecificToggle("Rotation Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - AOETimer > 0.25 then
+            AOETimer = GetTime()
+            if BadBoy_data['AoE'] ~= #AoEModes then
+                BadBoy_data['AoE'] = BadBoy_data['AoE']+1
+            else
+                BadBoy_data['AoE'] = 1
+            end
+            UpdateButton("AoE")
+        end 
+
     end
 
   function FuryToggles()
