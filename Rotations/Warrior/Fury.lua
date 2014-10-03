@@ -66,6 +66,17 @@ if IsMounted("player") then
 	return false; 
 end
 
+--heroic leap
+if isChecked("HeroicLeap") == true then 
+	if IsMouseButtonDown(3) and not GetCurrentKeyBoardFocus() and not IsMouselooking() then
+		CastSpellByName(GetSpellInfo(HeroicLeap))
+		if SpellIsTargeting() then 
+			CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop() 
+			return true;
+		end
+	end
+end
+
 --out of combat check
 if not isInCombat("player") then
 
@@ -82,17 +93,6 @@ if isMoving("player") == true then
 			if castSpell("player",CommandingShout,true) then 
 				return; 
 			end  
-		end
-	end
-end
-
---heroic leap
-if isChecked("HeroicLeap") == true then 
-	if IsMouseButtonDown(3) and not GetCurrentKeyBoardFocus() and not IsMouselooking() then
-		CastSpellByName(GetSpellInfo(HeroicLeap))
-		if SpellIsTargeting() then 
-			CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop() 
-			return true;
 		end
 	end
 end
