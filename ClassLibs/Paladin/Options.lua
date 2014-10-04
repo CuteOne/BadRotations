@@ -76,20 +76,31 @@ if select(3,UnitClass("player")) == 2 then
 
 		-- Guardian of Ancient Kings
 		CreateNewCheck(thisConfig,"GotAK Prot");
-		CreateNewBox(thisConfig, "GotAK Prot", 0, 100  , 1, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFGuardian of Ancient Kings");
+		CreateNewBox(thisConfig, "GotAK Prot", 0, 100, 1, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFGuardian of Ancient Kings");
 		CreateNewText(thisConfig,"GotAK Prot");
 
 		-- Divine Protection
 		CreateNewCheck(thisConfig,"Divine Protection");
-		CreateNewBox(thisConfig, "Divine Protection", 0, 100  , 1, 75, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFDivine Protection");
+		CreateNewBox(thisConfig, "Divine Protection", 0, 100, 1, 75, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFDivine Protection");
 		CreateNewText(thisConfig,"Divine Protection");
 
 		-- Ardent Defender
 		CreateNewCheck(thisConfig,"Ardent Defender");
-		CreateNewBox(thisConfig, "Ardent Defender", 0, 100  , 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFArdent Defender");
+		CreateNewBox(thisConfig, "Ardent Defender", 0, 100, 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFArdent Defender");
 		CreateNewText(thisConfig,"Ardent Defender");
-
-
+		
+		CreateNewCheck(thisConfig,"Lay On Hands Self");
+		CreateNewBox(thisConfig, "Lay On Hands Self", 0, 100, 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands on your self");
+		CreateNewText(thisConfig,"Lay On Hands Self");
+		
+		CreateNewCheck(thisConfig,"Divine Shield");
+		CreateNewBox(thisConfig, "Divine Shield", 0, 100, 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFDivine Shield");
+		CreateNewText(thisConfig,"Divine Shield");
+		
+		CreateNewCheck(thisConfig,"Hand Of Protection Self");
+		CreateNewBox(thisConfig, "Hand Of Protection Self", 0, 100  , 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Protection Self");
+		CreateNewText(thisConfig,"Hand Of Protection Self");
+		
 	   -- Wrapper
 		CreateNewWrap(thisConfig,"-------- Healing -------");
 
