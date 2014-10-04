@@ -46,8 +46,9 @@ If return is a valid target then for each spell defined in the config check if i
 
 
 
-
-
+-----------------------------
+--[[spellCastingUnits Table]]
+spellCastingUnits = { };
 
 ---------------------------
 --[[ Interrupts Reader --]]
@@ -58,14 +59,17 @@ interruptsFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
 interruptsFrame:RegisterEvent("UNIT_SPELLCAST_FAILED");
 function interruptsReader(self, event, ...)
     if event == "COMBAT_LOG_EVENT_UNFILTERED" then
-
+--1st Param	2nd Param	3rd Param	4th Param	5th Param	6th Param	7th Param		8th Param	9th Param	10th Param	11th Param
+--timestamp	event		hideCaster	sourceGUID	sourceName	sourceFlags	sourceRaidFlags	destGUID	destName	destFlags	destRaidFlags
     	local timestamp 	= select(1,...);
-    	local param 		= select(2,...);
-		local source 		= select(4,...);
+    	local event 		= select(2,...);
+		local sourceGUID 	= select(4,...);
 		local sourceName	= select(5,...);
-        local destination 	= select(8,...);
-		local spell 		= select(12,...);
-        local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
+		local destGUID		= select(8,...);
+        local destName 		= select(9,...);
+		local spellID 		= select(12,...);
+
+
 
         if sourceGUID ~= nil then
 
@@ -73,17 +77,49 @@ function interruptsReader(self, event, ...)
 	        --[[ IsCasting Enemy --]]
 	        --if BadBoy_data["Check Interrupts"] == 1 then
 	        	--if source ~= UnitGUID("player") then
-	        		if param == "SPELL_CAST_START" then
-	        			local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
-	        			if destName == nil then destName = "Nil Name" end
-				        ISetAsUnitID(sourceGUID,"thisUnit");
-				        endTime = select(6,UnitCastingInfo("thisUnit"))
-				        if destName == nil then destName = "Nil " destGUID = "Target" end
+	        		if event == "SPELL_CAST_START" then
+						-- Prevent nil values for the print	 
+				        --if destName == nil then destName = "Nil " destGUID = "Target" end
 				        --print("|cffFF0000Time: "..timeStamp.." source "..sourceName.." sourceGUID "..sourceGUID.." destName "..destName.." destGUID "..destGUID.." end at "..endTime)
+				        
+				        -- Prepare GUID to be reused via UnitID
+				        ISetAsUnitID(sourceGUID,"thisUnit");
+
+				        -- find our EndTime and divide by 1000 to match GetTime() values
+				        endTime = select(6,UnitCastingInfo("thisUnit"))/1000
+				        if endTime ~= nil then
+		        			--[[in table we need GUID,name,spell,target,endTime]]
+		        			tinsert(spellCastingUnits, { guid = sourceGUID, sourceName = sourceName, spell = spellID, targetGUID = destGUID, targetName = destName, endTime = endTime })
+	        			end
+
+						-- Sorting with the endTime
+						table.sort(spellCastingUnits, function(x,y)
+							if x.endTime and y.endTime then return x.endTime > y.endTime;
+							elseif x.endTime then return true;
+							elseif y.endTime then return false; end
+						end)	
+
+
+					    -- Table cleaner
+					    if #spellCastingUnits > 0 then
+							for i = 0, #spellCastingUnits+1 do
+								currentRow = #spellCastingUnits-i
+								if spellCastingUnits[currentRow] and spellCastingUnits[currentRow].endTime < GetTime() then
+									tremove(spellCastingUnits, currentRow);
+								else
+									break;
+								end
+							end
+						end
+
+
+
 	        		end
 	        	--end
 	        --end
 	    end
+
+
     end
 
 	-------------------------------------------------
