@@ -69,6 +69,21 @@ function hasLust()
     end
 end
 
+-------------------------------------
+--- Shield Block / Barrier Switch ---
+-------------------------------------
+
+SLASH_BLOCKBARRIER1 = '/blockbarrier';
+function SlashCmdList.BLOCKBARRIER(msg, editbox) 
+  if BadBoy_data["Drop BlockBarrier"] == 1 then
+    RunMacroText("/run BadBoy_data['Drop BlockBarrier'] = 2");
+    ChatOverlay("Using Shield Barrier")
+  elseif BadBoy_data["Drop BlockBarrier"] == 2 then
+    RunMacroText("/run BadBoy_data['Drop BlockBarrier'] = 1");
+    ChatOverlay("Using Shield Block") 
+  end
+end
+
 --[[           ]]	--[[]]	   --[[]]	--[[           ]]	--[[]]	  --[[]]
 --[[           ]]	--[[]]	   --[[]]	--[[           ]]	--[[]]	  --[[]]
 --[[]] 				--[[]]	   --[[]]	--[[]]	   --[[]]	   --[[    ]]	

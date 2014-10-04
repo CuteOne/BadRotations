@@ -306,20 +306,23 @@ end
 			end
 		end
 
-		if myTimer == nil or myTimer <= GetTime() - 1 then
- if canInterrupt(Pummel,1) then
-  if castSpell("target",Pummel,false,false) then
-   myTimer = GetTime()
-   return;
-  end
- end
- if canInterrupt(DisruptingShout,1) then
-  if castSpell("target",DisruptingShout,true,false) then
-   myTimer = GetTime()
-   return;
-  end
- end
-end
+-- if myTimer == nil or myTimer <= GetTime() - 1 then
+--  if canInterrupt(Pummel,1) then
+--   print("Pummel")
+--   if castSpell("target",Pummel,false,false) then
+
+--    myTimer = GetTime()
+--    return;
+--   end
+--  end
+--  if canInterrupt(DisruptingShout,1) then
+--  	print("DShout")
+--   if castSpell("target",DisruptingShout,true,false) then
+--    myTimer = GetTime()
+--    return;
+--   end
+--  end
+-- end
 
 		-- --Pummel
 		-- if isChecked("Pummel") == true and canInterrupt(Pummel,tonumber(getValue("Pummel"))) then
