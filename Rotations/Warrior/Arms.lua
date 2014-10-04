@@ -306,27 +306,42 @@ end
 			end
 		end
 
-		--Pummel
-		if isChecked("Pummel") == true and canInterrupt(Pummel,tonumber(getValue("Pummel"))) then
-			if isChecked("Disrupting Shout") == true then
-				if (DS_COOLDOWN <= 39  and DS_COOLDOWN > 0) then
-					if castSpell("target",Pummel,false) then
-						return; 
-					end
-				end
-			elseif isChecked("Disrupting Shout") == false then
-				if castSpell("target",Pummel,false) then
-					return; 
-				end
-			end
-		end
+		if myTimer == nil or myTimer <= GetTime() - 1 then
+ if canInterrupt(Pummel,1) then
+  if castSpell("target",Pummel,false,false) then
+   myTimer = GetTime()
+   return;
+  end
+ end
+ if canInterrupt(DisruptingShout,1) then
+  if castSpell("target",DisruptingShout,true,false) then
+   myTimer = GetTime()
+   return;
+  end
+ end
+end
 
-		--Disrupting Shout
-		if isChecked("Disrupting Shout") == true and canInterrupt(DisruptingShout,tonumber(getValue("Disrupting Shout"))) then
-			if castSpell("target",DisruptingShout,false) then
-				return; 
-			end
-		end
+		-- --Pummel
+		-- if isChecked("Pummel") == true and canInterrupt(Pummel,tonumber(getValue("Pummel"))) then
+		-- 	if isChecked("Disrupting Shout") == true then
+		-- 		if (DS_COOLDOWN <= 39  and DS_COOLDOWN > 0) then
+		-- 			if castSpell("target",Pummel,false) then
+		-- 				return; 
+		-- 			end
+		-- 		end
+		-- 	elseif isChecked("Disrupting Shout") == false then
+		-- 		if castSpell("target",Pummel,false) then
+		-- 			return; 
+		-- 		end
+		-- 	end
+		-- end
+
+		-- --Disrupting Shout
+		-- if isChecked("Disrupting Shout") == true and canInterrupt(DisruptingShout,tonumber(getValue("Disrupting Shout"))) then
+		-- 	if castSpell("target",DisruptingShout,false) then
+		-- 		return; 
+		-- 	end
+		-- end
 
 		if isCasting() then return false; end
 		if targetDistance > 5 and targetDistance <= 40 then
