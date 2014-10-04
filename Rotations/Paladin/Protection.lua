@@ -56,7 +56,9 @@ if select(3, UnitClass("player")) == 2 then
 			
 			--Todo SpecialEvent, checks if there is something that are special that we need to handle
 			-- Auto attack
-			RunMacroText("/startattack");
+			if startAttackTimer == nil or startAttackTimer <= GetTime() - 1 then
+				RunMacroText("/startattack");
+			end
 		
 			-- If we are close to dying
 			if ProtPaladinSurvivalSelf() then -- Check if we are close to dying and act accoridingly

@@ -65,20 +65,25 @@ function interruptsReader(self, event, ...)
 		local sourceName	= select(5,...);
         local destination 	= select(8,...);
 		local spell 		= select(12,...);
+        local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
 
-        ---------------
-        --[[ IsCasting Enemy --]]
-        --if BadBoy_data["Check Interrupts"] == 1 then
-        	--if source ~= UnitGUID("player") then
-        		if param == "SPELL_CAST_START" then
-        			local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
-        			--print(...)
-        			if destName == nil then destName = "Nil Name" end
-        			--print("Time: "..timeStamp.." source "..sourceName.." sourceGUID "..sourceGUID.." destName "..destName.." destGUID "..destGUID)
+        if sourceGUID ~= nil then
 
-        		end
-        	--end
-        --end
+	        ---------------
+	        --[[ IsCasting Enemy --]]
+	        --if BadBoy_data["Check Interrupts"] == 1 then
+	        	--if source ~= UnitGUID("player") then
+	        		if param == "SPELL_CAST_START" then
+	        			local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
+	        			if destName == nil then destName = "Nil Name" end
+				        ISetAsUnitID(sourceGUID,"thisUnit");
+				        endTime = select(6,UnitCastingInfo("thisUnit"))
+				        if destName == nil then destName = "Nil " destGUID = "Target" end
+				        --print("|cffFF0000Time: "..timeStamp.." source "..sourceName.." sourceGUID "..sourceGUID.." destName "..destName.." destGUID "..destGUID.." end at "..endTime)
+	        		end
+	        	--end
+	        --end
+	    end
     end
 
 	-------------------------------------------------
