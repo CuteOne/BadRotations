@@ -321,7 +321,7 @@ function SuperReader(self, event, ...)
 		local DPSPotionsSet = {
 			[1] = {Buff = 105702, Item = 76093}, -- Intel
 			[2] = {Buff = 105697, Item = 76089}, -- Agi
-			[3] = {Buff = 105702, Item = 76093}, -- Str
+			[3] = {Buff = 105706, Item = 76093}, -- Str
 		}
 
 		-- Synapse Springs
