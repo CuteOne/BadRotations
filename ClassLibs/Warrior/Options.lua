@@ -116,13 +116,13 @@ end
 -- Wrapper 
 CreateNewWrap(thisConfig,"---------- Misc -----------");
 
--- Bladestorm ST
-CreateNewCheck(thisConfig, "AutoBladestorm","Uncheck if you want to cast Bladestorm manually in Single Target Rotation");
-CreateNewText(thisConfig, "Bladestorm Single Target");
+-- Auto Bladestorm / DragonRoar Single Target
+CreateNewCheck(thisConfig,"StormRoarST","Use Bladestorm/Dragonroar automatically in Single Target Rotation");
+CreateNewText(thisConfig,"Bladestorm/Dragonroar ST")
 
--- DragonRoar ST
-CreateNewCheck(thisConfig, "AutoDragonRoar","Uncheck if you want to cast Dragon Roar manually in Single Target Rotation");
-CreateNewText(thisConfig, "Dragon Roar Single Target");
+-- Auto Bladestorm / DragonRoar Multi Target
+CreateNewCheck(thisConfig,"StormRoar","Use Bladestorm/Dragonroar automatically in Multiple Target Rotation");
+CreateNewText(thisConfig,"Bladestorm/Dragonroar")
 
 -- Charge
 CreateNewCheck(thisConfig,"Charge");
@@ -399,7 +399,17 @@ CreateNewText(thisConfig,"Shield Wall");
 -- Healthstone
 CreateNewCheck(thisConfig,"Healthstone");
 CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
-CreateNewText(thisConfig,"Healthstone");       
+CreateNewText(thisConfig,"Healthstone");  
+
+-- Safeguard Focus
+CreateNewCheck(thisConfig,"SafeguardFocus");
+CreateNewBox(thisConfig, "SafeguardFocus", 0, 100  , 5, 25, "% HP of Focustarget to Safeguard at Focustarget");
+CreateNewText(thisConfig,"Safeguard at Focus"); 
+
+-- Vigilance Focus
+CreateNewCheck(thisConfig,"VigilanceFocus");
+CreateNewBox(thisConfig, "VigilanceFocus", 0, 100  , 5, 25, "% HP of Focustarget to use Vigilance on Focustarget");
+CreateNewText(thisConfig,"Vigilance on Focus");         
 
 -- Wrapper 
 CreateNewWrap(thisConfig,"-------- Interrupts --------"); 
@@ -423,6 +433,10 @@ end
 
 -- Wrapper 
 CreateNewWrap(thisConfig,"---------- Misc -----------");
+
+-- Auto Bladestorm / DragonRoar
+CreateNewCheck(thisConfig,"StormRoar","Use Bladestorm/Dragonroar automatically");
+CreateNewText(thisConfig,"Auto Bladestorm/Dragonroar")
 
 -- Charge
 CreateNewCheck(thisConfig,"Charge");

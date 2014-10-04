@@ -7,6 +7,16 @@ if Currentconfig ~= "Arms Avery/Chumii" then
  WarriorArmsToggles()
  Currentconfig = "Arms Avery/Chumii";
 end
+
+--[[Queues]]
+if _Queues == nil then
+ _Queues = {
+    [Shockwave] = false, -- Shockwave
+    [Bladestorm] = false,
+    [DragonRoar] = false,
+ }
+end
+
 if isChecked("Rotation Up") then
 		if SpecificToggle("Rotation Up") == 1 and GetCurrentKeyBoardFocus() == nil then
 	 	if myTimer == nil or myTimer <= GetTime() -0.7 then
@@ -101,6 +111,21 @@ end
 						end
 					end
 				end
+
+--------------------
+--- Queue Spells ---
+--------------------
+
+if _Queues[Shockwave] == true then
+ if castSpell("target",Shockwave,false,false) then return; end
+end
+if _Queues[Bladestorm] == true then
+ if castSpell("target",Bladestorm,false,false) then return; end
+end
+if _Queues[DragonRoar] == true then
+ if castSpell("target",DragonRoar,false,false) then return; end
+end
+
 ------------------
 --- Offensives ---
 ------------------
@@ -213,13 +238,13 @@ end
         end
 
         --actions+=/mogu_power_potion,if=(target.health.pct<20&buff.recklessness.up)|buff.bloodlust.react|target.time_to_die<=25
-  --       if (getHP("target") <= 20 and UnitBuffID("player",Recklessness)) or hasLust() or getTimeToDie("target") <= 25 then
+        if (getHP("target") <= 20 and UnitBuffID("player",Recklessness)) or hasLust() or getTimeToDie("target") <= 25 then
         	
-	 --        	if canUse(76095) then
-		-- 			UseItemByName(tostring(select(1,GetItemInfo(76095))))
-		-- 		end
+	        	if canUse(76095) then
+					UseItemByName(tostring(select(1,GetItemInfo(76095))))
+				end
 			
-		-- end
+		end
 
 ------------------
 --- Defensives ---
@@ -378,7 +403,7 @@ end
 				end
 				-- # Use cancelaura (in-game) to stop bladestorm if CS comes off cooldown during it for any reason.
 				-- actions.single_target+=/bladestorm,if=enabled,interrupt_if=!cooldown.colossus_smash.remains
-				if isChecked("AutoBladestorm") == true then
+				if isChecked("StormRoarST") == true then
 					if (CS_COOLDOWN <= 1 or canCast(ColossusSmash,true)) and BLADESTORM ~= nil then
 						RunMacroText("/cancelaura bladestorm")
 						return false;
@@ -401,7 +426,7 @@ end
 					end
 				end
 				-- actions.single_target+=/dragon_roar,if=enabled&debuff.colossus_smash.down
-				if isChecked("AutoDragonRoar") == true then
+				if isChecked("StormRoarST") == true then
 					if getDistance("player","target") <= 8 and not UnitDebuffID("target",ColossusSmash,"player") then
 						if castSpell("target",DragonRoar,false,false) then
 							return;
@@ -474,17 +499,21 @@ end
 					end
 				end
 				-- actions.aoe+=/bladestorm,if=enabled&(buff.bloodbath.up|!talent.bloodbath.enabled)
-				if isKnown(Bladestorm) then
-					if UnitBuffID("player",Bloodbath) or not isKnown(Bloodbath) then
-						if castSpell("target",Bladestorm,true) then
-							return;
+				if isChecked("StormRoar") == true then
+					if isKnown(Bladestorm) then
+						if UnitBuffID("player",Bloodbath) or not isKnown(Bloodbath) then
+							if castSpell("target",Bladestorm,true) then
+								return;
+							end
 						end
 					end
 				end
 				-- actions.aoe+=/dragon_roar,if=enabled&debuff.colossus_smash.down
-				if getDistance("player","target") <= 8 and not UnitDebuffID("target",ColossusSmash,"player") then
-					if castSpell("target",DragonRoar,false,false) then
-						return;
+				if isChecked("StormRoar") == true then
+					if getDistance("player","target") <= 8 and not UnitDebuffID("target",ColossusSmash,"player") then
+						if castSpell("target",DragonRoar,false,false) then
+							return;
+						end
 					end
 				end
 				-- actions.aoe+=/colossus_smash,if=debuff.colossus_smash.remains<1
