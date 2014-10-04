@@ -13,14 +13,16 @@ if isChecked("AutoAoE") ~= true then
 
 	if AOETimer == nil then AOETimer = 0; end
 
-	if SpecificToggle("Rotation Up") == 1 and GetCurrentKeyBoardFocus() == nil then
-		if GetTime() - AOETimer > 0.25 then
-			AOETimer = GetTime()
-			ToggleValue("AoE");
+	if isChecked("Rotation Up") == true then
+		if SpecificToggle("Rotation Up") == 1 and GetCurrentKeyBoardFocus() == nil then
+			if GetTime() - AOETimer > 0.25 then
+				AOETimer = GetTime()
+				ToggleValue("AoE");
+			end
 		end
 	end
 
-	if isChecked("Rotation Down") then
+	if isChecked("Rotation Down") == true then
 		if SpecificToggle("Rotation Down") == 1 and GetCurrentKeyBoardFocus() == nil then
 			if GetTime() - AOETimer > 0.25 then
 				AOETimer = GetTime()
@@ -28,14 +30,20 @@ if isChecked("AutoAoE") ~= true then
 			end
 		end
 	end
+	
 end
 
 -- Locals
 local RAGE = UnitPower("player");
 local PLAYERHP = 100*(UnitHealth("player")/UnitHealthMax("player"))
 local TARGETHP = 100*(UnitHealth("target")/UnitHealthMax("target"))
-local ENEMYS = getNumEnnemies("player", 5)
 local COMBATTIME = getCombatTime()
+
+-- ENEMYS we will global it and call only 1 per sec
+if ENEMYS == nil or (AOETimer and AOETimer <= GetTime() - 1) then
+	myTimer = GetTime()
+	ENEMYS = getNumEnnemies("player", 5)
+end
 
 --Cooldowns
 local GT = GetTime()
@@ -169,7 +177,7 @@ if pause() ~= true and isInCombat("player") and canAttack("target","player") and
 
 --Quaking Palm
 if IsPlayerSpell(QuakingPalm) == true then
-	if isChecked("Quaking Palm") and canInterrupt(QuakingPalm,tonumber(getValue("Quaking Palm"))) then
+	if isChecked("Quaking Palm") == true and canInterrupt(QuakingPalm,tonumber(getValue("Quaking Palm"))) then
 		if castSpell("target",QuakingPalm,false) then
 			return;
 		end
@@ -179,7 +187,7 @@ end
 --Pummel
 if isChecked("Pummel") == true and canInterrupt(Pummel,tonumber(getValue("Pummel"))) then
 	if isChecked("Disrupting Shout") == true then
-		if (DS_COOLDOWN <= 38  and DS_COOLDOWN > 0) then
+		if canCast(DisruptingShout,true) == false and (DS_COOLDOWN < 38  and DS_COOLDOWN > 0) then
 			if castSpell("target",Pummel,false) then
 				return; 
 			end
@@ -236,7 +244,7 @@ if isChecked("DefensiveStance") == true then
 end
 
 --Healthstone
-if isChecked("Healthstone") then
+if isChecked("Healthstone") == true then
 	if PLAYERHP <= getValue("Healthstone") then
 		if canUse(5512) then
 			UseItemByName(tostring(select(1,GetItemInfo(5512))))
@@ -277,7 +285,7 @@ elseif UnitExists("target") and not UnitIsDeadOrGhost("target") and isEnnemy("ta
 ----------------
 --- Single ---
 ----------------
-if (isChecked("AutoAoE") == nil and BadBoy_data['AoE'] == 1) or (isChecked("AutoAoE") == true and ENEMYS == 1) then
+if (isChecked("AutoAoE") ~= true and BadBoy_data['AoE'] == 1) or (isChecked("AutoAoE") == true and ENEMYS <= 1) then
 
 --berserker_rage,if=buff.enrage.remains<1&cooldown.bloodthirst.remains>1
 if ENRAGED ~= nil then
@@ -482,7 +490,7 @@ end
 ----------------
 --- Two ---
 ----------------
-if (isChecked("AutoAoE") == nil and BadBoy_data['AoE'] == 2) or (isChecked("AutoAoE") == true and ENEMYS == 2) then
+if (isChecked("AutoAoE") ~= true and BadBoy_data['AoE'] == 2) or (isChecked("AutoAoE") == true and ENEMYS == 2) then
 --buff.enrage.remains<1&cooldown.bloodthirst.remains>1)
 if ENRAGED ~= nil then
 	if (ENRAGE_TIMER - GT < 1) and BT_COOLDOWN > 1 then
@@ -614,7 +622,7 @@ end
 ----------------
 --- Three ---
 ----------------
-if (isChecked("AutoAoE") == nil and BadBoy_data['AoE'] == 3) or (isChecked("AutoAoE") == true and ENEMYS == 3) then
+if (isChecked("AutoAoE") ~= true and BadBoy_data['AoE'] == 3) or (isChecked("AutoAoE") == true and ENEMYS == 3) then
 
 --buff.enrage.remains<1&cooldown.bloodthirst.remains>1)
 if ENRAGED ~= nil then
@@ -731,7 +739,7 @@ end
 ----------------
 --- Four ---
 ----------------
-if (isChecked("AutoAoE") == nil and BadBoy_data['AoE'] == 4) or (isChecked("AutoAoE") == true and ENEMYS >= 4) then
+if (isChecked("AutoAoE") ~= true and BadBoy_data['AoE'] == 4) or (isChecked("AutoAoE") == true and ENEMYS >= 4) then
 
 --buff.enrage.remains<1&cooldown.bloodthirst.remains>1)
 if ENRAGED ~= nil then
