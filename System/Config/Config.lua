@@ -168,7 +168,7 @@ function CreateGeneralsConfig()
     CreateNewText(thisConfig,"Accept Queues");
 
     -- Overlay Messages
-    CreateNewCheck(thisConfig,"Overlay Messages", "|cffFFBB00Check this to enable Chat Overlay Messages.");
+    CreateNewCheck(thisConfig,"Overlay Messages", "|cffFFBB00Check this to enable Chat Overlay Messages.",1);
     CreateNewText(thisConfig,"Overlay Messages");
 
     -- Debug
@@ -178,6 +178,11 @@ function CreateGeneralsConfig()
     -- Auto Taunts
     CreateNewCheck(thisConfig,"Auto Taunts");
     CreateNewText(thisConfig,"Auto Taunts");
+
+    -- Auto Taunts
+    CreateNewCheck(thisConfig,"Queues");
+    CreateNewText(thisConfig,"Queue Casts");
+
 
     -- Wrapper -----------------------------------------
     CreateNewWrap(thisConfig,"----- PokeRotation -----");

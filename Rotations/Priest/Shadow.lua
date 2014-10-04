@@ -11,13 +11,16 @@ function PriestShadow()
 _AngelicFeather 	= 121536;
 _DevouringPlague 	= 2944;
 _DispelMagic 		= 528;
+_DivineInsight		= 124430;
 _Fade 				= 586;
 _FlashHeal 			= 2061;
+_Halo				= 120644;
 _InnerFire 			= 588;
 _Levitate 			= 1706;
 _Mindbender			= 123040;
 _MindBlast 			= 8092;
 _MindFlay 			= 15407;
+_MindFlayI			= 129197;
 _MindSpike 			= 73510;
 _MindVision 		= 2096;
 _PowerInfusion		= 10060;
@@ -31,9 +34,11 @@ _ShadowWordDeath 	= 32379;
 _ShadowWordPain 	= 589;
 _Shadowfiend 		= 34433;
 _Shadowform 		= 15473;
+_SurgeOfDarkness	= 87160;
 _VampiricTouch 		= 34914;
 _VoidTendrils 		= 108920;
 _WeakenedSoul 		= 6788;
+
 
 	local orbs = UnitPower("player", SPELL_POWER_SHADOW_ORBS)
 
@@ -79,7 +84,57 @@ _WeakenedSoul 		= 6788;
 
 	--[[Food/Invis Check]]
 	if canRun() ~= true then return false; end
-	if isCasting() == true or getSpellCD(61304) > 0 then return false; end
+
+	
+	--[[Stop Spellcasting TBD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]]
+	if UnitCastingInfo("player") then
+		-- declare vars usually those on wowprogramming are already camlCased so we just copy-paste from them
+		local name, _, _, _, startTime, endTime = UnitCastingInfo("player");
+		-- table of spells to check
+		local spellsToCancel = {_MindBlast,_MindSpike}
+		-- just a var we will play with
+		local myCalculation
+		-- iteration of our items
+		for i = 1 , #spellsToCancel do
+			-- check if item in table match our spell
+			if GetSpellInfo(spellsToCancel[i]) == name then
+				-- maths
+				myCalculation = endTime - (GetTime()*1000)
+				-- print our results to wow local chat
+				if myCalculation > (endTime-startTime)/2 then
+					ChatOverlay("Cancel")
+					print("Mind blast started at "..startTime.." and will end at "..endTime.." remains:"..myCalculation.."Time"..GetTime())
+				else
+					ChatOverlay("DONT CANCEL")
+					print("DONT CANCEL")
+				end
+			end
+		end
+	end
+
+	--[[Stop Casting on Procs (MindSpike Proc, MindBlast Proc) and use them]]
+	if getBuffStacks("player",_SurgeOfDarkness) == 2 and not castingShadow() then
+		if canCast(_MindSpike) then
+	    	SpellStopCasting()
+	    	if castSpell("target",_MindSpike,false,false) then return; end
+   		end
+	end
+	--if getBuffStacks("player",_SurgeOfDarkness) == 1 and getBuffRemain("player",_SurgeOfDarkness) <= 3 and not castingShadow() then
+	--	if canCast(_MindSpike) then
+	--    	SpellStopCasting()
+	--    	if castSpell("target",_MindSpike,false,false) then return; end
+   	--	end
+	--end
+	if getBuffStacks("player",_DivineInsight) > 0 and not castingShadow() then
+		if canCast(_MindBlast) then
+	    	SpellStopCasting()
+	    	if castSpell("target",_MindBlast,false,false) then return; end
+	   	end
+	end
+
+	-- if isCasting() == true or getSpellCD(61304) > 0 then return false; end
+	if getSpellCD(61304) > 0 then return false; end
+
 
 --[[ 	-- On GCD After here, palce out of combats spells here
 ]]	
@@ -182,7 +237,7 @@ _WeakenedSoul 		= 6788;
 		if getHP("target") <= 20 and castSpell("target",_ShadowWordDeath,false,false) then return; end
 
 		--[[mind_flay_insanity,if=target.dot.devouring_plague_tick.ticks_remain=1,chain=1]]
-		if isStanding(0.3) and getDebuffRemain("target",_DevouringPlague) > 2 then
+		if isStanding(0.3) and not isCasting("player") and getDebuffRemain("target",_DevouringPlague) > 2 and isKnown(_MindFlayI) then
 			if castSpell("target",_MindFlay,false,true) then return; end
 		end
 
@@ -212,7 +267,7 @@ _WeakenedSoul 		= 6788;
 					if castSpell("thisUnit",_VampiricTouch,false,false) then vampTarget = UnitGUID("thisUnit"); vampTimer = GetTime(); return; end
 				end
 			end	
-		end		
+		end 
 
 		--[[shadow_word_pain,cycle_targets=1,max_cycle_targets=5,if=miss_react&ticks_remain<=1]]
 		if getDebuffRemain("target",_ShadowWordPain) < 2 then if castSpell("target",_ShadowWordPain,true,false) then return; end end
@@ -234,7 +289,7 @@ _WeakenedSoul 		= 6788;
 					if castSpell("thisUnit",_VampiricTouch,false,false) then vampTarget = UnitGUID("thisUnit"); vampTimer = GetTime(); return; end
 				end
 			end	
-		end		
+		end	
 
 		--[[vampiric_embrace,if=shadow_orb=3&health.pct<=40]]
 
@@ -244,8 +299,16 @@ _WeakenedSoul 		= 6788;
 		end
 
 		--[[mind_spike,if=active_enemies<=5&buff.surge_of_darkness.react=2]]
+		if getBuffStacks("player",_SurgeOfDarkness) == 2 then
+			if castSpell("target",_MindSpike,false,false) then return; end
+		end
 
 		--[[halo,if=talent.halo.enabled&target.distance<=30&target.distance>=17]]
+		if getDistance("player","target") <= 30 and getDistance("player","target") >= 17 then
+			if castSpell("target",_Halo) then return; end
+		end
+
+
 		if surroundingEnnemies > 5 then
 
 		end
@@ -258,11 +321,19 @@ _WeakenedSoul 		= 6788;
 		--[[wait,sec=cooldown.mind_blast.remains,if=cooldown.mind_blast.remains<0.5&active_enemies<=1]]
 		
 		--[[mind_spike,if=buff.surge_of_darkness.react&active_enemies<=5]]
-		
+		if getBuffStacks("player",_SurgeOfDarkness) >= 1 and not castingShadow() then
+    		if castSpell("target",_MindSpike,false,false) then return; end
+		end
+
+
 		--[[mind_sear,chain=1,interrupt=1,if=active_enemies>=3]]
 		
 		--[[mind_flay,chain=1,interrupt=1]]
-		if isStanding(0.3) and castSpell("target",_MindFlay,false,true,false,true) then return; end
+		-- if isStanding(0.3) and not (isCastingSpell(_VampiricTouch) or isCastingSpell(_MindFlay)) then
+		if isStanding(0.3) and not castingMF() then
+			if castSpell("target",_MindFlay,false,true,false,true) then return; end
+		end
+
 		
 		--[[shadow_word_death,moving=1]]
 		

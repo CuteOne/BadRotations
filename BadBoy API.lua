@@ -154,3 +154,27 @@
 `isSelected(Value) - Bool` Returns true if Value Checkbox is checked in UI and CD requirements are met.
 
 `getValue(Value) - Num` Returns drop or box Value from UI
+
+`CreateNewCheck(value, textString, tip1, state)` 
+- Used to create checkboxes in UI
+1. value must always be thisConfig - Do not change
+2. textString - the name of your option - String
+3. tip1 - the tooltip displayed when the user mouseover the checkbox - String
+4. state - the désired deployment state - Numeric 0(Unchecked)/1(Checked)
+
+`CreateNewBox(value,textString,minValue,maxValue,step,base,tip1)` 
+- Used to create valueboxes in UI
+1. value must always be thisConfig - Do not change
+2. textString - the name of your option - String
+3. minValue - minimum value for this option
+4. maxValue - maximum value for this option
+5. step - how much you want to add/sub from the actual value when user wheel-up/down over the box
+6. base - what is the base value for this option
+
+`CreateNewDrop(value, textString, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)` 
+- Used to create selectors in UI. Assigning tip "Toggles" will use predefined toggles, values should be empty when doing so.
+1. value must always be thisConfig - Do not change
+2. textString - the name of your option - String
+3. the tooltip displayed when the user mouseover the checkbox - String
+4 and more. Selections enumeration - Strings
+

@@ -1622,24 +1622,30 @@ end
 
 -- if shouldStopCasting(12345) then
 function shouldStopCasting(Spell)
-
-
+	-- if we are on a boss fight
 	if UnitExists("boss1") then
+		-- Locally  casting informations
 		local Boss1Cast, Boss1CastEnd, PlayerCastEnd, StopCasting = Boss1Cast, Boss1CastEnd, PlayerCastEnd, false
-
 		local MySpellCastTime;
-		if GetSpellInfo(Spell) ~= nil then MySpellCastTime = (GetTime()*1000) + select(7,GetSpellInfo(Spell)); else return false; end
-
+		-- Set Spell Cast Time
+		if GetSpellInfo(Spell) ~= nil then 
+			MySpellCastTime = (GetTime()*1000) + select(7,GetSpellInfo(Spell)); 
+		else 
+			return false; 
+		end
+		-- Spells wich make us immune (buff)
 		local ShouldContinue = {
 			1022, -- Hand of Protection
 			31821, -- Devotion
 			122291, -- Unending Resolve
 		}
+		-- Spells that are dangerous (boss cast)
 		local ShouldStop = {
 			137457, -- Piercing Roar(Oondasta)
 			138763, -- Interrupting Jolt(Dark Animus)
 			143343, -- Deafening Screech(Thok)
 		}
+
 		if UnitCastingInfo("boss1") then Boss1Cast,_,_,_,_,Boss1CastEnd = UnitCastingInfo("boss1") elseif UnitChannelInfo("boss1") then Boss1Cast,_,_,_,_,Boss1CastEnd = UnitChannelInfo("boss1") else return false; end
 		if UnitCastingInfo("player") then PlayerCastEnd = select(6,UnitCastingInfo("player")) elseif UnitChannelInfo("player") then PlayerCastEnd = select(6,UnitChannelInfo("player")) else PlayerCastEnd = MySpellCastTime; end
 		for i = 1, #ShouldContinue do

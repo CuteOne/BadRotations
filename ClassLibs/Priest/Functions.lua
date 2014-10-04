@@ -34,4 +34,33 @@ if select(3, UnitClass("player")) == 5 then
 
 
 
+-- is Casting VampiricTouch or MindBlast
+
+--	function shadowCasting()
+--		if isCastingSpell(_VampiricTouch) or isCastingSpell(_MindBlast) then
+--			return false;
+--		end
+--	end
+
+-- Casting MindBlast or VampiricTouch -> return true
+function castingShadow()
+	if isCastingSpell(_MindBlast)
+	or isCastingSpell(_VampiricTouch) then
+		return true
+	else
+		return false
+	end
+end
+
+-- Casting MindFlay or MindFlayInsanity -> return true
+function castingMF()
+	if isCastingSpell(_MindFlay)
+	or isCastingSpell(_MindFlayI) then
+		return true
+	else 
+		return false
+	end
+end
+
+
 end
