@@ -6,6 +6,17 @@ if Currentconfig ~= "Protection Chumii" then
  WarriorProtToggles()
  Currentconfig = "Protection Chumii";
 end
+
+--[[Queues]]
+if _Queues == nil then
+ _Queues = {
+    [46968] = false, -- Shockwave
+ }
+end
+if _Queues[46968] == true then
+ if castSpell("target",46968,false,false) then return; end
+end
+
 if isChecked("Rotation Up") then
 		if SpecificToggle("Rotation Up") == 1 and GetCurrentKeyBoardFocus() == nil then
 	 	if myTimer == nil or myTimer <= GetTime() -0.7 then
