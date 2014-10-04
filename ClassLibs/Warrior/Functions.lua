@@ -1,12 +1,4 @@
 if select(3, UnitClass("player")) == 1 then
-	
-	  --[[]]		--[[           ]]	--[[]]     --[[]] 	--[[           ]]
-     --[[  ]]		--[[           ]]	--[[ ]]   --[[ ]]	--[[           ]]
-    --[[    ]] 		--[[]]	   --[[]]	--[[           ]]	--[[]]
-   --[[      ]] 	--[[         ]]		--[[           ]] 	--[[           ]]
-  --[[        ]]	--[[        ]]		--[[]] 	   --[[]]			   --[[]]
- --[[]]    --[[]]	--[[]]	  --[[]]	--[[]] 	   --[[]]	--[[           ]]	
---[[]]      --[[]]	--[[]]	   --[[]]	--[[]] 	   --[[]]	--[[           ]]
 
 -------------------------------------
 --- Evil Eye CD Reduction Trinket ---
@@ -52,7 +44,9 @@ function EvilEye()
   end
 end
 
--- AoE 
+-----------
+--- AoE ---
+-----------
 function useAoE()
     if (BadBoy_data['AoE'] == 1 and getNumEnnemies("player",10) >= 2) or BadBoy_data['AoE'] == 2 then
         return true
@@ -61,7 +55,9 @@ function useAoE()
     end
 end
 
--- Bloodlust check
+-----------------------
+--- Bloodlust check ---
+-----------------------
 function hasLust()
     if UnitBuffID("player",2825)        -- Bloodlust    
     or UnitBuffID("player",80353)       -- Timewarp 

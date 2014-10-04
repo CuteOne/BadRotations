@@ -318,6 +318,7 @@ function SuperReader(self, event, ...)
         	shroomsTable = { };
         end        
 
+<<<<<<< HEAD
         --[[Item locks]]
         if source == UnitGUID("player") then
 			local DPSPotionsSet = {
@@ -329,6 +330,33 @@ function SuperReader(self, event, ...)
 			-- Synapse Springs
 			if spell == 126734 then
 				synapseUsed = GetTime()
+=======
+		local DPSPotionsSet = {
+			[1] = {Buff = 105702, Item = 76093}, -- Intel
+			[2] = {Buff = 105697, Item = 76089}, -- Agi
+			[3] = {Buff = 105706, Item = 76093}, -- Str
+		}
+
+		-- Synapse Springs
+		if spell == 126734 then
+			synapseUsed = GetTime()
+		end	
+		-- Lifeblood
+		if spell == 121279 or spell == 74497 then
+			lifeBloodUsed = GetTime()
+		end				
+		-- DPS potions
+		for i = 1, #DPSPotionsSet do
+			if spell == DPSPotionsSet[i].Buff then
+				potionUsed = GetTime()
+				if UnitAffectingCombat("player") then
+					ChatOverlay("Potion Used, can reuse in 60 secs.")
+					potionReuse = false
+				else
+					ChatOverlay("Potion Used, cannot reuse.")
+					potionReuse = true
+				end
+>>>>>>> 23448408ba4f86f05c4cf6c23acc11b90ff9b8b2
 			end	
 			-- Lifeblood
 			if spell == 121279 or spell == 74497 then
