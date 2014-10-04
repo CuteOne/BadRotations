@@ -318,6 +318,36 @@ function SuperReader(self, event, ...)
         	shroomsTable = { };
         end        
 
+
+
+
+        ------------------
+        --[[Spell Queues]]
+        if BadBoy_data["Check Queues"] == 1 then
+        	-----------------
+        	--[[Cast Failed --> Queue]]
+           	if param == "SPELL_CAST_FAILED" then
+				if _Queues[spell] ~= true and _Queues[spell] ~= nil then
+					if (_Queues[spell] == false or _Queues[spell] < (GetTime() - 10)) and getSpellCD(spell) <= 3 then 
+						_Queues[spell] = true 
+						ChatOverlay("Queued "..GetSpellInfo(spell))
+					end
+				end
+			end
+			------------------
+			--[[Queue Casted]]
+	        if param == "SPELL_CAST_SUCCESS" then
+	        	if source == UnitGUID("player") then
+	        		if _Queues == nil then _Queues = { } end
+					if _Queues and _Queues[spell] ~= nil then
+						if _Queues[spell] == true then 
+							_Queues[spell] = GetTime() 
+						end
+					end
+				end
+			end
+		end
+
         ---------------
         --[[ Debug --]]
         if BadBoy_data["Check Debug"] == 1 then
