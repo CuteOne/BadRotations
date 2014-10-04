@@ -275,8 +275,8 @@ CreateNewWrap(thisConfig,"Other");
 --CreateNewText(thisConfig,"Mouse Click"); 
 
 --autoface
-CreateNewCheck(thisConfig,"Autoface","Check if you want to enable auto facing the target");
-CreateNewText(thisConfig,"Autoface");
+--CreateNewCheck(thisConfig,"Autoface","Check if you want to enable auto facing the target");
+--CreateNewText(thisConfig,"Autoface");
 
 --disable vehicle check
 CreateNewCheck(thisConfig,"Vehicle","Check if you want to disable vehicle checking, fights like raigonn, klaxxi");

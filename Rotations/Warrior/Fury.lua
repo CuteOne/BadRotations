@@ -828,8 +828,7 @@ end
 --- Four ---
 ----------------
 
-
-			end -- why
-		end --elseif UnitExists("target") and not UnitIsDeadOrGhost("target") and isEnnemy("target") == true and getCreatureType("target") == true then
+			end --elseif UnitExists("target") and not UnitIsDeadOrGhost("target") and isEnnemy("target") == true and getCreatureType("target") == true then
+		end --if pause() ~= true and isInCombat("player") and canAttack("target","player") and not UnitIsDeadOrGhost("target") then		
 	end -- function FuryWarrior()
 end --if select(3,UnitClass("player")) == 1 then
