@@ -10,12 +10,12 @@ end
 --[[Queues]]
 if _Queues == nil then
  _Queues = {
-    [46968] = false, -- Shockwave
+    [Shockwave] = false, -- Shockwave
+    [Bladestorm] = false,
+    [DragonRoar] = false,
  }
 end
-if _Queues[46968] == true then
- if castSpell("target",46968,false,false) then return; end
-end
+
 
 if isChecked("Rotation Up") then
 		if SpecificToggle("Rotation Up") == 1 and GetCurrentKeyBoardFocus() == nil then
@@ -111,6 +111,20 @@ end
 -----------------
 --- In Combat ---
 -----------------
+
+--------------------
+--- Queue Spells ---
+--------------------
+
+if _Queues[Shockwave] == true then
+ if castSpell("target",Shockwave,false,false) then return; end
+end
+if _Queues[Bladestorm] == true then
+ if castSpell("target",Bladestorm,false,false) then return; end
+end
+if _Queues[DragonRoar] == true then
+ if castSpell("target",DragonRoar,false,false) then return; end
+end
 
 ------------------
 --- Offensives ---
@@ -244,7 +258,23 @@ end
 			end
 		end
 
-		-- Def Banner
+		-- Safeguard Focus
+		if isChecked("SafeguardFocus") == true then
+			if getHP("focus") <= getValue("SafeguardFocus") then
+				if castSpell("focus",Safeguard,false,false) then
+					return;
+				end
+			end
+		end
+
+		-- Vigilance Focus
+		if isChecked("VigilanceFocus") == true then
+			if getHP("focus") <= getValue("VigilanceFocus") then
+				if castSpell("focus",Vigilance,false,false) then
+					return;
+				end
+			end
+		end
 
 
 		
@@ -359,14 +389,18 @@ end
 				return;
 			end
 			-- t4 talent (shockwave/bladestorm/dragonroar)
-			if isKnown(DragonRoar) and getDistance("player","target") <= 8 then
-				if castSpell("target",DragonRoar,false,false) then
-					return;
+			if isChecked("StormRoar") == true and isKnown(DragonRoar) then
+				if getDistance("player","target") <= 8 then
+					if castSpell("target",DragonRoar,false,false) then
+						return;
+					end
 				end
 			end
-			if isKnown(Bladestorm) and getDistance("player","target") <= 8 then
-				if castSpell("target",Bladestorm,false,false) then
-					return;
+			if isChecked("StormRoar") == true and isKnown(Bladestorm) then
+				if getDistance("player","target") <= 8 then
+					if castSpell("target",Bladestorm,false,false) then
+						return;
+					end
 				end
 			end
 			-- shield slam on cd / sword and board proc
