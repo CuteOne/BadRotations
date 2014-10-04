@@ -116,6 +116,16 @@ if IsPlayerSpell(DragonRoar) == true then
 	end
 end
 
+--autotarget
+if isChecked("Autotarget") == true then
+	if isInCombat("player") then
+		if not UnitExists("target") or (UnitExists("target") and UnitIsDeadOrGhost("target")) then
+			TargetNearestEnemy()
+			return true;
+		end
+	end
+end
+
 --out of combat check
 if not isInCombat("player") then
 
