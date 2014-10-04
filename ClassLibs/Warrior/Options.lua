@@ -293,8 +293,8 @@ CreateNewText(thisConfig,"Show More");
 -- Healing/general/poke/hacks/tracking
 if isChecked("Showmore") == true then
 CreateGeneralsConfig();
-end
 WrapsManager();
+end
 
 end
 end
@@ -440,8 +440,8 @@ CreateNewText(thisConfig,"Show More");
 -- Healing/general/poke/hacks/tracking
 if isChecked("Showmore") == true then
 CreateGeneralsConfig();
-end
 WrapsManager();
+end
 end
 end
 end
