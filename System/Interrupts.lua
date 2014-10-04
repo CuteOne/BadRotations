@@ -72,9 +72,9 @@ function interruptsReader(self, event, ...)
         	--if source ~= UnitGUID("player") then
         		if param == "SPELL_CAST_START" then
         			local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
-        			print(...)
+        			--print(...)
         			if destName == nil then destName = "Nil Name" end
-        			print("Time: "..timeStamp.." source "..sourceName.." sourceGUID "..sourceGUID.." destName "..destName.." destGUID "..destGUID)
+        			--print("Time: "..timeStamp.." source "..sourceName.." sourceGUID "..sourceGUID.." destName "..destName.." destGUID "..destGUID)
 
         		end
         	--end
