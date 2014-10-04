@@ -264,7 +264,29 @@ end
 
 -- if canUse(1710) then
 function canUse(itemID)
-	if GetItemCount(itemID,false,false) > 0 then 
+	local goOn = true;
+	local DPSPotionsSet = {
+		[1] = {Buff = 105702, Item = 76093}, -- Intel
+		[2] = {Buff = 105697, Item = 76089}, -- Agi
+		[3] = {Buff = 105706, Item = 76093}, -- Str
+	}
+	for i = 1, #DPSPotionsSet do
+		if DPSPotionsSet[i].Item == itemID then
+			if potionUsed then
+				if potionUsed <= GetTime() - 60000 then
+					goOn = false;
+				else
+					if potionUsed > GetTime() - 60000 and potionReuse == true then
+						goOn = true;
+					end
+					if potionReuse == false then
+						goOn = false;
+					end
+				end
+			end
+		end
+	end
+	if goOn == true and GetItemCount(itemID,false,false) > 0 then 
 		if select(2,GetItemCooldown(itemID))==0 then
 			return true;
 		else

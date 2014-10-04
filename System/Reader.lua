@@ -84,6 +84,7 @@ local Frame = CreateFrame('Frame');
 Frame:RegisterEvent("PLAYER_REGEN_ENABLED");
 local function LeavingCombat(self, event, ...)
 	if event == "PLAYER_REGEN_ENABLED" then
+		potionReuse = true;
 		AgiSnap = 0;
 		usePot = true;
 		leftCombat = GetTime();
@@ -318,6 +319,7 @@ function SuperReader(self, event, ...)
         	shroomsTable = { };
         end        
 
+        ----------------
         --[[Item locks]]
         if source == UnitGUID("player") then
 			local DPSPotionsSet = {
