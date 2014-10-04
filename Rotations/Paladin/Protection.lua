@@ -41,10 +41,8 @@ if select(3, UnitClass("player")) == 2 then
 		
 		-- Set Global variables that will be used.
 		_HolyPower = UnitPower("player", 9);
-		numberOfTargetsMelee = getNumEnnemies("player",4); --Get number of enemies within melee range. Does this also work for large hotboxes?
-		numberOfTargetsHolyPrismDamage = getNumEnnemies("player",15);
-		--numberOfTargetsAroundTarget = getNumEnnemies("target",10);
-		--numberOfTargetsTenYards = getNumEnnemies("player",10);
+		numberOfTargetsMelee = getNumEnnemies("player",4); --Get number of enemies within melee range. Does this also work for large hitboxes?
+		
 		
 		-- Check if we should run the rotation
 		if canRun() ~= true then 
