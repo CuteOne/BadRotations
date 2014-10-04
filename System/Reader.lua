@@ -356,7 +356,6 @@ function SuperReader(self, event, ...)
 					ChatOverlay("Potion Used, cannot reuse.")
 					potionReuse = true
 				end
->>>>>>> 23448408ba4f86f05c4cf6c23acc11b90ff9b8b2
 			end	
 			-- Lifeblood
 			if spell == 121279 or spell == 74497 then
