@@ -72,10 +72,10 @@ if select(3, UnitClass("player")) == 1 then
 		  -- AoE Button
         if AoEModesLoaded ~= "Fury Warrior AoE Modes" then 
             CustomAoEModes = { 
-			[1] = { mode = "One", value = 1 , overlay = "Single Target Enabled", tip = "Single Target Mode", highlight = 0, icon = HeroicStrike },
-            [2] = { mode = "Two", value = 2 , overlay = "Two Target Enabled", tip = "Two Target Mode", highlight = 0, icon = Cleave },
-            [3] = { mode = "Three", value = 3 , overlay = "Three Target Enabled", tip = "Three Target Mode", highlight = 0, icon = Whirlwind },
-			[4] = { mode = "Four", value = 4 , overlay = "Four Target Enabled", tip = "Four Target Mode", highlight = 0, icon = Bladestorm }
+			[1] = { mode = "One", value = 1 , overlay = "Single Target Enabled", tip = "", highlight = 0, icon = HeroicStrike },
+            [2] = { mode = "Two", value = 2 , overlay = "Two Target Enabled", tip = "", highlight = 0, icon = Cleave },
+            [3] = { mode = "Three", value = 3 , overlay = "Three Target Enabled", tip = "", highlight = 0, icon = Whirlwind },
+			[4] = { mode = "Four", value = 4 , overlay = "Four Target Enabled", tip = "", highlight = 0, icon = Bladestorm }
             };
            AoEModes = CustomAoEModes
            CreateButton("AoE",1,0)

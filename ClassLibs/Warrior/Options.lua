@@ -156,29 +156,68 @@ CreateNewTitle(thisConfig,"Fury Warrior");
 -- Wrapper 
 CreateNewWrap(thisConfig,"Buffs");
 
--- Auto Stance
-CreateNewCheck(thisConfig,"Auto Stance","Check if you want the rotation to switch stances automatically");
-CreateNewText(thisConfig,"Auto Stance");
-
--- Shout
+-- battle Shout
 CreateNewCheck(thisConfig,"Battle","Check if you want to use Battle Shout out of combat");
 CreateNewText(thisConfig,"Battle Shout"); 
 
+--commanding shout
 CreateNewCheck(thisConfig,"Commanding","Check if you want to use Commanding Shout out of combat and in the rotation");
 CreateNewText(thisConfig,"Commanding Shout"); 
 
 -- Wrapper
 CreateNewWrap(thisConfig,"Cooldowns");
 
+-- Recklessness
+CreateNewCheck(thisConfig,"Recklessness","Check if you want to use Recklessness automatically");
+CreateNewDrop(thisConfig, "Recklessness", 1, "Use Recklessness always or on boss", "Always", "Boss")
+CreateNewText(thisConfig,"Recklessness"); 
+
+-- SkullBanner
+CreateNewCheck(thisConfig,"SkullBanner","Check if you want to use Skull Banner automatically");
+CreateNewDrop(thisConfig, "SkullBanner", 1, "Use Skull Banner always or on boss", "Always", "Boss")
+CreateNewText(thisConfig,"SkullBanner"); 
+
+-- Racial
+CreateNewCheck(thisConfig,"Racials","Check if you want to use Racials automatically");
+CreateNewDrop(thisConfig, "Racials", 1, "Use Racial always or on boss", "Always", "Boss")
+CreateNewText(thisConfig,"Racials");
+
+--Shattering Throw
 CreateNewCheck(thisConfig,"Shattering Throw","Check if you want to use Shattering Throw in the rotation");
 CreateNewText(thisConfig,"Shattering Throw"); 
 
 -- Wrapper
-CreateNewWrap(thisConfig,"Defensive");
+CreateNewWrap(thisConfig,"Talents");
+
+-- DragonRoar 
+CreateNewCheck(thisConfig,"DragonRoar","Check if you want to use dragon roar manually - left alt");
+CreateNewText(thisConfig,"Dragon Roar");
+
+-- Bladestorm 
+CreateNewCheck(thisConfig,"Bladestorm","Check if you want to use bladestorm manually - left alt");
+CreateNewText(thisConfig,"Bladestorm");
+
+-- Wrapper
+CreateNewWrap(thisConfig,"Defensives");
+
+--def stance
+CreateNewCheck(thisConfig,"DefensiveStance");
+CreateNewBox(thisConfig, "DefensiveStance", 0, 100  , 5, 25, "Under what %HP to use Defensive Stance");
+CreateNewText(thisConfig,"DefensiveStance");
+
+-- Die by the Sword
+CreateNewCheck(thisConfig,"DiebytheSword");
+CreateNewBox(thisConfig, "DiebytheSword", 0, 100  , 5, 50, "Under what %HP to use Die by the Sword");
+CreateNewText(thisConfig,"DiebytheSword");
+
+-- Shield Wall
+CreateNewCheck(thisConfig,"ShieldWall");
+CreateNewBox(thisConfig, "ShieldWall", 0, 100  , 5, 30, "Under what %HP to use Shield Wall");
+CreateNewText(thisConfig,"ShieldWall");
 
 -- Healthstone
 CreateNewCheck(thisConfig,"Healthstone","Check if you want to use Healthstones automatically");
-CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 25, "What %HP to use Healthstone");
+CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 40, "What %HP to use Healthstone");
 CreateNewText(thisConfig,"Healthstone");
 
 -- Wrapper
@@ -197,34 +236,34 @@ CreateNewWrap(thisConfig,"Interrupts");
 
 -- Pummel
 CreateNewCheck(thisConfig,"Pummel","Check if you want to use Pummel automatically");
-CreateNewBox(thisConfig, "Pummel", 0, 100  , 5, 60 , "Over what % of cast we want to Pummel.");
+CreateNewBox(thisConfig, "Pummel", 0, 100  , 5, 25 , "Over what % of cast we want to Pummel.");
 CreateNewText(thisConfig,"Pummel");
 
 -- Disrupting Shout
 CreateNewCheck(thisConfig,"Disrupting Shout","Check if you want to use Disrupting Shout automatically");
-CreateNewBox(thisConfig, "Disrupting Shout", 0, 100  , 5, 60 , "Over what % of cast we want to Disrupting Shout.");
+CreateNewBox(thisConfig, "Disrupting Shout", 0, 100  , 5, 25 , "Over what % of cast we want to Disrupting Shout.");
 CreateNewText(thisConfig,"Disrupting Shout");
 
 if isKnown(QuakingPalm) then
 -- Quaking Palm
 CreateNewCheck(thisConfig,"Quaking Palm","Check if you want to use Quaking Palm automatically");
-CreateNewBox(thisConfig, "Quaking Palm", 0, 100  , 5, 30 , "Over what % of cast we want to Quaking Palm.");
+CreateNewBox(thisConfig, "Quaking Palm", 0, 100  , 5, 25 , "Over what % of cast we want to Quaking Palm.");
 CreateNewText(thisConfig,"Quaking Palm");   
 end    
 
 -- Wrapper
-CreateNewWrap(thisConfig,"Toggles");
+CreateNewWrap(thisConfig,"AoE");
 
 --automatic aoe
 CreateNewCheck(thisConfig,"AutoAoE","Check if you want to use automatic AoE, tarplus/minus wont do anything until you toggle this off");
 CreateNewText(thisConfig,"Auto AoE"); 
 
--- Single/Multi Toggle Up
+-- tar+
 CreateNewCheck(thisConfig,"Rotation Up","Switch through Rotation Modes (1 target/2 targets/3 targets/4+targets)");
 CreateNewDrop(thisConfig,"Rotation Up", 1, "Toggle")
 CreateNewText(thisConfig,"Tar Plus");
 
--- Single/Multi Toggle Down
+-- tar-
 CreateNewCheck(thisConfig,"Rotation Down","Switch through Rotation Modes (1 target/2 targets/3 targets/4+targets)");
 CreateNewDrop(thisConfig,"Rotation Down", 2, "Toggle")
 CreateNewText(thisConfig,"Tar Minus");
@@ -235,6 +274,15 @@ CreateNewWrap(thisConfig,"Other");
 --CreateNewCheck(thisConfig,"MouseClick","Check if you want to have the mouse click when you have a clickable spell up, ex: demo banner, raid markers");
 --CreateNewText(thisConfig,"Mouse Click"); 
 
+--autoface
+CreateNewCheck(thisConfig,"Autoface","Check if you want to enable auto facing the target");
+CreateNewText(thisConfig,"Autoface");
+
+--disable vehicle check
+CreateNewCheck(thisConfig,"Vehicle","Check if you want to disable vehicle checking, fights like raigonn, klaxxi");
+CreateNewText(thisConfig,"Disable Vehicle Check");
+
+--showmore
 CreateNewCheck(thisConfig,"Showmore","Check if you want the options for Healing/General/Poke/Hacks/Tracking - Reload after checking");
 CreateNewText(thisConfig,"Show More");
 

@@ -8,20 +8,24 @@ if Currentconfig ~= "Fury Avery/Chumii" then
 	Currentconfig = "Fury Avery/Chumii";
 end
 
-if AOETimer == nil then AOETimer = 0; end
+--aoe toggle
+if isChecked("AutoAoE") ~= true then
 
-if SpecificToggle("Rotation Up") == 1 and GetCurrentKeyBoardFocus() == nil then
-	if GetTime() - AOETimer > 0.25 then
-		AOETimer = GetTime()
-		ToggleValue("AoE");
-	end
-end
+	if AOETimer == nil then AOETimer = 0; end
 
-if isChecked("Rotation Down") then
-	if SpecificToggle("Rotation Down") == 1 and GetCurrentKeyBoardFocus() == nil then
+	if SpecificToggle("Rotation Up") == 1 and GetCurrentKeyBoardFocus() == nil then
 		if GetTime() - AOETimer > 0.25 then
 			AOETimer = GetTime()
-			ToggleMinus("AoE");
+			ToggleValue("AoE");
+		end
+	end
+
+	if isChecked("Rotation Down") then
+		if SpecificToggle("Rotation Down") == 1 and GetCurrentKeyBoardFocus() == nil then
+			if GetTime() - AOETimer > 0.25 then
+				AOETimer = GetTime()
+				ToggleMinus("AoE");
+			end
 		end
 	end
 end
@@ -31,6 +35,7 @@ local RAGE = UnitPower("player");
 local PLAYERHP = 100*(UnitHealth("player")/UnitHealthMax("player"))
 local TARGETHP = 100*(UnitHealth("target")/UnitHealthMax("target"))
 local ENEMYS = getNumEnnemies("player", 5)
+local COMBATTIME = getCombatTime()
 
 --Cooldowns
 local GT = GetTime()
@@ -52,14 +57,22 @@ local MEATCLEAVER,_,_,MC_COUNT,_,_,MC_TIMER = UnitBuffID("player",MeatCleaver)
 local BLOODSURGE = UnitBuffID("player",Bloodsurge)
 local BATTLESHOUT = UnitBuffID("player",BattleShout)
 local COMMANDINGSHOUT = UnitBuffID("player",CommandingShout)
+local BLADESTORMBUFF = UnitBuffID("player",Bladestorm)
 
 --Trinkets
 local OUTRAGE = UnitBuffID("player",Outrage)
 local DETERMINATION = UnitBuffID("player",Determination)
 
 -- Food/Invis Check
-if canRun() ~= true or UnitInVehicle("Player") then
+if canRun() ~= true then
 	return false; 
+end
+
+--vehicle check
+if isChecked("Vehicle") ~= true then
+	if UnitInVehicle("Player") then
+		return false;
+	end
 end
 
 if IsMounted("player") then 
@@ -73,6 +86,32 @@ if isChecked("HeroicLeap") == true then
 		if SpellIsTargeting() then 
 			CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop() 
 			return true;
+		end
+	end
+end
+
+--manual bladestorm
+if IsPlayerSpell(Bladestorm) == true then
+	if isChecked("Bladestorm") == true then
+		if IsLeftAltKeyDown() and not GetCurrentKeyBoardFocus() then
+			if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+				if castSpell("target",Bladestorm,true) then
+					return;
+				end
+			end
+		end
+	end
+end
+
+--manual dragon roar
+if IsPlayerSpell(DragonRoar) == true then
+	if isChecked("Dragon Roar") == true then
+		if IsLeftAltKeyDown() and not GetCurrentKeyBoardFocus() then
+			if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+				if castSpell("target",DragonRoar,true) then
+					return;
+				end
+			end
 		end
 	end
 end
@@ -114,11 +153,17 @@ if pause() ~= true and isInCombat("player") and canAttack("target","player") and
 --- In Combat ---
 -----------------
 
+-----------------
+--- interrupts ---
+-----------------
+
 --Quaking Palm
-if isChecked("Quaking Palm") and canInterrupt(107079,tonumber(getValue("Quaking Palm"))) then
-if castSpell("target",107079,false) then
-return;
-end
+if IsPlayerSpell(QuakingPalm) == true then
+	if isChecked("Quaking Palm") and canInterrupt(QuakingPalm,tonumber(getValue("Quaking Palm"))) then
+		if castSpell("target",QuakingPalm,false) then
+			return;
+		end
+	end
 end
 
 --Pummel
@@ -129,7 +174,7 @@ if isChecked("Pummel") == true and canInterrupt(Pummel,tonumber(getValue("Pummel
 				return; 
 			end
 		end
-	elseif isChecked("Disrupting Shout") == false then
+	elseif isChecked("Disrupting Shout") ~= true then
 		if castSpell("target",Pummel,false) then
 			return; 
 		end
@@ -137,10 +182,47 @@ if isChecked("Pummel") == true and canInterrupt(Pummel,tonumber(getValue("Pummel
 end
 
 --Disrupting Shout
-if isChecked("Disrupting Shout") == true and canInterrupt(DisruptingShout,tonumber(getValue("Disrupting Shout"))) then
-	if castSpell("target",DisruptingShout,false) then
-		return; 
+if IsPlayerSpell(DisruptingShout) == true then
+	if isChecked("Disrupting Shout") == true and canInterrupt(DisruptingShout,tonumber(getValue("Disrupting Shout"))) then
+		if castSpell("target",DisruptingShout,false) then
+			return; 
+		end
 	end
+end
+
+-----------------
+--- defensives ---
+-----------------
+
+-- Die by the Sword
+if isChecked("DiebytheSword") == true then
+	if PLAYERHP <= getValue("DiebytheSword") then
+		if castSpell("player",DiebytheSword,true) then
+			return;
+		end
+	end
+end
+
+-- ShieldWall
+if isChecked("ShieldWall") == true then
+	if PLAYERHP <= getValue("ShieldWall") then
+		if castSpell("player",ShieldWall,true) then
+			return;
+		end
+	end
+end
+
+-- Def Stance
+if isChecked("DefensiveStance") == true then
+	if PLAYERHP <= getValue("DefensiveStance") and GetShapeshiftForm() ~= 2 then
+		if castSpell("player",DefensiveStance,true) then
+			return;
+		end
+	elseif PLAYERHP > getValue("DefensiveStance") and GetShapeshiftForm() ~= 1 then
+		if castSpell("player",BattleStance,true) then
+			return;
+		end
+	end  
 end
 
 --Healthstone
@@ -176,6 +258,11 @@ end
 ----------------
 
 elseif UnitExists("target") and not UnitIsDeadOrGhost("target") and isEnnemy("target") == true and getCreatureType("target") == true then
+
+--autoface
+--if isChecked("Autoface") == true then 
+--	RunMacroText("/script Target:Face()")
+--end
 
 ----------------
 --- Single ---
@@ -221,6 +308,19 @@ if RAGE >= 10 then
 	if RB_COUNT == 2 and CS_DEBUFF ~= nil then
 		if castSpell("target",RagingBlow,true,false) then
 			return;
+		end
+	end
+end
+
+--dragon_roar,if=enabled&(!debuff.colossus_smash.up&(buff.bloodbath.up|!talent.bloodbath.enabled))
+if IsPlayerSpell(DragonRoar) == true then
+	if isChecked("Dragon Roar") ~= true then
+		if (CS_DEBUFF == nil or (OUTRAGE ~= nil or DETERMINATION ~= nil)) and COMBATTIME > 5 then
+			if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+				if castSpell("target",DragonRoar,true) then
+					return;
+				end
+			end
 		end
 	end
 end
@@ -271,6 +371,22 @@ if RAGINGBLOWBUFF ~= nil then
 	if RB_COUNT == 2 or CS_DEBUFF ~= nil or (RB_TIMER - GT <= 3) then
 		if castSpell("target",RagingBlow,true,false) then
 			return;
+		end
+	end
+end
+
+--bladestorm,if=enabled,interrupt_if=cooldown.bloodthirst.remains<1
+if IsPlayerSpell(Bladestorm) == true then
+	if isChecked("Bladestorm") ~= true then
+		if (BT_COOLDOWN < 1 and BT_COOLDOWN > 0) and BLADESTORMBUFF ~= nil then
+			RunMacroText("/cancelaura bladestorm")
+			return false;
+		else
+			if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+				if castSpell("target",Bladestorm,true) then
+					return;
+				end
+			end
 		end
 	end
 end
@@ -371,6 +487,32 @@ if RAGE >= 30 then
 	if ((CS_DEBUFF ~= nil and RAGE >= 60) or (RAGE >= 110)) then
 		if castSpell("target",Cleave,true,false) then
 			return;
+		end
+	end
+end
+
+--bladestorm,if=enabled&(buff.bloodbath.up|!talent.bloodbath.enabled)&(!talent.storm_bolt.enabled|(talent.storm_bolt.enabled&!debuff.colossus_smash.up))
+if IsPlayerSpell(Bladestorm) == true then
+	if isChecked("Bladestorm") ~= true then
+		if CS_DEBUFF == nil then
+			if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+				if castSpell("target",Bladestorm,true) then
+					return;
+				end
+			end
+		end
+	end
+end
+
+--dragon_roar,if=enabled&(!debuff.colossus_smash.up&(buff.bloodbath.up|!talent.bloodbath.enabled))
+if IsPlayerSpell(DragonRoar) == true then
+	if isChecked("Dragon Roar") ~= true then
+		if (CS_DEBUFF == nil or (OUTRAGE ~= nil or DETERMINATION ~= nil)) and COMBATTIME > 5 then
+			if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+				if castSpell("target",DragonRoar,true) then
+					return;
+				end
+			end
 		end
 	end
 end
@@ -482,6 +624,30 @@ if RAGE >= 30 then
 	end
 end
 
+--bladestorm,if=enabled&(buff.bloodbath.up|!talent.bloodbath.enabled)
+if IsPlayerSpell(Bladestorm) == true then
+	if isChecked("Bladestorm") ~= true then
+		if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+			if castSpell("target",Bladestorm,true) then
+				return;
+			end
+		end
+	end
+end
+
+--dragon_roar,if=enabled&(!debuff.colossus_smash.up&(buff.bloodbath.up|!talent.bloodbath.enabled))
+if IsPlayerSpell(DragonRoar) == true then
+	if isChecked("Dragon Roar") ~= true then
+		if (CS_DEBUFF == nil or (OUTRAGE ~= nil or DETERMINATION ~= nil)) and COMBATTIME > 5 then
+			if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+				if castSpell("target",DragonRoar,true) then
+					return;
+				end
+			end
+		end
+	end
+end
+
 --bloodthirst,cycle_targets=1,if=!dot.deep_wounds.ticking
 if DW_DEBUFF == nil then
 	if castSpell("target",Bloodthirst,true,false) then
@@ -575,6 +741,17 @@ if RAGE >= 30 then
 	end
 end
 
+--bladestorm,if=enabled&(buff.bloodbath.up|!talent.bloodbath.enabled)
+if IsPlayerSpell(Bladestorm) == true then
+	if isChecked("Bladestorm") ~= true then
+		if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+			if castSpell("target",Bladestorm,true) then
+				return;
+			end
+		end
+	end
+end
+
 --bloodthirst,cycle_targets=1,if=!dot.deep_wounds.ticking&buff.enrage.down
 if ENRAGED == nil then
 	if castSpell("target",Bloodthirst,true,false) then
@@ -592,6 +769,19 @@ end
 --whirlwind
 if castSpell("target",Whirlwind,true,false) then
 	return;
+end
+
+--dragon_roar,if=enabled&(!debuff.colossus_smash.up&(buff.bloodbath.up|!talent.bloodbath.enabled))
+if IsPlayerSpell(DragonRoar) == true then
+	if isChecked("Dragon Roar") ~= true then
+		if (CS_DEBUFF == nil or (OUTRAGE ~= nil or DETERMINATION ~= nil)) and COMBATTIME > 5 then
+			if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+				if castSpell("target",DragonRoar,true) then
+					return;
+				end
+			end
+		end
+	end
 end
 
 --bloodthirst,cycle_targets=1,if=!dot.deep_wounds.ticking
