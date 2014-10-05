@@ -82,6 +82,16 @@ if select(3, UnitClass("player")) == 1 then
            AoEModesLoaded = "Fury Warrior AoE Modes";
         end
 		
+		if InterruptsModesLoaded ~= "Fury Interrupt Modes" then 
+            CustomInterruptsModes = { 
+                [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "", highlight = 1, icon = Pummel },
+                [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "", highlight = 0, icon = Pummel }
+            };
+            InterruptsModes = CustomInterruptsModes
+            CreateButton("Interrupts",2,0)
+            InterruptsModesLoaded = "Fury Interrupt Modes";
+        end
+		
       function SpecificToggle(toggle)
             if getValue(toggle) == 1 then
                 return IsLeftControlKeyDown();
@@ -97,18 +107,6 @@ if select(3, UnitClass("player")) == 1 then
                 return 0
             end
         end
-
-        --AoE Key Toggle
-        if AOETimer == nil then AOETimer = 0; end
-        if SpecificToggle("Rotation Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - AOETimer > 0.25 then
-            AOETimer = GetTime()
-            if BadBoy_data['AoE'] ~= #AoEModes then
-                BadBoy_data['AoE'] = BadBoy_data['AoE']+1
-            else
-                BadBoy_data['AoE'] = 1
-            end
-            UpdateButton("AoE")
-        end	
 		
     end
 
