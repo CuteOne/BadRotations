@@ -184,25 +184,19 @@ if IsPlayerSpell(QuakingPalm) == true then
 	end
 end
 
---Pummel
-if isChecked("Pummel") == true and canInterrupt(Pummel,tonumber(getValue("Pummel"))) then
-	if isChecked("Disrupting Shout") == true then
-		if canCast(DisruptingShout,true) == false and (DS_COOLDOWN < 38  and DS_COOLDOWN > 0) then
-			if castSpell("target",Pummel,false) then
-				return; 
-			end
-		end
-	elseif isChecked("Disrupting Shout") ~= true then
-		if castSpell("target",Pummel,false) then
+--disrupting shout
+if isChecked("Disrupting Shout") == true and canInterrupt(DisruptingShout) then
+	if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+		if castSpell("target",DisruptingShout,false) then
 			return; 
 		end
 	end
 end
 
---Disrupting Shout
-if IsPlayerSpell(DisruptingShout) == true then
-	if isChecked("Disrupting Shout") == true and canInterrupt(DisruptingShout,tonumber(getValue("Disrupting Shout"))) then
-		if castSpell("target",DisruptingShout,false) then
+--pummel
+if isChecked("Pummel") == true and canInterrupt(Pummel) then
+	if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+		if castSpell("target",Pummel,false) then
 			return; 
 		end
 	end
