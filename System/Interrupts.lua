@@ -69,7 +69,22 @@ function interruptsReader(self, event, ...)
         local destName 		= select(9,...);
 		local spellID 		= select(12,...);
 
-
+	    -- Table cleaner, skip if # is 0
+	    if #spellCastingUnits > 0 then
+	    	tableAmountBeforeIteration = #spellCastingUnits
+	    	-- i start at 0 because i want to start my iteration at #spellCastingUnits(last)-0 entry
+			for i = 0, tableAmountBeforeIteration do
+				-- my row should be the last row 1st and then last second 2nd and so on...
+				currentRow = tableAmountBeforeIteration-i
+				-- if the row exist(just in case) and the stored time is lower than the GetTime() this cast should be over.
+				if spellCastingUnits[currentRow] and spellCastingUnits[currentRow].endTime and spellCastingUnits[currentRow].endTime < GetTime() then
+					-- if yes then we remove that row.
+					tremove(spellCastingUnits, currentRow);
+				else
+					break;
+				end
+			end
+		end
 
         if sourceGUID ~= nil then
 
@@ -85,32 +100,34 @@ function interruptsReader(self, event, ...)
 				        -- Prepare GUID to be reused via UnitID
 				        ISetAsUnitID(sourceGUID,"thisUnit");
 
-				        -- find our EndTime and divide by 1000 to match GetTime() values
-				        endTime = select(6,UnitCastingInfo("thisUnit"))/1000
+				        -- find our EndTime
+				        endTime = select(6,UnitCastingInfo("thisUnit"))
+
+				        -- if endTime found then divide by 1000 to match GetTime() values
 				        if endTime ~= nil then
+				        	endTime = endTime/1000
+
+				        	-- Send to table
 		        			--[[in table we need GUID,name,spell,target,endTime]]
 		        			tinsert(spellCastingUnits, { guid = sourceGUID, sourceName = sourceName, spell = spellID, targetGUID = destGUID, targetName = destName, endTime = endTime })
 	        			end
 
 						-- Sorting with the endTime
 						table.sort(spellCastingUnits, function(x,y)
-							if x.endTime and y.endTime then return x.endTime > y.endTime;
-							elseif x.endTime then return true;
-							elseif y.endTime then return false; end
+							-- if both value exists then
+							if x.endTime and y.endTime then 
+								-- place higher above
+								return x.endTime > y.endTime;
+							-- otherwise place empty at bottom
+							elseif x.endTime then 
+								return true;
+							elseif y.endTime then 
+								return false; 
+							end
 						end)	
 
 
-					    -- Table cleaner
-					    if #spellCastingUnits > 0 then
-							for i = 0, #spellCastingUnits+1 do
-								currentRow = #spellCastingUnits-i
-								if spellCastingUnits[currentRow] and spellCastingUnits[currentRow].endTime < GetTime() then
-									tremove(spellCastingUnits, currentRow);
-								else
-									break;
-								end
-							end
-						end
+
 
 
 
