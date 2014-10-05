@@ -182,6 +182,11 @@ CreateNewCheck(thisConfig,"Racials","Check if you want to use Racials automatica
 CreateNewDrop(thisConfig, "Racials", 1, "Use Racial always or on boss", "Always", "Boss")
 CreateNewText(thisConfig,"Racials");
 
+-- Gloves
+CreateNewCheck(thisConfig,"Gloves","Check if you want to use Gloves automatically");
+CreateNewDrop(thisConfig, "Gloves", 1, "Use Gloves always or on boss", "Always", "Boss")
+CreateNewText(thisConfig,"Gloves");
+
 --Shattering Throw
 CreateNewCheck(thisConfig,"Shattering Throw","Check if you want to use Shattering Throw in the rotation");
 CreateNewText(thisConfig,"Shattering Throw"); 
@@ -196,6 +201,10 @@ CreateNewText(thisConfig,"Dragon Roar");
 -- Bladestorm 
 CreateNewCheck(thisConfig,"Bladestorm","Check if you want to use bladestorm manually - left alt");
 CreateNewText(thisConfig,"Bladestorm");
+
+--single target bladestorm
+CreateNewCheck(thisConfig,"STBladestorm","Check if you want to enable single target bladestorm");
+CreateNewText(thisConfig,"STBladestorm");
 
 -- Wrapper
 CreateNewWrap(thisConfig,"Defensives");
@@ -248,6 +257,10 @@ CreateNewCheck(thisConfig,"Quaking Palm","Check if you want to use Quaking Palm 
 CreateNewBox(thisConfig, "Quaking Palm", 0, 100  , 5, 25 , "Over what % of cast we want to Quaking Palm.");
 CreateNewText(thisConfig,"Quaking Palm");   
 end    
+
+CreateNewCheck(thisConfig,"Interrupt Mode","Toggle to turn interrupts on or off");
+CreateNewDrop(thisConfig,"Interrupt Mode", 5, "Toggle")
+CreateNewText(thisConfig,"Interrupt Tog.");
 
 -- Wrapper
 CreateNewWrap(thisConfig,"AoE");
