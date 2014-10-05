@@ -24,6 +24,7 @@ if select(3,UnitClass("player")) == 2 then
 	_Exorcism                   =   879
 	_FistOfJustice              =   105593
 	_FlashOfLight               =   19750
+	_Forbearance				= 	25771
 	_HandOfFreedom              =   1044
 	_HandOfProtection           =   1022
 	_HandOfPurity               =   114039
@@ -158,15 +159,24 @@ if select(3,UnitClass("player")) == 2 then
 		function ProtPaladinSurvivalSelf() -- Check if we are close to dying and act accoridingly
 			local playerHP = getHP("player")
 			
-			-- Lay on Hands
-			-- Need to check for forebarance
-			if getHP("player") <= getValue("Lay On Hands") then
-				if castSpell("player",_LayOnHands,true) then 
-					return; 
-				end
-			end
-			
 			if BadBoy_data["Check ------ Defensive -------"] == 1 then 
+				-- Logic goes from lowest HP, ie the most critical prioritised spells
+				-- Lay on Hands, we get full health back and is the last resort due to the other spells have damage reduction
+				-- However do not cast if Ardent Defender is available or we have the AD buff removing killing blow and heals us to 15%.
+				--Todo, add if the box is checked or not
+				if canCast(_LayOnHands, false, false) and playerHP <= getValue("Lay On Hands Self") and not UnitDebuffID("player",_Forbearance) and not (UnitBuffID("player", _ArdentDefender) or canCast(_ArdentDefender)) then
+					if castSpell("player",_LayOnHands,true) then 
+						return; 
+					end
+				end
+			
+				-- Todo, how should we handle the other defensive CDs, we should lower health threshold if GoaK is up for example
+				if BadBoy_data["Check Ardent Defender"] == 1 and canCast(_ArdentDefender) and playerHP <= getValue("Ardent Defender") then
+					if castSpell("player",_ArdentDefender,true) then 
+						return;
+					end
+				end
+			
 				-- Divine Protection
 				if BadBoy_data["Check Divine Protection"] == 1 and getHP("player") <= BadBoy_data["Box Divine Protection"] then -- Should we check if damage is physical?
 					if castSpell("player",_DivineProtection,true) then 
