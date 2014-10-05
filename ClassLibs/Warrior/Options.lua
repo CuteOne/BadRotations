@@ -236,12 +236,10 @@ CreateNewWrap(thisConfig,"Interrupts");
 
 -- Pummel
 CreateNewCheck(thisConfig,"Pummel","Check if you want to use Pummel automatically");
-CreateNewBox(thisConfig, "Pummel", 0, 100  , 5, 25 , "Over what % of cast we want to Pummel.");
 CreateNewText(thisConfig,"Pummel");
 
 -- Disrupting Shout
 CreateNewCheck(thisConfig,"Disrupting Shout","Check if you want to use Disrupting Shout automatically");
-CreateNewBox(thisConfig, "Disrupting Shout", 0, 100  , 5, 25 , "Over what % of cast we want to Disrupting Shout.");
 CreateNewText(thisConfig,"Disrupting Shout");
 
 if isKnown(QuakingPalm) then
