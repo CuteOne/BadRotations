@@ -284,9 +284,11 @@ if (isChecked("AutoAoE") ~= true and BadBoy_data['AoE'] == 1) or (isChecked("Aut
 --berserker_rage,if=buff.enrage.remains<1&cooldown.bloodthirst.remains>1
 if ENRAGED ~= nil then
 	if (ENRAGE_TIMER - GT < 1) and BT_COOLDOWN > 1 then
-		if castSpell("player",BerserkerRage,true) then
-			return;
-		end  
+		if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+			if castSpell("player",BerserkerRage,true) then
+				return;
+			end  
+		end
 	end
 end
 
@@ -327,7 +329,7 @@ end
 --dragon_roar,if=enabled&(!debuff.colossus_smash.up&(buff.bloodbath.up|!talent.bloodbath.enabled))
 if IsPlayerSpell(DragonRoar) == true then
 	if isChecked("Dragon Roar") ~= true then
-		if (CS_DEBUFF == nil or (OUTRAGE ~= nil or DETERMINATION ~= nil)) and COMBATTIME > 5 then
+		if (CS_DEBUFF == nil and (OUTRAGE ~= nil or DETERMINATION ~= nil)) and COMBATTIME > 5 then
 			if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
 				if castSpell("target",DragonRoar,true) then
 					return;
@@ -373,9 +375,11 @@ end
 
 --berserker_rage,if=buff.raging_blow.stack<=1&target.health.pct>=20
 if (RAGINGBLOWBUFF == nil or RB_COUNT == 1) and TARGETHP >= 20 then
-	if castSpell("player",BerserkerRage,true) then
-		return;
-	end  
+	if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+		if castSpell("player",BerserkerRage,true) then
+			return;
+		end  
+	end
 end
 
 --raging_blow,if=buff.raging_blow.stack=2|debuff.colossus_smash.up|buff.raging_blow.remains<=3
@@ -488,9 +492,11 @@ if (isChecked("AutoAoE") ~= true and BadBoy_data['AoE'] == 2) or (isChecked("Aut
 --buff.enrage.remains<1&cooldown.bloodthirst.remains>1)
 if ENRAGED ~= nil then
 	if (ENRAGE_TIMER - GT < 1) and BT_COOLDOWN > 1 then
-		if castSpell("player",BerserkerRage,true) then
-			return;
-		end  
+		if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+			if castSpell("player",BerserkerRage,true) then
+				return;
+			end  
+		end
 	end
 end
 
@@ -519,7 +525,7 @@ end
 --dragon_roar,if=enabled&(!debuff.colossus_smash.up&(buff.bloodbath.up|!talent.bloodbath.enabled))
 if IsPlayerSpell(DragonRoar) == true then
 	if isChecked("Dragon Roar") ~= true then
-		if (CS_DEBUFF == nil or (OUTRAGE ~= nil or DETERMINATION ~= nil)) and COMBATTIME > 5 then
+		if (CS_DEBUFF == nil and (OUTRAGE ~= nil or DETERMINATION ~= nil)) and COMBATTIME > 5 then
 			if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
 				if castSpell("target",DragonRoar,true) then
 					return;
@@ -621,9 +627,11 @@ if (isChecked("AutoAoE") ~= true and BadBoy_data['AoE'] == 3) or (isChecked("Aut
 --buff.enrage.remains<1&cooldown.bloodthirst.remains>1)
 if ENRAGED ~= nil then
 	if (ENRAGE_TIMER - GT < 1) and BT_COOLDOWN > 1 then
-		if castSpell("player",BerserkerRage,true) then
-			return;
-		end  
+		if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+			if castSpell("player",BerserkerRage,true) then
+				return;
+			end  
+		end
 	end
 end
 
@@ -650,7 +658,7 @@ end
 --dragon_roar,if=enabled&(!debuff.colossus_smash.up&(buff.bloodbath.up|!talent.bloodbath.enabled))
 if IsPlayerSpell(DragonRoar) == true then
 	if isChecked("Dragon Roar") ~= true then
-		if (CS_DEBUFF == nil or (OUTRAGE ~= nil or DETERMINATION ~= nil)) and COMBATTIME > 5 then
+		if (CS_DEBUFF == nil and (OUTRAGE ~= nil or DETERMINATION ~= nil)) and COMBATTIME > 5 then
 			if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
 				if castSpell("target",DragonRoar,true) then
 					return;
@@ -738,9 +746,11 @@ if (isChecked("AutoAoE") ~= true and BadBoy_data['AoE'] == 4) or (isChecked("Aut
 --buff.enrage.remains<1&cooldown.bloodthirst.remains>1)
 if ENRAGED ~= nil then
 	if (ENRAGE_TIMER - GT < 1) and BT_COOLDOWN > 1 then
-		if castSpell("player",BerserkerRage,true) then
-			return;
-		end  
+		if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+			if castSpell("player",BerserkerRage,true) then
+				return;
+			end  
+		end
 	end
 end
 
@@ -786,7 +796,7 @@ end
 --dragon_roar,if=enabled&(!debuff.colossus_smash.up&(buff.bloodbath.up|!talent.bloodbath.enabled))
 if IsPlayerSpell(DragonRoar) == true then
 	if isChecked("Dragon Roar") ~= true then
-		if (CS_DEBUFF == nil or (OUTRAGE ~= nil or DETERMINATION ~= nil)) and COMBATTIME > 5 then
+		if (CS_DEBUFF == nil and (OUTRAGE ~= nil or DETERMINATION ~= nil)) and COMBATTIME > 5 then
 			if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
 				if castSpell("target",DragonRoar,true) then
 					return;
