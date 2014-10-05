@@ -134,6 +134,15 @@ interruptsFrame:SetScript("OnEvent", interruptsReader)
 					[3] = { }, -- Hunter
 					[4] = { }, -- Rogue
 					[5] = { }, -- Priest
+--[[ Priest
+ 113506,  -- Cyclone (Symbiosis)        -- stun -- cast -- range -- 20 -- gcd = 1.5
+ 605,  -- Dominate Mind         -- charm -- channel -- range -- 30 -- gcd = 1.5
+ 88625,  -- Holy Word: Chastise        -- disor -- instant -- range -- 30 -- gcd = 1.5
+ 64044,  -- Psychic Horror         -- fearinplace -- instant -- range -- 30 -- gcd = 1.5
+ 8122,  -- Psychic Scream         -- fear -- instant -- self -- 0 -- gcd = 1.5
+ 113792,  -- Psychic Terror (Psyfiend)      -- fear -- cast -- self -- 20 -- gcd = 0.5
+ 9484,  -- Shackle Undead         -- stun -- cast -- range -- 30 -- gcd = 1.5
+ 87204,  -- Sin and Punishment        -- fear -- instant -- self -- 0 -- gcd = 0			]]		
 					[6] = { 
 						[1] = { spell = 108194, spellType = "silence", spellSpeed = 1, spellRange = 30 },  -- Asphyxiate -- Silence -- Instant -- Ranged -- 30 -- GCD = 1
 						[2] = { spell = 91800, spellType = "stun", spellSpeed = 0, spellRange = 5 },  -- Gnaw (Ghoul) -- Stun -- Instant -- Melee -- 5 -- GCD = 0

@@ -183,6 +183,10 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Queues");
     CreateNewText(thisConfig,"Queue Casts");
 
+    -- Interrupts Frame
+    CreateNewCheck(thisConfig,"Interrupts Frame");
+    CreateNewText(thisConfig,"Interrupts Frame");
+
 
     -- Wrapper -----------------------------------------
     CreateNewWrap(thisConfig,"----- PokeRotation -----");

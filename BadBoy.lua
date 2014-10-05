@@ -240,6 +240,12 @@ function BadBoyRun()
 			engineFrame:Hide();
 		end
 
+		if BadBoy_data["Check Interrupts Frame"] == 1 then
+			interruptsFrame:Show();
+		else
+			interruptsFrame:Hide();
+		end
+
 		--[[Class/Spec Selector]]
 		local _MyClass = select(3,UnitClass("player"));
 		local _MySpec = GetSpecialization("player");
