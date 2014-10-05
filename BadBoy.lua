@@ -200,8 +200,7 @@ function BadBoyRun()
 		displayDistance = math.floor(targetDistance*100)/100
 		mainText:SetText(displayDistance);
 		profileStarts = GetTime();
-		DebugFrameCreation();
-		EngineFrameCreation();
+		interruptsRefresh();
 
 
 		if currentTarget ~= nil then ISetAsUnitID(currentTarget,"current"); end		
@@ -341,5 +340,8 @@ function BadBoyRun()
 	BadBoyMinimapButton();
 	BadBoyFrame();
 	ConfigFrame();
+	DebugFrameCreation();
+	EngineFrameCreation();
+	InterruptsFrameCreation();
 	ChatOverlay("-= BadBoy Loaded =-")
 end

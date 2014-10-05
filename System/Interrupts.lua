@@ -102,14 +102,15 @@ function interruptsReader(self, event, ...)
 
 				        -- find our EndTime
 				        endTime = select(6,UnitCastingInfo("thisUnit"))
-
+				        sourceClass = select(3,UnitClass("thisUnit"))
 				        -- if endTime found then divide by 1000 to match GetTime() values
 				        if endTime ~= nil then
 				        	endTime = endTime/1000
+				        	if destName == nil then destName = "|cffFFFFFFNo Target" end
 
 				        	-- Send to table
 		        			--[[in table we need GUID,name,spell,target,endTime]]
-		        			tinsert(spellCastingUnits, { guid = sourceGUID, sourceName = sourceName, spell = spellID, targetGUID = destGUID, targetName = destName, endTime = endTime })
+		        			tinsert(spellCastingUnits, { guid = sourceGUID, sourceName = sourceName, spell = spellID, targetGUID = destGUID, targetName = destName, endTime = endTime, class = sourceClass })
 	        			end
 
 						-- Sorting with the endTime
