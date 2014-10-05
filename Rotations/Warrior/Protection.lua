@@ -209,8 +209,10 @@ end
         end
 
         --actions+=/mogu_power_potion,if=(target.health.pct<20&buff.recklessness.up)|buff.bloodlust.react|target.time_to_die<=25
-        if (getHP("target") < 20 and UnitBuffID("player",Recklessness)) or hasLust() or getTimeToDie("target") <= 25 then
-        	useItem(76095)			
+        if (getHP("target") <= 20 and UnitBuffID("player",Recklessness)) or hasLust() or getTimeToDie("target") <= 25 then        	
+	        	if canUse(76095) then
+					UseItemByName(tostring(select(1,GetItemInfo(76095))))
+				end			
 		end
 
 ------------------
@@ -251,10 +253,21 @@ end
 			end
 		end
 
+		-- Enraged Regeneration
+		if isChecked("EnragedRegeneration") == true then
+			if isKnown(EnragedRegeneration) and getHP("player") <= getValue("EnragedRegeneration") then
+				if castSpell("player",EnragedRegeneration,true) then
+					return;
+				end
+			end
+		end
+
 		-- Healthstone
         if isChecked("Healthstone") == true then
 			if getHP("player") <= getValue("Healthstone") then
-					useItem(5512)
+				if canUse(5512) then
+					UseItemByName(tostring(select(1,GetItemInfo(5512))))
+				end	
 			end
 		end
 
@@ -349,6 +362,18 @@ end
 --- Single Target ---
 ---------------------
 		if not useAoE() and targetDistance < 5 then
+			-- ImpendingVictory / Victory Rush
+			if isChecked("ImpendingVictory") then
+				if isKnown(ImpendingVictory) and getHP("player") <= getValue("ImpendingVictory") then
+					if castSpell("target",ImpendingVictory,false,false) then
+						return;
+					end
+				elseif not isKnown(ImpendingVictory) and getHP("player") <= getValue("ImpendingVictory") then
+					if castSpell("target",VictoryRush,false,false) then
+						return;
+					end
+				end
+			end
 			-- shield slam on cd / sword and board proc
 			if castSpell("target",ShieldSlam,false,false) then
 				return;
@@ -384,6 +409,18 @@ end
 --- Multi Target ---
 --------------------
 		if useAoE() then
+			-- ImpendingVictory / Victory Rush
+			if isChecked("ImpendingVictory") then
+				if isKnown(ImpendingVictory) and getHP("player") <= getValue("ImpendingVictory") then
+					if castSpell("target",ImpendingVictory,false,false) then
+						return;
+					end
+				elseif not isKnown(ImpendingVictory) and getHP("player") <= getValue("ImpendingVictory") then
+					if castSpell("target",VictoryRush,false,false) then
+						return;
+					end
+				end
+			end
 			-- thunderclap on cd		
 			if castSpell("target",ThunderClap,true) then
 				return;
