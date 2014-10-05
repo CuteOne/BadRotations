@@ -41,7 +41,7 @@ local COMBATTIME = getCombatTime()
 
 -- ENEMYS we will global it and call only 1 per sec
 if ENEMYS == nil or (AOETimer and AOETimer <= GetTime() - 1) then
-	myTimer = GetTime()
+	AOETimer = GetTime()
 	ENEMYS = getNumEnnemies("player", 5)
 end
 
