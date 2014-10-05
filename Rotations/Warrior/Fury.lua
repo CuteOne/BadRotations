@@ -33,11 +33,23 @@ if isChecked("AutoAoE") ~= true then
 	
 end
 
+--interrupt toggle
+if isChecked("Interrupt Mode") == true then
+	if IntTimer == nil then IntTimer = 0; end
+
+	if SpecificToggle("Interrupt Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - IntTimer > 0.25 then
+		IntTimer = GetTime()
+		UpdateButton("Interrupts")
+	end
+end
+
 -- Locals
 local RAGE = UnitPower("player");
 local PLAYERHP = 100*(UnitHealth("player")/UnitHealthMax("player"))
 local TARGETHP = 100*(UnitHealth("target")/UnitHealthMax("target"))
 local COMBATTIME = getCombatTime()
+local PROF1, PROF2 = GetProfessions()
+local BOSS = isBoss("target") or isDummy("target")
 
 -- ENEMYS we will global it and call only 1 per sec
 if ENEMYS == nil or (AOETimer and AOETimer <= GetTime() - 1) then
@@ -277,6 +289,27 @@ elseif UnitExists("target") and not UnitIsDeadOrGhost("target") and isEnnemy("ta
 --end
 
 ----------------
+--- Cooldowns --
+----------------
+
+--gloves
+if (PROF1 or PROF2) == 7 then
+	if isChecked("Gloves") == true then
+		if GetInventoryItemCooldown("player", 10) == 0 then
+			if CS_DEBUFF ~= nil then
+				if getValue("Gloves") == 1 then
+					UseInventoryItem(10)
+				elseif getValue("Gloves") == 2 then
+					if BOSS ~= nil then
+						UseInventoryItem(10)
+					end
+				end	
+			end
+		end
+	end
+end
+
+----------------
 --- Single ---
 ----------------
 if (isChecked("AutoAoE") ~= true and BadBoy_data['AoE'] == 1) or (isChecked("AutoAoE") == true and ENEMYS <= 1) then
@@ -393,14 +426,16 @@ end
 
 --bladestorm,if=enabled,interrupt_if=cooldown.bloodthirst.remains<1
 if IsPlayerSpell(Bladestorm) == true then
-	if isChecked("Bladestorm") ~= true then
-		if (BT_COOLDOWN < 1 and BT_COOLDOWN > 0) and BLADESTORMBUFF ~= nil then
-			RunMacroText("/cancelaura bladestorm")
-			return false;
-		else
-			if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
-				if castSpell("target",Bladestorm,true) then
-					return;
+	if isChecked("STBladestorm") == true then
+		if isChecked("Bladestorm") ~= true then
+			if (BT_COOLDOWN < 1 and BT_COOLDOWN > 0) and BLADESTORMBUFF ~= nil then
+				RunMacroText("/cancelaura bladestorm")
+				return false;
+			else
+				if IsSpellInRange(GetSpellInfo(HeroicStrike),"target") == 1 then
+					if castSpell("target",Bladestorm,true) then
+						return;
+					end
 				end
 			end
 		end
