@@ -163,7 +163,9 @@ if select(3,UnitClass("player")) == 2 then
 				-- Logic goes from lowest HP, ie the most critical prioritised spells
 				-- Lay on Hands, we get full health back and is the last resort due to the other spells have damage reduction
 				-- However do not cast if Ardent Defender is available or we have the AD buff removing killing blow and heals us to 15%.
-				--Todo, add if the box is checked or not
+				-- Todo, add if the box is checked or not
+				-- Todo: Reset values dependent on using defensive CDs, ie dont pop all at once if getting very low.
+				-- Todo: Reset values dependent on if single, dungeon(with or without healer), raid, pvp.
 				if canCast(_LayOnHands, false, false) and playerHP <= getValue("Lay On Hands Self") and not UnitDebuffID("player",_Forbearance) and not (UnitBuffID("player", _ArdentDefender) or canCast(_ArdentDefender)) then
 					if castSpell("player",_LayOnHands,true) then 
 						return; 
@@ -171,7 +173,7 @@ if select(3,UnitClass("player")) == 2 then
 				end
 			
 				-- Todo, how should we handle the other defensive CDs, we should lower health threshold if GoaK is up for example
-				if BadBoy_data["Check Ardent Defender"] == 1 and canCast(_ArdentDefender) and playerHP <= getValue("Ardent Defender") then
+				if BadBoy_data["Check Ardent Defender"] == 1 and canCast(_ArdentDefender) and playerHP <= getValue("Ardent Defender") and not (UnitBuffID("player", _GuardianOfAncientKings) or canCast(_GuardianOfAncientKings))then
 					if castSpell("player",_ArdentDefender,true) then 
 						return;
 					end
@@ -184,13 +186,6 @@ if select(3,UnitClass("player")) == 2 then
 					end
 				end
 				
-				-- Ardent Defender
-				if BadBoy_data["Check Ardent Defender"] == 1 and getHP("player") <= BadBoy_data["Box Ardent Defender"] then
-					if castSpell("player",_ArdentDefender,true) then 
-						return;  --Here we return as we should
-					end
-				end
-				
 				-- Guardian of the Ancient Kings
 				if BadBoy_data["Check GotAK Prot"] == 1 and getHP("player") <= BadBoy_data["Box GotAK Prot"] then 
 					if castSpell("player",_GuardianOfAncientKings,true) then 
@@ -198,23 +193,18 @@ if select(3,UnitClass("player")) == 2 then
 					end
 				end
 			end
-			
-			
-			--other radical means of survival?
-			-- Missing LayOnHands and Divine Shield, also perhaps Avenging Wrath for increased self healing.
-			-- Eternal flame/sacred Shield/Word Of Glory
-			-- Fol ?? Really? With Selfless healer?
-			-- Hand of Protection
-			-- Hand of Salvation
-			-- 
+	
+			-- Todos: Add more defensive actions. Pot, trinket, Spells(WoG, Sacred Shield, Hand Of Protection, Hand of Salvation, Flash Of Light if Instant....
 		end
 		
 		-- ProtPaladinSurvivalOther() -- Check if raidmember are close to dying and act accoridingly
-		function ProtPaladinSurvivalOther() -- Check if we are close to dying and act accoridingly
+		function ProtPaladinSurvivalOther() 
 			local _HolyPower = UnitPower("player", 9);
 						
 			-- Lay on Hands
-			if nNova[1].hp <= getValue("Lay On Hands") then
+			-- It should be possible to set this so we only cast it on non tanks, or tanks or all.
+			if isChecked("Check Lay On Hands") then --and nNova[1].hp <= getValue("Lay On Hands") then
+				print("Test1")
 				if castSpell(nNova[1].unit,_LayOnHands,true) then 
 					return; 
 				end
@@ -302,7 +292,7 @@ if select(3,UnitClass("player")) == 2 then
 				-- TODO Here we should have EF blankets on prio target such as other tank and one healer or something,
 				-- TODO Should be configurable on how many we should blanket, overkill maybe
 				if BadBoy_data["healing"] == 3 and _HolyPower > 2 then
-					if nNova[1].hp <= getValue("Eternal Flame") and not isBuffed("player", _EternalFlame) then
+					if nNova[1].hp <= getValue("Eternal Flame") and not isBuffed("player", _EternalFlame) then --Todos, this is not correct since we are checking us
 						if castSpell(nNova[1].unit,_EternalFlame,true) then 
 							return; 
 						end
@@ -425,16 +415,16 @@ if select(3,UnitClass("player")) == 2 then
 
 			-- holy_prism,if=talent.holy_prism.enabled
 			-- Cast Holy Prism on youself if you have more then one enemy 15 yards around u.
-			if numberOfTargetsHolyPrismDamage > 1 then
-				if castSpell("player",_HolyPrism,false) then 
-					return; 
-				end
-			else
+			--if numberOfTargetsHolyPrismDamage > 1 then
+			--	if castSpell("player",_HolyPrism,false) then 
+			--		return; 
+			--	end
+			--else
 				--Otherwise cast it on targeta
-				if castSpell("target",_HolyPrism,false) then 
-					return; 
-				end
-			end
+			--	if castSpell("target",_HolyPrism,false) then 
+			--		return; 
+			--	end
+			--end
 		end
 		
 		-- Todo: Create logic for when to use it, proccs or whatever
