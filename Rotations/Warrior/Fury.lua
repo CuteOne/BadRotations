@@ -187,6 +187,8 @@ if pause() ~= true and isInCombat("player") and canAttack("target","player") and
 --- interrupts ---
 -----------------
 
+if BadBoy_data['Interrupts'] == 1 then
+
 --Quaking Palm
 if IsPlayerSpell(QuakingPalm) == true then
 	if isChecked("Quaking Palm") == true and canInterrupt(QuakingPalm,tonumber(getValue("Quaking Palm"))) then
@@ -212,6 +214,8 @@ if isChecked("Pummel") == true and canInterrupt(Pummel) then
 			return; 
 		end
 	end
+end
+
 end
 
 -----------------
