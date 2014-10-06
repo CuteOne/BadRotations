@@ -1,6 +1,6 @@
 if select(3, UnitClass("player")) == 3 then
 -- Rotation
-function Hunter()
+function BeastHunter()
 	if Currentconfig ~= "Beastmaster CodeMyLife" then
 		BeastConfig();
 		HunterBeastToggles();
