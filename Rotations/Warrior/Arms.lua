@@ -276,6 +276,15 @@ end
 			end
 		end
 
+		-- Enraged Regeneration
+		if isChecked("EnragedRegeneration") == true then
+			if isKnown(EnragedRegeneration) and getHP("player") <= getValue("EnragedRegeneration") then
+				if castSpell("player",EnragedRegeneration,true) then
+					return;
+				end
+			end
+		end
+
 		-- Healthstone
         if isChecked("Healthstone") == true then
 			if getHP("player") <= getValue("Healthstone") then
@@ -401,6 +410,18 @@ end
 --- Single Target ---
 ---------------------
 			if not useAoE() and targetDistance < 5 then 
+				-- ImpendingVictory / Victory Rush
+				if isChecked("ImpendingVictory") then
+					if isKnown(ImpendingVictory) and getHP("player") <= getValue("ImpendingVictory") then
+						if castSpell("target",ImpendingVictory,false,false) then
+							return;
+						end
+					elseif not isKnown(ImpendingVictory) and getHP("player") <= getValue("ImpendingVictory") then
+						if castSpell("target",VictoryRush,false,false) then
+							return;
+						end
+					end
+				end
 				-- actions.single_target=heroic_strike,if=rage>115|(debuff.colossus_smash.up&rage>60&set_bonus.tier16_2pc_melee)
 				if rage >= 115 or (UnitDebuffID("target",ColossusSmash,"player") and rage >= 60) then
 					if castSpell("target",HeroicStrike,false,false) then
@@ -504,6 +525,18 @@ end
 --- AoE ---
 -----------
 			if useAoE() then
+				-- ImpendingVictory / Victory Rush
+				if isChecked("ImpendingVictory") then
+					if isKnown(ImpendingVictory) and getHP("player") <= getValue("ImpendingVictory") then
+						if castSpell("target",ImpendingVictory,false,false) then
+							return;
+						end
+					elseif not isKnown(ImpendingVictory) and getHP("player") <= getValue("ImpendingVictory") then
+						if castSpell("target",VictoryRush,false,false) then
+							return;
+						end
+					end
+				end
 				-- actions.aoe=sweeping_strikes
 				if not UnitBuffID("player",SweepingStrikes) then
 					if castSpell("player",SweepingStrikes,true) then

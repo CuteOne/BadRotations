@@ -83,6 +83,16 @@ CreateNewCheck(thisConfig,"ShieldWall");
 CreateNewBox(thisConfig, "ShieldWall", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFShield Wall");
 CreateNewText(thisConfig,"ShieldWall");
 
+-- Enraged Regeneration
+CreateNewCheck(thisConfig,"EnragedRegeneration");
+CreateNewBox(thisConfig, "EnragedRegeneration", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFEnraged Regeneration");
+CreateNewText(thisConfig,"Enraged Regeneration");
+
+-- ImpendingVictory/Victory Rush
+CreateNewCheck(thisConfig,"ImpendingVictory");
+CreateNewBox(thisConfig, "ImpendingVictory", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFImpending Victory (Victory Rush)");
+CreateNewText(thisConfig,"Impending Victory");
+
 -- Def Stance
 CreateNewCheck(thisConfig,"DefensiveStance");
 CreateNewBox(thisConfig, "DefensiveStance", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDefensive Stance");
