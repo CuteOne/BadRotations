@@ -292,7 +292,7 @@ if select(3,UnitClass("player")) == 2 then
 				-- TODO Here we should have EF blankets on prio target such as other tank and one healer or something,
 				-- TODO Should be configurable on how many we should blanket, overkill maybe
 				if BadBoy_data["healing"] == 3 and _HolyPower > 2 then
-					if nNova[1].hp <= getValue("Eternal Flame") and not isBuffed("player", _EternalFlame) then --Todos, this is not correct since we are checking us
+					if nNova[1].hp <= getValue("Eternal Flame")  and not isBuffed(nNova[1].unit, _EternalFlame) then --Todos, this is not correct since we are checking us
 						if castSpell(nNova[1].unit,_EternalFlame,true) then 
 							return; 
 						end
