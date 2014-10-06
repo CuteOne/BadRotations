@@ -51,4 +51,36 @@ if select(3, UnitClass("player")) == 3 then
             PetModesLoaded = "CML Beast Pet Modes";
         end
     end
+	
+	function MarkToggles()
+        GarbageButtons();
+		
+		if  AoEModesLoaded ~= "Mark AoE Modes" then 
+            AoEModes = { 
+                [1] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "Recommended for one or two targets.", highlight = 0, icon = 3044 },
+                [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "Recommended for three targets or more.", highlight = 0, icon = 2643 },
+                [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "Recommended for lazy people like me.", highlight = 1, icon = 34026 }
+            };
+            CreateButton("AoE",0,1)
+            AoEModesLoaded = "Mark AoE Modes";
+        end
+		
+	end
+	
+	function SurvToggles()
+        GarbageButtons();
+		
+		if  AoEModesLoaded ~= "Surv AoE Modes" then 
+            AoEModes = { 
+                [1] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "Recommended for one or two targets.", highlight = 0, icon = 3044 },
+                [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "Recommended for three targets or more.", highlight = 0, icon = 2643 },
+                [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "Recommended for lazy people like me.", highlight = 1, icon = 34026 }
+            };
+            CreateButton("AoE",0,1)
+            AoEModesLoaded = "Surv AoE Modes";
+        end
+		
+	end
+	
+
 end

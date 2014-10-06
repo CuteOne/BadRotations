@@ -134,32 +134,32 @@ function BeastConfig()
     WrapsManager();
 end
 
---[[]]     --[[]] 		  --[[]]		--[[           ]]	--[[]]	   --[[]]	--[[           ]]
---[[ ]]   --[[ ]] 		 --[[  ]] 		--[[           ]]	--[[]]	  --[[]]	--[[           ]]
---[[           ]] 	    --[[    ]]		--[[]]	   --[[]]	--[[        ]]		--[[]]
---[[           ]]	   --[[      ]] 	--[[           ]] 	--[[    ]] 			--[[           ]]
---[[]] 	   --[[]]	  --[[        ]]	--[[        ]]		--[[        ]]				   --[[]]
---[[]]	   --[[]]	 --[[]]    --[[]]	--[[]]	  --[[]]	--[[]]	  --[[]]	--[[           ]]
---[[]]	   --[[]]	--[[]]      --[[]]	--[[]]	   --[[]]	--[[]]	   --[[]]	--[[           ]]
+-- Config Panel
+function MarkConfig()
+    thisConfig = 0
+    -- Title
+    CreateNewTitle(thisConfig,"Survival Avery");
 
---[[           ]] 	--[[]]	   --[[]]	--[[           ]]  	--[[]]	   --[[]]
---[[           ]] 	--[[]]	   --[[]]	--[[           ]] 	--[[]]	   --[[]]
---[[]]				--[[]]	   --[[]]	--[[]]	   --[[]]	 --[[]]	  --[[]]
---[[           ]] 	--[[]]	   --[[]]	--[[           ]] 	 --[[]]	  --[[]]
-	   	   --[[]]	--[[]]	   --[[]]	--[[        ]]		  --[[]] --[[]]
---[[           ]] 	--[[           ]] 	--[[]]	  --[[]]	  --[[       ]]
---[[           ]] 	--[[           ]] 	--[[]]	   --[[]]	   --[[     ]]
+    -- Wrapper
+    CreateNewWrap(thisConfig,"Pet Management");
 
+    -- General Configs
+    CreateGeneralsConfig();
+    WrapsManager();
+end
 
+-- Config Panel
+function SurvConfig()
+    thisConfig = 0
+    -- Title
+    CreateNewTitle(thisConfig,"Survival Avery");
 
+    -- Wrapper
+    CreateNewWrap(thisConfig,"Pet Management");
 
-
-
-
-
-
-
-
-
+    -- General Configs
+    CreateGeneralsConfig();
+    WrapsManager();
+end
 
 end

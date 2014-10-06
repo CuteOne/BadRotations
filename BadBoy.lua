@@ -267,7 +267,13 @@ function BadBoyRun()
 				PaladinRetribution();
 			end
 		elseif _MyClass == 3 then -- Hunter
-			Hunter();
+			if _MySpec == 1 then
+				BeastHunter();
+			elseif _MySpec == 2 then
+				MarkHunter();
+			else
+				SurvHunter();
+			end
 		elseif _MyClass == 4 then -- Rogue
 			if _MySpec == 1 then
 				AssassinationRogue();
