@@ -200,7 +200,7 @@ function BadBoyRun()
 		displayDistance = math.floor(targetDistance*100)/100
 		mainText:SetText(displayDistance);
 		profileStarts = GetTime();
-		interruptsRefresh();
+		--interruptsRefresh();
 
 
 		if currentTarget ~= nil then ISetAsUnitID(currentTarget,"current"); end		
@@ -240,11 +240,11 @@ function BadBoyRun()
 			engineFrame:Hide();
 		end
 
-		if BadBoy_data["Check Interrupts Frame"] == 1 then
-			interruptsFrame:Show();
-		else
-			interruptsFrame:Hide();
-		end
+		--if BadBoy_data["Check Interrupts Frame"] == 1 then
+		--	interruptsFrame:Show();
+		--else
+		--	interruptsFrame:Hide();
+		--end
 
 		--[[Class/Spec Selector]]
 		local _MyClass = select(3,UnitClass("player"));
@@ -354,6 +354,6 @@ function BadBoyRun()
 	ConfigFrame();
 	DebugFrameCreation();
 	EngineFrameCreation();
-	InterruptsFrameCreation();
+	--InterruptsFrameCreation();
 	ChatOverlay("-= BadBoy Loaded =-")
 end

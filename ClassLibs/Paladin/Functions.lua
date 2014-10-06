@@ -282,7 +282,7 @@ if select(3,UnitClass("player")) == 2 then
 			-- Once you have cast your initial EF, be sure to recast EF with 3 HoPo every ~25 seconds to ensure the HoT does not fall off. 
 			--As a general rule, recast it whenever you have 3 HoPo and less than 5 seconds remaining on the HoT. If you need those HoPo for a ShoR for a boss special ability, 
 			--then delay the EF or try to juggle things so that you refresh the EF earlier.
-			if isKnown(_EternalFlame) then
+			if IsPlayerSpell(_EternalFlame) then
 				-- First prio is to keep Eternal Flame HoT on our selfs
 				if _HolyPower > 2 and not isBuffed("player", _EternalFlame, 5) then 
 					if castSpell("player",_EternalFlame) then 
