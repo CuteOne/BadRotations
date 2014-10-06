@@ -42,6 +42,8 @@ if select(3, UnitClass("player")) == 2 then
 		numberOfTargetsMelee = getNumEnnemies("player",4); --Get number of enemies within melee range. Does this also work for large hitboxes?
 		
 		
+		
+		
 		-- Check if we should run the rotation
 		if canRun() ~= true then 
 			return false; 

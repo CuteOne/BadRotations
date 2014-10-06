@@ -203,18 +203,28 @@ if select(3,UnitClass("player")) == 2 then
 						
 			-- Lay on Hands
 			-- It should be possible to set this so we only cast it on non tanks, or tanks or all.
-			if isChecked("Check Lay On Hands") then --and nNova[1].hp <= getValue("Lay On Hands") then
-				print("Test1")
+			if isChecked("Lay On Hands") and nNova[1].hp <= getValue("Lay On Hands") and canCast(_LayOnHands) and not UnitDebuffID("player",_Forbearance) then
 				if castSpell(nNova[1].unit,_LayOnHands,true) then 
 					return; 
 				end
 			end
-			-- Eternal flame/sacred Shield/Word Of Glory
-			-- Fol
-			-- Hand of Protection
-			-- Hand of Sacrifice
-			-- Hand of Salvation
-			-- 
+			
+			-- Todo: We should add glyph check or health check
+			if isChecked("Hand Of Sacrifice Friend") and nNova[1].hp <= getValue("Hand Of Sacrifice") and canCast(_HandOfSacrifice) then
+				if castSpell(nNova[1].unit,_HandOfSacrifice,true) then 
+					return; 
+				end
+			end
+			
+			-- Todo, we should check if the target actually have threat from someone and is not a tank!.
+			-- Could use Event to trigger Salvation when mob focus on someone.
+			if isChecked("Hand Of Salvation Friend") and nNova[1].hp <= getValue("Hand Of Salvation Friend") and canCast(_HandOfSalvation) then
+				if castSpell(nNova[1].unit,_HandOfSalvation,true) then 
+					return; 
+				end
+			end
+		
+			-- ToDO: Cast Heal(WoG, Eternal, Sacred, FoL(Selfless Healer)), Cast Taunt, Cast Stun, Cast Hand of Protection 
 		end
 			
 		function ProtPaladinBuffs() -- Make sure that we are buffed, 2 modes, inCombat and Out Of Combat, Blessings, RF, -- ProtPaladinBuffs()
