@@ -14,7 +14,7 @@ function MarkHunter()
 
 	-- Revive Pet
 	if UnitIsDeadOrGhost("pet") then
-		if castSpell("player",_RevivePet) then return; end
+		if castSpell("player",RevivePet) then return; end
 	end
 	
 	end
