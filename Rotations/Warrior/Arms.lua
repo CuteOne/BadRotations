@@ -285,10 +285,11 @@ end
 			end
 		end
 
-		-- Healthstone
-        if isChecked("Healthstone") == true then
+		if isChecked("Healthstone") == true then
 			if getHP("player") <= getValue("Healthstone") then
-					useItem(5512)
+				if canUse(5512) then
+					UseItemByName(tostring(select(1,GetItemInfo(5512))))
+				end	
 			end
 		end
 
