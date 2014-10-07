@@ -85,7 +85,7 @@ elseif isInCombat("player") then
 		--amurderofcrows,if=enabled&!ticking
 		if IsPlayerSpell(AMurderOfCrows) then
 			if FOCUS >= 60 then
-				if UnitHealth("target") > (UnitHealthMax("player")*20) then
+				if UnitHealth("target") > (UnitHealthMax("player")*50) then
 					if castSpell("target",AMurderOfCrows,false) then return; end
 				end
 			end
