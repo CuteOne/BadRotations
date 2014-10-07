@@ -79,6 +79,13 @@ function ShadowConfig()
         CreateNewText(thisConfig,"Power Word: Shield");
 
         -- Wrapper -----------------------------------------
+        CreateNewWrap(thisConfig,"------- Offensive ------");
+
+        CreateNewCheck(thisConfig,"Power Infusion");
+        CreateNewDrop(thisConfig,"Power Infusion", 5, "Toggle2");
+        CreateNewText(thisConfig,"Power Infusion");
+
+        -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------- Defensive ------");
 
         --[[Healthstone]]
@@ -109,7 +116,7 @@ function ShadowConfig()
         if getTalent(5) then
 	        --[[Angelic Feather]]
 	        CreateNewCheck(thisConfig,"Angelic Feather");
-	        CreateNewText(thisConfig,"Angelic Feather");
+            CreateNewText(thisConfig,"Angelic Feather");
 	    elseif getTalent(4) then
 	        --[[Body And Soul]]
 	        CreateNewCheck(thisConfig,"Body And Soul");
