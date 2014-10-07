@@ -13,11 +13,11 @@ if select(3, UnitClass("player")) == 4 then
 			RunMacroText("/stopcasting")
 		end
 	-- Deadly Poison
-		if getBuffRemain("player",_DeadlyPoison)<5 and not isMoving("player") and not isCasting("player") then
+		if getBuffRemain("player",_DeadlyPoison)<5 and not isMoving("player") and not isCasting("player") and not IsMounted() then
 			if castSpell("player",_DeadlyPoison) then return; end
 		end
 	-- Leeching Poison
-		if getBuffRemain("player",_LeechingPoison)<5 and not isMoving("player") and not isCasting("player")  then
+		if getBuffRemain("player",_LeechingPoison)<5 and not isMoving("player") and not isCasting("player") and not IsMounted()  then
 			if castSpell("player",_LeechingPoison) then return; end
 		end
 ----------------------
@@ -38,6 +38,14 @@ if select(3, UnitClass("player")) == 4 then
 		if not isInCombat("player") and not UnitBuffID("player",_Stealth) and canAttack("player","target") and not UnitIsDeadOrGhost("target") and targetDistance < 20 and getSpellCD(_Stealth)==0 then
 			if castSpell("player",_Stealth) then return; end
 		end
+		if canAttack("player","target") and not UnitIsDeadOrGhost("target") and targetDistance < 25 and targetDistance >= 8 and UnitLevel("player")>=60 then
+	-- Shadowstep
+			if not isInCombat("player") and not UnitBuffID("player",_Stealth) and canAttack("player","target") and not UnitIsDeadOrGhost("target") and getSpellCD(_Stealth)==0 then
+				if castSpell("player",_Stealth) then return; end
+			else
+				if castSpell("target",_Shadowstep) then return; end
+			end
+		end
 		if canAttack("player","target") and not UnitIsDeadOrGhost("target") and targetDistance < 8 then
 	-- Sap
 			if noattack() and getDebuffRemain("target",_Sap)==0 and UnitBuffID("player",_Stealth) and UnitLevel("player")>=15 then
@@ -49,7 +57,7 @@ if select(3, UnitClass("player")) == 4 then
 			end
 	-- Ambush
 			if not noattack() and getFacing("target","player")==false and isPicked() and UnitBuffID("player",_Stealth) and getCombo()<5 and getPower("player")>=60 then
-				if castSpell("target",_Ambush) then return; end
+				if castSpell("target",_Ambush,false) then return; end
 			end
 	-- Mutilate
 			if not isInCombat("player") and not noattack() and getFacing("target","player") and getCombo() < 5 and getPower("player")>=55 then
@@ -208,7 +216,7 @@ if select(3, UnitClass("player")) == 4 then
 				            and getHP("thisUnit") > 50
 				            and getDistance("thisUnit") < 5
            				then
-          					TargetUnit("thisUnit")       
+          					if castSpell("thisUnit",_Rupture,false) then return; end
          				end
        				end
        			elseif getSndr()>0 and getCombo()>0 and (getRupr()<2 or (getCombo()==5 and getRupr()<3)) then
@@ -221,9 +229,10 @@ if select(3, UnitClass("player")) == 4 then
 				end
 	-- Dispatch/Mutilate
 				if getCombo()<5 then
-					if UnitLevel("player")>40 and (getHP("target")<35 or getBuffRemain("player",_Blindside)>0) then 
-						if castSpell("target",_Dispatch,false) then return; end
-					else
+					if UnitLevel("player")>=40 and (getHP("target")<35 or getBuffRemain("player",_Blindside)>0) then 
+						if castSpell("target",_Dispatch,false,false,false,true) then return; end
+					end
+					if (getHP("target")>=35 or UnitLevel("player")<40) and getBuffRemain("player",_Blindside)==0 then
 						if castSpell("target",_Mutilate,false) then return; end
 					end
 				end

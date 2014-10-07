@@ -316,14 +316,6 @@ function useThrash()
     end
 end
 
--- function usePot()
---     if isInCombat("player") and getBuffRemain("player",105697)>0 then
---         return false
---     elseif not isInCombat("player") then
---         return true
---     end
--- end
-
 function outOfWater()
     if swimTime == nil then swimTime = 0 end
     if outTime == nil then outTime = 0 end
