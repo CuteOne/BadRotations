@@ -239,11 +239,11 @@ end
 
         --actions+=/mogu_power_potion,if=(target.health.pct<20&buff.recklessness.up)|buff.bloodlust.react|target.time_to_die<=25
         if (getHP("target") <= 20 and UnitBuffID("player",Recklessness)) or hasLust() or getTimeToDie("target") <= 25 then
-        	
+        	if isBoss("target") or isDummy("target") then	
 	        	if canUse(76095) then
 					UseItemByName(tostring(select(1,GetItemInfo(76095))))
 				end
-			
+			end
 		end
 
 ------------------

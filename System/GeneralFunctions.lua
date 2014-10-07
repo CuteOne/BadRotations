@@ -1408,9 +1408,13 @@ end
 -- if isKnown(106832) then
 function isKnown(spellID)
   	local spellName = GetSpellInfo(spellID)
-  	if GetSpellBookItemInfo(spellName) ~=nil then
+  	
+	if GetSpellBookItemInfo(spellName) ~=nil then
     	return true;
   	end
+	if IsPlayerSpell(spellID) then
+		return true
+	end
   	return false;
 end
 

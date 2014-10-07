@@ -1,29 +1,4 @@
 if select(3, UnitClass("player")) == 3 then
---[[           ]]	--[[           ]]		  --[[]]		--[[           ]]	--[[           ]]
---[[           ]]	--[[           ]]	     --[[  ]]		--[[           ]]	--[[           ]]
---[[]]	   --[[]]	--[[]]				    --[[    ]] 		--[[]]					 --[[ ]]
---[[         ]]		--[[           ]]	   --[[      ]] 	--[[           ]]		 --[[ ]]
---[[]]	   --[[]]	--[[]]				  --[[        ]]			   --[[]]		 --[[ ]]
---[[           ]]	--[[           ]]	 --[[]]    --[[]]	--[[           ]]		 --[[ ]]		
---[[           ]] 	--[[           ]]	--[[]]      --[[]]	--[[           ]]		 --[[ ]]
-
---[[This function will create a Value Box.]]
--- function CreateNewBox(value,textString,minValue,maxValue,step,base,tip1)
-
---[[This function will create a Check Box.]]
--- function CreateNewCheck(value, textString, tip1)
-
---[[This function will create a Menu, up to 10 values can be passed.]]
--- function CreateNewDrop(value, textString, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
-
---[[This function will create the TextString.
-This function must always be last, it will increase table row.]]
--- function CreateNewText(value, textString)
-
---[[This function will create the Title String.
-This function will use table row #1.]]
--- function CreateNewTitle(value, textString)
-
 
 -- Config Panel
 function BeastConfig()
@@ -134,32 +109,46 @@ function BeastConfig()
     WrapsManager();
 end
 
---[[]]     --[[]] 		  --[[]]		--[[           ]]	--[[]]	   --[[]]	--[[           ]]
---[[ ]]   --[[ ]] 		 --[[  ]] 		--[[           ]]	--[[]]	  --[[]]	--[[           ]]
---[[           ]] 	    --[[    ]]		--[[]]	   --[[]]	--[[        ]]		--[[]]
---[[           ]]	   --[[      ]] 	--[[           ]] 	--[[    ]] 			--[[           ]]
---[[]] 	   --[[]]	  --[[        ]]	--[[        ]]		--[[        ]]				   --[[]]
---[[]]	   --[[]]	 --[[]]    --[[]]	--[[]]	  --[[]]	--[[]]	  --[[]]	--[[           ]]
---[[]]	   --[[]]	--[[]]      --[[]]	--[[]]	   --[[]]	--[[]]	   --[[]]	--[[           ]]
+-- Config Panel
+function MarkConfig()
+    thisConfig = 0
+    -- Title
+    CreateNewTitle(thisConfig,"Survival Avery");
 
---[[           ]] 	--[[]]	   --[[]]	--[[           ]]  	--[[]]	   --[[]]
---[[           ]] 	--[[]]	   --[[]]	--[[           ]] 	--[[]]	   --[[]]
---[[]]				--[[]]	   --[[]]	--[[]]	   --[[]]	 --[[]]	  --[[]]
---[[           ]] 	--[[]]	   --[[]]	--[[           ]] 	 --[[]]	  --[[]]
-	   	   --[[]]	--[[]]	   --[[]]	--[[        ]]		  --[[]] --[[]]
---[[           ]] 	--[[           ]] 	--[[]]	  --[[]]	  --[[       ]]
---[[           ]] 	--[[           ]] 	--[[]]	   --[[]]	   --[[     ]]
+    -- Wrapper
+    CreateNewWrap(thisConfig,"Pet Management");
 
+    -- General Configs
+    CreateGeneralsConfig();
+    WrapsManager();
+end
 
+-- Config Panel
+function SurvConfig()
+    thisConfig = 0
+    -- Title
+    CreateNewTitle(thisConfig,"Survival Avery");
 
+	-- Wrapper
+	CreateNewWrap(thisConfig,"AoE");
 
+	--automatic aoe
+	CreateNewCheck(thisConfig,"AutoAoE","Check if you want to use automatic AoE, tarplus/minus wont do anything until you toggle this off");
+	CreateNewText(thisConfig,"Auto AoE"); 
 
+	-- tar+
+	CreateNewCheck(thisConfig,"Rotation Up","Switch through Rotation Modes (1 target/2 targets/3 targets/4+targets)");
+	CreateNewDrop(thisConfig,"Rotation Up", 1, "Toggle")
+	CreateNewText(thisConfig,"Tar Plus");
 
+	-- tar-
+	CreateNewCheck(thisConfig,"Rotation Down","Switch through Rotation Modes (1 target/2 targets/3 targets/4+targets)");
+	CreateNewDrop(thisConfig,"Rotation Down", 2, "Toggle")
+	CreateNewText(thisConfig,"Tar Minus");
 
-
-
-
-
-
+    -- General Configs
+    CreateGeneralsConfig();
+    WrapsManager();
+end
 
 end

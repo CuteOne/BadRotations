@@ -51,4 +51,54 @@ if select(3, UnitClass("player")) == 3 then
             PetModesLoaded = "CML Beast Pet Modes";
         end
     end
+	
+	function MarkToggles()
+        GarbageButtons();
+		
+		if  AoEModesLoaded ~= "Mark AoE Modes" then 
+            AoEModes = { 
+                [1] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "Recommended for one or two targets.", highlight = 0, icon = 3044 },
+                [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "Recommended for three targets or more.", highlight = 0, icon = 2643 },
+                [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "Recommended for lazy people like me.", highlight = 1, icon = 34026 }
+            };
+            CreateButton("AoE",0,1)
+            AoEModesLoaded = "Mark AoE Modes";
+        end
+		
+	end
+	
+	function SurvToggles()
+        GarbageButtons();
+		
+		-- AoE Button
+        if AoEModesLoaded ~= "Surv AoE Modes" then 
+            CustomAoEModes = { 
+			[1] = { mode = "One", value = 1 , overlay = "Single Target Enabled", tip = "", highlight = 0, icon = 3044 },
+            [2] = { mode = "Two", value = 2 , overlay = "Two Target Enabled", tip = "", highlight = 0, icon = 2643 },
+            [3] = { mode = "Three", value = 3 , overlay = "Three Target Enabled", tip = "", highlight = 0, icon = 120360 }
+            };
+           AoEModes = CustomAoEModes
+           CreateButton("AoE",1,0)
+           AoEModesLoaded = "Surv AoE Modes";
+        end
+		
+		function SpecificToggle(toggle)
+            if getValue(toggle) == 1 then
+                return IsLeftControlKeyDown();
+            elseif getValue(toggle) == 2 then
+                return IsLeftShiftKeyDown();
+            elseif getValue(toggle) == 3 then
+                return IsRightControlKeyDown();
+            elseif getValue(toggle) == 4 then
+                return IsRightShiftKeyDown();
+            elseif getValue(toggle) == 5 then
+                return IsRightAltKeyDown();
+            elseif getValue(toggle) == 6 then
+                return 0
+            end
+        end
+		
+	end
+	
+
 end

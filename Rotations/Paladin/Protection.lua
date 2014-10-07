@@ -37,11 +37,11 @@ if select(3, UnitClass("player")) == 2 then
 		if IsMouseButtonDown(1) then -- Mousebutton 1-5
 		end
 		
-
-		
 		-- Set Global variables that will be used.
 		_HolyPower = UnitPower("player", 9);
 		numberOfTargetsMelee = getNumEnnemies("player",4); --Get number of enemies within melee range. Does this also work for large hitboxes?
+		
+		
 		
 		
 		-- Check if we should run the rotation

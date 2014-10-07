@@ -89,17 +89,42 @@ if select(3,UnitClass("player")) == 2 then
 		CreateNewBox(thisConfig, "Ardent Defender", 0, 100, 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFArdent Defender");
 		CreateNewText(thisConfig,"Ardent Defender");
 		
+		-- Lay On Hands on yourself
 		CreateNewCheck(thisConfig,"Lay On Hands Self");
 		CreateNewBox(thisConfig, "Lay On Hands Self", 0, 100, 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands on your self");
 		CreateNewText(thisConfig,"Lay On Hands Self");
 		
+		-- Cast Divine Shield
 		CreateNewCheck(thisConfig,"Divine Shield");
 		CreateNewBox(thisConfig, "Divine Shield", 0, 100, 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFDivine Shield");
 		CreateNewText(thisConfig,"Divine Shield");
 		
+		-- Cast Hand of Protection
 		CreateNewCheck(thisConfig,"Hand Of Protection Self");
 		CreateNewBox(thisConfig, "Hand Of Protection Self", 0, 100  , 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Protection Self");
 		CreateNewText(thisConfig,"Hand Of Protection Self");
+		
+		-- Cast Hand of Salvation
+		CreateNewCheck(thisConfig,"Hand Of Salvation Self");
+		CreateNewBox(thisConfig, "Hand Of Salvation Self", 0, 100  , 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Salvation Self");
+		CreateNewText(thisConfig,"Hand Of Salvation Self");
+		
+		-- Cast Hand of Protection on Friend
+		CreateNewCheck(thisConfig,"Hand Of Protection Friend");
+		CreateNewBox(thisConfig, "Hand Of Protection Friend", 0, 100  , 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Protection Friend");
+		CreateNewText(thisConfig,"Hand Of Protection Friend");
+		
+		-- Cast Hand of Sacrifice
+		CreateNewCheck(thisConfig,"Hand Of Sacrifice");
+		CreateNewBox(thisConfig, "Hand of Sacrifice", 0, 100  , 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand of Sacrifice on Friend");
+		CreateNewText(thisConfig,"Hand of Sacrifice");
+		
+		-- Cast Hand of Salvation
+		CreateNewCheck(thisConfig,"Hand Of Salvation Friend");
+		CreateNewBox(thisConfig, "Hand Of Salvation Friend", 0, 100  , 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Salvation on Friend");
+		CreateNewText(thisConfig,"Hand Of Salvation Friend");
+		
+		
 		
 	   -- Wrapper
 		CreateNewWrap(thisConfig,"-------- Healing -------");

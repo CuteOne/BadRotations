@@ -200,7 +200,7 @@ function BadBoyRun()
 		displayDistance = math.floor(targetDistance*100)/100
 		mainText:SetText(displayDistance);
 		profileStarts = GetTime();
-		interruptsRefresh();
+		--interruptsRefresh();
 
 
 		if currentTarget ~= nil then ISetAsUnitID(currentTarget,"current"); end		
@@ -240,11 +240,11 @@ function BadBoyRun()
 			engineFrame:Hide();
 		end
 
-		if BadBoy_data["Check Interrupts Frame"] == 1 then
-			interruptsFrame:Show();
-		else
-			interruptsFrame:Hide();
-		end
+		--if BadBoy_data["Check Interrupts Frame"] == 1 then
+		--	interruptsFrame:Show();
+		--else
+		--	interruptsFrame:Hide();
+		--end
 
 		--[[Class/Spec Selector]]
 		local _MyClass = select(3,UnitClass("player"));
@@ -267,7 +267,13 @@ function BadBoyRun()
 				PaladinRetribution();
 			end
 		elseif _MyClass == 3 then -- Hunter
-			Hunter();
+			if _MySpec == 1 then
+				BeastHunter();
+			elseif _MySpec == 2 then
+				MarkHunter();
+			else
+				SurvHunter();
+			end
 		elseif _MyClass == 4 then -- Rogue
 			if _MySpec == 1 then
 				AssassinationRogue();
@@ -348,6 +354,6 @@ function BadBoyRun()
 	ConfigFrame();
 	DebugFrameCreation();
 	EngineFrameCreation();
-	InterruptsFrameCreation();
+	--InterruptsFrameCreation();
 	ChatOverlay("-= BadBoy Loaded =-")
 end
