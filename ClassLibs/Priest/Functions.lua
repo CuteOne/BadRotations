@@ -75,7 +75,7 @@ if select(3, UnitClass("player")) == 5 then
 	-- Stopcasting MindFlay after next Tick
 	function StopMFCasting()
 		name, _, _, _, startTime, endTime = UnitChannelInfo("player");
-		local spellsToCancel = {_MindFlay}
+		local spellsToCancel = {_MindFlay} -- this spells will be checked for cancelling 
 				local CastTime;
 				local CastTimeLeft;
 				local TimePerTick;
@@ -89,18 +89,18 @@ if select(3, UnitClass("player")) == 5 then
 				CastTime = (endTime - startTime)/1000
 				CastTimeLeft = (endTime/1000) - GetTime()
 				TimePerTick = CastTime/3
-				MFPuffer = 0.06;
+				MFPuffer = 0.06;  -- Lag compensation, maybe have to be adjusted a litte bit depending on you latency
 
 				-- -- Prints for Debug
-				print("--- CastTime ---");
-				print(CastTime);
-				print("--- Cast Time Left ---")
-				print(CastTimeLeft);
-				print("--- Time per Tick ---");
-				print(TimePerTick);
-				print("--- MFPuffer ---");
-				print(MFPuffer);
-				print("=================================");
+				-- print("--- CastTime ---");
+				-- print(CastTime);
+				-- print("--- Cast Time Left ---")
+				-- print(CastTimeLeft);
+				-- print("--- Time per Tick ---");
+				-- print(TimePerTick);
+				-- print("--- MFPuffer ---");
+				-- print(MFPuffer);
+				-- print("=================================");
 
 				-- -- Tick1
 				-- if CastTimeLeft > CastTime and CastTimeLeft < 2*TimePerTick then
