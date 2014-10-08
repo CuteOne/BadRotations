@@ -1,19 +1,4 @@
 if select(3, UnitClass("player")) == 3 then
---[[           ]]   --[[]]     --[[]]   --[[]]     --[[]]   --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]   --[[]]     --[[]]
---[[           ]]   --[[]]     --[[]]   --[[  ]]   --[[]]   --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]   --[[  ]]   --[[]]
---[[]]              --[[]]     --[[]]   --[[    ]] --[[]]   --[[]]                   --[[ ]]             --[[ ]]        --[[]]     --[[]]   --[[    ]] --[[]]
---[[           ]]   --[[]]     --[[]]   --[[           ]]   --[[]]                   --[[ ]]             --[[ ]]        --[[]]     --[[]]   --[[           ]]
---[[           ]]   --[[]]     --[[]]   --[[           ]]   --[[]]                   --[[ ]]             --[[ ]]        --[[]]     --[[]]   --[[           ]]
---[[]]              --[[           ]]   --[[]]   --[[  ]]   --[[           ]]        --[[ ]]        --[[           ]]   --[[           ]]   --[[]]   --[[  ]]
---[[]]              --[[           ]]   --[[]]     --[[]]   --[[           ]]        --[[ ]]        --[[           ]]   --[[           ]]   --[[]]     --[[]]
-
---[[           ]]	--[[           ]]		  --[[]]		--[[           ]]	--[[           ]]
---[[           ]]	--[[           ]]	     --[[  ]]		--[[           ]]	--[[           ]]
---[[]]	   --[[]]	--[[]]				    --[[    ]] 		--[[]]					 --[[ ]]
---[[         ]]		--[[           ]]	   --[[      ]] 	--[[           ]]		 --[[ ]]
---[[]]	   --[[]]	--[[]]				  --[[        ]]			   --[[]]		 --[[ ]]
---[[           ]]	--[[           ]]	 --[[]]    --[[]]	--[[           ]]		 --[[ ]]		
---[[           ]] 	--[[           ]]	--[[]]      --[[]]	--[[           ]]		 --[[ ]]
 
 function AutoCallPet()
     if BadBoy_data["Check Auto Call Pet"] ~= 1 then 
@@ -99,23 +84,32 @@ function Misdirection()
 	end
 end
 
---[[]]     --[[]] 		  --[[]]		--[[           ]]	--[[]]	   --[[]]	--[[           ]]
---[[ ]]   --[[ ]] 		 --[[  ]] 		--[[           ]]	--[[]]	  --[[]]	--[[           ]]
---[[           ]] 	    --[[    ]]		--[[]]	   --[[]]	--[[        ]]		--[[]]
---[[           ]]	   --[[      ]] 	--[[           ]] 	--[[    ]] 			--[[           ]]
---[[]] 	   --[[]]	  --[[        ]]	--[[        ]]		--[[        ]]				   --[[]]
---[[]]	   --[[]]	 --[[]]    --[[]]	--[[]]	  --[[]]	--[[]]	  --[[]]	--[[           ]]
---[[]]	   --[[]]	--[[]]      --[[]]	--[[]]	   --[[]]	--[[]]	   --[[]]	--[[           ]]
+function TargetValid(target)
+	if UnitExists(target) ~= nil then
+		if UnitIsDeadOrGhost(target) == nil then
+			if UnitCanAttack("player",target) == 1 then
+				if isInCombat(target) ~= nil then
+					if IsSpellInRange(GetSpellInfo(SerpentSting),target) == 1 then
+						return true;
+					end
+				end
+			end
+		end
+	end
+	return false;
+end
 
---[[           ]] 	--[[]]	   --[[]]	--[[           ]]  	--[[]]	   --[[]]
---[[           ]] 	--[[]]	   --[[]]	--[[           ]] 	--[[]]	   --[[]]
---[[]]				--[[]]	   --[[]]	--[[]]	   --[[]]	 --[[]]	  --[[]]
---[[           ]] 	--[[]]	   --[[]]	--[[           ]] 	 --[[]]	  --[[]]
-	   	   --[[]]	--[[]]	   --[[]]	--[[        ]]		  --[[]] --[[]]
---[[           ]] 	--[[           ]] 	--[[]]	  --[[]]	  --[[       ]]
---[[           ]] 	--[[           ]] 	--[[]]	   --[[]]	   --[[     ]]
-
-
+function Exotic(slot)
+	local exoticPets = { "Chimaera", "Core Hound", "Devilsaur", "Quilen", "Rhino", "Shale Spider", "Silithid", "Spirit Beast", "Water Strider", "Worm" }
+	if select(4,GetStablePetInfo(slot)) == "Chimaera" or select(4,GetStablePetInfo(slot)) == "Core Hound" or select(4,GetStablePetInfo(slot)) == "Devilsaur" or
+	select(4,GetStablePetInfo(slot)) == "Quilen" or select(4,GetStablePetInfo(slot)) == "Rhino" or select(4,GetStablePetInfo(slot)) == "Shale Spider" or
+	select(4,GetStablePetInfo(slot)) == "Silithid" or select(4,GetStablePetInfo(slot)) == "Spirit Beast" or select(4,GetStablePetInfo(slot)) == "Water Strider" or
+	select(4,GetStablePetInfo(slot)) == "Worm" or select(4,GetStablePetInfo(slot)) == nil then
+		return false;
+	else
+		return true;
+	end	
+end
 
 
 
@@ -123,3 +117,25 @@ end
 
 
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

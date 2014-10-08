@@ -11,8 +11,9 @@ end
 local FOCUS = UnitPower("player")
 local PLAYERHP = 100*(UnitHealth("player")/UnitHealthMax("player"))
 local TARGETHP = 100*(UnitHealth("target")/UnitHealthMax("target"))
+local PETHP = 100*(UnitHealth("pet")/UnitHealthMax("pet"))
+local HIGHHP = UnitHealthMax("target") > (UnitHealthMax("player")*100)
 local COMBATTIME = getCombatTime()
-local PROF1, PROF2 = GetProfessions()
 local BOSS = isBoss("target") or isDummy("target")
 local TTD = getTimeToDie("target")
 local GT = GetTime()
@@ -30,6 +31,9 @@ local PETINRANGE = PETDISTANCE <= 25 and PETLOS ~= nil
 local LALBUFF,_,_,LAL_COUNT,_,_,LAL_TIMER = UnitBuffID("player",LockandLoad)
 local SS_DEBUFF,_,_,_,_,_,SS_TIMER = UnitDebuffID("target",SerpentStingDebuff,"PLAYER")
 local BA_DEBUFF,_,_,_,_,_,BA_TIMER = UnitDebuffID("target",BlackArrowDebuff,"PLAYER")
+
+--pet Buffs
+local MENDBUFF,_,_,_,_,_,MEND_TIMER = UnitBuffID("pet",MendPet)
 
 --Aoe checks
 if AOETimer == nil then AOETimer = 0; end
@@ -51,7 +55,68 @@ end
 -- Food/Invis/Cast Check
 if not canRun() or UnitInVehicle("Player") then return false; end
 if IsMounted("player") then waitForPetToAppear = nil; return false; end
-if isCasting() then return false; end
+
+-- Call Pet
+if isChecked("Auto Call Pet") == true and UnitExists("pet") == nil then
+	if waitForPetToAppear ~= nil and waitForPetToAppear < GetTime() - 2 then
+		if lastFailedWhistle and lastFailedWhistle > GetTime() - 3 then
+			if isMoving("player") == false then
+				if castSpell("player",RevivePet) then return; end
+			end
+		else
+			if getValue("Auto Call Pet") == 1 then
+				if Exotic(1) then
+					if castSpell("player",CallPet1,true) then
+						return;
+					end
+				end
+			elseif getValue("Auto Call Pet") == 2 then
+				if Exotic(2) then
+					if castSpell("player",CallPet2,true) then
+						return;
+					end
+				end
+			elseif getValue("Auto Call Pet") == 3 then
+				if Exotic(3) then
+					if castSpell("player",CallPet3,true) then
+						return;
+					end
+				end
+			elseif getValue("Auto Call Pet") == 4 then
+				if Exotic(4) then
+					if castSpell("player",CallPet4,true) then
+						return;
+					end
+				end
+			elseif getValue("Auto Call Pet") == 5 then
+				if Exotic(5) then
+					if castSpell("player",CallPet5,true) then
+						return;
+					end
+				end
+			end
+		end
+	end
+	if waitForPetToAppear == nil then
+		waitForPetToAppear = GetTime()
+	end
+end
+
+--Revive Pet
+if UnitIsDeadOrGhost("pet") then
+	if isMoving("player") == false then
+		if castSpell("player",RevivePet) then return; end
+	end
+end
+
+--Mend Pet
+if isChecked("Mend Pet") == true then
+	if MENDBUFF == nil then
+		if PETHP <= getValue("Mend Pet") then
+			if castSpell("pet",MendPet) then return; end
+		end
+	end
+end
 
 --Out of Combat
 if isInCombat("player") == nil then
@@ -59,11 +124,18 @@ if isInCombat("player") == nil then
 
 
 --Combat
-elseif isInCombat("player") then
+elseif isInCombat("player") and TargetValid("target") then
 	
+		--gloves
+		if GetInventoryItemCooldown("player", 10) == 0 then
+			UseInventoryItem(10)
+		end
+		
 		--blood_fury
 		if IsPlayerSpell(BloodFury) then
-			if castSpell("player",BloodFury,false) then return; end
+			if HIGHHP then
+				if castSpell("player",BloodFury,false) then return; end
+			end
 		end
 		
 		--explosivetrap,if=activeenemies>1
@@ -85,7 +157,7 @@ elseif isInCombat("player") then
 		--amurderofcrows,if=enabled&!ticking
 		if IsPlayerSpell(AMurderOfCrows) then
 			if FOCUS >= 60 then
-				if UnitHealth("target") > (UnitHealthMax("player")*50) then
+				if HIGHHP then
 					if castSpell("target",AMurderOfCrows,false) then return; end
 				end
 			end
@@ -111,6 +183,9 @@ elseif isInCombat("player") then
 				if castSpell("target",ExplosiveShot,false,false) then return; end
 			end
 		end
+		
+		--cancel cobra_shot
+		if isCasting() then return false; end
 		
 		--glaivetoss,if=enabled
 		if IsPlayerSpell(GlaiveToss) then

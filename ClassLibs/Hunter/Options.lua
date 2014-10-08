@@ -128,6 +128,19 @@ function SurvConfig()
     thisConfig = 0
     -- Title
     CreateNewTitle(thisConfig,"Survival Avery");
+	
+	-- Wrapper
+	CreateNewWrap(thisConfig,"Pet");
+	
+	-- Auto Call Pet Toggle
+    CreateNewCheck(thisConfig,"Auto Call Pet");
+    CreateNewDrop(thisConfig, "Auto Call Pet", 1, "Set to desired Pet to Whistle.", "Pet 1", "Pet 2", "Pet 3", "Pet 4", "Pet 5");
+    CreateNewText(thisConfig,"Auto Call Pet");
+    
+    -- Mend Pet
+    CreateNewCheck(thisConfig,"Mend Pet");
+    CreateNewBox(thisConfig, "Mend Pet", 0, 100  , 5, 75, "Under what Pet %HP to use Mend Pet");
+    CreateNewText(thisConfig,"Mend Pet");
 
 	-- Wrapper
 	CreateNewWrap(thisConfig,"AoE");
