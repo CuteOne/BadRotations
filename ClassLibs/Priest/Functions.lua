@@ -32,47 +32,9 @@ if select(3, UnitClass("player")) == 5 then
 --[[]]	   			--[[           ]]	--[[]]	 --[[  ]]	--[[   		   ]]		 --[[ ]]		--[[   		   ]]	--[[           ]]	--[[]]	 --[[  ]]
 --[[]]	   			--[[           ]]	--[[]]	   --[[]]	--[[   		   ]]		 --[[ ]]		--[[   		   ]]	--[[           ]]	--[[]]	   --[[]]
 
-
-
--- is Casting VampiricTouch or MindBlast
-
---	function shadowCasting()
---		if isCastingSpell(_VampiricTouch) or isCastingSpell(_MindBlast) then
---			return false;
---		end
---	end
-
-	-- Casting MindBlast or VampiricTouch -> return true
-	function castingShadow()
-		if isCastingSpell(_MindBlast)
-		or isCastingSpell(_MindSpike)
-		or isCastingSpell(_VampiricTouch)
-		or isCastingSpell(_MindFlayI) then
-			return true
-		else
-			return false
-		end
-	end
-
-	-- Casting MindFlay -> return true
-	function castingMF()
-		if isCastingSpell(_MindFlay) then
-			return true
-		else 
-			return false
-		end
-	end
-
-	-- Casting MindFlayInsanity -> return true
-	function castingMFI()
-		if isCastingSpell(_MindFlayI) then
-			return true
-		else 
-			return false
-		end
-	end
-
-	-- Stopcasting MindFlay after next Tick
+	------------------------------------------
+	-- Stopcasting MindFlay after next Tick --
+	------------------------------------------
 	function StopMFCasting()
 		name, _, _, _, startTime, endTime = UnitChannelInfo("player");
 		local spellsToCancel = {_MindFlay} -- this spells will be checked for cancelling 
@@ -125,4 +87,24 @@ if select(3, UnitClass("player")) == 5 then
 			end
 		end
 	end
+
+	-------------------------------
+	-- Bloodlust check by chumii --
+	-------------------------------
+
+	function hasLust()
+	    if UnitBuffID("player",2825)        -- Bloodlust    
+	    or UnitBuffID("player",80353)       -- Timewarp 
+	    or UnitBuffID("player",32182)       -- Heroism 
+	    or UnitBuffID("player",90355) then  -- Ancient Hysteria
+	        return true
+	    else
+	        return false
+	    end
+	end
+
+
+
+
+	
 end

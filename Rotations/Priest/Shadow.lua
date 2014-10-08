@@ -77,7 +77,7 @@ if select(3, UnitClass("player")) == 5 then
 
 		for i = 1, #nNova do
 			if nNova[i].hp < 249 then
-				if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{21562,109773,469,90364}) or getBuffRemain(nNova[i].unit,_PowerWordFortitude) < 10*60 then
+				if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{21562,109773,469,90364}) or (getBuffRemain(nNova[i].unit,_PowerWordFortitude) < 10*60 and isSpellInRange(_PowerWordFortitude,nNova[i].unit) then
 					if castSpell("player",_PowerWordFortitude,true) then lastPWF = GetTime(); return; end
 	    		end 
 	   		end
@@ -112,14 +112,14 @@ if select(3, UnitClass("player")) == 5 then
 
 
 
--- 	------------
--- 	-- Combat --
--- 	------------
+ 	------------
+ 	-- Combat --
+ 	------------
 
-	-- Break MindFlay cast if (read following comments)
+	-- Break MindFlay cast...
    	if select(1,UnitChannelInfo("player")) == "Mind Flay" then
 		
-		-- for MindBlast cast and proc
+		-- ...for MindBlast cast and proc
 		if canCast(_MindBlast) then
 			--RunMacroText("/stopcasting");
 			-- cast MindBlast from DI proc
@@ -134,24 +134,24 @@ if select(3, UnitClass("player")) == 5 then
 			end
 		end
 		
-		-- for SWP refresh
+		-- ...for SWP refresh
 		if getDebuffRemain("target",_ShadowWordPain) <= SWPrefresh then
 			StopMFCasting();
 			-- RunMacroText("/stopcasting");
 		end
-		-- for VT refresh
+		-- ...for VT refresh
 		if getDebuffRemain("target",_VampiricTouch) <= VTrefresh then
 			StopMFCasting();
 			-- RunMacroText("/stopcasting");
 		end
 
-		-- for MindSpike Proc (Surge of Darkness)
+		-- ...for MindSpike Proc (Surge of Darkness)
 		if getTalent(7) and UnitBuffID("player",_SurgeOfDarkness) and getBuffStacks("player",_SurgeOfDarkness) >= 2 then 
 			StopMFCasting();
 			-- RunMacroText("/stopcasting");
 		end
 
-		-- for Halo
+		-- ...for Halo
 		if getTalent(18) and canCast(_Halo) then 
 			StopMFCasting();
 			-- RunMacroText("/stopcasting");
@@ -205,9 +205,6 @@ if pause() ~= true and UnitAffectingCombat("player") and UnitExists("target") an
 			end
 		end
 
-	-- Do not cast while casting following spells
-		-- TBD
-
 	-- Offensives
 
 		-- Power Infusion
@@ -217,7 +214,19 @@ if pause() ~= true and UnitAffectingCombat("player") and UnitExists("target") an
 				return; 
 			end
 		end
---[[]]
+
+	-- DPS Pot
+		-- if (getHP("target") <= 20
+		-- 	or hasLust() 
+		-- 	or getTimeToDie("target") <= 40 then
+
+		-- 	if isBoss("target") then	
+		-- 		if canUse(76095) then
+		-- 			UseItemByName(tostring(select(1,GetItemInfo(76095))))
+		-- 		end
+		-- 	end
+		-- end
+
 	-- Rotation
 
 		-- -- Devouring Plague (MB or SW:D CD under 1.5sec for creating another Orb)
