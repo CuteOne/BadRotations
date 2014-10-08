@@ -77,7 +77,7 @@ if select(3, UnitClass("player")) == 5 then
 
 		for i = 1, #nNova do
 			if nNova[i].hp < 249 then
-				if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{21562,109773,469,90364}) or (getBuffRemain(nNova[i].unit,_PowerWordFortitude) < 10*60 and isSpellInRange(_PowerWordFortitude,nNova[i].unit) then
+				if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{21562,109773,469,90364}) or (getBuffRemain(nNova[i].unit,_PowerWordFortitude) < 10*60 and isSpellInRange(_PowerWordFortitude,nNova[i].unit)) then
 					if castSpell("player",_PowerWordFortitude,true) then lastPWF = GetTime(); return; end
 	    		end 
 	   		end
