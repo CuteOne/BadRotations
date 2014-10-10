@@ -188,7 +188,7 @@ if select(3, UnitClass("player")) == 4 then
 	-----------------------
 	--- Single Rotation ---
 	-----------------------
-			if not UnitBuffID("player",_Stealth) and targetDistance<=8 and (not useAoE() or UnitLevel("player")<66) then
+			if not UnitBuffID("player",_Stealth) and targetDistance<=5 and (not useAoE() or UnitLevel("player")<66) then
 	-- Slice and Dice
 				if getSndr()<2 and getCombo()>0 and getPower("player")>=25 then
 					if castSpell("player",_SliceAndDice,true) then return; end

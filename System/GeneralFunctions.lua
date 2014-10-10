@@ -140,13 +140,17 @@ function canDispel(Unit,spellID)
 		if spellID == 122288 then typesList = { "Poison", "Disease" } end 
 	end		
 	local function ValidType(debuffType)
-  		for i = 1, #typesList do
-  			if typesList[i] == debuffType then
-  				return true;
-  			else
-  				return false;
-  			end
-  		end
+		if typeList == nil then
+			return false
+		else
+	  		for i = 1, #typesList do
+	  			if typesList[i] == debuffType then
+	  				return true;
+	  			else
+	  				return false;
+	  			end
+	  		end
+	  	end
   	end
 	local ValidDebuffType = false
 	local i = 1
