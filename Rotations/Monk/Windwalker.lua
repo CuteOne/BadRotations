@@ -160,11 +160,11 @@ if select(3, UnitClass("player")) == 10 then
 			end
 		-- Paralysis
 			if canInterrupt(_Paralysis,tonumber(getValue("Interrupts"))) and getSpellCD(_SpearHandStrike)>0 and getSpellCD(_SpearHandStrike)<13 and targetDistance<20 then
-				if castPell("target",_Paralysis,false) then return; end
+				if castSpell("target",_Paralysis,false) then return; end
 			end
 		-- Leg Sweep
 			if canInterrupt(_LegSweep,tonumber(getValue("Interrupts"))) and getSpellCD(_Paralysis)>0 and getSpellCD(_Paralysis)<13 and targetDistance<5 then
-				if castPell("target",_LegSweep,false) then return; end
+				if castSpell("target",_LegSweep,false) then return; end
 			end
 
 	-----------------------------
