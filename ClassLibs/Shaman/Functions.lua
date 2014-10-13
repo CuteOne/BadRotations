@@ -163,7 +163,7 @@ function shouldBolt()
     if UnitLevel("player") < 3 then
         lowestCD = lightning+1
     elseif UnitLevel("player") < 10 then
-        lowest = min(getSpellCD(_PrimalStrike))
+        lowestCD = min(getSpellCD(_PrimalStrike))
     elseif UnitLevel("player") < 12 then
         lowestCD = min(getSpellCD(_PrimalStrike),getSpellCD(_LavaLash))
     elseif UnitLevel("player") < 26 then

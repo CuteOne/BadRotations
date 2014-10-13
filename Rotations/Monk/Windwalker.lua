@@ -20,6 +20,10 @@ if select(3, UnitClass("player")) == 10 then
 		  	and not IsMounted()
 		  	and not IsFlying()
 		then
+	-- Tiger's Lust
+			if hasNoControl() then
+				if castSpell("player",_TigersLust,true) then return; end
+			end
 	-- Detox
 			if canDispel("player",_Detox) then
 				if castSpell("player",_Detox,true) then return; end
@@ -80,6 +84,14 @@ if select(3, UnitClass("player")) == 10 then
 		if getHP("player")<=40 then
 			if castSpell("player",_FortifyingBrew,true) then return; end
 		end
+	-- Diffuse Magic
+		if canDispel("player",_DiffuseMagic) or getHP("player")<=30 then
+			if castSpell("player",_DiffuseMagic,true) then return; end
+		end
+	-- Healing Sphere
+		if getHP("player")<=30 and getPower("player")>=40 then
+			if castGround("player",_HealingSphere,5) then return; end
+		end
 	-- Nimble Brew
 		if hasNoControl() then
 			if castSpell("player",_NimbleBrew,true) then return; end
@@ -100,7 +112,7 @@ if select(3, UnitClass("player")) == 10 then
 				end
 			end
 	-- Flying Serpent Kick
-			if canFSK("target") then
+			if canFSK("target") and canAttack("target","player") and not UnitIsDeadOrGhost("target") and not isDummy() then
 				if castSpell("player",_FlyingSerpentKick,false) then return; end
 			end
 			if targetDistance < 10 and select(3,GetSpellInfo(101545)) == "INTERFACE\\ICONS\\priest_icon_chakra_green" then
@@ -146,10 +158,22 @@ if select(3, UnitClass("player")) == 10 then
 			if canInterrupt(_SpearHandStrike,tonumber(getValue("Interrupts"))) and getSpellCD(_QuakingPalm)>0 and getSpellCD(_QuakingPalm)<119 and targetDistance<3.5 then
 				if castSpell("target",_SpearHandStrike,false) then return; end
 			end
+		-- Paralysis
+			if canInterrupt(_Paralysis,tonumber(getValue("Interrupts"))) and getSpellCD(_SpearHandStrike)>0 and getSpellCD(_SpearHandStrike)<13 and targetDistance<20 then
+				if castPell("target",_Paralysis,false) then return; end
+			end
+		-- Leg Sweep
+			if canInterrupt(_LegSweep,tonumber(getValue("Interrupts"))) and getSpellCD(_Paralysis)>0 and getSpellCD(_Paralysis)<13 and targetDistance<5 then
+				if castPell("target",_LegSweep,false) then return; end
+			end
+
 	-----------------------------
 	--- In Combat - Cooldowns ---
 	-----------------------------
-		
+		-- Invoke Xuen
+			if useCDs() then
+				if castSpell("target",_InvokeXuen) then return; end
+			end
 	--------------------------------
 	--- In Combat - All Rotation ---
 	--------------------------------
@@ -246,7 +270,7 @@ if select(3, UnitClass("player")) == 10 then
 				end
 			end -- End Single Target Rotation
 		-- Flying Serpent Kick
-			if canFSK("target") then
+			if canFSK("target") and not isDummy() then
 				if castSpell("player",_FlyingSerpentKick,false) then return; end
 			end
 			if targetDistance < 10 and select(3,GetSpellInfo(101545)) == "INTERFACE\\ICONS\\priest_icon_chakra_green" then
