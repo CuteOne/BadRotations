@@ -34,8 +34,7 @@ function EngineFrameCreation()
 						GameTooltip:SetOwner(self, "BOTTOMLEFT", 250, 5);
 						GameTooltip:SetText("|cffFF0000Role: |cffFFDD11"..nNova[MyValue+BadBoy_data.engineActualRow].role..
 							"\n|cffFF0000Name: |cffFFDD11"..nNova[MyValue+BadBoy_data.engineActualRow].name..
-							"\n|cffFF0000GUID: |cffFFDD11"..nNova[MyValue+BadBoy_data.engineActualRow].guid..
-							"\n|cffFF0000Target: |cffFFDD11"..nNova[MyValue+BadBoy_data.engineActualRow].target, nil, nil, nil, nil, false);
+							"\n|cffFF0000GUID: |cffFFDD11"..nNova[MyValue+BadBoy_data.engineActualRow].guid, nil, nil, nil, nil, false);
 						GameTooltip:Show();
 					end
 				end)

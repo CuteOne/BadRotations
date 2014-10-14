@@ -1,3 +1,7 @@
+function IGetLocation(Unit)
+	return ObjectPosition(Unit)
+end
+
 function UnitBuffID(unit, spellID, filter)
 	local spellName = GetSpellInfo(spellID)
 	if filter == nil then
@@ -167,7 +171,7 @@ end
 
 -- if canHeal("target") then
 function canHeal(Unit)
-	if IExists(UnitGUID(Unit)) and getDistance(Unit) <= 40 and UnitCanCooperate("player",Unit) 
+	if UnitExists(Unit) and getDistance(Unit) <= 40 and UnitCanCooperate("player",Unit) 
 		and not UnitIsEnemy("player",Unit) and not UnitIsCharmed(Unit) and not UnitIsDeadOrGhost(Unit) 
 		and getLineOfSight(Unit) == true and not UnitDebuffID(Unit,33786) then
 		return true;
@@ -245,7 +249,7 @@ function canRun()
 			if SpellIsTargeting()
 			  or UnitInVehicle("Player")
 			  or IsMounted("player")
-			  or UnitIsDeadOrGhost("player") ~= nil
+			  or UnitIsDeadOrGhost("player") ~= false
 			  or UnitBuffID("player",11392) ~= nil
 			  or UnitBuffID("player",80169) ~= nil 
 			  or UnitBuffID("player",87959) ~= nil
@@ -296,13 +300,14 @@ function canUse(itemID)
 		return false;
 	end
 end
+
 -- castGround("target",12345,40);
 function castGround(Unit,SpellID,maxDistance)
-	if IExists(UnitGUID(Unit)) and getSpellCD(SpellID) <= 0.4 and getLineOfSight("player", Unit) and getDistance("player", Unit) <= maxDistance then
+	if UnitExists(Unit) and getSpellCD(SpellID) == 0 and getLineOfSight("player", Unit) and getDistance("player", Unit) <= maxDistance then
  		CastSpellByName(GetSpellInfo(SpellID),"player");
-		if AreaSpellIsPending() then
-		local X, Y, Z = IGetLocation(UnitGUID(Unit));
-			CastAtLocation(X,Y,Z);
+		if IsAoEPending() then
+		local X, Y, Z = ObjectPosition(Unit);
+			CastAtPosition(X,Y,Z);
 			return true;
 		end
  	end
@@ -311,11 +316,11 @@ end
 
 -- castGroundBetween("target",12345,40);
 function castGroundBetween(Unit,SpellID,maxDistance)
-	if IExists(UnitGUID(Unit)) and getSpellCD(SpellID) <= 0.4 and getLineOfSight("player", Unit) and getDistance("player", Unit) <= maxDistance then
+	if UnitExists(Unit) and getSpellCD(SpellID) <= 0.4 and getLineOfSight("player", Unit) and getDistance("player", Unit) <= maxDistance then
  		CastSpellByName(GetSpellInfo(SpellID),"player");
 		if AreaSpellIsPending() then
-		local X, Y, Z = IGetLocation(UnitGUID(Unit));
-			CastAtLocation(GetPointBetweenObjects(Player, Target, getDistance("player", "target")/2));
+		local X, Y, Z = ObjectPosition(Unit);
+			CastAtPosition(GetPointBetweenObjects(Player, Target, getDistance("player", "target")/2));
 			return true;
 		end
  	end
@@ -377,11 +382,11 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 					medZ = medZ + foundTargets[i].z;
 				end
 				medX,medY,medZ = medX/3,medY/3,medZ/3
-				local myX, myY = IGetLocation(UnitGUID("player"));
+				local myX, myY = ObjectPosition("player");
 				if math.sqrt(((medX-myX)^2)+((medY-myY)^2)) < 40 then
 			 		CastSpellByName(GetSpellInfo(SpellID),"player");
 					if AreaSpellIsPending() then
-						CastAtLocation(medX,medY,medZ);
+						CastAtPosition(medX,medY,medZ);
 						return true;
 	end end end end end
 	return false;
@@ -393,50 +398,47 @@ First 	 	UnitID 			Enter valid UnitID
 Second 		SpellID 		Enter ID of spell to use
 Third 		Facing 			True to allow 360 degrees, false to use facing check
 Fourth 		MovementCheck	True to make sure player is standing to cast, false to allow cast while moving
-Fifth 		SpammAllowed 	True to skip that check, false to prevent spells that we dont want to spam from beign recast for 1 second
+Fifth 		SpamAllowed 	True to skip that check, false to prevent spells that we dont want to spam from beign recast for 1 second
 Sixth 		KnownSkip 		True to skip isKnown check for some spells that are not managed correctly in wow's spell book.
 ]]
 
 -- castSpell("target",12345,true);
 function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
-	local lagTolerance = 0;
 	if shouldStopCasting(SpellID) ~= true and not UnitIsDeadOrGhost(Unit) then
-	    if timersTable == nil then timersTable = {}; end
-		local Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,GlobalCooldown,PowerNeeded,CurrentPower,spellRange = tostring(Unit),tonumber(SpellID),FacingCheck,MovementCheck,SpamAllowed,KnownSkip,select(7, GetSpellInfo(61304)),select(4,GetSpellInfo(SpellID)),UnitPower("player"),select(9,GetSpellInfo(SpellID));
+		-- Table used to prevent refiring too quick
+	    if timersTable == nil then timersTable = { }; end
+		-- make sure it is a known spell
+		if not (KnownSkip == true or isKnown(SpellID)) then return false; end
+
+		-- gather our spell range information
+		local spellRange = select(6,GetSpellInfo(SpellID));
 	  	if spellRange == nil or spellRange < 4 then spellRange = 4; end
-	  	if (Unit ~= nil and UnitIsFriend("player",Unit)) then FacingCheck = true; end
-	  	if not (CurrentPower < PowerNeeded) 
-	   	  and (MovementCheck == false or GlobalCooldown <= lagTolerance or isMoving("player") ~= true or UnitBuffID("player",79206) ~= nil)
-	      and getSpellCD(SpellID) <= lagTolerance and (KnownSkip == true or isKnown(SpellID)) then
-	    	if GlobalCooldown <= lagTolerance and (SpamAllowed == nil or SpamAllowed == false) then
-	      		if timersTable == nil or (timersTable ~= nil and (timersTable[SpellID] == nil or timersTable[SpellID] <= GetTime() -0.6)) then
-	       			if Unit ~= nil and (UnitGUID(Unit) == UnitGUID("player") or (KnownSkip or isKnown(SpellID)) and (getFacingSightDistance("player",Unit) < spellRange or (FacingCheck == true and getLineOfSight("player",Unit) == true and getDistance("player",Unit) < spellRange))) then
-	        			timersTable[SpellID] = GetTime();
-	        			currentTarget = UnitGUID(Unit);
-	        			CastSpellByName(GetSpellInfo(SpellID),Unit);
-						if BadBoy_data["Power"] == 1 then mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID))); end
-	        			return true;
-	    			end
-	       			if Unit == nil then
-	        			timersTable[SpellID] = GetTime();
-	        			currentTarget = UnitGUID(Unit);
-	        			CastSpellByName(GetSpellInfo(SpellID));
-						if BadBoy_data["Power"] == 1 then mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID))); end
-	        			return true;
-	       			end
+		-- Check unit, if it's player then we can skip facing
+		if (Unit == nil or UnitIsUnit("player",Unit)) or -- Player
+			(Unit ~= nil and UnitIsFriend("player",Unit)) then FacingCheck = true; end -- Ally
+		-- if MovementCheck is nil or false then we dont check it
+		if MovementCheck == false or isMoving("player") ~= true or UnitBuffID("player",79206) ~= nil then
+			-- if ability is ready and in range
+			if getSpellCD(SpellID) == 0 and getDistance("player",Unit) < spellRange then
+				-- if spam is not allowed
+	    		if SpamAllowed == false then 
+	    			-- get our last/current cast
+	      			if timersTable == nil or (timersTable ~= nil and (timersTable[SpellID] == nil or timersTable[SpellID] <= GetTime() -0.6)) then
+	       				if (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true) then
+	        				timersTable[SpellID] = GetTime();
+	        				currentTarget = UnitGUID(Unit);
+	        				CastSpellByName(GetSpellInfo(SpellID),Unit);
+							if BadBoy_data["Power"] == 1 then mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID))); end
+	        				return true;
+	        			end
+					end
+				elseif (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true) then
+	  		   		
+	  		   		currentTarget = UnitGUID(Unit);
+					CastSpellByName(GetSpellInfo(SpellID),Unit);
+					if BadBoy_data["Power"] == 1 then mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID))); end
+					return true;
 				end
-			elseif Unit ~= nil and (UnitGUID(Unit) == UnitGUID("player") 
-	  		  or (getDistance("player",Unit) < spellRange and getLineOfSight("player",Unit) == true)) then
-	        	currentTarget = UnitGUID(Unit);
-				CastSpellByName(GetSpellInfo(SpellID),Unit);
-				if BadBoy_data["Power"] == 1 then mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID))); end
-				return true;
-			end
-			if Unit == nil then
-	        	currentTarget = UnitGUID(Unit);
-				CastSpellByName(GetSpellInfo(SpellID));
-				if BadBoy_data["Power"] == 1 then mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID))); end
-	      		return true;
 	    	end
 	  	end
 	end
@@ -542,10 +544,9 @@ function getCombatTime()
 	local combatTime = BadBoy_data["Combat Time"];
 	if combatStarted == nil then return 0; end
 	if combatTime == nil then combatTime = 0; end
-	if UnitAffectingCombat("player") == 1 then
+	if UnitAffectingCombat("player") == true then
 		combatTime = (GetTime() - combatStarted);
-	end
-	if UnitAffectingCombat("player") == nil then
+	else
 		combatTime = 0;
 	end
 	BadBoy_data["Combat Time"] = combatTime;
@@ -586,14 +587,30 @@ end
 -- if getDistance("player","target") <= 40 then
 function getDistance(Unit1,Unit2)
 	if Unit2 == nil then Unit2 = "player"; end
-	if IExists(UnitGUID(Unit1)) and IExists(UnitGUID(Unit2)) then
-		local X1,Y1,Z1 = IGetLocation(UnitGUID(Unit1));
-		local X2,Y2,Z2 = IGetLocation(UnitGUID(Unit2));
+	if UnitExists(Unit1) and UnitExists(Unit2) then
+		local X1,Y1,Z1 = ObjectPosition(Unit1);
+		local X2,Y2,Z2 = ObjectPosition(Unit2);
 		local unitSize = 0;
 		if UnitGUID(Unit1) ~= UnitGUID("player") and UnitCanAttack(Unit1,"player") then 
-			unitSize = IGetFloatDescriptor(UnitGUID(Unit1),0x110); 
+			unitSize = ObjectDescriptor(Unit1, 0x110 , Float); 
 		elseif UnitGUID(Unit2) ~= UnitGUID("player") and UnitCanAttack(Unit2,"player") then 
-			unitSize = IGetFloatDescriptor(UnitGUID(Unit2),0x110); 
+			unitSize = ObjectDescriptor(Unit2, 0x110 , Float); 
+		end
+		if isDummy(Unit1) or isDummy(Unit2) then unitSize = 1; end
+		return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unitSize;
+	else 
+		return 1000;
+	end
+end
+
+-- if getDistance("player","target") <= 40 then
+function getDistanceToObject(Unit1,X2,Y2,Z2)
+	if Unit1 == nil then Unit1 = "player"; end
+	if UnitExists(Unit1) then
+		local X1,Y1,Z1 = ObjectPosition(Unit1);
+		local unitSize = 0;
+		if UnitGUID(Unit1) ~= UnitGUID("player") and UnitCanAttack(Unit1,"player") then 
+			unitSize = ObjectDescriptor(Unit1, 0x110 , Float); 
 		end
 		if isDummy(Unit1) or isDummy(Unit2) then unitSize = 1; end
 		return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unitSize;
@@ -623,11 +640,13 @@ end
 function getFacing(Unit1,Unit2,Degrees)
 	if Degrees == nil then Degrees = 90; end
 	if Unit2 == nil then Unit2 = "player"; end
-	if IExists(UnitGUID(Unit1)) and IExists(UnitGUID(Unit2)) then
+	if UnitExists(Unit1) and UnitExists(Unit2) then
 		local Angle1,Angle2,Angle3;
-		local Y1,X1,Z1,Angle1 = IGetLocation(UnitGUID(Unit1));
-        local Y2,X2,Z2,Angle2 = IGetLocation(UnitGUID(Unit2));
-	        if Y1 and X1 and Z1 and Angle1 and Y2 and X2 and Z2 and Angle2 then
+		local Angle1 = ObjectFacing(Unit1)
+		local Angle2 = ObjectFacing(Unit2)
+		local Y1,X1,Z1 = ObjectPosition(Unit1);
+        local Y2,X2,Z2 = ObjectPosition(Unit2);
+	    if Y1 and X1 and Z1 and Angle1 and Y2 and X2 and Z2 and Angle2 then
 	        local deltaY = Y2 - Y1
 	        local deltaX = X2 - X1
 	        Angle1 = math.deg(math.abs(Angle1-math.pi*2))
@@ -644,6 +663,7 @@ function getFacing(Unit1,Unit2,Degrees)
 	        if Angle3 < Degrees then return true; else return false; end
 	    end
 	end
+
 end
 
 
@@ -652,13 +672,13 @@ end
 --[[function getFacing(Unit1, Unit2)
  	if not Unit2 then Unit2 = 'player'; end
  	if not Unit1 then Unit1 = 'target'; end
- 	local X, Y, Z, Rotation = IGetLocation(UnitGUID(Unit2));
- 	local OtherX, OtherY = IGetLocation(UnitGUID(Unit1));
+ 	local X, Y, Z, Rotation = ObjectPosition(Unit2);
+ 	local OtherX, OtherY = ObjectPosition(Unit1);
  	return ((X - OtherX) * math.cos(-Rotation)) - ((Y - OtherY) * math.sin(-Rotation)) < 0;
 end
 
 function faceLocation(X, Y)
- 	local PlayerX, PlayerY = IGetLocation(UnitGUID("player"));
+ 	local PlayerX, PlayerY = ObjectPosition("player");
  	if rad(atan2(Y - PlayerY, X - PlayerX)) < 0 then
   		FaceDirection(rad(atan2(Y - PlayerY, X - PlayerX) + 360));
  	else
@@ -668,7 +688,7 @@ function faceLocation(X, Y)
 end
 
 function face(unit)
- 	faceLocation(IGetLocation(UnitGUID(unit)));
+ 	faceLocation(ObjectPosition(unit));
  	return;
 end
 ]]
@@ -683,10 +703,10 @@ end
 function getFacingSight(Unit1,Unit2,Degrees)
 	if Degrees == nil then Degrees = 90; end
 	if Unit2 == nil then Unit2 = "player"; end
-	if IExists(UnitGUID(Unit1)) and IExists(UnitGUID(Unit2)) then
+	if UnitExists(Unit1) and UnitExists(Unit2) then
 		local Angle1,Angle2,Angle3;
-		local Y1,X1,Z1,Angle1 = IGetLocation(UnitGUID(Unit1));
-        local Y2,X2,Z2,Angle2 = IGetLocation(UnitGUID(Unit2));
+		local Y1,X1,Z1,Angle1 = ObjectPosition(Unit1);
+        local Y2,X2,Z2,Angle2 = ObjectPosition(Unit2);
         if Y1 and X1 and Z1 and Angle1 and Y2 and X2 and Z2 and Angle2 then
 	        local deltaY = Y2 - Y1
 	        local deltaX = X2 - X1
@@ -715,10 +735,10 @@ end
 function getFacingSightDistance(Unit1,Unit2,Degrees)
 	if Degrees == nil then Degrees = 90; end
 	if Unit2 == nil then Unit2 = "player"; end
-	if IExists(UnitGUID(Unit1)) and IExists(UnitGUID(Unit2)) then
+	if UnitExists(Unit1) and UnitExists(Unit2) then
 		local Angle1,Angle2,Angle3;
-		local Y1,X1,Z1,Angle1 = IGetLocation(UnitGUID(Unit1));
-        local Y2,X2,Z2,Angle2 = IGetLocation(UnitGUID(Unit2));
+		local Y1,X1,Z1,Angle1 = ObjectPosition(Unit1);
+        local Y2,X2,Z2,Angle2 = ObjectPosition(Unit2);
         if Y1 and X1 and Z1 and Angle1 and Y2 and X2 and Z2 and Angle2 then
 	        local deltaY = Y2 - Y1
 	        local deltaX = X2 - X1
@@ -746,15 +766,18 @@ end
 
 -- if getHP("player") then
 function getHP(Unit)
+	if UnitIsDeadOrGhost(Unit) or not UnitExists(Unit) then 
+		return 0; 
+	end
 	for i = 1, #nNova do
 		if nNova[i].guid == UnitGUID(Unit) then
 			return nNova[i].hp;
 		end
 	end
 	if isChecked("No Incoming Heals") ~= true then
-		return 100*(UnitHealth(Unit)+UnitGetIncomingHeals("player"))/UnitHealthMax(Unit); 
+		return 100*(UnitHealth(Unit)+UnitGetIncomingHeals(Unit))/UnitHealthMax(Unit) 
 	else
-		return 100*UnitHealth(Unit)/UnitHealthMax(Unit); 
+		return 100*UnitHealth(Unit)/UnitHealthMax(Unit) 
 	end
 end
 
@@ -792,8 +815,8 @@ end
 -- /dump getTotemDistance("target")
 function getTotemDistance(Unit1)
 	if Unit1 == nil then Unit1 = "player"; end
-	if activeTotem ~= nil and IExists(UnitGUID(Unit1)) and IExists(activeTotem) then
-		local X1,Y1,Z1 = IGetLocation(UnitGUID(Unit1));
+	if activeTotem ~= nil and UnitExists(Unit1) and IExists(activeTotem) then
+		local X1,Y1,Z1 = ObjectPosition(Unit1);
 		local X2,Y2,Z2 = IGetLocation(activeTotem);
 		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then 
 			local unitSize = IGetFloatDescriptor(UnitGUID(Unit1),0x110); 
@@ -810,22 +833,21 @@ end
 
 
 -- /dump UnitGUID("target")
--- /dump getEnnemies("target",10)
--- if #getEnnemies("target",10) >= 3 then
-function getEnnemies(Unit,Radius)
-	local ennemiesTable = {};
- 	for i=1, GetTotalObjects(TYPE_UNIT) do
-  		local Guid = IGetObjectListEntry(i);
-  		ISetAsUnitID(Guid,"thisUnit");
-  		if (tonumber(string.sub(tostring(Guid), 5,5)) == 3 and getCreatureType("thisUnit") == true) or isDummy("thisUnit") then
-  			if UnitCanAttack("thisUnit","player") and not UnitIsDeadOrGhost("thisUnit") then
-  				if getDistance(Unit,"thisUnit") <= Radius then
-   					tinsert(ennemiesTable,Guid);
+-- /dump getEnemies("target",10)
+-- if #getEnemies("target",10) >= 3 then
+function getEnemies(Unit,Radius)
+	local enemiesTable = {};
+ 	for i=1,ObjectCount(TYPE_UNIT) do
+  		local thisUnit = ObjectWithIndex(i);
+  		if getCreatureType(thisUnit) == true then
+  			if UnitCanAttack("player",thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
+  				if getDistance(Unit,thisUnit) <= (Radius + ObjectDescriptor(ObjectWithIndex(i), 0x110 , Float)) then
+   					tinsert(enemiesTable,thisUnit);
    				end
   			end
   		end
  	end
- 	return ennemiesTable;
+ 	return enemiesTable;
 end
 
 -- if getBossID("boss1") == 71734 then
@@ -837,31 +859,96 @@ function getBossID(BossUnitID)
 	return UnitConvert;
 end
 
--- if getNumEnnemies("target",10) >= 3 then
-function getNumEnnemies(Unit,Radius)
+-- if getNumEnemies("target",10) >= 3 then
+function getNumEnemies(Unit,Radius)
   	local Units = 0;
- 	for i=1,GetTotalObjects(TYPE_UNIT) do
-  		local Guid = IGetObjectListEntry(i);
- 	  	ISetAsUnitID(Guid,"thisUnit");
- 	  	if tonumber(string.sub(tostring(Guid), 5,5)) == 3 or isDummy("thisUnit") then
-	  		if getCreatureType("thisUnit") == true then
-	  			if UnitCanAttack("player","thisUnit") and not UnitIsDeadOrGhost("thisUnit") then
-	  				if getDistance(Unit,"thisUnit") <= ((Radius + IGetFloatDescriptor(Guid,0x110))) then
-	  					Units = Units+1;
-	   				end
-		 		end
-		 	end
+ 	for i=1,ObjectCount(TYPE_UNIT) do
+  		local thisUnit = ObjectWithIndex(i);
+  		if getCreatureType(thisUnit) == true then
+  			if UnitCanAttack("player",thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
+  				if getDistance(Unit,thisUnit) <= (Radius + ObjectDescriptor(ObjectWithIndex(i), 0x110 , Float)) then
+  					Units = Units+1;
+   				end
+	 		end
 	 	end
  	end
  	return Units;
 end
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 -- if getLineOfSight("target"[,"target"]) then
 function getLineOfSight(Unit1,Unit2)
 	if Unit2 == nil then if Unit1 == "player" then Unit2 = "target"; else Unit2 = "player"; end end
-	if IExists(UnitGUID(Unit1)) and IExists(UnitGUID(Unit2)) then
-		local X1,Y1,Z1 = IGetLocation(UnitGUID(Unit1));
-		local X2,Y2,Z2 = IGetLocation(UnitGUID(Unit2));
+	if UnitExists(Unit1) and UnitExists(Unit2) then
+		local X1,Y1,Z1 = ObjectPosition(Unit1);
+		local X2,Y2,Z2 = ObjectPosition(Unit2);
 		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then return true; else return false; end
 	else 
 		return true;
@@ -870,17 +957,17 @@ end
 
 -- if getGround("target"[,"target"]) then
 function getGround(Unit)
-	if IExists(UnitGUID(Unit)) then
-		local X1,Y1,Z1 = IGetLocation(UnitGUID(Unit));
+	if UnitExists(Unit) then
+		local X1,Y1,Z1 = ObjectPosition(Unit);
 		if TraceLine(X1,Y1,Z1+2,X1,Y1,Z1-2, 0x10) == nil and TraceLine(X1,Y1,Z1+2,X1,Y1,Z1-4, 0x100) == nil then return nil; else return true; end
 	end
 end
 
 -- if getPetLineOfSight("target"[,"target"]) then
 function getPetLineOfSight(Unit)
-	if IExists(UnitGUID("pet")) and IExists(UnitGUID(Unit)) then
-		local X1,Y1,Z1 = IGetLocation(UnitGUID("pet"));
-		local X2,Y2,Z2 = IGetLocation(UnitGUID(Unit));
+	if UnitExists("pet") and UnitExists(Unit) then
+		local X1,Y1,Z1 = ObjectPosition("pet");
+		local X2,Y2,Z2 = ObjectPosition(Unit);
 		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then return true; else return false; end
 	else return true;
 	end
@@ -1082,7 +1169,7 @@ end
 -- if isAlive([Unit]) == true then
 function isAlive(Unit)
 	local Unit = Unit or "target";
-	if UnitIsDeadOrGhost(Unit) == nil then
+	if UnitIsDeadOrGhost(Unit) == false then
 		return true;
 	else
 		return false;
@@ -1291,7 +1378,7 @@ function isBuffed(UnitID,SpellID,TimeLeft,Filter)
 end
 
 function isCastingTime(lagTolerance)
-	local lagTolerance = lagTolerance or 0;
+	local lagTolerance = 0;
 	if UnitCastingInfo("player") ~= nil then
 		if select(6,UnitCastingInfo("player")) - GetTime() <= lagTolerance then
 			return true;
@@ -1331,31 +1418,53 @@ function isCastingSpell(spellID)
 		return false
 	end
 end
-
+-- UnitGUID("target"):sub(-15, -10)
 -- Dummy Check
 function isDummy(Unit)
 	if Unit == nil then Unit = "target"; else Unit = tostring(Unit) end
     dummies = {
-        31146, --Raider's Training Dummy - Lvl ??
-        67127, --Training Dummy - Lvl 90
-        60197, --Scarlet Monastery Dummy
-        46647, --Training Dummy - Lvl 85
-        32546, --Ebon Knight's Training Dummy - Lvl 80
         31144, --Training Dummy - Lvl 80
-        32667, --Training Dummy - Lvl 70
-        32542, --Disciple's Training Dummy - Lvl 65
-        32666, --Training Dummy - Lvl 60
-        32545, --Initiate's Training Dummy - Lvl 55 
+        31146, --Raider's Training Dummy - Lvl ??
         32541, --Initiate's Training Dummy - Lvl 55 (Scarlet Enclave) 
+        32542, --Disciple's Training Dummy - Lvl 65
+        32545, --Initiate's Training Dummy - Lvl 55 
+        32546, --Ebon Knight's Training Dummy - Lvl 80
+        32666, --Training Dummy - Lvl 60
+        32667, --Training Dummy - Lvl 70
+        46647, --Training Dummy - Lvl 85
+        60197, --Scarlet Monastery Dummy
+        67127, --Training Dummy - Lvl 90
     }
     for i=1, #dummies do
         if UnitExists(Unit) and UnitGUID(Unit) then
-            dummyID = tonumber(UnitGUID(Unit):sub(-13, -9), 16)
+            dummyID = tonumber(UnitGUID(Unit):sub(-16, -12))
         else
             dummyID = 0
         end
         if dummyID == dummies[i] then
             return true
+        end 
+    end
+end
+
+function isDummyByName(unitName)
+	if Unit == nil then Unit = UnitName("target"); else Unit = tostring(Unit) end
+    dummies = {
+        "Training Dummy", -- 31144 - Lvl 80
+        "Raider's Training Dummy", -- 31146 - Lvl ??
+        "Initiate's Training Dummy", -- 32541 - Lvl 55 (Scarlet Enclave) 
+        "Disciple's Training Dummy", -- 32542 - Lvl 65
+        "Initiate's Training Dummy", -- 32545 - Lvl 55 
+        "Ebon Knight's Training Dummy",  -- 32546 - Lvl 80
+        "Training Dummy", -- 32666 - Lvl 60
+        "Training Dummy", -- 32667 - Lvl 70
+        "Training Dummy", -- 46647 - Lvl 85
+        "Scarlet Monastery Dummy", -- 60197 -- Lvl 1
+        "Training Dummy" -- 67127 - Lvl 90
+    }
+    for i=1, #dummies do
+        if dummies[i] == unitName then
+            return true;
         end 
     end
 end
@@ -1506,7 +1615,7 @@ end
 
 -- if isSpellInRange(12345,"target") then
 function isSpellInRange(SpellID,Unit)
-	if IExists(UnitGUID(Unit)) then
+	if UnitExists(Unit) then
 		if IsSpellInRange(tostring(GetSpellInfo(SpellID)),Unit) == 1 then return true; end
 	else 
 		return false;

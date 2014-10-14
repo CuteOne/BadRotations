@@ -36,7 +36,7 @@ end
 -- Locals
 	local rage = UnitPower("player");
 	local myHP = getHP("player");
-	local ennemyUnits = getNumEnnemies("player", 5)
+	local ennemyUnits = getNumEnemies("player", 5)
 -- Food/Invis Check
 	if canRun() ~= true or UnitInVehicle("Player") then return false; end
 	if IsMounted("player") then return false; end

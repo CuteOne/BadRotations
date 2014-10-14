@@ -1,6 +1,6 @@
 if select(3, UnitClass("player")) == 6 then
 function Blood()
-	--ChatOverlay(getNumEnnemies("player",10))
+	--ChatOverlay(getNumEnemies("player",10))
 	if AoEModesLoaded ~= "Blood DK AoE Modes" then
 		BloodOptions();
 		BloodToggles();
@@ -119,7 +119,7 @@ function Blood()
 	    end
 
 	    if ScanTimer == nil or ScanTimer <= GetTime() - 1 then
-	    	meleeEnnemies, targetEnnemies, ScanTimer = getNumEnnemies("player",4), getEnnemies("target",10), GetTime(); 
+	    	meleeEnemies, targetEnemies, ScanTimer = getNumEnemies("player",4), getEnemies("target",10), GetTime(); 
 	    end
 
 	    -- Pestilence - Bring
@@ -128,8 +128,8 @@ function Blood()
 	    if targetDistance < 8 and (runesBlood >= 1 or runesDeath >= 1) and (pestiTimer == nil or pestiTimer <= GetTime() - 2) then
 			if canCast(PestiSpell) then
 				if not UnitDebuffID("target",55078,"player") then
-					for i = 1, #targetEnnemies do
-						local Guid = targetEnnemies[i]
+					for i = 1, #targetEnemies do
+						local Guid = targetEnemies[i]
 						ISetAsUnitID(Guid,"thisUnit");
 						if getCreatureType("thisUnit") == true and getDebuffRemain("thisUnit",55078,"player") >= 2 and getDistance("target","thisUnit") < 8 then
 							if PestiSpell == _BloodBoil then
@@ -164,11 +164,11 @@ function Blood()
 	    end
 
 	    -- Pestilence/Rolling Blood - Spread
-	    if targetDistance < 8 and #targetEnnemies > 2 and (runesBlood >= 1 or runesDeath >= 1) and (pestiTimer == nil or pestiTimer <= GetTime() - 1) then
+	    if targetDistance < 8 and #targetEnemies > 2 and (runesBlood >= 1 or runesDeath >= 1) and (pestiTimer == nil or pestiTimer <= GetTime() - 1) then
 			if canCast(PestiSpell) then
 				if getDebuffRemain("target",55078,"player") >= 2 then
-					for i = 1, #targetEnnemies do
-						local Guid = targetEnnemies[i]
+					for i = 1, #targetEnemies do
+						local Guid = targetEnemies[i]
 						ISetAsUnitID(Guid,"thisUnit");
 						if getCreatureType("thisUnit") == true and UnitDebuffID("thisUnit",55078,"player") == nil and getDistance("target","thisUnit") < 8 then
 							if PestiSpell == _BloodBoil then
@@ -184,9 +184,9 @@ function Blood()
 
 	    -- Heart Strike//Blood Strike
 	    if runesBlood > 1 or (runesDeath > 1 and UnitDebuffID("target",55078,"player") ~= nil) then
-	    	if isKnown(_HeartStrike) and #targetEnnemies < 3 then
+	    	if isKnown(_HeartStrike) and #targetEnemies < 3 then
 	    		if castSpell("target",_HeartStrike,false) then return; end
-	    	elseif isKnown(_HeartStrike) == false and #targetEnnemies < 3 then
+	    	elseif isKnown(_HeartStrike) == false and #targetEnemies < 3 then
 	    		if castSpell("target",_BloodStrike,false) then return; end
 	    	else
 				if targetDistance <= 5 then

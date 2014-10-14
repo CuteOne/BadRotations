@@ -6,7 +6,7 @@ function DruidMoonkin()
 		currentConfig = "Moonkin CodeMyLife";
 	end
 
-	local ennemiesTable = getEnnemies("target",20);
+	local EnemiesTable = getEnemies("target",20);
 
 	--[[Eclipse Direction]]
 	if eclipseDirection == nil then
@@ -253,7 +253,7 @@ function DruidMoonkin()
 
 		--[[starsurge,if=buff.shooting_stars.react&(active_enemies<5|!buff.solar_eclipse.up)]]
 		if UnitBuffID("player",_ShootingStars) then
-			if #ennemiesTable < 5 or not UnitBuffID("player",_EclipseSolar) then
+			if #EnemiesTable < 5 or not UnitBuffID("player",_EclipseSolar) then
 				if castSpell("target",_Starsurge,false,false) then return; end
 			end
 		end
@@ -261,8 +261,8 @@ function DruidMoonkin()
 		--[[moonfire,cycle_targets=1,if=buff.lunar_eclipse.up&(remains<(buff.natures_grace.remains-2+2*set_bonus.tier14_4pc_caster))]]
 		if UnitBuffID("player",_EclipseLunar) then
 			if getDebuffRemain("target",_Moonfire) < 2 then if castSpell("target",_Moonfire,false,false) then return; end end
-			for i = 1, #ennemiesTable do
-				ISetAsUnitID(ennemiesTable[i],"thisUnit")
+			for i = 1, #EnemiesTable do
+				ISetAsUnitID(EnemiesTable[i],"thisUnit")
 				if getDebuffRemain("thisUnit",_Moonfire) < 2 then
 					if castSpell("thisUnit",_Moonfire,false,false) then return; end
 				end
@@ -272,8 +272,8 @@ function DruidMoonkin()
 		--[[sunfire,cycle_targets=1,if=buff.solar_eclipse.up&(remains<(buff.natures_grace.remains-2+2*set_bonus.tier14_4pc_caster))]]
 		if UnitBuffID("player",_EclipseSolar) then
 			if getDebuffRemain("target",_Sunfire) < 2 then if castSpell("target",_Sunfire,false,false) then return; end end
-			for i = 1, #ennemiesTable do
-				ISetAsUnitID(ennemiesTable[i],"thisUnit")
+			for i = 1, #EnemiesTable do
+				ISetAsUnitID(EnemiesTable[i],"thisUnit")
 				if getDebuffRemain("thisUnit",_Sunfire) < 2 then
 					if castSpell("thisUnit",_Sunfire,false,false) then return; end
 				end
@@ -289,11 +289,11 @@ function DruidMoonkin()
 		-- sunfire,cycle_targets=1,if=buff.solar_eclipse.up&ticks_remain<2
 		
 		--[[hurricane,if=active_enemies>4&buff.solar_eclipse.up&mana.pct>25]]
-		if isStanding(0.3) and getNumEnnemies("target",10) > 5 and UnitBuffID("player",_EclipseSolar) and getMana("player") > 25 then
+		if isStanding(0.3) and getNumEnemies("target",10) > 5 and UnitBuffID("player",_EclipseSolar) and getMana("player") > 25 then
 			if castGround("target",_Hurricane,30) then return; end
 		end
 		--[[arcane_storm,if=active_enemies>4&buff.lunar_eclipse.up&mana.pct>25]]
-		if isStanding(0.3) and getNumEnnemies("target",10) > 5 and UnitBuffID("player",_EclipseLunar) and getMana("player") > 25 then
+		if isStanding(0.3) and getNumEnemies("target",10) > 5 and UnitBuffID("player",_EclipseLunar) and getMana("player") > 25 then
 			if castGround("target",_ArcaneStorm,30) then return; end
 		end
 
@@ -311,8 +311,8 @@ function DruidMoonkin()
 		
 		--[[moonfire,moving=1,cycle_targets=1,if=ticks_remain<2]]
 		if getDebuffRemain("target",_Moonfire) < 2 and castSpell("target",_Moonfire,false,false) then return; end
-		for i = 1, #ennemiesTable do
-			ISetAsUnitID(ennemiesTable[i],"thisUnit")
+		for i = 1, #EnemiesTable do
+			ISetAsUnitID(EnemiesTable[i],"thisUnit")
 			if getDebuffRemain("thisUnit",_Moonfire) < 2 then
 				if castSpell("thisUnit",_Moonfire,false,false) then return; end
 			end
@@ -320,8 +320,8 @@ function DruidMoonkin()
 
 		--[[sunfire,moving=1,cycle_targets=1,if=ticks_remain<2]]
 		if getDebuffRemain("target",_Sunfire) < 2 and castSpell("target",_Sunfire,false,false) then return; end
-		for i = 1, #ennemiesTable do
-			ISetAsUnitID(ennemiesTable[i],"thisUnit")
+		for i = 1, #EnemiesTable do
+			ISetAsUnitID(EnemiesTable[i],"thisUnit")
 			if getDebuffRemain("thisUnit",_Sunfire) < 2 then
 				if castSpell("thisUnit",_Sunfire,false,false) then return; end
 			end
@@ -334,8 +334,8 @@ function DruidMoonkin()
 		--[[moonfire,moving=1,if=buff.lunar_eclipse.up]]
 		if UnitBuffID("player",_EclipseLunar) then
 			if getDebuffRemain("target",_Moonfire) < 5 and castSpell("target",_Moonfire,false,false) then return; end
-			for i = 1, #ennemiesTable do
-				ISetAsUnitID(ennemiesTable[i],"thisUnit")
+			for i = 1, #EnemiesTable do
+				ISetAsUnitID(EnemiesTable[i],"thisUnit")
 				if getDebuffRemain("thisUnit",_Moonfire) < 5 then
 					if castSpell("thisUnit",_Moonfire,false,false) then return; end
 				end
@@ -345,8 +345,8 @@ function DruidMoonkin()
 		
 		--[[sunfire,moving=1]]	
 		if UnitBuffID("target",_Sunfire) and castSpell("target",_Sunfire,false,false) then return; end
-		for i = 1, #ennemiesTable do
-			ISetAsUnitID(ennemiesTable[i],"thisUnit")
+		for i = 1, #EnemiesTable do
+			ISetAsUnitID(EnemiesTable[i],"thisUnit")
 			if getDebuffRemain("thisUnit",_Sunfire) < 5 then
 				if castSpell("thisUnit",_Sunfire,false,false) then return; end
 			end

@@ -196,20 +196,20 @@ function BadBoyRun()
 		if readyToAccept and readyToAccept <= GetTime() - 5 then AcceptProposal(); readyToAccept = nil; randomReady = nil; end
 		PokeEngine();
 		-- global vars
-		targetDistance = getDistance("player","target");
-		displayDistance = math.floor(targetDistance*100)/100
-		mainText:SetText(displayDistance);
+		--targetDistance = getDistance("player","target");
+		--displayDistance = math.floor(targetDistance*100)/100
+		--mainText:SetText(displayDistance);
 		profileStarts = GetTime();
 		--interruptsRefresh();
 
 
-		if currentTarget ~= nil then ISetAsUnitID(currentTarget,"current"); end		
+		--if currentTarget ~= nil then ISetAsUnitID(currentTarget,"current"); end		
 
 		if NovaEngineUpdate == nil then NovaEngineUpdate = GetTime(); end
 		if NovaEngineUpdate and NovaEngineUpdate <= GetTime() - getValue("Engine Refresh")/1000 then
-			NovaEngineUpdate = GetTime()
-			nNova:Update()
-			engineRefresh()
+			--NovaEngineUpdate = GetTime()
+			--nNova:Update()
+			--engineRefresh()
 		end
 
 		--[[Updating UI location]]
@@ -248,7 +248,7 @@ function BadBoyRun()
 
 		--[[Class/Spec Selector]]
 		local _MyClass = select(3,UnitClass("player"));
-		local _MySpec = GetSpecialization("player");
+		local _MySpec = GetSpecialization();
 		if _MyClass == 1 then -- Warrior
 			if _MySpec == 2 then
 				FuryWarrior()

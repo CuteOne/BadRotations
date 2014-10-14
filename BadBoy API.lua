@@ -59,7 +59,7 @@
 
 `getDistance(Unit1,Unit2) - Num` Returns distance to target in yards.
 
-`getEnnemies(Target,Radius) - Table` Returns a table of the ennemies found within Radius of the target
+`getEnemies(Target,Radius) - Table` Returns a table of the Enemies found within Radius of the target
 
 `getFacing(Unit1,Unit2)	- Bool` Returns true if Unit1 is facing Unit2
 
@@ -77,7 +77,7 @@
 
 `getMana(Unit) - Num` Returns Unit Mana %
 
-`getNumEnnemies(Target,Radius) - Num` Returns number of ennemies found within Radius of the target
+`getNumEnemies(Target,Radius) - Num` Returns number of Enemies found within Radius of the target
 
 `getPetLineOfSight(Unit) - Bool` Returns true if our pet is in sight of target
 

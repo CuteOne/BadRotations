@@ -10,13 +10,13 @@ if select(3, UnitClass("player")) == 2 then
 
 	-- Locals Variables
 	local _HolyPower = UnitPower("player", 9);
-	local numEnnemies = numEnnemies;  --Why are we declaring this? Should we not initialise? Its not a global variables so it will be overwritten each time?
-	local meleeEnnemies = getNumEnnemies("player",4); --Get number of enemies within melee range. Does this also work for large hotboxes?
+	local numEnemies = numEnemies;  --Why are we declaring this? Should we not initialise? Its not a global variables so it will be overwritten each time?
+	local meleeEnemies = getNumEnemies("player",4); --Get number of enemies within melee range. Does this also work for large hotboxes?
 	
 	if getDistance("player","target") < 25 then   --Do not understand this, why are we not just getting TargetProximityTargets and PlayerProximityTargets?
-		numEnnemies = getNumEnnemies("target",10);
+		numEnemies = getNumEnemies("target",10);
 	else
-		numEnnemies = getNumEnnemies("player",10);
+		numEnemies = getNumEnemies("player",10);
 	end
 
 	-- Food/Invis Check   Hm here we are checking if we should abort the rotation pulse due to if we are a vehicle or some stuff
@@ -87,7 +87,7 @@ if select(3, UnitClass("player")) == 2 then
 	-- 			if GetShapeshiftForm() ~= 3 then 
  -- 					if castSpell("player",_SealOfInsight,true) then return; end 
 	-- 			end 
-	-- 		elseif getHP("player") > 60 and numEnnemies < 3 then 
+	-- 		elseif getHP("player") > 60 and numEnemies < 3 then 
 	-- 			if GetShapeshiftForm() ~= 1 then 
  -- 					if castSpell("player",_SealOfThruth,true) then return; end 
 	-- 			end 
@@ -171,7 +171,7 @@ if select(3, UnitClass("player")) == 2 then
 
 
 		local strike = strike;
-		if BadBoy_data["AoE"] == 3 or meleeEnnemies > 2 then strike = _HammerOfTheRighteous; else strike = _CrusaderStrike; end
+		if BadBoy_data["AoE"] == 3 or meleeEnemies > 2 then strike = _HammerOfTheRighteous; else strike = _CrusaderStrike; end
 		-- crusader_strike
 		if isInMelee() then
 			if castSpell("target",strike,false) then return; end
@@ -231,7 +231,7 @@ if select(3, UnitClass("player")) == 2 then
 		end
 
 		-- holy_prism,if=talent.holy_prism.enabled
-		if numEnnemies > 1 then
+		if numEnemies > 1 then
 			if castSpell("player",_HolyPrism,false) then return; end
 		else
 			if castSpell("target",_HolyPrism,false) then return; end

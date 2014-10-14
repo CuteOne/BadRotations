@@ -118,17 +118,17 @@ if select(3, UnitClass("player")) == 7 then
 		if useCDs() and targetDistance <= 10 and isInCombat("player") and (not hasFire() or hasSearing()) then
 			if castSpell("player",_FireElementalTotem,true) then return; end
 		end
-		if (not (hasSearing() or hasFireElemental()) or (hasSearing() and getTotemDistance("target") > 20)) and targetDistance<=20 and getNumEnnemies("player",8)<6 and isInCombat("player") then
+		if (not (hasSearing() or hasFireElemental()) or (hasSearing() and getTotemDistance("target") > 20)) and targetDistance<=20 and getNumEnemies("player",8)<6 and isInCombat("player") then
 			if castSpell("player",_SearingTotem,true) then return; end
 		end
-		if (not (hasMagma() or hasFireElemental()) or (hasMagma() and getTotemDistance("target") > 8)) and targetDistance<8 and getNumEnnemies("player",8)>=6 and isInCombat("player") then
+		if (not (hasMagma() or hasFireElemental()) or (hasMagma() and getTotemDistance("target") > 8)) and targetDistance<8 and getNumEnemies("player",8)>=6 and isInCombat("player") then
 			if castSpell("player",_MagmaTotem,true) then return; end
 		end
 	-- Wind
 		if hasNoControl(_WindwalkTotem) then
 			if castSpell("player",_WindwalkTotem,true) then return; end
 		end
-		if getNumEnnemies("player",8)>3 and isInCombat("player") and targetDistance<5 then
+		if getNumEnemies("player",8)>3 and isInCombat("player") and targetDistance<5 then
 			if castSpell("player",_CapacitorTotem,true) then return; end
 		end
 		if useCDs() and targetDistance<5 and isInCombat("player") then
@@ -215,7 +215,7 @@ if select(3, UnitClass("player")) == 7 then
 -----------------------------
 --- Multi-Target Rotation ---
 -----------------------------
-		if getNumEnnemies("player",10) >= 3 and targetDistance<5 and useAoE() and isEnnemy("target") and isAlive("target") then
+		if getNumEnemies("player",10) >= 3 and targetDistance<5 and useAoE() and isEnnemy("target") and isAlive("target") then
 	-- Flame Shock
 			if getDebuffRemain("target",_FlameShock) < 3 then
 				if castSpell("target",_FlameShock,false) then return; end								
@@ -253,7 +253,7 @@ if select(3, UnitClass("player")) == 7 then
 ------------------------------
 --- Single Target Rotation ---
 ------------------------------
-		if getNumEnnemies("player",8) < 3 and targetDistance<5 and not useAoE() and isEnnemy("target") and isAlive("target") then		
+		if getNumEnemies("player",8) < 3 and targetDistance<5 and not useAoE() and isEnnemy("target") and isAlive("target") then		
 			if getMWC()==5 then
 	-- Lightning Bolt
 				if castSpell("target",_LightningBolt,false) then return; end
@@ -285,7 +285,7 @@ if select(3, UnitClass("player")) == 7 then
 	-- Lava Lash
 			if castSpell("target",_LavaLash,false) then return; end
 	-- Fire Nova
-			if getDebuffRemain("target",_FlameShock)>0 and getNumEnnemies("player",10)>1 then
+			if getDebuffRemain("target",_FlameShock)>0 and getNumEnemies("player",10)>1 then
 				if castSpell("target",_FireNova,true) then return; end
 			end
 	-- Unleash Elements

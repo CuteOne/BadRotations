@@ -1,6 +1,6 @@
 if select(3, UnitClass("player")) == 4 then
 function SubRogue()
-	--ChatOverlay(getNumEnnemies("player",10))
+	--ChatOverlay(getNumEnemies("player",10))
 	if AoEModesLoaded ~= "Sub Rogue AoE Modes" then
 		SubOptions();
 		SubToggles();
@@ -57,8 +57,8 @@ castSpell("player",_FanOfKnives,true    ,false)]]
 		_PowerPool = 0    
 	end
 
-	local numEnnemies;
-	local meleeEnnemies = getNumEnnemies("player",10);
+	local numEnemies;
+	local meleeEnemies = getNumEnemies("player",10);
 
 	-- Food/Invis Check
 	if canRun() ~= true or UnitInVehicle("Player") then return false; end
@@ -149,7 +149,7 @@ castSpell("player",_FanOfKnives,true    ,false)]]
 		end
 
 		-- AoE
-		if meleeEnnemies > 2 and energy > 35 then
+		if meleeEnemies > 2 and energy > 35 then
 			-- Crimson Tempest
 			if combo >= 4 and getBuffRemain("player", _SliceAndDice) > 3 then
 				if castSpell("player",_CrimsonTempest,true,false) then return; end
@@ -159,7 +159,7 @@ castSpell("player",_FanOfKnives,true    ,false)]]
 		end
 
 		-- Single
-		if meleeEnnemies <= 2 then
+		if meleeEnemies <= 2 then
 			-- Rupture maintain buff (5 cp)//Garotte
 			if energy > 35 then
 				if combo > 4 and getTimeToDie("target") > 10 then

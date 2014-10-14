@@ -196,14 +196,14 @@ function SuperReader(self, event, ...)
 		local spell 		= select(12,...);
 
 		------------------------
-		--[[ Debuff/Rejuv --]]
+		--[[ Debuff/Rejuv --
 		if param == "SPELL_PERIODIC_DAMAGE" then
 			ISetAsUnitID(destination,"poorguy");
 			if UnitIsFriend("player","poorguy") then
 				friendlyDot[destination] = GetTime();
 				--print(UnitName("poorguy"))
 			end
-		end
+		end]]
 
 		--------------------------------------
 		--[[ Pick Pocket Success Recorder --]]
@@ -406,10 +406,8 @@ function SuperReader(self, event, ...)
         				BadBoy_data.successCasts = BadBoy_data.successCasts + 1;
         				if sourceGUID == nil then debugSource = "" 	else debugSource = 	"\n|cffFFFFFF"..sourceName.." "..sourceGUID; end
         				if spellID == nil then debugSpell = "" 		else debugSpell = 	"\n|cffFFDD11"..spellName.." "..spellID; end
-        				if currentTarget ~= nil then ISetAsUnitID(currentTarget,"castUnit"); targetName = UnitName("castUnit"); end
-        				if currentTarget == nil then targetUnit = "" else targetUnit = 	"\n|cffFFDD11"..targetName.." "..currentTarget; end
         				local Power = "\n|cffFFFFFFPower: "..UnitPower("player");
-        				tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName, toolTip = "|cffFF001ERoll Mouse to Scroll Rows"..debugSource.." "..debugSpell.." "..Power..targetUnit });
+        				tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName, toolTip = "|cffFF001ERoll Mouse to Scroll Rows"..debugSource.." "..debugSpell.." "..Power });
 						if #debugTable > 249 then tremove(debugTable, 250); end
 						if BadBoy_data.ActualRow == 0 and debugRefresh ~= nil then debugRefresh(); end
 					end
@@ -428,10 +426,8 @@ function SuperReader(self, event, ...)
         				BadBoy_data.failCasts = BadBoy_data.failCasts + 1;	
         				if sourceGUID == nil then debugSource = "" 	else debugSource = 	"\n|cffFFFFFF"..sourceName..sourceGUID; end
         				if spellID == nil then debugSpell = "" 		else debugSpell = 	"\n|cffFFDD11"..spellID..spellName; end
-        				if currentTarget ~= nil then ISetAsUnitID(currentTarget,"castUnit"); targetName = UnitName("castUnit"); end
-        				if currentTarget == nil then targetUnit = "" else targetUnit = 	"\n|cffFFDD11"..targetName.." "..currentTarget; end
          				local Power = "\n|cffFFFFFFPower: "..UnitPower("player");
-        				tinsert(debugTable, 1, { textString = BadBoy_data.failCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName, toolTip = "|cffFF001ERoll Mouse to Scroll Rows"..debugSource.." "..debugSpell.." "..Power.." "..lasterror..targetUnit });
+        				tinsert(debugTable, 1, { textString = BadBoy_data.failCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName, toolTip = "|cffFF001ERoll Mouse to Scroll Rows"..debugSource.." "..debugSpell.." "..Power.." "..lasterror });
 						if #debugTable > 249 then tremove(debugTable, 250); end
 						if BadBoy_data.ActualRow == 0 and debugRefresh ~= nil then debugRefresh(); end
 					end
@@ -539,84 +535,4 @@ end
 
 superReaderFrame:SetScript("OnEvent", SuperReader)
 
-
-
---------------------
---[[ Poke Setup --]]
-pokeEngineFrame = CreateFrame('Frame');
-pokeEngineFrame:RegisterEvent("CHAT_MSG_PET_BATTLE_COMBAT_LOG");
-function PokeReader(self, event, ...)
-	turnDone = nil;
-end
-pokeEngineFrame:SetScript("OnEvent", PokeReader);
---CHAT_MSG_PET_BATTLE_COMBAT_LOG → ?
---CHAT_MSG_PET_BATTLE_INFO → ?
---CHAT_MSG_PET_INFO → Communication
-
-end
-
-local waitTimeBeforeTransform = 1.5
-local EventFrame
-local race = select(2,UnitRace("player"))
-local class = select(3,UnitClass("player"))
-local waitTimerForTransformation = 0.5
-local numDruidFormZeroFires = 0
-
-if race == "Worgen" and class ~= 11 then
-
-	EventFrame = CreateFrame( "Frame", nil, UIParent )
-	
-	EventFrame:RegisterEvent( "PLAYER_REGEN_ENABLED" )
-	EventFrame:RegisterEvent( "PET_ATTACK_STOP" )
-	EventFrame:RegisterEvent( "COMBAT_LOG_EVENT_UNFILTERED" )
-
-	-- Function: OnEvent
-	EventFrame:SetScript( "OnEvent", function( self, e, ... )
-		if EventFrame.HasTwoFormsBeenDetected then		
-			local _,SubEvent,SourceGUID,_,_,_,_,_,SpellID,_,_,EventMessage = ...;
-
-			-- if running wild cast is cancelled
-			if e == "COMBAT_LOG_EVENT_UNFILTERED" and SourceGUID == UnitGUID( "player" ) and SubEvent == "SPELL_CAST_FAILED" and SpellID == 87840 and EventMessage == SPELL_FAILED_INTERRUPTED then
-				self.IsTransformationPending = true
-				self.isTransformationDone = false
-			end
-			
-			-- if player enters rested state OR pet attack stops OR running wild/darkflight ends
-			if not self.isTransformationDone and ( e == "PLAYER_REGEN_ENABLED" or e == "PET_ATTACK_STOP" or ( ( e == "COMBAT_LOG_EVENT_UNFILTERED" and SourceGUID == UnitGUID( "player" ) ) and ( ( SubEvent == "SPELL_AURA_REMOVED" and SpellID == 68992 ) or ( SubEvent == "SPELL_AURA_REMOVED" and SpellID == 87840 ) ) ) ) then
-				self.IsTransformationPending = true
-				self.isTransformationDone = false
-			end
-		end
-	end );
-	
-
-	-- Function: OnUpdate
-	EventFrame:SetScript( "OnUpdate", function( self, e, ... )
-		local isTransformationUnlocked = true
-
-		self.HasTwoFormsBeenDetected = ( self.HasTwoFormsBeenDetected or isTransformationUnlocked )
-		
-		if self.IsTransformationPending and self.isTransformationDone then 
-			self.IsTransformationPending = false
-		end
-
-		if isTransformationUnlocked and self.IsTransformationPending and not self.isTransformationDone then
-			if waitTimerForTransformation <= 0 then
-				waitTimerForTransformation = GetTime() + waitTimeBeforeTransform
-			end
-		end
-
-		if isTransformationUnlocked and waitTimerForTransformation ~= 0 and waitTimerForTransformation <= GetTime() and not self.isTransformationDone then
-
-			if isChecked("Worgen/Human") then castSpell("player",68996,true) end
-			self.isTransformationDone = true
-			self.IsTransformationPending = false
-			waitTimerForTransformation = 0
-				
-		else
-			if not isTransformationUnlocked then
-				self.isTransformationDone = false
-			end
-		end
-	end);
 end

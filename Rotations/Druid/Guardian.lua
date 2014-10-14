@@ -154,12 +154,12 @@ local HasTierCount = select(4,UnitBuffID("player",138217))
 			end
         end
 		if ScanTimer == nil or ScanTimer <= GetTime() - 1 then
-    		meleeEnnemies, targetEnnemies, ScanTimer = getNumEnnemies("player",8), getEnnemies("target",10), GetTime(); 
+    		meleeEnemies, targetEnemies, ScanTimer = getNumEnemies("player",8), getEnemies("target",10), GetTime(); 
     	end
         if  UnitBuffID("player",5487) then
     	if canCast(77758) then
-			for i = 1, #targetEnnemies do
-				local Guid = targetEnnemies[i]
+			for i = 1, #targetEnemies do
+				local Guid = targetEnemies[i]
 				ISetAsUnitID(Guid,"thisUnit");
 				if getCreatureType("thisUnit") == true and getDebuffRemain("thisUnit",77758,"player") < 2 and getDistance("player","thisUnit") <= 8 then	
 					if castSpell("player",77758,true) then return; end	
@@ -169,7 +169,7 @@ local HasTierCount = select(4,UnitBuffID("player",138217))
         end
 		--Siwpe
 		if  UnitBuffID("player",5487) then
-		if meleeEnnemies > 1 then 
+		if meleeEnemies > 1 then 
 		 	if castSpell("player",779,true) then return; end 
 		end
         end

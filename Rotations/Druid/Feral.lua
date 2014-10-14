@@ -206,7 +206,7 @@ if select(3, UnitClass("player")) == 11 then
 				if UnitExists("target") ~= nil and isEnnemy("target") and targetDistance > 8 then
 		  			ClearTarget();
 		 		end
-		 		local enemiesInRange = getNumEnnemies("player",8)
+		 		local enemiesInRange = getNumEnemies("player",8)
 		 		if enemiesInRange > 0 then
 		 			if getPower("player") <= 35 and getSpellCD(tf) == 0 then
 						if castSpell("player",tf) then return; end
@@ -450,8 +450,8 @@ if select(3, UnitClass("player")) == 11 then
 					if UnitExists("target") and not UnitIsDeadOrGhost("target") and canAttack("player", "target") then
 						if useAoE() then
 		-- Faerie Fire (AoE) 
-							local ennemiesList = getEnnemies("player",10)
-							for i = 1, #ennemiesList do
+							local EnemiesList = getEnemies("player",10)
+							for i = 1, #EnemiesList do
 			  					ISetAsUnitID(IGetObjectListEntry(i),"thisUnit");
 								if getDistance("player", "thisUnit") < 10 and getFacing("player","thisUnit")==true and getSpellCD(ff) == 0 then
 									if not UnitDebuffID("thisUnit",wa) or select(4,UnitDebuffID("thisUnit",wa)) < 3 then

@@ -37,7 +37,7 @@ local MENDBUFF,_,_,_,_,_,MEND_TIMER = UnitBuffID("pet",MendPet)
 
 --Aoe checks
 if AOETimer == nil then AOETimer = 0; end
-if ENEMYS == nil or (AOETimer and AOETimer <= GetTime() - 1) then AOETimer = GetTime() ENEMYS = getNumEnnemies("target", 5) end
+if ENEMYS == nil or (AOETimer and AOETimer <= GetTime() - 1) then AOETimer = GetTime() ENEMYS = getNumEnemies("target", 5) end
 
 if isChecked("AutoAoE") ~= true then
 	if isChecked("Rotation Up") == true then

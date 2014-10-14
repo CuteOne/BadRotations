@@ -1,71 +1,82 @@
 if select(3, UnitClass("player")) == 1 then
 
 function WarriorArmsConfig()
-if currentConfig ~= "Arms Avery/Chumii" then
+if currentConfig ~= "Arms Chumii" then
 ClearConfig();
 thisConfig = 0;
 -- Title
-CreateNewTitle(thisConfig,"Arms |cffFF0000Avery/Chumii");
+CreateNewTitle(thisConfig,"Arms |cffFF0000Chumii");
 
 -- Wrapper
 CreateNewWrap(thisConfig,"---------- Keys ----------");
 
 -- Pause Toggle
 CreateNewCheck(thisConfig,"Pause Toggle");
-CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle2")
+CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle")
 CreateNewText(thisConfig,"Pause Key");
 
 -- Single/Multi Toggle Up
 CreateNewCheck(thisConfig,"Rotation Up","Switch through Rotation Mode (Single Target / Multi Target / Auto AoE)");
-CreateNewDrop(thisConfig,"Rotation Up", 3, "Toggle2")
+CreateNewDrop(thisConfig,"Rotation Up", 3, "Toggle")
 CreateNewText(thisConfig,"Rotation Up");
 
 -- Single/Multi Toggle Down
 CreateNewCheck(thisConfig,"Rotation Down","Switch through Rotation Mode ( Auto AoE / Multi Target / Single Target)");
-CreateNewDrop(thisConfig,"Rotation Down", 1, "Toggle2")
+CreateNewDrop(thisConfig,"Rotation Down", 1, "Toggle")
 CreateNewText(thisConfig,"Rotation Down");
+
+--Cooldown Key Toggle
+CreateNewCheck(thisConfig,"Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.");
+CreateNewDrop(thisConfig,"Cooldown Mode", 3, "Toggle")
+CreateNewText(thisConfig,"Cooldowns");
+
+--Defensive Key Toggle
+CreateNewCheck(thisConfig,"Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.");
+CreateNewDrop(thisConfig,"Defensive Mode", 6, "Toggle")
+CreateNewText(thisConfig,"Defensive");
+
+--Interrupts Key Toggle
+CreateNewCheck(thisConfig,"Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.");
+CreateNewDrop(thisConfig,"Interrupt Mode", 6, "Toggle")
+CreateNewText(thisConfig,"Interrupts");
 
 -- Heroic Leap
 CreateNewCheck(thisConfig,"HeroicLeapKey");
-CreateNewDrop(thisConfig,"HeroicLeapKey", 2, "Toggle2")
+CreateNewDrop(thisConfig,"HeroicLeapKey", 2, "Toggle")
 CreateNewText(thisConfig,"Heroic Leap Key");
 
--- Wrapper 
+-- Wrapper
 CreateNewWrap(thisConfig,"---------- Buffs ---------");
 
 -- Shout
 CreateNewCheck(thisConfig,"Shout");
-CreateNewDrop(thisConfig, "Shout", 1, "Choose Shout to use.", "|cffFFBB00Command", "|cff0077FFBattle")
+CreateNewDrop(thisConfig, "Shout", 2, "Choose Shout to use.", "|cffFFBB00Command", "|cff0077FFBattle")
 CreateNewText(thisConfig,"Shout");
 
--- Shout OOC
-CreateNewCheck(thisConfig, "ShoutOOC","Uncheck this if you want to use the selected Shout only while in combat");
-CreateNewText(thisConfig, "Shout out of Combat");
-
--- Wrapper 
+-- Wrapper
 CreateNewWrap(thisConfig,"------ Cooldowns ------");
 
--- Recklessness
-CreateNewCheck(thisConfig,"Recklessness");
-CreateNewDrop(thisConfig, "Recklessness", 1, "Use Recklessness always or only on Boss/Dummy", "|cffFFBB00Always", "|cff0077FFBoss")
-CreateNewText(thisConfig,"Recklessness"); 
+-- Potion
+CreateNewCheck(thisConfig,"usePot");
+CreateNewText(thisConfig,"Use Potion");
 
--- SkullBanner
-CreateNewCheck(thisConfig,"SkullBanner");
-CreateNewDrop(thisConfig, "SkullBanner", 1, "Use Skull Banner always or only on Boss/Dummy", "|cffFFBB00Always", "|cff0077FFBoss")
-CreateNewText(thisConfig,"SkullBanner"); 
+-- Bloodbath
+CreateNewCheck(thisConfig,"useBloodbath");
+CreateNewText(thisConfig,"Bloodbath");
+
+-- Recklessness
+CreateNewCheck(thisConfig,"useRecklessness");
+CreateNewText(thisConfig,"Recklessness");
 
 -- Avatar
-CreateNewCheck(thisConfig,"Avatar");
-CreateNewDrop(thisConfig, "Avatar", 1, "Use Avatar always or only on Boss/Dummy", "|cffFFBB00Always", "|cff0077FFBoss")
-CreateNewText(thisConfig,"Avatar"); 
+CreateNewCheck(thisConfig,"useAvatar");
+CreateNewText(thisConfig,"Avatar");
 
 -- Racial
-CreateNewCheck(thisConfig,"Racial");
-CreateNewDrop(thisConfig, "Racial", 1, "Use Racial always or only on Boss/Dummy", "|cffFFBB00Always", "|cff0077FFBoss")
+CreateNewCheck(thisConfig,"useRacial");
 CreateNewText(thisConfig,"Racial (Orc / Troll)");
 
--- Wrapper 
+-- Wrapper
 CreateNewWrap(thisConfig,"------- Defensive ------");
 
 -- Die by the Sword
@@ -78,11 +89,6 @@ CreateNewCheck(thisConfig,"RallyingCry");
 CreateNewBox(thisConfig, "RallyingCry", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRallying Cry");
 CreateNewText(thisConfig,"RallyingCry");
 
--- Shield Wall
-CreateNewCheck(thisConfig,"ShieldWall");
-CreateNewBox(thisConfig, "ShieldWall", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFShield Wall");
-CreateNewText(thisConfig,"ShieldWall");
-
 -- Enraged Regeneration
 CreateNewCheck(thisConfig,"EnragedRegeneration");
 CreateNewBox(thisConfig, "EnragedRegeneration", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFEnraged Regeneration");
@@ -92,6 +98,11 @@ CreateNewText(thisConfig,"Enraged Regeneration");
 CreateNewCheck(thisConfig,"ImpendingVictory");
 CreateNewBox(thisConfig, "ImpendingVictory", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFImpending Victory (Victory Rush)");
 CreateNewText(thisConfig,"Impending Victory");
+
+-- Vigilance Focus
+CreateNewCheck(thisConfig,"VigilanceFocus");
+CreateNewBox(thisConfig, "VigilanceFocus", 0, 100  , 5, 25, "% HP of Focustarget to use Vigilance on Focustarget");
+CreateNewText(thisConfig,"Vigilance on Focus");
 
 -- Def Stance
 CreateNewCheck(thisConfig,"DefensiveStance");
@@ -103,8 +114,8 @@ CreateNewCheck(thisConfig,"Healthstone");
 CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
 CreateNewText(thisConfig,"Healthstone");
 
--- Wrapper 
-CreateNewWrap(thisConfig,"-------- Interrupts --------"); 
+-- Wrapper
+CreateNewWrap(thisConfig,"-------- Interrupts --------");
 
 -- Pummel
 CreateNewCheck(thisConfig,"Pummel");
@@ -120,23 +131,19 @@ if isKnown(QuakingPalm) then
 -- Quaking Palm
 CreateNewCheck(thisConfig,"Quaking Palm");
 CreateNewBox(thisConfig, "Quaking Palm", 0, 100  , 5, 30 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFQuaking Palm.");
-CreateNewText(thisConfig,"Quaking Palm");   
-end    
+CreateNewText(thisConfig,"Quaking Palm");
+end
 
--- Wrapper 
+-- Wrapper
 CreateNewWrap(thisConfig,"---------- Misc -----------");
 
 -- Auto Bladestorm / DragonRoar Single Target
-CreateNewCheck(thisConfig,"StormRoarST","Use Bladestorm/Dragonroar automatically in Single Target Rotation");
-CreateNewText(thisConfig,"Bladestorm/Dragonroar ST")
+CreateNewCheck(thisConfig,"StormRoarST","Dragonroar automatically in Single Target Rotation");
+CreateNewText(thisConfig,"Dragonroar ST")
 
 -- Auto Bladestorm / DragonRoar Multi Target
-CreateNewCheck(thisConfig,"StormRoar","Use Bladestorm/Dragonroar automatically in Multiple Target Rotation");
+CreateNewCheck(thisConfig,"StormRoar","Use Bladestorm/Dragonroar automatically in Multi Target Rotation");
 CreateNewText(thisConfig,"Bladestorm/Dragonroar")
-
--- Charge
-CreateNewCheck(thisConfig,"Charge");
-CreateNewText(thisConfig,"Charge");
 
 -- Dummy DPS Test
 CreateNewCheck(thisConfig,"DPS Testing");
@@ -161,18 +168,18 @@ if currentConfig ~= "Fury Avery/Chumii" then
 ClearConfig();
 thisConfig = 0;
 -- Title
-CreateNewTitle(thisConfig,"Fury Warrior");  
+CreateNewTitle(thisConfig,"Fury Warrior");
 
--- Wrapper 
+-- Wrapper
 CreateNewWrap(thisConfig,"Buffs");
 
 -- battle Shout
 CreateNewCheck(thisConfig,"Battle","Check if you want to use Battle Shout out of combat");
-CreateNewText(thisConfig,"Battle Shout"); 
+CreateNewText(thisConfig,"Battle Shout");
 
 --commanding shout
 CreateNewCheck(thisConfig,"Commanding","Check if you want to use Commanding Shout out of combat and in the rotation");
-CreateNewText(thisConfig,"Commanding Shout"); 
+CreateNewText(thisConfig,"Commanding Shout");
 
 -- Wrapper
 CreateNewWrap(thisConfig,"Cooldowns");
@@ -180,12 +187,12 @@ CreateNewWrap(thisConfig,"Cooldowns");
 -- Recklessness
 CreateNewCheck(thisConfig,"Recklessness","Check if you want to use Recklessness automatically");
 CreateNewDrop(thisConfig, "Recklessness", 1, "Use Recklessness always or on boss", "Always", "Boss")
-CreateNewText(thisConfig,"Recklessness"); 
+CreateNewText(thisConfig,"Recklessness");
 
 -- SkullBanner
 CreateNewCheck(thisConfig,"SkullBanner","Check if you want to use Skull Banner automatically");
 CreateNewDrop(thisConfig, "SkullBanner", 1, "Use Skull Banner always or on boss", "Always", "Boss")
-CreateNewText(thisConfig,"SkullBanner"); 
+CreateNewText(thisConfig,"SkullBanner");
 
 -- Racial
 CreateNewCheck(thisConfig,"Racials","Check if you want to use Racials automatically");
@@ -199,16 +206,16 @@ CreateNewText(thisConfig,"Gloves");
 
 --Shattering Throw
 CreateNewCheck(thisConfig,"Shattering Throw","Check if you want to use Shattering Throw in the rotation");
-CreateNewText(thisConfig,"Shattering Throw"); 
+CreateNewText(thisConfig,"Shattering Throw");
 
 -- Wrapper
 CreateNewWrap(thisConfig,"Talents");
 
--- DragonRoar 
+-- DragonRoar
 CreateNewCheck(thisConfig,"DragonRoar","Check if you want to use dragon roar manually - left alt");
 CreateNewText(thisConfig,"Dragon Roar");
 
--- Bladestorm 
+-- Bladestorm
 CreateNewCheck(thisConfig,"Bladestorm","Check if you want to use bladestorm manually - left alt");
 CreateNewText(thisConfig,"Bladestorm");
 
@@ -244,11 +251,11 @@ CreateNewWrap(thisConfig,"Utilities");
 
 -- Charge
 CreateNewCheck(thisConfig,"Charge","Check if you want to use charge when out of range");
-CreateNewText(thisConfig,"Charge"); 
+CreateNewText(thisConfig,"Charge");
 
 --Heroic Leap
 CreateNewCheck(thisConfig,"HeroicLeap","Check if you want to use the heroic leap key, middle mouse button");
-CreateNewText(thisConfig,"Heroic Leap"); 
+CreateNewText(thisConfig,"Heroic Leap");
 
 -- Wrapper
 CreateNewWrap(thisConfig,"Interrupts");
@@ -265,8 +272,8 @@ if isKnown(QuakingPalm) then
 -- Quaking Palm
 CreateNewCheck(thisConfig,"Quaking Palm","Check if you want to use Quaking Palm automatically");
 CreateNewBox(thisConfig, "Quaking Palm", 0, 100  , 5, 25 , "Over what % of cast we want to Quaking Palm.");
-CreateNewText(thisConfig,"Quaking Palm");   
-end    
+CreateNewText(thisConfig,"Quaking Palm");
+end
 
 CreateNewCheck(thisConfig,"Interrupt Mode","Toggle to turn interrupts on or off");
 CreateNewDrop(thisConfig,"Interrupt Mode", 5, "Toggle")
@@ -277,7 +284,7 @@ CreateNewWrap(thisConfig,"AoE");
 
 --automatic aoe
 CreateNewCheck(thisConfig,"AutoAoE","Check if you want to use automatic AoE, tarplus/minus wont do anything until you toggle this off");
-CreateNewText(thisConfig,"Auto AoE"); 
+CreateNewText(thisConfig,"Auto AoE");
 
 -- tar+
 CreateNewCheck(thisConfig,"Rotation Up","Switch through Rotation Modes (1 target/2 targets/3 targets/4+targets)");
@@ -293,7 +300,7 @@ CreateNewText(thisConfig,"Tar Minus");
 CreateNewWrap(thisConfig,"Other");
 
 --CreateNewCheck(thisConfig,"MouseClick","Check if you want to have the mouse click when you have a clickable spell up, ex: demo banner, raid markers");
---CreateNewText(thisConfig,"Mouse Click"); 
+--CreateNewText(thisConfig,"Mouse Click");
 
 --autoface
 CreateNewCheck(thisConfig,"Autoface","Check if you want to enable auto facing the target");
@@ -345,22 +352,32 @@ CreateNewCheck(thisConfig,"Rotation Down","Switch through Rotation Mode ( Auto A
 CreateNewDrop(thisConfig,"Rotation Down", 1, "Toggle2")
 CreateNewText(thisConfig,"Rotation Down");
 
+--Cooldown Key Toggle
+CreateNewCheck(thisConfig,"Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.");
+CreateNewDrop(thisConfig,"Cooldown Mode", 3, "Toggle2")
+CreateNewText(thisConfig,"Cooldowns");
+
+--Defensive Key Toggle
+CreateNewCheck(thisConfig,"Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.");
+CreateNewDrop(thisConfig,"Defensive Mode", 6, "Toggle2")
+CreateNewText(thisConfig,"Defensive");
+
+--Interrupts Key Toggle
+CreateNewCheck(thisConfig,"Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.");
+CreateNewDrop(thisConfig,"Interrupt Mode", 6, "Toggle2")
+CreateNewText(thisConfig,"Interrupts");
+
 -- Heroic Leap
 CreateNewCheck(thisConfig,"HeroicLeapKey");
 CreateNewDrop(thisConfig,"HeroicLeapKey", 2, "Toggle2")
 CreateNewText(thisConfig,"Heroic Leap Key");
-
--- Demo Banner
-CreateNewCheck(thisConfig,"DemoBannerKey");
-CreateNewDrop(thisConfig,"DemoBannerKey", 5, "Toggle2")
-CreateNewText(thisConfig,"Demo Banner Key");
 
 -- Mocking Banner
 CreateNewCheck(thisConfig,"MockingBannerKey");
 CreateNewDrop(thisConfig,"MockingBannerKey", 7, "Toggle2")
 CreateNewText(thisConfig,"Mocking Banner Key");
 
--- Wrapper 
+-- Wrapper
 CreateNewWrap(thisConfig,"---------- Buffs ---------");
 
 -- Shout
@@ -368,39 +385,35 @@ CreateNewCheck(thisConfig,"Shout");
 CreateNewDrop(thisConfig, "Shout", 1, "Choose Shout to use.", "|cffFFBB00Command", "|cff0077FFBattle")
 CreateNewText(thisConfig,"Shout");
 
--- Shout OOC
-CreateNewCheck(thisConfig, "ShoutOOC","Uncheck this if you want to use the selected Shout only while in combat");
-CreateNewText(thisConfig, "Shout out of Combat");
-
--- Wrapper 
+-- Wrapper
 CreateNewWrap(thisConfig,"------ Cooldowns ------");
 
 -- Recklessness
 CreateNewCheck(thisConfig,"Recklessness");
 CreateNewDrop(thisConfig, "Recklessness", 1, "Use Recklessness always or only on Boss/Dummy", "|cffFFBB00Always", "|cff0077FFBoss")
-CreateNewText(thisConfig,"Recklessness"); 
+CreateNewText(thisConfig,"Recklessness");
 
 -- SkullBanner
 CreateNewCheck(thisConfig,"SkullBanner");
 CreateNewDrop(thisConfig, "SkullBanner", 1, "Use Skull Banner always or only on Boss/Dummy", "|cffFFBB00Always", "|cff0077FFBoss")
-CreateNewText(thisConfig,"SkullBanner"); 
+CreateNewText(thisConfig,"SkullBanner");
 
 -- Avatar
 CreateNewCheck(thisConfig,"Avatar");
 CreateNewDrop(thisConfig, "Avatar", 1, "Use Avatar always or only on Boss/Dummy", "|cffFFBB00Always", "|cff0077FFBoss")
-CreateNewText(thisConfig,"Avatar"); 
+CreateNewText(thisConfig,"Avatar");
 
 -- Racial
 CreateNewCheck(thisConfig,"Racial");
 CreateNewDrop(thisConfig, "Racial", 1, "Use Racial always or only on Boss/Dummy", "|cffFFBB00Always", "|cff0077FFBoss")
 CreateNewText(thisConfig,"Racial (Orc / Troll)");
 
--- Wrapper 
+-- Wrapper
 CreateNewWrap(thisConfig,"------- Defensive ------");
 
 -- Shield Block / Barrier
 CreateNewDrop(thisConfig, "BlockBarrier", 1, "Use Shield Block or Shield Barrier", "|cffFFBB00Block", "|cff0077FFBarrier")
-CreateNewText(thisConfig,"Block or Barrier"); 
+CreateNewText(thisConfig,"Block or Barrier");
 
 -- Last Stand
 CreateNewCheck(thisConfig,"LastStand");
@@ -430,20 +443,20 @@ CreateNewText(thisConfig,"Impending Victory");
 -- Healthstone
 CreateNewCheck(thisConfig,"Healthstone");
 CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
-CreateNewText(thisConfig,"Healthstone");  
+CreateNewText(thisConfig,"Healthstone");
 
 -- Safeguard Focus
 CreateNewCheck(thisConfig,"SafeguardFocus");
 CreateNewBox(thisConfig, "SafeguardFocus", 0, 100  , 5, 25, "% HP of Focustarget to Safeguard at Focustarget");
-CreateNewText(thisConfig,"Safeguard at Focus"); 
+CreateNewText(thisConfig,"Safeguard at Focus");
 
 -- Vigilance Focus
 CreateNewCheck(thisConfig,"VigilanceFocus");
 CreateNewBox(thisConfig, "VigilanceFocus", 0, 100  , 5, 25, "% HP of Focustarget to use Vigilance on Focustarget");
-CreateNewText(thisConfig,"Vigilance on Focus");         
+CreateNewText(thisConfig,"Vigilance on Focus");
 
--- Wrapper 
-CreateNewWrap(thisConfig,"-------- Interrupts --------"); 
+-- Wrapper
+CreateNewWrap(thisConfig,"-------- Interrupts --------");
 
 -- Pummel
 CreateNewCheck(thisConfig,"Pummel");
@@ -459,10 +472,10 @@ if isKnown(QuakingPalm) then
 -- Quaking Palm
 CreateNewCheck(thisConfig,"Quaking Palm");
 CreateNewBox(thisConfig, "Quaking Palm", 0, 100  , 5, 30 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFQuaking Palm.");
-CreateNewText(thisConfig,"Quaking Palm");   
-end    
+CreateNewText(thisConfig,"Quaking Palm");
+end
 
--- Wrapper 
+-- Wrapper
 CreateNewWrap(thisConfig,"---------- Misc -----------");
 
 -- Auto Bladestorm / DragonRoar

@@ -90,8 +90,8 @@ function ShamanElemental()
 				if castSpell("player",_Ascendance,true) then return; end
 			end
 
-			local numEnnemies = getNumEnnemies("target",10)
-			if BadBoy_data["AoE"] == 3 and numEnnemies > 1 or BadBoy_data["AoE"] == 2 then
+			local numEnemies = getNumEnemies("target",10)
+			if BadBoy_data["AoE"] == 3 and numEnemies > 1 or BadBoy_data["AoE"] == 2 then
 
 --[[			#Multi target action priority list
 ]]
@@ -101,12 +101,12 @@ function ShamanElemental()
 				end
 
 				-- magma_totem,if=active_enemies>2&!totem.fire.active
-				if  (not (hasMagma() or hasFireElemental()) or (hasMagma() and getTotemDistance("target") > 8)) and targetDistance<8 and getNumEnnemies("player",8) > 2 and isInCombat("player") then
+				if  (not (hasMagma() or hasFireElemental()) or (hasMagma() and getTotemDistance("target") > 8)) and targetDistance<8 and getNumEnemies("player",8) > 2 and isInCombat("player") then
 					if castSpell("player",_MagmaTotem,true) then return; end
 				end
 
 				-- lava_burst,if=active_enemies<3&dot.flame_shock.remains>cast_time&cooldown_react
-				if numEnnemies == 2 and getDebuffRemain("target",_FlameShock) > select(7,GetSpellInfo(_LavaBurst))/1000 and getSpellCD(_LavaBurst) == 0 then
+				if numEnemies == 2 and getDebuffRemain("target",_FlameShock) > select(7,GetSpellInfo(_LavaBurst))/1000 and getSpellCD(_LavaBurst) == 0 then
 					if castSpell("target",_LavaBurst,false) then return; end
 				end
 
@@ -116,7 +116,7 @@ function ShamanElemental()
 				end	
 
 				-- flame_shock,cycle_targets=1,if=!ticking&active_enemies<3
-				if numEnnemies == 2 then
+				if numEnemies == 2 then
 					for i = 1, GetTotalObjects(TYPE_UNIT) do
 						local Guid = IGetObjectListEntry(i)
 						ISetAsUnitID(Guid,"thisUnit");
@@ -130,8 +130,8 @@ function ShamanElemental()
 				end				
 
 				-- earthquake,if=active_enemies>4
-				if isSelected("EarthQuake") and numEnnemies > 4 then
-					if getGround("target") == true and isMoving("target") == false and (isDummy("target") or (getDistance("target","targettarget") <= 5 and UnitHealth("target")*numEnnemies >= 150*UnitHealthMax("player")/100)) then
+				if isSelected("EarthQuake") and numEnemies > 4 then
+					if getGround("target") == true and isMoving("target") == false and (isDummy("target") or (getDistance("target","targettarget") <= 5 and UnitHealth("target")*numEnemies >= 150*UnitHealthMax("player")/100)) then
 						if castGround("target",_Earthquake,40) then return; end
 					end
 				end

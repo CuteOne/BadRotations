@@ -134,8 +134,8 @@ frame:RegisterEvent("PLAYER_LOGOUT");
 
 function frame:OnEvent(event, arg1)
  	if event == "ADDON_LOADED" and arg1 == "BadBoy" then
- 		--ChatOverlay("Addons Loaded. Starting BadBoy.");
  		BadBoyRun();
+
 	end
 end
 frame:SetScript("OnEvent", frame.OnEvent);
@@ -247,7 +247,7 @@ local f = CreateFrame("frame")
 f:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 f:SetScript("OnEvent", function()
     if GameTooltip:IsVisible() and not UnitIsPlayer("mouseover") and not C_PetBattles.IsInBattle() then
-        local id = tonumber(UnitGUID("mouseover"):sub(6, 10), 16)
+        local id = UnitGUID("mouseover"):sub(-16,-12)
         if id ~= 0 then
             addLine(GameTooltip, id, types.unit);
         end
@@ -272,10 +272,10 @@ GameTooltip:HookScript("OnTooltipSetItem", attachItemTooltip)
 ItemRefTooltip:HookScript("OnTooltipSetItem", attachItemTooltip)
 ItemRefShoppingTooltip1:HookScript("OnTooltipSetItem", attachItemTooltip)
 ItemRefShoppingTooltip2:HookScript("OnTooltipSetItem", attachItemTooltip)
-ItemRefShoppingTooltip3:HookScript("OnTooltipSetItem", attachItemTooltip)
+--ItemRefShoppingTooltip3:HookScript("OnTooltipSetItem", attachItemTooltip)
 ShoppingTooltip1:HookScript("OnTooltipSetItem", attachItemTooltip)
 ShoppingTooltip2:HookScript("OnTooltipSetItem", attachItemTooltip)
-ShoppingTooltip3:HookScript("OnTooltipSetItem", attachItemTooltip)
+--ShoppingTooltip3:HookScript("OnTooltipSetItem", attachItemTooltip)
 
 -- Glyphs
 hooksecurefunc(GameTooltip, "SetGlyph", function(self, ...)
@@ -301,3 +301,4 @@ end)
 --       local name = self.Name:GetText()
 --       self.Name:SetText(name .. ' (ID: ' .. petAbilityTooltipID .. ')')
 -- end)
+

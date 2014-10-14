@@ -299,7 +299,7 @@ function PokeAbilities()
 	if not AttackFunctions then
 		AttackFunctions = true
 
-		-- AoE Attacks to be used only while there are 3 ennemies.
+		-- AoE Attacks to be used only while there are 3 Enemies.
 		AoEPunch = nil
 		function AoEPunch()
 			if nmePetSlot == 1 or 2 then

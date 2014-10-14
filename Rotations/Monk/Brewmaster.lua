@@ -11,11 +11,11 @@ function BrewmasterMonk()
 	IEnumerateObjects(enneMy, TYPE_UNIT)
 
 
-local ennemies50Yards = getEnnemies("player",50);
+local Enemies50Yards = getEnemies("player",50);
 
-if #ennemies50Yards > 1  then
-    for i = 1, #ennemies50Yards do
-        local Guid = ennemies50Yards[i]
+if #Enemies50Yards > 1  then
+    for i = 1, #Enemies50Yards do
+        local Guid = Enemies50Yards[i]
        	ISetAsUnitID(Guid,"thisUnit");
        	if getFacing("player","thisUnit") == true
           and getDistance("thisUnit") < 40
@@ -45,7 +45,7 @@ end
 	local chiMax = UnitPowerMax("player", SPELL_POWER_CHI);
 	local energy = getPower("player");
 	local myHP = getHP("player");
-	local ennemyUnits = getNumEnnemies("player", 5)
+	local ennemyUnits = getNumEnemies("player", 5)
 -- Food/Invis Check
 	if canRun() ~= true or UnitInVehicle("Player") then return false; end
 	if IsMounted("player") then return false; end

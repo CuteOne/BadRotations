@@ -156,7 +156,7 @@ if select(3, UnitClass("player")) == 4 then
 	--- Multiple Rotation ---
 	-------------------------
 			if not UnitBuffID("player",_Stealth) and targetDistance<=8 and useAoE() and UnitLevel("player")>=66 then
-				local ennemyCount = getNumEnnemies("player",10)
+				local ennemyCount = getNumEnemies("player",10)
 				if ennemyCount>8 then
 					if getCombo()<5 then
 						if castSpell("player",_FanOfKnives) then return; end
@@ -207,7 +207,7 @@ if select(3, UnitClass("player")) == 4 then
 				end
 			
 	-- Rupture
-				if getNumEnnemies("player",10) > 1 and getRupr() > 20 then
+				if getNumEnemies("player",10) > 1 and getRupr() > 20 then
     				for i = 1, GetTotalObjects(TYPE_UNIT) do
         				local Guid = IGetObjectListEntry(i)
         				ISetAsUnitID(Guid,"thisUnit");

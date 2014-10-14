@@ -164,12 +164,12 @@ if pause() ~= true and UnitAffectingCombat("player") and UnitExists("target") an
 		-- Target Tables
 		if isChecked("Multi-Dotting") then
 		    if ScanTimer == nil or ScanTimer <= GetTime() - 1 then
-		    	targetEnnemies, ScanTimer = getEnnemies("target",20), GetTime(); 
+		    	targetEnemies, ScanTimer = getEnemies("target",20), GetTime(); 
 		    end
 		end
 
 	-- WHY THIS?
-	-- surroundingEnnemies = getNumEnnemies("player",30)
+	-- surroundingEnemies = getNumEnemies("player",30)
 
 	-- Defensives
 	
@@ -292,7 +292,7 @@ if pause() ~= true and UnitAffectingCombat("player") and UnitExists("target") an
 
 		-- get number of enemies
 		if ScanTimer == nil or ScanTimer <= GetTime() - 1 then
-	    	meleeEnnemies, targetEnnemies, ScanTimer = getNumEnnemies("player",4), getEnnemies("target",10), GetTime(); 
+	    	meleeEnemies, targetEnemies, ScanTimer = getNumEnemies("player",4), getEnemies("target",10), GetTime(); 
 	    end
 
 		-- Shadow Word: Pain (cycle_targets=1,max_cycle_targets=5,if=miss_react&!ticking)
@@ -303,8 +303,8 @@ if pause() ~= true and UnitAffectingCombat("player") and UnitExists("target") an
 		end
 	
 		if isChecked("Multi-Dotting") then
-			for i = 1, #targetEnnemies do
-				ISetAsUnitID(targetEnnemies[i],"thisUnit")
+			for i = 1, #targetEnemies do
+				ISetAsUnitID(targetEnemies[i],"thisUnit")
 				if UnitAffectingCombat("thisUnit") and getDebuffRemain("thisUnit",_ShadowWordPain) <= SWPrefresh then
 					if castSpell("thisUnit",_ShadowWordPain,true,false) then 
 						return; 
@@ -322,8 +322,8 @@ if pause() ~= true and UnitAffectingCombat("player") and UnitExists("target") an
 		end
 
 		if isChecked("Multi-Dotting") then
-			for i = 1, #targetEnnemies do
-				ISetAsUnitID(targetEnnemies[i],"thisUnit")
+			for i = 1, #targetEnemies do
+				ISetAsUnitID(targetEnemies[i],"thisUnit")
 				if UnitAffectingCombat("thisUnit") and getDebuffRemain("thisUnit",_VampiricTouch) <= VTrefresh and (vampTimer == nil or (vampTimer and vampTimer <= GetTime() - VTrefresh) or vampTarget ~= UnitGUID("thisUnit")) then
 					if castSpell("thisUnit",_VampiricTouch,true,true) then 
 						vampTarget = UnitGUID("thisUnit"); vampTimer = GetTime(); 
@@ -336,8 +336,8 @@ if pause() ~= true and UnitAffectingCombat("player") and UnitExists("target") an
 		-- Shadow Word: Pain (cycle_targets=1,max_cycle_targets=5,if=miss_react&ticks_remain<=1)
 		if getDebuffRemain("target",_ShadowWordPain) <= SWPrefresh then if castSpell("target",_ShadowWordPain,true,false) then return; end end
 		if isChecked("Multi-Dotting") then
-			for i = 1, #targetEnnemies do
-				ISetAsUnitID(targetEnnemies[i],"thisUnit")
+			for i = 1, #targetEnemies do
+				ISetAsUnitID(targetEnemies[i],"thisUnit")
 				if UnitAffectingCombat("thisUnit") and getDebuffRemain("thisUnit",_ShadowWordPain) <= SWPrefresh then
 					if castSpell("thisUnit",_ShadowWordPain,true,false) then 
 						return;
@@ -354,8 +354,8 @@ if pause() ~= true and UnitAffectingCombat("player") and UnitExists("target") an
 				end 
 			end
 		if isChecked("Multi-Dotting") then
-			for i = 1, #targetEnnemies do
-				ISetAsUnitID(targetEnnemies[i],"thisUnit")
+			for i = 1, #targetEnemies do
+				ISetAsUnitID(targetEnemies[i],"thisUnit")
 				if UnitAffectingCombat("thisUnit") and getDebuffRemain("thisUnit",_VampiricTouch) < VTrefresh and (vampTimer == nil or (vampTimer and vampTimer <= GetTime() - VTrefresh) or vampTarget ~= UnitGUID("thisUnit")) then
 					if castSpell("thisUnit",_VampiricTouch,true,true) then 
 						vampTarget = UnitGUID("thisUnit"); vampTimer = GetTime(); 

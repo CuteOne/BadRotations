@@ -1,4 +1,4 @@
------------------------------
+-------------------------------
 --[[spellCastingUnits Table]]
 spellCastingUnits = { };
 
@@ -45,7 +45,7 @@ function interruptsReader(self, event, ...)
 	        --[[ IsCasting Enemy --]]
 	        --if BadBoy_data["Check Interrupts"] == 1 then
 	        	--if source ~= UnitGUID("player") then
-	        		if event == "SPELL_CAST_START" then
+	        		--[[if event == "SPELL_CAST_START" then
 
 				        -- Prepare GUID to be reused via UnitID
 				        ISetAsUnitID(sourceGUID,"thisUnit");
@@ -59,7 +59,7 @@ function interruptsReader(self, event, ...)
 				        	if destName == nil then destName = "|cffFFFFFFNo Target" end
 
 				        	-- Send to table
-		        			--[[in table we need GUID,name,spell,target,endTime]]
+		        			--in table we need GUID,name,spell,target,endTime
 		        			tinsert(spellCastingUnits, { guid = sourceGUID, sourceName = sourceName, spell = spellID, targetGUID = destGUID, targetName = destName, endTime = endTime, class = sourceClass })
 	        			end
 
@@ -76,7 +76,7 @@ function interruptsReader(self, event, ...)
 								return false; 
 							end
 						end)	
-	        		end
+	        		end]]
 	        	--end
 	        --end
 	    end

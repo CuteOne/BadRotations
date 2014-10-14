@@ -104,7 +104,7 @@ function useCDs()
     end
 end
 function useAoE()
-    if (BadBoy_data['AoE'] == 1 and getNumEnnemies("player",10) >= 3) or BadBoy_data['AoE'] == 2 then
+    if (BadBoy_data['AoE'] == 1 and getNumEnemies("player",10) >= 3) or BadBoy_data['AoE'] == 2 then
         return true
     else
         return false

@@ -89,8 +89,8 @@ function CreateNewWrap(value,textString)
  	function ReplaceWraps()
  		local totalshown = 0;
  		for i = 1, thisConfig do
- 			if _G["option"..i.."Text"] ~= nil then 
- 				if _G["option"..i.."Text"]:IsShown() == 1 then
+ 			if _G["option"..i.."Text"] ~= nil then
+ 				if _G["option"..i.."Text"]:IsShown() == true then
  					totalshown = totalshown + 1;
  					ReplaceRow(i,totalshown)
 					configFrame:SetHeight((totalshown*22)+25);

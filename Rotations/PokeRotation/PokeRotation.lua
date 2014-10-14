@@ -1075,7 +1075,7 @@ function PokeEngine()
 		--Only works if at least one ally is dead
 		--665, Consume Corpse
 		
-		-- AoE Attacks to be used only while there are 3 ennemies.
+		-- AoE Attacks to be used only while there are 3 Enemies.
 		AoEPunchList = { 
 			299, -- Arcane Explosion
 			319, -- Magma Wave
@@ -1943,7 +1943,7 @@ function PokeEngine()
 	if not AttackFunctions then
 		AttackFunctions = true
 
-		-- AoE Attacks to be used only while there are 3 ennemies.
+		-- AoE Attacks to be used only while there are 3 Enemies.
 		AoEPunch = nil
 		function AoEPunch()
 			if nmePetSlot == 1 or 2 then

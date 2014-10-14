@@ -54,7 +54,7 @@ local BOSS = isBoss("target") or isDummy("target")
 -- ENEMYS we will global it and call only 1 per sec
 if ENEMYS == nil or (AOETimer and AOETimer <= GetTime() - 1) then
 	AOETimer = GetTime()
-	ENEMYS = getNumEnnemies("player", 5)
+	ENEMYS = getNumEnemies("player", 5)
 end
 
 --Cooldowns

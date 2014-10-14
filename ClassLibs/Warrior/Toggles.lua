@@ -1,15 +1,15 @@
 if select(3, UnitClass("player")) == 1 then
-    
+
       --[[]]        --[[           ]]   --[[]]     --[[]]   --[[           ]]
      --[[  ]]       --[[           ]]   --[[ ]]   --[[ ]]   --[[           ]]
     --[[    ]]      --[[]]     --[[]]   --[[           ]]   --[[]]
    --[[      ]]     --[[         ]]     --[[           ]]   --[[           ]]
   --[[        ]]    --[[        ]]      --[[]]     --[[]]              --[[]]
- --[[]]    --[[]]   --[[]]    --[[]]    --[[]]     --[[]]   --[[           ]]   
+ --[[]]    --[[]]   --[[]]    --[[]]    --[[]]     --[[]]   --[[           ]]
 --[[]]      --[[]]  --[[]]     --[[]]   --[[]]     --[[]]   --[[           ]]
 
    function WarriorArmsToggles()
-       
+
         -- AoE Button
         -- if AoEModesLoaded ~= "Arms Warrior AoE Modes" then
         --     CustomAoEModes = {
@@ -22,9 +22,9 @@ if select(3, UnitClass("player")) == 1 then
         --     AoEModesLoaded = "Arms Warrior AoE Modes";
         -- end
 
-        if AoEModesLoaded ~= "Arms Warrior AoE Modes" then 
-            CustomAoEModes = { 
-                [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 0, icon = SweepingStrikes },  
+        if AoEModesLoaded ~= "Arms Warrior AoE Modes" then
+            CustomAoEModes = {
+                [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 0, icon = SweepingStrikes },
                 [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = Cleave },
                 [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = MortalStrike }
             };
@@ -33,7 +33,39 @@ if select(3, UnitClass("player")) == 1 then
            AoEModesLoaded = "Arms Warrior AoE Modes";
         end
 
-        
+        -- Cooldowns Button
+        if CooldownsModesLoaded ~= "Cooldown Modes" then
+            CustomCooldownsModes = {
+                [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = Recklessness },
+                [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = Recklessness },
+                [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = Recklessness }
+            };
+           CooldownsModes = CustomCooldownsModes
+           CreateButton("Cooldowns",2,0)
+           CooldownsModesLoaded = "Cooldown Modes";
+        end
+
+        -- Defensive Button
+        if DefensiveModesLoaded ~= "Defensive Modes" then
+            CustomDefensiveModes = {
+                [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = Shieldwall },
+                [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = ShieldWall }
+            };
+            DefensiveModes = CustomDefensiveModes
+            CreateButton("Defensive",3,0)
+            DefensiveModesLoaded = "Defensive Modes";
+        end
+
+     -- Interrupts Button
+        if InterruptsModesLoaded ~= "Interrupt Modes" then
+            CustomInterruptsModes = {
+                [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = Pummel },
+                [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = Pummel }
+            };
+            InterruptsModes = CustomInterruptsModes
+            CreateButton("Interrupts",4,0)
+            InterruptsModesLoaded = "Interrupt Modes";
+        end
 
         function SpecificToggle(toggle)
             if getValue(toggle) == 1 then
@@ -53,25 +85,59 @@ if select(3, UnitClass("player")) == 1 then
             end
         end
 
-         --AoE Key Toggle
-        if AOETimer == nil then AOETimer = 0; end
-        if SpecificToggle("Rotation Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - AOETimer > 0.25 then
-            AOETimer = GetTime()
-            if BadBoy_data['AoE'] ~= #AoEModes then
-                BadBoy_data['AoE'] = BadBoy_data['AoE']+1
-            else
-                BadBoy_data['AoE'] = 1
+        if isChecked("Rotation Up") then
+            if SpecificToggle("Rotation Up") == 1 and GetCurrentKeyBoardFocus() == nil then
+                if myTimer == nil or myTimer <= GetTime() -0.7 then
+                    myTimer = GetTime()
+                    ToggleValue("AoE");
+                end
             end
-            UpdateButton("AoE")
-        end 
+        end
+        if isChecked("Rotation Down") then
+            if SpecificToggle("Rotation Down") == 1 and GetCurrentKeyBoardFocus() == nil then
+                if myTimer == nil or myTimer <= GetTime() -0.7 then
+                    myTimer = GetTime()
+                    ToggleMinus("AoE");
+                end
+            end
+        end
+        if isChecked("HeroicLeapKey") and SpecificToggle("HeroicLeapKey") == 1 then
+            if not GetCurrentKeyBoardFocus() and not IsMouselooking() then
+                CastSpellByName(GetSpellInfo(6544))
+                if SpellIsTargeting() then
+                    CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+                    return true;
+                end
+            end
+        end
+        --Cooldown Key Toggle
+        if CDTimer == nil then CDTimer = 0; end
+        if SpecificToggle("Cooldown Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - CDTimer > 0.25 then
+            CDTimer = GetTime()
+            UpdateButton("Cooldowns")
+        end
+
+        --Defensive Key Toggle
+        if DefTimer == nil then DefTimer = 0; end
+        if SpecificToggle("Defensive Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - DefTimer > 0.25 then
+            DefTimer = GetTime()
+            UpdateButton("Defensive")
+        end
+
+        --Interrupt Key Toggle
+        if IntTimer == nil then IntTimer = 0; end
+        if SpecificToggle("Interrupt Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - IntTimer > 0.25 then
+            IntTimer = GetTime()
+            UpdateButton("Interrupts")
+        end
 
     end
 
   function FuryToggles()
 
 		  -- AoE Button
-        if AoEModesLoaded ~= "Fury Warrior AoE Modes" then 
-            CustomAoEModes = { 
+        if AoEModesLoaded ~= "Fury Warrior AoE Modes" then
+            CustomAoEModes = {
 			[1] = { mode = "One", value = 1 , overlay = "Single Target Enabled", tip = "", highlight = 0, icon = HeroicStrike },
             [2] = { mode = "Two", value = 2 , overlay = "Two Target Enabled", tip = "", highlight = 0, icon = Cleave },
             [3] = { mode = "Three", value = 3 , overlay = "Three Target Enabled", tip = "", highlight = 0, icon = Whirlwind },
@@ -81,9 +147,9 @@ if select(3, UnitClass("player")) == 1 then
            CreateButton("AoE",1,0)
            AoEModesLoaded = "Fury Warrior AoE Modes";
         end
-		
-		if InterruptsModesLoaded ~= "Fury Interrupt Modes" then 
-            CustomInterruptsModes = { 
+
+		if InterruptsModesLoaded ~= "Fury Interrupt Modes" then
+            CustomInterruptsModes = {
                 [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "", highlight = 1, icon = Pummel },
                 [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "", highlight = 0, icon = Pummel }
             };
@@ -91,7 +157,7 @@ if select(3, UnitClass("player")) == 1 then
             CreateButton("Interrupts",2,0)
             InterruptsModesLoaded = "Fury Interrupt Modes";
         end
-		
+
       function SpecificToggle(toggle)
             if getValue(toggle) == 1 then
                 return IsLeftControlKeyDown();
@@ -107,15 +173,15 @@ if select(3, UnitClass("player")) == 1 then
                 return 0
             end
         end
-		
+
     end
 
    function WarriorProtToggles()
         AoEModesLoaded = "Prot Warrior AoE Modes";
 
-        -- if AoEModesLoaded ~= "Prot Warrior AoE Modes" then 
-        --     CustomAoEModes = { 
-        --         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 0, icon = ThunderClap },  
+        -- if AoEModesLoaded ~= "Prot Warrior AoE Modes" then
+        --     CustomAoEModes = {
+        --         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 0, icon = ThunderClap },
         --         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = Cleave },
         --         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = Devastate }
         --     };
@@ -126,7 +192,7 @@ if select(3, UnitClass("player")) == 1 then
         -- end
 
         -- Aoe Button
-        AoEModes = { 
+        AoEModes = {
 
             [1] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Auto-AoE", highlight = 0, icon = ThunderClap  },
             [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Recommended for \n|cffFF0000AoE (3+)", highlight = 0, icon = Cleave },
@@ -135,21 +201,21 @@ if select(3, UnitClass("player")) == 1 then
         CreateButton("AoE",1,0)
 
         -- -- Interrupts Button
-        -- InterruptsModes = { 
+        -- InterruptsModes = {
         --     [1] = { mode = "None", value = 1 , overlay = "Interrupts Disabled", tip = "|cffC0C0C0Interrupts \n|cffFF0000No Interrupts will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
         --     [2] = { mode = "All", value = 2 , overlay = "Interrupts Enabled", tip = "|cffC0C0C0Interrupts \n|cffFF0000Spells Included: \n|cffFFDD11Pummel.", highlight = 1, icon = 6552 }
         -- };
         -- CreateButton("Interrupts",1,0)
 
         -- -- Defensive Button
-        -- DefensiveModes = { 
+        -- DefensiveModes = {
         --     [1] = { mode = "None", value = 1 , overlay = "Defensive Disabled", tip = "|cffC0C0C0Defensive \n|cffFF0000No Defensive Cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
         --     [2] = { mode = "All", value = 2 , overlay = "Defensive Enabled", tip = "|cffC0C0C0Defensive \n|cffFF0000Spells Included: \n|cffFFDD11Shield Wall, \nLast Stand.", highlight = 1, icon = 871 }
         -- };
         -- CreateButton("Defensive",1.5,1)
 
         -- -- Cooldowns Button
-        -- CooldownsModes = { 
+        -- CooldownsModes = {
         --     [1] = { mode = "None", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffC0C0C0Cooldowns \n|cffFF0000No cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
         --     [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "|cffC0C0C0Cooldowns \n|cffFF0000Spells Included: \n|cffFFDD11Config's selected spells.", highlight = 1, icon = [[INTERFACE\ICONS\inv_misc_blackironbomb]]},
         --     [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "|cffC0C0C0Cooldowns \n|cffFF0000Spells Included: \n|cffFFDD11Berserker Rage, \nBlood Bath.", highlight = 1, icon = 18499 }

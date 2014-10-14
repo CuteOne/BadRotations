@@ -16,6 +16,7 @@ MortalStrike		= 12294;
 Overpower			= 7384;
 SweepingStrikes		= 12328;
 Slam				= 1464;
+Rend        = 772;
 
 --Fury--
 Bloodthirst 		= 23881;
@@ -25,10 +26,12 @@ WildStrike 			= 100130;
 --Shared--
 Cleave 				= 845;
 ColossusSmash 		= 86346;
+ColossusSmashArms = 167105;
 Charge 				= 100;
 HeroicStrike		= 78;
 HeroicThrow			= 57755;
 Execute				= 5308;
+ExecuteArms   = 163201;
 HeroicLeap			= 6544;
 Recklessness		= 1719;
 ShatteringThrow		= 64382;
@@ -82,6 +85,10 @@ Vigilance			= 114030;
 Avatar				= 107574;
 Bloodbath			= 12292;
 StormBolt			= 107570;
+Ravager       = 152277;
+Siegebreaker = 176289;
+SuddenDeathTalent = 29725;
+SuddenDeathSpellAura = 52437;
 
 --Procs--
 Enrage				= 12880;

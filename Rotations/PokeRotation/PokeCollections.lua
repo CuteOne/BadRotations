@@ -14,7 +14,7 @@ function PokeCollections()
 		--Only works if at least one ally is dead
 		--665, Consume Corpse
 		
-		-- AoE Attacks to be used only while there are 3 ennemies.
+		-- AoE Attacks to be used only while there are 3 Enemies.
 		AoEPunchList = { 
 			299, -- Arcane Explosion
 			319, -- Magma Wave

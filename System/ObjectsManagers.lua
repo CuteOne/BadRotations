@@ -123,7 +123,7 @@ if not metaTable1 then
   		local nShortHand = ""
   		if UnitExists(unit) then
     		targetGUID = UnitGUID(unit)
-    		nShortHand = tonumber(UnitGUID(unit):sub(6, 10), 16)
+    		nShortHand = UnitGUID(unit):sub(-5)
   		end
   		return targetGUID, nShortHand
  	end
@@ -250,7 +250,7 @@ if not metaTable1 then
 	  		local nShortHand = ""
 	  		if UnitExists(unit) then
 	    		targetGUID = UnitGUID(unit)
-	    		nShortHand = tonumber(UnitGUID(unit):sub(6, 10), 16)
+	    		nShortHand = UnitGUID(unit):sub(-5)
 	  		end
 	  		return targetGUID, nShortHand
 		end

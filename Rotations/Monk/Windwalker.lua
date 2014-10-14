@@ -68,7 +68,7 @@ if select(3, UnitClass("player")) == 10 then
 			if isInCombat("player") and (getChiMax("player")-getChi("player"))>=2 then
 				if castSpell("player",_ExpelHarm,true) then return; end
 			end
-			if not isInCombat("player") and getNumEnnemies("player",10)==0 then
+			if not isInCombat("player") and getNumEnemies("player",10)==0 then
 				if castSpell("player",_ExpelHarm,true) then return; end
 			end
 		end
