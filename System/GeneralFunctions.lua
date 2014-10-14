@@ -133,7 +133,10 @@ function canDispel(Unit,spellID)
 		typesList = { }
 	end
 	if ClassNum == 10 then --Monk
-		typesList = { "Poison", "Disease" } -- Detox
+		-- Detox
+		if spellID == 115450 then typesList = { "Poison", "Disease" } end
+		-- Diffuse Magic
+		if spellID == 122783 then typesList = { "Magic" } end
 	end
 	if ClassNum == 11 then --Druid  			
 		-- Remove Corruption
@@ -144,13 +147,17 @@ function canDispel(Unit,spellID)
 		if spellID == 122288 then typesList = { "Poison", "Disease" } end 
 	end		
 	local function ValidType(debuffType)
-  		for i = 1, #typesList do
-  			if typesList[i] == debuffType then
-  				return true;
-  			else
-  				return false;
-  			end
-  		end
+		if typeList == nil then
+			return false
+		else
+	  		for i = 1, #typesList do
+	  			if typesList[i] == debuffType then
+	  				return true;
+	  			else
+	  				return false;
+	  			end
+	  		end
+	  	end
   	end
 	local ValidDebuffType = false
 	local i = 1

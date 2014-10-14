@@ -98,6 +98,14 @@ function useAoE()
     end
 end
 
+function useCDs()
+    if (BadBoy_data['Cooldowns'] == 1 and isBoss()) or BadBoy_data['Cooldowns'] == 2 then
+        return true
+    else
+        return false
+    end
+end
+
 function getFacingDistance()
     if IExists(UnitGUID("player")) and IExists(UnitGUID("target")) then
         local Y1,X1,Z1,Angle1 = IGetLocation(UnitGUID("player"));

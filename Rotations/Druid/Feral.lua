@@ -24,7 +24,7 @@ if select(3, UnitClass("player")) == 11 then
 		  	and not UnitIsDeadOrGhost("player")
 		  	and not IsMounted()
 		  	and not IsFlying()
-		  	and targetDistance <= 40
+		  	--and targetDistance <= 40
 		then
 	-- Rebirth
 			if isInCombat("player")	and UnitBuffID("player",ps) and UnitIsDeadOrGhost("mouseover") and UnitIsPlayer("mouseover") then
@@ -158,7 +158,7 @@ if select(3, UnitClass("player")) == 11 then
 			  	and not UnitCastingInfo("player")
 				and not UnitChannelInfo("player")
 				and not UnitIsDeadOrGhost("player")
-				and isInCombat("player")
+				--and isInCombat("player")
 			then
 	-- Pot/Stoned
 				if isChecked("Pot/Stoned") and getHP("player") <= getValue("Pot/Stoned") then
@@ -182,9 +182,9 @@ if select(3, UnitClass("player")) == 11 then
 				end
 	-- Might of Ursoc / Frenzied Regeneration / Cat Form
 				if isChecked("Frenzied Regen") and (UnitBuffID("player",mu) or getHP("player") <= getValue("Frenzied Regen")) then
-					if debugTable[1].spellid == nil then lastSpell = 0; else lastSpell = debugTable[1].spellid; end
+					--if debugTable[1].spellid == nil then lastSpell = 0; else lastSpell = debugTable[1].spellid; end
 					if castSpell("player",mu,true) then return; end	
-					if UnitBuffID("player",bf) and getSpellCD(fr)==0 and lastSpell ~= fr then
+					if UnitBuffID("player",bf) and getSpellCD(fr)==0 then --and lastSpell ~= fr then
 						if castSpell("player",fr,true) then return; end
 					end
 					if UnitBuffID("player",bf) then
