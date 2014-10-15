@@ -225,11 +225,6 @@ function FeralCatConfig()
             boxOp("Pot/Stoned", 0, 100, 5, 60);
             textOp("Pot/Stoned");
 
-            -- Barkskin
-            checkOp("Barkskin");
-            boxOp("Barkskin", 0, 100, 5, 50);
-            textOp(tostring(select(1,GetSpellInfo(bar))));
-
             -- Survival Instincts
             checkOp("Survival Instincts");
             boxOp("Survival Instincts", 0, 100, 5, 40);

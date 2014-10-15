@@ -67,9 +67,10 @@ end
 function canAttack(Unit1,Unit2)
 	if Unit1 == nil then Unit1 = "player"; end
 	if Unit2 == nil then Unit2 = "target"; end
-	if UnitCanAttack(Unit1,Unit2) == 1 then
-		return true;
-	end
+	-- if UnitCanAttack(Unit1,Unit2) == 1 then
+	-- 	return true;
+	-- end
+	return UnitCanAttack(Unit1,Unit2)
 end
 
 -- if canCast(12345,true)
@@ -523,6 +524,14 @@ function getAllies(Unit,Radius)
  	return alliesTable;
 end
 
+-- if getBuffDuration("target",12345) < 3 then
+function getBuffDuration(Unit,BuffID,Source)
+	if UnitBuffID(Unit,BuffID,Source) ~= nil then
+		return select(6,UnitBuffID(Unit,BuffID,Source))*1;
+	end
+	return 0;
+end
+
 -- if getBuffRemain("target",12345) < 3 then
 function getBuffRemain(Unit,BuffID,Source)
 	if UnitBuffID(Unit,BuffID,Source) ~= nil then
@@ -572,6 +581,14 @@ end
 -- if getCombo() >= 1 then
 function getCombo()
 	return GetComboPoints("player");
+end
+
+-- if getDebuffDuration("target",12345) < 3 then
+function getDebuffDuration(Unit,DebuffID,Source)
+	if UnitDebuffID(Unit,DebuffID,Source) ~= nil then
+		return select(6,UnitDebuffID(Unit,DebuffID,Source))*1;
+	end
+	return 0;
 end
 
 -- if getDebuffRemain("target",12345) < 3 then
@@ -628,15 +645,17 @@ end
 
 --if getFallTime() > 2 then
 function getFallTime()
-	--local fallStarted = 0
-	local fallTime = 0
-	if IsFalling()~=nil then
+	if fallStarted==nil then fallStarted = 0 end
+	if fallTime==nil then fallTime = 0 end
+	if IsFalling() then
 		if fallStarted == 0 then
 			fallStarted = GetTime()
 		end
-		if fallStarted ~= nil then fallTime = (math.floor((GetTime() - fallStarted)*1000)/1000); end
+		if fallStarted ~= 0 then 
+			fallTime = (math.floor((GetTime() - fallStarted)*1000)/1000);
+		end
 	end
-	if IsFalling()==nil then
+	if not IsFalling() then
 		fallStarted = 0
 		fallTime = 0
 	end
@@ -781,11 +800,11 @@ function getHP(Unit)
 			return nNova[i].hp;
 		end
 	end
-	if isChecked("No Incoming Heals") ~= true then
-		return 100*(UnitHealth(Unit)+UnitGetIncomingHeals(Unit))/UnitHealthMax(Unit) 
-	else
+	--if isChecked("No Incoming Heals") ~= true then
+	--	return 100*(UnitHealth(Unit)+UnitGetIncomingHeals(Unit))/UnitHealthMax(Unit) 
+	--else
 		return 100*UnitHealth(Unit)/UnitHealthMax(Unit) 
-	end
+	--end
 end
 
 -- if getMana("target") <= 15 then 
@@ -1351,7 +1370,7 @@ function isBoss()
     local BossUnits = BossUnits
     
     if UnitExists("target") then
-        local npcID = tonumber(UnitGUID("target"):sub(6,10), 16)
+        local npcID = tonumber(strmatch(UnitGUID("target") or "", "-(%d+)-%x+$"), 10)--tonumber(UnitGUID("target"):sub(6,10), 16)
         
         if (UnitClassification("target") == "rare" or UnitClassification("target") == "rareelite" or UnitClassification("target") == "worldboss" or (UnitClassification("target") == "elite" and UnitLevel("target") >= UnitLevel("player")+3) or UnitLevel("target") < 0) 
             --and select(2,IsInInstance())=="none" 
