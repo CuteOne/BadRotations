@@ -18,6 +18,14 @@ if select(3,UnitClass("player")) == 6 then
 if not DeathknightFunctions then
 	DeathknightFunctions = true
 
+
+    function canSpreadDiseases()
+    	if canCast(_BloodBoil) and targetDistance < 8 and meleeEnemies > 2 and (runesBlood >= 1 or runesDeath >= 1) and (pestiTimer == nil or pestiTimer <= GetTime() - 1) and getDebuffRemains("target",55078,"player") >= 2 then
+    		return true
+    	end
+    end
+
+
 	function canTap()
 		local RuneCount = 0
 		for i = 1,6 do

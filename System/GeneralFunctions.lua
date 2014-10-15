@@ -324,11 +324,11 @@ end
 
 -- castGroundBetween("target",12345,40);
 function castGroundBetween(Unit,SpellID,maxDistance)
-	if UnitExists(Unit) and getSpellCD(SpellID) <= 0.4 and getLineOfSight("player", Unit) and getDistance("player", Unit) <= maxDistance then
+	if UnitExists(Unit) and getSpellCD(SpellID) <= 0.4 and getLineOfSight("player", Unit) and getDistance("player", Unit) <= 5 then
  		CastSpellByName(GetSpellInfo(SpellID),"player");
-		if AreaSpellIsPending() then
+		if IsAoEPending() then
 		local X, Y, Z = ObjectPosition(Unit);
-			CastAtPosition(GetPointBetweenObjects(Player, Target, getDistance("player", "target")/2));
+			CastAtPosition(X, Y, Z);
 			return true;
 		end
  	end
