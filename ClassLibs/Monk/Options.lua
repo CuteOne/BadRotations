@@ -135,11 +135,6 @@ function MonkBrewConfig()
         CreateNewText(thisConfig,"Angry Monk");  
 
 
-        -- Clash
-        CreateNewCheck(thisConfig,"Clash");
-        CreateNewText(thisConfig,"Clash");  
-
-
         -- Resuscitate
         CreateNewCheck(thisConfig,"Resuscitate");
         CreateNewText(thisConfig,"Resuscitate");    
