@@ -306,7 +306,7 @@ function feralBuffs()
         and not IsMounted()
         and not IsFlying()
         and not isInCombat("player")
-     then
+    then
         -- Mark of the Wild
         if isChecked("Mark of the Wild") and not UnitExists("mouseover") then
             for i = 1, #members do
@@ -396,10 +396,9 @@ function feralCooldowns()
 end
 
 function feralDefensives()
-    local prlRemain = getBuffRemain("player",prl)
 
     if isChecked("Defensive Mode") then
-        if prlRemain==0
+        if not UnitBuffID("player",prl)
             and not UnitBuffID("player", 80169) -- Food
             and not UnitBuffID("player", 87959) -- Drink
             and not UnitCastingInfo("player")
@@ -559,8 +558,11 @@ function feralSingle()
             if castSpell("target",rk,false) then return; end
         end
         --swipe,if=combo_points<5&active_enemies>=3
+        if targetDistance < 8 and getCombo()<5 and feralPower>=45 and getNumEnemies("player",8)>=3 then
+            if castSpell("target",sw,false) then return; end
+        end
         -- Shred - if=combo_points<5&active_enemies<3
-        if isInMelee() and getCombo()<5 and feralPower>=40 and (getCombo()<5 or feralTimeToMax <= 1) then
+        if isInMelee() and getCombo()<5 and feralPower>=40 and (getCombo()<5 or feralTimeToMax <= 1) and getNumEnemies("player",8)<3 then
             if castSpell("target",shr,false) then return; end
         end
     else
