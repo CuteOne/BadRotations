@@ -340,102 +340,6 @@ if select(3,UnitClass("player")) == 2 then
 			end
 		end
 		
-		function ProtPaladingHolyPowerCreaters() -- Handle the normal rotation
-			local strike = strike; -- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
-			if BadBoy_data["AoE"] == 2 or (BadBoy_data["AoE"] == 3 and numberOfTargetsMelee > 2) then  --If Toggle to 2(AoE) or 3(Auto and more then 2 targets, its actually 4 but its just simplier to do aoe
-				strike = _HammerOfTheRighteous; 
-			else 
-				strike = _CrusaderStrike; 
-			end
-			
-			if isInMelee() then
-				if castSpell("target",strike,false) then 
-					return; 
-				end
-			end
-			
-			
-			if canCast(_AvengersShield) == true and UnitBuffID("player", 85416) ~= nil then
-				if getLineOfSight("player","target") and getDistance("player","target") <= 30 then
-					if castSpell("target",_AvengersShield,false) then 
-						return; 
-					end
-				end
-			-- Todo We could add functionality that cycle all unit to find one in melee and/or is casting
-			-- Removed due to low performance
-			end		
-		
-			if canCast(_Judgment) and getDistance("player","target") <= 30 then
-				if castSpell("target",_Judgment,true) then 
-					return; 
-				end
-			end
-			-- Todo We could add functionality that cycle all unit to find one in melee
-			-- Removed due to low performance
-		
-			-- avengers_shield
-			if canCast(_AvengersShield) == true then
-				if getLineOfSight("player","target") and getDistance("player","target") <= 30 then
-					if castSpell("target",_AvengersShield,false) then 
-						return; 
-					end	
-				end
-			end					 
-			-- Todo We could add functionality that cycle all unit to find one in melee and/or is casting
-			-- Removed due to low performance
-			
-			if isSelected("Execution Sentence") then
-				if (isDummy("target") or (UnitHealth("target") >= 150*UnitHealthMax("player")/100)) then
-					if castSpell("target",_ExecutionSentence,false) then 
-						return; 
-					end
-				end
-			end		
-		
-			-- lights_hammer,if=talent.lights_hammer.enabled
-			if isSelected("Light's Hammer") then
-				if getGround("target") == true and isMoving("target") == false and UnitExists("target") and (isDummy("target") or getDistance("target","targettarget") <= 5) then
-					if castGround("target",_LightsHammer,30) then 
-						return; 
-					end
-				end
-			end
-
-			-- hammer_of_wrath
-			if canCast(_HammerOfWrath) and getLineOfSight("player","target") and getDistance("player","target") <= 30 and getHP("target") <= 20 then
-				if castSpell("target",_HammerOfWrath,false) then 
-					return; 
-				end			
-			end
-			-- Todo We could add functionality that cycle all unit to find one in melee that have low HPand/or is casting
-			-- Removed due to low performance
-			
-			-- holy_wrath
-			if canCast(_HolyWrath) and isInMelee("target") then --Should check number of targets in melee
-				if castSpell("target",_HolyWrath,true) then 
-					return; 
-				end
-			end
-			-- consecration,if=target.debuff.flying.down&!ticking
-			if canCast(_Consecration) and isInMelee() then --Should check number of targets in melee
-				if castSpell("target",_Consecration,true) then 
-					return; 
-				end	
-			end
-
-			-- holy_prism,if=talent.holy_prism.enabled
-			-- Cast Holy Prism on youself if you have more then one enemy 15 yards around u.
-			--if numberOfTargetsHolyPrismDamage > 1 then
-			--	if castSpell("player",_HolyPrism,false) then 
-			--		return; 
-			--	end
-			--else
-				--Otherwise cast it on targeta
-			--	if castSpell("target",_HolyPrism,false) then 
-			--		return; 
-			--	end
-			--end
-		end
 		
 		-- Todo: Create logic for when to use it, proccs or whatever
 		-- 			Also toggle/configuration for more flexibility, at the moment its on or off
@@ -456,11 +360,70 @@ if select(3,UnitClass("player")) == 2 then
 			end	
 		end
 	end
---[[           ]]	--[[           ]]	--[[           ]]
---[[           ]]	--[[           ]]	--[[           ]]
---[[]]	   --[[]]	--[[]]					 --[[ ]]
---[[         ]]		--[[           ]]	  	 --[[ ]]
---[[        ]]		--[[]]				  	 --[[ ]]
---[[]]	  --[[]]	--[[           ]]	 	 --[[ ]]		
---[[]]	   --[[]] 	--[[           ]]		 --[[ ]]
+	
+	function ProtPaladingHolyPowerCreaters() -- Handle the normal rotation
+		-- Todos: This is optimised for dps. We should be able to keypress for aoe threat to pick up groups. So Avengers Shield, Lights Hammer, Holy Wrath and consecration to pick up groups.
+				-- Suggestion is after isInMelee we do a check if AoE key is pressed then we cast Avenger Shield, Lights Hammer, HolyWrath and consecration and the user can then when he sees consecration he knows that aoe pick up is done.
+		-- Todos: Talents, only light hammer is handled, Prism and Sentence is not
+		-- Todos: Glyphs, we have no support for the Holy Wrath glyph which should put it higher on priority after Judgement.
+		
+		local strike = strike; -- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
+		if BadBoy_data["AoE"] == 2 or (BadBoy_data["AoE"] == 3 and numberOfTargetsMelee > 2) or keyPressAoE then  --If Toggle to 2(AoE) or 3(Auto and more then 2 targets, its actually 4 but its just simplier to do aoe
+			strike = _HammerOfTheRighteous; 
+		else 
+			strike = _CrusaderStrike; 
+		end
+
+		-- Cast Crusader for Single and Hammer of Right if aoe
+		if isInMelee() then
+			if castSpell("target",strike,false) then 
+				return
+			end
+		end
+
+		if canCast(_Judgment) and getDistance("player","target") <= 30 then
+			if castSpell("target",_Judgment,true) then 
+				return 
+			end
+		end
+
+		if canCast(_AvengersShield) then
+			if getLineOfSight("player","target") and getDistance("player","target") <= 30 then
+				if castSpell("target",_AvengersShield,false) then 
+					return
+				end	
+			end
+		end					 
+		-- Todo We could add functionality that cycle all unit to find one that is casting since the Avenger Shield is silencing as well.
+		
+		if isChecked("Light's Hammer") then
+			if getGround("target") and not isMoving("target") and UnitExists("target") and ((isDummy("target") or getDistance("target","targettarget") <= 5)) then
+				if castGround("target",_LightsHammer,30) then 
+					return
+				end
+			end
+		end
+
+		if canCast(_HammerOfWrath) and getLineOfSight("player","target") and getDistance("player","target") <= 30 and getHP("target") <= 20 then
+			if castSpell("target",_HammerOfWrath, false) then 
+				return
+			end			
+		end
+		-- Todo: Could use enhanced logic here, cluster of mobs, cluster of damaged friendlies etc
+		
+		-- holy_wrath
+		if canCast(_HolyWrath) and isInMelee("target") then
+			if castSpell("target",_HolyWrath,true) then 
+				return
+			end
+		end
+		-- Todo, we could check number of mobs in melee ranged
+		
+		if canCast(_Consecration) and isInMelee() then 
+			if castSpell("target",_Consecration,true) then 
+				return
+			end	
+		end
+		--Todo Check number of targets in range do Concentration and have it earlier.
+	end
 end
