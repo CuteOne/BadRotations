@@ -179,7 +179,7 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Auto Taunts");
     CreateNewText(thisConfig,"Auto Taunts");
 
-    -- Auto Taunts
+    -- Queue Casts
     CreateNewCheck(thisConfig,"Queues");
     CreateNewText(thisConfig,"Queue Casts");
 
@@ -255,7 +255,7 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Pause Toggle");
     CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle2")
     CreateNewText(thisConfig,"Pause Toggle"); 
-
+--[[
     -- Wrapper -----------------------------------------
     CreateNewWrap(thisConfig,"--------- Hacks ---------");
 
@@ -407,7 +407,7 @@ function CreateGeneralsConfig()
 
 
 
-
+]]
 
 
    -- Bound

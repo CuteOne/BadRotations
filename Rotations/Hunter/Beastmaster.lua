@@ -132,9 +132,12 @@ function  BeastHunter()
 				end
 			end
 
-			local numEnemies = getNumEnemies("target",10)
+			if enemiesTimer == nil or enemiesTimer <= GetTime() - 1 then
+				enemiesTimer = GetTime();
+				numEnemies = getNumEnemies("target",10);
+			end
 			-- Focus Dump
-			if numEnemies >= 2 then				-- Multi-Shot
+			if numEnemies >= 3 then				-- Multi-Shot
 				if Focus > 79 and not UnitBuffID("pet",118455) or Focus > 99 then
 					if castSpell("target",MultiShot,false) then return; end
 				end		
