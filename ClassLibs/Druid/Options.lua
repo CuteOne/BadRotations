@@ -362,7 +362,7 @@ function RestorationConfig()
             CreateNewCheck(thisConfig,"WildGrowth SotF Count");
             CreateNewBox(thisConfig, "WildGrowth SotF Count", 1, 25  , 1, 3, "|cffFFBB00Number of members under Force of Nature treshold needed to use |cffFFFFFFSwiftmend.");
             CreateNewText(thisConfig,"WildGrowth SotF Count"); 
-        elseif isKnown(106737) then
+        elseif isKnown(10693) then
             -- Force of Nature
             CreateNewCheck(thisConfig,"Force of Nature");
             CreateNewBox(thisConfig, "Force of Nature", 0, 100  , 5, 45, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFForce of Nature.");
@@ -372,7 +372,7 @@ function RestorationConfig()
             CreateNewCheck(thisConfig,"Force of Nature Count");
             CreateNewBox(thisConfig, "Force of Nature Count", 1, 25  , 1, 3, "|cffFFBB00Number of members under Force of Nature treshold needed to use |cffFFFFFFForce of Nature.");
             CreateNewText(thisConfig,"Force of Nature Count"); 
-        elseif isKnown(106731) then
+        elseif isKnown(33891) then
             -- Lifebloom Tol
             CreateNewCheck(thisConfig,"Lifebloom Tol");
             CreateNewText(thisConfig,"Lifebloom Tol");

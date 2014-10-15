@@ -157,12 +157,6 @@ function BloodOptions()
 	    CreateNewText(thisConfig,"Strangulate");
 	end	
 
-    -- Worgen/Human
-    if select(2,UnitRace("player")) == "Worgen" then
-        CreateNewCheck(thisConfig,"Worgen/Human");
-        CreateNewText(thisConfig,"Worgen/Human");
-    end
-
 
     -- General Configs
     CreateGeneralsConfig();

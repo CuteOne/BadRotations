@@ -52,9 +52,9 @@ function DruidRestoration()
 	end
 
 	-- Pause toggle
-	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then ChatOverlay("|cffFF0000BadBoy Paused", 0); return; end
+	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == true then ChatOverlay("|cffFF0000BadBoy Paused", 0); return; end
 	-- Focus Toggle
-	if isChecked("Focus Toggle") and SpecificToggle("Focus Toggle") == 1 then 
+	if isChecked("Focus Toggle") and SpecificToggle("Focus Toggle") == true then 
 		RunMacroText("/focus mouseover");
 	end
 
@@ -292,7 +292,7 @@ function DruidRestoration()
 
 		--[[ 5 - DPs --(range and  melee)]]
 		if BadBoy_data["DPS"] == 2 and UnitExists("target") and isEnnemy() then
-			if isChecked("DPS Toggle") == true and SpecificToggle("DPS Toggle") == 1  then
+			if isChecked("DPS Toggle") == true and SpecificToggle("DPS Toggle") == true  then
 				if targetDistance <= 5 then
 					--- Catform
 			  		if not UnitBuffID("player",768) and not UnitBuffID("player",783) and not UnitBuffID("player",5487) then 
@@ -328,7 +328,7 @@ function DruidRestoration()
 		end
 
 		--[[ 6 - Genesis--(WITH Hotkey)]]
-		if isChecked("Genesis Toggle") and SpecificToggle("Genesis Toggle") == 1 and GetCurrentKeyBoardFocus() == nil then 
+		if isChecked("Genesis Toggle") and SpecificToggle("Genesis Toggle") == true and GetCurrentKeyBoardFocus() == nil then 
 			if canCast(145518,false,false) then
 				if castSpell("player",145518,true,false) then return; end
 			end		
@@ -367,16 +367,16 @@ function DruidRestoration()
 		end		
 
 		--[[ 10 - WildMushroom Bloom]]
-		local allies10Yards = getAllies("myShroom",10)
-		if isChecked("Mushrooms Bloom") == true and canCast(102791,false,false) and lowestHP < getValue("Mushrooms Bloom") and #allies10Yards >= getValue("Mushrooms Bloom Count") then
-			local found = 0;
-			for i = 1, #allies10Yards do
-				if getHP(allies10Yards[i]) <= getValue("Mushrooms Bloom") then
-					found = found + 1;
-				end
-			end
-			if found > getValue("Mushrooms Bloom Count") and castSpell("player",102791,true,false) then return; end
-		end
+		--local allies10Yards = getAllies("myShroom",10)
+		--if isChecked("Mushrooms Bloom") == true and canCast(102791,false,false) and lowestHP < getValue("Mushrooms Bloom") and #allies10Yards >= getValue("Mushrooms Bloom Count") then
+		--	local found = 0;
+		--	for i = 1, #allies10Yards do
+		--		if getHP(allies10Yards[i]) <= getValue("Mushrooms Bloom") then
+		--			found = found + 1;
+		--		end
+		--	end
+		--	if found > getValue("Mushrooms Bloom Count") and castSpell("player",102791,true,false) then return; end
+		--end
 
 		--[[ 11 - Swiftmend--(cast if hp < value, Glyped or unGlyphed)]]
 		if isKnown(114107) ~= true then
@@ -384,12 +384,12 @@ function DruidRestoration()
 		end
 
 		--[[ 12 - Innervate]]
-		if UnitAffectingCombat("player") and getMana("player") <= getValue("Innervate") then
-			if castSpell("player",29166,true,false) then return; end
-		end
+		--if UnitAffectingCombat("player") and getMana("player") <= getValue("Innervate") then
+		--	if castSpell("player",29166,true,false) then return; end
+		--end
 
 		--[[ 13 - WildGrowth Tol --(Tree of Life)]]
-		if isKnown(106731) and isChecked("WildGrowth Tol") and UnitBuffID("player", 33891) and canCast(48438,false,false) and lowestHP < getValue("WildGrowth Tol") then
+		if isKnown(33891) and isChecked("WildGrowth Tol") and UnitBuffID("player", 33891) and canCast(48438,false,false) and lowestHP < getValue("WildGrowth Tol") then
 	        for i = 1, #nNova do
 	        	if nNova[i].hp < 249 then
 			        local allies30Yards = getAllies(nNova[i].unit,30);
@@ -409,7 +409,7 @@ function DruidRestoration()
 		end
 
 		--[[ 14 - Regrowth  Tol]]
-		if isKnown(106731) and UnitBuffID("player", 33891) and canCast(8936,false,false) and (lowestHP < getValue("Regrowth Tank Tol") or lowestHP < getValue("Regrowth Tol") or lowestHP < getValue("Regrowth Omen Tol")) then
+		if isKnown(33891) and UnitBuffID("player", 33891) and canCast(8936,false,false) and (lowestHP < getValue("Regrowth Tank Tol") or lowestHP < getValue("Regrowth Tol") or lowestHP < getValue("Regrowth Omen Tol")) then
 			for i = 1, #nNova do
 				if nNova[i].hp < 249 then
 				    if (isChecked("Regrowth Tank Tol") and nNova[i].role == "TANK" and nNova[i].hp <= getValue("Regrowth Tank Tol")) 
@@ -422,7 +422,7 @@ function DruidRestoration()
 		end
 
 		--[[ 15 - Mushrooms Tol or WildMushroom Tank tol--(if not any mushroom active or Replace)]]
-		if isKnown(106731) and isChecked("Mushrooms Tol") and UnitBuffID("player", 33891) then
+		if isKnown(33891) and isChecked("Mushrooms Tol") and UnitBuffID("player", 33891) then
 			if isChecked("Mushrooms") and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
 				if castHealGround(145205,15,100,getValue("Mushrooms Tol Count")) then return; end
 			end
@@ -436,7 +436,7 @@ function DruidRestoration()
 		end	
 
 		--[[ 16 - reju All Tol --(use reju on all with out health check only Reju buff check)]]
-		if isKnown(106731) and isChecked("Rejuvenation All Tol") and UnitBuffID("player", 33891) and canCast(774,false,false) then
+		if isKnown(33891) and isChecked("Rejuvenation All Tol") and UnitBuffID("player", 33891) and canCast(774,false,false) then
 	        for i = 1, #nNova do
 		       	if nNova[i].hp < 249 and getBuffRemain(nNova[i].unit,774,"player") == 0 then
 			        if castSpell(nNova[i].unit,774,true,false) then return; end
@@ -445,7 +445,7 @@ function DruidRestoration()
 		end
 
 		--[[ 17 - Lifebloom - ToL support]]
-		if isKnown(106731) and UnitBuffID("player", 33891) and isChecked("Lifebloom Tol") == true and canCast(33763,false,false) then
+		if isKnown(33891) and UnitBuffID("player", 33891) and isChecked("Lifebloom Tol") == true and canCast(33763,false,false) then
 			for i = 1, #nNova do
 				if nNova[i].hp < 249 and getBuffRemain(nNova[i].unit,33763,"player") == 0 then
 					if castSpell(nNova[i].unit,33763,true,false) then return; end
@@ -469,7 +469,7 @@ function DruidRestoration()
 		end
 
 		--[[ 18 - reju Tol --( use reju on player with health check if not lifebloom tol check)]]
-		if isKnown(106731) and not isChecked("Lifebloom Tol") and UnitBuffID("player", 33891) and canCast(774,false,false) and lowestHP < getValue("Rejuvenation Tol") then
+		if isKnown(33891) and not isChecked("Lifebloom Tol") and UnitBuffID("player", 33891) and canCast(774,false,false) and lowestHP < getValue("Rejuvenation Tol") then
 	        for i = 1, #nNova do
 		       	if nNova[i].hp <= getValue("Rejuvenation Tol") and getBuffRemain(nNova[i].unit,774,"player") == 0 then
 			        if castSpell(nNova[i].unit,774,true,false) then return; end
@@ -635,8 +635,7 @@ function DruidRestoration()
 		--[[ 31- WildMushroom tank--(Replace all)]]
 		if isChecked("Mushrooms on Tank") and GetUnitSpeed("focus") == 0 and canCast(145205,false,false) then
 			if shroomsTable ~= nil and #shroomsTable ~= 0 then
-				ISetAsUnitID(shroomsTable[1],"myShroom")
-				if getDistance("focus","myShroom") > 10 then
+				if getDistance("focus",shroomsTable[1]) > 10 then
 					if castGround("focus", 145205, 40) then return; end
 				end
 			else

@@ -611,7 +611,7 @@ end
 -- if getDistance("player","target") <= 40 then
 function getDistance(Unit1,Unit2)
 	if Unit2 == nil then Unit2 = "player"; end
-	if UnitExists(Unit1) and UnitExists(Unit2) then
+	if UnitIsVisible(Unit1) and UnitIsVisible(Unit2) then
 		local X1,Y1,Z1 = ObjectPosition(Unit1);
 		local X2,Y2,Z2 = ObjectPosition(Unit2);
 		local unitSize = 0;
@@ -630,7 +630,7 @@ end
 -- if getDistance("player","target") <= 40 then
 function getDistanceToObject(Unit1,X2,Y2,Z2)
 	if Unit1 == nil then Unit1 = "player"; end
-	if UnitExists(Unit1) then
+	if UnitIsVisible(Unit1) then
 		local X1,Y1,Z1 = ObjectPosition(Unit1);
 		local unitSize = 0;
 		if UnitGUID(Unit1) ~= UnitGUID("player") and UnitCanAttack(Unit1,"player") then 
@@ -666,7 +666,7 @@ end
 function getFacing(Unit1,Unit2,Degrees)
 	if Degrees == nil then Degrees = 90; end
 	if Unit2 == nil then Unit2 = "player"; end
-	if UnitExists(Unit1) and UnitExists(Unit2) then
+	if UnitIsVisible(Unit1) and UnitIsVisible(Unit2) then
 		local Angle1,Angle2,Angle3;
 		local Angle1 = ObjectFacing(Unit1)
 		local Angle2 = ObjectFacing(Unit2)
@@ -729,7 +729,7 @@ end
 function getFacingSight(Unit1,Unit2,Degrees)
 	if Degrees == nil then Degrees = 90; end
 	if Unit2 == nil then Unit2 = "player"; end
-	if UnitExists(Unit1) and UnitExists(Unit2) then
+	if UnitIsVisible(Unit1) and UnitIsVisible(Unit2) then
 		local Angle1,Angle2,Angle3;
 		local Y1,X1,Z1,Angle1 = ObjectPosition(Unit1);
         local Y2,X2,Z2,Angle2 = ObjectPosition(Unit2);
@@ -761,7 +761,7 @@ end
 function getFacingSightDistance(Unit1,Unit2,Degrees)
 	if Degrees == nil then Degrees = 90; end
 	if Unit2 == nil then Unit2 = "player"; end
-	if UnitExists(Unit1) and UnitExists(Unit2) then
+	if UnitIsVisible(Unit1) and UnitIsVisible(Unit2) then
 		local Angle1,Angle2,Angle3;
 		local Y1,X1,Z1,Angle1 = ObjectPosition(Unit1);
         local Y2,X2,Z2,Angle2 = ObjectPosition(Unit2);
@@ -792,7 +792,7 @@ end
 
 -- if getHP("player") then
 function getHP(Unit)
-	if UnitIsDeadOrGhost(Unit) or not UnitExists(Unit) then 
+	if UnitIsDeadOrGhost(Unit) or not UnitIsVisible(Unit) then 
 		return 0; 
 	end
 	for i = 1, #nNova do
@@ -841,7 +841,7 @@ end
 -- /dump getTotemDistance("target")
 function getTotemDistance(Unit1)
 	if Unit1 == nil then Unit1 = "player"; end
-	if activeTotem ~= nil and UnitExists(Unit1) and IExists(activeTotem) then
+	if activeTotem ~= nil and UnitIsVisible(Unit1) and IExists(activeTotem) then
 		local X1,Y1,Z1 = ObjectPosition(Unit1);
 		local X2,Y2,Z2 = IGetLocation(activeTotem);
 		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then 
@@ -879,7 +879,7 @@ end
 -- if getBossID("boss1") == 71734 then
 function getBossID(BossUnitID)
 	local UnitConvert = 0;
-	if UnitExists(BossUnitID) then
+	if UnitIsVisible(BossUnitID) then
 		UnitConvert = tonumber(UnitGUID(BossUnitID):sub(6,10), 16)
 	end
 	return UnitConvert;
@@ -972,7 +972,7 @@ end
 -- if getLineOfSight("target"[,"target"]) then
 function getLineOfSight(Unit1,Unit2)
 	if Unit2 == nil then if Unit1 == "player" then Unit2 = "target"; else Unit2 = "player"; end end
-	if UnitExists(Unit1) and UnitExists(Unit2) then
+	if UnitIsVisible(Unit1) and UnitIsVisible(Unit2) then
 		local X1,Y1,Z1 = ObjectPosition(Unit1);
 		local X2,Y2,Z2 = ObjectPosition(Unit2);
 		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then return true; else return false; end
@@ -983,7 +983,7 @@ end
 
 -- if getGround("target"[,"target"]) then
 function getGround(Unit)
-	if UnitExists(Unit) then
+	if UnitIsVisible(Unit) then
 		local X1,Y1,Z1 = ObjectPosition(Unit);
 		if TraceLine(X1,Y1,Z1+2,X1,Y1,Z1-2, 0x10) == nil and TraceLine(X1,Y1,Z1+2,X1,Y1,Z1-4, 0x100) == nil then return nil; else return true; end
 	end
@@ -991,7 +991,7 @@ end
 
 -- if getPetLineOfSight("target"[,"target"]) then
 function getPetLineOfSight(Unit)
-	if UnitExists("pet") and UnitExists(Unit) then
+	if UnitIsVisible("pet") and UnitIsVisible(Unit) then
 		local X1,Y1,Z1 = ObjectPosition("pet");
 		local X2,Y2,Z2 = ObjectPosition(Unit);
 		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then return true; else return false; end
@@ -1027,7 +1027,7 @@ function getTimeToDie(unit)
 	if thpcurr == nil then thpcurr = 0; end
 	if thpstart == nil then thpstart = 0; end
 	if timestart == nil then timestart = 0; end
-	if UnitExists(unit) and not UnitIsDeadOrGhost(unit) then
+	if UnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) then
 		if currtar ~= UnitGUID(unit) then
 			priortar = currtar;
 			currtar = UnitGUID(unit);
@@ -1049,7 +1049,7 @@ function getTimeToDie(unit)
 				end
 			end
 		end
-	elseif not UnitExists(unit) or currtar ~= UnitGUID(unit) then
+	elseif not UnitIsVisible(unit) or currtar ~= UnitGUID(unit) then
 		currtar = 0; 
 		priortar = 0;
 		thpstart = 0;
