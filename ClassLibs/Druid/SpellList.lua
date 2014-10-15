@@ -63,6 +63,7 @@ fon	=	102703	--Force of Nature
 how	=	108288 	--Heart of the Wild
 mb	=	5211	--Mighty Bash
 ty	=	132469	--Typhoon
+bt 	=	155672	--Bloodtalons
 
 ------Glyphs------
 gsh	=	114234	--Glyph of Shred

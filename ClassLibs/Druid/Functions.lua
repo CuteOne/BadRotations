@@ -141,39 +141,80 @@ end
 
 
 -- Bleed Calculations
-function getStatsMult()
-    local CritDamageMult = 2 -- adjust for crit damage meta
-    local APBase, APPos, APNeg = UnitAttackPower("player")
-    local AP = APBase + APPos + APNeg
-    local DamageMult = select(7, UnitDamage("player"))
-    local Mastery = 1 + GetMasteryEffect() / 100
-    
-    local PlayerLevel, TargetLevel = UnitLevel("player"), UnitLevel("target")
-    local CritChance
-    if TargetLevel == -1 then
-        CritChance = (GetCritChance()-3)/100
-    else
-        CritChance = (GetCritChance()-max(TargetLevel-PlayerLevel,0))/100
-    end
-    local CritEffMult =  1 + (CritDamageMult-1)*CritChance
-    
+function getStatsMult(spellID)
+    local DamageMult = 1 --select(7, UnitDamage("player"))       
     local CP = GetComboPoints("player", "target")
     if CP == 0 then CP = 5 end
     
-    local DoCSID = select(11, UnitAura("player", "Dream of Cenarius"))
-    if DoCSID == 145152 then
+    if UnitBuffID("player",tf) then
+        DamageMult = DamageMult * 1.15
+    end
+    
+    if UnitBuffID("player",svr) then
+        DamageMult = DamageMult * 1.4
+    end
+    
+    WA_stats_BTactive = WA_stats_BTactive or  0
+    if UnitBuffID("player",bt) then
+        WA_stats_BTactive = GetTime()
+        DamageMult = DamageMult * 1.3
+    elseif GetTime() - WA_stats_BTactive < .2 then
         DamageMult = DamageMult * 1.3
     end
+    
+    local RakeMult = 1
+    WA_stats_prowlactive = WA_stats_prowlactive or  0
+    if UnitBuffID("player",inb) then
+        RakeMult = 2
+    elseif UnitBuffID("player",prl) then
+        WA_stats_prowlactive = GetTime()
+        RakeMult = 2
+    elseif GetTime() - WA_stats_prowlactive < .2 then
+        RakeMult = 2
+    end
+    
+    if spellID == rp then
+        WA_stats_RipTick5 = 5*DamageMult
+        return WA_stats_RipTick5
+    end
+    if spellID == rk then
+        WA_stats_RakeTick = DamageMult*RakeMult
+        return WA_stats_RakeTick
+    end
+    --WA_stats_ThrashTick = DamageMult
+    -- local CritDamageMult = 2 -- adjust for crit damage meta
+    -- local APBase, APPos, APNeg = UnitAttackPower("player")
+    -- local AP = APBase + APPos + APNeg
+    -- local DamageMult = select(7, UnitDamage("player"))
+    -- local Mastery = 1 + GetMasteryEffect() / 100
+    
+    -- local PlayerLevel, TargetLevel = UnitLevel("player"), UnitLevel("target")
+    -- local CritChance
+    -- if TargetLevel == -1 then
+    --     CritChance = (GetCritChance()-3)/100
+    -- else
+    --     CritChance = (GetCritChance()-max(TargetLevel-PlayerLevel,0))/100
+    -- end
+    -- local CritEffMult =  1 + (CritDamageMult-1)*CritChance
+    
+    -- local CP = GetComboPoints("player", "target")
+    -- if CP == 0 then CP = 5 end
+    
+    -- local DoCSID = select(11, UnitAura("player", "Dream of Cenarius"))
+    -- if DoCSID == 145152 then
+    --     DamageMult = DamageMult * 1.3
+    -- end
 
-    local StatsMultiplier = Mastery*DamageMult--*CritEffMult
-    return StatsMultiplier
+    -- local StatsMultiplier = Mastery*DamageMult--*CritEffMult
+    -- return StatsMultiplier
 end
 
 --Calculated Rake Dot Damage
 function CRKD()
     local APBase, APPos, APNeg = UnitAttackPower("player")
     local AP = APBase + APPos + APNeg
-    local calcRake = round2((99+0.3*AP)*getStatsMult(),0)
+    local calcRake = round2((99+0.3*AP)*getStatsMult(rk),0)
+    --local calcRake = getStatsMult(rk)
     return calcRake
 end
 
@@ -192,7 +233,7 @@ end
 
 --Rake Dot Damage Percent
 function RKP()
-    local RatioPercent = (CRKD() / RKD()) * 100
+    local RatioPercent = floor(CRKD()/RKD()*100+0.5)--(CRKD() / RKD()) * 100
     return RatioPercent
 end
 
@@ -200,7 +241,7 @@ end
 function CRPD()
     local APBase, APPos, APNeg = UnitAttackPower("player")
     local AP = APBase + APPos + APNeg
-    local calcRip = (113+5*(320+0.0484*AP))*getStatsMult()     
+    local calcRip = (113+5*(320+0.0484*AP))*getStatsMult(rp)     
     return calcRip
 end
 
@@ -442,6 +483,41 @@ function feralDefensives()
     end
 end
 
+function feralInterrupts()
+    local targetDistance = getDistance("player","target")
+
+    if isChecked("Interrupt Mode") and UnitBuffID("player",cf) and not UnitBuffID("player",prl) then
+        -- Skull Bash
+        if canInterrupt(sb, tonumber(getValue("Interrupts"))) 
+            and isChecked("Skull Bash") 
+            and targetDistance<=13
+        then
+            if castSpell("target",sb,false) then return; end
+        end
+        -- Mighty Bash
+        if canInterrupt(mb, tonumber(getValue("Interrupts"))) 
+            and isChecked("Mighty Bash")
+            and (getSpellCD(sb) < 14 or not isChecked("Skull Bash")) 
+            and targetDistance<=5
+        then
+            if castSpell("target",mb,false) then return; end
+        end
+        -- Maim (PvP)
+        if canInterrupt(ma, tonumber(getValue("Interrupts"))) 
+            and (getSpellCD(sb) < 14 or not isChecked("Skull Bash"))
+            and (getSpellCD(mb) < 49 or not isChecked("Mighty Bash")) 
+            and getCombo() > 0 
+            and UnitPower("player") >= 35 
+            and isInPvP() 
+            and targetDistance<=5
+        then 
+            if castSpell("target",ma,false) then return; end
+        end
+    else
+        return false
+    end
+end
+
 function feralOpener() 
     local targetDistance = getDistance("player","target")      
 
@@ -492,6 +568,16 @@ function feralSingle()
         and targetDistance<=20 
         and isInCombat("player") 
     then
+        -- Dummy Test
+        if isChecked("DPS Testing") then
+            if UnitExists("target") then
+                if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then  
+                    StopAttack()
+                    ClearTarget()
+                    print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                end
+            end
+        end
         --Rake - if=buff.prowl.up|buff.shadowmeld.up
         if isInMelee() and (prlRemain>0 or rkRemain<3) and feralPower>=35 then
             if castSpell("target",rk,false) then return; end

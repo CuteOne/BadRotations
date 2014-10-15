@@ -18,6 +18,9 @@ if select(3, UnitClass("player")) == 11 then
 	    if feralDefensives() then
 	    	return true
 	    end
+	    if feralInterrupts() then
+	    	return true
+	    end
 	    if feralOpener() then
 	    	return true
 	    end
