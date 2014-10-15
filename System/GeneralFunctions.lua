@@ -611,7 +611,7 @@ end
 -- if getDistance("player","target") <= 40 then
 function getDistance(Unit1,Unit2)
 	if Unit2 == nil then Unit2 = "player"; end
-	if UnitExists(Unit1) and UnitExists(Unit2) then
+	if UnitExists(Unit1) and ObjectPosition(Unit2) ~= nil then
 		local X1,Y1,Z1 = ObjectPosition(Unit1);
 		local X2,Y2,Z2 = ObjectPosition(Unit2);
 		local unitSize = 0;
