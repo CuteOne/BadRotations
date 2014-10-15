@@ -179,7 +179,7 @@ end
 
 -- if canHeal("target") then
 function canHeal(Unit)
-	if UnitExists(Unit) and getDistance(Unit) <= 40 and UnitCanCooperate("player",Unit) 
+	if UnitExists(Unit) and UnitInRange(Unit) == true and UnitCanCooperate("player",Unit) 
 		and not UnitIsEnemy("player",Unit) and not UnitIsCharmed(Unit) and not UnitIsDeadOrGhost(Unit) 
 		and getLineOfSight(Unit) == true and not UnitDebuffID(Unit,33786) then
 		return true;
