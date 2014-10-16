@@ -27,17 +27,44 @@ if select(3, UnitClass("player")) == 5 then
 	local DPTIME = 6.0/(1+HASTE/100)
 	local DPTICK = DPTIME/6;
 	local lastVT=GT;
-	local SWP_TIMER,_,_,_,_,_,_,_,_,_ = select(7,UnitDebuffID("target",_ShadowWordPain,"PLAYER"))
-	--print(SWP_TIMER);
-	-- local VT_DEBUFF,_,_,_,_,_,VT_TIMER = UnitDebuffID("target",_VampiricTouch,"PLAYER")
-	-- local DP_DEBUFF,_,_,_,_,_,DP_TIMER = UnitDebuffID("target",_DevouringPlague,"PLAYER")
+	
+	-- SW:P
+	local SWP_TIMER,_,_,_,_,_,_,_,_,_ = select(7,UnitDebuffID("target",_ShadowWordPain,"player"))
 	if SWP_TIMER ~= nil then
 		SWP_REM = SWP_TIMER-GT;
 	end
+	
+	-- VT
+	local VT_TIMER,_,_,_,_,_,_,_,_,_ = select(7,UnitDebuffID("target",_VampiricTouch,"player"))
+	if VT_TIMER ~= nil then
+		VT_REM = VT_TIMER-GT;
+	end
+	
+	-- DP
+	
+	-- Shadowy Insight
+	local SI_TIMER,_,_,_,_,_,_,_,_,_ = select(7,UnitBuffID("player",_ShadowyInsight))
+	if SI_TIMER ~= nil then
+		SI_REM = SI_TIMER-GT;
+	end
+
+	-- Surge of Darkness
+	local SoD_TIMER,_,_,_,_,_,_,_,_,_ = select(7,UnitBuffID("player",_SurgeOfDarkness))
+	if SoD_TIMER ~= nil then
+		SoD_REM = SoD_TIMER-GT;
+	end	
+
+	--print(SWP_TIMER);
+	-- local VT_DEBUFF,_,_,_,_,_,VT_TIMER = UnitDebuffID("target",_VampiricTouch,"PLAYER")
+	-- local DP_DEBUFF,_,_,_,_,_,DP_TIMER = UnitDebuffID("target",_DevouringPlague,"PLAYER")
+
+
 
 	--local SWP_REM = GT-SWP_TIMER;
 	-- local VT_REM = GT-VT_TIMER;
 	-- local DP_REM = GT-DP_TIMER;
+
+
 
 	-------------
 	-- TOGGLES --
@@ -419,17 +446,44 @@ if select(3, UnitClass("player")) == 5 then
 			end
 		end
 
-
 		-- halo,if=talent.halo.enabled&target.distance<=30&target.distance>=17
+		if isKnown(_Halo) then
+			if getDistance("player","target") <= 30 and getDistance("player","target") >= 17 then
+				if castSpell("target",_Halo,true,false) then
+					return;
+				end
+			end
+		end
+
 		-- cascade,if=talent.cascade.enabled&((active_enemies>1|target.distance>=28)&target.distance<=40&target.distance>=11)
 		-- divine_star,if=talent.divine_star.enabled&(active_enemies>1|target.distance<=24)
 		-- wait,sec=cooldown.shadow_word_death.remains,if=target.health.pct<20&cooldown.shadow_word_death.remains&cooldown.shadow_word_death.remains<0.5&active_enemies<=1
 		-- wait,sec=cooldown.mind_blast.remains,if=cooldown.mind_blast.remains<0.5&cooldown.mind_blast.remains&active_enemies<=1
 		-- mind_spike,if=buff.surge_of_darkness.react&active_enemies<=5
+
 		-- divine_star,if=talent.divine_star.enabled&target.distance<=28&active_enemies>1
+		
 		-- mind_sear,chain=1,interrupt=1,if=active_enemies>=4
+		if isKnown(_MindSear) then
+			if getNumEnemies("target",10) >= 4 then
+				if castSpell("target",_MindSear,false,true) then
+					return;
+				end
+			end
+		end
+
 		-- shadow_word_pain,if=shadow_orb>=2&ticks_remain<=3&talent.insanity.enabled
+		if isKnown(_ShadowWordPain) then
+			if ORBS >= 2 and getDebuffRemain("target",_ShadowWordPain) <= 9 and isKnown(_Insanity) then
+				if castSpell("target",_ShadowWordPain,true,false) then
+					return;
+				end
+			end
+		end
+
 		-- vampiric_touch,if=shadow_orb>=2&ticks_remain<=3.5&talent.insanity.enabled
+
+
 		-- mind_flay,chain=1,interrupt=1
 		if isKnown(_MindFlay) then
 			if castSpell("target",_MindFlay,false,true) then
@@ -438,10 +492,37 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- shadow_word_death,moving=1
+		if isKnown(_ShadowWordDeath) then
+			if getHP("target") > 20 then
+				if castSpell("target",_ShadowWordDeath,true,false) then
+					return;
+				end
+			end
+		end
+
 		-- mind_blast,moving=1,if=buff.shadowy_insight.react&cooldown_react
+		if isKnown(_MindBlast) then
+			if SI_TIMER > 0 then
+				if castSpell("target",_MindBlast,false,false) then
+					return;
+				end
+			end
+		end
+
 		-- divine_star,moving=1,if=talent.divine_star.enabled&target.distance<=28
 		-- cascade,moving=1,if=talent.cascade.enabled&target.distance<=40
+
 		-- shadow_word_pain,moving=1,cycle_targets=1
+		if isKnown(_ShadowWordPain) then
+			if isMoving("player") > 0 then
+				if castSpell("target",_ShadowWordPain,true,false) then
+					return;
+				end
+			end
+		end
+
+
+
 	end
 end
 end
