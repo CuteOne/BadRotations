@@ -15,33 +15,43 @@ if select(3, UnitClass("player")) == 5 then
 	local lastPWF = nil;
 	local ORBS = UnitPower("player", SPELL_POWER_SHADOW_ORBS)
 	local SWPrefresh = 3;
-	local VTrefresh = 3;
 	local StandingTime = 0.15;
-	local MinfFlayCastTime = 2.65;
 	local MBCD = getSpellCD(_MindBlast)
 	local SWDCD = getSpellCD(_ShadowWordDeath)
 	-- local CastMindFlay = isCastingSpell(_MindFlay)
 	local HASTE = GetHaste()
 	local GCDTIME = 1.5/(1+HASTE/100)
-	local VTCASTTIME = select(4,GetSpellInfo(_VampiricTouch))/1000;
-	local DPTIME = 6.0/(1+HASTE/100)
-	local DPTICK = DPTIME/6;
-	local lastVT=GT;
-	
+
+
+
+
+
+	-- MindFlay CastTime
+	local MFCASTTIME = 3.0/(1+HASTE/100)
+
 	-- SW:P
 	local SWP_TIMER,_,_,_,_,_,_,_,_,_ = select(7,UnitDebuffID("target",_ShadowWordPain,"player"))
 	if SWP_TIMER ~= nil then
 		SWP_REM = SWP_TIMER-GT;
 	end
-	
-	-- VT
+
+	-- VT Remaining
 	local VT_TIMER,_,_,_,_,_,_,_,_,_ = select(7,UnitDebuffID("target",_VampiricTouch,"player"))
 	if VT_TIMER ~= nil then
 		VT_REM = VT_TIMER-GT;
 	end
-	
+	--VT CastTime
+	local VTCASTTIME = select(4,GetSpellInfo(_VampiricTouch))/1000;
+	-- LastVT
+	if lastVT == nil then
+		lastVT = GT;
+	end
+
+
 	-- DP
-	
+	local DPTIME = 6.0/(1+HASTE/100)
+	local DPTICK = DPTIME/6;
+
 	-- Shadowy Insight
 	local SI_TIMER,_,_,_,_,_,_,_,_,_ = select(7,UnitBuffID("player",_ShadowyInsight))
 	if SI_TIMER ~= nil then
@@ -52,13 +62,11 @@ if select(3, UnitClass("player")) == 5 then
 	local SoD_TIMER,_,_,_,_,_,_,_,_,_ = select(7,UnitBuffID("player",_SurgeOfDarkness))
 	if SoD_TIMER ~= nil then
 		SoD_REM = SoD_TIMER-GT;
-	end	
+	end
 
 	--print(SWP_TIMER);
 	-- local VT_DEBUFF,_,_,_,_,_,VT_TIMER = UnitDebuffID("target",_VampiricTouch,"PLAYER")
 	-- local DP_DEBUFF,_,_,_,_,_,DP_TIMER = UnitDebuffID("target",_DevouringPlague,"PLAYER")
-
-
 
 	--local SWP_REM = GT-SWP_TIMER;
 	-- local VT_REM = GT-VT_TIMER;
@@ -71,20 +79,20 @@ if select(3, UnitClass("player")) == 5 then
 	-------------
 
 	-- Pause toggle
-	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then 
-		ChatOverlay("|cffFF0000BadBoy Paused", 0); 
-		return; 
+	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then
+		ChatOverlay("|cffFF0000BadBoy Paused", 0);
+		return;
 	end
-	
+
 	-- Focus Toggle
-	if isChecked("Focus Toggle") and SpecificToggle("Focus Toggle") == 1 then 
+	if isChecked("Focus Toggle") and SpecificToggle("Focus Toggle") == 1 then
 		RunMacroText("/focus mouseover");
 	end
 
 	-- Auto Resurrection
 	if not isInCombat("player") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("player","mouseover") then
-		if castSpell("mouseover",_Resurrection,true,true) then 
-			return; 
+		if castSpell("mouseover",_Resurrection,true,true) then
+			return;
 		end
 	end
 
@@ -93,25 +101,25 @@ if select(3, UnitClass("player")) == 5 then
 	------------
 
 	-- Food/Invis Check
-	if canRun() ~= true then 
-		return false; 
+	if canRun() ~= true then
+		return false;
 	end
 
 	-- Mounted Check
-	if IsMounted("player") then 
-		return false; 
+	if IsMounted("player") then
+		return false;
 	end
 
 
 	-- Do not Interrupt "player" while GCD (61304)
-	if getSpellCD(61304) > 0 then 
-		return false; 
+	if getSpellCD(61304) > 0 then
+		return false;
 	end
 
 	-- Pause Check
 	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then
 		ChatOverlay("|cffFF0000BadBoy Paused", 0);
-		return; 
+		return;
 	end
 
 	-------------------
@@ -125,7 +133,7 @@ if select(3, UnitClass("player")) == 5 then
 			if nNova[i].hp < 249 then
 				if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{21562,109773,469,90364}) or (getBuffRemain(nNova[i].unit,_PowerWordFortitude) < 10*60 and isSpellInRange(_PowerWordFortitude,nNova[i].unit)) then
 					if castSpell("player",_PowerWordFortitude,true) then lastPWF = GetTime(); return; end
-	    		end 
+	    		end
 	   		end
 	  	end
 	end
@@ -137,16 +145,16 @@ if select(3, UnitClass("player")) == 5 then
 
 	-- Angelic Feather
 	if isKnown(_AngelicFeather) and isChecked("Angelic Feather") and getGround("player") and IsMovingTime(0.33) and not UnitBuffID("player",_AngelicFeatherBuff) then
-		if castGround("player",_AngelicFeather,30) then 
+		if castGround("player",_AngelicFeather,30) then
 			SpellStopTargeting();
-			return; 
+			return;
 		end
 	end
 
 	-- Body and Soul
 	if isKnown(_BodyAndSoul) and isChecked("Body And Soul") and getGround("player") and IsMovingTime(0.75) and not UnitBuffID("player",_PowerWordShield) and not UnitDebuffID("player",_WeakenedSoul) then
-		if castSpell("player",_PowerWordShield,true,false) then 
-			return; 
+		if castSpell("player",_PowerWordShield,true,false) then
+			return;
 		end
 	end
 
@@ -154,45 +162,62 @@ if select(3, UnitClass("player")) == 5 then
  	-- COMBAT --
  	------------
 
-	-- -- Break MindFlay cast...
- --   	if select(1,UnitChannelInfo("player")) == "Mind Flay" then
-		
-	-- 	-- ...for MindBlast cast and proc
-	-- 	if canCast(_MindBlast) then
-	-- 		--RunMacroText("/stopcasting");
-	-- 		-- cast MindBlast from DI proc
-	-- 		if orbs < 3 and getTalent(15) and UnitBuffID("player",_DivineInsight) then 
-	-- 			StopMFCasting();
-	-- 			print("proc");
-	-- 		end
-	-- 		-- cast MindBlast as spell
-	-- 		if orbs < 3 then
-	-- 			StopMFCasting();
-	-- 			print("spell");
-	-- 		end
-	-- 	end
-		
-	-- 	-- ...for SWP refresh
-	-- 	if getDebuffRemain("target",_ShadowWordPain) <= SWPrefresh then
-	-- 		StopMFCasting();
-	-- 		-- RunMacroText("/stopcasting");
-	-- 	end
-	-- 	-- ...for VT refresh
-	-- 	if getDebuffRemain("target",_VampiricTouch) <= VTrefresh then
-	-- 		StopMFCasting();
-	-- 		-- RunMacroText("/stopcasting");
-	-- 	end
+	-- Break MindFlay cast...
+	if select(1,UnitChannelInfo("player")) == "Mind Flay" then
 
-	-- 	-- ...for MindSpike Proc (Surge of Darkness)
-	-- 	if getTalent(7) and UnitBuffID("player",_SurgeOfDarkness) and getBuffStacks("player",_SurgeOfDarkness) >= 2 then 
-	-- 		StopMFCasting();
-	-- 		-- RunMacroText("/stopcasting");
-	-- 	end
+		-- ...for MindBlast cast and proc
+		if canCast(_MindBlast) then
+			-- cast MindBlast from DI proc
+			if isKnown(_ShadowyInsight) and UnitBuffID("player",_ShadowyInsight) then
+				RunMacroText("/stopcasting");
+				if castSpell("target",_MindBlast,false,false) then
+					return;
+				end
+			end
+			-- cast MindBlast as spell
+			if getSpellCD(_MindBlast) < 0.86 then
+				RunMacroText("/stopcasting");
+				if castSpell("target",_MindBlast,false,true) then
+					return;
+				end
+			end
+		end
 
-	-- 	-- ...for Halo
-	-- 	if getTalent(18) and canCast(_Halo) then 
-	-- 		StopMFCasting();
-	-- 		-- RunMacroText("/stopcasting");
+		-- -- ...for SWP refresh
+		-- if getDebuffRemain("target",_ShadowWordPain) <= SWPrefresh then
+		-- 	StopMFCasting();
+		-- 	-- RunMacroText("/stopcasting");
+		-- end
+		-- -- ...for VT refresh
+		-- if getDebuffRemain("target",_VampiricTouch) <= VTrefresh then
+		-- 	StopMFCasting();
+		-- 	-- RunMacroText("/stopcasting");
+		-- end
+
+		-- ...for MindSpike Proc (Surge of Darkness)
+		if isKnown(_SurgeOfDarkness) and getBuffStacks("player",_SurgeOfDarkness) > 2 then
+			RunMacroText("/stopcasting");
+			if castSpell("target",_MindSpike,false,false) then
+				return;
+			end
+		end
+
+		-- -- ...for Halo
+		-- if getTalent(18) and canCast(_Halo) then
+		-- 	StopMFCasting();
+		-- 	-- RunMacroText("/stopcasting");
+		-- end
+	end
+
+	-- -- insanity,if=buff.shadow_word_insanity.remains<0.5*gcd&active_enemies<=2,chain=1
+	-- -- Break Insanity and Cast for new
+	-- if select(1,UnitChannelInfo("player")) == "Insanity" then
+	-- 	if getBuffRemain("player",_InsanityBuff) < 0.5*GCDTIME then
+	-- 		RunMacroText("/stopcasting");
+	-- 		if castSpell("target",_Insanity,false,true,false,true) then
+	-- 			print("BREAK BREAK BREAK");
+	-- 			return;
+	-- 		end
 	-- 	end
 	-- end
 
@@ -203,7 +228,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- Target Tables
 		if isChecked("Multi-Dotting") then
 		    if ScanTimer == nil or ScanTimer <= GetTime() - 1 then
-		    	targetEnemies, ScanTimer = getEnemies("target",20), GetTime(); 
+		    	targetEnemies, ScanTimer = getEnemies("target",20), GetTime();
 		    end
 		end
 
@@ -212,8 +237,8 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- Fade
 		if isChecked("Fade") and getHP("player") <= getValue("Fade") and UnitThreatSituation("player") == 3 and GetNumGroupMembers() >= 2 then
-			if castSpell("player",_Fade,true,false) then 
-				return; 
+			if castSpell("player",_Fade,true,false) then
+				return;
 			end
 		end
 
@@ -227,7 +252,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- Power Word: Shield
 		if isChecked("Power Word: Shield") and castSpell(_PowerWordShield,true,false) and not UnitBuffID("player",_PowerWordShield) and not UnitDebuffID("player",_WeakenedSoul) then
 			if getHP("player") <= getValue("Power Word: Shield") then
-			   	if castSpell("player",_PowerWordShield,true,false) then 
+			   	if castSpell("player",_PowerWordShield,true,false) then
 			   		return;
 			   	end
 			end
@@ -238,9 +263,9 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- Power Infusion
 		if isChecked("PI Toggle") and isKnown(_PowerInfusion) then
-			if castSpell("player",_PowerInfusion,true,false) then 
+			if castSpell("player",_PowerInfusion,true,false) then
 				ChatOverlay("PI fired");
-				return; 
+				return;
 			end
 		end
 
@@ -343,7 +368,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- devouring_plague,if=!talent.void_entropy.enabled&shadow_orb>=3&(cooldown.mind_blast.remains<1.5|target.health.pct<20&cooldown.shadow_word_death.remains<1.5)
-		if isKnown(_DevouringPlague) then
+		if isKnown(_DevouringPlague) and getHP("target")<20 then
 			if not isKnown(_VoidEntropy) and ORBS >= 3 and (MBCD<1.5 or (getHP("target")<20 and SWDCD<1.5)) then
 				if castSpell("target",_ShadowWordDeath,true,false) then
 					return;
@@ -351,9 +376,7 @@ if select(3, UnitClass("player")) == 5 then
 			end
 		end
 
-		-- -- mind_blast,if=glyph.mind_harvest.enabled&mind_harvest=0,cycle_targets=1
-		-- if isKnown(_MindBlast) then
-		--	if hasGlyph(1202) and 
+		-- mind_blast,if=glyph.mind_harvest.enabled&mind_harvest=0,cycle_targets=1
 
 		-- mind_blast,if=active_enemies<=5&cooldown_react
 		if isKnown(_MindBlast) then
@@ -374,13 +397,13 @@ if select(3, UnitClass("player")) == 5 then
 		-- insanity,interrupt=1,chain=1,if=active_enemies<=2
 
 		-- halo,if=talent.halo.enabled&target.distance<=30&active_enemies>2
-		-- if isKnown(_Halo) then
-		-- 	if getDistance("player","target") <= 30 then
-		-- 		if castSpell("target",_Halo,true,false) then
-		-- 			return;
-		-- 		end
-		-- 	end
-		-- end
+		if isKnown(_Halo) then
+			if getDistance("player","target") <= 30 and getEnemies("player",30) then
+				if castSpell("target",_Halo,true,false) then
+					return;
+				end
+			end
+		end
 
 		-- cascade,if=talent.cascade.enabled&active_enemies>2&target.distance<=40
 		if isKnown(_Cascade) then
@@ -418,9 +441,9 @@ if select(3, UnitClass("player")) == 5 then
 			end
 		end
 
-		-- vampiric_touch,if=remains<(15*0.3+cast_time)&miss_react,cycle_targets=1,max_cycle_targets=5                               ------------ CHECK LAST VT also CHECK if DOUVLE SWP
+		-- vampiric_touch,if=remains<(15*0.3+cast_time)&miss_react,cycle_targets=1,max_cycle_targets=5
 		if isKnown(_VampiricTouch) then
-			if getDebuffRemain("target",_VampiricTouch) < (15*0.3+VTCASTTIME) and GT-lastVT >= 2000  then
+			if getDebuffRemain("target",_VampiricTouch) < (15*0.3+VTCASTTIME) and GT-lastVT >= 2  then
 				if castSpell("target",_VampiricTouch,true,true) then
 					lastVT = GT;
 					return;
@@ -459,10 +482,25 @@ if select(3, UnitClass("player")) == 5 then
 		-- divine_star,if=talent.divine_star.enabled&(active_enemies>1|target.distance<=24)
 		-- wait,sec=cooldown.shadow_word_death.remains,if=target.health.pct<20&cooldown.shadow_word_death.remains&cooldown.shadow_word_death.remains<0.5&active_enemies<=1
 		-- wait,sec=cooldown.mind_blast.remains,if=cooldown.mind_blast.remains<0.5&cooldown.mind_blast.remains&active_enemies<=1
+
 		-- mind_spike,if=buff.surge_of_darkness.react&active_enemies<=5
+		if isKnown(_MindSpike) then
+			if UnitBuffID("player",_SurgeOfDarkness) then
+				if castSpell("target",_MindSpike,false,false) then
+					return;
+				end
+			end
+		end
 
 		-- divine_star,if=talent.divine_star.enabled&target.distance<=28&active_enemies>1
-		
+		if isKnown(_DivineStar) then
+			if getDistance("player","target") <= 28 then
+				if castSpell("target",_DivineStar,false,false) then
+					return;
+				end
+			end
+		end
+
 		-- mind_sear,chain=1,interrupt=1,if=active_enemies>=4
 		if isKnown(_MindSear) then
 			if getNumEnemies("target",10) >= 4 then
@@ -493,7 +531,7 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- shadow_word_death,moving=1
 		if isKnown(_ShadowWordDeath) then
-			if getHP("target") > 20 then
+			if getHP("target") < 20 then
 				if castSpell("target",_ShadowWordDeath,true,false) then
 					return;
 				end
@@ -502,7 +540,7 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- mind_blast,moving=1,if=buff.shadowy_insight.react&cooldown_react
 		if isKnown(_MindBlast) then
-			if SI_TIMER > 0 then
+			if UnitBuffID("player",_ShadowyInsight) then
 				if castSpell("target",_MindBlast,false,false) then
 					return;
 				end
@@ -510,11 +548,26 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- divine_star,moving=1,if=talent.divine_star.enabled&target.distance<=28
+		if isKnown(_DivineStar) then
+			if isMoving("player") and getDistance("player","target") <= 28 then
+				if castSpell("target",_DivineStar,false,false) then
+					return;
+				end
+			end
+		end
+
 		-- cascade,moving=1,if=talent.cascade.enabled&target.distance<=40
+		if isKnown(_Cascade) then
+			if isMoving("player") and getDistance("player","target") <= 40 then
+				if castSpell("target",_Cascade,true,false) then
+					return;
+				end
+			end
+		end
 
 		-- shadow_word_pain,moving=1,cycle_targets=1
 		if isKnown(_ShadowWordPain) then
-			if isMoving("player") > 0 then
+			if isMoving("player") then
 				if castSpell("target",_ShadowWordPain,true,false) then
 					return;
 				end
