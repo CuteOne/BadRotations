@@ -107,9 +107,10 @@ function useCDs()
 end
 
 function getFacingDistance()
-    if IExists(UnitGUID("player")) and IExists(UnitGUID("target")) then
-        local Y1,X1,Z1,Angle1 = IGetLocation(UnitGUID("player"));
-        local Y2,X2 = IGetLocation(UnitGUID("target"));
+    if UnitIsVisible("player") and UnitIsVisible("target") then
+        local Y1,X1,Z1 = ObjectPosition("player");
+        local Y2,X2,Z2 = ObjectPosition("target");
+        local Angle1 = ObjectFacing("player")
         local deltaY = Y2 - Y1
         local deltaX = X2 - X1
         Angle1 = math.deg(math.abs(Angle1-math.pi*2))
@@ -129,7 +130,7 @@ function canFSK(unit)
         and not hasGlyph(1017) 
         and getSpellCD(_FlyingSerpentKick)==0 
         and getFacingDistance() <= 7
-        and select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" 
+        and select(3,GetSpellInfo(_FlyingSerpentKick)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" 
         and not UnitIsDeadOrGhost(unit)
         and getTimeToDie(unit) > 2
         and not IsSwimming()

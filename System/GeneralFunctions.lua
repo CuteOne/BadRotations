@@ -634,9 +634,9 @@ function getDistance(Unit1,Unit2)
 		local X2,Y2,Z2 = ObjectPosition(Unit2);
 		local unitSize = 0;
 		if UnitGUID(Unit1) ~= UnitGUID("player") and UnitCanAttack(Unit1,"player") then 
-			unitSize = ObjectDescriptor(Unit1, 0x110 , Float); 
+			unitSize = UnitBoundingRadius(Unit1) --ObjectDescriptor(Unit1, 0x110 , Float); 
 		elseif UnitGUID(Unit2) ~= UnitGUID("player") and UnitCanAttack(Unit2,"player") then 
-			unitSize = ObjectDescriptor(Unit2, 0x110 , Float); 
+			unitSize = UnitBoundingRadius(Unit2) --ObjectDescriptor(Unit2, 0x110 , Float); 
 		end
 		if isDummy(Unit1) or isDummy(Unit2) then unitSize = 1; end
 		return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unitSize;
@@ -652,7 +652,7 @@ function getDistanceToObject(Unit1,X2,Y2,Z2)
 		local X1,Y1,Z1 = ObjectPosition(Unit1);
 		local unitSize = 0;
 		if UnitGUID(Unit1) ~= UnitGUID("player") and UnitCanAttack(Unit1,"player") then 
-			unitSize = ObjectDescriptor(Unit1, 0x110 , Float); 
+			unitSize = UnitBoundingRadius(Unit1) --ObjectDescriptor(Unit1, 0x110 , Float); 
 		end
 		if isDummy(Unit1) or isDummy(Unit2) then unitSize = 1; end
 		return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unitSize;
@@ -1545,7 +1545,7 @@ end
 -- if isInMelee() then
 function isInMelee(Unit)
 	if Unit == nil then Unit = "target"; end
-	if getDistance(Unit) < 6 then return true; else return false; end
+	if getDistance(Unit) < 4 then return true; else return false; end
 end
 
 -- if IsInPvP() then
