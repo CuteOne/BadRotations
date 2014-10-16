@@ -191,7 +191,8 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 	-- Offensive Cooldowns -------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-			if useCDs() and getDistance("player","target") <= 5 then
+			if useCDs() then
+				-- and getDistance("player","target") <= 5
 				--and targetDistance <= 5 then
 				-- actions+=/potion,name=draenic_strength,if=(target.health.pct<20&buff.recklessness.up)|target.time_to_die<=25
 				if isChecked("usePot") then
@@ -253,7 +254,7 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 	-- Multi Target --------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-		ArmsMultiTarIcyVeins();
+			ArmsMultiTarIcyVeins();
 	------------------------------------------------------------------------------------------------------
 		end -- In Combat end
 	end -- ArmsWarrior() end

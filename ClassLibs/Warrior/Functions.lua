@@ -117,10 +117,12 @@ function GroupInfo()
 end
 
 function ArmsSingleTarIcyVeins()
+
     if castSpell("player",Bloodbath,true) then
                 return;
             end
-            if not useAoE() and getDistance("player","target") <= 5 then
+            --and getDistance("player","target") <= 5
+            if not useAoE() then
                 if UnitBuffID("player",SuddenDeathSpellAura) then
                     if castSpell("target",ExecuteArms,false,false) then
                         return;
