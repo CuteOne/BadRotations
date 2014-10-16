@@ -9,6 +9,7 @@ if select(3, UnitClass("player")) == 10 then
 	    if not canRun() then
 	    	return true
 	    end
+
 ---------------------------------------
 --- Ressurection/Dispelling/Healing ---
 ---------------------------------------
@@ -116,7 +117,7 @@ if select(3, UnitClass("player")) == 10 then
 --- In Combat ---
 -----------------
 		if isInCombat("player") and canAttack("target","player") and not UnitIsDeadOrGhost("target") then			
-			if isCastingSpell(_CracklingJadeLightning) and targetDistance < 3.5 then
+			if isCastingSpell(_CracklingJadeLightning) and targetDistance < 4 then
 				RunMacroText("/stopcasting")
 			end
 	----------------------
@@ -143,11 +144,11 @@ if select(3, UnitClass("player")) == 10 then
 	--- In Combat - Interrupts ---
 	------------------------------
 		-- Quaking Palm
-			if canInterrupt(_QuakingPalm,tonumber(getValue("Interrupts"))) and targetDistance<3.5 then
+			if canInterrupt(_QuakingPalm,tonumber(getValue("Interrupts"))) and targetDistance<4 then
 				if castSpell("target",_QuakingPalm,false) then return; end
 			end
 		-- Spear Hand Strike
-			if canInterrupt(_SpearHandStrike,tonumber(getValue("Interrupts"))) and getSpellCD(_QuakingPalm)>0 and getSpellCD(_QuakingPalm)<119 and targetDistance<3.5 then
+			if canInterrupt(_SpearHandStrike,tonumber(getValue("Interrupts"))) and getSpellCD(_QuakingPalm)>0 and getSpellCD(_QuakingPalm)<119 and targetDistance<4 then
 				if castSpell("target",_SpearHandStrike,false) then return; end
 			end
 		-- Paralysis
@@ -182,7 +183,7 @@ if select(3, UnitClass("player")) == 10 then
 				if castSpell("player",_ChiBrew,true) then return; end
 			end
 		-- Tiger Palm
-			if  targetDistance<3.5 and getBuffRemain("player",_TigerPower)<=3 and getChi("player")>=1 and getBuffRemain("player",_SpinningCraneKick)==0 then
+			if  targetDistance<4 and getBuffRemain("player",_TigerPower)<=3 and getChi("player")>=1 and getBuffRemain("player",_SpinningCraneKick)==0 then
 				if castSpell("target",_TigerPalm,false) then return; end
 			end
 		-- Tigereye Brew
@@ -198,11 +199,11 @@ if select(3, UnitClass("player")) == 10 then
 				if castSpell("player",_EnergizingBrew,true) then return; end
 			end
 		-- Raising Sun Kick
-			if getRSR()==0 and getBuffRemain("player",_SpinningCraneKick)==0 then
+			if targetDistance<4 and getRSR()==0 and getBuffRemain("player",_SpinningCraneKick)==0 then
 				if castSpell("target",_RaisingSunKick,false) then return; end
 			end
 		-- Tiger Palm
-			if  targetDistance<3.5 and getBuffRemain("player",_TigerPower)==0 and getRSR()>1 and getTimeToMax("player")>1 and getChi("player")>=1 and getBuffRemain("player",_SpinningCraneKick)==0 then
+			if targetDistance<4 and getBuffRemain("player",_TigerPower)==0 and getRSR()>1 and getTimeToMax("player")>1 and getChi("player")>=1 and getBuffRemain("player",_SpinningCraneKick)==0 then
 				if castSpell("target",_TigerPalm,false) then return; end
 			end
 
@@ -211,7 +212,7 @@ if select(3, UnitClass("player")) == 10 then
 	-----------------------------------------
 			if useAoE() then
 		-- Raising Sun Kick
-				if getChi("player")>=4 then
+				if targetDistance<4 and getChi("player")>=4 then
 					if castSpell("target",_RaisingSunKick,false) then return; end
 				end
 		--	Spinning Crane Kick
@@ -224,7 +225,9 @@ if select(3, UnitClass("player")) == 10 then
 	------------------------------------------
 			if not useAoE() then
 		-- Raising Sun Kick
-				if castSpell("target",_RaisingSunKick,false) then return; end
+				if getChi("player")>=2 then
+					if castSpell("target",_RaisingSunKick,false) then return; end
+				end
 		-- Fists of Fury
 				if getSpellCD(_EnergizingBrew)==0 
 					and getTimeToMax("player")>4 
@@ -232,12 +235,12 @@ if select(3, UnitClass("player")) == 10 then
 					and getChi("player")>=3 
 					and not isStanding(0.5) 
 					and getFacing("player","target") 
-					and targetDistance < 3.5
+					and targetDistance < 4
 				then
 					if castSpell("player",_FistsOfFury,true) then return; end
 				end
 		-- Tiger Palm
-				if targetDistance<3.5	and getBuffRemain("player",_ComboBreakerTigerPalm)>0 and (getBuffRemain("player",_ComboBreakerTigerPalm)<=2 or getTimeToMax("player")>=2) then
+				if targetDistance<4 and getBuffRemain("player",_ComboBreakerTigerPalm)>0 and (getBuffRemain("player",_ComboBreakerTigerPalm)<=2 or getTimeToMax("player")>=2) then
 					if castSpell("target",_TigerPalm,false) then return; end
 				end
 		-- Chi Wave
@@ -245,15 +248,15 @@ if select(3, UnitClass("player")) == 10 then
 					if castSpell("player",_ChiWave,true) then return; end
 				end
 		-- Blackout Kick
-				if getBuffRemain("player",_ComboBreakerBlackoutKick)>0	and targetDistance<3.5 then
+				if getBuffRemain("player",_ComboBreakerBlackoutKick)>0	and targetDistance<4 then
 					if castSpell("target",_BlackoutKick,false) then return; end
 				end
 		-- Jab
-				if (getChiMax("player")-getChi("player"))>=2 and getPower("player")>=40 and (getHP("player")>=80 or getSpellCD(_ExpelHarm)>0) and targetDistance<3.5 then
+				if (getChiMax("player")-getChi("player"))>=2 and getPower("player")>=45 and (getHP("player")>=80 or getSpellCD(_ExpelHarm)>0) and targetDistance<4 then
 					if castSpell("target",_Jab,false) then return; end
 				end
 		-- Blackout Kick
-				if getPower("player")+getRegen("player")*getRSRCD()>=40 and getChi("player")>=2 and targetDistance<3.5 then
+				if getPower("player")+getRegen("player")*getRSRCD()>=40 and getChi("player")>=2 and targetDistance<4 then
 					if castSpell("target",_BlackoutKick,false) then return; end
 				end
 			end -- End Single Target Rotation
@@ -266,7 +269,7 @@ if select(3, UnitClass("player")) == 10 then
 			end 
 		end --In Combat End	
 	-- Start Attack
-		if targetDistance<3.5 and isEnnemy("target") and not UnitIsDeadOrGhost("target") then
+		if targetDistance<4 and isEnnemy("target") and not UnitIsDeadOrGhost("target") then
 			StartAttack()
 		end
 	end

@@ -116,6 +116,161 @@ function GroupInfo()
     end
 end
 
+function ArmsSingleTarIcyVeins()
+    if castSpell("player",Bloodbath,true) then
+                return;
+            end
+            if not useAoE() and getDistance("player","target") <= 5 then
+                if UnitBuffID("player",SuddenDeathSpellAura) then
+                    if castSpell("target",ExecuteArms,false,false) then
+                        return;
+                    end
+                end
+                if getHP("target") > 20 then
+                    -- Outside CS
+                    if not UnitDebuffID("target",ColossusSmashArms,"player") then
+                        -- Rend
+                        if getDebuffRemain("target",Rend,"player") <= 5 then
+                            if castSpell("target",Rend,false,false) then
+                                return;
+                            end
+                        end
+                        -- MS
+                        if castSpell("target",MortalStrike,false,false) then
+                            return;
+                        end
+                        -- CS
+                        if castSpell("target",ColossusSmashArms,false,false) then
+                            return;
+                        end
+                        -- DragonRoar
+                        if isKnown(DragonRoar) then
+                            if castSpell("target",DragonRoar,true) then
+                                return;
+                            end
+                        end
+                        -- Stormbolt
+                        if isKnown(StormBolt) then
+                            if castSpell("target",StormBolt,false,false) then
+                                return;
+                            end
+                        end
+                        -- Slam
+                        if not isKnown(Slam) then
+                            if castSpell("target",Whirlwind,false,false) then
+                                return;
+                            end
+                        end
+                        -- Whirlwind
+                        if isKnown(Slam) then
+                            if castSpell("target",Slam,false,false) then
+                                return;
+                            end
+                        end
+                    end -- Outside CS end
+                    -- Inside CS
+                    if UnitDebuffID("target",ColossusSmashArms,"player") then
+                        -- MS
+                        if castSpell("target",MortalStrike,false,false) then
+                            return;
+                        end
+                        -- Stormbolt
+                        if isKnown(StormBolt) then
+                            if castSpell("target",StormBolt,false,false) then
+                                return;
+                            end
+                        end
+                        if not isKnown(Slam) then
+                            if castSpell("target",Whirlwind,false,false) then
+                                return;
+                            end
+                        end
+                        if isKnown(Slam) then
+                            if castSpell("target",Slam,false,false) then
+                                return;
+                            end
+                        end
+                    end -- Inside CS end
+                end -- > 20% end
+                -- Execute Phase
+                if getHP("target") < 20 then
+                    -- Outside CS
+                    if not UnitDebuffID("target",ColossusSmashArms,"player") then
+                        -- Rend
+                        if getDebuffRemain("target",Rend,"player") <= 5 then
+                            if castSpell("target",Rend,false,false) then
+                                return;
+                            end
+                        end
+                        -- Execute
+                        if UnitPower("player") >= 60 then
+                            if castSpell("target",ExecuteArms,false,false) then
+                                return;
+                            end
+                        end
+                        -- CS
+                            if castSpell("target",ColossusSmashArms,false,false) then
+                                return;
+                            end
+                        -- DragonRoar
+                        if isKnown(DragonRoar) then
+                            if castSpell("target",DragonRoar,true) then
+                                return;
+                            end
+                        end
+                        -- Stormbolt
+                        if isKnown(StormBolt) then
+                            if castSpell("target",StormBolt,false,false) then
+                                return;
+                            end
+                        end
+                    end -- Outside CS end
+                    -- Inside CS
+                    if UnitDebuffID("target",ColossusSmashArms,"player") then
+                        -- Stormbolt
+                        if isKnown(StormBolt) then
+                            if UnitPower("player") < 70 then
+                                if castSpell("target",StormBolt,false,false) then
+                                    return;
+                                end
+                            end
+                        end
+                        -- Execute
+                        if castSpell("target",ExecuteArms,false,false) then
+                            return;
+                        end
+                    end -- Inside CS end
+                end -- < 20% end
+            end -- Single Target end
+        end
+
+function ArmsMultiTarIcyVeins()
+    if useAoE() then
+                -- SweepingStrikes
+                if not UnitBuffID("player",SweepingStrikes) then
+                    if castSpell("player",SweepingStrikes,true) then
+                        return;
+                    end
+                end
+                -- Spread Rend to 4-5 Tars
+                if getDebuffRemain("target",Rend,"player") <= 5 then
+                    if castSpell("target",Rend,false,false) then
+                        return;
+                    end
+                end
+                -- Dragon Roar
+                if isKnown(DragonRoar) then
+                    if castSpell("target",DragonRoar,true) then
+                        return;
+                    end
+                end
+                --Whirlwind
+                if castSpell("target",Whirlwind,false,false) then
+                    return;
+                end
+            end -- Multi Target end
+        end
+
 --[[           ]]	--[[]]	   --[[]]	--[[           ]]	--[[]]	  --[[]]
 --[[           ]]	--[[]]	   --[[]]	--[[           ]]	--[[]]	  --[[]]
 --[[]] 				--[[]]	   --[[]]	--[[]]	   --[[]]	   --[[    ]]

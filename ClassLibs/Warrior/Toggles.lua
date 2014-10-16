@@ -25,7 +25,7 @@ if select(3, UnitClass("player")) == 1 then
         if AoEModesLoaded ~= "Arms Warrior AoE Modes" then
             CustomAoEModes = {
                 [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 0, icon = SweepingStrikes },
-                [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = Cleave },
+                [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = Whirlwind },
                 [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = MortalStrike }
             };
            AoEModes = CustomAoEModes
@@ -48,8 +48,8 @@ if select(3, UnitClass("player")) == 1 then
         -- Defensive Button
         if DefensiveModesLoaded ~= "Defensive Modes" then
             CustomDefensiveModes = {
-                [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = Shieldwall },
-                [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = ShieldWall }
+                [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = DiebytheSword },
+                [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = DiebytheSword }
             };
             DefensiveModes = CustomDefensiveModes
             CreateButton("Defensive",3,0)
@@ -86,7 +86,7 @@ if select(3, UnitClass("player")) == 1 then
         end
 
         if isChecked("Rotation Up") then
-            if SpecificToggle("Rotation Up") == 1 and GetCurrentKeyBoardFocus() == nil then
+            if SpecificToggle("Rotation Up") == true and GetCurrentKeyBoardFocus() == nil then
                 if myTimer == nil or myTimer <= GetTime() -0.7 then
                     myTimer = GetTime()
                     ToggleValue("AoE");
@@ -94,14 +94,14 @@ if select(3, UnitClass("player")) == 1 then
             end
         end
         if isChecked("Rotation Down") then
-            if SpecificToggle("Rotation Down") == 1 and GetCurrentKeyBoardFocus() == nil then
+            if SpecificToggle("Rotation Down") == true and GetCurrentKeyBoardFocus() == nil then
                 if myTimer == nil or myTimer <= GetTime() -0.7 then
                     myTimer = GetTime()
                     ToggleMinus("AoE");
                 end
             end
         end
-        if isChecked("HeroicLeapKey") and SpecificToggle("HeroicLeapKey") == 1 then
+        if isChecked("HeroicLeapKey") and SpecificToggle("HeroicLeapKey") == true then
             if not GetCurrentKeyBoardFocus() and not IsMouselooking() then
                 CastSpellByName(GetSpellInfo(6544))
                 if SpellIsTargeting() then
@@ -112,21 +112,21 @@ if select(3, UnitClass("player")) == 1 then
         end
         --Cooldown Key Toggle
         if CDTimer == nil then CDTimer = 0; end
-        if SpecificToggle("Cooldown Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - CDTimer > 0.25 then
+        if SpecificToggle("Cooldown Mode") == true and GetCurrentKeyBoardFocus() == nil and GetTime() - CDTimer > 0.25 then
             CDTimer = GetTime()
             UpdateButton("Cooldowns")
         end
 
         --Defensive Key Toggle
         if DefTimer == nil then DefTimer = 0; end
-        if SpecificToggle("Defensive Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - DefTimer > 0.25 then
+        if SpecificToggle("Defensive Mode") == true and GetCurrentKeyBoardFocus() == nil and GetTime() - DefTimer > 0.25 then
             DefTimer = GetTime()
             UpdateButton("Defensive")
         end
 
         --Interrupt Key Toggle
         if IntTimer == nil then IntTimer = 0; end
-        if SpecificToggle("Interrupt Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - IntTimer > 0.25 then
+        if SpecificToggle("Interrupt Mode") == true and GetCurrentKeyBoardFocus() == nil and GetTime() - IntTimer > 0.25 then
             IntTimer = GetTime()
             UpdateButton("Interrupts")
         end
