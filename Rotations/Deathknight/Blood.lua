@@ -110,37 +110,14 @@ function Blood()
 
 	    -- Runic Dump
 	    if runicPower >= 90 then
-	    	if isKnown(_RuneStrike) and targetDistance < 4 then
-	    		if castSpell("target",_RuneStrike,false) then return; end
-	   		else
+	    	if targetDistance < 40 then
 	   			-- Death Coil
 	    		if castSpell("target",_DeathCoil,false) then return; end
 	    	end
 	    end
 
 	    if ScanTimer == nil or ScanTimer <= GetTime() - 1 then
-	    	meleeEnemies, targetEnemies, ScanTimer = getNumEnemies("player",4), getEnemies("target",10), GetTime(); 
-	    end
-
-	    -- Pestilence - Bring
-	    local PestiSpell;
-	    if isKnown(_RoilingBlood) then PestiSpell = _BloodBoil; else PestiSpell = _Pestilence; end	    
-	    if targetDistance < 8 and (runesBlood >= 1 or runesDeath >= 1) and (pestiTimer == nil or pestiTimer <= GetTime() - 2) then
-			if canCast(PestiSpell) then
-				if not UnitDebuffID("target",55078,"player") then
-					for i = 1, #targetEnemies do
-						local Guid = targetEnemies[i]
-						ISetAsUnitID(Guid,"thisUnit");
-						if getCreatureType("thisUnit") == true and getDebuffRemain("thisUnit",55078,"player") >= 2 and getDistance("target","thisUnit") < 8 then
-							if PestiSpell == _BloodBoil then
-								if castSpell("player",PestiSpell,true) then pestiTimer = GetTime(); return; end	
-							else	
-								if castSpell("thisUnit",PestiSpell,true) then pestiTimer = GetTime(); return; end	
-							end						
-						end
-					end	
-				end
-			end
+	    	meleeEnemies, ScanTimer = getNumEnemies("player",10), GetTime(); 
 	    end
 
 	    -- Blood Boil - Refresh
@@ -149,12 +126,12 @@ function Blood()
 	    end
 
 	    -- Outbreak
-	    if UnitDebuffID("target",55078,"player") == nil then
+	    if targetDistance <= 5 and UnitDebuffID("target",55078,"player") == nil then
 	    	if castSpell("target",_Outbreak,false) then return; end
 	    end
 
 	    -- Plague Strike
-	    if (runesUnholy >= 1 or runesDeath >= 1) and getDebuffRemain("target",55078,"player") < 4 then
+	    if targetDistance <= 5 and (runesUnholy >= 1 or runesDeath >= 1) and getDebuffRemain("target",55078,"player") < 4 then
 	    	if castSpell("target",_PlagueStrike,false) then return; end
 	    end
 
@@ -163,40 +140,29 @@ function Blood()
 		    if castSpell("target",_IcyTouch,false) then return; end
 	    end
 
-	    -- Pestilence/Rolling Blood - Spread
-	    if targetDistance < 8 and #targetEnemies > 2 and (runesBlood >= 1 or runesDeath >= 1) and (pestiTimer == nil or pestiTimer <= GetTime() - 1) then
-			if canCast(PestiSpell) then
-				if getDebuffRemain("target",55078,"player") >= 2 then
-					for i = 1, #targetEnemies do
-						local Guid = targetEnemies[i]
-						ISetAsUnitID(Guid,"thisUnit");
-						if getCreatureType("thisUnit") == true and UnitDebuffID("thisUnit",55078,"player") == nil and getDistance("target","thisUnit") < 8 then
-							if PestiSpell == _BloodBoil then
-								if castSpell("player",PestiSpell,true) then pestiTimer = GetTime(); return; end	
-							else	
-								if castSpell("target",PestiSpell,true) then pestiTimer = GetTime(); return; end	
-							end								
-						end
-					end	
-				end
-			end
+	    -- Pestilence/Rolling Blood - Spread Diseases
+	    -- Here i do my target checks and i make sure i want to iterate. I use canCadt prior to everything just to save power, i dont want to scan if that spell is not ready, i dont have energy or in my case if there are no diseases on my target.
+	    if canSpreadDiseases() then
+		    -- Iterating Object manager
+		    -- begin loop
+		    for i = 1, #ObjectCount do
+		    	-- we check if it's a valid unit
+		    	if getCreatureType(ObjectWithIndex(i)) == true then
+		    		-- now that we know the unit is valid, we can use it to check whatever we want.. let's call it thisUnit
+		    		local thisUnit = ObjectWithIndex(i)
+	    			-- Here I do my specific spell checks
+	    			if UnitDebuffID(thisUnit,55078,"player") == nil and getDistance("player",thisUnit) < 8 and getDistance("target",thisUnit) then
+	    				-- All is good, let's cast. I add a timer to make sure i dont recast while my spell is "flying"
+	    				if castSpell("target",PestiSpell,true) then pestiTimer = GetTime(); return; end	
+	    			end
+		    	end
+		    end
 	    end
 
-	    -- Heart Strike//Blood Strike
-	    if runesBlood > 1 or (runesDeath > 1 and UnitDebuffID("target",55078,"player") ~= nil) then
-	    	if isKnown(_HeartStrike) and #targetEnemies < 3 then
-	    		if castSpell("target",_HeartStrike,false) then return; end
-	    	elseif isKnown(_HeartStrike) == false and #targetEnemies < 3 then
-	    		if castSpell("target",_BloodStrike,false) then return; end
-	    	else
-				if targetDistance <= 5 then
-					if castSpell("player",_BloodBoil,true) then return; end
-				end
-	    	end
-	    end
+
 
 	    -- Death Strike
-	    if UnitDebuffID("target",55078,"player") ~= nil and (runesFrost >= 1 and runesUnholy >= 1) 
+	    if (runesFrost >= 1 and runesUnholy >= 1) 
 	      or (runesFrost >= 1 and runesDeath >= 1)
 	      or (runesDeath >= 1 and runesUnholy >= 1)
 	      or (runesDeath >= 2) then
@@ -205,7 +171,7 @@ function Blood()
 	   
 	    -- Blood Boil - Scarlet Fever
 	    if targetDistance <= 5 and UnitBuffID("player",81141) ~= nil then
-	    	if castSpell("player",_BloodBoil,true) then return; end
+	    	if castSpell("player",50842,true) then return; end
 	    end
 
 	    -- Icy Touch
@@ -219,13 +185,16 @@ function Blood()
 	    end
 
 	    -- Rune Strike//Death Coil
-	    if runicPower >= 40 then
-		    if isKnown(_RuneStrike) and targetDistance < 5 then
-		    	if castSpell("target",_RuneStrike,false) then return; end
-		    else
-		    	if castSpell("target",_DeathCoil,false) then return; end
+	    if runicPower >= 30 then
+		    if targetDistance < 40 then
+		    	if castSpell("target",47541,false) then return; end
 		    end
 		end
+
+	    -- Blood Boil - Scarlet Fever
+	    if targetDistance <= 8 and runesBlood == 2 then
+	    	if castSpell("player",50842,true) then return; end
+	    end
 
 	    -- Horn of Winter
 	    if UnitBuffID("player",_HornOfWinter) == nil then

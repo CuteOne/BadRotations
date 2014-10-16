@@ -76,7 +76,7 @@ end
 -- if canCast(12345,true)
 function canCast(SpellID,KnownSkip,MovementCheck)
 	local lagTolerance = getValue("Lag Tolerance") or 0;
-  	if (KnownSkip == true or isKnown(SpellID)) and getSpellCD(SpellID) <= lagTolerance and not (UnitPower("player") < select(4,GetSpellInfo(SpellID))) 
+  	if (KnownSkip == true or isKnown(SpellID)) and IsUsableSpell(SpellID)
    	  and (MovementCheck == false or GlobalCooldown == 0 or isMoving("player") ~= true or UnitBuffID("player",79206) ~= nil) then
       	return true;
     end
@@ -1544,10 +1544,10 @@ end
 function isKnown(spellID)
   	local spellName = GetSpellInfo(spellID)
   	
-	if GetSpellBookItemInfo(spellName) ~=nil then
+	if GetSpellBookItemInfo(tostring(spellName)) ~= nil then
     	return true;
   	end
-	if IsPlayerSpell(spellID) then
+	if IsPlayerSpell(tonumber(spellID)) then
 		return true
 	end
   	return false;
