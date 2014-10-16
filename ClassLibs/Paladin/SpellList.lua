@@ -65,4 +65,14 @@ if select(3,UnitClass("player")) == 2 then
 	_TemplarsVerdict            =   85256
 	_TurnEvil                   =   10326       
 	_WordOfGlory                =   85673
+	
+	-- Todo : Check Glyphs(is on us or can we cast it on ground 25 yards
+	function castConsecration()
+		if canCast(_Consecration) and isInMelee() then 
+			if castSpell("target",_Consecration,true) then 
+				return true
+			end
+		end
+		return false
+	end
 end

@@ -102,13 +102,22 @@ if select(3, UnitClass("player")) == 2 then
 			--end			
 
 			-- Handle the use of HolyPower
-			--if ProtPaladinHolyPowerConsumers() then
+			if ProtPaladinHolyPowerConsumers() then
 				-- Dont return since this is off GCD
-			--end
+				--print("We use HoPo now")
+			end
+			if keyPressAoE then
+				--print("We should do aoe")
+				if ProtPaladingHolyPowerCreatersAoE()  then
+					return true
+				end
+			end
 		
 			if ProtPaladingHolyPowerCreaters() then -- Handle the normal rotation
+				--print("Something is cast within PowerCreaters")
 				return
 			end
+			--print("We did not do anything")
 		end
 	end
 end

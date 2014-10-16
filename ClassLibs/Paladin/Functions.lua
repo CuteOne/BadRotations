@@ -1,71 +1,4 @@
 if select(3,UnitClass("player")) == 2 then
-	_ArdentDefender             =   31850
-	_AvengersShield             =   31935
-	_AvengingWrath              =   31884
-	_BeaconOfLight              =   53563
-	_Berserking                 =   26297  
-	_BlessingOfKings            =   20217
-	_BlessingOfMight            =   19740
-	_BlindingLight              =   115750
-	_BloodFury                  =   20572 
-	_Cleanse                    =   4987
-	_Consecration               =   26573
-	_CrusaderStrike             =   35395
-	_Denounce                   =   2812
-	_DevotionAura               =   31821
-	_DivineFavor                =   31842
-	_DivineLight                =   82326
-	_DivinePlea                 =   54428
-	_DivineProtection           =   498
-	_DivineShield               =   642
-	_DivineStorm                =   53385
-	_EternalFlame               =   114163
-	_ExecutionSentence          =   114157
-	_Exorcism                   =   879
-	_FistOfJustice              =   105593
-	_FlashOfLight               =   19750
-	_Forbearance				= 	25771
-	_HandOfFreedom              =   1044
-	_HandOfProtection           =   1022
-	_HandOfPurity               =   114039
-	_HandOfSacrifice            =   6940
-	_HandOfSalvation            =   1038
-	_HammerOfJustice            =   853
-	_HammerOfTheRighteous       =   53595
-	_HammerOfWrath              =   24275
-	_HolyAvenger                =   105809
-	_HolyLight                  =   635
-	_HolyPrism                  =   114165
-	_HolyRadiance               =   82327
-	_HolyShock                  =   20473
-	_HolyWrath                  =   119072
-	_GiftOfTheNaaru             =   59542
-	_GuardianOfAncientKings     =   86659
-	_GuardianOfAncientKingsHoly =   86669
-	_GuardianOfAncientKingsRet  =   86698
-	_Inquisition                =   84963
-	_Judgment                  =   20271
-	_LayOnHands                 =   633
-	_LightOfDawn                =   85222
-	_LightsHammer               =   114158
-	_MassExorcism               =   122032
-	_MassResurection            =   83968
-	_Rebuke                     =   96231
-	_Reckoning                  =   62124
-	_Redemption                 =   7328
-	_RighteousFury              =   25780           
-	_Repentance                 =   20066
-	_SanctifiedWrath            =   53376
-	_SacredShield               =   20925
-	_SealOfInsight              =   20165
-	_SealOfRighteousness        =   20154
-	_SealOfThruth               =   31801
-	_SelflessHealer             =   85804
-	_ShieldOfTheRighteous       =   53600
-	_SpeedOfLight               =   85499
-	_TemplarsVerdict            =   85256
-	_TurnEvil                   =   10326       
-	_WordOfGlory                =   85673
 
 	function Blessings()
 		if UnitBuffID("player",144051) ~= nil then return false end
@@ -281,64 +214,7 @@ if select(3,UnitClass("player")) == 2 then
 		-- ProtPaladinDispells() -- Handling the dispelling self and party
 		-- ProtPaladinCooldowns() -- Handles the use of offensive Coolsdowns, ProtPaladinSurvival... handles the defensive.
 		
-		function ProtPaladinHolyPowerConsumers() -- Handle the use of HolyPower
-			-- We can use Hoy Power on Shield of Right or Word OF Glory(inclduing Sacred Shield and Eternal Flame)
-			-- since this are Off GCD we can use them regardless so we return false here 
-			-- Use SoR if we have 5 HP and dont need heal and have Eternal Flame/Sacred Shield on us
-			-- Cast Eternal Flame/sacred Shield on us if we have more then 3 HP and buffs are ending
-			-- Cast Eternal Flame/Word if we are below HP threshold
-			-- Cast Eternal Flame/Word if party member is below HP threshold and config set
-			
-			-- Once you have cast your initial EF, be sure to recast EF with 3 HoPo every ~25 seconds to ensure the HoT does not fall off. 
-			--As a general rule, recast it whenever you have 3 HoPo and less than 5 seconds remaining on the HoT. If you need those HoPo for a ShoR for a boss special ability, 
-			--then delay the EF or try to juggle things so that you refresh the EF earlier.
-			if IsPlayerSpell(_EternalFlame) then
-				-- First prio is to keep Eternal Flame HoT on our selfs
-				if _HolyPower > 2 and not isBuffed("player", _EternalFlame, 5) then 
-					if castSpell("player",_EternalFlame) then 
-						return; 
-					end
-				end
-				-- TODO Here we should have EF blankets on prio target such as other tank and one healer or something,
-				-- TODO Should be configurable on how many we should blanket, overkill maybe
-				if BadBoy_data["healing"] == 3 and _HolyPower > 2 then
-					if nNova[1].hp <= getValue("Eternal Flame")  and not isBuffed(nNova[1].unit, _EternalFlame) then --Todos, this is not correct since we are checking us
-						if castSpell(nNova[1].unit,_EternalFlame,true) then 
-							return; 
-						end
-					end
-				end
-			else
-				if (getHP("player") <= 80 and _HolyPower > 2) then 
-					if castSpell("player",_WordOfGlory,true) then 
-						return; 
-					end
-				elseif BadBoy_data["healing"] == 3 and nNova[1].hp <= 60 then
-					if castSpell(nNova[1].unit,_WordOfGlory,true) then 
-						return; 
-					end
-				end
-			end
-			--Todo we should/could add same logic as eternal flame, shielding tank and priotised group members.
-			-- Todo, fix sacred shield, now no config values
-			--if isKnown(_SacredShield) then
-			--	if isChecked("Sacred Shield") and not isBuffed("player", _SacredShield, 5) then
-			--		if castSpell("player",_SacredShield,true) then 
-			--			return; 
-			--		end
-			--	end	
-			--end
-			
-			-- shield_of_the_righteous,if=holy_power>=5|buff.divine_purpose.react|incoming_damage_1500ms>=health.max*0.3
-			if canCast(_ShieldOfTheRighteous) and _HolyPower > 4 then 
-				if getDistance("player","target") <= 4 then
-					if castSpell("target",_ShieldOfTheRighteous,false) then 
-						return; 
-					end
-				end
-				--Todo, we could check other targets to use HP on but this should be controlled by config.
-			end
-		end
+		
 		
 		
 		-- Todo: Create logic for when to use it, proccs or whatever
@@ -358,6 +234,31 @@ if select(3,UnitClass("player")) == 2 then
 					return; 
 				end
 			end	
+		end
+	end
+	
+	function ProtPaladinHolyPowerConsumers() -- Handle the use of HolyPower
+		
+		-- Ninja in this here for raid test
+		if not isBuffed("player", _SacredShield, 5) then
+			if castSpell("player",_SacredShield,true) then 
+				return
+			end
+		end
+		
+		if (getHP("player") <= 80 and _HolyPower > 2) then 
+			if castSpell("player",_WordOfGlory,true) then 
+				return
+			end
+		end	
+		-- shield_of_the_righteous,if=holy_power>=5|buff.divine_purpose.react|incoming_damage_1500ms>=health.max*0.3
+		if canCast(_ShieldOfTheRighteous) and _HolyPower > 4 then 
+			if getDistance("player","target") <= 4 then
+				if castSpell("target",_ShieldOfTheRighteous,false) then 
+					return; 
+				end
+			end
+			--Todo, we could check other targets to use HP on but this should be controlled by config.
 		end
 	end
 	
@@ -419,10 +320,57 @@ if select(3,UnitClass("player")) == 2 then
 		end
 		-- Todo, we could check number of mobs in melee ranged
 		
-		if canCast(_Consecration) and isInMelee() then 
-			if castSpell("target",_Consecration,true) then 
+		if castConsecration() then 
+			--print("Casting AOE Consecration")
+			return true
+		end
+		--Todo Check number of targets in range do Concentration and have it earlier.
+	end
+	
+	function ProtPaladingHolyPowerCreatersAoE() -- Rotation that focus on AoE, should be done to pick up group of adds
+		-- Todos: Talents, only light hammer is handled, Prism and Sentence is not
+		
+		local strike = strike; -- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
+		if BadBoy_data["AoE"] == 2 or (BadBoy_data["AoE"] == 3 and numberOfTargetsMelee > 2) or keyPressAoE then  --If Toggle to 2(AoE) or 3(Auto and more then 2 targets, its actually 4 but its just simplier to do aoe
+			strike = _HammerOfTheRighteous; 
+		else 
+			strike = _CrusaderStrike; 
+		end
+
+		-- Cast Crusader for Single and Hammer of Right if aoe
+		if isInMelee() then
+			if castSpell("target",strike,false) then 
 				return
-			end	
+			end
+		end
+
+		if canCast(_AvengersShield) then
+			if getLineOfSight("player","target") and getDistance("player","target") <= 30 then
+				if castSpell("target",_AvengersShield,false) then 
+					return
+				end	
+			end
+		end					 
+		-- Todo We could add functionality that cycle all unit to find one that is casting since the Avenger Shield is silencing as well.
+		
+		if getGround("target") and not isMoving("target") and UnitExists("target") and ((isDummy("target") or getDistance("target","targettarget") <= 5)) then
+			if castGround("target",_LightsHammer,30) then 
+				return true
+			end
+		end
+		
+
+		-- holy_wrath
+		if canCast(_HolyWrath) and isInMelee("target") then
+			if castSpell("target",_HolyWrath,true) then 
+				return
+			end
+		end
+		-- Todo, we could check number of mobs in melee ranged
+
+		if castConsecration() then 
+			--print("Casting AOE Consecration")
+			return true
 		end
 		--Todo Check number of targets in range do Concentration and have it earlier.
 	end
