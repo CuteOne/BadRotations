@@ -6,6 +6,7 @@ if select(3, UnitClass("player")) == 11 then
 	    end
 	    KeyToggles()
 	    GroupInfo()
+	    ChatOverlay(canInterrupt(sb,95))
 	    if not canRun() then
 	    	return true
 	    end

@@ -449,7 +449,15 @@ function feralDefensives()
             and not UnitCastingInfo("player")
             and not UnitChannelInfo("player")
             and not UnitIsDeadOrGhost("player")
+            and not IsMounted()
+            and not IsFlying()
         then
+-- Rejuvenation
+            if isChecked("Rejuvenation") and getHP("player") <= getValue("Rejuvenation") then
+                if getBuffRemain("player",prl)==0 and getBuffRemain("player",rej)==0 and not isInCombat("player") then
+                    if castSpell("player",rej,false,false) then return; end
+                end
+            end
 -- Pot/Stoned
             if isChecked("Pot/Stoned") and getHP("player") <= getValue("Pot/Stoned") then
                 if isInCombat("player") and usePot then
@@ -462,8 +470,12 @@ function feralDefensives()
                     end
                 end
             end
+-- Healing Touch
+            if isChecked("Healing Touch") and getBuffRemain("player",ps) > 0 and getHP("player") <= getValue("Healing Touch") and not (UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover")) then
+                if castSpell("player",ht,false,false) then return; end
+            end
 -- Survival Instincts
-            if isChecked("Survival Instincts") and getHP("player") <= getValue("Survival Instincts") then
+            if isChecked("Survival Instincts") and getHP("player") <= getValue("Survival Instincts") and not UnitBuffID("player",si) then
                 if castSpell("player",si,false,false) then return; end
             end
 -- Frenzied Regeneration
@@ -536,9 +548,9 @@ function feralOpener()
         if not UnitBuffID("player",prl) then
             if castSpell("player",prl,false,false) then return; end
         end
-        -- Rake
+        -- Shred
         if isInMelee() then
-            if castSpell("target",rk,false,false) then return; end
+            if castSpell("target",shr,false,false) then return; end
         end
     else
         return false

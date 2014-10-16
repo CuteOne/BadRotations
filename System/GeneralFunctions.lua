@@ -199,11 +199,11 @@ function canInterrupt(spellID,percentint)
         and not UnitIsDeadOrGhost(unit)
         and getSpellCD(spellID) 
     then
-        if select(6,UnitCastingInfo(unit)) ~= nil and select(9,UnitCastingInfo(unit)) ~= nil then
+        if select(6,UnitCastingInfo(unit)) and not select(9,UnitCastingInfo(unit)) then
             castStartTime = select(5,UnitCastingInfo(unit))
             castEndTime = select(6,UnitCastingInfo(unit))
             interruptable = true
-        elseif select(6,UnitChannelInfo(unit)) ~= nil and select(8,UnitChannelInfo(unit)) == nil then
+        elseif select(6,UnitChannelInfo(unit)) and select(8,UnitChannelInfo(unit)) then
             castStartTime = select(5,UnitChannelInfo(unit))
             castEndTime = select(6,UnitChannelInfo(unit))
             interruptable = true
@@ -216,9 +216,9 @@ function canInterrupt(spellID,percentint)
             castDuration = (castEndTime - castStartTime)/1000
             castTimeRemain = ((castEndTime/1000) - GetTime())
             if percentint == nil and castPercent == 0 then 
-                castPercent = math.random(5, 95)
+                castPercent = math.random(75, 95)
             elseif percentint == 0 and castPercent == 0 then
-                castPercent = math.random(5, 95)
+                castPercent = math.random(75, 95)
             elseif percentint > 0 then 
                 castPercent = percentint 
             end
@@ -1527,7 +1527,7 @@ end
 -- if isInMelee() then
 function isInMelee(Unit)
 	if Unit == nil then Unit = "target"; end
-	if getDistance(Unit) < 4 then return true; else return false; end
+	if getDistance(Unit) < 6 then return true; else return false; end
 end
 
 -- if IsInPvP() then

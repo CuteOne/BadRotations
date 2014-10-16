@@ -220,10 +220,20 @@ function FeralCatConfig()
         textOp(" ");
         wrapOp("--- Defensive ---");
 
+            -- Rejuvenation
+            checkOp("Rejuvenation");
+            boxOp("Rejuvenation", 0, 100, 5, 75);
+            textOp("Rejuvenation (OoC)");
+
             -- Healthstone
             checkOp("Pot/Stoned");
             boxOp("Pot/Stoned", 0, 100, 5, 60);
             textOp("Pot/Stoned");
+
+            -- Healing Touch
+            checkOp("Healing Touch");
+            boxOp("Healing Touch", 0, 100, 5, 50);
+            textOp(tostring(select(1,GetSpellInfo(ht))));
 
             -- Survival Instincts
             checkOp("Survival Instincts");
