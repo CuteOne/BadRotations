@@ -26,11 +26,11 @@ if select(3, UnitClass("player")) == 5 then
 
 
 function ShadowConfig()
-    if currentConfig ~= "Shadow CodeMyLife" then
+    if currentConfig ~= "Shadow ragnar" then
         ClearConfig();
         thisConfig = 0;
         --[[Title]]
-        CreateNewTitle(thisConfig,"Shadow |cffFF0000CodeMyLife");
+        CreateNewTitle(thisConfig,"Shadow |cffFF0000ragnar");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"---------- Buffs ---------");
@@ -43,7 +43,7 @@ function ShadowConfig()
         CreateNewWrap(thisConfig,"------ Cooldowns ------");
 
         
-        if getTalent(8) then
+        if isKnown(_Mindbender) then
         	--[[Mindbender]]
 	        CreateNewCheck(thisConfig,"Mindbender");
 	        CreateNewBox(thisConfig, "Mindbender", 0, 100  , 5, 70, "|cffFFBB00Under what |cff3895FF%Mana|cffFFBB00 to use |cffFFFFFFMindbender.");
@@ -67,11 +67,6 @@ function ShadowConfig()
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"--------- Healing -------");
-
-        --[[Renew]]
-        CreateNewCheck(thisConfig,"Renew");
-        CreateNewBox(thisConfig, "Renew", 0, 100  , 5, 45, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRenew.");
-        CreateNewText(thisConfig,"Renew");
 
         --[[Power Word: Shield]]
         CreateNewCheck(thisConfig,"Power Word: Shield");
@@ -113,11 +108,11 @@ function ShadowConfig()
         CreateNewCheck(thisConfig,"Multi-Dotting");
         CreateNewText(thisConfig,"Multi-Dotting");
 
-        if getTalent(5) then
+        if isKnown(_AngelicFeather) then
 	        --[[Angelic Feather]]
 	        CreateNewCheck(thisConfig,"Angelic Feather");
             CreateNewText(thisConfig,"Angelic Feather");
-	    elseif getTalent(4) then
+	    elseif isKnown(_BodyAndSoul) then
 	        --[[Body And Soul]]
 	        CreateNewCheck(thisConfig,"Body And Soul");
 	        CreateNewText(thisConfig,"Body And Soul");
