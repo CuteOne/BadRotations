@@ -51,10 +51,6 @@ if select(3, UnitClass("player")) == 10 then
 		   	if not UnitExists("mouseover") then
 			  	for i = 1, #members do
 			  		if (#members==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
-	-- Legacy of the Emperor
-			  			if not isBuffed(members[i].Unit,{115921,20217,1126,90363}) then
-							if castSpell("player",_LegacyOfTheEmperor,true) then return; end
-				  		end
 	-- Legacy of the White Tiger
 						if not isBuffed(members[i].Unit,{17007,1459,61316,116781,90309,126373,160052,126309,24604}) then
 	  						if castSpell("player",_LegacyOfTheWhiteTiger,true) then return; end
@@ -87,10 +83,6 @@ if select(3, UnitClass("player")) == 10 then
 	-- Diffuse Magic
 		if canDispel("player",_DiffuseMagic) or getHP("player")<=30 then
 			if castSpell("player",_DiffuseMagic,true) then return; end
-		end
-	-- Healing Sphere
-		if getHP("player")<=30 and getPower("player")>=40 then
-			if castGround("player",_HealingSphere,5) then return; end
 		end
 	-- Nimble Brew
 		if hasNoControl() then
@@ -181,10 +173,6 @@ if select(3, UnitClass("player")) == 10 then
 			if targetDistance >= 8 and getSpellCD(_FlyingSerpentKick)>1 and isInCombat("player") and getPower("player")>20 and (getChiMax("player")-getChi("player"))>=2 and not isCastingSpell(_CracklingJadeLightning) then
 				if castSpell("target",_CracklingJadeLightning,false) then return; end
 			end
-		-- Spinning Fire Blossom
-			if targetDistance < 50 and targetDistance >= 8 and getSpellCD(_FlyingSerpentKick)>1 and isInCombat("player") and getChi("player")>=1 and (getChiMax("player")-getChi("player"))<2 and getFacingDistance()<3.5 then
-				if castSpell("target",_SpinningFireBlossom,false) then return; end
-			end 
 		-- Touch of Death
 			if (UnitBuffID("player",_DeathNote) or UnitHealth("target")<=UnitHealth("player")) and not UnitIsPlayer("target") and targetDistance<3.5 and getBuffRemain("player",_SpinningCraneKick)==0 then
 				if castSpell("target",_TouchOfDeath,false) then return; end

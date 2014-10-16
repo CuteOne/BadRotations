@@ -15,8 +15,6 @@ _FistsOfFury                =   113656  --Fists of Fury
 _FlyingSerpentKick          =   101545  --Flying Serpent Kick
 _FlyingSerpentKickEnd       =   115057  --Flying Serpent Kick End
 _FortifyingBrew             =   115203  --Fortifying Brew
-_GrapleWaepon               =   117368  --Grapple Weapon
-_HealingSphere				=	115460  --Healing Sphere
 _InvokeXuen                 =   123904  --Invoke Xuen
 _Jab                        =   115698  --Jab
 _LegacyOfTheEmperor         =   115921  --Legacy of the Emperor
@@ -30,7 +28,6 @@ _Resuscitate                =   115178  --Resuscitate
 _Roll                       =   121827--109132  --Roll
 _RaisingSunKick             =   107428  --Raising Sun Kick
 _SpinningCraneKick          =   101546  --Spinning Crane Kick
-_SpinningFireBlossom        =   115073  --Spinning Fire Blossom
 _StanceOfTheFierceTiger     =   103985  --Stance of the Fierce Tiger
 _SpearHandStrike            =   116705  --Spear Hand Strike
 _TigereyeBrew               =   116740  --Tigereye Brew
@@ -57,7 +54,6 @@ _GiftOfTheNaaru             =   59547   --Gift of the Naaru
 
 ------Brew------
 _BreathOfFire               =   115181;
-_Clash                      =   122057;
 _DazzlingBrew               =   115180;
 _Guard						=   115295;
 _KegSmash					=	121253;

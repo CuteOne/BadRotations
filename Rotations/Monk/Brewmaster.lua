@@ -191,10 +191,6 @@ end
 		--[[Chi Wave]]
 	    if UnitExists("target") and not UnitIsDeadOrGhost("target") and getCreatureType("target") == true and castSpell("target",115098,false) then return; end
 
-		--[[Clash]]
-		if isChecked("Clash") == true and targetDistance >= 20 then
-			if castSpell("target",_Clash,false,false) then return; end
-		end
 
     	--[[Dazzling Brew]]
 		if isChecked("Dazzling Brew") == true then
