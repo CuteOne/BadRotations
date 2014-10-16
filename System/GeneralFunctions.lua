@@ -316,6 +316,12 @@ function castGround(Unit,SpellID,maxDistance)
 		if IsAoEPending() then
 		local X, Y, Z = ObjectPosition(Unit);
 			CastAtPosition(X,Y,Z);
+			if SpellID == 145205 then 
+				if shroomsTable == nil then 
+					shroomsTable = { }; 
+				end 
+				shroomsTable[1] = { x = X, y = Y, z = Z }; 
+			end
 			return true;
 		end
  	end
@@ -366,8 +372,8 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 		local lowHPTargets, foundTargets = { }, { };
 		for i = 1, #nNova do
 			if nNova[i].hp <= Health then
-				if IExists(nNova[i].guid) and IGetLocation(nNova[i].guid) ~= nil then
-					local X, Y, Z = IGetLocation(nNova[i].guid);
+				if UnitIsVisible(nNova[i].unit) and ObjectPosition(nNova[i].unit) ~= nil then
+					local X, Y, Z = ObjectPosition(nNova[i].unit);
 					tinsert(lowHPTargets, { unit = nNova[i].unit, x = X, y = Y, z = Z });
 		end end end
 		if #lowHPTargets >= NumberOfPlayers then
@@ -393,8 +399,9 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 				local myX, myY = ObjectPosition("player");
 				if math.sqrt(((medX-myX)^2)+((medY-myY)^2)) < 40 then
 			 		CastSpellByName(GetSpellInfo(SpellID),"player");
-					if AreaSpellIsPending() then
+					if IsAoEPending() then
 						CastAtPosition(medX,medY,medZ);
+						if SpellID == 145205 then shroomsTable[1] = { x = medX, y = medY, z = medZ}; end
 						return true;
 	end end end end end
 	return false;
@@ -417,7 +424,6 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 	    if timersTable == nil then timersTable = { }; end
 		-- make sure it is a known spell
 		if not (KnownSkip == true or isKnown(SpellID)) then return false; end
-
 		-- gather our spell range information
 		local spellRange = select(6,GetSpellInfo(SpellID));
 	  	if spellRange == nil or spellRange < 4 then spellRange = 4; end
@@ -441,7 +447,6 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 	        			end
 					end
 				elseif (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true) then
-	  		   		
 	  		   		currentTarget = UnitGUID(Unit);
 					CastSpellByName(GetSpellInfo(SpellID),Unit);
 					if BadBoy_data["Power"] == 1 then mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID))); end
@@ -517,6 +522,19 @@ function getAllies(Unit,Radius)
  	for i=1, #nNova do
 		if not UnitIsDeadOrGhost(nNova[i].unit) then
 			if getDistance(Unit,nNova[i].unit) <= Radius then
+				tinsert(alliesTable,nNova[i].unit);
+			end
+		end
+ 	end
+ 	return alliesTable;
+end
+
+-- if getAlliesInLocation("player",X,Y,Z) > 5 then
+function getAlliesInLocation(myX,myY,myZ,Radius)
+	local alliesTable = {};
+ 	for i=1, #nNova do
+		if not UnitIsDeadOrGhost(nNova[i].unit) then
+			if getDistanceToObject(nNova[i].unit,myX,myY,myZ) <= Radius then
 				tinsert(alliesTable,nNova[i].unit);
 			end
 		end

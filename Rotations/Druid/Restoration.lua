@@ -336,6 +336,8 @@ function DruidRestoration()
 
 		--[[ 7 - Stop Casting--(perevent from over healing when u cast somthing can heal target) Placed at top]]
 
+
+
 		--[[ 8 - Force Of Nature]]
 		if isKnown(102693) then --FOn Spell ID
 		    if isChecked("Force of Nature") and canCast(102693,false,false) and lowestHP < getValue("Force of Nature") then 
@@ -589,10 +591,11 @@ function DruidRestoration()
 
 		--[[ 30 - WildMushroom--(Replace )]]
 		if not isChecked("Mushrooms on Tank") and isChecked("Mushrooms") and canCast(145205,false,false) and (shroomsTable ~= nil and #shroomsTable ~= 0) and lowestHP < getValue("Mushrooms") then
-			ISetAsUnitID(shroomsTable[1],"myShroom")
-			local allies10Yards = getAllies("myShroom",10)
-			if #allies10Yards < getValue("Mushrooms Count") then
-				if castHealGround(145205,15,getValue("Mushrooms") ,getValue("Mushrooms Count")) then return; end
+			if shroomsTable ~= nil then
+				local allies10Yards = getAlliesInLocation(shroomsTable[1].x,shroomsTable[1].y,shroomsTable[1].z,10)
+				if #allies10Yards < getValue("Mushrooms Count") then
+					if castHealGround(145205,15,getValue("Mushrooms") ,getValue("Mushrooms Count")) then return; end
+				end
 			end
 		end		
 
@@ -635,7 +638,7 @@ function DruidRestoration()
 		--[[ 31- WildMushroom tank--(Replace all)]]
 		if isChecked("Mushrooms on Tank") and GetUnitSpeed("focus") == 0 and canCast(145205,false,false) then
 			if shroomsTable ~= nil and #shroomsTable ~= 0 then
-				if getDistance("focus",shroomsTable[1]) > 10 then
+				if getDistanceToObject("focus",shroomsTable[1].x,shroomsTable[1].y,shroomsTable[1].z) > 10 then
 					if castGround("focus", 145205, 40) then return; end
 				end
 			else
@@ -671,11 +674,11 @@ function DruidRestoration()
 		end
 
 		--[[ 35 - Lifebloom - --(Force Stacks)]]
-		if isChecked("Lifebloom") == true and not UnitIsDeadOrGhost("focus") then
-			if getBuffStacks("focus",33763) < 3 then
-				if castSpell("focus",33763,true,false) then return; end
-			end
-		end	
+		--if isChecked("Lifebloom") == true and not UnitIsDeadOrGhost("focus") then
+		--	if getBuffStacks("focus",33763) < 3 then
+		--		if castSpell("focus",33763,true,false) then return; end
+		--	end
+		--end	
 
 		--[[ 36 - Rejuvenation Tank]]
 		if isChecked("Rejuvenation Tank") and canCast(774,false,false) and lowestTankHP < getValue("Rejuvenation Tank") then
