@@ -5,7 +5,7 @@ if select(3, UnitClass("player")) == 11 then
 	        Currentconfig = "Feral CuteOne";
 	    end
 	    KeyToggles()
-	    --GroupInfo()
+	    GroupInfo()
 	    if not canRun() then
 	    	return true
 	    end
