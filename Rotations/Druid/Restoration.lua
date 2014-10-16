@@ -482,7 +482,7 @@ function DruidRestoration()
 		--[[ 18.5 - LifeBloom Fast Swich]]
 		if isChecked("Lifebloom") and canCast(33763,false,false) then
 	    	for i = 1, #nNova do
-				if nNova[i].hp < 249 and (not UnitIsDeadOrGhost("focus") and getBuffStacks(nNova[i].unit,33763) == 3) and getBuffStacks("focus",33763) == 0 then
+				if nNova[i].hp < 249 and not UnitIsDeadOrGhost("focus") and getBuffRemain("focus",33763) == 0 then
 					if castSpell("focus",33763,true,false) then return; end
 				end
 			end		
@@ -606,7 +606,7 @@ function DruidRestoration()
 
 		--[[ 28 - LifebloomFocus--(Refresh if over treshold)]]
       	if isChecked("Lifebloom") then
-			if not UnitIsDeadOrGhost("focus") and getHP("focus") >= getValue("Lifebloom") and (getBuffRemain("focus",33763,"player") < 4 and getBuffStacks("focus",33763) == 3 ) then
+			if not UnitIsDeadOrGhost("focus") and getHP("focus") >= getValue("Lifebloom") and getBuffRemain("focus",33763,"player") < 2 then
 				if castSpell("focus",33763,true,false) then return; end
 			end
 		end	
@@ -674,11 +674,11 @@ function DruidRestoration()
 		end
 
 		--[[ 35 - Lifebloom - --(Force Stacks)]]
-		--if isChecked("Lifebloom") == true and not UnitIsDeadOrGhost("focus") then
-		--	if getBuffStacks("focus",33763) < 3 then
-		--		if castSpell("focus",33763,true,false) then return; end
-		--	end
-		--end	
+		if isChecked("Lifebloom") == true and not UnitIsDeadOrGhost("focus") then
+			if getBuffRemain("focus",33763) == 0 then
+				if castSpell("focus",33763,true,false) then return; end
+			end
+		end	
 
 		--[[ 36 - Rejuvenation Tank]]
 		if isChecked("Rejuvenation Tank") and canCast(774,false,false) and lowestTankHP < getValue("Rejuvenation Tank") then

@@ -543,15 +543,6 @@ function RestorationConfig()
         CreateNewBox(thisConfig, "Mushrooms Count", 1, 25  , 1, 5, "|cffFFBB00Number of members under Wild Mushrooms treshold needed to use |cffFFFFFFWild Mushrooms.");
         CreateNewText(thisConfig,"Mushrooms Count");
 
-        -- Mushrooms Bloom
-        CreateNewCheck(thisConfig,"Mushrooms Bloom");
-        CreateNewBox(thisConfig, "Mushrooms Bloom", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFWild Mushrooms Bloom.");
-        CreateNewText(thisConfig,"Mushrooms Bloom");
-
-        -- Mushrooms Bloom Count
-        CreateNewBox(thisConfig, "Mushrooms Bloom Count", 1, 25  , 1, 5, "|cffFFBB00Number of members under Wild Mushrooms Bloom treshold needed to use |cffFFFFFFWild Mushrooms Bloom.");
-        CreateNewText(thisConfig,"Mushrooms Bloom Count");
-
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------- Defensive ------");
 
