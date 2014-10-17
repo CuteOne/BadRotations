@@ -46,16 +46,6 @@ function MoonkinConfig()
         CreateNewCheck(thisConfig,"Starfall");
         CreateNewText(thisConfig,"Starfall");
 
-        -- Incarnation
-        CreateNewCheck(thisConfig,"Incarnation");
-        CreateNewBox(thisConfig, "Incarnation", 0, 100  , 5, 45, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFIncarnation.");
-        CreateNewText(thisConfig,"Incarnation");
-
-        -- Innervate
-        CreateNewCheck(thisConfig,"Innervate");
-        CreateNewBox(thisConfig, "Innervate", 0, 100  , 5, 80, "|cffFFBB00Under what |cff297BFF%Mana|cffFFBB00 to use |cffFFFFFFInnervate.");
-        CreateNewText(thisConfig,"Innervate");
-
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"--------- Healing -------");
 
@@ -102,10 +92,6 @@ function MoonkinConfig()
         CreateNewCheck(thisConfig,"Follow Tank");
         CreateNewBox(thisConfig, "Follow Tank", 10, 40  , 1, 25, "|cffFFBB00Range from focus...");
         CreateNewText(thisConfig,"Follow Tank");
-
-        -- Zoo Master
-        CreateNewCheck(thisConfig,"Zoo Master");
-        CreateNewText(thisConfig,"Zoo Master");
 
         -- General Configs
         CreateGeneralsConfig();

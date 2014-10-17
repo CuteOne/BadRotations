@@ -420,6 +420,8 @@ Sixth 		KnownSkip 		True to skip isKnown check for some spells that are not mana
 -- castSpell("target",12345,true);
 function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 	if shouldStopCasting(SpellID) ~= true and not UnitIsDeadOrGhost(Unit) then
+		-- stop if not enough power for that spell
+		if IsUsableSpell(SpellID) ~= true then return false; end
 		-- Table used to prevent refiring too quick
 	    if timersTable == nil then timersTable = { }; end
 		-- make sure it is a known spell
@@ -1560,11 +1562,10 @@ end
 -- if isKnown(106832) then
 function isKnown(spellID)
   	local spellName = GetSpellInfo(spellID)
-
 	if GetSpellBookItemInfo(tostring(spellName)) ~= nil then
     	return true;
   	end
-	if IsPlayerSpell(tonumber(spellID)) then
+	if IsPlayerSpell(tonumber(spellID)) == true then
 		return true
 	end
   	return false;

@@ -58,28 +58,12 @@ function DruidRestoration()
 		RunMacroText("/focus mouseover");
 	end
 
-	if isChecked("Zoo Master") and IsOutdoors() and not IsMounted("player") then
-		--[[ Flying Form ]]
-		if (getFallTime() > 1 or outOfWater()) and not isInCombat("player") and IsFlyableArea() then
-			if not (UnitBuffID("player", sff) or UnitBuffID("player", flf)) then
-				if castSpell("player", sff) then return; elseif castSpell("player", flf) then return; end
-			end
-		--[[ Aquatic Form ]]
-		elseif IsSwimming() and not UnitBuffID("player",af) and not UnitExists("target") then
-			if castSpell("player",af) then return; end
-		elseif IsMovingTime(2) and IsFalling() == nil and IsSwimming() == nil and IsFlying() == nil and UnitBuffID("player",783) == nil and UnitBuffID("player", sff) == nil and UnitBuffID("player", flf) == nil then
-			if castSpell("player",783) then return; end
-		end
-	end
-
 	-- Stop in other forms
 	if UnitBuffID("player",768) ~= nil then -- Kitty
 		if UnitBuffID("player", 5215) ~= nil or UnitBuffID("player", 1850) ~= nil then -- Prowl or Dash
 			return false;
 		end
 	elseif UnitBuffID("player",783) ~= nil then -- Travel
-		return false;
-	elseif UnitBuffID("player", flf) or UnitBuffID("player", sff) then -- Flight Form
 		return false;
 	elseif UnitBuffID("player", af) then
 		return false;
@@ -181,7 +165,6 @@ function DruidRestoration()
 			end
 		end
 
-
 		--[[ Mouseover/Target/Focus support]]
 		castMouseoverHealing("Druid");
 
@@ -191,32 +174,11 @@ function DruidRestoration()
 			if castSpell("player",22812,true,false) then return; end
 		end
 
-		-- Might of Ursoc
-		if isChecked("Might of Ursoc") and getHP("player") <= getValue("Might of Ursoc") then
-			if castSpell("player",106922,true,false) then return; end
-		end
-
-		-- Bear Management(MoU)
-		if UnitBuffID("player",5487) ~= nil and UnitBuffID("player",106922) ~= nil then
-			if UnitPower("player",SPELL_POWER_RAGE) >= 60 then
-				if castSpell("player",22842,true,false) then return; end
-			end
-		end
-
 		-- Healthstone
 		if isChecked("Healthstone") and getHP("player") <= getValue("Healthstone") then
 			if canUse(5512) ~= false then
 				UseItemByName(tostring(select(1,GetItemInfo(5512))));
 			end
-		end
-
-		-- MoU Attacks
-		if UnitBuffID("player",5487) ~= nil and UnitBuffID("player",106922) ~= nil then
-			if castSpell("target",33878,false,false) then return; end
-			if getDebuffStacks("target",33745) < 3 or getDebuffRemain("target",33745) < 3 then
-				if castSpell("target",33745,false,false) then return; end
-			end
-			return;
 		end
 
 		--[[ 3 - NS healing Touch --(U can NS healing Touch While in cat form)]]
@@ -251,8 +213,12 @@ function DruidRestoration()
 					if getDebuffRemain("target",1822) < 2 then
 						if castSpell("target",1822) then return; end
 					end
-					-- Mangle
-					if castSpell("target",33876) then return; end
+					-- Trash
+					if getDebuffRemain("target",106832) < 2 then
+						if castSpell("target",106832) then return; end
+					end
+					-- Shred
+					if castSpell("target",5221) then return; end
 				else
 					if UnitBuffID("player",768) ~= nil then
 						CancelShapeshiftForm();
@@ -336,7 +302,7 @@ function DruidRestoration()
 		--end
 
 		--[[ 13 - WildGrowth Tol --(Tree of Life)]]
-		if isKnown(33891) and isChecked("WildGrowth Tol") and UnitBuffID("player", 33891) and canCast(48438,false,false) and lowestHP < getValue("WildGrowth Tol") then
+		if isKnown(33891) and isChecked("WildGrowth Tol") and UnitBuffID("player", 33891) and isStanding(0.3) and canCast(48438,false,false) and lowestHP < getValue("WildGrowth Tol") then
 	        for i = 1, #nNova do
 	        	if nNova[i].hp < 249 then
 			        local allies30Yards = getAllies(nNova[i].unit,30);
@@ -486,7 +452,7 @@ function DruidRestoration()
 		end
 
 		--[[ 24 - WildGrowth all--(Use on all with out health check only with player count check)(some time in fight u need check it fast)]]
-		if isChecked("WildGrowth All") and canCast(48438,false,false) then
+		if isChecked("WildGrowth All") and isStanding(0.3) and canCast(48438,false,false) then
 		    for i = 1, #nNova do
 		    	if nNova[i].hp < 249 then
 			    	local allies30Yards = getAllies(nNova[i].unit,30);
@@ -498,7 +464,7 @@ function DruidRestoration()
 		end
 
 		--[[ 25 - WildGrowth--(Use with health and player count check)]]
-		if isChecked("WildGrowth") and canCast(48438,false,false) and lowestHP < getValue("WildGrowth") then
+		if isChecked("WildGrowth") and isStanding(0.3) and canCast(48438,false,false) and lowestHP < getValue("WildGrowth") then
 			if isKnown(114107) ~= true and getSpellCD(48438) < 2 then
 				for i = 1, #nNova do
 					local allies30Yards = 0;
