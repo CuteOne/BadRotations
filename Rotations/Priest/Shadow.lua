@@ -250,7 +250,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- Power Word: Shield
-		if isChecked("Power Word: Shield") and castSpell(_PowerWordShield,true,false) and not UnitBuffID("player",_PowerWordShield) and not UnitDebuffID("player",_WeakenedSoul) then
+		if isChecked("Power Word: Shield") and not UnitBuffID("player",_PowerWordShield) and not UnitDebuffID("player",_WeakenedSoul) then
 			if getHP("player") <= getValue("Power Word: Shield") then
 			   	if castSpell("player",_PowerWordShield,true,false) then
 			   		return;
@@ -432,14 +432,29 @@ if select(3, UnitClass("player")) == 5 then
 			end
 		end
 
-		-- shadow_word_pain,if=!talent.auspicious_spirits.enabled&remains<(18*0.3)&miss_react,cycle_targets=1,max_cycle_targets=5
-		if isKnown(_ShadowWordPain) then
-			if not isKnown(_AuspiciousSpirits) and getDebuffRemain("target",_ShadowWordPain) < (18*0.3) then
-				if castSpell("target",_ShadowWordPain,true,false) then
-					return;
-				end
-			end
-		end
+        -- shadow_word_pain,if=!talent.auspicious_spirits.enabled&remains<(18*0.3)&miss_react,cycle_targets=1,max_cycle_targets=5
+        -- Here i do my target checks and i make sure i want to iterate. I use canCast prior to everything just to save power, i dont want to scan if that spell is not ready.
+        if isKnown(_ShadowWordPain) then
+            if not isKnown(_AuspiciousSpirits) then
+            -- Shadow word pain
+                -- Iterating Object manager
+                -- begin loop
+                for i = 1, ObjectCount() do
+                    -- we check if it's a valid unit
+                    if getCreatureType(ObjectWithIndex(i)) == true then
+                        -- now that we know the unit is valid, we can use it to check whatever we want.. let's call it thisUnit
+                        local thisUnit = ObjectWithIndex(i)
+                        -- Here I do my specific spell checks
+                        if UnitCanAttack(thisUnit,"player") == true and UnitAffectingCombat(thisUnit) == true and getDebuffRemain(thisUnit,_ShadowWordPain) < (18*0.3) and getDistance("player",thisUnit) < 40 then
+                            -- All is good, let's cast.
+                            if castSpell(thisUnit,_ShadowWordPain,true,false) then
+                                return;
+                            end
+                        end
+                    end
+                end
+            end
+        end
 
 		-- vampiric_touch,if=remains<(15*0.3+cast_time)&miss_react,cycle_targets=1,max_cycle_targets=5
 		if isKnown(_VampiricTouch) then
