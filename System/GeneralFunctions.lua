@@ -55,7 +55,7 @@ function UnitDebuffID(unit, spellID, filter)
 	end
 end
 
---[[           ]]		  --[[]]		--[[]]     --[[]] 
+--[[           ]]		  --[[]]		--[[]]     --[[]]
 --[[           ]]		 --[[  ]]		--[[  ]]   --[[]]
 --[[]]				    --[[    ]] 		--[[    ]] --[[]]
 --[[]]				   --[[      ]] 	--[[           ]]
@@ -104,7 +104,7 @@ end
 -- if canDispel("target",SpellID) == true then
 function canDispel(Unit,spellID)
   	local HasValidDispel = false
-  	local ClassNum = select(3, UnitClass("player")) 
+  	local ClassNum = select(3, UnitClass("player"))
 	if ClassNum == 1 then --Warrior
 		typesList = { }
 	end
@@ -139,14 +139,14 @@ function canDispel(Unit,spellID)
 		-- Diffuse Magic
 		if spellID == 122783 then typesList = { "Magic" } end
 	end
-	if ClassNum == 11 then --Druid  			
+	if ClassNum == 11 then --Druid
 		-- Remove Corruption
-		if spellID == 2782 then typesList = { "Poison", "Curse" } end 
+		if spellID == 2782 then typesList = { "Poison", "Curse" } end
 		-- Nature's Cure
-		if spellID == 88423 then typesList = { "Poison", "Curse", "Magic" } end 
+		if spellID == 88423 then typesList = { "Poison", "Curse", "Magic" } end
 		-- Symbiosis: Cleanse
-		if spellID == 122288 then typesList = { "Poison", "Disease" } end 
-	end		
+		if spellID == 122288 then typesList = { "Poison", "Disease" } end
+	end
 	local function ValidType(debuffType)
 		if typeList == nil then
 			return false
@@ -179,11 +179,11 @@ end
 
 -- if canHeal("target") then
 function canHeal(Unit)
-	if UnitExists(Unit) and UnitInRange(Unit) == true and UnitCanCooperate("player",Unit) 
-		and not UnitIsEnemy("player",Unit) and not UnitIsCharmed(Unit) and not UnitIsDeadOrGhost(Unit) 
+	if UnitExists(Unit) and UnitInRange(Unit) == true and UnitCanCooperate("player",Unit)
+		and not UnitIsEnemy("player",Unit) and not UnitIsCharmed(Unit) and not UnitIsDeadOrGhost(Unit)
 		and getLineOfSight(Unit) == true and not UnitDebuffID(Unit,33786) then
 		return true;
-	end 
+	end
 	return false;
 end
 
@@ -195,9 +195,9 @@ function canInterrupt(spellID,percentint)
     local castPercent = 0
     local interruptable = false
     if UnitExists(unit)
-        and UnitCanAttack("player", unit) == 1 
+        and UnitCanAttack("player", unit) == 1
         and not UnitIsDeadOrGhost(unit)
-        and getSpellCD(spellID) 
+        and getSpellCD(spellID)
     then
         if select(6,UnitCastingInfo(unit)) and not select(9,UnitCastingInfo(unit)) then
             castStartTime = select(5,UnitCastingInfo(unit))
@@ -215,12 +215,12 @@ function canInterrupt(spellID,percentint)
         if castEndTime > 0 and castStartTime > 0 then
             castDuration = (castEndTime - castStartTime)/1000
             castTimeRemain = ((castEndTime/1000) - GetTime())
-            if percentint == nil and castPercent == 0 then 
+            if percentint == nil and castPercent == 0 then
                 castPercent = math.random(75, 95)
             elseif percentint == 0 and castPercent == 0 then
                 castPercent = math.random(75, 95)
-            elseif percentint > 0 then 
-                castPercent = percentint 
+            elseif percentint > 0 then
+                castPercent = percentint
             end
         else
             castDuration = 0
@@ -241,7 +241,7 @@ function canPrepare()
 	  or UnitBuffID("player",80169) -- Eating
 	  or UnitBuffID("player",87959) -- Drinking
 	  or UnitBuffID("player",11392) -- 18 sec Invis Pot
-	  or UnitBuffID("player",3680) -- 15 sec Invis pot 
+	  or UnitBuffID("player",3680) -- 15 sec Invis pot
 	  or UnitBuffID("player",5384) -- Feign Death
 	  or IsMounted() then
 	  	return false;
@@ -259,9 +259,9 @@ function canRun()
 			  or IsMounted("player")
 			  or UnitIsDeadOrGhost("player") ~= false
 			  or UnitBuffID("player",11392) ~= nil
-			  or UnitBuffID("player",80169) ~= nil 
+			  or UnitBuffID("player",80169) ~= nil
 			  or UnitBuffID("player",87959) ~= nil
-			  or UnitBuffID("player",104934) ~= nil 
+			  or UnitBuffID("player",104934) ~= nil
 			  or UnitBuffID("player",9265) ~= nil then -- Deep Sleep(SM)
 				return nil;
 			else
@@ -298,7 +298,7 @@ function canUse(itemID)
 			end
 		end
 	end
-	if goOn == true and GetItemCount(itemID,false,false) > 0 then 
+	if goOn == true and GetItemCount(itemID,false,false) > 0 then
 		if select(2,GetItemCooldown(itemID))==0 then
 			return true;
 		else
@@ -316,11 +316,11 @@ function castGround(Unit,SpellID,maxDistance)
 		if IsAoEPending() then
 		local X, Y, Z = ObjectPosition(Unit);
 			CastAtPosition(X,Y,Z);
-			if SpellID == 145205 then 
-				if shroomsTable == nil then 
-					shroomsTable = { }; 
-				end 
-				shroomsTable[1] = { x = X, y = Y, z = Z }; 
+			if SpellID == 145205 then
+				if shroomsTable == nil then
+					shroomsTable = { };
+				end
+				shroomsTable[1] = { x = X, y = Y, z = Z };
 			end
 			return true;
 		end
@@ -341,9 +341,9 @@ function castGroundBetween(Unit,SpellID,maxDistance)
  	return false;
 end
 
--- if shouldNotOverheal(spellCastTarget) > 80 then 
-function shouldNotOverheal(Unit)  
-	local myIncomingHeal, allIncomingHeal = 0, 0 
+-- if shouldNotOverheal(spellCastTarget) > 80 then
+function shouldNotOverheal(Unit)
+	local myIncomingHeal, allIncomingHeal = 0, 0
 	if UnitGetIncomingHeals(Unit, "player") ~= nil then myIncomingHeal = UnitGetIncomingHeals(Unit, "player"); end
 	if UnitGetIncomingHeals(Unit) ~= nil then allIncomingHeal = UnitGetIncomingHeals(Unit); end
 	local allIncomingHeal = UnitGetIncomingHeals(Unit) or 0;
@@ -366,7 +366,7 @@ function shouldNotOverheal(Unit)
 	end
 end
 
--- if castHealGround(_HealingRain,18,80,3) then 
+-- if castHealGround(_HealingRain,18,80,3) then
 function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 	if shouldStopCasting(SpellID) ~= true then
 		local lowHPTargets, foundTargets = { }, { };
@@ -408,7 +408,7 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 end
 
 --[[castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
-Parameter 	Value   
+Parameter 	Value
 First 	 	UnitID 			Enter valid UnitID
 Second 		SpellID 		Enter ID of spell to use
 Third 		Facing 			True to allow 360 degrees, false to use facing check
@@ -435,7 +435,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 			-- if ability is ready and in range
 			if getSpellCD(SpellID) == 0 and getDistance("player",Unit) < spellRange then
 				-- if spam is not allowed
-	    		if SpamAllowed == false then 
+	    		if SpamAllowed == false then
 	    			-- get our last/current cast
 	      			if timersTable == nil or (timersTable ~= nil and (timersTable[SpellID] == nil or timersTable[SpellID] <= GetTime() -0.6)) then
 	       				if (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true) then
@@ -460,10 +460,10 @@ end
 
 function castMouseoverHealing(Class)
 	if UnitAffectingCombat("player") then
-		local spellTable = { 
+		local spellTable = {
 			["Druid"] = { heal = 8936, dispel = 88423 },
 		}
-		local npcTable = { 
+		local npcTable = {
 			71604, -- Contaminated Puddle- Immerseus - SoO
 			71995, -- Norushen
 			71996, -- Norushen
@@ -475,23 +475,23 @@ function castMouseoverHealing(Class)
 		for i = 1, #SpecialTargets do
 			local target = SpecialTargets[i]
 			if UnitExists(target) and not UnitIsPlayer(target) then
-				local npcID = tonumber(UnitGUID(target):sub(6,10), 16) 				
+				local npcID = tonumber(UnitGUID(target):sub(6,10), 16)
 				for i = 1, #npcTable do
 					if npcID == npcTable[i] then
 						-- Dispel
-						for n = 1,40 do 
+						for n = 1,40 do
 					      	local buff,_,_,count,bufftype,duration = UnitDebuff(target, n)
-				      		if buff then 
-				        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then 
-				        			if castSpell(target,88423, true,false) then return; end 
-				        		end 
+				      		if buff then
+				        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then
+				        			if castSpell(target,88423, true,false) then return; end
+				        		end
 				      		else
 				        		break;
-				      		end   
+				      		end
 					  	end
 					  	-- Heal
-						local npcHP = getHP(target)	
-						if npcHP < 100 then	
+						local npcHP = getHP(target)
+						if npcHP < 100 then
 							if castSpell(target,spellTable[Class].heal,true) then return; end
 						end
 					end
@@ -633,13 +633,13 @@ function getDistance(Unit1,Unit2)
 		local X1,Y1,Z1 = ObjectPosition(Unit1);
 		local X2,Y2,Z2 = ObjectPosition(Unit2);
 		local unitSize = 0;
-		if UnitGUID(Unit1) ~= UnitGUID("player") and UnitCanAttack(Unit1,"player") then 
-			unitSize = UnitCombatReach(Unit1); 
-		elseif UnitGUID(Unit2) ~= UnitGUID("player") and UnitCanAttack(Unit2,"player") then 
-			unitSize = UnitCombatReach(Unit2); 
+		if UnitGUID(Unit1) ~= UnitGUID("player") and UnitCanAttack(Unit1,"player") then
+			unitSize = UnitCombatReach(Unit1);
+		elseif UnitGUID(Unit2) ~= UnitGUID("player") and UnitCanAttack(Unit2,"player") then
+			unitSize = UnitCombatReach(Unit2);
 		end
 		return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unitSize;
-	else 
+	else
 		return 1000;
 	end
 end
@@ -650,12 +650,12 @@ function getDistanceToObject(Unit1,X2,Y2,Z2)
 	if UnitIsVisible(Unit1) then
 		local X1,Y1,Z1 = ObjectPosition(Unit1);
 		local unitSize = 0;
-		if UnitGUID(Unit1) ~= UnitGUID("player") and UnitCanAttack(Unit1,"player") then 
-			unitSize = UnitBoundingRadius(Unit1) --ObjectDescriptor(Unit1, 0x110 , Float); 
+		if UnitGUID(Unit1) ~= UnitGUID("player") and UnitCanAttack(Unit1,"player") then
+			unitSize = UnitBoundingRadius(Unit1) --ObjectDescriptor(Unit1, 0x110 , Float);
 		end
 		if isDummy(Unit1) or isDummy(Unit2) then unitSize = 1; end
 		return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unitSize;
-	else 
+	else
 		return 1000;
 	end
 end
@@ -668,7 +668,7 @@ function getFallTime()
 		if fallStarted == 0 then
 			fallStarted = GetTime()
 		end
-		if fallStarted ~= 0 then 
+		if fallStarted ~= 0 then
 			fallTime = (math.floor((GetTime() - fallStarted)*1000)/1000);
 		end
 	end
@@ -785,7 +785,7 @@ function getFacingSightDistance(Unit1,Unit2,Degrees)
         if Y1 and X1 and Z1 and Angle1 and Y2 and X2 and Z2 and Angle2 then
 	        local deltaY = Y2 - Y1
 	        local deltaX = X2 - X1
-	        local unit2Size = IGetFloatDescriptor(UnitGUID(Unit2),0x110); 
+	        local unit2Size = IGetFloatDescriptor(UnitGUID(Unit2),0x110);
 	        Angle1 = math.deg(math.abs(Angle1-math.pi*2))
 	        if deltaX > 0 then
 	            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
@@ -809,8 +809,8 @@ end
 
 -- if getHP("player") then
 function getHP(Unit)
-	if UnitIsDeadOrGhost(Unit) or not UnitIsVisible(Unit) then 
-		return 0; 
+	if UnitIsDeadOrGhost(Unit) or not UnitIsVisible(Unit) then
+		return 0;
 	end
 	for i = 1, #nNova do
 		if nNova[i].guid == UnitGUID(Unit) then
@@ -818,22 +818,22 @@ function getHP(Unit)
 		end
 	end
 	--if isChecked("No Incoming Heals") ~= true then
-	--	return 100*(UnitHealth(Unit)+UnitGetIncomingHeals(Unit))/UnitHealthMax(Unit) 
+	--	return 100*(UnitHealth(Unit)+UnitGetIncomingHeals(Unit))/UnitHealthMax(Unit)
 	--else
-		return 100*UnitHealth(Unit)/UnitHealthMax(Unit) 
+		return 100*UnitHealth(Unit)/UnitHealthMax(Unit)
 	--end
 end
 
--- if getMana("target") <= 15 then 
+-- if getMana("target") <= 15 then
 function getMana(Unit)
-	return 100 * UnitPower(Unit,0) / UnitPowerMax(Unit,0); 
+	return 100 * UnitPower(Unit,0) / UnitPowerMax(Unit,0);
 end
 
--- if getPower("target") <= 15 then 
+-- if getPower("target") <= 15 then
 function getPower(Unit)
 	local value = 100 * UnitPower(Unit) / UnitPowerMax(Unit)
 	if _MyClass == 11 and UnitBuffID("player",106951) then value = value*2 end
-	return value; 
+	return value;
 end
 
 function getRecharge(spellID)
@@ -851,7 +851,7 @@ function getChi(Unit)
 end
 
 function getChiMax(Unit)
-	return UnitPowerMax(Unit,12) 
+	return UnitPowerMax(Unit,12)
 end
 
 --/dump TraceLine()
@@ -861,13 +861,13 @@ function getTotemDistance(Unit1)
 	if activeTotem ~= nil and UnitIsVisible(Unit1) and IExists(activeTotem) then
 		local X1,Y1,Z1 = ObjectPosition(Unit1);
 		local X2,Y2,Z2 = IGetLocation(activeTotem);
-		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then 
-			local unitSize = IGetFloatDescriptor(UnitGUID(Unit1),0x110); 
+		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
+			local unitSize = IGetFloatDescriptor(UnitGUID(Unit1),0x110);
 			return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unitSize;
 		else
 			return 1000;
 		end
-	else 
+	else
 		return 1000;
 	end
 end
@@ -993,7 +993,7 @@ function getLineOfSight(Unit1,Unit2)
 		local X1,Y1,Z1 = ObjectPosition(Unit1);
 		local X2,Y2,Z2 = ObjectPosition(Unit2);
 		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then return true; else return false; end
-	else 
+	else
 		return true;
 	end
 end
@@ -1067,7 +1067,7 @@ function getTimeToDie(unit)
 			end
 		end
 	elseif not UnitIsVisible(unit) or currtar ~= UnitGUID(unit) then
-		currtar = 0; 
+		currtar = 0;
 		priortar = 0;
 		thpstart = 0;
 		timestart = 0;
@@ -1107,9 +1107,9 @@ function getVengeance()
 	elseif select(3,UnitClass("player")) == 6 then VengeanceID = 93099 -- DK
 	elseif select(3,UnitClass("player")) == 10 then VengeanceID = 120267 -- Monk
 	elseif select(3,UnitClass("player")) == 11 then VengeanceID = 84840 -- Druid
-	end		
-	if UnitBuff("player",VengeanceID) then 
-		return select(15,UnitAura("player", GetSpellInfo(VengeanceID))) 
+	end
+	if UnitBuff("player",VengeanceID) then
+		return select(15,UnitAura("player", GetSpellInfo(VengeanceID)))
 	end
 	return 0
 end
@@ -1122,7 +1122,7 @@ end
 --[[]]	   --[[]]	 --[[]]    --[[]]	--[[           ]]
 --[[]]	   --[[]]	--[[]]      --[[]]	--[[           ]]
 
--- if hasGlyph(1234) == true then 
+-- if hasGlyph(1234) == true then
 function hasGlyph(glyphid)
  	for i=1, 6 do
   		if select(4, GetGlyphSocketInfo(i)) == glyphid then return true; end
@@ -1173,8 +1173,8 @@ function hasNoControl(spellID)
 			if spellID == 108273 --Windwalk Totem
 				and (text == LOSS_OF_CONTROL_DISPLAY_ROOT or text == LOSS_OF_CONTROL_DISPLAY_SNARE)
 			then
-				return true				
-			end				
+				return true
+			end
 		end
 	-- Mage
 		if select(3, UnitClass("player")) == 8 then
@@ -1204,7 +1204,7 @@ end
 --[[           ]]	--[[           ]]
 --[[           ]]	--[[           ]]
 	 --[[ ]]		--[[ ]]
-	 --[[ ]]		--[[           ]]	
+	 --[[ ]]		--[[           ]]
 	 --[[ ]]				  --[[ ]]
 --[[           ]]	--[[           ]]
 --[[           ]]	--[[           ]]
@@ -1248,7 +1248,7 @@ function isBoss()
 	    else
 	        boss5 = 0
 	    end
-	end     
+	end
 	BossUnits = {
 	    -- Cataclysm Dungeons --
 	    -- Abyssal Maw: Throne of the Tides
@@ -1320,7 +1320,7 @@ function isBoss()
 	    54853,      -- Queen Azshara
 	    54969,      -- Mannoroth
 	    55419,      -- Captain Varo'then
-	    
+
 	    -- Mists of Pandaria Dungeons --
 	    -- Scarlet Halls
 	    59303,      -- Houndmaster Braun
@@ -1376,45 +1376,45 @@ function isBoss()
 	    -- Training Dummies --
 	    46647,      -- Level 85 Training Dummy
 	    67127,      -- Level 90 Training Dummy
-	    
+
 	    -- Instance Bosses --
 	    boss1,  --Boss 1
-	    boss2,  --Boss 2    
+	    boss2,  --Boss 2
 	    boss3,  --Boss 3
 	    boss4,  --Boss 4
 	    boss5,  --Boss 5
 	}
     local BossUnits = BossUnits
-    
+
     if UnitExists("target") then
         local npcID = tonumber(strmatch(UnitGUID("target") or "", "-(%d+)-%x+$"), 10)--tonumber(UnitGUID("target"):sub(6,10), 16)
-        
-        if (UnitClassification("target") == "rare" or UnitClassification("target") == "rareelite" or UnitClassification("target") == "worldboss" or (UnitClassification("target") == "elite" and UnitLevel("target") >= UnitLevel("player")+3) or UnitLevel("target") < 0) 
-            --and select(2,IsInInstance())=="none" 
+
+        if (UnitClassification("target") == "rare" or UnitClassification("target") == "rareelite" or UnitClassification("target") == "worldboss" or (UnitClassification("target") == "elite" and UnitLevel("target") >= UnitLevel("player")+3) or UnitLevel("target") < 0)
+            --and select(2,IsInInstance())=="none"
             and not UnitIsTrivial("target")
-        then 
-            return true 
+        then
+            return true
         else
             for i=1,#BossUnits do
-                if BossUnits[i] == npcID then 
-                    return true 
+                if BossUnits[i] == npcID then
+                    return true
                 end
             end
             return false
         end
-    else 
-        return false 
+    else
+        return false
     end
 end
 
 --- if isBuffed()
-function isBuffed(UnitID,SpellID,TimeLeft,Filter) 
+function isBuffed(UnitID,SpellID,TimeLeft,Filter)
   	if not TimeLeft then TimeLeft = 0 end
-  	if type(SpellID) == "number" then SpellID = { SpellID } end 
-	for i=1,#SpellID do 
+  	if type(SpellID) == "number" then SpellID = { SpellID } end
+	for i=1,#SpellID do
 		local spell, rank = GetSpellInfo(SpellID[i])
 		if spell then
-			local buff = select(7,UnitBuff(UnitID,spell,rank,Filter)) 
+			local buff = select(7,UnitBuff(UnitID,spell,rank,Filter))
 			if buff and ( buff == 0 or buff - GetTime() > TimeLeft ) then return true; end
 		end
 	end
@@ -1430,20 +1430,20 @@ function isCastingTime(lagTolerance)
 		if select(6,UnitChannelInfo("player")) - GetTime() <= lagTolerance then
 			return true;
 		end
-	elseif (GetSpellCooldown(GetSpellInfo(61304)) ~= nil and GetSpellCooldown(GetSpellInfo(61304)) <= lagTolerance) then 
-	  	return true; 
-	else 
-		return false; 
+	elseif (GetSpellCooldown(GetSpellInfo(61304)) ~= nil and GetSpellCooldown(GetSpellInfo(61304)) <= lagTolerance) then
+	  	return true;
+	else
+		return false;
 	end
-end	
+end
 
 -- if isCasting() == true then
 function isCasting(Unit)
 	if Unit == nil then Unit = "player" end
 	if UnitCastingInfo(Unit) ~= nil
-	  or UnitChannelInfo(Unit) ~= nil 
-	  or (GetSpellCooldown(GetSpellInfo(61304)) ~= nil and GetSpellCooldown(GetSpellInfo(61304)) > 0.001) then 
-	  	return true; else return false; 
+	  or UnitChannelInfo(Unit) ~= nil
+	  or (GetSpellCooldown(GetSpellInfo(61304)) ~= nil and GetSpellCooldown(GetSpellInfo(61304)) > 0.001) then
+	  	return true; else return false;
 	end
 end
 
@@ -1468,9 +1468,9 @@ function isDummy(Unit)
     dummies = {
         31144, --Training Dummy - Lvl 80
         31146, --Raider's Training Dummy - Lvl ??
-        32541, --Initiate's Training Dummy - Lvl 55 (Scarlet Enclave) 
+        32541, --Initiate's Training Dummy - Lvl 55 (Scarlet Enclave)
         32542, --Disciple's Training Dummy - Lvl 65
-        32545, --Initiate's Training Dummy - Lvl 55 
+        32545, --Initiate's Training Dummy - Lvl 55
         32546, --Ebon Knight's Training Dummy - Lvl 80
         32666, --Training Dummy - Lvl 60
         32667, --Training Dummy - Lvl 70
@@ -1486,7 +1486,7 @@ function isDummy(Unit)
         end
         if dummyID == dummies[i] then
             return true
-        end 
+        end
     end
 end
 
@@ -1495,9 +1495,9 @@ function isDummyByName(unitName)
     dummies = {
         "Training Dummy", -- 31144 - Lvl 80
         "Raider's Training Dummy", -- 31146 - Lvl ??
-        "Initiate's Training Dummy", -- 32541 - Lvl 55 (Scarlet Enclave) 
+        "Initiate's Training Dummy", -- 32541 - Lvl 55 (Scarlet Enclave)
         "Disciple's Training Dummy", -- 32542 - Lvl 65
-        "Initiate's Training Dummy", -- 32545 - Lvl 55 
+        "Initiate's Training Dummy", -- 32545 - Lvl 55
         "Ebon Knight's Training Dummy",  -- 32546 - Lvl 80
         "Training Dummy", -- 32666 - Lvl 60
         "Training Dummy", -- 32667 - Lvl 70
@@ -1508,7 +1508,7 @@ function isDummyByName(unitName)
     for i=1, #dummies do
         if dummies[i] == unitName then
             return true;
-        end 
+        end
     end
 end
 
@@ -1525,13 +1525,13 @@ end
 --if isGarrMCd() then
 function isGarrMCd(Unit)
 	if Unit == nil then Unit = "target"; end
-	if UnitExists(Unit) 
+	if UnitExists(Unit)
 	  and (UnitDebuffID(Unit,145832)
       or UnitDebuffID(Unit,145171)
       or UnitDebuffID(Unit,145065)
-      or UnitDebuffID(Unit,145071)) then 
+      or UnitDebuffID(Unit,145071)) then
 		return true;
-	else 
+	else
 		return false;
 	end
 end
@@ -1560,7 +1560,7 @@ end
 -- if isKnown(106832) then
 function isKnown(spellID)
   	local spellName = GetSpellInfo(spellID)
-  	
+
 	if GetSpellBookItemInfo(tostring(spellName)) ~= nil then
     	return true;
   	end
@@ -1629,9 +1629,9 @@ function getStandingTime()
 	return DontMoveStartTime and GetTime() - DontMoveStartTime or nil;
 end
 
--- 
+--
 function isStanding(Seconds)
-	return IsFalling() == nil and DontMoveStartTime and getStandingTime() >= Seconds or false;
+	return IsFalling() == false and DontMoveStartTime and getStandingTime() >= Seconds or false;
 end
 
 -- if IsStandingTime(5) then
@@ -1660,7 +1660,7 @@ end
 function isSpellInRange(SpellID,Unit)
 	if UnitExists(Unit) then
 		if IsSpellInRange(tostring(GetSpellInfo(SpellID)),Unit) == 1 then return true; end
-	else 
+	else
 		return false;
 	end
 end
@@ -1682,31 +1682,31 @@ function Interrupts()
 	function InterruptSpell()
 		local MyClass = UnitClass("player");
 		--Warrior
-		if MyClass == 1 and GetSpellInfo(6552) ~= nil and getSpellCD(6552) == 0 then return 6552;	
-		-- Paladin		
+		if MyClass == 1 and GetSpellInfo(6552) ~= nil and getSpellCD(6552) == 0 then return 6552;
+		-- Paladin
 		elseif MyClass == 2 and GetSpellInfo(96231) ~= nil and getSpellCD(96231) == 0 then return 96231;
 		-- Hunter
-		elseif MyClass == 3 and GetSpellInfo(147362) ~= nil and getSpellCD(147362) == 0 then return 147362;			
+		elseif MyClass == 3 and GetSpellInfo(147362) ~= nil and getSpellCD(147362) == 0 then return 147362;
 		-- Rogue
 		elseif MyClass == 4 and GetSpellInfo(1766) ~= nil and getSpellCD(1766) == 0 then return 1766;
 		-- Priest
 		elseif MyClass == 5 and GetSpecialization("player") == 3 and GetSpellInfo(15487) ~= nil and getSpellCD(15487) == 0 then return 15487;
-		-- DeathKnight	
+		-- DeathKnight
 		elseif MyClass == 6 and GetSpellInfo(80965) ~= nil and getSpellCD(80965) == 0 then return 47528;
-		-- Shaman 
+		-- Shaman
 		elseif MyClass == 7 and GetSpellInfo(57994) ~= nil and getSpellCD(57994) == 0 then return 57994;
 		-- Mage
 		elseif MyClass == 8 and GetSpellInfo(2139) ~= nil and getSpellCD(2139) == 0 then return 2139;
 		-- Warlock
 		elseif MyClass == 9 and IsSpellKnown(19647) ~= nil and getSpellCD(19647) == 0 then return 19647;
-		-- Monk 
-		elseif MyClass == 10 and GetSpellInfo(116705) ~= nil and getSpellCD(116705) == 0 then return 116705;	
+		-- Monk
+		elseif MyClass == 10 and GetSpellInfo(116705) ~= nil and getSpellCD(116705) == 0 then return 116705;
 		-- Druid
 		elseif MyClass == 11 and UnitBuffID("player", 768) ~= nil and IsPlayerSpell(80965) ~= nil and getSpellCD(80965) == 0 then return 80965;
 		elseif MyClass == 11 and UnitBuffID("player", 5487) ~= nil and IsPlayerSpell(80964) ~= nil and getSpellCD(80964) == 0 then return 80964;
 		elseif MyClass == 11 and GetSpecialization("player") == 1 then return 78675;
-		else return 0; end   
-	end   
+		else return 0; end
+	end
 	local interruptSpell = InterruptSpell();
 	local interruptName = GetSpellInfo(interruptSpell);
 	-- Interrupt Casts and Channels on Target and Focus.
@@ -1725,7 +1725,7 @@ function Interrupts()
 				PQR_InterruptPercent = 0;
 				IsChannel = true;
 			end
-			if castInterruptable == false then castInterruptable = true; else castInterruptable = false; end	
+			if castInterruptable == false then castInterruptable = true; else castInterruptable = false; end
 			if castInterruptable then
 			  	local timeSinceStart = (GetTime() * 1000 - castStartTime) / 1000;
 				local timeLeft = ((GetTime() * 1000 - castEndTime) * -1) / 1000;
@@ -1782,8 +1782,8 @@ function pause() --Pause
 		or UnitDebuffID("player",135147) --Dead Zone - Iron Qon: Dam'ren
 		or (((UnitHealth("target")/UnitHealthMax("target"))*100) > 10 and UnitBuffID("target",143593)) --Defensive Stance - General Nagrazim
 		or UnitBuffID("target",140296) --Conductive Shield - Thunder Lord / Lightning Guardian
-	then 
-		return true; 
+	then
+		return true;
 	else
 		return false;
 	end
@@ -1791,7 +1791,7 @@ end
 
 -- useItem(12345)
 function useItem(itemID)
-	if GetItemCount(itemID,false,false) > 0 then 
+	if GetItemCount(itemID,false,false) > 0 then
 		if select(2,GetItemCooldown(itemID))==0 then
 			RunMacroText("/use "..tostring(select(1,GetItemInfo(itemId))));
 		end
@@ -1806,10 +1806,10 @@ function shouldStopCasting(Spell)
 		local Boss1Cast, Boss1CastEnd, PlayerCastEnd, StopCasting = Boss1Cast, Boss1CastEnd, PlayerCastEnd, false
 		local MySpellCastTime;
 		-- Set Spell Cast Time
-		if GetSpellInfo(Spell) ~= nil then 
-			MySpellCastTime = (GetTime()*1000) + select(7,GetSpellInfo(Spell)); 
-		else 
-			return false; 
+		if GetSpellInfo(Spell) ~= nil then
+			MySpellCastTime = (GetTime()*1000) + select(7,GetSpellInfo(Spell));
+		else
+			return false;
 		end
 		-- Spells wich make us immune (buff)
 		local ShouldContinue = {
@@ -1832,11 +1832,11 @@ function shouldStopCasting(Spell)
 		if not UnitCastingInfo("player") and not UnitChannelInfo("player") and MySpellCastTime and SetStopTime and MySpellCastTime > Boss1CastEnd then ChatOverlay("\124cFFD93B3BStop for "..Boss1Cast) return true; end
 
 		for j = 1, #ShouldStop do
-			if Boss1Cast == select(1,GetSpellInfo(ShouldStop[j])) then 
+			if Boss1Cast == select(1,GetSpellInfo(ShouldStop[j])) then
 				SetStopTime = Boss1CastEnd
 				if PlayerCastEnd ~= nil then
 					if Boss1CastEnd < PlayerCastEnd then
-						StopCasting = true; 
+						StopCasting = true;
 					end
 				end
 			end
@@ -1848,7 +1848,7 @@ end
 
 --[[           ]]	--[[           ]]	--[[           ]]
 --[[           ]]	--[[           ]]	--[[           ]]
---[[]]				--[[]]				--[[]] 
+--[[]]				--[[]]				--[[]]
 --[[]]				--[[           ]] 	--[[]]	 --[[  ]]
 --[[]]				--[[		   ]]	--[[]]     --[[]]
 --[[           ]]	--[[]]				--[[           ]]
@@ -1874,7 +1874,7 @@ function getValue(Value)
 		return 0;
 	end
 end
-		
+
 --[[Taunts Table!! load once]]
 tauntsTable = {
 	{ spell = 143436, stacks = 1 }, --Immerseus/71543               143436 - Corrosive Blast                             == 1x

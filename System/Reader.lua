@@ -109,8 +109,8 @@ Frame:SetScript("OnEvent", LeavingCombat);
 local Frame = CreateFrame('Frame');
 Frame:RegisterEvent("UI_ERROR_MESSAGE");
 local function UiErrorMessages(self, event, ...)
-	if event == "UI_ERROR_MESSAGE" then 
-		lastError = ...; lastErrorTime = GetTime(); 
+	if event == "UI_ERROR_MESSAGE" then
+		lastError = ...; lastErrorTime = GetTime();
 	  	local Events = (...)
 	  	-- print(...)
 	  	if Events == ERR_PET_SPELL_DEAD  then
@@ -184,8 +184,8 @@ function SuperReader(self, event, ...)
 
     if select(3, UnitClass("player")) == 11 then Rip_sDamage = Rip_sDamage or {}; Rake_sDamage = Rake_sDamage or {}; end
     --Thrash_sDamage = Thrash_sDamage or {}
-	
-    
+
+
     if event == "COMBAT_LOG_EVENT_UNFILTERED" then
 
     	local timestamp 	= select(1,...);
@@ -207,13 +207,13 @@ function SuperReader(self, event, ...)
 
 		--------------------------------------
 		--[[ Pick Pocket Success Recorder --]]
-		if param == "SPELL_CAST_SUCCESS" and spell==921 then 
-			canPickpocket = false; 
+		if param == "SPELL_CAST_SUCCESS" and spell==921 then
+			canPickpocket = false;
 		end
-		
+
 		--------------------------------------
 		--[[ Item Use Success Recorder --]]
-		if param == "SPELL_CAST_SUCCESS" and isInCombat("player") then 
+		if param == "SPELL_CAST_SUCCESS" and isInCombat("player") then
 			if spell == 105697 then --Virmen's Bite Buff
 				usePot = false;
 			end
@@ -222,7 +222,7 @@ function SuperReader(self, event, ...)
 			end
 			-- if spell == 126734 then --Synapse Spring
 			-- 	useSynapse = false;
-			-- end 
+			-- end
 		end
 
 
@@ -237,19 +237,19 @@ function SuperReader(self, event, ...)
 	        	if spell == 697 or spell == 112867 then
 	        		petSummoned = 2;
 	        		petSummonedTime = GetTime();
-	        	end	 
+	        	end
 	        	if spell == 691 or spell == 112869 then
 	        		petSummoned = 3;
 	        		petSummonedTime = GetTime();
-	        	end   	 
+	        	end
 	        	if spell == 712 or spell == 112868 then
 	        		petSummoned = 4;
 	        		petSummonedTime = GetTime();
-	        	end 	 
+	        	end
 	        	if spell == 30146 or spell == 112870 then
 	        		petSummoned = 5;
 	        		petSummonedTime = GetTime();
-	        	end     	
+	        	end
 			end
 		end
 
@@ -283,7 +283,7 @@ function SuperReader(self, event, ...)
 	            --    WA_calcStats_feral()
 	            --    Thrash_sDamage_cast = WA_stats_ThrashTick
 	            end
-	            
+
 	            -- but only record the snapshot if it successfully applied
 	        elseif source == UnitGUID("player") and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") then
 	            --print(source..", "..spell..", "..destination)
@@ -299,7 +299,7 @@ function SuperReader(self, event, ...)
 	    end
 
         --------------------
-        --[[ Fire Totem --]] 
+        --[[ Fire Totem --]]
         if source == UnitGUID("player") and  param == "SPELL_SUMMON" and (spell == _SearingTotem or spell == _MagmaTotem) then
         	activeTotem = destination;
         	activeTotemPosition = OcjectPosition("player")
@@ -318,7 +318,7 @@ function SuperReader(self, event, ...)
         --end
         --if (param == "UNIT_DIED" or  param == "UNIT_DESTROYED") and shroomsTable ~= nil and shroomsTable[1] == destination then
         --	shroomsTable = { };
-        --end        
+        --end
 
         ----------------
         --[[Item locks]]
@@ -332,11 +332,11 @@ function SuperReader(self, event, ...)
 			-- Synapse Springs
 			if spell == 126734 then
 				synapseUsed = GetTime()
-			end	
+			end
 			-- Lifeblood
 			if spell == 121279 or spell == 74497 then
 				lifeBloodUsed = GetTime()
-			end				
+			end
 			-- DPS potions
 			for i = 1, #DPSPotionsSet do
 				if spell == DPSPotionsSet[i].Buff then
@@ -348,11 +348,11 @@ function SuperReader(self, event, ...)
 						ChatOverlay("Potion Used, cannot reuse.")
 						potionReuse = true
 					end
-				end	
+				end
 				-- Lifeblood
 				if spell == 121279 or spell == 74497 then
 					lifeBloodUsed = GetTime()
-				end				
+				end
 				-- DPS potions
 				for i = 1, #DPSPotionsSet do
 					if spell == DPSPotionsSet[i].Buff then
@@ -364,8 +364,8 @@ function SuperReader(self, event, ...)
 							ChatOverlay("Potion Used, can reuse in 60 secs.")
 							potionReuse = true
 						end
-					end	
-				end	
+					end
+				end
 			end
 		end
 
@@ -376,8 +376,8 @@ function SuperReader(self, event, ...)
         	--[[Cast Failed --> Queue]]
            	if param == "SPELL_CAST_FAILED" then
 				if _Queues[spell] ~= true and _Queues[spell] ~= nil then
-					if (_Queues[spell] == false or _Queues[spell] < (GetTime() - 10)) and getSpellCD(spell) <= 3 then 
-						_Queues[spell] = true 
+					if (_Queues[spell] == false or _Queues[spell] < (GetTime() - 10)) and getSpellCD(spell) <= 3 then
+						_Queues[spell] = true
 						ChatOverlay("Queued "..GetSpellInfo(spell))
 					end
 				end
@@ -388,8 +388,8 @@ function SuperReader(self, event, ...)
 	        	if source == UnitGUID("player") then
 	        		if _Queues == nil then _Queues = { } end
 					if _Queues and _Queues[spell] ~= nil then
-						if _Queues[spell] == true then 
-							_Queues[spell] = GetTime() 
+						if _Queues[spell] == true then
+							_Queues[spell] = GetTime()
 						end
 					end
 				end
@@ -419,12 +419,12 @@ function SuperReader(self, event, ...)
         			local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
            			if SpellID ~= 75 and SpellID ~= 88263 then -- Add spells we dont want to appear here.
 						local color = "|cffFF001E";
-        				if spellCastTarget == UnitName("target") then 
-        					destGUID = UnitGUID("target"); 
+        				if spellCastTarget == UnitName("target") then
+        					destGUID = UnitGUID("target");
         					Distance = targetDistance;
         				end
         				if lastError and lastErrorTime >= GetTime() - 0.2 then lasterror = "\n|cffFF0000 "..lastError; else lasterror = ""; end
-        				BadBoy_data.failCasts = BadBoy_data.failCasts + 1;	
+        				BadBoy_data.failCasts = BadBoy_data.failCasts + 1;
         				if sourceGUID == nil then debugSource = "" 	else debugSource = 	"\n|cffFFFFFF"..sourceName..sourceGUID; end
         				if spellID == nil then debugSpell = "" 		else debugSpell = 	"\n|cffFFDD11"..spellID..spellName; end
          				local Power = "\n|cffFFFFFFPower: "..UnitPower("player");
@@ -463,13 +463,13 @@ function SuperReader(self, event, ...)
 				-- Steady Shot Logic
 				if SpellID == 56641 then
 					if SteadyCast and SteadyCast >= GetTime() - 2 and SteadyCount == 1 then SteadyCast = GetTime(); SteadyCount = 2; else SteadyCast = GetTime(); SteadyCount = 1; end
-				end	
+				end
 				-- Focus Generation
 				if SpellID == 77767 then
 					focusBuilt = GetTime();
-				end						
+				end
 			end
-		end			
+		end
 	end
 
 	--------------------------
@@ -482,7 +482,7 @@ function SuperReader(self, event, ...)
 			-- Kill Command
 			if SpellID == 34026 then
 				---print("Kill Command FAILED")
-			end	
+			end
 
 			-- Whistle failed
 			if SpellID == 883 or SpellID == 83242 or SpellID == 83243 or SpellID == 83244 or SpellID == 83245 then
