@@ -6,7 +6,12 @@ if select(3, UnitClass("player")) == 11 then
 	    end
 	    KeyToggles()
 	    GroupInfo()
-	    ChatOverlay(canInterrupt(sb,95))
+	    if UnitCastingInfo("target") then
+	    	if not select(9,UnitCastingInfo("target")) then
+	    		print(select(9,UnitCastingInfo("target")))
+	    		ChatOverlay((select(6,UnitCastingInfo("target"))/1000) - GetTime())
+	    	end
+	    end
 	    if not canRun() then
 	    	return true
 	    end
