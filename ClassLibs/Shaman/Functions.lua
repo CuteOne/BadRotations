@@ -35,20 +35,6 @@ end
 --[[           ]]   --[[]]   --[[  ]]   --[[]]     --[[]]    --[[]]    --[[]]   --[[]]   --[[  ]]   --[[           ]]   --[[           ]]
 --[[           ]]   --[[]]     --[[]]   --[[]]     --[[]]   --[[]]      --[[]]  --[[]]     --[[]]   --[[           ]]   --[[           ]]
 
-function getMainRemain()
-    if select(1,GetWeaponEnchantInfo())~=nil then
-        return select(2,GetWeaponEnchantInfo())/1000
-    else
-        return 0
-    end
-end
-function getOffRemain()
-    if select(4,GetWeaponEnchantInfo())~=nil then
-        return select(5,GetWeaponEnchantInfo())/1000
-    else
-        return 0
-    end
-end
 function getMWC()
     mwstack = select(4,UnitBuffID("player",53817))
     if UnitLevel("player") >= 50 then
