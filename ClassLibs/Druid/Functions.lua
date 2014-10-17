@@ -645,15 +645,19 @@ function feralSingle()
             if castSpell("target",fb,false,false) then return; end
         end
         -- Rake - if=remains<=3&combo_points<5
-        if not useAoE() and isInMelee() and rkRemain<=3 and getCombo()<5 and feralPower>=35 then
-            if castSpell("target",rk,false,false) then return; end
-        end
-        -- Rake - Multi-Dot (AoE)
-        if isInMelee() and getPower("player") >= 35 and isChecked("Multi-Rake") and getNumEnemies("player",5)>1 then
+        if isChecked("Multi-Rake") and canCast(rk) then
             for i = 1, ObjectCount() do
-                local thisUnit = ObjectWithIndex(i)
-                if getFacing("player",thisUnit) == true and rkRemain < 3 and getDistance(thisUnit) < 5 then
-                    if castSpell(thisUnit,rk,false,false) then return; end
+                if getCreatureType(ObjectWithIndex(i)) == true then
+                    local thisUnit = ObjectWithIndex(i)
+                    if UnitCanAttack(thisUnit,"player") == true
+                        and not UnitIsDeadOrGhost(thisUnit)
+                        and getFacing("player",thisUnit) == true
+                        and getDebuffRemain(thisUnit,rk,"player") < 3
+                        and getPower("player") >= 35
+                        and getDistance(thisUnit) < 5
+                    then
+                        if castSpell(thisUnit,rk,false,false) then return; end
+                    end
                 end
             end
         end
