@@ -434,7 +434,7 @@ if select(3, UnitClass("player")) == 5 then
 
         -- shadow_word_pain,if=!talent.auspicious_spirits.enabled&remains<(18*0.3)&miss_react,cycle_targets=1,max_cycle_targets=5
         -- Here i do my target checks and i make sure i want to iterate. I use canCast prior to everything just to save power, i dont want to scan if that spell is not ready.
-        if isKnown(_ShadowWordPain) then
+        if canCast(_ShadowWordPain) then
             if not isKnown(_AuspiciousSpirits) then
             -- Shadow word pain
                 -- Iterating Object manager
