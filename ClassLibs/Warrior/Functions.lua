@@ -132,11 +132,13 @@ function ArmsSingleTarIcyVeins()
                     -- Outside CS
                     if not UnitDebuffID("target",ColossusSmashArms,"player") then
                         -- Rend
+                        if isGarrMCd("target") == false then
                         if getDebuffRemain("target",Rend,"player") <= 5 then
                             if castSpell("target",Rend,false,false) then
                                 return;
                             end
                         end
+                    end
                         -- MS
                         if castSpell("target",MortalStrike,false,false) then
                             return;
@@ -199,11 +201,13 @@ function ArmsSingleTarIcyVeins()
                     -- Outside CS
                     if not UnitDebuffID("target",ColossusSmashArms,"player") then
                         -- Rend
+                        if isGarrMCd("target") == false then
                         if getDebuffRemain("target",Rend,"player") <= 5 then
                             if castSpell("target",Rend,false,false) then
                                 return;
                             end
                         end
+                    end
                         -- Execute
                         if UnitPower("player") >= 60 then
                             if castSpell("target",ExecuteArms,false,false) then
@@ -255,9 +259,11 @@ function ArmsMultiTarIcyVeins()
                     end
                 end
                 -- Spread Rend to 4-5 Tars
-                if getDebuffRemain("target",Rend,"player") <= 5 then
-                    if castSpell("target",Rend,false,false) then
-                        return;
+                if isGarrMCd("target") == false then
+                    if getDebuffRemain("target",Rend,"player") <= 5 then
+                        if castSpell("target",Rend,false,false) then
+                            return;
+                        end
                     end
                 end
                 -- Dragon Roar
