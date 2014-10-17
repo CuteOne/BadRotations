@@ -138,24 +138,22 @@ function GroupInfo()
     end
 end
 
-
-
--- Bleed Calculations
-function getStatsMult(spellID)
+function WA_calcStats_feral()
     local DamageMult = 1 --select(7, UnitDamage("player"))
+
     local CP = GetComboPoints("player", "target")
     if CP == 0 then CP = 5 end
 
-    if UnitBuffID("player",tf) then
+    if UnitBuffID("player", tf) then
         DamageMult = DamageMult * 1.15
     end
 
-    if UnitBuffID("player",svr) then
+    if UnitBuffID("player", svr) then
         DamageMult = DamageMult * 1.4
     end
 
     WA_stats_BTactive = WA_stats_BTactive or  0
-    if UnitBuffID("player",bt) then
+    if UnitBuffID("player", bt) then
         WA_stats_BTactive = GetTime()
         DamageMult = DamageMult * 1.3
     elseif GetTime() - WA_stats_BTactive < .2 then
@@ -164,97 +162,62 @@ function getStatsMult(spellID)
 
     local RakeMult = 1
     WA_stats_prowlactive = WA_stats_prowlactive or  0
-    if UnitBuffID("player",inb) then
+    if UnitBuffID("player", inc) then
         RakeMult = 2
-    elseif UnitBuffID("player",prl) then
+    elseif UnitBuffID("player", prl) then
         WA_stats_prowlactive = GetTime()
         RakeMult = 2
     elseif GetTime() - WA_stats_prowlactive < .2 then
         RakeMult = 2
     end
 
-    if spellID == rp then
-        WA_stats_RipTick5 = 5*DamageMult
-        return WA_stats_RipTick5
-    end
-    if spellID == rk then
-        WA_stats_RakeTick = DamageMult*RakeMult
-        return WA_stats_RakeTick
-    end
-    --WA_stats_ThrashTick = DamageMult
-    -- local CritDamageMult = 2 -- adjust for crit damage meta
-    -- local APBase, APPos, APNeg = UnitAttackPower("player")
-    -- local AP = APBase + APPos + APNeg
-    -- local DamageMult = select(7, UnitDamage("player"))
-    -- local Mastery = 1 + GetMasteryEffect() / 100
-
-    -- local PlayerLevel, TargetLevel = UnitLevel("player"), UnitLevel("target")
-    -- local CritChance
-    -- if TargetLevel == -1 then
-    --     CritChance = (GetCritChance()-3)/100
-    -- else
-    --     CritChance = (GetCritChance()-max(TargetLevel-PlayerLevel,0))/100
-    -- end
-    -- local CritEffMult =  1 + (CritDamageMult-1)*CritChance
-
-    -- local CP = GetComboPoints("player", "target")
-    -- if CP == 0 then CP = 5 end
-
-    -- local DoCSID = select(11, UnitAura("player", "Dream of Cenarius"))
-    -- if DoCSID == 145152 then
-    --     DamageMult = DamageMult * 1.3
-    -- end
-
-    -- local StatsMultiplier = Mastery*DamageMult--*CritEffMult
-    -- return StatsMultiplier
+    WA_stats_RipTick = CP*DamageMult
+    WA_stats_RipTick5 = 5*DamageMult
+    WA_stats_RakeTick = DamageMult*RakeMult
+    WA_stats_ThrashTick = DamageMult
 end
 
 --Calculated Rake Dot Damage
 function CRKD()
-    local APBase, APPos, APNeg = UnitAttackPower("player")
-    local AP = APBase + APPos + APNeg
-    local calcRake = round2((99+0.3*AP)*getStatsMult(rk),0)
-    --local calcRake = getStatsMult(rk)
+    WA_calcStats_feral()
+    local calcRake = WA_stats_RakeTick
     return calcRake
 end
 
 --Applied Rake Dot Damage
 function RKD()
     local rakeDot = 1
-    if Rake_sDamage[UnitGUID("target")] ~= nil then rakeDot = Rake_sDamage[UnitGUID("target")]; end
+    if UnitExists("target") then
+        if Rake_sDamage[UnitGUID("target")]~=nil then rakeDot = Rake_sDamage[UnitGUID("target")]; end
+    end
     return rakeDot
 end
 
--- function OldRKD()
---     local OldrakeDot = 1
---     OldrakeDot = getDotDamage("target",rk)
---     return OldrakeDot
--- end
-
 --Rake Dot Damage Percent
 function RKP()
-    local RatioPercent = floor(CRKD()/RKD()*100+0.5)--(CRKD() / RKD()) * 100
+    local RatioPercent = floor(CRKD()/RKD()*100+0.5)
     return RatioPercent
 end
 
 --Calculated Rip Dot Damage
 function CRPD()
-    local APBase, APPos, APNeg = UnitAttackPower("player")
-    local AP = APBase + APPos + APNeg
-    local calcRip = (113+5*(320+0.0484*AP))*getStatsMult(rp)
+    WA_calcStats_feral()
+    local calcRip = WA_stats_RipTick5
     return calcRip
 end
 
---Applied Rake Dot Damage
+--Applied Rip Dot Damage
 function RPD()
     local ripDot = 1
-    if Rip_sDamage[UnitGUID("target")] ~= nil then ripDot = Rip_sDamage[UnitGUID("target")]; end
+    if UnitExists("target") then
+        if Rip_sDamage[UnitGUID("target")]~=nil then ripDot = Rip_sDamage[UnitGUID("target")]; end
+    end
     return ripDot
 end
 
 --Rip Dot Damage Percent
 function RPP()
-    local RatioPercent = (CRPD() /RPD()) * 100
+    local RatioPercent = floor(CRPD()/RPD()*100+0.5)
     return RatioPercent
 end
 
@@ -299,6 +262,19 @@ function outOfWater()
     if outTime ~= 0 and IsFlying() then
         outTime = 0
         return false
+    end
+end
+
+function dynamicTarget()
+    if isChecked("Multi-Rake") or isChecked("Death Cat Mode") then
+        for i = 1, ObjectCount() do
+            if getCreatureType(ObjectWithIndex(i)) == true then
+                local thisUnit = ObjectWithIndex(i)
+                return thisUnit
+            end
+        end
+    else
+        return "target"
     end
 end
 
@@ -417,7 +393,7 @@ function feralCooldowns()
             end
 -- Tier 4 Talent: Incarnation - King of the Jungle
             if feralTimeToDie >= 15 and UnitBuffID("player",ber) then
-                if castSpell("player",inb,false,false) then return; end
+                if castSpell("player",inc,false,false) then return; end
             end
 -- Tier 6 Talent: Nature's Vigil
             if feralTimeToDie >= 15 and getPower("player") >= 75 then
@@ -558,6 +534,7 @@ function feralOpener()
 end
 
 function feralSingle()
+    local enemiesInRange = getNumEnemies("player",8)
     local feralPower = getPower("player")
     local feralPowerDiff = UnitPowerMax("player")-UnitPower("player")
     local targetDistance = getDistance("player","target")
@@ -570,10 +547,10 @@ function feralSingle()
     local ripDuration = getDebuffDuration("target",rp,"player")
     local thrRemain = getDebuffRemain("target",thr,"player")
     local thrDuration = getDebuffDuration("target",thr,"player")
-    local rkCalc = 0
-    local rkApplied = 0
-    local ripCalc = 0
-    local ripApplied = 0
+    local rkCalc = CRKD()
+    local rkApplied = RKD()
+    local ripCalc = CRPD()
+    local ripApplied = RPD()
     local feralTimeToMax = getTimeToMax("player")
     local tfCdRemain = getSpellCD(tf)
 
@@ -592,6 +569,41 @@ function feralSingle()
                     StopAttack()
                     ClearTarget()
                     print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                end
+            end
+        end
+        -- Death Cat Mode
+        if isChecked("Death Cat Mode") then
+            if not UnitBuffID("player",cf) then
+                if castSpell("player",cf,true) then return; end
+            end
+            if UnitBuffID("player",cf) and getPower("player") >= 25 then
+                if UnitExists("target") ~= nil and isEnnemy("target") and targetDistance > 8 then
+                    ClearTarget();
+                end
+                if enemiesInRange > 0 then
+                    if getPower("player") <= 35 and getSpellCD(tf) == 0 then
+                        if castSpell("player",tf,false,false) then return; end
+                    end
+                    --if getPower("player") >= 25 and getSRR() < 1 and getCombo() > 0 then
+                    --    if castSpell("player",svr) then return; end
+                    --end
+                    if getPower("player") >= 40 and enemiesInRange == 1 then
+                        local thisUnit = dynamicTarget()
+                        if UnitCanAttack("player",thisUnit) == 1 and getCreatureType(thisUnit) == true then
+                            if getDistance(thisUnit) <= 4 and getFacing(thisUnit) == true then
+                                if castSpell(thisUnit,shr,false,false) then swipeSoon = nil; return; end
+                            end
+                        end
+                    end
+                    if getPower("player") >= 45 and enemiesInRange > 1 then
+                        if swipeSoon == nil then
+                            swipeSoon = GetTime();
+                        end
+                        if swipeSoon ~= nil and swipeSoon < GetTime() - 1 then
+                            if castSpell("player",sw,false,false) then swipeSoon = nil; return; end
+                        end
+                    end
                 end
             end
         end
@@ -646,19 +658,15 @@ function feralSingle()
         end
         -- Rake - if=remains<=3&combo_points<5
         if isChecked("Multi-Rake") and canCast(rk) then
-            for i = 1, ObjectCount() do
-                if getCreatureType(ObjectWithIndex(i)) == true then
-                    local thisUnit = ObjectWithIndex(i)
-                    if UnitCanAttack(thisUnit,"player") == true
-                        and not UnitIsDeadOrGhost(thisUnit)
-                        and getFacing("player",thisUnit) == true
-                        and getDebuffRemain(thisUnit,rk,"player") < 3
-                        and getPower("player") >= 35
-                        and getDistance(thisUnit) < 5
-                    then
-                        if castSpell(thisUnit,rk,false,false) then return; end
-                    end
-                end
+            local thisUnit = dynamicTarget()
+            if UnitCanAttack(thisUnit,"player") == true
+                and not UnitIsDeadOrGhost(thisUnit)
+                and getFacing("player",thisUnit) == true
+                and getDebuffRemain(thisUnit,rk,"player") < 3
+                and getPower("player") >= 35
+                and getDistance(thisUnit) < 5
+            then
+                if castSpell(thisUnit,rk,false,false) then return; end
             end
         end
         -- Rake - if=remains<=duration*0.3&combo_points<5&persistent_multiplier>dot.rake.pmultiplier

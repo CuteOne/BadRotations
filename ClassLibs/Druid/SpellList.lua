@@ -1,5 +1,5 @@
 if select(3, UnitClass("player")) == 11 then
- 
+
 ------Abilities-------
 af	=	1066	--Aquatic Form
 bar	=	22812	--Barkskin
@@ -38,8 +38,7 @@ rej	=	774		--Rejuvenation
 rc	=	2782	--Remove Corruption
 rv	=	50769	--Revive
 rp	=	1079	--Rip
-svg	=	127538	--Savage Roar Glyphed
-svr	=	52610	--Savage Roar
+svr	=	174544 --52610	--Savage Roar
 shg =	114236	--Shred Glyphed
 shr	=	5221	--Shred
 sb	=	106839	--Skull Bash
@@ -58,7 +57,7 @@ trf	=	783		--Travel Form
 wth =	5176	--Wrath
 
 ------Talents------
-inc	=	106731	--Incarnation: King of the Jungle
+inc	=	102543	--Incarnation: King of the Jungle
 fon	=	102703	--Force of Nature
 how	=	108288 	--Heart of the Wild
 mb	=	5211	--Mighty Bash
@@ -68,6 +67,7 @@ bt 	=	155672	--Bloodtalons
 ------Glyphs------
 gsh	=	114234	--Glyph of Shred
 gsr =	127540	--Glyph of Savagery
+svg	=	127538	--Savage Roar Glyphed
 
 ------Procs------
 ps	= 	69369	--Predatory Swiftness

@@ -271,29 +271,26 @@ function SuperReader(self, event, ...)
 
 		------------------------
 		--[[ Bleed Recorder --]]
-		if select(3, UnitClass("player")) == 11 and GetSpecialization("player") == 2 then
-	        --print(param..", "..source..", "..spell)
-	        -- snapshot on spellcast
-	        if source == UnitGUID("player") and param == "SPELL_CAST_SUCCESS" then
-	            if spell == 1079 then
-	                Rip_sDamage_cast = CRPD()
-	            elseif spell == 1822 then
-	                Rake_sDamage_cast = CRKD()
-	            --elseif spell == 106830 then
+		if select(3, UnitClass("player")) == 11 and GetSpecialization() == 2 then
+			if source == UnitGUID("player") then
+	            -- snapshot on spellcast
+	            if spell == 1079 and param == "SPELL_CAST_SUCCESS" then
+	            	WA_calcStats_feral()
+	                Rip_sDamage_cast = WA_stats_RipTick
+	            elseif spell == 1822 and (param == "SPELL_CAST_SUCCESS" or param == "SPELL_DAMAGE" or param == "SPELL_MISSED") then
+	                WA_calcStats_feral()
+	                Rake_sDamage_cast = WA_stats_RakeTick
+	            --elseif spell == 106830 and param == "SPELL_CAST_SUCCESS" then
 	            --    WA_calcStats_feral()
 	            --    Thrash_sDamage_cast = WA_stats_ThrashTick
 	            end
-
 	            -- but only record the snapshot if it successfully applied
-	        elseif source == UnitGUID("player") and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") then
-	            --print(source..", "..spell..", "..destination)
-	            if spell == 1079 then
+	            if spell == 1079 and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") then
 	                Rip_sDamage[destination] = Rip_sDamage_cast
-
-	            elseif spell == 1822 then
+	            elseif spell == 155722 and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") then
 	                Rake_sDamage[destination] = Rake_sDamage_cast
-	            --elseif spell == 106830 then
-	           --     Thrash_sDamage[destination] = Thrash_sDamage_cast
+	            --elseif spell == 106830 and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") then
+	            --    Thrash_sDamage[destination] = Thrash_sDamage_cast
 	            end
 	        end
 	    end
