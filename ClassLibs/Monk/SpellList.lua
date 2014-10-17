@@ -24,9 +24,9 @@ _NimbleBrew                 =   137562  --Nimble Brew
 _Paralysis                  =   115078  --Paralysis
 _Provoke                    =   115546  --Provoke
 _QuakingPalm                =   107079  --Quaking Palm
-_Resuscitate                =   115178  --Resuscitate
-_Roll                       =   121827--109132  --Roll
 _RaisingSunKick             =   107428  --Raising Sun Kick
+_Resuscitate                =   115178  --Resuscitate
+_Roll                       =   121827	--109132  --Roll
 _SpinningCraneKick          =   101546  --Spinning Crane Kick
 _StanceOfTheFierceTiger     =   103985  --Stance of the Fierce Tiger
 _SpearHandStrike            =   116705  --Spear Hand Strike
@@ -60,4 +60,9 @@ _KegSmash					=	121253;
 _SpearHandStrike            =   116705;
 _TigersLust                 =   116841;
 
+
+_RenewingMist				=	115151;
+_SoothingMist				=	115175;
+_SerpentsZeal 				= 	127722;
+_VitalMists		 			= 	118674;
 end

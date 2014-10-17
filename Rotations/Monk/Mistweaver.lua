@@ -62,12 +62,9 @@ function MistweaverMonk()
 	    end
 -- Legacy of the Emperor
 	   	if not UnitExists("mouseover") then
-		  	for i = 1, #members do
-		  		if (#members==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
-
-		  			if not isBuffed(members[i].Unit,{115921,20217,1126,90363}) then
-						if castSpell("player",_LegacyOfTheEmperor,true) then return; end
-			  		end
+		  	for i = 1, #nNova do
+	  			if not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) then
+					if castSpell("player",_LegacyOfTheEmperor,true) then return; end
 		  		end
 			end
 		end
