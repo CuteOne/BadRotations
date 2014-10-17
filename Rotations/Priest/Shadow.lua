@@ -25,7 +25,6 @@ if select(3, UnitClass("player")) == 5 then
 
 
 
-
 	-- MindFlay CastTime
 	local MFCASTTIME = 3.0/(1+HASTE/100)
 
@@ -296,7 +295,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- devouring_plague,if=talent.void_entropy.enabled&shadow_orb>=3&dot.void_entropy.ticking&dot.void_entropy.remains<10,cycle_targets=1,max_cycle_targets=3
-		if isKnown(_DevouringPlague) then
+		if canCast(_DevouringPlague) then
 			if isKnown(_VoidEntropy) and ORBS >= 3 and UnitDebuffID("target",_VoidEntropy,"player") and getDebuffRemain("target",_VoidEntropy) < 10 then
 				if castSpell("target",_DevouringPlague,true,false) then
 					return;
@@ -305,7 +304,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- devouring_plague,if=talent.void_entropy.enabled&shadow_orb>=3&dot.void_entropy.ticking&dot.void_entropy.remains<20,cycle_targets=1,max_cycle_targets=3
-		if isKnown(_DevouringPlague) then
+		if canCast(_DevouringPlague) then
 			if isKnown(_VoidEntropy) and ORBS >= 3 and UnitDebuffID("target",_VoidEntropy,"player") and getDebuffRemain("target",_VoidEntropy) < 20 then
 				if castSpell("target",_DevouringPlague,true,false) then
 					return;
@@ -314,7 +313,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- devouring_plague,if=talent.void_entropy.enabled&shadow_orb=5
-		if isKnown(_DevouringPlague) then
+		if canCast(_DevouringPlague) then
 			if isKnown(_VoidEntropy) and ORBS == 5 then
 				if castSpell("target",_DevouringPlague,true,false) then
 					return;
@@ -323,7 +322,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- devouring_plague,if=!talent.void_entropy.enabled&shadow_orb>=4&!target.dot.devouring_plague_tick.ticking&talent.surge_of_darkness.enabled,cycle_targets=1
-		if isKnown(_DevouringPlague) then
+		if canCast(_DevouringPlague) then
 			if not isKnown(_VoidEntropy) and ORBS >= 4 and not UnitDebuffID("target",_DevouringPlague,"player") and isKnown(_SurgeOfDarkness) then
 				if castSpell("target",_DevouringPlague,true,false) then
 					return;
@@ -332,7 +331,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- devouring_plague,if=!talent.void_entropy.enabled&((shadow_orb>=4)|(shadow_orb>=3&set_bonus.tier17_2pc))
-		if isKnown(_DevouringPlague) then
+		if canCast(_DevouringPlague) then
 			if not isKnown(_VoidEntropy) and (ORBS >= 4 or ORBS>=3 and isKnown(_T16_2)) then
 				if castSpell("target",_DevouringPlague,true,false) then
 					return;
@@ -341,7 +340,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- shadow_word_death,if=buff.shadow_word_death_reset_cooldown.stack=1,cycle_targets=1
-		if isKnown(_ShadowWordDeath) and getHP("target")<20 then
+		if canCast(_ShadowWordDeath) and getHP("target")<20 then
 			if castSpell("target",_ShadowWordDeath,true,false) then
 				return;
 			end
@@ -350,7 +349,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- shadow_word_death,if=buff.shadow_word_death_reset_cooldown.stack=0,cycle_targets=1
 
 		-- mind_blast,if=!glyph.mind_harvest.enabled&active_enemies<=5&cooldown_react    1202=MindHarverGlyph
-		if isKnown(_MindBlast) then
+		if canCast(_MindBlast) then
 			if not hasGlyph(1202) then
 				if castSpell("target",_MindBlast,false,true) then
 					return;
@@ -359,7 +358,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- devouring_plague,if=!talent.void_entropy.enabled&shadow_orb>=3&(cooldown.mind_blast.remains<1.5|target.health.pct<20&cooldown.shadow_word_death.remains<1.5)&!target.dot.devouring_plague_tick.ticking&talent.surge_of_darkness.enabled,cycle_targets=1
-		if isKnown(_DevouringPlague) then
+		if canCast(_DevouringPlague) then
 			if not isKnown(_VoidEntropy) and ORBS >= 3 and (MBCD<1.5 or getHP("target")<20 and SWDCD<1.5) and not UnitDebuffID("target",_DevouringPlague,"player") and isKnown(_SurgeOfDarkness) then
 				if castSpell("target",_DevouringPlague,true,false) then
 					return;
@@ -368,7 +367,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- devouring_plague,if=!talent.void_entropy.enabled&shadow_orb>=3&(cooldown.mind_blast.remains<1.5|target.health.pct<20&cooldown.shadow_word_death.remains<1.5)
-		if isKnown(_DevouringPlague) and getHP("target")<20 then
+		if canCast(_DevouringPlague) and getHP("target")<20 then
 			if not isKnown(_VoidEntropy) and ORBS >= 3 and (MBCD<1.5 or (getHP("target")<20 and SWDCD<1.5)) then
 				if castSpell("target",_ShadowWordDeath,true,false) then
 					return;
@@ -379,7 +378,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- mind_blast,if=glyph.mind_harvest.enabled&mind_harvest=0,cycle_targets=1
 
 		-- mind_blast,if=active_enemies<=5&cooldown_react
-		if isKnown(_MindBlast) then
+		if canCast(_MindBlast) then
 			if castSpell("target",_MindBlast,false,true) then
 				return;
 			end
@@ -424,7 +423,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- shadow_word_pain,if=talent.auspicious_spirits.enabled&remains<(18*0.3)&miss_react,cycle_targets=1
-		if isKnown(_ShadowWordPain) then
+		if canCast(_ShadowWordPain) then
 			if isKnown(_AuspiciousSpirits) and getDebuffRemain("target",_ShadowWordPain) < (18*0.3) then
 				if castSpell("target",_ShadowWordPain,true,false) then
 					return;
@@ -435,9 +434,9 @@ if select(3, UnitClass("player")) == 5 then
         -- shadow_word_pain,if=!talent.auspicious_spirits.enabled&remains<(18*0.3)&miss_react,cycle_targets=1,max_cycle_targets=5
         -- Here i do my target checks and i make sure i want to iterate. I use canCast prior to everything just to save power, i dont want to scan if that spell is not ready.
         if canCast(_ShadowWordPain) then
-            if not isKnown(_AuspiciousSpirits) then
+        	if not isKnown(_AuspiciousSpirits) then
             -- Shadow word pain
-                -- Iterating Object manager
+                -- Iterating Object Manager
                 -- begin loop
                 for i = 1, ObjectCount() do
                     -- we check if it's a valid unit
@@ -445,7 +444,8 @@ if select(3, UnitClass("player")) == 5 then
                         -- now that we know the unit is valid, we can use it to check whatever we want.. let's call it thisUnit
                         local thisUnit = ObjectWithIndex(i)
                         -- Here I do my specific spell checks
-                        if UnitCanAttack(thisUnit,"player") == true and UnitAffectingCombat(thisUnit) == true and getDebuffRemain(thisUnit,_ShadowWordPain) < (18*0.3) and getDistance("player",thisUnit) < 40 then
+						-- Here I do my specific spell checks
+                        if (UnitCanAttack(thisUnit,"player") == true and UnitAffectingCombat(thisUnit) == true) and getDebuffRemain(thisUnit,_ShadowWordPain) < (18*0.3) and getDistance("player",thisUnit) < 40 then						--if UnitCanAttack(thisUnit,"player") == true and getDebuffRemain(thisUnit,_ShadowWordPain) < (18*0.3) and getDistance("player",thisUnit) < 40 then
                             -- All is good, let's cast.
                             if castSpell(thisUnit,_ShadowWordPain,true,false) then
                                 return;
@@ -457,17 +457,34 @@ if select(3, UnitClass("player")) == 5 then
         end
 
 		-- vampiric_touch,if=remains<(15*0.3+cast_time)&miss_react,cycle_targets=1,max_cycle_targets=5
-		if isKnown(_VampiricTouch) then
-			if getDebuffRemain("target",_VampiricTouch) < (15*0.3+VTCASTTIME) and GT-lastVT >= 2  then
-				if castSpell("target",_VampiricTouch,true,true) then
-					lastVT = GT;
-					return;
+		if canCast(_VampiricTouch) then
+			print("--- 1 ---");
+			-- Vampiric Touch
+			-- Iterating Object Manager
+			-- begin loop
+			for i=1,ObjectCount() do
+				print("--- 2 ---");
+				-- we check if it's a valid unit
+				if getCreatureType(ObjectWithIndex(i)) == true then
+					print("--- 3 ---");
+					-- now we know the unit is valid, we can use it to check whatever we want..
+					local thisUnit2 = ObjectWithIndex(i)
+					print("--- 4 ---");
+					-- Here i do my specific spell checks
+					if (UnitCanAttack(thisUnit2,"player") == true and UnitAffectingCombat(thisUnit2) == true) and getDebuffRemain("target",_VampiricTouch) < (15*0.3+VTCASTTIME) and getDistance("player",thisUnit2) < 40 then
+						print("--- 5 ---");
+						-- let's cast
+						if castSpell(thisUnit2,_VampiricTouch,true,true) then
+							print("--- 6 ---");
+							return;
+						end
+					end
 				end
 			end
 		end
 
 		-- devouring_plague,if=!talent.void_entropy.enabled&shadow_orb>=3&ticks_remain<=1
-		if isKnown(_DevouringPlague) then
+		if canCast(_DevouringPlague) then
 			if not isKnown(_VoidEntropy) and ORBS >= 3 and (getDebuffRemain("target",_DevouringPlague)<=DPTICK) then
 				if castSpell("target",_DevouringPlague,true,false) then
 					return;
@@ -476,7 +493,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- mind_spike,if=active_enemies<=5&buff.surge_of_darkness.react=3
-		if isKnown(_MindSpike) then
+		if canCast(_MindSpike) then
 			if _SurgeOfDarkness == 3 then
 				if castSpell("target",_MindSpike,false,false) then
 					return;
@@ -499,7 +516,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- wait,sec=cooldown.mind_blast.remains,if=cooldown.mind_blast.remains<0.5&cooldown.mind_blast.remains&active_enemies<=1
 
 		-- mind_spike,if=buff.surge_of_darkness.react&active_enemies<=5
-		if isKnown(_MindSpike) then
+		if canCast(_MindSpike) then
 			if UnitBuffID("player",_SurgeOfDarkness) then
 				if castSpell("target",_MindSpike,false,false) then
 					return;
@@ -517,7 +534,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- mind_sear,chain=1,interrupt=1,if=active_enemies>=4
-		if isKnown(_MindSear) then
+		if canCast(_MindSear) then
 			if getNumEnemies("target",10) >= 4 then
 				if castSpell("target",_MindSear,false,true) then
 					return;
@@ -526,7 +543,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- shadow_word_pain,if=shadow_orb>=2&ticks_remain<=3&talent.insanity.enabled
-		if isKnown(_ShadowWordPain) then
+		if canCast(_ShadowWordPain) then
 			if ORBS >= 2 and getDebuffRemain("target",_ShadowWordPain) <= 9 and isKnown(_Insanity) then
 				if castSpell("target",_ShadowWordPain,true,false) then
 					return;
@@ -538,14 +555,14 @@ if select(3, UnitClass("player")) == 5 then
 
 
 		-- mind_flay,chain=1,interrupt=1
-		if isKnown(_MindFlay) then
+		if canCast(_MindFlay) then
 			if castSpell("target",_MindFlay,false,true) then
 				return;
 			end
 		end
 
 		-- shadow_word_death,moving=1
-		if isKnown(_ShadowWordDeath) then
+		if canCast(_ShadowWordDeath) then
 			if getHP("target") < 20 then
 				if castSpell("target",_ShadowWordDeath,true,false) then
 					return;
@@ -554,7 +571,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- mind_blast,moving=1,if=buff.shadowy_insight.react&cooldown_react
-		if isKnown(_MindBlast) then
+		if canCast(_MindBlast) then
 			if UnitBuffID("player",_ShadowyInsight) then
 				if castSpell("target",_MindBlast,false,false) then
 					return;
@@ -581,7 +598,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- shadow_word_pain,moving=1,cycle_targets=1
-		if isKnown(_ShadowWordPain) then
+		if canCast(_ShadowWordPain) then
 			if isMoving("player") then
 				if castSpell("target",_ShadowWordPain,true,false) then
 					return;
