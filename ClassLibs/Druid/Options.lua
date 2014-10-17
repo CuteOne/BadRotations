@@ -1,12 +1,12 @@
 if select(3, UnitClass("player")) == 11 then
---[[]]     --[[]]   --[[           ]]   --[[           ]]   --[[]]     --[[]]   
---[[ ]]   --[[ ]]   --[[           ]]   --[[           ]]   --[[  ]]   --[[]]   
---[[           ]]   --[[]]     --[[]]   --[[]]     --[[]]   --[[    ]] --[[]]       
---[[           ]]   --[[]]     --[[]]   --[[]]     --[[]]   --[[           ]]   
---[[]]     --[[]]   --[[]]     --[[]]   --[[]]     --[[]]   --[[           ]]   
---[[]]     --[[]]   --[[           ]]   --[[           ]]   --[[]]   --[[  ]]   
---[[]]     --[[]]   --[[           ]]   --[[           ]]   --[[]]     --[[]]   
- 
+--[[]]     --[[]]   --[[           ]]   --[[           ]]   --[[]]     --[[]]
+--[[ ]]   --[[ ]]   --[[           ]]   --[[           ]]   --[[  ]]   --[[]]
+--[[           ]]   --[[]]     --[[]]   --[[]]     --[[]]   --[[    ]] --[[]]
+--[[           ]]   --[[]]     --[[]]   --[[]]     --[[]]   --[[           ]]
+--[[]]     --[[]]   --[[]]     --[[]]   --[[]]     --[[]]   --[[           ]]
+--[[]]     --[[]]   --[[           ]]   --[[           ]]   --[[]]   --[[  ]]
+--[[]]     --[[]]   --[[           ]]   --[[           ]]   --[[]]     --[[]]
+
 
 function MoonkinConfig()
     if currentConfig ~= "Moonkin CodeMyLife" then
@@ -24,37 +24,37 @@ function MoonkinConfig()
 
         -- Nature's Cure
         CreateNewCheck(thisConfig,"Nature's Cure")
-        CreateNewDrop(thisConfig,"Nature's Cure", 1, "|cffFFBB00MMouse:|cffFFFFFFMouse / Match List. \n|cffFFBB00MRaid:|cffFFFFFFRaid / Match List. \n|cffFFBB00AMouse:|cffFFFFFFMouse / All. \n|cffFFBB00ARaid:|cffFFFFFFRaid / All.", 
-            "|cffFFDD11MMouse", 
+        CreateNewDrop(thisConfig,"Nature's Cure", 1, "|cffFFBB00MMouse:|cffFFFFFFMouse / Match List. \n|cffFFBB00MRaid:|cffFFFFFFRaid / Match List. \n|cffFFBB00AMouse:|cffFFFFFFMouse / All. \n|cffFFBB00ARaid:|cffFFFFFFRaid / All.",
+            "|cffFFDD11MMouse",
             "|cffFFDD11MRaid",
             "|cff00FF00AMouse",
             "|cff00FF00ARaid")
-        CreateNewText(thisConfig,"Nature's Cure"); 
+        CreateNewText(thisConfig,"Nature's Cure");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Cooldowns ------");
 
         -- Force Of Nature
         CreateNewCheck(thisConfig,"Force Of Nature");
-        CreateNewText(thisConfig,"Force Of Nature");  
+        CreateNewText(thisConfig,"Force Of Nature");
 
         -- Natures Vigil
         CreateNewCheck(thisConfig,"Natures Vigil");
-        CreateNewText(thisConfig,"Natures Vigil");  
+        CreateNewText(thisConfig,"Natures Vigil");
 
         -- Starfall
         CreateNewCheck(thisConfig,"Starfall");
-        CreateNewText(thisConfig,"Starfall");   
+        CreateNewText(thisConfig,"Starfall");
 
         -- Incarnation
         CreateNewCheck(thisConfig,"Incarnation");
         CreateNewBox(thisConfig, "Incarnation", 0, 100  , 5, 45, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFIncarnation.");
-        CreateNewText(thisConfig,"Incarnation");   
+        CreateNewText(thisConfig,"Incarnation");
 
         -- Innervate
         CreateNewCheck(thisConfig,"Innervate");
         CreateNewBox(thisConfig, "Innervate", 0, 100  , 5, 80, "|cffFFBB00Under what |cff297BFF%Mana|cffFFBB00 to use |cffFFFFFFInnervate.");
-        CreateNewText(thisConfig,"Innervate");   
+        CreateNewText(thisConfig,"Innervate");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"--------- Healing -------");
@@ -80,7 +80,7 @@ function MoonkinConfig()
         -- Might of Ursoc
         CreateNewCheck(thisConfig,"Might of Ursoc");
         CreateNewBox(thisConfig, "Might of Ursoc", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFMight of Ursoc");
-        CreateNewText(thisConfig,"Might of Ursoc");        
+        CreateNewText(thisConfig,"Might of Ursoc");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"-------- Toggles --------");
@@ -88,12 +88,12 @@ function MoonkinConfig()
         -- Pause Toggle
         CreateNewCheck(thisConfig,"Pause Toggle");
         CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
-        CreateNewText(thisConfig,"Pause Toggle");  
+        CreateNewText(thisConfig,"Pause Toggle");
 
         -- Focus Toggle
         CreateNewCheck(thisConfig,"Focus Toggle");
         CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle2")
-        CreateNewText(thisConfig,"Focus Toggle"); 
+        CreateNewText(thisConfig,"Focus Toggle");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Utilities ------");
@@ -110,7 +110,7 @@ function MoonkinConfig()
         -- General Configs
         CreateGeneralsConfig();
 
-        
+
         WrapsManager();
     end
 end
@@ -118,11 +118,11 @@ end
 
 --[[           ]]         --[[]]        --[[           ]]
 --[[           ]]        --[[  ]]       --[[           ]]
---[[]]                  --[[    ]]           --[[ ]]    
---[[]]                 --[[      ]]          --[[ ]]    
---[[]]                --[[        ]]         --[[ ]]    
---[[           ]]    --[[]]    --[[]]        --[[ ]]        
---[[           ]]   --[[]]      --[[]]       --[[ ]]    
+--[[]]                  --[[    ]]           --[[ ]]
+--[[]]                 --[[      ]]          --[[ ]]
+--[[]]                --[[        ]]         --[[ ]]
+--[[           ]]    --[[]]    --[[]]        --[[ ]]
+--[[           ]]   --[[]]      --[[]]       --[[ ]]
 
 --[[This function will create a Value Box.]]
 -- function CreateNewBox(value,textString,minValue,maxValue,step,base,tip1)
@@ -203,7 +203,7 @@ function FeralCatConfig()
 
             -- Dream of Cenarius Auto-Heal
             checkOp("Auto Heal")
-            dropOp("Auto Heal", 1, "|cffFFFFFFSelect Target to Auto-Heal", 
+            dropOp("Auto Heal", 1, "|cffFFFFFFSelect Target to Auto-Heal",
                 "|cffFFDD11LowestHP",
                 "|cffFFDD11Self")
             textOp("Auto-Heal (DoC)");
@@ -215,7 +215,7 @@ function FeralCatConfig()
             -- Flask / Crystal
             checkOp("Flask / Crystal");
             textOp("Flask / Crystal");
-        
+
         -- Spacer
         textOp(" ");
         wrapOp("--- Defensive ---");
@@ -333,12 +333,12 @@ function RestorationConfig()
 
         -- Nature's Cure
         CreateNewCheck(thisConfig,"Nature's Cure")
-        CreateNewDrop(thisConfig,"Nature's Cure", 1, "|cffFFBB00MMouse:|cffFFFFFFMouse / Match List. \n|cffFFBB00MRaid:|cffFFFFFFRaid / Match List. \n|cffFFBB00AMouse:|cffFFFFFFMouse / All. \n|cffFFBB00ARaid:|cffFFFFFFRaid / All.", 
-            "|cffFFDD11MMouse", 
+        CreateNewDrop(thisConfig,"Nature's Cure", 1, "|cffFFBB00MMouse:|cffFFFFFFMouse / Match List. \n|cffFFBB00MRaid:|cffFFFFFFRaid / Match List. \n|cffFFBB00AMouse:|cffFFFFFFMouse / All. \n|cffFFBB00ARaid:|cffFFFFFFRaid / All.",
+            "|cffFFDD11MMouse",
             "|cffFFDD11MRaid",
             "|cff00FF00AMouse",
             "|cff00FF00ARaid")
-        CreateNewText(thisConfig,"Nature's Cure"); 
+        CreateNewText(thisConfig,"Nature's Cure");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Cooldowns ------");
@@ -347,12 +347,7 @@ function RestorationConfig()
         -- Incarnation
         CreateNewCheck(thisConfig,"Incarnation");
         CreateNewBox(thisConfig, "Incarnation", 0, 100  , 5, 45, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFIncarnation.");
-        CreateNewText(thisConfig,"Incarnation");   
-
-        -- Innervate
-        CreateNewCheck(thisConfig,"Innervate");
-        CreateNewBox(thisConfig, "Innervate", 0, 100  , 5, 80, "|cffFFBB00Under what |cff297BFF%Mana|cffFFBB00 to use |cffFFFFFFInnervate.");
-        CreateNewText(thisConfig,"Innervate");   
+        CreateNewText(thisConfig,"Incarnation");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"---- Level 60 Talent ---");
@@ -366,22 +361,22 @@ function RestorationConfig()
             -- WildGrowth SotF
             CreateNewCheck(thisConfig,"WildGrowth SotF");
             CreateNewBox(thisConfig, "WildGrowth SotF", 0, 100  , 5, 45, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFSwiftmend.");
-            CreateNewText(thisConfig,"WildGrowth SotF"); 
+            CreateNewText(thisConfig,"WildGrowth SotF");
 
             -- WildGrowth SotF Count
             CreateNewCheck(thisConfig,"WildGrowth SotF Count");
             CreateNewBox(thisConfig, "WildGrowth SotF Count", 1, 25  , 1, 3, "|cffFFBB00Number of members under Force of Nature treshold needed to use |cffFFFFFFSwiftmend.");
-            CreateNewText(thisConfig,"WildGrowth SotF Count"); 
-        elseif isKnown(10693) then
+            CreateNewText(thisConfig,"WildGrowth SotF Count");
+        elseif isKnown(102693) then
             -- Force of Nature
             CreateNewCheck(thisConfig,"Force of Nature");
             CreateNewBox(thisConfig, "Force of Nature", 0, 100  , 5, 45, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFForce of Nature.");
-            CreateNewText(thisConfig,"Force of Nature"); 
+            CreateNewText(thisConfig,"Force of Nature");
 
             -- Force of Nature Count
             CreateNewCheck(thisConfig,"Force of Nature Count");
             CreateNewBox(thisConfig, "Force of Nature Count", 1, 25  , 1, 3, "|cffFFBB00Number of members under Force of Nature treshold needed to use |cffFFFFFFForce of Nature.");
-            CreateNewText(thisConfig,"Force of Nature Count"); 
+            CreateNewText(thisConfig,"Force of Nature Count");
         elseif isKnown(33891) then
             -- Lifebloom Tol
             CreateNewCheck(thisConfig,"Lifebloom Tol");
@@ -477,12 +472,12 @@ function RestorationConfig()
         CreateNewCheck(thisConfig,"Healing Touch Ns");
         CreateNewBox(thisConfig, "Healing Touch Ns", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealing Touch|cffFFBB00 with |cffFFFFFFNature Swiftness.");
         CreateNewText(thisConfig,"Healing Touch Ns");
-  
+
         -- Healing Touch Sm
         CreateNewCheck(thisConfig,"Healing Touch Sm");
         CreateNewBox(thisConfig, "Healing Touch Sm", 0, 100  , 5, 70, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealing Touch|cffFFBB00 for |cffFFFFFF Sage Mender.");
-        CreateNewText(thisConfig,"Healing Touch Sm");      
-        
+        CreateNewText(thisConfig,"Healing Touch Sm");
+
         if isKnown(114107) ~= true then
             -- Swiftmend
             CreateNewCheck(thisConfig,"Swiftmend");
@@ -492,7 +487,7 @@ function RestorationConfig()
             -- Harmoney
             CreateNewCheck(thisConfig,"Swiftmend Harmoney");
             CreateNewBox(thisConfig, "Swiftmend Harmoney", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFSwiftmend|cffFFBB00 to refresh Harmoney.");
-            CreateNewText(thisConfig,"Swiftmend Harmoney");        
+            CreateNewText(thisConfig,"Swiftmend Harmoney");
         end
 
         -- Wrapper -----------------------------------------
@@ -511,7 +506,7 @@ function RestorationConfig()
         CreateNewCheck(thisConfig,"WildGrowth All");
         CreateNewBox(thisConfig, "WildGrowth All", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFWildGrowth.");
         CreateNewText(thisConfig,"WildGrowth All");
-        
+
         -- WildGrowth All Count
         CreateNewBox(thisConfig, "WildGrowth All Count", 1, 25  , 1, 5, "|cffFFBB00Number of members under WildGrowth treshold needed to use |cffFFFFFFWildGrowth.");
         CreateNewText(thisConfig,"WildGrowth All Count");
@@ -559,7 +554,7 @@ function RestorationConfig()
         -- Might of Ursoc
         CreateNewCheck(thisConfig,"Might of Ursoc");
         CreateNewBox(thisConfig, "Might of Ursoc", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFMight of Ursoc");
-        CreateNewText(thisConfig,"Might of Ursoc");        
+        CreateNewText(thisConfig,"Might of Ursoc");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"-------- Toggles --------");
@@ -567,22 +562,22 @@ function RestorationConfig()
         -- Genesis Toggle
         CreateNewCheck(thisConfig,"Genesis Toggle");
         CreateNewDrop(thisConfig,"Genesis Toggle", 4, "Toggle2")
-        CreateNewText(thisConfig,"Genesis Toggle");      
+        CreateNewText(thisConfig,"Genesis Toggle");
 
         -- Pause Toggle
         CreateNewCheck(thisConfig,"Pause Toggle");
         CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
-        CreateNewText(thisConfig,"Pause Toggle");  
+        CreateNewText(thisConfig,"Pause Toggle");
 
         -- Focus Toggle
         CreateNewCheck(thisConfig,"Focus Toggle");
         CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle2")
-        CreateNewText(thisConfig,"Focus Toggle"); 
+        CreateNewText(thisConfig,"Focus Toggle");
 
         -- DPS Toggle
         CreateNewCheck(thisConfig,"DPS Toggle");
         CreateNewDrop(thisConfig,"DPS Toggle", 1, "Toggle2")
-        CreateNewText(thisConfig,"DPS Toggle"); 
+        CreateNewText(thisConfig,"DPS Toggle");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Utilities ------");
@@ -599,7 +594,7 @@ function RestorationConfig()
         -- General Configs
         CreateGeneralsConfig();
 
-        
+
         WrapsManager();
     end
 end
@@ -610,7 +605,7 @@ end
 --[[]]     --[[]]   --[[]]                  --[[    ]]      --[[]]     --[[]]
 --[[         ]]     --[[           ]]      --[[      ]]     --[[         ]]
 --[[]]     --[[]]   --[[]]                --[[        ]]    --[[        ]]
---[[           ]]   --[[           ]]    --[[]]    --[[]]   --[[]]    --[[]]        
+--[[           ]]   --[[           ]]    --[[]]    --[[]]   --[[]]    --[[]]
 --[[           ]]   --[[           ]]   --[[]]      --[[]]  --[[]]     --[[]]
 function GuardianConfig()
     if currentConfig ~= "Guardian Masoud" then
@@ -626,16 +621,16 @@ function GuardianConfig()
         CreateNewCheck(thisConfig,"Mark Of The Wild");
         CreateNewText(thisConfig,"Mark Of The Wild");
 
-        
+
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Cooldowns ------");
 
-  
+
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"--------- Healing -------");
 
-        
+
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------- Defensive ------");
 
@@ -655,11 +650,11 @@ function GuardianConfig()
         -- Might of Ursoc
         CreateNewCheck(thisConfig,"Might of Ursoc");
         CreateNewBox(thisConfig, "Might of Ursoc", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFMight of Ursoc");
-        CreateNewText(thisConfig,"Might of Ursoc");        
+        CreateNewText(thisConfig,"Might of Ursoc");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"-------- Toggles --------");
-       
+
         -- Maul Toggle
         CreateNewCheck(thisConfig,"Maul Toggle");
         CreateNewDrop(thisConfig,"Maul Toggle", 3, "Toggle2")
@@ -667,12 +662,12 @@ function GuardianConfig()
         -- Pause Toggle
         CreateNewCheck(thisConfig,"Pause Toggle");
         CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
-        CreateNewText(thisConfig,"Pause Toggle");  
+        CreateNewText(thisConfig,"Pause Toggle");
 
         -- Focus Toggle
         CreateNewCheck(thisConfig,"Focus Toggle");
         CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle2")
-        CreateNewText(thisConfig,"Focus Toggle"); 
+        CreateNewText(thisConfig,"Focus Toggle");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Utilities ------");
@@ -689,7 +684,7 @@ function GuardianConfig()
         -- General Configs
         CreateGeneralsConfig();
 
-        
+
         WrapsManager();
     end
 
