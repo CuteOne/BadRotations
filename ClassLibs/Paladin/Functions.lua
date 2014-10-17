@@ -282,47 +282,45 @@ if select(3,UnitClass("player")) == 2 then
 			end
 		end
 
-		if canCast(_Judgment) and getDistance("player","target") <= 30 then
-			if castSpell("target",_Judgment,true) then 
-				return 
-			end
+		if castJudgement("target") then
+			--print("Casting Judgement")
+			return true
 		end
-
-		if canCast(_AvengersShield) then
-			if getLineOfSight("player","target") and getDistance("player","target") <= 30 then
-				if castSpell("target",_AvengersShield,false) then 
-					return
-				end	
-			end
-		end					 
+		
+		if castAvengersShield("target") then
+			--print("Casting lights Hammer in rotation")
+			return true
+		end
 		-- Todo We could add functionality that cycle all unit to find one that is casting since the Avenger Shield is silencing as well.
 		
-		if isChecked("Light's Hammer") then
-			if getGround("target") and not isMoving("target") and UnitExists("target") and ((isDummy("target") or getDistance("target","targettarget") <= 5)) then
-				if castGround("target",_LightsHammer,30) then 
-					return
-				end
-			end
+		
+		if castLightsHammer("target") then
+			--print("Casting lights Hammer in rotation")
+			return true
 		end
 
-		if canCast(_HammerOfWrath) and getLineOfSight("player","target") and getDistance("player","target") <= 30 and getHP("target") <= 20 then
-			if castSpell("target",_HammerOfWrath, false) then 
-				return
-			end			
+		if castHammerOfWrath("target") then
+			--print("Casting Hammer of Wrath")
+			return true
 		end
-		-- Todo: Could use enhanced logic here, cluster of mobs, cluster of damaged friendlies etc
 		
-		-- holy_wrath
-		if canCast(_HolyWrath) and isInMelee("target") then
-			if castSpell("target",_HolyWrath,true) then 
-				return
-			end
+		-- Todo: Could use enhanced logic here, cluster of mobs, cluster of damaged friendlies etc
+		if castHolyWrath("target") then
+			--print("Casting Holy Wrath")
+			return true
 		end
 		-- Todo, we could check number of mobs in melee ranged
 		
 		if castConsecration() then 
-			--print("Casting AOE Consecration")
+			--print("Casting Consecration")
 			return true
+		end
+		
+		-- If we are waiting for CDs we can cast SS
+		if not isBuffed("player", _SacredShield, 5) then
+			if castSacredShield() then 
+				return true
+			end
 		end
 		--Todo Check number of targets in range do Concentration and have it earlier.
 	end
@@ -344,31 +342,24 @@ if select(3,UnitClass("player")) == 2 then
 			end
 		end
 
-		if canCast(_AvengersShield) then
-			if getLineOfSight("player","target") and getDistance("player","target") <= 30 then
-				if castSpell("target",_AvengersShield,false) then 
-					return
-				end	
-			end
-		end					 
+		if castAvengersShield("target") then
+			--print("Casting lights Hammer in AoE rotation")
+			return true
+		end
 		-- Todo We could add functionality that cycle all unit to find one that is casting since the Avenger Shield is silencing as well.
 		
-		if getGround("target") and not isMoving("target") and UnitExists("target") and ((isDummy("target") or getDistance("target","targettarget") <= 5)) then
-			if castGround("target",_LightsHammer,30) then 
-				return true
-			end
+		if castLightsHammer("target") then
+			--print("Casting lights Hammer in AoE rotation")
+			return true
 		end
 		
-
-		-- holy_wrath
-		if canCast(_HolyWrath) and isInMelee("target") then
-			if castSpell("target",_HolyWrath,true) then 
-				return
-			end
+		if castHolyWrath("target") then
+			--print("Casting AoE Holy Wrath")
+			return true
 		end
 		-- Todo, we could check number of mobs in melee ranged
 
-		if castConsecration() then 
+		if castConsecration("target") then 
 			--print("Casting AOE Consecration")
 			return true
 		end

@@ -100,7 +100,15 @@ if select(3, UnitClass("player")) == 2 then
 			--if ProtPaladinOffensiveCooldowns() then -- Handles the use of offensive Coolsdowns, ProtPaladinSurvival... handles the defensive.
 			--	return
 			--end			
-
+			
+			-- Casting SS here for the time being, should be part of something earlier such as buffs or survival
+			if not isBuffed("player", _SacredShield, 3) then
+				if castSacredShield() then 
+					return true
+				end
+			end
+		--Todo Check number of targets in range do Concentration and have it earlier.
+			
 			-- Handle the use of HolyPower
 			if ProtPaladinHolyPowerConsumers() then
 				-- Dont return since this is off GCD
