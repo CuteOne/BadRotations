@@ -164,7 +164,7 @@ function EnhancementConfig()
     --if not doneConfig then
         thisConfig = 0
         -- Title
-        titleOp("CuteOne Enhancement");
+        titleOp("Cpoworks Enhancement");
                 -- Spacer
         textOp(" ");
         wrapOp("--- General ---");
@@ -199,7 +199,11 @@ function EnhancementConfig()
             -- Flask / Crystal
             checkOp("Flask / Crystal");
             textOp("Flask / Crystal");
-        
+			
+			-- Earth  Ele
+            checkOp("Earth  Ele");
+            textOp("Earth  Ele");
+			
         -- Spacer
         textOp(" ");
         wrapOp("--- Defensive ---");
