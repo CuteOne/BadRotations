@@ -203,33 +203,34 @@ function DruidRestoration()
 				if targetDistance <= 5 then
 					--- Catform
 			  		if not UnitBuffID("player",768) and not UnitBuffID("player",783) and not UnitBuffID("player",5487) then
-						if castSpell("player",768) then return; end
+						if castSpell("player",768,true,false) then catSwapped = GetTime() return; end
 					end
-					-- Ferocious Bite
-					if getCombo() == 5 and UnitBuffID("player",768) ~= nil then
-						if castSpell("target",22568,false) then return; end
+					if UnitBuffID("player",768) and catSwapped <= GetTime() - 1.5 then
+						-- Ferocious Bite
+						if getCombo() == 5 and UnitBuffID("player",768) ~= nil then
+							if castSpell("target",22568,false,false) then return; end
+						end
+						-- Rake
+						if getDebuffRemain("target",1822) < 2 then
+							if castSpell("target",1822,false,false) then return; end
+						end
+						-- Trash
+						if getDebuffRemain("target",106830) < 2 then
+							if castSpell("player",106832,false,false) then return; end
+						end
+						-- Shred
+						if castSpell("target",5221,false,false) then return; end
 					end
-					-- Rake
-					if getDebuffRemain("target",1822) < 2 then
-						if castSpell("target",1822) then return; end
-					end
-					-- Trash
-					if getDebuffRemain("target",106832) < 2 then
-						if castSpell("target",106832) then return; end
-					end
-					-- Shred
-					if castSpell("target",5221) then return; end
 				else
 					if UnitBuffID("player",768) ~= nil then
 						CancelShapeshiftForm();
 					end
 					-- Moonfire
-					if getDebuffRemain("target",8921) < 3 or isMoving("player")then
-						if castSpell("target",8921) then return; end
+					if getDebuffRemain("target",8921) < 3 or isMoving("player") then
+						if castSpell("target",8921,false,false) then return; end
 					end
 					-- Wrath
 					if castSpell("target",5176) then return; end
-
 				end
 			else
 				if UnitBuffID("player",768) ~= nil then
