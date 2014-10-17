@@ -311,7 +311,11 @@ function BadBoyRun()
 				FrostMage();
 			end			
 		elseif _MyClass == 9 then -- Warlock
-			--DemonologyWarlock();		
+			if _MySpec == 2 then
+				WarlockDemonology();
+			elseif _MySpec == 3 then
+				WarlockDestruction();
+			end
 		elseif _MyClass == 10 then -- Monk
 			if _MySpec == nil then
 				NewMonk();

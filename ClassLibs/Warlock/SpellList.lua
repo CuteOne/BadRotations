@@ -4,6 +4,7 @@ _Banish = 710;
 _Corruption = 172;
 _CreateHealthstone = 6201;
 _CurseOfEnfeeblement = 109466;
+_DarkIntent = 109773;
 _DemonicLeap = 109151;
 _DrainLife = 689;
 _EnslaveDemon = 1098;
