@@ -8,18 +8,17 @@ function DruidRestoration()
 
 
 	--[[Lowest]]
-	local lowestHP,  lowestTankHP, averageHealth = 100, nNova[1].unit, 100, nNova[1].unit, 0;
-	lowestUnit, lowestTankUnit = nNova[1].unit, nNova[1].unit
+	lowestHP, lowestUnit, lowestTankHP, lowestTankUnit, averageHealth = 100, "player", 100, "player", 0;
 	for i = 1, #nNova do
 		if nNova[i].role == "TANK" then
 			if nNova[i].hp < lowestTankHP then
 				lowestTankHP = nNova[i].hp;
-				lowestTankUnit = i;
+				lowestTankUnit = nNova[i].unit;
 			end
 		end
 		if nNova[i].hp < lowestHP then
 			lowestHP = nNova[i].hp;
-			lowestUnit = i;
+			lowestUnit = nNova[i].unit;
 		end
 		averageHealth = averageHealth + nNova[i].hp;
 	end
@@ -523,7 +522,7 @@ function DruidRestoration()
 						end
 					end
 					if allies30Yards > getValue("WildGrowth SotF Count") then
-						--SwiftMender(getSpellCD(48438));
+						SwiftMender(getSpellCD(48438));
 						if castSpell(nNova[i].unit,48438,true,false) then return; end
 					end
 				end
