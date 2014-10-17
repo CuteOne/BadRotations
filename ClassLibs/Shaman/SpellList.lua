@@ -3,7 +3,7 @@ if select(3, UnitClass("player")) == 7 then
 _AncestralGuidance			=		108281
 _AncestralSpirit			=		2008
 _AncestralSwiftness			=		16188
-_Ascendance                 =       114049
+_Ascendance                 =       165341
 _AscendanceBuff				=		114050
 _AstralShift				=		108271
 _CallOfTheElements          =       108285

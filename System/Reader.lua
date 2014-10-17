@@ -302,7 +302,7 @@ function SuperReader(self, event, ...)
         --[[ Fire Totem --]]
         if source == UnitGUID("player") and  param == "SPELL_SUMMON" and (spell == _SearingTotem or spell == _MagmaTotem) then
         	activeTotem = destination;
-        	activeTotemPosition = OcjectPosition("player")
+        	activeTotemPosition = ObjectPosition("player")
         end
         if param == "UNIT_DESTROYED" and activeTotem == destination then
         	activeTotem = nil;

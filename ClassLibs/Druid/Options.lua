@@ -295,11 +295,6 @@ function FeralCatConfig()
             dropOp("Thrash Toggle", 6, "Toggle")
             textOp("Thrash");
 
-            -- Symbiosis Toggle
-            checkOp("Symbiosis Toggle","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFSymbiosis Toggle Key|cffFFBB00.");
-            dropOp("Symbiosis Toggle", 5, "Toggle")
-            textOp("Symbiosis");
-
         -- General Configs
         CreateGeneralsConfig();
 
