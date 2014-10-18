@@ -813,7 +813,7 @@ function getHP(Unit)
 			return nNova[i].hp;
 		end
 	end
-	if isChecked("No Incoming Heals") ~= true then
+	if isChecked("No Incoming Heals") ~= true and UnitGetIncomingHeals(Unit,"player") ~= nil then
 		return 100*(UnitHealth(Unit)+UnitGetIncomingHeals(Unit,"player"))/UnitHealthMax(Unit)
 	else
 		return 100*UnitHealth(Unit)/UnitHealthMax(Unit)
