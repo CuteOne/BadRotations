@@ -241,7 +241,7 @@ function DruidRestoration()
 
 		--[[ 6 - Genesis--(WITH Hotkey)]]
 		if isChecked("Genesis Toggle") and SpecificToggle("Genesis Toggle") == true and GetCurrentKeyBoardFocus() == nil then
-			if canCast(145518,false,false) then
+			if canCast(145518,false,false) and not UnitBuffID("focus",162359,"player") then
 				if castSpell("player",145518,true,false) then return; end
 			end
 		end
@@ -404,7 +404,7 @@ function DruidRestoration()
 		if isChecked("Genesis") == true and canCast(145518,false,false) and lowestHP < getValue("Genesis") then
 			local GenCount=0
 			for i=1, #nNova do
-				if nNova[i].hp <= getValue("Genesis") and getBuffRemain(nNova[i].unit,774,"player") > 2 then
+				if nNova[i].hp <= getValue("Genesis") and getBuffRemain(nNova[i].unit,774,"player") > 2 and not UnitBuffID(nNova[i].unit,162359,"player") then
 					GenCount = GenCount + 1
 					if GenCount >= getValue("Genesis Count") then if castSpell("player",145518,true,false) then return; end end
 				end
@@ -614,7 +614,7 @@ function DruidRestoration()
 		--[[ 37 - Genesis --(if reju buff remain and health < 60 or custome on single target)]]
 		if isChecked("Genesis Filler") and canCast(145518,false,false) and lowestHP < getValue("Genesis Filler") then
 			for i=1, #nNova do
-				if nNova[i].hp <= getValue("Genesis Filler") and getBuffRemain(nNova[i].unit,774,"player") > 3 then
+				if nNova[i].hp <= getValue("Genesis Filler") and getBuffRemain(nNova[i].unit,774,"player") > 3 and not UnitBuffID(nNova[i].unit,162359,"player") then
 				    if castSpell("player",145518,true,false) then return; end
 				end
 			end

@@ -504,7 +504,7 @@ function RestorationConfig()
         CreateNewText(thisConfig,"Mushrooms");
 
         -- Mushrooms on Who
-        CreateNewDrop(thisConfig,"Mushrooms Who", 1, "|cffFFBB00Tank:|cffFFFFFFAlways on the tank. \n|cffFFBB003 Units:|cffFFFFFFWill always try to cast on 3 of lowest units.",
+        CreateNewDrop(thisConfig,"Mushrooms Who", 1, "|cffFFBB00Tank:|cffFFFFFFAlways on the tank. \n|cffFFBB003 Units:|cffFFFFFFWill always try to cast on 3 of lowest units.|cffFF1100Note: If Tank selected and no Focus defined, will use on 3 targets.",
             "|cffFFDD11Tank",
             "|cffFFDD113 Units")
         CreateNewText(thisConfig,"Mushrooms Who");
