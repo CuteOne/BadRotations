@@ -316,13 +316,6 @@ function castGround(Unit,SpellID,maxDistance)
 		if IsAoEPending() then
 		local X, Y, Z = ObjectPosition(Unit);
 			CastAtPosition(X,Y,Z);
-			if SpellID == 145205 then
-				if shroomsTable == nil then
-					shroomsTable = { };
-				end
-				shroomsTable[1] = { x = X, y = Y, z = Z };
-			end
-			return true;
 		end
  	end
  	return false;

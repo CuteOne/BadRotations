@@ -324,12 +324,6 @@ function RestorationConfig()
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Cooldowns ------");
 
-
-        -- Incarnation
-        CreateNewCheck(thisConfig,"Incarnation");
-        CreateNewBox(thisConfig, "Incarnation", 0, 100  , 5, 45, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFIncarnation.");
-        CreateNewText(thisConfig,"Incarnation");
-
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"---- Level 60 Talent ---");
 
@@ -532,11 +526,6 @@ function RestorationConfig()
         CreateNewBox(thisConfig, "Barkskin", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFBarkskin");
         CreateNewText(thisConfig,"Barkskin");
 
-        -- Might of Ursoc
-        CreateNewCheck(thisConfig,"Might of Ursoc");
-        CreateNewBox(thisConfig, "Might of Ursoc", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFMight of Ursoc");
-        CreateNewText(thisConfig,"Might of Ursoc");
-
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"-------- Toggles --------");
 
@@ -567,10 +556,6 @@ function RestorationConfig()
         CreateNewCheck(thisConfig,"Follow Tank");
         CreateNewBox(thisConfig, "Follow Tank", 10, 40  , 1, 25, "|cffFFBB00Range from focus...");
         CreateNewText(thisConfig,"Follow Tank");
-
-        -- Zoo Master
-        CreateNewCheck(thisConfig,"Zoo Master");
-        CreateNewText(thisConfig,"Zoo Master");
 
         -- General Configs
         CreateGeneralsConfig();

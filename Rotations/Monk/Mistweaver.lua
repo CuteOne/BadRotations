@@ -63,7 +63,7 @@ function MistweaverMonk()
 -- Legacy of the Emperor
 	   	if not UnitExists("mouseover") then
 		  	for i = 1, #nNova do
-	  			if not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) then
+	  			if (UnitInParty(nNova[i].unit) or UnitInRaid(nNova[i].unit) or UnitIsUnit("player",nNova[i].unit)) and not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) then
 					if castSpell("player",_LegacyOfTheEmperor,true) then return; end
 		  		end
 			end

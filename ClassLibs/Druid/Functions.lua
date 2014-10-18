@@ -717,6 +717,24 @@ function SwiftMender()
     end
 end
 
+function findShroom()
+    if shroomsTable[1].x == nil then
+        for i = 1, ObjectCount() do
+            local myShroom = shroomsTable[1].guid
+            --print(UnitGUID(ObjectWithIndex(i)))
+            if shroomsTable[1].guid == UnitGUID(ObjectWithIndex(i)) then
+                X, Y, Z = ObjectPosition(ObjectWithIndex(i));
+               -- print("lol")
+                shroomsTable[1] = { x = X, y = Y, z = Z, guid = myShroom };
+                return true
+            end
+        end
+    else
+        return true
+    end
+    return false;
+end
+
 
 
 

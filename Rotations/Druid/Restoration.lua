@@ -280,27 +280,10 @@ function DruidRestoration()
 			end
 		end
 
-		--[[ 10 - WildMushroom Bloom]]
-		--local allies10Yards = getAllies("myShroom",10)
-		--if isChecked("Mushrooms Bloom") == true and canCast(102791,false,false) and lowestHP < getValue("Mushrooms Bloom") and #allies10Yards >= getValue("Mushrooms Bloom Count") then
-		--	local found = 0;
-		--	for i = 1, #allies10Yards do
-		--		if getHP(allies10Yards[i]) <= getValue("Mushrooms Bloom") then
-		--			found = found + 1;
-		--		end
-		--	end
-		--	if found > getValue("Mushrooms Bloom Count") and castSpell("player",102791,true,false) then return; end
-		--end
-
 		--[[ 11 - Swiftmend--(cast if hp < value, Glyped or unGlyphed)]]
 		if isKnown(114107) ~= true then
 			SwiftMender();
 		end
-
-		--[[ 12 - Innervate]]
-		--if UnitAffectingCombat("player") and getMana("player") <= getValue("Innervate") then
-		--	if castSpell("player",29166,true,false) then return; end
-		--end
 
 		--[[ 13 - WildGrowth Tol --(Tree of Life)]]
 		if isKnown(33891) and isChecked("WildGrowth Tol") and UnitBuffID("player", 33891) and isStanding(0.3) and canCast(48438,false,false) and lowestHP < getValue("WildGrowth Tol") then
@@ -503,7 +486,7 @@ function DruidRestoration()
 
 		--[[ 30 - WildMushroom--(Replace )]]
 		if not isChecked("Mushrooms on Tank") and isChecked("Mushrooms") and canCast(145205,false,false) and (shroomsTable ~= nil and #shroomsTable ~= 0) and lowestHP < getValue("Mushrooms") then
-			if shroomsTable ~= nil then
+			if shroomsTable ~= nil and findShroom() then
 				local allies10Yards = getAlliesInLocation(shroomsTable[1].x,shroomsTable[1].y,shroomsTable[1].z,10)
 				if #allies10Yards < getValue("Mushrooms Count") then
 					if castHealGround(145205,15,getValue("Mushrooms") ,getValue("Mushrooms Count")) then return; end
@@ -549,7 +532,7 @@ function DruidRestoration()
 
 		--[[ 31- WildMushroom tank--(Replace all)]]
 		if isChecked("Mushrooms on Tank") and GetUnitSpeed("focus") == 0 and canCast(145205,false,false) then
-			if shroomsTable ~= nil and #shroomsTable ~= 0 then
+			if shroomsTable ~= nil and #shroomsTable ~= 0 and findShroom() then
 				if getDistanceToObject("focus",shroomsTable[1].x,shroomsTable[1].y,shroomsTable[1].z) > 10 then
 					if castGround("focus", 145205, 40) then return; end
 				end

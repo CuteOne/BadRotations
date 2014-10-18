@@ -307,15 +307,16 @@ function SuperReader(self, event, ...)
 
         -----------------------
         --[[ Wild Mushroom --]]
-        --if source == UnitGUID("player") and  param == "SPELL_SUMMON" and (spell == 147349 or spell == 145205) then
-        --	if shroomsTable == nil then shroomsTable = { } end
-        --	if shroomsTable[destination] == nil then
-        --		shroomsTable[1] = destination;
-        --	end
-        --end
-        --if (param == "UNIT_DIED" or  param == "UNIT_DESTROYED") and shroomsTable ~= nil and shroomsTable[1] == destination then
-        --	shroomsTable = { };
-        --end
+        if shroomsTable == nil then
+        	shroomsTable = { };
+        	shroomsTable[1] = { }
+        end
+        if source == UnitGUID("player") and  param == "SPELL_SUMMON" and (spell == 147349 or spell == 145205) then
+       		shroomsTable[1].guid = destination
+        end
+        if (param == "UNIT_DIED" or  param == "UNIT_DESTROYED") and shroomsTable ~= nil and shroomsTable[1] == destination then
+        	shroomsTable = { };
+        end
 
         ----------------
         --[[Item locks]]
