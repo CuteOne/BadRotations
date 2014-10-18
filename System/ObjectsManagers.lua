@@ -3,7 +3,7 @@
 if not metaTable1 then
 
 	local _MyClass = select(3,UnitClass("player"));
-	local HealingRangeSpell = {	
+	local HealingRangeSpell = {
 		0, -- 1 - Warrior
 		0, -- 2 - Paladin
 		34477, -- 3 - Hunter(Misdirection)
@@ -51,7 +51,7 @@ if not metaTable1 then
 	local SpecialHealUnitList = {
 		[65078] = "Meng Meng",
 		[69334] = "That Panda there",
-		[71604] = "Immersus Oozes" , 
+		[71604] = "Immersus Oozes" ,
 		[6459] = "Boss#3 SoO",
 		[6460] = "Boss#3 SoO",
 		[6464] = "Boss#3 SoO"
@@ -61,13 +61,13 @@ if not metaTable1 then
 		["mouseover"] = nil,
 		["focus"] = nil,
 	};
-	
+
 	local DebuffToTop = {
 		145263, -- Proving Grounds Healer Debuff.
 	};
-	
 
-	local SpecificHPDebuffs = { 
+
+	local SpecificHPDebuffs = {
 		{ debuff = 145263 , value = 20 }, -- Proving Grounds Healer Debuff.
 		{ debuff = 145832 , value = 250 },
     	{ debuff = 145171 , value = 250 },
@@ -79,7 +79,7 @@ if not metaTable1 then
 	local roleTable = {
 		["Oto the Protector"] = "TANK",
 		["Sooli the Survivalist"] = "DPS",
-		["Ki the Assassin"] = "DPS", 
+		["Ki the Assassin"] = "DPS",
 		["Kavan the Arcanist"] = "DPS",
 	};
 
@@ -93,7 +93,7 @@ if not metaTable1 then
 			if groupMember then tinsert(nNova, groupMember) end -- Inserting a newly created Unit into the Main Frame
 		end
 	end
-	
+
 	metaTable1.__index =  {-- Setting the Metamethod of Index for our Main Table
 		name = "Healing Table",
 		author = "Bubba",
@@ -109,7 +109,7 @@ if not metaTable1 then
 		guid = 0,
 		guidsh = 0,
 	}
-	
+
 	-- If ever somebody enters or leaves the raid, wipe the entire Table
 	local updateHealingTable = CreateFrame("frame", nil)
 	updateHealingTable:RegisterEvent("GROUP_ROSTER_UPDATE")
@@ -157,10 +157,10 @@ if not metaTable1 then
 
 	-- Verifying the target is a Valid Healing target
 	function HealCheck(tar)
-		if ((UnitCanCooperate("player",tar) 
-		  and not UnitIsCharmed(tar) 
-		  and not UnitIsDeadOrGhost(tar) 
-		  and UnitIsConnected(tar)) 
+		if ((UnitCanCooperate("player",tar)
+		  and not UnitIsCharmed(tar)
+		  and not UnitIsDeadOrGhost(tar)
+		  and UnitIsConnected(tar))
 		  or SpecialHealUnitList[tonumber(select(2,Nova_GUID(tar)))] ~= nil	or (isChecked("Heal Pets") == true and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
 		  and CheckBadDebuff(tar)
 		  and CheckCreatureType(tar)
@@ -180,7 +180,7 @@ if not metaTable1 then
 		-- This is the function for Dispel checking built into the player itself.
 		function o:Dispel()
 			for i = 1, #DispelID do
-				if UnitDebuff(o.unit,GetSpellInfo(DispelID[i].id)) ~= nil and DispelID[i].id ~= nil then 
+				if UnitDebuff(o.unit,GetSpellInfo(DispelID[i].id)) ~= nil and DispelID[i].id ~= nil then
 					if select(4,UnitDebuff(o.unit,GetSpellInfo(DispelID[i].id))) >= DispelID[i].stacks then
 						if DispelID[i].range ~= nil then
 							if #getAllies(o.unit,DispelID[i].range) > 1 then
@@ -190,7 +190,7 @@ if not metaTable1 then
 						return true;
 					end
 				end
-			end	
+			end
 			return false
 		end
 
@@ -198,7 +198,7 @@ if not metaTable1 then
 		function o:CalcHP()
 --			print("calculating HP")
 			local incomingheals;
-			if isChecked("No Incoming Heals") ~= true then incomingheals = 0; else incomingheals = 0; end
+			if isChecked("No Incoming Heals") ~= true then incomingheals = UnitGetIncomingHeals(o.unit,"player"); else incomingheals = 0; end
 			local nAbsorbs;
 			if isChecked("No Absorbs") ~= true then nAbsorbs = ( 25*UnitGetTotalAbsorbs(o.unit)/100 ); else nAbsorbs = 0; end
 			local PercentWithIncoming = 100 * ( UnitHealth(o.unit) + incomingheals + nAbsorbs ) / UnitHealthMax(o.unit);
@@ -210,7 +210,7 @@ if not metaTable1 then
 			local ActualWithIncoming = ( UnitHealthMax(o.unit) - ( UnitHealth(o.unit) + incomingheals ) )
  			if not UnitInRange(o.unit) and not UnitIsUnit("player", o.unit) then PercentWithIncoming = 250; end
 			-- Malkorok
-			local SpecificHPBuffs = { 
+			local SpecificHPBuffs = {
 				{ buff = 142865 , value = select(15,UnitDebuffID(o.unit,142865)) }, -- Strong Ancient Barrier (Green)
 				{ buff = 142864 , value = select(15,UnitDebuffID(o.unit,142864)) }, -- Ancient Barrier (Yellow)
 				{ buff = 142863 , value = select(15,UnitDebuffID(o.unit,142863)) }, -- Weak Ancient Barrier (Red)
@@ -223,7 +223,7 @@ if not metaTable1 then
 							break;
 						end
 					end
-				end	
+				end
 				PercentWithIncoming = PercentWithIncoming/2 -- no mather what as long as we are on miasma buff our life is cut in half so unshielded ends up 0-50
 			end
 
@@ -234,9 +234,9 @@ if not metaTable1 then
 						PercentWithIncoming = PercentWithIncoming - SpecificHPDebuffs[i].value;
 					--end
 				end
-			end	
+			end
 			if isChecked("Blacklist") == true and BadBoy_data.blackList ~= nil then
-				for i = 1, #BadBoy_data.blackList do 
+				for i = 1, #BadBoy_data.blackList do
 					if o.guid == BadBoy_data.blackList[i].guid then
 						PercentWithIncoming, ActualWithIncoming, nAbsorbs = PercentWithIncoming + getValue("Blacklist") , ActualWithIncoming + getValue("Blacklist") , nAbsorbs + getValue("Blacklist");
 						break;
@@ -345,15 +345,15 @@ if not metaTable1 then
 			-- We are sorting by Health first
 			table.sort(nNova, function(x,y)
 				return x.hp < y.hp;
-			end)			
+			end)
 
 			-- Sorting with the Role
 			table.sort(nNova, function(x,y)
 				if x.role and y.role then return x.role > y.role;
 				elseif x.role then return true;
 				elseif y.role then return false; end
-			end)	
-					
+			end)
+
 --[[			for i = 1, #nNova do
 				table.sort(nNova[i].Distances, function(x,y)
 					return x.dist < y.dist

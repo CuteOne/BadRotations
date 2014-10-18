@@ -302,6 +302,7 @@ function RestorationConfig()
     if currentConfig ~= "Restoration Masou" then
         ClearConfig();
         thisConfig = 0
+        imDebugging = false
         -- Title
         CreateNewTitle(thisConfig,"Restoration |cffFF0000Masoud");
 
@@ -353,9 +354,6 @@ function RestorationConfig()
             CreateNewBox(thisConfig, "Force of Nature Count", 1, 25  , 1, 3, "|cffFFBB00Number of members under Force of Nature treshold needed to use |cffFFFFFFForce of Nature.");
             CreateNewText(thisConfig,"Force of Nature Count");
         elseif isKnown(33891) then
-            -- Lifebloom Tol
-            CreateNewCheck(thisConfig,"Lifebloom Tol");
-            CreateNewText(thisConfig,"Lifebloom Tol");
 
             -- Rejuvenation Tol
             CreateNewCheck(thisConfig,"Rejuvenation Tol");
@@ -500,18 +498,16 @@ function RestorationConfig()
         CreateNewBox(thisConfig, "Genesis Filler", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFGenesis |cffFFBB00as Filler(low prio).");
         CreateNewText(thisConfig,"Genesis Filler");
 
-        -- Mushrooms on Tank
-        CreateNewCheck(thisConfig,"Mushrooms on Tank");
-        CreateNewText(thisConfig,"Mushrooms on Tank");
-
         -- Mushrooms
         CreateNewCheck(thisConfig,"Mushrooms");
         CreateNewBox(thisConfig, "Mushrooms", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFWild Mushrooms.");
         CreateNewText(thisConfig,"Mushrooms");
 
-        -- Mushrooms Count
-        CreateNewBox(thisConfig, "Mushrooms Count", 1, 25  , 1, 5, "|cffFFBB00Number of members under Wild Mushrooms treshold needed to use |cffFFFFFFWild Mushrooms.");
-        CreateNewText(thisConfig,"Mushrooms Count");
+        -- Mushrooms on Who
+        CreateNewDrop(thisConfig,"Mushrooms Who", 1, "|cffFFBB00Tank:|cffFFFFFFAlways on the tank. \n|cffFFBB003 Units:|cffFFFFFFWill always try to cast on 3 of lowest units.",
+            "|cffFFDD11Tank",
+            "|cffFFDD113 Units")
+        CreateNewText(thisConfig,"Mushrooms Who");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------- Defensive ------");
@@ -556,6 +552,11 @@ function RestorationConfig()
         CreateNewCheck(thisConfig,"Follow Tank");
         CreateNewBox(thisConfig, "Follow Tank", 10, 40  , 1, 25, "|cffFFBB00Range from focus...");
         CreateNewText(thisConfig,"Follow Tank");
+
+        if imDebugging == true then
+            CreateNewCheck(thisConfig,"Debugging Mode");
+            CreateNewText(thisConfig,"Debugging Mode");
+        end
 
         -- General Configs
         CreateGeneralsConfig();

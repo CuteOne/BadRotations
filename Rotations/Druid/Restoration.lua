@@ -341,30 +341,6 @@ function DruidRestoration()
 	        end
 		end
 
-		--[[ 17 - Lifebloom - ToL support]]
-		if isKnown(33891) and UnitBuffID("player", 33891) and isChecked("Lifebloom Tol") == true and canCast(33763,false,false) then
-			for i = 1, #nNova do
-				if nNova[i].hp < 249 and getBuffRemain(nNova[i].unit,33763,"player") == 0 then
-					if castSpell(nNova[i].unit,33763,true,false) then return; end
-				end
-			end
-			for i = 1, #nNova do
-				if nNova[i].hp < 249 and getBuffStacks(nNova[i].unit,33763) == 1 then
-					if castSpell(nNova[i].unit,33763,true,false) then return; end
-				end
-			end
-			for i = 1, #nNova do
-				if nNova[i].hp < 249 and getBuffStacks(nNova[i].unit,33763) == 2 then
-					if castSpell(nNova[i].unit,33763,true,false) then return; end
-				end
-			end
-			for i = 1, #nNova do
-				if nNova[i].hp < 249 and getBuffStacks(nNova[i].unit,33763) == 3 and getBuffRemain(nNova[i].unit, 33763,"player") < 3 then
-					if castSpell(nNova[i].unit,33763,true,false) then return; end
-				end
-			end
-		end
-
 		--[[ 18 - reju Tol --( use reju on player with health check if not lifebloom tol check)]]
 		if isKnown(33891) and not isChecked("Lifebloom Tol") and UnitBuffID("player", 33891) and canCast(774,false,false) and lowestHP < getValue("Rejuvenation Tol") then
 	        for i = 1, #nNova do
@@ -479,25 +455,52 @@ function DruidRestoration()
 			end
 		end
 
-		--[[ 26 - WildMushroom--(if not any mushroom active )]]
-		if not isChecked("Mushrooms on Tank") and isChecked("Mushrooms") and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
-			if castHealGround(145205,15,100,getValue("Mushrooms Count")) then return; end
+
+
+
+
+
+
+
+
+
+
+		--[[ 26 - WildMushroom(if not any mushroom active )]]
+		if isChecked("Mushrooms") and (getValue("Mushrooms Who") == 2 or UnitExists("focus") == false) and (shroomTimer == nil or shroomTimer <= GetTime() - 2) then
+			if canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0 or shroomsTable[1].guid == nil) then
+				if castHealGround(145205,15,100,3) then  shroomTimer = GetTime() spellDebug("Shroom Applied to 3 units for 1st time.") return; end
+			end
 		end
 
-		--[[ 30 - WildMushroom--(Replace )]]
-		if not isChecked("Mushrooms on Tank") and isChecked("Mushrooms") and canCast(145205,false,false) and (shroomsTable ~= nil and #shroomsTable ~= 0) and lowestHP < getValue("Mushrooms") then
-			if shroomsTable ~= nil and findShroom() then
-				local allies10Yards = getAlliesInLocation(shroomsTable[1].x,shroomsTable[1].y,shroomsTable[1].z,10)
-				if #allies10Yards < getValue("Mushrooms Count") then
-					if castHealGround(145205,15,getValue("Mushrooms") ,getValue("Mushrooms Count")) then return; end
+		--[[ 30 - WildMushroom(Replace)]]
+		if isChecked("Mushrooms") and (getValue("Mushrooms Who") == 2 or UnitExists("focus") == false) and (shroomTimer == nil or shroomTimer <= GetTime() - 2) then
+			if canCast(145205,false,false) and (shroomsTable ~= nil and #shroomsTable ~= 0) and lowestHP < getValue("Mushrooms") then
+				if shroomsTable ~= nil and findShroom() then
+					local allies10Yards = getAlliesInLocation(shroomsTable[1].x,shroomsTable[1].y,shroomsTable[1].z,15)
+					if #allies10Yards < 3 then
+						if castHealGround(145205,15,getValue("Mushrooms") ,3) then shroomTimer = GetTime() spellDebug("Shroom Rapplied to 3 units.") return; end
+					end
 				end
 			end
 		end
 
-		--[[ 27 - WildMushroom--(tank check(if not any mushroom active )]]
-		if not isChecked("Mushrooms on Tank") and isChecked("Mushrooms") and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
-			if castHealGround(145205,15,100,getValue("Mushrooms Count")) then return; end
+		--[[ 27 - WildMushroom Tank(if not any mushroom active )]]
+		if isChecked("Mushrooms") and getValue("Mushrooms Who") == 1 then
+			if GetUnitSpeed("focus") == 0 and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0 or shroomsTable[1].guid == nil) then
+				if castGround("focus", 145205, 40) then  shroomTimer = GetTime() spellDebug("Shroom Applied to tank for 1st time.") return; end
+			end
 		end
+
+
+
+
+
+
+
+
+
+
+
 
 		--[[ 28 - LifebloomFocus--(Refresh if over treshold)]]
       	if isChecked("Lifebloom") then
@@ -530,16 +533,40 @@ function DruidRestoration()
 			end
 		end
 
-		--[[ 31- WildMushroom tank--(Replace all)]]
-		if isChecked("Mushrooms on Tank") and GetUnitSpeed("focus") == 0 and canCast(145205,false,false) then
-			if shroomsTable ~= nil and #shroomsTable ~= 0 and findShroom() then
-				if getDistanceToObject("focus",shroomsTable[1].x,shroomsTable[1].y,shroomsTable[1].z) > 10 then
-					if castGround("focus", 145205, 40) then return; end
+
+
+
+
+
+
+
+
+
+
+
+		--[[ 31- WildMushroom tank(Replace)]]
+		if isChecked("Mushrooms") and getValue("Mushrooms Who") == 1 and (shroomTimer == nil or shroomTimer <= GetTime() - 2) then
+			if GetUnitSpeed("focus") == 0 and canCast(145205,false,false) then
+				if shroomsTable ~= nil and #shroomsTable ~= 0 and findShroom() then
+					if getDistanceToObject("focus",shroomsTable[1].x,shroomsTable[1].y,shroomsTable[1].z) > 12 then
+						if castGround("focus", 145205, 40) then shroomTimer = GetTime() spellDebug("Shroom Reapplied to tank.") return; end
+					end
 				end
-			else
-				if castGround("focus", 145205, 40) then return; end
 			end
 		end
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 		--[[ 32 - Rejuvenation all--(if meta proc)(137331 buff id)]]
 		if isChecked("Rejuvenation Meta") and getBuffRemain("player",137331) > 0 and canCast(774,false,false) then

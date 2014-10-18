@@ -316,6 +316,7 @@ function castGround(Unit,SpellID,maxDistance)
 		if IsAoEPending() then
 		local X, Y, Z = ObjectPosition(Unit);
 			CastAtPosition(X,Y,Z);
+			return true;
 		end
  	end
  	return false;
@@ -812,11 +813,11 @@ function getHP(Unit)
 			return nNova[i].hp;
 		end
 	end
-	--if isChecked("No Incoming Heals") ~= true then
-	--	return 100*(UnitHealth(Unit)+UnitGetIncomingHeals(Unit))/UnitHealthMax(Unit)
-	--else
+	if isChecked("No Incoming Heals") ~= true then
+		return 100*(UnitHealth(Unit)+UnitGetIncomingHeals(Unit,"player"))/UnitHealthMax(Unit)
+	else
 		return 100*UnitHealth(Unit)/UnitHealthMax(Unit)
-	--end
+	end
 end
 
 -- if getMana("target") <= 15 then
@@ -867,9 +868,6 @@ function getTotemDistance(Unit1)
 	end
 end
 
-
-
-
 -- /dump UnitGUID("target")
 -- /dump getEnemies("target",10)
 -- if #getEnemies("target",10) >= 3 then
@@ -912,67 +910,6 @@ function getNumEnemies(Unit,Radius)
  	end
  	return Units;
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1120,7 +1057,7 @@ end
 -- if hasGlyph(1234) == true then
 function hasGlyph(glyphid)
  	for i=1, 6 do
-  		if select(4, GetGlyphSocketInfo(i)) == glyphid then return true; end
+  		if select(4, GetGlyphSocketInfo(i)) == glyphid or select(6, GetGlyphSocketInfo(i)) == glyphid then return true; end
  	end
  	return false;
 end
@@ -1839,6 +1776,11 @@ function shouldStopCasting(Spell)
 	end
 end
 
+function spellDebug(Message)
+	if imDebugging == true and isChecked("Debugging Mode") then
+		ChatOverlay(Message)
+	end
+end
 
 --[[           ]]	--[[           ]]	--[[           ]]
 --[[           ]]	--[[           ]]	--[[           ]]
