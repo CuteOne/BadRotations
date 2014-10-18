@@ -12,37 +12,37 @@ CreateNewWrap(thisConfig,"---------- Keys ----------");
 
 -- Pause Toggle
 CreateNewCheck(thisConfig,"Pause Toggle");
-CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle2")
+CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle")
 CreateNewText(thisConfig,"Pause Key");
 
 -- Single/Multi Toggle Up
 CreateNewCheck(thisConfig,"Rotation Up","Switch through Rotation Mode (Single Target / Multi Target / Auto AoE)");
-CreateNewDrop(thisConfig,"Rotation Up", 3, "Toggle2")
+CreateNewDrop(thisConfig,"Rotation Up", 3, "Toggle")
 CreateNewText(thisConfig,"Rotation Up");
 
 -- Single/Multi Toggle Down
 CreateNewCheck(thisConfig,"Rotation Down","Switch through Rotation Mode ( Auto AoE / Multi Target / Single Target)");
-CreateNewDrop(thisConfig,"Rotation Down", 1, "Toggle2")
+CreateNewDrop(thisConfig,"Rotation Down", 1, "Toggle")
 CreateNewText(thisConfig,"Rotation Down");
 
 --Cooldown Key Toggle
 CreateNewCheck(thisConfig,"Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.");
-CreateNewDrop(thisConfig,"Cooldown Mode", 3, "Toggle2")
+CreateNewDrop(thisConfig,"Cooldown Mode", 3, "Toggle")
 CreateNewText(thisConfig,"Cooldowns");
 
 --Defensive Key Toggle
 CreateNewCheck(thisConfig,"Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.");
-CreateNewDrop(thisConfig,"Defensive Mode", 6, "Toggle2")
+CreateNewDrop(thisConfig,"Defensive Mode", 6, "Toggle")
 CreateNewText(thisConfig,"Defensive");
 
 --Interrupts Key Toggle
 CreateNewCheck(thisConfig,"Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.");
-CreateNewDrop(thisConfig,"Interrupt Mode", 6, "Toggle2")
+CreateNewDrop(thisConfig,"Interrupt Mode", 6, "Toggle")
 CreateNewText(thisConfig,"Interrupts");
 
 -- Heroic Leap
 CreateNewCheck(thisConfig,"HeroicLeapKey");
-CreateNewDrop(thisConfig,"HeroicLeapKey", 2, "Toggle2")
+CreateNewDrop(thisConfig,"HeroicLeapKey", 2, "Toggle")
 CreateNewText(thisConfig,"Heroic Leap Key");
 
 -- Wrapper
@@ -146,15 +146,9 @@ CreateNewCheck(thisConfig,"DPS Testing");
 CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 5, "Set to desired time for test in minutes. Min: 1 / Max: 15 / Interval: 1");
 CreateNewText(thisConfig,"DPS Testing");
 
--- Show more
-CreateNewCheck(thisConfig,"Showmore","Check if you want the options for Healing/General/Poke/Hacks/Tracking - Reload after checking");
-CreateNewText(thisConfig,"Show More");
-
 -- Healing/general/poke/hacks/tracking
-if isChecked("Showmore") == true then
 CreateGeneralsConfig();
 WrapsManager();
-end
 
 end
 end

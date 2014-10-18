@@ -67,6 +67,14 @@ function useCDs()
     end
 end
 
+function useDefCDs()
+    if BadBoy_data['Defensive'] == 1 then
+        return true
+    else
+        return false
+    end
+end
+
 -----------------------
 --- Bloodlust check ---
 -----------------------

@@ -2,19 +2,19 @@ if select(3,UnitClass("player")) == 1 then
 
 	function ArmsWarrior()
 
-		if Currentconfig ~= "Arms Chumii" then
+		if currentConfig ~= "Arms Chumii" then
 			WarriorArmsConfig();
-			WarriorArmsToggles()
-			Currentconfig = "Arms Chumii";
+			WarriorArmsToggles();
+			currentConfig = "Arms Chumii";
 		end
-		-- GroupInfo();
+
+		--GroupInfo();
 	------------------------------------------------------------------------------------------------------
 	-- Locals --------------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
 		local rage = UnitPower("player");
 		local myHP = getHP("player");
 		--local ennemyUnits = getNumEnemies("player", 5)
-
 		local GT = GetTime()
 		local CS_START, CS_DURATION = GetSpellCooldown(ColossusSmashArms)
 		local CS_COOLDOWN = (CS_START - GT + CS_DURATION)
@@ -62,26 +62,26 @@ if select(3,UnitClass("player")) == 1 then
 					return;
 				end
 			end
-			-- -- Commanding Shout
-			-- if isChecked("Shout") and  getValue("Shout") == 1 then
-		 --  	for i = 1, #members do
-	  -- 			if not isBuffed(members[i].Unit,{21562,109773,469,90364}) and (#members==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
-	  -- 				if castSpell("player",CommandingShout,true) then
-	  -- 					return;
-	  -- 				end
-	  -- 			end
-		 --  	end
-			-- end
-			-- -- Battle Shout
-			-- if isChecked("Shout") and  getValue("Shout") == 2 then
-		 --  	for i = 1, #members do
-	  -- 			if not isBuffed(members[i].Unit,{57330,19506,6673}) and (#members==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
-	  -- 				if castSpell("player",BattleShout,true) then
-	  -- 					return;
-	  -- 				end
-	  -- 			end
-		 --  	end
-			-- end
+			-- Commanding Shout
+				if isChecked("Shout") == true and getValue("Shout") == 1 and canCast(CommandingShout,false,false) and (lastCShout == nil or lastCShout <= GetTime() - 5) then
+					for i = 1, #nNova do
+						if nNova[i].hp < 249 then
+							if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{21562,109773,469,90364}) or (getBuffRemain(nNova[i].unit,CommandingShout) < 10*60 and isSpellInRange(CommandingShout,nNova[i].unit)) then
+								if castSpell("player",CommandingShout,true) then lastCShout = GetTime(); return; end
+				    	end
+				   	end
+				  end
+				end
+				-- Commanding Shout
+				if isChecked("Shout") == true and getValue("Shout") == 2 and canCast(BattleShout,false,false) and (lastBShout == nil or lastBShout <= GetTime() - 5) then
+					for i = 1, #nNova do
+						if nNova[i].hp < 249 then
+							if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{57330,19506,6673}) or (getBuffRemain(nNova[i].unit,BattleShout) < 10*60 and isSpellInRange(BattleShout,nNova[i].unit)) then
+								if castSpell("player",BattleShout,true) then lastBShout = GetTime(); return; end
+				    	end
+				   	end
+				  end
+				end
 		end -- Out of Combat end
 	------------------------------------------------------------------------------------------------------
 	-- In Combat -----------------------------------------------------------------------------------------
@@ -127,13 +127,7 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 	-- Defensive Cooldowns -------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-			if isChecked("Defensive Mode") then
-				if not UnitBuffID("player", 80169) -- Food
-				and not UnitBuffID("player", 87959) -- Drink
-				and not UnitCastingInfo("player")
-				and not UnitChannelInfo("player")
-				and not UnitIsDeadOrGhost("player")
-				and isInCombat("player") then
+			if useDefCDs() == true then
 					-- Die by the Sword
 					if isChecked("DiebytheSword") == true then
 						if getHP("player") <= getValue("DiebytheSword") then
@@ -186,12 +180,11 @@ if select(3,UnitClass("player")) == 1 then
 							end
 						end
 					end
-				end -- Playerchecks end
 			end -- isChecked("Defensive Mode") end
 	------------------------------------------------------------------------------------------------------
 	-- Offensive Cooldowns -------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-			if useCDs() then
+			if useCDs() == true then
 				-- and getDistance("player","target") <= 5
 				--and targetDistance <= 5 then
 				-- actions+=/potion,name=draenic_strength,if=(target.health.pct<20&buff.recklessness.up)|target.time_to_die<=25
@@ -242,7 +235,7 @@ if select(3,UnitClass("player")) == 1 then
 	        	end
 		      end
 		    end
-			end
+			end -- useCDs() end
 	------------------------------------------------------------------------------------------------------
 	-- Interrupts ----------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
