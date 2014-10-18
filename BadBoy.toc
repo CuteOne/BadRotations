@@ -77,7 +77,7 @@ Rotations\Druid\Guardian.lua
 Rotations\Druid\Moonkin.lua
 Rotations\Druid\Restoration.lua
 Rotations\Hunter\Beastmaster.lua
-Rotations\Hunter\Marskmanship.lua
+Rotations\Hunter\Marksmanship.lua
 Rotations\Hunter\Survival.lua
 Rotations\Mage\Arcane.lua
 Rotations\Mage\Fire.lua

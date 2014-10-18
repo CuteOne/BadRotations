@@ -54,51 +54,54 @@ if select(3, UnitClass("player")) == 3 then
 	
 	function MarkToggles()
         GarbageButtons();
-		
-		if  AoEModesLoaded ~= "Mark AoE Modes" then 
+        -- Aoe Button
+        if  AoEModesLoaded ~= "Cpoworks Marks AoE Modes" then 
             AoEModes = { 
                 [1] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "Recommended for one or two targets.", highlight = 0, icon = 3044 },
                 [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "Recommended for three targets or more.", highlight = 0, icon = 2643 },
                 [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "Recommended for lazy people like me.", highlight = 1, icon = 34026 }
             };
             CreateButton("AoE",0,1)
-            AoEModesLoaded = "Mark AoE Modes";
+            AoEModesLoaded = "Cpoworks Marks AoE Modes";
         end
-		
-	end
-	
-	function SurvToggles()
-        GarbageButtons();
-		
-		-- AoE Button
-        if AoEModesLoaded ~= "Surv AoE Modes" then 
-            CustomAoEModes = { 
-			[1] = { mode = "One", value = 1 , overlay = "Single Target Enabled", tip = "", highlight = 0, icon = 3044 },
-            [2] = { mode = "Two", value = 2 , overlay = "Two Target Enabled", tip = "", highlight = 0, icon = 2643 },
-            [3] = { mode = "Three", value = 3 , overlay = "Three Target Enabled", tip = "", highlight = 0, icon = 120360 }
+        -- Interrupts Button
+        if  InterruptsModesLoaded ~= "Cpoworks Marks Interrupts Modes" then 
+            InterruptsModes = { 
+                [1] = { mode = "None", value = 1 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
+                [2] = { mode = "All", value = 2 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = 147362}
             };
-           AoEModes = CustomAoEModes
-           CreateButton("AoE",1,0)
-           AoEModesLoaded = "Surv AoE Modes";
+            CreateButton("Interrupts",1,0)
+            InterruptsModesLoaded = "Cpoworks Marks Interrupts Modes";
         end
-		
-		function SpecificToggle(toggle)
-            if getValue(toggle) == 1 then
-                return IsLeftControlKeyDown();
-            elseif getValue(toggle) == 2 then
-                return IsLeftShiftKeyDown();
-            elseif getValue(toggle) == 3 then
-                return IsRightControlKeyDown();
-            elseif getValue(toggle) == 4 then
-                return IsRightShiftKeyDown();
-            elseif getValue(toggle) == 5 then
-                return IsRightAltKeyDown();
-            elseif getValue(toggle) == 6 then
-                return 0
-            end
+
+        -- Defensive Button
+        if  DefensiveModesLoaded ~= "Cpoworks Marks Defensive Modes" then 
+            DefensiveModes = { 
+                [1] = { mode = "None", value = 1 , overlay = "Defensive Disabled", tip = "No Defensive Cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
+                [2] = { mode = "All", value = 2 , overlay = "Defensive Enabled", tip = "Includes Deterrence and Feign Death.", highlight = 1, icon = 19263 }
+            };
+            CreateButton("Defensive",1,1)
+            DefensiveModesLoaded = "Cpoworks Marks Defensive Modes";
         end
-		
+        -- Cooldowns Button
+        if  CooldownsModesLoaded ~= "Cpoworks Marks Cooldowns Modes" then 
+            CooldownsModes = { 
+                [1] = { mode = "None", value = 1 , overlay = "Cooldowns Disabled", tip = "No cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
+                [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "Includes config's selected Cooldowns.", highlight = 1, icon = [[INTERFACE\ICONS\inv_misc_blackironbomb]]},
+                [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "Includes Rapid Fire, Bestial Wrath and Focus Fire.", highlight = 1, icon = 3045 }
+            };
+            CreateButton("Cooldowns",2,0)
+            CooldownsModesLoaded = "Cpoworks Marks Cooldowns Modes";
+        end
+        -- Pet Button
+        if  PetModesLoaded ~= "Cpoworks Marks Pet Modes" then 
+            PetModes = { 
+                [1] = { mode = "No", value = 1 , overlay = "Pet Disabled", tip = "Will not manage Pet.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
+                [2] = { mode = "Pet", value = 2 , overlay = "Pet Enabled", tip = "Will manage Pet.", highlight = 1, icon = 883 },
+            };
+            CreateButton("Pet",2,1)
+            PetModesLoaded = "Cpoworks Marks Pet Modes";
+        end
 	end
-	
 
 end
