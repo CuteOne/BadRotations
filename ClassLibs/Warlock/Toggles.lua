@@ -1,22 +1,6 @@
 if select(3, UnitClass("player")) == 9 then
 
 
-      --[[]]        --[[           ]]   --[[           ]]   --[[]]              --[[           ]]
-     --[[  ]]       --[[           ]]   --[[           ]]   --[[]]              --[[           ]]
-    --[[    ]]      --[[]]              --[[]]              --[[]]                   --[[ ]]
-   --[[      ]]     --[[           ]]   --[[           ]]   --[[]]                   --[[ ]]
-  --[[        ]]    --[[           ]]   --[[           ]]   --[[]]                   --[[ ]]
- --[[]]    --[[]]   --[[]]              --[[]]              --[[           ]]   --[[           ]]
---[[]]      --[[]]  --[[]]              --[[]]              --[[           ]]   --[[           ]]
-
---[[         ]]     --[[           ]]   --[[]]     --[[]]   --[[           ]]
---[[          ]]    --[[           ]]   --[[ ]]   --[[ ]]   --[[           ]]
---[[]]     --[[]]   --[[]]              --[[           ]]   --[[]]     --[[]]
---[[]]     --[[]]   --[[           ]]   --[[           ]]   --[[]]     --[[]]
---[[]]     --[[]]   --[[]]              --[[]]     --[[]]   --[[]]     --[[]]
---[[          ]]    --[[           ]]   --[[]]     --[[]]   --[[           ]]
---[[         ]]     --[[           ]]   --[[]]     --[[]]   --[[           ]]
-
 
 
     function DemonologyToggles()
@@ -63,8 +47,10 @@ if select(3, UnitClass("player")) == 9 then
 
 
 	function DestructionToggles()
+		
         -- Aoe Button
         if  AoEModesLoaded ~= "Destruction Warlock AoE Modes" then 
+			print("aoe")
             AoEModes = { 
                 [1] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Recommended for \n|cff00FF00Single Target (1-2)", highlight = 0, icon = 108557 },
                 [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Recommended for \n|cffFF0000AoE (3+)", highlight = 0, icon = 101546 },
@@ -73,6 +59,7 @@ if select(3, UnitClass("player")) == 9 then
             CreateButton("AoE",0.5,1)
             AoEModesLoaded = "Destruction Warlock AoE Modes";
         end
+		
         -- Interrupts Button
         if  InterruptsModesLoaded ~= "Destruction Warlock Interrupts Modes" then 
             InterruptsModes = { 
@@ -103,33 +90,6 @@ if select(3, UnitClass("player")) == 9 then
             CooldownsModesLoaded = "Destruction Warlock Cooldowns Modes";
         end
     end
-	
-    function SpecificToggle(toggle)
-        if getValue(toggle) == 1 then
-            return IsLeftControlKeyDown();
-        elseif getValue(toggle) == 2 then
-            return IsLeftShiftKeyDown();
-        elseif getValue(toggle) == 3 then
-            return IsLeftAltKeyDown();
-        elseif getValue(toggle) == 4 then
-            return IsRightControlKeyDown();
-        elseif getValue(toggle) == 5 then
-            return IsRightShiftKeyDown();
-        elseif getValue(toggle) == 6 then
-            return IsRightAltKeyDown();
-        elseif getValue(toggle) == 7 then
-            return 1
-        end
-    end
 
-
-
---[[         ]]     --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]
---[[          ]]    --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]
---[[]]     --[[]]   --[[]]              --[[]]                   --[[ ]]        --[[]]     --[[]]   --[[]]     --[[]]
---[[]]     --[[]]   --[[           ]]   --[[           ]]        --[[ ]]        --[[]]     --[[]]   --[[]]     --[[]]
---[[]]     --[[]]   --[[]]                         --[[]]        --[[ ]]        --[[        ]]      --[[]]     --[[]]
---[[          ]]    --[[           ]]   --[[           ]]        --[[ ]]        --[[]]    --[[]]    --[[           ]]
---[[         ]]     --[[           ]]   --[[           ]]        --[[ ]]        --[[]]     --[[]]   --[[           ]]
 
 end
