@@ -854,15 +854,26 @@ end
 -- /dump getTotemDistance("target")
 function getTotemDistance(Unit1)
 	if Unit1 == nil then Unit1 = "player"; end
-	if activeTotem ~= nil and UnitIsVisible(Unit1) and IExists(activeTotem) then
-		local X1,Y1,Z1 = ObjectPosition(Unit1);
-		local X2,Y2,Z2 = IGetLocation(activeTotem);
-		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
-			local unitSize = IGetFloatDescriptor(UnitGUID(Unit1),0x110);
-			return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unitSize;
-		else
-			return 1000;
+	if activeTotem ~= nil and UnitIsVisible(Unit1) then
+		for i = 1, ObjectCount() do
+            --print(UnitGUID(ObjectWithIndex(i)))
+            if activeTotem == UnitGUID(ObjectWithIndex(i)) then
+                X2, Y2, Z2 = ObjectPosition(ObjectWithIndex(i));
+            end
 		end
+		local X1,Y1,Z1 = ObjectPosition(Unit1);
+		
+		TotemDistance = math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))
+		
+		--print(TotemDistance)
+		return TotemDistance
+		
+		--if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
+		--	local unitSize = IGetFloatDescriptor(UnitGUID(Unit1),0x110);
+		--	return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unitSize;
+		--else
+		--	return 1000;
+		--end
 	else
 		return 1000;
 	end
