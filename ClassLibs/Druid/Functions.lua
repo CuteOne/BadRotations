@@ -269,8 +269,8 @@ function dynamicTarget()
     if isChecked("Multi-Rake") or isChecked("Death Cat Mode") then
         for i = 1, ObjectCount() do
             if getCreatureType(ObjectWithIndex(i)) == true then
-                local thisUnit = ObjectWithIndex(i)
-                return thisUnit
+                --local thisUnit = ObjectWithIndex(i)
+                return ObjectWithIndex(i)
             end
         end
     else
@@ -519,6 +519,7 @@ function feralOpener()
         and UnitBuffID("player",cf)
         and targetDistance<=20
         and not isInCombat("player")
+        and not isChecked("Death Cat Mode")
     then
         -- Prowl
         if not UnitBuffID("player",prl) then
@@ -578,21 +579,23 @@ function feralSingle()
                 if castSpell("player",cf,true) then return; end
             end
             if UnitBuffID("player",cf) and getPower("player") >= 25 then
-                if UnitExists("target") ~= nil and isEnnemy("target") and targetDistance > 8 then
+                if not UnitExists("target") and isEnnemy("target") and targetDistance > 8 then
                     ClearTarget();
                 end
                 if enemiesInRange > 0 then
                     if getPower("player") <= 35 and getSpellCD(tf) == 0 then
                         if castSpell("player",tf,false,false) then return; end
                     end
-                    --if getPower("player") >= 25 and getSRR() < 1 and getCombo() > 0 then
-                    --    if castSpell("player",svr) then return; end
-                    --end
+                    if getPower("player") >= 25 and getCombo() >= 5 then
+                        if castSpell("player",svr,false,false) then return; end
+                    end
                     if getPower("player") >= 40 and enemiesInRange == 1 then
-                        local thisUnit = dynamicTarget()
-                        if UnitCanAttack("player",thisUnit) == 1 and getCreatureType(thisUnit) == true then
-                            if getDistance(thisUnit) <= 4 and getFacing(thisUnit) == true then
-                                if castSpell(thisUnit,shr,false,false) then swipeSoon = nil; return; end
+                        for i = 1, ObjectCount() do
+                            if getCreatureType(ObjectWithIndex(i)) == true then
+                                local thisUnit = ObjectWithIndex(i)
+                                if UnitCanAttack("player",thisUnit) and getDistance(thisUnit) <= 4 and getFacing(thisUnit) == true then
+                                    if castSpell(thisUnit,shr,false,false) then swipeSoon = nil; return; end
+                                end
                             end
                         end
                     end
@@ -606,88 +609,93 @@ function feralSingle()
                     end
                 end
             end
-        end
-        --Rake - if=buff.prowl.up|buff.shadowmeld.up
-        if isInMelee() and (prlRemain>0 or rkRemain<3) and feralPower>=35 then
-            if castSpell("target",rk,false,false) then return; end
-        end
-        -- Tiger's Fury - if=(!buff.omen_of_clarity.react&energy.max-energy>=60)|energy.max-energy>=80
-        if isInMelee() and ((feralPowerDiff>=60 and ccRemain==0) or feralPowerDiff>=80) then
-            if castSpell("player",tf,false,false) then return; end
-        end
-        -- Ferocious Bite - if=dot.rip.ticking&dot.rip.remains<=3&target.health.pct<25
-        if isInMelee() and ripRemain>0 and ripRemain<=3 and getHP("target")<25 and feralPower>=25 then
-            if castSpell("target",fb,false,false) then return; end
-        end
-        -- Healing Touch
-        if getBuffRemain("player", ps) > 0 and (getBuffRemain("player", ps) <= 1.5 or getCombo() >= 4) then
-            if getValue("Auto Heal")==1 then
-                if castSpell(nNova[1].unit,ht) then return; end
+        else
+            --Rake - if=buff.prowl.up|buff.shadowmeld.up
+            if isInMelee() and (prlRemain>0 or rkRemain<3) and feralPower>=35 then
+                if castSpell("target",rk,false,false) then return; end
             end
-            if getValue("Auto Heal")==2 then
-                if castSpell("player",ht,false,false) then return; end
+            -- Tiger's Fury - if=(!buff.omen_of_clarity.react&energy.max-energy>=60)|energy.max-energy>=80
+            if isInMelee() and ((feralPowerDiff>=60 and ccRemain==0) or feralPowerDiff>=80) then
+                if castSpell("player",tf,false,false) then return; end
             end
-        end
-        -- Savage Roar - if=buff.savage_roar.remains<3
-        if savageRemain<3 and getCombo() > 0 and feralPower>=25 then
-            if castSpell("player",svr,false,false) then return; end
-        end
-        -- Thrash - if=buff.omen_of_clarity.react&remains<=duration*0.3&active_enemies>1
-        if useThrash() and targetDistance < 8 and ccRemain>0 and thrRemain <= thrDuration*0.3 then
-            if castSpell("target",thr,false,false) then return; end
-        end
-        -- Ferocious Bite - if=combo_points=5&target.health.pct<25&dot.rip.ticking
-        if isInMelee() and getCombo()>=5 and getHP("target")<25 and ripRemain>0 and feralPower>=50 then
-            if castSpell("target",fb,false,false) then return; end
-        end
-        -- Rip - if=combo_points=5&remains<=3
-        if isInMelee() and getCombo()>=5 and ripRemain<=3 and feralPower>=30 then
-            if castSpell("target",rp,false,false) then return; end
-        end
-        -- Rip - if=combo_points=5&remains<=duration*0.3&persistent_multiplier>dot.rip.pmultiplier
-        if isInMelee() and getCombo()>=5 and ripRemain<=ripDuration*0.3 and ripCalc > ripApplied and feralPower>=30 then
-            if castSpell("target",rp,false,false) then return; end
-        end
-        -- Savage Roar - if=combo_points=5&(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)&buff.savage_roar.remains<42*0.3
-        if getCombo()>=5 and (feralTimeToMax<=1 or UnitBuffID("player",ber) or tfCdRemain<3) and savageRemain<42*0.3 and feralPower>=25 then
-            if castSpell("player",svr,false,false) then return; end
-        end
-        -- Ferocious Bite - if=combo_points=5&(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)
-        if isInMelee() and getCombo()>=5 and (feralTimeToMax<=1 or UnitBuffID("player",ber) or tfCdRemain<3) and feralPower>=25 then
-            if castSpell("target",fb,false,false) then return; end
-        end
-        -- Rake - if=remains<=3&combo_points<5
-        if isChecked("Multi-Rake") and canCast(rk) then
-            local thisUnit = dynamicTarget()
-            if UnitCanAttack(thisUnit,"player") == true
-                and not UnitIsDeadOrGhost(thisUnit)
-                and getFacing("player",thisUnit) == true
-                and getDebuffRemain(thisUnit,rk,"player") < 3
-                and getPower("player") >= 35
-                and getDistance(thisUnit) < 5
-            then
-                if castSpell(thisUnit,rk,false,false) then return; end
+            -- Ferocious Bite - if=dot.rip.ticking&dot.rip.remains<=3&target.health.pct<25
+            if isInMelee() and ripRemain>0 and ripRemain<=3 and getHP("target")<25 and feralPower>=25 then
+                if castSpell("target",fb,false,false) then return; end
             end
-        end
-        -- Rake - if=remains<=duration*0.3&combo_points<5&persistent_multiplier>dot.rake.pmultiplier
-        if isInMelee() and rkRemain<=rkDuration*0.3 and getCombo()<5 and rkCalc > rkApplied and feralPower>=35 then
-            if castSpell("target",rk,false,false) then return; end
-        end
-        -- Thrash - if=remains<=duration*0.3&active_enemies>1
-        if useThrash() and targetDistance < 8 and thrRemain<=thrDuration*0.3 and feralPower>=50 and ripRemain>ripDuration*0.3 then
-            if castSpell("target",thr,false,false) then return; end
-        end
-        -- Rake - if=persistent_multiplier>dot.rake.pmultiplier&combo_points<5
-        if isInMelee() and rkCalc > rkApplied and getCombo()<5 and feralPower>=35 then
-            if castSpell("target",rk,false,false) then return; end
-        end
-        --swipe,if=combo_points<5&active_enemies>=3
-        if useAoE() and targetDistance < 8 and getCombo()<5 and feralPower>=45 then
-            if castSpell("target",sw,false,false) then return; end
-        end
-        -- Shred - if=combo_points<5&active_enemies<3
-        if not useAoE() and isInMelee() and getCombo()<5 and feralPower>=40 and (getCombo()<5 or feralTimeToMax <= 1) then
-            if castSpell("target",shr,false,false) then return; end
+            -- Healing Touch
+            if getBuffRemain("player", ps) > 0 and (getBuffRemain("player", ps) <= 1.5 or getCombo() >= 4) then
+                if getValue("Auto Heal")==1 then
+                    if castSpell(nNova[1].unit,ht) then return; end
+                end
+                if getValue("Auto Heal")==2 then
+                    if castSpell("player",ht,false,false) then return; end
+                end
+            end
+            -- Savage Roar - if=buff.savage_roar.remains<3
+            if savageRemain<3 and getCombo() > 0 and feralPower>=25 then
+                if castSpell("player",svr,false,false) then return; end
+            end
+            -- Thrash - if=buff.omen_of_clarity.react&remains<=duration*0.3&active_enemies>1
+            if useThrash() and targetDistance < 8 and ccRemain>0 and thrRemain <= thrDuration*0.3 then
+                if castSpell("target",thr,false,false) then return; end
+            end
+            -- Ferocious Bite - if=combo_points=5&target.health.pct<25&dot.rip.ticking
+            if isInMelee() and getCombo()>=5 and getHP("target")<25 and ripRemain>0 and feralPower>=50 then
+                if castSpell("target",fb,false,false) then return; end
+            end
+            -- Rip - if=combo_points=5&remains<=3
+            if isInMelee() and getCombo()>=5 and ripRemain<=3 and feralPower>=30 then
+                if castSpell("target",rp,false,false) then return; end
+            end
+            -- Rip - if=combo_points=5&remains<=duration*0.3&persistent_multiplier>dot.rip.pmultiplier
+            if isInMelee() and getCombo()>=5 and ripRemain<=ripDuration*0.3 and ripCalc > ripApplied and feralPower>=30 then
+                if castSpell("target",rp,false,false) then return; end
+            end
+            -- Savage Roar - if=combo_points=5&(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)&buff.savage_roar.remains<42*0.3
+            if getCombo()>=5 and (feralTimeToMax<=1 or UnitBuffID("player",ber) or tfCdRemain<3) and savageRemain<42*0.3 and feralPower>=25 then
+                if castSpell("player",svr,false,false) then return; end
+            end
+            -- Ferocious Bite - if=combo_points=5&(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)
+            if isInMelee() and getCombo()>=5 and (feralTimeToMax<=1 or UnitBuffID("player",ber) or tfCdRemain<3) and feralPower>=25 then
+                if castSpell("target",fb,false,false) then return; end
+            end
+            -- Rake - if=remains<=3&combo_points<5
+            if isChecked("Multi-Rake") and canCast(rk) then
+                for i = 1, ObjectCount() do
+                    if getCreatureType(ObjectWithIndex(i)) == true then
+                        local thisUnit = ObjectWithIndex(i)
+                        if UnitCanAttack(thisUnit,"player") == true
+                            and not UnitIsDeadOrGhost(thisUnit)
+                            and getFacing("player",thisUnit) == true
+                            and getDebuffRemain(thisUnit,rk,"player") < 3
+                            and getPower("player") >= 35
+                            and getDistance(thisUnit) < 5
+                        then
+                            if castSpell(thisUnit,rk,false,false) then return; end
+                        end
+                    end
+                end
+            end
+            -- Rake - if=remains<=duration*0.3&combo_points<5&persistent_multiplier>dot.rake.pmultiplier
+            if isInMelee() and rkRemain<=rkDuration*0.3 and getCombo()<5 and rkCalc > rkApplied and feralPower>=35 then
+                if castSpell("target",rk,false,false) then return; end
+            end
+            -- Thrash - if=remains<=duration*0.3&active_enemies>1
+            if useThrash() and targetDistance < 8 and thrRemain<=thrDuration*0.3 and feralPower>=50 and ripRemain>ripDuration*0.3 then
+                if castSpell("target",thr,false,false) then return; end
+            end
+            -- Rake - if=persistent_multiplier>dot.rake.pmultiplier&combo_points<5
+            if isInMelee() and rkCalc > rkApplied and getCombo()<5 and feralPower>=35 then
+                if castSpell("target",rk,false,false) then return; end
+            end
+            --swipe,if=combo_points<5&active_enemies>=3
+            if useAoE() and targetDistance < 8 and getCombo()<5 and feralPower>=45 then
+                if castSpell("target",sw,false,false) then return; end
+            end
+            -- Shred - if=combo_points<5&active_enemies<3
+            if not useAoE() and isInMelee() and getCombo()<5 and feralPower>=40 and (getCombo()<5 or feralTimeToMax <= 1) then
+                if castSpell("target",shr,false,false) then return; end
+            end
         end
     else
         return false
