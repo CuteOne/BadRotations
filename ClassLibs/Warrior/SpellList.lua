@@ -89,6 +89,8 @@ Ravager       = 152277;
 Siegebreaker = 176289;
 SuddenDeathTalent = 29725;
 SuddenDeathSpellAura = 52437;
+UnyieldingStrikesTalent = 169685;
+UnyieldingStrikesAura = 169686;
 
 --Procs--
 Enrage				= 12880;

@@ -304,33 +304,8 @@ CreateNewWrap(thisConfig,"---------- Keys ----------");
 
 -- Pause Toggle
 CreateNewCheck(thisConfig,"Pause Toggle");
-CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle2")
+CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle")
 CreateNewText(thisConfig,"Pause Key");
-
--- Single/Multi Toggle Up
-CreateNewCheck(thisConfig,"Rotation Up","Switch through Rotation Mode (Single Target / Multi Target / Auto AoE)");
-CreateNewDrop(thisConfig,"Rotation Up", 3, "Toggle2")
-CreateNewText(thisConfig,"Rotation Up");
-
--- Single/Multi Toggle Down
-CreateNewCheck(thisConfig,"Rotation Down","Switch through Rotation Mode ( Auto AoE / Multi Target / Single Target)");
-CreateNewDrop(thisConfig,"Rotation Down", 1, "Toggle2")
-CreateNewText(thisConfig,"Rotation Down");
-
---Cooldown Key Toggle
-CreateNewCheck(thisConfig,"Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.");
-CreateNewDrop(thisConfig,"Cooldown Mode", 3, "Toggle2")
-CreateNewText(thisConfig,"Cooldowns");
-
---Defensive Key Toggle
-CreateNewCheck(thisConfig,"Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.");
-CreateNewDrop(thisConfig,"Defensive Mode", 6, "Toggle2")
-CreateNewText(thisConfig,"Defensive");
-
---Interrupts Key Toggle
-CreateNewCheck(thisConfig,"Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.");
-CreateNewDrop(thisConfig,"Interrupt Mode", 6, "Toggle2")
-CreateNewText(thisConfig,"Interrupts");
 
 -- Heroic Leap
 CreateNewCheck(thisConfig,"HeroicLeapKey");
@@ -353,24 +328,12 @@ CreateNewText(thisConfig,"Shout");
 -- Wrapper
 CreateNewWrap(thisConfig,"------ Cooldowns ------");
 
--- Recklessness
-CreateNewCheck(thisConfig,"Recklessness");
-CreateNewDrop(thisConfig, "Recklessness", 1, "Use Recklessness always or only on Boss/Dummy", "|cffFFBB00Always", "|cff0077FFBoss")
-CreateNewText(thisConfig,"Recklessness");
-
--- SkullBanner
-CreateNewCheck(thisConfig,"SkullBanner");
-CreateNewDrop(thisConfig, "SkullBanner", 1, "Use Skull Banner always or only on Boss/Dummy", "|cffFFBB00Always", "|cff0077FFBoss")
-CreateNewText(thisConfig,"SkullBanner");
-
 -- Avatar
-CreateNewCheck(thisConfig,"Avatar");
-CreateNewDrop(thisConfig, "Avatar", 1, "Use Avatar always or only on Boss/Dummy", "|cffFFBB00Always", "|cff0077FFBoss")
+CreateNewCheck(thisConfig,"useAvatar");
 CreateNewText(thisConfig,"Avatar");
 
 -- Racial
-CreateNewCheck(thisConfig,"Racial");
-CreateNewDrop(thisConfig, "Racial", 1, "Use Racial always or only on Boss/Dummy", "|cffFFBB00Always", "|cff0077FFBoss")
+CreateNewCheck(thisConfig,"useRacial");
 CreateNewText(thisConfig,"Racial (Orc / Troll)");
 
 -- Wrapper
@@ -384,11 +347,6 @@ CreateNewText(thisConfig,"Block or Barrier");
 CreateNewCheck(thisConfig,"LastStand");
 CreateNewBox(thisConfig, "LastStand", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFLast Stand");
 CreateNewText(thisConfig,"Last Stand");
-
--- Rallying Cry
-CreateNewCheck(thisConfig,"RallyingCry");
-CreateNewBox(thisConfig, "RallyingCry", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRallying Cry");
-CreateNewText(thisConfig,"Rallying Cry");
 
 -- Shield Wall
 CreateNewCheck(thisConfig,"ShieldWall");

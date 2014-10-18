@@ -60,7 +60,7 @@ end
 --- Cooldowns ---
 -----------------
 function useCDs()
-    if (BadBoy_data['Cooldowns'] == 1 and isBoss("target") or isDummy("target")) or BadBoy_data['Cooldowns'] == 2 then
+    if (BadBoy_data['Cooldowns'] == 1 and (isBoss("target") or isDummy("target"))) or BadBoy_data['Cooldowns'] == 2 then
         return true
     else
         return false
@@ -286,6 +286,59 @@ function ArmsMultiTarIcyVeins()
                 end
             end -- Multi Target end
         end
+
+function ProtSingeTar()
+    -- Dragon Roar
+    if isKnown(DragonRoar) and getDistance("target") <=8 then
+        if castSpell("target",DragonRoar,true) then
+            return;
+        end
+    end
+    -- ShieldSlam
+    if castSpell("target",ShieldSlam,false,false) then
+        return;
+    end
+    -- Revenge
+    if castSpell("target",Revenge,false,false) then
+        return;
+    end
+    -- Execute
+    if UnitBuffID("player",SuddenDeathSpellAura) then
+        if castSpell("target",ExecuteArms,false,false) then
+            return;
+        end
+    elseif UnitPower("player") > 90 then
+        if castSpell("target",ExecuteArms,false,false) then
+            return;
+        end
+    end
+    -- StormBolt
+    if isKnown(StormBolt) then
+        if castSpell("target",StormBolt,false,false) then
+            return;
+        end
+    end
+    -- Heroic Strike
+    if isKnown(UnyieldingStrikesTalent) then
+        if getBuffStacks("player",UnyieldingStrikesAura) == 6 then
+            if castSpell("target",HeroicStrike,false,false) then
+                return;
+            end
+        end
+    end
+    -- Devastate
+    if castSpell("target",Devastate,false,false) then
+        return;
+    end
+    -- Rage Dump
+    if UnitPower("player") >= 100 then
+        if castSpell("target",HeroicStrike,false,false) then
+           return;
+        end
+    end
+end
+
+
 
 --[[           ]]	--[[]]	   --[[]]	--[[           ]]	--[[]]	  --[[]]
 --[[           ]]	--[[]]	   --[[]]	--[[           ]]	--[[]]	  --[[]]
