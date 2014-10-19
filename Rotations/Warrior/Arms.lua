@@ -2,261 +2,231 @@ if select(3,UnitClass("player")) == 1 then
 
 	function ArmsWarrior()
 
-		if currentConfig ~= "Arms Chumii" then
+		if Currentconfig ~= "Arms Warrior" then
 			WarriorArmsConfig();
-			WarriorArmsToggles();
-			currentConfig = "Arms Chumii";
+			WarriorArmsToggles()
+			Currentconfig = "Arms Warrior";
 		end
 
-		--GroupInfo();
-	------------------------------------------------------------------------------------------------------
-	-- Locals --------------------------------------------------------------------------------------------
-	------------------------------------------------------------------------------------------------------
-		local rage = UnitPower("player");
-		local myHP = getHP("player");
-		--local ennemyUnits = getNumEnemies("player", 5)
+		--General Locals
+		local RAGE = UnitPower("player");
+		local TARGETHP = (100*(UnitHealth("target")/UnitHealthMax("target")));
+		local PLAYERHP = (100*(UnitHealth("player")/UnitHealthMax("player"))); 
 		local GT = GetTime()
-		local CS_START, CS_DURATION = GetSpellCooldown(ColossusSmashArms)
-		local CS_COOLDOWN = (CS_START - GT + CS_DURATION)
-		local RV_START, RV_DURATION = GetSpellCooldown(Ravager)
-		local RV_COOLDOWN = (RV_START - GT + RV_DURATION)
-		local BLADESTORM = UnitBuffID("player",Bladestorm)
-		local DS_START, DS_DURATION = GetSpellCooldown(DisruptingShout)
-		local DS_COOLDOWN = (DS_START - GT + DS_DURATION)
-	------------------------------------------------------------------------------------------------------
-	-- Food/Invis Check ----------------------------------------------------------------------------------
-	------------------------------------------------------------------------------------------------------
-		if canRun() ~= true or UnitInVehicle("Player") then
-			return false;
+		local INRANGE = getDistance("player","target") <= 5
+		local INRANGE8 = getDistance("player","target") < 8
+		
+		--Buff/Debuff Locals
+		local CS_DEBUFF,_,_,_,_,_,CS_TIMER = UnitDebuffID("target",ColossusSmash,"PLAYER")
+		local REND_DEBUFF,_,_,_,_,_,REND_TIMER = UnitDebuffID("target",Rend,"PLAYER")
+		
+		local SD_BUFF = UnitBuffID("player",SuddenDeathProc)
+		local BATTLESHOUT = UnitBuffID("player",BattleShout)
+		local COMMANDINGSHOUT = UnitBuffID("player",CommandingShout)
+		
+		--Aoe
+		if AOETimer == nil then AOETimer = 0; end
+		if ENEMYS == nil or (AOETimer and AOETimer <= GetTime() - 1) then AOETimer = GetTime() ENEMYS = getNumEnemies("player", 5) end
+		
+		if isChecked("AutoAoE") ~= true then
+			if isChecked("Rotation Up") == true then
+				if SpecificToggle("Rotation Up") == true and GetCurrentKeyBoardFocus() == nil then
+					if GetTime() - AOETimer > 0.25 then AOETimer = GetTime() ToggleValue("AoE"); end
+				end
+			end
+			if isChecked("Rotation Down") == true then
+				if SpecificToggle("Rotation Down") == true and GetCurrentKeyBoardFocus() == nil then
+					if GetTime() - AOETimer > 0.25 then AOETimer = GetTime() ToggleMinus("AoE"); end
+				end
+			end
 		end
-		if IsMounted("player") then
-			return false;
+
+		if canRun() ~= true or UnitInVehicle("Player") or IsMounted("player") then return false; end
+		
+		if IsPlayerSpell(Bladestorm) then
+			if IsLeftAltKeyDown() and GetCurrentKeyBoardFocus() == nil then
+				if INRANGE8 then
+					if castSpell("player",Bladestorm,true) then return; end
+				end
+			end
 		end
-	------------------------------------------------------------------------------------------------------
-	-- Pause ---------------------------------------------------------------------------------------------
-	------------------------------------------------------------------------------------------------------
-		if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == true then
-			ChatOverlay("|cffFF0000BadBoy Paused", 0); return;
-		end
-	------------------------------------------------------------------------------------------------------
-	-- Spell Queue ---------------------------------------------------------------------------------------
-	------------------------------------------------------------------------------------------------------
-		if _Queues == nil then
-		 _Queues = {
-				[Shockwave]  = false,
-				[Bladestorm] = false,
-				[DragonRoar] = false,
-		 }
-		end
-	------------------------------------------------------------------------------------------------------
-	-- Input / Keys --------------------------------------------------------------------------------------
-	------------------------------------------------------------------------------------------------------
-    if isChecked("HeroicLeapKey") and SpecificToggle("HeroicLeapKey") == true then
-      if not IsMouselooking() then
-          CastSpellByName(GetSpellInfo(6544))
-          if SpellIsTargeting() then
-              CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
-              return true;
-          end
-      end
-  	end
-	------------------------------------------------------------------------------------------------------
-	-- Out of Combat -------------------------------------------------------------------------------------
-	------------------------------------------------------------------------------------------------------
+	
+		--Combat
 		if not isInCombat("player") then
-			-- actions.precombat+=/stance,choose=battle
-			if GetShapeshiftForm() ~= 1 then
-				if castSpell("player",BattleStance,true) then
-					return;
+			
+		elseif isInCombat("player") then 
+		
+			--Use Bloodbath.
+			if IsPlayerSpell(Bloodbath) then
+				if INRANGE then
+					CastSpellByName(GetSpellInfo(Bloodbath),"player");
 				end
 			end
-			-- Commanding Shout
-				if isChecked("Shout") == true and getValue("Shout") == 1 and canCast(CommandingShout,false,false) and (lastCShout == nil or lastCShout <= GetTime() - 5) then
-					for i = 1, #nNova do
-						if nNova[i].hp < 249 then
-							if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{21562,109773,469,90364}) or (getBuffRemain(nNova[i].unit,CommandingShout) < 10*60 and isSpellInRange(CommandingShout,nNova[i].unit)) then
-								if castSpell("player",CommandingShout,true) then lastCShout = GetTime(); return; end
-				    	end
-				   	end
-				  end
-				end
-				-- Commanding Shout
-				if isChecked("Shout") == true and getValue("Shout") == 2 and canCast(BattleShout,false,false) and (lastBShout == nil or lastBShout <= GetTime() - 5) then
-					for i = 1, #nNova do
-						if nNova[i].hp < 249 then
-							if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{57330,19506,6673}) or (getBuffRemain(nNova[i].unit,BattleShout) < 10*60 and isSpellInRange(BattleShout,nNova[i].unit)) then
-								if castSpell("player",BattleShout,true) then lastBShout = GetTime(); return; end
-				    	end
-				   	end
-				  end
-				end
-		end -- Out of Combat end
-	------------------------------------------------------------------------------------------------------
-	-- In Combat -----------------------------------------------------------------------------------------
-	------------------------------------------------------------------------------------------------------
-		-- if pause() ~= true and isInCombat("player") and canAttack("target","player") and not UnitIsDeadOrGhost("target") then
-			if isInCombat("player") then
-	------------------------------------------------------------------------------------------------------
-	-- Dummy Test ----------------------------------------------------------------------------------------
-	------------------------------------------------------------------------------------------------------
-			if isChecked("DPS Testing") then
-				if UnitExists("target") then
-					if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
-						StopAttack()
-						ClearTarget()
-						print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+		
+			if BadBoy_data['AoE'] == 1 or (isChecked("AutoAoE") == true and ENEMYS <= 1) then
+				if TARGETHP >= 20 then
+					if CS_DEBUFF == nil then
+						--Use Execute with Sudden Death.
+						if SD_BUFF ~= nil then
+							if INRANGE then
+								if castSpell("target",ExecuteArms,false) then return; end
+							end
+						end
+						--Maintain Rend on the target. You can refresh Rend when it has less than 5 seconds remaining.
+						if REND_DEBUFF == nil or (REND_TIMER - GT < 5) then
+							if INRANGE then
+								if castSpell("target",Rend,false) then return; end
+							end
+						end
+						--Use Mortal Strike.
+						if INRANGE then
+							if castSpell("target",MortalStrike,false) then return; end
+						end
+						--Use Colossus Smash.
+						if INRANGE then
+							if castSpell("target",ColossusSmash,false) then return; end
+						end
+						--Use Storm Bolt or Dragon Roar (depending on your choice).
+						if IsPlayerSpell(StormBolt) then
+							if castSpell("target",StormBolt,false) then return; end
+						elseif IsPlayerSpell(DragonRoar) then
+							if INRANGE8 then
+								if castSpell("target",DragonRoar,true) then return; end
+							end
+						elseif IsPlayerSpell(Shockwave) then
+							if INRANGE8 then
+								if castSpell("target",Shockwave,true) then return; end
+							end
+						end
+						--Use Whirlwind when you have more than 40 Rage.
+						if RAGE > 40  then
+							if not IsPlayerSpell(Slam) then
+								if INRANGE8 then
+									if castSpell("player",Whirlwind,true) then return; end
+								end
+						--Use Slam.
+							elseif IsPlayerSpell(Slam) then
+								if INRANGE then
+									if castSpell("target",Slam,false) then return; end
+								end
+							end
+						end
+					elseif CS_DEBUFF ~= nil then
+						--Use Execute with Sudden Death.
+						if SD_BUFF ~= nil then
+							if INRANGE then
+								if castSpell("target",ExecuteArms,false) then return; end
+							end
+						end
+						--Use Mortal Strike.
+						if INRANGE then
+							if castSpell("target",MortalStrike,false) then return; end
+						end
+						--Use Storm Bolt when you have more than 70 Rage.
+						if IsPlayerSpell(StormBolt) then
+							if RAGE > 70 then
+								if castSpell("target",StormBolt,false) then return; end
+							end
+						end
+						--Use Whirlwind.
+						if not IsPlayerSpell(Slam) then
+							if INRANGE8 then
+								if castSpell("player",Whirlwind,true) then return; end
+							end
+						--Use Slam.
+						elseif IsPlayerSpell(Slam) then
+							if INRANGE then
+								if castSpell("target",Slam,false) then return; end
+							end
+						end
 					end
+				elseif TARGETHP < 20 then
+					if CS_DEBUFF == nil then
+						--Use Execute with Sudden Death.
+						if SD_BUFF ~= nil then
+							if INRANGE then
+								if castSpell("target",ExecuteArms,false) then return; end
+							end
+						end
+						--Maintain Rend on the target. You can refresh Rend when it has less than 5 seconds remaining.
+						if REND_DEBUFF == nil or (REND_TIMER - GT < 5) then
+							if INRANGE then
+								if castSpell("target",Rend,false) then return; end
+							end
+						end
+						--Use Execute when you have 60 or more Rage.
+						if RAGE >= 60 then
+							if INRANGE then
+								if castSpell("target",ExecuteArms,false) then return; end
+							end
+						end
+						--Use Colossus Smash.
+						if INRANGE then
+							if castSpell("target",ColossusSmash,false) then return; end
+						end
+						--Use Storm Bolt or Dragon Roar (depending on your choice).
+						if IsPlayerSpell(StormBolt) then
+							if castSpell("target",StormBolt,false) then return; end
+						elseif IsPlayerSpell(DragonRoar) then
+							if INRANGE8 then
+								if castSpell("target",DragonRoar,true) then return; end
+							end
+						elseif IsPlayerSpell(Shockwave) then
+							if INRANGE8 then
+								if castSpell("target",Shockwave,true) then return; end
+							end
+						end
+					elseif CS_DEBUFF ~= nil then
+						--Use Execute with Sudden Death.
+						if SD_BUFF ~= nil then
+							if INRANGE then
+								if castSpell("target",ExecuteArms,false) then return; end
+							end
+						end
+						--Use Storm Bolt if you less than 70 Rage.
+						if IsPlayerSpell(StormBolt) then
+							if RAGE < 70 then
+								if castSpell("target",StormBolt,false) then return; end
+							end
+						end
+						--Use Execute.
+						if INRANGE then
+							if castSpell("target",ExecuteArms,false) then return; end
+						end
+					end
+				end
+			elseif BadBoy_data['AoE'] == 2 or (isChecked("AutoAoE") == true and ENEMYS > 1) then
+				--Use Execute with Sudden Death.
+				if SD_BUFF ~= nil then
+					if INRANGE then
+						if castSpell("target",ExecuteArms,false) then return; end
+					end
+				end
+				--Keep up Sweeping Strikes.
+				if castSpell("player",SweepingStrikes,true) then return; end
+				--Keep up Rend on multiple targets (up to a maximum of 4-5).
+				if REND_DEBUFF == nil or (REND_TIMER - GT < 5) then
+					if INRANGE then
+						if castSpell("target",Rend,false) then return; end
+					end
+				end
+				--Use Dragon Roar.
+				if IsPlayerSpell(DragonRoar) then
+					if INRANGE8 then
+						if castSpell("target",DragonRoar,true) then return; end
+					end
+				elseif IsPlayerSpell(Shockwave) then
+					if INRANGE8 then
+						if castSpell("target",Shockwave,true) then return; end
+					end
+				end
+				--Use Whirlwind.
+				if INRANGE8 then
+					if castSpell("player",Whirlwind,true) then return; end
 				end
 			end
-	------------------------------------------------------------------------------------------------------
-	-- Queued Spells -------------------------------------------------------------------------------------
-	------------------------------------------------------------------------------------------------------
-			if _Queues[Shockwave] == true then
-				if castSpell("target",Shockwave,false,false) then
-					return;
-				end
-			end
-			if _Queues[Bladestorm] == true then
-				if castSpell("target",Bladestorm,false,false) then
-					return;
-				end
-			end
-			if _Queues[DragonRoar] == true then
-				if castSpell("target",DragonRoar,false,false) then
-					return;
-				end
-			end
-	------------------------------------------------------------------------------------------------------
-	-- Do everytime --------------------------------------------------------------------------------------
-	------------------------------------------------------------------------------------------------------
-
-			-- actions+=/auto_attack
-
-	------------------------------------------------------------------------------------------------------
-	-- Defensive Cooldowns -------------------------------------------------------------------------------
-	------------------------------------------------------------------------------------------------------
-			if useDefCDs() == true then
-					-- Die by the Sword
-					if isChecked("DiebytheSword") == true then
-						if getHP("player") <= getValue("DiebytheSword") then
-							if castSpell("player",DiebytheSword,true) then
-								return;
-							end
-						end
-					end
-					-- Rallying Cry
-					if isChecked("RallyingCry") == true then
-						if getHP("player") <= getValue("RallyingCry") then
-							if castSpell("player",RallyingCry,true) then
-								return;
-							end
-						end
-					end
-					-- Enraged Regeneration
-					if isChecked("EnragedRegeneration") == true then
-						if isKnown(EnragedRegeneration) and getHP("player") <= getValue("EnragedRegeneration") then
-							if castSpell("player",EnragedRegeneration,true) then
-								return;
-							end
-						end
-					end
-					-- Healthstone
-					if isChecked("Healthstone") == true then
-						if getHP("player") <= getValue("Healthstone") then
-							if canUse(5512) then
-								UseItemByName(tostring(select(1,GetItemInfo(5512))))
-							end
-						end
-					end
-					-- Vigilance Focus
-					if isChecked("VigilanceFocus") == true then
-						if getHP("focus") <= getValue("VigilanceFocus") then
-							if castSpell("focus",Vigilance,false,false) then
-								return;
-							end
-						end
-					end
-					-- Def Stance
-					if isChecked("DefensiveStance") == true then
-						if getHP("player") <= getValue("DefensiveStance") and GetShapeshiftForm() ~= 2 then
-							if castSpell("player",DefensiveStance,true) then
-								return;
-							end
-						elseif getHP("player") > getValue("DefensiveStance") and GetShapeshiftForm() ~= 1 then
-							if castSpell("player",BattleStance,true) then
-								return;
-							end
-						end
-					end
-			end -- isChecked("Defensive Mode") end
-	------------------------------------------------------------------------------------------------------
-	-- Offensive Cooldowns -------------------------------------------------------------------------------
-	------------------------------------------------------------------------------------------------------
-			if useCDs() == true then
-				-- and getDistance("player","target") <= 5
-				--and targetDistance <= 5 then
-				-- actions+=/potion,name=draenic_strength,if=(target.health.pct<20&buff.recklessness.up)|target.time_to_die<=25
-				if isChecked("usePot") then
-					if (getHP("target") < 20 and UnitBuffID("player",Recklessness)) or getTimeToDie <= 25 then
-						if canUse(76095) then -- MoP Potion
-							UseItemByName(tostring(select(1,GetItemInfo(76095))))
-						elseif canUse(109219) then -- WoD Potion
-							UseItemByName(tostring(select(1,GetItemInfo(109219))))
-						end
-					end
-				end
-				-- actions+=/recklessness,if=(target.time_to_die>190|target.health.pct<20)&(!talent.bloodbath.enabled&(cooldown.colossus_smash.remains<2|debuff.colossus_smash.remains>=5)|buff.bloodbath.up)|target.time_to_die<=10
-				if isChecked("useRecklessness") then
-					--if (getTimeToDie > 190 or getHP("target") < 20)
-					if getHP("target") <20
-					and (not isKnown(Bloodbath) and CS_COOLDOWN < 2 or getDebuffRemain("target",ColossusSmashArms,"player") >= 5)
-					or UnitDebuffID("target",Bloodbath)
-					or getTimeToDie("target") <= 10 then
-						if castSpell("player",Recklessness,true) then
-							return;
-						end
-					end
-				end
-				-- actions+=/avatar,if=buff.recklessness.up|target.time_to_die<=25
-				if isChecked("useAvatar") then
-					if isKnown(Avatar) and UnitBuffID("player",Recklessness) then
-						--or getTimeToDie <= 25 then
-						if castSpell("player",Avatar,true) then
-							return;
-						end
-					end
-				end
-				-- actions+=/blood_fury,if=buff.bloodbath.up|(!talent.bloodbath.enabled&debuff.colossus_smash.up)|buff.recklessness.up
-				-- actions+=/berserking,if=buff.bloodbath.up|(!talent.bloodbath.enabled&debuff.colossus_smash.up)|buff.recklessness.up
-				if isChecked("useRacial") then
-					if (isKnown(Bloodbath) and UnitBuffID("player",Bloodbath))
-					or (not isKnown(Bloodbath) and UnitDebuffID("target",ColossusSmashArms,"player"))
-					or UnitBuffID("player",Recklessness) then
-						if select(2, UnitRace("player")) == "Troll" then
-	        		if castSpell("player",26297,true) then
-	        			return;
-	        		end
-	        	elseif select(2, UnitRace("player")) == "Orc" then
-	        		if castSpell("player",20572,true) then
-	        			return;
-	        		end
-	        	end
-		      end
-		    end
-			end -- useCDs() end
-	------------------------------------------------------------------------------------------------------
-	-- Interrupts ----------------------------------------------------------------------------------------
-	------------------------------------------------------------------------------------------------------
-
-	------------------------------------------------------------------------------------------------------
-	-- Single Target -------------------------------------------------------------------------------------
-	------------------------------------------------------------------------------------------------------
-			ArmsSingleTarIcyVeins();
-	------------------------------------------------------------------------------------------------------
-	-- Multi Target --------------------------------------------------------------------------------------
-	------------------------------------------------------------------------------------------------------
-			ArmsMultiTarIcyVeins();
-	------------------------------------------------------------------------------------------------------
-		end -- In Combat end
-	end -- ArmsWarrior() end
-end -- Class Check end
+		
+		end
+		
+	end
+end
