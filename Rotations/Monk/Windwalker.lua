@@ -22,6 +22,7 @@ if select(3, UnitClass("player")) == 10 then
 		local sckRemain = getBuffRemain("player",_SpinningCraneKick)
 		local cbCharge = getCharges(_ChiBrew)
 		local cbRecharge = getRecharge(_ChiBrew)
+		local tebRemain = getBuffRemain("player",_TigereyeBrew)
 		local tebStack = getBuffStacks("player",_TigereyeBrew)
 		local ebRemain = getBuffRemain("player",_EnergizingBrew)
 		local ttd = getTimeToDie("target")
@@ -198,7 +199,7 @@ if select(3, UnitClass("player")) == 10 then
 					if castSpell("target",_TigerPalm,false,false) then return; end
 				end
 	-- Tigereye Brew
-				if getTigereyeRemain()==0
+				if tebRemain==0
 					and (tebStack==20
 						or (tebStack>=10 and serRemain>0)
 						or (tebStack>=10 and fofCD==0 and chi>=3 and rskRemain>0 and tpRemain>0)
