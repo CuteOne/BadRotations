@@ -41,6 +41,10 @@ if select(3, UnitClass("player")) == 10 then
 ----------------------
 --- Rotation Pause ---
 ----------------------
+	-- Crackling Jade Lightning - Stop Cast
+		if (tarDist <= 4 or getSpellCD(_FlyingSerpentKick)==0) and isCastingSpell(_CracklingJadeLightning) then
+			RunMacroText("/stopcasting")
+		end
 		if pause() then
 			return true
 		else
@@ -137,9 +141,6 @@ if select(3, UnitClass("player")) == 10 then
 --- In Combat ---
 -----------------
 			if isInCombat("player") then
-				if isCastingSpell(_CracklingJadeLightning) and tarDist < 4 then
-					RunMacroText("/stopcasting")
-				end
 
 	------------------------------
 	--- In Combat - Dummy Test ---
