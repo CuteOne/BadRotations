@@ -104,6 +104,11 @@ function SlashCmdList.BLOCKBARRIER(msg, editbox)
   end
 end
 
+function CalculateHP(unit)
+  incomingheals = UnitGetIncomingHeals(unit) or 0
+  return 100 * ( UnitHealth(unit) + incomingheals ) / UnitHealthMax(unit)
+end
+
 function GroupInfo()
     members, group = { { Unit = "player", HP = CalculateHP("player") } }, { low = 0, tanks = { } }
     group.type = IsInRaid() and "raid" or "party"

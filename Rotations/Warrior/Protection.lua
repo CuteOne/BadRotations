@@ -8,7 +8,7 @@ if select(3,UnitClass("player")) == 1 then
 			currentConfig = "Protection Chumii";
 		end
 
-		--GroupInfo();
+		GroupInfo();
 	------------------------------------------------------------------------------------------------------
 	-- Locals --------------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
@@ -76,25 +76,21 @@ if select(3,UnitClass("player")) == 1 then
 				end
 			end
 			-- Commanding Shout
-				if isChecked("Shout") == true and getValue("Shout") == 1 and canCast(CommandingShout,false,false) and (lastCShout == nil or lastCShout <= GetTime() - 5) then
-					for i = 1, #nNova do
-						if nNova[i].hp < 249 then
-							if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{21562,109773,469,90364}) or (getBuffRemain(nNova[i].unit,CommandingShout) < 10*60 and isSpellInRange(CommandingShout,nNova[i].unit)) then
-								if castSpell("player",CommandingShout,true) then lastCShout = GetTime(); return; end
-				    	end
-				   	end
-				  end
-				end
-				-- Commanding Shout
-				if isChecked("Shout") == true and getValue("Shout") == 2 and canCast(BattleShout,false,false) and (lastBShout == nil or lastBShout <= GetTime() - 5) then
-					for i = 1, #nNova do
-						if nNova[i].hp < 249 then
-							if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{57330,19506,6673}) or (getBuffRemain(nNova[i].unit,BattleShout) < 10*60 and isSpellInRange(BattleShout,nNova[i].unit)) then
-								if castSpell("player",BattleShout,true) then lastBShout = GetTime(); return; end
-				    	end
-				   	end
-				  end
-				end
+				if isChecked("Shout") == true and getValue("Shout") == 1 and not UnitExists("mouseover") then
+            for i = 1, #members do --members
+                if not isBuffed(members[i].Unit,{21562,109773,469,90364}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
+                    if castSpell("player",CommandingShout,false,false) then return; end
+                end
+            end
+        end
+        -- Battle Shout
+				if isChecked("Shout") == true and getValue("Shout") == 2 and not UnitExists("mouseover") then
+            for i = 1, #members do --members
+                if not isBuffed(members[i].Unit,{57330,19506,6673}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
+                    if castSpell("player",BattleShout,false,false) then return; end
+                end
+            end
+        end
 		end -- Out of Combat end
 	------------------------------------------------------------------------------------------------------
 	-- In Combat -----------------------------------------------------------------------------------------
