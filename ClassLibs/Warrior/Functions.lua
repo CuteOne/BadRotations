@@ -137,7 +137,7 @@ function ArmsSingleTarIcyVeins()
         end
         if getHP("target") > 20 then
             -- Outside CS
-            if not UnitDebuffID("target",ColossusSmashArms,"player") then
+            if not UnitDebuffID("target",ColossusSmash,"player") then
                 -- Rend
                 if isGarrMCd("target") == false then
                 if getDebuffRemain("target",Rend,"player") <= 5 then
@@ -151,7 +151,7 @@ function ArmsSingleTarIcyVeins()
                     return;
                 end
                 -- CS
-                if castSpell("target",ColossusSmashArms,false,false) then
+                if castSpell("target",ColossusSmash,false,false) then
                     return;
                 end
                 -- DragonRoar
@@ -180,7 +180,7 @@ function ArmsSingleTarIcyVeins()
                 end
             end -- Outside CS end
             -- Inside CS
-            if UnitDebuffID("target",ColossusSmashArms,"player") then
+            if UnitDebuffID("target",ColossusSmash,"player") then
                 -- MS
                 if castSpell("target",MortalStrike,false,false) then
                     return;
@@ -206,7 +206,7 @@ function ArmsSingleTarIcyVeins()
         -- Execute Phase
         if getHP("target") < 20 then
             -- Outside CS
-            if not UnitDebuffID("target",ColossusSmashArms,"player") then
+            if not UnitDebuffID("target",ColossusSmash,"player") then
                 -- Rend
                 if isGarrMCd("target") == false then
                 if getDebuffRemain("target",Rend,"player") <= 5 then
@@ -222,7 +222,7 @@ function ArmsSingleTarIcyVeins()
                     end
                 end
                 -- CS
-                    if castSpell("target",ColossusSmashArms,false,false) then
+                    if castSpell("target",ColossusSmash,false,false) then
                         return;
                     end
                 -- DragonRoar
@@ -239,7 +239,7 @@ function ArmsSingleTarIcyVeins()
                 end
             end -- Outside CS end
             -- Inside CS
-            if UnitDebuffID("target",ColossusSmashArms,"player") then
+            if UnitDebuffID("target",ColossusSmash,"player") then
                 -- Stormbolt
                 if isKnown(StormBolt) then
                     if UnitPower("player") < 70 then
@@ -311,11 +311,11 @@ function ArmsSingleTarSimCraft()
         -- actions.single+=/ravager,if=cooldown.colossus_smash.remains<3
 
         -- actions.single+=/colossus_smash
-        if castSpell("target",ColossusSmashArms,false,false) then
+        if castSpell("target",ColossusSmash,false,false) then
             return;
         end
         -- actions.single+=/storm_bolt,if=(cooldown.colossus_smash.remains>4|debuff.colossus_smash.up)&rage<90
-        if (getSpellCD(ColossusSmashArms) > 4 or UnitDebuffID("target",ColossusSmashArms)) and UnitPower("player") < 90 then
+        if (getSpellCD(ColossusSmash) > 4 or UnitDebuffID("target",ColossusSmash)) and UnitPower("player") < 90 then
             if castSpell("target",StormBolt,false,false) then
                 return;
             end
@@ -324,14 +324,14 @@ function ArmsSingleTarSimCraft()
 
         -- actions.single+=/dragon_roar,if=!debuff.colossus_smash.up
         if isKnown(DragonRoar) then
-            if not UnitDebuffID("target",ColossusSmashArms) and getDistance("player","target") < 8 then
+            if not UnitDebuffID("target",ColossusSmash) and getDistance("player","target") < 8 then
                 if castSpell("target",DragonRoar,true) then
                     return;
                 end
             end
         end
         -- actions.single+=/execute,if=(rage>60&cooldown.colossus_smash.remains>execute_time)|debuff.colossus_smash.up|buff.sudden_death.react|target.time_to_die<5
-        if UnitPower("player") > 60 or UnitDebuffID("target",ColossusSmashArms) or UnitBuffID("player",SuddenDeathSpellAura) or getTimeToDie("target") < 5 then
+        if UnitPower("player") > 60 or UnitDebuffID("target",ColossusSmash) or UnitBuffID("player",SuddenDeathSpellAura) or getTimeToDie("target") < 5 then
             if castSpell("target",ExecuteArms,false,false) then
                 return;
             end
@@ -381,19 +381,19 @@ function ArmsMultiTarSimCraft()
         end
         -- actions.aoe+=/ravager,if=buff.bloodbath.up|!talent.bloodbath.enabled
         -- actions.aoe+=/colossus_smash
-        if castSpell("target",ColossusSmashArms,false,false) then
+        if castSpell("target",ColossusSmash,false,false) then
             return;
         end
         -- actions.aoe+=/dragon_roar,if=!debuff.colossus_smash.up
         if isKnown(DragonRoar) then
-            if not UnitDebuffID("target",ColossusSmashArms) and getDistance("player","target") < 8 then
+            if not UnitDebuffID("target",ColossusSmash) and getDistance("player","target") < 8 then
                 if castSpell("target",DragonRoar,true) then
                     return;
                 end
             end
         end
         -- actions.aoe+=/execute,if=active_enemies<=3&((rage>60&cooldown.colossus_smash.remains>execute_time)|debuff.colossus_smash.up|target.time_to_die<5)
-        if getNumEnemies("player",8) <= 3 and (UnitPower("player") > 60 or UnitDebuffID("target",ColossusSmashArms) or getTimeToDie("target") < 5) then
+        if getNumEnemies("player",8) <= 3 and (UnitPower("player") > 60 or UnitDebuffID("target",ColossusSmash) or getTimeToDie("target") < 5) then
             if castSpell("target",ExecuteArms,false,false) then
                 return;
             end
@@ -406,7 +406,7 @@ function ArmsMultiTarSimCraft()
         end
         -- actions.aoe+=/bladestorm,interrupt_if=!cooldown.colossus_smash.remains|!cooldown.ravager.remains
         if isChecked("StormRoar") and isKnown(Bladestorm) then
-            if (CS_COOLDOWN <= 1 or canCast(ColossusSmashArms,true)) and BLADESTORM ~= nil
+            if (CS_COOLDOWN <= 1 or canCast(ColossusSmash,true)) and BLADESTORM ~= nil
             or (RV_COOLDOWN <= 1 or canCast(Ravager,true)) and BLADESTORM ~= nil then
                 RunMacroText("/cancelaura bladestorm")
                 return false;
@@ -419,7 +419,7 @@ function ArmsMultiTarSimCraft()
         -- actions.aoe+=/rend,cycle_targets=1,if=!ticking
         -- actions.aoe+=/siegebreaker,if=active_enemies=2
         -- actions.aoe+=/storm_bolt,if=cooldown.colossus_smash.remains>4|debuff.colossus_smash.up
-        if getSpellCD(ColossusSmashArms) > 4 or UnitDebuffID("target",ColossusSmashArms) then
+        if getSpellCD(ColossusSmash) > 4 or UnitDebuffID("target",ColossusSmash) then
             if castSpell("target",StormBolt,false,false) then
                 return;
             end
@@ -445,6 +445,7 @@ end
 --[[       ]]		--[[        ]]		--[[]]	   --[[]]		 --[[ ]]
 --[[]]				--[[]]	  --[[]]	--[[           ]]	 	 --[[ ]]
 --[[]] 				--[[]]	   --[[]]	--[[           ]]		 --[[ ]]
+
 
 function ProtSingeTar()
     -- Dragon Roar

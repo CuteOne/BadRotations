@@ -16,13 +16,11 @@ if select(3,UnitClass("player")) == 1 then
 		local myHP = getHP("player");
 		--local ennemyUnits = getNumEnemies("player", 5)
 		local GT = GetTime()
-		local CS_START, CS_DURATION = GetSpellCooldown(ColossusSmashArms)
+		local CS_START, CS_DURATION = GetSpellCooldown(ColossusSmash)
 		local CS_COOLDOWN = (CS_START - GT + CS_DURATION)
 		local RV_START, RV_DURATION = GetSpellCooldown(Ravager)
 		local RV_COOLDOWN = (RV_START - GT + RV_DURATION)
 		local BLADESTORM = UnitBuffID("player",Bladestorm)
-		local DS_START, DS_DURATION = GetSpellCooldown(DisruptingShout)
-		local DS_COOLDOWN = (DS_START - GT + DS_DURATION)
 	------------------------------------------------------------------------------------------------------
 	-- Food/Invis Check ----------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
@@ -209,7 +207,7 @@ if select(3,UnitClass("player")) == 1 then
 				if isChecked("useRecklessness") then
 					--if (getTimeToDie > 190 or getHP("target") < 20)
 					if getHP("target") <20
-					and (not isKnown(Bloodbath) and CS_COOLDOWN < 2 or getDebuffRemain("target",ColossusSmashArms,"player") >= 5)
+					and (not isKnown(Bloodbath) and CS_COOLDOWN < 2 or getDebuffRemain("target",ColossusSmash,"player") >= 5)
 					or UnitDebuffID("target",Bloodbath)
 					or getTimeToDie("target") <= 10 then
 						if castSpell("player",Recklessness,true) then
@@ -230,7 +228,7 @@ if select(3,UnitClass("player")) == 1 then
 				-- actions+=/berserking,if=buff.bloodbath.up|(!talent.bloodbath.enabled&debuff.colossus_smash.up)|buff.recklessness.up
 				if isChecked("useRacial") then
 					if (isKnown(Bloodbath) and UnitBuffID("player",Bloodbath))
-					or (not isKnown(Bloodbath) and UnitDebuffID("target",ColossusSmashArms,"player"))
+					or (not isKnown(Bloodbath) and UnitDebuffID("target",ColossusSmash,"player"))
 					or UnitBuffID("player",Recklessness) then
 						if select(2, UnitRace("player")) == "Troll" then
 	        		if castSpell("player",26297,true) then

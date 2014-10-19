@@ -7,27 +7,27 @@ if select(3,UnitClass("player")) == 1 then
 			WarriorFuryToggles()
 			Currentconfig = "Fury Warrior";
 		end
-		
+
 		--General Locals
 		local RAGE = UnitPower("player");
 		local TARGETHP = (100*(UnitHealth("target")/UnitHealthMax("target")));
-		local PLAYERHP = (100*(UnitHealth("player")/UnitHealthMax("player"))); 
+		local PLAYERHP = (100*(UnitHealth("player")/UnitHealthMax("player")));
 		local COMBATTIME = getCombatTime()
-		
+
 		--Buff/Debuff Locals
 		local ENRAGED,_,_,_,_,_,ENRAGE_TIMER = UnitBuffID("player",Enrage)
 		local RAGINGBLOWBUFF,_,_,RB_COUNT,_,_,RB_TIMER = UnitBuffID("player",RagingBlowProc)
 		local MEATCLEAVER,_,_,MC_COUNT,_,_,MC_TIMER = UnitBuffID("player",MeatCleaver)
-		
+
 		local SD_BUFF = UnitBuffID("player",SuddenDeathProc)
 		local BLOODSURGE = UnitBuffID("player",Bloodsurge)
 		local BATTLESHOUT = UnitBuffID("player",BattleShout)
 		local COMMANDINGSHOUT = UnitBuffID("player",CommandingShout)
-	
+
 		--Aoe
 		if AOETimer == nil then AOETimer = 0; end
 		if ENEMYS == nil or (AOETimer and AOETimer <= GetTime() - 1) then AOETimer = GetTime() ENEMYS = getNumEnemies("player", 5) end
-		
+
 		if isChecked("AutoAoE") ~= true then
 			if isChecked("Rotation Up") == true then
 				if SpecificToggle("Rotation Up") == true and GetCurrentKeyBoardFocus() == nil then
@@ -42,16 +42,16 @@ if select(3,UnitClass("player")) == 1 then
 		end
 
 		if canRun() ~= true or UnitInVehicle("Player") or IsMounted("player") then return false; end
-	
+
 		--Combat
 		if not isInCombat("player") then
 
 		elseif isInCombat("player") then
-		
+
 			if BadBoy_data['AoE'] == 1 or (isChecked("AutoAoE") == true and ENEMYS <= 1) then
-			
+
 				if TARGETHP >= 20 then
-				
+
 					--If you have chosen the Sudden Death Icon Sudden Death talent, then use these Execute Icon Executes as your highest priority.
 					if SD_BUFF ~= nil then
 						if castSpell("target",Execute,false) then return; end
@@ -96,14 +96,14 @@ if select(3,UnitClass("player")) == 1 then
 						if castSpell("target",StormBolt,false) then return; end
 					elseif IsPlayerSpell(DragonRoar) then
 						if castSpell("player",DragonRoar,true) then return; end
-					end					
+					end
 					--Use Bloodthirst if you have chosen the Unquenchable Thirst talent, and you have no other action available.
 					if isKnown(UnquenchableThirst) then
 						if castSpell("target",Bloodthirst,false) then return; end
 					end
-					
+
 				elseif TARGETHP < 20 then
-				
+
 					--If you have chosen the Sudden Death talent, then use these Execute as your highest priority.
 					if SD_BUFF ~= nil then
 						if castSpell("target",Execute,false) then return; end
@@ -146,16 +146,16 @@ if select(3,UnitClass("player")) == 1 then
 						if castSpell("target",StormBolt,false) then return; end
 					elseif IsPlayerSpell(DragonRoar) then
 						if castSpell("player",DragonRoar,true) then return; end
-					end	
+					end
 					--Use Bloodthirst if you have chosen the Unquenchable Thirst talent, and you have no other action available.
 					if isKnown(UnquenchableThirst) then
 						if castSpell("target",Bloodthirst,false) then return; end
 					end
-					
-				end 
-			
+
+				end
+
 			elseif BadBoy_data['AoE'] == 2 or (isChecked("AutoAoE") == true and ENEMYS == 2) or (isChecked("AutoAoE") == true and ENEMYS == 3) then
-			
+
 				--Use Bloodthirst to maintain your Enrage and generate Raging Blow stacks.
 				if ENRAGED == nil then
 					if castSpell("target",Bloodthirst,false) then return; end
@@ -179,7 +179,7 @@ if select(3,UnitClass("player")) == 1 then
 				--Use Dragon Roar.
 				if IsPlayerSpell(DragonRoar) then
 					if castSpell("player",DragonRoar,true) then return; end
-				end	
+				end
 				--Use Wild Strike when you have a Bloodsurge.
 				if BLOODSURGE ~= nil then
 					if castSpell("target",WildStrike,false) then return; end
@@ -187,9 +187,9 @@ if select(3,UnitClass("player")) == 1 then
 				--Use Bloodthirst.
 				--If you have taken the Unquenchable Thirst talent, use Bloodthirst to generate Rage.
 				if castSpell("target",Bloodthirst,false) then return; end
-				
+
 			elseif BadBoy_data['AoE'] == 3 or (isChecked("AutoAoE") == true and ENEMYS >= 4) then
-			
+
 				--Bloodthirst in order to maintain your Enrage.
 				if ENRAGED == nil then
 					if castSpell("target",Bloodthirst,false) then return; end
@@ -208,10 +208,10 @@ if select(3,UnitClass("player")) == 1 then
 				end
 				--Use Bloodthirst.
 				if castSpell("target",Bloodthirst,false) then return; end
-	
+
 			end
-			
+
 		end
-		
+
 	end
 end
