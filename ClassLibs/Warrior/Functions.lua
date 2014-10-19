@@ -130,7 +130,7 @@ function ArmsSingleTarIcyVeins()
     end
     --and getDistance("player","target") <= 5
     if not useAoE() then
-        if UnitBuffID("player",SuddenDeathSpellAura) then
+        if UnitBuffID("player",SuddenDeathProc) then
             if castSpell("target",ExecuteArms,false,false) then
                 return;
             end
@@ -331,7 +331,7 @@ function ArmsSingleTarSimCraft()
             end
         end
         -- actions.single+=/execute,if=(rage>60&cooldown.colossus_smash.remains>execute_time)|debuff.colossus_smash.up|buff.sudden_death.react|target.time_to_die<5
-        if UnitPower("player") > 60 or UnitDebuffID("target",ColossusSmash) or UnitBuffID("player",SuddenDeathSpellAura) or getTimeToDie("target") < 5 then
+        if UnitPower("player") > 60 or UnitDebuffID("target",ColossusSmash) or UnitBuffID("player",SuddenDeathProc) or getTimeToDie("target") < 5 then
             if castSpell("target",ExecuteArms,false,false) then
                 return;
             end
@@ -463,7 +463,7 @@ function ProtSingeTar()
         return;
     end
     -- Execute
-    if UnitBuffID("player",SuddenDeathSpellAura) then
+    if UnitBuffID("player",SuddenDeathProc) then
         if castSpell("target",ExecuteArms,false,false) then
             return;
         end

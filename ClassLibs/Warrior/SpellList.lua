@@ -80,6 +80,8 @@ if select(3, UnitClass("player")) == 1 then
 	Siegebreaker 		= 176289;
 	SuddenDeathTalent 	= 29725;
 	UnquenchableThirst	= 169683;
+	UnyieldingStrikesTalent = 169685;
+	UnyieldingStrikesAura = 169686;
 
 	--Procs--
 	Enrage				= 12880;

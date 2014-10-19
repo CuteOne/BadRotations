@@ -19,8 +19,6 @@ if select(3,UnitClass("player")) == 1 then
 		local RV_START, RV_DURATION = GetSpellCooldown(Ravager)
 		local RV_COOLDOWN = (RV_START - GT + RV_DURATION)
 		local BLADESTORM = UnitBuffID("player",Bladestorm)
-		local DS_START, DS_DURATION = GetSpellCooldown(DisruptingShout)
-		local DS_COOLDOWN = (DS_START - GT + DS_DURATION)
 	------------------------------------------------------------------------------------------------------
 	-- Food/Invis Check ----------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
@@ -285,7 +283,8 @@ if select(3,UnitClass("player")) == 1 then
 	    		end
 	    	end
 	    	-- ThunderClap
-	    	if not UnitDebuffID("target",DeepWounds) and getDistance("target") <= 8 then
+	    	--if not UnitDebuffID("target",DeepWounds) and getDistance("target") <= 8 then
+	    	if getDistance("target") <= 8 then
 	    		if castSpell("target",ThunderClap,true) then
 	    			return;
 	    		end
