@@ -1,7 +1,7 @@
 if select(3,UnitClass("player")) == 10 then
 
 --[[           ]]   --[[           ]]   --[[           ]]   --[[]]     --[[]]
---[[           ]]   --[[           ]]   --[[           ]]   --[[]]     --[[]]   
+--[[           ]]   --[[           ]]   --[[           ]]   --[[]]     --[[]]
 --[[]]     --[[]]   --[[]]     --[[]]   --[[]]              --[[ ]]   --[[ ]]
 --[[         ]]     --[[           ]]   --[[           ]]   --[[           ]]
 --[[]]     --[[]]   --[[        ]]      --[[]]              --[[           ]]
@@ -11,8 +11,8 @@ if select(3,UnitClass("player")) == 10 then
    function MonkBrewToggles()
 
         -- Aoe Button
-        if  AoEModesLoaded ~= "Brew Monk AoE Modes" then 
-            AoEModes = { 
+        if  AoEModesLoaded ~= "Brew Monk AoE Modes" then
+            AoEModes = {
                 [1] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Recommended for \n|cff00FF00Single Target (1-2)", highlight = 0, icon = 108557 },
                 [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Recommended for \n|cffFF0000AoE (3+)", highlight = 0, icon = 101546 },
                 [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Auto-AoE", highlight = 1, icon = 116812 }
@@ -21,8 +21,8 @@ if select(3,UnitClass("player")) == 10 then
             AoEModesLoaded = "Brew Monk AoE Modes";
         end
         -- Interrupts Button
-        if  InterruptsModesLoaded ~= "Brew Monk Interrupts Modes" then 
-            InterruptsModes = { 
+        if  InterruptsModesLoaded ~= "Brew Monk Interrupts Modes" then
+            InterruptsModes = {
                 [1] = { mode = "None", value = 1 , overlay = "Interrupts Disabled", tip = "|cffC0C0C0Interrupts \n|cffFF0000No Interrupts will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
                 [2] = { mode = "All", value = 2 , overlay = "Interrupts Enabled", tip = "|cffC0C0C0Interrupts \n|cffFF0000Spells Included: \n|cffFFDD11Spear Hand Strike.", highlight = 1, icon = 116705 }
             };
@@ -31,8 +31,8 @@ if select(3,UnitClass("player")) == 10 then
         end
 
         -- Defensive Button
-        if  DefensiveModesLoaded ~= "Brew Monk Defensive Modes" then 
-            DefensiveModes = { 
+        if  DefensiveModesLoaded ~= "Brew Monk Defensive Modes" then
+            DefensiveModes = {
                 [1] = { mode = "None", value = 1 , overlay = "Defensive Disabled", tip = "|cffC0C0C0Defensive \n|cffFF0000No Defensive Cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
                 [2] = { mode = "All", value = 2 , overlay = "Defensive Enabled", tip = "|cffC0C0C0Defensive \n|cffFF0000Spells Included: \n|cffFFDD11Fortifying Brew, \nElusive Brew, \nGuard", highlight = 1, icon = 115203 }
             };
@@ -40,8 +40,8 @@ if select(3,UnitClass("player")) == 10 then
             DefensiveModesLoaded = "Brew Monk Defensive Modes";
         end
         -- Cooldowns Button
-        if  CooldownsModesLoaded ~= "Brew Monk Cooldowns Modes" then 
-            CooldownsModes = { 
+        if  CooldownsModesLoaded ~= "Brew Monk Cooldowns Modes" then
+            CooldownsModes = {
                 [1] = { mode = "None", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffC0C0C0Cooldowns \n|cffFF0000No cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
                 [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "|cffC0C0C0Cooldowns \n|cffFF0000Spells Included: \n|cffFFDD11Config's selected spells.", highlight = 1, icon = [[INTERFACE\ICONS\inv_misc_blackironbomb]]},
                 [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "|cffC0C0C0Cooldowns \n|cffFF0000Spells Included: \n|cffFFDD11Avenging Wrath, \nHoly Avenger.", highlight = 1, icon = 115080 }
@@ -78,10 +78,10 @@ if select(3,UnitClass("player")) == 10 then
 
    function MonkMistToggles()
 
- 
+
         -- Healing Button
-        if  HealingModesLoaded ~= "Mist Monk Healing Modes" then 
-            HealingModes = { 
+        if  HealingModesLoaded ~= "Mist Monk Healing Modes" then
+            HealingModes = {
                 [1] = { mode = "Off", value = 1 , overlay = "Healing Disabled", tip = "Will not allow healing.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
                 [2] = { mode = "On", value = 2 , overlay = "Healing Enabled", tip = "Will allow healing.", highlight = 1, icon = 115151 },
              };
@@ -89,8 +89,8 @@ if select(3,UnitClass("player")) == 10 then
             HealingModesLoaded = "Mist Monk Healing Modes";
         end
         -- DPS Button
-        if  DPSModesLoaded ~= "Mist Monk DPS Modes" then 
-            DPSModes = { 
+        if  DPSModesLoaded ~= "Mist Monk DPS Modes" then
+            DPSModes = {
                 [1] = { mode = "Off", value = 1 , overlay = "DPS Disabled", tip = "Will not allow DPSing.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
                 [2] = { mode = "On", value = 2 , overlay = "DPS Enabled", tip = "Will allow DPSing.", highlight = 1, icon = 100787 },
              };
@@ -98,8 +98,8 @@ if select(3,UnitClass("player")) == 10 then
             DPSModesLoaded = "Mist Monk DPS Modes";
         end
         -- Defensive Button
-        if  DefensiveModesLoaded ~= "Mist Monk Defensive Modes" then 
-            DefensiveModes = { 
+        if  DefensiveModesLoaded ~= "Mist Monk Defensive Modes" then
+            DefensiveModes = {
                 [1] = { mode = "None", value = 1 , overlay = "Defensive Disabled", tip = "No Defensive Cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
                 [2] = { mode = "All", value = 2 , overlay = "Defensive Enabled", tip = "|cffFF0000Includes: \n|cffFFdd11Fortifying Brew.", highlight = 1, icon = 115203 }
             };
@@ -107,8 +107,8 @@ if select(3,UnitClass("player")) == 10 then
             DefensiveModesLoaded = "Mist Monk Defensive Modes";
         end
         -- Cooldowns Button
-        if  CooldownsModesLoaded ~= "Mist Monk Cooldowns Modes" then 
-            CooldownsModes = { 
+        if  CooldownsModesLoaded ~= "Mist Monk Cooldowns Modes" then
+            CooldownsModes = {
                 [1] = { mode = "None", value = 1 , overlay = "Cooldowns Disabled", tip = "No cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
                 [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "Includes config's selected spells.", highlight = 1, icon = [[INTERFACE\ICONS\inv_misc_blackironbomb]] },
                 [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "|cffFF0000Includes: \n|cffFFdd11Revival.", highlight = 1, icon = 115310 }
@@ -145,9 +145,9 @@ if select(3,UnitClass("player")) == 10 then
 
     function WindwalkerToggles()
         -- AoE Button
-        if AoEModesLoaded ~= "Cute AoE Modes" then 
-            CustomAoEModes = { 
-                [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = _SpinningCraneKick},  
+        if AoEModesLoaded ~= "Cute AoE Modes" then
+            CustomAoEModes = {
+                [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = _SpinningCraneKick},
                 [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = _SpinningCraneKick},
                 [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = _Jab}
             };
@@ -155,11 +155,11 @@ if select(3,UnitClass("player")) == 10 then
            CreateButton("AoE",1,0)
            AoEModesLoaded = "Cute AoE Modes";
         end
-            
+
      -- Cooldowns Button
-        if CooldownsModesLoaded ~= "Cute Cooldowns Modes" then 
-            CustomCooldownsModes = { 
-                [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = _InvokeXuen},  
+        if CooldownsModesLoaded ~= "Cute Cooldowns Modes" then
+            CustomCooldownsModes = {
+                [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = _InvokeXuen},
                 [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = _InvokeXuen},
                 [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = _InvokeXuen}
             };
@@ -169,8 +169,8 @@ if select(3,UnitClass("player")) == 10 then
         end
 
      -- Defensive Button
-        if DefensiveModesLoaded ~= "Cute Defensive Modes" then 
-            CustomDefensiveModes = { 
+        if DefensiveModesLoaded ~= "Cute Defensive Modes" then
+            CustomDefensiveModes = {
                 [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = _DampenHarm},
                 [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = _DampenHarm}
             };
@@ -180,8 +180,8 @@ if select(3,UnitClass("player")) == 10 then
         end
 
      -- Interrupts Button
-        if InterruptsModesLoaded ~= "Cute Interrupt Modes" then 
-            CustomInterruptsModes = { 
+        if InterruptsModesLoaded ~= "Cute Interrupt Modes" then
+            CustomInterruptsModes = {
                 [1] = { mode = "On", value = 2 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = _SpearHandStrike},
                 [2] = { mode = "Off", value = 1 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = _SpearHandStrike}
             };
@@ -190,14 +190,25 @@ if select(3,UnitClass("player")) == 10 then
             InterruptsModesLoaded = "Cute Interrupt Modes";
         end
 
+     -- Flying Serpent Kick Button
+        if FSKModesLoaded ~= "Cute FSK Modes" then
+            CustomFSKModes = {
+                [1] = { mode = "On", value = 2 , overlay = "Auto FSK Enabled", tip = "Will cast Flying Serpent Kick.", highlight = 1, icon = _FlyingSerpentKick},
+                [2] = { mode = "Off", value = 1 , overlay = "Auto FSK Disabled", tip = "Will NOT cast Flying Serpent Kick.", highlight = 0, icon = _FlyingSerpentKick}
+            };
+            FSKModes = CustomFSKModes
+            CreateButton("FSK",5,0)
+            FSKModesLoaded = "Cute FSK Modes";
+        end
+
      -- Chi Builder Button
-        if BuilderModesLoaded ~= "Cute Chi Builder Modes" then 
-            CustomBuilderModes = { 
+        if BuilderModesLoaded ~= "Cute Chi Builder Modes" then
+            CustomBuilderModes = {
                 [1] = { mode = "On", value = 2 , overlay = "Chi Builder Enabled", tip = "Generates Chi when out of combat.", highlight = 1, icon = _ExpelHarm},
                 [2] = { mode = "Off", value = 1 , overlay = "Chi Builder Disabled", tip = "No Chi will be generated when out of combat.", highlight = 0, icon = _ExpelHarm}
             };
             BuilderModes = CustomBuilderModes
-            CreateButton("Builder",5,0)
+            CreateButton("Builder",6,0)
             BuilderModesLoaded = "Cute Chi Builder Modes";
         end
 
@@ -221,11 +232,6 @@ if select(3,UnitClass("player")) == 10 then
         if AOETimer == nil then AOETimer = 0; end
         if SpecificToggle("Rotation Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - AOETimer > 0.25 then
             AOETimer = GetTime()
-            if BadBoy_data['AoE'] ~= #AoEModes then
-                BadBoy_data['AoE'] = BadBoy_data['AoE']+1
-            else
-                BadBoy_data['AoE'] = 1
-            end
             UpdateButton("AoE")
         end
 
@@ -233,11 +239,6 @@ if select(3,UnitClass("player")) == 10 then
         if CDTimer == nil then CDTimer = 0; end
         if SpecificToggle("Cooldown Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - CDTimer > 0.25 then
             CDTimer = GetTime()
-            if BadBoy_data['Cooldowns'] ~= #CooldownsModes then
-                BadBoy_data['Cooldowns'] = BadBoy_data['Cooldowns']+1
-            else
-                BadBoy_data['Cooldowns'] = 1
-            end
             UpdateButton("Cooldowns")
         end
 
@@ -245,11 +246,6 @@ if select(3,UnitClass("player")) == 10 then
         if DefTimer == nil then DefTimer = 0; end
         if SpecificToggle("Defensive Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - DefTimer > 0.25 then
             DefTimer = GetTime()
-            if BadBoy_data['Defensive'] ~= #DefensiveModes then
-                BadBoy_data['Defensive'] = BadBoy_data['Defensive']+1
-            else
-                BadBoy_data['Defensive'] = 1
-            end
             UpdateButton("Defensive")
         end
 
@@ -257,23 +253,20 @@ if select(3,UnitClass("player")) == 10 then
         if IntTimer == nil then IntTimer = 0; end
         if SpecificToggle("Interrupt Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - IntTimer > 0.25 then
             IntTimer = GetTime()
-            if BadBoy_data['Interrupts'] ~= #InterruptsModes then
-                BadBoy_data['Interrupts'] = BadBoy_data['Interrupts']+1
-            else
-                BadBoy_data['Interrupts'] = 1
-            end
             UpdateButton("Interrupts")
+        end
+
+        --FSK Key Toggle
+        if FSKTimer == nil then FSKTimer = 0; end
+        if SpecificToggle("FSK Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - FSKTimer > 0.25 then
+            DSKTimer = GetTime()
+            UpdateButton("FSK")
         end
 
         --Chi Key Toggle
         if ChiTimer == nil then ChiTimer = 0; end
         if SpecificToggle("Builder Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - ChiTimer > 0.25 then
             ChiTimer = GetTime()
-            if BadBoy_data['Builder'] ~= #BuilderModes then
-                BadBoy_data['Builder'] = BadBoy_data['Builder']+1
-            else
-                BadBoy_data['Builder'] = 1
-            end
             UpdateButton("Builder")
         end
     end

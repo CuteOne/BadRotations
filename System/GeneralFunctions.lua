@@ -195,9 +195,9 @@ function canInterrupt(spellID,percentint)
     local castPercent = 0
     local interruptable = false
     if UnitExists(unit)
-        and UnitCanAttack("player", unit) == 1
+        and UnitCanAttack("player", unit)
         and not UnitIsDeadOrGhost(unit)
-        and getSpellCD(spellID)
+        and getSpellCD(spellID)==0
     then
         if select(6,UnitCastingInfo(unit)) and not select(9,UnitCastingInfo(unit)) then
             castStartTime = select(5,UnitCastingInfo(unit))
@@ -862,12 +862,12 @@ function getTotemDistance(Unit1)
             end
 		end
 		local X1,Y1,Z1 = ObjectPosition(Unit1);
-		
+
 		TotemDistance = math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))
-		
+
 		--print(TotemDistance)
 		return TotemDistance
-		
+
 		--if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
 		--	local unitSize = IGetFloatDescriptor(UnitGUID(Unit1),0x110);
 		--	return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unitSize;
@@ -905,6 +905,15 @@ function getBossID(BossUnitID)
 	end
 	return UnitConvert;
 end
+
+function getUnitID(Unit)
+	local UnitConvert = 0;
+	if UnitIsVisible(BossUnitID) then
+		UnitConvert = tonumber(strmatch(UnitGUID(Unit) or "", "-(%d+)-%x+$"), 10)
+	end
+	return UnitConvert;
+end
+
 
 -- if getNumEnemies("target",10) >= 3 then
 function getNumEnemies(Unit,Radius)
@@ -977,8 +986,8 @@ function round2(num, idp)
 end
 
 -- if getTalent(8) == true then
-function getTalent(Index)
-	return select(5, GetTalentInfo(Index)) or false
+function getTalent(Row,Column)
+	return select(5, GetTalentInfo(Row,Column,1)) or false
 end
 
 -- if getTimeToDie("target") >= 6 then
@@ -1710,14 +1719,14 @@ end
 
 -- if pause() then
 function pause() --Pause
-	if (IsLeftAltKeyDown() == 1 and GetCurrentKeyBoardFocus() == nil)
-		or IsMounted()
+	if (IsLeftAltKeyDown() and GetCurrentKeyBoardFocus() == nil)
+		or (IsMounted() and getUnitID("target") ~= 56877)
 		or SpellIsTargeting()
-		or not UnitExists("target")
+		or (not UnitCanAttack("player", "target") and not UnitIsPlayer("target") and UnitExists("target"))
 		or UnitCastingInfo("player")
 		or UnitChannelInfo("player")
 		or UnitIsDeadOrGhost("player")
-		or UnitIsDeadOrGhost("target")
+		or (UnitIsDeadOrGhost("target") and not UnitIsPlayer("target"))
 		or UnitBuffID("player",80169) -- Eating
 		or UnitBuffID("player",87959) -- Drinking
 		or UnitBuffID("target",117961) --Impervious Shield - Qiang the Merciless
