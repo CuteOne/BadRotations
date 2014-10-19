@@ -195,9 +195,9 @@ function canInterrupt(spellID,percentint)
     local castPercent = 0
     local interruptable = false
     if UnitExists(unit)
-        and UnitCanAttack("player", unit) == 1
+        and UnitCanAttack("player", unit)
         and not UnitIsDeadOrGhost(unit)
-        and getSpellCD(spellID)
+        and getSpellCD(spellID)==0
     then
         if select(6,UnitCastingInfo(unit)) and not select(9,UnitCastingInfo(unit)) then
             castStartTime = select(5,UnitCastingInfo(unit))
@@ -1710,7 +1710,7 @@ end
 
 -- if pause() then
 function pause() --Pause
-	if (IsLeftAltKeyDown() == 1 and GetCurrentKeyBoardFocus() == nil)
+	if (IsLeftAltKeyDown() and GetCurrentKeyBoardFocus() == nil)
 		or (IsMounted() and tonumber(strmatch(UnitGUID("target") or "", "-(%d+)-%x+$"), 10) ~= 56877)
 		or SpellIsTargeting()
 		or (not UnitCanAttack("player", "target") and not UnitIsPlayer("target") and UnitExists("target"))

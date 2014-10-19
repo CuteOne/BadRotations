@@ -191,7 +191,7 @@ if select(3, UnitClass("player")) == 10 then
 				end
 	-- Chi Brew
 				if chiDiff>=2 and ((cbCharge==1 and cbRecharge<=10) or cbCharge==2 or ttd<cbCharge*10) and tebStack<=16 then
-					if castSpell("player",_ChiBrew,false,false) then return; end
+					if castSpell("player",_ChiBrew,false,false,false) then return; end
 				end
 	-- Tiger Palm
 				if  tarDist<4 and tpRemain<=3 and chi>=1 and sckRemain==0 then
