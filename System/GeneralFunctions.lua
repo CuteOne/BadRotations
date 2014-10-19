@@ -906,6 +906,15 @@ function getBossID(BossUnitID)
 	return UnitConvert;
 end
 
+function getUnitID(Unit)
+	local UnitConvert = 0;
+	if UnitIsVisible(BossUnitID) then
+		UnitConvert = tonumber(strmatch(UnitGUID(Unit) or "", "-(%d+)-%x+$"), 10)
+	end
+	return UnitConvert;
+end
+
+
 -- if getNumEnemies("target",10) >= 3 then
 function getNumEnemies(Unit,Radius)
   	local Units = 0;
@@ -1711,14 +1720,13 @@ end
 -- if pause() then
 function pause() --Pause
 	if (IsLeftAltKeyDown() and GetCurrentKeyBoardFocus() == nil)
-		or (IsMounted() and tonumber(strmatch(UnitGUID("target") or "", "-(%d+)-%x+$"), 10) ~= 56877)
+		or (IsMounted() and getUnitID("target") ~= 56877)
 		or SpellIsTargeting()
 		or (not UnitCanAttack("player", "target") and not UnitIsPlayer("target") and UnitExists("target"))
-		--or not UnitExists("target")
 		or UnitCastingInfo("player")
 		or UnitChannelInfo("player")
 		or UnitIsDeadOrGhost("player")
-		or UnitIsDeadOrGhost("target")
+		or (UnitIsDeadOrGhost("target") and not UnitIsPlayer("target"))
 		or UnitBuffID("player",80169) -- Eating
 		or UnitBuffID("player",87959) -- Drinking
 		or UnitBuffID("target",117961) --Impervious Shield - Qiang the Merciless

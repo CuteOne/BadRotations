@@ -128,7 +128,7 @@ if select(3, UnitClass("player")) == 10 then
 				end
 	-- Flying Serpent Kick
 				if BadBoy_data['FSK']==1 then
-					if canFSK("target") and not isDummy() then
+					if canFSK("target") and not isDummy() and (select(2,IsInInstance())=="none" or isInCombat("target")) then
 						if castSpell("player",_FlyingSerpentKick,false,false) then return; end
 					end
 					if tarDist < 10 and select(3,GetSpellInfo(101545)) == "INTERFACE\\ICONS\\priest_icon_chakra_green" then
@@ -186,7 +186,7 @@ if select(3, UnitClass("player")) == 10 then
 	--- In Combat - All Rotation ---
 	--------------------------------
 	-- Crackling Jade Lightning
-				if tarDist >= 8 and getSpellCD(_FlyingSerpentKick)>1 and power>20 and chiDiff>=2 and not isCastingSpell(_CracklingJadeLightning) then
+				if tarDist >= 8 and getSpellCD(_FlyingSerpentKick)>1 and power>20 and chiDiff>=2 and not isCastingSpell(_CracklingJadeLightning) and (select(2,IsInInstance())=="none" or isInCombat("target")) then
 					if castSpell("target",_CracklingJadeLightning,false) then return; end
 				end
 	-- Chi Brew
@@ -296,7 +296,7 @@ if select(3, UnitClass("player")) == 10 then
 				end -- End Single Target Rotation
 	-- Flying Serpent Kick
 				if BadBoy_data['FSK']==1 then
-					if canFSK("target") and not isDummy() then
+					if canFSK("target") and not isDummy() and (select(2,IsInInstance())=="none" or isInCombat("target")) then
 						if castSpell("player",_FlyingSerpentKick,false,false) then return; end
 					end
 					if tarDist < 10 and select(3,GetSpellInfo(101545)) == "INTERFACE\\ICONS\\priest_icon_chakra_green" then
