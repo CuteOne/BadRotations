@@ -11,7 +11,7 @@ if select(3,UnitClass("player")) == 10 then
 
 
 --[[           ]]	--[[           ]]	--[[           ]]	--[[]] 	   --[[]]
---[[           ]]	--[[           ]]	--[[           ]]	--[[]] 	   --[[]]	
+--[[           ]]	--[[           ]]	--[[           ]]	--[[]] 	   --[[]]
 --[[]]	   --[[]]	--[[]]	   --[[]]	--[[]]				--[[ ]]   --[[ ]]
 --[[         ]]		--[[           ]]	--[[           ]]	--[[           ]]
 --[[]]	   --[[]]	--[[        ]]		--[[]]				--[[           ]]
@@ -41,53 +41,23 @@ function CalculateHP(unit)
 end
 
 function GroupInfo()
-    members, group = { { Unit = "player", HP = CalculateHP("player") } }, { low = 0, tanks = { } }      
-    group.type = IsInRaid() and "raid" or "party" 
+    members, group = { { Unit = "player", HP = CalculateHP("player") } }, { low = 0, tanks = { } }
+    group.type = IsInRaid() and "raid" or "party"
     group.number = GetNumGroupMembers()
     if group.number > 0 then
-        for i=1,group.number do 
-            if canHeal(group.type..i) then 
-                local unit, hp = group.type..i, CalculateHP(group.type..i) 
-                table.insert( members,{ Unit = unit, HP = hp } ) 
-                if hp < 90 then group.low = group.low + 1 end 
-                if UnitGroupRolesAssigned(unit) == "TANK" then table.insert(group.tanks,unit) end 
-            end 
-        end 
-        if group.type == "raid" and #members > 1 then table.remove(members,1) end 
+        for i=1,group.number do
+            if canHeal(group.type..i) then
+                local unit, hp = group.type..i, CalculateHP(group.type..i)
+                table.insert( members,{ Unit = unit, HP = hp } )
+                if hp < 90 then group.low = group.low + 1 end
+                if UnitGroupRolesAssigned(unit) == "TANK" then table.insert(group.tanks,unit) end
+            end
+        end
+        if group.type == "raid" and #members > 1 then table.remove(members,1) end
         table.sort(members, function(x,y) return x.HP < y.HP end)
-        --local customtarget = canHeal("target") and "target" -- or CanHeal("mouseover") and GetMouseFocus() ~= WorldFrame and "mouseover" 
-        --if customtarget then table.sort(members, function(x) return UnitIsUnit(customtarget,x.Unit) end) end 
+        --local customtarget = canHeal("target") and "target" -- or CanHeal("mouseover") and GetMouseFocus() ~= WorldFrame and "mouseover"
+        --if customtarget then table.sort(members, function(x) return UnitIsUnit(customtarget,x.Unit) end) end
     end
-end
-
-------Tracking------
--- Raising Sun Kick Debuff Remain
-function getRSR()
-	if UnitDebuffID("target",_RaisingSunKick,"player") then
-		return (select(7, UnitDebuffID("target",_RaisingSunKick,"player")) - GetTime())
-	else
-		if UnitLevel("player")>=56 then
-			if getSpellCD(_RaisingSunKick)~=0 then
-				return 999
-			else
-				return 0
-			end
-		else
-			return 999
-		end
-	end
-end
--- Raising Sun Kick Cooldown
-function getRSRCD()
-	if UnitLevel("player")<56 then
-		return 8
-	else
-		return getSpellCD(_RaisingSunKick)
-	end
-end
--- Fists of Fury Haste
-function getFistsOfFuryHaste()
-	return (4 / (1 + UnitSpellHaste("player") / 100))
 end
 
 function useAoE()
@@ -126,11 +96,11 @@ function getFacingDistance()
 end
 
 function canFSK(unit)
-    if ((targetDistance <= 8 and isInCombat("player")) or (targetDistance < 60 and targetDistance > 8 and getFacing("player",unit))) 
-        and not hasGlyph(1017) 
-        and getSpellCD(_FlyingSerpentKick)==0 
+    if ((targetDistance <= 8 and isInCombat("player")) or (targetDistance < 60 and targetDistance > 8 and getFacing("player",unit)))
+        and not hasGlyph(1017)
+        and getSpellCD(_FlyingSerpentKick)==0
         and getFacingDistance() <= 7
-        and select(3,GetSpellInfo(_FlyingSerpentKick)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" 
+        and select(3,GetSpellInfo(_FlyingSerpentKick)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green"
         and not UnitIsDeadOrGhost(unit)
         and getTimeToDie(unit) > 2
         and not IsSwimming()
@@ -138,14 +108,6 @@ function canFSK(unit)
         return true
     else
         return false
-    end
-end
-
-function getTigereyeRemain()
-    if getBuffStacks("player",_TigereyeBrew) > 0 then
-        return 0
-    else
-        return getBuffRemain("player",_TigereyeBrew)
     end
 end
 

@@ -41,8 +41,8 @@ if select(3, UnitClass("player")) == 10 then
 ----------------------
 --- Rotation Pause ---
 ----------------------
-	-- Crackling Jade Lightning - Stop Cast
-		if (tarDist <= 4 or getSpellCD(_FlyingSerpentKick)==0) and isCastingSpell(_CracklingJadeLightning) then
+	-- Stop Cast
+		if ((tarDist <= 4 or getSpellCD(_FlyingSerpentKick)==0) and isCastingSpell(_CracklingJadeLightning)) or (not useAoE() and isCastingSpell(_SpinningCraneKick)) then
 			RunMacroText("/stopcasting")
 		end
 		if pause() then
@@ -89,10 +89,10 @@ if select(3, UnitClass("player")) == 10 then
 	--	Expel Harm
 			if php<=80 and power>=40 and getSpellCD(_ExpelHarm)==0 then
 				if isInCombat("player") and chiDiff>=2 then
-					if castSpell("player",_ExpelHarm,false,false) then return; end
+					if castSpell("player",_ExpelHarm,false,false,false) then return; end
 				end
 				if not isInCombat("player") and getNumEnemies("player",10)==0 then
-					if castSpell("player",_ExpelHarm,false,false) then return; end
+					if castSpell("player",_ExpelHarm,false,false,false) then return; end
 				end
 			end
 	-- Touch of Karma
@@ -118,7 +118,7 @@ if select(3, UnitClass("player")) == 10 then
 			if not isInCombat("player") then
 	-- Expel Harm (Chi Builer)
 				if BadBoy_data['Builder']==1 and chiDiff>=2 and power>=40 and getSpellCD(_ExpelHarm) then
-					if castSpell("player",_ExpelHarm,false,false) then return; end
+					if castSpell("player",_ExpelHarm,false,false,false) then return; end
 				end
 	-- Provoke
 				if getSpellCD(_FlyingSerpentKick)>1 and tarDist > 10 then
@@ -225,7 +225,7 @@ if select(3, UnitClass("player")) == 10 then
 	-----------------------------------------
 				if useAoE() then
 	-- Raising Sun Kick
-					if tarDist<4 and chi>=4 then
+					if chi>=4 then
 						if castSpell("target",_RaisingSunKick,false,false) then return; end
 					end
 	--	Spinning Crane Kick
@@ -237,7 +237,7 @@ if select(3, UnitClass("player")) == 10 then
 	--- In Combat - Single-Target Rotation ---
 	------------------------------------------
 				if not useAoE() then
-	-- Fists of Fury - if=energy.time_to_max>cast_time&buff.tiger_power.remains>cast_time&debuff.rising_sun_kick.remains>cast_time&!buff.serenity.remains
+	-- Fists of Fury
 					if ttm>fofChanTime and tpRemain>fofChanTime and rskRemain>fofChanTime and serRemain==0 then
 						if castSpell("target",_FistsOfFury,false,false) then return; end
 					end
@@ -254,7 +254,7 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("player",_EnergizingBrew,false,false) then return; end
 					end
 	-- Raising Sun Kick
-					if chi>=2 and not getTalent(7,2) then
+					if chi>=2 and not getTalent(7,2) and tarDist<4 then
 						if castSpell("target",_RaisingSunKick,false,false) then return; end
 					end
 	-- Chi Wave
