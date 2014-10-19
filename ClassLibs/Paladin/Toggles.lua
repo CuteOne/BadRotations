@@ -1,13 +1,4 @@
 if select(3,UnitClass("player")) == 2 then
-
---[[]]	   --[[]]	--[[           ]]	--[[]]				--[[]]	  --[[]]
---[[]]	   --[[]]	--[[           ]]	--[[]]				--[[]]	  --[[]]
---[[           ]]	--[[]]	   --[[]]	--[[]]				   --[[    ]]	   
---[[           ]]	--[[]]	   --[[]]	--[[]]				   --[[    ]]
---[[           ]]	--[[]]	   --[[]]	--[[]]					 --[[]]
---[[]]	   --[[]]	--[[           ]]	--[[           ]]		 --[[]]
---[[]]	   --[[]]	--[[           ]]	--[[           ]]		 --[[]]
- 
     function PaladinHolyToggles()
         -- Aoe Button
         if  AoEModesLoaded ~= "Holy Pal AoE Modes" then 
@@ -58,17 +49,8 @@ if select(3,UnitClass("player")) == 2 then
             HealingModesLoaded = "Holy Pal Healing Modes";
         end       
     end
-
-
---[[           ]]	--[[           ]]	--[[           ]] 	--[[           ]]
---[[           ]]	--[[           ]]	--[[           ]] 	--[[           ]]
---[[]]	   --[[]]	--[[]]	   --[[]]	--[[]]	   --[[]]		 --[[ ]]
---[[         ]]		--[[         ]]	    --[[]]	   --[[]]		 --[[ ]]
---[[       ]]		--[[        ]]		--[[]]	   --[[]]		 --[[ ]]
---[[]]				--[[]]	  --[[]]	--[[           ]]	 	 --[[ ]]		
---[[]] 				--[[]]	   --[[]]	--[[           ]]		 --[[ ]]
-
-    function PaladinProtToggles()
+	
+	function PaladinProtToggles()
 
         -- Aoe Button
         if  AoEModesLoaded ~= "Prot Pal AoE Modes" then 
@@ -118,19 +100,8 @@ if select(3,UnitClass("player")) == 2 then
             };
             CreateButton("Healing",2,1)
             HealingModesLoaded = "Prot Pal Healing Modes";
-        end       
-
+        end      
     end
-
---[[           ]]	--[[           ]]	--[[           ]]
---[[           ]]	--[[           ]]	--[[           ]]
---[[]]	   --[[]]	--[[]]					 --[[ ]]
---[[         ]]		--[[           ]]	  	 --[[ ]]
---[[        ]]		--[[]]				  	 --[[ ]]
---[[]]	  --[[]]	--[[           ]]	 	 --[[ ]]		
---[[]]	   --[[]] 	--[[           ]]		 --[[ ]]
-
-
 
     function PaladinRetToggles()
 
@@ -176,13 +147,12 @@ if select(3,UnitClass("player")) == 2 then
          -- Healing Button
         if  TrashModesLoaded ~= "Prot Pal Healing Modes" then 
             HealingModes = { 
-                [1] = { mode = "None", value = 1 , overlay = "Disable Healing.", tip = "|cffFF0000No healing will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
-                [2] = { mode = "Self", value = 2 , overlay = "Heal only Self.", tip = "|cffFF0000Healing: |cffFFDD11On self only.", highlight = 1, icon = 19750 },
-                [3] = { mode = "All", value = 3 , overlay = "Heal Everyone.", tip = "|cffFF0000Healing: |cffFFDD11On Everyone.", highlight = 1, icon = 114163 }
+                [1] = { mode = "Self", value = 1 , overlay = "Heal only Self.", tip = "|cffFF0000Healing: |cffFFDD11On self only.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
+                [2] = { mode = "Self", value = 2 , overlay = "Heal Everyone.", tip = "|cffFF0000Healing: |cffFFDD11Everyone.", highlight = 1, icon = 19750 },
+                --[3] = { mode = "All", value = 3 , overlay = "Heal Everyone.", tip = "|cffFF0000Healing: |cffFFDD11On Everyone.", highlight = 1, icon = 114163 }
             };
             CreateButton("Healing",2,1)
             HealingModesLoaded = "Prot Pal Healing Modes";
         end       
-
     end
 end

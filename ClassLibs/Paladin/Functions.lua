@@ -239,27 +239,14 @@ if select(3,UnitClass("player")) == 2 then
 	
 	function ProtPaladinHolyPowerConsumers() -- Handle the use of HolyPower
 		
-		-- Ninja in this here for raid test
-		if not isBuffed("player", _SacredShield, 5) then
-			if castSpell("player",_SacredShield,true) then 
-				return
-			end
-		end
-		
-		if (getHP("player") <= 80 and _HolyPower > 2) then 
-			if castSpell("player",_WordOfGlory,true) then 
-				return
-			end
+		if castWordOfGlory("player", 80, 3) then
+			return true
 		end	
-		-- shield_of_the_righteous,if=holy_power>=5|buff.divine_purpose.react|incoming_damage_1500ms>=health.max*0.3
-		if canCast(_ShieldOfTheRighteous) and _HolyPower > 4 then 
-			if getDistance("player","target") <= 4 then
-				if castSpell("target",_ShieldOfTheRighteous,false) then 
-					return; 
-				end
-			end
-			--Todo, we could check other targets to use HP on but this should be controlled by config.
+		
+		if castShieldOfTheRighteous("target", 5) then
+			return true
 		end
+		--Todo, we could check other targets to use HP on but this should be controlled by config.
 	end
 	
 	function ProtPaladingHolyPowerCreaters() -- Handle the normal rotation
@@ -317,10 +304,8 @@ if select(3,UnitClass("player")) == 2 then
 		end
 		
 		-- If we are waiting for CDs we can cast SS
-		if not isBuffed("player", _SacredShield, 5) then
-			if castSacredShield() then 
+		if castSacredShield(5) then 
 				return true
-			end
 		end
 		--Todo Check number of targets in range do Concentration and have it earlier.
 	end

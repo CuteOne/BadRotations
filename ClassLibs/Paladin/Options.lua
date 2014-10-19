@@ -66,7 +66,18 @@ if select(3,UnitClass("player")) == 2 then
 			CreateNewCheck(thisConfig,"Light's Hammer");
 			CreateNewDrop(thisConfig, "Light's Hammer", 1, "CD")
 			CreateNewText(thisConfig,"Light's Hammer");
-		end    
+		end
+		
+		-- Word Of Glory Party
+		CreateNewCheck(thisConfig,"Word Of Glory On Self");
+		CreateNewBox(thisConfig, "Word Of Glory On Self", 0, 100, 1, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to heal self with \n|cffFFFFFFWords Of Glory");
+		CreateNewText(thisConfig,"Word Of Glory On Self");
+		
+		-- Word Of Glory Party
+		--CreateNewCheck(thisConfig,"Word Of Glory On Party");
+		--CreateNewBox(thisConfig, "Word Of Glory On Party", 0, 100, 1, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to heal Party with \n|cffFFFFFFWords Of Glory");
+		--CreateNewText(thisConfig,"Word Of Glory On Party");
+			
 
 		-- Wrapper
 		--CreateNewWrap(thisConfig,"------ Defensive -------");

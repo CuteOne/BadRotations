@@ -102,12 +102,10 @@ if select(3, UnitClass("player")) == 2 then
 			--end			
 			
 			-- Casting SS here for the time being, should be part of something earlier such as buffs or survival
-			if not isBuffed("player", _SacredShield, 3) then
-				if castSacredShield() then 
-					return true
-				end
+			if castSacredShield(3) then 
+				return true
 			end
-		--Todo Check number of targets in range do Concentration and have it earlier.
+			--Todo Check number of targets in range do Concentration and have it earlier.
 			
 			-- Handle the use of HolyPower
 			if ProtPaladinHolyPowerConsumers() then

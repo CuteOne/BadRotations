@@ -126,11 +126,34 @@ if select(3,UnitClass("player")) == 2 then
 		return false
 	end
 	
+	--ToDo :Sacred Shield is affected but Resolve. So we should snapshot resolve and if we are getting X procent more then we should reapply. 340% is max of resolve buff
 	function castSacredShield(timeleft) -- Parameter is time left on buff
+		local timeleft = timeleft or 0
 		if not isBuffed("player", _SacredShield, timeleft) then
 			if castSpell("player",_SacredShield, false) then
 				return true
 			end
+		end
+		return false
+	end
+	-- Todo: We should calculate expected heal with resolve to not overheal
+	function castWordOfGlory(unit, health, holypower)
+		if (getHP(unit) <= health and _HolyPower > holypower) then -- Handle this via config? getHP does it include incoming heals? Bastion of Glory checks?
+			if castSpell(unit,_WordOfGlory,true) then 
+				return true
+			end
+		end	
+		return false
+	end
+	
+	function castShieldOfTheRighteous(unit, holypower)
+		if canCast(_ShieldOfTheRighteous) and _HolyPower >= holypower then 
+			if getDistance("player",unit) <= 4 then
+				if castSpell(unit,_ShieldOfTheRighteous,false) then 
+					return true 
+				end
+			end
+			--Todo, we could check other targets to use HP on but this should be controlled by config.
 		end
 		return false
 	end
