@@ -108,6 +108,10 @@ end
 -- Wrapper
 CreateNewWrap(thisConfig,"---------- Misc -----------");
 
+-- Rotation
+CreateNewDrop(thisConfig, "RotationSelect", 1, "Choose Rotation to use.", "|cffFFBB00IcyVeins", "|cff0077FFSimCraft");
+CreateNewText(thisConfig, "Rotation Priority");
+
 -- Auto Bladestorm / DragonRoar Single Target
 CreateNewCheck(thisConfig,"StormRoarST","Dragonroar automatically in Single Target Rotation");
 CreateNewText(thisConfig,"Dragonroar ST")
@@ -403,11 +407,7 @@ CreateNewWrap(thisConfig,"---------- Misc -----------");
 
 -- Auto Bladestorm / DragonRoar
 CreateNewCheck(thisConfig,"StormRoar","Use Bladestorm/Dragonroar automatically");
-CreateNewText(thisConfig,"Auto Bladestorm/Dragonroar")
-
--- Charge
-CreateNewCheck(thisConfig,"Charge");
-CreateNewText(thisConfig,"Charge");
+CreateNewText(thisConfig,"Auto Bladestorm/Dragonroar");
 
 -- Dummy DPS Test
 CreateNewCheck(thisConfig,"DPS Testing");
