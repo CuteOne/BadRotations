@@ -8,7 +8,11 @@ thisConfig = 0;
 CreateNewTitle(thisConfig,"Arms |cffFF0000Chumii");
 
 -- Wrapper
-CreateNewWrap(thisConfig,"---------- Keys ----------");
+CreateNewWrap(thisConfig,"-------- General Rotation --------");
+
+--Multi-Rend
+CreateNewCheck(thisConfig,"Multi-Rend","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRend spreading|cffFFBB00.");
+CreateNewText(thisConfig,"Multi-Rend");
 
 -- Pause Toggle
 CreateNewCheck(thisConfig,"Pause Toggle");
