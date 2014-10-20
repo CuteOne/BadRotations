@@ -492,13 +492,13 @@ function ArmsMultiTarSimCraft()
             end
         end
         -- actions.aoe+=/execute,if=active_enemies<=3&((rage>60&cooldown.colossus_smash.remains>execute_time)|debuff.colossus_smash.up|target.time_to_die<5)
-        if meleeEnemies <= 3 and (UnitPower("player") > 60 or UnitDebuffID("target",ColossusSmash) or getTimeToDie("target") < 5) then
+        if getmeleeEnemies() <= 3 and (UnitPower("player") > 60 or UnitDebuffID("target",ColossusSmash) or getTimeToDie("target") < 5) then
             if castSpell("target",ExecuteArms,false,false) then
                 return;
             end
         end
         -- actions.aoe+=/whirlwind,if=active_enemies>=4|(active_enemies<=3&(rage>60|cooldown.colossus_smash.remains>execute_time)&target.health.pct>20)
-        if meleeEnemies >= 4 or (meleeEnemies <= 3 and UnitPower("player") > 60 and getHP("target") > 20) then
+        if getmeleeEnemies() >= 4 or (getmeleeEnemies() <= 3 and UnitPower("player") > 60 and getHP("target") > 20) then
             if castSpell("target",Whirlwind,false,false) then
                 return;
             end
