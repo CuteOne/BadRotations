@@ -167,7 +167,7 @@ function MarkHunter()
 	-- Steady Shot
 	if getSpellCD(SteadyShot) == 0
 	and Focus < 50 then
-		print("Casting Steady Shot at "..Focus.." Focus.")
+		--print("Casting Steady Shot at "..Focus.." Focus.")
 		if castSpell("target",SteadyShot,false,false) then return; end
 	end
 	
