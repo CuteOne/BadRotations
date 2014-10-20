@@ -170,13 +170,15 @@ if select(3, UnitClass("player")) == 5 then
 			if isKnown(_ShadowyInsight) and UnitBuffID("player",_ShadowyInsight) then
 				RunMacroText("/stopcasting");
 				if castSpell("target",_MindBlast,false,false) then
+					print("break proc");
 					return;
 				end
 			end
 			-- cast MindBlast as spell
-			if getSpellCD(_MindBlast) < 0.86 then
+			if canCast(_MindBlast) then
 				RunMacroText("/stopcasting");
 				if castSpell("target",_MindBlast,false,true) then
+					print("break cast");
 					return;
 				end
 			end
@@ -197,6 +199,7 @@ if select(3, UnitClass("player")) == 5 then
 		if isKnown(_SurgeOfDarkness) and getBuffStacks("player",_SurgeOfDarkness) > 2 then
 			RunMacroText("/stopcasting");
 			if castSpell("target",_MindSpike,false,false) then
+				print("break SoD");
 				return;
 			end
 		end
@@ -433,7 +436,7 @@ if select(3, UnitClass("player")) == 5 then
 
         -- shadow_word_pain,if=!talent.auspicious_spirits.enabled&remains<(18*0.3)&miss_react,cycle_targets=1,max_cycle_targets=5
         -- Here i do my target checks and i make sure i want to iterate. I use canCast prior to everything just to save power, i dont want to scan if that spell is not ready.
-        if canCast(_ShadowWordPain) then
+        if canCast(_ShadowWordPain) and isChecked("Multi-Dotting") then
         	if not isKnown(_AuspiciousSpirits) then
             -- Shadow word pain
                 -- Iterating Object Manager
@@ -456,8 +459,17 @@ if select(3, UnitClass("player")) == 5 then
             end
         end
 
+        -- shadow_word_pain,if=!talent.auspicious_spirits.enabled&remains<(18*0.3)&miss_react,cycle_targets=1,max_cycle_targets=5
+        if canCast(_ShadowWordPain) then
+    		if getDebuffRemain("target",_ShadowWordPain) < (18*0.3) then
+    			if castSpell("target",_ShadowWordPain,true,false) then
+    				return;
+    			end
+    		end
+        end
+
 		-- vampiric_touch,if=remains<(15*0.3+cast_time)&miss_react,cycle_targets=1,max_cycle_targets=5
-		if canCast(_VampiricTouch) then
+		if canCast(_VampiricTouch) and isChecked("Multi-Dotting") then
 			print("--- 1 ---");
 			-- Vampiric Touch
 			-- Iterating Object Manager
@@ -471,7 +483,8 @@ if select(3, UnitClass("player")) == 5 then
 					local thisUnit2 = ObjectWithIndex(i)
 					print("--- 4 ---");
 					-- Here i do my specific spell checks
-					if (UnitCanAttack(thisUnit2,"player") == true and UnitAffectingCombat(thisUnit2) == true) and getDebuffRemain("target",_VampiricTouch) < (15*0.3+VTCASTTIME) and getDistance("player",thisUnit2) < 40 then
+					--if (UnitCanAttack(thisUnit2,"player") == true and UnitAffectingCombat(thisUnit2) == true) and getDebuffRemain(thisUnit2,_VampiricTouch) < (15*0.3+VTCASTTIME) and getDistance("player",thisUnit2) < 40 then
+					if (UnitCanAttack(thisUnit2,"player") == true and UnitAffectingCombat(thisUnit2) == true) and (getDebuffRemain(thisUnit2,_VampiricTouch) < (15*0.3+VTCASTTIME)) and getDistance("player",thisUnit2) < 40 then						--if UnitCanAttack(thisUnit,"player") == true and getDebuffRemain(thisUnit,_ShadowWordPain) < (18*0.3) and getDistance("player",thisUnit) < 40 then
 						print("--- 5 ---");
 						-- let's cast
 						if castSpell(thisUnit2,_VampiricTouch,true,true) then
@@ -482,6 +495,16 @@ if select(3, UnitClass("player")) == 5 then
 				end
 			end
 		end
+
+		-- vampiric_touch,if=remains<(15*0.3+cast_time)&miss_react,cycle_targets=1,max_cycle_targets=5
+		if canCast(_VampiricTouch) then
+    		if getDebuffRemain("target",_VampiricTouch) < (15*0.3+VTCASTTIME) then
+    			if castSpell("target",_VampiricTouch,true,true) then
+    				lastVT = GT;
+    				return;
+    			end
+    		end
+        end
 
 		-- devouring_plague,if=!talent.void_entropy.enabled&shadow_orb>=3&ticks_remain<=1
 		if canCast(_DevouringPlague) then
