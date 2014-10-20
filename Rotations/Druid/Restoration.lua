@@ -109,7 +109,7 @@ function DruidRestoration()
 	if isChecked("Mark Of The Wild") == true and canCast(1126,false,false) and (lastMotw == nil or lastMotw <= GetTime() - 5) then
 		for i = 1, #nNova do
 			if nNova[i].hp < 249 then
-		  		if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) then
+		  		if isPlayer(nNova[i].unit) == true and UnitIsVisible(nNova[i].unit) and not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) then
 		  			if castSpell("player",1126,true) then lastMotw = GetTime(); return; end
 				end
 			end

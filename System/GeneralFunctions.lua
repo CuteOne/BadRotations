@@ -622,19 +622,31 @@ function getDebuffStacks(Unit,DebuffID,Source)
 	end
 end
 
+
+-- at 5 yard i get 2 so i have to remove 3 yard and in the end i have too much so i remove unitsizes
+
+
+
+
+
 -- if getDistance("player","target") <= 40 then
 function getDistance(Unit1,Unit2)
 	if Unit2 == nil then Unit2 = "player"; end
+	-- If both units are visible
 	if UnitIsVisible(Unit1) and UnitIsVisible(Unit2) then
+
 		local X1,Y1,Z1 = ObjectPosition(Unit1);
 		local X2,Y2,Z2 = ObjectPosition(Unit2);
 		local unitSize = 0;
-		if UnitGUID(Unit1) ~= UnitGUID("player") and UnitCanAttack(Unit1,"player") then
-			unitSize = UnitCombatReach(Unit1);
-		elseif UnitGUID(Unit2) ~= UnitGUID("player") and UnitCanAttack(Unit2,"player") then
-			unitSize = UnitCombatReach(Unit2);
-		end
-		return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unitSize;
+
+		-- HitBox Calculations
+		unitSize = UnitCombatReach(Unit1) + UnitCombatReach(Unit2) ;
+
+		-- Position Calculations
+		myRange = math.sqrt(((X2-X1)^2)+((Y2-Y1)^2))
+
+		return myRange-(unitSize/(45/myRange));
+
 	else
 		return 1000;
 	end
@@ -906,6 +918,7 @@ function getBossID(BossUnitID)
 	return UnitConvert;
 end
 
+
 function getUnitID(Unit)
 	local UnitConvert = 0;
 	if UnitIsVisible(BossUnitID) then
@@ -914,29 +927,23 @@ function getUnitID(Unit)
 	return UnitConvert;
 end
 
-
 -- if getNumEnemies("target",10) >= 3 then
 function getNumEnemies(Unit,Radius)
   	local Units = 0;
- 	for i=1,ObjectCount(TYPE_UNIT) do
-  		local thisUnit = ObjectWithIndex(i);
-  		if getCreatureType(thisUnit) == true then
-  			if UnitCanAttack("player",thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
-  				if getDistance(Unit,thisUnit) <= (Radius + ObjectDescriptor(ObjectWithIndex(i), 0x110 , Float)) then
-  					Units = Units+1;
-   				end
-	 		end
-	 	end
+ 	for i=1,ObjectCount() do
+ 		if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
+	  		local thisUnit = ObjectWithIndex(i);
+	  		if getCreatureType(thisUnit) == true then
+	  			if UnitIsVisible(thisUnit) and UnitCanAttack("player",thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
+	  				if getDistance(Unit,thisUnit) <= (Radius + ObjectDescriptor(ObjectWithIndex(i), 0x110 , Float)) then
+	  					Units = Units+1;
+	   				end
+		 		end
+		 	end
+		end
  	end
  	return Units;
 end
-
-
-
-
-
-
-
 
 -- if getLineOfSight("target"[,"target"]) then
 function getLineOfSight(Unit1,Unit2)
@@ -1413,6 +1420,7 @@ function isCastingSpell(spellID)
 		return false
 	end
 end
+
 -- UnitGUID("target"):sub(-15, -10)
 -- Dummy Check
 function isDummy(Unit)
@@ -1608,9 +1616,9 @@ function IsStandingTime(time)
 end
 
 -- if isSpellInRange(12345,"target") then
-function isSpellInRange(SpellID,Unit)
-	if UnitExists(Unit) then
-		if IsSpellInRange(tostring(GetSpellInfo(SpellID)),Unit) == 1 then return true; end
+function isCasting(SpellID,Unit)
+	if UnitExists(Unit) and UnitIsVisible(Unit) then
+		if isCasting(tostring(GetSpellInfo(SpellID)),Unit) == 1 then return true; end
 	else
 		return false;
 	end

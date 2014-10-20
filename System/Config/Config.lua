@@ -4,7 +4,7 @@ function ConfigFrame()
 	--BadBoy_data.version = 0.03
 	if not doneConfig then
 
-		function ClearConfig()  
+		function ClearConfig()
 			if thisConfig ~= nil and doneConfig == true then
 		        for i = 1, thisConfig do
 		            DeleteRow(i)
@@ -126,36 +126,36 @@ function CreateGeneralsConfig()
     CreateNewText(thisConfig,"Special Heal");
 
     -- Special Priority
-    CreateNewCheck(thisConfig,"Special Priority","|cffFFBB00Priorise Special targets.");     
+    CreateNewCheck(thisConfig,"Special Priority","|cffFFBB00Priorise Special targets.");
     CreateNewText(thisConfig,"Special Priority");
 
     -- Blacklist
     CreateNewCheck(thisConfig,"Blacklist");
-    CreateNewBox(thisConfig, "Blacklist", 0, 105  , 5, 105, "|cffFFBB00How much |cffFF0000%HP|cffFFBB00 do we want to add to |cffFFDD00Blacklisted |cffFFBB00units.");
+    CreateNewBox(thisConfig, "Blacklist", 0, 105  , 5, 105, "|cffFFBB00How much |cffFF0000%HP|cffFFBB00 do we want to add to |cffFFDD00Blacklisted |cffFFBB00units. Use /Blacklist while mouse-overing someone to add it to the black list.");
     CreateNewText(thisConfig,"Blacklist");
 
     -- No Absorbs
     CreateNewCheck(thisConfig,"No Absorbs","Uncheck this if you want to prevent overhealing shielded units. If checked, it will add shieldBuffValue/4 to hp.");
-    CreateNewText(thisConfig,"No Absorbs"); 
+    CreateNewText(thisConfig,"No Absorbs");
 
     -- No Incoming Heals
     CreateNewCheck(thisConfig,"No Incoming Heals","Uncheck this if you want to prevent overhealing units. If checked, it will add incoming health from other healers to hp.");
     CreateNewText(thisConfig,"No Incoming Heals");
 
     -- Overhealing Cancel Cast
-    CreateNewCheck(thisConfig,"Overhealing Cancel");       
+    CreateNewCheck(thisConfig,"Overhealing Cancel");
     CreateNewBox(thisConfig, "Overhealing Cancel", 100, 200  , 5, 100, "|cffFFBB00Stop casting heal if target is going to have over this amount of HP after heal.");
     CreateNewText(thisConfig,"Overhealing Cancel");
 
     -- Engine Debug
-    CreateNewCheck(thisConfig,"Engine Debug");       
+    CreateNewCheck(thisConfig,"Engine Debug");
     CreateNewText(thisConfig,"Engine Debug");
 
     -- Engine Refresh
-    CreateNewCheck(thisConfig,"Engine Refresh");       
+    CreateNewCheck(thisConfig,"Engine Refresh");
     CreateNewBox(thisConfig, "Engine Refresh", 0, 1000  , 5, 0, "|cffFFBB00Time to wait before refreshing engine.");
     CreateNewText(thisConfig,"Engine Refresh");
-	
+
     -- Wrapper -----------------------------------------
     CreateNewWrap(thisConfig,"--------- General -------");
 
@@ -234,7 +234,7 @@ function CreateGeneralsConfig()
 
 	--LevelingPriorityValue 		= 3
 	CreateNewCheck(thisConfig,"Leveling Priority");
-	CreateNewDrop(thisConfig, "Leveling Priority", 1,"High" , "Low" , "HighWild", "LowWild"); 
+	CreateNewDrop(thisConfig, "Leveling Priority", 1,"High" , "Low" , "HighWild", "LowWild");
 	CreateNewText(thisConfig,"Leveling Priority");
 
 	--LevelingRarityValue 		= 4
@@ -254,7 +254,7 @@ function CreateGeneralsConfig()
 	-- Pause Toggle
     CreateNewCheck(thisConfig,"Pause Toggle");
     CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle2")
-    CreateNewText(thisConfig,"Pause Toggle"); 
+    CreateNewText(thisConfig,"Pause Toggle");
 --[[
     -- Wrapper -----------------------------------------
     CreateNewWrap(thisConfig,"--------- Hacks ---------");
@@ -411,7 +411,7 @@ function CreateGeneralsConfig()
 
 
    -- Bound
-    CreateNewBound(thisConfig,"End"); 
+    CreateNewBound(thisConfig,"End");
     doneConfig = true;
 end
 
@@ -437,7 +437,7 @@ if CODEMYLIFE_POKEROTATION == nil then
 		name	= "PokeRotation",
 		author	= "CodeMyLife",
 		abilities = {
-		
+
 			{	name = "Objective",
 				enable = true,
 				tooltip = "|cffFFFFFFWhat's your primary objective.",
@@ -448,7 +448,7 @@ if CODEMYLIFE_POKEROTATION == nil then
 					width  = 110,
 				},
 			},
-			
+
 			---- Pet Healing  ----
 			{ 	name	= "Pet Heal",
 				enable	= true,
@@ -459,7 +459,7 @@ if CODEMYLIFE_POKEROTATION == nil then
 					tooltip	= "|cffFFFFFFIn Battle - |cff33CCFFMinimum pet |cffFFFFFFHealth Value |cff33CCFFto use their |cffFFFFFFhealing Abilities|cff33CCFF.",
 				},
 			},
-				
+
 			----  Swap Out Treshold  ----
 			{ 	name	= "Swap Out Health",
 				enable	= true,
@@ -470,7 +470,7 @@ if CODEMYLIFE_POKEROTATION == nil then
 					tooltip	= "|cffFFFFFFIn Battle - |cff33CCFFMinimum pet |cffFFFFFFHealth Value |cff33CCFFto |cffFFFFFFSwap-Out Pets|cff33CCFF.",
 				},
 			},
-			
+
 			----  Swap In Treshold  ----
 			{ 	name	= "Swap In Health",
 				enable	= true,
@@ -481,7 +481,7 @@ if CODEMYLIFE_POKEROTATION == nil then
 					tooltip	= "|cffFFFFFFIn Battle - |cff33CCFFMinimum |cffFFFFFFHealth to |cffFFFFFFSwap Pets In|cff33CCFF.",
 				},
 			},
-			
+
 			----  Capture Treshold  ----
 			{ 	name	= "Capture",
 				enable	= true,
@@ -491,11 +491,11 @@ if CODEMYLIFE_POKEROTATION == nil then
 					value = 4,
 					tooltip = "|cffFFFFFFIn Battle - |cff33CCFFMinimum pet rarity to Capture: |cff"..(RarityColorsTable[1].Color).."1-Poor |cff"..(RarityColorsTable[2].Color).."2-Common |cff"..(RarityColorsTable[3].Color).."3-Uncommon |cff"..(RarityColorsTable[4].Color).."4-Rare.",
 					width  = 80,
-					
+
 				},
-				newSection = true,	
+				newSection = true,
 			},
-			
+
 			----  Number of Pets to Capture  ----
 			{ 	name	= "Number Of Pets",
 				enable	= true,
@@ -508,7 +508,7 @@ if CODEMYLIFE_POKEROTATION == nil then
 					tooltip	= "|cffFFFFFFIn Battle - |cff33CCFFHow Many |cffFFFFFFPets of Each Kind do you want to |cffFFFFFFCapture|cff33CCFF.",
 				},
 			},
-			
+
 			----  Revive Battle Pets ----
 			{ 	name	= "Revive Battle Pets",
 				enable	= true,
@@ -520,8 +520,8 @@ if CODEMYLIFE_POKEROTATION == nil then
 				},
 				newSection = true,
 			},
-			
-			----  Pet Leveling  ----		    
+
+			----  Pet Leveling  ----
 		    { 	name	= "Pet Leveling",
 				tooltip	= "|cffFFFFFFIn Battle - |cff33CCFFCheck this to |cffFFFFFFMake your Pet in Slot 1 Level Quick. It will interact only once |cff33CCFFand hide behind other pets.",
 				enable	= true,
@@ -533,7 +533,7 @@ if CODEMYLIFE_POKEROTATION == nil then
 					tooltip	= "|cffFFFFFFIn Battle - |cff33CCFFSet this value to the |cffFFFFFFlevel |cff33CCFFyou want |cffFFFFFFto consider the pet high level enough to fight|cffFF0000(cancels Pet Leveling).",
 				},
 			},
-			
+
 			----  Leveling Priority  ----
 			{ 	name	= "Leveling Priority",
 				enable	= true,
@@ -543,10 +543,10 @@ if CODEMYLIFE_POKEROTATION == nil then
 					value = 3,
 					tooltip = "|cff"..(RarityColorsTable[3].Color).."Low Level |cff33CCFFwill add priority to |cff"..(RarityColorsTable[3].Color).."Low Level Pets. |cffFFFFFFNon-Wild |cff33CCFFwill add priority to |cffFFFFFFNon-Wild Pets. |cffFFFFFFFavorite |cff33CCFFis |cffFFFFFFTop Priority |cff33CCFFby |cffFFFFFFDefault.",
 					width  = 120,
-					
-				},	
+
+				},
 			},
-			
+
 			----  Leveling Rarity  ----
 			{ 	name	= "Leveling Rarity",
 				enable	= true,
@@ -556,10 +556,10 @@ if CODEMYLIFE_POKEROTATION == nil then
 					value = 4,
 					tooltip = "|cffFFFFFFIn Battle - |cff33CCFFMinimum pet rarity to Level: |cff"..(RarityColorsTable[1].Color).."1-Poor |cff"..(RarityColorsTable[2].Color).."2-Common |cff"..(RarityColorsTable[3].Color).."3-Uncommon |cff"..(RarityColorsTable[4].Color).."4-Rare.",
 					width  = 80,
-					
-				},	
+
+				},
 			},
-			
+
 			----  Pet Swapper  ----
 			{ 	name	= "Pet Swap Max",
 				enable	= true,
@@ -583,19 +583,19 @@ if CODEMYLIFE_POKEROTATION == nil then
 					tooltip	= "|cffFFFFFFOut of Battle - |cff33CCFFDesired |cffFFFFFFMinimum Slot 1 Level|cff33CCFF.",
 				},
 			},
-			
+
 			----  Auto Clicker  ----
 			{ 	name = "Auto Clicker",
 				enable = false,
 				tooltip = "|cffFFFFFFOut of Battle - |cff33CCFFChase Pets!",
-			 	widget = { type = 'txtbox', 
-			    	value = '"Pet Name"', 
+			 	widget = { type = 'txtbox',
+			    	value = '"Pet Name"',
 			   		width = 80,
 					tooltip = "|cffFFFFFFOut of Battle - |cff33CCFFEnter the |cffFFFFFFExact Pet Name |cff33CCFFyou want |cffFFFFFFTo Chase|cff33CCFF.",
 				},
 				newSection = true,
 			 },
-			 
+
 			 ----  Follower Distance  ----
 			{ 	name = "Follower Distance",
 				enable = false,
@@ -608,7 +608,7 @@ if CODEMYLIFE_POKEROTATION == nil then
 					tooltip	= "|cffFFFFFFOut of Battle - |cff33CCFFSet this value to the |cffFFFFFFRange |cff33CCFFyou want to |cffFFFFFF consider the pet close enough to follow it|cff33CCFF.",
 				},
 			},
-			
+
 			----  PvP  ----
 			{ 	name	= "PvP",
 				enable	= false,
@@ -622,8 +622,8 @@ if CODEMYLIFE_POKEROTATION == nil then
 				},
 				newSection = true,
 			},
-		},		
-		
+		},
+
 		----  Pause  ----
 		hotkeys = {
 			{	name	= "Pause",
