@@ -160,10 +160,10 @@ Frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
 Frame:RegisterEvent("CHARACTER_POINTS_CHANGED");
 local function SpellsChanged(self, event, ...)
 	if event == "PLAYER_TALENT_UPDATE" or event == "ACTIVE_TALENT_GROUP_CHANGED" or event == "CHARACTER_POINTS_CHANGED" then
-		if not configThrottle or configThrottle <= GetTime() - 5 then
+		if not configThrottle or configThrottle <= GetTime() - 5 and not UnitOnTaxi("player") == true then
 			configThrottle = GetTime();
 			currentConfig = nil;
-			print("|cffFF0000Config Reloaded");
+			print("|cffFF0000Config Reloaded " .. event);
 		end
 	end
 end

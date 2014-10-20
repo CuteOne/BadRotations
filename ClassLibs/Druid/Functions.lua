@@ -230,7 +230,10 @@ function useCDs()
 end
 
 function useAoE()
-    if (BadBoy_data['AoE'] == 1 and getNumEnemies("player",10) >= 3) or BadBoy_data['AoE'] == 2 then
+    if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
+        numEnemies, enemiesTimer = getNumEnemies("player",10), GetTime()
+    end
+    if (BadBoy_data['AoE'] == 1 and numEnemies >= 3) or BadBoy_data['AoE'] == 2 then
         return true
     else
         return false
@@ -535,7 +538,9 @@ function feralOpener()
 end
 
 function feralSingle()
-    local enemiesInRange = getNumEnemies("player",8)
+    if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
+        enemiesInRange, enemiesTimer = getNumEnemies("player",10), GetTime()
+    end
     local feralPower = getPower("player")
     local feralPowerDiff = UnitPowerMax("player")-UnitPower("player")
     local targetDistance = getDistance("player","target")

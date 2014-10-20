@@ -109,7 +109,7 @@
 
 `isBuffed(UnitID,SpellID,TimeLeft) - Bool` Rturns true if Unit have at least Timeleft remaining on SpellId Buff
 
-`isCasting(Unit) - Bool` Returns true if Unit is casting
+`isCasting(SpellID,Unit) - Bool` Returns true if Unit is casting given spell
 
 `isCastingSpell(spellID) - Bool` returns true if WE are casting spellid
 
@@ -155,14 +155,14 @@
 
 `getValue(Value) - Num` Returns drop or box Value from UI
 
-`CreateNewCheck(value, textString, tip1, state)` 
+`CreateNewCheck(value, textString, tip1, state)`
 - Used to create checkboxes in UI
 1. value must always be thisConfig - Do not change
 2. textString - the name of your option - String
 3. tip1 - the tooltip displayed when the user mouseover the checkbox - String
 4. state - the désired deployment state - Numeric 0(Unchecked)/1(Checked)
 
-`CreateNewBox(value,textString,minValue,maxValue,step,base,tip1)` 
+`CreateNewBox(value,textString,minValue,maxValue,step,base,tip1)`
 - Used to create valueboxes in UI
 1. value must always be thisConfig - Do not change
 2. textString - the name of your option - String
@@ -171,7 +171,7 @@
 5. step - how much you want to add/sub from the actual value when user wheel-up/down over the box
 6. base - what is the base value for this option
 
-`CreateNewDrop(value, textString, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)` 
+`CreateNewDrop(value, textString, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)`
 - Used to create selectors in UI. Assigning tip "Toggles" will use predefined toggles, values should be empty when doing so.
 1. value must always be thisConfig - Do not change
 2. textString - the name of your option - String
