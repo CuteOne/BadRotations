@@ -38,13 +38,26 @@ function MarkHunter()
 	-------------------------
 	-- Pet Management --
 	-------------------------
-	if isChecked("Auto Call Pet") == true and UnitExists("pet") == nil then
+	if isChecked("Auto Call Pet")  and not UnitExists("pet") then
 		if waitForPetToAppear ~= nil and waitForPetToAppear < GetTime() - 2 then
 			if lastFailedWhistle and lastFailedWhistle > GetTime() - 3 then
 				if castSpell("player",RevivePet) then return; end
 			else
-				local Autocall = BadBoy_data["Box Auto Call Pet"];
-				if castSpell("player",G["CallPet"..Autocall]) then return; end
+				local Autocall = BadBoy_data["Drop Auto Call Pet"];
+				
+				if Autocall == 1 then
+					if castSpell("player",CallPet1) then return; end
+				elseif Autocall == 2 then
+					if castSpell("player",CallPet2) then return; end
+				elseif Autocall == 3 then
+					if castSpell("player",CallPet3) then return; end
+				elseif Autocall == 4 then
+					if castSpell("player",CallPet4) then return; end
+				elseif Autocall == 5 then
+					if castSpell("player",CallPet5) then return; end
+				else
+					print("Auto Call Pet Error")
+				end
 			end
 		end
 		if waitForPetToAppear == nil then
@@ -99,70 +112,67 @@ function MarkHunter()
 	end		
 		
 
-	
-	
-	-----------------------------
-	--- Multi-Target Rotation ---
-	-----------------------------
-	--if getNumEnemies("player",10) >= 3 and targetDistance<40 and useAoE() and isEnnemy("target") and isAlive("target") then
-		
-		
-		
-	--end --Multi-Target Rotation End
-	
-	
-	------------------------------
-	--- Single Target Rotation ---
-	------------------------------
-	if getNumEnemies("player",8) < 3 and targetDistance<40 and isEnnemy("target") and isAlive("target") then		
-		
-		-- Single Kill Shot
-		if 100*UnitHealth("target")/UnitHealthMax("target") <= 20 then
-			if castSpell("target",KillShot,false) then return; end
-		end
-		
-		-- Chimera Shot
-		if Focus >= 35 then
-			if castSpell("target",ChimeraShot,false) then return; end
-		end
-		
-		-- Barrage
-		if Focus >= 60 then
-			if castSpell("target",Barrage,false) then return; end
-		end
-		
-		-- Glave Toss
-		if Focus >= 15 then
-			if castSpell("target",GlaiveToss,false) then return; end
-		end
-		
-		-- Powershot
-		if Focus >= 15 then
-			if castSpell("target",PowerShot,false) then return; end
-		end
-		
-		-- Aimed Shot
-		if Focus + FocusRegen >= 60 then
-			if castSpell("target",AimedShot,false) then return; end
-		end
-			
 
-		-- Explosive Trap
-		if canCast(TrapLauncherExplosive) and BadBoy_data["Check Explosive Trap"] == 1 
-			and (BadBoy_data["Drop Explosive Trap"] == 3 or (BadBoy_data["Drop Explosive Trap"] == 2 and numEnemies >= 3)) 
-			and getGround("target") == true 
-			and isMoving("target") ~= true
-			and (isDummy("target") or (getDistance("target","targettarget") <= 5 and UnitHealth("target")*numEnemies >= 150*UnitHealthMax("player")/100)) then
-			if castGround("target",TrapLauncherExplosive,40) then return; end
-		end
+	----------------------------
+	--- Damage Rotation ---
+	---------------------------
+	
+	-- Single Kill Shot
+	if getSpellCD(KillShot) == 0
+	and getHP("target")<= 20 then
+		if castSpell("target",KillShot,false) then return; end
+	end
+	
+	-- Chimera Shot
+	if getSpellCD(ChimeraShot) == 0
+	and Focus >= 35 then
+		if castSpell("target",ChimeraShot,false) then return; end
+	end
+	
+	-- Barrage
+	if getSpellCD(Barrage) == 0
+	and Focus >= 60 then
+		if castSpell("target",Barrage,false) then return; end
+	end
+	
+	-- Glave Toss
+	if getSpellCD(GlaiveToss) == 0
+	and Focus >= 15 then
+		if castSpell("target",GlaiveToss,false) then return; end
+	end
+	
+	-- Powershot
+	if getSpellCD(PowerShot) == 0
+	and Focus >= 15 then
+		if castSpell("target",PowerShot,false) then return; end
+	end
+	
+	-- Aimed Shot
+	if getSpellCD(AimedShot) == 0
+	and Focus + FocusRegen >= 60 
+	and getSpellCD(Barrage) > 2 then
+		if castSpell("target",AimedShot,false) then return; end
+	end
+		
 
-		-- Steady Shot
+	-- Explosive Trap
+	if canCast(TrapLauncherExplosive) and BadBoy_data["Check Explosive Trap"] == 1 
+		and (BadBoy_data["Drop Explosive Trap"] == 3 or (BadBoy_data["Drop Explosive Trap"] == 2 and numEnemies >= 3)) 
+		and getGround("target") == true 
+		and isMoving("target") ~= true
+		and (isDummy("target") or (getDistance("target","targettarget") <= 5 and UnitHealth("target")*numEnemies >= 150*UnitHealthMax("player")/100)) then
+		if castGround("target",TrapLauncherExplosive,40) then return; end
+	end
+
+	-- Steady Shot
+	if getSpellCD(SteadyShot) == 0
+	and Focus < 50 then
+		print("Casting Steady Shot at "..Focus.." Focus.")
 		if castSpell("target",SteadyShot,false,false) then return; end
-
+	end
+	
 		
-		
-		
-	end --Single Target Rotation End
+	
 
 	
 	end
