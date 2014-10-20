@@ -143,6 +143,23 @@ function ArmsSingleTarIcyVeins()
         if getHP("target") > 20 then
             -- Outside CS
             if not UnitDebuffID("target",ColossusSmash,"player") then
+
+                -- Multi Rend
+                if isChecked("Multi-Rend") and canCast(Rend) then
+                    for i = 1, ObjectCount() do
+                        if getCreatureType(ObjectWithIndex(i)) == true then
+                            local thisUnit = ObjectWithIndex(i)
+                            if UnitCanAttack(thisUnit,"player") == true
+                                and not UnitIsDeadOrGhost(thisUnit)
+                                and getFacing("player",thisUnit) == true
+                                and getDebuffRemain(thisUnit,Rend,"player") < 6
+                                and getDistance(thisUnit) < 5
+                            then
+                                if castSpell(thisUnit,Rend,false,false) then return; end
+                            end
+                        end
+                    end
+                end
                 -- Rend
                 if isGarrMCd("target") == false then
                 if getDebuffRemain("target",Rend,"player") <= 5 then
@@ -212,6 +229,22 @@ function ArmsSingleTarIcyVeins()
         if getHP("target") < 20 then
             -- Outside CS
             if not UnitDebuffID("target",ColossusSmash,"player") then
+                -- Multi Rend
+                if isChecked("Multi-Rend") and canCast(Rend) then
+                    for i = 1, ObjectCount() do
+                        if getCreatureType(ObjectWithIndex(i)) == true then
+                            local thisUnit = ObjectWithIndex(i)
+                            if UnitCanAttack(thisUnit,"player") == true
+                                and not UnitIsDeadOrGhost(thisUnit)
+                                and getFacing("player",thisUnit) == true
+                                and getDebuffRemain(thisUnit,Rend,"player") < 6
+                                and getDistance(thisUnit) < 5
+                            then
+                                if castSpell(thisUnit,Rend,false,false) then return; end
+                            end
+                        end
+                    end
+                end
                 -- Rend
                 if isGarrMCd("target") == false then
                 if getDebuffRemain("target",Rend,"player") <= 5 then
@@ -273,7 +306,23 @@ function ArmsMultiTarIcyVeins()
                         return;
                     end
                 end
-                -- Spread Rend to 4-5 Tars
+                -- Multi Rend
+                if isChecked("Multi-Rend") and canCast(Rend) then
+                    for i = 1, ObjectCount() do
+                        if getCreatureType(ObjectWithIndex(i)) == true then
+                            local thisUnit = ObjectWithIndex(i)
+                            if UnitCanAttack(thisUnit,"player") == true
+                                and not UnitIsDeadOrGhost(thisUnit)
+                                and getFacing("player",thisUnit) == true
+                                and getDebuffRemain(thisUnit,Rend,"player") < 6
+                                and getDistance(thisUnit) < 5
+                            then
+                                if castSpell(thisUnit,Rend,false,false) then return; end
+                            end
+                        end
+                    end
+                end
+                -- Rend
                 if isGarrMCd("target") == false then
                     if getDebuffRemain("target",Rend,"player") <= 5 then
                         if castSpell("target",Rend,false,false) then
@@ -299,6 +348,22 @@ function ArmsSingleTarSimCraft()
         if castSpell("player",Bloodbath,true) then
         return;
     end
+        -- Multi Rend
+        if isChecked("Multi-Rend") and canCast(Rend) then
+            for i = 1, ObjectCount() do
+                if getCreatureType(ObjectWithIndex(i)) == true then
+                    local thisUnit = ObjectWithIndex(i)
+                    if UnitCanAttack(thisUnit,"player") == true
+                        and not UnitIsDeadOrGhost(thisUnit)
+                        and getFacing("player",thisUnit) == true
+                        and getDebuffRemain(thisUnit,Rend,"player") < 6
+                        and getDistance(thisUnit) < 5
+                    then
+                        if castSpell(thisUnit,Rend,false,false) then return; end
+                    end
+                end
+            end
+        end
         -- actions.single=rend,if=ticks_remain<2&target.time_to_die>4
         if isGarrMCd("target") == false then
             if getDebuffRemain("target",Rend) < 5 and getTimeToDie("target") > 4 then
@@ -373,6 +438,22 @@ function ArmsMultiTarSimCraft()
             if getDistance("player","target") < 8 then
                 if castSpell("target",Bladestorm,true) then
                     return;
+                end
+            end
+        end
+        -- Multi Rend
+        if isChecked("Multi-Rend") and canCast(Rend) then
+            for i = 1, ObjectCount() do
+                if getCreatureType(ObjectWithIndex(i)) == true then
+                    local thisUnit = ObjectWithIndex(i)
+                    if UnitCanAttack(thisUnit,"player") == true
+                        and not UnitIsDeadOrGhost(thisUnit)
+                        and getFacing("player",thisUnit) == true
+                        and getDebuffRemain(thisUnit,Rend,"player") < 6
+                        and getDistance(thisUnit) < 5
+                    then
+                        if castSpell(thisUnit,Rend,false,false) then return; end
+                    end
                 end
             end
         end
