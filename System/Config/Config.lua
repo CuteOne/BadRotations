@@ -175,6 +175,18 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start |cffFFFFFFChat Debug |cffFFBB00of casted spells.");
     CreateNewText(thisConfig,"Debug");
 
+    -- Debug
+    CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start |cffFFFFFFChat Debug |cffFFBB00of casted spells.");
+    CreateNewText(thisConfig,"Debug");
+
+    -- Debug Fail Casts
+    CreateNewCheck(thisConfig,"Debug Fail Casts", "|cffFFBB00Check this to allow Fail Casts in |cffFFFFFFChat Debug.",1);
+    CreateNewText(thisConfig,"Debug Fail Casts");
+
+    -- Latency Compensation
+    CreateNewCheck(thisConfig,"Latency Compensation", "|cffFFBB00Check this to Compensate Latency in getSpellCD.",1);
+    CreateNewText(thisConfig,"Latency Compensation");
+
     -- Auto Taunts
     CreateNewCheck(thisConfig,"Auto Taunts");
     CreateNewText(thisConfig,"Auto Taunts");

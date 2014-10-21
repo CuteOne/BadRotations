@@ -411,6 +411,19 @@ Fifth 		SpamAllowed 	True to skip that check, false to prevent spells that we do
 Sixth 		KnownSkip 		True to skip isKnown check for some spells that are not managed correctly in wow's spell book.
 ]]
 
+
+-- getLatency()
+function getLatency()
+	local lag = ((select(3,GetNetStats()) + select(4,GetNetStats())) / 1000)
+	if lag < .05 then
+		lag = .05
+	elseif lag > .4 then
+		lag = .4
+	end
+	return lag
+end
+
+
 -- castSpell("target",12345,true);
 function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 	if shouldStopCasting(SpellID) ~= true and not UnitIsDeadOrGhost(Unit) then
@@ -984,6 +997,9 @@ function getSpellCD(SpellID)
 	else
 		local Start ,CD = GetSpellCooldown(SpellID);
 		local MyCD = Start + CD - GetTime();
+		if isChecked("Latency Compensation") then
+			MyCD = MyCD - getLatency()
+		end
 		return MyCD;
 	end
 end
