@@ -111,4 +111,18 @@ function canFSK(unit)
     end
 end
 
+function canContFSK(unit)
+    if ((targetDistance <= 8 and isInCombat("player")) or (targetDistance < 60 and targetDistance > 8 and getFacing("player",unit)))
+        and not hasGlyph(1017)
+        and getFacingDistance() <= 7
+        and not UnitIsDeadOrGhost(unit)
+        and getTimeToDie(unit) > 2
+        and not IsSwimming()
+    then
+        return true
+    else
+        return false
+    end
+end
+
 end

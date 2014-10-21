@@ -230,6 +230,7 @@ function useCDs()
 end
 
 function useAoE()
+    if numEnemies == nil then numEnemies = 0 end
     if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
         numEnemies, enemiesTimer = getNumEnemies("player",10), GetTime()
     end
