@@ -72,7 +72,7 @@ function DruidRestoration()
 
 
 	--[[ Rebirth ]]
-	if isInCombat("player")	and isStanding(0.3) and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("player","mouseover") and not UnitIsUnit("player","traget") then
+	if isInCombat("player")	and isStanding(0.3) and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("player","mouseover") and not UnitIsUnit("player","target") then
 		if castSpell("mouseover",20484,true,true) then return; end
 	end
 
