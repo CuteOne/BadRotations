@@ -500,13 +500,16 @@ if select(3, UnitClass("player")) == 5 then
 			-- Vampiric Touch
 			-- Iterating Object Manager
 			-- begin loop
-			for i=1,ObjectCount() do
+			if myEnemies == nil or myEnemiesTimer == nil or myEnemiesTimer <= GetTime() - 1 then
+				myEnemies, myEnemiesTimer = getEnemies("player",40), GetTime();
+			end
+			for i=1, #myEnemies do
 				-- we check if it's a valid unit
-				if getCreatureType(ObjectWithIndex(i)) == true then
+				if getCreatureType(myEnemies[i]) == true then
 					-- now we know the unit is valid, we can use it to check whatever we want..
-					local thisUnit = ObjectWithIndex(i)
+					local thisUnit = myEnemies[i]
 					-- Here i do my specific spell checks
-					if (UnitCanAttack(thisUnit,"player") == true and UnitAffectingCombat(thisUnit) == true) and getDebuffRemain(thisUnit,_VampiricTouch) < (15*0.3+VTCASTTIME) and getDistance("player",thisUnit) < 40 then
+					if ((UnitCanAttack(thisUnit,"player") == true and UnitAffectingCombat(thisUnit) == true) or isDummyByName(UnitName(thisUnit))) and (getDebuffRemain(thisUnit,_VampiricTouch) < (15*0.3+VTCASTTIME) and getDistance("player",thisUnit) < 40) then
 						-- let's cast
 						if castSpell(thisUnit,_VampiricTouch,true,true) then
 							return;
