@@ -132,9 +132,9 @@ if select(3, UnitClass("player")) == 5 then
 			if nNova[i].hp < 249 then
 				if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{21562,109773,469,90364}) or (getBuffRemain(nNova[i].unit,_PowerWordFortitude) < 10*60 and isSpellInRange(_PowerWordFortitude,nNova[i].unit)) then
 					if castSpell("player",_PowerWordFortitude,true) then lastPWF = GetTime(); return; end
-	    		end
-	   		end
-	  	end
+				end
+			end
+		end
 	end
 
 	-- Shadowform
@@ -158,8 +158,8 @@ if select(3, UnitClass("player")) == 5 then
 	end
 
 	------------
- 	-- COMBAT --
- 	------------
+	-- COMBAT --
+	------------
 
 	-- Break MindFlay cast...
 	if select(1,UnitChannelInfo("player")) == "Mind Flay" then
@@ -226,9 +226,9 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- Target Tables
 		if isChecked("Multi-Dotting") then
-		    if ScanTimer == nil or ScanTimer <= GetTime() - 1 then
-		    	targetEnemies, ScanTimer = getEnemies("target",20), GetTime();
-		    end
+			if ScanTimer == nil or ScanTimer <= GetTime() - 1 then
+				targetEnemies, ScanTimer = getEnemies("target",20), GetTime();
+			end
 		end
 
 
@@ -258,9 +258,9 @@ if select(3, UnitClass("player")) == 5 then
 		-- Power Word: Shield
 		if isChecked("Power Word: Shield") and (BadBoy_data['Defensive'] == 2 or BadBoy_data['Defensive'] == 3) and not UnitBuffID("player",_PowerWordShield) and not UnitDebuffID("player",_WeakenedSoul) then
 			if getHP("player") <= getValue("Power Word: Shield") then
-			   	if castSpell("player",_PowerWordShield,true,false) then
-			   		return;
-			   	end
+				if castSpell("player",_PowerWordShield,true,false) then
+					return;
+				end
 			end
 		end
 
@@ -308,11 +308,11 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- void_entropy,if=talent.void_entropy.enabled&shadow_orb>=3&miss_react&!ticking&target.time_to_die>60&cooldown.mind_blast.remains<=gcd*2,cycle_targets=1,max_cycle_targets=3
 		if isKnown(_VoidEntropy) then
-		 	if ORBS >= 3 and not UnitDebuffID("target",_VoidEntropy,"player") and getTimeToDie("target") > 60 and MBCD <= 2*GCDTIME then
-		 		if castSpell("target",_VoidEntropy,true,false) then
-		 			return;
-		 		end
-		 	end
+			if ORBS >= 3 and not UnitDebuffID("target",_VoidEntropy,"player") and getTimeToDie("target") > 60 and MBCD <= 2*GCDTIME then
+				if castSpell("target",_VoidEntropy,true,false) then
+					return;
+				end
+			end
 		end
 
 		-- devouring_plague,if=talent.void_entropy.enabled&shadow_orb>=3&dot.void_entropy.ticking&dot.void_entropy.remains<10,cycle_targets=1,max_cycle_targets=3
@@ -370,13 +370,13 @@ if select(3, UnitClass("player")) == 5 then
 		-- shadow_word_death,if=buff.shadow_word_death_reset_cooldown.stack=0,cycle_targets=1
 
 		-- mind_blast,if=!glyph.mind_harvest.enabled&active_enemies<=5&cooldown_react    1202=MindHarverGlyph
-		if canCast(_MindBlast) then
+		--if canCast(_MindBlast) then
 			if not hasGlyph(1202) then
 				if castSpell("target",_MindBlast,false,true) then
 					return;
 				end
 			end
-		end
+		--end
 
 		-- devouring_plague,if=!talent.void_entropy.enabled&shadow_orb>=3&(cooldown.mind_blast.remains<1.5|target.health.pct<20&cooldown.shadow_word_death.remains<1.5)&!target.dot.devouring_plague_tick.ticking&talent.surge_of_darkness.enabled,cycle_targets=1
 		if canCast(_DevouringPlague) then
@@ -399,7 +399,8 @@ if select(3, UnitClass("player")) == 5 then
 		-- mind_blast,if=glyph.mind_harvest.enabled&mind_harvest=0,cycle_targets=1
 
 		-- mind_blast,if=active_enemies<=5&cooldown_react
-		if isStanding(0.2) and canCast(_MindBlast) then
+		if isStanding(0.2) then
+		--if isStanding(0.2) and canCast(_MindBlast) then
 			if castSpell("target",_MindBlast,false,true) then
 				return;
 			end
@@ -417,7 +418,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- insanity,interrupt=1,chain=1,if=active_enemies<=2
 
 		-- halo,if=talent.halo.enabled&target.distance<=30&active_enemies>2
-		if isStanding(0.2) and isKnown(_Halo) then
+		if isKnown(_Halo) then
 			if getDistance("player","target") <= 30 and getEnemies("player",30) then
 				if castSpell("target",_Halo,true,false) then
 					return;
@@ -426,7 +427,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- cascade,if=talent.cascade.enabled&active_enemies>2&target.distance<=40
-		if isStanding(0.2) and isKnown(_Cascade) then
+		if isKnown(_Cascade) then
 			if getDistance("player","target") <= 40 then
 				if castSpell("target",_Cascade,true,false) then
 					return;
@@ -435,7 +436,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- divine_star,if=talent.divine_star.enabled&active_enemies>4&target.distance<=24
-		if isStanding(0.2) and isKnown(_DivineStar) then
+		if isKnown(_DivineStar) then
 			if getDistance("player","target") <= 24 then
 				if castSpell("target",_DivineStar,false,false) then
 					return;
@@ -452,56 +453,50 @@ if select(3, UnitClass("player")) == 5 then
 			end
 		end
 
-        -- shadow_word_pain,if=!talent.auspicious_spirits.enabled&remains<(18*0.3)&miss_react,cycle_targets=1,max_cycle_targets=5
-        -- Here i do my target checks and i make sure i want to iterate. I use canCast prior to everything just to save power, i dont want to scan if that spell is not ready.
-        if canCast(_ShadowWordPain) and BadBoy_data["Multidot"] == 2 then
-        	if not isKnown(_AuspiciousSpirits) then
-            -- Shadow word pain
-                -- Iterating Object Manager
+		-- shadow_word_pain,if=!talent.auspicious_spirits.enabled&remains<(18*0.3)&miss_react,cycle_targets=1,max_cycle_targets=5
+		-- Here i do my target checks and i make sure i want to iterate. I use canCast prior to everything just to save power, i dont want to scan if that spell is not ready.
+		if canCast(_ShadowWordPain,false,false) and BadBoy_data["Multidot"] == 2 then
+		if not isKnown(_AuspiciousSpirits) then
+				-- Shadow word pain
+				-- Iterating Object Manager
+				-- I add this part here
+				if myEnemies == nil or myEnemiesTimer == nil or myEnemiesTimer <= GetTime() - 1 then
+					myEnemies, myEnemiesTimer = getEnemies("player",40), GetTime();
+				end
 
-                -- I add this part here
-                if myEnemies == nil or myEnemiesTimer == nil or myEnemiesTimer <= GetTime() - 1 then
-                	myEnemies, myEnemiesTimer = getEnemies("player",40), GetTime();
-                end
+				-- then instead of iterating objectmanager i iterate myEnemies
 
-               	-- then instead of iterating objectmanager i iterate myEnemies
+				-- begin loop
+				if myEnemies ~= nil then
+					for i = 1, #myEnemies do
+						-- we check if it's a valid unit
+						if getCreatureType(myEnemies[i]) == true then
+							-- now that we know the unit is valid, we can use it to check whatever we want.. let's call it thisUnit
+							local thisUnit = myEnemies[i]
+							-- Here I do my specific spell checks
+							if ((UnitCanAttack(thisUnit,"player") == true and UnitAffectingCombat(thisUnit) == true) or isDummyByName(UnitName(thisUnit))) and getDebuffRemain(thisUnit,_ShadowWordPain) < (18*0.3) and getDistance("player",thisUnit) < 40 then
+								-- All is good, let's cast.
+								if castSpell(thisUnit,_ShadowWordPain,true,false) then
+									return;
+								end
+							end
+						end
+					end
+				end
+			end
+		end
 
-                -- begin loop
-                if myEnemies ~= nil then
-	                for i = 1, #myEnemies do
-	                    -- we check if it's a valid unit
-	                    if getCreatureType(myEnemies[i]) == true then
-	                        -- now that we know the unit is valid, we can use it to check whatever we want.. let's call it thisUnit
-	                        local thisUnit = myEnemies[i]
-	                        -- Here I do my specific spell checks
-	                        if ((UnitCanAttack(thisUnit,"player") == true and UnitAffectingCombat(thisUnit) == true) or isDummyByName(UnitName(thisUnit))) and getDebuffRemain(thisUnit,_ShadowWordPain) < (18*0.3) and getDistance("player",thisUnit) < 40 then
-	                            -- All is good, let's cast.
-	                            if castSpell(thisUnit,_ShadowWordPain,true,false) then
-	                                return;
-	                            end
-	                        end
-	                    end
-	                end
-	            end
-            end
-        end
-
-        -- shadow_word_pain,if=!talent.auspicious_spirits.enabled&remains<(18*0.3)&miss_react,cycle_targets=1,max_cycle_targets=5
-        if canCast(_ShadowWordPain) then
-
-
-
-    		if getDebuffRemain("target",_ShadowWordPain) < (18*0.3) then
-    			if castSpell("target",_ShadowWordPain,true,false) then
-    				return;
-    			end
-
-
-    		end
-        end
+		-- shadow_word_pain,if=!talent.auspicious_spirits.enabled&remains<(18*0.3)&miss_react,cycle_targets=1,max_cycle_targets=5
+		--if canCast(_ShadowWordPain) then
+			if getDebuffRemain("target",_ShadowWordPain) < (18*0.3) then
+				if castSpell("target",_ShadowWordPain,true,false) then
+					return;
+				end
+			end
+		--end
 
 		-- vampiric_touch,if=remains<(15*0.3+cast_time)&miss_react,cycle_targets=1,max_cycle_targets=5
-		if canCast(_VampiricTouch) and BadBoy_data['Multidotting'] == 1 then
+		if canCast(_VampiricTouch) and BadBoy_data['Multidot'] == 1 then
 			-- Vampiric Touch
 			-- Iterating Object Manager
 			-- begin loop
@@ -509,11 +504,11 @@ if select(3, UnitClass("player")) == 5 then
 				-- we check if it's a valid unit
 				if getCreatureType(ObjectWithIndex(i)) == true then
 					-- now we know the unit is valid, we can use it to check whatever we want..
-					local thisUnit2 = ObjectWithIndex(i)
+					local thisUnit = ObjectWithIndex(i)
 					-- Here i do my specific spell checks
-					if (UnitCanAttack(thisUnit2,"player") == true and UnitAffectingCombat(thisUnit2) == true) and getDebuffRemain(thisUnit2,_VampiricTouch) < (15*0.3+VTCASTTIME) and getDistance("player",thisUnit2) < 40 then
+					if (UnitCanAttack(thisUnit,"player") == true and UnitAffectingCombat(thisUnit) == true) and getDebuffRemain(thisUnit,_VampiricTouch) < (15*0.3+VTCASTTIME) and getDistance("player",thisUnit) < 40 then
 						-- let's cast
-						if castSpell(thisUnit2,_VampiricTouch,true,true) then
+						if castSpell(thisUnit,_VampiricTouch,true,true) then
 							return;
 						end
 					end
@@ -522,14 +517,14 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- vampiric_touch,if=remains<(15*0.3+cast_time)&miss_react,cycle_targets=1,max_cycle_targets=5
-		if canCast(_VampiricTouch) then
-    		if getDebuffRemain("target",_VampiricTouch) < (15*0.3+VTCASTTIME) and (GT-lastVT > 1) then
-    			if castSpell("target",_VampiricTouch,true,true) then
-    				lastVT = GT;
-    				return;
-    			end
-    		end
-        end
+		--if canCast(_VampiricTouch) then
+			if getDebuffRemain("target",_VampiricTouch) < (15*0.3+VTCASTTIME) and (GT-lastVT > 2) then
+				if castSpell("target",_VampiricTouch,true,true) then
+					lastVT = GT;
+					return;
+				end
+			end
+		--end
 
 		-- devouring_plague,if=!talent.void_entropy.enabled&shadow_orb>=3&ticks_remain<=1
 		if canCast(_DevouringPlague) then
@@ -541,13 +536,13 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- mind_spike,if=active_enemies<=5&buff.surge_of_darkness.react=3
-		if canCast(_MindSpike) then
+		--if canCast(_MindSpike) then
 			if _SurgeOfDarkness == 3 then
 				if castSpell("target",_MindSpike,false,false) then
 					return;
 				end
 			end
-		end
+		--end
 
 		-- halo,if=talent.halo.enabled&target.distance<=30&target.distance>=17
 		if isKnown(_Halo) then
@@ -564,13 +559,13 @@ if select(3, UnitClass("player")) == 5 then
 		-- wait,sec=cooldown.mind_blast.remains,if=cooldown.mind_blast.remains<0.5&cooldown.mind_blast.remains&active_enemies<=1
 
 		-- mind_spike,if=buff.surge_of_darkness.react&active_enemies<=5
-		if canCast(_MindSpike) then
+		--if canCast(_MindSpike) then
 			if UnitBuffID("player",_SurgeOfDarkness) then
 				if castSpell("target",_MindSpike,false,false) then
 					return;
 				end
 			end
-		end
+		--end
 
 		-- divine_star,if=talent.divine_star.enabled&target.distance<=28&active_enemies>1
 		if isKnown(_DivineStar) then
@@ -582,59 +577,59 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- mind_sear,chain=1,interrupt=1,if=active_enemies>=4
-		if canCast(_MindSear) then
+		--if canCast(_MindSear) then
 			if getNumEnemies("target",10) >= 4 then
 				if castSpell("target",_MindSear,false,true) then
 					return;
 				end
 			end
-		end
+		--end
 
 		-- shadow_word_pain,if=shadow_orb>=2&ticks_remain<=3&talent.insanity.enabled
-		if canCast(_ShadowWordPain) then
+		--if canCast(_ShadowWordPain) then
 			if ORBS >= 2 and getDebuffRemain("target",_ShadowWordPain) <= 9 and isKnown(_Insanity) then
 				if castSpell("target",_ShadowWordPain,true,false) then
 					return;
 				end
 			end
-		end
+		--end
 
 		-- vampiric_touch,if=shadow_orb>=2&ticks_remain<=3.5&talent.insanity.enabled
-		if canCast(_VampiricTouch) then
+		--if canCast(_VampiricTouch) then
 			if ORBS >= 2 and UnitDebuffID("target",_VampiricTouch,"player") and getDebuffRemain("target",_VampiricTouch) <= 10.5 and isKnown(_Insanity) then
-    			if castSpell("target",_VampiricTouch,true,true) then
-    				lastVT = GT;
-    				return;
-    			end
-    		end
-    	end
+				if castSpell("target",_VampiricTouch,true,true) then
+					lastVT = GT;
+					return;
+				end
+			end
+		--end
 
 		-- mind_flay,chain=1,interrupt=1
-		if canCast(_MindFlay) then
+		--if canCast(_MindFlay) then
 			if select(1,UnitChannelInfo("player")) == nil then
 				if castSpell("target",_MindFlay,false,true) then
 					return;
 				end
 			end
-		end
+		--end
 
 		-- shadow_word_death,moving=1
-		if canCast(_ShadowWordDeath) then
+		--if canCast(_ShadowWordDeath) then
 			if getHP("target") < 20 then
 				if castSpell("target",_ShadowWordDeath,true,false) then
 					return;
 				end
 			end
-		end
+		--end
 
 		-- mind_blast,moving=1,if=buff.shadowy_insight.react&cooldown_react
-		if canCast(_MindBlast) then
+		--if canCast(_MindBlast) then
 			if UnitBuffID("player",_ShadowyInsight) then
 				if castSpell("target",_MindBlast,false,false) then
 					return;
 				end
 			end
-		end
+		--end
 
 		-- divine_star,moving=1,if=talent.divine_star.enabled&target.distance<=28
 		if isKnown(_DivineStar) then
@@ -655,13 +650,13 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- shadow_word_pain,moving=1,cycle_targets=1
-		if canCast(_ShadowWordPain) then
+		--if canCast(_ShadowWordPain) then
 			if isMoving("player") then
 				if castSpell("target",_ShadowWordPain,true,false) then
 					return;
 				end
 			end
-		end
+		--end
 
 
 
