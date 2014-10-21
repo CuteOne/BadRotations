@@ -126,12 +126,12 @@ if select(3, UnitClass("player")) == 5 then
 	-------------------
 
 	-- Power Word: Fortitude
-	if isChecked("Power Word: Fortitude") == true and canCast(_PowerWordFortitude,false,false) and (lastPWF == nil or lastPWF <= GetTime() - 5) then
-
-		for i = 1, #nNova do
-			if nNova[i].hp < 249 then
-				if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{21562,109773,469,90364}) or (getBuffRemain(nNova[i].unit,_PowerWordFortitude) < 10*60 and isSpellInRange(_PowerWordFortitude,nNova[i].unit)) then
-					if castSpell("player",_PowerWordFortitude,true) then lastPWF = GetTime(); return; end
+	if isChecked("Power Word: Fortitude") == true and not UnitExists("mouseover") then
+		GroupInfo()
+		for i = 1, #members do --members
+			if not isBuffed(members[i].Unit,{21562,109773,469,90364}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
+				if castSpell("player",_PowerWordFortitude,false,false) then
+					return;
 				end
 			end
 		end
