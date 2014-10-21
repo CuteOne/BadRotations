@@ -896,15 +896,17 @@ end
 -- if #getEnemies("target",10) >= 3 then
 function getEnemies(Unit,Radius)
 	local enemiesTable = {};
- 	for i=1,ObjectCount(TYPE_UNIT) do
-  		local thisUnit = ObjectWithIndex(i);
-  		if getCreatureType(thisUnit) == true then
-  			if UnitCanAttack("player",thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
-  				if getDistance(Unit,thisUnit) <= (Radius + ObjectDescriptor(ObjectWithIndex(i), 0x110 , Float)) then
-   					tinsert(enemiesTable,thisUnit);
-   				end
-  			end
-  		end
+ 	for i=1,ObjectCount() do
+ 		if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
+	  		local thisUnit = ObjectWithIndex(i);
+	  		if getCreatureType(thisUnit) == true then
+	  			if UnitCanAttack("player",thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
+	  				if getDistance(Unit,thisUnit) <= (Radius + ObjectDescriptor(ObjectWithIndex(i), 0x110 , Float)) then
+	   					tinsert(enemiesTable,thisUnit);
+	   				end
+	  			end
+	  		end
+	  	end
  	end
  	return enemiesTable;
 end
