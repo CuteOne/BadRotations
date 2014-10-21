@@ -455,7 +455,7 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- shadow_word_pain,if=!talent.auspicious_spirits.enabled&remains<(18*0.3)&miss_react,cycle_targets=1,max_cycle_targets=5
 		-- Here i do my target checks and i make sure i want to iterate. I use canCast prior to everything just to save power, i dont want to scan if that spell is not ready.
-		if canCast(_ShadowWordPain,false,false) and BadBoy_data["Multidot"] == 2 then
+		if canCast(_ShadowWordPain,false,false) and BadBoy_data['Multidot'] == 2 then
 		if not isKnown(_AuspiciousSpirits) then
 				-- Shadow word pain
 				-- Iterating Object Manager
@@ -496,7 +496,7 @@ if select(3, UnitClass("player")) == 5 then
 		--end
 
 		-- vampiric_touch,if=remains<(15*0.3+cast_time)&miss_react,cycle_targets=1,max_cycle_targets=5
-		if canCast(_VampiricTouch) and BadBoy_data['Multidot'] == 1 then
+		if canCast(_VampiricTouch) and BadBoy_data['Multidot'] == 2 then
 			-- Vampiric Touch
 			-- Iterating Object Manager
 			-- begin loop
