@@ -72,15 +72,17 @@ function DruidRestoration()
 
 
 	--[[ Rebirth ]]
+	if (isChecked("MouseOver Rebirth") and not isChecked("Rebirth Toggle")) or (isChecked("Rebirth Toggle") and SpecificToggle("Rebirth Toggle") == true) then
 	if isInCombat("player")	and isStanding(0.3) and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("player","mouseover") and not UnitIsUnit("player","target") then
 		if castSpell("mouseover",20484,true,true) then return; end
 	end
-
+    end
 	--[[ Revive ]]
+	if isChecked("Revive") then
 	if not isInCombat("player") and isStanding(0.3)  and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("player","mouseover") then
 		if castSpell("mouseover",50769,true,true) then return; end
 	end
-
+    end
 	--[[ 7 - Stop Casting--(perevent from over healing when u cast somthing can heal target)]]
 	if isChecked("Overhealing Cancel") and isCasting() and shouldNotOverheal(spellCastTarget) > getValue("Overhealing Cancel") then
 		local noOverHealSpells = { 5185, 8936, 50464 }

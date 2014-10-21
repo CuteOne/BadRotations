@@ -323,9 +323,14 @@ function RestorationConfig()
         CreateNewText(thisConfig,"Nature's Cure");
 
         -- Wrapper -----------------------------------------
-        CreateNewWrap(thisConfig,"------ Cooldowns ------");
-
-        -- Wrapper -----------------------------------------
+        CreateNewWrap(thisConfig,"------ Resurrection ------");
+            
+		 	CreateNewCheck(thisConfig,"MouseOver Rebirth");
+            CreateNewText(thisConfig,"MouseOver Rebirth");
+        
+		    CreateNewCheck(thisConfig,"Revive");
+            CreateNewText(thisConfig,"Revive");
+		-- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"---- Level 60 Talent ---");
 
         if isKnown(114107) then
@@ -524,8 +529,12 @@ function RestorationConfig()
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"-------- Toggles --------");
+        -- Rebirth
+        CreateNewCheck(thisConfig,"Rebirth Toggle");
+        CreateNewDrop(thisConfig,"Rebirth Toggle", 4, "Toggle2")
+        CreateNewText(thisConfig,"Rebirth Toggle");
 
-        -- Genesis Toggle
+		-- Genesis Toggle
         CreateNewCheck(thisConfig,"Genesis Toggle");
         CreateNewDrop(thisConfig,"Genesis Toggle", 4, "Toggle2")
         CreateNewText(thisConfig,"Genesis Toggle");
