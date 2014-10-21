@@ -155,16 +155,12 @@ Frame:SetScript("OnEvent", UiErrorMessages)
 ------------------------
 --[[ Spells Changed --]]
 local Frame = CreateFrame('Frame');
-Frame:RegisterEvent("PLAYER_TALENT_UPDATE");
-Frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED");
-Frame:RegisterEvent("CHARACTER_POINTS_CHANGED");
+Frame:RegisterEvent("LEARNED_SPELL_IN_TAB");
 local function SpellsChanged(self, event, ...)
-	if event == "PLAYER_TALENT_UPDATE" or event == "ACTIVE_TALENT_GROUP_CHANGED" or event == "CHARACTER_POINTS_CHANGED" then
-		if not configThrottle or configThrottle <= GetTime() - 5 and not UnitOnTaxi("player") == true then
-			configThrottle = GetTime();
-			currentConfig = nil;
-			print("|cffFF0000Config Reloaded " .. event);
-		end
+	print(...)
+	if event == "LEARNED_SPELL_IN_TAB" then
+		currentConfig = nil;
+		print("|cffFF0000Config Reloaded " .. event);
 	end
 end
 Frame:SetScript("OnEvent", SpellsChanged)

@@ -399,7 +399,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- mind_blast,if=glyph.mind_harvest.enabled&mind_harvest=0,cycle_targets=1
 
 		-- mind_blast,if=active_enemies<=5&cooldown_react
-		if canCast(_MindBlast) then
+		if isStanding(0.2) and canCast(_MindBlast) then
 			if castSpell("target",_MindBlast,false,true) then
 				return;
 			end
@@ -417,7 +417,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- insanity,interrupt=1,chain=1,if=active_enemies<=2
 
 		-- halo,if=talent.halo.enabled&target.distance<=30&active_enemies>2
-		if isKnown(_Halo) then
+		if isStanding(0.2) and isKnown(_Halo) then
 			if getDistance("player","target") <= 30 and getEnemies("player",30) then
 				if castSpell("target",_Halo,true,false) then
 					return;
@@ -426,7 +426,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- cascade,if=talent.cascade.enabled&active_enemies>2&target.distance<=40
-		if isKnown(_Cascade) then
+		if isStanding(0.2) and isKnown(_Cascade) then
 			if getDistance("player","target") <= 40 then
 				if castSpell("target",_Cascade,true,false) then
 					return;
@@ -435,7 +435,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- divine_star,if=talent.divine_star.enabled&active_enemies>4&target.distance<=24
-		if isKnown(_DivineStar) then
+		if isStanding(0.2) and isKnown(_DivineStar) then
 			if getDistance("player","target") <= 24 then
 				if castSpell("target",_DivineStar,false,false) then
 					return;
@@ -444,7 +444,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- shadow_word_pain,if=talent.auspicious_spirits.enabled&remains<(18*0.3)&miss_react,cycle_targets=1
-		if canCast(_ShadowWordPain) then
+		if isStanding(0.2) and canCast(_ShadowWordPain) then
 			if isKnown(_AuspiciousSpirits) and getDebuffRemain("target",_ShadowWordPain) < (18*0.3) then
 				if castSpell("target",_ShadowWordPain,true,false) then
 					return;
@@ -454,35 +454,49 @@ if select(3, UnitClass("player")) == 5 then
 
         -- shadow_word_pain,if=!talent.auspicious_spirits.enabled&remains<(18*0.3)&miss_react,cycle_targets=1,max_cycle_targets=5
         -- Here i do my target checks and i make sure i want to iterate. I use canCast prior to everything just to save power, i dont want to scan if that spell is not ready.
-        if canCast(_ShadowWordPain) and BadBoy_data['Multidotting'] == 1 then
+        if canCast(_ShadowWordPain) and BadBoy_data["Multidot"] == 2 then
         	if not isKnown(_AuspiciousSpirits) then
             -- Shadow word pain
                 -- Iterating Object Manager
-                -- begin loop
-                for i = 1, ObjectCount() do
-                    -- we check if it's a valid unit
-                    if getCreatureType(ObjectWithIndex(i)) == true then
-                        -- now that we know the unit is valid, we can use it to check whatever we want.. let's call it thisUnit
-                        local thisUnit = ObjectWithIndex(i)
-                        -- Here I do my specific spell checks
-						-- Here I do my specific spell checks
-                        if (UnitCanAttack(thisUnit,"player") == true and UnitAffectingCombat(thisUnit) == true) and getDebuffRemain(thisUnit,_ShadowWordPain) < (18*0.3) and getDistance("player",thisUnit) < 40 then
-                            -- All is good, let's cast.
-                            if castSpell(thisUnit,_ShadowWordPain,true,false) then
-                                return;
-                            end
-                        end
-                    end
+
+                -- I add this part here
+                if myEnemies == nil or myEnemiesTimer == nil or myEnemiesTimer <= GetTime() - 1 then
+                	myEnemies, myEnemiesTimer = getEnemies("player",40), GetTime();
                 end
+
+               	-- then instead of iterating objectmanager i iterate myEnemies
+
+                -- begin loop
+                if myEnemies ~= nil then
+	                for i = 1, #myEnemies do
+	                    -- we check if it's a valid unit
+	                    if getCreatureType(myEnemies[i]) == true then
+	                        -- now that we know the unit is valid, we can use it to check whatever we want.. let's call it thisUnit
+	                        local thisUnit = myEnemies[i]
+	                        -- Here I do my specific spell checks
+	                        if ((UnitCanAttack(thisUnit,"player") == true and UnitAffectingCombat(thisUnit) == true) or isDummyByName(UnitName(thisUnit))) and getDebuffRemain(thisUnit,_ShadowWordPain) < (18*0.3) and getDistance("player",thisUnit) < 40 then
+	                            -- All is good, let's cast.
+	                            if castSpell(thisUnit,_ShadowWordPain,true,false) then
+	                                return;
+	                            end
+	                        end
+	                    end
+	                end
+	            end
             end
         end
 
         -- shadow_word_pain,if=!talent.auspicious_spirits.enabled&remains<(18*0.3)&miss_react,cycle_targets=1,max_cycle_targets=5
         if canCast(_ShadowWordPain) then
+
+
+
     		if getDebuffRemain("target",_ShadowWordPain) < (18*0.3) then
     			if castSpell("target",_ShadowWordPain,true,false) then
     				return;
     			end
+
+
     		end
         end
 
