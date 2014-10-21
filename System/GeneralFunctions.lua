@@ -1584,10 +1584,10 @@ function IsMovingTime(time)
 end
 
 function isPlayer(Unit)
-	if UnitExists(Unit) == nil then return false; end
-	if UnitIsPlayer(Unit) == 1 then
+	if UnitExists(Unit) ~= true then return false; end
+	if UnitIsPlayer(Unit) == true then
 		return true;
-	elseif UnitIsPlayer(Unit) == nil then
+	elseif UnitIsPlayer(Unit) ~= true then
 		local playerNPC = {
 			[72218] = "Oto the Protector",
 			[72219] = "Ki the Asssassin",

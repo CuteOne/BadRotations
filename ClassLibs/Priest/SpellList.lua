@@ -6,6 +6,7 @@ _AngelicFeatherBuff = 121557
 _AuspiciousSpirits	= 155271;
 _BodyAndSoul		= 64129;
 _Cascade			= 127632;
+_DesperatePrayer	= 19236;
 _DevouringPlague 	= 2944;
 _DispelMagic 		= 528;
 _DivineStar			= 122121;
