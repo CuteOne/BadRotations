@@ -200,7 +200,7 @@ function DruidRestoration()
 		end
 
 		--[[ 5 - DPs --(range and  melee)]]
-		if BadBoy_data["DPS"] == 2 and UnitExists("target") and isEnnemy() then
+		if BadBoy_data["DPS"] == 2 and UnitExists("target") and isEnemy() then
 			if isChecked("DPS Toggle") == true and SpecificToggle("DPS Toggle") == true  then
 				if targetDistance <= 5 then
 					--- Catform
