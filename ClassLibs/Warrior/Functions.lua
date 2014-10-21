@@ -72,12 +72,6 @@ end
 ------------------
 --- Multi Rend ---
 ------------------
-function enemietest()
-    if myEnemiess == nil or myEnemiessTimer == nil or myEnemiessTimer <= GetTime() - 1 then
-         myEnemiess, myEnemiessTimer = getEnemies("player",5), GetTime();
-        end
-        return myEnemiess;
-    end
 function SpreadRend()
  -- Here i do my target checks and i make sure i want to iterate. I use canCast prior to everything just to save power, i dont want to scan if that spell is not ready.
     if isChecked("Multi-Rend") and canCast(Rend) then
