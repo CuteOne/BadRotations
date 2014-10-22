@@ -8,7 +8,7 @@ if select(3, UnitClass("player")) == 8 then
 	IceLance		= 30455;
 
 -- Fire
-	Blast Wave		= 157981;
+	BlastWave		= 157981;
 	Combustion		= 11129;
 	Fireball		= 133;
 	Ignite			= 12654; --12846 (mastery: ignite)
