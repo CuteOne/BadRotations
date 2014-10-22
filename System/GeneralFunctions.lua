@@ -649,8 +649,11 @@ function getDistance(Unit1,Unit2)
 	-- If both units are visible
 	if UnitIsVisible(Unit1) and UnitIsVisible(Unit2) then
 
-		return rc:GetRange('target')
-
+		if Unit2 == "player" then
+			return rc:GetRange(Unit1) or 1000
+		else
+			return rc:GetRange(Unit2) or 1000
+		end
 	else
 		return 1000;
 	end
@@ -941,7 +944,7 @@ function getNumEnemies(Unit,Radius)
 	  		local thisUnit = ObjectWithIndex(i);
 	  		if getCreatureType(thisUnit) == true then
 	  			if UnitIsVisible(thisUnit) and UnitCanAttack("player",thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
-	  				if getDistance(Unit,thisUnit) <= (Radius + ObjectDescriptor(ObjectWithIndex(i), 0x110 , Float)) then
+	  				if getDistance(Unit,thisUnit) <= Radius then
 	  					Units = Units+1;
 	   				end
 		 		end
