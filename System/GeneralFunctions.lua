@@ -424,6 +424,7 @@ function getLatency()
 end
 
 
+
 -- castSpell("target",12345,true);
 function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 	if shouldStopCasting(SpellID) ~= true and not UnitIsDeadOrGhost(Unit) then
@@ -442,7 +443,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 		-- if MovementCheck is nil or false then we dont check it
 		if MovementCheck == false or isMoving("player") ~= true or UnitBuffID("player",79206) ~= nil then
 			-- if ability is ready and in range
-			if getSpellCD(SpellID) == 0 and getDistance("player",Unit) < spellRange then
+			if (isChecked("Allow Failcasts") or getSpellCD(SpellID) == 0) and (isChecked("Skip Distance Check") or getDistance("player",Unit) < spellRange) then
 				-- if spam is not allowed
 	    		if SpamAllowed == false then
 	    			-- get our last/current cast

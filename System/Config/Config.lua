@@ -175,10 +175,6 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start |cffFFFFFFChat Debug |cffFFBB00of casted spells.");
     CreateNewText(thisConfig,"Debug");
 
-    -- Debug
-    CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start |cffFFFFFFChat Debug |cffFFBB00of casted spells.");
-    CreateNewText(thisConfig,"Debug");
-
     -- Debug Fail Casts
     CreateNewCheck(thisConfig,"Debug Fail Casts", "|cffFFBB00Check this to allow Fail Casts in |cffFFFFFFChat Debug.",1);
     CreateNewText(thisConfig,"Debug Fail Casts");
@@ -186,6 +182,14 @@ function CreateGeneralsConfig()
     -- Latency Compensation
     CreateNewCheck(thisConfig,"Latency Compensation", "|cffFFBB00Check this to Compensate Latency in getSpellCD.",1);
     CreateNewText(thisConfig,"Latency Compensation");
+
+     -- Allow Failcasts
+    CreateNewCheck(thisConfig,"Allow Failcasts", "|cffFFBB00Check this to Allow Failcasts by skipping getSpellCD.",0);
+    CreateNewText(thisConfig,"Allow Failcasts");
+
+     -- Skip Distance Check
+    CreateNewCheck(thisConfig,"Skip Distance Check", "|cffFFBB00Check this to Allow Skip Distance Check.",0);
+    CreateNewText(thisConfig,"Skip Distance Check");
 
     -- Auto Taunts
     CreateNewCheck(thisConfig,"Auto Taunts");
