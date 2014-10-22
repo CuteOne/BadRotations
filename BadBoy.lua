@@ -28,7 +28,7 @@ function BadBoyRun()
 		["Check PokeRotation"] = 0,
 		["engineAlpha"] = 90,
 		["debugAlpha"] = 90,
-	}; 
+	};
 	end
 
 	--[[These are there to make sure we do not startup with hacks from previous session.]]
@@ -108,7 +108,7 @@ function BadBoyRun()
 	SLASH_DPS1 = "/DPS"
 	function SlashCmdList.DPS(msg, editbox)
 		ToggleValue("DPS");
-	end	
+	end
 
 	SLASH_BlackList1, SLASH_BlackList2 = "/blacklist", "/bbb"
 	function SlashCmdList.BlackList(msg, editbox)
@@ -146,14 +146,14 @@ function BadBoyRun()
 				end
 			end
 		end
-	end	
+	end
 
 	SLASH_Pause1 = "/Pause"
 	function SlashCmdList.Pause(msg, editbox)
 		if BadBoy_data['Pause'] == 0 then
 	        ChatOverlay("\124cFFED0000 -- Paused -- ");
 			BadBoy_data['Pause'] = 1;
-		else			
+		else
 	        ChatOverlay("\124cFF3BB0FF -- Pause Removed -- ");
 			BadBoy_data['Pause'] = 0;
 		end
@@ -164,7 +164,7 @@ function BadBoyRun()
 		if BadBoy_data['Power'] == 0 then
 	        ChatOverlay("\124cFF3BB0FF -- BadBoy Enabled -- ");
 			BadBoy_data['Power'] = 1;
-		else			
+		else
 	        ChatOverlay("\124cFFED0000 -- BadBoy Disabled -- ");
 			BadBoy_data['Power'] = 0;
 		end
@@ -203,7 +203,7 @@ function BadBoyRun()
 		--interruptsRefresh();
 
 
-		--if currentTarget ~= nil then ISetAsUnitID(currentTarget,"current"); end		
+		--if currentTarget ~= nil then ISetAsUnitID(currentTarget,"current"); end
 
 		if NovaEngineUpdate == nil then NovaEngineUpdate = GetTime(); end
 		if NovaEngineUpdate and NovaEngineUpdate <= GetTime() - getValue("Engine Refresh")/1000 then
@@ -290,26 +290,29 @@ function BadBoyRun()
 			if _MySpec == 1 then
 				Blood();
 			end
+			if _MySpec == 2 then
+				FrostDK();
+			end
 		elseif _MyClass == 7 then -- Shaman
 			if _MySpec == 1 then
 				ShamanElemental();
 			end
 			if _MySpec == 2 then
 				ShamanEnhancement();
-			end	
+			end
 			if _MySpec == 3 then
 				ShamanRestoration();
-			end				
+			end
 		elseif _MyClass == 8 then -- Mage
 			if _MySpec == 1 then
 				ArcaneMage();
 			end
 			if _MySpec == 2 then
 				FireMage();
-			end	
+			end
 			if _MySpec == 3 then
 				FrostMage();
-			end			
+			end
 		elseif _MyClass == 9 then -- Warlock
 			if _MySpec == 2 then
 				WarlockDemonology();
@@ -330,16 +333,16 @@ function BadBoyRun()
 		elseif _MyClass == 11 then -- Druid
 			if _MySpec == 1 then
 				DruidMoonkin();
-			end					
+			end
 			if _MySpec == 2 then
 				DruidFeral();
-			end				
+			end
 			if _MySpec == 3 then
 				DruidGuardian();
-			end		
+			end
 			if _MySpec == 4 then
 				DruidRestoration();
-			end		
+			end
 		end
 	end
 
