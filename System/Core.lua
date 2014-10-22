@@ -1,15 +1,15 @@
 function BadBoyUpdate()
-    if FireHack == nil then 
-        ChatOverlay("FireHack not Loaded."); 
+    if FireHack == nil then
+        ChatOverlay("FireHack not Loaded.");
         return;
-    else 
-        FrameUpdate(); 
+    else
+        FrameUpdate();
     end
 end
 
 function BadBoyEngine()
     -- Hidden Frame
-    if Pulse_Engine == nil then 
+    if Pulse_Engine == nil then
         Pulse_Engine = CreateFrame("Frame", nil, UIParent);
         Pulse_Engine:SetScript("OnUpdate", BadBoyUpdate);
         Pulse_Engine:SetPoint("TOPLEFT",0,0);
@@ -21,10 +21,10 @@ end
 
 
 -- Chat Overlay: Originally written by Sheuron.
-local function onUpdate(self,elapsed) 
-    if self.time < GetTime() - 2.0 then if self:GetAlpha() == 0 then self:Hide(); else self:SetAlpha(self:GetAlpha() - 0.02); end end 
+local function onUpdate(self,elapsed)
+    if self.time < GetTime() - 2.0 then if self:GetAlpha() == 0 then self:Hide(); else self:SetAlpha(self:GetAlpha() - 0.02); end end
 end
-chatOverlay = CreateFrame("Frame",nil,ChatFrame1); 
+chatOverlay = CreateFrame("Frame",nil,ChatFrame1);
 chatOverlay:SetSize(ChatFrame1:GetWidth(),50);
 chatOverlay:Hide();
 chatOverlay:SetScript("OnUpdate",onUpdate);
@@ -35,20 +35,20 @@ chatOverlay.texture = chatOverlay:CreateTexture();
 chatOverlay.texture:SetAllPoints();
 chatOverlay.texture:SetTexture(0,0,0,.50);
 chatOverlay.time = 0;
-function ChatOverlay(Message, FadingTime) 
+function ChatOverlay(Message, FadingTime)
     if isChecked("Overlay Messages") then
         chatOverlay:SetSize(ChatFrame1:GetWidth(),50);
         chatOverlay.text:SetText(Message);
         chatOverlay:SetAlpha(1);
         if FadingTime == nil then chatOverlay.time = GetTime(); else chatOverlay.time = GetTime() - 2 + FadingTime; end
-        chatOverlay:Show(); 
+        chatOverlay:Show();
     end
-end 
+end
 
 function BadBoyMinimapButton()
 
     local dragMode = nil --"free", nil
-    
+
     local function moveButton(self)
         local centerX, centerY = Minimap:GetCenter()
         local x, y = GetCursorPosition()
@@ -81,16 +81,16 @@ function BadBoyMinimapButton()
         self:SetScript("OnUpdate", nil)
     end)
     button:SetScript("OnClick", function(self, button)
-        if button == "LeftButton" then 
-            if IsShiftKeyDown() and not IsAltKeyDown() then 
-                if BadBoy_data["Main"] == 1 then 
+        if button == "LeftButton" then
+            if IsShiftKeyDown() and not IsAltKeyDown() then
+                if BadBoy_data["Main"] == 1 then
                     BadBoy_data["Main"] = 0;
                     mainButton:Hide();
-                else 
+                else
                     BadBoy_data["Main"] = 1;
                     mainButton:Show()
                 end
-            elseif not IsShiftKeyDown() and not IsAltKeyDown() then 
+            elseif not IsShiftKeyDown() and not IsAltKeyDown() then
                 if BadBoy_data.configShown == false then
                     configFrame:Show();
                     BadBoy_data.configShown = true;
@@ -99,12 +99,12 @@ function BadBoyMinimapButton()
                     BadBoy_data.configShown = false;
                 end
             end
-        end 
+        end
     end)
     button:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(Minimap, "ANCHOR_CURSOR", 50 , 50);
         GameTooltip:SetText("BadBoy The Ultimate Raider", 214/255, 25/255, 25/255);
-        GameTooltip:AddLine("CodeMyLife - CuteOne - Masoud"); 
+        GameTooltip:AddLine("CodeMyLife - CuteOne - Masoud");
         GameTooltip:AddLine("Gabbz - Chumii - AveryKey");
         GameTooltip:AddLine("Left Click to toggle config frame", 1, 1, 1, 1);
         GameTooltip:AddLine("Shift+Left Click to toggle main frame", 1, 1, 1, 1);
@@ -196,7 +196,7 @@ function DumpGreys(Num)
         if x.Price and y.Price then return x.Price < y.Price; end
     end)
     for i = 1, Num do
-        if greyTable[i]~= nil then 
+        if greyTable[i]~= nil then
             PickupContainerItem(greyTable[i].Bag, greyTable[i].Slot)
             DeleteCursorItem()
             print("|cffFF0000Removed Grey Item:"..greyTable[i].Item)
@@ -302,3 +302,66 @@ end)
 --       self.Name:SetText(name .. ' (ID: ' .. petAbilityTooltipID .. ')')
 -- end)
 
+
+
+
+
+--[[
+
+                                                            LibStub
+
+
+]]
+
+
+-- $Id: LibStub.lua 76 2007-09-03 01:50:17Z mikk $
+-- LibStub is a simple versioning stub meant for use in Libraries.  http://www.wowace.com/wiki/LibStub for more info
+-- LibStub is hereby placed in the Public Domain
+-- Credits: Kaelten, Cladhaire, ckknight, Mikk, Ammo, Nevcairiel, joshborke
+local LIBSTUB_MAJOR, LIBSTUB_MINOR = "LibStub", 2  -- NEVER MAKE THIS AN SVN REVISION! IT NEEDS TO BE USABLE IN ALL REPOS!
+local LibStub = _G[LIBSTUB_MAJOR]
+
+-- Check to see is this version of the stub is obsolete
+if not LibStub or LibStub.minor < LIBSTUB_MINOR then
+    LibStub = LibStub or {libs = {}, minors = {} }
+    _G[LIBSTUB_MAJOR] = LibStub
+    LibStub.minor = LIBSTUB_MINOR
+
+    -- LibStub:NewLibrary(major, minor)
+    -- major (string) - the major version of the library
+    -- minor (string or number ) - the minor version of the library
+    --
+    -- returns nil if a newer or same version of the lib is already present
+    -- returns empty library object or old library object if upgrade is needed
+    function LibStub:NewLibrary(major, minor)
+        assert(type(major) == "string", "Bad argument #2 to `NewLibrary' (string expected)")
+        minor = assert(tonumber(strmatch(minor, "%d+")), "Minor version must either be a number or contain a number.")
+
+        local oldminor = self.minors[major]
+        if oldminor and oldminor >= minor then return nil end
+        self.minors[major], self.libs[major] = minor, self.libs[major] or {}
+        return self.libs[major], oldminor
+    end
+
+    -- LibStub:GetLibrary(major, [silent])
+    -- major (string) - the major version of the library
+    -- silent (boolean) - if true, library is optional, silently return nil if its not found
+    --
+    -- throws an error if the library can not be found (except silent is set)
+    -- returns the library object if found
+    function LibStub:GetLibrary(major, silent)
+        if not self.libs[major] and not silent then
+            error(("Cannot find a library instance of %q."):format(tostring(major)), 2)
+        end
+        return self.libs[major], self.minors[major]
+    end
+
+    -- LibStub:IterateLibraries()
+    --
+    -- Returns an iterator for the currently registered libraries
+    function LibStub:IterateLibraries()
+        return pairs(self.libs)
+    end
+
+    setmetatable(LibStub, { __call = LibStub.GetLibrary })
+end

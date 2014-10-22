@@ -1,4 +1,9 @@
 function BadBoyRun()
+
+
+	rc = LibStub("LibRangeCheck-2.0")
+	minRange, maxRange = rc:GetRange('target')
+
 	if BadBoy_data == nil then BadBoy_data = {
 		["Power"] = 1,
 		["Currentconfig"] = " ",
@@ -196,7 +201,7 @@ function BadBoyRun()
 		if readyToAccept and readyToAccept <= GetTime() - 5 then AcceptProposal(); readyToAccept = nil; randomReady = nil; end
 		PokeEngine();
 		-- global vars
-		targetDistance = getDistance("player","target");
+		targetDistance = rc:GetRange("target") or 0;
 		displayDistance = math.floor(targetDistance*100)/100
 		mainText:SetText(displayDistance);
 		profileStarts = GetTime();

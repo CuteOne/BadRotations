@@ -642,24 +642,14 @@ end
 
 
 
-
+-- /dump UnitCombatReach("target")
 -- if getDistance("player","target") <= 40 then
 function getDistance(Unit1,Unit2)
 	if Unit2 == nil then Unit2 = "player"; end
 	-- If both units are visible
 	if UnitIsVisible(Unit1) and UnitIsVisible(Unit2) then
 
-		local X1,Y1,Z1 = ObjectPosition(Unit1);
-		local X2,Y2,Z2 = ObjectPosition(Unit2);
-		local unitSize = 0;
-
-		-- HitBox Calculations
-		unitSize = UnitCombatReach(Unit1) + UnitCombatReach(Unit2) ;
-
-		-- Position Calculations
-		myRange = math.sqrt(((X2-X1)^2)+((Y2-Y1)^2))
-
-		return myRange-(unitSize/(45/myRange));
+		return rc:GetRange('target')
 
 	else
 		return 1000;
