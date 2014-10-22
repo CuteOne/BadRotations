@@ -348,12 +348,13 @@ if not metaTable1 then
 			end)
 
 			-- Sorting with the Role
+		if isChecked("Sorting with Role") then	
 			table.sort(nNova, function(x,y)
 				if x.role and y.role then return x.role > y.role;
 				elseif x.role then return true;
 				elseif y.role then return false; end
 			end)
-
+         end
 --[[			for i = 1, #nNova do
 				table.sort(nNova[i].Distances, function(x,y)
 					return x.dist < y.dist

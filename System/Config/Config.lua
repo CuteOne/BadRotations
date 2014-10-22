@@ -124,7 +124,9 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Special Heal");
     CreateNewDrop(thisConfig,"Special Heal", 2, "|cffFFDD11Select wich targets you want to add to engine:Mouseover/Focus/Target Heal. \n|cffFF0000All: |cffFFDD11All targets. \n|cffFF0000Special: |cffFFDD11Only special Units.", "|cffFF0000All", "|cffFFDD11Special")
     CreateNewText(thisConfig,"Special Heal");
-
+    -- Sorting with the Role
+    CreateNewCheck(thisConfig,"Sorting with Role","|cffFFBB00Sorting with the Role.");
+    CreateNewText(thisConfig,"Sorting with Role");
     -- Special Priority
     CreateNewCheck(thisConfig,"Special Priority","|cffFFBB00Priorise Special targets.");
     CreateNewText(thisConfig,"Special Priority");
