@@ -360,8 +360,23 @@ function DruidRestoration()
 				end
 			end
 		end
-
-		--[[ 19 - Regrowth --(cast regrowth on all usualy between 30 - 40)]]
+        --[[ 19 - Healing Touch --(cast Healing Touch on all usualy between 70 - 90)]]
+		if isChecked("Healing Touch") and isStanding(0.3) and canCast(5185,false,true) and lowestHP < getValue("Healing Touch") then
+			for i = 1, #nNova do
+				if nNova[i].hp <= getValue("Healing Touch") then
+					if castSpell(nNova[i].unit,5185,true) then return; end
+				end
+			end
+		end
+		--[[ 19.5 - Healing Touch Tank --(cast Healing Touch on tank usualy between 60 - 90 )]]
+		if isChecked("Healing Touch Tank") and isStanding(0.3) and canCast(5185,false,true) and lowestTankHP < getValue("Healing Touch Tank") then
+			for i = 1, #nNova do
+				if (nNova[i].role == "TANK" and nNova[i].hp <= getValue("Healing Touch Tank")) then
+					if castSpell(nNova[i].unit,5185,true) then return; end
+				end
+			end
+		end
+		--[[ 20 - Regrowth --(cast regrowth on all usualy between 30 - 40)]]
 		if isChecked("Regrowth") and isStanding(0.3) and canCast(8936,false,true) and lowestHP < getValue("Regrowth") then
 			for i = 1, #nNova do
 				if nNova[i].hp <= getValue("Regrowth") then
@@ -369,8 +384,7 @@ function DruidRestoration()
 				end
 			end
 		end
-
-		--[[ 21 - Regrowth Tank --(cast regrowth on tank usualy between 45 - 60 )]]
+--[[ 21 - Regrowth Tank --(cast regrowth on tank usualy between 45 - 60 )]]
 		if isChecked("Regrowth Tank") and isStanding(0.3) and canCast(8936,false,true) and lowestTankHP < getValue("Regrowth Tank") then
 			for i = 1, #nNova do
 				if (nNova[i].role == "TANK" and nNova[i].hp <= getValue("Regrowth Tank")) then

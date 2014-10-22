@@ -402,8 +402,15 @@ function RestorationConfig()
         CreateNewCheck(thisConfig,"Lifebloom");
         CreateNewBox(thisConfig, "Lifebloom", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to |cffFFFFFFlet Lifebloom Bloom |cffFFBB00on Focus.");
         CreateNewText(thisConfig,"Lifebloom");
-
-        -- Regrowth
+        -- Healing Touch
+        CreateNewCheck(thisConfig,"Healing Touch");
+        CreateNewBox(thisConfig, "Healing Touch", 0, 100  , 5, 65, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealing Touch.");
+        CreateNewText(thisConfig,"Healing Touch");
+        -- Healing Touch Tank
+        CreateNewCheck(thisConfig,"Healing Touch Tank");
+        CreateNewBox(thisConfig, "Healing Touch Tank", 0, 100  , 5, 55, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealing Touch|cffFFBB00 on Tanks.");
+        CreateNewText(thisConfig,"Healing Touch Tank");
+		-- Regrowth
         CreateNewCheck(thisConfig,"Regrowth");
         CreateNewBox(thisConfig, "Regrowth", 0, 100  , 5, 65, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRegrowth.");
         CreateNewText(thisConfig,"Regrowth");
