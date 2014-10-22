@@ -1,4 +1,4 @@
-## Interface: 50400
+## Interface: 60000
 ## Title: |cffD90000BadBoy
 ## Notes: |cffD90000From/For/By CodeMyLife.
 ## Author: CodeMyLife
