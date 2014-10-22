@@ -5,7 +5,7 @@ function CreateNewDrop(value, textString, base, tip1, value1, value2, value3, va
 	local tip = tip1
 	if tip == "Toggle2" then 
 		tip = "|cffFFFFFFSet which button you want as toggle for \n"..textString.."."; 
-		vvalues = {"|cffFFBB00LeftCtrl", "|cffFFBB00LeftShift", "|cffFFBB00LeftAlt", "|cffFFBB00RightCtrl", "|cffFFBB00RightShift", "|cffFFBB00RightAlt", "|cffFFBB00None"}
+		vvalues = {"|cffFFBB00LeftCtrl", "|cffFFBB00LeftShift", "|cffFFBB00LeftAlt", "|cffFFBB00RightCtrl", "|cffFFBB00RightShift", "|cffFFBB00RightAlt","|cffFFBB00MMouse", "|cffFFBB00Mouse4", "|cffFFBB00Mouse5", "|cffFFBB00None"}
 	end	
 	if tip == "Toggle" then 
 		tip = "|cffFFFFFFSet which button you want as toggle for \n"..textString.."."; 
