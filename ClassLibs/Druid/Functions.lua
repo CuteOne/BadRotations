@@ -268,13 +268,25 @@ function outOfWater()
         return false
     end
 end
+        -- for i = 1, ObjectCount() do
+        --     if getCreatureType(ObjectWithIndex(i)) == true then
+        --         --local thisUnit = ObjectWithIndex(i)
+        --         return ObjectWithIndex(i)
+        --     end
+        -- end
 
-function dynamicTarget()
+
+function dynamicTarget(range)
     if isChecked("Multi-Rake") or isChecked("Death Cat Mode") then
-        for i = 1, ObjectCount() do
-            if getCreatureType(ObjectWithIndex(i)) == true then
-                --local thisUnit = ObjectWithIndex(i)
-                return ObjectWithIndex(i)
+        if myEnemies==nil then myEnemies = 0 end
+        if myMultiTimer == nil or myMultiTimer <= GetTime() - 1 then
+            myEnemies, myMultiTimer = getEnemies("player",range), GetTime()
+        end
+        for i = 1, #myEnemies do
+            if getCreatureType(myEnemies[i]) == true then
+                return myEnemies[i]
+            else
+                return "target"
             end
         end
     else
@@ -596,13 +608,9 @@ function feralSingle()
                         if castSpell("player",svr,false,false) then return; end
                     end
                     if getPower("player") >= 40 and enemiesInRange == 1 then
-                        for i = 1, ObjectCount() do
-                            if getCreatureType(ObjectWithIndex(i)) == true then
-                                local thisUnit = ObjectWithIndex(i)
-                                if UnitCanAttack("player",thisUnit) and getDistance(thisUnit) <= 4 and getFacing(thisUnit) == true then
-                                    if castSpell(thisUnit,shr,false,false) then swipeSoon = nil; return; end
-                                end
-                            end
+                        local thisUnit = dynamicTarget(5)
+                        if UnitCanAttack("player",thisUnit) and getDistance(thisUnit) <= 4 and getFacing(thisUnit) == true then
+                            if castSpell(thisUnit,shr,false,false) then swipeSoon = nil; return; end
                         end
                     end
                     if getPower("player") >= 45 and enemiesInRange > 1 then
@@ -666,20 +674,19 @@ function feralSingle()
                 if castSpell("target",fb,false,false) then return; end
             end
             -- Rake - if=remains<=3&combo_points<5
+                            -- for i = 1, ObjectCount() do
+                --     if getCreatureType(ObjectWithIndex(i)) == true then
+                        --local thisUnit = ObjectWithIndex(i)
             if isChecked("Multi-Rake") and canCast(rk) then
-                for i = 1, ObjectCount() do
-                    if getCreatureType(ObjectWithIndex(i)) == true then
-                        local thisUnit = ObjectWithIndex(i)
-                        if UnitCanAttack(thisUnit,"player") == true
-                            and not UnitIsDeadOrGhost(thisUnit)
-                            and getFacing("player",thisUnit) == true
-                            and getDebuffRemain(thisUnit,rk,"player") < 3
-                            and getPower("player") >= 35
-                            and getDistance(thisUnit) < 5
-                        then
-                            if castSpell(thisUnit,rk,false,false) then return; end
-                        end
-                    end
+                local thisUnit = dynamicTarget(5)
+                if thisUnit == nil then thisUnit = "target" end
+                if UnitCanAttack(thisUnit,"player") == true
+                    and not UnitIsDeadOrGhost(thisUnit)
+                    and getFacing("player",thisUnit) == true
+                    and getDebuffRemain(thisUnit,rk,"player") < 3
+                    and getPower("player") >= 35
+                then
+                    if castSpell(thisUnit,rk,false,false) then return; end
                 end
             end
             -- Rake - if=remains<=duration*0.3&combo_points<5&persistent_multiplier>dot.rake.pmultiplier
