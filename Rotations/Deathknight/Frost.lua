@@ -21,11 +21,11 @@ if select(3, UnitClass("player")) == 6 then
     end
     if isChecked("DnD_Key") and SpecificToggle("DnD_Key") == true then
       if not IsMouselooking() then
-          CastSpellByName(GetSpellInfo(43265))
-          if SpellIsTargeting() then
-              CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
-              return true;
-          end
+        CastSpellByName(GetSpellInfo(43265))
+        if SpellIsTargeting() then
+            CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+            return true;
+        end
       end
     end
     ------------------------------------------------------------------------------------------------------
@@ -75,11 +75,11 @@ if select(3, UnitClass("player")) == 6 then
         if castSpell("target",_HowlingBlast,false,false) then
           return;
         end
-        if not canCast(_DeathAndDecay) then
+        -- if not canCast(_DeathAndDecay) then
           if castSpell("target",_PlagueStrike,false,false) then
             return;
           end
-        end
+        -- end
         if castSpell("target",_FrostStrike,false,false) then
           return;
         end
