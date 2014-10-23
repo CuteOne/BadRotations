@@ -12,6 +12,7 @@ if select(3, UnitClass("player")) == 10 then
 --------------
 --- Locals ---
 --------------
+		if myEnemies == nil or myEnemiesTimer == nil or myEnemiesTimer <= GetTime() - 1 then myEnemies, myEnemiesTimer = getNumEnemies("player",10), GetTime(); end
 		local tarDist = targetDistance
 		local php = getHP("player")
 		local power = getPower("player")
@@ -92,7 +93,7 @@ if select(3, UnitClass("player")) == 10 then
 				if isInCombat("player") and chiDiff>=2 then
 					if castSpell("player",_ExpelHarm,false,false,false) then return; end
 				end
-				if not isInCombat("player") and getNumEnemies("player",10)==0 then
+				if not isInCombat("player") and myEnemies==0 then
 					if castSpell("player",_ExpelHarm,false,false,false) then return; end
 				end
 			end
