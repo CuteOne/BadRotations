@@ -577,6 +577,7 @@ function feralSingle()
 
     -- Death Cat Mode
     if isChecked("Death Cat Mode") then
+        local enemiesInRange =getNumEnemies("player",8)
         if not UnitBuffID("player",cf) then
             if castSpell("player",cf,true) then return; end
         end

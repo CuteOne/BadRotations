@@ -6,14 +6,14 @@ if select(3, UnitClass("player")) == 10 then
 	    end
 	    WindwalkerToggles()
 	    GroupInfo()
-	    if not canRun() then
-	    	return true
-	    end
+	    -- if not canRun() then
+	    -- 	return true
+	    -- end
 --------------
 --- Locals ---
 --------------
-		if myEnemies == nil or myEnemiesTimer == nil or myEnemiesTimer <= GetTime() - 1 then myEnemies, myEnemiesTimer = getNumEnemies("player",10), GetTime(); end
-		local tarDist = targetDistance
+		if tebCast == nil then tebCast = 0; end
+		local tarDist = getDistance("target")
 		local php = getHP("player")
 		local power = getPower("player")
 		local powgen = getRegen("player")
@@ -23,8 +23,13 @@ if select(3, UnitClass("player")) == 10 then
 		local sckRemain = getBuffRemain("player",_SpinningCraneKick)
 		local cbCharge = getCharges(_ChiBrew)
 		local cbRecharge = getRecharge(_ChiBrew)
-		local tebRemain = getBuffRemain("player",_TigereyeBrew)
-		local tebStack = getBuffStacks("player",_TigereyeBrew)
+		if tebCast ~= 0 then
+			tebRemain = tebCast - GetTime()
+		else
+			tebRemain = 0
+		end
+		--local getBuffRemain("player",_TigereyeBrew)
+		local tebStack = getBuffStacks("player",_TigereyeBrewStacks)
 		local ebRemain = getBuffRemain("player",_EnergizingBrew)
 		local ttd = getTimeToDie("target")
 		local ttm = getTimeToMax("player")
@@ -43,10 +48,17 @@ if select(3, UnitClass("player")) == 10 then
 ----------------------
 --- Rotation Pause ---
 ----------------------
+	-- Tigereye Brew Timer
+		if tebCast ~= 0 then
+			if tebCast <= GetTime() then
+				tebCast = 0
+			end
+		end
 	-- Stop Cast
 		if ((tarDist<5 or getSpellCD(_FlyingSerpentKick)==0) and isCastingSpell(_CracklingJadeLightning)) or (not useAoE() and isCastingSpell(_SpinningCraneKick)) then
 			RunMacroText("/stopcasting")
 		end
+	-- Pause
 		if pause() then
 			return true
 		else
@@ -90,10 +102,7 @@ if select(3, UnitClass("player")) == 10 then
 ------------------
 	--	Expel Harm
 			if php<=80 and power>=40 and getSpellCD(_ExpelHarm)==0 then
-				if isInCombat("player") and chiDiff>=2 then
-					if castSpell("player",_ExpelHarm,false,false,false) then return; end
-				end
-				if not isInCombat("player") and myEnemies==0 then
+				if (isInCombat("player") and chiDiff>=2) or not isInCombat("player") then
 					if castSpell("player",_ExpelHarm,false,false,false) then return; end
 				end
 			end
@@ -123,7 +132,7 @@ if select(3, UnitClass("player")) == 10 then
 					if castSpell("player",_ExpelHarm,false,false,false) then return; end
 				end
 	-- Provoke
-				if getSpellCD(_FlyingSerpentKick)>1 and tarDist > 10 then
+				if select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" and getSpellCD(_FlyingSerpentKick)>1 and tarDist > 10 then
 					if select(2,IsInInstance())=="none" and #members==1 then
 						if castSpell("target",_Provoke,false,false) then return; end
 					end
@@ -131,10 +140,10 @@ if select(3, UnitClass("player")) == 10 then
 	-- Flying Serpent Kick
 				if BadBoy_data['FSK']==1 then
 					if canFSK("target") and not isDummy() and (select(2,IsInInstance())=="none" or isInCombat("target")) then
-						if castSpell("player",_FlyingSerpentKick,false,false) then return; end
+						if castSpell("player",_FlyingSerpentKick,false,false,false) then return; end
 					end
 					if (tarDist < 10 or not canContFSK("target")) and select(3,GetSpellInfo(101545)) == "INTERFACE\\ICONS\\priest_icon_chakra_green" then
-						if castSpell("player",_FlyingSerpentKickEnd,false,false) then return; end
+						if castSpell("player",_FlyingSerpentKickEnd,false,false,false) then return; end
 					end
 				end
 			end
@@ -207,7 +216,7 @@ if select(3, UnitClass("player")) == 10 then
 						or (getTalent(7,1) and tebStack>=10 and getSpellCD(_HurricaneStrike)>0 and chi>=3 and rskRemain>0 and tpRemain>0)
 						or (chi>=2 and (tebStack>=16 or ttd<40) and rskRemain>0 and tpRemain>0))
 				then
-					if castSpell("player",_TigereyeBrew,false,false) then return; end
+					if castSpell("player",_TigereyeBrew,false,false) then tebCast = GetTime()+15; return; end
 				end
 	-- Raising Sun Kick
 				if tarDist<5 and rskRemain==0 and sckRemain==0 and chi>=2 then
@@ -299,15 +308,15 @@ if select(3, UnitClass("player")) == 10 then
 	-- Flying Serpent Kick
 				if BadBoy_data['FSK']==1 then
 					if canFSK("target") and not isDummy() and (select(2,IsInInstance())=="none" or isInCombat("target")) then
-						if castSpell("player",_FlyingSerpentKick,false,false) then return; end
+						if castSpell("player",_FlyingSerpentKick,false,false,false) then return; end
 					end
 					if (tarDist < 10 or not canContFSK("target")) and select(3,GetSpellInfo(101545)) == "INTERFACE\\ICONS\\priest_icon_chakra_green" then
-						if castSpell("player",_FlyingSerpentKickEnd,false,false) then return; end
+						if castSpell("player",_FlyingSerpentKickEnd,false,false,false) then return; end
 					end
 				end
 			end --In Combat End
 	-- Start Attack
-			if tarDist<5 then
+			if tarDist<5 and not isInCombat("player") then
 				StartAttack()
 			end
 		end
