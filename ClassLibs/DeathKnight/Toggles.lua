@@ -36,15 +36,16 @@ end
 
 function FrostToggles()
    -- Aoe Button
-    if  AoEModesLoaded ~= "Frost DK AoE Modes" then
-        AoEModes = {
-            [1] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "|cff00FF00Recommended for \n|cffFFDD11Single Target(1-2).", highlight = 0, icon = 45477 },
-            [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "|cffFF0000Recommended for \n|cffFFDD11AoE(3+).", highlight = 0, icon = 49998 },
-            [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "|cffFFDD11Recommended for \n|cffFFDD11Lazy people like me.", highlight = 1, icon = 43265 }
-        };
-        CreateButton("AoE",1,0);
-        AoEModesLoaded = "Frost DK AoE Modes";
-    end
+   if AoEModesLoaded ~= "Frost DK AoE Modes" then
+            CustomAoEModes = {
+                [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 0, icon = SweepingStrikes },
+                [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = Whirlwind },
+                [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = MortalStrike }
+            };
+           AoEModes = CustomAoEModes
+           CreateButton("AoE",1,0)
+           AoEModesLoaded = "Frost DK AoE Modes";
+        end
 
     -- Cooldowns Button
     if CooldownsModesLoaded ~= "Frost DK Cooldown Modes" then
