@@ -678,13 +678,8 @@ end
 function getDistanceToObject(Unit1,X2,Y2,Z2)
 	if Unit1 == nil then Unit1 = "player"; end
 	if UnitIsVisible(Unit1) then
-		local X1,Y1,Z1 = ObjectPosition(Unit1);
-		local unitSize = 0;
-		if UnitGUID(Unit1) ~= UnitGUID("player") and UnitCanAttack(Unit1,"player") then
-			unitSize = UnitBoundingRadius(Unit1) --ObjectDescriptor(Unit1, 0x110 , Float);
-		end
-		if isDummy(Unit1) or isDummy(Unit2) then unitSize = 1; end
-		return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unitSize;
+		local X1,Y1 = ObjectPosition(Unit1);
+		return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2));
 	else
 		return 1000;
 	end

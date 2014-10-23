@@ -83,15 +83,7 @@ function BadBoyRun()
 	-- Macro Toggle ON/OFF
 	SLASH_BadBoy1 = "/BadBoy"
 	function SlashCmdList.BadBoy(msg, editbox)
-		if badboyStarted == true then
-			print("BadBoy Disabled.");
-			badboyStarted = false;
-			mainFrame:Hide();
-		else
-			print("BadBoy Enabled.");
-			badboyStarted = true;
-			mainFrame:Show();
-		end
+		mainButton:Click();
 	end
 
 	SLASH_AoE1 = "/aoe"
