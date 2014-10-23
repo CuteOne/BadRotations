@@ -9,6 +9,7 @@ if select(3, UnitClass("player")) == 8 then
 	FrostfireBolt	= 44614;
 	FrozenOrb		= 84721;
 	IceLance		= 30455;
+	IcyVeins		= 12472;
 -- Pet
 	WaterJet		= 135029;
 -- FrTalents
@@ -50,8 +51,7 @@ if select(3, UnitClass("player")) == 8 then
 	EnhancedFB		= 157646;
 	FingersOfFrost	= 44544;
 	IceShard		= 166869;
-	IcyVeins		= 12472;
-	
+
 	-- fire
 	EnhancedPyro	= 157644
 	HeatingUp		= 48107;

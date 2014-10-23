@@ -62,7 +62,7 @@ function FrostAoESimcraft()
 	if castSpell("targat",FrozenOrb,false,true) then
 		return;
 	end
-	
+
 	-- actions.aoe+=/ice_lance,if=buff.fingers_of_frost.react&debuff.frost_bomb.up
 	if UnitBuffID("player",FingersOfFrost,"player") and UnitDebuffID("target",FrostBomb,"player") then
 		if castSpell("target",IceLance,false,false) then
@@ -73,7 +73,7 @@ function FrostAoESimcraft()
 	-- actions.aoe+=/comet_storm
 	if isKnown(CometStorm) then
 		if castSpell("target",CometStorm,false,false) then
-			reutrn;
+			return;
 		end
 	end
 
@@ -92,7 +92,7 @@ function FrostAoESimcraft()
 	end
 
 	-- actions.aoe+=/cone_of_cold,if=glyph.cone_of_cold.enabled
-	if hasGlyph(GlyphConeOfCold) then 
+	if hasGlyph(GlyphConeOfCold) then
 		if castSpell("target",ConeOfCold,false,false) then
 			return;
 		end
@@ -100,7 +100,7 @@ function FrostAoESimcraft()
 
 	-- actions.aoe+=/blizzard,interrupt_if=cooldown.frozen_orb.up|(talent.frost_bomb.enabled&buff.fingers_of_frost.react=2)
 	-- actions.aoe+=/ice_floes,moving=1
-	if isKnown(IceFloes) then 
+	if isKnown(IceFloes) then
 		if isMoving("player") then
 			if castSpell("target",IceFloes,true,false) then
 				return;
@@ -117,7 +117,6 @@ function FrostCDs()
 	end
 
 	-- Mirrors
-	if 
 
 	-- actions.cooldowns+=/blood_fury		-- Orc Racial
 	-- actions.cooldowns+=/berserking		-- Troll Racial
@@ -126,7 +125,7 @@ function FrostCDs()
 end
 
 	--# Crystal Sequence
-function FrostCrystalSimcraft() 
+function FrostCrystalSimcraft()
 
 		-- actions.crystal_sequence=frost_bomb,if=active_enemies=1&current_target!=prismatic_crystal&remains<10
 		if isKnown(FrostBomb) and UnitName("target") ~= "Prismatic Crystal" then
@@ -162,7 +161,7 @@ function FrostCrystalSimcraft()
 
 		-- TBD Debuff on target
 		-- actions.crystal_sequence+=/ice_lance,if=buff.fingers_of_frost.react=2|(buff.fingers_of_frost.react&active_dot.frozen_orb>=1)
-		if getBuffStacks("player",FingersOfFrost)=2 then
+		if getBuffStacks("player",FingersOfFrost) == 2 then
 			if castSpell("focus",IceLance,false,false) then
 				return;
 			end
@@ -170,7 +169,7 @@ function FrostCrystalSimcraft()
 
 		-- actions.crystal_sequence+=/ice_nova,if=charges=2
 		if isKnown(IceNova) then
-			if getCharges(IceNova) == 2 then 
+			if getCharges(IceNova) == 2 then
 				if castSpell("focus",IceNova,false,false) then
 					return;
 				end
@@ -193,7 +192,7 @@ function FrostCrystalSimcraft()
 
 		-- actions.crystal_sequence+=/ice_nova
 		if isKnown(IceNova) then
-			if getCharges(IceNova) > 0 then 
+			if getCharges(IceNova) > 0 then
 				if castSpell("focus",IceNova,false,false) then
 					return;
 				end
@@ -209,18 +208,48 @@ end
 
 	--# SingleTarget
 function FrostSingleTargetSimcraft()
+
+	-- Get GCD Time
+	local HASTE = GetHaste()
+	local GCDTIME = 1.5/(1+HASTE/100)
+
+
 	-- actions.single_target=call_action_list,name=cooldowns,if=!talent.prismatic_crystal.enabled|cooldown.prismatic_crystal.remains>45
 	-- actions.single_target+=/ice_lance,if=buff.fingers_of_frost.react&buff.fingers_of_frost.remains<action.frostbolt.execute_time
+	if UnitBuffID("player",FingersOfFrost) and getBuffRemain("player",FingersOfFrost) < GCDTIME then
+		if castSpell("target",IceLance,false,false) then
+			return;
+		end
+	end
+
 	-- actions.single_target+=/frostfire_bolt,if=buff.brain_freeze.react&buff.brain_freeze.remains<action.frostbolt.execute_time
+	if UnitBuffID("player",BrainFreeze) and getBuffRemain("player",BrainFreeze) < GCDTIME then
+		if castSpell("target",FrostfireBolt,false,false) then
+			return;
+		end
+	end
+
 	-- actions.single_target+=/frost_bomb,if=!talent.prismatic_crystal.enabled&cooldown.frozen_orb.remains<gcd&debuff.frost_bomb.remains<10
+	if not isKnown(PrismaticCrystal) and getSpellCD(FrozenOrb) < GCDTIME and getDebuffRemain("target",FrostBomb,"player") then
+		if castSpell("target",FrostBomb,false,false) then
+			return;
+		end
+	end
+
 	-- actions.single_target+=/frozen_orb,if=!talent.prismatic_crystal.enabled&buff.fingers_of_frost.stack<2&cooldown.icy_veins.remains>45
 	-- actions.single_target+=/frost_bomb,if=remains<action.ice_lance.travel_time&(buff.fingers_of_frost.react=2|(buff.fingers_of_frost.react&(talent.thermal_void.enabled|buff.fingers_of_frost.remains<gcd*2)))
 	-- actions.single_target+=/ice_nova,if=time_to_die<10|(charges=2&(!talent.prismatic_crystal.enabled|!cooldown.prismatic_crystal.up))
 	-- actions.single_target+=/ice_lance,if=buff.fingers_of_frost.react=2|(buff.fingers_of_frost.react&dot.frozen_orb.ticking)
+	if getBuffStacks("player",FingersOfFrost) == 2 or (getBuffStacks("player",FingersOfFrost) >= 1 and getDebuffRemain("target",FrozenOrb,"player")) then
+		if castSpell("target",IceLance,false,false) then
+			return;
+		end
+	end
+
 	-- actions.single_target+=/comet_storm
 	if isKnown(CometStorm) then
 		if castSpell("target",CometStorm,false,false) then
-			reutrn;
+			return;
 		end
 	end
 
@@ -228,7 +257,8 @@ function FrostSingleTargetSimcraft()
 	-- actions.single_target+=/ice_nova,if=(!talent.prismatic_crystal.enabled|(charges=1&cooldown.prismatic_crystal.remains>recharge_time))&(buff.icy_veins.up|(charges=1&cooldown.icy_veins.remains>recharge_time))
 	-- actions.single_target+=/frostfire_bolt,if=buff.brain_freeze.react
 	if UnitBuffID("player",BrainFreeze) then
-		if castSpell("focus",FrostfireBolt,false,false) then
+		print("FFB");
+		if castSpell("target",FrostfireBolt,false,false) then
 			return;
 		end
 	end
@@ -293,6 +323,7 @@ end
 --[[]]               --[[ ]]     --[[ ]]
 --[[]]                --[[           ]]
 --[[]]                  --[[       ]]
+
 
 
 
