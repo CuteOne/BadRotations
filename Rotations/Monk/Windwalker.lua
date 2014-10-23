@@ -142,7 +142,7 @@ if select(3, UnitClass("player")) == 10 then
 					if canFSK("target") and not isDummy() and (select(2,IsInInstance())=="none" or isInCombat("target")) then
 						if castSpell("player",_FlyingSerpentKick,false,false,false) then return; end
 					end
-					if (tarDist < 10 or not canContFSK("target")) and select(3,GetSpellInfo(101545)) == "INTERFACE\\ICONS\\priest_icon_chakra_green" then
+					if (tarDist < 10 or (not canContFSK("target") and UnitExists("target"))) and select(3,GetSpellInfo(101545)) == "INTERFACE\\ICONS\\priest_icon_chakra_green" then
 						if castSpell("player",_FlyingSerpentKickEnd,false,false,false) then return; end
 					end
 				end

@@ -662,7 +662,7 @@ function getDistance(Unit1,Unit2)
 			end
 		else
 			if UnitCanAttack(Unit2,"player") == true then
-				return rc:GetRange(Unit1) or 1000
+				return rc:GetRange(Unit2) or 1000
 			else
 				local X1,Y1 = ObjectPosition(Unit1);
 				local X2,Y2 = ObjectPosition(Unit2);
