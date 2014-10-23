@@ -401,6 +401,9 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 	return false;
 end
 
+
+
+
 --[[castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 Parameter 	Value
 First 	 	UnitID 			Enter valid UnitID
@@ -510,6 +513,7 @@ function castMouseoverHealing(Class)
 		end
 	end
 end
+
 
 --[[           ]]   --[[           ]]    --[[           ]]
 --[[           ]]   --[[           ]]    --[[           ]]
@@ -645,14 +649,25 @@ end
 -- /dump UnitCombatReach("target")
 -- if getDistance("player","target") <= 40 then
 function getDistance(Unit1,Unit2)
-	if Unit2 == nil then Unit2 = "player"; end
 	-- If both units are visible
-	if UnitIsVisible(Unit1) and UnitIsVisible(Unit2) then
-
-		if Unit2 == "player" then
-			return rc:GetRange(Unit1) or 1000
+	if UnitIsVisible(Unit1) == true and (Unit2 == nil or UnitIsVisible(Unit2) == true) then
+		-- If Unit2 is nil we compare to Unit1
+		if Unit2 == nil then
+			if UnitCanAttack(Unit1,"player") == true then
+				return rc:GetRange(Unit1) or 1000
+			else
+				local X1,Y1 = ObjectPosition(Unit1);
+				local X2,Y2 = ObjectPosition("player");
+				return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2));
+			end
 		else
-			return rc:GetRange(Unit2) or 1000
+			if UnitCanAttack(Unit2,"player") == true then
+				return rc:GetRange(Unit1) or 1000
+			else
+				local X1,Y1 = ObjectPosition(Unit1);
+				local X2,Y2 = ObjectPosition(Unit2);
+				return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2));
+			end
 		end
 	else
 		return 1000;
@@ -902,13 +917,22 @@ end
 -- /dump getEnemies("target",10)
 -- if #getEnemies("target",10) >= 3 then
 function getEnemies(Unit,Radius)
+
 	local enemiesTable = {};
+
+	if UnitExists("target") == true
+	  and getCreatureType("target") == true
+	  and UnitCanAttack("player","target") == true
+	  and getDistance("player","target") <= Radius then
+	    tinsert(enemiesTable,"target");
+	end
+
  	for i=1,ObjectCount() do
  		if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
 	  		local thisUnit = ObjectWithIndex(i);
 	  		if getCreatureType(thisUnit) == true then
-	  			if UnitCanAttack("player",thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
-	  				if getDistance(Unit,thisUnit) <= (Radius + ObjectDescriptor(ObjectWithIndex(i), 0x110 , Float)) then
+	  			if UnitCanAttack("player",thisUnit) == true and UnitIsDeadOrGhost(thisUnit) == false then
+	  				if getDistance(Unit,thisUnit) <= Radius then
 	   					tinsert(enemiesTable,thisUnit);
 	   				end
 	  			end
