@@ -20,21 +20,19 @@ if #Enemies50Yards > 1  then
        	if getFacing("player","thisUnit") == true
           and getDistance("thisUnit") < 40
        	  then
-        	enneMy1:Target()    
+        	enneMy1:Target()
       	end
     end
 end
 
 ]]
 -- Barrel Thrower
-	if SpellIsTargeting() then
+	if IsAoEPending() then
 		if UnitExists("target") then
-			local X, Y, Z = IGetLocation(UnitGUID("target"));
+			local X, Y, Z = ObjectPosition("target");
 			local targetSpeed = GetUnitSpeed("target");
 			if targetDistance < 15 or targetSpeed == 0 then
-				CastAtLocation(GetPointBetweenObjects(Player, Target, (targetDistance-2)));
-			else
-				CastAtLocation(GetPointBetweenObjects(Player, Target, (3*targetDistance/4)-2));
+				CastAtPosition(ObjectPosition("target"));
 			end
 			SpellStopTargeting();
 			return true;
@@ -54,11 +52,11 @@ end
 --- Ressurection/Dispelling/Healing ---
 ---------------------------------------
 	if isValidTarget("mouseover")
-		and UnitIsPlayer("mouseover") 
+		and UnitIsPlayer("mouseover")
 		and not UnitBuffID("player", 80169) -- Food
   		and not UnitBuffID("player", 87959) -- Drink
  	 	and UnitCastingInfo("player") == nil
- 	 	and UnitChannelInfo("player") == nil 
+ 	 	and UnitChannelInfo("player") == nil
 	  	and not UnitIsDeadOrGhost("player")
 	  	and not IsMounted()
 	  	and not IsFlying()
@@ -81,7 +79,7 @@ end
 	if not UnitBuffID("player", 80169) -- Food
 		and not UnitBuffID("player", 87959) -- Drink
 		and UnitCastingInfo("player") == nil
-		and UnitChannelInfo("player") == nil 
+		and UnitChannelInfo("player") == nil
 		and not UnitIsDeadOrGhost("player")
 		and not IsMounted()
 		and not IsFlying()
@@ -110,7 +108,7 @@ end
 		  				end
 			  		end
 		  		end
-			end 
+			end
 		end
 	end
 
@@ -123,9 +121,9 @@ end
 	end
 -- Nimble Brew
 	if hasNoControl() then
-		if castSpell("player",_NimbleBrew,true) then 
-			return; 
-		elseif castSpell("player",_TigersLust,true) then 
+		if castSpell("player",_NimbleBrew,true) then
+			return;
+		elseif castSpell("player",_TigersLust,true) then
 			return;
 		end
 	end
@@ -141,13 +139,13 @@ end
 					 CastSpellByName(GetSpellInfo(115180),nil);
 					 return;
 				end
-			end 
+			end
 		end
 	end
 -----------------
 --- In Combat ---
 -----------------
-	if isInCombat("player") and canAttack("target","player") and not UnitIsDeadOrGhost("target") then			
+	if isInCombat("player") and canAttack("target","player") and not UnitIsDeadOrGhost("target") then
 ----------------------
 --- Rotation Pause ---
 ----------------------
@@ -176,9 +174,9 @@ end
     	end
 
 		--[[Guard on cooldown. Delay up to 10-15 sec for anticipated damage.]]
-	    if chi >= 2 and getBuffRemain("player",_PowerGuard) > 1  and getHP("player") <= getValue("Guard") then
+	    if chi >= 2 and getHP("player") <= getValue("Guard") then
 	    	if castSpell("player",_Guard,true) then return; end
-	    end	
+	    end
 		--[[Purifying Brew to remove your Stagger DoT when Yellow or Red.]]
 
 		--[[Elusive Brew if > 10 stacks. Delay up to 10-15 sec for anticipated damage.]]
@@ -197,7 +195,7 @@ end
 			if UnitExists("target") and isEnnemy("target") and not UnitIsDeadOrGhost("target") and getCreatureType("target") == true and getGround("target") == true then
 				if castSpell("player",_DazzlingBrew,true,false) then return; end
 			end
-		end   
+		end
 
 
 	elseif (isChecked("Angry Monk") == true or UnitAffectingCombat("player")) and UnitExists("target") and not UnitIsDeadOrGhost("target") and isEnnemy("target") == true and getCreatureType("target") == true then
@@ -209,32 +207,32 @@ end
 		--[[Breath of Fire if >= 3 targets dump.]]
 	    if chiMax - chi <= 1 and ennemyUnits > 2 and getFacing("player","target",30) == true then
 	    	if castSpell("target",_BreathOfFire,false) then return; end
-	    end	
+	    end
 
 		--[[Blackout Kick dump.]]
 	    if chiMax - chi <= 1 then
 	    	if castSpell("target",_BlackoutKick,true,false) then return; end
-	    end	
+	    end
 
 		--[[Keg Smash on cooldown when at < 3 Chi. Applies Weakened Blows.]]
 	    if chi < chiMax - 2 then
 	    	if castSpell("target",_KegSmash,false,false) then return; end
-	    end		
+	    end
 
 		--[[Tiger Palm does not cost Chi, but is used like a finisher (Tiger Power).]]
 	    if getBuffRemain("player",_TigerPower) < 2 then
 	    	if castSpell("target",_TigerPalm,true,false) then return; end
-	    end	
+	    end
 
 		--[[Expel Harm when you are not at full health.]]
 		if energy >= 40 and myHP <= getValue("Expel Harm") then
 	    	if castSpell("player",_ExpelHarm,true,false) then return; end
-	    end	  
+	    end
 
 		--[[Touch of Death]]
 	    if chi >= 3 and (myHP > getHP("target") or getBuffRemain("player",_DeathNote) > 1) then
 	    	if castSpell("target",_TouchOfDeath,false,false) then return; end
-	    end		
+	    end
 
 	    --[[Build Chi and prevent Energy capping.]]
     	if (energy > 70 and chi < chiMax - 1) or energy >= 90 then
@@ -244,22 +242,22 @@ end
     		else
     			--[[Jab]]
     			if castSpell("target",_Jab,false) then return; end
-    		end    		
+    		end
     	end
 
 		--[[Breath of Fire if > 3 targets]]
 	    if chi >= 3 and ennemyUnits > 2 then
 	    	if castSpell("target",_BreathOfFire,false) then return; end
-	    end	
+	    end
 
 		--[[Blackout Kick as often as possible. Aim for ~80% uptime on Shuffle.]]
 	    if (chi >= 3 and getBuffRemain("player",_Shuffle) <= 1) or chi >= 3 then
 	    	if castSpell("target",_BlackoutKick,true) then return; end
-	    end	
+	    end
 
 		--[[Tiger Palm filler.]]
-	    if castSpell("target",_TigerPalm,true) then return; end			
-  
+	    if castSpell("target",_TigerPalm,true) then return; end
+
 	end
 
 end

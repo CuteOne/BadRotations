@@ -43,7 +43,7 @@ if select(3, UnitClass("player")) == 10 then
 --- Rotation Pause ---
 ----------------------
 	-- Stop Cast
-		if ((tarDist <= 4 or getSpellCD(_FlyingSerpentKick)==0) and isCastingSpell(_CracklingJadeLightning)) or (not useAoE() and isCastingSpell(_SpinningCraneKick)) then
+		if ((tarDist<5 or getSpellCD(_FlyingSerpentKick)==0) and isCastingSpell(_CracklingJadeLightning)) or (not useAoE() and isCastingSpell(_SpinningCraneKick)) then
 			RunMacroText("/stopcasting")
 		end
 		if pause() then
@@ -160,11 +160,11 @@ if select(3, UnitClass("player")) == 10 then
 	--- In Combat - Interrupts ---
 	------------------------------
 	-- Quaking Palm
-				if canInterrupt(_QuakingPalm,tonumber(getValue("Interrupts"))) and tarDist<4 then
+				if canInterrupt(_QuakingPalm,tonumber(getValue("Interrupts"))) and tarDist<5 then
 					if castSpell("target",_QuakingPalm,false,false) then return; end
 				end
 	-- Spear Hand Strike
-				if canInterrupt(_SpearHandStrike,tonumber(getValue("Interrupts"))) and getSpellCD(_QuakingPalm)>0 and getSpellCD(_QuakingPalm)<119 and tarDist<4 then
+				if canInterrupt(_SpearHandStrike,tonumber(getValue("Interrupts"))) and getSpellCD(_QuakingPalm)>0 and getSpellCD(_QuakingPalm)<119 and tarDist<5 then
 					if castSpell("target",_SpearHandStrike,false,false) then return; end
 				end
 	-- Paralysis
@@ -195,7 +195,7 @@ if select(3, UnitClass("player")) == 10 then
 					if castSpell("player",_ChiBrew,false,false,false) then return; end
 				end
 	-- Tiger Palm
-				if  tarDist<4 and tpRemain<=3 and chi>=1 and sckRemain==0 then
+				if  tarDist<5 and tpRemain<=3 and chi>=1 and sckRemain==0 then
 					if castSpell("target",_TigerPalm,false,false) then return; end
 				end
 	-- Tigereye Brew
@@ -209,15 +209,15 @@ if select(3, UnitClass("player")) == 10 then
 					if castSpell("player",_TigereyeBrew,false,false) then return; end
 				end
 	-- Raising Sun Kick
-				if tarDist<4 and rskRemain==0 and sckRemain==0 and chi>=2 then
+				if tarDist<5 and rskRemain==0 and sckRemain==0 and chi>=2 then
 					if castSpell("target",_RaisingSunKick,false,false) then return; end
 				end
 	-- Tiger Palm
-				if tarDist<4 and tpRemain==0 and rskRemain>1 and ttm>1 and chi>=1 and sckRemain==0 then
+				if tarDist<5 and tpRemain==0 and rskRemain>1 and ttm>1 and chi>=1 and sckRemain==0 then
 					if castSpell("target",_TigerPalm,false,false) then return; end
 				end
 	-- Serenity
-				if getTalent(7,3) and tarDist<4 and chi>=2 and tpRemain>0 and rskRemain>0 then
+				if getTalent(7,3) and tarDist<5 and chi>=2 and tpRemain>0 and rskRemain>0 then
 					if castSpell("player",_Serenity,false,false) then return; end
 				end
 
@@ -243,7 +243,7 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("target",_FistsOfFury,false,false) then return; end
 					end
 	-- Touch of Death
-					if (UnitBuffID("player",_DeathNote) or UnitHealth("target")<=php) and not UnitIsPlayer("target") and tarDist<4 and sckRemain==0 then
+					if (UnitBuffID("player",_DeathNote) or UnitHealth("target")<=php) and not UnitIsPlayer("target") and tarDist<5 and sckRemain==0 then
 						if castSpell("target",_TouchOfDeath,false,false) then return; end
 					end
 	-- Hurricane Strike
@@ -255,15 +255,15 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("player",_EnergizingBrew,false,false) then return; end
 					end
 	-- Raising Sun Kick
-					if chi>=2 and not getTalent(7,2) and tarDist<4 then
+					if chi>=2 and not getTalent(7,2) and tarDist<5 then
 						if castSpell("target",_RaisingSunKick,false,false) then return; end
 					end
 	-- Chi Wave
-					if ttm>2 and serRemain==0 and tarDist<=40 then
+					if ttm>2 and serRemain==0 and tarDist<40 then
 						if castSpell("player",_ChiWave,false,false) then return; end
 					end
 	-- Chi Burst
-					if getTalent(2,3) and ttm>2 and serRemain==0 and tarDist<=40 then
+					if getTalent(2,3) and ttm>2 and serRemain==0 and tarDist<40 then
 						if castSpell("player",_ChiBurst,false,false) then return; end
 					end
 	-- Zen Sphere
@@ -271,7 +271,7 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("player",_ZenSphere,false,false) then return; end
 					end
 	-- Blackout Kick
-					if not getTalent(7,2) and (bkcRemain>0 or serRemain==0) and tarDist<4 then
+					if not getTalent(7,2) and (bkcRemain>0 or serRemain==0) and tarDist<5 then
 						if castSpell("target",_BlackoutKick,false,false) then return; end
 					end
 	-- Chi Explosion
@@ -279,11 +279,11 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("target",_ChiExplosion,false,false) then return; end
 					end
 	-- Tiger Palm
-					if tarDist<4 and tpcRemain>0 and tpcRemain<=2 then
+					if tarDist<5 and tpcRemain>0 and tpcRemain<=2 then
 						if castSpell("target",_TigerPalm,false,false) then return; end
 					end
 	-- Blackout Kick
-					if not getTalent(7,2) and chiDiff<2 and tarDist<4 then
+					if not getTalent(7,2) and chiDiff<2 and tarDist<5 then
 						if castSpell("target",_BlackoutKick,false,false) then return; end
 					end
 	-- Chi Explosion
@@ -291,7 +291,7 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("target",_ChiExplosion,false,false) then return; end
 					end
 	-- Jab
-					if chiDiff>=2 and power>=45 and (php>=80 or getSpellCD(_ExpelHarm)>0) and tarDist<4 then
+					if chiDiff>=2 and power>=45 and (php>=80 or getSpellCD(_ExpelHarm)>0) and tarDist<5 then
 						if castSpell("target",_Jab,false,false) then return; end
 					end
 				end -- End Single Target Rotation
@@ -306,7 +306,7 @@ if select(3, UnitClass("player")) == 10 then
 				end
 			end --In Combat End
 	-- Start Attack
-			if tarDist<4 then
+			if tarDist<5 then
 				StartAttack()
 			end
 		end
