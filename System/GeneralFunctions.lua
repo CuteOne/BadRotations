@@ -930,7 +930,7 @@ function getEnemies(Unit,Radius)
  	for i=1,ObjectCount() do
  		if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
 	  		local thisUnit = ObjectWithIndex(i);
-	  		if getCreatureType(thisUnit) == true then
+	  		if UnitGUID(thisUnit) ~= UnitGUID("target") and getCreatureType(thisUnit) == true then
 	  			if UnitCanAttack("player",thisUnit) == true and UnitIsDeadOrGhost(thisUnit) == false then
 	  				if getDistance(Unit,thisUnit) <= Radius then
 	   					tinsert(enemiesTable,thisUnit);

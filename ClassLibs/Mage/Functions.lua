@@ -62,7 +62,7 @@ function FrostAoESimcraft()
 	if castSpell("targat",FrozenOrb,false,true) then
 		return;
 	end
-	
+
 	-- actions.aoe+=/ice_lance,if=buff.fingers_of_frost.react&debuff.frost_bomb.up
 	if UnitBuffID("player",FingersOfFrost,"player") and UnitDebuffID("target",FrostBomb,"player") then
 		if castSpell("target",IceLance,false,false) then
@@ -73,7 +73,7 @@ function FrostAoESimcraft()
 	-- actions.aoe+=/comet_storm
 	if isKnown(CometStorm) then
 		if castSpell("target",CometStorm,false,false) then
-			reutrn;
+			return;
 		end
 	end
 
@@ -92,7 +92,7 @@ function FrostAoESimcraft()
 	end
 
 	-- actions.aoe+=/cone_of_cold,if=glyph.cone_of_cold.enabled
-	if hasGlyph(GlyphConeOfCold) then 
+	if hasGlyph(GlyphConeOfCold) then
 		if castSpell("target",ConeOfCold,false,false) then
 			return;
 		end
@@ -100,7 +100,7 @@ function FrostAoESimcraft()
 
 	-- actions.aoe+=/blizzard,interrupt_if=cooldown.frozen_orb.up|(talent.frost_bomb.enabled&buff.fingers_of_frost.react=2)
 	-- actions.aoe+=/ice_floes,moving=1
-	if isKnown(IceFloes) then 
+	if isKnown(IceFloes) then
 		if isMoving("player") then
 			if castSpell("target",IceFloes,true,false) then
 				return;
@@ -117,7 +117,7 @@ function FrostCDs()
 	end
 
 	-- Mirrors
-	if 
+	if
 
 	-- actions.cooldowns+=/blood_fury		-- Orc Racial
 	-- actions.cooldowns+=/berserking		-- Troll Racial
@@ -126,7 +126,7 @@ function FrostCDs()
 end
 
 	--# Crystal Sequence
-function FrostCrystalSimcraft() 
+function FrostCrystalSimcraft()
 
 		-- actions.crystal_sequence=frost_bomb,if=active_enemies=1&current_target!=prismatic_crystal&remains<10
 		if isKnown(FrostBomb) and UnitName("target") ~= "Prismatic Crystal" then
@@ -170,7 +170,7 @@ function FrostCrystalSimcraft()
 
 		-- actions.crystal_sequence+=/ice_nova,if=charges=2
 		if isKnown(IceNova) then
-			if getCharges(IceNova) == 2 then 
+			if getCharges(IceNova) == 2 then
 				if castSpell("focus",IceNova,false,false) then
 					return;
 				end
@@ -193,7 +193,7 @@ function FrostCrystalSimcraft()
 
 		-- actions.crystal_sequence+=/ice_nova
 		if isKnown(IceNova) then
-			if getCharges(IceNova) > 0 then 
+			if getCharges(IceNova) > 0 then
 				if castSpell("focus",IceNova,false,false) then
 					return;
 				end
