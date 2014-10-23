@@ -277,20 +277,21 @@ end
 
 
 function dynamicTarget(range)
-    if isChecked("Multi-Rake") or isChecked("Death Cat Mode") then
-        if myEnemies==nil then myEnemies = 0 end
-        if myMultiTimer == nil or myMultiTimer <= GetTime() - 1 then
-            myEnemies, myMultiTimer = getEnemies("player",range), GetTime()
-        end
-        for i = 1, #myEnemies do
-            if getCreatureType(myEnemies[i]) == true then
-                return myEnemies[i]
-            else
-                return "target"
+    if myEnemies==nil then myEnemies = 0 end
+    if myMultiTimer == nil or myMultiTimer <= GetTime() - 1 then
+        myEnemies, myMultiTimer = getEnemies("player",range), GetTime()
+    end
+    for i = 1, #myEnemies do
+        if getCreatureType(myEnemies[i]) == true then
+            local thisUnit = myEnemies[i]
+            if UnitCanAttack(thisUnit,"player")
+                and (UnitAffectingCombat(thisUnit) or isDummy(thisUnit))
+                and not UnitIsDeadOrGhost(thisUnit)
+                and getFacing("player",thisUnit)
+            then
+                return thisUnit
             end
         end
-    else
-        return "target"
     end
 end
 
@@ -554,6 +555,7 @@ function feralSingle()
     if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
         enemiesInRange, enemiesTimer = getNumEnemies("player",10), GetTime()
     end
+    --local thisUnit = dynamicTarget(5)
     local feralPower = getPower("player")
     local feralPowerDiff = UnitPowerMax("player")-UnitPower("player")
     local targetDistance = getDistance("player","target")
@@ -573,57 +575,64 @@ function feralSingle()
     local feralTimeToMax = getTimeToMax("player")
     local tfCdRemain = getSpellCD(tf)
 
-    if not UnitIsDeadOrGhost("target")
-        and UnitExists("target")
-        and canAttack("player", "target")
-        and UnitBuffID("player",cf)
-        and targetDistance<=20
-        and isInCombat("player")
-        and not isGarrMCd()
-    then
-        -- Dummy Test
-        if isChecked("DPS Testing") then
-            if UnitExists("target") then
-                if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
-                    StopAttack()
-                    ClearTarget()
-                    print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+    -- Death Cat Mode
+    if isChecked("Death Cat Mode") then
+        if not UnitBuffID("player",cf) then
+            if castSpell("player",cf,true) then return; end
+        end
+        if UnitExists("target") and targetDistance > 8 then
+            ClearTarget()
+        end
+        if UnitBuffID("player",cf) and getPower("player") >= 25 then
+            if enemiesInRange > 0 then
+                if getPower("player") <= 35 and getSpellCD(tf) == 0 then
+                    if castSpell("player",tf,false,false) then return; end
+                end
+                if getCombo() >= 5 then
+                    if castSpell("player",svr,false,false) then return; end
+                end
+                if getPower("player") >= 40 and enemiesInRange == 1 then
+                    if myEnemies == nil or myMultiTimer == nil or myMultiTimer <= GetTime() - 1 then
+                        myEnemies, myMultiTimer = getEnemies("player",5), GetTime()
+                    end
+                    for i = 1, #myEnemies do
+                        if getCreatureType(myEnemies[i]) == true then
+                            local thisUnit = myEnemies[i]
+                            if UnitCanAttack("player",thisUnit) and getDistance(thisUnit) <= 4 and getFacing(thisUnit) == true then
+                                if castSpell(thisUnit,shr,false,false) then swipeSoon = nil; return; end
+                            end
+                        end
+                    end
+                end
+                if getPower("player") >= 45 and enemiesInRange > 1 then
+                    if swipeSoon == nil then
+                        swipeSoon = GetTime();
+                    end
+                    if swipeSoon ~= nil and swipeSoon < GetTime() - 1 then
+                        if castSpell("player",sw,false,false) then swipeSoon = nil; return; end
+                    end
                 end
             end
         end
-        -- Death Cat Mode
-        if isChecked("Death Cat Mode") then
-            if not UnitBuffID("player",cf) then
-                if castSpell("player",cf,true) then return; end
-            end
-            if UnitBuffID("player",cf) and getPower("player") >= 25 then
-                if not UnitExists("target") and isEnnemy("target") and targetDistance > 8 then
-                    ClearTarget();
-                end
-                if enemiesInRange > 0 then
-                    if getPower("player") <= 35 and getSpellCD(tf) == 0 then
-                        if castSpell("player",tf,false,false) then return; end
-                    end
-                    if getPower("player") >= 25 and getCombo() >= 5 then
-                        if castSpell("player",svr,false,false) then return; end
-                    end
-                    if getPower("player") >= 40 and enemiesInRange == 1 then
-                        local thisUnit = dynamicTarget(5)
-                        if UnitCanAttack("player",thisUnit) and getDistance(thisUnit) <= 4 and getFacing(thisUnit) == true then
-                            if castSpell(thisUnit,shr,false,false) then swipeSoon = nil; return; end
-                        end
-                    end
-                    if getPower("player") >= 45 and enemiesInRange > 1 then
-                        if swipeSoon == nil then
-                            swipeSoon = GetTime();
-                        end
-                        if swipeSoon ~= nil and swipeSoon < GetTime() - 1 then
-                            if castSpell("player",sw,false,false) then swipeSoon = nil; return; end
-                        end
+    else
+        if not UnitIsDeadOrGhost("target")
+            and UnitExists("target")
+            and canAttack("player", "target")
+            and UnitBuffID("player",cf)
+            and targetDistance<=20
+            and isInCombat("player")
+            and not isGarrMCd()
+        then
+            -- Dummy Test
+            if isChecked("DPS Testing") then
+                if UnitExists("target") then
+                    if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
+                        StopAttack()
+                        ClearTarget()
+                        print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                     end
                 end
             end
-        else
             --Rake - if=buff.prowl.up|buff.shadowmeld.up
             if isInMelee() and (prlRemain>0 or rkRemain<3) and feralPower>=35 then
                 if castSpell("target",rk,false,false) then return; end
@@ -674,21 +683,29 @@ function feralSingle()
                 if castSpell("target",fb,false,false) then return; end
             end
             -- Rake - if=remains<=3&combo_points<5
-                            -- for i = 1, ObjectCount() do
-                --     if getCreatureType(ObjectWithIndex(i)) == true then
-                        --local thisUnit = ObjectWithIndex(i)
             if isChecked("Multi-Rake") and canCast(rk) then
-                local thisUnit = dynamicTarget(5)
-                if thisUnit == nil then thisUnit = "target" end
-                if UnitCanAttack(thisUnit,"player") == true
-                    and not UnitIsDeadOrGhost(thisUnit)
-                    and getFacing("player",thisUnit) == true
-                    and getDebuffRemain(thisUnit,rk,"player") < 3
-                    and getPower("player") >= 35
-                then
-                    if castSpell(thisUnit,rk,false,false) then return; end
+                if  myEnemies == nil or myMultiTimer == nil or myMultiTimer <= GetTime() - 1 then
+                    myEnemies, myMultiTimer = getEnemies("player",5), GetTime()
+                end
+                for i = 1, #myEnemies do
+                    local thisUnit = myEnemies[i]
+                    if getCreatureType(thisUnit)
+                        and UnitCanAttack(thisUnit,"player")
+                        and not UnitIsDeadOrGhost(thisUnit)
+                        and getFacing("player",thisUnit)
+                        and (UnitAffectingCombat(thisUnit) or isDummy(thisUnit))
+                        and getDebuffRemain(thisUnit,rk,"player") < 3
+                        and getPower("player") >= 35
+                    then
+                        if castSpell(thisUnit,rk,false,false) then return; end
+                    end
                 end
             end
+            -- if isChecked("Multi-Rake") and canCast(rk) then
+            --     if getDebuffRemain(thisUnit,rk,"player") < 3 and getPower("player") >= 35 then
+            --         if castSpell(thisUnit,rk,false,false) then return; end
+            --     end
+            -- end
             -- Rake - if=remains<=duration*0.3&combo_points<5&persistent_multiplier>dot.rake.pmultiplier
             if isInMelee() and rkRemain<=rkDuration*0.3 and getCombo()<5 and rkCalc > rkApplied and feralPower>=35 then
                 if castSpell("target",rk,false,false) then return; end
@@ -709,9 +726,9 @@ function feralSingle()
             if not useAoE() and isInMelee() and getCombo()<5 and feralPower>=40 and (getCombo()<5 or feralTimeToMax <= 1) then
                 if castSpell("target",shr,false,false) then return; end
             end
+        else
+            return false
         end
-    else
-        return false
     end
 end
 
