@@ -32,7 +32,7 @@ if select(3, UnitClass("player")) == 8 then
 	-- fire
 	EnhancedPyro	= 157644
 	HeatingUp		= 48107;
-	Pyroblast		= 48108;
+	PyroblastP		= 48108;
 	Pyromaniac		= 166868;
 	-- frost
 	BrainFreeze		= 57761;
@@ -44,7 +44,7 @@ if select(3, UnitClass("player")) == 8 then
 	ArcaneAffinity	= 166871;
 	ArcaneCharge	= 36032;
 	ArcaneInstability= 166872;
-	ArcaneMissiles	= 79683;
+	ArcaneMissilesP	= 79683;
 	ArcanePower		= 12042;
 
 
