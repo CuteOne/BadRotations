@@ -203,12 +203,12 @@ if not metaTable1 then
 			if isChecked("No Absorbs") ~= true then nAbsorbs = ( 25*UnitGetTotalAbsorbs(o.unit)/100 ); else nAbsorbs = 0; end
 			local PercentWithIncoming = 100 * ( UnitHealth(o.unit) + incomingheals + nAbsorbs ) / UnitHealthMax(o.unit);
 			if o.role == "TANK" then PercentWithIncoming = PercentWithIncoming - 5; end -- Using the group role assigned to the Unit
-			if UnitIsDeadOrGhost(o.unit) == 1 then PercentWithIncoming = 250; end -- Place Dead players at the end of the list
+			if UnitIsDeadOrGhost(o.unit) == true then PercentWithIncoming = 250; end -- Place Dead players at the end of the list
 			if o.dispel then PercentWithIncoming = PercentWithIncoming - 2; end -- Using Dispel Check to see if we should give bonus weight
 			if o.threat == 3 then PercentWithIncoming = PercentWithIncoming - 3; end
 			if o.guidsh == 72218  then PercentWithIncoming = PercentWithIncoming - 5 end -- Tank in Proving Grounds
 			local ActualWithIncoming = ( UnitHealthMax(o.unit) - ( UnitHealth(o.unit) + incomingheals ) )
- 			if not UnitInRange(o.unit) and not UnitIsUnit("player", o.unit) then PercentWithIncoming = 250; end
+ 			if not UnitInRange(o.unit) and getDistance(o.unit) > 40 and not UnitIsUnit("player", o.unit) then PercentWithIncoming = 250; end
 			-- Malkorok
 			local SpecificHPBuffs = {
 				{ buff = 142865 , value = select(15,UnitDebuffID(o.unit,142865)) }, -- Strong Ancient Barrier (Green)
