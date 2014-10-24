@@ -129,7 +129,9 @@ function DruidRestoration()
 	else
 		if isCasting() then return false; end
 	end
---[[ 	-- Combats Starts Here
+
+if isCastingSpell(740) then return false; end
+	--[[ 	-- Combats Starts Here
 ]]
 
 	--[[ 1 - Buff Out of Combat]]
