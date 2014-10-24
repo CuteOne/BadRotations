@@ -34,6 +34,7 @@ _Serenity 					=	157558	--Serenity
 _SpinningCraneKick          =   101546  --Spinning Crane Kick
 _StanceOfTheFierceTiger     =   103985  --Stance of the Fierce Tiger
 _SpearHandStrike            =   116705  --Spear Hand Strike
+_SurgingMist				=	116694	--Surging Mist
 _TigereyeBrew				=	116740	--Tigereye Brew Damage
 _TigereyeBrewStacks	        =   125195  --Tigereye Brew Stacks
 _TigersLust					=	116841	--Tiger's Lust
@@ -57,6 +58,7 @@ _ElusiveBrew                =   12345 --Elusive Brew
 
 ------Racials------
 _GiftOfTheNaaru             =   59547   --Gift of the Naaru
+_Berserking					=	26297	--Troll Racial: Berserking
 
 ------Brew------
 _BreathOfFire               =   115181;

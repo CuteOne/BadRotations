@@ -538,9 +538,20 @@ function RestorationConfig()
         CreateNewWrap(thisConfig,"-------- Toggles --------");
         -- Rebirth
         CreateNewCheck(thisConfig,"Rebirth Toggle");
-        CreateNewDrop(thisConfig,"Rebirth Toggle", 4, "Toggle2")
+        CreateNewDrop(thisConfig,"Rebirth Toggle", 8, "Toggle2")
         CreateNewText(thisConfig,"Rebirth Toggle");
-
+        -- Reju  Toggle
+		CreateNewCheck(thisConfig,"Reju Toggle");
+        CreateNewDrop(thisConfig,"Reju Toggle", 7, "Toggle2")
+        CreateNewText(thisConfig,"Reju Toggle");
+		-- WildGroth Toggle
+	    CreateNewCheck(thisConfig,"WG Toggle");
+        CreateNewDrop(thisConfig,"WG Toggle", 6, "Toggle2")
+        CreateNewText(thisConfig,"WG Toggle");
+	    -- Regrowht Toggle
+		CreateNewCheck(thisConfig,"Regrowht Toggle");
+        CreateNewDrop(thisConfig,"Regrowht Toggle", 5, "Toggle2")
+        CreateNewText(thisConfig,"Regrowht Toggle");
 		-- Genesis Toggle
         CreateNewCheck(thisConfig,"Genesis Toggle");
         CreateNewDrop(thisConfig,"Genesis Toggle", 4, "Toggle2")

@@ -106,16 +106,20 @@ if select(3, UnitClass("player")) == 10 then
 					if castSpell("player",_ExpelHarm,false,false,false) then return; end
 				end
 			end
+	-- Surging Mist
+			if php<=75 and not isInCombat("player") and power>=30 then
+				if castSpell("player",_SurgingMist,false,false) then return; end
+			end
 	-- Touch of Karma
-			if php<=50 then
+			if php<=50 and isInCombat("player") then
 				if castSpell("target",_TouchOfKarma,false,false) then return; end
 			end
 	-- Fortifying Brew
-			if php<=40 then
+			if php<=40 and isInCombat("player") then
 				if castSpell("player",_FortifyingBrew,false,false) then return; end
 			end
 	-- Diffuse Magic
-			if php<=30 or canDispel("player",_DiffuseMagic) then
+			if (php<=30 and isInCombat("player")) or canDispel("player",_DiffuseMagic) then
 				if castSpell("player",_DiffuseMagic,false,false) then return; end
 			end
 	-- Nimble Brew
@@ -189,10 +193,14 @@ if select(3, UnitClass("player")) == 10 then
 	-----------------------------
 	--- In Combat - Cooldowns ---
 	-----------------------------
-		-- Invoke Xuen
 				if useCDs() then
+			-- Invoke Xuen
 					if castSpell("target",_InvokeXuen) then return; end
-				end
+			-- Racial: Troll Berserking
+		            if select(2, UnitRace("player")) == "Troll" then
+		                if castSpell("player",_Berserking,false,false) then return; end
+		            end
+	            end
 	--------------------------------
 	--- In Combat - All Rotation ---
 	--------------------------------
@@ -239,7 +247,7 @@ if select(3, UnitClass("player")) == 10 then
 					if chi>=4 then
 						if castSpell("target",_RaisingSunKick,false,false) then return; end
 					end
-	--	Spinning Crane Kick
+	-- Spinning Crane Kick
 					if power>=40 and tpRemain>2 and sckRemain==0 and sckRemain==0 then
 						if castSpell("player",_SpinningCraneKick,false,false) then return; end
 					end
@@ -260,7 +268,7 @@ if select(3, UnitClass("player")) == 10 then
 					if getTalent(7,1) and ttm>hsChanTime and tpRemain>hsChanTime and rskRemain>hsChanTime and ebRemain==0 then
 						if castSpell("target",_HurricaneStrike,false,false) then return; end
 					end
-	--Energizing Brew
+	-- Energizing Brew
 					if fofCD>6 and (not getTalent(7,3) or (serRemains==0 and getSpellCD(_Serenity)>4)) and powtime<50 then
 						if castSpell("player",_EnergizingBrew,false,false) then return; end
 					end

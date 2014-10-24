@@ -146,7 +146,7 @@ function CreateGeneralsConfig()
 
     -- Overhealing Cancel Cast
     CreateNewCheck(thisConfig,"Overhealing Cancel");
-    CreateNewBox(thisConfig, "Overhealing Cancel", 100, 200  , 5, 100, "|cffFFBB00Stop casting heal if target is going to have over this amount of HP after heal.");
+    CreateNewBox(thisConfig, "Overhealing Cancel", 0, 200  , 5, 100, "|cffFFBB00Stop casting heal if target is going to have over this amount of HP after heal.");
     CreateNewText(thisConfig,"Overhealing Cancel");
 
     -- Engine Debug

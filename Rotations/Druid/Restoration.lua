@@ -51,6 +51,32 @@ function DruidRestoration()
 		end
 	end
 
+	
+	-- Reju  Toggle
+	if isChecked("Reju Toggle")  and SpecificToggle("Reju Toggle") == true then
+			for i = 1, #nNova do
+				if nNova[i].hp <= 249 and getBuffRemain(nNova[i].unit,774,"player") == 0 then
+					if castSpell(nNova[i].unit,774,true,false) then return; end
+				end
+			end
+		end
+	-- WildGroth Toggle
+    if isChecked("WG Toggle") and SpecificToggle("WG Toggle") == true then
+		    for i = 1, #nNova do
+		    	if nNova[i].hp < 249 then
+			    	local allies30Yards = getAllies(nNova[i].unit,30);
+				    if #allies30Yards >= 1 then
+			            if castSpell(nNova[i].unit,48438,true,false) then return; end
+					end
+				end
+			end
+		end	
+	-- Regrowht Toggle
+	if isChecked("Regrowht Toggle") and SpecificToggle("Regrowht Toggle") == true then
+			if not UnitIsDeadOrGhost("mouseover") then
+				if castSpell("mouseover",8936,true,false) then return; end
+			end
+		end
 	-- Pause toggle
 	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == true then ChatOverlay("|cffFF0000BadBoy Paused", 0); return; end
 	-- Focus Toggle
@@ -84,12 +110,12 @@ function DruidRestoration()
 	end
     end
 	--[[ 7 - Stop Casting--(perevent from over healing when u cast somthing can heal target)]]
-	if isChecked("Overhealing Cancel") and isCasting() and shouldNotOverheal(spellCastTarget) >= getValue("Overhealing Cancel") then
-		local noOverHealSpells = { 5185, 8936}
+	if isChecked("Overhealing Cancel") and isCastingDruid() and shouldNotOverheal(spellCastTarget) >= getValue("Overhealing Cancel") and SpecificToggle("Regrowht Toggle") == false then
+		local noOverHealSpells = {5185}
 		local castingSpell = UnitCastingInfo("player")
 		if castingSpell ~= nil then
 			for i = 1, #noOverHealSpells do
-				if GetSpellInfo(noOverHealSpells[i]) == castingSpell then RunMacroText("/stopcasting"); return; end
+				if GetSpellInfo(noOverHealSpells[i]) == castingSpell or (isCastingSpell(8936) and UnitBuffID("player",16870) == nil) then RunMacroText("/stopcasting"); return; end
 			end
 		end
 	end
@@ -103,7 +129,9 @@ function DruidRestoration()
 	else
 		if isCasting() then return false; end
 	end
---[[ 	-- Combats Starts Here
+
+if isCastingSpell(740) then return false; end
+	--[[ 	-- Combats Starts Here
 ]]
 
 	--[[ 1 - Buff Out of Combat]]
@@ -496,7 +524,7 @@ function DruidRestoration()
 
 		--[[ 30 - WildMushroom(Replace)]]
 		if isChecked("Mushrooms") and (getValue("Mushrooms Who") == 2 or UnitExists("focus") == false) and (shroomTimer == nil or shroomTimer <= GetTime() - 2) then
-			if canCast(145205,false,false) and (shroomsTable ~= nil and #shroomsTable ~= 0) and lowestHP < getValue("Mushrooms") then
+			if canCast(145205,false,false) and (shroomsTable ~= nil and #shroomsTable ~= 0) and lowestHP <= getValue("Mushrooms") then
 				if shroomsTable ~= nil and findShroom() then
 					local allies10Yards = getAlliesInLocation(shroomsTable[1].x,shroomsTable[1].y,shroomsTable[1].z,15)
 					if #allies10Yards < 3 then
@@ -532,7 +560,7 @@ function DruidRestoration()
 		end
 
 		--[[ 29 - Rejuvenation--(check health and Buff)]]
-		if isChecked("Rejuvenation") and canCast(33763,false,false) and lowestHP < getValue("Rejuvenation") then
+		if isChecked("Rejuvenation") and canCast(774,false,false) and lowestHP < getValue("Rejuvenation") then
 			for i = 1, #nNova do
 				if nNova[i].hp <= getValue("Rejuvenation") and getBuffRemain(nNova[i].unit,774,"player") == 0 then
 					if castSpell(nNova[i].unit,774,true,false) then return; end

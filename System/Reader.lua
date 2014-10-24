@@ -313,7 +313,7 @@ function SuperReader(self, event, ...)
        		shroomsTable[1].y = nil
        		shroomsTable[1].z = nil
         end
-        if (param == "UNIT_DIED" or  param == "UNIT_DESTROYED") and shroomsTable ~= nil and shroomsTable[1].guid == destination then
+        if (param == "UNIT_DIED" or  param == "UNIT_DESTROYED" or GetTotemInfo(1) ~= true) and shroomsTable ~= nil and shroomsTable[1].guid == destination then
         	shroomsTable[1] = { };
         end
 
