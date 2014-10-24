@@ -263,11 +263,7 @@ if select(3, UnitClass("player")) == 11 then
 			elseif getValue(toggle) == 9 then
                 return IsMouseButtonDown(5);
 			elseif getValue(toggle) == 10 then
-<<<<<<< HEAD
                 return true
-=======
-                return false
->>>>>>> b396e47d95d42a0c43cae6cb8535f388b9474325
             end
         end
     end
