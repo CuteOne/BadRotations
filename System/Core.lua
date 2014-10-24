@@ -106,6 +106,7 @@ function BadBoyMinimapButton()
         GameTooltip:SetText("BadBoy The Ultimate Raider", 214/255, 25/255, 25/255);
         GameTooltip:AddLine("CodeMyLife - CuteOne - Masoud");
         GameTooltip:AddLine("Gabbz - Chumii - AveryKey");
+        GameTooltip:AddLine("Ragnar - Kink - CpoWrok - Tocsin");
         GameTooltip:AddLine("Left Click to toggle config frame", 1, 1, 1, 1);
         GameTooltip:AddLine("Shift+Left Click to toggle main frame", 1, 1, 1, 1);
         GameTooltip:AddLine("Alt+Shift+LeftButton to drag", 1, 1, 1, 1);
