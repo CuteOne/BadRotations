@@ -7,7 +7,8 @@ if select(3, UnitClass("player")) == 8 then
 	CometStorm		= 153595;
 	Frostbolt		= 116;
 	FrostfireBolt	= 44614;
-	FrozenOrb		= 84721;
+	FrozenOrb		= 84714;
+	FrozenOrbDebuff = 84721;
 	IceLance		= 30455;
 	IcyVeins		= 12472;
 -- Pet
@@ -15,6 +16,7 @@ if select(3, UnitClass("player")) == 8 then
 -- FrTalents
 	FrostBomb 		= 113092;
 	IceNova			= 157997;
+	ThermalVoid		= 155149;
 
 -- Fire
 	BlastWave		= 157981;
@@ -43,7 +45,7 @@ if select(3, UnitClass("player")) == 8 then
 
 
 -- Utility
-
+	T17_4P_Frost	= 165469;
 
 -- Buffs
 	-- frost
@@ -69,7 +71,7 @@ if select(3, UnitClass("player")) == 8 then
 	Archmage		= 177176;
 	Instability		= 177051;  -- trinket 113948
 	MoltenMetal		= 177081;  -- trinket 113984
-	RuneOfPower		= 116014;
+	RuneOfPower		= 116011;
 	HowlingSoul		= 177046;  -- trinket 119194
 	MarkOfTheT		= 159234;
 

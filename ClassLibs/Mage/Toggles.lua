@@ -1,9 +1,9 @@
 if select(3, UnitClass("player")) == 8 then
       --[[]]        --[[           ]]   --[[           ]]         --[[]]        --[[]]     --[[]]   --[[           ]]
      --[[  ]]       --[[           ]]   --[[           ]]        --[[  ]]       --[[  ]]   --[[]]   --[[           ]]
-    --[[    ]]      --[[]]     --[[]]   --[[]]                  --[[    ]]      --[[    ]] --[[]]   --[[]]          
+    --[[    ]]      --[[]]     --[[]]   --[[]]                  --[[    ]]      --[[    ]] --[[]]   --[[]]
    --[[      ]]     --[[         ]]     --[[]]                 --[[      ]]     --[[           ]]   --[[           ]]
-  --[[        ]]    --[[        ]]      --[[]]                --[[        ]]    --[[           ]]   --[[]]          
+  --[[        ]]    --[[        ]]      --[[]]                --[[        ]]    --[[           ]]   --[[]]
  --[[]]    --[[]]   --[[]]    --[[]]    --[[           ]]    --[[]]    --[[]]   --[[]]   --[[  ]]   --[[           ]]
 --[[]]      --[[]]  --[[]]     --[[]]   --[[           ]]   --[[]]      --[[]]  --[[]]     --[[]]   --[[           ]]
 
@@ -14,7 +14,7 @@ if select(3, UnitClass("player")) == 8 then
 --[[]]                   --[[ ]]        --[[        ]]      --[[]]
 --[[]]                   --[[ ]]        --[[]]    --[[]]    --[[           ]]
 --[[]]              --[[           ]]   --[[]]     --[[]]   --[[           ]]
-    
+
 --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]
 --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]
 --[[]]              --[[]]     --[[]]   --[[]]     --[[]]   --[[]]                   --[[ ]]
@@ -26,8 +26,8 @@ if select(3, UnitClass("player")) == 8 then
     function FrostMageToggles()
 
         -- Aoe Button
-        if  AoEModesLoaded ~= "Frost Mage AoE Modes" then 
-            AoEModes = { 
+        if  AoEModesLoaded ~= "Frost Mage AoE Modes" then
+            AoEModes = {
                 [1] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "|cff00FF00Recommended for \n|cffFFDD11Single Target(1-2).", highlight = 0 },
                 [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "|cffFF0000Recommended for \n|cffFFDD11AoE(3+).", highlight = 0 },
                 [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "|cffFFDD11Recommended for \n|cffFFDD11Lazy people like me.", highlight = 1 }
@@ -37,8 +37,8 @@ if select(3, UnitClass("player")) == 8 then
         end
 
         -- DPS Button
-        if  DPSModesLoaded ~= "Frost Mage DPS Modes" then 
-            DPSModes = { 
+        if  DPSModesLoaded ~= "Frost Mage DPS Modes" then
+            DPSModes = {
                 [1] = { mode = "Off", value = 1 , overlay = "DPS Disabled", tip = "Will not allow DPSing.", highlight = 0 },
                 [2] = { mode = "On", value = 2 , overlay = "DPS Enabled", tip = "Will allow DPSing.", highlight = 1 },
              };
@@ -46,8 +46,8 @@ if select(3, UnitClass("player")) == 8 then
             DPSModesLoaded = "Frost Mage DPS Modes";
         end
         -- Defensive Button
-        if  DefensiveModesLoaded ~= "Frost Mage Defensive Modes" then 
-            DefensiveModes = { 
+        if  DefensiveModesLoaded ~= "Frost Mage Defensive Modes" then
+            DefensiveModes = {
                 [1] = { mode = "None", value = 1 , overlay = "Defensive Disabled", tip = "No Defensive Cooldowns will be used.", highlight = 0 },
                 [2] = { mode = "All", value = 2 , overlay = "Defensive Enabled", tip = "|cffFF0000Includes: \n|cffFFdd11Barkskin.", highlight = 1 }
             };
@@ -55,8 +55,8 @@ if select(3, UnitClass("player")) == 8 then
             DefensiveModesLoaded = "Frost Mage Defensive Modes";
         end
         -- Cooldowns Button
-        if  CooldownsModesLoaded ~= "Frost Mage Cooldowns Modes" then 
-            CooldownsModes = { 
+        if  CooldownsModesLoaded ~= "Frost Mage Cooldowns Modes" then
+            CooldownsModes = {
                 [1] = { mode = "None", value = 1 , overlay = "Cooldowns Disabled", tip = "No cooldowns will be used.", highlight = 0 },
                 [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "Includes config's selected spells.", highlight = 1 },
                 [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "|cffFF0000Includes: \n|cffFFdd11Tranquility.", highlight = 1 }
