@@ -110,12 +110,12 @@ function DruidRestoration()
 	end
     end
 	--[[ 7 - Stop Casting--(perevent from over healing when u cast somthing can heal target)]]
-	if isChecked("Overhealing Cancel") and isCasting() and shouldNotOverheal(spellCastTarget) >= getValue("Overhealing Cancel") then
-		local noOverHealSpells = { 5185, 8936}
+	if isChecked("Overhealing Cancel") and isCastingDruid() and shouldNotOverheal(spellCastTarget) >= getValue("Overhealing Cancel") and SpecificToggle("Regrowht Toggle") == false then
+		local noOverHealSpells = {5185}
 		local castingSpell = UnitCastingInfo("player")
 		if castingSpell ~= nil then
 			for i = 1, #noOverHealSpells do
-				if GetSpellInfo(noOverHealSpells[i]) == castingSpell then RunMacroText("/stopcasting"); return; end
+				if GetSpellInfo(noOverHealSpells[i]) == castingSpell or (isCastingSpell(8936) and UnitBuffID("player",16870) == nil) then RunMacroText("/stopcasting"); return; end
 			end
 		end
 	end
