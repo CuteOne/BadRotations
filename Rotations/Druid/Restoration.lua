@@ -490,7 +490,7 @@ function DruidRestoration()
 
 		--[[ 30 - WildMushroom(Replace)]]
 		if isChecked("Mushrooms") and (getValue("Mushrooms Who") == 2 or UnitExists("focus") == false) and (shroomTimer == nil or shroomTimer <= GetTime() - 2) then
-			if canCast(145205,false,false) and (shroomsTable ~= nil and #shroomsTable ~= 0) and lowestHP < getValue("Mushrooms") then
+			if canCast(145205,false,false) and (shroomsTable ~= nil and #shroomsTable ~= 0) and lowestHP <= getValue("Mushrooms") then
 				if shroomsTable ~= nil and findShroom() then
 					local allies10Yards = getAlliesInLocation(shroomsTable[1].x,shroomsTable[1].y,shroomsTable[1].z,15)
 					if #allies10Yards < 3 then
