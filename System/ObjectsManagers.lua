@@ -122,10 +122,15 @@ if not metaTable1 then
 	function Nova_GUID(unit)
   		local nShortHand = ""
   		if UnitExists(unit) then
-    		targetGUID = UnitGUID(unit)
+    		if UnitIsPlayer(unit) then
+			targetGUID = UnitGUID(unit)
     		nShortHand = UnitGUID(unit):sub(-5)
-  		end
-  		return targetGUID, nShortHand
+  		else
+		    targetGUID = tonumber(UnitGUID(unit):sub(-16,-12))
+  	        nShortHand = UnitGUID(unit):sub(-5)	
+		end
+		end
+		return targetGUID, nShortHand
  	end
 
 	-- This is for those NPC units that need healing. Compare them against our list of Unit ID's

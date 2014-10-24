@@ -488,7 +488,7 @@ function castMouseoverHealing(Class)
 		for i = 1, #SpecialTargets do
 			local target = SpecialTargets[i]
 			if UnitExists(target) and not UnitIsPlayer(target) then
-				local npcID = tonumber(UnitGUID(target):sub(6,10), 16)
+				local npcID = tonumber(UnitGUID(target):sub(-16,-12))
 				for i = 1, #npcTable do
 					if npcID == npcTable[i] then
 						-- Dispel
@@ -1614,7 +1614,7 @@ function isPlayer(Unit)
 			[72220] = "Sooli the Survivalist",
 			[72221] = "Kavan the Arcanist",
 		}
-		if playerNPC[tonumber(UnitGUID(Unit):sub(6, 10), 16)] ~= nil then
+		if playerNPC[tonumber(UnitGUID(Unit):sub(-16,-12))] ~= nil then
 			return true;
 		end
 	else
