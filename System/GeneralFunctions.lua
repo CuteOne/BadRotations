@@ -1458,7 +1458,7 @@ function isDummy(Unit)
 	if Unit == nil then Unit = "target"; else Unit = tostring(Unit) end
     dummies = {
         31144, --Training Dummy - Lvl 80
-        31146, --Raider's Training Dummy - Lvl ??
+        --31146, --Raider's Training Dummy - Lvl ??
         32541, --Initiate's Training Dummy - Lvl 55 (Scarlet Enclave)
         32542, --Disciple's Training Dummy - Lvl 65
         32545, --Initiate's Training Dummy - Lvl 55
@@ -1485,7 +1485,7 @@ function isDummyByName(unitName)
 	if Unit == nil then Unit = UnitName("target"); else Unit = tostring(Unit) end
     dummies = {
         "Training Dummy", -- 31144 - Lvl 80
-        "Raider's Training Dummy", -- 31146 - Lvl ??
+        --"Raider's Training Dummy", -- 31146 - Lvl ??
         "Initiate's Training Dummy", -- 32541 - Lvl 55 (Scarlet Enclave)
         "Disciple's Training Dummy", -- 32542 - Lvl 65
         "Initiate's Training Dummy", -- 32545 - Lvl 55
@@ -1498,7 +1498,7 @@ function isDummyByName(unitName)
     }
     for i=1, #dummies do
         if dummies[i] == unitName then
-            return true;
+        	return true;
         end
     end
 end

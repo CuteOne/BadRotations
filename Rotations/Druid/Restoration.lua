@@ -202,7 +202,7 @@ function DruidRestoration()
 		--[[ 5 - DPs --(range and  melee)]]
 		if BadBoy_data["DPS"] == 2 and UnitExists("target") and isEnnemy() then
 			if isChecked("DPS Toggle") == true and SpecificToggle("DPS Toggle") == true  then
-				if targetDistance <= 5 then
+				if targetDistance < 5 and not isChecked("No Kitty DPS") then
 					--- Catform
 			  		if not UnitBuffID("player",768) and not UnitBuffID("player",783) and not UnitBuffID("player",5487) then
 						if castSpell("player",768,true,false) then catSwapped = GetTime() return; end
@@ -228,11 +228,17 @@ function DruidRestoration()
 						CancelShapeshiftForm();
 					end
 					-- Moonfire
-					if getDebuffRemain("target",8921) < 3 or isMoving("player") then
-						if castSpell("target",8921,false,false) then return; end
+					if isChecked("Multidotting") then
+						MultiMoon()
 					end
-					-- Wrath
-					if castSpell("target",5176) then return; end
+
+					if isStanding(0.1) == false then
+						-- MonFire Spam
+						if castSpell("target",_Moonfire,false,false) then return; end
+					else
+						-- Wrath
+						if castSpell("target",5176,false,true) then return; end
+					end
 				end
 			else
 				if UnitBuffID("player",768) ~= nil then

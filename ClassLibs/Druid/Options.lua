@@ -324,10 +324,10 @@ function RestorationConfig()
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Resurrection ------");
-            
+
 		 	CreateNewCheck(thisConfig,"MouseOver Rebirth");
             CreateNewText(thisConfig,"MouseOver Rebirth");
-        
+
 		    CreateNewCheck(thisConfig,"Revive");
             CreateNewText(thisConfig,"Revive");
 		-- Wrapper -----------------------------------------
@@ -564,6 +564,19 @@ function RestorationConfig()
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Utilities ------");
 
+        -- No Kitty DPS
+        CreateNewCheck(thisConfig,"No Kitty DPS","|cffFF0011Check |cffFFDD11this to prevent |cffFFFFFFKitty |cffFFDD11DPS",0)
+        CreateNewText(thisConfig,"No Kitty DPS");
+
+        -- Multidotting
+        CreateNewCheck(thisConfig,"Multidotting","|cffFF0011Check |cffFFDD11this to allow |cffFFFFFFMoonfire |cffFFDD11Multidotting",0)
+        CreateNewText(thisConfig,"Multidotting");
+
+        -- Safe DPS Treshold
+        CreateNewCheck(thisConfig,"Safe DPS Treshold", "|cffFF0011Check |cffFFFFFF to force healing when units in your group fall under treshold.");
+        CreateNewBox(thisConfig, "Safe DPS Treshold", 1, 100  , 5, 45, "|cffFFBB00What treshold you want to force start healing allies while DPSing.");
+        CreateNewText(thisConfig,"Safe DPS Treshold");
+
         -- Follow Tank
         CreateNewCheck(thisConfig,"Follow Tank");
         CreateNewBox(thisConfig, "Follow Tank", 10, 40  , 1, 25, "|cffFFBB00Range from focus...");
@@ -573,6 +586,8 @@ function RestorationConfig()
             CreateNewCheck(thisConfig,"Debugging Mode");
             CreateNewText(thisConfig,"Debugging Mode");
         end
+
+
 
         -- General Configs
         CreateGeneralsConfig();
