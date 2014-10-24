@@ -51,6 +51,32 @@ function DruidRestoration()
 		end
 	end
 
+	
+	-- Reju  Toggle
+	if isChecked("Reju Toggle")  and SpecificToggle("Reju Toggle") == true then
+			for i = 1, #nNova do
+				if nNova[i].hp <= 249 and getBuffRemain(nNova[i].unit,774,"player") == 0 then
+					if castSpell(nNova[i].unit,774,true,false) then return; end
+				end
+			end
+		end
+	-- WildGroth Toggle
+    if isChecked("WG Toggle") and SpecificToggle("WG Toggle") == true then
+		    for i = 1, #nNova do
+		    	if nNova[i].hp < 249 then
+			    	local allies30Yards = getAllies(nNova[i].unit,30);
+				    if #allies30Yards >= 1 then
+			            if castSpell(nNova[i].unit,48438,true,false) then return; end
+					end
+				end
+			end
+		end	
+	-- Regrowht Toggle
+	if isChecked("Regrowht Toggle") and SpecificToggle("Regrowht Toggle") == true then
+			if not UnitIsDeadOrGhost("mouseover") then
+				if castSpell("mouseover",8936,true,false) then return; end
+			end
+		end
 	-- Pause toggle
 	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == true then ChatOverlay("|cffFF0000BadBoy Paused", 0); return; end
 	-- Focus Toggle
@@ -526,7 +552,7 @@ function DruidRestoration()
 		end
 
 		--[[ 29 - Rejuvenation--(check health and Buff)]]
-		if isChecked("Rejuvenation") and canCast(33763,false,false) and lowestHP < getValue("Rejuvenation") then
+		if isChecked("Rejuvenation") and canCast(774,false,false) and lowestHP < getValue("Rejuvenation") then
 			for i = 1, #nNova do
 				if nNova[i].hp <= getValue("Rejuvenation") and getBuffRemain(nNova[i].unit,774,"player") == 0 then
 					if castSpell(nNova[i].unit,774,true,false) then return; end
