@@ -488,7 +488,7 @@ function castMouseoverHealing(Class)
 		for i = 1, #SpecialTargets do
 			local target = SpecialTargets[i]
 			if UnitExists(target) and not UnitIsPlayer(target) then
-				local npcID = tonumber(UnitGUID(target):sub(-16,-12))
+				local npcID = tonumber(string.match(UnitGUID(target), "-(%d+)-%x+$"))
 				for i = 1, #npcTable do
 					if npcID == npcTable[i] then
 						-- Dispel
@@ -848,8 +848,8 @@ function getGUID(unit)
 			targetGUID = UnitGUID(unit)
 			nShortHand = string.sub(UnitGUID(unit),-5)
   		else
-		    targetGUID = UnitGUID(unit)
-  	        nShortHand = string.match(UnitGUID(unit), "-(%d+)-%x+$")
+		    targetGUID = string.match(UnitGUID(unit), "-(%d+)-%x+$")
+  	        nShortHand = string.sub(UnitGUID(unit),-5)
 		end
 	end
 	return targetGUID, nShortHand
@@ -861,7 +861,7 @@ function getHP(Unit)
 		return 0;
 	end
 	for i = 1, #nNova do
-		if nNova[i].guid == UnitGUID(Unit) then
+		if nNova[i].guidsh == string.sub(UnitGUID(Unit),-5) then
 			return nNova[i].hp;
 		end
 	end
@@ -964,7 +964,7 @@ end
 function getBossID(BossUnitID)
 	local UnitConvert = 0;
 	if UnitIsVisible(BossUnitID) then
-		UnitConvert = tonumber(UnitGUID(BossUnitID):sub(6,10), 16)
+		UnitConvert = tonumber(string.match(UnitGUID(BossUnitID), "-(%d+)-%x+$"))
 	end
 	return UnitConvert;
 end
@@ -1237,27 +1237,27 @@ function isBoss()
 	------Boss Check------
 	for x=1,5 do
 	    if UnitExists("boss1") then
-	        boss1 = tonumber(UnitGUID("boss1"):sub(6,10), 16)
+	        boss1 = tonumber(string.match(UnitGUID("boss1"), "-(%d+)-%x+$"))
 	    else
 	        boss1 = 0
 	    end
 	    if UnitExists("boss2") then
-	        boss2 = tonumber(UnitGUID("boss2"):sub(6,10), 16)
+	        boss2 = tonumber(string.match(UnitGUID("boss2"), "-(%d+)-%x+$"))
 	    else
 	        boss2 = 0
 	    end
 	    if UnitExists("boss3") then
-	        boss3 = tonumber(UnitGUID("boss3"):sub(6,10), 16)
+	        boss3 = tonumber(string.match(UnitGUID("boss3"), "-(%d+)-%x+$"))
 	    else
 	        boss3 = 0
 	    end
 	    if UnitExists("boss4") then
-	        boss4 = tonumber(UnitGUID("boss4"):sub(6,10), 16)
+	        boss4 = tonumber(string.match(UnitGUID("boss4"), "-(%d+)-%x+$"))
 	    else
 	        boss4 = 0
 	    end
 	    if UnitExists("boss5") then
-	        boss5 = tonumber(UnitGUID("boss5"):sub(6,10), 16)
+	        boss5 = tonumber(string.match(UnitGUID("boss5"), "-(%d+)-%x+$"))
 	    else
 	        boss5 = 0
 	    end
@@ -1400,7 +1400,7 @@ function isBoss()
     local BossUnits = BossUnits
 
     if UnitExists("target") then
-        local npcID = tonumber(strmatch(UnitGUID("target") or "", "-(%d+)-%x+$"), 10)--tonumber(UnitGUID("target"):sub(6,10), 16)
+        local npcID = tonumber(string.match(UnitGUID("target"), "-(%d+)-%x+$"))--tonumber(UnitGUID("target"):sub(6,10), 16)
 
         if (UnitClassification("target") == "rare" or UnitClassification("target") == "rareelite" or UnitClassification("target") == "worldboss" or (UnitClassification("target") == "elite" and UnitLevel("target") >= UnitLevel("player")+3) or UnitLevel("target") < 0)
             --and select(2,IsInInstance())=="none"
@@ -1501,7 +1501,7 @@ function isDummy(Unit)
     }
     for i=1, #dummies do
         if UnitExists(Unit) and UnitGUID(Unit) then
-            dummyID = tonumber(UnitGUID(Unit):sub(-16, -12))
+            dummyID = tonumber(string.match(UnitGUID(Unit), "-(%d+)-%x+$"))
         else
             dummyID = 0
         end
@@ -1637,7 +1637,7 @@ function isPlayer(Unit)
 			[72220] = "Sooli the Survivalist",
 			[72221] = "Kavan the Arcanist",
 		}
-		if playerNPC[tonumber(UnitGUID(Unit):sub(-16,-12))] ~= nil then
+		if playerNPC[tonumber(string.match(UnitGUID(Unit), "-(%d+)-%x+$"))] ~= nil then
 			return true;
 		end
 	else
