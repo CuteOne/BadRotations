@@ -6,7 +6,6 @@ function CombatRogue()
 		AoEModesLoaded = "Combat Rogue AoE Modes";
 		leftPoisonsTable = {
 			{ 	name = "Crippling Poison" ,  	ID = 3408 	},
-			{ 	name = "Mind-Numbling Poison" , ID = 5761 	},
 			{ 	name = "Leeching Poison" ,  	ID = 108211	}
 		}
 		rightPoisonsTable = {
@@ -14,193 +13,220 @@ function CombatRogue()
 			{ 	name = "Wound Poison" , 		ID = 8679 	}
 		}
 	end
-	AssToggles();
+
 	ChatOverlay(canPickpocket)
+
+--[[
+Todo: 
+finish leveling low level rogue to see if any issues for low level players...should be good though
+marked for death logic
+opener option ie. ambush, cheapshot or other
+possible simple pvp mode if target = enemy faction
+
+]]
+
 --------------
 --- Poison ---
 --------------
-	if (isCastingSpell(_DeadlyPoison) and getBuffRemain("player",_DeadlyPoison)>5) or ((isCastingSpell(_CripplingPoison) and getBuffRemain("player",_CripplingPoison)>5)) then
-		RunMacroText("/stopcasting")
+
+	if poisonTimer == nil or poisonTimer <= GetTime() - 2 then
+		if not UnitBuffID("player", leftPoisonsTable[getValue("Left Poison")].ID) then
+			if castSpell("player",leftPoisonsTable[getValue("Left Poison")].ID) then poisonTimer = GetTime(); return; end
+		end
+		if not UnitBuffID("player", rightPoisonsTable[getValue("Right Poison")].ID) then
+			if castSpell("player", rightPoisonsTable[getValue("Right Poison")].ID) then poisonTimer = GetTime(); return; end
+		end
 	end
--- Deadly Poison
-	if getBuffRemain("player",_DeadlyPoison)<5 and not isMoving("player") and not isCasting("player") and not IsMounted() then
-		if castSpell("player",_DeadlyPoison) then return; end
-	end
--- Crippling Poison
-	if getBuffRemain("player",_CripplingPoison)<5 and not isMoving("player") and not isCasting("player") and not IsMounted()  then
-		if castSpell("player",_CripplingPoison) then return; end
-	end
-----------------------
---- Healing/Dispel ---
-----------------------
--- Recuperate
-	if getHP("player") < 80 and getBuffRemain("player",_Recuperate)==0 and getCombo()>0 then
-		if castSpell("player",_Recuperate) then return; end
-	end
--- Cloak of Shadows
-	if canDispel("player") then
-		if castSpell("player",_CloakOfShadows) then return; end
-	end
+--------------	
+--- Locals ---
 --------------
---- Opener ---
---------------
--- Stealth
-	if not isInCombat("player") and not UnitBuffID("player",_Stealth) and canAttack("player","target") and not UnitIsDeadOrGhost("target") and targetDistance < 20 and getSpellCD(_Stealth)==0 then
-		if castSpell("player",_Stealth) then return; end
+	local energy = getPower("player");
+	local combo, _PowerPool;
+	if _PowerPool == nil then _PowerPool = 0 end
+	local _AnticipationStacks, _RealCombo  = select(4,UnitBuff("player", GetSpellInfo(115189))), GetComboPoints("player", "target")
+	if _AnticipationStacks ~= nil then combo = _AnticipationStacks + _RealCombo; else combo = _RealCombo; end
+	if _AnticipationStacks == nil then _AnticipationStacks = 0; end
+	if isKnown(114015) == true and getBuffRemain("player", 84747) > 0 and getBuffRemain("player",_SliceAndDice) > 1 then 
+		_PowerPool = 4 
+	else
+		_PowerPool = 0    
 	end
-	if canAttack("player","target") and not UnitIsDeadOrGhost("target") and targetDistance < 25 and targetDistance >= 8 and UnitLevel("player")>=60 then
--- Shadowstep
-		if not isInCombat("player") and not UnitBuffID("player",_Stealth) and canAttack("player","target") and not UnitIsDeadOrGhost("target") and getSpellCD(_Stealth)==0 then
-			if castSpell("player",_Stealth) then return; end
-		else
-			if castSpell("target",_Shadowstep) then return; end
-		end
-	end
-	if canAttack("player","target") and not UnitIsDeadOrGhost("target") and targetDistance < 8 then
--- Sap
-		if noattack() and getDebuffRemain("target",_Sap)==0 and UnitBuffID("player",_Stealth) and UnitLevel("player")>=15 then
-			if castSpell("target",_Sap) then return; end
-		end
--- Pick Pocket
-		if canPP() and not isPicked() and UnitBuffID("player",_Stealth) and UnitLevel("player")>=15 then
-			if castSpell("target",_PickPocket) then return; end
-		end
--- Ambush
-		if not noattack() and getFacing("target","player")==false and isPicked() and UnitBuffID("player",_Stealth) and getCombo()<5 and getPower("player")>=60 then
-			if castSpell("target",_Ambush,false) then return; end
-		end
--- Sinister Strike
-		if not isInCombat("player") and not noattack() and getFacing("target","player") and getCombo() < 5 and getPower("player")>=55 then
-			if castSpell("target",_SinisterStrike) then return; end
-		end
-	end
------------------
---- In Combat ---
------------------
-	if isInCombat("player") and canAttack("target","player") and not UnitIsDeadOrGhost("target") then
---------------
---- Pause ---
---------------
-		if pause() then
-			return true
-		end
-------------------------------
---- In Combat - Dummy Test ---
-------------------------------
--- Dummy Test
-		if isChecked("DPS Testing") then
-			if UnitExists("target") then
-				if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
-					StopAttack()
-					ClearTarget()
-					print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
-				end
-			end
-		end
------------------
---- Defensive ---
------------------
-		if not UnitBuffID("player",_Stealth) then
--- Dismantle
-			if canDisarm("target") then
-				if castSpell("target",_Dismantle) then return; end
-			end
--- Evasion
-			if getHP("player")<50 then
-				if castSpell("player",_Evasion) then return; end
-			end
--- Combat Readiness
-			if getHP("player")<40 then
-				if castSpell("player",_CombatReadiness) then return; end
-			end
--- Recuperate
-			if getHP("player")<30 and getCombo()>3 and getBuffRemain("player",_Recuperate)==0 then
-				if castSpell("player",_Recuperate) then return; end
-			end
--- Vanish
-			if getHP("player")<10 then
-				if castSpell("player",_Vanish) then return; end
-				StopAttack()
-				ClearTarget()
-			end
-		end
-------------------
---- Interrupts ---
-------------------
--- Kick
-		if canInterrupt(_Kick,tonumber(getValue("Interrupts"))) and UnitLevel("player")>=18 then
-			if castSpell("target",_Kick) then return; end
-		end
--- Gouge
-		if canInterrupt(_Gouge,tonumber(getValue("Interrupts"))) and getSpellCD(_Kick)>0 and getFacing("target","player") then
-			if castSpell("target",_Gouge) then return; end
-		end
--- Blind
-		if canInterrupt(_Blind,tonumber(getValue("Interrupts"))) and getSpellCD(_Kick)>0 and getSpellCD(_Gouge)>0 then
-			if castSpell("target",_Blind) then return; end
-		end
------------------
---- Cooldowns ---
------------------
-		if not UnitBuffID("player",_Stealth) and targetDistance<=8 and useCDs() then
--- Preparation
-			if getBuffRemain("player",_VanishBuff)==0 and getSpellCD(_Vanish)>60 then
-				if castSpell("player",_Preparation) then return; end
-			end
--- Vanish
-			if getCombo()<5
-				and getPower("player")<60
-				and getBuffRemain("player",_ShadowBlades)==0
-				and getCombatTime()>10
-			then
-				if castSpell("player",_Vanish) then return; end
-			end
-		end
+
+	local numEnemies;
+	local meleeEnemies = getNumEnemies("player",10);
+
 -------------------------
---- Multiple Rotation ---
+--- Food Stealth ---
 -------------------------
-		if not UnitBuffID("player",_Stealth) and targetDistance<=8 and useAoE() and UnitLevel("player")>=10 then
-			if ennemyCount == nil or ennemyCountTimer == nil or ennemyCountTimer <= GetTime() - 1 then
-				ennemyCount, ennemyCountTimer = getNumEnemies("player",10), GetTime()
+	if canRun() ~= true or UnitInVehicle("Player") then return false; end
+	if IsMounted("player") then return false; end
+
+	--[[Stealth before fight]]
+	if isChecked("Stealth") and (stealthTimer == nil or stealthTimer <= getValue("Stealth Timer")) and not UnitAffectingCombat("player") and not UnitIsDeadOrGhost("target") and not (UnitExists("target") and not isEnnemy("target")) and getCreatureType("target") == true then
+		--[[Always]]
+		if getValue("Stealth") == 1 then 
+			if not UnitBuffID("player",1784) then
+				if castSpell("player",_Stealth) then return; end
 			end
-			if ennemyCount>1 then
-				if getCombo()<5 then
-					if castSpell("player",_BladeFlurry) then return; end
-				elseif getCombo()==5 then
-					if ennemyCount>6 then
-						if castSpell("target",_CrimsonTempest) then return; end
+		end
+		--[[Pre-Pot]]
+		if getValue("Stealth") == 2 then
+			if not UnitBuffID("player",_Stealth) and getBuffRemain("player",105697) > 0 and canAttack("player","target") and targetDistance < 30 and getSpellCD(_Stealth) == 0 then
+				if castSpell("player",_Stealth) then return; end
+			end
+		end
+		--[[30 Yards]]
+		if getValue("Stealth") == 3 then
+			if not isInCombat("player") and not UnitBuffID("player",_Stealth) and canAttack("player","target") and targetDistance < 30 and getSpellCD(_Stealth) == 0 then
+				if castSpell("player",_Stealth) then return; end
+			end
+		end
+	end
+-------------------------
+--- AMBUSH AKA Opener ---
+-------------------------
+	if getDistance("player","target") < 2.5 and (UnitBuffID("player",1784) ~= nil or UnitBuffID("player",58984) ~= nil or UnitBuffID("player",1856) ~= nil) and energy >= 60 and getFacing("player","target") == true and getFacing("target","player") == false then
+	  	if castSpell("target",_Ambush,false,false) then return true; end
+	end
+
+-------------------------
+---   Combat Starts   ---
+-------------------------
+	if UnitAffectingCombat("player") and isEnnemy("target") and not UnitIsDeadOrGhost("target") then
+
+		-- Leveling 1-20 sux
+		if UnitLevel("player") < 20 then
+			-- Sinister Strike Spam
+			if combo >= 4 then
+			  	if castSpell("target",_Eviscerate,false,false) then return; end
+			  		else
+			  	if castSpell("target",_SinisterStrike,true) then return; end		
+			end
+		end
+
+		-- Evasion
+		if isChecked("Evasion") == true and UnitThreatSituation("player") == 3 and getHP("player") <= getValue("Evasion") then
+			if castSpell("player",_Evasion,true,false) then return; end
+		end
+
+		-- Feint
+		if isChecked("Feint") == true and getHP("player") <= getValue("Feint") and getBuffRemain("player",1966) < 1 then
+			if castSpell("player",_Feint,true,false) then return; end
+		end
+
+		-- Recuperate
+		if combo > 2 and isChecked("Recuperate") == true and getHP("player") <= getValue("Recuperate") and getBuffRemain("player",73651) < 1 then
+			if castSpell("player",_Recuperate,true,false) then return; end
+		end		
+
+		-- Combat Readiness
+		if isChecked("Combat Readiness") == true and getHP("player") <= getValue("Combat Readiness") and UnitThreatSituation("player") == 3 then
+			if castSpell("player",_CombatReadiness,true,false) then return; end
+		end		
+
+		-- Preparation
+		if getSpellCD(_Vanish) > 0 then
+			if isChecked("Preparation") == true and castSpell("player",_Preparation,true,false) then return; end
+		end
+
+		-- Kick
+		if isChecked("Kick") == true then
+			if canInterrupt(_Kick, getValue("Kick")) and getDistance("player","target") <= 4 then
+				castSpell("target",_Kick,false,false);
+			end
+		end
+
+		-- Revealing Strike (added player lvl check)
+		if getDebuffRemain("target", 84617) < 4 and UnitLevel("player")>=20 then
+		  	if castSpell("target",_RevealingStrike,false,false) then return; end
+		end
+
+		-- SliceAndDice
+		if getBuffRemain("player",_SliceAndDice) < 5 then
+			if castSpell("player",_SliceAndDice,true,false) then return; end
+		end
+		--Marked For Death (need to add logic to use if will die in less than 60sec or in burn phase)	
+		if combo < 1 then
+			if castSpell("target",_MarkedForDeath,false) then return; end
+		end
+
+-------------------------
+---   Aoe Rotation    ---
+-------------------------
+		if meleeEnemies > 2 and energy > 50 then
+			-- Crimson Tempest
+			if combo >= 4 and getBuffRemain("player", _SliceAndDice) > 3 and meleeEnemies > 5 then
+				if castSpell("player",_CrimsonTempest,true,false) then return; end
 					else
-						if castSpell("target",_Eviscerate) then return; end
-					end
-				end
+				if castSpell("target",_Eviscerate,false,false) then return; end
+			end	
+			if combo < 5 then
+				if castSpell("target",_SinisterStrike,true) then return; end
 			end
 		end
+
 -----------------------
 --- Single Rotation ---
 -----------------------
-		if not UnitBuffID("player",_Stealth) and targetDistance<=5 and (not useAoE() or UnitLevel("player")<66) then
-
--- Revealing Strike
-			if getRevr()<2 and getCombo ()>0 and getPower("player")>=40 then
-				if castSpell("player",_RevealingStrike,true) then return; end
-			end
--- Slice and Dice
-			if getSndr()<2 and getCombo()>0 and getPower("player")>=25 then
-				if castSpell("player",_SliceAndDice,true) then return; end
-			end
--- Eviscerate
-			if getSndr()>0 and (getCombo()>4 or (getCombo()>=2 and getSndr()<3)) then
-				if castSpell("target",_Eviscerate,false,false,false,true) then return; end
-			end
--- Sinister Strike
-			if getCombo()<5 then
+		if meleeEnemies <= 2 then
+			-- _Eviscerate
+			if combo > 4 and getBuffRemain("player",_SliceAndDice) > 5 then
+				if castSpell("target",_Eviscerate,false,false) then return; end
+			end	
+			-- SS
+			if energy >= 70 then
 				if castSpell("target",_SinisterStrike,true) then return; end
-			end
-		end --End Rotation
--- Start Attack
-		if not UnitBuffID("player",_Stealth) then
-			StartAttack()
+			end					
 		end
-	end -- End Combat
+	end
 end
+--[[
+Single Target Rotation
+
+Poison:
+Lethal: Deadly Poison
+Non-Lethal: Crippling Poison
+
+Combo Point Builders:
+Ambush is used whenever possible.
+Revealing Strike is only used to maintain its debuff.
+Sinister Strike is used to generate CP.
+
+Finishing Moves:
+Slice and Dice is maintained at all times.
+Eviscerate is used to dump CP.
+
+The Combat Rogue DPS rotation revolves around maintaining the Slice and Dice and Revealing Strike buffs while dumping your excess Combo Points into Eviscerate. 
+To build Combo Points, you should use Ambush whenever possible. After this, only use Revealing Strike as needed to maintain its debuff. 
+Sinister Strike is your primary Combo Point Builder. 
+After building Combo Points, your top priorty is to maintain Slice and Dice at all times via 5 CP refreshes. 
+Finally, dump your excess CP into 5 CP Eviscerate.
+
+AoE Abilities:
+
+Blade Flurry to apply damage and help build Combo Points.
+Crimson Tempest to spend Combo Points.
+At > 1 target activate Blade Flurry, but otherwise continue with the single target priority. 
+At 6+ targets, continue to build Combo Points using the single target priority but use Crimson Tempest as your Combo Point dump instead of Eviscerate.
+
+Talents
+
+Shadow Focus allows you to cast a low-cost Ambush as you exit Stealth and again after every Vanish cooldown.
+Marked for Death is best used for burst DPS and is especially potent on weaker targets that will quickly die and reset the cooldown on Marked for Death.
+
+Effective Cooldowns
+
+Adrenaline Rush Use on cooldown. Do not stack with Killing Spree.
+Killing Spree Use at low Energy. Do not stack with Adrenaline Rush.
+Preparation Use to reset Vanish to cast Ambush.
+Tricks of the Trade Use as directed by your raid/party leader.
+Vanish Use to cast a Ambush. Reset with Preparation.]]
+
+
+
+
+
+
+
+
 end
