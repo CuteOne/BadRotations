@@ -187,56 +187,42 @@ end
 
 
 
-
-
-
-
-
-
-    function EarthShield()
-        CEarthShield = false
-        if UnitExists("focus") ~= nil and UnitBuffID("focus", 52127) ~= nil then
-            CEarthShield = true
-        end
-        if CEarthShield == false then
-            for i=1, #nNova do
-                if UnitBuffID(nNova[i].unit, 974, "PLAYER")
-                  and (select(7, UnitBuffID(nNova[i].unit, 974, "PLAYER")) - GetTime() > 1 or select(4, UnitBuffID(nNova[i].unit, 974, "PLAYER")) > 1)
-                  and (UnitThreatSituation(nNova[i].unit) == 3 or not UnitAffectingCombat(nNova[i].unit)) then
-                    CEarthShield = true
-                end
+function EarthShield()
+    -- We look if someone in Nova have our shield
+    local foundShield, shieldRole = false, "none"
+    for i = 1, #nNova do
+        if getBuffStacks(nNova[i].unit,_EarthShield,"player") > 2 then
+            if nNova[i].role == "TANK" or UnitIsUnit("focus",nNova[i].unit) then
+                shieldRole = "tank or focus";
             end
+            foundShield = true;
+            break;
         end
-        if CEarthShield == false then
-            if #nNova > 1 then
-                if UnitExists("focus") then
-                    if not UnitBuffID("focus", 52127) then
-                        return true, i
-                    end
-                end
-                for i=1, #nNova do
-                    if select(3,UnitClass(nNova[i].unit)) ~= 7 and UnitThreatSituation(nNova[i].unit) == 3
-                      and not UnitBuffID(nNova[i].unit, 52127) and nNova[i].role == "TANK" then
-                        return true, i
-                    end
-                end
-            end
-        end
-        return false, 1
     end
 
-
-
-
-
-
-
-
-
-
-
-
-
+    -- if no valid shield found
+    if foundShield == false or shieldRole == "none" then
+        -- if we have focus, check if this unit have shield, if it's not ours, find another target.
+        if UnitExists("focus") == true then
+            if not UnitBuffID("focus", _WaterShield) and not UnitBuffID("focus", _EarthShield) and not UnitBuffID("focus", _LightningShield) then
+                if castSpell("focus",_EarthShield,true,false) then print("recast focus")return; end
+            end
+        else
+            -- if focus was already buffed or is invalid then we chek nNova roles for tank.
+            for i = 1, #nNova do
+                if not UnitBuffID(nNova[i].unit, _WaterShield) and not UnitBuffID(nNova[i].unit, _EarthShield) and not UnitBuffID(nNova[i].unit, _LightningShield) and nNova[i].role == "TANK" and nNova[i].hp < 100 then
+                    if castSpell(nNova[i].unit,_EarthShield,true,false) then return; end
+                end
+            end
+        end
+        if shieldRole == "none" and shieldFound == false then
+            -- if no tank was found we are gonna cast on the lowest unit and wait for it to be under 2 stack or we have a tank before recasting.
+            for i = 1, # nNova do
+                if not UnitBuffID("focus", _WaterShield) and not UnitBuffID("focus", _EarthShield) and not UnitBuffID("focus", _LightningShield) and nNova[i].hp < 100 and castSpell(nNova[i].unit,_EarthShield,true,false) then return; end
+            end
+        end
+    end
+end
 
 
 
