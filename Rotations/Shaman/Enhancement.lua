@@ -210,47 +210,48 @@ if select(3, UnitClass("player")) == 7 then
 			------------------------------
 			--- Single Target Rotation ---
 			------------------------------
-			if getNumEnemies("player",8) < 3 and targetDistance<5 and not useAoE() and isEnnemy("target") and isAlive("target") then
+			if  targetDistance<5 and not useAoE() and isEnnemy("target") and isAlive("target") then
+				
+				-- Unleash Elements
+				if castSpell("target",_UnleashElements,false) then return; end
+				
+				-- Elemental Blast
+				if getMWC() > 1 then
+					if castSpell("target",_ElementalBlast,false) then return; end
+				end
+				
+				-- Lightning Bolt
 				if getMWC()==5 then
-					-- Lightning Bolt
 					if castSpell("target",_LightningBolt,false) then return; end
 				end
+				
+				--Stormstrike
 				if UnitLevel("player") >= 26 then
-					if getBuffRemain("player",_AscendanceBuff)>0 then
-						-- Stormblast
-						if castSpell("target",_Stormblast,false,false,false,true) then return; end
-					else
-						-- Stormstrike
-						if castSpell("target",_Stormstrike,false,false,false,true) then return; end
-					end
+					if castSpell("target",_Stormstrike,false,false,false,true) then return; end
 				else
 					-- Primal Strike
 					if castSpell("target",_PrimalStrike,false) then return; end
 				end
-				-- Flame Shock
-				if getDebuffRemain("target",_FlameShock)==0 and getBuffRemain("player",_UnleashFlame)>0 then
-					if castSpell("target",_FlameShock,false) then return; end
-				end
-				-- Flame Shock
-				if getDebuffRemain("target",_FlameShock)>0 and getBuffRemain("player",_UnleashFlame)>0 then
-					if castSpell("target",_FlameShock,false) then return; end
-				end
-				-- Flame Shock
-				if getDebuffRemain("target",_FlameShock)==0 and getBuffRemain("player",_UnleashFlame)==0 and getSpellCD(_UnleashElements)>5 then
-					if castSpell("target",_FlameShock,false) then return; end
-				end
+				
 				-- Lava Lash
 				if castSpell("target",_LavaLash,false) then return; end
-				-- Fire Nova
-				if getDebuffRemain("target",_FlameShock)>0 and getNumEnemies("player",10)>1 then
-					if castSpell("target",_FireNova,true) then return; end
+				
+				-- Flame Shock
+				if getDebuffRemain("target",_FlameShock)<=9 and getBuffRemain("player",_UnleashFlame)>0 then
+					if castSpell("target",_FlameShock,false) then return; end
 				end
-				-- Unleash Elements
-				if castSpell("target",_UnleashElements,false) then return; end
+				
+				-- Flame Shock
+				if not UnitDebuffID("target",_FlameShock, "PLAYER") then
+					if castSpell("target",_FlameShock,false) then return; end
+				end
+				
 				-- Frost Shock
 				if castSpell("target",_FrostShock,false) then return; end
+				
 				-- Lightning Bolt
-				if shouldBolt() then
+				if getMWC() > 1 
+				and not UnitBuffID("player", _AscendanceBuff) then
 					if castSpell("target",_LightningBolt,false) then return; end
 				end
 			end --Single Target Rotation End
