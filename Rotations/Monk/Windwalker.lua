@@ -30,6 +30,7 @@ if select(3, UnitClass("player")) == 10 then
 		end
 		--local getBuffRemain("player",_TigereyeBrew)
 		local tebStack = getBuffStacks("player",_TigereyeBrewStacks)
+		local sefStack = getBuffStacks("player",_StormEarthFire)
 		local ebRemain = getBuffRemain("player",_EnergizingBrew)
 		local ttd = getTimeToDie("target")
 		local ttm = getTimeToMax("player")
@@ -45,9 +46,9 @@ if select(3, UnitClass("player")) == 10 then
 		local cecRemain = getBuffRemain("player",_ComboBreakerChiExplosion)
 		local tpcRemain = getBuffRemain("player",_ComboBreakerTigerPalm)
 
-----------------------
---- Rotation Pause ---
-----------------------
+--------------------------------------------------
+--- Ressurection/Dispelling/Healing/Pause/Misc ---
+--------------------------------------------------
 	-- Tigereye Brew Timer
 		if tebCast ~= 0 then
 			if tebCast <= GetTime() then
@@ -58,30 +59,31 @@ if select(3, UnitClass("player")) == 10 then
 		if ((tarDist<5 or getSpellCD(_FlyingSerpentKick)==0) and isCastingSpell(_CracklingJadeLightning)) or (not useAoE() and isCastingSpell(_SpinningCraneKick)) then
 			RunMacroText("/stopcasting")
 		end
-	-- Pause
+	-- Cancel Storm, Earth, and Fire
+		if sefStack~=0 and not isInCombat("player") then
+			CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
+		end
+	-- Tiger's Lust
+		if hasNoControl() then
+			if castSpell("player",_TigersLust,false,false) then return; end
+		end
+	-- Detox
+		if canDispel("player",_Detox) then
+			if castSpell("player",_Detox,false,false) then return; end
+		end
+		if UnitIsPlayer("mouseover") and not UnitIsDeadOrGhost("mouseover") then
+			if canDispel("mouseover",_Detox) then
+				if castSpell("mouseover",_Detox,false,false) then return; end
+			end
+	-- Resuscitate
+			if not isInCombat("player") and UnitIsDeadOrGhost("mouseover") then
+				if castSpell("mouseover",_Resuscitate,false) then return; end
+			end
+		end
+			-- Pause
 		if pause() then
 			return true
 		else
----------------------------------------
---- Ressurection/Dispelling/Healing ---
----------------------------------------
-	-- Tiger's Lust
-			if hasNoControl() then
-				if castSpell("player",_TigersLust,false,false) then return; end
-			end
-	-- Detox
-			if canDispel("player",_Detox) then
-				if castSpell("player",_Detox,false,false) then return; end
-			end
-			if UnitIsPlayer("mouseover") and not UnitIsDeadOrGhost("mouseover") then
-				if canDispel("mouseover",_Detox) then
-					if castSpell("mouseover",_Detox,false,false) then return; end
-				end
-	-- Resuscitate
-				if not isInCombat("player") and UnitIsDeadOrGhost("mouseover") then
-					if castSpell("mouseover",_Resuscitate,false) then return; end
-				end
-			end
 -------------
 --- Buffs ---
 -------------
@@ -107,7 +109,7 @@ if select(3, UnitClass("player")) == 10 then
 				end
 			end
 	-- Surging Mist
-			if php<=75 and not isInCombat("player") and power>=30 then
+			if php<=75 and not isInCombat("player") and power>=30 and not isMoving("player") then
 				if castSpell("player",_SurgingMist,false,false) then return; end
 			end
 	-- Touch of Karma
@@ -243,6 +245,10 @@ if select(3, UnitClass("player")) == 10 then
 	--- In Combat - Multi-Target Rotation ---
 	-----------------------------------------
 				if useAoE() then
+	-- Storm, Earth, and Fire
+					if UnitExists("mouseover") and UnitCanAttack("mouseover", "player") and not UnitIsDeadOrGhost("mouseover") and not UnitIsUnit("mouseover","target") and sefStack<2 then
+						if castSpell("mouseover",_StormEarthFire,false,false,false) then return; end
+					end
 	-- Raising Sun Kick
 					if chi>=4 then
 						if castSpell("target",_RaisingSunKick,false,false) then return; end
@@ -324,7 +330,7 @@ if select(3, UnitClass("player")) == 10 then
 				end
 			end --In Combat End
 	-- Start Attack
-			if tarDist<5 and not isInCombat("player") then
+			if tarDist<5 then
 				StartAttack()
 			end
 		end

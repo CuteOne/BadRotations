@@ -33,6 +33,7 @@ _Roll                       =   121827	--109132  --Roll
 _Serenity 					=	157558	--Serenity
 _SpinningCraneKick          =   101546  --Spinning Crane Kick
 _StanceOfTheFierceTiger     =   103985  --Stance of the Fierce Tiger
+_StormEarthFire				=	137639	--Storm, Earth, and Fire
 _SpearHandStrike            =   116705  --Spear Hand Strike
 _SurgingMist				=	116694	--Surging Mist
 _TigereyeBrew				=	116740	--Tigereye Brew Damage
