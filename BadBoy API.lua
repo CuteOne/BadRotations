@@ -145,6 +145,8 @@
 
 `pause() - Bool` Returns true if pause is engaged
 
+`castingUnit() - Bool` Returns true is said unit is casting.
+
 `useItem(itemID)` Use item via ID
 
 `shouldStopCasting(SpellID) - Bool` Built into casts methods. Prevents spell locking.

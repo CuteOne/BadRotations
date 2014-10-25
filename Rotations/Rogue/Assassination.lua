@@ -13,11 +13,11 @@ if select(3, UnitClass("player")) == 4 then
 			RunMacroText("/stopcasting")
 		end
 	-- Deadly Poison
-		if getBuffRemain("player",_DeadlyPoison)<5 and not isMoving("player") and not isCasting("player") and not IsMounted() then
+		if getBuffRemain("player",_DeadlyPoison)<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
 			if castSpell("player",_DeadlyPoison) then return; end
 		end
 	-- Leeching Poison
-		if getBuffRemain("player",_LeechingPoison)<5 and not isMoving("player") and not isCasting("player") and not IsMounted()  then
+		if getBuffRemain("player",_LeechingPoison)<5 and not isMoving("player") and not castingUnit("player") and not IsMounted()  then
 			if castSpell("player",_LeechingPoison) then return; end
 		end
 ----------------------
@@ -63,7 +63,7 @@ if select(3, UnitClass("player")) == 4 then
 			if not isInCombat("player") and not noattack() and getFacing("target","player") and getCombo() < 5 and getPower("player")>=55 then
 				if castSpell("target",_Mutilate) then return; end
 			end
-		end	
+		end
 -----------------
 --- In Combat ---
 -----------------
@@ -80,7 +80,7 @@ if select(3, UnitClass("player")) == 4 then
 	-- Dummy Test
 			if isChecked("DPS Testing") then
 				if UnitExists("target") then
-					if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then  
+					if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
 						StopAttack()
 						ClearTarget()
 						print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
@@ -138,9 +138,9 @@ if select(3, UnitClass("player")) == 4 then
 					if castSpell("player",_Preparation) then return; end
 				end
 	-- Vanish
-				if getCombo()<5 
-					and getPower("player")<60 
-					and getBuffRemain("player",_ShadowBlades)==0 
+				if getCombo()<5
+					and getPower("player")<60
+					and getBuffRemain("player",_ShadowBlades)==0
 					and getCombatTime()>10
 				then
 					if castSpell("player",_Vanish) then return; end
@@ -175,7 +175,7 @@ if select(3, UnitClass("player")) == 4 then
 								and getDistance("thisUnit") < 5
 								and getCombo()
 							then
-								if castSpell("target",_Rupture) then return;end								
+								if castSpell("target",_Rupture) then return;end
 							end
 						end
 					elseif getCombo()>4 and getRupr()>=3 then
@@ -195,7 +195,7 @@ if select(3, UnitClass("player")) == 4 then
 				end
 	-- Dispatch/Mutilate
 				if getRupr()<2 and getPower("player")>90 then
-					if UnitLevel("player")>40 and (getHP("target")<35 or getBuffRemain("player",_Blindside)>0) then 
+					if UnitLevel("player")>40 and (getHP("target")<35 or getBuffRemain("player",_Blindside)>0) then
 						if castSpell("target",_Dispatch,false) then return; end
 					else
 						if castSpell("target",_Mutilate,false) then return; end
@@ -205,7 +205,7 @@ if select(3, UnitClass("player")) == 4 then
 				if getCombo()==0 then
 					if castSpell("target",_MarkedForDeath,false) then return; end
 				end
-			
+
 	-- Rupture
 				if getNumEnemies("player",10) > 1 and getRupr() > 20 then
     				for i = 1, GetTotalObjects(TYPE_UNIT) do
@@ -229,7 +229,7 @@ if select(3, UnitClass("player")) == 4 then
 				end
 	-- Dispatch/Mutilate
 				if getCombo()<5 then
-					if UnitLevel("player")>=40 and (getHP("target")<35 or getBuffRemain("player",_Blindside)>0) then 
+					if UnitLevel("player")>=40 and (getHP("target")<35 or getBuffRemain("player",_Blindside)>0) then
 						if castSpell("target",_Dispatch,false,false,false,true) then return; end
 					end
 					if (getHP("target")>=35 or UnitLevel("player")<40) and getBuffRemain("player",_Blindside)==0 then
@@ -241,6 +241,6 @@ if select(3, UnitClass("player")) == 4 then
 			if not UnitBuffID("player",_Stealth) then
 				StartAttack()
 			end
-		end -- End Combat 
+		end -- End Combat
 	end
 end

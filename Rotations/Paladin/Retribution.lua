@@ -12,7 +12,7 @@ if select(3, UnitClass("player")) == 2 then
 	local _HolyPower = UnitPower("player", 9);
 	local numEnemies = numEnemies;  --Why are we declaring this? Should we not initialise? Its not a global variables so it will be overwritten each time?
 	local meleeEnemies = getNumEnemies("player",4); --Get number of enemies within melee range. Does this also work for large hotboxes?
-	
+
 	if getDistance("player","target") < 25 then   --Do not understand this, why are we not just getting TargetProximityTargets and PlayerProximityTargets?
 		numEnemies = getNumEnemies("target",10);
 	else
@@ -21,13 +21,13 @@ if select(3, UnitClass("player")) == 2 then
 
 	-- Food/Invis Check   Hm here we are checking if we should abort the rotation pulse due to if we are a vehicle or some stuff
 	-- canRun is already checking UnitInVehicle and some other stuff im not sure about.
-	if canRun() ~= true or UnitInVehicle("Player") then 
-		return false; 
+	if canRun() ~= true or UnitInVehicle("Player") then
+		return false;
 	end
-	
+
 	if IsMounted("player") then  --canRun is already checking for mounted and we will not get here.
 		waitForPetToAppear = nil;  --Why? Is this from hunter rotation? What pet are we waiting for?
-		return false; 
+		return false;
 	end
 
 	if UnitAffectingCombat("player") then
@@ -44,14 +44,14 @@ if select(3, UnitClass("player")) == 2 then
 		 -- Missing LayOnHands and Divine Shield, also perhaps Avenging Wrath for increased self healing.
 		-- Ardent Defender
 		if BadBoy_data["Check Ardent Defender"] == 1 and getHP("player") <= BadBoy_data["Box Ardent Defender"] then
-			if castSpell("player",_ArdentDefender,true) then 
+			if castSpell("player",_ArdentDefender,true) then
 				return;  --Here we return as we should
 			end
 		end
 		-- Divine Protection
 		if BadBoy_data["Check Divine Protection"] == 1 and getHP("player") <= BadBoy_data["Box Divine Protection"] then -- Should we check if damage is physical?
-			if castSpell("player",_DivineProtection,true) then 
-				return; 
+			if castSpell("player",_DivineProtection,true) then
+				return;
 			end
 		end
 	end --We are we stopping the incombat check here?
@@ -60,39 +60,39 @@ if select(3, UnitClass("player")) == 2 then
 --[[ 	-- On GCD After here
 ]]
 
-	if isCasting() then 
-		return false; 
+	if castingUnit() then
+		return false;
 	end
 
 	-- Seal logic, should be a Paladin function for easier to read code.
 	--  it seems regardless if seal = 1 or 2 we cast seal of insight?
 	-- if isChecked("Seal") then
 	-- 	local seal = getValue("Seal");
- -- 		if seal == 1 then 
- -- 			if GetShapeshiftForm() ~= 3 then 
- -- 				if castSpell("player",_SealOfInsight,true) then 
-	-- 				return; 
-	-- 			end 
- -- 			end 
+ -- 		if seal == 1 then
+ -- 			if GetShapeshiftForm() ~= 3 then
+ -- 				if castSpell("player",_SealOfInsight,true) then
+	-- 				return;
+	-- 			end
+ -- 			end
  -- 		end
-	-- 	if seal == 2 then 
-	-- 		if GetShapeshiftForm() ~= 1 then 
+	-- 	if seal == 2 then
+	-- 		if GetShapeshiftForm() ~= 1 then
  -- 				if castSpell("player",_SealOfInsight,true) then --Should be changed to SealOfTruth
-	-- 				return; 
-	-- 			end 
-	-- 		end 
+	-- 				return;
+	-- 			end
+	-- 		end
 	-- 	end
 	-- 	if seal == 3 then
-	-- 		if getHP("player") < 50 then 
-	-- 			if GetShapeshiftForm() ~= 3 then 
- -- 					if castSpell("player",_SealOfInsight,true) then return; end 
-	-- 			end 
-	-- 		elseif getHP("player") > 60 and numEnemies < 3 then 
-	-- 			if GetShapeshiftForm() ~= 1 then 
- -- 					if castSpell("player",_SealOfThruth,true) then return; end 
-	-- 			end 
-	-- 		elseif getHP("player") > 60 and GetShapeshiftForm() ~= 2 then 
- -- 				if castSpell("player",_SealOfRighteousness,true) then return; end 
+	-- 		if getHP("player") < 50 then
+	-- 			if GetShapeshiftForm() ~= 3 then
+ -- 					if castSpell("player",_SealOfInsight,true) then return; end
+	-- 			end
+	-- 		elseif getHP("player") > 60 and numEnemies < 3 then
+	-- 			if GetShapeshiftForm() ~= 1 then
+ -- 					if castSpell("player",_SealOfThruth,true) then return; end
+	-- 			end
+	-- 		elseif getHP("player") > 60 and GetShapeshiftForm() ~= 2 then
+ -- 				if castSpell("player",_SealOfRighteousness,true) then return; end
 	-- 		end
 	-- 	end
 	-- end
@@ -105,36 +105,36 @@ if select(3, UnitClass("player")) == 2 then
 		-- Lay on Hands
 		-- This should be moved to Defensive CDs
 		if getHP("player") <= getValue("Lay On Hands") then
-			if castSpell("player",_LayOnHands,true) then 
-				return; 
+			if castSpell("player",_LayOnHands,true) then
+				return;
 			end
 			-- If we dont need Lay of Hands, check if the raid needs.
 			-- Should be careful, if its a tank we in some cases do not want to give them forebarance?
 		elseif nNova[1].hp <= getValue("Lay On Hands") then
-			if castSpell(nNova[1].unit,_LayOnHands,true) then 
-				return; 
+			if castSpell(nNova[1].unit,_LayOnHands,true) then
+				return;
 			end
 		end
 
 		-- Eternal Flame/Word Of Glory
 		if isKnown(_EternalFlame) then
 			if getHP("player") <= getValue("Self Flame") and not UnitBuffID("player",_EternalFlame) then
-				if castSpell("player",_EternalFlame,true) then 
-					return; 
+				if castSpell("player",_EternalFlame,true) then
+					return;
 				end
 			elseif nNova[1].hp <= getValue("Eternal Flame") then --we do not check if we are supposed to heal party here.
-				if castSpell(nNova[1].unit,_EternalFlame,true) and not UnitBuffID(nNova[1].unit,_EternalFlame) then 
-					return; 
+				if castSpell(nNova[1].unit,_EternalFlame,true) and not UnitBuffID(nNova[1].unit,_EternalFlame) then
+					return;
 				end
 			end
 		else
 			if getHP("player") <= getValue("Self Glory") and getBuffStacks("player",114637) > 3 then
-				if castSpell("player",_WordOfGlory,true) then 
-					return; 
+				if castSpell("player",_WordOfGlory,true) then
+					return;
 				end
 			elseif nNova[1].hp <= getValue("Word Of Glory") then
-				if castSpell(nNova[1].unit,_WordOfGlory,true) then 
-					return; 
+				if castSpell(nNova[1].unit,_WordOfGlory,true) then
+					return;
 				end
 			end
 		end
@@ -143,7 +143,7 @@ if select(3, UnitClass("player")) == 2 then
 		if isKnown(_SacredShield) then
 			if isChecked("Sacred Shield") and UnitBuffID("player",_SacredShield) == nil then
 				if castSpell("player",_SacredShield,true) then return; end
-			end	
+			end
 		end
 
 		-- auto_attack
@@ -163,7 +163,7 @@ if select(3, UnitClass("player")) == 2 then
 		-- holy_avenger,if=talent.holy_avenger.enabled
 		if isInMelee() and isSelected("Holy Avenger") then
 			if castSpell("player",_HolyAvenger,true) then return; end
-		end		
+		end
 
 		-- judgment,if=talent.sanctified_wrath.enabled&buff.avenging_wrath.react
 
@@ -181,10 +181,10 @@ if select(3, UnitClass("player")) == 2 then
 				ISetAsUnitID(Guid,"thisUnit");
 				if getFacing("player","thisUnit") == true
 				  and isInMelee("thisUnit") then
-					if castSpell("thisUnit",strike,false) then return; end								
+					if castSpell("thisUnit",strike,false) then return; end
 				end
 			end
-		end				
+		end
 
 		-- wait,sec=cooldown.crusader_strike.remains,if=cooldown.crusader_strike.remains>0&cooldown.crusader_strike.remains<=0.5
 		-- judgment
@@ -195,11 +195,11 @@ if select(3, UnitClass("player")) == 2 then
 				local Guid = IGetObjectListEntry(i)
 				ISetAsUnitID(Guid,"thisUnit");
 				if getDistance("player","thisUnit") <= 30 then
-					if castSpell("thisUnit",_Judgment,true) then return; end								
+					if castSpell("thisUnit",_Judgment,true) then return; end
 				end
 			end
-		end	
-		
+		end
+
 		-- wait,sec=cooldown.judgment.remains,if=cooldown.judgment.remains>0&cooldown.judgment.remains<=0.5&(cooldown.crusader_strike.remains-cooldown.judgment.remains)>=0.5
 		if GetHolyGen() == true then return; end
 
@@ -208,8 +208,8 @@ if select(3, UnitClass("player")) == 2 then
 			if (isDummy("target") or (UnitHealth("target") >= 150*UnitHealthMax("player")/100)) then
 				if castSpell("target",_ExecutionSentence,false) then return; end
 			end
-		end		
-		
+		end
+
 		-- lights_hammer,if=talent.lights_hammer.enabled
 		if isSelected("Light's Hammer") then
 			if getGround("target") == true and isMoving("target") == false and UnitExists("target") and (isDummy("target") or getDistance("target","targettarget") <= 5) then
@@ -225,9 +225,9 @@ if select(3, UnitClass("player")) == 2 then
 				local Guid = IGetObjectListEntry(i)
 				ISetAsUnitID(Guid,"thisUnit");
 				if getHP("thisUnit") <= 20 and getLineOfSight("player","thisUnit") and getDistance("player","thisUnit") < 30 and getFacing("player","thisUnit") == true then
-					if castSpell("thisUnit",_HammerOfWrath,false) then return; end								
+					if castSpell("thisUnit",_HammerOfWrath,false) then return; end
 				end
-			end			
+			end
 		end
 
 		-- holy_prism,if=talent.holy_prism.enabled

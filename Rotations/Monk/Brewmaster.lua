@@ -116,7 +116,7 @@ end
 --- Defensives ---
 ------------------
 --	Expel Harm
-	if getHP("player") <= 80 and (getChiMax("player") - getChi("player")) >= 2 and getPower("player") >= 40 and not isCasting("player") then
+	if getHP("player") <= 80 and (getChiMax("player") - getChi("player")) >= 2 and getPower("player") >= 40 and not castingUnit("player") then
 		if castSpell("player",_ExpelHarm,true) then return; end
 	end
 -- Nimble Brew
@@ -182,7 +182,7 @@ end
 		--[[Elusive Brew if > 10 stacks. Delay up to 10-15 sec for anticipated damage.]]
 	end
 
-	if isCasting() then return false; end
+	if castingUnit() then return false; end
 
 	if (isChecked("Angry Monk") == true or UnitAffectingCombat("player")) and targetDistance > 5 and targetDistance <= 40 and UnitExists("target") and not UnitIsDeadOrGhost("target") then
 

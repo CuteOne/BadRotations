@@ -12,7 +12,7 @@ if select(3, UnitClass("player")) == 7 then
 		--- Shields Up! / Weapons Online! ---
 		-------------------------------------
 		if not IsMounted() then
-			-- Lightning Shield		
+			-- Lightning Shield
 			if getBuffRemain("player",_LightningShield)<10 and getPower("player")>=5 then
 				if castSpell("player",_LightningShield,true) then return; end
 			end
@@ -23,7 +23,7 @@ if select(3, UnitClass("player")) == 7 then
 			-- Dummy Test
 			if BadBoy_data["Check DPS Testing"] == 1 then
 				if UnitExists("target") then
-					if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then  
+					if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
 						if castSpell("player",_TotemRecall,true) and hasTotem() then return; end
 						StopAttack()
 						ClearTarget()
@@ -39,7 +39,7 @@ if select(3, UnitClass("player")) == 7 then
 			if not IsMounted()
 			and not UnitBuffID("player",_GhostWolf)
 			and isMoving("player")
-			and not isCasting("player")
+			and not castingUnit("player")
 			and getBuffRemain("player",_AscendanceBuff)==0
 			and (not isInCombat("player") or (isInCombat("player") and targetDistance>10)) then
 				if castSpell("player",_GhostWolf,true) then return; end
@@ -49,9 +49,9 @@ if select(3, UnitClass("player")) == 7 then
 				if castSpell("player",_WaterWalking,true) then return; end
 			end
 			-- Ancestral Spirit
-			if not isAlive("mouseover") 
-			and not isEnnemy("mouseover") 
-			and not isCasting("player")
+			if not isAlive("mouseover")
+			and not isEnnemy("mouseover")
+			and not castingUnit("player")
 			and not isInCombat("player")
 			and UnitIsPlayer("mouseover") then
 				if castSpell("mouseover",_AncestralSpirit,true) then return; end
@@ -59,7 +59,7 @@ if select(3, UnitClass("player")) == 7 then
 			-- Healing Surge
 			if not isInCombat("player")
 			and getHP("player") < 75
-			and not isCasting("player")
+			and not castingUnit("player")
 			and not isMoving("player")
 			and not isLooting("player") then
 					if castSpell("player",_HealingSurge,true) then return; end
@@ -73,15 +73,15 @@ if select(3, UnitClass("player")) == 7 then
 			--- Totems ---
 			--------------
 			-- Recall
-			if not isInCombat("player") 
-			and not hasHST() 
+			if not isInCombat("player")
+			and not hasHST()
 			and hasTotem() then
 				if castSpell("player",_TotemRecall,true) then return; end
 			end
 			-- Earth
-			if not isCasting("player") 
+			if not castingUnit("player")
 			and canInterrupt(_GroundingTotem, tonumber(getValue("Interrupts")))
-			and getSpellCD(_WindShear) > 0 
+			and getSpellCD(_WindShear) > 0
 			and getSpellCD(_WindShear) < 12 then
 				if castSpell("player",_GroundingTotem,true) then return; end
 			end
@@ -115,8 +115,8 @@ if select(3, UnitClass("player")) == 7 then
 			---------------------------
 			--- Defensive Abilities ---
 			---------------------------
-			if not isCasting("player") and isInCombat("player") then	
-				-- Gift of the Naaru		
+			if not castingUnit("player") and isInCombat("player") then
+				-- Gift of the Naaru
 				if getHP("player") <= 25 then
 					if castSpell("player",59547,true) then return; end
 				end
@@ -125,7 +125,7 @@ if select(3, UnitClass("player")) == 7 then
 					if castSpell("player",_ShamanisticRage,true) then return; end
 				end
 				-- Astral Shift
-				if not isCasting("player") and getHP("player")<=40 then
+				if not castingUnit("player") and getHP("player")<=40 then
 					if castSpell("player",_AstralShift,true) then return; end
 				end
 				-- Cleanse Spirit
@@ -150,8 +150,8 @@ if select(3, UnitClass("player")) == 7 then
 			--- Cooldowns ---
 			-----------------
 			if useCDs() and targetDistance<5 and isInCombat("player") and hasFire() then
-				-- Feral Spirit		
-				if castSpell("player",_FeralSpirit,true) then return; end	
+				-- Feral Spirit
+				if castSpell("player",_FeralSpirit,true) then return; end
 				-- Elemental Mastery
 				if castSpell("player",_ElementalMastery,true) then return; end
 				-- Ancestral Swiftness
@@ -175,7 +175,7 @@ if select(3, UnitClass("player")) == 7 then
 			if getNumEnemies("player",10) >= 3 and targetDistance<5 and useAoE() and isEnnemy("target") and isAlive("target") then
 				-- Flame Shock
 				if getDebuffRemain("target",_FlameShock) < 3 then
-					if castSpell("target",_FlameShock,false) then return; end								
+					if castSpell("target",_FlameShock,false) then return; end
 				end
 				-- Lava Lash
 				if getDebuffRemain("target",_FlameShock)>0 then
@@ -210,7 +210,7 @@ if select(3, UnitClass("player")) == 7 then
 			------------------------------
 			--- Single Target Rotation ---
 			------------------------------
-			if getNumEnemies("player",8) < 3 and targetDistance<5 and not useAoE() and isEnnemy("target") and isAlive("target") then		
+			if getNumEnemies("player",8) < 3 and targetDistance<5 and not useAoE() and isEnnemy("target") and isAlive("target") then
 				if getMWC()==5 then
 					-- Lightning Bolt
 					if castSpell("target",_LightningBolt,false) then return; end
@@ -227,7 +227,7 @@ if select(3, UnitClass("player")) == 7 then
 					-- Primal Strike
 					if castSpell("target",_PrimalStrike,false) then return; end
 				end
-				-- Flame Shock	
+				-- Flame Shock
 				if getDebuffRemain("target",_FlameShock)==0 and getBuffRemain("player",_UnleashFlame)>0 then
 					if castSpell("target",_FlameShock,false) then return; end
 				end
@@ -254,7 +254,7 @@ if select(3, UnitClass("player")) == 7 then
 					if castSpell("target",_LightningBolt,false) then return; end
 				end
 			end --Single Target Rotation End
-			
+
 			if targetDistance<5 and isEnnemy("target") then
 				StartAttack()
 			end

@@ -1451,12 +1451,12 @@ function isCastingTime(lagTolerance)
 end
 
 -- if isCasting() == true then
-function isCasting(Unit)
+function castingUnit(Unit)
 	if Unit == nil then Unit = "player" end
 	if UnitCastingInfo(Unit) ~= nil
 	  or UnitChannelInfo(Unit) ~= nil
 	  or (GetSpellCooldown(GetSpellInfo(61304)) ~= nil and GetSpellCooldown(GetSpellInfo(61304)) > 0.001) then
-	  	return true; else return false;
+	  	return true;
 	end
 end
 function isCastingDruid(Unit)
@@ -1676,7 +1676,7 @@ function IsStandingTime(time)
 	end
 end
 
--- if isSpellInRange(12345,"target") then
+-- if isCasting(12345,"target") then
 function isCasting(SpellID,Unit)
 	if UnitExists(Unit) and UnitIsVisible(Unit) then
 		if isCasting(tostring(GetSpellInfo(SpellID)),Unit) == 1 then return true; end

@@ -73,7 +73,7 @@ function MistweaverMonk()
 --- Defensives ---
 ------------------
 -- Expel Harm
-	if getHP("player")<=80 and (getChiMax("player")-getChi("player"))>=2 and getPower("player")>=40 and not isCasting("player") then
+	if getHP("player")<=80 and (getChiMax("player")-getChi("player"))>=2 and getPower("player")>=40 and not castingUnit("player") then
 		if castSpell("player",_ExpelHarm,true) then return; end
 	end
 -- Nimble Brew

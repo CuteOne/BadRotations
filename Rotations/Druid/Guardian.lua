@@ -37,7 +37,7 @@ function DruidGuardian()
 	--[[Pause toggle]]
 	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then ChatOverlay("|cffFF0000BadBoy Paused", 0); return; end
 	--[[Focus Toggle]]
-	if isChecked("Focus Toggle") and SpecificToggle("Focus Toggle") == 1 then 
+	if isChecked("Focus Toggle") and SpecificToggle("Focus Toggle") == 1 then
 		RunMacroText("/focus mouseover");
 	end
 
@@ -51,7 +51,7 @@ function DruidGuardian()
 		elseif IsSwimming() and not UnitBuffID("player",af) and not UnitExists("target") then
 			if castSpell("player",af) then return; end
 		elseif IsMovingTime(2) and IsFalling() == nil and IsSwimming() == nil and IsFlying() == nil and UnitBuffID("player",783) == nil and UnitBuffID("player", sff) == nil and UnitBuffID("player", flf) == nil then
-			if castSpell("player",783) then return; end 
+			if castSpell("player",783) then return; end
 		end
 	end
 
@@ -80,10 +80,10 @@ function DruidGuardian()
 
 	--[[Food/Invis Check]]
 	if canRun() ~= true then return false; end
-	if isCasting() then return false; end
+	if castingUnit() then return false; end
 
 --[[ 	-- On GCD After here, palce out of combats spells here
-]]	
+]]
     -- Healthstone
 		if isChecked("Healthstone") and getHP("player") <= getValue("Healthstone") then
 			if canUse(5512) ~= false then
@@ -96,7 +96,7 @@ function DruidGuardian()
 		for i = 1, #nNova do
 	  		if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) then
 	  			if castSpell("player",1126,true) then lastMotw = GetTime(); return; end
-			end 
+			end
 		end
 	end
 
@@ -105,32 +105,32 @@ function DruidGuardian()
 
 	if UnitAffectingCombat("player") then
 local isTanking2 = select(2,UnitDetailedThreatSituation("player", "target")) --player is under 100% of threat but is current target
-local isTanking3 = select(3,UnitDetailedThreatSituation("player", "target")) --player has 100% of theat and is current target		
+local isTanking3 = select(3,UnitDetailedThreatSituation("player", "target")) --player has 100% of theat and is current target
 local Sd = UnitBuffID("player",132402)
-local SdBuff = select(4,UnitBuffID("player",132402))			
+local SdBuff = select(4,UnitBuffID("player",132402))
 local HasTierCount = select(4,UnitBuffID("player",138217))
 		--Single target Rotation
 
 		--thrash_bear,if=debuff.weakened_blows.remains<3
-		
+
 		if  UnitBuffID("player",5487) then
 		if targetDistance <= 8 and getDebuffRemain("target",115798,"player") < 3 then
-				if castSpell("target",77758,true) then return; end 
+				if castSpell("target",77758,true) then return; end
 			end
         end
 		--Mangle
 		if  UnitBuffID("player",5487) then
 		if castSpell("target",33878,false) then return; end end
         -- Maul
-		if  UnitBuffID("player",5487) then 
+		if  UnitBuffID("player",5487) then
 		if isChecked("Maul Toggle") == true and SpecificToggle("Maul Toggle") == 1 then
-		if castSpell("target",6807,false) then return; end 
+		if castSpell("target",6807,false) then return; end
 		end end
 		-- SD
 		if BadBoy_data["Defensive"] == 1 then
 		if  UnitBuffID("player",5487) then
-		if UnitPower("player",SPELL_POWER_RAGE) > 59 
-        and not UnitBuffID("player", 62606) 
+		if UnitPower("player",SPELL_POWER_RAGE) > 59
+        and not UnitBuffID("player", 62606)
 		and isTanking2 or isTanking3
 		then
 		if castSpell("player",62606,true) then return; end
@@ -150,54 +150,54 @@ local HasTierCount = select(4,UnitBuffID("player",138217))
 		--Thrash
 		if  UnitBuffID("player",5487) then
 		if targetDistance <= 8 and getDebuffRemain("target",77758,"player") < 2 then
-				if castSpell("target",77758,true) then return; end 
+				if castSpell("target",77758,true) then return; end
 			end
         end
 		if ScanTimer == nil or ScanTimer <= GetTime() - 1 then
-    		meleeEnemies, targetEnemies, ScanTimer = getNumEnemies("player",8), getEnemies("target",10), GetTime(); 
+    		meleeEnemies, targetEnemies, ScanTimer = getNumEnemies("player",8), getEnemies("target",10), GetTime();
     	end
         if  UnitBuffID("player",5487) then
     	if canCast(77758) then
 			for i = 1, #targetEnemies do
 				local Guid = targetEnemies[i]
 				ISetAsUnitID(Guid,"thisUnit");
-				if getCreatureType("thisUnit") == true and getDebuffRemain("thisUnit",77758,"player") < 2 and getDistance("player","thisUnit") <= 8 then	
-					if castSpell("player",77758,true) then return; end	
+				if getCreatureType("thisUnit") == true and getDebuffRemain("thisUnit",77758,"player") < 2 and getDistance("player","thisUnit") <= 8 then
+					if castSpell("player",77758,true) then return; end
 				end
-			end	
+			end
 		end
         end
 		--Siwpe
 		if  UnitBuffID("player",5487) then
-		if meleeEnemies > 1 then 
-		 	if castSpell("player",779,true) then return; end 
+		if meleeEnemies > 1 then
+		 	if castSpell("player",779,true) then return; end
 		end
         end
-		
 
-		--Faerie Fire 
+
+		--Faerie Fire
 		if  UnitBuffID("player",5487) then
 		if getDebuffRemain("target",770,"player") < 3 then
-		 	if castSpell("target",770,true) then return; end 
-		end	
+		 	if castSpell("target",770,true) then return; end
+		end
         end
-		--Lacerate 
+		--Lacerate
 		if  UnitBuffID("player",5487) then
-		if castSpell("target",33745,false) then return; end	
+		if castSpell("target",33745,false) then return; end
         end
-	    --Maul 
+	    --Maul
 		if UnitBuffID("player",5487) then
         if Sd and SdBuff > 2
         and isTanking2 or isTanking3
         and UnitPower("player",SPELL_POWER_RAGE) > 80
         and getHP("player") > 75
         and UnitBuffID("player",135288) then
-        if castSpell("target",6807,false) then return; end	
-        elseif 
+        if castSpell("target",6807,false) then return; end
+        elseif
         UnitPower("player",SPELL_POWER_RAGE) > 30
         and getHP("player") > 75
         and not isTanking2 or not isTanking3 then
-        if castSpell("target",6807,false) then return; end	
+        if castSpell("target",6807,false) then return; end
 
         end
         end
@@ -205,12 +205,12 @@ local HasTierCount = select(4,UnitBuffID("player",138217))
 		if  UnitBuffID("player",5487) then
 		if not UnitBuffID("player",138217) then
         if Sd and SdBuff >= 2
-           and UnitPower("player",SPELL_POWER_RAGE) > 59 
+           and UnitPower("player",SPELL_POWER_RAGE) > 59
             and getHP("player")< 75 then
             CastSpellByName(tostring(GetSpellInfo(22842)))
         end
         end
 	    end
-	
+
 	end
 end

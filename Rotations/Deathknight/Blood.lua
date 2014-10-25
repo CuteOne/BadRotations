@@ -59,7 +59,7 @@ function Blood()
 	end
 
 
-	if isCasting() or getSpellCD(61304) > 0 then return false; end
+	if castingUnit() or getSpellCD(61304) > 0 then return false; end
 
     -- Presence
     if isKnown(_BloodPresence) and isChecked("Presence") then
@@ -101,7 +101,7 @@ function Blood()
 			if getGround("target") == true and UnitExists("target") and ((isDummy("target") and getDistance("target","targettarget") <= 10) or getDistance("target","targettarget") <= 20) then
 				if castGroundBetween("target",_DeathAndDecay,30) then return; end
 			end
-		end    	
+		end
 
 	    -- Blood Tap
 	    if getBuffStacks("player",114851) >= 5 and canTap() then
@@ -117,7 +117,7 @@ function Blood()
 	    end
 
 	    if ScanTimer == nil or ScanTimer <= GetTime() - 1 then
-	    	meleeEnemies, ScanTimer = getNumEnemies("player",10), GetTime(); 
+	    	meleeEnemies, ScanTimer = getNumEnemies("player",10), GetTime();
 	    end
 
 	    -- Blood Boil - Refresh
@@ -153,7 +153,7 @@ function Blood()
 	    			-- Here I do my specific spell checks
 	    			if UnitDebuffID(thisUnit,55078,"player") == nil and getDistance("player",thisUnit) < 8 and getDistance("target",thisUnit) then
 	    				-- All is good, let's cast. I add a timer to make sure i dont recast while my spell is "flying"
-	    				if castSpell("target",PestiSpell,true) then pestiTimer = GetTime(); return; end	
+	    				if castSpell("target",PestiSpell,true) then pestiTimer = GetTime(); return; end
 	    			end
 		    	end
 		    end
@@ -162,13 +162,13 @@ function Blood()
 
 
 	    -- Death Strike
-	    if (runesFrost >= 1 and runesUnholy >= 1) 
+	    if (runesFrost >= 1 and runesUnholy >= 1)
 	      or (runesFrost >= 1 and runesDeath >= 1)
 	      or (runesDeath >= 1 and runesUnholy >= 1)
 	      or (runesDeath >= 2) then
 	    	if castSpell("target",_DeathStrike,false) then return; end
 	    end
-	   
+
 	    -- Blood Boil - Scarlet Fever
 	    if targetDistance <= 5 and UnitBuffID("player",81141) ~= nil then
 	    	if castSpell("player",50842,true) then return; end

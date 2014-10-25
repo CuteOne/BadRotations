@@ -12,8 +12,8 @@ if select(3, UnitClass("player")) == 2 then
 		local _HolyPower = UnitPower("player", 9);
 
 		-- Food/Invis Check   Hm here we are checking if we should abort the rotation pulse due to if we are a vehicle or some stuff
-		if canRun() ~= true or UnitInVehicle("Player") then 
-			return false; 
+		if canRun() ~= true or UnitInVehicle("Player") then
+			return false;
 		end
 
 		--[[Off GCD in combat]]
@@ -30,8 +30,8 @@ if select(3, UnitClass("player")) == 2 then
 
 
 
-		if isCasting() then 
-			return false; 
+		if castingUnit() then
+			return false;
 		end
 
 		--[[On GCD Out of Combat]]
@@ -52,14 +52,14 @@ if select(3, UnitClass("player")) == 2 then
 
 			--[[Lay on Hands I like LoH in combat only because i do not like to waste it because a lock is running to his death.]]
 			if getHP("player") <= getValue("Lay On Hands") then
-				if castSpell("player",_LayOnHands,true) then 
-					return; 
+				if castSpell("player",_LayOnHands,true) then
+					return;
 				end
 			else
 				for i = 1, 3 do
 					if nNova[i].hp <= getValue("Lay On Hands") then
-						if castSpell(nNova[1].unit,_LayOnHands,true) then 
-							return; 
+						if castSpell(nNova[1].unit,_LayOnHands,true) then
+							return;
 						end
 					end
 				end

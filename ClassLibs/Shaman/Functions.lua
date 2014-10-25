@@ -7,7 +7,7 @@ if select(3,UnitClass("player")) == 7 then
 --[[           ]]   --[[]]     --[[]]   --[[           ]]   --[[]]                   --[[ ]]             --[[ ]]        --[[]]     --[[]]   --[[           ]]
 --[[]]              --[[           ]]   --[[]]   --[[  ]]   --[[           ]]        --[[ ]]        --[[           ]]   --[[           ]]   --[[]]   --[[  ]]
 --[[]]              --[[           ]]   --[[]]     --[[]]   --[[           ]]        --[[ ]]        --[[           ]]   --[[           ]]   --[[]]     --[[]]
- 
+
 function isFireTotem(SpellID)
     if tostring(select(2,GetTotemInfo(1))) == tostring(GetSpellInfo(SpellID)) then return true; else return false; end
 end
@@ -27,7 +27,7 @@ end
 
 
 
---[[           ]]   --[[]]     --[[]]   --[[]]     --[[]]         --[[]]        --[[]]     --[[]]   --[[           ]]   --[[           ]]       
+--[[           ]]   --[[]]     --[[]]   --[[]]     --[[]]         --[[]]        --[[]]     --[[]]   --[[           ]]   --[[           ]]
 --[[           ]]   --[[  ]]   --[[]]   --[[]]     --[[]]        --[[  ]]       --[[  ]]   --[[]]   --[[           ]]   --[[           ]]
 --[[]]              --[[    ]] --[[]]   --[[]]     --[[]]       --[[    ]]      --[[    ]] --[[]]   --[[]]              --[[]]
 --[[           ]]   --[[           ]]   --[[           ]]      --[[      ]]     --[[           ]]   --[[]]              --[[           ]]
@@ -43,7 +43,7 @@ function getMWC()
     if UnitLevel("player") >= 50 then
         if mwstack == nil then
             return 0
-        else 
+        else
             return mwstack
         end
     else
@@ -77,7 +77,7 @@ function hasFireElemental()
     else
         return false
     end
-end 
+end
 function hasWater()
     if GetTotemTimeLeft(3) > 0 then
         return true
@@ -111,7 +111,7 @@ function hasTotem()
         return true
     else
         return false
-    end 
+    end
 end
 function getSearingCount()
     sfstack = select(4,UnitBuffID("player",_SearingFlames))
@@ -163,14 +163,14 @@ function shouldBolt()
         lowestCD = min(getSpellCD(_Stormstrike),getSpellCD(_FlameShock),getSpellCD(_LavaLash),getSpellCD(_UnleashElements))
     elseif UnitLevel("player") >= 87 then
         if getBuffRemain("player",_AscendanceBuff) > 0 then
-            lowestCD = min(getSpellCD(_Stormblast),getSpellCD(_FlameShock),getSpellCD(_LavaLash),getSpellCD(_UnleashElements)) 
+            lowestCD = min(getSpellCD(_Stormblast),getSpellCD(_FlameShock),getSpellCD(_LavaLash),getSpellCD(_UnleashElements))
         else
             lowestCD = min(getSpellCD(_Stormstrike),getSpellCD(_FlameShock),getSpellCD(_LavaLash),getSpellCD(_UnleashElements))
         end
     end
     if lightning <= lowestCD and getTimeToDie("target") >= lightning then
         return true;
-    elseif isCasting("player") and (isCastingSpell(_LightningBolt) or isCastingSpell(_ChainLightning)) and lightning > lowestCD then
+    elseif castingUnit("player") and (isCastingSpell(_LightningBolt) or isCastingSpell(_ChainLightning)) and lightning > lowestCD then
         StopCasting()
         return false;
     else
@@ -199,7 +199,7 @@ end
             CEarthShield = true
         end
         if CEarthShield == false then
-            for i=1, #nNova do  
+            for i=1, #nNova do
                 if UnitBuffID(nNova[i].unit, 974, "PLAYER")
                   and (select(7, UnitBuffID(nNova[i].unit, 974, "PLAYER")) - GetTime() > 1 or select(4, UnitBuffID(nNova[i].unit, 974, "PLAYER")) > 1)
                   and (UnitThreatSituation(nNova[i].unit) == 3 or not UnitAffectingCombat(nNova[i].unit)) then
@@ -215,13 +215,13 @@ end
                     end
                 end
                 for i=1, #nNova do
-                    if select(3,UnitClass(nNova[i].unit)) ~= 7 and UnitThreatSituation(nNova[i].unit) == 3 
+                    if select(3,UnitClass(nNova[i].unit)) ~= 7 and UnitThreatSituation(nNova[i].unit) == 3
                       and not UnitBuffID(nNova[i].unit, 52127) and nNova[i].role == "TANK" then
                         return true, i
                     end
                 end
             end
-        end 
+        end
         return false, 1
     end
 

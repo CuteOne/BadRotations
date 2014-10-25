@@ -24,7 +24,7 @@ function ShamanElemental()
 --[[ 	-- On GCD After here
 ]]
 
-	if isCasting() then return false; end
+	if castingUnit() then return false; end
 
 	-- Astral Shift if < 30%
 	if BadBoy_data["Check Astral Shift"] == 1 and getHP("player") <= BadBoy_data["Box Astral Shift"] then
@@ -43,7 +43,7 @@ function ShamanElemental()
 	-- jade_serpent_potion
 
 	-- flametongue_weapon,weapon=main
-	if isChecked("Flametongue Weapon") and GetWeaponEnchantInfo() ~= 1 then 
+	if isChecked("Flametongue Weapon") and GetWeaponEnchantInfo() ~= 1 then
 		if castSpell("player",_FlametongueWeapon,true) then return; end
 	end
 
@@ -83,7 +83,7 @@ function ShamanElemental()
 			-- fire_elemental_totem,if=!active
 			if isSelected("Fire Elemental") and not isFireTotem(_FireElementalTotem) then
 				if castSpell("player",_FireElementalTotem,true) then return; end
-			end	
+			end
 
 			-- ascendance,if=active_enemies>1|(dot.flame_shock.remains>buff.ascendance.duration&(target.time_to_die<20|buff.bloodlust.up|time>=60)&cooldown.lava_burst.remains>0)
 			if isSelected("Ascendance") and getDebuffRemain("target",_FlameShock) > 15 and getSpellCD(_LavaBurst) > 1 and UnitBuffID("player",_AscendanceBuff) == nil then
@@ -113,7 +113,7 @@ function ShamanElemental()
 				-- flame_shock,if=ticks_remain<2
 				if getDebuffRemain("target",_FlameShock) < 2 then
 					if castSpell("target",_FlameShock,false) then return; end
-				end	
+				end
 
 				-- flame_shock,cycle_targets=1,if=!ticking&active_enemies<3
 				if numEnemies == 2 then
@@ -124,10 +124,10 @@ function ShamanElemental()
 							and getDebuffRemain("thisUnit",_FlameShock) < 3
 							and (UnitHealth("thisUnit") >= (150*UnitHealth("player")/100)*(GetNumGroupMembers()+1) or isDummy("thisUnit"))
 						then
-							if castSpell("thisUnit",_FlameShock,false) then return; end								
+							if castSpell("thisUnit",_FlameShock,false) then return; end
 						end
 					end
-				end				
+				end
 
 				-- earthquake,if=active_enemies>4
 				if isSelected("EarthQuake") and numEnemies > 4 then
@@ -139,7 +139,7 @@ function ShamanElemental()
 				-- thunderstorm,if=mana.pct_nonproc<80
 				if isSelected("Thunderstorm") and getMana("player") < 75 then
 					if castSpell("player",_Thunderstorm,false) then return; end
-				end	
+				end
 
 				-- chain_lightning,if=mana.pct_nonproc>10
 				if castSpell("target",_ChainLightning,false) then return; end
@@ -164,7 +164,7 @@ function ShamanElemental()
 			end
 
 			-- lava_burst,if=dot.flame_shock.remains>cast_time&(buff.ascendance.up|cooldown_react)
-			if getDebuffRemain("target",_FlameShock) > select(7,GetSpellInfo(_LavaBurst))/1000 and 
+			if getDebuffRemain("target",_FlameShock) > select(7,GetSpellInfo(_LavaBurst))/1000 and
 				(UnitBuffID("player",_AscendanceBuff) ~= nil or getSpellCD(_LavaBurst) == 0) then
 				if castSpell("target",_LavaBurst,false) then return; end
 			end
@@ -172,7 +172,7 @@ function ShamanElemental()
 			-- flame_shock,if=ticks_remain<2
 			if getDebuffRemain("target",_FlameShock) < 2 then
 				if castSpell("target",_FlameShock,false) then return; end
-			end		
+			end
 
 			-- elemental_blast,if=talent.elemental_blast.enabled
 			if isKnown(_ElementalBlast) then
@@ -183,30 +183,30 @@ function ShamanElemental()
 			-- earth_shock,if=buff.lightning_shield.react=buff.lightning_shield.max_stack
 			if getBuffStacks("player",_LightningShield) == 7 then
 				if castSpell("target",_EarthShock,false) then return; end
-			end		
+			end
 
 			---- # Use Earth Shock if Lightning Shield is above 3 charges and the Flame Shock remaining duration is longer than the shock cooldown but shorter than shock cooldown + tick time interval
 			-- earth_shock,if=buff.lightning_shield.react>3&dot.flame_shock.remains>cooldown&dot.flame_shock.remains<cooldown+action.flame_shock.tick_time
 			if getBuffStacks("player",_LightningShield) > 3 and getDebuffRemain("target",_FlameShock) > 7 then
 				if castSpell("target",_EarthShock,false) then return; end
-			end	
+			end
 
 			---- # After the initial Ascendance, use Flame Shock pre-emptively just before Ascendance to guarantee Flame Shock staying up for the full duration of the Ascendance buff
 			-- flame_shock,if=time>60&remains<=buff.ascendance.duration&cooldown.ascendance.remains+buff.ascendance.duration<duration
 			if getSpellCD(_Ascendance) < 12 and getDebuffRemain("target",_FlameShock) < getSpellCD(_Ascendance) + 15 then
 				if castSpell("target",_FlameShock,false) then return; end
-			end			
+			end
 
 			-- earth_elemental_totem,if=!active&cooldown.fire_elemental_totem.remains>=60
 			if getSpellCD(_FireElementalTotem) > 60 then
 				if castSpell("player",_FlameShock,false) then return; end
-			end		
+			end
 
 			---- # Keep Searing Totem up, unless Fire Elemental Totem is coming off cooldown in the next 20 seconds
 			-- searing_totem,if=cooldown.fire_elemental_totem.remains>20&!totem.fire.active
 			if isFireTotem(_FireElementalTotem) == false and (isFireTotem(_SearingTotem) == false or getTotemDistance("target") > 25) and getDistance("target") <= 25 and (isSelected("Fire Elemental") ~= true or GetSpellCD(_FireElementalTotem) > 20) then
 				if castSpell("player",_SearingTotem,true) then return; end
-			end	
+			end
 
 			-- spiritwalkers_grace,moving=1,if=((talent.elemental_blast.enabled&cooldown.elemental_blast.remains=0)|(cooldown.lava_burst.remains=0&!buff.lava_surge.react))|(buff.raid_movement.duration>=action.unleash_elements.gcd+action.earth_shock.gcd)
 			if isMoving("player") and (GetSpellCD(_ElementalBlast) == 0 or GetSpellCD(_LavaBurst) == 0) then
@@ -216,8 +216,8 @@ function ShamanElemental()
 			-- thunderstorm,if=mana.pct_nonproc<80
 			if isSelected("Thunderstorm") and getMana("player") < 75 then
 				if castSpell("player",_Thunderstorm,false) then return; end
-			end	
-			
+			end
+
 			-- lightning_bolt
 			if castSpell("target",_LightningBolt,false,false) then return; end
 		end

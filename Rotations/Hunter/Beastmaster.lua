@@ -29,7 +29,7 @@ function  BeastHunter()
 		end
 	end
 
-	if isCasting() then return false; end
+	if castingUnit() then return false; end
 	-- Aspect of the Cheetah
 	if not isInCombat("player") and BadBoy_data["Check Auto-Cheetah"] == 1
 	  and not UnitBuffID("player", 5118)
@@ -39,7 +39,7 @@ function  BeastHunter()
 	  and GetShapeshiftForm() ~= 2 then
 		castSpell("player",AspectOfTheCheetah,true);
 	end
-	
+
 	-- Pet Management
 	if isChecked("Auto Call Pet") == true and UnitExists("pet") == nil then
 		if waitForPetToAppear ~= nil and waitForPetToAppear < GetTime() - 2 then
@@ -69,7 +69,7 @@ function  BeastHunter()
 		end
 		if HP < BadBoy_data["Check Feign Death"] and HP <= BadBoy_data["Box Feign Death"] then
 			if castSpell("player",FeignDeath) then return; end
-		end			
+		end
 		local canBestialWrath = false;
 		if isAlive() and isEnnemy() and getLineOfSight("player","target") == true and getFacing("player","target") == true then
 
@@ -89,11 +89,11 @@ function  BeastHunter()
 			-- Stampede
 			if BadBoy_data["Cooldowns"] == 3 or (BadBoy_data["Check Stampede"] == 1 and (BadBoy_data["Drop Stampede"] == 3 or BadBoy_data["Drop Stampede"] == 2 and BadBoy_data["Cooldowns"] == 2)) then
 				if castSpell("target",Stampede) then return; end
-			end			
+			end
 
 --[[
 
-]]	
+]]
 			-- Single Kill Shot
 			if getHP("target") <= 20 then
 				if castSpell("target",KillShot,false) then return; end
@@ -106,9 +106,9 @@ function  BeastHunter()
 			end
 
 			-- Focus Fire
-			if BadBoy_data["Cooldowns"] == 3 
+			if BadBoy_data["Cooldowns"] == 3
 			  or (BadBoy_data["Check Focus Fire"] == 1 and BadBoy_data["Drop Focus Fire"] == 3)
-			  or (BadBoy_data["Check Focus Fire"] == 1 and (BadBoy_data["Drop Focus Fire"] == 2 and BadBoy_data["Cooldowns"] == 2)) then	
+			  or (BadBoy_data["Check Focus Fire"] == 1 and (BadBoy_data["Drop Focus Fire"] == 2 and BadBoy_data["Cooldowns"] == 2)) then
 				if (canBestialWrath == false or getSpellCD(BestialWrath) > 19) and select(4,UnitBuffID("player",19615)) == 5 and not UnitBuffID("player",19574) then
 					if castSpell("player",FocusFire) then return; end
 				end
@@ -140,18 +140,18 @@ function  BeastHunter()
 			if numEnemies >= 3 then				-- Multi-Shot
 				if Focus > 79 and not UnitBuffID("pet",118455) or Focus > 99 then
 					if castSpell("target",MultiShot,false) then return; end
-				end		
+				end
 			else
 				-- Arcane Shot
 				if Focus >= 69 then
 					if castSpell("target",ArcaneShot,false) then return; end
 				end
-			end		
+			end
 
 			-- Explosive Trap
-			if canCast(TrapLauncherExplosive) and BadBoy_data["Check Explosive Trap"] == 1 
-				and (BadBoy_data["Drop Explosive Trap"] == 3 or (BadBoy_data["Drop Explosive Trap"] == 2 and numEnemies >= 3)) 
-				and getGround("target") == true 
+			if canCast(TrapLauncherExplosive) and BadBoy_data["Check Explosive Trap"] == 1
+				and (BadBoy_data["Drop Explosive Trap"] == 3 or (BadBoy_data["Drop Explosive Trap"] == 2 and numEnemies >= 3))
+				and getGround("target") == true
 				and isMoving("target") ~= true
 				and (isDummy("target") or (getDistance("target","targettarget") <= 5 and UnitHealth("target")*numEnemies >= 150*UnitHealthMax("player")/100)) then
 				if castGround("target",TrapLauncherExplosive,40) then return; end
