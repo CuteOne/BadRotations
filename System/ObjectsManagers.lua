@@ -119,24 +119,24 @@ if not metaTable1 then
 		SetupTables()
 	end)
 
-	function Nova_GUID(unit)
-  		local nShortHand = ""
+
+ 	function newGUID(unit)
   		if UnitExists(unit) then
     		if UnitIsPlayer(unit) then
 			targetGUID = UnitGUID(unit)
     		nShortHand = UnitGUID(unit):sub(-5)
   		else
 		    targetGUID = tonumber(UnitGUID(unit):sub(-16,-12))
-  	        nShortHand = UnitGUID(unit):sub(-5)	
+  	        nShortHand = UnitGUID(unit):sub(-5)
 		end
 		end
-		return targetGUID, nShortHand
+		return targetGUID
  	end
 
 	-- This is for those NPC units that need healing. Compare them against our list of Unit ID's
 	local function SpecialHealUnit(tar)
 		for i=1, #SpecialHealUnitList do
-			if Nova_GUID(tar) == SpecialHealUnitList[i] then
+			if getGUID(tar) == SpecialHealUnitList[i] then
 				return true
 			end
 		end
@@ -166,7 +166,7 @@ if not metaTable1 then
 		  and not UnitIsCharmed(tar)
 		  and not UnitIsDeadOrGhost(tar)
 		  and UnitIsConnected(tar))
-		  or SpecialHealUnitList[tonumber(select(2,Nova_GUID(tar)))] ~= nil	or (isChecked("Heal Pets") == true and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
+		  or SpecialHealUnitList[tonumber(select(2,getGUID(tar)))] ~= nil	or (isChecked("Heal Pets") == true and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
 		  and CheckBadDebuff(tar)
 		  and CheckCreatureType(tar)
 		  and getLineOfSight("player", tar)
@@ -175,7 +175,7 @@ if not metaTable1 then
 
 	function memberSetup:new(unit)
 		-- Seeing if we have already cached this unit before
-		if memberSetup.cache[Nova_GUID(unit)] then return false end
+		if memberSetup.cache[getGUID(unit)] then return false end
 		local o = {}
 		setmetatable(o, memberSetup)
 		if unit and type(unit) == "string" then
@@ -279,12 +279,12 @@ if not metaTable1 then
 			o.hp = o:CalcHP(); -- return unit HP
 			o.absorb = select(3, o:CalcHP()); -- return unit Absorb
 			o.target = tostring(o.unit).."target"; -- return target's target
-			memberSetup.cache[select(2, Nova_GUID(o.unit))] = o;
+			memberSetup.cache[select(2, getGUID(o.unit))] = o;
 		end
 
 		-- Adding the user and functions we just created to this cached version in case we need it again
 		-- This will also serve as a good check for if the unit is already in the table easily
-		--print(UnitName(unit), select(2, Nova_GUID(unit)))
+		--print(UnitName(unit), select(2, getGUID(unit)))
 		memberSetup.cache[select(2, o:nGUID())] = o;
 		return o;
 	end
@@ -299,7 +299,7 @@ if not metaTable1 then
 			for p=1, #SpecialTargets do
 				-- Checking if Unit Exists and it's possible to heal them
 				if UnitExists(SpecialTargets[p]) and HealCheck(SpecialTargets[p]) then
-					if not memberSetup.cache[select(2, Nova_GUID(SpecialTargets[p]))] then
+					if not memberSetup.cache[select(2, getGUID(SpecialTargets[p]))] then
 						local SpecialCase = memberSetup:new(SpecialTargets[p]);
 						if SpecialCase then
 							-- Creating a new user, if not already tabled, will return with the User
@@ -317,7 +317,7 @@ if not metaTable1 then
 							end
 						end
 						tinsert(nNova, SpecialCase);
-						SavedSpecialTargets[SpecialTargets[p]] = select(2, Nova_GUID(SpecialTargets[p]));
+						SavedSpecialTargets[SpecialTargets[p]] = select(2, getGUID(SpecialTargets[p]));
 					end
 				end
 			end
@@ -353,7 +353,7 @@ if not metaTable1 then
 			end)
 
 			-- Sorting with the Role
-		if isChecked("Sorting with Role") then	
+		if isChecked("Sorting with Role") then
 			table.sort(nNova, function(x,y)
 				if x.role and y.role then return x.role > y.role;
 				elseif x.role then return true;
@@ -366,7 +366,7 @@ if not metaTable1 then
 				end)
 			end]]
 			if isChecked("Special Priority") == true then
-			 	if UnitExists("focus") and memberSetup.cache[select(2, Nova_GUID("focus"))] then
+			 	if UnitExists("focus") and memberSetup.cache[select(2, getGUID("focus"))] then
 					table.sort(nNova, function(x)
 						if x.unit == "focus" then
 							return true;
@@ -375,7 +375,7 @@ if not metaTable1 then
 						end
 					end);
 				end
-				if UnitExists("target") and memberSetup.cache[select(2, Nova_GUID("target"))] then
+				if UnitExists("target") and memberSetup.cache[select(2, getGUID("target"))] then
 					table.sort(nNova, function(x)
 						if x.unit == "target" then
 							return true;
@@ -384,7 +384,7 @@ if not metaTable1 then
 						end
 					end);
 				end
-				if UnitExists("mouseover") and memberSetup.cache[select(2, Nova_GUID("mouseover"))] then
+				if UnitExists("mouseover") and memberSetup.cache[select(2, getGUID("mouseover"))] then
 					table.sort(nNova, function(x)
 						if x.unit == "mouseover" then
 							return true;

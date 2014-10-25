@@ -840,6 +840,21 @@ function getFacingSightDistance(Unit1,Unit2,Degrees)
 	return 1000;
 end
 
+
+function getGUID(unit)
+	local nShortHand = ""
+	if UnitExists(unit) then
+		if UnitIsPlayer(unit) then
+			targetGUID = UnitGUID(unit)
+			nShortHand = string.sub(UnitGUID(unit),-5)
+  		else
+		    targetGUID = UnitGUID(unit)
+  	        nShortHand = string.match(UnitGUID(unit), "-(%d+)-%x+$")
+		end
+	end
+	return targetGUID, nShortHand
+end
+
 -- if getHP("player") then
 function getHP(Unit)
 	if UnitIsDeadOrGhost(Unit) or not UnitIsVisible(Unit) then
