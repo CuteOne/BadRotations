@@ -98,9 +98,9 @@ function DruidRestoration()
 
 
 	--[[ Rebirth ]]
-	if (isChecked("MouseOver Rebirth") and not isChecked("Rebirth Toggle")) or (isChecked("Rebirth Toggle") and SpecificToggle("Rebirth Toggle") == true) then
-	if isInCombat("player")	and isStanding(0.3) and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("player","mouseover") and not UnitIsUnit("player","target") then
-		if castSpell("mouseover",20484,true,true) then return; end
+	if (isChecked("MouseOver Rebirth") and isChecked("Rebirth Toggle") ~= true) or (isChecked("Rebirth Toggle") and SpecificToggle("Rebirth Toggle") == true) then
+	if isInCombat("player")	and isStanding(0.3) and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("player","mouseover") and not UnitIsUnit("player","mouseover") then
+		if castSpell("mouseover",20484,true) then return; end
 	end
     end
 	--[[ Revive ]]
@@ -124,11 +124,9 @@ function DruidRestoration()
 	if canRun() ~= true then return false; end
 
 --[[ 	-- On GCD After here, palce out of combats spells here
-]]	if isChecked("LagTolerance") == true then
-		if isCastingTime(getValue("Lag Tolerance")) == true then return false; end
-	else
-		if isCasting() then return false; end
-	end
+]]	
+		if isCastingDruid() then return false; end
+	
 
 if isCastingSpell(740) then return false; end
 	--[[ 	-- Combats Starts Here
@@ -215,8 +213,8 @@ if isCastingSpell(740) then return false; end
         -- Healing Touch via Ns
 		if isChecked("Healing Touch Ns") and canCast(5185,false,false) and lowestHP < getValue("Healing Touch Ns") then
 			for i = 1, #nNova do
-				if nNova[i].hp <= getValue("Healing Touch Ns") and getDistance(nNova[i].unit,"player") < 40 then
-				   	if castSpell("player",132158,true) then
+				if nNova[i].hp <= getValue("Healing Touch Ns") and getDistance(nNova[i].unit,"player") < 43 then
+				   	if castSpell("player",132158,true,false) then
 				   		if castSpell(nNova[i].unit,5185,true,false) then return; end
 				   	end
 				  	-- For lag
@@ -240,10 +238,6 @@ if isCastingSpell(740) then return false; end
 						if getCombo() == 5 and UnitBuffID("player",768) ~= nil then
 							if castSpell("target",22568,false,false) then return; end
 						end
-						-- Rake
-						if getDebuffRemain("target",1822) < 2 then
-							if castSpell("target",1822,false,false) then return; end
-						end
 						-- Trash
 						if getDebuffRemain("target",106830) < 2 then
 							if castSpell("player",106832,false,false) then return; end
@@ -264,10 +258,14 @@ if isCastingSpell(740) then return false; end
 						-- MonFire Spam
 						if castSpell("target",_Moonfire,false,false) then return; end
 					else
-						-- Wrath
+					if getDebuffRemain("target",164812) < 2 then
+					if castSpell("target",_Moonfire,false,false) then return; end end
+					-- Wrath
 						if castSpell("target",5176,false,true) then return; end
-					end
+					
 				end
+			end
+			
 			else
 				if UnitBuffID("player",768) ~= nil then
 					CancelShapeshiftForm();
@@ -378,7 +376,7 @@ if isCastingSpell(740) then return false; end
 		end
 
 		--[[ 18 - reju Tol --( use reju on player with health check if not lifebloom tol check)]]
-		if isKnown(33891) and not isChecked("Lifebloom Tol") and UnitBuffID("player", 33891) and canCast(774,false,false) and lowestHP < getValue("Rejuvenation Tol") then
+		if isKnown(33891)  and UnitBuffID("player", 33891) and canCast(774,false,false) and lowestHP < getValue("Rejuvenation Tol") then
 	        for i = 1, #nNova do
 		       	if nNova[i].hp <= getValue("Rejuvenation Tol") and getBuffRemain(nNova[i].unit,774,"player") == 0 then
 			        if castSpell(nNova[i].unit,774,true,false) then return; end
@@ -389,7 +387,8 @@ if isCastingSpell(740) then return false; end
 		--[[ 18.5 - LifeBloom Fast Swich]]
 		if isChecked("Lifebloom") and canCast(33763,false,false) then
 	    	for i = 1, #nNova do
-				if nNova[i].hp < 249 and not UnitIsDeadOrGhost("focus") and getBuffRemain("focus",33763) == 0 then
+				if nNova[i].hp < 249 and not UnitIsDeadOrGhost("focus") and getBuffRemain("focus",33763) == 0 and UnitExists("focus") 
+				and getDistance("player","focus") < 43 then
 					if castSpell("focus",33763,true,false) then return; end
 				end
 			end
@@ -554,7 +553,8 @@ if isCastingSpell(740) then return false; end
 
 		--[[ 28 - LifebloomFocus--(Refresh if over treshold)]]
       	if isChecked("Lifebloom") then
-			if not UnitIsDeadOrGhost("focus") and getHP("focus") >= getValue("Lifebloom") and getBuffRemain("focus",33763,"player") < 2 then
+			if not UnitIsDeadOrGhost("focus") and getHP("focus") >= getValue("Lifebloom") and getBuffRemain("focus",33763,"player") < 2 
+			and getDistance("player","focus") < 43 and UnitExists("focus") then
 				if castSpell("focus",33763,true,false) then return; end
 			end
 		end
@@ -645,12 +645,7 @@ if isCastingSpell(740) then return false; end
 			end
 		end
 
-		--[[ 35 - Lifebloom - --(Force Stacks)]]
-		if isChecked("Lifebloom") == true and not UnitIsDeadOrGhost("focus") then
-			if getBuffRemain("focus",33763) == 0 then
-				if castSpell("focus",33763,true,false) then return; end
-			end
-		end
+		
 
 		--[[ 36 - Rejuvenation Tank]]
 		if isChecked("Rejuvenation Tank") and canCast(774,false,false) and lowestTankHP < getValue("Rejuvenation Tank") then

@@ -193,7 +193,7 @@ function BadBoyRun()
 		if readyToAccept and readyToAccept <= GetTime() - 5 then AcceptProposal(); readyToAccept = nil; randomReady = nil; end
 		PokeEngine();
 		-- global vars
-		targetDistance = rc:GetRange("target") or 0;
+		targetDistance = getDistance("target") or 0;
 		displayDistance = math.floor(targetDistance*100)/100
 		mainText:SetText(displayDistance);
 		profileStarts = GetTime();
