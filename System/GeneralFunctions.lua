@@ -798,7 +798,15 @@ function getFacingSight(Unit1,Unit2,Degrees)
 	end
 	return false;
 end
-
+function getLowAllies(Value)
+ local lowAllies = 0;
+ for i = 1, #nNova do
+  if nNova[i].hp < Value then
+   lowAllies = lowAllies + 1
+  end
+ end
+ return lowAllies
+end
 -- if getFacingSightDistance("player","target",45) < 30 then
 function getFacingSightDistance(Unit1,Unit2,Degrees)
 	if Degrees == nil then Degrees = 90; end
