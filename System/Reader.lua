@@ -398,13 +398,14 @@ function SuperReader(self, event, ...)
         	if source == UnitGUID("player") then
         		if param == "SPELL_CAST_SUCCESS" then
         			local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
-        			if SpellID ~= 75 and SpellID ~= 88263 and SpellID ~= 172 then -- Add spells we dont want to appear here.
+        			if SpellID ~= 75 and SpellID ~= 88263 and SpellID ~= 172 and SpellID ~= 8690 then -- Add spells we dont want to appear here.
         				local color = "|cff12C8FF";
         				BadBoy_data.successCasts = BadBoy_data.successCasts + 1;
-        				if sourceGUID == nil then debugSource = "" 	else debugSource = 	"\n|cffFFFFFF"..sourceName.." "..sourceGUID; end
+        				if destGUID == nil or destName == nil then debugdest = "" 	else debugdest = 	"\n|cffFFFFFF"..destName.." "..destGUID; end
+						if sourceGUID == nil then debugSource = "" 	else debugSource = 	"\n|cffFFFFFF"..sourceName.." "..sourceGUID; end
         				if spellID == nil then debugSpell = "" 		else debugSpell = 	"\n|cffFFDD11"..spellName.." "..spellID; end
         				local Power = "\n|cffFFFFFFPower: "..UnitPower("player");
-        				tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName, toolTip = "|cffFF001ERoll Mouse to Scroll Rows"..debugSource.." "..debugSpell.." "..Power });
+        				tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName, toolTip = "|cffFF001ERoll Mouse to Scroll Rows"..debugSource.." "..debugdest.." "..debugSpell.." "..Power });
 						if #debugTable > 249 then tremove(debugTable, 250); end
 						if BadBoy_data.ActualRow == 0 and debugRefresh ~= nil then debugRefresh(); end
 					end
