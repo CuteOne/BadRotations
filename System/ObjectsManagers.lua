@@ -119,20 +119,6 @@ if not metaTable1 then
 		SetupTables()
 	end)
 
-
- 	function newGUID(unit)
-  		if UnitExists(unit) then
-    		if UnitIsPlayer(unit) then
-			targetGUID = UnitGUID(unit)
-    		nShortHand = UnitGUID(unit):sub(-5)
-  		else
-		    targetGUID = tonumber(UnitGUID(unit):sub(-16,-12))
-  	        nShortHand = UnitGUID(unit):sub(-5)
-		end
-		end
-		return targetGUID
- 	end
-
 	-- This is for those NPC units that need healing. Compare them against our list of Unit ID's
 	local function SpecialHealUnit(tar)
 		for i=1, #SpecialHealUnitList do
