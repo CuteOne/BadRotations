@@ -167,6 +167,7 @@ if select(3, UnitClass("player")) == 10 then
 				if isChecked("DPS Testing") then
 					if UnitExists("target") then
 						if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
+							CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
 							StopAttack()
 							ClearTarget()
 							print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
@@ -207,12 +208,16 @@ if select(3, UnitClass("player")) == 10 then
 	--------------------------------
 	--- In Combat - All Rotation ---
 	--------------------------------
-				if sefStack<2 then
-					if sefTarget == nil or not isInCombat("player") then sefTarget = UnitGUID("player") end
-					for i=1,#targets do
-						if isInCombat(targets[i].Unit) and UnitGUID(targets[i].Unit)~=UnitGUID("target") and UnitGUID(targets[i].Unit)~=sefTarget then
-							if castSpell(targets[i].Unit,_StormEarthFire,false,false,false) then seftarget = UnitGUID(targets[i].Unit) return; end
-						end
+	-- Storm, Earth, and Fire
+				if UnitExists("target") then
+					if (#targets == 1 and sefStack==2) or (#targets == 0 and sefStack==1) then
+						CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
+					end
+				 	if sefStack == 0 and #targets>0 then
+						if castSpell(targets[1].Unit,_StormEarthFire,false,false,false) then return; end
+				 	end
+					if sefStack == 1 and #targets==2 then
+						if castSpell(targets[2].Unit,_StormEarthFire,false,false,false) then return; end
 					end
 				end
 	-- Crackling Jade Lightning
@@ -254,14 +259,6 @@ if select(3, UnitClass("player")) == 10 then
 	--- In Combat - Multi-Target Rotation ---
 	-----------------------------------------
 				if useAoE() then
-	-- Storm, Earth, and Fire
-					-- if sefStack<2 then
-					-- 	for i=1,#targets do
-					-- 		if isInCombat(targets[i].Unit) then
-	    -- 						if castSpell(targets[i].Unit,_StormEarthFire,false,false,false) then return; end
-	    -- 					end
-	    -- 				end
-	    -- 			end
 	-- Raising Sun Kick
 					if chi>=4 then
 						if castSpell("target",_RaisingSunKick,false,false) then return; end

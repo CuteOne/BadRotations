@@ -67,15 +67,20 @@ function sefTargets()
     end
     targets = {}
     for i=1,#enemies do
-        if UnitExists(enemies[i]) == true
-            and getCreatureType(enemies[i]) == true
-            and UnitCanAttack("player",enemies[i]) == true
-            and UnitIsDeadOrGhost(enemies[i]) == false
+        if UnitExists(enemies[i])
+            and getCreatureType(enemies[i])
+            and UnitCanAttack("player",enemies[i])
+            and not UnitIsDeadOrGhost(enemies[i])
+            and (isInCombat(enemies[i]) or isDummy(enemies[i]))
+            and UnitGUID(enemies[i])~=UnitGUID("target")
         then
             table.insert( targets,{ Unit = enemies[i], HP = UnitHealth(enemies[i]), Range = getDistance("player",enemies[i])})
         end
     end
-    table.sort(targets, function(x,y) return x.HP > y.HP, x.Range > y.Range end)
+    table.sort(targets, function(x,y) return x.HP > y.HP end)
+    for i=1,#targets do
+        if #targets>2 then table.remove(targets,#targets) end
+    end
 end
 
 -- -- if getEnemiesTable("target",10) >= 3 then
