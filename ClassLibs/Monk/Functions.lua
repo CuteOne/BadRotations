@@ -61,8 +61,11 @@ function GroupInfo()
 end
 
 function sefTargets()
+    if enemies == nil then enemies = 0 end
+    if not myenemiesTimer or myenemiesTimer <= GetTime() - 1 then
+        enemies, myenemiesTimer = getEnemies("player",40), GetTime()
+    end
     targets = {}
-    local enemies = getEnemies("player",40)
     for i=1,#enemies do
         if UnitExists(enemies[i]) == true
             and getCreatureType(enemies[i]) == true

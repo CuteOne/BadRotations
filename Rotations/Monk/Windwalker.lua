@@ -207,6 +207,14 @@ if select(3, UnitClass("player")) == 10 then
 	--------------------------------
 	--- In Combat - All Rotation ---
 	--------------------------------
+				if sefStack<2 then
+					if sefTarget == nil or not isInCombat("player") then sefTarget = UnitGUID("player") end
+					for i=1,#targets do
+						if isInCombat(targets[i].Unit) and UnitGUID(targets[i].Unit)~=UnitGUID("target") and UnitGUID(targets[i].Unit)~=sefTarget then
+							if castSpell(targets[i].Unit,_StormEarthFire,false,false,false) then seftarget = UnitGUID(targets[i].Unit) return; end
+						end
+					end
+				end
 	-- Crackling Jade Lightning
 				if tarDist >= 8 and getSpellCD(_FlyingSerpentKick)>1 and power>20 and chiDiff>=2 and not isCastingSpell(_CracklingJadeLightning) and (select(2,IsInInstance())=="none" or isInCombat("target")) then
 					if castSpell("target",_CracklingJadeLightning,false) then return; end
@@ -247,13 +255,13 @@ if select(3, UnitClass("player")) == 10 then
 	-----------------------------------------
 				if useAoE() then
 	-- Storm, Earth, and Fire
-					if sefStack<2 then
-						for i=1,#targets do
-							if isInCombat(targets[i].Unit) then
-	    						if castSpell(targets[i].Unit,_StormEarthFire,false,false,false) then return; end
-	    					end
-	    				end
-	    			end
+					-- if sefStack<2 then
+					-- 	for i=1,#targets do
+					-- 		if isInCombat(targets[i].Unit) then
+	    -- 						if castSpell(targets[i].Unit,_StormEarthFire,false,false,false) then return; end
+	    -- 					end
+	    -- 				end
+	    -- 			end
 	-- Raising Sun Kick
 					if chi>=4 then
 						if castSpell("target",_RaisingSunKick,false,false) then return; end
