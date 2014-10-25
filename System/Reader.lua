@@ -159,8 +159,9 @@ Frame:RegisterEvent("LEARNED_SPELL_IN_TAB");
 local function SpellsChanged(self, event, ...)
 	print(...)
 	if event == "LEARNED_SPELL_IN_TAB" then
-		currentConfig = nil;
-		print("|cffFF0000Config Reloaded " .. event);
+		if not configReloadTimer or configReloadTimer <= GetTime() - 1 then
+			currentConfig, configReloadTimer = nil, GetTime();
+		end
 	end
 end
 Frame:SetScript("OnEvent", SpellsChanged)

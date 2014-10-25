@@ -75,6 +75,8 @@
 
 `getLineOfSight(Unit1,Unit2) - Bool` Returns true if the Unit1 can see Unit2
 
+`getLowAllies(Value) - Num` Returns number of units under Value HP in nNova
+
 `getMana(Unit) - Num` Returns Unit Mana %
 
 `getNumEnemies(Target,Radius) - Num` Returns number of Enemies found within Radius of the target
