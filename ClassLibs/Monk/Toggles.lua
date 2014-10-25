@@ -224,48 +224,48 @@ if select(3,UnitClass("player")) == 10 then
             elseif getValue(toggle) == 5 then
                 return IsRightAltKeyDown();
             elseif getValue(toggle) == 6 then
-                return 0
+                return false
             end
         end
 
     --AoE Key Toggle
         if AOETimer == nil then AOETimer = 0; end
-        if SpecificToggle("Rotation Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - AOETimer > 0.25 then
+        if SpecificToggle("Rotation Mode") and not GetCurrentKeyBoardFocus() and GetTime() - AOETimer > 0.25 then
             AOETimer = GetTime()
             UpdateButton("AoE")
         end
 
         --Cooldown Key Toggle
         if CDTimer == nil then CDTimer = 0; end
-        if SpecificToggle("Cooldown Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - CDTimer > 0.25 then
+        if SpecificToggle("Cooldown Mode") and not GetCurrentKeyBoardFocus() and GetTime() - CDTimer > 0.25 then
             CDTimer = GetTime()
             UpdateButton("Cooldowns")
         end
 
         --Defensive Key Toggle
         if DefTimer == nil then DefTimer = 0; end
-        if SpecificToggle("Defensive Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - DefTimer > 0.25 then
+        if SpecificToggle("Defensive Mode") and not GetCurrentKeyBoardFocus() and GetTime() - DefTimer > 0.25 then
             DefTimer = GetTime()
             UpdateButton("Defensive")
         end
 
         --Interrupt Key Toggle
         if IntTimer == nil then IntTimer = 0; end
-        if SpecificToggle("Interrupt Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - IntTimer > 0.25 then
+        if SpecificToggle("Interrupt Mode") and not GetCurrentKeyBoardFocus() and GetTime() - IntTimer > 0.25 then
             IntTimer = GetTime()
             UpdateButton("Interrupts")
         end
 
         --FSK Key Toggle
         if FSKTimer == nil then FSKTimer = 0; end
-        if SpecificToggle("FSK Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - FSKTimer > 0.25 then
+        if SpecificToggle("FSK Mode") and not GetCurrentKeyBoardFocus() and GetTime() - FSKTimer > 0.25 then
             DSKTimer = GetTime()
             UpdateButton("FSK")
         end
 
         --Chi Key Toggle
         if ChiTimer == nil then ChiTimer = 0; end
-        if SpecificToggle("Builder Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - ChiTimer > 0.25 then
+        if SpecificToggle("Builder Mode") and not GetCurrentKeyBoardFocus() and GetTime() - ChiTimer > 0.25 then
             ChiTimer = GetTime()
             UpdateButton("Builder")
         end

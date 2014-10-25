@@ -6,6 +6,7 @@ if select(3, UnitClass("player")) == 10 then
 	    end
 	    WindwalkerToggles()
 	    GroupInfo()
+	    sefTargets()
 	    -- if not canRun() then
 	    -- 	return true
 	    -- end
@@ -246,9 +247,13 @@ if select(3, UnitClass("player")) == 10 then
 	-----------------------------------------
 				if useAoE() then
 	-- Storm, Earth, and Fire
-					if UnitExists("mouseover") and UnitCanAttack("mouseover", "player") and not UnitIsDeadOrGhost("mouseover") and not UnitIsUnit("mouseover","target") and sefStack<2 then
-						if castSpell("mouseover",_StormEarthFire,false,false,false) then return; end
-					end
+					if sefStack<2 then
+						for i=1,#targets do
+							if isInCombat(targets[i].Unit) then
+	    						if castSpell(targets[i].Unit,_StormEarthFire,false,false,false) then return; end
+	    					end
+	    				end
+	    			end
 	-- Raising Sun Kick
 					if chi>=4 then
 						if castSpell("target",_RaisingSunKick,false,false) then return; end

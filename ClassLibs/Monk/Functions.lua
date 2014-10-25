@@ -60,17 +60,60 @@ function GroupInfo()
     end
 end
 
-function useAoE()
-    if numEnemies == nil then numEnemies = 0 end
-    if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
-        numEnemies, enemiesTimer = getNumEnemies("player",5), GetTime()
+function sefTargets()
+    targets = {}
+    local enemies = getEnemies("player",40)
+    for i=1,#enemies do
+        if UnitExists(enemies[i]) == true
+            and getCreatureType(enemies[i]) == true
+            and UnitCanAttack("player",enemies[i]) == true
+            and UnitIsDeadOrGhost(enemies[i]) == false
+        then
+            table.insert( targets,{ Unit = enemies[i], HP = UnitHealth(enemies[i]), Range = getDistance("player",enemies[i])})
+        end
     end
-    if ((BadBoy_data['AoE'] == 1 and numEnemies >= 3) or BadBoy_data['AoE'] == 2) and UnitLevel("player")>=46 then
+    table.sort(targets, function(x,y) return x.HP > y.HP, x.Range > y.Range end)
+end
+
+-- -- if getEnemiesTable("target",10) >= 3 then
+-- function getEnemiesTable(Unit,Radius)
+--     local enemiesTable = {};
+--     if UnitExists("target") == true and getCreatureType("target") == true then
+--         if UnitCanAttack("player","target") == true and UnitIsDeadOrGhost("target") == false then
+--             local myDistance = getDistance("player","target")
+--             if myDistance <= Radius then
+--                 table.insert(enemiesTable, { unit = "target" , range = myDistance });
+--             end
+--         end
+--     end
+--     for i=1,ObjectCount() do
+--         if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
+--             local thisUnit = ObjectWithIndex(i);
+--             if UnitGUID(thisUnit) ~= UnitGUID("target") and getCreatureType(thisUnit) == true then
+--                 if UnitCanAttack("player",thisUnit) == true and UnitIsDeadOrGhost(thisUnit) == false then
+--                     local myDistance = getDistance("player",thisUnit)
+--                     if myDistance <= Radius then
+--                         table.insert({ unit = thisUnit , range = myDistance });
+--                     end
+--                 end
+--             end
+--         end
+--     end
+--     return enemiesTable;
+-- end
+
+function useAoE()
+    if myEnemies == nil then myEnemies = 0 end
+    if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
+        myEnemies, enemiesTimer = getEnemies("player",8), GetTime()
+    end
+    if ((BadBoy_data['AoE'] == 1 and #myEnemies >= 3) or BadBoy_data['AoE'] == 2) and UnitLevel("player")>=46 then
         return true
     else
         return false
     end
 end
+
 
 function useCDs()
     if (BadBoy_data['Cooldowns'] == 1 and isBoss()) or BadBoy_data['Cooldowns'] == 2 then
