@@ -163,7 +163,7 @@ function DruidMoonkin()
 		end
 
 		--[[call_action_list,name=single_target,if=active_enemies=1]]
-		if #myEnemiesTable ~= 100 then
+		if (#myEnemiesTable == 1 and BadBoy_data["AoE"] == 3) or BadBoy_data["AoE"] == 1 then
 
 			-- celestial_alignment,if=lunar_max<8|target.time_to_die<20
 			-- incarnation,if=buff.celestial_alignment.up
@@ -204,6 +204,8 @@ function DruidMoonkin()
 			if UnitBuffID("player",_ShootingStars) and castSpell("target",_Starsurge,false,true) then return; end
 
 		else
+
+
 			--[[starsurge,moving=1,if=buff.shooting_stars.react]]
 			if UnitBuffID("player",_ShootingStars) and castSpell("target",_Starsurge,false,true) then return; end
 			-- celestial_alignment,if=lunar_max<8|target.time_to_die<20
