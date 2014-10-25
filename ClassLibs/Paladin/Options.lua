@@ -69,9 +69,43 @@ if select(3,UnitClass("player")) == 2 then
 		end
 		
 		-- Word Of Glory Party
-		CreateNewCheck(thisConfig,"Word Of Glory On Self");
-		CreateNewBox(thisConfig, "Word Of Glory On Self", 0, 100, 1, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to heal self with \n|cffFFFFFFWords Of Glory");
-		CreateNewText(thisConfig,"Word Of Glory On Self");
+		CreateNewCheck(thisConfig,"Word Of Glory On Self")
+		CreateNewBox(thisConfig, "Word Of Glory On Self", 0, 100, 1, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to heal self with \n|cffFFFFFFWords Of Glory")
+		CreateNewText(thisConfig,"Word Of Glory On Self")
+		
+		-- Lay On Hands on yourself
+		CreateNewCheck(thisConfig,"Lay On Hands Self");
+		CreateNewBox(thisConfig, "Lay On Hands Self", 0, 100, 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands on your self");
+		CreateNewText(thisConfig,"Lay On Hands Self");
+		
+		-- Lay On Hands on Party
+		CreateNewCheck(thisConfig,"Lay On Hands Party");
+		CreateNewBox(thisConfig, "Lay On Hands Party", 0, 100, 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands on your Party");
+		CreateNewText(thisConfig,"Lay On Hands Party");
+		
+		CreateNewCheck(thisConfig,"Hand Of Sacrifice")
+		CreateNewBox(thisConfig, "Hand Of Sacrifice", 0, 100  , 1, 35, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Sacrifice")
+		CreateNewText(thisConfig,"Hand Of Sacrifice") 
+
+		-- Cast Hand of Salvation
+		CreateNewCheck(thisConfig,"Hand Of Salvation Self");
+		CreateNewBox(thisConfig, "Hand Of Salvation Self", 0, 100  , 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Salvation on Self");
+		CreateNewText(thisConfig,"Hand Of Salvation Self");		
+		
+		-- Cast Hand of Salvation Party
+		CreateNewCheck(thisConfig,"Hand Of Salvation Party");
+		CreateNewBox(thisConfig, "Hand Of Salvation Party", 0, 100  , 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Salvation on Party");
+		CreateNewText(thisConfig,"Hand Of Salvation Party");		
+		
+		-- Rebuke
+		CreateNewCheck(thisConfig,"Rebuke");
+		CreateNewBox(thisConfig, "Rebuke", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFRebuke.");
+		CreateNewText(thisConfig,"Rebuke");
+		
+		
+		--CreateNewCheck(thisConfig,"LoH Targets");
+		--CreateNewDrop(thisConfig, "LoH Targets", 1, "|cffFF0000Wich Targets\n|cffFFBB00We want to use \n|cffFFFFFFLay On Hands", "|cffFF0000Me.Only", "|cffFFDD11Me.Prio", "|cff00FBEETank/Heal","|cff00FF00All");
+		--CreateNewText(thisConfig,"LoH Targets"); 
 		
 		-- Word Of Glory Party
 		--CreateNewCheck(thisConfig,"Word Of Glory On Party");
@@ -96,11 +130,7 @@ if select(3,UnitClass("player")) == 2 then
 		--CreateNewCheck(thisConfig,"Ardent Defender");
 		--CreateNewBox(thisConfig, "Ardent Defender", 0, 100, 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFArdent Defender");
 		--CreateNewText(thisConfig,"Ardent Defender");
-		
-		-- Lay On Hands on yourself
-		--CreateNewCheck(thisConfig,"Lay On Hands Self");
-		--CreateNewBox(thisConfig, "Lay On Hands Self", 0, 100, 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands on your self");
-		--CreateNewText(thisConfig,"Lay On Hands Self");
+
 		
 		-- Cast Divine Shield
 		--CreateNewCheck(thisConfig,"Divine Shield");
@@ -121,20 +151,8 @@ if select(3,UnitClass("player")) == 2 then
 		--CreateNewCheck(thisConfig,"Hand Of Protection Friend");
 		--CreateNewBox(thisConfig, "Hand Of Protection Friend", 0, 100  , 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Protection Friend");
 		--CreateNewText(thisConfig,"Hand Of Protection Friend");
-		
-		-- Cast Hand of Sacrifice
-		--CreateNewCheck(thisConfig,"Hand Of Sacrifice");
-		--CreateNewBox(thisConfig, "Hand of Sacrifice", 0, 100  , 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand of Sacrifice on Friend");
-		--CreateNewText(thisConfig,"Hand of Sacrifice");
-		
-		-- Cast Hand of Salvation
-		--CreateNewCheck(thisConfig,"Hand Of Salvation Friend");
-		--CreateNewBox(thisConfig, "Hand Of Salvation Friend", 0, 100  , 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Salvation on Friend");
-		--CreateNewText(thisConfig,"Hand Of Salvation Friend");
-		
-		
-		
-	   -- Wrapper
+
+		-- Wrapper
 		--CreateNewWrap(thisConfig,"-------- Healing -------");
 
 		-- Tier 3 talents
@@ -173,30 +191,15 @@ if select(3,UnitClass("player")) == 2 then
 		--	CreateNewText(thisConfig,"Hand of Purity"); 
 		--end
 
-		--CreateNewCheck(thisConfig,"Lay On Hands");
-		--CreateNewBox(thisConfig, "Lay On Hands", 0, 100  , 1, 12, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands");
-		--CreateNewText(thisConfig,"Lay On Hands"); 
-
-		--CreateNewCheck(thisConfig,"LoH Targets");
-		--CreateNewDrop(thisConfig, "LoH Targets", 1, "|cffFF0000Wich Targets\n|cffFFBB00We want to use \n|cffFFFFFFLay On Hands", "|cffFF0000Me.Only", "|cffFFDD11Me.Prio", "|cff00FBEETank/Heal","|cff00FF00All");
-		--CreateNewText(thisConfig,"LoH Targets"); 
-
-		--CreateNewCheck(thisConfig,"Hand Of Sacrifice");
-		--CreateNewBox(thisConfig, "Hand Of Sacrifice", 0, 100  , 1, 35, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Sacrifice");
-		--CreateNewText(thisConfig,"Hand Of Sacrifice");   
+		
 
 		-- Wrapper
 		--CreateNewWrap(thisConfig,"-------- Utilities -------");
-
-		-- Rebuke
-		--CreateNewCheck(thisConfig,"Rebuke");
-		--CreateNewBox(thisConfig, "Rebuke", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFRebuke.");
-		--CreateNewText(thisConfig,"Rebuke");
 		
 		-- General Configs
 		--CreateGeneralsConfig();
 
-		WrapsManager();
+		WrapsManager()
 	end
 
 	function PaladinHolyOptions()

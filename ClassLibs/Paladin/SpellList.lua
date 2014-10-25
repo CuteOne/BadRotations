@@ -24,6 +24,7 @@ if select(3,UnitClass("player")) == 2 then
 	_Exorcism                   =   879
 	_FistOfJustice              =   105593
 	_FlashOfLight               =   19750
+	_Forbearance				= 	25771
 	_HandOfFreedom              =   1044
 	_HandOfProtection           =   1022
 	_HandOfPurity               =   114039
@@ -136,6 +137,21 @@ if select(3,UnitClass("player")) == 2 then
 		end
 		return false
 	end
+	--function SacredShield()
+    --       local SacredShieldCheck = BadBoy_data["Check Sacred Shield"];
+    --  -      local SacredShield = BadBoy_data["Box Sacred Shield"];
+    --        if UnitBuffID("player",20925) then SacredShieldTimer = select(7, UnitBuffID("player",20925)) - GetTime() else SacredShieldTimer = 0 end
+    --       if SacredShieldCheck and getHP("player") <= SacredShield then
+    --            if ((isMoving("player") or UnitAffectingCombat("player")) and not UnitBuffID("player",20925)) or (LastVengeance ~= nil and (GetVengeance() > (BadBoy_data["Box Sacred Vengeance"] + LastVengeance))) then
+    --                LastVengeance = GetVengeance()
+    --               return true;
+    --            end
+    --            if SacredShieldTimer <= 3 then
+    --                return true;
+    --            end
+    --        end 
+    --        return false;
+    --    end
 	-- Todo: We should calculate expected heal with resolve to not overheal
 	function castWordOfGlory(unit, health, holypower)
 		if (getHP(unit) <= health and _HolyPower > holypower) then -- Handle this via config? getHP does it include incoming heals? Bastion of Glory checks?
@@ -154,6 +170,52 @@ if select(3,UnitClass("player")) == 2 then
 				end
 			end
 			--Todo, we could check other targets to use HP on but this should be controlled by config.
+		end
+		return false
+	end
+	
+	function castHandOfSacrifice()
+	-- Todo: We should add glyph check or health check, at the moment we assume the glyph
+	-- Todo:  We should be able to config who to use as candidate, other tank, healer, based on debuffs etc.
+	-- Todo: add check if target already have sacrifice buff
+	-- Todo Is the talent handle correctly? 2 charges? CD starts but u have 2 charges
+	-- This is returning false since its not proper designed yet. We need to have a list of scenarios when we should cast sacrifice, off tanking, dangerous debuffs/dots or high spike damage on someone.	
+		return false
+	end
+	
+	-- Todo This need to be enhanced to be much more logical
+	function castLayOnHands(unit)
+		if not unit then --We are not being told who to cast Lay On Hand on, therefore check lowest HP in party
+			if isChecked("Lay On Hands Party") and nNova[1].hp <= getValue("Lay On Hands Party") and canCast(_LayOnHands) and not UnitDebuffID(nNova[1].unit,_Forbearance) then
+				if castSpell(nNova[1].unit,_LayOnHands,true) then 
+					return true
+				end
+			end
+		else -- else we think its ourself
+			if isChecked("Lay On Hands Self") and getHP("player") <= getValue("Lay On Hands Self") and canCast(_LayOnHands) and not UnitDebuffID("player",_Forbearance) then
+				if castSpell(nNova[1].unit,_LayOnHands,true) then 
+					return true
+				end
+			end
+		end
+		return false
+	end
+	
+	-- Todo we are only checking lowest healthm we need to switch to threat
+	-- Todo Add buff cehck if target already have the buff
+	-- Todo Is the talent handle correctly? 2 charges? CD starts but u have 2 charges
+	function castHandOfSalvation(unit)
+		-- This is not coded properly yet, we need a threat list to see how has threat, then we need to make sure to handle tank switching etc.
+		return false 
+	end
+	
+	function castRebuke(unit)
+		if isChecked("Rebuke") then
+			if canInterrupt(_Rebuke, tonumber(BadBoy_data["Box Rebuke"])) and getDistance("player",unit) <= 4 then 
+				if castSpell(unit,_Rebuke,false) then
+					return true
+				end
+			end
 		end
 		return false
 	end

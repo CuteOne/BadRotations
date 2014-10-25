@@ -56,22 +56,20 @@ if select(3, UnitClass("player")) == 2 then
 			end
 		
 			-- If we are close to dying
-			--if ProtPaladinSurvivalSelf() then -- Check if we are close to dying and act accoridingly
-			--	return 
-			--end
+			if ProtPaladinSurvivalSelf() then -- Check if we are close to dying and act accoridingly
+				return true
+			end
 			
 			-- If someone else is close to dying
-			--if ProtPaladinSurvivalOther() then -- Check if raidmember are close to dying and act accoridingly
-			--	return
-			--end
+			if ProtPaladinSurvivalOther() then -- Check if raidmember are close to dying and act accoridingly
+				return
+			end
 			
 			-- Interrupt 
-			--if BadBoy_data["Interrupts"] ~= 1 then -- If value are something else then None
-			--	if ProtPaladinInterrupt() then 
-			--		return -- Quit rotation if we succesfully cast a spell
-			--	end 
-			--end
-			
+			if ProtPaladinInterrupt() then 
+				return true 
+			end 
+						
 			-- Dispell Logics Todo, includes removal using Divine Shield and Hand of Protection
 			-- if ProtPaladinDispell() then
 			--end
@@ -81,8 +79,10 @@ if select(3, UnitClass("player")) == 2 then
 				return false 
 			end
 			
-			--if ProtPaladinUtility() then
-			--end
+			if ProtPaladinUtility() then
+				--print("Casting Utility spell")
+				return true
+			end
 			
 		
 			-- Check if we are missing any buffs
@@ -119,7 +119,7 @@ if select(3, UnitClass("player")) == 2 then
 				end
 			end
 		
-			if ProtPaladingHolyPowerCreaters() then -- Handle the normal rotation
+			if ProtPaladinHolyPowerCreaters() then -- Handle the normal rotation
 				--print("Something is cast within PowerCreaters")
 				return
 			end
