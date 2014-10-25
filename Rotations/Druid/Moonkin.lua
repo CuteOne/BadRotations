@@ -184,10 +184,10 @@ function DruidMoonkin()
 			--[[starsurge,if=buff.lunar_empowerment.down&eclipse_energy>20]]
 			--[[starsurge,if=buff.solar_empowerment.down&eclipse_energy<-20]]
 			--[[starsurge,if=(charges=2&recharge_time<15)|charges=3]]
-			if (UnitBuffID("player",_EmpowermentLunar) and UnitPower("player",SPELL_POWER_ECLIPSE) > 20)
+			if (isStanding(0.3) or UnitBuffID("player",_ShootingStars)) and ((UnitBuffID("player",_EmpowermentLunar) and UnitPower("player",SPELL_POWER_ECLIPSE) > 20)
 			  or (UnitBuffID("player",_EmpowermentSolar) and UnitPower("player",SPELL_POWER_ECLIPSE) < -20)
 			  or (surgeStack == 2 and surgeTime - GetTime() < 15)
-			  or (surgeStack == 3) then
+			  or (surgeStack == 3)) then
 				if castSpell("target",_Starsurge,false,false) then return; end
 			end
 
@@ -202,7 +202,8 @@ function DruidMoonkin()
 
 			--[[starsurge,moving=1,if=buff.shooting_stars.react]]
 			if UnitBuffID("player",_ShootingStars) and castSpell("target",_Starsurge,false,true) then return; end
-
+			--[[Moonfire Filler]]
+			if castSpell("target",_Moonfire,true,false,true) then return; end
 		else
 
 
@@ -212,7 +213,7 @@ function DruidMoonkin()
 			-- incarnation,if=buff.celestial_alignment.up
 			--[[sunfire,if=remains<8]]
 			if getDebuffRemain("target",_Sunfire,"player") < 8 then
-				if castSpell("target",_Sunfire,false,false) then return; end
+				if castSpell("target",_Sunfire,false,false,false) then return; end
 			end
 
 			-- starfall
