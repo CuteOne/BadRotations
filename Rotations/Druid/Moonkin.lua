@@ -167,19 +167,19 @@ function DruidMoonkin()
 			--[[moonfire,if=buff.lunar_peak.up&remains<eclipse_change+20
 			|remains<4
 			|(buff.celestial_alignment.up&buff.celestial_alignment.remains<=2&remains<eclipse_change+20)]]
-			if getDebuffRemain("target",_Moonfire,"player") < 4 or UnitBuffID("player",_EclipseLunar) then
-				if castSpell("target",_Moonfire,true,false,false) then return; end
+			if 	getDebuffRemain("target",_Moonfire,"player") < 4 
+				or UnitBuffID("player",_EclipseLunar) then
+					if castSpell("target",_Moonfire,true,false,false) then return; 
+					end
 			end
 
-			--[[starsurge,if=buff.lunar_empowerment.down&eclipse_energy>20]]
-			--[[starsurge,if=buff.solar_empowerment.down&eclipse_energy<-20]]
-			--[[starsurge,if=(charges=2&recharge_time<15)|charges=3]]
-			if (isStanding(0.3) or UnitBuffID("player",_ShootingStars)) 
+			--[[starsurge,if=buff.lunar_empowerment.down&eclipse_energy>20]]--[[starsurge,if=buff.solar_empowerment.down&eclipse_energy<-20]]--[[starsurge,if=(charges=2&recharge_time<15)|charges=3]]
+			if isStanding(0.3) 
 				and (
 						(not UnitBuffID("player",_EmpowermentLunar) and eclipseDirection == 0 and eclipseEnergy < -70)
 						or (not UnitBuffID("player",_EmpowermentSolar) and eclipseDirection == 1 and eclipseEnergy > 80)
 						or (surgeStack == 2 and surgeTime - GetTime() < 15)
-						or surgeStack == 3 --and not(UnitBuffID("player",_EmpowermentLunar) or UnitBuffID("player",_EmpowermentSolar)))
+						or surgeStack == 3 
 					) 
 				and not(eclipseEnergy > -30 and UnitBuffID("player",_EmpowermentSolar))	
 				and not(eclipseEnergy < 30 and UnitBuffID("player",_EmpowermentLunar))
@@ -211,19 +211,17 @@ function DruidMoonkin()
 				and castSpell("target",_Starfire,false,true) then  return; 
 			end
 
-			--[[starsurge,moving=1,if=buff.shooting_stars.react]]
-			if UnitBuffID("player",_ShootingStars) and castSpell("target",_Starsurge,false,true) then return; end
 			--[[Moonfire Filler]]
 			if castSpell("target",_Moonfire,true,false,true) then return; end
 		else
 
 
-			--[[starsurge,moving=1,if=buff.shooting_stars.react]]
-			if UnitBuffID("player",_ShootingStars) and castSpell("target",_Starsurge,false,true) then return; end
+
 			-- celestial_alignment,if=lunar_max<8|target.time_to_die<20
 			-- incarnation,if=buff.celestial_alignment.up
 			--[[sunfire,if=remains<8]]
-			if getDebuffRemain("target",_Sunfire,"player") < 8 then
+			if getDebuffRemain("target",_Sunfire,"player") < 8 
+				and eclipseEnergy > 0 then
 				if castSpell("target",_Sunfire,false,false,false) then return; end
 			end
 
@@ -237,18 +235,28 @@ function DruidMoonkin()
 					if castSpell(thisUnit,_Moonfire,false,false) then return; end
 				end
 			end
-
+			--we are in Lunar but we still cast Wrath cause when the spell lands we will be in sun
+			if 	isStanding(0.3) 
+				and (eclipseDirection == 1 and eclipseEnergy > -30)  
+				and castSpell("target",_Wrath,false,true) then  return; 
+			end
+			--we are in sun but we still cast starfire cause when the spell lands we will be in lunar
+			if 	isStanding(0.3) 
+				and (eclipseDirection == 0 and eclipseEnergy < 30) 
+				and castSpell("target",_Starfire,false,true) then  return; 
+			end
 			-- wrath,if=(eclipse_energy<=0&eclipse_change>cast_time)|(eclipse_energy>0&cast_time>eclipse_change)
 			if 	isStanding(0.3) 
-				and eclipseDirection == 0 
-				and castSpell("target",_Wrath,false,true) then return; 
-			end
+				and eclipseEnergy >= 0
+				--and (eclipseDirection == 0 or (eclipseDirection == 1 and eclipseEnergy > -80)) 
+				and castSpell("target",_Wrath,false,true) then  return; end
+
 
 			-- starfire,if=(eclipse_energy>=0&eclipse_change>cast_time)|(eclipse_energy<0&cast_time>eclipse_change)
 			if 	isStanding(0.3) 
-				and eclipseDirection == 1 
-				--and castSpell("target",_Starfire,false,true) 
-				then   return; 
+				and eclipseEnergy <= 0
+				--and (eclipseDirection == 1 or (eclipseDirection == 0 and eclipseEnergy < -80)) 
+				and castSpell("target",_Starfire,false,true) then  return; 
 			end
 
 		end
@@ -256,7 +264,7 @@ function DruidMoonkin()
 end
 end
 
-
+--Todo 
 
 
 
