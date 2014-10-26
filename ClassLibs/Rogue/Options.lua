@@ -200,7 +200,7 @@ function CombatOptions()
 
         -- Left Poison
         CreateNewCheck(thisConfig,"Left Poison");
-        CreateNewDrop(thisConfig,"Left Poison",3,"Left Hand poison.","|cff6600FFCrip","|cffA299B0Mind","|cff00CF1CLeech");
+        CreateNewDrop(thisConfig,"Left Poison",2,"Left Hand poison.","|cff6600FFCrip","|cff00CF1CLeech");
         CreateNewText(thisConfig,"Left Poison");
 
         -- Right Poison
@@ -305,7 +305,7 @@ function SubOptions()
 
         -- Left Poison
         CreateNewCheck(thisConfig,"Left Poison");
-        CreateNewDrop(thisConfig,"Left Poison",3,"Left Hand poison.","|cff6600FFCrip","|cffA299B0Mind","|cff00CF1CLeech");
+        CreateNewDrop(thisConfig,"Left Poison",2,"Left Hand poison.","|cff6600FFCrip","|cff00CF1CLeech");
         CreateNewText(thisConfig,"Left Poison");
 
         -- Right Poison
