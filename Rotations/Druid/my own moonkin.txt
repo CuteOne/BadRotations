@@ -138,6 +138,16 @@ function DruidMoonkin()
 --[[
 
 
+
+
+
+
+
+
+
+
+
+
 ]]
 
 		-- potion,name=jade_serpent,if=buff.celestial_alignment.up
@@ -176,39 +186,36 @@ function DruidMoonkin()
 			--[[starsurge,if=(charges=2&recharge_time<15)|charges=3]]
 			if (isStanding(0.3) or UnitBuffID("player",_ShootingStars)) 
 				and (
-						(not UnitBuffID("player",_EmpowermentLunar) and eclipseDirection == 0 and eclipseEnergy < -70)
-						or (not UnitBuffID("player",_EmpowermentSolar) and eclipseDirection == 1 and eclipseEnergy > 80)
+						(UnitBuffID("player",_EmpowermentLunar) and eclipseEnergy > 20)
+						or (UnitBuffID("player",_EmpowermentSolar) and eclipseEnergy < -20)
 						or (surgeStack == 2 and surgeTime - GetTime() < 15)
-						or surgeStack == 3 --and not(UnitBuffID("player",_EmpowermentLunar) or UnitBuffID("player",_EmpowermentSolar)))
+						or (surgeStack == 3)
 					) 
-				and not(eclipseEnergy > -30 and UnitBuffID("player",_EmpowermentSolar))	
-				and not(eclipseEnergy < 30 and UnitBuffID("player",_EmpowermentLunar))
-				and  (Starsurgetimer == nil or Starsurgetimer <= GetTime() - 2)
-				and  castSpell("target",_Starsurge,false,false) then Starsurgetimer = GetTime() print("Testing Starsurge before sun peak "..eclipseEnergy) return; 
+				and  castSpell("target",_Starsurge,false,false) then return; 
 						
 			end
-			--we are in Lunar but we still cast Wrath cause when the spell lands we will be in sun
+			
 			if 	isStanding(0.3) 
-				and (eclipseDirection == 1 and eclipseEnergy > -30)  
-				and castSpell("target",_Wrath,false,true) then  return; 
+				and (eclipseDirection == 1 and eclipseEnergy > -20)  
+				and castSpell("target",_Wrath,false,true) then print("Should be in lunar but land in sun "..eclipseEnergy) return; 
 			end
-			--we are in sun but we still cast starfire cause when the spell lands we will be in lunar
+
 			if 	isStanding(0.3) 
-				and (eclipseDirection == 0 and eclipseEnergy < 30) 
-				and castSpell("target",_Starfire,false,true) then  return; 
+				and (eclipseDirection == 0 and eclipseEnergy < 20) 
+				and castSpell("target",_Starfire,false,true) then print("Should be in sun but land in lunar : "..eclipseEnergy) return; 
 			end
 			-- wrath,if=(eclipse_energy<=0&eclipse_change>cast_time)|(eclipse_energy>0&cast_time>eclipse_change)
 			if 	isStanding(0.3) 
 				and eclipseEnergy >= 0
 				--and (eclipseDirection == 0 or (eclipseDirection == 1 and eclipseEnergy > -80)) 
-				and castSpell("target",_Wrath,false,true) then  return; end
+				and castSpell("target",_Wrath,false,true) then print("My energy is: "..eclipseEnergy) return; end
 
 
 			-- starfire,if=(eclipse_energy>=0&eclipse_change>cast_time)|(eclipse_energy<0&cast_time>eclipse_change)
 			if 	isStanding(0.3) 
 				and eclipseEnergy <= 0
 				--and (eclipseDirection == 1 or (eclipseDirection == 0 and eclipseEnergy < -80)) 
-				and castSpell("target",_Starfire,false,true) then  return; 
+				and castSpell("target",_Starfire,false,true) then print("My energy is: "..eclipseEnergy) return; 
 			end
 
 			--[[starsurge,moving=1,if=buff.shooting_stars.react]]
@@ -248,7 +255,7 @@ function DruidMoonkin()
 			if 	isStanding(0.3) 
 				and eclipseDirection == 1 
 				--and castSpell("target",_Starfire,false,true) 
-				then   return; 
+				then  print("My energy is: "..eclipseEnergy)  return; 
 			end
 
 		end
