@@ -2,6 +2,7 @@ if select(3, UnitClass("player")) == 8 then
 
 -- All
 	MirrorImage 	= 55342;
+	ArcaneBrilliance= 1459;
 
 -- Frost
 	CometStorm		= 153595;
@@ -12,6 +13,7 @@ if select(3, UnitClass("player")) == 8 then
 	IceLance		= 30455;
 	IcyVeins		= 12472;
 -- Pet
+	SummonPet		= 31687;
 	WaterJet		= 135029;
 -- FrTalents
 	FrostBomb 		= 113092;
@@ -85,5 +87,7 @@ if select(3, UnitClass("player")) == 8 then
 -- Glyphs
 	GlyphConeOfCold	= 115705;
 
+-- Racial
+	Berserkering 	= 26297;	-- Troll Racial
 
 end

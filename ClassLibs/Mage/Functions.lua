@@ -109,27 +109,33 @@ function FrostAoESimcraft()
 end
 
 --# Cooldowns
-function FrostCDs()
+function FrostMageCooldowns()
 	-- actions.cooldowns=icy_veins
-	if castSpell("target",IcyVeins,true,false) then
+	if castSpell("player",IcyVeins,true,false) then
 		return;
 	end
 
 	-- Mirrors
 	if isKnown(MirrorImage) then
-		if castSpell("target",MirrorImage,true,true) then
+		if castSpell("player",MirrorImage,true,true) then
 			return;
 		end
 	end
 
 	-- actions.cooldowns+=/blood_fury		-- Orc Racial
 	-- actions.cooldowns+=/berserking		-- Troll Racial
+	if isKnown(Berserkering) then
+		if castSpell("player",Berserkering,true,true) then
+			return;
+		end
+	end
+
 	-- actions.cooldowns+=/arcane_torrent	-- B11 Racial
 	-- actions.cooldowns+=/potion,name=draenic_intellect,if=buff.bloodlust.up|buff.icy_veins.up		-- Pot
 end
 
 	--# Crystal Sequence
-function FrostCrystalSimcraft()
+function FrostMageCrystalSimcraft()
 
 		-- actions.crystal_sequence=frost_bomb,if=active_enemies=1&current_target!=prismatic_crystal&remains<10
 		if isKnown(FrostBomb) and UnitName("target") ~= "Prismatic Crystal" then
@@ -164,9 +170,8 @@ function FrostCrystalSimcraft()
 			end
 		end
 
-																																		--[[TBD Debuff on target]]
 		-- actions.crystal_sequence+=/ice_lance,if=buff.fingers_of_frost.react=2|(buff.fingers_of_frost.react&active_dot.frozen_orb>=1)
-		if getBuffStacks("player",FingersOfFrost) == 2 then
+		if getBuffStacks("player",FingersOfFrost) == 2 or (UnitBuffID("player",FingersOfFrost) and UnitDebuffID("target",FrozenOrbDebuff) and getDebuffRemain("target",FrozenOrbDebuff) >=1) then
 			if castSpell("focus",IceLance,false,false) then
 				return;
 			end
@@ -212,7 +217,7 @@ function FrostCrystalSimcraft()
 end
 
 	--# SingleTarget
-function FrostSingleTargetSimcraft()
+function FrostMageSingleTargetSimcraft()
 
 	-- Get GCD Time
 	local HASTE = GetHaste()
@@ -302,13 +307,38 @@ function FrostSingleTargetSimcraft()
 			return;
 		end
 	end
+
 	-- actions.single_target+=/ice_lance,if=buff.fingers_of_frost.react&debuff.frost_bomb.remains>travel_time&(!talent.thermal_void.enabled|cooldown.icy_veins.remains>8)
 	-- actions.single_target+=/frostbolt,if=buff.ice_shard.up&!(talent.thermal_void.enabled&buff.icy_veins.up&buff.icy_veins.remains<10)
+	if UnitBuffID("player",IceShard) then
+		if not(isKnown(ThermalVoid) and getBuffRemain("player",IcyVeins)<10 and UnitBuffID("player",IcyVeins)) then
+			if castSpell("target",Frostbolt,false,true) then
+				return;
+			end
+		end
+	end
+
 	-- actions.single_target+=/ice_lance,if=buff.fingers_of_frost.react&!talent.frost_bomb.enabled&(!talent.thermal_void.enabled|cooldown.icy_veins.remains>8)
+	if not isKnown(FrostBomb) then
+		if UnitBuffID("player",FingersOfFrost) and (not isKnown(ThermalVoid) or getSpellCD(IcyVeins) > 8) then
+			if castSpell("target",IceLance,false,false) then
+				return;
+			end
+		end
+	end
+
 	-- actions.single_target+=/ice_lance,if=talent.thermal_void.enabled&buff.icy_veins.up&buff.icy_veins.remains<6&buff.icy_veins.remains<cooldown.icy_veins.remains
+	if isKnown(ThermalVoid) then
+		if getDebuffRemain("player",IcyVeins) < 6 and getSpellCD(IcyVeins) then
+			if castSpell("target",IceLance,false,false) then
+				return;
+			end
+		end
+	end
+
 	-- actions.single_target+=/water_jet,if=buff.fingers_of_frost.react=0&!dot.frozen_orb.ticking
 	if UnitExists("pet") == 1 and getBuffStacks("player",FingersOfFrost) < 1 and not UnitDebuffID("target",FrozenOrb,"player") then
-		if castSpell("target",WaterJet, true,false) then
+		if castSpell("target",WaterJet,true,false) then
 			return;
 		end
 	end
@@ -366,7 +396,33 @@ end
 
 
 
+	function CalculateHP(unit)
+		incomingheals = UnitGetIncomingHeals(unit) or 0
+	 	return 100 * ( UnitHealth(unit) + incomingheals ) / UnitHealthMax(unit)
+	end
 
+	function GroupInfo()
+		members, group = { { Unit = "player", HP = CalculateHP("player") } }, { low = 0, tanks = { } }
+		group.type = IsInRaid() and "raid" or "party"
+		group.number = GetNumGroupMembers()
+		if group.number > 0 then
+			for i=1,group.number do
+				if canHeal(group.type..i) then
+					local unit, hp = group.type..i, CalculateHP(group.type..i)
+					table.insert( members,{ Unit = unit, HP = hp } )
+					if hp < 90 then
+						group.low = group.low + 1
+					end
+					if UnitGroupRolesAssigned(unit) == "TANK" then
+						table.insert(group.tanks,unit)
+					end
+				end
+			end
+        if group.type == "raid" and #members > 1 then table.remove(members,1) end
+        table.sort(members, function(x,y) return x.HP < y.HP end)
+        --local customtarget = canHeal("target") and "target" -- or CanHeal("mouseover") and GetMouseFocus() ~= WorldFrame and "mouseover"
+        --if customtarget then table.sort(members, function(x) return UnitIsUnit(customtarget,x.Unit) end) end
+    end
 
-
+end
 end
