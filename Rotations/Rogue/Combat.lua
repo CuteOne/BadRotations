@@ -122,9 +122,14 @@ possible simple pvp mode if target = enemy faction
 		-- Combat Readiness
 		if isChecked("Combat Readiness") == true and getHP("player") <= getValue("Combat Readiness") and UnitThreatSituation("player") == 3 then
 			if castSpell("player",_CombatReadiness,true,false) then return; end
-		end		
+		end	
 
-		-- Preparation
+		-- Adrenaline Rush
+		if getSpellCD(_AdrenalineRush) > 0 then
+			if isChecked("Adrenaline Rush") == true and castSpell("player",_AdrenalineRush,true,false) then return; end	
+		end
+
+		-- Preparation 
 		if getSpellCD(_Vanish) > 0 then
 			if isChecked("Preparation") == true and castSpell("player",_Preparation,true,false) then return; end
 		end
@@ -136,7 +141,7 @@ possible simple pvp mode if target = enemy faction
 			end
 		end
 
-		-- Revealing Strike (added player lvl check)
+		-- Revealing Strike
 		if getDebuffRemain("target", 84617) < 4 and UnitLevel("player")>=20 then
 		  	if castSpell("target",_RevealingStrike,false,false) then return; end
 		end

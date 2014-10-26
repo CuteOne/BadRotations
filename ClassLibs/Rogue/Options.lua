@@ -211,13 +211,13 @@ function CombatOptions()
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Cooldowns ------");
 
-        -- Shadow Blades
-        CreateNewCheck(thisConfig,"Shadow Blades");
-        CreateNewText(thisConfig,"Shadow Blades");
+        -- Shadow Blades (Ability pruned 6.0.2 sad day)
+        --CreateNewCheck(thisConfig,"Shadow Blades");
+        --CreateNewText(thisConfig,"Shadow Blades");
 
-        -- Shadow Dance
-        CreateNewCheck(thisConfig,"Shadow Dance");
-        CreateNewText(thisConfig,"Shadow Dance");
+        --Adrenaline Rush
+        CreateNewCheck(thisConfig,"Adrenaline Rush");
+        CreateNewText(thisConfig,"Adrenaline Rush");
 
         -- Vanish
         CreateNewCheck(thisConfig,"Vanish");
