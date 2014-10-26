@@ -125,7 +125,7 @@ possible simple pvp mode if target = enemy faction
 		end	
 
 		-- Adrenaline Rush
-		if getSpellCD(_AdrenalineRush) > 0 then
+		if getSpellCD(_AdrenalineRush) == 0 then
 			if isChecked("Adrenaline Rush") == true and castSpell("player",_AdrenalineRush,true,false) then return; end	
 		end
 
