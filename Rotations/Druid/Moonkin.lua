@@ -220,31 +220,42 @@ function DruidMoonkin()
 			-- celestial_alignment,if=lunar_max<8|target.time_to_die<20
 			-- incarnation,if=buff.celestial_alignment.up
 			--[[sunfire,if=remains<8]]
-			if getDebuffRemain("target",_Sunfire,"player") < 8 
-				and eclipseEnergy > 0 then
-				if castSpell("target",_Sunfire,false,false,false) then return; end
+			if (getDebuffRemain("target",_Sunfire,"player") < 7 and eclipseEnergy > 0) then
+				if castSpell("target",_Moonfire,true,false,false) then return; end
+			end
+
+			--if getDebuffRemain("target",_Sunfire,"player") < 3 and castSpell("target",_Sunfire,false,false) then return; end
+			for i = 1, #myEnemiesTable do
+				local thisUnit = myEnemiesTable[i]
+				if getDebuffRemain(thisUnit,_Sunfire) < 6 then
+					if castSpell(thisUnit,_Sunfire,false,false) then return; end
+				end
 			end
 
 			-- starfall
 			if castSpell("player",_Starfall,true,false) then return; end
+
 			-- moonfire,cycle_targets=1,if=remains<12
-			if getDebuffRemain("target",_Moonfire) < 3 and castSpell("target",_Moonfire,false,false) then return; end
+			if getDebuffRemain("target",_Moonfire,"player") < 3 and castSpell("target",_Moonfire,false,false) then return; end
 			for i = 1, #myEnemiesTable do
 				local thisUnit = myEnemiesTable[i]
 				if getDebuffRemain(thisUnit,_Moonfire) < 6 then
 					if castSpell(thisUnit,_Moonfire,false,false) then return; end
 				end
 			end
+
 			--we are in Lunar but we still cast Wrath cause when the spell lands we will be in sun
 			if 	isStanding(0.3) 
 				and (eclipseDirection == 1 and eclipseEnergy > -30)  
 				and castSpell("target",_Wrath,false,true) then  return; 
 			end
+
 			--we are in sun but we still cast starfire cause when the spell lands we will be in lunar
 			if 	isStanding(0.3) 
 				and (eclipseDirection == 0 and eclipseEnergy < 30) 
 				and castSpell("target",_Starfire,false,true) then  return; 
 			end
+			
 			-- wrath,if=(eclipse_energy<=0&eclipse_change>cast_time)|(eclipse_energy>0&cast_time>eclipse_change)
 			if 	isStanding(0.3) 
 				and eclipseEnergy >= 0
