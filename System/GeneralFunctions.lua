@@ -75,9 +75,10 @@ end
 
 -- if canCast(12345,true)
 function canCast(SpellID,KnownSkip,MovementCheck)
+	local myCooldown = getSpellCD(SpellID)
 	local lagTolerance = getValue("Lag Tolerance") or 0;
   	if (KnownSkip == true or isKnown(SpellID)) and IsUsableSpell(SpellID)
-   	  and (MovementCheck == false or GlobalCooldown == 0 or isMoving("player") ~= true or UnitBuffID("player",79206) ~= nil) then
+   	  and (MovementCheck == false or myCooldown == 0 or isMoving("player") ~= true or UnitBuffID("player",79206) ~= nil) then
       	return true;
     end
 end
@@ -1455,7 +1456,7 @@ function castingUnit(Unit)
 	if Unit == nil then Unit = "player" end
 	if UnitCastingInfo(Unit) ~= nil
 	  or UnitChannelInfo(Unit) ~= nil
-	  or (GetSpellCooldown(GetSpellInfo(61304)) ~= nil and GetSpellCooldown(GetSpellInfo(61304)) > 0.001) then
+	  or (GetSpellCooldown(61304) ~= nil and GetSpellCooldown(61304) > 0.001) then
 	  	return true;
 	end
 end

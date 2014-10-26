@@ -106,12 +106,12 @@ function ElementalConfig()
         -- Healing Surge Toggle
         CreateNewCheck(thisConfig,"Healing Surge Toggle");
         CreateNewDrop(thisConfig,"Healing Surge Toggle", 4, "Toggle2")
-        CreateNewText(thisConfig,"Healing Surge Toggle");      
+        CreateNewText(thisConfig,"Healing Surge Toggle");
 
         -- Pause Toggle
         CreateNewCheck(thisConfig,"Pause Toggle");
         CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
-        CreateNewText(thisConfig,"Pause Toggle");  
+        CreateNewText(thisConfig,"Pause Toggle");
 
         -- Standard Interrupt
         CreateNewCheck(thisConfig,"Wind Shear");
@@ -124,7 +124,7 @@ function ElementalConfig()
         WrapsManager();
     --end
 end
---[[           ]]	--[[]]	   --[[]]	--[[]]	   --[[]]		  --[[]]		--[[]]	   --[[]]	--[[   		   ]]	--[[           ]]		
+--[[           ]]	--[[]]	   --[[]]	--[[]]	   --[[]]		  --[[]]		--[[]]	   --[[]]	--[[   		   ]]	--[[           ]]
 --[[           ]]	--[[  ]]   --[[]]	--[[]]	   --[[]]		 --[[  ]] 		--[[  ]]   --[[]]	--[[   		   ]]	--[[           ]]
 --[[]]				--[[    ]] --[[]]	--[[]]	   --[[]]	    --[[    ]]		--[[    ]] --[[]]	--[[]]				--[[]]
 --[[           ]]	--[[           ]]	--[[           ]]	   --[[      ]] 	--[[           ]]	--[[]]				--[[           ]]
@@ -199,11 +199,11 @@ function EnhancementConfig()
             -- Flask / Crystal
             checkOp("Flask / Crystal");
             textOp("Flask / Crystal");
-			
+
 			-- Earth  Ele
             checkOp("Earth  Ele");
             textOp("Earth  Ele");
-			
+
         -- Spacer
         textOp(" ");
         wrapOp("--- Defensive ---");
@@ -282,6 +282,24 @@ function RestorationConfig()
         CreateNewCheck(thisConfig,"Water Shield");
         CreateNewText(thisConfig,"Water Shield");
 
+
+        -- Wrapper
+        CreateNewWrap(thisConfig,"----- Healing -----")
+
+        CreateNewCheck(thisConfig,"Healing Wave","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHealing Wave|cffFFBB00.",1);
+        CreateNewBox(thisConfig, "Healing Wave", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Wave.");
+        CreateNewText(thisConfig,"Healing Wave");
+
+        CreateNewCheck(thisConfig,"Healing Surge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHealing Surge|cffFFBB00.",1);
+        CreateNewBox(thisConfig, "Healing Surge", 0, 100  , 5, 40, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Surge.");
+        CreateNewText(thisConfig,"Healing Surge");
+
+        CreateNewCheck(thisConfig,"Chain Heal","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFChain Heal|cffFFBB00.",1);
+        CreateNewBox(thisConfig, "Chain Heal", 0, 100  , 5, 70, "|cffFFBB00Under what %HP to use |cffFFFFFFChain Heal on 3 targets.");
+        CreateNewText(thisConfig,"Chain Heal");
+
+
+
         -- Wrapper
         CreateNewWrap(thisConfig,"----- Cooldowns -----")
 
@@ -307,7 +325,7 @@ function RestorationConfig()
         CreateNewCheck(thisConfig,"Unleash Element");
         CreateNewDrop(thisConfig, "Unleash Element", 1, "CD")
         CreateNewText(thisConfig,"Unleash Element");
-        
+
         -- EarthQuake
         CreateNewCheck(thisConfig,"EarthQuake");
         CreateNewDrop(thisConfig, "EarthQuake", 1, "CD")
@@ -344,10 +362,10 @@ function RestorationConfig()
         CreateNewBox(thisConfig, "Wind Shear", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to |cffFFFFFFWind Shear.");
         CreateNewText(thisConfig,"Wind Shear");
 
-        
+
         -- General Configs
         CreateGeneralsConfig();
-        
+
         WrapsManager();
     --end
 end

@@ -93,7 +93,7 @@ HarmSpells["DRUID"] = {
     6795, -- ["Growl"], -- 30
 --    16979, -- ["Feral Charge"], -- 8-25
     33786, -- ["Cyclone"], -- 20 (Gale Winds: 22, 24)
-    80964, -- ["Skull Bash"] -- 13
+    106839, -- ["Skull Bash"] -- 13
     5211, -- ["Bash"], -- 5
 }
 

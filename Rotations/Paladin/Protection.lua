@@ -39,8 +39,10 @@ if select(3, UnitClass("player")) == 2 then
 
 		-- Set Global variables that will be used.
 		_HolyPower = UnitPower("player", 9)
-		numberOfTargetsMelee = getNumEnemies("player",4) --Get number of enemies within melee range. Does this also work for large hitboxes? Todo should only do this if auto aoe is checked for performance
-
+		-- Make sure we declare our AoE treshold ASAP and refresh it every seconds
+		if numberOfTargetsMelee == nil or numberOfTargetsMeleeTimer == nil or numberOfTargetsMeleeTimer <= GetTime() - 1 then
+			numberOfTargetsMelee = getNumEnemies("player",4) --Get number of enemies within melee range. Does this also work for large hitboxes? Todo should only do this if auto aoe is checked for performance
+		end
 		-- Check if we should run the rotation
 		if canRun() ~= true then
 			return false
