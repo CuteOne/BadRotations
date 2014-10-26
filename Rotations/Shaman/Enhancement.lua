@@ -237,7 +237,8 @@ if select(3, UnitClass("player")) == 7 then
 				if castSpell("target",_LavaLash,false) then return; end
 				
 				-- Flame Shock
-				if getDebuffRemain("target",_FlameShock)<=9 and getBuffRemain("player",_UnleashFlame)>0 then
+				if getDebuffRemain("target",_FlameShock)<=9 
+				and UnitBuffID("player",_UnleashFlame) then
 					if castSpell("target",_FlameShock,false) then return; end
 				end
 				
