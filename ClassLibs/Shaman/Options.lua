@@ -266,13 +266,14 @@ end
 --[[]]	   --[[]]	--[[           ]] 	--[[           ]]		 --[[ ]]		--[[           ]]
 
 function RestorationConfig()
+    local myClassColor = classColors[select(3,UnitClass("player"))].hex
     --if not doneConfig then
         thisConfig = 0
         -- Title
         CreateNewTitle(thisConfig,"|cff00EEFFRestoration |cffFF0000CodeMyLife");
 
         -- Wrapper
-        CreateNewWrap(thisConfig,"----- Buffs -----");
+        CreateNewWrap(thisConfig,"--- |cffFF0011Buffs "..myClassColor.."---");
 
         -- Earthliving Weapon
         CreateNewCheck(thisConfig,"Earthliving Weapon");
@@ -284,7 +285,7 @@ function RestorationConfig()
 
 
         -- Wrapper
-        CreateNewWrap(thisConfig,"----- Healing -----")
+        CreateNewWrap(thisConfig,"--- |cffFF0011Healing "..myClassColor.."---")
 
         CreateNewCheck(thisConfig,"Healing Wave","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHealing Wave|cffFFBB00.",1);
         CreateNewBox(thisConfig, "Healing Wave", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Wave.");
@@ -301,7 +302,7 @@ function RestorationConfig()
 
 
         -- Wrapper
-        CreateNewWrap(thisConfig,"----- Cooldowns -----")
+        CreateNewWrap(thisConfig,"--- |cffFF0011Cooldowns "..myClassColor.."---")
 
         -- Ascendance
         CreateNewCheck(thisConfig,"Ascendance");
@@ -319,25 +320,13 @@ function RestorationConfig()
         CreateNewText(thisConfig,"Stormlash");
 
         -- Wrapper
-        CreateNewWrap(thisConfig,"----- DPS Tweaks -----")
+        CreateNewWrap(thisConfig,"--- |cffFF0011DPS Tweaks "..myClassColor.."---")
 
-        -- Unleash Element
-        CreateNewCheck(thisConfig,"Unleash Element");
-        CreateNewDrop(thisConfig, "Unleash Element", 1, "CD")
-        CreateNewText(thisConfig,"Unleash Element");
 
-        -- EarthQuake
-        CreateNewCheck(thisConfig,"EarthQuake");
-        CreateNewDrop(thisConfig, "EarthQuake", 1, "CD")
-        CreateNewText(thisConfig,"EarthQuake");
 
-        -- Thunderstorm
-        CreateNewCheck(thisConfig,"Thunderstorm");
-        CreateNewDrop(thisConfig, "Thunderstorm", 1, "CD")
-        CreateNewText(thisConfig,"Thunderstorm");
 
         -- Wrapper
-        CreateNewWrap(thisConfig,"------ Defensive -------");
+        CreateNewWrap(thisConfig,"--- |cffFF0011Defensive "..myClassColor.."---")
 
         -- Astral Shift
         CreateNewCheck(thisConfig,"Astral Shift");
@@ -355,7 +344,7 @@ function RestorationConfig()
         CreateNewText(thisConfig,"Shamanistic Rage");
 
         -- Wrapper
-        CreateNewWrap(thisConfig,"-------- Utilities -------");
+        CreateNewWrap(thisConfig,"--- |cffFF0011Utilities "..myClassColor.."---")
 
         -- Standard Interrupt
         CreateNewCheck(thisConfig,"Wind Shear");

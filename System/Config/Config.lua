@@ -112,9 +112,9 @@ end
 
 
 function CreateGeneralsConfig()
-
+	local myClassColor = classColors[select(3,UnitClass("player"))].hex
     -- Wrapper -----------------------------------------
-    CreateNewWrap(thisConfig,"--- Healing Engine ----");
+    CreateNewWrap(thisConfig,"--- |cffFF0011Healing Engine "..myClassColor.."---");
 
     -- Heal Pets
     CreateNewCheck(thisConfig,"Heal Pets");
@@ -159,7 +159,7 @@ function CreateGeneralsConfig()
     CreateNewText(thisConfig,"Engine Refresh");
 
     -- Wrapper -----------------------------------------
-    CreateNewWrap(thisConfig,"--------- General -------");
+    CreateNewWrap(thisConfig,"--- |cffFF0011General "..myClassColor.."---");
 
     -- Auto-Sell/Repair
     CreateNewCheck(thisConfig,"Auto-Sell/Repair");
@@ -207,7 +207,7 @@ function CreateGeneralsConfig()
 
 
     -- Wrapper -----------------------------------------
-    CreateNewWrap(thisConfig,"----- PokeRotation -----");
+    CreateNewWrap(thisConfig,"--- |cffFF0011PokeRotation "..myClassColor.."---");
 
     -- PokeRotation
     CreateNewCheck(thisConfig,"PokeRotation", "|cffFFBB00Check this to start PokeRotation.");
