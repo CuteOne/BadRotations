@@ -56,32 +56,13 @@ possible simple pvp mode if target = enemy faction
 	local meleeEnemies = getNumEnemies("player",10);
 
 -------------------------
---- Food Stealth ---
+---      Stealth      ---
 -------------------------
-	if canRun() ~= true or UnitInVehicle("Player") then return false; end
-	if IsMounted("player") then return false; end
 
-	--[[Stealth before fight]]
-	if isChecked("Stealth") and (stealthTimer == nil or stealthTimer <= getValue("Stealth Timer")) and not UnitAffectingCombat("player") and not UnitIsDeadOrGhost("target") and not (UnitExists("target") and not isEnnemy("target")) and getCreatureType("target") == true then
-		--[[Always]]
-		if getValue("Stealth") == 1 then 
-			if not UnitBuffID("player",1784) then
-				if castSpell("player",_Stealth) then return; end
-			end
-		end
-		--[[Pre-Pot]]
-		if getValue("Stealth") == 2 then
-			if not UnitBuffID("player",_Stealth) and getBuffRemain("player",105697) > 0 and canAttack("player","target") and targetDistance < 30 and getSpellCD(_Stealth) == 0 then
-				if castSpell("player",_Stealth) then return; end
-			end
-		end
-		--[[30 Yards]]
-		if getValue("Stealth") == 3 then
-			if not isInCombat("player") and not UnitBuffID("player",_Stealth) and canAttack("player","target") and targetDistance < 30 and getSpellCD(_Stealth) == 0 then
-				if castSpell("player",_Stealth) then return; end
-			end
-		end
+	if not isInCombat("player") and not UnitBuffID("player",_Stealth) and canAttack("player","target") and not UnitIsDeadOrGhost("target") and targetDistance < 30 and getSpellCD(_Stealth)==0 then
+			if castSpell("player",_Stealth,false,false,false) then return; end
 	end
+	
 -------------------------
 --- AMBUSH AKA Opener ---
 -------------------------
