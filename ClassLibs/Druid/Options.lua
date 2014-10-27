@@ -43,8 +43,8 @@ function MoonkinConfig()
         CreateNewText(thisConfig,"Natures Vigil");
 
         -- Starfall
-        CreateNewCheck(thisConfig,"Starfall");
-        CreateNewText(thisConfig,"Starfall");
+        CreateNewCheck(thisConfig,"Celestial Alignment");
+        CreateNewText(thisConfig,"Celestial Alignment");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"--------- Healing -------");
