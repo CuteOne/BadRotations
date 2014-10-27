@@ -82,6 +82,7 @@ frf =	144865	--Feral Fury
 frr	=	146874 	--Feral Rage
 spd	=	81022	--Stampede
 rber=	26297	--Troll Racial: Berserking
+sm 	=	58984	--Night Elf Racial: Shadowmeld
 
 ------Forms------
 af	=	1066	--Aquatic Form
@@ -91,18 +92,6 @@ flf	=	33943	--Flight Form
 mkf = 	24858	--Moonkin Form
 sff	=	40120	--Swift Flight Form
 trf	=	783		--Travel Form
-
------Symbiosis------
-symdk	=	122282 	--Death Coil
-symhtr	=	110597 	--Play Dead
-symmag	=	110693 	--Frost Nova
-symmon	=	126449 	--Clash
-sympal	=	110700 	--Divine Shield
-sympri	=	110715	--Dispersion
-symrog	=	110730	--Redirect
-symsha	=	110807	--Feral Spirit
-symloc	=	110810	--Soul Swap
-symwar	=	112997	--Shattering Blow
 
 
 _AquaticForm 			= 1066;

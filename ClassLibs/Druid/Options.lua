@@ -187,13 +187,6 @@ function FeralCatConfig()
         textOp(" ");
         wrapOp("--- Cooldowns ---");
 
-            -- Dream of Cenarius Auto-Heal
-            checkOp("Auto Heal")
-            dropOp("Auto Heal", 1, "|cffFFFFFFSelect Target to Auto-Heal",
-                "|cffFFDD11LowestHP",
-                "|cffFFDD11Self")
-            textOp("Auto-Heal (DoC)");
-
             -- Agi Pot
             checkOp("Agi-Pot");
             textOp("Agi-Pot");
@@ -216,20 +209,27 @@ function FeralCatConfig()
             boxOp("Pot/Stoned", 0, 100, 5, 60);
             textOp("Pot/Stoned");
 
-            -- Healing Touch
-            checkOp("Healing Touch");
-            boxOp("Healing Touch", 0, 100, 5, 50);
-            textOp(tostring(select(1,GetSpellInfo(ht))));
+            -- Nature's Vigil
+            checkOp("Nature's Vigil");
+            boxOp("Nature's Vigil", 0, 100, 5, 50);
+            textOp(tostring(select(1,GetSpellInfo(nv))));
 
             -- Survival Instincts
             checkOp("Survival Instincts");
             boxOp("Survival Instincts", 0, 100, 5, 40);
             textOp(tostring(select(1,GetSpellInfo(si))));
 
-            -- Frenzied Regeneration
-            checkOp("Frenzied Regen");
-             boxOp("Frenzied Regen", 0, 100, 5, 30);
-            textOp(tostring(select(1,GetSpellInfo(fr))));
+            -- Healing Touch
+            checkOp("Healing Touch");
+            boxOp("Healing Touch", 0, 100, 5, 50);
+            textOp(tostring(select(1,GetSpellInfo(ht))));
+
+            -- Dream of Cenarius Auto-Heal
+            checkOp("Auto Heal")
+            dropOp("Auto Heal", 1, "|cffFFFFFFSelect Target to Auto-Heal",
+                "|cffFFDD11LowestHP",
+                "|cffFFDD11Self")
+            textOp("Auto-Heal (DoC)");
 
         -- Spacer --
         textOp(" ");

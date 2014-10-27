@@ -60,7 +60,7 @@ function NewMonkConfig()
 end
 
 --[[           ]]	--[[           ]]	--[[           ]]	--[[]] 	   --[[]]
---[[           ]]	--[[           ]]	--[[           ]]	--[[]] 	   --[[]]	
+--[[           ]]	--[[           ]]	--[[           ]]	--[[]] 	   --[[]]
 --[[]]	   --[[]]	--[[]]	   --[[]]	--[[]]				--[[ ]]   --[[ ]]
 --[[         ]]		--[[           ]]	--[[           ]]	--[[           ]]
 --[[]]	   --[[]]	--[[        ]]		--[[]]				--[[           ]]
@@ -99,7 +99,7 @@ function MonkBrewConfig()
 
         -- Dazzling Brew
         CreateNewCheck(thisConfig,"Dazzling Brew");
-        CreateNewText(thisConfig,"Dazzling Brew");      
+        CreateNewText(thisConfig,"Dazzling Brew");
 
         -- Expel Harm
         CreateNewCheck(thisConfig,"Expel Harm");
@@ -109,7 +109,7 @@ function MonkBrewConfig()
         -- Elusive Brew
         CreateNewCheck(thisConfig,"Elusive Brew");
         CreateNewBox(thisConfig, "Elusive Brew", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFElusive Brew");
-        CreateNewText(thisConfig,"Elusive Brew");     
+        CreateNewText(thisConfig,"Elusive Brew");
 
         -- Fortifying Brew
         CreateNewCheck(thisConfig,"Fortifying Brew");
@@ -119,7 +119,7 @@ function MonkBrewConfig()
         -- Guard
         CreateNewCheck(thisConfig,"Guard");
         CreateNewBox(thisConfig, "Guard", 0, 100  , 5, 70, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFGuard");
-        CreateNewText(thisConfig,"Guard");   
+        CreateNewText(thisConfig,"Guard");
 
         -- Healthstone
         CreateNewCheck(thisConfig,"Healthstone");
@@ -129,24 +129,24 @@ function MonkBrewConfig()
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Utilities ------");
 
-     
+
         -- Angry Monk
         CreateNewCheck(thisConfig,"Angry Monk","|cffFF0000Disable Combat Check.");
-        CreateNewText(thisConfig,"Angry Monk");  
+        CreateNewText(thisConfig,"Angry Monk");
 
 
         -- Resuscitate
         CreateNewCheck(thisConfig,"Resuscitate");
-        CreateNewText(thisConfig,"Resuscitate");    
+        CreateNewText(thisConfig,"Resuscitate");
 
         -- Roll
         CreateNewCheck(thisConfig,"Roll");
-        CreateNewText(thisConfig,"Roll");         
+        CreateNewText(thisConfig,"Roll");
 
         -- Quaking Palm
         CreateNewCheck(thisConfig,"Quaking Palm");
         CreateNewBox(thisConfig, "Quaking Palm", 0, 100  , 5, 30 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFQuaking Palm.");
-        CreateNewText(thisConfig,"Quaking Palm");  
+        CreateNewText(thisConfig,"Quaking Palm");
 
         -- Spear Hand Strike
         CreateNewCheck(thisConfig,"Spear Hand Strike");
@@ -157,7 +157,7 @@ function MonkBrewConfig()
         -- General Configs
         CreateGeneralsConfig();
 
-        
+
         WrapsManager();
     end
 end
@@ -191,12 +191,12 @@ function MonkMistConfig()
 
         -- Nature's Cure
         CreateNewCheck(thisConfig,"Detox")
-        CreateNewDrop(thisConfig,"Detox", 1, "|cffFFBB00MMouse:|cffFFFFFFMouse / Match List. \n|cffFFBB00MRaid:|cffFFFFFFRaid / Match List. \n|cffFFBB00AMouse:|cffFFFFFFMouse / All. \n|cffFFBB00ARaid:|cffFFFFFFRaid / All.", 
-            "|cffFFDD11MMouse", 
+        CreateNewDrop(thisConfig,"Detox", 1, "|cffFFBB00MMouse:|cffFFFFFFMouse / Match List. \n|cffFFBB00MRaid:|cffFFFFFFRaid / Match List. \n|cffFFBB00AMouse:|cffFFFFFFMouse / All. \n|cffFFBB00ARaid:|cffFFFFFFRaid / All.",
+            "|cffFFDD11MMouse",
             "|cffFFDD11MRaid",
             "|cff00FF00AMouse",
             "|cff00FF00ARaid")
-        CreateNewText(thisConfig,"Detox"); 
+        CreateNewText(thisConfig,"Detox");
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Cooldowns ------");
 
@@ -218,12 +218,12 @@ function MonkMistConfig()
         CreateNewCheck(thisConfig,"Renewing Mist");
         CreateNewBox(thisConfig, "Renewing Mist", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRenewing Mist.");
         CreateNewText(thisConfig,"Renewing Mist");
- 
+
         -- Soothing Mist
         CreateNewCheck(thisConfig,"Soothing Mist");
         CreateNewBox(thisConfig, "Soothing Mist", 0, 100  , 5, 75, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFSoothing Mist.");
         CreateNewText(thisConfig,"Soothing Mist");
-        
+
         -- Surging Mist
         CreateNewCheck(thisConfig,"Surging Mist");
         CreateNewBox(thisConfig, "Surging Mist", 0, 100  , 5, 65, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFSurging Mist.");
@@ -245,7 +245,7 @@ function MonkMistConfig()
         CreateNewCheck(thisConfig,"Fortifying Brew");
         CreateNewBox(thisConfig, "Fortifying Brew", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
         CreateNewText(thisConfig,"Fortifying Brew");
-               
+
         -- Healthstone
         CreateNewCheck(thisConfig,"Healthstone");
         CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
@@ -257,22 +257,22 @@ function MonkMistConfig()
         -- Uplift Toggle
         CreateNewCheck(thisConfig,"Uplift Toggle");
         CreateNewDrop(thisConfig,"Uplift Toggle", 4, "Toggle2")
-        CreateNewText(thisConfig,"Uplift Toggle");      
+        CreateNewText(thisConfig,"Uplift Toggle");
 
         -- Pause Toggle
         CreateNewCheck(thisConfig,"Pause Toggle");
         CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
-        CreateNewText(thisConfig,"Pause Toggle");  
+        CreateNewText(thisConfig,"Pause Toggle");
 
         -- Focus Toggle
         CreateNewCheck(thisConfig,"Focus Toggle");
         CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle2")
-        CreateNewText(thisConfig,"Focus Toggle"); 
+        CreateNewText(thisConfig,"Focus Toggle");
 
         -- DPS Toggle
         CreateNewCheck(thisConfig,"DPS Toggle");
         CreateNewDrop(thisConfig,"DPS Toggle", 1, "Toggle2")
-        CreateNewText(thisConfig,"DPS Toggle"); 
+        CreateNewText(thisConfig,"DPS Toggle");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Utilities ------");
@@ -290,21 +290,21 @@ function MonkMistConfig()
         -- Quaking Palm
         CreateNewCheck(thisConfig,"Quaking Palm");
         CreateNewBox(thisConfig, "Quaking Palm", 0, 100  , 5, 30 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFQuaking Palm.");
-        CreateNewText(thisConfig,"Quaking Palm");       
+        CreateNewText(thisConfig,"Quaking Palm");
 
         -- Resuscitate
         CreateNewCheck(thisConfig,"Resuscitate");
-        CreateNewText(thisConfig,"Resuscitate");    
+        CreateNewText(thisConfig,"Resuscitate");
 
         -- Roll
         CreateNewCheck(thisConfig,"Roll");
-        CreateNewText(thisConfig,"Roll");  
-       
+        CreateNewText(thisConfig,"Roll");
+
 
         -- General Configs
         CreateGeneralsConfig();
 
-        
+
         WrapsManager();
     end
 end
@@ -329,9 +329,9 @@ function WindwalkerConfig()
         textOp(" ");
         wrapOp("--- General ---");
 
-            -- Death Cat
-            --checkOp("Death Cat Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.");
-            --textOp("Death Cat Mode");
+            -- Death Monk
+            checkOp("Death Monk Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.");
+            textOp("Death Monk Mode");
 
             -- Mark Of The Wild
             --checkOp("Mark of the Wild","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Mark of Wild usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.");
@@ -353,7 +353,7 @@ function WindwalkerConfig()
             -- Flask / Crystal
             checkOp("Flask / Crystal");
             textOp("Flask / Crystal");
-        
+
         -- Spacer
         textOp(" ");
         wrapOp("--- Defensive ---");

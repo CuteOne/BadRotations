@@ -65,24 +65,61 @@ function sefTargets()
     if not myenemiesTimer or myenemiesTimer <= GetTime() - 1 then
         enemies, myenemiesTimer = getEnemies("player",40), GetTime()
     end
+    if currtar == nil then
+        currtar = UnitGUID("player")
+    elseif UnitExists("target") then
+        currtar = UnitGUID("target")
+    end
     targets = {}
     for i=1,#enemies do
         if UnitExists(enemies[i])
             and getCreatureType(enemies[i])
             and UnitCanAttack("player",enemies[i])
             and not UnitIsDeadOrGhost(enemies[i])
-            and (isInCombat(enemies[i]) or isDummy(enemies[i]))
-            and UnitGUID(enemies[i])~=UnitGUID("target")
+            and (isInCombat(enemies[i]) or isDummy(enemies[i]) or isChecked("Death Monk Mode"))
+            and UnitGUID(enemies[i])~=currtar
         then
             table.insert( targets,{ Unit = enemies[i], HP = UnitHealth(enemies[i]), Range = getDistance("player",enemies[i])})
         end
     end
     table.sort(targets, function(x,y) return x.HP > y.HP end)
-    for i=1,#targets do
-        if #targets>2 then table.remove(targets,#targets) end
+    if #targets > 0 then
+        for i=1,#targets do
+            if #targets>2 then table.remove(targets,#targets) end
+            --if targets[i].HP == 0 then table.remove(targets,targets[i]) end
+        end
     end
 end
 
+function getDistance2(Unit1,Unit2)
+    if Unit2 == nil then Unit2 = "player"; end
+    if UnitExists(Unit1) and UnitExists(Unit2) then
+        local X1,Y1,Z1 = ObjectPosition(Unit1);
+        local X2,Y2,Z2 = ObjectPosition(Unit2);
+        local unitSize = 0;
+        if UnitGUID(Unit1) ~= UnitGUID("player") and UnitCanAttack(Unit1,"player") then
+            unitSize = UnitCombatReach(Unit1);
+        elseif UnitGUID(Unit2) ~= UnitGUID("player") and UnitCanAttack(Unit2,"player") then
+            unitSize = UnitCombatReach(Unit2);
+        end
+        local distance = math.sqrt(((X2-X1)^2)+((Y2-Y1)^2))
+        if distance < max(5, UnitCombatReach(Unit1) + UnitCombatReach(Unit2) + 4/3) then
+            return 4.9999
+        elseif distance < max(8, UnitCombatReach(Unit1) + UnitCombatReach(Unit2) + 6.5) then
+            if distance-unitSize <= 5 then
+                return 5
+            else
+                return distance-unitSize
+            end
+        elseif distance-(unitSize+UnitCombatReach("player")) <= 8 then
+            return 8
+        else
+            return distance-(unitSize+UnitCombatReach("player"))
+        end
+    else
+        return 1000;
+    end
+end
 -- -- if getEnemiesTable("target",10) >= 3 then
 -- function getEnemiesTable(Unit,Radius)
 --     local enemiesTable = {};

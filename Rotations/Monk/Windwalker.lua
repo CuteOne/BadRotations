@@ -14,7 +14,7 @@ if select(3, UnitClass("player")) == 10 then
 --- Locals ---
 --------------
 		if tebCast == nil then tebCast = 0; end
-		local tarDist = getDistance("target")
+		local tarDist = getDistance2("target")
 		local php = getHP("player")
 		local power = getPower("player")
 		local powgen = getRegen("player")
@@ -50,6 +50,25 @@ if select(3, UnitClass("player")) == 10 then
 --------------------------------------------------
 --- Ressurection/Dispelling/Healing/Pause/Misc ---
 --------------------------------------------------
+	-- Death Monk mode
+		if isChecked("Death Monk Mode") then
+			-- if (#targets == 0 and sefStack==1) then --(#targets == 1 and sefStack==2) or
+			-- 	CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
+			-- end
+		 	if sefStack == 0 and #targets>0 then
+				if castSpell(targets[1].Unit,_StormEarthFire,false,false,false) then return; end
+		 	end
+			if sefStack == 1 and #targets==2 then
+				if castSpell(targets[2].Unit,_StormEarthFire,false,false,false) then return; end
+			end
+			if UnitExists("target") then
+				if not useAoE() then
+					if castSpell("target",_Jab,false,false) then return; end
+				else
+					if castSpell("target",_SpinningCraneKick,false,false) then return; end
+				end
+			end
+		end
 	-- Tigereye Brew Timer
 		if tebCast ~= 0 then
 			if tebCast <= GetTime() then
@@ -84,7 +103,7 @@ if select(3, UnitClass("player")) == 10 then
 			-- Pause
 		if pause() then
 			return true
-		else
+		elseif not isChecked("Death Monk Mode") then
 -------------
 --- Buffs ---
 -------------
