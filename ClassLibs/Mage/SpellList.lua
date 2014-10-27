@@ -35,7 +35,13 @@ if select(3, UnitClass("player")) == 8 then
 	ArcaneExplosion	= 1449;
 	ArcaneMissiles	= 5143;
 	UnstableExplo	= 157976;
+	PresenceOfMind  = 12043;
+	Evocation		= 12051;
 -- ArTalents
+	Supernova 		= 175980;
+	ArcaneOrb		= 153626;
+	Overpowered		= 155147;
+	NetherTempest	= 114923;
 
 -- Talents
 	ColdSnap		= 11958;
@@ -48,6 +54,7 @@ if select(3, UnitClass("player")) == 8 then
 
 -- Utility
 	T17_4P_Frost	= 165469;
+	T17_4P_Arcane	= 166872;  -- Arcane Instability
 
 -- Buffs
 	-- frost
@@ -65,7 +72,6 @@ if select(3, UnitClass("player")) == 8 then
 	-- arcane
 	ArcaneAffinity	= 166871;
 	ArcaneCharge	= 36032;
-	ArcaneInstability= 166872;
 	ArcaneMissilesP	= 79683;
 	ArcanePower		= 12042;
 
