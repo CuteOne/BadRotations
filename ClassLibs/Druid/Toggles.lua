@@ -283,14 +283,15 @@ if select(3, UnitClass("player")) == 11 then
 
     function GuardianToggles()
         -- Aoe Button
-        if  AoEModesLoaded ~= "Guardian Druid AoE Modes" then
-            AoEModes = {
-                [1] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Recommended for \n|cff00FF00Single Target (1-2)", highlight = 0, icon = 108557 },
-                [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Recommended for \n|cffFF0000AoE (3+)", highlight = 0, icon = 101546 },
-                [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Auto-AoE", highlight = 1, icon = 116812 }
+        if AoEModesLoaded ~= "Guardian Druid AoE Modes" then
+            CustomAoEModes = {
+                [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = thb },
+                [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = thb },
+                [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = mgl }
             };
-            CreateButton("AoE",0.5,1)
-            AoEModesLoaded = "Guardian Druid AoE Modes";
+           AoEModes = CustomAoEModes
+           CreateButton("AoE",0.5,1)
+           AoEModesLoaded = "Guardian Druid AoE Modes";
         end
         -- Interrupts Button
         if  InterruptsModesLoaded ~= "Guardian Druid Interrupts Modes" then
@@ -306,7 +307,8 @@ if select(3, UnitClass("player")) == 11 then
         if  DefensiveModesLoaded ~= "Guardian Druid Defensive Modes" then
             DefensiveModes = {
                 [1] = { mode = "SD", value = 1 , overlay = "SD Mode", tip = "|cffC0C0C0Defensive \n|cffFF0000SD Mode", highlight = 1, icon = 62606 },
-                [2] = { mode = "FR", value = 2 , overlay = "FR Mode", tip = "|cffC0C0C0Defensive \n|cffFF0000FR Mode", highlight = 1, icon = 22842 }
+                [2] = { mode = "FR", value = 2 , overlay = "FR Mode", tip = "|cffC0C0C0Defensive \n|cffFF0000FR Mode", highlight = 1, icon = 22842 },
+                [3] = { mode = "none", value = 3 , overlay = "Manual Mode", tip = "|cffC0C0C0Defensive \n|cffFF0000Manual Mode", highlight = 1, icon = 22842 }
             };
             CreateButton("Defensive",1.5,1)
             DefensiveModesLoaded = "Guardian Druid Defensive Modes";
@@ -339,5 +341,13 @@ if select(3, UnitClass("player")) == 11 then
                 return 1
             end
         end
+
+        --AoE Key Toggle
+        if AOETimer == nil then AOETimer = 0; end
+        if SpecificToggle("Rotation Mode") and not GetCurrentKeyBoardFocus() and GetTime() - AOETimer > 0.25 then
+            AOETimer = GetTime()
+            UpdateButton("AoE")
+        end
+
     end
 end

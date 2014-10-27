@@ -656,27 +656,12 @@ function GuardianConfig()
         CreateNewBox(thisConfig, "Barkskin", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFBarkskin");
         CreateNewText(thisConfig,"Barkskin");
 
-        -- Might of Ursoc
-        CreateNewCheck(thisConfig,"Might of Ursoc");
-        CreateNewBox(thisConfig, "Might of Ursoc", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFMight of Ursoc");
-        CreateNewText(thisConfig,"Might of Ursoc");
-
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"-------- Toggles --------");
-
-        -- Maul Toggle
-        CreateNewCheck(thisConfig,"Maul Toggle");
-        CreateNewDrop(thisConfig,"Maul Toggle", 3, "Toggle2")
-        CreateNewText(thisConfig,"Maul Toggle");
         -- Pause Toggle
         CreateNewCheck(thisConfig,"Pause Toggle");
         CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
         CreateNewText(thisConfig,"Pause Toggle");
-
-        -- Focus Toggle
-        CreateNewCheck(thisConfig,"Focus Toggle");
-        CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle2")
-        CreateNewText(thisConfig,"Focus Toggle");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Utilities ------");
