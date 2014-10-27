@@ -33,14 +33,14 @@ function ShadowConfig()
         CreateNewTitle(thisConfig,"Shadow |cffFF0000ragnar");
 
         -- Wrapper -----------------------------------------
-        CreateNewWrap(thisConfig,"== Buffs");
+        CreateNewWrap(thisConfig,"--- Buffs");
 
         --[[Power Word: Fortitude]]
         CreateNewCheck(thisConfig,"Power Word: Fortitude");
         CreateNewText(thisConfig,"Power Word: Fortitude");
 
         -- Wrapper -----------------------------------------
-        CreateNewWrap(thisConfig,"== Cooldowns");
+        CreateNewWrap(thisConfig,"--- Cooldowns");
 
         CreateNewCheck(thisConfig,"Power Infusion");
         CreateNewText(thisConfig,"Power Infusion");
@@ -64,7 +64,7 @@ function ShadowConfig()
 
 
         -- Wrapper -----------------------------------------
-        CreateNewWrap(thisConfig,"== Defensive");
+        CreateNewWrap(thisConfig,"--- Defensive");
 
         --[[Healthstone]]
         CreateNewCheck(thisConfig,"Healthstone");
@@ -92,20 +92,20 @@ function ShadowConfig()
         CreateNewText(thisConfig,"Desperate Prayer");
 
         -- Wrapper -----------------------------------------
-        CreateNewWrap(thisConfig,"== Toggles");
+        -- CreateNewWrap(thisConfig,"--- Toggles");
 
-        --[[Pause Toggle]]
-        CreateNewCheck(thisConfig,"Pause Toggle");
-        CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
-        CreateNewText(thisConfig,"Pause Toggle");
+        -- --[[Pause Toggle]]
+        -- CreateNewCheck(thisConfig,"Pause Toggle");
+        -- CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
+        -- CreateNewText(thisConfig,"Pause Toggle");
 
-        --[[Focus Toggle]]
-        CreateNewCheck(thisConfig,"Focus Toggle");
-        CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle2")
-        CreateNewText(thisConfig,"Focus Toggle");
+        -- --[[Focus Toggle]]
+        -- CreateNewCheck(thisConfig,"Focus Toggle");
+        -- CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle2")
+        -- CreateNewText(thisConfig,"Focus Toggle");
 
         -- Wrapper -----------------------------------------
-        CreateNewWrap(thisConfig,"== Utilities");
+        CreateNewWrap(thisConfig,"--- Utilities");
 
         if isKnown(_AngelicFeather) then
 	        --[[Angelic Feather]]

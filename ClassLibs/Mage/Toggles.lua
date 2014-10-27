@@ -56,8 +56,8 @@ if select(3, UnitClass("player")) == 8 then
         -- Cooldowns Button
         if  CooldownsModesLoaded ~= "Frost Mage Cooldowns Modes" then
             CooldownsModes = {
-                [1] = { mode = "None", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffC0C0C0Cooldowns \n|cffFF0000No cooldowns will be used.", highlight = 0, icon = 55342},
-                [2] = { mode = "All", value = 2 , overlay = "Cooldowns Enabled", tip = "|cffC0C0C0Cooldowns \nOnly used if enabled in Settings. \n|cffFF0000Spells Included: \n|cffFFDD11Mirror Image \nIcy Veins \nRacial", highlight = 1, icon = 55342 }
+                [1] = { mode = "None", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffFF0000Cooldowns \n|cffFFDD11No cooldowns will be used.", highlight = 0, icon = 55342},
+                [2] = { mode = "All", value = 2 , overlay = "Cooldowns Enabled", tip = "|cff00FF00Cooldowns \n|cffFFDD11Only used if enabled in Settings. \n|cffFF0000Spells Included: \n|cffFFDD11Mirror Image \nIcy Veins \nRacial", highlight = 1, icon = 55342 }
             };
             CreateButton("Cooldowns",1.5,1);
             CooldownsModesLoaded = "Frost Mage Cooldowns Modes";

@@ -1,6 +1,6 @@
 if select(3, UnitClass("player")) == 8 then
 
-
+--- Mage ClassColor = |cff69ccf0
 
 	function FrostMageConfig()
 		if currentConfig ~= "Frost ragnar" then
@@ -10,14 +10,14 @@ if select(3, UnitClass("player")) == 8 then
 			CreateNewTitle(thisConfig,"Frost |cffFF0000ragnar");
 
 			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"== Buffs");
+			CreateNewWrap(thisConfig,"--- Buffs ---");
 
 			--[[Arcane Brilliance]]
 			CreateNewCheck(thisConfig,"Arcane Brilliance");
 			CreateNewText(thisConfig,"Arcane Brilliance");
 
 			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"== Cooldowns");
+			CreateNewWrap(thisConfig,"--- Cooldowns ---");
 
 			if isKnown(MirrorImage) then
 				CreateNewCheck(thisConfig,"Mirror Image");
@@ -29,6 +29,23 @@ if select(3, UnitClass("player")) == 8 then
 
 			CreateNewCheck(thisConfig,"Racial");
 			CreateNewText(thisConfig,"Racial");
+
+			-- Wrapper -----------------------------------------
+			CreateNewWrap(thisConfig,"--- Defensives ---");
+
+
+			-- Wrapper -----------------------------------------
+			-- CreateNewWrap(thisConfig,"--- Toggles");
+
+			-- --[[Pause Toggle]]
+			-- CreateNewCheck(thisConfig,"Pause Toggle");
+			-- CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
+			-- CreateNewText(thisConfig,"Pause Toggle");
+
+			-- --[[Focus Toggle]]
+			-- CreateNewCheck(thisConfig,"Focus Toggle");
+			-- CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle2")
+			-- CreateNewText(thisConfig,"Focus Toggle");
 
 
 

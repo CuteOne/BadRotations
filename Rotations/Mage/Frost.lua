@@ -86,6 +86,33 @@ function FrostMage()
 		end
 	end
 
+
+	-------------
+	-- TOGGLES --
+	-------------
+
+	-- Pause toggle
+	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then
+		ChatOverlay("|cffFF0000BadBoy Paused", 0);
+		return;
+	end
+
+	-- Focus Toggle
+	if isChecked("Focus Toggle") and SpecificToggle("Focus Toggle") == 1 then
+		RunMacroText("/focus mouseover");
+	end
+
+	-- Auto Resurrection
+	if not isInCombat("player") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("player","mouseover") then
+		if castSpell("mouseover",_Resurrection,true,true) then
+			return;
+		end
+	end
+
+	------------
+	-- Checks --
+	------------
+
 	-- Food/Invis Check
 	if canRun() ~= true then
 		return false;
