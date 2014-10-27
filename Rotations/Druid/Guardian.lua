@@ -238,7 +238,7 @@ function DruidGuardian()
 					return;
 				end
 			end
-			--Maul with Tooth and Claw proc
+			--Maul with Tooth and Claw proc / safe rage if using fr
 			if tacBuff then
 				if BadBoy_data['Defensive'] == 2 or BadBoy_data['Defensive'] == 3 then
 					if getPower("player") > 80 then
@@ -247,7 +247,7 @@ function DruidGuardian()
 						end
 					end
 				end
-				if BadBoy_data['Defensive'] == 2 then
+				if BadBoy_data['Defensive'] == 1 then
 					if castSpell("target",ml,false,false) then
 						return;
 					end
