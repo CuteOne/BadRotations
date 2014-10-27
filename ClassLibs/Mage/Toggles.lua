@@ -96,20 +96,11 @@ if select(3, UnitClass("player")) == 8 then
             RuneModesLoaded = "Arcane Mage Rune Modes";
         end
 
-        -- -- Petmode Button
-        -- if  PetModesLoaded ~= "Frost Mage Pet Modes" then
-        --     PetModes = {
-        --         [1] = { mode = "On", value = 1 , overlay = "Auto Pet Enabled", tip = "|cff00FF00Petmode \n|cffFFDD11Automatic Petpassive/-agressive infight/outfight enabled.", highlight = 1, icon = 31687 },
-        --         [2] = { mode = "Off", value = 2 , overlay = "Auto Pet Disabled", tip = "|cffFF0000Petmode \n|cffFFDD11Automatic Petpassive/-agressive infight/outfight disabled.", highlight = 0, icon = 31687},
-        --      };
-        --     CreateButton("Pet",0.5,1);
-        --     PetModesLoaded = "Frost Mage Pet Modes";
-        -- end
         -- Defensive Button
         if  DefensiveModesLoaded ~= "Arcane Mage Defensive Modes" then
             DefensiveModes = {
-                [1] = { mode = "Off", value = 1 , overlay = "Defensive Disabled", tip = "No Defensive Cooldowns will be used.", highlight = 0 },
-                [2] = { mode = "On", value = 2 , overlay = "Defensive Enabled", tip = "|cffFF0000Includes: \n|cffFFdd11", highlight = 1 }
+                [1] = { mode = "Off", value = 1 , overlay = "Defensive Disabled", tip = "No Defensive Cooldowns will be used.", highlight = 0, icon = 66 },
+                [2] = { mode = "On", value = 2 , overlay = "Defensive Enabled", tip = "|cffFF0000Includes: \n|cffFFdd11", highlight = 1, icon = 66 }
             };
             CreateButton("Defensive",2,0);
             DefensiveModesLoaded = "Arcane Mage Defensive Modes";
@@ -118,7 +109,7 @@ if select(3, UnitClass("player")) == 8 then
         if  CooldownsModesLoaded ~= "Arcane Mage Cooldowns Modes" then
             CooldownsModes = {
                 [1] = { mode = "Off", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffFF0000Cooldowns \n|cffFFDD11No cooldowns will be used.", highlight = 0, icon = 55342},
-                [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "|cff00FF00Cooldowns \n|cffFFDD11Only used if enabled in Settings. \n|cffFF0000Spells Included: \n|cffFFDD11Mirror Image \nArcane Power \nRacial", highlight = 1, icon = 55342 }
+                [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "|cff00FF00Cooldowns \n|cffFFDD11Only used if enabled in Settings. \n|cffFF0000Spells Included: \n|cffFFDD11Mirror Image \nArcane Power \nRacial \nCold Snap", highlight = 1, icon = 55342 }
             };
             CreateButton("Cooldowns",1.5,1);
             CooldownsModesLoaded = "Arcane Mage Cooldowns Modes";

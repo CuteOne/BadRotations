@@ -42,6 +42,7 @@ if select(3, UnitClass("player")) == 8 then
 	ArcaneOrb		= 153626;
 	Overpowered		= 155147;
 	NetherTempest	= 114923;
+	Evanesce		= 157913;
 
 -- Talents
 	ColdSnap		= 11958;

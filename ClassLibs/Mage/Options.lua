@@ -91,13 +91,27 @@ if select(3, UnitClass("player")) == 8 then
 			CreateNewCheck(thisConfig,"Racial");
 			CreateNewText(thisConfig,"Racial");
 
+			if isKnown(ColdSnap) then
+				CreateNewCheck(thisConfig,"Cold Snap");
+				CreateNewText(thisConfig,"Cold Snap");
+			end
+
+			-- Wrapper -----------------------------------------
+			CreateNewWrap(thisConfig,"--- Defensives ---");
+
+			if isKnown(Evanesce) then
+				CreateNewCheck(thisConfig,"Evanesce");
+				CreateNewBox(thisConfig, "Evanesce", 0, 100  , 5, 30, "|cffFFBB00Under what |cff69ccf0%HP|cffFFBB00 cast |cff69ccf0Evanesce.");
+				CreateNewText(thisConfig,"Evanesce");
+			end
+
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"--- Rotation ---");
 
 			CreateNewBox(thisConfig, "ArcaneBlast (x4)", 80, 100  , 1, 93, "|cffFFBB00Under what |cff69ccf0%Mana|cffFFBB00 dont cast |cff69ccf0Arcane Blast at 4 stacks.");
 			CreateNewText(thisConfig,"ArcaneBlast (x4)");
 
-			CreateNewCheck(thisConfig,"Burn Mana", "Do not enable on Dummy. Not tested yet (LVL90)");
+			CreateNewCheck(thisConfig,"Burn Mana", "Do not enable on Dummy. Not yet tested in raid (LVL90)");
 			CreateNewText(thisConfig,"Burn Mana");
 
 

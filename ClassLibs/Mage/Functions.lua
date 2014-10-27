@@ -489,6 +489,19 @@ end
 
 -- Defensives
 function ArcaneMageDefensives()
+
+	-- Evanesce
+	if isKnown(Evanesce) then
+		if isChecked("Evanesce") then
+			if getHP("player") < getValue("Evanesce") then
+				if castSpell("player",Evanesce,true,false) then
+					return;
+				end
+			end
+		end
+	end
+
+
 end
 
 -- Cooldowns
@@ -507,6 +520,15 @@ function ArcaneMageCooldowns()
 	if isChecked("Arcane Power") then
 		if castSpell("player",ArcanePower,true,true) then
 			return;
+		end
+	end
+
+	-- actions+=/cold_snap,if=buff.presence_of_mind.down&cooldown.presence_of_mind.remains>75
+	if isKnown(ColdSnap) then
+		if isChecked(ColdSnap) then
+			if not UnitBuffID("player",PresenceOfMind) and getSpellCD(PresenceOfMind)>75 then
+				return;
+			end
 		end
 	end
 

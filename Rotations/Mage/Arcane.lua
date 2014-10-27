@@ -93,7 +93,10 @@ function ArcaneMage()
 		-- AffectingCombat, Pause, Target, Dead/Ghost Check
 	if pause() ~= true and UnitAffectingCombat("player") and UnitExists("target") and not UnitIsDeadOrGhost("target") then
 
-		ArcaneMageDefensives()
+		if BadBoy_data['Defensive'] == 2 then
+			ArcaneMageDefensives()
+		end
+
 
 		if BadBoy_data['Cooldowns'] == 2 then
 			ArcaneMageCooldowns();
