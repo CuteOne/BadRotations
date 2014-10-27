@@ -30,6 +30,7 @@ _QuakingPalm                =   107079  --Quaking Palm
 _RaisingSunKick             =   107428  --Raising Sun Kick
 _Resuscitate                =   115178  --Resuscitate
 _Roll                       =   121827	--109132  --Roll
+_RushingJadeWind			=	116847	--Rushing Jade Wind
 _Serenity 					=	157558	--Serenity
 _SpinningCraneKick          =   101546  --Spinning Crane Kick
 _StanceOfTheFierceTiger     =   103985  --Stance of the Fierce Tiger

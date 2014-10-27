@@ -168,6 +168,22 @@ function useCDs()
     end
 end
 
+function useDefensive()
+    if BadBoy_data['Defensive'] == 1 then
+        return true
+    else
+        return false
+    end
+end
+
+function useInterrupts()
+    if BadBoy_data['Interrupts'] == 1 then
+        return true
+    else
+        return false
+    end
+end
+
 function getFacingDistance()
     if UnitIsVisible("player") and UnitIsVisible("target") then
         local Y1,X1,Z1 = ObjectPosition("player");

@@ -1049,7 +1049,7 @@ end
 
 -- if getTalent(8) == true then
 function getTalent(Row,Column)
-	return select(5, GetTalentInfo(Row,Column,1)) or false
+	return select(4, GetTalentInfo(Row,Column,GetActiveSpecGroup())) or false
 end
 
 -- if getTimeToDie("target") >= 6 then
@@ -1882,7 +1882,7 @@ end
 
 -- if isChecked("Debug") then
 function isChecked(Value)
-	if BadBoy_data["Check "..Value] == 1 then return true; end
+	if BadBoy_data["Check "..Value] == 1 then return true; else return false end
 end
 
 -- if isSelected("Stormlash Totem") then

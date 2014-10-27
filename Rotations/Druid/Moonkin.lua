@@ -30,20 +30,51 @@ function DruidMoonkin()
 
 
 
-	if --isChecked("Zoo Master") and 
-		IsOutdoors() and not IsMounted("player") then
-		--[[ Flying Form ]]
-		if (getFallTime() > 1 or outOfWater()) and not isInCombat("player") and IsFlyableArea() then
-			if not (UnitBuffID("player", sff) or UnitBuffID("player", flf)) then
-				if castSpell("player", sff) then return; elseif castSpell("player", flf) then return; end
-			end
-		--[[ Aquatic Form ]]
-		elseif IsSwimming() and not UnitBuffID("player",af) and not UnitExists("target") then
-			if castSpell("player",af) then return; end
-		elseif IsMovingTime(2) and IsFalling() == nil and IsSwimming() == nil and IsFlying() == nil and UnitBuffID("player",783) == nil and UnitBuffID("player", sff) == nil and UnitBuffID("player", flf) == nil then
-			if castSpell("player",783) then return; end
-		end
-	end
+-------------------------------------------------
+--- Misc ---
+--------------------------------------------------
+		local falling = getFallTime()
+		local swimming = IsSwimming()
+		local travel = UnitBuffID("player", trf)
+		local flight = UnitBuffID("player", flf)
+		local cat = UnitBuffID("player",cf)
+		local stag = hasGlyph(114338)
+
+	-- Flying Form
+	    if falling > 1 and not isInCombat("player") and IsFlyableArea() then
+	        if ((not travel and not flight) or (not swimming and travel))  then
+	            if stag then
+	                if castSpell("player",flf,true,false,false) then return; end
+	            elseif not stag then
+	                if castSpell("player",trf,true,false,false) then return; end
+	            end
+	        else
+	            if castSpell("player",cf,true,false,false) then return; end
+	        end
+	    end
+	-- Aquatic Form
+	    if swimming and not travel and not hasTarget then
+	        if castSpell("player",trf,true,false,false) then return; end
+	    end
+	-- Cat Form
+	    --if ((not dead and hastar and attacktar and tarDist<=40)
+	    --		or (isMoving("player") and not travel and not IsFalling()))
+	      --  and (not IsFlying() or (IsFlying() and targetDistance<10))
+	        --and not cat
+	       -- and (falling==0 or tarDist<10)
+	        --and not isInCombat("player")
+	    --then
+	      --  if castSpell("player",cf,true,false,false) then return; end
+	    --end
+	-- PowerShift
+	    if hasNoControl() then
+	        for i=1, 6 do
+	            if i == GetShapeshiftForm() then
+	                CastShapeshiftForm(i)
+	                return true
+	            end
+	        end
+	    end
 
 	--[[Stop in other forms]]
 	if UnitBuffID("player",768) ~= nil then -- Kitty
@@ -87,23 +118,39 @@ function DruidMoonkin()
 --[[ 	-- Combats Starts Here
 ]]
 	if UnitAffectingCombat("player") == true then
+   
+		if isChecked("Celestial Alignment") == true and canCast(112071,false,false)
+				then 
+					if surgeStack > 1 then if castSpell("player",112071,true,false) then return; end
+					end
+		end
+
+		if UnitBuffID("player",112071) then
+			if 	(getDebuffRemain("target",_Moonfire,"player") < 4 or getDebuffRemain("target",_Sunfire,"player") < 4 ) then
+					if castSpell("target",_Moonfire,true,false,false) then return; 
+					end
+			end
+
+			if 	not (UnitBuffID("player",_EmpowermentLunar) or UnitBuffID("player",_EmpowermentSolar))  and (Starsurgetimer == nil or Starsurgetimer <= GetTime() - 2) then 
+				 if castSpell("target",_Starsurge,false,false) then Starsurgetimer = GetTime() return; end
+			end
+
+			if getBuffRemain("player",112071) < 3 then
+				if 	getDebuffRemain("target",_Moonfire,"player") < 30 then
+					if castSpell("target",_Moonfire,true,false,false) then return; end
+				end
+			end
+			if (isCastingSpell(2912) == true or isCastingSpell(5176) == true) and (getBuffStacks(164547) == 1 or getBuffStacks(164545) == 1) then
+				if castSpell("target",_Starsurge,false,false) then Starsurgetimer = GetTime() return; end
+			end
+		end
+
+
 
 		--[[ 2 - Defencive --(U can use Defencive in cat form)]]
 		-- Barkskin if < 30%
 		if isChecked("Barkskin") and getHP("player") <= getValue("Barkskin") then
 			if castSpell("player",22812,true,false) then return; end
-		end
-
-		-- Might of Ursoc
-		if isChecked("Might of Ursoc") and getHP("player") <= getValue("Might of Ursoc") then
-			if castSpell("player",106922,true,false) then return; end
-		end
-
-		-- Bear Management(MoU)
-		if UnitBuffID("player",5487) ~= nil and UnitBuffID("player",106922) ~= nil then
-			if UnitPower("player",SPELL_POWER_RAGE) >= 60 then
-				if castSpell("player",22842,true,false) then return; end
-			end
 		end
 
 		-- Healthstone
@@ -222,13 +269,13 @@ function DruidMoonkin()
 			-- incarnation,if=buff.celestial_alignment.up
 			--[[sunfire,if=remains<8]]
 			if getDebuffRemain("target",_Sunfire,"player") < 7 and eclipseEnergy > 0 then
-				if castSpell("target",_Sunfire,true,false,false) then return; end
+				if castSpell("target",_Moonfire,true,false,false)  then return; end
 			end
 
 			for i = 1, #myEnemiesTable do
 				local thisUnit = myEnemiesTable[i]
 				if getDebuffRemain(thisUnit,_Sunfire,"player") < 6 and eclipseEnergy > 0 then
-					if castSpell(thisUnit,_Sunfire,false,false) then return; end
+					if castSpell(thisUnit,_Moonfire,false,false) then return; end
 				end
 			end
 

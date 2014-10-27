@@ -241,6 +241,22 @@ function useAoE()
     end
 end
 
+function useDefensive()
+    if BadBoy_data['Defensive'] == 1 then
+        return true
+    else
+        return false
+    end
+end
+
+function useInterrupts()
+    if BadBoy_data['Interrupts'] == 1 then
+        return true
+    else
+        return false
+    end
+end
+
 function useThrash()
     if BadBoy_data['Thrash']==1 then
         return true
@@ -317,7 +333,6 @@ function getDistance2(Unit1,Unit2)
         return 1000;
     end
 end
-
 
 -- function feralSingle()
 --     if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
