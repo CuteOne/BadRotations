@@ -111,22 +111,28 @@ end
 --# Cooldowns
 function FrostMageCooldowns()
 	-- actions.cooldowns=icy_veins
-	if castSpell("player",IcyVeins,true,false) then
-		return;
+	if isChecked("Icy Veins") then
+		if castSpell("player",IcyVeins,true,false) then
+			return;
+		end
 	end
 
 	-- Mirrors
-	if isKnown(MirrorImage) then
-		if castSpell("player",MirrorImage,true,true) then
-			return;
+	if ischecked("Mirrors") then
+		if isKnown(MirrorImage) then
+			if castSpell("player",MirrorImage,true,true) then
+				return;
+			end
 		end
 	end
 
 	-- actions.cooldowns+=/blood_fury		-- Orc Racial
 	-- actions.cooldowns+=/berserking		-- Troll Racial
-	if isKnown(Berserkering) then
-		if castSpell("player",Berserkering,true,true) then
-			return;
+	if isKnown("Racial") then
+		if isKnown(Berserkering) then
+			if castSpell("player",Berserkering,true,true) then
+				return;
+			end
 		end
 	end
 
@@ -395,34 +401,33 @@ end
 --[[]]                  --[[       ]]
 
 
+function CalculateHP(unit)
+  incomingheals = UnitGetIncomingHeals(unit) or 0
+  return 100 * ( UnitHealth(unit) + incomingheals ) / UnitHealthMax(unit)
+end
 
-	function CalculateHP(unit)
-		incomingheals = UnitGetIncomingHeals(unit) or 0
-	 	return 100 * ( UnitHealth(unit) + incomingheals ) / UnitHealthMax(unit)
-	end
-
-	function GroupInfo()
-		members, group = { { Unit = "player", HP = CalculateHP("player") } }, { low = 0, tanks = { } }
-		group.type = IsInRaid() and "raid" or "party"
-		group.number = GetNumGroupMembers()
-		if group.number > 0 then
-			for i=1,group.number do
-				if canHeal(group.type..i) then
-					local unit, hp = group.type..i, CalculateHP(group.type..i)
-					table.insert( members,{ Unit = unit, HP = hp } )
-					if hp < 90 then
-						group.low = group.low + 1
-					end
-					if UnitGroupRolesAssigned(unit) == "TANK" then
-						table.insert(group.tanks,unit)
-					end
-				end
-			end
+function GroupInfo()
+    members, group = { { Unit = "player", HP = CalculateHP("player") } }, { low = 0, tanks = { } }
+    group.type = IsInRaid() and "raid" or "party"
+    group.number = GetNumGroupMembers()
+    if group.number > 0 then
+        for i=1,group.number do
+            if canHeal(group.type..i) then
+                local unit, hp = group.type..i, CalculateHP(group.type..i)
+                table.insert( members,{ Unit = unit, HP = hp } )
+                if hp < 90 then group.low = group.low + 1 end
+                if UnitGroupRolesAssigned(unit) == "TANK" then table.insert(group.tanks,unit) end
+            end
+        end
         if group.type == "raid" and #members > 1 then table.remove(members,1) end
         table.sort(members, function(x,y) return x.HP < y.HP end)
         --local customtarget = canHeal("target") and "target" -- or CanHeal("mouseover") and GetMouseFocus() ~= WorldFrame and "mouseover"
         --if customtarget then table.sort(members, function(x) return UnitIsUnit(customtarget,x.Unit) end) end
     end
-
 end
+
+
+
+
+
 end

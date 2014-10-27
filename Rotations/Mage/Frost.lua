@@ -4,7 +4,7 @@ function FrostMage()
 
 
 	if currentConfig ~= "Frost ragnar" then
-		--FrostMageConfig();
+		FrostMageConfig();
 		FrostMageToggles();
 		currentConfig = "Frost ragnar";
 	end
@@ -122,7 +122,7 @@ function FrostMage()
 	-- AffectingCombat, Pause, Target, Dead/Ghost Check
 	if pause() ~= true and UnitAffectingCombat("player") and UnitExists("target") and not UnitIsDeadOrGhost("target") then
 
-		if BadBoy_data['Cooldowns'] == 2 or BadBoy_data['Cooldowns'] == 3 then
+		if BadBoy_data['Cooldowns'] == 2 then
 			FrostMageCooldowns();
 		end
 
