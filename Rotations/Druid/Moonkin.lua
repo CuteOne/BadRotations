@@ -221,13 +221,12 @@ function DruidMoonkin()
 			-- incarnation,if=buff.celestial_alignment.up
 			--[[sunfire,if=remains<8]]
 			if (getDebuffRemain("target",_Sunfire,"player") < 7 and eclipseEnergy > 0) then
-				if castSpell("target",_Moonfire,true,false,false) then return; end
+				if castSpell("target",_Sunfire,true,false,false) then return; end
 			end
-
-			--if getDebuffRemain("target",_Sunfire,"player") < 3 and castSpell("target",_Sunfire,false,false) then return; end
+			
 			for i = 1, #myEnemiesTable do
 				local thisUnit = myEnemiesTable[i]
-				if getDebuffRemain(thisUnit,_Sunfire) < 6 then
+				if getDebuffRemain(thisUnit,_Sunfire,"player") < 6 and eclipseEnergy > 0 then
 					if castSpell(thisUnit,_Sunfire,false,false) then return; end
 				end
 			end
@@ -236,10 +235,12 @@ function DruidMoonkin()
 			if castSpell("player",_Starfall,true,false) then return; end
 
 			-- moonfire,cycle_targets=1,if=remains<12
-			if getDebuffRemain("target",_Moonfire,"player") < 3 and castSpell("target",_Moonfire,false,false) then return; end
+			if getDebuffRemain("target",_Moonfire,"player") < 3 and eclipseEnergy < 0) then
+				if castSpell("target",_Moonfire,false,false) then return; end
+			end 
 			for i = 1, #myEnemiesTable do
 				local thisUnit = myEnemiesTable[i]
-				if getDebuffRemain(thisUnit,_Moonfire) < 6 then
+				if getDebuffRemain(thisUnit,_Moonfire,"player") < 6 and eclipseEnergy < 0 then
 					if castSpell(thisUnit,_Moonfire,false,false) then return; end
 				end
 			end
