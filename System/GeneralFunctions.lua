@@ -1882,7 +1882,7 @@ end
 
 -- if isChecked("Debug") then
 function isChecked(Value)
-	if BadBoy_data["Check "..Value] == 1 then return true; end
+	if BadBoy_data["Check "..Value] == 1 then return true; else return false end
 end
 
 -- if isSelected("Stormlash Totem") then
