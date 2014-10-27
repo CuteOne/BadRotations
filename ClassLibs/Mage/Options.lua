@@ -34,6 +34,7 @@ if select(3, UnitClass("player")) == 8 then
 			CreateNewWrap(thisConfig,"--- Defensives ---");
 
 
+
 			-- Wrapper -----------------------------------------
 			-- CreateNewWrap(thisConfig,"--- Toggles");
 
@@ -47,7 +48,12 @@ if select(3, UnitClass("player")) == 8 then
 			-- CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle2")
 			-- CreateNewText(thisConfig,"Focus Toggle");
 
+						-- Wrapper -----------------------------------------
+			CreateNewWrap(thisConfig,"--- Rotation ---");
 
+			-- Rotation
+			CreateNewDrop(thisConfig, "RotationSelect", 1, "Choose Rotation to use.", "|cffFFBB00IcyVeins", "|cff0077FFSimCraft");
+			CreateNewText(thisConfig, "Rotation Priority");
 
 			--[[General Configs]]
 			CreateGeneralsConfig();

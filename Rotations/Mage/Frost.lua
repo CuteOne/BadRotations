@@ -158,7 +158,13 @@ function FrostMage()
 		end
 
 		-- Single Target Rotation
-		FrostMageSingleTargetSimcraft()
+
+		if getValue("RotationSelect") == 1 then
+			FrostMageSingleTargetIcyVeins()
+		end
+		if getValue("RotationSelect") == 2 then
+			FrostMageSingleTargetSimcraft()
+		end
 
 
 
