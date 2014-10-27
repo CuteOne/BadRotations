@@ -234,7 +234,7 @@ function FrostMageSingleTargetIcyVeins()
 	-- Apply Frost Bomb Icon Frost Bomb or refresh it (if it is about to expire), but only if one of the following condition holds (let it drop otherwise):
 		-- you have 2 charges of Fingers of Frost Icon Fingers of Frost or;
 		-- Frozen Orb is about to come off cooldown.
-	if (getBuffStacks("player",FingersOfFrost)==2 or getSpellCD(FrozenOrb)<GCDTIME then
+	if getBuffStacks("player",FingersOfFrost)==2 or getSpellCD(FrozenOrb)<GCDTIME then
 		if castSpell("target",FrostBomb,false,false) then
 			return;
 		end
