@@ -30,7 +30,8 @@ function DruidMoonkin()
 
 
 
-	if isChecked("Zoo Master") and IsOutdoors() and not IsMounted("player") then
+	if --isChecked("Zoo Master") and 
+		IsOutdoors() and not IsMounted("player") then
 		--[[ Flying Form ]]
 		if (getFallTime() > 1 or outOfWater()) and not isInCombat("player") and IsFlyableArea() then
 			if not (UnitBuffID("player", sff) or UnitBuffID("player", flf)) then
@@ -220,10 +221,10 @@ function DruidMoonkin()
 			-- celestial_alignment,if=lunar_max<8|target.time_to_die<20
 			-- incarnation,if=buff.celestial_alignment.up
 			--[[sunfire,if=remains<8]]
-			if (getDebuffRemain("target",_Sunfire,"player") < 7 and eclipseEnergy > 0) then
+			if getDebuffRemain("target",_Sunfire,"player") < 7 and eclipseEnergy > 0 then
 				if castSpell("target",_Sunfire,true,false,false) then return; end
 			end
-			
+
 			for i = 1, #myEnemiesTable do
 				local thisUnit = myEnemiesTable[i]
 				if getDebuffRemain(thisUnit,_Sunfire,"player") < 6 and eclipseEnergy > 0 then
@@ -235,7 +236,7 @@ function DruidMoonkin()
 			if castSpell("player",_Starfall,true,false) then return; end
 
 			-- moonfire,cycle_targets=1,if=remains<12
-			if getDebuffRemain("target",_Moonfire,"player") < 3 and eclipseEnergy < 0) then
+			if getDebuffRemain("target",_Moonfire,"player") < 3 and eclipseEnergy < 0 then
 				if castSpell("target",_Moonfire,false,false) then return; end
 			end 
 			for i = 1, #myEnemiesTable do
