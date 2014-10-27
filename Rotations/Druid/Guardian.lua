@@ -230,7 +230,6 @@ function DruidGuardian()
 		if chumiiuseAoE() == false then
 			--Mangle on CD
 			if castSpell("target",mgl,false,false) then
-				print("single")
 				return;
 			end
 			--Trash if debuff < 4
@@ -265,7 +264,6 @@ function DruidGuardian()
 		if chumiiuseAoE() == true then
 			--Mangle on CD
 			if castSpell("target",mgl,false,false) then
-				print("multi")
 				return;
 			end
 			--Maul with Tooth and Claw proc
