@@ -103,13 +103,15 @@ function FrostMage()
 	end
 
 	-- Power Word: Fortitude
-	if not UnitExists("mouseover") then
-	-- if isChecked("Arcane Brilliance") == true and not UnitExists("mouseover") then
-		GroupInfo()
-		for i = 1, #members do --members
-			if not isBuffed(members[i].Unit,{1459}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
-				if castSpell("player",ArcaneBrilliance,false,false) then
-					return;
+	if isChecked("Arcane Brilliance") then
+		if not UnitExists("mouseover") then
+		-- if isChecked("Arcane Brilliance") == true and not UnitExists("mouseover") then
+			GroupInfo()
+			for i = 1, #members do --members
+				if not isBuffed(members[i].Unit,{1459}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
+					if castSpell("player",ArcaneBrilliance,false,false) then
+						return;
+					end
 				end
 			end
 		end
@@ -121,6 +123,8 @@ function FrostMage()
 
 	-- AffectingCombat, Pause, Target, Dead/Ghost Check
 	if pause() ~= true and UnitAffectingCombat("player") and UnitExists("target") and not UnitIsDeadOrGhost("target") then
+
+		FrostMageDefensives()
 
 		if BadBoy_data['Cooldowns'] == 2 then
 			FrostMageCooldowns();

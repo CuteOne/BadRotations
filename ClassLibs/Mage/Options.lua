@@ -19,8 +19,10 @@ if select(3, UnitClass("player")) == 8 then
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"== Cooldowns");
 
-			CreateNewCheck(thisConfig,"Mirror Image");
-			CreateNewText(thisConfig,"Mirror Image");
+			if isKnown(MirrorImage) then
+				CreateNewCheck(thisConfig,"Mirror Image");
+				CreateNewText(thisConfig,"Mirror Image");
+			end
 
 			CreateNewCheck(thisConfig,"Icy Veins");
 			CreateNewText(thisConfig,"Icy Veins");

@@ -16,7 +16,7 @@ if select(3, UnitClass("player")) == 8 then
 	SummonPet		= 31687;
 	WaterJet		= 135029;
 -- FrTalents
-	FrostBomb 		= 113092;
+	FrostBomb 		= 112948;
 	IceNova			= 157997;
 	ThermalVoid		= 155149;
 

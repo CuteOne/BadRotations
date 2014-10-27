@@ -53,8 +53,14 @@ if select(3, UnitClass("player")) == 8 then
 -- actions+=/call_action_list,name=aoe,if=active_enemies>=5
 -- actions+=/call_action_list,name=single_target
 
+	--# Defensive
+function FrostMageDefensives()
+
+
+end
+
 	--# AOE
-function FrostAoESimcraft()
+function FrostMageAoESimcraft()
 	-- actions.aoe=call_action_list,name=cooldowns
 	-- actions.aoe+=/frost_bomb,if=remains<action.ice_lance.travel_time&(cooldown.frozen_orb.remains<gcd|buff.fingers_of_frost.react=2)
 	-- actions.aoe+=/frozen_orb
@@ -118,8 +124,9 @@ function FrostMageCooldowns()
 	end
 
 	-- Mirrors
-	if ischecked("Mirrors") then
-		if isKnown(MirrorImage) then
+
+	if isKnown(MirrorImage) then
+		if ischecked("Mirror Image") then
 			if castSpell("player",MirrorImage,true,true) then
 				return;
 			end
@@ -128,7 +135,7 @@ function FrostMageCooldowns()
 
 	-- actions.cooldowns+=/blood_fury		-- Orc Racial
 	-- actions.cooldowns+=/berserking		-- Troll Racial
-	if isKnown("Racial") then
+	if isChecked("Racial") then
 		if isKnown(Berserkering) then
 			if castSpell("player",Berserkering,true,true) then
 				return;
@@ -222,7 +229,58 @@ function FrostMageCrystalSimcraft()
 		end
 end
 
-	--# SingleTarget
+	--# Single Target Icy Veins
+function FrostMageSingleTargetIcyVeins()
+	-- Apply Frost Bomb Icon Frost Bomb or refresh it (if it is about to expire), but only if one of the following condition holds (let it drop otherwise):
+		-- you have 2 charges of Fingers of Frost Icon Fingers of Frost or;
+		-- Frozen Orb is about to come off cooldown.
+	if (getBuffStacks("player",FingersOfFrost)==2 or getSpellCD(FrozenOrb)<GCDTIME then
+		if castSpell("target",FrostBomb,false,false) then
+			return;
+		end
+	end
+
+	-- Cast Frozen Orb on cooldown (unless you want to save it for an upcoming AoE phase).
+	if castSpell("target",FrozenOrb) then
+		return;
+	end
+
+	-- Cast Ice Lance Icon Ice Lance when Frost Bomb Icon Frost Bomb is up and you have 1 or 2 charges of Fingers of Frost Icon Fingers of Frost.
+		-- Otherwise, let Fingers of Frost Icon Fingers of Frost build up until you have 2 charges, so that you can apply Frost Bomb, before consuming your charges.
+		-- Only cast Ice Lance without Frost Bomb, if you have 1 charge of Fingers of Frost and it is about to expire.
+
+	-- Cast Frostfire Bolt Icon Frostfire Bolt when Brain Freeze Icon Brain Freeze procs (you can have up to 2 charges).
+		-- Frostfire Bolt can give you a charge of Fingers of Frost, so avoid casting it if you already have 2 charges.
+
+	-- Cast Frostbolt Icon Frostbolt as a filler spell.
+	-- actions.single_target+=/water_jet,if=buff.fingers_of_frost.react=0&!dot.frozen_orb.ticking
+	if UnitExists("pet") == 1 and getBuffStacks("player",FingersOfFrost) < 1 and not UnitDebuffID("target",FrozenOrb,"player") then
+		if castSpell("target",WaterJet,true,false) then
+			return;
+		end
+	end
+
+	-- actions.single_target+=/frostbolt
+	if castSpell("target",Frostbolt,false,true) then
+		return;
+	end
+
+	-- actions.single_target+=/ice_floes,moving=1
+	if isMoving("player") then
+		if castSpell("target",IceFloes,false,false) then
+			return;
+		end
+	end
+
+	-- actions.single_target+=/ice_lance,moving=1
+	if isMoving("player") then
+		if castSpell("target",IceLance,false,false) then
+			return;
+		end
+	end
+end
+
+	--# SingleTarget Simcraft
 function FrostMageSingleTargetSimcraft()
 
 	-- Get GCD Time
@@ -247,11 +305,21 @@ function FrostMageSingleTargetSimcraft()
 	end
 
 	-- actions.single_target+=/frost_bomb,if=!talent.prismatic_crystal.enabled&cooldown.frozen_orb.remains<gcd&debuff.frost_bomb.remains<10
-	if not isKnown(PrismaticCrystal) and getSpellCD(FrozenOrb) < GCDTIME and getDebuffRemain("target",FrostBomb,"player") then
+	if not isKnown(PrismaticCrystal) and getSpellCD(FrozenOrb) < 2 and getDebuffRemain("target",FrostBomb,"player") < 10  then
 		if castSpell("target",FrostBomb,false,false) then
+			print("1111");
 			return;
 		end
 	end
+
+	--Apply Frost Bomb Icon Frost Bomb or refresh it (if it is about to expire), but only if one of the following condition holds (let it drop otherwise):
+		--you have 2 charges of Fingers of Frost Icon Fingers of Frost or;
+		--Frozen Orb Icon Frozen Orb is about to come off cooldown.
+
+	-- if isKnown(FrostBomb) then
+	-- 	if getBuffStacks("player",FingersOfFrost)==2 or getSpellCD(FrozenOrb) < 2
+	-- 	end
+	-- end
 
 	-- actions.single_target+=/frozen_orb,if=!talent.prismatic_crystal.enabled&buff.fingers_of_frost.stack<2&cooldown.icy_veins.remains>45
 	if not isKnown(PrismaticCrystal) and getBuffStacks("player",FingersOfFrost) < 2 and getSpellCD(IcyVeins) > 45 then
@@ -270,11 +338,12 @@ function FrostMageSingleTargetSimcraft()
 
 	-- actions.single_target+=/frost_bomb,if=remains<action.ice_lance.travel_time&(buff.fingers_of_frost.react=2|(buff.fingers_of_frost.react&(talent.thermal_void.enabled|buff.fingers_of_frost.remains<gcd*2)))
 	-->>> buff.fingers_of_frost.react=2|(buff.fingers_of_frost.react&(talent.thermal_void.enabled|buff.fingers_of_frost.remains<gcd*2)))
-	if getBuffStacks("player",FingersOfFrost)==2 or (UnitBuffID("player",FingersOfFrost) and (isKnown(ThermalVoid) or getBuffRemain("player",FingersOfFrost)<2*GCDTIME)) then
-		if castSpell("target",FrostBomb,false,false) then
-			return;
-		end
-	end
+	-- if getBuffStacks("player",FingersOfFrost)==2 or (UnitBuffID("player",FingersOfFrost) and (isKnown(ThermalVoid) or getBuffRemain("player",FingersOfFrost)<2*GCDTIME)) then
+	-- 	if castSpell("target",FrostBomb,false,false) then
+	-- 		print("2222");
+	-- 		return;
+	-- 	end
+	-- end
 
 	-- actions.single_target+=/ice_nova,if=time_to_die<10|(charges=2&(!talent.prismatic_crystal.enabled|!cooldown.prismatic_crystal.up))
 	if isKnown(IceNova) then
@@ -286,7 +355,7 @@ function FrostMageSingleTargetSimcraft()
 	end
 
 	-- actions.single_target+=/ice_lance,if=buff.fingers_of_frost.react=2|(buff.fingers_of_frost.react&dot.frozen_orb.ticking)
-	if getBuffStacks("player",FingersOfFrost) == 2 or (getBuffStacks("player",FingersOfFrost) >= 1 and getDebuffRemain("target",FrozenOrb,"player")) then
+	if getBuffStacks("player",FingersOfFrost) == 2 or (getBuffStacks("player",FingersOfFrost) == 2 and getDebuffRemain("target",FrozenOrb,"player")) then
 		if castSpell("target",IceLance,false,false) then
 			return;
 		end
@@ -315,14 +384,22 @@ function FrostMageSingleTargetSimcraft()
 	end
 
 	-- actions.single_target+=/ice_lance,if=buff.fingers_of_frost.react&debuff.frost_bomb.remains>travel_time&(!talent.thermal_void.enabled|cooldown.icy_veins.remains>8)
-	-- actions.single_target+=/frostbolt,if=buff.ice_shard.up&!(talent.thermal_void.enabled&buff.icy_veins.up&buff.icy_veins.remains<10)
-	if UnitBuffID("player",IceShard) then
-		if not(isKnown(ThermalVoid) and getBuffRemain("player",IcyVeins)<10 and UnitBuffID("player",IcyVeins)) then
-			if castSpell("target",Frostbolt,false,true) then
+	if isKnown(FrostBomb) then
+		if UnitBuffID("player",FingersOfFrost) and getDebuffRemain("target",FrostBomb,"player") > 1.5 and (not isKnown(ThermalVoid) or getSpellCD(IcyVeins)>8) then
+			if castSpell("target",IceLance,false,true) then
 				return;
 			end
 		end
 	end
+
+	-- actions.single_target+=/frostbolt,if=buff.ice_shard.up&!(talent.thermal_void.enabled&buff.icy_veins.up&buff.icy_veins.remains<10)
+	-- if UnitBuffID("player",IceShard) then
+	-- 	if not(isKnown(ThermalVoid) and getBuffRemain("player",IcyVeins)<10 and UnitBuffID("player",IcyVeins)) then
+	-- 		if castSpell("target",Frostbolt,false,true) then
+	-- 			return;
+	-- 		end
+	-- 	end
+	-- end
 
 	-- actions.single_target+=/ice_lance,if=buff.fingers_of_frost.react&!talent.frost_bomb.enabled&(!talent.thermal_void.enabled|cooldown.icy_veins.remains>8)
 	if not isKnown(FrostBomb) then
