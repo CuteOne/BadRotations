@@ -1049,7 +1049,7 @@ end
 
 -- if getTalent(8) == true then
 function getTalent(Row,Column)
-	return select(5, GetTalentInfo(Row,Column,1)) or false
+	return select(4, GetTalentInfo(Row,Column,GetActiveSpecGroup())) or false
 end
 
 -- if getTimeToDie("target") >= 6 then
