@@ -100,7 +100,7 @@ if select(3, UnitClass("player")) == 8 then
         if  DefensiveModesLoaded ~= "Arcane Mage Defensive Modes" then
             DefensiveModes = {
                 [1] = { mode = "Off", value = 1 , overlay = "Defensive Disabled", tip = "No Defensive Cooldowns will be used.", highlight = 0, icon = 66 },
-                [2] = { mode = "On", value = 2 , overlay = "Defensive Enabled", tip = "|cffFF0000Includes: \n|cffFFdd11", highlight = 1, icon = 66 }
+                [2] = { mode = "On", value = 2 , overlay = "Defensive Enabled", tip = "|cffFF0000Includes: \n|cffFFdd11Evanesce", highlight = 1, icon = 66 }
             };
             CreateButton("Defensive",2,0);
             DefensiveModesLoaded = "Arcane Mage Defensive Modes";
