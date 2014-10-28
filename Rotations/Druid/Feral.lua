@@ -162,7 +162,7 @@ if select(3, UnitClass("player")) == 11 then
 ------------------
 --- Defensives ---
 ------------------
-			if isChecked("Defensive Mode") and not stealth then
+			if useDefensive() and not stealth then
 -- Rejuvenation
 	            if isChecked("Rejuvenation") and php <= getValue("Rejuvenation") then
 	                if not stealth and rejRemain==0 and not isInCombat("player") then
@@ -223,7 +223,7 @@ if select(3, UnitClass("player")) == 11 then
 	------------------------------
 	--- In Combat - Interrupts ---
 	------------------------------
-				if isChecked("Interrupt Mode") and cat and not stealth then
+				if useInterrupts() and cat and not stealth then
 		-- Skull Bash
 				    if canInterrupt(sb, tonumber(getValue("Interrupts")))
 			            and isChecked("Skull Bash")
@@ -345,7 +345,7 @@ if select(3, UnitClass("player")) == 11 then
 	    			if castSpell("target",rk,false,false,false) then return; end
 	            end
 	    -- Thrash
-	    		if thrRemain<=thrDuration*0.3 and enemies>1 and power>50 then
+	    		if thrRemain<=thrDuration*0.3 and enemies>1 and power>50 and useThrash() then
 	    			if castSpell("target",thr,true,false,false) then return; end
 	            end
 	    -- Rake

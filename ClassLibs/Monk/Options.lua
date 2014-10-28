@@ -333,9 +333,9 @@ function WindwalkerConfig()
             checkOp("Death Monk Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.");
             textOp("Death Monk Mode");
 
-            -- Mark Of The Wild
-            --checkOp("Mark of the Wild","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Mark of Wild usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.");
-            --textOp(tostring(select(1,GetSpellInfo(mow))));
+            -- Legacy of the White Tiger
+            checkOp("Legacy of the White Tiger","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Legacy of the White Tiger usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.");
+            textOp(tostring(select(1,GetSpellInfo(_LegacyOfTheWhiteTiger))));
 
             -- Dummy DPS Test
             checkOp("DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.");
@@ -354,6 +354,14 @@ function WindwalkerConfig()
             checkOp("Flask / Crystal");
             textOp("Flask / Crystal");
 
+            -- Racial
+            checkOp("Racial");
+            textOp("Racial");
+
+            -- Xuen
+            checkOp("Xuen");
+            textOp(tostring(select(1,GetSpellInfo(_InvokeXuen))));
+
         -- Spacer
         textOp(" ");
         wrapOp("--- Defensive ---");
@@ -363,36 +371,57 @@ function WindwalkerConfig()
             boxOp("Pot/Stoned", 0, 100, 5, 60);
             textOp("Pot/Stoned");
 
-            -- Barkskin
-            --checkOp("Barkskin");
-            --boxOp("Barkskin", 0, 100, 5, 50);
-            --textOp(tostring(select(1,GetSpellInfo(bar))));
+            --  Expel Harm
+            checkOp("Expel Harm");
+            boxOp("Expel Harm", 0, 100, 5, 50);
+            textOp(tostring(select(1,GetSpellInfo(_ExpelHarm))));
 
-            -- Survival Instincts
-            --checkOp("Survival Instincts");
-            --boxOp("Survival Instincts", 0, 100, 5, 40);
-            --textOp(tostring(select(1,GetSpellInfo(si))));
+            -- Surging Mist
+            checkOp("Surging Mist");
+            boxOp("Surging Mist", 0, 100, 5, 50);
+            textOp(tostring(select(1,GetSpellInfo(_SurgingMist))));
 
-            -- Frenzied Regeneration
-            --checkOp("Frenzied Regen");
-            --boxOp("Frenzied Regen", 0, 100, 5, 30);
-            --textOp(tostring(select(1,GetSpellInfo(fr))));
+            -- Touch of Karma
+            checkOp("Touch of Karma");
+            boxOp("Touch of Karma", 0, 100, 5, 50);
+            textOp(tostring(select(1,GetSpellInfo(_TouchOfKarma))));
+
+            -- Fortifying Brew
+            checkOp("Fortifying Brew");
+            boxOp("Fortifying Brew", 0, 100, 5, 50);
+            textOp(tostring(select(1,GetSpellInfo(_FortifyingBrew))));
+
+            -- Diffuse Magic/Dampen Harm
+            checkOp("Diffuse/Dampen");
+            boxOp("Diffuse/Dampen", 0, 100, 5, 50);
+            if getTalent(5,2) then
+                textOp(tostring(select(1,GetSpellInfo(_DampenHarm))));
+            else
+                textOp(tostring(select(1,GetSpellInfo(_DiffuseMagic))));
+            end
+
+            -- Nimble Brew
+            checkOp("Nimble Brew");
+            textOp(tostring(select(1,GetSpellInfo(_NimbleBrew))));
 
         -- Spacer --
         textOp(" ");
         wrapOp("--- Interrupts ---");
+            --Quaking Palm
+            checkOp("Quaking Palm")
+            textOp(tostring(select(1,GetSpellInfo(_QuakingPalm))))
 
-            -- Skull Bash
-            --checkOp("Skull Bash")
-            --textOp(tostring(select(1,GetSpellInfo(sb))))
+            -- Spear Hand Strike
+            checkOp("Spear Hand Strike")
+            textOp(tostring(select(1,GetSpellInfo(_SpearHandStrike))))
 
-            -- Mighty Bash
-            --checkOp("Mighty Bash")
-            --textOp(tostring(select(1,GetSpellInfo(mb))))
+            -- Paralysis
+            checkOp("Paralysis")
+            textOp(tostring(select(1,GetSpellInfo(_Paralysis))))
 
-            -- Maim
-            --checkOp("Maim")
-            --textOp(tostring(select(1,GetSpellInfo(ma))))
+            -- Leg Sweep
+            checkOp("Leg Sweep")
+            textOp(tostring(select(1,GetSpellInfo(_LegSweep))))
 
             -- Interrupt Percentage
             checkOp("Interrupts");
@@ -423,10 +452,23 @@ function WindwalkerConfig()
             dropOp("Interrupt Mode", 6, "Toggle")
             textOp("Interrupts")
 
+            -- SEF Toggle
+            checkOp("SEF Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFSEF Toggle Key|cffFFBB00.");
+            dropOp("SEF Mode", 5, "Toggle")
+            textOp("Storm, Earth, and Fire");
+
+            -- FSK Toggle
+            checkOp("FSK Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFFSK Toggle Key|cffFFBB00.");
+            dropOp("FSK Mode", 5, "Toggle")
+            textOp("Flying Serpent Kick");
+
             -- Chi Builder Toggle
-            checkOp("Builder Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFThrash Toggle Key|cffFFBB00.");
+            checkOp("Builder Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFChi Builder Toggle Key|cffFFBB00.");
             dropOp("Builder Mode", 5, "Toggle")
             textOp("Chi Builder");
+
+        -- Spacer
+        textOp(" ");
 
         -- General Configs
         CreateGeneralsConfig();

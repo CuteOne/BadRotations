@@ -50,8 +50,16 @@ function DruidRestoration()
 			end
 		end
 	end
-
-	
+    -- Wild Mushroom Toggle
+	if isChecked("WildMushroom") and SpecificToggle("WildMushroom") == true then
+      if not IsMouselooking() then
+          CastSpellByName(GetSpellInfo(145205))
+          if SpellIsTargeting() then
+              CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+              return true;
+          end
+      end
+  	end
 	-- Reju  Toggle
 	if isChecked("Reju Toggle")  and SpecificToggle("Reju Toggle") == true then
 			for i = 1, #nNova do
@@ -138,7 +146,7 @@ if isCastingSpell(740) then return false; end
 		for i = 1, #nNova do
 			if nNova[i].hp < 249 then
 		  		if isPlayer(nNova[i].unit) == true and UnitIsVisible(nNova[i].unit) and not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) then
-		  			if castSpell("player",1126,true) then lastMotw = GetTime(); return; end
+		  			if castSpell("player",1126,true,false) then lastMotw = GetTime(); return; end
 				end
 			end
 		end
@@ -272,10 +280,10 @@ if isCastingSpell(740) then return false; end
 				end
 			end
 		end
-
-		--[[ 6 - Genesis--(WITH Hotkey)]]
-		if isChecked("Genesis Toggle") and SpecificToggle("Genesis Toggle") == true and GetCurrentKeyBoardFocus() == nil then
-			if canCast(145518,false,false) and not UnitBuffID("focus",162359,"player") then
+        
+	    --[[ 6 - Genesis--(WITH Hotkey)]]
+        if isChecked("Genesis Toggle") and SpecificToggle("Genesis Toggle") == true and GetCurrentKeyBoardFocus() == nil then
+			if canCast(145518,false,false) then
 				if castSpell("player",145518,true,false) then return; end
 			end
 		end
@@ -310,7 +318,7 @@ if isCastingSpell(740) then return false; end
  		local SMName, _, _, SMcount, _, _, SMexpirationTime = UnitBuffID("player", 144871) --Sage Mender - 2p bonus tier 16
 		if SMName and  SMcount >= 5   then
 			if isChecked("Healing Touch Sm") == true and lowestHP <= getValue("Healing Touch Sm") then
-				if castSpell(lowestUnit,5185,true) then return; end
+				if castSpell(lowestUnit,5185,true,false) then return; end
 			end
 		end
 
@@ -332,7 +340,7 @@ if isCastingSpell(740) then return false; end
 					        end
 				        end
 		                if count > getValue("WildGrowth Tol Count") then
-		                    if castSpell(nNova[i].unit,48438,true,false) then return; end
+		                    if castSpell(nNova[i].unit,48438,true) then return; end
 		                end
 				    end
 				end
@@ -352,20 +360,35 @@ if isCastingSpell(740) then return false; end
 	        end
 		end
 
-		--[[ 15 - Mushrooms Tol or WildMushroom Tank tol--(if not any mushroom active or Replace)]]
-		if isKnown(33891) and isChecked("Mushrooms Tol") and UnitBuffID("player", 33891) then
-			if isChecked("Mushrooms") and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
-				if castHealGround(145205,15,100,getValue("Mushrooms Tol Count")) then return; end
+		--[[ 15 - WildMushroom(if not any mushroom active )]]
+		if isKnown(33891) and UnitBuffID("player", 33891) then
+		if isChecked("Mushrooms") and (getValue("Mushrooms Who") == 2 or UnitExists("focus") == false) and (shroomTimer == nil or shroomTimer <= GetTime() - 2) then
+			if canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0 or shroomsTable[1].guid == nil) then
+				if castHealGround(145205,15,100,3) then  shroomTimer = GetTime() spellDebug("Shroom Tol Applied to 3 units for 1st time.") return; end
 			end
-			if isChecked("Mushrooms Tank Tol") and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0) then
-				for i = 1, nNova do
-					if nNova[i].hp < 249 and nNova[i].role == "TANK" then
-						if castGround(nNova[i].unit, 145205, 40) then return; end
+		end
+    end
+		--[[ 15.1 - WildMushroom(Replace)]]
+		if isKnown(33891) and UnitBuffID("player", 33891) then
+		if isChecked("Mushrooms") and (getValue("Mushrooms Who") == 2 or UnitExists("focus") == false) and (shroomTimer == nil or shroomTimer <= GetTime() - 2) then
+			if canCast(145205,false,false) and (shroomsTable ~= nil and #shroomsTable ~= 0) and lowestHP <= getValue("Mushrooms") then
+				if shroomsTable ~= nil and findShroom() then
+					local allies10Yards = getAlliesInLocation(shroomsTable[1].x,shroomsTable[1].y,shroomsTable[1].z,15)
+					if #allies10Yards < 3 then
+						if castHealGround(145205,15,getValue("Mushrooms") ,3) then shroomTimer = GetTime() spellDebug("Shroom Tol Rapplied to 3 units.") return; end
 					end
 				end
 			end
 		end
-
+    end
+		--[[ 15.2 - WildMushroom Tank(if not any mushroom active )]]
+		if isKnown(33891) and UnitBuffID("player", 33891) then
+		if isChecked("Mushrooms") and getValue("Mushrooms Who") == 1 then
+			if GetUnitSpeed("focus") == 0 and canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0 or shroomsTable[1].guid == nil) then
+				if castGround("focus", 145205, 40) then  shroomTimer = GetTime() spellDebug("Shroom Tol Applied to tank for 1st time.") return; end
+			end
+		end
+    end
 		--[[ 16 - reju All Tol --(use reju on all with out health check only Reju buff check)]]
 		if isKnown(33891) and isChecked("Rejuvenation All Tol") and UnitBuffID("player", 33891) and canCast(774,false,false) then
 	        for i = 1, #nNova do
@@ -383,8 +406,19 @@ if isCastingSpell(740) then return false; end
 		        end
 	        end
 		end
-
-		--[[ 18.5 - LifeBloom Fast Swich]]
+        	--[[ 18.1 - WildMushroom tank(Replace)]]
+	if isKnown(33891) and UnitBuffID("player", 33891) then	
+		if isChecked("Mushrooms") and getValue("Mushrooms Who") == 1 and (shroomTimer == nil or shroomTimer <= GetTime() - 2) then
+			if GetUnitSpeed("focus") == 0 and canCast(145205,false,false) then
+				if shroomsTable ~= nil and #shroomsTable ~= 0 and findShroom() then
+					if getDistanceToObject("focus",shroomsTable[1].x,shroomsTable[1].y,shroomsTable[1].z) > 12 then
+						if castGround("focus", 145205, 40) then shroomTimer = GetTime() spellDebug("Shroom Tol Reapplied to tank.") return; end
+					end
+				end
+			end
+		end
+	end
+	--[[ 18.5 - LifeBloom Fast Swich]]
 		if isChecked("Lifebloom") and canCast(33763,false,false) then
 	    	for i = 1, #nNova do
 				if nNova[i].hp < 249 and not UnitIsDeadOrGhost("focus") and getBuffRemain("focus",33763) == 0 and UnitExists("focus") 
@@ -430,12 +464,15 @@ if isCastingSpell(740) then return false; end
 		if isKnown(114107) ~= true then
 			if UnitAffectingCombat("player") and isChecked("Swiftmend Harmoney") then
 				if getBuffRemain("player", 100977) < 3 then
-					if getBuffRemain(lowestUnit,774,"player") > 1 or getBuffRemain(lowestUnit,8936,"player") > 1 then
+               for i = 1, #nNova do				
+				if (getBuffRemain(nNova[i].unit,774,"player") > 1 or getBuffRemain(nNova[i].unit,8936,"player") > 1) and getSpellCD(18562) == 0 then
 						-- Swiftmend
-						if castSpell(lowestUnit,18562,true,false) then return; end
+						CastSpellByName(GetSpellInfo(18562),nNova[i].unit) return true
+						--if castSpell(nNova[i].unit,18562,true,false) then return; end
 					end
 				end
 			end
+		end
 		else
 			if isChecked("Harmoney SotF") == true and getBuffRemain("player", 100977) < 3 then
 				-- Natures Swiftness
@@ -466,7 +503,7 @@ if isCastingSpell(740) then return false; end
 		    	if nNova[i].hp < 249 then
 			    	local allies30Yards = getAllies(nNova[i].unit,30);
 				    if #allies30Yards >= getValue("WildGrowth All Count") then
-			            if castSpell(nNova[i].unit,48438,true,false) then return; end
+			            if castSpell(nNova[i].unit,48438,true) then return; end
 					end
 				end
 			end
@@ -484,7 +521,7 @@ if isCastingSpell(740) then return false; end
 						end
 					end
 					if allies30Yards > getValue("WildGrowth Count") then
-						if castSpell(nNova[i].unit,48438,true,false) then return; end
+						if castSpell(nNova[i].unit,48438,true) then return; end
 					end
 				end
 			elseif getSpellCD(48438) < 2 and canCast(48438,false,false) then
@@ -498,7 +535,7 @@ if isCastingSpell(740) then return false; end
 					end
 					if allies30Yards > getValue("WildGrowth SotF Count") then
 						SwiftMender(getSpellCD(48438));
-						if castSpell(nNova[i].unit,48438,true,false) then return; end
+						if castSpell(nNova[i].unit,48438,true) then return; end
 					end
 				end
 			end

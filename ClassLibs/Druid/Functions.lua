@@ -241,6 +241,22 @@ function useAoE()
     end
 end
 
+function useDefensive()
+    if BadBoy_data['Defensive'] == 1 then
+        return true
+    else
+        return false
+    end
+end
+
+function useInterrupts()
+    if BadBoy_data['Interrupts'] == 1 then
+        return true
+    else
+        return false
+    end
+end
+
 function useThrash()
     if BadBoy_data['Thrash']==1 then
         return true
@@ -317,7 +333,6 @@ function getDistance2(Unit1,Unit2)
         return 1000;
     end
 end
-
 
 -- function feralSingle()
 --     if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
@@ -461,6 +476,23 @@ end
 --     end
 --end
 
+--chumii useAoE / no idea, but cutes didnt work for me oO
+function chumiigetmeleeEnemies()
+    if ScanTimer == nil or ScanTimer <= GetTime() - 1 then
+    meleeEnemies, ScanTimer = getNumEnemies("player",8), GetTime();
+   -- print("MeleeEnemies:"..meleeEnemies);
+    end
+    return meleeEnemies;
+end
+
+function chumiiuseAoE()
+    if BadBoy_data['AoE'] == 1 and chumiigetmeleeEnemies() >= 3 then
+    -- if BadBoy_data['AoE'] == 1 or BadBoy_data['AoE'] == 2 then
+        return true
+    else
+        return false
+    end
+end
 
 --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]
 --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]
@@ -474,15 +506,14 @@ end
 -- SwiftMender
 function SwiftMender()
     if isChecked("Swiftmend") then
-        if lowestHP < getValue("Swiftmend") then
-            if lowestHP <= getValue("Swiftmend") then
-                if getBuffRemain(lowestUnit,774,"player") > 1 or getBuffRemain(lowestUnit,8936,"player") > 1 then
-                    if castSpell(lowestUnit,18562,true,false) then return; end
+        if lowestHP <= getValue("Swiftmend") then
+            if (getBuffRemain(lowestUnit,774,"player") > 1 or getBuffRemain(lowestUnit,8936,"player") > 1)  and getSpellCD(18562) < 1 then
+                   CastSpellByName(GetSpellInfo(18562),lowestUnit) return true
                 end
             end
         end
     end
-end
+
 
 function findShroom()
     if shroomsTable[1].x == nil then

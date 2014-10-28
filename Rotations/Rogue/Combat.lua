@@ -56,36 +56,17 @@ possible simple pvp mode if target = enemy faction
 	local meleeEnemies = getNumEnemies("player",10);
 
 -------------------------
---- Food Stealth ---
+---      Stealth      ---
 -------------------------
-	if canRun() ~= true or UnitInVehicle("Player") then return false; end
-	if IsMounted("player") then return false; end
 
-	--[[Stealth before fight]]
-	if isChecked("Stealth") and (stealthTimer == nil or stealthTimer <= getValue("Stealth Timer")) and not UnitAffectingCombat("player") and not UnitIsDeadOrGhost("target") and not (UnitExists("target") and not isEnnemy("target")) and getCreatureType("target") == true then
-		--[[Always]]
-		if getValue("Stealth") == 1 then 
-			if not UnitBuffID("player",1784) then
-				if castSpell("player",_Stealth) then return; end
-			end
-		end
-		--[[Pre-Pot]]
-		if getValue("Stealth") == 2 then
-			if not UnitBuffID("player",_Stealth) and getBuffRemain("player",105697) > 0 and canAttack("player","target") and targetDistance < 30 and getSpellCD(_Stealth) == 0 then
-				if castSpell("player",_Stealth) then return; end
-			end
-		end
-		--[[30 Yards]]
-		if getValue("Stealth") == 3 then
-			if not isInCombat("player") and not UnitBuffID("player",_Stealth) and canAttack("player","target") and targetDistance < 30 and getSpellCD(_Stealth) == 0 then
-				if castSpell("player",_Stealth) then return; end
-			end
-		end
+	if not isInCombat("player") and not UnitBuffID("player",_Stealth) and canAttack("player","target") and not UnitIsDeadOrGhost("target") and targetDistance < 30 and getSpellCD(_Stealth)==0 then
+			if castSpell("player",_Stealth,false,false,false) then return; end
 	end
+	
 -------------------------
 --- AMBUSH AKA Opener ---
 -------------------------
-	if getDistance("player","target") < 2.5 and (UnitBuffID("player",1784) ~= nil or UnitBuffID("player",58984) ~= nil or UnitBuffID("player",1856) ~= nil) and energy >= 60 and getFacing("player","target") == true and getFacing("target","player") == false then
+	if getDistance("player","target") < 5 or (hasGlyph(56813) and getDistance("player","target") <= 10)  and (UnitBuffID("player",1784) ~= nil or UnitBuffID("player",58984) ~= nil or UnitBuffID("player",1856) ~= nil) and energy >= 60 and getFacing("player","target") == true then
 	  	if castSpell("target",_Ambush,false,false) then return true; end
 	end
 
@@ -114,11 +95,15 @@ possible simple pvp mode if target = enemy faction
 			if castSpell("player",_Feint,true,false) then return; end
 		end
 
-		-- Recuperate
-		if combo > 2 and isChecked("Recuperate") == true and getHP("player") <= getValue("Recuperate") and getBuffRemain("player",73651) < 1 then
-			if castSpell("player",_Recuperate,true,false) then return; end
-		end		
-
+		-- Recuperate (with free glyph each kill resets to full original duration)
+		if isChecked("Recuperate") == true then
+			if combo > 2 and getHP("player") <= getValue("Recuperate") and getBuffRemain("player",73651) < 1 then
+				if castSpell("player",_Recuperate,true,false) then return; end
+				elseif combo > 3 and UnitLevel("player") < 90 and getBuffRemain("player",73651) < 1 and hasGlyph(63254) then
+					if castSpell("player",_Recuperate,true,false) then return; end	
+			end
+		end	
+		
 		-- Combat Readiness
 		if isChecked("Combat Readiness") == true and getHP("player") <= getValue("Combat Readiness") and UnitThreatSituation("player") == 3 then
 			if castSpell("player",_CombatReadiness,true,false) then return; end
@@ -159,6 +144,9 @@ possible simple pvp mode if target = enemy faction
 ---   Aoe Rotation    ---
 -------------------------
 		if meleeEnemies > 2 and energy > 50 then
+			if not UnitBuffID("player",13877) and getSpellCD(_BladeFlurry)==0 then
+				if castSpell("player",_BladeFlurry) then return; end
+			end	
 			-- Crimson Tempest
 			if combo >= 4 and getBuffRemain("player", _SliceAndDice) > 3 and meleeEnemies > 5 then
 				if castSpell("player",_CrimsonTempest,true,false) then return; end
@@ -174,6 +162,9 @@ possible simple pvp mode if target = enemy faction
 --- Single Rotation ---
 -----------------------
 		if meleeEnemies <= 2 then
+			if UnitBuffID("player",13877) and getSpellCD(_BladeFlurry)==0 then 
+				if castSpell("player",_BladeFlurry) then return; end
+			end
 			-- _Eviscerate
 			if combo > 4 and getBuffRemain("player",_SliceAndDice) > 5 then
 				if castSpell("target",_Eviscerate,false,false) then return; end

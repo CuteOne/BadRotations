@@ -48,6 +48,11 @@ if select(3, UnitClass("player")) == 6 then
     -- Single Target -------------------------------------------------------------------------------------
     ------------------------------------------------------------------------------------------------------
       if not useAoE() then
+        if getHP("player") < 60 then
+          if castSpell("target",_DeathStrike) then
+            return;
+          end
+        end
         if not UnitDebuffID("target",_FrostFever,"player") then
           if castSpell("target",_HowlingBlast,false,false) then
             return;
@@ -72,6 +77,11 @@ if select(3, UnitClass("player")) == 6 then
       end -- Single Target end
 
       if useAoE() then
+        if getHP("player") < 60 then
+          if castSpell("target",_DeathStrike) then
+            return;
+          end
+        end
         if castSpell("target",_HowlingBlast,false,false) then
           return;
         end

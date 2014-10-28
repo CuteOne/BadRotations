@@ -190,6 +190,17 @@ if select(3,UnitClass("player")) == 10 then
             InterruptsModesLoaded = "Cute Interrupt Modes";
         end
 
+     -- Storm, Earth, and Fire Button
+        if SEFModesLoaded ~= "Cute SEF Modes" then
+            CustomSEFModes = {
+                [1] = { mode = "On", value = 2 , overlay = "Auto SEF Enabled", tip = "Will cast Storm, Earth, and Fire.", highlight = 1, icon = _StormEarthFire},
+                [2] = { mode = "Off", value = 1 , overlay = "Auto SEF Disabled", tip = "Will NOT cast Storm, Earth, and Fire.", highlight = 0, icon = _StormEarthFire}
+            };
+            SEFModes = CustomSEFModes
+            CreateButton("SEF",5,0)
+            SEFModesLoaded = "Cute SEF Modes";
+        end
+
      -- Flying Serpent Kick Button
         if FSKModesLoaded ~= "Cute FSK Modes" then
             CustomFSKModes = {
@@ -197,7 +208,7 @@ if select(3,UnitClass("player")) == 10 then
                 [2] = { mode = "Off", value = 1 , overlay = "Auto FSK Disabled", tip = "Will NOT cast Flying Serpent Kick.", highlight = 0, icon = _FlyingSerpentKick}
             };
             FSKModes = CustomFSKModes
-            CreateButton("FSK",5,0)
+            CreateButton("FSK",6,0)
             FSKModesLoaded = "Cute FSK Modes";
         end
 
@@ -208,7 +219,7 @@ if select(3,UnitClass("player")) == 10 then
                 [2] = { mode = "Off", value = 1 , overlay = "Chi Builder Disabled", tip = "No Chi will be generated when out of combat.", highlight = 0, icon = _ExpelHarm}
             };
             BuilderModes = CustomBuilderModes
-            CreateButton("Builder",6,0)
+            CreateButton("Builder",7,0)
             BuilderModesLoaded = "Cute Chi Builder Modes";
         end
 
@@ -256,10 +267,17 @@ if select(3,UnitClass("player")) == 10 then
             UpdateButton("Interrupts")
         end
 
+        --SEF Key Toggle
+        if SEFTimer == nil then SEFTimer = 0; end
+        if SpecificToggle("SEF Mode") and not GetCurrentKeyBoardFocus() and GetTime() - SEFTimer > 0.25 then
+            SEFTimer = GetTime()
+            UpdateButton("SEF")
+        end
+
         --FSK Key Toggle
         if FSKTimer == nil then FSKTimer = 0; end
         if SpecificToggle("FSK Mode") and not GetCurrentKeyBoardFocus() and GetTime() - FSKTimer > 0.25 then
-            DSKTimer = GetTime()
+            FSKTimer = GetTime()
             UpdateButton("FSK")
         end
 

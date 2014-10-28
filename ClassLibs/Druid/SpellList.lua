@@ -5,6 +5,7 @@ af	=	1066	--Aquatic Form
 bar	=	22812	--Barkskin
 bf	=	5487	--Bear Form
 ber	=	106951	--Berserk
+berg = 50334 --Berserk Guardian
 cf 	= 	768		--Cat Form
 cy	=	33786	--Cyclone
 dsh	=	1850	--Dash
@@ -39,6 +40,7 @@ rc	=	2782	--Remove Corruption
 rv	=	50769	--Revive
 rp	=	1079	--Rip
 svr	=	174544 --52610	--Savage Roar
+sd = 62606 -- Savage Defense
 shg =	114236	--Shred Glyphed
 shr	=	5221	--Shred
 sb	=	106839	--Skull Bash
@@ -60,9 +62,10 @@ wth =	5176	--Wrath
 inc	=	102543	--Incarnation: King of the Jungle
 fon	=	102703	--Force of Nature
 how	=	108288 	--Heart of the Wild
-mb	=	5211	--Mighty Bash
+mb	=	5211	  --Mighty Bash
 ty	=	132469	--Typhoon
 bt 	=	155672	--Bloodtalons
+uv  = 102793  --Ursol's Vortex
 
 ------Glyphs------
 gsh	=	114234	--Glyph of Shred
@@ -83,6 +86,7 @@ frr	=	146874 	--Feral Rage
 spd	=	81022	--Stampede
 rber=	26297	--Troll Racial: Berserking
 sm 	=	58984	--Night Elf Racial: Shadowmeld
+tac = 135286 --Tooth and Claw
 
 ------Forms------
 af	=	1066	--Aquatic Form

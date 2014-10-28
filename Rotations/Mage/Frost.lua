@@ -9,8 +9,9 @@ function FrostMage()
 		currentConfig = "Frost ragnar";
 	end
 
-
-
+	-------------------
+	-- Rune Of Power --
+	-------------------
 	if BadBoy_data["Rune"] == 1 and BadBoy_data["Power"] == 1 then
 		--[[ begin Rune Stuff ]]					-- add rune of power toggle!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -87,28 +88,6 @@ function FrostMage()
 	end
 
 
-	-------------
-	-- TOGGLES --
-	-------------
-
-	-- Pause toggle
-	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then
-		ChatOverlay("|cffFF0000BadBoy Paused", 0);
-		return;
-	end
-
-	-- Focus Toggle
-	if isChecked("Focus Toggle") and SpecificToggle("Focus Toggle") == 1 then
-		RunMacroText("/focus mouseover");
-	end
-
-	-- Auto Resurrection
-	if not isInCombat("player") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("player","mouseover") then
-		if castSpell("mouseover",_Resurrection,true,true) then
-			return;
-		end
-	end
-
 	------------
 	-- Checks --
 	------------
@@ -116,6 +95,11 @@ function FrostMage()
 	-- Food/Invis Check
 	if canRun() ~= true then
 		return false;
+	end
+
+	-- Pause
+	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == true then
+		ChatOverlay("|cffFF0000BadBoy Paused", 0); return;
 	end
 
 	-- Mounted Check
@@ -129,7 +113,7 @@ function FrostMage()
 		return false;
 	end
 
-	-- Power Word: Fortitude
+	-- Arcane Brilliance
 	if isChecked("Arcane Brilliance") then
 		if not UnitExists("mouseover") then
 		-- if isChecked("Arcane Brilliance") == true and not UnitExists("mouseover") then
@@ -158,7 +142,13 @@ function FrostMage()
 		end
 
 		-- Single Target Rotation
-		FrostMageSingleTargetSimcraft()
+
+		if getValue("RotationSelect") == 1 then
+			FrostMageSingleTargetIcyVeins()
+		end
+		if getValue("RotationSelect") == 2 then
+			FrostMageSingleTargetSimcraft()
+		end
 
 
 

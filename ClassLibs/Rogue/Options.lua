@@ -189,13 +189,13 @@ function CombatOptions()
 
 
         -- Stealth Timer
-        CreateNewCheck(thisConfig,"Stealth Timer");
-        CreateNewBox(thisConfig, "Stealth Timer", 0, 10  , 1, 2 , "|cffFFBB00How long to wait(seconds) before using \n|cffFFFFFFStealth.");
-        CreateNewText(thisConfig,"Stealth Timer");
+        --CreateNewCheck(thisConfig,"Stealth Timer");
+        --CreateNewBox(thisConfig, "Stealth Timer", 0, 10  , 1, 2 , "|cffFFBB00How long to wait(seconds) before using \n|cffFFFFFFStealth.");
+        --CreateNewText(thisConfig,"Stealth Timer");
 
         -- Stealth
         CreateNewCheck(thisConfig,"Stealth");
-        CreateNewDrop(thisConfig,"Stealth",1,"Stealthing method.","|cff00FF00Always","|cffFFDD00PrePot","|cffFF000030Yards");
+        --CreateNewDrop(thisConfig,"Stealth",1,"Stealthing method.","|cffFF000030Yards");
         CreateNewText(thisConfig,"Stealth");
 
         -- Left Poison
