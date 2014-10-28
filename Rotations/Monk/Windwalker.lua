@@ -331,7 +331,7 @@ if select(3, UnitClass("player")) == 10 then
 					if castSpell("player",_ZenSphere,false,false) then return; end
 				end
 	-- Blackout Kick
-				if not getTalent(7,2) and (bkcRemain>0 or serRemain==0) and tarDist<5 then
+				if not getTalent(7,2) and (bkcRemain>0 or serRemain>0) and tarDist<5 then
 					if castSpell("target",_BlackoutKick,false,false) then return; end
 				end
 	-- Chi Explosion
