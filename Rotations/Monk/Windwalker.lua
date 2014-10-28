@@ -294,6 +294,10 @@ if select(3, UnitClass("player")) == 10 then
 				if getTalent(7,3) and tarDist<5 and chi>=2 and tpRemain>0 and rskRemain>0 then
 					if castSpell("player",_Serenity,false,false) then return; end
 				end
+	-- Rushing Jade Wind
+				if useAoE() and getTalent(6,1) and power>=40 and tpRemain>2 and rjwRemain==0 then
+					if castSpell("player",_RushingJadeWind,false,false) then return; end
+				end
 	-- Fists of Fury
 				if ttm>fofChanTime and tpRemain>fofChanTime and rskRemain>fofChanTime and serRemain==0 then
 					if castSpell("target",_FistsOfFury,false,false) then return; end
@@ -345,10 +349,6 @@ if select(3, UnitClass("player")) == 10 then
 	-- Chi Explosion
 				if getTalent(7,2) and chi>=3 and tarDist<30 then
 					if castSpell("target",_ChiExplosion,false,false) then return; end
-				end
-	-- Rushing Jade Wind
-				if useAoE() and getTalent(6,1) and power>=40 and tpRemain>2 and rjwRemain==0 then
-					if castSpell("player",_RushingJadeWind,false,false) then return; end
 				end
 	-- Spinning Crane Kick
 				if useAoE() and not getTalent(6,1) and power>=40 and tpRemain>2 and sckRemain==0 then
