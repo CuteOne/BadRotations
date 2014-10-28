@@ -66,7 +66,7 @@ possible simple pvp mode if target = enemy faction
 -------------------------
 --- AMBUSH AKA Opener ---
 -------------------------
-	if getDistance("player","target") < 2.5 and (UnitBuffID("player",1784) ~= nil or UnitBuffID("player",58984) ~= nil or UnitBuffID("player",1856) ~= nil) and energy >= 60 and getFacing("player","target") == true and getFacing("target","player") == false then
+	if getDistance("player","target") < 5 or (hasGlyph(56813) and getDistance("player","target") <= 10)  and (UnitBuffID("player",1784) ~= nil or UnitBuffID("player",58984) ~= nil or UnitBuffID("player",1856) ~= nil) and energy >= 60 and getFacing("player","target") == true then
 	  	if castSpell("target",_Ambush,false,false) then return true; end
 	end
 
@@ -95,11 +95,15 @@ possible simple pvp mode if target = enemy faction
 			if castSpell("player",_Feint,true,false) then return; end
 		end
 
-		-- Recuperate
-		if combo > 2 and isChecked("Recuperate") == true and getHP("player") <= getValue("Recuperate") and getBuffRemain("player",73651) < 1 then
-			if castSpell("player",_Recuperate,true,false) then return; end
-		end		
-
+		-- Recuperate (with free glyph each kill resets to full original duration)
+		if isChecked("Recuperate") == true then
+			if combo > 2 and getHP("player") <= getValue("Recuperate") and getBuffRemain("player",73651) < 1 then
+				if castSpell("player",_Recuperate,true,false) then return; end
+				elseif combo > 3 and UnitLevel("player") < 90 and getBuffRemain("player",73651) < 1 and hasGlyph(63254) then
+					if castSpell("player",_Recuperate,true,false) then return; end	
+			end
+		end	
+		
 		-- Combat Readiness
 		if isChecked("Combat Readiness") == true and getHP("player") <= getValue("Combat Readiness") and UnitThreatSituation("player") == 3 then
 			if castSpell("player",_CombatReadiness,true,false) then return; end
