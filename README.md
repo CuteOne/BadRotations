@@ -7,7 +7,7 @@ BadBoy Ultimate Raider
 <br>
 <br>Druid
 <br>Feral (100%) - CuteOne
-<br>Guardian (50%) - Masoud
+<br>Guardian (50%) - Chumii
 <br>Restoration (100%) - Masoud
 <br>Moonkin (70%) - CodeMyLife
 <br>
@@ -22,9 +22,9 @@ BadBoy Ultimate Raider
 <br>Survival (0%) -
 <br>
 <br>Mage
-<br>Arcane (0%) -
+<br>Arcane (66%) - ragnar
 <br>Fire Mage (0%) -
-<br>Frost Mage (50%) - Ragnar
+<br>Frost Mage (80%) - ragnar
 <br>
 <br>Monk
 <br>1-10 - CuteOne
@@ -40,7 +40,7 @@ BadBoy Ultimate Raider
 <br>Priest
 <br>Discipline (0%) -
 <br>Holy (0%) -
-<br>Shadow (100%) - Ragnar
+<br>Shadow (100%) - ragnar
 <br>
 <br>Rogue
 <br>Assassination (90%) - CuteOne
