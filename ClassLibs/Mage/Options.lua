@@ -105,13 +105,18 @@ if select(3, UnitClass("player")) == 8 then
 				CreateNewText(thisConfig,"Evanesce");
 			end
 
+			-- Healthstone
+			CreateNewCheck(thisConfig,"Healthstone");
+			CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
+			CreateNewText(thisConfig,"Healthstone");
+
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"--- Rotation ---");
 
 			CreateNewBox(thisConfig, "ArcaneBlast (x4)", 80, 100  , 1, 93, "|cffFFBB00Under what |cff69ccf0%Mana|cffFFBB00 dont cast |cff69ccf0Arcane Blast at 4 stacks.");
 			CreateNewText(thisConfig,"ArcaneBlast (x4)");
 
-			CreateNewCheck(thisConfig,"Burn Mana", "Do not enable on Dummy. Not yet tested in raid (LVL90)");
+			CreateNewCheck(thisConfig,"Burn Mana", "Do not enable on Dummy.");
 			CreateNewText(thisConfig,"Burn Mana");
 
 
