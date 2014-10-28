@@ -486,7 +486,7 @@ function chumiigetmeleeEnemies()
 end
 
 function chumiiuseAoE()
-    if (BadBoy_data['AoE'] == 1 and chumiigetmeleeEnemies() >= 3) or BadBoy_data['AoE'] == 2 then
+    if BadBoy_data['AoE'] == 1 and chumiigetmeleeEnemies() >= 3 then
     -- if BadBoy_data['AoE'] == 1 or BadBoy_data['AoE'] == 2 then
         return true
     else
