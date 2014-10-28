@@ -2,58 +2,59 @@
 
 ## Profile Status
 
-|Spec |Status|author|
+|spec |status|author|
 |:----|:------:|:-------|
-|Druid|||
+|**Druid**|||
 |Feral|100%|CuteOne|
 |Guardian|50%|Chumii |
 |Restoration|100%|Masoud |
 |Moonkin|70%|CodeMyLife|
-| Death Knight |  |  |
+||||
+| **Death Knight** |  |  |
 |Frost|80%|Chumii |
 |Blood|90%|CodeMyLife |
 |Unholy|0%|Knight|
 ||||
-| Hunter |  |  |
+| **Hunter** |  |  |
 |Beastmaster|80%|CodeMyLife |
 |Marksmanship|0%||
 |Survival|0%||
 ||||
-| Mage |  |  |
+| **Mage** |  |  |
 |Arcane|80%|ragnar |
 |Fire|0%|ragnar |
 |Frost|80%|ragnar |
 ||||
-| Monk |  |  |
+| **Monk** |  |  |
 |Brewmaster|70%|CodeMyLife |
 |Mistweaver|70%|CodeMyLife |
 |Windwalker|100%|CuteOne|
-| Paladin  |  |  |
+| **Paladin**  |  |  |
 |Holy|0%|CodeMyLife |
 |Protection|80%|Gabbz |
 |Retribution|0%|Gabbz |
 ||||
-| Priest  |  |  |
+| **Priest**  |  |  |
 |Discipline|0%||
 |Holy|0%||
 |Shadow|99%|ragnar|
 ||||
-| Rogue  |  |  |
+| **Rogue**  |  |  |
 |Assassination|90%|CuteOne |
 |Combat|80%|Toxin |
 |Subtlety|70%|Toxin |
 ||||
-| Shaman  |  |  |
+| **Shaman** |  |  |
 |Elemental|80%|CodeMyLife |
 |Enhancement|100%|Cpowork |
 |Restoration|90%|CodeMyLife|
 ||||
-| Warlock  |  |  |
+| **Warlock**  |  |  |
 |Affliction|0%||
 |Demonology|80%|Kink |
 |Destruction|0%||
 ||||
-| Warrior  |  |  |
+| **Warrior**  |  |  |
 |Arms|100%|Chumii |
 |Fury|100%|Avery |
 |Protection|100%|Chumii |
