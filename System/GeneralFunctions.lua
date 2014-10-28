@@ -344,9 +344,9 @@ function shouldNotOverheal(Unit)
 	local allIncomingHeal = UnitGetIncomingHeals(Unit) or 0;
 	local overheal = 0;
 	if myIncomingHeal >= allIncomingHeal then
-		overheal = 0;
+		overheal = myIncomingHeal;
 	else
-		overheal = allIncomingHeal - myIncomingHeal;
+		overheal = allIncomingHeal;
 	end
 	local CurShield = UnitHealth(Unit);
 	if UnitDebuffID("player",142861) then --Ancient Miasma

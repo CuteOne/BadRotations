@@ -50,8 +50,16 @@ function DruidRestoration()
 			end
 		end
 	end
-
-	
+    -- Wild Mushroom Toggle
+	if isChecked("WildMushroom") and SpecificToggle("WildMushroom") == true then
+      if not IsMouselooking() then
+          CastSpellByName(GetSpellInfo(145205))
+          if SpellIsTargeting() then
+              CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+              return true;
+          end
+      end
+  	end
 	-- Reju  Toggle
 	if isChecked("Reju Toggle")  and SpecificToggle("Reju Toggle") == true then
 			for i = 1, #nNova do
@@ -430,12 +438,15 @@ if isCastingSpell(740) then return false; end
 		if isKnown(114107) ~= true then
 			if UnitAffectingCombat("player") and isChecked("Swiftmend Harmoney") then
 				if getBuffRemain("player", 100977) < 3 then
-					if getBuffRemain(lowestUnit,774,"player") > 1 or getBuffRemain(lowestUnit,8936,"player") > 1 then
+               for i = 1, #nNova do				
+				if (getBuffRemain(nNova[i].unit,774,"player") > 1 or getBuffRemain(nNova[i].unit,8936,"player") > 1) and getSpellCD(18562) == 0 then
 						-- Swiftmend
-						if castSpell(lowestUnit,18562,true,false) then return; end
+						CastSpellByName(GetSpellInfo(18562),nNova[i].unit) return true
+						--if castSpell(nNova[i].unit,18562,true,false) then return; end
 					end
 				end
 			end
+		end
 		else
 			if isChecked("Harmoney SotF") == true and getBuffRemain("player", 100977) < 3 then
 				-- Natures Swiftness

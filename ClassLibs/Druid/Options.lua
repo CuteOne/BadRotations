@@ -538,9 +538,13 @@ function RestorationConfig()
         CreateNewWrap(thisConfig,"-------- Toggles --------");
         -- Rebirth
         CreateNewCheck(thisConfig,"Rebirth Toggle");
-        CreateNewDrop(thisConfig,"Rebirth Toggle", 8, "Toggle2")
+        CreateNewDrop(thisConfig,"Rebirth Toggle", 9, "Toggle2")
         CreateNewText(thisConfig,"Rebirth Toggle");
-        -- Reju  Toggle
+        -- Wild mushroom Toggle
+		CreateNewCheck(thisConfig,"WildMushroom");
+        CreateNewDrop(thisConfig,"WildMushroom", 8, "Toggle2")
+        CreateNewText(thisConfig,"WildMushroom");
+		-- Reju  Toggle
 		CreateNewCheck(thisConfig,"Reju Toggle");
         CreateNewDrop(thisConfig,"Reju Toggle", 7, "Toggle2")
         CreateNewText(thisConfig,"Reju Toggle");

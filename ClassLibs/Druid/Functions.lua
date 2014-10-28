@@ -506,15 +506,14 @@ end
 -- SwiftMender
 function SwiftMender()
     if isChecked("Swiftmend") then
-        if lowestHP < getValue("Swiftmend") then
-            if lowestHP <= getValue("Swiftmend") then
-                if getBuffRemain(lowestUnit,774,"player") > 1 or getBuffRemain(lowestUnit,8936,"player") > 1 then
-                    if castSpell(lowestUnit,18562,true,false) then return; end
+        if lowestHP <= getValue("Swiftmend") then
+            if (getBuffRemain(lowestUnit,774,"player") > 1 or getBuffRemain(lowestUnit,8936,"player") > 1)  and getSpellCD(18562) < 1 then
+                   CastSpellByName(GetSpellInfo(18562),lowestUnit) return true
                 end
             end
         end
     end
-end
+
 
 function findShroom()
     if shroomsTable[1].x == nil then
