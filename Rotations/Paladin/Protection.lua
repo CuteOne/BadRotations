@@ -73,12 +73,16 @@ if select(3, UnitClass("player")) == 2 then
 			end
 
 			-- Dispell Logics Todo, includes removal using Divine Shield and Hand of Protection
-			-- if ProtPaladinDispell() then
+			--if ProtPaladinDispell() then
 			--end
 
 			-- If we are already casting then dont continue
 			if castingUnit() then
 				return false
+			end
+			
+			if ProtPaladinControl("target") then
+				return true
 			end
 
 			if ProtPaladinUtility() then
@@ -86,23 +90,12 @@ if select(3, UnitClass("player")) == 2 then
 				return true
 			end
 
-
 			-- Check if we are missing any buffs
-			--if ProtPaladinBuffs() then -- Make sure that we are buffed, 2 modes, inCombat and Out Of Combat, Blessings, RF,
-			--	return;
-			--end
+			if ProtPaladinBuffs() then -- Make sure that we are buffed, 2 modes, inCombat and Out Of Combat, Blessings, RF,
+				return true
+			end
 
-			-- Seal logic
-			--if BadBoy_data["Check Seal"] == 1 then
-			--	if ProtPaladinSealLogic() then
-			--		return
-			--	end
-			--end
-
-			--if ProtPaladinOffensiveCooldowns() then -- Handles the use of offensive Coolsdowns, ProtPaladinSurvival... handles the defensive.
-			--	return
-			--end
-
+			
 			-- Casting SS here for the time being, should be part of something earlier such as buffs or survival
 			if castSacredShield(3) then
 				return true

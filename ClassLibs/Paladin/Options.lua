@@ -97,7 +97,12 @@ if select(3,UnitClass("player")) == 2 then
 		CreateNewCheck(thisConfig,"Hand Of Salvation Party","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHand of Salvation|cffFFBB00 on Party.",1);
 		CreateNewBox(thisConfig, "Hand Of Salvation Party", 0, 100  , 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Salvation on Party");
 		CreateNewText(thisConfig,"Hand Of Salvation Party");
-
+	
+		-- Crowd Control
+		CreateNewCheck(thisConfig,"Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFCrowd Control|cffFFBB00.",1);
+		CreateNewDrop(thisConfig, "Crowd Control", 1, "CD") -- TODO: We should hae other options, never is the checking of the box, always, whitelist, on health(self), condition
+		CreateNewText(thisConfig,"Crowd Control");
+		
 		-- Rebuke
 		CreateNewCheck(thisConfig,"Rebuke","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFRebuke|cffFFBB00.",1);
 		CreateNewBox(thisConfig, "Rebuke", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFRebuke.");

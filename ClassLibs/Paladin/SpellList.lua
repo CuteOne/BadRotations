@@ -17,6 +17,7 @@ if select(3,UnitClass("player")) == 2 then
 	_DivineLight                =   82326
 	_DivinePlea                 =   54428
 	_DivineProtection           =   498
+	_DivinePurposeBuff			= 	90174
 	_DivineShield               =   642
 	_DivineStorm                =   53385
 	_EternalFlame               =   114163
@@ -66,6 +67,13 @@ if select(3,UnitClass("player")) == 2 then
 	_TemplarsVerdict            =   85256
 	_TurnEvil                   =   10326
 	_WordOfGlory                =   85673
+	
+	ccTargets = {"Training Dummy"}
+	interruptSpells = {"Training Dummy"}
+	burnTargets = {"Training Dummy"}
+	dispellDeBuffs = {""}
+	dispellBuffs = {}
+	
 
 	-- Todo : Check Glyphs(is on us or can we cast it on ground 25 yards
 	function castConsecration()
@@ -154,7 +162,7 @@ if select(3,UnitClass("player")) == 2 then
     --    end
 	-- Todo: We should calculate expected heal with resolve to not overheal
 	function castWordOfGlory(unit, health, holypower)
-		if (getHP(unit) <= health and _HolyPower > holypower) then -- Handle this via config? getHP does it include incoming heals? Bastion of Glory checks?
+		if getHP(unit) <= health and (_HolyPower > holypower or UnitBuffID("player", _DivinePurposeBuff)) then -- Handle this via config? getHP does it include incoming heals? Bastion of Glory checks?
 			if castSpell(unit,_WordOfGlory,true,false) then
 				return true
 			end
@@ -163,7 +171,7 @@ if select(3,UnitClass("player")) == 2 then
 	end
 
 	function castShieldOfTheRighteous(unit, holypower)
-		if canCast(_ShieldOfTheRighteous) and _HolyPower >= holypower then
+		if canCast(_ShieldOfTheRighteous) and (_HolyPower >= holypower or UnitBuffID("player", _DivinePurposeBuff)) then
 			if getDistance("player",unit) <= 4 then
 				if castSpell(unit,_ShieldOfTheRighteous,false,false) then
 					return true
