@@ -250,8 +250,6 @@ if select(3, UnitClass("player")) == 11 then
 			        then
 			            if castSpell("target",ma,false,false,false) then return; end
 			        end
-			    else
-			        return false
 			    end
 	-----------------------------
 	--- In Combat - Cooldowns ---
