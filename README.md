@@ -3,7 +3,7 @@
 ## Profile Status
 
 |spec |status|author|
-|:----|:------:|:-------|
+|:----|------:|:-------|
 |**Druid**|||
 |Feral|100%|CuteOne|
 |Guardian|50%|Chumii |
