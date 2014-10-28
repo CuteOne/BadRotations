@@ -1,63 +1,74 @@
-BadBoy
-======
+#BadBoy - Ultimate Raider
 
-BadBoy Ultimate Raider
+## Profile Status
 
-<b>___Profile Statuses___</b>
-<br>
-<b>Druid</b>
-<br>Feral (100%) - CuteOne
-<br>Guardian (50%) - Chumii
-<br>Restoration (100%) - Masoud
-<br>Moonkin (70%) - CodeMyLife
 
-<b>Death Knight</b>
-<br>Frost (80%) - Chumii
-<br>Blood (90%) - CodeMyLife
-<br>Unholy Death Knight
+|Druid| status | author |
+|:----|:------:|:-------|
+|Feral|100%|CuteOne|
+|Guardian|50%|Chumii |
+|Restoration|100%|Masoud |
+|Moonkin|70%|CodeMyLife|
 
-<b>Hunter</b>
-<br>Beastmaster (80%) - CodeMyLife
-<br>Marskmanship (0%) -
-<br>Survival (0%) -
+| Death Knight | status | author |
+|:-------------|:------:|:-------|
+|Frost|80%|Chumii |
+|Blood|90%|CodeMyLife |
+|Unholy|0%|Knight|
 
-<b>Mage</b>
-<br>Arcane (66%) - ragnar
-<br>Fire Mage (0%) -
-<br>Frost Mage (80%) - ragnar
 
-<b>Monk</b>
-<br>1-10 - CuteOne
-<br>Brewmaster (70%) - CodeMyLife
-<br>Mistweaver (70%) - CodeMyLife
-<br>Windwalker (100%) - CuteOne
+| Hunter | status | author |
+|:-------|:------:|:-------|
+|Beastmaster|80%|CodeMyLife |
+|Marksmanship|0%||
+|Survival|0%||
 
-<b>Paladin</b>
-<br>Holy (0%) - CodeMyLife
-<br>Protection Paladin (80%) - Gabbz
-<br>Retribution (0%) - Gabbz
+| Mage | status | author |
+|:-----|:------:|:-------|
+|Arcane|80%|ragnar |
+|Fire|0%|ragnar |
+|Frost|80%|ragnar |
 
-<b>Priest</b>
-<br>Discipline (0%) -
-<br>Holy (0%) -
-<br>Shadow (100%) - ragnar
+| Monk | status | author |
+|:-----|:------:|:-------|
+|Brewmaster|70%|CodeMyLife |
+|Mistweaver|70%|CodeMyLife |
+|Windwalker|100%|CuteOne|
 
-<b>Rogue</b>
-<br>Assassination (90%) - CuteOne
-<br>Combat Rogue (80%) - Toxin
-<br>Subtlety (70%) - Toxin
+| Paladin  | status | author |
+|:---------|:------:|:-------|
+|Holy|0%|CodeMyLife |
+|Protection|80%|Gabbz |
+|Retribution|0%|Gabbz |
 
-<b>Shaman</b>
-<br>Elemental (80%) - CodeMyLife
-<br>Enhancement (100%) - Cpowork
-<br>Restoration (90%) - CodeMyLife
+| Priest  | status | author |
+|:--------|:------:|:-------|
+|Discipline|0%||
+|Holy|0%||
+|Shadow|99%|ragnar|
 
-<b>Warlock</b>
-<br>Affliction (0%) -
-<br>Demonology (80%) - Kink
-<br>Destruction (0%) -
+| Rogue  | status | author |
+|:-------|:------:|:-------|
+|Assassination|90%|CuteOne |
+|Combat|80%|Toxin |
+|Subtlety|70%|Toxin |
 
-<b>Warrior</b>
-<br>Arms Warrior (100%) - Chumii
-<br>Fury Warrior (100%) - Avery
-<br>Protection Warrior (100%) - Chumii
+| Shaman  | status | author |
+|:--------|:------:|:-------|
+|Elemental|80%|CodeMyLife |
+|Enhancement|100%|Cpowork |
+|Restoration|90%|CodeMyLife|
+
+| Warlock  | status | author |
+|:---------|:------:|:-------|
+|Affliction|0%||
+|Demonology|80%|Kink |
+|Destruction|0%||
+
+| Warrior  | status | author |
+|:---------|:------:|:-------|
+|Arms|100%|Chumii |
+|Fury|100%|Avery |
+|Protection|100%|Chumii |
+
+
