@@ -335,7 +335,7 @@ function WindwalkerConfig()
 
             -- Legacy of the White Tiger
             checkOp("Legacy of the White Tiger","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Legacy of the White Tiger usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.");
-            textOp(tostring(select(1,GetSpellInfo(_LegacyOfTheWhiteTiger))));
+            textOp(tostring(select(1,GetSpellInfo(_LegacyOfTheWhileTiger))));
 
             -- Dummy DPS Test
             checkOp("DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.");
