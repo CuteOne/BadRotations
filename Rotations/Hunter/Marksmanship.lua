@@ -129,10 +129,52 @@ function MarkHunter()
 		if castSpell("target",ChimeraShot,false) then return; end
 	end
 
-	-- Barrage
-	if getSpellCD(Barrage) == 0
-	and Focus >= 60 then
-		if castSpell("target",Barrage,false) then return; end
+	-- Careful Aim Phase
+	if getHP("target") > 80 then
+		-- Glaive Toss
+		if getSpellCD(GlaiveToss) == 0
+		and Focus >= 15 and getNumEnemies("target",8) > 4 then
+			if castSpell("target",GlaiveToss,false) then return; end
+		end
+		-- Powershot
+		if getSpellCD(PowerShot) == 0
+		and Focus >= 15  then
+			if castSpell("target",PowerShot,false) then return; end
+		end
+		-- Barrage
+		if getSpellCD(Barrage) == 0
+		and Focus >= 60 and getNumEnemies("target",10) > 1 then
+			if castSpell("target",Barrage,false) then return; end
+		end
+		-- Aimed Shot
+		if getSpellCD(AimedShot) == 0 then
+			if castSpell("target",AimedShot,false) then return; end
+		end
+		-- Steady Shot
+		if getSpellCD(SteadyShot) == 0 then
+			if castSpell("target",SteadyShot,false,false) then return; end
+		end
+	end 	-- End Of Careful Aim Phase
+
+	-- Explosive Trap
+	if canCast(TrapLauncherExplosive) and BadBoy_data["Check Explosive Trap"] == 1
+		and (BadBoy_data["Drop Explosive Trap"] == 3 or (BadBoy_data["Drop Explosive Trap"] == 2 and numEnemies >= 3))
+		and getGround("target") == true
+		and isMoving("target") ~= true
+		and (isDummy("target") or (getDistance("target","targettarget") <= 5 and UnitHealth("target")*numEnemies >= 150*UnitHealthMax("player")/100)) then
+		if castGround("target",TrapLauncherExplosive,40) then return; end
+	end
+
+	-- AMoC
+	if getSpellCD(AMurderOfCrows) == 0
+	and Focus >= 30 then
+		if castSpell("target",AMurderOfCrows,false) then return; end
+	end
+
+	-- Dire Beast
+	if getSpellCD(DireBeast) == 0
+	and Focus <= 50 then
+		if castSpell("target",DireBeast,false) then return; end
 	end
 
 	-- Glave Toss
@@ -147,6 +189,19 @@ function MarkHunter()
 		if castSpell("target",PowerShot,false) then return; end
 	end
 
+	-- Barrage
+	if getSpellCD(Barrage) == 0
+	and Focus >= 60 then
+		if castSpell("target",Barrage,false) then return; end
+	end
+
+	-- Steady Shot
+	if getSpellCD(SteadyShot) == 0
+	and  getBuffRemain ("player",SteadyFocus) == 0 and Focus < 60 then
+		--print("Casting Steady Shot at "..Focus.." Focus.")
+		if castSpell("target",SteadyShot,false,false) then return; end
+	end
+
 	-- Aimed Shot
 	if getSpellCD(AimedShot) == 0
 	and Focus + FocusRegen >= 60
@@ -154,26 +209,11 @@ function MarkHunter()
 		if castSpell("target",AimedShot,false) then return; end
 	end
 
-
-	-- Explosive Trap
-	if canCast(TrapLauncherExplosive) and BadBoy_data["Check Explosive Trap"] == 1
-		and (BadBoy_data["Drop Explosive Trap"] == 3 or (BadBoy_data["Drop Explosive Trap"] == 2 and numEnemies >= 3))
-		and getGround("target") == true
-		and isMoving("target") ~= true
-		and (isDummy("target") or (getDistance("target","targettarget") <= 5 and UnitHealth("target")*numEnemies >= 150*UnitHealthMax("player")/100)) then
-		if castGround("target",TrapLauncherExplosive,40) then return; end
-	end
-
-	-- Steady Shot
+		-- Steady Shot
 	if getSpellCD(SteadyShot) == 0
 	and Focus < 50 then
 		--print("Casting Steady Shot at "..Focus.." Focus.")
 		if castSpell("target",SteadyShot,false,false) then return; end
 	end
-
-
-
-
-
-	end
+end
 end
