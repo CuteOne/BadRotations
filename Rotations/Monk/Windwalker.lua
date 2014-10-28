@@ -189,6 +189,8 @@ if select(3, UnitClass("player")) == 10 then
 							CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
 							StopAttack()
 							ClearTarget()
+							StopAttack()
+							ClearTarget()
 							print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
 						end
 					end
