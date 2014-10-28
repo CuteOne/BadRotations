@@ -144,6 +144,9 @@ possible simple pvp mode if target = enemy faction
 ---   Aoe Rotation    ---
 -------------------------
 		if meleeEnemies > 2 and energy > 50 then
+			if not UnitBuffID("player",13877) and getSpellCD(_BladeFlurry)==0 then
+				if castSpell("player",_BladeFlurry) then return; end
+			end	
 			-- Crimson Tempest
 			if combo >= 4 and getBuffRemain("player", _SliceAndDice) > 3 and meleeEnemies > 5 then
 				if castSpell("player",_CrimsonTempest,true,false) then return; end
@@ -159,6 +162,9 @@ possible simple pvp mode if target = enemy faction
 --- Single Rotation ---
 -----------------------
 		if meleeEnemies <= 2 then
+			if UnitBuffID("player",13877) and getSpellCD(_BladeFlurry)==0 then 
+				if castSpell("player",_BladeFlurry) then return; end
+			end
 			-- _Eviscerate
 			if combo > 4 and getBuffRemain("player",_SliceAndDice) > 5 then
 				if castSpell("target",_Eviscerate,false,false) then return; end
