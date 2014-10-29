@@ -11,7 +11,7 @@ function DruidGuardian()
 	-- if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
  --    	enemies, enemiesTimer = getNumEnemies("player",8), GetTime()
 	-- end
-	local tarDist = getDistance2("target")
+	--local tarDist = getDistance2("target")
 	local hasTarget = UnitExists("target")
 	local hasMouse = UnitExists("mouseover")
 	local php = getHP("player")
