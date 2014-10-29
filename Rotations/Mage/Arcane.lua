@@ -102,6 +102,18 @@ function ArcaneMage()
 			ArcaneMageCooldowns();
 		end
 
+		-- actions+=/call_action_list,name=aoe,if=active_enemies>=5
+
+			-- AoE
+		if BadBoy_data['AoE'] == 2 then
+			ArcaneMageAoESimcraft()
+		end
+			-- AutoAoE
+		if getNumEnemies("player",10)==5 then
+			if BadBoy_data['AoE'] == 3 then
+				ArcaneMageAoESimcraft()
+			end
+		end
 
 		-- actions+=/call_action_list,name=burn,if=time_to_die<mana.pct*0.35*spell_haste|cooldown.evocation.remains<=(mana.pct-30)*0.3*spell_haste|(buff.arcane_power.up&cooldown.evocation.remains<=(mana.pct-30)*0.4*spell_haste)
 		if isChecked("Burn Mana") then

@@ -11,7 +11,10 @@ function MarkHunter()
 	local Focus = UnitPower("player")
 	local FocusRegen = GetPowerRegen()
 
-
+	-- myEnemies
+	if myEnemiesTimer == nil or myEnemiesTimer <= GetTime() - 1 or myEnemies == nil then
+		myEnemies, myEnemiesTimer = getEnemies("target", 15), GetTime();
+	end
 
 	-- Other locals reused often.
 	local PetDistance = getDistance("pet","target")
@@ -21,15 +24,13 @@ function MarkHunter()
 	if not canRun() or UnitInVehicle("Player") then return false; end
 	if IsMounted("player") then waitForPetToAppear = nil; return false; end
 
-
-
 	if castingUnit() then return false; end
 
 	-- Aspect of the Cheetah
-	if not isInCombat("player") and BadBoy_data["Check Auto-Cheetah"] == 1
+	if not isInCombat("player") and isChecked("Auto-Cheetah")
 	  and not UnitBuffID("player", 5118)
 	  and not IsMounted()
-	  and IsMovingTime(BadBoy_data["Box Auto-Cheetah"])
+	  and IsMovingTime(getValue("Auto-Cheetah"))
 	  and not UnitIsDeadOrGhost("player")
 	  and GetShapeshiftForm() ~= 2 then
 		castSpell("player",AspectOfTheCheetah,true);
@@ -69,151 +70,158 @@ function MarkHunter()
 	end
 
 	-- Mend Pet
-	if BadBoy_data["Check Mend Pet"] == 1 and getHP("pet") < BadBoy_data["Box Mend Pet"] and not UnitBuffID("pet",136) then
+	if isChecked("Mend Pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
 		if castSpell("pet",MendPet) then return; end
 	end
 
-	---------------------------
-	--- Defensive Abilities ---
-	---------------------------
-	if not castingUnit("player") and isInCombat("player") then
-		if BadBoy_data["Check Deterrence"] == 1 and HP <= BadBoy_data["Box Deterrence"] then
-			if castSpell("player",Deterrence) then return; end
+	--------------------
+	--- Combat Check ---
+	--------------------
+	if UnitAffectingCombat("player") == true and UnitExists("target") == true and UnitIsVisible("target") == true
+	  and UnitIsDeadOrGhost("target") == false and UnitCanAttack("target","player") == true then
+
+		---------------------------
+		--- Defensive Abilities ---
+		---------------------------
+		if not castingUnit("player") and isInCombat("player") then
+			if isChecked("Deterrence") and HP <= getValue("Deterrence") then
+				if castSpell("player",Deterrence) then return; end
+			end
+			if isChecked("Feign Death") and HP <= getValue("Feign Death") then
+				if castSpell("player",FeignDeath) then return; end
+			end
 		end
-		if HP < BadBoy_data["Check Feign Death"] and HP <= BadBoy_data["Box Feign Death"] then
-			if castSpell("player",FeignDeath) then return; end
+
+
+		------------------
+		--- Interrupts ---
+		------------------
+		-- Counter Shot
+		if isChecked("Interrupts") and UnitAffectingCombat("player") then
+			if canInterrupt(CounterShot, tonumber(getValue("Interrupts"))) and getDistance("player","target") <= 40 then
+				castSpell("target",CounterShot,false,false);
+			end
 		end
-	end
 
-
-
-	------------------
-	--- Interrupts ---
-	------------------
-	-- Counter Shot
-	if BadBoy_data["Check Interrupts"] == 1 and UnitAffectingCombat("player") then
-		if canInterrupt(CounterShot, tonumber(BadBoy_data["Box Interrupts"])) and getDistance("player","target") <= 40 then
-			castSpell("target",CounterShot,false);
+		-----------------
+		--- Cooldowns ---
+		-----------------
+		-- Rapid Fire
+		if BadBoy_data["Cooldowns"] == 3 or (isChecked("Rapid Fire") and (getValue("Rapid Fire") == 3 or getValue("Rapid Fire") == 2 and BadBoy_data["Cooldowns"] == 2)) then
+			if castSpell("player",RapidFire,false,false) then return; end
 		end
-	end
+		-- Stampede
+		if BadBoy_data["Cooldowns"] == 3 or (isChecked("Check Stampede") and (getValue("Stampede") == 3 or getValue("Stampede") == 2 and BadBoy_data["Cooldowns"] == 2)) then
+			if castSpell("target",Stampede,false,false) then return; end
+		end
 
+		----------------------------
+		--- Damage Rotation ---
+		---------------------------
 
-	-----------------
-	--- Cooldowns ---
-	-----------------
-	-- Rapid Fire
-	if BadBoy_data["Cooldowns"] == 3 or (BadBoy_data["Check Rapid Fire"] == 1 and (BadBoy_data["Drop Rapid Fire"] == 3 or BadBoy_data["Drop Rapid Fire"] == 2 and BadBoy_data["Cooldowns"] == 2)) then
-		if castSpell("player",RapidFire) then return; end
-	end
+		-- Single Kill Shot
+		if getSpellCD(KillShot) == 0
+		and getHP("target")<= 20 then
+			if castSpell("target",KillShot,false) then return; end
+		end
 
-	-- Stampede
-	if BadBoy_data["Cooldowns"] == 3 or (BadBoy_data["Check Stampede"] == 1 and (BadBoy_data["Drop Stampede"] == 3 or BadBoy_data["Drop Stampede"] == 2 and BadBoy_data["Cooldowns"] == 2)) then
-		if castSpell("target",Stampede) then return; end
-	end
+		-- Chimera Shot
+		if getSpellCD(ChimeraShot) == 0
+		and Focus >= 35 then
+			if castSpell("target",ChimeraShot,false) then return; end
+		end
 
+		-- Careful Aim Phase
+		if getHP("target") > 80 then
+			-- Glaive Toss
+			if getSpellCD(GlaiveToss) == 0
+			and Focus >= 15 and getNumEnemies("target",8) > 4 then
+				if castSpell("target",GlaiveToss,false) then return; end
+			end
+			-- Powershot
+			if getSpellCD(PowerShot) == 0
+			and Focus >= 15  then
+				if castSpell("target",PowerShot,false) then return; end
+			end
+			-- Barrage
+			if getSpellCD(Barrage) == 0
+			and Focus >= 60 and getNumEnemies("target",10) > 1 then
+				if castSpell("target",Barrage,false) then return; end
+			end
+			-- Aimed Shot
+			if getSpellCD(AimedShot) == 0 then
+				if castSpell("target",AimedShot,false) then return; end
+			end
+			-- Steady Shot
+			if getSpellCD(SteadyShot) == 0 then
+				if castSpell("target",SteadyShot,false,false) then return; end
+			end
+		end 	-- End Of Careful Aim Phase
 
+		-- Trap Launcher if not activated
+		if not UnitBuffID("player",77769) then
+			castSpell("player",77769,true,false);
+		end
 
-	----------------------------
-	--- Damage Rotation ---
-	---------------------------
+		-- Explosive Trap
+		if canCast(TrapExplosive,true,false) and isChecked("Explosive Trap")
+		  and (getValue("Explosive Trap") == 3 or (getValue("Explosive Trap") == 2 and #myEnemies >= 3))
+		  and getGround("target") == true
+		  and isMoving("target") ~= true
+		  and (isDummy("target") or ((UnitExists("targettarget") == false or getDistance("target","targettarget") <= 5) and getTimeToDie("target") > 10)) then
+			if castGround("target",TrapLauncherExplosive,40) then return; end
+		end
 
-	-- Single Kill Shot
-	if getSpellCD(KillShot) == 0
-	and getHP("target")<= 20 then
-		if castSpell("target",KillShot,false) then return; end
-	end
+		-- AMoC
+		if getSpellCD(AMurderOfCrows) == 0
+		and Focus >= 30 then
+			if castSpell("target",AMurderOfCrows,false,false) then return; end
+		end
 
-	-- Chimera Shot
-	if getSpellCD(ChimeraShot) == 0
-	and Focus >= 35 then
-		if castSpell("target",ChimeraShot,false) then return; end
-	end
+		-- Dire Beast
+		if getSpellCD(DireBeast) == 0
+		and Focus <= 50 then
+			if castSpell("target",DireBeast,false,false) then return; end
+		end
 
-	-- Careful Aim Phase
-	if getHP("target") > 80 then
-		-- Glaive Toss
+		-- Glave Toss
 		if getSpellCD(GlaiveToss) == 0
-		and Focus >= 15 and getNumEnemies("target",8) > 4 then
-			if castSpell("target",GlaiveToss,false) then return; end
+		and Focus >= 15 then
+			if castSpell("target",GlaiveToss,false,false) then return; end
 		end
+
 		-- Powershot
 		if getSpellCD(PowerShot) == 0
-		and Focus >= 15  then
+		and Focus >= 15 then
 			if castSpell("target",PowerShot,false) then return; end
 		end
+
 		-- Barrage
 		if getSpellCD(Barrage) == 0
-		and Focus >= 60 and getNumEnemies("target",10) > 1 then
-			if castSpell("target",Barrage,false) then return; end
+		and Focus >= 60 then
+			if castSpell("target",Barrage,false,false) then return; end
 		end
-		-- Aimed Shot
-		if getSpellCD(AimedShot) == 0 then
-			if castSpell("target",AimedShot,false) then return; end
-		end
+
 		-- Steady Shot
-		if getSpellCD(SteadyShot) == 0 then
+		if getSpellCD(SteadyShot) == 0
+		and  getBuffRemain ("player",SteadyFocus) == 0 and Focus < 60 then
+			--print("Casting Steady Shot at "..Focus.." Focus.")
 			if castSpell("target",SteadyShot,false,false) then return; end
 		end
-	end 	-- End Of Careful Aim Phase
 
-	-- Explosive Trap
-	if canCast(TrapLauncherExplosive) and BadBoy_data["Check Explosive Trap"] == 1
-		and (BadBoy_data["Drop Explosive Trap"] == 3 or (BadBoy_data["Drop Explosive Trap"] == 2 and numEnemies >= 3))
-		and getGround("target") == true
-		and isMoving("target") ~= true
-		and (isDummy("target") or (getDistance("target","targettarget") <= 5 and UnitHealth("target")*numEnemies >= 150*UnitHealthMax("player")/100)) then
-		if castGround("target",TrapLauncherExplosive,40) then return; end
-	end
+		-- Aimed Shot
+		if getSpellCD(AimedShot) == 0
+		and Focus + FocusRegen >= 60
+		and getSpellCD(Barrage) > 2 then
+			if castSpell("target",AimedShot,false,false) then return; end
+		end
 
-	-- AMoC
-	if getSpellCD(AMurderOfCrows) == 0
-	and Focus >= 30 then
-		if castSpell("target",AMurderOfCrows,false) then return; end
-	end
-
-	-- Dire Beast
-	if getSpellCD(DireBeast) == 0
-	and Focus <= 50 then
-		if castSpell("target",DireBeast,false) then return; end
-	end
-
-	-- Glave Toss
-	if getSpellCD(GlaiveToss) == 0
-	and Focus >= 15 then
-		if castSpell("target",GlaiveToss,false) then return; end
-	end
-
-	-- Powershot
-	if getSpellCD(PowerShot) == 0
-	and Focus >= 15 then
-		if castSpell("target",PowerShot,false) then return; end
-	end
-
-	-- Barrage
-	if getSpellCD(Barrage) == 0
-	and Focus >= 60 then
-		if castSpell("target",Barrage,false) then return; end
-	end
-
-	-- Steady Shot
-	if getSpellCD(SteadyShot) == 0
-	and  getBuffRemain ("player",SteadyFocus) == 0 and Focus < 60 then
-		--print("Casting Steady Shot at "..Focus.." Focus.")
-		if castSpell("target",SteadyShot,false,false) then return; end
-	end
-
-	-- Aimed Shot
-	if getSpellCD(AimedShot) == 0
-	and Focus + FocusRegen >= 60
-	and getSpellCD(Barrage) > 2 then
-		if castSpell("target",AimedShot,false) then return; end
-	end
-
-		-- Steady Shot
-	if getSpellCD(SteadyShot) == 0
-	and Focus < 50 then
-		--print("Casting Steady Shot at "..Focus.." Focus.")
-		if castSpell("target",SteadyShot,false,false) then return; end
+			-- Steady Shot
+		if getSpellCD(SteadyShot) == 0
+		and Focus < 50 then
+			--print("Casting Steady Shot at "..Focus.." Focus.")
+			if castSpell("target",SteadyShot,false,false) then return; end
+		end
 	end
 end
 end

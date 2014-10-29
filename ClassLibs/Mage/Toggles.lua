@@ -85,6 +85,16 @@ if select(3, UnitClass("player")) == 8 then
 
 
     function ArcaneMageToggles()
+        -- Aoe Button
+        if  AoEModesLoaded ~= "Frost Mage AoE Modes" then
+            AoEModes = {
+                [1] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "|cff00FF00AoE \n|cffFFDD11Recommended for \n|cff00FF00Single Target (1)", highlight = 0, icon = 5143 },
+                [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "|cff00FF00AoE \n|cffFFDD11Recommended for \n|cffFF0000AoE (5+)", highlight = 0, icon = 1449 },
+                [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "|cff00FF00AoE \n|cffFFDD11Auto-AoE", highlight = 1, icon = 116812 }
+            };
+            CreateButton("AoE",0.5,1)
+            AoEModesLoaded = "Frost Mage AoE Modes";
+        end
 
         -- AutoRune Button
         if  RuneModesLoaded ~= "Arcane Mage Rune Modes" then
@@ -108,8 +118,8 @@ if select(3, UnitClass("player")) == 8 then
         -- Cooldowns Button
         if  CooldownsModesLoaded ~= "Arcane Mage Cooldowns Modes" then
             CooldownsModes = {
-                [1] = { mode = "Off", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffFF0000Cooldowns \n|cffFFDD11No cooldowns will be used.", highlight = 0, icon = 55342},
-                [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "|cff00FF00Cooldowns \n|cffFFDD11Only used if enabled in Settings. \n|cffFF0000Spells Included: \n|cffFFDD11Mirror Image \nArcane Power \nRacial \nCold Snap", highlight = 1, icon = 55342 }
+                [1] = { mode = "Off", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffFF0000Cooldowns \n|cffFFDD11No cooldowns will be used.", highlight = 0, icon = 12042},
+                [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "|cff00FF00Cooldowns \n|cffFFDD11Only used if enabled in Settings. \n|cffFF0000Spells Included: \n|cffFFDD11Mirror Image \nArcane Power \nRacial \nCold Snap", highlight = 1, icon = 12042 }
             };
             CreateButton("Cooldowns",1.5,1);
             CooldownsModesLoaded = "Arcane Mage Cooldowns Modes";

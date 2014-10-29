@@ -501,6 +501,61 @@ function ArcaneMageDefensives()
 		end
 	end
 
+	-- Healthstone
+	if isChecked("Healthstone") == true then
+		if getHP("player") <= getValue("Healthstone") then
+			if canUse(5512) then
+				UseItemByName(tostring(select(1,GetItemInfo(5512))))
+			end
+		end
+	end
+
+
+end
+
+-- AoE
+function ArcaneMageAoESimcraft()
+
+	-- actions.aoe=call_action_list,name=cooldowns
+	-- actions.aoe+=/nether_tempest,cycle_targets=1,if=buff.arcane_charge.stack=4&(active_dot.nether_tempest=0|(ticking&remains<3.6))
+	if Charge()==4 and (not UnitDebuffID("target",NetherTempest) or (UnitDebuffID("target",NetherTempest) and getDebuffRemain("target",NetherTempest)<3.6)) then
+		return;
+	end
+
+	-- actions.aoe+=/supernova
+	if castSpell("target",Supernova,false,false) then
+		return;
+	end
+
+	-- actions.aoe+=/arcane_barrage,if=buff.arcane_charge.stack=4
+	if Charge()==4 then
+		if castSpell("target",ArcaneBarrage,false,false) then
+			return;
+		end
+	end
+
+	-- actions.aoe+=/arcane_orb,if=buff.arcane_charge.stack<4
+	if isKnown(ArcaneOrb) then
+		if Charge()<4 then
+			if castSpell("target",ArcaneOrb,false,true) then
+				return;
+			end
+		end
+	end
+
+	-- actions.aoe+=/cone_of_cold,if=glyph.cone_of_cold.enabled
+	if hasGlyph(323) then
+		if castSpell("target",ConeOfCold,false,true) then
+			return;
+		end
+	end
+
+	-- actions.aoe+=/arcane_explosion
+	if getNumEnemies("player",10) then
+		if castSpell("target",ArcaneExplosion,true,false) then
+			return;
+		end
+	end
 
 end
 
