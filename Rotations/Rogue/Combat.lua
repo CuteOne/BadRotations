@@ -109,13 +109,20 @@ possible simple pvp mode if target = enemy faction
 			if castSpell("player",_CombatReadiness,true,false) then return; end
 		end	
 
-		-- Adrenaline Rush
-		if getSpellCD(_AdrenalineRush) == 0 then
-			if isChecked("Adrenaline Rush") == true and castSpell("player",_AdrenalineRush,true,false) then return; end	
+		-- Killing Spree and Rush
+		if getSpellCD(_KillingSpree) == 0 and energy < 60 then
+			if castSpell("player",_KillingSpree,true,true) then return; end
+			elseif 	getSpellCD(_AdrenalineRush) == 0 and getSpellCD(_KillingSpree) > 1 then
+				if isChecked("Adrenaline Rush") == true and castSpell("player",_AdrenalineRush,true,false) then return; end	
+		end	
+
+		-- Vanish
+		if getSpellCD(_KillingSpree) > 20 and getSpellCD(_AdrenalineRush) > 40 and combo < 4 and energy < 40 then
+			if castSpell("player",_Vanish) then return; end
 		end
 
 		-- Preparation 
-		if getSpellCD(_Vanish) > 0 then
+		if getSpellCD(_Vanish) > 40 then
 			if isChecked("Preparation") == true and castSpell("player",_Preparation,true,false) then return; end
 		end
 
