@@ -87,7 +87,7 @@ function MarkHunter()
 			if isChecked("Deterrence") and HP <= getValue("Deterrence") then
 				if castSpell("player",Deterrence) then return; end
 			end
-			if HP < isChecked("Feign Death") and HP <= getValue("Feign Death") then
+			if isChecked("Feign Death") and HP <= getValue("Feign Death") then
 				if castSpell("player",FeignDeath) then return; end
 			end
 		end
