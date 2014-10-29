@@ -62,9 +62,10 @@ wth =	5176	--Wrath
 inc	=	102543	--Incarnation: King of the Jungle
 fon	=	102703	--Force of Nature
 how	=	108288 	--Heart of the Wild
-mb	=	5211	--Mighty Bash
+mb	=	5211	  --Mighty Bash
 ty	=	132469	--Typhoon
 bt 	=	155672	--Bloodtalons
+uv  = 102793  --Ursol's Vortex
 
 ------Glyphs------
 gsh	=	114234	--Glyph of Shred

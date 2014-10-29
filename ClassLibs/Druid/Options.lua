@@ -43,8 +43,8 @@ function MoonkinConfig()
         CreateNewText(thisConfig,"Natures Vigil");
 
         -- Starfall
-        CreateNewCheck(thisConfig,"Starfall");
-        CreateNewText(thisConfig,"Starfall");
+        CreateNewCheck(thisConfig,"Celestial Alignment");
+        CreateNewText(thisConfig,"Celestial Alignment");
 
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"--------- Healing -------");
@@ -538,9 +538,13 @@ function RestorationConfig()
         CreateNewWrap(thisConfig,"-------- Toggles --------");
         -- Rebirth
         CreateNewCheck(thisConfig,"Rebirth Toggle");
-        CreateNewDrop(thisConfig,"Rebirth Toggle", 8, "Toggle2")
+        CreateNewDrop(thisConfig,"Rebirth Toggle", 9, "Toggle2")
         CreateNewText(thisConfig,"Rebirth Toggle");
-        -- Reju  Toggle
+        -- Wild mushroom Toggle
+		CreateNewCheck(thisConfig,"WildMushroom");
+        CreateNewDrop(thisConfig,"WildMushroom", 8, "Toggle2")
+        CreateNewText(thisConfig,"WildMushroom");
+		-- Reju  Toggle
 		CreateNewCheck(thisConfig,"Reju Toggle");
         CreateNewDrop(thisConfig,"Reju Toggle", 7, "Toggle2")
         CreateNewText(thisConfig,"Reju Toggle");
@@ -617,12 +621,11 @@ end
 --[[           ]]   --[[           ]]    --[[]]    --[[]]   --[[]]    --[[]]
 --[[           ]]   --[[           ]]   --[[]]      --[[]]  --[[]]     --[[]]
 function GuardianConfig()
-    if currentConfig ~= "Guardian Masoud" then
+    if currentConfig ~= "Guardian chumii" then
         ClearConfig();
         thisConfig = 0;
         -- Title
-        CreateNewTitle(thisConfig,"Guardian |cffFF0000Masoud");
-
+        CreateNewTitle(thisConfig,"Guardian |cffFF0000chumii");
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"---------- Buffs ---------");
 
@@ -630,16 +633,18 @@ function GuardianConfig()
         CreateNewCheck(thisConfig,"Mark Of The Wild");
         CreateNewText(thisConfig,"Mark Of The Wild");
 
-
-
-        -- Wrapper -----------------------------------------
-        CreateNewWrap(thisConfig,"------ Cooldowns ------");
-
-
+        CreateNewText(thisConfig," ");
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"--------- Healing -------");
+        -- DoC Healing Touch
+        CreateNewDrop(thisConfig, "DoCHT", 2, "Use DoC Procs Healing Touch on...", "|cffFFBB00Player", "|cff0077FFLowest")
+        CreateNewText(thisConfig,"Healing Touch");
 
+        -- Cenarion Ward
+        CreateNewDrop(thisConfig, "CenWard", 2, "Use Cenarion Ward on...", "|cffFFBB00Player", "|cff0077FFLowest")
+        CreateNewText(thisConfig,"Cenarion Ward");
 
+        CreateNewText(thisConfig," ");
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------- Defensive ------");
 
@@ -655,7 +660,12 @@ function GuardianConfig()
         CreateNewCheck(thisConfig,"Barkskin");
         CreateNewBox(thisConfig, "Barkskin", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFBarkskin");
         CreateNewText(thisConfig,"Barkskin");
+        -- Renewal
+        CreateNewCheck(thisConfig,"Renewal");
+        CreateNewBox(thisConfig, "Renewal", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRenewal");
+        CreateNewText(thisConfig,"Renewal");
 
+        CreateNewText(thisConfig," ");
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"-------- Toggles --------");
         -- Pause Toggle
@@ -663,6 +673,7 @@ function GuardianConfig()
         CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
         CreateNewText(thisConfig,"Pause Toggle");
 
+        CreateNewText(thisConfig," ");
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Utilities ------");
 

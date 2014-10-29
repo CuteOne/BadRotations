@@ -210,7 +210,7 @@ if not metaTable1 then
 				for i = 1, #SpecificHPBuffs do -- start nomber of buff iteration
 					if UnitDebuffID(o.unit, SpecificHPBuffs[i].buff) ~= nil then -- if buff found
 						if SpecificHPBuffs[i].value ~= nil then
-							PercentWithIncoming = 100 + (SpecificHPBuffs[i].value/1000000*100); -- we set its amount + 100 to make sure its within 50-100 range
+							PercentWithIncoming = 100 + (SpecificHPBuffs[i].value/UnitHealthMax(o.unit)*100); -- we set its amount + 100 to make sure its within 50-100 range
 							break;
 						end
 					end

@@ -71,6 +71,7 @@ Fervor                   = 82726;
 GlaiveToss               = 117050; 
 LynxRush                 = 120697;
 PowerShot                = 109259;
+SteadyFocus     		     = 177668;
 
 --Procs
 LockandLoad				 = 56453;

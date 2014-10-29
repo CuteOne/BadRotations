@@ -1,16 +1,16 @@
 function DruidGuardian()
-  if currentConfig ~= "Guardian Masoud" then
+  if currentConfig ~= "Guardian chumii" then
   	GuardianConfig()
-		currentConfig = "Guardian Masoud";
+		currentConfig = "Guardian chumii";
 	end
 	GuardianToggles();
 	GroupInfo()
 ------------------------------------------------------------------------------------------------------
 	-- Locals --------------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-	if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
-    	enemies, enemiesTimer = getNumEnemies("player",8), GetTime()
-	end
+	-- if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
+ --    	enemies, enemiesTimer = getNumEnemies("player",8), GetTime()
+	-- end
 	local tarDist = getDistance2("target")
 	local hasTarget = UnitExists("target")
 	local hasMouse = UnitExists("mouseover")
@@ -40,6 +40,7 @@ function DruidGuardian()
   local restlessagi = getBuffRemain("player",146310)
   local thbRemain = getDebuffRemain("target",thb,"player")
   local thbDuration = getDebuffDuration("target",thb,"player")
+  local docBuff = UnitBuffID("player",145162)
 	------------------------------------------------------------------------------------------------------
 	-- Food/Invis Check ----------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
@@ -58,13 +59,13 @@ function DruidGuardian()
 	------------------------------------------------------------------------------------------------------
 	-- Spell Queue ---------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-	-- if _Queues == nil then
-	--  _Queues = {
-	-- 		[Shockwave]  = false,
-	-- 		[Bladestorm] = false,
-	-- 		[DragonRoar] = false,
-	--  }
-	-- end
+	if _Queues == nil then
+	 _Queues = {
+			[ty]  = false,
+			[mb] = false,
+			[uv] = false,
+	 }
+	end
 	------------------------------------------------------------------------------------------------------
 	-- Input / Keys --------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
@@ -120,35 +121,61 @@ function DruidGuardian()
 	------------------------------------------------------------------------------------------------------
 	-- Queued Spells -------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-		-- if _Queues[Shockwave] == true then
-		-- 	if castSpell("target",Shockwave,false,false) then
-		-- 		return;
-		-- 	end
-		-- end
-		-- if _Queues[Bladestorm] == true then
-		-- 	if castSpell("target",Bladestorm,false,false) then
-		-- 		return;
-		-- 	end
-		-- end
-		-- if _Queues[DragonRoar] == true then
-		-- 	if castSpell("target",DragonRoar,false,false) then
-		-- 		return;
-		-- 	end
-		-- end
+		if _Queues[ty] == true then
+			if castSpell("target",ty,false,false) then
+				return;
+			end
+		end
+		if _Queues[mb] == true then
+			if castSpell("target",mb,false,false) then
+				return;
+			end
+		end
+		if _Queues[uv] == true then
+			if not IsMouselooking() then
+          CastSpellByName(GetSpellInfo(102793))
+          if SpellIsTargeting() then
+              CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+              return true;
+          end
+      end
+		end
 	------------------------------------------------------------------------------------------------------
 	-- Do everytime --------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
+	--SD / FR Mode
 	if BadBoy_data['Defensive'] == 1 then
 		if castSpell("player",sd) then
 			return;
 		end
 	end
 	if BadBoy_data['Defensive'] == 2 then
-		if rage > 60 then
+		if getPower("player") > 60 then
 			if castSpell("player",fr) then
 				return;
 			end
 		end
+	end
+	-- Dream of Cenarious Proc
+	-- Healing Touch
+	if getTalent(6,2) then
+		if docBuff then
+			if getValue("DoCHT") == 2 then
+	      if castSpell(nNova[1].unit,ht,true,false,false) then return; end
+	    end
+	    if getValue("DoCHT") == 1 then
+	        if castSpell("player",ht,true,false,false) then return; end
+	    end
+	  end
+	end
+	--Cenarion Ward
+	if getTalent(2,3) then
+		if getValue("CenWard") == 2 then
+      if castSpell(nNova[1].unit,102351,true,false,false) then return; end
+    end
+    if getValue("CenWard") == 1 then
+        if castSpell("player",102351,true,false,false) then return; end
+    end
 	end
 	------------------------------------------------------------------------------------------------------
 	-- Defensive Cooldowns -------------------------------------------------------------------------------
@@ -177,6 +204,16 @@ function DruidGuardian()
 				end
 			end
 		end
+		--Renewal
+		if isChecked("Renewal") == true then
+			if isKnown(_Renewal) then
+				if getHP("player") <= getValue("Renewal") then
+					if castSpell("player",_Renewal) then
+						return;
+					end
+				end
+			end
+		end
 	------------------------------------------------------------------------------------------------------
 	-- Offensive Cooldowns -------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
@@ -190,7 +227,7 @@ function DruidGuardian()
 	------------------------------------------------------------------------------------------------------
 	-- Single Target -------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-		if useAoE() == false then
+		if chumiiuseAoE() == false then
 			--Mangle on CD
 			if castSpell("target",mgl,false,false) then
 				return;
@@ -201,12 +238,22 @@ function DruidGuardian()
 					return;
 				end
 			end
-			--Maul with Tooth and Claw proc
+			--Maul with Tooth and Claw proc / safe rage if using fr
 			if tacBuff then
-				if castSpell("target",ml,false,false) then
-					return;
+				if BadBoy_data['Defensive'] == 2 or BadBoy_data['Defensive'] == 3 then
+					if getPower("player") > 80 then
+						if castSpell("target",ml,false,false) then
+							return;
+						end
+					end
+				end
+				if BadBoy_data['Defensive'] == 1 then
+					if castSpell("target",ml,false,false) then
+						return;
+					end
 				end
 			end
+			--Lacerate
 			if castSpell("target",lac,false,false) then
 				return;
 			end
@@ -214,8 +261,21 @@ function DruidGuardian()
 	------------------------------------------------------------------------------------------------------
 	-- Multi Target --------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-		if useAoE() == true then
-
+		if chumiiuseAoE() == true then
+			--Mangle on CD
+			if castSpell("target",mgl,false,false) then
+				return;
+			end
+			--Maul with Tooth and Claw proc
+			if tacBuff then
+				if castSpell("target",ml,false,false) then
+					return;
+				end
+			end
+			--Trash
+			if castSpell("target",thb,true) then
+				return;
+			end
 		end
 	------------------------------------------------------------------------------------------------------
 	end -- In Combat end

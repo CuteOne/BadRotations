@@ -115,40 +115,50 @@ function MarkHunter()
 			if castSpell("target",Stampede,false,false) then return; end
 		end
 
-		-----------------------
+		----------------------------
 		--- Damage Rotation ---
-		-----------------------
+		---------------------------
+
 		-- Single Kill Shot
-		if getHP("target")<= 20 then
-			if castSpell("target",KillShot,false,false) then return; end
+		if getSpellCD(KillShot) == 0
+		and getHP("target")<= 20 then
+			if castSpell("target",KillShot,false) then return; end
 		end
 
 		-- Chimera Shot
-		if Focus >= 35 then
-			if castSpell("target",ChimeraShot,false,false) then return; end
+		if getSpellCD(ChimeraShot) == 0
+		and Focus >= 35 then
+			if castSpell("target",ChimeraShot,false) then return; end
 		end
 
-		-- Barrage
-		if isKnown(Barrage) and Focus >= 60 then
-			if castSpell("target",Barrage,false,false) then return; end
-		end
+		-- Careful Aim Phase
+		if getHP("target") > 80 then
+			-- Glaive Toss
+			if getSpellCD(GlaiveToss) == 0
+			and Focus >= 15 and getNumEnemies("target",8) > 4 then
+				if castSpell("target",GlaiveToss,false) then return; end
+			end
+			-- Powershot
+			if getSpellCD(PowerShot) == 0
+			and Focus >= 15  then
+				if castSpell("target",PowerShot,false) then return; end
+			end
+			-- Barrage
+			if getSpellCD(Barrage) == 0
+			and Focus >= 60 and getNumEnemies("target",10) > 1 then
+				if castSpell("target",Barrage,false) then return; end
+			end
+			-- Aimed Shot
+			if getSpellCD(AimedShot) == 0 then
+				if castSpell("target",AimedShot,false) then return; end
+			end
+			-- Steady Shot
+			if getSpellCD(SteadyShot) == 0 then
+				if castSpell("target",SteadyShot,false,false) then return; end
+			end
+		end 	-- End Of Careful Aim Phase
 
-		-- Glave Toss
-		if isKnown(GlaiveToss) and Focus >= 15 then
-			if castSpell("target",GlaiveToss,false,false) then return; end
-		end
-
-		-- Powershot
-		if isKnown(PowerShot) and Focus >= 15 then
-			if castSpell("target",PowerShot,false,true) then return; end
-		end
-
-		-- Aimed Shot
-		if Focus + FocusRegen >= 60 and not(isKnown(Barrage) and getSpellCD(Barrage) < 2) then
-			if castSpell("target",AimedShot,false,false) then return; end
-		end
-
-		-- Trap Launcher
+		-- Trap Launcher if not activated
 		if not UnitBuffID("player",77769) then
 			castSpell("player",77769,true,false);
 		end
@@ -162,9 +172,55 @@ function MarkHunter()
 			if castGround("target",TrapLauncherExplosive,40) then return; end
 		end
 
+		-- AMoC
+		if getSpellCD(AMurderOfCrows) == 0
+		and Focus >= 30 then
+			if castSpell("target",AMurderOfCrows,false,false) then return; end
+		end
+
+		-- Dire Beast
+		if getSpellCD(DireBeast) == 0
+		and Focus <= 50 then
+			if castSpell("target",DireBeast,false,false) then return; end
+		end
+
+		-- Glave Toss
+		if getSpellCD(GlaiveToss) == 0
+		and Focus >= 15 then
+			if castSpell("target",GlaiveToss,false,false) then return; end
+		end
+
+		-- Powershot
+		if getSpellCD(PowerShot) == 0
+		and Focus >= 15 then
+			if castSpell("target",PowerShot,false) then return; end
+		end
+
+		-- Barrage
+		if getSpellCD(Barrage) == 0
+		and Focus >= 60 then
+			if castSpell("target",Barrage,false,false) then return; end
+		end
+
 		-- Steady Shot
-		if Focus < 50 then
-			if castSpell("target",SteadyShot,false,false) then --[[print("Casting Steady Shot at "..Focus.." Focus.")]] return; end
+		if getSpellCD(SteadyShot) == 0
+		and  getBuffRemain ("player",SteadyFocus) == 0 and Focus < 60 then
+			--print("Casting Steady Shot at "..Focus.." Focus.")
+			if castSpell("target",SteadyShot,false,false) then return; end
+		end
+
+		-- Aimed Shot
+		if getSpellCD(AimedShot) == 0
+		and Focus + FocusRegen >= 60
+		and getSpellCD(Barrage) > 2 then
+			if castSpell("target",AimedShot,false,false) then return; end
+		end
+
+			-- Steady Shot
+		if getSpellCD(SteadyShot) == 0
+		and Focus < 50 then
+			--print("Casting Steady Shot at "..Focus.." Focus.")
+			if castSpell("target",SteadyShot,false,false) then return; end
 		end
 	end
 end
