@@ -46,7 +46,7 @@
 ||||
 | **Shaman** |  |  |
 |Elemental|80%|CodeMyLife |
-|Enhancement|100%|Cpowork |
+|Enhancement|100%|Cpoworks |
 |Restoration|90%|CodeMyLife|
 ||||
 | **Warlock**  |  |  |
