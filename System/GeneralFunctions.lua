@@ -431,7 +431,7 @@ end
 
 -- castSpell("target",12345,true);
 function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
-	if shouldStopCasting(SpellID) ~= true and not UnitIsDeadOrGhost(Unit) then
+	if shouldStopCasting(SpellID) ~= true and (not UnitIsDeadOrGhost(Unit) or (UnitIsPlayer(Unit)~=nil and UnitIsDeadOrGhost(Unit))) then
 		-- stop if not enough power for that spell
 		if IsUsableSpell(SpellID) ~= true then return false; end
 		-- Table used to prevent refiring too quick
