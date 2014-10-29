@@ -17,8 +17,8 @@
 ||||
 | **Hunter** |  |  |
 |Beastmaster|80%|CodeMyLife |
-|Marksmanship|0%||
-|Survival|0%||
+|Marksmanship|80%|Cpoworks |
+|Survival|80%|Averykey |
 ||||
 | **Mage** |  |  |
 |Arcane|80%|ragnar |
@@ -28,7 +28,7 @@
 | **Monk** |  |  |
 |Brewmaster|70%|CodeMyLife |
 |Mistweaver|70%|CodeMyLife |
-|Windwalker|100%|CuteOne|
+|Windwalker|100%|CuteOne |
 | **Paladin**  |  |  |
 |Holy|0%|CodeMyLife |
 |Protection|80%|Gabbz |
@@ -56,7 +56,7 @@
 ||||
 | **Warrior**  |  |  |
 |Arms|100%|Chumii |
-|Fury|100%|Avery |
+|Fury|100%|Averykey |
 |Protection|100%|Chumii |
 
 
