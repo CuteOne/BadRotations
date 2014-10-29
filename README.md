@@ -18,7 +18,7 @@
 | **Hunter** |  |  |
 |Beastmaster|80%|CodeMyLife |
 |Marksmanship|80%|Cpoworks |
-|Survival|80%|Avery |
+|Survival|80%|Averykey |
 ||||
 | **Mage** |  |  |
 |Arcane|80%|ragnar |
@@ -56,7 +56,7 @@
 ||||
 | **Warrior**  |  |  |
 |Arms|100%|Chumii |
-|Fury|100%|Avery |
+|Fury|100%|Averykey |
 |Protection|100%|Chumii |
 
 
