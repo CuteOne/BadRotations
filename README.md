@@ -6,12 +6,12 @@
 |:----|------:|:-------|
 |**Druid**|||
 |Feral|100%|CuteOne|
-|Guardian|50%|Chumii |
+|Guardian|70%|Chumii |
 |Restoration|100%|Masoud |
 |Moonkin|70%|CodeMyLife|
 ||||
 | **Death Knight** |  |  |
-|Frost|80%|Chumii |
+|Frost|20%|Chumii |
 |Blood|90%|CodeMyLife |
 |Unholy|0%|Knight|
 ||||
