@@ -11,7 +11,8 @@ function DruidGuardian()
 	-- if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
  --    	enemies, enemiesTimer = getNumEnemies("player",8), GetTime()
 	-- end
-	local tarDist = getDistance2("target")
+	--local tarDist = getDistance2("target")
+	local GCD = 1.5/(1+UnitSpellHaste("player")/100)
 	local hasTarget = UnitExists("target")
 	local hasMouse = UnitExists("mouseover")
 	local php = getHP("player")
@@ -41,6 +42,15 @@ function DruidGuardian()
   local thbRemain = getDebuffRemain("target",thb,"player")
   local thbDuration = getDebuffDuration("target",thb,"player")
   local docBuff = UnitBuffID("player",145162)
+  local lacStacks = getDebuffStacks("target",lac)
+  local lacTime = (3 - lacStacks) * GCD --(3-dot.lacerate.stack)*gcd
+  function BossDummyG()
+  	if isBoss("target") or isDummy("target") then
+  		return true;
+  	else
+  		return false;
+  	end
+  end
 	------------------------------------------------------------------------------------------------------
 	-- Food/Invis Check ----------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
@@ -150,32 +160,13 @@ function DruidGuardian()
 		end
 	end
 	if BadBoy_data['Defensive'] == 2 then
-		if getPower("player") > 60 then
-			if castSpell("player",fr) then
-				return;
+		if getPower("player") >= 60 then
+			if getHP("player") < 75 then
+				if castSpell("player",fr) then
+					return;
+				end
 			end
 		end
-	end
-	-- Dream of Cenarious Proc
-	-- Healing Touch
-	if getTalent(6,2) then
-		if docBuff then
-			if getValue("DoCHT") == 2 then
-	      if castSpell(nNova[1].unit,ht,true,false,false) then return; end
-	    end
-	    if getValue("DoCHT") == 1 then
-	        if castSpell("player",ht,true,false,false) then return; end
-	    end
-	  end
-	end
-	--Cenarion Ward
-	if getTalent(2,3) then
-		if getValue("CenWard") == 2 then
-      if castSpell(nNova[1].unit,102351,true,false,false) then return; end
-    end
-    if getValue("CenWard") == 1 then
-        if castSpell("player",102351,true,false,false) then return; end
-    end
 	end
 	------------------------------------------------------------------------------------------------------
 	-- Defensive Cooldowns -------------------------------------------------------------------------------
@@ -196,19 +187,60 @@ function DruidGuardian()
 				end
 			end
 		end
-		--Barkskin
-		if isChecked("Barkskin") == true then
-			if getHP("player") <= getValue("Barkskin") then
-				if castSpell("player",bar) then
-					return;
+		-- actions+=/barkskin
+			if isChecked("Barkskin") == true then
+				if getHP("player") <= getValue("Barkskin") then
+					if castSpell("player",bar) then
+						return;
+					end
+				end
+			end
+		-- actions+=/cenarion_ward
+		if getTalent(2,3) then
+			if getValue("CenWard") == 2 then
+	      if castSpell(nNova[1].unit,102351,true,false,false) then return; end
+	    end
+	    if getValue("CenWard") == 1 then
+	        if castSpell("player",102351,true,false,false) then return; end
+	    end
+		end
+		-- actions+=/renewal,if=health.pct<30
+		if isChecked("Renewal") == true then
+			if getTalent(2,2) then
+				if getHP("player") <= getValue("Renewal") then
+					if castSpell("player",_Renewal) then
+						return;
+					end
 				end
 			end
 		end
-		--Renewal
-		if isChecked("Renewal") == true then
-			if isKnown(_Renewal) then
-				if getHP("player") <= getValue("Renewal") then
-					if castSpell("player",_Renewal) then
+		-- actions+=/heart_of_the_wild
+		if getTalent(7,1) then
+			if BossDummyG() == true then
+				if isChecked("useHotW") then
+					if getHP("player") < getValue("useHotW") then
+						if castSpell("player",howg) then
+							return;
+						end
+					end
+				end
+			end
+		end
+		-- actions+=/rejuvenation,if=!ticking&buff.heart_of_the_wild.up
+		if getTalent(7,1) then
+			if UnitBuffID("player",howg) then
+				if not UnitBuffID("player",rej) then
+					if castSpell("player",rej) then
+						return;
+					end
+				end
+			end
+		end
+		-- actions+=/natures_vigil
+		if getTalent(6,3) then
+			if BossDummyG() == true then
+				if isChecked("useNVigil") then
+					if castSpell("player",nv) then
 						return;
 					end
 				end
@@ -217,47 +249,90 @@ function DruidGuardian()
 	------------------------------------------------------------------------------------------------------
 	-- Offensive Cooldowns -------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-		-- if useCDs() == true then
-
-		-- end -- useCDs() end
-	------------------------------------------------------------------------------------------------------
-	-- Interrupts ----------------------------------------------------------------------------------------
-	------------------------------------------------------------------------------------------------------
-
+		-- actions+=/berserking
+		if isChecked("useBerserk") then
+			if BossDummyG() == true then
+				if castSpell("player",berg) then
+					return;
+				end
+			end
+		end
+		-- actions+=/incarnation
+		if getTalent(4,2) then
+			if BossDummyG() == true then
+				if isChecked("useIncarnation") then
+					if castSpell("player",incg) then
+						return;
+					end
+				end
+			end
+		end
 	------------------------------------------------------------------------------------------------------
 	-- Single Target -------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
 		if chumiiuseAoE() == false then
-			--Mangle on CD
-			if castSpell("target",mgl,false,false) then
-				return;
-			end
-			--Trash if debuff < 4
-			if thbRemain < 4 then
-				if castSpell("target",thb,true) then
-					return;
-				end
-			end
-			--Maul with Tooth and Claw proc / safe rage if using fr
+			-- actions+=/maul,if=buff.tooth_and_claw.react&incoming_damage_1s&rage>=80
 			if tacBuff then
-				if BadBoy_data['Defensive'] == 2 or BadBoy_data['Defensive'] == 3 then
-					if getPower("player") > 80 then
-						if castSpell("target",ml,false,false) then
-							return;
-						end
-					end
-				end
-				if BadBoy_data['Defensive'] == 1 then
+				if getPower("player") > 80 then
 					if castSpell("target",ml,false,false) then
 						return;
 					end
 				end
 			end
-			--Lacerate
+			-- actions+=/healing_touch,if=buff.dream_of_cenarius.react&health.pct<30
+			if getTalent(6,2) then
+				if docBuff then
+					if getValue("DoCHT") == 2 then
+			      if castSpell(nNova[1].unit,ht,true,false,false) then return; end
+			    end
+			    if getValue("DoCHT") == 1 then
+			        if castSpell("player",ht,true,false,false) then return; end
+			    end
+			  end
+			end
+			-- actions+=/pulverize,if=buff.pulverize.remains<0.5
+			if getTalent(8,2) then
+				if getBuffRemain("player",pulv) < 0.5 then
+					if castSpell("target",pulv,false,false) then
+						return;
+					end
+				end
+			end
+			-- actions+=/lacerate,if=talent.pulverize.enabled&buff.pulverize.remains<=(3-dot.lacerate.stack)*gcd
+			if getTalent(8,2) then
+				if getDebuffRemain("player",pulv) <= lacTime then
+					if castSpell("target",lac,false,false) then
+						return;
+					end
+				end
+			end
+			--Lacerate 3 Stacks
+			if getDebuffStacks("target",lac) <= 2 then
+				if castSpell("target",lac,false,false) then
+					return;
+				end
+			end
+			-- actions+=/mangle,if=buff.son_of_ursoc.down
+			if not UnitBuffID("player",incg) then
+				if castSpell("target",mgl,false,false) then
+					return;
+				end
+			end
+			-- actions+=/thrash_bear,if=!ticking
+			if getDebuffRemain("target",thb) < 4 then
+				if castSpell("target",thb,true,false) then
+					return;
+				end
+			end
+			-- actions+=/mangle
+			if castSpell("target",mgl,false,false) then
+				return;
+			end
+			-- actions+=/Lacerate
 			if castSpell("target",lac,false,false) then
 				return;
 			end
-		end
+		end -- singletarget end
 	------------------------------------------------------------------------------------------------------
 	-- Multi Target --------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------

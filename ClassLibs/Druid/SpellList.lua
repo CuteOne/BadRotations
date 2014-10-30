@@ -60,12 +60,15 @@ wth =	5176	--Wrath
 
 ------Talents------
 inc	=	102543	--Incarnation: King of the Jungle
+incg = 102558 --Incarnation: Son of Ursoc
 fon	=	102703	--Force of Nature
 how	=	108288 	--Heart of the Wild
+howg = 108293 --Heart of the Wild Guardian
 mb	=	5211	  --Mighty Bash
 ty	=	132469	--Typhoon
 bt 	=	155672	--Bloodtalons
 uv  = 102793  --Ursol's Vortex
+pulv = 80313  --Pulverize
 
 ------Glyphs------
 gsh	=	114234	--Glyph of Shred

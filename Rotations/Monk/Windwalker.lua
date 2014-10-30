@@ -248,7 +248,7 @@ if select(3, UnitClass("player")) == 10 then
 		            end
 	            end
 	--------------------------------
-	--- In Combat - Rotation ---
+	--- In Combat - All Rotation ---
 	--------------------------------
 	-- Storm, Earth, and Fire
 				if UnitExists("target") and BadBoy_data['SEF']==1 then
@@ -296,69 +296,127 @@ if select(3, UnitClass("player")) == 10 then
 				if getTalent(7,3) and tarDist<5 and chi>=2 and tpRemain>0 and rskRemain>0 then
 					if castSpell("player",_Serenity,false,false) then return; end
 				end
+	--------------------------------
+	--- In Combat - AoE Rotation ---
+	--------------------------------
+				if useAoE() then
+	-- Chi Explosion
+					if getTalent(7,2) and chi>=4 then
+						if castSpell("player",_ChiExplosion,false,false) then return; end
+					end
 	-- Rushing Jade Wind
-				if useAoE() and getTalent(6,1) and power>=40 and tpRemain>2 and rjwRemain==0 then
-					if castSpell("player",_RushingJadeWind,false,false) then return; end
-				end
-	-- Fists of Fury
-				if ttm>fofChanTime and tpRemain>fofChanTime and rskRemain>fofChanTime and serRemain==0 then
-					if castSpell("target",_FistsOfFury,false,false) then return; end
-				end
-	-- Touch of Death
-				if (UnitBuffID("player",_DeathNote) or UnitHealth("target")<=php) and not UnitIsPlayer("target") and tarDist<5 and sckRemain==0 then
-					if castSpell("target",_TouchOfDeath,false,false) then return; end
-				end
-	-- Hurricane Strike
-				if getTalent(7,1) and ttm>hsChanTime and tpRemain>hsChanTime and rskRemain>hsChanTime and ebRemain==0 then
-					if castSpell("target",_HurricaneStrike,false,false) then return; end
-				end
-	-- Energizing Brew
-				if fofCD>6 and (not getTalent(7,3) or (serRemains==0 and getSpellCD(_Serenity)>4)) and powtime<50 then
-					if castSpell("player",_EnergizingBrew,false,false) then return; end
-				end
+					if getTalent(6,1) and power>=40 and rjwRemain==0 then
+						if castSpell("player",_RushingJadeWind,false,false) then return; end
+					end
 	-- Raising Sun Kick
-				if chi>=2 and not getTalent(7,2) and tarDist<5 then
-					if castSpell("target",_RaisingSunKick,false,false) then return; end
-				end
-	-- Chi Wave
-				if ttm>2 and serRemain==0 and tarDist<40 then
-					if castSpell("player",_ChiWave,false,false) then return; end
-				end
-	-- Chi Burst
-				if getTalent(2,3) and ttm>2 and serRemain==0 and tarDist<40 then
-					if castSpell("player",_ChiBurst,false,false) then return; end
-				end
+					if not getTalent(6,1) and chi==chimax and tarDist<5 then
+						if castSpell("target",_RaisingSunKick,false,false) then return; end
+					end
+	-- Fists of Fury
+					if getTalent(6,1) and ttm>fofChanTime and tpRemain>fofChanTime and rskRemain>fofChanTime and serRemain==0 then
+						if castSpell("target",_FistsOfFury,false,false) then return; end
+					end
+	-- Touch of Death
+					if (UnitBuffID("player",_DeathNote) or UnitHealth("target")<=php) and not UnitIsPlayer("target") and tarDist<5 then
+						if castSpell("target",_TouchOfDeath,false,false) then return; end
+					end
+	-- Hurricane Strike
+					if getTalent(6,1) and ttm>hsChanTime and tpRemain>hsChanTime and rskRemain>hsChanTime and ebRemain==0 then
+						if castSpell("target",_HurricaneStrike,false,false) then return; end
+					end
 	-- Zen Sphere
-				if ttm>2 and zsRemain==0 and serRemain==0 and tarDist<10 then
-					if castSpell("player",_ZenSphere,false,false) then return; end
-				end
+					if zsRemain==0 and tarDist<10 then
+						if castSpell("player",_ZenSphere,false,false) then return; end
+					end
+	-- Chi Wave
+					if ttm>2 and serRemain==0 and tarDist<40 then
+						if castSpell("player",_ChiWave,false,false) then return; end
+					end
+	-- Chi Burst
+					if getTalent(2,3) and ttm>2 and serRemain==0 and tarDist<40 then
+						if castSpell("player",_ChiBurst,false,false) then return; end
+					end
 	-- Blackout Kick
-				if not getTalent(7,2) and (bkcRemain>0 or serRemain>0) and tarDist<5 then
-					if castSpell("target",_BlackoutKick,false,false) then return; end
-				end
-	-- Chi Explosion
-				if getTalent(7,2) and chi>=3 and cecRemain>0 and tarDist<30 then
-					if castSpell("target",_ChiExplosion,false,false) then return; end
-				end
+					if getTalent(6,1) and not getTalent(7,2) and (bkcRemain>0 or serRemain>0) and tarDist<5 then
+						if castSpell("target",_BlackoutKick,false,false) then return; end
+					end
 	-- Tiger Palm
-				if tarDist<5 and tpcRemain>0 and tpcRemain<=2 then
-					if castSpell("target",_TigerPalm,false,false) then return; end
-				end
+					if getTalent(6,1) and tpcRemain>0 and tpcRemain<=2 and tarDist<5 then
+						if castSpell("target",_TigerPalm,false,false) then return; end
+					end
 	-- Blackout Kick
-				if not getTalent(7,2) and chiDiff<2 and tarDist<5 then
-					if castSpell("target",_BlackoutKick,false,false) then return; end
-				end
-	-- Chi Explosion
-				if getTalent(7,2) and chi>=3 and tarDist<30 then
-					if castSpell("target",_ChiExplosion,false,false) then return; end
-				end
+					if getTalent(6,1) and not getTalent(7,2) and chiDiff<2 and tarDist<5 then
+						if castSpell("target",_BlackoutKick,false,false) then return; end
+					end
 	-- Spinning Crane Kick
-				if useAoE() and not getTalent(6,1) and power>=40 and tpRemain>2 and sckRemain==0 then
-					if castSpell("player",_SpinningCraneKick,false,false) then return; end
-				end
+					if not getTalent(6,1) and power>=40 then
+						if castSpell("player",_SpinningCraneKick,false,false) then return; end
+					end
 	-- Jab
-				if chiDiff>=2 and ((power>=45 and not useAoE()) or(power>80 and useAoE())) and (php>=80 or getSpellCD(_ExpelHarm)>0) and tarDist<5 then
-					if castSpell("target",_Jab,false,false) then return; end
+					if getTalent(6,1) and chiDiff>=2 and power>=45 and (php>=80 or getSpellCD(_ExpelHarm)>0) and tarDist<5 then
+						if castSpell("target",_Jab,false,false) then return; end
+					end
+				end
+	-----------------------------------
+	--- In Combat - Single Rotation ---
+	-----------------------------------
+				if not useAoE() then
+	-- Fists of Fury
+					if ttm>fofChanTime and tpRemain>fofChanTime and rskRemain>fofChanTime and serRemain==0 then
+						if castSpell("target",_FistsOfFury,false,false) then return; end
+					end
+	-- Touch of Death
+					if (UnitBuffID("player",_DeathNote) or UnitHealth("target")<=php) and not UnitIsPlayer("target") and tarDist<5 and sckRemain==0 then
+						if castSpell("target",_TouchOfDeath,false,false) then return; end
+					end
+	-- Hurricane Strike
+					if getTalent(7,1) and ttm>hsChanTime and tpRemain>hsChanTime and rskRemain>hsChanTime and ebRemain==0 then
+						if castSpell("target",_HurricaneStrike,false,false) then return; end
+					end
+	-- Energizing Brew
+					if fofCD>6 and (not getTalent(7,3) or (serRemains==0 and getSpellCD(_Serenity)>4)) and powtime<50 then
+						if castSpell("player",_EnergizingBrew,false,false) then return; end
+					end
+	-- Raising Sun Kick
+					if chi>=2 and not getTalent(7,2) and tarDist<5 then
+						if castSpell("target",_RaisingSunKick,false,false) then return; end
+					end
+	-- Chi Wave
+					if ttm>2 and serRemain==0 and tarDist<40 then
+						if castSpell("player",_ChiWave,false,false) then return; end
+					end
+	-- Chi Burst
+					if getTalent(2,3) and ttm>2 and serRemain==0 and tarDist<40 then
+						if castSpell("player",_ChiBurst,false,false) then return; end
+					end
+	-- Zen Sphere
+					if ttm>2 and zsRemain==0 and serRemain==0 and tarDist<10 then
+						if castSpell("player",_ZenSphere,false,false) then return; end
+					end
+	-- Blackout Kick
+					if not getTalent(7,2) and (bkcRemain>0 or serRemain>0) and tarDist<5 then
+						if castSpell("target",_BlackoutKick,false,false) then return; end
+					end
+	-- Chi Explosion
+					if getTalent(7,2) and chi>=3 and cecRemain>0 and tarDist<30 then
+						if castSpell("target",_ChiExplosion,false,false) then return; end
+					end
+	-- Tiger Palm
+					if tarDist<5 and tpcRemain>0 and tpcRemain<=2 then
+						if castSpell("target",_TigerPalm,false,false) then return; end
+					end
+	-- Blackout Kick
+					if not getTalent(7,2) and chiDiff<2 and tarDist<5 then
+						if castSpell("target",_BlackoutKick,false,false) then return; end
+					end
+	-- Chi Explosion
+					if getTalent(7,2) and chi>=3 and tarDist<30 then
+						if castSpell("target",_ChiExplosion,false,false) then return; end
+					end
+	-- Jab
+					if chiDiff>=2 and power>=45 and (php>=80 or getSpellCD(_ExpelHarm)>0) and tarDist<5 then
+						if castSpell("target",_Jab,false,false) then return; end
+					end
 				end
 	-- Flying Serpent Kick
 				if BadBoy_data['FSK']==1 then

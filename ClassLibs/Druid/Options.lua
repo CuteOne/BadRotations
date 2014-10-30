@@ -646,6 +646,23 @@ function GuardianConfig()
 
         CreateNewText(thisConfig," ");
         -- Wrapper -----------------------------------------
+        CreateNewWrap(thisConfig,"------- Cooldowns -----");
+
+        CreateNewCheck(thisConfig,"useBerserk", "Check to use Berserk on CD (Boss/Dummy)");
+        CreateNewText(thisConfig,"Berserk");
+
+        CreateNewCheck(thisConfig,"useHotW", "Check to use Berserk on CD (Boss/Dummy)");
+        CreateNewBox(thisConfig, "useHotW", 0, 100  , 5, 65, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHotW and start keeping Rejuvenation up");
+        CreateNewText(thisConfig,"Heart of the Wild");
+
+        CreateNewCheck(thisConfig,"useNVigil", "Check to use Berserk on CD (Boss/Dummy)");
+        CreateNewText(thisConfig,"Nature's Vigil");
+
+        CreateNewCheck(thisConfig,"useIncarnation", "Check to use Berserk on CD (Boss/Dummy)");
+        CreateNewText(thisConfig,"Incarnation");
+
+        CreateNewText(thisConfig," ");
+        -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------- Defensive ------");
 
         -- Healthstone

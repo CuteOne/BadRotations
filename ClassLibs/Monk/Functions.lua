@@ -79,14 +79,13 @@ function sefTargets()
             and (isInCombat(enemies[i]) or isDummy(enemies[i]) or isChecked("Death Monk Mode"))
             and UnitGUID(enemies[i])~=currtar
         then
-            table.insert( targets,{ Unit = enemies[i], HP = UnitHealth(enemies[i]), Range = getDistance("player",enemies[i])})
+            table.insert( targets,{ Name = UnitName(enemies[i]), Unit = enemies[i], HP = UnitHealth(enemies[i]), Range = getDistance("player",enemies[i]) })
         end
     end
     table.sort(targets, function(x,y) return x.HP > y.HP end)
-    if #targets > 0 then
+    if #targets > 2 then
         for i=1,#targets do
-            if #targets>2 then table.remove(targets,#targets) end
-            --if targets[i].HP == 0 then table.remove(targets,targets[i]) end
+            if i>2 then table.remove(targets,i) end
         end
     end
 end

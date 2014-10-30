@@ -6,19 +6,19 @@
 |:----|------:|:-------|
 |**Druid**|||
 |Feral|100%|CuteOne|
-|Guardian|50%|Chumii |
+|Guardian|70%|Chumii |
 |Restoration|100%|Masoud |
 |Moonkin|70%|CodeMyLife|
 ||||
 | **Death Knight** |  |  |
-|Frost|80%|Chumii |
+|Frost|20%|Chumii |
 |Blood|90%|CodeMyLife |
 |Unholy|0%|Knight|
 ||||
 | **Hunter** |  |  |
 |Beastmaster|80%|CodeMyLife |
-|Marksmanship|0%||
-|Survival|0%||
+|Marksmanship|80%|Cpoworks |
+|Survival|80%|Averykey |
 ||||
 | **Mage** |  |  |
 |Arcane|80%|ragnar |
@@ -28,7 +28,7 @@
 | **Monk** |  |  |
 |Brewmaster|70%|CodeMyLife |
 |Mistweaver|70%|CodeMyLife |
-|Windwalker|100%|CuteOne|
+|Windwalker|100%|CuteOne |
 | **Paladin**  |  |  |
 |Holy|0%|CodeMyLife |
 |Protection|80%|Gabbz |
@@ -46,7 +46,7 @@
 ||||
 | **Shaman** |  |  |
 |Elemental|80%|CodeMyLife |
-|Enhancement|100%|Cpowork |
+|Enhancement|100%|Cpoworks |
 |Restoration|90%|CodeMyLife|
 ||||
 | **Warlock**  |  |  |
@@ -56,7 +56,7 @@
 ||||
 | **Warrior**  |  |  |
 |Arms|100%|Chumii |
-|Fury|100%|Avery |
+|Fury|100%|Averykey |
 |Protection|100%|Chumii |
 
 

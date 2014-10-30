@@ -635,7 +635,7 @@ end
 -- if getDebuffStacks("target",138756) > 0 then
 function getDebuffStacks(Unit,DebuffID,Source)
 	if UnitDebuffID(Unit, DebuffID, Source) then
-		return (select(7, UnitDebuffID(Unit, DebuffID, Source)) - GetTime());
+		return (select(4, UnitDebuffID(Unit, DebuffID, Source)));
 	else
 		return 0;
 	end
