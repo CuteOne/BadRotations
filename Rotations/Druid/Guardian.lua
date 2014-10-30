@@ -44,6 +44,13 @@ function DruidGuardian()
   local docBuff = UnitBuffID("player",145162)
   local lacStacks = getDebuffStacks("target",lac)
   local lacTime = (3 - lacStacks) * GCD --(3-dot.lacerate.stack)*gcd
+  function BossDummyG()
+  	if isBoss("target") or isDummy("target") then
+  		return true;
+  	else
+  		return false;
+  	end
+  end
 	------------------------------------------------------------------------------------------------------
 	-- Food/Invis Check ----------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
@@ -147,10 +154,17 @@ function DruidGuardian()
 	-- Do everytime --------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
 	--SD / FR Mode
+	if BadBoy_data['Defensive'] == 1 then
+		if castSpell("player",sd) then
+			return;
+		end
+	end
 	if BadBoy_data['Defensive'] == 2 then
-		if getPower("player") > 60 then
-			if castSpell("player",fr) then
-				return;
+		if getPower("player") >= 60 then
+			if getHP("player") < 75 then
+				if castSpell("player",fr) then
+					return;
+				end
 			end
 		end
 	end
@@ -173,24 +187,7 @@ function DruidGuardian()
 				end
 			end
 		end
-	------------------------------------------------------------------------------------------------------
-	-- Single Target -------------------------------------------------------------------------------------
-	------------------------------------------------------------------------------------------------------
-		if chumiiuseAoE() == false then
-			-- actions=auto_attack
-			-- actions+=/savage_defense
-			if BadBoy_data['Defensive'] == 1 then
-				if castSpell("player",sd) then
-					return;
-				end
-			end
-			-- actions+=/berserking
-			if isChecked("useBerserk") then
-				if castSpell("player",berg) then
-					return;
-				end
-			end
-			-- actions+=/barkskin
+		-- actions+=/barkskin
 			if isChecked("Barkskin") == true then
 				if getHP("player") <= getValue("Barkskin") then
 					if castSpell("player",bar) then
@@ -198,55 +195,86 @@ function DruidGuardian()
 					end
 				end
 			end
+		-- actions+=/cenarion_ward
+		if getTalent(2,3) then
+			if getValue("CenWard") == 2 then
+	      if castSpell(nNova[1].unit,102351,true,false,false) then return; end
+	    end
+	    if getValue("CenWard") == 1 then
+	        if castSpell("player",102351,true,false,false) then return; end
+	    end
+		end
+		-- actions+=/renewal,if=health.pct<30
+		if isChecked("Renewal") == true then
+			if getTalent(2,2) then
+				if getHP("player") <= getValue("Renewal") then
+					if castSpell("player",_Renewal) then
+						return;
+					end
+				end
+			end
+		end
+		-- actions+=/heart_of_the_wild
+		if getTalent(7,1) then
+			if BossDummyG() == true then
+				if isChecked("useHotW") then
+					if getHP("player") < getValue("useHotW") then
+						if castSpell("player",howg) then
+							return;
+						end
+					end
+				end
+			end
+		end
+		-- actions+=/rejuvenation,if=!ticking&buff.heart_of_the_wild.up
+		if getTalent(7,1) then
+			if UnitBuffID("player",howg) then
+				if not UnitBuffID("player",rej) then
+					if castSpell("player",rej) then
+						return;
+					end
+				end
+			end
+		end
+		-- actions+=/natures_vigil
+		if getTalent(6,3) then
+			if BossDummyG() == true then
+				if isChecked("useNVigil") then
+					if castSpell("player",nv) then
+						return;
+					end
+				end
+			end
+		end
+	------------------------------------------------------------------------------------------------------
+	-- Offensive Cooldowns -------------------------------------------------------------------------------
+	------------------------------------------------------------------------------------------------------
+		-- actions+=/berserking
+		if isChecked("useBerserk") then
+			if BossDummyG() == true then
+				if castSpell("player",berg) then
+					return;
+				end
+			end
+		end
+		-- actions+=/incarnation
+		if getTalent(4,2) then
+			if BossDummyG() == true then
+				if isChecked("useIncarnation") then
+					if castSpell("player",incg) then
+						return;
+					end
+				end
+			end
+		end
+	------------------------------------------------------------------------------------------------------
+	-- Single Target -------------------------------------------------------------------------------------
+	------------------------------------------------------------------------------------------------------
+		if chumiiuseAoE() == false then
 			-- actions+=/maul,if=buff.tooth_and_claw.react&incoming_damage_1s&rage>=80
 			if tacBuff then
 				if getPower("player") > 80 then
 					if castSpell("target",ml,false,false) then
-						return;
-					end
-				end
-			end
-			-- actions+=/cenarion_ward
-			if getTalent(2,3) then
-				if getValue("CenWard") == 2 then
-		      if castSpell(nNova[1].unit,102351,true,false,false) then return; end
-		    end
-		    if getValue("CenWard") == 1 then
-		        if castSpell("player",102351,true,false,false) then return; end
-		    end
-			end
-			-- actions+=/renewal,if=health.pct<30
-			if isChecked("Renewal") == true then
-				if getTalent(2,2) then
-					if getHP("player") <= getValue("Renewal") then
-						if castSpell("player",_Renewal) then
-							return;
-						end
-					end
-				end
-			end
-			-- actions+=/heart_of_the_wild
-			if getTalent(7,1) then
-				if isChecked("useHotW") then
-					if castSpell("player",howg) then
-						return;
-					end
-				end
-			end
-			-- actions+=/rejuvenation,if=!ticking&buff.heart_of_the_wild.up
-			if getTalent(7,1) then
-				if UnitBuffID("player",howg) then
-					if not UnitBuffID("player",rej) then
-						if castSpell("player",rej) then
-							return;
-						end
-					end
-				end
-			end
-			-- actions+=/natures_vigil
-			if getTalent(7,3) then
-				if isChecked("useNVigil") then
-					if castSpell("player",nv) then
 						return;
 					end
 				end
@@ -274,14 +302,6 @@ function DruidGuardian()
 			if getTalent(8,2) then
 				if getDebuffRemain("player",pulv) <= lacTime then
 					if castSpell("target",lac,false,false) then
-						return;
-					end
-				end
-			end
-			-- actions+=/incarnation
-			if getTalent(4,2) then
-				if isChecked("useIncarnation") then
-					if castSpell("player",incg) then
 						return;
 					end
 				end
