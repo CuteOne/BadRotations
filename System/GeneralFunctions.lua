@@ -587,6 +587,14 @@ function getCharges(spellID)
 	return select(1, GetSpellCharges(spellID))
 end
 
+function getChi(Unit)
+	return UnitPower(Unit,12)
+end
+
+function getChiMax(Unit)
+	return UnitPowerMax(Unit,12)
+end
+
 -- if getCombatTime() <= 5 then
 function getCombatTime()
 	local combatStarted = BadBoy_data["Combat Started"];
@@ -641,13 +649,6 @@ function getDebuffStacks(Unit,DebuffID,Source)
 	end
 end
 
-
--- at 5 yard i get 2 so i have to remove 3 yard and in the end i have too much so i remove unitsizes
-
-
-
-
--- /dump UnitCombatReach("target")
 -- if getDistance("player","target") <= 40 then
 function getDistance(Unit1,Unit2)
 	-- If both units are visible
@@ -683,6 +684,82 @@ function getDistanceToObject(Unit1,X2,Y2,Z2)
 		return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2));
 	else
 		return 1000;
+	end
+end
+
+-- /dump UnitGUID("target")
+-- /dump getEnemies("target",10)
+function getEnemies(Unit,Radius)
+
+	local enemiesTable = {};
+
+	if UnitExists("target") == true
+	  and getCreatureType("target") == true
+	  and UnitCanAttack("player","target") == true
+	  and getDistance("player","target") <= Radius then
+	    tinsert(enemiesTable,"target");
+	end
+
+ 	for i=1,ObjectCount() do
+ 		if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
+	  		local thisUnit = ObjectWithIndex(i);
+	  		if UnitGUID(thisUnit) ~= UnitGUID("target") and getCreatureType(thisUnit) == true then
+	  			if UnitCanAttack("player",thisUnit) == true and UnitIsDeadOrGhost(thisUnit) == false then
+	  				if getDistance(Unit,thisUnit) <= Radius then
+	   					tinsert(enemiesTable,thisUnit);
+	   				end
+	  			end
+	  		end
+	  	end
+ 	end
+ 	return enemiesTable;
+end
+
+function makeEnemiesTable()
+	if enemiesTable == nil or enemiesTableTimer == nil or enemiesTableTimer <= GetTime() - 1 then
+		enemiesTable = {};
+
+		if UnitExists("target") == true
+		  and UnitIsVisible("target") == true
+		  and getCreatureType("target") == true
+		  and UnitCanAttack("player","target") == true then
+		  	local unitDistance = getDistance("player", "target")
+		  	if unitDistance <= 40 then
+		  		local unitHP = getHP("target")
+		    	tinsert(enemiesTable,{ unit = "target", distance = unitDistance, hp = unitHP})
+		    end
+		end
+
+	 	for i=1,ObjectCount() do
+	 		if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
+		  		local thisUnit = ObjectWithIndex(i);
+		  		if UnitIsVisible(thisUnit) == true and not UnitIsUnit(thisUnit, "target") and getCreatureType(thisUnit) == true then
+		  			if UnitCanAttack(thisUnit, "player") == true and UnitIsDeadOrGhost(thisUnit) == false then
+		  				local unitDistance = getDistance("player",thisUnit)
+		  				if unitDistance <= 40 then
+		  					local unitHP = getHP(thisUnit)
+		   					tinsert(enemiesTable,{ unit = thisUnit, distance = unitDistance, hp = unitHP })
+		   				end
+		  			end
+		  		end
+		  	end
+	 	end
+
+	 	table.sort(enemiesTable, function(x,y)
+	 		return x.distance < y.distance
+	 	end)
+	end
+end
+
+function findTarget(range, facingCheck, minimumHealth, allowRange)
+	for i = 1, #enemiesTable do
+		if allowRange == true or enemiesTable[i].distance <= range then
+			if FacingCheck == false or getFacing("player", enemiesTable[i].unit) == true then
+				if not minimumHealth or minimumHealth and minimumHealth >= enemiesTable[i].hp then
+					TargetUnit(enemiesTable[i].unit)
+				end
+			end
+		end
 	end
 end
 
@@ -732,115 +809,7 @@ function getFacing(Unit1,Unit2,Degrees)
 	        if Angle3 < Degrees then return true; else return false; end
 	    end
 	end
-
 end
-
-
-
-
---[[function getFacing(Unit1, Unit2)
- 	if not Unit2 then Unit2 = 'player'; end
- 	if not Unit1 then Unit1 = 'target'; end
- 	local X, Y, Z, Rotation = ObjectPosition(Unit2);
- 	local OtherX, OtherY = ObjectPosition(Unit1);
- 	return ((X - OtherX) * math.cos(-Rotation)) - ((Y - OtherY) * math.sin(-Rotation)) < 0;
-end
-
-function faceLocation(X, Y)
- 	local PlayerX, PlayerY = ObjectPosition("player");
- 	if rad(atan2(Y - PlayerY, X - PlayerX)) < 0 then
-  		FaceDirection(rad(atan2(Y - PlayerY, X - PlayerX) + 360));
- 	else
-  		FaceDirection(rad(atan2(Y - PlayerY, X - PlayerX)));
- 	end
- 	return;
-end
-
-function face(unit)
- 	faceLocation(ObjectPosition(unit));
- 	return;
-end
-]]
-
-
-
-
-
-
-
--- if getFacingSight("player","target") == true then
-function getFacingSight(Unit1,Unit2,Degrees)
-	if Degrees == nil then Degrees = 90; end
-	if Unit2 == nil then Unit2 = "player"; end
-	if UnitIsVisible(Unit1) and UnitIsVisible(Unit2) then
-		local Angle1,Angle2,Angle3;
-		local Y1,X1,Z1,Angle1 = ObjectPosition(Unit1);
-        local Y2,X2,Z2,Angle2 = ObjectPosition(Unit2);
-        if Y1 and X1 and Z1 and Angle1 and Y2 and X2 and Z2 and Angle2 then
-	        local deltaY = Y2 - Y1
-	        local deltaX = X2 - X1
-	        Angle1 = math.deg(math.abs(Angle1-math.pi*2))
-	        if deltaX > 0 then
-	            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
-	        elseif deltaX <0 then
-	            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
-	        end
-	        if Angle2-Angle1 > 180 then
-	        	Angle3 = math.abs(Angle2-Angle1-360)
-	        else
-	        	Angle3 = math.abs(Angle2-Angle1)
-	        end
-	        if Angle3 < Degrees then
-	        	if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
-					return true;
-				end
-			end
-		end
-	end
-	return false;
-end
-function getLowAllies(Value)
- local lowAllies = 0;
- for i = 1, #nNova do
-  if nNova[i].hp < Value then
-   lowAllies = lowAllies + 1
-  end
- end
- return lowAllies
-end
--- if getFacingSightDistance("player","target",45) < 30 then
-function getFacingSightDistance(Unit1,Unit2,Degrees)
-	if Degrees == nil then Degrees = 90; end
-	if Unit2 == nil then Unit2 = "player"; end
-	if UnitIsVisible(Unit1) and UnitIsVisible(Unit2) then
-		local Angle1,Angle2,Angle3;
-		local Y1,X1,Z1,Angle1 = ObjectPosition(Unit1);
-        local Y2,X2,Z2,Angle2 = ObjectPosition(Unit2);
-        if Y1 and X1 and Z1 and Angle1 and Y2 and X2 and Z2 and Angle2 then
-	        local deltaY = Y2 - Y1
-	        local deltaX = X2 - X1
-	        local unit2Size = IGetFloatDescriptor(UnitGUID(Unit2),0x110);
-	        Angle1 = math.deg(math.abs(Angle1-math.pi*2))
-	        if deltaX > 0 then
-	            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
-	        elseif deltaX < 0 then
-	            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
-	        end
-	        if Angle2-Angle1 > 180 then
-	        	Angle3 = math.abs(Angle2-Angle1-360)
-	        else
-	        	Angle3 = math.abs(Angle2-Angle1)
-	        end
-	        if Angle3 < Degrees then
-	        	if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
-					return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unit2Size
-				end
-			end
-		end
-	end
-	return 1000;
-end
-
 
 function getGUID(unit)
 	local nShortHand = ""
@@ -873,6 +842,17 @@ function getHP(Unit)
 	end
 end
 
+-- if getLowAllies(60) > 3 then
+function getLowAllies(Value)
+ 	local lowAllies = 0;
+ 	for i = 1, #nNova do
+  		if nNova[i].hp < Value then
+   			lowAllies = lowAllies + 1
+  		end
+ 	end
+ 	return lowAllies
+end
+
 -- if getMana("target") <= 15 then
 function getMana(Unit)
 	return 100 * UnitPower(Unit,0) / UnitPowerMax(Unit,0);
@@ -893,14 +873,6 @@ function getRecharge(spellID)
 	else
 		return 0
 	end
-end
-
-function getChi(Unit)
-	return UnitPower(Unit,12)
-end
-
-function getChiMax(Unit)
-	return UnitPowerMax(Unit,12)
 end
 
 --/dump TraceLine()
@@ -932,34 +904,6 @@ function getTotemDistance(Unit1)
 	end
 end
 
--- /dump UnitGUID("target")
--- /dump getEnemies("target",10)
--- if #getEnemies("target",10) >= 3 then
-function getEnemies(Unit,Radius)
-
-	local enemiesTable = {};
-
-	if UnitExists("target") == true
-	  and getCreatureType("target") == true
-	  and UnitCanAttack("player","target") == true
-	  and getDistance("player","target") <= Radius then
-	    tinsert(enemiesTable,"target");
-	end
-
- 	for i=1,ObjectCount() do
- 		if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
-	  		local thisUnit = ObjectWithIndex(i);
-	  		if UnitGUID(thisUnit) ~= UnitGUID("target") and getCreatureType(thisUnit) == true then
-	  			if UnitCanAttack("player",thisUnit) == true and UnitIsDeadOrGhost(thisUnit) == false then
-	  				if getDistance(Unit,thisUnit) <= Radius then
-	   					tinsert(enemiesTable,thisUnit);
-	   				end
-	  			end
-	  		end
-	  	end
- 	end
- 	return enemiesTable;
-end
 
 -- if getBossID("boss1") == 71734 then
 function getBossID(BossUnitID)
