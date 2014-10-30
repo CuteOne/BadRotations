@@ -68,21 +68,23 @@ if select(3, UnitClass("player")) == 11 then
 --- Ressurection/Dispelling/Healing/Pause/Misc ---
 --------------------------------------------------
 	-- Flying Form
-	    if (falling > 1 or (not swimming and travel)) and not isInCombat("player") and IsFlyableArea() then
-	        if ((not travel and not flight) or (not swimming and travel)) and level>=58 then
-	            if stag then
-	                if castSpell("player",flf,true,false,false) then return; end
-	            elseif not stag then
-	                if castSpell("player",trf,true,false,false) then return; end
-	            end
-	        else
-	            if castSpell("player",cf,true,false,false) then return; end
-	        end
-	    end
+		if isChecked("Travel Shapeshifts") then
+		    if (falling > 1 or (not swimming and travel)) and not isInCombat("player") and IsFlyableArea() then
+		        if ((not travel and not flight) or (not swimming and travel)) and level>=58 then
+		            if stag then
+		                if castSpell("player",flf,true,false,false) then return; end
+		            elseif not stag then
+		                if castSpell("player",trf,true,false,false) then return; end
+		            end
+		        else
+		            if castSpell("player",cf,true,false,false) then return; end
+		        end
+		    end
 	-- Aquatic Form
-	    if swimming and not travel and not hasTarget then
-	        if castSpell("player",trf,true,false,false) then return; end
-	    end
+		    if swimming and not travel and not hasTarget then
+		        if castSpell("player",trf,true,false,false) then return; end
+		    end
+		end
 	-- Cat Form
 	    if ((not dead and hastar and attacktar and tarDist<=40)
 	    		or (isMoving("player") and not travel and not IsFalling()))
