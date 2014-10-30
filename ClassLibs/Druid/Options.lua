@@ -646,6 +646,22 @@ function GuardianConfig()
 
         CreateNewText(thisConfig," ");
         -- Wrapper -----------------------------------------
+        CreateNewWrap(thisConfig,"------- Cooldowns -----");
+
+        CreateNewCheck(thisConfig,"useBerserk");
+        CreateNewText(thisConfig,"Berserk");
+
+        CreateNewCheck(thisConfig,"useHotW");
+        CreateNewText(thisConfig,"Heart of the Wild");
+
+        CreateNewCheck(thisConfig,"useNVigil");
+        CreateNewText(thisConfig,"Nature's Vigil");
+
+        CreateNewCheck(thisConfig,"useIncarnation");
+        CreateNewText(thisConfig,"Incarnation");
+
+        CreateNewText(thisConfig," ");
+        -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------- Defensive ------");
 
         -- Healthstone
