@@ -262,6 +262,7 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell(targets[2].Unit,_StormEarthFire,false,false,false) then return; end
 					end
 				end
+				-- TODO: Why do we care if FSK is on CD or if we are in an instance?
 	-- Crackling Jade Lightning
 				if tarDist >= 8 and getSpellCD(_FlyingSerpentKick)>1 and power>20 and chiDiff>=2 and not isCastingSpell(_CracklingJadeLightning) and (select(2,IsInInstance())=="none" or isInCombat("target")) then
 					if castSpell("target",_CracklingJadeLightning,false) then return; end
@@ -427,7 +428,7 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("player",_FlyingSerpentKickEnd,false,false,false) then return; end
 					end
 				end
-	-- Start Attack automatticaly when in combat? Is this redundent?
+	-- TODO: Start Attack automatticaly when in combat? Is this redundent?
 				if tarDist<5 then
 					StartAttack()
 				end
