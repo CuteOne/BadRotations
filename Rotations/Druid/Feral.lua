@@ -4,8 +4,12 @@ if select(3, UnitClass("player")) == 11 then
 	        FeralCatConfig();
 	        Currentconfig = "Feral CuteOne";
 	    end
+	    if not canRun() then
+	    	return true
+	    end
 	    KeyToggles()
 	    GroupInfo()
+
 --------------
 --- Locals ---
 --------------
