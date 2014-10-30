@@ -81,14 +81,11 @@ if select(3, UnitClass("player")) == 11 then
 		        end
 		    end
 	-- Aquatic Form
-		if isChecked("Travel Shapeshifts") then
 		    if swimming and not travel and not hasTarget then
 		        if castSpell("player",trf,true,false,false) then return; end
 		    end
 		end
-end
 	-- Cat Form
-		if isChecked("Travel Shapeshifts") then
 	    if ((not dead and hastar and attacktar and tarDist<=40)
 	    		or (isMoving("player") and not travel and not IsFalling()))
 	        and (not IsFlying() or (IsFlying() and targetDistance<10))
@@ -97,9 +94,7 @@ end
 	    then
 	        if castSpell("player",cf,true,false,false) then return; end
 	    end
-end
 	-- PowerShift
-		if isChecked("Travel Shapeshifts") then
 	    if hasNoControl() then
 	        for i=1, 6 do
 	            if i == GetShapeshiftForm() then
@@ -108,7 +103,6 @@ end
 	            end
 	        end
 	    end
-end
 	-- Death Cat mode
 		if isChecked("Death Cat Mode") and cat then
 	        if hastar and tarDist > 8 then
