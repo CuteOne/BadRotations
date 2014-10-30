@@ -427,10 +427,10 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("player",_FlyingSerpentKickEnd,false,false,false) then return; end
 					end
 				end
-	-- Start Attack
-			if tarDist<5 then
-				StartAttack()
-			end
+	-- Start Attack automatticaly when in combat? Is this redundent?
+				if tarDist<5 then
+					StartAttack()
+				end
 			end --In Combat End
 		end
 	end

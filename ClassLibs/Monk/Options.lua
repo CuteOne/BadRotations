@@ -77,11 +77,6 @@ function MonkBrewConfig()
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"---------- Buffs ---------");
 
-        -- Stance
-        CreateNewCheck(thisConfig,"Stance");
-        CreateNewDrop(thisConfig, "Stance", 1, "Choose Stance to use.", "|cffFFBB00Ox", "|cff0077FFTiger")
-        CreateNewText(thisConfig,"Stance");
-
         -- Legacy of the Emperor
         CreateNewCheck(thisConfig,"Legacy of the Emperor");
         CreateNewText(thisConfig,"Legacy of the Emperor");
@@ -139,19 +134,30 @@ function MonkBrewConfig()
         CreateNewCheck(thisConfig,"Resuscitate");
         CreateNewText(thisConfig,"Resuscitate");
 
-        -- Roll
-        CreateNewCheck(thisConfig,"Roll");
-        CreateNewText(thisConfig,"Roll");
 
-        -- Quaking Palm
-        CreateNewCheck(thisConfig,"Quaking Palm");
-        CreateNewBox(thisConfig, "Quaking Palm", 0, 100  , 5, 30 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFQuaking Palm.");
-        CreateNewText(thisConfig,"Quaking Palm");
+        -- Spacer --
+        textOp(" ");
+        wrapOp("--- Interrupts ---");
+        --Quaking Palm
+        checkOp("Quaking Palm")
+        textOp(tostring(select(1,GetSpellInfo(_QuakingPalm))))
 
         -- Spear Hand Strike
-        CreateNewCheck(thisConfig,"Spear Hand Strike");
-        CreateNewBox(thisConfig, "Spear Hand Strike", 0, 100  , 5, 60 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFSpear and Strike.");
-        CreateNewText(thisConfig,"Spear Hand Strike");
+        checkOp("Spear Hand Strike")
+        textOp(tostring(select(1,GetSpellInfo(_SpearHandStrike))))
+
+        -- Paralysis
+        checkOp("Paralysis")
+        textOp(tostring(select(1,GetSpellInfo(_Paralysis))))
+
+        -- Leg Sweep
+        checkOp("Leg Sweep")
+        textOp(tostring(select(1,GetSpellInfo(_LegSweep))))
+
+        -- Interrupt Percentage
+        checkOp("Interrupts");
+        boxOp("Interrupts", 5, 95, 5, 0);
+        textOp("Interrupt At");
 
 
         -- General Configs
