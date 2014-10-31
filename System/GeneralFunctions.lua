@@ -762,7 +762,7 @@ function makeEnemiesTable(maxDistance)
 		enemiesTable = { };
 		-- use objectmanager to build up table
 	 	for i=1,ObjectCount() do
-	 		if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
+	 		if UnitExists(ObjectWithIndex(i)) and bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
 		  		local thisUnit = ObjectWithIndex(i);
 		  		if UnitIsVisible(thisUnit) == true and getCreatureType(thisUnit) == true then
 		  			if UnitCanAttack(thisUnit, "player") == true and UnitIsDeadOrGhost(thisUnit) == false then
