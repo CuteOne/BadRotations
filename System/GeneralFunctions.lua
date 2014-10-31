@@ -701,7 +701,7 @@ function getEnemies(Unit,Radius)
 	end
 
  	for i=1,ObjectCount() do
- 		if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
+ 		if ObjectExists(ObjectWithIndex(i)) == true and bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
 	  		local thisUnit = ObjectWithIndex(i);
 	  		if UnitGUID(thisUnit) ~= UnitGUID("target") and getCreatureType(thisUnit) == true then
 	  			if UnitCanAttack("player",thisUnit) == true and UnitIsDeadOrGhost(thisUnit) == false then
@@ -928,7 +928,7 @@ end
 function getNumEnemies(Unit,Radius)
   	local Units = 0;
  	for i=1,ObjectCount() do
- 		if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
+		if ObjectExists(ObjectWithIndex(i)) == true and bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
 	  		local thisUnit = ObjectWithIndex(i);
 	  		if getCreatureType(thisUnit) == true then
 	  			if UnitIsVisible(thisUnit) and UnitCanAttack("player",thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
@@ -1773,7 +1773,7 @@ function shouldStopCasting(Spell)
 		local MySpellCastTime;
 		-- Set Spell Cast Time
 		if GetSpellInfo(Spell) ~= nil then
-			MySpellCastTime = (GetTime()*1000) + select(7,GetSpellInfo(Spell));
+			MySpellCastTime = (GetTime()*1000) + select(4,GetSpellInfo(Spell));
 		else
 			return false;
 		end

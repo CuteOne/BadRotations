@@ -239,7 +239,7 @@ if isCastingSpell(740) then return false; end
 			if isChecked("DPS Toggle") == true and SpecificToggle("DPS Toggle") == true  then
 		        -- Let's get angry :D
 		        makeEnemiesTable(40)
-		        if UnitExists("target") == true then
+		        if UnitExists("target") == true and UnitCanAttack("target","player") == true then
 		        	myTarget = "target"
 		        	myDistance = targetDistance
 		        elseif enemiesTable and enemiesTable[1] ~= nil then
@@ -248,7 +248,7 @@ if isCastingSpell(740) then return false; end
 		        else
 		        	myTarget = "target"
 		        end
-			    if UnitExists(myTarget) then
+			    if UnitExists(myTarget) and UnitCanAttack(myTarget,"player") == true then
 					if myDistance < 5 and not isChecked("No Kitty DPS") then
 						--- Catform
 				  		if not UnitBuffID("player",768) and not UnitBuffID("player",783) and not UnitBuffID("player",5487) then
@@ -554,15 +554,6 @@ if isCastingSpell(740) then return false; end
 				end
 			end
 		end
-
-
-
-
-
-
-
-
-
 
 
 		--[[ 26 - WildMushroom(if not any mushroom active )]]
