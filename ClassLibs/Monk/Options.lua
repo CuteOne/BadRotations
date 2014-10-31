@@ -135,31 +135,6 @@ function MonkBrewConfig()
         CreateNewText(thisConfig,"Resuscitate");
 
 
-        -- Spacer --
-        textOp(" ");
-        wrapOp("--- Interrupts ---");
-        --Quaking Palm
-        checkOp("Quaking Palm")
-        textOp(tostring(select(1,GetSpellInfo(_QuakingPalm))))
-
-        -- Spear Hand Strike
-        checkOp("Spear Hand Strike")
-        textOp(tostring(select(1,GetSpellInfo(_SpearHandStrike))))
-
-        -- Paralysis
-        checkOp("Paralysis")
-        textOp(tostring(select(1,GetSpellInfo(_Paralysis))))
-
-        -- Leg Sweep
-        checkOp("Leg Sweep")
-        textOp(tostring(select(1,GetSpellInfo(_LegSweep))))
-
-        -- Interrupt Percentage
-        checkOp("Interrupts");
-        boxOp("Interrupts", 5, 95, 5, 0);
-        textOp("Interrupt At");
-
-
         -- General Configs
         CreateGeneralsConfig();
 
