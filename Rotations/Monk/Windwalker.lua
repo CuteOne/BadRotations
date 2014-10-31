@@ -6,11 +6,12 @@ if select(3, UnitClass("player")) == 10 then
 	    end
 	    WindwalkerToggles()
 	    GroupInfo()
-       makeEnemiesTable(40)
-       targets = enemiesTable
-       table.sort(targets, function(x,y)
-         return x.hp > y.hp
-       end)
+       sefTargets()
+       --makeEnemiesTable(40)
+       --targets = enemiesTable
+       --table.sort(targets, function(x,y)
+       --  return x.hp > y.hp
+       --end)
 
 
 
@@ -64,10 +65,10 @@ if select(3, UnitClass("player")) == 10 then
 			-- 	CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
 			-- end
 		 	if sefStack == 0 and #targets>0 then
-				if castSpell(targets[1].unit,_StormEarthFire,false,false,false) then return; end
+				if castSpell(targets[1].Unit,_StormEarthFire,false,false,false) then return; end
 		 	end
 			if sefStack == 1 and #targets>1 then
-				if castSpell(targets[2].unit,_StormEarthFire,false,false,false) then return; end
+				if castSpell(targets[2].Unit,_StormEarthFire,false,false,false) then return; end
 			end
 			if UnitExists("target") then
 				if not useAoE() then
@@ -204,7 +205,7 @@ if select(3, UnitClass("player")) == 10 then
 		if isInCombat("player") then
 
       -- Automatically target the next-closest enemy within 10 yards (if already in combat)
-		findTarget(10,false)
+		--findTarget(8,true)
 
 	------------------------------
 	--- In Combat - Dummy Test ---
@@ -267,10 +268,10 @@ if select(3, UnitClass("player")) == 10 then
 						CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
 					end
 				 	if sefStack == 0 and #targets>0 then
-						if castSpell(targets[1].unit,_StormEarthFire,false,false,false) then return; end
+						if castSpell(targets[1].Unit,_StormEarthFire,false,false,false) then return; end
 				 	end
 					if sefStack == 1 and #targets>1 then
-						if castSpell(targets[2].unit,_StormEarthFire,false,false,false) then return; end
+						if castSpell(targets[2].Unit,_StormEarthFire,false,false,false) then return; end
 					end
 				end
 

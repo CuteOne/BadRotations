@@ -738,7 +738,7 @@ function getEnemies(Unit,Radius)
 	end
 
  	for i=1,ObjectCount() do
- 		if ObjectExists(ObjectWithIndex(i)) == true and bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
+ 		if UnitExists(ObjectWithIndex(i)) == true and bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
 	  		local thisUnit = ObjectWithIndex(i);
 	  		if UnitGUID(thisUnit) ~= UnitGUID("target") and getCreatureType(thisUnit) == true then
 	  			if UnitCanAttack("player",thisUnit) == true and UnitIsDeadOrGhost(thisUnit) == false then
