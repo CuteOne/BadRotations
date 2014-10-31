@@ -251,13 +251,12 @@ end
 function SwiftMender()
     if isChecked("Swiftmend") then
         if lowestHP <= getValue("Swiftmend") then
-            if (getBuffRemain(lowestUnit,774,"player") > 1 or getBuffRemain(lowestUnit,8936,"player") > 1)  and getSpellCD(18562) < 1 then
-                   CastSpellByName(GetSpellInfo(18562),lowestUnit) return true
-                end
+            if (getBuffRemain(lowestUnit,774,"player") > 1 or getBuffRemain(lowestUnit,8936,"player") > 1) and getSpellCD(18562) < 1 then
+                CastSpellByName(GetSpellInfo(18562),lowestUnit) return true
             end
         end
     end
-
+end
 
 function findShroom()
     if shroomsTable[1].x == nil then
@@ -279,23 +278,16 @@ end
 
 function MultiMoon()
     if canCast(_Moonfire,false,false) and isChecked("Multidotting") then
-        -- Iterating Object Manager
-        if myEnemies == nil or myEnemiesTimer == nil or myEnemiesTimer <= GetTime() - 1 then
-            myEnemies, myEnemiesTimer = getEnemies("player",40), GetTime();
-        end
         -- begin loop
-        if myEnemies ~= nil then
-            for i = 1, #myEnemies do
-                -- we check if it's a valid unit
-                if getCreatureType(myEnemies[i]) == true then
-                    -- now that we know the unit is valid, we can use it to check whatever we want.. let's call it thisUnit
-                    local thisUnit = myEnemies[i]
-                    -- Here I do my specific spell checks
-                    if ((UnitCanAttack(thisUnit,"player") == true and UnitAffectingCombat(thisUnit) == true) or isDummyByName(UnitName(thisUnit))) and getDebuffRemain(thisUnit,_Moonfire) < (18*0.3) and getDistance("player",thisUnit) < 40 then
-                        -- All is good, let's cast.
-                        if castSpell(thisUnit,_Moonfire,false,false) then
-                            return;
-                        end
+        if enemiesTable ~= nil then
+            for i = 1, #enemiesTable do
+                -- now that we know the unit is valid, we can use it to check whatever we want.. let's call it thisUnit
+                local thisUnit = enemiesTable[i].unit
+                -- Here I do my specific spell checks
+                if ((UnitAffectingCombat(thisUnit) == true) or isDummyByName(UnitName(thisUnit))) and getDebuffRemain(thisUnit,_Moonfire) < (18*0.3) then
+                    -- All is good, let's cast.
+                    if castSpell(thisUnit,_Moonfire,false,false) then
+                        return;
                     end
                 end
             end

@@ -78,7 +78,7 @@ function DruidRestoration()
 					end
 				end
 			end
-		end	
+		end
 	-- Regrowht Toggle
 	if isChecked("Regrowht Toggle") and SpecificToggle("Regrowht Toggle") == true then
 			if not UnitIsDeadOrGhost("mouseover") then
@@ -107,17 +107,17 @@ function DruidRestoration()
 
 	--[[ Rebirth ]]
 	if (isChecked("MouseOver Rebirth") and isChecked("Rebirth Toggle") ~= true) or (isChecked("Rebirth Toggle") and SpecificToggle("Rebirth Toggle") == true) then
-	if isInCombat("player")	and isStanding(0.3) and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("player","mouseover") 
+	if isInCombat("player")	and isStanding(0.3) and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("player","mouseover")
 	and getSpellCD(20484) == 0 then
 		CastSpellByName(GetSpellInfo(20484),"mouseover") return; end
 	end
-    
+
 	--[[ Revive ]]
 	if isChecked("Revive") then
 	if not isInCombat("player") and isStanding(0.3)  and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("player","mouseover") then
 		CastSpellByName(GetSpellInfo(50769),"mouseover") return; end
 	end
-    
+
 	--[[ 7 - Stop Casting--(perevent from over healing when u cast somthing can heal target)]]
 	if isChecked("Overhealing Cancel") and isCastingDruid() and shouldNotOverheal(spellCastTarget) >= getValue("Overhealing Cancel") and SpecificToggle("Regrowht Toggle") == false then
 		local noOverHealSpells = {5185}
@@ -133,9 +133,9 @@ function DruidRestoration()
 	if canRun() ~= true then return false; end
 
 --[[ 	-- On GCD After here, palce out of combats spells here
-]]	
+]]
 		if isCastingDruid() then return false; end
-	
+
 
 if isCastingSpell(740) then return false; end
 	--[[ 	-- Combats Starts Here
@@ -235,53 +235,66 @@ if isCastingSpell(740) then return false; end
 		end
 
 		--[[ 5 - DPs --(range and  melee)]]
-		if BadBoy_data["DPS"] == 2 and UnitExists("target") and isEnnemy() then
+		if BadBoy_data["DPS"] == 2 and not (isChecked("Safe DPS Treshold") and lowestHP < getValue("Safe DPS Treshold")) then
 			if isChecked("DPS Toggle") == true and SpecificToggle("DPS Toggle") == true  then
-				if targetDistance < 5 and not isChecked("No Kitty DPS") then
-					--- Catform
-			  		if not UnitBuffID("player",768) and not UnitBuffID("player",783) and not UnitBuffID("player",5487) then
-						if castSpell("player",768,true,false) then catSwapped = GetTime() return; end
-					end
-					if UnitBuffID("player",768) and catSwapped <= GetTime() - 1.5 then
-						-- Ferocious Bite
-						if getCombo() == 5 and UnitBuffID("player",768) ~= nil then
-							if castSpell("target",22568,false,false) then return; end
+		        -- Let's get angry :D
+		        makeEnemiesTable(40)
+		        if UnitExists("target") == true and UnitCanAttack("target","player") == true then
+		        	myTarget = "target"
+		        	myDistance = targetDistance
+		        elseif enemiesTable and enemiesTable[1] ~= nil then
+		        	myTarget = enemiesTable[1].unit
+		        	myDistance = enemiesTable[1].distance
+		        else
+		        	myTarget = "target"
+		        end
+			    if UnitExists(myTarget) and UnitCanAttack(myTarget,"player") == true then
+					if myDistance < 5 and not isChecked("No Kitty DPS") then
+						--- Catform
+				  		if not UnitBuffID("player",768) and not UnitBuffID("player",783) and not UnitBuffID("player",5487) then
+							if castSpell("player",768,true,false) then catSwapped = GetTime() return; end
 						end
-						-- Trash
-						if getDebuffRemain("target",106830) < 2 then
-							if castSpell("player",106832,false,false) then return; end
+						if UnitBuffID("player",768) and catSwapped <= GetTime() - 1.5 then
+							-- Ferocious Bite
+							if getCombo() == 5 and UnitBuffID("player",768) ~= nil then
+								if castSpell(myTarget,22568,false,false) then return; end
+							end
+							-- Trash
+							if getDebuffRemain(myTarget,106830) < 2 then
+								if castSpell("player",106832,false,false) then return; end
+							end
+							-- Shred
+							if castSpell(myTarget,5221,false,false) then return; end
 						end
-						-- Shred
-						if castSpell("target",5221,false,false) then return; end
-					end
-				else
-					if UnitBuffID("player",768) ~= nil then
-						CancelShapeshiftForm();
-					end
-					-- Moonfire
-					if isChecked("Multidotting") then
-						MultiMoon()
-					end
-
-					if isStanding(0.1) == false then
-						-- MonFire Spam
-						if castSpell("target",_Moonfire,false,false) then return; end
 					else
-					if getDebuffRemain("target",164812) < 2 then
-					if castSpell("target",_Moonfire,false,false) then return; end end
-					-- Wrath
-						if castSpell("target",5176,false,true) then return; end
-					
+						if UnitBuffID("player",768) ~= nil then
+							CancelShapeshiftForm();
+						end
+						-- Moonfire
+						if isChecked("Multidotting") then
+							MultiMoon()
+						end
+
+						if isStanding(0.1) == false then
+							-- MonFire Spam
+							if castSpell(myTarget,_Moonfire,false,false) then return; end
+						else
+						if getDebuffRemain(myTarget,164812) < 2 then
+						if castSpell(myTarget,_Moonfire,false,false) then return; end end
+						-- Wrath
+							if castSpell(myTarget,5176,false,true) then return; end
+
+					end
 				end
 			end
-			
+
 			else
 				if UnitBuffID("player",768) ~= nil then
 					CancelShapeshiftForm();
 				end
 			end
 		end
-        
+
 	    --[[ 6 - Genesis--(WITH Hotkey)]]
         if isChecked("Genesis Toggle") and SpecificToggle("Genesis Toggle") == true and GetCurrentKeyBoardFocus() == nil then
 			if canCast(145518,false,false) then
@@ -408,7 +421,7 @@ if isCastingSpell(740) then return false; end
 	        end
 		end
         	--[[ 18.1 - WildMushroom tank(Replace)]]
-	if isKnown(33891) and UnitBuffID("player", 33891) then	
+	if isKnown(33891) and UnitBuffID("player", 33891) then
 		if isChecked("Mushrooms") and getValue("Mushrooms Who") == 1 and (shroomTimer == nil or shroomTimer <= GetTime() - 2) then
 			if GetUnitSpeed("focus") == 0 and canCast(145205,false,false) then
 				if shroomsTable ~= nil and #shroomsTable ~= 0 and findShroom() then
@@ -422,7 +435,7 @@ if isCastingSpell(740) then return false; end
 	--[[ 18.5 - LifeBloom Fast Swich]]
 		if isChecked("Lifebloom") and canCast(33763,false,false) then
 	    	for i = 1, #nNova do
-				if nNova[i].hp < 249 and not UnitIsDeadOrGhost("focus") and getBuffRemain("focus",33763) == 0 and UnitExists("focus") 
+				if nNova[i].hp < 249 and not UnitIsDeadOrGhost("focus") and getBuffRemain("focus",33763) == 0 and UnitExists("focus")
 				and getDistance("player","focus") < 43 then
 					if castSpell("focus",33763,true,false) then return; end
 				end
@@ -465,7 +478,7 @@ if isCastingSpell(740) then return false; end
 		if isKnown(114107) ~= true then
 			if UnitAffectingCombat("player") and isChecked("Swiftmend Harmoney") then
 				if getBuffRemain("player", 100977) < 3 then
-               for i = 1, #nNova do				
+               for i = 1, #nNova do
 				if (getBuffRemain(nNova[i].unit,774,"player") > 1 or getBuffRemain(nNova[i].unit,8936,"player") > 1) and getSpellCD(18562) == 0 then
 						-- Swiftmend
 						CastSpellByName(GetSpellInfo(18562),nNova[i].unit) return true
@@ -543,15 +556,6 @@ if isCastingSpell(740) then return false; end
 		end
 
 
-
-
-
-
-
-
-
-
-
 		--[[ 26 - WildMushroom(if not any mushroom active )]]
 		if isChecked("Mushrooms") and (getValue("Mushrooms Who") == 2 or UnitExists("focus") == false) and (shroomTimer == nil or shroomTimer <= GetTime() - 2) then
 			if canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0 or shroomsTable[1].guid == nil) then
@@ -591,7 +595,7 @@ if isCastingSpell(740) then return false; end
 
 		--[[ 28 - LifebloomFocus--(Refresh if over treshold)]]
       	if isChecked("Lifebloom") then
-			if not UnitIsDeadOrGhost("focus") and getHP("focus") >= getValue("Lifebloom") and getBuffRemain("focus",33763,"player") < 2 
+			if not UnitIsDeadOrGhost("focus") and getHP("focus") >= getValue("Lifebloom") and getBuffRemain("focus",33763,"player") < 2
 			and getDistance("player","focus") < 43 and UnitExists("focus") then
 				if castSpell("focus",33763,true,false) then return; end
 			end
@@ -683,7 +687,7 @@ if isCastingSpell(740) then return false; end
 			end
 		end
 
-		
+
 
 		--[[ 36 - Rejuvenation Tank]]
 		if isChecked("Rejuvenation Tank") and canCast(774,false,false) and lowestTankHP < getValue("Rejuvenation Tank") then

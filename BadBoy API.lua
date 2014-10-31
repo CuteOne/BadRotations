@@ -63,10 +63,6 @@
 
 `getFacing(Unit1,Unit2)	- Bool` Returns true if Unit1 is facing Unit2
 
-`getFacingSight(Unit1,Unit2) - Bool` Returns true if Unit2 is in line of sight and in front of Unit1.
-
-`getFacingSightDistance(Unit1,Unit2) - Num` Returns range if in front and in sight, otherwise returns 1000.
-
 `getFallTime() - Num` Returns the time the character has been falling.
 
 `getGround(Unit) - Bool` Returns true if ground is found under the target
@@ -141,6 +137,8 @@
 
 **Uncategorized - Mixed**
 ***
+`makeEnemiesTable()` - does not return anything but create enemiesTable that hold enemiesTable[i].unit enemiesTable[i].distance and enemiesTable[i].hp of all enemies in 40 yards
+
 `nDbDmg(tar, spellID, player) - Num` Returns tooltip damage
 
 `pause() - Bool` Returns true if pause is engaged
