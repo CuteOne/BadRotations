@@ -310,6 +310,49 @@ function canUse(itemID)
 	end
 end
 
+
+function castAoEHeal(spellID, numUnits, missingHP, rangeValue)
+	-- i start an iteration that i use to build each units Table, wich i will reuse for the next second
+	if not holyRadianceRangeTable or not holyRadianceRangeTableTimer or holyRadianceRangeTable <= GetTime() - 1 then
+		holyRadianceRangeTable = { }
+		for i = 1, #nNova do
+			-- i declare a sub-table for this unit if it dont exists
+			if nNova[i].distanceTable == nil then nNova[i].distanceTable = { } end
+			-- i start a second iteration where i scan unit ranges from one another.
+			for j = 1, #nNova do
+				-- i make sure i dont compute unit range to hisself.
+				if not UnitIsUnit(nNova[i].unit,nNova[j].unit) then
+					-- table the units
+					nNova[i].distanceTable[j] = { distance = getDistance(nNova[i].unit,nNova[j].unit), unit = nNova[j].unit, hp = nNova[j].hp }
+				end
+			end
+		end
+	end
+	-- declare locals that will hold number
+	local bestTarget, bestTargetUnits = 1, 1
+	-- now that nova range is built, i can iterate it
+	for i = 1, #nNova do
+		if nNova[i].distanceTable ~= nil then
+			local inRange, missingHealth, mostMissingHealth = 0, 0, 0
+			-- i count units in range
+			for j = 1, #nNova do
+				if nNova[i].distanceTable[j] and nNova[i].distanceTable[j].distance < rangeValue then
+					inRange = inRange + 1
+					missingHealth = missingHealth + (100 - nNova[j].hp)
+				end
+			end
+			nNova[i].inRangeForHolyRadiance = inRange
+			-- i check if this is going to be the best unit for my spell
+			if missingHealth > mostMissingHealth then
+				bestTarget, bestTargetUnits, mostMissingHealth = i, inRange, missingHealth
+			end
+		end
+	end
+	if bestTargetUnits > 3 and mostMissingHealth > 100 then
+		if castSpell(nNova[bestTarget].unit, spellID, true, true) then return true end
+	end
+end
+
 -- castGround("target",12345,40);
 function castGround(Unit,SpellID,maxDistance)
 	if UnitExists(Unit) and getSpellCD(SpellID) == 0 and getLineOfSight("player", Unit) and getDistance("player", Unit) <= maxDistance then
@@ -402,9 +445,6 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 	return false;
 end
 
-
-
-
 --[[castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 Parameter 	Value
 First 	 	UnitID 			Enter valid UnitID
@@ -414,7 +454,6 @@ Fourth 		MovementCheck	True to make sure player is standing to cast, false to al
 Fifth 		SpamAllowed 	True to skip that check, false to prevent spells that we dont want to spam from beign recast for 1 second
 Sixth 		KnownSkip 		True to skip isKnown check for some spells that are not managed correctly in wow's spell book.
 ]]
-
 
 -- getLatency()
 function getLatency()
@@ -426,8 +465,6 @@ function getLatency()
 	end
 	return lag
 end
-
-
 
 -- castSpell("target",12345,true);
 function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)

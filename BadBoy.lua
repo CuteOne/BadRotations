@@ -82,7 +82,8 @@ function BadBoyRun()
 	---------------------------------
 	-- Macro Toggle ON/OFF
 	SLASH_BadBoy1 = "/BadBoy"
-	function SlashCmdList.BadBoy(msg, editbox)
+	function SlashCmdList.BadBoy(msg, editbox, ...)
+		print(...)
 		mainButton:Click();
 	end
 
