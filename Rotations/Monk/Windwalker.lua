@@ -6,7 +6,12 @@ if select(3, UnitClass("player")) == 10 then
 	    end
 	    WindwalkerToggles()
 	    GroupInfo()
-	    sefTargets()
+       --sefTargets()
+       makeEnemiesTable(40)
+       targets = enemiesTable
+       table.sort(targets, function(x,y)
+         return x.hp > y.hp
+       end)
 
 
 
@@ -258,21 +263,6 @@ if select(3, UnitClass("player")) == 10 then
 	--------------------------------
 
 	-- Storm, Earth, and Fire
---[[
-	makeEnemiesTable(40)
-	if UnitExists("target") and BadBoy_data['SEF']==1 then
-		if (#enemiesTable == 1 and sefStack==2) or (#enemiesTable == 0 and sefStack==1) then
-			CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
-		end
-		if sefStack == 0 and #enemiesTable>0 then
-			print("enemiesTable is:".. #enemiesTable)
-			if castSpell(enemiesTable[1].Unit,_StormEarthFire,false,false,false) then return; end
-		end
-		if sefStack == 1 and #enemiesTable>1 then
-			if castSpell(enemiesTable[2].Unit,_StormEarthFire,false,false,false) then return; end
-		end
-	end
-]]
 				if UnitExists("target") and BadBoy_data['SEF']==1 then
 					if (#targets == 1 and sefStack==2) or (#targets == 0 and sefStack==1) then
 						CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
