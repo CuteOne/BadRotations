@@ -6,7 +6,15 @@ if select(3, UnitClass("player")) == 10 then
 	    end
 	    WindwalkerToggles()
 	    GroupInfo()
-	    sefTargets()
+       --sefTargets()
+       makeEnemiesTable(40)
+       targets = enemiesTable
+       table.sort(targets, function(x,y)
+         return x.hp > y.hp
+       end)
+
+
+
 	    if not canRun() then
 	    	return true
 	    end
@@ -76,8 +84,8 @@ if select(3, UnitClass("player")) == 10 then
 				tebCast = 0
 			end
 		end
-	-- Stop Cast
-		if ((tarDist<5 or getSpellCD(_FlyingSerpentKick)==0) and isCastingSpell(_CracklingJadeLightning)) or (not useAoE() and isCastingSpell(_SpinningCraneKick)) then
+	-- Stop Cast 
+		if ((tarDist<5 or (BadBoy_data['FSK']==1 and getSpellCD(_FlyingSerpentKick)==0)) and isCastingSpell(_CracklingJadeLightning)) or (not useAoE() and isCastingSpell(_SpinningCraneKick)) then
 			RunMacroText("/stopcasting")
 		end
 	-- Cancel Storm, Earth, and Fire
@@ -194,7 +202,10 @@ if select(3, UnitClass("player")) == 10 then
 -----------------
 --- In Combat ---
 -----------------
-			if isInCombat("player") then
+		if isInCombat("player") then
+
+      -- Automatically target the next-closest enemy within 10 yards (if already in combat)
+		findTarget(10,false)
 
 	------------------------------
 	--- In Combat - Dummy Test ---
@@ -204,6 +215,8 @@ if select(3, UnitClass("player")) == 10 then
 					if UnitExists("target") then
 						if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
 							CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
+							StopAttack()
+							ClearTarget()
 							StopAttack()
 							ClearTarget()
 							print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
@@ -241,13 +254,14 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("target",_InvokeXuen) then return; end
 					end
 			-- Racial: Troll Berserking
-		            if isChecked("Racial") and select(2, UnitRace("player")) == "Troll" then
-		                if castSpell("player",_Berserking,false,false) then return; end
-		            end
-	            end
+          if isChecked("Racial") and select(2, UnitRace("player")) == "Troll" then
+            if castSpell("player",_Berserking,false,false) then return; end
+          end
+	      end
 	--------------------------------
 	--- In Combat - All Rotation ---
 	--------------------------------
+
 	-- Storm, Earth, and Fire
 				if UnitExists("target") and BadBoy_data['SEF']==1 then
 					if (#targets == 1 and sefStack==2) or (#targets == 0 and sefStack==1) then
@@ -260,8 +274,9 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell(targets[2].Unit,_StormEarthFire,false,false,false) then return; end
 					end
 				end
+
 	-- Crackling Jade Lightning
-				if tarDist >= 8 and getSpellCD(_FlyingSerpentKick)>1 and power>20 and chiDiff>=2 and not isCastingSpell(_CracklingJadeLightning) and (select(2,IsInInstance())=="none" or isInCombat("target")) then
+				if tarDist >= 8 and (BadBoy_data['FSK']==1 and getSpellCD(_FlyingSerpentKick)>1) and power>20 and chiDiff>=2 and not isCastingSpell(_CracklingJadeLightning) and isInCombat("target") then
 					if castSpell("target",_CracklingJadeLightning,false) then return; end
 				end
 	-- Chi Brew
@@ -294,6 +309,13 @@ if select(3, UnitClass("player")) == 10 then
 				if getTalent(7,3) and tarDist<5 and chi>=2 and tpRemain>0 and rskRemain>0 then
 					if castSpell("player",_Serenity,false,false) then return; end
 				end
+
+			-- Tiger's Lust
+				if isMoving("player") and UnitExists("target") and not UnitIsDeadOrGhost("target") and tarDist>=15 then
+					if castSpell("player",_TigersLust,false,false) then return; end
+				end
+
+
 	--------------------------------
 	--- In Combat - AoE Rotation ---
 	--------------------------------
@@ -425,11 +447,11 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("player",_FlyingSerpentKickEnd,false,false,false) then return; end
 					end
 				end
-			end --In Combat End
-	-- Start Attack
-			if tarDist<5 then
-				StartAttack()
+				-- TODO: Start Attack automatticaly when in combat? Is this redundent?
+				--if tarDist<5 then
+				--	StartAttack()
+				--end
 			end
-		end
+		end --In Combat End
 	end
 end

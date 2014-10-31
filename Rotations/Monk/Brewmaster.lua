@@ -85,15 +85,6 @@ end
 		and not IsFlying()
 		and not isInCombat("player")
 	then
--- Stance
-		local myStance = GetShapeshiftForm()
-	    if isChecked("Stance") then
-	    	if getValue("Stance") == 1 and myStance ~= 1 then
-	    		if castSpell("player",115069,true) then return; end
-	    	elseif getValue("Stance") == 2 and myStance ~= 2 then
-	    		if castSpell("player",103985,true) then return; end
-	    	end
-	    end
 	   	if not UnitExists("mouseover") then
 	   		local legacyTimer;
 		  	for i = 1, #members do
@@ -108,8 +99,8 @@ end
 		  				end
 			  		end
 		  		end
+				end -- for
 			end
-		end
 	end
 
 ------------------
@@ -153,15 +144,28 @@ end
 			return true
 		end
 
-		--[[Quaking Palm]]
-		if isChecked("Quaking Palm") and canInterrupt(_QuakingPalm,tonumber(getValue("Quaking Palm"))) then
-			if castSpell("target",_QuakingPalm,false) then return; end
-		end
+------------------------------
+--- Interrupts ---
+------------------------------
+			if useInterrupts() then
+-- Quaking Palm
+				if isChecked("Quaking Palm") and canInterrupt(_QuakingPalm,tonumber(getValue("Interrupts"))) and tarDist<5 then
+					if castSpell("target",_QuakingPalm,false,false) then return; end
+				end
+-- Spear Hand Strike
+				if isChecked("Spear Hand Strike") and canInterrupt(_SpearHandStrike,tonumber(getValue("Interrupts"))) and getSpellCD(_QuakingPalm)>0 and getSpellCD(_QuakingPalm)<119 and tarDist<5 then
+					if castSpell("target",_SpearHandStrike,false,false) then return; end
+				end
+-- Paralysis
+				if isChecked("Paralysis") and canInterrupt(_Paralysis,tonumber(getValue("Interrupts"))) and ((getSpellCD(_SpearHandStrike)>0 and getSpellCD(_SpearHandStrike)<13) or tarDist>5) and tarDist<20 then
+					if castSpell("target",_Paralysis,false,false) then return; end
+				end
+-- Leg Sweep
+				if isChecked("Leg Sweep") and canInterrupt(_LegSweep,tonumber(getValue("Interrupts"))) and getSpellCD(_Paralysis)>0 and getSpellCD(_Paralysis)<13 and tarDist<5 then
+					if castSpell("target",_LegSweep,false,false) then return; end
+				end
+			end
 
-		--[[Spear Hand Strike]]
-		if isChecked("Spear Hand Strike") and canInterrupt(_SpearHandStrike,tonumber(getValue("Spear Hand Strike"))) then
-			if castSpell("target",_SpearHandStrike,false) then return; end
-		end
 
     	--[[Fortifying Brew]]
     	if isChecked("Fortifying Brew") == true and myHP <= getValue("Fortifying Brew") then

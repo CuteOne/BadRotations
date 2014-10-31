@@ -67,6 +67,8 @@ if select(3,UnitClass("player")) == 10 then
             end
         end
     end
+-- TODO: Switch AOE mode to just single or auto - no need for forced AOE
+-- TODO: Add option/switch to assign a keyboard press (like alt or ctrl) to cast barrel throw and ox statue
 
 --[[]]     --[[]]   --[[           ]]   --[[           ]]   --[[           ]]
 --[[ ]]   --[[ ]]        --[[ ]]        --[[           ]]   --[[           ]]
@@ -288,7 +290,9 @@ if select(3,UnitClass("player")) == 10 then
             UpdateButton("Builder")
         end
     end
-
+-- TODO: Add toggle for FoF
+-- TODO: Switch AOE mode to just single or auto - no need for forced AOE
+-- TODO: Add option/switch to assign a keyboard press (like alt or ctrl) to cast touch of karma and leg sweep
 
 
 
