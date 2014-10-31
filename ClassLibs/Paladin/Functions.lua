@@ -137,12 +137,8 @@ if select(3,UnitClass("player")) == 2 then
 
 		function ProtPaladinBuffs() -- Make sure that we are buffed, 2 modes, inCombat and Out Of Combat, Blessings, RF, -- ProtPaladinBuffs()
 			-- Righteous Fury
-			if isChecked("Righteous Fury") then
-				if UnitBuffID("player",_RighteousFury)== nil then
-					if castSpell("player",_RighteousFury, true, false) then
-						return true
-					end
-				end
+			if castRighteousFury() then
+				return true
 			end
 			-- Blessings Logic here, incombat mode, self check or party/raid check
 			-- Seal Logic here, wait for emp seal logic to settle.
@@ -151,7 +147,9 @@ if select(3,UnitClass("player")) == 2 then
 			return false
 		end
 
-		-- ProtPaladinDispells() -- Handling the dispelling self and party
+		function  ProtPaladinDispells() -- Handling the dispelling self and party
+			return false -- Return false until we have coded it
+		end
 		-- ProtPaladinCooldowns() -- Handles the use of offensive Coolsdowns, ProtPaladinSurvival... handles the defensive.
 
 		-- Todo: Create logic for when to use it, proccs or whatever
@@ -163,8 +161,9 @@ if select(3,UnitClass("player")) == 2 then
 			-- we can cast ShieldOfRightoues or Word Of Glory regardless of HoPo
 			-- ToDo: What is the logic here? What scenarios can we see? At the moment we have in castWord and castRight we check hopo or divine
 			end
-
-			if castWordOfGlory("player", 80, 3) then
+			-- We should have 2 different levels here, on regarding bastion and one without, WoG should not be cast all the time but rather to help healers up a bit
+			-- So we need to see how much resolve and bastion helps a WoG and have that as minimum. Tha aim is to cast Shield often and WoG only to help.
+			if castWordOfGlory("player", 50, 3) then
 				return true
 			end
 

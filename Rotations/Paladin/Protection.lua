@@ -24,9 +24,7 @@ if select(3, UnitClass("player")) == 2 then
 			return true
 		end
 		if IsLeftAltKeyDown() then
-			keyPressAoE = true
-		else
-			keyPressAoE = false
+			return true
 		end
 --		if IsRightControlKeyDown() then
 --		end
@@ -73,8 +71,9 @@ if select(3, UnitClass("player")) == 2 then
 			end
 
 			-- Dispell Logics Todo, includes removal using Divine Shield and Hand of Protection
-			--if ProtPaladinDispell() then
-			--end
+			if ProtPaladinDispell() then
+					return true
+			end
 
 			-- If we are already casting then dont continue
 			if castingUnit() then
@@ -95,7 +94,6 @@ if select(3, UnitClass("player")) == 2 then
 				return true
 			end
 
-			
 			-- Casting SS here for the time being, should be part of something earlier such as buffs or survival
 			if castSacredShield(3) then
 				return true
@@ -107,13 +105,7 @@ if select(3, UnitClass("player")) == 2 then
 				-- Dont return since this is off GCD
 				--print("We use HoPo now")
 			end
-			if keyPressAoE then
-				--print("We should do aoe")
-				if ProtPaladingHolyPowerCreatersAoE()  then
-					return true
-				end
-			end
-
+			
 			if ProtPaladinHolyPowerCreaters() then -- Handle the normal rotation
 				--print("Something is cast within PowerCreaters")
 				return

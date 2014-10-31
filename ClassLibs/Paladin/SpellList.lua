@@ -227,4 +227,20 @@ if select(3,UnitClass("player")) == 2 then
 		end
 		return false
 	end
+	
+	function castHammerOfJustice(unit)
+		-- We check if we have the talent
+		return false
+	end
+
+	function castRighteousFury() then
+		if isChecked("Righteous Fury") then
+			if UnitBuffID("player",_RighteousFury)== nil then
+				if castSpell("player",_RighteousFury, true, false) then
+					return true
+				end
+			end
+		end
+		return false
+	end
 end
