@@ -20,8 +20,8 @@ function BadBoyRun()
 		["configAlpha"] = 90,
 
 
-		["AoE"] = 3,
-		["Cooldowns"] = 2,
+		["AoE"] = 1,
+		["Cooldowns"] = 1,
 		["Defensive"] = 1,
 		["Interrupts"] = 1,
 
