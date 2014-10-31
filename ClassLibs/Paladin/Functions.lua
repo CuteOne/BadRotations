@@ -280,6 +280,16 @@ Holy
 
 ]]	function PaladinHolyFunctions()
 
+		-- Eternal Flame
+		function EternalFlame(hpValue)
+			if _HolyPower > 3 then
+				for i = 1, #nNova do
+					if (nNova[i].hp < hpValue and getBuffRemain(nNova[i].unit,_EternalFlame) < 5) or (nNova[i].hp < 100 and _HolyPower == 5 and getBuffRemain(nNova[i].unit,_EternalFlame) < 5) or nNova[i].hp < hpValue - 20 then
+						if castSpell(nNova[i].unit, _EternalFlame, true, false) then return end
+					end
+				end
+			end
+		end
 		-- Holy Light
 		function HolyLight(hpValue)
 			for i = 1, #nNova do
@@ -320,5 +330,27 @@ Holy
 			end
 		end
 
+		-- Beacon Of Light
+		function BeaconOfLight()
+			beaconTarget, beaconRole, beaconHP = "player", "HEALER", getHP("player")
+			-- Find if we have any, note if its a tank.
+			for i = 1, #nNova do
+				if UnitBuffID(nNova[i].unit,_BeaconOfLight,"player") then
+					beaconTarget, beaconRole, beaconHP = nNova[i].unit, nNova[i].role, nNova[i].hp
+				end
+			end
+			-- if we are not beacon on a tank and on tanks is checked we find a proper tank if focus dont exists.
+			if beaconRole ~= "TANK" then
+				if UnitExists("focus") == true and UnitInRaid("focus") == true and UnitIsVisible("focus") then
+					if castSpell("folcus",_BeaconOfLight,true,false) then return end
+				else
+					for i = 1, #nNova do
+						if nNova[i].role == "TANK" then
+							if castSpell(nNova[i].unit,_BeaconOfLight,true,false) then return end
+						end
+					end
+				end
+			end
+		end
 	end
 end

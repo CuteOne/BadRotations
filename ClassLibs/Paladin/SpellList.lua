@@ -15,7 +15,6 @@ if select(3,UnitClass("player")) == 2 then
 	_DevotionAura               =   31821
 	_DivineFavor                =   31842
 	_DivineLight                =   82326
-	_DivinePlea                 =   54428
 	_DivineProtection           =   498
 	_DivinePurposeBuff			= 	90174
 	_DivineShield               =   642

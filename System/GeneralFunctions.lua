@@ -331,14 +331,14 @@ function castAoEHeal(spellID, numUnits, missingHP, rangeValue)
 	-- declare locals that will hold number
 	local bestTarget, bestTargetUnits = 1, 1
 	-- now that nova range is built, i can iterate it
+	local inRange, missingHealth, mostMissingHealth = 0, 0, 0
 	for i = 1, #nNova do
 		if nNova[i].distanceTable ~= nil then
-			local inRange, missingHealth, mostMissingHealth = 0, 0, 0
 			-- i count units in range
 			for j = 1, #nNova do
 				if nNova[i].distanceTable[j] and nNova[i].distanceTable[j].distance < rangeValue then
 					inRange = inRange + 1
-					missingHealth = missingHealth + (100 - nNova[j].hp)
+					missingHealth = missingHealth + (100 - nNova[i].distanceTable[j].hp)
 				end
 			end
 			nNova[i].inRangeForHolyRadiance = inRange
@@ -348,7 +348,7 @@ function castAoEHeal(spellID, numUnits, missingHP, rangeValue)
 			end
 		end
 	end
-	if bestTargetUnits > 3 and mostMissingHealth > 100 then
+	if bestTargetUnits and bestTargetUnits > 3 and mostMissingHealth and missingHP and mostMissingHealth > missingHP then
 		if castSpell(nNova[bestTarget].unit, spellID, true, true) then return true end
 	end
 end

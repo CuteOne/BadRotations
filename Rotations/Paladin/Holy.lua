@@ -58,7 +58,8 @@ if select(3, UnitClass("player")) == 2 then
 -- blessing_of_might,if=!aura.mastery.up
 -- seal_of_insight
 -- beacon_of_light,target=healing_target
-
+		--[[Beacon Of Light]]
+		BeaconOfLight()
 
 
 
@@ -101,19 +102,28 @@ if select(3, UnitClass("player")) == 2 then
 				end
 			end
 			-- judgment,if=talent.selfless_healer.enabled&buff.selfless_healer.stack<3
-			-- word_of_glory,if=holy_power>=3
-			if isChecked("Word Of Glory") and WordOfGlory(getValue("Word Of Glory")) then return end
-			-- wait,if=target.health.pct>=75&mana.pct<=10
+
+			--[[_EternalFlame]]
+			if isChecked("Word Of Glory") and WordOfGlory(getValue("Word Of Glory")) then
+				return
+			end
+
+			--[[word_of_glory,if=holy_power>=3]]
+			if isChecked("Eternal Flame") and EternalFlame(getValue("Eternal Flame")) then
+				return
+			end
 
 			--[[holy_shock,if=holy_power<=3]]
 			if isChecked("Holy Shock") and HolyShock(getValue("Holy Shock")) then return end
 
 			--[[flash_of_light,if=target.health.pct<=30]]
-			if isChecked("Falsh Of Light") and FlashOfLight(getValue("Falsh Of Light")) then return end
+			if isChecked("Flash Of Light") and FlashOfLight(getValue("Flash Of Light")) then return end
+
 			--[[Holy Radiance]]
-			if isChecked("Holy Radiance Health") then
-				if castAoEHeal(_HolyRadiance, getValue("Holy Radiance Units"), getValue("Holy Radiance Health"), 15) then return end
+			if isChecked("HR Missing Health") then
+				if castAoEHeal(_HolyRadiance, getValue("HR Units"), getValue("HR Missing Health"), 15) then return end
 			end
+
 			-- judgment,if=holy_power<3
 			-- lay_on_hands,if=mana.pct<5
 			--[[holy_light]]

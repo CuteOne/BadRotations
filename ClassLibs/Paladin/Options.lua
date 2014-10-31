@@ -335,14 +335,12 @@ if select(3,UnitClass("player")) == 2 then
 		-- AoE Healing
 		myWrapper("AoE Healing")
 
-		CreateNewCheck(thisConfig, "Holy Radiance Health", "Normal", 1);
-		CreateNewBox(thisConfig, "Holy Radiance Health", 0, 100 , 1, 75, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHoly Radiance")
-		CreateNewText(thisConfig, "Holy Radiance Health")
+		CreateNewCheck(thisConfig, "HR Missing Health", "Normal", 1);
+		CreateNewBox(thisConfig, "HR Missing Health", 0, 100 , 1, 75, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHoly Radiance")
+		CreateNewText(thisConfig, "HR Missing Health")
 
-
-		CreateNewCheck(thisConfig, "Holy Radiance Units", "Normal", 1);
-		CreateNewBox(thisConfig, "Holy Radiance Units", 0, 25 , 1, 3, "|cffFFBB00Minimum number of |cffFF0000%Units|cffFFBB00 to use \n|cffFFFFFFHoly Radiance")
-		CreateNewText(thisConfig, "Holy Radiance Units")
+		CreateNewBox(thisConfig, "HR Units", 0, 25 , 1, 3, "|cffFFBB00Minimum number of |cffFF0000%Units|cffFFBB00 to use \n|cffFFFFFFHoly Radiance")
+		CreateNewText(thisConfig, "HR Units")
 
 		-- Wrapper
 		myWrapper("Utilities")
