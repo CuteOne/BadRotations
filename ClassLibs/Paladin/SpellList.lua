@@ -35,7 +35,7 @@ if select(3,UnitClass("player")) == 2 then
 	_HammerOfTheRighteous       =   53595
 	_HammerOfWrath              =   24275
 	_HolyAvenger                =   105809
-	_HolyLight                  =   635
+	_HolyLight                  =   82326
 	_HolyPrism                  =   114165
 	_HolyRadiance               =   82327
 	_HolyShock                  =   20473
@@ -67,13 +67,13 @@ if select(3,UnitClass("player")) == 2 then
 	_TemplarsVerdict            =   85256
 	_TurnEvil                   =   10326
 	_WordOfGlory                =   85673
-	
+
 	ccTargets = {"Training Dummy"}
 	interruptSpells = {"Training Dummy"}
 	burnTargets = {"Training Dummy"}
 	dispellDeBuffs = {""}
 	dispellBuffs = {}
-	
+
 
 	-- Todo : Check Glyphs(is on us or can we cast it on ground 25 yards
 	function castConsecration()
@@ -227,13 +227,13 @@ if select(3,UnitClass("player")) == 2 then
 		end
 		return false
 	end
-	
+
 	function castHammerOfJustice(unit)
 		-- We check if we have the talent
 		return false
 	end
 
-	function castRighteousFury() then
+	function castRighteousFury()
 		if isChecked("Righteous Fury") then
 			if UnitBuffID("player",_RighteousFury)== nil then
 				if castSpell("player",_RighteousFury, true, false) then

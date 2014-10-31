@@ -97,12 +97,12 @@ if select(3,UnitClass("player")) == 2 then
 		CreateNewCheck(thisConfig,"Hand Of Salvation Party","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHand of Salvation|cffFFBB00 on Party.",1);
 		CreateNewBox(thisConfig, "Hand Of Salvation Party", 0, 100  , 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Salvation on Party");
 		CreateNewText(thisConfig,"Hand Of Salvation Party");
-	
+
 		-- Crowd Control
 		CreateNewCheck(thisConfig,"Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFCrowd Control|cffFFBB00.",1);
 		CreateNewDrop(thisConfig, "Crowd Control", 1, "CD") -- TODO: We should hae other options, never is the checking of the box, always, whitelist, on health(self), condition
 		CreateNewText(thisConfig,"Crowd Control");
-		
+
 		-- Rebuke
 		CreateNewCheck(thisConfig,"Rebuke","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFRebuke|cffFFBB00.",1);
 		CreateNewBox(thisConfig, "Rebuke", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFRebuke.");
@@ -210,134 +210,152 @@ if select(3,UnitClass("player")) == 2 then
 
 	function PaladinHolyOptions()
 		ClearConfig();
-
+		local redColor = "|cffFF0011"
+		local myClassColor = classColors[select(3,UnitClass("player"))].hex
+		local function myWrapper(Value)
+			CreateNewWrap(thisConfig, "---"..redColor.." "..Value.." "..myClassColor.."---")
+		end
 		thisConfig = 0;
 		-- Title
-		CreateNewTitle(thisConfig,"Holy Gabbz");
+		CreateNewTitle(thisConfig, "Holy Gabbz & CodeMyLife")
 
 		-- Wrapper
-		CreateNewWrap(thisConfig,"----- Buffs -----");
+		CreateNewWrap(thisConfig, "---"..redColor.." Buffs "..myClassColor.."---")
 
 		-- Blessing
-		CreateNewCheck(thisConfig,"Blessing");
-		CreateNewText(thisConfig,"Blessing");
+		CreateNewCheck(thisConfig, "Blessing","Normal",1)
+		CreateNewDrop(thisConfig, "Blessing", 1, "Select wich blessing you want to use.","|cff006AFFKings","|cffFFAE00Might")
+		CreateNewText(thisConfig, "Blessing")
 
 		-- Seal
-		CreateNewCheck(thisConfig,"Seal");
-		CreateNewDrop(thisConfig, "Seal", 1, "Choose Seal to use.", "|cffFFDD11Insight", "|cff00FBEETruth", "|cff00EE00Swap")
-		CreateNewText(thisConfig,"Seal");
+		CreateNewCheck(thisConfig, "Seal Of Insight","Normal",1)
+		CreateNewText(thisConfig, "Seal Of Insight")
 
 		-- Wrapper
-		CreateNewWrap(thisConfig,"----- Cooldowns -----")
+		myWrapper("Cooldowns")
+
+		-- Guardian of Ancient Kings
+		CreateNewCheck(thisConfig, "GotAK Holy")
+		CreateNewBox(thisConfig, "GotAK Holy", 0, 100  , 1, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFGuardian of Ancient Kings")
+		CreateNewText(thisConfig, "GotAK Holy")
 
 		-- Avenging Wrath
-		CreateNewCheck(thisConfig,"Avenging Wrath");
+		CreateNewCheck(thisConfig, "Avenging Wrath")
 		CreateNewDrop(thisConfig, "Avenging Wrath", 1, "CD")
-		CreateNewText(thisConfig,"Avenging Wrath");
+		CreateNewText(thisConfig, "Avenging Wrath")
 
 		if isKnown(_HolyAvenger) then
 			-- Holy Avenger
-			CreateNewCheck(thisConfig,"Holy Avenger");
+			CreateNewCheck(thisConfig, "Holy Avenger")
 			CreateNewDrop(thisConfig, "Holy Avenger", 1, "CD")
-			CreateNewText(thisConfig,"Holy Avenger");
+			CreateNewText(thisConfig, "Holy Avenger")
 		elseif isKnown(_SanctifiedWrath) then
 			-- Sanctified Wrath
-			CreateNewCheck(thisConfig,"Sanctified Wrath");
+			CreateNewCheck(thisConfig, "Sanctified Wrath")
 			CreateNewDrop(thisConfig, "Sanctified Wrath", 1, "CD")
-			CreateNewText(thisConfig,"Sanctified Wrath");
+			CreateNewText(thisConfig, "Sanctified Wrath")
 		end
-
-		-- Wrapper
-		CreateNewWrap(thisConfig,"----- DPS Tweaks -----")
 
 		if isKnown(_LightsHammer) then
 			-- Light's Hammer
-			CreateNewCheck(thisConfig,"Light's Hammer");
+			CreateNewCheck(thisConfig, "Light's Hammer")
 			CreateNewDrop(thisConfig, "Light's Hammer", 1, "CD")
-			CreateNewText(thisConfig,"Light's Hammer");
+			CreateNewText(thisConfig, "Light's Hammer")
 		end
 
 		-- Wrapper
-		CreateNewWrap(thisConfig,"------ Defensive -------");
-
-		-- Guardian of Ancient Kings
-		CreateNewCheck(thisConfig,"GotAK Prot");
-		CreateNewBox(thisConfig, "GotAK Prot", 0, 100  , 1, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFGuardian of Ancient Kings");
-		CreateNewText(thisConfig,"GotAK Prot");
+		myWrapper("Defensive")
 
 		-- Divine Protection
-		CreateNewCheck(thisConfig,"Divine Protection");
-		CreateNewBox(thisConfig, "Divine Protection", 0, 100  , 1, 75, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFDivine Protection");
-		CreateNewText(thisConfig,"Divine Protection");
-
-		-- Ardent Defender
-		CreateNewCheck(thisConfig,"Ardent Defender");
-		CreateNewBox(thisConfig, "Ardent Defender", 0, 100  , 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFArdent Defender");
-		CreateNewText(thisConfig,"Ardent Defender");
-
+		CreateNewCheck(thisConfig, "Divine Protection Holy","Normal",1)
+		CreateNewBox(thisConfig, "Divine Protection Holy", 0, 100  , 1, 75, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFDivine Protection")
+		CreateNewText(thisConfig, "Divine Protection Holy")
 
 	   -- Wrapper
-		CreateNewWrap(thisConfig,"-------- Healing -------");
+		myWrapper("Healing")
+
+		-- Holy Light
+		CreateNewCheck(thisConfig, "Holy Light","Normal",1)
+		CreateNewBox(thisConfig, "Holy Light", 0, 100  , 1, 90, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHoly Light")
+		CreateNewText(thisConfig, "Holy Light")
+
+		-- Holy Light
+		CreateNewCheck(thisConfig, "Holy Light","Normal",1)
+		CreateNewBox(thisConfig, "Holy Light", 0, 100  , 1, 90, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHoly Light")
+		CreateNewText(thisConfig, "Holy Light")
+
+		-- Flash Of Light
+		CreateNewCheck(thisConfig, "Flash Of Light","Normal",1)
+		CreateNewBox(thisConfig, "Flash Of Light", 0, 100  , 1, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFFlash Of Light")
+		CreateNewText(thisConfig, "Flash Of Light")
+
+		-- Holy Shock
+		CreateNewCheck(thisConfig, "Holy Shock","Normal",1)
+		CreateNewBox(thisConfig, "Holy Shock", 0, 100  , 1, 90, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHoly Shock")
+		CreateNewText(thisConfig, "Holy Shock")
 
 		-- Tier 3 talents
 		if isKnown(_SacredShield) then
-			CreateNewCheck(thisConfig,"Sacred Shield");
-			CreateNewBox(thisConfig, "Sacred Shield", 0, 100  , 1, 95, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFSacred Shield");
-			CreateNewText(thisConfig,"Sacred Shield");
-			CreateNewCheck(thisConfig,"Sacred Vengeance");
-			CreateNewBox(thisConfig, "Sacred Vengeance", 5, 500  , 5, 350, "|cffFF0000Value*1000\n|cffFFBB00Vengeance gain needed to recast \n|cffFFFFFFSacred Shield");
-			CreateNewText(thisConfig,"Sacred Vengeance");
+			CreateNewCheck(thisConfig, "Sacred Shield","Normal",1)
+			CreateNewBox(thisConfig, "Sacred Shield", 0, 100  , 1, 95, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFSacred Shield")
+			CreateNewText(thisConfig, "Sacred Shield")
 		elseif isKnown(_SelflessHealer) then
-			CreateNewCheck(thisConfig,"Selfless Healer");
-			CreateNewBox(thisConfig, "Selfless Healer", 0, 100  , 1, 35, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFSelfless Healer on Raid");
-			CreateNewText(thisConfig,"Selfless Healer");
+			CreateNewCheck(thisConfig, "Selfless Healer","Normal",1)
+			CreateNewBox(thisConfig, "Selfless Healer", 0, 100  , 1, 35, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFSelfless Healer on Raid")
+			CreateNewText(thisConfig, "Selfless Healer")
 		else
-			CreateNewCheck(thisConfig,"Self Flame");
-			CreateNewBox(thisConfig, "Self Flame", 0, 100  , 1, 75, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFEternal Flame on Self");
-			CreateNewText(thisConfig,"Self Flame");
-			CreateNewCheck(thisConfig,"Eternal Flame");
-			CreateNewBox(thisConfig, "Eternal Flame", 0, 100  , 1, 35, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFEternal Flame on Raid");
-			CreateNewText(thisConfig,"Eternal Flame");
+			CreateNewCheck(thisConfig, "Eternal Flame","Normal",1)
+			CreateNewBox(thisConfig, "Eternal Flame", 0, 100  , 1, 70, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFEternal Flame on Raid")
+			CreateNewText(thisConfig, "Eternal Flame")
 		end
 		if isKnown(_SelflessHealer) or isKnown(_SacredShield) then
-			CreateNewCheck(thisConfig,"Self Glory");
-			CreateNewBox(thisConfig, "Self Glory", 0, 100  , 1, 70, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFWord Of Glory on Self");
-			CreateNewText(thisConfig,"Self Glory");
-			CreateNewCheck(thisConfig,"Word Of Glory");
-			CreateNewBox(thisConfig, "Word Of Glory", 0, 100  , 1, 70, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFWord Of Glory on Raid");
-			CreateNewText(thisConfig,"Word Of Glory");
+			CreateNewCheck(thisConfig, "Word Of Glory","Normal",1)
+			CreateNewBox(thisConfig, "Word Of Glory", 0, 100  , 1, 70, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFWord Of Glory on Raid")
+			CreateNewText(thisConfig, "Word Of Glory")
 		end
 
 		if isKnown(_HandOfPurity) == true then
-			CreateNewCheck(thisConfig,"Hand of Purity");
-			CreateNewBox(thisConfig, "Hand of Purity", 0, 100  , 1, 50, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand of Purity");
-			CreateNewText(thisConfig,"Hand of Purity");
+			CreateNewCheck(thisConfig, "Hand of Purity","Normal",1)
+			CreateNewBox(thisConfig, "Hand of Purity", 0, 100  , 1, 50, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand of Purity")
+			CreateNewText(thisConfig, "Hand of Purity")
 		end
 
-		CreateNewCheck(thisConfig,"Lay On Hands");
-		CreateNewBox(thisConfig, "Lay On Hands", 0, 100  , 1, 12, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands");
-		CreateNewText(thisConfig,"Lay On Hands");
+		CreateNewCheck(thisConfig, "Lay On Hands","Normal",1)
+		CreateNewBox(thisConfig, "Lay On Hands", 0, 100  , 1, 12, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands")
+		CreateNewText(thisConfig, "Lay On Hands")
 
-		CreateNewCheck(thisConfig,"LoH Targets");
+		CreateNewCheck(thisConfig, "LoH Targets", "Normal", 1)
 		CreateNewDrop(thisConfig, "LoH Targets", 1, "|cffFF0000Wich Targets\n|cffFFBB00We want to use \n|cffFFFFFFLay On Hands", "|cffFF0000Me.Only", "|cffFFDD11Me.Prio", "|cff00FBEETank/Heal","|cff00FF00All");
-		CreateNewText(thisConfig,"LoH Targets");
+		CreateNewText(thisConfig, "LoH Targets")
 
-		CreateNewCheck(thisConfig,"Hand Of Sacrifice");
-		CreateNewBox(thisConfig, "Hand Of Sacrifice", 0, 100  , 1, 35, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Sacrifice");
-		CreateNewText(thisConfig,"Hand Of Sacrifice");
+		CreateNewCheck(thisConfig, "Hand Of Sacrifice","Normal",1);
+		CreateNewBox(thisConfig, "Hand Of Sacrifice", 0, 100, 1, 35, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Sacrifice")
+		CreateNewText(thisConfig, "Hand Of Sacrifice")
+
+		-- AoE Healing
+		myWrapper("AoE Healing")
+
+		CreateNewCheck(thisConfig, "Holy Radiance Health", "Normal", 1);
+		CreateNewBox(thisConfig, "Holy Radiance Health", 0, 100 , 1, 75, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHoly Radiance")
+		CreateNewText(thisConfig, "Holy Radiance Health")
+
+
+		CreateNewCheck(thisConfig, "Holy Radiance Units", "Normal", 1);
+		CreateNewBox(thisConfig, "Holy Radiance Units", 0, 25 , 1, 3, "|cffFFBB00Minimum number of |cffFF0000%Units|cffFFBB00 to use \n|cffFFFFFFHoly Radiance")
+		CreateNewText(thisConfig, "Holy Radiance Units")
 
 		-- Wrapper
-		CreateNewWrap(thisConfig,"-------- Utilities -------");
+		myWrapper("Utilities")
 
 		-- Rebuke
-		CreateNewCheck(thisConfig,"Rebuke");
-		CreateNewBox(thisConfig, "Rebuke", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFRebuke.");
-		CreateNewText(thisConfig,"Rebuke");
+		CreateNewCheck(thisConfig, "Rebuke")
+		CreateNewBox(thisConfig, "Rebuke", 0, 100 , 5, 35, "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFRebuke.")
+		CreateNewText(thisConfig, "Rebuke")
 
 		-- General Configs
-		CreateGeneralsConfig();
+		CreateGeneralsConfig()
 
-		WrapsManager();
+		WrapsManager()
 	end
 
 	function PaladinRetOptions()
@@ -346,7 +364,7 @@ if select(3,UnitClass("player")) == 2 then
 
 		thisConfig = 0;
 		-- Title
-		CreateNewTitle(thisConfig,"Protection CodeMyLife");
+		CreateNewTitle(thisConfig,"Retribution Gabbz");
 
 		-- Wrapper
 		CreateNewWrap(thisConfig,"----- Buffs -----");

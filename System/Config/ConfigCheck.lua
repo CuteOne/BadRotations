@@ -25,7 +25,15 @@ function CreateNewCheck(value, textString, tip1, state)
 
 	_G["option"..value.."Check"]:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(self, "BOTTOMLEFT", 225, 5);
-		if tip1 ~= nil then GameTooltip:SetText(tip1, nil, nil, nil, nil, true); else GameTooltip:SetText("|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFF"..textString.."|cffFFBB00.", nil, nil, nil, nil, true); end
+		if tip1 ~= nil then
+			if tip1 == "Normal" then
+				GameTooltip:SetText("|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFF"..textString.."|cffFFBB00.", nil, nil, nil, nil, true);
+			else
+				GameTooltip:SetText(tip1, nil, nil, nil, nil, true);
+			end
+		else
+			GameTooltip:SetText("|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFF"..textString.."|cffFFBB00.", nil, nil, nil, nil, true);
+		end
 		GameTooltip:Show();
 	end)
 	_G["option"..value.."Check"]:SetScript("OnLeave", function(self)
@@ -33,9 +41,9 @@ function CreateNewCheck(value, textString, tip1, state)
 	end)
 
 
-	if BadBoy_data["Check "..textString] ~= 1 then 
-		_G["option"..value.."Check"]:SetText(" "); 
-	else 
-		_G["option"..value.."Check"]:SetText(" X"); 
+	if BadBoy_data["Check "..textString] ~= 1 then
+		_G["option"..value.."Check"]:SetText(" ");
+	else
+		_G["option"..value.."Check"]:SetText(" X");
 	end
 end

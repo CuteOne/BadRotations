@@ -37,7 +37,7 @@ if select(3,UnitClass("player")) == 2 then
 	end
 
     function PaladinProtFunctions()
-	
+
 		function ProtPaladinControl(unit)
 			--If no unit then we should check autotargetting
 			-- If the unit is a player controlled then assume pvp and always CC
@@ -55,12 +55,12 @@ if select(3,UnitClass("player")) == 2 then
 				end
 			end
 			if unit then
-				
+
 			end
 			-- put auto logic here
 			return false
 		end
-		
+
 		function ProtPaladinUtility()
 			if castHandOfSacrifice() then
 				return true
@@ -143,7 +143,7 @@ if select(3,UnitClass("player")) == 2 then
 			-- Blessings Logic here, incombat mode, self check or party/raid check
 			-- Seal Logic here, wait for emp seal logic to settle.
 			-- Food checks, flask, etc
-			
+
 			return false
 		end
 
@@ -156,7 +156,7 @@ if select(3,UnitClass("player")) == 2 then
 		-- 	Also toggle/configuration for more flexibility, at the moment its on or off
 
 		function ProtPaladinHolyPowerConsumers() -- Handle the use of HolyPower
-		
+
 			if UnitBuffID("player", _DivinePurposeBuff) then
 			-- we can cast ShieldOfRightoues or Word Of Glory regardless of HoPo
 			-- ToDo: What is the logic here? What scenarios can we see? At the moment we have in castWord and castRight we check hopo or divine
@@ -172,7 +172,7 @@ if select(3,UnitClass("player")) == 2 then
 			end
 			--Todo, we could check other targets to use HP on but this should be controlled by config.
 		end
-		
+
 		function ProtPaladinHolyPowerCreaters() -- Handle the normal rotation
 			-- Todos: This is optimised for dps. We should be able to keypress for aoe threat to pick up groups. So Avengers Shield, Lights Hammer, Holy Wrath and consecration to pick up groups.
 					-- Suggestion is after isInMelee we do a check if AoE key is pressed then we cast Avenger Shield, Lights Hammer, HolyWrath and consecration and the user can then when he sees consecration he knows that aoe pick up is done.
@@ -203,7 +203,7 @@ if select(3,UnitClass("player")) == 2 then
 				return true
 			end
 			-- Todo We could add functionality that cycle all unit to find one that is casting since the Avenger Shield is silencing as well.
-			
+
 			if castLightsHammer("target") then
 				--print("Casting lights Hammer in rotation")
 				return true
@@ -273,5 +273,52 @@ if select(3,UnitClass("player")) == 2 then
 			end
 		--Todo Check number of targets in range do Concentration and have it earlier.
 		end
+	end
+--[[
+
+Holy
+
+]]	function PaladinHolyFunctions()
+
+		-- Holy Light
+		function HolyLight(hpValue)
+			for i = 1, #nNova do
+				if nNova[i].hp < hpValue then
+					if castSpell(nNova[i].unit, _HolyLight, true, true) then return end
+				end
+			end
+		end
+
+		-- Flash Of Light
+		function FlashOfLight(hpValue)
+			for i = 1, #nNova do
+				if nNova[i].hp < hpValue then
+					if castSpell(nNova[i].unit, _FlashOfLight, true, true) then return end
+				end
+			end
+		end
+
+		-- Holy Shock
+		function HolyShock(hpValue)
+			if _HolyPower < 5 or lowestHP < 90 then
+				for i = 1, #nNova do
+					if nNova[i].hp < hpValue then
+						if castSpell(nNova[i].unit, _HolyShock, true, false) then return end
+					end
+				end
+			end
+		end
+
+		-- Word Of Glory
+		function WordOfGlory(hpValue)
+			if _HolyPower > 3 then
+				for i = 1, #nNova do
+					if nNova[i].hp < hpValue or (nNova[i].hp < 100 and _HolyPower == 5) then
+						if castSpell(nNova[i].unit, _WordOfGlory, true, false) then return end
+					end
+				end
+			end
+		end
+
 	end
 end

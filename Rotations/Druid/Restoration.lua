@@ -62,12 +62,12 @@ function DruidRestoration()
   	end
 	-- Reju  Toggle
 	if isChecked("Reju Toggle")  and SpecificToggle("Reju Toggle") == true then
-			for i = 1, #nNova do
-				if nNova[i].hp <= 249 and getBuffRemain(nNova[i].unit,774,"player") == 0 then
-					if castSpell(nNova[i].unit,774,true,false) then return; end
-				end
+		for i = 1, #nNova do
+			if nNova[i].hp <= 249 and getBuffRemain(nNova[i].unit,774,"player") == 0 then
+				if castSpell(nNova[i].unit,774,true,false) then return; end
 			end
 		end
+	end
 	-- WildGroth Toggle
     if isChecked("WG Toggle") and SpecificToggle("WG Toggle") == true then
 		    for i = 1, #nNova do
@@ -134,11 +134,10 @@ function DruidRestoration()
 
 --[[ 	-- On GCD After here, palce out of combats spells here
 ]]
-		if isCastingDruid() then return false; end
+	if isCastingDruid() then return false; end
+	if isCastingSpell(740) then return false; end
 
-
-if isCastingSpell(740) then return false; end
-	--[[ 	-- Combats Starts Here
+--[[ 	-- Combats Starts Here
 ]]
 
 	--[[ 1 - Buff Out of Combat]]
