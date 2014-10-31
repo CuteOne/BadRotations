@@ -210,13 +210,17 @@ if select(3,UnitClass("player")) == 2 then
 
 	function PaladinHolyOptions()
 		ClearConfig();
-
+		local redColor = "|cffFF0011"
+		local myClassColor = classColors[select(3,UnitClass("player"))].hex
+		local function myWrapper(Value)
+			CreateNewWrap(thisConfig, "---"..redColor.." "..Value.." "..myClassColor.."---")
+		end
 		thisConfig = 0;
 		-- Title
 		CreateNewTitle(thisConfig, "Holy Gabbz & CodeMyLife")
 
 		-- Wrapper
-		CreateNewWrap(thisConfig, "----- Buffs -----")
+		CreateNewWrap(thisConfig, "---"..redColor.." Buffs "..myClassColor.."---")
 
 		-- Blessing
 		CreateNewCheck(thisConfig, "Blessing","Normal",1)
@@ -228,7 +232,7 @@ if select(3,UnitClass("player")) == 2 then
 		CreateNewText(thisConfig, "Seal Of Insight")
 
 		-- Wrapper
-		CreateNewWrap(thisConfig,"----- Cooldowns -----")
+		myWrapper("Cooldowns")
 
 		-- Guardian of Ancient Kings
 		CreateNewCheck(thisConfig, "GotAK Holy")
@@ -252,9 +256,6 @@ if select(3,UnitClass("player")) == 2 then
 			CreateNewText(thisConfig, "Sanctified Wrath")
 		end
 
-		-- Wrapper
-		CreateNewWrap(thisConfig,"----- DPS Tweaks -----")
-
 		if isKnown(_LightsHammer) then
 			-- Light's Hammer
 			CreateNewCheck(thisConfig, "Light's Hammer")
@@ -263,7 +264,7 @@ if select(3,UnitClass("player")) == 2 then
 		end
 
 		-- Wrapper
-		CreateNewWrap(thisConfig,"------ Defensive -------")
+		myWrapper("Defensive")
 
 		-- Divine Protection
 		CreateNewCheck(thisConfig, "Divine Protection Holy","Normal",1)
@@ -271,7 +272,12 @@ if select(3,UnitClass("player")) == 2 then
 		CreateNewText(thisConfig, "Divine Protection Holy")
 
 	   -- Wrapper
-		CreateNewWrap(thisConfig,"-------- Healing -------")
+		myWrapper("Healing")
+
+		-- Holy Light
+		CreateNewCheck(thisConfig, "Holy Light","Normal",1)
+		CreateNewBox(thisConfig, "Holy Light", 0, 100  , 1, 90, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHoly Light")
+		CreateNewText(thisConfig, "Holy Light")
 
 		-- Holy Light
 		CreateNewCheck(thisConfig, "Holy Light","Normal",1)
@@ -318,20 +324,32 @@ if select(3,UnitClass("player")) == 2 then
 		CreateNewBox(thisConfig, "Lay On Hands", 0, 100  , 1, 12, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands")
 		CreateNewText(thisConfig, "Lay On Hands")
 
-		CreateNewCheck(thisConfig, "LoH Targets","Normal",1)
+		CreateNewCheck(thisConfig, "LoH Targets", "Normal", 1)
 		CreateNewDrop(thisConfig, "LoH Targets", 1, "|cffFF0000Wich Targets\n|cffFFBB00We want to use \n|cffFFFFFFLay On Hands", "|cffFF0000Me.Only", "|cffFFDD11Me.Prio", "|cff00FBEETank/Heal","|cff00FF00All");
 		CreateNewText(thisConfig, "LoH Targets")
 
 		CreateNewCheck(thisConfig, "Hand Of Sacrifice","Normal",1);
-		CreateNewBox(thisConfig, "Hand Of Sacrifice", 0, 100  , 1, 35, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Sacrifice")
+		CreateNewBox(thisConfig, "Hand Of Sacrifice", 0, 100, 1, 35, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Sacrifice")
 		CreateNewText(thisConfig, "Hand Of Sacrifice")
 
+		-- AoE Healing
+		myWrapper("AoE Healing")
+
+		CreateNewCheck(thisConfig, "Holy Radiance Health", "Normal", 1);
+		CreateNewBox(thisConfig, "Holy Radiance Health", 0, 100 , 1, 75, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHoly Radiance")
+		CreateNewText(thisConfig, "Holy Radiance Health")
+
+
+		CreateNewCheck(thisConfig, "Holy Radiance Units", "Normal", 1);
+		CreateNewBox(thisConfig, "Holy Radiance Units", 0, 25 , 1, 3, "|cffFFBB00Minimum number of |cffFF0000%Units|cffFFBB00 to use \n|cffFFFFFFHoly Radiance")
+		CreateNewText(thisConfig, "Holy Radiance Units")
+
 		-- Wrapper
-		CreateNewWrap(thisConfig,"-------- Utilities -------")
+		myWrapper("Utilities")
 
 		-- Rebuke
 		CreateNewCheck(thisConfig, "Rebuke")
-		CreateNewBox(thisConfig, "Rebuke", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFRebuke.")
+		CreateNewBox(thisConfig, "Rebuke", 0, 100 , 5, 35, "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFRebuke.")
 		CreateNewText(thisConfig, "Rebuke")
 
 		-- General Configs
@@ -346,7 +364,7 @@ if select(3,UnitClass("player")) == 2 then
 
 		thisConfig = 0;
 		-- Title
-		CreateNewTitle(thisConfig,"Protection CodeMyLife");
+		CreateNewTitle(thisConfig,"Retribution Gabbz");
 
 		-- Wrapper
 		CreateNewWrap(thisConfig,"----- Buffs -----");
