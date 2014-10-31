@@ -286,11 +286,10 @@ if select(3, UnitClass("player")) == 11 then
 
                 --[2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = thb },
         if AoEModesLoaded ~= "Guardian Druid AoE Modes" then
-            CustomAoEModes = {
+            AoEModes = {
                 [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = thb },
                 [2] = { mode = "Sing", value = 2 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = mgl }
             };
-           AoEModes = CustomAoEModes
            CreateButton("AoE",1,0)
            AoEModesLoaded = "Guardian Druid AoE Modes";
         end
