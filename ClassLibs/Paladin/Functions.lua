@@ -147,13 +147,31 @@ if select(3,UnitClass("player")) == 2 then
 			return false
 		end
 
-		function  ProtPaladinDispells() -- Handling the dispelling self and party
+		function  ProtPaladinDispell() -- Handling the dispelling self and party
+			-- Defensive and offensive dispelling, ie debuffs or buffs
+			--canDispel(Unit,spellID)
 			return false -- Return false until we have coded it
 		end
 		-- ProtPaladinCooldowns() -- Handles the use of offensive Coolsdowns, ProtPaladinSurvival... handles the defensive.
 
 		-- Todo: Create logic for when to use it, proccs or whatever
 		-- 	Also toggle/configuration for more flexibility, at the moment its on or off
+
+		function ProtPaladinEnemyUnitHandler() -- Handles Enemy Units gathering
+			-- At the moment only populating table to see performance.
+			makeEnemiesTable(40)-- Unit in 40 range
+			--print("Table has " ..#enemiesTable)
+
+			return 
+		end	
+
+		function ProtPaladinFriendlyUnitHandler() -- Handles Enemy Units gathering
+			-- At the moment only populating table to see performance.
+			
+			--print("Table has " ..#nNova)
+
+			return 
+		end	
 
 		function ProtPaladinHolyPowerConsumers() -- Handle the use of HolyPower
 
@@ -163,7 +181,7 @@ if select(3,UnitClass("player")) == 2 then
 			end
 			-- We should have 2 different levels here, on regarding bastion and one without, WoG should not be cast all the time but rather to help healers up a bit
 			-- So we need to see how much resolve and bastion helps a WoG and have that as minimum. Tha aim is to cast Shield often and WoG only to help.
-			if castWordOfGlory("player", 50, 3) then
+			if castWordOfGlory("player", 0, 3) then
 				return true
 			end
 
@@ -174,8 +192,6 @@ if select(3,UnitClass("player")) == 2 then
 		end
 
 		function ProtPaladinHolyPowerCreaters() -- Handle the normal rotation
-			-- Todos: This is optimised for dps. We should be able to keypress for aoe threat to pick up groups. So Avengers Shield, Lights Hammer, Holy Wrath and consecration to pick up groups.
-					-- Suggestion is after isInMelee we do a check if AoE key is pressed then we cast Avenger Shield, Lights Hammer, HolyWrath and consecration and the user can then when he sees consecration he knows that aoe pick up is done.
 			-- Todos: Talents, only light hammer is handled, Prism and Sentence is not
 			-- Todos: Glyphs, we have no support for the Holy Wrath glyph which should put it higher on priority after Judgement.
 

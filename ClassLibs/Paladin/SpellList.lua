@@ -161,6 +161,10 @@ if select(3,UnitClass("player")) == 2 then
     --    end
 	-- Todo: We should calculate expected heal with resolve to not overheal
 	function castWordOfGlory(unit, health, holypower)
+		if health == 0 then --Set it to 0 if we should use config set value
+			health = getValue("Word Of Glory On Self")
+		end
+
 		if getHP(unit) <= health and (_HolyPower > holypower or UnitBuffID("player", _DivinePurposeBuff)) then -- Handle this via config? getHP does it include incoming heals? Bastion of Glory checks?
 			if castSpell(unit,_WordOfGlory,true,false) then
 				return true

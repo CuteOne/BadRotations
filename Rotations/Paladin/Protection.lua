@@ -34,13 +34,10 @@ if select(3, UnitClass("player")) == 2 then
 --		end
 --		if IsMouseButtonDown(1) then -- Mousebutton 1-5
 --		end
-
+		
 		-- Set Global variables that will be used.
 		_HolyPower = UnitPower("player", 9)
-		-- Make sure we declare our AoE treshold ASAP and refresh it every seconds
-		if numberOfTargetsMelee == nil or numberOfTargetsMeleeTimer == nil or numberOfTargetsMeleeTimer <= GetTime() - 1 then
-			numberOfTargetsMelee = getNumEnemies("player",4) --Get number of enemies within melee range. Does this also work for large hitboxes? Todo should only do this if auto aoe is checked for performance
-		end
+
 		-- Check if we should run the rotation
 		if canRun() ~= true then
 			return false
@@ -54,6 +51,14 @@ if select(3, UnitClass("player")) == 2 then
 			if startAttackTimer == nil or startAttackTimer <= GetTime() - 1 then
 				RunMacroText("/startattack")
 			end
+
+			-- Make sure we declare our AoE treshold ASAP and refresh it every seconds
+			if numberOfTargetsMelee == nil or numberOfTargetsMeleeTimer == nil or numberOfTargetsMeleeTimer <= GetTime() - 1 then
+				numberOfTargetsMelee, numberOfTargetsMeleeTimer = getNumEnemies("player",4), GetTime() 
+			end
+
+			ProtPaladinEnemyUnitHandler() -- Fetch information about enemy units
+			ProtPaladinFriendlyUnitHandler() --Fetch and handle friendly units information
 
 			-- If we are close to dying
 			if ProtPaladinSurvivalSelf() then -- Check if we are close to dying and act accoridingly
@@ -72,7 +77,7 @@ if select(3, UnitClass("player")) == 2 then
 
 			-- Dispell Logics Todo, includes removal using Divine Shield and Hand of Protection
 			if ProtPaladinDispell() then
-					return true
+				return true
 			end
 
 			-- If we are already casting then dont continue
@@ -105,10 +110,10 @@ if select(3, UnitClass("player")) == 2 then
 				-- Dont return since this is off GCD
 				--print("We use HoPo now")
 			end
-			
+
 			if ProtPaladinHolyPowerCreaters() then -- Handle the normal rotation
 				--print("Something is cast within PowerCreaters")
-				return
+				return true
 			end
 			--print("We did not do anything")
 		end
