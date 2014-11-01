@@ -191,7 +191,7 @@ if select(3,UnitClass("player")) == 1 then
 				--and targetDistance <= 5 then
 				-- actions+=/potion,name=draenic_strength,if=(target.health.pct<20&buff.recklessness.up)|target.time_to_die<=25
 				if isChecked("usePot") then
-					if (getHP("target") < 20 and UnitBuffID("player",Recklessness)) or getTimeToDie <= 25 then
+					if (getHP("target") < 20 and UnitBuffID("player",Recklessness)) or getTimeToDie("target") <= 25 then
 						if canUse(76095) then -- MoP Potion
 							UseItemByName(tostring(select(1,GetItemInfo(76095))))
 						elseif canUse(109219) then -- WoD Potion
