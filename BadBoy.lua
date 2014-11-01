@@ -207,7 +207,6 @@ function BadBoyRun()
 		if NovaEngineUpdate and NovaEngineUpdate <= GetTime() - getValue("Engine Refresh")/1000 then
 			NovaEngineUpdate = GetTime()
 			nNova:Update()
-			engineRefresh()
 		end
 
 		--[[Updating UI location]]

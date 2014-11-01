@@ -1,9 +1,9 @@
 -- /run EngineFrameCreation()
 function EngineFrameCreation()
 	if engineFrameLoaded ~= true then
-		
+
 		-- Vars
-		if BadBoy_data.engineWidth == nil then 
+		if BadBoy_data.engineWidth == nil then
 			BadBoy_data.engineWidth = 200;
 			BadBoy_data.engineanchor = "Center"
 			BadBoy_data.enginex = -200;
@@ -17,15 +17,13 @@ function EngineFrameCreation()
 		BadBoy_data.failCasts = 0;
 		BadBoy_data.engineActualRow = 0;
 		if BadBoy_data.engineRows == nil then  end
-		-- /run CreateDebugRow(0, "Spell Name")
 		-- CreateRow
 		if engineHeight == nil then engineHeight = 26; end
-		function CreateDebugRow(value,textString)
+		function CreateEngineDebugRow(value,textString)
 			if value > 0 then
 				_G["engine"..value.."Frame"] = CreateFrame("Frame", "MyButton", engineFrame);
 				_G["engine"..value.."Frame"]:SetWidth(BadBoy_data.engineWidth);
 				_G["engine"..value.."Frame"]:SetHeight(20);
-				--_G["engine"..value.."Frame"]:SetNormalTexture([[Interface\DialogFrame\UI-DialogBox-Background-Dark]]); 
 				_G["engine"..value.."Frame"]:SetPoint("TOPLEFT",0,-((value*20)));
 				_G["engine"..value.."Frame"]:SetAlpha(BadBoy_data.engineAlpha/100);
 				_G["engine"..value.."Frame"]:SetScript("OnEnter", function(self)
@@ -34,6 +32,8 @@ function EngineFrameCreation()
 						GameTooltip:SetOwner(self, "BOTTOMLEFT", 250, 5);
 						GameTooltip:SetText("|cffFF0000Role: |cffFFDD11"..nNova[MyValue+BadBoy_data.engineActualRow].role..
 							"\n|cffFF0000Name: |cffFFDD11"..nNova[MyValue+BadBoy_data.engineActualRow].name..
+							"\n|cffFF0000Health: |cffFFDD11"..nNova[MyValue+BadBoy_data.engineActualRow].hp..
+							"\n|cffFF0000Absorb: |cffFFDD11"..nNova[MyValue+BadBoy_data.engineActualRow].absorb..
 							"\n|cffFF0000GUID: |cffFFDD11"..nNova[MyValue+BadBoy_data.engineActualRow].guid, nil, nil, nil, nil, false);
 						GameTooltip:Show();
 					end
@@ -114,14 +114,14 @@ function EngineFrameCreation()
 				if Go == true then
 					BadBoy_data.engineAlpha = BadBoy_data.engineAlpha + (delta*5)
 					engineFrame.texture:SetAlpha(BadBoy_data.engineAlpha/100);
-					for i = 1, 25 do 
+					for i = 1, 25 do
 						if _G["engine"..i.."Frame"]:GetAlpha() ~= BadBoy_data.engineAlpha/100 then
 							_G["engine"..i.."Frame"]:SetAlpha(BadBoy_data.engineAlpha/100);
 							engineFrameText:SetAlpha(BadBoy_data.engineAlpha/100);
 						end
 					end
 				end
-			else	
+			else
 				local Go = false;
 				if delta < 0 and BadBoy_data.engineWidth < 500 then
 					Go = true;
@@ -131,7 +131,7 @@ function EngineFrameCreation()
 				if Go == true then
 					BadBoy_data.engineWidth = BadBoy_data.engineWidth + (delta*5)
 					engineFrame:SetWidth(BadBoy_data.engineWidth);
-					for i = 1, 25 do 
+					for i = 1, 25 do
 						if _G["engine"..i.."Frame"]:GetWidth() ~= BadBoy_data.engineWidth then
 							_G["engine"..i.."Frame"]:SetWidth(BadBoy_data.engineWidth);
 						end
@@ -210,14 +210,12 @@ function EngineFrameCreation()
 
 		SetDebugWidth(BadBoy_data.engineWidth);
 
-		--CreateDebugRow(0,"|cff12C8FFTime|cffFF001E/|cffFFFFFFSpell Name")
-
 		for i = 1, 25 do
-			CreateDebugRow(i,"")
+			CreateEngineDebugRow(i,"")
 		end
 
 		function engineRefresh()
-			if nNova == nil then 			
+			if nNova == nil then
 				for i = 1, BadBoy_data.engineRows do
 					local engineName, engineTip = "", ""
 					if _G["engine"..i.."Frame"]:IsShown() ~= 1 then
@@ -225,7 +223,7 @@ function EngineFrameCreation()
 						_G["engine"..i.."Frame"]:Show();
 					end
 					_G["engine"..i.."Text"]:SetText(engineName, 1, 1, 1, 0.7);
-				end 
+				end
 				for i = BadBoy_data.engineRows+1, 25 do
 					if _G["engine"..i.."Frame"]:IsShown() == 1 then
 						_G["engine"..i.."Text"]:Hide();
@@ -241,7 +239,7 @@ function EngineFrameCreation()
 						local nameDisplay = nameDisplay;
 						if select(3,UnitClass(nNova[BadBoy_data.engineActualRow+i].unit)) ~= nil and nNova[BadBoy_data.engineActualRow+i].name ~= nil then
 							nameDisplay = classColors[select(3,UnitClass(nNova[BadBoy_data.engineActualRow+i].unit))].hex.." "..nNova[BadBoy_data.engineActualRow+i].name;
-						else 
+						else
 							nameDisplay = " No Name";
 						end
 
@@ -268,11 +266,11 @@ function EngineFrameCreation()
 					end
 				end
 			end
-			
+
 			engineFrame:SetHeight((BadBoy_data.engineRows*20)+20);
 		end
 		engineFrame.texture:SetAlpha(BadBoy_data.engineAlpha/100);
-		for i = 1, 25 do 
+		for i = 1, 25 do
 			if _G["engine"..i.."Frame"]:GetAlpha() ~= BadBoy_data.engineAlpha/100 then
 				_G["engine"..i.."Frame"]:SetAlpha(BadBoy_data.engineAlpha/100);
 				engineFrameText:SetAlpha(BadBoy_data.engineAlpha/100);
@@ -280,7 +278,7 @@ function EngineFrameCreation()
 		end
 		engineFrameText:SetWidth(BadBoy_data.engineWidth);
 		engineFrame:SetWidth(BadBoy_data.engineWidth);
-		for i = 1, 25 do 
+		for i = 1, 25 do
 			if _G["engine"..i.."Frame"]:GetWidth() ~= BadBoy_data.engineWidth then
 				_G["engine"..i.."Frame"]:SetWidth(BadBoy_data.engineWidth);
 			end
