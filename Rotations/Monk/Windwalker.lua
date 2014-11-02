@@ -84,7 +84,7 @@ if select(3, UnitClass("player")) == 10 then
 				tebCast = 0
 			end
 		end
-	-- Stop Cast 
+	-- Stop Cast
 		if ((tarDist<5 or (BadBoy_data['FSK']==1 and getSpellCD(_FlyingSerpentKick)==0)) and isCastingSpell(_CracklingJadeLightning)) or (not useAoE() and isCastingSpell(_SpinningCraneKick)) then
 			RunMacroText("/stopcasting")
 		end
@@ -204,7 +204,7 @@ if select(3, UnitClass("player")) == 10 then
 -----------------
 		if isInCombat("player") then
 
-      -- Automatically target the next-closest enemy within 10 yards (if already in combat)
+      -- Automatically target the next-closest enemy within 10 yards if already in combat
 		--findTarget(8,true)
 
 	------------------------------
