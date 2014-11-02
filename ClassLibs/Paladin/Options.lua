@@ -84,30 +84,35 @@ if select(3,UnitClass("player")) == 2 then
 		CreateNewText(thisConfig,"Lay On Hands Party");
 
 		-- Hand of Sacrifice
-		CreateNewCheck(thisConfig,"Hand Of Sacrifice","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHand of Sacrifice|cffFFBB00.",1);
-		CreateNewBox(thisConfig, "Hand Of Sacrifice", 0, 100  , 1, 35, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Sacrifice")
-		CreateNewText(thisConfig,"Hand Of Sacrifice")
+		--CreateNewCheck(thisConfig,"Hand Of Sacrifice","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHand of Sacrifice|cffFFBB00.",1);
+		--CreateNewBox(thisConfig, "Hand Of Sacrifice", 0, 100  , 1, 35, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Sacrifice")
+		--CreateNewText(thisConfig,"Hand Of Sacrifice")
 
 		-- Cast Hand of Salvation
-		CreateNewCheck(thisConfig,"Hand Of Salvation Self","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHand of Salvation|cffFF0000 on Self.",0);
-		CreateNewBox(thisConfig, "Hand Of Salvation Self", 0, 100  , 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Salvation on Self");
-		CreateNewText(thisConfig,"Hand Of Salvation Self");
+		--CreateNewCheck(thisConfig,"Hand Of Salvation Self","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHand of Salvation|cffFF0000 on Self.",0);
+		--CreateNewBox(thisConfig, "Hand Of Salvation Self", 0, 100  , 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Salvation on Self");
+		--CreateNewText(thisConfig,"Hand Of Salvation Self");
 
 		-- Cast Hand of Salvation Party
-		CreateNewCheck(thisConfig,"Hand Of Salvation Party","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHand of Salvation|cffFFBB00 on Party.",1);
-		CreateNewBox(thisConfig, "Hand Of Salvation Party", 0, 100  , 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Salvation on Party");
-		CreateNewText(thisConfig,"Hand Of Salvation Party");
+		--CreateNewCheck(thisConfig,"Hand Of Salvation Party","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHand of Salvation|cffFFBB00 on Party.",1);
+		--CreateNewBox(thisConfig, "Hand Of Salvation Party", 0, 100  , 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Salvation on Party");
+		--CreateNewText(thisConfig,"Hand Of Salvation Party");
 
 		-- Crowd Control
-		CreateNewCheck(thisConfig,"Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFCrowd Control|cffFFBB00.",1);
-		CreateNewDrop(thisConfig, "Crowd Control", 1, "CD") -- TODO: We should hae other options, never is the checking of the box, always, whitelist, on health(self), condition
-		CreateNewText(thisConfig,"Crowd Control");
+		--CreateNewCheck(thisConfig,"Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFCrowd Control|cffFFBB00.",1);
+		--CreateNewDrop(thisConfig, "Crowd Control", 1, "CD") -- TODO: We should hae other options, never is the checking of the box, always, whitelist, on health(self), condition
+		--CreateNewText(thisConfig,"Crowd Control");
 
-		-- Rebuke
+		-- Wrapper Interrupt
+		CreateNewWrap(thisConfig,"------ Interrupt -------");
+
 		CreateNewCheck(thisConfig,"Rebuke","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFRebuke|cffFFBB00.",1);
 		CreateNewBox(thisConfig, "Rebuke", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFRebuke.");
 		CreateNewText(thisConfig,"Rebuke");
 
+		CreateNewCheck(thisConfig,"Avengers Shield Interrupt","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFusing AS as Interrupt|cffFFBB00.",1);
+		CreateNewBox(thisConfig, "Avengers Shield Interrupt", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFAS as interrupt.");
+		CreateNewText(thisConfig,"Avengers Shield Interrupt");
 
 		--CreateNewCheck(thisConfig,"LoH Targets");
 		--CreateNewDrop(thisConfig, "LoH Targets", 1, "|cffFF0000Wich Targets\n|cffFFBB00We want to use \n|cffFFFFFFLay On Hands", "|cffFF0000Me.Only", "|cffFFDD11Me.Prio", "|cff00FBEETank/Heal","|cff00FF00All");

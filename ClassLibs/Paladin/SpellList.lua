@@ -70,14 +70,17 @@ if select(3,UnitClass("player")) == 2 then
 	ccTargets = {"Training Dummy"}
 	interruptSpells = {"Training Dummy"}
 	burnTargets = {"Training Dummy"}
-	dispellDeBuffs = {""}
+	dispellDeBuffs = {}
 	dispellBuffs = {}
+	HandOfSacrifaceDebuffs = {} -- Table that holds debuffs we should HoSacrifice
+
+	
 
 
 	-- Todo : Check Glyphs(is on us or can we cast it on ground 25 yards
 	function castConsecration()
 		if canCast(_Consecration) and isInMelee() then
-			if castSpell("target",_Consecration,true) then  -- Why are we using target here?
+			if castSpell("player",_Consecration,true) then  -- Why are we using target here?
 				return true
 			end
 		end

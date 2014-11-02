@@ -77,15 +77,27 @@ if select(3,UnitClass("player")) == 2 then
 		-- ToDos:  Add multiple interrupts such as binding light(if within 10 yards and facing, Fist of Justice(stuns), Avengers shield
 		-- Should perhaps move out the spellCD and ranged outside canInterrupt?? So first check if range and cd is ok for cast, then check for timeframe?d
 		function ProtPaladinInterrupt()
-			if BadBoy_data["Interrupts"] ~= 1 then
+			
+			if isChecked("Rebuke") then -- Should change this to interrupt not rebuke and use toggle instead of check
 				--See what spell we want to use
+				-- We need to change the "Rebuke" conmfig to interrupt delay
+				-- We need to change the canInterrupt function to just check if we can interrupt the target
+				-- We also should add logic to understand of we should interrupt
+				-- Then we look at spell that could be used to interrupt.
+
+				-- Iterate rhrough the enemiesTable and check if someone is casting something we should interrupt.
 				if castRebuke("target") then  -- We should handle who to interrupt outside the castRebuke etc, hardocded to target atm
 					return true
 				end
+
+				if canInterrupt(_AvengersShield, getValue("Avengers Shield Interrupt")) then
+	
+					if castAvengersShield("target") then
+						return true
+					end
+				end
 			end
-			-- Should add Avengers Shield
-			-- Should add Fist of Justice
-			-- Should add Blinding Light with facing logic.
+			-- Should add Fist of Justice or other stuns/cc
 			return false
 		end
 
@@ -160,15 +172,30 @@ if select(3,UnitClass("player")) == 2 then
 		function ProtPaladinEnemyUnitHandler() -- Handles Enemy Units gathering
 			-- At the moment only populating table to see performance.
 			makeEnemiesTable(40)-- Unit in 40 range
+			--tinsert(enemiesTable,{ unit = thisUnit, distance = unitDistance, hp = unitHP })
+
+			-- Make sure we declare our AoE treshold ASAP and refresh it every seconds
+			if numberOfTargetsMelee == nil or numberOfTargetsMeleeTimer == nil or numberOfTargetsMeleeTimer <= GetTime() - 1 then
+				numberOfTargetsMelee, numberOfTargetsMeleeTimer = getNumEnemies("player",4), GetTime() 
+			end
+
+			if numberOfTargetsForHammerOfRighteuos == nil or numberOfTargetsForHammerOfRighteuosTimer == nil or numberOfTargetsForHammerOfRighteuosTimer <= GetTime() - 1 then
+				numberOfTargetsForHammerOfRighteuos, numberOfTargetsForHammerOfRighteuos = getNumEnemies("target",7), GetTime() 
+			end
 			--print("Table has " ..#enemiesTable)
 
 			return 
 		end	
 
-		function ProtPaladinFriendlyUnitHandler() -- Handles Enemy Units gathering
-			-- At the moment only populating table to see performance.
-			
+		function ProtPaladinFriendlyUnitHandler() -- Handles freindly Units gathering
+			-- Using Novas table
 			--print("Table has " ..#nNova)
+
+			-- Todo: Check threat levels for each member and attack their  targets or cast HoSalv. Should we not just check enemies?
+			-- Todo: Check for valed aoe heals target for lights hammer
+			-- Todo: Checl targets for dispelling
+			-- Todo Check targets for Hand Of Freedom
+			-- Todo Check targets for Hand of Protection
 
 			return 
 		end	
@@ -195,8 +222,17 @@ if select(3,UnitClass("player")) == 2 then
 			-- Todos: Talents, only light hammer is handled, Prism and Sentence is not
 			-- Todos: Glyphs, we have no support for the Holy Wrath glyph which should put it higher on priority after Judgement.
 
+			-- If we have 3 targets for Avenger Shield and we have Grand Crusader Buff
+			-- Todo : we need to check if AS will hit 3 targets, so what is the range of AS jump? We are usimg same logic as Hammer of Righ at the moment, 8 yard.
+			if UnitBuffID("player", 85043) and numberOfTargetsForHammerOfRighteuos > 2 then -- Grand Crusader buff, we use 8 yards from target as check
+				if castAvengersShield("target") then
+					--print("Casting AS in AoE rotation with Grand Crusader procc")
+					return true
+				end
+			end
+
 			local strike = strike; -- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
-			if BadBoy_data["AoE"] == 2 or (BadBoy_data["AoE"] == 3 and numberOfTargetsMelee > 2) or keyPressAoE then  --If Toggle to 2(AoE) or 3(Auto and more then 2 targets, its actually 4 but its just simplier to do aoe
+			if BadBoy_data["AoE"] == 2 or (BadBoy_data["AoE"] == 3 and numberOfTargetsForHammerOfRighteuos > 2) or keyPressAoE then  --If Toggle to 2(AoE) or 3(Auto and more then 2 targets, its actually 4 but its just simplier to do aoe
 				strike = _HammerOfTheRighteous;
 			else
 				strike = _CrusaderStrike;
@@ -223,6 +259,15 @@ if select(3,UnitClass("player")) == 2 then
 			if castLightsHammer("target") then
 				--print("Casting lights Hammer in rotation")
 				return true
+			end
+
+			-- We should cast concenration if more then 3 targets are getting hit
+			-- TODO we need to understand the range of consentrations
+			if numberOfTargetsMelee > 2 then
+				if castConsecration("target") then
+					--print("Casting AOE Consecration")
+					return true
+				end
 			end
 
 			if castHammerOfWrath("target") then
@@ -252,14 +297,21 @@ if select(3,UnitClass("player")) == 2 then
 		function ProtPaladingHolyPowerCreatersAoE() -- Rotation that focus on AoE, should be done to pick up group of adds
 			-- Todos: Talents, only light hammer is handled, Prism and Sentence is not
 
+			if UnitBuffID("player", 85043) then -- Grand Crusader buff
+				if castAvengersShield("target") then
+					--print("Casting AS in AoE rotation with Grand CRusader procc")
+					return true
+				end
+			end
+
 			local strike = strike; -- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
-			if BadBoy_data["AoE"] == 2 or (BadBoy_data["AoE"] == 3 and numberOfTargetsMelee > 2) or keyPressAoE then  --If Toggle to 2(AoE) or 3(Auto and more then 2 targets, its actually 4 but its just simplier to do aoe
+			if BadBoy_data["AoE"] == 2 or (BadBoy_data["AoE"] == 3 and numberOfTargetsForHammerOfRighteuos > 2) or keyPressAoE then  --If Toggle to 2(AoE) or 3(Auto and more then 2 targets, its actually 4 but its just simplier to do aoe
 				strike = _HammerOfTheRighteous;
 			else
 				strike = _CrusaderStrike;
 			end
 
-			-- Cast Crusader for Single and Hammer of Right if aoe
+			-- Cast Crusader for Single and Hammer of Right if aoe, should check other targets for spell if not in melee
 			if isInMelee() then
 				if castSpell("target",strike,false,false) then
 					return
@@ -281,12 +333,12 @@ if select(3,UnitClass("player")) == 2 then
 				--print("Casting AoE Holy Wrath")
 				return true
 			end
-			-- Todo, we could check number of mobs in melee ranged
 
 			if castConsecration("target") then
 				--print("Casting AOE Consecration")
 				return true
 			end
+			-- Todo, we could check number of mobs in melee ranged
 		--Todo Check number of targets in range do Concentration and have it earlier.
 		end
 	end
