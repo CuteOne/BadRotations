@@ -6,7 +6,7 @@ if select(3, UnitClass("player")) == 10 then
 	    end
 	    WindwalkerToggles()
 	    GroupInfo()
-       sefTargets()
+       	sefTargets()
        --makeEnemiesTable(40)
        --targets = enemiesTable
        --table.sort(targets, function(x,y)
@@ -193,7 +193,7 @@ if select(3, UnitClass("player")) == 10 then
 					if canFSK("target") and not isDummy() and (select(2,IsInInstance())=="none" or isInCombat("target")) then
 						if castSpell("player",_FlyingSerpentKick,false,false,false) then return; end
 					end
-					if (tarDist < 10 or (not canContFSK("target") and UnitExists("target"))) and select(3,GetSpellInfo(101545)) == "INTERFACE\\ICONS\\priest_icon_chakra_green" then
+					if (tarDist < 5 or (not canContFSK("target") and UnitExists("target"))) and select(3,GetSpellInfo(101545)) == "INTERFACE\\ICONS\\priest_icon_chakra_green" then
 						if castSpell("player",_FlyingSerpentKickEnd,false,false,false) then return; end
 					end
 				end
@@ -254,10 +254,10 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("target",_InvokeXuen) then return; end
 					end
 			-- Racial: Troll Berserking
-          if isChecked("Racial") and select(2, UnitRace("player")) == "Troll" then
-            if castSpell("player",_Berserking,false,false) then return; end
-          end
-	      end
+			          if isChecked("Racial") and select(2, UnitRace("player")) == "Troll" then
+			            if castSpell("player",_Berserking,false,false) then return; end
+			          end
+	      		end
 	--------------------------------
 	--- In Combat - All Rotation ---
 	--------------------------------
@@ -443,14 +443,14 @@ if select(3, UnitClass("player")) == 10 then
 					if canFSK("target") and not isDummy() and (select(2,IsInInstance())=="none" or isInCombat("target")) then
 						if castSpell("player",_FlyingSerpentKick,false,false,false) then return; end
 					end
-					if (tarDist < 10 or not canContFSK("target")) and select(3,GetSpellInfo(101545)) == "INTERFACE\\ICONS\\priest_icon_chakra_green" then
+					if (tarDist < 5 or not canContFSK("target")) and select(3,GetSpellInfo(101545)) == "INTERFACE\\ICONS\\priest_icon_chakra_green" then
 						if castSpell("player",_FlyingSerpentKickEnd,false,false,false) then return; end
 					end
 				end
 				-- TODO: Start Attack automatticaly when in combat? Is this redundent?
-				--if tarDist<5 then
-				--	StartAttack()
-				--end
+				if tarDist<5 and isInCombat("player") then
+					StartAttack()
+				end
 			end
 		end --In Combat End
 	end

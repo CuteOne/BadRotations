@@ -183,8 +183,8 @@ function FeralCatConfig()
             textOp("Multi-Rake");
 
             -- Travel Shapeshifts
-            checkOp("Travel Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFMulti-Target Raking|cffFFBB00.");
-            textOp("Travel Shapeshifts");
+            checkOp("Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.");
+            textOp("Auto Shapeshifts");
 
 
         -- Spacer

@@ -83,11 +83,11 @@ function sefTargets()
         end
     end
     table.sort(targets, function(x,y) return x.HP > y.HP end)
-    if #targets > 2 then
-        for i=1,#targets do
-            if i>2 then table.remove(targets,i) end
-        end
-    end
+    -- if #targets > 2 then
+    --     for i=1,#targets do
+    --         if i>2 then table.remove(targets,i) end
+    --     end
+    -- end
 end
 
 function getDistance2(Unit1,Unit2)
@@ -203,10 +203,10 @@ function getFacingDistance()
 end
 
 function canFSK(unit)
-    if ((targetDistance <= 8 and isInCombat("player")) or (targetDistance < 60 and targetDistance > 8 and getFacing("player",unit)))
+    if ((targetDistance <= 8 and isInCombat("player")) or (targetDistance < 60 and targetDistance > 5 and getFacing("player",unit)))
         and not hasGlyph(1017)
         and getSpellCD(_FlyingSerpentKick)==0
-        and getFacingDistance() <= 7
+        and getFacingDistance() < 5
         and select(3,GetSpellInfo(_FlyingSerpentKick)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green"
         and not UnitIsDeadOrGhost(unit)
         and getTimeToDie(unit) > 2
@@ -219,9 +219,9 @@ function canFSK(unit)
 end
 
 function canContFSK(unit)
-    if ((targetDistance <= 8 and isInCombat("player")) or (targetDistance < 60 and targetDistance > 8 and getFacing("player",unit)))
+    if ((targetDistance <= 8 and isInCombat("player")) or (targetDistance < 60 and targetDistance > 5 and getFacing("player",unit)))
         and not hasGlyph(1017)
-        and getFacingDistance() <= 7
+        and getFacingDistance() < 5
         and not UnitIsDeadOrGhost(unit)
         and getTimeToDie(unit) > 2
         and not IsSwimming()

@@ -165,14 +165,20 @@ if select(3, UnitClass("player")) == 7 then
 			-------------
 			--- Pause ---
 			-------------
-			if pause() then
+			if pause() 
+			or SpellIsTargeting()
+			or UnitInVehicle("player")
+			or UnitIsDead("target") 
+			or UnitIsDead("player")
+			or not UnitAffectingCombat("player")
+			or not UnitExists("target") then
 				return true
 			end
 
 			-----------------------------
 			--- Multi-Target Rotation ---
 			-----------------------------
-			if getNumEnemies("player",10) >= 3 and targetDistance<5 and useAoE() and isEnnemy("target") and isAlive("target") then
+			if getNumEnemies("player",10) >= 3 and useAoE() then
 				-- Flame Shock
 				if getDebuffRemain("target",_FlameShock) < 3 then
 					if castSpell("target",_FlameShock,false) then return; end
@@ -181,12 +187,14 @@ if select(3, UnitClass("player")) == 7 then
 				if getDebuffRemain("target",_FlameShock)>0 then
 					if castSpell("target",_LavaLash,false) then return; end
 				end
-				-- Fire Nova
-				if getDebuffRemain("target",_FlameShock)>0 then
-					if castSpell("target",_FireNova,true) then return; end
-				end
 				-- Unleash Elements
 				if castSpell("target",_UnleashElements,true) then return; end
+				-- Fire Nova
+				-- ToDo: Create a Flame shock Table and if theres less than 7 Flame shocks active then flameshock EVERYTHING!
+				if UnitDebuffID("target",_FlameShock, "PLAYER") then
+					if castSpell("target",_FireNova,true) then return; end
+				end
+
 				-- Chain Lightning - 5 Maelstrom Weapon Stacks
 				if getHP("player")>=50 and shouldBolt() then
 					if castSpell("target",_ChainLightning,false) then return; end
@@ -210,7 +218,7 @@ if select(3, UnitClass("player")) == 7 then
 			------------------------------
 			--- Single Target Rotation ---
 			------------------------------
-			if  targetDistance<5 and not useAoE() and isEnnemy("target") and isAlive("target") then
+			if not useAoE() then
 				
 				-- Unleash Elements
 				if castSpell("target",_UnleashElements,false) then return; end
@@ -255,10 +263,7 @@ if select(3, UnitClass("player")) == 7 then
 					if castSpell("target",_LightningBolt,false) then return; end
 				end
 			end --Single Target Rotation End
-
-			if targetDistance<5 and isEnnemy("target") then
-				StartAttack()
-			end
+			
 		end
 	end --Class Function End
 end --Final End
