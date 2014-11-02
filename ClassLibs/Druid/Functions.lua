@@ -261,7 +261,7 @@ end
 function findShroom()
     if shroomsTable[1].x == nil then
         for i = 1, ObjectCount() do
-            if ObjectExists(ObjectWithIndex(i)) then
+            if UnitExists(ObjectWithIndex(i)) == true then
                 local myShroom = shroomsTable[1].guid
                 --print(UnitGUID(ObjectWithIndex(i)))
                 if shroomsTable[1].guid == UnitGUID(ObjectWithIndex(i)) then
