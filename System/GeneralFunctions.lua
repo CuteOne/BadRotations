@@ -1442,14 +1442,7 @@ function castingUnit(Unit)
 	  	return true;
 	end
 end
-function isCastingDruid(Unit)
-	if Unit == nil then Unit = "player" end
-	if UnitCastingInfo(Unit) ~= nil
-	  --or UnitChannelInfo(Unit) ~= nil
-	  or (GetSpellCooldown(61304) ~= nil and GetSpellCooldown(61304) > 0.001) then
-	  	return true; else return false;
-	end
-end
+
 -- if isCastingSpell(12345) == true then
 function isCastingSpell(spellID)
 	local spellName = GetSpellInfo(spellID)
