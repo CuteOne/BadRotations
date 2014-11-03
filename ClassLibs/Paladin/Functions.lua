@@ -90,7 +90,7 @@ if select(3,UnitClass("player")) == 2 then
 					return true
 				end
 
-				if canInterrupt(_AvengersShield, getValue("Avengers Shield Interrupt")) then
+				if canInterrupt("target", getValue("Avengers Shield Interrupt")) then
 	
 					if castAvengersShield("target") then
 						return true
