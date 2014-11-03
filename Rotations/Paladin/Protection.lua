@@ -52,11 +52,6 @@ if select(3, UnitClass("player")) == 2 then
 				RunMacroText("/startattack")
 			end
 
-			-- Make sure we declare our AoE treshold ASAP and refresh it every seconds
-			if numberOfTargetsMelee == nil or numberOfTargetsMeleeTimer == nil or numberOfTargetsMeleeTimer <= GetTime() - 1 then
-				numberOfTargetsMelee, numberOfTargetsMeleeTimer = getNumEnemies("player",4), GetTime() 
-			end
-
 			ProtPaladinEnemyUnitHandler() -- Fetch information about enemy units
 			ProtPaladinFriendlyUnitHandler() --Fetch and handle friendly units information
 
