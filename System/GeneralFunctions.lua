@@ -188,26 +188,29 @@ function canHeal(Unit)
 	return false;
 end
 
--- canInterrupt(80965,20) or canInterrupt(80965,0) or canInterrupt(80965)
-function canInterrupt(spellID,percentint)
-    local unit = "target" or "mouseover"
+-- canInterrupt("target", 20) 
+function canInterrupt(unit, percentint)
+    local unit = unit or "target"
     local castDuration = 0
     local castTimeRemain = 0
-    local castPercent = 0
+    local castPercent = 0 -- Possible to set hard coded value
+    local channelDelay = 0.4 -- Delay to mimick human reaction time for channeled spells
     local interruptable = false
+    local castType = "spellcast" -- Handle difference in logic if the spell is cast or being channeles
     if UnitExists(unit)
         and UnitCanAttack("player", unit)
         and not UnitIsDeadOrGhost(unit)
-        and getSpellCD(spellID)==0
     then
-        if select(6,UnitCastingInfo(unit)) and not select(9,UnitCastingInfo(unit)) then
+        if select(6,UnitCastingInfo(unit)) and not select(9,UnitCastingInfo(unit)) then --Get spell cast time
             castStartTime = select(5,UnitCastingInfo(unit))
             castEndTime = select(6,UnitCastingInfo(unit))
             interruptable = true
-        elseif select(6,UnitChannelInfo(unit)) and select(8,UnitChannelInfo(unit)) then
+            castType = "spellcast"
+        elseif select(6,UnitChannelInfo(unit)) and select(8,UnitChannelInfo(unit)) then -- Get spell channel time
             castStartTime = select(5,UnitChannelInfo(unit))
             castEndTime = select(6,UnitChannelInfo(unit))
             interruptable = true
+            castType = "spellchannel"
         else
             castStartTime = 0
             castEndTime = 0
@@ -217,7 +220,7 @@ function canInterrupt(spellID,percentint)
             castDuration = (castEndTime - castStartTime)/1000
             castTimeRemain = ((castEndTime/1000) - GetTime())
             if percentint == nil and castPercent == 0 then
-                castPercent = math.random(75, 95)
+                castPercent = math.random(75, 95) --  I am not sure that this is working, we are doing this check every pulse so its different randoms each time
             elseif percentint == 0 and castPercent == 0 then
                 castPercent = math.random(75, 95)
             elseif percentint > 0 then
@@ -228,11 +231,17 @@ function canInterrupt(spellID,percentint)
             castTimeRemain = 0
             castPercent = 0
         end
-        if math.ceil((castTimeRemain/castDuration)*100) <= castPercent and interruptable == true then
-            return true
-        else
-            return false
+        if castType == "spellcast" then
+        	if math.ceil((castTimeRemain/castDuration)*100) <= castPercent and interruptable == true then
+            	return true
+        	end
         end
+        if castType == "spellchannel" then
+        	if (GetTime() - castStartTime/1000) > channelDelay and interruptable == true then	
+        		return true 
+        	end
+        end
+        return false
     end
 end
 
