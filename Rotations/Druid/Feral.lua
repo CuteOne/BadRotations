@@ -199,7 +199,7 @@ if select(3, UnitClass("player")) == 11 then
 ---------------------
 --- Out of Combat ---
 ---------------------
-			if not isInCombat("player") then
+			if not isInCombat("player") and not (IsMounted() or IsFlying()) then
 		-- Prowl
 		        if not stealth and tarDist<20 then
 		            if castSpell("player",prl,false,false,false) then return; end
@@ -229,25 +229,22 @@ if select(3, UnitClass("player")) == 11 then
 	------------------------------
 	--- In Combat - Interrupts ---
 	------------------------------
-				if useInterrupts() and cat and not stealth then
+				if useInterrupts() and cat and not stealth and canInterrupt("target", tonumber(getValue("Interrupts"))) then
 		-- Skull Bash
-				    if canInterrupt(sb, tonumber(getValue("Interrupts")))
-			            and isChecked("Skull Bash")
+				    if isChecked("Skull Bash")
 			            and tarDist<=13
 			        then
 			            if castSpell("target",sb,false,false,false) then return; end
 			        end
 		-- Mighty Bash
-			        if canInterrupt(mb, tonumber(getValue("Interrupts")))
-			            and isChecked("Mighty Bash")
+			        if isChecked("Mighty Bash")
 			            and (sbCooldown < 14 or not isChecked("Skull Bash"))
 			            and tarDist<=5
 			        then
 			            if castSpell("target",mb,false,false,false) then return; end
 			        end
 		-- Maim (PvP)
-			        if canInterrupt(ma, tonumber(getValue("Interrupts")))
-			            and (sbCooldown < 14 or not isChecked("Skull Bash"))
+			        if (sbCooldown < 14 or not isChecked("Skull Bash"))
 			            and (mbCooldown < 49 or not isChecked("Mighty Bash"))
 			            and combo > 0
 			            and power >= 35
