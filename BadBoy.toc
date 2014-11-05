@@ -114,6 +114,9 @@ Rotations\PokeRotation\PokeSwapper.lua
 Rotations\PokeRotation\PokeUI.lua
 Rotations\PokeRotation\PokeUnitInfo.lua
 
+## ProfessionHelper
+Rotations\ProfessionHelper\ProfessionHelper.lua
+
 ## Config
 System\Config\Config.lua
 System\Config\ConfigBox.lua

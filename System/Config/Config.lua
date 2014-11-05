@@ -205,7 +205,57 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Interrupts Frame");
     CreateNewText(thisConfig,"Interrupts Frame");
 
+    -- Wrapper -----------------------------------------
+    CreateNewWrap(thisConfig,"--- |cffFF0011Profession Helper "..myClassColor.."---");
 
+    -- Profession Helper
+    CreateNewCheck(thisConfig,"useProfessionHelper", "Check to enable Profession Helper");
+    CreateNewText(thisConfig,"Profession Helper");
+    -- Loot Delay
+    CreateNewBox(thisConfig,"LootDelay", 0, 10  , 1, 5, "Add delay for looting");
+    CreateNewText(thisConfig,"Loot Delay");
+
+    -- Mill WoD Herbs
+    CreateNewCheck(thisConfig,"MillWoDHerbs", "Place any stack of Herbs that is not divisible by 5 as the last Stack of that kind of Herb in your bag.");
+    CreateNewText(thisConfig,"Mill WoD Herbs");
+
+    -- Mill MoP Herbs
+    CreateNewCheck(thisConfig,"MillMoPHerbs", "Place any stack of Herbs that is not divisible by 5 as the last Stack of that kind of Herb in your bag.");
+    CreateNewText(thisConfig,"Mill MoP Herbs");
+
+    -- Mill Cata Herbs
+    CreateNewCheck(thisConfig,"MillCataHerbs", "Place any stack of Herbs that is not divisible by 5 as the last Stack of that kind of Herb in your bag.");
+    CreateNewText(thisConfig,"Mill Cata Herbs");
+
+    -- Prospect WoD Ore
+    CreateNewCheck(thisConfig,"ProspectWoDOre", "Place any stack of Herbs that is not divisible by 5 as the last Stack of that kind of Herb in your bag.");
+    CreateNewText(thisConfig,"Prospect WoD Ore");
+
+    -- Prospect MoP Ore
+    CreateNewCheck(thisConfig,"ProspectMoPOre", "Place any stack of Herbs that is not divisible by 5 as the last Stack of that kind of Herb in your bag.");
+    CreateNewText(thisConfig,"Prospect MoP Ore");
+
+    -- Prospect Cata Ore
+    CreateNewCheck(thisConfig,"ProspectCataOre", "Place any stack of Herbs that is not divisible by 5 as the last Stack of that kind of Herb in your bag.");
+    CreateNewText(thisConfig,"Prospect Cata Ore");
+
+    -- Disenchant JC Blues ilvl 415
+    CreateNewCheck(thisConfig,"DisenchantMoPBluesJC", "Disenchant Crafted Jewelcrafting Neck/Ring ilvl 415");
+    CreateNewText(thisConfig,"Dis JC MoP Blues");
+
+    -- Disenchant JC Greens ilvl 384
+    CreateNewCheck(thisConfig,"DisenchantMoPGreensJC", "Disenchant Crafted Jewelcrafting Neck/Ring ilvl 384");
+    CreateNewText(thisConfig,"Dis JC MoP Greens");
+
+    -- Disenchant Tailor Wrists ilvl 450
+    CreateNewCheck(thisConfig,"DisenchantMoPBluesT", "Disenchant Crafted Tailor NWrists ilvl 450");
+    CreateNewText(thisConfig,"Dis Tailor MoP Blues");
+
+    -- Disenchant Tailor Wrists ilvl 384
+    CreateNewCheck(thisConfig,"DisenchantMoPGreensT", "Disenchant Crafted Tailor Wrists ilvl 384");
+    CreateNewText(thisConfig,"Dis Tailor MoP Greens");
+
+--[[
     -- Wrapper -----------------------------------------
     CreateNewWrap(thisConfig,"--- |cffFF0011PokeRotation "..myClassColor.."---");
 
@@ -273,6 +323,7 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Pause Toggle");
     CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle2")
     CreateNewText(thisConfig,"Pause Toggle");
+]]
 --[[
     -- Wrapper -----------------------------------------
     CreateNewWrap(thisConfig,"--------- Hacks ---------");

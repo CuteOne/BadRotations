@@ -641,11 +641,12 @@ function GuardianConfig()
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"--------- Healing -------");
         -- DoC Healing Touch
-        CreateNewDrop(thisConfig, "DoCHT", 2, "Use DoC Procs Healing Touch on...", "|cffFFBB00Player", "|cff0077FFLowest")
+        CreateNewCheck(thisConfig, "DoCHT");
+        CreateNewDrop(thisConfig, "DoCHT", 2, "Use DoC Procs Healing Touch on...", "|cffFFBB00Player", "|cff0077FFLowest");
         CreateNewText(thisConfig,"Healing Touch");
 
         -- Cenarion Ward
-        CreateNewDrop(thisConfig, "CenWard", 2, "Use Cenarion Ward on...", "|cffFFBB00Player", "|cff0077FFLowest")
+        CreateNewDrop(thisConfig, "CenWard", 2, "Use Cenarion Ward on...", "|cffFFBB00Player", "|cff0077FFLowest");
         CreateNewText(thisConfig,"Cenarion Ward");
 
         CreateNewText(thisConfig," ");
