@@ -44,17 +44,12 @@ if select(3, UnitClass("player")) == 2 then
 		end
 
 		-- Only run rotation if we or our target is in combat.
-		if UnitAffectingCombat("player") or UnitAffectingCombat("target") then
+		if UnitAffectingCombat("player") then
 
 			--Todo SpecialEvent, checks if there is something that are special that we need to handle
 			-- Auto attack
 			if startAttackTimer == nil or startAttackTimer <= GetTime() - 1 then
 				RunMacroText("/startattack")
-			end
-
-			-- Make sure we declare our AoE treshold ASAP and refresh it every seconds
-			if numberOfTargetsMelee == nil or numberOfTargetsMeleeTimer == nil or numberOfTargetsMeleeTimer <= GetTime() - 1 then
-				numberOfTargetsMelee, numberOfTargetsMeleeTimer = getNumEnemies("player",4), GetTime() 
 			end
 
 			ProtPaladinEnemyUnitHandler() -- Fetch information about enemy units

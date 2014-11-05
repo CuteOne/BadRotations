@@ -226,21 +226,21 @@ if select(3, UnitClass("player")) == 10 then
 	------------------------------
 	--- In Combat - Interrupts ---
 	------------------------------
-				if useInterrupts() then
+				if useInterrupts() and canInterrupt("target",tonumber(getValue("Interrupts"))) then
 	-- Quaking Palm
-					if isChecked("Quaking Palm") and canInterrupt(_QuakingPalm,tonumber(getValue("Interrupts"))) and tarDist<5 then
+					if isChecked("Quaking Palm") and tarDist<5 then
 						if castSpell("target",_QuakingPalm,false,false) then return; end
 					end
 	-- Spear Hand Strike
-					if isChecked("Spear Hand Strike") and canInterrupt(_SpearHandStrike,tonumber(getValue("Interrupts"))) and getSpellCD(_QuakingPalm)>0 and getSpellCD(_QuakingPalm)<119 and tarDist<5 then
+					if isChecked("Spear Hand Strike") and getSpellCD(_QuakingPalm)>0 and getSpellCD(_QuakingPalm)<119 and tarDist<5 then
 						if castSpell("target",_SpearHandStrike,false,false) then return; end
 					end
 	-- Paralysis
-					if isChecked("Paralysis") and canInterrupt(_Paralysis,tonumber(getValue("Interrupts"))) and ((getSpellCD(_SpearHandStrike)>0 and getSpellCD(_SpearHandStrike)<13) or tarDist>5) and tarDist<20 then
+					if isChecked("Paralysis") and ((getSpellCD(_SpearHandStrike)>0 and getSpellCD(_SpearHandStrike)<13) or tarDist>5) and tarDist<20 then
 						if castSpell("target",_Paralysis,false,false) then return; end
 					end
 	-- Leg Sweep
-					if isChecked("Leg Sweep") and canInterrupt(_LegSweep,tonumber(getValue("Interrupts"))) and getSpellCD(_Paralysis)>0 and getSpellCD(_Paralysis)<13 and tarDist<5 then
+					if isChecked("Leg Sweep") and getSpellCD(_Paralysis)>0 and getSpellCD(_Paralysis)<13 and tarDist<5 then
 						if castSpell("target",_LegSweep,false,false) then return; end
 					end
 				end

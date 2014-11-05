@@ -128,8 +128,15 @@ function DruidRestoration()
 			end
 		end
 	end
-
-	-- Food/Invis Check
+-- Stop Cast HealingToch
+if isChecked("Healing Touch") or isChecked("Healing Touch Tank") then
+	if isCastingSpell(5185) then
+	if (getLowAllies(60) > 1 
+	or lowestHP <= getValue("Regrowth Tank") 
+	or lowestHP <= getValue("Regrowth"))
+	and select(2,DruidCastTime()) >= 1 then 
+	RunMacroText("/stopcasting");return end end end
+-- Food/Invis Check
 	if canRun() ~= true then return false; end
 
 --[[ 	-- On GCD After here, palce out of combats spells here
@@ -219,7 +226,7 @@ function DruidRestoration()
 
 		--[[ 3 - NS healing Touch --(U can NS healing Touch While in cat form)]]
         -- Healing Touch via Ns
-		if isChecked("Healing Touch Ns") and canCast(5185,false,false) and lowestHP < getValue("Healing Touch Ns") then
+		if isChecked("Healing Touch Ns") and canCast(5185,false,false) and lowestHP <= getValue("Healing Touch Ns") then
 			for i = 1, #nNova do
 				if nNova[i].hp <= getValue("Healing Touch Ns") and getDistance(nNova[i].unit,"player") < 43 then
 				   	if castSpell("player",132158,true,false) then
@@ -431,33 +438,11 @@ function DruidRestoration()
 			end
 		end
 	end
-	--[[ 18.5 - LifeBloom Fast Swich]]
-		if isChecked("Lifebloom") and canCast(33763,false,false) then
-	    	for i = 1, #nNova do
-				if nNova[i].hp < 249 and not UnitIsDeadOrGhost("focus") and getBuffRemain("focus",33763) == 0 and UnitExists("focus")
-				and getDistance("player","focus") < 43 then
-					if castSpell("focus",33763,true,false) then return; end
-				end
-			end
-		end
-        --[[ 19 - Healing Touch --(cast Healing Touch on all usualy between 70 - 90)]]
-		if isChecked("Healing Touch") and isStanding(0.3) and canCast(5185,false,true) and lowestHP < getValue("Healing Touch") then
-			for i = 1, #nNova do
-				if nNova[i].hp <= getValue("Healing Touch") then
-					if castSpell(nNova[i].unit,5185,true) then return; end
-				end
-			end
-		end
-		--[[ 19.5 - Healing Touch Tank --(cast Healing Touch on tank usualy between 60 - 90 )]]
-		if isChecked("Healing Touch Tank") and isStanding(0.3) and canCast(5185,false,true) and lowestTankHP < getValue("Healing Touch Tank") then
-			for i = 1, #nNova do
-				if (nNova[i].role == "TANK" and nNova[i].hp <= getValue("Healing Touch Tank")) then
-					if castSpell(nNova[i].unit,5185,true) then return; end
-				end
-			end
-		end
+
+      
+		
 		--[[ 20 - Regrowth --(cast regrowth on all usualy between 30 - 40)]]
-		if isChecked("Regrowth") and isStanding(0.3) and canCast(8936,false,true) and lowestHP < getValue("Regrowth") then
+		if isChecked("Regrowth") and isStanding(0.3) and canCast(8936,false,true) and lowestHP <= getValue("Regrowth") then
 			for i = 1, #nNova do
 				if nNova[i].hp <= getValue("Regrowth") then
 					if castSpell(nNova[i].unit,8936,true) then return; end
@@ -465,14 +450,29 @@ function DruidRestoration()
 			end
 		end
 --[[ 21 - Regrowth Tank --(cast regrowth on tank usualy between 45 - 60 )]]
-		if isChecked("Regrowth Tank") and isStanding(0.3) and canCast(8936,false,true) and lowestTankHP < getValue("Regrowth Tank") then
+		if isChecked("Regrowth Tank") and isStanding(0.3) and canCast(8936,false,true) and lowestTankHP <= getValue("Regrowth Tank") then
 			for i = 1, #nNova do
 				if (nNova[i].role == "TANK" and nNova[i].hp <= getValue("Regrowth Tank")) then
 					if castSpell(nNova[i].unit,8936,true) then return; end
 				end
 			end
 		end
-
+			--[[ 37 - Genesis --(if reju buff remain and health < 60 or custome on single target)]]
+		if isChecked("Genesis Filler") and canCast(145518,false,false) and lowestHP < getValue("Genesis Filler") and getLowAllies(75) < 2 then
+			for i=1, #nNova do
+				if nNova[i].hp <= getValue("Genesis Filler") and getBuffRemain(nNova[i].unit,774,"player") > 3 and not UnitBuffID(nNova[i].unit,162359,"player") then
+				    if castSpell("player",145518,true,false) then return; end
+				end
+			end
+		end
+         --[[ 34 - OmenRegrowth--()]]
+		if isChecked("Regrowth Omen") and isStanding(0.3) and UnitBuffID("player",16870) and canCast(8936,false,false) and lowestHP < getValue("Regrowth Omen") and getLowAllies(70) < 3 then
+			for i = 1, #nNova do
+				if nNova[i].hp <= getValue("Regrowth Omen") then
+					if castSpell(nNova[i].unit,8936,true) then return; end
+				end
+			end
+		end
 		--[[ 22 - Harmony]]
 		if isKnown(114107) ~= true then
 			if UnitAffectingCombat("player") and isChecked("Swiftmend Harmoney") then
@@ -554,7 +554,15 @@ function DruidRestoration()
 			end
 		end
 
-
+	--[[ 18.5 - LifeBloom Fast Swich]]
+		if isChecked("Lifebloom") and canCast(33763,false,false) then
+	    	for i = 1, #nNova do
+				if nNova[i].hp < 249 and not UnitIsDeadOrGhost("focus") and getBuffRemain("focus",33763) == 0 and UnitExists("focus")
+				and getDistance("player","focus") < 43 then
+					if castSpell("focus",33763,true,false) then return; end
+				end
+			end
+		end
 		--[[ 26 - WildMushroom(if not any mushroom active )]]
 		if isChecked("Mushrooms") and (getValue("Mushrooms Who") == 2 or UnitExists("focus") == false) and (shroomTimer == nil or shroomTimer <= GetTime() - 2) then
 			if canCast(145205,false,false) and (shroomsTable == nil or #shroomsTable == 0 or shroomsTable[1].guid == nil) then
@@ -722,11 +730,35 @@ function DruidRestoration()
 				end
 			end
 		end
+	  
+	 
+	
+	
+	  --[[ 19 - Healing Touch --(cast Healing Touch on all usualy between 70 - 90)]]
+		if isChecked("Healing Touch") and isStanding(0.3) and canCast(5185,false,true) and lowestHP <= getValue("Healing Touch") then
+			if (lowestHP > getValue("Regrowth Tank") or lowestHP > getValue("Regrowth")) then
+			for i = 1, #nNova do
+				if nNova[i].hp <= getValue("Healing Touch") then
+					if castSpell(nNova[i].unit,5185,true) then return; end
+				end
+			end
+		end
+		end
+		--[[ 19.5 - Healing Touch Tank --(cast Healing Touch on tank usualy between 60 - 90 )]]
+		if isChecked("Healing Touch Tank") and isStanding(0.3) and canCast(5185,false,true) and lowestTankHP <= getValue("Healing Touch Tank") then
+			if (lowestHP > getValue("Regrowth Tank") or lowestHP > getValue("Regrowth")) then
+			for i = 1, #nNova do
+				if (nNova[i].role == "TANK" and nNova[i].hp <= getValue("Healing Touch Tank")) then
+					if castSpell(nNova[i].unit,5185,true) then return; end
+				end
+			end
+		end
+	
 	end
 end
 end
 
-
+end
 
 
 
