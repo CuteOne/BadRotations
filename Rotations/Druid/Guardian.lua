@@ -105,7 +105,7 @@ function DruidGuardian()
 		-- Mark of the Wild
 		if isChecked("Mark Of The Wild") == true and canCast(1126,false,false) and (lastMotw == nil or lastMotw <= GetTime() - 5) then
 			for i = 1, #nNova do
-		  		if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) then
+		  		if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) and UnitInRange(nNova[i].unit) then
 		  			if castSpell("player",1126,true) then lastMotw = GetTime(); return; end
 				end
 			end
@@ -280,7 +280,7 @@ function DruidGuardian()
 				end
 			end
 			-- actions+=/healing_touch,if=buff.dream_of_cenarius.react&health.pct<30
-			if getTalent(6,2) then
+			if getTalent(6,2) and isChecked("DoCHT")then
 				if docBuff then
 					if getValue("DoCHT") == 2 then
 			      if castSpell(nNova[1].unit,ht,true,false,false) then return; end
