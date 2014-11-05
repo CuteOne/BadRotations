@@ -77,7 +77,7 @@ if select(3,UnitClass("player")) == 2 then
 		-- ToDos:  Add multiple interrupts such as binding light(if within 10 yards and facing, Fist of Justice(stuns), Avengers shield
 		-- Should perhaps move out the spellCD and ranged outside canInterrupt?? So first check if range and cd is ok for cast, then check for timeframe?d
 		function ProtPaladinInterrupt()
-			
+
 			if isChecked("Rebuke") then -- Should change this to interrupt not rebuke and use toggle instead of check
 				--See what spell we want to use
 				-- We need to change the "Rebuke" conmfig to interrupt delay
@@ -91,7 +91,7 @@ if select(3,UnitClass("player")) == 2 then
 				end
 
 				if canInterrupt("target", getValue("Avengers Shield Interrupt")) then
-	
+
 					if castAvengersShield("target") then
 						return true
 					end
@@ -176,16 +176,17 @@ if select(3,UnitClass("player")) == 2 then
 
 			-- Make sure we declare our AoE treshold ASAP and refresh it every seconds
 			if numberOfTargetsMelee == nil or numberOfTargetsMeleeTimer == nil or numberOfTargetsMeleeTimer <= GetTime() - 1 then
-				numberOfTargetsMelee, numberOfTargetsMeleeTimer = getNumEnemies("player",4), GetTime() 
+				numberOfTargetsMelee, numberOfTargetsMeleeTimer = getNumEnemies("player",4), GetTime()
 			end
 
 			if numberOfTargetsForHammerOfRighteuos == nil or numberOfTargetsForHammerOfRighteuosTimer == nil or numberOfTargetsForHammerOfRighteuosTimer <= GetTime() - 1 then
-				numberOfTargetsForHammerOfRighteuos, numberOfTargetsForHammerOfRighteuos = getNumEnemies("target",7), GetTime() 
+				numberOfTargetsForHammerOfRighteuos, numberOfTargetsForHammerOfRighteuos = getNumEnemies("target",7), GetTime()
 			end
 			--print("Table has " ..#enemiesTable)
 
-			return 
-		end	
+			return
+		end
+
 
 		function ProtPaladinFriendlyUnitHandler() -- Handles freindly Units gathering
 			-- Using Novas table
@@ -197,8 +198,8 @@ if select(3,UnitClass("player")) == 2 then
 			-- Todo Check targets for Hand Of Freedom
 			-- Todo Check targets for Hand of Protection
 
-			return 
-		end	
+			return
+		end
 
 		function ProtPaladinHolyPowerConsumers() -- Handle the use of HolyPower
 
@@ -400,7 +401,7 @@ Holy
 
 		-- Beacon Of Light
 		function BeaconOfLight()
-			beaconTarget, beaconRole, beaconHP = "player", "HEALER", getHP("player")
+			local beaconTarget, beaconRole, beaconHP = "player", "HEALER", getHP("player")
 			-- Find if we have any, note if its a tank.
 			for i = 1, #nNova do
 				if UnitBuffID(nNova[i].unit,_BeaconOfLight,"player") then

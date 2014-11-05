@@ -188,7 +188,7 @@ function canHeal(Unit)
 	return false;
 end
 
--- canInterrupt("target", 20) 
+-- canInterrupt("target", 20)
 function canInterrupt(unit, percentint)
     local unit = unit or "target"
     local castDuration = 0
@@ -237,8 +237,8 @@ function canInterrupt(unit, percentint)
         	end
         end
         if castType == "spellchannel" then
-        	if (GetTime() - castStartTime/1000) > channelDelay and interruptable == true then	
-        		return true 
+        	if (GetTime() - castStartTime/1000) > channelDelay and interruptable == true then
+        		return true
         	end
         end
         return false
@@ -764,7 +764,7 @@ end
 -- use this to build enemiesTable
 -- makeEnemiesTable()
 function makeEnemiesTable(maxDistance)
-	local  maxDistance = maxDistance or 40
+	local  maxDistance = maxDistance or 50
 	-- Throttle this 1 sec.
 	if enemiesTable == nil or enemiesTableTimer == nil or enemiesTableTimer <= GetTime() - 1 then
 		-- create/empty table
@@ -776,10 +776,12 @@ function makeEnemiesTable(maxDistance)
 		  		if UnitIsVisible(thisUnit) == true and getCreatureType(thisUnit) == true then
 		  			if UnitCanAttack(thisUnit, "player") == true and UnitIsDeadOrGhost(thisUnit) == false then
 		  				local unitDistance = getDistance("player",thisUnit)
+		  				local X1, Y1, Z1 = ObjectPosition(thisUnit)
+
 		  				if unitDistance <= maxDistance then
 		  					local unitHP = getHP(thisUnit)
 		  					-- insert unit as a sub-array holding unit informations
-		   					tinsert(enemiesTable,{ unit = thisUnit, distance = unitDistance, hp = unitHP })
+		   					tinsert(enemiesTable,{ unit = thisUnit, distance = unitDistance, hp = unitHP, x = X1, y = Y1, z = Z1 })
 		   				end
 		  			end
 		  		end
@@ -792,6 +794,39 @@ function makeEnemiesTable(maxDistance)
 	 	end)
 	end
 end
+
+-- this function uses enemiesTable
+function getNumEnemiesInRange(Unit, Radius)
+	-- here i make sure it will work even if user dont enter values
+	local Unit = Unit or "target"
+	local minimumUnits = minimumUnits or 3
+	local Radius = Radius or 10
+	-- i make sure i do have enemiesTable loaded into memory
+	if enemiesTable then
+		-- here i set best units to their "worst" values. on each check that beat this value, i will update the bestTarget
+		local foundTargets =  0
+
+		-- since i want to iterate from a specific unit, i add its position to locals
+		local X1, Y1, Z1 = ObjectPosition(Unit)
+
+		-- then i start itreation of my array,
+		for i = 1, #enemiesTable do
+			-- i want to compare two units so i already store my 1st one into local mem
+			local X2, Y2, Z2 = enemiesTable[i].x, enemiesTable[i].y, enemiesTable[i].z
+
+			-- find range
+			local unitDistance = math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))
+			--print(unitDistance)
+			-- see if i have at least minimum Units
+			if unitDistance < Radius then
+				foundTargets = foundTargets + 1
+			end
+		end
+		-- i return number of units in range
+		return foundTargets
+	end
+end
+
 
 -- findTarget(10,true,1)   will find closest target in 10 yard front that have more or equal to 1%hp
 function findTarget(range, facingCheck, minimumHealth)
@@ -939,18 +974,10 @@ function getTotemDistance(Unit1)
 
 		--print(TotemDistance)
 		return TotemDistance
-
-		--if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
-		--	local unitSize = IGetFloatDescriptor(UnitGUID(Unit1),0x110);
-		--	return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))-unitSize;
-		--else
-		--	return 1000;
-		--end
 	else
 		return 1000;
 	end
 end
-
 
 -- if getBossID("boss1") == 71734 then
 function getBossID(BossUnitID)

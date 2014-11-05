@@ -736,14 +736,17 @@ if isChecked("Healing Touch") or isChecked("Healing Touch Tank") then
 	
 	  --[[ 19 - Healing Touch --(cast Healing Touch on all usualy between 70 - 90)]]
 		if isChecked("Healing Touch") and isStanding(0.3) and canCast(5185,false,true) and lowestHP <= getValue("Healing Touch") then
+			if (lowestHP > getValue("Regrowth Tank") or lowestHP > getValue("Regrowth")) then
 			for i = 1, #nNova do
 				if nNova[i].hp <= getValue("Healing Touch") then
 					if castSpell(nNova[i].unit,5185,true) then return; end
 				end
 			end
 		end
+		end
 		--[[ 19.5 - Healing Touch Tank --(cast Healing Touch on tank usualy between 60 - 90 )]]
 		if isChecked("Healing Touch Tank") and isStanding(0.3) and canCast(5185,false,true) and lowestTankHP <= getValue("Healing Touch Tank") then
+			if (lowestHP > getValue("Regrowth Tank") or lowestHP > getValue("Regrowth")) then
 			for i = 1, #nNova do
 				if (nNova[i].role == "TANK" and nNova[i].hp <= getValue("Healing Touch Tank")) then
 					if castSpell(nNova[i].unit,5185,true) then return; end
@@ -755,7 +758,7 @@ if isChecked("Healing Touch") or isChecked("Healing Touch Tank") then
 end
 end
 
-
+end
 
 
 
