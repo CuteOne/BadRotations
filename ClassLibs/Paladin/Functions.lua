@@ -162,16 +162,16 @@ if select(3,UnitClass("player")) == 2 then
 			makeEnemiesTable(40)-- Unit in 40 range
 			--print("Table has " ..#enemiesTable)
 
-			return 
-		end	
+			return
+		end
 
 		function ProtPaladinFriendlyUnitHandler() -- Handles Enemy Units gathering
 			-- At the moment only populating table to see performance.
-			
+
 			--print("Table has " ..#nNova)
 
-			return 
-		end	
+			return
+		end
 
 		function ProtPaladinHolyPowerConsumers() -- Handle the use of HolyPower
 
@@ -348,7 +348,7 @@ Holy
 
 		-- Beacon Of Light
 		function BeaconOfLight()
-			beaconTarget, beaconRole, beaconHP = "player", "HEALER", getHP("player")
+			local beaconTarget, beaconRole, beaconHP = "player", "HEALER", getHP("player")
 			-- Find if we have any, note if its a tank.
 			for i = 1, #nNova do
 				if UnitBuffID(nNova[i].unit,_BeaconOfLight,"player") then
