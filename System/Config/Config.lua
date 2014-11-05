@@ -215,6 +215,10 @@ function CreateGeneralsConfig()
     CreateNewBox(thisConfig,"LootDelay", 0, 10  , 1, 5, "Add delay for looting");
     CreateNewText(thisConfig,"Loot Delay");
 
+    -- Mill WoD Herbs
+    CreateNewCheck(thisConfig,"MillWoDHerbs", "Place any stack of Herbs that is not divisible by 5 as the last Stack of that kind of Herb in your bag.");
+    CreateNewText(thisConfig,"Mill WoD Herbs");
+
     -- Mill MoP Herbs
     CreateNewCheck(thisConfig,"MillMoPHerbs", "Place any stack of Herbs that is not divisible by 5 as the last Stack of that kind of Herb in your bag.");
     CreateNewText(thisConfig,"Mill MoP Herbs");
@@ -222,6 +226,10 @@ function CreateGeneralsConfig()
     -- Mill Cata Herbs
     CreateNewCheck(thisConfig,"MillCataHerbs", "Place any stack of Herbs that is not divisible by 5 as the last Stack of that kind of Herb in your bag.");
     CreateNewText(thisConfig,"Mill Cata Herbs");
+
+    -- Prospect WoD Ore
+    CreateNewCheck(thisConfig,"ProspectWoDOre", "Place any stack of Herbs that is not divisible by 5 as the last Stack of that kind of Herb in your bag.");
+    CreateNewText(thisConfig,"Prospect WoD Ore");
 
     -- Prospect MoP Ore
     CreateNewCheck(thisConfig,"ProspectMoPOre", "Place any stack of Herbs that is not divisible by 5 as the last Stack of that kind of Herb in your bag.");

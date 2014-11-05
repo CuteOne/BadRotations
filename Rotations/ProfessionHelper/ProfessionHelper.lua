@@ -7,6 +7,68 @@ function ProfessionHelper()
     ------------------------------------------------------------------------------------------------------
     -- Milling -------------------------------------------------------------------------------------------
     ------------------------------------------------------------------------------------------------------
+    if isChecked("MillWoDHerbs") then
+      -- Talador Orchid
+      if IsSpellKnown(51005) and GetItemCount(109129,false,false) >= 5 then
+        if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
+          if castSpell("player", 51005, true) then
+            UseItemByName(109129)
+            lootTimer = GetTime()
+            return;
+          end
+        end
+      end
+      -- Nagrand Arrowbloom
+      if IsSpellKnown(51005) and GetItemCount(109128,false,false) >= 5 then
+        if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
+          if castSpell("player", 51005, true) then
+            UseItemByName(109128)
+            lootTimer = GetTime()
+            return;
+          end
+        end
+      end
+      -- Starflower
+      if IsSpellKnown(51005) and GetItemCount(109127,false,false) >= 5 then
+        if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
+          if castSpell("player", 51005, true) then
+            UseItemByName(109127)
+            lootTimer = GetTime()
+            return;
+          end
+        end
+      end
+      -- Gorgrond Flytrap
+      if IsSpellKnown(51005) and GetItemCount(109126,false,false) >= 5 then
+        if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
+          if castSpell("player", 51005, true) then
+            UseItemByName(109126)
+            lootTimer = GetTime()
+            return;
+          end
+        end
+      end
+      -- Fireweed
+      if IsSpellKnown(51005) and GetItemCount(109125,false,false) >= 5 then
+        if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
+          if castSpell("player", 51005, true) then
+            UseItemByName(109125)
+            lootTimer = GetTime()
+            return;
+          end
+        end
+      end
+      -- Frostweed
+      if IsSpellKnown(51005) and GetItemCount(109124,false,false) >= 5 then
+        if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
+          if castSpell("player", 51005, true) then
+            UseItemByName(109124)
+            lootTimer = GetTime()
+            return;
+          end
+        end
+      end
+    end -- Mill WoD Herbs end
     if isChecked("MillMoPHerbs") then
       -- Fool's Cap
       if IsSpellKnown(51005) and GetItemCount(79011,false,false) >= 5 then
@@ -124,6 +186,28 @@ function ProfessionHelper()
     ------------------------------------------------------------------------------------------------------
     -- Prospecting ---------------------------------------------------------------------------------------
     ------------------------------------------------------------------------------------------------------
+    if isChecked("ProspectWoDOre") then
+      -- True Iron Ore
+      if IsSpellKnown(31252) and GetItemCount(109119,false,false) >= 5 then
+        if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
+          if castSpell("player", 31252, true) then
+            UseItemByName(109119)
+            lootTimer = GetTime()
+            return;
+          end
+        end
+      end
+      -- Blackrock Ore
+      if IsSpellKnown(31252) and GetItemCount(109118,false,false) >= 5 then
+        if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
+          if castSpell("player", 31252, true) then
+            UseItemByName(109118)
+            lootTimer = GetTime()
+            return;
+          end
+        end
+      end
+    end -- Prospect WoD end
     if isChecked("ProspectMoPOre") then
       -- Ghost Iron Ore
       if IsSpellKnown(31252) and GetItemCount(72092,false,false) >= 5 then
@@ -281,3 +365,9 @@ function ProfessionHelper()
     end -- Disenchant Tailor Greens 384 end
   end -- ooc check end
 end -- ProfessionHelper end
+
+
+--WoD Ore
+--[[
+
+]]
