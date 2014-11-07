@@ -23,9 +23,9 @@ function AssToggles()
      -- Cooldowns Button
         if CooldownsModesLoaded ~= "Cute Cooldowns Modes" then
             CustomCooldownsModes = {
-                [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = _ShadowBlades},
-                [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = _ShadowBlades},
-                [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = _ShadowBlades}
+                [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = _Preparation},
+                [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = _Preparation},
+                [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = _Preparation}
             };
            CooldownsModes = CustomCooldownsModes
            CreateButton("Cooldowns",2,0)
@@ -78,67 +78,42 @@ function AssToggles()
             elseif getValue(toggle) == 5 then
                 return IsRightAltKeyDown();
             elseif getValue(toggle) == 6 then
-                return 0
+                return false
             end
         end
 
     --AoE Key Toggle
         if AOETimer == nil then AOETimer = 0; end
-        if SpecificToggle("Rotation Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - AOETimer > 0.25 then
+        if SpecificToggle("Rotation Mode") and not GetCurrentKeyBoardFocus() and GetTime() - AOETimer > 0.25 then
             AOETimer = GetTime()
-            if BadBoy_data['AoE'] ~= #AoEModes then
-                BadBoy_data['AoE'] = BadBoy_data['AoE']+1
-            else
-                BadBoy_data['AoE'] = 1
-            end
             UpdateButton("AoE")
         end
 
         --Cooldown Key Toggle
         if CDTimer == nil then CDTimer = 0; end
-        if SpecificToggle("Cooldown Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - CDTimer > 0.25 then
+        if SpecificToggle("Cooldown Mode") and not GetCurrentKeyBoardFocus() and GetTime() - CDTimer > 0.25 then
             CDTimer = GetTime()
-            if BadBoy_data['Cooldowns'] ~= #CooldownsModes then
-                BadBoy_data['Cooldowns'] = BadBoy_data['Cooldowns']+1
-            else
-                BadBoy_data['Cooldowns'] = 1
-            end
             UpdateButton("Cooldowns")
         end
 
         --Defensive Key Toggle
         if DefTimer == nil then DefTimer = 0; end
-        if SpecificToggle("Defensive Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - DefTimer > 0.25 then
+        if SpecificToggle("Defensive Mode") and not GetCurrentKeyBoardFocus() and GetTime() - DefTimer > 0.25 then
             DefTimer = GetTime()
-            if BadBoy_data['Defensive'] ~= #DefensiveModes then
-                BadBoy_data['Defensive'] = BadBoy_data['Defensive']+1
-            else
-                BadBoy_data['Defensive'] = 1
-            end
             UpdateButton("Defensive")
         end
 
         --Interrupt Key Toggle
         if IntTimer == nil then IntTimer = 0; end
-        if SpecificToggle("Interrupt Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - IntTimer > 0.25 then
+        if SpecificToggle("Interrupt Mode") and not GetCurrentKeyBoardFocus() and GetTime() - IntTimer > 0.25 then
             IntTimer = GetTime()
-            if BadBoy_data['Interrupts'] ~= #InterruptsModes then
-                BadBoy_data['Interrupts'] = BadBoy_data['Interrupts']+1
-            else
-                BadBoy_data['Interrupts'] = 1
-            end
             UpdateButton("Interrupts")
         end
 
         --Pick Pocket Key Toggle
         if PPTimer == nil then PPTimer = 0; end
-        if SpecificToggle("Picker Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - PPTimer > 0.25 then
+        if SpecificToggle("Picker Mode") and not GetCurrentKeyBoardFocus() and GetTime() - PPTimer > 0.25 then
             PPTimer = GetTime()
-            if BadBoy_data['Picker'] ~= #PickerModes then
-                BadBoy_data['Picker'] = BadBoy_data['Picker']+1
-            else
-                BadBoy_data['Picker'] = 1
-            end
             UpdateButton("Picker")
         end
     end
