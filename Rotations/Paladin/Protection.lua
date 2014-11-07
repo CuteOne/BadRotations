@@ -15,6 +15,7 @@ if select(3, UnitClass("player")) == 2 then
 			currentConfig = "Protection CodeMyLife"
 		end
 
+		
 		-- Todo, add this to GUI and create a sub function, should also cater for macros for manual casting
 		-- Manual Input
 		if IsLeftShiftKeyDown() then -- Pause the script, keybind in wow shift+1 etc for manual cast
@@ -93,12 +94,6 @@ if select(3, UnitClass("player")) == 2 then
 			if ProtPaladinBuffs() then -- Make sure that we are buffed, 2 modes, inCombat and Out Of Combat, Blessings, RF,
 				return true
 			end
-
-			-- Casting SS here for the time being, should be part of something earlier such as buffs or survival
-			if castSacredShield(3) then
-				return true
-			end
-			--Todo Check number of targets in range do Concentration and have it earlier.
 
 			-- Handle the use of HolyPower
 			if ProtPaladinHolyPowerConsumers() then
