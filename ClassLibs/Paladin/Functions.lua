@@ -38,6 +38,14 @@ if select(3,UnitClass("player")) == 2 then
 
     function PaladinProtFunctions()
 
+    	-- Logic to seal Switch if we have the talent
+    	function sealSwitchProt()
+    		return false
+    		-- seal_of_insight,if=talent.empowered_seals.enabled&!seal.insight&buff.uthers_insight.remains<=buff.liadrins_righteousness.remains&buff.uthers_insight.remains<=buff.maraads_truth.remains
+    		-- seal_of_righteousness,if=talent.empowered_seals.enabled&!seal.righteousness&buff.liadrins_righteousness.remains<=buff.uthers_insight.remains&buff.liadrins_righteousness.remains<=buff.maraads_truth.remains
+    		-- seal_of_truth,if=talent.empowered_seals.enabled&!seal.truth&buff.maraads_truth.remains<buff.uthers_insight.remains&buff.maraads_truth.remains<buff.liadrins_righteousness.remains
+    	end
+
 		function ProtPaladinControl(unit)
 			--If no unit then we should check autotargetting
 			-- If the unit is a player controlled then assume pvp and always CC
@@ -223,6 +231,12 @@ if select(3,UnitClass("player")) == 2 then
 			-- Todos: Talents, only light hammer is handled, Prism and Sentence is not
 			-- Todos: Glyphs, we have no support for the Holy Wrath glyph which should put it higher on priority after Judgement.
 
+			-- Seal Switching if we are waiting for CS or Judge CD
+			-- seal_of_insight,if=talent.empowered_seals.enabled&!seal.insight&buff.uthers_insight.remains<cooldown.judgment.remains
+			-- seal_of_righteousness,if=talent.empowered_seals.enabled&!seal.righteousness&buff.uthers_insight.remains>cooldown.judgment.remains&buff.liadrins_righteousness.down
+			-- seal_of_truth,if=talent.empowered_seals.enabled&!seal.truth&buff.uthers_insight.remains>cooldown.judgment.remains&buff.liadrins_righteousness.remains>cooldown.judgment.remains&buff.maraads_truth.down
+
+
 			-- If we have 3 targets for Avenger Shield and we have Grand Crusader Buff
 			-- Todo : we need to check if AS will hit 3 targets, so what is the range of AS jump? We are usimg same logic as Hammer of Righ at the moment, 8 yard.
 			if UnitBuffID("player", 85043) and numberOfTargetsForHammerOfRighteuos > 2 then -- Grand Crusader buff, we use 8 yards from target as check
@@ -246,10 +260,36 @@ if select(3,UnitClass("player")) == 2 then
 				end
 			end
 
+			-- wait,sec=cooldown.crusader_strike.remains,if=cooldown.crusader_strike.remains>0&cooldown.crusader_strike.remains<=0.35
+
 			if castJudgement("target") then
 				--print("Casting Judgement")
 				return true
 			end
+
+			--wait,sec=cooldown.judgment.remains,if=cooldown.judgment.remains>0&cooldown.judgment.remains<=0.35
+
+			if numberOfTargetsForHammerOfRighteuos > 1 then -- Grand Crusader buff, we use 8 yards from target as check
+				if castAvengersShield("target") then
+					--print("Casting AS in AoE rotation with Grand Crusader procc")
+					return true
+				end
+			end
+
+			-- holy_wrath,if=talent.sanctified_wrath.enabled
+
+			if UnitBuffID("player", 85043) then -- Grand Crusader buff if we are single target
+				if castAvengersShield("target") then
+					--print("Casting AS in rotation with Grand Crusader procc")
+					return true
+				end
+			end
+
+			if castSacredShield(2) then
+				return true
+			end
+
+			-- holy_wrath,if=glyph.final_wrath.enabled&target.health.pct<=20
 
 			if castAvengersShield("target") then
 				--print("Casting lights Hammer in rotation")
@@ -261,6 +301,8 @@ if select(3,UnitClass("player")) == 2 then
 				--print("Casting lights Hammer in rotation")
 				return true
 			end
+
+			-- Holy Prism, simcraft
 
 			-- We should cast concenration if more then 3 targets are getting hit
 			-- TODO we need to understand the range of consentrations
@@ -281,18 +323,43 @@ if select(3,UnitClass("player")) == 2 then
 				--print("Casting Holy Wrath")
 				return true
 			end
-			-- Todo, we could check number of mobs in melee ranged
+			
+			--Execution Sentence, simcraft
 
-			if castConsecration() then
-				--print("Casting Consecration")
+			if castHammerOfWrath("target") then
+				--print("Casting Hammer of Wrath")
 				return true
 			end
 
-			-- If we are waiting for CDs we can cast SS
-			if castSacredShield(5) then
-					return true
+			if castSacredShield(8) then
+				return true
 			end
-			--Todo Check number of targets in range do Concentration and have it earlier.
+
+			if numberOfTargetsMelee > 0 then
+				if castConsecration("target") then
+					--print("Casting Consecration")
+					return true
+				end
+			end
+
+			if getTalent(7,1) then
+				if sealSwitchProt() then -- For lvl 100 Emp Seals logicS
+					return true 
+				end
+			end
+
+			-- holy_wrath from simcraft
+
+			-- If we are waiting for CDs we can cast SS
+			if castSacredShield(15) then
+				return true
+			end
+			
+			if getTalent(3,1) then  -- Self Less Healer
+				if select(4, UnitBuff("player", _SelflessHealerBuff)) then  -- 4th oaram is count
+					-- Todo: We should find friendly candidate to cast on
+				end
+			end
 		end
 
 		function ProtPaladingHolyPowerCreatersAoE() -- Rotation that focus on AoE, should be done to pick up group of adds
@@ -313,7 +380,7 @@ if select(3,UnitClass("player")) == 2 then
 			end
 
 			-- Cast Crusader for Single and Hammer of Right if aoe, should check other targets for spell if not in melee
-			if isInMelee() then
+			if isInMelee("target") then
 				if castSpell("target",strike,false,false) then
 					return
 				end

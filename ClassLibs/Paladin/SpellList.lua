@@ -61,6 +61,7 @@ if select(3,UnitClass("player")) == 2 then
 	_SealOfRighteousness        =   20154
 	_SealOfThruth               =   31801
 	_SelflessHealer             =   85804
+	_SelflessHealerBuff			= 	114250
 	_ShieldOfTheRighteous       =   53600
 	_SpeedOfLight               =   85499
 	_TemplarsVerdict            =   85256
@@ -78,9 +79,9 @@ if select(3,UnitClass("player")) == 2 then
 
 
 	-- Todo : Check Glyphs(is on us or can we cast it on ground 25 yards
-	function castConsecration()
-		if canCast(_Consecration) and isInMelee() then
-			if castSpell("player",_Consecration,true) then  -- Why are we using target here?
+	function castConsecration(unit)
+		if canCast(_Consecration) and isInMelee(unit) then
+			if castSpell("player",_Consecration,true) then 
 				return true
 			end
 		end
