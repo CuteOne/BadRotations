@@ -9,6 +9,15 @@ if select(3, UnitClass("player")) == 4 then
 	    end
 		AssToggles();
 		--ChatOverlay(canPickpocket)
+		-- if worgen==nil then
+		-- 	worgen=false
+		-- end
+		-- if isInCombat("player") or UnitBuffID("player",68992) then
+		-- 	worgen=true
+		-- end
+		-- if not isInCombat("player") and worgen==true and not UnitBuffID("player",68992) then
+		-- 	if castSpell("player",68996,true,false,false) then worgen=false; return; end
+		-- end
 
 
 --------------
@@ -244,6 +253,10 @@ if select(3, UnitClass("player")) == 4 then
 				end
 	-- Envenom
 				if (combo>4 and envRemain<2 and (getSpellCD(_DeathFromAbove)>2 or not getTalent(7,3))) and enemies<4 and ddRemain==0 and power>35 and tarDist<5 then
+					if castSpell("target",_Envenom,false,false,false) then return; end
+				end
+		-- Envenom
+				if (combo>4 and envRemain<2 and (getSpellCD(_DeathFromAbove)>2 or not getTalent(7,3))) and enemies<4 and power>35 and tarDist<5 then
 					if castSpell("target",_Envenom,false,false,false) then return; end
 				end
 	-- Eviscerate
