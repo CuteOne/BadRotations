@@ -42,6 +42,18 @@ end
 function dropOp(string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
     return CreateNewDrop(thisConfig, string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10);
 end
+-- Config Panel
+function NewRogueConfig()
+    --if not doneConfig then
+        thisConfig = 0
+        -- Title
+        titleOp("CuteOne New Rogue");
+                -- Spacer
+        CreateGeneralsConfig();
+
+        WrapsManager();
+    --end
+end
 
 	  --[[]]		--[[           ]]	--[[           ]]		  --[[]]		--[[           ]]	--[[           ]]
      --[[  ]]		--[[           ]]	--[[           ]]	     --[[  ]]		--[[           ]]	--[[           ]]

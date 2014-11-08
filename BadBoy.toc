@@ -95,6 +95,7 @@ Rotations\Priest\Shadow.lua
 Rotations\Rogue\Assassination.lua
 Rotations\Rogue\Combat.lua
 Rotations\Rogue\Subtlety.lua
+Rotations\Rogue\NewRogue.lua
 Rotations\Shaman\Enhancement.lua
 Rotations\Shaman\Elemental.lua
 Rotations\Shaman\Restoration.lua

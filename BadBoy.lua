@@ -274,11 +274,14 @@ function BadBoyRun()
 				SurvHunter();
 			end
 		elseif _MyClass == 4 then -- Rogue
+			if _MySpec == nil then
+				NewRogue();
+			end
 			if _MySpec == 1 then
 				AssassinationRogue();
 			elseif _MySpec == 2 then
 				CombatRogue();
-			else
+			elseif _MySpec == 3 then
 				SubRogue();
 			end
 		elseif _MyClass == 5 then -- Priest
