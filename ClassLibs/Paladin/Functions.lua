@@ -478,7 +478,7 @@ Holy
 			-- if we are not beacon on a tank and on tanks is checked we find a proper tank if focus dont exists.
 			if beaconRole ~= "TANK" then
 				if UnitExists("focus") == true and UnitInRaid("focus") == true and UnitIsVisible("focus") then
-					if castSpell("folcus",_BeaconOfLight,true,false) then return end
+					if castSpell("focus",_BeaconOfLight,true,false) then return end
 				else
 					for i = 1, #nNova do
 						if nNova[i].role == "TANK" then
