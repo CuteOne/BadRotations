@@ -281,7 +281,7 @@ function DruidGuardian()
 				end
 			end
 			-- actions+=/healing_touch,if=buff.dream_of_cenarius.react&health.pct<30
-			if (isChecked("SafeDoC") == true and DeadRaidMember() == false or rebirthCharges = 0) or not isChecked("SafeDoC") then
+			if (isChecked("SafeDoC") == true and DeadRaidMember() == false or rebirthCharges == 0) or not isChecked("SafeDoC") then
 				if getTalent(6,2) and isChecked("DoCHT") then
 					if docBuff then
 						if getValue("DoCHT") == 2 then
