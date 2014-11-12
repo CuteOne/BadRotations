@@ -645,6 +645,10 @@ function GuardianConfig()
         CreateNewDrop(thisConfig, "DoCHT", 2, "Use DoC Procs Healing Touch on...", "|cffFFBB00Player", "|cff0077FFLowest");
         CreateNewText(thisConfig,"Healing Touch");
 
+        -- Safe DoC Procs
+        CreateNewCheck(thisConfig, "SafeDoC", "Safe DoC Proc if a Raidmember is dead and Rebirth is ready to cast");
+        CreateNewText(thisConfig,"Safe DoC Proc for CR");
+
         -- Cenarion Ward
         CreateNewDrop(thisConfig, "CenWard", 2, "Use Cenarion Ward on...", "|cffFFBB00Player", "|cff0077FFLowest");
         CreateNewText(thisConfig,"Cenarion Ward");

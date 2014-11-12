@@ -12,6 +12,7 @@ function DruidGuardian()
  --    	enemies, enemiesTimer = getNumEnemies("player",8), GetTime()
 	-- end
 	--local tarDist = getDistance2("target")
+	local rebirthCharges = select(1, GetSpellCharges(20484))
 	local GCD = 1.5/(1+UnitSpellHaste("player")/100)
 	local hasTarget = UnitExists("target")
 	local hasMouse = UnitExists("mouseover")
@@ -280,15 +281,17 @@ function DruidGuardian()
 				end
 			end
 			-- actions+=/healing_touch,if=buff.dream_of_cenarius.react&health.pct<30
-			if getTalent(6,2) and isChecked("DoCHT")then
-				if docBuff then
-					if getValue("DoCHT") == 2 then
-			      if castSpell(nNova[1].unit,ht,true,false,false) then return; end
-			    end
-			    if getValue("DoCHT") == 1 then
-			        if castSpell("player",ht,true,false,false) then return; end
-			    end
-			  end
+			if (isChecked("SafeDoC") == true and DeadRaidMember() == false or rebirthCharges = 0) or not isChecked("SafeDoC") then
+				if getTalent(6,2) and isChecked("DoCHT") then
+					if docBuff then
+						if getValue("DoCHT") == 2 then
+				      if castSpell(nNova[1].unit,ht,true,false,false) then return; end
+				    end
+				    if getValue("DoCHT") == 1 then
+				        if castSpell("player",ht,true,false,false) then return; end
+				    end
+				  end
+				end
 			end
 			-- actions+=/pulverize,if=buff.pulverize.remains<0.5
 			if getTalent(8,2) then

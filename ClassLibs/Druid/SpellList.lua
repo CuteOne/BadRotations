@@ -80,6 +80,7 @@ ps	= 	69369	--Predatory Swiftness
 wa	= 	113746	--Weakened Armor - Faerie Fire Debuff
 cc 	= 	135700	--Clearcasting
 dcd	=	145152	--Dream of Cenarius Damage Buff
+dcg = 145162 --Dream of Cenarius Guardian Buff
 inb = 	102543	--Incarnation: King of the Jungle buff
 ro1	=	139121	--Rune of Re-Origination: Haste
 ro2	=	139117	--Rune of Re-Origination: Critical Strike
