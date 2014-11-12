@@ -238,6 +238,17 @@ function chumiiuseAoE()
     end
 end
 
+-- Check for dead raidmember
+function DeadRaidMember()
+    for i = 1, #nNova do
+        if isPlayer(nNova[i].unit) == true and UnitIsDeadOrGhost(nNova[i].unit) then
+            return true;
+        else
+            return false;
+        end
+    end
+end
+
 --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]
 --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]   --[[           ]]
 --[[]]     --[[]]   --[[]]              --[[]]                   --[[ ]]        --[[]]     --[[]]
@@ -298,10 +309,10 @@ function MultiMoon()
 end
 -- select(2,DruidCastTime()) > 2
 function DruidCastTime()
-   
+
     local castDuration = 0
     local castTimeRemain = 0
-    
+
 
         if select(6,UnitCastingInfo("player"))  then
             castStartTime = select(5,UnitCastingInfo("player"))
@@ -309,7 +320,7 @@ function DruidCastTime()
           else
             castStartTime = 0
             castEndTime = 0
-          
+
         end
         if castEndTime > 0 and castStartTime > 0 then
             castDuration = (castEndTime - castStartTime)/1000
@@ -318,13 +329,13 @@ function DruidCastTime()
         else
             castDuration = 0
             castTimeRemain = 0
-            
+
         end
        if castDuration and castTimeRemain  then
 	   return castDuration , castTimeRemain ;
-  
-        
-		end 
+
+
+		end
 		end
 function isCastingDruid(Unit)
 	if Unit == nil then Unit = "player" end
