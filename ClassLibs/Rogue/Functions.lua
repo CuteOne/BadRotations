@@ -25,7 +25,11 @@ if select(3, UnitClass("player")) == 4 then
 	end
 
 	function useAoE()
-	    if ((BadBoy_data['AoE'] == 1 and getNumEnemies("player",10)>3) or BadBoy_data['AoE'] == 2) and UnitLevel("player")>=46 then
+	    if numEnemies == nil then numEnemies = 0 end
+	    if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
+	        numEnemies, enemiesTimer = getNumEnemies("player",8), GetTime()
+	    end
+	    if (BadBoy_data['AoE'] == 1 and numEnemies >= 3) or BadBoy_data['AoE'] == 2 then
 	        return true
 	    else
 	        return false
