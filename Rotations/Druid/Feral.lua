@@ -18,6 +18,7 @@ if select(3, UnitClass("player")) == 11 then
     	end
 		local tarDist = getDistance2("target")
 		local hasTarget = UnitExists("target")
+		local friendly = not UnitIsEnemy("player", "target")
 		local hasMouse = UnitExists("mouseover")
 		local level = UnitLevel("player")
 		local php = getHP("player")
@@ -85,7 +86,7 @@ if select(3, UnitClass("player")) == 11 then
 		        if castSpell("player",trf,true,false,false) then return; end
 		    end
 	-- Cat Form
-		    if ((not dead and hastar and attacktar and tarDist<=40)
+		    if ((not dead and hastar and not friendly and attacktar and tarDist<=40)
 		    		or (isMoving("player") and not travel and not IsFalling()))
 		        and (not IsFlying() or (IsFlying() and targetDistance<10))
 		        and not cat
@@ -146,7 +147,7 @@ if select(3, UnitClass("player")) == 11 then
 --- Buffs ---
 -------------
 	 -- Mark of the Wild
-	        if isChecked("Mark of the Wild") and not hasmouse then
+	        if isChecked("Mark of the Wild") and not hasmouse and not (IsFlying() or IsMounted()) then
 	            for i = 1, #members do --members
 	                if not isBuffed(members[i].Unit,{115921,20217,1126,90363,159988,160017,160077}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
 	                    --if power ~= UnitPower("player",0) then
@@ -158,7 +159,7 @@ if select(3, UnitClass("player")) == 11 then
 	            end
 	        end
         -- Flask / Crystal
-	        if isChecked("Flask / Crystal") then
+	        if isChecked("Flask / Crystal") and not (IsFlying() or IsMounted()) then
 	            if (select(2,IsInInstance())=="raid" or select(2,IsInInstance())=="none") and not UnitBuffID("player",105689) then
 	                if not UnitBuffID("player",127230) and canUse(86569) then
 	                    UseItemByName(tostring(select(1,GetItemInfo(86569))))
@@ -199,7 +200,7 @@ if select(3, UnitClass("player")) == 11 then
 ---------------------
 --- Out of Combat ---
 ---------------------
-			if not isInCombat("player") and not (IsMounted() or IsFlying()) then
+			if not isInCombat("player") and ((not (IsMounted() or IsFlying() or friendly)) or isDummy()) then
 		-- Prowl
 		        if not stealth and tarDist<20 then
 		            if castSpell("player",prl,false,false,false) then return; end
@@ -378,7 +379,7 @@ if select(3, UnitClass("player")) == 11 then
 	            end
 			end --In Combat End
 	-- Start Attack
-			if tarDist<5 and not stealth then
+			if tarDist<5 and not stealth and isInCombat("player") then
 				StartAttack()
 			end
 		end

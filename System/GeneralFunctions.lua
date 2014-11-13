@@ -1500,7 +1500,7 @@ function isDummy(Unit)
 	if Unit == nil then Unit = "target"; else Unit = tostring(Unit) end
     dummies = {
         31144, --Training Dummy - Lvl 80
-        --31146, --Raider's Training Dummy - Lvl ??
+        31146, --Raider's Training Dummy - Lvl ??
         32541, --Initiate's Training Dummy - Lvl 55 (Scarlet Enclave)
         32542, --Disciple's Training Dummy - Lvl 65
         32545, --Initiate's Training Dummy - Lvl 55
