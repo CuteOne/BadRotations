@@ -18,7 +18,7 @@ if select(3, UnitClass("player")) == 4 then
     		if getPower("player")>35 and (getCombo()==5 or (getTimeToDie("target")<3 and getCombo()>0)) and tarDist<5 then
     			if castSpell("target",_Eviscerate,false,false,false) then return; end
     		end
-    		if getPower("player")>50 and (not UnitBuffID("player",_Stealth) and UnitLevel("player")>=6) and (getCombo()<5 or UnitLevel("player")<3) and tarDist<5 then
+    		if getPower("player")>50 and ((not UnitBuffID("player",_Stealth) and UnitLevel("player")>=6) or UnitLevel("player")<6) and (getCombo()<5 or UnitLevel("player")<3) and tarDist<5 then
     			if castSpell("target",_SinisterStrike,false,false,false) then return; end
     		end
 		end

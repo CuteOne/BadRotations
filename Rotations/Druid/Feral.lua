@@ -18,7 +18,7 @@ if select(3, UnitClass("player")) == 11 then
     	end
 		local tarDist = getDistance2("target")
 		local hasTarget = UnitExists("target")
-		local friendly = not UnitIsEnemy("player", "target")
+		local friendly = UnitIsFriend("target","player")
 		local hasMouse = UnitExists("mouseover")
 		local level = UnitLevel("player")
 		local php = getHP("player")
