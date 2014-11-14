@@ -118,7 +118,7 @@ if select(3, UnitClass("player")) == 4 then
 ---------------------
 --- Out of Combat ---
 ---------------------
-			if not isInCombat("player") and not (IsMounted() or IsFlying()) then
+			if not isInCombat("player") and not (IsMounted() or IsFlying() or UnitIsFriend("target","player")) then
 	-- Stealth
 				if not UnitBuffID("player",_Stealth) and tarDist < 20 then
 					if castSpell("player",_Stealth,true,false,false) then return; end
@@ -293,7 +293,7 @@ if select(3, UnitClass("player")) == 4 then
 				end
 			end --In Combat End
 	-- Start Attack
-			if tarDist<5 and not stealth then
+			if tarDist<5 and not stealth and (isInCombat("player") or isDummy()) then
 				StartAttack()
 			end
 		end -- Pause End
