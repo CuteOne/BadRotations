@@ -188,9 +188,11 @@ if select(3,UnitClass("player")) == 2 then
 			end
 
 			if numberOfTargetsForHammerOfRighteuos == nil or numberOfTargetsForHammerOfRighteuosTimer == nil or numberOfTargetsForHammerOfRighteuosTimer <= GetTime() - 1 then
-				numberOfTargetsForHammerOfRighteuos, numberOfTargetsForHammerOfRighteuos = getNumEnemies("target",7), GetTime()
+				numberOfTargetsForHammerOfRighteuos, numberOfTargetsForHammerOfRighteuosTimer = getNumEnemies("target",7), GetTime() --getNumEnemiesInRange("target",8)
 			end
-			--print("Table has " ..#enemiesTable)
+
+
+
 
 			return
 		end
