@@ -21,9 +21,9 @@
 |Survival|80%|Averykey |
 ||||
 | **Mage** |  |  |
-|Arcane|80%|ragnar |
+|Arcane|80%(lvl90)|ragnar |
 |Fire|0%|ragnar |
-|Frost|80%|ragnar |
+|Frost|80%(lvl90)|ragnar |
 ||||
 | **Monk** |  |  |
 |Brewmaster|70%|CodeMyLife |
@@ -37,7 +37,7 @@
 | **Priest**  |  |  |
 |Discipline|0%||
 |Holy|0%||
-|Shadow|99%|ragnar|
+|Shadow|99%(lvl90)|ragnar|
 ||||
 | **Rogue**  |  |  |
 |Assassination|90%|CuteOne |
