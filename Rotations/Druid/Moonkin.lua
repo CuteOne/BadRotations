@@ -215,7 +215,7 @@ function DruidMoonkin()
 			--[[moonfire,if=buff.lunar_peak.up&remains<eclipse_change+20
 			|remains<4
 			|(buff.celestial_alignment.up&buff.celestial_alignment.remains<=2&remains<eclipse_change+20)]]
-			if 	getDebuffRemain("target",_Moonfire,"player") < 4 
+			if 	(getDebuffRemain("target",_Moonfire,"player") < 4 and eclipseEnergy < 0)
 				or UnitBuffID("player",_EclipseLunar) then
 					if castSpell("target",_Moonfire,true,false,false) then return; 
 					end
@@ -249,7 +249,8 @@ function DruidMoonkin()
 			if 	isStanding(0.3) 
 				and eclipseEnergy >= 0
 				--and (eclipseDirection == 0 or (eclipseDirection == 1 and eclipseEnergy > -80)) 
-				and castSpell("target",_Wrath,false,true) then  return; end
+				and castSpell("target",_Wrath,false,true) then  return; 
+			end
 
 
 			-- starfire,if=(eclipse_energy>=0&eclipse_change>cast_time)|(eclipse_energy<0&cast_time>eclipse_change)
