@@ -69,7 +69,6 @@ ty	=	132469	--Typhoon
 bt 	=	155672	--Bloodtalons
 uv  = 102793  --Ursol's Vortex
 pulv = 80313  --Pulverize
-pulvb = 158792 --Pulverize Buff
 
 ------Glyphs------
 gsh	=	114234	--Glyph of Shred

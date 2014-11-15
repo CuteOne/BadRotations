@@ -266,7 +266,7 @@ function canRun()
 		if BadBoy_data["Power"] == 1 and isAlive("player") then
 			if SpellIsTargeting()
 			  or UnitInVehicle("Player")
-			  or IsMounted("player")
+			  or  (IsMounted("player") and UnitBuffID("player",164222) == nil)
 			  or UnitIsDeadOrGhost("player") ~= false
 			  or UnitBuffID("player",11392) ~= nil
 			  or UnitBuffID("player",80169) ~= nil
@@ -782,6 +782,7 @@ function makeEnemiesTable(maxDistance)
 		  					local unitHP = getHP(thisUnit)
 		  					-- insert unit as a sub-array holding unit informations
 		   					tinsert(enemiesTable,{ unit = thisUnit, distance = unitDistance, hp = unitHP, x = X1, y = Y1, z = Z1 })
+		   					print("inserted")
 		   				end
 		  			end
 		  		end

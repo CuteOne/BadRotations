@@ -294,8 +294,8 @@ function DruidGuardian()
 				end
 			end
 			-- actions+=/pulverize,if=buff.pulverize.remains<0.5
-			if isKnown(pulv) then
-				if getBuffRemain("player",pulvb) < 2 then
+			if getTalent(8,2) then
+				if getBuffRemain("player",pulv) < 0.5 then
 					if castSpell("target",pulv,false,false) then
 						return;
 					end
