@@ -266,7 +266,7 @@ function canRun()
 		if BadBoy_data["Power"] == 1 and isAlive("player") then
 			if SpellIsTargeting()
 			  or UnitInVehicle("Player")
-			  or IsMounted("player")
+			  or  (IsMounted("player") and UnitBuffID("player",164222) == nil)
 			  or UnitIsDeadOrGhost("player") ~= false
 			  or UnitBuffID("player",11392) ~= nil
 			  or UnitBuffID("player",80169) ~= nil
