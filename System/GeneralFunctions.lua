@@ -782,7 +782,7 @@ function makeEnemiesTable(maxDistance)
 		  					local unitHP = getHP(thisUnit)
 		  					-- insert unit as a sub-array holding unit informations
 		   					tinsert(enemiesTable,{ unit = thisUnit, distance = unitDistance, hp = unitHP, x = X1, y = Y1, z = Z1 })
-		   					--print("inserted")
+		   					print("inserted")
 		   				end
 		  			end
 		  		end
