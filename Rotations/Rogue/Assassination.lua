@@ -8,7 +8,6 @@ if select(3, UnitClass("player")) == 4 then
 	    	return true
 	    end
 		AssToggles();
-		--ChatOverlay(canPickpocket)
 		-- if worgen==nil then
 		-- 	worgen=false
 		-- end
@@ -138,14 +137,14 @@ if select(3, UnitClass("player")) == 4 then
 					end
 	-- Pick Pocket
 					if canPP() and not isPicked() and UnitBuffID("player",_Stealth) and level>=15 then
-						if castSpell("target",_PickPocket,true,false,false) then return; end
+						if castSpell("target",_PickPocket,true) then return; end
 					end
 	-- Ambush
 					if not noattack() and (isPicked() or level<15) and UnitBuffID("player",_Stealth) and combo<5 and power>60 and tarDist<5 then
 						if castSpell("target",_Ambush,false,false,false) then return; end
 					end
 	-- Mutilate
-					if not isInCombat("player") and not noattack() and combo < 5 and power>55 and tarDist<5 then
+					if not isInCombat("player") and (isPicked() or level<15) and not noattack() and combo < 5 and power>55 and tarDist<5 then
 						if castSpell("target",_Mutilate,false,false,false) then return; end
 					end
 				end
@@ -255,7 +254,7 @@ if select(3, UnitClass("player")) == 4 then
 				if (combo>4 and envRemain<2 and (getSpellCD(_DeathFromAbove)>2 or not getTalent(7,3))) and enemies<4 and ddRemain==0 and power>35 and tarDist<5 then
 					if castSpell("target",_Envenom,false,false,false) then return; end
 				end
-		-- Envenom
+	-- Envenom
 				if (combo>4 and envRemain<2 and (getSpellCD(_DeathFromAbove)>2 or not getTalent(7,3))) and enemies<4 and power>35 and tarDist<5 then
 					if castSpell("target",_Envenom,false,false,false) then return; end
 				end
@@ -266,6 +265,10 @@ if select(3, UnitClass("player")) == 4 then
 	-- Fan of Knives
 				if useAoE() and enemies>2 and ddRemain==0 and venRemain==0 and power>35 and tarDist<5 then
 					if castSpell("player",_FanOfKnives,true,false,false) then return; end
+				end
+	-- Ambush
+				if (isPicked() or level<15) and UnitBuffID("player",_Stealth) and combo<5 and power>60 and tarDist<5 then
+					if castSpell("target",_Ambush,false,false,false) then return; end
 				end
 	-- Mutilate
 				if thp>35 and combo<5 and enemies==2 and ddRemain==0 and venRemain==0 and power>55 and tarDist<5 then

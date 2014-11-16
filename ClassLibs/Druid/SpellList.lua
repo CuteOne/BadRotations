@@ -101,6 +101,10 @@ mkf = 	24858	--Moonkin Form
 sff	=	40120	--Swift Flight Form
 trf	=	783		--Travel Form
 
+------Perks------
+erej=	157280	--Enhanced Rejuvination
+eprl=	157274	--Enhanced Prowl
+eber=	157269	--Enhanced Berserk
 
 _AquaticForm 			= 1066;
 _ArcaneStorm 			= 106996;
