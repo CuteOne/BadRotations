@@ -172,7 +172,7 @@ if select(3, UnitClass("player")) == 11 then
 			if useDefensive() and not stealth then
 -- Rejuvenation
 	            if isChecked("Rejuvenation") and php <= getValue("Rejuvenation") then
-	                if not stealth and rejRemain==0 and not isInCombat("player") then
+	                if not stealth and rejRemain==0 and ((not isInCombat("player")) or isKnown(erej)) then
 	                    if castSpell("player",rej,true,false,false) then return; end
 	                end
 	            end
