@@ -73,7 +73,7 @@ end
 --Applied Rake Dot Damage
 function RKD()
     local rakeDot = 1
-    if UnitExists("target") then
+    if UnitExists("target") and UnitIsEnemy("target","player") then
         if Rake_sDamage[UnitGUID("target")]~=nil then rakeDot = Rake_sDamage[UnitGUID("target")]; end
     end
     return rakeDot
@@ -95,7 +95,7 @@ end
 --Applied Rip Dot Damage
 function RPD()
     local ripDot = 1
-    if UnitExists("target") then
+    if UnitExists("target") and UnitIsEnemy("target","player") then
         if Rip_sDamage[UnitGUID("target")]~=nil then ripDot = Rip_sDamage[UnitGUID("target")]; end
     end
     return ripDot

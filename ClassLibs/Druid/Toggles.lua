@@ -136,6 +136,16 @@ if select(3, UnitClass("player")) == 11 then
             CreateButton("Thrash",5,0)
             ThrashModesLoaded = "Cute Thrash Modes";
         end
+     -- Prowl Button
+        if ProwlModesLoaded ~= "Cute Prowl Modes" then
+            CustomProwlModes = {
+                [1] = { mode = "On", value = 1 , overlay = "Prowl Enabled", tip = "Rotation will use Prowl", highlight = 1, icon = prl },
+                [2] = { mode = "Off", value = 2 , overlay = "Prowl Disabled", tip = "Rotation will not use Prowl", highlight = 0, icon = prl }
+            };
+            ProwlModes = CustomProwlModes
+            CreateButton("Prowl",5,0)
+            ProwlModesLoaded = "Cute Prowl Modes";
+        end
 
         function SpecificToggle(toggle)
             if getValue(toggle) == 1 then
@@ -186,6 +196,13 @@ if select(3, UnitClass("player")) == 11 then
         if SpecificToggle("Thrash Toggle") and not GetCurrentKeyBoardFocus() and GetTime() - ThrashTimer > 0.25 then
             ThrashTimer = GetTime()
             UpdateButton("Thrash")
+        end
+
+        --Prowl Key Toggle
+        if ProwlTimer == nil then ProwlTimer = 0; end
+        if SpecificToggle("Prowl Toggle") and not GetCurrentKeyBoardFocus() and GetTime() - ProwlTimer > 0.25 then
+            ProwlTimer = GetTime()
+            UpdateButton("Prowl")
         end
     end
 

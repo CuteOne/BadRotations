@@ -71,13 +71,13 @@ if select(3, UnitClass("player")) == 11 then
 	-- Flying Form
 		if isChecked("Auto Shapeshifts") then
 		    if (falling > 1 or (not swimming and travel)) and not isInCombat("player") and IsFlyableArea() then
-		        if ((not travel and not flight) or (not swimming and travel)) and level>=58 then
+		        if ((not travel and not flight) or (not swimming and travel)) and level>=58 and not isInDraenor() then
 		            if stag then
 		                if castSpell("player",flf,true,false,false) then return; end
 		            elseif not stag then
 		                if castSpell("player",trf,true,false,false) then return; end
 		            end
-		        else
+		        elseif not cat then
 		            if castSpell("player",cf,true,false,false) then return; end
 		        end
 		    end
@@ -202,12 +202,16 @@ if select(3, UnitClass("player")) == 11 then
 ---------------------
 			if not isInCombat("player") and ((not (IsMounted() or IsFlying() or friendly)) or isDummy()) then
 		-- Prowl
-		        if not stealth and tarDist<20 then
+		        if not stealth and (tarDist<20 or isKnown(eprl)) then
 		            if castSpell("player",prl,false,false,false) then return; end
 		        end
 		-- Shred
 		        if isInMelee() and power>40 and tarDist<5 then
-		            if castSpell("target",shr,false,false,false) then return; end
+		        	if isKnown(irk) then
+		        		if castSpell("target",rk,false,false,false) then return; end
+		        	else
+		            	if castSpell("target",shr,false,false,false) then return; end
+		            end
 		        end
 			end
 -----------------

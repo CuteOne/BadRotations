@@ -265,17 +265,17 @@ function FeralCatConfig()
             dropOp("Rotation Mode", 4, "Toggle")
             textOp("Rotation");
 
-            --Cooldown Key Toggle
+            -- Cooldown Key Toggle
             checkOp("Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.");
             dropOp("Cooldown Mode", 3, "Toggle")
             textOp("Cooldowns")
 
-            --Defensive Key Toggle
+            -- Defensive Key Toggle
             checkOp("Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.");
             dropOp("Defensive Mode", 6, "Toggle")
             textOp("Defensive")
 
-            --Interrupts Key Toggle
+            -- Interrupts Key Toggle
             checkOp("Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.");
             dropOp("Interrupt Mode", 6, "Toggle")
             textOp("Interrupts")
@@ -284,6 +284,11 @@ function FeralCatConfig()
             checkOp("Thrash Toggle","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFThrash Toggle Key|cffFFBB00.");
             dropOp("Thrash Toggle", 6, "Toggle")
             textOp("Thrash");
+
+            -- Prowl Toggle
+            checkOp("Prowl Toggle","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFProwl Toggle Key|cffFFBB00.");
+            dropOp("Prowl Toggle", 6, "Toggle")
+            textOp("Prowl");
 
         -- General Configs
         CreateGeneralsConfig();

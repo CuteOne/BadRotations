@@ -1575,6 +1575,34 @@ function isInCombat(Unit)
 	if UnitAffectingCombat(Unit) then return true; else return false; end
 end
 
+-- if isInDraenor() then
+function isInDraenor()
+	local tContains = tContains
+	local currentMapID = GetCurrentMapAreaID();
+	local draenorMapIDs =
+	{
+	    962, -- Draenor
+	    978, -- Ashran
+	    941, -- Frostfire Ridge
+	    976, -- Frostwall
+	    949, -- Gorgrond
+	    971, -- Lunarfall
+	    950, -- Nagrand
+	    947, -- Shadowmoon Valley
+	    948, -- Spires of Arak
+	    1009, -- Stormshield
+	    946, -- Talador
+	    945, -- Tanaan Jungle
+	    970, -- Tanaan Jungle - Assault on the Dark Portal
+	    1011, -- Warspear
+	}
+	if (tContains(draenorMapIDs, currentMapID)) then
+		return true
+	else
+		return false
+	end
+end
+
 -- if isInMelee() then
 function isInMelee(Unit)
 	if Unit == nil then Unit = "target"; end
