@@ -121,8 +121,19 @@ if select(3, UnitClass("player")) == 4 then
 ---------------------
 			if not isInCombat("player") and not (IsMounted() or IsFlying() or UnitIsFriend("target","player")) then
 	-- Stealth
-				if not UnitBuffID("player",_Stealth) and tarDist < 20 then
-					if castSpell("player",_Stealth,true,false,false) then return; end
+				if isChecked("Stealth") and (stealthTimer == nil or stealthTimer <= GetTime()-getValue("Stealth Timer")) and getCreatureType("target") == true and not stealth then
+					-- Always
+					if getValue("Stealth") == 1 then 
+						if castSpell("player",_Stealth,true,false,false) then stealthTimer=GetTime(); return; end
+					end
+					-- Pre-Pot
+					if getValue("Stealth") == 2 and getBuffRemain("player",105697) > 0 and tarDist < 20 then
+						if castSpell("player",_Stealth,true,false,false) then stealthTimer=GetTime(); return; end
+					end
+					-- 20 Yards
+					if getValue("Stealth") == 3 and tarDist < 20 then
+						if castSpell("player",_Stealth,true,false,false) then stealthTimer=GetTime(); return; end
+					end
 				end
 				if tarDist < 25 and tarDist >= 8 and level>=60 then
 	-- Shadowstep

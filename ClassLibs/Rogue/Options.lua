@@ -92,7 +92,7 @@ function AssOptions()
 
             -- Stealth
             checkOp("Stealth");
-            dropOp("Stealth",1,"Stealthing method.","|cff00FF00Always","|cffFFDD00PrePot","|cffFF000030Yards");
+            dropOp("Stealth",1,"Stealthing method.","|cff00FF00Always","|cffFFDD00PrePot","|cffFF000020Yards");
             textOp("Stealth");
 
             -- Leathal Poison

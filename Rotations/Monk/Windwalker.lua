@@ -12,7 +12,9 @@ if select(3, UnitClass("player")) == 10 then
        --table.sort(targets, function(x,y)
        --  return x.hp > y.hp
        --end)
-
+		if UnitExists("target") then
+			ChatOverlay(UnitCreatureType("target"))
+		end
 
 
 	    if not canRun() then
