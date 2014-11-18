@@ -1830,7 +1830,7 @@ end
 -- if pause() then
 function pause() --Pause
 	if (IsLeftAltKeyDown() and GetCurrentKeyBoardFocus() == nil)
-		or (IsMounted() and getUnitID("target") ~= 56877)
+      or (IsMounted() and ((getUnitID("target") ~= 56877) or (UnitBuffID("player",164222) == nil) or (UnitBuffID("player",165803) == nil)))
 		or SpellIsTargeting()
 		or (not UnitCanAttack("player", "target") and not UnitIsPlayer("target") and UnitExists("target"))
 		or UnitCastingInfo("player")
