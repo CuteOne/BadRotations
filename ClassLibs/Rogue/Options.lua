@@ -85,6 +85,26 @@ function AssOptions()
             boxOp("DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             textOp("DPS Testing");
 
+            -- Stealth Timer
+            checkOp("Stealth Timer");
+            boxOp("Stealth Timer", 0, 10  , 1, 2 , "|cffFFBB00How long to wait(seconds) before using \n|cffFFFFFFStealth.");
+            textOp("Stealth Timer");
+
+            -- Stealth
+            checkOp("Stealth");
+            dropOp("Stealth",1,"Stealthing method.","|cff00FF00Always","|cffFFDD00PrePot","|cffFF000030Yards");
+            textOp("Stealth");
+
+            -- Leathal Poison
+            checkOp("Lethal Poison");
+            dropOp("Lethal Poison",1,"Lethal Poison.","|cff13A300Deadly","|cffFF8000Wound");
+            textOp("Lethal");
+
+            -- Non-Leathal Poison
+            checkOp("Non-Lethal Poison");
+            dropOp("Non-Lethal Poison",2,"Non-Lethal Poison.","|cff6600FFCrip","|cff00CF1CLeech");
+            textOp("Non-Lethal");
+
         -- Spacer
         textOp(" ");
         wrapOp("--- Cooldowns ---");
