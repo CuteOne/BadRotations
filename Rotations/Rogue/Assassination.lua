@@ -56,6 +56,7 @@ if select(3, UnitClass("player")) == 4 then
 		local ddRemain = getDebuffRemain("target",113780,"player")
 		local envRemain = getDebuffRemain("target",_Envenom,"player")
 		local antCharge = getCharges(_Anticipation)
+ 		local lootDelay = getValue("LootDelay");
 ----------------------------------
 --- Poisons/Healing/Dispelling ---
 ----------------------------------
@@ -142,7 +143,12 @@ if select(3, UnitClass("player")) == 4 then
 					end
 	-- Pick Pocket
 					if canPP() and not isPicked() and UnitBuffID("player",_Stealth) and level>=15 then
-						if castSpell("target",_PickPocket,true) then return; end
+						if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
+							if castSpell("target",_PickPocket,true) then
+						    	lootTimer = GetTime()
+						    	return;
+							end
+						end
 					end
 	-- Ambush
 					if not noattack() and (isPicked() or level<15) and UnitBuffID("player",_Stealth) and combo<5 and power>60 and tarDist<5 then
