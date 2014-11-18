@@ -202,7 +202,7 @@ if select(3, UnitClass("player")) == 11 then
 ---------------------
 			if not isInCombat("player") and ((not (IsMounted() or IsFlying() or friendly)) or isDummy()) then
 		-- Prowl
-		        if not stealth and (tarDist<20 or isKnown(eprl)) then
+		        if isChecked("prowl") and not stealth and (tarDist<20 or isKnown(eprl)) then
 		            if castSpell("player",prl,false,false,false) then return; end
 		        end
 		-- Shred

@@ -143,7 +143,7 @@ if select(3, UnitClass("player")) == 11 then
                 [2] = { mode = "Off", value = 2 , overlay = "Prowl Disabled", tip = "Rotation will not use Prowl", highlight = 0, icon = prl }
             };
             ProwlModes = CustomProwlModes
-            CreateButton("Prowl",5,0)
+            CreateButton("Prowl",6,0)
             ProwlModesLoaded = "Cute Prowl Modes";
         end
 
