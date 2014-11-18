@@ -215,6 +215,10 @@ function CreateGeneralsConfig()
     CreateNewBox(thisConfig,"LootDelay", 0, 10  , 1, 5, "Add delay for looting");
     CreateNewText(thisConfig,"Loot Delay");
 
+    -- WoD Leather Scraps
+    CreateNewCheck(thisConfig,"LeatherScraps");
+    CreateNewText(thisConfig,"Leather Scraps");
+
     -- Mill WoD Herbs
     CreateNewCheck(thisConfig,"MillWoDHerbs", "Place any stack of Herbs that is not divisible by 5 as the last Stack of that kind of Herb in your bag.");
     CreateNewText(thisConfig,"Mill WoD Herbs");
