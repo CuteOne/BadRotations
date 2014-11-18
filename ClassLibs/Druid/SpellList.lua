@@ -105,6 +105,7 @@ trf	=	783		--Travel Form
 erej=	157280	--Enhanced Rejuvination
 eprl=	157274	--Enhanced Prowl
 eber=	157269	--Enhanced Berserk
+irk =	157276	--Improved Rake
 
 _AquaticForm 			= 1066;
 _ArcaneStorm 			= 106996;

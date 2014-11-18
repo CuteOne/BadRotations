@@ -43,6 +43,7 @@ if select(3, UnitClass("player")) == 4 then
 		local stealth = UnitBuffID("player",_Stealth)
 		local dpRemain = getBuffRemain("player",_DeadlyPoison)
 		local lpRemain = getBuffRemain("player",_LeechingPoison)
+		local cpRemain = getBuffRemain("player",_CripplingPoison)
 		local recRemain = getBuffRemain("player",_Recuperate)
 		local sapRemain = getDebuffRemain("target",_Sap)
 		local vanRemain = getBuffRemain("player",_VanishBuff)
@@ -65,9 +66,13 @@ if select(3, UnitClass("player")) == 4 then
 		if dpRemain<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
 			if castSpell("player",_DeadlyPoison,true) then return; end
 		end
-	-- Leeching Poison
-		if lpRemain<5 and not isMoving("player") and not castingUnit("player") and not IsMounted()  then
-			if castSpell("player",_LeechingPoison,true) then return; end
+	-- Crippling/Leeching Poison
+		if not isMoving("player") and not castingUnit("player") and not IsMounted() then
+			if isKnown(_LeechingPoison) and lpRemain<5 then
+				if castSpell("player",_LeechingPoison,true) then return; end
+			elseif cpRemain<5 then
+				if castSpell("player",_CripplingPoison,true) then return; end
+			end
 		end
 	-- Recuperate
 		if php < 80 and recRemain==0 and combo>0 then
