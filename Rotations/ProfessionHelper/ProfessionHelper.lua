@@ -4,6 +4,17 @@ function ProfessionHelper()
   local lootDelay = getValue("LootDelay");
 
   if not isInCombat("player") and not (IsMounted() or IsFlying()) then
+    if isChecked("LeatherScraps") then
+      -- Raw Beast Hide Scraps
+      if GetItemCount(110610,false,false) >= 10 then
+        if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
+          if IsUsableItem(110610) then
+            UseItemByName(110610)
+            lootTimer = GetTime()
+          end
+        end
+      end
+    end -- Mill WoD Herbs end
     ------------------------------------------------------------------------------------------------------
     -- Milling -------------------------------------------------------------------------------------------
     ------------------------------------------------------------------------------------------------------

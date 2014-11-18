@@ -143,12 +143,12 @@ if select(3, UnitClass("player")) == 10 then
 	--	Expel Harm
 				if isChecked("Expel Harm") and php<=getValue("Expel Harm") and power>=40 and getSpellCD(_ExpelHarm)==0 then
 					if (isInCombat("player") and chiDiff>=2) or not isInCombat("player") then
-						if castSpell("player",_ExpelHarm,false,false,false) then return; end
+						if castSpell("player",_ExpelHarm,true,false,false) then return; end
 					end
 				end
 	-- Surging Mist
 				if isChecked("Surging Mist") and php<=getValue("Surging Mist") and not isInCombat("player") and power>=30 and not isMoving("player") then
-					if castSpell("player",_SurgingMist,false,false) then return; end
+					if castSpell("player",_SurgingMist,true,false) then return; end
 				end
 	-- Touch of Karma
 				if isChecked("Touch of Karma") and php<=getValue("Touch of Karma") and isInCombat("player") then
@@ -156,18 +156,26 @@ if select(3, UnitClass("player")) == 10 then
 				end
 	-- Fortifying Brew
 				if isChecked("Fortifying Brew") and php<=getValue("Fortifying Brew") and isInCombat("player") then
-					if castSpell("player",_FortifyingBrew,false,false) then return; end
+					if castSpell("player",_FortifyingBrew,true,false) then return; end
 				end
 				if isChecked("Diffuse/Dampen") then
 	-- Diffuse Magic
 					if (php<=getValue("Diffuse/Dampen") and isInCombat("player")) or canDispel("player",_DiffuseMagic) then
-						if castSpell("player",_DiffuseMagic,false,false) then return; end
+						if castSpell("player",_DiffuseMagic,true,false) then return; end
 					end
 	-- Dampen Harm
 					if php<=getValue("Diffuse/Dampen") and isInCombat("player") then
-						if castSpell("player",_DampenHarm,false,false) then return; end
+						if castSpell("player",_DampenHarm,true,false) then return; end
 					end
 				end
+	-- -- Zen Meditation
+	-- 			if isChecked("Zen Meditation") then
+	-- 				if php<=getValue("Zen Meditation") and isInCombat("player") then
+	-- 					if (hasGlyph(120477) or (not hasGlypg(120477) and GetUnitSpeed("player")==0)) and tarDist>5 then
+	-- 						if castSpell("player",_ZenMeditation,true,false) then return; end
+	-- 					end
+	-- 				end
+	-- 			end
 	-- Nimble Brew
 				if hasNoControl() then
 					if castSpell("player",_NimbleBrew,false,false) then return; end
@@ -261,7 +269,6 @@ if select(3, UnitClass("player")) == 10 then
 	--------------------------------
 	--- In Combat - All Rotation ---
 	--------------------------------
-
 	-- Storm, Earth, and Fire
 				if UnitExists("target") and BadBoy_data['SEF']==1 then
 					if (#targets == 1 and sefStack==2) or (#targets == 0 and sefStack==1) then
@@ -373,7 +380,7 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("player",_SpinningCraneKick,false,false) then return; end
 					end
 	-- Jab
-					if getTalent(6,1) and chiDiff>=2 and power>=45 and (php>=80 or getSpellCD(_ExpelHarm)>0) and tarDist<5 then
+					if getTalent(6,1) and (chiDiff>=2 or chi==0) and power>=45 and (php>=80 or getSpellCD(_ExpelHarm)>0) and tarDist<5 then
 						if castSpell("target",_Jab,false,false) then return; end
 					end
 				end
@@ -434,7 +441,7 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("target",_ChiExplosion,false,false) then return; end
 					end
 	-- Jab
-					if chiDiff>=2 and power>=45 and (php>=80 or getSpellCD(_ExpelHarm)>0) and tarDist<5 then
+					if (chiDiff>=2 or chi==0) and power>=45 and (php>=80 or getSpellCD(_ExpelHarm)>0) and tarDist<5 then
 						if castSpell("target",_Jab,false,false) then return; end
 					end
 				end

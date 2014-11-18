@@ -381,6 +381,11 @@ function WindwalkerConfig()
                 textOp(tostring(select(1,GetSpellInfo(_DiffuseMagic))));
             end
 
+            -- Zen Meditation
+            -- checkOp("Zen Meditation");
+            -- boxOp("Zen Meditation", 0, 100, 5, 50);
+            -- textOp(tostring(select(1,GetSpellInfo(_ZenMeditation))));
+
             -- Nimble Brew
             checkOp("Nimble Brew");
             textOp(tostring(select(1,GetSpellInfo(_NimbleBrew))));

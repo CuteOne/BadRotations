@@ -280,6 +280,11 @@ function DruidGuardian()
 					end
 				end
 			end
+			if UnitBuffID("player",berg) then
+				if castSpell("target",mgl,false,false) then
+					return;
+				end
+			end
 			-- actions+=/healing_touch,if=buff.dream_of_cenarius.react&health.pct<30
 			if (isChecked("SafeDoC") == true and DeadRaidMember() == false or rebirthCharges == 0) or not isChecked("SafeDoC") then
 				if getTalent(6,2) and isChecked("DoCHT") then

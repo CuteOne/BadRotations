@@ -65,6 +65,7 @@ if select(3, UnitClass("player")) == 11 then
     	local rkDmg = RKD()
     	local rpCalc = CRPD()
     	local rpDmg = RPD()
+    	local lootDelay = getValue("LootDelay")
 --------------------------------------------------
 --- Ressurection/Dispelling/Healing/Pause/Misc ---
 --------------------------------------------------
@@ -202,8 +203,13 @@ if select(3, UnitClass("player")) == 11 then
 ---------------------
 			if not isInCombat("player") and ((not (IsMounted() or IsFlying() or friendly)) or isDummy()) then
 		-- Prowl
-		        if isChecked("prowl") and not stealth and (tarDist<20 or isKnown(eprl)) then
-		            if castSpell("player",prl,false,false,false) then return; end
+		        if isChecked("Prowl") and not stealth and (tarDist<20 or isKnown(eprl)) then
+		        	if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
+						if castSpell("player",prl,false,false,false) then
+						    lootTimer = GetTime()
+						    return;
+						end
+					end
 		        end
 		-- Shred
 		        if isInMelee() and power>40 and tarDist<5 then

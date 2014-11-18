@@ -8,6 +8,7 @@ if select(3, UnitClass("player")) == 4 then
 	    	return true
 	    end
 		AssToggles();
+		poisonData();
 		-- if worgen==nil then
 		-- 	worgen=false
 		-- end
@@ -41,9 +42,8 @@ if select(3, UnitClass("player")) == 4 then
 		local attacktar = canAttack("player", "target")
 		local swimming = IsSwimming()
 		local stealth = UnitBuffID("player",_Stealth)
-		local dpRemain = getBuffRemain("player",_DeadlyPoison)
-		local lpRemain = getBuffRemain("player",_LeechingPoison)
-		local cpRemain = getBuffRemain("player",_CripplingPoison)
+		local lethalRemain = getBuffRemain("player",_LethalPoison)
+		local nonlethalRemain = getBuffRemain("player",_NonLethalPoison)
 		local recRemain = getBuffRemain("player",_Recuperate)
 		local sapRemain = getDebuffRemain("target",_Sap)
 		local vanRemain = getBuffRemain("player",_VanishBuff)
@@ -56,23 +56,20 @@ if select(3, UnitClass("player")) == 4 then
 		local ddRemain = getDebuffRemain("target",113780,"player")
 		local envRemain = getDebuffRemain("target",_Envenom,"player")
 		local antCharge = getCharges(_Anticipation)
+ 		local lootDelay = getValue("LootDelay");
 ----------------------------------
 --- Poisons/Healing/Dispelling ---
 ----------------------------------
-		if (isCastingSpell(_DeadlyPoison) and dpRemain>5) or ((isCastingSpell(_LeechingPoison) and lpRemain>5)) then
+		if (isCastingSpell(_LethalPoison) and lethalRemain>5) or ((isCastingSpell(_NonLethalPoison) and nonlethalRemain>5)) then
 			RunMacroText("/stopcasting")
 		end
-	-- Deadly Poison
-		if dpRemain<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
-			if castSpell("player",_DeadlyPoison,true) then return; end
+	-- Leathal Poison
+		if lethalRemain<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
+			if castSpell("player",_LethalPoison,true) then return; end
 		end
-	-- Crippling/Leeching Poison
-		if not isMoving("player") and not castingUnit("player") and not IsMounted() then
-			if isKnown(_LeechingPoison) and lpRemain<5 then
-				if castSpell("player",_LeechingPoison,true) then return; end
-			elseif cpRemain<5 then
-				if castSpell("player",_CripplingPoison,true) then return; end
-			end
+	-- Non-Leathal Poison
+		if nonlethalRemain<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
+			if castSpell("player",_NonLethlPoison,true) then return; end
 		end
 	-- Recuperate
 		if php < 80 and recRemain==0 and combo>0 then
@@ -142,7 +139,12 @@ if select(3, UnitClass("player")) == 4 then
 					end
 	-- Pick Pocket
 					if canPP() and not isPicked() and UnitBuffID("player",_Stealth) and level>=15 then
-						if castSpell("target",_PickPocket,true) then return; end
+						if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
+							if castSpell("target",_PickPocket,true) then
+						    	lootTimer = GetTime()
+						    	return;
+							end
+						end
 					end
 	-- Ambush
 					if not noattack() and (isPicked() or level<15) and UnitBuffID("player",_Stealth) and combo<5 and power>60 and tarDist<5 then
