@@ -1,47 +1,73 @@
 if select(3, UnitClass("player")) == 5 then
 
--- SPELLS
-_AngelicFeather 	= 121536;
-_AngelicFeatherBuff = 121557
-_AuspiciousSpirits	= 155271;
-_BodyAndSoul		= 64129;
-_Cascade			= 127632;
-_DesperatePrayer	= 19236;
-_DevouringPlague 	= 2944;
-_DispelMagic 		= 528;
-_DivineStar			= 122121;
-_Fade 				= 586;
-_FlashHeal 			= 2061;
-_Halo				= 120644;
-_InnerFire 			= 588;
-_Levitate 			= 1706;
-_Mindbender			= 123040;
-_MindBlast 			= 8092;
-_MindFlay 			= 15407;
-_Insanity			= 129197;
-_InsanityBuff		= 132573;
-_MindSear			= 48045;
-_MindSpike 			= 73510;
-_MindVision 		= 2096;
-_PowerInfusion		= 10060;
-_PowerWordFortitude = 21562;
-_PowerWordShield 	= 17;
-_PsychicScream 		= 8122;
-_Resurrection 		= 2006;
-_ShackleUndead 		= 9484;
-_ShadowWordDeath 	= 32379;
-_ShadowWordPain 	= 589;
-_Shadowfiend 		= 34433;
-_Shadowform 		= 15473;
-_ShadowyInsight		= 124430;
-_SurgeOfDarkness	= 87160;
-_VampiricTouch 		= 34914;
-_VoidEntropy		= 155361;
-_VoidTendrils 		= 108920;
-_WeakenedSoul 		= 6788;
+	-- Spells 
+		Shadowform	= 15473;
+		DP		= 2944;		-- Devouring Plague
+		SWP 	= 589;		-- Shadow Word: Pain
+		SWD 	= 32379;	-- Shadow Word: Death
+		VT		= 34914;	-- Vampiric Touch
+		MB		= 8092;		-- Mind Blast
+		MSp		= 73510;	-- Mind Spike
+		PWS 	= 17;		-- Power Word: Shield
+		FH 		= 2061;		-- Flash Heal
+		VE		= 15286;	-- Vampiric Embrace
+		Fade 	= 586;		-- Fade
+		MF 		= 15407;	-- Mind Flay
+		MFI 	= 129197;	-- Mind Flay Insanity
+		SF 		= 34433;	-- Shadowfiend
 
--- TIER SET BONUS
-_T16_2				= 145174;
-_T16_4				= 145179;
+	-- Procs
+
+
+	-- Buffs
+		PWF 				= 21562;	-- Power Word: Fortitude
+		InsanityBuff		= 132573;	-- Buff if Insanity
+
+	-- Talents
+		-- T15
+		DesperatePrayer		= 19236;
+		SpectralGuise		= 112833;
+		AngelicBulwark		= 108945;
+		-- T30
+		BodyAndSoul			= 64129;
+		AngelicFeather		= 121536;
+		AngelicFeatherBuff	= 121557;
+		Phantasm			= 108942;
+		-- T45
+		SoD 				= 162448;
+		Mindbender			= 123040;
+		InsanityTalent		= 139139;
+		-- T60
+		VoidTendrils		= 108920;
+		PsychicScream		= 8122;
+		DominateMind		= 605;
+		-- T75
+		ToF					= 109142;
+		PI 					= 10060;
+		ShadowyInsight		= 162452;
+		-- T90
+		Halo				= 120644;
+		DivineStar			= 122121;
+		Cascade				= 127632;
+		-- T100
+		CoP					= 155246;
+		VoidEntropy 		= 155361;
+		AuspiciousSpirits	= 155271;
+
+	-- Utility (TierSet Bonus, etc.)
+		T17_2pc				= 165628;
+		T17_4pc				= 165629;
+
+	-- Debuffs
+		PWSDebuff			= 6788;
+
+	-- Trinkets
+
+
+	-- Glyphs
+		GlyphOfFade			= 55684;
+		GlyphOfMindHarvest	= 1202;
+
+	-- Racial
 
 end

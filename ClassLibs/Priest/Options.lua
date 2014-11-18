@@ -24,110 +24,102 @@ if select(3, UnitClass("player")) == 5 then
 --[[           ]]	--[[]]	   --[[]]	 --[[]]    --[[]]	--[[          ]]	--[[           ]]	--[[ ]]   --[[ ]]
 --[[           ]]	--[[]]	   --[[]]	--[[]]      --[[]]	--[[         ]]		--[[           ]]	 --[[]]   --[[]]
 
+	function ShadowConfig()
+		if currentConfig ~= "Shadow ragnar" then
+			ClearConfig();
+			thisConfig = 0;
+			--[[Title]]
+			CreateNewTitle(thisConfig,"Shadow |cffFF0000ragnar");
 
-function ShadowConfig()
-    if currentConfig ~= "Shadow ragnar" then
-        ClearConfig();
-        thisConfig = 0;
-        --[[Title]]
-        CreateNewTitle(thisConfig,"Shadow |cffFF0000ragnar");
+			-- Wrapper -----------------------------------------
+			CreateNewWrap(thisConfig,"--- Buffs");
 
-        -- Wrapper -----------------------------------------
-        CreateNewWrap(thisConfig,"--- Buffs");
+				--Power Word: Fortitude
+				CreateNewCheck(thisConfig,"PW: Fortitude");
+				CreateNewText(thisConfig,"PW: Fortitude");
 
-        --[[Power Word: Fortitude]]
-        CreateNewCheck(thisConfig,"Power Word: Fortitude");
-        CreateNewText(thisConfig,"Power Word: Fortitude");
+			-- Wrapper -----------------------------------------
+			CreateNewWrap(thisConfig,"--- Defensive");
 
-        -- Wrapper -----------------------------------------
-        CreateNewWrap(thisConfig,"--- Cooldowns");
+				-- Shield
+				CreateNewCheck(thisConfig,"PW: Shield");
+				CreateNewBox(thisConfig, "PW: Shield", 0,100,2,90, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFShield");
+				CreateNewText(thisConfig,"PW: Shield");
 
-        CreateNewCheck(thisConfig,"Power Infusion");
-        CreateNewText(thisConfig,"Power Infusion");
+				-- Healthstone
+				CreateNewCheck(thisConfig,"Healthstone");
+				CreateNewBox(thisConfig, "Healthstone", 0,100,5,25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
+				CreateNewText(thisConfig,"Healthstone");
 
-        if isKnown(_Mindbender) then
-        	--[[Mindbender]]
-	        CreateNewCheck(thisConfig,"Mindbender");
-	        CreateNewText(thisConfig,"Mindbender");
-	    else
-	        --[[Shadowfiend]]
-	        CreateNewCheck(thisConfig,"Shadowfiend");
-	        CreateNewText(thisConfig,"Shadowfiend");
-	    end
+				-- Desperate Prayer
+				CreateNewCheck(thisConfig,"Desperate Prayer");
+				CreateNewBox(thisConfig, "Desperate Prayer", 0,100,5,30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDesperate Prayer");
+				CreateNewText(thisConfig,"Desperate Prayer");
 
-        -- Wrapper -----------------------------------------
-        -- CreateNewWrap(thisConfig,"--------- Healing -------");
+				-- Dispersion
+				CreateNewCheck(thisConfig,"Dispersion");
+				CreateNewBox(thisConfig, "Dispersion", 0,100,5,20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDispersion");
+				CreateNewText(thisConfig,"Dispersion");
 
-        -- Wrapper -----------------------------------------
-        --CreateNewWrap(thisConfig,"------- Offensive ------");
+				-- Fade DMG reduction (with glyph)
+				if hasGlyph(GlyphOfFade) then
+					CreateNewCheck(thisConfig,"Fade Glyph");
+					CreateNewBox(thisConfig, "Fade Glyph", 0, 100  , 5, 80, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFade");
+					CreateNewText(thisConfig,"Fade Glyph");
+				end
+				
+				-- Fade (aggro reduction)
+				CreateNewCheck(thisConfig,"Fade Aggro", "|cffFFBB00Fade on Aggression |cffFF0000(only in group or raid)");
+				CreateNewText(thisConfig,"Fade Aggro");
 
+			-- Wrapper -----------------------------------------
+			CreateNewWrap(thisConfig,"--- Cooldowns");
 
+				-- Halo
+				CreateNewCheck(thisConfig,"Halo");
+				CreateNewText(thisConfig,"Halo");
 
-        -- Wrapper -----------------------------------------
-        CreateNewWrap(thisConfig,"--- Defensive");
+				-- Power Infusion
+				CreateNewCheck(thisConfig,"Power Infusion");
+				CreateNewText(thisConfig,"Power Infusion");
 
-        --[[Healthstone]]
-        CreateNewCheck(thisConfig,"Healthstone");
-        CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
-        CreateNewText(thisConfig,"Healthstone");
+				-- Shadowfiend / Mindbender
+				if isKnown(Mindbender) then
+					CreateNewCheck(thisConfig,"Mindbender");
+					CreateNewText(thisConfig,"Mindbender");
+				else
+					CreateNewCheck(thisConfig,"Shadowfiend");
+					CreateNewText(thisConfig,"Shadowfiend");
+				end
 
-        --[[Power Word: Shield]]
-        CreateNewCheck(thisConfig,"Power Word: Shield");
-        CreateNewBox(thisConfig, "Power Word: Shield", 0, 100  , 5, 80, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFPower Word: Shield.");
-        CreateNewText(thisConfig,"Power Word: Shield");
+			-- Wrapper -----------------------------------------
+			CreateNewWrap(thisConfig,"--- Utilities");
 
-        --[[Dispersion]]
-        CreateNewCheck(thisConfig,"Dispersion");
-        CreateNewBox(thisConfig, "Dispersion", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDispersion");
-        CreateNewText(thisConfig,"Dispersion");
+				-- Shadowform Outfight
+				CreateNewCheck(thisConfig,"Shadowform Outfight");
+				CreateNewText(thisConfig,"Auto Shadowform Outfight");
 
-        --[[Fade]]
-        CreateNewCheck(thisConfig,"Fade");
-        CreateNewBox(thisConfig, "Fade", 0, 100  , 5, 80, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFade");
-        CreateNewText(thisConfig,"Fade");
+				-- AutoSpeedBuff
+				if isKnown(AngelicFeather) then
+					--Angelic Feather
+					CreateNewCheck(thisConfig,"Angelic Feather");
+					CreateNewText(thisConfig,"Angelic Feather");
+				
+				if isKnown(BodyAndSoul) then
+					--Body And Soul
+					CreateNewCheck(thisConfig,"Body And Soul");
+					CreateNewText(thisConfig,"Body And Soul");
+				end
 
-        --[[Desperate Prayer]]
-        CreateNewCheck(thisConfig,"Desperate Prayer");
-        CreateNewBox(thisConfig, "Desperate Prayer", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDesperate Prayer");
-        CreateNewText(thisConfig,"Desperate Prayer");
+				-- Dummy DPS Test
+				CreateNewCheck(thisConfig,"DPS Testing");
+				CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 5, "Set to desired time for test in minutes. Min: 1 / Max: 15 / Interval: 1");
+				CreateNewText(thisConfig,"DPS Testing");
 
-        -- Wrapper -----------------------------------------
-        -- CreateNewWrap(thisConfig,"--- Toggles");
-
-        -- --[[Pause Toggle]]
-        -- CreateNewCheck(thisConfig,"Pause Toggle");
-        -- CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
-        -- CreateNewText(thisConfig,"Pause Toggle");
-
-        -- --[[Focus Toggle]]
-        -- CreateNewCheck(thisConfig,"Focus Toggle");
-        -- CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle2")
-        -- CreateNewText(thisConfig,"Focus Toggle");
-
-        -- Wrapper -----------------------------------------
-        CreateNewWrap(thisConfig,"--- Utilities");
-
-        if isKnown(_AngelicFeather) then
-	        --[[Angelic Feather]]
-	        CreateNewCheck(thisConfig,"Angelic Feather");
-            CreateNewText(thisConfig,"Angelic Feather");
-	    elseif isKnown(_BodyAndSoul) then
-	        --[[Body And Soul]]
-	        CreateNewCheck(thisConfig,"Body And Soul");
-	        CreateNewText(thisConfig,"Body And Soul");
-	    end
-
-        --[[Follow Tank]]
-        --CreateNewCheck(thisConfig,"Follow Tank");
-        --CreateNewBox(thisConfig, "Follow Tank", 10, 40  , 1, 25, "|cffFFBB00Range from focus...");
-        --CreateNewText(thisConfig,"Follow Tank");
-
-        --[[General Configs]]
-        CreateGeneralsConfig();
-
-
-        WrapsManager();
-    end
-end
-
+			-- General Configs
+			CreateGeneralsConfig();
+			WrapsManager();
+			end
+		end
+	end
 end
