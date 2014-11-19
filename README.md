@@ -37,7 +37,7 @@
 | **Priest**  |  |  |
 |Discipline|0%||
 |Holy|0%||
-|Shadow|99%(lvl90)|ragnar|
+|Shadow|20%|ragnar|
 ||||
 | **Rogue**  |  |  |
 |Assassination|90%|CuteOne |
