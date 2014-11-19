@@ -328,10 +328,26 @@ if select(3, UnitClass("player")) == 5 then
 		-- actions.main+=/shadowfiend,if=!talent.mindbender.enabled
 
 		-- actions.main+=/void_entropy,if=talent.void_entropy.enabled&shadow_orb>=3&miss_react&!ticking&target.time_to_die>60&cooldown.mind_blast.remains<=gcd*2,cycle_targets=1,max_cycle_targets=3
+		if isKnown(VoidEntropy) and ORBS>=3 then
+			if not UnitDebuffID("target",VoidEntropy,"player") and getTimeToDie("target")>60 and MBCD<=GCD*2 then
+				if castSpell("target",VoidEntropy,true,true) then return;end
+			end
+		end
 
 		-- actions.main+=/devouring_plague,if=talent.void_entropy.enabled&shadow_orb>=3&dot.void_entropy.ticking&dot.void_entropy.remains<10,cycle_targets=1,max_cycle_targets=3
+		-- same as next but with less time. 
+
 		-- actions.main+=/devouring_plague,if=talent.void_entropy.enabled&shadow_orb>=3&dot.void_entropy.ticking&dot.void_entropy.remains<20,cycle_targets=1,max_cycle_targets=3
+		if isKnown(VoidEntropy) and ORBS>=3 then
+			if UnitDebuffID("target",VoidEntropy,"player") and getDebuffRemain("target",VoidEntropy,"player")<20 then
+				if castSpell("target",VoidEntropy,true,true) then return;end
+			end
+		end
+
 		-- actions.main+=/devouring_plague,if=talent.void_entropy.enabled&shadow_orb=5
+		if isKnown(VoidEntropy) and ORBS==5 then
+			if castSpell("target",DP,true,false) then return;end
+		end
 		
 		-- actions.main+=/devouring_plague,if=!talent.void_entropy.enabled&shadow_orb>=4&!target.dot.devouring_plague_tick.ticking&talent.surge_of_darkness.enabled,cycle_targets=1
 		if not isKnown(VoidEntropy) then
