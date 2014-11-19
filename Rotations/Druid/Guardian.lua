@@ -299,16 +299,16 @@ function DruidGuardian()
 				end
 			end
 			-- actions+=/pulverize,if=buff.pulverize.remains<0.5
-			if getTalent(8,2) then
-				if getBuffRemain("player",pulv) < 0.5 then
+			if isKnown(pulv) then
+				if getBuffRemain("player",pulvb) < 0.5 then
 					if castSpell("target",pulv,false,false) then
 						return;
 					end
 				end
 			end
 			-- actions+=/lacerate,if=talent.pulverize.enabled&buff.pulverize.remains<=(3-dot.lacerate.stack)*gcd
-			if getTalent(8,2) then
-				if getDebuffRemain("player",pulv) <= lacTime then
+			if isKnown(pulv) then
+				if getDebuffRemain("player",pulvb) <= lacTime then
 					if castSpell("target",lac,false,false) then
 						return;
 					end
