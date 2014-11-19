@@ -20,7 +20,17 @@ if select(3, UnitClass("player")) == 5 then
 			MBCD = getSpellCD(MB)
 			SWDCD = getSpellCD(SWD)
 
+			-- DP
+			DPTIME = 6.0/(1+UnitSpellHaste("player")/100)
+			DPTICK = DPTIME/6;
+			-- SWP (18sec)
+			SWPTICK = 18.0/(1+UnitSpellHaste("player")/100)/6
+			-- VT (15sec)
+			VTTICK = 16.0/(1+UnitSpellHaste("player")/100)/5
+
 		-- Set Enemies Table
+			makeEnemiesTable(80)
+
 
 
 		-------------

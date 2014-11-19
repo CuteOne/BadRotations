@@ -187,7 +187,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- actions.cop_advanced_mfi_dots+=/mind_spike,if=(target.dot.shadow_word_pain.ticking&target.dot.shadow_word_pain.remains<gcd*2)|(target.dot.vampiric_touch.ticking&target.dot.vampiric_touch.remains<gcd*2)
 		
 		-- actions.cop_advanced_mfi_dots+=/mind_flay,chain=1,interrupt=1
-	end
+	end -- END cop_advanced_mfi_dots()
 
 	--[[                    ]] -- cop_advanced_mfi
 	function cop_advanced_mfi()
@@ -224,7 +224,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- actions.cop_advanced_mfi+=/cascade,if=talent.cascade.enabled&target.distance<=40,moving=1
 		
 		-- actions.cop_advanced_mfi+=/shadow_word_pain,if=primary_target=0,moving=1,cycle_targets=1
-	end
+	end -- END cop_advanced_mfi()
 
 	--[[                    ]] -- cop_mfi
 	function cop_mfi()
@@ -271,7 +271,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- actions.cop_mfi+=/cascade,if=talent.cascade.enabled&target.distance<=40,moving=1
 		
 		-- actions.cop_mfi+=/shadow_word_pain,if=primary_target=0,moving=1,cycle_targets=1
-	end
+	end -- END cop_mfi()
 
 	--[[                    ]] -- cop
 	function cop()
@@ -320,7 +320,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- actions.cop+=/cascade,if=talent.cascade.enabled&target.distance<=40,moving=1
 		
 		-- actions.cop+=/shadow_word_pain,if=primary_target=0,moving=1,cycle_targets=1
-	end
+	end -- END cop()
 
 	--[[                    ]] -- main
 	function ShadowMain()
@@ -392,85 +392,142 @@ if select(3, UnitClass("player")) == 5 then
 		if UnitBuffID("player",InsanityBuff) then
 			if select(1,UnitChannelInfo("player")) == nil then
 				if castSpell("target",MF,false,true) then 
-					print("MFI");
 					return;end
 			end
 		end
 
 
 		-- actions.main+=/halo,if=talent.halo.enabled&target.distance<=30&active_enemies>2
-		if isKnown(Halo) and isChecked(Halo) and getNumEnemies("player",30) then
+		if isKnown(Halo) and isChecked(Halo) and getNumEnemiesInRange("player",30)>2 then
 			if castSpell("player",Halo) then return;end
 		end
 		
 		-- actions.main+=/cascade,if=talent.cascade.enabled&active_enemies>2&target.distance<=40
-		if isKnown(Cascade) and getNumEnemies("player",40)>2 and getDistance("player","target")<=40 then
+		if isKnown(Cascade) and getNumEnemiesInRange("player",40)>2 and getDistance("player","target")<=40 then
 			if castSpell("target",Cascade) then return;end
 		end
 		
 		-- actions.main+=/divine_star,if=talent.divine_star.enabled&active_enemies>4&target.distance<=24
-		if isKnown(DivineStar) and getNumEnemies("player",24)>4 then
+		if isKnown(DivineStar) and getNumEnemiesInRange("player",24)>4 then
 			if castSpell("target",DivineStar,false,true) then return;end
 		end
 		
 		-- actions.main+=/shadow_word_pain,if=talent.auspicious_spirits.enabled&remains<(18*0.3)&miss_react,cycle_targets=1
+		if isKnown(AuspiciousSpirits) then
+			if getDebuffRemain("target",SWP)<(18*0.3) then
+				if castSpell("target",SWP) then return;end
+			end
+		end
+
 		
 		-- actions.main+=/shadow_word_pain,if=!talent.auspicious_spirits.enabled&remains<(18*0.3)&miss_react&active_enemies<=5,cycle_targets=1,max_cycle_targets=5
+		--[[   TBD                                                                                                                                              ]]
 		
 		-- actions.main+=/vampiric_touch,if=remains<(15*0.3+cast_time)&miss_react&active_enemies<=5,cycle_targets=1,max_cycle_targets=5
-		
+		--[[   TBD                                                                                                                   ]]
+
 		-- actions.main+=/devouring_plague,if=!talent.void_entropy.enabled&shadow_orb>=3&ticks_remain<=1
-		
+		if not isKnown(VoidEntropy) then
+			if ORBS>=3 and DPTICK<=getDebuffRemain("target",DP,"player") then
+				if castSpell("target",DP) then return;end
+			end
+		end
+
 		-- actions.main+=/mind_spike,if=active_enemies<=5&buff.surge_of_darkness.react=3
-		
+		if isKnown(SoD) then
+			if UnitBuffID("player",SoDProcs) and getBuffStacks(SoDProcs)==3 then
+				if castSpell("target",MS,false,false) then return;end
+			end
+		end
+
 		-- actions.main+=/halo,if=talent.halo.enabled&target.distance<=30&target.distance>=17
+		if isKnown(Halo) and isChecked(Halo) and getDistance("player","target")<=30 and getDistance("player","target")>=17 then
+			if castSpell("player",Halo) then return;end
+		end
 		
 		-- actions.main+=/cascade,if=talent.cascade.enabled&((active_enemies>1|target.distance>=28)&target.distance<=40&target.distance>=11)
 		
 		-- actions.main+=/divine_star,if=talent.divine_star.enabled&(active_enemies>1|target.distance<=24)
+		if isKnown(DivineStar) then
+			if getNumEnemiesInRange("player",24)>1 or getDistance("player","target")<=24 then
+				if castSpell("target",DivineStar,false,true) then return;end
+			end
+		end
 		
 		-- actions.main+=/wait,sec=cooldown.shadow_word_death.remains,if=target.health.pct<20&cooldown.shadow_word_death.remains&cooldown.shadow_word_death.remains<0.5&active_enemies<=1
 		
 		-- actions.main+=/wait,sec=cooldown.mind_blast.remains,if=cooldown.mind_blast.remains<0.5&cooldown.mind_blast.remains&active_enemies<=1
 		
 		-- actions.main+=/mind_spike,if=buff.surge_of_darkness.react&active_enemies<=5
+		if isKnown(SoD) then
+			if UnitBuffID("player",SoDProcs) and getBuffStacks(SoDProcs)>=1 then
+				if castSpell("target",MS,false,false) then return;end
+			end
+		end
 		
 		-- actions.main+=/divine_star,if=talent.divine_star.enabled&target.distance<=28&active_enemies>1
+		if isKnown(DivineStar) then
+			if getNumEnemiesInRange("player",24)>1 or getDistance("player","target")<=28 then
+				if castSpell("target",DivineStar,false,true) then return;end
+			end
+		end
 		
 		-- actions.main+=/mind_sear,chain=1,interrupt=1,if=active_enemies>=4
 		
 		-- actions.main+=/shadow_word_pain,if=shadow_orb>=2&ticks_remain<=3&talent.insanity.enabled
+		if isKnown(InsanityTalent) then
+			if ORBS>=2 and getDebuffRemain("target",SWP,"player")<=3*SWPTICK then
+				if castSpell("target",SWP) then return;end
+			end
+		end
 		
 		-- actions.main+=/vampiric_touch,if=shadow_orb>=2&ticks_remain<=3.5&talent.insanity.enabled
-		
+		if isKnown(InsanityTalent) then
+			if ORBS>=2 and getDebuffRemain("target",VT,"player")<=3.5*VTTICK then
+				if castSpell("target",VT) then return;end
+			end
+		end
+
 		-- actions.main+=/mind_flay,chain=1,interrupt=1
 		if select(1,UnitChannelInfo("player")) == nil then
 			if castSpell("target",MF,false,true) then 
-				print("MF");
 				return;
 			end
 		end
 		
 		-- actions.main+=/shadow_word_death,moving=1
+		if isMoving("player") then
+			if castSpell("target",SWD,true,false) then
+				return;
+			end
+		end
 		
 		-- actions.main+=/mind_blast,moving=1,if=buff.shadowy_insight.react&cooldown_react
+		if isKnown(ShadowyInsight) and isMoving("player") then
+			if UnitBuffID("player",DIProc) then
+				if castSpell("target",MB,false) then return;end
+			end
+		end
 		
 		-- actions.main+=/divine_star,moving=1,if=talent.divine_star.enabled&target.distance<=28
-		
+		if isKnown(DivineStar) then
+			if isMoving("player") and getDistance("player","target")<=28 then
+				if castSpell("target",DivineStar) then	return;end
+			end
+		end
+
 		-- actions.main+=/cascade,moving=1,if=talent.cascade.enabled&target.distance<=40
-		
+		if isKnown(Cascade) then
+			if isMoving("player") and getDistance("player","target")<=40 then
+				if castSpell("target",Cascade) then	return;end
+			end
+		end
+
 		-- actions.main+=/shadow_word_pain,moving=1,cycle_targets=1
-	end
+		if isMoving("player") then
+			if castSpell("target",SWP) then	return;end
+		end
+
+	end -- END ShadowMain()
 
 end
-
-
--- Dump: value=UnitChannelInfo("player")
--- [1]="Insanity",
--- [2]="",
--- [3]="Channeling",
--- [4]="Interface\\Icons\\Spell_Shadow_SoulLeech_2",
--- [5]=44832587,
--- [6]=44834891,
--- [7]=false,
--- [8]=false

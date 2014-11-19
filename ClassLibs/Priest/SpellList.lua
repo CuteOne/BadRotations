@@ -17,7 +17,8 @@ if select(3, UnitClass("player")) == 5 then
 		SF 		= 34433;	-- Shadowfiend
 
 	-- Procs
-
+		SoDProcs	= 87160;	-- SoD Procs (max 3)
+		DIProc		= 124430;	-- Shadowy Insight Procs (max 1)
 
 	-- Buffs
 		PWF 				= 21562;	-- Power Word: Fortitude
