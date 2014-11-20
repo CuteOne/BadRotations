@@ -281,14 +281,14 @@ function FeralCatConfig()
             textOp("Interrupts")
 
             -- Thrash Toggle
-            checkOp("Thrash Toggle","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFThrash Toggle Key|cffFFBB00.");
-            dropOp("Thrash Toggle", 6, "Toggle")
-            textOp("Thrash");
+            checkOp("Thrash Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFThrash Toggle Key|cffFFBB00.");
+            dropOp("Thrash Mode", 6, "Toggle")
+            textOp("Thrash Mode");
 
             -- Prowl Toggle
-            checkOp("Prowl Toggle","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFProwl Toggle Key|cffFFBB00.");
-            dropOp("Prowl Toggle", 6, "Toggle")
-            textOp("Prowl");
+            checkOp("Prowl Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFProwl Toggle Key|cffFFBB00.");
+            dropOp("Prowl Mode", 6, "Toggle")
+            textOp("Prowl Mode");
 
         -- General Configs
         CreateGeneralsConfig();

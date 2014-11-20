@@ -60,16 +60,16 @@ wth =	5176	--Wrath
 
 ------Talents------
 inc	=	102543	--Incarnation: King of the Jungle
-incg = 102558 --Incarnation: Son of Ursoc
+incg=	102558 	--Incarnation: Son of Ursoc
 fon	=	102703	--Force of Nature
 how	=	108288 	--Heart of the Wild
-howg = 108293 --Heart of the Wild Guardian
+howg=	108293	--Heart of the Wild Guardian
 mb	=	5211	  --Mighty Bash
 ty	=	132469	--Typhoon
 bt 	=	155672	--Bloodtalons
-uv  = 102793  --Ursol's Vortex
-pulv = 80313  --Pulverize
-pulvb = 158792 --Pulverize Buff
+uv  = 	102793  --Ursol's Vortex
+pulv= 	80313  	--Pulverize
+pulvb = 158792 	--Pulverize Buff
 
 ------Glyphs------
 gsh	=	114234	--Glyph of Shred
@@ -81,7 +81,7 @@ ps	= 	69369	--Predatory Swiftness
 wa	= 	113746	--Weakened Armor - Faerie Fire Debuff
 cc 	= 	135700	--Clearcasting
 dcd	=	145152	--Dream of Cenarius Damage Buff
-dcg = 145162 --Dream of Cenarius Guardian Buff
+dcg = 	145162 --Dream of Cenarius Guardian Buff
 inb = 	102543	--Incarnation: King of the Jungle buff
 ro1	=	139121	--Rune of Re-Origination: Haste
 ro2	=	139117	--Rune of Re-Origination: Critical Strike
@@ -91,7 +91,7 @@ frr	=	146874 	--Feral Rage
 spd	=	81022	--Stampede
 rber=	26297	--Troll Racial: Berserking
 sm 	=	58984	--Night Elf Racial: Shadowmeld
-tac = 135286 --Tooth and Claw
+tac = 	135286 	--Tooth and Claw
 
 ------Forms------
 af	=	1066	--Aquatic Form

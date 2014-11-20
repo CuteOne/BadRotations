@@ -116,11 +116,7 @@ function useCDs()
 end
 
 function useAoE()
-    if numEnemies == nil then numEnemies = 0 end
-    if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
-        numEnemies, enemiesTimer = getNumEnemies("player",8), GetTime()
-    end
-    if (BadBoy_data['AoE'] == 1 and numEnemies >= 3) or BadBoy_data['AoE'] == 2 then
+    if (BadBoy_data['AoE'] == 1 and dynamicTarget(8,"count") >= 3) or BadBoy_data['AoE'] == 2 then
         return true
     else
         return false
@@ -151,6 +147,14 @@ function useThrash()
     end
 end
 
+function useProwl()
+    if BadBoy_data['Prowl']==1 then
+        return true
+    else
+        return false
+    end
+end
+
 function outOfWater()
     if swimTime == nil then swimTime = 0 end
     if outTime == nil then outTime = 0 end
@@ -171,22 +175,51 @@ function outOfWater()
     end
 end
 
-function dynamicTarget(range)
-    if myEnemies==nil then myEnemies = 0 end
-    if myMultiTimer == nil or myMultiTimer <= GetTime() - 1 then
-        myEnemies, myMultiTimer = getEnemies("player",range), GetTime()
+-- function dynamicTarget(range,tarreq)
+--     if tarreq==nil and tarreq~=count then tarreq=false end
+--     if range>40 or range==nil then range=40 end
+--     local myEnemies = nil
+--     if myEnemiesTimer == nil or myEnemies == nil or myEnemiesTimer <= GetTime() - 1 then
+--         myEnemies, myEnemiesTimer = getEnemies("player",range), GetTime();
+--     end
+--     if tarreq==count then
+--         return #myEnemies
+--     end
+--     if (tarreq==false or (tarreq==true and UnitExists("target"))) and tarreq~=count then
+--         for i = 1, #myEnemies do
+--             local thisUnit = myEnemies[i]
+--             if getCreatureType(thisUnit)
+--                 and UnitCanAttack(thisUnit,"player")
+--                 and not UnitIsDeadOrGhost(thisUnit)
+--                 and getFacing("player",thisUnit)
+--                 and (UnitAffectingCombat(thisUnit) or isDummy(thisUnit))
+--             then
+--                 if UnitGUID("target")~=UnitGUID(thisUnit) then
+--                     return thisUnit
+--                 end
+--             end
+--         end
+--     end
+--     if thisUnit==nil then return "target" end
+-- end
+
+function dynamicTarget(range,tarreq)
+    if range>40 or range==nil then 
+        range=40 
     end
-    for i = 1, #myEnemies do
-        if getCreatureType(myEnemies[i]) == true then
-            local thisUnit = myEnemies[i]
-            if UnitCanAttack(thisUnit,"player")
-                and (UnitAffectingCombat(thisUnit) or isDummy(thisUnit))
-                and not UnitIsDeadOrGhost(thisUnit)
-                and getFacing("player",thisUnit)
-            then
-                return thisUnit
+    makeEnemiesTable(range)
+    if tarreq=="count" then
+        return #enemiesTable
+    else
+        if (tarreq==false or (tarreq==true and UnitExists("target"))) then
+            for i = 1, #enemiesTable do
+                local thisUnit = enemiesTable[i].unit
+                --if UnitGUID("target")~=UnitGUID(thisUnit) then
+                    return thisUnit
+                --end
             end
         end
+        if thisUnit==nil then return "target" end
     end
 end
 

@@ -13,25 +13,25 @@ if select(3, UnitClass("player")) == 11 then
 --------------
 --- Locals ---
 --------------
-		if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
-        	enemies, enemiesTimer = getNumEnemies("player",8), GetTime()
-    	end
-		local tarDist = getDistance2("target")
-		local hasTarget = UnitExists("target")
-		local friendly = UnitIsFriend("target","player")
+		if leftCombat == nil then leftCombat = GetTime() end
+		local enemies = dynamicTarget(8,"count")
+   		local target = dynamicTarget(5,true)
+		local tarDist = getDistance2(target)
+		local hasTarget = UnitExists(target)
+		local friendly = UnitIsFriend(target,"player")
 		local hasMouse = UnitExists("mouseover")
 		local level = UnitLevel("player")
 		local php = getHP("player")
-		local thp = getHP("target")
+		local thp = getHP(target)
 		local combo = getCombo()
 		local power = getPower("player")
 		local powmax = UnitPowerMax("player")
 		local powgen = getRegen("player")
 		local clearcast = getBuffRemain("player",cc)
-		local ttd = getTimeToDie("target")
+		local ttd = getTimeToDie(target)
 		local ttm = getTimeToMax("player")
-		local deadtar = UnitIsDeadOrGhost("target")
-		local attacktar = canAttack("player", "target")
+		local deadtar = UnitIsDeadOrGhost(target)
+		local attacktar = canAttack("player", target)
 		local falling = getFallTime()
 		local swimming = IsSwimming()
 		local travel = UnitBuffID("player", trf)
@@ -52,15 +52,20 @@ if select(3, UnitClass("player")) == 11 then
 	    local fonCharge = getCharges(fon)
 	    local fonRecharge = getRecharge(fon)
 	    local berserk = UnitBuffID("player",ber)
+	    local berCooldown = getSpellCD(ber)
+	    local incarnation = UnitBuffID("player",inc) 
+	    local incCooldown = getSpellCD(inc)
 	    local vicious = getBuffRemain("player",148903)
 	    local restlessagi = getBuffRemain("player",146310)
 	    local btRemain = getBuffRemain("player",bt)
-	    local rkRemain = getDebuffRemain("target",rk,"player")
-	    local rkDuration = getDebuffDuration("target",rk,"player")
-	    local rpRemain = getDebuffRemain("target",rp,"player")
-	    local rpDuration = getDebuffDuration("target",rp,"player")
-	    local thrRemain = getDebuffRemain("target",thr,"player")
-	    local thrDuration = getDebuffDuration("target",thr,"player")
+	    local rkRemain = getDebuffRemain(target,rk,"player")
+	    local rkDuration = getDebuffDuration(target,rk,"player")
+	    local rpRemain = getDebuffRemain(target,rp,"player")
+	    local rpDuration = getDebuffDuration(target,rp,"player")
+	    local thrRemain = getDebuffRemain(target,thr,"player")
+	    local thrDuration = getDebuffDuration(target,thr,"player")
+	    local mfRemain = getDebuffRemain(target,mf,"player")
+	    local mfTick = 20.0/(1+UnitSpellHaste("player")/100)/10
 	    local rkCalc = CRKD()
     	local rkDmg = RKD()
     	local rpCalc = CRPD()
@@ -83,7 +88,7 @@ if select(3, UnitClass("player")) == 11 then
 		        end
 		    end
 	-- Aquatic Form
-		    if swimming and not travel and not hasTarget then
+		    if swimming and not travel and not hasTarget and not isInCombat("player") then
 		        if castSpell("player",trf,true,false,false) then return; end
 		    end
 	-- Cat Form
@@ -201,17 +206,12 @@ if select(3, UnitClass("player")) == 11 then
 ---------------------
 --- Out of Combat ---
 ---------------------
-			if not isInCombat("player") and ((not (IsMounted() or IsFlying() or friendly)) or isDummy()) then
+			if not isInCombat("player") and cat and ((not (IsMounted() or IsFlying() or friendly)) or isDummy()) then
 		-- Prowl
-		        if isChecked("Prowl") and not stealth and (tarDist<20 or isKnown(eprl)) then
-		        	if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
-						if castSpell("player",prl,false,false,false) then
-						    lootTimer = GetTime()
-						    return;
-						end
-					end
+		        if useProwl() and not stealth and (tarDist<20 or isKnown(eprl)) and GetTime()-leftCombat > lootDelay then
+					if castSpell("player",prl,false,false,false) then return; end
 		        end
-		-- Shred
+		-- Rake/Shred
 		        if isInMelee() and power>40 and tarDist<5 then
 		        	if isKnown(irk) then
 		        		if castSpell("target",rk,false,false,false) then return; end
@@ -285,39 +285,44 @@ if select(3, UnitClass("player")) == 11 then
 		                UseItemByName(tostring(select(1,GetItemInfo(76089))))
 		            end
 		-- Racial: Troll Berserking
-		            if select(2, UnitRace("player")) == "Troll" and power >= 75 then
-		                if castSpell("player",rber,false,false) then return; end
+		            if select(2, UnitRace("player")) == "Troll" and power >= 75 and tfRemain>0 then
+		                if castSpell("player",rber,true,false,false) then return; end
 		            end
 		-- Tier 4 Talent: Incarnation - King of the Jungle
-		            if ttd >= 15 and berserking then
-		                if castSpell("player",inc,false,false) then return; end
+		            if berCooldown<10 and ttm>1 then
+		                if castSpell("player",inc,true,false,false) then return; end
 		            end
 		-- Berserk
-		            if power >= 75 and tfCooldown > 6 and tfRemain>0 and ttd >= 18 then
+		            if tfRemain>0 and ttd >= 18 then
+		    -- Agi-Pot
 		            	if canUse(76089) and thp <= 25 and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") then
 		                	UseItemByName(tostring(select(1,GetItemInfo(76089))))
 		            	end
-		                if castSpell("player",ber,false,false) then return; end
+		                if castSpell("player",ber,true,false,false) then return; end
 		            end
 		-- Racial: Night Elf Shadowmeld
-					if (btRemain>0 or not getTalent(7,2)) and rkRemain<0.3*rkDuration then
+					if rkRemain<4.5 and power>=35 and rkDmg<2 and (btRemain>0 or not getTalent(7,2)) and (not getTalent(4,2) or incCooldown>15) and not incarnation then
 						if castSpell("player",sm,false,false) then return; end
 					end
 		        end
 	------------------------------------------
 	--- In Combat Rotation ---
 	------------------------------------------
+		-- Rake/Shred from Stealth
+				if stealth and power>40 and tarDist<5 then
+					if isKnown(irk) then
+		        		if castSpell("target",rk,false,false,false) then return; end
+		        	else
+		            	if castSpell("target",shr,false,false,false) then return; end
+		            end
+				end
 		-- Tiger's Fury
 				if (not clearcast and powmax-power>=60) or powmax-power>=80 then
-					if castSpell("player",tf,false,false,false) then return; end
-				end
-		-- Shred from Stealth
-				if stealth and power>40 and tarDist<5 then
-					if castSpell("target",shr,false,false,false) then return; end
+					if castSpell("player",tf,true,false,false) then return; end
 				end
 		-- Ferocious Bite
-				if rpRemain>0 and rpRemain<=3 and thp<25 and power>25 and tarDist<5 then
-					if castSpell("target",fb,false,false,false) then return; end
+				if rpRemain>0 and rpRemain<3 and thp<25 and power>25 and tarDist<5 then
+					if castSpell(target,fb,false,false,false) then return; end
 				end
 		-- Healing Touch
 				if psRemain>0 and ((combo>=4 and getTalent(7,2)) or psRemain<1.5) then
@@ -333,60 +338,65 @@ if select(3, UnitClass("player")) == 11 then
 					if castSpell("player",svr,true,false,false) then return; end
 	            end
 	    -- Thrash
-	    		if clearcast and thrRemain<=thrDuration*0.3 and enemies>1 and useThrash() then
-	    			if castSpell("target",thr,true,false,false) then return; end
+	    		if clearcast and thrRemain<4.5 and useThrash() and power>50 and (enemies>1 or (not getTalent(7,2) and combo==5)) then
+	    			if castSpell(target,thr,true,false,false) then return; end
 				end
+		-- Thrash
+				if thrRemain<4.5 and enemies>1 and useThrash() and power>50 then
+					if castSpell(target,thr,true,false,false) then return; end
+				end
+				if combo==5 then
 		-- Ferocious Bite
-				if combo==5 and thp<25 and rpRemain>0 and power>50 and tarDist<5 then
-					if castSpell("target",fb,false,false,false) then return; end
-				end
+					if thp<25 and rpRemain>0 and power>50 and tarDist<5 then
+						if castSpell("target",fb,false,false,false) then return; end
+					end
 		-- Rip
-				if combo==5 and (rpRemain<=3 or (rpRemain<=rpDuration*0.3 and rpCalc>rpDmg)) and power>30 and tarDist<5 then
-					if castSpell("target",rp,false,false,false) then return; end
-				end
+					if ((rpRemain<=3 and ttd-rpRemain>18) or (rpRemain<7.2 and rpCalc>rpDmg and ttd-rpRemain>18)) and power>30 and tarDist<5 then
+						if castSpell(target,rp,false,false,false) then return; end
+					end
 		-- Savage Roar
-				if combo==5 and (ttm<=1 or berserking or tfCooldown<3) and srRemain<42*0.3 and power>25 and tarDist<5 then
-					if castSpell("player",svr,true,false,false) then return; end
-	            end
+					if (ttm<=1 or berserking or tfCooldown<3) and srRemain<12.6 and power>25 and tarDist<5 then
+						if castSpell("player",svr,true,false,false) then return; end
+		            end
 	    -- Ferocious Bite
-	    		if combo==5 and (ttm<=1 or berserking or tfRemain<3) and power>50 and tarDist<5 then
-	    			if castSpell("target",fb,false,false,false) then return; end
+		    		if (ttm<=1 or berserking or tfRemain<3) and power>50 and tarDist<5 then
+		    			if castSpell("target",fb,false,false,false) then return; end
+		            end
+	           	end
+	    -- Rake
+	    		if not getTalent(7,2) and rkRemain<3 and combo<5 and ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) and power>35 and tarDist<5 then
+	    			if castSpell(target,rk,false,false,false) then return; end
 	            end
 	    -- Rake
-	    		if combo<5 and (rkRemain<=3 or (rkRemain<=rkDuration*0.3 and rkCalc>rkDmg)) and power>35 and tarDist<5 then
-	    			if castSpell("target",rk,false,false,false) then return; end
+	    		if not getTalent(7,2) and rkRemain<4.5 and combo<5 and rkCalc>rkDmg and ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) and power>35 and tarDist<5 then
+	    			if castSpell(target,rk,false,false,false) then return; end
+	            end
+	    -- Rake
+	    		if getTalent(7,2) and rkRemain<4.5 and combo<5 and (psRemain==0 or btRemain>0 or rkCalc>rkDmg) and ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) and power>35 and tarDist<5 then
+	    			if castSpell(target,rk,false,false,false) then return; end
 	            end
 	    -- Thrash
-	    		if thrRemain<=thrDuration*0.3 and enemies>1 and power>50 and useThrash() then
-	    			if castSpell("target",thr,true,false,false) then return; end
+	    		if getTalent(7,2) and combo==5 and thrRemain<4.5 and clearcast and power>50 and useThrash() then
+	    			if castSpell(target,thr,true,false,false) then return; end
 	            end
+	    -- Moonfire
+	    		if getTalent(7,1) and combo<5 and mfRemain<4.2 and enemies<6 and ttd-mfRemain>mfTick*5 and tarDist<40 then
+	    			if castSpell(target,mf,true,false,false) then return; end
+	    		end 
 	    -- Rake
-	    		if isChecked("Multi-Rake") and canCast(rk) then
-	                if  myEnemies == nil or myMultiTimer == nil or myMultiTimer <= GetTime() - 1 then
-	                    myEnemies, myMultiTimer = getEnemies("player",5), GetTime()
-	                end
-	                for i = 1, #myEnemies do
-	                    local thisUnit = myEnemies[i]
-	                    if getCreatureType(thisUnit)
-	                        and UnitCanAttack(thisUnit,"player")
-	                        and not UnitIsDeadOrGhost(thisUnit)
-	                        and getFacing("player",thisUnit)
-	                        and (UnitAffectingCombat(thisUnit) or isDummy(thisUnit))
-	                        and getDebuffRemain(thisUnit,rk,"player") < 3
-	                        and power > 35
-	                    then
-	                        if castSpell(thisUnit,rk,false,false,false) then return; end
-	                    end
-	                end
+	    		if rkCalc>rkDmg and combo<5 and enemies==1 and power>35 and tarDist<5 then
+	    			if castSpell(target,rk,false,false,false) then return; end
 	            end
+	    		if combo<5 then
 	    -- Swipe
-	    		if useAoE() and combo<5 and power>45 then
-	    			if castSpell("player",sw,false,false,false) then return; end
-	            end
+		    		if useAoE() and power>45 then
+		    			if castSpell("player",sw,false,false,false) then return; end
+		            end
 	    -- Shred
-	    		if not useAoE() and combo<5 and power>40 and tarDist<5 then
-	    			if castSpell("target",shr,false,false,false) then return; end
-	            end
+		    		if not useAoE() and power>40 and tarDist<5 then
+		    			if castSpell("target",shr,false,false,false) then return; end
+		            end
+		        end
 			end --In Combat End
 	-- Start Attack
 			if tarDist<5 and not stealth and isInCombat("player") then
