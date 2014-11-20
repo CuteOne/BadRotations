@@ -126,15 +126,15 @@ if select(3, UnitClass("player")) == 11 then
             CreateButton("Interrupts",4,0)
             InterruptsModesLoaded = "Cute Interrupt Modes";
         end
-     -- Thrash Button
-        if ThrashModesLoaded ~= "Cute Thrash Modes" then
-            CustomThrashModes = {
-                [1] = { mode = "On", value = 1 , overlay = "Thrash Enabled", tip = "Rotation will use Thrash", highlight = 1, icon = thr },
-                [2] = { mode = "Off", value = 2 , overlay = "Thrash Disabled", tip = "Rotation will not use Thrash", highlight = 0, icon = thr }
+     -- Cleave Button
+        if CleaveModesLoaded ~= "Cute Cleave Modes" then
+            CustomCleaveModes = {
+                [1] = { mode = "On", value = 1 , overlay = "Cleaving Enabled", tip = "Rotation will cleave targets.", highlight = 1, icon = thr },
+                [2] = { mode = "Off", value = 2 , overlay = "Cleaving Disabled", tip = "Rotation will not cleave targets", highlight = 0, icon = thr }
             };
-            ThrashModes = CustomThrashModes
-            CreateButton("Thrash",5,0)
-            ThrashModesLoaded = "Cute Thrash Modes";
+            CleaveModes = CustomCleaveModes
+            CreateButton("Cleave",5,0)
+            CleaveModesLoaded = "Cute Cleave Modes";
         end
      -- Prowl Button
         if ProwlModesLoaded ~= "Cute Prowl Modes" then
@@ -191,11 +191,11 @@ if select(3, UnitClass("player")) == 11 then
             UpdateButton("Interrupts")
         end
 
-        --Thrash Key Toggle
-        if ThrashTimer == nil then ThrashTimer = 0; end
-        if SpecificToggle("Thrash Toggle") and not GetCurrentKeyBoardFocus() and GetTime() - ThrashTimer > 0.25 then
-            ThrashTimer = GetTime()
-            UpdateButton("Thrash")
+        --Cleave Key Toggle
+        if CleaveTimer == nil then CleaveTimer = 0; end
+        if SpecificToggle("Cleave Toggle") and not GetCurrentKeyBoardFocus() and GetTime() - CleaveTimer > 0.25 then
+            CleaveTimer = GetTime()
+            UpdateButton("Cleave")
         end
 
         --Prowl Key Toggle

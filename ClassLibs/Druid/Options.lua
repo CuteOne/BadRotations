@@ -178,10 +178,6 @@ function FeralCatConfig()
             boxOp("DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             textOp("DPS Testing");
 
-            -- Rake Multi-Target
-            checkOp("Multi-Rake","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFMulti-Target Raking|cffFFBB00.");
-            textOp("Multi-Rake");
-
             -- Travel Shapeshifts
             checkOp("Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.");
             textOp("Auto Shapeshifts");
@@ -280,10 +276,10 @@ function FeralCatConfig()
             dropOp("Interrupt Mode", 6, "Toggle")
             textOp("Interrupts")
 
-            -- Thrash Toggle
-            checkOp("Thrash Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFThrash Toggle Key|cffFFBB00.");
-            dropOp("Thrash Mode", 6, "Toggle")
-            textOp("Thrash Mode");
+            -- Cleave Toggle
+            checkOp("Cleave Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCleave Toggle Key|cffFFBB00.");
+            dropOp("Cleave Mode", 6, "Toggle")
+            textOp("Cleave Mode");
 
             -- Prowl Toggle
             checkOp("Prowl Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFProwl Toggle Key|cffFFBB00.");

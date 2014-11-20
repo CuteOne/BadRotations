@@ -71,17 +71,17 @@ function CRKD()
 end
 
 --Applied Rake Dot Damage
-function RKD()
+function RKD(unit)
     local rakeDot = 1
-    if UnitExists("target") and UnitIsEnemy("target","player") then
-        if Rake_sDamage[UnitGUID("target")]~=nil then rakeDot = Rake_sDamage[UnitGUID("target")]; end
+    if UnitExists(unit) and UnitIsEnemy(unit,"player") then
+        if Rake_sDamage[UnitGUID(unit)]~=nil then rakeDot = Rake_sDamage[UnitGUID(unit)]; end
     end
     return rakeDot
 end
 
 --Rake Dot Damage Percent
-function RKP()
-    local RatioPercent = floor(CRKD()/RKD()*100+0.5)
+function RKP(unit)
+    local RatioPercent = floor(CRKD()/RKD(unit)*100+0.5)
     return RatioPercent
 end
 
@@ -93,17 +93,17 @@ function CRPD()
 end
 
 --Applied Rip Dot Damage
-function RPD()
+function RPD(unit)
     local ripDot = 1
-    if UnitExists("target") and UnitIsEnemy("target","player") then
-        if Rip_sDamage[UnitGUID("target")]~=nil then ripDot = Rip_sDamage[UnitGUID("target")]; end
+    if UnitExists(unit) and UnitIsEnemy(unit,"player") then
+        if Rip_sDamage[UnitGUID(unit)]~=nil then ripDot = Rip_sDamage[UnitGUID(unit)]; end
     end
     return ripDot
 end
 
 --Rip Dot Damage Percent
 function RPP()
-    local RatioPercent = floor(CRPD()/RPD()*100+0.5)
+    local RatioPercent = floor(CRPD()/RPD(unit)*100+0.5)
     return RatioPercent
 end
 
@@ -116,7 +116,7 @@ function useCDs()
 end
 
 function useAoE()
-    if (BadBoy_data['AoE'] == 1 and dynamicTarget(8,"count") >= 3) or BadBoy_data['AoE'] == 2 then
+    if (BadBoy_data['AoE'] == 1 and #enemiesTable >= 3) or BadBoy_data['AoE'] == 2 then
         return true
     else
         return false
@@ -139,8 +139,8 @@ function useInterrupts()
     end
 end
 
-function useThrash()
-    if BadBoy_data['Thrash']==1 then
+function useCleave()
+    if BadBoy_data['Cleave']==1 and BadBoy_data['AoE'] ~= 3 then
         return true
     else
         return false
@@ -203,25 +203,25 @@ end
 --     if thisUnit==nil then return "target" end
 -- end
 
-function dynamicTarget(range,tarreq)
-    if range>40 or range==nil then 
-        range=40 
-    end
-    makeEnemiesTable(range)
-    if tarreq=="count" then
-        return #enemiesTable
-    else
-        if (tarreq==false or (tarreq==true and UnitExists("target"))) then
-            for i = 1, #enemiesTable do
-                local thisUnit = enemiesTable[i].unit
-                --if UnitGUID("target")~=UnitGUID(thisUnit) then
-                    return thisUnit
-                --end
-            end
-        end
-        if thisUnit==nil then return "target" end
-    end
-end
+-- function dynamicTarget(range,tarreq)
+--     if range>40 or range==nil then 
+--         range=40 
+--     end
+--     makeEnemiesTable(range)
+--     if tarreq=="count" then
+--         return #enemiesTable
+--     else
+--         if (tarreq==false or (tarreq==true and UnitExists("target"))) then
+--             for i = 1, #enemiesTable do
+--                 local thisUnit = enemiesTable[i].unit
+--                 if UnitGUID("target")~=UnitGUID(thisUnit) then
+--                     return thisUnit
+--                 end
+--             end
+--         end
+--         if thisUnit==nil then return "target" end
+--     end
+-- end
 
 function getDistance2(Unit1,Unit2)
     if Unit2 == nil then Unit2 = "player"; end
