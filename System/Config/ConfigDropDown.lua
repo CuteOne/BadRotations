@@ -21,7 +21,7 @@ function CreateNewDrop(value, textString, base, tip1, value1, value2, value3, va
 	end
 
 	if base == nil then base = 1 end
-	if BadBoy_data["Drop "..textString] == nil then BadBoy_data["Drop "..textString] = base; print("yo"..textString ) end
+	if BadBoy_data["Drop "..textString] == nil then BadBoy_data["Drop "..textString] = base end
 	if vValue == nil then vValue = base; end
 	_G["option"..value.."Drop"] = CreateFrame("Frame", nil, configFrame);
 	_G["option"..value.."Drop"]:SetBackdropColor(1,1,1,1);

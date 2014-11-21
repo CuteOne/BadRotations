@@ -192,7 +192,7 @@ function BadBoyRun()
 
 		if randomReady == nil then randomReady = math.random(8,15); end
 		if readyToAccept and readyToAccept <= GetTime() - 5 then AcceptProposal(); readyToAccept = nil; randomReady = nil; end
-		--PokeEngine();
+		PokeEngine();
 		ProfessionHelper();
 		-- global vars
 		targetDistance = getDistance("target") or 0;

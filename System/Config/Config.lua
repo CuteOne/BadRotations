@@ -259,7 +259,7 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"DisenchantMoPGreensT", "Disenchant Crafted Tailor Wrists ilvl 384");
     CreateNewText(thisConfig,"Dis Tailor MoP Greens");
 
---[[
+
     -- Wrapper -----------------------------------------
     CreateNewWrap(thisConfig,"--- |cffFF0011PokeRotation "..myClassColor.."---");
 
@@ -327,7 +327,6 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Pause Toggle");
     CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle2")
     CreateNewText(thisConfig,"Pause Toggle");
-]]
 --[[
     -- Wrapper -----------------------------------------
     CreateNewWrap(thisConfig,"--------- Hacks ---------");

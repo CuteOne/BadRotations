@@ -572,6 +572,7 @@ function PokeCollections()
 		StunnedDebuffs = {
 			499,
 			823,
+			926, -- Soothe
 			928,
 		}
 		

@@ -38,7 +38,6 @@ License: Public Domain
 -- -- negate the result of the checker!
 -- local isSafelyAway = not safeDistanceChecker('target')
 --
-print("test")
 -- @class file
 -- @name LibRangeCheck-2.0
 local MAJOR_VERSION = "LibRangeCheck-2.0"

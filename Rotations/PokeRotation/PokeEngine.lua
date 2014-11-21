@@ -2,12 +2,12 @@ function PokeEngine()
 	if BadBoy_data["Check PokeRotation"] ~= 1 then return false; end
 	-- pulsed
 	if not PokeRotationStarted then
-		PokeData();
-		PokeCollections();
-		PokeAbilities();
-		PokeRotationStarted = true;
+		PokeData()
+		PokeCollections()
+		PokeAbilities()
+		PokeRotationStarted = true
 	end
-	PokeUI();
+	--PokeUI();
 
 	--------------------------
 	-- Battle States & Vars --
@@ -15,40 +15,61 @@ function PokeEngine()
 	inBattle = C_PetBattles.IsInBattle()
 	inWildBattle = C_PetBattles.IsWildBattle()
 	inPvPBattle = C_PetBattles.GetTurnTimeInfo()
-	pokeTimers();
+	pokeTimers()
+
+
 
 	-----------------
 	-- Revive Pets --
 	-----------------
 	if not inBattle then
-		PetSwapper();
-		if startWaiting == nil then startWaiting = GetTime(); end
-		if startWaiting ~= nil and startWaiting <= GetTime() - 2 then
-			if UnitExists("target") == nil then
-				local petsInRange = getPets(getValue("Auto Clicker Range"));
-				for i = 1, #petsInRange do
-					local Guid = petsInRange[i];
-  					ISetAsUnitID(Guid,"thisPet");
-					for j = 1, #MopList do
-						if UnitName("thisPet") == MopList[j] then
-							TargetUnit("thisPet");
-							break;
-						end
-					end
-				end
-			end
-			if UnitExists("target") == 1 and (spamPrevention == nil or spamPrevention <= GetTime() - 2) then spamPrevention = GetTime(); InteractUnit("target"); end
-		end
 		if isChecked("Revive Battle Pets") then
 			if getSpellCD(125439) == 0 then
 				if castSpell("player",125439,true) then return; end
 			end
 			ChatOverlay("Healed pets ")
 		end
+		if isChecked("Auto Clicker Range") then
+			PetSwapper()
+			if startWaiting == nil then startWaiting = GetTime() end
+			if startWaiting ~= nil and startWaiting <= GetTime() - 2 then
+				if UnitExists("target") == false then
+
+					for i = 1, ObjectCount() do
+						local thisPet = ObjectWithIndex(i)
+		 				if UnitExists(thisPet) and UnitIsVisible(thisPet) and 
+		 				  getDistance("player",thisPet) < getValue("Auto Clicker Range") then
+
+							for j = 1, #MopList do
+								if UnitName(thisPet) == MopList[j] then
+									TargetUnit(thisPet)
+									break
+								end
+							end
+						end
+					end
+				else
+
+					if petEngageSlowDown == nil or petEngageSlowDown <= GetTime() -3 then
+						petEngageSlowDown = GetTime()
+						SetFollowDistance(3)
+						SetFollowTarget("target")
+						InteractUnit("target")
+					end
+				end
+			end
+		end
 	end
 
 	if inBattle then
-		startWaiting = nil;
+		if FollowTarget and FollowTargetName then
+			AutoFollowStatus.fadeTime = AUTOFOLLOW_STATUS_FADETIME;
+			AutoFollowStatusText:SetFormattedText(AUTOFOLLOWSTOP, FollowTargetName);
+			AutoFollowStatus:Show();
+
+			FollowTarget = nil;
+		end
+		startWaiting = nil
 		--[[Pets Tables]]
 		myPets = {
 			{
@@ -81,7 +102,7 @@ function PokeEngine()
 				a2 = C_PetBattles.GetAbilityInfo(1, 3, 2) or 0,
 				a3 = C_PetBattles.GetAbilityInfo(1, 3, 3) or 0,
 			}
-		};
+		}
 		nmePets = {
 			{
 				petID = C_PetBattles.GetDisplayID(2, 1),
@@ -113,19 +134,20 @@ function PokeEngine()
 				a2 = C_PetBattles.GetAbilityInfo(2, 3, 2) or 0,
 				a3 = C_PetBattles.GetAbilityInfo(2, 3, 3) or 0,
 			}
-		};
+		}
 
 		--[[Active Pet Slots]]
-		myPetSlot = C_PetBattles.GetActivePet(1);
-		nmePetSlot = C_PetBattles.GetActivePet(2);
+		myPetSlot = C_PetBattles.GetActivePet(1)
+		nmePetSlot = C_PetBattles.GetActivePet(2)
 
 		--[[Can]]
-		canSwapOut = C_PetBattles.CanActivePetSwapOut();
-		canTrap = C_PetBattles.IsTrapAvailable();
+		canSwapOut = C_PetBattles.CanActivePetSwapOut()
+		canTrap = C_PetBattles.IsTrapAvailable()
 
 		--[[Get]]
-		petGUID, ability1, ability2, ability3, locked = C_PetJournal.GetPetLoadOutInfo(myPetSlot);
-		getAverageHP = (myPets[1].health + myPets[2].health + myPets[3].health) / 3;		-- Buffs
+		petGUID, ability1, ability2, ability3, locked = C_PetJournal.GetPetLoadOutInfo(myPetSlot)
+		getAverageHP = (myPets[1].health + myPets[2].health + myPets[3].health) / 3
+		--[[Buffs]]
 		getAuras = C_PetBattles.GetNumAuras(1, myPetSlot);
 		getNmeAuras = C_PetBattles.GetNumAuras(2, nmePetSlot);
 		getWeather = C_PetBattles.GetAuraInfo(0, 0, 1);
