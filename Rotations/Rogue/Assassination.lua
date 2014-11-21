@@ -161,6 +161,18 @@ if select(3, UnitClass("player")) == 4 then
 					if not noattack() and (isPicked() or level<15) and UnitBuffID("player",_Stealth) and combo<5 and power>60 and tarDist<5 then
 						if castSpell("target",_Ambush,false,false,false) then return; end
 					end
+	-- 5 Combo Opener
+					if not isInCombat("player") and (isPicked() or level<15) and UnitBuffID("player",_Stealth) and not noattack() and combo == 5 and tarDist<5 then
+						if power>25 and sndRemain<5 then
+							if castSpell("player",_SliceAndDice,true,false,false) then return; end
+						end
+						if power>25 and rupRemain<3 then
+							if castSpell("taret",_Rupture,false,false,false) then return; end
+						end
+						if power>35 and envRemain<2 then
+							if castSpell("target",_Envenom,false,false,false) then return; end
+						end
+					end
 	-- Mutilate
 					if not isInCombat("player") and (isPicked() or level<15) and not noattack() and combo < 5 and power>55 and tarDist<5 then
 						if castSpell("target",_Mutilate,false,false,false) then return; end
