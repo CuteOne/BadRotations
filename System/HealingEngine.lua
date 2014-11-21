@@ -47,6 +47,7 @@ if not metaTable1 then
 		123255, -- Dissonance Field 2
 		123596, -- Dissonance Field 3
 		128353, -- Dissonance Field 4
+	  
 	} -- This is where we house the Debuffs that are bad for our users, and should not be healed when they have it
 	local SpecialHealUnitList = {
 		[65078] = "Meng Meng",
@@ -131,7 +132,9 @@ if not metaTable1 then
 	-- We are checking if the user has a Debuff we either can not or don't want to heal them
 	local function CheckBadDebuff(tar)
 		for i=1, #BadDebuffList do
-			if UnitDebuff(tar, GetSpellInfo(BadDebuffList[i])) then
+			if UnitDebuff(tar, GetSpellInfo(BadDebuffList[i])) or 
+			UnitBuff(tar, GetSpellInfo(BadDebuffList[i]))
+			then
 				return false
 			end
 		end
@@ -148,15 +151,17 @@ if not metaTable1 then
 
 	-- Verifying the target is a Valid Healing target
 	function HealCheck(tar)
-		if ((UnitCanCooperate("player",tar)
+		if ((UnitIsVisible(tar)
 		  and not UnitIsCharmed(tar)
+		  and UnitReaction("player",tar) > 4
 		  and not UnitIsDeadOrGhost(tar)
 		  and UnitIsConnected(tar))
 		  or SpecialHealUnitList[tonumber(select(2,getGUID(tar)))] ~= nil	or (isChecked("Heal Pets") == true and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
 		  and CheckBadDebuff(tar)
 		  and CheckCreatureType(tar)
 		  and getLineOfSight("player", tar)
-		then return true else return false end
+		then return true 
+		else return false end
 	end
 
 	function memberSetup:new(unit)
@@ -194,12 +199,12 @@ if not metaTable1 then
 			if isChecked("No Absorbs") ~= true then nAbsorbs = ( 25*UnitGetTotalAbsorbs(o.unit)/100 ); else nAbsorbs = 0; end
 			local PercentWithIncoming = 100 * ( UnitHealth(o.unit) + incomingheals + nAbsorbs ) / UnitHealthMax(o.unit);
 			if o.role == "TANK" then PercentWithIncoming = PercentWithIncoming - 5; end -- Using the group role assigned to the Unit
-			if UnitIsDeadOrGhost(o.unit) == true then PercentWithIncoming = 250; end -- Place Dead players at the end of the list
+			if HealCheck(o.unit) ~= true then PercentWithIncoming = 250; end -- Place Dead players at the end of the list
 			if o.dispel then PercentWithIncoming = PercentWithIncoming - 2; end -- Using Dispel Check to see if we should give bonus weight
 			if o.threat == 3 then PercentWithIncoming = PercentWithIncoming - 3; end
 			if o.guidsh == 72218  then PercentWithIncoming = PercentWithIncoming - 5 end -- Tank in Proving Grounds
 			local ActualWithIncoming = ( UnitHealthMax(o.unit) - ( UnitHealth(o.unit) + incomingheals ) )
- 			if not UnitInRange(o.unit) and getDistance(o.unit) > 42 and not UnitIsUnit("player", o.unit) then PercentWithIncoming = 250; end
+ 			if not UnitInRange(o.unit) and getDistance(o.unit) > 42.98 and not UnitIsUnit("player", o.unit) then PercentWithIncoming = 250; end
 			-- Malkorok
 			local SpecificHPBuffs = {
 				{ buff = 142865 , value = select(15,UnitDebuffID(o.unit,142865)) }, -- Strong Ancient Barrier (Green)

@@ -124,7 +124,7 @@ function DruidRestoration()
 		local castingSpell = UnitCastingInfo("player")
 		if castingSpell ~= nil then
 			for i = 1, #noOverHealSpells do
-				if GetSpellInfo(noOverHealSpells[i]) == castingSpell or (isCastingSpell(8936) and UnitBuffID("player",16870) == nil) then RunMacroText("/stopcasting"); return; end
+				if (GetSpellInfo(noOverHealSpells[i]) == castingSpell and getBuffRemain("player", 100977) > 5) or (isCastingSpell(8936) and UnitBuffID("player",16870) == nil) then RunMacroText("/stopcasting"); return; end
 			end
 		end
 	end
@@ -732,8 +732,16 @@ if isChecked("Healing Touch") or isChecked("Healing Touch Tank") then
 		end
 	  
 	 
-	
-	
+	  -- Healing Touch -- Harmoney
+if isChecked("Healing Touch") and isStanding(0.3) and canCast(5185,false,true) then	 
+	if getBuffRemain("player", 100977) < 5 then
+	for i = 1, #nNova do
+				if nNova[i].hp <= 249 then
+	  if castSpell(nNova[i].unit,5185,true) then return; end
+	  end
+	  end
+	  end
+	  end
 	  --[[ 19 - Healing Touch --(cast Healing Touch on all usualy between 70 - 90)]]
 		if isChecked("Healing Touch") and isStanding(0.3) and canCast(5185,false,true) and lowestHP <= getValue("Healing Touch") then
 			if (lowestHP > getValue("Regrowth Tank") or lowestHP > getValue("Regrowth")) then
