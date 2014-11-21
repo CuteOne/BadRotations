@@ -316,10 +316,10 @@ if select(3, UnitClass("player")) == 10 then
 				end
 	-- Serenity
 				if getTalent(7,3) and tarDist<5 and chi>=2 and tpRemain>0 and rskRemain>0 then
-					if castSpell("player",_Serenity,false,false) then return; end
+					if castSpell("player",_Serenity,true,false) then return; end
 				end
 
-			-- Tiger's Lust
+	-- Tiger's Lust
 				if isMoving("player") and UnitExists("target") and not UnitIsDeadOrGhost("target") and tarDist>=15 then
 					if castSpell("player",_TigersLust,false,false) then return; end
 				end
@@ -331,7 +331,7 @@ if select(3, UnitClass("player")) == 10 then
 				if useAoE() then
 	-- Chi Explosion
 					if getTalent(7,2) and chi>=4 then
-						if castSpell("player",_ChiExplosion,false,false) then return; end
+						if castSpell("target",_ChiExplosion,false,false) then return; end
 					end
 	-- Rushing Jade Wind
 					if getTalent(6,1) and power>=40 and rjwRemain==0 then
