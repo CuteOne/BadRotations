@@ -120,10 +120,10 @@ if select(3, UnitClass("player")) == 4 then
 			_LethalPoison = _WoundPoison
 		end
 		if getValue("Non-Lethal Poison")==1 then
-			_NonLethalPoison = _LeechingPoison
+			_NonLethalPoison = _CripplingPoison
 		end
 		if getValue("Non-Lethal Poison")==2 then
-			_NonLethalPoison = _CripplingPoison
+			_NonLethalPoison = _LeechingPoison
 		end
 	end
 --[[           ]] 	--[[           ]]	--[[]]     --[[]]	--[[           ]] 		  --[[]]		--[[           ]]

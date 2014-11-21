@@ -69,7 +69,7 @@ if select(3, UnitClass("player")) == 4 then
 		end
 	-- Non-Leathal Poison
 		if nonlethalRemain<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
-			if castSpell("player",_NonLethlPoison,true) then return; end
+			if castSpell("player",_NonLethalPoison,true) then return; end
 		end
 	-- Recuperate
 		if php < 80 and recRemain==0 and combo>0 then

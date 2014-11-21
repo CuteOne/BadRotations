@@ -88,24 +88,16 @@ if select(3, UnitClass("player")) == 11 then
 					uthrRemain = getDebuffRemain(thisUnit,thr,"player")
 					umfRemain = getDebuffRemain(thisUnit,mf,"player")
 					uttd = getTimeToDie(thisUnit)
-					urkCalc = CRKD()
-					urkDmg = RKD(thisUnit)
-					urpClac = CRPD()
-					urpDmg = RPD(thisUnit)
 				end
 			else
 				thisUnit = "target"
-				unitHP = 0
+				unitHP = getHP(thisUnit)
 				unitDist = 0
 				urkRemain = getDebuffRemain(thisUnit,rk,"player")
 				urpRemain = getDebuffRemain(thisUnit,rp,"player")
 				uthrRemain = getDebuffRemain(thisUnit,thr,"player")
 				umfRemain = getDebuffRemain(thisUnit,mf,"player")
 				uttd = getTimeToDie(thisUnit)
-				urkCalc = CRKD()
-				urkDmg = RKD(thisUnit)
-				urpClac = CRPD()
-				urpDmg = RPD(thisUnit)
 			end
 		end
 --------------------------------------------------
@@ -379,11 +371,11 @@ if select(3, UnitClass("player")) == 11 then
 		                end
 					end
 		-- Savage Roar
-					if srRemain<3 and power>25 and tarDist<5 then
+					if srRemain<3 and combo>0 and power>25 and tarDist<5 then
 						if castSpell("player",svr,true,false,false) then return; end
 		            end
 	    -- Thrash
-		    		if clearcast and power>50 and (enemies>1 or (not getTalent(7,2) and combo==5)) and useCleave() then
+		    		if clearcast and power>50 and srRemain>1 and (enemies>1 or (not getTalent(7,2) and combo==5)) and useCleave() then
 		    			if thrRemain<4.5 then
 		    				if castSpell("target",thr,true,false,false) then return; end
 						end
@@ -392,7 +384,7 @@ if select(3, UnitClass("player")) == 11 then
 	   					end
 					end
 		-- Thrash
-					if enemies>1 and power>50 and useCleave() then
+					if enemies>1 and power>50 and srRemain>1 and useCleave() then
 						if thrRemain<4.5 then
 		    				if castSpell("target",thr,true,false,false) then return; end
 						end
@@ -402,7 +394,7 @@ if select(3, UnitClass("player")) == 11 then
 					end
 					if combo==5 then
 		-- Ferocious Bite
-						if power>50 then
+						if power>50 and srRemain>1 then
 							if thp<25 and rpRemain>0 and tarDist<5 then
 								if castSpell("target",fb,false,false,false) then return; end
 							end
@@ -413,12 +405,12 @@ if select(3, UnitClass("player")) == 11 then
 							end
 						end
 		-- Rip
-						if power>30 then
+						if power>30 and srRemain>1 then
 							if ((rpRemain<=3 and ttd-rpRemain>18) or (rpRemain<7.2 and rpCalc>rpDmg and ttd-rpRemain>18)) and tarDist<5 then
 								if castSpell("target",rp,false,false,false) then return; end
 							end
 							if useCleave() then
-								if ((urpRemain<=3 and uttd-urpRemain>18) or (urpRemain<7.2 and urpCalc>urpDmg and uttd-urpRemain>18)) and unitDist<5 then
+								if urpRemain<=3 and uttd-urpRemain>18 and unitDist<5 then
 									if castSpell(thisUnit,rp,false,false,false) then return; end
 								end
 							end
@@ -428,12 +420,12 @@ if select(3, UnitClass("player")) == 11 then
 							if castSpell("player",svr,true,false,false) then return; end
 			            end
 	    -- Ferocious Bite
-		    			if (ttm<=1 or berserking or tfRemain<3) and power>50 and tarDist<5 then
+		    			if (ttm<=1 or berserking or tfRemain<3) and srRemain>1 and power>50 and tarDist<5 then
 			    			if castSpell("target",fb,false,false,false) then return; end
 			            end
 			        end
 	    -- Rake 
-		    		if not getTalent(7,2) and combo<5 and power>35 then
+		    		if not getTalent(7,2) and combo<5 and power>35 and srRemain>1 then
 		    			if rkRemain<3 and ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) and tarDist<5 then
 			    			if castSpell("target",rk,false,false,false) then return; end
 			            end
@@ -444,29 +436,29 @@ if select(3, UnitClass("player")) == 11 then
 			    		end
 			        end
 	    -- Rake
-		    		if not getTalent(7,2) and combo<5 and power>35 then
+		    		if not getTalent(7,2) and combo<5 and power>35 and srRemain>1 then
 		    			if rkRemain<4.5 and rkCalc>rkDmg and ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) and tarDist<5 then
 			    			if castSpell("target",rk,false,false,false) then return; end
 			            end
 		    			if useCleave() then
-		    				if urkRemain<4.5 and urkCalc>urkDmg and ((uttd-urkRemain>3 and enemies<3) or ttd-urkRemain>6) and unitDist<5 then
+		    				if urkRemain<4.5 and ((uttd-urkRemain>3 and enemies<3) or ttd-urkRemain>6) and unitDist<5 then
 		    					if castSpell(thisUnit,rk,false,false,false) then return; end
 		    				end
 			    		end
 			        end
 	    -- Rake
-		    		if getTalent(7,2) and combo<5 and power>35 then
+		    		if getTalent(7,2) and combo<5 and power>35 and srRemain>1 then
 		    			if rkRemain<4.5 and (psRemain==0 or btRemain>0 or rkCalc>rkDmg) and ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) and tarDist<5 then
 		    				if castSpell("target",rk,false,false,false) then return; end
 		            	end
 		    			if useCleave() then
-		    				if urkRemain<4.5 and (psRemain==0 or btRemain>0 or urkCalc>urkDmg) and ((uttd-urkRemain>3 and enemies<3) or uttd-urkRemain>6) and unitDist<5 then
+		    				if urkRemain<4.5 and (psRemain==0 or btRemain>0) and ((uttd-urkRemain>3 and enemies<3) or uttd-urkRemain>6) and unitDist<5 then
 		    					if castSpell(thisUnit,rk,false,false,false) then return; end
 		    				end
 		    			end
 		            end
 	    -- Thrash
-		    		if getTalent(7,2) and combo==5 and clearcast and power>50 and useCleave() then
+		    		if getTalent(7,2) and combo==5 and clearcast and srRemain>1 and power>50 and useCleave() then
 		    			if thrRemain<4.5 then
 		    				if castSpell("target",thr,true,false,false) then return; end
 		            	end
@@ -486,7 +478,7 @@ if select(3, UnitClass("player")) == 11 then
 		    			end
 			    	end 
 	    -- Rake
-		    		if rkCalc>rkDmg and combo<5 and enemies==1 and power>35 and tarDist<5 then
+		    		if rkCalc>rkDmg and combo<5 and srRemain>1 and enemies==1 and power>35 and tarDist<5 then
 		    			if castSpell("target",rk,false,false,false) then return; end
 		            end
 		    		if combo<5 then

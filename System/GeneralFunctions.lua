@@ -1500,17 +1500,39 @@ end
 function isDummy(Unit)
 	if Unit == nil then Unit = "target"; else Unit = tostring(Unit) end
     dummies = {
-        31144, --Training Dummy - Lvl 80
-        31146, --Raider's Training Dummy - Lvl ??
+        87329, --Raider's Training Dummy - Lvl ?? (Stormshield - Tank)
+        88837, --Raider's Training Dummy - Lvl ?? (Warspear - Tank)
+        87320, --Raider's Training Dummy - Lvl ?? (Stormshield - Damage)
+		87762, --Raider's Training Dummy - Lvl ?? (Warspear - Damage)
+        31146, --Raider's Training Dummy - Lvl ?? (Ogrimmar, Stormwind, Darnassus, ...)
+        70245, --Training Dummy - Lvl ?? (Throne of Thunder)
+        88314, --Dungeoneer's Training Dummy - Lvl 102 (Lunarfall - Tank)
+        88288, --Dungeoneer's Training Dummy - Lvl 102 (Frostwall - Tank)
+        88836, --Dungeoneer's Training Dummy - Lvl 102 (Warspear - Tank)
+        87322, --Dungeoneer's Training Dummy - Lvl 102 (Stormshield, Warspear - Tank)
+    	87317, --Dungeoneer's Training Dummy - Lvl 102 (Lunarfall - Damage)
+    	87318, --Dungeoneer's Training Dummy - Lvl 102 (Lunarfall - Damage)
+    	87761, --Dungeoneer's Training Dummy - Lvl 102 (Frostwall - Damage)
+    	88906, --Combat Dummy - Lvl 100 (Nagrand)
+    	89078, --Training Dummy - Lvl 100 (Lunarfall, Frostwall)
+    	87321, --Training Dummy - Lvl 100 (Stormshield, Warspear - Healing)
+    	88835, --Training Dummy - Lvl 100 (Warspear - Healing)
+    	88967, --Training Dummy - Lvl 100 (Lunarfall, Frostwall)
+    	88316, --Training Dummy - Lvl 100 (Lunarfall - Healing)
+    	88289, --Training Dummy - Lvl 100 (Frostwall - Healing)
+    	79414, --Training Dummy - Lvl 95 (Talador)
+        67127, --Training Dummy - Lvl 90 (Vale of Eternal Blossoms)
+        46647, --Training Dummy - Lvl 85 (Orgrimmar, Stormwind)
+        32546, --Ebon Knight's Training Dummy - Lvl 80 (Eastern Plaguelands)
+        31144, --Training Dummy - Lvl 80 (Orgrimmar, Darnassus, Ruins of Gileas, ...)
+        32543, --Veteran's Training Dummy - Lvl 75 (Eastern Plaguelands)
+        32667, --Training Dummy - Lvl 70 (Darnassus, Silvermoon, Orgrimar, ...)
+        32542, --Disciple's Training Dummy - Lvl 65 (Eastern Plaguelands)
+        32666, --Training Dummy - Lvl 60 (Orgrimmar, Ironforge, Darnassus, ...)
         32541, --Initiate's Training Dummy - Lvl 55 (Scarlet Enclave)
-        32542, --Disciple's Training Dummy - Lvl 65
-        32545, --Initiate's Training Dummy - Lvl 55
-        32546, --Ebon Knight's Training Dummy - Lvl 80
-        32666, --Training Dummy - Lvl 60
-        32667, --Training Dummy - Lvl 70
-        46647, --Training Dummy - Lvl 85
+        32545, --Initiate's Training Dummy - Lvl 55 (Eastern Plaguelands)
         60197, --Scarlet Monastery Dummy
-        67127, --Training Dummy - Lvl 90
+        64446, --Scarlet Monastery Dummy
     }
     for i=1, #dummies do
         if UnitExists(Unit) and UnitGUID(Unit) then
