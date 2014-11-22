@@ -364,14 +364,8 @@ function RestorationConfig()
             CreateNewBox(thisConfig, "Force of Nature Count", 1, 25  , 1, 3, "|cffFFBB00Number of members under Force of Nature treshold needed to use |cffFFFFFFForce of Nature.");
             CreateNewText(thisConfig,"Force of Nature Count");
         elseif isKnown(33891) then
-           -- Germination Tol
-           CreateNewCheck(thisConfig,"Germination Tol");
-            CreateNewBox(thisConfig, "Germination Tol", 0, 100  , 5, 90, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRejuvenation|cffFFBB00 while in Tree of Life. \n|cffFFDD11Used after Rejuvenation if Rejuvenation All Tol is not selected.");
-            CreateNewText(thisConfig,"Germination Tol");
-		   -- Germination All Tol           
-		   CreateNewCheck(thisConfig,"Germination All Tol");
-            CreateNewText(thisConfig,"Germination All Tol");
-		   -- Rejuvenation Tol
+
+            -- Rejuvenation Tol
             CreateNewCheck(thisConfig,"Rejuvenation Tol");
             CreateNewBox(thisConfig, "Rejuvenation Tol", 0, 100  , 5, 90, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRejuvenation|cffFFBB00 while in Tree of Life. \n|cffFFDD11Used after Rejuvenation if Rejuvenation All Tol is not selected.");
             CreateNewText(thisConfig,"Rejuvenation Tol");
@@ -435,18 +429,8 @@ function RestorationConfig()
         CreateNewCheck(thisConfig,"Regrowth Omen");
         CreateNewBox(thisConfig, "Regrowth Omen", 0, 100  , 5, 80, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRegrowth|cffFFBB00 with Omen of Clarity.");
         CreateNewText(thisConfig,"Regrowth Omen");
-        -- Germination
-        CreateNewCheck(thisConfig,"Germination");
-        CreateNewBox(thisConfig, "Germination", 0, 100  , 5, 80, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRejuvenation.");
-        CreateNewText(thisConfig,"Germination");
-		-- Germination Tank
-		CreateNewCheck(thisConfig,"Germination Tank");
-        CreateNewBox(thisConfig, "Germination Tank", 0, 100  , 5, 65, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRejuvenation |cffFFBB00on Tanks.");
-        CreateNewText(thisConfig,"Germination Tank");
-		-- Germination All
-		CreateNewCheck(thisConfig,"Germination All", "Check to force rejuv |cffFFBB00on all targets(low prio).");
-        CreateNewText(thisConfig,"Germination All");
-		-- Rejuvenation
+
+        -- Rejuvenation
         CreateNewCheck(thisConfig,"Rejuvenation");
         CreateNewBox(thisConfig, "Rejuvenation", 0, 100  , 5, 80, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRejuvenation.");
         CreateNewText(thisConfig,"Rejuvenation");
