@@ -418,7 +418,7 @@ if isChecked("Healing Touch") or isChecked("Healing Touch Tank") then
 	        end
 		end
         --[[ 36 - Germination all]]
-		if isChecked("Germination All Tol") and canCast(774,false,false) then
+		if isKnown(155675) and isChecked("Germination All Tol") and canCast(774,false,false) then
    			for i = 1, #nNova do
     			if nNova[i].hp < 249 
 				and getBuffRemain(nNova[i].unit,774,"player") > 0 and getBuffRemain(nNova[i].unit,155777,"player") == 0 then
@@ -427,7 +427,7 @@ if isChecked("Healing Touch") or isChecked("Healing Touch Tank") then
    			end
   		end
 		--[[ 36 - Germination Tol]]
-		if isChecked("Germination Tol") and canCast(774,false,false) and lowestTankHP < getValue("Germination Tol") then
+		if isKnown(155675) and isChecked("Germination Tol") and canCast(774,false,false) and lowestTankHP < getValue("Germination Tol") then
    			for i = 1, #nNova do
     			if nNova[i].hp <= getValue("Germination Tol") 
 				and getBuffRemain(nNova[i].unit,774,"player") > 0 and getBuffRemain(nNova[i].unit,155777,"player") == 0 then
@@ -626,7 +626,7 @@ if isChecked("Healing Touch") or isChecked("Healing Touch Tank") then
 			end
 		end
         --[[ 36 - Germination ]]
-		if isChecked("Germination") and canCast(774,false,false) and lowestTankHP < getValue("Germination") then
+		if isKnown(155675) and isChecked("Germination") and canCast(774,false,false) and lowestTankHP < getValue("Germination") then
    			for i = 1, #nNova do
     			if nNova[i].hp <= getValue("Germination") 
 				and getBuffRemain(nNova[i].unit,774,"player") > 0 and getBuffRemain(nNova[i].unit,155777,"player") == 0 then
@@ -713,7 +713,7 @@ if isChecked("Healing Touch") or isChecked("Healing Touch Tank") then
 			end
 		end
         --[[ 36 - Germination all]]
-		if isChecked("Germination All") and canCast(774,false,false) then
+		if isKnown(155675) and isChecked("Germination All") and canCast(774,false,false) then
    			for i = 1, #nNova do
     			if nNova[i].hp < 249 
 				and getBuffRemain(nNova[i].unit,774,"player") > 0 and getBuffRemain(nNova[i].unit,155777,"player") == 0 then
@@ -730,7 +730,7 @@ if isChecked("Healing Touch") or isChecked("Healing Touch Tank") then
 			end
 		end
         --[[ 36 - Germination Tank]]
-		if isChecked("Germination Tank") and canCast(774,false,false) and lowestTankHP < getValue("Rejuvenation Tank") then
+		if isKnown(155675) and isChecked("Germination Tank") and canCast(774,false,false) and lowestTankHP < getValue("Rejuvenation Tank") then
    			for i = 1, #nNova do
     			if (nNova[i].role == "TANK" or UnitGroupRolesAssigned(nNova[i].unit) == "TANK") and nNova[i].hp <= getValue("Germination Tank") 
 				and getBuffRemain(nNova[i].unit,774,"player") > 0 and getBuffRemain(nNova[i].unit,155777,"player") == 0 then
