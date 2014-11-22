@@ -126,7 +126,7 @@ function FrostMageCooldowns()
 	-- Mirrors
 
 	if isKnown(MirrorImage) then
-		if ischecked("Mirror Image") then
+		if isChecked("Mirror Image") then
 			if castSpell("player",MirrorImage,true,true) then
 				return;
 			end

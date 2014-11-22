@@ -107,6 +107,11 @@ function FrostMage()
 		return false;
 	end
 
+	--Ice barrier should be up when solo PvE
+		if not UnitBuffID("player",11426)  then -- Ice barrier
+			if castSpell("player",11426,false,false) then return; 
+			end
+		end
 
 	-- Do not Interrupt "player" while GCD (61304)k
 	if getSpellCD(61304) > 0 then
@@ -114,19 +119,19 @@ function FrostMage()
 	end
 
 	-- Arcane Brilliance
-	if isChecked("Arcane Brilliance") then
-		if not UnitExists("mouseover") then
-		-- if isChecked("Arcane Brilliance") == true and not UnitExists("mouseover") then
-			GroupInfo()
-			for i = 1, #members do --members
-				if not isBuffed(members[i].Unit,{1459}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
-					if castSpell("player",ArcaneBrilliance,false,false) then
-						return;
-					end
-				end
-			end
-		end
-	end
+	--if isChecked("Arcane Brilliance") then
+	--	if not UnitExists("mouseover") then
+	--	  if isChecked("Arcane Brilliance") == true and not UnitExists("mouseover") then
+	--		GroupInfo()
+	--		for i = 1, #members do --members
+	--			if not isBuffed(members[i].Unit,{1459}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
+	--				if castSpell("player",ArcaneBrilliance,false,false) then
+	--					return;
+	--				end
+	--			end
+	--		end
+	--	end
+	--end
 
 	------------
 	-- COMBAT --
