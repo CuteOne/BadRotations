@@ -43,6 +43,7 @@ _TigersLust					=	116841	--Tiger's Lust
 _TigerPalm                  =   100787  --Tiger Palm
 _TouchOfDeath               =   115080  --Touch of Death
 _TouchOfKarma               =   122470  --Touch of Karma
+_ZenMeditation				=	115176	--Zen Meditation
 _ZenPilgramage              =   126892  --Zen Pilgramage
 _ZenSphere                  =   124081  --Zen Sphere
 

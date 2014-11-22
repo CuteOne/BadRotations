@@ -21,7 +21,6 @@ if select(3, UnitClass("player")) == 11 then
 		local urkRemain = urkRemain
 		local urpRemain = urpRemain
 		local uthrRemain = uthrRemain
-   		--local target = dynamicTarget(5,true)
 		local tarDist = getDistance2("target")
 		local hasTarget = UnitExists("target")
 		local friendly = UnitIsFriend("target","player")
@@ -355,11 +354,6 @@ if select(3, UnitClass("player")) == 11 then
 						if rpRemain>0 and rpRemain<3 and thp<25 and tarDist<5 then
 							if castSpell("target",fb,false,false,false) then return; end
 						end
-						if useCleave() then
-							if urpRemain>0 and urpRemain<3 and unitHP<25 and unitDist<5 then
-								if castSpell(thisUnit,fb,false,false,false) then return; end
-							end
-						end
 					end
 		-- Healing Touch
 					if psRemain>0 and ((combo>=4 and getTalent(7,2)) or psRemain<1.5) then
@@ -376,18 +370,12 @@ if select(3, UnitClass("player")) == 11 then
 		            end
 	    -- Thrash
 		    		if clearcast and power>50 and srRemain>1 and (enemies>1 or (not getTalent(7,2) and combo==5)) and useCleave() then
-		    			if thrRemain<4.5 then
-		    				if castSpell("target",thr,true,false,false) then return; end
-						end
 	   					if uthrRemain<4.5 then 
 	   						if castSpell(thisUnit,thr,true,false,false) then return; end
 	   					end
 					end
 		-- Thrash
 					if enemies>1 and power>50 and srRemain>1 and useCleave() then
-						if thrRemain<4.5 then
-		    				if castSpell("target",thr,true,false,false) then return; end
-						end
 	   					if uthrRemain<4.5 then 
 	   						if castSpell(thisUnit,thr,true,false,false) then return; end
 		    			end
@@ -398,21 +386,11 @@ if select(3, UnitClass("player")) == 11 then
 							if thp<25 and rpRemain>0 and tarDist<5 then
 								if castSpell("target",fb,false,false,false) then return; end
 							end
-							if useCleave() then
-								if unitHP<25 and urpRemain>0 and unitDist<5 then
-									if castSpell(thisUnit,fb,false,false,false) then return; end
-								end
-							end
 						end
 		-- Rip
 						if power>30 and srRemain>1 then
 							if ((rpRemain<=3 and ttd-rpRemain>18) or (rpRemain<7.2 and rpCalc>rpDmg and ttd-rpRemain>18)) and tarDist<5 then
 								if castSpell("target",rp,false,false,false) then return; end
-							end
-							if useCleave() then
-								if urpRemain<=3 and uttd-urpRemain>18 and unitDist<5 then
-									if castSpell(thisUnit,rp,false,false,false) then return; end
-								end
 							end
 						end
 		-- Savage Roar
@@ -458,10 +436,7 @@ if select(3, UnitClass("player")) == 11 then
 		    			end
 		            end
 	    -- Thrash
-		    		if getTalent(7,2) and combo==5 and clearcast and srRemain>1 and power>50 and useCleave() then
-		    			if thrRemain<4.5 then
-		    				if castSpell("target",thr,true,false,false) then return; end
-		            	end
+		    		if getTalent(7,2) and not getTalent(4,1) and combo==5 and clearcast and srRemain>1 and power>50 and useCleave() then
 		    			if uthrRemain<4.5 then
 		    				if castSpell(thisUnit,thr,true,false,false) then return; end
 		    			end

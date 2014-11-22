@@ -7,7 +7,7 @@ if select(3, UnitClass("player")) == 10 then
 	    WindwalkerToggles()
 	    GroupInfo()
        	sefTargets()
-       --makeEnemiesTable(40)
+       	makeEnemiesTable(40)
        --targets = enemiesTable
        --table.sort(targets, function(x,y)
        --  return x.hp > y.hp
@@ -145,7 +145,7 @@ if select(3, UnitClass("player")) == 10 then
 					end
 				end
 	-- Surging Mist
-				if isChecked("Surging Mist") and php<=getValue("Surging Mist") and not isInCombat("player") and power>=30 and not isMoving("player") then
+				if isChecked("Surging Mist") and php<=getValue("Surging Mist") and (not isInCombat("player") or (isInCombat("player") and php<=25)) and power>=30 and not isMoving("player") then
 					if castSpell("player",_SurgingMist,true,false) then return; end
 				end
 	-- Touch of Karma
@@ -166,14 +166,14 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("player",_DampenHarm,true,false) then return; end
 					end
 				end
-	-- -- Zen Meditation
-	-- 			if isChecked("Zen Meditation") then
-	-- 				if php<=getValue("Zen Meditation") and isInCombat("player") then
-	-- 					if (hasGlyph(120477) or (not hasGlypg(120477) and GetUnitSpeed("player")==0)) and tarDist>5 then
-	-- 						if castSpell("player",_ZenMeditation,true,false) then return; end
-	-- 					end
-	-- 				end
-	-- 			end
+	-- Zen Meditation
+				if isChecked("Zen Meditation") then
+					if php<=getValue("Zen Meditation") and isInCombat("player") then
+						if (hasGlyph(120477) or (not hasGlyph(120477) and GetUnitSpeed("player")==0)) and tarDist>5 then
+							if castSpell("player",_ZenMeditation,true,false) then return; end
+						end
+					end
+				end
 	-- Nimble Brew
 				if hasNoControl() then
 					if castSpell("player",_NimbleBrew,false,false) then return; end
