@@ -761,6 +761,41 @@ function getEnemies(Unit,Radius)
  	return enemiesTable;
 end
 
+-- use this to build enemiesTable
+-- makeEnemiesTable()
+function makeEnemiesTable(maxDistance)
+	local  maxDistance = maxDistance or 50
+	-- Throttle this 1 sec.
+	if enemiesTable == nil or enemiesTableTimer == nil or enemiesTableTimer <= GetTime() - 1 then
+		-- create/empty table
+		enemiesTable = { };
+		-- use objectmanager to build up table
+	 	for i=1,ObjectCount() do
+	 		if UnitExists(ObjectWithIndex(i)) and bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
+		  		local thisUnit = ObjectWithIndex(i);
+		  		if UnitIsVisible(thisUnit) == true and getCreatureType(thisUnit) == true then
+		  			if UnitCanAttack(thisUnit, "player") == true and UnitIsDeadOrGhost(thisUnit) == false then
+		  				local unitDistance = getDistance("player",thisUnit)
+		  				local X1, Y1, Z1 = ObjectPosition(thisUnit)
+
+		  				if unitDistance <= maxDistance then
+		  					local unitHP = getHP(thisUnit)
+		  					-- insert unit as a sub-array holding unit informations
+		   					tinsert(enemiesTable,{ unit = thisUnit, distance = unitDistance, hp = unitHP, x = X1, y = Y1, z = Z1 })
+		   					--print("inserted")
+		   				end
+		  			end
+		  		end
+		  	end
+	 	end
+
+	 	-- sort them by range
+	 	table.sort(enemiesTable, function(x,y)
+	 		return x.distance < y.distance
+	 	end)
+	end
+end
+
 -- this function uses enemiesTable
 function getNumEnemiesInRange(Unit, Radius)
 	-- here i make sure it will work even if user dont enter values
