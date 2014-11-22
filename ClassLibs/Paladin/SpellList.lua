@@ -225,13 +225,7 @@ if select(3,UnitClass("player")) == 2 then
 	end
 
 	function castRebuke(unit)
-		if isChecked("Rebuke") then
-			if canInterrupt(unit, tonumber(BadBoy_data["Box Rebuke"])) and getDistance("player",unit) <= 4 then
-				if castSpell(unit,_Rebuke,false,false) then
-					return true
-				end
-			end
-		end
+		castInterupt(_Rebuke, getValue("Rebuke"))
 		return false
 	end
 

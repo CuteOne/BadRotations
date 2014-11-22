@@ -85,29 +85,29 @@ if select(3,UnitClass("player")) == 2 then
 		-- ToDos:  Add multiple interrupts such as binding light(if within 10 yards and facing, Fist of Justice(stuns), Avengers shield
 		-- Should perhaps move out the spellCD and ranged outside canInterrupt?? So first check if range and cd is ok for cast, then check for timeframe?d
 		function ProtPaladinInterrupt()
+			if isChecked("Avengers Shield Interrupt") or isChecked("Rebuke") then
+				makeSpellCastersTable()
+			end
+			if isChecked("Avengers Shield Interrupt") then
+				castInterupt(_AvengersShield,getValue("Avengers Shield Interrupt"))
+			end
 
-			if isChecked("Rebuke") then -- Should change this to interrupt not rebuke and use toggle instead of check
-				--See what spell we want to use
+			if isChecked("Rebuke") then 
+				-- Should change this to interrupt not rebuke and use toggle instead of check
+				-- See what spell we want to use
 				-- We need to change the "Rebuke" conmfig to interrupt delay
 				-- We need to change the canInterrupt function to just check if we can interrupt the target
 				-- We also should add logic to understand of we should interrupt
 				-- Then we look at spell that could be used to interrupt.
 
 				-- Iterate rhrough the enemiesTable and check if someone is casting something we should interrupt.
-				if castRebuke("target") then  -- We should handle who to interrupt outside the castRebuke etc, hardocded to target atm
-					return true
-				end
-
-				if canInterrupt("target", getValue("Avengers Shield Interrupt")) then
-
-					if castAvengersShield("target") then
-						return true
-					end
-				end
+				castInterupt(_Rebuke,getValue("Rebuke"))-- We should handle who to interrupt outside the castRebuke etc, hardocded to target atm
 			end
+			
 			-- Should add Fist of Justice or other stuns/cc
 			return false
 		end
+
 
 		function ProtPaladinSurvivalSelf() -- Check if we are close to dying and act accoridingly
 			local playerHP = getHP("player")
