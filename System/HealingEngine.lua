@@ -132,7 +132,9 @@ if not metaTable1 then
 	-- We are checking if the user has a Debuff we either can not or don't want to heal them
 	local function CheckBadDebuff(tar)
 		for i=1, #BadDebuffList do
-			if UnitDebuff(tar, GetSpellInfo(BadDebuffList[i])) or UnitBuff(tar, GetSpellInfo(BadDebuffList[i])) then
+			if UnitDebuff(tar, GetSpellInfo(BadDebuffList[i])) or 
+			UnitBuff(tar, GetSpellInfo(BadDebuffList[i]))
+			then
 				return false
 			end
 		end
@@ -142,38 +144,24 @@ if not metaTable1 then
 	local function CheckCreatureType(tar)
 		local CreatureTypeList = {"Critter", "Totem", "Non-combat Pet", "Wild Pet"}
 		for i=1, #CreatureTypeList do
-			if UnitCreatureType(tar) == CreatureTypeList[i] then 
-				return false 
-			end
+			if UnitCreatureType(tar) == CreatureTypeList[i] then return false end
 		end
-		if not UnitIsBattlePet(tar) and not UnitIsWildBattlePet(tar) then 
-			return true 
-		else 
-			return false 
-		end
+		if not UnitIsBattlePet(tar) and not UnitIsWildBattlePet(tar) then return true else return false end
 	end
 
 	-- Verifying the target is a Valid Healing target
 	function HealCheck(tar)
-		if (
-			-- heal other players.
-			(UnitIsVisible(tar) == true
-		  and UnitIsCharmed(tar) == false
+		if ((UnitIsVisible(tar)
+		  and not UnitIsCharmed(tar)
 		  and UnitReaction("player",tar) > 4
-		  and UnitIsDeadOrGhost(tar) == false
-		  and UnitIsConnected(tar) == true)
-		  -- heal special units.
-		  or SpecialHealUnitList[tonumber(select(2,getGUID(tar)))] ~= nil 
-		  -- heal pets.
-		  or (isChecked("Heal Pets") == true and UnitIsOtherPlayersPet(tar) == true or UnitGUID(tar) == UnitGUID("pet")))
-		  -- verify this target sanity, can we reach/heal it.
-		  and CheckBadDebuff(tar) == false
-		  and CheckCreatureType(tar) == true
-		  and getLineOfSight("player", tar) == true then 
-		  	return true 
-		else 
-			return false 
-		end
+		  and not UnitIsDeadOrGhost(tar)
+		  and UnitIsConnected(tar))
+		  or SpecialHealUnitList[tonumber(select(2,getGUID(tar)))] ~= nil	or (isChecked("Heal Pets") == true and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
+		  and CheckBadDebuff(tar)
+		  and CheckCreatureType(tar)
+		  and getLineOfSight("player", tar)
+		then return true 
+		else return false end
 	end
 
 	function memberSetup:new(unit)
@@ -224,7 +212,7 @@ if not metaTable1 then
 				{ buff = 142863 , value = select(15,UnitDebuffID(o.unit,142863)) }, -- Weak Ancient Barrier (Red)
 			};
 			if UnitDebuffID(o.unit, 142861) ~= nil then -- If Miasma found
-				for i = 1, #SpecificHPBuffs do -- start number of buff iteration
+				for i = 1, #SpecificHPBuffs do -- start nomber of buff iteration
 					if UnitDebuffID(o.unit, SpecificHPBuffs[i].buff) ~= nil then -- if buff found
 						if SpecificHPBuffs[i].value ~= nil then
 							PercentWithIncoming = 100 + (SpecificHPBuffs[i].value/UnitHealthMax(o.unit)*100); -- we set its amount + 100 to make sure its within 50-100 range
