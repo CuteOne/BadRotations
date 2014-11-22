@@ -8,17 +8,16 @@
 BadBoy.lua
 
 ## System
-System\Beautycase.lua
 System\Core.lua
 System\Config.lua
 System\DebugFrame.lua
-System\EnemiesEngine.lua
+System\HealingEngineFrame.lua
 System\InterruptsFrame.lua
+System\Reader.lua
 System\GeneralFunctions.lua
 System\HealingEngine.lua
-System\HealingEngineFrame.lua
 System\Interrupts.lua
-System\Reader.lua
+System\Beautycase.lua
 System\UI.lua
 System\UsefulFeatures.lua
 
