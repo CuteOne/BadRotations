@@ -294,13 +294,11 @@ function PokeAbilities()
 		end	
 	end
 
-	--[[                                       Abilities                                             ]]
 	-- Abilities
 	if not AttackFunctions then
 		AttackFunctions = true
 
 		-- AoE Attacks to be used only while there are 3 Enemies.
-		AoEPunch = nil
 		function AoEPunch()
 			if nmePetSlot == 1 or 2 then
 				AbilityCast(AoEPunchList)
@@ -308,7 +306,6 @@ function PokeAbilities()
 		end
 		
 		-- Abilities that are stronger if the enemy have more health than us.
-		Comeback = nil
 		function Comeback()
 			if myPets[myPetSlot].health < nmePets[nmePetSlot].health 
 			  and not Immunity() then
@@ -317,7 +314,6 @@ function PokeAbilities()
 		end
 		
 		-- Damage Buffs that we want to cast on us.
-		DamageBuff = nil
 		function DamageBuff()
 			if not IsMultiBuffed(DamageBuffList, 1, 485) then		
 				AbilityCast(DamageBuffList)	
@@ -325,7 +321,6 @@ function PokeAbilities()
 		end
 		
 		-- Debuff to cast on ennemy.
-		DeBuff = nil
 		function DeBuff()		
 			if nmePets[nmePetSlot].health >= 45 
 			  and not Immunity() then
@@ -343,7 +338,6 @@ function PokeAbilities()
 		end	
 		
 		-- HighDamageIfBuffed to cast on ennemy.
-		HighDamageIfBuffed = nil
 		function HighDamageIfBuffed()
 			if not Immunity() then	
 				for i = 1, #HighDamageIfBuffedList do
@@ -355,7 +349,6 @@ function PokeAbilities()
 		end
 		
 		-- Abilities to shield ourself to avoid an ability.
-		Deflect = nil
 		function Deflect()
 			if IsMultiBuffed(ToDeflectList, 2) then		
 				AbilityCast(DeflectorList)
@@ -363,7 +356,6 @@ function PokeAbilities()
 		end
 		
 		-- Apocalypse
-		DelayFifteenTurn = nil
 		function DelayFifteenTurn()
 			if nmePetSlot == 1 then 
 				AbilityCast(FifteenTurnList)
@@ -371,7 +363,6 @@ function PokeAbilities()
 		end
 		
 		-- Damage in three turn
-		DelayThreeTurn = nil
 		function DelayThreeTurn()
 			if nmePetSlot ~= 3 then
 				AbilityCast(ThreeTurnList)	
@@ -379,7 +370,6 @@ function PokeAbilities()
 		end
 		
 		-- Damage in one turn.
-		DelayOneTurn = nil
 		function DelayOneTurn()
 			if not ( nmePetSlot == 3 and nmePets[nmePetSlot].health <= 30 ) then
 				AbilityCast(OneTurnList)
@@ -387,7 +377,6 @@ function PokeAbilities()
 		end
 		
 		-- Execute if enemi pet is under 30%.
-		Execute = nil
 		function Execute()
 			if nmePets[nmePetSlot].health <= 60 
 			  and not Immunity() then
@@ -396,7 +385,6 @@ function PokeAbilities()
 		end
 		
 		-- Buffs that heal us.
-		HoTBuff = nil
 		function HoTBuff()
 			if myPets[myPetSlot].health < ( PetHealValue + 10 )
 			  and not ( myPets[myPetSlot].health < 40 and enemyPetSlot == 3 ) then
@@ -412,7 +400,6 @@ function PokeAbilities()
 		end
 		
 		-- Suicide if under 20% Health.
-		Kamikaze = nil
 		function Kamikaze()
 			if myPets[myPetSlot].health < 20 
 			  and not Immunity() then
@@ -420,14 +407,12 @@ function PokeAbilities()
 			end
 		end
 		
-		LastStand = nil
 		function LastStand()
 			if myPets[myPetSlot].health < 25 then
 				AbilityCast(LastStandList)
 			end
 		end
 		
-		LifeExchange = nil
 		function LifeExchange()
 			if myPets[myPetSlot].health < 35
 			  and myPets[myPetSlot].health > 70 then
@@ -435,7 +420,6 @@ function PokeAbilities()
 			end
 		end
 		
-		PassTurn = nil
 		function PassTurn()
 			if IsMultiBuffed(StunnedDebuffs, 1) then -- if we are stunned
 				C_PetBattles.SkipTurn();
