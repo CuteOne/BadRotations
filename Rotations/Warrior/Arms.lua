@@ -27,9 +27,9 @@ if select(3,UnitClass("player")) == 1 then
 		if canRun() ~= true or UnitInVehicle("Player") then
 			return false;
 		end
-		if IsMounted("player") then
-			return false;
-		end
+		-- if IsMounted("player") then
+		-- 	return false;
+		-- end
 	------------------------------------------------------------------------------------------------------
 	-- Pause ---------------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
