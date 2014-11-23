@@ -10,10 +10,11 @@ BadBoy.lua
 ## System
 System\Beautycase.lua
 System\Core.lua
+System\GeneralFunctions.lua
 System\Config.lua
 System\DebugFrame.lua
 System\EnemiesEngine.lua
-System\GeneralFunctions.lua
+System\EnemiesEngineFrame.lua
 System\HealingEngine.lua
 System\HealingEngineFrame.lua
 System\InterruptsFrame.lua

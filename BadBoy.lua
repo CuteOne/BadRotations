@@ -245,9 +245,11 @@ function BadBoyRun()
 		--	interruptsFrame:Hide();
 		--end
 
+		makeEnemiesTable(55)
+
 		--[[Class/Spec Selector]]
-		local _MyClass = select(3,UnitClass("player"));
-		local _MySpec = GetSpecialization();
+		local _MyClass = select(3,UnitClass("player"))
+		local _MySpec = GetSpecialization()
 		if _MyClass == 1 then -- Warrior
 			if _MySpec == 2 then
 				FuryWarrior()
@@ -259,91 +261,91 @@ function BadBoyRun()
 			end
 		elseif _MyClass == 2 then -- Paladin
 			if _MySpec == 1 then
-				PaladinHoly();
+				PaladinHoly()
 			elseif _MySpec == 2 then
-				PaladinProtection();
+				PaladinProtection()
 			elseif _MySpec == 3 then
-				PaladinRetribution();
+				PaladinRetribution()
 			end
 		elseif _MyClass == 3 then -- Hunter
 			if _MySpec == 1 then
-				BeastHunter();
+				BeastHunter()
 			elseif _MySpec == 2 then
-				MarkHunter();
+				MarkHunter()
 			else
-				SurvHunter();
+				SurvHunter()
 			end
 		elseif _MyClass == 4 then -- Rogue
 			if _MySpec == nil then
-				NewRogue();
+				NewRogue()
 			end
 			if _MySpec == 1 then
-				AssassinationRogue();
+				AssassinationRogue()
 			elseif _MySpec == 2 then
-				CombatRogue();
+				CombatRogue()
 			elseif _MySpec == 3 then
-				SubRogue();
+				SubRogue()
 			end
 		elseif _MyClass == 5 then -- Priest
 			if _MySpec == 3 then
-				PriestShadow();
+				PriestShadow()
 			end
 		elseif _MyClass == 6 then -- Deathknight
 			if _MySpec == 1 then
-				Blood();
+				Blood()
 			end
 			if _MySpec == 2 then
-				FrostDK();
+				FrostDK()
 			end
 		elseif _MyClass == 7 then -- Shaman
 			if _MySpec == 1 then
-				ShamanElemental();
+				ShamanElemental()
 			end
 			if _MySpec == 2 then
-				ShamanEnhancement();
+				ShamanEnhancement()
 			end
 			if _MySpec == 3 then
-				ShamanRestoration();
+				ShamanRestoration()
 			end
 		elseif _MyClass == 8 then -- Mage
 			if _MySpec == 1 then
-				ArcaneMage();
+				ArcaneMage()
 			end
 			if _MySpec == 2 then
-				FireMage();
+				FireMage()
 			end
 			if _MySpec == 3 then
-				FrostMage();
+				FrostMage()
 			end
 		elseif _MyClass == 9 then -- Warlock
 			if _MySpec == 2 then
-				WarlockDemonology();
+				WarlockDemonology()
 			elseif _MySpec == 3 then
-				WarlockDestruction();
+				WarlockDestruction()
 			end
 		elseif _MyClass == 10 then -- Monk
 			if _MySpec == nil then
-				NewMonk();
+				NewMonk()
 			end
 			if _MySpec == 1 then
-				BrewmasterMonk();
+				BrewmasterMonk()
 			elseif _MySpec == 2 then
 				MistweaverMonk();
 			elseif _MySpec == 3 then
-				WindwalkerMonk();
+				WindwalkerMonk()
 			end
 		elseif _MyClass == 11 then -- Druid
 			if _MySpec == 1 then
-				DruidMoonkin();
+				DruidMoonkin()
 			end
 			if _MySpec == 2 then
-				DruidFeral();
+				DruidFeral()
 			end
 			if _MySpec == 3 then
-				DruidGuardian();
+				DruidGuardian()
 			end
 			if _MySpec == 4 then
-				DruidRestoration();
+				DruidRestoration()
 			end
 		end
 	end
@@ -357,12 +359,13 @@ function BadBoyRun()
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 
-	BadBoyEngine();
-	BadBoyMinimapButton();
-	BadBoyFrame();
-	ConfigFrame();
-	DebugFrameCreation();
-	EngineFrameCreation();
+	EnemiesEngine()
+	BadBoyEngine()
+	BadBoyMinimapButton()
+	BadBoyFrame()
+	ConfigFrame()
+	DebugFrameCreation()
+	EngineFrameCreation()
 	--InterruptsFrameCreation();
 	ChatOverlay("-= BadBoy Loaded =-")
 end
