@@ -1,5 +1,9 @@
 -- Function to create and populate table of enemies within a distance from player.
 -- Todo, nice to have is enemies around any unit, in order to compute AOE toggling. Ie (enemesAround("HEALER")
+burnUnitCandidates {} -- List of UnitID/Names we should have highest prio on.
+doNotTouchUnitCandidates {} -- List of units that we should not attack for any reason
+doNotTouchUnitCandidatesBuffs {} -- List of debuffs/buffs that forces us to switch targets
+
 function makeEnemiesTable(maxDistance)
 	local  maxDistance = maxDistance or 50
 	-- Throttle this 1 sec.
@@ -38,6 +42,7 @@ function makeEnemiesTable(maxDistance)
    						unit = thisUnit, 
    						distance = unitDistance, 
    						hp = unitHP, 
+   						-- Here should track inc damage / healing as well in order to get a timetodie value
    						x = X1, y = Y1, z = Z1 
    						})
    				end
@@ -51,11 +56,19 @@ function makeEnemiesTable(maxDistance)
 	end
 end
 
-function getUnitCoeficient(unit, distance) 
+-- This function will set the prioritisation of the units, ie which target should i attack
+-- Todo: So i think the prioritisation should be large by determined by threat or burn prio and then hp.
+-- So design should be, 
+-- Check if the unit is on doNotTouchUnitCandidates list which means we should not attack them at all
+-- Check towards doNotTouchUnitCandidatesBuffs (buffs/debuff), ie target we are not allowed to attack due to them having a (de)buff that hurts us or not. Example http://www.wowhead.com/spell=163689
+-- Is the unit on burn list, set high prio, burn list is a list of mobs that we specify for burn, is highest dps and prio.
+-- We should then look at the threat situation, for tanks the this is of high prio if we are below 3 but all below 3 should have the same prio coefficent. For dps its not that important
+-- Then we should check HP of the targets and set highest prio on low targets, this is also something we need to think about if the target have a dot so it will die regardless or not. Should have a timetodie?
+function getUnitCoeficient(unit, distance)
 	local coef = 250
-	if distance < 40 then
-		coef = getHP(unit)
-		if UnitGroupRolesAssigned("player") == "TANK" then
+	if distance < 40 then  -- If target is not in range have prio set to 250.
+		coef = getHP(unit)  -- Use the healthpercentage of the target as baseline, we want to prioritise low health targets as a tank. Could be mobs that we need to kill at the same time tough. Nice to have a list.
+		if UnitGroupRolesAssigned("player") == "TANK" then  -- If we are tanking, then we should also look into threat. ToDos: Why should not dps also want to use threat? Not pulling aggro is a good thing. Also instead of role we should use http://www.wowwiki.com/API_GetSpecialization, http://www.wowwiki.com/API_GetSpecializationRole
 			coef = coef + UnitThreatSituation("player",thisUnit)*10
 		end
 	end
