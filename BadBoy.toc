@@ -29,10 +29,6 @@ ClassLibs\Druid\Functions.lua
 ClassLibs\Druid\CuteBar.lua
 ClassLibs\Druid\SpellList.lua
 ClassLibs\Druid\Toggles.lua
-ClassLibs\Deathknight\Functions.lua
-ClassLibs\Deathknight\Options.lua
-ClassLibs\Deathknight\SpellList.lua
-ClassLibs\Deathknight\Toggles.lua
 ClassLibs\Hunter\Options.lua
 ClassLibs\Hunter\Functions.lua
 ClassLibs\Hunter\SpellList.lua
@@ -71,9 +67,25 @@ ClassLibs\Warrior\SpellList.lua
 ClassLibs\Warrior\Toggles.lua
 
 ## Rotations
-Rotations\Deathknight\Blood.lua
-Rotations\Deathknight\Frost.lua
-Rotations\Deathknight\Unholy.lua
+Rotations\Deathknight\Blood\Blood.lua
+Rotations\Deathknight\Blood\Libs\Functions.lua
+Rotations\Deathknight\Blood\Libs\Options.lua
+Rotations\Deathknight\Blood\Libs\SpellList.lua
+Rotations\Deathknight\Blood\Libs\Toggles.lua
+
+Rotations\Deathknight\Frost\Frost.lua
+Rotations\Deathknight\Frost\Libs\Functions.lua
+Rotations\Deathknight\Frost\Libs\Options.lua
+Rotations\Deathknight\Frost\Libs\SpellList.lua
+Rotations\Deathknight\Frost\Libs\Toggles.lua
+
+Rotations\Deathknight\Unholy\Unholy.lua
+Rotations\Deathknight\Unholy\Libs\Functions.lua
+Rotations\Deathknight\Unholy\Libs\Options.lua
+Rotations\Deathknight\Unholy\Libs\SpellList.lua
+Rotations\Deathknight\Unholy\Libs\Toggles.lua
+
+
 Rotations\Druid\Feral.lua
 Rotations\Druid\Guardian.lua
 Rotations\Druid\Moonkin.lua
