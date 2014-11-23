@@ -38,21 +38,18 @@ if select(3, UnitClass("player")) == 2 then
 		
 		-- Set Global variables that will be used.
 		_HolyPower = UnitPower("player", 9)
-
 		-- Check if we should run the rotation
 		if canRun() ~= true then
 			return false
 		end
 
 		-- Only run rotation if we or our target is in combat.
-		if UnitAffectingCombat("player") then
-
+		if UnitAffectingCombat("player")  then  -- Only start if we and target is in combat, have manual ability to pull mobs and UnitAffectingCombat("target")
 			--Todo SpecialEvent, checks if there is something that are special that we need to handle
 			-- Auto attack
 			if startAttackTimer == nil or startAttackTimer <= GetTime() - 1 then
 				RunMacroText("/startattack")
 			end
-
 			ProtPaladinEnemyUnitHandler() -- Fetch information about enemy units
 			ProtPaladinFriendlyUnitHandler() --Fetch and handle friendly units information
 
@@ -60,7 +57,6 @@ if select(3, UnitClass("player")) == 2 then
 			if ProtPaladinSurvivalSelf() then -- Check if we are close to dying and act accoridingly
 				return true
 			end
-
 			-- If someone else is close to dying
 			if ProtPaladinSurvivalOther() then -- Check if raidmember are close to dying and act accoridingly
 				return
@@ -70,7 +66,6 @@ if select(3, UnitClass("player")) == 2 then
 			if ProtPaladinInterrupt() then
 				return true
 			end
-
 			-- Dispell Logics Todo, includes removal using Divine Shield and Hand of Protection
 			if ProtPaladinDispell() then
 				return true

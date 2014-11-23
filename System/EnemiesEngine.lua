@@ -1,9 +1,11 @@
+-- Function to create and populate table of enemies within a distance from player.
+-- Todo, nice to have is enemies around any unit, in order to compute AOE toggling. Ie (enemesAround("HEALER")
 function makeEnemiesTable(maxDistance)
 	local  maxDistance = maxDistance or 50
 	-- Throttle this 1 sec.
 	if enemiesTable == nil or enemiesTableTimer == nil or enemiesTableTimer <= GetTime() - 1 then
 		-- create/empty table
-		enemiesTable = { };
+		enemiesTable = { }
 		-- use objectmanager to build up table
 	 	for i=1,ObjectCount() do
 	 		-- define our unit
@@ -22,11 +24,22 @@ function makeEnemiesTable(maxDistance)
 					local unitCoeficient = getUnitCoeficient(thisUnit,unitDistance)
   					local unitHP = getHP(thisUnit)
   					-- insert unit as a sub-array holding unit informations
-   					tinsert(enemiesTable,{ name = unitName, coeficient = unitCoeficient, 
-   						cast = { casting = unitCasting, castLenght = unitCastLenght, castTime = unitCastTime, 
-   						canBeInterrupted = unitCanBeInterrupt, castType = unitCastType }, 
-   						threat = unitThreat, unit = thisUnit, distance = unitDistance, hp = unitHP, x = X1, y = Y1, z = Z1 })
-   					  --print("inserted")
+   					tinsert(enemiesTable, { 
+   						name = unitName, 
+   						coeficient = unitCoeficient, 
+   						cast = {  --List of casting information
+   							casting = unitCasting or false, 
+   							castLenght = unitCastLenght, 
+   							castTime = unitCastTime, 
+   							canBeInterrupted = unitCanBeInterrupt or false, 
+   							castType = unitCastType 
+   								}, 
+   						threat = unitThreat, 
+   						unit = thisUnit, 
+   						distance = unitDistance, 
+   						hp = unitHP, 
+   						x = X1, y = Y1, z = Z1 
+   						})
    				end
 		  	end
 	 	end
