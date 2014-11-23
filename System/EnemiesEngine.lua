@@ -1,10 +1,8 @@
 -- Function to create and populate table of enemies within a distance from player.
 -- Todo, nice to have is enemies around any unit, in order to compute AOE toggling. Ie (enemesAround("HEALER")
-burnUnitCandidates {} -- List of UnitID/Names we should have highest prio on.
-doNotTouchUnitCandidates {} -- List of units that we should not attack for any reason
-doNotTouchUnitCandidatesBuffs {} -- List of debuffs/buffs that forces us to switch targets
 
 function makeEnemiesTable(maxDistance)
+
 	local  maxDistance = maxDistance or 50
 	-- Throttle this 1 sec.
 	if enemiesTable == nil or enemiesTableTimer == nil or enemiesTableTimer <= GetTime() - 1 then
@@ -32,10 +30,10 @@ function makeEnemiesTable(maxDistance)
    						name = unitName, 
    						coeficient = unitCoeficient, 
    						cast = {  --List of casting information
-   							casting = unitCasting or false, 
+   							casting = unitCasting, 
    							castLenght = unitCastLenght, 
    							castTime = unitCastTime, 
-   							canBeInterrupted = unitCanBeInterrupt or false, 
+   							canBeInterrupted = unitCanBeInterrupt, 
    							castType = unitCastType 
    								}, 
    						threat = unitThreat, 
@@ -69,7 +67,7 @@ function getUnitCoeficient(unit, distance)
 	if distance < 40 then  -- If target is not in range have prio set to 250.
 		coef = getHP(unit)  -- Use the healthpercentage of the target as baseline, we want to prioritise low health targets as a tank. Could be mobs that we need to kill at the same time tough. Nice to have a list.
 		if UnitGroupRolesAssigned("player") == "TANK" then  -- If we are tanking, then we should also look into threat. ToDos: Why should not dps also want to use threat? Not pulling aggro is a good thing. Also instead of role we should use http://www.wowwiki.com/API_GetSpecialization, http://www.wowwiki.com/API_GetSpecializationRole
-			coef = coef + UnitThreatSituation("player",thisUnit)*10
+			coef = coef + (UnitThreatSituation("player",thisUnit) or 0) *10
 		end
 	end
 	return coef
