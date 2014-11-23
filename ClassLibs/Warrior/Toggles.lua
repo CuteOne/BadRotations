@@ -121,28 +121,14 @@ if select(3, UnitClass("player")) == 1 then
     end
 
    function WarriorProtToggles()
-        AoEModesLoaded = "Prot Warrior AoE Modes";
-
-        -- if AoEModesLoaded ~= "Prot Warrior AoE Modes" then
-        --     CustomAoEModes = {
-        --         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 0, icon = ThunderClap },
-        --         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = Cleave },
-        --         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = Devastate }
-        --     };
-        --    AoEModes = CustomAoEModes
-        --    print("AOE BUTTON");
-        --    CreateButton("AoE",1,0)
-        --    AoEModesLoaded = "Prot Warrior AoE Modes";
-        -- end
-
-        -- Aoe Button
-        AoEModes = {
-
-            [1] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Auto-AoE", highlight = 0, icon = ThunderClap  },
-            [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Recommended for \n|cffFF0000AoE (3+)", highlight = 0, icon = Revenge },
-            [3] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Recommended for \n|cff00FF00Single Target (1-2)", highlight = 0, icon = Devastate }
-        };
-        CreateButton("AoE",1,0)
+        if AoEModesLoaded ~= "Prot Warrior AoE Modes" then
+            AoEModes = {
+                [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = ThunderClap },
+                [2] = { mode = "Sing", value = 2 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = Devastate }
+            };
+           CreateButton("AoE",1,0)
+           AoEModesLoaded = "Prot Warrior AoE Modes";
+        end
 
         -- Cooldowns Button
         if CooldownsModesLoaded ~= "Cooldown Modes" then
@@ -176,6 +162,17 @@ if select(3, UnitClass("player")) == 1 then
             InterruptsModes = CustomInterruptsModes
             CreateButton("Interrupts",4,0)
             InterruptsModesLoaded = "Interrupt Modes";
+        end
+
+        --Gladiator Button
+        if GladiatorModesLoaded ~= "Gladiator Modes" then
+            CustomGladiatorModes = {
+                [1] = { mode = "Glad", value = 1 , overlay = "Gladiator Enabled", tip = "Gladiator Rotation", highlight = 0, icon = GladiatorStance },
+                [2] = { mode = "Prot", value = 2 , overlay = "Protection Enabled", tip = "Protection Rotation", highlight = 0, icon = DefensiveStance }
+            };
+            GladiatorModes = CustomGladiatorModes
+            CreateButton("Gladiator",5,0)
+            GladiatorModesLoaded = "Gladiator Modes";
         end
 
         function SpecificToggle(toggle)
