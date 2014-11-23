@@ -1,14 +1,14 @@
 if select(3, UnitClass("player")) == 4 then
 	function AssassinationRogue()
 		if Currentconfig ~= "Assassination CuteOne" then
-			AssOptions();
+			AssOptions()
 			Currentconfig = "Assassination CuteOne"
 		end
 		if not canRun() then
 	    	return true
 	    end
-		AssToggles();
-		poisonData();
+		AssToggles()
+		poisonData()
 		-- if worgen==nil then
 		-- 	worgen=false
 		-- end
@@ -16,7 +16,7 @@ if select(3, UnitClass("player")) == 4 then
 		-- 	worgen=true
 		-- end
 		-- if not isInCombat("player") and worgen==true and not UnitBuffID("player",68992) then
-		-- 	if castSpell("player",68996,true,false,false) then worgen=false; return; end
+		-- 	if castSpell("player",68996,true,false,false) then worgen=false; return end
 		-- end
 
 
@@ -66,19 +66,19 @@ if select(3, UnitClass("player")) == 4 then
 		end
 	-- Leathal Poison
 		if lethalRemain<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
-			if castSpell("player",_LethalPoison,true) then return; end
+			if castSpell("player",_LethalPoison,true) then return end
 		end
 	-- Non-Leathal Poison
 		if nonlethalRemain<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
-			if castSpell("player",_NonLethalPoison,true) then return; end
+			if castSpell("player",_NonLethalPoison,true) then return end
 		end
 	-- Recuperate
 		if php < 80 and recRemain==0 and combo>0 then
-			if castSpell("player",_Recuperate,true,false,false) then return; end
+			if castSpell("player",_Recuperate,true,false,false) then return end
 		end
 	-- Cloak of Shadows
 		if canDispel("player") then
-			if castSpell("player",_CloakOfShadows,true,false,false) then return; end
+			if castSpell("player",_CloakOfShadows,true,false,false) then return end
 		end
 
 	-- Pause
@@ -102,19 +102,19 @@ if select(3, UnitClass("player")) == 4 then
 			if useDefensive() and not stealth then
 	-- Evasion
 				if php<50 then
-					if castSpell("player",_Evasion,true,false,false) then return; end
+					if castSpell("player",_Evasion,true,false,false) then return end
 				end
 	-- Combat Readiness
 				if php<40 then
-					if castSpell("player",_CombatReadiness,true,false,false) then return; end
+					if castSpell("player",_CombatReadiness,true,false,false) then return end
 				end
 	-- Recuperate
 				if php<30 and combo>3 and recRemain==0 then
-					if castSpell("player",_Recuperate) then return; end
+					if castSpell("player",_Recuperate) then return end
 				end
 	-- Vanish
 				if php<15 then
-					if castSpell("player",_Vanish) then StopAttack(); ClearTarget(); return; end
+					if castSpell("player",_Vanish) then StopAttack(); ClearTarget(); return end
 				end
     		end
 ---------------------
@@ -125,58 +125,58 @@ if select(3, UnitClass("player")) == 4 then
 				if isChecked("Stealth") and (stealthTimer == nil or stealthTimer <= GetTime()-getValue("Stealth Timer")) and getCreatureType("target") == true and not stealth then
 					-- Always
 					if getValue("Stealth") == 1 then 
-						if castSpell("player",_Stealth,true,false,false) then stealthTimer=GetTime(); return; end
+						if castSpell("player",_Stealth,true,false,false) then stealthTimer=GetTime(); return end
 					end
 					-- Pre-Pot
 					if getValue("Stealth") == 2 and getBuffRemain("player",105697) > 0 and tarDist < 20 then
-						if castSpell("player",_Stealth,true,false,false) then stealthTimer=GetTime(); return; end
+						if castSpell("player",_Stealth,true,false,false) then stealthTimer=GetTime(); return end
 					end
 					-- 20 Yards
 					if getValue("Stealth") == 3 and tarDist < 20 then
-						if castSpell("player",_Stealth,true,false,false) then stealthTimer=GetTime(); return; end
+						if castSpell("player",_Stealth,true,false,false) then stealthTimer=GetTime(); return end
 					end
 				end
 				if tarDist < 25 and tarDist >= 8 and level>=60 then
 	-- Shadowstep
 					if not UnitBuffID("player",_Stealth) then
-						if castSpell("player",_Stealth,true,false,false) then return; end
+						if castSpell("player",_Stealth,true,false,false) then return end
 					else
-						if castSpell("target",_Shadowstep,false,false,false) then return; end
+						if castSpell("target",_Shadowstep,false,false,false) then return end
 					end
 				end
 				if tarDist < 8 then
 	-- Sap
 					if noattack() and sapRemain==0 and UnitBuffID("player",_Stealth) and level>=15 then
-						if castSpell("target",_Sap,false,false,false) then return; end
+						if castSpell("target",_Sap,false,false,false) then return end
 					end
 	-- Pick Pocket
 					if canPP() and not isPicked() and UnitBuffID("player",_Stealth) and level>=15 then
 						if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
 							if castSpell("target",_PickPocket,true) then
 						    	lootTimer = GetTime()
-						    	return;
+						    	return
 							end
 						end
 					end
 	-- Ambush
 					if not noattack() and (isPicked() or level<15) and UnitBuffID("player",_Stealth) and combo<5 and power>60 and tarDist<5 then
-						if castSpell("target",_Ambush,false,false,false) then return; end
+						if castSpell("target",_Ambush,false,false,false) then return end
 					end
 	-- 5 Combo Opener
 					if not isInCombat("player") and (isPicked() or level<15) and UnitBuffID("player",_Stealth) and not noattack() and combo == 5 and tarDist<5 then
 						if power>25 and sndRemain<5 then
-							if castSpell("player",_SliceAndDice,true,false,false) then return; end
+							if castSpell("player",_SliceAndDice,true,false,false) then return end
 						end
 						if power>25 and rupRemain<3 then
-							if castSpell("taret",_Rupture,false,false,false) then return; end
+							if castSpell("taret",_Rupture,false,false,false) then return end
 						end
 						if power>35 and envRemain<2 then
-							if castSpell("target",_Envenom,false,false,false) then return; end
+							if castSpell("target",_Envenom,false,false,false) then return end
 						end
 					end
 	-- Mutilate
 					if not isInCombat("player") and (isPicked() or level<15) and not noattack() and combo < 5 and power>55 and tarDist<5 then
-						if castSpell("target",_Mutilate,false,false,false) then return; end
+						if castSpell("target",_Mutilate,false,false,false) then return end
 					end
 				end
 			end
@@ -203,15 +203,15 @@ if select(3, UnitClass("player")) == 4 then
 				if useInterrupts() and not stealth and canInterrupt("target", tonumber(getValue("Interrupts"))) then
 	-- Kick
 					if level>=18 then
-						if castSpell("target",_Kick,false,false,false) then return; end
+						if castSpell("target",_Kick,false,false,false) then return end
 					end
 	-- Gouge
 					if getSpellCD(_Kick)>0 then
-						if castSpell("target",_Gouge,false,false,false) then return; end
+						if castSpell("target",_Gouge,false,false,false) then return end
 					end
 	-- Blind
 					if getSpellCD(_Kick)>0 and getSpellCD(_Gouge)>0 then
-						if castSpell("target",_Blind,false,false,false) then return; end
+						if castSpell("target",_Blind,false,false,false) then return end
 					end
 			    end
 	-----------------------------
@@ -220,19 +220,19 @@ if select(3, UnitClass("player")) == 4 then
 				if useCDs() and not stealth and tarDist<5 then
 	-- Preparation
 					if vanRemain==0 and getSpellCD(_Vanish)>60 then
-						if castSpell("player",_Preparation,true,false,false) then return; end
+						if castSpell("player",_Preparation,true,false,false) then return end
 					end
 	-- Vanish
 					if combo<5 and power<60 and getCombatTime()>10 then
-						if castSpell("player",_Vanish,true,false,false) then return; end
+						if castSpell("player",_Vanish,true,false,false) then return end
 					end
 	-- Shadow Reflection
 					if getSpellCD(_Vendetta)==0 then
-						if castSpell("player",_ShadowReflection,true,false,false) then return; end
+						if castSpell("player",_ShadowReflection,true,false,false) then return end
 					end
 	-- Vendetta
 					if srRemain>0 or not getTalent(7,2) then
-						if castSpell("target",_Vendetta,false,false,false) then return; end
+						if castSpell("target",_Vendetta,false,false,false) then return end
 		        	end
 		        end
 	------------------------------------------
@@ -240,7 +240,7 @@ if select(3, UnitClass("player")) == 4 then
 	------------------------------------------
 	-- Rupture
 				if combo==5 and rupRemain<3 and power>25 and tarDist<5 then
-					if castSpell("target",_Rupture,false,false,false) then return; end
+					if castSpell("target",_Rupture,false,false,false) then return end
 				end
 	-- Rupture - AoE
 	    		if useAoE() and canCast(_Rupture) then
@@ -257,73 +257,73 @@ if select(3, UnitClass("player")) == 4 then
 	                        and getDebuffRemain(thisUnit,_Rupture,"player") < 3
 	                        and power > 25
 	                    then
-	                        if castSpell(thisUnit,_Rupture,false,false,false) then return; end
+	                        if castSpell(thisUnit,_Rupture,false,false,false) then return end
 	                    end
 	                end
 	            end
 	-- Slice and Dice
 				if sndRemain<5 and power>25 and tarDist<5 and combo>0 then
-					if castSpell("player",_SliceAndDice,true,false,false) then return; end
+					if castSpell("player",_SliceAndDice,true,false,false) then return end
 				end
 	-- Marked for Death
 				if combo>0 and tarDist<5 then
-					if castSpell("target",_MarkedForDeath,true,false,false) then return; end
+					if castSpell("target",_MarkedForDeath,true,false,false) then return end
 				end
 	-- Crimson Tempest
 				if useAoE() and combo>4 and enemies>=4 and ctRemain<8 and power>35 and tarDist<5 then
-					if castSpell("target",_CrimsonTempest,true,false,false) then return; end
+					if castSpell("target",_CrimsonTempest,true,false,false) then return end
 				end
 	-- Fan of Knives
 				if useAoE() and combo<5 and enemies>=4 and power>35 and tarDist<5 then
-					if castSpell("player",_FanOfKnives,true,false,false) then return; end
+					if castSpell("player",_FanOfKnives,true,false,false) then return end
 				end
 	-- Rupture
 				if (rupRemain<2 or (combo==5 and rupRemain<=(rupDuration*0.3))) and enemies==1 and combo>0 and power>25 and tarDist<5 then
-					if castSpell("target",_Rupture,false,false,false) then return; end
+					if castSpell("target",_Rupture,false,false,false) then return end
 				end
 	-- Envenom
 				if (combo>4 and envRemain<2 and (getSpellCD(_DeathFromAbove)>2 or not getTalent(7,3))) and enemies<4 and ddRemain==0 and power>35 and tarDist<5 then
-					if castSpell("target",_Envenom,false,false,false) then return; end
+					if castSpell("target",_Envenom,false,false,false) then return end
 				end
 	-- Envenom
 				if (combo>4 and envRemain<2 and (getSpellCD(_DeathFromAbove)>2 or not getTalent(7,3))) and enemies<4 and power>35 and tarDist<5 then
-					if castSpell("target",_Envenom,false,false,false) then return; end
+					if castSpell("target",_Envenom,false,false,false) then return end
 				end
 	-- Eviscerate
 				if (combo>4 or (combo>3 and ttd<3)) and level<20 and power>35 and tarDist<5 then
-					if castSpell("target",_Eviscerate,false,false,false) then return; end
+					if castSpell("target",_Eviscerate,false,false,false) then return end
 				end
 	-- Fan of Knives
 				if useAoE() and enemies>2 and ddRemain==0 and venRemain==0 and power>35 and tarDist<5 then
-					if castSpell("player",_FanOfKnives,true,false,false) then return; end
+					if castSpell("player",_FanOfKnives,true,false,false) then return end
 				end
 	-- Ambush
 				if (isPicked() or level<15) and UnitBuffID("player",_Stealth) and combo<5 and power>60 and tarDist<5 then
-					if castSpell("target",_Ambush,false,false,false) then return; end
+					if castSpell("target",_Ambush,false,false,false) then return end
 				end
 	-- Mutilate
 				if thp>35 and combo<5 and enemies==2 and ddRemain==0 and venRemain==0 and not blindside and power>55 and tarDist<5 then
-					if castSpell("target",_Mutilate,false,false,false) then return; end
+					if castSpell("target",_Mutilate,false,false,false) then return end
 				end
 	-- Mutilate
 				if thp>35 and combo<5 and enemies<5 and not blindside and power>55 and tarDist<5 then
-					if castSpell("target",_Mutilate,false,false,false) then return; end
+					if castSpell("target",_Mutilate,false,false,false) then return end
 				end
 	-- Dispatch
 				if (combo<5 or (getTalent(6,3) and antCharge<4)) and enemies==2 and ddRemain==0 and venRemain==0 and (power>30 or blindside) and tarDist<5 then
-					if castSpell("target",_Dispatch,false,false,false) then return; end
+					if castSpell("target",_Dispatch,false,false,false) then return end
 				end
 	-- Dispatch
 				if (combo<5 or (getTalent(6,3) and antCharge<4)) and enemies<4 and (power>30 or blindside) and tarDist<5 then
-					if castSpell("target",_Dispatch,false,false,false) then return; end
+					if castSpell("target",_Dispatch,false,false,false) then return end
 				end
 	-- Mutilate
 				if enemies==2 and ddRemain==0 and not blindside and venRemain==0 and power>55 and tarDist<5 then
-					if castSpell("target",_Mutilate,false,false,false) then return; end
+					if castSpell("target",_Mutilate,false,false,false) then return end
 				end
 	-- Mutilate
 				if enemies<5 and power>55 and not blindside and tarDist<5 then
-					if castSpell("target",_Mutilate,false,false,false) then return; end
+					if castSpell("target",_Mutilate,false,false,false) then return end
 				end
 			end --In Combat End
 	-- Start Attack
