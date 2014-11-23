@@ -307,6 +307,11 @@ thisConfig = 0;
 -- Title
 CreateNewTitle(thisConfig,"Protection |cffFF0000Chumii");
 
+--Wrapper
+CreateNewWrap(thisConfig,"---------- Mode ---------")
+-- Rotation
+CreateNewDrop(thisConfig, "GladiProt", 1, "Choose Rotation to use.", "|cffFFBB00Gladiator", "|cff0077FFProtection");
+CreateNewText(thisConfig, "Gladiator / Protection");
 -- Wrapper
 CreateNewWrap(thisConfig,"---------- Keys ----------");
 
@@ -386,32 +391,38 @@ CreateNewCheck(thisConfig,"VigilanceFocus");
 CreateNewBox(thisConfig, "VigilanceFocus", 0, 100  , 5, 25, "% HP of Focustarget to use Vigilance on Focustarget");
 CreateNewText(thisConfig,"Vigilance on Focus");
 
+-- -- Wrapper
+-- CreateNewWrap(thisConfig,"-------- Interrupts --------");
+
+-- -- Pummel
+-- CreateNewCheck(thisConfig,"Pummel");
+-- CreateNewBox(thisConfig, "Pummel", 0, 100  , 5, 60 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFPummel.");
+-- CreateNewText(thisConfig,"Pummel");
+
+-- -- Disrupting Shout
+-- CreateNewCheck(thisConfig,"Disrupting Shout");
+-- CreateNewBox(thisConfig, "Disrupting Shout", 0, 100  , 5, 60 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFDisrupting Shout.");
+-- CreateNewText(thisConfig,"Disrupting Shout");
+
+-- if isKnown(QuakingPalm) then
+-- -- Quaking Palm
+-- CreateNewCheck(thisConfig,"Quaking Palm");
+-- CreateNewBox(thisConfig, "Quaking Palm", 0, 100  , 5, 30 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFQuaking Palm.");
+-- CreateNewText(thisConfig,"Quaking Palm");
+-- end
+
 -- Wrapper
-CreateNewWrap(thisConfig,"-------- Interrupts --------");
+CreateNewWrap(thisConfig,"---------- AoE Talents  ---------");
 
--- Pummel
-CreateNewCheck(thisConfig,"Pummel");
-CreateNewBox(thisConfig, "Pummel", 0, 100  , 5, 60 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFPummel.");
-CreateNewText(thisConfig,"Pummel");
+-- Auto Bladestorm / DragonRoar / Ravager
+CreateNewCheck(thisConfig,"useBladestorm","Use Bladestorm automatically");
+CreateNewText(thisConfig,"Auto Bladestorm");
 
--- Disrupting Shout
-CreateNewCheck(thisConfig,"Disrupting Shout");
-CreateNewBox(thisConfig, "Disrupting Shout", 0, 100  , 5, 60 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFDisrupting Shout.");
-CreateNewText(thisConfig,"Disrupting Shout");
+CreateNewCheck(thisConfig,"useDragonRoar","Use Dragon Roar automatically");
+CreateNewText(thisConfig,"Auto Dragon Roar");
 
-if isKnown(QuakingPalm) then
--- Quaking Palm
-CreateNewCheck(thisConfig,"Quaking Palm");
-CreateNewBox(thisConfig, "Quaking Palm", 0, 100  , 5, 30 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFQuaking Palm.");
-CreateNewText(thisConfig,"Quaking Palm");
-end
-
--- Wrapper
-CreateNewWrap(thisConfig,"---------- Misc -----------");
-
--- Auto Bladestorm / DragonRoar
-CreateNewCheck(thisConfig,"StormRoar","Use Bladestorm/Dragonroar automatically");
-CreateNewText(thisConfig,"Auto Bladestorm/Dragonroar");
+CreateNewCheck(thisConfig,"useRavager","Use Ravager automatically");
+CreateNewText(thisConfig,"Auto Ravager");
 
 -- Dummy DPS Test
 CreateNewCheck(thisConfig,"DPS Testing");

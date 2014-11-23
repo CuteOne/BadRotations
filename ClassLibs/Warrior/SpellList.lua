@@ -10,6 +10,7 @@ if select(3, UnitClass("player")) == 1 then
 	ShieldBlock			= 2565;
 	HeroicStrike		= 78;
 	ShieldCharge = 156321;
+	ShieldChargeBuff = 169667;
 
 	--Arms--
 	MortalStrike		= 12294;

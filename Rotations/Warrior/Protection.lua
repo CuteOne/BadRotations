@@ -4,10 +4,9 @@ if select(3,UnitClass("player")) == 1 then
 
 		if currentConfig ~= "Protection Chumii" then
 			WarriorProtConfig();
-			WarriorProtToggles();
 			currentConfig = "Protection Chumii";
 		end
-
+		WarriorProtToggles();
 		GroupInfo();
 	------------------------------------------------------------------------------------------------------
 	-- Locals --------------------------------------------------------------------------------------------
@@ -21,6 +20,8 @@ if select(3,UnitClass("player")) == 1 then
 		local BLADESTORM = UnitBuffID("player",Bladestorm)
 		local BB_START, BB_DURATION = GetSpellCooldown(Bloodbath)
 		local BB_COOLDOWN = (BB_START - GT + BB_DURATION)
+		local SC_STACK = select(1,GetSpellCharges(ShieldCharge));
+
 	------------------------------------------------------------------------------------------------------
 	-- Food/Invis Check ----------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
@@ -71,18 +72,16 @@ if select(3,UnitClass("player")) == 1 then
 	-- Out of Combat -------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
 		if not isInCombat("player") then
-			if BadBoy_data['Gladiator'] == 2 then
+			if getValue("GladiProt") == 2 then
 				if GetShapeshiftForm() ~= 2 then
 					if castSpell("player",DefensiveStance,true) then
 						return;
 					end
 				end
 			end
-			if BadBoy_data['Gladiator'] == 1 then
+			if getValue("GladiProt") == 1 then
 				if GetShapeshiftForm() ~= 1 then
-					if castSpell("player",GladiatorStance,true) then
-						return;
-					end
+					if castSpell("player",BattleStance,true) then return; end
 				end
 			end
 
@@ -272,12 +271,7 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 	-- Protection -------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-			if BadBoy_data['Gladiator'] == 2 then
-				if GetShapeshiftForm() ~= 2 then
-				if castSpell("player",DefensiveStance,true) then
-					return;
-				end
-			end
+				if getValue("GladiProt") == 2 then
 				if not useAoE() then
 					-- Heroic Strike
 			    if isKnown(UnyieldingStrikesTalent) then
@@ -287,11 +281,11 @@ if select(3,UnitClass("player")) == 1 then
 			            end
 			        end
 			    end
-			    if UnitBuffID(Ultimatum) then
-			        if castSpell("target",HeroicStrike,false,false) then
-			            return;
-			        end
-			    end
+			    if UnitBuffID("player",Ultimatum) then
+				  	if castSpell("target",HeroicStrike,false,false) then
+		              return;
+		          end
+		      end
 			    -- ShieldSlam
 			    if castSpell("target",ShieldSlam,false,false) then
 			        return;
@@ -302,10 +296,12 @@ if select(3,UnitClass("player")) == 1 then
 			    end
 			    --Ravager
 			    if isKnown(Ravager) then
-			        if castGround("target",Ravager,40) then
-			            return
-			        end
-			    end
+			    	if isChecked("useRavager") then
+				        if castGround("target",Ravager,40) then
+				            return
+				        end
+				    end
+				  end
 			    -- StormBolt
 			    if isKnown(StormBolt) then
 			        if castSpell("target",StormBolt,false,false) then
@@ -313,7 +309,7 @@ if select(3,UnitClass("player")) == 1 then
 			        end
 			    end
 			    -- Dragon Roar
-			    if isChecked("StormRoar") then
+			    if isChecked("useDragonRoar") then
 			        if isKnown(DragonRoar) and getDistance("player","target") <=8 then
 			            if castSpell("target",DragonRoar,true) then
 			                return;
@@ -355,18 +351,14 @@ if select(3,UnitClass("player")) == 1 then
 	-- AoE -----------------------------------------------------------------------------------------------
 		if useAoE() then
 							-- ThunderClap
-				  --if not UnitDebuffID("target",DeepWounds) and getDistance("target") <= 8 then
-				  if getDistance("target") <= 8 then
-				      if castSpell("target",ThunderClap,true) then
-				          return;
-				      end
-				  end
+				  if not UnitDebuffID("target",DeepWounds) and getDistance("target") <= 8 then
+					  if getDistance("target") <= 8 then
+					      if castSpell("target",ThunderClap,true) then
+					          return;
+					      end
+					  end
+					end
 				  --Heroic Strike
-				  if UnitBuffID(Ultimatum) or UnitPower("player") < 90 then
-				      if castSpell("target",HeroicStrike,false,false) then
-				          return
-				      end
-				  end
 				  if isKnown(UnyieldingStrikesTalent) then
 				      if getBuffStacks("player",UnyieldingStrikesAura) == 6 then
 				          if castSpell("target",HeroicStrike,false,false) then
@@ -374,33 +366,42 @@ if select(3,UnitClass("player")) == 1 then
 				          end
 				      end
 				  end
+				  if UnitBuffID("player",Ultimatum) then
+				  	if castSpell("target",HeroicStrike,false,false) then
+		              return;
+		          end
+		      end
 				  --Shield Slam
-				  if UnitBuffID(ShieldBlock) then
-				      if castSpell("target",ShieldSlam,false,false) then
-				          return
-				      end
-				  end
+		      if castSpell("target",ShieldSlam,false,false) then
+		          return
+		      end
 				  --Ravager
 				  if isKnown(Ravager) then
-				      if castGround("target",Ravager,40) then
-				          return
-				      end
-				  end
+				  	if isChecked("useRavager") then
+					      if castGround("target",Ravager,40) then
+					          return
+					      end
+					  end
+					end
 				  -- DragonRoar
-				  if isKnown(DragonRoar) and getDistance("target") <= 8 then
-				      if not isKnown(Bloodbath) or (isKnown(Bloodbath) and (UnitBuffID("player",Bloodbath) or BB_COOLDOWN > 10)) then
-				          if castSpell("target",DragonRoar,true) then
-				              return;
-				          end
-				      end
-				  end
+				  if isChecked("useDragonRoar") then
+					  if isKnown(DragonRoar) and getDistance("target") <= 8 then
+					      if not isKnown(Bloodbath) or (isKnown(Bloodbath) and (UnitBuffID("player",Bloodbath) or BB_COOLDOWN > 10)) then
+					          if castSpell("target",DragonRoar,true) then
+					              return;
+					          end
+					      end
+					  end
+					end
 				  -- BladeStorm
 				  if isKnown(Bladestorm) then
-				      if castSpell("target",Bladestorm,true) and getDistance("target") <= 8 then
-				          return;
-				      end
-				  end
-				  if castSpell("target",Revenger,false,false) then
+				  	if isChecked("useBladestorm") then
+					      if castSpell("target",Bladestorm,true) and getDistance("target") <= 8 then
+					          return;
+					      end
+					  end
+					end
+				  if castSpell("target",Revenge,false,false) then
 				      return
 				  end
 				  if castSpell("target",ThunderClap,true,false) then
@@ -427,7 +428,138 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 	-- Gladiator --------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
+	if getValue("GladiProt") == 1 then
+		-- actions+=/shield_charge,if=(!buff.shield_charge.up&!cooldown.shield_slam.remains)|charges=2
+			if (not UnitBuffID("player",ShieldChargeBuff) and getSpellCD(ShieldSlam) == 0) or SC_STACK == 2 then
+				if castSpell("target",ShieldCharge,false,false) then
+					return
+				end
+			end
+			-- actions+=/heroic_strike,if=((buff.shield_charge.up|buff.unyielding_strikes.up)&target.health.pct>20)|buff.ultimatum.up|rage>=100|buff.unyielding_strikes.stack>4|target.time_to_die<10
+			if (getHP("target") > 20 and (UnitBuffID("player",ShieldCharge) or UnitBuffID("player",UnyieldingStrikesAura)))
+			or UnitBuffID("player",Ultimatum)
+			or UnitPower("player") >= 100
+			or getBuffStacks("player",UnyieldingStrikesAura) > 4
+			or getTimeToDie("target") < 10 then
+				if castSpell("target",HeroicStrike,false,false) then
+					return
+				end
+			end
+			-- actions.movement+=/heroic_throw
+			 if isMoving("player") then
+			 	if castSpell("target",HeroicThrow,false,false) then
+			 		return
+			 	end
+			 end
+		--single
+		if not useAoE() then
+			-- actions.single=shield_slam
+			if castSpell("target",ShieldSlam,false,false) then
+				return
+			end
+			-- actions.single+=/revenge
+			if castSpell("target",Revenge,false,false) then
+				return
+			end
+			-- actions.single+=/execute,if=buff.sudden_death.react
+			if UnitBuffID("player",SuddenDeathProc) then
+				if castSpell("target",Execute,false,false) then
+					return
+				end
+			end
+			-- actions.single+=/storm_bolt
+			if isKnown(StormBolt) then
+				if castSpell("target",StormBolt,false,false) then
+					return
+				end
+			end
+			-- actions.single+=/dragon_roar
+			if isChecked("useDragonRoar") then
+			  if isKnown(DragonRoar) and getDistance("target") <= 8 then
+			      if not isKnown(Bloodbath) or (isKnown(Bloodbath) and (UnitBuffID("player",Bloodbath) or BB_COOLDOWN > 10)) then
+			          if castSpell("target",DragonRoar,true) then
+			              return;
+			          end
+			      end
+			  end
+			end
+			-- actions.single+=/execute,if=rage>60&target.health.pct<20
+			if UnitPower("player") > 60 and getHP("target") < 20 then
+				if castSpell("target",Execute,false,false) then
+					return
+				end
+			end
+			-- actions.single+=/devastate
+			if castSpell("target",Devastate,false,false) then
+					return
+				end
+		end --single end
 
+		if useAoE() then
+			-- actions.aoe=revenge
+			if castSpell("target",Revenge,false,false) then
+				return
+			end
+			-- actions.aoe+=/shield_slam
+			if castSpell("target",ShieldSlam,false,false) then
+				return
+			end
+			-- actions.aoe+=/dragon_roar,if=(buff.bloodbath.up|cooldown.bloodbath.remains>10)|!talent.bloodbath.enabled
+			if isChecked("useDragonRoar") then
+			  if isKnown(DragonRoar) and getDistance("target") <= 8 then
+			      if not isKnown(Bloodbath) or (isKnown(Bloodbath) and (UnitBuffID("player",Bloodbath) or BB_COOLDOWN > 10)) then
+			          if castSpell("target",DragonRoar,true) then
+			              return;
+			          end
+			      end
+			  end
+			end
+			-- actions.aoe+=/storm_bolt,if=(buff.bloodbath.up|cooldown.bloodbath.remains>7)|!talent.bloodbath.enabled
+			if isKnown(StormBolt) then
+				if not isKnown(Bloodbath) or (isKnown(Bloodbath) and (UnitBuffID("player",Bloodbath) or BB_COOLDOWN > 7)) then
+		      if castSpell("target",StormBolt,false,false) then
+		          return;
+		      end
+		    end
+		  end
+			-- actions.aoe+=/thunder_clap,cycle_targets=1,if=dot.deep_wounds.remains<3&active_enemies>4
+			if not UnitDebuffID("target",DeepWounds) and getDistance("target") <= 8 then
+			  if getDistance("target") <= 8 then
+			      if castSpell("target",ThunderClap,true) then
+			          return;
+			      end
+			  end
+			end
+			-- actions.aoe+=/bladestorm,if=buff.shield_charge.down
+			if isKnown(Bladestorm) then
+		  	if isChecked("useBladestorm") then
+		  		if not UnitBuffID("player",ShieldChargeBuff) then
+			      if castSpell("target",Bladestorm,true) and getDistance("target") <= 8 then
+			          return;
+			      end
+			    end
+			  end
+			end
+			-- actions.aoe+=/execute,if=buff.sudden_death.react
+			if UnitBuffID("player",SuddenDeathProc) then
+				if castSpell("target",Execute,false,false) then
+					return
+				end
+			end
+			-- actions.aoe+=/thunder_clap,if=active_enemies>6
+			if getDistance("target") <= 8 then
+		      if castSpell("target",ThunderClap,true) then
+		          return;
+		      end
+		  end
+			-- actions.aoe+=/devastate,cycle_targets=1,if=dot.deep_wounds.remains<5&cooldown.shield_slam.remains>execute_time*0.4
+			-- actions.aoe+=/devastate,if=cooldown.shield_slam.remains>execute_time*0.4
+			if castSpell("target",Devastate,false,false) then
+				return
+			end
+		end --aoe end
+
+	end --Gladiator end
 	------------------------------------------------------------------------------------------------------
 		end -- In Combat end
 	end -- ArmsWarrior() end
