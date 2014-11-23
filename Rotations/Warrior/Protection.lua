@@ -19,6 +19,8 @@ if select(3,UnitClass("player")) == 1 then
 		local RV_START, RV_DURATION = GetSpellCooldown(Ravager)
 		local RV_COOLDOWN = (RV_START - GT + RV_DURATION)
 		local BLADESTORM = UnitBuffID("player",Bladestorm)
+		local BB_START, BB_DURATION = GetSpellCooldown(Bloodbath)
+		local BB_COOLDOWN = (BB_START - GT + BB_DURATION)
 	------------------------------------------------------------------------------------------------------
 	-- Food/Invis Check ----------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
@@ -69,12 +71,21 @@ if select(3,UnitClass("player")) == 1 then
 	-- Out of Combat -------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
 		if not isInCombat("player") then
-			-- actions.precombat+=/stance,choose=battle
-			if GetShapeshiftForm() ~= 2 then
-				if castSpell("player",DefensiveStance,true) then
-					return;
+			if BadBoy_data['Gladiator'] == 2 then
+				if GetShapeshiftForm() ~= 2 then
+					if castSpell("player",DefensiveStance,true) then
+						return;
+					end
 				end
 			end
+			if BadBoy_data['Gladiator'] == 1 then
+				if GetShapeshiftForm() ~= 1 then
+					if castSpell("player",GladiatorStance,true) then
+						return;
+					end
+				end
+			end
+
 			-- Commanding Shout
 				if isChecked("Shout") == true and getValue("Shout") == 1 and not UnitExists("mouseover") then
             for i = 1, #members do --members
@@ -133,14 +144,16 @@ if select(3,UnitClass("player")) == 1 then
 
 			-- actions+=/auto_attack
 
-						-- Shield Block / Barrier
-			if getValue("BlockBarrier") == 1 and not UnitBuffID("player",ShieldBlockBuff) then
-				if castSpell("player",ShieldBlock,true) then
-					return;
-				end
-			elseif getValue("BlockBarrier") == 2 and not UnitBuffID("player",ShieldBarrierBuff) and rage >= 50 then
-				if castSpell("player",ShieldBarrier,true) then
-					return
+			-- Shield Block / Barrier
+			if UnitBuffID("player",DefensiveStance) then
+				if getValue("BlockBarrier") == 1 and not UnitBuffID("player",ShieldBlockBuff) then
+					if castSpell("player",ShieldBlock,true) then
+						return;
+					end
+				elseif getValue("BlockBarrier") == 2 and not UnitBuffID("player",ShieldBarrierBuff) and rage >= 50 then
+					if castSpell("player",ShieldBarrier,true) then
+						return
+					end
 				end
 			end
 			-- ImpendingVictory / Victory Rush
@@ -257,36 +270,164 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 
 	------------------------------------------------------------------------------------------------------
-	-- Single Target -------------------------------------------------------------------------------------
+	-- Protection -------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-			if not useAoE() then
-				ProtSingeTar();
+			if BadBoy_data['Gladiator'] == 2 then
+				if GetShapeshiftForm() ~= 2 then
+				if castSpell("player",DefensiveStance,true) then
+					return;
+				end
 			end
+				if not useAoE() then
+					-- Heroic Strike
+			    if isKnown(UnyieldingStrikesTalent) then
+			        if getBuffStacks("player",UnyieldingStrikesAura) == 6 then
+			            if castSpell("target",HeroicStrike,false,false) then
+			                return;
+			            end
+			        end
+			    end
+			    if UnitBuffID(Ultimatum) then
+			        if castSpell("target",HeroicStrike,false,false) then
+			            return;
+			        end
+			    end
+			    -- ShieldSlam
+			    if castSpell("target",ShieldSlam,false,false) then
+			        return;
+			    end
+			    -- Revenge
+			    if castSpell("target",Revenge,false,false) then
+			        return;
+			    end
+			    --Ravager
+			    if isKnown(Ravager) then
+			        if castGround("target",Ravager,40) then
+			            return
+			        end
+			    end
+			    -- StormBolt
+			    if isKnown(StormBolt) then
+			        if castSpell("target",StormBolt,false,false) then
+			            return;
+			        end
+			    end
+			    -- Dragon Roar
+			    if isChecked("StormRoar") then
+			        if isKnown(DragonRoar) and getDistance("player","target") <=8 then
+			            if castSpell("target",DragonRoar,true) then
+			                return;
+			            end
+			        end
+			    end
+			    --Impending Victory
+			    if isKnown(ImpendingVictory) then
+			        if castSpell("target",ImpendingVictory,false,false) then
+			            return
+			        end
+			    end
+			    if not isKnown(ImpendingVictory) then
+			        if castSpell("target",VictoryRush,false,false) then
+			            return
+			        end
+			    end
+			    -- Execute
+			    if UnitBuffID("player",SuddenDeathProc) then
+			        if castSpell("target",Execute,false,false) then
+			            return;
+			        end
+			    elseif UnitPower("player") > 90 then
+			        if castSpell("target",Execute,false,false) then
+			            return;
+			        end
+			    end
+			    -- Devastate
+			    if castSpell("target",Devastate,false,false) then
+			        return;
+			    end
+			    -- Rage Dump
+			    if UnitPower("player") >= 100 then
+			        if castSpell("target",HeroicStrike,false,false) then
+			           return;
+			        end
+			    end
+				end --single end
+	-- AoE -----------------------------------------------------------------------------------------------
+		if useAoE() then
+							-- ThunderClap
+				  --if not UnitDebuffID("target",DeepWounds) and getDistance("target") <= 8 then
+				  if getDistance("target") <= 8 then
+				      if castSpell("target",ThunderClap,true) then
+				          return;
+				      end
+				  end
+				  --Heroic Strike
+				  if UnitBuffID(Ultimatum) or UnitPower("player") < 90 then
+				      if castSpell("target",HeroicStrike,false,false) then
+				          return
+				      end
+				  end
+				  if isKnown(UnyieldingStrikesTalent) then
+				      if getBuffStacks("player",UnyieldingStrikesAura) == 6 then
+				          if castSpell("target",HeroicStrike,false,false) then
+				              return;
+				          end
+				      end
+				  end
+				  --Shield Slam
+				  if UnitBuffID(ShieldBlock) then
+				      if castSpell("target",ShieldSlam,false,false) then
+				          return
+				      end
+				  end
+				  --Ravager
+				  if isKnown(Ravager) then
+				      if castGround("target",Ravager,40) then
+				          return
+				      end
+				  end
+				  -- DragonRoar
+				  if isKnown(DragonRoar) and getDistance("target") <= 8 then
+				      if not isKnown(Bloodbath) or (isKnown(Bloodbath) and (UnitBuffID("player",Bloodbath) or BB_COOLDOWN > 10)) then
+				          if castSpell("target",DragonRoar,true) then
+				              return;
+				          end
+				      end
+				  end
+				  -- BladeStorm
+				  if isKnown(Bladestorm) then
+				      if castSpell("target",Bladestorm,true) and getDistance("target") <= 8 then
+				          return;
+				      end
+				  end
+				  if castSpell("target",Revenger,false,false) then
+				      return
+				  end
+				  if castSpell("target",ThunderClap,true,false) then
+				      return
+				  end
+				  if castSpell("target",ShieldSlam,false,false) then
+				      return
+				  end
+				  if isKnown(StormBolt) then
+				      if castSpell("target",StormBolt,false,false) then
+				          return
+				      end
+				  end
+				  if UnitBuffID("player",SuddenDeathProc) then
+				      if castSpell("target",Execute,false,false) then
+				          return
+				      end
+				  end
+				  if castSpell("target",Devastate,false,false) then
+				      return
+				  end
+				end --aoe end
+			end--Protection end
 	------------------------------------------------------------------------------------------------------
-	-- Multi Target --------------------------------------------------------------------------------------
+	-- Gladiator --------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-			if useAoE() then
-				-- DragonRoar
-				if isKnown(DragonRoar) and getDistance("target") <= 8 then
-	        if castSpell("target",DragonRoar,true) then
-	            return;
-	        end
-	    	end
-	    	-- BladeStorm
-	    	if isKnown(Bladestorm) then
-	    		if castSpell("target",Bladestorm,true) and getDistance("target") <= 8 then
-	    			return;
-	    		end
-	    	end
-	    	-- ThunderClap
-	    	--if not UnitDebuffID("target",DeepWounds) and getDistance("target") <= 8 then
-	    	if getDistance("target") <= 8 then
-	    		if castSpell("target",ThunderClap,true) then
-	    			return;
-	    		end
-	    	end
-	    	ProtSingeTar();
-			end
+
 	------------------------------------------------------------------------------------------------------
 		end -- In Combat end
 	end -- ArmsWarrior() end

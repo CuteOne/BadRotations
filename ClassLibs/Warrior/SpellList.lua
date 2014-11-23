@@ -9,6 +9,7 @@ if select(3, UnitClass("player")) == 1 then
 	ShieldBarrier		= 112048;
 	ShieldBlock			= 2565;
 	HeroicStrike		= 78;
+	ShieldCharge = 156321;
 
 	--Arms--
 	MortalStrike		= 12294;
@@ -63,6 +64,7 @@ if select(3, UnitClass("player")) == 1 then
 	--Stance--
 	BattleStance 		= 2457;
 	DefensiveStance 	= 71;
+	GladiatorStance = 156291;
 
 	--Talents--
 	EnragedRegeneration	= 55694;
