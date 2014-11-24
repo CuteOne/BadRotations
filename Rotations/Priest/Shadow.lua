@@ -22,11 +22,12 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- DP
 			DPTIME = 6.0/(1+UnitSpellHaste("player")/100)
-			DPTICK = DPTIME/6;
+			DPTICK = DPTIME/6
 			-- SWP (18sec)
 			SWPTICK = 18.0/(1+UnitSpellHaste("player")/100)/6
 			-- VT (15sec)
 			VTTICK = 16.0/(1+UnitSpellHaste("player")/100)/5
+			VTCASTTIME = 1.5/(1+UnitSpellHaste("player")/100)
 
 		-- Set Enemies Table
 			makeEnemiesTable(80)
