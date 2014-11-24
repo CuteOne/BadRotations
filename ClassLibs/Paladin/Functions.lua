@@ -108,11 +108,19 @@ if select(3,UnitClass("player")) == 2 then
 				return true
 			end
 
-			if then
-				return true
+			if playerHP < 40 then
+				 if useItem(5512) then -- Healthstone
+				 	return true
+				 end
+				 if useItem(118006) then -- Shieldtronic Shield
+				 	return true
+				 end
+
+				 if useItem(113143) then -- Glowing Honeycomb
+				 	return true
+				 end
 			end
 
-			--Should create a seperate function for this to make it generi
 
 			return false
 		end
