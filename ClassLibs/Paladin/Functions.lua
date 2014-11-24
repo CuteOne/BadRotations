@@ -188,9 +188,13 @@ if select(3,UnitClass("player")) == 2 then
 		end
 
 		function ProtPaladinHolyPowerConsumers() -- Handle the use of HolyPower
+			-- At the moment its hard to automate since SoR should be cast only if need be, ie large physical incoming damanage.
+			-- Therefore the logic is just to automate default, ie at 5 HoPo Cast SoR and DP cast either WoG or SoR
 			-- Only cast WoG if we are buffed with bastion of glory, base heal of 3 stacks is 11K(5% of hp)
 			-- We should pool HP in able to use them when needed. However cast SoR on 5 HP, or DP or when low HP
 			-- WE need also to see what damage since SoR is physical only.
+			-- Should add logic, ie abilities we need to cast SoR for, Piercong armor in Skyreach fro example
+			-- Todo: Add a event that read combatlog and populate incoming damage where we can track the last 10 damage to see if they are physical or magic in order to determine if we should use SoR
 			if UnitBuffID("player", _DivinePurposeBuff) then  -- If we get free HP then use it on WoG if we are low health and have bastion of Glory stacks > 2, Todo; Get correct values
 				if getHP("player") < 50 and getBuffStacks("player", _BastionOfGlory) > 4 then
 					if castWordOfGlory("player", 0, 1) then
@@ -207,17 +211,7 @@ if select(3,UnitClass("player")) == 2 then
 				if castWordOfGlory("player", 0, 3) then --cast if we are 70% and have HP
 					return true
 				end
-
-				if castWordOfGlory("player", 40, 1) then --cast if we are 40% and have 1 HP
-					return true
-				end
 			end
-
-			if getHP("player") < 50 then
-				if castShieldOfTheRighteous("target", 3) then
-					return true
-				end
-			end				
 
 			if castShieldOfTheRighteous("target", 5) then
 				return true
