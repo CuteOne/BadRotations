@@ -2,6 +2,7 @@ if select(3,UnitClass("player")) == 2 then
 	_ArdentDefender             =   31850
 	_AvengersShield             =   31935
 	_AvengingWrath              =   31884
+	_BastionOfGlory				=	114637
 	_BeaconOfLight              =   53563
 	_Berserking                 =   26297
 	_BlessingOfKings            =   20217
