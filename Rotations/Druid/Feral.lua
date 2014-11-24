@@ -41,7 +41,7 @@ if select(3, UnitClass("player")) == 11 then
 		local swimming = IsSwimming()
 		local travel = UnitBuffID("player", trf)
 		local flight = UnitBuffID("player", flf)
-		local cat = UnitBuffID("player",cf)
+		local cat = UnitBuffID("player",cf) or UnitBuffID("player",cosf)
 		local stag = hasGlyph(114338)
 		local stealth = UnitBuffID("player",prl) or UnitBuffID("player",sm)
 		local rejRemain = getBuffRemain("player", rej)
@@ -120,14 +120,17 @@ if select(3, UnitClass("player")) == 11 then
 		        if castSpell("player",trf,true,false,false) then return end
 		    end
 	-- Cat Form
+	
 		    if ((not dead and hastar and not friendly and attacktar and tarDist<=40)
 		    		or (isMoving("player") and not travel and not IsFalling()))
 		        and (not IsFlying() or (IsFlying() and targetDistance<10))
-		        and not cat
+		        and not cat 
 		        and (falling==0 or tarDist<10)
 		    then
+				
 		        if castSpell("player",cf,true,false,false) then return end
 		    end
+			
 		end
 	-- PowerShift
 	    if hasNoControl() then

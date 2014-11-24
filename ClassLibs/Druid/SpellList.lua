@@ -90,6 +90,7 @@ tac = 	135286 	--Tooth and Claw
 af	=	1066	--Aquatic Form
 bf	=	5487	--Bear Form
 cf 	= 	768		--Cat Form
+cosf = 171745 --Claws of Shirvallah
 flf	=	33943	--Flight Form
 mkf = 	24858	--Moonkin Form
 sff	=	40120	--Swift Flight Form
