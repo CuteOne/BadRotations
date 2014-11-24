@@ -1851,9 +1851,10 @@ end
 
 -- useItem(12345)
 function useItem(itemID)
-	if GetItemCount(itemID,false,false) > 0 then
+	if GetItemCount(itemID) > 0 then
 		if select(2,GetItemCooldown(itemID))==0 then
-			RunMacroText("/use "..tostring(select(1,GetItemInfo(itemId))));
+			local itemName = GetItemInfo(itemID)
+			RunMacroText("/use "..itemName)
 			return true
 		end
 	end
