@@ -39,18 +39,18 @@ function Cooldowns()
     local beastWithin = 34471;
     -- Bestial Wrath
     if BadBoy_data["Check Bestial Wrath"] == 1
-      and GetSpellCD(bestialWrath) < 1
-      and GetSpellCD(killCommand) < 2
+      and getSpellCD(bestialWrath) < 1
+      and getSpellCD(killCommand) < 2
       and (BadBoy_data["Box Bestial Wrath"] and GetFocus() > BadBoy_data["Box Bestial Wrath"]) then
         cooldownValue = 1;
     -- Focus Fire
     elseif BadBoy_data["Check Focus Fire"] == 1
       and select(4,UnitBuffID("player",frenzyStacks)) == 5
       and not (UnitBuffID("player", beastWithin) and GetFocus() > 12)-- Not under Beast Within
-      and GetSpellCD(killCommand) > 1 -- Kill Command CD over 1 sec
-      and (GetSpellCD(bestialWrath) > 20 or BadBoy_data["Check Bestial Wrath"] == 0) -- Bestial Wrath CD over 20 sec
+      and getSpellCD(killCommand) > 1 -- Kill Command CD over 1 sec
+      and (getSpellCD(bestialWrath) > 20 or BadBoy_data["Check Bestial Wrath"] == 0) -- Bestial Wrath CD over 20 sec
       and UnitBuffID("player", rapidFire) ~= true -- not under Rapid Fire
-      and GetSpellCD(rapidFire) >= 5 then -- Rapid Fire CD over 5 sec
+      and getSpellCD(rapidFire) >= 5 then -- Rapid Fire CD over 5 sec
         cooldownValue = 2;
     else
         cooldownValue = 0;

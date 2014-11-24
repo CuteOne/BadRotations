@@ -1,6 +1,5 @@
 function BadBoyRun()
 
-
 	rc = LibStub("LibRangeCheck-2.0")
 	minRange, maxRange = rc:GetRange('target')
 
@@ -19,7 +18,6 @@ function BadBoyRun()
 		["configWidth"] = 250,
 		["configAlpha"] = 90,
 
-
 		["AoE"] = 1,
 		["Cooldowns"] = 1,
 		["Defensive"] = 1,
@@ -35,13 +33,6 @@ function BadBoyRun()
 		["debugAlpha"] = 90,
 	};
 	end
-
-	--[[These are there to make sure we do not startup with hacks from previous session.]]
-	BadBoy_data["Check Fly Hack"] = 0;
-	BadBoy_data["Check Hover Hack"] = 0;
-	BadBoy_data["Check Water Walking"] = 0;
-	BadBoy_data["Check Climb Hack"] = 0;
-	BadBoy_data["Check Track Attackable"] = 0;
 
 	--[[Init the readers codes (System/Reader.lua)]]
 	ReaderRun();
@@ -168,19 +159,6 @@ function BadBoyRun()
 		end
 	end
 
-	function GetSpellCD(MySpell)
-		if GetSpellCooldown(MySpell) == 0 then
-			return 0
-		else
-			local Start ,CD = GetSpellCooldown(MySpell)
-			local MyCD = Start + CD - GetTime()
-			return MyCD
-		end
-	end
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
@@ -188,64 +166,32 @@ function BadBoyRun()
 
 	--[[This function is refired everytime wow ticks. This frame is located in Core.lua]]
 	function FrameUpdate(self)
-		--UsefulFeatures();
 
-		if randomReady == nil then randomReady = math.random(8,15); end
-		if readyToAccept and readyToAccept <= GetTime() - 5 then AcceptProposal(); readyToAccept = nil; randomReady = nil; end
-		PokeEngine();
-		ProfessionHelper();
+		-- Accept Queues
+		if randomReady == nil then randomReady = math.random(8,15) end
+		if readyToAccept and readyToAccept <= GetTime() - 5 then 
+			AcceptProposal(); readyToAccept = nil; randomReady = nil; 
+		end
+
+
 		-- global vars
 		targetDistance = getDistance("target") or 0;
 		displayDistance = math.floor(targetDistance*100)/100
-		mainText:SetText(displayDistance);
-		profileStarts = GetTime();
-		--interruptsRefresh();
+		mainText:SetText(displayDistance)
+		profileStarts = GetTime()
 
 
-		--if currentTarget ~= nil then ISetAsUnitID(currentTarget,"current"); end
-
-		if NovaEngineUpdate == nil then NovaEngineUpdate = GetTime(); end
-		if NovaEngineUpdate and NovaEngineUpdate <= GetTime() - getValue("Engine Refresh")/1000 then
+		-- Pulse engines
+		PokeEngine()
+		ProfessionHelper()
+		makeEnemiesTable(55)		
+		if NovaEngineUpdate == nil or NovaEngineUpdate <= GetTime() - getValue("Engine Refresh")/1000 then
 			NovaEngineUpdate = GetTime()
 			nNova:Update()
 			engineRefresh()
 		end
-
-		--[[Updating UI location]]
-		local _, _, anchor, x, y = configFrame:GetPoint(1);
-		BadBoy_data.configx = x;
-		BadBoy_data.configy = y;
-		BadBoy_data.configanchor = anchor;
-
-		local _, _, anchor, x, y = debugFrame:GetPoint(1);
-		BadBoy_data.debugx = x;
-		BadBoy_data.debugy = y;
-		BadBoy_data.debuganchor = anchor;
-
-		local _, _, anchor, x, y = engineFrame:GetPoint(1);
-		BadBoy_data.enginex = x;
-		BadBoy_data.enginey = y;
-		BadBoy_data.engineanchor = anchor;
-
-		if BadBoy_data["Check Debug"] == 1 then
-			debugFrame:Show();
-		else
-			debugFrame:Hide();
-		end
-
-		if BadBoy_data["Check Engine Debug"] == 1 then
-			engineFrame:Show();
-		else
-			engineFrame:Hide();
-		end
-
-		--if BadBoy_data["Check Interrupts Frame"] == 1 then
-		--	interruptsFrame:Show();
-		--else
-		--	interruptsFrame:Hide();
-		--end
-
-		makeEnemiesTable(55)
+		PulseUI()
+		
 
 		--[[Class/Spec Selector]]
 		local _MyClass = select(3,UnitClass("player"))
@@ -257,7 +203,6 @@ function BadBoyRun()
 				ProtectionWarrior()
 			else
 				ArmsWarrior()
-
 			end
 		elseif _MyClass == 2 then -- Paladin
 			if _MySpec == 1 then
@@ -350,10 +295,6 @@ function BadBoyRun()
 		end
 	end
 
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
