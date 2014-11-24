@@ -1854,8 +1854,10 @@ function useItem(itemID)
 	if GetItemCount(itemID,false,false) > 0 then
 		if select(2,GetItemCooldown(itemID))==0 then
 			RunMacroText("/use "..tostring(select(1,GetItemInfo(itemId))));
+			return true
 		end
 	end
+	return false
 end
 
 -- if shouldStopCasting(12345) then
