@@ -164,16 +164,16 @@ if select(3, UnitClass("player")) == 1 then
             InterruptsModesLoaded = "Interrupt Modes";
         end
 
-        --Gladiator Button
-        if GladiatorModesLoaded ~= "Gladiator Modes" then
-            CustomGladiatorModes = {
-                [1] = { mode = "Glad", value = 1 , overlay = "Gladiator Enabled", tip = "Gladiator Rotation", highlight = 0, icon = GladiatorStance },
-                [2] = { mode = "Prot", value = 2 , overlay = "Protection Enabled", tip = "Protection Rotation", highlight = 0, icon = DefensiveStance }
-            };
-            GladiatorModes = CustomGladiatorModes
-            CreateButton("Gladiator",5,0)
-            GladiatorModesLoaded = "Gladiator Modes";
-        end
+        -- --Gladiator Button
+        -- if GladiatorModesLoaded ~= "Gladiator Modes" then
+        --     CustomGladiatorModes = {
+        --         [1] = { mode = "Glad", value = 1 , overlay = "Gladiator Enabled", tip = "Gladiator Rotation", highlight = 0, icon = GladiatorStance },
+        --         [2] = { mode = "Prot", value = 2 , overlay = "Protection Enabled", tip = "Protection Rotation", highlight = 0, icon = DefensiveStance }
+        --     };
+        --     GladiatorModes = CustomGladiatorModes
+        --     CreateButton("Gladiator",5,0)
+        --     GladiatorModesLoaded = "Gladiator Modes";
+        -- end
 
         function SpecificToggle(toggle)
             if getValue(toggle) == 1 then
