@@ -2,29 +2,26 @@
 function EnemiesEngine()
 
 
+-- Stack: Interface\AddOns\BadBoy\System\EnemiesEngine.lua:224: in function `castInterupt'
 -- burnTarget(unit) - Bool - True if we should burn that target according to burnUnitCandidates
 -- safeToAttack(unit) - Bool - True if we can attack target according to doNotTouchUnitCandidates
+-- getEnemies(unit,Radius) - Number - Returns number of valid units within radius of unit
+-- castInterupt(spell,percent) - Multi-Target Interupts - for facing/in movements spells of all ranges.
+-- makeEnemiesTable(55) - Triggered in badboy.lua - generate the enemiesTable
+-- makeSpellCastersTable() - Makes an interupt table based on enemiesTable
 
-
-
--- Todo, nice to have is enemies around any unit, in order to compute AOE toggling. Ie (enemesAround("HEALER")
--- we will use coords for this
--- Todo: Add list of units to stun, either always or udner certain condition such as having a buff or wirldwinding etc
-
-
-
+-- burnUnitCandidates = List of UnitID/Names we should have highest prio on.
+-- could declare more filters
 burnUnitCandidates = {
 	{ unitID = 71603 }, -- immersus ooze, kill on sight
-} -- List of UnitID/Names we should have highest prio on.
--- we will use UnitID with getUnitID()
+} 
 
--- doNotTouchUnitCandidates {} -- List of units that we should not attack for any reason
--- doNotTouchUnitCandidatesBuffs {} -- List of debuffs/buffs that forces us to switch targets
+-- doNotTouchUnitCandidates - List of units that we should not attack for any reason
+-- can declare more filters: buff, debuff
 doNotTouchUnitCandidates = { 
 	{ unitID = 166591 }, -- Never attack Sanguine Sphere
   	{ unitID = 71515 , buff = 143593 }, --do not attack during defensive stance buff
 }
-
 
 function makeEnemiesTable(maxDistance)
 	local  maxDistance = maxDistance or 50
@@ -33,7 +30,7 @@ function makeEnemiesTable(maxDistance)
 		-- create/empty table
 		enemiesTable = { }
 		-- use objectmanager to build up table
-	 	for i=1,ObjectCount() do
+	 	for i = 1, ObjectCount() do
 	 		-- define our unit
 		  	local thisUnit = ObjectWithIndex(i);
 	 		-- sanity checks
@@ -43,6 +40,8 @@ function makeEnemiesTable(maxDistance)
 				-- distance check according to profile needs
   				if unitDistance <= maxDistance then
 		  			-- get unit Infos
+		  			local safeUnit = safeToAttack(thisUnit)
+		  			local burnUnit = burnTarget(thisUnit)
 		  			local unitName = UnitName(thisUnit)
 	  				local unitThreat = UnitThreatSituation("player",thisUnit) or -1
 	  				local unitCasting, unitCastLenght, unitCastTime, unitCanBeInterrupt, unitCastType = getCastingInfo(thisUnit)
@@ -59,11 +58,14 @@ function makeEnemiesTable(maxDistance)
    							castTime = unitCastTime, 
    							canBeInterrupted = unitCanBeInterrupt or false, 
    							castType = unitCastType 
-   								}, 
+   						}, 
+   						playerFacing = getFacing("player",thisUnit),
    						threat = unitThreat, 
    						unit = thisUnit, 
    						distance = unitDistance, 
    						hp = unitHP, 
+   						safe = safeUnit,
+   						burn = burnUnit,
    						-- Here should track inc damage / healing as well in order to get a timetodie value
    						x = X1, y = Y1, z = Z1 
    						})
@@ -73,41 +75,53 @@ function makeEnemiesTable(maxDistance)
 
 		 	-- sort them by coeficient
 		 	table.sort(enemiesTable, function(x,y)
-	 		return x.coeficient and y.coeficient and x.coeficient < y.coeficient or false
+	 		return x.coeficient and y.coeficient and x.coeficient > y.coeficient or false
 	 	end)
 	end
 end
 
-
 -- This function will set the prioritisation of the units, ie which target should i attack
--- Todo: So i think the prioritisation should be large by determined by threat or burn prio and then hp.
--- So design should be, 
--- Check if the unit is on doNotTouchUnitCandidates list which means we should not attack them at all
-
--- Check towards doNotTouchUnitCandidatesBuffs (buffs/debuff), ie target we are not allowed to attack due to them 
--- having a (de)buff that hurts us or not. Example http://www.wowhead.com/spell=163689
-
--- Is the unit on burn list, set high prio, burn list is a list of mobs that we specify for burn, is highest dps and prio.
-
--- We should then look at the threat situation, for tanks the this is of high prio if we are below 3 but all below 3 should have the same prio coefficent. For dps its not that important
-
--- Then we should check HP of the targets and set highest prio on low targets, this is also something we need to think about if the target have a dot so it will die regardless or not. Should have a timetodie?
-
-
 function getUnitCoeficient(unit, distance, threat)
 	local coef = 0
-	if distance < 40 then  -- If target is not in range have prio set to 250.
-		coef = getHP(unit)  -- Use the healthpercentage of the target as baseline, we want to prioritise low health targets as a tank. Could be mobs that we need to kill at the same time tough. Nice to have a list.
-		if select(6, GetSpecializationInfo(GetSpecialization())) == "TANK" then -- If we are tanking, then we should also look into threat. ToDos: Why should not dps also want to use threat? Not pulling aggro is a good thing. Also instead of role we should use http://www.wowwiki.com/API_GetSpecialization, http://www.wowwiki.com/API_GetSpecializationRole
-			coef = coef + threat*10
+
+	-- if unit is out of range, bad prio(0)
+	if distance < 40 then
+		local unitHP = getHP(unit)
+		-- safe check set to 0 if bad unit
+		if isChecked("Safe Damage Check") then
+			if safeToAttack(unit) ~= true then
+				return 0
+			end
 		end
-		-- if its our actual target we give it a bonus
-		if UnitGUID("target") == UnitGUID(unit) then
-			coef = coef + 50
+
+		-- if wise target checked, we look for best target by looking to the lowest or highest hp, otherwise we look for target
+		if isChecked("Wise Target") ~= true then
+			-- if its our actual target we give it a bonus
+			if UnitGUID("target") == UnitGUID(unit) then
+				coef = coef + 100
+			end
+		else
+			if getValue("Wise Target") == 1 then
+				-- if lowest is selected
+				coef = 100 - unitHP  
+			else
+				-- if highest is selected
+				coef = unitHP  
+			end
 		end
-		-- if its a burn target we max his coef
-		if burnTarget(unit) == true then
-			coef = 250
+
+		-- if threat is checked, add 100 points of prio if we lost aggro on that target
+		if isChecked("Tank Threat") then
+			if select(6, GetSpecializationInfo(GetSpecialization())) == "TANK" and threat < 3 and unitHP > 10 then
+				coef = coef + 100
+			end
+		end
+
+		-- if user checked burn target then we check is unit should be burnt
+		if isChecked("Forced Burn") then
+			if burnTarget(unit) == true then
+				coef = coef + 100
+			end	
 		end
 	end
 	return coef
@@ -122,7 +136,7 @@ function getCastingInfo(unit)
 		local unitCastName, _, _, _, unitCastStart, unitCastEnd, _, unitCastID, unitCastNotInteruptible = UnitChannelInfo(unit)
 		return unitCastName, getCastLenght(unitCastStart,unitCastEnd), getTimeUntilCastEnd(unitCastEnd), unitCastNotInteruptible == false, "chan"
 	else
-		return false, "none"
+		return false, 250, 250, true, "nothing"
 	end
 end
 
@@ -152,11 +166,37 @@ end
 
 -- to enlight redundant checks in getDistance within getEnemies
 function getDistanceXYZ(unit1,unit2)
-	local x1, y1, z1 = ObjectPosition(unit1);
+	local x1, y1, z1 = ObjectPosition(unit1)
 	local x2, y2, z2 = enemiesTable[unit2].x, enemiesTable[unit2].y, enemiesTable[unit2].z
 	return math.sqrt(((x2-x1)^2)+((y2-y1)^2)+((z2-z1)^2));
 end
 
+function getFacingXYZ(unit1,unit2)
+	local angle1 = ObjectFacing(unit1)
+	local y1,x1 = ObjectPosition(unit1)
+    local y2,x2 = enemiesTable[unit2].y, enemiesTable[unit2].x
+    if y1 and x1 and angle1 and y2 and x2 then
+    	local angle2, angle3
+        local deltaY = y2 - y1
+        local deltaX = x2 - x1
+        angle1 = math.deg(math.abs(angle1-math.pi*2))
+        if deltaX > 0 then
+            angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
+        elseif deltaX <0 then
+            angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
+        end
+        if angle2-angle1 > 180 then
+        	angle3 = math.abs(angle2-angle1-360)
+        else
+        	angle3 = math.abs(angle2-angle1)
+        end
+        if angle3 < Degrees then 
+        	return true 
+        else 
+        	return false
+        end
+    end
+end
 
 -- casting informations
 function getCastLenght(castStart,castEnd)
@@ -182,11 +222,19 @@ end
 -- function to compare spells to casting units
 function castInterupt(spell,percent)
 	if castersBlackList == nil then castersBlackList = { } end
+
+	-- removing cause issues when removing many at once
+
+
 	for i = 1, #castersBlackList do
-		if castersBlackList[i].time ~= nil and castersBlackList[i].time < GetTime() - 0.5 then
-			tremove(castersBlackList, i)
+		local j = #castersBlackList + 1 - i
+		if castersBlackList[j].time ~= nil and castersBlackList[j].time < GetTime() - 0.5 then
+			tremove(castersBlackList, j)
 		end
 	end
+
+
+
 	if canCast(spell,false,false) == true then
 		for i = 1, #spellCastersTable do
 			local blackListedUnit = false
@@ -216,27 +264,18 @@ function castInterupt(spell,percent)
 	end
 end
 
-
-
-
-
-
-
-
-
+-- returns true if target should be burnt
 function burnTarget(unit)
 	for i = 1, #burnUnitCandidates do
 		if getUnitID(unit) == burnUnitCandidates.unitID then
-
 			-- add other conditions here
-
-
 			return true
 		end
 	end
 	return false
 end
 
+-- returns true if we can safely attack this target
 function safeToAttack(unit)
 	for i = 1, #doNotTouchUnitCandidates do
 		-- holds candidate ID
@@ -245,11 +284,10 @@ function safeToAttack(unit)
 		if getUnitID(unit) == candidateUnit then
 
 			--if condition is a buff
-			local dontTouchStatus = false
 			local candidateBuff = doNotTouchUnitCandidates[i].buff
 			if candidateBuff ~= nil then
 				if UnitBuffID(unit,candidateBuff) ~= nil then
-					break
+					return false
 				end
 			end
 
@@ -257,23 +295,28 @@ function safeToAttack(unit)
 			local candidateDebuff = doNotTouchUnitCandidates[i].deBuff
 			if candidateDebuff ~= nil then
 				if UnitDebuffID(unit,candidateDebuff) ~= nil then
-					break
+					return false
 				end
 			end
-
-			-- if all went fine, true otherwise we break out of iteration and return false if we need to stop
-			return true
 		end
 	end
-	return false
+	-- if all went fine return true
+	return true
+end
+
+
+-- a function to gather prefered target for dirrefent spells
+function dynamicTarget(range,facing)
+	for i = 1, #enemiesTable do
+		if enemiesTable[i].distance < range and (facing == false or enemiesTable[i].facing == true) then
+			return enemiesTable[i].unit
+		end
+	end
 end
 
 
 
-
-
-
-
 end
 
-
+-- ToDo: Add list of units to stun, either always or udner certain condition such as having a buff or wirldwinding etc
+-- ToDo: We need to think about if the target have a dot so it will die regardless or not. Should have a timetodie.

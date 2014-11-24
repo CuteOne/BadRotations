@@ -957,7 +957,7 @@ end
 
 function getUnitID(Unit)
 	local UnitConvert = 0;
-	if UnitIsVisible(BossUnitID) then
+	if UnitIsVisible(Unit) then
 		UnitConvert = tonumber(strmatch(UnitGUID(Unit) or "", "-(%d+)-%x+$"), 10)
 	end
 	return UnitConvert;
@@ -983,13 +983,25 @@ end
 
 -- if getLineOfSight("target"[,"target"]) then
 function getLineOfSight(Unit1,Unit2)
-	if Unit2 == nil then if Unit1 == "player" then Unit2 = "target"; else Unit2 = "player"; end end
+	if Unit2 == nil then if Unit1 == "player" then Unit2 = "target" else Unit2 = "player" end end
+	local skipLoSTable = {
+		76585, -- Ragewing
+	}
+	for i = 1, #skipLoSTable do
+		if getUnitID(Unit1) or getUnitID(Unit2) then
+			return true
+		end
+	end
 	if UnitIsVisible(Unit1) and UnitIsVisible(Unit2) then
-		local X1,Y1,Z1 = ObjectPosition(Unit1);
-		local X2,Y2,Z2 = ObjectPosition(Unit2);
-		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then return true; else return false; end
+		local X1,Y1,Z1 = ObjectPosition(Unit1)
+		local X2,Y2,Z2 = ObjectPosition(Unit2)
+		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then 
+			return true 
+		else 
+			return false 
+		end
 	else
-		return true;
+		return true
 	end
 end
 

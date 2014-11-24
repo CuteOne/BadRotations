@@ -11,9 +11,9 @@
 |Moonkin|70%|CodeMyLife|
 ||||
 | **Death Knight** |  |  |
-|Frost|20%|Chumii |
+|Frost|0%|Chumii |
 |Blood|90%|CodeMyLife |
-|Unholy|0%|Knight|
+|Unholy|0%|Empty|
 ||||
 | **Hunter** |  |  |
 |Beastmaster|80%|CodeMyLife |

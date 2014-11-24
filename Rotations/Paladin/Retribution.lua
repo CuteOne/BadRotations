@@ -1,55 +1,34 @@
 if select(3, UnitClass("player")) == 2 then
 	function PaladinRetribution()
-	-- Init Protection specific funnctions, toggles and configs.
-		if currentConfig ~= "Retribution CodeMyLife" then --Where is currentConfig set? Is this only used for init?
-			PaladinRetFunctions(); --Prot functions is SacredShield and GetHolyGen
-			PaladinRetToggles(); -- Setting up Toggles, AoE, Interrupt, Defensive CD, CD, Healing
-			PaladinRetConfig(); -- Reading Config values from gui?
-			currentConfig = "Retribution CodeMyLife";
-		end
+	if currentConfig ~= "Retribution CodeMyLife" then --Where is currentConfig set? Is this only used for init?
+		--PaladinRetFunctions(); --Prot functions is SacredShield and GetHolyGen
+		PaladinRetToggles() -- Setting up Toggles, AoE, Interrupt, Defensive CD, CD, Healing
+		--PaladinRetOptions() -- Reading Config values from gui?
+		currentConfig = "Retribution CodeMyLife";
+	end
 
 	-- Locals Variables
 	local _HolyPower = UnitPower("player", 9);
-	local numEnemies = numEnemies;  --Why are we declaring this? Should we not initialise? Its not a global variables so it will be overwritten each time?
-	local meleeEnemies = getNumEnemies("player",4); --Get number of enemies within melee range. Does this also work for large hotboxes?
-
-	if getDistance("player","target") < 25 then   --Do not understand this, why are we not just getting TargetProximityTargets and PlayerProximityTargets?
-		numEnemies = getNumEnemies("target",10);
-	else
-		numEnemies = getNumEnemies("player",10);
-	end
+	local meleeEnemies = #getEnemies("player",5); --Get number of enemies within melee range. Does this also work for large hotboxes?
 
 	-- Food/Invis Check   Hm here we are checking if we should abort the rotation pulse due to if we are a vehicle or some stuff
 	-- canRun is already checking UnitInVehicle and some other stuff im not sure about.
-	if canRun() ~= true or UnitInVehicle("Player") then
-		return false;
-	end
-
-	if IsMounted("player") then  --canRun is already checking for mounted and we will not get here.
-		waitForPetToAppear = nil;  --Why? Is this from hunter rotation? What pet are we waiting for?
-		return false;
+	if canRun() ~= true then
+		return false
 	end
 
 	if UnitAffectingCombat("player") then
 		-- Rebuke
 		if isChecked("Rebuke") then --Hm we have InterruptsModes from Prot Toggles, why are we checking for Rebuke? There are more ways to interrupt then Rebuke.
-			if canInterrupt(_Rebuke, tonumber(BadBoy_data["Box Rebuke"])) and getDistance("player","target") <= 4 then  --We are checking for 4 but rebuke have 5 yards range?
-				castSpell("target",_Rebuke,false);
-				-- Other interrupts are, binding light, Fist of Justice, Which have different ranges.
-				--Should we not return if successful? castSpell returns either true or false
-			end
+			makeSpellCastersTable() 
+			castInterupt(_Rebuke, 60)
 		end
-		--Here comes defensive CDs, however we are not checking if we have already done one CD, only checking for HP, should add check for other CDs timers.
-		-- Also in the toggles there is a DefensiveModes table, are we not using this?
-		 -- Missing LayOnHands and Divine Shield, also perhaps Avenging Wrath for increased self healing.
-		-- Ardent Defender
-		if BadBoy_data["Check Ardent Defender"] == 1 and getHP("player") <= BadBoy_data["Box Ardent Defender"] then
-			if castSpell("player",_ArdentDefender,true) then
-				return;  --Here we return as we should
-			end
-		end
+
+		-- Here comes defensive CDs, however we are not checking if we have already done one CD, only checking for HP, should add check for other CDs timers.
+
 		-- Divine Protection
-		if BadBoy_data["Check Divine Protection"] == 1 and getHP("player") <= BadBoy_data["Box Divine Protection"] then -- Should we check if damage is physical?
+		if isChecked("Divine Protection") and getHP("player") <= getValue("Divine Protection") then
+			-- Should we check if damage is physical?
 			if castSpell("player",_DivineProtection,true) then
 				return;
 			end
@@ -115,7 +94,7 @@ if select(3, UnitClass("player")) == 2 then
 				return;
 			end
 		end
-
+--[[
 		-- Eternal Flame/Word Of Glory
 		if isKnown(_EternalFlame) then
 			if getHP("player") <= getValue("Self Flame") and not UnitBuffID("player",_EternalFlame) then
@@ -138,13 +117,15 @@ if select(3, UnitClass("player")) == 2 then
 				end
 			end
 		end
-
 		-- sacred_shield,if=talent.sacred_shield.enabled
 		if isKnown(_SacredShield) then
 			if isChecked("Sacred Shield") and UnitBuffID("player",_SacredShield) == nil then
 				if castSpell("player",_SacredShield,true) then return; end
 			end
 		end
+]]
+
+--stun 86372 when have buff
 
 		-- auto_attack
 		if isInMelee() and getFacing("player","target") == true then
@@ -165,43 +146,32 @@ if select(3, UnitClass("player")) == 2 then
 			if castSpell("player",_HolyAvenger,true) then return; end
 		end
 
-		-- judgment,if=talent.sanctified_wrath.enabled&buff.avenging_wrath.react
 
-		-- wait,sec=cooldown.judgment.remains,if=talent.sanctified_wrath.enabled&cooldown.judgment.remains>0&cooldown.judgment.remains<=0.5
+		local verdict = verdict
+		local strike = strike
+		if meleeEnemies > 2 then 
+			strike = _HammerOfTheRighteous
+			verdict = _DivineStorm
+		else 
+			strike = _CrusaderStrike
+			verdict = _TemplarsVerdict
+		end
 
+		-- dump holy power if at 5
+		if _HolyPower == 5 then
+			if castSpell("target", verdict, false, false) then return end
+		end
 
-		local strike = strike;
-		if BadBoy_data["AoE"] == 3 or meleeEnemies > 2 then strike = _HammerOfTheRighteous; else strike = _CrusaderStrike; end
 		-- crusader_strike
-		if isInMelee() then
-			if castSpell("target",strike,false) then return; end
-		else
-			for i = 1, GetTotalObjects(TYPE_UNIT) do
-				local Guid = IGetObjectListEntry(i)
-				ISetAsUnitID(Guid,"thisUnit");
-				if getFacing("player","thisUnit") == true
-				  and isInMelee("thisUnit") then
-					if castSpell("thisUnit",strike,false) then return; end
-				end
-			end
-		end
+		if castSpell("target",strike,false,false) then return end
 
-		-- wait,sec=cooldown.crusader_strike.remains,if=cooldown.crusader_strike.remains>0&cooldown.crusader_strike.remains<=0.5
 		-- judgment
-		if canCast(_Judgment) and getDistance("player","target") <= 30 then
-			if castSpell("target",_Judgment,true) then return; end
-		elseif canCast(_Judgment) then
-			for i = 1, GetTotalObjects(TYPE_UNIT) do
-				local Guid = IGetObjectListEntry(i)
-				ISetAsUnitID(Guid,"thisUnit");
-				if getDistance("player","thisUnit") <= 30 then
-					if castSpell("thisUnit",_Judgment,true) then return; end
-				end
-			end
-		end
+		if castSpell("target",_Judgment,true) then return end
 
-		-- wait,sec=cooldown.judgment.remains,if=cooldown.judgment.remains>0&cooldown.judgment.remains<=0.5&(cooldown.crusader_strike.remains-cooldown.judgment.remains)>=0.5
-		if GetHolyGen() == true then return; end
+		-- cast verdit if over 3 holy power
+		if _HolyPower >= 3 then
+			if castSpell("target", verdict, false, false) then return end
+		end
 
 		-- execution_sentence,if=talent.execution_sentence.enabled
 		if isSelected("Execution Sentence") then
@@ -218,20 +188,12 @@ if select(3, UnitClass("player")) == 2 then
 		end
 
 		-- hammer_of_wrath
-		if canCast(_HammerOfWrath) and getLineOfSight("player","target") and getDistance("player","target") <= 30 and getHP("target") <= 20 then
+		if getHP("target") <= 20 or UnitBuffID("player",31884) then
 			if castSpell("target",_HammerOfWrath,false) then return; end
-		elseif canCast(_HammerOfWrath) then
-			for i = 1, GetTotalObjects(TYPE_UNIT) do
-				local Guid = IGetObjectListEntry(i)
-				ISetAsUnitID(Guid,"thisUnit");
-				if getHP("thisUnit") <= 20 and getLineOfSight("player","thisUnit") and getDistance("player","thisUnit") < 30 and getFacing("player","thisUnit") == true then
-					if castSpell("thisUnit",_HammerOfWrath,false) then return; end
-				end
-			end
 		end
 
 		-- holy_prism,if=talent.holy_prism.enabled
-		if numEnemies > 1 then
+		if meleeEnemies > 1 then
 			if castSpell("player",_HolyPrism,false) then return; end
 		else
 			if castSpell("target",_HolyPrism,false) then return; end
