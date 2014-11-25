@@ -184,12 +184,7 @@ function BadBoyRun()
 		-- Pulse engines
 		PokeEngine()
 		ProfessionHelper()
-		
-		--I think its a bad idea to have this here, should be initialised in class profile. 
-		-- what it does is includes  enemies that are outside the specified range in the class profile
-		-- Ex: in Cute's Feral profile she inits the table to 8 but its including all enemies up to 55.
-		--makeEnemiesTable(55)	
-		
+		makeEnemiesTable(55)		
 		if NovaEngineUpdate == nil or NovaEngineUpdate <= GetTime() - getValue("Engine Refresh")/1000 then
 			NovaEngineUpdate = GetTime()
 			nNova:Update()
