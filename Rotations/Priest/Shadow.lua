@@ -152,18 +152,20 @@ if select(3, UnitClass("player")) == 5 then
 			----------------
 			-- Defensives --
 			----------------
-				ShadowDefensive();
+			ShadowDefensive()
 
 			
 			----------------
 			-- Offensives --
 			----------------
-				ShadowCooldowns();
+			ShadowCooldowns()
 
 			---------------
 			-- Interrupt --
 			---------------
-
+			if BadBoy_data['Kicks'] == 2 then
+				ShadowKicks()
+			end
 
 			--------------
 			-- Decision --

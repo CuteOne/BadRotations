@@ -32,7 +32,7 @@ if select(3, UnitClass("player")) == 5 then
 					[1] = { mode = "off", value = 1 , overlay = "Halo Disabled", tip = "|cffFF0000Halo \n|cffFFDD11No Halo will be used.", highlight = 0, icon = 120644 },
 					[2] = { mode = "on", value = 2 , overlay = "Halo Enabled", tip = "|cff00FF00Halo \nWill be used. \n|cffFF0000", highlight = 1, icon = 120644 }
 				};
-				CreateButton("Halo",0,1)
+				CreateButton("Halo",2,1)
 				HaloModesLoaded = "Shadow Priest Halo Modes";
 			end
 		end
@@ -46,6 +46,17 @@ if select(3, UnitClass("player")) == 5 then
 			CreateButton("AoE",1,0)
 			AoEModesLoaded = "Shadow Priest AoE Modes";
 		end
+		-- Interrupt Button
+		if KickModesLoaded ~= "Shadow Priest Kick Modes" then
+			KickModes = {
+				[1] = { mode = "off", value = 1 , overlay = "Kicks Disabled", tip = "|cffFF0000AoE \n|cffFFDD11No cooldowns will be used.", highlight = 0, icon = 48045 },
+				[2] = { mode = "auto", value = 2 , overlay = "Kick Auto", tip = "|cff00FF00AoE \nEnemies>=5. \n|cffFF0000Spells Included: \n|cffFFDD11Silence \nArcane Torrent", highlight = 1, icon = 48045 }
+			};
+			CreateButton("Kick",1,0)
+			KickModesLoaded = "Shadow Priest Kick Modes";
+		end
+
+
 
 		-- Cooldowns Button
 		if CooldownsModesLoaded ~= "Shadow Priest Cooldowns Modes" then
@@ -63,7 +74,7 @@ if select(3, UnitClass("player")) == 5 then
 				[1] = { mode = "off", value = 1, overlay = "Defensive Disabled", tip = "|cffFF0000Defensive \n|cffFFDD11No Defensive Cooldowns will be used.", highlight = 0, icon = 17 },
 				[2] = { mode = "on", value = 2, overlay = "Defensive Enabled", tip = "|cff00FF00Defensive \n|cffFF0000Spells Included: \n|cffFFDD11Power Word: Shield \nFade (glyphed) \nDesperate Prayer \nHealthstone", highlight = 1, icon = 17 },
 			};
-			CreateButton("Defensive",2,1)
+			CreateButton("Defensive",1,0)
 			DefensiveModesLoaded = "Shadow Priest Defensive Modes";
 		end
 

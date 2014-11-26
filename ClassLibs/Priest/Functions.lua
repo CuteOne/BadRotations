@@ -83,6 +83,28 @@ if select(3, UnitClass("player")) == 5 then
 		end
 	end -- END SHADOW DEFENSIVES
 
+	--[[                    ]] -- Boss Specific Kicks and Dispells
+	-- Highmaul
+		-- Kargath Bladefist
+		-- The Butcher
+		-- Tectus
+		-- Brackenspore
+		-- Twin Ogrons (Pol & Phemos)
+		-- Ko'ragh
+		-- Imperator Mar'gok
+	-- Blackrock Foundry
+
+	-- WoD Dungeons
+
+	--[[                    ]] -- Kicks
+	function ShadowKicks()
+	end
+
+	--[[                    ]] -- Dispells
+	function ShadowDispells()
+	end
+
+
 	--[[                    ]] -- Cooldowns
 	function ShadowCooldowns()
 		-- Mindbender

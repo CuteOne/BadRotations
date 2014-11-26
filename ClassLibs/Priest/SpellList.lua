@@ -15,10 +15,13 @@ if select(3, UnitClass("player")) == 5 then
 		MF 		= 15407;	-- Mind Flay
 		MFI 	= 129197;	-- Mind Flay Insanity
 		SF 		= 34433;	-- Shadowfiend
+		MS 		= 48045;	-- Mind Sear
+		Silence	= 15487;	-- Silence
+		ArcT	= 28730;	-- Arcane Torrent (BloodElv Racial)
 
 	-- Procs
 		SoDProcs	= 87160;	-- SoD Procs (max 3)
-		DIProc		= 124430;	-- Shadowy Insight Procs (max 1)
+		MBProc		= 124430;	-- Shadowy Insight Procs (max 1)
 
 	-- Buffs
 		PWF 				= 21562;	-- Power Word: Fortitude
