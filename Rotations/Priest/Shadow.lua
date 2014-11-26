@@ -9,7 +9,6 @@ if select(3, UnitClass("player")) == 5 then
 		-- Head End
 
 		-- Locals / Globals--
-			lastPWF = 0
 			GCD = 1.5/(1+UnitSpellHaste("player")/100)
 			hasTarget = UnitExists("target")
 			hasMouse = UnitExists("mouseover")
@@ -29,8 +28,11 @@ if select(3, UnitClass("player")) == 5 then
 			VTTICK = 16.0/(1+UnitSpellHaste("player")/100)/5
 			VTCASTTIME = 1.5/(1+UnitSpellHaste("player")/100)
 
+			if lastVT==nil then lastVT=0 end
+			if lastDP==nil then	lastDP=99 end
+
 		-- Set Enemies Table
-			makeEnemiesTable(80)
+			makeEnemiesTable(60)
 
 
 
@@ -78,14 +80,24 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- Power Word: Fortitude
 		if not isInCombat("player") then
-			if isChecked("PW: Fortitude") == true and canCast(PWF,false,false) and (lastPWF == nil or lastPWF <= GetTime() - 5) then
+			if isChecked("PW: Fortitude") and (lastPWF == nil or lastPWF <= GetTime() - 5) then
 				for i = 1, #nNova do
-			  		if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{21562,109773,469,90364}) then
+			  		if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{21562,109773,469,90364}) and (UnitInRange(nNova[i].unit) or UnitIsUnit(nNova[i].unit,"player")) then
 			  			if castSpell("player",PWF,true) then lastPWF = GetTime(); return; end
 					end
 				end
 			end
 		end
+
+		--if not isInCombat("player") then
+		-- 	if isChecked("PW: Fortitude") and (lastPWF == nil or lastPWF <= GetTime() - 5) then
+		-- 		for i = 1, #nNova do
+		-- 	  		if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{21562}) then  --,109773,469,90364
+		-- 	  			if castSpell("player",PWF,true) then lastPWF = GetTime(); return; end
+		-- 			end
+		-- 		end
+		-- 	end
+		-- end
 		-- Out Of Combat END
 
 		---------------------------------------
@@ -116,7 +128,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- IN COMBAT --
 		---------------
 		-- AffectingCombat, Pause, Target, Dead/Ghost Check
-		if isInCombat("player") then
+		if UnitAffectingCombat("player") then
 
 			-- Shadowform outfight
 			if not UnitBuffID("player",Shadowform) then
@@ -140,19 +152,40 @@ if select(3, UnitClass("player")) == 5 then
 			----------------
 			-- Defensives --
 			----------------
-			ShadowDefensive();
+				ShadowDefensive();
 
 			
 			----------------
 			-- Offensives --
 			----------------
-			ShadowCooldowns();
+				ShadowCooldowns();
 
-			
+			---------------
+			-- Interrupt --
+			---------------
+
+
 			--------------
 			-- Decision --
 			--------------
-			ShadowDecision();
+				-- Aoe
+				if BadBoy_data['AoE'] == 2 then
+					if #getEnemies("target",10)>=5 then
+						ShadowAoE()
+					end
+				end
+
+				-- Rotation
+					-- Burn
+				if isKnown(CoP) and getHP("target")<=20 then
+					ShadowCoPBurn()
+				end
+					-- standard rotation
+				if isKnown(CoP) then
+					ShadowH2PCoP()
+				end
+
+
 
 			
 

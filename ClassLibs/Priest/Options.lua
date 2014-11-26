@@ -75,13 +75,11 @@ if select(3, UnitClass("player")) == 5 then
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"--- Cooldowns");
 
-				-- Halo
-				CreateNewCheck(thisConfig,"Halo");
-				CreateNewText(thisConfig,"Halo");
-
 				-- Power Infusion
-				CreateNewCheck(thisConfig,"Power Infusion");
-				CreateNewText(thisConfig,"Power Infusion");
+				if isKnown(PI) then
+					CreateNewCheck(thisConfig,"Power Infusion");
+					CreateNewText(thisConfig,"Power Infusion");
+				end
 
 				-- Shadowfiend / Mindbender
 				if isKnown(Mindbender) then
