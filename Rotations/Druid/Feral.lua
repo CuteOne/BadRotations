@@ -9,7 +9,7 @@ if select(3, UnitClass("player")) == 11 then
 	    end
 	    KeyToggles()
 	    GroupInfo()
-	    makeEnemiesTable(8)
+	    --makeEnemiesTable(8)
 --------------
 --- Locals ---
 --------------
@@ -372,7 +372,7 @@ if select(3, UnitClass("player")) == 11 then
 						if castSpell("player",svr,true,false,false) then return end
 		            end
 	    -- Thrash
-		    		if clearcast and power>50 and srRemain>1 and (enemies>1 or (not getTalent(7,2) and combo==5)) and useCleave() then
+		    		if clearcast and srRemain>1 and (enemies>1 or (not getTalent(7,2) and combo==5)) and useCleave() then
 	   					if uthrRemain<4.5 then 
 	   						if castSpell(thisUnit,thr,true,false,false) then return end
 	   					end
@@ -401,7 +401,7 @@ if select(3, UnitClass("player")) == 11 then
 							if castSpell("player",svr,true,false,false) then return end
 			            end
 	    -- Ferocious Bite
-		    			if (ttm<=1 or berserking or tfRemain<3) and srRemain>1 and power>50 and tarDist<5 then
+		    			if (ttm<=1 or berserking or tfRemain<3) and srRemain>1 and rpRemain>0 and power>50 and tarDist<5 then
 			    			if castSpell("target",fb,false,false,false) then return end
 			            end
 			        end
@@ -439,7 +439,7 @@ if select(3, UnitClass("player")) == 11 then
 		    			end
 		            end
 	    -- Thrash
-		    		if getTalent(7,2) and not getTalent(4,1) and combo==5 and clearcast and srRemain>1 and power>50 and useCleave() then
+		    		if getTalent(7,2) and not getTalent(4,1) and combo==5 and clearcast and srRemain>1 and useCleave() then
 		    			if uthrRemain<4.5 then
 		    				if castSpell(thisUnit,thr,true,false,false) then return end
 		    			end
