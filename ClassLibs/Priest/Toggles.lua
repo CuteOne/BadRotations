@@ -30,7 +30,7 @@ if select(3, UnitClass("player")) == 5 then
 			if HaloModesLoaded ~= "Shadow Priest Halo Modes" then
 				HaloModes = {
 					[1] = { mode = "off", value = 1 , overlay = "Halo Disabled", tip = "|cffFF0000Halo \n|cffFFDD11No Halo will be used.", highlight = 0, icon = 120644 },
-					[2] = { mode = "on", value = 2 , overlay = "Halo Enabled", tip = "|cff00FF00Halo \nWill be used. \n|cffFF0000", highlight = 1, icon = 120644 }
+					[2] = { mode = "on", value = 2 , overlay = "Halo Enabled", tip = "|cff00FF00Halo \n|cffFFDD11Will be used.", highlight = 1, icon = 120644 }
 				};
 				CreateButton("Halo",2,1)
 				HaloModesLoaded = "Shadow Priest Halo Modes";
@@ -41,28 +41,26 @@ if select(3, UnitClass("player")) == 5 then
 		if AoEModesLoaded ~= "Shadow Priest AoE Modes" then
 			AoEModes = {
 				[1] = { mode = "off", value = 1 , overlay = "AoE Disabled", tip = "|cffFF0000AoE \n|cffFFDD11No cooldowns will be used.", highlight = 0, icon = 48045 },
-				[2] = { mode = "auto", value = 2 , overlay = "AoE Auto", tip = "|cff00FF00AoE \nEnemies>=5. \n|cffFF0000Spells Included: \n|cffFFDD11Mind Sear", highlight = 1, icon = 48045 }
+				[2] = { mode = "auto", value = 2 , overlay = "AoE Auto", tip = "|cff00FF00AoE \n|cffFFDD11Enemies>=5. \n|cffFF0000Spells Included: \n|cffFFDD11Mind Sear", highlight = 1, icon = 48045 }
 			};
-			CreateButton("AoE",1,0)
+			CreateButton("AoE",0,1)
 			AoEModesLoaded = "Shadow Priest AoE Modes";
 		end
 		-- Interrupt Button
-		if KickModesLoaded ~= "Shadow Priest Kick Modes" then
-			KickModes = {
-				[1] = { mode = "off", value = 1 , overlay = "Kicks Disabled", tip = "|cffFF0000AoE \n|cffFFDD11No cooldowns will be used.", highlight = 0, icon = 48045 },
-				[2] = { mode = "auto", value = 2 , overlay = "Kick Auto", tip = "|cff00FF00AoE \nEnemies>=5. \n|cffFF0000Spells Included: \n|cffFFDD11Silence \nArcane Torrent", highlight = 1, icon = 48045 }
+		if InterruptModesLoaded ~= "Shadow Priest Interrupt Modes" then
+			InterruptModes = {
+				[1] = { mode = "off", value = 1 , overlay = "Kicks Disabled", tip = "|cffFF0000Interrupt \n|cffFFDD11No cooldowns will be used.", highlight = 0, icon = 15487 },
+				[2] = { mode = "auto", value = 2 , overlay = "Kick Auto", tip = "|cff00FF00Interrupt \n|cffFF0000Spells Included: \n|cffFFDD11Silence \nArcane Torrent(not)", highlight = 1, icon = 15487 }
 			};
-			CreateButton("Kick",1,0)
-			KickModesLoaded = "Shadow Priest Kick Modes";
+			CreateButton("Interrupt",1,1)
+			InterruptModesLoaded = "Shadow Priest Interrupt Modes";
 		end
-
-
 
 		-- Cooldowns Button
 		if CooldownsModesLoaded ~= "Shadow Priest Cooldowns Modes" then
 			CooldownsModes = {
 				[1] = { mode = "off", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffFF0000Cooldowns \n|cffFFDD11No cooldowns will be used.", highlight = 0, icon = 34433 },
-				[2] = { mode = "on", value = 2 , overlay = "Cooldowns Enabled", tip = "|cff00FF00Cooldowns \nOnly used if enabled in Settings. \n|cffFF0000Spells Included: \n|cffFFDD11Power Infusion \nShadowfiend \nMindbender \nHalo", highlight = 1, icon = 34433 }
+				[2] = { mode = "on", value = 2 , overlay = "Cooldowns Enabled", tip = "|cff00FF00Cooldowns \n|cffFFDD11Only used if enabled in Settings. \n|cffFF0000Spells Included: \n|cffFFDD11Power Infusion \nShadowfiend \nMindbender \nHalo", highlight = 1, icon = 34433 }
 			};
 			CreateButton("Cooldowns",2,0)
 			CooldownsModesLoaded = "Shadow Priest Cooldowns Modes";

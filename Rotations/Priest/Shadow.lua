@@ -172,7 +172,7 @@ if select(3, UnitClass("player")) == 5 then
 			--------------
 				-- Aoe
 				if BadBoy_data['AoE'] == 2 then
-					if #getEnemies("target",10)>=5 then
+					if UnitExists("target") and getNumEnemiesInRange("target",10)>=5 then
 						ShadowAoE()
 					end
 				end
@@ -186,11 +186,6 @@ if select(3, UnitClass("player")) == 5 then
 				if isKnown(CoP) then
 					ShadowH2PCoP()
 				end
-
-
-
-			
-
 		end -- AffectingCombat, Pause, Target, Dead/Ghost Check
 	end
 end

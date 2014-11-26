@@ -52,9 +52,11 @@ if select(3, UnitClass("player")) == 5 then
 				CreateNewText(thisConfig,"Healthstone");
 
 				-- Desperate Prayer
-				CreateNewCheck(thisConfig,"Desperate Prayer");
-				CreateNewBox(thisConfig, "Desperate Prayer", 0,100,5,30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDesperate Prayer");
-				CreateNewText(thisConfig,"Desperate Prayer");
+				if isKnown(DesperatePrayer) then
+					CreateNewCheck(thisConfig,"Desperate Prayer");
+					CreateNewBox(thisConfig, "Desperate Prayer", 0,100,5,30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDesperate Prayer");
+					CreateNewText(thisConfig,"Desperate Prayer");
+				end
 
 				-- Dispersion
 				CreateNewCheck(thisConfig,"Dispersion");
@@ -73,7 +75,7 @@ if select(3, UnitClass("player")) == 5 then
 				CreateNewText(thisConfig,"Fade Aggro");
 
 			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"--- Cooldowns");
+			CreateNewWrap(thisConfig,"--- Offensive");
 
 				-- Power Infusion
 				if isKnown(PI) then
@@ -89,6 +91,21 @@ if select(3, UnitClass("player")) == 5 then
 					CreateNewCheck(thisConfig,"Shadowfiend");
 					CreateNewText(thisConfig,"Shadowfiend");
 				end
+
+			-- Wrapper -----------------------------------------
+			if isKnown(CoP) then
+				CreateNewWrap(thisConfig,"--- DoT Weave");
+					
+					-- General
+					CreateNewCheck(thisConfig,"DoTWeave");
+					CreateNewText(thisConfig,"DoTWeave");
+					-- SWP
+					CreateNewCheck(thisConfig,"SWP");
+					CreateNewText(thisConfig,"SWP");
+					-- VT
+					CreateNewCheck(thisConfig,"VT");
+					CreateNewText(thisConfig,"VT");
+			end
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"--- Utilities");

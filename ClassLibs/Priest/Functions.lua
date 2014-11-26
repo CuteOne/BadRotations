@@ -136,7 +136,9 @@ if select(3, UnitClass("player")) == 5 then
 	---------
 	function ShadowAoE()
 		-- Mind Sear
-		if castSpell("target",MS,false,true) then return; end
+		if select(1,UnitChannelInfo("player")) == nil then
+			if castSpell("target",MS,false,true) then return; end
+		end
 	end
 
 
@@ -158,20 +160,35 @@ if select(3, UnitClass("player")) == 5 then
 		end
 	end
 
+	-- Calculator for DoTWeave Break (to not cast MS, else MS would cancel DoTs)
+	function DoTWeaveBreak()
+		local counter=0
+		if isChecked("SWP") then counter=counter+1 end
+		if isChecked("VT") then counter=counter+1 end
+		return counter*GCD*0.7
+	end
+
 	function ShadowH2PCoP()
 		-----------------
 		-- DoT Weaving --
 		-----------------
 
 		-- if ORBS==5 --> apply DoTs if targetHP>20
-		if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<2*GCD then
-			if not UnitDebuffID("target",SWP,"player") then
-				if castSpell("target",SWP,true,true) then return; end
-			end
-			if not UnitDebuffID("target",VT,"player") and GetTime()-lastVT > 2 then
-				if castSpell("target",VT,true,true) then 
-					lastVT=GetTime()
-					return
+		if isChecked("DoTWeave") then
+			local Break=DoTWeaveBreak()
+			if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<Break then
+				if isChecked("SWP") then
+					if not UnitDebuffID("target",SWP,"player") then
+						if castSpell("target",SWP,true,true) then return; end
+					end
+				end
+				if isChecked("VT") then
+					if not UnitDebuffID("target",VT,"player") and GetTime()-lastVT > 2 then
+						if castSpell("target",VT,true,true) then 
+							lastVT=GetTime()
+							return
+						end
+					end
 				end
 			end
 		end
