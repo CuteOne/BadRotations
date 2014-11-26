@@ -765,6 +765,7 @@ end
 function getNumEnemiesInRange(Unit, Radius)
 	-- here i make sure it will work even if user dont enter values
 	local Unit = Unit or "target"
+	if UnitExists(Unit) == false then return 0 end
 	local minimumUnits = minimumUnits or 3
 	local Radius = Radius or 10
 	-- i make sure i do have enemiesTable loaded into memory
