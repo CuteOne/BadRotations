@@ -28,8 +28,8 @@ if select(3, UnitClass("player")) == 5 then
 		if currentConfig ~= "Shadow ragnar" then
 			ClearConfig();
 			thisConfig = 0;
-			--[[Title]]
-			CreateNewTitle(thisConfig,"Shadow |cffFF0000ragnar");
+			-- Title
+			CreateNewTitle(thisConfig,"Shadow |cff80080ragnar");
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"--- Buffs");
@@ -107,10 +107,10 @@ if select(3, UnitClass("player")) == 5 then
 					CreateNewText(thisConfig,"DoTWeave");
 					-- SWP
 					CreateNewCheck(thisConfig,"SWP");
-					CreateNewText(thisConfig,"SWP");
+					CreateNewText(thisConfig,"SWP(if DoTWeave=1)");
 					-- VT
 					CreateNewCheck(thisConfig,"VT");
-					CreateNewText(thisConfig,"VT");
+					CreateNewText(thisConfig,"VT(if DoTWeave=1)");
 			end
 
 			-- Wrapper -----------------------------------------
@@ -122,7 +122,7 @@ if select(3, UnitClass("player")) == 5 then
 
 				-- Auto Rez
 				CreateNewCheck(thisConfig,"Auto Rez");
-				CreateNewText(thisConfig,"Auto Rez");
+				CreateNewText(thisConfig,"Auto Rez(TBD)");
 
 				-- AutoSpeedBuff
 				if isKnown(AngelicFeather) then
@@ -141,7 +141,7 @@ if select(3, UnitClass("player")) == 5 then
 				CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 5, "Set to desired time for test in minutes. Min: 1 / Max: 15 / Interval: 1");
 				CreateNewText(thisConfig,"DPS Testing");
 
-			-- General Configs
+			-- General Configs ---------------------------------
 			CreateGeneralsConfig();
 			WrapsManager();
 			end
