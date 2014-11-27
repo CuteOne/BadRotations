@@ -166,7 +166,8 @@ if select(3, UnitClass("player")) == 5 then
 		-- if ORBS==5 --> apply DoTs if targetHP>20
 		if isChecked("DoTWeave") and getTalent(3,3) then
 			local Break=DoTWeaveBreak()
-			if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<Break then
+			-- if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<Break then
+			if ORBS>=4 and getHP("target")>20 then
 				if isChecked("SWP") then
 					if not UnitDebuffID("target",SWP,"player") then
 						if castSpell("target",SWP,true,true) then return; end
@@ -231,13 +232,17 @@ if select(3, UnitClass("player")) == 5 then
 				if castSpell("target",MB,false,false) then return; end
 
 				-- Mind Blast on cd - Yes - Cast Mind Spike
-				if not UnitDebuffID("target",DP,"player") then 
-					if castSpell("target",MSp,false,true) then return; end
+				if ORBS<4 then
+					if not UnitDebuffID("target",DP,"player") then 
+						if castSpell("target",MSp,false,true) then return; end
+					end
 				end
 
 				-- SWD glyphed
-				if hasGlyph(GlyphOfSWD) and isChecked("SWD glyphed") and getHP("target")>=20 then
-					if castSpell("target",SWDG,true,false) then return; end
+				if not getTalent(3,3) then
+					if hasGlyph(GlyphOfSWD) and isChecked("SWD glyphed") and getHP("target")>=20 then
+						if castSpell("target",SWDG,true,false) then return; end
+					end
 				end
 
 				-- MF Filler

@@ -111,9 +111,9 @@ if select(3, UnitClass("player")) == 5 then
 					-- VT
 					CreateNewCheck(thisConfig,"VT");
 					CreateNewText(thisConfig,"Weave VT");
-					-- Lag Comp
-					CreateNewCheck(thisConfig,"Weave Comp");
-					CreateNewBox(thisConfig,"Weave Comp", 1, 10, 1, 7, "A factor used for DoTWeaving\nPlay with it and use the best result.\nMin: 1 / Max: 10 / Interval: 1\n10=GCD, 1=GCD/10")
+					-- Weave Comp
+					-- CreateNewCheck(thisConfig,"Weave Comp");
+					CreateNewBox(thisConfig,"Weave Comp", 1, 15, 1, 7, "A factor used for DoTWeaving\nPlay with it and use the best result.\nMin: 1 / Max: 15 / Interval: 1")
 					CreateNewText(thisConfig,"Weave Comp Factor");
 			end
 
