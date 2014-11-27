@@ -52,11 +52,11 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- -- Auto Resurrection
-		-- if not isInCombat("player") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("player","mouseover") then
-		-- 	if castSpell("mouseover",_Resurrection,true,true) then
-		-- 		return;
-		-- 	end
-		-- end
+		if isChecked("Auto Rez") then
+			if not isInCombat("player") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("player","mouseover") then
+				if castSpell("mouseover",Rez,true,true) then return; end
+			end
+		end
 
 		------------
 		-- CHECKS --
@@ -88,17 +88,6 @@ if select(3, UnitClass("player")) == 5 then
 				end
 			end
 		end
-
-		--if not isInCombat("player") then
-		-- 	if isChecked("PW: Fortitude") and (lastPWF == nil or lastPWF <= GetTime() - 5) then
-		-- 		for i = 1, #nNova do
-		-- 	  		if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{21562}) then  --,109773,469,90364
-		-- 	  			if castSpell("player",PWF,true) then lastPWF = GetTime(); return; end
-		-- 			end
-		-- 		end
-		-- 	end
-		-- end
-		-- Out Of Combat END
 
 		---------------------------------------
 		-- Shadowform and AutoSpeed Selfbuff --
@@ -154,7 +143,6 @@ if select(3, UnitClass("player")) == 5 then
 			----------------
 			ShadowDefensive()
 
-			
 			----------------
 			-- Offensives --
 			----------------

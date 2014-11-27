@@ -59,8 +59,9 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- Fade (Aggro)
-		if IsInRaid() ~= false then
-			if isChecked("Fade Aggro") and (BadBoy_data['Defensive'] == 2) and getThreat()>=2 then
+		if IsInRaid() ~= false then 
+			--if isChecked("Fade Aggro") and BadBoy_data['Defensive']==2 and UnitThreatSituation("player")>=2 then
+			if isChecked("Fade Aggro") and BadBoy_data['Defensive']==2 then
 				if castSpell("player",Fade) then return; end
 			end
 		end
@@ -83,18 +84,6 @@ if select(3, UnitClass("player")) == 5 then
 		end
 	end -- END SHADOW DEFENSIVES
 
-	--[[                    ]] -- Boss Specific Kicks and Dispells
-	-- Highmaul
-		-- Kargath Bladefist
-		-- The Butcher
-		-- Tectus
-		-- Brackenspore
-		-- Twin Ogrons (Pol & Phemos)
-		-- Ko'ragh
-		-- Imperator Mar'gok
-	-- Blackrock Foundry
-
-	-- WoD Dungeons
 
 	--[[                    ]] -- Kicks
 	function ShadowKicks()
@@ -131,9 +120,8 @@ if select(3, UnitClass("player")) == 5 then
 	end -- END SHADOW Cooldowns
 
 
-	---------
-	-- AoE --
-	---------
+	
+	--[[                    ]] -- AoE
 	function ShadowAoE()
 		-- Mind Sear
 		if select(1,UnitChannelInfo("player")) == nil then
@@ -142,18 +130,16 @@ if select(3, UnitClass("player")) == 5 then
 	end
 
 
-	----------
-	-- Burn --
-	----------
+	--[[                    ]] -- Burn
 	function ShadowCoPBurn()
 		-- Burn ORBS
 		if ORBS>=3 then
 			if castSpell("target",DP,false,true) then return; end
 		end
 		-- SWD
-		if castSpell("target",SWD) then return; end
+		if castSpell("target",SWD,true,false) then return; end
 		-- MB
-		if castSpell("target",MB,false) then return; end
+		if castSpell("target",MB,false,false) then return; end
 		-- MF Filler
 		if select(1,UnitChannelInfo("player")) == nil then
 			if castSpell("target",MF,false,true) then return; end
@@ -168,13 +154,15 @@ if select(3, UnitClass("player")) == 5 then
 		return counter*GCD*0.7
 	end
 
+
+	--[[                    ]] -- Rotation
 	function ShadowH2PCoP()
 		-----------------
 		-- DoT Weaving --
 		-----------------
 
 		-- if ORBS==5 --> apply DoTs if targetHP>20
-		if isChecked("DoTWeave") then
+		if isChecked("DoTWeave") and getTalent(3,3) then
 			local Break=DoTWeaveBreak()
 			if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<Break then
 				if isChecked("SWP") then
@@ -209,9 +197,11 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- Insanity if noChanneling
-		if UnitBuffID("player",InsanityBuff) then
-			if select(1,UnitChannelInfo("player")) == nil then
-				if castSpell("target",MF,false,true) then return; end
+		if getTalent(3,3) then
+			if UnitBuffID("player",InsanityBuff) then
+				if select(1,UnitChannelInfo("player")) == nil then
+					if castSpell("target",MF,false,true) then return; end
+				end
 			end
 		end
 
@@ -236,10 +226,23 @@ if select(3, UnitClass("player")) == 5 then
 			
 			--if getHP("target")>20 then
 				-- Mind Blast on cd - No - Cast it
-				if castSpell("target",MB,false) then return; end
+				if castSpell("target",MB,false,false) then return; end
 
 				-- Mind Blast on cd - Yes - Cast Mind Spike
-				if castSpell("target",MSp,false,true) then return; end
+				if not UnitDebuffID("target",DP,"player") then 
+					if castSpell("target",MSp,false,true) then return; end
+				end
+
+				-- SWD glyphed
+				if hasGlyph(GlyphOfSWD) and isChecked("SWD glyphed") and getHP("target")>=20 then
+					if castSpell("target",SWD,true,false) then return; end
+				end
+
+				-- MF Filler
+				if select(1,UnitChannelInfo("player")) == nil then
+					if castSpell("target",MF,false,true) then return; end
+				end
+
 			--end
 
 			------------

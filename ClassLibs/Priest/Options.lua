@@ -92,6 +92,12 @@ if select(3, UnitClass("player")) == 5 then
 					CreateNewText(thisConfig,"Shadowfiend");
 				end
 
+				-- SWD Glyphed
+				if hasGlyph(GlyphOfSWD) then
+					CreateNewCheck(thisConfig,"SWD glyphed");
+					CreateNewText(thisConfig,"SWD glyphed");
+				end
+
 			-- Wrapper -----------------------------------------
 			if isKnown(CoP) then
 				CreateNewWrap(thisConfig,"--- DoT Weave");
@@ -113,6 +119,10 @@ if select(3, UnitClass("player")) == 5 then
 				-- Shadowform Outfight
 				CreateNewCheck(thisConfig,"Shadowform Outfight");
 				CreateNewText(thisConfig,"Auto Shadowform Outfight");
+
+				-- Auto Rez
+				CreateNewCheck(thisConfig,"Auto Rez");
+				CreateNewText(thisConfig,"Auto Rez");
 
 				-- AutoSpeedBuff
 				if isKnown(AngelicFeather) then

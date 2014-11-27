@@ -18,6 +18,7 @@ if select(3, UnitClass("player")) == 5 then
 		MS 		= 48045;	-- Mind Sear
 		Silence	= 15487;	-- Silence
 		ArcT	= 28730;	-- Arcane Torrent (BloodElv Racial)
+		Rez		= 2006;		-- Resurrection
 
 	-- Procs
 		SoDProcs	= 87160;	-- SoD Procs (max 3)
@@ -71,6 +72,7 @@ if select(3, UnitClass("player")) == 5 then
 	-- Glyphs
 		GlyphOfFade			= 55684;
 		GlyphOfMindHarvest	= 1202;
+		GlyphOfSWD			= 1005;
 
 	-- Racial
 
