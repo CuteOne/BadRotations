@@ -146,12 +146,14 @@ if select(3, UnitClass("player")) == 5 then
 		end
 	end
 
+	--[[                    ]] -- Weave Break Calc
 	-- Calculator for DoTWeave Break (to not cast MS, else MS would cancel DoTs)
 	function DoTWeaveBreak()
 		local counter=0
+		local factor=getValue("Weave Comp")/10
 		if isChecked("SWP") then counter=counter+1 end
 		if isChecked("VT") then counter=counter+1 end
-		return counter*GCD*0.7
+		return counter*GCD*factor
 	end
 
 
@@ -235,7 +237,7 @@ if select(3, UnitClass("player")) == 5 then
 
 				-- SWD glyphed
 				if hasGlyph(GlyphOfSWD) and isChecked("SWD glyphed") and getHP("target")>=20 then
-					if castSpell("target",SWD,true,false) then return; end
+					if castSpell("target",SWDG,true,false) then return; end
 				end
 
 				-- MF Filler

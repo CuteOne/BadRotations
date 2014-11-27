@@ -132,7 +132,7 @@ if select(3, UnitClass("player")) == 5 then
 					if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
 						StopAttack()
 						ClearTarget()
-						print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+						print("____ " .. tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped ____")
 					end
 				end
 			end
@@ -166,6 +166,11 @@ if select(3, UnitClass("player")) == 5 then
 				end
 
 				-- Rotation
+					-- Break MF for MB
+				if getSpellCD(MB)<0.5 and select(1,UnitChannelInfo("player")) == "Mind Flay" then
+					--print("--- BREAK MF ---")
+					RunMacroText("/stopcasting")
+				end
 					-- Burn
 				if isKnown(CoP) and getHP("target")<=20 then
 					ShadowCoPBurn()
@@ -177,3 +182,15 @@ if select(3, UnitClass("player")) == 5 then
 		end -- AffectingCombat, Pause, Target, Dead/Ghost Check
 	end
 end
+
+
+
+-- Mindbender isboss
+-- do pause if dispersion
+-- Auto Rez
+
+---------------------------
+-- Mindbender: 			12	k
+-- Insanity (SWP,VT):	12.5k
+-- Insanity (SWP):		12.2k
+-- Insanity (noWeave):	

@@ -29,7 +29,7 @@ if select(3, UnitClass("player")) == 5 then
 			ClearConfig();
 			thisConfig = 0;
 			-- Title
-			CreateNewTitle(thisConfig,"Shadow |cff80080ragnar");
+			CreateNewTitle(thisConfig,"Shadow |cffBA55D3ragnar");
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"--- Buffs");
@@ -107,10 +107,14 @@ if select(3, UnitClass("player")) == 5 then
 					CreateNewText(thisConfig,"DoTWeave");
 					-- SWP
 					CreateNewCheck(thisConfig,"SWP");
-					CreateNewText(thisConfig,"SWP(if DoTWeave=1)");
+					CreateNewText(thisConfig,"Weave SWP");
 					-- VT
 					CreateNewCheck(thisConfig,"VT");
-					CreateNewText(thisConfig,"VT(if DoTWeave=1)");
+					CreateNewText(thisConfig,"Weave VT");
+					-- Lag Comp
+					CreateNewCheck(thisConfig,"Weave Comp");
+					CreateNewBox(thisConfig,"Weave Comp", 1, 10, 1, 7, "A factor used for DoTWeaving\nPlay with it and use the best result.\nMin: 1 / Max: 10 / Interval: 1\n10=GCD, 1=GCD/10")
+					CreateNewText(thisConfig,"Weave Comp Factor");
 			end
 
 			-- Wrapper -----------------------------------------
@@ -138,7 +142,7 @@ if select(3, UnitClass("player")) == 5 then
 
 				-- Dummy DPS Test
 				CreateNewCheck(thisConfig,"DPS Testing");
-				CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 5, "Set to desired time for test in minutes. Min: 1 / Max: 15 / Interval: 1");
+				CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 5, "Set to desired time for test in minutes.\nMin: 1 / Max: 15 / Interval: 1");
 				CreateNewText(thisConfig,"DPS Testing");
 
 			-- General Configs ---------------------------------

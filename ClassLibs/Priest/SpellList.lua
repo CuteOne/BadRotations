@@ -5,6 +5,7 @@ if select(3, UnitClass("player")) == 5 then
 		DP		= 2944;		-- Devouring Plague
 		SWP 	= 589;		-- Shadow Word: Pain
 		SWD 	= 32379;	-- Shadow Word: Death
+		SWDG	= 129176;	-- Shadow Word: Death (glyphed)
 		VT		= 34914;	-- Vampiric Touch
 		MB		= 8092;		-- Mind Blast
 		MSp		= 73510;	-- Mind Spike
