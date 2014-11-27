@@ -129,7 +129,7 @@ function DruidRestoration()
 		end
 	end
 -- Stop Cast HealingToch
-if isChecked("Healing Touch") or isChecked("Healing Touch Tank") then
+if isChecked("Overhealing Cancel") and (isChecked("Healing Touch") or isChecked("Healing Touch Tank")) then
 	if isCastingSpell(5185) then
 	if (getLowAllies(60) > 1 
 	or lowestHP <= getValue("Regrowth Tank") 

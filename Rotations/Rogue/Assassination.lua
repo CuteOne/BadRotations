@@ -302,32 +302,32 @@ if select(3, UnitClass("player")) == 4 then
 					if castSpell("target",_Ambush,false,false,false) then return end
 				end
 	-- Mutilate
-				if thp>35 and combo<5 and enemies==2 and ddRemain==0 and venRemain==0 and not blindside and power>55 and tarDist<5 then
+				if (thp>=35 or level<40) and combo<5 and enemies==2 and ddRemain==0 and venRemain==0 and not blindside and power>55 and tarDist<5 then
 					if castSpell("target",_Mutilate,false,false,false) then return end
 				end
 	-- Mutilate
-				if thp>35 and combo<5 and enemies<5 and not blindside and power>55 and tarDist<5 then
+				if (thp>=35 or level<40) and combo<5 and enemies<5 and not blindside and power>55 and tarDist<5 then
 					if castSpell("target",_Mutilate,false,false,false) then return end
 				end
 	-- Dispatch
-				if (combo<5 or (getTalent(6,3) and antCharge<4)) and enemies==2 and ddRemain==0 and venRemain==0 and (power>30 or blindside) and tarDist<5 then
+				if (combo<5 or (getTalent(6,3) and antCharge<4)) and enemies==2 and ddRemain==0 and venRemain==0 and ((power>30 and thp<35) or blindside) and tarDist<5 then
 					if castSpell("target",_Dispatch,false,false,false) then return end
 				end
 	-- Dispatch
-				if (combo<5 or (getTalent(6,3) and antCharge<4)) and enemies<4 and (power>30 or blindside) and tarDist<5 then
+				if (combo<5 or (getTalent(6,3) and antCharge<4)) and enemies<4 and ((power>30 and thp<35) or blindside) and tarDist<5 then
 					if castSpell("target",_Dispatch,false,false,false) then return end
 				end
 	-- Mutilate
-				if enemies==2 and ddRemain==0 and not blindside and venRemain==0 and power>55 and tarDist<5 then
+				if (thp>=35 or level<40) and enemies==2 and ddRemain==0 and not blindside and venRemain==0 and power>55 and tarDist<5 then
 					if castSpell("target",_Mutilate,false,false,false) then return end
 				end
 	-- Mutilate
-				if enemies<5 and power>55 and not blindside and tarDist<5 then
+				if (thp>=35 or level<40) and enemies<5 and power>55 and not blindside and tarDist<5 then
 					if castSpell("target",_Mutilate,false,false,false) then return end
 				end
 			end --In Combat End
 	-- Start Attack
-			if tarDist<5 and not stealth and (isInCombat("player") or isDummy()) then
+			if tarDist<5 and not stealth then
 				StartAttack()
 			end
 		end -- Pause End

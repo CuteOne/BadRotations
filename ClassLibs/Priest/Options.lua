@@ -28,8 +28,8 @@ if select(3, UnitClass("player")) == 5 then
 		if currentConfig ~= "Shadow ragnar" then
 			ClearConfig();
 			thisConfig = 0;
-			--[[Title]]
-			CreateNewTitle(thisConfig,"Shadow |cffFF0000ragnar");
+			-- Title
+			CreateNewTitle(thisConfig,"Shadow |cffBA55D3ragnar");
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"--- Buffs");
@@ -52,9 +52,11 @@ if select(3, UnitClass("player")) == 5 then
 				CreateNewText(thisConfig,"Healthstone");
 
 				-- Desperate Prayer
-				CreateNewCheck(thisConfig,"Desperate Prayer");
-				CreateNewBox(thisConfig, "Desperate Prayer", 0,100,5,30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDesperate Prayer");
-				CreateNewText(thisConfig,"Desperate Prayer");
+				if isKnown(DesperatePrayer) then
+					CreateNewCheck(thisConfig,"Desperate Prayer");
+					CreateNewBox(thisConfig, "Desperate Prayer", 0,100,5,30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDesperate Prayer");
+					CreateNewText(thisConfig,"Desperate Prayer");
+				end
 
 				-- Dispersion
 				CreateNewCheck(thisConfig,"Dispersion");
@@ -73,15 +75,13 @@ if select(3, UnitClass("player")) == 5 then
 				CreateNewText(thisConfig,"Fade Aggro");
 
 			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"--- Cooldowns");
-
-				-- Halo
-				CreateNewCheck(thisConfig,"Halo");
-				CreateNewText(thisConfig,"Halo");
+			CreateNewWrap(thisConfig,"--- Offensive");
 
 				-- Power Infusion
-				CreateNewCheck(thisConfig,"Power Infusion");
-				CreateNewText(thisConfig,"Power Infusion");
+				if isKnown(PI) then
+					CreateNewCheck(thisConfig,"Power Infusion");
+					CreateNewText(thisConfig,"Power Infusion");
+				end
 
 				-- Shadowfiend / Mindbender
 				if isKnown(Mindbender) then
@@ -92,12 +92,41 @@ if select(3, UnitClass("player")) == 5 then
 					CreateNewText(thisConfig,"Shadowfiend");
 				end
 
+				-- SWD Glyphed
+				if hasGlyph(GlyphOfSWD) then
+					CreateNewCheck(thisConfig,"SWD glyphed");
+					CreateNewText(thisConfig,"SWD glyphed");
+				end
+
+			-- Wrapper -----------------------------------------
+			if isKnown(CoP) then
+				CreateNewWrap(thisConfig,"--- DoT Weave");
+					
+					-- General
+					CreateNewCheck(thisConfig,"DoTWeave");
+					CreateNewText(thisConfig,"DoTWeave");
+					-- SWP
+					CreateNewCheck(thisConfig,"SWP");
+					CreateNewText(thisConfig,"Weave SWP");
+					-- VT
+					CreateNewCheck(thisConfig,"VT");
+					CreateNewText(thisConfig,"Weave VT");
+					-- Lag Comp
+					CreateNewCheck(thisConfig,"Weave Comp");
+					CreateNewBox(thisConfig,"Weave Comp", 1, 10, 1, 7, "A factor used for DoTWeaving\nPlay with it and use the best result.\nMin: 1 / Max: 10 / Interval: 1\n10=GCD, 1=GCD/10")
+					CreateNewText(thisConfig,"Weave Comp Factor");
+			end
+
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"--- Utilities");
 
 				-- Shadowform Outfight
 				CreateNewCheck(thisConfig,"Shadowform Outfight");
 				CreateNewText(thisConfig,"Auto Shadowform Outfight");
+
+				-- Auto Rez
+				CreateNewCheck(thisConfig,"Auto Rez");
+				CreateNewText(thisConfig,"Auto Rez(TBD)");
 
 				-- AutoSpeedBuff
 				if isKnown(AngelicFeather) then
@@ -113,10 +142,10 @@ if select(3, UnitClass("player")) == 5 then
 
 				-- Dummy DPS Test
 				CreateNewCheck(thisConfig,"DPS Testing");
-				CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 5, "Set to desired time for test in minutes. Min: 1 / Max: 15 / Interval: 1");
+				CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 5, "Set to desired time for test in minutes.\nMin: 1 / Max: 15 / Interval: 1");
 				CreateNewText(thisConfig,"DPS Testing");
 
-			-- General Configs
+			-- General Configs ---------------------------------
 			CreateGeneralsConfig();
 			WrapsManager();
 			end

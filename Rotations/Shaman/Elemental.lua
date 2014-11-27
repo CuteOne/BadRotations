@@ -194,12 +194,12 @@ function ShamanElemental()
 
 			---- # Keep Searing Totem up, unless Fire Elemental Totem is coming off cooldown in the next 20 seconds
 			-- searing_totem,if=cooldown.fire_elemental_totem.remains>20&!totem.fire.active
-			if isFireTotem(_FireElementalTotem) == false and (isFireTotem(_SearingTotem) == false or getTotemDistance("target") > 25) and getDistance("target") <= 25 and (isSelected("Fire Elemental") ~= true or GetSpellCD(_FireElementalTotem) > 20) then
+			if isFireTotem(_FireElementalTotem) == false and (isFireTotem(_SearingTotem) == false or getTotemDistance("target") > 25) and getDistance("target") <= 25 and (isSelected("Fire Elemental") ~= true or getSpellCD(_FireElementalTotem) > 20) then
 				if castSpell("player",_SearingTotem,true,false) then return; end
 			end
 
 			-- spiritwalkers_grace,moving=1,if=((talent.elemental_blast.enabled&cooldown.elemental_blast.remains=0)|(cooldown.lava_burst.remains=0&!buff.lava_surge.react))|(buff.raid_movement.duration>=action.unleash_elements.gcd+action.earth_shock.gcd)
-			if isMoving("player") and (GetSpellCD(_ElementalBlast) == 0 or GetSpellCD(_LavaBurst) == 0) then
+			if isMoving("player") and (getSpellCD(_ElementalBlast) == 0 or getSpellCD(_LavaBurst) == 0) then
 				if castSpell("player",_SpiritwalkersGrace,true,false) then return; end
 			end
 

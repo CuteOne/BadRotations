@@ -85,12 +85,13 @@ spd	=	81022	--Stampede
 rber=	26297	--Troll Racial: Berserking
 sm 	=	58984	--Night Elf Racial: Shadowmeld
 tac = 	135286 	--Tooth and Claw
+rks	=	155722	--Rake - Pounce Effect
 
 ------Forms------
 af	=	1066	--Aquatic Form
 bf	=	5487	--Bear Form
 cf 	= 	768		--Cat Form
-cosf = 171745 --Claws of Shirvallah
+cosf=	171745	--Claws of Shirvallah
 flf	=	33943	--Flight Form
 mkf = 	24858	--Moonkin Form
 sff	=	40120	--Swift Flight Form
