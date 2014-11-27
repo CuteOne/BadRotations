@@ -319,6 +319,20 @@ function canUse(itemID)
 	end
 end
 
+-- if canTrinket(13) then
+function canTrinket(trinketSlot)
+	if trinketSlot == 13 or trinketSlot == 14 then
+		if trinketSlot == 13 and GetInventoryItemCooldown("player",13)==0 then
+			return true
+		end
+		if trinketSlot == 14 and GetInventoryItemCooldown("player",14)==0 then
+			return true
+		end
+	else
+		return false
+	end
+end
+
 
 function castAoEHeal(spellID, numUnits, missingHP, rangeValue)
 	-- i start an iteration that i use to build each units Table, wich i will reuse for the next second
