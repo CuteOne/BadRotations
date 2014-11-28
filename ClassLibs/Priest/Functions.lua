@@ -226,7 +226,7 @@ if select(3, UnitClass("player")) == 5 then
 					if castSpell("target",MB,false,false) then return; end
 
 					-- Mind Spike
-					if ORBS<=4 or (ORBS==4 and (getDebuffRemain("target",SWP,"player") or getDebuffRemain("target",VT,"player")) then
+					if ORBS<=4 or (ORBS==4 and (getDebuffRemain("target",SWP,"player") or getDebuffRemain("target",VT,"player"))) then
 						if not UnitDebuffID("target",DP,"player") then 
 							if castSpell("target",MSp,false,true) then return; end
 						end
