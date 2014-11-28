@@ -72,7 +72,7 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewWrap(thisConfig,"--- Offensive");
 
 				-- Single Target Rotation chose
-				CreateNewDrop(thisConfig,"AutoRota",2,"Choose the rotation for single target while using Auto","|cffBA55D3weave","|cff00A9EBtrad");
+				CreateNewDrop(thisConfig,"AutoRota",2,"Choose the rotation for single target.","|cffBA55D3weave","|cff00A9EBtrad");
 				CreateNewText(thisConfig,"Auto: SingleTarget");
 
 				-- Power Infusion

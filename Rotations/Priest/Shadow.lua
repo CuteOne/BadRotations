@@ -155,21 +155,22 @@ if select(3, UnitClass("player")) == 5 then
 			-----------------------
 			-- Rotation Decision --
 			-----------------------
-			-- Single Traditional
-			if BadBoy_data['AoE'] == 1 then IcySingle() end
-			-- Single DotWeave
-			if BadBoy_data['AoE'] == 2 then IcySingleWeave() end
+			-- Single target
+			if BadBoy_data['AoE'] == 1 then
+				if getValue("SingleRota")==1 then IcySingleWeave() end
+				if getValue("SingleRota")==2 then IcySingle() end
+			end
 			-- 2-3 Targets
-			if BadBoy_data['AoE'] == 3 then Icy23Targets() end
+			if BadBoy_data['AoE'] == 2 then Icy23Targets() end
 			-- 4+ Targets
-			if BadBoy_data['AoE'] == 4 then Icy4AndMore() end
+			if BadBoy_data['AoE'] == 3 then Icy4AndMore() end
 			-- Auto
-			if BadBoy_data['AoE'] == 5 then  
+			if BadBoy_data['AoE'] == 4 then  
 				-- singletarget
 				if #enemiesTable==1 then
 					-- weave=1, trad=2
-					if getValue("AutoRota")==1 then IcySingleWeave() end
-					if getValue("AutoRota")==2 then IcySingle() end
+					if getValue("SingleRota")==1 then IcySingleWeave() end
+					if getValue("SingleRota")==2 then IcySingle() end
 				end
 				-- 2-3 targets
 				if #enemiesTable>2 and #enemiesTable<4 then Icy23Targets() end

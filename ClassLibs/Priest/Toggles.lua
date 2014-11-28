@@ -40,9 +40,8 @@ if select(3, UnitClass("player")) == 5 then
 		-- AoE Button
 		if AoEModesLoaded ~= "Shadow Priest AoE Modes" then
 			AoEModes = {
-				[1] = { mode = "trad", value = 1 , overlay = "Traditional Single", tip = "|cff00FF00AoE \n|cffFFDD11Traditional Singletarget. \n|cffFF0000", highlight = 0, icon = 139139 },
-				[2] = { mode = "weave", value = 2 , overlay = "DoT Weave Single", tip = "|cff00FF00AoE \n|cffFFDD11DoT Weave Singletarget. \n|cffFF0000", highlight = 0, icon = 73510 },
-				[3] = { mode = "2-3", value = 3 , overlay = "2-3 Targets", tip = "|cff00FF00AoE \n|cffFFDD112-3 Enemies. \n|cffFF0000", highlight = 0, icon = 589 },
+				[1] = { mode = "single", value = 1 , overlay = "Single Target", tip = "|cff00FF00AoE \n|cffFFDD11Single Target. \n|cffFF0000Style can be chosen in the options", highlight = 0, icon = 139139 },
+				[3] = { mode = "2-3", value = 2 , overlay = "2-3 Targets", tip = "|cff00FF00AoE \n|cffFFDD112-3 Enemies. \n|cffFF0000", highlight = 0, icon = 589 },
 				[4] = { mode = "4+", value = 3 , overlay = "4+ Targets", tip = "|cff00FF00AoE \n|cffFFDD114+ Enemies. \n|cffFF0000", highlight = 0, icon = 48045 },
 				[5] = { mode = "auto", value = 4 , overlay = "AoE Auto", tip = "|cff00FF00AoE \n|cffFFDD11Auto decision (not implemented yet). \n|cffFF0000", highlight = 1, icon = 8092 }
 			};
