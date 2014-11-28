@@ -654,6 +654,9 @@ function GuardianConfig()
         CreateNewCheck(thisConfig,"Mark Of The Wild");
         CreateNewText(thisConfig,"Mark Of The Wild");
 
+		checkOp("Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.");
+        textOp("Auto Shapeshifts");
+		
         CreateNewText(thisConfig," ");
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"--------- Healing -------");
@@ -661,10 +664,6 @@ function GuardianConfig()
         CreateNewCheck(thisConfig, "DoCHT");
         CreateNewDrop(thisConfig, "DoCHT", 2, "Use DoC Procs Healing Touch on...", "|cffFFBB00Player", "|cff0077FFLowest");
         CreateNewText(thisConfig,"Healing Touch");
-
-        -- Safe DoC Procs
-        CreateNewCheck(thisConfig, "SafeDoC", "Safe DoC Proc if a Raidmember is dead and Rebirth is ready to cast");
-        CreateNewText(thisConfig,"Safe DoC Proc for CR");
 
         -- Cenarion Ward
         CreateNewDrop(thisConfig, "CenWard", 2, "Use Cenarion Ward on...", "|cffFFBB00Player", "|cff0077FFLowest");

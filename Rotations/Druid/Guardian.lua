@@ -14,6 +14,8 @@ function DruidGuardian()
 	--local tarDist = getDistance2("target")
 	local rebirthCharges = select(1, GetSpellCharges(20484))
 	local GCD = 1.5/(1+UnitSpellHaste("player")/100)
+	local tarDist = getDistance("target")
+	local friendly = UnitIsFriend("target","player")
 	local hasTarget = UnitExists("target")
 	local hasMouse = UnitExists("mouseover")
 	local php = getHP("player")
@@ -27,24 +29,25 @@ function DruidGuardian()
 	local travel = UnitBuffID("player", trf)
 	local flight = UnitBuffID("player", flf)
 	local stag = hasGlyph(114338)
+	local bear = UnitBuffID("player",bf)
 	local rejRemain = getBuffRemain("player", rej)
 	local siBuff = UnitBuffID("player",si)
 	local tacBuff = UnitBuffID("player",tac)
 	local siCharge = getCharges(si)
 	local sbCooldown = getSpellCD(sb)
 	local mbCooldown = getSpellCD(mb)
-  local srRemain = getBuffRemain("player",svr)
-  local fonCooldown = getSpellCD(fon)
-  local fonCharge = getCharges(fon)
-  local fonRecharge = getRecharge(fon)
-  local berserk = UnitBuffID("player",berg)
-  local vicious = getBuffRemain("player",148903)
-  local restlessagi = getBuffRemain("player",146310)
-  local thbRemain = getDebuffRemain("target",thb,"player")
-  local thbDuration = getDebuffDuration("target",thb,"player")
-  local docBuff = UnitBuffID("player",145162)
-  local lacStacks = getDebuffStacks("target",lac)
-  local lacTime = (3 - lacStacks) * GCD --(3-dot.lacerate.stack)*gcd
+	local srRemain = getBuffRemain("player",svr)
+	local fonCooldown = getSpellCD(fon)
+	local fonCharge = getCharges(fon)
+	local fonRecharge = getRecharge(fon)
+	local berserk = UnitBuffID("player",berg)
+	local vicious = getBuffRemain("player",148903)
+	local restlessagi = getBuffRemain("player",146310)
+	local thbRemain = getDebuffRemain("target",thb,"player")
+	local thbDuration = getDebuffDuration("target",thb,"player")
+	local docBuff = UnitBuffID("player",145162)
+	local lacStacks = getDebuffStacks("target",lac)
+	local lacTime = (3 - lacStacks) * GCD --(3-dot.lacerate.stack)*gcd
   function BossDummyG()
   	if isBoss("target") or isDummy("target") then
   		return true;
@@ -78,26 +81,37 @@ function DruidGuardian()
 	 }
 	end
 	------------------------------------------------------------------------------------------------------
-	-- Input / Keys --------------------------------------------------------------------------------------
+	-- Auto Shapeshift --------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
- --  if isChecked("HeroicLeapKey") and SpecificToggle("HeroicLeapKey") == true then
- --    if not IsMouselooking() then
- --        CastSpellByName(GetSpellInfo(6544))
- --        if SpellIsTargeting() then
- --            CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
- --            return true;
- --        end
- --    end
-	-- end
-	-- if isChecked("MockingBannerKey") and SpecificToggle("MockingBannerKey") == true then
- --    if not IsMouselooking() then
- --        CastSpellByName(GetSpellInfo(114192))
- --        if SpellIsTargeting() then
- --            CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
- --            return true;
- --        end
- --    end
-	-- end
+	-- Flying Form
+		if isChecked("Auto Shapeshifts") then
+		    if (falling > 1 or (not swimming and travel)) and not isInCombat("player") and IsFlyableArea() then
+		        if ((not travel and not flight) or (not swimming and travel)) and level>=58 and not isInDraenor() then
+		            if stag then
+		                if castSpell("player",flf,true,false,false) then return end
+		            elseif not stag then
+		                if castSpell("player",trf,true,false,false) then return end
+		            end
+		        elseif not bear then
+		            if castSpell("player",bf,true,false,false) then return end
+		        end
+		    end
+	-- Aquatic Form
+		    if swimming and not travel and not hasTarget and not isInCombat("player") then
+		        if castSpell("player",trf,true,false,false) then return end
+		    end
+	-- Bear Form
+	
+		    if ((not dead and hastar and not friendly and attacktar and tarDist<=40)
+		    		or (isMoving("player") and not travel and not IsFalling()))
+		        and (not IsFlying() or (IsFlying() and targetDistance<10))
+		        and not bear 
+		        and (falling==0 or tarDist<10)
+		    then
+		        if castSpell("player",bf,true,false,false) then return end
+		    end
+			
+		end
 
 	------------------------------------------------------------------------------------------------------
 	-- Out of Combat -------------------------------------------------------------------------------------
