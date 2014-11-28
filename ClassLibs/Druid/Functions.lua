@@ -25,43 +25,43 @@ function GroupInfo()
 end
 
 function WA_calcStats_feral()
-        local DamageMult = 1
-        
-        local CP = GetComboPoints("player", "target")
-        if CP == 0 then CP = 5 end
-        
-        if UnitBuffID("player",tf) then
-            DamageMult = DamageMult * 1.15
-        end
-        
-        if UnitBuffID("player",svr) then
-            DamageMult = DamageMult * 1.4
-        end
-        
-        WA_stats_BTactive = WA_stats_BTactive or  0
-        if UnitBuffID("player",bt) then
-            WA_stats_BTactive = GetTime()
-            DamageMult = DamageMult * 1.3
-        elseif GetTime() - WA_stats_BTactive < .2 then
-            DamageMult = DamageMult * 1.3
-        end
-        
-        local RakeMult = 1
-        WA_stats_prowlactive = WA_stats_prowlactive or  0
-        if UnitBuffID("player",inc) then
-            RakeMult = 2
-        elseif UnitBuffID("player",prl) or UnitBuffID("player",sm) then
-            WA_stats_prowlactive = GetTime()
-            RakeMult = 2
-        elseif GetTime() - WA_stats_prowlactive < .2 then
-            RakeMult = 2
-        end
-        
-        WA_stats_RipTick = CP*DamageMult
-        WA_stats_RipTick5 = 5*DamageMult
-        WA_stats_RakeTick = DamageMult*RakeMult
-        WA_stats_ThrashTick = DamageMult
+    local DamageMult = 1
+    
+    local CP = GetComboPoints("player", "target")
+    if CP == 0 then CP = 5 end
+    
+    if UnitBuffID("player",tf) then
+        DamageMult = DamageMult * 1.15
     end
+    
+    if UnitBuffID("player",svr) then
+        DamageMult = DamageMult * 1.4
+    end
+    
+    WA_stats_BTactive = WA_stats_BTactive or  0
+    if UnitBuffID("player",bt) then
+        WA_stats_BTactive = GetTime()
+        DamageMult = DamageMult * 1.3
+    elseif GetTime() - WA_stats_BTactive < .2 then
+        DamageMult = DamageMult * 1.3
+    end
+    
+    local RakeMult = 1
+    WA_stats_prowlactive = WA_stats_prowlactive or  0
+    if UnitBuffID("player",inc) then
+        RakeMult = 2
+    elseif UnitBuffID("player",prl) or UnitBuffID("player",sm) then
+        WA_stats_prowlactive = GetTime()
+        RakeMult = 2
+    elseif GetTime() - WA_stats_prowlactive < .2 then
+        RakeMult = 2
+    end
+    
+    WA_stats_RipTick = CP*DamageMult
+    WA_stats_RipTick5 = 5*DamageMult
+    WA_stats_RakeTick = DamageMult*RakeMult
+    WA_stats_ThrashTick = DamageMult
+end
 
 --Calculated Rake Dot Damage
 function CRKD()
@@ -72,11 +72,16 @@ end
 
 --Applied Rake Dot Damage
 function RKD(unit)
-    local rakeDot = 1
-    if UnitExists(unit) and UnitIsEnemy(unit,"player") then
-        if Rake_sDamage[UnitGUID(unit)]~=nil then rakeDot = Rake_sDamage[UnitGUID(unit)]; end
+    if Rake_sDamage==nil then
+        return 1
+    elseif UnitExists(unit) then
+        rakeDot = Rake_sDamage[UnitGUID(unit)]
     end
-    return rakeDot
+    if rakeDot~=nil then
+        return rakeDot
+    else
+        return 1
+    end
 end
 
 --Rake Dot Damage Percent
@@ -94,11 +99,16 @@ end
 
 --Applied Rip Dot Damage
 function RPD(unit)
-    local ripDot = 1
-    if UnitExists(unit) and UnitIsEnemy(unit,"player") then
-        if Rip_sDamage[UnitGUID(unit)]~=nil then ripDot = Rip_sDamage[UnitGUID(unit)]; end
+    if Rip_sDamage==nil then
+        return 1
+    elseif UnitExists(unit) then
+        ripDot = Rip_sDamage[UnitGUID(unit)]
     end
-    return ripDot
+    if ripDot~=nil then
+        return ripDot
+    else
+        return 1
+    end
 end
 
 --Rip Dot Damage Percent

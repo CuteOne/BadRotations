@@ -9,6 +9,7 @@ if select(3, UnitClass("player")) == 11 then
 	    end
 	    KeyToggles()
 	    GroupInfo()
+	    WA_calcStats_feral()
 	    --makeEnemiesTable(8)
 
 --------------

@@ -61,15 +61,15 @@ end
 function Cute_FrameUpdate(self, elapsed)
 	-- Frame 1
 	if RKP() ~= nil and UnitDebuffID("Target", 1822, "Player") then
-		local rkpDisplay = math.floor(RKP())
+		local rkpDisplay = RKP()
 		--if rkpDisplay > 1000 then
-			Cute_Frame.Text:SetText((math.floor(rkpDisplay)).."%") 
+			Cute_Frame.Text:SetText((rkpDisplay).."%") 
 		--else 
 		--	Cute_Frame.Text:SetText(rkpDisplay) 
 		--end
 		Cute_Frame:SetValue(rkpDisplay)
 		-- Status Color
-		if rkpDisplay > 1.15 then
+		if rkpDisplay > 1 then
 			Cute_Frame:GetStatusBarTexture():SetTexture(0/255, 255/255, 0/255,0.75,"OVERLAY")
 		else
 			Cute_Frame:GetStatusBarTexture():SetTexture(217/255, 0/255, 0/255,0.75,"OVERLAY")
@@ -80,12 +80,12 @@ function Cute_FrameUpdate(self, elapsed)
 	end
 	-- Frame 2
 	if RKD() ~= nil and UnitDebuffID("Target", 1822, "Player") then
-		local rkdDisplay = math.floor(RKD())
-		if rkdDisplay > 1000 then
-			Cute_Frame2.Text:SetText((math.floor(rkdDisplay/1000)).."k") 
-		else 
+		local rkdDisplay = RKD()--math.floor(RKD())
+		-- if rkdDisplay > 1000 then
+		-- 	Cute_Frame2.Text:SetText((math.floor(rkdDisplay/1000)).."k") 
+		-- else 
 			Cute_Frame2.Text:SetText(rkdDisplay) 
-		end
+		-- end
 		Cute_Frame2:SetValue(rkdDisplay)
 		Cute_Frame2:GetStatusBarTexture():SetTexture(217/255, 0/255, 0/255,0.75,"OVERLAY")
 	else
@@ -95,15 +95,15 @@ function Cute_FrameUpdate(self, elapsed)
 	end
 	-- Frame 3
 	if RPP() ~= nil and UnitDebuffID("Target", 1079, "Player") then
-		local rppDisplay = math.floor(RPP())
+		local rppDisplay = RPP()
 		--if rppDisplay > 1000 then
-			Cute_Frame3.Text:SetText((math.floor(rppDisplay)).."%") 
+			Cute_Frame3.Text:SetText((rppDisplay).."%") 
 		--else 
 		--	Cute_Frame3.Text:SetText(rkpDisplay) 
 		--end
 		Cute_Frame3:SetValue(rppDisplay)
 		-- Status Color
-		if rppDisplay > 1.15 then
+		if rppDisplay > 1 then
 			Cute_Frame3:GetStatusBarTexture():SetTexture(0/255, 255/255, 0/255,0.75,"OVERLAY")
 		else
 			Cute_Frame3:GetStatusBarTexture():SetTexture(217/255, 0/255, 0/255,0.75,"OVERLAY")
@@ -114,12 +114,12 @@ function Cute_FrameUpdate(self, elapsed)
 	end
 	-- Frame 4
 	if RPD() ~= nil and UnitDebuffID("Target", 1079, "Player") then
-		local rpdDisplay = math.floor(RPD())
-		if rpdDisplay > 1000 then
-			Cute_Frame4.Text:SetText((math.floor(rpdDisplay/1000)).."k") 
-		else 
+		local rpdDisplay = RPD()--math.floor(RPD())
+		-- if rpdDisplay > 1000 then
+		-- 	Cute_Frame4.Text:SetText((math.floor(rpdDisplay/1000)).."k") 
+		-- else 
 			Cute_Frame4.Text:SetText(rpdDisplay) 
-		end
+		-- end
 		Cute_Frame4:SetValue(rpdDisplay)
 		Cute_Frame4:GetStatusBarTexture():SetTexture(217/255, 0/255, 0/255,0.75,"OVERLAY")
 	else
@@ -129,12 +129,12 @@ function Cute_FrameUpdate(self, elapsed)
 	end	
 	-- Frame 5
 	if CRKD() ~= nil then --and UnitDebuffID("Target", 1822, "Player") then
-		local crkdDisplay = math.floor(CRKD())
-		if crkdDisplay > 1000 then
-			Cute_Frame5.Text:SetText((math.floor(crkdDisplay/1000)).."k") 
-		else 
+		local crkdDisplay = CRKD()--math.floor(CRKD())
+		-- if crkdDisplay > 1000 then
+		-- 	Cute_Frame5.Text:SetText((math.floor(crkdDisplay/1000)).."k") 
+		-- else 
 			Cute_Frame5.Text:SetText(crkdDisplay) 
-		end
+		-- end
 		Cute_Frame5:SetValue(crkdDisplay)
 		Cute_Frame5:GetStatusBarTexture():SetTexture(217/255, 0/255, 0/255,0.75,"OVERLAY")
 	else
@@ -143,12 +143,12 @@ function Cute_FrameUpdate(self, elapsed)
 	end
 	-- Frame 6
 	if CRPD() ~= nil then --and UnitDebuffID("Target", 1079, "Player") then
-		local crpdDisplay = math.floor(CRPD())
-		if crpdDisplay > 1000 then
-			Cute_Frame6.Text:SetText((math.floor(crpdDisplay/1000)).."k") 
-		else 
+		local crpdDisplay = CRPD()--math.floor(CRPD())
+		-- if crpdDisplay > 1000 then
+		-- 	Cute_Frame6.Text:SetText((math.floor(crpdDisplay/1000)).."k") 
+		-- else 
 			Cute_Frame6.Text:SetText(crpdDisplay) 
-		end
+		-- end
 		Cute_Frame6:SetValue(crpdDisplay)
 		Cute_Frame6:GetStatusBarTexture():SetTexture(217/255, 0/255, 0/255,0.75,"OVERLAY")
 	else
