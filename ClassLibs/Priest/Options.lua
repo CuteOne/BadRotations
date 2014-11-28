@@ -29,14 +29,8 @@ if select(3, UnitClass("player")) == 5 then
 			ClearConfig();
 			thisConfig = 0;
 			-- Title
-			CreateNewTitle(thisConfig,"Shadow |cffBA55D3ragnar");
+			CreateNewTitle(thisConfig,"shadow ravens   |cffBA55D3by ragnar");
 
-			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"--- Buffs");
-
-				--Power Word: Fortitude
-				CreateNewCheck(thisConfig,"PW: Fortitude");
-				CreateNewText(thisConfig,"PW: Fortitude");
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"--- Defensive");
@@ -77,6 +71,10 @@ if select(3, UnitClass("player")) == 5 then
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"--- Offensive");
 
+				-- Single Target Rotation chose
+				CreateNewDrop(thisConfig,"AutoRota",2,"Choose the rotation for single target while using Auto","|cffBA55D3weave","|cff00A9EBtrad");
+				CreateNewText(thisConfig,"Auto: SingleTarget");
+
 				-- Power Infusion
 				if isKnown(PI) then
 					CreateNewCheck(thisConfig,"Power Infusion");
@@ -111,15 +109,35 @@ if select(3, UnitClass("player")) == 5 then
 					-- VT
 					CreateNewCheck(thisConfig,"VT");
 					CreateNewText(thisConfig,"Weave VT");
-					-- Lag Comp
-					CreateNewCheck(thisConfig,"Weave Comp");
-					CreateNewBox(thisConfig,"Weave Comp", 1, 10, 1, 7, "A factor used for DoTWeaving\nPlay with it and use the best result.\nMin: 1 / Max: 10 / Interval: 1\n10=GCD, 1=GCD/10")
+					-- Weave Comp
+					-- CreateNewCheck(thisConfig,"Weave Comp");
+					CreateNewBox(thisConfig,"Weave Comp", 1, 15, 1, 7, "A factor used for DoTWeaving\nExperimental.\nUse 8-10.\nMin: 1 / Max: 15 / Interval: 1")
 					CreateNewText(thisConfig,"Weave Comp Factor");
 			end
 
 			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"--- Utilities");
+			CreateNewWrap(thisConfig,"--- Multidot");
 
+				-- SWP
+				CreateNewCheck(thisConfig,"Multi SWP");
+				CreateNewText(thisConfig,"Multi SWP");
+
+				-- VT
+				CreateNewCheck(thisConfig,"Multi VT");
+				CreateNewText(thisConfig,"Multi VT");
+
+				-- Max Targets
+				-- CreateNewCheck(thisConfig,"Max Targets");
+				CreateNewBox(thisConfig,"Max Targets", 1, 15, 1, 5, "Set to desired time for test in minutes.\nMin: 1 / Max: 25 / Interval: 1");
+				CreateNewText(thisConfig,"Max Targets on 4+");
+
+			-- Wrapper -----------------------------------------
+			CreateNewWrap(thisConfig,"--- Utilities");
+				
+				--Power Word: Fortitude
+				CreateNewCheck(thisConfig,"PW: Fortitude");
+				CreateNewText(thisConfig,"PW: Fortitude");
+				
 				-- Shadowform Outfight
 				CreateNewCheck(thisConfig,"Shadowform Outfight");
 				CreateNewText(thisConfig,"Auto Shadowform Outfight");

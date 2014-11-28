@@ -193,14 +193,14 @@ if select(3, UnitClass("player")) == 11 then
 
         --Cleave Key Toggle
         if CleaveTimer == nil then CleaveTimer = 0; end
-        if SpecificToggle("Cleave Toggle") and not GetCurrentKeyBoardFocus() and GetTime() - CleaveTimer > 0.25 then
+        if SpecificToggle("Cleave Mode") and not GetCurrentKeyBoardFocus() and GetTime() - CleaveTimer > 0.25 then
             CleaveTimer = GetTime()
             UpdateButton("Cleave")
         end
 
         --Prowl Key Toggle
         if ProwlTimer == nil then ProwlTimer = 0; end
-        if SpecificToggle("Prowl Toggle") and not GetCurrentKeyBoardFocus() and GetTime() - ProwlTimer > 0.25 then
+        if SpecificToggle("Prowl Mode") and not GetCurrentKeyBoardFocus() and GetTime() - ProwlTimer > 0.25 then
             ProwlTimer = GetTime()
             UpdateButton("Prowl")
         end

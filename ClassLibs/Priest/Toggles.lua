@@ -40,8 +40,11 @@ if select(3, UnitClass("player")) == 5 then
 		-- AoE Button
 		if AoEModesLoaded ~= "Shadow Priest AoE Modes" then
 			AoEModes = {
-				[1] = { mode = "off", value = 1 , overlay = "AoE Disabled", tip = "|cffFF0000AoE \n|cffFFDD11No cooldowns will be used.", highlight = 0, icon = 48045 },
-				[2] = { mode = "auto", value = 2 , overlay = "AoE Auto", tip = "|cff00FF00AoE \n|cffFFDD11Enemies>=5. \n|cffFF0000Spells Included: \n|cffFFDD11Mind Sear", highlight = 1, icon = 48045 }
+				[1] = { mode = "trad", value = 1 , overlay = "Traditional Single", tip = "|cff00FF00AoE \n|cffFFDD11Traditional Singletarget. \n|cffFF0000", highlight = 0, icon = 139139 },
+				[2] = { mode = "weave", value = 2 , overlay = "DoT Weave Single", tip = "|cff00FF00AoE \n|cffFFDD11DoT Weave Singletarget. \n|cffFF0000", highlight = 0, icon = 73510 },
+				[3] = { mode = "2-3", value = 3 , overlay = "2-3 Targets", tip = "|cff00FF00AoE \n|cffFFDD112-3 Enemies. \n|cffFF0000", highlight = 0, icon = 589 },
+				[4] = { mode = "4+", value = 3 , overlay = "4+ Targets", tip = "|cff00FF00AoE \n|cffFFDD114+ Enemies. \n|cffFF0000", highlight = 0, icon = 48045 },
+				[5] = { mode = "auto", value = 4 , overlay = "AoE Auto", tip = "|cff00FF00AoE \n|cffFFDD11Auto decision (not implemented yet). \n|cffFF0000", highlight = 1, icon = 8092 }
 			};
 			CreateButton("AoE",0,1)
 			AoEModesLoaded = "Shadow Priest AoE Modes";
@@ -70,7 +73,7 @@ if select(3, UnitClass("player")) == 5 then
 		if DefensiveModesLoaded ~= "Shadow Priest Defensive Modes" then
 			DefensiveModes = {
 				[1] = { mode = "off", value = 1, overlay = "Defensive Disabled", tip = "|cffFF0000Defensive \n|cffFFDD11No Defensive Cooldowns will be used.", highlight = 0, icon = 17 },
-				[2] = { mode = "on", value = 2, overlay = "Defensive Enabled", tip = "|cff00FF00Defensive \n|cffFF0000Spells Included: \n|cffFFDD11Power Word: Shield \nFade (glyphed) \nDesperate Prayer \nHealthstone", highlight = 1, icon = 17 },
+				[2] = { mode = "on", value = 2, overlay = "Defensive Enabled", tip = "|cff00FF00Defensive \n|cffFF0000Spells Included: \n|cffFFDD11Power Word: Shield \nFade (glyphed) \nDesperate Prayer \nHealthstone", highlight = 1, icon = 17 }
 			};
 			CreateButton("Defensive",1,0)
 			DefensiveModesLoaded = "Shadow Priest Defensive Modes";

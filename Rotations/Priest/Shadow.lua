@@ -31,8 +31,12 @@ if select(3, UnitClass("player")) == 5 then
 			if lastVT==nil then lastVT=0 end
 			if lastDP==nil then	lastDP=99 end
 
-		-- Set Enemies Table
-			makeEnemiesTable(60)
+			-- Set Enemies Table
+			if myEnemiesTableTimer == nil or myEnemiesTableTimer <= GetTime() - 1 then
+				makeEnemiesTable(40)
+				myEnemiesTableTimer = GetTime()
+			end
+
 
 
 
@@ -99,7 +103,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- Angelic Feather
-		if isKnown(AngelicFeather) and isChecked("Angelic Feather") and getGround("player") and IsMovingTime(0.33) and not UnitBuffID("player",AngelicFeatherBuff) then
+		if isKnown(AngelicFeather) and isChecked("Angelic Feather") and getGround("player") and IsMovingTime(0.75) and not UnitBuffID("player",AngelicFeatherBuff) then
 			if castGround("player",AngelicFeather,30) then
 				SpellStopTargeting();
 				return;
@@ -119,7 +123,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- AffectingCombat, Pause, Target, Dead/Ghost Check
 		if UnitAffectingCombat("player") then
 
-			-- Shadowform outfight
+			-- Shadowform
 			if not UnitBuffID("player",Shadowform) then
 				if castSpell("player",Shadowform,true,false) then return; end
 			end
@@ -148,49 +152,33 @@ if select(3, UnitClass("player")) == 5 then
 			----------------
 			ShadowCooldowns()
 
-			---------------
-			-- Interrupt --
-			---------------
-			if BadBoy_data['Kicks'] == 2 then
-				ShadowKicks()
+			-----------------------
+			-- Rotation Decision --
+			-----------------------
+			-- Single Traditional
+			if BadBoy_data['AoE'] == 1 then IcySingle() end
+			-- Single DotWeave
+			if BadBoy_data['AoE'] == 2 then IcySingleWeave() end
+			-- 2-3 Targets
+			if BadBoy_data['AoE'] == 3 then Icy23Targets() end
+			-- 4+ Targets
+			if BadBoy_data['AoE'] == 4 then Icy4AndMore() end
+			-- Auto
+			if BadBoy_data['AoE'] == 5 then  
+				-- singletarget
+				if #enemiesTable==1 then
+					-- weave=1, trad=2
+					if getValue("AutoRota")==1 then IcySingleWeave() end
+					if getValue("AutoRota")==2 then IcySingle() end
+				end
+				-- 2-3 targets
+				if #enemiesTable>2 and #enemiesTable<4 then Icy23Targets() end
+				-- 4+ targets
+				if #enemiesTable>4 then Icy4AndMore() end
 			end
 
-			--------------
-			-- Decision --
-			--------------
-				-- Aoe
-				if BadBoy_data['AoE'] == 2 then
-					if UnitExists("target") and getNumEnemiesInRange("target",10)>=5 then
-						ShadowAoE()
-					end
-				end
 
-				-- Rotation
-					-- Break MF for MB
-				if getSpellCD(MB)<0.5 and select(1,UnitChannelInfo("player")) == "Mind Flay" then
-					--print("--- BREAK MF ---")
-					RunMacroText("/stopcasting")
-				end
-					-- Burn
-				if isKnown(CoP) and getHP("target")<=20 then
-					ShadowCoPBurn()
-				end
-					-- standard rotation
-				if isKnown(CoP) then
-					ShadowH2PCoP()
-				end
 		end -- AffectingCombat, Pause, Target, Dead/Ghost Check
 	end
 end
 
-
-
--- Mindbender isboss
--- do pause if dispersion
--- Auto Rez
-
----------------------------
--- Mindbender: 			12	k
--- Insanity (SWP,VT):	12.5k
--- Insanity (SWP):		12.2k
--- Insanity (noWeave):	
