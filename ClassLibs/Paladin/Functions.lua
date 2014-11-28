@@ -112,16 +112,7 @@ if select(3,UnitClass("player")) == 2 then
 				 if useItem(5512) then -- Healthstone
 				 	return true
 				 end
-				 --if useItem(118006) then -- Shieldtronic Shield
-				 --	return true
-				 --end
-
-				 --if useItem(113143) then -- Glowing Honeycomb
-				 --	return true
-				 ---end
 			end
-
-
 			return false
 		end
 
@@ -147,20 +138,14 @@ if select(3,UnitClass("player")) == 2 then
 		end
 
 		function  ProtPaladinDispell() -- Handling the dispelling self and party
-			-- Defensive and offensive dispelling, ie debuffs or buffs
 			--canDispel(Unit,spellID)
 			return false -- Return false until we have coded it
 		end
-		-- ProtPaladinCooldowns() -- Handles the use of offensive Coolsdowns, ProtPaladinSurvival... handles the defensive.
-
-		-- Todo: Create logic for when to use it, proccs or whatever
-		-- 	Also toggle/configuration for more flexibility, at the moment its on or off
-
+		
 		function ProtPaladinEnemyUnitHandler() -- Handles Enemy Units gathering
 			-- At the moment only populating table to see performance.
 			makeEnemiesTable(40)-- Unit in 40 range
-			--tinsert(enemiesTable,{ unit = thisUnit, distance = unitDistance, hp = unitHP })
-
+			
 			-- Make sure we declare our AoE treshold ASAP and refresh it every seconds
 			if numberOfTargetsMelee == nil or numberOfTargetsMeleeTimer == nil or numberOfTargetsMeleeTimer <= GetTime() - 1 then
 				numberOfTargetsMelee, numberOfTargetsMeleeTimer = getNumEnemies("player",4), GetTime()
@@ -174,15 +159,6 @@ if select(3,UnitClass("player")) == 2 then
 
 
 		function ProtPaladinFriendlyUnitHandler() -- Handles freindly Units gathering
-			-- Using Novas table
-			--print("Table has " ..#nNova)
-
-			-- Todo: Check threat levels for each member and attack their  targets or cast HoSalv. Should we not just check enemies?
-			-- Todo: Check for valed aoe heals target for lights hammer
-			-- Todo: Checl targets for dispelling
-			-- Todo Check targets for Hand Of Freedom
-			-- Todo Check targets for Hand of Protection
-
 			return
 		end
 

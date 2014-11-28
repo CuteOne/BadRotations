@@ -23,18 +23,44 @@ function EnemiesEngine()
 -- could declare more filters
 burnUnitCandidates = {
 	{ unitID = 71603 }, -- immersus ooze, kill on sight
+	-- Shadowmoon Burial Grounds
+	{ unitID = 75966 }, -- Defiled Spirit, need to be cc and snared and is not allowed to reach boss.
+	{ unitID = 75899 }, -- Possessed Soul, 
+	{ unitID = 76518 }, -- Ritual of Bones, marked one... Todo: Can we check if mobs is marked with skull?
 } 
 
 -- doNotTouchUnitCandidates - List of units that we should not attack for any reason
 -- can declare more filters: buff, debuff
 doNotTouchUnitCandidates = { 
-	{ unitID = 166591 }, -- Never attack Sanguine Sphere
-  	{ unitID = 71515 , buff = 143593 }, --do not attack during defensive stance buff
+	-- Iron Docks
+  	{ unitID = 71515 , buff = 143593 }, --Fleshrender Nok'gar, do not attack during defensive stance buff, Todo: Should stop when he cast 164504
+  	{ unitID = 1, buff = 163689  }, -- Never attack Sanguine Sphere
 }
+
+crowdControlCandidates = {
+	-- Shadowmoon Burial Grounds
+	{ unitID = 75966 }, -- Defiled Spirit, need to be cc and snared and is not allowed to reach boss.
+	{ unitID = 76446 }, -- Shadowmoon Enslavers
+	{ unitID = 75899 }, -- Possessed Soul, only for melee i guess
+}
+
+-- Units with spells that should be interrupted if possible. Good to have units so we can save interrupting spells when targeting them.
+interruptCandidates = {
+	-- Shadowmoon Burial Grounds
+	{ unitID = 75652, spell = 152964  }, -- Void Spawn casting Void Pulse, trash mobs 
+	{ unitID = 76446, spell = 156776  }, -- Shadowmoon Enslavers channeling Rending Voidlash
+	{ unitID = 76104, spell = 156717  }, -- Monstrous Corpse Spider casting Death Venom
+} 
+
+-- List of units that are hitting hard, ie when its good to use defensive CDs
+dangerousUnits  = {
+	-- Shadowmoon Burial Grounds
+	{ unitID = 86234, buff = 162696, spell = 162696 }, -- Sadana buffed with deathspikes
+	{ unitID = 75829, buff = 152792, spell = 152792 }, -- Nhallish casting Void Blast or buffed
+} 
 
 function makeEnemiesTable(maxDistance)
 	local  maxDistance = maxDistance or 50
-	-- Throttle this 1 sec.
 	if enemiesTable == nil or enemiesTableTimer == nil or enemiesTableTimer <= GetTime() - 1 then
 		enemiesTableTimer = GetTime()
 		-- create/empty table
@@ -42,13 +68,14 @@ function makeEnemiesTable(maxDistance)
 		-- use objectmanager to build up table
 	 	for i = 1, ObjectCount() do
 	 		-- define our unit
-		  	local thisUnit = ObjectWithIndex(i);
+		  	local thisUnit = ObjectWithIndex(i)
 	 		-- sanity checks
 	 		if getSanity(thisUnit) == true then
   				-- get the unit distance
   				local unitDistance = getDistance("player",thisUnit)
 				-- distance check according to profile needs
   				if unitDistance <= maxDistance then
+  					
 		  			-- get unit Infos
 		  			local safeUnit = safeToAttack(thisUnit)
 		  			local burnUnit = burnTarget(thisUnit)
@@ -58,6 +85,7 @@ function makeEnemiesTable(maxDistance)
 	  				local X1, Y1, Z1 = ObjectPosition(thisUnit)
 					local unitCoeficient = getUnitCoeficient(thisUnit,unitDistance,unitThreat) or 0
   					local unitHP = getHP(thisUnit)
+  					local inCombat = UnitAffectingCombat(thisUnit)
   					-- insert unit as a sub-array holding unit informations
    					tinsert(enemiesTable, { 
    						name = unitName, 
