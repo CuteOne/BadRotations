@@ -113,9 +113,20 @@ if select(3, UnitClass("player")) == 5 then
 					CreateNewText(thisConfig,"Weave VT");
 					-- Weave Comp
 					-- CreateNewCheck(thisConfig,"Weave Comp");
-					CreateNewBox(thisConfig,"Weave Comp", 1, 15, 1, 7, "A factor used for DoTWeaving\nPlay with it and use the best result.\nMin: 1 / Max: 15 / Interval: 1")
+					CreateNewBox(thisConfig,"Weave Comp", 1, 15, 1, 7, "A factor used for DoTWeaving\nExperimental.\nUse 8-10.\nMin: 1 / Max: 15 / Interval: 1")
 					CreateNewText(thisConfig,"Weave Comp Factor");
 			end
+
+			-- Wrapper -----------------------------------------
+			CreateNewWrap(thisConfig,"--- Multidot");
+
+				-- SWP
+				CreateNewCheck(thisConfig,"MultiSWP");
+				CreateNewText(thisConfig,"SWP");
+
+				-- VT
+				CreateNewCheck(thisConfig,"MultiVT");
+				CreateNewText(thisConfig,"VT");
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"--- Utilities");
