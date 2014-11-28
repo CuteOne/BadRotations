@@ -1003,7 +1003,7 @@ function getLineOfSight(Unit1,Unit2)
 		76585, -- Ragewing
 	}
 	for i = 1, #skipLoSTable do
-		if getUnitID(Unit1) or getUnitID(Unit2) then
+		if getUnitID(Unit1) == skipLoSTable[i] or getUnitID(Unit2) == skipLoSTable[i] then
 			return true
 		end
 	end
