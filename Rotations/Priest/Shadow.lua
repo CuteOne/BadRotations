@@ -157,8 +157,8 @@ if select(3, UnitClass("player")) == 5 then
 			-----------------------
 			-- Single target
 			if BadBoy_data['AoE'] == 1 then
-				if getValue("SingleRota")==1 then IcySingleWeave() end
-				if getValue("SingleRota")==2 then IcySingle() end
+				if getValue("SingleRotation")==1 then IcySingleWeave() end
+				if getValue("SingleRotation")==2 then IcySingle() end
 			end
 			-- 2-3 Targets
 			if BadBoy_data['AoE'] == 2 then Icy23Targets() end
