@@ -32,6 +32,7 @@ if select(3, UnitClass("player")) == 5 then
 	--[[]]	   			--[[           ]]	--[[]]	 --[[  ]]	--[[   		   ]]		 --[[ ]]		--[[   		   ]]	--[[           ]]	--[[]]	 --[[  ]]
 	--[[]]	   			--[[           ]]	--[[]]	   --[[]]	--[[   		   ]]		 --[[ ]]		--[[   		   ]]	--[[           ]]	--[[]]	   --[[]]
 
+	--[[                    ]] -- General Functions start
 
 	-- get threat situation on player and return the number
 	function getThreat()
@@ -41,23 +42,46 @@ if select(3, UnitClass("player")) == 5 then
 		-- 2 - Unit is mobUnit's primary target, and another unit has 100% or higher raw threat (default UI shows orange indicator)
 		-- 3 - Unit is mobUnit's primary target, and no other unit has 100% or higher raw threat (default UI shows red indicator)
 	end
+
+	-- Break MF cast for MB
+	function breakMF()
+		if getSpellCD(MB)<getSpellCD(61304) and (select(1,UnitChannelInfo("player")) == "Mind Flay" or select(1,UnitChannelInfo("player"))) == "Insanity" then
+			--print("--- BREAK MF ---")
+			RunMacroText("/stopcasting")
+		end
+	end
 	
 	-- Check if SWP is on 3 units or if #enemiesTable is <3 then on #enemiesTable
-	-- function checkSWP()
-	-- 	local counter = 0
-	-- 	-- iterate units for SWP
-	-- 	for i=1,#enemiesTable do
-	-- 		local thisUnit = enemiesTable[i].unit
-	-- 		-- increase counter for each SWP
-	-- 		if UnitAffectingCombat(thisUnit) and UnitDebuffID(thisUnit,SWP,"player") then
-	-- 			counter=1
-	-- 		end
-	-- 	end
-	-- 	-- return counter if counter<=3 and return 3 if counter<3
-	-- 	return counter
-	-- end
+	function getSWP()
+		local counter = 0
+		-- iterate units for SWP
+		for i=1,#enemiesTable do
+			local thisUnit = enemiesTable[i].unit
+			-- increase counter for each SWP
+			if (UnitAffectingCombat(thisUnit) or isDummy(thisUnit)) and UnitDebuffID(thisUnit,SWP,"player") then
+				counter=counter+1
+			end
+		end
+		-- return counter
+		return counter
+	end
 
+	-- Check if VT is on 3 units or if #enemiesTable is <3 then on #enemiesTable
+	function getVT()
+		local counter = 0
+		-- iterate units for SWP
+		for i=1,#enemiesTable do
+			local thisUnit = enemiesTable[i].unit
+			-- increase counter for each SWP
+			if (UnitAffectingCombat(thisUnit) or isDummy(thisUnit)) and UnitDebuffID(thisUnit,VT,"player") then
+				counter=counter+1
+			end
+		end
+		-- return counter
+		return counter
+	end
 
+	--[[                    ]] -- General Functions end
 
 
 
@@ -147,7 +171,7 @@ if select(3, UnitClass("player")) == 5 then
 				end
 				local Break=DoTWeaveBreak()
 				-- if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<Break then
-				if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<GCD then
+				if ORBS>=4 and getHP("target")>20 then
 					if isChecked("SWP") then
 						if not UnitDebuffID("target",SWP,"player") then
 							if castSpell("target",SWP,true,false) then return; end
@@ -201,8 +225,8 @@ if select(3, UnitClass("player")) == 5 then
 					-- Mind Blast on cd - No - Cast it
 					if castSpell("target",MB,false,false) then return; end
 
-					-- Mind Blast on cd - Yes - Cast Mind Spike
-					if ORBS<=4 then
+					-- Mind Spike
+					if ORBS<=4 or (ORBS==4 and (getDebuffRemain("target",SWP,"player") or getDebuffRemain("target",VT,"player")) then
 						if not UnitDebuffID("target",DP,"player") then 
 							if castSpell("target",MSp,false,true) then return; end
 						end
@@ -301,16 +325,16 @@ if select(3, UnitClass("player")) == 5 then
 		makeEnemiesTable(40)
 		-- DP
 		if ORBS>=3 then
-			if getDebuffRemain("target",SWP,"player")>DPTIME and getDebuffRemain("target",VT,"player")>DPTIME then
+			-- if (getDebuffRemain("target",SWP,"player")>DPTIME or not isChecked("Multi SWP")) and (getDebuffRemain("target",VT,"player")>DPTIME or not isChecked("Multi VT")) then
 				if castSpell("target",DP,false,true) then return; end
-			end
+			-- end
 		end
 
-		-- -- MB
-		-- --breakMF()
-		-- if ORBS<5 then
-		-- 	if castSpell("target",MB,false,false) then return; end
-		-- end
+		-- MB
+		--breakMF()
+		if ORBS<5 then
+			if castSpell("target",MB,false,false) then return; end
+		end
 
 		-- SWD on Unit in range and hp<20
 		if getSpellCD(SWD)==0 and ORBS<5 then
@@ -323,29 +347,40 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- SWP on max 3 targets
-		if isChecked("MultiSWP") then
-			for i = 1, #enemiesTable do
-				local thisUnit = enemiesTable[i].unit
-				if UnitAffectingCombat(thisUnit) and getDebuffRemain(thisUnit,SWP,"player") < 6 then
-					if castSpell(thisUnit,SWP,true,false) then return; end
+		if getSWP()<getValue("Max Targets") then
+			if isChecked("Multi SWP") then
+				for i = 1, #enemiesTable do
+					local thisUnit = enemiesTable[i].unit
+					local ttd = getTimeToDie(thisUnit)
+					local swpRem = getDebuffRemain(thisUnit,SWP,"player")
+					if (UnitAffectingCombat(thisUnit) or isDummy(thisUnit)) and getDebuffRemain(thisUnit,SWP,"player") < 5.4 then
+						if castSpell(thisUnit,SWP,true,false) then return; end
+					end
 				end
 			end
 		end
 
 		-- VT on Unit in range
-		if isChecked("MultiVT") then
-			for i = 1, #enemiesTable do
-				local thisUnit = enemiesTable[i].unit
-				if UnitAffectingCombat(thisUnit) and getDebuffRemain(thisUnit,VT,"player") < 6 then
-					if castSpell(thisUnit,VT,true,true) then return; end
+		if getVT()<getValue("Max Targets") then
+			if isChecked("Multi VT") then
+				for i = 1, #enemiesTable do
+					local thisUnit = enemiesTable[i].unit
+					local ttd = getTimeToDie(thisUnit)
+					local vtRem = getDebuffRemain(thisUnit,VT,"player")
+					if UnitAffectingCombat(thisUnit) and getDebuffRemain(thisUnit,VT,"player") < 4.5 and GetTime()-lastVT>2 then
+						if castSpell(thisUnit,VT,true,true) then 
+							lastVT=GetTime()
+							return
+						end
+					end
 				end
 			end
 		end
 
-		-- -- MF Filler
-		-- if select(1,UnitChannelInfo("player")) == nil then
-		-- 	if castSpell("target",MF,false,true) then return; end
-		-- end
+		-- MF Filler
+		if ORBS<3 and select(1,UnitChannelInfo("player")) == nil then
+			if castSpell("target",MF,false,true) then return; end
+		end
 	end
 	--[[                    ]] -- Icy 2-3 Targets end
 
@@ -381,20 +416,21 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- SWP on max 3 targets
-		if isChecked("MultiSWP") then
+		if isChecked("Multi SWP") then
 			for i = 1, #enemiesTable do
+				local countSWP=0
 				local thisUnit = enemiesTable[i].unit
-				if UnitAffectingCombat(thisUnit) and getDebuffRemain(thisUnit,SWP,"player") < 6 then
+				if UnitAffectingCombat(thisUnit) and getDebuffRemain(thisUnit,SWP,"player") < 5.4 then
 					if castSpell(thisUnit,SWP,true,false) then return; end
 				end
 			end
 		end
 
 		-- VT on Unit in range
-		if isChecked("MultiVT") then
+		if isChecked("Multi VT") then
 			for i = 1, #enemiesTable do
 				local thisUnit = enemiesTable[i].unit
-				if UnitAffectingCombat(thisUnit) and getDebuffRemain(thisUnit,VT,"player") < 6 then
+				if UnitAffectingCombat(thisUnit) and getDebuffRemain(thisUnit,VT,"player") < 4.5 then
 					if castSpell(thisUnit,VT,true,true) then return; end
 				end
 			end

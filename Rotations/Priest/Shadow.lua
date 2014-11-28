@@ -6,7 +6,7 @@ if select(3, UnitClass("player")) == 5 then
 			ShadowToggles();
 			currentConfig = "Shadow ragnar";
 		end
-		Head End
+		-- Head End
 
 		-- Locals / Globals--
 			GCD = 1.5/(1+UnitSpellHaste("player")/100)
@@ -31,7 +31,7 @@ if select(3, UnitClass("player")) == 5 then
 			if lastVT==nil then lastVT=0 end
 			if lastDP==nil then	lastDP=99 end
 
-			Set Enemies Table
+			-- Set Enemies Table
 			if myEnemiesTableTimer == nil or myEnemiesTableTimer <= GetTime() - 1 then
 				makeEnemiesTable(40)
 				myEnemiesTableTimer = GetTime()
@@ -164,7 +164,18 @@ if select(3, UnitClass("player")) == 5 then
 			-- 4+ Targets
 			if BadBoy_data['AoE'] == 4 then Icy4AndMore() end
 			-- Auto
-			--if BadBoy_data['AoE'] == 5 then  end
+			if BadBoy_data['AoE'] == 5 then  
+				-- singletarget
+				if #enemiesTable==1 then
+					-- weave=1, trad=2
+					if getValue("AutoRota")==1 then IcySingleWeave() end
+					if getValue("AutoRota")==2 then IcySingle() end
+				end
+				-- 2-3 targets
+				if #enemiesTable>2 and #enemiesTable<4 then Icy23Targets() end
+				-- 4+ targets
+				if #enemiesTable>4 then Icy4AndMore() end
+			end
 
 
 		end -- AffectingCombat, Pause, Target, Dead/Ghost Check
