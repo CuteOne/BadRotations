@@ -249,8 +249,7 @@ end
 function makeSpellCastersTable()
 	spellCastersTable = { }
 	for i = 1, #enemiesTable do
-		if enemiesTable[i].cast.casting ~= false and enemiesTable[i].cast.canBeInterrupted == true 
-		  and getFacing("player",enemiesTable[i].unit) == true then
+		if enemiesTable[i].cast.casting ~= false and enemiesTable[i].cast.canBeInterrupted == true then
 		  	tinsert(spellCastersTable, { unit = enemiesTable[i].unit, castName = enemiesTable[i].cast.casting, 
 		  	  castLenght = enemiesTable[i].cast.castLenght, castEnd = enemiesTable[i].cast.castTime, distance = enemiesTable[i].distance, })
 		end
@@ -270,8 +269,6 @@ function castInterupt(spell,percent)
 			tremove(castersBlackList, j)
 		end
 	end
-
-
 
 	if canCast(spell,false,false) == true then
 		for i = 1, #spellCastersTable do

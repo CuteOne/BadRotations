@@ -85,9 +85,22 @@ if select(3,UnitClass("player")) == 2 then
 		-- ToDos:  Add multiple interrupts such as binding light(if within 10 yards and facing, Fist of Justice(stuns), Avengers shield
 		-- Should perhaps move out the spellCD and ranged outside canInterrupt?? So first check if range and cd is ok for cast, then check for timeframe?d
 		function ProtPaladinInterrupt()
-			if isChecked("Avengers Shield Interrupt") or isChecked("Rebuke") then
-				makeSpellCastersTable()
+
+			makeSpellCastersTable()  --spellCastersTable
+
+			if #spellCastersTable > 1 then -- Todo: Check if they are in range for Arcane Torrent
+				local numberofcastersinrangeofarcanetorrent = 0
+				for i = 1, #spellCastersTable do
+					if spellCastersTable[i].distance < 8 then
+						numberofcastersinrangeofarcanetorrent = numberofcastersinrangeofarcanetorrent + 1
+		  			end
+		  		end
+				if numberofcastersinrangeofarcanetorrent > 1 and castArcaneTorrent() then
+					print("Casting Arcane Torrent")
+					return true
+				end
 			end
+
 			if isChecked("Avengers Shield Interrupt") then
 				castInterupt(_AvengersShield,getValue("Avengers Shield Interrupt"))
 			end
@@ -95,6 +108,7 @@ if select(3,UnitClass("player")) == 2 then
 			if isChecked("Rebuke") then 
 				castInterupt(_Rebuke,getValue("Rebuke"))-- We should handle who to interrupt outside the castRebuke etc, hardocded to target atm
 			end
+			
 			
 			-- Should add Fist of Justice or other stuns/cc
 			return false
@@ -144,9 +158,22 @@ if select(3,UnitClass("player")) == 2 then
 		
 		function ProtPaladinEnemyUnitHandler() -- Handles Enemy Units gathering
 			-- At the moment only populating table to see performance.
-			makeEnemiesTable(40)-- Unit in 40 range
-			
+			makeEnemiesTable(40) -- enemiesTable, Unit in 40 range
+
+			-- getCastingInfo(unit)
+			-- getEnemies(unit,Radius) returns table of units
 			-- Make sure we declare our AoE treshold ASAP and refresh it every seconds
+			-- 	function makeSpellCastersTable() sets spellCastersTable = { }
+
+			-- check if target is safe or if u need to switch
+			if not safeToAttack("target") then
+				print("Unsafe Target")
+			end
+
+			if  burnTarget("target") then
+				print("Burn Target")
+			end
+
 			if numberOfTargetsMelee == nil or numberOfTargetsMeleeTimer == nil or numberOfTargetsMeleeTimer <= GetTime() - 1 then
 				numberOfTargetsMelee, numberOfTargetsMeleeTimer = getNumEnemies("player",4), GetTime()
 			end
@@ -173,23 +200,23 @@ if select(3,UnitClass("player")) == 2 then
 			if UnitBuffID("player", _DivinePurposeBuff) then  -- If we get free HP then use it on WoG if we are low health and have bastion of Glory stacks > 2, Todo; Get correct values
 				if getHP("player") < 50 and getBuffStacks("player", _BastionOfGlory) > 4 then
 					if castWordOfGlory("player", 0, 1) then
-						return true
+						return false
 					end
 				end	
 				-- If we are not low health then we should use it on SoR
 				if castShieldOfTheRighteous("target", 5) then
-					return true
+					return false
 				end
 			end	
 			
 			if getBuffStacks("player", _BastionOfGlory) > 4 then -- if we have bastion buff then we should use it 
 				if castWordOfGlory("player", 0, 3) then --cast if we are 70% and have HP
-					return true
+					return false
 				end
 			end
 
 			if castShieldOfTheRighteous("target", 5) then
-				return true
+				return false
 			end
 		end
 

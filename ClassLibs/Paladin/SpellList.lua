@@ -1,5 +1,6 @@
 if select(3,UnitClass("player")) == 2 then
 	if not initDone then
+		_ArcaneTorrent				= 	155145
 		_ArdentDefender             =   31850
 		_AvengersShield             =   31935
 		_AvengingWrath              =   31884
@@ -76,7 +77,15 @@ if select(3,UnitClass("player")) == 2 then
 	end
 
 	
-
+	-- Todo : Check Glyphs(is on us or can we cast it on ground 25 yards
+	function castArcaneTorrent()
+		if canCast(_ArcaneTorrent) then
+			if castSpell("player",_ArcaneTorrent,true) then 
+				return true
+			end
+		end
+		return false
+	end
 
 	-- Todo : Check Glyphs(is on us or can we cast it on ground 25 yards
 	function castConsecration(unit)
