@@ -268,15 +268,53 @@ function SuperReader(self, event, ...)
 		--[[ Bleed Recorder --]]
 		if select(3, UnitClass("player")) == 11 and GetSpecialization() == 2 then
 			if source == UnitGUID("player") then
+				function WA_calcStats()
+				    local DamageMult = 1
+				    
+				    local CP = GetComboPoints("player", "target")
+				    if CP == 0 then CP = 5 end
+				    
+				    if UnitBuffID("player",5217) then
+				        DamageMult = DamageMult * 1.15
+				    end
+				    
+				    if UnitBuffID("player",174544) then
+				        DamageMult = DamageMult * 1.4
+				    end
+				    
+				    WA_stats_BTactive = WA_stats_BTactive or  0
+				    if UnitBuffID("player",155672) then
+				        WA_stats_BTactive = GetTime()
+				        DamageMult = DamageMult * 1.3
+				    elseif GetTime() - WA_stats_BTactive < .2 then
+				        DamageMult = DamageMult * 1.3
+				    end
+				    
+				    local RakeMult = 1
+				    WA_stats_prowlactive = WA_stats_prowlactive or  0
+				    if UnitBuffID("player",102543) then
+				        RakeMult = 2
+				    elseif UnitBuffID("player",5215) or UnitBuffID("player",58984) then
+				        WA_stats_prowlactive = GetTime()
+				        RakeMult = 2
+				    elseif GetTime() - WA_stats_prowlactive < .2 then
+				        RakeMult = 2
+				    end
+    
+				    WA_stats_RipTick = CP*DamageMult
+				    WA_stats_RipTick5 = 5*DamageMult
+				    WA_stats_RakeTick = DamageMult*RakeMult
+				    WA_stats_ThrashTick = DamageMult
+				end
 	            -- snapshot on spellcast
 	            if spell == 1079 and param == "SPELL_CAST_SUCCESS" then
-	            	WA_calcStats_feral()
+	            	WA_calcStats()
 	                Rip_sDamage_cast = WA_stats_RipTick
 	            elseif spell == 1822 and (param == "SPELL_CAST_SUCCESS" or param == "SPELL_DAMAGE" or param == "SPELL_MISSED") then
-	                WA_calcStats_feral()
+	                WA_calcStats()
 	                Rake_sDamage_cast = WA_stats_RakeTick
 	            --elseif spell == 106830 and param == "SPELL_CAST_SUCCESS" then
-	            --    WA_calcStats_feral()
+	            --    WA_calcStats_Feral()
 	            --    Thrash_sDamage_cast = WA_stats_ThrashTick
 	            end
 	            -- but only record the snapshot if it successfully applied
