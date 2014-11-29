@@ -193,7 +193,7 @@ if select(3, UnitClass("player")) == 5 then
 			--DP if ORBS == 5
 			if isStanding(0.3) then
 				if ORBS==5 then
-					if castSpell("target",DP,false,true) then 
+					if castSpell("target",DP,false,true) then
 						lastDP=GetTime()
 						return
 					end
@@ -226,7 +226,7 @@ if select(3, UnitClass("player")) == 5 then
 					if castSpell("target",MB,false,false) then return; end
 
 					-- Mind Spike
-					if ORBS<=4 or (ORBS==4 and (getDebuffRemain("target",SWP,"player") or getDebuffRemain("target",VT,"player"))) then
+					if ORBS<=4 or (ORBS==4 and (getDebuffRemain("target",SWP,"player")<5 or getDebuffRemain("target",VT,"player")<5)) then
 						if not UnitDebuffID("target",DP,"player") then 
 							if castSpell("target",MSp,false,true) then return; end
 						end
@@ -353,7 +353,7 @@ if select(3, UnitClass("player")) == 5 then
 					local thisUnit = enemiesTable[i].unit
 					local ttd = getTimeToDie(thisUnit)
 					local swpRem = getDebuffRemain(thisUnit,SWP,"player")
-					if (UnitAffectingCombat(thisUnit) or isDummy(thisUnit)) and getDebuffRemain(thisUnit,SWP,"player") < 5.4 then
+					if (UnitAffectingCombat(thisUnit) or isDummy(thisUnit)) and getDebuffRemain(thisUnit,SWP,"player") < 2.5 then
 						if castSpell(thisUnit,SWP,true,false) then return; end
 					end
 				end
@@ -367,7 +367,7 @@ if select(3, UnitClass("player")) == 5 then
 					local thisUnit = enemiesTable[i].unit
 					local ttd = getTimeToDie(thisUnit)
 					local vtRem = getDebuffRemain(thisUnit,VT,"player")
-					if UnitAffectingCombat(thisUnit) and getDebuffRemain(thisUnit,VT,"player") < 4.5 and GetTime()-lastVT>2 then
+					if UnitAffectingCombat(thisUnit) and getDebuffRemain(thisUnit,VT,"player") < 2.5 and GetTime()-lastVT>2 then
 						if castSpell(thisUnit,VT,true,true) then 
 							lastVT=GetTime()
 							return

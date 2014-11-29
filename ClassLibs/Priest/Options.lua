@@ -33,7 +33,38 @@ if select(3, UnitClass("player")) == 5 then
 
 
 			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"--- Defensive");
+			CreateNewWrap(thisConfig,"___ Offensive");
+
+				-- Single Target Rotation chose
+				--CreateNewCheck(thisConfig,"SingleRota");
+			  --CreateNewDrop(thisConfig, string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10);
+				CreateNewDrop(thisConfig,"SingleRotation",1,"Choose the rotation for single target.","|cffBA55D3weave","|cff00A9EBtrad");
+				CreateNewText(thisConfig,"SingleRotation");
+
+				-- Power Infusion
+				if isKnown(PI) then
+					CreateNewCheck(thisConfig,"Power Infusion");
+					CreateNewText(thisConfig,"Power Infusion");
+				end
+
+				-- Shadowfiend / Mindbender
+				if isKnown(Mindbender) then
+					CreateNewCheck(thisConfig,"Mindbender");
+					CreateNewText(thisConfig,"Mindbender");
+				else
+					CreateNewCheck(thisConfig,"Shadowfiend");
+					CreateNewText(thisConfig,"Shadowfiend");
+				end
+
+				-- SWD Glyphed
+				if hasGlyph(GlyphOfSWD) then
+					CreateNewCheck(thisConfig,"SWD glyphed");
+					CreateNewText(thisConfig,"SWD glyphed");
+				end
+
+
+			-- Wrapper -----------------------------------------
+			CreateNewWrap(thisConfig,"___ Defensive");
 
 				-- Shield
 				CreateNewCheck(thisConfig,"PW: Shield");
@@ -68,39 +99,10 @@ if select(3, UnitClass("player")) == 5 then
 				CreateNewCheck(thisConfig,"Fade Aggro", "|cffFFBB00Fade on Aggression |cffFF0000(only in group or raid)");
 				CreateNewText(thisConfig,"Fade Aggro");
 
-			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"--- Offensive");
-
-				-- Single Target Rotation chose
-				--CreateNewCheck(thisConfig,"SingleRota");
-			  --CreateNewDrop(thisConfig, string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10);
-				CreateNewDrop(thisConfig,"SingleRotation",1,"Choose the rotation for single target.","|cffBA55D3weave","|cff00A9EBtrad");
-				CreateNewText(thisConfig,"SingleRotation");
-
-				-- Power Infusion
-				if isKnown(PI) then
-					CreateNewCheck(thisConfig,"Power Infusion");
-					CreateNewText(thisConfig,"Power Infusion");
-				end
-
-				-- Shadowfiend / Mindbender
-				if isKnown(Mindbender) then
-					CreateNewCheck(thisConfig,"Mindbender");
-					CreateNewText(thisConfig,"Mindbender");
-				else
-					CreateNewCheck(thisConfig,"Shadowfiend");
-					CreateNewText(thisConfig,"Shadowfiend");
-				end
-
-				-- SWD Glyphed
-				if hasGlyph(GlyphOfSWD) then
-					CreateNewCheck(thisConfig,"SWD glyphed");
-					CreateNewText(thisConfig,"SWD glyphed");
-				end
 
 			-- Wrapper -----------------------------------------
 			if isKnown(CoP) then
-				CreateNewWrap(thisConfig,"--- DoT Weave");
+				CreateNewWrap(thisConfig,"___ DoT Weave");
 					
 					-- General
 					CreateNewCheck(thisConfig,"DoTWeave");
@@ -117,8 +119,9 @@ if select(3, UnitClass("player")) == 5 then
 					CreateNewText(thisConfig,"Weave Comp Factor");
 			end
 
+
 			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"--- Multidot");
+			CreateNewWrap(thisConfig,"___ Multidot");
 
 				-- SWP
 				CreateNewCheck(thisConfig,"Multi SWP");
@@ -133,8 +136,9 @@ if select(3, UnitClass("player")) == 5 then
 				CreateNewBox(thisConfig,"Max Targets", 1, 15, 1, 5, "Set to desired time for test in minutes.\nMin: 1 / Max: 25 / Interval: 1");
 				CreateNewText(thisConfig,"Max Targets on 4+");
 
+
 			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"--- Utilities");
+			CreateNewWrap(thisConfig,"___ Utilities");
 				
 				--Power Word: Fortitude
 				CreateNewCheck(thisConfig,"PW: Fortitude");
@@ -164,6 +168,7 @@ if select(3, UnitClass("player")) == 5 then
 				CreateNewCheck(thisConfig,"DPS Testing");
 				CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 5, "Set to desired time for test in minutes.\nMin: 1 / Max: 15 / Interval: 1");
 				CreateNewText(thisConfig,"DPS Testing");
+
 
 			-- General Configs ---------------------------------
 			CreateGeneralsConfig();
