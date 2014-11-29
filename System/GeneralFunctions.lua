@@ -379,51 +379,52 @@ end
 -- castGround("target",12345,40);
 function castGround(Unit,SpellID,maxDistance)
 	if UnitExists(Unit) and getSpellCD(SpellID) == 0 and getLineOfSight("player", Unit) and getDistance("player", Unit) <= maxDistance then
- 		CastSpellByName(GetSpellInfo(SpellID),"player");
+ 		CastSpellByName(GetSpellInfo(SpellID),"player")
 		if IsAoEPending() then
-		local X, Y, Z = ObjectPosition(Unit);
-			CastAtPosition(X,Y,Z);
-			return true;
+		local distanceToGround = getGroundDistance(Unit) or 0
+		local X, Y, Z = ObjectPosition(Unit)
+			CastAtPosition(X,Y,Z-distanceToGround)
+			return true
 		end
  	end
- 	return false;
+ 	return false
 end
 
 -- castGroundBetween("target",12345,40);
 function castGroundBetween(Unit,SpellID,maxDistance)
 	if UnitExists(Unit) and getSpellCD(SpellID) <= 0.4 and getLineOfSight("player", Unit) and getDistance("player", Unit) <= 5 then
- 		CastSpellByName(GetSpellInfo(SpellID),"player");
+ 		CastSpellByName(GetSpellInfo(SpellID),"player")
 		if IsAoEPending() then
-		local X, Y, Z = ObjectPosition(Unit);
-			CastAtPosition(X, Y, Z);
-			return true;
+		local X, Y, Z = ObjectPosition(Unit)
+			CastAtPosition(X, Y, Z)
+			return true
 		end
  	end
- 	return false;
+ 	return false
 end
 
 -- if shouldNotOverheal(spellCastTarget) > 80 then
 function shouldNotOverheal(Unit)
 	local myIncomingHeal, allIncomingHeal = 0, 0
-	if UnitGetIncomingHeals(Unit, "player") ~= nil then myIncomingHeal = UnitGetIncomingHeals(Unit, "player"); end
-	if UnitGetIncomingHeals(Unit) ~= nil then allIncomingHeal = UnitGetIncomingHeals(Unit); end
-	local allIncomingHeal = UnitGetIncomingHeals(Unit) or 0;
-	local overheal = 0;
+	if UnitGetIncomingHeals(Unit, "player") ~= nil then myIncomingHeal = UnitGetIncomingHeals(Unit, "player") end
+	if UnitGetIncomingHeals(Unit) ~= nil then allIncomingHeal = UnitGetIncomingHeals(Unit) end
+	local allIncomingHeal = UnitGetIncomingHeals(Unit) or 0
+	local overheal = 0
 	if myIncomingHeal >= allIncomingHeal then
-		overheal = myIncomingHeal;
+		overheal = myIncomingHeal
 	else
-		overheal = allIncomingHeal;
+		overheal = allIncomingHeal
 	end
 	local CurShield = UnitHealth(Unit);
 	if UnitDebuffID("player",142861) then --Ancient Miasma
-		CurShield = select(15,UnitDebuffID(Unit, 142863)) or select(15,UnitDebuffID(Unit, 142864)) or select(15,UnitDebuffID(Unit, 142865)) or (UnitHealthMax(Unit) / 2);
-		overheal = 0;
+		CurShield = select(15,UnitDebuffID(Unit, 142863)) or select(15,UnitDebuffID(Unit, 142864)) or select(15,UnitDebuffID(Unit, 142865)) or (UnitHealthMax(Unit) / 2)
+		overheal = 0
 	end
-	local overhealth = 100 * (CurShield+ overheal ) / UnitHealthMax(Unit);
+	local overhealth = 100 * (CurShield+ overheal ) / UnitHealthMax(Unit)
 	if overhealth and overheal then
-		return overhealth, overheal;
+		return overhealth, overheal
 	else
-		return 0, 0;
+		return 0, 0
 	end
 end
 
@@ -1024,8 +1025,23 @@ end
 function getGround(Unit)
 	if UnitIsVisible(Unit) then
 		local X1,Y1,Z1 = ObjectPosition(Unit);
-		if TraceLine(X1,Y1,Z1+2,X1,Y1,Z1-2, 0x10) == nil and TraceLine(X1,Y1,Z1+2,X1,Y1,Z1-4, 0x100) == nil then return nil; else return true; end
+		if TraceLine(X1,Y1,Z1,X1,Y1,Z1-2, 0x10) == nil and TraceLine(X1,Y1,Z1,X1,Y1,Z1-2, 0x100) == nil then 
+			return nil 
+		else 
+			return true
+		end
 	end
+end
+
+function getGroundDistance(Unit)
+	if UnitIsVisible(Unit) then
+		local X1,Y1,Z1 = ObjectPosition(Unit);
+		for i = 1, 100 do
+			if TraceLine(X1,Y1,Z1,X1,Y1,Z1-i/10, 0x10) ~= nil or TraceLine(X1,Y1,Z1,X1,Y1,Z1-i/10, 0x100) ~= nil then 
+				return i/10
+			end
+		end
+	end	
 end
 
 -- if getPetLineOfSight("target"[,"target"]) then

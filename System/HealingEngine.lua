@@ -264,34 +264,34 @@ if not metaTable1 then
 			else
 				o.role = UnitGroupRolesAssigned(o.unit)
 			end -- role from raid frame
-			o.guidsh = select(2, o:nGUID()); -- return Short GUID of unit
-			o.dispel = o:Dispel(o.unit); -- return true if unit should be dispelled
-			o.threat = UnitThreatSituation(o.unit); -- return unit's threat situation(1-4)
-			o.hp = o:CalcHP(); -- return unit HP
-			o.absorb = select(3, o:CalcHP()); -- return unit Absorb
-			o.target = tostring(o.unit).."target"; -- return target's target
-			memberSetup.cache[select(2, getGUID(o.unit))] = o;
+			o.guidsh = select(2, o:nGUID()) -- Short GUID of unit for the SetupTable
+			o.dispel = o:Dispel(o.unit) -- return true if unit should be dispelled
+			o.threat = UnitThreatSituation(o.unit) -- Unit's threat situation(1-4)
+			o.hp = o:CalcHP(); -- Unit HP
+			o.absorb = select(3, o:CalcHP()); -- Unit Absorb
+			o.target = tostring(o.unit).."target"; -- Target's target
+			memberSetup.cache[select(2, getGUID(o.unit))] = o -- Add unit to SetupTable
 		end
 
 		-- Adding the user and functions we just created to this cached version in case we need it again
 		-- This will also serve as a good check for if the unit is already in the table easily
 		--print(UnitName(unit), select(2, getGUID(unit)))
-		memberSetup.cache[select(2, o:nGUID())] = o;
-		return o;
+		memberSetup.cache[select(2, o:nGUID())] = o
+		return o
 	end
 
 	-- Setting up the tables on either Wipe or Initial Setup
 	function SetupTables() -- Creating the cache (we use this to check if some1 is already in the table)
-		setmetatable(nNova, metaTable1) -- Set the metaTable of Main to Meta)
+		setmetatable(nNova, metaTable1) -- Set the metaTable of Main to Meta
 		function nNova:Update(MO)
-			local MouseoverCheck = true;
+			local MouseoverCheck = true
 			-- This is for special situations, IE world healing or NPC healing in encounters
-			if isChecked("Special Heal") == true then SpecialTargets = { "mouseover","target","focus" }; else SpecialTargets = {}; end
+			if isChecked("Special Heal") == true then SpecialTargets = {"mouseover","target","focus"} else SpecialTargets = {} end
 			for p=1, #SpecialTargets do
 				-- Checking if Unit Exists and it's possible to heal them
 				if UnitExists(SpecialTargets[p]) and HealCheck(SpecialTargets[p]) then
 					if not memberSetup.cache[select(2, getGUID(SpecialTargets[p]))] then
-						local SpecialCase = memberSetup:new(SpecialTargets[p]);
+						local SpecialCase = memberSetup:new(SpecialTargets[p])
 						if SpecialCase then
 							-- Creating a new user, if not already tabled, will return with the User
 							for j=1, #nNova do
@@ -299,35 +299,35 @@ if not metaTable1 then
 									-- Now we add the Unit we just created to the Main Table
 									for k,v in pairs(memberSetup.cache) do
 										if nNova[j].guidsh == k then
-											memberSetup.cache[k] = nil;
+											memberSetup.cache[k] = nil
 										end
 									end
-									tremove(nNova, j);
+									tremove(nNova, j)
 									break
 								end
 							end
 						end
-						tinsert(nNova, SpecialCase);
-						SavedSpecialTargets[SpecialTargets[p]] = select(2, getGUID(SpecialTargets[p]));
+						tinsert(nNova, SpecialCase)
+						SavedSpecialTargets[SpecialTargets[p]] = select(2,getGUID(SpecialTargets[p]))
 					end
 				end
 			end
 
 			for p=1, #SpecialTargets do
-				local removedTarget = false;
+				local removedTarget = false
 				for j=1, #nNova do
 					-- Trying to find a case of the unit inside the Main Table to remove
 					if nNova[j].unit == SpecialTargets[p] and (nNova[j].guid ~= 0 and nNova[j].guid ~= UnitGUID(SpecialTargets[p])) then
-						tremove(nNova, j);
-						removedTarget = true;
-						break;
+						tremove(nNova, j)
+						removedTarget = true
+						break
 					end
 				end
 				if removedTarget == true then
 					for k,v in pairs(memberSetup.cache) do
 						-- Now we're trying to find that unit in the Cache table to remove
 						if SpecialTargets[p] == v.unit then
-							memberSetup.cache[k] = nil;
+							memberSetup.cache[k] = nil
 						end
 					end
 				end
@@ -335,62 +335,57 @@ if not metaTable1 then
 
 			for i=1, #nNova do
 				-- We are updating all of the User Info (Health/Range/Name)
-				nNova[i]:UpdateUnit();
+				nNova[i]:UpdateUnit()
 			end
 
 			-- We are sorting by Health first
 			table.sort(nNova, function(x,y)
-				return x.hp < y.hp;
+				return x.hp < y.hp
 			end)
 
 			-- Sorting with the Role
-		if isChecked("Sorting with Role") then
-			table.sort(nNova, function(x,y)
-				if x.role and y.role then return x.role > y.role;
-				elseif x.role then return true;
-				elseif y.role then return false; end
-			end)
-         end
---[[			for i = 1, #nNova do
-				table.sort(nNova[i].Distances, function(x,y)
-					return x.dist < y.dist
+			if isChecked("Sorting with Role") then
+				table.sort(nNova, function(x,y)
+					if x.role and y.role then return x.role > y.role
+					elseif x.role then return true
+					elseif y.role then return false end
 				end)
-			end]]
+	        end
 			if isChecked("Special Priority") == true then
 			 	if UnitExists("focus") and memberSetup.cache[select(2, getGUID("focus"))] then
 					table.sort(nNova, function(x)
 						if x.unit == "focus" then
-							return true;
+							return true
 						else
-							return false;
+							return false
 						end
 					end);
 				end
 				if UnitExists("target") and memberSetup.cache[select(2, getGUID("target"))] then
 					table.sort(nNova, function(x)
 						if x.unit == "target" then
-							return true;
+							return true
 						else
-							return false;
+							return false
 						end
-					end);
+					end)
 				end
 				if UnitExists("mouseover") and memberSetup.cache[select(2, getGUID("mouseover"))] then
 					table.sort(nNova, function(x)
 						if x.unit == "mouseover" then
-							return true;
+							return true
 						else
-							return false;
+							return false
 						end
-					end);
+					end)
 				end
 			end
 		end
 		-- We are creating the initial Main Table
-		nNova();
+		nNova()
 	end
 	-- We are setting up the Tables for the first time
-	SetupTables();
+	SetupTables()
 end
 
 
