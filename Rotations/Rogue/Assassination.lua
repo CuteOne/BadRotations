@@ -23,9 +23,7 @@ if select(3, UnitClass("player")) == 4 then
 --------------
 --- Locals ---
 --------------
-		if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
-        	enemies, enemiesTimer = getNumEnemies("player",8), GetTime()
-    	end
+    	local enemies = #getEnemies("player",8)
 		local tarDist = getDistance2("target")
 		local hasTarget = UnitExists("target")
 		local hasMouse = UnitExists("mouseover")
@@ -120,9 +118,9 @@ if select(3, UnitClass("player")) == 4 then
 ---------------------
 --- Out of Combat ---
 ---------------------
-			if not isInCombat("player") and not (IsMounted() or IsFlying() or UnitIsFriend("target","player")) then
+			if not (IsMounted() or IsFlying() or UnitIsFriend("target","player")) then
 	-- Stealth
-				if isChecked("Stealth") and (stealthTimer == nil or stealthTimer <= GetTime()-getValue("Stealth Timer")) and getCreatureType("target") == true and not stealth then
+				if not isInCombat("player") and isChecked("Stealth") and (stealthTimer == nil or stealthTimer <= GetTime()-getValue("Stealth Timer")) and getCreatureType("target") == true and not stealth then
 					-- Always
 					if getValue("Stealth") == 1 then 
 						if castSpell("player",_Stealth,true,false,false) then stealthTimer=GetTime(); return end
@@ -136,48 +134,46 @@ if select(3, UnitClass("player")) == 4 then
 						if castSpell("player",_Stealth,true,false,false) then stealthTimer=GetTime(); return end
 					end
 				end
-				if tarDist < 25 and tarDist >= 8 and level>=60 then
+				if not isInCombat("player") and stealth and tarDist < 25 and tarDist >= 8 and level>=60 and getTalent(4,2) then
 	-- Shadowstep
-					if not UnitBuffID("player",_Stealth) then
-						if castSpell("player",_Stealth,true,false,false) then return end
-					else
-						if castSpell("target",_Shadowstep,false,false,false) then return end
+					if castSpell("target",_Shadowstep,false,false,false) then return end
+				end
+				if stealth and tarDist < 40 and tarDist >= 8 and level>=60 and getTalent(4,1) then
+	-- Cloak and Dagger
+					if castSpell("target",_Ambush,false,false,false) then return end
+				end
+	-- Sap
+				if not isInCombat("player") and noattack() and sapRemain==0 and UnitBuffID("player",_Stealth) and level>=15 and tarDist < 8 then
+					if castSpell("target",_Sap,false,false,false) then return end
+				end
+	-- Pick Pocket
+				if not isInCombat("player") and canPP() and not isPicked() and UnitBuffID("player",_Stealth) and level>=15 and tarDist < 8 then
+					if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
+						if castSpell("target",_PickPocket,true) then
+					    	lootTimer = GetTime()
+					    	return
+						end
 					end
 				end
-				if tarDist < 8 then
-	-- Sap
-					if noattack() and sapRemain==0 and UnitBuffID("player",_Stealth) and level>=15 then
-						if castSpell("target",_Sap,false,false,false) then return end
-					end
-	-- Pick Pocket
-					if canPP() and not isPicked() and UnitBuffID("player",_Stealth) and level>=15 then
-						if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
-							if castSpell("target",_PickPocket,true) then
-						    	lootTimer = GetTime()
-						    	return
-							end
-						end
-					end
 	-- Ambush
-					if not noattack() and (isPicked() or level<15) and UnitBuffID("player",_Stealth) and combo<5 and power>60 and tarDist<5 then
-						if castSpell("target",_Ambush,false,false,false) then return end
-					end
+				if not isInCombat("player") and not noattack() and (isPicked() or level<15) and UnitBuffID("player",_Stealth) and combo<5 and power>60 and tarDist<5 then
+					if castSpell("target",_Ambush,false,false,false) then return end
+				end
 	-- 5 Combo Opener
-					if not isInCombat("player") and (isPicked() or level<15) and UnitBuffID("player",_Stealth) and not noattack() and combo == 5 and tarDist<5 then
-						if power>25 and sndRemain<5 then
-							if castSpell("player",_SliceAndDice,true,false,false) then return end
-						end
-						if power>25 and rupRemain<3 then
-							if castSpell("taret",_Rupture,false,false,false) then return end
-						end
-						if power>35 and envRemain<2 then
-							if castSpell("target",_Envenom,false,false,false) then return end
-						end
+				if not isInCombat("player") and (isPicked() or level<15) and UnitBuffID("player",_Stealth) and not noattack() and combo == 5 and tarDist<5 then
+					if power>25 and sndRemain<5 then
+						if castSpell("player",_SliceAndDice,true,false,false) then return end
 					end
+					if power>25 and rupRemain<3 then
+						if castSpell("taret",_Rupture,false,false,false) then return end
+					end
+					if power>35 and envRemain<2 then
+						if castSpell("target",_Envenom,false,false,false) then return end
+					end
+				end
 	-- Mutilate
-					if not isInCombat("player") and (isPicked() or level<15) and not noattack() and combo < 5 and power>55 and tarDist<5 then
-						if castSpell("target",_Mutilate,false,false,false) then return end
-					end
+				if not isInCombat("player") and (isPicked() or level<15) and not noattack() and combo < 5 and power>55 and tarDist<5 then
+					if castSpell("target",_Mutilate,false,false,false) then return end
 				end
 			end
 -----------------
@@ -243,20 +239,11 @@ if select(3, UnitClass("player")) == 4 then
 					if castSpell("target",_Rupture,false,false,false) then return end
 				end
 	-- Rupture - AoE
-	    		if useAoE() and canCast(_Rupture) then
-	                if  myEnemies == nil or myMultiTimer == nil or myMultiTimer <= GetTime() - 1 then
-	                    myEnemies, myMultiTimer = getEnemies("player",5), GetTime()
-	                end
+	    		if useAoE() then
+	                local myEnemies = getEnemies("player",5)
 	                for i = 1, #myEnemies do
 	                    local thisUnit = myEnemies[i]
-	                    if getCreatureType(thisUnit)
-	                        and UnitCanAttack(thisUnit,"player")
-	                        and not UnitIsDeadOrGhost(thisUnit)
-	                        and getFacing("player",thisUnit)
-	                        and (UnitAffectingCombat(thisUnit) or isDummy(thisUnit))
-	                        and getDebuffRemain(thisUnit,_Rupture,"player") < 3
-	                        and power > 25
-	                    then
+	                    if getDebuffRemain(thisUnit,_Rupture,"player") < 3 and power > 25 then
 	                        if castSpell(thisUnit,_Rupture,false,false,false) then return end
 	                    end
 	                end

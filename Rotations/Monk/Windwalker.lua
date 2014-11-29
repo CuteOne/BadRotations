@@ -378,7 +378,7 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("player",_SpinningCraneKick,false,false) then return end
 					end
 	-- Jab
-					if getTalent(6,1) and (chiDiff>=2 or chi==0) and power>=45 and (php>=80 or getSpellCD(_ExpelHarm)>0) and tarDist<5 then
+					if getTalent(6,1) and chiDiff>=2 and power>=45 and (php>=getValue("Expel Harm") or getSpellCD(_ExpelHarm)>0) and tarDist<5 then
 						if castSpell("target",_Jab,false,false) then return end
 					end
 				end
@@ -439,7 +439,7 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("target",_ChiExplosion,false,false) then return end
 					end
 	-- Jab
-					if (chiDiff>=2 or chi==0) and power>=45 and (php>=80 or getSpellCD(_ExpelHarm)>0) and tarDist<5 then
+					if (chiDiff>=2 or chi==0) and power>=45 and (php>=getValue("Expel Harm") or getSpellCD(_ExpelHarm)>0) and tarDist<5 then
 						if castSpell("target",_Jab,false,false) then return end
 					end
 				end

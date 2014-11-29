@@ -378,68 +378,121 @@ if select(3, UnitClass("player")) == 11 then
 		            end
 		            if srRemain>=3 then
 		-- Thrash
-						if clearcast and enemies>1 and useCleave() then
-		   					if thrRemain<4.5 then 
-		   					 	if castSpell("target",thr,true,false,false) then return end
-			    			end
+			    		if useCleave() then
+			    			if clearcast and (enemies>1 or (not getTalent(7,2) and combo==5)) then
+			    				if thrRemain<4.5 then 
+			   					 	if castSpell("target",thr,true,false,false) then return end
+				    			end
+				    			for i = 1, enemies do
+									thisUnit = getEnemies("player",8)[i]
+									unitDist = getDistance(getEnemies("player",8)[i])
+									uthrRemain = getDebuffRemain(thisUnit,thr,"player")
+				   					if uthrRemain<4.5 then 
+				   						if castSpell(thisUnit,thr,true,false,false) then return end
+				   					end
+				   				end
+				   			elseif enemies>1 and power>50 then
+				   				if thrRemain<4.5 then 
+			   					 	if castSpell("target",thr,true,false,false) then return end
+				    			end
+				    			for i = 1, enemies do
+									thisUnit = getEnemies("player",8)[i]
+									unitDist = getDistance(getEnemies("player",8)[i])
+									uthrRemain = getDebuffRemain(thisUnit,thr,"player")
+				   					if uthrRemain<4.5 then 
+				   						if castSpell(thisUnit,thr,true,false,false) then return end
+				   					end
+				   				end
+				   			end
+						end
+		-- Ferocious Bite
+						if power>50 and thp<25 and rpRemain>0 and tarDist<5 then
+							if castSpell("target",fb,false,false,false) then return end
+						end
+		-- Rip
+						if power>30 and ((rpRemain<=3 and ttd-rpRemain>18) or (rpRemain<7.2 and rpCalc>rpDmg and ttd-rpRemain>18)) and tarDist<5 then
+							if castSpell("target",rp,false,false,false) then return end
+						end
+		-- Savage Roar
+						if (ttm<=1 or berserking or tfCooldown<3) and srRemain<12.6 and power>25 and tarDist<5 then
+							if castSpell("player",svr,true,false,false) then return end
+			            end
+		-- Ferocious Bite
+		    			if (ttm<=1 or berserking or tfRemain<3) and srRemain>1 and power>50 and tarDist<5 then
+			    			if castSpell("target",fb,false,false,false) then return end
+			            end
+	    -- Rake 
+			    		if combo<5 and power>35 then
+			    			if not getTalent(7,2) then
+			    				if (rkRemain<3 or (rkRemain<4.5 and rkCalc>rkDmg)) and ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) and tarDist<5 then
+					    			if castSpell("target",rk,false,false,false) then return end
+					            end
+				    			if useCleave() then
+				    				for i = 1, enemies do
+										thisUnit = getEnemies("player",8)[i]
+										unitDist = getDistance(getEnemies("player",8)[i])
+										urkRemain = getDebuffRemain(thisUnit,rk,"player")
+										uthrRemain = getDebuffRemain(thisUnit,thr,"player")
+										uttd = getTimeToDie(thisUnit)
+										if (urkRemain<3 or (urkRemain<4.5 and CRKD()>RKD(thisUnit))) and ((uttd-urkRemain>3 and enemies<3) or uttd-urkRemain>6) and unitDist<5 then
+					    					if castSpell(thisUnit,rk,false,false,false) then return end
+				    					end
+				    				end
+					    		end
+					    	end
+					    	if getTalent(7,2) then
+					    		if rkRemain<4.5 and (psRemain==0 or btRemain>0 or rkCalc>rkDmg) and ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) and tarDist<5 then
+				    				if castSpell("target",rk,false,false,false) then return end
+				            	end
+				            	if useCleave() then
+				    				for i = 1, enemies do
+										thisUnit = getEnemies("player",8)[i]
+										unitDist = getDistance(getEnemies("player",8)[i])
+										urkRemain = getDebuffRemain(thisUnit,rk,"player")
+										uthrRemain = getDebuffRemain(thisUnit,thr,"player")
+										uttd = getTimeToDie(thisUnit)
+										if urkRemain<4.5 and (psRemain==0 or btRemain>0) and ((uttd-urkRemain>3 and enemies<3) or uttd-urkRemain>6) and unitDist<5 then
+					    					if castSpell(thisUnit,rk,false,false,false) then return end
+					    				end
+					    			end
+					    		end
+					    	end
+				        end
+		-- Thrash
+			    		if getTalent(7,2) and not getTalent(4,1) and combo==5 and clearcast and useCleave() then
 			    			for i = 1, enemies do
 								thisUnit = getEnemies("player",8)[i]
 								unitDist = getDistance(getEnemies("player",8)[i])
 								uthrRemain = getDebuffRemain(thisUnit,thr,"player")
-								if uthrRemain<4.5 and power>35 and unitDist<8 then
-									if castSpell(thisUnit,thr,true,false,false) then return end
-			            		end
-				            end
-						end
-		-- Rake 
-						if (rkCalc>rkDmg or rkRemain<4.5) and power>35 and tarDist<5 then
+				    			if uthrRemain<4.5 then
+				    				if castSpell(thisUnit,thr,true,false,false) then return end
+				    			end
+				    		end
+			            end	
+		-- Moonfire
+			    		if getTalent(7,1) and combo<5 and getEnemies("player",40)<6 then
+			    			if mfRemain<4.2 and ttd-mfRemain>mfTick*5 and tarDist<40 and isInCombat("target") then
+				    			if castSpell("target",mf,true,false,false) then return end
+				    		end
+				    		if useCleave() then
+					    		for i = 1, #enemiesTable do
+						    		if enemiesTable[i].distance<40 then
+										thisUnit = enemiesTable[i].unit
+										unitDist = enemiesTable[i].distance
+										umfRemain = getDebuffRemain(thisUnit,mf,"player")
+										uttd = getTimeToDie(thisUnit)
+						    			if umfRemain<4.2 and uttd-umfRemain>mfTick*5 and unitDist<40 and isInCombat(thisUnit) then
+					    					if castSpell(thisUnit,mf,true,false,false) then return end
+					    				end
+					    			end
+				    			end
+				    		end
+				    	end 	        
+	    -- Rake
+			    		if rkCalc>rkDmg and combo<5 and enemies==1 and power>35 and tarDist<5 then
 			    			if castSpell("target",rk,false,false,false) then return end
 			            end
-			            if useCleave() and enemies>1 then
-				            for i = 1, enemies do
-								thisUnit = getEnemies("player",8)[i]
-								unitDist = getDistance(getEnemies("player",8)[i])
-								urkRemain = getDebuffRemain(thisUnit,rk,"player")
-								uthrRemain = getDebuffRemain(thisUnit,thr,"player")
-								if urkRemain<4.5 and power>35 and unitDist<5 and uthrRemain>4.5 then
-									if castSpell(thisUnit,rk,false,false,false) then return end
-			            		end
-				            end
-			            end
-			            if rkRemain>=4.5 then
-		-- Rip
-							if power>30 and combo==5 then
-								if ((rpRemain<7.2 and ttd-rpRemain>18) or (rpRemain<7.2 and rpCalc>rpDmg and ttd-rpRemain>18)) and tarDist<5 then
-									if castSpell("target",rp,false,false,false) then return end
-								end
-							end
-							if rpRemain>=7.2 or ttd-rpRemain<=18 then
-		-- Moonfire
-					    		if getTalent(7,1) and combo<5 and getEnemies("player",40)<6 then
-					    			if mfRemain<4.2 and ttd-mfRemain>mfTick*5 and tarDist<40 and isInCombat("target") then
-						    			if castSpell("target",mf,true,false,false) then return end
-						    		end
-						    		if useCleave() then
-							    		for i = 1, #enemiesTable do
-								    		if enemiesTable[i].distance<40 then
-												thisUnit = enemiesTable[i].unit
-												unitDist = enemiesTable[i].distance
-												umfRemain = getDebuffRemain(thisUnit,mf,"player")
-												uttd = getTimeToDie(thisUnit)
-								    			if umfRemain<4.2 and uttd-umfRemain>mfTick*5 and unitDist<40 and isInCombat(thisUnit) then
-							    					if castSpell(thisUnit,mf,true,false,false) then return end
-							    				end
-							    			end
-						    			end
-						    		end
-						    	end 
-	    -- Ferocious Bite
-				    			if (ttm<=1 or berserking or tfRemain<3) and power>50 and tarDist<5 and combo==5 then
-					    			if castSpell("target",fb,false,false,false) then return end
-					            end
-					        end --rpRemain
-					    end --rkRemain
-				    end --rpRemain
+				    end --srRemain
 	    -- Swipe
 		    		if useAoE() and power>45 and combo<5 then
 		    			if castSpell("player",sw,false,false,false) then return end

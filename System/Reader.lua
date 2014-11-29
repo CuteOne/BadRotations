@@ -321,7 +321,6 @@ function SuperReader(self, event, ...)
 	            if spell == 1079 and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") then
 	                Rip_sDamage[destination] = Rip_sDamage_cast
 	            elseif spell == 155722 and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") then
-	            	print("Dest: "..destination..", TarGUID: "..UnitGUID("target"))
 	                Rake_sDamage[destination] = Rake_sDamage_cast
 	            -- elseif spell == 106830 and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") then
 	            --     Thrash_sDamage[destination] = Thrash_sDamage_cast

@@ -25,11 +25,7 @@ if select(3, UnitClass("player")) == 4 then
 	end
 
 	function useAoE()
-	    if numEnemies == nil then numEnemies = 0 end
-	    if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
-	        numEnemies, enemiesTimer = getNumEnemies("player",8), GetTime()
-	    end
-	    if (BadBoy_data['AoE'] == 1 and numEnemies >= 3) or BadBoy_data['AoE'] == 2 then
+	    if (BadBoy_data['AoE'] == 1 and #getEnemies("player",8) >= 3) or BadBoy_data['AoE'] == 2 then
 	        return true
 	    else
 	        return false
