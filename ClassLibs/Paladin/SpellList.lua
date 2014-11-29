@@ -73,10 +73,30 @@ if select(3,UnitClass("player")) == 2 then
 
 		HandOfSacrifaceDebuffs = {} -- Table that holds debuffs we should HoSacrifice
 		protectionRemovableDebuffs = {} -- Table that holds debuffs that we should remove with protection spell
+		snareToBeRemovedByHandsofFreedom = {
+			162066,  -- Freezing Snare, Grim Depot
+		}
 		initDone = true
 	end
-
 	
+	function checkForDebuffThatIShouldRemovewithHoF(unit)
+		for i = 1, #snareToBeRemovedByHandsofFreedom do
+			if UnitDebuffID(unit, snareToBeRemovedByHandsofFreedom[i]) then
+				return true
+			end
+		end
+
+		return false
+	end
+	
+	function castHandOfFreedom(unit)
+		if canCast(_HandOfFreedom) then
+			if castSpell(unit,_HandOfFreedom,true) then 
+				return true
+			end
+		end
+		return false
+	end
 	-- Todo : Check Glyphs(is on us or can we cast it on ground 25 yards
 	function castArcaneTorrent()
 		if canCast(_ArcaneTorrent) then
