@@ -27,6 +27,8 @@ burnUnitCandidates = {
 	{ unitID = 75966 }, -- Defiled Spirit, need to be cc and snared and is not allowed to reach boss.
 	{ unitID = 75899 }, -- Possessed Soul, 
 	{ unitID = 76518 }, -- Ritual of Bones, marked one... Todo: Can we check if mobs is marked with skull?
+	-- Auchindon
+	{ unitID = 77812 }, -- Sargerei Souldbinder, cast a MC
 } 
 
 -- doNotTouchUnitCandidates - List of units that we should not attack for any reason
@@ -42,14 +44,29 @@ crowdControlCandidates = {
 	{ unitID = 75966 }, -- Defiled Spirit, need to be cc and snared and is not allowed to reach boss.
 	{ unitID = 76446 }, -- Shadowmoon Enslavers
 	{ unitID = 75899 }, -- Possessed Soul, only for melee i guess
+	{ unitID = 79510 }, -- Crackling Pyromaniacs
 }
 
 -- Units with spells that should be interrupted if possible. Good to have units so we can save interrupting spells when targeting them.
 interruptCandidates = {
 	-- Shadowmoon Burial Grounds
-	{ unitID = 75652, spell = 152964  }, -- Void Spawn casting Void Pulse, trash mobs 
-	{ unitID = 76446, spell = 156776  }, -- Shadowmoon Enslavers channeling Rending Voidlash
-	{ unitID = 76104, spell = 156717  }, -- Monstrous Corpse Spider casting Death Venom
+	{ unitID = 75652, spell = 152964 }, -- Void Spawn casting Void Pulse, trash mobs 
+	{ unitID = 76446, spell = 156776 }, -- Shadowmoon Enslavers channeling Rending Voidlash
+	{ unitID = 76104, spell = 156717 }, -- Monstrous Corpse Spider casting Death Venom
+	--Auchindon
+	{ unitID = 77812, spell = 154527 }, -- Bend Will, MC a friendly.
+	{ unitID = 77131, spell = 154623 }, -- Void Mending
+	{ unitID = 76263, spell = 157794 }, -- Arcane Bomb
+	{ unitID = 86218, spell = 154415 }, -- Mind Spike
+	{ unitID = 76284, spell = 154218 }, -- Arbiters Hammer
+	{ unitID = 76296, spell = 154235 }, -- Arcane Bolt
+	{ unitID = 79510, spell = 154221 }, -- Fel Blast
+	{ unitID = 78437, spell = 156854 }, -- Drain Life
+	{ unitID = 86330, spell = 156854 }, -- Drain Life, Terengor
+	{ unitID = 86330, spell = 156857 }, -- Rain Of Fire
+	{ unitID = 86330, spell = 164846 }, -- Chaos Bolt
+	{ unitID = 86330, spell = 156963 }, -- Incenerate
+	-- { unitID = , spell =   }, -- 
 } 
 
 -- List of units that are hitting hard, ie when its good to use defensive CDs
@@ -58,6 +75,13 @@ dangerousUnits  = {
 	{ unitID = 86234, buff = 162696, spell = 162696 }, -- Sadana buffed with deathspikes
 	{ unitID = 75829, buff = 152792, spell = 152792 }, -- Nhallish casting Void Blast or buffed
 } 
+
+dispellOffensiveBuffs = {
+		-- Auchindon
+		160312, -- Void Shell
+	
+
+}
 
 function makeEnemiesTable(maxDistance)
 	local  maxDistance = maxDistance or 50
