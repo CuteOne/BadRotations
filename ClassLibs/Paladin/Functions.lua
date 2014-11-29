@@ -88,7 +88,7 @@ if select(3,UnitClass("player")) == 2 then
 
 			makeSpellCastersTable()  --spellCastersTable
 
-			if #spellCastersTable > 1 then -- Todo: Check if they are in range for Arcane Torrent
+			if #spellCastersTable > 1 then 
 				local numberofcastersinrangeofarcanetorrent = 0
 				for i = 1, #spellCastersTable do
 					if spellCastersTable[i].distance < 8 then
@@ -96,17 +96,24 @@ if select(3,UnitClass("player")) == 2 then
 		  			end
 		  		end
 				if numberofcastersinrangeofarcanetorrent > 1 and castArcaneTorrent() then
-					print("Casting Arcane Torrent")
 					return true
 				end
 			end
 
 			if isChecked("Avengers Shield Interrupt") then
-				castInterupt(_AvengersShield,getValue("Avengers Shield Interrupt"))
+				if castInterupt(_AvengersShield,getValue("Avengers Shield Interrupt")) then
+					return true
+				end
 			end
 
 			if isChecked("Rebuke") then 
-				castInterupt(_Rebuke,getValue("Rebuke"))-- We should handle who to interrupt outside the castRebuke etc, hardocded to target atm
+				if castInterupt(_Rebuke,getValue("Rebuke")) then
+					return true
+				end
+			end
+
+			if castArcaneTorrent() then --Last chance use Arcane Torrent
+				return true
 			end
 			
 			
