@@ -406,19 +406,19 @@ if select(3, UnitClass("player")) == 11 then
 				   			end
 						end
 		-- Ferocious Bite
-						if power>50 and thp<25 and rpRemain>0 and tarDist<5 then
+						if power>50 and thp<25 and rpRemain>0 and tarDist<5 and combo==5 then
 							if castSpell("target",fb,false,false,false) then return end
 						end
 		-- Rip
-						if power>30 and ((rpRemain<=3 and ttd-rpRemain>18) or (rpRemain<7.2 and rpCalc>rpDmg and ttd-rpRemain>18)) and tarDist<5 then
+						if power>30 and ((rpRemain<=3 and ttd-rpRemain>18) or (rpRemain<7.2 and rpCalc>rpDmg and ttd-rpRemain>18)) and tarDist<5 and combo==5 then
 							if castSpell("target",rp,false,false,false) then return end
 						end
 		-- Savage Roar
-						if (ttm<=1 or berserking or tfCooldown<3) and srRemain<12.6 and power>25 and tarDist<5 then
+						if (ttm<=1 or berserking or tfCooldown<3) and srRemain<12.6 and power>25 and tarDist<5 and combo==5 then
 							if castSpell("player",svr,true,false,false) then return end
 			            end
 		-- Ferocious Bite
-		    			if (ttm<=1 or berserking or tfRemain<3) and srRemain>1 and power>50 and tarDist<5 then
+		    			if (ttm<=1 or berserking or tfRemain<3) and power>50 and tarDist<5 and combo==5 then
 			    			if castSpell("target",fb,false,false,false) then return end
 			            end
 	    -- Rake 
