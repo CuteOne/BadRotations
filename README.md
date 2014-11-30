@@ -11,7 +11,7 @@
 |Moonkin|70%|CodeMyLife|
 ||||
 | **Death Knight** |  |  |
-|Frost|0%|Chumii |
+|Frost|0%|Empty |
 |Blood|90%|CodeMyLife |
 |Unholy|0%|Empty|
 ||||
@@ -26,7 +26,7 @@
 |Frost|80%(lvl90)|ragnar |
 ||||
 | **Monk** |  |  |
-|Brewmaster|70%|CodeMyLife |
+|Brewmaster|90%|Chumii |
 |Mistweaver|70%|CodeMyLife |
 |Windwalker|100%|CuteOne |
 | **Paladin**  |  |  |
@@ -55,8 +55,8 @@
 |Destruction|0%||
 ||||
 | **Warrior**  |  |  |
-|Arms|100%|Chumii |
+|Arms|75%|Chumii |
 |Fury|100%|Averykey |
-|Protection|100%|Chumii |
+|Protection|85%|Chumii |
 
 
