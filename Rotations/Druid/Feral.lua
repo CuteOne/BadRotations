@@ -16,26 +16,16 @@ if select(3, UnitClass("player")) == 11 then
 --- Locals ---
 --------------
 		if leftCombat == nil then leftCombat = GetTime() end
-		local enemies = #getEnemies("player",8)--#enemiesTable
-		local thisUnit = thisUnit
-		local unitHP = unitHP
-		local unitDist = unitDist
-		local urkRemain = urkRemain
-		local urpRemain = urpRemain
-		local uthrRemain = uthrRemain
-		local tarDist = getDistance("target")
-		local hasTarget = UnitExists("target")
-		local friendly = UnitIsFriend("target","player")
+		local enemies = #getEnemies("player",8)
+		local enemyList = getEnemies("player",8)
 		local hasMouse = UnitExists("mouseover")
 		local level = UnitLevel("player")
 		local php = getHP("player")
-		local thp = getHP("target")
 		local combo = getCombo()
 		local power = getPower("player")
 		local powmax = UnitPowerMax("player")
 		local powgen = getRegen("player")
 		local clearcast = getBuffRemain("player",cc)
-		local ttd = getTimeToDie("target")
 		local ttm = getTimeToMax("player")
 		local deadtar = UnitIsDeadOrGhost("target")
 		local attacktar = canAttack("player", "target")
@@ -65,34 +55,63 @@ if select(3, UnitClass("player")) == 11 then
 	    local vicious = getBuffRemain("player",148903)
 	    local restlessagi = getBuffRemain("player",146310)
 	    local btRemain = getBuffRemain("player",bt)
-	    local rkRemain = getDebuffRemain("target",rk,"player")
-	    local rkDuration = getDebuffDuration("target",rk,"player")
-	    local stunRemain = getDebuffRemain("target",rks,"player")
-	    local rpRemain = getDebuffRemain("target",rp,"player")
-	    local rpDuration = getDebuffDuration("target",rp,"player")
-	    local thrRemain = getDebuffRemain("target",thr,"player")
-	    local thrDuration = getDebuffDuration("target",thr,"player")
-	    local mfRemain = getDebuffRemain("target",mf,"player")
 	    local mfTick = 20.0/(1+UnitSpellHaste("player")/100)/10
 	    local rkCalc = CRKD()
-    	local rkDmg = RKD("target")
-    	local rpCalc = CRPD()
-    	local rpDmg = RPD("target")
-    	local lootDelay = getValue("LootDelay")
-    	local srrpDiff = srrpDiff
-    	local newSrDuration = newSrDuration
-    	if combo>0 then
-    		newSrDuration = 18 + (6*(combo-1))
-    	else
-    		newSrDuration = 0
-    	end
-    	if srRemain - rpRemain < 0 then
-    		srrpDiff = rpRemain - srRemain
-    	elseif rpRemain - srRemain < 0 then
-    		srrpDiff = srRemain - rpRemain
-    	else
-    		srrpDiff = 0
-    	end
+	    local rpCalc = CRPD()
+	    local lootDelay = getValue("LootDelay")
+		local thisUnit = thisUnit
+		local tarDist = tarDist
+		local hasTarget = hasTarget
+		local friendly = friendly
+		local thp = thp
+		local ttd = ttd
+	    local rkRemain = rkRemain
+	    local rkDuration = rkDuration
+	    local stunRemain = stunRemain
+	    local rpRemain = rpRemain
+	    local rpDuration = rpDuration
+	    local thrRemain = thrRemain
+	    local thrDuration = thrDuration
+	    local mfRemain = mfRemain
+	    local rkDmg = rkDmg
+	    local rpDmg = rpDmg
+	    if useCleave() and enemies>1 then
+	    	for i=1, enemies do
+	    		thisUnit = enemyList[i]
+			   	tarDist = getDistance(thisUnit)
+				hasTarget = UnitExists(thisUnit)
+				friendly = UnitIsFriend(thisUnit,"player")
+				thp = getHP(thisUnit)
+				ttd = getTimeToDie(thisUnit)
+			    rkRemain = getDebuffRemain(thisUnit,rk,"player")
+			    rkDuration = getDebuffDuration(thisUnit,rk,"player")
+			    stunRemain = getDebuffRemain(thisUnit,rks,"player")
+			    rpRemain = getDebuffRemain(thisUnit,rp,"player")
+			    rpDuration = getDebuffDuration(thisUnit,rp,"player")
+			    thrRemain = getDebuffRemain(thisUnit,thr,"player")
+			    thrDuration = getDebuffDuration(thisUnit,thr,"player")
+			    mfRemain = getDebuffRemain(thisUnit,mf,"player")
+		    	rkDmg = RKD(thisUnit)
+		    	rpDmg = RPD(thisUnit)
+		    end
+		else
+			thisUnit = "target"
+			tarDist = getDistance("target")
+			hasTarget = UnitExists("target")
+			friendly = UnitIsFriend("target","player")
+			thp = getHP("target")
+			ttd = getTimeToDie("target")
+		    rkRemain = getDebuffRemain("target",rk,"player")
+		    rkDuration = getDebuffDuration("target",rk,"player")
+		    stunRemain = getDebuffRemain("target",rks,"player")
+		    rpRemain = getDebuffRemain("target",rp,"player")
+		    rpDuration = getDebuffDuration("target",rp,"player")
+		    thrRemain = getDebuffRemain("target",thr,"player")
+		    thrDuration = getDebuffDuration("target",thr,"player")
+		    mfRemain = getDebuffRemain("target",mf,"player")
+	    	rkDmg = RKD("target")
+	    	rpDmg = RPD("target")
+	    end
 --------------------------------------------------
 --- Ressurection/Dispelling/Healing/Pause/Misc ---
 --------------------------------------------------
@@ -360,8 +379,9 @@ if select(3, UnitClass("player")) == 11 then
 						if castSpell("player",tf,true,false,false) then return end
 					end
 		-- Ferocious Bite
-					if rpRemain>0 and ((rpRemain<3 and power>25) or (power>50 and combo==5)) and thp<25 and tarDist<5 then
-						if castSpell("target",fb,false,false,false) then return end
+					--if=dot.rip.ticking&dot.rip.remains<3&target.health.pct<25
+					if rpRemain>0 and rpRemain<3 and power>25 and thp<25 and tarDist<5 then
+						if castSpell(thisUnit,fb,false,false,false) then return end
 					end
 		-- Healing Touch
 					if psRemain>0 and ((combo>=4 and getTalent(7,2)) or psRemain<1.5) then
@@ -373,126 +393,78 @@ if select(3, UnitClass("player")) == 11 then
 		                end
 					end
 		-- Savage Roar
-					if (srRemain<3 or (srrpDiff<6 and newSrDuration>srRemain)) and combo>0 and power>25 and tarDist<5 then
+					if srRemain<3 and combo>0 and power>25 and tarDist<5 then
 						if castSpell("player",svr,true,false,false) then return end
 		            end
-		            if srRemain>=3 then
 		-- Thrash
-			    		if useCleave() then
-			    			if clearcast and (enemies>1 or (not getTalent(7,2) and combo==5)) then
-			    				if thrRemain<4.5 then 
-			   					 	if castSpell("target",thr,true,false,false) then return end
-				    			end
-				    			for i = 1, enemies do
-									thisUnit = getEnemies("player",8)[i]
-									unitDist = getDistance(getEnemies("player",8)[i])
-									uthrRemain = getDebuffRemain(thisUnit,thr,"player")
-				   					if uthrRemain<4.5 then 
-				   						if castSpell(thisUnit,thr,true,false,false) then return end
-				   					end
-				   				end
-				   			elseif enemies>1 and power>50 then
-				   				if thrRemain<4.5 then 
-			   					 	if castSpell("target",thr,true,false,false) then return end
-				    			end
-				    			for i = 1, enemies do
-									thisUnit = getEnemies("player",8)[i]
-									unitDist = getDistance(getEnemies("player",8)[i])
-									uthrRemain = getDebuffRemain(thisUnit,thr,"player")
-				   					if uthrRemain<4.5 then 
-				   						if castSpell(thisUnit,thr,true,false,false) then return end
-				   					end
-				   				end
-				   			end
-						end
+					--if=buff.omen_of_clarity.react&remains<4.5&active_enemies>1
+					if clearcast and thrRemain<4.5 and enemies>1 and tarDist<8 and useCleave() then
+						if castSpell(thisUnit,thr,true,false,false) then return end
+					end
+					--if=!talent.bloodtalons.enabled&combo_points=5&remains<4.5&buff.omen_of_clarity.react
+					if not getTalent(7,2) and combo==5 and thrRemain<4.5 and clearcast and tarDist<8 and useCleave() then
+						if castSpell(thisUnit,thr,true,false,false) then return end
+					end
+					--pool_resource,for_next=1
+					if thrRemain<4.5 and enemies>1 and power<=50 and useCleave() then
+						return true
+					end
+					--if=remains<4.5&active_enemies>1
+					if thrRemain<4.5 and enemies>1 and power>50 and useCleave() then
+						if castSpell(thisUnit,thr,true,false,false) then return end
+					end
 		-- Ferocious Bite
-						if power>50 and thp<25 and rpRemain>0 and tarDist<5 and combo==5 then
-							if castSpell("target",fb,false,false,false) then return end
-						end
+					--max_energy=1,if=target.health.pct<25&dot.rip.ticking
+					if combo==5 and power>50 and thp<25 and rpRemain>0 and tarDist<5 then
+						if castSpell(thisUnit,fb,false,false,false) then return end
+					end
 		-- Rip
-						if power>30 and ((rpRemain<=3 and ttd-rpRemain>18) or (rpRemain<7.2 and rpCalc>rpDmg and ttd-rpRemain>18)) and tarDist<5 and combo==5 then
-							if castSpell("target",rp,false,false,false) then return end
-						end
+					--if=remains<3&target.time_to_die-remains>18
+					if combo==5 and rpRemain<3 and ttd-rpRemain>18 and power>30 and tarDist<5 then
+						if castSpell(thisUnit,rp,false,false,false) then return end
+					end
+					--if=remains<7.2&persistent_multiplier>dot.rip.pmultiplier&target.time_to_die-remains>18
+					if combo==5 and rpRemain<7.2 and rpCalc>rpDmg and ttd-rpRemain>18 and power>30 and tarDist<5 then
+						if castSpell(thisUnit,rp,false,false,false) then return end
+					end
 		-- Savage Roar
-						if (ttm<=1 or berserking or tfCooldown<3) and srRemain<12.6 and power>25 and tarDist<5 and combo==5 then
-							if castSpell("player",svr,true,false,false) then return end
-			            end
+					--if=(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)&buff.savage_roar.remains<12.6
+					if combo==5 and (ttm<=1 or berserking or tfCooldown<3) and srRemain<12.6 and power>25 and tarDist<5 then
+						if castSpell("player",svr,true,false,false) then return end
+		            end
 		-- Ferocious Bite
-		    			if (ttm<=1 or berserking or tfRemain<3) and power>50 and tarDist<5 and combo==5 then
-			    			if castSpell("target",fb,false,false,false) then return end
-			            end
+					--if=(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)
+	    			if combo==5 and (ttm<=1 or berserking or tfRemain<3) and power>50 and tarDist<5 then
+		    			if castSpell("target",fb,false,false,false) then return end
+		            end
 	    -- Rake 
-			    		if combo<5 and power>35 then
-			    			if not getTalent(7,2) then
-			    				if (rkRemain<3 or (rkRemain<4.5 and rkCalc>rkDmg)) and ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) and tarDist<5 then
-					    			if castSpell("target",rk,false,false,false) then return end
-					            end
-				    			if useCleave() then
-				    				for i = 1, enemies do
-										thisUnit = getEnemies("player",8)[i]
-										unitDist = getDistance(getEnemies("player",8)[i])
-										urkRemain = getDebuffRemain(thisUnit,rk,"player")
-										uthrRemain = getDebuffRemain(thisUnit,thr,"player")
-										uttd = getTimeToDie(thisUnit)
-										if (urkRemain<3 or (urkRemain<4.5 and CRKD()>RKD(thisUnit))) and ((uttd-urkRemain>3 and enemies<3) or uttd-urkRemain>6) and unitDist<5 then
-					    					if castSpell(thisUnit,rk,false,false,false) then return end
-				    					end
-				    				end
-					    		end
-					    	end
-					    	if getTalent(7,2) then
-					    		if rkRemain<4.5 and (psRemain==0 or btRemain>0 or rkCalc>rkDmg) and ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) and tarDist<5 then
-				    				if castSpell("target",rk,false,false,false) then return end
-				            	end
-				            	if useCleave() then
-				    				for i = 1, enemies do
-										thisUnit = getEnemies("player",8)[i]
-										unitDist = getDistance(getEnemies("player",8)[i])
-										urkRemain = getDebuffRemain(thisUnit,rk,"player")
-										uthrRemain = getDebuffRemain(thisUnit,thr,"player")
-										uttd = getTimeToDie(thisUnit)
-										if urkRemain<4.5 and (psRemain==0 or btRemain>0) and ((uttd-urkRemain>3 and enemies<3) or uttd-urkRemain>6) and unitDist<5 then
-					    					if castSpell(thisUnit,rk,false,false,false) then return end
-					    				end
-					    			end
-					    		end
-					    	end
-				        end
+	    			--if=!talent.bloodtalons.enabled&remains<3&combo_points<5&((target.time_to_die-remains>3&active_enemies<3)|target.time_to_die-remains>6)
+	    			if not getTalent(7,2) and rkRemain<3 and combo<5 and ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) and power>35 and tarDist<5 then
+	    				if castSpell(thisUnit,rk,false,false,false) then return end
+	    			end
+	    			--if=!talent.bloodtalons.enabled&remains<4.5&combo_points<5&persistent_multiplier>dot.rake.pmultiplier&((target.time_to_die-remains>3&active_enemies<3)|target.time_to_die-remains>6)
+	    			if not getTalent(7,2) and rkRemain<4.5 and combo<5 and rkCalc>rkDmg and ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) and power>35 and tarDist<5 then
+	    				if castSpell(thisUnit,rk,false,false,false) then return end
+	    			end
+	    			--if=talent.bloodtalons.enabled&remains<4.5&combo_points<5&(!buff.predatory_swiftness.up|buff.bloodtalons.up|persistent_multiplier>dot.rake.pmultiplier)&((target.time_to_die-remains>3&active_enemies<3)|target.time_to_die-remains>6)
+	    			if getTalent(7,2) and rkRemain<4.5 and combo<5 and (psRemain==0 or btRemain>0 or rkCalc>rkDmg) and ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) and power>35 and tarDist<5 then
+						if castSpell(thisUnit,rk,false,false,false) then return end
+	    			end
 		-- Thrash
-			    		if getTalent(7,2) and not getTalent(4,1) and combo==5 and clearcast and useCleave() then
-			    			for i = 1, enemies do
-								thisUnit = getEnemies("player",8)[i]
-								unitDist = getDistance(getEnemies("player",8)[i])
-								uthrRemain = getDebuffRemain(thisUnit,thr,"player")
-				    			if uthrRemain<4.5 then
-				    				if castSpell(thisUnit,thr,true,false,false) then return end
-				    			end
-				    		end
-			            end	
+					--if=talent.bloodtalons.enabled&combo_points=5&remains<4.5&buff.omen_of_clarity.react		
+		    		if getTalent(7,2) and combo==5 and thrRemain<4.5 and clearcast and tarDist<8 then
+		    			if castSpell(thisUnit,thr,true,false,false) then return end
+		    		end
 		-- Moonfire
-			    		if getTalent(7,1) and combo<5 and getEnemies("player",40)<6 then
-			    			if mfRemain<4.2 and ttd-mfRemain>mfTick*5 and tarDist<40 and isInCombat("target") then
-				    			if castSpell("target",mf,true,false,false) then return end
-				    		end
-				    		if useCleave() then
-					    		for i = 1, #enemiesTable do
-						    		if enemiesTable[i].distance<40 then
-										thisUnit = enemiesTable[i].unit
-										unitDist = enemiesTable[i].distance
-										umfRemain = getDebuffRemain(thisUnit,mf,"player")
-										uttd = getTimeToDie(thisUnit)
-						    			if umfRemain<4.2 and uttd-umfRemain>mfTick*5 and unitDist<40 and isInCombat(thisUnit) then
-					    					if castSpell(thisUnit,mf,true,false,false) then return end
-					    				end
-					    			end
-				    			end
-				    		end
-				    	end 	        
+					--if=combo_points<5&remains<4.2&active_enemies<6&target.time_to_die-remains>tick_time*5
+		    		if getTalent(7,1) and mfRemain<4.2 and enemies<6 and ttd-mfRemain>mfTick*5 then
+		    			if castSpell(thisUnit,mf,true,false,false) then return end
+		    		end 	        
 	    -- Rake
-			    		if rkCalc>rkDmg and combo<5 and enemies==1 and power>35 and tarDist<5 then
-			    			if castSpell("target",rk,false,false,false) then return end
-			            end
-				    end --srRemain
+	    			--persistent_multiplier>dot.rake.pmultiplier&combo_points<5&active_enemies=1
+		    		if rkCalc>rkDmg and combo<5 and enemies==1 and power>35 and tarDist<5 then
+		    			if castSpell(thisUnit,rk,false,false,false) then return end
+		            end
 	    -- Swipe
 		    		if useAoE() and power>45 and combo<5 then
 		    			if castSpell("player",sw,false,false,false) then return end

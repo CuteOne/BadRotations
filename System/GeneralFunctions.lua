@@ -924,9 +924,19 @@ end
 
 -- if getPower("target") <= 15 then
 function getPower(Unit)
-	local value = 100 * UnitPower(Unit) / UnitPowerMax(Unit)
-	if _MyClass == 11 and UnitBuffID("player",106951) then value = value*2 end
-	return value;
+    local value = value
+    if _MyClass == 11 then
+        if UnitBuffID("player",135700) then
+            value = 999
+        elseif UnitBuffID("player",106951) then
+            value = (100 * UnitPower(Unit) / UnitPowerMax(Unit))*2
+        else
+            value = 100 * UnitPower(Unit) / UnitPowerMax(Unit)
+        end
+    else
+        value = 100 * UnitPower(Unit) / UnitPowerMax(Unit)
+    end
+    return value
 end
 
 function getRecharge(spellID)

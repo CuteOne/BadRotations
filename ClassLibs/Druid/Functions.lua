@@ -75,7 +75,11 @@ function RKD(unit)
     if Rake_sDamage==nil then
         return 0.5
     elseif UnitExists(unit) then
-        rakeDot = Rake_sDamage[UnitGUID(unit)]
+        if getDebuffRemain(unit,rk,"player")==0 then
+            rakeDot = 0.5
+        else
+            rakeDot = Rake_sDamage[UnitGUID(unit)]
+        end
     end
     if rakeDot~=nil then
         return rakeDot
@@ -102,7 +106,11 @@ function RPD(unit)
     if Rip_sDamage==nil then
         return 0.5
     elseif UnitExists(unit) then
-        ripDot = Rip_sDamage[UnitGUID(unit)]
+        if getDebuffRemain(unit,rp,"player")==0 then
+            ripDot = 0.5
+        else
+            ripDot = Rip_sDamage[UnitGUID(unit)]
+        end
     end
     if ripDot~=nil then
         return ripDot
