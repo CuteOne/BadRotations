@@ -128,7 +128,8 @@ function castInterupt(spell,percent)
 		for i = 1, #spellCastersTable do
 			if isBlackListed(Unit) then 
 				return false 
-			else
+				-- make sure the spell is interrutible
+			elseif spellCastersTable[i].canInterupt == true then
 				local thisCaster = spellCastersTable[i]
 				-- make sure we cover melee range
 				local allowedDistance = select(6,GetSpellInfo(spell))
@@ -404,6 +405,7 @@ function dynamicTarget(range,facing)
 			return enemiesTable[i].unit
 		end
 	end
+	return "target"
 end
 
 --if isLongTimeCCed("target") then

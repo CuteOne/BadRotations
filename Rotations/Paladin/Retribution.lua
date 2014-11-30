@@ -94,12 +94,15 @@ if select(3, UnitClass("player")) == 2 then
 		end
 
 		-- Hammer of wrath
-		if (getHP(dynamicUnit.dyn30) and (getHP(dynamicUnit.dyn30) <= 20) or UnitBuffID("player",31884)) then
-			if castSpell(dynamicUnit.dyn30,_HammerOfWrath,false,false) then 
-				return 
+		for i = 1, #enemiesTable do
+			local thisUnit = enemiesTable[i].unit
+			if (getHP(thisUnit) and (getHP(thisUnit) <= 20) or UnitBuffID("player",31884)) and getFacing("player",thisUnit) == true then
+				if castSpell(thisUnit,_HammerOfWrath,false,false) then 
+					return 
+				end
 			end
 		end
-
+		
 		-- Single/AoE switch
 		local verdict = verdict
 		local strike = strike
