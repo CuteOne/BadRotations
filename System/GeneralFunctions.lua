@@ -288,7 +288,7 @@ end
 function canUse(itemID)
 	local goOn = true;
 	local DPSPotionsSet = {
-		[1] = {Buff = 105702, Item = 76093}, -- Intel
+		[1] = {Buff = 105702, Item = 76093}, -- Int
 		[2] = {Buff = 105697, Item = 76089}, -- Agi
 		[3] = {Buff = 105706, Item = 76095}, -- Str
 	}
@@ -1659,6 +1659,39 @@ function isKnown(spellID)
 		return true
 	end
   	return false;
+end
+
+--if isLongTimeCCed("target") then
+-- CCs with >=20 seconds
+function isLongTimeCCed(Unit)
+	if Unit == nil then return false; end
+	local longTimeCC = {
+		339,	-- Druid - Entangling Roots
+		102359,	-- Druid - Mass Entanglement
+		1499,	-- Hunter - Freezing Trap
+		19386,	-- Hunter - Wyvern Sting
+		118,	-- Mage - Polymorph
+		115078,	-- Monk - Paralysis
+		20066,	-- Paladin - Repentance
+		10326,	-- Paladin - Turn Evil
+		9484,	-- Priest - Shackle Undead
+		605,	-- Priest - Dominate Mind
+		6770,	-- Rogue - Sap
+		2094,	-- Rogue - Blind
+		51514,	-- Shaman - Hex
+		710,	-- Warlock - Banish
+		5782,	-- Warlock - Fear
+		5484,	-- Warlock - Howl of Terror
+		115268,	-- Warlock - Mesmerize
+		6358,	-- Warlock - Seduction
+	}
+	for i=1, #longTimeCC do
+		--local checkCC=longTimeCC[i]
+		if UnitDebuffID(Unit, longTimeCC[i])~=nil then	
+			return true
+		end
+	end
+	return false
 end
 
 -- if isLooting() then

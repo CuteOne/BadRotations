@@ -81,6 +81,23 @@ if select(3, UnitClass("player")) == 5 then
 		return counter
 	end
 
+	-- if i have no target, target the main tank target
+	function noTargetTargetMainTankTarget()
+		-- noTarget
+		if target==nil or isPlayer("target") or UnitIsDeadOrGhost("target") then
+			-- iterate through party
+			for i = 1, #nNova do
+				local thisFriend=nNova[i].unit
+				local isMainTank = GetPartyAssignment("MAINTANK",thisFriend) -- 1 if isMainTank else nil
+				-- target tanks target
+				if isMainTank then
+					RunMacroText("/target " + thisFriend)
+					RunMacroText("/targettarget")
+				end
+			end
+		end
+	end
+
 	--[[                    ]] -- General Functions end
 
 
@@ -191,17 +208,17 @@ if select(3, UnitClass("player")) == 5 then
 		-- spend orbs --
 		----------------
 			--DP if ORBS == 5
-			if isStanding(0.3) then
+			--if isStanding(0.3) then
 				if ORBS==5 then
 					if castSpell("target",DP,false,true) then
 						lastDP=GetTime()
 						return
 					end
 				end
-			end
+			--end
 
 			-- DP if ORBS>=3 and lastDP<DPTIME and InsanityBuff<DPTICK
-			if ORBS>=3 and GetTime()-lastDP<=10 then
+			if ORBS>=3 and GetTime()-lastDP<=DPTIME+2 then
 				if castSpell("target",DP,false,true) then return; end
 			end
 
@@ -213,64 +230,102 @@ if select(3, UnitClass("player")) == 5 then
 					--end
 				end
 			end
-		--------------
-		-- get orbs --
-		--------------
-			--if ORBS<=4 and not UnitBuffID("player",InsanityBuff) and select(1,UnitChannelInfo("player")) == nil then
-			if ORBS<=4 and not UnitBuffID("player",InsanityBuff) then
-				--------------
-				-- Standing --
-				--------------
-				--if getHP("target")>20 then
-					-- Mind Blast on cd - No - Cast it
+
+
+		------------------------
+		-- get orbs under 20% --
+		------------------------
+			if getHP("target")<=20 then
+				if ORBS<=4 then
+					-- SWD
+					if castSpell("target",SWD,true,false) then return; end
+
+					-- MindBlast
 					if castSpell("target",MB,false,false) then return; end
-
-					-- Mind Spike
-					if ORBS<=4 or (ORBS==4 and (getDebuffRemain("target",SWP,"player")<5 or getDebuffRemain("target",VT,"player")<5)) then
-						if not UnitDebuffID("target",DP,"player") then 
-							if castSpell("target",MSp,false,true) then return; end
-						end
-					end
-
-					-- SWD glyphed
-					if not getTalent(3,3) then
-						if hasGlyph(GlyphOfSWD) and isChecked("SWD glyphed") and getHP("target")>=20 then
-							if castSpell("target",SWDG,true,false) then return; end
-						end
-					end
 
 					-- MF Filler
 					if select(1,UnitChannelInfo("player")) == nil and getSpellCD(MB)<GCD then
 						if castSpell("target",MF,false,true) then return; end
 					end
+				end
+			end
 
-				--end
+		-----------------------
+		-- get orbs over 20% --
+		-----------------------
+			if getHP("target")>20 then
+				--if ORBS<=4 and not UnitBuffID("player",InsanityBuff) and select(1,UnitChannelInfo("player")) == nil then
+				if ORBS<=4 and not UnitBuffID("player",InsanityBuff) then
+					--------------
+					-- Standing --
+					--------------
+					--if getHP("target")>20 then
+						-- Mind Blast on cd - No - Cast it
+						if castSpell("target",MB,false,false) then return; end
 
-				------------
-				-- Moving --
-				------------
-				-- if isMoving("player") then 
-				-- 	-- Mind Blast on cd - No - Cast it
-				-- 	if castSpell("target",MB,false,false) then return; end
+						-- Mind Spike
+						if (ORBS<=4 and (getDebuffRemain("target",SWP,"player")==0 or getDebuffRemain("target",VT,"player")==0)) or (ORBS==4 and (getDebuffRemain("target",SWP,"player")<5 or getDebuffRemain("target",VT,"player")<5)) then
+							if not UnitDebuffID("target",DP,"player") then 
+								if castSpell("target",MSp,false,true) then return; end
+							end
+						end
 
-				-- 	-- Mind Blast on cd - Yes - Power Word Shield on CD - No - Cast it
-				-- 	--if isChecked("PW: Shield") and getHP("player")<=getValue("PW: Shield") then
-				-- 	if castSpell("player",PWS) then return; end
+						-- SWD glyphed
+						if not getTalent(3,3) then
+							if hasGlyph(GlyphOfSWD) and isChecked("SWD glyphed") and getHP("target")>=20 then
+								if castSpell("target",SWDG,true,false) then return; end
+							end
+						end
 
-				-- end -- END Moving
+						-- MF Filler
+						if select(1,UnitChannelInfo("player")) == nil and getSpellCD(MB)<GCD then
+							if castSpell("target",MF,false,true) then return; end
+						end
 
-			end -- fill orbs
+					--end
+
+					------------
+					-- Moving --
+					------------
+					-- if isMoving("player") then 
+					-- 	-- Mind Blast on cd - No - Cast it
+					-- 	if castSpell("target",MB,false,false) then return; end
+
+					-- 	-- Mind Blast on cd - Yes - Power Word Shield on CD - No - Cast it
+					-- 	--if isChecked("PW: Shield") and getHP("player")<=getValue("PW: Shield") then
+					-- 	if castSpell("player",PWS) then return; end
+
+					-- end -- END Moving
+
+				end -- fill orbs
+			end
 	end
 	--[[                    ]] -- IcySingle DotWeave end
 
 
 	--[[                    ]] -- IcySingle start
 	function IcySingle()
+
 		-- DP
-		if ORBS>=3 then
+		if (ORBS>=5 and getValue("Min Orbs (trad)")==2) or (getHP("target")<20 and ORBS>=3) then
 			if UnitDebuffID("target",SWP,"player") and getDebuffRemain("target",SWP,"player")>DPTIME and UnitDebuffID("target",VT,"player") and getDebuffRemain("target",VT,"player")>DPTIME then
-				if castSpell("target",DP,false,true) then return; end
+				if ORBS==5 then
+					if castSpell("target",DP,false,true) then
+						lastDP=GetTime()
+						return
+					end
+				end
 			end
+		end
+
+		-- Burn Down ORBS (options)
+		if (ORBS>=3 and not isChecked("DP5")) and GetTime()-lastDP<=DPTIME then
+			if castSpell("target",DP,false,true) then return; end
+		end
+
+		-- Burn Down ORBS (Toggle)
+		if ORBS>=3 and BadBoy_data['Burn'] == 2 and getDebuffRemain("target",DP,"player")==0 then
+			if castSpell("target",DP,false,true) then return; end
 		end
 
 		-- MB
@@ -295,23 +350,28 @@ if select(3, UnitClass("player")) == 5 then
 			end
 		end
 
-		-- SWP
-		if not UnitDebuffID("target",SWP,"player") or (UnitDebuffID("target",SWP,"player") and getDebuffRemain("target",SWP)<=5.4) then
-			if castSpell("target",SWP,true,false) then return; end
-		end
+		-- Dot only if not burning
+		if BadBoy_data['Burn'] == 1 then
+			if select(1,UnitChannelInfo("player")) == "Mind Flay" or select(1,UnitChannelInfo("player")) == nil and getDebuffRemain("target",DP,"player")<1 then
+				-- SWP
+				if not UnitDebuffID("target",SWP,"player") or (UnitDebuffID("target",SWP,"player") and getDebuffRemain("target",SWP)<=5.4) then
+					if castSpell("target",SWP,true,false) then return; end
+				end
 
-		-- VT
-		if lastVT==nil or GetTime()-lastVT > 2 then
-			if not UnitDebuffID("target",VT,"player") or (UnitDebuffID("target",VT,"player") and getDebuffRemain("target",VT)<=4.5) then
-				if castSpell("target",VT,true,true) then 
-					lastVT=GetTime()
-					return
+				-- VT
+				if lastVT==nil or GetTime()-lastVT > 2 then
+					if not UnitDebuffID("target",VT,"player") or (UnitDebuffID("target",VT,"player") and getDebuffRemain("target",VT)<=4.5) then
+						if castSpell("target",VT,true,true) then 
+							lastVT=GetTime()
+							return
+						end
+					end
 				end
 			end
 		end
 
 		-- MF Filler
-		if getSpellCD(MB)>GCD and getSpellCD(MB)~=0 then
+		if getSpellCD(MB)>0.5*GCD and getSpellCD(MB)~=0 then
 			if select(1,UnitChannelInfo("player")) == nil then
 				if castSpell("target",MF,false,true) then return; end
 			end
@@ -348,12 +408,17 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- SWP on max 3 targets
 		if getSWP()<getValue("Max Targets") then
+			-- apply on current target before iterating
+			if getDebuffRemain("target",SWP,"player")<1 then
+				if castSpell("target",SWP,true,false) then return; end
+			end
+			-- iterate the table if multiSWP
 			if isChecked("Multi SWP") then
 				for i = 1, #enemiesTable do
 					local thisUnit = enemiesTable[i].unit
 					local ttd = getTimeToDie(thisUnit)
 					local swpRem = getDebuffRemain(thisUnit,SWP,"player")
-					if (UnitAffectingCombat(thisUnit) or isDummy(thisUnit)) and getDebuffRemain(thisUnit,SWP,"player") < 2.5 then
+					if UnitAffectingCombat(thisUnit) and not isLongTimeCCed(thisUnit) and swpRem < 2*GCD then
 						if castSpell(thisUnit,SWP,true,false) then return; end
 					end
 				end
@@ -362,12 +427,20 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- VT on Unit in range
 		if getVT()<getValue("Max Targets") then
+			-- apply on current target before iterating
+			if getDebuffRemain("target",VT,"player")<1 then
+				if castSpell("target",VT,true,true) then 
+					lastVT=GetTime()
+					return
+				end
+			end
+			-- iterate the table if multiVT
 			if isChecked("Multi VT") then
 				for i = 1, #enemiesTable do
 					local thisUnit = enemiesTable[i].unit
 					local ttd = getTimeToDie(thisUnit)
 					local vtRem = getDebuffRemain(thisUnit,VT,"player")
-					if UnitAffectingCombat(thisUnit) and getDebuffRemain(thisUnit,VT,"player") < 2.5 and GetTime()-lastVT>2 then
+					if UnitAffectingCombat(thisUnit) and not isLongTimeCCed(thisUnit) and vtRem < 1 and GetTime()-lastVT>2*GCD then
 						if castSpell(thisUnit,VT,true,true) then 
 							lastVT=GetTime()
 							return
@@ -377,10 +450,18 @@ if select(3, UnitClass("player")) == 5 then
 			end
 		end
 
+		-- Mind Sear Filler
+		if #enemiesTable>=3 and getNumEnemiesInRange("target", 11)>=3 then
+			if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
+				if castSpell("target",MS,false,true) then return; end
+			end
+		end
+
 		-- MF Filler
 		if ORBS<3 and select(1,UnitChannelInfo("player")) == nil then
 			if castSpell("target",MF,false,true) then return; end
 		end
+
 	end
 	--[[                    ]] -- Icy 2-3 Targets end
 
@@ -416,22 +497,32 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- SWP on max 3 targets
-		if isChecked("Multi SWP") then
-			for i = 1, #enemiesTable do
-				local countSWP=0
-				local thisUnit = enemiesTable[i].unit
-				if UnitAffectingCombat(thisUnit) and getDebuffRemain(thisUnit,SWP,"player") < 5.4 then
-					if castSpell(thisUnit,SWP,true,false) then return; end
+		if getSWP()<getValue("Max Targets") then
+			if isChecked("Multi SWP") then
+				for i = 1, #enemiesTable do
+					local thisUnit = enemiesTable[i].unit
+					local ttd = getTimeToDie(thisUnit)
+					local swpRem = getDebuffRemain(thisUnit,SWP,"player")
+					if (UnitAffectingCombat(thisUnit) or isDummy(thisUnit)) and getDebuffRemain(thisUnit,SWP,"player") < 1 then
+						if castSpell(thisUnit,SWP,true,false) then return; end
+					end
 				end
 			end
 		end
 
 		-- VT on Unit in range
-		if isChecked("Multi VT") then
-			for i = 1, #enemiesTable do
-				local thisUnit = enemiesTable[i].unit
-				if UnitAffectingCombat(thisUnit) and getDebuffRemain(thisUnit,VT,"player") < 4.5 then
-					if castSpell(thisUnit,VT,true,true) then return; end
+		if getVT()<getValue("Max Targets") then
+			if isChecked("Multi VT") then
+				for i = 1, #enemiesTable do
+					local thisUnit = enemiesTable[i].unit
+					local ttd = getTimeToDie(thisUnit)
+					local vtRem = getDebuffRemain(thisUnit,VT,"player")
+					if UnitAffectingCombat(thisUnit) and getDebuffRemain(thisUnit,VT,"player") < 1 and GetTime()-lastVT>2 then
+						if castSpell(thisUnit,VT,true,true) then 
+							lastVT=GetTime()
+							return
+						end
+					end
 				end
 			end
 		end
@@ -443,3 +534,11 @@ if select(3, UnitClass("player")) == 5 then
 	end
 	--[[                    ]] -- Icy 4+ Targets end
 end
+
+
+-- TTD with DoTs
+-- minHP for dotting
+-- weave rota burn!
+-- Conserve orbs on traditional rota 3/5
+-- 2-3 rota and 4+ rota are same (außer MS und MF filler)
+-- 		insert 4+ filler with buttoncheck and autocheck (enough targets) into 2-3 rota

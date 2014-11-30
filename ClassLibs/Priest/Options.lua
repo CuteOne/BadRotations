@@ -37,9 +37,17 @@ if select(3, UnitClass("player")) == 5 then
 
 				-- Single Target Rotation chose
 				--CreateNewCheck(thisConfig,"SingleRota");
-			  --CreateNewDrop(thisConfig, string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10);
+			  		--CreateNewDrop(thisConfig, string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10);
 				CreateNewDrop(thisConfig,"SingleRotation",1,"Choose the rotation for single target.","|cffBA55D3weave","|cff00A9EBtrad");
 				CreateNewText(thisConfig,"SingleRotation");
+
+				-- Min Orbs to cast DP on traditional single target
+				CreateNewDrop(thisConfig,"Min Orbs (trad)",1,"Choose the Minimum Orbs to cast DP if targetHP>20.","|cffCC00003","|cFF00CC005");
+				CreateNewText(thisConfig,"Min Orbs (trad)");
+
+				-- only cast DP with 5 Orbs on traditional single rota
+				CreateNewCheck(thisConfig,"DP5");
+				CreateNewText(thisConfig,"DP only with 5 orbs");
 
 				-- Power Infusion
 				if isKnown(PI) then
@@ -133,8 +141,8 @@ if select(3, UnitClass("player")) == 5 then
 
 				-- Max Targets
 				-- CreateNewCheck(thisConfig,"Max Targets");
-				CreateNewBox(thisConfig,"Max Targets", 1, 15, 1, 5, "Set to desired time for test in minutes.\nMin: 1 / Max: 25 / Interval: 1");
-				CreateNewText(thisConfig,"Max Targets on 4+");
+				CreateNewBox(thisConfig,"Max Targets", 1, 18, 1, 5, "Maximum count of SWP/VT on Units.\nShould be not more than 18/GCD.\nMin: 1 / Max: 18 / Interval: 1");
+				CreateNewText(thisConfig,"Max DoTs AoE");
 
 
 			-- Wrapper -----------------------------------------
@@ -147,6 +155,10 @@ if select(3, UnitClass("player")) == 5 then
 				-- Shadowform Outfight
 				CreateNewCheck(thisConfig,"Shadowform Outfight");
 				CreateNewText(thisConfig,"Auto Shadowform Outfight");
+
+				-- Auto Target
+				CreateNewCheck(thisConfig,"AutoTarget");
+				CreateNewText(thisConfig,"Auto Target (experimental");
 
 				-- Auto Rez
 				CreateNewCheck(thisConfig,"Auto Rez");
