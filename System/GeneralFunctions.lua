@@ -758,67 +758,6 @@ function getDistanceToObject(Unit1,X2,Y2,Z2)
 	end
 end
 
--- /dump UnitGUID("target")
--- /dump getEnemies("target",10)
-function getEnemies(Unit,Radius)
-
-	local enemiesTable = {};
-
-	if UnitExists("target") == true
-	  and getCreatureType("target") == true
-	  and UnitCanAttack("player","target") == true
-	  and getDistance("player","target") <= Radius then
-	    tinsert(enemiesTable,"target");
-	end
-
- 	for i=1,ObjectCount() do
- 		if UnitExists(ObjectWithIndex(i)) == true and bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
-	  		local thisUnit = ObjectWithIndex(i);
-	  		if UnitGUID(thisUnit) ~= UnitGUID("target") and getCreatureType(thisUnit) == true then
-	  			if UnitCanAttack("player",thisUnit) == true and UnitIsDeadOrGhost(thisUnit) == false then
-	  				if getDistance(Unit,thisUnit) <= Radius then
-	   					tinsert(enemiesTable,thisUnit);
-	   				end
-	  			end
-	  		end
-	  	end
- 	end
- 	return enemiesTable;
-end
-
--- this function uses enemiesTable
-function getNumEnemiesInRange(Unit, Radius)
-	-- here i make sure it will work even if user dont enter values
-	local Unit = Unit or "target"
-	if UnitExists(Unit) == false then return 0 end
-	local minimumUnits = minimumUnits or 3
-	local Radius = Radius or 10
-	-- i make sure i do have enemiesTable loaded into memory
-	if enemiesTable then
-		-- here i set best units to their "worst" values. on each check that beat this value, i will update the bestTarget
-		local foundTargets =  0
-
-		-- since i want to iterate from a specific unit, i add its position to locals
-		local X1, Y1, Z1 = ObjectPosition(Unit)
-
-		-- then i start itreation of my array,
-		for i = 1, #enemiesTable do
-			-- i want to compare two units so i already store my 1st one into local mem
-			local X2, Y2, Z2 = enemiesTable[i].x, enemiesTable[i].y, enemiesTable[i].z
-
-			-- find range
-			local unitDistance = math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))
-			--print(unitDistance)
-			-- see if i have at least minimum Units
-			if unitDistance < Radius then
-				foundTargets = foundTargets + 1
-			end
-		end
-		-- i return number of units in range
-		return foundTargets
-	end
-end
-
 
 -- findTarget(10,true,1)   will find closest target in 10 yard front that have more or equal to 1%hp
 function findTarget(range, facingCheck, minimumHealth)
@@ -1970,8 +1909,6 @@ end
 function isChecked(Value)
 	if BadBoy_data["Check "..Value] == 1 then 
 		return true
-	else 
-		return false 
 	end
 end
 

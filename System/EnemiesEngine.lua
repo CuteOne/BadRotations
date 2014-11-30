@@ -369,6 +369,19 @@ function isBurnTarget(unit)
 	return false
 end
 
+--if isLongTimeCCed("target") then
+-- CCs with >=20 seconds
+function isLongTimeCCed(Unit)
+    if Unit == nil then return false end
+    for i=1, #longTimeCC do
+        --local checkCC=longTimeCC[i]
+        if UnitDebuffID(Unit, longTimeCC[i])~=nil then  
+            return true
+        end
+    end
+    return false
+end
+
 -- returns true if we can safely attack this target
 function isSafeToAttack(unit)
 	for i = 1, #doNotTouchUnitCandidates do
@@ -398,48 +411,6 @@ function isSafeToAttack(unit)
 	return true
 end
 
--- a function to gather prefered target for dirrefent spells
-function dynamicTarget(range,facing)
-	for i = 1, #enemiesTable do
-		if enemiesTable[i].distance < range and (facing == false or enemiesTable[i].facing == true) then
-			return enemiesTable[i].unit
-		end
-	end
-	return "target"
-end
-
---if isLongTimeCCed("target") then
--- CCs with >=20 seconds
-function isLongTimeCCed(Unit)
-	if Unit == nil then return false; end
-	local longTimeCC = {
-		339,	-- Druid - Entangling Roots
-		102359,	-- Druid - Mass Entanglement
-		1499,	-- Hunter - Freezing Trap
-		19386,	-- Hunter - Wyvern Sting
-		118,	-- Mage - Polymorph
-		115078,	-- Monk - Paralysis
-		20066,	-- Paladin - Repentance
-		10326,	-- Paladin - Turn Evil
-		9484,	-- Priest - Shackle Undead
-		605,	-- Priest - Dominate Mind
-		6770,	-- Rogue - Sap
-		2094,	-- Rogue - Blind
-		51514,	-- Shaman - Hex
-		710,	-- Warlock - Banish
-		5782,	-- Warlock - Fear
-		5484,	-- Warlock - Howl of Terror
-		115268,	-- Warlock - Mesmerize
-		6358,	-- Warlock - Seduction
-	}
-	for i=1, #longTimeCC do
-		--local checkCC=longTimeCC[i]
-		if UnitDebuffID(Unit, longTimeCC[i])~=nil then	
-			return true
-		end
-	end
-	return false
-end
 
 end
 

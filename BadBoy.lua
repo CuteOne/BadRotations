@@ -159,6 +159,8 @@ function BadBoyRun()
 		end
 	end
 
+	enemiesEngineRange = 55
+
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
@@ -187,7 +189,7 @@ function BadBoyRun()
 		-- Pulse engines
 		PokeEngine()
 		ProfessionHelper()
-		makeEnemiesTable(55)		
+		makeEnemiesTable(enemiesEngineRange)		
 		if NovaEngineUpdate == nil or NovaEngineUpdate <= GetTime() - getValue("Engine Refresh")/1000 then
 			NovaEngineUpdate = GetTime()
 			nNova:Update()
