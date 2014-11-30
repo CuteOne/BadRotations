@@ -136,11 +136,17 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Tank Threat","Check add more priority to taregts you lost aggro on(tank only).",1)
     CreateNewText(thisConfig,"Tank Threat")
 
-    CreateNewText(thisConfig,"|cffFFDD11Engine Tweaks"..myClassColor)
+    CreateNewText(thisConfig,"|cffFFDD11Engine"..myClassColor)
 
     -- exclude unsafe units
     CreateNewCheck(thisConfig,"Safe Damage Check","Check to prevent damage to targets you dont want to attack.",1)
     CreateNewText(thisConfig,"Safe Damage Check")
+
+    -- Dont break CCs
+    CreateNewCheck(thisConfig,"Don't break CCs","Check to prevent damage to targets that are CC.",1)
+    CreateNewText(thisConfig,"Don't break CCs")
+
+    CreateNewText(thisConfig,"|cffFFDD11Interrupts"..myClassColor)
 
     -- Interrupts Frame
     CreateNewCheck(thisConfig,"Interrupts Handler")
