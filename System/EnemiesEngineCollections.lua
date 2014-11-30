@@ -113,3 +113,25 @@ dispellOffensiveBuffs = {
     -- Auchindon
     160312, -- Void Shell
 }
+
+longTimeCC = {
+    339,    -- Druid - Entangling Roots
+    102359, -- Druid - Mass Entanglement
+    1499,   -- Hunter - Freezing Trap
+    19386,  -- Hunter - Wyvern Sting
+    118,    -- Mage - Polymorph
+    115078, -- Monk - Paralysis
+    20066,  -- Paladin - Repentance
+    10326,  -- Paladin - Turn Evil
+    9484,   -- Priest - Shackle Undead
+    605,    -- Priest - Dominate Mind
+    6770,   -- Rogue - Sap
+    2094,   -- Rogue - Blind
+    51514,  -- Shaman - Hex
+    710,    -- Warlock - Banish
+    5782,   -- Warlock - Fear
+    5484,   -- Warlock - Howl of Terror
+    115268, -- Warlock - Mesmerize
+    6358,   -- Warlock - Seduction
+}
+
