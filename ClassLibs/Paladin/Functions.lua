@@ -70,6 +70,14 @@ if select(3,UnitClass("player")) == 2 then
 		end
 
 		function ProtPaladinUtility()
+
+			if isChecked("Hand Of Freedom") then
+				if checkForDebuffThatIShouldRemovewithHoF("player") then -- Only doing it for me at the moment, todo: add party/friendly units
+					if castHandOfFreedom("player") then
+						return true
+					end
+				end
+			end
 			if castHandOfSacrifice() then
 				return true
 			end

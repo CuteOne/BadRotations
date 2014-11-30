@@ -1,271 +1,508 @@
 if select(3,UnitClass("player")) == 10 then
 
-function BrewmasterMonk()
-	if AoEModesLoaded ~= "Brew Monk AoE Modes" then
-		MonkBrewToggles();
-		MonkBrewConfig();
-	end
+  function BrewmasterMonk()
 
---[[
-
-	IEnumerateObjects(enneMy, TYPE_UNIT)
-
-
-local Enemies50Yards = getEnemies("player",50);
-
-if #Enemies50Yards > 1  then
-    for i = 1, #Enemies50Yards do
-        local Guid = Enemies50Yards[i]
-       	ISetAsUnitID(Guid,"thisUnit");
-       	if getFacing("player","thisUnit") == true
-          and getDistance("thisUnit") < 40
-       	  then
-        	enneMy1:Target()
-      	end
+    if currentConfig ~= "Brewmaster Chumii" then
+      MonkBrewConfig();
+      currentConfig = "Brewmaster Chumii";
     end
-end
+    MonkBrewToggles()
+    GroupInfo();
+  ------------------------------------------------------------------------------------------------------
+  -- Locals --------------------------------------------------------------------------------------------
+  ------------------------------------------------------------------------------------------------------
+		local chi = UnitPower("player", SPELL_POWER_CHI)
+	  local chiMax = UnitPowerMax("player", SPELL_POWER_CHI)
+	  local chiDif = chiMax-chi; --chi.max-chi
+	  local energy = getPower("player")
+    local energytomax = getTimeToMax("player")
+    local energyreg = getRegen("player")
+	  local myHP = getHP("player")
+    local GCD = 1.5/(1+UnitSpellHaste("player")/100)
+	  local ElusiveStacks = getBuffStacks("player",_ElusiveBrewStacks)
+  ------------------------------------------------------------------------------------------------------
+  -- Food/Invis Check ----------------------------------------------------------------------------------
+  ------------------------------------------------------------------------------------------------------
+    if canRun() ~= true or UnitInVehicle("Player") then
+      return false;
+    end
+    if IsMounted("player") then
+      return false;
+    end
+  ------------------------------------------------------------------------------------------------------
+  -- Pause ---------------------------------------------------------------------------------------------
+  ------------------------------------------------------------------------------------------------------
+    if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == true then
+      ChatOverlay("|cffFF0000BadBoy Paused", 0); return;
+    end
+  ------------------------------------------------------------------------------------------------------
+  -- Spell Queue ---------------------------------------------------------------------------------------
+  ------------------------------------------------------------------------------------------------------
+    if _Queues == nil then
+     _Queues = {
+     [_TigersLust]      = false,
+     [_LegSweep]        = false,
+     [_ChargingOxWave]  = false,
+     [_RingOfPeace]      = false,
+     }
+    end
+  ------------------------------------------------------------------------------------------------------
+  -- Input / Keys --------------------------------------------------------------------------------------
+  ------------------------------------------------------------------------------------------------------
+  	if isChecked("DizzyingHazeKey") and SpecificToggle("DizzyingHazeKey") == true then
+      if not IsMouselooking() then
+          CastSpellByName(GetSpellInfo(115180))
+          if SpellIsTargeting() then
+              CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+              SpellStopTargeting()
+              return true;
+          end
+      end
+  	end
+  	if isChecked("BlackOxStatueKey") and SpecificToggle("BlackOxStatueKey") == true then
+      if not IsMouselooking() then
+          CastSpellByName(GetSpellInfo(115315))
+          if SpellIsTargeting() then
+              CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+              return true;
+          end
+      end
+  	end
+  ------------------------------------------------------------------------------------------------------
+  -- Ress/Dispell --------------------------------------------------------------------------------------
+  ------------------------------------------------------------------------------------------------------
+    if isValidTarget("mouseover")
+    and UnitIsPlayer("mouseover")
+    and not UnitBuffID("player", 80169) -- Food
+      and not UnitBuffID("player", 87959) -- Drink
+    and UnitCastingInfo("player") == nil
+    and UnitChannelInfo("player") == nil
+      and not UnitIsDeadOrGhost("player")
+      and not IsMounted()
+      and not IsFlying() then
+      -- Detox
+      if isChecked("Detox") == true and canDispel("player",_Detox) then
+        if castSpell("player",_Detox,true) then
+          return
+        end
+      end
+      if isChecked("Detox") == true and canDispel("mouseover",_Detox) and not UnitIsDeadOrGhost("mouseover") then
+        if castSpell("mouseover",_Detox,true) then
+          return
+        end
+      end
+      -- Resuscitate
+      if isChecked("Resuscitate") == true and not isInCombat("player") and UnitIsDeadOrGhost("mouseover") then
+        if castSpell("mouseover",_Resuscitate,true) then
+          return
+        end
+      end
+    end
+  ------------------------------------------------------------------------------------------------------
+  -- Out of Combat -------------------------------------------------------------------------------------
+  ------------------------------------------------------------------------------------------------------
+    if not isInCombat("player") then
+   --  	-- Legacy of the White Tiger
+			-- if isChecked("Legacy of the White Tiger") == true and canCast(116781,false,false) and (lastLotWT == nil or lastLotWT <= GetTime() - 5) then
+			-- 	for i = 1, #nNova do
+			--   		if isPlayer(nNova[i].unit) == true and not UnitBuffID(nNova[i].unit,{115921,116781,20217,1126,90363,160017,159988,160077}) and UnitInRange(nNova[i].unit) then
+			--   			if castSpell("player",116781,true) then lastLotWT = GetTime(); return; end
+			-- 		end
+			-- 	end
+			-- end
+    end -- Out of Combat end
+  ------------------------------------------------------------------------------------------------------
+  -- In Combat -----------------------------------------------------------------------------------------
+  ------------------------------------------------------------------------------------------------------
+    if isInCombat("player") then
+  ------------------------------------------------------------------------------------------------------
+  -- Dummy Test ----------------------------------------------------------------------------------------
+  ------------------------------------------------------------------------------------------------------
+      if isChecked("DPS Testing") then
+        if UnitExists("target") then
+          if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
+            StopAttack()
+            ClearTarget()
+            print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+          end
+        end
+      end
+  ------------------------------------------------------------------------------------------------------
+  -- Queued Spells -------------------------------------------------------------------------------------
+  ------------------------------------------------------------------------------------------------------
+      if _Queues[_TigersLust] == true then
+        if castSpell("player",_TigersLust,false,false) then
+          return;
+        end
+      end
+      if _Queues[_LegSweep] == true then
+        if castSpell("player",_LegSweep,false,false) then
+          return;
+        end
+      end
+      if _Queues[_ChargingOxWave] == true then
+        if castSpell("player",_ChargingOxWave,false,false) then
+          return;
+        end
+      end
+      if _Queues[_RingOfPeace] == true then
+        if castSpell("player",_RingOfPeace,false,false) then
+          return;
+        end
+      end
+  ------------------------------------------------------------------------------------------------------
+  -- Defensive Cooldowns -------------------------------------------------------------------------------
+  ------------------------------------------------------------------------------------------------------
+      if useDefCDsBrM() == true then
+      	--Expel Harm
+      	if isChecked("ExpelHarm") then
+      		if getHP("player") <= getValue("ExpelHarm") then
+      			if castSpell("player",_ExpelHarm,true) then
+      				return
+      			end
+      		end
+      	end
+      	--Fortifying Brew
+      	if isChecked("FortifyingBrew") then
+      		if getHP("player") <= getValue("FortifyingBrew") then
+      			if castSpell("player",_FortifyingBrew,true) then
+      				return
+      			end
+      		end
+      	end
+      	--Healthstone
+      	if isChecked("Healthstone") then
+      		if getHP("player") <= getValue("Healthstone") then
+      			if canUse(5512) then
+		          UseItemByName(tostring(select(1,GetItemInfo(5512))))
+            end
+      		end
+      	end
+        --Diffuse Magic
+        if isChecked("DiffuseMagic") then
+          if getHP("player") <= getValue("DiffuseMagic") then
+            if castSpell("player",_DiffuseMagic,true) then
+              return
+            end
+          end
+        end
+        --Dampen Harm
+        if isChecked("DampenHarm") then
+          if getHP("player") <= getValue("DampenHarm") then
+            if castSpell("player",_DampenHarm,true) then
+              return
+            end
+          end
+        end
+      end -- isChecked("Defensive Mode") end
+  ------------------------------------------------------------------------------------------------------
+  -- Offensive Cooldowns -------------------------------------------------------------------------------
+  ------------------------------------------------------------------------------------------------------
+      if useCDsBrM() == true then
+      	--Xuen
+      	if isChecked("Xuen") then
+    			if castSpell("target",_InvokeXuen,false,false) then
+    				return
+    			end
+      	end
+      end -- useCDs() end
+  ------------------------------------------------------------------------------------------------------
+  -- Do everytime --------------------------------------------------------------------------------------
+  ------------------------------------------------------------------------------------------------------
+      --Purifying Brew
+      if DrinkStagger() then
+        if castSpell("player",_PurifyingBrew,true) then
+          return
+        end
+      end
+      -- Nimble Brew
+      if hasNoControl() then
+        if castSpell("player",_NimbleBrew,true) then
+          return
+        elseif castSpell("player",_TigersLust,true) then
+          return
+        end
+      end
+      -- actions+=/chi_brew,if=talent.chi_brew.enabled&chi.max-chi>=2&buff.elusive_brew_stacks.stack<=10
+      if isKnown(_ChiBrew) then
+        if chiDif >= 2 and ElusiveStacks <= 10 then
+          if castSpell("player",_ChiBrew,true) then
+            return
+          end
+        end
+      end
+      -- actions+=/elusive_brew,if=buff.elusive_brew_stacks.react>=9&(buff.dampen_harm.down|buff.diffuse_magic.down)&buff.elusive_brew_activated.down
+      --and (not UnitBuffID("player",_DampenHarm) or not UnitBuffID("player",_DiffuseMagic))
+      if ElusiveStacks >= 9
+      and not UnitBuff("player",115308) then
+        if castSpell("player",_ElusiveBrew) then
+          return
+        end
+      end
+      -- actions+=/serenity,if=talent.serenity.enabled&energy<=40
+      if isKnown(_Serenity) then
+        if energy <= 40 then
+          if castSpell("player",_Serenity,true) then
+            return
+          end
+        end
+      end
+  ------------------------------------------------------------------------------------------------------
+  -- Interrupts ----------------------------------------------------------------------------------------
+  ------------------------------------------------------------------------------------------------------
 
-]]
--- Barrel Thrower
-	if IsAoEPending() then
-		if UnitExists("target") then
-			local X, Y, Z = ObjectPosition("target");
-			local targetSpeed = GetUnitSpeed("target");
-			if targetDistance < 15 or targetSpeed == 0 then
-				CastAtPosition(ObjectPosition("target"));
-			end
-			SpellStopTargeting();
-			return true;
-		end
-	end
--- Locals
-	local chi = UnitPower("player", SPELL_POWER_CHI);
-	local chiMax = UnitPowerMax("player", SPELL_POWER_CHI);
-	local energy = getPower("player");
-	local myHP = getHP("player");
-	local ennemyUnits = getNumEnemies("player", 5)
--- Food/Invis Check
-	if canRun() ~= true or UnitInVehicle("Player") then return false; end
-	if IsMounted("player") then return false; end
-    GroupInfo()
----------------------------------------
---- Ressurection/Dispelling/Healing ---
----------------------------------------
-	if isValidTarget("mouseover")
-		and UnitIsPlayer("mouseover")
-		and not UnitBuffID("player", 80169) -- Food
-  		and not UnitBuffID("player", 87959) -- Drink
- 	 	and UnitCastingInfo("player") == nil
- 	 	and UnitChannelInfo("player") == nil
-	  	and not UnitIsDeadOrGhost("player")
-	  	and not IsMounted()
-	  	and not IsFlying()
-	then
--- Detox
-		if isChecked("Detox") == true and canDispel("player",_Detox) then
-			if castSpell("player",_Detox,true) then return; end
-		end
-		if isChecked("Detox") == true and canDispel("mouseover",_Detox) and not UnitIsDeadOrGhost("mouseover") then
-			if castSpell("mouseover",_Detox,true) then return; end
-		end
--- Resuscitate
-		if isChecked("Resuscitate") == true and not isInCombat("player") and UnitIsDeadOrGhost("mouseover") then
-			if castSpell("mouseover",_Resuscitate,true) then return; end
-		end
-	end
--------------
---- Buffs ---
--------------
-	if not UnitBuffID("player", 80169) -- Food
-		and not UnitBuffID("player", 87959) -- Drink
-		and UnitCastingInfo("player") == nil
-		and UnitChannelInfo("player") == nil
-		and not UnitIsDeadOrGhost("player")
-		and not IsMounted()
-		and not IsFlying()
-		and not isInCombat("player")
-	then
-	   	if not UnitExists("mouseover") then
-	   		local legacyTimer;
-		  	for i = 1, #members do
-		  		if (#members==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
--- Legacy of the Emperor
-		  			if not isBuffed(members[i].Unit,{115921,20217,1126,90363}) then
-		  				if legacyTimer == nil then
-		  					legacyTimer = GetTime();
-		  				end
-		  				if legacyTimer and legacyTimer <= GetTime() - 1 then
-		  					if castSpell("player",_LegacyOfTheEmperor,true) then legacyTimer = nil; return; end
-		  				end
-			  		end
-		  		end
-				end -- for
-			end
-	end
+  ------------------------------------------------------------------------------------------------------
+  -- Rotation ------------------------------------------------------------------------------------------
+  ------------------------------------------------------------------------------------------------------
+      if not useAoEBrM() then
+        -- actions.st=blackout_kick,if=buff.shuffle.down
+        if not UnitBuffID("player",_Shuffle) then
+          if castSpell("target",_BlackoutKick,false,false) then
+            return
+          end
+        end
+        -- actions.st+=/purifying_brew,if=!talent.chi_explosion.enabled&stagger.heavy
+        -- actions.st+=/purifying_brew,if=buff.serenity.up
+        if UnitBuffID("player",_Serenity)
+        and UnitBuffID("player",_StaggerLight)
+        or UnitBuffID("player",_StaggerModerate)
+        or UnitBuffID("player",_StaggerHeavy) then
+          if castSpell("player",_PurifyingBrew,true) then
+            return
+          end
+        end
+        -- actions.st+=/guard
+        if useDefCDsBrM() == true then
+          if isChecked("Guard") and not UnitBuffID("player",_Guard) then
+            if castSpell("player",_Guard,true) then
+              return
+            end
+          end
+        end
+        -- actions.st+=/keg_smash,if=chi.max-chi>=2&!buff.serenity.remains
+        if chiDif >= 2 and not UnitBuffID("player",_Serenity) then
+          if castSpell("target",_KegSmash,false,false) then
+            return
+          end
+        end
+        -- actions.st+=/chi_burst,if=talent.chi_burst.enabled&energy.time_to_max>3
+        if isKnown(_ChiBurst) then
+          if energytomax > 3 then
+            if castSpell("player",_ChiBurst,true) then
+              return
+            end
+          end
+        end
+        -- actions.st+=/chi_wave,if=talent.chi_wave.enabled&energy.time_to_max>3
+        if isKnown(_ChiWave) then
+          if energytomax > 3 then
+            if castSpell("player",_ChiWave,true) then
+              return
+            end
+          end
+        end
+        -- actions.st+=/zen_sphere,cycle_targets=1,if=talent.zen_sphere.enabled&!dot.zen_sphere.ticking
+        if isKnown(_ZenSphere) then
+          if not UnitBuffID("player",_ZenSphere) then
+            if castSpell("player",_ZenSphere,true) then
+              return
+            end
+          end
+          if not UnitBuffID("focus",_ZenSphere) then
+            if castSpell("focus",_ZenSphere,true) then
+              return
+            end
+          end
+        end
+        -- chi explosion
+        -- actions.st+=/chi_explosion,if=chi>=3
+        if chi >= 3 then
+          if castSpell("target",_ChiExplosion,false,false) then
+            return
+          end
+        end
+        -- actions.st+=/blackout_kick,if=buff.shuffle.remains<=3&cooldown.keg_smash.remains>=gcd
+        if getBuffRemain("player",_Shuffle) <= 3 then
+          if castSpell("target",_BlackoutKick,false,false) then
+            return
+          end
+        end
+        -- actions.st+=/blackout_kick,if=buff.serenity.up
+        if UnitBuffID("player",_Serenity) then
+          if castSpell("target",_BlackoutKick,false,false) then
+            return
+          end
+        end
+        -- actions.st+=/blackout_kick,if=chi>=4
+        if chi >= 4 then
+          if castSpell("target",_BlackoutKick,false,false) then
+            return
+          end
+        end
+        -- actions.st+=/expel_harm,if=chi.max-chi>=1&cooldown.keg_smash.remains>=gcd
+        -- if chiDif >= 1 and getSpellCD(_KegSmash) >= GCD then
+        --   if castSpell("player",_ExpelHarm,true) then
+        --     return
+        --   end
+        -- end
+        -- actions.st+=/jab,if=chi.max-chi>=1&cooldown.keg_smash.remains>=gcd&cooldown.expel_harm.remains>=gcd
+        if chiDif >= 1 then
+          if castSpell("target",_Jab,false,false) then
+            return
+          end
+        end
+        -- actions.st+=/purifying_brew,if=!talent.chi_explosion.enabled&stagger.moderate&buff.shuffle.remains>=6
 
-------------------
---- Defensives ---
-------------------
---	Expel Harm
-	if getHP("player") <= 80 and (getChiMax("player") - getChi("player")) >= 2 and getPower("player") >= 40 and not castingUnit("player") then
-		if castSpell("player",_ExpelHarm,true) then return; end
-	end
--- Nimble Brew
-	if hasNoControl() then
-		if castSpell("player",_NimbleBrew,true) then
-			return;
-		elseif castSpell("player",_TigersLust,true) then
-			return;
-		end
-	end
-
----------------------
---- Out of Combat ---
----------------------
-	if not isInCombat("player") and isChecked("Angry Monk") == true then
-		if canAttack("target","player") and not UnitIsDeadOrGhost("target") then
--- Dazzling Brew
-			if isChecked("Dazzling Brew") == true then
-				if targetDistance <= 40 and getGround("target") == true and UnitExists("target") and (isDummy("target") or getDistance("target","targettarget") <= 15) then
-					 CastSpellByName(GetSpellInfo(115180),nil);
-					 return;
-				end
-			end
-		end
-	end
------------------
---- In Combat ---
------------------
-	if isInCombat("player") and canAttack("target","player") and not UnitIsDeadOrGhost("target") then
-----------------------
---- Rotation Pause ---
-----------------------
-		if pause() then
-			return true
-		end
-
-------------------------------
---- Interrupts ---
-------------------------------
-			if useInterrupts() then
--- Quaking Palm
-				if isChecked("Quaking Palm") and canInterrupt(_QuakingPalm,tonumber(getValue("Interrupts"))) and tarDist<5 then
-					if castSpell("target",_QuakingPalm,false,false) then return; end
-				end
--- Spear Hand Strike
-				if isChecked("Spear Hand Strike") and canInterrupt(_SpearHandStrike,tonumber(getValue("Interrupts"))) and getSpellCD(_QuakingPalm)>0 and getSpellCD(_QuakingPalm)<119 and tarDist<5 then
-					if castSpell("target",_SpearHandStrike,false,false) then return; end
-				end
--- Paralysis
-				if isChecked("Paralysis") and canInterrupt(_Paralysis,tonumber(getValue("Interrupts"))) and ((getSpellCD(_SpearHandStrike)>0 and getSpellCD(_SpearHandStrike)<13) or tarDist>5) and tarDist<20 then
-					if castSpell("target",_Paralysis,false,false) then return; end
-				end
--- Leg Sweep
-				if isChecked("Leg Sweep") and canInterrupt(_LegSweep,tonumber(getValue("Interrupts"))) and getSpellCD(_Paralysis)>0 and getSpellCD(_Paralysis)<13 and tarDist<5 then
-					if castSpell("target",_LegSweep,false,false) then return; end
-				end
-			end
-
-
-    	--[[Fortifying Brew]]
-    	if isChecked("Fortifying Brew") == true and myHP <= getValue("Fortifying Brew") then
-    		if castSpell("player",115203,true) then return; end
-    	end
-
-    	--[[Elusive Brew]]
-    	if isChecked("Elusive Brew") == true and myHP <= getValue("Elusive Brew") and getBuffStacks("player",128939) > 5 then
-    		if castSpell("player",115308,true) then return; end
-    	end
-
-		--[[Guard on cooldown. Delay up to 10-15 sec for anticipated damage.]]
-	    if chi >= 2 and getHP("player") <= getValue("Guard") then
-	    	if castSpell("player",_Guard,true) then return; end
-	    end
-		--[[Purifying Brew to remove your Stagger DoT when Yellow or Red.]]
-
-		--[[Elusive Brew if > 10 stacks. Delay up to 10-15 sec for anticipated damage.]]
-	end
-
-	if castingUnit() then return false; end
-
-	if (isChecked("Angry Monk") == true or UnitAffectingCombat("player")) and targetDistance > 5 and targetDistance <= 40 and UnitExists("target") and not UnitIsDeadOrGhost("target") then
-
-		--[[Chi Wave]]
-	    if UnitExists("target") and not UnitIsDeadOrGhost("target") and getCreatureType("target") == true and castSpell("target",115098,false) then return; end
-
-
-    	--[[Dazzling Brew]]
-		if isChecked("Dazzling Brew") == true then
-			if UnitExists("target") and isEnnemy("target") and not UnitIsDeadOrGhost("target") and getCreatureType("target") == true and getGround("target") == true then
-				if castSpell("player",_DazzlingBrew,true,false) then return; end
-			end
-		end
-
-
-	elseif (isChecked("Angry Monk") == true or UnitAffectingCombat("player")) and UnitExists("target") and not UnitIsDeadOrGhost("target") and isEnnemy("target") == true and getCreatureType("target") == true then
-
-
-		--[[Chi Wave]]
-	    if castSpell("target",_ChiWave,false) then return; end
-
-		--[[Breath of Fire if >= 3 targets dump.]]
-	    if chiMax - chi <= 1 and ennemyUnits > 2 and getFacing("player","target",30) == true then
-	    	if castSpell("target",_BreathOfFire,false) then return; end
-	    end
-
-		--[[Blackout Kick dump.]]
-	    if chiMax - chi <= 1 then
-	    	if castSpell("target",_BlackoutKick,true,false) then return; end
-	    end
-
-		--[[Keg Smash on cooldown when at < 3 Chi. Applies Weakened Blows.]]
-	    if chi < chiMax - 2 then
-	    	if castSpell("target",_KegSmash,false,false) then return; end
-	    end
-
-		--[[Tiger Palm does not cost Chi, but is used like a finisher (Tiger Power).]]
-	    if getBuffRemain("player",_TigerPower) < 2 then
-	    	if castSpell("target",_TigerPalm,true,false) then return; end
-	    end
-
-		--[[Expel Harm when you are not at full health.]]
-		if energy >= 40 and myHP <= getValue("Expel Harm") then
-	    	if castSpell("player",_ExpelHarm,true,false) then return; end
-	    end
-
-		--[[Touch of Death]]
-	    if chi >= 3 and (myHP > getHP("target") or getBuffRemain("player",_DeathNote) > 1) then
-	    	if castSpell("target",_TouchOfDeath,false,false) then return; end
-	    end
-
-	    --[[Build Chi and prevent Energy capping.]]
-    	if (energy > 70 and chi < chiMax - 1) or energy >= 90 then
-    		if ennemyUnits > 2 then
-    			--[[Spinning Crane Kick]]
-    			if castSpell("target",_SpinningCraneKick,false) then return; end
-    		else
-    			--[[Jab]]
-    			if castSpell("target",_Jab,false) then return; end
-    		end
-    	end
-
-		--[[Breath of Fire if > 3 targets]]
-	    if chi >= 3 and ennemyUnits > 2 then
-	    	if castSpell("target",_BreathOfFire,false) then return; end
-	    end
-
-		--[[Blackout Kick as often as possible. Aim for ~80% uptime on Shuffle.]]
-	    if (chi >= 3 and getBuffRemain("player",_Shuffle) <= 1) or chi >= 3 then
-	    	if castSpell("target",_BlackoutKick,true) then return; end
-	    end
-
-		--[[Tiger Palm filler.]]
-	    if castSpell("target",_TigerPalm,true) then return; end
-
-	end
-
-end
-
-
-
-end
+        -- actions.st+=/tiger_palm,if=(energy+(energy.regen*(cooldown.keg_smash.remains)))>=40
+        --if (energy+(energyreg*getSpellCD(_KegSmash))) >= 40 then
+          if castSpell("target",_TigerPalm,false,false) then
+            return
+          end
+        --end
+        -- actions.st+=/tiger_palm,if=cooldown.keg_smash.remains>=gcd
+        -- if getSpellCD(_KegSmash) >= GCD then
+        --   if castSpell("target",_TigerPalm,false,false) then
+        --     return
+        --   end
+        -- end
+      end --single end
+  -- AoE -----------------------------------------------------------------------------------------------
+      if useAoEBrM() then
+        -- actions.aoe=guard
+        if useDefCDsBrM() == true then
+          if isChecked("Guard") and not UnitBuffID("player",_Guard) then
+            if castSpell("player",_Guard,true) then
+              return
+            end
+          end
+        end
+        -- actions.aoe+=/breath_of_fire,if=chi>=3&buff.shuffle.remains>=6&dot.breath_of_fire.remains<=gcd
+        if chi >= 3 and getBuffRemain("player",_Shuffle) >= 6 and getDebuffRemain("target",_BreathOfFire) <= 1.5 then
+          if castSpell("target",_BreathOfFire,false,false) then
+            return
+          end
+        end
+        -- actions.aoe+=/chi_explosion,if=chi>=4
+        if chi >= 4 then
+          if castSpell("target",_ChiExplosion,false,false) then
+            return
+          end
+        end
+        -- actions.aoe+=/rushing_jade_wind,if=chi.max-chi>=1&talent.rushing_jade_wind.enabled
+        if isKnown(_RushingJadeWind) then
+          if chiDif >= 1 then
+            if castSpell("player",_RushingJadeWind,true) then
+              return
+            end
+          end
+        end
+        -- actions.aoe+=/purifying_brew,if=!talent.chi_explosion.enabled&stagger.heavy
+        -- actions.aoe+=/guard
+        if useDefCDsBrM() == true then
+          if isChecked("Guard") and not UnitBuffID("player",_Guard) then
+            if castSpell("player",_Guard,true) then
+              return
+            end
+          end
+        end
+        -- actions.aoe+=/keg_smash,if=chi.max-chi>=2&!buff.serenity.remains
+        if chiDif >= 2 and not UnitBuffID("player",_Serenity) then
+          if castSpell("target",_KegSmash,false,false) then
+            return
+          end
+        end
+        -- actions.aoe+=/chi_burst,if=talent.chi_burst.enabled&energy.time_to_max>3
+        if isKnown(_ChiBurst) then
+          if energytomax > 3 then
+            if castSpell("player",_ChiBurst,true) then
+              return
+            end
+          end
+        end
+        -- actions.aoe+=/chi_wave,if=talent.chi_wave.enabled&energy.time_to_max>3
+        if isKnown(_ChiWave) then
+          if energytomax > 3 then
+            if castSpell("player",_ChiWave,true) then
+              return
+            end
+          end
+        end
+        -- actions.aoe+=/zen_sphere,cycle_targets=1,if=talent.zen_sphere.enabled&!dot.zen_sphere.ticking
+        if isKnown(_ZenSphere) then
+          if not UnitBuffID("player",_ZenSphere) then
+            if castSpell("player",_ZenSphere,true) then
+              return
+            end
+          end
+          if not UnitBuffID("focus",_ZenSphere) then
+            if castSpell("focus",_ZenSphere,true) then
+              return
+            end
+          end
+        end
+        -- actions.aoe+=/blackout_kick,if=talent.rushing_jade_wind.enabled&buff.shuffle.remains<=3&cooldown.keg_smash.remains>=gcd
+        if isKnown(_RushingJadeWind) then
+          if getBuffRemain("player",_Shuffle) <= 3 then
+            if castSpell("target",_BlackoutKick,false,false) then
+              return
+            end
+          end
+        end
+        -- actions.aoe+=/blackout_kick,if=talent.rushing_jade_wind.enabled&buff.serenity.up
+        if isKnown(_RushingJadeWind) then
+          if UnitBuffID("player",_Serenity) then
+            if castSpell("target",_BlackoutKick,false,false) then
+              return
+            end
+          end
+        end
+        -- actions.aoe+=/blackout_kick,if=talent.rushing_jade_wind.enabled&chi>=4
+        if isKnown(_RushingJadeWind) then
+          if chi >= 4 then
+            if castSpell("target",_BlackoutKick,false,false) then
+              return
+            end
+          end
+        end
+        -- actions.aoe+=/expel_harm,if=chi.max-chi>=1&cooldown.keg_smash.remains>=gcd&(energy+(energy.regen*(cooldown.keg_smash.remains)))>=40
+        -- if chiDif >= 1 and getSpellCD(_KegSmash) >= 2 then
+        --   if castSpell("player",_ExpelHarm,true) then
+        --     return
+        --   end
+        -- end
+        -- actions.aoe+=/spinning_crane_kick,if=chi.max-chi>=1&!talent.rushing_jade_wind.enabled
+        if not isKnown(_RushingJadeWind) then
+          if chiDif >= 1 then
+            if castSpell("target",_RushingCraneKick,false,false) then
+              return
+            end
+          end
+        end
+        -- actions.aoe+=/jab,if=talent.rushing_jade_wind.enabled&chi.max-chi>=1&cooldown.keg_smash.remains>=gcd&cooldown.expel_harm.remains>=gcd
+        if isKnown(_RushingJadeWind) then
+          if chiDif >= 1 then
+            if castSpell("target",_Jab,false,false) then
+              return
+            end
+          end
+        end
+        -- actions.aoe+=/tiger_palm,if=talent.rushing_jade_wind.enabled&(energy+(energy.regen*(cooldown.keg_smash.remains)))>=40
+        if isKnown(_RushingJadeWind) then
+          --if (energy+(energyreg*getSpellCD(_KegSmash))) >= 40 then
+            if castSpell("target",_TigerPalm,false,false) then
+              return
+            end
+          --end
+        end
+        -- actions.aoe+=/tiger_palm,if=talent.rushing_jade_wind.enabled&cooldown.keg_smash.remains>=gcd
+        -- if isKnown(_RushingJadeWind) then
+        --   if getSpellCD(_KegSmash) >= GCD then
+        --     if castSpell("target",_TigerPalm,false,false) then
+        --       return
+        --     end
+        --   end
+        -- end
+      end --aoe end
+    end -- In Combat end
+  end -- Spec end
+end -- Class Check end

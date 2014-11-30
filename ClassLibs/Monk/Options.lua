@@ -68,59 +68,90 @@ end
 --[[           ]]	--[[]]	   --[[]]	--[[           ]]	 --[[]]   --[[]]
 
 function MonkBrewConfig()
-    if currentConfig ~= "Brewmaster CodeMyLife" then
+    if currentConfig ~= "Brewmaster Chumii" then
         ClearConfig();
         thisConfig = 0
-        -- Title
-        CreateNewTitle(thisConfig,"Brewmaster |cffFF0000CodeMyLife");
 
+        -- Title
+        CreateNewTitle(thisConfig,"Brewmaster |cffFF0000Chumii");
+        --Spacer
+        CreateNewText(thisConfig," ");
         -- Wrapper -----------------------------------------
-        CreateNewWrap(thisConfig,"---------- Buffs ---------");
+        CreateNewWrap(thisConfig,"-------- General Rotation --------");
 
         -- Legacy of the Emperor
-        CreateNewCheck(thisConfig,"Legacy of the Emperor");
-        CreateNewText(thisConfig,"Legacy of the Emperor");
+        -- CreateNewCheck(thisConfig,"Legacy of the White Tiger");
+        -- CreateNewText(thisConfig,"Legacy of the White Tiger");
 
         -- Detox
         CreateNewCheck(thisConfig,"Detox");
         CreateNewText(thisConfig,"Detox");
 
+        -- Pause Toggle
+        CreateNewCheck(thisConfig,"Pause Toggle");
+        CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle")
+        CreateNewText(thisConfig,"Pause Key");
+
+        -- Dizzying Haze
+        CreateNewCheck(thisConfig,"DizzyingHazeKey");
+        CreateNewDrop(thisConfig,"DizzyingHazeKey", 2, "Toggle2")
+        CreateNewText(thisConfig,"Dizzying Haze Key");
+
+        -- Dizzying Haze
+        CreateNewCheck(thisConfig,"BlackOxStatueKey");
+        CreateNewDrop(thisConfig,"BlackOxStatueKey", 2, "Toggle2")
+        CreateNewText(thisConfig,"Black Ox Statue Key");
+
+        --Spacer
+        CreateNewText(thisConfig," ");
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Cooldowns ------");
 
+        -- Xuen
+        CreateNewCheck(thisConfig,"Xuen");
+        CreateNewText(thisConfig,"Invoke Xuen");
 
+        --Spacer
+        CreateNewText(thisConfig," ");
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------- Defensive ------");
 
-        -- Dazzling Brew
-        CreateNewCheck(thisConfig,"Dazzling Brew");
-        CreateNewText(thisConfig,"Dazzling Brew");
-
-        -- Expel Harm
-        CreateNewCheck(thisConfig,"Expel Harm");
-        CreateNewBox(thisConfig, "Expel Harm", 0, 100  , 5, 80, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFExpel Harm");
-        CreateNewText(thisConfig,"Expel Harm");
-
-        -- Elusive Brew
-        CreateNewCheck(thisConfig,"Elusive Brew");
-        CreateNewBox(thisConfig, "Elusive Brew", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFElusive Brew");
-        CreateNewText(thisConfig,"Elusive Brew");
+        -- -- Dazzling Brew
+        -- CreateNewCheck(thisConfig,"Dazzling Brew");
+        -- CreateNewText(thisConfig,"Dazzling Brew");
 
         -- Fortifying Brew
-        CreateNewCheck(thisConfig,"Fortifying Brew");
-        CreateNewBox(thisConfig, "Fortifying Brew", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
+        CreateNewCheck(thisConfig,"FortifyingBrew");
+        CreateNewBox(thisConfig, "FortifyingBrew", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
         CreateNewText(thisConfig,"Fortifying Brew");
+
+        -- Diffuse Magic
+        CreateNewCheck(thisConfig,"DiffuseMagic");
+        CreateNewBox(thisConfig, "DiffuseMagic", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
+        CreateNewText(thisConfig,"Diffuse Magic");
+
+        -- Dampen Harm
+        CreateNewCheck(thisConfig,"DampenHarm");
+        CreateNewBox(thisConfig, "DampenHarm", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
+        CreateNewText(thisConfig,"Dampen Harm");
 
         -- Guard
         CreateNewCheck(thisConfig,"Guard");
-        CreateNewBox(thisConfig, "Guard", 0, 100  , 5, 70, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFGuard");
-        CreateNewText(thisConfig,"Guard");
+        CreateNewText(thisConfig,"Guard on CD");
+
+        -- Diffuse Magic
+        CreateNewCheck(thisConfig,"ExpelHarm");
+        CreateNewBox(thisConfig, "ExpelHarm", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
+        CreateNewText(thisConfig,"Expel Harm");
 
         -- Healthstone
         CreateNewCheck(thisConfig,"Healthstone");
         CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
         CreateNewText(thisConfig,"Healthstone");
 
+
+        --Spacer
+        CreateNewText(thisConfig," ");
         -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"------ Utilities ------");
 
@@ -134,7 +165,8 @@ function MonkBrewConfig()
         CreateNewCheck(thisConfig,"Resuscitate");
         CreateNewText(thisConfig,"Resuscitate");
 
-
+        --Spacer
+        CreateNewText(thisConfig," ");
         -- General Configs
         CreateGeneralsConfig();
 

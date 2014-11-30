@@ -37,13 +37,22 @@ if select(3, UnitClass("player")) == 5 then
 			end
 		end
 
+		-- ORBS Button
+		if BurnModesLoaded ~= "Shadow Priest Burn Modes" then
+			BurnModes = {
+				[1] = { mode = "off", value = 1 , overlay = "burn off", tip = "|cffFF0000Burn Orbs \n|cffFFDD11No Orbs will be burned.", highlight = 0, icon = 157217 },
+				[2] = { mode = "burn", value = 2 , overlay = "burn on", tip = "|cff00FF00Burn Orbs \n|cffFFDD11Burn Orbs with DP if targetHP>20.\nIgnoring the Options", highlight = 1, icon = 157217 }
+			};
+			CreateButton("Burn",3,1)
+			BurnModesLoaded = "Shadow Priest Burn Modes";
+		end
+
 		-- AoE Button
 		if AoEModesLoaded ~= "Shadow Priest AoE Modes" then
 			AoEModes = {
 				[1] = { mode = "single", value = 1 , overlay = "Single Target", tip = "|cff00FF00AoE \n|cffFFDD11Single Target. \n|cffFF0000Style can be chosen in the options", highlight = 0, icon = 139139 },
-				[2] = { mode = "2-3", value = 2 , overlay = "2-3 Targets", tip = "|cff00FF00AoE \n|cffFFDD112-3 Enemies. \n|cffFF0000", highlight = 0, icon = 589 },
-				[3] = { mode = "4+", value = 3 , overlay = "4+ Targets", tip = "|cff00FF00AoE \n|cffFFDD114+ Enemies. \n|cffFF0000", highlight = 0, icon = 48045 },
-				[4] = { mode = "auto", value = 4 , overlay = "AoE Auto", tip = "|cff00FF00AoE \n|cffFFDD11Auto decision (not implemented yet). \n|cffFF0000", highlight = 1, icon = 8092 }
+				[2] = { mode = "AoE", value = 2 , overlay = "2-3 Targets", tip = "|cff00FF00AoE \n|cffFFDD112-3 Enemies. \n|cffFF0000", highlight = 0, icon = 589 },
+				[3] = { mode = "auto", value = 3 , overlay = "AoE Auto", tip = "|cff00FF00AoE \n|cffFFDD11Auto decision (not implemented yet). \n|cffFF0000", highlight = 1, icon = 8092 }
 			};
 			CreateButton("AoE",0,1)
 			AoEModesLoaded = "Shadow Priest AoE Modes";
