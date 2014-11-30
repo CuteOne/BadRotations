@@ -15,6 +15,7 @@ System\Config.lua
 System\DebugFrame.lua
 System\EnemiesEngine.lua
 System\EnemiesEngineFrame.lua
+System\EnemiesEngineCollections.lua
 System\HealingEngine.lua
 System\HealingEngineFrame.lua
 System\InterruptsFrame.lua

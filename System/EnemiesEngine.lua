@@ -12,76 +12,18 @@ function EnemiesEngine()
 
 
 -- Stack: Interface\AddOns\BadBoy\System\EnemiesEngine.lua:224: in function `castInterupt'
--- burnTarget(unit) - Bool - True if we should burn that target according to burnUnitCandidates
--- safeToAttack(unit) - Bool - True if we can attack target according to doNotTouchUnitCandidates
+-- isBurnTarget(unit) - Bool - True if we should burn that target according to burnUnitCandidates
+-- isSafeToAttack(unit) - Bool - True if we can attack target according to doNotTouchUnitCandidates
 -- getEnemies(unit,Radius) - Number - Returns number of valid units within radius of unit
 -- castInterupt(spell,percent) - Multi-Target Interupts - for facing/in movements spells of all ranges.
 -- makeEnemiesTable(55) - Triggered in badboy.lua - generate the enemiesTable
 -- makeSpellCastersTable() - Makes an interupt table based on enemiesTable
 
--- burnUnitCandidates = List of UnitID/Names we should have highest prio on.
--- could declare more filters
-burnUnitCandidates = {
-	{ unitID = 71603 }, -- immersus ooze, kill on sight
-	-- Shadowmoon Burial Grounds
-	{ unitID = 75966 }, -- Defiled Spirit, need to be cc and snared and is not allowed to reach boss.
-	{ unitID = 75899 }, -- Possessed Soul, 
-	{ unitID = 76518 }, -- Ritual of Bones, marked one... Todo: Can we check if mobs is marked with skull?
-	-- Auchindon
-	{ unitID = 77812 }, -- Sargerei Souldbinder, cast a MC
-} 
 
--- doNotTouchUnitCandidates - List of units that we should not attack for any reason
--- can declare more filters: buff, debuff
-doNotTouchUnitCandidates = { 
-	-- Iron Docks
-  	{ unitID = 71515 , buff = 143593 }, --Fleshrender Nok'gar, do not attack during defensive stance buff, Todo: Should stop when he cast 164504
-  	{ unitID = 1, buff = 163689  }, -- Never attack Sanguine Sphere
-}
-
-crowdControlCandidates = {
-	-- Shadowmoon Burial Grounds
-	{ unitID = 75966 }, -- Defiled Spirit, need to be cc and snared and is not allowed to reach boss.
-	{ unitID = 76446 }, -- Shadowmoon Enslavers
-	{ unitID = 75899 }, -- Possessed Soul, only for melee i guess
-	{ unitID = 79510 }, -- Crackling Pyromaniacs
-}
-
--- Units with spells that should be interrupted if possible. Good to have units so we can save interrupting spells when targeting them.
-interruptCandidates = {
-	-- Shadowmoon Burial Grounds
-	{ unitID = 75652, spell = 152964 }, -- Void Spawn casting Void Pulse, trash mobs 
-	{ unitID = 76446, spell = 156776 }, -- Shadowmoon Enslavers channeling Rending Voidlash
-	{ unitID = 76104, spell = 156717 }, -- Monstrous Corpse Spider casting Death Venom
-	--Auchindon
-	{ unitID = 77812, spell = 154527 }, -- Bend Will, MC a friendly.
-	{ unitID = 77131, spell = 154623 }, -- Void Mending
-	{ unitID = 76263, spell = 157794 }, -- Arcane Bomb
-	{ unitID = 86218, spell = 154415 }, -- Mind Spike
-	{ unitID = 76284, spell = 154218 }, -- Arbiters Hammer
-	{ unitID = 76296, spell = 154235 }, -- Arcane Bolt
-	{ unitID = 79510, spell = 154221 }, -- Fel Blast
-	{ unitID = 78437, spell = 156854 }, -- Drain Life
-	{ unitID = 86330, spell = 156854 }, -- Drain Life, Terengor
-	{ unitID = 86330, spell = 156857 }, -- Rain Of Fire
-	{ unitID = 86330, spell = 164846 }, -- Chaos Bolt
-	{ unitID = 86330, spell = 156963 }, -- Incenerate
-	-- { unitID = , spell =   }, -- 
-} 
-
--- List of units that are hitting hard, ie when its good to use defensive CDs
-dangerousUnits  = {
-	-- Shadowmoon Burial Grounds
-	{ unitID = 86234, buff = 162696, spell = 162696 }, -- Sadana buffed with deathspikes
-	{ unitID = 75829, buff = 152792, spell = 152792 }, -- Nhallish casting Void Blast or buffed
-} 
-
-dispellOffensiveBuffs = {
-		-- Auchindon
-		160312, -- Void Shell
-	
-
-}
+--[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
+--[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
+--[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
+--[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 
 function makeEnemiesTable(maxDistance)
 	local  maxDistance = maxDistance or 50
@@ -101,57 +43,251 @@ function makeEnemiesTable(maxDistance)
   				if unitDistance <= maxDistance then
   					
 		  			-- get unit Infos
-		  			local safeUnit = safeToAttack(thisUnit)
-		  			local burnUnit = burnTarget(thisUnit)
+		  			local safeUnit = isSafeToAttack(thisUnit)
+		  			local burnUnit = isBurnTarget(thisUnit)
 		  			local unitName = UnitName(thisUnit)
+		  			local unitID = getUnitID(thisUnit)
+		  			local shouldCC = isCrowdControlCandidates(thisUnit)
 	  				local unitThreat = UnitThreatSituation("player",thisUnit) or -1
-	  				local unitCasting, unitCastLenght, unitCastTime, unitCanBeInterrupt, unitCastType = getCastingInfo(thisUnit)
 	  				local X1, Y1, Z1 = ObjectPosition(thisUnit)
-					local unitCoeficient = getUnitCoeficient(thisUnit,unitDistance,unitThreat) or 0
+					local unitCoeficient = getUnitCoeficient(thisUnit,unitDistance,unitThreat,burnUnit,safeUnit) or 0
   					local unitHP = getHP(thisUnit)
   					local inCombat = UnitAffectingCombat(thisUnit)
   					-- insert unit as a sub-array holding unit informations
-   					tinsert(enemiesTable, { 
-   						name = unitName, 
-   						coeficient = unitCoeficient, 
-   						cast = {  --List of casting information
-   							casting = unitCasting or false, 
-   							castLenght = unitCastLenght, 
-   							castTime = unitCastTime, 
-   							canBeInterrupted = unitCanBeInterrupt or false, 
-   							castType = unitCastType 
-   						}, 
-   						playerFacing = getFacing("player",thisUnit),
-   						threat = unitThreat, 
-   						unit = thisUnit, 
-   						distance = unitDistance, 
-   						hp = unitHP, 
-   						safe = safeUnit,
-   						burn = burnUnit,
-   						-- Here should track inc damage / healing as well in order to get a timetodie value
-   						x = X1, y = Y1, z = Z1 
-   						})
+   					tinsert(enemiesTable, 
+   						{ 
+	   						name = unitName, 
+	   						guid = UnitGUID(thisUnit),
+	   						id = unitID,
+	   						coeficient = unitCoeficient, 
+	   						cc = shouldCC,
+	   						facing = getFacing("player",thisUnit),
+	   						threat = unitThreat, 
+	   						unit = thisUnit, 
+	   						distance = unitDistance, 
+	   						hp = unitHP, 
+	   						safe = safeUnit,
+	   						burn = burnUnit,
+	   						-- Here should track inc damage / healing as well in order to get a timetodie value
+	   						-- we would need a more static design
+	   						x = X1, y = Y1, z = Z1 
+   						}
+   					)
 	   				end
 			  	end
 		 	end
-
 		 	-- sort them by coeficient
 		 	table.sort(enemiesTable, function(x,y)
-	 		return x.coeficient and y.coeficient and x.coeficient > y.coeficient or false
-	 	end)
+		 		return x.coeficient and y.coeficient and x.coeficient > y.coeficient or false
+		 	end
+		)
+	end
+end
+
+
+-- returns prefered target for diferent spells
+function dynamicTarget(range,facing)
+	if isChecked("Dynamic Targetting") then
+		for i = 1, #enemiesTable do
+			if enemiesTable[i].distance < range and (facing == false or enemiesTable[i].facing == true) then
+				return enemiesTable[i].unit
+			end
+		end
+	end
+	return "target"
+end
+
+--[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
+--[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
+--[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
+--[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
+
+
+--[[           ]]		  --[[]]		--[[           ]]	--[[           ]]
+--[[           ]]		 --[[  ]]		--[[           ]]	--[[           ]]
+--[[]]				    --[[    ]] 		--[[ ]]					 --[[ ]]
+--[[]]				   --[[      ]] 	--[[           ]]		 --[[ ]]
+--[[]]				  --[[        ]]			  --[[ ]]		 --[[ ]]
+--[[           ]]	 --[[]]    --[[]]	--[[           ]]		 --[[ ]]
+--[[           ]]	--[[]]      --[[]]	--[[           ]]		 --[[ ]]
+
+-- function to compare spells to casting units
+function castInterupt(spell,percent)
+	if castersBlackList == nil then castersBlackList = { } end
+
+	-- blacklist cleanup
+	for i = 1, #castersBlackList do
+		local j = #castersBlackList + 1 - i
+		if castersBlackList[j] ~= nil and castersBlackList[j].time < GetTime() - 0.5 then
+			tremove(castersBlackList, j)
+		end
+	end
+
+	-- first make sure we will be able to cast the spell
+	if canCast(spell,false,false) == true then
+		for i = 1, #spellCastersTable do
+			if isBlackListed(Unit) then 
+				return false 
+			else
+				local thisCaster = spellCastersTable[i]
+				-- make sure we cover melee range
+				local allowedDistance = select(6,GetSpellInfo(spell))
+				if allowedDistance < 5 then 
+					allowedDistance = 5 
+				end
+				-- see if the spell is about to be finished casting
+				if getSpellCD(spell) < thisCaster.castEnd - GetTime()
+				  and (thisCaster.castEnd - GetTime())/thisCaster.castLenght < (100 - percent)/100
+				  and getDistance("player",thisCaster.unit) < allowedDistance then
+					if castSpell(thisCaster.unit,spell,false,false) then 
+						-- prevent intrupt on this target again using blacklist
+						tinsert(castersBlackList, { unit = spellCastersTable[i].unit, time = GetTime() })
+						return 
+					end
+				end
+			end
+		end
+	end
+end
+
+-- cast a cc spell on a given target or on "any" target
+function castCrowdControl(Unit,SpellID)
+	-- gather spell informations
+	local spellName,_,_,_,_,spellDistance = GetSpellInfo(SpellID)
+	if spellDistance < 5 then
+		spellDistance = 5
+	end
+	-- if "any" parameter is provided to target, we scan all the targets
+	if Unit == "any" then
+		-- test all targets
+		for i = 1, #enemiesTable do
+			-- if this unit is a cc candidate and is in range
+			if enemiesTable[i].cc == true and enemiesTable[i].distance < spellDistance then
+				-- cast the spell
+				if castSpell(enemiesTable[i].unit,SpellID,true,false) then
+					return true
+				end
+			end
+		end
+	else
+		-- if param target isnt "any", do our chwecks on requested unit.
+		if isCrowdControlCandidates(Unit) == true and getDistance("player",Unit) < spellDistance then
+			-- cast on that unit
+			if castSpell(enemiesTable[i].unit,SpellID,true,false) then
+				return true
+			end
+		end
+	end
+end
+
+function castDotCycle(units,spellID,range,facingCheck,movementCheck)
+	-- unit can be "all" or numeric
+	if units == "all" then
+    	for i = 1, #enemiesTable do
+     		local thisUnit = enemiesTable[i].unit
+     		local dotRemains = getDebuffRemain(thisUnit,spellID,"player")
+     		if dotRemains < 1 then
+      			if castSpell(thisUnit,spellID,true,true) then 
+       				return
+	      		end
+	     	end
+	    end	
+	else
+		if type(units) == "number" then
+			if getDebuffCount(spellID) < units then
+		    	for i = 1, #enemiesTable do
+		     		local thisUnit = enemiesTable[i].unit
+		     		local dotRemains = getDebuffRemain(thisUnit,spellID,"player")
+		     		if dotRemains < 1 then
+		      			if castSpell(thisUnit,spellID,true,true) then 
+		       				return
+			      		end
+			     	end
+			    end				
+			end
+		end
+	end
+end
+
+--[[           ]]   --[[           ]]    --[[           ]]
+--[[           ]]   --[[           ]]    --[[           ]]
+--[[]]              --[[]]        		       --[[ ]]
+--[[]]   --[[  ]]	--[[           ]]          --[[ ]]
+--[[]]     --[[]]	--[[]]        		       --[[ ]]
+--[[           ]]   --[[           ]]          --[[ ]]
+--[[           ]]   --[[           ]]          --[[ ]]
+
+-- get the best aoe interupt unit for a given range
+function getBestAoEInterupt(Range)
+	-- pulse our function that add casters around to castersTable
+	findCastersAround(Range)
+	-- dummy var
+	local bestAoEInteruptAmount = 0
+	local bestAoEInteruptTarget = "target"
+	-- cycle spellCasters to find best case
+	for i = 1, #spellCastersTable do
+		-- if dummy beat old dummy, update
+		if spellCastersTable[i].castersAround > bestAoEInteruptAmount then
+			bestAoEInteruptAmount = spellCastersTable[i].castersAround
+			bestAoEInteruptTarget = spellCastersTable[i].unit
+		end
+	end
+	-- return best case
+	return bestAoEInteruptTarget
+end
+
+function getDebuffCount(spellID)
+  	local counter = 0
+	for i=1,#enemiesTable do
+		local thisUnit = enemiesTable[i].unit
+		-- increase counter for each occurences
+		if UnitDebuffID(thisUnit,spellID,"player") then
+			count = coun + 1
+		end
+	end
+  	return count
+end
+
+-- to enlight redundant checks in getDistance within getEnemies
+function getDistanceXYZ(unit1,unit2)
+	local x1, y1, z1 = ObjectPosition(unit1)
+	local x2, y2, z2 = enemiesTable[unit2].x, enemiesTable[unit2].y, enemiesTable[unit2].z
+	return math.sqrt(((x2-x1)^2)+((y2-y1)^2)+((z2-z1)^2));
+end
+
+-- /dump UnitGUID("target")
+-- /dump getEnemies("target",10)
+function getEnemies(unit,Radius)
+	local getEnemiesTable = { }
+ 	for i = 1, #enemiesTable do
+ 		thisUnit = enemiesTable[i].unit
+	  	if getDistanceXYZ(unit,i) <= Radius then
+	   		tinsert(getEnemiesTable,thisUnit)
+	  	end
+ 	end
+ 	return getEnemiesTable
+end
+
+-- returns true if Unit is a valid enemy
+function getSanity(unit)
+	if UnitExists(unit) and bit.band(ObjectType(unit), ObjectTypes.Unit) == 8 
+	  and UnitIsVisible(unit) == true and getCreatureType(unit) == true
+	  and UnitCanAttack(unit, "player") == true and UnitIsDeadOrGhost(unit) == false then
+	  	return true
+	else
+		return false
 	end
 end
 
 -- This function will set the prioritisation of the units, ie which target should i attack
-function getUnitCoeficient(unit, distance, threat)
+function getUnitCoeficient(unit,distance,threat,burnStatus,safeStatus)
 	local coef = 0
-
 	-- if unit is out of range, bad prio(0)
 	if distance < 40 then
 		local unitHP = getHP(unit)
 		-- safe check set to 0 if bad unit
 		if isChecked("Safe Damage Check") then
-			if safeToAttack(unit) ~= true then
+			if safeStatus ~= true then
 				return 0
 			end
 		end
@@ -181,7 +317,7 @@ function getUnitCoeficient(unit, distance, threat)
 
 		-- if user checked burn target then we check is unit should be burnt
 		if isChecked("Forced Burn") then
-			if burnTarget(unit) == true then
+			if burnStatus == true then
 				coef = coef + 100
 			end	
 		end
@@ -189,142 +325,40 @@ function getUnitCoeficient(unit, distance, threat)
 	return coef
 end
 
--- returns anme fo cast/channel and casting("cast") or channelling("chan") /dump getCastingInfo("target")
-function getCastingInfo(unit)
-	if UnitCastingInfo(unit) ~= nil then
-		local unitCastName, _, _, _, unitCastStart, unitCastEnd, _, unitCastID, unitCastNotInteruptible = UnitCastingInfo(unit)
-		return unitCastName, getCastLenght(unitCastStart,unitCastEnd), getTimeUntilCastEnd(unitCastEnd), unitCastNotInteruptible == false, "cast"
-	elseif UnitChannelInfo(unit) ~= nil then
-		local unitCastName, _, _, _, unitCastStart, unitCastEnd, _, unitCastID, unitCastNotInteruptible = UnitChannelInfo(unit)
-		return unitCastName, getCastLenght(unitCastStart,unitCastEnd), getTimeUntilCastEnd(unitCastEnd), unitCastNotInteruptible == false, "chan"
-	else
-		return false, 250, 250, true, "nothing"
-	end
-end
+--[[           ]]	--[[           ]]
+--[[           ]]	--[[           ]]
+	 --[[ ]]		--[[ ]]
+	 --[[ ]]		--[[           ]]
+	 --[[ ]]				  --[[ ]]
+--[[           ]]	--[[           ]]
+--[[           ]]	--[[           ]]
 
--- returns true if Unit is a valid enemy
-function getSanity(unit)
-	if UnitExists(unit) and bit.band(ObjectType(unit), ObjectTypes.Unit) == 8 
-	  and UnitIsVisible(unit) == true and getCreatureType(unit) == true
-	  and UnitCanAttack(unit, "player") == true and UnitIsDeadOrGhost(unit) == false then
-	  	return true
-	else
-		return false
-	end
-end
-
--- /dump UnitGUID("target")
--- /dump getEnemies("target",10)
-function getEnemies(unit,Radius)
-	local getEnemiesTable = { }
- 	for i = 1, #enemiesTable do
- 		thisUnit = enemiesTable[i].unit
-	  	if getDistanceXYZ(unit,i) <= Radius then
-	   		tinsert(getEnemiesTable,thisUnit)
-	  	end
- 	end
- 	return getEnemiesTable
-end
-
--- to enlight redundant checks in getDistance within getEnemies
-function getDistanceXYZ(unit1,unit2)
-	local x1, y1, z1 = ObjectPosition(unit1)
-	local x2, y2, z2 = enemiesTable[unit2].x, enemiesTable[unit2].y, enemiesTable[unit2].z
-	return math.sqrt(((x2-x1)^2)+((y2-y1)^2)+((z2-z1)^2));
-end
-
-function getFacingXYZ(unit1,unit2)
-	local angle1 = ObjectFacing(unit1)
-	local y1,x1 = ObjectPosition(unit1)
-    local y2,x2 = enemiesTable[unit2].y, enemiesTable[unit2].x
-    if y1 and x1 and angle1 and y2 and x2 then
-    	local angle2, angle3
-        local deltaY = y2 - y1
-        local deltaX = x2 - x1
-        angle1 = math.deg(math.abs(angle1-math.pi*2))
-        if deltaX > 0 then
-            angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
-        elseif deltaX <0 then
-            angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
-        end
-        if angle2-angle1 > 180 then
-        	angle3 = math.abs(angle2-angle1-360)
-        else
-        	angle3 = math.abs(angle2-angle1)
-        end
-        if angle3 < Degrees then 
-        	return true 
-        else 
-        	return false
-        end
-    end
-end
-
--- casting informations
-function getCastLenght(castStart,castEnd)
-	return (castEnd-castStart)/1000
-end
-
-function getTimeUntilCastEnd(castEnd)
-	return math.floor((castEnd/1000 - GetTime())*100)/100
-end
-
--- casters table
-function makeSpellCastersTable()
-	spellCastersTable = { }
-	for i = 1, #enemiesTable do
-		if enemiesTable[i].cast.casting ~= false and enemiesTable[i].cast.canBeInterrupted == true then
-		  	tinsert(spellCastersTable, { unit = enemiesTable[i].unit, castName = enemiesTable[i].cast.casting, 
-		  	  castLenght = enemiesTable[i].cast.castLenght, castEnd = enemiesTable[i].cast.castTime, distance = enemiesTable[i].distance, })
+-- check for a unit see if its a cc candidate
+function isCrowdControlCandidates(Unit)
+	local unitID = getUnitID(Unit)
+	-- cycle list of candidates
+	for i = 1, #crowdControlCandidates do
+		-- is in the list of candidates
+		if unitID == crowdControlCandidates[i].unitID and 
+		  -- doesnt have more requirements or requirements are met
+		  (crowdControlCandidates[i].buff == nil or UnitBuffID(Unit,crowdControlCandidates[i].buff)) then
+			return true
 		end
 	end
+	return false
 end
 
--- function to compare spells to casting units
-function castInterupt(spell,percent)
-	if castersBlackList == nil then castersBlackList = { } end
-
-	-- removing cause issues when removing many at once
-
-
+-- function to see if our unit is a blacklisted unit
+function isBlackListed(Unit)
 	for i = 1, #castersBlackList do
-		local j = #castersBlackList + 1 - i
-		if castersBlackList[j].time ~= nil and castersBlackList[j].time < GetTime() - 0.5 then
-			tremove(castersBlackList, j)
+		if castersBlackList[i].unit == Unit then
+			return true
 		end
-	end
-
-	if canCast(spell,false,false) == true then
-		for i = 1, #spellCastersTable do
-			local blackListedUnit = false
-			for j = 1, #castersBlackList do
-				if castersBlackList[j].unit == spellCastersTable[i].unit then
-					blackListedUnit = true
-					break
-				end
-			end
-			if blackListedUnit == false then
-				-- make sure we cover melee range
-				local allowedDistance = select(6,GetSpellInfo(spell))
-				if allowedDistance < 5 then 
-					allowedDistance = 5 
-				end
-				
-				if getSpellCD(spell) < spellCastersTable[i].castEnd 
-				  and spellCastersTable[i].castEnd/spellCastersTable[i].castLenght < (100 - percent)/100
-				  and spellCastersTable[i].distance < allowedDistance then
-					if castSpell(spellCastersTable[i].unit,spell,false,false) then 
-						tinsert(castersBlackList, { unit = spellCastersTable[i].unit, time = GetTime() })
-						return 
-					end
-				end
-			end
-		end
-	end
+	end	
 end
 
 -- returns true if target should be burnt
-function burnTarget(unit)
+function isBurnTarget(unit)
 	for i = 1, #burnUnitCandidates do
 		if getUnitID(unit) == burnUnitCandidates.unitID then
 			-- add other conditions here
@@ -335,7 +369,7 @@ function burnTarget(unit)
 end
 
 -- returns true if we can safely attack this target
-function safeToAttack(unit)
+function isSafeToAttack(unit)
 	for i = 1, #doNotTouchUnitCandidates do
 		-- holds candidate ID
 		local candidateUnit = doNotTouchUnitCandidates[i].unitID
@@ -362,18 +396,6 @@ function safeToAttack(unit)
 	-- if all went fine return true
 	return true
 end
-
-
--- a function to gather prefered target for dirrefent spells
-function dynamicTarget(range,facing)
-	for i = 1, #enemiesTable do
-		if enemiesTable[i].distance < range and (facing == false or enemiesTable[i].facing == true) then
-			return enemiesTable[i].unit
-		end
-	end
-end
-
-
 
 end
 

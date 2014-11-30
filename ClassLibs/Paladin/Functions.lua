@@ -86,8 +86,6 @@ if select(3,UnitClass("player")) == 2 then
 		-- Should perhaps move out the spellCD and ranged outside canInterrupt?? So first check if range and cd is ok for cast, then check for timeframe?d
 		function ProtPaladinInterrupt()
 
-			makeSpellCastersTable()  --spellCastersTable
-
 			if #spellCastersTable > 1 then 
 				local numberofcastersinrangeofarcanetorrent = 0
 				for i = 1, #spellCastersTable do
@@ -170,14 +168,13 @@ if select(3,UnitClass("player")) == 2 then
 			-- getCastingInfo(unit)
 			-- getEnemies(unit,Radius) returns table of units
 			-- Make sure we declare our AoE treshold ASAP and refresh it every seconds
-			-- 	function makeSpellCastersTable() sets spellCastersTable = { }
 
 			-- check if target is safe or if u need to switch
-			if not safeToAttack("target") then
+			if not isSafeToAttack("target") then
 				print("Unsafe Target")
 			end
 
-			if  burnTarget("target") then
+			if  isBurnTarget("target") then
 				print("Burn Target")
 			end
 

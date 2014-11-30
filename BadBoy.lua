@@ -166,13 +166,16 @@ function BadBoyRun()
 
 	--[[This function is refired everytime wow ticks. This frame is located in Core.lua]]
 	function FrameUpdate(self)
+		-- if user click power button, stop everything from pulsing.
+		if BadBoy_data["Power"] == 0 then 
+			return false 
+		end
 
 		-- Accept Queues
 		if randomReady == nil then randomReady = math.random(8,15) end
 		if readyToAccept and readyToAccept <= GetTime() - 5 then 
 			AcceptProposal(); readyToAccept = nil; randomReady = nil; 
 		end
-
 
 		-- global vars
 		targetDistance = getDistance("target") or 0;
@@ -190,6 +193,7 @@ function BadBoyRun()
 			nNova:Update()
 			engineRefresh()
 		end
+		interruptsRefresh()
 		PulseUI()
 		
 
@@ -307,6 +311,6 @@ function BadBoyRun()
 	ConfigFrame()
 	DebugFrameCreation()
 	EngineFrameCreation()
-	--InterruptsFrameCreation();
+	InterruptsFrameCreation()
 	ChatOverlay("-= BadBoy Loaded =-")
 end

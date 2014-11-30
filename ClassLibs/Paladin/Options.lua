@@ -381,6 +381,13 @@ if select(3,UnitClass("player")) == 2 then
 
 	function PaladinRetOptions()
 
+		local myColor = "|cffC0C0C0"
+		local redColor = "|cffFF0011"
+		local myClassColor = classColors[select(3,UnitClass("player"))].hex
+		local function generateWrapper(wrapName)
+			CreateNewWrap(thisConfig,myClassColor.."-"..redColor.." "..wrapName.." "..myClassColor.."-")
+		end
+
 		ClearConfig();
 
 		thisConfig = 0;
@@ -388,7 +395,7 @@ if select(3,UnitClass("player")) == 2 then
 		CreateNewTitle(thisConfig,"Retribution Gabbz & CML")
 
 		-- Wrapper
-		CreateNewWrap(thisConfig,"--- Buffs ---")
+		generateWrapper("Buffs")
 
 		-- Blessing
 		CreateNewCheck(thisConfig,"Blessing")
@@ -400,7 +407,7 @@ if select(3,UnitClass("player")) == 2 then
 		CreateNewText(thisConfig,"Seal")
 
 		-- Wrapper
-		CreateNewWrap(thisConfig,"--- Cooldowns ---")
+		generateWrapper("Coooldowns")
 
 		-- Avenging Wrath
 		CreateNewCheck(thisConfig,"Avenging Wrath")
@@ -420,7 +427,7 @@ if select(3,UnitClass("player")) == 2 then
 		end
 
 		-- Wrapper
-		CreateNewWrap(thisConfig,"--- DPS Tweaks ---")
+		generateWrapper("DPS Teaks")
 
 		if isKnown(_LightsHammer) then
 			-- Light's Hammer
@@ -430,7 +437,7 @@ if select(3,UnitClass("player")) == 2 then
 		end
 
 		-- Wrapper
-		CreateNewWrap(thisConfig,"--- Defensive ---")
+		generateWrapper("Defensive")
 
 		-- Divine Protection
 		CreateNewCheck(thisConfig,"Divine Protection")
@@ -439,7 +446,7 @@ if select(3,UnitClass("player")) == 2 then
 
 
 	   -- Wrapper
-		CreateNewWrap(thisConfig,"--- Healing ---")
+		generateWrapper("Healing")
 
 		-- Tier 3 talents
 		if isKnown(_SacredShield) then
@@ -487,7 +494,7 @@ if select(3,UnitClass("player")) == 2 then
 		CreateNewText(thisConfig,"Hand Of Sacrifice")
 
 		-- Wrapper
-		CreateNewWrap(thisConfig,"--- Utilities ---")
+		generateWrapper("Utilities")
 
 		-- Rebuke
 		CreateNewCheck(thisConfig,"Rebuke")

@@ -401,6 +401,10 @@ function BadBoyFrame()
 		BadBoy_data.enginex = x
 		BadBoy_data.enginey = y
 		BadBoy_data.engineanchor = anchor
+		local _, _, anchor, x, y = interruptsFrame:GetPoint(1)
+		BadBoy_data.interruptsx = x
+		BadBoy_data.interruptsy = y
+		BadBoy_data.interruptsanchor = anchor
 		if isChecked("Debug") then
 			debugFrame:Show()
 		else

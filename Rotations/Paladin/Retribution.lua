@@ -6,7 +6,11 @@ if select(3, UnitClass("player")) == 2 then
 		PaladinRetOptions() -- Reading Config values from gui?
 		currentConfig = "Retribution Paladin"
 	end
-	local myTarget = "target"
+	local dynamicUnit = {
+		["dyn5"] = dynamicTarget(5,true),
+		["dyn30"] = dynamicTarget(30,true),
+		["dyn30AoE"] = dynamicTarget(30,false)
+	}
 	-- Locals Variables
 	local _HolyPower = UnitPower("player", 9)
 	local meleeEnemies = #getEnemies("player", 5) --Get number of enemies within melee range. Does this also work for large hotboxes?
@@ -19,13 +23,12 @@ if select(3, UnitClass("player")) == 2 then
 
 	if UnitAffectingCombat("player") then
 		-- Rebuke
-		makeSpellCastersTable() 
 		castRebuke(unit)
 
 		-- Divine Protection
 		if isChecked("Divine Protection") and getHP("player") <= getValue("Divine Protection") then
 			if castSpell("player",_DivineProtection,true) then
-				return;
+				return
 			end
 		end
 	end
@@ -73,6 +76,9 @@ if select(3, UnitClass("player")) == 2 then
 			RunMacroText("/startattack")
 		end
 
+
+		castCrowdControl("any",105593,20) -- 853
+
 		-- Avenging Wrath
 		if isInMelee() and isSelected("Avenging Wrath") then
 			if castSpell("player",_AvengingWrath,true) then 
@@ -84,6 +90,13 @@ if select(3, UnitClass("player")) == 2 then
 		if isInMelee() and isSelected("Holy Avenger") then
 			if castSpell("player",_HolyAvenger,true) then 
 				return
+			end
+		end
+
+		-- Hammer of wrath
+		if (getHP(dynamicUnit.dyn30) and (getHP(dynamicUnit.dyn30) <= 20) or UnitBuffID("player",31884)) then
+			if castSpell(dynamicUnit.dyn30,_HammerOfWrath,false,false) then 
+				return 
 			end
 		end
 
@@ -99,51 +112,55 @@ if select(3, UnitClass("player")) == 2 then
 		end
 
 		-- Verdit/DivineStorm: Dump holy power if at 5
-		if _HolyPower == 5 and getDistance("player", selectedUnit) < 5 then
-			if castSpell(selectedUnit, verdict, false, false) then 
-				return 
-			end
-		end
-
-		-- Hammer of wrath
-		if getHP(selectedUnit) <= 20 or UnitBuffID("player",31884) then
-			if castSpell(selectedUnit, _HammerOfWrath, false) then 
+		if _HolyPower == 5 and getDistance("player", dynamicUnit.dyn5) < 5 then
+			if castSpell(dynamicUnit.dyn5,verdict,false,false) then 
 				return 
 			end
 		end
 
 		-- Crusader Strike
 		if getDistance("player", myTarget) < 5 then
-			if castSpell(selectedUnit, strike, false, false) then 
+			if castSpell(dynamicUnit.dyn5,strike,false,false) then 
 				return 
 			end
 		end
 
 		-- Judgment
-		castJudgement(selectedUnit)
+		castJudgement(dynamicUnit.dyn30AoE)
+
+		-- Divine Storm procs
+		if UnitBuffID("player",144595) then
+			if castSpell(dynamicUnit.dyn5,_DivineStorm,false,false) then
+				return
+			end
+		end
 
 		-- Verdit/DivineStorm: If over 3 holy power
 		if _HolyPower >= 3 and getDistance("player", myTarget) < 5 then
-			if castSpell(selectedUnit, verdict, false, false) then return end
+			if castSpell(dynamicUnit.dyn5, verdict,false,false) then 
+				return 
+			end
 		end
 
 		-- execution Sentence
 		if isSelected("Execution Sentence") then
-			if (isDummy(selectedUnit) or (UnitHealth(selectedUnit) >= 150*UnitHealthMax("player")/100)) then
-				if castSpell(selectedUnit, _ExecutionSentence, false, false) then return; end
+			if (isDummy(dynamicUnit.dyn30) or (UnitHealth(dynamicUnit.dyn30) >= 150*UnitHealthMax("player")/100)) then
+				if castSpell(dynamicUnit.dyn30,_ExecutionSentence,false,false) then 
+					return 
+				end
 			end
 		end
 
 		-- Light's Hammer
-		castLightsHammer(selectedUnit)
+		castLightsHammer(dynamicUnit.dyn30AoE)
 
 		-- Holy Prism
 		if meleeEnemies > 2 then
-			if castSpell("player",_HolyPrism,false) then 
+			if castSpell("player",_HolyPrism,false,false) then 
 				return 
 			end
 		else
-			if castSpell(selectedUnit,_HolyPrism,false) then 
+			if castSpell(dynamicUnit.dyn30,_HolyPrism,false,false) then 
 				return 
 			end
 		end

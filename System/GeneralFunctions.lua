@@ -267,20 +267,19 @@ function canRun()
 			if SpellIsTargeting()
 			  or UnitInVehicle("Player")
 			  or (IsMounted() and getUnitID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803))
-			  or UnitIsDeadOrGhost("player") ~= false
 			  or UnitBuffID("player",11392) ~= nil
 			  or UnitBuffID("player",80169) ~= nil
 			  or UnitBuffID("player",87959) ~= nil
 			  or UnitBuffID("player",104934) ~= nil
 			  or UnitBuffID("player",9265) ~= nil then -- Deep Sleep(SM)
-				return nil;
+				return nil
 			else
-				return true;
+				return true
 			end
 		end
 	else
 		ChatOverlay("|cffFF0000-BadBoy Paused-")
-		return false;
+		return false
 	end
 end
 
@@ -734,6 +733,17 @@ function getDistance(Unit1,Unit2)
 		end
 	else
 		return 1000;
+	end
+end
+
+function getRealDistance(Unit1,Unit2)
+	-- If both units are visible
+	if UnitIsVisible(Unit1) == true and UnitIsVisible(Unit2) == true then
+		local X1,Y1 = ObjectPosition(Unit1)
+		local X2,Y2 = ObjectPosition(Unit2)
+		return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2))
+	else
+		return 1000
 	end
 end
 
@@ -1252,11 +1262,9 @@ end
 
 -- if isAlive([Unit]) == true then
 function isAlive(Unit)
-	local Unit = Unit or "target";
+	local Unit = Unit or "player"
 	if UnitIsDeadOrGhost(Unit) == false then
-		return true;
-	else
-		return false;
+		return true
 	end
 end
 
@@ -1730,19 +1738,19 @@ function IsStandingTime(time)
 	if time == nil then time = 1 end
 	if not IsFalling() and GetUnitSpeed("player") == 0 then
 		if IsStanding == nil then
-			IsStanding = GetTime();
-			IsRunning = nil;
+			IsStanding = GetTime()
+			IsRunning = nil
 		end
 		if GetTime() - IsStanding > time then
-			return true;
+			return true
 		end
 	else
 		if IsRunning == nil then
-			IsRunning = GetTime();
-			IsStanding = nil;
+			IsRunning = GetTime()
+			IsStanding = nil
 		end
 		if GetTime() - IsRunning > time then
-			return false;
+			return false
 		end
 	end
 end
@@ -1750,133 +1758,73 @@ end
 -- if isCasting(12345,"target") then
 function isCasting(SpellID,Unit)
 	if UnitExists(Unit) and UnitIsVisible(Unit) then
-		if isCasting(tostring(GetSpellInfo(SpellID)),Unit) == 1 then return true; end
+		if isCasting(tostring(GetSpellInfo(SpellID)),Unit) == 1 then 
+			return true 
+		end
 	else
-		return false;
+		return false
 	end
 end
 
 -- if isValidTarget("target") then
 function isValidTarget(Unit)
 	if UnitIsEnemy("player",Unit) then
-		if UnitExists(Unit) and not UnitIsDeadOrGhost(Unit) then return true; else return false; end
+		if UnitExists(Unit) and not UnitIsDeadOrGhost(Unit) then 
+			return true
+		else 
+			return false
+		end
 	else
-		if UnitExists(Unit) then return true; else return false; end
-	end
-end
-
--- Adaptation of Xelper(PQR)'s Interrupt
-function Interrupts()
-	if BadBoy_data["Check Interrupts"] ~= true then return false; end
-	local _MyInterruptValue = BadBoy_data["Box Interrupts"];
-	if RandomInterrupt == nil then RandomInterrupt = math.random(45,75); end
-	function InterruptSpell()
-		local MyClass = UnitClass("player");
-		--Warrior
-		if MyClass == 1 and GetSpellInfo(6552) ~= nil and getSpellCD(6552) == 0 then return 6552;
-		-- Paladin
-		elseif MyClass == 2 and GetSpellInfo(96231) ~= nil and getSpellCD(96231) == 0 then return 96231;
-		-- Hunter
-		elseif MyClass == 3 and GetSpellInfo(147362) ~= nil and getSpellCD(147362) == 0 then return 147362;
-		-- Rogue
-		elseif MyClass == 4 and GetSpellInfo(1766) ~= nil and getSpellCD(1766) == 0 then return 1766;
-		-- Priest
-		elseif MyClass == 5 and GetSpecialization("player") == 3 and GetSpellInfo(15487) ~= nil and getSpellCD(15487) == 0 then return 15487;
-		-- DeathKnight
-		elseif MyClass == 6 and GetSpellInfo(80965) ~= nil and getSpellCD(80965) == 0 then return 47528;
-		-- Shaman
-		elseif MyClass == 7 and GetSpellInfo(57994) ~= nil and getSpellCD(57994) == 0 then return 57994;
-		-- Mage
-		elseif MyClass == 8 and GetSpellInfo(2139) ~= nil and getSpellCD(2139) == 0 then return 2139;
-		-- Warlock
-		elseif MyClass == 9 and IsSpellKnown(19647) ~= nil and getSpellCD(19647) == 0 then return 19647;
-		-- Monk
-		elseif MyClass == 10 and GetSpellInfo(116705) ~= nil and getSpellCD(116705) == 0 then return 116705;
-		-- Druid
-		elseif MyClass == 11 and UnitBuffID("player", 768) ~= nil and IsPlayerSpell(80965) ~= nil and getSpellCD(80965) == 0 then return 80965;
-		elseif MyClass == 11 and UnitBuffID("player", 5487) ~= nil and IsPlayerSpell(80964) ~= nil and getSpellCD(80964) == 0 then return 80964;
-		elseif MyClass == 11 and GetSpecialization("player") == 1 then return 78675;
-		else return 0; end
-	end
-	local interruptSpell = InterruptSpell();
-	local interruptName = GetSpellInfo(interruptSpell);
-	-- Interrupt Casts and Channels on Target and Focus.
-	if interruptSpell ~= 0 then
-		if UnitExists("target") == 1 then
-			local customTarget = "target";
-			local castName, _, _, _, castStartTime, castEndTime, _, _, castInterruptable = UnitCastingInfo(customTarget);
-			local channelName, _, _, _, channelStartTime, channelEndTime, _, channelInterruptable = UnitChannelInfo(customTarget);
-			if channelName ~= nil then
-				--target is channeling a spell that is interruptable
-				--load the channel variables into the cast variables to make logic a little easier.
-				castName = channelName;
-				castStartTime = channelStartTime;
-				castEndTime = channelEndTime;
-				castInterruptable = channelInterruptable;
-				PQR_InterruptPercent = 0;
-				IsChannel = true;
-			end
-			if castInterruptable == false then castInterruptable = true; else castInterruptable = false; end
-			if castInterruptable then
-			  	local timeSinceStart = (GetTime() * 1000 - castStartTime) / 1000;
-				local timeLeft = ((GetTime() * 1000 - castEndTime) * -1) / 1000;
-				local castTime = castEndTime - castStartTime;
-				local currentPercent = timeSinceStart / castTime * 100000;
-			  	if IsSpellInRange(GetSpellInfo(interruptSpell), customTarget) == 1
-			  	  and UnitCanAttack("player", customTarget) ~= nil then
-					if currentPercent and RandomInterrupt and currentPercent < RandomInterrupt and not IsChannel then return false; end
-					ChatOverlay("INTERRUPT");
-					InteruptTimer = GetTime();
-					RandomInterrupt = nil;
-				end
-			end
+		if UnitExists(Unit) then 
+			return true 
+		else 
+			return false 
 		end
 	end
 end
 
+
 -- Dem Bleeds
 -- In a run once environment we shall create the Tooltip that we will be reading
 -- all of the spell details from
-nGTT = CreateFrame( "GameTooltip", "MyScanningTooltip", nil, "GameTooltipTemplate" );
-nGTT:SetOwner( WorldFrame, "ANCHOR_NONE" );
-nGTT:AddFontStrings(nGTT:CreateFontString( "$parentTextLeft1", nil, "GameTooltipText" ),nGTT:CreateFontString( "$parentTextRight1", nil, "GameTooltipText" ) );
+nGTT = CreateFrame( "GameTooltip", "MyScanningTooltip", nil, "GameTooltipTemplate" )
+nGTT:SetOwner( WorldFrame, "ANCHOR_NONE" )
+nGTT:AddFontStrings(nGTT:CreateFontString( "$parentTextLeft1", nil, "GameTooltipText" ),nGTT:CreateFontString( "$parentTextRight1", nil, "GameTooltipText" ) )
 function nDbDmg(tar, spellID, player)
    	if GetCVar("DotDamage") == nil then
-      	RegisterCVar("DotDamage", 0);
+      	RegisterCVar("DotDamage", 0)
    	end
    	nGTT:ClearLines()
    	for i=1, 40 do
       	if UnitDebuff(tar, i, player) == GetSpellInfo(spellID) then
-         	nGTT:SetUnitDebuff(tar, i, player);
-         	scanText=_G["MyScanningTooltipTextLeft2"]:GetText();
-         	local DoTDamage = scanText:match("([0-9]+%.?[0-9]*)");
+         	nGTT:SetUnitDebuff(tar, i, player)
+         	scanText=_G["MyScanningTooltipTextLeft2"]:GetText()
+         	local DoTDamage = scanText:match("([0-9]+%.?[0-9]*)")
    			--if not issecure() then print(issecure()); end -- function is called inside the profile
-         	SetCVar("DotDamage", tonumber(DoTDamage));
-         	return tonumber(GetCVar("DotDamage"));
+         	SetCVar("DotDamage", tonumber(DoTDamage))
+         	return tonumber(GetCVar("DotDamage"))
       	end
    	end
 end
 
 -- if pause() then
-function pause() --Pause
+function pause()
 	if (IsLeftAltKeyDown() and GetCurrentKeyBoardFocus() == nil)
-      	or (IsMounted() and getUnitID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803))
-		or SpellIsTargeting()
-		or (not UnitCanAttack("player", "target") and not UnitIsPlayer("target") and UnitExists("target"))
-		or UnitCastingInfo("player")
-		or UnitChannelInfo("player")
-		or UnitIsDeadOrGhost("player")
-		or (UnitIsDeadOrGhost("target") and not UnitIsPlayer("target"))
-		or UnitBuffID("player",80169) -- Eating
-		or UnitBuffID("player",87959) -- Drinking
-		or UnitBuffID("target",117961) --Impervious Shield - Qiang the Merciless
-		or UnitDebuffID("player",135147) --Dead Zone - Iron Qon: Dam'ren
-		or (((UnitHealth("target")/UnitHealthMax("target"))*100) > 10 and UnitBuffID("target",143593)) --Defensive Stance - General Nagrazim
-		or UnitBuffID("target",140296) --Conductive Shield - Thunder Lord / Lightning Guardian
-	then
-		return true;
-	else
-		return false;
+  	  or (IsMounted() and getUnitID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803))
+	  or SpellIsTargeting()
+	  or (not UnitCanAttack("player", "target") and not UnitIsPlayer("target") and UnitExists("target"))
+	  or UnitCastingInfo("player")
+	  or UnitChannelInfo("player")
+	  or UnitIsDeadOrGhost("player")
+	  or (UnitIsDeadOrGhost("target") and not UnitIsPlayer("target"))
+	  or UnitBuffID("player",80169) -- Eating
+	  or UnitBuffID("player",87959) -- Drinking
+	  or UnitBuffID("target",117961) --Impervious Shield - Qiang the Merciless
+	  or UnitDebuffID("player",135147) --Dead Zone - Iron Qon: Dam'ren
+	  or (((UnitHealth("target")/UnitHealthMax("target"))*100) > 10 and UnitBuffID("target",143593)) --Defensive Stance - General Nagrazim
+	  or UnitBuffID("target",140296) then--Conductive Shield - Thunder Lord / Lightning Guardian
+		ChatOverlay("Profile Paused")
+		return true
 	end
 end
 
@@ -1898,12 +1846,12 @@ function shouldStopCasting(Spell)
 	if UnitExists("boss1") then
 		-- Locally  casting informations
 		local Boss1Cast, Boss1CastEnd, PlayerCastEnd, StopCasting = Boss1Cast, Boss1CastEnd, PlayerCastEnd, false
-		local MySpellCastTime;
+		local MySpellCastTime
 		-- Set Spell Cast Time
 		if GetSpellInfo(Spell) ~= nil then
-			MySpellCastTime = (GetTime()*1000) + select(4,GetSpellInfo(Spell));
+			MySpellCastTime = (GetTime()*1000) + select(4,GetSpellInfo(Spell))
 		else
-			return false;
+			return false
 		end
 		-- Spells wich make us immune (buff)
 		local ShouldContinue = {
@@ -1918,19 +1866,41 @@ function shouldStopCasting(Spell)
 			143343, -- Deafening Screech(Thok)
 		}
 
-		if UnitCastingInfo("boss1") then Boss1Cast,_,_,_,_,Boss1CastEnd = UnitCastingInfo("boss1") elseif UnitChannelInfo("boss1") then Boss1Cast,_,_,_,_,Boss1CastEnd = UnitChannelInfo("boss1") else return false; end
-		if UnitCastingInfo("player") then PlayerCastEnd = select(6,UnitCastingInfo("player")) elseif UnitChannelInfo("player") then PlayerCastEnd = select(6,UnitChannelInfo("player")) else PlayerCastEnd = MySpellCastTime; end
-		for i = 1, #ShouldContinue do
-			if UnitBuffID("player", ShouldContinue[i]) and (select(7,UnitBuffID("player", ShouldContinue[i]))*1000)+50 > Boss1CastEnd then ChatOverlay("\124cFFFFFFFFStopper Safety Found") return false; end
+		-- find casting informations
+		if UnitCastingInfo("boss1") then 
+			Boss1Cast,_,_,_,_,Boss1CastEnd = UnitCastingInfo("boss1") 
+		elseif UnitChannelInfo("boss1") then 
+			Boss1Cast,_,_,_,_,Boss1CastEnd = UnitChannelInfo("boss1") 
+		else 
+			return false 
 		end
-		if not UnitCastingInfo("player") and not UnitChannelInfo("player") and MySpellCastTime and SetStopTime and MySpellCastTime > Boss1CastEnd then ChatOverlay("\124cFFD93B3BStop for "..Boss1Cast) return true; end
+		if UnitCastingInfo("player") then 
+			PlayerCastEnd = select(6,UnitCastingInfo("player")) 
+		elseif UnitChannelInfo("player") then 
+			PlayerCastEnd = select(6,UnitChannelInfo("player")) 
+		else 
+			PlayerCastEnd = MySpellCastTime 
+		end
+
+		for i = 1, #ShouldContinue do
+			if UnitBuffID("player", ShouldContinue[i]) 
+			  and (select(7,UnitBuffID("player", ShouldContinue[i]))*1000)+50 > Boss1CastEnd then 
+				ChatOverlay("\124cFFFFFFFFStopper Safety Found") 
+				return false 
+			end
+		end
+		if not UnitCastingInfo("player") and not UnitChannelInfo("player") and MySpellCastTime and SetStopTime 
+		  and MySpellCastTime > Boss1CastEnd then 
+		  	ChatOverlay("\124cFFD93B3BStop for "..Boss1Cast) 
+		  	return true 
+		end
 
 		for j = 1, #ShouldStop do
 			if Boss1Cast == select(1,GetSpellInfo(ShouldStop[j])) then
 				SetStopTime = Boss1CastEnd
 				if PlayerCastEnd ~= nil then
 					if Boss1CastEnd < PlayerCastEnd then
-						StopCasting = true;
+						StopCasting = true
 					end
 				end
 			end
@@ -1955,22 +1925,31 @@ end
 
 -- if isChecked("Debug") then
 function isChecked(Value)
-	if BadBoy_data["Check "..Value] == 1 then return true; else return false end
+	if BadBoy_data["Check "..Value] == 1 then 
+		return true
+	else 
+		return false 
+	end
 end
 
 -- if isSelected("Stormlash Totem") then
 function isSelected(Value)
-	if BadBoy_data["Cooldowns"] == 3 or (BadBoy_data["Check "..Value] == 1 and (BadBoy_data["Drop "..Value] == 3 or (BadBoy_data["Drop "..Value] == 2 and BadBoy_data["Cooldowns"] == 2))) then return true; else return false; end
+	if BadBoy_data["Cooldowns"] == 3 or (BadBoy_data["Check "..Value] == 1 
+	  and (BadBoy_data["Drop "..Value] == 3 or (BadBoy_data["Drop "..Value] == 2 and BadBoy_data["Cooldowns"] == 2))) then 
+		return true
+	else 
+		return false
+	end
 end
 
 -- if getHP("player") <= getValue("Eternal Flame") then
 function getValue(Value)
 	if BadBoy_data["Drop "..Value] ~= nil then
-		return BadBoy_data["Drop "..Value];
+		return BadBoy_data["Drop "..Value]
 	elseif BadBoy_data["Box "..Value] ~= nil then
-		return BadBoy_data["Box "..Value];
+		return BadBoy_data["Box "..Value]
 	else
-		return 0;
+		return 0
 	end
 end
 
@@ -1989,7 +1968,7 @@ tauntsTable = {
 	{ spell = 143773, stacks = 3 }, --Thok (Jinyu eaten)            143773 - Freezing Breath                             == 3x
 	{ spell = 143767, stacks = 2 }, --Thok (Yaungol eaten)          143767 - Scorching Breath                            == 2x
 	{ spell = 145183, stacks = 3 } --Garrosh/71865                 145183 - Gripping Despair                            >= 3x
-};
+}
 
 --[[Taunt function!! load once]]
 function ShouldTaunt()
@@ -1998,8 +1977,8 @@ function ShouldTaunt()
 	if not UnitIsUnit("player","boss1target") then
 	  	for i = 1, #tauntsTable do
 	  		if not UnitDebuffID("player",tauntsTable[i].spell) and UnitDebuffID("boss1target",tauntsTable[i].spell) and getDebuffStacks("boss1target",tauntsTable[i].spell) >= tauntsTable[i].stacks then
-	  			TargetUnit("boss1");
-	  			return true;
+	  			TargetUnit("boss1")
+	  			return true
 	  		end
 	  	end
 	end
@@ -2008,35 +1987,12 @@ function ShouldTaunt()
   	if getBossID("target") ~= 71858 then
   		if UnitDebuffID("player", 144215) and getDebuffStacks("player",144215) >= 6 then
   			if getBossID("boss1") == 71858 then
-  				TargetUnit("boss1");
-  				return true;
+  				TargetUnit("boss1")
+  				return true
   			else
-  				TargetUnit("boss2");
-  				return true;
+  				TargetUnit("boss2")
+  				return true
   			end
   		end
   	end
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

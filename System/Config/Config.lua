@@ -117,17 +117,17 @@ function CreateGeneralsConfig()
     -- Wrapper -----------------------------------------
     CreateNewWrap(thisConfig,"- |cffFF0011Enemies Engine "..myClassColor.."-")
 
-    CreateNewText(thisConfig,"|cffFFDD11Priority Handlers"..myClassColor)
+    CreateNewText(thisConfig,"|cffFFDD11Dynamic Target"..myClassColor)
+
+    -- allow dynamic targetting
+    CreateNewCheck(thisConfig,"Dynamic Targetting", "|cffFFDD11Check if you want to use Dynamic Targetting, if unchecked only target will be attacked.", 1)
+    CreateNewText(thisConfig,"Dynamic Targetting")
 
     -- enforce burn targets
     CreateNewCheck(thisConfig,"Wise Target", "|cffFFDD11Check if you want to use Wise Targetting, if unchecked, Target will be priorized.", 1)
     CreateNewDrop(thisConfig,"Wise Target", 1, "|cffFFDD11What would be your favorite target to damage on.", "|cffFF0000Lowest", "|cffFFDD11Highest")
     CreateNewText(thisConfig,"Wise Target")
-
-    -- exclude unsafe units
-    CreateNewCheck(thisConfig,"Safe Damage Check","Check to prevent damage to targets you dont want to attack.",1)
-    CreateNewText(thisConfig,"Safe Damage Check")
-
+    
     -- Allow Forced Burn
     CreateNewCheck(thisConfig,"Forced Burn","Check to allow forced Burn on specific units.",1)
     CreateNewText(thisConfig,"Forced Burn")
@@ -135,6 +135,22 @@ function CreateGeneralsConfig()
     -- Tank prio threat
     CreateNewCheck(thisConfig,"Tank Threat","Check add more priority to taregts you lost aggro on(tank only).",1)
     CreateNewText(thisConfig,"Tank Threat")
+
+    CreateNewText(thisConfig,"|cffFFDD11Engine Tweaks"..myClassColor)
+
+    -- exclude unsafe units
+    CreateNewCheck(thisConfig,"Safe Damage Check","Check to prevent damage to targets you dont want to attack.",1)
+    CreateNewText(thisConfig,"Safe Damage Check")
+
+    -- Interrupts Frame
+    CreateNewCheck(thisConfig,"Interrupts Handler")
+    CreateNewText(thisConfig,"Interrupts Handler")
+    -- Interrupts Frame
+    CreateNewCheck(thisConfig,"Interrupts Frame")
+    CreateNewText(thisConfig,"Interrupts Frame")
+    -- Only Known Units
+    CreateNewCheck(thisConfig,"Only Known Units")
+    CreateNewText(thisConfig,"Only Known Units")
 
     -- Wrapper -----------------------------------------
     CreateNewWrap(thisConfig,"- |cffFF0011Healing Engine "..myClassColor.."-")
@@ -224,9 +240,6 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Queues")
     CreateNewText(thisConfig,"Queue Casts")
 
-    -- Interrupts Frame
-    CreateNewCheck(thisConfig,"Interrupts Frame")
-    CreateNewText(thisConfig,"Interrupts Frame")
 
     -- Wrapper -----------------------------------------
     CreateNewWrap(thisConfig,"- |cffFF0011Profession Helper "..myClassColor.."-")

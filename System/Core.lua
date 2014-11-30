@@ -1,5 +1,5 @@
 function BadBoyUpdate()
-    if FireHack == nil then
+    if FireHack == nil and BadBoy_data["Power"] == 1 then
         ChatOverlay("FireHack not Loaded.");
         return;
     else
@@ -18,7 +18,6 @@ function BadBoyEngine()
         Pulse_Engine:Show();
     end
 end
-
 
 -- Chat Overlay: Originally written by Sheuron.
 local function onUpdate(self,elapsed)

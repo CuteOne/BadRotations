@@ -13,6 +13,7 @@ function InterruptsFrameCreation()
 			BadBoy_data.interruptsRows = 5;
 			BadBoy_data.interruptsHeight = 26;
 		end
+
 		-- Resets every time
 		BadBoy_data.interruptsActualRow = 0;
 
@@ -29,12 +30,16 @@ function InterruptsFrameCreation()
 				_G["interrupts"..value.."Frame"]:SetAlpha(BadBoy_data.interruptsAlpha/100);
 				_G["interrupts"..value.."Frame"]:SetScript("OnEnter", function(self)
 					local MyValue = value;
-					if spellCastingUnits ~= nil and spellCastingUnits[MyValue+BadBoy_data.interruptsActualRow] ~= nil then
+					if spellCastersTable ~= nil and spellCastersTable[MyValue+BadBoy_data.interruptsActualRow] ~= nil then
+						thisUnit = spellCastersTable[MyValue+BadBoy_data.interruptsActualRow]
 						GameTooltip:SetOwner(self, "BOTTOMLEFT", 250, 5);
-						GameTooltip:SetText("|cffFF0000Role: |cffFFDD11"..spellCastingUnits[MyValue+BadBoy_data.interruptsActualRow].class..
-							"\n|cffFF0000Name: |cffFFDD11"..spellCastingUnits[MyValue+BadBoy_data.interruptsActualRow].sourceName..
-							"\n|cffFF0000GUID: |cffFFDD11"..spellCastingUnits[MyValue+BadBoy_data.interruptsActualRow].targetGUID..
-							"\n|cffFF0000Target: |cffFFDD11", nil, nil, nil, nil, false);
+						GameTooltip:SetText("|cffFF0000CasterGUID: |cff63A4FF"..thisUnit.guid..
+							"\n|cffFF0000CasterName: |cff63A4FF"..thisUnit.sourceName..
+							"\n|cffFF0000UnitID: |cffFFDD11"..thisUnit.id..
+							"\n|cffFF0000SpellID: |cffFFDD11"..thisUnit.cast..
+							"\n|cffFF0000Target: |cffFFDD11"..thisUnit.targetName..
+							"\n|cffFF0000TargetGUID: |cffFFDD11"..thisUnit.targetGUID..
+							"\n|cffFF0000Casters Around: |cff3087FF"..thisUnit.castersAround, nil, nil, nil, nil, false)
 						GameTooltip:Show();
 					end
 				end)
@@ -46,12 +51,12 @@ function InterruptsFrameCreation()
 				end)
 
 				_G["interrupts"..value.."Frame"]:SetScript("OnMouseUp", function()
-					RunMacroText("/target "..spellCastingUnits[value+BadBoy_data.interruptsActualRow].sourceName)
+					RunMacroText("/target "..spellCastersTable[value+BadBoy_data.interruptsActualRow].sourceName)
 				end)			
 
 				_G["interrupts"..value.."Frame"]:SetScript("OnMouseWheel", function(self, delta)
 					local Go = false;
-					if delta < 0 and BadBoy_data.interruptsActualRow < 100 and interruptsTable ~= nil and interruptsTable[BadBoy_data.interruptsActualRow+BadBoy_data.interruptsRows] ~= nil then
+					if delta < 0 and BadBoy_data.interruptsActualRow < 100 and spellCastersTable ~= nil and spellCastersTable[BadBoy_data.interruptsActualRow+BadBoy_data.interruptsRows] ~= nil then
 						Go = true;
 					elseif delta > 0 and BadBoy_data.interruptsActualRow > 0 then
 						Go = true;
@@ -221,7 +226,7 @@ function InterruptsFrameCreation()
 		end
 
 		function interruptsRefresh()
-			if spellCastingUnits == nil then 			
+			if spellCastersTable == nil then 			
 				for i = 1, BadBoy_data.interruptsRows do
 					local interruptsName, interruptsTip = "", ""
 					if _G["interrupts"..i.."Frame"]:IsShown() ~= 1 then
@@ -238,31 +243,32 @@ function InterruptsFrameCreation()
 				end
 			else
 				for i = 1, BadBoy_data.interruptsRows do
-					local interruptsName;
-					if spellCastingUnits[BadBoy_data.interruptsActualRow+i] ~= nil then
-						local endDisplay = "|cffFF0000"..math.floor(spellCastingUnits[BadBoy_data.interruptsActualRow+i].endTime) or 0;
-						local sourceGUIDDisplay = "|cffFFBB00 "..spellCastingUnits[BadBoy_data.interruptsActualRow+i].guid or " |cffFFBB00NONE";
-						local sourceNameDisplay;
-						if spellCastingUnits[BadBoy_data.interruptsActualRow+i].class ~= nil and spellCastingUnits[BadBoy_data.interruptsActualRow+i].sourceName ~= nil then
-							sourceNameDisplay = classColors[spellCastingUnits[BadBoy_data.interruptsActualRow+i].class].hex.." "..spellCastingUnits[BadBoy_data.interruptsActualRow+i].sourceName;
-						else 
-							sourceNameDisplay = " No Name";
+					local interruptsName
+					if spellCastersTable[BadBoy_data.interruptsActualRow+i] ~= nil then
+						local thisUnit = spellCastersTable[BadBoy_data.interruptsActualRow+i]
+						local endDisplay = math.ceil((thisUnit.castEnd - GetTime())*10)/10 or 0
+						if endDisplay < 0 then
+							tremove(spellCastersTable,BadBoy_data.interruptsActualRow+i)
+							interruptsName = ""
+						else
+							local spellCast = thisUnit.cast
+							local sourceGUIDDisplay = thisUnit.guid
+							local sourceNameDisplay = thisUnit.sourceName
+							local targetDisplay = thisUnit.targetName
+							if thisUnit.shouldInterupt == true then
+								interruptsName = " |cffFF0000"..spellCast.." "..endDisplay.." "..sourceNameDisplay.." ("..sourceGUIDDisplay..")"
+							else
+								interruptsName = " |cffFFFFFF"..spellCast.." "..endDisplay.." "..sourceNameDisplay.." ("..sourceGUIDDisplay..")"
+							end
 						end
-
-						local targetDisplay;
-						local hisTarget = tostring(spellCastingUnits[BadBoy_data.interruptsActualRow+i].target) or " |cff00F2FFNo Target";
-						if UnitName(hisTarget) ~= nil then targetDisplay = "|cff00F2FF "..UnitName(hisTarget) else targetDisplay = " |cff00F2FFNo Target" end
-						interruptsName = endDisplay..sourceGUIDDisplay..sourceNameDisplay
-					else
-						interruptsName = "";
 					end
 
 					if _G["interrupts"..i.."Frame"]:IsShown() ~= 1 then
-						_G["interrupts"..i.."Text"]:Show();
-						_G["interrupts"..i.."Frame"]:Show();
+						_G["interrupts"..i.."Text"]:Show()
+						_G["interrupts"..i.."Frame"]:Show()
 					end
 
-					_G["interrupts"..i.."Text"]:SetText(interruptsName, 1, 1, 1, 0.7);
+					_G["interrupts"..i.."Text"]:SetText(interruptsName)
 
 				end
 				for i = BadBoy_data.interruptsRows+1, 25 do
