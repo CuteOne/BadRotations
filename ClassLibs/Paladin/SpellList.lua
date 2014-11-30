@@ -71,7 +71,9 @@ if select(3,UnitClass("player")) == 2 then
 		_TurnEvil                   =   10326
 		_WordOfGlory                =   85673
 
-		HandOfSacrifaceDebuffs = {} -- Table that holds debuffs we should HoSacrifice
+		HandOfSacrifaceDebuffs = { -- Table that holds debuffs we should HoSacrifice
+			{ debuff = 166675, stacks = 2 }, -- Shrapnel Blast  in Grimrail depot
+		}
 		protectionRemovableDebuffs = {} -- Table that holds debuffs that we should remove with protection spell
 		snareToBeRemovedByHandsofFreedom = {
 			162066,  -- Freezing Snare, Grim Depot
@@ -85,7 +87,6 @@ if select(3,UnitClass("player")) == 2 then
 				return true
 			end
 		end
-
 		return false
 	end
 	

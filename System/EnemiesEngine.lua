@@ -29,22 +29,29 @@ burnUnitCandidates = {
 	{ unitID = 76518 }, -- Ritual of Bones, marked one... Todo: Can we check if mobs is marked with skull?
 	-- Auchindon
 	{ unitID = 77812 }, -- Sargerei Souldbinder, cast a MC
+	-- Grimrail Depot
+	{ unitID = 80937 }, -- Gromkar Gunner
 } 
 
 -- doNotTouchUnitCandidates - List of units that we should not attack for any reason
 -- can declare more filters: buff, debuff
 doNotTouchUnitCandidates = { 
 	-- Iron Docks
-  	{ unitID = 71515 , buff = 143593 }, --Fleshrender Nok'gar, do not attack during defensive stance buff, Todo: Should stop when he cast 164504
-  	{ unitID = 1, buff = 163689  }, -- Never attack Sanguine Sphere
+  	{ unitID = 87451, 	buff = 164504, spell = 164426 }, --Fleshrender Nok'gar, do not attack during defensive stance buff, Todo: Should stop when he cast 164504
+  	{ unitID = 1, 		buff = 163689 }, -- Never attack Sanguine Sphere
 }
 
 crowdControlCandidates = {
 	-- Shadowmoon Burial Grounds
-	{ unitID = 75966 }, -- Defiled Spirit, need to be cc and snared and is not allowed to reach boss.
-	{ unitID = 76446 }, -- Shadowmoon Enslavers
-	{ unitID = 75899 }, -- Possessed Soul, only for melee i guess
-	{ unitID = 79510 }, -- Crackling Pyromaniacs
+	{ unitID = 75966, spell = 1 }, -- Defiled Spirit, need to be cc and snared and is not allowed to reach boss.
+	{ unitID = 76446, spell = 1 }, -- Shadowmoon Enslavers
+	{ unitID = 75899, spell = 1 }, -- Possessed Soul, only for melee i guess
+	{ unitID = 79510, spell = 1 }, -- Crackling Pyromaniacs
+	-- Grimrail Depot
+	{ unitID = 81236, spell = 163966 }, -- Grimrail Technicians channeling Activating
+	{ unitID = 80937, spell = 1 }, -- Gromkar Gunner
+
+
 }
 
 -- Units with spells that should be interrupted if possible. Good to have units so we can save interrupting spells when targeting them.
@@ -66,7 +73,8 @@ interruptCandidates = {
 	{ unitID = 86330, spell = 156857 }, -- Rain Of Fire
 	{ unitID = 86330, spell = 164846 }, -- Chaos Bolt
 	{ unitID = 86330, spell = 156963 }, -- Incenerate
-	-- { unitID = , spell =   }, -- 
+	--Grimral Depot 
+	{ unitID = 82579, spell = 166335 }, -- Storm Shield
 } 
 
 -- List of units that are hitting hard, ie when its good to use defensive CDs
@@ -74,6 +82,12 @@ dangerousUnits  = {
 	-- Shadowmoon Burial Grounds
 	{ unitID = 86234, buff = 162696, spell = 162696 }, -- Sadana buffed with deathspikes
 	{ unitID = 75829, buff = 152792, spell = 152792 }, -- Nhallish casting Void Blast or buffed
+	{ unitID = 86226, buff = 161092, spell = 1      }, -- Borkas unmanged Agression
+	--{ unitID = 86226, buff = 1, 	 spell = 161089 }, -- Borkas Mad Dash, small CD Todo: We should add minor major values to this so we can determine if its a big CD or small to be used.
+	-- Grimrail Depot
+	{ unitID = 83775, buff = 178412, spell = 178412      }, -- Borkas unmanged Agression
+	
+
 } 
 
 dispellOffensiveBuffs = {
