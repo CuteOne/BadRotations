@@ -73,14 +73,14 @@ end
 --Applied Rake Dot Damage
 function RKD(unit)
     if Rake_sDamage==nil then
-        return 1
+        return 0.5
     elseif UnitExists(unit) then
         rakeDot = Rake_sDamage[UnitGUID(unit)]
     end
     if rakeDot~=nil then
         return rakeDot
     else
-        return 1
+        return 0.5
     end
 end
 
@@ -100,14 +100,14 @@ end
 --Applied Rip Dot Damage
 function RPD(unit)
     if Rip_sDamage==nil then
-        return 1
+        return 0.5
     elseif UnitExists(unit) then
         ripDot = Rip_sDamage[UnitGUID(unit)]
     end
     if ripDot~=nil then
         return ripDot
     else
-        return 1
+        return 0.5
     end
 end
 

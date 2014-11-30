@@ -21,41 +21,41 @@ if select(3,UnitClass("player")) == 2 then
 		ClearConfig();
 		thisConfig = 0;
 		-- Title
-		CreateNewTitle(thisConfig,"Protection Gabbz");
+		CreateNewTitle(thisConfig,"Protection Gabbz")
 		-- Wrapper
-		--CreateNewWrap(thisConfig,"----- Buffs -----");
+		--CreateNewWrap(thisConfig,"----- Buffs -----")
 
 		-- Blessing
-		--CreateNewCheck(thisConfig,"Blessing");
-		--CreateNewText(thisConfig,"Blessing");
+		--CreateNewCheck(thisConfig,"Blessing")
+		--CreateNewText(thisConfig,"Blessing")
 
 		-- Righteous Fury
-		--CreateNewCheck(thisConfig,"Righteous Fury");
-		--CreateNewText(thisConfig,"Righteous Fury");
+		--CreateNewCheck(thisConfig,"Righteous Fury")
+		--CreateNewText(thisConfig,"Righteous Fury")
 
 		-- Seal
-		--CreateNewCheck(thisConfig,"Seal");
+		--CreateNewCheck(thisConfig,"Seal")
 		--CreateNewDrop(thisConfig, "Seal", 1, "Choose Seal to use.", "|cffFFDD11Insight", "|cff00FBEETruth", "|cff00EE00Swap")
-		--CreateNewText(thisConfig,"Seal");
+		--CreateNewText(thisConfig,"Seal")
 
 		-- Wrapper
 		--CreateNewWrap(thisConfig,"----- Cooldowns -----")
 
 		-- Avenging Wrath
-		--CreateNewCheck(thisConfig,"Avenging Wrath");
+		--CreateNewCheck(thisConfig,"Avenging Wrath")
 		--CreateNewDrop(thisConfig, "Avenging Wrath", 1, "CD")
-		--CreateNewText(thisConfig,"Avenging Wrath");
+		--CreateNewText(thisConfig,"Avenging Wrath")
 
 		--if isKnown(_HolyAvenger) then
 			-- Holy Avenger
-		--	CreateNewCheck(thisConfig,"Holy Avenger");
+		--	CreateNewCheck(thisConfig,"Holy Avenger")
 		--	CreateNewDrop(thisConfig, "Holy Avenger", 1, "CD")
-		--	CreateNewText(thisConfig,"Holy Avenger");
+		--	CreateNewText(thisConfig,"Holy Avenger")
 		--elseif isKnown(_SanctifiedWrath) then
 			-- Sanctified Wrath
-		--	CreateNewCheck(thisConfig,"Sanctified Wrath");
+		--	CreateNewCheck(thisConfig,"Sanctified Wrath")
 		--	CreateNewDrop(thisConfig, "Sanctified Wrath", 1, "CD")
-		--	CreateNewText(thisConfig,"Sanctified Wrath");
+		--	CreateNewText(thisConfig,"Sanctified Wrath")
 		--end
 
 		-- Wrapper
@@ -63,25 +63,29 @@ if select(3,UnitClass("player")) == 2 then
 
 		if isKnown(_LightsHammer) then
 			-- Light's Hammer
-			CreateNewCheck(thisConfig,"Light's Hammer","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFLight's Hammer|cffFFBB00.",1);
+			CreateNewCheck(thisConfig,"Light's Hammer","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFLight's Hammer|cffFFBB00.",1)
 			CreateNewDrop(thisConfig, "Light's Hammer", 1, "CD")
-			CreateNewText(thisConfig,"Light's Hammer");
+			CreateNewText(thisConfig,"Light's Hammer")
 		end
 
 		-- Word Of Glory Party
-		CreateNewCheck(thisConfig,"Word Of Glory On Self","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFWord of Glory|cffFFBB00 on self.",1);
+		CreateNewCheck(thisConfig,"Word Of Glory On Self","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFWord of Glory|cffFFBB00 on self.",1)
 		CreateNewBox(thisConfig, "Word Of Glory On Self", 0, 100, 1, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to heal self with \n|cffFFFFFFWords Of Glory")
 		CreateNewText(thisConfig,"Word Of Glory On Self")
 
 		-- Lay On Hands on yourself
-		CreateNewCheck(thisConfig,"Lay On Hands Self","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFLay on Hands|cffFFBB00 on Self.",1);
-		CreateNewBox(thisConfig, "Lay On Hands Self", 0, 100, 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands on your self");
-		CreateNewText(thisConfig,"Lay On Hands Self");
+		CreateNewCheck(thisConfig,"Lay On Hands Self","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFLay on Hands|cffFFBB00 on Self.",1)
+		CreateNewBox(thisConfig, "Lay On Hands Self", 0, 100, 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands on your self")
+		CreateNewText(thisConfig,"Lay On Hands Self")
 
 		-- Lay On Hands on Party
-		CreateNewCheck(thisConfig,"Lay On Hands Party","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFLay on Hands|cffFFBB00 on Party.",0);
-		CreateNewBox(thisConfig, "Lay On Hands Party", 0, 100, 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands on your Party");
-		CreateNewText(thisConfig,"Lay On Hands Party");
+		CreateNewCheck(thisConfig,"Lay On Hands Party","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFLay on Hands|cffFFBB00 on Party.",0)
+		CreateNewBox(thisConfig, "Lay On Hands Party", 0, 100, 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands on your Party")
+		CreateNewText(thisConfig,"Lay On Hands Party")
+
+		CreateNewCheck(thisConfig,"Hand Of Freedom","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHand Of Freedom|cffFFBB00.",1)
+		CreateNewDrop(thisConfig, "Hand Of Freedom", 1, "Whitelist")
+		CreateNewText(thisConfig,"Hand Of Freedom")
 
 		-- Hand of Sacrifice
 		--CreateNewCheck(thisConfig,"Hand Of Sacrifice","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHand of Sacrifice|cffFFBB00.",1);
@@ -106,13 +110,13 @@ if select(3,UnitClass("player")) == 2 then
 		-- Wrapper Interrupt
 		CreateNewWrap(thisConfig,"------ Interrupt -------");
 
-		CreateNewCheck(thisConfig,"Rebuke","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFRebuke|cffFFBB00.",1);
-		CreateNewBox(thisConfig, "Rebuke", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFRebuke.");
-		CreateNewText(thisConfig,"Rebuke");
+		CreateNewCheck(thisConfig,"Rebuke","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFRebuke|cffFFBB00.",1)
+		CreateNewBox(thisConfig, "Rebuke", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFRebuke.")
+		CreateNewText(thisConfig,"Rebuke")
 
-		CreateNewCheck(thisConfig,"Avengers Shield Interrupt","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFusing AS as Interrupt|cffFFBB00.",1);
-		CreateNewBox(thisConfig, "Avengers Shield Interrupt", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFAS as interrupt.");
-		CreateNewText(thisConfig,"Avengers Shield Interrupt");
+		CreateNewCheck(thisConfig,"Avengers Shield Interrupt","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFusing AS as Interrupt|cffFFBB00.",1)
+		CreateNewBox(thisConfig, "Avengers Shield Interrupt", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFAS as interrupt.")
+		CreateNewText(thisConfig,"Avengers Shield Interrupt")
 
 		--CreateNewCheck(thisConfig,"LoH Targets");
 		--CreateNewDrop(thisConfig, "LoH Targets", 1, "|cffFF0000Wich Targets\n|cffFFBB00We want to use \n|cffFFFFFFLay On Hands", "|cffFF0000Me.Only", "|cffFFDD11Me.Prio", "|cff00FBEETank/Heal","|cff00FF00All");
