@@ -125,12 +125,6 @@ dispellOffensiveBuffs = {
     160312, -- Void Shell
 }
 
-<<<<<<< HEAD
-
-
-
-
-=======
 longTimeCC = {
     339,    -- Druid - Entangling Roots
     102359, -- Druid - Mass Entanglement
@@ -151,5 +145,4 @@ longTimeCC = {
     115268, -- Warlock - Mesmerize
     6358,   -- Warlock - Seduction
 }
->>>>>>> origin/master
 
