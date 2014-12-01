@@ -18,11 +18,11 @@ function EnemiesEngine()
 -- about if the target have a dot so it will die regardless or not. Should have a timetodie?
 
 
--- Stack: Interface\AddOns\BadBoy\System\EnemiesEngine.lua:224: in function `castInterupt'
+-- Stack: Interface\AddOns\BadBoy\System\EnemiesEngine.lua:224: in function `castInterrupt'
 -- isBurnTarget(unit) - Bool - True if we should burn that target according to burnUnitCandidates
 -- isSafeToAttack(unit) - Bool - True if we can attack target according to doNotTouchUnitCandidates
 -- getEnemies(unit,Radius) - Number - Returns number of valid units within radius of unit
--- castInterupt(spell,percent) - Multi-Target Interupts - for facing/in movements spells of all ranges.
+-- castInterrupt(spell,percent) - Multi-Target Interupts - for facing/in movements spells of all ranges.
 -- makeEnemiesTable(55) - Triggered in badboy.lua - generate the enemiesTable
 -- makeSpellCastersTable() - Makes an interupt table based on enemiesTable
 
@@ -127,7 +127,7 @@ end
 --[[           ]]	--[[]]      --[[]]	--[[           ]]		 --[[ ]]
 
 -- function to compare spells to casting units
-function castInterupt(spell,percent)
+function castInterrupt(spell,percent)
 	if castersBlackList == nil then castersBlackList = { } end
 
 	-- blacklist cleanup

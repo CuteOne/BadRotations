@@ -14,7 +14,7 @@ function SlashCmdList.dumpInfo(msg, editbox)
                         local thisCaster = spellCastersTable[j]
                         targetInfo.spellID = thisCaster.cast
                         targetInfo.lenght = thisCaster.castLenght
-                        targetInfo.castInteruptible = castNotInteruptible == false
+                        targetInfo.castInterruptible = castNotInterruptible == false
                         targetInfo.castType = castOrChan
                     end
                 end
