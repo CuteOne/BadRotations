@@ -377,12 +377,13 @@ end
 
 -- castGround("target",12345,40);
 function castGround(Unit,SpellID,maxDistance)
-	if UnitExists(Unit) and getSpellCD(SpellID) == 0 and getLineOfSight("player", Unit) and getDistance("player", Unit) <= maxDistance then
+	if UnitExists(Unit) and getSpellCD(SpellID) == 0 and getLineOfSight("player", Unit) 
+	  and getDistance("player", Unit) <= maxDistance then
  		CastSpellByName(GetSpellInfo(SpellID),"player")
 		if IsAoEPending() then
-		local distanceToGround = getGroundDistance(Unit) or 0
+		--local distanceToGround = getGroundDistance(Unit) or 0
 		local X, Y, Z = ObjectPosition(Unit)
-			CastAtPosition(X,Y,Z-distanceToGround)
+			CastAtPosition(X,Y,Z) --distanceToGround
 			return true
 		end
  	end

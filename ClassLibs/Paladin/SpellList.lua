@@ -7,6 +7,7 @@ if select(3,UnitClass("player")) == 2 then
 		_BastionOfGlory				=	114637
 		_BeaconOfLight              =   53563
 		_Berserking                 =   26297
+		_BlazingContemp 			= 	166831
 		_BlessingOfKings            =   20217
 		_BlessingOfMight            =   19740
 		_BlindingLight              =   115750
@@ -16,15 +17,18 @@ if select(3,UnitClass("player")) == 2 then
 		_CrusaderStrike             =   35395
 		_Denounce                   =   2812
 		_DevotionAura               =   31821
+		_DivineCrusader 			= 	144595
 		_DivineFavor                =   31842
 		_DivineLight                =   82326
 		_DivineProtection           =   498
+		_DivinePurpose 				= 	86172
 		_DivinePurposeBuff			= 	90174
 		_DivineShield               =   642
 		_DivineStorm                =   53385
 		_EternalFlame               =   114163
 		_ExecutionSentence          =   114157
 		_Exorcism                   =   879
+		_FinalVerdict 				= 	157048
 		_FistOfJustice              =   105593
 		_FlashOfLight               =   19750
 		_Forbearance				= 	25771
@@ -65,6 +69,7 @@ if select(3,UnitClass("player")) == 2 then
 		_SealOfThruth               =   31801
 		_SelflessHealer             =   85804
 		_SelflessHealerBuff			= 	114250
+		_Seraphim					=	152262
 		_ShieldOfTheRighteous       =   53600
 		_SpeedOfLight               =   85499
 		_TemplarsVerdict            =   85256
@@ -118,10 +123,24 @@ if select(3,UnitClass("player")) == 2 then
 		return false
 	end
 
+	-- Todo : Execution sentence make sure we cast on a unit with as much HP as possible
+	function castExecutionSentence(unit)
+		if isSelected("Execution Sentence") and canCast(_ExecutionSentence) then
+			if (isDummy(dynamicUnit.dyn40) or (UnitHealth(dynamicUnit.dyn40) >= 400*UnitHealthMax("player")/100)) then
+				if castSpell(dynamicUnit.dyn40,_ExecutionSentence,false,false) then 
+					return true
+				end
+			end
+		end
+		return false
+	end
+
+
+
 	--Todo, we can check if the target is not inmelle there could be other targets in melee
 	function castHolyWrath(unit)
 		if canCast(_HolyWrath) and isInMelee(unit) then
-			if castSpell(unit,_HolyWrath,true) then
+			if castSpell(unit,_HolyWrath,true,false) then
 				return true
 			end
 		end
@@ -255,7 +274,7 @@ if select(3,UnitClass("player")) == 2 then
 	end
 
 	function castRebuke(unit)
-		castInterupt(_Rebuke, getValue("Rebuke"))
+		castInterrupt(_Rebuke, getValue("Rebuke"))
 		return false
 	end
 
@@ -273,5 +292,115 @@ if select(3,UnitClass("player")) == 2 then
 			end
 		end
 		return false
+	end
+		-- Holy Avenger(Ret)
+	function castHolyAvenger()
+		if isSelected("Holy Avenger") and canCast(_HolyAvenger) then
+			if (isDummy(dynamicUnit.dyn5) or (UnitHealth(dynamicUnit.dyn5) >= 400*UnitHealthMax("player")/100)) then
+				-- holy_avenger,sync=seraphim,if=talent.seraphim.enabled
+				if (isKnown(_Seraphim) and UnitBuffID("player",_Seraphim))
+				  -- holy_avenger,if=holy_power<=2&!talent.seraphim.enabled
+				  or (not isKnown(_Seraphim) and _HolyPower <= 2) then
+					if castSpell("player",_HolyAvenger,true,false) then 
+						return true
+					end
+				end
+			end
+		end
+		return false
+	end
+
+	-- Avenging Wrath
+	function castAvengingWrath()
+		if isSelected("Holy Avenger") and canCast(_HolyAvenger) then
+			if (isDummy(dynamicUnit.dyn5) or (UnitHealth(dynamicUnit.dyn5) >= 400*UnitHealthMax("player")/100)) then
+				-- avenging_wrath,sync=seraphim,if=talent.seraphim.enabled
+				if (isKnown(_Seraphim) and UnitBuffID("player",_Seraphim) )
+				  -- avenging_wrath,if=!talent.seraphim.enabled
+				  or not isKnown(_Seraphim) then
+					if castSpell("player",_HolyAvenger,true,false) then 
+						return true
+					end
+				end
+			end
+		end
+		return false
+	end
+
+	-- Seraphim
+	function castSeraphim()
+		if isSelected("Seraphim") and canCast(_Seraphim) then
+			if (isDummy(dynamicUnit.dyn5) or (UnitHealth(dynamicUnit.dyn5) >= 400*UnitHealthMax("player")/100)) then
+				if castSpell("player",_Seraphim,true,false) then 
+					return true
+				end
+			end
+		end
+		return false
+	end
+
+	-- DivineProtection(Ret)
+	function castDivineProtection()
+		if isChecked("Divine Protection") and getHP("player") <= getValue("Divine Protection") then
+			if castSpell("player",_DivineProtection,true) then
+				return
+			end
+		end
+	end
+
+	-- exorcist support both glyphed and not glyphed
+	function castExorcism()
+		if hasGlyph(122028) then
+			if castSpell(dynamicUnit.dyn5,_MassExorcism,false,false) then
+				return
+			end
+		else
+			if castSpell(dynamicUnit.dyn30,_Exorcism,false,false) then
+				return
+			end
+		end
+	end
+
+	function castDivineStorm()
+		if castSpell(dynamicUnit.dyn5,_DivineStorm,false,false) then
+	  		return
+	  	end
+	end
+
+	function castTemplarsVerdict()
+		if castSpell(dynamicUnit.dyn5,_TemplarsVerdict,false,false) then 
+			return
+		end
+	end
+
+	function castMultiHammerOfWrath()
+		for i = 1, #enemiesTable do
+			-- define thisUnit
+			local thisUnit = enemiesTable[i]
+			-- if
+			if (thisUnit.hp and (thisUnit.hp <= 20) or getBuffRemain("player",_AvengingWrath) > 0) and getFacing("player",thisUnit.unit) == true then
+				if castSpell(thisUnit.unit,_HammerOfWrath,false,false) then 
+					return
+				end
+			end
+		end
+	end
+
+	function castHolyPrism(unit,facing)
+		if castSpell(unit,_HolyPrism,facing,false) then 
+			return
+		end
+	end
+
+	function castCrusaderStrike()
+		if castSpell(dynamicUnit.dyn5,_CrusaderStrike,false,false) then 
+			return
+		end		
+	end
+
+	function castHammerOfTheRighteous()
+		if castSpell(dynamicUnit.dyn5,_HammerOfTheRighteous,false,false) then
+			return
+		end
 	end
 end
