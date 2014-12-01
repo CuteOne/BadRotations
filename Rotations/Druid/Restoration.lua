@@ -129,6 +129,7 @@ function DruidRestoration()
 		end
 	end
 -- Stop Cast HealingToch
+
 if isChecked("Overhealing Cancel") and (isChecked("Healing Touch") or isChecked("Healing Touch Tank")) then
 	if isCastingSpell(5185) then
 	if (getLowAllies(60) > 1 
@@ -141,8 +142,8 @@ if isChecked("Overhealing Cancel") and (isChecked("Healing Touch") or isChecked(
 
 --[[ 	-- On GCD After here, palce out of combats spells here
 ]]
-	if isCastingDruid() then return false; end
-	if isCastingSpell(740) then return false; end
+	if castingUnit() then return false end
+	if isCastingSpell(740) then return false end
 
 --[[ 	-- Combats Starts Here
 ]]
