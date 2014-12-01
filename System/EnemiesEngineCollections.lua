@@ -18,7 +18,7 @@ function SlashCmdList.dumpInfo(msg, editbox)
                         targetInfo.castType = castOrChan
                     end
                 end
-            end            
+            end
             local buff1 = UnitBuff("target",1)
             local buff2 = UnitBuff("target",2)
             local deBuff1 = UnitBuff("target",1)
@@ -43,8 +43,8 @@ function SlashCmdList.dumpInfo(msg, editbox)
 end
 
 -- in order to better handle the spells we will need to read spells beign casted from reader rather than scanning for it
--- we will need to find a way to match casters with units in the enemeiesTable probably trough GUID 
--- and add the values live via the handler we will already scan our list of interuptCandidates and only add them to the 
+-- we will need to find a way to match casters with units in the enemeiesTable probably trough GUID
+-- and add the values live via the handler we will already scan our list of interuptCandidates and only add them to the
 -- spellCastersTable once and then profile side we will deploy functions to read the table.
 
 -- burnUnitCandidates = List of UnitID/Names we should have highest prio on.
@@ -53,7 +53,7 @@ burnUnitCandidates = {
     { unitID = 71603 }, -- immersus ooze, kill on sight
     -- Shadowmoon Burial Grounds
     { unitID = 75966 }, -- Defiled Spirit, need to be cc and snared and is not allowed to reach boss.
-    { unitID = 75899 }, -- Possessed Soul, 
+    { unitID = 75899 }, -- Possessed Soul,
     { unitID = 76518 }, -- Ritual of Bones, marked one... Todo: Can we check if mobs is marked with skull?
     -- Auchindon
     { unitID = 77812 }, -- Sargerei Souldbinder, cast a MC
@@ -62,11 +62,11 @@ burnUnitCandidates = {
     -- UBRS
     { unitID = 76222}, -- Rallying Banner
     { unitID = 163061}, -- Windfury Totem
-} 
+}
 
 -- doNotTouchUnitCandidates - List of units that we should not attack for any reason
 -- can declare more filters: buff, debuff
-doNotTouchUnitCandidates = { 
+doNotTouchUnitCandidates = {
     -- Iron Docks
     { unitID = 87451,   buff = 164504, spell = 164426 }, --Fleshrender Nok'gar, do not attack during defensive stance buff, Todo: Should stop when he cast 164504
     { unitID = 1,       buff = 163689 }, -- Never attack Sanguine Sphere
@@ -94,7 +94,7 @@ crowdControlCandidates = {
 -- Units with spells that should be interrupted if possible. Good to have units so we can save interrupting spells when targeting them.
 interruptCandidates = {
     -- Shadowmoon Burial Grounds
-    { unitID = 75652, spell = 152964 }, -- Void Spawn casting Void Pulse, trash mobs 
+    { unitID = 75652, spell = 152964 }, -- Void Spawn casting Void Pulse, trash mobs
     { unitID = 76446, spell = 156776 }, -- Shadowmoon Enslavers channeling Rending Voidlash
     { unitID = 76104, spell = 156717 }, -- Monstrous Corpse Spider casting Death Venom
     --Auchindon
@@ -110,7 +110,7 @@ interruptCandidates = {
     { unitID = 86330, spell = 156857 }, -- Rain Of Fire
     { unitID = 86330, spell = 164846 }, -- Chaos Bolt
     { unitID = 86330, spell = 156963 }, -- Incenerate
-    --Grimral Depot 
+    --Grimral Depot
     { unitID = 82579, spell = 166335 }, -- Storm Shield
     -- UBRS
     { unitID = 76101, spell = 155504 }, -- Debiliting Ray
@@ -118,9 +118,9 @@ interruptCandidates = {
     { unitID = 77037, spell = 167259 }, -- Intimidating shout
     { unitID = 77036, spell = 169151 }, -- Summon Black Iron Veteran
     -- proving ground DPS
-    { unitID = 0, spell = 142238 }, -- Illusionary Mystic (Heal) 
+    { unitID = 0, spell = 142238 }, -- Illusionary Mystic (Heal)
     --{ unitID = 0, spell= 142190} -- Amber Sphere
-} 
+}
 
 -- List of units that are hitting hard, ie when its good to use defensive CDs
 dangerousUnits  = {
@@ -162,8 +162,3 @@ longTimeCC = {
     115268, -- Warlock - Mesmerize
     6358,   -- Warlock - Seduction
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
-
