@@ -182,6 +182,9 @@ function FeralCatConfig()
             checkOp("Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.");
             textOp("Auto Shapeshifts");
 
+            -- Mouseover Targeting
+            checkOp("Mouseover Targeting","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFmouseover target validation.|cffFFBB00.");
+            textOp("Mouseover Targeting");
 
         -- Spacer
         textOp(" ");
