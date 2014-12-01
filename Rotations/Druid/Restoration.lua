@@ -412,25 +412,25 @@ if isChecked("Overhealing Cancel") and (isChecked("Healing Touch") or isChecked(
 		--[[ 16 - reju All Tol --(use reju on all with out health check only Reju buff check)]]
 		if isKnown(33891) and isChecked("Rejuvenation All Tol") and UnitBuffID("player", 33891) and canCast(774,false,false) then
 	        for i = 1, #nNova do
-		       	if nNova[i].hp < 249 and getBuffRemain(nNova[i].unit,774,"player") == 0 then
+		       	if nNova[i].hp < 249 and getBuffRemain(nNova[i].unit,774,"player") < 2 then
 			        if castSpell(nNova[i].unit,774,true,false) then return; end
 		        end
 	        end
 		end
         --[[ 36 - Germination all]]
-		if isKnown(155675) and isChecked("Germination All Tol") and canCast(774,false,false) then
+		if isKnown(155675) and isChecked("Germination All Tol") and canCast(774,false,false) and UnitBuffID("player", 33891) then
    			for i = 1, #nNova do
     			if nNova[i].hp < 249 
-				and getBuffRemain(nNova[i].unit,774,"player") > 0 and getBuffRemain(nNova[i].unit,155777,"player") == 0 then
+				and getBuffRemain(nNova[i].unit,774,"player") >= 1 and getBuffRemain(nNova[i].unit,155777,"player") < 2 then
      				if castSpell(nNova[i].unit,774,true,false) then return; end
     			end
    			end
   		end
 		--[[ 36 - Germination Tol]]
-		if isKnown(155675) and isChecked("Germination Tol") and canCast(774,false,false) and lowestTankHP < getValue("Germination Tol") then
+		if isKnown(155675) and isChecked("Germination Tol") and canCast(774,false,false) and lowestHP < getValue("Germination Tol") and UnitBuffID("player", 33891) then
    			for i = 1, #nNova do
     			if nNova[i].hp <= getValue("Germination Tol") 
-				and getBuffRemain(nNova[i].unit,774,"player") > 0 and getBuffRemain(nNova[i].unit,155777,"player") == 0 then
+				and getBuffRemain(nNova[i].unit,774,"player") >= 1 and getBuffRemain(nNova[i].unit,155777,"player") < 2 then
      				if castSpell(nNova[i].unit,774,true,false) then return; end
     			end
    			end
@@ -439,7 +439,7 @@ if isChecked("Overhealing Cancel") and (isChecked("Healing Touch") or isChecked(
 		--[[ 18 - reju Tol --( use reju on player with health check if not lifebloom tol check)]]
 		if isKnown(33891)  and UnitBuffID("player", 33891) and canCast(774,false,false) and lowestHP < getValue("Rejuvenation Tol") then
 	        for i = 1, #nNova do
-		       	if nNova[i].hp <= getValue("Rejuvenation Tol") and getBuffRemain(nNova[i].unit,774,"player") == 0 then
+		       	if nNova[i].hp <= getValue("Rejuvenation Tol") and getBuffRemain(nNova[i].unit,774,"player") < 2 then
 			        if castSpell(nNova[i].unit,774,true,false) then return; end
 		        end
 	        end
@@ -456,18 +456,7 @@ if isChecked("Overhealing Cancel") and (isChecked("Healing Touch") or isChecked(
 			end
 		end
 	end
-
-      
-		
-		--[[ 20 - Regrowth --(cast regrowth on all usualy between 30 - 40)]]
-		if isChecked("Regrowth") and isStanding(0.3) and canCast(8936,false,true) and lowestHP <= getValue("Regrowth") then
-			for i = 1, #nNova do
-				if nNova[i].hp <= getValue("Regrowth") then
-					if castSpell(nNova[i].unit,8936,true) then return; end
-				end
-			end
-		end
---[[ 21 - Regrowth Tank --(cast regrowth on tank usualy between 45 - 60 )]]
+   --[[ 21 - Regrowth Tank --(cast regrowth on tank usualy between 45 - 60 )]]
 		if isChecked("Regrowth Tank") and isStanding(0.3) and canCast(8936,false,true) and lowestTankHP <= getValue("Regrowth Tank") then
 			for i = 1, #nNova do
 				if (nNova[i].role == "TANK" and nNova[i].hp <= getValue("Regrowth Tank")) then
@@ -484,8 +473,8 @@ if isChecked("Overhealing Cancel") and (isChecked("Healing Touch") or isChecked(
 			end
 		end
          --[[ 34 - OmenRegrowth--()]]
-		if isChecked("Regrowth Omen") and isStanding(0.3) and UnitBuffID("player",16870) and canCast(8936,false,false) and lowestHP < getValue("Regrowth Omen") and getLowAllies(70) < 3 then
-			for i = 1, #nNova do
+		if isChecked("Regrowth Omen") and isStanding(0.3) and UnitBuffID("player",16870) and canCast(8936,false,false) and lowestHP < getValue("Regrowth Omen") and getLowAllies(80) < 3 then
+		for i = 1, #nNova do
 				if nNova[i].hp <= getValue("Regrowth Omen") then
 					if castSpell(nNova[i].unit,8936,true) then return; end
 				end
@@ -496,7 +485,7 @@ if isChecked("Overhealing Cancel") and (isChecked("Healing Touch") or isChecked(
 			if UnitAffectingCombat("player") and isChecked("Swiftmend Harmoney") then
 				if getBuffRemain("player", 100977) < 3 then
                for i = 1, #nNova do
-				if (getBuffRemain(nNova[i].unit,774,"player") > 1 or getBuffRemain(nNova[i].unit,8936,"player") > 1) and getSpellCD(18562) == 0 then
+				if (getBuffRemain(nNova[i].unit,774,"player") > 0 or getBuffRemain(nNova[i].unit,8936,"player") > 1) and getSpellCD(18562) == 0 then
 						-- Swiftmend
 						CastSpellByName(GetSpellInfo(18562),nNova[i].unit) return true
 						--if castSpell(nNova[i].unit,18562,true,false) then return; end
@@ -540,9 +529,9 @@ if isChecked("Overhealing Cancel") and (isChecked("Healing Touch") or isChecked(
 			end
 		end
 
-		--[[ 25 - WildGrowth--(Use with health and player count check)]]
+--[[ 25 - WildGrowth--(Use with health and player count check)]]
 		if isChecked("WildGrowth") and isStanding(0.3) and canCast(48438,false,false) and lowestHP < getValue("WildGrowth") then
-			if isKnown(114107) ~= true and getSpellCD(48438) < 2 then
+			if isKnown(114107) ~= true then
 				for i = 1, #nNova do
 					local allies30Yards = 0;
 					for j = 1, # nNova do
@@ -570,8 +559,15 @@ if isChecked("Overhealing Cancel") and (isChecked("Healing Touch") or isChecked(
 					end
 				end
 			end
+		end	
+--[[ 20 - Regrowth --(cast regrowth on all usualy between 30 - 40)]]
+		if isChecked("Regrowth") and isStanding(0.3) and canCast(8936,false,true) and lowestHP <= getValue("Regrowth") then
+			for i = 1, #nNova do
+				if nNova[i].hp <= getValue("Regrowth") then
+					if castSpell(nNova[i].unit,8936,true) then return; end
+				end
+			end
 		end
-
 	--[[ 18.5 - LifeBloom Fast Swich]]
 		if isChecked("Lifebloom") and canCast(33763,false,false) then
 	    	for i = 1, #nNova do
@@ -606,43 +602,31 @@ if isChecked("Overhealing Cancel") and (isChecked("Healing Touch") or isChecked(
 				if castGround("focus", 145205, 40) then  shroomTimer = GetTime() spellDebug("Shroom Applied to tank for 1st time.") return; end
 			end
 		end
-
-
-
-
-
-
-
-
-
-
-
-
-		--[[ 28 - LifebloomFocus--(Refresh if over treshold)]]
+        --[[ 28 - LifebloomFocus--(Refresh if over treshold)]]
       	if isChecked("Lifebloom") then
 			if not UnitIsDeadOrGhost("focus") and getHP("focus") >= getValue("Lifebloom") and getBuffRemain("focus",33763,"player") < 2
 			and getDistance("player","focus") < 43 and UnitExists("focus") then
 				if castSpell("focus",33763,true,false) then return; end
 			end
 		end
-        --[[ 36 - Germination ]]
-		if isKnown(155675) and isChecked("Germination") and canCast(774,false,false) and lowestTankHP < getValue("Germination") then
-   			for i = 1, #nNova do
-    			if nNova[i].hp <= getValue("Germination") 
-				and getBuffRemain(nNova[i].unit,774,"player") > 0 and getBuffRemain(nNova[i].unit,155777,"player") == 0 then
-     				if castSpell(nNova[i].unit,774,true,false) then return; end
-    			end
-   			end
-  		end
+   
 		--[[ 29 - Rejuvenation--(check health and Buff)]]
-		if isChecked("Rejuvenation") and canCast(774,false,false) and lowestHP < getValue("Rejuvenation") then
+		if isChecked("Rejuvenation") and canCast(774,false,false) and lowestHP <= getValue("Rejuvenation") then
 			for i = 1, #nNova do
-				if nNova[i].hp <= getValue("Rejuvenation") and getBuffRemain(nNova[i].unit,774,"player") == 0 then
+				if nNova[i].hp <= getValue("Rejuvenation") and getBuffRemain(nNova[i].unit,774,"player") < 2 then
 					if castSpell(nNova[i].unit,774,true,false) then return; end
 				end
 			end
 		end
-
+     --[[ 36 - Germination ]]
+		if isKnown(155675) and isChecked("Germination") and canCast(774,false,false) and lowestHP <= getValue("Germination") then
+   			for i = 1, #nNova do
+    			if nNova[i].hp <= getValue("Germination") 
+				and getBuffRemain(nNova[i].unit,774,"player") >= 1 and getBuffRemain(nNova[i].unit,155777,"player") < 2 then
+     				if castSpell(nNova[i].unit,774,true,false) then return; end
+    			end
+   			end
+  		end
 		--[[ Hot Friendly Dot ]]
 		if isChecked("Rejuvenation Debuff") and friendlyDot ~= nil and canCast(774,false,false) and lowestHP < getValue("Rejuvenation Debuff") then
 			for i = 1, #nNova do
@@ -657,19 +641,7 @@ if isChecked("Overhealing Cancel") and (isChecked("Healing Touch") or isChecked(
 				end
 			end
 		end
-
-
-
-
-
-
-
-
-
-
-
-
-		--[[ 31- WildMushroom tank(Replace)]]
+    --[[ 31- WildMushroom tank(Replace)]]
 		if isChecked("Mushrooms") and getValue("Mushrooms Who") == 1 and (shroomTimer == nil or shroomTimer <= GetTime() - 2) and UnitAffectingCombat("player") then
 			if GetUnitSpeed("focus") == 0 and canCast(145205,false,false) then
 				if shroomsTable ~= nil and #shroomsTable ~= 0 and findShroom() then
@@ -680,20 +652,7 @@ if isChecked("Overhealing Cancel") and (isChecked("Healing Touch") or isChecked(
 			end
 		end
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-		--[[ 32 - Rejuvenation all--(if meta proc)(137331 buff id)]]
+   --[[ 32 - Rejuvenation all--(if meta proc)(137331 buff id)]]
 		if isChecked("Rejuvenation Meta") and getBuffRemain("player",137331) > 0 and canCast(774,false,false) then
 			for i = 1, #nNova do
 				if getBuffRemain(nNova[i].unit,774,"player") == 0 and nNova[i].hp <= 100 then
@@ -716,7 +675,7 @@ if isChecked("Overhealing Cancel") and (isChecked("Healing Touch") or isChecked(
 		if isKnown(155675) and isChecked("Germination All") and canCast(774,false,false) then
    			for i = 1, #nNova do
     			if nNova[i].hp < 249 
-				and getBuffRemain(nNova[i].unit,774,"player") > 0 and getBuffRemain(nNova[i].unit,155777,"player") == 0 then
+				and getBuffRemain(nNova[i].unit,774,"player") >= 1 and getBuffRemain(nNova[i].unit,155777,"player") < 2 then
      				if castSpell(nNova[i].unit,774,true,false) then return; end
     			end
    			end
@@ -730,10 +689,10 @@ if isChecked("Overhealing Cancel") and (isChecked("Healing Touch") or isChecked(
 			end
 		end
         --[[ 36 - Germination Tank]]
-		if isKnown(155675) and isChecked("Germination Tank") and canCast(774,false,false) and lowestTankHP < getValue("Rejuvenation Tank") then
+		if isKnown(155675) and isChecked("Germination Tank") and canCast(774,false,false) and lowestTankHP <= getValue("Germination Tank") then
    			for i = 1, #nNova do
     			if (nNova[i].role == "TANK" or UnitGroupRolesAssigned(nNova[i].unit) == "TANK") and nNova[i].hp <= getValue("Germination Tank") 
-				and getBuffRemain(nNova[i].unit,774,"player") > 0 and getBuffRemain(nNova[i].unit,155777,"player") == 0 then
+				and getBuffRemain(nNova[i].unit,774,"player") >= 1 and getBuffRemain(nNova[i].unit,155777,"player") < 2 then
      				if castSpell(nNova[i].unit,774,true,false) then return; end
     			end
    			end
@@ -741,9 +700,9 @@ if isChecked("Overhealing Cancel") and (isChecked("Healing Touch") or isChecked(
 
 
 		--[[ 36 - Rejuvenation Tank]]
-		if isChecked("Rejuvenation Tank") and canCast(774,false,false) and lowestTankHP < getValue("Rejuvenation Tank") then
+		if isChecked("Rejuvenation Tank") and canCast(774,false,false) and lowestTankHP <= getValue("Rejuvenation Tank") then
    			for i = 1, #nNova do
-    			if (nNova[i].role == "TANK" or UnitGroupRolesAssigned(nNova[i].unit) == "TANK") and nNova[i].hp <= getValue("Rejuvenation Tank") and getBuffRemain(nNova[i].unit,774,"player") == 0 then
+    			if (nNova[i].role == "TANK" or UnitGroupRolesAssigned(nNova[i].unit) == "TANK") and nNova[i].hp <= getValue("Rejuvenation Tank") and getBuffRemain(nNova[i].unit,774,"player") < 2 then
      				if castSpell(nNova[i].unit,774,true,false) then return; end
     			end
    			end
@@ -768,7 +727,7 @@ if isChecked("Overhealing Cancel") and (isChecked("Healing Touch") or isChecked(
 			end
 			if numberRejuvUps < getValue("Rejuv Filler Count") then
 				for i = 1, #nNova do
-					if nNova[i].hp < 249 and getBuffRemain(nNova[i].unit,774,"player") == 0 then
+					if nNova[i].hp < 249 and getBuffRemain(nNova[i].unit,774,"player") < 2 then
 						if castSpell(nNova[i].unit,774,true,false) then return; end
 					end
 				end
@@ -777,7 +736,7 @@ if isChecked("Overhealing Cancel") and (isChecked("Healing Touch") or isChecked(
 	  
 	 
 	  -- Healing Touch -- Harmoney
-if isChecked("Healing Touch") and isStanding(0.3) and canCast(5185,false,true) then	 
+if isChecked("HT Harmoney") and isStanding(0.3) and canCast(5185,false,true) then	 
 	if getBuffRemain("player", 100977) < 5 then
 	for i = 1, #nNova do
 				if nNova[i].hp <= 249 then
@@ -788,7 +747,7 @@ if isChecked("Healing Touch") and isStanding(0.3) and canCast(5185,false,true) t
 	  end
 	  --[[ 19 - Healing Touch --(cast Healing Touch on all usualy between 70 - 90)]]
 		if isChecked("Healing Touch") and isStanding(0.3) and canCast(5185,false,true) and lowestHP <= getValue("Healing Touch") then
-			if (lowestHP > getValue("Regrowth Tank") or lowestHP > getValue("Regrowth")) then
+			if (lowestHP > getValue("Regrowth") and getLowAllies(60) < 2) then
 			for i = 1, #nNova do
 				if nNova[i].hp <= getValue("Healing Touch") then
 					if castSpell(nNova[i].unit,5185,true) then return; end
@@ -798,7 +757,7 @@ if isChecked("Healing Touch") and isStanding(0.3) and canCast(5185,false,true) t
 		end
 		--[[ 19.5 - Healing Touch Tank --(cast Healing Touch on tank usualy between 60 - 90 )]]
 		if isChecked("Healing Touch Tank") and isStanding(0.3) and canCast(5185,false,true) and lowestTankHP <= getValue("Healing Touch Tank") then
-			if (lowestHP > getValue("Regrowth Tank") or lowestHP > getValue("Regrowth")) then
+			if (lowestHP > getValue("Regrowth Tank") and getLowAllies(60) < 2) then
 			for i = 1, #nNova do
 				if (nNova[i].role == "TANK" and nNova[i].hp <= getValue("Healing Touch Tank")) then
 					if castSpell(nNova[i].unit,5185,true) then return; end
