@@ -59,6 +59,9 @@ burnUnitCandidates = {
     { unitID = 77812 }, -- Sargerei Souldbinder, cast a MC
     -- Grimrail Depot
     { unitID = 80937 }, -- Gromkar Gunner
+    -- UBRS
+    { unitID = 76222}, -- Rallying Banner
+    { unitID = 163061}, -- Windfury Totem
 } 
 
 -- doNotTouchUnitCandidates - List of units that we should not attack for any reason
@@ -78,9 +81,14 @@ crowdControlCandidates = {
     -- Grimrail Depot
     { unitID = 81236, spell = 163966 }, -- Grimrail Technicians channeling Activating
     { unitID = 80937, spell = 1 }, -- Gromkar Gunner
+    -- UBRS
+    { unitID = 76157, spell = 1 }, -- Black Iron Leadbelcher, activates canon, should be when/if moving
+    { unitID = 76935, spell = 1 }, -- Black Iron Drake-Keeper, should be stunned/cc when running towards whelps
+
     -- Proven Ground
     { unitID = 71414, buff = 142639 }, -- Banana Tosser(Large)
     { unitID = 71415, buff = 142639 }, -- Banana Tosser(Small)
+
 }
 
 -- Units with spells that should be interrupted if possible. Good to have units so we can save interrupting spells when targeting them.
@@ -104,6 +112,11 @@ interruptCandidates = {
     { unitID = 86330, spell = 156963 }, -- Incenerate
     --Grimral Depot 
     { unitID = 82579, spell = 166335 }, -- Storm Shield
+    -- UBRS
+    { unitID = 76101, spell = 155504 }, -- Debiliting Ray
+    { unitID = 76021, spell = 161199 }, -- Debiliting Fixation from Kyrak
+    { unitID = 77037, spell = 167259 }, -- Intimidating shout
+    { unitID = 77036, spell = 169151 }, -- Summon Black Iron Veteran
     -- proving ground DPS
     { unitID = 0, spell = 142238 }, -- Illusionary Mystic (Heal) 
     --{ unitID = 0, spell= 142190} -- Amber Sphere
@@ -123,14 +136,12 @@ dangerousUnits  = {
 dispellOffensiveBuffs = {
     -- Auchindon
     160312, -- Void Shell
+    -- UBRS
+    153909, -- Frenzy
+    161203, -- Rejuvenating Serum
+    81173,  -- Frenzy
 }
 
-<<<<<<< HEAD
-
-
-
-
-=======
 longTimeCC = {
     339,    -- Druid - Entangling Roots
     102359, -- Druid - Mass Entanglement
@@ -151,5 +162,5 @@ longTimeCC = {
     115268, -- Warlock - Mesmerize
     6358,   -- Warlock - Seduction
 }
->>>>>>> origin/master
+
 
