@@ -17,11 +17,10 @@ if select(3, UnitClass("player")) == 11 then
 --------------
 		if leftCombat == nil then leftCombat = GetTime() end
 		-- General Player Variables
-		local profileStop = profileStop
 		local lootDelay = getValue("LootDelay")
 		local hasMouse = UnitExists("mouseover")
 		local deadMouse = UnitIsDeadOrGhost("mouseover")
-		local playerMouse = UnitIsPlayer("mouseover")
+		local personMouse = UnitIsPlayer("mouseover")
 		local level = UnitLevel("player")
 		local php = getHP("player")
 		local power, powmax, powgen = getPower("player"), UnitPowerMax("player"), getRegen("player")
@@ -37,7 +36,7 @@ if select(3, UnitClass("player")) == 11 then
 			["dyn13"] = dynamicTarget(13,true), --Skull Bash
 			["dyn40AoE"] = dynamicTarget(40,false), --Cat Form/Moonfire
 		}
-		local deadtar, attacktar, hastar, playertar = deadtar, attacktar, hastar, UnitIsPlayer("target")
+		local deadtar, attacktar, hastar = deadtar, attacktar, hastar
 			if deadtar == nil then deadtar = UnitIsDeadOrGhost("target") end
 			if attacktar == nil then attacktar = UnitCanAttack("target", "player") end
 			if hastar == nil then hastar = UnitExists("target") end
@@ -89,31 +88,17 @@ if select(3, UnitClass("player")) == 11 then
 --------------------------------------------------
 --- Ressurection/Dispelling/Healing/Pause/Misc ---
 --------------------------------------------------
-	-- Profile Stop
-		if isInCombat("player") and profileStop==true then
-			return true
-		else
-			profileStop=false
-		end
 	--Revive/Rebirth
-		if isChecked("Mouseover Targeting") and hasMouse and deadMouse and playerMouse then
+		if hasMouse and deadMouse and personMouse then
 			if isInCombat("player") and rbCooldown==0 and psRemain>0 then
-				if castSpell("mouseover",rb,true,true,false,false,true) then return end
+				if castSpell("mouseover",rb,true,false,false) then return end
 			elseif not isInCombat("player") then
-				if castSpell("mouseover",rv,true,true,false,false,true) then return end
-			end
-		elseif hastar and deadtar and playertar then
-			if isInCombat("player") and rbCooldown==0 and psRemain>0 then
-				if castSpell("target",rb,true,false,false,false,true) then return end
-			elseif not isInCombat("player") then
-				if castSpell("target",rv,true,false,false,false,true) then return end
+				if castSpell("mouseover",rv,true,false,false) then return end
 			end
 		end
 	-- Remove Corruption
-		if isChecked("Mouseover Targeting") and hasMouse and playerMouse and canDispel("mouseover",rc) then
+		if hasMouse and personMouse and canDispel("mouseover",rc) then
 			if castSpell("mouseover",rc,true,false,false) then return end
-		elseif hastar and playertar and canDispel("target",rc) then
-			if castSpell("target",rc,true,false,false) then return end
 		end
 		if canDispel("player",rc) then
 			if castSpell("player",rc,true,false,false) then return end
@@ -192,9 +177,7 @@ if select(3, UnitClass("player")) == 11 then
 	        if isChecked("Mark of the Wild") and not hasmouse and not (IsFlying() or IsMounted()) then
 	            for i = 1, #members do --members
 	                if not isBuffed(members[i].Unit,{115921,20217,1126,90363,159988,160017,160077}) 
-	                	and (#nNova==select(5,GetInstanceInfo()) 
-	                		or select(2,IsInInstance())=="none" 
-	                		or (select(2,IsInInstance())=="party" and not UnitInParty("player")))
+	                	and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") 
 	                then
 	                    if castSpell("player",mow,true,false,false) then return end
 	                end
@@ -254,7 +237,6 @@ if select(3, UnitClass("player")) == 11 then
 			if hastar and attacktar and not isInCombat("player") and cat 
 				and ((not (IsMounted() or IsFlying() or friendly)) or isDummy()) 
 			then
-				messaged=0
 		-- Prowl
 		        if useProwl() and not stealth 
 		        	and (UnitExists(dynamicUnit.dyn20AoE) or isKnown(eprl)) and GetTime()-leftCombat > lootDelay 
@@ -284,7 +266,6 @@ if select(3, UnitClass("player")) == 11 then
 				if isChecked("DPS Testing") then
 					if UnitExists("target") then
 						if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
-							profileStop = true
 							StopAttack()
 							ClearTarget()
 							print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
@@ -640,7 +621,7 @@ if select(3, UnitClass("player")) == 11 then
 			    end --not stealth end
 			end --In Combat End
 	-- Start Attack
-			if UnitExists(dynamicUnit.dyn5) and not stealth and isInCombat("player") and cat and profileStop==false then
+			if UnitExists(dynamicUnit.dyn5) and not stealth and isInCombat("player") and cat then
 				StartAttack()
 			end
 		end
