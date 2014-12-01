@@ -3,19 +3,6 @@
 if not metaTable1 then
 
 	local _MyClass = select(3,UnitClass("player"));
-	local HealingRangeSpell = {
-		0, -- 1 - Warrior
-		0, -- 2 - Paladin
-		34477, -- 3 - Hunter(Misdirection)
-		0, -- 4 - Rogue
-		0, -- 5 - Priest
-		0, -- 6 - Deathknight
-		0, -- 7 - Shaman
-		0, -- 8 - Mage
-		0, -- 9 - Warlock
-		0, -- 10 - Monk
-		5185 -- 11 - Druid(Healing Touch)
-	};
 
 	-- localizing the commonly used functions while inside loops
 	local getDistance, GetSpellInfo, tinsert, tremove, UnitDebuff, UnitHealth, UnitHealthMax, UnitExists, UnitGUID = getDistance, GetSpellInfo, tinsert, tremove, UnitDebuff, UnitHealth, UnitHealthMax, UnitExists, UnitGUID
@@ -23,66 +10,6 @@ if not metaTable1 then
 	memberSetup = {} -- This is one of our MetaTables that will be the default user/contructor
 	memberSetup.cache = { } -- This is for the cache Table to check against
 	metaTable1 = {} -- This will be the MetaTable attached to our Main Table that the world will see
-	local DispelID = {
-		{ id = 143579, stacks = 3 }, -- Immersius
-		{ id = 143434, stacks = 3 }, -- Fallen Protectors
-		{ id = 144514, stacks = 0 }, -- Norushen
-		{ id = 144351, stacks = 0 }, -- Sha of Pride
-		{ id = 146902, stacks = 0 }, -- Galakras(Korga Poisons)
-		{ id = 143432, stacks = 0 }, -- General Nazgrim
-		{ id = 142913, stacks = 0, range = 10}, -- Malkorok(Displaced Energy)
-		{ id = 115181, stacks = 0 }, -- Spoils of Pandaria(Breath of Fire)
-		{ id = 143791, stacks = 0 }, -- Thok(Corrosive Blood)
-
-		{ id = 145206, stacks = 0 }, -- Aqua Bomb(Proving Grounds)
-		{ id = 8050, stacks = 0 } -- Flame Shock
-	}; -- This is for the Dispel Check, all Debuffs we don't want dispelled go here
-	local BadDebuffList= {
-		104451, -- Ice Tomb
-		76577,-- Smoke Bomb
-		121949, -- Parasistic Growth
-		122784, -- Reshape Life
-		122370, -- Reshape Life 2
-		123184, -- Dissonance Field
-		123255, -- Dissonance Field 2
-		123596, -- Dissonance Field 3
-		128353, -- Dissonance Field 4
-	  
-	} -- This is where we house the Debuffs that are bad for our users, and should not be healed when they have it
-	local SpecialHealUnitList = {
-		[65078] = "Meng Meng",
-		[69334] = "That Panda there",
-		[71604] = "Immersus Oozes" ,
-		[6459] = "Boss#3 SoO",
-		[6460] = "Boss#3 SoO",
-		[6464] = "Boss#3 SoO"
-	};
-	local SavedSpecialTargets = {
-		["target"] = nil,
-		["mouseover"] = nil,
-		["focus"] = nil,
-	};
-
-	local DebuffToTop = {
-		145263, -- Proving Grounds Healer Debuff.
-	};
-
-
-	local SpecificHPDebuffs = {
-		{ debuff = 145263 , value = 20 }, -- Proving Grounds Healer Debuff.
-		{ debuff = 145832 , value = 250 },
-    	{ debuff = 145171 , value = 250 },
-    	{ debuff = 145065 , value = 250 },
-    	{ debuff = 145071 , value = 250 },
-
-	};
-
-	local roleTable = {
-		["Oto the Protector"] = "TANK",
-		["Sooli the Survivalist"] = "DPS",
-		["Ki the Assassin"] = "DPS",
-		["Kavan the Arcanist"] = "DPS",
-	};
 
 	metaTable1.__call = function(_, ...) -- (_, forceRetable, excludePets, onlyInRange) [Not Implemented]
 		local group =  IsInRaid() and "raid" or "party" -- Determining if the UnitID will be raid or party based
@@ -122,8 +49,8 @@ if not metaTable1 then
 
 	-- This is for those NPC units that need healing. Compare them against our list of Unit ID's
 	local function SpecialHealUnit(tar)
-		for i=1, #SpecialHealUnitList do
-			if getGUID(tar) == SpecialHealUnitList[i] then
+		for i=1, #novaEngineTables.SpecialHealUnitList do
+			if getGUID(tar) == novaEngineTables.SpecialHealUnitList[i] then
 				return true
 			end
 		end
@@ -131,9 +58,9 @@ if not metaTable1 then
 
 	-- We are checking if the user has a Debuff we either can not or don't want to heal them
 	local function CheckBadDebuff(tar)
-		for i=1, #BadDebuffList do
-			if UnitDebuff(tar, GetSpellInfo(BadDebuffList[i])) or 
-			UnitBuff(tar, GetSpellInfo(BadDebuffList[i]))
+		for i=1, #novaEngineTables.BadDebuffList do
+			if UnitDebuff(tar, GetSpellInfo(novaEngineTables.BadDebuffList[i])) or 
+			UnitBuff(tar, GetSpellInfo(novaEngineTables.BadDebuffList[i]))
 			then
 				return false
 			end
@@ -156,7 +83,7 @@ if not metaTable1 then
 		  and UnitReaction("player",tar) > 4
 		  and not UnitIsDeadOrGhost(tar)
 		  and UnitIsConnected(tar))
-		  or SpecialHealUnitList[tonumber(select(2,getGUID(tar)))] ~= nil	or (isChecked("Heal Pets") == true and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
+		  or novaEngineTables.SpecialHealUnitList[tonumber(select(2,getGUID(tar)))] ~= nil	or (isChecked("Heal Pets") == true and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
 		  and CheckBadDebuff(tar)
 		  and CheckCreatureType(tar)
 		  and getLineOfSight("player", tar)
@@ -175,15 +102,15 @@ if not metaTable1 then
 
 		-- This is the function for Dispel checking built into the player itself.
 		function o:Dispel()
-			for i = 1, #DispelID do
-				if UnitDebuff(o.unit,GetSpellInfo(DispelID[i].id)) ~= nil and DispelID[i].id ~= nil then
-					if select(4,UnitDebuff(o.unit,GetSpellInfo(DispelID[i].id))) >= DispelID[i].stacks then
-						if DispelID[i].range ~= nil then
-							if #getAllies(o.unit,DispelID[i].range) > 1 then
-								return false;
+			for i = 1, #novaEngineTables.DispelID do
+				if UnitDebuff(o.unit,GetSpellInfo(novaEngineTables.DispelID[i].id)) ~= nil and novaEngineTables.DispelID[i].id ~= nil then
+					if select(4,UnitDebuff(o.unit,GetSpellInfo(novaEngineTables.DispelID[i].id))) >= novaEngineTables.DispelID[i].stacks then
+						if novaEngineTables.DispelID[i].range ~= nil then
+							if #getAllies(o.unit,novaEngineTables.DispelID[i].range) > 1 then
+								return false
 							end
 						end
-						return true;
+						return true
 					end
 				end
 			end
@@ -224,22 +151,20 @@ if not metaTable1 then
 			end
 
 			-- Debuffs HP compensation
-			for i = 1, #SpecificHPDebuffs do
-				if UnitDebuffID(o.unit, SpecificHPDebuffs[i].debuff) ~= nil then
-					--if PercentWithIncoming > SpecificHPDebuffs[i].value then
-						PercentWithIncoming = PercentWithIncoming - SpecificHPDebuffs[i].value;
-					--end
+			for i = 1, #novaEngineTables.SpecificHPDebuffs do
+				if UnitDebuffID(o.unit, novaEngineTables.SpecificHPDebuffs[i].debuff) ~= nil then
+					PercentWithIncoming = PercentWithIncoming - novaEngineTables.SpecificHPDebuffs[i].value
 				end
 			end
 			if isChecked("Blacklist") == true and BadBoy_data.blackList ~= nil then
 				for i = 1, #BadBoy_data.blackList do
 					if o.guid == BadBoy_data.blackList[i].guid then
-						PercentWithIncoming, ActualWithIncoming, nAbsorbs = PercentWithIncoming + getValue("Blacklist") , ActualWithIncoming + getValue("Blacklist") , nAbsorbs + getValue("Blacklist");
+						PercentWithIncoming, ActualWithIncoming, nAbsorbs = PercentWithIncoming + getValue("Blacklist") , ActualWithIncoming + getValue("Blacklist") , nAbsorbs + getValue("Blacklist")
 						break;
 					end
 				end
 			end
-			return PercentWithIncoming, ActualWithIncoming, nAbsorbs;
+			return PercentWithIncoming, ActualWithIncoming, nAbsorbs
 		end
 
 		function o:nGUID()
@@ -254,12 +179,12 @@ if not metaTable1 then
 		-- Updating the values of the Unit
 		function o:UpdateUnit()
 			o.name = UnitName(o.unit) -- return Name of unit
-			o.guid = o:nGUID(); -- return real GUID of unit
+			o.guid = o:nGUID() -- return real GUID of unit
 
-			local roleFinder = roleFinder;
+			local roleFinder = roleFinder
 			if UnitGroupRolesAssigned(o.unit) == "NONE" then
-				if roleTable[UnitName(o.unit)] ~= nil then
-					o.role = roleTable[UnitName(o.unit)];
+				if novaEngineTables.roleTable[UnitName(o.unit)] ~= nil then
+					o.role = novaEngineTables.roleTable[UnitName(o.unit)]
 				end
 			else
 				o.role = UnitGroupRolesAssigned(o.unit)
@@ -267,9 +192,9 @@ if not metaTable1 then
 			o.guidsh = select(2, o:nGUID()) -- Short GUID of unit for the SetupTable
 			o.dispel = o:Dispel(o.unit) -- return true if unit should be dispelled
 			o.threat = UnitThreatSituation(o.unit) -- Unit's threat situation(1-4)
-			o.hp = o:CalcHP(); -- Unit HP
-			o.absorb = select(3, o:CalcHP()); -- Unit Absorb
-			o.target = tostring(o.unit).."target"; -- Target's target
+			o.hp = o:CalcHP() -- Unit HP
+			o.absorb = select(3, o:CalcHP()) -- Unit Absorb
+			o.target = tostring(o.unit).."target" -- Target's target
 			memberSetup.cache[select(2, getGUID(o.unit))] = o -- Add unit to SetupTable
 		end
 
@@ -308,7 +233,7 @@ if not metaTable1 then
 							end
 						end
 						tinsert(nNova, SpecialCase)
-						SavedSpecialTargets[SpecialTargets[p]] = select(2,getGUID(SpecialTargets[p]))
+						novaEngineTables.SavedSpecialTargets[SpecialTargets[p]] = select(2,getGUID(SpecialTargets[p]))
 					end
 				end
 			end

@@ -105,167 +105,169 @@ if select(3, UnitClass("player")) == 2 then
 		-- call_action_list,name=cleave,if=active_enemies>=3
 		-- call_action_list,name=single
 		--[[Single(1-2)]]
-		-- Divine Storm
-		-- divine_storm,if=buff.divine_crusader.react&holy_power=5&buff.final_verdict.up
-		if (buffDivineCrusader > 0 and _HolyPower == 5 and buffFinalVerdict > 0)
-		  -- divine_storm,if=buff.divine_crusader.react&holy_power=5&active_enemies=2&!talent.final_verdict.enabled
-		  or (buffDivineCrusader > 0 and _HolyPower == 5 and meleeEnemies == 2)
-		  -- divine_storm,if=holy_power=5&active_enemies=2&buff.final_verdict.up
-		  or (_HolyPower == 5 and meleeEnemies == 2 and buffFinalVerdict > 0)
-		  -- divine_storm,if=buff.divine_crusader.react&holy_power=5&(talent.seraphim.enabled&cooldown.seraphim.remains<=4)
-		  or (_HolyPower == 5 and meleeEnemies == 2 and isKnown(_Seraphim) and getSpellCD(_Seraphim) <= 4) then
-		  	castDivineStorm()
-		end
-		-- templars_verdict,if=holy_power=5|buff.holy_avenger.up&holy_power>=3&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
-		if _HolyPower == 5 
-		  or ((buffHolyAvenger and _HolyPower >= 3) and (not isKnown(_Seraphim) or getSpellCD(_Seraphim) > 4))
-		  -- templars_verdict,if=buff.divine_purpose.react&buff.divine_purpose.remains<4
-		  or (buffDivinePurpose > 0 and buffDivinePurpose < 4) then
-		  	castTemplarsVerdict()
-		end
-		-- divine_storm,if=buff.divine_crusader.react&buff.divine_crusader.remains<4&!talent.final_verdict.enabled
-		if buffDivineCrusader and buffDivineCrusader < 4 and not isKnown(_FinalVerdict) then
-		  	castDivineStorm()
-		end		
+		if meleeEnemies < 3 then
+			-- divine_storm,if=buff.divine_crusader.react&holy_power=5&buff.final_verdict.up
+			if (buffDivineCrusader > 0 and _HolyPower == 5 and buffFinalVerdict > 0)
+			  -- divine_storm,if=buff.divine_crusader.react&holy_power=5&active_enemies=2&!talent.final_verdict.enabled
+			  or (buffDivineCrusader > 0 and _HolyPower == 5 and meleeEnemies == 2)
+			  -- divine_storm,if=holy_power=5&active_enemies=2&buff.final_verdict.up
+			  or (_HolyPower == 5 and meleeEnemies == 2 and buffFinalVerdict > 0)
+			  -- divine_storm,if=buff.divine_crusader.react&holy_power=5&(talent.seraphim.enabled&cooldown.seraphim.remains<=4)
+			  or (_HolyPower == 5 and meleeEnemies == 2 and isKnown(_Seraphim) and getSpellCD(_Seraphim) <= 4) then
+			  	castDivineStorm()
+			end
+			-- templars_verdict,if=holy_power=5|buff.holy_avenger.up&holy_power>=3&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
+			if _HolyPower == 5 
+			  or ((buffHolyAvenger and _HolyPower >= 3) and (not isKnown(_Seraphim) or getSpellCD(_Seraphim) > 4))
+			  -- templars_verdict,if=buff.divine_purpose.react&buff.divine_purpose.remains<4
+			  or (buffDivinePurpose > 0 and buffDivinePurpose < 4) then
+			  	castTemplarsVerdict()
+			end
+			-- divine_storm,if=buff.divine_crusader.react&buff.divine_crusader.remains<4&!talent.final_verdict.enabled
+			if buffDivineCrusader and buffDivineCrusader < 4 and not isKnown(_FinalVerdict) then
+			  	castDivineStorm()
+			end		
 
-		if isKnown(_FinalVerdict)
-		  -- final_verdict,if=holy_power=5|buff.holy_avenger.up&holy_power>=3
-		 and (_HolyPower == 5 or (buffHolyAvenger > 1 and _HolyPower >= 3)
-		  -- final_verdict,if=buff.divine_purpose.react&buff.divine_purpose.remains<4
-		  or (buffDivinePurpose > 0 and buffDivinePurpose < 4)) then
-		  	castTemplarsVerdict()
-		end	  	
+			if isKnown(_FinalVerdict)
+			  -- final_verdict,if=holy_power=5|buff.holy_avenger.up&holy_power>=3
+			 and (_HolyPower == 5 or (buffHolyAvenger > 1 and _HolyPower >= 3)
+			  -- final_verdict,if=buff.divine_purpose.react&buff.divine_purpose.remains<4
+			  or (buffDivinePurpose > 0 and buffDivinePurpose < 4)) then
+			  	castTemplarsVerdict()
+			end	  	
 
-		-- hammer_of_wrath
-		castMultiHammerOfWrath()
-		-- judgment,if=talent.empowered_seals.enabled&((seal.truth&buff.maraads_truth.remains<cooldown.judgment.duration*2)|(seal.righteousness&buff.liadrins_righteousness.remains<cooldown.judgment.duration*2))
-		
-		-- exorcism,if=buff.blazing_contempt.up&holy_power<=2&buff.holy_avenger.down
-		if UnitBuffID("player",_BlazingContemp) and HolyPower <= 2 then
-			castExorcism(dynamicUnit.dyn30)
-		end
-		-- seal_of_truth,if=talent.empowered_seals.enabled&buff.maraads_truth.remains<(cooldown.judgment.duration)&buff.maraads_truth.remains<=3
-		
-		-- divine_storm,if=buff.divine_crusader.react&buff.final_verdict.up&(buff.avenging_wrath.up|target.health.pct<35)
-		if _DivineCrusader > 0 and buffFinalVerdict > 0 and (buffAvengingWrath or getHP(dynamicUnit.dyn5) < 35) then
-			castDivineStorm()
-		end
-		-- final_verdict,if=buff.divine_purpose.react|target.health.pct<35
-		if buffDivinePurpose > 0 or getHP(dynamicUnit.dyn5) < 35 then
-			castTemplarsVerdict()
-		end
-		-- templars_verdict,if=buff.avenging_wrath.up|target.health.pct<35&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
-		if buffAvengingWrath > 0 or getHP(dynamicUnit.dyn5) < 35 and (not isKnown(_Seraphim) or getSpellCD(_Seraphim) > 4) then
-			castTemplarsVerdict()
-		end
-		-- crusader_strike
-		castCrusaderStrike(dynamicUnit.dyn5)
-		-- divine_storm,if=buff.divine_crusader.react&(buff.avenging_wrath.up|target.health.pct<35)&!talent.final_verdict.enabled
-		if buffDivineCrusader > 0 and (buffAvengingWrath > 0 or getHP(dynamicUnit.dyn5) < 35) and not isKnown(_FinalVerdict) then
-			castDivineStorm()
-		end
-		-- divine_storm,if=buff.divine_crusader.react&buff.final_verdict.up
-		if buffDivineCrusader > 0 and buffFinalVerdict > 0 then
-			castDivineStorm()
-		end
-		-- final_verdict
-		if isKnown(_FinalVerdict) then
-			castTemplarsVerdict()
-		end
-		-- seal_of_righteousness,if=talent.empowered_seals.enabled&buff.liadrins_righteousness.remains<(cooldown.judgment.duration)&buff.liadrins_righteousness.remains<=3
-		
-		-- judgment
-		castJudgement(dynamicUnit.dyn5)
-		-- templars_verdict,if=buff.divine_purpose.react
-		if _DivinePurpose > 0 then
-			castTemplarsVerdict()
-		end
-		-- divine_storm,if=buff.divine_crusader.react&!talent.final_verdict.enabled
-		if buffDivineCrusader and not isKnown(_FinalVerdict) then
-		  	castDivineStorm()
-		end		
-		-- templars_verdict,if=holy_power>=4&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
-		if _HolyPower >= 4 and (not isKnown(_Seraphim) or getSpellCD(_Seraphim) > 4) then
-			castTemplarsVerdict()
-		end		
-		-- exorcism
-		castExorcism()
-		-- templars_verdict,if=holy_power>=3&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
-		if _HolyPower >= 3 and (not isKnown(_Seraphim) or getSpellCD(_Seraphim) > 4) then
-			castTemplarsVerdict()
-		end	
-		-- holy_prism
-		castHolyPrism(dynamicUnit.dyn40,false)
-		--[[Cleave(3-4)]]
-		-- final_verdict,if=buff.final_verdict.down&holy_power=5
-		if buffFinalVerdict > 0 or _HolyPower == 5 then
-			castTemplarsVerdict()
-		end
-		-- divine_storm,if=holy_power=5&buff.final_verdict.up
-		if _HolyPower == 5 and buffFinalVerdict > 0 then
-			castDivineStorm()
-		end
-		-- divine_storm,if=holy_power=5&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)&!talent.final_verdict.enabled
-		if _HolyPower == 5 and (not isKnown(_Seraphim) or getSpellCD(_Seraphim) > 4) and not isKnown(_FinalVerdict) then
-			castDivineStorm()
-		end
-		-- exorcism,if=buff.blazing_contempt.up&holy_power<=2&buff.holy_avenger.down
-		if buffBlazingContemp > 0 and _HolyPower <= 2 and not buffHolyAvenger then
+			-- hammer_of_wrath
+			castMultiHammerOfWrath()
+			-- judgment,if=talent.empowered_seals.enabled&((seal.truth&buff.maraads_truth.remains<cooldown.judgment.duration*2)|(seal.righteousness&buff.liadrins_righteousness.remains<cooldown.judgment.duration*2))
+			
+			-- exorcism,if=buff.blazing_contempt.up&holy_power<=2&buff.holy_avenger.down
+			if UnitBuffID("player",_BlazingContemp) and HolyPower <= 2 then
+				castExorcism(dynamicUnit.dyn30)
+			end
+			-- seal_of_truth,if=talent.empowered_seals.enabled&buff.maraads_truth.remains<(cooldown.judgment.duration)&buff.maraads_truth.remains<=3
+			
+			-- divine_storm,if=buff.divine_crusader.react&buff.final_verdict.up&(buff.avenging_wrath.up|target.health.pct<35)
+			if _DivineCrusader > 0 and buffFinalVerdict > 0 and (buffAvengingWrath or getHP(dynamicUnit.dyn5) < 35) then
+				castDivineStorm()
+			end
+			-- final_verdict,if=buff.divine_purpose.react|target.health.pct<35
+			if buffDivinePurpose > 0 or getHP(dynamicUnit.dyn5) < 35 then
+				castTemplarsVerdict()
+			end
+			-- templars_verdict,if=buff.avenging_wrath.up|target.health.pct<35&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
+			if buffAvengingWrath > 0 or getHP(dynamicUnit.dyn5) < 35 and (not isKnown(_Seraphim) or getSpellCD(_Seraphim) > 4) then
+				castTemplarsVerdict()
+			end
+			-- crusader_strike
+			castCrusaderStrike(dynamicUnit.dyn5)
+			-- divine_storm,if=buff.divine_crusader.react&(buff.avenging_wrath.up|target.health.pct<35)&!talent.final_verdict.enabled
+			if buffDivineCrusader > 0 and (buffAvengingWrath > 0 or getHP(dynamicUnit.dyn5) < 35) and not isKnown(_FinalVerdict) then
+				castDivineStorm()
+			end
+			-- divine_storm,if=buff.divine_crusader.react&buff.final_verdict.up
+			if buffDivineCrusader > 0 and buffFinalVerdict > 0 then
+				castDivineStorm()
+			end
+			-- final_verdict
+			if isKnown(_FinalVerdict) then
+				castTemplarsVerdict()
+			end
+			-- seal_of_righteousness,if=talent.empowered_seals.enabled&buff.liadrins_righteousness.remains<(cooldown.judgment.duration)&buff.liadrins_righteousness.remains<=3
+			
+			-- judgment
+			castJudgement(dynamicUnit.dyn5)
+			-- templars_verdict,if=buff.divine_purpose.react
+			if _DivinePurpose > 0 then
+				castTemplarsVerdict()
+			end
+			-- divine_storm,if=buff.divine_crusader.react&!talent.final_verdict.enabled
+			if buffDivineCrusader and not isKnown(_FinalVerdict) then
+			  	castDivineStorm()
+			end		
+			-- templars_verdict,if=holy_power>=4&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
+			if _HolyPower >= 4 and (not isKnown(_Seraphim) or getSpellCD(_Seraphim) > 4) then
+				castTemplarsVerdict()
+			end		
+			-- exorcism
 			castExorcism()
-		end
-		-- hammer_of_wrath
-		castMultiHammerOfWrath()
-		-- judgment,if=talent.empowered_seals.enabled&seal.righteousness&buff.liadrins_righteousness.remains<=5
+			-- templars_verdict,if=holy_power>=3&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
+			if _HolyPower >= 3 and (not isKnown(_Seraphim) or getSpellCD(_Seraphim) > 4) then
+				castTemplarsVerdict()
+			end	
+			-- holy_prism
+			castHolyPrism(dynamicUnit.dyn40,false)
+		elseif meleeEnemies < 5 then
+			--[[Cleave(3-4)]]
+			-- final_verdict,if=buff.final_verdict.down&holy_power=5
+			if buffFinalVerdict > 0 or _HolyPower == 5 then
+				castTemplarsVerdict()
+			end
+			-- divine_storm,if=holy_power=5&buff.final_verdict.up
+			if _HolyPower == 5 and buffFinalVerdict > 0 then
+				castDivineStorm()
+			end
+			-- divine_storm,if=holy_power=5&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)&!talent.final_verdict.enabled
+			if _HolyPower == 5 and (not isKnown(_Seraphim) or getSpellCD(_Seraphim) > 4) and not isKnown(_FinalVerdict) then
+				castDivineStorm()
+			end
+			-- exorcism,if=buff.blazing_contempt.up&holy_power<=2&buff.holy_avenger.down
+			if buffBlazingContemp > 0 and _HolyPower <= 2 and not buffHolyAvenger then
+				castExorcism()
+			end
+			-- hammer_of_wrath
+			castMultiHammerOfWrath()
+			-- judgment,if=talent.empowered_seals.enabled&seal.righteousness&buff.liadrins_righteousness.remains<=5
 
-		-- divine_storm,if=(!talent.seraphim.enabled|cooldown.seraphim.remains>4)&!talent.final_verdict.enabled
-		if (not isKnown(_Seraphim) or getSpellCD(_Seraphim) > 4) and not isKnown(_FinalVerdict) then
-			castDivineStorm()
-		end
-		-- crusader_strike
-		castCrusaderStrike(dynamicUnit.dyn5)
-		-- final_verdict,if=buff.final_verdict.down
-		if buffFinalVerdict == 0 then
-			castTemplarsVerdict()
+			-- divine_storm,if=(!talent.seraphim.enabled|cooldown.seraphim.remains>4)&!talent.final_verdict.enabled
+			if (not isKnown(_Seraphim) or getSpellCD(_Seraphim) > 4) and not isKnown(_FinalVerdict) then
+				castDivineStorm()
+			end
+			-- crusader_strike
+			castCrusaderStrike(dynamicUnit.dyn5)
+			-- final_verdict,if=buff.final_verdict.down
+			if buffFinalVerdict == 0 then
+				castTemplarsVerdict()
+			else
+			-- divine_storm,if=buff.final_verdict.up
+				castDivineStorm()
+			end
+			-- judgment
+			castJudgement(dynamicUnit.dyn30AoE)
+			-- exorcism
+			castExorcism()
+			-- holy_prism
+			castHolyPrism("player",true)
 		else
-		-- divine_storm,if=buff.final_verdict.up
-			castDivineStorm()
-		end
-		-- judgment
-		castJudgement(dynamicUnit.dyn30AoE)
-		-- exorcism
-		castExorcism()
-		-- holy_prism
-		castHolyPrism("player",true)
-		--[[AoE(5+)]]
-		-- divine_storm,if=holy_power=5&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
-		if _HolyPower == 5 and (not isKnown(_Seraphim) or getSpellCD(_Seraphim) > 4) then
-			castDivineStorm()
-		end
-		-- exorcism,if=buff.blazing_contempt.up&holy_power<=2&buff.holy_avenger.down
-		if buffBlazingContemp > 0 and _HolyPower <= 2 and buffHolyAvenger == 0 then
-			castExorcism()
-		end
-		-- hammer_of_the_righteous
-		castHammerOfTheRighteous(dynamicUnit.dyn5)
-		-- judgment,if=talent.empowered_seals.enabled&seal.righteousness&buff.liadrins_righteousness.remains<=5
+			--[[AoE(5+)]]
+			-- divine_storm,if=holy_power=5&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
+			if _HolyPower == 5 and (not isKnown(_Seraphim) or getSpellCD(_Seraphim) > 4) then
+				castDivineStorm()
+			end
+			-- exorcism,if=buff.blazing_contempt.up&holy_power<=2&buff.holy_avenger.down
+			if buffBlazingContemp > 0 and _HolyPower <= 2 and buffHolyAvenger == 0 then
+				castExorcism()
+			end
+			-- hammer_of_the_righteous
+			castHammerOfTheRighteous(dynamicUnit.dyn5)
+			-- judgment,if=talent.empowered_seals.enabled&seal.righteousness&buff.liadrins_righteousness.remains<=5
 
-		-- hammer_of_wrath
-		castMultiHammerOfWrath()
-		-- divine_storm,if=(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
-		if not isKnown(_Seraphim) or getSpellCD(_Seraphim) > 4 then
-			castDivineStorm()
-		end
-		-- exorcism,if=glyph.mass_exorcism.enabled
-		if hasGlyph(122028) then
+			-- hammer_of_wrath
+			castMultiHammerOfWrath()
+			-- divine_storm,if=(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
+			if not isKnown(_Seraphim) or getSpellCD(_Seraphim) > 4 then
+				castDivineStorm()
+			end
+			-- exorcism,if=glyph.mass_exorcism.enabled
+			if hasGlyph(122028) then
+				castExorcism()
+			end
+			-- judgment
+			castJudgement(dynamicUnit.dyn5)
+			-- exorcism
 			castExorcism()
+			-- holy_prism
+			castHolyPrism("player",true)
 		end
-		-- judgment
-		castJudgement(dynamicUnit.dyn5)
-		-- exorcism
-		castExorcism()
-		-- holy_prism
-		castHolyPrism("player",true)
-
 	end
 end
 end

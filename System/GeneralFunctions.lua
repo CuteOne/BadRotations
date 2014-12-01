@@ -428,6 +428,15 @@ function shouldNotOverheal(Unit)
 	end
 end
 
+-- candidate to replace shouldStopOverheal
+--function shouldNotOverheal(Unit)
+--	for i = 1, #nNova do
+--		if Unit == nNova[i].unit then
+--			return nNova[i].hp, nNova[i].absorb
+--		end
+--	end
+--end
+
 -- if castHealGround(_HealingRain,18,80,3) then
 function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 	if shouldStopCasting(SpellID) ~= true then

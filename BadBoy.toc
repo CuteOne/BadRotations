@@ -18,6 +18,7 @@ System\EnemiesEngineFrame.lua
 System\EnemiesEngineCollections.lua
 System\HealingEngine.lua
 System\HealingEngineFrame.lua
+System\HealingEngineCollections.lua
 System\InterruptsFrame.lua
 System\Interrupts.lua
 System\Reader.lua

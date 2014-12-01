@@ -10,25 +10,12 @@ local interruptsFrame = CreateFrame('Frame')
 interruptsFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 function interruptsReader(self, event, ...)
     if event == "COMBAT_LOG_EVENT_UNFILTERED" then
-    	--1st Param	2nd Param	3rd Param	4th Param	5th Param	6th Param	7th Param		8th Param	9th Param	10th Param	11th Param
---timestamp	event		hideCaster	sourceGUID	sourceName	sourceFlags	sourceRaidFlags	destGUID	destName	destFlags	destRaidFlags
-    	local timestamp 	= select(1,...)
-    	local event 		= select(2,...)
-		local sourceGUID 	= select(4,...)
-		local sourceName	= select(5,...)
-		local destGUID		= select(8,...)
-        local destName 		= select(9,...)
-		local spellID 		= select(12,...)
+    	local timestamp,event,sourceGUID,sourceName = select(1,...),select(2,...),select(4,...),select(5,...)
+    	local destGUID,destName,spellID = select(8,...),select(9,...),select(12,...)
 
-
-
-
-        if sourceGUID then
-	        ---------------
+        if sourceGUID and enemiesTable ~= nil then
 	        if isChecked("Interrupts Handler") then
-
 	        	if source ~= UnitGUID("player") then
-
 					if event == "SPELL_CAST_SUCCESS" then
 						for i = 1, #spellCastersTable do
 							if spellCastersTable[i] and sourceGUID == spellCastersTable[i].guid then
@@ -62,10 +49,7 @@ function interruptsReader(self, event, ...)
 							        	destGUID = "|cffFFFFFFNo Target"
 							        end
 							        -- Send to table
-					        		--in table we need GUID,name,spell,target,endTime
-									-- we also need to add its casting infos
-		  							local unitCasting, unitCastLenght, unitCastTime, unitCanntBeInterrupt, unitCastType = getCastingInfo(thisUnit)
-					        		
+		  							local unitCasting,unitCastLenght,unitCastTime,unitCanntBeInterrupt,unitCastType = getCastingInfo(thisUnit)
 					        		tinsert(spellCastersTable, 
 					        			{ 
 					        				cast = spellID,
