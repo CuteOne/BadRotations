@@ -5,24 +5,31 @@ function EnemiesEngine()
 -- Todo: So i think the prioritisation should be large by determined by threat or burn prio and then hp.
 -- So design should be, 
 -- Check if the unit is on doNotTouchUnitCandidates list which means we should not attack them at all
--- Check towards doNotTouchUnitCandidatesBuffs (buffs/debuff), ie target we are not allowed to attack due to them having a (de)buff that hurts us or not. Example http://www.wowhead.com/spell=163689
+
+-- Check towards doNotTouchUnitCandidatesBuffs (buffs/debuff), ie target we are not allowed to attack due to them having 
+-- a (de)buff that hurts us or not. Example http://www.wowhead.com/spell=163689
+
 -- Is the unit on burn list, set high prio, burn list is a list of mobs that we specify for burn, is highest dps and prio.
--- We should then look at the threat situation, for tanks the this is of high prio if we are below 3 but all below 3 should have the same prio coefficent. For dps its not that important
--- Then we should check HP of the targets and set highest prio on low targets, this is also something we need to think about if the target have a dot so it will die regardless or not. Should have a timetodie?
+
+-- We should then look at the threat situation, for tanks the this is of high prio if we are below 3 but all below 3 
+-- should have the same prio coefficent. For dps its not that important
+
+-- Then we should check HP of the targets and set highest prio on low targets, this is also something we need to think 
+-- about if the target have a dot so it will die regardless or not. Should have a timetodie?
 
 
--- Stack: Interface\AddOns\BadBoy\System\EnemiesEngine.lua:224: in function `castInterupt'
+-- Stack: Interface\AddOns\BadBoy\System\EnemiesEngine.lua:224: in function `castInterrupt'
 -- isBurnTarget(unit) - Bool - True if we should burn that target according to burnUnitCandidates
 -- isSafeToAttack(unit) - Bool - True if we can attack target according to doNotTouchUnitCandidates
 -- getEnemies(unit,Radius) - Number - Returns number of valid units within radius of unit
--- castInterupt(spell,percent) - Multi-Target Interupts - for facing/in movements spells of all ranges.
+-- castInterrupt(spell,percent) - Multi-Target Interupts - for facing/in movements spells of all ranges.
 -- makeEnemiesTable(55) - Triggered in badboy.lua - generate the enemiesTable
 -- makeSpellCastersTable() - Makes an interupt table based on enemiesTable
 
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
+--[[------------------------------------------------------------------------------------------------------------------]]
+--[[------------------------------------------------------------------------------------------------------------------]]
+--[[------------------------------------------------------------------------------------------------------------------]]
+--[[------------------------------------------------------------------------------------------------------------------]]
 
 
 function makeEnemiesTable(maxDistance)
@@ -53,6 +60,10 @@ function makeEnemiesTable(maxDistance)
 					local unitCoeficient = getUnitCoeficient(thisUnit,unitDistance,unitThreat,burnUnit,safeUnit) or 0
   					local unitHP = getHP(thisUnit)
   					local inCombat = UnitAffectingCombat(thisUnit)
+  					local longTimeCC = false
+  					if isChecked("Don't break CCs") then
+						longTimeCC = isLongTimeCCed(thisUnit)
+					end
   					-- insert unit as a sub-array holding unit informations
    					tinsert(enemiesTable, 
    						{ 
@@ -61,6 +72,7 @@ function makeEnemiesTable(maxDistance)
 	   						id = unitID,
 	   						coeficient = unitCoeficient, 
 	   						cc = shouldCC,
+	   						isCC = longTimeCC,
 	   						facing = getFacing("player",thisUnit),
 	   						threat = unitThreat, 
 	   						unit = thisUnit, 
@@ -70,7 +82,9 @@ function makeEnemiesTable(maxDistance)
 	   						burn = burnUnit,
 	   						-- Here should track inc damage / healing as well in order to get a timetodie value
 	   						-- we would need a more static design
-	   						x = X1, y = Y1, z = Z1 
+	   						x = X1,
+	   						y = Y1,
+	   						z = Z1,
    						}
    					)
 	   				end
@@ -89,18 +103,19 @@ end
 function dynamicTarget(range,facing)
 	if isChecked("Dynamic Targetting") then
 		for i = 1, #enemiesTable do
-			if enemiesTable[i].distance < range and (facing == false or enemiesTable[i].facing == true) then
-				return enemiesTable[i].unit
+			local thisUnit = enemiesTable[i]
+			if thisUnit.isCC == false and thisUnit.distance < range and (facing == false or thisUnit.facing == true) then
+				return thisUnit.unit
 			end
 		end
 	end
 	return "target"
 end
 
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
+--[[------------------------------------------------------------------------------------------------------------------]]
+--[[------------------------------------------------------------------------------------------------------------------]]
+--[[------------------------------------------------------------------------------------------------------------------]]
+--[[------------------------------------------------------------------------------------------------------------------]]
 
 
 --[[           ]]		  --[[]]		--[[           ]]	--[[           ]]
@@ -112,7 +127,7 @@ end
 --[[           ]]	--[[]]      --[[]]	--[[           ]]		 --[[ ]]
 
 -- function to compare spells to casting units
-function castInterupt(spell,percent)
+function castInterrupt(spell,percent)
 	if castersBlackList == nil then castersBlackList = { } end
 
 	-- blacklist cleanup
@@ -181,32 +196,27 @@ function castCrowdControl(Unit,SpellID)
 	end
 end
 
+-- units can be "all" or a numeric value
 function castDotCycle(units,spellID,range,facingCheck,movementCheck)
 	-- unit can be "all" or numeric
-	if units == "all" then
+	if type(units) == "number" then
+		units = units
+	else
+		units = 100
+	end
+	-- cycle our units if we want MORE DOTS
+	if getDebuffCount(spellID) < units then
     	for i = 1, #enemiesTable do
      		local thisUnit = enemiesTable[i].unit
-     		local dotRemains = getDebuffRemain(thisUnit,spellID,"player")
-     		if dotRemains < 1 then
-      			if castSpell(thisUnit,spellID,true,true) then 
-       				return
-	      		end
-	     	end
-	    end	
-	else
-		if type(units) == "number" then
-			if getDebuffCount(spellID) < units then
-		    	for i = 1, #enemiesTable do
-		     		local thisUnit = enemiesTable[i].unit
-		     		local dotRemains = getDebuffRemain(thisUnit,spellID,"player")
-		     		if dotRemains < 1 then
-		      			if castSpell(thisUnit,spellID,true,true) then 
-		       				return
-			      		end
-			     	end
-			    end				
-			end
-		end
+     		if thisUnit.isCC == false then
+	     		local dotRemains = getDebuffRemain(thisUnit,spellID,"player")
+	     		if dotRemains < 1 then
+	      			if castSpell(thisUnit,spellID,true,true) then 
+	       				return
+		      		end
+		     	end
+		    end
+	    end				
 	end
 end
 
@@ -334,21 +344,6 @@ end
 --[[           ]]	--[[           ]]
 --[[           ]]	--[[           ]]
 
--- check for a unit see if its a cc candidate
-function isCrowdControlCandidates(Unit)
-	local unitID = getUnitID(Unit)
-	-- cycle list of candidates
-	for i = 1, #crowdControlCandidates do
-		-- is in the list of candidates
-		if unitID == crowdControlCandidates[i].unitID and 
-		  -- doesnt have more requirements or requirements are met
-		  (crowdControlCandidates[i].buff == nil or UnitBuffID(Unit,crowdControlCandidates[i].buff)) then
-			return true
-		end
-	end
-	return false
-end
-
 -- function to see if our unit is a blacklisted unit
 function isBlackListed(Unit)
 	for i = 1, #castersBlackList do
@@ -369,13 +364,28 @@ function isBurnTarget(unit)
 	return false
 end
 
+-- check for a unit see if its a cc candidate
+function isCrowdControlCandidates(Unit)
+	local unitID = getUnitID(Unit)
+	-- cycle list of candidates
+	for i = 1, #crowdControlCandidates do
+		-- is in the list of candidates
+		if unitID == crowdControlCandidates[i].unitID and 
+		  -- doesnt have more requirements or requirements are met
+		  (crowdControlCandidates[i].buff == nil or UnitBuffID(Unit,crowdControlCandidates[i].buff)) then
+			return true
+		end
+	end
+	return false
+end
+
 --if isLongTimeCCed("target") then
 -- CCs with >=20 seconds
 function isLongTimeCCed(Unit)
     if Unit == nil then return false end
-    for i=1, #longTimeCC do
+    for i = 1, #longTimeCC do
         --local checkCC=longTimeCC[i]
-        if UnitDebuffID(Unit, longTimeCC[i])~=nil then  
+        if UnitDebuffID(Unit,longTimeCC[i]) ~= nil then  
             return true
         end
     end

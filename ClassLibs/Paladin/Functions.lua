@@ -107,13 +107,13 @@ if select(3,UnitClass("player")) == 2 then
 			end
 
 			if isChecked("Avengers Shield Interrupt") then
-				if castInterupt(_AvengersShield,getValue("Avengers Shield Interrupt")) then
+				if castInterrupt(_AvengersShield,getValue("Avengers Shield Interrupt")) then
 					return true
 				end
 			end
 
 			if isChecked("Rebuke") then 
-				if castInterupt(_Rebuke,getValue("Rebuke")) then
+				if castInterrupt(_Rebuke,getValue("Rebuke")) then
 					return true
 				end
 			end

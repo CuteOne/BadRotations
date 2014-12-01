@@ -117,7 +117,17 @@ function CreateGeneralsConfig()
     -- Wrapper -----------------------------------------
     CreateNewWrap(thisConfig,"- |cffFF0011Enemies Engine "..myClassColor.."-")
 
-    CreateNewText(thisConfig,"|cffFFDD11Dynamic Target"..myClassColor)
+    CreateNewText(thisConfig,"|cff63A4FFEngine"..myClassColor)
+
+    -- exclude unsafe units
+    CreateNewCheck(thisConfig,"Safe Damage Check","Check to prevent damage to targets you dont want to attack.",1)
+    CreateNewText(thisConfig,"Safe Damage Check")
+
+    -- Dont break CCs
+    CreateNewCheck(thisConfig,"Don't break CCs","Check to prevent damage to targets that are CC.",1)
+    CreateNewText(thisConfig,"Don't break CCs")
+
+    CreateNewText(thisConfig,"|cff63A4FFDynamic Target"..myClassColor)
 
     -- allow dynamic targetting
     CreateNewCheck(thisConfig,"Dynamic Targetting", "|cffFFDD11Check if you want to use Dynamic Targetting, if unchecked only target will be attacked.", 1)
@@ -136,11 +146,8 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Tank Threat","Check add more priority to taregts you lost aggro on(tank only).",1)
     CreateNewText(thisConfig,"Tank Threat")
 
-    CreateNewText(thisConfig,"|cffFFDD11Engine Tweaks"..myClassColor)
 
-    -- exclude unsafe units
-    CreateNewCheck(thisConfig,"Safe Damage Check","Check to prevent damage to targets you dont want to attack.",1)
-    CreateNewText(thisConfig,"Safe Damage Check")
+    CreateNewText(thisConfig,"|cff63A4FFInterrupts"..myClassColor)
 
     -- Interrupts Frame
     CreateNewCheck(thisConfig,"Interrupts Handler")
@@ -155,6 +162,8 @@ function CreateGeneralsConfig()
     -- Wrapper -----------------------------------------
     CreateNewWrap(thisConfig,"- |cffFF0011Healing Engine "..myClassColor.."-")
 
+    CreateNewText(thisConfig,"|cff63A4FFInclude Targets"..myClassColor)
+
     -- Heal Pets
     CreateNewCheck(thisConfig,"Heal Pets")
     CreateNewText(thisConfig,"Heal Pets")
@@ -163,12 +172,17 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Special Heal")
     CreateNewDrop(thisConfig,"Special Heal", 2, "|cffFFDD11Select wich targets you want to add to engine:Mouseover/Focus/Target Heal. \n|cffFF0000All: |cffFFDD11All targets. \n|cffFF0000Special: |cffFFDD11Only special Units.", "|cffFF0000All", "|cffFFDD11Special")
     CreateNewText(thisConfig,"Special Heal")
+
+    CreateNewText(thisConfig,"|cff63A4FFSorting"..myClassColor)
+
     -- Sorting with the Role
     CreateNewCheck(thisConfig,"Sorting with Role","|cffFFBB00Sorting with the Role.")
     CreateNewText(thisConfig,"Sorting with Role")
     -- Special Priority
     CreateNewCheck(thisConfig,"Special Priority","|cffFFBB00Priorise Special targets.")
     CreateNewText(thisConfig,"Special Priority")
+
+    CreateNewText(thisConfig,"|cff63A4FFUnit Health"..myClassColor)
 
     -- Blacklist
     CreateNewCheck(thisConfig,"Blacklist")
@@ -187,6 +201,7 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Overhealing Cancel")
     CreateNewBox(thisConfig, "Overhealing Cancel", 0, 200  , 5, 100, "|cffFFBB00Stop casting heal if target is going to have over this amount of HP after heal.")
     CreateNewText(thisConfig,"Overhealing Cancel")
+    CreateNewText(thisConfig,"|cff63A4FFEngine"..myClassColor)
 
     -- Engine Debug
     CreateNewCheck(thisConfig,"Engine Debug")
@@ -200,6 +215,8 @@ function CreateGeneralsConfig()
     -- Wrapper -----------------------------------------
     CreateNewWrap(thisConfig,"- |cffFF0011General "..myClassColor.."-")
 
+    CreateNewText(thisConfig,"|cff63A4FFAutomation goodies"..myClassColor)
+
     -- Auto-Sell/Repair
     CreateNewCheck(thisConfig,"Auto-Sell/Repair")
     CreateNewText(thisConfig,"Auto-Sell/Repair")
@@ -208,9 +225,12 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Accept Queues")
     CreateNewText(thisConfig,"Accept Queues")
 
+
     -- Overlay Messages
     CreateNewCheck(thisConfig,"Overlay Messages", "|cffFFBB00Check this to enable Chat Overlay Messages.",1)
     CreateNewText(thisConfig,"Overlay Messages")
+
+    CreateNewText(thisConfig,"|cff63A4FFDebug"..myClassColor)
 
     -- Debug
     CreateNewCheck(thisConfig,"Debug", "|cffFFBB00Check this to start |cffFFFFFFChat Debug |cffFFBB00of casted spells.")
@@ -219,6 +239,8 @@ function CreateGeneralsConfig()
     -- Debug Fail Casts
     CreateNewCheck(thisConfig,"Debug Fail Casts", "|cffFFBB00Check this to allow Fail Casts in |cffFFFFFFChat Debug.",1)
     CreateNewText(thisConfig,"Debug Fail Casts")
+
+    CreateNewText(thisConfig,"|cff63A4FFcastSpell tweaks"..myClassColor)
 
     -- Latency Compensation
     CreateNewCheck(thisConfig,"Latency Compensation", "|cffFFBB00Check this to Compensate Latency in getSpellCD.",1)
@@ -232,14 +254,15 @@ function CreateGeneralsConfig()
     CreateNewCheck(thisConfig,"Skip Distance Check", "|cffFFBB00Check this to Allow Skip Distance Check.",0)
     CreateNewText(thisConfig,"Skip Distance Check")
 
+    CreateNewText(thisConfig,"|cff63A4FFOther features"..myClassColor)
+
     -- Auto Taunts
     CreateNewCheck(thisConfig,"Auto Taunts")
     CreateNewText(thisConfig,"Auto Taunts")
 
     -- Queue Casts
     CreateNewCheck(thisConfig,"Queues")
-    CreateNewText(thisConfig,"Queue Casts")
-
+    CreateNewText(thisConfig,"Queue Casting")
 
     -- Wrapper -----------------------------------------
     CreateNewWrap(thisConfig,"- |cffFF0011Profession Helper "..myClassColor.."-")

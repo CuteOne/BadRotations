@@ -64,45 +64,48 @@ Frame:SetScript("OnEvent", MerchantShow);
 
 -------------------------
 --[[ Entering Combat --]]
-local Frame = CreateFrame('Frame');
-Frame:RegisterEvent("PLAYER_REGEN_DISABLED");
+local Frame = CreateFrame('Frame')
+Frame:RegisterEvent("PLAYER_REGEN_DISABLED")
 local function EnteringCombat(self, event, ...)
 	if event == "PLAYER_REGEN_DISABLED" then
-		AgiSnap = getAgility();
-		BadBoy_data["Combat Started"] = GetTime();
-		--tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cffFF001E/"..getCombatTime().."/Entering Combat" , number = ":D" })
-		if debugTable ~= nil and #debugTable > 249 then tremove(debugTable, 250); end
-		if debugRefresh ~= nil and BadBoy_data.ActualRow == 0 then debugRefresh(); end
-		ChatOverlay("|cffFF0000Entering Combat");
+		AgiSnap = getAgility()
+		BadBoy_data["Combat Started"] = GetTime()
+		if debugTable ~= nil and #debugTable > 249 then 
+			tremove(debugTable, 250) 
+		end
+		if debugRefresh ~= nil and BadBoy_data.ActualRow == 0 then 
+			debugRefresh() 
+		end
+		ChatOverlay("|cffFF0000Entering Combat")
 	end
 end
-Frame:SetScript("OnEvent", EnteringCombat);
+Frame:SetScript("OnEvent",EnteringCombat)
 
 -----------------------
 --[[ Leving Combat --]]
-local Frame = CreateFrame('Frame');
-Frame:RegisterEvent("PLAYER_REGEN_ENABLED");
+local Frame = CreateFrame('Frame')
+Frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 local function LeavingCombat(self, event, ...)
 	if event == "PLAYER_REGEN_ENABLED" then
-		potionReuse = true;
-		AgiSnap = 0;
-		usePot = true;
-		leftCombat = GetTime();
-		BadBoy_data.successCasts = 0;
-		BadBoy_data.failCasts = 0;
-		BadBoy_data["Combat Started"] = 0;
+		potionReuse = true
+		AgiSnap = 0
+		usePot = true
+		leftCombat = GetTime()
+		BadBoy_data.successCasts = 0
+		BadBoy_data.failCasts = 0
+		BadBoy_data["Combat Started"] = 0
 		--tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cff12C8FF/"..getCombatTime().."/Leaving Combat" , number = ":D" })
 		if #debugTable > 249 then tremove(debugTable, 250); end
 		if BadBoy_data.ActualRow == 0 then debugRefresh(); end
-		ChatOverlay("|cff00FF00Leaving Combat");
+		ChatOverlay("|cff00FF00Leaving Combat")
 		-- clean up out of combat
         Rip_sDamage = {}
         Rake_sDamage = {}
         Thrash_sDamage = {}
-        petAttacking = false;
+        petAttacking = false
 	end
 end
-Frame:SetScript("OnEvent", LeavingCombat);
+Frame:SetScript("OnEvent", LeavingCombat)
 
 ---------------------------
 --[[ UI Error Messages --]]

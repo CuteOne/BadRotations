@@ -182,6 +182,9 @@ function FeralCatConfig()
             checkOp("Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.");
             textOp("Auto Shapeshifts");
 
+            -- Mouseover Targeting
+            checkOp("Mouseover Targeting","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFmouseover target validation.|cffFFBB00.");
+            textOp("Mouseover Targeting");
 
         -- Spacer
         textOp(" ");
@@ -413,7 +416,10 @@ function RestorationConfig()
         CreateNewCheck(thisConfig,"Lifebloom");
         CreateNewBox(thisConfig, "Lifebloom", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to |cffFFFFFFlet Lifebloom Bloom |cffFFBB00on Focus.");
         CreateNewText(thisConfig,"Lifebloom");
-        -- Healing Touch
+        -- Healing Touch Harmoney
+        CreateNewCheck(thisConfig,"HT Harmoney");
+        CreateNewText(thisConfig,"HT Harmoney");
+		-- Healing Touch
         CreateNewCheck(thisConfig,"Healing Touch");
         CreateNewBox(thisConfig, "Healing Touch", 0, 100  , 5, 65, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealing Touch.");
         CreateNewText(thisConfig,"Healing Touch");
