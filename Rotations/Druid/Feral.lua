@@ -254,7 +254,6 @@ if select(3, UnitClass("player")) == 11 then
 			if hastar and attacktar and not isInCombat("player") and cat 
 				and ((not (IsMounted() or IsFlying() or friendly)) or isDummy()) 
 			then
-				messaged=0
 		-- Prowl
 		        if useProwl() and not stealth 
 		        	and (UnitExists(dynamicUnit.dyn20AoE) or isKnown(eprl)) and GetTime()-leftCombat > lootDelay 
@@ -268,6 +267,9 @@ if select(3, UnitClass("player")) == 11 then
 		        	else
 		            	if castSpell(dynamicUnit.dyn5,shr,false,false,false) then return end
 		            end
+		        end
+		        if stealth then
+		        	StopAttack()
 		        end
 			end
 -----------------
@@ -363,6 +365,9 @@ if select(3, UnitClass("player")) == 11 then
 		        	else
 		            	if castSpell(dynamicUnit.dyn5,shr,false,false,false) then return end
 		            end
+				end
+				if stealth then
+					StopAttack()
 				end
 				if not stealth then
 		-- Tiger's Fury
@@ -528,7 +533,7 @@ if select(3, UnitClass("player")) == 11 then
 							rkRemain = getDebuffRemain(thisUnit,rk,"player")
 							ttd = getTimeToDie(thisUnit)
 							if ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) 
-								and combo<5 and power>35 and enemiesTable[i].distance<5 
+								and stunRemain==0 and combo<5 and power>35 and enemiesTable[i].distance<5 
 							then
 								if not bloodtalons then
 					    			--if=!talent.bloodtalons.enabled&remains<3&combo_points<5&((target.time_to_die-remains>3&active_enemies<3)|target.time_to_die-remains>6)
@@ -551,7 +556,7 @@ if select(3, UnitClass("player")) == 11 then
 						thisUnit = dynamicUnit.dyn5
 						rkRemain = getDebuffRemain(thisUnit,rk,"player")
 						ttd = getTimeToDie(thisUnit)
-						if ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) and combo<5 and power>35 then
+						if ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) and stunRemain==0 and combo<5 and power>35 then
 							if not bloodtalons then
 				    			--if=!talent.bloodtalons.enabled&remains<3&combo_points<5&((target.time_to_die-remains>3&active_enemies<3)|target.time_to_die-remains>6)
 				    			if rkRemain<3 then
@@ -616,7 +621,7 @@ if select(3, UnitClass("player")) == 11 then
 							rkRemain = getDebuffRemain(thisUnit,rk,"player")
 							ttd = getTimeToDie(thisUnit)
 			    			--persistent_multiplier>dot.rake.pmultiplier&combo_points<5&active_enemies=1
-				    		if rkCalc>rkDmg and combo<5 and enemies==1 and power>35 and enemiesTable[i].distance<5 then
+				    		if rkCalc>rkDmg and stunRemain==0 and combo<5 and enemies==1 and power>35 and enemiesTable[i].distance<5 then
 				    			if castSpell(thisUnit,rk,false,false,false) then return end
 				            end
 				        end
@@ -625,7 +630,7 @@ if select(3, UnitClass("player")) == 11 then
 						rkRemain = getDebuffRemain(thisUnit,rk,"player")
 						ttd = getTimeToDie(thisUnit)
 		    			--persistent_multiplier>dot.rake.pmultiplier&combo_points<5&active_enemies=1
-			    		if rkCalc>rkDmg and combo<5 and enemies==1 and power>35 then
+			    		if rkCalc>rkDmg and stunRemain==0 and combo<5 and enemies==1 and power>35 then
 			    			if castSpell(thisUnit,rk,false,false,false) then return end
 			            end
 				    end

@@ -375,10 +375,11 @@ function isCrowdControlCandidates(Unit)
 	-- cycle list of candidates
 	for i = 1, #crowdControlCandidates do
 		-- is in the list of candidates
-		if unitID == crowdControlCandidates[i].unitID and 
+		if unitID == crowdControlCandidates[i].unitID 
 		  -- doesnt have more requirements or requirements are met
-		  (crowdControlCandidates[i].buff == nil or UnitBuffID(Unit,crowdControlCandidates[i].buff)) 
-		  (crowdControlCandidates[i].spell == nil or getCastingInfo(Unit) == GetSpellInfo(crowdControlCandidates[i].spell)) then
+		  and (crowdControlCandidates[i].buff == nil or UnitBuffID(Unit,crowdControlCandidates[i].buff)) 
+		  and (crowdControlCandidates[i].spell == nil or getCastingInfo(Unit) == GetSpellInfo(crowdControlCandidates[i].spell)) 
+		then
 			return true
 		end
 	end
