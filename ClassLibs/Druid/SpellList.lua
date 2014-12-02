@@ -85,7 +85,7 @@ spd	=	81022	--Stampede
 rber=	26297	--Troll Racial: Berserking
 sm 	=	58984	--Night Elf Racial: Shadowmeld
 tac = 	135286 	--Tooth and Claw
-rks	=	155722	--Rake - Pounce Effect
+rks	=	163505	--Rake - Pounce Effect
 
 ------Forms------
 af	=	1066	--Aquatic Form

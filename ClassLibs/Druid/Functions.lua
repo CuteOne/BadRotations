@@ -193,54 +193,6 @@ function outOfWater()
     end
 end
 
--- function dynamicTarget(range,tarreq)
---     if tarreq==nil and tarreq~=count then tarreq=false end
---     if range>40 or range==nil then range=40 end
---     local myEnemies = nil
---     if myEnemiesTimer == nil or myEnemies == nil or myEnemiesTimer <= GetTime() - 1 then
---         myEnemies, myEnemiesTimer = getEnemies("player",range), GetTime();
---     end
---     if tarreq==count then
---         return #myEnemies
---     end
---     if (tarreq==false or (tarreq==true and UnitExists("target"))) and tarreq~=count then
---         for i = 1, #myEnemies do
---             local thisUnit = myEnemies[i]
---             if getCreatureType(thisUnit)
---                 and UnitCanAttack(thisUnit,"player")
---                 and not UnitIsDeadOrGhost(thisUnit)
---                 and getFacing("player",thisUnit)
---                 and (UnitAffectingCombat(thisUnit) or isDummy(thisUnit))
---             then
---                 if UnitGUID("target")~=UnitGUID(thisUnit) then
---                     return thisUnit
---                 end
---             end
---         end
---     end
---     if thisUnit==nil then return "target" end
--- end
-
--- function dynamicTarget(range,tarreq)
---     if range>40 or range==nil then 
---         range=40 
---     end
---     makeEnemiesTable(range)
---     if tarreq=="count" then
---         return #enemiesTable
---     else
---         if (tarreq==false or (tarreq==true and UnitExists("target"))) then
---             for i = 1, #enemiesTable do
---                 local thisUnit = enemiesTable[i].unit
---                 if UnitGUID("target")~=UnitGUID(thisUnit) then
---                     return thisUnit
---                 end
---             end
---         end
---         if thisUnit==nil then return "target" end
---     end
--- end
-
 function getDistance2(Unit1,Unit2)
     if Unit2 == nil then Unit2 = "player"; end
     if UnitExists(Unit1) and UnitExists(Unit2) then
