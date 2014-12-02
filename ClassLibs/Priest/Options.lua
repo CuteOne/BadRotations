@@ -33,21 +33,15 @@ if select(3, UnitClass("player")) == 5 then
 
 
 			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"___ Offensive");
+			CreateNewWrap(thisConfig,"      |cffBA55D3Offensive");
 
-				-- Single Target Rotation chose
-				--CreateNewCheck(thisConfig,"SingleRota");
-			  		--CreateNewDrop(thisConfig, string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10);
-				CreateNewDrop(thisConfig,"SingleRotation",1,"Choose the rotation for single target.","|cffBA55D3weave","|cff00A9EBtrad");
-				CreateNewText(thisConfig,"SingleRotation");
+				-- -- Min Orbs to cast DP on traditional single target
+				-- CreateNewDrop(thisConfig,"Min Orbs (trad)",1,"Choose the minimum orbs to cast DP if targetHP>20.","|cffCC00003","|cFF00CC005");
+				-- CreateNewText(thisConfig,"Min Orbs (trad)");
 
-				-- Min Orbs to cast DP on traditional single target
-				CreateNewDrop(thisConfig,"Min Orbs (trad)",1,"Choose the Minimum Orbs to cast DP if targetHP>20.","|cffCC00003","|cFF00CC005");
-				CreateNewText(thisConfig,"Min Orbs (trad)");
-
-				-- only cast DP with 5 Orbs on traditional single rota
-				CreateNewCheck(thisConfig,"DP5");
-				CreateNewText(thisConfig,"DP only with 5 orbs");
+				-- -- only cast DP with 5 Orbs on traditional single rota
+				-- CreateNewCheck(thisConfig,"DP5");
+				-- CreateNewText(thisConfig,"DP only with 5 orbs");
 
 				-- Power Infusion
 				if isKnown(PI) then
@@ -64,6 +58,12 @@ if select(3, UnitClass("player")) == 5 then
 					CreateNewText(thisConfig,"Shadowfiend");
 				end
 
+				-- onUse Trinkets
+					CreateNewCheck(thisConfig,"Trinket 1");
+					CreateNewText(thisConfig,"Trinket 1");
+					CreateNewCheck(thisConfig,"Trinket 2");
+					CreateNewText(thisConfig,"Trinket 2");
+
 				-- SWD Glyphed
 				if hasGlyph(GlyphOfSWD) then
 					CreateNewCheck(thisConfig,"SWD glyphed");
@@ -72,7 +72,7 @@ if select(3, UnitClass("player")) == 5 then
 
 
 			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"___ Defensive");
+			CreateNewWrap(thisConfig,"      |cffBA55D3Defensive");
 
 				-- Shield
 				CreateNewCheck(thisConfig,"PW: Shield");
@@ -110,26 +110,22 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- Wrapper -----------------------------------------
 			if isKnown(CoP) then
-				CreateNewWrap(thisConfig,"___ DoT Weave");
+				CreateNewWrap(thisConfig,"      |cffBA55D3DoT Weave");
 					
 					-- General
-					CreateNewCheck(thisConfig,"DoTWeave");
-					CreateNewText(thisConfig,"DoTWeave");
+					--CreateNewCheck(thisConfig,"DoTWeave");
+					--CreateNewText(thisConfig,"DoTWeave");
 					-- SWP
 					CreateNewCheck(thisConfig,"SWP");
 					CreateNewText(thisConfig,"Weave SWP");
 					-- VT
 					CreateNewCheck(thisConfig,"VT");
 					CreateNewText(thisConfig,"Weave VT");
-					-- Weave Comp
-					-- CreateNewCheck(thisConfig,"Weave Comp");
-					CreateNewBox(thisConfig,"Weave Comp", 1, 15, 1, 7, "A factor used for DoTWeaving\nExperimental.\nUse 8-10.\nMin: 1 / Max: 15 / Interval: 1")
-					CreateNewText(thisConfig,"Weave Comp Factor");
 			end
 
 
 			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"___ Multidot");
+			CreateNewWrap(thisConfig,"      |cffBA55D3Multidot");
 
 				-- SWP
 				CreateNewCheck(thisConfig,"Multi SWP");
@@ -144,9 +140,12 @@ if select(3, UnitClass("player")) == 5 then
 				CreateNewBox(thisConfig,"Max Targets", 1, 18, 1, 5, "Maximum count of SWP/VT on Units.\nShould be not more than 18/GCD.\nMin: 1 / Max: 18 / Interval: 1");
 				CreateNewText(thisConfig,"Max DoTs AoE");
 
+				-- DoT Refresh
+				CreateNewBox(thisConfig,"Refresh Time", 1.0, 4.5, 0.1, 2.0, "Minimum time to refresh DoT.\n10=1sec.\nMin: 1 / Max: 4.5 / Interval: 1");
+				CreateNewText(thisConfig,"DoT refresh time");
 
 			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"___ Utilities");
+			CreateNewWrap(thisConfig,"      |cffBA55D3Utilities");
 				
 				--Power Word: Fortitude
 				CreateNewCheck(thisConfig,"PW: Fortitude");
@@ -155,10 +154,6 @@ if select(3, UnitClass("player")) == 5 then
 				-- Shadowform Outfight
 				CreateNewCheck(thisConfig,"Shadowform Outfight");
 				CreateNewText(thisConfig,"Auto Shadowform Outfight");
-
-				-- Auto Target
-				CreateNewCheck(thisConfig,"AutoTarget");
-				CreateNewText(thisConfig,"Auto Target (experimental");
 
 				-- Auto Rez
 				CreateNewCheck(thisConfig,"Auto Rez");
