@@ -32,38 +32,48 @@ if select(3, UnitClass("player")) == 5 then
 					[1] = { mode = "off", value = 1 , overlay = "Halo Disabled", tip = "|cffFF0000Halo \n|cffFFDD11No Halo will be used.", highlight = 0, icon = 120644 },
 					[2] = { mode = "on", value = 2 , overlay = "Halo Enabled", tip = "|cff00FF00Halo \n|cffFFDD11Will be used.", highlight = 1, icon = 120644 }
 				};
-				CreateButton("Halo",2,1)
+				CreateButton("Halo",1,1)
 				HaloModesLoaded = "Shadow Priest Halo Modes";
 			end
 		end
 
-		-- ORBS Button
+		-- Burn Button
 		if BurnModesLoaded ~= "Shadow Priest Burn Modes" then
 			BurnModes = {
 				[1] = { mode = "off", value = 1 , overlay = "burn off", tip = "|cffFF0000Burn Orbs \n|cffFFDD11No Orbs will be burned.", highlight = 0, icon = 157217 },
 				[2] = { mode = "burn", value = 2 , overlay = "burn on", tip = "|cff00FF00Burn Orbs \n|cffFFDD11Burn Orbs with DP if targetHP>20.\nIgnoring the Options", highlight = 1, icon = 157217 }
 			};
-			CreateButton("Burn",3,1)
+			CreateButton("Burn",2,0)
 			BurnModesLoaded = "Shadow Priest Burn Modes";
+		end
+
+		-- Single Rotation Button
+		if SingleModesLoaded ~= "Shadow Priest Single Modes" then
+			SingleModes = {
+				[1] = { mode = "trad", value = 1 , overlay = "traditional rotation", tip = "|cffFF0000Single Target Rotation \n|cffFFDD11Traditional Rotation is active. \nPress to change rotation to DoT-Weave", highlight = 0, icon = 15407 },
+				[2] = { mode = "weave", value = 2 , overlay = "weave rotation", tip = "|cffFF0000Single Target Rotation \n|cffFFDD11DoT-Weave Rotation is active. \nPress to change rotation to Traditional", highlight = 0, icon = 73510 }
+			};
+			CreateButton("Single",3,1)
+			SingleModesLoaded = "Shadow Priest Single Modes";
 		end
 
 		-- AoE Button
 		if AoEModesLoaded ~= "Shadow Priest AoE Modes" then
 			AoEModes = {
-				[1] = { mode = "single", value = 1 , overlay = "Single Target", tip = "|cff00FF00AoE \n|cffFFDD11Single Target. \n|cffFF0000Style can be chosen in the options", highlight = 0, icon = 139139 },
-				[2] = { mode = "AoE", value = 2 , overlay = "2-3 Targets", tip = "|cff00FF00AoE \n|cffFFDD112-3 Enemies. \n|cffFF0000", highlight = 0, icon = 589 },
-				[3] = { mode = "auto", value = 3 , overlay = "AoE Auto", tip = "|cff00FF00AoE \n|cffFFDD11Auto decision (not implemented yet). \n|cffFF0000", highlight = 1, icon = 8092 }
+				[1] = { mode = "1", value = 1 , overlay = "Single Target", tip = "|cff00FF00Single Target \n|cffFFDD11Style can be chosen with 'trad/weave' Button", highlight = 0, icon = 139139 },
+				[2] = { mode = "2+", value = 2 , overlay = "2-3 Targets", tip = "|cff00FF002+ Enemies \n|cffFFDD11Choose # of dots in options.", highlight = 0, icon = 589 }
+				--[3] = { mode = "auto", value = 3 , overlay = "AoE Auto", tip = "|cff00FF00AoE \n|cffFFDD11Auto decision (not implemented yet). \n|cffFF0000", highlight = 1, icon = 8092 }
 			};
-			CreateButton("AoE",0,1)
+			CreateButton("AoE",3,0)
 			AoEModesLoaded = "Shadow Priest AoE Modes";
 		end
 		-- Interrupt Button
 		if InterruptModesLoaded ~= "Shadow Priest Interrupt Modes" then
 			InterruptModes = {
-				[1] = { mode = "off", value = 1 , overlay = "Kicks Disabled", tip = "|cffFF0000Interrupt \n|cffFFDD11No cooldowns will be used.", highlight = 0, icon = 15487 },
-				[2] = { mode = "auto", value = 2 , overlay = "Kick Auto", tip = "|cff00FF00Interrupt \n|cffFF0000Spells Included: \n|cffFFDD11Silence \nArcane Torrent(not)", highlight = 1, icon = 15487 }
+				[1] = { mode = "off", value = 1 , overlay = "Kicks Disabled", tip = "|cffFF0000Interrupt (TBD) \n|cffFFDD11No cooldowns will be used.", highlight = 0, icon = 15487 },
+				[2] = { mode = "auto", value = 2 , overlay = "Kick Auto", tip = "|cff00FF00Interrupt (TBD) \n|cffFF0000Spells Included: \n|cffFFDD11Silence \nArcane Torrent(not)", highlight = 1, icon = 15487 }
 			};
-			CreateButton("Interrupt",1,1)
+			CreateButton("Interrupt",0,1)
 			InterruptModesLoaded = "Shadow Priest Interrupt Modes";
 		end
 
@@ -73,7 +83,7 @@ if select(3, UnitClass("player")) == 5 then
 				[1] = { mode = "off", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffFF0000Cooldowns \n|cffFFDD11No cooldowns will be used.", highlight = 0, icon = 34433 },
 				[2] = { mode = "on", value = 2 , overlay = "Cooldowns Enabled", tip = "|cff00FF00Cooldowns \n|cffFFDD11Only used if enabled in Settings. \n|cffFF0000Spells Included: \n|cffFFDD11Power Infusion \nShadowfiend \nMindbender", highlight = 1, icon = 34433 }
 			};
-			CreateButton("Cooldowns",2,0)
+			CreateButton("Cooldowns",2,1)
 			CooldownsModesLoaded = "Shadow Priest Cooldowns Modes";
 		end
 

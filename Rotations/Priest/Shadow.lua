@@ -39,8 +39,6 @@ if select(3, UnitClass("player")) == 5 then
 			end
 
 
-
-
 		-------------
 		-- TOGGLES --
 		-------------
@@ -104,7 +102,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- Angelic Feather
-		if isKnown(AngelicFeather) and isChecked("Angelic Feather") and getGround("player") and IsMovingTime(0.75) and not UnitBuffID("player",AngelicFeatherBuff) then
+		if isKnown(AngelicFeather) and isChecked("Angelic Feather") and getGround("player") and IsMovingTime(0.2) and not UnitBuffID("player",AngelicFeatherBuff) then
 			if castGround("player",AngelicFeather,30) then
 				SpellStopTargeting();
 				return;
@@ -156,18 +154,34 @@ if select(3, UnitClass("player")) == 5 then
 			-----------------------
 			-- Rotation Decision --
 			-----------------------
-			if isChecked("AutoTarget") then
-				noTargetTargetMainTankTarget()
-			end
+			-- if isChecked("AutoTarget") then
+			-- 	noTargetTargetMainTankTarget()
+			-- end
+			
 			-- Single target
 			if BadBoy_data['AoE'] == 1 then
-				if getValue("SingleRotation")==1 then IcySingleWeave() end
-				if getValue("SingleRotation")==2 then IcySingle() end
+				Execute()
+				if BadBoy_data['Single']==1 then IcySingle() end
+				if BadBoy_data['Single']==2 then IcySingleWeave() end
 			end
-			-- 2-3 Targets
-			if BadBoy_data['AoE'] == 2 then Icy23Targets() end
-			-- 4+ Targets
-			if BadBoy_data['AoE'] == 3 then Icy4AndMore() end
+			
+			-- 2+ Targets
+			if BadBoy_data['AoE'] == 2 then 
+				Execute()
+				Icy23Targets()
+			end
+			
+			-- Auto
+			-- if BadBoy_data['AoE'] == 3 then
+			-- 	if #enemiesTable<2 then 
+			-- 	if #enemiesTable>=2 and #enemiesTable<3 then Icy23Targets() end
+			-- 	if #enemiesTable>=4
+
+
+
+
+
+			--if BadBoy_data['AoE'] == 3 then Icy4AndMore() end
 			-- Auto
 			-- if BadBoy_data['AoE'] == 4 then
 			-- 	-- singletarget
@@ -177,7 +191,7 @@ if select(3, UnitClass("player")) == 5 then
 			-- 		if getValue("SingleRota")==2 then IcySingle() end
 			-- 	end
 			-- 	-- 2-3 targets
-			-- 	if #enemiesTable>2 and #enemiesTable<4 then Icy23Targets() end
+			-- 	
 			-- 	-- 4+ targets
 			-- 	if #enemiesTable>4 then Icy4AndMore() end
 			-- end
