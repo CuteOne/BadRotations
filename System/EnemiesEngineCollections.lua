@@ -72,18 +72,19 @@ doNotTouchUnitCandidates = {
     { unitID = 1,       buff = 163689 }, -- Never attack Sanguine Sphere
 }
 
+-- list of units to stun, either always or udner certain condition such as having a buff or wirldwinding etc
 crowdControlCandidates = {
     -- Shadowmoon Burial Grounds
-    { unitID = 75966, spell = 1 }, -- Defiled Spirit, need to be cc and snared and is not allowed to reach boss.
-    { unitID = 76446, spell = 1 }, -- Shadowmoon Enslavers
-    { unitID = 75899, spell = 1 }, -- Possessed Soul, only for melee i guess
-    { unitID = 79510, spell = 1 }, -- Crackling Pyromaniacs
+    { unitID = 75966 }, -- Defiled Spirit, need to be cc and snared and is not allowed to reach boss.
+    { unitID = 76446 }, -- Shadowmoon Enslavers
+    { unitID = 75899 }, -- Possessed Soul, only for melee i guess
+    { unitID = 79510 }, -- Crackling Pyromaniacs
     -- Grimrail Depot
     { unitID = 81236, spell = 163966 }, -- Grimrail Technicians channeling Activating
-    { unitID = 80937, spell = 1 }, -- Gromkar Gunner
+    { unitID = 80937 }, -- Gromkar Gunner
     -- UBRS
-    { unitID = 76157, spell = 1 }, -- Black Iron Leadbelcher, activates canon, should be when/if moving
-    { unitID = 76935, spell = 1 }, -- Black Iron Drake-Keeper, should be stunned/cc when running towards whelps
+    { unitID = 76157 }, -- Black Iron Leadbelcher, activates canon, should be when/if moving
+    { unitID = 76935 }, -- Black Iron Drake-Keeper, should be stunned/cc when running towards whelps
 
     -- Proven Ground
     { unitID = 71414, buff = 142639 }, -- Banana Tosser(Large)

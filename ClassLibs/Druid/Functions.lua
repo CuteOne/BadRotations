@@ -348,52 +348,47 @@ function MultiMoon()
                 -- now that we know the unit is valid, we can use it to check whatever we want.. let's call it thisUnit
                 local thisUnit = enemiesTable[i].unit
                 -- Here I do my specific spell checks
-                if ((UnitAffectingCombat(thisUnit) == true) or isDummyByName(UnitName(thisUnit))) and getDebuffRemain(thisUnit,_Moonfire) < (18*0.3) then
+                if ((UnitAffectingCombat(thisUnit) == true) or isDummy(thisUnit)) and getDebuffRemain(thisUnit,_Moonfire) < (18*0.3) then
                     -- All is good, let's cast.
                     if castSpell(thisUnit,_Moonfire,false,false) then
-                        return;
+                        return
                     end
                 end
             end
         end
     end
 end
+
 -- select(2,DruidCastTime()) > 2
 function DruidCastTime()
-
     local castDuration = 0
     local castTimeRemain = 0
 
+    if select(6,UnitCastingInfo("player"))  then
+        castStartTime = select(5,UnitCastingInfo("player"))
+        castEndTime = select(6,UnitCastingInfo("player"))
+      else
+        castStartTime = 0
+        castEndTime = 0
+    end
+    if castEndTime > 0 and castStartTime > 0 then
+        castDuration = (castEndTime - castStartTime)/1000
+        castTimeRemain = ((castEndTime/1000) - GetTime())
+    else
+        castDuration = 0
+        castTimeRemain = 0
+    end
+    if castDuration and castTimeRemain  then
+       return castDuration,castTimeRemain
+	end
+end
 
-        if select(6,UnitCastingInfo("player"))  then
-            castStartTime = select(5,UnitCastingInfo("player"))
-            castEndTime = select(6,UnitCastingInfo("player"))
-          else
-            castStartTime = 0
-            castEndTime = 0
-
-        end
-        if castEndTime > 0 and castStartTime > 0 then
-            castDuration = (castEndTime - castStartTime)/1000
-            castTimeRemain = ((castEndTime/1000) - GetTime())
-
-        else
-            castDuration = 0
-            castTimeRemain = 0
-
-        end
-       if castDuration and castTimeRemain  then
-	   return castDuration , castTimeRemain ;
-
-
-		end
-		end
 function isCastingDruid(Unit)
 	if Unit == nil then Unit = "player" end
 	if UnitCastingInfo(Unit) ~= nil
 	  or UnitChannelInfo(Unit) ~= nil
 	  or (GetSpellCooldown(61304) ~= nil and GetSpellCooldown(61304) > 0.001) then
-	  	return true; else return false;
+	  	return true; else return false
 	end
 end
 

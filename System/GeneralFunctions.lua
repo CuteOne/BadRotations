@@ -1423,7 +1423,7 @@ function isBuffed(UnitID,SpellID,TimeLeft,Filter)
 		local spell, rank = GetSpellInfo(SpellID[i])
 		if spell then
 			local buff = select(7,UnitBuff(UnitID,spell,rank,Filter))
-			if buff and ( buff == 0 or buff - GetTime() > TimeLeft ) then return true; end
+			if buff and ( buff == 0 or buff - GetTime() > TimeLeft ) then return true end
 		end
 	end
 end
@@ -1470,10 +1470,29 @@ function isCastingSpell(spellID)
 	end
 end
 
+-- if isDeBuffed("target",{123,456,789},2,"player") then
+function isDeBuffed(UnitID,DebuffID,TimeLeft,Filter)
+	if not TimeLeft then 
+		TimeLeft = 0 
+	end
+	if type(DebuffID) == "number" then 
+		DebuffID = { DebuffID } 
+	end
+	for i=1,#DebuffID do
+		local spell, rank = GetSpellInfo(DebuffID[i])
+		if spell then
+			local debuff = select(7,UnitDebuff(UnitID,spell,rank,Filter))
+			if debuff and ( debuff == 0 or debuff - GetTime() > TimeLeft ) then 
+				return true 
+			end
+		end
+	end
+end
+
 -- UnitGUID("target"):sub(-15, -10)
 -- Dummy Check
 function isDummy(Unit)
-	if Unit == nil then Unit = "target"; else Unit = tostring(Unit) end
+	if Unit == nil then Unit = "target" else Unit = tostring(Unit) end
     dummies = {
         87329, --Raider's Training Dummy - Lvl ?? (Stormshield - Tank)
         88837, --Raider's Training Dummy - Lvl ?? (Warspear - Tank)
@@ -1521,35 +1540,13 @@ function isDummy(Unit)
     end
 end
 
-function isDummyByName(unitName)
-	if Unit == nil then Unit = UnitName("target"); else Unit = tostring(Unit) end
-    dummies = {
-        "Training Dummy", -- 31144 - Lvl 80
-        --"Raider's Training Dummy", -- 31146 - Lvl ??
-        "Initiate's Training Dummy", -- 32541 - Lvl 55 (Scarlet Enclave)
-        "Disciple's Training Dummy", -- 32542 - Lvl 65
-        "Initiate's Training Dummy", -- 32545 - Lvl 55
-        "Ebon Knight's Training Dummy",  -- 32546 - Lvl 80
-        "Training Dummy", -- 32666 - Lvl 60
-        "Training Dummy", -- 32667 - Lvl 70
-        "Training Dummy", -- 46647 - Lvl 85
-        "Scarlet Monastery Dummy", -- 60197 -- Lvl 1
-        "Training Dummy" -- 67127 - Lvl 90
-    }
-    for i=1, #dummies do
-        if dummies[i] == unitName then
-        	return true;
-        end
-    end
-end
-
 -- if isEnnemy([Unit])
 function isEnnemy(Unit)
-	local Unit = Unit or "target";
+	local Unit = Unit or "target"
 	if UnitCanAttack(Unit,"player") then
-		return true;
+		return true
 	else
-		return false;
+		return false
 	end
 end
 

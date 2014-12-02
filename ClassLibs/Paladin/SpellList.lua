@@ -403,4 +403,14 @@ if select(3,UnitClass("player")) == 2 then
 			return
 		end
 	end
+
+	function castSealOfTruth()
+		CastShapeshiftForm(1)
+		return true
+	end
+
+	function castSealOfRigtheousness()
+		CastShapeshiftForm(2)
+		return true
+	end
 end

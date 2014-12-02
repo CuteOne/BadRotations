@@ -87,13 +87,13 @@ function makeEnemiesTable(maxDistance)
 	   						z = Z1,
    						}
    					)
-	   				end
-			  	end
-		 	end
-		 	-- sort them by coeficient
-		 	table.sort(enemiesTable, function(x,y)
-		 		return x.coeficient and y.coeficient and x.coeficient > y.coeficient or false
-		 	end
+   				end
+		  	end
+	 	end
+	 	-- sort them by coeficient
+	 	table.sort(enemiesTable, function(x,y)
+	 		return x.coeficient and y.coeficient and x.coeficient > y.coeficient or false
+	 	end
 		)
 	end
 end
@@ -269,21 +269,26 @@ end
 -- /dump UnitGUID("target")
 -- /dump getEnemies("target",10)
 function getEnemies(unit,Radius)
-	local getEnemiesTable = { }
- 	for i = 1, #enemiesTable do
- 		thisUnit = enemiesTable[i].unit
-	  	if getDistanceXYZ(unit,i) <= Radius then
-	   		tinsert(getEnemiesTable,thisUnit)
-	  	end
- 	end
- 	return getEnemiesTable
+	if UnitExists(unit) and UnitIsVisible(unit) then
+		local getEnemiesTable = { }
+	 	for i = 1, #enemiesTable do
+	 		thisUnit = enemiesTable[i].unit
+		  	if getDistanceXYZ(unit,i) <= Radius then
+		   		tinsert(getEnemiesTable,thisUnit)
+		  	end
+	 	end
+	 	return getEnemiesTable
+	else
+	 	return { }
+	end
 end
 
 -- returns true if Unit is a valid enemy
 function getSanity(unit)
 	if UnitExists(unit) and bit.band(ObjectType(unit), ObjectTypes.Unit) == 8 
 	  and UnitIsVisible(unit) == true and getCreatureType(unit) == true
-	  and UnitCanAttack(unit, "player") == true and UnitIsDeadOrGhost(unit) == false then
+	  and UnitCanAttack(unit, "player") == true and UnitIsDeadOrGhost(unit) == false 
+	  and (UnitAffectingCombat(unit) or isDummy(unit)) then
 	  	return true
 	else
 		return false
@@ -372,7 +377,8 @@ function isCrowdControlCandidates(Unit)
 		-- is in the list of candidates
 		if unitID == crowdControlCandidates[i].unitID and 
 		  -- doesnt have more requirements or requirements are met
-		  (crowdControlCandidates[i].buff == nil or UnitBuffID(Unit,crowdControlCandidates[i].buff)) then
+		  (crowdControlCandidates[i].buff == nil or UnitBuffID(Unit,crowdControlCandidates[i].buff)) 
+		  (crowdControlCandidates[i].spell == nil or getCastingInfo(Unit) == GetSpellInfo(crowdControlCandidates[i].spell)) then
 			return true
 		end
 	end
@@ -424,5 +430,4 @@ end
 
 end
 
--- ToDo: Add list of units to stun, either always or udner certain condition such as having a buff or wirldwinding etc
 -- ToDo: We need to think about if the target have a dot so it will die regardless or not. Should have a timetodie.

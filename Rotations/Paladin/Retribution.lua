@@ -22,6 +22,11 @@ if select(3, UnitClass("player")) == 2 then
 	local buffSeraPhim = getBuffRemain("player",_Seraphim)
 	local buffBlazingContemp = getBuffRemain("player",_BlazingContemp)
 	local buffAvengingWrath = getBuffRemain("player",_AvengingWrath)
+	local buffLiadrinsRighteousness = getBuffRemain("player",156989) 
+	local buffMaraadsTruth = getBuffRemain("player",156990) 
+	local sealOfTruth = GetShapeshiftForm() == 1 or nil
+	local sealOfRighteousness = GetShapeshiftForm() == 2 or nil
+
 	-- Food/Invis Check   Hm here we are checking if we should abort the rotation pulse due to if we are a vehicle or some stuff
 	-- canRun is already checking UnitInVehicle and some other stuff im not sure about.
 	if canRun() ~= true then
@@ -100,10 +105,6 @@ if select(3, UnitClass("player")) == 2 then
 		-- arcane_torrent
 		-- seraphim
 		castSeraphim()
-
-		-- call_action_list,name=aoe,if=active_enemies>=5
-		-- call_action_list,name=cleave,if=active_enemies>=3
-		-- call_action_list,name=single
 		--[[Single(1-2)]]
 		if meleeEnemies < 3 then
 			-- divine_storm,if=buff.divine_crusader.react&holy_power=5&buff.final_verdict.up
@@ -127,7 +128,6 @@ if select(3, UnitClass("player")) == 2 then
 			if buffDivineCrusader and buffDivineCrusader < 4 and not isKnown(_FinalVerdict) then
 			  	castDivineStorm()
 			end		
-
 			if isKnown(_FinalVerdict)
 			  -- final_verdict,if=holy_power=5|buff.holy_avenger.up&holy_power>=3
 			 and (_HolyPower == 5 or (buffHolyAvenger > 1 and _HolyPower >= 3)
@@ -135,17 +135,28 @@ if select(3, UnitClass("player")) == 2 then
 			  or (buffDivinePurpose > 0 and buffDivinePurpose < 4)) then
 			  	castTemplarsVerdict()
 			end	  	
-
 			-- hammer_of_wrath
 			castMultiHammerOfWrath()
-			-- judgment,if=talent.empowered_seals.enabled&((seal.truth&buff.maraads_truth.remains<cooldown.judgment.duration*2)|(seal.righteousness&buff.liadrins_righteousness.remains<cooldown.judgment.duration*2))
-			
+			-- judgment,if=talent.empowered_seals.enabled&((seal.truth&buff.maraads_truth.remains<cooldown.judgment.duration*2)
+			if isKnown(152263) then
+				if buffLiadrinsRighteousness < 8 then
+					if (sealOfTruth and buffMaraadsTruth < getSpellCD(_Judgment) + 5)
+					  -- |(seal.righteousness&buff.liadrins_righteousness.remains<cooldown.judgment.duration*2))
+					  or (sealOfRighteousness and buffLiadrinsRighteousness < getSpellCD(_Judgment) + 5) then
+					  	castJudgement(dynamicUnit.dyn5)
+					end
+				end
+			end
 			-- exorcism,if=buff.blazing_contempt.up&holy_power<=2&buff.holy_avenger.down
 			if UnitBuffID("player",_BlazingContemp) and HolyPower <= 2 then
 				castExorcism(dynamicUnit.dyn30)
 			end
 			-- seal_of_truth,if=talent.empowered_seals.enabled&buff.maraads_truth.remains<(cooldown.judgment.duration)&buff.maraads_truth.remains<=3
-			
+			if isKnown(152263) then
+				if buffMaraadsTruth < getSpellCD(_Judgment) and buffMaraadsTruth <= 3 then
+					castSealOfTruth()
+				end
+			end
 			-- divine_storm,if=buff.divine_crusader.react&buff.final_verdict.up&(buff.avenging_wrath.up|target.health.pct<35)
 			if _DivineCrusader > 0 and buffFinalVerdict > 0 and (buffAvengingWrath or getHP(dynamicUnit.dyn5) < 35) then
 				castDivineStorm()
@@ -173,7 +184,11 @@ if select(3, UnitClass("player")) == 2 then
 				castTemplarsVerdict()
 			end
 			-- seal_of_righteousness,if=talent.empowered_seals.enabled&buff.liadrins_righteousness.remains<(cooldown.judgment.duration)&buff.liadrins_righteousness.remains<=3
-			
+			if isKnown(152263) then
+				if buffLiadrinsRighteousness < getSpellCD(_Judgment) and buffLiadrinsRighteousness <= 3 then
+					castSealOfRigtheousness()
+				end
+			end
 			-- judgment
 			castJudgement(dynamicUnit.dyn5)
 			-- templars_verdict,if=buff.divine_purpose.react
@@ -217,7 +232,11 @@ if select(3, UnitClass("player")) == 2 then
 			-- hammer_of_wrath
 			castMultiHammerOfWrath()
 			-- judgment,if=talent.empowered_seals.enabled&seal.righteousness&buff.liadrins_righteousness.remains<=5
-
+			if isKnown(152263) then
+				if sealOfRighteousness and buffLiadrinsRighteousness <= 5 then
+					castJudgement()
+				end
+			end
 			-- divine_storm,if=(!talent.seraphim.enabled|cooldown.seraphim.remains>4)&!talent.final_verdict.enabled
 			if (not isKnown(_Seraphim) or getSpellCD(_Seraphim) > 4) and not isKnown(_FinalVerdict) then
 				castDivineStorm()
@@ -250,7 +269,11 @@ if select(3, UnitClass("player")) == 2 then
 			-- hammer_of_the_righteous
 			castHammerOfTheRighteous(dynamicUnit.dyn5)
 			-- judgment,if=talent.empowered_seals.enabled&seal.righteousness&buff.liadrins_righteousness.remains<=5
-
+			if isKnown(152263) then
+				if sealOfRighteousness and buffLiadrinsRighteousness <= 5 then
+					castJudgement()
+				end
+			end
 			-- hammer_of_wrath
 			castMultiHammerOfWrath()
 			-- divine_storm,if=(!talent.seraphim.enabled|cooldown.seraphim.remains>4)

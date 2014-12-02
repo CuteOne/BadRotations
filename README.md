@@ -30,9 +30,9 @@
 |Mistweaver|70%|CodeMyLife |
 |Windwalker|100%|CuteOne |
 | **Paladin**  |  |  |
-|Holy|0%|CodeMyLife |
-|Protection|80%|Gabbz |
-|Retribution|0%|Gabbz |
+|Holy|50%|Gabbz & CodeMyLife |
+|Protection|95%|Gabbz |
+|Retribution|95%(SimC)|Gabbz & CodeMyLife |
 ||||
 | **Priest**  |  |  |
 |Discipline|0%||
