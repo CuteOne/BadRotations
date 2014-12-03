@@ -249,7 +249,7 @@ if select(3, UnitClass("player")) == 4 then
 	                end
 	            end
 	-- Slice and Dice
-				if sndRemain<5 and power>25 and tarDist<5 and combo>0 then
+				if not isKnown(_ImprovedSliceAndDice) and sndRemain<5 and power>25 and tarDist<5 and combo>0 then
 					if castSpell("player",_SliceAndDice,true,false,false) then return end
 				end
 	-- Marked for Death
