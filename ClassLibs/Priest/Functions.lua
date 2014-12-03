@@ -43,14 +43,6 @@ if select(3, UnitClass("player")) == 5 then
 		-- 3 - Unit is mobUnit's primary target, and no other unit has 100% or higher raw threat (default UI shows red indicator)
 	end
 
-	-- Break MF cast for MB
-	function breakMF()
-		if getSpellCD(MB)<getSpellCD(61304) and (select(1,UnitChannelInfo("player")) == "Mind Flay" or select(1,UnitChannelInfo("player"))) == "Insanity" then
-			--print("--- BREAK MF ---")
-			RunMacroText("/stopcasting")
-		end
-	end
-	
 	-- Check if SWP is on 3 units or if #enemiesTable is <3 then on #enemiesTable
 	function getSWP()
 		local counter = 0
@@ -180,7 +172,7 @@ if select(3, UnitClass("player")) == 5 then
 	--[[                    ]] -- Cooldowns end
 
 
-	--[[                    ]] -- tHP<20% start
+	--[[                    ]] -- Execute start
 	function Execute()
 		if getHP("target")<=20 then
 			-- ORBS>=3 -> DP
@@ -195,13 +187,29 @@ if select(3, UnitClass("player")) == 5 then
 			if castSpell("target",MB,false,false) then return; end
 
 			-- MF Filler
-			if select(1,UnitChannelInfo("player")) == nil and getSpellCD(MB)<0.5*GCD then
+			if select(1,UnitChannelInfo("player")) == nil and getSpellCD(MB)>GCD then
 				if castSpell("target",MF,false,true) then return; end
 			end
 		end
 	end
 
-	--[[                    ]] -- tHP<20% end
+	--[[                    ]] -- Execute end
+
+
+	--[[                    ]] -- LF Orbs start
+	function LFOrbs()
+		if isChecked("Scan for Orbs") then
+			if getSpellCD(SWD)==0 and ORBS<5 then
+				for i=1,#enemiesTable do
+					local thisUnit = enemiesTable[i].unit
+					if UnitAffectingCombat(thisUnit) and enemiesTable[i].hp<20 then
+						if castSpell(thisUnit,SWD,true,false) then return; end
+					end
+				end
+			end
+		end
+	end
+	--[[                    ]] -- LF Orbs end
 
 
 	--[[                    ]] -- IcySingle DotWeave start
@@ -363,7 +371,7 @@ if select(3, UnitClass("player")) == 5 then
 
 
 	--[[                    ]] -- Icy 2-3 Targets start
-	function Icy23Targets()
+	function IcyMultiTarget()
 		--makeEnemiesTable(40)
 		-- DP
 		if ORBS>=5 then
@@ -378,7 +386,6 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- MB
-		--breakMF()
 		if ORBS<5 then
 			if castSpell("target",MB,false,false) then return; end
 		end
@@ -427,7 +434,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- VT on Unit in range
 		if getVT()<getValue("Max Targets") then
 			-- apply on current target before iterating
-			if getDebuffRemain("target",VT,"player")<getValue("Refresh Time") then
+			if getDebuffRemain("target",VT,"player")<getValue("Refresh Time") and GetTime()-lastVT>2*GCD then
 				if castSpell("target",VT,true,true) then 
 					lastVT=GetTime()
 					return
@@ -439,7 +446,7 @@ if select(3, UnitClass("player")) == 5 then
 					local thisUnit = enemiesTable[i].unit
 					local ttd = getTimeToDie(thisUnit)
 					local vtRem = getDebuffRemain(thisUnit,VT,"player")
-					if UnitAffectingCombat(thisUnit) and not isLongTimeCCed(thisUnit) and vtRem<getValue("Refresh Time") then --and GetTime()-lastVT>2*GCD
+					if UnitAffectingCombat(thisUnit) and not isLongTimeCCed(thisUnit) and vtRem<getValue("Refresh Time") and GetTime()-lastVT>2*GCD then
 						if castSpell(thisUnit,VT,true,true) then 
 							lastVT=GetTime()
 							return
@@ -450,18 +457,19 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- Mind Sear Filler
-		if #getEnemies("target",10)>=3 then
+		--if #getEnemies("player",40)>=3 then
+		if BadBoy_data['Single']==2 then
 			if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
 				if castSpell("target",MS,false,true) then return; end
 			end
 		end
 
 		-- MF Filler
-		if getVT()<getValue("Max Targets") and getSWP()<getValue("Max Targets") then
-			if ORBS<3 and select(1,UnitChannelInfo("player")) == nil then
+		--if getDebuffRemain("target",SWP,"player")<getValue("Refresh Time") then
+			if (ORBS<=5 or (ORBS<=3 and BadBoy_data['Burn'] == 2)) and select(1,UnitChannelInfo("player")) == nil then
 				if castSpell("target",MF,false,true) then return; end
 			end	
-		end
+		--end
 	end
 	--[[                    ]] -- Icy 2-3 Targets end
 end

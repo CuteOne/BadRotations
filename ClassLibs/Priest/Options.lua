@@ -70,6 +70,10 @@ if select(3, UnitClass("player")) == 5 then
 					CreateNewText(thisConfig,"SWD glyphed");
 				end
 
+				-- LR Orbs
+				CreateNewCheck(thisConfig,"Scan for Orbs");
+				CreateNewText(thisConfig,"Scan for Orbs");				
+
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"      |cffBA55D3Defensive");
@@ -141,7 +145,7 @@ if select(3, UnitClass("player")) == 5 then
 				CreateNewText(thisConfig,"Max DoTs AoE");
 
 				-- DoT Refresh
-				CreateNewBox(thisConfig,"Refresh Time", 1.0, 4.5, 0.1, 2.0, "Minimum time to refresh DoT.\n10=1sec.\nMin: 1 / Max: 4.5 / Interval: 1");
+				CreateNewBox(thisConfig,"Refresh Time", 1.0, 4.5, 0.1, 2.0, "Minimum time to refresh DoT.\nMin: 1 / Max: 4.5 / Interval: 0.1");
 				CreateNewText(thisConfig,"DoT refresh time");
 
 			-- Wrapper -----------------------------------------
