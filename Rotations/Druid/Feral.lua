@@ -53,7 +53,7 @@ if select(3, UnitClass("player")) == 11 then
 			if ttd == nil then ttd = getTimeToDie("target") end
 		-- Specific Player Variables
 		local combo = getCombo()
-		local clearcast = getBuffRemain("player",cc)
+		local clearcast = UnitBuffID("player",cc)
 		local travel, flight, cat, stag = UnitBuffID("player", trf), UnitBuffID("player", flf), UnitBuffID("player",cf) or UnitBuffID("player",cosf), hasGlyph(114338)
 		local stealth = UnitBuffID("player",prl) or UnitBuffID("player",sm)
 		local rejRemain = getBuffRemain("player", rej)
@@ -413,7 +413,7 @@ if select(3, UnitClass("player")) == 11 then
 						if castSpell("player",svr,true,false,false) then return end
 		            end
 		-- Thrash
-					if useCleave then
+					if useCleave() or (BadBoy_data['AoE'] == 2 and not useCleave()) then
 						for i=1, #enemiesTable do
 							thisUnit = enemiesTable[i].unit
 							thrRemain = getDebuffRemain(thisUnit,thr,"player")
@@ -440,34 +440,9 @@ if select(3, UnitClass("player")) == 11 then
 								end
 							end
 						end
-					else
-						thisUnit = dynamicUnit.dyn8AoE
-						thrRemain = getDebuffRemain(thisUnit,thr,"player")
-						if thrRemain<4.5 then
-							if clearcast then
-								--if=buff.omen_of_clarity.react&remains<4.5&active_enemies>1
-								if enemies>1 then
-									if castSpell(thisUnit,thr,true,false,false) then return end
-								end
-								--if=!talent.bloodtalons.enabled&combo_points=5&remains<4.5&buff.omen_of_clarity.react
-								if not bloodtalons and combo==5 then
-									if castSpell(thisUnit,thr,true,false,false) then return end
-								end
-							end
-							if enemies>1 then
-								--pool_resource,for_next=1
-								if power<=50 then
-									return true
-								end
-								--if=remains<4.5&active_enemies>1
-								if power>50 then
-									if castSpell(thisUnit,thr,true,false,false) then return end
-								end
-							end
-						end
 					end
 		-- Ferocious Bite
-					if useCleave then
+					if useCleave() then
 						for i=1, #enemiesTable do
 							thisUnit = enemiesTable[i].unit
 							rpRemain = getDebuffRemain(thisUnit,rp,"player")
@@ -485,7 +460,7 @@ if select(3, UnitClass("player")) == 11 then
 						end
 					end
 		-- Rip
-					if useCleave then
+					if useCleave() then
 						for i=1, #enemiesTable do
 							thisUnit = enemiesTable[i].unit
 							rpRemain = getDebuffRemain(thisUnit,rp,"player")
@@ -518,7 +493,7 @@ if select(3, UnitClass("player")) == 11 then
 					end
 		-- Savage Roar
 					--if=(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)&buff.savage_roar.remains<12.6
-					if combo==5 and (ttm<=1 or berserking or tfCooldown<3) and srRemain<12.6 and power>25 and tarDist<5	then
+					if rpRemain>=3 and combo==5 and (ttm<=1 or berserking or tfCooldown<3) and srRemain<12.6 and power>25 and tarDist<5	then
 						if castSpell("player",svr,true,false,false) then return end
 		            end
 		-- Ferocious Bite
@@ -527,7 +502,7 @@ if select(3, UnitClass("player")) == 11 then
 		    			if castSpell(dynamicUnit.dyn5,fb,false,false,false) then return end
 		            end
 	    -- Rake 
-	    			if useCleave then
+	    			if useCleave() then
 						for i=1, #enemiesTable do
 							thisUnit = enemiesTable[i].unit
 							rkRemain = getDebuffRemain(thisUnit,rk,"player")
@@ -575,7 +550,7 @@ if select(3, UnitClass("player")) == 11 then
 				    	end
 				    end
 		-- Thrash
-					if useCleave then
+					if useCleave() then
 						for i=1, #enemiesTable do
 							thisUnit = enemiesTable[i].unit
 							thrRemain = getDebuffRemain(thisUnit,thr,"player")
@@ -584,17 +559,10 @@ if select(3, UnitClass("player")) == 11 then
 				    			if castSpell(thisUnit,thr,true,false,false) then return end
 				    		end
 				    	end
-				    else
-				    	thisUnit = dynamicUnit.dyn8AoE
-						thrRemain = getDebuffRemain(thisUnit,thr,"player")
-						--if=talent.bloodtalons.enabled&combo_points=5&remains<4.5&buff.omen_of_clarity.react		
-			    		if bloodtalons and combo==5 and thrRemain<4.5 and clearcast then
-			    			if castSpell(thisUnit,thr,true,false,false) then return end
-			    		end
 			    	end
 		-- Moonfire
 					if getTalent(7,1) then
-						if useCleave then
+						if useCleave() then
 							for i=1, #enemiesTable do
 								thisUnit = enemiesTable[i].unit
 								mfRemain = getDebuffRemain(thisUnit,mf,"player")
@@ -615,7 +583,7 @@ if select(3, UnitClass("player")) == 11 then
 					    end
 				   	end 	        
 	    -- Rake
-	    			if useCleave then
+	    			if useCleave() then
 						for i=1, #enemiesTable do
 							thisUnit = enemiesTable[i].unit
 							rkRemain = getDebuffRemain(thisUnit,rk,"player")
@@ -639,7 +607,7 @@ if select(3, UnitClass("player")) == 11 then
 		    			if castSpell(dynamicUnit.dyn8,sw,false,false,false) then return end
 		            end
 	    -- Shred
-		    		if not useAoE() and power>40 and combo<5 then
+		    		if getDebuffRemain(dynamicUnit.dyn5,rk,"player")>=3 and not useAoE() and power>40 and combo<5 then
 		    			if castSpell(dynamicUnit.dyn5,shr,false,false,false) then return end
 		            end
 			    end --not stealth end
