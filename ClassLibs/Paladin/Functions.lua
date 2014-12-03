@@ -47,25 +47,15 @@ if select(3,UnitClass("player")) == 2 then
     	end
 
 		function ProtPaladinControl(unit)
-			--If no unit then we should check autotargetting
-			-- If the unit is a player controlled then assume pvp and always CC
-			-- Otherwise check towards config, always or whitelist.
-			-- we have the following CCs HammerOFJustice, Fist of Justice, Repentance, Blinding Light, Turn Evil, Holy Wrath
-			-- We should be able to configure, always stun, stun based on whitelist, stun if low health, stun if target is casting/buffed
 			if isChecked("Crowd Control") then
 				if getValue("Crowd Control") == 1 then -- This is set to never but we should use the box tick for this so atm this is whitelist
-					--Todo: Create whitelist of mobs we are going to stun always
-					--Todo: Create whitelist of (de)buffs we are going to stun always or scenarios(more then x number of attackers
+
 				elseif getValue("Crowd Control") == 2 then -- This is set to to CD
 
 				elseif getValue("Crowd Control") == 3 then -- This is set to Always
 
 				end
 			end
-			if unit then
-
-			end
-			-- put auto logic here
 			return false
 		end
 
@@ -105,7 +95,7 @@ if select(3,UnitClass("player")) == 2 then
 					return true
 				end
 			end
-
+			
 			if isChecked("Avengers Shield Interrupt") then
 				if castInterrupt(_AvengersShield,getValue("Avengers Shield Interrupt")) then
 					return true
@@ -173,17 +163,14 @@ if select(3,UnitClass("player")) == 2 then
 			-- At the moment only populating table to see performance.
 			makeEnemiesTable(40) -- enemiesTable, Unit in 40 range
 
-			-- getCastingInfo(unit)
-			-- getEnemies(unit,Radius) returns table of units
-			-- Make sure we declare our AoE treshold ASAP and refresh it every seconds
-
-			-- check if target is safe or if u need to switch
-			if not isSafeToAttack("target") then
+			-- Set new target if current is not safe to attack
+			if isChecked("Safe Damage Check") and not isSafeToAttack("target") then  --Do we need to change targets?
 				print("Unsafe Target")
-			end
-
-			if  isBurnTarget("target") then
-				print("Burn Target")
+				TargetUnit(dynamicTarget(5,true))
+				if not UnitExists("target") then
+					print("No valid Target, stop attack")
+					RunMacroText("/stopattack")
+				end
 			end
 
 			if numberOfTargetsMelee == nil or numberOfTargetsMeleeTimer == nil or numberOfTargetsMeleeTimer <= GetTime() - 1 then
@@ -193,6 +180,7 @@ if select(3,UnitClass("player")) == 2 then
 			if numberOfTargetsForHammerOfRighteuos == nil or numberOfTargetsForHammerOfRighteuosTimer == nil or numberOfTargetsForHammerOfRighteuosTimer <= GetTime() - 1 then
 				numberOfTargetsForHammerOfRighteuos, numberOfTargetsForHammerOfRighteuosTimer = getNumEnemies("target",7), GetTime() --getNumEnemiesInRange("target",8)
 			end
+
 			return
 		end
 
@@ -233,14 +221,6 @@ if select(3,UnitClass("player")) == 2 then
 		end
 
 		function ProtPaladinHolyPowerCreaters() -- Handle the normal rotation
-			-- Todos: Talents, only light hammer is handled, Prism and Sentence is not
-			-- Todos: Glyphs, we have no support for the Holy Wrath glyph which should put it higher on priority after Judgement.
-
-			-- Seal Switching if we are waiting for CS or Judge CD
-			-- seal_of_insight,if=talent.empowered_seals.enabled&!seal.insight&buff.uthers_insight.remains<cooldown.judgment.remains
-			-- seal_of_righteousness,if=talent.empowered_seals.enabled&!seal.righteousness&buff.uthers_insight.remains>cooldown.judgment.remains&buff.liadrins_righteousness.down
-			-- seal_of_truth,if=talent.empowered_seals.enabled&!seal.truth&buff.uthers_insight.remains>cooldown.judgment.remains&buff.liadrins_righteousness.remains>cooldown.judgment.remains&buff.maraads_truth.down
-
 
 			-- If we have 3 targets for Avenger Shield and we have Grand Crusader Buff
 			-- Todo : we need to check if AS will hit 3 targets, so what is the range of AS jump? We are usimg same logic as Hammer of Righ at the moment, 8 yard.
@@ -422,11 +402,27 @@ Holy
 ]]	function PaladinHolyFunctions()
 
 		-- Eternal Flame
-		function EternalFlame(hpValue)
-			if _HolyPower > 3 then
-				for i = 1, #nNova do
-					if (nNova[i].hp < hpValue and getBuffRemain(nNova[i].unit,_EternalFlame) < 5) or (nNova[i].hp < 100 and _HolyPower == 5 and getBuffRemain(nNova[i].unit,_EternalFlame) < 5) or nNova[i].hp < hpValue - 20 then
-						if castSpell(nNova[i].unit, _EternalFlame, true, false) then return end
+		function castEternalFlame()
+			-- We should cast eternal flame on people that take damage
+			-- So its not hp based but rather number of targets. So tank that is tanking and perhaps one more?
+			-- Todo: We are hardcoding this to 1 tank at the moment, should create a list of debuffs or sitatuion when we should cast eternal flame.
+			-- Todo: We should also have a config value sayin how many targets we should cast it on.
+			if _HolyPower > 0 then
+				if UnitExists("focus") == true and UnitInRaid("focus") == true and UnitIsVisible("focus") then
+					if getBuffRemain("focus",_EternalFlame) < 5 then 
+						if castSpell("focus",_EternalFlame,true,false) then 
+							return true
+						end
+					end
+				else
+					for i = 1, #nNova do
+						if nNova[i].role == "TANK" then
+							if getBuffRemain("focus",_EternalFlame) < 5 then 
+								if castSpell("focus",_EternalFlame,true,false) then 
+									return true
+								end
+							end
+						end
 					end
 				end
 			end
@@ -488,6 +484,23 @@ Holy
 					for i = 1, #nNova do
 						if nNova[i].role == "TANK" then
 							if castSpell(nNova[i].unit,_BeaconOfLight,true,false) then return end
+						end
+					end
+				end
+			end
+		end
+
+		function castLayOnHands()
+			if getHP("player") <= getValue("Lay On Hands") then
+					if castSpell("player",_LayOnHands,true) then
+						return true
+					end
+				else
+					for i = 1, #nNova do
+						if nNova[i].hp <= getValue("Lay On Hands") then
+							if castSpell(nNova[1].unit,_LayOnHands,true) then
+								return true
+							end
 						end
 					end
 				end
