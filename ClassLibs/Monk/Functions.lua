@@ -72,6 +72,13 @@ function useAoEBrM()
         return false
     end
 end
+-- function useAoEBrM()
+--     if BadBoy_data['AoE'] == 1 and #enemiesTable >= 3 then
+--         return true
+--     else
+--         return false
+--     end
+-- end
 
 --[[]]     --[[]]	--[[           ]]	--[[           ]]	--[[           ]]
 --[[ ]]   --[[ ]] 		 --[[ ]]		--[[           ]]	--[[           ]]
