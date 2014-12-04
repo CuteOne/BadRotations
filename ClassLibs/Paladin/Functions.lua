@@ -424,9 +424,29 @@ Holy
 		-- Eternal Flame
 		function EternalFlame(hpValue)
 			if _HolyPower > 3 then
-				for i = 1, #nNova do
-					if (nNova[i].hp < hpValue and getBuffRemain(nNova[i].unit,_EternalFlame) < 5) or (nNova[i].hp < 100 and _HolyPower == 5 and getBuffRemain(nNova[i].unit,_EternalFlame) < 5) or nNova[i].hp < hpValue - 20 then
-						if castSpell(nNova[i].unit, _EternalFlame, true, false) then return end
+				if getValue("Eternal Flame") < 2 then -- Tank
+					for i = 1, #nNova do
+						if nNova[i].role == "TANK" and getBuffRemain(nNova[i].unit,_EternalFlame) < 5 then
+							if castSpell(nNova[i].unit,_EternalFlame,true,false) then 
+								return 
+							end
+						end
+					end
+				end
+				if getValue("Eternal Flame") < 3 then -- Tank and Focus
+					if UnitExists("focus") == true  and UnitIsVisible("focus") and getBuffRemain("focus",_EternalFlame) < 5 then
+						if castSpell("focus",_EternalFlame,true,false) then 
+							return true
+						end
+					end
+				end
+
+				if getValue("Eternal Flame") == 3 then -- Tank, focus and wise
+					--Todo:
+					for i = 1, #nNova do
+						if (nNova[i].hp < 30 and getBuffRemain(nNova[i].unit,_EternalFlame) < 5) or (nNova[i].hp < 100 and _HolyPower == 5 and getBuffRemain(nNova[i].unit,_EternalFlame) < 5) or nNova[i].hp < hpValue - 20 then
+							if castSpell(nNova[i].unit, _EternalFlame, true, false) then return end
+						end
 					end
 				end
 			end
@@ -471,6 +491,17 @@ Holy
 			end
 		end
 
+		function HolyPrism(hpValue)
+			if getValue("Holy Prism Mode") == 1 then -- Cast on friend
+			end
+			if getValue("Holy Prism Mode") == 2 then -- Cast on tanks target
+			end
+			if getValue("Holy Prism Mode") == 3 then --Wise
+				--Todo, here we should check how many enemies around lowest HP units and if x then go for it
+				--or check if many people need healing and there is a mob close to them
+			end
+		end
+
 		-- Beacon Of Light
 		function BeaconOfLight()
 			local beaconTarget, beaconRole, beaconHP = "player", "HEALER", getHP("player")
@@ -485,7 +516,7 @@ Holy
 			if getValue("Beacon Of Light") == 1 then
 				if beaconRole ~= "TANK" then
 					for i = 1, #nNova do
-						if nNova[i].role == "TANK" then
+						if nNova[i].role == "TANK" and not UnitBuffID("focus",_BeaconOfLight,"player") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
 							if castSpell(nNova[i].unit,_BeaconOfLight,true,false) then return end
 						end
 					end
@@ -493,7 +524,7 @@ Holy
 			end
 
 			if getValue("Beacon Of Light") == 2 then
-				if UnitExists("focus") == true and UnitInRaid("focus") == true and UnitIsVisible("focus") and not UnitBuffID("focus",_BeaconOfLight,"player") then
+				if UnitExists("focus") == true and UnitIsVisible("focus") and not UnitBuffID("focus",_BeaconOfLight,"player") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
 					if castSpell("focus",_BeaconOfLight,true,false) then 
 						return true
 					end
@@ -504,7 +535,7 @@ Holy
 			if isKnown(_BeaconOfFaith) then
 				-- if we are not beacon on a tank and on tanks is checked we find a proper tank if focus dont exists.
 				if getValue("Beacon Of Faith") == 1 then
-					if beaconRole ~= "TANK" then
+					if beaconRole ~= "TANK" and not UnitBuffID("focus",_BeaconOfLight,"player") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
 						for i = 1, #nNova do
 							if nNova[i].role == "TANK" then
 								if castSpell(nNova[i].unit,_BeaconOfFaith,true,false) then return end
@@ -514,7 +545,7 @@ Holy
 				end
 
 				if getValue("Beacon Of Faith") == 2 then
-					if UnitExists("focus") == true and UnitInRaid("focus") == true and UnitIsVisible("focus") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
+					if UnitExists("focus") == true  and UnitIsVisible("focus") and not UnitBuffID("focus",_BeaconOfFaith,"player") and not UnitBuffID("focus",_BeaconOfLight,"player") then
 						if castSpell("focus",_BeaconOfFaith,true,false) then 
 							return true
 						end

@@ -322,7 +322,7 @@ if select(3,UnitClass("player")) == 2 then
 			CreateNewText(thisConfig, myColor.."Selfless Healer")
 		else
 			CreateNewCheck(thisConfig, "Eternal Flame","Normal",1)
-			CreateNewBox(thisConfig, "Eternal Flame", 0, 100  , 1, 70, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFEternal Flame on Raid")
+			CreateNewDrop(thisConfig, "Eternal Flame", 2, "Choose mode:\nTank - Always on tank\nFocus - Always on focus.\nWise - Dynamic", "TANK","FOCUS","WISE")
 			CreateNewText(thisConfig, myColor.."Eternal Flame")
 		end
 		if isKnown(_SelflessHealer) or isKnown(_SacredShield) then
@@ -336,6 +336,10 @@ if select(3,UnitClass("player")) == 2 then
 			CreateNewCheck(thisConfig, "Holy Prism","Normal",1)
 			CreateNewBox(thisConfig, "Holy Prism", 0, 100  , 1, 95, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHoly Prism")
 			CreateNewText(thisConfig, myColor.."Holy Prism")
+			-- Mode, cast always as heal or always as damage or dynamic
+			CreateNewCheck(thisConfig, "Holy Prism Mode","Normal",1)
+			CreateNewDrop(thisConfig, "Holy Prism Mode", 2, "Choose mode:\nFriend - Heal with damage\nEnemy - Damage with heal.\nWise - Dynamic", "Friend", "Enemy","WISE")
+			CreateNewText(thisConfig, myColor.."Holy Prism Mode")
 		elseif isKnown(_LightsHammer) then
 			CreateNewCheck(thisConfig, "Lights Hammer","Normal",1)
 			CreateNewBox(thisConfig, "Lights Hammer", 0, 100  , 1, 35, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLights Hammer")
