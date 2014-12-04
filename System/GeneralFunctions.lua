@@ -392,7 +392,7 @@ end
 
 -- castGroundBetween("target",12345,40);
 function castGroundBetween(Unit,SpellID,maxDistance)
-	if UnitExists(Unit) and getSpellCD(SpellID) <= 0.4 and getLineOfSight("player", Unit) and getDistance("player", Unit) <= 5 then
+	if UnitExists(Unit) and getSpellCD(SpellID) <= 0.4 and getLineOfSight("player", Unit) and getDistance("player", Unit) <= maxDistance then
  		CastSpellByName(GetSpellInfo(SpellID),"player")
 		if IsAoEPending() then
 		local X, Y, Z = ObjectPosition(Unit)
@@ -503,21 +503,21 @@ end
 function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,DeadCheck)
 	if shouldStopCasting(SpellID) ~= true and (not UnitIsDeadOrGhost(Unit) or DeadCheck) then
 		-- stop if not enough power for that spell
-		if IsUsableSpell(SpellID) ~= true then return false; end
+		if IsUsableSpell(SpellID) ~= true then return false end
 		-- Table used to prevent refiring too quick
-	    if timersTable == nil then timersTable = { }; end
+	    if timersTable == nil then timersTable = { } end
 		-- make sure it is a known spell
-		if not (KnownSkip == true or isKnown(SpellID)) then return false; end
+		if not (KnownSkip == true or isKnown(SpellID)) then return false end
 		-- gather our spell range information
-		local spellRange = select(6,GetSpellInfo(SpellID));
-	  	if spellRange == nil or spellRange < 4 then spellRange = 4; end
+		local spellRange = select(6,GetSpellInfo(SpellID))
+	  	if spellRange == nil or spellRange < 5 then spellRange = 5 end
 		-- Check unit, if it's player then we can skip facing
 		if (Unit == nil or UnitIsUnit("player",Unit)) or -- Player
-			(Unit ~= nil and UnitIsFriend("player",Unit)) then FacingCheck = true; end -- Ally
+			(Unit ~= nil and UnitIsFriend("player",Unit)) then FacingCheck = true end -- Ally
 		-- if MovementCheck is nil or false then we dont check it
 		if MovementCheck == false or isMoving("player") ~= true or UnitBuffID("player",79206) ~= nil then
 			-- if ability is ready and in range
-			if (isChecked("Allow Failcasts") or getSpellCD(SpellID) == 0) and (isChecked("Skip Distance Check") or getDistance("player",Unit) < spellRange) then
+			if (isChecked("Allow Failcasts") or getSpellCD(SpellID) == 0) and (isChecked("Skip Distance Check") or getDistance("player",Unit) <= spellRange) then
 				-- if spam is not allowed
 	    		if SpamAllowed == false then
 	    			-- get our last/current cast

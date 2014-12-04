@@ -198,6 +198,7 @@ end
 
 -- units can be "all" or a numeric value
 function castDotCycle(units,spellID,range,facingCheck,movementCheck)
+	local units = units
 	-- unit can be "all" or numeric
 	if type(units) == "number" then
 		units = units
@@ -253,10 +254,10 @@ function getDebuffCount(spellID)
 		local thisUnit = enemiesTable[i].unit
 		-- increase counter for each occurences
 		if UnitDebuffID(thisUnit,spellID,"player") then
-			count = coun + 1
+			counter = counter + 1
 		end
 	end
-  	return count
+  	return counter
 end
 
 -- to enlight redundant checks in getDistance within getEnemies

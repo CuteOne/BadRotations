@@ -10,7 +10,7 @@ if select(3, UnitClass("player")) == 2 then
 		["dyn5"] = dynamicTarget(5,true),
 		["dyn30"] = dynamicTarget(30,true),
 		["dyn30AoE"] = dynamicTarget(30,false),
-		["dyn40"] = dynamicTarget(30,true)
+		["dyn40"] = dynamicTarget(40,true)
 	}
 	-- Locals Variables
 	local _HolyPower = UnitPower("player", 9)
