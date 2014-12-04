@@ -131,6 +131,10 @@ if select(3, UnitClass("player")) == 5 then
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"      |cffBA55D3Multidot");
 
+				-- Skip Affecting Combat
+				CreateNewCheck(thisConfig,"Skip Affecting Combat");
+				CreateNewText(thisConfig,"Skip Affecting Combat");
+
 				-- SWP
 				CreateNewCheck(thisConfig,"Multi SWP");
 				CreateNewText(thisConfig,"Multi SWP");
@@ -150,6 +154,11 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"      |cffBA55D3Utilities");
+
+				-- Pause Toggle
+				CreateNewCheck(thisConfig,"Pause Toggle");
+				CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle")
+				CreateNewText(thisConfig,"Pause Key");
 				
 				--Power Word: Fortitude
 				CreateNewCheck(thisConfig,"PW: Fortitude");

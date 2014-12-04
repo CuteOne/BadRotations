@@ -202,7 +202,7 @@ if select(3, UnitClass("player")) == 5 then
 			if getSpellCD(SWD)==0 and ORBS<5 then
 				for i=1,#enemiesTable do
 					local thisUnit = enemiesTable[i].unit
-					if UnitAffectingCombat(thisUnit) and enemiesTable[i].hp<20 then
+					if (UnitAffectingCombat(thisUnit) or isChecked("Skip Affecting Combat")) and enemiesTable[i].hp<20 then
 						if castSpell(thisUnit,SWD,true,false) then return; end
 					end
 				end
@@ -325,7 +325,6 @@ if select(3, UnitClass("player")) == 5 then
 		if getTalent(3,3) then
 			if UnitBuffID("player",InsanityBuff) then
 				if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
-					print("MF");
 					if castSpell("target",MF,false,true) then return; end
 				end
 			end
@@ -370,6 +369,107 @@ if select(3, UnitClass("player")) == 5 then
 	--[[                    ]] -- IcySingle end
 
 
+	--[[                    ]] -- Dual Target start
+	function IcyDualTarget()
+		-- DP
+		if ORBS>=5 then
+			if UnitDebuffID("target",SWP,"player") and getDebuffRemain("target",SWP,"player")>DPTIME and UnitDebuffID("target",VT,"player") and getDebuffRemain("target",VT,"player")>DPTIME then
+				if ORBS==5 then
+					if castSpell("target",DP,false,true) then
+						lastDP=GetTime()
+						return
+					end
+				end
+			end
+		end
+
+		-- Burn Down ORBS (options)
+		-- if (ORBS>=3 and not isChecked("DP5")) and GetTime()-lastDP<=DPTIME then
+		-- 	if castSpell("target",DP,false,true) then return; end
+		-- end
+
+		-- Burn Down ORBS (Toggle)
+		if ORBS>=3 and BadBoy_data['Burn'] == 2 and getDebuffRemain("target",DP,"player")==0 then
+			if castSpell("target",DP,false,true) then return; end
+		end
+
+		-- MB
+		if castSpell("target",MB,false,false) then return; end
+
+		-- Insanity
+		if getTalent(3,3) then
+			if UnitBuffID("player",InsanityBuff) then
+				if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
+					if castSpell("target",MF,false,true) then return; end
+				end
+			end
+		end
+		if select(1,UnitChannelInfo("player")) == "Insanity" then return; end
+
+		-- MSp if SoD proc
+		if getTalent(3,1) then
+			if UnitBuffID("player",SoDProc) then
+				if castSpell("target",MSp,false,true) then return; end
+			end
+		end
+
+		-- SWP on max targets (options)
+		--if getSWP()<=2 then
+			-- apply on current target before iterating
+			if getDebuffRemain("target",SWP,"player")<getValue("Refresh Time") then
+				if castSpell("target",SWP,true,false) then return; end
+			end
+			-- iterate the table if multiSWP
+			--if isChecked("Multi SWP") then
+				for i = 1, #enemiesTable do
+					local thisUnit = enemiesTable[i].unit
+					local ttd = getTimeToDie(thisUnit)
+					local swpRem = getDebuffRemain(thisUnit,SWP,"player")
+					if UnitAffectingCombat(thisUnit) and not isLongTimeCCed(thisUnit) and swpRem<getValue("Refresh Time") then
+						if castSpell(thisUnit,SWP,true,false) then return; end
+					end
+				end
+			--end
+		--end
+
+		-- VT on Unit in range
+		--if getVT()<=2 then
+			-- apply on current target before iterating
+			if getDebuffRemain("target",VT,"player")<getValue("Refresh Time") and GetTime()-lastVT>2*GCD then
+				if castSpell("target",VT,true,true) then 
+					lastVT=GetTime()
+					return
+				end
+			end
+			-- iterate the table if multiVT
+			--if isChecked("Multi VT") then
+				for i = 1, #enemiesTable do
+					local thisUnit = enemiesTable[i].unit
+					local ttd = getTimeToDie(thisUnit)
+					local vtRem = getDebuffRemain(thisUnit,VT,"player")
+					if UnitAffectingCombat(thisUnit) and not isLongTimeCCed(thisUnit) and vtRem<getValue("Refresh Time") and GetTime()-lastVT>2*GCD then
+						if castSpell(thisUnit,VT,true,true) then 
+							lastVT=GetTime()
+							return
+						end
+					end
+				end
+			--end
+		--end
+
+		-- MF Filler
+		if ORBS<5 then
+			if getSpellCD(MB)>0.2*GCD then
+				if select(1,UnitChannelInfo("player")) == nil then
+					if castSpell("target",MF,false,true) then return; end
+				end
+			end
+		end		
+
+	end
+	--[[                    ]] -- Dual Target end
+
+
 	--[[                    ]] -- Icy 2-3 Targets start
 	function IcyMultiTarget()
 		--makeEnemiesTable(40)
@@ -406,14 +506,14 @@ if select(3, UnitClass("player")) == 5 then
 		if getSpellCD(SWD)==0 and ORBS<5 then
 			for i=1,#enemiesTable do
 				local thisUnit = enemiesTable[i].unit
-				if UnitAffectingCombat(thisUnit) and enemiesTable[i].hp<20 then
+				if enemiesTable[i].hp<20 then
 					if castSpell(thisUnit,SWD,true,false) then return; end
 				end
 			end
 		end
 
 		-- SWP on max targets (options)
-		if getSWP()<getValue("Max Targets") then
+		if getSWP()<=getValue("Max Targets") then
 			-- apply on current target before iterating
 			if getDebuffRemain("target",SWP,"player")<getValue("Refresh Time") then
 				if castSpell("target",SWP,true,false) then return; end
@@ -424,7 +524,7 @@ if select(3, UnitClass("player")) == 5 then
 					local thisUnit = enemiesTable[i].unit
 					local ttd = getTimeToDie(thisUnit)
 					local swpRem = getDebuffRemain(thisUnit,SWP,"player")
-					if UnitAffectingCombat(thisUnit) and not isLongTimeCCed(thisUnit) and swpRem<getValue("Refresh Time") then
+					if (UnitAffectingCombat(thisUnit) or isChecked("Skip Affecting Combat")) and not isLongTimeCCed(thisUnit) and swpRem<getValue("Refresh Time") then
 						if castSpell(thisUnit,SWP,true,false) then return; end
 					end
 				end
@@ -432,7 +532,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- VT on Unit in range
-		if getVT()<getValue("Max Targets") then
+		if getVT()<=getValue("Max Targets") then
 			-- apply on current target before iterating
 			if getDebuffRemain("target",VT,"player")<getValue("Refresh Time") and GetTime()-lastVT>2*GCD then
 				if castSpell("target",VT,true,true) then 
@@ -446,7 +546,7 @@ if select(3, UnitClass("player")) == 5 then
 					local thisUnit = enemiesTable[i].unit
 					local ttd = getTimeToDie(thisUnit)
 					local vtRem = getDebuffRemain(thisUnit,VT,"player")
-					if UnitAffectingCombat(thisUnit) and not isLongTimeCCed(thisUnit) and vtRem<getValue("Refresh Time") and GetTime()-lastVT>2*GCD then
+					if (UnitAffectingCombat(thisUnit) or isChecked("Skip Affecting Combat")) and not isLongTimeCCed(thisUnit) and vtRem<getValue("Refresh Time") and GetTime()-lastVT>2*GCD then
 						if castSpell(thisUnit,VT,true,true) then 
 							lastVT=GetTime()
 							return
