@@ -474,6 +474,7 @@ Holy
 		-- Beacon Of Light
 		function BeaconOfLight()
 			local beaconTarget, beaconRole, beaconHP = "player", "HEALER", getHP("player")
+			--3 different modes, tank, focus and wise
 			-- Find if we have any, note if its a tank.
 			for i = 1, #nNova do
 				if UnitBuffID(nNova[i].unit,_BeaconOfLight,"player") then
@@ -481,10 +482,8 @@ Holy
 				end
 			end
 			-- if we are not beacon on a tank and on tanks is checked we find a proper tank if focus dont exists.
-			if beaconRole ~= "TANK" then
-				if UnitExists("focus") == true and UnitInRaid("focus") == true and UnitIsVisible("focus") then
-					if castSpell("focus",_BeaconOfLight,true,false) then return end
-				else
+			if getValue("Beacon Of Light") == 1 then
+				if beaconRole ~= "TANK" then
 					for i = 1, #nNova do
 						if nNova[i].role == "TANK" then
 							if castSpell(nNova[i].unit,_BeaconOfLight,true,false) then return end
@@ -492,6 +491,37 @@ Holy
 					end
 				end
 			end
+
+			if getValue("Beacon Of Light") == 2 then
+				if UnitExists("focus") == true and UnitInRaid("focus") == true and UnitIsVisible("focus") and not UnitBuffID("focus",_BeaconOfLight,"player") then
+					if castSpell("focus",_BeaconOfLight,true,false) then 
+						return true
+					end
+				end
+			end
+
+			--Todo: Implement Wise Beacon
+			if isKnown(_BeaconOfFaith) then
+				-- if we are not beacon on a tank and on tanks is checked we find a proper tank if focus dont exists.
+				if getValue("Beacon Of Faith") == 1 then
+					if beaconRole ~= "TANK" then
+						for i = 1, #nNova do
+							if nNova[i].role == "TANK" then
+								if castSpell(nNova[i].unit,_BeaconOfFaith,true,false) then return end
+							end
+						end
+					end
+				end
+
+				if getValue("Beacon Of Faith") == 2 then
+					if UnitExists("focus") == true and UnitInRaid("focus") == true and UnitIsVisible("focus") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
+						if castSpell("focus",_BeaconOfFaith,true,false) then 
+							return true
+						end
+					end
+				end
+				--Todo impolement Wise mode
+			end 
 		end
 	end
 end

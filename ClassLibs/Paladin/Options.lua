@@ -284,10 +284,17 @@ if select(3,UnitClass("player")) == 2 then
 -- Healing
 		myWrapper("Healing")
 
-		-- Holy Light
+		-- Beacon of Light
 		CreateNewCheck(thisConfig, "Beacon Of Light","Normal",1)
-		CreateNewDrop(thisConfig, "Beacon Of Light", 2, "Choose mode:\nTank - Always on tank\nWise - Dynamic\nFocus - Always on focus.", "TANK","WISE","FOCUS")
+		CreateNewDrop(thisConfig, "Beacon Of Light", 2, "Choose mode:\nTank - Always on tank\nFocus - Always on focus.\nWise - Dynamic", "TANK","FOCUS","WISE")
 		CreateNewText(thisConfig, myColor.."Beacon Of Light")
+
+		-- Beacon of Faith
+		if isKnown(_BeaconOfFaith) then
+			CreateNewCheck(thisConfig, "Beacon Of Faith","Normal",1)
+			CreateNewDrop(thisConfig, "Beacon Of Faith", 2, "Choose mode:\nTank - Always on tank\nFocus - Always on focus.\nWise - Dynamic", "TANK","FOCUS","WISE")
+			CreateNewText(thisConfig, myColor.."Beacon Of Faith")
+		end
 
 		-- Holy Light
 		CreateNewCheck(thisConfig, "Holy Light","Normal",1)
@@ -323,6 +330,27 @@ if select(3,UnitClass("player")) == 2 then
 			CreateNewBox(thisConfig, "Word Of Glory", 0, 100  , 1, 70, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFWord Of Glory on Raid")
 			CreateNewText(thisConfig, myColor.."Word Of Glory")
 		end
+
+		-- Tier 6 talents
+		if isKnown(_HolyPrism) then
+			CreateNewCheck(thisConfig, "Holy Prism","Normal",1)
+			CreateNewBox(thisConfig, "Holy Prism", 0, 100  , 1, 95, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHoly Prism")
+			CreateNewText(thisConfig, myColor.."Holy Prism")
+		elseif isKnown(_LightsHammer) then
+			CreateNewCheck(thisConfig, "Lights Hammer","Normal",1)
+			CreateNewBox(thisConfig, "Lights Hammer", 0, 100  , 1, 35, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLights Hammer")
+			CreateNewText(thisConfig, myColor.."Lights Hammer")
+		else
+			CreateNewCheck(thisConfig, "Execution Sentence","Normal",1)
+			CreateNewBox(thisConfig, "Execution Sentence", 0, 100  , 1, 70, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFExecution Sentence")
+			CreateNewText(thisConfig, myColor.."Execution Sentence")
+		end
+		if isKnown(_SelflessHealer) or isKnown(_SacredShield) then
+			CreateNewCheck(thisConfig, "Word Of Glory","Normal",1)
+			CreateNewBox(thisConfig, "Word Of Glory", 0, 100  , 1, 70, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFWord Of Glory on Raid")
+			CreateNewText(thisConfig, myColor.."Word Of Glory")
+		end
+
 
 		if isKnown(_HandOfPurity) == true then
 			CreateNewCheck(thisConfig, "Hand of Purity","Normal",1)

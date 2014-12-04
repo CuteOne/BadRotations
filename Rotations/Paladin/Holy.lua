@@ -1,68 +1,3 @@
-if select(3, UnitClass("player")) == 2 then
-	function PaladinHoly()
-	-- Init Holy specific funnctions, toggles and configs.
-		if currentConfig ~= "Holy CodeMyLife" then
-			PaladinHolyFunctions()
-			PaladinHolyToggles()
-			PaladinHolyOptions()
-			currentConfig = "Holy CodeMyLife"
-		end
-
-		-- Locals Variables
-		_HolyPower = UnitPower("player", 9)
-
-		--[[Lowest]]
-		lowestHP, lowestUnit, lowestTankHP, lowestTankUnit, averageHealth = 100, "player", 100, "player", 0
-
-		-- We should get tankUnits so we have them both or one,
-		-- tankOne, tankTwo(check if we have 2 ie party or raid), if we dont have roles assigned we should manually set the tank via keypress ie focus and right control
-		-- We should be able to set high prio via mouseover and right modifier, ie shift or alt or a combination.
-		-- We should be able to check specc for more accurate roles.
-		-- local currentSpec = GetSpecialization()
-		-- local currentSpecName = currentSpec and select(2, GetSpecializationInfo(currentSpec)) or "None"
-		-- print("Your current spec:", currentSpecName)
-		-- local roleToken = GetSpecializationRole(specIndex[, isInspect[, isPet]])
-
-		-- Beacon Tank or whoever will take alot of damage(heals 50% and FoL Holy light refund 40% mana)
-		
-		for i = 1, #nNova do
-			if nNova[i].role == "TANK" then
-				if nNova[i].hp < lowestTankHP then
-					lowestTankHP = nNova[i].hp
-					lowestTankUnit = nNova[i].unit
-				end
-			end
-			if nNova[i].hp < lowestHP then
-				lowestHP = nNova[i].hp
-				lowestUnit = nNova[i].unit
-			end
-			averageHealth = averageHealth + nNova[i].hp
-		end
-		averageHealth = averageHealth/#nNova
-
-		-- Food/Invis Check   Hm here we are checking if we should abort the rotation pulse due to if we are a vehicle or some stuff
-		if canRun() ~= true or UnitInVehicle("Player") then
-			return false
-		end
-
-		--[[Off GCD in combat]]
-		if UnitAffectingCombat("player") then
-
-
-		end
-
-		--[[Off GCD out of combat]]
-
-
-
-
-
-
-
-		if castingUnit() then
-			return false;
-		end
-
 		--[[On GCD Out of Combat]]
 
 
@@ -111,70 +46,129 @@ if select(3, UnitClass("player")) == 2 then
 		
 -- snapshot_stats
 
-		BeaconOfLight()
+if select(3, UnitClass("player")) == 2 then
+	function PaladinHoly()
+	-- Init Holy specific funnctions, toggles and configs.
+		if currentConfig ~= "Holy CodeMyLife" then
+			PaladinHolyFunctions()
+			PaladinHolyToggles()
+			PaladinHolyOptions()
+			currentConfig = "Holy CodeMyLife"
+		end
 
-		--[[On GCD in combat]]
-		if isInCombat("player") then
+		-- Locals Variables
+		_HolyPower = UnitPower("player", 9)
+
+		--[[Lowest]]
+		lowestHP, lowestUnit, lowestTankHP, lowestTankUnit, averageHealth = 100, "player", 100, "player", 0
+		
+		for i = 1, #nNova do
+			if nNova[i].role == "TANK" then
+				if nNova[i].hp < lowestTankHP then
+					lowestTankHP = nNova[i].hp
+					lowestTankUnit = nNova[i].unit
+				end
+			end
+			if nNova[i].hp < lowestHP then
+				lowestHP = nNova[i].hp
+				lowestUnit = nNova[i].unit
+			end
+			averageHealth = averageHealth + nNova[i].hp
+		end
+		averageHealth = averageHealth/#nNova
+
+		--[[Set Main Healing Tank]]
+		if IsLeftAltKeyDown() then -- Set focus, ie primary healing target with left alt and mouseover target
+			if UnitIsFriend("player","mouseover") and not UnitIsDeadOrGhost("mouseover") then
+				RunMacroText("/focus mouseover")
+			end
+		end
+		local favoriteTank = { name = "NONE" , health = 0}
+		if UnitIsDeadOrGhost("focus") then
+			if favoriteTank.name ~= "NONE" then
+				favoriteTank = { name = "NONE" , health = 0};
+				ClearFocus()
+			end
+		end
+		if UnitExists("focus") == nil and favoriteTank.name == "NONE" then
+			for i = 1, # nNova do
+				if UnitIsDeadOrGhost("focus") == nil and nNova[i].role == "TANK" and UnitHealthMax(nNova[i].unit) > favoriteTank.health then
+					favoriteTank = { name = UnitName(nNova[i].unit), health = UnitHealthMax(nNova[i].unit) }
+					RunMacroText("/focus "..favoriteTank.name)
+				end
+			end
+		end
+
+		-- Food/Invis Check   Hm here we are checking if we should abort the rotation pulse due to if we are a vehicle or some stuff
+		if canRun() ~= true or UnitInVehicle("Player") then
+			return false
+		end
+
+		
+		
+		--[[Off GCD in combat]]
+		if UnitAffectingCombat("player") or IsLeftControlKeyDown() then -- Only heal if we are in combat or if left control is down for out of combat rotation
+			if castingUnit() then -- Do not interrupt if we are already casting
+				return false
+			end
+
+			BeaconOfLight()	-- Set Beacon of Light on correct target
 
 			--[[Auto Attack if in melee]]
 			if isInMelee() and getFacing("player","target") == true then
 				RunMacroText("/startattack")
 			end
 
-
-
-
-
-
-
-			-- auto_attack
-			-- speed_of_light,if=movement.remains>1
-			-- blood_fury
-			-- berserking
-			-- arcane_torrent
-			-- avenging_wrath
+			-- We start with critical heals, ie when target is way below on hp
 			--[[Lay on Hands I like LoH in combat only because i do not like to waste it because a lock is running to his death.]]
 			if getHP("player") <= getValue("Lay On Hands") then
 				if castSpell("player",_LayOnHands,true) then
-					return
+					return true
 				end
 			else
 				for i = 1, #nNova do
 					if nNova[i].hp <= getValue("Lay On Hands") then
 						if castSpell(nNova[1].unit,_LayOnHands,true) then
-							return
+							return true
 						end
 					end
 				end
 			end
-			-- judgment,if=talent.selfless_healer.enabled&buff.selfless_healer.stack<3
+			-- 
 
-			--[[_EternalFlame]]
-			if isChecked("Word Of Glory") and WordOfGlory(getValue("Word Of Glory")) then
-				return
+			if isKnown(_ExecutionSentence) then -- Our largest heals on 1 minut CD so we should use it
+				--castExecutionSentence
 			end
-
-			--[[word_of_glory,if=holy_power>=3]]
-			if isChecked("Eternal Flame") and EternalFlame(getValue("Eternal Flame")) then
-				return
-			end
-
-			--[[holy_shock,if=holy_power<=3]]
-			if isChecked("Holy Shock") and HolyShock(getValue("Holy Shock")) then return end
-
 			--[[flash_of_light,if=target.health.pct<=30]]
-			if isChecked("Flash Of Light") and FlashOfLight(getValue("Flash Of Light")) then return end
-
-			--[[Holy Radiance]]
-			if isChecked("HR Missing Health") then
-				if castAoEHeal(_HolyRadiance, getValue("HR Units"), getValue("HR Missing Health"), 15) then return end
+			if isChecked("Flash Of Light") and FlashOfLight(getValue("Flash Of Light")) then 
+				return true
 			end
 
-			-- judgment,if=holy_power<3
-			-- lay_on_hands,if=mana.pct<5
-			--[[holy_light]]
-			if isChecked("Holy Light") and HolyLight(getValue("Holy Light")) then return end
 
 		end
+
+
+		--[[_EternalFlame]]
+		if isChecked("Word Of Glory") and WordOfGlory(getValue("Word Of Glory")) then
+			return
+		end
+
+		--[[word_of_glory,if=holy_power>=3]]
+		if isChecked("Eternal Flame") and EternalFlame(getValue("Eternal Flame")) then
+			return
+		end
+
+		--[[holy_shock,if=holy_power<=3]]
+		if isChecked("Holy Shock") and HolyShock(getValue("Holy Shock")) then return end
+
+
+		--[[Holy Radiance]]
+		if isChecked("HR Missing Health") then
+			if castAoEHeal(_HolyRadiance, getValue("HR Units"), getValue("HR Missing Health"), 15) then return end
+		end
+		-- judgment,if=holy_power<3
+		-- lay_on_hands,if=mana.pct<5
+		--[[holy_light]]
+		if isChecked("Holy Light") and HolyLight(getValue("Holy Light")) then return end
 	end
 end
