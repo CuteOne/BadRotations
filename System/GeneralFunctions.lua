@@ -332,49 +332,6 @@ function canTrinket(trinketSlot)
 	end
 end
 
-
-function castAoEHeal(spellID, numUnits, missingHP, rangeValue)
-	-- i start an iteration that i use to build each units Table, wich i will reuse for the next second
-	if not holyRadianceRangeTable or not holyRadianceRangeTableTimer or holyRadianceRangeTable <= GetTime() - 1 then
-		holyRadianceRangeTable = { }
-		for i = 1, #nNova do
-			-- i declare a sub-table for this unit if it dont exists
-			if nNova[i].distanceTable == nil then nNova[i].distanceTable = { } end
-			-- i start a second iteration where i scan unit ranges from one another.
-			for j = 1, #nNova do
-				-- i make sure i dont compute unit range to hisself.
-				if not UnitIsUnit(nNova[i].unit,nNova[j].unit) then
-					-- table the units
-					nNova[i].distanceTable[j] = { distance = getDistance(nNova[i].unit,nNova[j].unit), unit = nNova[j].unit, hp = nNova[j].hp }
-				end
-			end
-		end
-	end
-	-- declare locals that will hold number
-	local bestTarget, bestTargetUnits = 1, 1
-	-- now that nova range is built, i can iterate it
-	local inRange, missingHealth, mostMissingHealth = 0, 0, 0
-	for i = 1, #nNova do
-		if nNova[i].distanceTable ~= nil then
-			-- i count units in range
-			for j = 1, #nNova do
-				if nNova[i].distanceTable[j] and nNova[i].distanceTable[j].distance < rangeValue then
-					inRange = inRange + 1
-					missingHealth = missingHealth + (100 - nNova[i].distanceTable[j].hp)
-				end
-			end
-			nNova[i].inRangeForHolyRadiance = inRange
-			-- i check if this is going to be the best unit for my spell
-			if missingHealth > mostMissingHealth then
-				bestTarget, bestTargetUnits, mostMissingHealth = i, inRange, missingHealth
-			end
-		end
-	end
-	if bestTargetUnits and bestTargetUnits > 3 and mostMissingHealth and missingHP and mostMissingHealth > missingHP then
-		if castSpell(nNova[bestTarget].unit, spellID, true, true) then return true end
-	end
-end
-
 -- castGround("target",12345,40);
 function castGround(Unit,SpellID,maxDistance)
 	if UnitExists(Unit) and getSpellCD(SpellID) == 0 and getLineOfSight("player", Unit) 

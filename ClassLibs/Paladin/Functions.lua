@@ -492,13 +492,27 @@ Holy
 		end
 
 		function HolyPrism(hpValue)
-			if getValue("Holy Prism Mode") == 1 then -- Cast on friend
+			if getValue("Holy Prism Mode") == 1 then -- Cast on friend with enemies around him, we default uses the tank for now, but should use enemiesengine i guess
+				if lowestTankHP < hpValue then
+					if castSpell(lowestTankUnit, _HolyPrism, true, false) then
+						return true
+					end
+				end
 			end
 			if getValue("Holy Prism Mode") == 2 then -- Cast on tanks target
+				--Should check friendly targets around the tanks target
+				--if castSpell(lowestTankUnit, _HolyPrism, true, false) then 
+				--	return true
+				--end
 			end
 			if getValue("Holy Prism Mode") == 3 then --Wise
 				--Todo, here we should check how many enemies around lowest HP units and if x then go for it
 				--or check if many people need healing and there is a mob close to them
+				for i = 1, #nNova do
+					if nNova[i].hp < hpValue then
+						if castSpell(nNova[i].unit, _HolyPrism, true, false) then return end
+					end
+				end
 			end
 		end
 
@@ -553,6 +567,108 @@ Holy
 				end
 				--Todo impolement Wise mode
 			end 
+		end
+				
+		function castDispell()
+			if isChecked("Cleanse") and canCast(_Cleanse,false,false) and not (getBossID("boss1") == 71734 and not UnitBuffID("player",144359)) then
+				if getValue("Cleanse") == 2 then -- Mouse Match
+					if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
+						for i = 1, #nNova do
+							if nNova[i].guid == UnitGUID("mouseover") and nNova[i].dispel == true then
+								if castSpell(nNova[i].unit,_Cleanse, true,false) then 
+									return true
+								end
+							end
+						end
+					end
+				elseif getValue("Cleanse") == 1 then -- Raid Match
+					for i = 1, #nNova do
+						if nNova[i].hp < 249 and nNova[i].dispel == true then
+							if castSpell(nNova[i].unit,_Cleanse, true,false) then 
+								return true
+							end
+						end
+					end
+				elseif getValue("Cleanse") == 3 then -- Mouse All
+					if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
+					    for n = 1,40 do
+					      	local buff,_,_,count,bufftype,duration = UnitDebuff("mouseover", n)
+				      		if buff then
+				        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then
+				        			if castSpell("mouseover",_Cleanse, true,false) then 
+				        				return true
+				        			end
+				        		end
+				      		else
+				        		break
+				      		end
+					  	end
+					end
+				elseif getValue("Cleanse") == 4 then -- Raid All
+					for i = 1, #nNova do
+						if nNova[i].hp < 249 then
+						    for n = 1,40 do
+						      	local buff,_,_,count,bufftype,duration = UnitDebuff(nNova[i].unit, n)
+					      		if buff then
+					        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then
+					        			if castSpell(nNova[i].unit,_Cleanse, true,false) then 
+					        				return true
+					        			end
+					        		end
+					      		else
+					        		break
+					      		end
+						  	end
+						end
+					end
+				end
+			end
+
+			return false
+		end
+
+		function castHolyRadiance(spellID, numUnits, missingHP, rangeValue)
+			-- i start an iteration that i use to build each units Table, wich i will reuse for the next second
+			if not holyRadianceRangeTable or not holyRadianceRangeTableTimer or holyRadianceRangeTable <= GetTime() - 1 then
+				holyRadianceRangeTable = { }
+				for i = 1, #nNova do
+					-- i declare a sub-table for this unit if it dont exists
+					if nNova[i].distanceTable == nil then nNova[i].distanceTable = { } end
+					-- i start a second iteration where i scan unit ranges from one another.
+					for j = 1, #nNova do
+						-- i make sure i dont compute unit range to hisself.
+						if not UnitIsUnit(nNova[i].unit,nNova[j].unit) then
+							-- table the units
+							nNova[i].distanceTable[j] = { distance = getDistance(nNova[i].unit,nNova[j].unit), unit = nNova[j].unit, hp = nNova[j].hp }
+						end
+					end
+				end
+			end
+			-- declare locals that will hold number
+			local bestTarget, bestTargetUnits = 1, 1
+			-- now that nova range is built, i can iterate it
+			local inRange, missingHealth, mostMissingHealth = 0, 0, 0
+			for i = 1, #nNova do
+				if nNova[i].distanceTable ~= nil then
+					-- i count units in range
+					for j = 1, #nNova do
+						if nNova[i].distanceTable[j] and nNova[i].distanceTable[j].distance < rangeValue then
+							inRange = inRange + 1
+							missingHealth = missingHealth + (100 - nNova[i].distanceTable[j].hp)
+						end
+					end
+					nNova[i].inRangeForHolyRadiance = inRange
+					-- i check if this is going to be the best unit for my spell
+					if missingHealth > mostMissingHealth then
+						bestTarget, bestTargetUnits, mostMissingHealth = i, inRange, missingHealth
+					end
+				end
+			end
+			if bestTargetUnits and bestTargetUnits > 3 and mostMissingHealth and missingHP and mostMissingHealth > missingHP then
+				if castSpell(nNova[bestTarget].unit, spellID, true, true) then 
+					return 	true 
+				end
+			end
 		end
 	end
 end

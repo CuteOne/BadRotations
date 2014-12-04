@@ -119,6 +119,12 @@ if select(3, UnitClass("player")) == 2 then
 				RunMacroText("/startattack")
 			end
 
+				--[[ 4 - Dispel --(U can Dispel  While in cat form)]]
+			if castDispell() then
+				return true
+			end	
+			
+
 			-- We start with critical heals, ie when target is way below on hp
 			--[[Lay on Hands I like LoH in combat only because i do not like to waste it because a lock is running to his death.]]
 			if getHP("player") <= getValue("Lay On Hands") then
@@ -134,10 +140,21 @@ if select(3, UnitClass("player")) == 2 then
 					end
 				end
 			end
-			-- 
 
+			--[[Holy Radiance]]
+			if IsMouseButtonDown(4) then -- Mousebutton 1-5
+				if castHolyRadiance(_HolyRadiance, 6, 75, 6) then 
+					return true
+				end
+			end
+			--Todo: Add ES
 			if isKnown(_ExecutionSentence) then -- Our largest heals on 1 minut CD so we should use it
 				--castExecutionSentence
+			end
+
+			--[[holy_shock,if=holy_power<=3]] -- Should add not cast if 5 HoPo
+			if isChecked("Holy Shock") and HolyShock(getValue("Holy Shock")) then 
+				return true
 			end
 
 			--[[flash_of_light,if=target.health.pct<=30]]
@@ -145,6 +162,7 @@ if select(3, UnitClass("player")) == 2 then
 				return true
 			end
 
+			--Todo Need to add a check if we have 5 then use it
 			if isChecked("Eternal Flame") and EternalFlame(getValue("Eternal Flame")) then
 				return true
 			end
@@ -153,36 +171,9 @@ if select(3, UnitClass("player")) == 2 then
 				return true
 			end
 
-			--[[_EternalFlame]]
-			--if not isKnown(_EternalFlame) and isChecked("Word Of Glory") and WordOfGlory(getValue("Word Of Glory")) then
-			--	return true
-			--end
-
-			--[[word_of_glory,if=holy_power>=3]]
-			if isChecked("Eternal Flame") and EternalFlame(getValue("Eternal Flame")) then
+			if isChecked("Holy Light") and HolyLight(getValue("Holy Light")) then 
 				return true
 			end
-
-			--[[holy_shock,if=holy_power<=3]]
-			if isChecked("Holy Shock") and HolyShock(getValue("Holy Shock")) then 
-				return true
-			end
-
-
-			--[[Holy Radiance]]
-			if isChecked("HR Missing Health") then
-				if castAoEHeal(_HolyRadiance, getValue("HR Units"), getValue("HR Missing Health"), 15) then 
-					return true
-				end
-			end
-			-- judgment,if=holy_power<3
-			-- lay_on_hands,if=mana.pct<5
-			--[[holy_light]]
-			if isChecked("Holy Light") and HolyLight(getValue("Holy Light")) then return end
-
 		end
-
-
-		
 	end
 end

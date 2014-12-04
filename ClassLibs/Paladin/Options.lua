@@ -284,6 +284,10 @@ if select(3,UnitClass("player")) == 2 then
 -- Healing
 		myWrapper("Healing")
 
+		CreateNewCheck(thisConfig, "Cleanse","Normal",1)
+		CreateNewDrop(thisConfig, "Cleanse", 3, "Choose mode:\nMO Match Raid\nRaid Match.\nMO All\nRaid All", "MO","RAID","MOALL", "RAIDALL")
+		CreateNewText(thisConfig, myColor.."Cleanse")
+
 		-- Beacon of Light
 		CreateNewCheck(thisConfig, "Beacon Of Light","Normal",1)
 		CreateNewDrop(thisConfig, "Beacon Of Light", 2, "Choose mode:\nTank - Always on tank\nFocus - Always on focus.\nWise - Dynamic", "TANK","FOCUS","WISE")
