@@ -884,7 +884,7 @@ end
 -- if getPower("target") <= 15 then
 function getPower(Unit)
     local value = value
-    if _MyClass == 11 then
+    if select(3,UnitClass("player")) == 11 then
         if UnitBuffID("player",135700) then
             value = 999
         elseif UnitBuffID("player",106951) then

@@ -53,7 +53,7 @@ if select(3, UnitClass("player")) == 11 then
 			if ttd == nil then ttd = getTimeToDie("target") end
 		-- Specific Player Variables
 		local combo = getCombo()
-		local clearcast = getBuffRemain("player",cc)
+		local clearcast = UnitBuffID("player",cc)
 		local travel, flight, cat, stag = UnitBuffID("player", trf), UnitBuffID("player", flf), UnitBuffID("player",cf) or UnitBuffID("player",cosf), hasGlyph(114338)
 		local stealth = UnitBuffID("player",prl) or UnitBuffID("player",sm)
 		local rejRemain = getBuffRemain("player", rej)
@@ -71,21 +71,11 @@ if select(3, UnitClass("player")) == 11 then
 	    local restlessagi = getBuffRemain("player",146310)
 	    local bloodtalons, btRemain = getTalent(7,2), getBuffRemain("player",bt)
 		--Specific Target Variables
-	    local rkCalc, rpCalc, rkDmg, rpDmg = CRKD(), CRPD(), rkDmg, rpDmg
-	    	if rkDmg == nil then rkDmg = RKD("target") end
-	    	if rpDmg == nil then rpDmg = RPD("target") end
-	    local rkRemain, rkDuration, stunRemain = rkRemain, rkDuration, stunRemain
-	    	if rkRemain == nil then rkRemain = getDebuffRemain("target",rk,"player") end
-	    	if rkDuration == nil then rkDuration = getDebuffDuration("target",rk,"player") end
-	    	if stunRemain == nil then stunRemain = getDebuffDuration("target",rks,"player") end
-	    local rpRemain, rpDuration = rpRemain, rpDuration
-	    	if rpRemain == nil then rpRemain = getDebuffRemain("target",rp,"player") end
-	    	if rpDuration == nil then rpDuration = getDebuffDuration("target",rp,"player") end
-	    local thrRemain, thrDuration = thrRemain, thrDuration
-	    	if thrRemain == nil then thrRemain = getDebuffRemain("target",thr,"player") end
-	    	if thrDuration == nil then thrDuration = getDebuffDuration("target",thr,"player") end
-	    local mfRemain, mfTick = mfRemain, 20.0/(1+UnitSpellHaste("player")/100)/10
-	    	if mfRemain == nil then mfRemain = getDebuffRemain("target",mf,"player") end
+	    local rkCalc, rpCalc, rkDmg, rpDmg = CRKD(), CRPD(), RKD(dynamicTarget(5,true)), RPD(dynamicTarget(5,true))
+	    local rkRemain, rkDuration, stunRemain = getDebuffRemain(dynamicTarget(5,true),rk,"player"), getDebuffDuration(dynamicTarget(5,true),rk,"player"), 0
+	    local rpRemain, rpDuration = getDebuffRemain(dynamicTarget(5,true),rp,"player"), getDebuffDuration(dynamicTarget(5,true),rp,"player")
+	    local thrRemain, thrDuration = getDebuffRemain(dynamicTarget(8,false),thr,"player"), getDebuffDuration(dynamicTarget(8,false),thr,"player")
+	    local mfRemain, mfTick = getDebuffRemain(dynamicTarget(40,false),mf,"player"), 20.0/(1+UnitSpellHaste("player")/100)/10
 --------------------------------------------------
 --- Ressurection/Dispelling/Healing/Pause/Misc ---
 --------------------------------------------------
@@ -169,7 +159,7 @@ if select(3, UnitClass("player")) == 11 then
                     if castSpell("player",svr,true,false,false) then return end
                 end
                 if power > 40 and enemies == 1 then
-	                if castSpell(dynamicUnit.dyn5,shr,false,false,false) then swipeSoon = nil; return end
+	                if castSpell(dynamicTarget(5,true),shr,false,false,false) then swipeSoon = nil; return end
                 end
                 if power > 45 and enemies > 1 then
                     if swipeSoon == nil then
@@ -256,16 +246,16 @@ if select(3, UnitClass("player")) == 11 then
 			then
 		-- Prowl
 		        if useProwl() and not stealth 
-		        	and (UnitExists(dynamicUnit.dyn20AoE) or isKnown(eprl)) and GetTime()-leftCombat > lootDelay 
+		        	and (UnitExists(dynamicTarget(20,false)) or isKnown(eprl)) and GetTime()-leftCombat > lootDelay 
 		        then
 					if castSpell("player",prl,false,false,false) then return end
 		        end
 		-- Rake/Shred
 		        if power>40 then
 		        	if isKnown(irk) then
-		        		if castSpell(dynamicUnit.dyn5,rk,false,false,false) then return end
+		        		if castSpell(dynamicTarget(5,true),rk,false,false,false) then return end
 		        	else
-		            	if castSpell(dynamicUnit.dyn5,shr,false,false,false) then return end
+		            	if castSpell(dynamicTarget(5,true),shr,false,false,false) then return end
 		            end
 		        end
 		        if stealth then
@@ -314,18 +304,16 @@ if select(3, UnitClass("player")) == 11 then
 	-----------------------------
 	--- In Combat - Cooldowns ---
 	-----------------------------
-				if useCDs() and not stealth and UnitExists(dynamicUnit.dyn5) then
-					thisUnit = dynamicUnit.dyn5
-					ttd = getTimeToDie(thisUnit)
-					thp = getHP(thisUnit)
-					rkRemain = getDebuffRemain(thisUnit,rk,"player")
-					rkDmg = RKD(thisUnit)
+				if useCDs() and not stealth and UnitExists(dynamicTarget(5,true)) then
+					thisUnit = dynamicTarget(5,true)
+					ttd = getTimeToDie(dynamicTarget(5,true))
+					thp = getHP(dynamicTarget(5,true))
 		-- Tier 4 Talent: Force of Nature
 			        if fonCooldown == 0 then
 			            if fonCharge == 3 or (fonCharge == 2 and (fonRecharge - GetTime()) > 19) then
-			                if castSpell(dynamicUnit.dyn5,fon,true,false,false) then return end
+			                if castSpell(dynamicTarget(5,true),fon,true,false,false) then return end
 			            elseif (vicious>0 and vicious<1) or restlessagi==20 or ttd<20 then
-			                if castSpell(dynamicUnit.dyn5,fon,true,false,true) then return end
+			                if castSpell(dynamicTarget(5,true),fon,true,false,true) then return end
 			            end
 		            end
 		-- Agi-Pot
@@ -361,9 +349,9 @@ if select(3, UnitClass("player")) == 11 then
 		-- Rake/Shred from Stealth
 				if stealth and power>40 then
 					if isKnown(irk) then
-		        		if castSpell(dynamicUnit.dyn5,rk,false,false,false) then return end
+		        		if castSpell(dynamicTarget(5,true),rk,false,false,false) then return end
 		        	else
-		            	if castSpell(dynamicUnit.dyn5,shr,false,false,false) then return end
+		            	if castSpell(dynamicTarget(5,true),shr,false,false,false) then return end
 		            end
 				end
 				if stealth then
@@ -371,7 +359,7 @@ if select(3, UnitClass("player")) == 11 then
 				end
 				if not stealth then
 		-- Tiger's Fury
-					if (not clearcast and powmax-power>=60) or powmax-power>=80 and UnitExists(dynamicUnit.dyn5) then
+					if (not clearcast and powmax-power>=60) or powmax-power>=80 and UnitExists(dynamicTarget(5,true)) then
 						if canTrinket(13) and useCDs() then
 							RunMacroText("/use 13")
 						end
@@ -393,8 +381,7 @@ if select(3, UnitClass("player")) == 11 then
 							end
 						end
 					else
-						thisUnit = dynamicUnit.dyn5
-						rpRemain = getDebuffRemain(thisUnit,rp,"player")
+						thisUnit = dynamicTarget(5,true)
 						if rpRemain>0 and rpRemain < 3 and power>25 and getHP(thisUnit)<25 and combo>0 then
 							if castSpell(thisUnit,fb,false,false,false) then return end
 						end
@@ -409,11 +396,11 @@ if select(3, UnitClass("player")) == 11 then
 		                end
 					end
 		-- Savage Roar
-					if srRemain<3 and combo>0 and power>25 and UnitExists(dynamicUnit.dyn5) then
+					if srRemain<3 and combo>0 and power>25 and UnitExists(dynamicTarget(5,true)) then
 						if castSpell("player",svr,true,false,false) then return end
 		            end
 		-- Thrash
-					if useCleave then
+					if useCleave() or (BadBoy_data['AoE'] == 2 and not useCleave()) then
 						for i=1, #enemiesTable do
 							thisUnit = enemiesTable[i].unit
 							thrRemain = getDebuffRemain(thisUnit,thr,"player")
@@ -440,34 +427,9 @@ if select(3, UnitClass("player")) == 11 then
 								end
 							end
 						end
-					else
-						thisUnit = dynamicUnit.dyn8AoE
-						thrRemain = getDebuffRemain(thisUnit,thr,"player")
-						if thrRemain<4.5 then
-							if clearcast then
-								--if=buff.omen_of_clarity.react&remains<4.5&active_enemies>1
-								if enemies>1 then
-									if castSpell(thisUnit,thr,true,false,false) then return end
-								end
-								--if=!talent.bloodtalons.enabled&combo_points=5&remains<4.5&buff.omen_of_clarity.react
-								if not bloodtalons and combo==5 then
-									if castSpell(thisUnit,thr,true,false,false) then return end
-								end
-							end
-							if enemies>1 then
-								--pool_resource,for_next=1
-								if power<=50 then
-									return true
-								end
-								--if=remains<4.5&active_enemies>1
-								if power>50 then
-									if castSpell(thisUnit,thr,true,false,false) then return end
-								end
-							end
-						end
 					end
 		-- Ferocious Bite
-					if useCleave then
+					if useCleave() then
 						for i=1, #enemiesTable do
 							thisUnit = enemiesTable[i].unit
 							rpRemain = getDebuffRemain(thisUnit,rp,"player")
@@ -477,15 +439,14 @@ if select(3, UnitClass("player")) == 11 then
 							end
 						end
 					else
-						thisUnit = dynamicUnit.dyn5
-						rpRemain = getDebuffRemain(thisUnit,rp,"player")
+						thisUnit = dynamicTarget(5,true)
 						--max_energy=1,if=target.health.pct<25&dot.rip.ticking
 						if combo==5 and power>50 and getHP(thisUnit)<25 and rpRemain>0 then
 							if castSpell(thisUnit,fb,false,false,false) then return end
 						end
 					end
 		-- Rip
-					if useCleave then
+					if useCleave() then
 						for i=1, #enemiesTable do
 							thisUnit = enemiesTable[i].unit
 							rpRemain = getDebuffRemain(thisUnit,rp,"player")
@@ -502,8 +463,7 @@ if select(3, UnitClass("player")) == 11 then
 							end
 						end
 					else
-						thisUnit = dynamicUnit.dyn5
-						rpRemain = getDebuffRemain(thisUnit,rp,"player")
+						thisUnit = dynamicTarget(5,true)
 						ttd = getTimeToDie(thisUnit)
 						if ttd-rpRemain>18 and combo==5 and power>30 then
 							--if=remains<3&target.time_to_die-remains>18
@@ -524,10 +484,10 @@ if select(3, UnitClass("player")) == 11 then
 		-- Ferocious Bite
 					--if=(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)
 	    			if combo==5 and (ttm<=1 or berserking or tfRemain<3) and power>50 then
-		    			if castSpell(dynamicUnit.dyn5,fb,false,false,false) then return end
+		    			if castSpell(dynamicTarget(5,true),fb,false,false,false) then return end
 		            end
 	    -- Rake 
-	    			if useCleave then
+	    			if useCleave() then
 						for i=1, #enemiesTable do
 							thisUnit = enemiesTable[i].unit
 							rkRemain = getDebuffRemain(thisUnit,rk,"player")
@@ -553,9 +513,8 @@ if select(3, UnitClass("player")) == 11 then
 					    	end
 					    end
 					else
-						thisUnit = dynamicUnit.dyn5
-						rkRemain = getDebuffRemain(thisUnit,rk,"player")
-						ttd = getTimeToDie(thisUnit)
+						thisUnit = dynamicTarget(5,true)
+						ttd = getTimeToDie(dynamicTarget(5,true))
 						if ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) and stunRemain==0 and combo<5 and power>35 then
 							if not bloodtalons then
 				    			--if=!talent.bloodtalons.enabled&remains<3&combo_points<5&((target.time_to_die-remains>3&active_enemies<3)|target.time_to_die-remains>6)
@@ -566,7 +525,7 @@ if select(3, UnitClass("player")) == 11 then
 				    			if rkRemain<4.5 and rkCalc>rkDmg then
 				    				if castSpell(thisUnit,rk,false,false,false) then return end
 				    			end
-				    		else
+				    		elseif bloodtalons then
 				    			--if=talent.bloodtalons.enabled&remains<4.5&combo_points<5&(!buff.predatory_swiftness.up|buff.bloodtalons.up|persistent_multiplier>dot.rake.pmultiplier)&((target.time_to_die-remains>3&active_enemies<3)|target.time_to_die-remains>6)
 				    			if rkRemain<4.5 and (psRemain==0 or btRemain>0 or rkCalc>rkDmg) then
 									if castSpell(thisUnit,rk,false,false,false) then return end
@@ -575,7 +534,7 @@ if select(3, UnitClass("player")) == 11 then
 				    	end
 				    end
 		-- Thrash
-					if useCleave then
+					if useCleave() then
 						for i=1, #enemiesTable do
 							thisUnit = enemiesTable[i].unit
 							thrRemain = getDebuffRemain(thisUnit,thr,"player")
@@ -584,17 +543,10 @@ if select(3, UnitClass("player")) == 11 then
 				    			if castSpell(thisUnit,thr,true,false,false) then return end
 				    		end
 				    	end
-				    else
-				    	thisUnit = dynamicUnit.dyn8AoE
-						thrRemain = getDebuffRemain(thisUnit,thr,"player")
-						--if=talent.bloodtalons.enabled&combo_points=5&remains<4.5&buff.omen_of_clarity.react		
-			    		if bloodtalons and combo==5 and thrRemain<4.5 and clearcast then
-			    			if castSpell(thisUnit,thr,true,false,false) then return end
-			    		end
 			    	end
 		-- Moonfire
 					if getTalent(7,1) then
-						if useCleave then
+						if useCleave() then
 							for i=1, #enemiesTable do
 								thisUnit = enemiesTable[i].unit
 								mfRemain = getDebuffRemain(thisUnit,mf,"player")
@@ -605,8 +557,7 @@ if select(3, UnitClass("player")) == 11 then
 					    		end
 					    	end
 					    else
-					    	thisUnit = dynamicUnit.dyn40AoE
-							mfRemain = getDebuffRemain(thisUnit,mf,"player")
+					    	thisUnit = dynamicTarget(40,false)
 							ttd = getTimeToDie(thisUnit)
 							--if=combo_points<5&remains<4.2&active_enemies<6&target.time_to_die-remains>tick_time*5
 				    		if mfRemain<4.2 and enemies<6 and ttd-mfRemain>mfTick*5 then
@@ -615,7 +566,7 @@ if select(3, UnitClass("player")) == 11 then
 					    end
 				   	end 	        
 	    -- Rake
-	    			if useCleave then
+	    			if useCleave() then
 						for i=1, #enemiesTable do
 							thisUnit = enemiesTable[i].unit
 							rkRemain = getDebuffRemain(thisUnit,rk,"player")
@@ -626,8 +577,7 @@ if select(3, UnitClass("player")) == 11 then
 				            end
 				        end
 				    else
-				    	thisUnit = dynamicUnit.dyn5
-						rkRemain = getDebuffRemain(thisUnit,rk,"player")
+				    	thisUnit = dynamicTarget(5,true)
 						ttd = getTimeToDie(thisUnit)
 		    			--persistent_multiplier>dot.rake.pmultiplier&combo_points<5&active_enemies=1
 			    		if rkCalc>rkDmg and stunRemain==0 and combo<5 and enemies==1 and power>35 then
@@ -636,16 +586,16 @@ if select(3, UnitClass("player")) == 11 then
 				    end
 	    -- Swipe
 		    		if useAoE() and power>45 and combo<5 then
-		    			if castSpell(dynamicUnit.dyn8,sw,false,false,false) then return end
+		    			if castSpell(dynamicTarget(8,true),sw,false,false,false) then return end
 		            end
 	    -- Shred
 		    		if not useAoE() and power>40 and combo<5 then
-		    			if castSpell(dynamicUnit.dyn5,shr,false,false,false) then return end
+		    			if castSpell(dynamicTarget(5,true),shr,false,false,false) then return end
 		            end
 			    end --not stealth end
 			end --In Combat End
 	-- Start Attack
-			if UnitExists(dynamicUnit.dyn5) and not stealth and isInCombat("player") and cat and profileStop==false then
+			if UnitExists(dynamicTarget(5,true)) and not stealth and isInCombat("player") and cat and profileStop==false then
 				StartAttack()
 			end
 		end

@@ -31,6 +31,7 @@ _FindWeakness			= 91021
 _Garrote    			= 703
 _Gouge     				= 1776
 _Hemorrhage    			= 16511
+_ImprovedSliceAndDice   = 157513
 _Kick     				= 1766
 _KidneyShot    			= 408
 _KillingSpree			= 51690

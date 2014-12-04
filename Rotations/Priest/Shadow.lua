@@ -161,14 +161,18 @@ if select(3, UnitClass("player")) == 5 then
 			-- Single target
 			if BadBoy_data['AoE'] == 1 then
 				Execute()
-				if BadBoy_data['Single']==1 then IcySingle() end
-				if BadBoy_data['Single']==2 then IcySingleWeave() end
+				LFOrbs()
+				if getHP("target")>20 then
+					if BadBoy_data['Single']==1 then IcySingle() end
+					if BadBoy_data['Single']==2 then IcySingleWeave() end
+				end
 			end
 			
 			-- 2+ Targets
 			if BadBoy_data['AoE'] == 2 then 
 				Execute()
-				Icy23Targets()
+				LFOrbs()
+				if getHP("target")>20 then IcyMultiTarget() end
 			end
 			
 			-- Auto
