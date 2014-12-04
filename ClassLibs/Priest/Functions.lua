@@ -318,6 +318,11 @@ if select(3, UnitClass("player")) == 5 then
 			if castSpell("target",DP,false,true) then return; end
 		end
 
+		-- Ko'ragh barroier bug (he is "under20% life" while barrier is under 20%)
+		if GetUnitName("target")=="Ko'ragh" then
+			if castSpell("target",SWD,true,false) then return; end
+		end
+
 		-- MB
 		if castSpell("target",MB,false,false) then return; end
 
