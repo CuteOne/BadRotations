@@ -24,36 +24,37 @@ if select(3, UnitClass("player")) == 4 then
 --- Locals ---
 --------------
     	local enemies = #getEnemies("player",8)
-		local tarDist = getDistance2("target")
-		local hasTarget = UnitExists("target")
+    	local thisUnit = dynamicTarget(5,true)
+		local tarDist = getDistance("target")
+		local hasTarget = UnitExists(thisUnit)
 		local hasMouse = UnitExists("mouseover")
 		local level = UnitLevel("player")
 		local php = getHP("player")
-		local thp = getHP("target")
+		local thp = getHP(thisUnit)
 		local combo = getCombo()
 		local power = getPower("player")
 		local powmax = UnitPowerMax("player")
 		local powgen = getRegen("player")
-		local ttd = getTimeToDie("target")
+		local ttd = getTimeToDie(thisUnit)
 		local ttm = getTimeToMax("player")
-		local deadtar = UnitIsDeadOrGhost("target")
-		local attacktar = canAttack("player", "target")
+		local deadtar = UnitIsDeadOrGhost(thisUnit)
+		local attacktar = canAttack("player", thisUnit)
 		local swimming = IsSwimming()
 		local stealth = UnitBuffID("player",_Stealth)
 		local lethalRemain = getBuffRemain("player",_LethalPoison)
 		local nonlethalRemain = getBuffRemain("player",_NonLethalPoison)
 		local recRemain = getBuffRemain("player",_Recuperate)
-		local sapRemain = getDebuffRemain("target",_Sap)
+		local sapRemain = getDebuffRemain(thisUnit,_Sap)
 		local vanRemain = getBuffRemain("player",_VanishBuff)
-		local rupRemain = getDebuffRemain("target",_Rupture,"player")
+		local rupRemain = getDebuffRemain(thisUnit,_Rupture,"player")
 		local sndRemain = getBuffRemain("player",_SliceAndDice)
-		local ctRemain = getDebuffRemain("target",_CrimsonTempest,"player")
+		local ctRemain = getDebuffRemain(thisUnit,_CrimsonTempest,"player")
 		local blindside = UnitBuffID("player",_Blindside)
-		local rupDuration = getDebuffDuration("target",_Rupture,"player")
+		local rupDuration = getDebuffDuration(thisUnit,_Rupture,"player")
 		local srRemain = getBuffRemain("player",_ShadowReflection)
-		local venRemain = getDebuffRemain("target",_Vendetta,"player")
-		local ddRemain = getDebuffRemain("target",113780,"player")
-		local envRemain = getDebuffRemain("target",_Envenom,"player")
+		local venRemain = getDebuffRemain(thisUnit,_Vendetta,"player")
+		local ddRemain = getDebuffRemain(thisUnit,113780,"player")
+		local envRemain = getDebuffRemain(thisUnit,_Envenom,"player")
 		local antCharge = getCharges(_Anticipation)
  		local lootDelay = getValue("LootDelay");
 ----------------------------------
@@ -156,24 +157,24 @@ if select(3, UnitClass("player")) == 4 then
 					end
 				end
 	-- Ambush
-				if not isInCombat("player") and not noattack() and (isPicked() or level<15) and UnitBuffID("player",_Stealth) and combo<5 and power>60 and tarDist<5 then
-					if castSpell("target",_Ambush,false,false,false) then return end
+				if not isInCombat("player") and not noattack() and (isPicked() or level<15) and UnitBuffID("player",_Stealth) and combo<5 and power>60 then
+					if castSpell(thisUnit,_Ambush,false,false,false) then return end
 				end
 	-- 5 Combo Opener
-				if not isInCombat("player") and (isPicked() or level<15) and UnitBuffID("player",_Stealth) and not noattack() and combo == 5 and tarDist<5 then
+				if not isInCombat("player") and (isPicked() or level<15) and UnitBuffID("player",_Stealth) and not noattack() and combo == 5 then
 					if power>25 and sndRemain<5 then
 						if castSpell("player",_SliceAndDice,true,false,false) then return end
 					end
 					if power>25 and rupRemain<3 then
-						if castSpell("taret",_Rupture,false,false,false) then return end
+						if castSpell(thisUnit,_Rupture,false,false,false) then return end
 					end
 					if power>35 and envRemain<2 then
-						if castSpell("target",_Envenom,false,false,false) then return end
+						if castSpell(thisUnit,_Envenom,false,false,false) then return end
 					end
 				end
 	-- Mutilate
-				if not isInCombat("player") and (isPicked() or level<15) and not noattack() and combo < 5 and power>55 and tarDist<5 then
-					if castSpell("target",_Mutilate,false,false,false) then return end
+				if not isInCombat("player") and (isPicked() or level<15) and not noattack() and combo < 5 and power>55 then
+					if castSpell(thisUnit,_Mutilate,false,false,false) then return end
 				end
 			end
 -----------------
@@ -196,19 +197,15 @@ if select(3, UnitClass("player")) == 4 then
 	------------------------------
 	--- In Combat - Interrupts ---
 	------------------------------
-				if useInterrupts() and not stealth and canInterrupt("target", tonumber(getValue("Interrupts"))) then
+				if useInterrupts() and not stealth then
 	-- Kick
 					if level>=18 then
-						if castSpell("target",_Kick,false,false,false) then return end
+						if castInterrupt(_Kick,getValue("Interrupts")) then return end
 					end
 	-- Gouge
-					if getSpellCD(_Kick)>0 then
-						if castSpell("target",_Gouge,false,false,false) then return end
-					end
+					if castInterrupt(_Gouge,getValue("Interrupts")) then return end
 	-- Blind
-					if getSpellCD(_Kick)>0 and getSpellCD(_Gouge)>0 then
-						if castSpell("target",_Blind,false,false,false) then return end
-					end
+					if castInterrupt(_Blind,getValue("Interrupts")) then return end
 			    end
 	-----------------------------
 	--- In Combat - Cooldowns ---
@@ -228,7 +225,7 @@ if select(3, UnitClass("player")) == 4 then
 					end
 	-- Vendetta
 					if srRemain>0 or not getTalent(7,2) then
-						if castSpell("target",_Vendetta,false,false,false) then return end
+						if castSpell(thisUnit,_Vendetta,false,false,false) then return end
 		        	end
 		        end
 	------------------------------------------
@@ -236,15 +233,16 @@ if select(3, UnitClass("player")) == 4 then
 	------------------------------------------
 	-- Rupture
 				if combo==5 and rupRemain<3 and power>25 and tarDist<5 then
-					if castSpell("target",_Rupture,false,false,false) then return end
+					if castSpell(thisUnit,_Rupture,false,false,false) then return end
 				end
 	-- Rupture - AoE
 	    		if useAoE() then
-	                local myEnemies = getEnemies("player",5)
-	                for i = 1, #myEnemies do
-	                    local thisUnit = myEnemies[i]
-	                    if getDebuffRemain(thisUnit,_Rupture,"player") < 3 and power > 25 then
-	                        if castSpell(thisUnit,_Rupture,false,false,false) then return end
+	                for i = 1, #enemiesTable do
+	                	if enemiesTable[i].distance<5 then
+	                    	local thisUnitAoE = enemiesTable[i].unit
+	                    	if getDebuffRemain(thisUnitAoE,_Rupture,"player") < 3 and power > 25 then
+	                    	    if castSpell(thisUnitAoE,_Rupture,false,false,false) then return end
+	                    	end
 	                    end
 	                end
 	            end
@@ -253,64 +251,64 @@ if select(3, UnitClass("player")) == 4 then
 					if castSpell("player",_SliceAndDice,true,false,false) then return end
 				end
 	-- Marked for Death
-				if combo>0 and tarDist<5 then
-					if castSpell("target",_MarkedForDeath,true,false,false) then return end
+				if combo>0 then
+					if castSpell(thisUnit,_MarkedForDeath,true,false,false) then return end
 				end
 	-- Crimson Tempest
-				if useAoE() and combo>4 and enemies>=4 and ctRemain<8 and power>35 and tarDist<5 then
-					if castSpell("target",_CrimsonTempest,true,false,false) then return end
+				if useAoE() and combo>4 and enemies>=4 and ctRemain<8 and power>35 then
+					if castSpell(thisUnit,_CrimsonTempest,true,false,false) then return end
 				end
 	-- Fan of Knives
 				if useAoE() and combo<5 and enemies>=4 and power>35 and tarDist<5 then
 					if castSpell("player",_FanOfKnives,true,false,false) then return end
 				end
 	-- Rupture
-				if (rupRemain<2 or (combo==5 and rupRemain<=(rupDuration*0.3))) and enemies==1 and combo>0 and power>25 and tarDist<5 then
-					if castSpell("target",_Rupture,false,false,false) then return end
+				if (rupRemain<2 or (combo==5 and rupRemain<=(rupDuration*0.3))) and enemies==1 and combo>0 and power>25 then
+					if castSpell(thisUnit,_Rupture,false,false,false) then return end
 				end
 	-- Envenom
-				if (combo>4 and envRemain<2 and (getSpellCD(_DeathFromAbove)>2 or not getTalent(7,3))) and enemies<4 and ddRemain==0 and power>35 and tarDist<5 then
-					if castSpell("target",_Envenom,false,false,false) then return end
+				if (combo>4 and envRemain<2 and (getSpellCD(_DeathFromAbove)>2 or not getTalent(7,3))) and enemies<4 and ddRemain==0 and power>35 then
+					if castSpell(thisUnit,_Envenom,false,false,false) then return end
 				end
 	-- Envenom
-				if (combo>4 and envRemain<2 and (getSpellCD(_DeathFromAbove)>2 or not getTalent(7,3))) and enemies<4 and power>35 and tarDist<5 then
-					if castSpell("target",_Envenom,false,false,false) then return end
+				if (combo>4 and envRemain<2 and (getSpellCD(_DeathFromAbove)>2 or not getTalent(7,3))) and enemies<4 and power>35 then
+					if castSpell(thisUnit,_Envenom,false,false,false) then return end
 				end
 	-- Eviscerate
-				if (combo>4 or (combo>3 and ttd<3)) and level<20 and power>35 and tarDist<5 then
-					if castSpell("target",_Eviscerate,false,false,false) then return end
+				if (combo>4 or (combo>3 and ttd<3)) and level<20 and power>35 then
+					if castSpell(thisUnit,_Eviscerate,false,false,false) then return end
 				end
 	-- Fan of Knives
 				if useAoE() and enemies>2 and ddRemain==0 and venRemain==0 and power>35 and tarDist<5 then
 					if castSpell("player",_FanOfKnives,true,false,false) then return end
 				end
 	-- Ambush
-				if (isPicked() or level<15) and UnitBuffID("player",_Stealth) and combo<5 and power>60 and tarDist<5 then
-					if castSpell("target",_Ambush,false,false,false) then return end
+				if (isPicked() or level<15) and UnitBuffID("player",_Stealth) and combo<5 and power>60 then
+					if castSpell(thisUnit,_Ambush,false,false,false) then return end
 				end
 	-- Mutilate
-				if (thp>=35 or level<40) and combo<5 and enemies==2 and ddRemain==0 and venRemain==0 and not blindside and power>55 and tarDist<5 then
-					if castSpell("target",_Mutilate,false,false,false) then return end
+				if (thp>=35 or level<40) and combo<5 and enemies==2 and ddRemain==0 and venRemain==0 and not blindside and power>55 then
+					if castSpell(thisUnit,_Mutilate,false,false,false) then return end
 				end
 	-- Mutilate
-				if (thp>=35 or level<40) and combo<5 and enemies<5 and not blindside and power>55 and tarDist<5 then
-					if castSpell("target",_Mutilate,false,false,false) then return end
+				if (thp>=35 or level<40) and combo<5 and enemies<5 and not blindside and power>55 then
+					if castSpell(thisUnit,_Mutilate,false,false,false) then return end
 				end
 	-- Dispatch
-				if (combo<5 or (getTalent(6,3) and antCharge<4)) and enemies==2 and ddRemain==0 and venRemain==0 and ((power>30 and thp<35) or blindside) and tarDist<5 then
-					if castSpell("target",_Dispatch,false,false,false) then return end
+				if (combo<5 or (getTalent(6,3) and antCharge<4)) and enemies==2 and ddRemain==0 and venRemain==0 and ((power>30 and thp<35) or blindside) then
+					if castSpell(thisUnit,_Dispatch,false,false,false) then return end
 				end
 	-- Dispatch
-				if (combo<5 or (getTalent(6,3) and antCharge<4)) and enemies<4 and ((power>30 and thp<35) or blindside) and tarDist<5 then
-					if castSpell("target",_Dispatch,false,false,false) then return end
+				if (combo<5 or (getTalent(6,3) and antCharge<4)) and enemies<4 and ((power>30 and thp<35) or blindside) then
+					if castSpell(thisUnit,_Dispatch,false,false,false) then return end
 				end
 	-- Mutilate
-				if (thp>=35 or level<40) and enemies==2 and ddRemain==0 and not blindside and venRemain==0 and power>55 and tarDist<5 then
-					if castSpell("target",_Mutilate,false,false,false) then return end
+				if (thp>=35 or level<40) and enemies==2 and ddRemain==0 and not blindside and venRemain==0 and power>55 then
+					if castSpell(thisUnit,_Mutilate,false,false,false) then return end
 				end
 	-- Mutilate
-				if (thp>=35 or level<40) and enemies<5 and power>55 and not blindside and tarDist<5 then
-					if castSpell("target",_Mutilate,false,false,false) then return end
+				if (thp>=35 or level<40) and enemies<5 and power>55 and not blindside then
+					if castSpell(thisUnit,_Mutilate,false,false,false) then return end
 				end
 			end --In Combat End
 	-- Start Attack
