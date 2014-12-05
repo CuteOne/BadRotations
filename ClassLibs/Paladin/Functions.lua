@@ -423,31 +423,30 @@ Holy
 
 		-- Eternal Flame
 		function EternalFlame(hpValue)
-			if _HolyPower > 3 then
-				if getValue("Eternal Flame") < 2 then -- Tank
-					for i = 1, #nNova do
-						if nNova[i].role == "TANK" and getBuffRemain(nNova[i].unit,_EternalFlame) < 5 then
-							if castSpell(nNova[i].unit,_EternalFlame,true,false) then 
-								return 
-							end
-						end
-					end
-				end
-				if getValue("Eternal Flame") < 3 then -- Tank and Focus
-					if UnitExists("focus") == true  and UnitIsVisible("focus") and getBuffRemain("focus",_EternalFlame) < 5 then
-						if castSpell("focus",_EternalFlame,true,false) then 
-							return true
-						end
-					end
-				end
+			if (eternalFlameTimer == nil or eternalFlameTimer <= GetTime() - 1.3) then
+				eternalFlameTimer = GetTime()
+			else
+				return false
+			end
 
-				if getValue("Eternal Flame") == 3 then -- Tank, focus and wise
-					--Todo:
-					for i = 1, #nNova do
-						if (nNova[i].hp < 30 and getBuffRemain(nNova[i].unit,_EternalFlame) < 5) or (nNova[i].hp < 100 and _HolyPower == 5 and getBuffRemain(nNova[i].unit,_EternalFlame) < 5) or nNova[i].hp < hpValue - 20 then
-							if castSpell(nNova[i].unit, _EternalFlame, true, false) then return end
-						end
+			if lowestTankHP < lowestHP then
+				print("Healing Tank")
+				if lowestTankHP < hpValue then
+					print("With EF")
+					if castSpell(lowestTankUnit,_EternalFlame,true,false) then
+						return true
 					end
+				end
+			else
+				if lowestHP < hpValue then
+					if castSpell(lowestUnit,_EternalFlame,true,false) then
+						return true
+					end
+				end
+			end	
+			if _HolyPower == 5 then
+				if castSpell(lowestTankUnit,_EternalFlame,true,false) then
+					return true
 				end
 			end
 		end

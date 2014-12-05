@@ -326,7 +326,7 @@ if select(3,UnitClass("player")) == 2 then
 			CreateNewText(thisConfig, myColor.."Selfless Healer")
 		else
 			CreateNewCheck(thisConfig, "Eternal Flame","Normal",1)
-			CreateNewDrop(thisConfig, "Eternal Flame", 2, "Choose mode:\nTank - Always on tank\nFocus - Always on focus.\nWise - Dynamic", "TANK","FOCUS","WISE")
+			CreateNewBox(thisConfig, "Eternal Flame", 0, 100  , 1, 70, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFEternal Flame on Raid")
 			CreateNewText(thisConfig, myColor.."Eternal Flame")
 		end
 		if isKnown(_SelflessHealer) or isKnown(_SacredShield) then

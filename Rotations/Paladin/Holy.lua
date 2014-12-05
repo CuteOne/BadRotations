@@ -103,8 +103,6 @@ if select(3, UnitClass("player")) == 2 then
 		if canRun() ~= true or UnitInVehicle("Player") then
 			return false
 		end
-
-		
 		
 		--[[Off GCD in combat]]
 		if UnitAffectingCombat("player") or IsLeftControlKeyDown() then -- Only heal if we are in combat or if left control is down for out of combat rotation
@@ -124,7 +122,6 @@ if select(3, UnitClass("player")) == 2 then
 				return true
 			end	
 			
-
 			-- We start with critical heals, ie when target is way below on hp
 			--[[Lay on Hands I like LoH in combat only because i do not like to waste it because a lock is running to his death.]]
 			if getHP("player") <= getValue("Lay On Hands") then
@@ -153,17 +150,17 @@ if select(3, UnitClass("player")) == 2 then
 			end
 
 			--[[holy_shock,if=holy_power<=3]] -- Should add not cast if 5 HoPo
-			if isChecked("Holy Shock") and HolyShock(getValue("Holy Shock")) then 
-				return true
-			end
-
-			--[[flash_of_light,if=target.health.pct<=30]]
-			if isChecked("Flash Of Light") and FlashOfLight(getValue("Flash Of Light")) then 
+			if isChecked("Holy Shock") and _HolyPower < 5 and HolyShock(getValue("Holy Shock"))  then 
 				return true
 			end
 
 			--Todo Need to add a check if we have 5 then use it
 			if isChecked("Eternal Flame") and EternalFlame(getValue("Eternal Flame")) then
+				return true
+			end
+
+			--[[flash_of_light,if=target.health.pct<=30]]
+			if isChecked("Flash Of Light") and FlashOfLight(getValue("Flash Of Light")) then 
 				return true
 			end
 
