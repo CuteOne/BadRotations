@@ -9,6 +9,7 @@ if select(3, UnitClass("player")) == 4 then
 	    end
 		AssToggles()
 		poisonData()
+		makeEnemiesTable(40)
 		-- if worgen==nil then
 		-- 	worgen=false
 		-- end

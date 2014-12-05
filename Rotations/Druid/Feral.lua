@@ -9,9 +9,7 @@ if select(3, UnitClass("player")) == 11 then
 	    end
 	    KeyToggles()
 	    GroupInfo()
-	    WA_calcStats_feral()
-
-
+	    makeEnemiesTable(40)
 --------------
 --- Locals ---
 --------------
@@ -251,7 +249,7 @@ if select(3, UnitClass("player")) == 11 then
 					if castSpell("player",prl,false,false,false) then return end
 		        end
 		-- Rake/Shred
-		        if power>40 then
+		        if power>40 and getDistance(dynamicTarget(5,true))<5 then
 		        	if isKnown(irk) then
 		        		if castSpell(dynamicTarget(5,true),rk,false,false,false) then return end
 		        	else

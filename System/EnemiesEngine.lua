@@ -48,7 +48,6 @@ function makeEnemiesTable(maxDistance)
   				local unitDistance = getDistance("player",thisUnit)
 				-- distance check according to profile needs
   				if unitDistance <= maxDistance then
-  					
 		  			-- get unit Infos
 		  			local safeUnit = isSafeToAttack(thisUnit)
 		  			local burnUnit = isBurnTarget(thisUnit)
@@ -93,8 +92,7 @@ function makeEnemiesTable(maxDistance)
 	 	-- sort them by coeficient
 	 	table.sort(enemiesTable, function(x,y)
 	 		return x.coeficient and y.coeficient and x.coeficient > y.coeficient or false
-	 	end
-		)
+	 	end)
 	end
 end
 
@@ -288,8 +286,9 @@ end
 function getSanity(unit)
 	if UnitExists(unit) and bit.band(ObjectType(unit), ObjectTypes.Unit) == 8 
 	  and UnitIsVisible(unit) == true and getCreatureType(unit) == true
-	  and UnitCanAttack(unit, "player") == true and UnitIsDeadOrGhost(unit) == false 
-	  and (UnitAffectingCombat(unit) or isDummy(unit)) then
+	  and UnitCanAttack(unit, "player") == true and UnitIsDeadOrGhost(unit) == false
+	  and (UnitAffectingCombat(unit) or isDummy(unit))
+	then
 	  	return true
 	else
 		return false
