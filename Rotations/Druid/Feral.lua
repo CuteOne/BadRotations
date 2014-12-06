@@ -133,7 +133,6 @@ if select(3, UnitClass("player")) == 11 then
 				
 		        if castSpell("player",cf,true,false,false) then return end
 		    end
-			
 		end
 	-- PowerShift
 	    if hasNoControl() then
@@ -191,9 +190,9 @@ if select(3, UnitClass("player")) == 11 then
         -- Flask / Crystal
 	        if isChecked("Flask / Crystal") and not (IsFlying() or IsMounted()) then
 	            if (select(2,IsInInstance())=="raid" or select(2,IsInInstance())=="none") 
-	            	and not UnitBuffID("player",156093) 
+	            	and not (UnitBuffID("player",156073) or UnitBuffID("player",156064)) --Draenor Agi Flasks
 	            then
-	                if not UnitBuffID("player",176151) and canUse(118922) then
+	                if not UnitBuffID("player",176151) and canUse(118922) then --Draenor Insanity Crystal
 	                    UseItemByName(tostring(select(1,GetItemInfo(118922))))
 	                end
 	            end
@@ -214,8 +213,8 @@ if select(3, UnitClass("player")) == 11 then
 	            then
                     if canUse(5512) then
                         UseItemByName(tostring(select(1,GetItemInfo(5512))))
-                    elseif canUse(76097) then
-                        UseItemByName(tostring(select(1,GetItemInfo(76097))))
+                    elseif canUse(healthPot[1].item) then
+                        UseItemByName(tostring(select(1,GetItemInfo(healthPot[1].item))))
                     end
 	            end
 -- Tier 6 Talent: Nature's Vigil
@@ -373,8 +372,8 @@ if select(3, UnitClass("player")) == 11 then
 							if enemiesTable[i].distance<5 then
 								thisUnit = enemiesTable[i].unit
 								rpRemain = getDebuffRemain(thisUnit,rp,"player")
-								if rpRemain>0 and rpRemain < 3 and power>25 
-									and enemiesTable[i].hp<25 and combo>0 
+								if power>25 and ((rpRemain>0 and rpRemain < 3 and combo>0 and enemiesTable[i].hp<25)
+									or (((3.4*UnitAttackPower("player"))*combo/5)>UnitHealth(thisUnit))) 
 								then
 									if castSpell(thisUnit,fb,false,false,false) then return end
 								end
@@ -382,7 +381,7 @@ if select(3, UnitClass("player")) == 11 then
 						end
 					else
 						thisUnit = dynamicTarget(5,true)
-						if rpRemain>0 and rpRemain < 3 and power>25 and getHP(thisUnit)<25 and combo>0 then
+						if power>25 and ((rpRemain>0 and rpRemain < 3 and getHP(thisUnit)<25 and combo>0) or (((3.4*UnitAttackPower("player"))*combo/5)>UnitHealth(thisUnit))) then
 							if castSpell(thisUnit,fb,false,false,false) then return end
 						end
 					end
@@ -542,7 +541,7 @@ if select(3, UnitClass("player")) == 11 then
 				    	end
 				    end
 		-- Thrash
-					if useCleave() then
+					if useCleave() or (BadBoy_data['AoE'] == 2 and not useCleave()) then
 						for i=1, #enemiesTable do
 							if enemiesTable[i].distance<8 then
 								thisUnit = enemiesTable[i].unit

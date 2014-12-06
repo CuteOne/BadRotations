@@ -1897,6 +1897,40 @@ function getValue(Value)
 	end
 end
 
+--[[Health Potion Table]]
+healthPot = { }
+for i = 1, 4 do
+	for x = 1, GetContainerNumSlots(i) do
+		local itemID = GetContainerItemID(i,x)
+		if itemID~=nil then
+			local ItemName = select(1,GetItemInfo(itemID))
+			local MinLevel = select(5,GetItemInfo(itemID))
+			local ItemType = select(7,GetItemInfo(itemID))
+			local ItemEffect = select(1,GetItemSpell(itemID))
+			if ItemType == select(7,GetItemInfo(2459)) then
+				if strmatch(ItemEffect,strmatch(select(1,GetItemSpell(76097)),"%a+")) then
+					if MinLevel<=UnitLevel("player") and canUse(itemID) then
+						local ItemCount = GetItemCount(itemID)
+	    				tinsert(healthPot, 
+	   						{ 
+	   							item = itemID,
+	   							itemName = ItemName,
+	   							minLevel = MinLevel,
+	   							itemType = ItemType,
+	   							itemEffect = ItemEffect,
+	   							itemCount = ItemCount
+	   						}
+	   					)
+	   				end
+   				end
+				end
+		end
+		table.sort(healthPot, function(x,y)
+			return x.minLevel and y.minLevel and x.minLevel > y.minLevel or false
+		end)
+	end
+end
+
 --[[Taunts Table!! load once]]
 tauntsTable = {
 	{ spell = 143436, stacks = 1 }, --Immerseus/71543               143436 - Corrosive Blast                             == 1x
