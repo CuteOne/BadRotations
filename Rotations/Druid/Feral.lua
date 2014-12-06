@@ -209,12 +209,12 @@ if select(3, UnitClass("player")) == 11 then
 	            end
 -- Pot/Stoned
 	            if isChecked("Pot/Stoned") and getHP("player") <= getValue("Pot/Stoned") 
-	            	and isInCombat("player") and usePot 
+	            	and isInCombat("player") and hasHealthPot() 
 	            then
                     if canUse(5512) then
                         UseItemByName(tostring(select(1,GetItemInfo(5512))))
-                    elseif canUse(healthPot[1].item) then
-                        UseItemByName(tostring(select(1,GetItemInfo(healthPot[1].item))))
+                    elseif canUse(healPot) then
+                        UseItemByName(tostring(select(1,GetItemInfo(healPot))))
                     end
 	            end
 -- Tier 6 Talent: Nature's Vigil
