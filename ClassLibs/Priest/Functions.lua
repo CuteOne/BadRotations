@@ -343,7 +343,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- Dot only if not burning
-		if BadBoy_data['Burn'] == 1 then
+		if BadBoy_data['Burn'] == 1  and not UnitBuffID("player",InsanityBuff) then
 			if getDebuffRemain("player",InsanityBuff)<=0 then
 				-- SWP
 				if getDebuffRemain("target",SWP,"player")<=5.4 then
