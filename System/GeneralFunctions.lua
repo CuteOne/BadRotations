@@ -1913,7 +1913,7 @@ function hasHealthPot()
 				local ItemEffect = select(1,GetItemSpell(itemID))
 				if ItemType == select(7,GetItemInfo(2459)) then
 					if strmatch(ItemEffect,strmatch(select(1,GetItemSpell(76097)),"%a+")) then
-						if MinLevel<=UnitLevel("player") and canUse(itemID) then
+						if MinLevel<=UnitLevel("player") then
 							local ItemCount = GetItemCount(itemID)
 		    				tinsert(healthPot, 
 		   						{ 
