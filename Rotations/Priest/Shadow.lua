@@ -161,24 +161,26 @@ if select(3, UnitClass("player")) == 5 then
 			-- end
 			
 			-- Single target
-			if BadBoy_data['AoE'] == 1 then
+			if getOptionCheck("AoE") == 1 then
 				Execute()
 				LFOrbs()
 				if getHP("target")>20 then
-					if BadBoy_data['Single']==1 then IcySingle() end
-					if BadBoy_data['Single']==2 then IcySingleWeave() end
+					if getOptionCheck("Single")==1 then IcySingle() end
+					if getOptionCheck("Single")==2 then IcySingleWeave() end
+					--if BadBoy_data['Single']==1 then IcySingle() end
+					--if BadBoy_data['Single']==2 then IcySingleWeave() end
 				end
 			end
 
 			-- Dual Target
-			if BadBoy_data['AoE'] == 2 then
+			if getOptionCheck("AoE") == 2 then
 				Execute()
 				LFOrbs()
 				if getHP("target")>20 then IcyDualTarget() end
 			end
 			
 			-- 3+ Targets
-			if BadBoy_data['AoE'] == 3 then 
+			if getOptionCheck("AoE") == 3 then 
 				Execute()
 				LFOrbs()
 				if getHP("target")>20 then IcyMultiTarget() end
