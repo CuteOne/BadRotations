@@ -4,25 +4,24 @@ if select(3, UnitClass("player")) == 9 then
 	        --WarlockConfig();
 	        Currentconfig = "Demonology Cpoworks";
 	    end
-	    KeyToggles()
 	    if not canRun() then
 	    	return true
 	    end
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	end --Class Function End
 end --Final End

@@ -109,8 +109,8 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- Fade (Aggro)
 		if IsInRaid() ~= false then
-			--if isChecked("Fade Aggro") and BadBoy_data['Defensive']==2 and UnitThreatSituation("player")>=2 then
-			if isChecked("Fade Aggro") and BadBoy_data['Defensive'] == 2 then
+			if isChecked("Fade Aggro") and BadBoy_data['Defensive']==2 and getThreat()>=3 then
+			--if isChecked("Fade Aggro") and BadBoy_data['Defensive'] == 2 then
 				if castSpell("player",Fade) then return; end
 			end
 		end
@@ -150,6 +150,11 @@ if select(3, UnitClass("player")) == 5 then
 		-- Power Infusion
 		if isKnown(PI) and BadBoy_data['Cooldowns'] == 2 and isChecked("Power Infusion") then
 			if castSpell("player",PI) then return; end
+		end
+
+		-- Berserking (Troll Racial)
+		if isKnown(Berserking) and BadBoy_data['Cooldowns'] == 2 and isChecked("Berserking") then
+			if castSpell("player",Berserking) then return; end
 		end
 
 		-- Halo
@@ -192,7 +197,6 @@ if select(3, UnitClass("player")) == 5 then
 			end
 		end
 	end
-
 	--[[                    ]] -- Execute end
 
 
@@ -202,7 +206,7 @@ if select(3, UnitClass("player")) == 5 then
 			if getSpellCD(SWD)==0 and ORBS<5 then
 				for i=1,#enemiesTable do
 					local thisUnit = enemiesTable[i].unit
-					if UnitAffectingCombat(thisUnit) and enemiesTable[i].hp<20 then
+					if (UnitAffectingCombat(thisUnit) or isChecked("Skip Affecting Combat")) and enemiesTable[i].hp<20 then
 						if castSpell(thisUnit,SWD,true,false) then return; end
 					end
 				end
@@ -318,6 +322,11 @@ if select(3, UnitClass("player")) == 5 then
 			if castSpell("target",DP,false,true) then return; end
 		end
 
+		-- Ko'ragh barroier bug (he is "under20% life" while barrier is under 20%)
+		if GetUnitName("target")=="Ko'ragh" then
+			if castSpell("target",SWD,true,false) then return; end
+		end
+
 		-- MB
 		if castSpell("target",MB,false,false) then return; end
 
@@ -325,7 +334,6 @@ if select(3, UnitClass("player")) == 5 then
 		if getTalent(3,3) then
 			if UnitBuffID("player",InsanityBuff) then
 				if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
-					print("MF");
 					if castSpell("target",MF,false,true) then return; end
 				end
 			end
@@ -339,7 +347,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- Dot only if not burning
-		if BadBoy_data['Burn'] == 1 then
+		if BadBoy_data['Burn'] == 1  and not UnitBuffID("player",InsanityBuff) then
 			if getDebuffRemain("player",InsanityBuff)<=0 then
 				-- SWP
 				if getDebuffRemain("target",SWP,"player")<=5.4 then
@@ -370,7 +378,103 @@ if select(3, UnitClass("player")) == 5 then
 	--[[                    ]] -- IcySingle end
 
 
-	--[[                    ]] -- Icy 2-3 Targets start
+	--[[                    ]] -- Dual Target start
+	function IcyDualTarget()
+		-----------------
+		-- DoT Weaving --
+		-----------------
+			-- if ORBS==5 --> apply DoTs if targetHP>20
+			if isChecked("DoTWeave") and getTalent(3,3) then
+				-- function DoTWeaveBreak()
+				-- 	local counter=0
+				-- 	local factor=getValue("Weave Comp")/10
+				-- 	if isChecked("SWP") then counter=counter+1 end
+				-- 	if isChecked("VT") then counter=counter+1 end
+				-- 	return counter*GCD*factor
+				-- end
+				-- local Break=DoTWeaveBreak()
+				-- if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<Break then
+				if ORBS>=4 and getHP("target")>20 and MBCD<2*GCD then
+					if isChecked("SWP") then
+						if not UnitDebuffID("target",SWP,"player") then
+							if castSpell("target",SWP,true,false) then return; end
+						end
+					end
+					if isChecked("VT") then
+						if not UnitDebuffID("target",VT,"player") and GetTime()-lastVT > 2 then
+							if castSpell("target",VT,true,true) then 
+								lastVT=GetTime()
+								return
+							end
+						end
+					end
+				end
+			end
+		----------------
+		-- spend orbs --
+		----------------
+			--DP if ORBS == 5
+			--if isStanding(0.3) then
+				if ORBS==5 then
+					if castSpell("target",DP,false,true) then
+						lastDP=GetTime()
+						return
+					end
+				end
+			--end
+
+			-- DP if ORBS>=3 and lastDP<DPTIME and InsanityBuff<DPTICK
+			if ORBS>=3 and GetTime()-lastDP<=DPTIME+2 then
+				if castSpell("target",DP,false,true) then return; end
+			end
+
+			-- Insanity if noChanneling
+			if getTalent(3,3) then
+				if UnitBuffID("player",InsanityBuff) and getBuffRemain("player",InsanityBuff)>0.7*GCD then
+					--if select(1,UnitChannelInfo("player")) == nil then
+						if castSpell("target",MF,false,true) then return; end
+					--end
+				end
+			end
+
+		--------------
+		-- get orbs --
+		--------------
+			if not UnitDebuffID("player",InsanityBuff) then
+				-- MB on CD
+				if castSpell("target",MB,false,false) then return; end
+
+				-- DoT the other Boss
+					-- SWD
+					if isValidTarget(secondaryTarget) and getDebuffRemain(secondaryTarget,SWP,"player")<=getValue("Refresh Time") then
+						if castSpell(secondaryTarget,SWD,true,false) then return; end
+					end
+					-- VT
+					if isValidTarget(secondaryTarget) and getDebuffRemain(secondaryTarget,VT,"player")<=getValue("Refresh Time") and GetTime()-lastVT>2*GCD then
+						if castSpell(secondaryTarget,VT,true,true) then 
+							lastVT=GetTime()
+							return
+						end
+					end
+
+				-- Mind Spike
+				if ORBS<5 then 
+					if castSpell("target",MSp,false,true) then return; end
+				end
+
+				-- SWD glyphed
+				if not getTalent(3,3) then
+					if hasGlyph(GlyphOfSWD) and isChecked("SWD glyphed") and getHP("target")>=20 then
+						if castSpell("target",SWDG,true,false) then return; end
+					end
+				end
+			end
+
+	end
+	--[[                    ]] -- Dual Target end
+
+
+	--[[                    ]] -- IcyMultiTarget start
 	function IcyMultiTarget()
 		--makeEnemiesTable(40)
 		-- DP
@@ -406,14 +510,14 @@ if select(3, UnitClass("player")) == 5 then
 		if getSpellCD(SWD)==0 and ORBS<5 then
 			for i=1,#enemiesTable do
 				local thisUnit = enemiesTable[i].unit
-				if UnitAffectingCombat(thisUnit) and enemiesTable[i].hp<20 then
+				if enemiesTable[i].hp<20 then
 					if castSpell(thisUnit,SWD,true,false) then return; end
 				end
 			end
 		end
 
 		-- SWP on max targets (options)
-		if getSWP()<getValue("Max Targets") then
+		if getSWP()<=getValue("Max Targets") then
 			-- apply on current target before iterating
 			if getDebuffRemain("target",SWP,"player")<getValue("Refresh Time") then
 				if castSpell("target",SWP,true,false) then return; end
@@ -424,7 +528,7 @@ if select(3, UnitClass("player")) == 5 then
 					local thisUnit = enemiesTable[i].unit
 					local ttd = getTimeToDie(thisUnit)
 					local swpRem = getDebuffRemain(thisUnit,SWP,"player")
-					if UnitAffectingCombat(thisUnit) and not isLongTimeCCed(thisUnit) and swpRem<getValue("Refresh Time") then
+					if (UnitAffectingCombat(thisUnit) or isChecked("Skip Affecting Combat")) and not isLongTimeCCed(thisUnit) and swpRem<getValue("Refresh Time") then
 						if castSpell(thisUnit,SWP,true,false) then return; end
 					end
 				end
@@ -432,7 +536,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- VT on Unit in range
-		if getVT()<getValue("Max Targets") then
+		if getVT()<=getValue("Max Targets") then
 			-- apply on current target before iterating
 			if getDebuffRemain("target",VT,"player")<getValue("Refresh Time") and GetTime()-lastVT>2*GCD then
 				if castSpell("target",VT,true,true) then 
@@ -446,7 +550,7 @@ if select(3, UnitClass("player")) == 5 then
 					local thisUnit = enemiesTable[i].unit
 					local ttd = getTimeToDie(thisUnit)
 					local vtRem = getDebuffRemain(thisUnit,VT,"player")
-					if UnitAffectingCombat(thisUnit) and not isLongTimeCCed(thisUnit) and vtRem<getValue("Refresh Time") and GetTime()-lastVT>2*GCD then
+					if (UnitAffectingCombat(thisUnit) or isChecked("Skip Affecting Combat")) and not isLongTimeCCed(thisUnit) and vtRem<getValue("Refresh Time") and GetTime()-lastVT>2*GCD then
 						if castSpell(thisUnit,VT,true,true) then 
 							lastVT=GetTime()
 							return
@@ -471,7 +575,7 @@ if select(3, UnitClass("player")) == 5 then
 			end	
 		--end
 	end
-	--[[                    ]] -- Icy 2-3 Targets end
+	--[[                    ]] -- IcyMultiTarget end
 end
 
 

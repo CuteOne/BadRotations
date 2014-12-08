@@ -6,6 +6,7 @@ if select(3,UnitClass("player")) == 2 then
 		_AvengingWrath              =   31884
 		_BastionOfGlory				=	114637
 		_BeaconOfLight              =   53563
+		_BeaconOfFaith				= 	156910
 		_Berserking                 =   26297
 		_BlazingContemp 			= 	166831
 		_BlessingOfKings            =   20217

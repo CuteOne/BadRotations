@@ -38,15 +38,17 @@ if select(3, UnitClass("player")) == 5 then
 				myEnemiesTableTimer = GetTime()
 			end
 
+			-- Set Target Prio (only DualTarget)
+			secondaryTarget = "boss"..getValue("secondaryTarget")
+
 
 		-------------
 		-- TOGGLES --
 		-------------
 
 		-- Pause toggle
-		if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then
-			ChatOverlay("|cffFF0000BadBoy Paused", 0);
-			return;
+		if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == true then
+			ChatOverlay("|cffFF0000BadBoy Paused", 0); return;
 		end
 
 		-- Focus Toggle
@@ -167,9 +169,16 @@ if select(3, UnitClass("player")) == 5 then
 					if BadBoy_data['Single']==2 then IcySingleWeave() end
 				end
 			end
+
+			-- Dual Target
+			if BadBoy_data['AoE'] == 2 then
+				Execute()
+				LFOrbs()
+				if getHP("target")>20 then IcyDualTarget() end
+			end
 			
-			-- 2+ Targets
-			if BadBoy_data['AoE'] == 2 then 
+			-- 3+ Targets
+			if BadBoy_data['AoE'] == 3 then 
 				Execute()
 				LFOrbs()
 				if getHP("target")>20 then IcyMultiTarget() end

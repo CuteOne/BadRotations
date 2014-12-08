@@ -20,7 +20,8 @@ if select(3, UnitClass("player")) == 10 then
 --- Locals ---
 --------------
 		if tebCast == nil then tebCast = 0; end
-		local tarDist = getDistance2("target")
+		local tarDist = getDistance("target")
+		local thisUnit = dynamicTarget(5,true)
 		local php = getHP("player")
 		local power = getPower("player")
 		local powgen = getRegen("player")
@@ -150,7 +151,7 @@ if select(3, UnitClass("player")) == 10 then
 				end
 	-- Touch of Karma
 				if isChecked("Touch of Karma") and php<=getValue("Touch of Karma") and isInCombat("player") then
-					if castSpell("target",_TouchOfKarma,false,false) then return end
+					if castSpell(thisUnit,_TouchOfKarma,false,false) then return end
 				end
 	-- Fortifying Brew
 				if isChecked("Fortifying Brew") and php<=getValue("Fortifying Brew") and isInCombat("player") then
@@ -209,10 +210,6 @@ if select(3, UnitClass("player")) == 10 then
 --- In Combat ---
 -----------------
 		if isInCombat("player") then
-
-      -- Automatically target the next-closest enemy within 10 yards if already in combat
-		--findTarget(8,true)
-
 	------------------------------
 	--- In Combat - Dummy Test ---
 	------------------------------
@@ -232,32 +229,31 @@ if select(3, UnitClass("player")) == 10 then
 	------------------------------
 	--- In Combat - Interrupts ---
 	------------------------------
-				if useInterrupts() and canInterrupt("target",tonumber(getValue("Interrupts"))) then
+				if useInterrupts() then
 	-- Quaking Palm
-					if isChecked("Quaking Palm") and tarDist<5 then
-						if castSpell("target",_QuakingPalm,false,false) then return end
+					if isChecked("Quaking Palm") then
+						if castInterrupt(_QuakingPalm,tonumber(getValue("Interrupts"))) then return end
 					end
 	-- Spear Hand Strike
-					if isChecked("Spear Hand Strike") and getSpellCD(_QuakingPalm)>0 and getSpellCD(_QuakingPalm)<119 and tarDist<5 then
-						if castSpell("target",_SpearHandStrike,false,false) then return end
+					if isChecked("Spear Hand Strike") then
+						if castInterrupt(_SpearHandStrike,tonumber(getValue("Interrupts"))) then return end
 					end
 	-- Paralysis
-					if isChecked("Paralysis") and ((getSpellCD(_SpearHandStrike)>0 and getSpellCD(_SpearHandStrike)<13) or tarDist>5) and tarDist<20 then
-						if castSpell("target",_Paralysis,false,false) then return end
+					if isChecked("Paralysis") and tarDist<20 then
+						if castInterrupt(_Paralysis,tonumber(getValue("Interrupts"))) then return end
 					end
 	-- Leg Sweep
-					if isChecked("Leg Sweep") and getSpellCD(_Paralysis)>0 and getSpellCD(_Paralysis)<13 and tarDist<5 then
-						if castSpell("target",_LegSweep,false,false) then return end
+					if isChecked("Leg Sweep") then
+						if castInterrupt(_LegSweep,tonumber(getValue("Interrupts"))) then return end
 					end
 				end
-
 	-----------------------------
 	--- In Combat - Cooldowns ---
 	-----------------------------
 				if useCDs() then
 			-- Invoke Xuen
 					if isChecked("Xuen") then
-						if castSpell("target",_InvokeXuen) then return end
+						if castSpell(thisUnit,_InvokeXuen) then return end
 					end
 			-- Racial: Troll Berserking
 			          if isChecked("Racial") and select(2, UnitRace("player")) == "Troll" then
@@ -289,8 +285,8 @@ if select(3, UnitClass("player")) == 10 then
 					if castSpell("player",_ChiBrew,false,false,false) then return end
 				end
 	-- Tiger Palm
-				if  tarDist<5 and tpRemain<=3 and chi>=1 and sckRemain==0 then
-					if castSpell("target",_TigerPalm,false,false) then return end
+				if tpRemain<=3 and chi>=1 and sckRemain==0 then
+					if castSpell(thisUnit,_TigerPalm,false,false) then return end
 				end
 	-- Tigereye Brew
 				if tebRemain==0
@@ -303,12 +299,12 @@ if select(3, UnitClass("player")) == 10 then
 					if castSpell("player",_TigereyeBrew,false,false) then tebCast = GetTime()+15; return end
 				end
 	-- Raising Sun Kick
-				if tarDist<5 and rskRemain==0 and sckRemain==0 and chi>=2 then
-					if castSpell("target",_RaisingSunKick,false,false) then return end
+				if rskRemain==0 and sckRemain==0 and chi>=2 then
+					if castSpell(thisUnit,_RaisingSunKick,false,false) then return end
 				end
 	-- Tiger Palm
-				if tarDist<5 and tpRemain==0 and rskRemain>1 and ttm>1 and chi>=1 and sckRemain==0 then
-					if castSpell("target",_TigerPalm,false,false) then return end
+				if tpRemain==0 and rskRemain>1 and ttm>1 and chi>=1 and sckRemain==0 then
+					if castSpell(thisUnit,_TigerPalm,false,false) then return end
 				end
 	-- Serenity
 				if getTalent(7,3) and tarDist<5 and chi>=2 and tpRemain>0 and rskRemain>0 then
@@ -334,16 +330,16 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("player",_RushingJadeWind,false,false) then return end
 					end
 	-- Raising Sun Kick
-					if not getTalent(6,1) and chi==chimax and tarDist<5 then
-						if castSpell("target",_RaisingSunKick,false,false) then return end
+					if not getTalent(6,1) and chi==chimax then
+						if castSpell(thisUnit,_RaisingSunKick,false,false) then return end
 					end
 	-- Fists of Fury
 					if getTalent(6,1) and ttm>fofChanTime and tpRemain>fofChanTime and rskRemain>fofChanTime and serRemain==0 then
 						if castSpell("target",_FistsOfFury,false,false) then return end
 					end
 	-- Touch of Death
-					if (UnitBuffID("player",_DeathNote) or UnitHealth("target")<=php) and not UnitIsPlayer("target") and tarDist<5 then
-						if castSpell("target",_TouchOfDeath,false,false) then return end
+					if (UnitBuffID("player",_DeathNote) or UnitHealth("target")<=php) and not UnitIsPlayer("target") then
+						if castSpell(thisUnit,_TouchOfDeath,false,false) then return end
 					end
 	-- Hurricane Strike
 					if getTalent(6,1) and ttm>hsChanTime and tpRemain>hsChanTime and rskRemain>hsChanTime and ebRemain==0 then
@@ -362,24 +358,24 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("player",_ChiBurst,false,false) then return end
 					end
 	-- Blackout Kick
-					if getTalent(6,1) and not getTalent(7,2) and (bkcRemain>0 or serRemain>0) and tarDist<5 then
-						if castSpell("target",_BlackoutKick,false,false) then return end
+					if getTalent(6,1) and not getTalent(7,2) and (bkcRemain>0 or serRemain>0) then
+						if castSpell(thisUnit,_BlackoutKick,false,false) then return end
 					end
 	-- Tiger Palm
-					if getTalent(6,1) and tpcRemain>0 and tpcRemain<=2 and tarDist<5 then
-						if castSpell("target",_TigerPalm,false,false) then return end
+					if getTalent(6,1) and tpcRemain>0 and tpcRemain<=2 then
+						if castSpell(thisUnit,_TigerPalm,false,false) then return end
 					end
 	-- Blackout Kick
-					if getTalent(6,1) and not getTalent(7,2) and chiDiff<2 and tarDist<5 then
-						if castSpell("target",_BlackoutKick,false,false) then return end
+					if getTalent(6,1) and not getTalent(7,2) and chiDiff<2 then
+						if castSpell(thisUnit,_BlackoutKick,false,false) then return end
 					end
 	-- Spinning Crane Kick
 					if not getTalent(6,1) and power>=40 then
 						if castSpell("player",_SpinningCraneKick,false,false) then return end
 					end
 	-- Jab
-					if getTalent(6,1) and chiDiff>=2 and power>=45 and (php>=getValue("Expel Harm") or getSpellCD(_ExpelHarm)>0) and tarDist<5 then
-						if castSpell("target",_Jab,false,false) then return end
+					if getTalent(6,1) and chiDiff>=2 and power>=45 and (php>=getValue("Expel Harm") or getSpellCD(_ExpelHarm)>0) then
+						if castSpell(thisUnit,_Jab,false,false) then return end
 					end
 				end
 	-----------------------------------
@@ -391,8 +387,8 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("target",_FistsOfFury,false,false) then return end
 					end
 	-- Touch of Death
-					if (UnitBuffID("player",_DeathNote) or UnitHealth("target")<=php) and not UnitIsPlayer("target") and tarDist<5 and sckRemain==0 then
-						if castSpell("target",_TouchOfDeath,false,false) then return end
+					if (UnitBuffID("player",_DeathNote) or UnitHealth("target")<=php) and not UnitIsPlayer("target") and sckRemain==0 then
+						if castSpell(thisUnit,_TouchOfDeath,false,false) then return end
 					end
 	-- Hurricane Strike
 					if getTalent(7,1) and ttm>hsChanTime and tpRemain>hsChanTime and rskRemain>hsChanTime and ebRemain==0 then
@@ -403,8 +399,8 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("player",_EnergizingBrew,false,false) then return end
 					end
 	-- Raising Sun Kick
-					if chi>=2 and not getTalent(7,2) and tarDist<5 then
-						if castSpell("target",_RaisingSunKick,false,false) then return end
+					if chi>=2 and not getTalent(7,2) then
+						if castSpell(thisUnit,_RaisingSunKick,false,false) then return end
 					end
 	-- Chi Wave
 					if ttm>2 and serRemain==0 and tarDist<40 then
@@ -419,28 +415,28 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("player",_ZenSphere,false,false) then return end
 					end
 	-- Blackout Kick
-					if not getTalent(7,2) and (bkcRemain>0 or serRemain>0) and tarDist<5 then
-						if castSpell("target",_BlackoutKick,false,false) then return end
+					if not getTalent(7,2) and (bkcRemain>0 or serRemain>0) then
+						if castSpell(thisUnit,_BlackoutKick,false,false) then return end
 					end
 	-- Chi Explosion
 					if getTalent(7,2) and chi>=3 and cecRemain>0 and tarDist<30 then
 						if castSpell("target",_ChiExplosion,false,false) then return end
 					end
 	-- Tiger Palm
-					if tarDist<5 and tpcRemain>0 and tpcRemain<=2 then
-						if castSpell("target",_TigerPalm,false,false) then return end
+					if tpcRemain>0 and tpcRemain<=2 then
+						if castSpell(thisUnit,_TigerPalm,false,false) then return end
 					end
 	-- Blackout Kick
-					if not getTalent(7,2) and chiDiff<2 and tarDist<5 then
-						if castSpell("target",_BlackoutKick,false,false) then return end
+					if not getTalent(7,2) and chiDiff<2 then
+						if castSpell(thisUnit,_BlackoutKick,false,false) then return end
 					end
 	-- Chi Explosion
 					if getTalent(7,2) and chi>=3 and tarDist<30 then
 						if castSpell("target",_ChiExplosion,false,false) then return end
 					end
 	-- Jab
-					if (chiDiff>=2 or chi==0) and power>=45 and (php>=getValue("Expel Harm") or getSpellCD(_ExpelHarm)>0) and tarDist<5 then
-						if castSpell("target",_Jab,false,false) then return end
+					if (chiDiff>=2 or chi==0) and power>=45 and (php>=getValue("Expel Harm") or getSpellCD(_ExpelHarm)>0) then
+						if castSpell(thisUnit,_Jab,false,false) then return end
 					end
 				end
 	-- Flying Serpent Kick

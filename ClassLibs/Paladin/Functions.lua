@@ -423,11 +423,30 @@ Holy
 
 		-- Eternal Flame
 		function EternalFlame(hpValue)
-			if _HolyPower > 3 then
-				for i = 1, #nNova do
-					if (nNova[i].hp < hpValue and getBuffRemain(nNova[i].unit,_EternalFlame) < 5) or (nNova[i].hp < 100 and _HolyPower == 5 and getBuffRemain(nNova[i].unit,_EternalFlame) < 5) or nNova[i].hp < hpValue - 20 then
-						if castSpell(nNova[i].unit, _EternalFlame, true, false) then return end
+			if (eternalFlameTimer == nil or eternalFlameTimer <= GetTime() - 1.3) then
+				eternalFlameTimer = GetTime()
+			else
+				return false
+			end
+
+			if lowestTankHP < lowestHP then
+				print("Healing Tank")
+				if lowestTankHP < hpValue then
+					print("With EF")
+					if castSpell(lowestTankUnit,_EternalFlame,true,false) then
+						return true
 					end
+				end
+			else
+				if lowestHP < hpValue then
+					if castSpell(lowestUnit,_EternalFlame,true,false) then
+						return true
+					end
+				end
+			end	
+			if _HolyPower == 5 then
+				if castSpell(lowestTankUnit,_EternalFlame,true,false) then
+					return true
 				end
 			end
 		end
@@ -471,9 +490,35 @@ Holy
 			end
 		end
 
+		function HolyPrism(hpValue)
+			if getValue("Holy Prism Mode") == 1 then -- Cast on friend with enemies around him, we default uses the tank for now, but should use enemiesengine i guess
+				if lowestTankHP < hpValue then
+					if castSpell(lowestTankUnit, _HolyPrism, true, false) then
+						return true
+					end
+				end
+			end
+			if getValue("Holy Prism Mode") == 2 then -- Cast on tanks target
+				--Should check friendly targets around the tanks target
+				--if castSpell(lowestTankUnit, _HolyPrism, true, false) then 
+				--	return true
+				--end
+			end
+			if getValue("Holy Prism Mode") == 3 then --Wise
+				--Todo, here we should check how many enemies around lowest HP units and if x then go for it
+				--or check if many people need healing and there is a mob close to them
+				for i = 1, #nNova do
+					if nNova[i].hp < hpValue then
+						if castSpell(nNova[i].unit, _HolyPrism, true, false) then return end
+					end
+				end
+			end
+		end
+
 		-- Beacon Of Light
 		function BeaconOfLight()
 			local beaconTarget, beaconRole, beaconHP = "player", "HEALER", getHP("player")
+			--3 different modes, tank, focus and wise
 			-- Find if we have any, note if its a tank.
 			for i = 1, #nNova do
 				if UnitBuffID(nNova[i].unit,_BeaconOfLight,"player") then
@@ -481,15 +526,146 @@ Holy
 				end
 			end
 			-- if we are not beacon on a tank and on tanks is checked we find a proper tank if focus dont exists.
-			if beaconRole ~= "TANK" then
-				if UnitExists("focus") == true and UnitInRaid("focus") == true and UnitIsVisible("focus") then
-					if castSpell("focus",_BeaconOfLight,true,false) then return end
-				else
+			if getValue("Beacon Of Light") == 1 then
+				if beaconRole ~= "TANK" then
 					for i = 1, #nNova do
-						if nNova[i].role == "TANK" then
+						if nNova[i].role == "TANK" and not UnitBuffID("focus",_BeaconOfLight,"player") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
 							if castSpell(nNova[i].unit,_BeaconOfLight,true,false) then return end
 						end
 					end
+				end
+			end
+
+			if getValue("Beacon Of Light") == 2 then
+				if UnitExists("focus") == true and UnitIsVisible("focus") and not UnitBuffID("focus",_BeaconOfLight,"player") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
+					if castSpell("focus",_BeaconOfLight,true,false) then 
+						return true
+					end
+				end
+			end
+
+			--Todo: Implement Wise Beacon
+			if isKnown(_BeaconOfFaith) then
+				-- if we are not beacon on a tank and on tanks is checked we find a proper tank if focus dont exists.
+				if getValue("Beacon Of Faith") == 1 then
+					if beaconRole ~= "TANK" and not UnitBuffID("focus",_BeaconOfLight,"player") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
+						for i = 1, #nNova do
+							if nNova[i].role == "TANK" then
+								if castSpell(nNova[i].unit,_BeaconOfFaith,true,false) then return end
+							end
+						end
+					end
+				end
+
+				if getValue("Beacon Of Faith") == 2 then
+					if UnitExists("focus") == true  and UnitIsVisible("focus") and not UnitBuffID("focus",_BeaconOfFaith,"player") and not UnitBuffID("focus",_BeaconOfLight,"player") then
+						if castSpell("focus",_BeaconOfFaith,true,false) then 
+							return true
+						end
+					end
+				end
+				--Todo impolement Wise mode
+			end 
+		end
+				
+		function castDispell()
+			if isChecked("Cleanse") and canCast(_Cleanse,false,false) and not (getBossID("boss1") == 71734 and not UnitBuffID("player",144359)) then
+				if getValue("Cleanse") == 2 then -- Mouse Match
+					if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
+						for i = 1, #nNova do
+							if nNova[i].guid == UnitGUID("mouseover") and nNova[i].dispel == true then
+								if castSpell(nNova[i].unit,_Cleanse, true,false) then 
+									return true
+								end
+							end
+						end
+					end
+				elseif getValue("Cleanse") == 1 then -- Raid Match
+					for i = 1, #nNova do
+						if nNova[i].hp < 249 and nNova[i].dispel == true then
+							if castSpell(nNova[i].unit,_Cleanse, true,false) then 
+								return true
+							end
+						end
+					end
+				elseif getValue("Cleanse") == 3 then -- Mouse All
+					if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
+					    for n = 1,40 do
+					      	local buff,_,_,count,bufftype,duration = UnitDebuff("mouseover", n)
+				      		if buff then
+				        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then
+				        			if castSpell("mouseover",_Cleanse, true,false) then 
+				        				return true
+				        			end
+				        		end
+				      		else
+				        		break
+				      		end
+					  	end
+					end
+				elseif getValue("Cleanse") == 4 then -- Raid All
+					for i = 1, #nNova do
+						if nNova[i].hp < 249 then
+						    for n = 1,40 do
+						      	local buff,_,_,count,bufftype,duration = UnitDebuff(nNova[i].unit, n)
+					      		if buff then
+					        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then
+					        			if castSpell(nNova[i].unit,_Cleanse, true,false) then 
+					        				return true
+					        			end
+					        		end
+					      		else
+					        		break
+					      		end
+						  	end
+						end
+					end
+				end
+			end
+
+			return false
+		end
+
+		function castHolyRadiance(spellID, numUnits, missingHP, rangeValue)
+			-- i start an iteration that i use to build each units Table, wich i will reuse for the next second
+			if not holyRadianceRangeTable or not holyRadianceRangeTableTimer or holyRadianceRangeTable <= GetTime() - 1 then
+				holyRadianceRangeTable = { }
+				for i = 1, #nNova do
+					-- i declare a sub-table for this unit if it dont exists
+					if nNova[i].distanceTable == nil then nNova[i].distanceTable = { } end
+					-- i start a second iteration where i scan unit ranges from one another.
+					for j = 1, #nNova do
+						-- i make sure i dont compute unit range to hisself.
+						if not UnitIsUnit(nNova[i].unit,nNova[j].unit) then
+							-- table the units
+							nNova[i].distanceTable[j] = { distance = getDistance(nNova[i].unit,nNova[j].unit), unit = nNova[j].unit, hp = nNova[j].hp }
+						end
+					end
+				end
+			end
+			-- declare locals that will hold number
+			local bestTarget, bestTargetUnits = 1, 1
+			-- now that nova range is built, i can iterate it
+			local inRange, missingHealth, mostMissingHealth = 0, 0, 0
+			for i = 1, #nNova do
+				if nNova[i].distanceTable ~= nil then
+					-- i count units in range
+					for j = 1, #nNova do
+						if nNova[i].distanceTable[j] and nNova[i].distanceTable[j].distance < rangeValue then
+							inRange = inRange + 1
+							missingHealth = missingHealth + (100 - nNova[i].distanceTable[j].hp)
+						end
+					end
+					nNova[i].inRangeForHolyRadiance = inRange
+					-- i check if this is going to be the best unit for my spell
+					if missingHealth > mostMissingHealth then
+						bestTarget, bestTargetUnits, mostMissingHealth = i, inRange, missingHealth
+					end
+				end
+			end
+			if bestTargetUnits and bestTargetUnits > 3 and mostMissingHealth and missingHP and mostMissingHealth > missingHP then
+				if castSpell(nNova[bestTarget].unit, spellID, true, true) then 
+					return 	true 
 				end
 			end
 		end

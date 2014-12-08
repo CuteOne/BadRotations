@@ -47,7 +47,6 @@ function makeEnemiesTable(maxDistance)
   				local unitDistance = getDistance("player",thisUnit)
 				-- distance check according to profile needs
   				if unitDistance <= maxDistance then
-
 		  			-- get unit Infos
 		  			local safeUnit = isSafeToAttack(thisUnit)
 		  			local burnValue = isBurnTarget(thisUnit)
@@ -92,8 +91,7 @@ function makeEnemiesTable(maxDistance)
 	 	-- sort them by coeficient
 	 	table.sort(enemiesTable, function(x,y)
 	 		return x.coeficient and y.coeficient and x.coeficient > y.coeficient or false
-	 	end
-		)
+	 	end)
 	end
 end
 

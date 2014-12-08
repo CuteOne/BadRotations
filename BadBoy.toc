@@ -146,15 +146,6 @@ Rotations\PokeRotation\PokeUnitInfo.lua
 ## ProfessionHelper
 Rotations\ProfessionHelper\ProfessionHelper.lua
 
-## Config
-System\Config\Config.lua
-System\Config\ConfigBox.lua
-System\Config\ConfigCheck.lua
-System\Config\ConfigDropDown.lua
-System\Config\ConfigText.lua
-System\Config\ConfigTitle.lua
-System\Config\ConfigWrap.lua
-
 ## RangeLibs
 LibStub-1.0\LibStub.lua
 System\Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml

@@ -550,8 +550,10 @@ function ConstructUI()
             -- 1 we hide all the related windows.
             -- 2 pulse selected options. create or show.
 
+        -- this used to be loaded at the end of the profile
+        function CreateGeneralsConfig()
 
-
+        end
 
     --end
 end

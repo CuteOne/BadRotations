@@ -20,6 +20,12 @@ if select(3,UnitClass("player")) == 10 then
 	  local myHP = getHP("player")
     local GCD = 1.5/(1+UnitSpellHaste("player")/100)
 	  local ElusiveStacks = getBuffStacks("player",_ElusiveBrewStacks)
+
+    -- Set Enemies Table
+    -- if myEnemiesTableTimer == nil or myEnemiesTableTimer <= GetTime() - 1 then
+    --   makeEnemiesTable(10)
+    --   myEnemiesTableTimer = GetTime()
+    -- end
   ------------------------------------------------------------------------------------------------------
   -- Food/Invis Check ----------------------------------------------------------------------------------
   ------------------------------------------------------------------------------------------------------
@@ -254,7 +260,9 @@ if select(3,UnitClass("player")) == 10 then
   ------------------------------------------------------------------------------------------------------
   -- Interrupts ----------------------------------------------------------------------------------------
   ------------------------------------------------------------------------------------------------------
-
+      -- if #enemiesTable >= 3 then
+      --   print(#enemiesTable)
+      -- end
   ------------------------------------------------------------------------------------------------------
   -- Rotation ------------------------------------------------------------------------------------------
   ------------------------------------------------------------------------------------------------------
@@ -284,7 +292,8 @@ if select(3,UnitClass("player")) == 10 then
           end
         end
         -- actions.st+=/keg_smash,if=chi.max-chi>=2&!buff.serenity.remains
-        if chiDif >= 2 and not UnitBuffID("player",_Serenity) then
+        --if chiDif >= 2 and not UnitBuffID("player",_Serenity) then
+        if not UnitBuffID("player",_Serenity) then
           if castSpell("target",_KegSmash,false,false) then
             return
           end
@@ -322,6 +331,7 @@ if select(3,UnitClass("player")) == 10 then
         -- actions.st+=/chi_explosion,if=chi>=3
         if chi >= 3 then
           if castSpell("target",_ChiExplosion,false,false) then
+            print("Chi Explosion at 3 Chi")
             return
           end
         end
@@ -389,6 +399,7 @@ if select(3,UnitClass("player")) == 10 then
         -- actions.aoe+=/chi_explosion,if=chi>=4
         if chi >= 4 then
           if castSpell("target",_ChiExplosion,false,false) then
+            print("Chi Explosion at 4 Chi")
             return
           end
         end
@@ -410,7 +421,8 @@ if select(3,UnitClass("player")) == 10 then
           end
         end
         -- actions.aoe+=/keg_smash,if=chi.max-chi>=2&!buff.serenity.remains
-        if chiDif >= 2 and not UnitBuffID("player",_Serenity) then
+        --if chiDif >= 2 and not UnitBuffID("player",_Serenity) then
+        if not UnitBuffID("player",_Serenity) then
           if castSpell("target",_KegSmash,false,false) then
             return
           end

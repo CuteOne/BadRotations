@@ -68,7 +68,7 @@ function BadBoyMinimapButton()
         if button == "RightButton" then
             if BadBoy_data.options[GetSpecialization()] then
                 if currentProfileName == nil then
-                    print("!cffFF1100BadBoy |cffFFFFFFnot loaded... Is Firehack loaded?")
+                    print("|cffFF1100BadBoy |cffFFFFFFnot loaded... Is Firehack loaded?")
                 else
                     if BadBoy_data.options[GetSpecialization()][currentProfileName.."Frame"] ~= true then
                         _G[currentProfileName.."Frame"]:Show()
