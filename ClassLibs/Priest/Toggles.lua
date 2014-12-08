@@ -61,9 +61,9 @@ if select(3, UnitClass("player")) == 5 then
 		if AoEModesLoaded ~= "Shadow Priest AoE Modes" then
 			AoEModes = {
 				[1] = { mode = "1", value = 1 , overlay = "Single Target", tip = "|cff00FF00Single Target \n|cffFFDD11Style can be chosen with 'trad/weave' Button", highlight = 0, icon = 139139 },
-				--[2] = { mode = "dual", value = 2 , overlay = "Two Targets", tip = "|cff00FF00Dual Target \n|cffFFDD11Chose this for two bosses", highlight = 0, icon = 78203 },
-				[2] = { mode = "3+", value = 2 , overlay = "2-3 Targets", tip = "|cff00FF002+ Enemies \n|cffFFDD11Choose # of dots in options.", highlight = 0, icon = 48045 }
-				--[3] = { mode = "auto", value = 3 , overlay = "AoE Auto", tip = "|cff00FF00AoE \n|cffFFDD11Auto decision (not implemented yet). \n|cffFF0000", highlight = 1, icon = 8092 }
+				[2] = { mode = "dual", value = 2 , overlay = "Dual Boss Targets", tip = "|cff00FF00Dual Target \n|cffFFDD11Chose this for two bosses", highlight = 0, icon = 78203 },
+				--[2] = { mode = "3+", value = 2 , overlay = "3+ Targets", tip = "|cff00FF002+ Enemies \n|cffFFDD11Choose # of dots in options.", highlight = 0, icon = 48045 }
+				[3] = { mode = "3+", value = 3 , overlay = "3+ Targets", tip = "|cff00FF002+ Enemies \n|cffFFDD11Choose # of dots in options.", highlight = 0, icon = 48045 }
 			};
 			CreateButton("AoE",3,0)
 			AoEModesLoaded = "Shadow Priest AoE Modes";

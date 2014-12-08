@@ -38,6 +38,10 @@ if select(3, UnitClass("player")) == 5 then
 				myEnemiesTableTimer = GetTime()
 			end
 
+			-- Set Target Prio (only DualTarget)
+			if getValue("secondaryTarget") == 1 then secondaryTarget=boss1 end
+			if getValue("secondaryTarget") == 2 then secondaryTarget=boss2 end
+
 
 		-------------
 		-- TOGGLES --
@@ -175,7 +179,7 @@ if select(3, UnitClass("player")) == 5 then
 			end
 			
 			-- 3+ Targets
-			if BadBoy_data['AoE'] == 2 then 
+			if BadBoy_data['AoE'] == 3 then 
 				Execute()
 				LFOrbs()
 				if getHP("target")>20 then IcyMultiTarget() end

@@ -49,6 +49,12 @@ if select(3, UnitClass("player")) == 5 then
 					CreateNewText(thisConfig,"Power Infusion");
 				end
 
+				-- Troll Racial
+				if isKnown(Berserking) then
+					CreateNewCheck(thisConfig,"Berserking");
+					CreateNewText(thisConfig,"Berserking");
+				end
+
 				-- Shadowfiend / Mindbender
 				if isKnown(Mindbender) then
 					CreateNewCheck(thisConfig,"Mindbender");
@@ -85,25 +91,25 @@ if select(3, UnitClass("player")) == 5 then
 
 				-- Healthstone
 				CreateNewCheck(thisConfig,"Healthstone");
-				CreateNewBox(thisConfig, "Healthstone", 0,100,5,25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
+				CreateNewBox(thisConfig, "Healthstone", 0,100,2,25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
 				CreateNewText(thisConfig,"Healthstone");
 
 				-- Desperate Prayer
 				if isKnown(DesperatePrayer) then
 					CreateNewCheck(thisConfig,"Desperate Prayer");
-					CreateNewBox(thisConfig, "Desperate Prayer", 0,100,5,30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDesperate Prayer");
+					CreateNewBox(thisConfig, "Desperate Prayer", 0,100,2,30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDesperate Prayer");
 					CreateNewText(thisConfig,"Desperate Prayer");
 				end
 
 				-- Dispersion
 				CreateNewCheck(thisConfig,"Dispersion");
-				CreateNewBox(thisConfig, "Dispersion", 0,100,5,20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDispersion");
+				CreateNewBox(thisConfig, "Dispersion", 0,100,2,20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDispersion");
 				CreateNewText(thisConfig,"Dispersion");
 
 				-- Fade DMG reduction (with glyph)
 				if hasGlyph(GlyphOfFade) then
 					CreateNewCheck(thisConfig,"Fade Glyph");
-					CreateNewBox(thisConfig, "Fade Glyph", 0, 100  , 5, 80, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFade");
+					CreateNewBox(thisConfig, "Fade Glyph", 0, 100  , 2, 80, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFade");
 					CreateNewText(thisConfig,"Fade Glyph");
 				end
 				
@@ -115,6 +121,10 @@ if select(3, UnitClass("player")) == 5 then
 			-- Wrapper -----------------------------------------
 			if isKnown(CoP) then
 				CreateNewWrap(thisConfig,"      |cffBA55D3DoT Weave");
+
+					-- Secondary Target for Weave
+					CreateNewBox(thisConfig,"secondaryTarget", 1, 5, 1, 5, "Choose the secondary Target (boss<x>).\nMin: 1 / Max: 5 / Interval: 1");
+					CreateNewText(thisConfig,"Secondary Target");
 					
 					-- General
 					--CreateNewCheck(thisConfig,"DoTWeave");

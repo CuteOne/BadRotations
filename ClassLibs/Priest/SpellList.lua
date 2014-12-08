@@ -22,7 +22,7 @@ if select(3, UnitClass("player")) == 5 then
 		Rez		= 2006;		-- Resurrection
 
 	-- Procs
-		SoDProcs	= 87160;	-- SoD Procs (max 3)
+		SoDProc		= 87160;	-- SoD Procs (max 3)
 		MBProc		= 124430;	-- Shadowy Insight Procs (max 1)
 
 	-- Buffs
@@ -76,5 +76,6 @@ if select(3, UnitClass("player")) == 5 then
 		GlyphOfSWD			= 1005;
 
 	-- Racial
+		Berserking			= 26297;
 
 end
