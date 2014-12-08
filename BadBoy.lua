@@ -3,38 +3,14 @@ function BadBoyRun()
 	rc = LibStub("LibRangeCheck-2.0")
 	minRange, maxRange = rc:GetRange('target')
 
-	if BadBoy_data == nil then BadBoy_data = {
-		["Power"] = 1,
-		["Currentconfig"] = " ",
-		["Pause"] = 0,
-		["frameShown"] = true,
-		["anchor"] = "BOTTOM",
-		["x"] = -20,
-		["y"] = 130.0000061548516,
-		["configShown"] = true,
-		["configanchor"] = "RIGHT",
-		["configx"] = -140,
-		["configy"] = -135,
-		["configWidth"] = 250,
-		["configAlpha"] = 90,
-
-		["AoE"] = 1,
-		["Cooldowns"] = 1,
-		["Defensive"] = 1,
-		["Interrupts"] = 1,
-
-		["Check Engine Debug"] = 0,
-		["Check Debug"] = 0,
-		["Check PokeRotation"] = 0,
-		["successCasts"] = 0,
-		["failCasts"] = 0,
-		["Check PokeRotation"] = 0,
-		["engineAlpha"] = 90,
-		["debugAlpha"] = 90,
-	};
+	if BadBoy_data == nil then
+		BadBoy_data = {
+			["buttonSize"] = 32,
+		}
 	end
 
 	--[[Init the readers codes (System/Reader.lua)]]
+
 	ReaderRun();
 	-- Globals
 	classColors = {
@@ -63,12 +39,122 @@ function BadBoyRun()
 		["Monk"]		= {B=0.59,	G=1,	R=0,	hex="|cff00ff96"},
 		["Rogue"]		= {B=0.41,	G=0.96,	R=1,	hex="|cfffff569"}
 	}
+
 	qualityColors = {
 		blue = "0070dd",
 		green = "1eff00",
 		white = "ffffff",
 		grey = "9d9d9d"
 	}
+
+    -- load common used stuff on first load
+    -- options table that will hold specs subtable
+    if BadBoy_data.options == nil then
+        BadBoy_data.options = {}
+        BadBoy_data.options[1] = {}
+        BadBoy_data.options[2] = {}
+        BadBoy_data.options[3] = {}
+        BadBoy_data.options[4] = {}
+    end
+
+    -- uncomment that when all ready
+    if BadBoy_data.BadBoyUI == nil then
+        BadBoy_data.BadBoyUI = {
+        	mainButton = {
+        		pos = {
+        			anchor = "CENTER",
+        			x = -75,
+        			y = -200
+        		}
+        	},
+            alpha = 1,
+            buttonSize = 1,
+            configshown = true,
+            debugFrame = {
+                color = {
+                    r = 16,
+                    g = 16,
+                    b = 16,
+                    a = 1,
+                },
+                heigth = 150,
+                pos = {
+                    anchor = "LEFT",
+                    x = 1 ,
+                    y = 1
+                },
+                scale = 0.9,
+                width = 200,
+            },
+            font = "Fonts/arialn.ttf",
+            fonts = {
+                        "Fonts/skurri.ttf",
+                        "Fonts/morpheus.ttf",
+                        "Fonts/arialn.ttf",
+                        "Fonts/skurri.ttf"
+                    },
+            fontsize = 16,
+            iconSize = 1,
+            icons = {
+                emptyIcon = [[Interface\FrameGeneral\UI-Background-Marble]],
+                backIconOn = [[Interface\ICONS\Spell_Holy_PowerWordShield]],
+                backIconOff = [[Interface\ICONS\SPELL_HOLY_DEVOTIONAURA]],
+                genericIconOff = [[Interface\GLUES\CREDITS\Arakkoa1]],
+                genericIconOn = [[Interface/BUTTONS/CheckButtonGlow]]
+            },
+            optionsFrame = {
+                generalButton = {
+                    tip = "General Options",
+                },
+                enemiesEngineButton = {
+                    tip = "Enemies Engine Options",
+                },
+                healingEngineButton = {
+                    tip = "Healing Engine Options",
+                },
+                interruptEngineButton = {
+                    tip = "Interrupts Engine Options",
+                },
+                color = {
+                    r = 16,
+                    g = 16,
+                    b = 16,
+                    a = 1,
+                },
+                heigth = 300,
+                pos = {
+                    anchor = "RIGHT",
+                    x = 1 ,
+                    y = 1
+                },
+                selected = "options",
+                scale = 0.9,
+                width = 200,
+            },
+            profileFrame = {
+                color = {
+                    r = 16,
+                    g = 16,
+                    b = 16,
+                    a = 1,
+                },
+                heigth = 400,
+                pos = {
+                    anchor = "CENTER",
+                    x = 1 ,
+                    y = 1 },
+                scale = 0.9,
+                width = 270,
+            },
+            uiScale = 1,
+        }
+    end
+
+
+
+
+
+
 
 	---------------------------------
 	-- Macro Toggle ON/OFF
@@ -159,160 +245,55 @@ function BadBoyRun()
 		end
 	end
 
+	-- Build up pulse frame (hearth)
+	BadBoyEngine()
+
+	-- enemies to be considered "in range" profiles can overwrite it
+
+	BadBoyMinimapButton()
+	--ConfigFrame()
+	--DebugFrameCreation()
+	--EngineFrameCreation()
+	--InterruptsFrameCreation()
+	StartUI()
+
+	-- start up enemies Engine
 	enemiesEngineRange = 55
+	EnemiesEngine()
 
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
-
-	--[[This function is refired everytime wow ticks. This frame is located in Core.lua]]
-	function FrameUpdate(self)
-		-- if user click power button, stop everything from pulsing.
-		if BadBoy_data["Power"] == 0 then 
-			return false 
-		end
-
-		-- Accept Queues
-		if randomReady == nil then randomReady = math.random(8,15) end
-		if readyToAccept and readyToAccept <= GetTime() - 5 then 
-			AcceptProposal(); readyToAccept = nil; randomReady = nil; 
-		end
-
-		-- global vars
-		targetDistance = getDistance("target") or 0;
-		displayDistance = math.floor(targetDistance*100)/100
-		mainText:SetText(displayDistance)
-		profileStarts = GetTime()
+	ChatOverlay("-= BadBoy Loaded =-")
+end
 
 
-		-- Pulse engines
-		PokeEngine()
-		ProfessionHelper()
-		makeEnemiesTable(enemiesEngineRange)		
-		if NovaEngineUpdate == nil or NovaEngineUpdate <= GetTime() - getValue("Engine Refresh")/1000 then
+--[[Startup UI]]
+function StartUI()
+	-- trigger frame creation in ui.lua
+	ConstructUI()
+    -- Build up buttons frame (toggles)
+    BadBoyFrame()
+end
+
+--[[Updating UI]]
+function PulseUI()
+	-- Pulse engines
+
+	_G["options"..BadBoy_data.options.selected.."Button"]:Click()
+	-- global vars
+	targetDistance = getDistance("target") or 0
+	displayDistance = math.floor(targetDistance*100)/100
+	mainText:SetText(displayDistance)
+
+	-- enemies
+	makeEnemiesTable(maxDistance)
+	-- allies
+	if getOptionCheck("Engine Refresh") then
+		if NovaEngineUpdate == nil or NovaEngineUpdate <= GetTime() - getOptionValue("Engine Refresh")/1000 then
 			NovaEngineUpdate = GetTime()
 			nNova:Update()
-			engineRefresh()
-		end
-		interruptsRefresh()
-		PulseUI()
-		
-
-		--[[Class/Spec Selector]]
-		local _MyClass = select(3,UnitClass("player"))
-		local _MySpec = GetSpecialization()
-		if _MyClass == 1 then -- Warrior
-			if _MySpec == 2 then
-				FuryWarrior()
-			elseif _MySpec == 3 then
-				ProtectionWarrior()
-			else
-				ArmsWarrior()
-			end
-		elseif _MyClass == 2 then -- Paladin
-			if _MySpec == 1 then
-				PaladinHoly()
-			elseif _MySpec == 2 then
-				PaladinProtection()
-			elseif _MySpec == 3 then
-				PaladinRetribution()
-			end
-		elseif _MyClass == 3 then -- Hunter
-			if _MySpec == 1 then
-				BeastHunter()
-			elseif _MySpec == 2 then
-				MarkHunter()
-			else
-				SurvHunter()
-			end
-		elseif _MyClass == 4 then -- Rogue
-			if _MySpec == nil then
-				NewRogue()
-			end
-			if _MySpec == 1 then
-				AssassinationRogue()
-			elseif _MySpec == 2 then
-				CombatRogue()
-			elseif _MySpec == 3 then
-				SubRogue()
-			end
-		elseif _MyClass == 5 then -- Priest
-			if _MySpec == 3 then
-				PriestShadow()
-			end
-		elseif _MyClass == 6 then -- Deathknight
-			if _MySpec == 1 then
-				Blood()
-			end
-			if _MySpec == 2 then
-				FrostDK()
-			end
-		elseif _MyClass == 7 then -- Shaman
-			if _MySpec == 1 then
-				ShamanElemental()
-			end
-			if _MySpec == 2 then
-				ShamanEnhancement()
-			end
-			if _MySpec == 3 then
-				ShamanRestoration()
-			end
-		elseif _MyClass == 8 then -- Mage
-			if _MySpec == 1 then
-				ArcaneMage()
-			end
-			if _MySpec == 2 then
-				FireMage()
-			end
-			if _MySpec == 3 then
-				FrostMage()
-			end
-		elseif _MyClass == 9 then -- Warlock
-			if _MySpec == 2 then
-				WarlockDemonology()
-			elseif _MySpec == 3 then
-				WarlockDestruction()
-			end
-		elseif _MyClass == 10 then -- Monk
-			if _MySpec == nil then
-				NewMonk()
-			end
-			if _MySpec == 1 then
-				BrewmasterMonk()
-			elseif _MySpec == 2 then
-				MistweaverMonk();
-			elseif _MySpec == 3 then
-				WindwalkerMonk()
-			end
-		elseif _MyClass == 11 then -- Druid
-			if _MySpec == 1 then
-				DruidMoonkin()
-			end
-			if _MySpec == 2 then
-				DruidFeral()
-			end
-			if _MySpec == 3 then
-				DruidGuardian()
-			end
-			if _MySpec == 4 then
-				DruidRestoration()
-			end
 		end
 	end
 
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
-
-	EnemiesEngine()
-	BadBoyEngine()
-	BadBoyMinimapButton()
-	BadBoyFrame()
-	ConfigFrame()
-	DebugFrameCreation()
-	EngineFrameCreation()
-	InterruptsFrameCreation()
-	ChatOverlay("-= BadBoy Loaded =-")
+	-- Pulse other features
+	-- PokeEngine()
+	ProfessionHelper()
 end

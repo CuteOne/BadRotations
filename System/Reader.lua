@@ -4,77 +4,96 @@ function ReaderRun()
 ---------------
 
 -- Vars
-if AgiSnap == nil then AgiSnap = 0; end
-if canPickpocket == nil then canPickpocket = true; end
-if usePot == nil then usePot = true; end
+if AgiSnap == nil then
+	AgiSnap = 0
+end
+if canPickpocket == nil then
+	canPickpocket = true
+end
+if usePot == nil then
+	usePot = true
+end
 
 ----------------
 --[[ Auto Join]]
-local Frame = CreateFrame('Frame');
-Frame:RegisterEvent("LFG_PROPOSAL_SHOW");
-local function MerchantShow(self, event, ...)
-	if isChecked("Accept Queues") == true then
+local Frame = CreateFrame('Frame')
+Frame:RegisterEvent("LFG_PROPOSAL_SHOW")
+local function MerchantShow(self,event,...)
+	if getOptionCheck("Accept Queues") == true then
 		if event == "LFG_PROPOSAL_SHOW" then
-			readyToAccept = GetTime();
+			readyToAccept = GetTime()
 		end
 	end
 end
-Frame:SetScript("OnEvent", MerchantShow);
+Frame:SetScript("OnEvent",MerchantShow)
 
 --------------
 --[[ Eclipse]]
-local Frame = CreateFrame('Frame');
-Frame:RegisterEvent("ECLIPSE_DIRECTION_CHANGE");
+local Frame = CreateFrame('Frame')
+Frame:RegisterEvent("ECLIPSE_DIRECTION_CHANGE")
 local function Eclipse(self, event, ...)
 	if event == "ECLIPSE_DIRECTION_CHANGE" then
 		if select(1,...) == "sun" then
-			eclipseDirection = 1;
+			eclipseDirection = 1
 		else
-			eclipseDirection = 0;
+			eclipseDirection = 0
 		end
 	end
 end
-Frame:SetScript("OnEvent", Eclipse);
+Frame:SetScript("OnEvent", Eclipse)
 
 --------------------------
 --[[ isStanding Frame --]]
-DontMoveStartTime = nil;
+DontMoveStartTime = nil
 CreateFrame("Frame"):SetScript("OnUpdate", function ()
-	if GetUnitSpeed("Player") == 0 then
-		if not DontMoveStartTime then
-			DontMoveStartTime = GetTime();
-		end
-	else
-		DontMoveStartTime = nil;
-	end
-end);
+    if GetUnitSpeed("Player") == 0 then
+        if not DontMoveStartTime then
+            DontMoveStartTime = GetTime()
+        end
+    else
+        DontMoveStartTime = nil
+    end
+end)
+
+--------------------------
+--[[ timer Frame --]]
+CreateFrame("Frame"):SetScript("OnUpdate", function ()
+    if uiDropdownTimer ~= nil then
+        uiTimerStarted = GetTime()
+    end
+    if uiTimerStarted and GetTime() - uiTimerStarted >= 0.5 then
+        clearChilds(uiDropdownTimer)
+        uiDropdownTimer = false
+        uiTimerStarted = nil
+    end
+end)
 
 -----------------------
 --[[ Merchant Show --]]
-local Frame = CreateFrame('Frame');
-Frame:RegisterEvent("MERCHANT_SHOW");
-local function MerchantShow(self, event, ...)
+local Frame = CreateFrame('Frame')
+Frame:RegisterEvent("MERCHANT_SHOW")
+local function MerchantShow(self,event,...)
 	if event == "MERCHANT_SHOW" then
-		if isChecked("Auto-Sell/Repair") == true then
-			SellGreys();
+		if getOptionCheck("Auto-Sell/Repair") then
+			SellGreys()
 		end
 	end
 end
-Frame:SetScript("OnEvent", MerchantShow);
+Frame:SetScript("OnEvent",MerchantShow)
 
 -------------------------
 --[[ Entering Combat --]]
 local Frame = CreateFrame('Frame')
 Frame:RegisterEvent("PLAYER_REGEN_DISABLED")
-local function EnteringCombat(self, event, ...)
+local function EnteringCombat(self,event,...)
 	if event == "PLAYER_REGEN_DISABLED" then
 		AgiSnap = getAgility()
 		BadBoy_data["Combat Started"] = GetTime()
-		if debugTable ~= nil and #debugTable > 249 then 
-			tremove(debugTable, 250) 
+		if debugTable ~= nil and #debugTable > 249 then
+			tremove(debugTable, 250)
 		end
-		if debugRefresh ~= nil and BadBoy_data.ActualRow == 0 then 
-			debugRefresh() 
+		if debugRefresh ~= nil and BadBoy_data.ActualRow == 0 then
+			debugRefresh()
 		end
 		ChatOverlay("|cffFF0000Entering Combat")
 	end
@@ -85,7 +104,7 @@ Frame:SetScript("OnEvent",EnteringCombat)
 --[[ Leving Combat --]]
 local Frame = CreateFrame('Frame')
 Frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-local function LeavingCombat(self, event, ...)
+local function LeavingCombat(self,event,...)
 	if event == "PLAYER_REGEN_ENABLED" then
 		potionReuse = true
 		AgiSnap = 0
@@ -95,8 +114,12 @@ local function LeavingCombat(self, event, ...)
 		BadBoy_data.failCasts = 0
 		BadBoy_data["Combat Started"] = 0
 		--tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cff12C8FF/"..getCombatTime().."/Leaving Combat" , number = ":D" })
-		if #debugTable > 249 then tremove(debugTable, 250); end
-		if BadBoy_data.ActualRow == 0 then debugRefresh(); end
+		if #debugTable > 49 then
+			tremove(debugTable, 50)
+		end
+		if BadBoy_data.ActualRow == 0 then
+            badboyFrameRefresh("debug")
+		end
 		ChatOverlay("|cff00FF00Leaving Combat")
 		-- clean up out of combat
         Rip_sDamage = {}
@@ -105,51 +128,51 @@ local function LeavingCombat(self, event, ...)
         petAttacking = false
 	end
 end
-Frame:SetScript("OnEvent", LeavingCombat)
+Frame:SetScript("OnEvent",LeavingCombat)
 
 ---------------------------
 --[[ UI Error Messages --]]
-local Frame = CreateFrame('Frame');
-Frame:RegisterEvent("UI_ERROR_MESSAGE");
-local function UiErrorMessages(self, event, ...)
+local Frame = CreateFrame('Frame')
+Frame:RegisterEvent("UI_ERROR_MESSAGE")
+local function UiErrorMessages(self,event,...)
 	if event == "UI_ERROR_MESSAGE" then
-		lastError = ...; lastErrorTime = GetTime();
+		lastError = ...; lastErrorTime = GetTime()
 	  	local Events = (...)
 	  	-- print(...)
 	  	if Events == ERR_PET_SPELL_DEAD  then
-			BadBoy_data["Pet Dead"] = true;
-			BadBoy_data["Pet Whistle"] = false;
+			BadBoy_data["Pet Dead"] = true
+			BadBoy_data["Pet Whistle"] = false
 		end
 		if Events == PETTAME_NOTDEAD.. "." then
-			BadBoy_data["Pet Dead"] = false;
-			BadBoy_data["Pet Whistle"] = true;
+			BadBoy_data["Pet Dead"] = false
+			BadBoy_data["Pet Whistle"] = true
 		end
 		if Events == SPELL_FAILED_ALREADY_HAVE_PET then
-			BadBoy_data["Pet Dead"] = true;
-			BadBoy_data["Pet Whistle"] = false;
+			BadBoy_data["Pet Dead"] = true
+			BadBoy_data["Pet Whistle"] = false
 		end
 		if Events == PETTAME_CANTCONTROLEXOTIC.. "." then
 			if BadBoy_data["Box PetManager"] < 5 then
-				BadBoy_data["Box PetManager"] = BadBoy_data["Box PetManager"] + 1;
+				BadBoy_data["Box PetManager"] = BadBoy_data["Box PetManager"] + 1
 			else
-				BadBoy_data["Box PetManager"] = 1;
+				BadBoy_data["Box PetManager"] = 1
 			end
 		end
 		if Events == PETTAME_NOPETAVAILABLE.. "." then
-			BadBoy_data["Pet Dead"] = false;
-			BadBoy_data["Pet Whistle"] = true;
+			BadBoy_data["Pet Dead"] = false
+			BadBoy_data["Pet Whistle"] = true
 		end
 		if Events == SPELL_FAILED_TARGET_NO_WEAPONS then
-			isDisarmed = true;
+			isDisarmed = true
 		end
 		if Events == SPELL_FAILED_TARGET_NO_POCKETS then
-			canPickpocket = false;
+			canPickpocket = false
 		end
 		if Events == ERR_ALREADY_PICKPOCKETED then
-			canPickpocket = false;
+			canPickpocket = false
 		end
 		if Events == ERR_NO_LOOT then
-			canPickpocket = false;
+			canPickpocket = false
 		end
 	end
 end
@@ -157,12 +180,12 @@ Frame:SetScript("OnEvent", UiErrorMessages)
 
 ------------------------
 --[[ Spells Changed --]]
-local Frame = CreateFrame('Frame');
-Frame:RegisterEvent("LEARNED_SPELL_IN_TAB");
+local Frame = CreateFrame('Frame')
+Frame:RegisterEvent("LEARNED_SPELL_IN_TAB")
 local function SpellsChanged(self, event, ...)
 	if event == "LEARNED_SPELL_IN_TAB" then
 		if not configReloadTimer or configReloadTimer <= GetTime() - 1 then
-			currentConfig, configReloadTimer = nil, GetTime();
+			currentConfig, configReloadTimer = nil, GetTime()
 		end
 	end
 end
@@ -170,57 +193,49 @@ Frame:SetScript("OnEvent", SpellsChanged)
 
 ---------------------------
 --[[ Combat Log Reader --]]
-local superReaderFrame = CreateFrame('Frame');
-superReaderFrame:RegisterEvent("PLAYER_TOTEM_UPDATE");
-superReaderFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
-superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SENT");
-superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
-superReaderFrame:RegisterEvent("UNIT_SPELLCAST_FAILED");
-function SuperReader(self, event, ...)
-	if friendlyDot == nil then friendlyDot = { }; end
-    if debugTable == nil then debugTable = { }; end
+local superReaderFrame = CreateFrame('Frame')
+superReaderFrame:RegisterEvent("PLAYER_TOTEM_UPDATE")
+superReaderFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SENT")
+superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+superReaderFrame:RegisterEvent("UNIT_SPELLCAST_FAILED")
+function SuperReader(self,event,...)
+	if friendlyDot == nil then
+		friendlyDot = {}
+	end
+    if debugTable == nil then
+    	debugTable = {}
+    end
 
-    if select(3, UnitClass("player")) == 11 then Rip_sDamage = Rip_sDamage or {}; Rake_sDamage = Rake_sDamage or {}; end
+    if select(3, UnitClass("player")) == 11 then
+    	Rip_sDamage = Rip_sDamage or {}; Rake_sDamage = Rake_sDamage or {} end
     --Thrash_sDamage = Thrash_sDamage or {}
 
 
     if event == "COMBAT_LOG_EVENT_UNFILTERED" then
 
-    	local timestamp 	= select(1,...);
-    	local param 		= select(2,...);
-		local source 		= select(4,...);
-		local sourceName	= select(5,...);
-        local destination 	= select(8,...);
-		local spell 		= select(12,...);
-
-		------------------------
-		--[[ Debuff/Rejuv --
-		if param == "SPELL_PERIODIC_DAMAGE" then
-			ISetAsUnitID(destination,"poorguy");
-			if UnitIsFriend("player","poorguy") then
-				friendlyDot[destination] = GetTime();
-				--print(UnitName("poorguy"))
-			end
-		end]]
+    	local timestamp 	= select(1,...)
+    	local param 		= select(2,...)
+		local source 		= select(4,...)
+		local sourceName	= select(5,...)
+        local destination 	= select(8,...)
+		local spell 		= select(12,...)
 
 		--------------------------------------
 		--[[ Pick Pocket Success Recorder --]]
 		if param == "SPELL_CAST_SUCCESS" and spell==921 then
-			canPickpocket = false;
+			canPickpocket = false
 		end
 
 		--------------------------------------
 		--[[ Item Use Success Recorder --]]
 		if param == "SPELL_CAST_SUCCESS" and isInCombat("player") then
 			if spell == 105697 then --Virmen's Bite Buff
-				usePot = false;
+				usePot = false
 			end
 			if spell == 105708 then --Healing Potions
-				usePot = false;
+				usePot = false
 			end
-			-- if spell == 126734 then --Synapse Spring
-			-- 	useSynapse = false;
-			-- end
 		end
 
 
@@ -229,24 +244,24 @@ function SuperReader(self, event, ...)
 		if select(3, UnitClass("player")) == 9 then
 	        if source == UnitGUID("player") and param == "SPELL_CAST_SUCCESS" then
 	        	if spell == 688 or spell == 112866 then
-	        		petSummoned = 1;
-	        		petSummonedTime = GetTime();
+	        		petSummoned = 1
+	        		petSummonedTime = GetTime()
 	        	end
 	        	if spell == 697 or spell == 112867 then
-	        		petSummoned = 2;
-	        		petSummonedTime = GetTime();
+	        		petSummoned = 2
+	        		petSummonedTime = GetTime()
 	        	end
 	        	if spell == 691 or spell == 112869 then
-	        		petSummoned = 3;
-	        		petSummonedTime = GetTime();
+	        		petSummoned = 3
+	        		petSummonedTime = GetTime()
 	        	end
 	        	if spell == 712 or spell == 112868 then
-	        		petSummoned = 4;
-	        		petSummonedTime = GetTime();
+	        		petSummoned = 4
+	        		petSummonedTime = GetTime()
 	        	end
 	        	if spell == 30146 or spell == 112870 then
-	        		petSummoned = 5;
-	        		petSummonedTime = GetTime();
+	        		petSummoned = 5
+	        		petSummonedTime = GetTime()
 	        	end
 			end
 		end
@@ -257,7 +272,7 @@ function SuperReader(self, event, ...)
 	        -- snapshot on spellcast
 	        if source == UnitGUID("player") and param == "SPELL_CAST_SUCCESS" then
 	            if spell == 115767 then
-	                deepWoundsCastAP = UnitAttackPower("player");
+	                deepWoundsCastAP = UnitAttackPower("player")
 	            end
 	        -- but only record the snapshot if it successfully applied
 	        elseif source == UnitGUID("player") and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") and deepWoundsCastAP ~= nil then
@@ -273,18 +288,18 @@ function SuperReader(self, event, ...)
 			if source == UnitGUID("player") then
 				function WA_calcStats()
 				    local DamageMult = 1
-				    
+
 				    local CP = GetComboPoints("player", "target")
 				    if CP == 0 then CP = 5 end
-				    
+
 				    if UnitBuffID("player",5217) then
 				        DamageMult = DamageMult * 1.15
 				    end
-				    
+
 				    if UnitBuffID("player",174544) then
 				        DamageMult = DamageMult * 1.4
 				    end
-				    
+
 				    WA_stats_BTactive = WA_stats_BTactive or  0
 				    if UnitBuffID("player",155672) then
 				        WA_stats_BTactive = GetTime()
@@ -292,7 +307,7 @@ function SuperReader(self, event, ...)
 				    elseif GetTime() - WA_stats_BTactive < .2 then
 				        DamageMult = DamageMult * 1.3
 				    end
-				    
+
 				    local RakeMult = 1
 				    WA_stats_prowlactive = WA_stats_prowlactive or  0
 				    if UnitBuffID("player",102543) then
@@ -303,7 +318,7 @@ function SuperReader(self, event, ...)
 				    elseif GetTime() - WA_stats_prowlactive < .2 then
 				        RakeMult = 2
 				    end
-    
+
 				    stats_RipTick = CP*DamageMult
 				    stats_RipTick5 = 5*DamageMult
 				    stats_RakeTick = DamageMult*RakeMult
@@ -334,17 +349,17 @@ function SuperReader(self, event, ...)
         --------------------
         --[[ Fire Totem --]]
         if source == UnitGUID("player") and  param == "SPELL_SUMMON" and (spell == _SearingTotem or spell == _MagmaTotem) then
-        	activeTotem = destination;
+        	activeTotem = destination
         	activeTotemPosition = ObjectPosition("player")
         end
         if param == "UNIT_DESTROYED" and activeTotem == destination then
-        	activeTotem = nil;
+        	activeTotem = nil
         end
 
         -----------------------
         --[[ Wild Mushroom --]]
         if shroomsTable == nil then
-        	shroomsTable = { };
+        	shroomsTable = { }
         	shroomsTable[1] = { }
         end
         if source == UnitGUID("player") and  param == "SPELL_SUMMON" and (spell == 147349 or spell == 145205) then
@@ -354,7 +369,7 @@ function SuperReader(self, event, ...)
        		shroomsTable[1].z = nil
         end
         if (param == "UNIT_DIED" or  param == "UNIT_DESTROYED" or GetTotemInfo(1) ~= true) and shroomsTable ~= nil and shroomsTable[1].guid == destination then
-        	shroomsTable[1] = { };
+        	shroomsTable[1] = { }
         end
 
         ----------------
@@ -408,7 +423,7 @@ function SuperReader(self, event, ...)
 
         ------------------
         --[[Spell Queues]]
-        if BadBoy_data["Check Queues"] == 1 then
+        if getOptionCheck("Spell Queues") then
         	-----------------
         	--[[Cast Failed --> Queue]]
            	if param == "SPELL_CAST_FAILED" then
@@ -435,42 +450,70 @@ function SuperReader(self, event, ...)
 
         ---------------
         --[[ Debug --]]
-        if BadBoy_data["Check Debug"] == 1 then
+        if getOptionCheck("Debug Frame") == true then
         	if source == UnitGUID("player") then
         		if param == "SPELL_CAST_SUCCESS" then
-        			local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
+        			local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...
         			if SpellID ~= 75 and SpellID ~= 88263 and SpellID ~= 172 and SpellID ~= 8690 then -- Add spells we dont want to appear here.
-        				local color = "|cff12C8FF";
-        				BadBoy_data.successCasts = BadBoy_data.successCasts + 1;
-        				if destGUID == nil or destName == nil then debugdest = "" 	else debugdest = 	"\n|cffFF0000"..destName.." "..destGUID; end
-						if sourceGUID == nil then debugSource = "" 	else debugSource = 	"\n|cff12C8FF"..sourceName.." "..sourceGUID; end
-        				if spellID == nil then debugSpell = "" 		else debugSpell = 	"\n|cffFFDD11"..spellName.." "..spellID; end
-        				local Power = "\n|cffFFFFFFPower: "..UnitPower("player");
-        				tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName, toolTip = "|cffFF001ERoll Mouse to Scroll Rows"..debugSource.." "..debugdest.." "..debugSpell.." "..Power });
-						if #debugTable > 249 then tremove(debugTable, 250); end
-						if BadBoy_data.ActualRow == 0 and debugRefresh ~= nil then debugRefresh(); end
+        				local color = "|cff12C8FF"
+        				BadBoy_data.successCasts = BadBoy_data.successCasts + 1
+        				if destGUID == nil or destName == nil then
+        					debugdest = ""
+        				else
+        					debugdest = "\n|cffFF0000"..destName.." "..destGUID
+        				end
+						if sourceGUID == nil then
+							debugSource = ""
+						else
+							debugSource = 	"\n|cff12C8FF"..sourceName.." "..sourceGUID
+						end
+        				if spellID == nil then
+        					debugSpell = ""
+        				else
+        					debugSpell = 	"\n|cffFFDD11"..spellName.." "..spellID
+        				end
+        				local Power = "\n|cffFFFFFFPower: "..UnitPower("player")
+        				tinsert(debugTable,1,{ textString = BadBoy_data.successCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName, toolTip = "|cffFF001ERoll Mouse to Scroll Rows"..debugSource.." "..debugdest.." "..debugSpell.." "..Power })
+						if #debugTable > 49 then
+							tremove(debugTable,50)
+						end
+						badboyFrameRefresh("debug")
 					end
         		end
 
            		if param == "SPELL_CAST_FAILED" then
-        			local lasterror, destGUID, distance, power = lasterror, destGUID, distance, power;
-        			local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...;
+        			local lasterror, destGUID, distance, power = lasterror, destGUID, distance, power
+        			local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...
            			if SpellID ~= 75 and SpellID ~= 88263 then -- Add spells we dont want to appear here.
-						local color = "|cffFF001E";
+						local color = "|cffFF001E"
         				if spellCastTarget == UnitName("target") then
-        					destGUID = UnitGUID("target");
-        					Distance = targetDistance;
+        					destGUID = UnitGUID("target")
+        					Distance = targetDistance
         				end
-        				if lastError and lastErrorTime >= GetTime() - 0.2 then lasterror = "\n|cffFF0000 "..lastError; else lasterror = ""; end
-        				BadBoy_data.failCasts = BadBoy_data.failCasts + 1;
-        				if sourceGUID == nil then debugSource = "" 	else debugSource = 	"\n|cff12C8FF"..sourceName..sourceGUID; end
-        				if spellID == nil then debugSpell = "" 		else debugSpell = 	"\n|cffFFDD11"..spellID..spellName; end
-         				local Power = "\n|cffFFFFFFPower: "..UnitPower("player");
-         				if isChecked("Debug Fail Casts") then
-        					tinsert(debugTable, 1, { textString = BadBoy_data.failCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName, toolTip = "|cffFF001ERoll Mouse to Scroll Rows"..debugSource.." "..debugSpell.." "..Power.." "..lasterror });
+        				if lastError and lastErrorTime >= GetTime() - 0.2 then
+        					lasterror = "\n|cffFF0000 "..lastError
+        				else
+        					lasterror = ""
+        				end
+        				BadBoy_data.failCasts = BadBoy_data.failCasts + 1
+        				if sourceGUID == nil then
+        					debugSource = ""
+        				else
+        					debugSource = "\n|cff12C8FF"..sourceName..sourceGUID
+        				end
+        				if spellID == nil then
+        					debugSpell = ""
+        				else
+        					debugSpell = "\n|cffFFDD11"..spellID..spellName
+        				end
+         				local Power = "\n|cffFFFFFFPower: "..UnitPower("player")
+         				if getOptionCheck("Display Failcasts") == true then
+        					tinsert(debugTable,1,{textString = BadBoy_data.failCasts.."|cffFF001E/"..color..getCombatTime().."|cffFF001E/|cffFFFFFF"..spellName, toolTip = "|cffFF001ERoll Mouse to Scroll Rows"..debugSource.." "..debugSpell.." "..Power.." "..lasterror })
 						end
-						if #debugTable > 249 then tremove(debugTable, 250); end
-						if BadBoy_data.ActualRow == 0 and debugRefresh ~= nil then debugRefresh(); end
+						if #debugTable > 49 then
+							tremove(debugTable,50)
+						end
+						badboyFrameRefresh("debug")
 					end
         		end
         	end
@@ -480,33 +523,37 @@ function SuperReader(self, event, ...)
 	-------------------------------------------------
 	--[[ SpellCast Sents (used to define target) --]]
 	if event == "UNIT_SPELLCAST_SENT" then
-		spellCastTarget = select(4,...);
-		--print("UNIT_SPELLCAST_SENT spellCastTarget = "..spellCastTarget);
+		spellCastTarget = select(4,...)
+		--print("UNIT_SPELLCAST_SENT spellCastTarget = "..spellCastTarget)
 	end
 
 	-----------------------------
 	--[[ SpellCast Succeeded --]]
 	if event == "UNIT_SPELLCAST_SUCCEEDED" then
-		local SourceUnit 	= select(1,...);
-		local SpellID 		= select(5,...);
+		local SourceUnit 	= select(1,...)
+		local SpellID 		= select(5,...)
 		if SourceUnit == "player" then
 
-			local MyClass = UnitClass("player");
+			local MyClass = UnitClass("player")
 
 			-- Hunter
 			if MyClass == 3 then
 				-- Serpent Sting
 				if SpellID == 1978 then
-					LastSerpent = GetTime();
-					LastSerpentTarget = spellCastTarget;
+					LastSerpent = GetTime()
+					LastSerpentTarget = spellCastTarget
 				end
 				-- Steady Shot Logic
 				if SpellID == 56641 then
-					if SteadyCast and SteadyCast >= GetTime() - 2 and SteadyCount == 1 then SteadyCast = GetTime(); SteadyCount = 2; else SteadyCast = GetTime(); SteadyCount = 1; end
+					if SteadyCast and SteadyCast >= GetTime() - 2 and SteadyCount == 1 then
+						SteadyCast = GetTime(); SteadyCount = 2
+					else
+						SteadyCast = GetTime(); SteadyCount = 1
+					end
 				end
 				-- Focus Generation
 				if SpellID == 77767 then
-					focusBuilt = GetTime();
+					focusBuilt = GetTime()
 				end
 			end
 		end
@@ -540,35 +587,35 @@ function SuperReader(self, event, ...)
 		if SourceUnit == "player" and isKnown(SpellID) then
   			-- Disarm - Warrior
   			if SpellID == 676 then
-				isDisarmed = true;
+				isDisarmed = true
 			end
 			-- Clench - Hunter (Scorpid Pet)
 			if SpellID == 50541 then
-				isDisarmed = true;
+				isDisarmed = true
 			end
 			-- Dismantle - Rogue
 			if SpellID == 51722 then
-				isDisarmed = true;
+				isDisarmed = true
 			end
 			-- Psychic Horror - Priest
 			if SpellID == 64058 then
-				isDisarmed = true;
+				isDisarmed = true
 			end
 			-- Snatch - Hunter (Bird of Prey Pet)
 			if SpellID == 91644 then
-				isDisarmed = true;
+				isDisarmed = true
 			end
 			-- Grapple Weapon - Monk
 			if SpellID == 117368 then
-				isDisarmed = true;
+				isDisarmed = true
 			end
 			-- Disarm - Warlock (Voidreaver/Voidlord Pet)
 			if SpellID == 118093 then
-				isDisarmed = true;
+				isDisarmed = true
 			end
 			-- Ring of Peace - Monk
 			if SpellID == 137461 or SpellID == 140023 then
-				isDisarmed = true;
+				isDisarmed = true
 			end
 		end
 	end

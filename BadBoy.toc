@@ -25,6 +25,18 @@ System\Reader.lua
 System\UI.lua
 System\UsefulFeatures.lua
 
+## BadBoy UI
+System\ui\button.lua
+System\ui\checkbox.lua
+System\ui\debugelement.lua
+System\ui\dropdownmenu.lua
+System\ui\frame.lua
+System\ui\statusbar.lua
+System\ui\textframe.lua
+System\ui\ui.lua
+System\ui\wrapper.lua
+
+
 ## ClassLibs
 ClassLibs\Druid\Options.lua
 ClassLibs\Druid\Functions.lua

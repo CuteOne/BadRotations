@@ -1,44 +1,289 @@
-function UsefulFeatures() 
-    if isChecked("Fly Hack") and GetFlyHack() == false then SetFlyHack(true) end
-    if not isChecked("Fly Hack") and GetFlyHack() == true then SetFlyHack(false) end
-    if isChecked("Hover Hack") and GetHoverHack() == false then SetHoverHack(true) end
-    if not isChecked("Hover Hack") and GetHoverHack() == true then SetHoverHack(false) end
-    if isChecked("Water Walking") and GetWaterWalkHack() == false then SetWaterWalkHack(true) end
-    if not isChecked("Water Walking") and GetWaterWalkHack() == true then SetWaterWalkHack(false) end
-    if isChecked("Climb Hack") and GetWaterWalkHack() == false then SetWaterWalkHack(true) end
-    if not isChecked("Climb Hack") and GetWaterWalkHack() == true then SetWaterWalkHack(false) end
-    --[[Trackings]]
-    -- Friends
-    if isChecked("Friends") and GetTrackingState("Friends") == false then SetTrackingState("Friends",true) end 
-    if not isChecked("Friends") and GetTrackingState("Friends") == true then SetTrackingState("Friends",false) end
-    -- Neutral
-    if isChecked("Neutral") and GetTrackingState("Neutral") == false then SetTrackingState("Neutral",true) end 
-    if not isChecked("Neutral") and GetTrackingState("Neutral") == true then SetTrackingState("Neutral",false) end
-    -- Enemies
-    if isChecked("Enemies") and GetTrackingState("Enemies") == false then SetTrackingState("Enemies",true) end 
-    if not isChecked("Enemies") and GetTrackingState("Enemies") == true then SetTrackingState("Enemies",false) end 
-    -- Players 
-    if isChecked("Players") and GetTrackingState("Players") == false then SetTrackingState("Players",true) end 
-    if not isChecked("Players") and GetTrackingState("Players") == true then SetTrackingState("Players",false) end 
-    -- FriendlyPlayers 
-    if isChecked("FriendlyPlayers") and GetTrackingState("FriendlyPlayers") == false then SetTrackingState("FriendlyPlayers",true) end 
-    if not isChecked("FriendlyPlayers") and GetTrackingState("FriendlyPlayers") == true then SetTrackingState("FriendlyPlayers",false) end 
-    -- EnemyPlayers 
-    if isChecked("EnemyPlayers") and GetTrackingState("EnemyPlayers") == false then SetTrackingState("EnemyPlayers",true) end 
-    if not isChecked("EnemyPlayers") and GetTrackingState("EnemyPlayers") == true then SetTrackingState("EnemyPlayers",false) end 
-    -- Rares 
-    if isChecked("Rares") and GetTrackingState("Rares") == false then SetTrackingState("Rares",true) end 
-    if not isChecked("Rares") and GetTrackingState("Rares") == true then SetTrackingState("Rares",false) end 
-    -- Objects 
-    if isChecked("Objects") and GetTrackingState("Objects") == false then SetTrackingState("Objects",true) end 
-    if not isChecked("Objects") and GetTrackingState("Objects") == true then SetTrackingState("Objects",false) end 
-    -- Moving
-    if isChecked("Moving") and GetTrackingState("Moving") == false then SetTrackingState("Moving",true) end 
-    if not isChecked("Moving") and GetTrackingState("Moving") == true then SetTrackingState("Moving",false) end 
-    -- Attackable
-    if isChecked("Attackable") and GetTrackingState("Attackable") == false then SetTrackingState("Attackable",true) end 
-    if not isChecked("Attackable") and GetTrackingState("Attackable") == true then SetTrackingState("Attackable",false) end 
-    -- Chests
-    if isChecked("Chests") and GetTrackingState("Chests") == false then SetTrackingState("Chests",true) end 
-    if not isChecked("Chests") and GetTrackingState("Chests") == true then SetTrackingState("Chests",false) end 
+function AcceptQueues()
+    if getOptionCheck("Accept Queues") then
+        -- Accept Queues
+        if randomReady == nil then
+            randomReady = math.random(8,15)
+        end
+        -- add some randomness
+        if readyToAccept and readyToAccept <= GetTime() - 5 then
+            AcceptProposal(); readyToAccept = nil; randomReady = nil
+        end
+    end
+end
+
+-- Sell Greys Macros
+SLASH_Greys1 = "/grey"
+SLASH_Greys2 = "/greys"
+function SlashCmdList.Greys(msg, editbox)
+    SellGreys()
+end
+
+function SellGreys()
+    for bag = 0, 4 do
+        for slot = 1, GetContainerNumSlots(bag) do
+            local item = GetContainerItemLink(bag,slot)
+            if item then
+                    -- Is it grey quality item?
+                if string.find(item, qualityColors.grey) ~= nil then
+                    greyPrice = select(11, GetItemInfo(item)) * select(2, GetContainerItemInfo(bag, slot))
+                    if greyPrice > 0 then
+                        PickupContainerItem(bag, slot)
+                        PickupMerchantItem()
+                    end
+                end
+            end
+        end
+    end
+    RepairAllItems(1)
+    RepairAllItems(0)
+    ChatOverlay("Sold Greys.")
+end
+
+-- Dump Greys Macros
+SLASH_DumpGrey1 = "/dumpgreys"
+SLASH_DumpGrey2 = "/dg"
+function SlashCmdList.DumpGrey(msg, editbox)
+    DumpGreys(1);
+end
+function DumpGreys(Num)
+    local greyTable = {}
+    for bag = 0, 4 do
+      for slot = 1, GetContainerNumSlots(bag) do
+          local item = GetContainerItemLink(bag,slot)
+          if item then
+            -- Is it grey quality item?
+            if string.find(item, qualityColors.grey) ~= nil then
+                greyPrice = select(11, GetItemInfo(item)) * select(2, GetContainerItemInfo(bag, slot))
+                if greyPrice > 0 then
+                    tinsert(greyTable, { Bag = bag, Slot = slot, Price = greyPrice, Item = item})
+                end
+              end
+            end
+        end
+    end
+    table.sort(greyTable, function(x,y)
+        if x.Price and y.Price then return x.Price < y.Price; end
+    end)
+    for i = 1, Num do
+        if greyTable[i]~= nil then
+            PickupContainerItem(greyTable[i].Bag, greyTable[i].Slot)
+            DeleteCursorItem()
+            print("|cffFF0000Removed Grey Item:"..greyTable[i].Item)
+        end
+    end
+end
+
+-------------------------
+-- idTip by Silverwind --
+-------------------------
+local hooksecurefunc, select, UnitBuff, UnitDebuff, UnitAura, UnitGUID, GetGlyphSocketInfo, tonumber, strfind =
+      hooksecurefunc, select, UnitBuff, UnitDebuff, UnitAura, UnitGUID, GetGlyphSocketInfo, tonumber, strfind
+
+local types = {
+    spell       = "SpellID:",
+    item        = "ItemID:",
+    glyph       = "GlyphID:",
+    unit        = "NPC ID:",
+    quest       = "QuestID:",
+    talent      = "TalentID:",
+    achievement = "AchievementID:"
+}
+
+local function addLine(tooltip, id, type, noEmptyLine)
+    local found = false
+
+    -- Check if we already added to this tooltip. Happens on the talent frame
+    for i = 1,15 do
+        local frame = _G[tooltip:GetName() .. "TextLeft" .. i]
+        local text
+        if frame then text = frame:GetText() end
+        if text and text == type then found = true break end
+    end
+
+    if not found then
+        if not noEmptyLine then tooltip:AddLine(" ") end
+        tooltip:AddDoubleLine(type, "|cffffffff" .. id)
+        tooltip:Show()
+    end
+end
+
+-- All types, primarily for linked tooltips
+local function onSetHyperlink(self, link)
+    local type, id = string.match(link,"^(%a+):(%d+)")
+    if not type or not id then return end
+    if type == "spell" or type == "enchant" or type == "trade" then
+        addLine(self, id, types.spell)
+    elseif type == "glyph" then
+        addLine(self, id, types.glyph)
+    elseif type == "talent" then
+        addLine(self, id, types.talent)
+    elseif type == "quest" then
+        addLine(self, id, types.quest)
+    elseif type == "achievement" then
+        addLine(self, id, types.achievement)
+    elseif type == "item" then
+        addLine(self, id, types.item)
+    end
+end
+
+hooksecurefunc(ItemRefTooltip, "SetHyperlink", onSetHyperlink)
+hooksecurefunc(GameTooltip, "SetHyperlink", onSetHyperlink)
+
+-- Spells
+hooksecurefunc(GameTooltip, "SetUnitBuff", function(self, ...)
+    local id = select(11, UnitBuff(...))
+    if id then addLine(self, id, types.spell) end
+end)
+
+hooksecurefunc(GameTooltip, "SetUnitDebuff", function(self,...)
+    local id = select(11, UnitDebuff(...))
+    if id then addLine(self, id, types.spell) end
+end)
+
+hooksecurefunc(GameTooltip, "SetUnitAura", function(self,...)
+    local id = select(11, UnitAura(...))
+    if id then addLine(self, id, types.spell) end
+end)
+
+hooksecurefunc("SetItemRef", function(link, ...)
+    local id = tonumber(link:match("spell:(%d+)"))
+    if id then addLine(ItemRefTooltip, id, types.spell) end
+end)
+
+GameTooltip:HookScript("OnTooltipSetSpell", function(self)
+    local id = select(3, self:GetSpell())
+    if id then addLine(self, id, types.spell) end
+end)
+
+-- NPCs
+GameTooltip:HookScript("OnTooltipSetUnit", function(self)
+    if C_PetBattles.IsInBattle() then return end
+    local unit = select(2, self:GetUnit())
+    if unit then
+        local guid = UnitGUID(unit) or ""
+        local id   = tonumber(guid:match("-(%d+)-%x+$"), 10)
+        local type = guid:match("%a+")
+
+        -- ID 970 seems to be used for players
+        if id and type ~= "Player" then addLine(GameTooltip, id, types.unit) end
+    end
+end)
+
+-- Items
+local function attachItemTooltip(self)
+    local link = select(2, self:GetItem())
+    if link then
+        local id = select(3, strfind(link, "^|%x+|Hitem:(%-?%d+):(%d+):(%d+).*"))
+        if id then addLine(self, id, types.item) end
+    end
+end
+
+GameTooltip:HookScript("OnTooltipSetItem", attachItemTooltip)
+ItemRefTooltip:HookScript("OnTooltipSetItem", attachItemTooltip)
+ItemRefShoppingTooltip1:HookScript("OnTooltipSetItem", attachItemTooltip)
+ItemRefShoppingTooltip2:HookScript("OnTooltipSetItem", attachItemTooltip)
+ShoppingTooltip1:HookScript("OnTooltipSetItem", attachItemTooltip)
+ShoppingTooltip2:HookScript("OnTooltipSetItem", attachItemTooltip)
+
+-- Glyphs
+hooksecurefunc(GameTooltip, "SetGlyph", function(self, ...)
+    local id = select(4, GetGlyphSocketInfo(...))
+    if id then addLine(self, id, types.glyph) end
+end)
+
+hooksecurefunc(GameTooltip, "SetGlyphByID", function(self, id)
+    if id then addLine(self, id, types.glyph) end
+end)
+
+-- Achievement Frame Tooltips
+local f = CreateFrame("frame")
+f:RegisterEvent("ADDON_LOADED")
+f:SetScript("OnEvent", function(_, _, what)
+    if what == "Blizzard_AchievementUI" then
+        for i,button in ipairs(AchievementFrameAchievementsContainer.buttons) do
+            button:HookScript("OnEnter", function()
+                GameTooltip:SetOwner(button, "ANCHOR_NONE")
+                GameTooltip:SetPoint("TOPLEFT", button, "TOPRIGHT", 0, 0)
+                addLine(GameTooltip, button.id, types.achievement, true)
+                GameTooltip:Show()
+            end)
+            button:HookScript("OnLeave", function()
+                GameTooltip:Hide()
+            end)
+        end
+    end
+end)
+
+local petAbilityTooltipID = false;
+local orig_SharedPetBattleAbilityTooltip_SetAbility = SharedPetBattleAbilityTooltip_SetAbility
+function SharedPetBattleAbilityTooltip_SetAbility(self, abilityInfo, additionalText)
+  orig_SharedPetBattleAbilityTooltip_SetAbility(self, abilityInfo, additionalText)
+  petAbilityTooltipID = abilityInfo:GetAbilityID()
+end
+
+PetBattlePrimaryAbilityTooltip:HookScript('OnShow', function(self)
+      local name = self.Name:GetText()
+      self.Name:SetText(name .. ' (ID: ' .. petAbilityTooltipID .. ')')
+end)
+
+
+
+--[[
+
+                                                            LibStub
+
+
+]]
+
+
+-- $Id: LibStub.lua 76 2007-09-03 01:50:17Z mikk $
+-- LibStub is a simple versioning stub meant for use in Libraries.  http://www.wowace.com/wiki/LibStub for more info
+-- LibStub is hereby placed in the Public Domain
+-- Credits: Kaelten, Cladhaire, ckknight, Mikk, Ammo, Nevcairiel, joshborke
+local LIBSTUB_MAJOR, LIBSTUB_MINOR = "LibStub", 2  -- NEVER MAKE THIS AN SVN REVISION! IT NEEDS TO BE USABLE IN ALL REPOS!
+local LibStub = _G[LIBSTUB_MAJOR]
+
+-- Check to see is this version of the stub is obsolete
+if not LibStub or LibStub.minor < LIBSTUB_MINOR then
+    LibStub = LibStub or {libs = {}, minors = {} }
+    _G[LIBSTUB_MAJOR] = LibStub
+    LibStub.minor = LIBSTUB_MINOR
+
+    -- LibStub:NewLibrary(major, minor)
+    -- major (string) - the major version of the library
+    -- minor (string or number ) - the minor version of the library
+    --
+    -- returns nil if a newer or same version of the lib is already present
+    -- returns empty library object or old library object if upgrade is needed
+    function LibStub:NewLibrary(major, minor)
+        assert(type(major) == "string", "Bad argument #2 to `NewLibrary' (string expected)")
+        minor = assert(tonumber(strmatch(minor, "%d+")), "Minor version must either be a number or contain a number.")
+
+        local oldminor = self.minors[major]
+        if oldminor and oldminor >= minor then return nil end
+        self.minors[major], self.libs[major] = minor, self.libs[major] or {}
+        return self.libs[major], oldminor
+    end
+
+    -- LibStub:GetLibrary(major, [silent])
+    -- major (string) - the major version of the library
+    -- silent (boolean) - if true, library is optional, silently return nil if its not found
+    --
+    -- throws an error if the library can not be found (except silent is set)
+    -- returns the library object if found
+    function LibStub:GetLibrary(major, silent)
+        if not self.libs[major] and not silent then
+            error(("Cannot find a library instance of %q."):format(tostring(major)), 2)
+        end
+        return self.libs[major], self.minors[major]
+    end
+
+    -- LibStub:IterateLibraries()
+    --
+    -- Returns an iterator for the currently registered libraries
+    function LibStub:IterateLibraries()
+        return pairs(self.libs)
+    end
+
+    setmetatable(LibStub, { __call = LibStub.GetLibrary })
 end

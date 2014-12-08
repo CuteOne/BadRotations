@@ -94,7 +94,7 @@ if select(3, UnitClass("player")) == 2 then
 		castLightsHammer(dynamicUnit.dyn30AoE)
 
 		-- Holy Avenger
-		castHolyAvenger()
+		castHolyAvenger(_HolyPower)
 
 		-- Avenging Wrath
 		castAvengingWrath()
@@ -104,7 +104,7 @@ if select(3, UnitClass("player")) == 2 then
 		-- berserking
 		-- arcane_torrent
 		-- seraphim
-		castSeraphim()
+		castSeraphim(_HolyPower)
 		--[[Single(1-2)]]
 		if meleeEnemies < 3 then
 			-- divine_storm,if=buff.divine_crusader.react&holy_power=5&buff.final_verdict.up

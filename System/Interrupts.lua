@@ -2,32 +2,32 @@
 
 -------------------------------
 --[[spellCastersTable Table]]
-spellCastersTable = { };
+spellCastersTable = { }
 
 ---------------------------
 --[[ Interrupts Reader --]]
 local interruptsFrame = CreateFrame('Frame')
 interruptsFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-function interruptsReader(self, event, ...)
+function interruptsReader(self,event,...)
     if event == "COMBAT_LOG_EVENT_UNFILTERED" then
     	local timestamp,event,sourceGUID,sourceName = select(1,...),select(2,...),select(4,...),select(5,...)
     	local destGUID,destName,spellID = select(8,...),select(9,...),select(12,...)
 
         if sourceGUID and enemiesTable ~= nil then
-	        if isChecked("Interrupts Handler") then
+	        if getOptionCheck("Interrupts Handler") then
 	        	if source ~= UnitGUID("player") then
 					if event == "SPELL_CAST_SUCCESS" then
-						for i = 1, #spellCastersTable do
+						for i = 1,#spellCastersTable do
 							if spellCastersTable[i] and sourceGUID == spellCastersTable[i].guid then
-								tremove(spellCastersTable, i)
+								tremove(spellCastersTable,i)
 							end
 						end
-					end 
+					end
 
 					if event == "SPELL_INTERRUPT" then
-						for i = 1, #spellCastersTable do
+						for i = 1,#spellCastersTable do
 							if spellCastersTable[i] and destGUID == spellCastersTable[i].guid then
-								tremove(spellCastersTable, i)
+								tremove(spellCastersTable,i)
 							end
 						end
 					end
@@ -35,14 +35,13 @@ function interruptsReader(self, event, ...)
 	        		if event == "SPELL_CAST_START" then
 	        			local thisUnit
 				        -- Prepare GUID to be reused via UnitID
-				        for i = 1, #enemiesTable do
+				        for i = 1,#enemiesTable do
 				        	if sourceGUID == enemiesTable[i].guid then
 				        		thisUnit = enemiesTable[i].unit
-				        		local candidate = isInteruptCandidate(thisUnit.unit,spellID)
-				        		if candidate == true or not isChecked("Only Known Units") then
+				        		local candidate = true--isInteruptCandidate(thisUnit.unit,spellID)
+				        		if candidate == true or getOptionCheck("Only Known Units") then
 							        -- gather our infos
 							        local spellName,castLenght,castEnd,notInterruptible,castOrChan = getCastingInfo(thisUnit)
-
 							        -- make sure to define values
 							        destName = destName or "|cffFFFFFFNo Target"
 							        if destGUID == "" then
@@ -50,8 +49,8 @@ function interruptsReader(self, event, ...)
 							        end
 							        -- Send to table
 		  							local unitCasting,unitCastLenght,unitCastTime,unitCanntBeInterrupt,unitCastType = getCastingInfo(thisUnit)
-					        		tinsert(spellCastersTable, 
-					        			{ 
+					        		tinsert(spellCastersTable,
+					        			{
 					        				cast = spellID,
 					        				castType = unitCastType,
 						        			canInterupt = unitCanntBeInterrupt == false,
@@ -68,25 +67,26 @@ function interruptsReader(self, event, ...)
 						        			targetName = destName,
 						        			unit = enemiesTable[i].unit,
 					        			}
-					        		)     			
+					        		)
 
 									-- Sorting with the endTime
-									table.sort(spellCastersTable, function(x,y)
+									table.sort(spellCastersTable,function(x,y)
 										-- if both value exists then
-										if x.endTime and y.endTime then 
+										if x.endTime and y.endTime then
 											-- place higher above
-											return x.endTime > y.endTime;
+											return x.endTime > y.endTime
 										-- otherwise place empty at bottom
-										elseif x.endTime then 
+										elseif x.endTime then
 											return true
-										elseif y.endTime then 
+										elseif y.endTime then
 											return false
 										end
 									end)
 									-- we first build up the table and then we come back to find who is near who
-									getCastersAround(10)	
+									getCastersAround(10)
+									-- here we should spring the UI
 								end
-			        		end				        	
+			        		end
 			        	end
 					end
 	        	end
@@ -95,7 +95,7 @@ function interruptsReader(self, event, ...)
     end
 end
 -- pulse frame on event
-interruptsFrame:SetScript("OnEvent", interruptsReader)
+interruptsFrame:SetScript("OnEvent",interruptsReader)
 
 --[[           ]]   --[[           ]]    --[[           ]]
 --[[           ]]   --[[           ]]    --[[           ]]
@@ -107,14 +107,14 @@ interruptsFrame:SetScript("OnEvent", interruptsReader)
 
 -- function to gather casters in a given radius around a given unit
 function getCastersAround(Range)
-	for i = 1, #spellCastersTable do
+	for i = 1,#spellCastersTable do
 		local thatCaster = spellCastersTable[i]
 		-- dummy var
 		local enemyCastersAround = 0
-		for j = 1, #spellCastersTable do
+		for j = 1,#spellCastersTable do
 			thisCaster = spellCastersTable[j]
 			-- if more than 0.25 remains on unit cast and its in range we count it
-			if (thisCaster.castEnd - GetTime() > 0.25 or thisCaster.castType == "chan") and 
+			if (thisCaster.castEnd - GetTime() > 0.25 or thisCaster.castType == "chan") and
 			  getRealDistance(thatCaster.unit,thisCaster.unit) < Range then
 				enemyCastersAround = enemyCastersAround + 1
 			end
@@ -129,14 +129,14 @@ function getCastingInfo(unit)
 	-- if its a spell we return casting informations
 	if UnitCastingInfo(unit) ~= nil then
 		local unitCastName,_,_,_,unitCastStart,unitCastEnd,_,unitCastID,unitCastNotInteruptible = UnitCastingInfo(unit)
-		return unitCastName, getCastLenght(unitCastStart,unitCastEnd),unitCastEnd/1000,unitCastNotInteruptible,"cast"
+		return unitCastName,getCastLenght(unitCastStart,unitCastEnd),unitCastEnd/1000,unitCastNotInteruptible,"cast"
 	-- if its achannel we return channel info
 	elseif UnitChannelInfo(unit) ~= nil then
 		local unitCastName,_,_,_,unitCastStart,unitCastEnd,_,unitCastID,unitCastNotInteruptible = UnitChannelInfo(unit)
 		return unitCastName,getCastLenght(unitCastStart,unitCastEnd),unitCastEnd/1000,unitCastNotInteruptible,"chan"
 	-- otherwise we return bad dummy vars
 	else
-		return false, 250, 250, true, "nothing"
+		return false,250,250,true,"nothing"
 	end
 end
 
@@ -159,7 +159,7 @@ end
 -- check if a unit is a casting candidate according to its unitID and its current spell cast
 function isInteruptCandidate(Unit,SpellID)
 	local unitID = getUnitID(Unit)
-	for i = 1, #interruptCandidates do
+	for i = 1,#interruptCandidates do
 		thisCandidate = interruptCandidates[i]
 		if thisCandidate.unitID == 0 or unitID == thisCandidate.unitID then
 			if thisCandidate.spell == 0 or GetSpellInfo(SpellID) == GetSpellInfo(thisCandidate.spell) then
@@ -197,7 +197,7 @@ end
 --[[The functionality for the interrupt module could look something like this
 Rotation checks if the user want us to interupt, it then calls a sub function that handles the class specific interrupt logic. The class specific funtion first checks what the config is and then do a call to a generic Interuppt handler that checks if there is someone casting something we should interrupt and returns a target if there is a valid one. The class specific then checks according to his config which spells to try to use]]
 
---[[Rotations: 
+--[[Rotations:
 Check if user wants us to Interrupt
 If yes then call ClassInterrupt Function]]
 

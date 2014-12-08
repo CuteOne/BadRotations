@@ -218,7 +218,7 @@ if select(3,UnitClass("player")) == 2 then
 			health = getValue("Word Of Glory On Self")
 		end
 
-		if getHP(unit) <= health and (_HolyPower > holypower or UnitBuffID("player", _DivinePurposeBuff)) then -- Handle this via config? getHP does it include incoming heals? Bastion of Glory checks?
+		if getHP(unit) <= health and (holypower > holypower or UnitBuffID("player", _DivinePurposeBuff)) then -- Handle this via config? getHP does it include incoming heals? Bastion of Glory checks?
 			if castSpell(unit,_WordOfGlory,true,false) then
 				return true
 			end
@@ -227,7 +227,7 @@ if select(3,UnitClass("player")) == 2 then
 	end
 
 	function castShieldOfTheRighteous(unit, holypower)
-		if canCast(_ShieldOfTheRighteous) and (_HolyPower >= holypower or UnitBuffID("player", _DivinePurposeBuff)) then
+		if canCast(_ShieldOfTheRighteous) and (holypower >= holypower or UnitBuffID("player", _DivinePurposeBuff)) then
 			if getDistance("player",unit) <= 4 then
 				if castSpell(unit,_ShieldOfTheRighteous,false,false) then
 					return true
@@ -294,13 +294,13 @@ if select(3,UnitClass("player")) == 2 then
 		return false
 	end
 		-- Holy Avenger(Ret)
-	function castHolyAvenger()
+	function castHolyAvenger(holypower)
 		if isSelected("Holy Avenger") and canCast(_HolyAvenger) then
 			if (isDummy(dynamicUnit.dyn5) or (UnitHealth(dynamicUnit.dyn5) >= 400*UnitHealthMax("player")/100)) then
 				-- holy_avenger,sync=seraphim,if=talent.seraphim.enabled
 				if (isKnown(_Seraphim) and UnitBuffID("player",_Seraphim))
 				  -- holy_avenger,if=holy_power<=2&!talent.seraphim.enabled
-				  or (not isKnown(_Seraphim) and _HolyPower <= 2) then
+				  or (not isKnown(_Seraphim) and holypower <= 2) then
 					if castSpell("player",_HolyAvenger,true,false) then 
 						return true
 					end

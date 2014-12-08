@@ -44,7 +44,7 @@ if select(3, UnitClass("player")) == 2 then
 		end
 
 		-- Only run rotation if we or our target is in combat.
-		if UnitAffectingCombat("player") and UnitAffectingCombat("target") then  -- Only start if we and target is in combat, have manual ability to pull mobs and UnitAffectingCombat("target")
+		if UnitAffectingCombat("player") and (UnitAffectingCombat("target") or isDummy("target")) then  -- Only start if we and target is in combat, have manual ability to pull mobs and UnitAffectingCombat("target")
 			--Todo SpecialEvent, checks if there is something that are special that we need to handle
 			-- Auto attack
 			if startAttackTimer == nil or startAttackTimer <= GetTime() - 1 then

@@ -1,3 +1,4 @@
+-- this handles old profiles buttons
 function BadBoyFrame()
 
 	emptyIcon = [[Interface\FrameGeneral\UI-Background-Marble]]
@@ -147,22 +148,29 @@ function BadBoyFrame()
     	ToggleValue(Name)
     end
 
-	if BadBoy_data['Interrupts'] == nil then BadBoy_data['Interrupts'] = 1 end
 	---------------------------
 	--     Main Frame UI     --
 	---------------------------
-
-	BadBoy_data["buttonSize"] = BadBoy_data["buttonSize"] or 32
 
 	buttonSize = BadBoy_data["buttonSize"]
 	buttonWidth = BadBoy_data["buttonSize"]
 	buttonHeight = BadBoy_data["buttonSize"]
 
-	mainButton = CreateFrame("Button", "MyButton", configButton, "SecureHandlerClickTemplate")
+	mainButton = CreateFrame("Button","MyButton",UIParent,"SecureHandlerClickTemplate")
 	mainButton:SetWidth(buttonWidth)
 	mainButton:SetHeight(buttonHeight)
 	mainButton:RegisterForClicks("AnyUp")
-	mainButton:SetPoint(BadBoy_data.anchor,BadBoy_data.x,BadBoy_data.y)
+	local anchor,x,y
+	if not BadBoy_data.BadBoyUI.mainButton then
+		anchor = "CENTER"
+		x = -75
+		y = -200
+	else
+		anchor = BadBoy_data.BadBoyUI.mainButton.pos.anchor or "CENTER"
+		x = BadBoy_data.BadBoyUI.mainButton.pos.x or -75
+		y = BadBoy_data.BadBoyUI.mainButton.pos.y or -200
+	end
+	mainButton:SetPoint(anchor,x,y)
 	mainButton:EnableMouse(true)
 	mainButton:SetMovable(true)
 	mainButton:SetClampedToScreen(true)
@@ -170,7 +178,11 @@ function BadBoyFrame()
 	mainButton:SetScript("OnDragStart", mainButton.StartMoving)
 	mainButton:SetScript("OnDragStop", mainButton.StopMovingOrSizing)
 	CreateBorder(mainButton, 8, 0.6, 0.6, 0.6)
-	if BadBoy_data["Power"] == 1 then mainButton:SetNormalTexture(backIconOn); else mainButton:SetNormalTexture(backIconOff) end
+	if getOptionCheck("Start/Stop BadBoy") then
+		mainButton:SetNormalTexture(backIconOn)
+	else
+		mainButton:SetNormalTexture(backIconOff)
+	end
 	mainButton:SetScript("OnClick", function()
 		if BadBoy_data['Power'] ~= 0 then
 			BadBoy_data['Power'] = 0
@@ -195,13 +207,13 @@ function BadBoyFrame()
 	end)
 	mainButton:SetScript("OnLeave", function(self)
 		GameTooltip:Hide()
-
-		-- not sure i think we dont need that anymore
-		--[[local _, _, anchor, x, y = mainButton:GetPoint(1)
-		BadBoy_data.x = x
-		BadBoy_data.y = y
-		BadBoy_data.anchor = anchor]]
 	end)
+    mainButton:SetScript("OnReceiveDrag", function(self)
+        local _, _, anchor, x, y = mainButton:GetPoint(1)
+        BadBoy_data.BadBoyUI.mainButton.pos.x = x
+        BadBoy_data.BadBoyUI.mainButton.pos.y = y
+        BadBoy_data.BadBoyUI.mainButton.pos.anchor = anchor
+    end)
 	mainButton:SetScript("OnMouseWheel", function(self, delta)
 		if IsLeftAltKeyDown() then
 			local Go = false
@@ -383,38 +395,5 @@ function BadBoyFrame()
         end
 	end
 
-	--[[Updating UI location]]
-	function PulseUI()
-		local _, _, anchor, x, y = mainButton:GetPoint(1)
-		BadBoy_data.x = x
-		BadBoy_data.y = y
-		BadBoy_data.anchor = anchor
-		local _, _, anchor, x, y = configFrame:GetPoint(1)
-		BadBoy_data.configx = x
-		BadBoy_data.configy = y
-		BadBoy_data.configanchor = anchor
-		local _, _, anchor, x, y = debugFrame:GetPoint(1)
-		BadBoy_data.debugx = x
-		BadBoy_data.debugy = y
-		BadBoy_data.debuganchor = anchor
-		local _, _, anchor, x, y = engineFrame:GetPoint(1)
-		BadBoy_data.enginex = x
-		BadBoy_data.enginey = y
-		BadBoy_data.engineanchor = anchor
-		local _, _, anchor, x, y = interruptsFrame:GetPoint(1)
-		BadBoy_data.interruptsx = x
-		BadBoy_data.interruptsy = y
-		BadBoy_data.interruptsanchor = anchor
-		if isChecked("Debug") then
-			debugFrame:Show()
-		else
-			debugFrame:Hide()
-		end
 
-		if isChecked("Engine Debug") then
-			engineFrame:Show()
-		else
-			engineFrame:Hide()
-		end
-	end
 end

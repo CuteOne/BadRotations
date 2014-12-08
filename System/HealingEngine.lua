@@ -83,7 +83,7 @@ if not metaTable1 then
 		  and UnitReaction("player",tar) > 4
 		  and not UnitIsDeadOrGhost(tar)
 		  and UnitIsConnected(tar))
-		  or novaEngineTables.SpecialHealUnitList[tonumber(select(2,getGUID(tar)))] ~= nil	or (isChecked("Heal Pets") == true and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
+		  or novaEngineTables.SpecialHealUnitList[tonumber(select(2,getGUID(tar)))] ~= nil	or (getOptionCheck("Heal Pets") == true and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
 		  and CheckBadDebuff(tar)
 		  and CheckCreatureType(tar)
 		  and getLineOfSight("player", tar)
@@ -121,9 +121,9 @@ if not metaTable1 then
 		function o:CalcHP()
 --			print("calculating HP")
 			local incomingheals;
-			if isChecked("No Incoming Heals") ~= true and UnitGetIncomingHeals(o.unit,"player") ~= nil then incomingheals = UnitGetIncomingHeals(o.unit,"player"); else incomingheals = 0; end
+			if getOptionCheck("No Incoming Heals") ~= true and UnitGetIncomingHeals(o.unit,"player") ~= nil then incomingheals = UnitGetIncomingHeals(o.unit,"player"); else incomingheals = 0; end
 			local nAbsorbs;
-			if isChecked("No Absorbs") ~= true then nAbsorbs = ( 25*UnitGetTotalAbsorbs(o.unit)/100 ); else nAbsorbs = 0; end
+			if getOptionCheck("No Absorbs") ~= true then nAbsorbs = ( 25*UnitGetTotalAbsorbs(o.unit)/100 ); else nAbsorbs = 0; end
 			local PercentWithIncoming = 100 * ( UnitHealth(o.unit) + incomingheals + nAbsorbs ) / UnitHealthMax(o.unit);
 			if o.role == "TANK" then PercentWithIncoming = PercentWithIncoming - 5; end -- Using the group role assigned to the Unit
 			if HealCheck(o.unit) ~= true then PercentWithIncoming = 250; end -- Place Dead players at the end of the list
@@ -156,7 +156,7 @@ if not metaTable1 then
 					PercentWithIncoming = PercentWithIncoming - novaEngineTables.SpecificHPDebuffs[i].value
 				end
 			end
-			if isChecked("Blacklist") == true and BadBoy_data.blackList ~= nil then
+			if getOptionCheck("Blacklist") == true and BadBoy_data.blackList ~= nil then
 				for i = 1, #BadBoy_data.blackList do
 					if o.guid == BadBoy_data.blackList[i].guid then
 						PercentWithIncoming, ActualWithIncoming, nAbsorbs = PercentWithIncoming + getValue("Blacklist") , ActualWithIncoming + getValue("Blacklist") , nAbsorbs + getValue("Blacklist")
@@ -211,7 +211,7 @@ if not metaTable1 then
 		function nNova:Update(MO)
 			local MouseoverCheck = true
 			-- This is for special situations, IE world healing or NPC healing in encounters
-			if isChecked("Special Heal") == true then SpecialTargets = {"mouseover","target","focus"} else SpecialTargets = {} end
+			if getOptionCheck("Special Heal") == true then SpecialTargets = {"mouseover","target","focus"} else SpecialTargets = {} end
 			for p=1, #SpecialTargets do
 				-- Checking if Unit Exists and it's possible to heal them
 				if UnitExists(SpecialTargets[p]) and HealCheck(SpecialTargets[p]) then
@@ -269,14 +269,14 @@ if not metaTable1 then
 			end)
 
 			-- Sorting with the Role
-			if isChecked("Sorting with Role") then
+			if getOptionCheck("Sorting with Role") then
 				table.sort(nNova, function(x,y)
 					if x.role and y.role then return x.role > y.role
 					elseif x.role then return true
 					elseif y.role then return false end
 				end)
 	        end
-			if isChecked("Special Priority") == true then
+			if getOptionCheck("Special Priority") == true then
 			 	if UnitExists("focus") and memberSetup.cache[select(2, getGUID("focus"))] then
 					table.sort(nNova, function(x)
 						if x.unit == "focus" then

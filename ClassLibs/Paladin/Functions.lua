@@ -29,8 +29,8 @@ if select(3,UnitClass("player")) == 2 then
 		if BuffTimer == nil or BuffTimer < GetTime() then
 			for i=1, #nNova do
 				if not UnitBuffID(nNova[i].unit,MyBlessing) then
-					BuffTimer = GetTime() + random(15,30);
-					if castSpell("player",MyBlessing,true,false) then return; end
+					BuffTimer = GetTime() + random(15,30)
+					if castSpell("player",MyBlessing,true,false) then return end
 				end
 			end
 		end
@@ -190,8 +190,8 @@ if select(3,UnitClass("player")) == 2 then
 				numberOfTargetsMelee, numberOfTargetsMeleeTimer = getNumEnemies("player",4), GetTime()
 			end
 
-			if numberOfTargetsForHammerOfRighteuos == nil or numberOfTargetsForHammerOfRighteuosTimer == nil or numberOfTargetsForHammerOfRighteuosTimer <= GetTime() - 1 then
-				numberOfTargetsForHammerOfRighteuos, numberOfTargetsForHammerOfRighteuosTimer = getNumEnemies("target",7), GetTime() --getNumEnemiesInRange("target",8)
+			if numberOfTargetsForHammerOfRighteous == nil or numberOfTargetsForHammerOfRighteousTimer == nil or numberOfTargetsForHammerOfRighteousTimer <= GetTime() - 1 then
+				numberOfTargetsForHammerOfRighteous, numberOfTargetsForHammerOfRighteousTimer = getNumEnemies("target",7), GetTime() --getNumEnemiesInRange("target",8)
 			end
 			return
 		end
@@ -209,7 +209,7 @@ if select(3,UnitClass("player")) == 2 then
 			-- WE need also to see what damage since SoR is physical only.
 			-- Should add logic, ie abilities we need to cast SoR for, Piercong armor in Skyreach fro example
 			-- Todo: Add a event that read combatlog and populate incoming damage where we can track the last 10 damage to see if they are physical or magic in order to determine if we should use SoR
-			if UnitBuffID("player", _DivinePurposeBuff) then  -- If we get free HP then use it on WoG if we are low health and have bastion of Glory stacks > 2, Todo; Get correct values
+			if UnitBuffID("player", _DivinePurposeBuff) then  -- If we get free HP then use it on WoG if we are low health and have bastion of Glory stacks > 2, Todo Get correct values
 				if getHP("player") < 50 and getBuffStacks("player", _BastionOfGlory) > 4 then
 					if castWordOfGlory("player", 0, 1) then
 						return false
@@ -244,22 +244,22 @@ if select(3,UnitClass("player")) == 2 then
 
 			-- If we have 3 targets for Avenger Shield and we have Grand Crusader Buff
 			-- Todo : we need to check if AS will hit 3 targets, so what is the range of AS jump? We are usimg same logic as Hammer of Righ at the moment, 8 yard.
-			if UnitBuffID("player", 85043) and numberOfTargetsForHammerOfRighteuos > 2 then -- Grand Crusader buff, we use 8 yards from target as check
+			if UnitBuffID("player", 85043) and numberOfTargetsForHammerOfRighteous > 2 then -- Grand Crusader buff, we use 8 yards from target as check
 				if castAvengersShield("target") then
 					--print("Casting AS in AoE rotation with Grand Crusader procc")
 					return true
 				end
 			end
 
-			local strike = strike; -- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
-			if BadBoy_data["AoE"] == 2 or (BadBoy_data["AoE"] == 3 and numberOfTargetsForHammerOfRighteuos > 2) or keyPressAoE then  --If Toggle to 2(AoE) or 3(Auto and more then 2 targets, its actually 4 but its just simplier to do aoe
-				strike = _HammerOfTheRighteous;
+			local strike = strike -- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
+			if BadBoy_data["AoE"] == 2 or (BadBoy_data["AoE"] == 3 and numberOfTargetsForHammerOfRighteous > 2) or keyPressAoE then  --If Toggle to 2(AoE) or 3(Auto and more then 2 targets, its actually 4 but its just simplier to do aoe
+				strike = _HammerOfTheRighteous
 			else
-				strike = _CrusaderStrike;
+				strike = _CrusaderStrike
 			end
 
 			-- Cast Crusader for Single and Hammer of Right if aoe
-			if isInMelee() then
+			if isInMelee("target") and canCast(_CrusaderStrike) then
 				if castSpell("target",strike,false,false) then
 					return
 				end
@@ -274,7 +274,7 @@ if select(3,UnitClass("player")) == 2 then
 
 			--wait,sec=cooldown.judgment.remains,if=cooldown.judgment.remains>0&cooldown.judgment.remains<=0.35
 
-			if numberOfTargetsForHammerOfRighteuos > 1 then -- Grand Crusader buff, we use 8 yards from target as check
+			if numberOfTargetsForHammerOfRighteous > 1 then -- Grand Crusader buff, we use 8 yards from target as check
 				if castAvengersShield("target") then
 					--print("Casting AS in AoE rotation with Grand Crusader procc")
 					return true
@@ -377,15 +377,15 @@ if select(3,UnitClass("player")) == 2 then
 				end
 			end
 
-			local strike = strike; -- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
-			if BadBoy_data["AoE"] == 2 or (BadBoy_data["AoE"] == 3 and numberOfTargetsForHammerOfRighteuos > 2) or keyPressAoE then  --If Toggle to 2(AoE) or 3(Auto and more then 2 targets, its actually 4 but its just simplier to do aoe
-				strike = _HammerOfTheRighteous;
+			local strike = strike -- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
+			if BadBoy_data["AoE"] == 2 or (BadBoy_data["AoE"] == 3 and numberOfTargetsForHammerOfRighteous > 2) or keyPressAoE then  --If Toggle to 2(AoE) or 3(Auto and more then 2 targets, its actually 4 but its just simplier to do aoe
+				strike = _HammerOfTheRighteous
 			else
-				strike = _CrusaderStrike;
+				strike = _CrusaderStrike
 			end
 
 			-- Cast Crusader for Single and Hammer of Right if aoe, should check other targets for spell if not in melee
-			if isInMelee("target") then
+			if isInMelee("target") and canCast(_CrusaderStrike) then
 				if castSpell("target",strike,false,false) then
 					return
 				end

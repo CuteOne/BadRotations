@@ -26,6 +26,7 @@ This function will use table row #1.]]
 
 function ElementalConfig()
     --if not doneConfig then
+        ClearConfig()
         thisConfig = 0
         -- Title
         CreateNewTitle(thisConfig,"Elemental CodeMyLife");
@@ -267,6 +268,7 @@ end
 
 function RestorationConfig()
     local myClassColor = classColors[select(3,UnitClass("player"))].hex
+        ClearConfig()
     --if not doneConfig then
         thisConfig = 0
         -- Title

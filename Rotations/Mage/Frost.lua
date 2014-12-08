@@ -12,7 +12,7 @@ function FrostMage()
 	-------------------
 	-- Rune Of Power --
 	-------------------
-	if BadBoy_data["Rune"] == 1 and BadBoy_data["Power"] == 1 then
+	if BadBoy_data["Rune"] == 1 and getOptionCheck("Start/Stop BadBoy") then
 		--[[ begin Rune Stuff ]]					-- add rune of power toggle!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 		--AoESpell, AoESpellTarget= nil, nil;
@@ -50,18 +50,18 @@ function FrostMage()
 
 	-- Pet checks
 	-- Set petpassive if power=0
-	-- if BadBoy_data["Power"]==0 then
+	-- if getOptionCheck("Start/Stop BadBoy") then
 	-- 	if UnitName("pettarget")~=nil then
 	-- 		RunMacroText("/petfollow [target=pettarget,exists]");
 	-- 		RunMacroText("/petpassive");
 	-- 	end
 	-- end
 	-- -- Set petassist if power=1
-	-- if BadBoy_data["Power"]==1 and UnitName("pettarget")==nil then
+	-- if getOptionCheck("Start/Stop BadBoy") and UnitName("pettarget")==nil then
 	-- 	RunMacroText("/petassist");
 	-- end
 	-- -- Set petpassive if power=1 and not in combat
-	-- if BadBoy_data["Power"]==1 and not UnitAffectingCombat("player") then
+	-- if getOptionCheck("Start/Stop BadBoy") and not UnitAffectingCombat("player") then
 	-- 	RunMacroText("/petfollow [target=pettarget,exists]");
 	-- 	RunMacroText("/petpassive");
 	-- end
@@ -75,12 +75,12 @@ function FrostMage()
 			end
 		end
 		-- Petpassive, Petagressive
-		if BadBoy_data["Power"]==0 then
+		if getOptionCheck("Start/Stop BadBoy") then
 			if IsPetAttackActive() == true then
 				RunMacroText("/petpassive")
 			end
 		end
-		if BadBoy_data["Power"]==1 then
+		if getOptionCheck("Start/Stop BadBoy") then
 			if select(5,GetPetActionInfo(8)) == false then
 				RunMacroText("/petassist")
 			end
@@ -109,7 +109,7 @@ function FrostMage()
 
 	--Ice barrier should be up when solo PvE
 		if not UnitBuffID("player",11426)  then -- Ice barrier
-			if castSpell("player",11426,false,false) then return; 
+			if castSpell("player",11426,false,false) then return;
 			end
 		end
 

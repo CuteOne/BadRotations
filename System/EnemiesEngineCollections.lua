@@ -1,3 +1,6 @@
+
+
+
 -- macro used to gather caster/spell/buff on our actual target
 SLASH_dumpInfo1 = "/dumpinfo"
 function SlashCmdList.dumpInfo(msg, editbox)
@@ -50,19 +53,26 @@ end
 -- burnUnitCandidates = List of UnitID/Names we should have highest prio on.
 -- could declare more filters
 burnUnitCandidates = {
-    { unitID = 71603 }, -- immersus ooze, kill on sight
+    [71603] = { coef = 100, name = "Immersus Oozes" }, -- kill on sight
     -- Shadowmoon Burial Grounds
-    { unitID = 75966 }, -- Defiled Spirit, need to be cc and snared and is not allowed to reach boss.
-    { unitID = 75899 }, -- Possessed Soul,
-    { unitID = 76518 }, -- Ritual of Bones, marked one... Todo: Can we check if mobs is marked with skull?
+    [75966] = { coef = 100, name = "Defiled Spirit" }, -- need to be cc and snared and is not allowed to reach boss.
+    [75899] = { coef = 100, name = "Possessed Soul" },
+    [76518] = { coef = 100, unitMarker = 8 }, -- Ritual of Bones, marked one will be priorised
     -- Auchindon
-    { unitID = 77812 }, -- Sargerei Souldbinder, cast a MC
+    [77812] = { coef = 150, name = "Sargerei Souldbinder" }, -- casts a Mind Control
     -- Grimrail Depot
-    { unitID = 80937 }, -- Gromkar Gunner
+    [80937] = { coef = 100 },
     -- UBRS
-    { unitID = 76222}, -- Rallying Banner
-    { unitID = 163061}, -- Windfury Totem
+    [76222] = { coef = 100 },
+    [163061] = { coef = 100 }, -- Windfury Totem
+    [71070] = { coef = 150, name = "Illusion Banshee" }, -- proving ground (will explode if not burned)
+    [71075] = { coef = 150, name = "Illusion Banshee" }, -- proving ground (will explode if not burned)
+    [71072] = { coef = -20, buff = 142427 }, -- Proving ground Sha shielded (will unshield later so better wait)
+    [71072] = { coef = -20, buff = 142427 }, -- Proving ground Sha shielded (will unshield later so better wait)
+    [71076] = { coef = 25 }, -- Proving ground healer
 }
+
+--  low prio
 
 -- doNotTouchUnitCandidates - List of units that we should not attack for any reason
 -- can declare more filters: buff, debuff
@@ -75,20 +85,19 @@ doNotTouchUnitCandidates = {
 -- list of units to stun, either always or udner certain condition such as having a buff or wirldwinding etc
 crowdControlCandidates = {
     -- Shadowmoon Burial Grounds
-    { unitID = 75966 }, -- Defiled Spirit, need to be cc and snared and is not allowed to reach boss.
-    { unitID = 76446 }, -- Shadowmoon Enslavers
-    { unitID = 75899 }, -- Possessed Soul, only for melee i guess
-    { unitID = 79510 }, -- Crackling Pyromaniacs
+    [75966] = { name = "Defiled Spirit" }, -- need to be cc and snared and is not allowed to reach boss.
+    [76446] = { name = "Shadowmoon Enslavers" },
+    [75899] = { name = "Possessed Soul" }, -- only for melee i guess
+    [79510] = { name = "Crackling Pyromaniacs" },
     -- Grimrail Depot
-    { unitID = 81236, spell = 163966 }, -- Grimrail Technicians channeling Activating
-    { unitID = 80937 }, -- Gromkar Gunner
+    [81236] = { name = "Grimrail Technicians", spell = 163966 }, -- channeling Activating
+    [80937] = { name = "Gromkar Gunner" },
     -- UBRS
-    { unitID = 76157 }, -- Black Iron Leadbelcher, activates canon, should be when/if moving
-    { unitID = 76935 }, -- Black Iron Drake-Keeper, should be stunned/cc when running towards whelps
-
+    [76157] = { name = "Black Iron Leadbelcher" }, -- Activates canon, should be when/if moving
+    [76935] = { name = "Black Iron Drake-Keeper", fleeing = true }, -- Hhould be stunned/cc when running towards whelps
     -- Proven Ground
-    { unitID = 71414, buff = 142639 }, -- Banana Tosser(Large)
-    { unitID = 71415, buff = 142639 }, -- Banana Tosser(Small)
+    [71415] = { name = "Banana Tosser(Small)", buff = 142639 },
+    [71414] = { name = "Banana Tosser(Large)", buff = 142639 }
 
 }
 

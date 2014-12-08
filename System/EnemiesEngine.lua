@@ -1,20 +1,19 @@
 -- Function to create and populate table of enemies within a distance from player.
 function EnemiesEngine()
 
-
 -- Todo: So i think the prioritisation should be large by determined by threat or burn prio and then hp.
--- So design should be, 
+-- So design should be,
 -- Check if the unit is on doNotTouchUnitCandidates list which means we should not attack them at all
 
--- Check towards doNotTouchUnitCandidatesBuffs (buffs/debuff), ie target we are not allowed to attack due to them having 
+-- Check towards doNotTouchUnitCandidatesBuffs (buffs/debuff), ie target we are not allowed to attack due to them having
 -- a (de)buff that hurts us or not. Example http://www.wowhead.com/spell=163689
 
 -- Is the unit on burn list, set high prio, burn list is a list of mobs that we specify for burn, is highest dps and prio.
 
--- We should then look at the threat situation, for tanks the this is of high prio if we are below 3 but all below 3 
+-- We should then look at the threat situation, for tanks the this is of high prio if we are below 3 but all below 3
 -- should have the same prio coefficent. For dps its not that important
 
--- Then we should check HP of the targets and set highest prio on low targets, this is also something we need to think 
+-- Then we should check HP of the targets and set highest prio on low targets, this is also something we need to think
 -- about if the target have a dot so it will die regardless or not. Should have a timetodie?
 
 
@@ -30,7 +29,7 @@ function EnemiesEngine()
 --[[------------------------------------------------------------------------------------------------------------------]]
 --[[------------------------------------------------------------------------------------------------------------------]]
 --[[------------------------------------------------------------------------------------------------------------------]]
-
+local varDir = BadBoy_data.options[GetSpecialization()]
 
 function makeEnemiesTable(maxDistance)
 	local  maxDistance = maxDistance or 50
@@ -48,36 +47,36 @@ function makeEnemiesTable(maxDistance)
   				local unitDistance = getDistance("player",thisUnit)
 				-- distance check according to profile needs
   				if unitDistance <= maxDistance then
-  					
+
 		  			-- get unit Infos
 		  			local safeUnit = isSafeToAttack(thisUnit)
-		  			local burnUnit = isBurnTarget(thisUnit)
+		  			local burnValue = isBurnTarget(thisUnit)
 		  			local unitName = UnitName(thisUnit)
 		  			local unitID = getUnitID(thisUnit)
 		  			local shouldCC = isCrowdControlCandidates(thisUnit)
 	  				local unitThreat = UnitThreatSituation("player",thisUnit) or -1
-	  				local X1, Y1, Z1 = ObjectPosition(thisUnit)
-					local unitCoeficient = getUnitCoeficient(thisUnit,unitDistance,unitThreat,burnUnit,safeUnit) or 0
+	  				local X1,Y1,Z1 = ObjectPosition(thisUnit)
+					local unitCoeficient = getUnitCoeficient(thisUnit,unitDistance,unitThreat,burnValue,safeUnit) or 0
   					local unitHP = getHP(thisUnit)
   					local inCombat = UnitAffectingCombat(thisUnit)
   					local longTimeCC = false
-  					if isChecked("Don't break CCs") then
+  					if getOptionCheck("Don't break CCs") then
 						longTimeCC = isLongTimeCCed(thisUnit)
 					end
   					-- insert unit as a sub-array holding unit informations
-   					tinsert(enemiesTable, 
-   						{ 
-	   						name = unitName, 
+   					tinsert(enemiesTable,
+   						{
+	   						name = unitName,
 	   						guid = UnitGUID(thisUnit),
 	   						id = unitID,
-	   						coeficient = unitCoeficient, 
+	   						coeficient = unitCoeficient,
 	   						cc = shouldCC,
 	   						isCC = longTimeCC,
 	   						facing = getFacing("player",thisUnit),
-	   						threat = unitThreat, 
-	   						unit = thisUnit, 
-	   						distance = unitDistance, 
-	   						hp = unitHP, 
+	   						threat = unitThreat,
+	   						unit = thisUnit,
+	   						distance = unitDistance,
+	   						hp = unitHP,
 	   						safe = safeUnit,
 	   						burn = burnUnit,
 	   						-- Here should track inc damage / healing as well in order to get a timetodie value
@@ -101,7 +100,7 @@ end
 
 -- returns prefered target for diferent spells
 function dynamicTarget(range,facing)
-	if isChecked("Dynamic Targetting") then
+	if getOptionCheck("Dynamic Targetting") then
 		for i = 1, #enemiesTable do
 			local thisUnit = enemiesTable[i]
 			if thisUnit.isCC == false and thisUnit.distance < range and (facing == false or thisUnit.facing == true) then
@@ -141,24 +140,24 @@ function castInterrupt(spell,percent)
 	-- first make sure we will be able to cast the spell
 	if canCast(spell,false,false) == true then
 		for i = 1, #spellCastersTable do
-			if isBlackListed(Unit) then 
-				return false 
+			if isBlackListed(Unit) then
+				return false
 				-- make sure the spell is interrutible
 			elseif spellCastersTable[i].canInterupt == true then
 				local thisCaster = spellCastersTable[i]
 				-- make sure we cover melee range
 				local allowedDistance = select(6,GetSpellInfo(spell))
-				if allowedDistance < 5 then 
-					allowedDistance = 5 
+				if allowedDistance < 5 then
+					allowedDistance = 5
 				end
 				-- see if the spell is about to be finished casting
 				if getSpellCD(spell) < thisCaster.castEnd - GetTime()
 				  and (thisCaster.castEnd - GetTime())/thisCaster.castLenght < (100 - percent)/100
 				  and getDistance("player",thisCaster.unit) < allowedDistance then
-					if castSpell(thisCaster.unit,spell,false,false) then 
+					if castSpell(thisCaster.unit,spell,false,false) then
 						-- prevent intrupt on this target again using blacklist
 						tinsert(castersBlackList, { unit = spellCastersTable[i].unit, time = GetTime() })
-						return 
+						return
 					end
 				end
 			end
@@ -212,12 +211,12 @@ function castDotCycle(units,spellID,range,facingCheck,movementCheck)
      		if thisUnit.isCC == false then
 	     		local dotRemains = getDebuffRemain(thisUnit,spellID,"player")
 	     		if dotRemains < 1 then
-	      			if castSpell(thisUnit,spellID,true,true) then 
+	      			if castSpell(thisUnit,spellID,true,true) then
 	       				return
 		      		end
 		     	end
 		    end
-	    end				
+	    end
 	end
 end
 
@@ -286,9 +285,9 @@ end
 
 -- returns true if Unit is a valid enemy
 function getSanity(unit)
-	if UnitExists(unit) and bit.band(ObjectType(unit), ObjectTypes.Unit) == 8 
+	if UnitExists(unit) and bit.band(ObjectType(unit), ObjectTypes.Unit) == 8
 	  and UnitIsVisible(unit) == true and getCreatureType(unit) == true
-	  and UnitCanAttack(unit, "player") == true and UnitIsDeadOrGhost(unit) == false 
+	  and UnitCanAttack(unit, "player") == true and UnitIsDeadOrGhost(unit) == false
 	  and (UnitAffectingCombat(unit) or isDummy(unit)) then
 	  	return true
 	else
@@ -297,47 +296,47 @@ function getSanity(unit)
 end
 
 -- This function will set the prioritisation of the units, ie which target should i attack
-function getUnitCoeficient(unit,distance,threat,burnStatus,safeStatus)
+function getUnitCoeficient(unit,distance,threat,burnValue,safeStatus)
 	local coef = 0
 	-- if unit is out of range, bad prio(0)
 	if distance < 40 then
 		local unitHP = getHP(unit)
 		-- safe check set to 0 if bad unit
-		if isChecked("Safe Damage Check") then
+		if getOptionCheck("Safe Damage Check") == true then
 			if safeStatus ~= true then
 				return 0
 			end
 		end
 
 		-- if wise target checked, we look for best target by looking to the lowest or highest hp, otherwise we look for target
-		if isChecked("Wise Target") ~= true then
+		if getOptionCheck("Wise Target") ~= true then
 			-- if its our actual target we give it a bonus
-			if UnitGUID("target") == UnitGUID(unit) then
-				coef = coef + 100
+			if UnitIsUnit("target",unit) == true then
+				coef = 100
 			end
-		else
-			if getValue("Wise Target") == 1 then
-				-- if lowest is selected
-				coef = 100 - unitHP  
-			else
+			if getOptionValue("Wise Target") == 1 then
 				-- if highest is selected
-				coef = unitHP  
+				coef = unitHP
+			else
+				-- if lowest is selected
+				coef = 100 - unitHP
 			end
 		end
 
 		-- if threat is checked, add 100 points of prio if we lost aggro on that target
-		if isChecked("Tank Threat") then
+		if getOptionCheck("Tank Threat") == true then
 			if select(6, GetSpecializationInfo(GetSpecialization())) == "TANK" and threat < 3 and unitHP > 10 then
 				coef = coef + 100
 			end
 		end
 
 		-- if user checked burn target then we check is unit should be burnt
-		if isChecked("Forced Burn") then
-			if burnStatus == true then
-				coef = coef + 100
-			end	
+		if getOptionCheck("Forced Burn") then
+			coef = coef + burnValue
 		end
+		local displayCoef = math.floor(coef*10)/10
+		local displayName = UnitName(unit) or "invalid"
+		-- print("Unit "..displayName.." - "..displayCoef)
 	end
 	return coef
 end
@@ -356,31 +355,38 @@ function isBlackListed(Unit)
 		if castersBlackList[i].unit == Unit then
 			return true
 		end
-	end	
+	end
 end
 
 -- returns true if target should be burnt
 function isBurnTarget(unit)
-	for i = 1, #burnUnitCandidates do
-		if getUnitID(unit) == burnUnitCandidates.unitID then
-			-- add other conditions here
-			return true
+	local unitID = getUnitID(unit)
+	local burnUnit = burnUnitCandidates[unitID]
+	if burnUnit then
+		coef = burnUnit.coef
+		-- if the unit have the skull and we have param for it add 100
+		if burnUnit.raidMarker ~= nil and burnUnit.raidMarker == GetRaidTargetIndex(unit) then
+			coef = coef + 100
 		end
+		-- if unit have selected debuff
+		if burnUnit.buff and UnitBuffID(unit,burnUnit.buff) then
+			coef = coef + 100
+		end
+		return coef
 	end
-	return false
+	return 0
 end
 
 -- check for a unit see if its a cc candidate
 function isCrowdControlCandidates(Unit)
 	local unitID = getUnitID(Unit)
 	-- cycle list of candidates
-	for i = 1, #crowdControlCandidates do
+	local crowdControlUnit = crowdControlCandidates[unitID]
+	if crowdControlUnit then
 		-- is in the list of candidates
-		if unitID == crowdControlCandidates[i].unitID 
-		  -- doesnt have more requirements or requirements are met
-		  and (crowdControlCandidates[i].buff == nil or UnitBuffID(Unit,crowdControlCandidates[i].buff)) 
-		  and (crowdControlCandidates[i].spell == nil or getCastingInfo(Unit) == GetSpellInfo(crowdControlCandidates[i].spell)) 
-		then
+		if (crowdControlUnit.buff == nil or UnitBuffID(Unit,crowdControlUnit.buff))
+		  and (crowdControlUnit.spell == nil or getCastingInfo(Unit) == GetSpellInfo(crowdControlUnit.spell))
+		then -- doesnt have more requirements or requirements are met
 			return true
 		end
 	end
@@ -393,7 +399,7 @@ function isLongTimeCCed(Unit)
     if Unit == nil then return false end
     for i = 1, #longTimeCC do
         --local checkCC=longTimeCC[i]
-        if UnitDebuffID(Unit,longTimeCC[i]) ~= nil then  
+        if UnitDebuffID(Unit,longTimeCC[i]) ~= nil then
             return true
         end
     end

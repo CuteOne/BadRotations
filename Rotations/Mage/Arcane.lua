@@ -12,7 +12,7 @@ function ArcaneMage()
 	-------------------
 	-- Rune Of Power --
 	-------------------
-	if BadBoy_data["Rune"] == 1 and BadBoy_data["Power"] == 1 then
+	if BadBoy_data["Rune"] == 1 and getOptionCheck("Start/Stop BadBoy") then
 		--[[ begin Rune Stuff ]]					-- add rune of power toggle!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 		--AoESpell, AoESpellTarget= nil, nil;

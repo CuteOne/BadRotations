@@ -1,21 +1,12 @@
-function BadBoyUpdate()
-    if FireHack == nil and BadBoy_data["Power"] == 1 then
-        ChatOverlay("FireHack not Loaded.");
-        return;
-    else
-        FrameUpdate();
-    end
-end
-
 function BadBoyEngine()
     -- Hidden Frame
     if Pulse_Engine == nil then
-        Pulse_Engine = CreateFrame("Frame", nil, UIParent);
-        Pulse_Engine:SetScript("OnUpdate", BadBoyUpdate);
-        Pulse_Engine:SetPoint("TOPLEFT",0,0);
-        Pulse_Engine:SetHeight(1);
-        Pulse_Engine:SetWidth(1);
-        Pulse_Engine:Show();
+        Pulse_Engine = CreateFrame("Frame", nil, UIParent)
+        Pulse_Engine:SetScript("OnUpdate", BadBoyUpdate)
+        Pulse_Engine:SetPoint("TOPLEFT",0,0)
+        Pulse_Engine:SetHeight(1)
+        Pulse_Engine:SetWidth(1)
+        Pulse_Engine:Show()
     end
 end
 
@@ -23,31 +14,33 @@ end
 local function onUpdate(self,elapsed)
     if self.time < GetTime() - 2.0 then if self:GetAlpha() == 0 then self:Hide(); else self:SetAlpha(self:GetAlpha() - 0.02); end end
 end
-chatOverlay = CreateFrame("Frame",nil,ChatFrame1);
-chatOverlay:SetSize(ChatFrame1:GetWidth(),50);
-chatOverlay:Hide();
-chatOverlay:SetScript("OnUpdate",onUpdate);
-chatOverlay:SetPoint("TOP",0,0);
-chatOverlay.text = chatOverlay:CreateFontString(nil,"OVERLAY","MovieSubtitleFont");
-chatOverlay.text:SetAllPoints();
-chatOverlay.texture = chatOverlay:CreateTexture();
-chatOverlay.texture:SetAllPoints();
-chatOverlay.texture:SetTexture(0,0,0,.50);
-chatOverlay.time = 0;
+chatOverlay = CreateFrame("Frame",nil,ChatFrame1)
+chatOverlay:SetSize(ChatFrame1:GetWidth(),50)
+chatOverlay:Hide()
+chatOverlay:SetScript("OnUpdate",onUpdate)
+chatOverlay:SetPoint("TOP",0,0)
+chatOverlay.text = chatOverlay:CreateFontString(nil,"OVERLAY","MovieSubtitleFont")
+chatOverlay.text:SetAllPoints()
+chatOverlay.texture = chatOverlay:CreateTexture()
+chatOverlay.texture:SetAllPoints()
+chatOverlay.texture:SetTexture(0,0,0,.50)
+chatOverlay.time = 0
 function ChatOverlay(Message, FadingTime)
-    if isChecked("Overlay Messages") then
-        chatOverlay:SetSize(ChatFrame1:GetWidth(),50);
-        chatOverlay.text:SetText(Message);
-        chatOverlay:SetAlpha(1);
-        if FadingTime == nil then chatOverlay.time = GetTime(); else chatOverlay.time = GetTime() - 2 + FadingTime; end
-        chatOverlay:Show();
+    if getOptionCheck("Overlay Messages") then
+        chatOverlay:SetSize(ChatFrame1:GetWidth(),50)
+        chatOverlay.text:SetText(Message)
+        chatOverlay:SetAlpha(1)
+        if FadingTime == nil then
+            chatOverlay.time = GetTime()
+        else
+            chatOverlay.time = GetTime() - 2 + FadingTime
+        end
+        chatOverlay:Show()
     end
 end
 
 function BadBoyMinimapButton()
-
     local dragMode = nil --"free", nil
-
     local function moveButton(self)
         local centerX, centerY = Minimap:GetCenter()
         local x, y = GetCursorPosition()
@@ -71,48 +64,66 @@ function BadBoyMinimapButton()
     button:SetPushedTexture("Interface\\HelpFrame\\HotIssueIcon.blp")
     button:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-Background.blp")
 
-    button:SetScript("OnMouseDown", function(self, button)
+    button:SetScript("OnMouseDown",function(self, button)
+        if button == "RightButton" then
+            if BadBoy_data.options[GetSpecialization()] then
+                if currentProfileName == nil then
+                    print("!cffFF1100BadBoy |cffFFFFFFnot loaded... Is Firehack loaded?")
+                else
+                    if BadBoy_data.options[GetSpecialization()][currentProfileName.."Frame"] ~= true then
+                        _G[currentProfileName.."Frame"]:Show()
+                        BadBoy_data.options[GetSpecialization()][currentProfileName.."Frame"] = true
+                    else
+                        _G[currentProfileName.."Frame"]:Hide()
+                        BadBoy_data.options[GetSpecialization()][currentProfileName.."Frame"] = false
+                    end
+                end
+            end
+        end
         if IsShiftKeyDown() and IsAltKeyDown() then
-            self:SetScript("OnUpdate", moveButton)
+            self:SetScript("OnUpdate",moveButton)
         end
     end)
-    button:SetScript("OnMouseUp", function(self)
-        self:SetScript("OnUpdate", nil)
+    button:SetScript("OnMouseUp",function(self)
+        self:SetScript("OnUpdate",nil)
     end)
-    button:SetScript("OnClick", function(self, button)
+    button:SetScript("OnClick",function(self, button)
         if button == "LeftButton" then
             if IsShiftKeyDown() and not IsAltKeyDown() then
                 if BadBoy_data["Main"] == 1 then
-                    BadBoy_data["Main"] = 0;
-                    mainButton:Hide();
+                    BadBoy_data["Main"] = 0
+                    mainButton:Hide()
                 else
-                    BadBoy_data["Main"] = 1;
+                    BadBoy_data["Main"] = 1
                     mainButton:Show()
                 end
             elseif not IsShiftKeyDown() and not IsAltKeyDown() then
-                if BadBoy_data.configShown == false then
-                    configFrame:Show();
-                    BadBoy_data.configShown = true;
-                else
-                    configFrame:Hide();
-                    BadBoy_data.configShown = false;
+                if BadBoy_data.options[GetSpecialization()] then
+                    if BadBoy_data.options[GetSpecialization()]["optionsFrame"] ~= true then
+                        optionsFrame:Show()
+                        BadBoy_data.options[GetSpecialization()]["optionsFrame"] = true
+                    else
+                        optionsFrame:Hide()
+                        BadBoy_data.options[GetSpecialization()]["optionsFrame"] = false
+                    end
                 end
             end
         end
     end)
     button:SetScript("OnEnter", function(self)
-        GameTooltip:SetOwner(Minimap, "ANCHOR_CURSOR", 50 , 50);
-        GameTooltip:SetText("BadBoy The Ultimate Raider", 214/255, 25/255, 25/255);
-        GameTooltip:AddLine("CodeMyLife - CuteOne - Masoud");
-        GameTooltip:AddLine("Gabbz - Chumii - AveryKey");
-        GameTooltip:AddLine("Ragnar - Kink - Cpoworks - Tocsin");
-        GameTooltip:AddLine("Left Click to toggle config frame", 1, 1, 1, 1);
-        GameTooltip:AddLine("Shift+Left Click to toggle main frame", 1, 1, 1, 1);
-        GameTooltip:AddLine("Alt+Shift+LeftButton to drag", 1, 1, 1, 1);
-        GameTooltip:Show();
+        GameTooltip:SetOwner(Minimap, "ANCHOR_CURSOR", 50 , 50)
+        GameTooltip:SetText("BadBoy The Ultimate Raider", 214/255, 25/255, 25/255)
+        GameTooltip:AddLine("CodeMyLife - CuteOne - Masoud")
+        GameTooltip:AddLine("Gabbz - Chumii - AveryKey")
+        GameTooltip:AddLine("Ragnar - Kink - Cpoworks - Tocsin")
+        GameTooltip:AddLine("Left Click to toggle config frame.", 1, 1, 1, 1)
+        GameTooltip:AddLine("Shift+Left Click to toggle toggles frame.", 1, 1, 1, 1)
+        GameTooltip:AddLine("Alt+Shift+LeftButton to drag.", 1, 1, 1, 1)
+        GameTooltip:AddLine("Right Click to open profile options.", 1, 1, 1, 1)
+        GameTooltip:Show()
     end)
     button:SetScript("OnLeave", function(self)
-        GameTooltip:Hide();
+        GameTooltip:Hide()
     end)
 
 end
@@ -128,293 +139,145 @@ end
 
 
 
-local frame = CreateFrame("FRAME");
-frame:RegisterEvent("ADDON_LOADED");
-frame:RegisterEvent("PLAYER_LOGOUT");
+local frame = CreateFrame("FRAME")
+frame:RegisterEvent("ADDON_LOADED")
+frame:RegisterEvent("PLAYER_LOGOUT")
 
 function frame:OnEvent(event, arg1)
  	if event == "ADDON_LOADED" and arg1 == "BadBoy" then
- 		BadBoyRun();
-
+ 		BadBoyRun()
 	end
 end
-frame:SetScript("OnEvent", frame.OnEvent);
+frame:SetScript("OnEvent", frame.OnEvent)
 
 
 
--- Sell Greys Macros
-SLASH_Greys1 = "/grey"
-SLASH_Greys2 = "/greys"
-function SlashCmdList.Greys(msg, editbox)
-	SellGreys();
-end
+--[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
+--[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
+--[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
+--[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 
-function SellGreys()
-  	for bag = 0, 4 do
-    	for slot = 1, GetContainerNumSlots(bag) do
-      		local item = GetContainerItemLink(bag,slot)
-      		if item then
-				    -- Is it grey quality item?
-        		if string.find(item, qualityColors.grey) ~= nil then
-          			greyPrice = select(11, GetItemInfo(item)) * select(2, GetContainerItemInfo(bag, slot))
-          			if greyPrice > 0 then
-            			PickupContainerItem(bag, slot)
-            			PickupMerchantItem()
-            		end
-            	end
+    --[[This function is refired everytime wow ticks. This frame is located in Core.lua]]
+    function BadBoyUpdate(self)
+        -- prevent ticking when firechack isnt loaded
+        if FireHack == nil then
+            if not getOptionCheck("Start/Stop BadBoy") then
+                ChatOverlay("FireHack not Loaded.")
+            end
+            return
+        end
+        -- pulse enemiesEngine
+        PulseUI()
+
+        -- accept dungeon queues
+        AcceptQueues()
+        -- if user click power button, stop everything from pulsing.
+        if not getOptionCheck("Start/Stop BadBoy") then
+            --return false
+        end
+        --[[Class/Spec Selector]]
+        local playerClass = select(3,UnitClass("player"))
+        local playerSpec = GetSpecialization()
+        if playerClass == 1 then -- Warrior
+            if playerSpec == 2 then
+                FuryWarrior()
+            elseif playerSpec == 3 then
+                ProtectionWarrior()
+            else
+                ArmsWarrior()
+            end
+        elseif playerClass == 2 then -- Paladin
+            if playerSpec == 1 then
+                PaladinHoly()
+            elseif playerSpec == 2 then
+                PaladinProtection()
+            elseif playerSpec == 3 then
+                PaladinRetribution()
+            end
+        elseif playerClass == 3 then -- Hunter
+            if playerSpec == 1 then
+                BeastHunter()
+            elseif playerSpec == 2 then
+                MarkHunter()
+            else
+                SurvHunter()
+            end
+        elseif playerClass == 4 then -- Rogue
+            if playerSpec == nil then
+                NewRogue()
+            end
+            if playerSpec == 1 then
+                AssassinationRogue()
+            elseif playerSpec == 2 then
+                CombatRogue()
+            elseif playerSpec == 3 then
+                SubRogue()
+            end
+        elseif playerClass == 5 then -- Priest
+            if playerSpec == 3 then
+                PriestShadow()
+            end
+        elseif playerClass == 6 then -- Deathknight
+            if playerSpec == 1 then
+                Blood()
+            end
+            if playerSpec == 2 then
+                FrostDK()
+            end
+        elseif playerClass == 7 then -- Shaman
+            if playerSpec == 1 then
+                ShamanElemental()
+            end
+            if playerSpec == 2 then
+                ShamanEnhancement()
+            end
+            if playerSpec == 3 then
+                ShamanRestoration()
+            end
+        elseif playerClass == 8 then -- Mage
+            if playerSpec == 1 then
+                ArcaneMage()
+            end
+            if playerSpec == 2 then
+                FireMage()
+            end
+            if playerSpec == 3 then
+                FrostMage()
+            end
+        elseif playerClass == 9 then -- Warlock
+            if playerSpec == 2 then
+                WarlockDemonology()
+            elseif playerSpec == 3 then
+                WarlockDestruction()
+            end
+        elseif playerClass == 10 then -- Monk
+            if playerSpec == nil then
+                NewMonk()
+            end
+            if playerSpec == 1 then
+                BrewmasterMonk()
+            elseif playerSpec == 2 then
+                MistweaverMonk();
+            elseif playerSpec == 3 then
+                WindwalkerMonk()
+            end
+        elseif playerClass == 11 then -- Druid
+            if playerSpec == 1 then
+                DruidMoonkin()
+            end
+            if playerSpec == 2 then
+                DruidFeral()
+            end
+            if playerSpec == 3 then
+                DruidGuardian()
+            end
+            if playerSpec == 4 then
+                DruidRestoration()
             end
         end
     end
-    RepairAllItems(1);
-    RepairAllItems(0);
-    ChatOverlay("Sold Greys.")
-end
 
--- Dump Greys Macros
-SLASH_DumpGrey1 = "/dumpgreys"
-SLASH_DumpGrey2 = "/dg"
-function SlashCmdList.DumpGrey(msg, editbox)
-    DumpGreys(1);
-end
-function DumpGreys(Num)
-    local greyTable = {};
-    for bag = 0, 4 do
-      for slot = 1, GetContainerNumSlots(bag) do
-          local item = GetContainerItemLink(bag,slot)
-          if item then
-            -- Is it grey quality item?
-            if string.find(item, qualityColors.grey) ~= nil then
-                greyPrice = select(11, GetItemInfo(item)) * select(2, GetContainerItemInfo(bag, slot))
-                if greyPrice > 0 then
-                    tinsert(greyTable, { Bag = bag, Slot = slot, Price = greyPrice, Item = item});
-                end
-              end
-            end
-        end
-    end
-    table.sort(greyTable, function(x,y)
-        if x.Price and y.Price then return x.Price < y.Price; end
-    end)
-    for i = 1, Num do
-        if greyTable[i]~= nil then
-            PickupContainerItem(greyTable[i].Bag, greyTable[i].Slot)
-            DeleteCursorItem()
-            print("|cffFF0000Removed Grey Item:"..greyTable[i].Item)
-        end
-    end
-end
-
--------------------------
--- idTip by Silverwind --
--------------------------
-local hooksecurefunc, select, UnitBuff, UnitDebuff, UnitAura, UnitGUID, GetGlyphSocketInfo, tonumber, strfind =
-      hooksecurefunc, select, UnitBuff, UnitDebuff, UnitAura, UnitGUID, GetGlyphSocketInfo, tonumber, strfind
-
-local types = {
-    spell       = "SpellID:",
-    item        = "ItemID:",
-    glyph       = "GlyphID:",
-    unit        = "NPC ID:",
-    quest       = "QuestID:",
-    talent      = "TalentID:",
-    achievement = "AchievementID:"
-}
-
-local function addLine(tooltip, id, type, noEmptyLine)
-    local found = false
-
-    -- Check if we already added to this tooltip. Happens on the talent frame
-    for i = 1,15 do
-        local frame = _G[tooltip:GetName() .. "TextLeft" .. i]
-        local text
-        if frame then text = frame:GetText() end
-        if text and text == type then found = true break end
-    end
-
-    if not found then
-        if not noEmptyLine then tooltip:AddLine(" ") end
-        tooltip:AddDoubleLine(type, "|cffffffff" .. id)
-        tooltip:Show()
-    end
-end
-
--- All types, primarily for linked tooltips
-local function onSetHyperlink(self, link)
-    local type, id = string.match(link,"^(%a+):(%d+)")
-    if not type or not id then return end
-    if type == "spell" or type == "enchant" or type == "trade" then
-        addLine(self, id, types.spell)
-    elseif type == "glyph" then
-        addLine(self, id, types.glyph)
-    elseif type == "talent" then
-        addLine(self, id, types.talent)
-    elseif type == "quest" then
-        addLine(self, id, types.quest)
-    elseif type == "achievement" then
-        addLine(self, id, types.achievement)
-    elseif type == "item" then
-        addLine(self, id, types.item)
-    end
-end
-
-hooksecurefunc(ItemRefTooltip, "SetHyperlink", onSetHyperlink)
-hooksecurefunc(GameTooltip, "SetHyperlink", onSetHyperlink)
-
--- Spells
-hooksecurefunc(GameTooltip, "SetUnitBuff", function(self, ...)
-    local id = select(11, UnitBuff(...))
-    if id then addLine(self, id, types.spell) end
-end)
-
-hooksecurefunc(GameTooltip, "SetUnitDebuff", function(self,...)
-    local id = select(11, UnitDebuff(...))
-    if id then addLine(self, id, types.spell) end
-end)
-
-hooksecurefunc(GameTooltip, "SetUnitAura", function(self,...)
-    local id = select(11, UnitAura(...))
-    if id then addLine(self, id, types.spell) end
-end)
-
-hooksecurefunc("SetItemRef", function(link, ...)
-    local id = tonumber(link:match("spell:(%d+)"))
-    if id then addLine(ItemRefTooltip, id, types.spell) end
-end)
-
-GameTooltip:HookScript("OnTooltipSetSpell", function(self)
-    local id = select(3, self:GetSpell())
-    if id then addLine(self, id, types.spell) end
-end)
-
--- NPCs
-GameTooltip:HookScript("OnTooltipSetUnit", function(self)
-    if C_PetBattles.IsInBattle() then return end
-    local unit = select(2, self:GetUnit())
-    if unit then
-        local guid = UnitGUID(unit) or ""
-        local id   = tonumber(guid:match("-(%d+)-%x+$"), 10)
-        local type = guid:match("%a+")
-
-        -- ID 970 seems to be used for players
-        if id and type ~= "Player" then addLine(GameTooltip, id, types.unit) end
-    end
-end)
-
--- Items
-local function attachItemTooltip(self)
-    local link = select(2, self:GetItem())
-    if link then
-        local id = select(3, strfind(link, "^|%x+|Hitem:(%-?%d+):(%d+):(%d+).*"))
-        if id then addLine(self, id, types.item) end
-    end
-end
-
-GameTooltip:HookScript("OnTooltipSetItem", attachItemTooltip)
-ItemRefTooltip:HookScript("OnTooltipSetItem", attachItemTooltip)
-ItemRefShoppingTooltip1:HookScript("OnTooltipSetItem", attachItemTooltip)
-ItemRefShoppingTooltip2:HookScript("OnTooltipSetItem", attachItemTooltip)
-ShoppingTooltip1:HookScript("OnTooltipSetItem", attachItemTooltip)
-ShoppingTooltip2:HookScript("OnTooltipSetItem", attachItemTooltip)
-
--- Glyphs
-hooksecurefunc(GameTooltip, "SetGlyph", function(self, ...)
-    local id = select(4, GetGlyphSocketInfo(...))
-    if id then addLine(self, id, types.glyph) end
-end)
-
-hooksecurefunc(GameTooltip, "SetGlyphByID", function(self, id)
-    if id then addLine(self, id, types.glyph) end
-end)
-
--- Achievement Frame Tooltips
-local f = CreateFrame("frame")
-f:RegisterEvent("ADDON_LOADED")
-f:SetScript("OnEvent", function(_, _, what)
-    if what == "Blizzard_AchievementUI" then
-        for i,button in ipairs(AchievementFrameAchievementsContainer.buttons) do
-            button:HookScript("OnEnter", function()
-                GameTooltip:SetOwner(button, "ANCHOR_NONE")
-                GameTooltip:SetPoint("TOPLEFT", button, "TOPRIGHT", 0, 0)
-                addLine(GameTooltip, button.id, types.achievement, true)
-                GameTooltip:Show()
-            end)
-            button:HookScript("OnLeave", function()
-                GameTooltip:Hide()
-            end)
-        end
-    end
-end)
-
-local petAbilityTooltipID = false;
-local orig_SharedPetBattleAbilityTooltip_SetAbility = SharedPetBattleAbilityTooltip_SetAbility
-function SharedPetBattleAbilityTooltip_SetAbility(self, abilityInfo, additionalText)
-  orig_SharedPetBattleAbilityTooltip_SetAbility(self, abilityInfo, additionalText)
-  petAbilityTooltipID = abilityInfo:GetAbilityID()
-end
-
-PetBattlePrimaryAbilityTooltip:HookScript('OnShow', function(self)
-      local name = self.Name:GetText()
-      self.Name:SetText(name .. ' (ID: ' .. petAbilityTooltipID .. ')')
-end)
-
-
-
---[[
-
-                                                            LibStub
-
-
-]]
-
-
--- $Id: LibStub.lua 76 2007-09-03 01:50:17Z mikk $
--- LibStub is a simple versioning stub meant for use in Libraries.  http://www.wowace.com/wiki/LibStub for more info
--- LibStub is hereby placed in the Public Domain
--- Credits: Kaelten, Cladhaire, ckknight, Mikk, Ammo, Nevcairiel, joshborke
-local LIBSTUB_MAJOR, LIBSTUB_MINOR = "LibStub", 2  -- NEVER MAKE THIS AN SVN REVISION! IT NEEDS TO BE USABLE IN ALL REPOS!
-local LibStub = _G[LIBSTUB_MAJOR]
-
--- Check to see is this version of the stub is obsolete
-if not LibStub or LibStub.minor < LIBSTUB_MINOR then
-    LibStub = LibStub or {libs = {}, minors = {} }
-    _G[LIBSTUB_MAJOR] = LibStub
-    LibStub.minor = LIBSTUB_MINOR
-
-    -- LibStub:NewLibrary(major, minor)
-    -- major (string) - the major version of the library
-    -- minor (string or number ) - the minor version of the library
-    --
-    -- returns nil if a newer or same version of the lib is already present
-    -- returns empty library object or old library object if upgrade is needed
-    function LibStub:NewLibrary(major, minor)
-        assert(type(major) == "string", "Bad argument #2 to `NewLibrary' (string expected)")
-        minor = assert(tonumber(strmatch(minor, "%d+")), "Minor version must either be a number or contain a number.")
-
-        local oldminor = self.minors[major]
-        if oldminor and oldminor >= minor then return nil end
-        self.minors[major], self.libs[major] = minor, self.libs[major] or {}
-        return self.libs[major], oldminor
-    end
-
-    -- LibStub:GetLibrary(major, [silent])
-    -- major (string) - the major version of the library
-    -- silent (boolean) - if true, library is optional, silently return nil if its not found
-    --
-    -- throws an error if the library can not be found (except silent is set)
-    -- returns the library object if found
-    function LibStub:GetLibrary(major, silent)
-        if not self.libs[major] and not silent then
-            error(("Cannot find a library instance of %q."):format(tostring(major)), 2)
-        end
-        return self.libs[major], self.minors[major]
-    end
-
-    -- LibStub:IterateLibraries()
-    --
-    -- Returns an iterator for the currently registered libraries
-    function LibStub:IterateLibraries()
-        return pairs(self.libs)
-    end
-
-    setmetatable(LibStub, { __call = LibStub.GetLibrary })
-end
+--[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
+--[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
+--[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
+--[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
