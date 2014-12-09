@@ -1,10 +1,3 @@
-	--	Todos
-	--  ProtPaladinDispells() -- Handling the dispelling self and party
-	--  Divine Shield Taunting. ie taunt and use Divine Shield gives 3 seconds being attacked with immunity but still being fixated.
-	--  Other to think about
-	--  HandsLogic, including removal of debuffs via protection
-	--  TankManager, including salvation on self, checking what to tank and not to tank(boss debuff forcing tank switch etc, taunting if party member is being attacked etc.
-
 if select(3, UnitClass("player")) == 2 then
 	function PaladinProtection()
 		-- Init if this is the first time we are running.
@@ -15,8 +8,6 @@ if select(3, UnitClass("player")) == 2 then
 			currentConfig = "Protection CodeMyLife"
 		end
 
-		
-		-- Todo, add this to GUI and create a sub function, should also cater for macros for manual casting
 		-- Manual Input
 		if IsLeftShiftKeyDown() then -- Pause the script, keybind in wow shift+1 etc for manual cast
 			return true
@@ -27,36 +18,40 @@ if select(3, UnitClass("player")) == 2 then
 		if IsLeftAltKeyDown() then
 			return true
 		end
---		if IsRightControlKeyDown() then
---		end
---		if IsRightShiftKeyDown() then
---		end
---		if IsRightAltKeyDown() then
---		end
---		if IsMouseButtonDown(1) then -- Mousebutton 1-5
---		end
 		
-		-- Set Global variables that will be used.
-		_HolyPower = UnitPower("player", 9)
-		-- Check if we should run the rotation
 		if canRun() ~= true then
 			return false
 		end
 
 		-- Only run rotation if we or our target is in combat.
 		if UnitAffectingCombat("player") and (UnitAffectingCombat("target") or isDummy("target")) then  -- Only start if we and target is in combat, have manual ability to pull mobs and UnitAffectingCombat("target")
-			--Todo SpecialEvent, checks if there is something that are special that we need to handle
+
+			-- Locals Variables
+			_HolyPower = UnitPower("player", 9)
+			playerHP = getHP("player")
+			meleeEnemies = #getEnemies("player", 5)
+			buffDivineCrusader = getBuffRemain("player",_DivineCrusader) 
+			buffHolyAvenger = getBuffRemain("player",_HolyAvenger)
+			buffDivinePurpose = getBuffRemain("player",_DivinePurpose)
+			buffSeraPhim = getBuffRemain("player",_Seraphim)
+			sealOfTruth = GetShapeshiftForm() == 1 or nil
+			sealOfRighteousness = GetShapeshiftForm() == 2 or nil
+			sealOfInsight = GetShapeshiftForm() == 3 or nil
+		
 			-- Auto attack
 			if startAttackTimer == nil or startAttackTimer <= GetTime() - 1 then
 				RunMacroText("/startattack")
 			end
-			ProtPaladinEnemyUnitHandler() -- Fetch information about enemy units
-			ProtPaladinFriendlyUnitHandler() --Fetch and handle friendly units information
+
+			ProtPaladinEnemyUnitHandler()
+
+			ProtPaladinFriendlyUnitHandler() 
 
 			-- If we are close to dying
 			if ProtPaladinSurvivalSelf() then -- Check if we are close to dying and act accoridingly
 				return true
 			end
+
 			-- If someone else is close to dying
 			if ProtPaladinSurvivalOther() then -- Check if raidmember are close to dying and act accoridingly
 				return

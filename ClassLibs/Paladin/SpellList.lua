@@ -250,18 +250,8 @@ if select(3,UnitClass("player")) == 2 then
 
 	-- Todo This need to be enhanced to be much more logical
 	function castLayOnHands(unit)
-		if not unit then --We are not being told who to cast Lay On Hand on, therefore check lowest HP in party
-			if isChecked("Lay On Hands Party") and nNova[1].hp <= getValue("Lay On Hands Party") and canCast(_LayOnHands) and not UnitDebuffID(nNova[1].unit,_Forbearance) then
-				if castSpell(nNova[1].unit,_LayOnHands,true,false) then
-					return true
-				end
-			end
-		else -- else we think its ourself
-			if isChecked("Lay On Hands Self") and getHP("player") <= getValue("Lay On Hands Self") and canCast(_LayOnHands) and not UnitDebuffID("player",_Forbearance) then
-				if castSpell(nNova[1].unit,_LayOnHands,true,false) then
-					return true
-				end
-			end
+		if castSpell(unit,_LayOnHands,true,false) then
+			return true
 		end
 		return false
 	end

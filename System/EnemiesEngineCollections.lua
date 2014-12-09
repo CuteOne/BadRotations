@@ -65,6 +65,7 @@ burnUnitCandidates = {
     -- UBRS
     [76222] = { coef = 100 },
     [163061] = { coef = 100 }, -- Windfury Totem
+    -- Proven Ground
     [71070] = { coef = 150, name = "Illusion Banshee" }, -- proving ground (will explode if not burned)
     [71075] = { coef = 150, name = "Illusion Banshee" }, -- proving ground (will explode if not burned)
     [71072] = { coef = -20, buff = 142427 }, -- Proving ground Sha shielded (will unshield later so better wait)

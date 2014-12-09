@@ -155,12 +155,13 @@ function castInterrupt(spell,percent)
 					if castSpell(thisCaster.unit,spell,false,false) then
 						-- prevent intrupt on this target again using blacklist
 						tinsert(castersBlackList, { unit = spellCastersTable[i].unit, time = GetTime() })
-						return
+						return true
 					end
 				end
 			end
 		end
 	end
+	return false
 end
 
 -- cast a cc spell on a given target or on "any" target
