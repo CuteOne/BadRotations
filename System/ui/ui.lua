@@ -170,7 +170,7 @@ function ConstructUI()
                         createStatusBar(currentProfileName,currentProfile[i],186*scale,ypos*scale,i)
                     end
                 end
-                _G[currentProfileName.."Frame"]:SetHeight(#currentProfile*27*scale)
+                _G[currentProfileName.."Frame"]:SetHeight(#currentProfile*27*scale+3)
             end
 
 
@@ -407,7 +407,7 @@ function ConstructUI()
                     if BadBoy_data.BadBoyUI.optionsFrame.options[value]
                       and BadBoy_data.BadBoyUI.optionsFrame.options[value][i] ~= nil then
                         local thisOption,xpos = BadBoy_data.BadBoyUI.optionsFrame.options[value][i],math.floor((i-1)/4)*260
-                        createCheckBox("options",thisOption.name,(xpos+7),(ypos*-27)-12)
+                        createCheckBox("options",thisOption.name,(xpos+7),(ypos*-27)-12,thisOption.checkbase)
                         local textWidth = 155
                         if thisOption.status ~= nil then
                             -- create a statusbar if one declared -- (parent,value,x,y,textString)

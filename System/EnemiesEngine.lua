@@ -148,9 +148,9 @@ function castInterrupt(spell,percent)
 				if allowedDistance < 5 then
 					allowedDistance = 5
 				end
-				-- see if the spell is about to be finished casting
-				if getSpellCD(spell) < thisCaster.castEnd - GetTime()
-				  and (thisCaster.castEnd - GetTime())/thisCaster.castLenght < (100 - percent)/100
+				-- see if the spell is about to be finished casting or is a channel
+				if thisCaster.castType == "chan" or (getSpellCD(spell) < thisCaster.castEnd - GetTime()
+				  and (thisCaster.castEnd - GetTime())/thisCaster.castLenght < (100 - percent)/100)
 				  and getDistance("player",thisCaster.unit) < allowedDistance then
 					if castSpell(thisCaster.unit,spell,false,false) then
 						-- prevent intrupt on this target again using blacklist

@@ -56,6 +56,7 @@ function interruptsReader(self,event,...)
 						        			canInterupt = unitCanntBeInterrupt == false,
 						        			castEnd = unitCastTime,
 						        			castLenght = unitCastLenght,
+						        			castType = castOrChan,
 						        			distance = getDistance("player",thisUnit),
 						        			guid = sourceGUID,
 						        			id = enemiesTable[i].id,

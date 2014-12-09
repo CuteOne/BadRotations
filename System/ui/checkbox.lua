@@ -1,13 +1,15 @@
 -- creates a checkbox with current UI settings at location within parent
-function createCheckBox(parent,name,x,y,state)
+function createCheckBox(parent,name,x,y,checkState)
     if _G[parent..name.."Check"] == nil then
-        local scale = BadBoy_data.BadBoyUI.optionsFrame.scale or 1
-        local state
-        if name ~= nil then
-            if BadBoy_data.options[GetSpecialization()] then
-                state = BadBoy_data.options[GetSpecialization()][name.."Check"] or 0
+        if BadBoy_data.options[GetSpecialization()] then
+            if BadBoy_data.options[GetSpecialization()][name.."Check"] == nil then
+                if checkState == true then
+                    BadBoy_data.options[GetSpecialization()][name.."Check"] = 1
+                end
             end
         end
+
+        local scale = BadBoy_data.BadBoyUI.optionsFrame.scale or 1
 
         _G[parent..name.."Check"] = CreateFrame("Button", _G[parent..name.."Check"], _G[parent.."Frame"])
         _G[parent..name.."Check"]:SetAlpha(BadBoy_data.BadBoyUI.alpha)
@@ -22,7 +24,11 @@ function createCheckBox(parent,name,x,y,state)
         if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()][name.."Check"] == 1 then
             _G[parent..name.."Check"].texture:SetTexture(125/255,125/255,125/255,1)
         else
-            _G[parent..name.."Check"].texture:SetTexture(45/255,45/255,45/255,1)
+            if state == 1 then
+                _G[parent..name.."Check"].texture:SetTexture(125/255,125/255,125/255,1)
+            else
+                _G[parent..name.."Check"].texture:SetTexture(45/255,45/255,45/255,1)
+            end
         end
         _G[parent..name.."Check"].texture:SetWidth(22*scale)
         _G[parent..name.."Check"].texture:SetHeight(22*scale)

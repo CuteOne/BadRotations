@@ -135,5 +135,5 @@ function replaceWraps(parent)
         end
     end
     local scale = BadBoy_data.BadBoyUI.optionsFrame.scale or 1
-    _G[currentProfileName.."Frame"]:SetHeight(shownRows*(24*scale)+4)
+    _G[currentProfileName.."Frame"]:SetHeight(shownRows*(24*scale)+shownRows*0.3)
 end
