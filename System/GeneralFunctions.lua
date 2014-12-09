@@ -289,6 +289,7 @@ end
 
 -- if canUse(1710) then
 function canUse(itemID)
+	if healPot == nil then healPot = 0 end
 	local goOn = true
 	local DPSPotionsSet = {
 		[1] = {Buff = 105702, Item = 76093}, -- Int

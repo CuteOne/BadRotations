@@ -124,6 +124,11 @@ end
 
 function sefTargets()
     if enemies == nil then enemies = 0 end
+    if select(1,UnitDetailedThreatSituation("player", "target")) == nil then
+        hasThreat = false
+    elseif select(1,UnitDetailedThreatSituation("player", "target"))==true then
+        hasThreat = true
+    end
     if not myenemiesTimer or myenemiesTimer <= GetTime() - 1 then
         enemies, myenemiesTimer = getEnemies("player",40), GetTime()
     end
@@ -140,16 +145,12 @@ function sefTargets()
             and not UnitIsDeadOrGhost(enemies[i])
             and (isInCombat(enemies[i]) or isDummy(enemies[i]) or isChecked("Death Monk Mode"))
             and UnitGUID(enemies[i])~=currtar
+            and UnitDetailedThreatSituation("player", enemies[i]) ~= nil
         then
             table.insert( targets,{ Name = UnitName(enemies[i]), Unit = enemies[i], HP = UnitHealth(enemies[i]), Range = getDistance("player",enemies[i]) })
         end
     end
     table.sort(targets, function(x,y) return x.HP > y.HP end)
-    -- if #targets > 2 then
-    --     for i=1,#targets do
-    --         if i>2 then table.remove(targets,i) end
-    --     end
-    -- end
 end
 
 -- function getDistance2(Unit1,Unit2)

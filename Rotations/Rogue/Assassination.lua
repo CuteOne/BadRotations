@@ -21,56 +21,58 @@ if select(3, UnitClass("player")) == 4 then
 		-- end
 
 
---------------
---- Locals ---
---------------
-    	local enemies = #getEnemies("player",8)
-    	local thisUnit = dynamicTarget(5,true)
-		local tarDist = getDistance("target")
-		local hasTarget = UnitExists(thisUnit)
-		local hasMouse = UnitExists("mouseover")
-		local level = UnitLevel("player")
-		local php = getHP("player")
-		local thp = getHP(thisUnit)
-		local combo = getCombo()
-		local power = getPower("player")
-		local powmax = UnitPowerMax("player")
-		local powgen = getRegen("player")
-		local ttd = getTimeToDie(thisUnit)
-		local ttm = getTimeToMax("player")
-		local deadtar = UnitIsDeadOrGhost(thisUnit)
-		local attacktar = canAttack("player", thisUnit)
-		local swimming = IsSwimming()
-		local stealth = UnitBuffID("player",_Stealth)
-		local lethalRemain = getBuffRemain("player",_LethalPoison)
-		local nonlethalRemain = getBuffRemain("player",_NonLethalPoison)
-		local recRemain = getBuffRemain("player",_Recuperate)
-		local sapRemain = getDebuffRemain(thisUnit,_Sap)
-		local vanRemain = getBuffRemain("player",_VanishBuff)
-		local rupRemain = getDebuffRemain(thisUnit,_Rupture,"player")
-		local sndRemain = getBuffRemain("player",_SliceAndDice)
-		local ctRemain = getDebuffRemain(thisUnit,_CrimsonTempest,"player")
-		local blindside = UnitBuffID("player",_Blindside)
-		local rupDuration = getDebuffDuration(thisUnit,_Rupture,"player")
-		local srRemain = getBuffRemain("player",_ShadowReflection)
-		local venRemain = getDebuffRemain(thisUnit,_Vendetta,"player")
-		local ddRemain = getDebuffRemain(thisUnit,113780,"player")
-		local envRemain = getDebuffRemain(thisUnit,_Envenom,"player")
-		local antCharge = getCharges(_Anticipation)
- 		local lootDelay = getValue("LootDelay");
+-- --------------
+-- --- Locals ---
+-- --------------
+     	local enemies = #getEnemies("player",8)
+     	local thisUnit = dynamicTarget(5,true)
+ 		local tarDist = getDistance("target")
+ 		local hasTarget = UnitExists(thisUnit)
+ 		local hasMouse = UnitExists("mouseover")
+ 		local level = UnitLevel("player")
+ 		local php = getHP("player")
+ 		local thp = getHP(thisUnit)
+ 		local combo = getCombo()
+ 		local power = getPower("player")
+ 		local powmax = UnitPowerMax("player")
+ 		local powgen = getRegen("player")
+ 		local ttd = getTimeToDie(thisUnit)
+ 		local ttm = getTimeToMax("player")
+ 		local deadtar = UnitIsDeadOrGhost(thisUnit)
+ 		local attacktar = canAttack("player", thisUnit)
+ 		local swimming = IsSwimming()
+ 		local stealth = UnitBuffID("player",_Stealth)
+ 		local lethalRemain = getBuffRemain("player",_DeadlyPoison)--getBuffRemain("player",_LethalPoison)
+ 		local nonlethalRemain = getBuffRemain("player",_LeechingPoison)--getBuffRemain("player",_NonLethalPoison)
+ 		local recRemain = getBuffRemain("player",_Recuperate)
+ 		local sapRemain = getDebuffRemain(thisUnit,_Sap)
+ 		local vanRemain = getBuffRemain("player",_VanishBuff)
+ 		local rupRemain = getDebuffRemain(thisUnit,_Rupture,"player")
+ 		local sndRemain = getBuffRemain("player",_SliceAndDice)
+ 		local ctRemain = getDebuffRemain(thisUnit,_CrimsonTempest,"player")
+ 		local blindside = UnitBuffID("player",_Blindside)
+ 		local rupDuration = getDebuffDuration(thisUnit,_Rupture,"player")
+ 		local srRemain = getBuffRemain("player",_ShadowReflection)
+ 		local venRemain = getDebuffRemain(thisUnit,_Vendetta,"player")
+ 		local ddRemain = getDebuffRemain(thisUnit,113780,"player")
+ 		local envRemain = getDebuffRemain(thisUnit,_Envenom,"player")
+ 		local antCharge = getCharges(_Anticipation)
+  		local lootDelay = getValue("LootDelay");
 ----------------------------------
 --- Poisons/Healing/Dispelling ---
 ----------------------------------
-		if (isCastingSpell(_LethalPoison) and lethalRemain>5) or ((isCastingSpell(_NonLethalPoison) and nonlethalRemain>5)) then
+		if (isCastingSpell(_DeadlyPoison) and lethalRemain>5) or ((isCastingSpell(_LeechingPoison) and nonlethalRemain>5)) then
 			RunMacroText("/stopcasting")
 		end
 	-- Leathal Poison
 		if lethalRemain<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
-			if castSpell("player",_LethalPoison,true) then return end
+			--if castSpell("player",_LethalPoison,true) then return end
+			if castSpell("player",_DeadlyPoison,true) then return end
 		end
 	-- Non-Leathal Poison
 		if nonlethalRemain<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
-			if castSpell("player",_NonLethalPoison,true) then return end
+			--if castSpell("player",_NonLethalPoison,true) then return end
+			if castSpell("player",_LeechingPoison,true) then return end
 		end
 	-- Recuperate
 		if php < 80 and recRemain==0 and combo>0 then
@@ -140,7 +142,7 @@ if select(3, UnitClass("player")) == 4 then
 	-- Shadowstep
 					if castSpell("target",_Shadowstep,false,false,false) then return end
 				end
-				if stealth and tarDist < 40 and tarDist >= 8 and level>=60 and getTalent(4,1) then
+				if stealth and getDistance("target") < 40 and getDistance("target") >= 8 and level>=60 and getTalent(4,1) then
 	-- Cloak and Dagger
 					if castSpell("target",_Ambush,false,false,false) then return end
 				end

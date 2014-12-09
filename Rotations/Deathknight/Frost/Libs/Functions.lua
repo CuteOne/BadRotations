@@ -25,42 +25,85 @@ if select(3,UnitClass("player")) == 6 then
 		end
 	end
 
-	function getRunes(Type)
-		Type = string.lower(Type);
-  		if Type == "frost" then
-		  	local frostRunes = 0;
-		  	for i = 5, 6 do
-		  		if select(3, GetRuneCooldown(i)) and GetRuneType(i) == 3 then
-					frostRunes = frostRunes + 1;
-				end
-			end
-		    return frostRunes;
-  		elseif Type == "blood" then
-		  	local bloodRunes = 0;
-		  	for i = 1, 2 do
-		  		if select(3, GetRuneCooldown(i)) and GetRuneType(i) == 1 then
-					bloodRunes = bloodRunes + 1;
-				end
-			end
-		    return bloodRunes;
-		elseif Type == "unholy" then
-		  	local unholyRunes = 0;
-		  	for i = 3, 4 do
-		  		if select(3, GetRuneCooldown(i)) and GetRuneType(i) == 2 then
-					unholyRunes = unholyRunes + 1;
-				end
-			end
-		    return unholyRunes;
-		elseif Type == "death" then
-		  	local deathRunes = 0;
-		  	for i = 3, 6 do
-		  		if select(3, GetRuneCooldown(i)) and GetRuneType(i) == 4 then
-					deathRunes = deathRunes + 1;
-				end
-			end
-		    return deathRunes;
+	function getDeath()
+		local rune1 = select(3, GetRuneCooldown(1))
+		local rune2 = select(3, GetRuneCooldown(2))
+		if rune1 and rune2 then
+			return 2
 		end
-		return 0;
+		if (rune1 and not rune2) or (rune2 and not rune1) then
+			return 1
+		end
+		if not rune1 and not rune2 then
+			return 0
+		end
+	end
+
+	function getFrost()
+		local rune3 = select(3, GetRuneCooldown(3))
+		local rune4 = select(3, GetRuneCooldown(4))
+		if rune3 and rune4 then
+			return 2
+		end
+		if (rune3 and not rune4) or (rune4 and not rune3) then
+			return 1
+		end
+		if not rune3 and not rune4 then
+			return 0
+		end
+	end
+
+	function getUnholy()
+		local rune5 = select(3, GetRuneCooldown(5))
+		local rune6 = select(3, GetRuneCooldown(6))
+		if rune5 and rune6 then
+			return 2
+		end
+		if (rune5 and not rune6) or (rune6 and not rune5) then
+			return 1
+		end
+		if not rune5 and not rune6 then
+			return 0
+		end
+	end
+
+	function getRunes(Type)
+		Type = string.lower(Type)
+		local bloodRunes = 0
+		local unholyRunes = 0
+		local frostRunes = 0
+		local deathRunes = 0
+		for i = 1, 6 do
+			if select(3, GetRuneCooldown(i)) then
+				if GetRuneType(i) == 4 then
+					print("Death Runes!")
+					deathRunes = deathRunes + 1
+				end
+				if GetRuneType(i) == 1 then
+					bloodRunes = bloodRunes + 1
+				end
+				if GetRuneType(i) == 2 then
+					frostRunes = frostRunes + 1
+				end
+				if GetRuneType(i) == 3 then
+					unholyRunes = unholyRunes + 1
+				end
+			end
+		end
+  		if Type == "blood" then
+		    return bloodRunes
+		end
+		if Type == "unholy" then
+		    return unholyRunes
+		end
+		if Type == "frost" then
+		    return frostRunes
+		end
+		if Type == "death" then
+			print("Returning Count")
+		    return deathRunes
+		end
+		return 0
 	end
 
     function useAoE()
