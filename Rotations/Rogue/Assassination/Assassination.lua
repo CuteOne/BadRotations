@@ -10,7 +10,6 @@ if select(3, UnitClass("player")) == 4 then
 		AssToggles()
 		poisonData()
 		makeEnemiesTable(40)
-		ChatOverlay(SpecificToggle("Rotation Mode"))
 		-- if worgen==nil then
 		-- 	worgen=false
 		-- end
@@ -43,8 +42,8 @@ if select(3, UnitClass("player")) == 4 then
  		local attacktar = canAttack("player", thisUnit)
  		local swimming = IsSwimming()
  		local stealth = UnitBuffID("player",_Stealth)
- 		local lethalRemain = getBuffRemain("player",_LethalPoison)
- 		local nonlethalRemain = getBuffRemain("player",_NonLethalPoison)
+ 		local lethalRemain = getBuffRemain("player",_DeadlyPoison)--getBuffRemain("player",_LethalPoison)
+ 		local nonlethalRemain = getBuffRemain("player",_LeechingPoison)--getBuffRemain("player",_NonLethalPoison)
  		local recRemain = getBuffRemain("player",_Recuperate)
  		local sapRemain = getDebuffRemain(thisUnit,_Sap)
  		local vanRemain = getBuffRemain("player",_VanishBuff)
@@ -62,16 +61,18 @@ if select(3, UnitClass("player")) == 4 then
 ----------------------------------
 --- Poisons/Healing/Dispelling ---
 ----------------------------------
-		if (isCastingSpell(_LethalPoison) and lethalRemain>5) or ((isCastingSpell(_NonLethalPoison) and nonlethalRemain>5)) then
+		if (isCastingSpell(_DeadlyPoison) and lethalRemain>5) or ((isCastingSpell(_LeechingPoison) and nonlethalRemain>5)) then
 			RunMacroText("/stopcasting")
 		end
 	-- Leathal Poison
-		if getOptionCheck("Lethal") and lethalRemain<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
-			if castSpell("player",_LethalPoison,true) then return end
+		if lethalRemain<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
+			--if castSpell("player",_LethalPoison,true) then return end
+			if castSpell("player",_DeadlyPoison,true) then return end
 		end
 	-- Non-Leathal Poison
-		if getOptionCheck("Non-Lethal") and nonlethalRemain<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
-			if castSpell("player",_NonLethalPoison,true) then return end
+		if nonlethalRemain<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
+			--if castSpell("player",_NonLethalPoison,true) then return end
+			if castSpell("player",_LeechingPoison,true) then return end
 		end
 	-- Recuperate
 		if php < 80 and recRemain==0 and combo>0 then
@@ -137,13 +138,13 @@ if select(3, UnitClass("player")) == 4 then
 						if castSpell("player",_Stealth,true,false,false) then stealthTimer=GetTime(); return end
 					end
 				end
-	-- Shadowstep
 				if not isInCombat("player") and stealth and tarDist < 25 and tarDist >= 8 and level>=60 and getTalent(4,2) then
+	-- Shadowstep
 					if castSpell("target",_Shadowstep,false,false,false) then return end
 				end
-	-- Cloak and Dagger
 				if stealth and getDistance("target") < 40 and getDistance("target") >= 8 and level>=60 and getTalent(4,1) then
-					if castSpell("target",_Ambush,false,false,false,false,false,true) then return end
+	-- Cloak and Dagger
+					if castSpell("target",_Ambush,false,false,false) then return end
 				end
 	-- Sap
 				if not isInCombat("player") and noattack() and sapRemain==0 and UnitBuffID("player",_Stealth) and level>=15 and tarDist < 8 then
