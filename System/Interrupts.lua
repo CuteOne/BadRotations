@@ -38,10 +38,10 @@ function interruptsReader(self,event,...)
 				        for i = 1,#enemiesTable do
 				        	if sourceGUID == enemiesTable[i].guid then
 				        		thisUnit = enemiesTable[i].unit
-				        		local candidate = true--isInteruptCandidate(thisUnit.unit,spellID)
-				        		if candidate == true or getOptionCheck("Only Known Units") then
-							        -- gather our infos
-							        local spellName,castLenght,castEnd,notInterruptible,castOrChan = getCastingInfo(thisUnit)
+				        		-- gather our infos
+							     if getOptionCheck("Only Known Units") and not isInteruptCandidate(thisUnit, spellID) then
+				        			return --exit since we have checkd only known units but is not on the list
+				        		else
 							        -- make sure to define values
 							        destName = destName or "|cffFFFFFFNo Target"
 							        if destGUID == "" then
