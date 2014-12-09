@@ -289,6 +289,7 @@ end
 
 -- if canUse(1710) then
 function canUse(itemID)
+	if healPot == nil then healPot = 0 end
 	local goOn = true
 	local DPSPotionsSet = {
 		[1] = {Buff = 105702, Item = 76093}, -- Int
@@ -506,7 +507,8 @@ function getLatency()
 end
 
 -- castSpell("target",12345,true)
-function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,DeadCheck)
+--                ( 1  ,    2  ,     3     ,     4       ,      5    ,   6     ,   7     ,    8       )
+function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,DeadCheck,DistanceSkip)
 	if shouldStopCasting(SpellID) ~= true and (not UnitIsDeadOrGhost(Unit) or DeadCheck) then
 		-- stop if not enough power for that spell
 		if IsUsableSpell(SpellID) ~= true then
@@ -520,14 +522,16 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 		if not (KnownSkip == true or isKnown(SpellID)) then return false end
 		-- gather our spell range information
 		local spellRange = select(6,GetSpellInfo(SpellID))
-	  	if spellRange == nil or spellRange < 5 then spellRange = 5 end
+		if DistanceSkip == nil then DistanceSkip = false end
+	  	if spellRange == nil or (spellRange < 5 and DistanceSkip==false) then spellRange = 5 end
+	  	if DistanceSkip == true then spellRange = 40 end
 		-- Check unit,if it's player then we can skip facing
 		if (Unit == nil or UnitIsUnit("player",Unit)) or -- Player
 			(Unit ~= nil and UnitIsFriend("player",Unit)) then FacingCheck = true end -- Ally
 		-- if MovementCheck is nil or false then we dont check it
 		if MovementCheck == false or isMoving("player") ~= true or UnitBuffID("player",79206) ~= nil then
 			-- if ability is ready and in range
-			if (getOptionCheck("Allow Failcasts") or getSpellCD(SpellID) == 0) and (getOptionCheck("Skip Distance Check") or getDistance("player",Unit) <= spellRange) then
+			if (getOptionCheck("Allow Failcasts") or getSpellCD(SpellID) == 0) and (getOptionCheck("Skip Distance Check") or getDistance("player",Unit) <= spellRange or DistanceSkip == true) then
 				-- if spam is not allowed
 	    		if SpamAllowed == false then
 	    			-- get our last/current cast
@@ -920,13 +924,13 @@ end
 -- if getPower("target") <= 15 then
 function getPower(Unit)
     local value = value
-    if select(3,UnitClass("player")) == 11 then
+    if select(3,UnitClass("player")) == 11 or select(3,UnitClass("player")) == 4 then
         if UnitBuffID("player",135700) then
             value = 999
         elseif UnitBuffID("player",106951) then
-            value = (100 * UnitPower(Unit) / UnitPowerMax(Unit))*2
+            value = UnitPower(Unit)*2
         else
-            value = 100 * UnitPower(Unit) / UnitPowerMax(Unit)
+            value = UnitPower(Unit)
         end
     else
         value = 100 * UnitPower(Unit) / UnitPowerMax(Unit)
@@ -1991,6 +1995,8 @@ function isChecked(Value)
 	--print(BadBoy_data.options[GetSpecialization()]["profile"..Value.."Check"])
 	if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()][Value.."Check"] == 1 then
 		return true
+	else
+		return false
 	end
 end
 
@@ -2021,6 +2027,8 @@ end
 function getOptionCheck(Value)
 	if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()][Value.."Check"] == 1 then
 		return true
+	else
+		return false
 	end
 end
 

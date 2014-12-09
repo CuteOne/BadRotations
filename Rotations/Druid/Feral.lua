@@ -14,6 +14,7 @@ if select(3, UnitClass("player")) == 11 then
 --- Locals ---
 --------------
 		if leftCombat == nil then leftCombat = GetTime() end
+		if profileStop == nil then profileStop = false end
 		-- General Player Variables
 		local profileStop = profileStop
 		local lootDelay = getValue("LootDelay")
@@ -265,7 +266,7 @@ if select(3, UnitClass("player")) == 11 then
 			if isInCombat("player") and not cat then
 				if castSpell("player",cf,true,false,false) then return end
 			end
-			if hastar and attacktar and isInCombat("player") and cat then
+			if hastar and attacktar and isInCombat("player") and cat and profileStop==false then
 	------------------------------
 	--- In Combat - Dummy Test ---
 	------------------------------
@@ -273,11 +274,10 @@ if select(3, UnitClass("player")) == 11 then
 				if isChecked("DPS Testing") then
 					if UnitExists("target") then
 						if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
-							profileStop = true
 							StopAttack()
 							ClearTarget()
 							print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
-							return true
+							profileStop = true
 						end
 					end
 				end
@@ -407,23 +407,13 @@ if select(3, UnitClass("player")) == 11 then
 								if thrRemain<4.5 then
 									if clearcast then
 										--if=buff.omen_of_clarity.react&remains<4.5&active_enemies>1
-										if enemies>1 then
-											if castSpell(thisUnit,thr,true,false,false) then return end
-										end
 										--if=!talent.bloodtalons.enabled&combo_points=5&remains<4.5&buff.omen_of_clarity.react
-										if not bloodtalons and combo==5 then
+										if enemies>1 or (not bloodtalons and combo==5) then
 											if castSpell(thisUnit,thr,true,false,false) then return end
 										end
 									end
-									if enemies>1 then
-										--pool_resource,for_next=1
-										if power<=50 then
-											return true
-										end
-										--if=remains<4.5&active_enemies>1
-										if power>50 then
-											if castSpell(thisUnit,thr,true,false,false) then return end
-										end
+									if enemies>1 and power>50 then
+										if castSpell(thisUnit,thr,true,false,false) then return end
 									end
 								end
 							end
@@ -457,11 +447,8 @@ if select(3, UnitClass("player")) == 11 then
 								ttd = getTimeToDie(thisUnit)
 								if ttd-rpRemain>18 and combo==5 and power>30 then
 									--if=remains<3&target.time_to_die-remains>18
-									if rpRemain<3 then
-										if castSpell(thisUnit,rp,false,false,false) then return end
-									end
 									--if=remains<7.2&persistent_multiplier>dot.rip.pmultiplier&target.time_to_die-remains>18
-									if rpRemain<7.2 and rpCalc>rpDmg then
+									if rpRemain<3 or (rpRemain<7.2 and rpCalc>rpDmg) then
 										if castSpell(thisUnit,rp,false,false,false) then return end
 									end
 								end
@@ -472,11 +459,8 @@ if select(3, UnitClass("player")) == 11 then
 						ttd = getTimeToDie(thisUnit)
 						if ttd-rpRemain>18 and combo==5 and power>30 then
 							--if=remains<3&target.time_to_die-remains>18
-							if rpRemain<3 then
-								if castSpell(thisUnit,rp,false,false,false) then return end
-							end
 							--if=remains<7.2&persistent_multiplier>dot.rip.pmultiplier&target.time_to_die-remains>18
-							if rpRemain<7.2 and rpCalc>rpDmg then
+							if rpRemain<3 or (rpRemain<7.2 and rpCalc>rpDmg) then
 								if castSpell(thisUnit,rp,false,false,false) then return end
 							end
 						end
@@ -503,14 +487,11 @@ if select(3, UnitClass("player")) == 11 then
 								then
 									if not bloodtalons then
 						    			--if=!talent.bloodtalons.enabled&remains<3&combo_points<5&((target.time_to_die-remains>3&active_enemies<3)|target.time_to_die-remains>6)
-						    			if rkRemain<3 then
-						    				if castSpell(thisUnit,rk,false,false,false) then return end
-						    			end
 						    			--if=!talent.bloodtalons.enabled&remains<4.5&combo_points<5&persistent_multiplier>dot.rake.pmultiplier&((target.time_to_die-remains>3&active_enemies<3)|target.time_to_die-remains>6)
-						    			if rkRemain<4.5 and rkCalc>rkDmg then
+						    			if rkRemain<3 or (rkRemain<4.5 and rkCalc>rkDmg) then
 						    				if castSpell(thisUnit,rk,false,false,false) then return end
 						    			end
-						    		else
+						    		elseif bloodtalons then
 						    			--if=talent.bloodtalons.enabled&remains<4.5&combo_points<5&(!buff.predatory_swiftness.up|buff.bloodtalons.up|persistent_multiplier>dot.rake.pmultiplier)&((target.time_to_die-remains>3&active_enemies<3)|target.time_to_die-remains>6)
 						    			if rkRemain<4.5 and (psRemain==0 or btRemain>0 or rkCalc>rkDmg) then
 											if castSpell(thisUnit,rk,false,false,false) then return end
@@ -525,11 +506,8 @@ if select(3, UnitClass("player")) == 11 then
 						if ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) and stunRemain==0 and combo<5 and power>35 then
 							if not bloodtalons then
 				    			--if=!talent.bloodtalons.enabled&remains<3&combo_points<5&((target.time_to_die-remains>3&active_enemies<3)|target.time_to_die-remains>6)
-				    			if rkRemain<3 then
-				    				if castSpell(thisUnit,rk,false,false,false) then return end
-				    			end
 				    			--if=!talent.bloodtalons.enabled&remains<4.5&combo_points<5&persistent_multiplier>dot.rake.pmultiplier&((target.time_to_die-remains>3&active_enemies<3)|target.time_to_die-remains>6)
-				    			if rkRemain<4.5 and rkCalc>rkDmg then
+				    			if rkRemain<3 or (rkRemain<4.5 and rkCalc>rkDmg) then
 				    				if castSpell(thisUnit,rk,false,false,false) then return end
 				    			end
 				    		elseif bloodtalons then

@@ -156,7 +156,7 @@ end
 
 -- Config Panel
 function FeralCatConfig()
-    --if not doneConfig then
+    if Currentconfig ~= "Feral CuteOne" then
         ClearConfig();
         thisConfig = 0
         -- Title
@@ -293,7 +293,7 @@ function FeralCatConfig()
         CreateGeneralsConfig();
 
         WrapsManager();
-    --end
+    end
 end
 
 

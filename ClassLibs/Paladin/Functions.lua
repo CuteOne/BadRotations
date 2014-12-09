@@ -1,5 +1,32 @@
 if select(3,UnitClass("player")) == 2 then
 
+	function ProtPaladinEnemyUnitHandler() -- Handles Enemy Units gathering
+
+		-- check if target is safe or if u need to switch
+		if not isSafeToAttack("target") then
+			print("Unsafe Target")
+		end
+
+		if  isBurnTarget("target") > 0 then
+			print("Burn Target")
+		end
+
+		if numberOfTargetsMelee == nil or numberOfTargetsMeleeTimer == nil or numberOfTargetsMeleeTimer <= GetTime() - 1 then
+			numberOfTargetsMelee, numberOfTargetsMeleeTimer = getNumEnemies("player",4), GetTime()
+		end
+
+		if numberOfTargetsForHammerOfRighteous == nil or numberOfTargetsForHammerOfRighteousTimer == nil or numberOfTargetsForHammerOfRighteousTimer <= GetTime() - 1 then
+			numberOfTargetsForHammerOfRighteous, numberOfTargetsForHammerOfRighteousTimer = getNumEnemies("target",7), GetTime() --getNumEnemiesInRange("target",8)
+		end
+		return true
+	end
+
+
+	function ProtPaladinFriendlyUnitHandler() -- Handles freindly Units gathering
+		return
+	end
+
+
 	function Blessings()
 		if UnitBuffID("player",144051) ~= nil then return false end
 		local BlessingCount = 0
@@ -52,7 +79,7 @@ if select(3,UnitClass("player")) == 2 then
 			-- Otherwise check towards config, always or whitelist.
 			-- we have the following CCs HammerOFJustice, Fist of Justice, Repentance, Blinding Light, Turn Evil, Holy Wrath
 			-- We should be able to configure, always stun, stun based on whitelist, stun if low health, stun if target is casting/buffed
-			if isChecked("Crowd Control") then
+			if getOptionCheck("Crowd Control") then
 				if getValue("Crowd Control") == 1 then -- This is set to never but we should use the box tick for this so atm this is whitelist
 					--Todo: Create whitelist of mobs we are going to stun always
 					--Todo: Create whitelist of (de)buffs we are going to stun always or scenarios(more then x number of attackers
@@ -71,7 +98,7 @@ if select(3,UnitClass("player")) == 2 then
 
 		function ProtPaladinUtility()
 
-			if isChecked("Hand Of Freedom") then
+			if getOptionCheck("Hand Of Freedom") then
 				if checkForDebuffThatIShouldRemovewithHoF("player") then -- Only doing it for me at the moment, todo: add party/friendly units
 					if castHandOfFreedom("player") then
 						return true
@@ -106,35 +133,35 @@ if select(3,UnitClass("player")) == 2 then
 				end
 			end
 
-			if isChecked("Avengers Shield Interrupt") then
+			if getOptionCheck("Avengers Shield Interrupt") then
 				if castInterrupt(_AvengersShield,getValue("Avengers Shield Interrupt")) then
 					return true
 				end
 			end
 
-			if isChecked("Rebuke") then 
+			if getOptionCheck("Rebuke") then 
 				if castInterrupt(_Rebuke,getValue("Rebuke")) then
 					return true
 				end
 			end
 
-			if castArcaneTorrent() then --Last chance use Arcane Torrent
-				return true
+			if getOptionCheck("Arcane Torrent Interrupt") then 
+				if castInterrupt(_ArcaneTorrent,getValue("Arcane Torrent Interrupt")) then
+					return true
+				end
 			end
-			
-			
-			-- Should add Fist of Justice or other stuns/cc
+			--Todo: Add stuns(Justice, Holy Wrath, p) 		
 			return false
 		end
 
 
 		function ProtPaladinSurvivalSelf() -- Check if we are close to dying and act accoridingly
-			local playerHP = getHP("player")
-
-			if castLayOnHands("player") then
-				return true
+			
+			if getOptionCheck("Lay On Hands Self") and playerHP <= getValue("Lay On Hands Self") then
+				if castLayOnHands("player") then
+					return true
+				end
 			end
-
 			if playerHP < 40 then
 				 if useItem(5512) then -- Healthstone
 				 	return true
@@ -145,11 +172,16 @@ if select(3,UnitClass("player")) == 2 then
 
 		-- ProtPaladinSurvivalOther() -- Check if raidmember are close to dying and act accoridingly
 		function ProtPaladinSurvivalOther()
-			-- Lay on Hands
-			-- It should be possible to set this so we only cast it on non tanks, or tanks or all.
-			if castLayOnHands() then
-				return true
+			if getOptionCheck("Lay On Hands Party") then
+				for i = 1, #nNova do
+					if nNova[i].hp <= getValue("Lay On Hands Party") and not UnitDebuffID(nNova[i].unit,_Forbearance) then
+						if castLayOnHands(nNova[i].unit) then
+							return true
+						end
+					end
+				end
 			end
+			return false
 		end
 
 		function ProtPaladinBuffs() -- Make sure that we are buffed, 2 modes, inCombat and Out Of Combat, Blessings, RF, -- ProtPaladinBuffs()
@@ -169,38 +201,7 @@ if select(3,UnitClass("player")) == 2 then
 			return false -- Return false until we have coded it
 		end
 		
-		function ProtPaladinEnemyUnitHandler() -- Handles Enemy Units gathering
-			-- At the moment only populating table to see performance.
-			makeEnemiesTable(40) -- enemiesTable, Unit in 40 range
-
-			-- getCastingInfo(unit)
-			-- getEnemies(unit,Radius) returns table of units
-			-- Make sure we declare our AoE treshold ASAP and refresh it every seconds
-
-			-- check if target is safe or if u need to switch
-			if not isSafeToAttack("target") then
-				print("Unsafe Target")
-			end
-
-			if  isBurnTarget("target") then
-				print("Burn Target")
-			end
-
-			if numberOfTargetsMelee == nil or numberOfTargetsMeleeTimer == nil or numberOfTargetsMeleeTimer <= GetTime() - 1 then
-				numberOfTargetsMelee, numberOfTargetsMeleeTimer = getNumEnemies("player",4), GetTime()
-			end
-
-			if numberOfTargetsForHammerOfRighteous == nil or numberOfTargetsForHammerOfRighteousTimer == nil or numberOfTargetsForHammerOfRighteousTimer <= GetTime() - 1 then
-				numberOfTargetsForHammerOfRighteous, numberOfTargetsForHammerOfRighteousTimer = getNumEnemies("target",7), GetTime() --getNumEnemiesInRange("target",8)
-			end
-			return
-		end
-
-
-		function ProtPaladinFriendlyUnitHandler() -- Handles freindly Units gathering
-			return
-		end
-
+		
 		function ProtPaladinHolyPowerConsumers() -- Handle the use of HolyPower
 			-- At the moment its hard to automate since SoR should be cast only if need be, ie large physical incoming damanage.
 			-- Therefore the logic is just to automate default, ie at 5 HoPo Cast SoR and DP cast either WoG or SoR
@@ -671,3 +672,4 @@ Holy
 		end
 	end
 end
+

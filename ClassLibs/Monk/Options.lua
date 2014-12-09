@@ -90,16 +90,16 @@ function MonkBrewConfig()
         -- Pause Toggle
         CreateNewCheck(thisConfig,"Pause Toggle");
         CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle")
-        CreateNewText(thisConfig,"Pause Key");
+        CreateNewText(thisConfig,"Pause Toggle");
 
         -- Dizzying Haze
-        CreateNewCheck(thisConfig,"DizzyingHazeKey");
-        CreateNewDrop(thisConfig,"DizzyingHazeKey", 2, "Toggle2")
+        CreateNewCheck(thisConfig,"Dizzying Haze Key");
+        CreateNewDrop(thisConfig,"Dizzying Haze Key", 2, "Toggle2")
         CreateNewText(thisConfig,"Dizzying Haze Key");
 
         -- Dizzying Haze
-        CreateNewCheck(thisConfig,"BlackOxStatueKey");
-        CreateNewDrop(thisConfig,"BlackOxStatueKey", 2, "Toggle2")
+        CreateNewCheck(thisConfig,"Black Ox Statue Key");
+        CreateNewDrop(thisConfig,"Black Ox Statue Key", 2, "Toggle2")
         CreateNewText(thisConfig,"Black Ox Statue Key");
 
         --Spacer
@@ -108,7 +108,7 @@ function MonkBrewConfig()
         CreateNewWrap(thisConfig,"------ Cooldowns ------");
 
         -- Xuen
-        CreateNewCheck(thisConfig,"Xuen");
+        CreateNewCheck(thisConfig,"Invoke Xuen");
         CreateNewText(thisConfig,"Invoke Xuen");
 
         --Spacer
@@ -121,27 +121,27 @@ function MonkBrewConfig()
         -- CreateNewText(thisConfig,"Dazzling Brew");
 
         -- Fortifying Brew
-        CreateNewCheck(thisConfig,"FortifyingBrew");
-        CreateNewBox(thisConfig, "FortifyingBrew", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
+        CreateNewCheck(thisConfig,"Fortifying Brew");
+        CreateNewBox(thisConfig, "Fortifying Brew", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
         CreateNewText(thisConfig,"Fortifying Brew");
 
         -- Diffuse Magic
-        CreateNewCheck(thisConfig,"DiffuseMagic");
-        CreateNewBox(thisConfig, "DiffuseMagic", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
+        CreateNewCheck(thisConfig,"Diffuse Magic");
+        CreateNewBox(thisConfig, "Diffuse Magic", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
         CreateNewText(thisConfig,"Diffuse Magic");
 
         -- Dampen Harm
-        CreateNewCheck(thisConfig,"DampenHarm");
-        CreateNewBox(thisConfig, "DampenHarm", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
+        CreateNewCheck(thisConfig,"Dampen Harm");
+        CreateNewBox(thisConfig, "Dampen Harm", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
         CreateNewText(thisConfig,"Dampen Harm");
 
         -- Guard
-        CreateNewCheck(thisConfig,"Guard");
+        CreateNewCheck(thisConfig,"Guard on CD");
         CreateNewText(thisConfig,"Guard on CD");
 
         -- Diffuse Magic
-        CreateNewCheck(thisConfig,"ExpelHarm");
-        CreateNewBox(thisConfig, "ExpelHarm", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
+        CreateNewCheck(thisConfig,"Expel Harm");
+        CreateNewBox(thisConfig, "Expel Harm", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
         CreateNewText(thisConfig,"Expel Harm");
 
         -- Healthstone
