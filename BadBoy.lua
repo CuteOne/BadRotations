@@ -3,9 +3,11 @@ function BadBoyRun()
 	rc = LibStub("LibRangeCheck-2.0")
 	minRange, maxRange = rc:GetRange('target')
 
-	if BadBoy_data == nil then
+    -- lets wipe and start up fresh.
+	if BadBoy_data == nil or BadBoy_data and BadBoy_data.wiped ~= true then
 		BadBoy_data = {
-			["buttonSize"] = 32,
+			buttonSize = 32,
+            wiped = true
 		}
 	end
 

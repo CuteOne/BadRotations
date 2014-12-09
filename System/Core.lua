@@ -172,8 +172,8 @@ frame:SetScript("OnEvent", frame.OnEvent)
         -- accept dungeon queues
         AcceptQueues()
         -- if user click power button, stop everything from pulsing.
-        if not getOptionCheck("Start/Stop BadBoy") then
-            --return false
+        if not getOptionCheck("Start/Stop BadBoy") or BadBoy_data["Power"] ~= 1 then
+            return false
         end
         --[[Class/Spec Selector]]
         local playerClass = select(3,UnitClass("player"))

@@ -44,7 +44,7 @@ function createCheckBox(parent,name,x,y,checkState)
             else
                 BadBoy_data.options[GetSpecialization()][name.."Check"] = 1
                 ChatOverlay("|cff15FF00"..name.." Enabled")
-                _G[parent..name.."Check"].texture:SetTexture(125/255,125/255,125/255,1)
+                _G[parent..name.."Check"].texture:SetTexture(200/255,200/255,200/255,1)
             end
             frameCheck(name)
         end )
