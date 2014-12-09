@@ -103,6 +103,10 @@ if select(3, UnitClass("player")) == 2 then
 		if canRun() ~= true or UnitInVehicle("Player") then
 			return false
 		end
+
+		if IsLeftShiftKeyDown() then -- Pause the script, keybind in wow shift+1 etc for manual cast
+			return true
+		end
 		
 		--[[Off GCD in combat]]
 		if UnitAffectingCombat("player") or IsLeftControlKeyDown() then -- Only heal if we are in combat or if left control is down for out of combat rotation
@@ -117,7 +121,6 @@ if select(3, UnitClass("player")) == 2 then
 				RunMacroText("/startattack")
 			end
 
-				--[[ 4 - Dispel --(U can Dispel  While in cat form)]]
 			if castDispell() then
 				return true
 			end	
