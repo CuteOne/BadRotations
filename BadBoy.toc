@@ -120,7 +120,13 @@ Rotations\Paladin\Retribution.lua
 Rotations\Priest\Discipline.lua
 Rotations\Priest\Holy.lua
 Rotations\Priest\Shadow.lua
+
 Rotations\Rogue\Assassination.lua
+Rotations\Rogue\Assassination\Libs\Functions.lua
+Rotations\Rogue\Assassination\Libs\Options.lua
+Rotations\Rogue\Assassination\Libs\SpellList.lua
+Rotations\Rogue\Assassination\Libs\Toggles.lua
+
 Rotations\Rogue\Combat.lua
 Rotations\Rogue\Subtlety.lua
 Rotations\Rogue\NewRogue.lua
