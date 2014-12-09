@@ -55,7 +55,7 @@ if select(3,UnitClass("player")) == 10 then
   ------------------------------------------------------------------------------------------------------
   -- Input / Keys --------------------------------------------------------------------------------------
   ------------------------------------------------------------------------------------------------------
-  	if isChecked("DizzyingHazeKey") and SpecificToggle("DizzyingHazeKey") == true then
+  	if isChecked("Dizzying Haze Key") and SpecificToggle("Dizzying Haze Key") == true then
       if not IsMouselooking() then
           CastSpellByName(GetSpellInfo(115180))
           if SpellIsTargeting() then
@@ -65,7 +65,7 @@ if select(3,UnitClass("player")) == 10 then
           end
       end
   	end
-  	if isChecked("BlackOxStatueKey") and SpecificToggle("BlackOxStatueKey") == true then
+  	if isChecked("Black Ox Statue Key") and SpecificToggle("Black Ox Statue Key") == true then
       if not IsMouselooking() then
           CastSpellByName(GetSpellInfo(115315))
           if SpellIsTargeting() then
@@ -165,16 +165,16 @@ if select(3,UnitClass("player")) == 10 then
   ------------------------------------------------------------------------------------------------------
       if useDefCDsBrM() == true then
       	--Expel Harm
-      	if isChecked("ExpelHarm") then
-      		if getHP("player") <= getValue("ExpelHarm") then
+      	if isChecked("Expel Harm") then
+      		if getHP("player") <= getValue("Expel Harm") then
       			if castSpell("player",_ExpelHarm,true) then
       				return
       			end
       		end
       	end
       	--Fortifying Brew
-      	if isChecked("FortifyingBrew") then
-      		if getHP("player") <= getValue("FortifyingBrew") then
+      	if isChecked("Fortifying Brew") then
+      		if getHP("player") <= getValue("Fortifying Brew") then
       			if castSpell("player",_FortifyingBrew,true) then
       				return
       			end
@@ -189,16 +189,16 @@ if select(3,UnitClass("player")) == 10 then
       		end
       	end
         --Diffuse Magic
-        if isChecked("DiffuseMagic") then
-          if getHP("player") <= getValue("DiffuseMagic") then
+        if isChecked("Diffuse Magic") then
+          if getHP("player") <= getValue("Diffuse Magic") then
             if castSpell("player",_DiffuseMagic,true) then
               return
             end
           end
         end
         --Dampen Harm
-        if isChecked("DampenHarm") then
-          if getHP("player") <= getValue("DampenHarm") then
+        if isChecked("Dampen Harm") then
+          if getHP("player") <= getValue("Dampen Harm") then
             if castSpell("player",_DampenHarm,true) then
               return
             end
@@ -210,7 +210,7 @@ if select(3,UnitClass("player")) == 10 then
   ------------------------------------------------------------------------------------------------------
       if useCDsBrM() == true then
       	--Xuen
-      	if isChecked("Xuen") then
+      	if isChecked("Invoke Xuen") then
     			if castSpell("target",_InvokeXuen,false,false) then
     				return
     			end
@@ -285,7 +285,7 @@ if select(3,UnitClass("player")) == 10 then
         end
         -- actions.st+=/guard
         if useDefCDsBrM() == true then
-          if isChecked("Guard") and not UnitBuffID("player",_Guard) then
+          if isChecked("Guard on CD") and not UnitBuffID("player",_Guard) then
             if castSpell("player",_Guard,true) then
               return
             end
