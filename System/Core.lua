@@ -224,6 +224,9 @@ frame:SetScript("OnEvent", frame.OnEvent)
             if playerSpec == 2 then
                 FrostDK()
             end
+            if playerSpec == 3 then
+                UnholyDK()
+            end
         elseif playerClass == 7 then -- Shaman
             if playerSpec == 1 then
                 ShamanElemental()
