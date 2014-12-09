@@ -141,11 +141,11 @@ end
 
 SLASH_BLOCKBARRIER1 = '/blockbarrier';
 function SlashCmdList.BLOCKBARRIER(msg, editbox)
-  if BadBoy_data["Drop BlockBarrier"] == 1 then
-    RunMacroText("/run BadBoy_data['Drop BlockBarrier'] = 2");
+  if getValue("Block or Barrier") == 1 then
+    RunMacroText("/run BadBoy_data['Drop Block or Barrier'] = 2");
     ChatOverlay("Using Shield Barrier")
-  elseif BadBoy_data["Drop BlockBarrier"] == 2 then
-    RunMacroText("/run BadBoy_data['Drop BlockBarrier'] = 1");
+  elseif getValue("Block or Barrier") == 2 then
+    RunMacroText("/run BadBoy_data['Drop Block or Barrier'] = 1");
     ChatOverlay("Using Shield Block")
   end
 end

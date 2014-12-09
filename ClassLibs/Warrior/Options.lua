@@ -15,13 +15,13 @@ CreateNewCheck(thisConfig,"Multi-Rend","|cff15FF00Enables|cffFFFFFF/|cffD60000Di
 CreateNewText(thisConfig,"Multi-Rend");
 
 -- Pause Toggle
-CreateNewCheck(thisConfig,"Pause Toggle");
-CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle")
+CreateNewCheck(thisConfig,"Pause Key");
+CreateNewDrop(thisConfig,"Pause Key", 4, "Toggle")
 CreateNewText(thisConfig,"Pause Key");
 
 -- Heroic Leap
-CreateNewCheck(thisConfig,"HeroicLeapKey");
-CreateNewDrop(thisConfig,"HeroicLeapKey", 2, "Toggle2")
+CreateNewCheck(thisConfig,"Heroic Leap Key");
+CreateNewDrop(thisConfig,"Heroic Leap Key", 2, "Toggle2")
 CreateNewText(thisConfig,"Heroic Leap Key");
 
 -- Wrapper
@@ -36,53 +36,53 @@ CreateNewText(thisConfig,"Shout");
 CreateNewWrap(thisConfig,"------ Cooldowns ------");
 
 -- Potion
-CreateNewCheck(thisConfig,"usePot");
+CreateNewCheck(thisConfig,"Use Potion");
 CreateNewText(thisConfig,"Use Potion");
 
 -- Recklessness
-CreateNewCheck(thisConfig,"useRecklessness");
+CreateNewCheck(thisConfig,"Recklessness");
 CreateNewText(thisConfig,"Recklessness");
 
 -- Avatar
-CreateNewCheck(thisConfig,"useAvatar");
+CreateNewCheck(thisConfig,"Avatar");
 CreateNewText(thisConfig,"Avatar");
 
 -- Racial
-CreateNewCheck(thisConfig,"useRacial");
+CreateNewCheck(thisConfig,"Racial (Orc / Troll)");
 CreateNewText(thisConfig,"Racial (Orc / Troll)");
 
 -- Wrapper
 CreateNewWrap(thisConfig,"------- Defensive ------");
 
 -- Die by the Sword
-CreateNewCheck(thisConfig,"DiebytheSword");
-CreateNewBox(thisConfig, "DiebytheSword", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDie by the Sword");
-CreateNewText(thisConfig,"DiebytheSword");
+CreateNewCheck(thisConfig,"Die by the Sword");
+CreateNewBox(thisConfig, "Die by the Sword", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDie by the Sword");
+CreateNewText(thisConfig,"Die by the Sword");
 
 -- Rallying Cry
-CreateNewCheck(thisConfig,"RallyingCry");
-CreateNewBox(thisConfig, "RallyingCry", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRallying Cry");
-CreateNewText(thisConfig,"RallyingCry");
+CreateNewCheck(thisConfig,"Rallying Cry");
+CreateNewBox(thisConfig, "Rallying Cry", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRallying Cry");
+CreateNewText(thisConfig,"Rallying Cry");
 
 -- Enraged Regeneration
-CreateNewCheck(thisConfig,"EnragedRegeneration");
-CreateNewBox(thisConfig, "EnragedRegeneration", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFEnraged Regeneration");
+CreateNewCheck(thisConfig,"Enraged Regeneration");
+CreateNewBox(thisConfig, "Enraged Regeneration", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFEnraged Regeneration");
 CreateNewText(thisConfig,"Enraged Regeneration");
 
 -- ImpendingVictory/Victory Rush
-CreateNewCheck(thisConfig,"ImpendingVictory");
-CreateNewBox(thisConfig, "ImpendingVictory", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFImpending Victory (Victory Rush)");
+CreateNewCheck(thisConfig,"Impending Victory");
+CreateNewBox(thisConfig, "Impending Victory", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFImpending Victory (Victory Rush)");
 CreateNewText(thisConfig,"Impending Victory");
 
 -- Vigilance Focus
-CreateNewCheck(thisConfig,"VigilanceFocus");
-CreateNewBox(thisConfig, "VigilanceFocus", 0, 100  , 5, 25, "% HP of Focustarget to use Vigilance on Focustarget");
+CreateNewCheck(thisConfig,"Vigilance on Focus");
+CreateNewBox(thisConfig, "Vigilance on Focus", 0, 100  , 5, 25, "% HP of Focustarget to use Vigilance on Focustarget");
 CreateNewText(thisConfig,"Vigilance on Focus");
 
 -- Def Stance
-CreateNewCheck(thisConfig,"DefensiveStance");
-CreateNewBox(thisConfig, "DefensiveStance", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDefensive Stance");
-CreateNewText(thisConfig,"DefensiveStance");
+CreateNewCheck(thisConfig,"Defensive Stance");
+CreateNewBox(thisConfig, "Defensive Stance", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDefensive Stance");
+CreateNewText(thisConfig,"Defensive Stance");
 
 -- Healthstone
 CreateNewCheck(thisConfig,"Healthstone");
@@ -113,15 +113,15 @@ end
 CreateNewWrap(thisConfig,"---------- Misc -----------");
 
 -- Rotation
-CreateNewDrop(thisConfig, "RotationSelect", 1, "Choose Rotation to use.", "|cffFFBB00IcyVeins", "|cff0077FFSimCraft");
+CreateNewDrop(thisConfig, "Rotation Priority", 1, "Choose Rotation to use.", "|cffFFBB00IcyVeins", "|cff0077FFSimCraft");
 CreateNewText(thisConfig, "Rotation Priority");
 
 -- Auto Bladestorm / DragonRoar Single Target
-CreateNewCheck(thisConfig,"StormRoarST","Dragonroar automatically in Single Target Rotation");
+CreateNewCheck(thisConfig,"Dragonroar ST","Dragonroar automatically in Single Target Rotation");
 CreateNewText(thisConfig,"Dragonroar ST")
 
 -- Auto Bladestorm / DragonRoar Multi Target
-CreateNewCheck(thisConfig,"StormRoar","Use Bladestorm/Dragonroar automatically in Multi Target Rotation");
+CreateNewCheck(thisConfig,"Bladestorm/Dragonroar","Use Bladestorm/Dragonroar automatically in Multi Target Rotation");
 CreateNewText(thisConfig,"Bladestorm/Dragonroar")
 
 -- Dummy DPS Test
@@ -310,24 +310,24 @@ CreateNewTitle(thisConfig,"Protection |cffFF0000Chumii");
 --Wrapper
 CreateNewWrap(thisConfig,"---------- Mode ---------")
 -- Rotation
-CreateNewDrop(thisConfig, "GladiProt", 1, "Choose Rotation to use.", "|cffFFBB00Gladiator", "|cff0077FFProtection");
+CreateNewDrop(thisConfig, "Gladiator / Protection", 1, "Choose Rotation to use.", "|cffFFBB00Gladiator", "|cff0077FFProtection");
 CreateNewText(thisConfig, "Gladiator / Protection");
 -- Wrapper
 CreateNewWrap(thisConfig,"---------- Keys ----------");
 
 -- Pause Toggle
-CreateNewCheck(thisConfig,"Pause Toggle");
-CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle")
+CreateNewCheck(thisConfig,"Pause Key");
+CreateNewDrop(thisConfig,"Pause Key", 4, "Toggle")
 CreateNewText(thisConfig,"Pause Key");
 
 -- Heroic Leap
-CreateNewCheck(thisConfig,"HeroicLeapKey");
-CreateNewDrop(thisConfig,"HeroicLeapKey", 2, "Toggle2")
+CreateNewCheck(thisConfig,"Heroic Leap Key");
+CreateNewDrop(thisConfig,"Heroic Leap Key", 2, "Toggle2")
 CreateNewText(thisConfig,"Heroic Leap Key");
 
 -- Mocking Banner
-CreateNewCheck(thisConfig,"MockingBannerKey");
-CreateNewDrop(thisConfig,"MockingBannerKey", 7, "Toggle2")
+CreateNewCheck(thisConfig,"Mocking Banner Key");
+CreateNewDrop(thisConfig,"Mocking Banner Key", 7, "Toggle2")
 CreateNewText(thisConfig,"Mocking Banner Key");
 
 -- Wrapper
@@ -342,38 +342,38 @@ CreateNewText(thisConfig,"Shout");
 CreateNewWrap(thisConfig,"------ Cooldowns ------");
 
 -- Avatar
-CreateNewCheck(thisConfig,"useAvatar");
+CreateNewCheck(thisConfig,"Avatar");
 CreateNewText(thisConfig,"Avatar");
 
 -- Racial
-CreateNewCheck(thisConfig,"useRacial");
+CreateNewCheck(thisConfig,"Racial (Orc / Troll)");
 CreateNewText(thisConfig,"Racial (Orc / Troll)");
 
 -- Wrapper
 CreateNewWrap(thisConfig,"------- Defensive ------");
 
 -- Shield Block / Barrier
-CreateNewDrop(thisConfig, "BlockBarrier", 1, "Use Shield Block or Shield Barrier", "|cffFFBB00Block", "|cff0077FFBarrier")
+CreateNewDrop(thisConfig, "Block or Barrier", 1, "Use Shield Block or Shield Barrier", "|cffFFBB00Block", "|cff0077FFBarrier")
 CreateNewText(thisConfig,"Block or Barrier");
 
 -- Last Stand
-CreateNewCheck(thisConfig,"LastStand");
-CreateNewBox(thisConfig, "LastStand", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFLast Stand");
+CreateNewCheck(thisConfig,"Last Stand");
+CreateNewBox(thisConfig, "Last Stand", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFLast Stand");
 CreateNewText(thisConfig,"Last Stand");
 
 -- Shield Wall
-CreateNewCheck(thisConfig,"ShieldWall");
-CreateNewBox(thisConfig, "ShieldWall", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFShield Wall");
+CreateNewCheck(thisConfig,"Shield Wall");
+CreateNewBox(thisConfig, "Shield Wall", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFShield Wall");
 CreateNewText(thisConfig,"Shield Wall");
 
 -- Enraged Regeneration
-CreateNewCheck(thisConfig,"EnragedRegeneration");
-CreateNewBox(thisConfig, "EnragedRegeneration", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFEnraged Regeneration");
+CreateNewCheck(thisConfig,"Enraged Regeneration");
+CreateNewBox(thisConfig, "Enraged Regeneration", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFEnraged Regeneration");
 CreateNewText(thisConfig,"Enraged Regeneration");
 
 -- ImpendingVictory/Victory Rush
-CreateNewCheck(thisConfig,"ImpendingVictory");
-CreateNewBox(thisConfig, "ImpendingVictory", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFImpending Victory (Victory Rush)");
+CreateNewCheck(thisConfig,"Impending Victory");
+CreateNewBox(thisConfig, "Impending Victory", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFImpending Victory (Victory Rush)");
 CreateNewText(thisConfig,"Impending Victory");
 
 -- Healthstone
@@ -382,13 +382,13 @@ CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 25, "|cffFFBB00Under what |
 CreateNewText(thisConfig,"Healthstone");
 
 -- Safeguard Focus
-CreateNewCheck(thisConfig,"SafeguardFocus");
-CreateNewBox(thisConfig, "SafeguardFocus", 0, 100  , 5, 25, "% HP of Focustarget to Safeguard at Focustarget");
+CreateNewCheck(thisConfig,"Safeguard at Focus");
+CreateNewBox(thisConfig, "Safeguard at Focus", 0, 100  , 5, 25, "% HP of Focustarget to Safeguard at Focustarget");
 CreateNewText(thisConfig,"Safeguard at Focus");
 
 -- Vigilance Focus
-CreateNewCheck(thisConfig,"VigilanceFocus");
-CreateNewBox(thisConfig, "VigilanceFocus", 0, 100  , 5, 25, "% HP of Focustarget to use Vigilance on Focustarget");
+CreateNewCheck(thisConfig,"Vigilance on Focus");
+CreateNewBox(thisConfig, "Vigilance on Focus", 0, 100  , 5, 25, "% HP of Focustarget to use Vigilance on Focustarget");
 CreateNewText(thisConfig,"Vigilance on Focus");
 
 -- -- Wrapper
@@ -415,13 +415,13 @@ CreateNewText(thisConfig,"Vigilance on Focus");
 CreateNewWrap(thisConfig,"---------- AoE Talents  ---------");
 
 -- Auto Bladestorm / DragonRoar / Ravager
-CreateNewCheck(thisConfig,"useBladestorm","Use Bladestorm automatically");
+CreateNewCheck(thisConfig,"Auto Bladestorm","Use Bladestorm automatically");
 CreateNewText(thisConfig,"Auto Bladestorm");
 
-CreateNewCheck(thisConfig,"useDragonRoar","Use Dragon Roar automatically");
+CreateNewCheck(thisConfig,"Auto Dragon Roar","Use Dragon Roar automatically");
 CreateNewText(thisConfig,"Auto Dragon Roar");
 
-CreateNewCheck(thisConfig,"useRavager","Use Ravager automatically");
+CreateNewCheck(thisConfig,"Auto Ravager","Use Ravager automatically");
 CreateNewText(thisConfig,"Auto Ravager");
 
 -- Dummy DPS Test

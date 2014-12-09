@@ -34,7 +34,7 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 	-- Pause ---------------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-		if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == true then
+		if isChecked("Pause Key") and SpecificToggle("Pause Key") == true then
 			ChatOverlay("|cffFF0000BadBoy Paused", 0); return;
 		end
 	------------------------------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 	-- Input / Keys --------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-    if isChecked("HeroicLeapKey") and SpecificToggle("HeroicLeapKey") == true then
+    if isChecked("Heroic Leap Key") and SpecificToggle("Heroic Leap Key") == true then
       if not IsMouselooking() then
           CastSpellByName(GetSpellInfo(6544))
           if SpellIsTargeting() then
@@ -59,7 +59,7 @@ if select(3,UnitClass("player")) == 1 then
           end
       end
   	end
-  	if isChecked("MockingBannerKey") and SpecificToggle("MockingBannerKey") == true then
+  	if isChecked("Mocking Banner Key") and SpecificToggle("Mocking Banner Key") == true then
       if not IsMouselooking() then
           CastSpellByName(GetSpellInfo(114192))
           if SpellIsTargeting() then
@@ -72,14 +72,14 @@ if select(3,UnitClass("player")) == 1 then
 	-- Out of Combat -------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
 		if not isInCombat("player") then
-			if getValue("GladiProt") == 2 then
+			if getValue("Gladiator / Protection") == 2 then
 				if GetShapeshiftForm() ~= 2 then
 					if castSpell("player",DefensiveStance,true) then
 						return;
 					end
 				end
 			end
-			if getValue("GladiProt") == 1 then
+			if getValue("Gladiator / Protection") == 1 then
 				if GetShapeshiftForm() ~= 1 then
 					if castSpell("player",BattleStance,true) then return; end
 				end
@@ -145,23 +145,23 @@ if select(3,UnitClass("player")) == 1 then
 
 			-- Shield Block / Barrier
 			if UnitBuffID("player",DefensiveStance) then
-				if getValue("BlockBarrier") == 1 and not UnitBuffID("player",ShieldBlockBuff) then
+				if getValue("Block or Barrier") == 1 and not UnitBuffID("player",ShieldBlockBuff) then
 					if castSpell("player",ShieldBlock,true) then
 						return;
 					end
-				elseif getValue("BlockBarrier") == 2 and not UnitBuffID("player",ShieldBarrierBuff) and rage >= 50 then
+				elseif getValue("Block or Barrier") == 2 and not UnitBuffID("player",ShieldBarrierBuff) and rage >= 50 then
 					if castSpell("player",ShieldBarrier,true) then
 						return
 					end
 				end
 			end
 			-- ImpendingVictory / Victory Rush
-			if isChecked("ImpendingVictory") then
-				if isKnown(ImpendingVictory) and getHP("player") <= getValue("ImpendingVictory") then
+			if isChecked("Impending Victory") then
+				if isKnown(ImpendingVictory) and getHP("player") <= getValue("Impending Victory") then
 					if castSpell("target",ImpendingVictory,false,false) then
 						return;
 					end
-				elseif not isKnown(ImpendingVictory) and getHP("player") <= getValue("ImpendingVictory") then
+				elseif not isKnown(ImpendingVictory) and getHP("player") <= getValue("Impending Victory") then
 					if castSpell("target",VictoryRush,false,false) then
 						return;
 					end
@@ -182,24 +182,24 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 			if useDefCDs() == true then
 					-- LastStand
-					if isChecked("LastStand") == true then
-						if getHP("player") <= getValue("LastStand") then
+					if isChecked("Last Stand") == true then
+						if getHP("player") <= getValue("Last Stand") then
 							if castSpell("player",LastStand,true) then
 								return;
 							end
 						end
 					end
 					-- Rallying Cry
-					if isChecked("ShieldWall") == true then
-						if getHP("player") <= getValue("ShieldWall") then
+					if isChecked("Shield Wall") == true then
+						if getHP("player") <= getValue("Shield Wall") then
 							if castSpell("player",ShieldWall,true) then
 								return;
 							end
 						end
 					end
 					-- Enraged Regeneration
-					if isChecked("EnragedRegeneration") == true then
-						if isKnown(EnragedRegeneration) and getHP("player") <= getValue("EnragedRegeneration") then
+					if isChecked("Enraged Regeneration") == true then
+						if isKnown(EnragedRegeneration) and getHP("player") <= getValue("Enraged Regeneration") then
 							if castSpell("player",EnragedRegeneration,true) then
 								return;
 							end
@@ -214,8 +214,8 @@ if select(3,UnitClass("player")) == 1 then
 						end
 					end
 					-- Vigilance Focus
-					if isChecked("VigilanceFocus") == true then
-						if getHP("focus") <= getValue("VigilanceFocus") then
+					if isChecked("Vigilance on Focus") == true then
+						if getHP("focus") <= getValue("Vigilance on Focus") then
 							if castSpell("focus",Vigilance,false,false) then
 								return;
 							end
@@ -229,17 +229,17 @@ if select(3,UnitClass("player")) == 1 then
 				-- and getDistance("player","target") <= 5
 				--and targetDistance <= 5 then
 				-- actions+=/potion,name=draenic_strength,if=(target.health.pct<20&buff.recklessness.up)|target.time_to_die<=25
-				if isChecked("usePot") then
-					if (getHP("target") < 20 and UnitBuffID("player",Recklessness)) or getTimeToDie <= 25 then
-						if canUse(76095) then -- MoP Potion
-							UseItemByName(tostring(select(1,GetItemInfo(76095))))
-						elseif canUse(109219) then -- WoD Potion
-							UseItemByName(tostring(select(1,GetItemInfo(109219))))
-						end
-					end
-				end
+				-- if isChecked("usePot") then
+				-- 	if (getHP("target") < 20 and UnitBuffID("player",Recklessness)) or getTimeToDie <= 25 then
+				-- 		if canUse(76095) then -- MoP Potion
+				-- 			UseItemByName(tostring(select(1,GetItemInfo(76095))))
+				-- 		elseif canUse(109219) then -- WoD Potion
+				-- 			UseItemByName(tostring(select(1,GetItemInfo(109219))))
+				-- 		end
+				-- 	end
+				-- end
 				-- actions+=/avatar,if=buff.recklessness.up|target.time_to_die<=25
-				if isChecked("useAvatar") then
+				if isChecked("Avatar") then
 					if isKnown(Avatar) then
 						--or getTimeToDie <= 25 then
 						if castSpell("player",Avatar,true) then
@@ -249,7 +249,7 @@ if select(3,UnitClass("player")) == 1 then
 				end
 				-- actions+=/blood_fury,if=buff.bloodbath.up|(!talent.bloodbath.enabled&debuff.colossus_smash.up)|buff.recklessness.up
 				-- actions+=/berserking,if=buff.bloodbath.up|(!talent.bloodbath.enabled&debuff.colossus_smash.up)|buff.recklessness.up
-				if isChecked("useRacial") then
+				if isChecked("acial (Orc / Troll)") then
 					if (isKnown(Bloodbath) and UnitBuffID("player",Bloodbath))
 					or not isKnown(Bloodbath) then
 						if select(2, UnitRace("player")) == "Troll" then
@@ -271,7 +271,7 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 	-- Protection -------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-				if getValue("GladiProt") == 2 then
+				if getValue("Gladiator / Protection") == 2 then
 				if not useAoE() then
 					-- Heroic Strike
 			    if isKnown(UnyieldingStrikesTalent) then
@@ -296,7 +296,7 @@ if select(3,UnitClass("player")) == 1 then
 			    end
 			    --Ravager
 			    if isKnown(Ravager) then
-			    	if isChecked("useRavager") then
+			    	if isChecked("Auto Ravager") then
 				        if castGround("target",Ravager,40) then
 				            return
 				        end
@@ -309,7 +309,7 @@ if select(3,UnitClass("player")) == 1 then
 			        end
 			    end
 			    -- Dragon Roar
-			    if isChecked("useDragonRoar") then
+			    if isChecked("Auto Dragon Roar") then
 			        if isKnown(DragonRoar) and getDistance("player","target") <=8 then
 			            if castSpell("target",DragonRoar,true) then
 			                return;
@@ -377,14 +377,14 @@ if select(3,UnitClass("player")) == 1 then
 		      end
 				  --Ravager
 				  if isKnown(Ravager) then
-				  	if isChecked("useRavager") then
+				  	if isChecked("Auto Ravager") then
 					      if castGround("target",Ravager,40) then
 					          return
 					      end
 					  end
 					end
 				  -- DragonRoar
-				  if isChecked("useDragonRoar") then
+				  if isChecked("Auto Dragon Roar") then
 					  if isKnown(DragonRoar) and getDistance("target") <= 8 then
 					      if not isKnown(Bloodbath) or (isKnown(Bloodbath) and (UnitBuffID("player",Bloodbath) or BB_COOLDOWN > 10)) then
 					          if castSpell("target",DragonRoar,true) then
@@ -395,7 +395,7 @@ if select(3,UnitClass("player")) == 1 then
 					end
 				  -- BladeStorm
 				  if isKnown(Bladestorm) then
-				  	if isChecked("useBladestorm") then
+				  	if isChecked("Auto Bladestorm") then
 					      if castSpell("target",Bladestorm,true) and getDistance("target") <= 8 then
 					          return;
 					      end
@@ -474,7 +474,7 @@ if select(3,UnitClass("player")) == 1 then
 				end
 			end
 			-- actions.single+=/dragon_roar
-			if isChecked("useDragonRoar") then
+			if isChecked("Auto Dragon Roar") then
 			  if isKnown(DragonRoar) and getDistance("target") <= 8 then
 			      if not isKnown(Bloodbath) or (isKnown(Bloodbath) and (UnitBuffID("player",Bloodbath) or BB_COOLDOWN > 10)) then
 			          if castSpell("target",DragonRoar,true) then
@@ -505,7 +505,7 @@ if select(3,UnitClass("player")) == 1 then
 				return
 			end
 			-- actions.aoe+=/dragon_roar,if=(buff.bloodbath.up|cooldown.bloodbath.remains>10)|!talent.bloodbath.enabled
-			if isChecked("useDragonRoar") then
+			if isChecked("Auto Dragon Roar") then
 			  if isKnown(DragonRoar) and getDistance("target") <= 8 then
 			      if not isKnown(Bloodbath) or (isKnown(Bloodbath) and (UnitBuffID("player",Bloodbath) or BB_COOLDOWN > 10)) then
 			          if castSpell("target",DragonRoar,true) then
@@ -532,7 +532,7 @@ if select(3,UnitClass("player")) == 1 then
 			end
 			-- actions.aoe+=/bladestorm,if=buff.shield_charge.down
 			if isKnown(Bladestorm) then
-		  	if isChecked("useBladestorm") then
+		  	if isChecked("Auto Bladestorm") then
 		  		if not UnitBuffID("player",ShieldChargeBuff) then
 			      if castSpell("target",Bladestorm,true) and getDistance("target") <= 8 then
 			          return;
