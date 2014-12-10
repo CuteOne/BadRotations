@@ -100,7 +100,7 @@ if select(3,UnitClass("player")) == 6 then
 		    return frostRunes
 		end
 		if Type == "death" then
-			print("Returning Count")
+			--print("Returning Count")
 		    return deathRunes
 		end
 		return 0

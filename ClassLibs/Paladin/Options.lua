@@ -5,7 +5,7 @@ if select(3,UnitClass("player")) == 2 then
 		thisConfig = 0
 		-- Title
 		CreateNewTitle(thisConfig,"Protection Gabbz")
-		
+
 		-- Wrapper
 		CreateNewWrap(thisConfig,"-----  Gabbz -----")
 
@@ -298,7 +298,7 @@ if select(3,UnitClass("player")) == 2 then
 		generateWrapper("Defensive")
 
 		-- Divine Protection
-		CreateNewCheck(thisConfig,"Divine Protection")
+		CreateNewCheck(thisConfig,"Divine Protection",1)
 		CreateNewBox(thisConfig,"Divine Protection",0,100,1,75,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFDivine Protection")
 		CreateNewText(thisConfig,"Divine Protection")
 

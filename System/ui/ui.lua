@@ -49,26 +49,43 @@ function ConstructUI()
                 --local statusStep,statusBase = option.statusStep,option.statusBase
 
             -- these functions are called when a profile is loaded
+
             -- startup
             function ClearConfig()
                 if BadBoy_data.options[GetSpecialization()] == nil then
                     BadBoy_data.options[GetSpecialization()] = {}
                 end
-                BadBoy_data.options[GetSpecialization()].profile = {}
                 tempTable = {}
+                BadBoy_data.options[GetSpecialization()].profile = {}
             end
+
+
+            -- on first load, i want to gather the values from the currentProfile
+            -- and push them into wtf if they were not there already
+                -- when im making the profile for the first time, i will gather the values from profile
+                -- when im remaking the profile, i will gather the values from the wtf
+
+
+            -- wtf will be in BadBoy_data.options[GetSpecialization()]
+            -- my options are in the params
+            -- take options from param to wtf on first pass
+
             -- status
             function CreateNewBox(value,textString,minValue,maxValue,step,base,tip1)
                 tempTable.status = tip1
                 tempTable.statusMin = minValue
                 tempTable.statusMax = maxValue
                 tempTable.statusStep = step
+                if BadBoy_data.options[GetSpecialization()][textString.."Status"] == nil then
+                    BadBoy_data.options[GetSpecialization()][textString.."Status"] = base
+                else
+                    base = BadBoy_data.options[GetSpecialization()][textString.."Status"]
+                end
                 tempTable.statusBase = base
             end
             -- dropdown
             function CreateNewDrop(value,textString,base,tip1,value1,value2,value3,value4,value5,value6,value7,value8,value9,value10)
                 tempTable.dropdown = textString
-                tempTable.base = base
                 tempTable.tip = tip1
                 tempTable.dropOptions = {
                     [1] = value1 or nil,
@@ -82,12 +99,35 @@ function ConstructUI()
                     [9] = value9 or nil,
                     [10] = value10 or nil,
                 }
+                if BadBoy_data.options[GetSpecialization()][textString.."Drop"] == nil then
+                    BadBoy_data.options[GetSpecialization()][textString.."Drop"] = base
+                else
+                    base = BadBoy_data.options[GetSpecialization()][textString.."Drop"]
+                end
+                tempTable.base = base
             end
             -- checkbox
-            function CreateNewCheck(value,textString)
+            function CreateNewCheck(value,textString,base)
                 tempTable.check = true
+                if BadBoy_data.options[GetSpecialization()][textString.."Check"] == nil then
+                    BadBoy_data.options[GetSpecialization()][textString.."Check"] = base
+                else
+                    base = BadBoy_data.options[GetSpecialization()][textString.."Check"]
+                end
+                tempTable.basecheck = base
             end
             -- new title and text need to insert in real array
+            function CreateNewTitle(value,textString)
+                BadBoy_data.options[GetSpecialization()].profile = {}
+                tempTable = {}
+                if textString == nil then
+                    textString = value
+                end
+                tempTable.title = textString
+                tempTable.name = textString
+                BadBoy_data.options[GetSpecialization()].profile[#BadBoy_data.options[GetSpecialization()].profile+1] = tempTable
+                tempTable = {}
+            end
             function CreateNewText(value,textString)
                 if textString == nil then
                     textString = value
@@ -104,6 +144,9 @@ function ConstructUI()
                 tempTable.name = textString
                 tempTable.wrap = textString
                 BadBoy_data.options[GetSpecialization()].profile[#BadBoy_data.options[GetSpecialization()].profile+1] = tempTable
+                if BadBoy_data.options[GetSpecialization()][textString.."Wrapper"] == nil then
+                    BadBoy_data.options[GetSpecialization()][textString.."Wrapper"] = true
+                end
                 tempTable = {}
             end
             -- end of profile
@@ -121,19 +164,6 @@ function ConstructUI()
                 createProfile()
                 replaceWraps(BadBoy_data.options[GetSpecialization()].profile.name)
                 refreshOptions()
-            end
-
-            -- new title and text need to insert in real array
-            function CreateNewTitle(value,textString)
-                BadBoy_data.options[GetSpecialization()].profile = {}
-                tempTable = {}
-                if textString == nil then
-                    textString = value
-                end
-                tempTable.title = textString
-                tempTable.name = textString
-                BadBoy_data.options[GetSpecialization()].profile[#BadBoy_data.options[GetSpecialization()].profile+1] = tempTable
-                tempTable = {}
             end
 
 
