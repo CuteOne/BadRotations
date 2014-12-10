@@ -10,7 +10,6 @@ if select(3, UnitClass("player")) == 4 then
 		AssToggles()
 		poisonData()
 		makeEnemiesTable(40)
-		ChatOverlay(SpecificToggle("Rotation Mode"))
 		-- if worgen==nil then
 		-- 	worgen=false
 		-- end
@@ -123,10 +122,17 @@ if select(3, UnitClass("player")) == 4 then
 ---------------------
 			if not (IsMounted() or IsFlying() or UnitIsFriend("target","player")) then
 	-- Stealth
-				if not isInCombat("player") and isChecked("Stealth") and (stealthTimer == nil or stealthTimer <= GetTime()-getValue("Stealth Timer")) and getCreatureType("target") == true and not stealth then
+				if not isInCombat("player") and isChecked("Stealth") and (stealthTimer == nil or stealthTimer <= GetTime()-getOptionValue("Stealth Timer")) and getCreatureType("target") == true and not stealth then
 					-- Always
 					if getValue("Stealth") == 1 then 
-						if castSpell("player",_Stealth,true,false,false) then stealthTimer=GetTime(); return end
+						if castSpell("player",_Stealth,true,false,false,false,false,false,true) then
+							if stealthTimer == nil then stealthTimer=GetTime(); end
+							if stealthTimer+getOptionValue("Stealth Timer") <= GetTime() then
+								if castSpell("player",_Stealth,true,false,false) then stealthTimer=nil; return end
+							end
+						else
+							stealthTimer=nil
+						end
 					end
 					-- Pre-Pot
 					if getValue("Stealth") == 2 and getBuffRemain("player",105697) > 0 and tarDist < 20 then
@@ -142,7 +148,7 @@ if select(3, UnitClass("player")) == 4 then
 					if castSpell("target",_Shadowstep,false,false,false) then return end
 				end
 	-- Cloak and Dagger
-				if stealth and getDistance("target") < 40 and getDistance("target") >= 8 and level>=60 and getTalent(4,1) then
+				if stealth and tarDist < 40 and tarDist >= 8 and level>=60 and getTalent(4,1) then
 					if castSpell("target",_Ambush,false,false,false,false,false,true) then return end
 				end
 	-- Sap
@@ -189,7 +195,7 @@ if select(3, UnitClass("player")) == 4 then
 		-- Dummy Test
 				if isChecked("DPS Testing") then
 					if UnitExists("target") then
-						if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
+						if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
 							StopAttack()
 							ClearTarget()
 							print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")

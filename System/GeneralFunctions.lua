@@ -507,8 +507,9 @@ function getLatency()
 end
 
 -- castSpell("target",12345,true)
---                ( 1  ,    2  ,     3     ,     4       ,      5    ,   6     ,   7     ,    8       )
-function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,DeadCheck,DistanceSkip)
+--                ( 1  ,    2  ,     3     ,     4       ,      5    ,   6     ,   7     ,    8       ,   9    )
+function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,DeadCheck,DistanceSkip,CastSkip)
+	if CastSkip==nil then CastSkip = false end
 	if shouldStopCasting(SpellID) ~= true and (not UnitIsDeadOrGhost(Unit) or DeadCheck) then
 		-- stop if not enough power for that spell
 		if IsUsableSpell(SpellID) ~= true then
@@ -537,18 +538,22 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 	    			-- get our last/current cast
 	      			if timersTable == nil or (timersTable ~= nil and (timersTable[SpellID] == nil or timersTable[SpellID] <= GetTime() -0.6)) then
 	       				if (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true) then
-	        				timersTable[SpellID] = GetTime()
-	        				currentTarget = UnitGUID(Unit)
-	        				CastSpellByName(GetSpellInfo(SpellID),Unit)
-							if getOptionCheck("Start/Stop BadBoy") then mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID))) end
+	        				if CastSkip==false then
+	        					timersTable[SpellID] = GetTime()
+	        					currentTarget = UnitGUID(Unit)
+	        					CastSpellByName(GetSpellInfo(SpellID),Unit)
+								if getOptionCheck("Start/Stop BadBoy") then mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID))) end
+							end
 	        				return true
 	        			end
 					end
 				elseif (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true) then
-	  		   		currentTarget = UnitGUID(Unit)
-					CastSpellByName(GetSpellInfo(SpellID),Unit)
-					if getOptionCheck("Start/Stop BadBoy") then
-						mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
+	  		   		if CastSkip==false then
+		  		   		currentTarget = UnitGUID(Unit)
+						CastSpellByName(GetSpellInfo(SpellID),Unit)
+						if getOptionCheck("Start/Stop BadBoy") then
+							mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
+						end
 					end
 					return true
 				end

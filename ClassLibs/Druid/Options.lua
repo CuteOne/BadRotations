@@ -204,27 +204,27 @@ function FeralCatConfig()
 
             -- Rejuvenation
             checkOp("Rejuvenation");
-            boxOp("Rejuvenation", 0, 100, 5, 75);
-            textOp("Rejuvenation (OoC)");
+            boxOp("Rejuvenation", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At");
+            textOp("Rejuvenation");
 
             -- Healthstone
             checkOp("Pot/Stoned");
-            boxOp("Pot/Stoned", 0, 100, 5, 60);
+            boxOp("Pot/Stoned", 0, 100, 5, 60, "|cffFFFFFFHealth Percent to Cast At");
             textOp("Pot/Stoned");
 
             -- Nature's Vigil
             checkOp("Nature's Vigil");
-            boxOp("Nature's Vigil", 0, 100, 5, 50);
+            boxOp("Nature's Vigil", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
             textOp(tostring(select(1,GetSpellInfo(nv))));
 
             -- Survival Instincts
             checkOp("Survival Instincts");
-            boxOp("Survival Instincts", 0, 100, 5, 40);
+            boxOp("Survival Instincts", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At");
             textOp(tostring(select(1,GetSpellInfo(si))));
 
             -- Healing Touch
             checkOp("Healing Touch");
-            boxOp("Healing Touch", 0, 100, 5, 50);
+            boxOp("Healing Touch", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
             textOp(tostring(select(1,GetSpellInfo(ht))));
 
             -- Dream of Cenarius Auto-Heal
@@ -252,7 +252,7 @@ function FeralCatConfig()
 
             -- Interrupt Percentage
             checkOp("Interrupts");
-            boxOp("Interrupts", 5, 95, 5, 0);
+            boxOp("Interrupts", 5, 95, 5, 0, "|cffFFFFFFCast Percent to Cast At");
             textOp("Interrupt At");
 
         -- Spacer

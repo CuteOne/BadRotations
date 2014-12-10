@@ -148,45 +148,45 @@ if select(3, UnitClass("player")) == 11 then
         end
 
         function SpecificToggle(toggle)
-            if getValue(toggle) == 1 then
+            if getOptionValue(toggle) == 1 then
                 return IsLeftControlKeyDown();
-            elseif getValue(toggle) == 2 then
+            elseif getOptionValue(toggle) == 2 then
                 return IsLeftShiftKeyDown();
-            elseif getValue(toggle) == 3 then
+            elseif getOptionValue(toggle) == 3 then
                 return IsRightControlKeyDown();
-            elseif getValue(toggle) == 4 then
+            elseif getOptionValue(toggle) == 4 then
                 return IsRightShiftKeyDown();
-            elseif getValue(toggle) == 5 then
+            elseif getOptionValue(toggle) == 5 then
                 return IsRightAltKeyDown();
-            elseif getValue(toggle) == 6 then
+            elseif getOptionValue(toggle) == 6 then
                 return false
             end
         end
 
         --AoE Key Toggle
         if AOETimer == nil then AOETimer = 0; end
-        if SpecificToggle("Rotation Mode") and not GetCurrentKeyBoardFocus() and GetTime() - AOETimer > 0.25 then
+        if SpecificToggle("Rotation") and not GetCurrentKeyBoardFocus() and GetTime() - AOETimer > 0.25 then
             AOETimer = GetTime()
             UpdateButton("AoE")
         end
 
         --Cooldown Key Toggle
         if CDTimer == nil then CDTimer = 0; end
-        if SpecificToggle("Cooldown Mode") and not GetCurrentKeyBoardFocus() and GetTime() - CDTimer > 0.25 then
+        if SpecificToggle("Cooldowns") and not GetCurrentKeyBoardFocus() and GetTime() - CDTimer > 0.25 then
             CDTimer = GetTime()
             UpdateButton("Cooldowns")
         end
 
         --Defensive Key Toggle
         if DefTimer == nil then DefTimer = 0; end
-        if SpecificToggle("Defensive Mode") and not GetCurrentKeyBoardFocus() and GetTime() - DefTimer > 0.25 then
+        if SpecificToggle("Defensive") and not GetCurrentKeyBoardFocus() and GetTime() - DefTimer > 0.25 then
             DefTimer = GetTime()
             UpdateButton("Defensive")
         end
 
         --Interrupt Key Toggle
         if IntTimer == nil then IntTimer = 0; end
-        if SpecificToggle("Interrupt Mode") and not GetCurrentKeyBoardFocus() and GetTime() - IntTimer > 0.25 then
+        if SpecificToggle("Interrupts") and not GetCurrentKeyBoardFocus() and GetTime() - IntTimer > 0.25 then
             IntTimer = GetTime()
             UpdateButton("Interrupts")
         end

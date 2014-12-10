@@ -80,7 +80,7 @@ function AssOptions()
 
             -- Stealth Timer
             checkOp("Stealth Timer");
-            boxOp("Stealth Timer", 0, 10  , 1, 2 , "|cffFFBB00How long to wait(seconds) before using \n|cffFFFFFFStealth.");
+            boxOp("Stealth Timer", 0, 2, 0.25, 1, "|cffFFBB00How long to wait(seconds) before using \n|cffFFFFFFStealth.");
             textOp("Stealth Timer");
 
             -- Stealth

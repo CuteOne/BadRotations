@@ -17,7 +17,7 @@ if select(3, UnitClass("player")) == 11 then
 		if profileStop == nil then profileStop = false end
 		-- General Player Variables
 		local profileStop = profileStop
-		local lootDelay = getValue("LootDelay")
+		local lootDelay = getOptionValue("LootDelay")
 		local hasMouse = UnitExists("mouseover")
 		local deadMouse = UnitIsDeadOrGhost("mouseover")
 		local playerMouse = UnitIsPlayer("mouseover")
@@ -203,13 +203,13 @@ if select(3, UnitClass("player")) == 11 then
 ------------------
 			if useDefensive() and not stealth then
 -- Rejuvenation
-	            if isChecked("Rejuvenation") and php <= getValue("Rejuvenation") then
+	            if isChecked("Rejuvenation") and php <= getOptionValue("Rejuvenation") then
 	                if not stealth and rejRemain==0 and ((not isInCombat("player")) or isKnown(erej)) then
 	                    if castSpell("player",rej,true,false,false) then return end
 	                end
 	            end
 -- Pot/Stoned
-	            if isChecked("Pot/Stoned") and getHP("player") <= getValue("Pot/Stoned") 
+	            if isChecked("Pot/Stoned") and getHP("player") <= getOptionValue("Pot/Stoned") 
 	            	and isInCombat("player") and hasHealthPot() 
 	            then
                     if canUse(5512) then
@@ -219,18 +219,18 @@ if select(3, UnitClass("player")) == 11 then
                     end
 	            end
 -- Tier 6 Talent: Nature's Vigil
-	            if isChecked("Nature's Vigil") and php <= getValue("Nature's Vigil") then
+	            if isChecked("Nature's Vigil") and php <= getOptionValue("Nature's Vigil") then
 	                if castSpell("player",nv,true,false,false) then return end
 	            end
 -- Healing Touch
 	            if isChecked("Healing Touch") 
-	            	and ((psRemain>0 and php <= getValue("Healing Touch")) 
-	            		or (not isInCombat("player") and rejRemain>0 and php<=getValue("Rejuvenation"))) 
+	            	and ((psRemain>0 and php <= getOptionValue("Healing Touch")) 
+	            		or (not isInCombat("player") and rejRemain>0 and php<=getOptionValue("Rejuvenation"))) 
 	            then
 	                if castSpell("player",ht,true,false,false) then return end
 	            end
 -- Survival Instincts
-	            if isChecked("Survival Instincts") and php <= getValue("Survival Instincts") 
+	            if isChecked("Survival Instincts") and php <= getOptionValue("Survival Instincts") 
 	            	and isInCombat("player") and not siBuff and siCharge>0 
 	            then
 	                if castSpell("player",si,true,false,false) then return end
@@ -273,10 +273,10 @@ if select(3, UnitClass("player")) == 11 then
 		-- Dummy Test
 				if isChecked("DPS Testing") then
 					if UnitExists("target") then
-						if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
+						if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
 							StopAttack()
 							ClearTarget()
-							print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+							print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
 							profileStop = true
 						end
 					end
@@ -287,15 +287,15 @@ if select(3, UnitClass("player")) == 11 then
 				if useInterrupts() and not stealth then
 		-- Skull Bash
 			        if isChecked("Skull Bash") then
-					    if castInterrupt(sb,getValue("Interrupts")) then return end
+					    if castInterrupt(sb,getOptionValue("Interrupts")) then return end
 					end
 		-- Mighty Bash
 			        if isChecked("Mighty Bash") then
-			        	if castInterrupt(mb,getValue("Interrupts")) then return end
+			        	if castInterrupt(mb,getOptionValue("Interrupts")) then return end
 			        end
 		-- Maim (PvP)
 			        if isChecked("Maim") and combo > 0 and power >= 35 and isInPvP() then
-			        	if castInterrupt(ma,getValue("Interrupts")) then return end
+			        	if castInterrupt(ma,getOptionValue("Interrupts")) then return end
 			        end
 			    end
 	-----------------------------
@@ -387,10 +387,10 @@ if select(3, UnitClass("player")) == 11 then
 					end
 		-- Healing Touch
 					if psRemain>0 and ((combo>=4 and bloodtalons) or psRemain<1.5) then
-						if getValue("Auto Heal")==1 then
+						if getOptionValue("Auto Heal (DoC)")==1 then
 		                    if castSpell(nNova[1].unit,ht,true,false,false) then return end
 		                end
-		                if getValue("Auto Heal")==2 then
+		                if getOptionValue("Auto Heal (DoC)")==2 then
 		                    if castSpell("player",ht,true,false,false) then return end
 		                end
 					end
