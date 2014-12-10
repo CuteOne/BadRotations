@@ -22,7 +22,7 @@
 ||||
 | **Mage** |  |  |
 |Arcane|80%(lvl90)|ragnar |
-|Fire|0%|ragnar |
+|Fire|0%| |
 |Frost|80%(lvl90)|ragnar |
 ||||
 | **Monk** |  |  |
