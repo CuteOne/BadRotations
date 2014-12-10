@@ -467,7 +467,7 @@ function ArmsMultiTarSimCraft()
             end
         end
         -- actions.aoe+=/bladestorm,interrupt_if=!cooldown.colossus_smash.remains|!cooldown.ravager.remains
-        if isChecked("StormRoar") and isKnown(Bladestorm) then
+        if isChecked("Bladestorm/Dragonroar") and isKnown(Bladestorm) then
             if (CS_COOLDOWN <= 1 or canCast(ColossusSmash)) and BLADESTORM ~= nil
             or (RV_COOLDOWN <= 1 or canCast(Ravager)) and BLADESTORM ~= nil then
                 RunMacroText("/cancelaura bladestorm")

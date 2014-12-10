@@ -33,7 +33,7 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 	-- Pause ---------------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-		if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == true then
+		if isChecked("Pause Key") and SpecificToggle("Pause Key") == true then
 			ChatOverlay("|cffFF0000BadBoy Paused", 0); return;
 		end
 	------------------------------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 	-- Input / Keys --------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-    if isChecked("HeroicLeapKey") and SpecificToggle("HeroicLeapKey") == true then
+    if isChecked("Heroic Leap Key") and SpecificToggle("Heroic Leap Key") == true then
       if not IsMouselooking() then
           CastSpellByName(GetSpellInfo(6544))
           if SpellIsTargeting() then
@@ -131,24 +131,24 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 			if useDefCDs() == true then
 					-- Die by the Sword
-					if isChecked("DiebytheSword") == true then
-						if getHP("player") <= getValue("DiebytheSword") then
+					if isChecked("Die by the Sword") == true then
+						if getHP("player") <= getValue("Die by the Sword") then
 							if castSpell("player",DiebytheSword,true) then
 								return;
 							end
 						end
 					end
 					-- Rallying Cry
-					if isChecked("RallyingCry") == true then
-						if getHP("player") <= getValue("RallyingCry") then
+					if isChecked("Rallying Cry") == true then
+						if getHP("player") <= getValue("Rallying Cry") then
 							if castSpell("player",RallyingCry,true) then
 								return;
 							end
 						end
 					end
 					-- Enraged Regeneration
-					if isChecked("EnragedRegeneration") == true then
-						if isKnown(EnragedRegeneration) and getHP("player") <= getValue("EnragedRegeneration") then
+					if isChecked("Enraged Regeneration") == true then
+						if isKnown(EnragedRegeneration) and getHP("player") <= getValue("Enraged Regeneration") then
 							if castSpell("player",EnragedRegeneration,true) then
 								return;
 							end
@@ -163,8 +163,8 @@ if select(3,UnitClass("player")) == 1 then
 						end
 					end
 					-- Vigilance Focus
-					if isChecked("VigilanceFocus") == true then
-						if getHP("focus") <= getValue("VigilanceFocus") then
+					if isChecked("Vigilance on Focus") == true then
+						if getHP("focus") <= getValue("Vigilance on Focus") then
 							if castSpell("focus",Vigilance,false,false) then
 								return;
 							end
@@ -190,7 +190,7 @@ if select(3,UnitClass("player")) == 1 then
 				-- and getDistance("player","target") <= 5
 				--and targetDistance <= 5 then
 				-- actions+=/potion,name=draenic_strength,if=(target.health.pct<20&buff.recklessness.up)|target.time_to_die<=25
-				if isChecked("usePot") then
+				if isChecked("Use Potion") then
 					if (getHP("target") < 20 and UnitBuffID("player",Recklessness)) or getTimeToDie("target") <= 25 then
 						if canUse(76095) then -- MoP Potion
 							UseItemByName(tostring(select(1,GetItemInfo(76095))))
@@ -200,7 +200,7 @@ if select(3,UnitClass("player")) == 1 then
 					end
 				end
 				-- actions+=/recklessness,if=(target.time_to_die>190|target.health.pct<20)&(!talent.bloodbath.enabled&(cooldown.colossus_smash.remains<2|debuff.colossus_smash.remains>=5)|buff.bloodbath.up)|target.time_to_die<=10
-				if isChecked("useRecklessness") then
+				if isChecked("Recklessness") then
 					--if (getTimeToDie > 190 or getHP("target") < 20)
 					if getHP("target") <20
 					and (not isKnown(Bloodbath) and CS_COOLDOWN < 2 or getDebuffRemain("target",ColossusSmash,"player") >= 5)
@@ -212,7 +212,7 @@ if select(3,UnitClass("player")) == 1 then
 					end
 				end
 				-- actions+=/avatar,if=buff.recklessness.up|target.time_to_die<=25
-				if isChecked("useAvatar") then
+				if isChecked("Avatar") then
 					if isKnown(Avatar) and UnitBuffID("player",Recklessness) then
 						--or getTimeToDie <= 25 then
 						if castSpell("player",Avatar,true) then
@@ -222,7 +222,7 @@ if select(3,UnitClass("player")) == 1 then
 				end
 				-- actions+=/blood_fury,if=buff.bloodbath.up|(!talent.bloodbath.enabled&debuff.colossus_smash.up)|buff.recklessness.up
 				-- actions+=/berserking,if=buff.bloodbath.up|(!talent.bloodbath.enabled&debuff.colossus_smash.up)|buff.recklessness.up
-				if isChecked("useRacial") then
+				if isChecked("Racial (Orc / Troll)") then
 					if (isKnown(Bloodbath) and UnitBuffID("player",Bloodbath))
 					or (not isKnown(Bloodbath) and UnitDebuffID("target",ColossusSmash,"player"))
 					or UnitBuffID("player",Recklessness) then
@@ -245,11 +245,11 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 	-- Main Rotaion --------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-		if getValue("RotationSelect") == 1 then
+		if getValue("Rotation Priority") == 1 then
 			ArmsSingleTarIcyVeins();
 			ArmsMultiTarIcyVeins();
 		end
-		if getValue("RotationSelect") == 2 then
+		if getValue("Rotation Priority") == 2 then
 			ArmsSingleTarSimCraft();
 			ArmsMultiTarSimCraft();
 		end
