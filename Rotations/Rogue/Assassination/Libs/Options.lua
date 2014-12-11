@@ -116,7 +116,7 @@ function AssOptions()
 
             -- Healthstone
             checkOp("Pot/Stoned");
-            boxOp("Pot/Stoned", 0, 100, 5, 60);
+            boxOp("Pot/Stoned", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
             textOp("Pot/Stoned");
 
             -- Barkskin
@@ -152,7 +152,7 @@ function AssOptions()
 
             -- Interrupt Percentage
             checkOp("Interrupts");
-            boxOp("Interrupts", 5, 95, 5, 0);
+            boxOp("Interrupts", 5, 95, 5, 0, "|cffFFBB00Cast Percentage to use at.");
             textOp("Interrupt At");
 
         -- Spacer
