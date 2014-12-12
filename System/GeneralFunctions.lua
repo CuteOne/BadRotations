@@ -1900,6 +1900,15 @@ function pause()
 	end
 end
 
+-- feed a var
+function toggleTrueNil(var)
+	if _G[var] ~= true then
+		_G[var] = true
+	else
+		_G[var] = nil
+	end
+end
+
 -- useItem(12345)
 function useItem(itemID)
 	if GetItemCount(itemID) > 0 then

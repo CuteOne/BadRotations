@@ -45,12 +45,36 @@ function DruidRestoration()
 	    end
   	end
 	-- Reju Toggle
-	if isChecked("Reju Toggle")  and SpecificToggle("Reju Toggle") == true then
-		for i = 1, #nNova do
-			local thisUnit = nNova[i]
-			if thisUnit.hp <= 249 and getBuffRemain(thisUnit.unit,774,"player") == 0 then
-				if castSpell(thisUnit.unit,774,true,false) then
-					return
+	if isChecked("Reju Toggle") then
+		--if i want to toggle
+		if getValue("Reju Toggle Mode") == 1 then
+		-- when we do toggle, as soon as user touch the key we
+			-- check if we have  timer running if we have a timer then when compare it
+				-- toggle either true or nil and assign a timer
+			if SpecificToggle("Reju Toggle") == true and (not toggleRejuTimer or toggleRejuTimer < GetTime() - 1) then
+				toggleTrueNil("toggleRejuValue")
+				toggleRejuTimer = GetTime()
+				if toggleRejuValue == true then
+					ChatOverlay("|cff3CA609Rejuvenation toggled ON",1)
+				else
+					ChatOverlay("|cffFF1100Rejuvenation toggled OFF",1)
+				end
+			end
+		-- otherwise we just set true if the toggle mode is set to 2
+		elseif getValue("Reju Toggle Mode") == 2 then
+			if SpecificToggle("Reju Toggle") == true then
+				toggleRejuValue = true
+			else
+				toggleRejuValue = nil
+			end
+		end
+		if toggleRejuValue then
+			for i = 1, #nNova do
+				local thisUnit = nNova[i]
+				if thisUnit.hp <= 249 and getBuffRemain(thisUnit.unit,774,"player") == 0 then
+					if castSpell(thisUnit.unit,774,true,false) then
+						return
+					end
 				end
 			end
 		end
@@ -111,7 +135,7 @@ function DruidRestoration()
 	--[[ Revive ]]
 	if isChecked("Revive") then
 		if not isInCombat("player") and isStanding(0.3) and UnitIsDeadOrGhost("mouseover")
-		  and UnitIsFriend("player","mouseover") then
+		  and UnitIsFriend("player","mouseover") and not UnitHasIncomingResurrection("mouseover") then
 			CastSpellByName(GetSpellInfo(50769),"mouseover")
 			return
 		end
@@ -644,6 +668,14 @@ function DruidRestoration()
 				end
 			end
 		end
+		--[[ 23.5 - Genesis on tank--(With out Hotkey)]]
+		if isChecked("Genesis Tank") == true and canCast(145518,false,false) and lowestTankHP < getValue("Genesis Tank") then
+			if getBuffRemain(lowestTankUnit,774,"player") > 2 and not UnitBuffID(lowestTankUnit,162359,"player") then
+				if castSpell("player",145518,true,false) then
+					return
+				end
+			end
+		end
 		--[[ 24 - WildGrowth all--(Use on all with out health check only with player count check)(some time in fight u need check it fast)]]
 		if isChecked("WildGrowth All") and isStanding(0.3) and canCast(48438,false,false) then
 		    for i = 1, #nNova do
@@ -768,7 +800,6 @@ function DruidRestoration()
 		    	castMushFocus()
 		    end
 		end
-
         --[[ 28 - LifebloomFocus--(Refresh if over treshold)]]
       	if isChecked("Lifebloom") then
 			if not UnitIsDeadOrGhost("focus") and getHP("focus") >= getValue("Lifebloom")
