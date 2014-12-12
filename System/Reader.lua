@@ -220,6 +220,7 @@ function SuperReader(self,event,...)
 		local sourceName	= select(5,...)
         local destination 	= select(8,...)
 		local spell 		= select(12,...)
+        local playerGUID = UnitGUID("player")
 
 		--------------------------------------
 		--[[ Pick Pocket Success Recorder --]]
@@ -227,7 +228,7 @@ function SuperReader(self,event,...)
 			canPickpocket = false
 		end
 
-		--------------------------------------
+		-----------------------------------
 		--[[ Item Use Success Recorder --]]
 		if param == "SPELL_CAST_SUCCESS" and isInCombat("player") then
 			if spell == 105697 then --Virmen's Bite Buff
@@ -238,11 +239,16 @@ function SuperReader(self,event,...)
 			end
 		end
 
+        -----------------------
+        --[[ Double Jeopardy ]]
+        if select(3, UnitClass("player")) == 2 and spell == 20271 and source == playerGUID then
+            previousJudgmentTarget = destination
+        end
 
-		------------------------
+		---------------------
 		--[[ Pet Manager --]]
 		if select(3, UnitClass("player")) == 9 then
-	        if source == UnitGUID("player") and param == "SPELL_CAST_SUCCESS" then
+	        if source == playerGUID and param == "SPELL_CAST_SUCCESS" then
 	        	if spell == 688 or spell == 112866 then
 	        		petSummoned = 1
 	        		petSummonedTime = GetTime()
@@ -266,16 +272,16 @@ function SuperReader(self,event,...)
 			end
 		end
 
-		------------------------
+		----------------------------------
 		--[[ Bleed Recorder (Warrior) --]]
 		if select(3, UnitClass("player")) == 1 and GetSpecialization("player") == 1 then
 	        -- snapshot on spellcast
-	        if source == UnitGUID("player") and param == "SPELL_CAST_SUCCESS" then
+	        if source == playerGUID and param == "SPELL_CAST_SUCCESS" then
 	            if spell == 115767 then
 	                deepWoundsCastAP = UnitAttackPower("player")
 	            end
 	        -- but only record the snapshot if it successfully applied
-	        elseif source == UnitGUID("player") and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") and deepWoundsCastAP ~= nil then
+	        elseif source == playerGUID and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") and deepWoundsCastAP ~= nil then
 	            if spell == 115767 then
 	                deepWoundsStoredAP = deepWoundsCastAP
 	            end
@@ -285,7 +291,7 @@ function SuperReader(self,event,...)
 		------------------------
 		--[[ Bleed Recorder --]]
 		if select(3, UnitClass("player")) == 11 and GetSpecialization() == 2 then
-			if source == UnitGUID("player") then
+			if source == playerGUID then
 				function WA_calcStats()
 				    local DamageMult = 1
 
@@ -348,7 +354,7 @@ function SuperReader(self,event,...)
 
         --------------------
         --[[ Fire Totem --]]
-        if source == UnitGUID("player") and  param == "SPELL_SUMMON" and (spell == _SearingTotem or spell == _MagmaTotem) then
+        if source == playerGUID and  param == "SPELL_SUMMON" and (spell == _SearingTotem or spell == _MagmaTotem) then
         	activeTotem = destination
         	activeTotemPosition = ObjectPosition("player")
         end
@@ -362,7 +368,7 @@ function SuperReader(self,event,...)
         	shroomsTable = { }
         	shroomsTable[1] = { }
         end
-        if source == UnitGUID("player") and  param == "SPELL_SUMMON" and (spell == 147349 or spell == 145205) then
+        if source == playerGUID and  param == "SPELL_SUMMON" and (spell == 147349 or spell == 145205) then
        		shroomsTable[1].guid = destination
        		shroomsTable[1].x = nil
        		shroomsTable[1].y = nil
@@ -374,7 +380,7 @@ function SuperReader(self,event,...)
 
         ----------------
         --[[Item locks]]
-        if source == UnitGUID("player") then
+        if source == playerGUID then
 			local DPSPotionsSet = {
 				[1] = {Buff = 105702, Item = 76093}, -- Intel
 				[2] = {Buff = 105697, Item = 76089}, -- Agi
@@ -437,7 +443,7 @@ function SuperReader(self,event,...)
 			------------------
 			--[[Queue Casted]]
 	        if param == "SPELL_CAST_SUCCESS" then
-	        	if source == UnitGUID("player") then
+	        	if source == playerGUID then
 	        		if _Queues == nil then _Queues = { } end
 					if _Queues and _Queues[spell] ~= nil then
 						if _Queues[spell] == true then
@@ -451,11 +457,14 @@ function SuperReader(self,event,...)
         ---------------
         --[[ Debug --]]
         if getOptionCheck("Debug Frame") == true then
-        	if source == UnitGUID("player") then
+        	if source == playerGUID then
         		if param == "SPELL_CAST_SUCCESS" then
         			local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...
         			if SpellID ~= 75 and SpellID ~= 88263 and SpellID ~= 172 and SpellID ~= 8690 then -- Add spells we dont want to appear here.
         				local color = "|cff12C8FF"
+                        if BadBoy_data.successCasts == nil then
+                            BadBoy_data.successCasts = 0
+                        end
         				BadBoy_data.successCasts = BadBoy_data.successCasts + 1
         				if destGUID == nil or destName == nil then
         					debugdest = ""

@@ -86,7 +86,7 @@ if select(3,UnitClass("player")) == 2 then
 		}
 		initDone = true
 	end
-	
+
 	function checkForDebuffThatIShouldRemovewithHoF(unit)
 		for i = 1, #snareToBeRemovedByHandsofFreedom do
 			if UnitDebuffID(unit, snareToBeRemovedByHandsofFreedom[i]) then
@@ -95,10 +95,10 @@ if select(3,UnitClass("player")) == 2 then
 		end
 		return false
 	end
-	
+
 	function castHandOfFreedom(unit)
 		if canCast(_HandOfFreedom) then
-			if castSpell(unit,_HandOfFreedom,true) then 
+			if castSpell(unit,_HandOfFreedom,true) then
 				return true
 			end
 		end
@@ -107,7 +107,7 @@ if select(3,UnitClass("player")) == 2 then
 	-- Todo : Check Glyphs(is on us or can we cast it on ground 25 yards
 	function castArcaneTorrent()
 		if canCast(_ArcaneTorrent) then
-			if castSpell("player",_ArcaneTorrent,true) then 
+			if castSpell("player",_ArcaneTorrent,true) then
 				return true
 			end
 		end
@@ -117,7 +117,7 @@ if select(3,UnitClass("player")) == 2 then
 	-- Todo : Check Glyphs(is on us or can we cast it on ground 25 yards
 	function castConsecration(unit)
 		if canCast(_Consecration) and isInMelee(unit) then
-			if castSpell("player",_Consecration,true) then 
+			if castSpell("player",_Consecration,true) then
 				return true
 			end
 		end
@@ -128,7 +128,7 @@ if select(3,UnitClass("player")) == 2 then
 	function castExecutionSentence(unit)
 		if isSelected("Execution Sentence") and canCast(_ExecutionSentence) then
 			if (isDummy(dynamicUnit.dyn40) or (UnitHealth(dynamicUnit.dyn40) >= 400*UnitHealthMax("player")/100)) then
-				if castSpell(dynamicUnit.dyn40,_ExecutionSentence,false,false) then 
+				if castSpell(dynamicUnit.dyn40,_ExecutionSentence,false,false) then
 					return true
 				end
 			end
@@ -171,6 +171,9 @@ if select(3,UnitClass("player")) == 2 then
 	end
 
 	function castJudgement(unit)
+		if unit == nil then
+			unit = dynamicUnit.dyn30AoE
+		end
 		if canCast(_Judgment) and getDistance("player", unit) <= 30 then
 			if castSpell(unit,_Judgment,true,false) then
 				return true
@@ -180,7 +183,12 @@ if select(3,UnitClass("player")) == 2 then
 	end
 
 	function castHammerOfWrath(unit)
-		if canCast(_HammerOfWrath) and getLineOfSight("player",unit) and getDistance("player",unit) <= 30 and getHP(unit) <= 20 then
+		local hpHammerOfWrath = 20
+		-- if empowered hammer of wrath, we need to get value for HoW hp at 35%
+		if isKnown(157496) then
+			hpHammerOfWrath = 35
+		end
+		if canCast(_HammerOfWrath) and getLineOfSight("player",unit) and getDistance("player",unit) <= 30 and getHP(unit) <= hpHammerOfWrath then
 			if castSpell(unit,_HammerOfWrath,false,false) then
 				return true
 			end
@@ -292,7 +300,7 @@ if select(3,UnitClass("player")) == 2 then
 				if (isKnown(_Seraphim) and UnitBuffID("player",_Seraphim))
 				  -- holy_avenger,if=holy_power<=2&!talent.seraphim.enabled
 				  or (not isKnown(_Seraphim) and holypower <= 2) then
-					if castSpell("player",_HolyAvenger,true,false) then 
+					if castSpell("player",_HolyAvenger,true,false) then
 						return true
 					end
 				end
@@ -309,7 +317,7 @@ if select(3,UnitClass("player")) == 2 then
 				if (isKnown(_Seraphim) and UnitBuffID("player",_Seraphim) )
 				  -- avenging_wrath,if=!talent.seraphim.enabled
 				  or not isKnown(_Seraphim) then
-					if castSpell("player",_HolyAvenger,true,false) then 
+					if castSpell("player",_HolyAvenger,true,false) then
 						return true
 					end
 				end
@@ -322,7 +330,7 @@ if select(3,UnitClass("player")) == 2 then
 	function castSeraphim()
 		if isSelected("Seraphim") and canCast(_Seraphim) then
 			if (isDummy(dynamicUnit.dyn5) or (UnitHealth(dynamicUnit.dyn5) >= 400*UnitHealthMax("player")/100)) then
-				if castSpell("player",_Seraphim,true,false) then 
+				if castSpell("player",_Seraphim,true,false) then
 					return true
 				end
 			end
@@ -353,24 +361,37 @@ if select(3,UnitClass("player")) == 2 then
 	end
 
 	function castDivineStorm()
-		if castSpell(dynamicUnit.dyn5,_DivineStorm,false,false) then
+		local targetDivineStorm = dynamicUnit.dyn8AoE
+		if getBuffRemain("player",_FinalVerdict) > 0 then
+			targetDivineStorm = dynamicUnit.dyn16AoE
+		end
+		if castSpell(targetDivineStorm,_DivineStorm,false,false) then
 	  		return
 	  	end
 	end
 
 	function castTemplarsVerdict()
-		if castSpell(dynamicUnit.dyn5,_TemplarsVerdict,false,false) then 
+		-- here we need to see if we want to cast as 5 yard or 8yard
+		local templarsVerdictUnit = dynamicUnit.dyn5
+		if isKnown(_FinalVerdict) then
+			templarsVerdictUnit = dynamicUnit.dyn8
+		end
+		if castSpell(templarsVerdictUnit,_TemplarsVerdict,false,false) then
 			return
 		end
 	end
 
 	function castMultiHammerOfWrath()
+		local hpHammerOfWrath = 20
+		-- if empowered hammer of wrath, we need to get value for HoW hp at 35%
+		if isKnown(157496) then
+			hpHammerOfWrath = 35
+		end
 		for i = 1, #enemiesTable do
 			-- define thisUnit
 			local thisUnit = enemiesTable[i]
-			-- if
-			if (thisUnit.hp and (thisUnit.hp <= 20) or getBuffRemain("player",_AvengingWrath) > 0) and getFacing("player",thisUnit.unit) == true then
-				if castSpell(thisUnit.unit,_HammerOfWrath,false,false) then 
+			if (thisUnit.hp and (thisUnit.hp <= hpHammerOfWrath) or getBuffRemain("player",_AvengingWrath) > 0) and getFacing("player",thisUnit.unit) == true then
+				if castSpell(thisUnit.unit,_HammerOfWrath,false,false) then
 					return
 				end
 			end
@@ -378,15 +399,15 @@ if select(3,UnitClass("player")) == 2 then
 	end
 
 	function castHolyPrism(unit,facing)
-		if castSpell(unit,_HolyPrism,facing,false) then 
+		if castSpell(unit,_HolyPrism,facing,false) then
 			return
 		end
 	end
 
 	function castCrusaderStrike()
-		if castSpell(dynamicUnit.dyn5,_CrusaderStrike,false,false) then 
+		if castSpell(dynamicUnit.dyn5,_CrusaderStrike,false,false) then
 			return
-		end		
+		end
 	end
 
 	function castHammerOfTheRighteous()
@@ -403,5 +424,19 @@ if select(3,UnitClass("player")) == 2 then
 	function castSealOfRigtheousness()
 		CastShapeshiftForm(2)
 		return true
+	end
+	function castJeopardy()
+		for i = 1, #enemiesTable do
+			thisEnemy = enemiesTable[i]
+			if getDistance("player",thisEnemy.unit) then
+				-- here i will need to compare my previous judgment target with the previous one
+				-- i will declare a var in the Reader that will hold this value previousJudgmentTarget
+				if previousJudgmentTarget ~= thisEnemy.guid then
+					if castSpell(thisEnemy.unit,_Judgment,true,false) then
+						return
+					end
+				end
+			end
+		end
 	end
 end
