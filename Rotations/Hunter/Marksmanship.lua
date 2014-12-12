@@ -83,25 +83,26 @@ if select(3, UnitClass("player")) == 3 then
 		-------------------------
 		-- Pet Management -- Mavmins Updated
 		-------------------------
-		if isChecked("Auto Summon")  and not UnitExists("pet") and (UnitIsDead("pet") ~= nil and UnitIsDead("pet") ~= false) then
+		if isChecked("Auto Summon")  and not UnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
 			if waitForPetToAppear ~= nil and waitForPetToAppear < GetTime() - 2 then
-				-- if lastFailedWhistle and lastFailedWhistle > GetTime() - 3 then
-				-- 	if castSpell("player",RevivePet) then return; end
-				-- else
-				local Autocall = getValue("Auto Summon");
+				if lastFailedWhistle and lastFailedWhistle > GetTime() - 3 then
+				 	if castSpell("player",RevivePet) then return; end
+				 else
+					local Autocall = getValue("Auto Summon");
 
-				if Autocall == 1 then
-					if castSpell("player",CallPet1) then return; end
-				elseif Autocall == 2 then
-					if castSpell("player",CallPet2) then return; end
-				elseif Autocall == 3 then
-					if castSpell("player",CallPet3) then return; end
-				elseif Autocall == 4 then
-					if castSpell("player",CallPet4) then return; end
-				elseif Autocall == 5 then
-					if castSpell("player",CallPet5) then return; end
-				else
-					print("Auto Call Pet Error")
+					if Autocall == 1 then
+						if castSpell("player",883) then return; end
+					elseif Autocall == 2 then
+						if castSpell("player",83242) then return; end
+					elseif Autocall == 3 then
+						if castSpell("player",83243) then return; end
+					elseif Autocall == 4 then
+						if castSpell("player",83244) then return; end
+					elseif Autocall == 5 then
+						if castSpell("player",83245) then return; end
+					else
+						print("Auto Call Pet Error")
+					end
 				end
 			end
 			if waitForPetToAppear == nil then
@@ -109,8 +110,8 @@ if select(3, UnitClass("player")) == 3 then
 			end
 		end
 
-		if UnitIsDeadOrGhost("pet") then
-			if castSpell("player",RevivePet) then return; end
+		if isChecked("Auto Summon") and UnitIsDeadOrGhost("pet") then
+			if castSpell("player",982) then return; end
 		end
 
 		-- Mend Pet
