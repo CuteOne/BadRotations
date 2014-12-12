@@ -387,10 +387,10 @@ if select(3, UnitClass("player")) == 11 then
 					end
 		-- Healing Touch
 					if psRemain>0 and ((combo>=4 and bloodtalons) or psRemain<1.5) then
-						if getOptionValue("Auto Heal (DoC)")==1 then
+						if getOptionValue("Auto Heal")==1 then
 		                    if castSpell(nNova[1].unit,ht,true,false,false) then return end
 		                end
-		                if getOptionValue("Auto Heal (DoC)")==2 then
+		                if getOptionValue("Auto Heal")==2 then
 		                    if castSpell("player",ht,true,false,false) then return end
 		                end
 					end
