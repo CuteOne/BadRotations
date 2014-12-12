@@ -2000,8 +2000,6 @@ function isChecked(Value)
 	--print(BadBoy_data.options[GetSpecialization()]["profile"..Value.."Check"])
 	if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()][Value.."Check"] == 1 then
 		return true
-	else
-		return false
 	end
 end
 
@@ -2032,8 +2030,6 @@ end
 function getOptionCheck(Value)
 	if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()][Value.."Check"] == 1 then
 		return true
-	else
-		return false
 	end
 end
 
