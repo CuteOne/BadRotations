@@ -59,7 +59,7 @@ if not metaTable1 then
 	-- We are checking if the user has a Debuff we either can not or don't want to heal them
 	local function CheckBadDebuff(tar)
 		for i=1, #novaEngineTables.BadDebuffList do
-			if UnitDebuff(tar, GetSpellInfo(novaEngineTables.BadDebuffList[i])) or 
+			if UnitDebuff(tar, GetSpellInfo(novaEngineTables.BadDebuffList[i])) or
 			UnitBuff(tar, GetSpellInfo(novaEngineTables.BadDebuffList[i]))
 			then
 				return false
@@ -87,7 +87,7 @@ if not metaTable1 then
 		  and CheckBadDebuff(tar)
 		  and CheckCreatureType(tar)
 		  and getLineOfSight("player", tar)
-		then return true 
+		then return true
 		else return false end
 	end
 

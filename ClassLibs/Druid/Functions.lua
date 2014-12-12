@@ -26,18 +26,18 @@ end
 
 function WA_calcStats_feral()
     local DamageMult = 1
-    
+
     local CP = GetComboPoints("player", "target")
     if CP == 0 then CP = 5 end
-    
+
     if UnitBuffID("player",tf) then
         DamageMult = DamageMult * 1.15
     end
-    
+
     if UnitBuffID("player",svr) then
         DamageMult = DamageMult * 1.4
     end
-    
+
     WA_stats_BTactive = WA_stats_BTactive or  0
     if UnitBuffID("player",bt) then
         WA_stats_BTactive = GetTime()
@@ -45,7 +45,7 @@ function WA_calcStats_feral()
     elseif GetTime() - WA_stats_BTactive < .2 then
         DamageMult = DamageMult * 1.3
     end
-    
+
     local RakeMult = 1
     WA_stats_prowlactive = WA_stats_prowlactive or  0
     if UnitBuffID("player",inc) then
@@ -56,7 +56,7 @@ function WA_calcStats_feral()
     elseif GetTime() - WA_stats_prowlactive < .2 then
         RakeMult = 2
     end
-    
+
     WA_stats_RipTick = CP*DamageMult
     WA_stats_RipTick5 = 5*DamageMult
     WA_stats_RakeTick = DamageMult*RakeMult
@@ -262,11 +262,12 @@ end
 
 
 -- SwiftMender
-function SwiftMender()
-    if isChecked("Swiftmend") then
+function SwiftMender(lowestUnit,lowestHP)
+    if isChecked("Swiftmend") and getSpellCD(18562) < 1 then
         if lowestHP <= getValue("Swiftmend") then
-            if (getBuffRemain(lowestUnit,774,"player") > 1 or getBuffRemain(lowestUnit,8936,"player") > 1) and getSpellCD(18562) < 1 then
-                CastSpellByName(GetSpellInfo(18562),lowestUnit) return true
+            if (getBuffRemain(lowestUnit,774,"player") > 1 or getBuffRemain(lowestUnit,8936,"player") > 1) then
+                CastSpellByName(GetSpellInfo(18562),lowestUnit)
+                return true
             end
         end
     end
@@ -274,14 +275,14 @@ end
 
 function findShroom()
     if shroomsTable[1].x == nil then
+        local myShroom = shroomsTable[1].guid
         for i = 1, ObjectCount() do
             if UnitExists(ObjectWithIndex(i)) == true then
-                local myShroom = shroomsTable[1].guid
                 --print(UnitGUID(ObjectWithIndex(i)))
                 if shroomsTable[1].guid == UnitGUID(ObjectWithIndex(i)) then
-                    X, Y, Z = ObjectPosition(ObjectWithIndex(i));
+                    X, Y, Z = ObjectPosition(ObjectWithIndex(i))
                    -- print("lol")
-                    shroomsTable[1] = { x = X, y = Y, z = Z, guid = myShroom };
+                    shroomsTable[1] = { x = X, y = Y, z = Z, guid = myShroom }
                     return true
                 end
             end
@@ -289,7 +290,7 @@ function findShroom()
     else
         return true
     end
-    return false;
+    return false
 end
 
 function MultiMoon()
@@ -336,12 +337,24 @@ function DruidCastTime()
 end
 
 function isCastingDruid(Unit)
-	if Unit == nil then Unit = "player" end
-	if UnitCastingInfo(Unit) ~= nil
-	  or UnitChannelInfo(Unit) ~= nil
+	if Unit == nil then
+        Unit = "player"
+    end
+	if UnitCastingInfo(Unit) ~= nil or UnitChannelInfo(Unit) ~= nil
 	  or (GetSpellCooldown(61304) ~= nil and GetSpellCooldown(61304) > 0.001) then
-	  	return true; else return false
+	  	return true
+    else
+        return false
 	end
+end
+
+function castMushFocus()
+    if UnitExists("focus") and UnitAffectingCombat("focus") and UnitExists("focustarget")
+      and UnitAffectingCombat("focus") and getDistance("focus","focustarget") < 5 then
+        if castSpell("focus",145205,true,false) then
+            return
+        end
+    end
 end
 
 
