@@ -288,12 +288,12 @@ function PulseUI()
 	-- enemies
 	makeEnemiesTable(maxDistance)
 	-- allies
-	if getOptionCheck("Engine Refresh") then
+--	if getOptionCheck("Engine Refresh") then
 		if NovaEngineUpdate == nil or NovaEngineUpdate <= GetTime() - getOptionValue("Engine Refresh")/1000 then
 			NovaEngineUpdate = GetTime()
 			nNova:Update()
 		end
-	end
+--	end
 
 	-- Pulse other features
 	-- PokeEngine()
