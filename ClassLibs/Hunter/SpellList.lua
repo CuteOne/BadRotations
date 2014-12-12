@@ -32,7 +32,7 @@ Misdirection             = 34477;
 
 --Utility
 ConcussiveShot           = 5116;
-CounterShot              = 147362;
+CounterShot              = 173892;
 Camouflage               = 51753;
 Deterrence               = 19263;
 Disengage                = 781;
