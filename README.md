@@ -17,7 +17,7 @@
 ||||
 | **Hunter** |  |  |
 |Beastmaster|80%|CodeMyLife |
-|Marksmanship|80%|Cpoworks |
+|Marksmanship|100%|Mavmins |
 |Survival|80%|Averykey |
 ||||
 | **Mage** |  |  |
