@@ -14,11 +14,11 @@ function Blood()
 	if IsMounted("player") then return false end
 
     dynamicUnit = {
-        ["dyn5"] = dynamicTarget(5,true),
-        ["dyn6"] = dynamicTarget(6,true),
-        ["dyn30"] = dynamicTarget(30,true),
-        ["dyn30AoE"] = dynamicTarget(30,false),
-        ["dyn40"] = dynamicTarget(40,true)
+        dyn5 = dynamicTarget(5,true),
+        dyn6 = dynamicTarget(6,true),
+        dyn30 = dynamicTarget(30,true),
+        dyn30AoE = dynamicTarget(30,false),
+        dyn40 = dynamicTarget(40,true)
     }
 
     -- ill add ranges to my dynamic stuff
@@ -36,14 +36,14 @@ function Blood()
 		end
 
     	-- Anti Magic Shell
-    	if isChecked("Anti-Magic Shell") == true and myHealth <= getValue("Anti-Magic Shell") 
+    	if isChecked("Anti-Magic Shell") == true and myHealth <= getValue("Anti-Magic Shell")
           and dynamicUnit.dyn5Range < 5 then
     		if castSpell("player",_AntiMagicShell,true,false) then return end
     	end
 
     	-- Dancing Rune Weapon
     	if isChecked("Dancing Rune Weapon") == true and myHealth <= getValue("Dancing Rune Weapon") then
-    		if castSpell("player",_DancingRuneWeapon,true,false) then return end
+    		if castSpell(dynamicUnit.dyn30,_DancingRuneWeapon,true,false) then return end
     	end
 
     	-- Conversion
@@ -162,8 +162,8 @@ function Blood()
 	    end
 
 	    -- Pestilence/Rolling Blood - Spread Diseases
-	    -- Here i do my target checks and i make sure i want to iterate. I use canCadt prior to everything just to save 
-        -- power, i dont want to scan if that spell is not ready, i dont have energy or in my case if there are no 
+	    -- Here i do my target checks and i make sure i want to iterate. I use canCadt prior to everything just to save
+        -- power, i dont want to scan if that spell is not ready, i dont have energy or in my case if there are no
         -- diseases on my target.
         if canCast(_BloodBoil) and meleeEnemies >= 2 and (runesBlood >= 1 or runesDeath >= 1) then
             local unitDebuffed = false
@@ -199,7 +199,7 @@ function Blood()
 	    	if castSpell(dynamicUnit.dyn5,50842,true,false) then return end
 	    end
 
-        -- Soul Reaper 
+        -- Soul Reaper
         if getHP("target") < 35 then
             if castSpell(dynamicUnit.dyn5,_SoulReaper,false,false) then return end
         end
@@ -222,12 +222,12 @@ function Blood()
         -- Rune Strike//Death Coil (30)
         if runicPower >= 30 then
             if castSpell(dynamicUnit.dyn40,47541,false,false) then return end
-        end  
+        end
 
         -- Horn of Winter
         if UnitBuffID("player",_HornOfWinter) == nil then
             if castSpell("player",_HornOfWinter,true,false) then return end
-        end     
+        end
 	end
 end
 end

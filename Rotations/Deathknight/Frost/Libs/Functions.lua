@@ -76,7 +76,6 @@ if select(3,UnitClass("player")) == 6 then
 		for i = 1, 6 do
 			if select(3, GetRuneCooldown(i)) then
 				if GetRuneType(i) == 4 then
-					print("Death Runes!")
 					deathRunes = deathRunes + 1
 				end
 				if GetRuneType(i) == 1 then
