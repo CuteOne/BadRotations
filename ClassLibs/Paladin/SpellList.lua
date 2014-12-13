@@ -263,7 +263,45 @@ if select(3,UnitClass("player")) == 2 then
 		end
 		return false
 	end
-
+	-- done this works with profiles
+	function enhancedLayOnHands()
+		if isChecked("Lay On Hands") then
+			-- Lay on Hands Targets 1- me only 2- me prio 3- tank and heal 4- all
+			local LoHTargets = getValue("Lay On Hands Targets")
+			local LoHValue = getValue("Lay On Hands")
+			if LoHTargets == 1 then
+				if playerHealth <= LoHValue then
+					castLayOnHands("player")
+				end
+			elseif LoHTargets == 2 then
+				if playerHealth <= LoHValue then
+					castLayOnHands("player")
+				else
+					for i = 1, #nNova do
+						if nNova[i].hp <= LoHValue then
+							castLayOnHands(nNova[i].unit)
+						end
+					end
+				end
+			elseif LoHTargets == 3 then
+				if playerHealth <= LoHValue then
+					castLayOnHands("player")
+				else
+					for i = 1, #nNova do
+						if nNova[i].hp <= LoHValue and (nNova[i].role == "HEALER" or nNova[i].role == "TANK") then
+							castLayOnHands(nNova[i].unit)
+						end
+					end
+				end
+			elseif LoHTargets == 4 then
+				for i = 1, #nNova do
+					if nNova[i].hp <= LoHValue then
+						castLayOnHands(nNova[i].unit)
+					end
+				end
+			end
+		end
+	end
 	-- Todo we are only checking lowest healthm we need to switch to threat
 	-- Todo Add buff cehck if target already have the buff
 	-- Todo Is the talent handle correctly? 2 charges? CD starts but u have 2 charges
@@ -436,6 +474,14 @@ if select(3,UnitClass("player")) == 2 then
 						return
 					end
 				end
+			end
+		end
+	end
+	-- Divine shield
+	function castDivineShield(playerHealth)
+		if playerHealth < getValue("Divine Shield") then
+			if castSpell("player",_DivineShield,true,false) then
+				return
 			end
 		end
 	end

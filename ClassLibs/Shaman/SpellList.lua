@@ -24,7 +24,7 @@ _AncestralGuidance			=		108281
 _AncestralSwiftness			=		16188
 _AstralShift						=		108271
 _ElementalBlast					= 		117014
-_ElementalMastery				=		16166	
+_ElementalMastery				=		16166
 _LiquidMagma					=		152255
 _StormElementalTotem		=		152256
 
@@ -47,7 +47,7 @@ _Earthquake						=		61882
 _LavaBeam						=		421
 _LavaBurst						= 		51505
 _Thunderstorm					=		51490
-
+_LavaSurge                      =   77762
 
 ---Restoration---
 _ChainHeal                  		=		1064
@@ -99,5 +99,6 @@ _UnleashFlame					=		73683
 
 ------Glyphs------
 _FrostShockGlyph				=		221
+_Heroism                    =   32182
 
 end

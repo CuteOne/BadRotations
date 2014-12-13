@@ -6,211 +6,391 @@ function ShamanElemental()
 		ElementalToggles();
 		currentConfig = "Elemental CodeMyLife";
 	end
+	dynamicUnit = {
+		dyn25 = dynamicTarget(25,true), -- wind shear
+		dyn30 = dynamicTarget(35,true), -- purge
+		dyn35AoE = dynamicTarget(35,false), -- earthquake
+		dyn40 = dynamicTarget(40,true), -- flame shock
+		dyn40AoE = dynamicTarget(40,false) -- searing
+	}
+	local _Ascendance = 165339
+
+	player = {
+		buff = {
+			ascendance = {
+				duration = 15,
+				remains = getBuffRemain("player",114050),
+				up = UnitBuffID("player",114050)
+			},
+			bloodlust = {
+				duration = 40,
+				remains = getBuffRemain("player",_Heroism),
+				up = UnitBuffID("player",_Heroism)
+			},
+			lavaSurge = {
+				up = UnitBuffID("player",_LavaSurge)
+			},
+			lightningShield = {
+				up = UnitBuffID("player",_LightningShield),
+				stacks = getBuffStacks("player",_LightningShield)
+			}
+		},
+		enemiesIn10 = getEnemies("player",10),
+		glyph = {
+			thunderstorm = hasGlyph(612)
+		},
+		inCombat = isInCombat("player"),
+		hp = getHP("player"),
+		mana = getPower("player"),
+		moving = isMoving("player"),
+		spell = {
+			ascendance = {
+				cooldown = getSpellCD(165339)
+			},
+			elementalBlast = {
+				cooldown = getSpellCD(_ElementalBlast)
+			},
+			lavaBurst = {
+				cooldown = getSpellCD(_LavaBurst),
+				castTime = select(4,GetSpellInfo(_LavaBurst))/1000
+			}
+		},
+		talent = {
+			ancestralSwiftness = isKnown(_AncestralSwiftness),
+			elementalBlast = isKnown(_ElementalBlast),
+			elementalMastery = isKnown(_ElementalMastery),
+			liquidMagma = isKnown(_LiquidMagma),
+			stormElementalTotem = isKnown(_StormElementalTotem),
+			unleashedFury = isKnown(_UnleashedFury)
+		},
+		target = {
+			debuff = {
+				flameShock = {
+					remains = getDebuffRemain(dynamicUnit.dyn40,_FlameShock,"player"),
+					up = UnitDebuffID(dynamicUnit.dyn40,_FlameShock),
+
+				}
+			},
+			timeToDie = getTimeToDie(dynamicUnit.dyn40),
+			enemiesIn10 = getEnemies(dynamicUnit.dyn40,10)
+		},
+		time = BadBoy_data["Combat Started"] - GetTime(),
+		totem = {
+			air = {
+				current = select(2,GetTotemInfo(4)),
+				remains = select(4,GetTotemInfo(4)) - (GetTime() - select(3,GetTotemInfo(4))),
+				up = select(2,GetTotemInfo(4)) ~= ""
+			},
+			earth = {
+				current = select(2,GetTotemInfo(2)),
+				remains = select(4,GetTotemInfo(2)) - (GetTime() - select(3,GetTotemInfo(2))),
+				up = select(2,GetTotemInfo(2)) ~= ""
+			},
+			fire = {
+				current = select(2,GetTotemInfo(1)),
+				remains = select(4,GetTotemInfo(1)) - (GetTime() - select(3,GetTotemInfo(1))),
+				up = select(2,GetTotemInfo(1)) ~= ""
+			},
+			air = {
+				current = select(2,GetTotemInfo(3)),
+				remains = select(4,GetTotemInfo(3)) - (GetTime() - select(3,GetTotemInfo(3))),
+				up = select(2,GetTotemInfo(3)) ~= ""
+			},
+		},
+	}
+
 
 	-- Pause toggle
-	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then ChatOverlay("|cffFF0000BadBoy Paused", 0); return; end
-
-	-- Food/Invis Check
-	if canRun() ~= true or UnitInVehicle("Player") then return false; end
-	if IsMounted("player") then waitForPetToAppear = nil; return false; end
-
-	-- Wind Shear
-	if isChecked("Wind Shear") and UnitAffectingCombat("player") then
-		if canInterrupt(_WindShear, tonumber(BadBoy_data["Box Wind Shear"])) and getDistance("player","target") <= 25 then
-			castSpell("target",_WindShear,false);
-		end
+	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then
+		ChatOverlay("|cffFF0000BadBoy Paused",0)
+		return
 	end
 
-	if isInCombat("player") then
+	-- Food/Invis Check
+	if canRun() ~= true then
+		return false
+	end
 
+	if player.inCombat then
+		-- Wind Shear
+		if isChecked("Wind Shear") then
+			castInterrupt(_WindShear,getValue("Wind Shear"))
+		end
 		-- Astral Shift if < 30%
-		if BadBoy_data["Check Astral Shift"] == 1 and getHP("player") <= BadBoy_data["Box Astral Shift"] then
-			if castSpell("player",_AstralShift,true) then return; end
+		if isChecked("Astral Shift") and player.hp <= getValue("Astral Shift") then
+			if castSpell("player",_AstralShift,true) then
+				return
+			end
 		end
 		-- Healing Stream if < 50%
-		if BadBoy_data["Check Healing Stream"] == 1 and getHP("player") <= BadBoy_data["Box Healing Stream"] then
-			if castSpell("player",_HealingStreamTotem,true) then return; end
+		if isChecked("Healing Stream") == 1 and player.hp <= getValue("Healing Stream") then
+			if castSpell("player",_HealingStreamTotem,true) then
+				return
+			end
 		end
 		-- Shamanistic Rage if < 80%
-		if BadBoy_data["Check Shamanistic Rage"] == 1 and getHP("player") <= BadBoy_data["Box Shamanistic Rage"] then
-			if castSpell("player",_ShamanisticRage,true) then return; end
+		if isChecked("Shamanistic Rage") == 1 and player.hp <= getValue("Shamanistic Rage") then
+			if castSpell("player",_ShamanisticRage,true) then
+				return
+			end
 		end
 	end
 
 --[[ 	-- On GCD After here
 ]]
 
-	if castingUnit() then return false; end
-
-
-
-	-- snapshot_stats
-	-- jade_serpent_potion
-
-	-- flametongue_weapon,weapon=main
-	if isChecked("Flametongue Weapon") and GetWeaponEnchantInfo() ~= 1 then
-		if castSpell("player",_FlametongueWeapon,true) then return; end
+	if castingUnit() then
+		return
 	end
 
-	-- lightning_shield,if=!buff.lightning_shield.up
-	if isChecked("Lightning Shield") and UnitBuffID("player",_LightningShield) == nil then
-		if castSpell("player",_LightningShield,true) then return; end
-	end
 
 	if isChecked("Healing Surge Toggle") and SpecificToggle("Healing Surge Toggle") == 1 and GetCurrentKeyBoardFocus() == nil then
 		if castSpell("player",_HealingSurge,true,true) then return; end
 	end
 
+		if isInCombat("player") then
+	-- In-combat potion is preferentially linked to Ascendance, unless combat will end shortly
+	-- potion,name=draenic_intellect,if=buff.ascendance.up|target.time_to_die<=30
+	-- berserking,if=!buff.bloodlust.up&!buff.elemental_mastery.up&(set_bonus.tier15_4pc_caster=1|(buff.ascendance.cooldown_remains=0&(dot.flame_shock.remains>buff.ascendance.duration|level<87)))
+	-- blood_fury,if=buff.bloodlust.up|buff.ascendance.up|((cooldown.ascendance.remains>10|level<87)&cooldown.fire_elemental_totem.remains>10)
+	-- arcane_torrent
 
---[[ 	-- Combats Starts Here
-]]
-
-	if isInCombat("player") then
-
-		if isAlive() and (isEnnemy() or isDummy("target")) and getLineOfSight("player","target") == true and getFacing("player","target") == true then
-
-			-- jade_serpent_potion,if=time>60&(pet.primal_fire_elemental.active|pet.greater_fire_elemental.active|target.time_to_die<=60)
-			-- berserking,if=!buff.bloodlust.up&!buff.elemental_mastery.up&(set_bonus.tier15_4pc_caster=1|(buff.ascendance.cooldown_remains=0&(dot.flame_shock.remains>buff.ascendance.duration|level<87)))
-			-- blood_fury,if=buff.bloodlust.up|buff.ascendance.up|((cooldown.ascendance.remains>10|level<87)&cooldown.fire_elemental_totem.remains>10)
-			-- arcane_torrent
-
-			-- stormlash_totem,if=!active&!buff.stormlash.up&(buff.bloodlust.up|time>=60)
-
-			-- elemental_mastery,if=talent.elemental_mastery.enabled&(time>15&((!buff.bloodlust.up&time<120)|(!buff.berserking.up&!buff.bloodlust.up&buff.ascendance.up)|(time>=200&(cooldown.ascendance.remains>30|level<87))))
-			if castSpell("player",_ElementalMastery,true) and UnitBuffID("player",_AscendanceBuff) == nil then return; end
-
-			-- ancestral_swiftness,if=talent.ancestral_swiftness.enabled&!buff.ascendance.up
-			if castSpell("player",_AncestralSwiftness,true) and UnitBuffID("player",_AscendanceBuff) == nil then return; end
-
-			-- fire_elemental_totem,if=!active
-			if isSelected("Fire Elemental") and not isFireTotem(_FireElementalTotem) then
-				if castSpell("player",_FireElementalTotem,true) then return; end
+		-- flametongue_weapon,weapon=main
+		if isChecked("Flametongue Weapon") and GetWeaponEnchantInfo() ~= 1 then
+			if castSpell("player",_FlametongueWeapon,true) then
+				return
 			end
+		end
 
-			-- ascendance,if=active_enemies>1|(dot.flame_shock.remains>buff.ascendance.duration&(target.time_to_die<20|buff.bloodlust.up|time>=60)&cooldown.lava_burst.remains>0)
-			if isSelected("Ascendance") and getDebuffRemain("target",_FlameShock) > 15 and getSpellCD(_LavaBurst) > 1 and UnitBuffID("player",_AscendanceBuff) == nil then
-				if castSpell("player",_Ascendance,true) then return; end
+		-- lightning_shield,if=!buff.lightning_shield.up
+		if isChecked("Lightning Shield") and not player.buff.lightningShield then
+			if castSpell("player",_LightningShield,true) then
+				return
 			end
+		end
 
-			local numEnemies = getNumEnemies("target",10)
-			if BadBoy_data["AoE"] == 3 and numEnemies > 1 or BadBoy_data["AoE"] == 2 then
+	--[[
 
---[[			#Multi target action priority list
-]]
-				-- lava_beam,if=buff.ascendance.up
-				if UnitBuffID("player",_AscendanceBuff) ~= nil then
-					if castSpell("target",_LavaBeam,false,true) then return; end
-				end
 
-				-- magma_totem,if=active_enemies>2&!totem.fire.active
-				if  (not (hasMagma() or hasFireElemental()) or (hasMagma() and getTotemDistance("target") > 8)) and targetDistance<8 and getNumEnemies("player",8) > 2 and isInCombat("player") then
-					if castSpell("player",_MagmaTotem,true,false) then return; end
-				end
 
-				-- lava_burst,if=active_enemies<3&dot.flame_shock.remains>cast_time&cooldown_react
-				if numEnemies == 2 and getDebuffRemain("target",_FlameShock) > select(7,GetSpellInfo(_LavaBurst))/1000 and getSpellCD(_LavaBurst) == 0 then
-					if castSpell("target",_LavaBurst,false,true) then return; end
-				end
 
-				-- flame_shock,if=ticks_remain<2
-				if getDebuffRemain("target",_FlameShock) < 2 then
-					if castSpell("target",_FlameShock,false,false) then return; end
-				end
 
-				-- flame_shock,cycle_targets=1,if=!ticking&active_enemies<3
-				if numEnemies == 2 then
 
-				end
 
-				-- earthquake,if=active_enemies>4
-				if isSelected("EarthQuake") and numEnemies > 4 then
-					if getGround("target") == true and isMoving("target") == false and (isDummy("target") or (getDistance("target","targettarget") <= 5 and UnitHealth("target")*numEnemies >= 150*UnitHealthMax("player")/100)) then
-						if castGround("target",_Earthquake,40) then return; end
-					end
-				end
 
-				-- thunderstorm,if=mana.pct_nonproc<80
-				if isSelected("Thunderstorm") and getMana("player") < 75 then
-					if castSpell("player",_Thunderstorm,false,false) then return; end
-				end
 
-				-- chain_lightning,if=mana.pct_nonproc>10
-				if castSpell("target",_ChainLightning,false,true) then return; end
 
+
+
+	]]
+
+		-- elemental_mastery,if=action.lava_burst.cast_time>=1.2
+		if player.talent.elementalMastery and player.spell.lavaBurst.cooldown >= 1.2 then
+			if castSpell("player",_ElementalMastery,true) then
+				return
 			end
-
---[[		# Single target action priority list
-]]
-			-- use_item,name=grips_of_tidal_force,if=((cooldown.ascendance.remains>10|level<87)&cooldown.fire_elemental_totem.remains>10)|buff.ascendance.up|buff.bloodlust.up|totem.fire_elemental_totem.active
-
-			-- unleash_elements,if=talent.unleashed_fury.enabled&!buff.ascendance.up
-			if isSelected("Unleash Element") and isKnown(_UnleashElements) and UnitBuffID("player",_Ascendance) == nil then
-				if castSpell("target",_UnleashElements,false,false) then return; end
+		end
+		-- ancestral_swiftness,if=!buff.ascendance.up
+		if player.talent.ancestralSwiftness and not player.buff.ascendance then
+			if castSpell("player",_Ascendance,true,false) then
+				return
 			end
-
+		end
+		-- storm_elemental_totem
+		if player.talent.stormElementalTotem then
+			if castSpell("player",_StormElementalTotem) then
+				return
+			end
+		end
+		-- fire_elemental_totem,if=!active
+		if player.totem.fire ~= GetSpellInfo(_FireElementalTotem) then
+			if castSpell("player",_FireElementalTotem,true,false) then
+				return
+			end
+		end
+		-- ascendance,if=active_enemies>1|
+		if not player.buff.ascendance.up and player.spell.ascendance.cooldown == 0 and (#player.target.enemiesIn10 > 1
+		  -- (dot.flame_shock.remains>buff.ascendance.duration&(target.time_to_die<20|buff.bloodlust.up|time>=60)
+		  or (player.target.debuff.flameShock.remains > player.buff.ascendance.duration and (player.target.timeToDie < 20 or player.buff.bloodlust.up or player.time >= 60)
+			-- &cooldown.lava_burst.remains>0)
+		  and player.spell.lavaBurst.cooldown > 0)) then
+		  	if castSpell("player",_Ascendance,true,false) then
+		  	 	return
+		  	end
+		end
+		-- liquid_magma,if=pet.searing_totem.remains>=15|pet.fire_elemental_totem.remains>=15
+		if (player.totem.fire.current == GetSpellInfo(_SearingTotem) or player.totem.fire.current == GetSpellInfo(_FireElementalTotem))
+		  and player.totem.fire.remains > 15 then
+		  	if castSpell("player",_LiquidMagma,true,false) then
+	  			return
+	  		end
+	  	end
+		-- #If only one enemy, priority follows the 'single' action list.
+		-- call_action_list,name=single,if=active_enemies=1
+		if #player.target.enemiesIn10 == 1 then
+			-- #Single target action priority list
+			-- unleash_flame,moving=1
+			if player.moving then
+				if castSpell(dynamicUnit.dyn40,_UnleashFlame,false,false) then
+					return
+				end
+			end
 			-- spiritwalkers_grace,moving=1,if=buff.ascendance.up
-			if isMoving("player") and UnitBuffID("player",_Ascendance) ~= nil then
-				if castSpell("player",_SpiritwalkersGrace,true) then return; end
+			if player.moving and player.buff.ascendance.up then
+				if castSpell("player",_SpiritwalkersGrace,true,false) then
+					return
+				end
 			end
-
-			-- lava_burst,if=dot.flame_shock.remains>cast_time&(buff.ascendance.up|cooldown_react)
-			if getDebuffRemain("target",_FlameShock) > select(7,GetSpellInfo(_LavaBurst))/1000 and
-				(UnitBuffID("player",_AscendanceBuff) ~= nil or getSpellCD(_LavaBurst) == 0) then
-				if castSpell("target",_LavaBurst,false,true) then return; end
-			end
-
-			-- flame_shock,if=ticks_remain<2
-			if getDebuffRemain("target",_FlameShock) < 2 then
-				if castSpell("target",_FlameShock,false,false) then return; end
-			end
-
-			-- elemental_blast,if=talent.elemental_blast.enabled
-			if isKnown(_ElementalBlast) then
-				if castSpell("target",_ElementalBlast,false,true) then return; end
-			end
-
-			---- # Use Earth Shock if Lightning Shield is at max (7) charges
 			-- earth_shock,if=buff.lightning_shield.react=buff.lightning_shield.max_stack
-			if getBuffStacks("player",_LightningShield) == 7 then
-				if castSpell("target",_EarthShock,false,false) then return; end
+			if player.buff.lightningShield.up and player.buff.lightningShield.stacks == 15 then
+				if castSpell(dynamicUnit.dyn40,_EarthShock,false,false) then
+					return
+				end
 			end
-
-			---- # Use Earth Shock if Lightning Shield is above 3 charges and the Flame Shock remaining duration is longer than the shock cooldown but shorter than shock cooldown + tick time interval
-			-- earth_shock,if=buff.lightning_shield.react>3&dot.flame_shock.remains>cooldown&dot.flame_shock.remains<cooldown+action.flame_shock.tick_time
-			if getBuffStacks("player",_LightningShield) > 3 and getDebuffRemain("target",_FlameShock) > 7 then
-				if castSpell("target",_EarthShock,false,false) then return; end
+			-- lava_burst,if=dot.flame_shock.remains>cast_time&(buff.ascendance.up|cooldown_react)
+			if player.target.debuff.flameShock.remains > player.spell.lavaBurst.castTime
+			  and (player.buff.ascendance.up or player.spell.lavaBurst.cooldown <= 0.5) then
+			  	if castSpell(dynamicUnit.dyn40,_LavaBurst,false,true) then
+			  		return
+			  	end
 			end
+			-- unleash_flame,if=talent.unleashed_fury.enabled&!buff.ascendance.up
+			if player.talent.unleashedFury and not player.buff.ascendance.up then
+				if castSpell(dynamicUnit.dyn40,_UnleashFlame,false,false) then
+					return
+				end
+			end
+			-- flame_shock,if=dot.flame_shock.remains<=9
+			if player.target.debuff.flameShock.remains <= 9 then
+				if castSpell(dynamicUnit.dyn40,_FlameShock,false,false) then
+					return
+				end
+			end
+			-- earth_shock,if=(set_bonus.tier17_4pc&buff.lightning_shield.react>=15&!buff.lava_surge.up)|(!set_bonus.tier17_4pc&buff.lightning_shield.react>15)
+			if player.buff.lightningShield.stacks == 15 then
+				if castSpell(dynamicUnit.dyn40,_EarthShock,false,false) then
+					return
+				end
+			end
+			-- earthquake,if=!talent.unleashed_fury.enabled&((1+stat.spell_haste)*(1+(mastery_value*2%4.5))>=(1.875+(1.25*0.226305)+1.25*(2*0.226305*stat.multistrike_pct%100)))&target.time_to_die>10&buff.elemental_mastery.down&buff.bloodlust.down
+			-- earthquake,if=!talent.unleashed_fury.enabled&((1+stat.spell_haste)*(1+(mastery_value*2%4.5))>=1.3*(1.875+(1.25*0.226305)+1.25*(2*0.226305*stat.multistrike_pct%100)))&target.time_to_die>10&(buff.elemental_mastery.up|buff.bloodlust.up)
+			-- earthquake,if=!talent.unleashed_fury.enabled&((1+stat.spell_haste)*(1+(mastery_value*2%4.5))>=(1.875+(1.25*0.226305)+1.25*(2*0.226305*stat.multistrike_pct%100)))&target.time_to_die>10&(buff.elemental_mastery.remains>=10|buff.bloodlust.remains>=10)
+			-- earthquake,if=talent.unleashed_fury.enabled&((1+stat.spell_haste)*(1+(mastery_value*2%4.5))>=((1.3*1.875)+(1.25*0.226305)+1.25*(2*0.226305*stat.multistrike_pct%100)))&target.time_to_die>10&buff.elemental_mastery.down&buff.bloodlust.down
+			-- earthquake,if=talent.unleashed_fury.enabled&((1+stat.spell_haste)*(1+(mastery_value*2%4.5))>=1.3*((1.3*1.875)+(1.25*0.226305)+1.25*(2*0.226305*stat.multistrike_pct%100)))&target.time_to_die>10&(buff.elemental_mastery.up|buff.bloodlust.up)
+			-- earthquake,if=talent.unleashed_fury.enabled&((1+stat.spell_haste)*(1+(mastery_value*2%4.5))>=((1.3*1.875)+(1.25*0.226305)+1.25*(2*0.226305*stat.multistrike_pct%100)))&target.time_to_die>10&(buff.elemental_mastery.remains>=10|buff.bloodlust.remains>=10)
 
-			---- # After the initial Ascendance, use Flame Shock pre-emptively just before Ascendance to guarantee Flame Shock staying up for the full duration of the Ascendance buff
+			-- elemental_blast
+			if castSpell(dynamicUnit.dyn40,_ElementalBlast,false,true) then
+				return
+			end
+			-- #After the initial Ascendance, use Flame Shock pre-emptively just before Ascendance to guarantee Flame Shock staying up for the full duration of the Ascendance buff
 			-- flame_shock,if=time>60&remains<=buff.ascendance.duration&cooldown.ascendance.remains+buff.ascendance.duration<duration
-			if getSpellCD(_Ascendance) < 12 and getDebuffRemain("target",_FlameShock) < getSpellCD(_Ascendance) + 15 then
-				if castSpell("target",_FlameShock,false,false) then return; end
+			if player.time > 60 and player.target.debuff.flameShock < player.buff.ascendance.remains
+			  and player.spell.ascendance.cooldown + player.buff.ascendance.duration < player.target.debuff.flameShock.remains then
+			  	if castSpell(dynamicUnit.dyn40,_FlameShock,false,false) then
+			  		return
+			  	end
+			end
+			-- #Keep Searing Totem up, unless Fire Elemental Totem is coming off cooldown in the next 20 seconds
+			-- searing_totem,if=(!talent.liquid_magma.enabled&!totem.fire.active)
+			if (not player.talent.liquidMagma and not player.totem.fire.up)
+			  -- |(talent.liquid_magma.enabled&pet.searing_totem.remains<=20
+			  or (player.talent.liquidMagma and not (player.totem.fire.current ~= GetSpellInfo(_SearingTotem) and pet.totem.fire.remains <= 20)
+			  -- &!pet.fire_elemental_totem.active
+			  and player.totem.fire.current ~= GetSpellInfo(_FireElementalTotem)
+			  -- &!buff.liquid_magma.up)
+			  and not player.buff.liquidMagma.up) then
+			  	if castSpell("player",_SearingTotem,true,false) then
+			  		return
+			  	end
 			end
 
-			-- earth_elemental_totem,if=!active&cooldown.fire_elemental_totem.remains>=60
-			if getSpellCD(_FireElementalTotem) > 60 then
-				if castSpell("player",_FlameShock,false,false) then return; end
+			-- spiritwalkers_grace,moving=1,if=((talent.elemental_blast.enabled&cooldown.elemental_blast.remains=0)
+			if player.moving and ((player.talent.elementalBlast and player.spell.elementalBlast.cooldown == 0)
+			  -- |(cooldown.lava_burst.remains=0&!buff.lava_surge.react))
+			  or (player.spell.lavaBurst.cooldown == 0 and player.buff.lavaSurge.up)) then
+				if castSpell("player",_SpiritwalkersGrace,true,false) then
+					return
+				end
 			end
-
-			---- # Keep Searing Totem up, unless Fire Elemental Totem is coming off cooldown in the next 20 seconds
-			-- searing_totem,if=cooldown.fire_elemental_totem.remains>20&!totem.fire.active
-			if isFireTotem(_FireElementalTotem) == false and (isFireTotem(_SearingTotem) == false or getTotemDistance("target") > 25) and getDistance("target") <= 25 and (isSelected("Fire Elemental") ~= true or getSpellCD(_FireElementalTotem) > 20) then
-				if castSpell("player",_SearingTotem,true,false) then return; end
+			-- thunderstorm,mana<70
+			if player.mana < 70 and (player.enemiesIn10 == 0 or player.glyph.thunderstorm) then
+				if castSpell("player",_Thunderstorm,true,false) then
+					return
+				end
 			end
-
-			-- spiritwalkers_grace,moving=1,if=((talent.elemental_blast.enabled&cooldown.elemental_blast.remains=0)|(cooldown.lava_burst.remains=0&!buff.lava_surge.react))|(buff.raid_movement.duration>=action.unleash_elements.gcd+action.earth_shock.gcd)
-			if isMoving("player") and (getSpellCD(_ElementalBlast) == 0 or getSpellCD(_LavaBurst) == 0) then
-				if castSpell("player",_SpiritwalkersGrace,true,false) then return; end
-			end
-
-			-- thunderstorm,if=mana.pct_nonproc<80
-			if isSelected("Thunderstorm") and getMana("player") < 75 then
-				if castSpell("player",_Thunderstorm,false,false) then return; end
-			end
-
 			-- lightning_bolt
-			if castSpell("target",_LightningBolt,false,true) then return; end
+			if castSpell(dynamicUnit.dyn40,_LightningBolt,false,true) then
+				return
+			end
+		else
+			-- #Multi target action priority list
+
+			-- earthquake,cycle_targets=1,if=!ticking&(buff.enhanced_chain_lightning.up|level<=90)&active_enemies>=2
+
+			-- lava_beam
+			if player.buff.ascendance.up then
+				if castSpell(dynamicUnit.dyn40,_LavaBeam,false,true) then
+					return
+				end
+			end
+			-- earth_shock,if=buff.lightning_shield.react=buff.lightning_shield.max_stack
+			if player.buff.lightningShield.up and player.buff.lightningShield.stacks == 15 then
+				if castSpell(dynamicUnit.dyn40,_EarthShock,false,false) then
+					return
+				end
+			end
+			-- thunderstorm,if=active_enemies>=10
+			if #player.enemiesIn10 >= 10 then
+				if castSpell("player",_Thunderstorm,true,false) then
+					return
+				end
+			end
+			-- searing_totem,if=(!talent.liquid_magma.enabled&!totem.fire.active)
+			if (not player.talent.liquidMagma and not player.totem.fire.up)
+			  -- |(talent.liquid_magma.enabled&pet.searing_totem.remains<=20
+			  or (player.talent.liquidMagma and not (player.totem.fire.current ~= GetSpellInfo(_SearingTotem) and pet.totem.fire.remains <= 20)
+			  -- &!pet.fire_elemental_totem.active
+			  and player.totem.fire.current ~= GetSpellInfo(_FireElementalTotem)
+			  -- &!buff.liquid_magma.up)
+			  and not player.buff.liquidMagma.up) then
+			  	if castSpell("player",_SearingTotem,true,false) then
+			  		return
+			  	end
+			end
+			-- chain_lightning,if=active_enemies>=2
+			if #player.target.enemiesIn10 > 2 then
+				if castSpell(dynamicUnit.dyn40,_ChainLightning,false,true) then
+					return
+				end
+			end
+			-- lightning_bolt
+			if castSpell(dynamicUnit.dyn40,_LightningBolt,false,true) then
+				return
+			end
 		end
 	end
+
+--[[
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+]]
 end
 end

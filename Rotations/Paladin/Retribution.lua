@@ -16,11 +16,10 @@ if select(3, UnitClass("player")) == 2 then
 		dyn40 = dynamicTarget(40,true)
 	}
 	-- Locals Variables
-	local _HolyPower = UnitPower("player", 9)
+	local _HolyPower = UnitPower("player",9)
 	-- Gabbz:Get number of enemies within melee range. Does this also work for large hotboxes?
 	-- CML:Last time i did test with it i was able to test range from a mob to sha
 	-- with a -3 yard precision under 10 yard
-	local meleeEnemies = #getEnemies("player", 5)
 	local buffDivineCrusader = getBuffRemain("player",_DivineCrusader)
 	local buffHolyAvenger = getBuffRemain("player",_HolyAvenger)
 	local buffDivinePurpose = getBuffRemain("player",_DivinePurpose)
@@ -31,18 +30,24 @@ if select(3, UnitClass("player")) == 2 then
 	local buffLiadrinsRighteousness = getBuffRemain("player",156989)
 	local buffMaraadsTruth = getBuffRemain("player",156990)
 	local cdSeraphim = getSpellCD(_Seraphim)
+	local glyphMassExorcism = hasGlyph(122028)
+	local glyphDoubleJeopardy = hasGlyph(54922)
+	local meleeEnemies = #getEnemies("player",5)
+	local meleeAoEEnemies = meleeEnemies
+	local meleeAoEEnemies = #getEnemies("player",8)
+	if buffFinalVerdict then
+		meleeAoEEnemies = #getEnemies("player",16)
+	end
+	local modeAoE = BadBoy_data["AoE"]
+	local modeCooldown = BadBoy_data["Cooldowns"]
+	local modeDefense = BadBoy_data["Defensive"]
+	local modeHealing = BadBoy_data["Healing"]
+	local playerHealth = getHP("player")
 	local sealOfTruth = GetShapeshiftForm() == 1 or nil
 	local sealOfRighteousness = GetShapeshiftForm() == 2 or nil
 	local talentEmpoweredSeal = isKnown(152263)
 	local talentFinalVerdict = isKnown(_FinalVerdict)
 	local talentSeraphim = isKnown(_Seraphim)
-	local glyphMassExorcism = hasGlyph(122028)
-	local glyphDoubleJeopardy = hasGlyph(54922)
-	local meleeAoEEnemies = meleeEnemies
-	local meleeAoEEnemies = #getEnemies("player", 8)
-	if buffFinalVerdict then
-		meleeAoEEnemies = #getEnemies("player", 16)
-	end
 
 	-- Food/Invis Check
 	-- Gabbz:Hm here we are checking if we should abort the rotation pulse due to if we are a vehicle or some stuff
@@ -68,32 +73,28 @@ if select(3, UnitClass("player")) == 2 then
 	-- Combats Starts Here
 	if isInCombat("player") then
 		-- Lay on Hands
-		if getHP("player") <= getValue("Lay On Hands") then
-			castLayOnHands("player")
-		else
-			for i = 1, #nNova do
-				if nNova[i].hp <= getValue("Lay On Hands") then
-					castLayOnHands(nNova[i].unit)
-				end
-			end
+		--castLayOnHands()
+		-- Divine Shield
+		if (isChecked("Divine Shield") and modeDefense == 2) or modeDefense == 3 then
+			castDivineShield(playerHealth)
 		end
-
 		-- Selfless Healer
-		if getHP("player") <= getValue("Selfless Healer") then
-			if castSpell("player",_FlashOfLight,true) then
-				return
-			end
-		else
-			for i = 1, #nNova do
-				if nNova[i].hp <= getValue("Selfless Healer") then
-					if castSpell(nNova[i].unit,_FlashOfLight,true) then
-						return
+		if isChecked("Selfless Healer") then
+			if getHP("player") <= getValue("Selfless Healer") then
+				if castSpell("player",_FlashOfLight,true) then
+					return
+				end
+			elseif modeHealing == 2 then
+				for i = 1, #nNova do
+					if nNova[i].hp <= getValue("Selfless Healer") then
+						if castSpell(nNova[i].unit,_FlashOfLight,true) then
+							return
+						end
 					end
 				end
 			end
 		end
 
-		-- potion,name=draenic_strength,if=(buff.bloodlust.react|buff.avenging_wrath.up|target.time_to_die<=40)
 		--[[Always]]
 		-- auto_attack
 		if isInMelee() and getFacing("player","target") == true then
@@ -107,22 +108,21 @@ if select(3, UnitClass("player")) == 2 then
 		castExecutionSentence(dynamicUnit.dyn40)
 
 		-- lights_hammer
-		castLightsHammer(dynamicUnit.dyn30AoE)
-
+		if modeCooldown == 3 or (modeCooldown == 2 and isChecked("Light's Hammer")) then
+			castLightsHammer(dynamicUnit.dyn30AoE)
+		end
 		-- Holy Avenger
-		castHolyAvenger(_HolyPower)
-
+		if modeCooldown == 3 or (modeCooldown == 2 and isChecked("Holy Avenger")) then
+			castHolyAvenger(_HolyPower)
+		end
 		-- Avenging Wrath
-		castAvengingWrath()
-
-		-- use_item,name=vial_of_convulsive_shadows,if=buff.avenging_wrath.up
-		-- blood_fury
-		-- berserking
-		-- arcane_torrent
+		if modeCooldown == 3 or (modeCooldown == 2 and isChecked("Avenging Wrath")) then
+			castAvengingWrath()
+		end
 		-- seraphim
 		castSeraphim(_HolyPower)
 		--[[Single(1-2)]]
-		if meleeAoEEnemies < 3 then
+		if (meleeAoEEnemies < 3  and modeAoE == 4) or modeAoE == 1 then
 			-- divine_storm,if=buff.divine_crusader.react&holy_power=5&buff.final_verdict.up
 			if (buffDivineCrusader > 0 and _HolyPower == 5 and buffFinalVerdict > 0)
 			  -- divine_storm,if=buff.divine_crusader.react&holy_power=5&active_enemies=2&!talent.final_verdict.enabled
@@ -231,7 +231,7 @@ if select(3, UnitClass("player")) == 2 then
 			end
 			-- holy_prism
 			castHolyPrism(dynamicUnit.dyn40,false)
-		elseif meleeAoEEnemies < 5 then
+		elseif (meleeAoEEnemies < 5  and modeAoE == 4) or modeAoE == 2 then
 			--[[Cleave(3-4)]]
 			-- final_verdict,if=buff.final_verdict.down&holy_power=5
 			if talentFinalVerdict then
@@ -298,7 +298,7 @@ if select(3, UnitClass("player")) == 2 then
 			castJudgement()
 			-- exorcism
 			castExorcism()
-		else
+		elseif (meleeAoEEnemies >= 5 and modeAoE == 4) or modeAoE == 3 then
 			--[[AoE(5+)]]
 			-- divine_storm,if=holy_power=5&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
 			if _HolyPower == 5 and (not talentSeraphim or cdSeraphim > 4) then

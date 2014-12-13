@@ -241,9 +241,10 @@ if select(3,UnitClass("player")) == 2 then
 
 		local myColor = "|cffC0C0C0"
 		local redColor = "|cffFF0011"
+		local whiteColor = "|cffFFFFFF"
 		local myClassColor = classColors[select(3,UnitClass("player"))].hex
 		local function generateWrapper(wrapName)
-			CreateNewWrap(thisConfig,myClassColor.."-"..redColor.." "..wrapName.." "..myClassColor.."-")
+			CreateNewWrap(thisConfig,whiteColor.."- "..redColor..wrapName..whiteColor.." -")
 		end
 
 		ClearConfig()
@@ -257,12 +258,8 @@ if select(3,UnitClass("player")) == 2 then
 
 		-- Blessing
 		CreateNewCheck(thisConfig,"Blessing")
+		CreateNewDrop(thisConfig,"Blessing",1,"|cffFFFFFFFWich blessing do you want to maintain on raid","|cff0374FEKings","|cffFFBC40Might","|cff00FF0DAuto")
 		CreateNewText(thisConfig,"Blessing")
-
-		-- Seal
-		CreateNewCheck(thisConfig,"Seal")
-		CreateNewDrop(thisConfig,"Seal",1,"Choose Seal to use.","|cffFFDD11Insight","|cff00FBEETruth","|cff00EE00Swap")
-		CreateNewText(thisConfig,"Seal")
 
 		-- Wrapper
 		generateWrapper("Coooldowns")
@@ -271,6 +268,13 @@ if select(3,UnitClass("player")) == 2 then
 		CreateNewCheck(thisConfig,"Avenging Wrath")
 		CreateNewDrop(thisConfig,"Avenging Wrath",1,"CD")
 		CreateNewText(thisConfig,"Avenging Wrath")
+
+		if isKnown(_LightsHammer) then
+			-- Light's Hammer
+			CreateNewCheck(thisConfig,"Light's Hammer")
+			CreateNewDrop(thisConfig,"Light's Hammer",1,"CD")
+			CreateNewText(thisConfig,"Light's Hammer")
+		end
 
 		if isKnown(_HolyAvenger) then
 			-- Holy Avenger
@@ -285,16 +289,6 @@ if select(3,UnitClass("player")) == 2 then
 		end
 
 		-- Wrapper
-		generateWrapper("DPS Teaks")
-
-		if isKnown(_LightsHammer) then
-			-- Light's Hammer
-			CreateNewCheck(thisConfig,"Light's Hammer")
-			CreateNewDrop(thisConfig,"Light's Hammer",1,"CD")
-			CreateNewText(thisConfig,"Light's Hammer")
-		end
-
-		-- Wrapper
 		generateWrapper("Defensive")
 
 		-- Divine Protection
@@ -302,8 +296,36 @@ if select(3,UnitClass("player")) == 2 then
 		CreateNewBox(thisConfig,"Divine Protection",0,100,1,75,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFDivine Protection")
 		CreateNewText(thisConfig,"Divine Protection")
 
+		-- Divine Shield
+		CreateNewCheck(thisConfig,"Divine Shield",1)
+		CreateNewBox(thisConfig,"Divine Shield",0,100,1,10,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFDivine Shield")
+		CreateNewText(thisConfig,"Divine Shield")
+
 	   -- Wrapper
 		generateWrapper("Healing")
+
+
+
+		if isKnown(_HandOfPurity) == true then
+			CreateNewCheck(thisConfig,"Hand of Purity")
+			CreateNewBox(thisConfig,"Hand of Purity",0,100,1,50,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand of Purity")
+			CreateNewText(thisConfig,"Hand of Purity")
+		end
+		-- Hand of Sacrifice
+		CreateNewCheck(thisConfig,"Hand Of Sacrifice")
+		CreateNewBox(thisConfig,"Hand Of Sacrifice",0,100,1,35,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Sacrifice")
+		CreateNewText(thisConfig,"Hand Of Sacrifice")
+
+		-- Lay on Hands
+		CreateNewCheck(thisConfig,"Lay On Hands")
+		CreateNewBox(thisConfig,"Lay On Hands",0,100,1,12,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands")
+		CreateNewText(thisConfig,"Lay On Hands")
+
+		-- Lay on Hands Targets 1- me only 2- me prio 3- tank and heal 4- all
+		CreateNewCheck(thisConfig,"LoH Targets")
+		CreateNewDrop(thisConfig,"LoH Targets",1,"|cffFF0000Wich Targets\n|cffFFBB00We want to use \n|cffFFFFFFLay On Hands","|cffFF0000Me.Only","|cffFFDD11Me.Prio","|cff00FBEETank/Heal","|cff00FF00All")
+		CreateNewText(thisConfig,"LoH Targets")
+
 
 		-- Tier 3 talents
 		if isKnown(_SacredShield) then
@@ -331,24 +353,6 @@ if select(3,UnitClass("player")) == 2 then
 			CreateNewBox(thisConfig,"Word Of Glory",0,100,1,70,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFWord Of Glory on Raid")
 			CreateNewText(thisConfig,"Word Of Glory")
 		end
-
-		if isKnown(_HandOfPurity) == true then
-			CreateNewCheck(thisConfig,"Hand of Purity")
-			CreateNewBox(thisConfig,"Hand of Purity",0,100,1,50,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand of Purity")
-			CreateNewText(thisConfig,"Hand of Purity")
-		end
-
-		CreateNewCheck(thisConfig,"Lay On Hands")
-		CreateNewBox(thisConfig,"Lay On Hands",0,100,1,12,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands")
-		CreateNewText(thisConfig,"Lay On Hands")
-
-		CreateNewCheck(thisConfig,"LoH Targets")
-		CreateNewDrop(thisConfig,"LoH Targets",1,"|cffFF0000Wich Targets\n|cffFFBB00We want to use \n|cffFFFFFFLay On Hands","|cffFF0000Me.Only","|cffFFDD11Me.Prio","|cff00FBEETank/Heal","|cff00FF00All")
-		CreateNewText(thisConfig,"LoH Targets")
-
-		CreateNewCheck(thisConfig,"Hand Of Sacrifice")
-		CreateNewBox(thisConfig,"Hand Of Sacrifice",0,100,1,35,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Sacrifice")
-		CreateNewText(thisConfig,"Hand Of Sacrifice")
 
 		-- Wrapper
 		generateWrapper("Utilities")
