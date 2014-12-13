@@ -465,17 +465,6 @@ Holy
 			end
 		end
 
-		-- Holy Shock
-		function castHolyShock(hpValue)
-			if _HolyPower < 5 or lowestHP < 90 then
-				for i = 1, #nNova do
-					if nNova[i].hp < hpValue then
-						if castSpell(nNova[i].unit, _HolyShock, true, false) then return end
-					end
-				end
-			end
-		end
-
 		-- Word Of Glory
 		function WordOfGlory(hpValue)
 			if _HolyPower > 3 then
@@ -683,25 +672,72 @@ Holy
 			end
 		end
 
-		function getAoeHealingCandidateNova(numUnits, missingHP, rangeValue)					
+		function castAoEHeals()
+			-- Aoe Heals
+			--	Holy Radiance  40 yards, generates 1 HoPo friendly target and 6 allies within 10 yards
+			--  Light Of Dawn, cost 1 HoPo heals 6 allies within 30 yards.
+			--  Holy Shock if Daybreak buff, 10 yeards of target 15% healing done for 5 allies.
+			--  Holy Prism, CD 20, cast on enemy heals 5 allies within 15 yards. Talents
+			--  Lights Hammer, 30 yards, heals 6 allies within 10 yards radius.
+
+			if UnitBuffID("player",_Daybreak) and canCast(_HolyShock) then
+				local aoeCHolyShockandidate, numberOfUnitsInRange = getAoeHealingCandidateNova(2, 90, 10) --Holy Shock values, cast if we have 2
+				if aoeCHolyShockandidate then
+					if castHolyShock(aoeCHolyShockandidate, 100) then
+						return true
+					end
+				end
+			end
+
+			return false
+		end
+
+		function getAoeHealingCandidateNova(minimalNumberofUnits, missingHP, rangeValue)
+			local bestAoECandidate = nNova[1].unit					
+			local bestAoeNumberOfUnits = 0
 			for i = 1, #nNova do
 	        	if nNova[i].hp < 249 then
 			        local alliesinRange = getAllies(nNova[i].unit,rangeValue)
-			        if #alliesInRange >= numUnits then
-				        local count = 0
-				        for j = 1, #alliesInRange do
-					        if getHP(alliesInRange[j]) < missingHP then
+			        local count = 0
+			        if #alliesinRange >= minimalNumberofUnits then
+				        for j = 1, #alliesinRange do
+					        if getHP(alliesinRange[j]) < missingHP then
 					            count = count + 1
 					        end
 				        end
-		                if count >= numUnits then
-		                    return nNova[i].unit
-		                end
 				    end
+				    if count > 	bestAoeNumberOfUnits then
+				    	bestAoECandidate = nNova[i].unit
+				    	bestAoeNumberOfUnits = count
+				    end
+				    -- Todo: Here we have not met the criteria, but we should be able to provide with the best candidate even if we dont meet the criteria
 				end
           	end
-          	return false
-         end
+          	if bestAoeNumberOfUnits >= minimalNumberofUnits then
+          		return bestAoECandidate, bestAoeNumberOfUnits
+          	else
+          		return false
+          	end
+        end
+
+		function preCombatHandlingHoly() --actions to be done prepull for holy
+		--cast Eternal Flame on tanks
+			if _HolyPower > 2 and castEternalFlame(100) then --Todo: We need to cast Eternal flame on both tanks.
+				return true
+			end 
+			if _HolyPower > 2 then
+				if castEternalFlame(100) then
+					return true
+				end
+			end
+			if castHolyShock(nil, 100) then
+				return true
+			end
+			if castHolyRadiance(_HolyRadiance, 1, 0, 30) then 
+				return true
+			end
+			return false
+		end
 	end
 end
 

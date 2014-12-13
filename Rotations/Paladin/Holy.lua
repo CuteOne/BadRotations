@@ -114,54 +114,34 @@ if select(3, UnitClass("player")) == 2 then
 				return false
 			end
 
-			BeaconOfLight()	-- Set Beacon of Light and faith on correct target
-
-			if not UnitAffectingCombat("player") then
-				--cast Eternal Flame on tanks
-				if _HolyPower > 2 and castEternalFlame(100) then --Todo: We need to cast Eternal flame on both tanks.
-					return true
-				end 
-
-				if _HolyPower > 2 then
-					if castEternalFlame(100) then
-						return true
-					end
-				end
-				if castHolyShock(100) then
-					return true
-				end
-				if castHolyRadiance(_HolyRadiance, 1, 0, 30) then 
-					return true
-				end
+			if BeaconOfLight() then 	-- Set Beacon of Light and faith on correct target
+				return true
 			end
 
-
-			--[[Auto Attack if in melee]]
-			if isInMelee() and getFacing("player","target") == true then
-				RunMacroText("/startattack")
+			if not UnitAffectingCombat("player") then
+				if preCombatHandlingHoly() then
+					return true
+				end
 			end
 
 			if castDispell() then
 				return true
+			end
+
+			--[[Auto Attack if in melee]]
+			if isInMelee() and getFacing("player","target") == true then
+				RunMacroText("/startattack")
 			end	
 			
-			-- We start with critical heals, ie when target is way below on hp
-			--[[Lay on Hands I like LoH in combat only because i do not like to waste it because a lock is running to his death.]]
-			if getHP("player") <= getValue("Lay On Hands") then
-				if castSpell("player",_LayOnHands,true) then
-					return true
-				end
-			else
-				for i = 1, #nNova do
-					if nNova[i].hp <= getValue("Lay On Hands") then
-						if castSpell(nNova[i].unit,_LayOnHands,true) then
-							return true
-						end
-					end
-				end
+			--Todo: Layon hands is just values, we need to add logic regarding who
+			if castLayOnHands() then
+				return true
 			end
 
 			-- AoE healing
+			 if castAoEHeals() then
+			 	return true
+			 end
 
 			--[Light of Dawn] 3 HoPo heals 6 allies 30 yards from player
 			--getAoeHealingCandidateNova(numUnits, missingHP, rangeValue)
@@ -172,7 +152,7 @@ if select(3, UnitClass("player")) == 2 then
 				end
 			end
 			--[[holy_shock,if=holy_power<=3]] -- Should add not cast if 5 HoPo
-			if getOptionCheck("Holy Shock") and _HolyPower < 5 and castHolyShock(getValue("Holy Shock"))  then 
+			if getOptionCheck("Holy Shock") and _HolyPower < 5 and castHolyShock(nil, getValue("Holy Shock"))  then 
 				return true
 			end
 

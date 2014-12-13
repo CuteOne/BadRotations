@@ -26,6 +26,7 @@ if select(3,UnitClass("player")) == 2 then
 		_DivinePurposeBuff			= 	90174
 		_DivineShield               =   642
 		_DivineStorm                =   53385
+		_Daybreak					= 	88819
 		_EternalFlame               =   114163
 		_ExecutionSentence          =   114157
 		_Exorcism                   =   879
@@ -256,11 +257,28 @@ if select(3,UnitClass("player")) == 2 then
 		return false
 	end
 
-	-- Todo This need to be enhanced to be much more logical
+	--Todo:Add who to loh logic
 	function castLayOnHands(unit)
-		if castSpell(unit,_LayOnHands,true,false) then
-			return true
+		if unit then
+			if castSpell(unit,_LayOnHands,true,false) then
+				return true
+			end
 		end
+		-- If no unit then be smart
+		if getHP("player") <= getValue("Lay On Hands") then
+			if castSpell("player",_LayOnHands,true, false) then
+				return true
+			end
+		else
+			for i = 1, #nNova do
+				if nNova[i].hp <= getValue("Lay On Hands") then
+					if castSpell(nNova[i].unit,_LayOnHands,true, false) then
+						return true
+					end
+				end
+			end
+		end
+
 		return false
 	end
 	-- done this works with profiles
@@ -492,6 +510,23 @@ if select(3,UnitClass("player")) == 2 then
 		if playerHealth < getValue("Divine Shield") then
 			if castSpell("player",_DivineShield,true,false) then
 				return
+			end
+		end
+	end
+
+	-- Holy Shock
+	function castHolyShock(unit, hpValue)
+		if unit then
+			if castSpell(unit, _HolyShock, true, false) then 
+				return true
+			end
+		else
+			if _HolyPower < 5 or lowestHP < 90 then
+				for i = 1, #nNova do
+					if nNova[i].hp < hpValue then
+						if castSpell(nNova[i].unit, _HolyShock, true, false) then return end
+					end
+				end
 			end
 		end
 	end
