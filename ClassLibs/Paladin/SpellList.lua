@@ -463,6 +463,15 @@ if select(3,UnitClass("player")) == 2 then
 		CastShapeshiftForm(2)
 		return true
 	end
+
+	function castHolyRadiance(unit) --Todo: Not its on unit but we should be able to set smart checks, ie best target for HolyRaidances
+		if unit then
+			if castSpell(unit,_HolyRadiance,true,false) then
+				return true
+			end
+		end
+		return false
+	end
 	function castJeopardy()
 		for i = 1, #enemiesTable do
 			thisEnemy = enemiesTable[i]
@@ -471,11 +480,12 @@ if select(3,UnitClass("player")) == 2 then
 				-- i will declare a var in the Reader that will hold this value previousJudgmentTarget
 				if previousJudgmentTarget ~= thisEnemy.guid then
 					if castSpell(thisEnemy.unit,_Judgment,true,false) then
-						return
+						return true
 					end
 				end
 			end
 		end
+		return false
 	end
 	-- Divine shield
 	function castDivineShield(playerHealth)

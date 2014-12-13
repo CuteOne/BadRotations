@@ -116,6 +116,26 @@ if select(3, UnitClass("player")) == 2 then
 
 			BeaconOfLight()	-- Set Beacon of Light and faith on correct target
 
+			if not UnitAffectingCombat("player") then
+				--cast Eternal Flame on tanks
+				if _HolyPower > 2 and castEternalFlame(100) then --Todo: We need to cast Eternal flame on both tanks.
+					return true
+				end 
+
+				if _HolyPower > 2 then
+					if castEternalFlame(100) then
+						return true
+					end
+				end
+				if castHolyShock(100) then
+					return true
+				end
+				if castHolyRadiance(_HolyRadiance, 1, 0, 30) then 
+					return true
+				end
+			end
+
+
 			--[[Auto Attack if in melee]]
 			if isInMelee() and getFacing("player","target") == true then
 				RunMacroText("/startattack")
@@ -141,6 +161,10 @@ if select(3, UnitClass("player")) == 2 then
 				end
 			end
 
+			-- AoE healing
+
+			--[Light of Dawn] 3 HoPo heals 6 allies 30 yards from player
+			--getAoeHealingCandidateNova(numUnits, missingHP, rangeValue)
 			--[[Holy Radiance]]
 			if IsMouseButtonDown(4) then -- Mousebutton 1-5
 				if castHolyRadiance(_HolyRadiance, 6, 75, 6) then 
@@ -148,12 +172,12 @@ if select(3, UnitClass("player")) == 2 then
 				end
 			end
 			--[[holy_shock,if=holy_power<=3]] -- Should add not cast if 5 HoPo
-			if getOptionCheck("Holy Shock") and _HolyPower < 5 and HolyShock(getValue("Holy Shock"))  then 
+			if getOptionCheck("Holy Shock") and _HolyPower < 5 and castHolyShock(getValue("Holy Shock"))  then 
 				return true
 			end
 
 			--Todo Need to add a check if we have 5 then use it
-			if getOptionCheck("Eternal Flame") and EternalFlame(getValue("Eternal Flame")) then
+			if getOptionCheck("Eternal Flame") and castEternalFlame(getValue("Eternal Flame")) then
 				return true
 			end
 
@@ -169,6 +193,8 @@ if select(3, UnitClass("player")) == 2 then
 			if getOptionCheck("Holy Light") and HolyLight(getValue("Holy Light")) then 
 				return true
 			end
+
+			-- Crusader strik for HoPo
 		end
 	end
 end

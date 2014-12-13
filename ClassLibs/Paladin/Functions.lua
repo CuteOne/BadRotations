@@ -421,7 +421,7 @@ Holy
 ]]	function PaladinHolyFunctions()
 
 		-- Eternal Flame
-		function EternalFlame(hpValue)
+		function castEternalFlame(hpValue)
 			if (eternalFlameTimer == nil or eternalFlameTimer <= GetTime() - 1.3) then
 				eternalFlameTimer = GetTime()
 			else
@@ -466,7 +466,7 @@ Holy
 		end
 
 		-- Holy Shock
-		function HolyShock(hpValue)
+		function castHolyShock(hpValue)
 			if _HolyPower < 5 or lowestHP < 90 then
 				for i = 1, #nNova do
 					if nNova[i].hp < hpValue then
@@ -519,15 +519,20 @@ Holy
 			-- Find if we have any, note if its a tank.
 			for i = 1, #nNova do
 				if UnitBuffID(nNova[i].unit,_BeaconOfLight,"player") then
-					beaconTarget, beaconRole, beaconHP = nNova[i].unit, nNova[i].role, nNova[i].hp
+					beaconLightTarget, beaconLightRole, beaconLightHP = nNova[i].unit, nNova[i].role, nNova[i].hp
+				end
+				if UnitBuffID(nNova[i].unit,_BeaconOfFaith,"player") then
+					beaconFaithTarget, beaconFaithRole, beaconFaithHP = nNova[i].unit, nNova[i].role, nNova[i].hp
 				end
 			end
 			-- if we are not beacon on a tank and on tanks is checked we find a proper tank if focus dont exists.
 			if getValue("Beacon Of Light") == 1 then
-				if beaconRole ~= "TANK" then
+				if beaconLightRole ~= "TANK" then
 					for i = 1, #nNova do
 						if nNova[i].role == "TANK" and not UnitBuffID("focus",_BeaconOfLight,"player") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
-							if castSpell(nNova[i].unit,_BeaconOfLight,true,false) then return end
+							if castSpell(nNova[i].unit,_BeaconOfLight,true,false) then 
+								return true
+							end
 						end
 					end
 				end
@@ -540,15 +545,22 @@ Holy
 					end
 				end
 			end
-
 			--Todo: Implement Wise Beacon
+
+			if getValue("Beacon Of Light") == 3 then
+				print("Wise handing of beacins Not Supported")
+				return false
+			end
+			
 			if isKnown(_BeaconOfFaith) then
 				-- if we are not beacon on a tank and on tanks is checked we find a proper tank if focus dont exists.
 				if getValue("Beacon Of Faith") == 1 then
-					if beaconRole ~= "TANK" and not UnitBuffID("focus",_BeaconOfLight,"player") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
+					if beaconFaithRole ~= "TANK" and not UnitBuffID("focus",_BeaconOfLight,"player") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
 						for i = 1, #nNova do
 							if nNova[i].role == "TANK" then
-								if castSpell(nNova[i].unit,_BeaconOfFaith,true,false) then return end
+								if castSpell(nNova[i].unit,_BeaconOfFaith,true,false) then 
+									return true
+								end
 							end
 						end
 					end
@@ -562,12 +574,16 @@ Holy
 					end
 				end
 				--Todo impolement Wise mode
+				if getValue("Beacon Of Light") == 3 then
+					print("Wise handing of beacins Not Supported")
+					return false
+				end
 			end 
 		end
 				
 		function castDispell()
-			if isChecked("Cleanse") and canCast(_Cleanse,false,false) and not (getBossID("boss1") == 71734 and not UnitBuffID("player",144359)) then
-				if getValue("Cleanse") == 2 then -- Mouse Match
+			if getOptionCheck("Dispell") and canCast(_Cleanse,false,false) and not (getBossID("boss1") == 71734 and not UnitBuffID("player",144359)) then
+				if getValue("Dispell") == 2 then -- Mouse Match
 					if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
 						for i = 1, #nNova do
 							if nNova[i].guid == UnitGUID("mouseover") and nNova[i].dispel == true then
@@ -577,7 +593,7 @@ Holy
 							end
 						end
 					end
-				elseif getValue("Cleanse") == 1 then -- Raid Match
+				elseif getValue("Dispell") == 1 then -- Raid Match
 					for i = 1, #nNova do
 						if nNova[i].hp < 249 and nNova[i].dispel == true then
 							if castSpell(nNova[i].unit,_Cleanse, true,false) then 
@@ -585,7 +601,7 @@ Holy
 							end
 						end
 					end
-				elseif getValue("Cleanse") == 3 then -- Mouse All
+				elseif getValue("Dispell") == 3 then -- Mouse All
 					if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
 					    for n = 1,40 do
 					      	local buff,_,_,count,bufftype,duration = UnitDebuff("mouseover", n)
@@ -600,7 +616,7 @@ Holy
 				      		end
 					  	end
 					end
-				elseif getValue("Cleanse") == 4 then -- Raid All
+				elseif getValue("Dispell") == 4 then -- Raid All
 					for i = 1, #nNova do
 						if nNova[i].hp < 249 then
 						    for n = 1,40 do
@@ -666,6 +682,26 @@ Holy
 				end
 			end
 		end
+
+		function getAoeHealingCandidateNova(numUnits, missingHP, rangeValue)					
+			for i = 1, #nNova do
+	        	if nNova[i].hp < 249 then
+			        local alliesinRange = getAllies(nNova[i].unit,rangeValue)
+			        if #alliesInRange >= numUnits then
+				        local count = 0
+				        for j = 1, #alliesInRange do
+					        if getHP(alliesInRange[j]) < missingHP then
+					            count = count + 1
+					        end
+				        end
+		                if count >= numUnits then
+		                    return nNova[i].unit
+		                end
+				    end
+				end
+          	end
+          	return false
+         end
 	end
 end
 

@@ -128,6 +128,10 @@ if select(3,UnitClass("player")) == 2 then
 -- Healing
 		myWrapper("Healing")
 
+		CreateNewCheck(thisConfig, "Beacon Of Light","Normal",1)
+		CreateNewDrop(thisConfig, "Beacon Of Light", 2, "Choose mode:\nTank - Always on tank\nFocus - Always on focus.\nWise - Dynamic", "TANK","FOCUS","WISE")
+		CreateNewText(thisConfig, myColor.."Beacon Of Light")
+
 		-- Beacon of Faith
 		if isKnown(_BeaconOfFaith) then
 			CreateNewCheck(thisConfig, "Beacon Of Faith","Normal",1)
@@ -230,6 +234,15 @@ if select(3,UnitClass("player")) == 2 then
 		CreateNewCheck(thisConfig,"Rebuke")
 		CreateNewBox(thisConfig,"Rebuke",0,100,5,35,"|cffFFBB00Over what % of cast we want to \n|cffFFFFFFRebuke.")
 		CreateNewText(thisConfig,myColor.."Rebuke")
+
+		-- Nature's Cure
+        CreateNewCheck(thisConfig,"Dispell")
+        CreateNewDrop(thisConfig,"Dispell", 1, "|cffFFBB00MMouse:|cffFFFFFFMouse / Match List. \n|cffFFBB00MRaid:|cffFFFFFFRaid / Match List. \n|cffFFBB00AMouse:|cffFFFFFFMouse / All. \n|cffFFBB00ARaid:|cffFFFFFFRaid / All.",
+            "|cffFFDD11MMouse",
+            "|cffFFDD11MRaid",
+            "|cff00FF00AMouse",
+            "|cff00FF00ARaid")
+        CreateNewText(thisConfig,"Dispell")
 
 		-- General Configs
 		CreateGeneralsConfig()

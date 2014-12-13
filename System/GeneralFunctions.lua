@@ -921,6 +921,17 @@ function getLowAllies(Value)
  	return lowAllies
 end
 
+-- if getLowAlliesInTable(60, nNove) > 3 then
+function getLowAlliesInTable(Value, unitTable)
+ 	local lowAllies = 0
+ 	for i = 1,#unitTable do
+  		if unitTable[i].hp < Value then
+   			lowAllies = lowAllies + 1
+  		end
+ 	end
+ 	return lowAllies
+end
+
 -- if getMana("target") <= 15 then
 function getMana(Unit)
 	return 100 * UnitPower(Unit,0) / UnitPowerMax(Unit,0)
