@@ -159,36 +159,34 @@ if select(3, UnitClass("player")) == 5 then
 			-- if isChecked("AutoTarget") then
 			-- 	noTargetTargetMainTankTarget()
 			-- end
-			
+
 			-- Single target
-			if getOptionCheck("AoE") == 1 then
+			if BadBoy_data['AoE'] == 1 then
 				Execute()
 				LFOrbs()
 				if getHP("target")>20 then
-					if getOptionCheck("Single")==1 then IcySingle() end
-					if getOptionCheck("Single")==2 then IcySingleWeave() end
-					--if BadBoy_data['Single']==1 then IcySingle() end
-					--if BadBoy_data['Single']==2 then IcySingleWeave() end
+					if BadBoy_data['Single']==1 then IcySingle() end
+					if BadBoy_data['Single']==2 then IcySingleWeave() end
 				end
 			end
 
 			-- Dual Target
-			if getOptionCheck("AoE") == 2 then
+			if BadBoy_data['AoE'] == 2 then
 				Execute()
 				LFOrbs()
 				if getHP("target")>20 then IcyDualTarget() end
 			end
-			
+
 			-- 3+ Targets
-			if getOptionCheck("AoE") == 3 then 
+			if BadBoy_data['AoE'] == 3 then
 				Execute()
 				LFOrbs()
 				if getHP("target")>20 then IcyMultiTarget() end
 			end
-			
+
 			-- Auto
 			-- if BadBoy_data['AoE'] == 3 then
-			-- 	if #enemiesTable<2 then 
+			-- 	if #enemiesTable<2 then
 			-- 	if #enemiesTable>=2 and #enemiesTable<3 then Icy23Targets() end
 			-- 	if #enemiesTable>=4
 
@@ -206,7 +204,7 @@ if select(3, UnitClass("player")) == 5 then
 			-- 		if getValue("SingleRota")==2 then IcySingle() end
 			-- 	end
 			-- 	-- 2-3 targets
-			-- 	
+			--
 			-- 	-- 4+ targets
 			-- 	if #enemiesTable>4 then Icy4AndMore() end
 			-- end
@@ -215,4 +213,3 @@ if select(3, UnitClass("player")) == 5 then
 		end -- AffectingCombat, Pause, Target, Dead/Ghost Check
 	end
 end
-
