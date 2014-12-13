@@ -63,8 +63,8 @@ if select(3,UnitClass("player")) == 2 then
 
 	function PaladinHolyOptions()
 		ClearConfig()
-		local myColor = "|cffC0C0C0"
-		local redColor = "|cffFF0011"
+		local myColor = ""
+		local redColor = ""
 		local myClassColor = classColors[select(3,UnitClass("player"))].hex
 		local function myWrapper(Value)
 			CreateNewWrap(thisConfig,"---"..redColor.." "..Value.." "..myClassColor.."---")

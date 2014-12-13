@@ -4,11 +4,9 @@ if select(3,UnitClass("player")) == 2 then
 
 		-- check if target is safe or if u need to switch
 		if not isSafeToAttack("target") then
-			print("Unsafe Target")
 		end
 
 		if  isBurnTarget("target") > 0 then
-			print("Burn Target")
 		end
 
 		if numberOfTargetsMelee == nil or numberOfTargetsMeleeTimer == nil or numberOfTargetsMeleeTimer <= GetTime() - 1 then
@@ -431,9 +429,7 @@ Holy
 			end
 
 			if lowestTankHP < lowestHP then
-				print("Healing Tank")
 				if lowestTankHP < hpValue then
-					print("With EF")
 					if castSpell(lowestTankUnit,_EternalFlame,true,false) then
 						return true
 					end

@@ -86,7 +86,7 @@ if select(3, UnitClass("player")) == 2 then
 		local favoriteTank = { name = "NONE" , health = 0}
 		if UnitIsDeadOrGhost("focus") then
 			if favoriteTank.name ~= "NONE" then
-				favoriteTank = { name = "NONE" , health = 0};
+				favoriteTank = { name = "NONE" , health = 0}
 				ClearFocus()
 			end
 		end
@@ -134,7 +134,7 @@ if select(3, UnitClass("player")) == 2 then
 			else
 				for i = 1, #nNova do
 					if nNova[i].hp <= getValue("Lay On Hands") then
-						if castSpell(nNova[1].unit,_LayOnHands,true) then
+						if castSpell(nNova[i].unit,_LayOnHands,true) then
 							return true
 						end
 					end
@@ -147,18 +147,13 @@ if select(3, UnitClass("player")) == 2 then
 					return true
 				end
 			end
-			--Todo: Add ES
-			if isKnown(_ExecutionSentence) then -- Our largest heals on 1 minut CD so we should use it
-				--castExecutionSentence
-			end
-
 			--[[holy_shock,if=holy_power<=3]] -- Should add not cast if 5 HoPo
-			if isChecked("Holy Shock") and _HolyPower < 5 and HolyShock(getValue("Holy Shock"))  then 
+			if getOptionCheck("Holy Shock") and _HolyPower < 5 and HolyShock(getValue("Holy Shock"))  then 
 				return true
 			end
 
 			--Todo Need to add a check if we have 5 then use it
-			if isChecked("Eternal Flame") and EternalFlame(getValue("Eternal Flame")) then
+			if getOptionCheck("Eternal Flame") and EternalFlame(getValue("Eternal Flame")) then
 				return true
 			end
 
@@ -167,11 +162,11 @@ if select(3, UnitClass("player")) == 2 then
 				return true
 			end
 
-			if isChecked("Holy Prism") and HolyPrism(getValue("Holy Prism")) then
+			if getOptionCheck("Holy Prism") and HolyPrism(getValue("Holy Prism")) then
 				return true
 			end
 
-			if isChecked("Holy Light") and HolyLight(getValue("Holy Light")) then 
+			if getOptionCheck("Holy Light") and HolyLight(getValue("Holy Light")) then 
 				return true
 			end
 		end
