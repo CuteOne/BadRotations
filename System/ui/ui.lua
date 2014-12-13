@@ -182,25 +182,25 @@ function ConstructUI()
                     local ypos = (-27*i)+27
                     if currentProfile[i].wrap ~= nil then
                         itemName = currentProfile[i].wrap
-                        createWrapper(currentProfileName,itemName,7*scale,(ypos)*scale,i)
+                        createWrapper(currentProfileName,itemName,7*scale,(ypos)*scale-5,i)
                     elseif currentProfile[i].title ~= nil then
                         itemName = currentProfile[i].title
-                        createTitleString(currentProfileName,itemName,7*scale,(ypos-3)*scale)
+                        createTitleString(currentProfileName,itemName,7*scale,(ypos)*scale)
                     elseif currentProfile[i].name ~= nil then
                         itemName = currentProfile[i].name
-                        createTextString(currentProfileName,itemName,30*scale,ypos*scale,25*scale,158*scale,i)
+                        createTextString(currentProfileName,itemName,30*scale,ypos*scale-10,25*scale,158*scale,i)
                     end
                     if currentProfile[i].dropdown ~= nil then
-                        createDropDownMenu(currentProfileName,currentProfile[i],186*scale,ypos*scale,i)
+                        createDropDownMenu(currentProfileName,currentProfile[i],186*scale,ypos*scale-10,i)
                     end
                     if currentProfile[i].check ~= nil then
-                        createCheckBox(currentProfileName,currentProfile[i].name,7*scale,ypos*scale,i)
+                        createCheckBox(currentProfileName,currentProfile[i].name,7*scale,ypos*scale-10,i)
                     end
                     if currentProfile[i].status ~= nil then
-                        createStatusBar(currentProfileName,currentProfile[i],186*scale,ypos*scale,i)
+                        createStatusBar(currentProfileName,currentProfile[i],186*scale,ypos*scale-10,i)
                     end
                 end
-                _G[currentProfileName.."Frame"]:SetHeight(#currentProfile*27*scale+3)
+                _G[currentProfileName.."Frame"]:SetHeight(#currentProfile*27*scale+13)
             end
 
 
@@ -365,13 +365,13 @@ function ConstructUI()
                     [9] = {
                         checkbase = false,
                         check = true,
-                        name = "Engine Debug",
+                        name = "Healing Debug",
                         tip = "Check to display Healing Engine Debug."
                     },
                     [10] = {
                         checkbase = false,
                         check = false,
-                        name = "Engine Refresh",
+                        name = "Debug Refresh",
                         status = "Set desired Healing Engine refresh rate in ms.",
                         statusBase = 500,
                         statusMin = 0,
@@ -423,7 +423,7 @@ function ConstructUI()
 
             -- create frames
             frameCreation("options",791,147)
-            frameCreation("debug",200,150,"|cffFF001EBadBoy |cffFFFFFFDebug")
+            frameCreation("debug",200,150,"|cffFF001EDebug")
             for i = 1, 5 do
                 createRow("debug",i,"")
             end
@@ -437,17 +437,17 @@ function ConstructUI()
                     if BadBoy_data.BadBoyUI.optionsFrame.options[value]
                       and BadBoy_data.BadBoyUI.optionsFrame.options[value][i] ~= nil then
                         local thisOption,xpos = BadBoy_data.BadBoyUI.optionsFrame.options[value][i],math.floor((i-1)/4)*260
-                        createCheckBox("options",thisOption.name,(xpos+7),(ypos*-27)-12,thisOption.checkbase)
+                        createCheckBox("options",thisOption.name,(xpos+7),(ypos*-27)-10,thisOption.checkbase)
                         local textWidth = 155
                         if thisOption.status ~= nil then
                             -- create a statusbar if one declared -- (parent,value,x,y,textString)
-                            createStatusBar("options",thisOption,(xpos+189),(ypos*-27)-12)
+                            createStatusBar("options",thisOption,(xpos+189),(ypos*-27)-10)
                         elseif thisOption.dropdown ~= nil then
-                            createDropDownMenu("options",thisOption,(xpos+189),(ypos*-27)-12)
+                            createDropDownMenu("options",thisOption,(xpos+189),(ypos*-27)-10)
                         else
                             textWidth = 240
                         end
-                        createTextString("options",thisOption.name,(xpos+35),(ypos*-27)-13,25,textWidth)
+                        createTextString("options",thisOption.name,(xpos+35),(ypos*-27)-11,25,textWidth)
                     end
                     if ypos >= 3.5 then
                         ypos = 0
@@ -553,10 +553,10 @@ function ConstructUI()
 
 
         -- 7 - 196 - 203 - 392 - 399 - 588 591
-        createButton("options","General",7,-10,"General")
-        createButton("options","Enemies Engine",203,-10,"Enemies Engine")
-        createButton("options","Healing Engine",399,-10,"Healing Engine")
-        createButton("options","Interrupts Engine",591,-10,"Interrupts Engine")
+        createButton("options","General",7,-5,"General")
+        createButton("options","Enemies Engine",203,-5,"Enemies Engine")
+        createButton("options","Healing Engine",399,-5,"Healing Engine")
+        createButton("options","Interrupts Engine",591,-5,"Interrupts Engine")
         if BadBoy_data.options.selected == nil then
             BadBoy_data.options.selected = "General"
         end

@@ -36,6 +36,7 @@ if not metaTable1 then
 		range = false,
 		guid = 0,
 		guidsh = 0,
+		class = "NONE",
 	}
 
 	-- If ever somebody enters or leaves the raid, wipe the entire Table
@@ -184,7 +185,7 @@ if not metaTable1 then
 			local roleFinder = roleFinder
 			if UnitGroupRolesAssigned(o.unit) == "NONE" then
 				if novaEngineTables.roleTable[UnitName(o.unit)] ~= nil then
-					o.role = novaEngineTables.roleTable[UnitName(o.unit)]
+					o.role = novaEngineTables.roleTable[UnitName(o.unit)].role
 				end
 			else
 				o.role = UnitGroupRolesAssigned(o.unit)
@@ -196,6 +197,16 @@ if not metaTable1 then
 			o.absorb = select(3, o:CalcHP()) -- Unit Absorb
 			o.target = tostring(o.unit).."target" -- Target's target
 			memberSetup.cache[select(2, getGUID(o.unit))] = o -- Add unit to SetupTable
+			if UnitGroupRolesAssigned(o.unit) == "NONE" then
+				if UnitIsUnit("player",o.unit) then
+					o.class = UnitClass("player")
+				end
+				if novaEngineTables.roleTable[UnitName(o.unit)] ~= nil then
+					o.class = novaEngineTables.roleTable[UnitName(o.unit)].class
+				end
+			else
+				o.class = UnitClass(o.unit)
+			end
 		end
 
 		-- Adding the user and functions we just created to this cached version in case we need it again
@@ -305,6 +316,8 @@ if not metaTable1 then
 					end)
 				end
 			end
+			pulseNovaDebug()
+            -- update these frames to current nNova values via a pulse in nova engine
 		end
 		-- We are creating the initial Main Table
 		nNova()

@@ -495,6 +495,9 @@ function SuperReader(self,event,...)
         			local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...
            			if SpellID ~= 75 and SpellID ~= 88263 then -- Add spells we dont want to appear here.
 						local color = "|cffFF001E"
+                        if BadBoy_data.failCasts == nil then
+                            BadBoy_data.failCasts = 0
+                        end
         				if spellCastTarget == UnitName("target") then
         					destGUID = UnitGUID("target")
         					Distance = targetDistance

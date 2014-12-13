@@ -41,7 +41,7 @@ novaEngineTables.SpecialHealUnitList = {
 };
 
 -- these are the debuffs that we want to use to set specific health to a unit wearing it
--- set dot that need to be healed to max(needs to be topped) to very low values so that engine 
+-- set dot that need to be healed to max(needs to be topped) to very low values so that engine
 novaEngineTables.SpecificHPDebuffs = {
     -- needs to be topped
     { debuff = 145263 , value = 20 }, -- Proving Grounds Healer Debuff.
@@ -49,10 +49,10 @@ novaEngineTables.SpecificHPDebuffs = {
 
 -- this table will assign role to any unit wearing the unit name
 novaEngineTables.roleTable = {
-    ["Oto the Protector"] = "TANK", -- proving grounds tank
-    ["Sooli the Survivalist"] = "DPS", -- proving grounds dps
-    ["Ki the Assassin"] = "DPS", -- proving grounds dps
-    ["Kavan the Arcanist"] = "DPS" -- proving grounds dps
+    ["Oto the Protector"] = { role = "TANK", class = "Warrior" }, -- proving grounds tank
+    ["Sooli the Survivalist"] = { role = "DPS", class = "Hunter" }, -- proving grounds dps
+    ["Ki the Assassin"] = { role = "DPS", class = "Rogue" }, -- proving grounds dps
+    ["Kavan the Arcanist"] = { role = "DPS", class = "Mage" }, -- proving grounds dps
 }
 
 -- special targets to include when we want to heal npcs

@@ -56,8 +56,8 @@ function frameCreation(name,width,heigth,title)
         -- frame title
         _G[name.."FrameTitle"] = _G[name.."Frame"]:CreateFontString(debugFrame, "ARTWORK")
         _G[name.."FrameTitle"]:SetFont(BadBoy_data.BadBoyUI.font,BadBoy_data.BadBoyUI.fontsize+1,"THICKOUTLINE")
-        _G[name.."FrameTitle"]:SetPoint("TOPLEFT",5, -4)
-        _G[name.."FrameTitle"]:SetJustifyH("LEFT")
+        _G[name.."FrameTitle"]:SetPoint("TOP",0,-5)
+        _G[name.."FrameTitle"]:SetJustifyH("CENTER")
         _G[name.."FrameTitle"]:SetTextColor(225/255, 225/255, 225/255,1)
         _G[name.."FrameTitle"]:SetText(title)
         if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()][name.."Frame"] == false then

@@ -3,9 +3,9 @@ function BadBoyEngine()
     if Pulse_Engine == nil then
         Pulse_Engine = CreateFrame("Frame", nil, UIParent)
         Pulse_Engine:SetScript("OnUpdate", BadBoyUpdate)
-        Pulse_Engine:SetPoint("TOPLEFT",0,0)
-        Pulse_Engine:SetHeight(1)
-        Pulse_Engine:SetWidth(1)
+        --Pulse_Engine:SetPoint("TOPLEFT",0,0)
+        --Pulse_Engine:SetHeight(1)
+        --Pulse_Engine:SetWidth(1)
         Pulse_Engine:Show()
     end
 end
@@ -68,7 +68,11 @@ function BadBoyMinimapButton()
         if button == "RightButton" then
             if BadBoy_data.options[GetSpecialization()] then
                 if currentProfileName == nil then
-                    print("|cffFF1100BadBoy |cffFFFFFFnot loaded... Is Firehack loaded?")
+                    if FireHack == true then
+                        print("|cffFF1100BadBoy |cffFFFFFFStart/Stop is |cffFF1100Stopped |cffFFFFFFin General Options. Use left click to see the Options panel.")
+                    else
+                        print("|cffFF1100BadBoy |cffFFFFFFCannot Start... |cffFF1100Firehack |cffFFFFFFis not loaded. Please attach Firehack.")
+                    end
                 else
                     if BadBoy_data.options[GetSpecialization()][currentProfileName.."Frame"] ~= true then
                         _G[currentProfileName.."Frame"]:Show()
