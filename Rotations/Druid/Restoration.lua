@@ -93,8 +93,8 @@ function DruidRestoration()
 			end
 		end
 	end
-	-- Regrowht Toggle
-	if isChecked("Regrowht Toggle") and SpecificToggle("Regrowht Toggle") == true then
+	-- Regrowth Toggle
+	if isChecked("Regrowth Toggle") and SpecificToggle("Regrowth Toggle") == true then
 		if not UnitIsDeadOrGhost("mouseover") then
 			if castSpell("mouseover",8936,true,false) then
 				return
@@ -144,7 +144,7 @@ function DruidRestoration()
 	--[[ 7 - Stop Casting--(perevent from over healing when u cast somthing can heal target)]]
 	if isChecked("Overhealing Cancel") and isCastingDruid()
 	  and shouldNotOverheal(spellCastTarget) >= getValue("Overhealing Cancel")
-	  and SpecificToggle("Regrowht Toggle") == false then
+	  and SpecificToggle("Regrowth Toggle") == false then
 		local noOverHealSpells = { 5185 }
 		local castingSpell = UnitCastingInfo("player")
 		if castingSpell ~= nil then

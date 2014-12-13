@@ -588,10 +588,10 @@ function RestorationConfig()
         CreateNewCheck(thisConfig,"Rebirth Toggle")
         CreateNewDrop(thisConfig,"Rebirth Toggle",9,"Toggle2")
         CreateNewText(thisConfig,"Rebirth Toggle")
-        -- Regrowht Toggle
-        CreateNewCheck(thisConfig,"Regrowht Toggle")
-        CreateNewDrop(thisConfig,"Regrowht Toggle",5,"Toggle2")
-        CreateNewText(thisConfig,"Regrowht Toggle")
+        -- Regrowth Toggle
+        CreateNewCheck(thisConfig,"Regrowth Toggle")
+        CreateNewDrop(thisConfig,"Regrowth Toggle",5,"Toggle2")
+        CreateNewText(thisConfig,"Regrowth Toggle")
         -- Reju  Toggle
         CreateNewCheck(thisConfig,"Reju Toggle")
         CreateNewDrop(thisConfig,"Reju Toggle",7,"Toggle2")
