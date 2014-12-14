@@ -271,7 +271,7 @@ if select(3,UnitClass("player")) == 2 then
 
 		-- Blessing
 		CreateNewCheck(thisConfig,"Blessing")
-		CreateNewDrop(thisConfig,"Blessing",1,"|cffFFFFFFFWich blessing do you want to maintain on raid","|cff0374FEKings","|cffFFBC40Might","|cff00FF0DAuto")
+		CreateNewDrop(thisConfig,"Blessing",1,"|cffFFFFFFWich blessing do you want to maintain on raid","|cff0374FEKings","|cffFFBC40Might","|cff00FF0DAuto")
 		CreateNewText(thisConfig,"Blessing")
 
 		-- Wrapper
@@ -363,7 +363,7 @@ if select(3,UnitClass("player")) == 2 then
 			CreateNewBox(thisConfig,"Self Glory",0,100,5,70,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFWord Of Glory on Self")
 			CreateNewText(thisConfig,"Self Glory")
 			CreateNewCheck(thisConfig,"Word Of Glory")
-			CreateNewBox(thisConfig,"Word Of Glory",0,100,5,70,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFWord Of Glory on Raid")
+			CreateNewBox(thisConfig,"Word Of Glory",0,100,5,70,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFWord Of Glory on Raid")
 			CreateNewText(thisConfig,"Word Of Glory")
 		end
 
@@ -371,9 +371,9 @@ if select(3,UnitClass("player")) == 2 then
 		generateWrapper("Utilities")
 
 		-- Rebuke
-		CreateNewCheck(thisConfig,"Rebuke")
-		CreateNewBox(thisConfig,"Rebuke",0,100,5,35,"|cffFFBB00Over what % of cast we want to \n|cffFFFFFFRebuke.")
-		CreateNewText(thisConfig,"Rebuke")
+		CreateNewCheck(thisConfig,"Rebuke",1,redColor.."Check" ..whiteColor.."to use "..redColor.."Rebuke"..whiteColor..".")
+		CreateNewBox(thisConfig,"Rebuke",0,100,5,35,redColor.."Over what % of cast"..whiteColor.." we want to use "..redColor.."Rebuke"..whiteColor..".")
+		CreateNewText(thisConfig,redColor.."Rebuke")
 
 		-- General Configs
 		CreateGeneralsConfig()

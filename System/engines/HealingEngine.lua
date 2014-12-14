@@ -288,7 +288,18 @@ if not metaTable1 then
 		function nNova:Update(MO)
 			local MouseoverCheck = true
 			-- This is for special situations, IE world healing or NPC healing in encounters
-			if getOptionCheck("Special Heal") == true then SpecialTargets = {"mouseover","target","focus"} else SpecialTargets = {} end
+			local selectedMode,SpecialTargets = getOptionValue("Special Heal"), {}
+			if getOptionCheck("Special Heal") == true then
+				if selectedMode == 1 then
+					SpecialTargets = { "target" }
+				elseif selectedMode == 2 then
+					SpecialTargets = { "target","mouseover","focus" }
+				elseif selectedMode == 3 then
+					SpecialTargets = { "target","mouseover" }
+				else
+					SpecialTargets = { "target","focus" }
+				end
+			end
 			for p=1, #SpecialTargets do
 				-- Checking if Unit Exists and it's possible to heal them
 				if UnitExists(SpecialTargets[p]) and HealCheck(SpecialTargets[p]) then

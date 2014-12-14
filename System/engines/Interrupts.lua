@@ -98,6 +98,85 @@ end
 -- pulse frame on event
 interruptsFrame:SetScript("OnEvent",interruptsReader)
 
+
+
+
+--[[           ]]		  --[[]]		--[[           ]]	--[[           ]]
+--[[           ]]		 --[[  ]]		--[[           ]]	--[[           ]]
+--[[]]				    --[[    ]] 		--[[ ]]					 --[[ ]]
+--[[]]				   --[[      ]] 	--[[           ]]		 --[[ ]]
+--[[]]				  --[[        ]]			  --[[ ]]		 --[[ ]]
+--[[           ]]	 --[[]]    --[[]]	--[[           ]]		 --[[ ]]
+--[[           ]]	--[[]]      --[[]]	--[[           ]]		 --[[ ]]
+
+
+-- function to compare spells to casting units
+function castInterrupt(spell,percent)
+	if castersBlackList == nil then castersBlackList = { } end
+
+	-- blacklist cleanup
+	for i = 1, #castersBlackList do
+		local j = #castersBlackList + 1 - i
+		if castersBlackList[j] ~= nil and castersBlackList[j].time < GetTime() - 0.5 then
+			tremove(castersBlackList, j)
+		end
+	end
+
+	-- first make sure we will be able to cast the spell
+	if canCast(spell,false,false) == true then
+
+
+
+		-- ToDo if the user sets its selector to target, only interupt current target.
+		local selectedMode,selectedTargets = getOptionValue("Interrupts Handler"), {}
+		if selectedMode == 1 then
+			selectedTargets = { "target" }
+		elseif selectedMode == 2 then
+			selectedTargets = { "target","mouseover","focus" }
+		elseif selectedMode == 3 then
+			selectedTargets = { "target","mouseover" }
+		end
+
+		function isSelectedTarget(casterGUID)
+			for i = 1, #selectedTargets do
+				if UnitGUID(selectedTargets[i]) == casterGUID then
+					return true
+				end
+			end
+		end
+
+		for i = 1, #spellCastersTable do
+
+			if isBlackListed(Unit) then
+				return false
+				-- make sure the spell is interrutible
+			else
+				local thisCaster = spellCastersTable[i]
+				if selectedMode == 4 or isSelectedTarget(thisCaster.guid) then
+					if thisCaster.canInterupt == true then
+						-- make sure we cover melee range
+						local allowedDistance = select(6,GetSpellInfo(spell))
+						if allowedDistance < 5 then
+							allowedDistance = 5
+						end
+						-- see if the spell is about to be finished casting or is a channel
+						if thisCaster.castType == "chan" or (getSpellCD(spell) < thisCaster.castEnd - GetTime()
+						  and (thisCaster.castEnd - GetTime())/thisCaster.castLenght < (100 - percent)/100)
+						  and getDistance("player",thisCaster.unit) < allowedDistance then
+							if castSpell(thisCaster.unit,spell,false,false) then
+								-- prevent intrupt on this target again using blacklist
+								tinsert(castersBlackList, { unit = spellCastersTable[i].unit, time = GetTime() })
+								return true
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	return false
+end
+
 --[[           ]]   --[[           ]]    --[[           ]]
 --[[           ]]   --[[           ]]    --[[           ]]
 --[[]]              --[[]]        		       --[[ ]]

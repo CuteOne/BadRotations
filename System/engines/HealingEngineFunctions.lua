@@ -1,6 +1,6 @@
 -- here we want to define functions to use with the healing profiles
 
--- function to define range between players in Nova table.
+-- function to define range between players in tables.
 function getNovaDistance(Unit1,Unit2)
     -- if we are comparing same unit return 0
     if Unit1.guid == Unit2.guid then
@@ -35,39 +35,36 @@ function getUnitsToHealAround(unit,radius,health,count)
     for i = 1, #nNova do
         local thisUnit = nNova[i]
         -- if in given radius
-        if getNovaDistance(unit,thisUnit) < radius then
+        if thisUnit.hp <= health and getNovaDistance(unit,thisUnit) < radius then
             -- if its first item in table, insert
             if #lowHealthCandidates == 0 then
                 tinsert(lowHealthCandidates, 1, {hp = thisUnit.hp,x = thisUnit.x,y = thisUnit.y,z = thisUnit.z,name = thisUnit.name,guid = thisUnit.guid})
             -- else compare and place our item at the right position in our table
             else
-                -- ToDo: gotta revise this next part, it works but not as efficient as it could,
-                -- we should scan from last to first and if higher just break out
-                local cycles = #lowHealthCandidates
-                if cycles > count then
-                    cycles = count
-                end
+                -- scan from last to first and if higher just break out
+                local lowHealthUnitsCount = #lowHealthCandidates
                 local placedInTable = false
-
-                for j = 1,cycles do
+                local bestPosition = 0
+                for j = lowHealthUnitsCount,1,-1 do
                     if thisUnit.hp < lowHealthCandidates[j].hp then
-                        tinsert(lowHealthCandidates, j, {hp = thisUnit.hp,x = thisUnit.x,y = thisUnit.y,z = thisUnit.z,name = thisUnit.name,guid = thisUnit.guid})
-                        placedInTable = true
+                        bestPosition = j
+                    else
+                        break
                     end
                 end
-                if #lowHealthCandidates < 5 and not placedInTable then
-                    tinsert(lowHealthCandidates,#lowHealthCandidates+1, {hp = thisUnit.hp,x = thisUnit.x,y = thisUnit.y,z = thisUnit.z,name = thisUnit.name,guid = thisUnit.guid})
+                if bestPosition ~= 0 then
+                    tinsert(lowHealthCandidates, bestPosition, {hp = thisUnit.hp,x = thisUnit.x,y = thisUnit.y,z = thisUnit.z,name = thisUnit.name,guid = thisUnit.guid})
+                elseif lowHealthUnitsCount < count then
+                    tinsert(lowHealthCandidates, lowHealthUnitsCount+1, {hp = thisUnit.hp,x = thisUnit.x,y = thisUnit.y,z = thisUnit.z,name = thisUnit.name,guid = thisUnit.guid})
+                end
+                if #lowHealthCandidates > count then
+                    tremove(lowHealthCandidates[lowHealthUnitsCount])
                 end
             end
         end
     end
     return lowHealthCandidates
 end
-
-
-
-
-
 
 -- old design with so many objectmanager queries it was wrong.
 -- if getAllies("player",40) > 5 then

@@ -86,7 +86,7 @@ function ConstructUI()
             -- dropdown
             function CreateNewDrop(value,textString,base,tip1,value1,value2,value3,value4,value5,value6,value7,value8,value9,value10)
                 tempTable.dropdown = textString
-                tempTable.tip = tip1
+                tempTable.dropTip = tip1
                 tempTable.dropOptions = {
                     [1] = value1 or nil,
                     [2] = value2 or nil,
@@ -107,7 +107,7 @@ function ConstructUI()
                 tempTable.base = base
             end
             -- checkbox
-            function CreateNewCheck(value,textString,base)
+            function CreateNewCheck(value,textString,base,tip1)
                 tempTable.check = true
                 if BadBoy_data.options[GetSpecialization()][textString.."Check"] == nil then
                     BadBoy_data.options[GetSpecialization()][textString.."Check"] = base
@@ -115,6 +115,7 @@ function ConstructUI()
                     base = BadBoy_data.options[GetSpecialization()][textString.."Check"]
                 end
                 tempTable.basecheck = base
+                tempTable.checkTip = tip1
             end
             -- new title and text need to insert in real array
             function CreateNewTitle(value,textString)
@@ -180,24 +181,33 @@ function ConstructUI()
                 local scale = BadBoy_data.BadBoyUI.optionsFrame.scale
                 for i = 1, #currentProfile do
                     local ypos = (-27*i)+27
-                    if currentProfile[i].wrap ~= nil then
-                        itemName = currentProfile[i].wrap
+                    local thisOption = currentProfile[i]
+                    if thisOption.wrap ~= nil then
+                        -- wrap
+                        itemName = thisOption.wrap
                         createWrapper(currentProfileName,itemName,7*scale,(ypos)*scale-5,i)
-                    elseif currentProfile[i].title ~= nil then
-                        itemName = currentProfile[i].title
+                    elseif thisOption.title ~= nil then
+                        -- title
+                        itemName = thisOption.title
                         createTitleString(currentProfileName,itemName,7*scale,(ypos)*scale)
-                    elseif currentProfile[i].name ~= nil then
-                        itemName = currentProfile[i].name
+                    elseif thisOption.name ~= nil then
+                        -- text
+                        itemName = thisOption.name
                         createTextString(currentProfileName,itemName,30*scale,ypos*scale-10,25*scale,158*scale,i)
                     end
-                    if currentProfile[i].dropdown ~= nil then
-                        createDropDownMenu(currentProfileName,currentProfile[i],186*scale,ypos*scale-10,i)
+                    if thisOption.dropdown ~= nil then
+                        -- dropdown
+                        createDropDownMenu(currentProfileName,thisOption,186*scale,ypos*scale-10,i)
                     end
-                    if currentProfile[i].check ~= nil then
-                        createCheckBox(currentProfileName,currentProfile[i].name,7*scale,ypos*scale-10,i)
+                    if thisOption.check ~= nil then
+                        -- check                1               2             3         4
+                        createCheckBox(currentProfileName,thisOption.name,7*scale,ypos*scale-10,
+                        --          5                   6
+                          thisOption.checkBase,thisOption.checkTip)
                     end
-                    if currentProfile[i].status ~= nil then
-                        createStatusBar(currentProfileName,currentProfile[i],186*scale,ypos*scale-10,i)
+                    if thisOption.status ~= nil then
+                        -- status
+                        createStatusBar(currentProfileName,thisOption,186*scale,ypos*scale-10,i)
                     end
                 end
                 _G[currentProfileName.."Frame"]:SetHeight(#currentProfile*27*scale+13)
@@ -205,7 +215,12 @@ function ConstructUI()
 
 
 
-
+            local colorBlue = "|cff00CCFF"
+            local colorGold = "|cffFFDD11"
+            local colorGreen = "|cff00FF00"
+            local colorRed = "|cffFF0011"
+            local colorWhite = "|cffFFFFFF"
+            local colorGold = "|cffFFDD11"
             BadBoy_data.BadBoyUI.optionsFrame.options = {
                 selected = "Enemies Engine",
                 ["General"] = {
@@ -312,7 +327,20 @@ function ConstructUI()
                         checkbase = true,
                         check = true,
                         name = "Special Heal",
-                        tip = "Check this to Heal Special Whitelisted Units."
+                        tip = "Check this to Heal Special Whitelisted Units.",
+                        dropBase = 1,
+                        dropdown = "Choose who you want to Heal.",
+                        dropOptions = {
+                            [1] = colorRed.."Target",
+                            [2] = colorBlue.."T/M",
+                            [3] = colorGold.."T/M/F",
+                            [4] = colorGreen.."T/F"
+                        },
+                        dropTip = colorWhite.."Select prefered targets:"..
+                            colorRed.."\nTarget(Only current Target)"..
+                            colorBlue.."\nT/M(Only Target/Mouse)"..
+                            colorGold.."\nT/M/F(Target/Mouse/Focus)"..
+                            colorGreen.."\nT/F(Target/Focus)"
                     },
                     [3] = {
                         checkbase = true,
@@ -385,7 +413,20 @@ function ConstructUI()
                         checkbase = true,
                         check = true,
                         name = "Interrupts Handler",
-                        tip = "Check this to allow Interrupts Handler."
+                        tip = "Check this to allow Interrupts Handler.",
+                        dropBase = 1,
+                        dropdown = "Choose who you want to interupt.",
+                        dropOptions = {
+                            [1] = colorRed.."Target",
+                            [2] = colorBlue.."T/M",
+                            [3] = colorGold.."T/M/F",
+                            [4] = colorGreen.."All"
+                        },
+                        dropTip = colorWhite.."Select prefered targets:"..
+                            colorRed.."\nTarget(Only current Target)"..
+                            colorBlue.."\nT/M(Only Target/Mouse)"..
+                            colorGold.."\nT/M/F(Target/Mouse/Focus)"..
+                            colorGreen.."\nAll(Any available in range)"
                     },
                     [2] = {
                         checkbase = false,
@@ -398,7 +439,7 @@ function ConstructUI()
                         check = true,
                         name = "Only Known Units",
                         tip = "Check this to interrupt only on known units using whitelist."
-                    }
+                    },
                 }
             }
 
