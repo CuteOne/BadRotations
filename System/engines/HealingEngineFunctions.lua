@@ -2,7 +2,7 @@
 
 
 -- we want to define an iteration that will compare allies to heal in range of enemies or allies
-function castWiseAoEHeal(unitTable,spell,radius,health,maxCount,minCount,movementCheck)
+function castWiseAoEHeal(unitTable,spell,radius,health,minCount,maxCount,movementCheck)
     if movementCheck ~= true or not isMoving("player") then
         local bestCandidate
         for i = 1, #unitTable do
@@ -11,7 +11,7 @@ function castWiseAoEHeal(unitTable,spell,radius,health,maxCount,minCount,movemen
                 bestCandidate = candidate
             end
         end
-        if #bestCandidate - 1 > minCount then
+        if #bestCandidate - 1 >= minCount then
             -- here we would like instead to cast on unit
             if castSpell(bestCandidate[0].unit,spell,facingCheck,movementCheck) then
                 return
