@@ -207,6 +207,10 @@ if select(3, UnitClass("player")) == 2 then
 				end
 			end
 
+			if castHolyPrism(nil) then
+				return true
+			end
+
 			-- AoE healing
 			 if castAoEHeals() then
 			 	return true
