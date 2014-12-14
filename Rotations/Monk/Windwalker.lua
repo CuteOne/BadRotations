@@ -115,7 +115,7 @@ if select(3, UnitClass("player")) == 10 then
 -------------
 --- Buffs ---
 -------------
-		   	if not UnitExists("mouseover") and not isInCombat("player") then
+		   	if not UnitExists("mouseover") and not isInCombat("player") and isChecked(getOption(_LegacyOfTheWhiteTiger)) then
 			  	for i = 1, #members do
 			  		if (#members==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
 	-- Legacy of the White Tiger
@@ -140,43 +140,41 @@ if select(3, UnitClass("player")) == 10 then
 		            end
 		        end
 	--	Expel Harm
-				if isChecked("Expel Harm") and php<=getValue("Expel Harm") and power>=40 and getSpellCD(_ExpelHarm)==0 then
+				if isChecked(getOption(_ExpelHarm)) and php<=getValue(getOption(_ExpelHarm)) and power>=40 and getSpellCD(_ExpelHarm)==0 then
 					if (isInCombat("player") and chiDiff>=2) or not isInCombat("player") then
 						if castSpell("player",_ExpelHarm,true,false,false) then return end
 					end
 				end
 	-- Surging Mist
-				if isChecked("Surging Mist") and php<=getValue("Surging Mist") and (not isInCombat("player") or (isInCombat("player") and php<=25)) and power>=30 and not isMoving("player") then
+				if isChecked(getOption(_SurgingMist)) and php<=getValue(getOption(_SurgingMist)) and (not isInCombat("player") or (isInCombat("player") and php<=25)) and power>=30 and not isMoving("player") then
 					if castSpell("player",_SurgingMist,true,false) then return end
 				end
 	-- Touch of Karma
-				if isChecked("Touch of Karma") and php<=getValue("Touch of Karma") and isInCombat("player") then
+				if isChecked(getOption(_TouchOfKarma)) and php<=getValue(getOption(_TouchOfKarma)) and isInCombat("player") then
 					if castSpell(thisUnit,_TouchOfKarma,false,false) then return end
 				end
 	-- Fortifying Brew
-				if isChecked("Fortifying Brew") and php<=getValue("Fortifying Brew") and isInCombat("player") then
+				if isChecked(getOption(_FortifyingBrew)) and php<=getValue(getOption(_FortifyingBrew)) and isInCombat("player") then
 					if castSpell("player",_FortifyingBrew,true,false) then return end
 				end
-				if isChecked("Diffuse/Dampen") then
 	-- Diffuse Magic
-					if (php<=getValue("Diffuse/Dampen") and isInCombat("player")) or canDispel("player",_DiffuseMagic) then
-						if castSpell("player",_DiffuseMagic,true,false) then return end
-					end
+				if isChecked(getOption(_DiffuseMagic)) and (php<=getValue(getOption(_DiffuseMagic)) and isInCombat("player")) or canDispel("player",_DiffuseMagic) then
+					if castSpell("player",_DiffuseMagic,true,false) then return end
+				end
 	-- Dampen Harm
-					if php<=getValue("Diffuse/Dampen") and isInCombat("player") then
-						if castSpell("player",_DampenHarm,true,false) then return end
-					end
+				if isChecked(getOption(_DampenHarm)) and php<=getValue(getOption(_DampenHarm)) and isInCombat("player") then
+					if castSpell("player",_DampenHarm,true,false) then return end
 				end
 	-- Zen Meditation
-				if isChecked("Zen Meditation") then
-					if php<=getValue("Zen Meditation") and isInCombat("player") then
+				if isChecked(getOption(_ZenMeditation)) then
+					if php<=getValue(getOption(_ZenMeditation)) and isInCombat("player") then
 						if (hasGlyph(120477) or (not hasGlyph(120477) and GetUnitSpeed("player")==0)) and tarDist>5 then
 							if castSpell("player",_ZenMeditation,true,false) then return end
 						end
 					end
 				end
 	-- Nimble Brew
-				if hasNoControl() then
+				if isChecked(getOption(_NimbleBrew)) and hasNoControl() then
 					if castSpell("player",_NimbleBrew,false,false) then return end
 				end
 			end
@@ -231,20 +229,20 @@ if select(3, UnitClass("player")) == 10 then
 	------------------------------
 				if useInterrupts() then
 	-- Quaking Palm
-					if isChecked("Quaking Palm") then
-						if castInterrupt(_QuakingPalm,tonumber(getValue("Interrupts"))) then return end
+					if isChecked(getOption(_QuakingPalm)) then
+						if castInterrupt(_QuakingPalm,tonumber(getValue("Interrupt At"))) then return end
 					end
 	-- Spear Hand Strike
-					if isChecked("Spear Hand Strike") then
-						if castInterrupt(_SpearHandStrike,tonumber(getValue("Interrupts"))) then return end
+					if isChecked(getOption(_SpearHandStrike)) then
+						if castInterrupt(_SpearHandStrike,tonumber(getValue("Interrupt At"))) then return end
 					end
 	-- Paralysis
-					if isChecked("Paralysis") and tarDist<20 then
-						if castInterrupt(_Paralysis,tonumber(getValue("Interrupts"))) then return end
+					if isChecked(getOption(_Paralysis)) and tarDist<20 then
+						if castInterrupt(_Paralysis,tonumber(getValue("Interrupt At"))) then return end
 					end
 	-- Leg Sweep
-					if isChecked("Leg Sweep") then
-						if castInterrupt(_LegSweep,tonumber(getValue("Interrupts"))) then return end
+					if isChecked(getOption(_LegSweep)) then
+						if castInterrupt(_LegSweep,tonumber(getValue("Interrupt At"))) then return end
 					end
 				end
 	-----------------------------
@@ -252,7 +250,7 @@ if select(3, UnitClass("player")) == 10 then
 	-----------------------------
 				if useCDs() then
 			-- Invoke Xuen
-					if isChecked("Xuen") then
+					if isChecked(getOption(_InvokeXuen)) then
 						if castSpell(thisUnit,_InvokeXuen) then return end
 					end
 			-- Racial: Troll Berserking

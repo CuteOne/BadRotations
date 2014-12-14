@@ -381,32 +381,32 @@ function WindwalkerConfig()
 
             -- Healthstone
             checkOp("Pot/Stoned");
-            boxOp("Pot/Stoned", 0, 100, 5, 60);
+            boxOp("Pot/Stoned", 0, 100, 5, 60, "|cffFFFFFFHealth Percent to Cast At");
             textOp("Pot/Stoned");
 
             --  Expel Harm
             checkOp("Expel Harm");
-            boxOp("Expel Harm", 0, 100, 5, 50);
+            boxOp("Expel Harm", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
             textOp(tostring(select(1,GetSpellInfo(_ExpelHarm))));
 
             -- Surging Mist
             checkOp("Surging Mist");
-            boxOp("Surging Mist", 0, 100, 5, 50);
+            boxOp("Surging Mist", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
             textOp(tostring(select(1,GetSpellInfo(_SurgingMist))));
 
             -- Touch of Karma
             checkOp("Touch of Karma");
-            boxOp("Touch of Karma", 0, 100, 5, 50);
+            boxOp("Touch of Karma", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
             textOp(tostring(select(1,GetSpellInfo(_TouchOfKarma))));
 
             -- Fortifying Brew
             checkOp("Fortifying Brew");
-            boxOp("Fortifying Brew", 0, 100, 5, 50);
+            boxOp("Fortifying Brew", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
             textOp(tostring(select(1,GetSpellInfo(_FortifyingBrew))));
 
             -- Diffuse Magic/Dampen Harm
             checkOp("Diffuse/Dampen");
-            boxOp("Diffuse/Dampen", 0, 100, 5, 50);
+            boxOp("Diffuse/Dampen", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
             if getTalent(5,2) then
                 textOp(tostring(select(1,GetSpellInfo(_DampenHarm))));
             else
@@ -415,7 +415,7 @@ function WindwalkerConfig()
 
             -- Zen Meditation
             checkOp("Zen Meditation");
-            boxOp("Zen Meditation", 0, 100, 5, 50);
+            boxOp("Zen Meditation", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
             textOp(tostring(select(1,GetSpellInfo(_ZenMeditation))));
 
             -- Nimble Brew
@@ -442,8 +442,8 @@ function WindwalkerConfig()
             textOp(tostring(select(1,GetSpellInfo(_LegSweep))))
 
             -- Interrupt Percentage
-            checkOp("Interrupts");
-            boxOp("Interrupts", 5, 95, 5, 0);
+            checkOp("Interrupt At");
+            boxOp("Interrupt At", 5, 95, 5, 0, "|cffFFFFFFCast Percent to Cast At");
             textOp("Interrupt At");
 
         -- Spacer
