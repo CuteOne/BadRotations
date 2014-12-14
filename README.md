@@ -45,7 +45,7 @@
 |Subtlety|70%|Toxin |
 ||||
 | **Shaman** |  |  |
-|Elemental|80%|CodeMyLife |
+|Elemental|90%|CodeMyLife |
 |Enhancement|100%|Cpoworks |
 |Restoration|90%|CodeMyLife|
 ||||

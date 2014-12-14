@@ -343,27 +343,27 @@ if select(3,UnitClass("player")) == 2 then
 		-- Tier 3 talents
 		if isKnown(_SacredShield) then
 			CreateNewCheck(thisConfig,"Sacred Shield")
-			CreateNewBox(thisConfig,"Sacred Shield",0,100,1,95,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFSacred Shield")
+			CreateNewBox(thisConfig,"Sacred Shield",0,100,5,95,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFSacred Shield")
 			CreateNewText(thisConfig,"Sacred Shield")
 		elseif isKnown(_SelflessHealer) then
 			CreateNewCheck(thisConfig,"Selfless Healer")
-			CreateNewBox(thisConfig,"Selfless Healer",0,100,1,35,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFSelfless Healer on Raid")
+			CreateNewBox(thisConfig,"Selfless Healer",0,100,5,35,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFSelfless Healer on Raid")
 			CreateNewText(thisConfig,"Selfless Healer")
 		else
 			CreateNewCheck(thisConfig,"Self Flame")
-			CreateNewBox(thisConfig,"Self Flame",0,100,1,75,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFEternal Flame on Self")
+			CreateNewBox(thisConfig,"Self Flame",0,100,5,35,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFEternal Flame on Self")
 			CreateNewText(thisConfig,"Self Flame")
 			CreateNewCheck(thisConfig,"Eternal Flame")
-			CreateNewBox(thisConfig,"Eternal Flame",0,100,1,35,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFEternal Flame on Raid")
+			CreateNewBox(thisConfig,"Eternal Flame",0,100,5,20,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFEternal Flame on Raid")
 			CreateNewText(thisConfig,"Eternal Flame")
 		end
 
 		if isKnown(_SelflessHealer) or isKnown(_SacredShield) then
 			CreateNewCheck(thisConfig,"Self Glory")
-			CreateNewBox(thisConfig,"Self Glory",0,100,1,70,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFWord Of Glory on Self")
+			CreateNewBox(thisConfig,"Self Glory",0,100,5,70,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFWord Of Glory on Self")
 			CreateNewText(thisConfig,"Self Glory")
 			CreateNewCheck(thisConfig,"Word Of Glory")
-			CreateNewBox(thisConfig,"Word Of Glory",0,100,1,70,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFWord Of Glory on Raid")
+			CreateNewBox(thisConfig,"Word Of Glory",0,100,5,70,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFWord Of Glory on Raid")
 			CreateNewText(thisConfig,"Word Of Glory")
 		end
 

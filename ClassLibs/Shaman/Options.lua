@@ -7,123 +7,118 @@ if select(3,UnitClass("player")) == 7 then
 --[[           ]]	--[[]]				--[[           ]]
 --[[           ]] 	--[[           ]]	--[[           ]]
 
---[[This function will create a Value Box.]]
--- function CreateNewBox(value,textString,minValue,maxValue,step,base,tip1)
-
---[[This function will create a Check Box.]]
--- function CreateNewCheck(value, textString, tip1)
-
---[[This function will create a Menu, up to 10 values can be passed.]]
--- function CreateNewDrop(value, textString, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
-
---[[This function will create the TextString.
-This function must always be last, it will increase table row.]]
--- function CreateNewText(value, textString)
-
---[[This function will create the Title String.
-This function will use table row #1.]]
--- function CreateNewTitle(value, textString)
-
 function ElementalConfig()
-    --if not doneConfig then
-        ClearConfig()
-        thisConfig = 0
-        -- Title
-        CreateNewTitle(thisConfig,"Elemental CodeMyLife");
+    local redColor = "|cffFF0011"
+    local whiteColor = "|cffFFFFFF"
+    local myClassColor = classColors[select(3,UnitClass("player"))].hex
+    local function generateWrapper(wrapName)
+        CreateNewWrap(thisConfig,whiteColor.."- "..redColor..wrapName..whiteColor.." -")
+    end
 
-        -- Wrapper
-        CreateNewWrap(thisConfig,"----- Buffs -----");
+    ClearConfig()
+    thisConfig = 0
+    -- Title
+    CreateNewTitle(thisConfig,"Elemental CodeMyLife")
 
-        -- Flametongue Weapon
-        CreateNewCheck(thisConfig,"Flametongue Weapon");
-        CreateNewText(thisConfig,"Flametongue Weapon");
+    -- Wrapper
+    generateWrapper("Buffs")
 
-        -- Lightning Shield
-        CreateNewCheck(thisConfig,"Lightning Shield");
-        CreateNewText(thisConfig,"Lightning Shield");
+    -- Lightning Shield
+    CreateNewCheck(thisConfig,"Lightning Shield")
+    CreateNewText(thisConfig,"Lightning Shield")
 
-        -- Wrapper
-        CreateNewWrap(thisConfig,"----- Cooldowns -----")
+    -- Wrapper
+    generateWrapper("Cooldowns")
 
-        -- Ascendance
-        CreateNewCheck(thisConfig,"Ascendance");
-        CreateNewDrop(thisConfig, "Ascendance", 1, "CD")
-        CreateNewText(thisConfig,"Ascendance");
+    -- Ancestral Swiftness
+    if isKnown(_AncestralSwiftness) then
+        CreateNewCheck(thisConfig,"Ancestral Swiftness")
+        CreateNewDrop(thisConfig, "Ancestral Swiftness", 1,"CD")
+        CreateNewText(thisConfig,"Ancestral Swiftness")
+    end
 
-        -- Fire Elemental
-        CreateNewCheck(thisConfig,"Fire Elemental");
-        CreateNewDrop(thisConfig, "Fire Elemental", 1, "CD")
-        CreateNewText(thisConfig,"Fire Elemental");
+    -- Ascendance
+    CreateNewCheck(thisConfig,"Ascendance")
+    CreateNewDrop(thisConfig, "Ascendance", 1,"CD")
+    CreateNewText(thisConfig,"Ascendance")
 
-        -- Stormlash
-        CreateNewCheck(thisConfig,"Stormlash");
-        CreateNewDrop(thisConfig, "Stormlash", 1, "CD")
-        CreateNewText(thisConfig,"Stormlash");
+    -- Elemental Mastery
+    if isKnown(_ElementalMastery) then
+        CreateNewCheck(thisConfig,"Elemental Mastery")
+        CreateNewDrop(thisConfig,"Elemental Mastery",1,"CD")
+        CreateNewText(thisConfig,"Elemental Mastery")
+    end
 
-        -- Unleash Element
-        CreateNewCheck(thisConfig,"Unleash Element");
-        CreateNewDrop(thisConfig, "Unleash Element", 1, "CD")
-        CreateNewText(thisConfig,"Unleash Element");
+    -- Fire Elemental
+    CreateNewCheck(thisConfig,"Fire Elemental")
+    CreateNewDrop(thisConfig,"Fire Elemental",1,"CD")
+    CreateNewText(thisConfig,"Fire Elemental")
 
-        -- Wrapper
-        CreateNewWrap(thisConfig,"----- DPS Tweaks -----")
+    -- Storm Elemental Totem
+    if isKnown(_StormElementalTotem) then
+        CreateNewCheck(thisConfig,"Storm Elemental Totem")
+        CreateNewDrop(thisConfig,"Storm Elemental Totem",1,"CD")
+        CreateNewText(thisConfig,"Storm Elemental Totem")
+    end
 
-        -- EarthQuake
-        CreateNewCheck(thisConfig,"EarthQuake");
-        CreateNewDrop(thisConfig, "EarthQuake", 1, "CD")
-        CreateNewText(thisConfig,"EarthQuake");
+    -- Wrapper
+    generateWrapper("DPS Tweaks")
 
-        -- Thunderstorm
-        CreateNewCheck(thisConfig,"Thunderstorm");
-        CreateNewDrop(thisConfig, "Thunderstorm", 1, "CD")
-        CreateNewText(thisConfig,"Thunderstorm");
+    -- EarthQuake
+    CreateNewCheck(thisConfig,"EarthQuake")
+    CreateNewDrop(thisConfig,"EarthQuake",1,"CD")
+    CreateNewText(thisConfig,"EarthQuake")
 
-        -- Wrapper
-        CreateNewWrap(thisConfig,"------ Defensive -------");
+    -- Thunderstorm
+    CreateNewCheck(thisConfig,"Thunderstorm")
+    CreateNewDrop(thisConfig,"Thunderstorm",1,"CD")
+    CreateNewText(thisConfig,"Thunderstorm")
 
-        -- Astral Shift
-        CreateNewCheck(thisConfig,"Astral Shift");
-        CreateNewBox(thisConfig, "Astral Shift", 0, 100  , 5, 30, "|cffFFBB00Under what %HP to use |cffFFFFFFAstral Shit");
-        CreateNewText(thisConfig,"Astral Shift");
+    -- Wrapper
+    generateWrapper("Defensive")
 
-        -- Healing Stream
-        CreateNewCheck(thisConfig,"Healing Stream");
-        CreateNewBox(thisConfig, "Healing Stream", 0, 100  , 5, 50, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream");
-        CreateNewText(thisConfig,"Healing Stream");
+    -- Astral Shift
+    CreateNewCheck(thisConfig,"Astral Shift")
+    CreateNewBox(thisConfig,"Astral Shift",0,100,5,30,"|cffFFBB00Under what %HP to use |cffFFFFFFAstral Shit")
+    CreateNewText(thisConfig,"Astral Shift")
 
-        -- Healing Rain
-        CreateNewCheck(thisConfig,"Healing Rain");
-        CreateNewBox(thisConfig, "Healing Rain", 0, 100  , 5, 50, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream");
-        CreateNewText(thisConfig,"Healing Rain");
+    -- Healing Stream
+    CreateNewCheck(thisConfig,"Healing Stream")
+    CreateNewBox(thisConfig,"Healing Stream",0,100,5,50,"|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream")
+    CreateNewText(thisConfig,"Healing Stream")
 
-        -- Shamanistic Rage
-        CreateNewCheck(thisConfig,"Shamanistic Rage");
-        CreateNewBox(thisConfig, "Shamanistic Rage", 0, 100  , 5, 70, "|cffFFBB00Under what %HP to use |cffFFFFFFShamanistic Rage");
-        CreateNewText(thisConfig,"Shamanistic Rage");
+    -- Healing Rain
+    CreateNewCheck(thisConfig,"Healing Rain")
+    CreateNewBox(thisConfig,"Healing Rain",0,100,5,50,"|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream")
+    CreateNewText(thisConfig,"Healing Rain")
 
-        -- Wrapper
-        CreateNewWrap(thisConfig,"-------- Utilities -------");
+    -- Shamanistic Rage
+    CreateNewCheck(thisConfig,"Shamanistic Rage")
+    CreateNewBox(thisConfig,"Shamanistic Rage",0,100,5,70,"|cffFFBB00Under what %HP to use |cffFFFFFFShamanistic Rage")
+    CreateNewText(thisConfig,"Shamanistic Rage")
 
-        -- Healing Surge Toggle
-        CreateNewCheck(thisConfig,"Healing Surge Toggle");
-        CreateNewDrop(thisConfig,"Healing Surge Toggle", 4, "Toggle2")
-        CreateNewText(thisConfig,"Healing Surge Toggle");
+    -- Wrapper
+    generateWrapper("Utilities")
 
-        -- Pause Toggle
-        CreateNewCheck(thisConfig,"Pause Toggle");
-        CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
-        CreateNewText(thisConfig,"Pause Toggle");
+    -- Healing Surge Toggle
+    CreateNewCheck(thisConfig,"Healing Surge Toggle")
+    CreateNewDrop(thisConfig,"Healing Surge Toggle",4,"Toggle2")
+    CreateNewText(thisConfig,"Healing Surge Toggle")
 
-        -- Standard Interrupt
-        CreateNewCheck(thisConfig,"Wind Shear");
-        CreateNewBox(thisConfig, "Wind Shear", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to |cffFFFFFFWind Shear.");
-        CreateNewText(thisConfig,"Wind Shear");
+    -- Pause Toggle
+    CreateNewCheck(thisConfig,"Pause Toggle")
+    CreateNewDrop(thisConfig,"Pause Toggle",3,"Toggle2")
+    CreateNewText(thisConfig,"Pause Toggle")
 
-        -- General Configs
-        CreateGeneralsConfig();
+    -- Standard Interrupt
+    CreateNewCheck(thisConfig,"Wind Shear")
+    CreateNewBox(thisConfig,"Wind Shear",0,100,5,35,"|cffFFBB00Over what % of cast we want to |cffFFFFFFWind Shear.")
+    CreateNewText(thisConfig,"Wind Shear")
 
-        WrapsManager();
-    --end
+    -- General Configs
+    CreateGeneralsConfig()
+
+    WrapsManager()
 end
 --[[           ]]	--[[]]	   --[[]]	--[[]]	   --[[]]		  --[[]]		--[[]]	   --[[]]	--[[   		   ]]	--[[           ]]
 --[[           ]]	--[[  ]]   --[[]]	--[[]]	   --[[]]		 --[[  ]] 		--[[  ]]   --[[]]	--[[   		   ]]	--[[           ]]
