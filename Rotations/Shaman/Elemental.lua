@@ -35,11 +35,13 @@ function ShamanElemental()
 				stacks = getBuffStacks("player",_LightningShield)
 			}
 		},
+		cooldowns = BadBoy_data["Cooldowns"],
 		enemiesIn10 = getEnemies("player",10),
 		glyph = {
 			thunderstorm = hasGlyph(612)
 		},
 		inCombat = isInCombat("player"),
+		interrupts = BadBoy_data["Interrupts"],
 		hp = getHP("player"),
 		mana = getPower("player"),
 		moving = isMoving("player"),
@@ -100,6 +102,13 @@ function ShamanElemental()
 	}
 
 
+	-- lightning_shield,if=!buff.lightning_shield.up
+	if isChecked("Lightning Shield") and not player.buff.lightningShield.up then
+		if castSpell("player",_LightningShield,true,false) then
+			return
+		end
+	end
+
 	-- Pause toggle
 	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then
 		ChatOverlay("|cffFF0000BadBoy Paused",0)
@@ -113,7 +122,7 @@ function ShamanElemental()
 
 	if player.inCombat then
 		-- Wind Shear
-		if isChecked("Wind Shear") then
+		if player.interrupts == 2 and isChecked("Wind Shear") then
 			castInterrupt(_WindShear,getValue("Wind Shear"))
 		end
 		-- Astral Shift if < 30%
@@ -145,7 +154,9 @@ function ShamanElemental()
 
 
 	if isChecked("Healing Surge Toggle") and SpecificToggle("Healing Surge Toggle") == 1 and GetCurrentKeyBoardFocus() == nil then
-		if castSpell("player",_HealingSurge,true,true) then return; end
+		if castSpell("player",_HealingSurge,true,true) then
+			return
+		end
 	end
 
 		if isInCombat("player") then
@@ -155,19 +166,6 @@ function ShamanElemental()
 	-- blood_fury,if=buff.bloodlust.up|buff.ascendance.up|((cooldown.ascendance.remains>10|level<87)&cooldown.fire_elemental_totem.remains>10)
 	-- arcane_torrent
 
-		-- flametongue_weapon,weapon=main
-		if isChecked("Flametongue Weapon") and GetWeaponEnchantInfo() ~= 1 then
-			if castSpell("player",_FlametongueWeapon,true) then
-				return
-			end
-		end
-
-		-- lightning_shield,if=!buff.lightning_shield.up
-		if isChecked("Lightning Shield") and not player.buff.lightningShield then
-			if castSpell("player",_LightningShield,true) then
-				return
-			end
-		end
 
 	--[[
 
@@ -185,31 +183,31 @@ function ShamanElemental()
 	]]
 
 		-- elemental_mastery,if=action.lava_burst.cast_time>=1.2
-		if player.talent.elementalMastery and player.spell.lavaBurst.cooldown >= 1.2 then
+		if ((player.cooldowns == 2 and isChecked("Elemental Mastery")) or player.cooldowns == 3) and player.talent.elementalMastery and player.spell.lavaBurst.cooldown >= 1.2 then
 			if castSpell("player",_ElementalMastery,true) then
 				return
 			end
 		end
 		-- ancestral_swiftness,if=!buff.ascendance.up
-		if player.talent.ancestralSwiftness and not player.buff.ascendance then
+		if ((player.cooldowns == 2 and isChecked("Ancestral Swiftness")) or player.cooldowns == 3) and player.talent.ancestralSwiftness and not player.buff.ascendance then
 			if castSpell("player",_Ascendance,true,false) then
 				return
 			end
 		end
 		-- storm_elemental_totem
-		if player.talent.stormElementalTotem then
+		if ((player.cooldowns == 2 and isChecked("Storm Elemental Totem")) or player.cooldowns == 3) and player.talent.stormElementalTotem then
 			if castSpell("player",_StormElementalTotem) then
 				return
 			end
 		end
 		-- fire_elemental_totem,if=!active
-		if player.totem.fire ~= GetSpellInfo(_FireElementalTotem) then
+		if ((player.cooldowns == 2 and isChecked("Fire Elemental Totem")) or player.cooldowns == 3) and player.totem.fire ~= GetSpellInfo(_FireElementalTotem) then
 			if castSpell("player",_FireElementalTotem,true,false) then
 				return
 			end
 		end
 		-- ascendance,if=active_enemies>1|
-		if not player.buff.ascendance.up and player.spell.ascendance.cooldown == 0 and (#player.target.enemiesIn10 > 1
+		if ((player.cooldowns == 2 and isChecked("Ascendance")) or player.cooldowns == 3) and not player.buff.ascendance.up and player.spell.ascendance.cooldown == 0 and (#player.target.enemiesIn10 > 1
 		  -- (dot.flame_shock.remains>buff.ascendance.duration&(target.time_to_die<20|buff.bloodlust.up|time>=60)
 		  or (player.target.debuff.flameShock.remains > player.buff.ascendance.duration and (player.target.timeToDie < 20 or player.buff.bloodlust.up or player.time >= 60)
 			-- &cooldown.lava_burst.remains>0)

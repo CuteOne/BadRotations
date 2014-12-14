@@ -295,4 +295,8 @@ function canContFSK(unit)
     end
 end
 
+function getOption(spellID)
+    return tostring(select(1,GetSpellInfo(spellID)))
+end
+
 end

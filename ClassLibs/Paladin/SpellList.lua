@@ -26,6 +26,7 @@ if select(3,UnitClass("player")) == 2 then
 		_DivinePurposeBuff			= 	90174
 		_DivineShield               =   642
 		_DivineStorm                =   53385
+		_Daybreak					= 	88819
 		_EternalFlame               =   114163
 		_ExecutionSentence          =   114157
 		_Exorcism                   =   879
@@ -51,6 +52,7 @@ if select(3,UnitClass("player")) == 2 then
 		_GuardianOfAncientKings     =   86659
 		_GuardianOfAncientKingsHoly =   86669
 		_GuardianOfAncientKingsRet  =   86698
+		_InfusionOfLight			=	54149
 		_Inquisition                =   84963
 		_Judgment      	            =   20271
 		_LayOnHands                 =   633
@@ -256,11 +258,28 @@ if select(3,UnitClass("player")) == 2 then
 		return false
 	end
 
-	-- Todo This need to be enhanced to be much more logical
+	--Todo:Add who to loh logic
 	function castLayOnHands(unit)
-		if castSpell(unit,_LayOnHands,true,false) then
-			return true
+		if unit then
+			if castSpell(unit,_LayOnHands,true,false) then
+				return true
+			end
 		end
+		-- If no unit then be smart
+		if getHP("player") <= getValue("Lay On Hands") then
+			if castSpell("player",_LayOnHands,true, false) then
+				return true
+			end
+		else
+			for i = 1, #nNova do
+				if nNova[i].hp <= getValue("Lay On Hands") then
+					if castSpell(nNova[i].unit,_LayOnHands,true, false) then
+						return true
+					end
+				end
+			end
+		end
+
 		return false
 	end
 	-- done this works with profiles
@@ -463,6 +482,15 @@ if select(3,UnitClass("player")) == 2 then
 		CastShapeshiftForm(2)
 		return true
 	end
+
+	function castHolyRadiance(unit) --Todo: Not its on unit but we should be able to set smart checks, ie best target for HolyRaidances
+		if unit then
+			if castSpell(unit,_HolyRadiance,true,false) then
+				return true
+			end
+		end
+		return false
+	end
 	function castJeopardy()
 		for i = 1, #enemiesTable do
 			thisEnemy = enemiesTable[i]
@@ -471,17 +499,79 @@ if select(3,UnitClass("player")) == 2 then
 				-- i will declare a var in the Reader that will hold this value previousJudgmentTarget
 				if previousJudgmentTarget ~= thisEnemy.guid then
 					if castSpell(thisEnemy.unit,_Judgment,true,false) then
-						return
+						return true
 					end
 				end
 			end
 		end
+		return false
 	end
 	-- Divine shield
 	function castDivineShield(playerHealth)
 		if playerHealth < getValue("Divine Shield") then
 			if castSpell("player",_DivineShield,true,false) then
 				return
+			end
+		end
+	end
+
+	-- Holy Shock
+	function castHolyShock(unit, hpValue)
+		if unit then
+			if castSpell(unit, _HolyShock, true, false) then
+				return true
+			end
+		else
+			if _HolyPower < 5 or lowestHP < 90 then
+				for i = 1, #nNova do
+					if nNova[i].hp < hpValue then
+						if castSpell(nNova[i].unit, _HolyShock, true, false) then return end
+					end
+				end
+			end
+		end
+	end
+
+	-- Holy Light
+	function castHolyLight(hpValue)
+		for i = 1, #nNova do
+			if nNova[i].hp < hpValue then
+				if castSpell(nNova[i].unit, _HolyLight, true, true) then return end
+			end
+		end
+	end
+
+	-- Flash Of Light
+	function castFlashOfLight(unit, hpValue)
+		if unit then
+			if castSpell(unit, _HolyShock, true, false) then
+				return true
+			end
+		else
+			for i = 1, #nNova do
+				if nNova[i].hp < hpValue then
+					if castSpell(nNova[i].unit, _FlashOfLight, true, true) then 
+						return true
+					end
+				end
+			end
+		end
+	end
+	-- Flash of light(Selfless Healer)
+	function castSelfLessHealer(health)
+		if getBuffStacks("player",114250) == 3 then
+			if health <= getValue("Selfless Healer") then
+				if castSpell("player",_FlashOfLight,true) then
+					return
+				end
+			elseif modeHealing == 2 then
+				for i = 1, #nNova do
+					if nNova[i].hp <= getValue("Selfless Healer") then
+						if castSpell(nNova[i].unit,_FlashOfLight,true) then
+							return
+						end
+					end
+				end
 			end
 		end
 	end

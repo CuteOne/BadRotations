@@ -424,26 +424,9 @@ function DruidRestoration()
 			SwiftMender(lowestUnit,lowestHP)
 		end
 		--[[ 13 - WildGrowth Tol --(Tree of Life)]]
-		if isKnown(33891) and isChecked("WildGrowth Tol") and UnitBuffID("player", 33891) and isStanding(0.3)
-		  and canCast(48438,false,false) and lowestHP < getValue("WildGrowth Tol") then
-	        for i = 1, #nNova do
-	        	if nNova[i].hp < 249 then
-			        local allies30Yards = getAllies(nNova[i].unit,30)
-			        if #allies30Yards >= getValue("WildGrowth Tol Count") then
-				        local count = 0
-				        for j = 1, #allies30Yards do
-					        if getHP(allies30Yards[j]) < getValue("WildGrowth Tol") then
-					            count = count + 1
-					        end
-				        end
-		                if count > getValue("WildGrowth Tol Count") then
-		                    if castSpell(nNova[i].unit,48438,true) then
-		                    	return
-		                    end
-		                end
-				    end
-				end
-          	end
+		if isKnown(33891) and isChecked("WildGrowth Tol") and UnitBuffID("player", 33891)
+		  and lowestHP < getValue("WildGrowth Tol") then
+		  	castWiseAoEHeal(nNova,48438,30,getValue("WildGrowth Tol"),getValue("WildGrowth Tol Count"),5,true)
 		end
 		--[[ 14 - Regrowth  Tol]]
 		if isKnown(33891) and UnitBuffID("player", 33891) and canCast(8936,false,false)
@@ -677,57 +660,12 @@ function DruidRestoration()
 			end
 		end
 		--[[ 24 - WildGrowth all--(Use on all with out health check only with player count check)(some time in fight u need check it fast)]]
-		if isChecked("WildGrowth All") and isStanding(0.3) and canCast(48438,false,false) then
-		    for i = 1, #nNova do
-		    	if nNova[i].hp < 249 then
-			    	local allies30Yards = getAllies(nNova[i].unit,30);
-				    if #allies30Yards >= getValue("WildGrowth All Count") then
-			            if castSpell(nNova[i].unit,48438,true) then
-			            	return
-			            end
-					end
-				end
-			end
+		if isChecked("WildGrowth All") then
+		  	castWiseAoEHeal(nNova,48438,30,getValue("WildGrowth All"),getValue("WildGrowth All Count"),5,true)
 		end
 		--[[ 25 - WildGrowth--(Use with health and player count check)]]
-		if isChecked("WildGrowth") and isStanding(0.3) and canCast(48438,false,false)
-		  and lowestHP < getValue("WildGrowth") then
-			if isKnown(114107) ~= true then
-				for i = 1, #nNova do
-					local allies30Yards = 0
-					for j = 1, # nNova do
-						if nNova[j].hp < getValue("WildGrowth") and getDistance(nNova[i].unit,nNova[j].unit) <= 30 then
-							allies30Yards = allies30Yards + 1
-							if allies30Yards > getValue("WildGrowth Count") then
-								break
-							end
-						end
-					end
-					if allies30Yards > getValue("WildGrowth Count") then
-						if castSpell(nNova[i].unit,48438,true) then
-							return
-						end
-					end
-				end
-			elseif getSpellCD(48438) < 2 and canCast(48438,false,false) then
-				for i = 1, #nNova do
-					local allies30Yards = 0
-					for j = 1, # nNova do
-						if nNova[j].hp < getValue("WildGrowth SotF") and getDistance(nNova[i].unit,nNova[j].unit) <= 30 then
-							allies30Yards = allies30Yards + 1
-							if allies30Yards > getValue("WildGrowth Count") then
-								break
-							end
-						end
-					end
-					if allies30Yards > getValue("WildGrowth SotF Count") then
-						SwiftMender(lowestUnit,lowestHP)
-						if castSpell(nNova[i].unit,48438,true) then
-							return
-						end
-					end
-				end
-			end
+		if isChecked("WildGrowth") and lowestHP < getValue("WildGrowth") then
+			castWiseAoEHeal(nNova,48438,30,getValue("WildGrowth"),getValue("WildGrowth Count"),5,true)
 		end
 		--[[ 20 - Regrowth --(cast regrowth on all usualy between 30 - 40)]]
 		if isChecked("Regrowth") and isStanding(0.3) and canCast(8936,false,true) and lowestHP <= getValue("Regrowth") then

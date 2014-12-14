@@ -421,7 +421,7 @@ Holy
 ]]	function PaladinHolyFunctions()
 
 		-- Eternal Flame
-		function EternalFlame(hpValue)
+		function castEternalFlame(hpValue)
 			if (eternalFlameTimer == nil or eternalFlameTimer <= GetTime() - 1.3) then
 				eternalFlameTimer = GetTime()
 			else
@@ -444,34 +444,6 @@ Holy
 			if _HolyPower == 5 then
 				if castSpell(lowestTankUnit,_EternalFlame,true,false) then
 					return true
-				end
-			end
-		end
-		-- Holy Light
-		function HolyLight(hpValue)
-			for i = 1, #nNova do
-				if nNova[i].hp < hpValue then
-					if castSpell(nNova[i].unit, _HolyLight, true, true) then return end
-				end
-			end
-		end
-
-		-- Flash Of Light
-		function FlashOfLight(hpValue)
-			for i = 1, #nNova do
-				if nNova[i].hp < hpValue then
-					if castSpell(nNova[i].unit, _FlashOfLight, true, true) then return end
-				end
-			end
-		end
-
-		-- Holy Shock
-		function HolyShock(hpValue)
-			if _HolyPower < 5 or lowestHP < 90 then
-				for i = 1, #nNova do
-					if nNova[i].hp < hpValue then
-						if castSpell(nNova[i].unit, _HolyShock, true, false) then return end
-					end
 				end
 			end
 		end
@@ -519,15 +491,20 @@ Holy
 			-- Find if we have any, note if its a tank.
 			for i = 1, #nNova do
 				if UnitBuffID(nNova[i].unit,_BeaconOfLight,"player") then
-					beaconTarget, beaconRole, beaconHP = nNova[i].unit, nNova[i].role, nNova[i].hp
+					beaconLightTarget, beaconLightRole, beaconLightHP = nNova[i].unit, nNova[i].role, nNova[i].hp
+				end
+				if UnitBuffID(nNova[i].unit,_BeaconOfFaith,"player") then
+					beaconFaithTarget, beaconFaithRole, beaconFaithHP = nNova[i].unit, nNova[i].role, nNova[i].hp
 				end
 			end
 			-- if we are not beacon on a tank and on tanks is checked we find a proper tank if focus dont exists.
 			if getValue("Beacon Of Light") == 1 then
-				if beaconRole ~= "TANK" then
+				if beaconLightRole ~= "TANK" then
 					for i = 1, #nNova do
 						if nNova[i].role == "TANK" and not UnitBuffID("focus",_BeaconOfLight,"player") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
-							if castSpell(nNova[i].unit,_BeaconOfLight,true,false) then return end
+							if castSpell(nNova[i].unit,_BeaconOfLight,true,false) then 
+								return true
+							end
 						end
 					end
 				end
@@ -540,15 +517,22 @@ Holy
 					end
 				end
 			end
-
 			--Todo: Implement Wise Beacon
+
+			if getValue("Beacon Of Light") == 3 then
+				print("Wise handing of beacins Not Supported")
+				return false
+			end
+			
 			if isKnown(_BeaconOfFaith) then
 				-- if we are not beacon on a tank and on tanks is checked we find a proper tank if focus dont exists.
 				if getValue("Beacon Of Faith") == 1 then
-					if beaconRole ~= "TANK" and not UnitBuffID("focus",_BeaconOfLight,"player") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
+					if beaconFaithRole ~= "TANK" and not UnitBuffID("focus",_BeaconOfLight,"player") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
 						for i = 1, #nNova do
 							if nNova[i].role == "TANK" then
-								if castSpell(nNova[i].unit,_BeaconOfFaith,true,false) then return end
+								if castSpell(nNova[i].unit,_BeaconOfFaith,true,false) then 
+									return true
+								end
 							end
 						end
 					end
@@ -562,12 +546,16 @@ Holy
 					end
 				end
 				--Todo impolement Wise mode
+				if getValue("Beacon Of Light") == 3 then
+					print("Wise handing of beacins Not Supported")
+					return false
+				end
 			end 
 		end
 				
 		function castDispell()
-			if isChecked("Cleanse") and canCast(_Cleanse,false,false) and not (getBossID("boss1") == 71734 and not UnitBuffID("player",144359)) then
-				if getValue("Cleanse") == 2 then -- Mouse Match
+			if getOptionCheck("Dispell") and canCast(_Cleanse,false,false) and not (getBossID("boss1") == 71734 and not UnitBuffID("player",144359)) then
+				if getValue("Dispell") == 2 then -- Mouse Match
 					if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
 						for i = 1, #nNova do
 							if nNova[i].guid == UnitGUID("mouseover") and nNova[i].dispel == true then
@@ -577,7 +565,7 @@ Holy
 							end
 						end
 					end
-				elseif getValue("Cleanse") == 1 then -- Raid Match
+				elseif getValue("Dispell") == 1 then -- Raid Match
 					for i = 1, #nNova do
 						if nNova[i].hp < 249 and nNova[i].dispel == true then
 							if castSpell(nNova[i].unit,_Cleanse, true,false) then 
@@ -585,7 +573,7 @@ Holy
 							end
 						end
 					end
-				elseif getValue("Cleanse") == 3 then -- Mouse All
+				elseif getValue("Dispell") == 3 then -- Mouse All
 					if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
 					    for n = 1,40 do
 					      	local buff,_,_,count,bufftype,duration = UnitDebuff("mouseover", n)
@@ -600,7 +588,7 @@ Holy
 				      		end
 					  	end
 					end
-				elseif getValue("Cleanse") == 4 then -- Raid All
+				elseif getValue("Dispell") == 4 then -- Raid All
 					for i = 1, #nNova do
 						if nNova[i].hp < 249 then
 						    for n = 1,40 do
@@ -623,48 +611,83 @@ Holy
 			return false
 		end
 
-		function castHolyRadiance(spellID, numUnits, missingHP, rangeValue)
-			-- i start an iteration that i use to build each units Table, wich i will reuse for the next second
-			if not holyRadianceRangeTable or not holyRadianceRangeTableTimer or holyRadianceRangeTable <= GetTime() - 1 then
-				holyRadianceRangeTable = { }
-				for i = 1, #nNova do
-					-- i declare a sub-table for this unit if it dont exists
-					if nNova[i].distanceTable == nil then nNova[i].distanceTable = { } end
-					-- i start a second iteration where i scan unit ranges from one another.
-					for j = 1, #nNova do
-						-- i make sure i dont compute unit range to hisself.
-						if not UnitIsUnit(nNova[i].unit,nNova[j].unit) then
-							-- table the units
-							nNova[i].distanceTable[j] = { distance = getDistance(nNova[i].unit,nNova[j].unit), unit = nNova[j].unit, hp = nNova[j].hp }
-						end
+		function castAoEHeals()
+			-- Aoe Heals
+			--	Holy Radiance  40 yards, generates 1 HoPo friendly target and 6 allies within 10 yards
+			--  Light Of Dawn, cost 1 HoPo heals 6 allies within 30 yards.
+			--  Holy Shock if Daybreak buff, 10 yeards of target 15% healing done for 5 allies.
+			--  Holy Prism, CD 20, cast on enemy heals 5 allies within 15 yards. Talents
+			--  Lights Hammer, 30 yards, heals 6 allies within 10 yards radius.
+
+			local aoeCandidateTenYards, numberOfUnitsInRangeTenYards = getAoeHealingCandidateNova(2, 90, 10) --Holy Shock values, cast if we have 2
+			local aoeCandidateLightOfDawn, numberOfUnitsInRangeLightOfDawn = getAoeHealingCandidateNova(2, 90, 10) --Light of dawn values, cast if we have 6
+
+			if UnitBuffID("player",_Daybreak) and canCast(_HolyShock) then --Daybreak procc turns holy shock into AoE
+				if aoeCandidateTenYards and numberOfUnitsInRangeTenYards > 2 and _HolyPower < 5 then
+					if castHolyShock(aoeCandidateTenYards, getValue("Holy Shock")) then
+						print("Casting HS on AoE")
+						return true
 					end
 				end
 			end
-			-- declare locals that will hold number
-			local bestTarget, bestTargetUnits = 1, 1
-			-- now that nova range is built, i can iterate it
-			local inRange, missingHealth, mostMissingHealth = 0, 0, 0
+
+			-- Light of Dawn here
+			--[Light of Dawn] 3 HoPo heals 6 allies 30 yards from player
+
+			if aoeCandidateTenYards and numberOfUnitsInRangeTenYards > 5 and _HolyPower < 5 then
+				if castHolyRadiance(aoeCandidateTenYards) then
+					print("Casting Holy Radiance AoE")
+					return true
+				end
+			end
+			return false
+		end
+
+		function getAoeHealingCandidateNova(minimalNumberofUnits, missingHP, rangeValue)
+			local bestAoECandidate = nNova[1].unit					
+			local bestAoeNumberOfUnits = 0
 			for i = 1, #nNova do
-				if nNova[i].distanceTable ~= nil then
-					-- i count units in range
-					for j = 1, #nNova do
-						if nNova[i].distanceTable[j] and nNova[i].distanceTable[j].distance < rangeValue then
-							inRange = inRange + 1
-							missingHealth = missingHealth + (100 - nNova[i].distanceTable[j].hp)
-						end
-					end
-					nNova[i].inRangeForHolyRadiance = inRange
-					-- i check if this is going to be the best unit for my spell
-					if missingHealth > mostMissingHealth then
-						bestTarget, bestTargetUnits, mostMissingHealth = i, inRange, missingHealth
-					end
+	        	if nNova[i].hp < 249 then
+			        local alliesinRange = getAllies(nNova[i].unit,rangeValue)
+			        local count = 0
+			        if #alliesinRange >= minimalNumberofUnits then
+				        for j = 1, #alliesinRange do
+					        if getHP(alliesinRange[j]) < missingHP then
+					            count = count + 1
+					        end
+				        end
+				    end
+				    if count > 	bestAoeNumberOfUnits then
+				    	bestAoECandidate = nNova[i].unit
+				    	bestAoeNumberOfUnits = count
+				    end
+				    -- Todo: Here we have not met the criteria, but we should be able to provide with the best candidate even if we dont meet the criteria
+				end
+          	end
+          	if bestAoeNumberOfUnits >= minimalNumberofUnits then
+          		return bestAoECandidate, bestAoeNumberOfUnits
+          	else
+          		return false
+          	end
+        end
+        
+		function preCombatHandlingHoly() --actions to be done prepull for holy
+		--cast Eternal Flame on tanks
+			if _HolyPower > 2 and castEternalFlame(100) then --Todo: We need to cast Eternal flame on both tanks.
+				return true
+			end 
+			if _HolyPower > 2 then
+				if castEternalFlame(100) then
+					return true
 				end
 			end
-			if bestTargetUnits and bestTargetUnits > 3 and mostMissingHealth and missingHP and mostMissingHealth > missingHP then
-				if castSpell(nNova[bestTarget].unit, spellID, true, true) then 
-					return 	true 
-				end
+			if castHolyShock(nil, 100) then
+				return true
 			end
+			if castHolyRadiance("player") then 
+				return true
+			end
+			return false
 		end
 	end
 end

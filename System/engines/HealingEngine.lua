@@ -2,7 +2,7 @@
 -----------------------------------------Bubba's Healing Engine--------------------------------------]]
 if not metaTable1 then
 
-	local _MyClass = select(3,UnitClass("player"));
+	local _MyClass = select(3,UnitClass("player"))
 
 	-- localizing the commonly used functions while inside loops
 	local getDistance, GetSpellInfo, tinsert, tremove, UnitDebuff, UnitHealth, UnitHealthMax, UnitExists, UnitGUID = getDistance, GetSpellInfo, tinsert, tremove, UnitDebuff, UnitHealth, UnitHealthMax, UnitExists, UnitGUID
@@ -43,8 +43,8 @@ if not metaTable1 then
 	local updateHealingTable = CreateFrame("frame", nil)
 	updateHealingTable:RegisterEvent("GROUP_ROSTER_UPDATE")
 	updateHealingTable:SetScript("OnEvent", function()
-		table.wipe(nNova);
-		table.wipe(memberSetup.cache);
+		table.wipe(nNova)
+		table.wipe(memberSetup.cache)
 		SetupTables()
 	end)
 
@@ -120,31 +120,59 @@ if not metaTable1 then
 
 		-- We are checking the HP of the person through their own function.
 		function o:CalcHP()
---			print("calculating HP")
-			local incomingheals;
-			if getOptionCheck("No Incoming Heals") ~= true and UnitGetIncomingHeals(o.unit,"player") ~= nil then incomingheals = UnitGetIncomingHeals(o.unit,"player"); else incomingheals = 0; end
-			local nAbsorbs;
-			if getOptionCheck("No Absorbs") ~= true then nAbsorbs = ( 25*UnitGetTotalAbsorbs(o.unit)/100 ); else nAbsorbs = 0; end
-			local PercentWithIncoming = 100 * ( UnitHealth(o.unit) + incomingheals + nAbsorbs ) / UnitHealthMax(o.unit);
-			if o.role == "TANK" then PercentWithIncoming = PercentWithIncoming - 5; end -- Using the group role assigned to the Unit
-			if HealCheck(o.unit) ~= true then PercentWithIncoming = 250; end -- Place Dead players at the end of the list
-			if o.dispel then PercentWithIncoming = PercentWithIncoming - 2; end -- Using Dispel Check to see if we should give bonus weight
-			if o.threat == 3 then PercentWithIncoming = PercentWithIncoming - 3; end
-			if o.guidsh == 72218  then PercentWithIncoming = PercentWithIncoming - 5 end -- Tank in Proving Grounds
+			-- Place out of range players at the end of the list
+ 			if not UnitInRange(o.unit) and getDistance(o.unit) > 42.98 and not UnitIsUnit("player", o.unit) then
+ 				return 250,250,250
+ 			end
+			-- Place Dead players at the end of the list
+			if HealCheck(o.unit) ~= true then
+				return 250,250,250
+			end
+			-- incoming heals
+			local incomingheals
+			if getOptionCheck("No Incoming Heals") ~= true and UnitGetIncomingHeals(o.unit,"player") ~= nil then
+				incomingheals = UnitGetIncomingHeals(o.unit,"player")
+			else
+				incomingheals = 0
+			end
+			-- absorbs
+			local nAbsorbs
+			if getOptionCheck("No Absorbs") ~= true then
+				nAbsorbs = ( 25*UnitGetTotalAbsorbs(o.unit)/100 )
+			else
+				nAbsorbs = 0
+			end
+			-- calc base + absorbs + incomings
+			local PercentWithIncoming = 100 * ( UnitHealth(o.unit) + incomingheals + nAbsorbs ) / UnitHealthMax(o.unit)
+			-- Using the group role assigned to the Unit
+			if o.role == "TANK" then
+				PercentWithIncoming = PercentWithIncoming - 5
+			end
+			-- Using Dispel Check to see if we should give bonus weight
+			if o.dispel then
+				PercentWithIncoming = PercentWithIncoming - 2
+			end
+			-- Using threat to remove 3% to all tanking units
+			if o.threat == 3 then
+				PercentWithIncoming = PercentWithIncoming - 3
+			end
+			-- Tank in Proving Grounds
+			if o.guidsh == 72218  then
+				PercentWithIncoming = PercentWithIncoming - 5
+			end
 			local ActualWithIncoming = ( UnitHealthMax(o.unit) - ( UnitHealth(o.unit) + incomingheals ) )
- 			if not UnitInRange(o.unit) and getDistance(o.unit) > 42.98 and not UnitIsUnit("player", o.unit) then PercentWithIncoming = 250; end
-			-- Malkorok
+			-- Malkorok shields logic
 			local SpecificHPBuffs = {
-				{ buff = 142865 , value = select(15,UnitDebuffID(o.unit,142865)) }, -- Strong Ancient Barrier (Green)
-				{ buff = 142864 , value = select(15,UnitDebuffID(o.unit,142864)) }, -- Ancient Barrier (Yellow)
-				{ buff = 142863 , value = select(15,UnitDebuffID(o.unit,142863)) }, -- Weak Ancient Barrier (Red)
-			};
+				{buff = 142865,value = select(15,UnitDebuffID(o.unit,142865))}, -- Strong Ancient Barrier (Green)
+				{buff = 142864,value = select(15,UnitDebuffID(o.unit,142864))}, -- Ancient Barrier (Yellow)
+				{buff = 142863,value = select(15,UnitDebuffID(o.unit,142863))}, -- Weak Ancient Barrier (Red)
+			}
 			if UnitDebuffID(o.unit, 142861) ~= nil then -- If Miasma found
 				for i = 1, #SpecificHPBuffs do -- start nomber of buff iteration
 					if UnitDebuffID(o.unit, SpecificHPBuffs[i].buff) ~= nil then -- if buff found
 						if SpecificHPBuffs[i].value ~= nil then
-							PercentWithIncoming = 100 + (SpecificHPBuffs[i].value/UnitHealthMax(o.unit)*100); -- we set its amount + 100 to make sure its within 50-100 range
-							break;
+							PercentWithIncoming = 100 + (SpecificHPBuffs[i].value/UnitHealthMax(o.unit)*100) -- we set its amount + 100 to make sure its within 50-100 range
+							break
 						end
 					end
 				end
@@ -160,14 +188,15 @@ if not metaTable1 then
 			if getOptionCheck("Blacklist") == true and BadBoy_data.blackList ~= nil then
 				for i = 1, #BadBoy_data.blackList do
 					if o.guid == BadBoy_data.blackList[i].guid then
-						PercentWithIncoming, ActualWithIncoming, nAbsorbs = PercentWithIncoming + getValue("Blacklist") , ActualWithIncoming + getValue("Blacklist") , nAbsorbs + getValue("Blacklist")
-						break;
+						PercentWithIncoming,ActualWithIncoming,nAbsorbs = PercentWithIncoming + getValue("Blacklist"),ActualWithIncoming + getValue("Blacklist"),nAbsorbs + getValue("Blacklist")
+						break
 					end
 				end
 			end
-			return PercentWithIncoming, ActualWithIncoming, nAbsorbs
+			return PercentWithIncoming,ActualWithIncoming,nAbsorbs
 		end
 
+		-- returns unit GUID
 		function o:nGUID()
 	  		local nShortHand = ""
 	  		if UnitExists(unit) then
@@ -177,38 +206,75 @@ if not metaTable1 then
 	  		return targetGUID, nShortHand
 		end
 
-		-- Updating the values of the Unit
-		function o:UpdateUnit()
-			o.name = UnitName(o.unit) -- return Name of unit
-			o.guid = o:nGUID() -- return real GUID of unit
-
-			local roleFinder = roleFinder
-			if UnitGroupRolesAssigned(o.unit) == "NONE" then
-				if novaEngineTables.roleTable[UnitName(o.unit)] ~= nil then
-					o.role = novaEngineTables.roleTable[UnitName(o.unit)].role
-				end
-			else
-				o.role = UnitGroupRolesAssigned(o.unit)
-			end -- role from raid frame
-			o.guidsh = select(2, o:nGUID()) -- Short GUID of unit for the SetupTable
-			o.dispel = o:Dispel(o.unit) -- return true if unit should be dispelled
-			o.threat = UnitThreatSituation(o.unit) -- Unit's threat situation(1-4)
-			o.hp = o:CalcHP() -- Unit HP
-			o.absorb = select(3, o:CalcHP()) -- Unit Absorb
-			o.target = tostring(o.unit).."target" -- Target's target
-			memberSetup.cache[select(2, getGUID(o.unit))] = o -- Add unit to SetupTable
+		-- Returns unit class
+		function o:GetClass()
 			if UnitGroupRolesAssigned(o.unit) == "NONE" then
 				if UnitIsUnit("player",o.unit) then
-					o.class = UnitClass("player")
+					return UnitClass("player")
 				end
 				if novaEngineTables.roleTable[UnitName(o.unit)] ~= nil then
-					o.class = novaEngineTables.roleTable[UnitName(o.unit)].class
+					return novaEngineTables.roleTable[UnitName(o.unit)].class
 				end
 			else
-				o.class = UnitClass(o.unit)
+				return UnitClass(o.unit)
 			end
 		end
 
+		-- return unit role
+		function o:GetRole()
+			if UnitGroupRolesAssigned(o.unit) == "NONE" then
+				-- if we already have a role defined we dont scan
+				if novaEngineTables.roleTable[UnitName(o.unit)] ~= nil then
+					return novaEngineTables.roleTable[UnitName(o.unit)].role
+				end
+			else
+				return UnitGroupRolesAssigned(o.unit)
+			end
+		end
+
+		-- sets actual position of unit in engine, shouldnt refresh more than once/sec
+		function o:GetPosition()
+			if UnitIsVisible(o.unit) then
+				o.refresh = GetTime()
+				local x,y,z = ObjectPosition(o.unit)
+				x = math.ceil(x*100)/100
+				y = math.ceil(y*100)/100
+				z = math.ceil(z*100)/100
+				return x,y,z
+			else
+				return 0,0,0
+			end
+		end
+
+		-- Updating the values of the Unit
+		function o:UpdateUnit()
+			-- assign Name of unit
+			o.name = UnitName(o.unit)
+			-- assign real GUID of unit
+			o.guid = o:nGUID()
+			-- assign unit role
+			o.role = o:GetRole()
+			-- Short GUID of unit for the SetupTable
+			o.guidsh = select(2, o:nGUID())
+			-- set to true if unit should be dispelled
+			o.dispel = o:Dispel(o.unit)
+			-- Unit's threat situation(1-4)
+			o.threat = UnitThreatSituation(o.unit)
+			-- Unit HP
+			o.hp = o:CalcHP()
+			-- Unit Absorb
+			o.absorb = select(3, o:CalcHP())
+			-- Target's target
+			o.target = tostring(o.unit).."target"
+			-- Unit Class
+			o.class = o:GetClass()
+			-- precise unit position
+			if o.refresh == nil or o.refresh < GetTime() - 1 then
+				o.x,o.y,o.z = o:GetPosition()
+			end
+			-- add unit to setup cache
+			memberSetup.cache[select(2, getGUID(o.unit))] = o -- Add unit to SetupTable
+		end
 		-- Adding the user and functions we just created to this cached version in case we need it again
 		-- This will also serve as a good check for if the unit is already in the table easily
 		--print(UnitName(unit), select(2, getGUID(unit)))
@@ -222,7 +288,18 @@ if not metaTable1 then
 		function nNova:Update(MO)
 			local MouseoverCheck = true
 			-- This is for special situations, IE world healing or NPC healing in encounters
-			if getOptionCheck("Special Heal") == true then SpecialTargets = {"mouseover","target","focus"} else SpecialTargets = {} end
+			local selectedMode,SpecialTargets = getOptionValue("Special Heal"), {}
+			if getOptionCheck("Special Heal") == true then
+				if selectedMode == 1 then
+					SpecialTargets = { "target" }
+				elseif selectedMode == 2 then
+					SpecialTargets = { "target","mouseover","focus" }
+				elseif selectedMode == 3 then
+					SpecialTargets = { "target","mouseover" }
+				else
+					SpecialTargets = { "target","focus" }
+				end
+			end
 			for p=1, #SpecialTargets do
 				-- Checking if Unit Exists and it's possible to heal them
 				if UnitExists(SpecialTargets[p]) and HealCheck(SpecialTargets[p]) then
@@ -295,7 +372,7 @@ if not metaTable1 then
 						else
 							return false
 						end
-					end);
+					end)
 				end
 				if UnitExists("target") and memberSetup.cache[select(2, getGUID("target"))] then
 					table.sort(nNova, function(x)

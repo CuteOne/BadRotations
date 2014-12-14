@@ -76,7 +76,7 @@ if select(3,UnitClass("player")) == 2 then
 -- Buffs
 		myWrapper("Buffs")
 
-		-- Blessing
+-- Blessing
 		CreateNewCheck(thisConfig,"Blessing","Normal",1)
 		CreateNewDrop(thisConfig,"Blessing",1,"Select wich blessing you want to use.","|cff006AFFKings","|cffFFAE00Might")
 		CreateNewText(thisConfig,myColor.."Blessing")
@@ -127,6 +127,15 @@ if select(3,UnitClass("player")) == 2 then
 
 -- Healing
 		myWrapper("Healing")
+
+		CreateNewCheck(thisConfig,"Critical Health Level","Normal",1)
+		CreateNewBox(thisConfig,"Critical Health Level",0,100,1,90,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFfast heals")
+		CreateNewText(thisConfig,myColor.."Critical Health Level")
+
+
+		CreateNewCheck(thisConfig, "Beacon Of Light","Normal",1)
+		CreateNewDrop(thisConfig, "Beacon Of Light", 2, "Choose mode:\nTank - Always on tank\nFocus - Always on focus.\nWise - Dynamic", "TANK","FOCUS","WISE")
+		CreateNewText(thisConfig, myColor.."Beacon Of Light")
 
 		-- Beacon of Faith
 		if isKnown(_BeaconOfFaith) then
@@ -231,6 +240,15 @@ if select(3,UnitClass("player")) == 2 then
 		CreateNewBox(thisConfig,"Rebuke",0,100,5,35,"|cffFFBB00Over what % of cast we want to \n|cffFFFFFFRebuke.")
 		CreateNewText(thisConfig,myColor.."Rebuke")
 
+		-- Nature's Cure
+        CreateNewCheck(thisConfig,"Dispell")
+        CreateNewDrop(thisConfig,"Dispell", 1, "|cffFFBB00MMouse:|cffFFFFFFMouse / Match List. \n|cffFFBB00MRaid:|cffFFFFFFRaid / Match List. \n|cffFFBB00AMouse:|cffFFFFFFMouse / All. \n|cffFFBB00ARaid:|cffFFFFFFRaid / All.",
+            "|cffFFDD11MMouse",
+            "|cffFFDD11MRaid",
+            "|cff00FF00AMouse",
+            "|cff00FF00ARaid")
+        CreateNewText(thisConfig,"Dispell")
+
 		-- General Configs
 		CreateGeneralsConfig()
 
@@ -258,7 +276,7 @@ if select(3,UnitClass("player")) == 2 then
 
 		-- Blessing
 		CreateNewCheck(thisConfig,"Blessing")
-		CreateNewDrop(thisConfig,"Blessing",1,"|cffFFFFFFFWich blessing do you want to maintain on raid","|cff0374FEKings","|cffFFBC40Might","|cff00FF0DAuto")
+		CreateNewDrop(thisConfig,"Blessing",1,"|cffFFFFFFWich blessing do you want to maintain on raid","|cff0374FEKings","|cffFFBC40Might","|cff00FF0DAuto")
 		CreateNewText(thisConfig,"Blessing")
 
 		-- Wrapper
@@ -330,27 +348,27 @@ if select(3,UnitClass("player")) == 2 then
 		-- Tier 3 talents
 		if isKnown(_SacredShield) then
 			CreateNewCheck(thisConfig,"Sacred Shield")
-			CreateNewBox(thisConfig,"Sacred Shield",0,100,1,95,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFSacred Shield")
+			CreateNewBox(thisConfig,"Sacred Shield",0,100,5,95,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFSacred Shield")
 			CreateNewText(thisConfig,"Sacred Shield")
 		elseif isKnown(_SelflessHealer) then
 			CreateNewCheck(thisConfig,"Selfless Healer")
-			CreateNewBox(thisConfig,"Selfless Healer",0,100,1,35,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFSelfless Healer on Raid")
+			CreateNewBox(thisConfig,"Selfless Healer",0,100,5,35,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFSelfless Healer on Raid")
 			CreateNewText(thisConfig,"Selfless Healer")
 		else
 			CreateNewCheck(thisConfig,"Self Flame")
-			CreateNewBox(thisConfig,"Self Flame",0,100,1,75,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFEternal Flame on Self")
+			CreateNewBox(thisConfig,"Self Flame",0,100,5,35,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFEternal Flame on Self")
 			CreateNewText(thisConfig,"Self Flame")
 			CreateNewCheck(thisConfig,"Eternal Flame")
-			CreateNewBox(thisConfig,"Eternal Flame",0,100,1,35,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFEternal Flame on Raid")
+			CreateNewBox(thisConfig,"Eternal Flame",0,100,5,20,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFEternal Flame on Raid")
 			CreateNewText(thisConfig,"Eternal Flame")
 		end
 
 		if isKnown(_SelflessHealer) or isKnown(_SacredShield) then
 			CreateNewCheck(thisConfig,"Self Glory")
-			CreateNewBox(thisConfig,"Self Glory",0,100,1,70,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFWord Of Glory on Self")
+			CreateNewBox(thisConfig,"Self Glory",0,100,5,70,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFWord Of Glory on Self")
 			CreateNewText(thisConfig,"Self Glory")
 			CreateNewCheck(thisConfig,"Word Of Glory")
-			CreateNewBox(thisConfig,"Word Of Glory",0,100,1,70,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFWord Of Glory on Raid")
+			CreateNewBox(thisConfig,"Word Of Glory",0,100,5,70,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFWord Of Glory on Raid")
 			CreateNewText(thisConfig,"Word Of Glory")
 		end
 
@@ -358,9 +376,9 @@ if select(3,UnitClass("player")) == 2 then
 		generateWrapper("Utilities")
 
 		-- Rebuke
-		CreateNewCheck(thisConfig,"Rebuke")
-		CreateNewBox(thisConfig,"Rebuke",0,100,5,35,"|cffFFBB00Over what % of cast we want to \n|cffFFFFFFRebuke.")
-		CreateNewText(thisConfig,"Rebuke")
+		CreateNewCheck(thisConfig,"Rebuke",1,redColor.."Check" ..whiteColor.."to use "..redColor.."Rebuke"..whiteColor..".")
+		CreateNewBox(thisConfig,"Rebuke",0,100,5,35,redColor.."Over what % of cast"..whiteColor.." we want to use "..redColor.."Rebuke"..whiteColor..".")
+		CreateNewText(thisConfig,redColor.."Rebuke")
 
 		-- General Configs
 		CreateGeneralsConfig()

@@ -6,7 +6,7 @@
 -- height: inherit from the parent frame
 function createRow(parent,value,textString)
     local scale = BadBoy_data.BadBoyUI[parent.."Frame"].scale or 1
-    _G[parent..value.."Frame"] = CreateFrame("Frame", "MyButton", _G[parent.."Frame"])
+    _G[parent..value.."Frame"] = CreateFrame("Frame", "DebugRow", _G[parent.."Frame"])
     _G[parent..value.."Frame"]:SetWidth((BadBoy_data.BadBoyUI[parent.."Frame"].width-25)*scale)
     _G[parent..value.."Frame"]:SetHeight(24*scale)
     _G[parent..value.."Frame"]:SetPoint("TOPLEFT",10*scale,-(value*24)*scale)

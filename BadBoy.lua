@@ -283,7 +283,7 @@ function PulseUI()
 	_G["options"..BadBoy_data.options.selected.."Button"]:Click()
 	-- global vars
 	targetDistance = getDistance("target") or 0
-	displayDistance = math.floor(targetDistance*100)/100
+	displayDistance = math.ceil(targetDistance)
 	mainText:SetText(displayDistance)
 
 	-- enemies

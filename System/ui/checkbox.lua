@@ -1,5 +1,5 @@
 -- creates a checkbox with current UI settings at location within parent
-function createCheckBox(parent,name,x,y,checkState)
+function createCheckBox(parent,name,x,y,checkState,tip1)
     if _G[parent..name.."Check"] == nil then
         if BadBoy_data.options[GetSpecialization()] then
             if BadBoy_data.options[GetSpecialization()][name.."Check"] == nil then
@@ -53,11 +53,7 @@ function createCheckBox(parent,name,x,y,checkState)
             _G[parent..name.."Check"].texture:SetTexture(200/255,200/255,200/255,1)
             GameTooltip:SetOwner(self, "BOTTOMLEFT", 225, 5)
             if tip1 ~= nil then
-                if tip1 == "Normal" then
-                    GameTooltip:SetText("|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFF"..name.."|cffFFBB00.", nil, nil, nil, nil, true)
-                else
-                    GameTooltip:SetText(tip1, nil, nil, nil, nil, true)
-                end
+                GameTooltip:SetText(tip1, nil, nil, nil, nil, true)
             else
                 GameTooltip:SetText("|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFF"..name.."|cffFFBB00.", nil, nil, nil, nil, true)
             end
