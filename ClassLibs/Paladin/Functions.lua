@@ -680,13 +680,31 @@ Holy
 			--  Holy Prism, CD 20, cast on enemy heals 5 allies within 15 yards. Talents
 			--  Lights Hammer, 30 yards, heals 6 allies within 10 yards radius.
 
-			if UnitBuffID("player",_Daybreak) and canCast(_HolyShock) then
-				local aoeCHolyShockandidate, numberOfUnitsInRange = getAoeHealingCandidateNova(2, 90, 10) --Holy Shock values, cast if we have 2
-				if aoeCHolyShockandidate then
-					if castHolyShock(aoeCHolyShockandidate, 100) then
+			local aoeCandidateTenYards, numberOfUnitsInRangeTenYards = getAoeHealingCandidateNova(2, 90, 10) --Holy Shock values, cast if we have 2
+			local aoeCandidateLightOfDawn, numberOfUnitsInRangeLightOfDawn = getAoeHealingCandidateNova(2, 90, 10) --Holy Shock values, cast if we have 2
+
+			if UnitBuffID("player",_Daybreak) and canCast(_HolyShock) then --Daybreak procc turns holy shock into AoE
+				if aoeCandidateTenYards and numberOfUnitsInRangeTenYards > 2 and _HolyPower < 5 then
+					if castHolyShock(aoeCandidateTenYards, getValue("Holy Shock")) then
+						print("Casting HS on AoE")
 						return true
 					end
 				end
+			end
+
+			-- Light of Dawn here
+			--[Light of Dawn] 3 HoPo heals 6 allies 30 yards from player
+
+			if aoeCandidateTenYards and numberOfUnitsInRangeTenYards > 5 and _HolyPower < 5 then
+				if castHolyRadiance(aoeCandidateTenYards, getValue("Holy Radiance")) then
+					print("Casting Holy Radiance AoE")
+					return true
+				end
+			end
+			
+			--[[Holy Radiance]]
+			if castHolyRadiance(_HolyRadiance, 6, 75, 6) then 
+				return true
 			end
 
 			return false

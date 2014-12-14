@@ -143,14 +143,7 @@ if select(3, UnitClass("player")) == 2 then
 			 	return true
 			 end
 
-			--[Light of Dawn] 3 HoPo heals 6 allies 30 yards from player
-			--getAoeHealingCandidateNova(numUnits, missingHP, rangeValue)
-			--[[Holy Radiance]]
-			if IsMouseButtonDown(4) then -- Mousebutton 1-5
-				if castHolyRadiance(_HolyRadiance, 6, 75, 6) then 
-					return true
-				end
-			end
+
 			--[[holy_shock,if=holy_power<=3]] -- Should add not cast if 5 HoPo
 			if getOptionCheck("Holy Shock") and _HolyPower < 5 and castHolyShock(nil, getValue("Holy Shock"))  then 
 				return true
