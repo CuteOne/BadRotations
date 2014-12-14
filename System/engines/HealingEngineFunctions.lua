@@ -1,5 +1,26 @@
 -- here we want to define functions to use with the healing profiles
 
+
+-- we want to define an iteration that will compare allies to heal in range of enemies or allies
+function castWiseAoEHeal(unitTable,spell,radius,health,maxCount,minCount,movementCheck)
+    if movementCheck ~= true or not isMoving("player") then
+        local bestCandidate
+        for i = 1, #unitTable do
+            local candidate = getUnitsToHealAround(unitTable[i].unit,radius,health,maxCount)
+            if bestCandidate == nil or bestCandidate[0].coef > candidate[0].coef then
+                bestCandidate = candidate
+            end
+        end
+        if #bestCandidate - 1 > minCount then
+            -- here we would like instead to cast on unit
+            if castSpell(bestCandidate[0].unit,spell,facingCheck,movementCheck) then
+                return
+            end
+        end
+    end
+end
+
+
 -- function to define range between players in tables.
 function getNovaDistance(Unit1,Unit2)
     -- if we are comparing same unit return 0
@@ -19,17 +40,17 @@ end
 
 -- now that we have our units in nNova with their positions, we can compare them to our enemies
 -- we will send them as object args to our distance functions... since both engines have x and y, we will be able to mix them up
-function getUnitsToHealAround(unit,radius,health,count)
+function getUnitsToHealAround(UnitID,radius,health,count)
     -- if we provide an unitID, we get this units location once
     local X1,Y1,Z1,isNova = 0,0,0,false
     -- if an unit of type string is passed we consider it as a UnitID
-    if type(unit) == "string" then
-        X1,Y1,Z1 = ObjectPosition(unit)
+    if type(UnitID) == "string" then
+        X1,Y1,Z1 = ObjectPosition(UnitID)
     -- if we provide it a table, take that object position(accepts enemiesTable[i] or nNova[i])
-    elseif unit and unit.x ~= 0 then
-        X1,Y1,Z1 = unit.x,unit.y,unit.z
+    elseif UnitID and UnitID.x ~= 0 then
+        X1,Y1,Z1 = UnitID.x,UnitID.y,UnitID.z
     end
-    local unit = {x = X1,y = Y1,z = Z1,guid = UnitGUID(unit),name = UnitName(unit)}
+    local unit = {x = X1,y = Y1,z = Z1,guid = UnitGUID(UnitID),name = UnitName(UnitID)}
     -- once we get our unit location we call our getdistance
     local lowHealthCandidates = {}
     for i = 1, #nNova do
@@ -63,16 +84,17 @@ function getUnitsToHealAround(unit,radius,health,count)
             end
         end
     end
-    lowHealthCandidates[0] = getLowHealthCoeficient(lowHealthCandidates)
+    lowHealthCandidates[0] = { unit = UnitID, coef = getLowHealthCoeficient(lowHealthCandidates) }
     return lowHealthCandidates
 end
 
+-- returns coefficient of low health units around another unit
 function getLowHealthCoeficient(lowHealthCandidates)
     local tableCoef = 0
     local lowHealthCount = #lowHealthCandidates
     -- if critical status, add it more coef
     for i = 1, lowHealthCount do
-        candidate = lowHealthCandidates[i]
+        local candidate = lowHealthCandidates[i]
         if candidate.hp < 30 then
             tableCoef = tableCoef + 1.5*(100-candidate.hp)
         else
