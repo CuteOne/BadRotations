@@ -626,32 +626,6 @@ function getAgility()
     return Agi
 end
 
--- if getAllies("player",40) > 5 then
-function getAllies(Unit,Radius)
-	local alliesTable = {}
- 	for i=1,#nNova do
-		if not UnitIsDeadOrGhost(nNova[i].unit) then
-			if getDistance(Unit,nNova[i].unit) <= Radius then
-				tinsert(alliesTable,nNova[i].unit)
-			end
-		end
- 	end
- 	return alliesTable
-end
-
--- if getAlliesInLocation("player",X,Y,Z) > 5 then
-function getAlliesInLocation(myX,myY,myZ,Radius)
-	local alliesTable = {}
- 	for i=1,#nNova do
-		if not UnitIsDeadOrGhost(nNova[i].unit) then
-			if getDistanceToObject(nNova[i].unit,myX,myY,myZ) <= Radius then
-				tinsert(alliesTable,nNova[i].unit)
-			end
-		end
- 	end
- 	return alliesTable
-end
-
 -- if getBuffDuration("target",12345) < 3 then
 function getBuffDuration(Unit,BuffID,Source)
 	if UnitBuffID(Unit,BuffID,Source) ~= nil then

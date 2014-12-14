@@ -13,17 +13,21 @@ System\Core.lua
 System\GeneralFunctions.lua
 System\Config.lua
 System\DebugFrame.lua
-System\EnemiesEngine.lua
-System\EnemiesEngineFrame.lua
-System\EnemiesEngineCollections.lua
-System\HealingEngine.lua
-System\HealingEngineFrame.lua
-System\HealingEngineCollections.lua
-System\InterruptsFrame.lua
-System\Interrupts.lua
 System\Reader.lua
 System\UI.lua
 System\UsefulFeatures.lua
+
+## Engines
+System\engines\EnemiesEngine.lua
+System\engines\EnemiesEngineCollections.lua
+System\engines\EnemiesEngineFrame.lua
+System\engines\EnemiesEngineFunctions.lua
+System\engines\HealingEngine.lua
+System\engines\HealingEngineCollections.lua
+System\engines\HealingEngineFrame.lua
+System\engines\HealingEngineFunctions.lua
+System\engines\InterruptsFrame.lua
+System\engines\Interrupts.lua
 
 ## BadBoy UI
 System\ui\button.lua
@@ -35,7 +39,6 @@ System\ui\statusbar.lua
 System\ui\textframe.lua
 System\ui\ui.lua
 System\ui\wrapper.lua
-
 
 ## ClassLibs
 ClassLibs\Druid\Options.lua

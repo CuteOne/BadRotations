@@ -105,6 +105,8 @@ function dynamicTarget(range,facing)
 				return thisUnit.unit
 			end
 		end
+	else
+		return "target"
 	end
 	return "target"
 end

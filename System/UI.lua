@@ -177,7 +177,7 @@ function BadBoyFrame()
 	mainButton:RegisterForDrag("LeftButton")
 	mainButton:SetScript("OnDragStart", mainButton.StartMoving)
 	mainButton:SetScript("OnDragStop", mainButton.StopMovingOrSizing)
-	CreateBorder(mainButton, 8, 0.6, 0.6, 0.6)
+	--CreateBorder(mainButton, 8, 0.6, 0.6, 0.6)
 	if getOptionCheck("Start/Stop BadBoy") then
 		mainButton:SetNormalTexture(backIconOn)
 	else
@@ -266,9 +266,9 @@ function BadBoyFrame()
 	mainButtonFrame.texture:SetTexture(genericIconOn)
 
 	mainText = mainButton:CreateFontString(nil, "OVERLAY")
-	mainText:SetFont("Fonts/FRIZQT__.TTF",17,"THICKOUTLINE")
+	mainText:SetFont(BadBoy_data.BadBoyUI.font,BadBoy_data.BadBoyUI.fontsize,"THICKOUTLINE")
 	mainText:SetTextHeight(BadBoy_data["buttonSize"]/3)
-	mainText:SetPoint("CENTER",0,-(BadBoy_data["buttonSize"]/4))
+	mainText:SetPoint("CENTER",3,-(BadBoy_data["buttonSize"]/8))
 	mainText:SetTextColor(.90,.90,.90,1)
 	if BadBoy_data['Power'] == 0 then
 		BadBoy_data['Power'] = 0
@@ -298,11 +298,12 @@ function BadBoyFrame()
   			Icon = _G[Name.."Modes"][BadBoy_data[Name]].icon
   		end
   		_G["button"..Name]:SetNormalTexture(Icon or emptyIcon)
-		CreateBorder(_G["button"..Name], 8, 0.6, 0.6, 0.6)
+		--CreateBorder(_G["button"..Name], 8, 0.6, 0.6, 0.6)
 		_G["text"..Name] = _G["button"..Name]:CreateFontString(nil, "OVERLAY")
-		_G["text"..Name]:SetFont("Fonts/FRIZQT__.TTF",17,"THICKOUTLINE")
+		_G["text"..Name]:SetFont(BadBoy_data.BadBoyUI.font,BadBoy_data.BadBoyUI.fontsize,"THICKOUTLINE")
+		_G["text"..Name]:SetJustifyH("CENTER")
 		_G["text"..Name]:SetTextHeight(BadBoy_data["buttonSize"]/3)
-		_G["text"..Name]:SetPoint("CENTER",0,-(BadBoy_data["buttonSize"]/4))
+		_G["text"..Name]:SetPoint("CENTER",3,-(BadBoy_data["buttonSize"]/8))
 		_G["text"..Name]:SetTextColor(1,1,1,1)
 		_G["frame"..Name] = CreateFrame("Frame", nil, _G["button"..Name])
 		_G["frame"..Name]:SetWidth(BadBoy_data["buttonSize"]*1.67)
