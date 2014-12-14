@@ -76,7 +76,7 @@ if select(3,UnitClass("player")) == 2 then
 -- Buffs
 		myWrapper("Buffs")
 
-		-- Blessing
+-- Blessing
 		CreateNewCheck(thisConfig,"Blessing","Normal",1)
 		CreateNewDrop(thisConfig,"Blessing",1,"Select wich blessing you want to use.","|cff006AFFKings","|cffFFAE00Might")
 		CreateNewText(thisConfig,myColor.."Blessing")
@@ -127,6 +127,11 @@ if select(3,UnitClass("player")) == 2 then
 
 -- Healing
 		myWrapper("Healing")
+
+		CreateNewCheck(thisConfig,"Critical Health Level","Normal",1)
+		CreateNewBox(thisConfig,"Critical Health Level",0,100,1,90,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFfast heals")
+		CreateNewText(thisConfig,myColor.."Critical Health Level")
+
 
 		CreateNewCheck(thisConfig, "Beacon Of Light","Normal",1)
 		CreateNewDrop(thisConfig, "Beacon Of Light", 2, "Choose mode:\nTank - Always on tank\nFocus - Always on focus.\nWise - Dynamic", "TANK","FOCUS","WISE")

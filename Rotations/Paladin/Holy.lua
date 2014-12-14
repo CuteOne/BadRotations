@@ -82,9 +82,24 @@ if select(3, UnitClass("player")) == 2 then
 		-- Locals Variables
 		_HolyPower = UnitPower("player", 9)
 
-		--[[Lowest]]
-		lowestHP, lowestUnit, lowestTankHP, lowestTankUnit, averageHealth = 100, "player", 100, "player", 0
+		-- We should start with analysing who to heal so we know what todo later
+		--	We should get all tanks and have them
+		-- 	Then lowest non tank
+		-- 	Then best AoE Heal candidate, for each possible spell we have, Light Of Dawn, Holy Radiance and Holy Shock with Daybreak.
+		-- 	Then we need to see who we have beaconed
+		--	Then we need to get dispell targets.
 
+		-- 	We should calcualte best healing options and considere mana levels
+		-- What different healing roles can we have
+		--	Tank healer, beacon on both tanks and heal them or if they are above 90 heal lowest raid unit.
+		--		When tanks are getting lower then we switch to heal them
+		-- How do we handle beacons, so if we have light and faith, if one of them are full health and we are healing a non tank? 
+		-- If we switch beacon it cost 1K mana but we heal for 50%
+		-- We start with tank healing, ie beacon on both tanks, heal raid if tanks are above a configured value in options, if below start focusing on tanks.
+		--[[Lowest]]
+
+		lowestHP, lowestUnit, lowestTankHP, lowestTankUnit, highestTankHP, highestTankUnit, averageHealth = 100, "player", 100, "player", 100, "player", 0
+		
 		for i = 1, #nNova do
 			if nNova[i].role == "TANK" then
 				if nNova[i].hp < lowestTankHP then
@@ -99,6 +114,16 @@ if select(3, UnitClass("player")) == 2 then
 			averageHealth = averageHealth + nNova[i].hp
 		end
 		averageHealth = averageHealth/#nNova
+
+		--iterate one more time to get highest hp tank
+		for i = 1, #nNova do
+			if nNova[i].role == "TANK" then
+				if nNova[i].unit ~= lowestTankUnit then
+					highestTankHP = nNova[i].hp
+					highestTankUnit = nNova[i].unit
+				end
+			end
+		end
 
 		--[[Set Main Healing Tank]]
 		if IsLeftAltKeyDown() then -- Set focus, ie primary healing target with left alt and mouseover target
@@ -161,6 +186,27 @@ if select(3, UnitClass("player")) == 2 then
 				return true
 			end
 
+			--if unit is critical low 
+			--	Holy Light if we have Infusion of Light buff
+			--	Holy Shock on CD
+			--	Flash of Light and do a beacon switch?
+			-- Todo: Need to set this in options
+			if lowestTankHP < getValue("Critical Health Level") or lowestHP < getValue("Critical Health Level") then
+				if UnitBuffID("player",_InfusionOfLight) then
+					if castHolyLight(40) then
+						return true
+					end
+				end
+				if canCast(_HolyShock) then
+					if castHolyShock(nil, 40) then
+						return true
+					end
+				end
+				if castFlashOfLight(nil, 40) then
+					return true
+				end
+			end
+
 			-- AoE healing
 			 if castAoEHeals() then
 			 	return true
@@ -177,7 +223,7 @@ if select(3, UnitClass("player")) == 2 then
 			end
 
 			--[[flash_of_light,if=target.health.pct<=30]]
-			if isChecked("Flash Of Light") and FlashOfLight(getValue("Flash Of Light")) then
+			if isChecked("Flash Of Light") and castFlashOfLight(nil, getValue("Flash Of Light")) then
 				return true
 			end
 
@@ -185,10 +231,9 @@ if select(3, UnitClass("player")) == 2 then
 				return true
 			end
 
-			if getOptionCheck("Holy Light") and HolyLight(getValue("Holy Light")) then
+			if getOptionCheck("Holy Light") and castHolyLight(getValue("Holy Light")) then
 				return true
 			end
-
 			-- Crusader strik for HoPo
 		end
 	end

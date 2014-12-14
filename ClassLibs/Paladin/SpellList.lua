@@ -52,6 +52,7 @@ if select(3,UnitClass("player")) == 2 then
 		_GuardianOfAncientKings     =   86659
 		_GuardianOfAncientKingsHoly =   86669
 		_GuardianOfAncientKingsRet  =   86698
+		_InfusionOfLight			=	54149
 		_Inquisition                =   84963
 		_Judgment      	            =   20271
 		_LayOnHands                 =   633
@@ -525,6 +526,32 @@ if select(3,UnitClass("player")) == 2 then
 				for i = 1, #nNova do
 					if nNova[i].hp < hpValue then
 						if castSpell(nNova[i].unit, _HolyShock, true, false) then return end
+					end
+				end
+			end
+		end
+	end
+
+	-- Holy Light
+	function castHolyLight(hpValue)
+		for i = 1, #nNova do
+			if nNova[i].hp < hpValue then
+				if castSpell(nNova[i].unit, _HolyLight, true, true) then return end
+			end
+		end
+	end
+
+	-- Flash Of Light
+	function castFlashOfLight(unit, hpValue)
+		if unit then
+			if castSpell(unit, _HolyShock, true, false) then
+				return true
+			end
+		else
+			for i = 1, #nNova do
+				if nNova[i].hp < hpValue then
+					if castSpell(nNova[i].unit, _FlashOfLight, true, true) then 
+						return true
 					end
 				end
 			end

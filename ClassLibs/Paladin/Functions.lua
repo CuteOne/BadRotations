@@ -447,23 +447,6 @@ Holy
 				end
 			end
 		end
-		-- Holy Light
-		function HolyLight(hpValue)
-			for i = 1, #nNova do
-				if nNova[i].hp < hpValue then
-					if castSpell(nNova[i].unit, _HolyLight, true, true) then return end
-				end
-			end
-		end
-
-		-- Flash Of Light
-		function FlashOfLight(hpValue)
-			for i = 1, #nNova do
-				if nNova[i].hp < hpValue then
-					if castSpell(nNova[i].unit, _FlashOfLight, true, true) then return end
-				end
-			end
-		end
 
 		-- Word Of Glory
 		function WordOfGlory(hpValue)
@@ -628,50 +611,6 @@ Holy
 			return false
 		end
 
-		function castHolyRadiance(spellID, numUnits, missingHP, rangeValue)
-			-- i start an iteration that i use to build each units Table, wich i will reuse for the next second
-			if not holyRadianceRangeTable or not holyRadianceRangeTableTimer or holyRadianceRangeTable <= GetTime() - 1 then
-				holyRadianceRangeTable = { }
-				for i = 1, #nNova do
-					-- i declare a sub-table for this unit if it dont exists
-					if nNova[i].distanceTable == nil then nNova[i].distanceTable = { } end
-					-- i start a second iteration where i scan unit ranges from one another.
-					for j = 1, #nNova do
-						-- i make sure i dont compute unit range to hisself.
-						if not UnitIsUnit(nNova[i].unit,nNova[j].unit) then
-							-- table the units
-							nNova[i].distanceTable[j] = { distance = getDistance(nNova[i].unit,nNova[j].unit), unit = nNova[j].unit, hp = nNova[j].hp }
-						end
-					end
-				end
-			end
-			-- declare locals that will hold number
-			local bestTarget, bestTargetUnits = 1, 1
-			-- now that nova range is built, i can iterate it
-			local inRange, missingHealth, mostMissingHealth = 0, 0, 0
-			for i = 1, #nNova do
-				if nNova[i].distanceTable ~= nil then
-					-- i count units in range
-					for j = 1, #nNova do
-						if nNova[i].distanceTable[j] and nNova[i].distanceTable[j].distance < rangeValue then
-							inRange = inRange + 1
-							missingHealth = missingHealth + (100 - nNova[i].distanceTable[j].hp)
-						end
-					end
-					nNova[i].inRangeForHolyRadiance = inRange
-					-- i check if this is going to be the best unit for my spell
-					if missingHealth > mostMissingHealth then
-						bestTarget, bestTargetUnits, mostMissingHealth = i, inRange, missingHealth
-					end
-				end
-			end
-			if bestTargetUnits and bestTargetUnits > 3 and mostMissingHealth and missingHP and mostMissingHealth > missingHP then
-				if castSpell(nNova[bestTarget].unit, spellID, true, true) then 
-					return 	true 
-				end
-			end
-		end
-
 		function castAoEHeals()
 			-- Aoe Heals
 			--	Holy Radiance  40 yards, generates 1 HoPo friendly target and 6 allies within 10 yards
@@ -681,7 +620,7 @@ Holy
 			--  Lights Hammer, 30 yards, heals 6 allies within 10 yards radius.
 
 			local aoeCandidateTenYards, numberOfUnitsInRangeTenYards = getAoeHealingCandidateNova(2, 90, 10) --Holy Shock values, cast if we have 2
-			local aoeCandidateLightOfDawn, numberOfUnitsInRangeLightOfDawn = getAoeHealingCandidateNova(2, 90, 10) --Holy Shock values, cast if we have 2
+			local aoeCandidateLightOfDawn, numberOfUnitsInRangeLightOfDawn = getAoeHealingCandidateNova(2, 90, 10) --Light of dawn values, cast if we have 6
 
 			if UnitBuffID("player",_Daybreak) and canCast(_HolyShock) then --Daybreak procc turns holy shock into AoE
 				if aoeCandidateTenYards and numberOfUnitsInRangeTenYards > 2 and _HolyPower < 5 then
@@ -696,17 +635,11 @@ Holy
 			--[Light of Dawn] 3 HoPo heals 6 allies 30 yards from player
 
 			if aoeCandidateTenYards and numberOfUnitsInRangeTenYards > 5 and _HolyPower < 5 then
-				if castHolyRadiance(aoeCandidateTenYards, getValue("Holy Radiance")) then
+				if castHolyRadiance(aoeCandidateTenYards) then
 					print("Casting Holy Radiance AoE")
 					return true
 				end
 			end
-			
-			--[[Holy Radiance]]
-			if castHolyRadiance(_HolyRadiance, 6, 75, 6) then 
-				return true
-			end
-
 			return false
 		end
 
@@ -737,7 +670,7 @@ Holy
           		return false
           	end
         end
-
+        
 		function preCombatHandlingHoly() --actions to be done prepull for holy
 		--cast Eternal Flame on tanks
 			if _HolyPower > 2 and castEternalFlame(100) then --Todo: We need to cast Eternal flame on both tanks.
@@ -751,7 +684,7 @@ Holy
 			if castHolyShock(nil, 100) then
 				return true
 			end
-			if castHolyRadiance(_HolyRadiance, 1, 0, 30) then 
+			if castHolyRadiance("player") then 
 				return true
 			end
 			return false
