@@ -63,7 +63,23 @@ function getUnitsToHealAround(unit,radius,health,count)
             end
         end
     end
+    lowHealthCandidates[0] = getLowHealthCoeficient(lowHealthCandidates)
     return lowHealthCandidates
+end
+
+function getLowHealthCoeficient(lowHealthCandidates)
+    local tableCoef = 0
+    local lowHealthCount = #lowHealthCandidates
+    -- if critical status, add it more coef
+    for i = 1, lowHealthCount do
+        candidate = lowHealthCandidates[i]
+        if candidate.hp < 30 then
+            tableCoef = tableCoef + 1.5*(100-candidate.hp)
+        else
+            tableCoef = tableCoef + (100-candidate.hp)
+        end
+    end
+    return tableCoef
 end
 
 -- old design with so many objectmanager queries it was wrong.
