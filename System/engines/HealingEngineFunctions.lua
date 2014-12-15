@@ -1,17 +1,33 @@
 -- here we want to define functions to use with the healing profiles
 
 
+-- find a tank to put beacon/lifeblood/earth shield on
+function getTanksTable()
+    tanksTable = {}
+    for i = 1, #nNova do
+        if nNova[i].role == "TANK" then
+            tinsert(tanksTable, nNova[i])
+        end
+    end
+    return tanksTable
+end
+
+
 -- we want to define an iteration that will compare allies to heal in range of enemies or allies
-function castWiseAoEHeal(unitTable,spell,radius,health,minCount,maxCount,movementCheck)
+function castWiseAoEHeal(unitTable,spell,radius,health,minCount,maxCount,facingCheck,movementCheck)
     if movementCheck ~= true or not isMoving("player") then
-        local bestCandidate
+        local bestCandidate = nil
+        -- find best candidate with list of units
         for i = 1, #unitTable do
-            local candidate = getUnitsToHealAround(unitTable[i].unit,radius,health,maxCount)
-            if bestCandidate == nil or bestCandidate[0].coef > candidate[0].coef then
-                bestCandidate = candidate
+            if not (facingCheck ~= true and not getFacing("player",unitTable[i].unit)) then
+                local candidate = getUnitsToHealAround(unitTable[i].unit,radius,health,maxCount,facingCheck)
+                if bestCandidate == nil or bestCandidate[0].coef > candidate[0].coef then
+                    bestCandidate = candidate
+                end
             end
         end
-        if #bestCandidate - 1 >= minCount then
+        -- if we meet count minimum then we cast
+        if bestCandidate ~= nil and #bestCandidate >= minCount then
             -- here we would like instead to cast on unit
             if castSpell(bestCandidate[0].unit,spell,facingCheck,movementCheck) then
                 return
@@ -42,7 +58,7 @@ end
 -- we will send them as object args to our distance functions... since both engines have x and y, we will be able to mix them up
 function getUnitsToHealAround(UnitID,radius,health,count)
     -- if we provide an unitID, we get this units location once
-    local X1,Y1,Z1,isNova = 0,0,0,false
+    local X1,Y1,Z1 = 0,0,0
     -- if an unit of type string is passed we consider it as a UnitID
     if type(UnitID) == "string" then
         X1,Y1,Z1 = ObjectPosition(UnitID)
@@ -103,6 +119,14 @@ function getLowHealthCoeficient(lowHealthCandidates)
     end
     return tableCoef
 end
+
+
+
+
+
+
+
+
 
 -- old design with so many objectmanager queries it was wrong.
 -- if getAllies("player",40) > 5 then

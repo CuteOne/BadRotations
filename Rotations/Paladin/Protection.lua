@@ -1,11 +1,11 @@
 if select(3, UnitClass("player")) == 2 then
 	function PaladinProtection()
 		-- Init if this is the first time we are running.
-		if currentConfig ~= "Protection CodeMyLife" then
+		if currentConfig ~= "Protection Gabbz & CML" then
 			PaladinProtFunctions()
 			PaladinProtToggles()
 			PaladinProtOptions()
-			currentConfig = "Protection CodeMyLife"
+			currentConfig = "Protection Gabbz & CML"
 		end
 
 		-- Manual Input
@@ -18,26 +18,34 @@ if select(3, UnitClass("player")) == 2 then
 		if IsLeftAltKeyDown() then
 			return true
 		end
-		
+
 		if canRun() ~= true then
 			return false
 		end
 
 		-- Only run rotation if we or our target is in combat.
-		if UnitAffectingCombat("player") and (UnitAffectingCombat("target") or isDummy("target")) then  -- Only start if we and target is in combat, have manual ability to pull mobs and UnitAffectingCombat("target")
+		-- this should be handled by the dynamic target
+		if UnitAffectingCombat("player") then  -- Only start if we and target is in combat, have manual ability to pull mobs and UnitAffectingCombat("target")
 
 			-- Locals Variables
 			_HolyPower = UnitPower("player", 9)
 			playerHP = getHP("player")
 			meleeEnemies = #getEnemies("player", 5)
-			buffDivineCrusader = getBuffRemain("player",_DivineCrusader) 
+			buffDivineCrusader = getBuffRemain("player",_DivineCrusader)
 			buffHolyAvenger = getBuffRemain("player",_HolyAvenger)
 			buffDivinePurpose = getBuffRemain("player",_DivinePurpose)
 			buffSeraPhim = getBuffRemain("player",_Seraphim)
 			sealOfTruth = GetShapeshiftForm() == 1 or nil
 			sealOfRighteousness = GetShapeshiftForm() == 2 or nil
 			sealOfInsight = GetShapeshiftForm() == 3 or nil
-		
+			dynamicUnit = {
+				dyn5 = dynamicTarget(5,true),
+				dyn5AoE = dynamicTarget(5,false),
+				dyn8AoE = dynamicTarget(8,false),
+				dyn30 = dynamicTarget(30,true),
+				dyn30AoE = dynamicTarget(30,false),
+			}
+
 			-- Auto attack
 			if startAttackTimer == nil or startAttackTimer <= GetTime() - 1 then
 				RunMacroText("/startattack")
@@ -45,7 +53,7 @@ if select(3, UnitClass("player")) == 2 then
 
 			ProtPaladinEnemyUnitHandler()
 
-			ProtPaladinFriendlyUnitHandler() 
+			ProtPaladinFriendlyUnitHandler()
 
 			-- If we are close to dying
 			if ProtPaladinSurvivalSelf() then -- Check if we are close to dying and act accoridingly
@@ -70,7 +78,7 @@ if select(3, UnitClass("player")) == 2 then
 			if castingUnit() then
 				return false
 			end
-			
+
 			if ProtPaladinControl("target") then
 				return true
 			end

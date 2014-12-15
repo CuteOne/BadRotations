@@ -426,7 +426,7 @@ function DruidRestoration()
 		--[[ 13 - WildGrowth Tol --(Tree of Life)]]
 		if isKnown(33891) and isChecked("WildGrowth Tol") and UnitBuffID("player", 33891)
 		  and lowestHP < getValue("WildGrowth Tol") then
-		  	castWiseAoEHeal(nNova,48438,30,getValue("WildGrowth Tol"),getValue("WildGrowth Tol Count"),5,true)
+		  	castWiseAoEHeal(nNova,48438,30,getValue("WildGrowth Tol"),getValue("WildGrowth Tol Count"),5,true,true)
 		end
 		--[[ 14 - Regrowth  Tol]]
 		if isKnown(33891) and UnitBuffID("player", 33891) and canCast(8936,false,false)
@@ -661,11 +661,11 @@ function DruidRestoration()
 		end
 		--[[ 24 - WildGrowth all--(Use on all with out health check only with player count check)(some time in fight u need check it fast)]]
 		if isChecked("WildGrowth All") then
-		  	castWiseAoEHeal(nNova,48438,30,getValue("WildGrowth All"),getValue("WildGrowth All Count"),5,true)
+		  	castWiseAoEHeal(nNova,48438,30,getValue("WildGrowth All"),getValue("WildGrowth All Count"),5,true,true)
 		end
 		--[[ 25 - WildGrowth--(Use with health and player count check)]]
 		if isChecked("WildGrowth") and lowestHP < getValue("WildGrowth") then
-			castWiseAoEHeal(nNova,48438,30,getValue("WildGrowth"),getValue("WildGrowth Count"),5,true)
+			castWiseAoEHeal(nNova,48438,30,getValue("WildGrowth"),getValue("WildGrowth Count"),5,true,true)
 		end
 		--[[ 20 - Regrowth --(cast regrowth on all usualy between 30 - 40)]]
 		if isChecked("Regrowth") and isStanding(0.3) and canCast(8936,false,true) and lowestHP <= getValue("Regrowth") then

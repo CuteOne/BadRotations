@@ -114,7 +114,7 @@ local function LeavingCombat(self,event,...)
 		BadBoy_data.failCasts = 0
 		BadBoy_data["Combat Started"] = 0
 		--tinsert(debugTable, 1, { textString = BadBoy_data.successCasts.."|cff12C8FF/"..getCombatTime().."/Leaving Combat" , number = ":D" })
-		if #debugTable > 49 then
+		if debugTable and #debugTable > 49 then
 			tremove(debugTable, 50)
 		end
 		if BadBoy_data.ActualRow == 0 then

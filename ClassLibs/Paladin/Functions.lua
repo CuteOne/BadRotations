@@ -10,11 +10,11 @@ if select(3,UnitClass("player")) == 2 then
 		end
 
 		if numberOfTargetsMelee == nil or numberOfTargetsMeleeTimer == nil or numberOfTargetsMeleeTimer <= GetTime() - 1 then
-			numberOfTargetsMelee, numberOfTargetsMeleeTimer = getNumEnemies("player",4), GetTime()
+			numberOfTargetsMelee, numberOfTargetsMeleeTimer = #getEnemies("player",4), GetTime()
 		end
 
 		if numberOfTargetsForHammerOfRighteous == nil or numberOfTargetsForHammerOfRighteousTimer == nil or numberOfTargetsForHammerOfRighteousTimer <= GetTime() - 1 then
-			numberOfTargetsForHammerOfRighteous, numberOfTargetsForHammerOfRighteousTimer = getNumEnemies("target",7), GetTime() --getNumEnemiesInRange("target",8)
+			numberOfTargetsForHammerOfRighteous, numberOfTargetsForHammerOfRighteousTimer = #getEnemies(dynamicUnit.dyn5,7), GetTime() --getNumEnemiesInRange("target",8)
 		end
 		return true
 	end
@@ -119,7 +119,7 @@ if select(3,UnitClass("player")) == 2 then
 		-- Should perhaps move out the spellCD and ranged outside canInterrupt?? So first check if range and cd is ok for cast, then check for timeframe?d
 		function ProtPaladinInterrupt()
 
-			if #spellCastersTable > 1 then 
+			if #spellCastersTable > 1 then
 				local numberofcastersinrangeofarcanetorrent = 0
 				for i = 1, #spellCastersTable do
 					if spellCastersTable[i].distance < 8 then
@@ -137,24 +137,24 @@ if select(3,UnitClass("player")) == 2 then
 				end
 			end
 
-			if getOptionCheck("Rebuke") then 
+			if getOptionCheck("Rebuke") then
 				if castInterrupt(_Rebuke,getValue("Rebuke")) then
 					return true
 				end
 			end
 
-			if getOptionCheck("Arcane Torrent Interrupt") then 
+			if getOptionCheck("Arcane Torrent Interrupt") then
 				if castInterrupt(_ArcaneTorrent,getValue("Arcane Torrent Interrupt")) then
 					return true
 				end
 			end
-			--Todo: Add stuns(Justice, Holy Wrath, p) 		
+			--Todo: Add stuns(Justice, Holy Wrath, p)
 			return false
 		end
 
 
 		function ProtPaladinSurvivalSelf() -- Check if we are close to dying and act accoridingly
-			
+
 			if getOptionCheck("Lay On Hands Self") and playerHP <= getValue("Lay On Hands Self") then
 				if castLayOnHands("player") then
 					return true
@@ -170,16 +170,9 @@ if select(3,UnitClass("player")) == 2 then
 
 		-- ProtPaladinSurvivalOther() -- Check if raidmember are close to dying and act accoridingly
 		function ProtPaladinSurvivalOther()
-			if getOptionCheck("Lay On Hands Party") then
-				for i = 1, #nNova do
-					if nNova[i].hp <= getValue("Lay On Hands Party") and not UnitDebuffID(nNova[i].unit,_Forbearance) then
-						if castLayOnHands(nNova[i].unit) then
-							return true
-						end
-					end
-				end
+			if enhancedLayOnHands() then
+				return
 			end
-			return false
 		end
 
 		function ProtPaladinBuffs() -- Make sure that we are buffed, 2 modes, inCombat and Out Of Combat, Blessings, RF, -- ProtPaladinBuffs()
@@ -198,8 +191,8 @@ if select(3,UnitClass("player")) == 2 then
 			--canDispel(Unit,spellID)
 			return false -- Return false until we have coded it
 		end
-		
-		
+
+
 		function ProtPaladinHolyPowerConsumers() -- Handle the use of HolyPower
 			-- At the moment its hard to automate since SoR should be cast only if need be, ie large physical incoming damanage.
 			-- Therefore the logic is just to automate default, ie at 5 HoPo Cast SoR and DP cast either WoG or SoR
@@ -213,25 +206,27 @@ if select(3,UnitClass("player")) == 2 then
 					if castWordOfGlory("player", 0, 1) then
 						return false
 					end
-				end	
+				end
 				-- If we are not low health then we should use it on SoR
-				if castShieldOfTheRighteous("target", 5) then
+				if castShieldOfTheRighteous(dynamicUnit.dyn5, 5) then
 					return false
 				end
-			end	
-			
-			if getBuffStacks("player", _BastionOfGlory) > 4 then -- if we have bastion buff then we should use it 
+			end
+
+			if getBuffStacks("player", _BastionOfGlory) > 4 then -- if we have bastion buff then we should use it
 				if castWordOfGlory("player", 0, 3) then --cast if we are 70% and have HP
 					return false
 				end
 			end
 
-			if castShieldOfTheRighteous("target", 5) then
+			if castShieldOfTheRighteous(dynamicUnit.dyn5, 5) then
 				return false
 			end
 		end
 
 		function ProtPaladinHolyPowerCreaters() -- Handle the normal rotation
+
+
 			-- Todos: Talents, only light hammer is handled, Prism and Sentence is not
 			-- Todos: Glyphs, we have no support for the Holy Wrath glyph which should put it higher on priority after Judgement.
 
@@ -244,7 +239,7 @@ if select(3,UnitClass("player")) == 2 then
 			-- If we have 3 targets for Avenger Shield and we have Grand Crusader Buff
 			-- Todo : we need to check if AS will hit 3 targets, so what is the range of AS jump? We are usimg same logic as Hammer of Righ at the moment, 8 yard.
 			if UnitBuffID("player", 85043) and numberOfTargetsForHammerOfRighteous > 2 then -- Grand Crusader buff, we use 8 yards from target as check
-				if castAvengersShield("target") then
+				if castAvengersShield(dynamicUnit.dyn30) then
 					--print("Casting AS in AoE rotation with Grand Crusader procc")
 					return true
 				end
@@ -258,15 +253,15 @@ if select(3,UnitClass("player")) == 2 then
 			end
 
 			-- Cast Crusader for Single and Hammer of Right if aoe
-			if isInMelee("target") and canCast(_CrusaderStrike) then
-				if castSpell("target",strike,false,false) then
+			if isInMelee(dynamicUnit.dyn5) and canCast(_CrusaderStrike) then
+				if castSpell(dynamicUnit.dyn5,strike,false,false) then
 					return
 				end
 			end
 
 			-- wait,sec=cooldown.crusader_strike.remains,if=cooldown.crusader_strike.remains>0&cooldown.crusader_strike.remains<=0.35
 
-			if castJudgement("target") then
+			if castJudgement(dynamicUnit.dyn30AoE) then
 				--print("Casting Judgement")
 				return true
 			end
@@ -274,7 +269,7 @@ if select(3,UnitClass("player")) == 2 then
 			--wait,sec=cooldown.judgment.remains,if=cooldown.judgment.remains>0&cooldown.judgment.remains<=0.35
 
 			if numberOfTargetsForHammerOfRighteous > 1 then -- Grand Crusader buff, we use 8 yards from target as check
-				if castAvengersShield("target") then
+				if castAvengersShield(dynamicUnit.dyn30) then
 					--print("Casting AS in AoE rotation with Grand Crusader procc")
 					return true
 				end
@@ -283,7 +278,7 @@ if select(3,UnitClass("player")) == 2 then
 			-- holy_wrath,if=talent.sanctified_wrath.enabled
 
 			if UnitBuffID("player", 85043) then -- Grand Crusader buff if we are single target
-				if castAvengersShield("target") then
+				if castAvengersShield(dynamicUnit.dyn30) then
 					--print("Casting AS in rotation with Grand Crusader procc")
 					return true
 				end
@@ -295,42 +290,49 @@ if select(3,UnitClass("player")) == 2 then
 
 			-- holy_wrath,if=glyph.final_wrath.enabled&target.health.pct<=20
 
-			if castAvengersShield("target") then
+			if castAvengersShield(dynamicUnit.dyn30) then
 				--print("Casting lights Hammer in rotation")
 				return true
 			end
 			-- Todo We could add functionality that cycle all unit to find one that is casting since the Avenger Shield is silencing as well.
 
-			if castLightsHammer("target") then
+			if castLightsHammer(dynamicUnit.dyn5) then
 				--print("Casting lights Hammer in rotation")
 				return true
 			end
 
-			-- Holy Prism, simcraft
+			-- Holy Prism, heal or aoe
+			if isKnown(_HolyPrism) then
+				castWiseAoEHeal(enemiesTable,114165,15,90,1,3,false,false)
+				if numberOfTargetsMelee > 2 then
+					castHolyPrism("player")
+				end
+			end
+
 
 			-- We should cast concenration if more then 3 targets are getting hit
 			-- TODO we need to understand the range of consentrations
 			if numberOfTargetsMelee > 2 then
-				if castConsecration("target") then
+				if castConsecration(dynamicUnit.dyn5AoE) then
 					--print("Casting AOE Consecration")
 					return true
 				end
 			end
 
-			if castHammerOfWrath("target") then
+			if castHammerOfWrath(dynamicUnit.dyn30) then
 				--print("Casting Hammer of Wrath")
 				return true
 			end
 
 			-- Todo: Could use enhanced logic here, cluster of mobs, cluster of damaged friendlies etc
-			if castHolyWrath("target") then
+			if castHolyWrath(dynamicUnit.dyn5AoE) then
 				--print("Casting Holy Wrath")
 				return true
 			end
-			
+
 			--Execution Sentence, simcraft
 
-			if castHammerOfWrath("target") then
+			if castHammerOfWrath(dynamicUnit.dyn30) then
 				--print("Casting Hammer of Wrath")
 				return true
 			end
@@ -340,7 +342,7 @@ if select(3,UnitClass("player")) == 2 then
 			end
 
 			if numberOfTargetsMelee > 0 then
-				if castConsecration("target") then
+				if castConsecration(dynamicUnit.dyn5AoE) then
 					--print("Casting Consecration")
 					return true
 				end
@@ -348,7 +350,7 @@ if select(3,UnitClass("player")) == 2 then
 
 			if getTalent(7,1) then
 				if sealSwitchProt() then -- For lvl 100 Emp Seals logicS
-					return true 
+					return true
 				end
 			end
 
@@ -358,11 +360,15 @@ if select(3,UnitClass("player")) == 2 then
 			if castSacredShield(15) then
 				return true
 			end
-			
+
 			if getTalent(3,1) then  -- Self Less Healer
 				if select(4, UnitBuff("player", _SelflessHealerBuff)) then  -- 4th oaram is count
 					-- Todo: We should find friendly candidate to cast on
 				end
+			end
+
+			if isKnown(_HolyPrism) then
+				castHolyPrism(dynamicUnit.dyn30)
 			end
 		end
 
@@ -370,7 +376,7 @@ if select(3,UnitClass("player")) == 2 then
 			-- Todos: Talents, only light hammer is handled, Prism and Sentence is not
 
 			if UnitBuffID("player", 85043) then -- Grand Crusader buff
-				if castAvengersShield("target") then
+				if castAvengersShield(dynamicUnit.dyn30) then
 					--print("Casting AS in AoE rotation with Grand CRusader procc")
 					return true
 				end
@@ -385,28 +391,28 @@ if select(3,UnitClass("player")) == 2 then
 
 			-- Cast Crusader for Single and Hammer of Right if aoe, should check other targets for spell if not in melee
 			if isInMelee("target") and canCast(_CrusaderStrike) then
-				if castSpell("target",strike,false,false) then
+				if castSpell(dynamicUnit.dyn5,strike,false,false) then
 					return
 				end
 			end
 
-			if castAvengersShield("target") then
+			if castAvengersShield(dynamicUnit.dyn30) then
 				--print("Casting lights Hammer in AoE rotation")
 				return true
 			end
 			-- Todo We could add functionality that cycle all unit to find one that is casting since the Avenger Shield is silencing as well.
 
-			if castLightsHammer("target") then
+			if castLightsHammer(dynamicUnit.dyn30AoE) then
 				--print("Casting lights Hammer in AoE rotation")
 				return true
 			end
 
-			if castHolyWrath("target") then
+			if castHolyWrath(dynamicUnit.dyn5AoE) then
 				--print("Casting AoE Holy Wrath")
 				return true
 			end
 
-			if castConsecration("target") then
+			if castConsecration(dynamicUnit.dyn5AoE) then
 				--print("Casting AOE Consecration")
 				return true
 			end
@@ -440,7 +446,7 @@ Holy
 						return true
 					end
 				end
-			end	
+			end
 			if _HolyPower == 5 then
 				if castSpell(lowestTankUnit,_EternalFlame,true,false) then
 					return true
@@ -469,7 +475,7 @@ Holy
 			end
 			if getValue("Holy Prism Mode") == 2 then -- Cast on tanks target
 				--Should check friendly targets around the tanks target
-				--if castSpell(lowestTankUnit, _HolyPrism, true, false) then 
+				--if castSpell(lowestTankUnit, _HolyPrism, true, false) then
 				--	return true
 				--end
 			end
@@ -502,7 +508,7 @@ Holy
 				if beaconLightRole ~= "TANK" then
 					for i = 1, #nNova do
 						if nNova[i].role == "TANK" and not UnitBuffID("focus",_BeaconOfLight,"player") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
-							if castSpell(nNova[i].unit,_BeaconOfLight,true,false) then 
+							if castSpell(nNova[i].unit,_BeaconOfLight,true,false) then
 								return true
 							end
 						end
@@ -512,7 +518,7 @@ Holy
 
 			if getValue("Beacon Of Light") == 2 then
 				if UnitExists("focus") == true and UnitIsVisible("focus") and not UnitBuffID("focus",_BeaconOfLight,"player") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
-					if castSpell("focus",_BeaconOfLight,true,false) then 
+					if castSpell("focus",_BeaconOfLight,true,false) then
 						return true
 					end
 				end
@@ -523,14 +529,14 @@ Holy
 				print("Wise handing of beacins Not Supported")
 				return false
 			end
-			
+
 			if isKnown(_BeaconOfFaith) then
 				-- if we are not beacon on a tank and on tanks is checked we find a proper tank if focus dont exists.
 				if getValue("Beacon Of Faith") == 1 then
 					if beaconFaithRole ~= "TANK" and not UnitBuffID("focus",_BeaconOfLight,"player") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
 						for i = 1, #nNova do
 							if nNova[i].role == "TANK" then
-								if castSpell(nNova[i].unit,_BeaconOfFaith,true,false) then 
+								if castSpell(nNova[i].unit,_BeaconOfFaith,true,false) then
 									return true
 								end
 							end
@@ -540,7 +546,7 @@ Holy
 
 				if getValue("Beacon Of Faith") == 2 then
 					if UnitExists("focus") == true  and UnitIsVisible("focus") and not UnitBuffID("focus",_BeaconOfFaith,"player") and not UnitBuffID("focus",_BeaconOfLight,"player") then
-						if castSpell("focus",_BeaconOfFaith,true,false) then 
+						if castSpell("focus",_BeaconOfFaith,true,false) then
 							return true
 						end
 					end
@@ -550,16 +556,16 @@ Holy
 					print("Wise handing of beacins Not Supported")
 					return false
 				end
-			end 
+			end
 		end
-				
+
 		function castDispell()
 			if getOptionCheck("Dispell") and canCast(_Cleanse,false,false) and not (getBossID("boss1") == 71734 and not UnitBuffID("player",144359)) then
 				if getValue("Dispell") == 2 then -- Mouse Match
 					if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
 						for i = 1, #nNova do
 							if nNova[i].guid == UnitGUID("mouseover") and nNova[i].dispel == true then
-								if castSpell(nNova[i].unit,_Cleanse, true,false) then 
+								if castSpell(nNova[i].unit,_Cleanse, true,false) then
 									return true
 								end
 							end
@@ -568,7 +574,7 @@ Holy
 				elseif getValue("Dispell") == 1 then -- Raid Match
 					for i = 1, #nNova do
 						if nNova[i].hp < 249 and nNova[i].dispel == true then
-							if castSpell(nNova[i].unit,_Cleanse, true,false) then 
+							if castSpell(nNova[i].unit,_Cleanse, true,false) then
 								return true
 							end
 						end
@@ -579,7 +585,7 @@ Holy
 					      	local buff,_,_,count,bufftype,duration = UnitDebuff("mouseover", n)
 				      		if buff then
 				        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then
-				        			if castSpell("mouseover",_Cleanse, true,false) then 
+				        			if castSpell("mouseover",_Cleanse, true,false) then
 				        				return true
 				        			end
 				        		end
@@ -595,7 +601,7 @@ Holy
 						      	local buff,_,_,count,bufftype,duration = UnitDebuff(nNova[i].unit, n)
 					      		if buff then
 					        		if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then
-					        			if castSpell(nNova[i].unit,_Cleanse, true,false) then 
+					        			if castSpell(nNova[i].unit,_Cleanse, true,false) then
 					        				return true
 					        			end
 					        		end
@@ -644,7 +650,7 @@ Holy
 		end
 
 		function getAoeHealingCandidateNova(minimalNumberofUnits, missingHP, rangeValue)
-			local bestAoECandidate = nNova[1].unit					
+			local bestAoECandidate = nNova[1].unit
 			local bestAoeNumberOfUnits = 0
 			for i = 1, #nNova do
 	        	if nNova[i].hp < 249 then
@@ -670,12 +676,12 @@ Holy
           		return false
           	end
         end
-        
+
 		function preCombatHandlingHoly() --actions to be done prepull for holy
 		--cast Eternal Flame on tanks
 			if _HolyPower > 2 and castEternalFlame(100) then --Todo: We need to cast Eternal flame on both tanks.
 				return true
-			end 
+			end
 			if _HolyPower > 2 then
 				if castEternalFlame(100) then
 					return true
@@ -684,7 +690,7 @@ Holy
 			if castHolyShock(nil, 100) then
 				return true
 			end
-			if castHolyRadiance("player") then 
+			if castHolyRadiance("player") then
 				return true
 			end
 			return false

@@ -1,4 +1,100 @@
+-- if shouldStopCasting(12345) then
+function shouldStopCasting(Spell)
+	-- if we are on a boss fight
+	if UnitExists("boss1") then
+		-- Locally  casting informations
+		local Boss1Cast,Boss1CastEnd,PlayerCastEnd,StopCasting = Boss1Cast,Boss1CastEnd,PlayerCastEnd,false
+		local MySpellCastTime
+		-- Set Spell Cast Time
+		if GetSpellInfo(Spell) ~= nil then
+			MySpellCastTime = (GetTime()*1000) + select(4,GetSpellInfo(Spell))
+		else
+			return false
+		end
+		-- Spells wich make us immune (buff)
+		local ShouldContinue = {
+			1022,-- Hand of Protection
+			31821,-- Devotion
+			104773,-- Unending Resolve
+		}
+		-- Spells that are dangerous (boss cast)
+		local ShouldStop = {
+			137457,-- Piercing Roar(Oondasta)
+			138763,-- Interrupting Jolt(Dark Animus)
+			143343,-- Deafening Screech(Thok)
+		}
 
+		-- find casting informations
+		if UnitCastingInfo("boss1") then
+			Boss1Cast,_,_,_,_,Boss1CastEnd = UnitCastingInfo("boss1")
+		elseif UnitChannelInfo("boss1") then
+			Boss1Cast,_,_,_,_,Boss1CastEnd = UnitChannelInfo("boss1")
+		else
+			return false
+		end
+		if UnitCastingInfo("player") then
+			PlayerCastEnd = select(6,UnitCastingInfo("player"))
+		elseif UnitChannelInfo("player") then
+			PlayerCastEnd = select(6,UnitChannelInfo("player"))
+		else
+			PlayerCastEnd = MySpellCastTime
+		end
+
+		for i = 1,#ShouldContinue do
+			if UnitBuffID("player",ShouldContinue[i])
+			  and (select(7,UnitBuffID("player",ShouldContinue[i]))*1000)+50 > Boss1CastEnd then
+				ChatOverlay("\124cFFFFFFFFStopper Safety Found")
+				return false
+			end
+		end
+		if not UnitCastingInfo("player") and not UnitChannelInfo("player") and MySpellCastTime and SetStopTime
+		  and MySpellCastTime > Boss1CastEnd then
+		  	ChatOverlay("\124cFFD93B3BStop for "..Boss1Cast)
+		  	return true
+		end
+
+		for j = 1,#ShouldStop do
+			if Boss1Cast == select(1,GetSpellInfo(ShouldStop[j])) then
+				SetStopTime = Boss1CastEnd
+				if PlayerCastEnd ~= nil then
+					if Boss1CastEnd < PlayerCastEnd then
+						StopCasting = true
+					end
+				end
+			end
+		end
+		return StopCasting
+	end
+end
+
+function betterStopCasting(Spell)
+	local MySpellCastTime = (GetTime()*1000) + select(4,GetSpellInfo(Spell))
+	if shouldStopTime and shouldStopTime <= MySpellCastTime and not canContinue() then
+		return true
+	end
+end
+
+stopCasting = {
+	shouldContinue = {
+		[1022] = "Melee" , -- Hand of Protection
+		[31821] = "All",-- Devotion
+		[104773] = "All",-- Unending Resolve
+	},
+	shouldStop = {
+		[137457] = "Melee",-- Piercing Roar(Oondasta)
+		[138763] = "Spell",-- Interrupting Jolt(Dark Animus)
+		[143343] = "Melee",-- Deafening Screech(Thok)
+		[19750] = "Spell" -- Flash heal(Test)
+	}
+}
+
+function canContinue()
+	for i = 1, #stopCasting.shouldContinue do
+		if UnitBuffID("player", stopCasting.shouldContinue[i]) then
+			return true
+		end
+	end
+end
 
 -------------------------------
 --[[spellCastersTable Table]]
@@ -12,6 +108,8 @@ function interruptsReader(self,event,...)
     if event == "COMBAT_LOG_EVENT_UNFILTERED" then
     	local timestamp,event,sourceGUID,sourceName = select(1,...),select(2,...),select(4,...),select(5,...)
     	local destGUID,destName,spellID = select(8,...),select(9,...),select(12,...)
+
+
 
         if sourceGUID and enemiesTable ~= nil then
 	        if getOptionCheck("Interrupts Handler") then
@@ -39,7 +137,7 @@ function interruptsReader(self,event,...)
 				        	if sourceGUID == enemiesTable[i].guid then
 				        		thisUnit = enemiesTable[i].unit
 				        		-- gather our infos
-							     if getOptionCheck("Only Known Units") and not isInteruptCandidate(thisUnit, spellID) then
+							    if getOptionCheck("Only Known Units") and not isInteruptCandidate(thisUnit, spellID) then
 				        			return --exit since we have checkd only known units but is not on the list
 				        		else
 							        -- make sure to define values
@@ -49,6 +147,12 @@ function interruptsReader(self,event,...)
 							        end
 							        -- Send to table
 		  							local unitCasting,unitCastLenght,unitCastTime,unitCanntBeInterrupt,unitCastType = getCastingInfo(thisUnit)
+									-- see if we should stop casting to prevent beign interrupt
+							    	if event == "SPELL_CAST_START" and stopCasting.shouldStop[spellID] ~= nil then
+							    		-- on castspell side we want to make sure our cast end would be lower than unit cast end
+							    		shouldStopTime = GetTime() + unitCastLenght
+							    		print(GetTime() + unitCastLenght)
+							    	end
 					        		tinsert(spellCastersTable,
 					        			{
 					        				cast = spellID,

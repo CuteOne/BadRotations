@@ -237,14 +237,13 @@ if select(3,UnitClass("player")) == 2 then
 		return false
 	end
 
-	function castShieldOfTheRighteous(unit, holypower)
-		if canCast(_ShieldOfTheRighteous) and (holypower >= holypower or UnitBuffID("player", _DivinePurposeBuff)) then
-			if getDistance("player",unit) <= 4 then
-				if castSpell(unit,_ShieldOfTheRighteous,false,false) then
-					return true
-				end
+	function castShieldOfTheRighteous(unit,holypower)
+		if canCast(_ShieldOfTheRighteous) and (_HolyPower >= holypower or UnitBuffID("player", _DivinePurposeBuff)) then
+			if castSpell(unit,_ShieldOfTheRighteous,false,false) then
+				-- we dont return because its an instant spell, also it should be moved atop rotation
 			end
 			--Todo, we could check other targets to use HP on but this should be controlled by config.
+			-- dynamic targeting enabled
 		end
 		return false
 	end
@@ -279,7 +278,6 @@ if select(3,UnitClass("player")) == 2 then
 				end
 			end
 		end
-
 		return false
 	end
 	-- done this works with profiles
@@ -290,32 +288,44 @@ if select(3,UnitClass("player")) == 2 then
 			local LoHValue = getValue("Lay On Hands")
 			if LoHTargets == 1 then
 				if playerHealth <= LoHValue then
-					castLayOnHands("player")
+					if castLayOnHands("player") then
+						return
+					end
 				end
 			elseif LoHTargets == 2 then
 				if playerHealth <= LoHValue then
-					castLayOnHands("player")
+					if castLayOnHands("player") then
+						return
+					end
 				else
 					for i = 1, #nNova do
 						if nNova[i].hp <= LoHValue then
-							castLayOnHands(nNova[i].unit)
+							if castLayOnHands(nNova[i].unit) then
+								return
+							end
 						end
 					end
 				end
 			elseif LoHTargets == 3 then
 				if playerHealth <= LoHValue then
-					castLayOnHands("player")
+					if castLayOnHands("player") then
+						return
+					end
 				else
 					for i = 1, #nNova do
 						if nNova[i].hp <= LoHValue and (nNova[i].role == "HEALER" or nNova[i].role == "TANK") then
-							castLayOnHands(nNova[i].unit)
+							if castLayOnHands(nNova[i].unit) then
+								return
+							end
 						end
 					end
 				end
 			elseif LoHTargets == 4 then
 				for i = 1, #nNova do
 					if nNova[i].hp <= LoHValue then
-						castLayOnHands(nNova[i].unit)
+						if castLayOnHands(nNova[i].unit) then
+							return
+						end
 					end
 				end
 			end
@@ -550,7 +560,7 @@ if select(3,UnitClass("player")) == 2 then
 		else
 			for i = 1, #nNova do
 				if nNova[i].hp < hpValue then
-					if castSpell(nNova[i].unit, _FlashOfLight, true, true) then 
+					if castSpell(nNova[i].unit, _FlashOfLight, true, true) then
 						return true
 					end
 				end

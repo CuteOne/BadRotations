@@ -1,5 +1,17 @@
 if select(3,UnitClass("player")) == 2 then
 
+	function optionsLayOnHands()
+		-- Lay on Hands
+		CreateNewCheck(thisConfig,"Lay On Hands")
+		CreateNewBox(thisConfig,"Lay On Hands",0,100,1,12,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands")
+		CreateNewText(thisConfig,"Lay On Hands")
+
+		-- Lay on Hands Targets 1- me only 2- me prio 3- tank and heal 4- all
+		CreateNewCheck(thisConfig,"LoH Targets")
+		CreateNewDrop(thisConfig,"LoH Targets",1,"|cffFF0000Wich Targets\n|cffFFBB00We want to use \n|cffFFFFFFLay On Hands","|cffFF0000Me.Only","|cffFFDD11Me.Prio","|cff00FBEETank/Heal","|cff00FF00All")
+		CreateNewText(thisConfig,"LoH Targets")
+	end
+
 	function PaladinProtOptions()
 		ClearConfig()
 		thisConfig = 0
@@ -21,15 +33,8 @@ if select(3,UnitClass("player")) == 2 then
 		CreateNewBox(thisConfig, "Word Of Glory On Self", 0, 100, 1, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to heal self with \n|cffFFFFFFWords Of Glory")
 		CreateNewText(thisConfig,"Word Of Glory On Self")
 
-		-- Lay On Hands on yourself
-		CreateNewCheck(thisConfig,"Lay On Hands Self","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFLay on Hands|cffFFBB00 on Self.",1)
-		CreateNewBox(thisConfig, "Lay On Hands Self", 0, 100, 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands on your self")
-		CreateNewText(thisConfig,"Lay On Hands Self")
-
-		-- Lay On Hands on Party
-		CreateNewCheck(thisConfig,"Lay On Hands Party","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFLay on Hands|cffFFBB00 on Party.",0)
-		CreateNewBox(thisConfig, "Lay On Hands Party", 0, 100, 1, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands on your Party")
-		CreateNewText(thisConfig,"Lay On Hands Party")
+		-- LoH options
+		optionsLayOnHands()
 
 		CreateNewCheck(thisConfig,"Hand Of Freedom","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHand Of Freedom|cffFFBB00.",1)
 		CreateNewDrop(thisConfig, "Hand Of Freedom", 1,"uNDER WICH conditions do we use Hand of Freedom on self.","Whitelist")
@@ -334,16 +339,8 @@ if select(3,UnitClass("player")) == 2 then
 		CreateNewBox(thisConfig,"Hand Of Sacrifice",0,100,1,35,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Sacrifice")
 		CreateNewText(thisConfig,"Hand Of Sacrifice")
 
-		-- Lay on Hands
-		CreateNewCheck(thisConfig,"Lay On Hands")
-		CreateNewBox(thisConfig,"Lay On Hands",0,100,1,12,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands")
-		CreateNewText(thisConfig,"Lay On Hands")
-
-		-- Lay on Hands Targets 1- me only 2- me prio 3- tank and heal 4- all
-		CreateNewCheck(thisConfig,"LoH Targets")
-		CreateNewDrop(thisConfig,"LoH Targets",1,"|cffFF0000Wich Targets\n|cffFFBB00We want to use \n|cffFFFFFFLay On Hands","|cffFF0000Me.Only","|cffFFDD11Me.Prio","|cff00FBEETank/Heal","|cff00FF00All")
-		CreateNewText(thisConfig,"LoH Targets")
-
+		-- LoH options
+		optionsLayOnHands()
 
 		-- Tier 3 talents
 		if isKnown(_SacredShield) then

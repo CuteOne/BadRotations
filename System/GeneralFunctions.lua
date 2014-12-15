@@ -509,8 +509,10 @@ end
 -- castSpell("target",12345,true)
 --                ( 1  ,    2  ,     3     ,     4       ,      5    ,   6     ,   7     ,    8       ,   9    )
 function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,DeadCheck,DistanceSkip,CastSkip)
-	if CastSkip==nil then CastSkip = false end
-	if shouldStopCasting(SpellID) ~= true and (not UnitIsDeadOrGhost(Unit) or DeadCheck) then
+	if CastSkip == nil then
+		CastSkip = false
+	end
+	if betterStopCasting(SpellID) ~= true and (not UnitIsDeadOrGhost(Unit) or DeadCheck) then
 		-- stop if not enough power for that spell
 		if IsUsableSpell(SpellID) ~= true then
 			return false
@@ -1906,74 +1908,7 @@ function useItem(itemID)
 	return false
 end
 
--- if shouldStopCasting(12345) then
-function shouldStopCasting(Spell)
-	-- if we are on a boss fight
-	if UnitExists("boss1") then
-		-- Locally  casting informations
-		local Boss1Cast,Boss1CastEnd,PlayerCastEnd,StopCasting = Boss1Cast,Boss1CastEnd,PlayerCastEnd,false
-		local MySpellCastTime
-		-- Set Spell Cast Time
-		if GetSpellInfo(Spell) ~= nil then
-			MySpellCastTime = (GetTime()*1000) + select(4,GetSpellInfo(Spell))
-		else
-			return false
-		end
-		-- Spells wich make us immune (buff)
-		local ShouldContinue = {
-			1022,-- Hand of Protection
-			31821,-- Devotion
-			104773,-- Unending Resolve
-		}
-		-- Spells that are dangerous (boss cast)
-		local ShouldStop = {
-			137457,-- Piercing Roar(Oondasta)
-			138763,-- Interrupting Jolt(Dark Animus)
-			143343,-- Deafening Screech(Thok)
-		}
 
-		-- find casting informations
-		if UnitCastingInfo("boss1") then
-			Boss1Cast,_,_,_,_,Boss1CastEnd = UnitCastingInfo("boss1")
-		elseif UnitChannelInfo("boss1") then
-			Boss1Cast,_,_,_,_,Boss1CastEnd = UnitChannelInfo("boss1")
-		else
-			return false
-		end
-		if UnitCastingInfo("player") then
-			PlayerCastEnd = select(6,UnitCastingInfo("player"))
-		elseif UnitChannelInfo("player") then
-			PlayerCastEnd = select(6,UnitChannelInfo("player"))
-		else
-			PlayerCastEnd = MySpellCastTime
-		end
-
-		for i = 1,#ShouldContinue do
-			if UnitBuffID("player",ShouldContinue[i])
-			  and (select(7,UnitBuffID("player",ShouldContinue[i]))*1000)+50 > Boss1CastEnd then
-				ChatOverlay("\124cFFFFFFFFStopper Safety Found")
-				return false
-			end
-		end
-		if not UnitCastingInfo("player") and not UnitChannelInfo("player") and MySpellCastTime and SetStopTime
-		  and MySpellCastTime > Boss1CastEnd then
-		  	ChatOverlay("\124cFFD93B3BStop for "..Boss1Cast)
-		  	return true
-		end
-
-		for j = 1,#ShouldStop do
-			if Boss1Cast == select(1,GetSpellInfo(ShouldStop[j])) then
-				SetStopTime = Boss1CastEnd
-				if PlayerCastEnd ~= nil then
-					if Boss1CastEnd < PlayerCastEnd then
-						StopCasting = true
-					end
-				end
-			end
-		end
-		return StopCasting
-	end
-end
 
 function spellDebug(Message)
 	if imDebugging == true and getOptionCheck("Debugging Mode") then
