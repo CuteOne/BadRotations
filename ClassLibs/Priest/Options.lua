@@ -121,29 +121,20 @@ if select(3, UnitClass("player")) == 5 then
 			-- Wrapper -----------------------------------------
 			if isKnown(CoP) then
 				CreateNewWrap(thisConfig,"      |cffBA55D3DoT Weave");
-
-					-- Secondary Target for Weave
-					CreateNewBox(thisConfig,"secondaryTarget", 1, 5, 1, 5, "Choose the secondary Target (boss<x>).\nMin: 1 / Max: 5 / Interval: 1");
-					CreateNewText(thisConfig,"Secondary Target");
-					
 					-- General
 					--CreateNewCheck(thisConfig,"DoTWeave");
 					--CreateNewText(thisConfig,"DoTWeave");
 					-- SWP
 					CreateNewCheck(thisConfig,"SWP");
-					CreateNewText(thisConfig,"Weave SWP");
+					CreateNewText(thisConfig,"SWP");
 					-- VT
 					CreateNewCheck(thisConfig,"VT");
-					CreateNewText(thisConfig,"Weave VT");
+					CreateNewText(thisConfig,"VT");
 			end
 
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"      |cffBA55D3Multidot");
-
-				-- Skip Affecting Combat
-				CreateNewCheck(thisConfig,"Skip Affecting Combat");
-				CreateNewText(thisConfig,"Skip Affecting Combat");
 
 				-- SWP
 				CreateNewCheck(thisConfig,"Multi SWP");
@@ -153,14 +144,22 @@ if select(3, UnitClass("player")) == 5 then
 				CreateNewCheck(thisConfig,"Multi VT");
 				CreateNewText(thisConfig,"Multi VT");
 
+				-- SWP
+				CreateNewCheck(thisConfig,"Boss SWP");
+				CreateNewText(thisConfig,"|cffFF0000Boss |cffFFFFFFSWP");
+
+				-- VT
+				CreateNewCheck(thisConfig,"Boss VT");
+				CreateNewText(thisConfig,"|cffFF0000Boss |cffFFFFFFVT");
+
 				-- Max Targets
 				-- CreateNewCheck(thisConfig,"Max Targets");
 				CreateNewBox(thisConfig,"Max Targets", 1, 18, 1, 5, "Maximum count of SWP/VT on Units.\nShould be not more than 18/GCD.\nMin: 1 / Max: 18 / Interval: 1");
-				CreateNewText(thisConfig,"Max DoTs AoE");
+				CreateNewText(thisConfig,"Max Targets");
 
 				-- DoT Refresh
 				CreateNewBox(thisConfig,"Refresh Time", 1.0, 4.5, 0.1, 2.0, "Minimum time to refresh DoT.\nMin: 1 / Max: 4.5 / Interval: 0.1");
-				CreateNewText(thisConfig,"DoT refresh time");
+				CreateNewText(thisConfig,"Refresh Time");
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"      |cffBA55D3Utilities");
@@ -168,7 +167,7 @@ if select(3, UnitClass("player")) == 5 then
 				-- Pause Toggle
 				CreateNewCheck(thisConfig,"Pause Toggle");
 				CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle")
-				CreateNewText(thisConfig,"Pause Key");
+				CreateNewText(thisConfig,"Pause Toggle");
 				
 				--Power Word: Fortitude
 				CreateNewCheck(thisConfig,"PW: Fortitude");
@@ -176,7 +175,7 @@ if select(3, UnitClass("player")) == 5 then
 				
 				-- Shadowform Outfight
 				CreateNewCheck(thisConfig,"Shadowform Outfight");
-				CreateNewText(thisConfig,"Auto Shadowform Outfight");
+				CreateNewText(thisConfig,"Shadowform Outfight");
 
 				-- Auto Rez
 				CreateNewCheck(thisConfig,"Auto Rez");

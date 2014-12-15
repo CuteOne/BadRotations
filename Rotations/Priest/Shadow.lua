@@ -11,8 +11,8 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- Locals / Globals--
 			GCD = 1.5/(1+UnitSpellHaste("player")/100)
-			hasTarget = UnitExists("target")
-			hasMouse = UnitExists("mouseover")
+			--hasTarget = UnitExists("target")
+			--hasMouse = UnitExists("mouseover")
 			php = getHP("player")
 			thp = getHP("target")
 			ORBS = UnitPower("player", SPELL_POWER_SHADOW_ORBS)
@@ -33,13 +33,12 @@ if select(3, UnitClass("player")) == 5 then
 			if lastDP==nil then	lastDP=99 end
 
 			-- Set Enemies Table
-			if myEnemiesTableTimer == nil or myEnemiesTableTimer <= GetTime() - 1 then
+			if BadBoy_data['AoE'] == 3 and (myEnemiesTableTimer == nil or myEnemiesTableTimer <= GetTime() - 1) then
 				makeEnemiesTable(40)
 				myEnemiesTableTimer = GetTime()
 			end
 
-			-- Set Target Prio (only DualTarget)
-			secondaryTarget = "boss"..getValue("secondaryTarget")
+			-- secondaryTarget = "boss"..getValue("secondaryTarget")
 
 
 		-------------
@@ -122,7 +121,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- IN COMBAT --
 		---------------
 		-- AffectingCombat, Pause, Target, Dead/Ghost Check
-		if UnitAffectingCombat("player") then
+		if UnitAffectingCombat("player") or UnitAffectingCombat("target") then
 
 			-- Shadowform
 			if not UnitBuffID("player",Shadowform) then
@@ -159,7 +158,7 @@ if select(3, UnitClass("player")) == 5 then
 			-- if isChecked("AutoTarget") then
 			-- 	noTargetTargetMainTankTarget()
 			-- end
-
+			
 			-- Single target
 			if BadBoy_data['AoE'] == 1 then
 				Execute()
@@ -176,17 +175,17 @@ if select(3, UnitClass("player")) == 5 then
 				LFOrbs()
 				if getHP("target")>20 then IcyDualTarget() end
 			end
-
+			
 			-- 3+ Targets
-			if BadBoy_data['AoE'] == 3 then
+			if BadBoy_data['AoE'] == 3 then 
 				Execute()
 				LFOrbs()
 				if getHP("target")>20 then IcyMultiTarget() end
 			end
-
+			
 			-- Auto
 			-- if BadBoy_data['AoE'] == 3 then
-			-- 	if #enemiesTable<2 then
+			-- 	if #enemiesTable<2 then 
 			-- 	if #enemiesTable>=2 and #enemiesTable<3 then Icy23Targets() end
 			-- 	if #enemiesTable>=4
 
@@ -204,7 +203,7 @@ if select(3, UnitClass("player")) == 5 then
 			-- 		if getValue("SingleRota")==2 then IcySingle() end
 			-- 	end
 			-- 	-- 2-3 targets
-			--
+			-- 	
 			-- 	-- 4+ targets
 			-- 	if #enemiesTable>4 then Icy4AndMore() end
 			-- end
@@ -213,3 +212,4 @@ if select(3, UnitClass("player")) == 5 then
 		end -- AffectingCombat, Pause, Target, Dead/Ghost Check
 	end
 end
+

@@ -89,45 +89,44 @@ if select(3, UnitClass("player")) == 5 then
 			end
 		end
 	end
-
 	--[[                    ]] -- General Functions end
 
 
 	--[[                    ]] -- Defensives
 	function ShadowDefensive()
 		-- Shield
-		if isChecked("PW: Shield") and (getOptionCheck("Defensive") == 2) and php <= getValue("PW: Shield") then
+		if isChecked("PW: Shield") and (BadBoy_data['Defensive'] == 2) and php <= getValue("PW: Shield") then
 			if castSpell("player",PWS) then return; end
 		end
 
 		-- Fade (Glyphed)
 		if hasGlyph(GlyphOfFade) then
-			if isChecked("Fade Glyph") and (getOptionCheck("Defensive") == 2) and php <= getValue("Fade Glyph") then
+			if isChecked("Fade Glyph") and (BadBoy_data['Defensive'] == 2) and php <= getValue("Fade Glyph") then
 				if castSpell("player",Fade) then return; end
 			end
 		end
 
 		-- Fade (Aggro)
 		if IsInRaid() ~= false then
-			if isChecked("Fade Aggro") and getOptionCheck("Defensive")==2 and getThreat()>=3 then
+			if isChecked("Fade Aggro") and BadBoy_data['Defensive']==2 and getThreat()>=3 then
 			--if isChecked("Fade Aggro") and BadBoy_data['Defensive'] == 2 then
 				if castSpell("player",Fade) then return; end
 			end
 		end
 		
 		-- Healthstone
-		if isChecked("Healthstone") and (getOptionCheck("Defensive") == 2) and php <= getValue("Healthstone") then
+		if isChecked("Healthstone") and (BadBoy_data['Defensive'] == 2) and php <= getValue("Healthstone") then
 			if canUse(5512) ~= false then UseItemByName(tostring(select(1,GetItemInfo(5512))));	end
 		end
 
 		-- Dispersion
-		if isChecked("Dispersion") and (getOptionCheck("Defensive") == 2) and php <= getValue("Dispersion") then
+		if isChecked("Dispersion") and (BadBoy_data['Defensive'] == 2) and php <= getValue("Dispersion") then
 			if castSpell("player",Fade) then return; end
 		end
 
 		-- Desperate Prayer
 		if isKnown(DesperatePrayer) then
-			if isChecked("Desperate Prayer") and (getOptionCheck("Defensive") == 2) and php <= getValue("Desperate Prayer") then
+			if isChecked("Desperate Prayer") and (BadBoy_data['Defensive'] == 2) and php <= getValue("Desperate Prayer") then
 				if castSpell("player",DesperatePrayer) then return; end
 			end
 		end
@@ -138,39 +137,39 @@ if select(3, UnitClass("player")) == 5 then
 	--[[                    ]] -- Cooldowns
 	function ShadowCooldowns()
 		-- Mindbender
-		if isKnown(Mindbender) and getOptionCheck("Cooldowns") == 2 and isChecked("Mindbender") then
+		if isKnown(Mindbender) and BadBoy_data['Cooldowns'] == 2 and isChecked("Mindbender") then
 			if castSpell("target",Mindbender) then return; end
 		end
 
 		-- Shadowfiend
-		if isKnown(SF) and getOptionCheck("Cooldowns") == 2 and isChecked("Shadowfiend") then
+		if isKnown(SF) and BadBoy_data['Cooldowns'] == 2 and isChecked("Shadowfiend") then
 			if castSpell("target",SF) then return; end
 		end
 
 		-- Power Infusion
-		if isKnown(PI) and getOptionCheck("Cooldowns") == 2 and isChecked("Power Infusion") then
+		if isKnown(PI) and BadBoy_data['Cooldowns'] == 2 and isChecked("Power Infusion") then
 			if castSpell("player",PI) then return; end
 		end
 
 		-- Berserking (Troll Racial)
-		if isKnown(Berserking) and getOptionCheck("Cooldowns") == 2 and isChecked("Berserking") then
+		if isKnown(Berserking) and BadBoy_data['Cooldowns'] == 2 and isChecked("Berserking") then
 			if castSpell("player",Berserking) then return; end
 		end
 
 		-- Halo
-		if isKnown(Halo) and getOptionCheck("Halo") == 2 then
+		if isKnown(Halo) and BadBoy_data['Halo'] == 2 then
 			if getDistance("player","target")<=30 and getDistance("player","target")>=17 then
 				if castSpell("player",Halo) then return; end
 			end
 		end
 
 		-- Trinket 1
-		if isChecked("Trinket 1") and getOptionCheck("Cooldowns") == 2 and canTrinket(13) then
+		if isChecked("Trinket 1") and BadBoy_data['Cooldowns'] == 2 and canTrinket(13) then
 			RunMacroText("/use 13")
 		end
 
 		-- Trinket 2
-		if isChecked("Trinket 2") and getOptionCheck("Cooldowns") == 2 and canTrinket(14) then
+		if isChecked("Trinket 2") and BadBoy_data['Cooldowns'] == 2 and canTrinket(14) then
 			RunMacroText("/use 14")
 		end
 	end
@@ -203,10 +202,10 @@ if select(3, UnitClass("player")) == 5 then
 	--[[                    ]] -- LF Orbs start
 	function LFOrbs()
 		if isChecked("Scan for Orbs") then
-			if getSpellCD(SWD)==0 and ORBS<5 then
+			if getSpellCD(SWD)<=0 and ORBS<5 then
 				for i=1,#enemiesTable do
 					local thisUnit = enemiesTable[i].unit
-					if (UnitAffectingCombat(thisUnit) or isChecked("Skip Affecting Combat")) and enemiesTable[i].hp<20 then
+					if enemiesTable[i].hp<20 then
 						if castSpell(thisUnit,SWD,true,false) then return; end
 					end
 				end
@@ -222,7 +221,8 @@ if select(3, UnitClass("player")) == 5 then
 		-- DoT Weaving --
 		-----------------
 			-- if ORBS==5 --> apply DoTs if targetHP>20
-			if isChecked("DoTWeave") and getTalent(3,3) then
+			--if isChecked("DoTWeave") and getTalent(3,3) then
+			if getTalent(3,3) then
 				-- function DoTWeaveBreak()
 				-- 	local counter=0
 				-- 	local factor=getValue("Weave Comp")/10
@@ -232,7 +232,7 @@ if select(3, UnitClass("player")) == 5 then
 				-- end
 				-- local Break=DoTWeaveBreak()
 				-- if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<Break then
-				if ORBS>=4 and getHP("target")>20 and MBCD<2*GCD then
+				if ORBS>=4 and getHP("target")>20 and MBCD<2*GCD and getTimeToDie("target")<10*GCD then
 					if isChecked("SWP") then
 						if not UnitDebuffID("target",SWP,"player") then
 							if castSpell("target",SWP,true,false) then return; end
@@ -318,7 +318,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- end
 
 		-- Burn Down ORBS (Toggle)
-		if ORBS>=3 and getOptionCheck("Burn") == 2 and getDebuffRemain("target",DP,"player")==0 then
+		if ORBS>=3 and BadBoy_data['Burn'] == 2 and getDebuffRemain("target",DP,"player")==0 then
 			if castSpell("target",DP,false,true) then return; end
 		end
 
@@ -347,7 +347,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- Dot only if not burning
-		if getOptionCheck("Burn") == 1  and not UnitBuffID("player",InsanityBuff) then
+		if BadBoy_data['Burn'] == 1  and not UnitBuffID("player",InsanityBuff) then
 			if getDebuffRemain("player",InsanityBuff)<=0 then
 				-- SWP
 				if getDebuffRemain("target",SWP,"player")<=5.4 then
@@ -394,7 +394,7 @@ if select(3, UnitClass("player")) == 5 then
 				-- end
 				-- local Break=DoTWeaveBreak()
 				-- if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<Break then
-				if ORBS>=4 and getHP("target")>20 and MBCD<2*GCD then
+				if ORBS>=4 and getHP("target")>20 and MBCD<2*GCD and getTimeToDie("target")<10*GCD then
 					if isChecked("SWP") then
 						if not UnitDebuffID("target",SWP,"player") then
 							if castSpell("target",SWP,true,false) then return; end
@@ -444,18 +444,32 @@ if select(3, UnitClass("player")) == 5 then
 				-- MB on CD
 				if castSpell("target",MB,false,false) then return; end
 
-				-- DoT the other Boss
-					-- SWD
-					if isValidTarget(secondaryTarget) and getDebuffRemain(secondaryTarget,SWP,"player")<=getValue("Refresh Time") then
-						if castSpell(secondaryTarget,SWD,true,false) then return; end
-					end
-					-- VT
-					if isValidTarget(secondaryTarget) and getDebuffRemain(secondaryTarget,VT,"player")<=getValue("Refresh Time") and GetTime()-lastVT>2*GCD then
-						if castSpell(secondaryTarget,VT,true,true) then 
-							lastVT=GetTime()
-							return
+				-- Dot the bosses
+				-- SWP on all bosses except target
+				if isChecked("Boss SWP") then
+					for i = 1, #enemiesTable do
+						local thisUnit = enemiesTable[i].unit
+						local ttd = getTimeToDie(thisUnit)
+						local swpRem = getDebuffRemain(thisUnit,SWP,"player")
+						if isBoss(thisUnit) and swpRem<getValue("Refresh Time") and ttd>9*GCD and not UnitIsUnit("target",thisUnit) then
+							if castSpell(thisUnit,SWP,true,false) then return; end
 						end
 					end
+				end
+				-- VT on all bosses except target
+				if isChecked("Boss VT") then
+					for i = 1, #enemiesTable do
+						local thisUnit = enemiesTable[i].unit
+						local ttd = getTimeToDie(thisUnit)
+						local vtRem = getDebuffRemain(thisUnit,VT,"player")
+						if isBoss(thisUnit) and vtRem<getValue("Refresh Time") and GetTime()-lastVT>2*GCD and ttd>10*GCD and not UnitIsUnit("target",thisUnit) then
+							if castSpell(thisUnit,VT,true,true) then 
+								lastVT=GetTime()
+								return
+							end
+						end
+					end
+				end
 
 				-- Mind Spike
 				if ORBS<5 then 
@@ -469,7 +483,6 @@ if select(3, UnitClass("player")) == 5 then
 					end
 				end
 			end
-
 	end
 	--[[                    ]] -- Dual Target end
 
@@ -485,7 +498,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- Burn Down ORBS (Toggle)
-		if ORBS>=3 and getOptionCheck("Burn") == 2 and getDebuffRemain("target",DP,"player")==0 then
+		if ORBS>=3 and BadBoy_data['Burn'] == 2 and getDebuffRemain("target",DP,"player")==0 then
 			if castSpell("target",DP,false,true) then return; end
 		end
 
@@ -528,7 +541,7 @@ if select(3, UnitClass("player")) == 5 then
 					local thisUnit = enemiesTable[i].unit
 					local ttd = getTimeToDie(thisUnit)
 					local swpRem = getDebuffRemain(thisUnit,SWP,"player")
-					if (UnitAffectingCombat(thisUnit) or isChecked("Skip Affecting Combat")) and not isLongTimeCCed(thisUnit) and swpRem<getValue("Refresh Time") then
+					if (not isLongTimeCCed(thisUnit)) and swpRem<getValue("Refresh Time") then
 						if castSpell(thisUnit,SWP,true,false) then return; end
 					end
 				end
@@ -550,7 +563,7 @@ if select(3, UnitClass("player")) == 5 then
 					local thisUnit = enemiesTable[i].unit
 					local ttd = getTimeToDie(thisUnit)
 					local vtRem = getDebuffRemain(thisUnit,VT,"player")
-					if (UnitAffectingCombat(thisUnit) or isChecked("Skip Affecting Combat")) and not isLongTimeCCed(thisUnit) and vtRem<getValue("Refresh Time") and GetTime()-lastVT>2*GCD then
+					if (not isLongTimeCCed(thisUnit)) and vtRem<getValue("Refresh Time") and GetTime()-lastVT>2*GCD then
 						if castSpell(thisUnit,VT,true,true) then 
 							lastVT=GetTime()
 							return
@@ -562,7 +575,7 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- Mind Sear Filler
 		--if #getEnemies("player",40)>=3 then
-		if getOptionCheck("Single")==2 then
+		if BadBoy_data['Single']==2 then
 			if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
 				if castSpell("target",MS,false,true) then return; end
 			end
@@ -570,7 +583,7 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- MF Filler
 		--if getDebuffRemain("target",SWP,"player")<getValue("Refresh Time") then
-			if (ORBS<=5 or (ORBS<=3 and getOptionCheck("Burn") == 2)) and select(1,UnitChannelInfo("player")) == nil then
+			if (ORBS<=5 or (ORBS<=3 and BadBoy_data['Burn'] == 2)) and select(1,UnitChannelInfo("player")) == nil then
 				if castSpell("target",MF,false,true) then return; end
 			end	
 		--end
