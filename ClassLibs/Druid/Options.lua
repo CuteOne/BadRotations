@@ -353,7 +353,7 @@ function RestorationConfig()
 
             -- WildGrowth SotF Count
             CreateNewCheck(thisConfig,"WildGrowth SotF Count")
-            CreateNewBox(thisConfig, "WildGrowth SotF Count",1,25,1,3,"|cffFFBB00Number of members under Force of Nature treshold needed to use |cffFFFFFFSwiftmend.")
+            CreateNewBox(thisConfig, "WildGrowth SotF Count",1,25,1,3,"|cffFFBB00Number of members under Force of Nature threshold needed to use |cffFFFFFFSwiftmend.")
             CreateNewText(thisConfig,"WildGrowth SotF Count")
         elseif isKnown(102693) then
             -- Force of Nature
@@ -363,7 +363,7 @@ function RestorationConfig()
 
             -- Force of Nature Count
             CreateNewCheck(thisConfig,"Force of Nature Count")
-            CreateNewBox(thisConfig, "Force of Nature Count",1,25,1,3,"|cffFFBB00Number of members under Force of Nature treshold needed to use |cffFFFFFFForce of Nature.")
+            CreateNewBox(thisConfig, "Force of Nature Count",1,25,1,3,"|cffFFBB00Number of members under Force of Nature threshold needed to use |cffFFFFFFForce of Nature.")
             CreateNewText(thisConfig,"Force of Nature Count")
         elseif isKnown(33891) then
            -- Germination Tol
@@ -403,7 +403,7 @@ function RestorationConfig()
             CreateNewText(thisConfig,"WildGrowth Tol")
 
             -- Mushrooms Bloom Count
-            CreateNewBox(thisConfig, "WildGrowth Tol Count",1,25,1,5,"|cffFFBB00Number of members under WildGrowth Tol treshold needed to use |cffFFFFFFWildGrowth|cffFFBB00 while in Tree of Life.")
+            CreateNewBox(thisConfig, "WildGrowth Tol Count",1,25,1,5,"|cffFFBB00Number of members under WildGrowth Tol threshold needed to use |cffFFFFFFWildGrowth|cffFFBB00 while in Tree of Life.")
             CreateNewText(thisConfig,"WildGrowth Tol Count")
         end
 
@@ -515,7 +515,7 @@ function RestorationConfig()
         CreateNewText(thisConfig,"Genesis")
 
         -- Genesis Count
-        CreateNewBox(thisConfig, "Genesis Count",1,25,1,5,"|cffFFBB00Number of members under Genesis treshold needed to use |cffFFFFFFGenesis.")
+        CreateNewBox(thisConfig, "Genesis Count",1,25,1,5,"|cffFFBB00Number of members under Genesis threshold needed to use |cffFFFFFFGenesis.")
         CreateNewText(thisConfig,"Genesis Count")
 
         -- Genesis Filler
@@ -540,7 +540,7 @@ function RestorationConfig()
         CreateNewText(thisConfig,"WildGrowth")
 
         -- WildGrowth Count
-        CreateNewBox(thisConfig, "WildGrowth Count",1,25,1,5,"|cffFFBB00Number of members under WildGrowth treshold needed to use |cffFFFFFFWildGrowth.")
+        CreateNewBox(thisConfig, "WildGrowth Count",1,25,1,5,"|cffFFBB00Number of members under WildGrowth threshold needed to use |cffFFFFFFWildGrowth.")
         CreateNewText(thisConfig,"WildGrowth Count")
 
         -- WildGrowth All
@@ -549,7 +549,7 @@ function RestorationConfig()
         CreateNewText(thisConfig,"WildGrowth All")
 
         -- WildGrowth All Count
-        CreateNewBox(thisConfig, "WildGrowth All Count",1,25,1,5,"|cffFFBB00Number of members under WildGrowth treshold needed to use |cffFFFFFFWildGrowth.")
+        CreateNewBox(thisConfig, "WildGrowth All Count",1,25,1,5,"|cffFFBB00Number of members under WildGrowth threshold needed to use |cffFFFFFFWildGrowth.")
         CreateNewText(thisConfig,"WildGrowth All Count")
 
 -- Wrapper -----------------------------------------
@@ -624,10 +624,10 @@ function RestorationConfig()
         CreateNewCheck(thisConfig,"Multidotting","|cffFF0011Check |cffFFDD11this to allow |cffFFFFFFMoonfire |cffFFDD11Multidotting",0)
         CreateNewText(thisConfig,"Multidotting")
 
-        -- Safe DPS Treshold
-        CreateNewCheck(thisConfig,"Safe DPS Treshold","|cffFF0011Check |cffFFFFFF to force healing when units in your group fall under treshold.")
-        CreateNewBox(thisConfig, "Safe DPS Treshold",1,100,5,45,"|cffFFBB00What treshold you want to force start healing allies while DPSing.")
-        CreateNewText(thisConfig,"Safe DPS Treshold")
+        -- Safe DPS Threshold
+        CreateNewCheck(thisConfig,"Safe DPS Threshold","|cffFF0011Check |cffFFFFFF to force healing when units in your group fall under threshold.")
+        CreateNewBox(thisConfig, "Safe DPS Threshold",1,100,5,45,"|cffFFBB00What threshold you want to force start healing allies while DPSing.")
+        CreateNewText(thisConfig,"Safe DPS Threshold")
 
         --[[ Follow Tank
         CreateNewCheck(thisConfig,"Follow Tank")

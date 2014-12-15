@@ -3,7 +3,7 @@
 -- 5 users in 15 yards around a given units that have the lowest hp
 
 -- will first need to target a enemy unit then
-	-- compare health to user selected treshold
+	-- compare health to user selected threshold
 	-- test its position agains mobs position and calc range(we need to find a way to refresh that only once per cast or something)
 	-- add it to a table of valid units around a mob
 	-- calc the table best results coefficients
@@ -12,7 +12,7 @@
 --	prismBestTable = {
 --		coefficient = wise maths to find best case,
 --		heavilyDamagedUnits = number of units under 30% hp,
---		missingHealthUnits = number of units under treshold,
+--		missingHealthUnits = number of units under threshold,
 --		totalmissingHealth = total health missing in range of unit,
 --		unit = enemyFH tag
 --	}
