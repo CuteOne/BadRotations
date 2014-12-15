@@ -189,7 +189,7 @@ if select(3,UnitClass("player")) == 1 then
 							end
 						end
 					end
-					-- Rallying Cry
+					-- Shield Wall
 					if isChecked("Shield Wall") == true then
 						if getHP("player") <= getValue("Shield Wall") then
 							if castSpell("player",ShieldWall,true) then

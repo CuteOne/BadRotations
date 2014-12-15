@@ -383,7 +383,7 @@ function ConstructUI()
                         name = "Overhealing Cancel",
                         --"Harmoney SotF", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRegrowth|cffFFBB00 to refresh Harmoney.")
 
-                        status = "Set Desired Treshold at wich you want to prevent your own casts.",
+                        status = "Set Desired Threshold at wich you want to prevent your own casts.",
                         statusBase = 95,
                         statusMin = 0,
                         statusMax = 100,

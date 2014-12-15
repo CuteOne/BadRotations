@@ -298,7 +298,7 @@ function DruidRestoration()
 		end
 
 		--[[ 5 - DPs --(range and  melee)]]
-		if BadBoy_data["DPS"] == 2 and not (isChecked("Safe DPS Treshold") and lowestHP < getValue("Safe DPS Treshold")) then
+		if BadBoy_data["DPS"] == 2 and not (isChecked("Safe DPS Threshold") and lowestHP < getValue("Safe DPS Threshold")) then
 			if isChecked("DPS Toggle") == true and SpecificToggle("DPS Toggle") == true  then
 		        -- Let's get angry :D
 		        makeEnemiesTable(40)
@@ -738,7 +738,7 @@ function DruidRestoration()
 		    	castMushFocus()
 		    end
 		end
-        --[[ 28 - LifebloomFocus--(Refresh if over treshold)]]
+        --[[ 28 - LifebloomFocus--(Refresh if over threshold)]]
       	if isChecked("Lifebloom") then
 			if not UnitIsDeadOrGhost("focus") and getHP("focus") >= getValue("Lifebloom")
 			  and getBuffRemain("focus",33763,"player") < 2 and getDistance("player","focus") < 43 and UnitExists("focus") then

@@ -631,7 +631,6 @@ Holy
 			if UnitBuffID("player",_Daybreak) and canCast(_HolyShock) then --Daybreak procc turns holy shock into AoE
 				if aoeCandidateTenYards and numberOfUnitsInRangeTenYards > 2 and _HolyPower < 5 then
 					if castHolyShock(aoeCandidateTenYards, getValue("Holy Shock")) then
-						print("Casting HS on AoE")
 						return true
 					end
 				end
@@ -639,10 +638,10 @@ Holy
 
 			-- Light of Dawn here
 			--[Light of Dawn] 3 HoPo heals 6 allies 30 yards from player
+			--if getUnitsToHealAround("player",30, 90, maxCount)
 
 			if aoeCandidateTenYards and numberOfUnitsInRangeTenYards > 5 and _HolyPower < 5 then
 				if castHolyRadiance(aoeCandidateTenYards) then
-					print("Casting Holy Radiance AoE")
 					return true
 				end
 			end

@@ -28,10 +28,11 @@ function castWiseAoEHeal(unitTable,spell,radius,health,minCount,maxCount,facingC
         if bestCandidate ~= nil and #bestCandidate >= minCount then
             -- here we would like instead to cast on unit
             if castSpell(bestCandidate[0].unit,spell,facingCheck,movementCheck) then
-                return
+                return true
             end
         end
     end
+    return false
 end
 
 
