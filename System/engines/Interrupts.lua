@@ -152,7 +152,7 @@ function interruptsReader(self,event,...)
 							    	if event == "SPELL_CAST_START" and stopCasting.shouldStop[spellID] ~= nil then
 							    		-- on castspell side we want to make sure our cast end would be lower than unit cast end
 							    		shouldStopTime = GetTime() + unitCastLenght
-							    		print(GetTime() + unitCastLenght)
+							    		-- print(GetTime() + unitCastLenght)
 							    	end
 					        		tinsert(spellCastersTable,
 					        			{
