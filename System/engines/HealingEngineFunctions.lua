@@ -1,6 +1,5 @@
 -- here we want to define functions to use with the healing profiles
 
-
 -- find a tank to put beacon/lifeblood/earth shield on
 function getTanksTable()
     tanksTable = {}
@@ -11,7 +10,6 @@ function getTanksTable()
     end
     return tanksTable
 end
-
 
 -- we want to define an iteration that will compare allies to heal in range of enemies or allies
 function castWiseAoEHeal(unitTable,spell,radius,health,minCount,maxCount,facingCheck,movementCheck)
