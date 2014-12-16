@@ -11,7 +11,7 @@
 |Moonkin|70%|CodeMyLife|
 ||||
 | **Death Knight** |  |  |
-|Frost|0%|Empty |
+|Frost|0%|CuteOne |
 |Blood|90%|CodeMyLife |
 |Unholy|0%|Empty|
 ||||
@@ -42,7 +42,7 @@
 | **Rogue**  |  |  |
 |Assassination|90%|CuteOne |
 |Combat|80%|Toxin |
-|Subtlety|70%|Toxin |
+|Subtlety|0%|CuteOne |
 ||||
 | **Shaman** |  |  |
 |Elemental|90%|CodeMyLife |

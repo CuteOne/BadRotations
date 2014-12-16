@@ -289,41 +289,40 @@ end
 
 -- if canUse(1710) then
 function canUse(itemID)
-	if healPot == nil then healPot = 0 end
-	local goOn = true
-	local DPSPotionsSet = {
-		[1] = {Buff = 105702, Item = 76093}, -- Int
-		[2] = {Buff = 156423, Item = 109217}, -- Agi - Draenor
-		[3] = {Buff = 105706, Item = 76095}, -- Str
-		[4] = {Buff = nil,    Item = 5512}, --Healthstone
-		[5]	= {Buff = nil,	  Item = healPot}, --Healing Pot
-	}
-	for i = 1, #DPSPotionsSet do
-		if i == 5 then hasHealthPot() end
-		if DPSPotionsSet[i].Item == itemID then
-			if potionUsed then
-				if potionUsed <= GetTime() - 60000 then
-					goOn = false
-				else
-					if potionUsed > GetTime() - 60000 and potionReuse == true then
-						goOn = true
-					end
-					if potionReuse == false then
-						goOn = false
-					end
-				end
-			end
-		end
-	end
-	if goOn == true and GetItemCount(itemID,false,false) > 0 then
-		if select(2,GetItemCooldown(itemID))==0 then
-			return true
-		else
-			return false
-		end
-	else
-		return false
-	end
+    if hasHealthPot() then Pot = healPot; else Pot = 0 end
+    local goOn = true
+    local DPSPotionsSet = {
+        [1] = {Buff = 105702, Item = 76093}, -- Int
+        [2] = {Buff = 156423, Item = 109217}, -- Agi - Draenor
+        [3] = {Buff = 105706, Item = 76095}, -- Str
+        [4] = {Buff = nil,    Item = 5512}, --Healthstone
+        [5] = {Buff = nil,    Item = Pot}, --Healing Pot
+    }
+    for i = 1, #DPSPotionsSet do
+        if DPSPotionsSet[i].Item == itemID then
+            if potionUsed then
+                if potionUsed <= GetTime() - 60000 then
+                    goOn = false
+                else
+                    if potionUsed > GetTime() - 60000 and potionReuse == true then
+                        goOn = true
+                    end
+                    if potionReuse == false then
+                        goOn = false
+                    end
+                end
+            end
+        end
+    end
+    if goOn == true and GetItemCount(itemID,false,false) > 0 then
+        if select(2,GetItemCooldown(itemID))==0 then
+            return true
+        else
+            return false
+        end
+    else
+        return false
+    end
 end
 
 -- if canTrinket(13) then
@@ -1972,46 +1971,48 @@ end
 
 --[[Health Potion Table]]
 function hasHealthPot()
-	healthPot = { }
-	for i = 1, 4 do
-		for x = 1, GetContainerNumSlots(i) do
-			local itemID = GetContainerItemID(i,x)
-			if itemID~=nil then
-				local ItemName = select(1,GetItemInfo(itemID))
-				local MinLevel = select(5,GetItemInfo(itemID))
-				local ItemType = select(7,GetItemInfo(itemID))
-				local ItemEffect = select(1,GetItemSpell(itemID))
-				if ItemType == select(7,GetItemInfo(2459)) then
-					if strmatch(ItemEffect,strmatch(select(1,GetItemSpell(76097)),"%a+")) then
-						if MinLevel<=UnitLevel("player") then
-							local ItemCount = GetItemCount(itemID)
-		    				tinsert(healthPot,
-		   						{
-		   							item = itemID,
-		   							itemName = ItemName,
-		   							minLevel = MinLevel,
-		   							itemType = ItemType,
-		   							itemEffect = ItemEffect,
-		   							itemCount = ItemCount
-		   						}
-		   					)
-		   				end
-						end
-				end
-			end
-			table.sort(healthPot, function(x,y)
-				return x.minLevel and y.minLevel and x.minLevel > y.minLevel or false
-			end)
-		end
-	end
-	if healthPot[1]==nil then
-		healPot=0
-		return false
-	else
-		healPot=healthPot[1].item
-		return true
-	end
+    healthPot = { }
+    for i = 1, 4 do
+        for x = 1, GetContainerNumSlots(i) do
+            local itemID = GetContainerItemID(i,x)
+            if itemID~=nil then
+                local ItemName = select(1,GetItemInfo(itemID))
+                local MinLevel = select(5,GetItemInfo(itemID))
+                local ItemType = select(7,GetItemInfo(itemID))
+                local ItemEffect = select(1,GetItemSpell(itemID))
+                if ItemType == select(7,GetItemInfo(2459)) then
+                    if strmatch(ItemEffect,strmatch(select(1,GetItemSpell(76097)),"%a+")) then
+                        local ItemCount = GetItemCount(itemID)
+                        local ItemCooldown = GetItemCooldown(itemID)
+                        if MinLevel<=UnitLevel("player") and ItemCooldown == 0 then
+                            tinsert(healthPot,
+                                {
+                                    item = itemID,
+                                    itemName = ItemName,
+                                    minLevel = MinLevel,
+                                    itemType = ItemType,
+                                    itemEffect = ItemEffect,
+                                    itemCount = ItemCount
+                                }
+                            )
+                        end
+                    end
+                end
+            end
+            table.sort(healthPot, function(x,y)
+                return x.minLevel and y.minLevel and x.minLevel > y.minLevel or false
+            end)
+        end
+    end
+    if healthPot[1]==nil then
+        healPot=0
+        return false
+    else
+        healPot=healthPot[1].item
+        return true
+    end
 end
+
 
 --[[Taunts Table!! load once]]
 tauntsTable = {

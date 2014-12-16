@@ -16,7 +16,6 @@ if select(3, UnitClass("player")) == 11 then
 		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end
 		-- General Player Variables
-		local profileStop = profileStop
 		local lootDelay = getOptionValue("LootDelay")
 		local hasMouse = UnitExists("mouseover")
 		local deadMouse = UnitIsDeadOrGhost("mouseover")
@@ -69,12 +68,20 @@ if select(3, UnitClass("player")) == 11 then
 	    local vicious = getBuffRemain("player",148903)
 	    local restlessagi = getBuffRemain("player",146310)
 	    local bloodtalons, btRemain = getTalent(7,2), getBuffRemain("player",bt)
+	    newSr = 18 + (6*(combo-1))
+	    tt5 = 40*getRegen("player")*(5-floor(UnitPower("player")/40))
 		--Specific Target Variables
 	    local rkCalc, rpCalc, rkDmg, rpDmg = CRKD(), CRPD(), RKD(dynamicTarget(5,true)), RPD(dynamicTarget(5,true))
 	    local rkRemain, rkDuration, stunRemain = getDebuffRemain(dynamicTarget(5,true),rk,"player"), getDebuffDuration(dynamicTarget(5,true),rk,"player"), 0
 	    local rpRemain, rpDuration = getDebuffRemain(dynamicTarget(5,true),rp,"player"), getDebuffDuration(dynamicTarget(5,true),rp,"player")
 	    local thrRemain, thrDuration = getDebuffRemain(dynamicTarget(8,false),thr,"player"), getDebuffDuration(dynamicTarget(8,false),thr,"player")
 	    local mfRemain, mfTick = getDebuffRemain(dynamicTarget(40,false),mf,"player"), 20.0/(1+UnitSpellHaste("player")/100)/10
+	    if srRemain - rpRemain >= 0 then
+	    	srrpDiff = srRemain - rpRemain
+	    end
+	    if rpRemain - srRemain > 0 then
+	    	srrpDiff = rpRemain - srRemain
+	    end
 --------------------------------------------------
 --- Ressurection/Dispelling/Healing/Pause/Misc ---
 --------------------------------------------------
@@ -177,7 +184,7 @@ if select(3, UnitClass("player")) == 11 then
 --- Buffs ---
 -------------
 	 -- Mark of the Wild
-	        if isChecked("Mark of the Wild") and not hasmouse and not (IsFlying() or IsMounted()) then
+	        if isChecked("Mark of the Wild") and not hasmouse and not (IsFlying() or IsMounted()) and not stealth and not isInCombat("player") then
 	            for i = 1, #members do --members
 	                if not isBuffed(members[i].Unit,{115921,20217,1126,90363,159988,160017,160077}) 
 	                	and (#nNova==select(5,GetInstanceInfo()) 
@@ -356,7 +363,7 @@ if select(3, UnitClass("player")) == 11 then
 				end
 				if not stealth then
 		-- Tiger's Fury
-					if (not clearcast and powmax-power>=60) or powmax-power>=80 and UnitExists(dynamicTarget(5,true)) then
+					if ((not clearcast and powmax-power>=60) or powmax-power>=80) and UnitExists(dynamicTarget(5,true)) then
 						if canTrinket(13) and useCDs() then
 							RunMacroText("/use 13")
 						end
@@ -395,7 +402,7 @@ if select(3, UnitClass("player")) == 11 then
 		                end
 					end
 		-- Savage Roar
-					if srRemain<3 and combo>0 and power>25 and UnitExists(dynamicTarget(5,true)) then
+					if (srRemain<1 or (srRemain<rpRemain and newSr-rpRemain>1)) and combo>0 and power>25 and UnitExists(dynamicTarget(5,true)) then
 						if castSpell("player",svr,true,false,false) then return end
 		            end
 		-- Thrash
@@ -425,16 +432,18 @@ if select(3, UnitClass("player")) == 11 then
 							if enemiesTable[i].distance<5 then
 								thisUnit = enemiesTable[i].unit
 								rpRemain = getDebuffRemain(thisUnit,rp,"player")
+								ttd = getTimeToDie(thisUnit)
 								--max_energy=1,if=target.health.pct<25&dot.rip.ticking
-								if combo==5 and power>50 and enemiesTable[i].hp<25 and rpRemain>0 then
+								if combo==5 and power>50 and enemiesTable[i].hp<25 and (rpRemain>0 or ttd-rpRemain<=18) then
 									if castSpell(thisUnit,fb,false,false,false) then return end
 								end
 							end
 						end
 					else
 						thisUnit = dynamicTarget(5,true)
+						ttd = getTimeToDie(thisUnit)
 						--max_energy=1,if=target.health.pct<25&dot.rip.ticking
-						if combo==5 and power>50 and getHP(thisUnit)<25 and rpRemain>0 then
+						if combo==5 and power>50 and getHP(thisUnit)<25 and (rpRemain>0 or ttd-rpRemain<=18) then
 							if castSpell(thisUnit,fb,false,false,false) then return end
 						end
 					end
@@ -467,12 +476,12 @@ if select(3, UnitClass("player")) == 11 then
 					end
 		-- Savage Roar
 					--if=(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)&buff.savage_roar.remains<12.6
-					if combo==5 and (ttm<=1 or berserking or tfCooldown<3) and srRemain<12.6 and power>25 and tarDist<5	then
+					if combo==5 and (ttm<=1 or berserking or tfCooldown<3) and srRemain<12.6 and power>25 and tarDist<5 then
 						if castSpell("player",svr,true,false,false) then return end
 		            end
 		-- Ferocious Bite
 					--if=(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)
-	    			if combo==5 and (ttm<=1 or berserking or tfRemain<3) and power>50 then
+	    			if combo==5 and (ttm<=1 or berserking or tfRemain<3 or rpRemain>10) and power>50 then
 		    			if castSpell(dynamicTarget(5,true),fb,false,false,false) then return end
 		            end
 	    -- Rake 
@@ -580,7 +589,7 @@ if select(3, UnitClass("player")) == 11 then
 		    			if castSpell(dynamicTarget(8,true),sw,false,false,false) then return end
 		            end
 	    -- Shred
-		    		if not useAoE() and power>40 and combo<5 then
+		    		if not useAoE() and power>40 and combo<5 and rkRemain>3 then
 		    			if castSpell(dynamicTarget(5,true),shr,false,false,false) then return end
 		            end
 			    end --not stealth end

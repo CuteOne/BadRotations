@@ -8,7 +8,7 @@ function SubRogue()
 		_Hemorrhage    			= 1752;
 		leftPoisonsTable = { 
 			{ 	name = "Crippling Poison" ,  	ID = 3408 	},
-			{ 	name = "Mind-Numbling Poison" , ID = 5761 	},
+			--{ 	name = "Mind-Numbling Poison" , ID = 5761 	},
 			{ 	name = "Leeching Poison" ,  	ID = 108211	}
 		}
 		rightPoisonsTable = { 
@@ -87,8 +87,8 @@ castSpell("player",_FanOfKnives,true    ,false)]]
 	end
 
 	-- Ambush
-	if getDistance("player","target") < 2.5 and (UnitBuffID("player",1784) ~= nil or UnitBuffID("player",58984) ~= nil or UnitBuffID("player",1856) ~= nil) and (energy >= 60 or (_ShadowDance and energy >= 40)) and getFacing("player","target") == true and getFacing("target","player") == false then
-	  	if castSpell("target",_Ambush,false,false) then return true; end
+	if (getDistance("player","target") < 2.5 or getTalent(4,1)) and (UnitBuffID("player",1784) ~= nil or UnitBuffID("player",58984) ~= nil or UnitBuffID("player",1856) ~= nil) and (energy >= 60 or (_ShadowDance and energy >= 40)) and getFacing("player","target") == true and getFacing("target","player") == false then
+	  	if castSpell("target",_Ambush,false,false,false,false,false,true) then return true; end
 	end
 
 
@@ -123,18 +123,18 @@ castSpell("player",_FanOfKnives,true    ,false)]]
 		end		
 
 		-- Master of Subtlety
-		if getBuffRemain("player",31665) < 2 and (stealthTimer == nil or stealthTimer <= GetTime() - 2) then
+		if isBoss() and getBuffRemain("player",31665) < 2 and (stealthTimer == nil or stealthTimer <= GetTime() - 2) then
 			if isChecked("Shadow Dance") == true and castSpell("player",_ShadowDance) then stealthTimer = GetTime(); return; end
 			if isChecked("Vanish") == true and castSpell("player",_Vanish) then stealthTimer = GetTime(); return; end
 			if isChecked("Shadowmeld") == true and castSpell("player",_Shadowmeld) then stealthTimer = GetTime(); return; end
 		end
 		-- Preparation
-		if getSpellCD(_Vanish) > 0 then
+		if isBoss() and getSpellCD(_Vanish) > 0 then
 			if isChecked("Preparation") == true and castSpell("player",_Preparation,true,false) then return; end
 		end
 
 		-- ShadowBlades
-		if isChecked("Shadow Blades") == true and castSpell("player",_ShadowBlades,true,false) then return; end
+		--if isChecked("Shadow Blades") == true and castSpell("player",_ShadowBlades,true,false) then return; end
 
 		-- Kick
 		if isChecked("Kick") == true then

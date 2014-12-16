@@ -5,7 +5,7 @@ if select(3, UnitClass("player")) == 6 then
       FrostToggles();
       currentConfig = "Frost Chumii";
     end
-    --------------
+--------------
 --- Locals ---
 --------------
     if leftCombat == nil then leftCombat = GetTime() end
@@ -28,6 +28,10 @@ if select(3, UnitClass("player")) == 6 then
     local thp = getHP("target")
     local ttd = getTimeToDie("target")
     -- Specific Player Variables
+    local dRunes = getRunes("death")
+    local bRunes = getRunes("blood")
+    local fRunes = getRunes("frost")
+    local uRunes = getRunes("unholy")
     local rRemain = getBuffRemain("player",_Rime)
     --Specific Target Variables
     local ffRemain = getDebuffRemain("target",_FrostFever,"player")
@@ -108,22 +112,33 @@ if select(3, UnitClass("player")) == 6 then
   -----------------------------
   --- In Combat - Cooldowns ---
   -----------------------------
-        -- if useCDs() and UnitExists(dynamicTarget(5,true)) then
-
-        -- end
+        if useCDs() and UnitExists(dynamicTarget(5,true)) then
+      --Empower Rune Weapon
+          if ttd<=60 and getBuffRemain()
+        end
   ------------------------------------------
   --- In Combat Rotation ---
   ------------------------------------------
+      --Pillar of Frost
+        if fRune>=1 then
+          if castSpell("player",_PillarOfFrost,true,false,false) then return end
+        end
+
+
+
+
+
+
       --Frost Fever
-        if ffRemain<3 and (getFrost()>=1 or getDeath()>=1) then
-          if castSpell("target",_HowlingBlast,true,false,false) then return end
+        if ffRemain<3 and (fRunes>=1 or dRunes>=1) then
+          if castSpell(dynamicTarget(5,true),_HowlingBlast,true,false,false) then return end
         end
       --Blood Plague
-        if bpRemain<3 and (getUnholy()>=1 or getDeath()>=1) then
+        if bpRemain<3 and (uRunes>=1 or dRunes>=1) then
           if castSpell("target",_PlagueStrike,true,false,false) then return end
         end
       --Obliterate
-        if (getFrost()==2 or getDeath()==2) and (getUnholy()==2 or getDeath()==2) then
+        if (fRunes==2 or dRunes==2) and (uRunes==2 or dRunes==2) then
           if level<58 then
             if castSpell("target",_HowlingBlast,true,false,false) then return end
           else
@@ -139,7 +154,7 @@ if select(3, UnitClass("player")) == 6 then
           if castSpell("target",_HowlingBlast,true,false,false) then return end
         end
       --Plague Leech
-        if bpRemain>0 and ffRemain>0 and getFrost()<2 and getUnholy()<2 then
+        if bpRemain>0 and ffRemain>0 and fRunes<2 and uRunes<2 then
           if castSpell("player",_PlagueLeech,true,false,false) then return end
         end
       end --In Combat End
