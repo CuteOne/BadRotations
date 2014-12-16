@@ -137,12 +137,15 @@ if select(3,UnitClass("player")) == 2 then
 			end
 		end
 
-		function ProtPaladinBuffs() -- Make sure that we are buffed, 2 modes, inCombat and Out Of Combat, Blessings, RF, -- ProtPaladinBuffs()
+		function ProtPaladinBuffs()
+		-- Make sure that we are buffed, 2 modes, inCombat and Out Of Combat, Blessings, RF
 			-- Righteous Fury
 			if castRighteousFury() then
 				return true
 			end
 			-- Blessings Logic here, incombat mode, self check or party/raid check
+			-- Cast selected blessing or auto
+			castBlessing()
 			-- Seal Logic here, wait for emp seal logic to settle.
 			-- Food checks, flask, etc
 
@@ -207,19 +210,8 @@ if select(3,UnitClass("player")) == 2 then
 				end
 			end
 
-			local strike = strike -- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
-			if BadBoy_data["AoE"] == 2 or (BadBoy_data["AoE"] == 3 and numberOfTargetsForHammerOfRighteous > 2) or keyPressAoE then  --If Toggle to 2(AoE) or 3(Auto and more then 2 targets, its actually 4 but its just simplier to do aoe
-				strike = _HammerOfTheRighteous
-			else
-				strike = _CrusaderStrike
-			end
-
-			-- Cast Crusader for Single and Hammer of Right if aoe
-			if isInMelee(dynamicUnit.dyn5) and canCast(_CrusaderStrike) then
-				if castSpell(dynamicUnit.dyn5,strike,false,false) then
-					return
-				end
-			end
+			-- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
+			castStrike()
 
 			-- wait,sec=cooldown.crusader_strike.remains,if=cooldown.crusader_strike.remains>0&cooldown.crusader_strike.remains<=0.35
 

@@ -99,12 +99,18 @@ end
 -- returns prefered target for diferent spells
 function dynamicTarget(range,facing)
 	if getOptionCheck("Dynamic Targetting") then
+		local bestUnitCoef = 0
+		local bestUnit = "target"
 		for i = 1, #enemiesTable do
 			local thisUnit = enemiesTable[i]
 			if thisUnit.isCC == false and thisUnit.distance < range and (facing == false or thisUnit.facing == true) then
-				return thisUnit.unit
+				if thisUnit.coeficient >= bestUnitCoef then
+					bestUnitCoef = thisUnit.coeficient
+					bestUnit = thisUnit.unit
+				end
 			end
 		end
+		return bestUnit
 	else
 		return "target"
 	end
@@ -268,12 +274,13 @@ function getUnitCoeficient(unit,distance,threat,burnValue,safeStatus)
 			end
 		end
 
+		-- if its our actual target we give it a bonus
+		if UnitIsUnit("target",unit) == true then
+			coef = coef + 1
+		end
+
 		-- if wise target checked, we look for best target by looking to the lowest or highest hp, otherwise we look for target
-		if getOptionCheck("Wise Target") ~= true then
-			-- if its our actual target we give it a bonus
-			if UnitIsUnit("target",unit) == true then
-				coef = 100
-			end
+		if getOptionCheck("Wise Target") == true then
 			if getOptionValue("Wise Target") == 1 then
 				-- if highest is selected
 				coef = unitHP

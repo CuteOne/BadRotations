@@ -116,6 +116,19 @@ if select(3,UnitClass("player")) == 2 then
 		return false
 	end
 
+	function castStrike()
+		local strike = strike
+		if BadBoy_data["AoE"] == 2 or (BadBoy_data["AoE"] == 3 and numberOfTargetsForHammerOfRighteous > 2) or keyPressAoE then  --If Toggle to 2(AoE) or 3(Auto and more then 2 targets, its actually 4 but its just simplier to do aoe
+			strike = _HammerOfTheRighteous
+		else
+			strike = _CrusaderStrike
+		end
+		-- Cast Crusader for Single and Hammer of Right if aoe
+		if castSpell(dynamicUnit.dyn5,strike,false,false) then
+			return
+		end
+	end
+
 	function castCrusaderStrike()
 		if castSpell(dynamicUnit.dyn5,_CrusaderStrike,false,false) then
 			return
@@ -221,6 +234,29 @@ if select(3,UnitClass("player")) == 2 then
 				  -- holy_avenger,if=holy_power<=2&!talent.seraphim.enabled
 				  or (not isKnown(_Seraphim) and holypower <= 2) then
 					if castSpell("player",_HolyAvenger,true,false) then
+						return true
+					end
+				end
+			end
+		end
+		return false
+	end
+
+	function castHolyPrism(unit)
+		if unit then
+			if castSpell(unit, _HolyPrism, true, false) then
+				return true
+			end
+		end
+		-- Cast on enemies first
+		if getValue("Holy Prism Mode") == 2 or 3 then
+			if castWiseAoEHeal(enemiesTable,_HolyPrism,15,95,1,5,false) then
+				return true
+			end
+		else
+			for i = 1, #nNova do
+				if nNova[i].hp <= getValue("Holy Prism") then
+					if castSpell(nNova[i].unit,_HolyPrism,true, false) then
 						return true
 					end
 				end

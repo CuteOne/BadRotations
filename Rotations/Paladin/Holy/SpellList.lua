@@ -52,29 +52,6 @@ if select(3,UnitClass("player")) == 2 then
 		end
 	end
 
-	function castHolyPrism(unit)
-		if unit then
-			if castSpell(unit, _HolyPrism, true, false) then
-				return true
-			end
-		end
-		-- Cast on enemies first
-		if getValue("Holy Prism Mode") == 2 or 3 then
-			if castWiseAoEHeal(enemiesTable,_HolyPrism,15,95,1,5,false) then
-				return true
-			end
-		else
-			for i = 1, #nNova do
-				if nNova[i].hp <= getValue("Holy Prism") then
-					if castSpell(nNova[i].unit,_HolyPrism,true, false) then
-						return true
-					end
-				end
-			end
-		end
-		return false
-	end
-
 	-- Flash of light(Selfless Healer)
 	function castSelfLessHealer(health)
 		if getBuffStacks("player",114250) == 3 then

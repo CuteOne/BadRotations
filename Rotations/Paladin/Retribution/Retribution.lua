@@ -71,7 +71,8 @@ if select(3, UnitClass("player")) == 2 then
 		return false
 	end
 
-	Blessings()
+	-- Cast selected blessing or auto
+	castBlessing()
 
 	-- OFF-GCD here we add the spells we want to be spamming all the time
 	if UnitAffectingCombat("player") then
@@ -188,7 +189,7 @@ if select(3, UnitClass("player")) == 2 then
 				castTemplarsVerdict()
 			end
 			-- crusader_strike
-			castCrusaderStrike(dynamicUnit.dyn5)
+			castStrike()
 			-- divine_storm,if=buff.divine_crusader.react&(buff.avenging_wrath.up|target.health.pct<35)&!talent.final_verdict.enabled
 			if buffDivineCrusader > 0 and (buffAvengingWrath > 0 or getHP(dynamicUnit.dyn5) < 35) and not talentFinalVerdict then
 				castDivineStorm()
@@ -274,7 +275,7 @@ if select(3, UnitClass("player")) == 2 then
 				castDivineStorm()
 			end
 			-- crusader_strike
-			castCrusaderStrike(dynamicUnit.dyn5)
+			castStrike()
 			-- divine_storm,if=holy_power>=3&(!talent.seraphim.enabled|cooldown.seraphim.remains>7)&!talent.final_verdict.enabled
 			if _HolyPower >= 3 and (not talentSeraphim or cdSeraphim > 7) and not talentFinalVerdict then
 				castDivineStorm()
@@ -313,7 +314,7 @@ if select(3, UnitClass("player")) == 2 then
 			-- hammer_of_wrath
 			castHammerOfWrathMulti()
 			-- hammer_of_the_righteous
-			castHammerOfTheRighteous(dynamicUnit.dyn5)
+			castStrike()
 			-- judgment,if=talent.empowered_seals.enabled&seal.righteousness&buff.liadrins_righteousness.remains<=5
 			if talentEmpoweredSeal then
 				if sealOfRighteousness and buffLiadrinsRighteousness <= 5 then

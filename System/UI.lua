@@ -321,46 +321,11 @@ function BadBoyFrame()
 		local modeValue
 		if BadBoy_data[tostring(Name)] == nil then BadBoy_data[tostring(Name)] = 1 modeValue = 1 else modeValue = BadBoy_data[tostring(Name)] end
 
-		_G["button"..Name]:SetScript("OnClick", function()
-			if BadBoy_data[tostring(Name)] == 0 or BadBoy_data[tostring(Name)] == nil then BadBoy_data[tostring(Name)] = 1 end
-			for i = 1, #_G[Name.."Modes"] do
-				if BadBoy_data[tostring(Name)] == i then
-		        	local function ResetTip()
-		        		GameTooltip:SetOwner(_G["button"..Name], mainButton, 0 , 0)
-						GameTooltip:SetText(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].tip, 225/255, 225/255, 225/255, nil, true)
-						GameTooltip:Show()
-					end
-					local Icon
-					if #_G[Name.."Modes"] > i then
-						newI = i + 1
-			    		BadBoy_data[tostring(Name)] = newI
-						_G["text"..Name]:SetText(_G[Name.."Modes"][newI].mode)
-						if type(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon) == "number" then Icon = select(3,GetSpellInfo(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon)) else Icon = _G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon end
-						_G["button"..Name]:SetNormalTexture(Icon or emptyIcon)
-						if _G[Name.."Modes"][newI].highlight == 0 then
-							_G["frame"..Name].texture:SetTexture(genericIconOff)
-						else
-							_G["frame"..Name].texture:SetTexture(genericIconOn)
-						end
-
-		        		ChatOverlay("\124cFF3BB0FF".._G[Name.."Modes"][newI].overlay)
-		        		ResetTip()
-		        		break
-		        	else
-		        		BadBoy_data[tostring(Name)] = 1
-						_G["text"..Name]:SetText(_G[Name.."Modes"][1].mode)
-						if type(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon) == "number" then Icon = select(3,GetSpellInfo(_G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon)) else Icon = _G[Name.."Modes"][BadBoy_data[tostring(Name)]].icon end
-						_G["button"..Name]:SetNormalTexture(Icon or emptyIcon)
-						if _G[Name.."Modes"][1].highlight == 0 then
-							_G["frame"..Name].texture:SetTexture(genericIconOff)
-						else
-							_G["frame"..Name].texture:SetTexture(genericIconOn)
-						end
-		        		ChatOverlay("\124cFF3BB0FF".._G[Name.."Modes"][1].overlay)
-		        		ResetTip()
-		        	end
-		        	break;
-		        end
+		_G["button"..Name]:SetScript("OnClick", function(self, button)
+			if button == "RightButton" then
+				ToggleMinus(Name)
+			else
+				ToggleValue(Name)
 			end
 		end )
 		local actualTip = _G[Name.."Modes"][BadBoy_data[Name]].tip

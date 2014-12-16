@@ -46,11 +46,18 @@ if select(3,UnitClass("player")) == 2 then
 			CreateNewText(thisConfig,"Holy Prism")
 		end
 
+		-- Holy Avenger
 		if isKnown(_HolyAvenger) then
-			-- Holy Avenger
 			CreateNewCheck(thisConfig,"Holy Avenger")
 			CreateNewDrop(thisConfig,"Holy Avenger",1,"CD")
 			CreateNewText(thisConfig,"Holy Avenger")
+		end
+
+		-- Seraphim
+		if isKnown(_Seraphim) then
+			CreateNewCheck(thisConfig,"Seraphim")
+			CreateNewDrop(thisConfig,"Seraphim",1,"CD")
+			CreateNewText(thisConfig,"Seraphim")
 		end
 
 		-- Wrapper

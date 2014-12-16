@@ -20,7 +20,11 @@ function createWrapper(parent,value,x,y,wrapperRank)
         -- texture part
         _G[parent..value.."Wrapper"].texture = _G[parent..value.."Wrapper"]:CreateTexture(_G[parent..value.."Texture"],"ARTWORK",_G[parent..value.."Frame"])
         _G[parent..value.."Wrapper"].texture:SetAllPoints()
-        _G[parent..value.."Wrapper"].texture:SetTexture(60/255,60/255,60/255,BadBoy_data.BadBoyUI.optionsFrame.color.a)
+        if BadBoy_data.options[GetSpecialization()][value.."Wrapper"] == true then
+            _G[parent..value.."Wrapper"].texture:SetTexture(100/255,100/255,100/255,BadBoy_data.BadBoyUI.optionsFrame.color.a)
+        else
+            _G[parent..value.."Wrapper"].texture:SetTexture(60/255,60/255,60/255,BadBoy_data.BadBoyUI.optionsFrame.color.a)
+        end
         _G[parent..value.."Wrapper"].texture:SetBlendMode("BLEND")
         _G[parent..value.."Wrapper"].texture:SetWidth(257*scale)
         _G[parent..value.."Wrapper"].texture:SetHeight(22*scale)
@@ -38,11 +42,15 @@ function createWrapper(parent,value,x,y,wrapperRank)
         end)
         -- hover event
         _G[parent..value.."Wrapper"]:SetScript("OnEnter",function(self)
-            _G[parent..value.."Wrapper"].texture:SetTexture(100/255,100/255,100/255,BadBoy_data.BadBoyUI.optionsFrame.color.a)
+            _G[parent..value.."Wrapper"].texture:SetTexture(200/255,200/255,200/255,BadBoy_data.BadBoyUI.optionsFrame.color.a)
         end)
         -- leave event
         _G[parent..value.."Wrapper"]:SetScript("OnLeave",function(self)
-            _G[parent..value.."Wrapper"].texture:SetTexture(45/255,45/255,45/255,BadBoy_data.BadBoyUI.optionsFrame.color.a)
+            if BadBoy_data.options[GetSpecialization()][value.."Wrapper"] == true then
+                _G[parent..value.."Wrapper"].texture:SetTexture(100/255,100/255,100/255,BadBoy_data.BadBoyUI.optionsFrame.color.a)
+            else
+                _G[parent..value.."Wrapper"].texture:SetTexture(60/255,60/255,60/255,BadBoy_data.BadBoyUI.optionsFrame.color.a)
+            end
         end)
         -- text frame
         _G[parent..value.."Text"] = _G[parent..value.."Wrapper"]:CreateFontString(_G[parent..value.."Text"],"ARTWORK")
