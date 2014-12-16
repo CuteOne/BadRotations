@@ -392,13 +392,17 @@ if select(3,UnitClass("player")) == 2 then
 
 
 	function castSealOfTruth()
-		CastShapeshiftForm(1)
-		return true
+		--CastShapeshiftForm(1)
+		if castSpell("player",_SealOfThruth,true,false) then
+			return
+		end
 	end
 
 	function castSealOfRigtheousness()
-		CastShapeshiftForm(2)
-		return true
+		--CastShapeshiftForm(2)
+		if castSpell("player",_SealOfRighteousness,true,false) then
+			return
+		end
 	end
 
 

@@ -49,6 +49,21 @@ if select(3, UnitClass("player")) == 2 then
 	local talentFinalVerdict = isKnown(_FinalVerdict)
 	local talentSeraphim = isKnown(_Seraphim)
 
+	-- this is to get judgment spell cd duration, we query GetSpellCooldown but since its returning 1
+	-- when spells are on cd, we will take out bad values trough this funtion
+	local cdCheckJudgment = select(2,GetSpellCooldown(_Judgment))
+	-- the first time before the very first judgment we will take into account 4.5s
+	if cdDurationJudgment == nil then
+		cdDurationJudgment = 4.5
+	end
+	-- after first judgment we begin to store the variable we need and overwrite it each time it changes
+	if cdCheckJudgment ~= nil and cdCheckJudgment > 2 and cdCheckJudgment ~= cdDurationJudgment then
+		cdDurationJudgment = cdCheckJudgment
+	end
+
+	local cdJudgment = getSpellCD(_Judgment)
+
+
 	-- Food/Invis Check
 	-- Gabbz:Hm here we are checking if we should abort the rotation pulse due to if we are a vehicle or some stuff
 	-- CML:Can find this function atop general funcs
@@ -150,9 +165,9 @@ if select(3, UnitClass("player")) == 2 then
 			-- judgment,if=talent.empowered_seals.enabled&((seal.truth&buff.maraads_truth.remains<cooldown.judgment.duration*2)
 			if talentEmpoweredSeal then
 				if buffLiadrinsRighteousness < 8 then
-					if (sealOfTruth and buffMaraadsTruth < getSpellCD(_Judgment) + 5)
+					if (sealOfTruth and buffMaraadsTruth < cdDurationJudgment*2)
 					  -- |(seal.righteousness&buff.liadrins_righteousness.remains<cooldown.judgment.duration*2))
-					  or (sealOfRighteousness and buffLiadrinsRighteousness < getSpellCD(_Judgment) + 5) then
+					  or (sealOfRighteousness and buffLiadrinsRighteousness < cdDurationJudgment*2) then
 					  	castJudgement()
 					end
 				end
@@ -160,12 +175,6 @@ if select(3, UnitClass("player")) == 2 then
 			-- exorcism,if=buff.blazing_contempt.up&holy_power<=2&buff.holy_avenger.down
 			if UnitBuffID("player",_BlazingContemp) and HolyPower <= 2 then
 				castExorcism(dynamicUnit.dyn30)
-			end
-			-- seal_of_truth,if=talent.empowered_seals.enabled&buff.maraads_truth.remains<(cooldown.judgment.duration)&buff.maraads_truth.remains<=3
-			if talentEmpoweredSeal then
-				if buffMaraadsTruth < getSpellCD(_Judgment) and buffMaraadsTruth <= 3 then
-					castSealOfTruth()
-				end
 			end
 			-- divine_storm,if=buff.divine_crusader.react&buff.final_verdict.up&(buff.avenging_wrath.up|target.health.pct<35)
 			if _DivineCrusader > 0 and buffFinalVerdict > 0 and (buffAvengingWrath or getHP(dynamicUnit.dyn5) < 35) then
@@ -193,9 +202,15 @@ if select(3, UnitClass("player")) == 2 then
 			if talentFinalVerdict then
 				castTemplarsVerdict()
 			end
+			-- seal_of_truth,if=talent.empowered_seals.enabled&buff.maraads_truth.remains<(cooldown.judgment.duration)&buff.maraads_truth.remains<=3
+			if talentEmpoweredSeal then
+				if buffMaraadsTruth < cdDurationJudgment and cdJudgment <= 3 then
+					castSealOfTruth()
+				end
+			end
 			-- seal_of_righteousness,if=talent.empowered_seals.enabled&buff.liadrins_righteousness.remains<(cooldown.judgment.duration)&buff.liadrins_righteousness.remains<=3
 			if talentEmpoweredSeal then
-				if buffLiadrinsRighteousness < getSpellCD(_Judgment) and buffLiadrinsRighteousness <= 3 then
+				if buffLiadrinsRighteousness < cdDurationJudgment and cdJudgment <= 3 then
 					castSealOfRigtheousness()
 				end
 			end
