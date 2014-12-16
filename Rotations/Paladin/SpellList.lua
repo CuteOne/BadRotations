@@ -101,13 +101,13 @@ if select(3,UnitClass("player")) == 2 then
 
 	-- Avenging Wrath
 	function castAvengingWrath()
-		if isSelected("Holy Avenger") and canCast(_HolyAvenger) then
+		if isSelected("Avenging Wrath") and canCast(_AvengingWrath) then
 			if (isDummy(dynamicUnit.dyn5) or (UnitHealth(dynamicUnit.dyn5) >= 400*UnitHealthMax("player")/100)) then
 				-- avenging_wrath,sync=seraphim,if=talent.seraphim.enabled
 				if (isKnown(_Seraphim) and UnitBuffID("player",_Seraphim) )
 				  -- avenging_wrath,if=!talent.seraphim.enabled
 				  or not isKnown(_Seraphim) then
-					if castSpell("player",_HolyAvenger,true,false) then
+					if castSpell("player",_AvengingWrath,true,false) then
 						return true
 					end
 				end
@@ -145,10 +145,84 @@ if select(3,UnitClass("player")) == 2 then
 
 	-- Todo : Execution sentence make sure we cast on a unit with as much HP as possible
 	function castExecutionSentence(unit)
-		if isSelected("Execution Sentence") and canCast(_ExecutionSentence) then
+		if isSelected("Execution Sentence") then
 			if (isDummy(dynamicUnit.dyn40) or (UnitHealth(dynamicUnit.dyn40) >= 400*UnitHealthMax("player")/100)) then
 				if castSpell(dynamicUnit.dyn40,_ExecutionSentence,false,false) then
 					return true
+				end
+			end
+		end
+		return false
+	end
+
+	function castHammerOfJustice(unit)
+		-- We check if we have the talent
+		return false
+	end
+
+	function castHammerOfTheRighteous()
+		if castSpell(dynamicUnit.dyn5,_HammerOfTheRighteous,false,false) then
+			return
+		end
+	end
+
+	function castHammerOfWrath(thisUnit,hpHammerOfWrath,buffAvengingWrath)
+		if canCast(_HammerOfWrath) and getLineOfSight("player",thisUnit.unit) and thisUnit.distance <= 30
+		  and (buffAvengingWrath or thisUnit.hp <= hpHammerOfWrath ) then
+			if castSpell(thisUnit.unit,_HammerOfWrath,false,false) then
+				return
+			end
+		end
+	end
+	function castHammerOfWrathMulti()
+		local hpHammerOfWrath = 20
+		local buffAvengingWrath = getBuffRemain("player",_AvengingWrath)
+		-- if empowered hammer of wrath, we need to get value for HoW hp at 35%
+		if isKnown(157496) then
+			hpHammerOfWrath = 35
+		end
+		for i = 1, #enemiesTable do
+			-- define thisUnit
+			local thisUnit = enemiesTable[i]
+			castHammerOfWrath(thisUnit,hpHammerOfWrath,buffAvengingWrath)
+		end
+	end
+
+
+	function castHandOfFreedom(unit)
+		if canCast(_HandOfFreedom) then
+			if castSpell(unit,_HandOfFreedom,true) then
+				return true
+			end
+		end
+		return false
+	end
+
+	function castHandOfSacrifice()
+	-- Todo: We should add glyph check or health check, at the moment we assume the glyph
+	-- Todo:  We should be able to config who to use as candidate, other tank, healer, based on debuffs etc.
+	-- Todo: add check if target already have sacrifice buff
+	-- Todo Is the talent handle correctly? 2 charges? CD starts but u have 2 charges
+	-- This is returning false since its not proper designed yet. We need to have a list of scenarios when we should cast sacrifice, off tanking, dangerous debuffs/dots or high spike damage on someone.
+		return false
+	end
+
+	function castHandOfSalvation(unit)
+		-- This is not coded properly yet, we need a threat list to see how has threat, then we need to make sure to handle tank switching etc.
+		return false
+	end
+
+	-- Holy Avenger(Ret)
+	function castHolyAvenger(holypower)
+		if isSelected("Holy Avenger") then
+			if (isDummy(dynamicUnit.dyn5) or (UnitHealth(dynamicUnit.dyn5) >= 400*UnitHealthMax("player")/100)) then
+				-- holy_avenger,sync=seraphim,if=talent.seraphim.enabled
+				if (isKnown(_Seraphim) and UnitBuffID("player",_Seraphim))
+				  -- holy_avenger,if=holy_power<=2&!talent.seraphim.enabled
+				  or (not isKnown(_Seraphim) and holypower <= 2) then
+					if castSpell("player",_HolyAvenger,true,false) then
+						return true
+					end
 				end
 			end
 		end
@@ -179,88 +253,6 @@ if select(3,UnitClass("player")) == 2 then
 		if canCast(_Judgment) and getDistance("player", unit) <= 30 then
 			if castSpell(unit,_Judgment,true,false) then
 				return true
-			end
-		end
-		return false
-	end
-
-	function castHammerOfJustice(unit)
-		-- We check if we have the talent
-		return false
-	end
-
-	function castHammerOfTheRighteous()
-		if castSpell(dynamicUnit.dyn5,_HammerOfTheRighteous,false,false) then
-			return
-		end
-	end
-
-	function castHammerOfWrath(unit)
-		local hpHammerOfWrath = 20
-		-- if empowered hammer of wrath, we need to get value for HoW hp at 35%
-		if isKnown(157496) then
-			hpHammerOfWrath = 35
-		end
-		if canCast(_HammerOfWrath) and getLineOfSight("player",unit) and getDistance("player",unit) <= 30 and getHP(unit) <= hpHammerOfWrath then
-			if castSpell(unit,_HammerOfWrath,false,false) then
-				return true
-			end
-		end
-		return false
-	end
-	function castMultiHammerOfWrath()
-		local hpHammerOfWrath = 20
-		-- if empowered hammer of wrath, we need to get value for HoW hp at 35%
-		if isKnown(157496) then
-			hpHammerOfWrath = 35
-		end
-		for i = 1, #enemiesTable do
-			-- define thisUnit
-			local thisUnit = enemiesTable[i]
-			if (thisUnit.hp and (thisUnit.hp <= hpHammerOfWrath) or getBuffRemain("player",_AvengingWrath) > 0) and getFacing("player",thisUnit.unit) == true then
-				if castSpell(thisUnit.unit,_HammerOfWrath,false,false) then
-					return
-				end
-			end
-		end
-	end
-
-
-	function castHandOfFreedom(unit)
-		if canCast(_HandOfFreedom) then
-			if castSpell(unit,_HandOfFreedom,true) then
-				return true
-			end
-		end
-		return false
-	end
-
-	function castHandOfSacrifice()
-	-- Todo: We should add glyph check or health check, at the moment we assume the glyph
-	-- Todo:  We should be able to config who to use as candidate, other tank, healer, based on debuffs etc.
-	-- Todo: add check if target already have sacrifice buff
-	-- Todo Is the talent handle correctly? 2 charges? CD starts but u have 2 charges
-	-- This is returning false since its not proper designed yet. We need to have a list of scenarios when we should cast sacrifice, off tanking, dangerous debuffs/dots or high spike damage on someone.
-		return false
-	end
-
-	function castHandOfSalvation(unit)
-		-- This is not coded properly yet, we need a threat list to see how has threat, then we need to make sure to handle tank switching etc.
-		return false
-	end
-
-	-- Holy Avenger(Ret)
-	function castHolyAvenger(holypower)
-		if isSelected("Holy Avenger") and canCast(_HolyAvenger) then
-			if (isDummy(dynamicUnit.dyn5) or (UnitHealth(dynamicUnit.dyn5) >= 400*UnitHealthMax("player")/100)) then
-				-- holy_avenger,sync=seraphim,if=talent.seraphim.enabled
-				if (isKnown(_Seraphim) and UnitBuffID("player",_Seraphim))
-				  -- holy_avenger,if=holy_power<=2&!talent.seraphim.enabled
-				  or (not isKnown(_Seraphim) and holypower <= 2) then
-					if castSpell("player",_HolyAvenger,true,false) then
-						return true
-					end
-				end
 			end
 		end
 		return false
@@ -342,7 +334,7 @@ if select(3,UnitClass("player")) == 2 then
 	end
 
 	function castLightsHammer(unit)
-		if isChecked("Light's Hammer") then
+		if isSelected("Light's Hammer") then
 			if getGround(unit) and not isMoving(unit) and UnitExists(unit) and ((isDummy(unit) or getDistance(unit,"targettarget") <= 5)) then
 				if castGround(unit,_LightsHammer,30) then
 					return true

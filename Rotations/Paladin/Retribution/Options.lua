@@ -17,9 +17,9 @@ if select(3,UnitClass("player")) == 2 then
 		generateWrapper("Buffs")
 
 		-- Blessing
-		CreateNewCheck(thisConfig,"Blessing")
-		CreateNewDrop(thisConfig,"Blessing",1,"|cffFFFFFFWich blessing do you want to maintain on raid","|cff0374FEKings","|cffFFBC40Might","|cff00FF0DAuto")
-		CreateNewText(thisConfig,"Blessing")
+		CreateNewCheck(thisConfig,"Blessings")
+		CreateNewDrop(thisConfig,"Blessings",1,"|cffFFFFFFWich blessing do you want to maintain on raid","|cff0374FEKings","|cffFFBC40Might","|cff00FF0DAuto")
+		CreateNewText(thisConfig,"Blessings")
 
 		-- Wrapper
 		generateWrapper("Coooldowns")
@@ -34,6 +34,16 @@ if select(3,UnitClass("player")) == 2 then
 			CreateNewCheck(thisConfig,"Light's Hammer")
 			CreateNewDrop(thisConfig,"Light's Hammer",1,"CD")
 			CreateNewText(thisConfig,"Light's Hammer")
+		elseif isKnown(_ExecutionSentence) then
+			-- Execution sentence
+			CreateNewCheck(thisConfig,"Execution sentence")
+			CreateNewDrop(thisConfig,"Execution sentence",1,"CD")
+			CreateNewText(thisConfig,"Execution sentence")
+		elseif isKnown(_HolyPrism) then
+			-- Execution sentence
+			CreateNewCheck(thisConfig,"Holy Prism")
+			CreateNewDrop(thisConfig,"Holy Prism",1,"CD")
+			CreateNewText(thisConfig,"Holy Prism")
 		end
 
 		if isKnown(_HolyAvenger) then
@@ -41,11 +51,6 @@ if select(3,UnitClass("player")) == 2 then
 			CreateNewCheck(thisConfig,"Holy Avenger")
 			CreateNewDrop(thisConfig,"Holy Avenger",1,"CD")
 			CreateNewText(thisConfig,"Holy Avenger")
-		elseif isKnown(_SanctifiedWrath) then
-			-- Sanctified Wrath
-			CreateNewCheck(thisConfig,"Sanctified Wrath")
-			CreateNewDrop(thisConfig,"Sanctified Wrath",1,"CD")
-			CreateNewText(thisConfig,"Sanctified Wrath")
 		end
 
 		-- Wrapper

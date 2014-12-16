@@ -3,38 +3,45 @@ if select(3,UnitClass("player")) == 2 then
 
 	-- Common blessing selector(all specs)
 	function Blessings()
-		if UnitBuffID("player",144051) ~= nil then
-			return false
-		end
-		local BlessingCount = 0
-		for i = 1, #nNova do
-			local _, MemberClass = select(2,UnitClass(nNova[i].unit))
-			if UnitExists(nNova[i].unit) then
-				if MemberClass ~= nil then
-					if MemberClass == "DRUID" then BlessingCount = BlessingCount + 1 end
-					if MemberClass == "MONK" then BlessingCount = BlessingCount + 1 end
-					if MemberClass == "PALADIN" then BlessingCount = BlessingCount + 50 end
-					if MemberClass == "SHAMAN" then BlessingCount = BlessingCount + 1000 end
-				end
+		-- if ability is selected
+		if isChecked("Blessings") then
+			-- if we just logged or reloaded, we dont want to spam cast it instantly so we define a timer
+			if timerBlessing == nil then
+				timerBlessing = GetTime()
 			end
-		end
-		if BlessingCount > 50 and BlessingCount < 1000 then
-			MyBlessing = _BlessingOfMight
-		else
-			MyBlessing = _BlessingOfKings
-		end
-		if ActiveBlessingsValue == 2 then
-			MyBlessing = _BlessingOfKings
-		elseif ActiveBlessingsValue == 3 then
-			MyBlessing = _BlessingOfMight
-		end
-		if MyBlessing == _BlessingOfMight and not Spells[_BlessingOfMight].known then MyBlessing = _BlessingOfKings end
-		if MyBlessing == _BlessingOfKings and not Spells[_BlessingOfKings].known then BuffTimer = GetTime() + 600 return false end
-		if BuffTimer == nil or BuffTimer < GetTime() then
-			for i=1, #nNova do
-				if not UnitBuffID(nNova[i].unit,MyBlessing) then
-					BuffTimer = GetTime() + random(15,30)
-					if castSpell("player",MyBlessing,true,false) then return end
+			if timerBlessing < GetTime() - 5 then
+				doBlessings = true
+			end
+				-- after timer we find if we have other buffers in group via nNova
+			-- if user selected a specific blessing we do it
+			if doBlessings ~= nil then
+				local modeBlessing = getValue("Blessings")
+				local myBlessing = _BlessingOfKings
+				-- if 3 and king buffer found buff might
+				if modeBlessing == 3 then
+					-- if theres a druide or monk or paladin, we do might.
+					for i = 1, #nNova do
+						local thisUnit = nNova[i]
+						-- i think only these 3 class buff kings
+						local MemberClass = nNova[i].class
+						if not UnitIsUnit("player",thisUnit.unit) and thisUnit.hp < 250 and thisUnit.isPlayer and
+						  (thisUnit.class == "DRUID" or thisUnit.class == "MONK" or thisUnit.class == "PALADIN") then
+							myBlessing = _BlessingOfMight
+							break
+						end
+					end-- 2 selected, buff might, otherwise buff kings
+				elseif modeBlessing == 2 then
+					myBlessing = _BlessingOfMight
+				end
+				for i = 1,#nNova do
+					local thisUnit = nNova[i]
+					if thisUnit.hp < 250 and thisUnit.isPlayer and not UnitBuffID(thisUnit.unit,myBlessing) then
+						if castSpell("player",myBlessing,true,false) then
+							timerBlessing = GetTime() + random(10,20)
+							doBlessings = nil
+							return
+						end
+					end
 				end
 			end
 		end

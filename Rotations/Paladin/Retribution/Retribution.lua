@@ -71,6 +71,8 @@ if select(3, UnitClass("player")) == 2 then
 		return false
 	end
 
+	Blessings()
+
 	-- OFF-GCD here we add the spells we want to be spamming all the time
 	if UnitAffectingCombat("player") then
 		-- Rebuke
@@ -115,19 +117,12 @@ if select(3, UnitClass("player")) == 2 then
 
 		-- execution_sentence
 		castExecutionSentence(dynamicUnit.dyn40)
-
 		-- lights_hammer
-		if modeCooldown == 3 or (modeCooldown == 2 and isChecked("Light's Hammer")) then
-			castLightsHammer(dynamicUnit.dyn30AoE)
-		end
+		castLightsHammer(dynamicUnit.dyn30AoE)
 		-- Holy Avenger
-		if modeCooldown == 3 or (modeCooldown == 2 and isChecked("Holy Avenger")) then
-			castHolyAvenger(_HolyPower)
-		end
+		castHolyAvenger(_HolyPower)
 		-- Avenging Wrath
-		if modeCooldown == 3 or (modeCooldown == 2 and isChecked("Avenging Wrath")) then
-			castAvengingWrath()
-		end
+		castAvengingWrath()
 		-- seraphim
 		castSeraphim(_HolyPower)
 		--[[Single(1-2)]]
@@ -161,7 +156,7 @@ if select(3, UnitClass("player")) == 2 then
 			  	castTemplarsVerdict()
 			end
 			-- hammer_of_wrath
-			castMultiHammerOfWrath()
+			castHammerOfWrathMulti()
 			-- judgment,if=talent.empowered_seals.enabled&((seal.truth&buff.maraads_truth.remains<cooldown.judgment.duration*2)
 			if talentEmpoweredSeal then
 				if (sealOfTruth and buffMaraadsTruth < cdDurationJudgment*2)
@@ -267,7 +262,7 @@ if select(3, UnitClass("player")) == 2 then
 				castExorcism()
 			end
 			-- hammer_of_wrath
-			castMultiHammerOfWrath()
+			castHammerOfWrathMulti()
 			-- judgment,if=talent.empowered_seals.enabled&seal.righteousness&buff.liadrins_righteousness.remains<=5
 			if talentEmpoweredSeal then
 				if sealOfRighteousness and buffLiadrinsRighteousness <= 5 then
@@ -316,7 +311,7 @@ if select(3, UnitClass("player")) == 2 then
 				castExorcism()
 			end
 			-- hammer_of_wrath
-			castMultiHammerOfWrath()
+			castHammerOfWrathMulti()
 			-- hammer_of_the_righteous
 			castHammerOfTheRighteous(dynamicUnit.dyn5)
 			-- judgment,if=talent.empowered_seals.enabled&seal.righteousness&buff.liadrins_righteousness.remains<=5

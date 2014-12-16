@@ -11,6 +11,8 @@ if select(3,UnitClass("player")) == 2 then
 		CreateNewCheck(thisConfig,"LoH Targets")
 		CreateNewDrop(thisConfig,"LoH Targets",1,"|cffFF0000Wich Targets\n|cffFFBB00We want to use \n|cffFFFFFFLay On Hands","|cffFF0000Me.Only","|cffFFDD11Me.Prio","|cff00FBEETank/Heal","|cff00FF00All")
 		CreateNewText(thisConfig,"LoH Targets")
+
+
 	end
 
 

@@ -1937,8 +1937,6 @@ function isSelected(Value)
 	if BadBoy_data["Cooldowns"] == 3 or (isChecked(Value)
 	  and (getValue(Value) == 3 or (getValue(Value) == 2 and BadBoy_data["Cooldowns"] == 2))) then
 		return true
-	else
-		return false
 	end
 end
 

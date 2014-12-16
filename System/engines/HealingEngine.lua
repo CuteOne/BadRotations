@@ -268,6 +268,8 @@ if not metaTable1 then
 			o.target = tostring(o.unit).."target"
 			-- Unit Class
 			o.class = o:GetClass()
+			-- Unit is player
+			o.isPlayer = UnitIsPlayer(o.unit)
 			-- precise unit position
 			if o.refresh == nil or o.refresh < GetTime() - 1 then
 				o.x,o.y,o.z = o:GetPosition()
@@ -285,8 +287,7 @@ if not metaTable1 then
 	-- Setting up the tables on either Wipe or Initial Setup
 	function SetupTables() -- Creating the cache (we use this to check if some1 is already in the table)
 		setmetatable(nNova, metaTable1) -- Set the metaTable of Main to Meta
-		function nNova:Update(MO)
-			local MouseoverCheck = true
+		function nNova:Update()
 			-- This is for special situations, IE world healing or NPC healing in encounters
 			local selectedMode,SpecialTargets = getOptionValue("Special Heal"), {}
 			if getOptionCheck("Special Heal") == true then

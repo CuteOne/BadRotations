@@ -1,6 +1,6 @@
 if select(3,UnitClass("player")) == 2 then
     function PaladinRetToggles()
-        -- Aoe Button
+-- Aoe Button
         if AoEModesLoaded ~= "Ret Pal AoE Modes" then
             AoEModes = {
                 [1] = {
@@ -39,7 +39,7 @@ if select(3,UnitClass("player")) == 2 then
             CreateButton("AoE",0,1)
             AoEModesLoaded = "Ret Pal AoE Modes"
         end
-        -- Interrupts Button
+-- Interrupts Button
         if  InterruptsModesLoaded ~= "Ret Pal Interrupts Modes" then
             InterruptsModes = {
                 [1] = {
@@ -62,8 +62,7 @@ if select(3,UnitClass("player")) == 2 then
             CreateButton("Interrupts",1,0)
             InterruptsModesLoaded = "Ret Pal Interrupts Modes"
         end
-
-        -- Defensive Button
+-- Defensive Button
         if  DefensiveModesLoaded ~= "Ret Pal Defensive Modes" then
             DefensiveModes = {
                 [1] = {
@@ -94,7 +93,7 @@ if select(3,UnitClass("player")) == 2 then
             CreateButton("Defensive",1,1)
             DefensiveModesLoaded = "Ret Pal Defensive Modes"
         end
-        -- Cooldowns Button
+-- Cooldowns Button
         if  CooldownsModesLoaded ~= "Ret Pal Cooldowns Modes" then
             CooldownsModes = {
                 [1] = {
@@ -117,7 +116,7 @@ if select(3,UnitClass("player")) == 2 then
                     mode = "All",
                     value = 3 ,
                     overlay = "Cooldowns Enabled",
-                    tip = "|cffFF0000Cooldowns Included: \n|cffFFDD11Avenging Wrath, \nHoly Avenger, \nLight's Hammer.",
+                    tip = "|cffFF0000Cooldowns Included: \n|cffFFDD11Avenging Wrath, \nHoly Avenger, \nLight's Hammer, \nExecution Sentence.",
                     highlight = 1,
                     icon = 31884
                 }
@@ -125,7 +124,7 @@ if select(3,UnitClass("player")) == 2 then
             CreateButton("Cooldowns",2,0)
             CooldownsModesLoaded = "Ret Pal Cooldowns Modes";
         end
-         -- Healing Button
+-- Healing Button
         if  TrashModesLoaded ~= "Ret Pal Healing Modes" then
             HealingModes = {
                 [1] = {
