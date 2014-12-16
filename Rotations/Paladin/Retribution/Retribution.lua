@@ -164,17 +164,21 @@ if select(3, UnitClass("player")) == 2 then
 			castMultiHammerOfWrath()
 			-- judgment,if=talent.empowered_seals.enabled&((seal.truth&buff.maraads_truth.remains<cooldown.judgment.duration*2)
 			if talentEmpoweredSeal then
-				if buffLiadrinsRighteousness < 8 then
-					if (sealOfTruth and buffMaraadsTruth < cdDurationJudgment*2)
-					  -- |(seal.righteousness&buff.liadrins_righteousness.remains<cooldown.judgment.duration*2))
-					  or (sealOfRighteousness and buffLiadrinsRighteousness < cdDurationJudgment*2) then
-					  	castJudgement()
-					end
+				if (sealOfTruth and buffMaraadsTruth < cdDurationJudgment*2)
+				  -- |(seal.righteousness&buff.liadrins_righteousness.remains<cooldown.judgment.duration*2))
+				  or (sealOfRighteousness and buffLiadrinsRighteousness < cdDurationJudgment*2) then
+				  	castJudgement()
 				end
 			end
 			-- exorcism,if=buff.blazing_contempt.up&holy_power<=2&buff.holy_avenger.down
 			if UnitBuffID("player",_BlazingContemp) and HolyPower <= 2 then
 				castExorcism(dynamicUnit.dyn30)
+			end
+			-- seal_of_truth,if=talent.empowered_seals.enabled&buff.maraads_truth.remains<(cooldown.judgment.duration)&buff.maraads_truth.remains<=3
+			if talentEmpoweredSeal then
+				if buffMaraadsTruth < cdDurationJudgment and cdJudgment <= 3 then
+					castSealOfTruth()
+				end
 			end
 			-- divine_storm,if=buff.divine_crusader.react&buff.final_verdict.up&(buff.avenging_wrath.up|target.health.pct<35)
 			if _DivineCrusader > 0 and buffFinalVerdict > 0 and (buffAvengingWrath or getHP(dynamicUnit.dyn5) < 35) then
@@ -201,12 +205,6 @@ if select(3, UnitClass("player")) == 2 then
 			-- final_verdict
 			if talentFinalVerdict then
 				castTemplarsVerdict()
-			end
-			-- seal_of_truth,if=talent.empowered_seals.enabled&buff.maraads_truth.remains<(cooldown.judgment.duration)&buff.maraads_truth.remains<=3
-			if talentEmpoweredSeal then
-				if buffMaraadsTruth < cdDurationJudgment and cdJudgment <= 3 then
-					castSealOfTruth()
-				end
 			end
 			-- seal_of_righteousness,if=talent.empowered_seals.enabled&buff.liadrins_righteousness.remains<(cooldown.judgment.duration)&buff.liadrins_righteousness.remains<=3
 			if talentEmpoweredSeal then
