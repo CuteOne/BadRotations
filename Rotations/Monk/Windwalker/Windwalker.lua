@@ -48,7 +48,7 @@ if select(3, UnitClass("player")) == 10 then
 		local rskRemain = getDebuffRemain("target",_RaisingSunKick,"player")
 		local fofChanTime = 4-(4*UnitSpellHaste("player")/100)
 		local hsChanTime = 2-(2*UnitSpellHaste("player")/100)
-		local powtime = power+powgen
+		local powtime = (getPower("player")+getRegen("player"))*((1.5/GetHaste("player"))+1)
 		local fofCD = getSpellCD(_FistsOfFury)
 		local zsRemain = getBuffRemain("player",_ZenSphere)
 		local bkcRemain = getBuffRemain("player",_ComboBreakerBlackoutKick)
@@ -393,7 +393,7 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("target",_HurricaneStrike,false,false) then return end
 					end
 	-- Energizing Brew
-					if fofCD>6 and (not getTalent(7,3) or (serRemains==0 and getSpellCD(_Serenity)>4)) and powtime<50 then
+					if fofCD>6 and (not getTalent(7,3) or (serRemain==0 and getSpellCD(_Serenity)>4)) and powtime<50 then
 						if castSpell("player",_EnergizingBrew,false,false) then return end
 					end
 	-- Raising Sun Kick
