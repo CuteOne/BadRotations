@@ -121,7 +121,13 @@ Rotations\Paladin\SpellList.lua
 Rotations\Paladin\Functions.lua
 Rotations\Paladin\Options.lua
 
-Rotations\Druid\Feral.lua
+Rotations\Druid\Feral\Feral.lua
+Rotations\Druid\Feral\Options.lua
+Rotations\Druid\Feral\Functions.lua
+Rotations\Druid\Feral\CuteBar.lua
+Rotations\Druid\Feral\SpellList.lua
+Rotations\Druid\Feral\Toggles.lua
+
 Rotations\Druid\Guardian.lua
 Rotations\Druid\Moonkin.lua
 Rotations\Druid\Restoration.lua
@@ -133,17 +139,23 @@ Rotations\Mage\Fire.lua
 Rotations\Mage\Frost.lua
 Rotations\Monk\Brewmaster.lua
 Rotations\Monk\Mistweaver.lua
-Rotations\Monk\Windwalker.lua
 Rotations\Monk\NewMonk.lua
+
+Rotations\Monk\Windwalker\Windwalker.lua
+Rotations\Monk\Windwalker\Options.lua
+Rotations\Monk\Windwalker\Functions.lua
+Rotations\Monk\Windwalker\SpellList.lua
+Rotations\Monk\Windwalker\Toggles.lua
+
 Rotations\Priest\Discipline.lua
 Rotations\Priest\Holy.lua
 Rotations\Priest\Shadow.lua
 
 Rotations\Rogue\Assassination.lua
-Rotations\Rogue\Assassination\Libs\Functions.lua
-Rotations\Rogue\Assassination\Libs\Options.lua
-Rotations\Rogue\Assassination\Libs\SpellList.lua
-Rotations\Rogue\Assassination\Libs\Toggles.lua
+Rotations\Rogue\Assassination\Functions.lua
+Rotations\Rogue\Assassination\Options.lua
+Rotations\Rogue\Assassination\SpellList.lua
+Rotations\Rogue\Assassination\Toggles.lua
 
 Rotations\Rogue\Combat.lua
 Rotations\Rogue\Subtlety.lua
