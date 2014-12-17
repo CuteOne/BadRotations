@@ -374,7 +374,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- DoT Weaving --
 		-----------------
 			-- if ORBS==5 --> apply DoTs if targetHP>20
-			if isChecked("DoTWeave") and getTalent(3,3) then
+			if getTalent(3,3) then
 				-- function DoTWeaveBreak()
 				-- 	local counter=0
 				-- 	local factor=getValue("Weave Comp")/10
