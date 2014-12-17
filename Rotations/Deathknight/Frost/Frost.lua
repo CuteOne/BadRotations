@@ -79,7 +79,7 @@ if select(3, UnitClass("player")) == 6 then
       if hastar and attacktar and not isInCombat("player") 
         and ((not (IsMounted() or IsFlying() or friendly)) or isDummy()) 
       then
-
+        return
       end
 -----------------
 --- In Combat ---
@@ -114,7 +114,7 @@ if select(3, UnitClass("player")) == 6 then
   -----------------------------
         if useCDs() and UnitExists(dynamicTarget(5,true)) then
       --Empower Rune Weapon
-          if ttd<=60 and getBuffRemain()
+          --if ttd<=60 and getBuffRemain()
         end
   ------------------------------------------
   --- In Combat Rotation ---
