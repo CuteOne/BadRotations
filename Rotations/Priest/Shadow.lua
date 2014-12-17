@@ -14,7 +14,7 @@ if select(3, UnitClass("player")) == 5 then
 			--hasTarget = UnitExists("target")
 			--hasMouse = UnitExists("mouseover")
 			php = getHP("player")
-			thp = getHP("target")
+			-- thp = getHP("target")
 			ORBS = UnitPower("player", SPELL_POWER_SHADOW_ORBS)
 
 			MBCD = getSpellCD(MB)
@@ -38,7 +38,69 @@ if select(3, UnitClass("player")) == 5 then
 				myEnemiesTableTimer = GetTime()
 			end
 
-			-- secondaryTarget = "boss"..getValue("secondaryTarget")
+
+
+			-- Buttons
+			local ButtonDefensive = BadBoy_data['Defensive']
+			local ButtonHalo = 		BadBoy_data['Halo']
+			local ButtonBurn =		BadBoy_data['Burn']
+			local ButtonSingle =	BadBoy_data['Single']
+			local ButtonAoE = 		BadBoy_data['AoE']
+			local ButtonCooldowns =	BadBoy_data['Cooldowns']
+
+			-- Options
+				--isChecked
+					-- Offensive
+					local useBerserking		= isChecked("Berserking")
+					if isKnown(Mindbender) then
+						local useMindbender = isChecked("Mindbender")
+					else
+						local useShadowfiend	= isChecked("Shadowfiend")
+					end
+					local useTrinket1 		= isChecked("Trinket 1")
+					local useTrinket2		= isChecked("Trinket 2")
+					if hasGlyph(GlyphOfSWD) then
+						isChecked("SWD glyphed")
+					end
+					local useScanOrbs		= isChecked("Scan for Orbs")
+					-- Defensive
+					local useShield			= isChecked("PW: Shield")
+					local useHealthstone	= isChecked("Healthstone")
+					if isKnown(DesperatePrayer) then
+						local useDesperatePrayer	= isChecked("Desperate Prayer")
+					end 
+					local useDispersion		= isChecked("Dispersion")
+					if hasGlyph(GlyphOfFade) then
+						local useFadeGlyph	= isChecked("Fade Glyph")
+					end
+					local useFade 			= isChecked("Fade Aggro")
+					-- DoT Weave
+					local useSWP			= isChecked("SWP")
+					local useVT				= isChecked("VT")
+					-- Multidot
+					local useMultiSWP		= isChecked("Multi SWP")
+					local useMultiVT		= isChecked("Multi VT")
+					local useBossSWP		= isChecked("Boss SWP")
+					local useBossVT			= isChecked("Boss VT")
+					-- Utilities
+					local usePWF			= isChecked("PW: Fortitude")
+					local useShadowform		= isChecked("Shadowform Outfight")
+					if isKnown(AngelicFeather) then
+						local useFeather	= isChecked("Angelic Feather")
+					end
+					if isKnown(BodyAndSoul) then
+						local useBodyAndSoul = isChecked("Body And Soul")
+					end
+
+				-- getValue
+					-- Defensive
+					local getPWShield = 	getValue("PW: Shield")
+					local getHealthstone =	getValue("Healthstone")
+					local getDispersion	=	getValue("Dispersion")
+					local getGlyph = 		getValue("Fade Glyph")
+					-- Multidot
+					local getMaxTargets = 	getValue("Max Targets")
+					local getRefreshTime = 	getValue("Refresh Time")
 
 
 		-------------
@@ -84,7 +146,7 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- Power Word: Fortitude
 		if not isInCombat("player") then
-			if isChecked("PW: Fortitude") and (lastPWF == nil or lastPWF <= GetTime() - 5) then
+			if usePWF and (lastPWF == nil or lastPWF <= GetTime() - 5) then
 				for i = 1, #nNova do
 			  		if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{21562,109773,469,90364}) and (UnitInRange(nNova[i].unit) or UnitIsUnit(nNova[i].unit,"player")) then
 			  			if castSpell("player",PWF,true) then lastPWF = GetTime(); return; end
@@ -98,22 +160,24 @@ if select(3, UnitClass("player")) == 5 then
 		---------------------------------------
 
 		-- Shadowform outfight
-		if not UnitBuffID("player",Shadowform) and isChecked("Shadowform Outfight") then
+		if not UnitBuffID("player",Shadowform) and useShadowform then
 			if castSpell("player",Shadowform,true,false) then return; end
 		end
 
 		-- Angelic Feather
-		if isKnown(AngelicFeather) and isChecked("Angelic Feather") and getGround("player") and IsMovingTime(0.2) and not UnitBuffID("player",AngelicFeatherBuff) then
-			if castGround("player",AngelicFeather,30) then
-				SpellStopTargeting();
-				return;
+		if isKnown(AngelicFeather) then 
+			if useFeather and getGround("player") and IsMovingTime(0.2) and not UnitBuffID("player",AngelicFeatherBuff) then
+				if castGround("player",AngelicFeather,30) then
+					SpellStopTargeting();
+					return;
+				end
 			end
 		end
 
 		-- Body and Soul
-		if isKnown(BodyAndSoul) and isChecked("Body And Soul") and getGround("player") and IsMovingTime(0.75) and not UnitBuffID("player",PWS) and not UnitDebuffID("player",PWSDebuff) then
-			if castSpell("player",PWS,true,false) then
-				return;
+		if isKnown(BodyAndSoul) and useBodyAndSoul then
+			if getGround("player") and IsMovingTime(0.75) and not UnitBuffID("player",PWS) and not UnitDebuffID("player",PWSDebuff) then
+				if castSpell("player",PWS,true,false) then return; end
 			end
 		end
 
@@ -160,24 +224,24 @@ if select(3, UnitClass("player")) == 5 then
 			-- end
 			
 			-- Single target
-			if BadBoy_data['AoE'] == 1 then
+			if ButtonAoE == 1 then
 				Execute()
 				LFOrbs()
 				if getHP("target")>20 then
-					if BadBoy_data['Single']==1 then IcySingle() end
-					if BadBoy_data['Single']==2 then IcySingleWeave() end
+					if ButtonSingle ==1 then IcySingle() end
+					if ButtonSingle ==2 then IcySingleWeave() end
 				end
 			end
 
 			-- Dual Target
-			if BadBoy_data['AoE'] == 2 then
+			if ButtonAoE == 2 then
 				Execute()
 				LFOrbs()
 				if getHP("target")>20 then IcyDualTarget() end
 			end
 			
 			-- 3+ Targets
-			if BadBoy_data['AoE'] == 3 then 
+			if ButtonAoE == 3 then 
 				Execute()
 				LFOrbs()
 				if getHP("target")>20 then IcyMultiTarget() end

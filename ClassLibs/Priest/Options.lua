@@ -119,18 +119,18 @@ if select(3, UnitClass("player")) == 5 then
 
 
 			-- Wrapper -----------------------------------------
-			if isKnown(CoP) then
-				CreateNewWrap(thisConfig,"      |cffBA55D3DoT Weave");
-					-- General
-					--CreateNewCheck(thisConfig,"DoTWeave");
-					--CreateNewText(thisConfig,"DoTWeave");
-					-- SWP
-					CreateNewCheck(thisConfig,"SWP");
-					CreateNewText(thisConfig,"SWP");
-					-- VT
-					CreateNewCheck(thisConfig,"VT");
-					CreateNewText(thisConfig,"VT");
-			end
+				if isKnown(CoP) then
+					CreateNewWrap(thisConfig,"      |cffBA55D3DoT Weave");
+						-- General
+						--CreateNewCheck(thisConfig,"DoTWeave");
+						--CreateNewText(thisConfig,"DoTWeave");
+						-- SWP
+						CreateNewCheck(thisConfig,"SWP");
+						CreateNewText(thisConfig,"SWP");
+						-- VT
+						CreateNewCheck(thisConfig,"VT");
+						CreateNewText(thisConfig,"VT");
+				end
 
 
 			-- Wrapper -----------------------------------------
@@ -186,6 +186,7 @@ if select(3, UnitClass("player")) == 5 then
 					--Angelic Feather
 					CreateNewCheck(thisConfig,"Angelic Feather");
 					CreateNewText(thisConfig,"Angelic Feather");
+				end
 				
 				if isKnown(BodyAndSoul) then
 					--Body And Soul
@@ -202,7 +203,6 @@ if select(3, UnitClass("player")) == 5 then
 			-- General Configs ---------------------------------
 			CreateGeneralsConfig();
 			WrapsManager();
-			end
 		end
 	end
 end

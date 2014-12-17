@@ -73,22 +73,6 @@ if select(3, UnitClass("player")) == 5 then
 		return counter
 	end
 
-	-- if i have no target, target the main tank target
-	function noTargetTargetMainTankTarget()
-		-- noTarget
-		if target==nil or isPlayer("target") or UnitIsDeadOrGhost("target") then
-			-- iterate through party
-			for i = 1, #nNova do
-				local thisFriend=nNova[i].unit
-				local isMainTank = GetPartyAssignment("MAINTANK",thisFriend) -- 1 if isMainTank else nil
-				-- target tanks target
-				if isMainTank then
-					RunMacroText("/target " + thisFriend)
-					RunMacroText("/targettarget")
-				end
-			end
-		end
-	end
 	--[[                    ]] -- General Functions end
 
 
@@ -116,6 +100,7 @@ if select(3, UnitClass("player")) == 5 then
 		
 		-- Healthstone
 		if isChecked("Healthstone") and (BadBoy_data['Defensive'] == 2) and php <= getValue("Healthstone") then
+			if canUse(109223) ~= false then UseItemByName(toString(select(1,GetItemInfo(109223)))); end
 			if canUse(5512) ~= false then UseItemByName(tostring(select(1,GetItemInfo(5512))));	end
 		end
 
@@ -136,6 +121,11 @@ if select(3, UnitClass("player")) == 5 then
 
 	--[[                    ]] -- Cooldowns
 	function ShadowCooldowns()
+
+		-- MB on CD
+				if castSpell("target",MB,false,false) then return; end
+
+
 		-- Mindbender
 		if isKnown(Mindbender) and BadBoy_data['Cooldowns'] == 2 and isChecked("Mindbender") then
 			if castSpell("target",Mindbender) then return; end
@@ -232,7 +222,7 @@ if select(3, UnitClass("player")) == 5 then
 				-- end
 				-- local Break=DoTWeaveBreak()
 				-- if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<Break then
-				if ORBS>=4 and getHP("target")>20 and MBCD<2*GCD and getTimeToDie("target")<10*GCD then
+				if ORBS>=4 and MBCD<2*GCD then
 					if isChecked("SWP") then
 						if not UnitDebuffID("target",SWP,"player") then
 							if castSpell("target",SWP,true,false) then return; end
@@ -394,7 +384,7 @@ if select(3, UnitClass("player")) == 5 then
 				-- end
 				-- local Break=DoTWeaveBreak()
 				-- if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<Break then
-				if ORBS>=4 and getHP("target")>20 and MBCD<2*GCD and getTimeToDie("target")<10*GCD then
+				if ORBS>=4 and getHP("target")>20 and MBCD<2*GCD then
 					if isChecked("SWP") then
 						if not UnitDebuffID("target",SWP,"player") then
 							if castSpell("target",SWP,true,false) then return; end
@@ -451,7 +441,7 @@ if select(3, UnitClass("player")) == 5 then
 						local thisUnit = enemiesTable[i].unit
 						local ttd = getTimeToDie(thisUnit)
 						local swpRem = getDebuffRemain(thisUnit,SWP,"player")
-						if isBoss(thisUnit) and swpRem<getValue("Refresh Time") and ttd>9*GCD and not UnitIsUnit("target",thisUnit) then
+						if isBoss(thisUnit) and swpRem<getValue("Refresh Time") and not UnitIsUnit("target",thisUnit) then
 							if castSpell(thisUnit,SWP,true,false) then return; end
 						end
 					end
@@ -462,7 +452,7 @@ if select(3, UnitClass("player")) == 5 then
 						local thisUnit = enemiesTable[i].unit
 						local ttd = getTimeToDie(thisUnit)
 						local vtRem = getDebuffRemain(thisUnit,VT,"player")
-						if isBoss(thisUnit) and vtRem<getValue("Refresh Time") and GetTime()-lastVT>2*GCD and ttd>10*GCD and not UnitIsUnit("target",thisUnit) then
+						if isBoss(thisUnit) and vtRem<getValue("Refresh Time") and GetTime()-lastVT>2*GCD and not UnitIsUnit("target",thisUnit) then
 							if castSpell(thisUnit,VT,true,true) then 
 								lastVT=GetTime()
 								return
