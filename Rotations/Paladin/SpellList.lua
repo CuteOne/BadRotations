@@ -181,7 +181,7 @@ if select(3,UnitClass("player")) == 2 then
 
 	function castHammerOfWrath(thisUnit,hpHammerOfWrath,buffAvengingWrath)
 		if canCast(_HammerOfWrath) and getLineOfSight("player",thisUnit.unit) and thisUnit.distance <= 30
-		  and (buffAvengingWrath or thisUnit.hp <= hpHammerOfWrath ) then
+		  and (buffAvengingWrath or thisUnit.hp <= 20) then
 			if castSpell(thisUnit.unit,_HammerOfWrath,false,false) then
 				return
 			end

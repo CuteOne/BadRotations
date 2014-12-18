@@ -12,9 +12,9 @@ if select(3, UnitClass("player")) == 2 then
 		if IsLeftShiftKeyDown() then -- Pause the script, keybind in wow shift+1 etc for manual cast
 			return true
 		end
-		if IsLeftControlKeyDown() then -- Pause the script, keybind in wow ctrl+1 etc for manual cast
-			return true
-		end
+		--if IsLeftControlKeyDown() then -- Pause the script, keybind in wow ctrl+1 etc for manual cast
+		--	return true
+		--end
 		if IsLeftAltKeyDown() then
 			return true
 		end
@@ -22,37 +22,31 @@ if select(3, UnitClass("player")) == 2 then
 		if canRun() ~= true then
 			return false
 		end
-
+		
 		-- Only run rotation if we or our target is in combat.
 		-- this should be handled by the dynamic target
-		if UnitAffectingCombat("player") then  -- Only start if we and target is in combat, have manual ability to pull mobs and UnitAffectingCombat("target")
-
+		if UnitAffectingCombat("player")  or (not UnitAffectingCombat("player") and IsLeftControlKeyDown() ) then  -- Only start if we and target is in combat or not in combat and pressing left control
 			-- Locals Variables
-			_HolyPower = UnitPower("player", 9)
+			_HolyPower = UnitPower("player", 9) --ToDo: We should normalise the variables name, playerHP, buffDivine etc. _HolyPower is not consistent with the rest.
 			playerHP = getHP("player")
-			meleeEnemies = #getEnemies("player", 5)
 			buffDivineCrusader = getBuffRemain("player",_DivineCrusader)
 			buffHolyAvenger = getBuffRemain("player",_HolyAvenger)
 			buffDivinePurpose = getBuffRemain("player",_DivinePurpose)
+			buffGrandCrusader = getBuffRemain("player",85043) --Todo: Add this to spellist as _GrandCrusader, at the moment i dont know what hte purpose is of the differnt spelllist files
 			buffSeraPhim = getBuffRemain("player",_Seraphim)
 			sealOfTruth = GetShapeshiftForm() == 1 or nil
 			sealOfRighteousness = GetShapeshiftForm() == 2 or nil
 			sealOfInsight = GetShapeshiftForm() == 3 or nil
-			dynamicUnit = {
-				dyn5 = dynamicTarget(5,true),
-				dyn5AoE = dynamicTarget(5,false),
-				dyn8AoE = dynamicTarget(8,false),
-				dyn30 = dynamicTarget(30,true),
-				dyn30AoE = dynamicTarget(30,false),
-			}
-
+			
+			
 			-- Auto attack
 			if startAttackTimer == nil or startAttackTimer <= GetTime() - 1 then
 				RunMacroText("/startattack")
 			end
 
+			-- function for handling units to attack
 			ProtPaladinEnemyUnitHandler()
-
+			
 			ProtPaladinFriendlyUnitHandler()
 
 			-- If we are close to dying

@@ -1,30 +1,59 @@
 if select(3,UnitClass("player")) == 2 then
 
-	function ProtPaladinEnemyUnitHandler() -- Handles Enemy Units gathering
-
-		-- check if target is safe or if u need to switch
-		if not isSafeToAttack("target") then
-		end
-
-		if  isBurnTarget("target") > 0 then
-		end
-
-		if numberOfTargetsMelee == nil or numberOfTargetsMeleeTimer == nil or numberOfTargetsMeleeTimer <= GetTime() - 1 then
-			numberOfTargetsMelee, numberOfTargetsMeleeTimer = #getEnemies("player",4), GetTime()
-		end
-
-		if numberOfTargetsForHammerOfRighteous == nil or numberOfTargetsForHammerOfRighteousTimer == nil or numberOfTargetsForHammerOfRighteousTimer <= GetTime() - 1 then
-			numberOfTargetsForHammerOfRighteous, numberOfTargetsForHammerOfRighteousTimer = #getEnemies(dynamicUnit.dyn5,7), GetTime() --getNumEnemiesInRange("target",8)
-		end
-		return true
-	end
-
-	function ProtPaladinFriendlyUnitHandler() -- Handles freindly Units gathering
-		return
-	end
+	
 
     function PaladinProtFunctions()
 
+    	function ProtPaladinEnemyUnitHandler() -- Handles Enemy Units gathering
+			-- check if target is safe or if u need to switch
+
+			dynamicUnit = {
+				dyn5 = dynamicTarget(5,true),
+				dyn5AoE = dynamicTarget(5,false), --ToDo: This is nothing to do with AoE, its facing or not. We should add a true AoE candidate to dynamicTargetting
+				dyn8AoE = dynamicTarget(8,false),
+				dyn30 = dynamicTarget(30,true),
+				dyn30AoE = dynamicTarget(30,false),
+				dyn40AoE = dynamicTarget(30,false),
+			}
+
+			meleeEnemies = #getEnemies("player", 5)
+
+			--Todo: Do we need to pulse this? Is that not already done in the enemies engine?
+			-- ToDo: we are here only checking the already define best melee target, that is of course almost always the same as as all melee but we should check for the best hammer of righoues on all enemies in melee
+			if numberOfTargetsForHammerOfRighteous == nil or numberOfTargetsForHammerOfRighteousTimer == nil or numberOfTargetsForHammerOfRighteousTimer <= GetTime() - 1 then
+				numberOfTargetsForHammerOfRighteous, numberOfTargetsForHammerOfRighteousTimer = #getEnemies(dynamicUnit.dyn5,7), GetTime() --getNumEnemiesInRange("target",8)
+			end
+
+			--Todo: Do the same for 
+			--	LightsHammer
+			--	Consecration(glyphed and not glyphed)
+			-- 	Holy Wrath, should see how many we also stun with this
+			-- 	Executive Sentence, ie on friend and hits enemies
+			-- 	Holy Prism, similiar to Executive Sentence
+			--	Hammer of Wrath, need to check low health targets, first on all dynamic, then perhaps scan the enemies table. 
+			-- 	Word Of Glory if glyphed, but should we spend HoPo on dps? If the encounter  is trivila or if we are offtanking?
+			--Todo: Add in ability specefic targets based on dynamic ones.
+
+			if not isSafeToAttack("target") then
+			end
+
+			if  isBurnTarget("target") > 0 then
+			end
+			
+			return true
+		end
+    	function ProtPaladinFriendlyUnitHandler() -- Handles freindly Units gathering
+    		--ToDo here is where we should check out if there is any friendly unit that need to be handled in same way
+    		--	Hand of Protection if possible, Kargath chasing someone for example
+    		--	Hand of Sacrifice if raid member needs it, should be based on table for scenarios where we should cast Hand of Sacrifice, Kargaths Second Impale for example
+    		--	Hand of Salvation if someone have high threat, kind of useless since threat is not an issue at the moment, perhaps if taun is on CD or something and other tank is getting pounded
+    		-- 	Healing candidate based on low health, altough we need to be careful here since our heals are weak and cost HoPo and we can "heal" ourself better and let the healers heal the raid.
+    		--		Here is also the LayOnHands target. Including ourself
+    		--	Dispell targets
+
+
+			return false
+		end
     	-- Logic to seal Switch if we have the talent
     	function sealSwitchProt()
     		return false
@@ -189,18 +218,7 @@ if select(3,UnitClass("player")) == 2 then
 			end
 		end
 
-		function ProtPaladinHolyPowerCreaters() -- Handle the normal rotation
-
-
-			-- Todos: Talents, only light hammer is handled, Prism and Sentence is not
-			-- Todos: Glyphs, we have no support for the Holy Wrath glyph which should put it higher on priority after Judgement.
-
-			-- Seal Switching if we are waiting for CS or Judge CD
-			-- seal_of_insight,if=talent.empowered_seals.enabled&!seal.insight&buff.uthers_insight.remains<cooldown.judgment.remains
-			-- seal_of_righteousness,if=talent.empowered_seals.enabled&!seal.righteousness&buff.uthers_insight.remains>cooldown.judgment.remains&buff.liadrins_righteousness.down
-			-- seal_of_truth,if=talent.empowered_seals.enabled&!seal.truth&buff.uthers_insight.remains>cooldown.judgment.remains&buff.liadrins_righteousness.remains>cooldown.judgment.remains&buff.maraads_truth.down
-
-
+		function ProtPaladinHolyPowerCreaters() -- Handle the normal rotatio
 			-- If we have 3 targets for Avenger Shield and we have Grand Crusader Buff
 			-- Todo : we need to check if AS will hit 3 targets, so what is the range of AS jump? We are usimg same logic as Hammer of Righ at the moment, 8 yard.
 			if UnitBuffID("player", 85043) and numberOfTargetsForHammerOfRighteous > 2 then -- Grand Crusader buff, we use 8 yards from target as check
@@ -211,17 +229,33 @@ if select(3,UnitClass("player")) == 2 then
 			end
 
 			-- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
-			castStrike()
+			--castStrike()
+			if numberOfTargetsForHammerOfRighteous > 2 then
+				if castHammerOfTheRighteous(dynamicUnit.dyn5) then
+					print("Casting Hammer")
+					return true
+				end
+			end
 
-			-- wait,sec=cooldown.crusader_strike.remains,if=cooldown.crusader_strike.remains>0&cooldown.crusader_strike.remains<=0.35
+			if numberOfTargetsForHammerOfRighteous < 3 then
+				if castCrusaderStrike(dynamicUnit.dyn5) then
+					print("Casting Crusader")
+					return true
+				end
+			end
+			-- ToDo: -- wait,sec=cooldown.crusader_strike.remains,if=cooldown.crusader_strike.remains>0&cooldown.crusader_strike.remains<=0.35
 
+			-- ToDo_ -- Add Double jeopardy
 			if castJudgement(dynamicUnit.dyn30AoE) then
 				--print("Casting Judgement")
 				return true
 			end
+			-- ToDo: --wait,sec=cooldown.judgment.remains,if=cooldown.judgment.remains>0&cooldown.judgment.remains<=0.35
 
-			--wait,sec=cooldown.judgment.remains,if=cooldown.judgment.remains>0&cooldown.judgment.remains<=0.35
+			-- ToDo --avengers_shield,if=active_enemies>1&!glyph.focused_shield.enabled
+			-- ToDo --holy_wrath,if=talent.sanctified_wrath.enabled
 
+			-- ToDo: --avengers_shield,if=active_enemies>1&!glyph.focused_shield.enabled , ie we should check if its glyphed or not.
 			if numberOfTargetsForHammerOfRighteous > 1 then -- Grand Crusader buff, we use 8 yards from target as check
 				if castAvengersShield(dynamicUnit.dyn30) then
 					--print("Casting AS in AoE rotation with Grand Crusader procc")
@@ -229,8 +263,9 @@ if select(3,UnitClass("player")) == 2 then
 				end
 			end
 
-			-- holy_wrath,if=talent.sanctified_wrath.enabled
+			-- ToDo: --holy_wrath,if=talent.sanctified_wrath.enabled
 
+			-- avengers_shield,if=buff.grand_crusader.react
 			if UnitBuffID("player", 85043) then -- Grand Crusader buff if we are single target
 				if castAvengersShield(dynamicUnit.dyn30) then
 					--print("Casting AS in rotation with Grand Crusader procc")
@@ -241,8 +276,8 @@ if select(3,UnitClass("player")) == 2 then
 			if castSacredShield(2) then
 				return true
 			end
-
-			-- holy_wrath,if=glyph.final_wrath.enabled&target.health.pct<=20
+			-- ToDo: --holy_wrath,if=talent.sanctified_wrath.enabled
+			-- ToDo: --holy_wrath,if=glyph.final_wrath.enabled&target.health.pct<=20
 
 			if castAvengersShield(dynamicUnit.dyn30) then
 				--print("Casting lights Hammer in rotation")
@@ -250,15 +285,21 @@ if select(3,UnitClass("player")) == 2 then
 			end
 			-- Todo We could add functionality that cycle all unit to find one that is casting since the Avenger Shield is silencing as well.
 
-			if castLightsHammer(dynamicUnit.dyn5) then
-				--print("Casting lights Hammer in rotation")
-				return true
+			-- ToDo: We really should look into this with lights hammer. We should check how many mobs are around us and cast it earlier if there are more
+			-- We should also really look into the healing aspect.
+			-- ToDo: --lights_hammer,if=!talent.seraphim.enabled|buff.seraphim.remains>10|cooldown.seraphim.remains<6
+			if isChecked("Light's Hammer") then
+				if castLightsHammer(dynamicUnit.dyn5) then
+					--print("Casting lights Hammer in rotation")
+					return true
+				end
 			end
 
 			-- Holy Prism, heal or aoe
+			-- ToDo: Similiar to Lights Hammer, this can be improved, number of heals and enemies will give this a higher prio
 			if isKnown(_HolyPrism) then
 				castWiseAoEHeal(enemiesTable,114165,15,90,1,3,false,false)
-				if numberOfTargetsMelee > 2 then
+				if meleeEnemies > 2 then
 					castHolyPrism("player")
 				end
 			end
@@ -266,18 +307,25 @@ if select(3,UnitClass("player")) == 2 then
 
 			-- We should cast concenration if more then 3 targets are getting hit
 			-- TODO we need to understand the range of consentrations
-			if numberOfTargetsMelee > 2 then
+			if meleeEnemies > 2 then
 				if castConsecration(dynamicUnit.dyn5AoE) then
 					--print("Casting AOE Consecration")
 					return true
 				end
 			end
+			
+			--ToDo: --execution_sentence,if=!talent.seraphim.enabled|buff.seraphim.up|time<12
+
 
 			if castHammerOfWrath(dynamicUnit.dyn30) then
 				--print("Casting Hammer of Wrath")
 				return true
 			end
 
+			if castSacredShield(8) then
+				return true
+			end
+			
 			-- Todo: Could use enhanced logic here, cluster of mobs, cluster of damaged friendlies etc
 			if castHolyWrath(dynamicUnit.dyn5AoE) then
 				--print("Casting Holy Wrath")
@@ -290,12 +338,8 @@ if select(3,UnitClass("player")) == 2 then
 				--print("Casting Hammer of Wrath")
 				return true
 			end
-
-			if castSacredShield(8) then
-				return true
-			end
-
-			if numberOfTargetsMelee > 0 then
+			
+			if meleeEnemies > 0 then
 				if castConsecration(dynamicUnit.dyn5AoE) then
 					--print("Casting Consecration")
 					return true
@@ -324,54 +368,6 @@ if select(3,UnitClass("player")) == 2 then
 			if isKnown(_HolyPrism) then
 				castHolyPrism(dynamicUnit.dyn30)
 			end
-		end
-
-		function ProtPaladingHolyPowerCreatersAoE() -- Rotation that focus on AoE, should be done to pick up group of adds
-			-- Todos: Talents, only light hammer is handled, Prism and Sentence is not
-
-			if UnitBuffID("player", 85043) then -- Grand Crusader buff
-				if castAvengersShield(dynamicUnit.dyn30) then
-					--print("Casting AS in AoE rotation with Grand CRusader procc")
-					return true
-				end
-			end
-
-			local strike = strike -- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
-			if BadBoy_data["AoE"] == 2 or (BadBoy_data["AoE"] == 3 and numberOfTargetsForHammerOfRighteous > 2) or keyPressAoE then  --If Toggle to 2(AoE) or 3(Auto and more then 2 targets, its actually 4 but its just simplier to do aoe
-				strike = _HammerOfTheRighteous
-			else
-				strike = _CrusaderStrike
-			end
-
-			-- Cast Crusader for Single and Hammer of Right if aoe, should check other targets for spell if not in melee
-			if isInMelee("target") and canCast(_CrusaderStrike) then
-				if castSpell(dynamicUnit.dyn5,strike,false,false) then
-					return
-				end
-			end
-
-			if castAvengersShield(dynamicUnit.dyn30) then
-				--print("Casting lights Hammer in AoE rotation")
-				return true
-			end
-			-- Todo We could add functionality that cycle all unit to find one that is casting since the Avenger Shield is silencing as well.
-
-			if castLightsHammer(dynamicUnit.dyn30AoE) then
-				--print("Casting lights Hammer in AoE rotation")
-				return true
-			end
-
-			if castHolyWrath(dynamicUnit.dyn5AoE) then
-				--print("Casting AoE Holy Wrath")
-				return true
-			end
-
-			if castConsecration(dynamicUnit.dyn5AoE) then
-				--print("Casting AOE Consecration")
-				return true
-			end
-			-- Todo, we could check number of mobs in melee ranged
-		--Todo Check number of targets in range do Concentration and have it earlier.
 		end
 	end
 end

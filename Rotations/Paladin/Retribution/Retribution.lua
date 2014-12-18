@@ -6,6 +6,17 @@ if select(3, UnitClass("player")) == 2 then
 		PaladinRetOptions() -- Reading Config values from gui?
 		currentConfig = "Retribution Paladin"
 	end
+
+	-- Manual Input
+		if IsLeftShiftKeyDown() then -- Pause the script, keybind in wow shift+1 etc for manual cast
+			return true
+		end
+		if IsLeftControlKeyDown() then -- Pause the script, keybind in wow ctrl+1 etc for manual cast
+			return true
+		end
+		if IsLeftAltKeyDown() then
+			return true
+		end
 	dynamicUnit = {
 		dyn5 = dynamicTarget(5,true),
 		dyn8AoE = dynamicTarget(8,false),
@@ -189,7 +200,12 @@ if select(3, UnitClass("player")) == 2 then
 				castTemplarsVerdict()
 			end
 			-- crusader_strike
-			castStrike()
+			-- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
+			--castStrike()
+
+			if castCrusaderStrike(dynamicUnit.dyn5) then
+				return true
+			end
 			-- divine_storm,if=buff.divine_crusader.react&(buff.avenging_wrath.up|target.health.pct<35)&!talent.final_verdict.enabled
 			if buffDivineCrusader > 0 and (buffAvengingWrath > 0 or getHP(dynamicUnit.dyn5) < 35) and not talentFinalVerdict then
 				castDivineStorm()
@@ -275,7 +291,13 @@ if select(3, UnitClass("player")) == 2 then
 				castDivineStorm()
 			end
 			-- crusader_strike
-			castStrike()
+			-- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
+			--castStrike()
+				if castHammerOfTheRighteous(dynamicUnit.dyn5) then
+					print("Casting Hammer")
+					return true
+				end
+			
 			-- divine_storm,if=holy_power>=3&(!talent.seraphim.enabled|cooldown.seraphim.remains>7)&!talent.final_verdict.enabled
 			if _HolyPower >= 3 and (not talentSeraphim or cdSeraphim > 7) and not talentFinalVerdict then
 				castDivineStorm()
@@ -314,7 +336,13 @@ if select(3, UnitClass("player")) == 2 then
 			-- hammer_of_wrath
 			castHammerOfWrathMulti()
 			-- hammer_of_the_righteous
-			castStrike()
+			-- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
+			--castStrike()
+				if castHammerOfTheRighteous(dynamicUnit.dyn5) then
+					print("Casting Hammer")
+					return true
+				end
+
 			-- judgment,if=talent.empowered_seals.enabled&seal.righteousness&buff.liadrins_righteousness.remains<=5
 			if talentEmpoweredSeal then
 				if sealOfRighteousness and buffLiadrinsRighteousness <= 5 then

@@ -52,4 +52,59 @@ if select(3,UnitClass("player")) == 2 then
 		end
 		return false
 	end
+
+	function castHammerOfTheRighteous()
+		if castSpell(dynamicUnit.dyn5,_HammerOfTheRighteous,false,false) then
+			return true
+		end
+	end
+	function castCrusaderStrike()
+		if castSpell(dynamicUnit.dyn5,_CrusaderStrike,false,false) then
+			return true
+		end
+	end
+	function castJudgement(unit)
+		if unit == nil then
+			unit = dynamicUnit.dyn30AoE
+		end
+		if canCast(_Judgment) and getDistance("player", unit) <= 30 then
+			if castSpell(unit,_Judgment,true,false) then
+				return true
+			end
+		end
+		return false
+	end
+
+	--Todo: Lights Hammer can be improved
+	function castLightsHammer(unit)
+		if getGround(unit) and not isMoving(unit) and UnitExists(unit) and ((isDummy(unit) or getDistance(unit,"targettarget") <= 5)) then
+			if castGround(unit,_LightsHammer,30) then
+				return true
+			end
+		end
+		return false
+	end
+
+	function castHolyPrism(unit)
+		if unit then
+			if castSpell(unit, _HolyPrism, true, false) then
+				return true
+			end
+		end
+		-- Cast on enemies first
+		if getValue("Holy Prism Mode") == 2 or 3 then
+			if castWiseAoEHeal(enemiesTable,_HolyPrism,15,95,1,5,false) then
+				return true
+			end
+		else
+			for i = 1, #nNova do
+				if nNova[i].hp <= getValue("Holy Prism") then
+					if castSpell(nNova[i].unit,_HolyPrism,true, false) then
+						return true
+					end
+				end
+			end
+		end
+		return false
+	end
 end
