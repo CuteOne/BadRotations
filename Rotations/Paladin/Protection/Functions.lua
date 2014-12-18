@@ -24,15 +24,28 @@ if select(3,UnitClass("player")) == 2 then
 				numberOfTargetsForHammerOfRighteous, numberOfTargetsForHammerOfRighteousTimer = #getEnemies(dynamicUnit.dyn5,7), GetTime() --getNumEnemiesInRange("target",8)
 			end
 
+			--Todo: Add glyphed logic, is targetted on ground.
+			if numberOfTargetsForConsecration == nil or numberOfTargetsForConsecrationTimer == nil or numberOfTargetsForConsecrationTimer <= GetTime() - 1 then
+				numberOfTargetsForConsecration, numberOfTargetsForConsecrationTimer = #getEnemies("player",9), GetTime() --getNumEnemiesInRange("target",8)
+			end
+
+			-- Todo: Add number of  mobs getting stunned?
+			if numberOfTargetsForHolyWrath == nil or numberOfTargetsForHolyWrathTimer == nil or numberOfTargetsForHolyWrathTimer <= GetTime() - 1 then
+				numberOfTargetsForHolyWrath, numberOfTargetsForHolyWrathTimer = #getEnemies("player",10), GetTime() --getNumEnemiesInRange("target",8)
+			end
+
+			-- Todo: Add dynamic unit to check for, ie best aoe spot to drop it At the moment its just on player
+			if numberOfTargetsForLightsHammer == nil or numberOfTargetsForLightsHammerTimer == nil or numberOfTargetsForLightsHammerTimer <= GetTime() - 1 then
+				numberOfTargetsForLightsHammer, numberOfTargetsForLightsHammerTimer = #getEnemies("player",10), GetTime() --getNumEnemiesInRange("target",8)
+			end
+
 			--Todo: Do the same for 
-			--	LightsHammer
-			--	Consecration(glyphed and not glyphed)
-			-- 	Holy Wrath, should see how many we also stun with this
 			-- 	Executive Sentence, ie on friend and hits enemies
 			-- 	Holy Prism, similiar to Executive Sentence
 			--	Hammer of Wrath, need to check low health targets, first on all dynamic, then perhaps scan the enemies table. 
 			-- 	Word Of Glory if glyphed, but should we spend HoPo on dps? If the encounter  is trivila or if we are offtanking?
-			--Todo: Add in ability specefic targets based on dynamic ones.
+			
+			--Todo: Add in ability specefic targets based on dynamic ones.ie under HP, if not having buff etc
 
 			if not isSafeToAttack("target") then
 			end
@@ -42,6 +55,7 @@ if select(3,UnitClass("player")) == 2 then
 			
 			return true
 		end
+		
     	function ProtPaladinFriendlyUnitHandler() -- Handles freindly Units gathering
     		--ToDo here is where we should check out if there is any friendly unit that need to be handled in same way
     		--	Hand of Protection if possible, Kargath chasing someone for example
