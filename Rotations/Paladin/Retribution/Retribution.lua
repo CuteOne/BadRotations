@@ -58,7 +58,7 @@ if select(3, UnitClass("player")) == 2 then
 	local sealOfRighteousness = GetShapeshiftForm() == 2 or nil
 	local talentEmpoweredSeal = isKnown(152263)
 	local talentFinalVerdict = isKnown(_FinalVerdict)
-	local talentSeraphim = isKnown(_Seraphim)
+	local talentSeraphim = isKnown(_Seraphim) and isSelected("Seraphim")
 
 	-- this is to get judgment spell cd duration, we query GetSpellCooldown but since its returning 1
 	-- when spells are on cd, we will take out bad values trough this funtion
@@ -138,11 +138,14 @@ if select(3, UnitClass("player")) == 2 then
 		-- seraphim
 		castSeraphim(_HolyPower)
 		--[[Single(1-2)]]
+----------------
+-- Single 1-2 --
+----------------
 		if (meleeAoEEnemies < 3  and modeAoE == 4) or modeAoE == 1 then
 			-- divine_storm,if=buff.divine_crusader.react&holy_power=5&buff.final_verdict.up
 			if (buffDivineCrusader > 0 and _HolyPower == 5 and buffFinalVerdict > 0)
 			  -- divine_storm,if=buff.divine_crusader.react&holy_power=5&active_enemies=2&!talent.final_verdict.enabled
-			  or (buffDivineCrusader > 0 and _HolyPower == 5 and meleeAoEEnemies == 2)
+			  or (buffDivineCrusader > 0 and _HolyPower == 5 and meleeAoEEnemies == 2 and not talentFinalVerdict)
 			  -- divine_storm,if=holy_power=5&active_enemies=2&buff.final_verdict.up
 			  or (_HolyPower == 5 and meleeAoEEnemies == 2 and buffFinalVerdict > 0)
 			  -- divine_storm,if=buff.divine_crusader.react&holy_power=5&(talent.seraphim.enabled&cooldown.seraphim.remains<=4)
@@ -157,7 +160,7 @@ if select(3, UnitClass("player")) == 2 then
 			  	castTemplarsVerdict()
 			end
 			-- divine_storm,if=buff.divine_crusader.react&buff.divine_crusader.remains<4&!talent.final_verdict.enabled
-			if buffDivineCrusader and buffDivineCrusader < 4 and not talentFinalVerdict then
+			if buffDivineCrusader > 0 and buffDivineCrusader < 4 and not talentFinalVerdict then
 			  	castDivineStorm()
 			end
 			if talentFinalVerdict
@@ -188,7 +191,7 @@ if select(3, UnitClass("player")) == 2 then
 				end
 			end
 			-- divine_storm,if=buff.divine_crusader.react&buff.final_verdict.up&(buff.avenging_wrath.up|target.health.pct<35)
-			if _DivineCrusader > 0 and buffFinalVerdict > 0 and (buffAvengingWrath or getHP(dynamicUnit.dyn5) < 35) then
+			if buffDivineCrusader > 0 and buffFinalVerdict > 0 and (buffAvengingWrath or getHP(dynamicUnit.dyn5) < 35) then
 				castDivineStorm()
 			end
 			-- final_verdict,if=buff.divine_purpose.react|target.health.pct<35
@@ -201,8 +204,6 @@ if select(3, UnitClass("player")) == 2 then
 			end
 			-- crusader_strike
 			-- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
-			--castStrike()
-
 			if castCrusaderStrike(dynamicUnit.dyn5) then
 				return true
 			end
@@ -231,11 +232,11 @@ if select(3, UnitClass("player")) == 2 then
 			-- judgment
 			castJudgement()
 			-- templars_verdict,if=buff.divine_purpose.react
-			if _DivinePurpose > 0 then
+			if buffDivinePurpose > 0 then
 				castTemplarsVerdict()
 			end
 			-- divine_storm,if=buff.divine_crusader.react&!talent.final_verdict.enabled
-			if buffDivineCrusader and not talentFinalVerdict then
+			if buffDivineCrusader > 0 and not talentFinalVerdict and not (talentSeraphim or cdSeraphim < 4) then
 			  	castDivineStorm()
 			end
 			-- templars_verdict,if=holy_power>=4&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
@@ -250,6 +251,9 @@ if select(3, UnitClass("player")) == 2 then
 			end
 			-- holy_prism
 			castHolyPrism(dynamicUnit.dyn40,false)
+----------------
+-- Cleave 3-4 --
+----------------
 		elseif (meleeAoEEnemies < 5  and modeAoE == 4) or modeAoE == 2 then
 			--[[Cleave(3-4)]]
 			-- final_verdict,if=buff.final_verdict.down&holy_power=5
@@ -293,11 +297,10 @@ if select(3, UnitClass("player")) == 2 then
 			-- crusader_strike
 			-- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
 			--castStrike()
-				if castHammerOfTheRighteous(dynamicUnit.dyn5) then
-					print("Casting Hammer")
-					return true
-				end
-			
+			if castHammerOfTheRighteous(dynamicUnit.dyn5) then
+				return true
+			end
+
 			-- divine_storm,if=holy_power>=3&(!talent.seraphim.enabled|cooldown.seraphim.remains>7)&!talent.final_verdict.enabled
 			if _HolyPower >= 3 and (not talentSeraphim or cdSeraphim > 7) and not talentFinalVerdict then
 				castDivineStorm()
@@ -323,6 +326,9 @@ if select(3, UnitClass("player")) == 2 then
 			castJudgement()
 			-- exorcism
 			castExorcism()
+------------
+-- AoE 5+ --
+------------
 		elseif (meleeAoEEnemies >= 5 and modeAoE == 4) or modeAoE == 3 then
 			--[[AoE(5+)]]
 			-- divine_storm,if=holy_power=5&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
@@ -337,11 +343,9 @@ if select(3, UnitClass("player")) == 2 then
 			castHammerOfWrathMulti()
 			-- hammer_of_the_righteous
 			-- We use either Crusader Strike or Hammer of Right dependent on how many unfriendly
-			--castStrike()
-				if castHammerOfTheRighteous(dynamicUnit.dyn5) then
-					print("Casting Hammer")
-					return true
-				end
+			if castHammerOfTheRighteous(dynamicUnit.dyn5) then
+				return true
+			end
 
 			-- judgment,if=talent.empowered_seals.enabled&seal.righteousness&buff.liadrins_righteousness.remains<=5
 			if talentEmpoweredSeal then

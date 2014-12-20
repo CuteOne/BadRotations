@@ -129,12 +129,6 @@ if select(3,UnitClass("player")) == 2 then
 		end
 	end
 
-	function castCrusaderStrike()
-		if castSpell(dynamicUnit.dyn5,_CrusaderStrike,false,false) then
-			return
-		end
-	end
-
 
 	-- DivineProtection(Ret)
 	function castDivineProtection()
@@ -435,7 +429,7 @@ if select(3,UnitClass("player")) == 2 then
 
 
 	-- Seraphim
-	function castSeraphim()
+	function castSeraphim(_HolyPower)
 		if isSelected("Seraphim") and canCast(_Seraphim) then
 			if (isDummy(dynamicUnit.dyn5) or (UnitHealth(dynamicUnit.dyn5) >= 400*UnitHealthMax("player")/100)) then
 				if castSpell("player",_Seraphim,true,false) then
