@@ -69,7 +69,8 @@ function shouldStopCasting(Spell)
 end
 
 function betterStopCasting(Spell)
-	local MySpellCastTime = (GetTime()*1000) + select(4,GetSpellInfo(Spell))
+	local spellCastLengt = select(4,GetSpellInfo(Spell)) or 0
+	local MySpellCastTime = (GetTime()*1000) + spellCastLengt
 	if shouldStopTime and shouldStopTime <= MySpellCastTime and not canContinue() then
 		return true
 	end

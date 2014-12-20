@@ -50,7 +50,11 @@ CreateFrame("Frame"):SetScript("OnUpdate", function ()
         if not DontMoveStartTime then
             DontMoveStartTime = GetTime()
         end
+        isMovingStartTime = 0
     else
+        if isMovingStartTime == 0 then
+            isMovingStartTime = GetTime()
+        end
         DontMoveStartTime = nil
     end
 end)
@@ -220,8 +224,8 @@ function SuperReader(self,event,...)
 		local sourceName	= select(5,...)
         local destination 	= select(8,...)
 		local spell 		= select(12,...)
-        local playerGUID = UnitGUID("player")
-
+        local playerGUID    = UnitGUID("player")
+        local playerClass   = select(3, UnitClass("player"))
 		--------------------------------------
 		--[[ Pick Pocket Success Recorder --]]
 		if param == "SPELL_CAST_SUCCESS" and spell==921 then
@@ -239,15 +243,26 @@ function SuperReader(self,event,...)
 			end
 		end
 
+        if playerClass == 3 then
+            -- Steady Focus
+            if spell == 77767 and param == "SPELL_CAST_SUCCESS" then
+                if BadBoy_data["1stFocus"] ~= true then
+                    BadBoy_data["1stFocus"] = true
+                else
+                    BadBoy_data["1stFocus"] = false
+                end
+            end
+        end
+
         -----------------------
         --[[ Double Jeopardy ]]
-        if select(3, UnitClass("player")) == 2 and spell == 20271 and source == playerGUID then
+        if playerClass == 2 and spell == 20271 and source == playerGUID then
             previousJudgmentTarget = destination
         end
 
 		---------------------
 		--[[ Pet Manager --]]
-		if select(3, UnitClass("player")) == 9 then
+		if playerClass == 9 then
 	        if source == playerGUID and param == "SPELL_CAST_SUCCESS" then
 	        	if spell == 688 or spell == 112866 then
 	        		petSummoned = 1
@@ -274,7 +289,7 @@ function SuperReader(self,event,...)
 
 		----------------------------------
 		--[[ Bleed Recorder (Warrior) --]]
-		if select(3, UnitClass("player")) == 1 and GetSpecialization("player") == 1 then
+		if playerClass == 1 and GetSpecialization("player") == 1 then
 	        -- snapshot on spellcast
 	        if source == playerGUID and param == "SPELL_CAST_SUCCESS" then
 	            if spell == 115767 then
@@ -290,7 +305,7 @@ function SuperReader(self,event,...)
 
 		------------------------
 		--[[ Bleed Recorder --]]
-		if select(3, UnitClass("player")) == 11 and GetSpecialization() == 2 then
+		if playerClass == 11 and GetSpecialization() == 2 then
 			if source == playerGUID then
 				function WA_calcStats()
 				    local DamageMult = 1
@@ -460,7 +475,7 @@ function SuperReader(self,event,...)
         	if source == playerGUID then
         		if param == "SPELL_CAST_SUCCESS" then
         			local timeStamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellID, spellName = ...
-        			if SpellID ~= 75 and SpellID ~= 88263 and SpellID ~= 172 and SpellID ~= 8690 then -- Add spells we dont want to appear here.
+                    if SpellID ~= 75 and SpellID ~= 88263 and SpellID ~= 172 and SpellID ~= 8690 then -- Add spells we dont want to appear here.
         				local color = "|cff12C8FF"
                         if BadBoy_data.successCasts == nil then
                             BadBoy_data.successCasts = 0

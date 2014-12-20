@@ -2,9 +2,9 @@ if select(3, UnitClass("player")) == 3 then
 function SurvHunter()
 
 if Currentconfig ~= "Survival Avery" then
-	SurvConfig();
-	SurvToggles();
-	Currentconfig = "Survival Avery";
+	SurvConfig()
+	SurvToggles()
+	Currentconfig = "Survival Avery"
 end
 
 --Locals

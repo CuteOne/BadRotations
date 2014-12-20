@@ -1182,6 +1182,18 @@ end
 --[[]]	   --[[]]	 --[[]]    --[[]]	--[[           ]]
 --[[]]	   --[[]]	--[[]]      --[[]]	--[[           ]]
 
+
+function hasBloodLust()
+    if UnitBuffID("player",2825)        -- Bloodlust
+    or UnitBuffID("player",80353)       -- Timewarp
+    or UnitBuffID("player",32182)       -- Heroism
+    or UnitBuffID("player",90355) then  -- Ancient Hysteria
+        return true
+    else
+        return false
+    end
+end
+
 -- if hasGlyph(1234) == true then
 function hasGlyph(glyphid)
  	for i=1,6 do
