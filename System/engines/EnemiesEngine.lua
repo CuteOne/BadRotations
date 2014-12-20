@@ -36,7 +36,11 @@ function makeEnemiesTable(maxDistance)
 	if enemiesTable == nil or enemiesTableTimer == nil or enemiesTableTimer <= GetTime() - 1 then
 		enemiesTableTimer = GetTime()
 		-- create/empty table
-		enemiesTable = { }
+		if enemiesTable == nil then
+			enemiesTable = { }
+		else
+			table.wipe(enemiesTable)
+		end
 		-- use objectmanager to build up table
 	 	for i = 1, ObjectCount() do
 	 		-- define our unit
