@@ -40,8 +40,7 @@ if select(3,UnitClass("player")) == 2 then
 			end
 
 			--Todo: Do the same for 
-			-- 	Executive Sentence, ie on friend and hits enemies
-			-- 	Holy Prism, similiar to Executive Sentence
+			-- 	Holy Prism, healing melee friends
 			--	Hammer of Wrath, need to check low health targets, first on all dynamic, then perhaps scan the enemies table. 
 			-- 	Word Of Glory if glyphed, but should we spend HoPo on dps? If the encounter  is trivila or if we are offtanking?
 			
@@ -55,7 +54,6 @@ if select(3,UnitClass("player")) == 2 then
 			
 			return true
 		end
-		
     	function ProtPaladinFriendlyUnitHandler() -- Handles freindly Units gathering
     		--ToDo here is where we should check out if there is any friendly unit that need to be handled in same way
     		--	Hand of Protection if possible, Kargath chasing someone for example
@@ -64,6 +62,37 @@ if select(3,UnitClass("player")) == 2 then
     		-- 	Healing candidate based on low health, altough we need to be careful here since our heals are weak and cost HoPo and we can "heal" ourself better and let the healers heal the raid.
     		--		Here is also the LayOnHands target. Including ourself
     		--	Dispell targets
+    		
+    		-- Generic Lowest Tank and Raider
+    		for i = 1, #nNova do
+				if nNova[i].role == "TANK" then
+					if nNova[i].hp < lowestTankHP then
+						lowestTankHP = nNova[i].hp
+						lowestTankUnit = nNova[i].unit
+					end
+				end
+				if nNova[i].hp < lowestHP then
+					lowestHP = nNova[i].hp
+					lowestUnit = nNova[i].unit
+				end
+				averageHealth = averageHealth + nNova[i].hp
+			end
+			averageHealth = averageHealth/#nNova
+
+			--iterate one more time to get highest hp tank
+			for i = 1, #nNova do
+				if nNova[i].role == "TANK" then
+					if nNova[i].unit ~= lowestTankUnit then
+						highestTankHP = nNova[i].hp
+						highestTankUnit = nNova[i].unit
+					end
+				end
+			end
+
+			-- ToDo:  find suitable target for healing friendly allies. x number of allies under y % of health.
+
+			-- ToDo: Find dispell target
+
 
 
 			return false
