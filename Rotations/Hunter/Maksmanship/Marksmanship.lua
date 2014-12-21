@@ -66,15 +66,15 @@ if select(3, UnitClass("player")) == 3 then
 		if isKnown(162534) and isChecked("Exotic Munitions") and UnitCastingInfo("player") == nil then
 			if getValue("Exotic Munitions") == 1 then
 				if UnitBuffID("player",162536) == nil then
-					castSpell("player",162536,true,true);
+					if castSpell("player",162536,true,true) then return; end
 				end
 			elseif getValue("Exotic Munitions") == 2 then
 				if UnitBuffID("player",162537) == nil then
-					castSpell("player",162537,true,true);
+					if castSpell("player",162537,true,true) then return; end
 				end
 			elseif getValue("Exotic Munitions") == 3 then
 				if UnitBuffID("player",162539) == nil then
-					castSpell("player",162539,true,true);
+					if castSpell("player",162539,true,true) then return; end
 				end
 			end
 		end
@@ -189,20 +189,41 @@ if select(3, UnitClass("player")) == 3 then
 			------------------
 			--- Interrupts --- Mavmins Updated
 			------------------
+
+			if UnitCastingInfo("target") ~= nil then
+				local castName,_,_,_, castStartTime, castEndTime, _, _, cast_non_interruptable = UnitCastingInfo("target") 
+				local cast_time_since_start = (GetTime() * 1000 - castStartTime) / 1000
+				local cast_time_left = ((GetTime() * 1000 - castEndTime) * -1) / 1000
+				local cast_time = castEndTime - castStartTime
+				local cast_current_percent = cast_time_since_start / cast_time * 100000
+			end
+
 			if BadBoy_data["Interrupts"] == 3 then --all interrupt
 				 if isChecked("Counter Shot") then
 				 	if isKnown(147362) and getSpellCD(147362) == 0 then
-						castInterrupt(147362,getValue("Counter Shot"))
+				 		if cast_non_interruptable == false then
+				 			if cast_current_percent >= getValue("Counter Shot") then
+				 				if castSpell("target",147362,false,false) then return; end
+				 			end
+				 		elseif UnitChannelInfo("target") ~= nil then
+				 			if select(8, UnitChannelInfo("target")) == false then
+				 				if castSpell("target",147362,false,false) then return; end
+				 			end
+				 		end
 				 	end
-				
 				end
 
 				 if isChecked("Intimidation") and (getValue("Intimidation") == 2 or getValue("Intimidation") == 3)  and UnitExists("pet") then
 				 	if isKnown(19577) and (getSpellCD(19577) == 0 and getSpellCD(147362) > 0) then
-				 		castInterrupt(147362,getValue("Counter Shot"))
-				 		--if canInterrupt("target", 1) then
-							if castSpell("target",19577,false,false) then return; end
-				 		--end
+				 		if cast_non_interruptable == false then
+				 			if cast_current_percent >= getValue("Counter Shot") then
+				 				if castSpell("target",19577,false,false) then return; end
+				 			end
+				 		elseif UnitChannelInfo("target") ~= nil then
+				 			if select(8, UnitChannelInfo("target")) == false then
+				 				if castSpell("target",19577,false,false) then return; end
+				 			end
+				 		end
 				 	end
 				 end
 			end
@@ -224,7 +245,14 @@ if select(3, UnitClass("player")) == 3 then
 			---------------------------
 
 			-- actions=auto_shot
+
 			-- actions+=/use_item,name=beating_heart_of_the_mountain (TRINKETS)
+			-- if GetInventoryItemCooldown(14)==0 then
+			-- 	UseInventoryItem(14)
+			-- end
+			-- if GetInventoryItemCooldown(13)==0 then
+			-- 	UseInventoryItem(13)
+			-- end
 
 			-- actions+=/arcane_torrent,if=focus.deficit>=30
 	        if (BadBoy_data['Cooldowns'] == 2 and isChecked("Racials") == true) or BadBoy_data['Cooldowns'] == 3 then
@@ -258,9 +286,9 @@ if select(3, UnitClass("player")) == 3 then
 			-- actions+=/potion,name=draenic_agility,if=((buff.rapid_fire.up|buff.bloodlust.up)&(cooldown.stampede.remains<1))|target.time_to_die<=25
 	        if (BadBoy_data['Cooldowns'] == 2 and isChecked("Potions") == true) or BadBoy_data['Cooldowns'] == 3 then
 	            if ((UnitBuffID("player",3045) ~= nil or hasBloodLust() == true) and ((isKnown(121818) and getSpellCD(121818) <1) or isKnown(121818) == false)) or getTimeToDie("target") <= 25 then
-	                if canUse(76089) then -- MoP Potion (Virmens Bite)
+	                if canUse(76089) and UnitBuffID("player",76089) == nil then -- MoP Potion (Virmens Bite)
 	                    UseItemByName(tostring(select(1,GetItemInfo(76089))))
-	                elseif canUse(109217) then -- WoD Potion (Draenic Agility)
+	                elseif canUse(109217) and UnitBuffID("player",109217) == nil then -- WoD Potion (Draenic Agility)
 	                    UseItemByName(tostring(select(1,GetItemInfo(109217))))
 	                end
 	            end
