@@ -36,11 +36,14 @@ if select(3, UnitClass("player")) == 5 then
 
 	-- get threat situation on player and return the number
 	function getThreat()
-		return UnitThreatSituation("player")
+		if UnitThreatSituation("player") ~= nil then
+			return UnitThreatSituation("player")
+		end
 		-- 0 - Unit has less than 100% raw threat (default UI shows no indicator)
 		-- 1 - Unit has 100% or higher raw threat but isn't mobUnit's primary target (default UI shows yellow indicator)
 		-- 2 - Unit is mobUnit's primary target, and another unit has 100% or higher raw threat (default UI shows orange indicator)
 		-- 3 - Unit is mobUnit's primary target, and no other unit has 100% or higher raw threat (default UI shows red indicator)
+		return 0
 	end
 
 	-- Check if SWP is on 3 units or if #enemiesTable is <3 then on #enemiesTable
@@ -98,10 +101,13 @@ if select(3, UnitClass("player")) == 5 then
 			end
 		end
 		
-		-- Healthstone
-		if isChecked("Healthstone") and (BadBoy_data['Defensive'] == 2) and php <= getValue("Healthstone") then
-			if canUse(109223) ~= false then UseItemByName(toString(select(1,GetItemInfo(109223)))); end
-			if canUse(5512) ~= false then UseItemByName(tostring(select(1,GetItemInfo(5512))));	end
+		-- Healthstone/HealPot
+		if isChecked("Healthstone") and getHP("player") <= getValue("Healthstone") and hasHealthPot() then
+			if canUse(5512) then
+				UseItemByName(tostring(select(1,GetItemInfo(5512))))
+			elseif canUse(healPot) then
+				UseItemByName(tostring(select(1,GetItemInfo(healPot))))
+			end
 		end
 
 		-- Dispersion
@@ -121,46 +127,46 @@ if select(3, UnitClass("player")) == 5 then
 
 	--[[                    ]] -- Cooldowns
 	function ShadowCooldowns()
-
 		-- MB on CD
-				if castSpell("target",MB,false,false) then return; end
+		if castSpell("target",MB,false,false) then return; end
 
-
-		-- Mindbender
-		if isKnown(Mindbender) and BadBoy_data['Cooldowns'] == 2 and isChecked("Mindbender") then
-			if castSpell("target",Mindbender) then return; end
-		end
-
-		-- Shadowfiend
-		if isKnown(SF) and BadBoy_data['Cooldowns'] == 2 and isChecked("Shadowfiend") then
-			if castSpell("target",SF) then return; end
-		end
-
-		-- Power Infusion
-		if isKnown(PI) and BadBoy_data['Cooldowns'] == 2 and isChecked("Power Infusion") then
-			if castSpell("player",PI) then return; end
-		end
-
-		-- Berserking (Troll Racial)
-		if isKnown(Berserking) and BadBoy_data['Cooldowns'] == 2 and isChecked("Berserking") then
-			if castSpell("player",Berserking) then return; end
-		end
-
-		-- Halo
-		if isKnown(Halo) and BadBoy_data['Halo'] == 2 then
-			if getDistance("player","target")<=30 and getDistance("player","target")>=17 then
-				if castSpell("player",Halo) then return; end
+		if getBuffRemain("player",InsanityBuff)<=0 then
+			-- Mindbender
+			if isKnown(Mindbender) and BadBoy_data['Cooldowns'] == 2 and isChecked("Mindbender") then
+				if castSpell("target",Mindbender) then return; end
 			end
-		end
 
-		-- Trinket 1
-		if isChecked("Trinket 1") and BadBoy_data['Cooldowns'] == 2 and canTrinket(13) then
-			RunMacroText("/use 13")
-		end
+			-- Shadowfiend
+			if isKnown(SF) and BadBoy_data['Cooldowns'] == 2 and isChecked("Shadowfiend") then
+				if castSpell("target",SF) then return; end
+			end
 
-		-- Trinket 2
-		if isChecked("Trinket 2") and BadBoy_data['Cooldowns'] == 2 and canTrinket(14) then
-			RunMacroText("/use 14")
+			-- Power Infusion
+			if isKnown(PI) and BadBoy_data['Cooldowns'] == 2 and isChecked("Power Infusion") then
+				if castSpell("player",PI) then return; end
+			end
+
+			-- Berserking (Troll Racial)
+			if isKnown(Berserking) and BadBoy_data['Cooldowns'] == 2 and isChecked("Berserking") then
+				if castSpell("player",Berserking) then return; end
+			end
+
+			-- Halo
+			if isKnown(Halo) and BadBoy_data['Halo'] == 2 then
+				if getDistance("player","target")<=30 and getDistance("player","target")>=17 then
+					if castSpell("player",Halo) then return; end
+				end
+			end
+
+			-- Trinket 1
+			if isChecked("Trinket 1") and BadBoy_data['Cooldowns'] == 2 and canTrinket(13) then
+				RunMacroText("/use 13")
+			end
+
+			-- Trinket 2
+			if isChecked("Trinket 2") and BadBoy_data['Cooldowns'] == 2 and canTrinket(14) then
+				RunMacroText("/use 14")
+			end
 		end
 	end
 	--[[                    ]] -- Cooldowns end
@@ -174,14 +180,14 @@ if select(3, UnitClass("player")) == 5 then
 				if castSpell("target",DP,true,false) then return; end
 			end
 
-			-- SWD
-			if castSpell("target",SWD,true,false) then return; end
-
 			-- MB
 			if castSpell("target",MB,false,false) then return; end
 
+			-- SWD
+			if castSpell("target",SWD,true,false) then return; end
+
 			-- MF Filler
-			if select(1,UnitChannelInfo("player")) == nil and getSpellCD(MB)>GCD then
+			if select(1,UnitChannelInfo("player")) == nil then
 				if castSpell("target",MF,false,true) then return; end
 			end
 		end
@@ -204,6 +210,52 @@ if select(3, UnitClass("player")) == 5 then
 	end
 	--[[                    ]] -- LF Orbs end
 
+
+	--[[                    ]] -- Weave DotEmAll start
+	function DotEmAll()
+		-- Only DotEmAll if no InsanityBuff
+		if not UnitDebuffID("player",InsanityBuff) then
+			if getDebuffRemain("target",SWP,"player")<1.5*GCD then
+				-- Dot the bosses
+				-- SWP on all bosses except target
+				if ButtonDoT==2 or ButtonDoT==4 then
+					for i = 1, #enemiesTable do
+						local thisUnit = enemiesTable[i].unit
+						local thisHP = enemiesTable[i].hp
+						--if isBoss(thisUnit) then
+							if not UnitIsUnit("target",thisUnit) then
+								local swpRem = getDebuffRemain(thisUnit,SWP,"player")
+								if swpRem<getRefreshTime then
+									if castSpell(thisUnit,SWP,true,false) then return; end
+								end
+							end
+						--end
+					end
+				end
+
+				-- VT on all bosses except target
+				if ButtonDoT==3 or ButtonDoT==4 then
+					for i = 1, #enemiesTable do
+						local thisUnit = enemiesTable[i].unit
+						local thisHP = enemiesTable[i].hp
+						--if isBoss(thisUnit) then
+							if not UnitIsUnit("target",thisUnit) then
+								local vtRem = getDebuffRemain(thisUnit,VT,"player")
+								if vtRem<getRefreshTime then
+									if castSpell(thisUnit,VT,true,false) then
+										lastVT=GetTime()
+										return; 
+									end
+								end
+							end
+						--end
+					end
+				end
+			end
+		end
+	end
+
+	--[[                    ]] -- Weave DotEmAll end
 
 	--[[                    ]] -- IcySingle DotWeave start
 	function IcySingleWeave()
@@ -243,10 +295,14 @@ if select(3, UnitClass("player")) == 5 then
 		----------------
 			--DP if ORBS == 5
 			--if isStanding(0.3) then
-				if ORBS==5 then
-					if castSpell("target",DP,false,true) then
-						lastDP=GetTime()
-						return
+				if ORBS==5 then 
+					if getDebuffRemain("target",SWP,"player")>0 or useSWP~=true then 
+						if getDebuffRemain("target",VT,"player")>0 or uswVT~=true then
+							if castSpell("target",DP,false,true) then
+								lastDP=GetTime()
+								return
+							end
+						end
 					end
 				end
 			--end
@@ -259,9 +315,9 @@ if select(3, UnitClass("player")) == 5 then
 			-- Insanity if noChanneling
 			if getTalent(3,3) then
 				if UnitBuffID("player",InsanityBuff) and getBuffRemain("player",InsanityBuff)>0.7*GCD then
-					--if select(1,UnitChannelInfo("player")) == nil then
+					if select(1,UnitChannelInfo("player")) == nil then
 						if castSpell("target",MF,false,true) then return; end
-					--end
+					end
 				end
 			end
 
@@ -272,9 +328,51 @@ if select(3, UnitClass("player")) == 5 then
 				-- MB on CD
 				if castSpell("target",MB,false,false) then return; end
 
-				-- Mind Spike
-				if ORBS<5 then 
-					if castSpell("target",MSp,false,true) then return; end
+				-- Dot the bosses (only if DotEmAll is OFF)
+				-- SWP on all bosses except target
+				if ButtonDoT==1 then
+					if isChecked("Boss SWP") then
+						for i = 1, #enemiesTable do
+							local thisUnit = enemiesTable[i].unit
+							local thisHP = enemiesTable[i].hp
+							if isBoss(thisUnit) then
+								if not UnitIsUnit("target",thisUnit) then
+									local swpRem = getDebuffRemain(thisUnit,SWP,"player")
+									if swpRem<getRefreshTime then
+										if castSpell(thisUnit,SWP,true,false) then return; end
+									end
+								end
+							end
+						end
+					end
+
+					-- VT on all bosses except target
+					if isChecked("Boss VT") then
+						for i = 1, #enemiesTable do
+							local thisUnit = enemiesTable[i].unit
+							local thisHP = enemiesTable[i].hp
+							if isBoss(thisUnit) then
+								if not UnitIsUnit("target",thisUnit) then
+									local vtRem = getDebuffRemain(thisUnit,VT,"player")
+									if vtRem<getRefreshTime then
+										if castSpell(thisUnit,VT,true,false) then
+											lastVT=GetTime()
+											return; 
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+
+				-- Mind Spike									
+				if ORBS<5 and getDebuffRemain("target",SWP,"player")<2*GCD then
+					if getBuffRemain("player",InsanityBuff)<=0 then
+						if getSpellCD(MB)>0 then -- <=GCD
+							if castSpell("target",MSp,false,true) then return; end
+						end
+					end
 				end
 
 				-- SWD glyphed
@@ -432,37 +530,46 @@ if select(3, UnitClass("player")) == 5 then
 		--------------
 			if not UnitDebuffID("player",InsanityBuff) then
 				-- MB on CD
-				if castSpell("target",MB,false,false) then return; end
+				if select(1,UnitChannelInfo("player")) == nil then
+					if castSpell("target",MB,false,false) then return; end
+				end
 
 				-- Dot the bosses
 				-- SWP on all bosses except target
 				if isChecked("Boss SWP") then
 					for i = 1, #enemiesTable do
 						local thisUnit = enemiesTable[i].unit
-						local ttd = getTimeToDie(thisUnit)
-						local swpRem = getDebuffRemain(thisUnit,SWP,"player")
-						if isBoss(thisUnit) and swpRem<getValue("Refresh Time") and not UnitIsUnit("target",thisUnit) then
-							if castSpell(thisUnit,SWP,true,false) then return; end
+						if not UnitIsUnit("target",thisUnit) then
+							if isBoss(thisUnit) then
+								local swpRem = getDebuffRemain(thisUnit,SWP,"player")
+								if swpRem<getRefreshTime then
+									if castSpell(thisUnit,SWP,true,false) then return; end
+								end
+							end
 						end
 					end
 				end
+
 				-- VT on all bosses except target
 				if isChecked("Boss VT") then
 					for i = 1, #enemiesTable do
 						local thisUnit = enemiesTable[i].unit
-						local ttd = getTimeToDie(thisUnit)
-						local vtRem = getDebuffRemain(thisUnit,VT,"player")
-						if isBoss(thisUnit) and vtRem<getValue("Refresh Time") and GetTime()-lastVT>2*GCD and not UnitIsUnit("target",thisUnit) then
-							if castSpell(thisUnit,VT,true,true) then 
-								lastVT=GetTime()
-								return
+						if not UnitIsUnit("target",thisUnit) then
+							if isBoss(thisUnit) then
+								local vtRem = getDebuffRemain(thisUnit,VT,"player")
+								if vtRem<getRefreshTime then
+									if castSpell(thisUnit,VT,true,false) then
+										lastVT=GetTime()
+										return; 
+									end
+								end
 							end
 						end
 					end
 				end
 
 				-- Mind Spike
-				if ORBS<5 then 
+				if ORBS<5 and getBuffRemain("player",InsanityBuff)<=GCD and getSpellCD(MB)>0 then
 					if castSpell("target",MSp,false,true) then return; end
 				end
 

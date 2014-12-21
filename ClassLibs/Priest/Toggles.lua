@@ -37,14 +37,16 @@ if select(3, UnitClass("player")) == 5 then
 			end
 		end
 
-		-- Burn Button
-		if BurnModesLoaded ~= "Shadow Priest Burn Modes" then
-			BurnModes = {
-				[1] = { mode = "off", value = 1 , overlay = "burn off", tip = "|cffFF0000Burn Orbs \n|cffFFDD11No Orbs will be burned.", highlight = 0, icon = 157217 },
-				[2] = { mode = "burn", value = 2 , overlay = "burn on", tip = "|cff00FF00Burn Orbs \n|cffFFDD11Burn Orbs with DP if targetHP>20.\nIgnoring the Options", highlight = 1, icon = 157217 }
+		-- DoT Button
+		if DoTModesLoaded ~= "Shadow Priest DoT Modes" then
+			DoTModes = {
+				[1] = { mode = "off", value = 1 , overlay = "DotEmAll off", tip = "|cffFF0000No Multidot \n|cffFFDD11This modes are only for \nSingleTarget=1 and Rotation=weave \n\n|cffFF0000This stuff is experimental!", highlight = 0, icon = 155271 },
+				[2] = { mode = "SWP", value = 2 , overlay = "SWP only on", tip = "|cff00FF00SWP only \n|cffFFDD11Dots all Targets with SWP.\nSet min. health in Options", highlight = 1, icon = 589 },
+				[3] = { mode = "VT", value = 3 , overlay = "VT only on", tip = "|cff00FF00VT only \n|cffFFDD11Dots all Targets with VT.\nSet min. health in Options", highlight = 1, icon = 34914 },
+				[4] = { mode = "All", value = 4 , overlay = "DotEmAll", tip = "|cff00FF00SWP&VT \n|cffFFDD11Dots all Targets with SWP&VT.\nSet min. health in Options", highlight = 1, icon = 165370 }
 			};
-			CreateButton("Burn",2,0)
-			BurnModesLoaded = "Shadow Priest Burn Modes";
+			CreateButton("DoT",2,0)
+			DoTModesLoaded = "Shadow Priest DoT Modes";
 		end
 
 		-- Single Rotation Button
@@ -68,14 +70,14 @@ if select(3, UnitClass("player")) == 5 then
 			CreateButton("AoE",3,0)
 			AoEModesLoaded = "Shadow Priest AoE Modes";
 		end
-		-- Interrupt Button
-		if InterruptModesLoaded ~= "Shadow Priest Interrupt Modes" then
-			InterruptModes = {
-				[1] = { mode = "off", value = 1 , overlay = "Kicks Disabled", tip = "|cffFF0000Interrupt (TBD) \n|cffFFDD11No cooldowns will be used.", highlight = 0, icon = 15487 },
-				[2] = { mode = "auto", value = 2 , overlay = "Kick Auto", tip = "|cff00FF00Interrupt (TBD) \n|cffFF0000Spells Included: \n|cffFFDD11Silence \nArcane Torrent(not)", highlight = 1, icon = 15487 }
+		-- Feather Button
+		if FeathertModesLoaded ~= "Shadow Priest Feather Modes" then
+			FeatherModes = {
+				[1] = { mode = "off", value = 1 , overlay = "Feather Disabled", tip = "|cffFF0000Feather", highlight = 0, icon = 121536 },
+				[2] = { mode = "auto", value = 2 , overlay = "Feather Auto", tip = "|cff00FF00Feather", highlight = 1, icon = 121536 }
 			};
-			CreateButton("Interrupt",0,1)
-			InterruptModesLoaded = "Shadow Priest Interrupt Modes";
+			CreateButton("Feather",0,1)
+			FeatherModesLoaded = "Shadow Priest Feather Modes";
 		end
 
 		-- Cooldowns Button

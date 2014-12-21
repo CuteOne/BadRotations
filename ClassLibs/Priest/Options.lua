@@ -146,11 +146,15 @@ if select(3, UnitClass("player")) == 5 then
 
 				-- SWP
 				CreateNewCheck(thisConfig,"Boss SWP");
-				CreateNewText(thisConfig,"|cffFF0000Boss |cffFFFFFFSWP");
+				CreateNewText(thisConfig,"Boss SWP");
 
 				-- VT
 				CreateNewCheck(thisConfig,"Boss VT");
-				CreateNewText(thisConfig,"|cffFF0000Boss |cffFFFFFFVT");
+				CreateNewText(thisConfig,"Boss VT");
+
+				-- Min Health
+				CreateNewBox(thisConfig,"Min Health", 0.5, 5, 0.1, 1.5, "Minimum Health in m (Million).\nMin: 0.5 / Max: 5  / Interval: 0.1");
+				CreateNewText(thisConfig,"Min Health");
 
 				-- Max Targets
 				-- CreateNewCheck(thisConfig,"Max Targets");
@@ -158,7 +162,7 @@ if select(3, UnitClass("player")) == 5 then
 				CreateNewText(thisConfig,"Max Targets");
 
 				-- DoT Refresh
-				CreateNewBox(thisConfig,"Refresh Time", 1.0, 4.5, 0.1, 2.0, "Minimum time to refresh DoT.\nMin: 1 / Max: 4.5 / Interval: 0.1");
+				CreateNewBox(thisConfig,"Refresh Time", 0.0, 4.5, 0.1, 2.0, "Minimum time to refresh DoT.\nMin: 0 / Max: 4.5 / Interval: 0.1");
 				CreateNewText(thisConfig,"Refresh Time");
 
 			-- Wrapper -----------------------------------------

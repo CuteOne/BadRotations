@@ -41,66 +41,68 @@ if select(3, UnitClass("player")) == 5 then
 
 
 			-- Buttons
-			local ButtonDefensive = BadBoy_data['Defensive']
-			local ButtonHalo = 		BadBoy_data['Halo']
-			local ButtonBurn =		BadBoy_data['Burn']
-			local ButtonSingle =	BadBoy_data['Single']
-			local ButtonAoE = 		BadBoy_data['AoE']
-			local ButtonCooldowns =	BadBoy_data['Cooldowns']
+			ButtonDefensive = 	BadBoy_data['Defensive']
+			ButtonHalo = 		BadBoy_data['Halo']
+			ButtonDoT =			BadBoy_data['DoT']
+			ButtonSingle =		BadBoy_data['Single']
+			ButtonAoE = 		BadBoy_data['AoE']
+			ButtonCooldowns =	BadBoy_data['Cooldowns']
+			ButtonFeather = 	BadBoy_data['Feather']
 
 			-- Options
 				--isChecked
 					-- Offensive
-					local useBerserking		= isChecked("Berserking")
+					useBerserking =		 	isChecked("Berserking")
 					if isKnown(Mindbender) then
-						local useMindbender = isChecked("Mindbender")
+						useMindbender = 	isChecked("Mindbender")
 					else
-						local useShadowfiend	= isChecked("Shadowfiend")
+						useShadowfiend	= 	isChecked("Shadowfiend")
 					end
-					local useTrinket1 		= isChecked("Trinket 1")
-					local useTrinket2		= isChecked("Trinket 2")
+					useTrinket1 = 			isChecked("Trinket 1")
+					useTrinket2	= 			isChecked("Trinket 2")
 					if hasGlyph(GlyphOfSWD) then
-						isChecked("SWD glyphed")
+											isChecked("SWD glyphed")
 					end
-					local useScanOrbs		= isChecked("Scan for Orbs")
+					useScanOrbs	= 			isChecked("Scan for Orbs")
 					-- Defensive
-					local useShield			= isChecked("PW: Shield")
-					local useHealthstone	= isChecked("Healthstone")
+					useShield = 			isChecked("PW: Shield")
+					useHealthstone	= 		isChecked("Healthstone")
 					if isKnown(DesperatePrayer) then
-						local useDesperatePrayer	= isChecked("Desperate Prayer")
+						useDesperatePrayer = isChecked("Desperate Prayer")
 					end 
-					local useDispersion		= isChecked("Dispersion")
+					useDispersion =			isChecked("Dispersion")
 					if hasGlyph(GlyphOfFade) then
-						local useFadeGlyph	= isChecked("Fade Glyph")
+						useFadeGlyph =		isChecked("Fade Glyph")
 					end
-					local useFade 			= isChecked("Fade Aggro")
+					useFade =				isChecked("Fade Aggro")
 					-- DoT Weave
-					local useSWP			= isChecked("SWP")
-					local useVT				= isChecked("VT")
+					useSWP =				isChecked("SWP")
+					useVT =					isChecked("VT")
 					-- Multidot
-					local useMultiSWP		= isChecked("Multi SWP")
-					local useMultiVT		= isChecked("Multi VT")
-					local useBossSWP		= isChecked("Boss SWP")
-					local useBossVT			= isChecked("Boss VT")
+					useMultiSWP =			isChecked("Multi SWP")
+					useMultiVT =			isChecked("Multi VT")
+					useBossSWP =			isChecked("Boss SWP")
+					useBossVT =				isChecked("Boss VT")
 					-- Utilities
-					local usePWF			= isChecked("PW: Fortitude")
-					local useShadowform		= isChecked("Shadowform Outfight")
+					usePWF = 				isChecked("PW: Fortitude")
+					useShadowform =			isChecked("Shadowform Outfight")
 					if isKnown(AngelicFeather) then
-						local useFeather	= isChecked("Angelic Feather")
+						useFeather =		isChecked("Angelic Feather")
 					end
 					if isKnown(BodyAndSoul) then
-						local useBodyAndSoul = isChecked("Body And Soul")
+						useBodyAndSoul = 	isChecked("Body And Soul")
 					end
 
 				-- getValue
 					-- Defensive
-					local getPWShield = 	getValue("PW: Shield")
-					local getHealthstone =	getValue("Healthstone")
-					local getDispersion	=	getValue("Dispersion")
-					local getGlyph = 		getValue("Fade Glyph")
+					getPWShield = 			getValue("PW: Shield")
+					getHealthstone =		getValue("Healthstone")
+					getDispersion	=		getValue("Dispersion")
+					getGlyph = 				getValue("Fade Glyph")
 					-- Multidot
-					local getMaxTargets = 	getValue("Max Targets")
-					local getRefreshTime = 	getValue("Refresh Time")
+					getMinHealth =			getValue("Min Health")*1000000
+					getMaxTargets = 		getValue("Max Targets")
+					getRefreshTime = 		getValue("Refresh Time")
 
 
 		-------------
@@ -118,11 +120,11 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- -- Auto Resurrection
-		if isChecked("Auto Rez") then
-			if not isInCombat("player") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("player","mouseover") then
-				if castSpell("mouseover",Rez,true,true) then return; end
-			end
-		end
+		-- if isChecked("Auto Rez") then
+		-- 	if not isInCombat("player") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("player","mouseover") then
+		-- 		if castSpell("mouseover",Rez,true,true) then return; end
+		-- 	end
+		-- end
 
 		------------
 		-- CHECKS --
@@ -160,13 +162,14 @@ if select(3, UnitClass("player")) == 5 then
 		---------------------------------------
 
 		-- Shadowform outfight
-		if not UnitBuffID("player",Shadowform) and useShadowform then
+		if not UnitBuffID("player",Shadowform) and useShadowform==true then
 			if castSpell("player",Shadowform,true,false) then return; end
 		end
 
 		-- Angelic Feather
-		if isKnown(AngelicFeather) then 
-			if useFeather and getGround("player") and IsMovingTime(0.2) and not UnitBuffID("player",AngelicFeatherBuff) then
+		if isKnown(AngelicFeather) and ButtonFeather==2 then
+			if useFeather==true and getGround("player") and IsMovingTime(0.2) and not UnitBuffID("player",AngelicFeatherBuff) then
+			--if useFeather==true and IsMovingTime(0.2) and not UnitBuffID("player",AngelicFeatherBuff) then
 				if castGround("player",AngelicFeather,30) then
 					SpellStopTargeting();
 					return;
@@ -175,9 +178,11 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- Body and Soul
-		if isKnown(BodyAndSoul) and useBodyAndSoul then
-			if getGround("player") and IsMovingTime(0.75) and not UnitBuffID("player",PWS) and not UnitDebuffID("player",PWSDebuff) then
-				if castSpell("player",PWS,true,false) then return; end
+		if isKnown(BodyAndSoul) then 
+			if useBodyAndSoul==true then
+				if getGround("player") and IsMovingTime(0.75) and not UnitBuffID("player",PWS) and not UnitDebuffID("player",PWSDebuff) then
+					if castSpell("player",PWS,true,false) then return; end
+				end
 			end
 		end
 
@@ -228,8 +233,9 @@ if select(3, UnitClass("player")) == 5 then
 				Execute()
 				LFOrbs()
 				if getHP("target")>20 then
-					if ButtonSingle ==1 then IcySingle() end
-					if ButtonSingle ==2 then IcySingleWeave() end
+					if ButtonDoT>=2 then DotEmAll() end
+					if ButtonSingle==1 then IcySingle() end
+					if ButtonSingle==2 then IcySingleWeave() end
 				end
 			end
 
@@ -276,4 +282,3 @@ if select(3, UnitClass("player")) == 5 then
 		end -- AffectingCombat, Pause, Target, Dead/Ghost Check
 	end
 end
-
