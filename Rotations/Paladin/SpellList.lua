@@ -143,12 +143,10 @@ if select(3,UnitClass("player")) == 2 then
 	function castDivineShield(playerHealth)
 		if playerHealth < getValue("Divine Shield") then
 			if castSpell("player",_DivineShield,true,false) then
-				return
+				return true
 			end
 		end
 	end
-
-
 
 	-- Todo : Execution sentence make sure we cast on a unit with as much HP as possible
 	function castExecutionSentence(unit)
@@ -167,17 +165,11 @@ if select(3,UnitClass("player")) == 2 then
 		return false
 	end
 
-	function castHammerOfTheRighteous()
-		if castSpell(dynamicUnit.dyn5,_HammerOfTheRighteous,false,false) then
-			return
-		end
-	end
-
 	function castHammerOfWrath(thisUnit,hpHammerOfWrath,buffAvengingWrath)
 		if canCast(_HammerOfWrath) and getLineOfSight("player",thisUnit.unit) and thisUnit.distance <= 30
 		  and (buffAvengingWrath or thisUnit.hp <= 20) then
 			if castSpell(thisUnit.unit,_HammerOfWrath,false,false) then
-				return
+				return true
 			end
 		end
 	end
@@ -191,8 +183,11 @@ if select(3,UnitClass("player")) == 2 then
 		for i = 1, #enemiesTable do
 			-- define thisUnit
 			local thisUnit = enemiesTable[i]
-			castHammerOfWrath(thisUnit,hpHammerOfWrath,buffAvengingWrath)
+			if castHammerOfWrath(thisUnit,hpHammerOfWrath,buffAvengingWrath,false) then
+				return true
+			end
 		end
+		return false
 	end
 
 
@@ -320,19 +315,19 @@ if select(3,UnitClass("player")) == 2 then
 			if LoHTargets == 1 then
 				if playerHealth <= LoHValue then
 					if castLayOnHands("player") then
-						return
+						return true
 					end
 				end
 			elseif LoHTargets == 2 then
 				if playerHealth <= LoHValue then
 					if castLayOnHands("player") then
-						return
+						return true
 					end
 				else
 					for i = 1, #nNova do
 						if nNova[i].hp <= LoHValue then
 							if castLayOnHands(nNova[i].unit) then
-								return
+								return true
 							end
 						end
 					end
@@ -340,13 +335,13 @@ if select(3,UnitClass("player")) == 2 then
 			elseif LoHTargets == 3 then
 				if playerHealth <= LoHValue then
 					if castLayOnHands("player") then
-						return
+						return true
 					end
 				else
 					for i = 1, #nNova do
 						if nNova[i].hp <= LoHValue and (nNova[i].role == "HEALER" or nNova[i].role == "TANK") then
 							if castLayOnHands(nNova[i].unit) then
-								return
+								return true
 							end
 						end
 					end
@@ -355,12 +350,13 @@ if select(3,UnitClass("player")) == 2 then
 				for i = 1, #nNova do
 					if nNova[i].hp <= LoHValue then
 						if castLayOnHands(nNova[i].unit) then
-							return
+							return true
 						end
 					end
 				end
 			end
 		end
+		return false
 	end
 
 	function castLightsHammer(unit)
@@ -416,20 +412,21 @@ if select(3,UnitClass("player")) == 2 then
 	function castSealOfTruth()
 		--CastShapeshiftForm(1)
 		if castSpell("player",_SealOfThruth,true,false) then
-			return
+			return true
 		end
 	end
 
 	function castSealOfRigtheousness()
 		--CastShapeshiftForm(2)
 		if castSpell("player",_SealOfRighteousness,true,false) then
-			return
+			return true
 		end
 	end
 
 
 	-- Seraphim
-	function castSeraphim(_HolyPower)
+	-- I removed _HolyPower, we have it global instead.
+	function castSeraphim()
 		if isSelected("Seraphim") and canCast(_Seraphim) then
 			if (isDummy(dynamicUnit.dyn5) or (UnitHealth(dynamicUnit.dyn5) >= 400*UnitHealthMax("player")/100)) then
 				if castSpell("player",_Seraphim,true,false) then
@@ -442,12 +439,14 @@ if select(3,UnitClass("player")) == 2 then
 
 
 	-- Todo: We should calculate expected heal with resolve to not overheal
-	function castWordOfGlory(unit, health, holypower)
+	function castWordOfGlory(unit, health, HolyPower)
 		if health == 0 then --Set it to 0 if we should use config set value
 			health = getValue("Word Of Glory On Self")
 		end
-
-		if getHP(unit) <= health and (holypower > holypower or UnitBuffID("player", _DivinePurposeBuff)) then -- Handle this via config? getHP does it include incoming heals? Bastion of Glory checks?
+ 		-- Gabbz: Handle this via config? getHP does it include incoming heals? Bastion of Glory checks?
+ 		-- CML: I have it in ret as  getValue("Self Glory"), you should use same name as anyway the config values are saved into specs
+ 		-- the getHP method will use selected healing engines values as it will first try to find the unit in nnova
+		if getHP(unit) <= health and (_HolyPower > HolyPower or UnitBuffID("player", _DivinePurposeBuff)) then
 			if castSpell(unit,_WordOfGlory,true,false) then
 				return true
 			end

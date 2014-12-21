@@ -294,6 +294,12 @@ function getUnitCoeficient(unit,distance,threat,burnValue,safeStatus)
 			end
 		end
 
+		-- raid target management
+		-- here we want to define an order for raid targets focussing
+		-- if GetRaidTargetIndex(unit) == 8 then
+		-- 	coef = coef + 50
+		-- end
+
 		-- if threat is checked, add 100 points of prio if we lost aggro on that target
 		if getOptionCheck("Tank Threat") == true then
 			if select(6, GetSpecializationInfo(GetSpecialization())) == "TANK" and threat < 3 and unitHP > 10 then

@@ -3,13 +3,14 @@ if select(3,UnitClass("player")) == 2 then
 	function castExorcism()
 		if hasGlyph(122028) then
 			if castSpell(dynamicUnit.dyn5,_MassExorcism,false,false) then
-				return
+				return true
 			end
 		else
 			if castSpell(dynamicUnit.dyn30,_Exorcism,false,false) then
-				return
+				return true
 			end
 		end
+		return false
 	end
 
 	function castDivineStorm()
@@ -18,8 +19,9 @@ if select(3,UnitClass("player")) == 2 then
 			targetDivineStorm = dynamicUnit.dyn16AoE
 		end
 		if castSpell(targetDivineStorm,_DivineStorm,false,false) then
-	  		return
+	  		return true
 	  	end
+	  	return false
 	end
 
 	function castTemplarsVerdict()
@@ -29,7 +31,8 @@ if select(3,UnitClass("player")) == 2 then
 			templarsVerdictUnit = dynamicUnit.dyn8
 		end
 		if castSpell(templarsVerdictUnit,_TemplarsVerdict,false,false) then
-			return
+			return true
 		end
+		return false
 	end
 end

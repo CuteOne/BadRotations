@@ -1,8 +1,36 @@
 -- here we want to define functions to use with the healing profiles
 
--- find a tank to put beacon/lifeblood/earth shield on
+-- find best tank to put our lb/beacon/earth shield on
+function getFocusedTank()
+    local tanks = getTanksTable()
+    -- if we are targetting a mob and its targetting a tank we want to define wich tank it is.
+    if #tanks > 0 and UnitExists("target") and UnitIsVisible("target") and UnitExists("targettarget")
+      and UnitIsVisible("targettarget") then
+        local targetTargetGUID = UnitGUID("targettarget")
+        for i = 1,#tanks do
+            if tanks[i].guid == targetTargetGUID then
+                oldTank = tanks[i]
+                return tanks[i]
+            end
+        end
+    elseif #tanks > 0 then
+        -- otherwise we want to see wich tank is beign targetted by its mob and whos threat is highest
+        for i = 1,#tanks do
+            print(UnitGUID(tanks[i].target)..""..tanks[i].guid)
+            if UnitGUID(tanks[i].target) == tanks[i].guid then
+                -- mob is on this unit
+                oldTank = tanks[i]
+                return tanks[i]
+            end
+        end
+    else
+        print(":( no tanks")
+    end
+end
+
+-- find tanks
 function getTanksTable()
-    tanksTable = {}
+    local tanksTable = {}
     for i = 1, #nNova do
         if nNova[i].role == "TANK" then
             tinsert(tanksTable, nNova[i])
@@ -17,7 +45,8 @@ function castWiseAoEHeal(unitTable,spell,radius,health,minCount,maxCount,facingC
         local bestCandidate = nil
         -- find best candidate with list of units
         for i = 1, #unitTable do
-            if not (facingCheck ~= true and not getFacing("player",unitTable[i].unit)) then
+            -- added a visible check as its not in healing engine.
+            if UnitIsVisible(unitTable[i].unit) and not (facingCheck ~= true and not getFacing("player",unitTable[i].unit)) then
                 local candidate = getUnitsToHealAround(unitTable[i].unit,radius,health,maxCount,facingCheck)
                 if bestCandidate == nil or bestCandidate[0].coef > candidate[0].coef then
                     bestCandidate = candidate
