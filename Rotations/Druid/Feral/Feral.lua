@@ -589,7 +589,7 @@ if select(3, UnitClass("player")) == 11 then
 		    			if castSpell(dynamicTarget(8,true),sw,false,false,false) then return end
 		            end
 	    -- Shred
-		    		if not useAoE() and power>40 and combo<5 and rkRemain>3 then
+		    		if not useAoE() and power>40 and combo<5 then
 		    			if castSpell(dynamicTarget(5,true),shr,false,false,false) then return end
 		            end
 			    end --not stealth end
