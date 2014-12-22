@@ -296,9 +296,7 @@ function DruidRestoration()
 				end
 			end
 		end
-
-		--[[ 5 - DPs --(range and  melee)]]
-		if BadBoy_data["DPS"] == 2 and not (isChecked("Safe DPS Threshold") and lowestHP < getValue("Safe DPS Threshold")) then
+		local function dpsRestoDruid()
 			if isChecked("DPS Toggle") == true and SpecificToggle("DPS Toggle") == true  then
 		        -- Let's get angry :D
 		        makeEnemiesTable(40)
@@ -370,6 +368,11 @@ function DruidRestoration()
 					CancelShapeshiftForm()
 				end
 			end
+		end
+
+		--[[ 5 - DPs --(range and  melee)]]
+		if BadBoy_data["DPS"] == 2 and not (isChecked("Safe DPS Threshold") and lowestHP < getValue("Safe DPS Threshold")) then
+			dpsRestoDruid()
 		end
 
 
@@ -938,6 +941,10 @@ function DruidRestoration()
 					end
 				end
 			end
+		end
+		--[[ 20 - DPS Filler --(range and  melee)]]
+		if BadBoy_data["DPS"] == 2 then
+			dpsRestoDruid()
 		end
 	end
 end

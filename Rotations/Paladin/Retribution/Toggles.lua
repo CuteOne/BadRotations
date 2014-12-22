@@ -46,17 +46,25 @@ if select(3,UnitClass("player")) == 2 then
                     mode = "None",
                     value = 1 ,
                     overlay = "Interrupts Disabled",
-                    tip = "|cffFF0000No Interrupts will be used.",
+                    tip = "No Interrupts will be used.",
                     highlight = 0,
-                    icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]]
+                    icon = [[INTERFACE\ICONS\ability_hibernation]]
                 },
                 [2] = {
-                    mode = "All",
+                    mode = "Raid",
                     value = 2 ,
-                    overlay = "Interrupts Enabled",
-                    tip = "|cffFF0000Spells Included: \n|cffFFDD11Rebuke.",
+                    overlay = "Interrupts Specific Abilities",
+                    tip = "Interrupts preset abilities only.",
                     highlight = 1,
-                    icon = 96231
+                    icon = [[INTERFACE\ICONS\INV_Misc_Head_Dragon_01.png]]
+                },
+                [3] = {
+                    mode = "All",
+                    value = 3 ,
+                    overlay = "Interrupt All Abilities",
+                    tip = "Interrupts everything.",
+                    highlight = 1,
+                    icon = 147362
                 }
             }
             CreateButton("Interrupts",1,0)

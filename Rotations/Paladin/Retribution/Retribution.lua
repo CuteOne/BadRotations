@@ -359,7 +359,7 @@ if select(3, UnitClass("player")) == 2 then
 				end
 			end
 			-- exorcism,if=buff.blazing_contempt.up&holy_power<=2&buff.holy_avenger.down
-			if buffBlazingContemp > 0 and _HolyPower <= 2 and not buffHolyAvenger then
+			if buffBlazingContemp and _HolyPower <= 2 and buffHolyAvenger == 0 then
 				if castExorcism() then
 					return
 				end
@@ -438,7 +438,7 @@ if select(3, UnitClass("player")) == 2 then
 				end
 			end
 			-- exorcism,if=buff.blazing_contempt.up&holy_power<=2&buff.holy_avenger.down
-			if buffBlazingContemp > 0 and _HolyPower <= 2 and buffHolyAvenger == 0 then
+			if buffBlazingContemp and _HolyPower <= 2 and buffHolyAvenger == 0 then
 				if castExorcism() then
 					return
 				end
