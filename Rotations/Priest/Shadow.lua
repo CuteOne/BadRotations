@@ -17,17 +17,17 @@ if select(3, UnitClass("player")) == 5 then
 			-- thp = getHP("target")
 			ORBS = UnitPower("player", SPELL_POWER_SHADOW_ORBS)
 
-			MBCD = getSpellCD(MB)
-			SWDCD = getSpellCD(SWD)
+			--MBCD = getSpellCD(MB)
+			--SWDCD = getSpellCD(SWD)
 
 			-- DP
 			DPTIME = 6.0/(1+UnitSpellHaste("player")/100)
-			DPTICK = DPTIME/6
+			--DPTICK = DPTIME/6
 			-- SWP (18sec)
-			SWPTICK = 18.0/(1+UnitSpellHaste("player")/100)/6
+			--SWPTICK = 18.0/(1+UnitSpellHaste("player")/100)/6
 			-- VT (15sec)
-			VTTICK = 16.0/(1+UnitSpellHaste("player")/100)/5
-			VTCASTTIME = 1.5/(1+UnitSpellHaste("player")/100)
+			--VTTICK = 16.0/(1+UnitSpellHaste("player")/100)/5
+			--VTCASTTIME = 1.5/(1+UnitSpellHaste("player")/100)
 
 			if lastVT==nil then lastVT=0 end
 			if lastDP==nil then	lastDP=99 end
@@ -40,6 +40,11 @@ if select(3, UnitClass("player")) == 5 then
 
 
 			local options = {
+				-- Player values
+				player = {
+					GCD = 1.5/(1+UnitSpellHaste("player")/100),
+					php =		getHP("player")
+				},
 				-- Buttons
 				buttons = {
 					Defensive =	BadBoy_data['Defensive'],

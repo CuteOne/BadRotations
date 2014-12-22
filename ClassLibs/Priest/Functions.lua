@@ -81,13 +81,13 @@ if select(3, UnitClass("player")) == 5 then
 	--[[                    ]] -- Defensives
 	function ShadowDefensive(options)
 		-- Shield
-		if isChecked("PW: Shield") and (BadBoy_data['Defensive'] == 2) and php <= getValue("PW: Shield") then
+		if isChecked("PW: Shield") and (BadBoy_data['Defensive'] == 2) and options.player.php <= getValue("PW: Shield") then
 			if castSpell("player",PWS) then return; end
 		end
 
 		-- Fade (Glyphed)
 		if hasGlyph(GlyphOfFade) then
-			if isChecked("Fade Glyph") and (BadBoy_data['Defensive'] == 2) and php <= getValue("Fade Glyph") then
+			if isChecked("Fade Glyph") and (BadBoy_data['Defensive'] == 2) and options.player.php <= getValue("Fade Glyph") then
 				if castSpell("player",Fade) then return; end
 			end
 		end
@@ -110,13 +110,13 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- Dispersion
-		if isChecked("Dispersion") and (BadBoy_data['Defensive'] == 2) and php <= getValue("Dispersion") then
+		if isChecked("Dispersion") and (BadBoy_data['Defensive'] == 2) and options.player.php <= getValue("Dispersion") then
 			if castSpell("player",Fade) then return; end
 		end
 
 		-- Desperate Prayer
 		if isKnown(DesperatePrayer) then
-			if isChecked("Desperate Prayer") and (BadBoy_data['Defensive'] == 2) and php <= getValue("Desperate Prayer") then
+			if isChecked("Desperate Prayer") and (BadBoy_data['Defensive'] == 2) and options.player.php <= getValue("Desperate Prayer") then
 				if castSpell("player",DesperatePrayer) then return; end
 			end
 		end
@@ -272,7 +272,7 @@ if select(3, UnitClass("player")) == 5 then
 				-- end
 				-- local Break=DoTWeaveBreak()
 				-- if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<Break then
-				if ORBS>=4 and MBCD<2*GCD then
+				if ORBS>=4 and getSpellCD(MB)<=2*options.player.GCD then
 					--if options.isChecked.SWP then
 						if not UnitDebuffID("target",SWP,"player") then
 							if castSpell("target",SWP,true,false) then return; end
@@ -312,7 +312,7 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- Insanity if noChanneling
 			if getTalent(3,3) then
-				if UnitBuffID("player",InsanityBuff) and getBuffRemain("player",InsanityBuff)>0.7*GCD then
+				if UnitBuffID("player",InsanityBuff) and getBuffRemain("player",InsanityBuff)>0.7*options.player.GCD then
 					if select(1,UnitChannelInfo("player")) == nil then
 						if castSpell("target",MF,false,true) then return; end
 					end
@@ -375,7 +375,7 @@ if select(3, UnitClass("player")) == 5 then
 
 				if #getEnemies("target",10)<options.values.MindSear or #getEnemies("target",10)>10 then
 					-- Mind Spike									
-					if ORBS<5 and getDebuffRemain("target",SWP,"player")<2*GCD then
+					if ORBS<5 and getDebuffRemain("target",SWP,"player")<2*options.player.GCD then
 						if getBuffRemain("player",InsanityBuff)<=0 then
 							if getSpellCD(MB)>0 then -- <=GCD
 								if castSpell("target",MSp,false,true) then return; end
@@ -465,7 +465,7 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- MF Filler
 		if ORBS<5 then
-			if getSpellCD(MB)>0.2*GCD then
+			if getSpellCD(MB)>0.2*options.player.GCD then
 				if select(1,UnitChannelInfo("player")) == nil then
 					if castSpell("target",MF,false,true) then return; end
 				end
@@ -491,7 +491,7 @@ if select(3, UnitClass("player")) == 5 then
 				-- end
 				-- local Break=DoTWeaveBreak()
 				-- if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<Break then
-				if ORBS>=4 and getHP("target")>20 and MBCD<2*GCD then
+				if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<2*options.player.GCD then
 					if isChecked("SWP") then
 						if not UnitDebuffID("target",SWP,"player") then
 							if castSpell("target",SWP,true,false) then return; end
@@ -527,7 +527,7 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- Insanity if noChanneling
 			if getTalent(3,3) then
-				if UnitBuffID("player",InsanityBuff) and getBuffRemain("player",InsanityBuff)>0.7*GCD then
+				if UnitBuffID("player",InsanityBuff) and getBuffRemain("player",InsanityBuff)>0.7*options.player.GCD then
 					--if select(1,UnitChannelInfo("player")) == nil then
 						if castSpell("target",MF,false,true) then return; end
 					--end
@@ -578,7 +578,7 @@ if select(3, UnitClass("player")) == 5 then
 				end
 
 				-- Mind Spike
-				if ORBS<5 and getBuffRemain("player",InsanityBuff)<=GCD and getSpellCD(MB)>0 then
+				if ORBS<5 and getBuffRemain("player",InsanityBuff)<=options.player.GCD and getSpellCD(MB)>0 then
 					if castSpell("target",MSp,false,true) then return; end
 				end
 
