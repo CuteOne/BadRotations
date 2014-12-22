@@ -119,22 +119,22 @@ if select(3, UnitClass("player")) == 5 then
 
 
 			-- Wrapper -----------------------------------------
-				if isKnown(CoP) then
-					CreateNewWrap(thisConfig,"      |cffBA55D3DoT Weave");
-						-- General
-						--CreateNewCheck(thisConfig,"DoTWeave");
-						--CreateNewText(thisConfig,"DoTWeave");
-						-- SWP
-						CreateNewCheck(thisConfig,"SWP");
-						CreateNewText(thisConfig,"SWP");
-						-- VT
-						CreateNewCheck(thisConfig,"VT");
-						CreateNewText(thisConfig,"VT");
-				end
+				-- if isKnown(CoP) then
+				-- 	CreateNewWrap(thisConfig,"      |cffBA55D3DoT Weave");
+				-- 		-- General
+				-- 		--CreateNewCheck(thisConfig,"DoTWeave");
+				-- 		--CreateNewText(thisConfig,"DoTWeave");
+				-- 		-- SWP
+				-- 		CreateNewCheck(thisConfig,"SWP");
+				-- 		CreateNewText(thisConfig,"SWP");
+				-- 		-- VT
+				-- 		CreateNewCheck(thisConfig,"VT");
+				-- 		CreateNewText(thisConfig,"VT");
+				-- end
 
 
 			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"      |cffBA55D3Multidot");
+			CreateNewWrap(thisConfig,"      |cffBA55D3Multitarget");
 
 				-- SWP
 				CreateNewCheck(thisConfig,"Multi SWP");
@@ -153,7 +153,7 @@ if select(3, UnitClass("player")) == 5 then
 				CreateNewText(thisConfig,"Boss VT");
 
 				-- Min Health
-				CreateNewBox(thisConfig,"Min Health", 0.5, 5, 0.1, 1.5, "Minimum Health in m (Million).\nMin: 0.5 / Max: 5  / Interval: 0.1");
+				CreateNewBox(thisConfig,"Min Health", 0.5, 5, 0.1, 1.5, "Minimum Health in |cffFF0000million HP|cffFFBB00.\nMin: 0.5 / Max: 5  / Interval: 0.1");
 				CreateNewText(thisConfig,"Min Health");
 
 				-- Max Targets
@@ -164,6 +164,11 @@ if select(3, UnitClass("player")) == 5 then
 				-- DoT Refresh
 				CreateNewBox(thisConfig,"Refresh Time", 0.0, 4.5, 0.1, 2.0, "Minimum time to refresh DoT.\nMin: 0 / Max: 4.5 / Interval: 0.1");
 				CreateNewText(thisConfig,"Refresh Time");
+				
+				-- Mind Sear Targets
+				CreateNewBox(thisConfig,"MS Targets", 1, 10, 1, 3, "Minimum count of enemies around target \nto use Mind Sear instead of Mind Spike. \nMin: 1 / Max: 10+ / Interval: 1");
+				CreateNewText(thisConfig,"MS Targets");
+
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"      |cffBA55D3Utilities");
@@ -185,12 +190,12 @@ if select(3, UnitClass("player")) == 5 then
 				CreateNewCheck(thisConfig,"Auto Rez");
 				CreateNewText(thisConfig,"Auto Rez(TBD)");
 
-				-- AutoSpeedBuff
-				if isKnown(AngelicFeather) then
-					--Angelic Feather
-					CreateNewCheck(thisConfig,"Angelic Feather");
-					CreateNewText(thisConfig,"Angelic Feather");
-				end
+				-- -- AutoSpeedBuff
+				-- if isKnown(AngelicFeather) then
+				-- 	--Angelic Feather
+				-- 	CreateNewCheck(thisConfig,"Angelic Feather");
+				-- 	CreateNewText(thisConfig,"Angelic Feather");
+				-- end
 				
 				if isKnown(BodyAndSoul) then
 					--Body And Soul
