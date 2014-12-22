@@ -50,6 +50,7 @@ if select(3,UnitClass("player")) == 10 then
                 and (isInCombat(enemies[i]) or isDummy(enemies[i]) or isChecked("Death Monk Mode"))
                 and UnitGUID(enemies[i])~=currtar
                 and UnitDetailedThreatSituation("player", enemies[i]) ~= nil
+                and not isLongTimeCCed(enemies[i])
             then
                 table.insert( targets,{ Name = UnitName(enemies[i]), Unit = enemies[i], HP = UnitHealth(enemies[i]), Range = getDistance("player",enemies[i]) })
             end

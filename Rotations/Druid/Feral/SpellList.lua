@@ -1,17 +1,12 @@
 if select(3, UnitClass("player")) == 11 then
 
     ------Abilities-------
-    af	=	1066	--Aquatic Form
     bar	=	22812	--Barkskin
-    bf	=	5487	--Bear Form
     ber	=	106951	--Berserk
-    berg=	50334	--Berserk Guardian
-    cf 	= 	768		--Cat Form
     cy	=	33786	--Cyclone
     dsh	=	1850	--Dash
     er	=	339		--Entangling Roots
     ff	=	770		--Faerie Fire
-    flf	=	165962	--Flight Form
     fb	=	22568	--Ferocious Bite
     fr	=	22842	--Frenzied Regeneration
     grl	=	6795	--Growl
@@ -28,7 +23,7 @@ if select(3, UnitClass("player")) == 11 then
     ng	=	16689	--Nature's Grasp
     nv	=	124974	--Nature's Vigil
     prl	=	5215	--Prowl
-    rk	=	155722  --1822	--Rake
+    rk	=	1822--155722  --1822	--Rake
     rb	=	20484	--Rebirth
     rej	=	774		--Rejuvenation
     rc	=	2782	--Remove Corruption
@@ -48,7 +43,6 @@ if select(3, UnitClass("player")) == 11 then
     thb	=	77758	--Thrash: Bear Form
     tf	=	5217	--Tiger's Fury
     tq	=	740		--Tranquility
-    trf	=	783		--Travel Form
     wth =	5176	--Wrath
 
     ------Talents------

@@ -146,7 +146,7 @@ if select(3, UnitClass("player")) == 10 then
 					end
 				end
 	-- Surging Mist
-				if isChecked(getOption(_SurgingMist)) and php<=getValue(getOption(_SurgingMist)) and (not isInCombat("player") or (isInCombat("player") and php<=25)) and power>=30 and not isMoving("player") then
+				if isChecked(getOption(_SurgingMist)) and php<=getValue(getOption(_SurgingMist)) and not isInCombat("player") and power>=30 and not isMoving("player") then
 					if castSpell("player",_SurgingMist,true,false) then return end
 				end
 	-- Touch of Karma
@@ -253,6 +253,10 @@ if select(3, UnitClass("player")) == 10 then
 					if isChecked(getOption(_InvokeXuen)) then
 						if castSpell(thisUnit,_InvokeXuen) then return end
 					end
+			-- Potion
+					if canUse(109217) and serRemain>0 and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") then
+						UseItemByName(tostring(select(1,GetItemInfo(109217))))
+	            	end
 			-- Racial: Troll Berserking
 			          if isChecked("Racial") and select(2, UnitRace("player")) == "Troll" then
 			            if castSpell("player",_Berserking,false,false) then return end
