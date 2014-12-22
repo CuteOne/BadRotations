@@ -420,9 +420,9 @@ function DruidRestoration()
 			end
 		end
 		--[[ 11 - Swiftmend--(cast if hp < value, Glyped or unGlyphed)]]
-		if isKnown(114107) ~= true then
+		-- if isKnown(114107) ~= true then
 			SwiftMender(lowestUnit,lowestHP)
-		end
+		-- end
 		--[[ 13 - WildGrowth Tol --(Tree of Life)]]
 		if isKnown(33891) and isChecked("WildGrowth Tol") and UnitBuffID("player", 33891)
 		  and lowestHP < getValue("WildGrowth Tol") then

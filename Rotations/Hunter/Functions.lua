@@ -70,6 +70,30 @@ function Exotic(slot)
     return true
 end
 
+function castKillShot(unit)
+    -- see what spell to use
+    local killSpell = 53351
+    local hpTreshold = 20
+    if UnitLevel("player") >= 92 then
+        killSpell = 157708
+        hpTreshold = 35
+    end
+    --
+    if getSpellCD(killSpell) == 0 and getHP("target") <= hpTreshold then
+        if UnitCastingInfo("player") ~= nil then
+            RunMacroText("/stopcasting")
+            RunMacroText("/stopcasting")
+            if castSpell(unit,killSpell,false,false) then
+                return true
+            end
+        else
+            if castSpell(unit,killSpell,false,false) then
+                return true
+            end
+        end
+    end
+    return false
+end
 end
 
 

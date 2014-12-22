@@ -1,5 +1,6 @@
 -- creates a checkbox with current UI settings at location within parent
-function createCheckBox(parent,name,x,y,checkState,tip1)
+function createCheckBox(parent,value,x,y,checkState)
+    local name = value.name
     if _G[parent..name.."Check"] == nil then
         if BadBoy_data.options[GetSpecialization()] then
             if BadBoy_data.options[GetSpecialization()][name.."Check"] == nil then

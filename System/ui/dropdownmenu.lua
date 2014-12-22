@@ -1,4 +1,4 @@
--- i will need to make tables of values.
+-- will need to make tables of values.
 function createDropDownMenu(parent,option,x,y,textString)
     local value,tip,dropdown,dropOptions = option.name,option.dropTip,option.dropdown,option.dropOptions
     local currentValue = 1
@@ -130,6 +130,7 @@ function createDropDownChild(grandParent,parent,value,x,y,tag,dropOptions,tip)
     _G[parent..value.."DropChild"].texture:SetHeight(22*scale)
     -- click event
     _G[parent..value.."DropChild"]:SetScript("OnClick", function(self)
+        -- print(parent..value.."DropChild")
         -- on click child frame select value
         if BadBoy_data.options[GetSpecialization()][parent.."Drop"] ~= tag then
             BadBoy_data.options[GetSpecialization()][parent.."Drop"] = tag

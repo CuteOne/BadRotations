@@ -298,7 +298,7 @@ function RestorationConfig()
         CreateNewBox(thisConfig, "Rejuvenation Debuff",0,100,5,65,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRejuvenation |cffFFBB00on Debuffed units.")
         CreateNewText(thisConfig,"Rejuvenation Debuff")
 
-        if isKnown(114107) ~= true then
+        -- if isKnown(114107) ~= true then
             -- Swiftmend
             CreateNewCheck(thisConfig,"Swiftmend")
             CreateNewBox(thisConfig, "Swiftmend",0,100,5,35,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFSwiftmend.")
@@ -308,7 +308,7 @@ function RestorationConfig()
             CreateNewCheck(thisConfig,"Swiftmend Harmoney")
             CreateNewBox(thisConfig, "Swiftmend Harmoney",0,100,5,40,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFSwiftmend|cffFFBB00 to refresh Harmoney.")
             CreateNewText(thisConfig,"Swiftmend Harmoney")
-        end
+        -- end
 
 -- Wrapper -----------------------------------------
         CreateNewWrap(thisConfig,"----- AoE Healing -----")

@@ -201,7 +201,7 @@ function ConstructUI()
                     end
                     if thisOption.check ~= nil then
                         -- check                1               2             3         4
-                        createCheckBox(currentProfileName,thisOption.name,7*scale,ypos*scale-10,
+                        createCheckBox(currentProfileName,thisOption,7*scale,ypos*scale-10,
                         --          5                   6
                           thisOption.checkBase,thisOption.checkTip)
                     end
@@ -314,7 +314,39 @@ function ConstructUI()
                         check = true,
                         name = "Don't break CCs",
                         tip = "Check to prevent damage to targets that are CC."
-                    }
+                    },
+
+                    [7] = {
+                        checkbase = true,
+                        check = true,
+                        name = "Interrupts Handler",
+                        tip = "Check this to allow Interrupts Handler.",
+                        dropBase = 1,
+                        dropdown = "Choose who you want to interupt.",
+                        dropOptions = {
+                            [1] = colorRed.."Target",
+                            [2] = colorBlue.."T/M",
+                            [3] = colorGold.."T/M/F",
+                            [4] = colorGreen.."All"
+                        },
+                        dropTip = colorWhite.."Select prefered targets:"..
+                            colorRed.."\nTarget(Only current Target)"..
+                            colorBlue.."\nT/M(Only Target/Mouse)"..
+                            colorGold.."\nT/M/F(Target/Mouse/Focus)"..
+                            colorGreen.."\nAll(Any available in range)"
+                    },
+                    [8] = {
+                        checkbase = false,
+                        check = true,
+                        name = "Interrupts Frame",
+                        tip = "Check this to display Interrupts Frame."
+                    },
+                    [9] = {
+                        checkbase = false,
+                        check = true,
+                        name = "Only Known Units",
+                        tip = "Check this to interrupt only on known units using whitelist."
+                    },
                 },
                 ["Healing Engine"] = {
                     [1] = {
@@ -363,7 +395,12 @@ function ConstructUI()
                         checkbase = true,
                         check = true,
                         name = "Blacklist",
-                        tip = "|cffFFBB00How much |cffFF0000%HP|cffFFBB00 do we want to add to |cffFFDD00Blacklisted |cffFFBB00units. Use /Blacklist while mouse-overing someone to add it to the black list."
+
+                        status = "|cffFFBB00How much |cffFF0000%HP|cffFFBB00 do we want to add to |cffFFDD00Blacklisted |cffFFBB00units. Use /Blacklist while mouse-overing someone to add it to the black list.",
+                        statusBase = 95,
+                        statusMin = 0,
+                        statusMax = 100,
+                        statusStep = 5,
                     },
                     [6] = {
                         checkbase = false,
@@ -408,37 +445,59 @@ function ConstructUI()
                         tip = "Engine Refresh throttle(ms)."
                     }
                 },
-                ["Interrupts Engine"] = {
+                ["Other Features"] = {
                     [1] = {
-                        checkbase = true,
+                        checkbase = false,
                         check = true,
-                        name = "Interrupts Handler",
-                        tip = "Check this to allow Interrupts Handler.",
-                        dropBase = 1,
-                        dropdown = "Choose who you want to interupt.",
-                        dropOptions = {
-                            [1] = colorRed.."Target",
-                            [2] = colorBlue.."T/M",
-                            [3] = colorGold.."T/M/F",
-                            [4] = colorGreen.."All"
-                        },
-                        dropTip = colorWhite.."Select prefered targets:"..
-                            colorRed.."\nTarget(Only current Target)"..
-                            colorBlue.."\nT/M(Only Target/Mouse)"..
-                            colorGold.."\nT/M/F(Target/Mouse/Focus)"..
-                            colorGreen.."\nAll(Any available in range)"
+                        name = "Profession Helper",
+                        --"Harmoney SotF", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRegrowth|cffFFBB00 to refresh Harmoney.")
+
+                        status = "Set Desired Recast Delay.",
+                        statusBase = 0.5,
+                        statusMin = 0,
+                        statusMax = 1,
+                        statusStep = .1,
+                        tip = "Check to enable Professions Helper."
                     },
                     [2] = {
                         checkbase = false,
                         check = true,
-                        name = "Interrupts Frame",
-                        tip = "Check this to display Interrupts Frame."
+                        name = "Prospect Ores",
+                        tip = "Prospect Desired Ores.",
+                        dropBase = 4,
+                        dropdown = "Wich ores?.",
+                        dropOptions = {
+                            [1] = "WoD",
+                            [2] = "MoP",
+                            [3] = "Cata",
+                            [4] = "All"
+                        },
                     },
                     [3] = {
                         checkbase = false,
                         check = true,
-                        name = "Only Known Units",
-                        tip = "Check this to interrupt only on known units using whitelist."
+                        name = "Mill Herbs",
+                        tip = "Mill Desired Herbs.",
+                        dropBase = 4,
+                        dropdown = "Wich ores?.",
+                        dropOptions = {
+                            [1] = "WoD",
+                            [2] = "MoP",
+                            [3] = "Cata",
+                            [4] = "All"
+                        },
+                    },
+                    [4] = {
+                        checkbase = false,
+                        check = true,
+                        name = "Disenchant",
+                        tip = "Disenchant Cata blues/greens."
+                    },
+                    [5] = {
+                        checkbase = false,
+                        check = true,
+                        name = "Leather Scraps",
+                        tip = "Combine leather scraps."
                     },
                 }
             }
@@ -451,7 +510,7 @@ function ConstructUI()
 
             -- options buttons interation, set the one clicked white and others gray
             function radioGeneral(parent,value)
-                local generalRadios = {"General","Enemies Engine","Healing Engine","Interrupts Engine"}
+                local generalRadios = {"General","Enemies Engine","Healing Engine","Other Features"}
                 for i = 1, 4 do
                     local thisButton = generalRadios[i]
                     if thisButton == value then
@@ -478,7 +537,7 @@ function ConstructUI()
                     if BadBoy_data.BadBoyUI.optionsFrame.options[value]
                       and BadBoy_data.BadBoyUI.optionsFrame.options[value][i] ~= nil then
                         local thisOption,xpos = BadBoy_data.BadBoyUI.optionsFrame.options[value][i],math.floor((i-1)/4)*260
-                        createCheckBox("options",thisOption.name,(xpos+7),(ypos*-27)-10,thisOption.checkbase)
+                        createCheckBox("options",thisOption,(xpos+7),(ypos*-27)-10)
                         local textWidth = 155
                         if thisOption.status ~= nil then
                             -- create a statusbar if one declared -- (parent,value,x,y,textString)
@@ -497,7 +556,7 @@ function ConstructUI()
             end
 
             function refreshOptions()
-                local generalRadios = {"General","Enemies Engine","Healing Engine","Interrupts Engine"}
+                local generalRadios = {"General","Enemies Engine","Healing Engine","Other Features"}
                 for i = 1, 4 do
                     -- thisButton is name of parent button
                     local thisButton = generalRadios[i]
@@ -544,7 +603,7 @@ function ConstructUI()
             -- if we uncheck the option panel, all options should hide and other options appear.
             -- hide existing array of options
             function optionsShow(button)
-                local generalRadios = {"General","Enemies Engine","Healing Engine","Interrupts Engine"}
+                local generalRadios = {"General","Enemies Engine","Healing Engine","Other Features"}
                 for i = 1, 4 do
                     if button ~= generalRadios[i] then
                         local thisOptionPanel = BadBoy_data.BadBoyUI.optionsFrame.options[generalRadios[i]]
@@ -597,7 +656,7 @@ function ConstructUI()
         createButton("options","General",7,-5,"General")
         createButton("options","Enemies Engine",203,-5,"Enemies Engine")
         createButton("options","Healing Engine",399,-5,"Healing Engine")
-        createButton("options","Interrupts Engine",591,-5,"Interrupts Engine")
+        createButton("options","Other Features",591,-5,"Other Features")
         if BadBoy_data.options.selected == nil then
             BadBoy_data.options.selected = "General"
         end
@@ -606,7 +665,7 @@ function ConstructUI()
         createOptions("General")
         createOptions("Enemies Engine")
         createOptions("Healing Engine")
-        createOptions("Interrupts Engine")
+        createOptions("Other Features")
         radioGeneral("options",selectedOption)
 
 

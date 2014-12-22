@@ -13,15 +13,15 @@ if select(3, UnitClass("player")) == 3 then
             AoEModesLoaded = "CML Beast AoE Modes"
         end
         -- Interrupts Button
-        if  InterruptsModesLoaded ~= "CML Beast Interrupts Modes" then
+        if  InterruptsModesLoaded ~= "CML Beast Interrupt Modes" then
             InterruptsModes = {
-                [1] = { mode = "None", value = 1 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
-                [2] = { mode = "All", value = 2 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = 147362}
+                [1] = { mode = "None", value = 1 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = [[INTERFACE\ICONS\ability_hibernation]] },
+                [2] = { mode = "Raid", value = 2 , overlay = "Interrupts Specific Abilities", tip = "Interrupts preset abilities only.", highlight = 1, icon = [[INTERFACE\ICONS\INV_Misc_Head_Dragon_01.png]]},
+                [3] = { mode = "All", value = 3 , overlay = "Interrupt All Abilities", tip = "Interrupts everything.", highlight = 1, icon = 147362}
             }
             CreateButton("Interrupts",1,0)
-            InterruptsModesLoaded = "CML Beast Interrupts Modes"
+            InterruptsModesLoaded = "CML Beast Interrupt Modes"
         end
-
         -- Defensive Button
         if  DefensiveModesLoaded ~= "CML Beast Defensive Modes" then
             DefensiveModes = {
