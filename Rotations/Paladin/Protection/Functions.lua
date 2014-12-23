@@ -275,14 +275,14 @@ if select(3,UnitClass("player")) == 2 then
 			--castStrike()
 			if numberOfTargetsForHammerOfRighteous > 2 then
 				if castHammerOfTheRighteous(dynamicUnit.dyn5) then
-					print("Casting Hammer")
+					--print("Casting Hammer")
 					return true
 				end
 			end
 
 			if numberOfTargetsForHammerOfRighteous < 3 then
 				if castCrusaderStrike(dynamicUnit.dyn5) then
-					print("Casting Crusader")
+					--print("Casting Crusader")
 					return true
 				end
 			end
