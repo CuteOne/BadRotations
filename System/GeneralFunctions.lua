@@ -269,7 +269,7 @@ function canRun()
 	if getOptionCheck("Pause") ~= 1 then
 		if getOptionCheck("Start/Stop BadBoy") and isAlive("player") then
 			if SpellIsTargeting()
-			  or UnitInVehicle("Player")
+			  --or UnitInVehicle("Player")
 			  or (IsMounted() and getUnitID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803))
 			  or UnitBuffID("player",11392) ~= nil
 			  or UnitBuffID("player",80169) ~= nil

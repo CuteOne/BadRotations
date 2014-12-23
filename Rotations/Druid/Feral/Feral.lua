@@ -361,7 +361,7 @@ if select(3, UnitClass("player")) == 11 then
 				if stealth then
 					StopAttack()
 				end
-				if not stealth then
+				if not stealth and isInCombat("player") then
 		-- Tiger's Fury
 					if ((not clearcast and powmax-power>=60) or powmax-power>=80) and UnitExists(dynamicTarget(5,true)) then
 						if canTrinket(13) and useCDs() then
@@ -481,7 +481,7 @@ if select(3, UnitClass("player")) == 11 then
 		            end
 		-- Ferocious Bite
 					--if=(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)
-	    			if combo==5 and (ttm<=1 or berserking or tfRemain<3 or rpRemain>10) and power>50 then
+	    			if combo==5 and (ttm<=1 or berserking or tfRemain<3) and rpRemain>10 and power>50 then
 		    			if castSpell(dynamicTarget(5,true),fb,false,false,false) then return end
 		            end
 	    -- Rake 
