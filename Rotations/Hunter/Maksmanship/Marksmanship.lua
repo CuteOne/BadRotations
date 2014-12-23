@@ -36,7 +36,52 @@ if select(3, UnitClass("player")) == 3 then
 		--Don't use rotation checks
 		if UnitInVehicle("Player") then return false; end --Dont want to cast if we are in a vehicle
 		if UnitBuffID("player",5384) ~= nil then return false; end --Dont want to do anything if we feign death
-		--add in some kind of spam stop here to do with target HP% and Target Casting
+
+		-- OFF-GCD here we add the spells we want to be spamming all the time
+		if UnitAffectingCombat("player") then
+			------------------
+			--- Interrupts --- Mavmins Updated
+			------------------
+			if isChecked("Counter Shot") then
+			 	--if isKnown(147362) and getSpellCD(147362) == 0 then
+					castInterrupt(147362,getValue("Counter Shot"))
+				--end
+			end
+
+			if isChecked("Intimidation") and (getValue("Intimidation") == 2 or getValue("Intimidation") == 3)  and UnitExists("pet") then
+			 	if isKnown(19577) and (getSpellCD(19577) == 0 and getSpellCD(147362) > 0) then
+					castInterrupt(147362,getValue("Counter Shot"))
+			 	end
+			end
+			
+			-- actions+=/kill_shot (with perk and without)
+			if isKnown(157708) then
+				if getSpellCD(157708) == 0 and getHP("target") <= 35 then
+					if isChecked("Stop for Kill Shot") and select(1,UnitCastingInfo("player") == GetSpellInfo(56641)) then 
+						RunMacroText("/stopcasting")
+						RunMacroText("/stopcasting")
+						if castSpell("target",157708,false,false) then return; end
+					else
+						if castSpell("target",157708,false,false) then return; end
+					end
+				end
+			else 
+				if isKnown(53351) and getSpellCD(53351) == 0 and getHP("target") <= 20 then
+					if isChecked("Stop for Kill Shot") and select(1,UnitCastingInfo("player") == GetSpellInfo(56641)) then 
+						RunMacroText("/stopcasting")
+						RunMacroText("/stopcasting")
+						if castSpell("target",53351,false,false) then return; end
+					else
+						if castSpell("target",53351,false,false) then return; end
+					end
+				end
+			end
+		end
+
+		-- GCD check
+		if castingUnit() then
+			return
+		end
 
 		-- Aspect of the Cheetah
 		if not isInCombat("player") and isChecked("Auto-Cheetah") and getSpellCD(5118) == 0
@@ -186,48 +231,6 @@ if select(3, UnitClass("player")) == 3 then
 			end
 
 
-			------------------
-			--- Interrupts --- Mavmins Updated
-			------------------
-
-			if UnitCastingInfo("target") ~= nil then
-				local castName,_,_,_, castStartTime, castEndTime, _, _, cast_non_interruptable = UnitCastingInfo("target") 
-				local cast_time_since_start = (GetTime() * 1000 - castStartTime) / 1000
-				local cast_time_left = ((GetTime() * 1000 - castEndTime) * -1) / 1000
-				local cast_time = castEndTime - castStartTime
-				local cast_current_percent = cast_time_since_start / cast_time * 100000
-			end
-
-			if BadBoy_data["Interrupts"] == 3 then --all interrupt
-				 if isChecked("Counter Shot") then
-				 	if isKnown(147362) and getSpellCD(147362) == 0 then
-				 		if cast_non_interruptable == false then
-				 			if cast_current_percent >= getValue("Counter Shot") then
-				 				if castSpell("target",147362,false,false) then return; end
-				 			end
-				 		elseif UnitChannelInfo("target") ~= nil then
-				 			if select(8, UnitChannelInfo("target")) == false then
-				 				if castSpell("target",147362,false,false) then return; end
-				 			end
-				 		end
-				 	end
-				end
-
-				 if isChecked("Intimidation") and (getValue("Intimidation") == 2 or getValue("Intimidation") == 3)  and UnitExists("pet") then
-				 	if isKnown(19577) and (getSpellCD(19577) == 0 and getSpellCD(147362) > 0) then
-				 		if cast_non_interruptable == false then
-				 			if cast_current_percent >= getValue("Counter Shot") then
-				 				if castSpell("target",19577,false,false) then return; end
-				 			end
-				 		elseif UnitChannelInfo("target") ~= nil then
-				 			if select(8, UnitChannelInfo("target")) == false then
-				 				if castSpell("target",19577,false,false) then return; end
-				 			end
-				 		end
-				 	end
-				 end
-			end
-
 			-----------------
 			--- Cooldowns --- Mavmins Updated
 			-----------------
@@ -245,14 +248,15 @@ if select(3, UnitClass("player")) == 3 then
 			---------------------------
 
 			-- actions=auto_shot
-
 			-- actions+=/use_item,name=beating_heart_of_the_mountain (TRINKETS)
-			-- if GetInventoryItemCooldown(14)==0 then
-			-- 	UseInventoryItem(14)
-			-- end
-			-- if GetInventoryItemCooldown(13)==0 then
-			-- 	UseInventoryItem(13)
-			-- end
+			if isChecked("Trinkets") then
+				if GetInventoryItemCooldown(14)==0 then
+					UseInventoryItem(14)
+				end
+				if GetInventoryItemCooldown(13)==0 then
+					UseInventoryItem(13)
+				end
+			end
 
 			-- actions+=/arcane_torrent,if=focus.deficit>=30
 	        if (BadBoy_data['Cooldowns'] == 2 and isChecked("Racials") == true) or BadBoy_data['Cooldowns'] == 3 then
@@ -304,7 +308,7 @@ if select(3, UnitClass("player")) == 3 then
 			-- actions+=/kill_shot (with perk and without)
 			if isKnown(157708) then
 				if getSpellCD(157708) == 0 and getHP("target") <= 35 then
-					if UnitCastingInfo("player") ~= nil then 
+					if isChecked("Stop for Kill Shot") and select(1,UnitCastingInfo("player") == GetSpellInfo(56641)) then 
 						RunMacroText("/stopcasting")
 						RunMacroText("/stopcasting")
 						if castSpell("target",157708,false,false) then return; end
@@ -314,7 +318,7 @@ if select(3, UnitClass("player")) == 3 then
 				end
 			else 
 				if isKnown(53351) and getSpellCD(53351) == 0 and getHP("target") <= 20 then
-					if UnitCastingInfo("player") ~= nil then 
+					if isChecked("Stop for Kill Shot") and select(1,UnitCastingInfo("player") == GetSpellInfo(56641)) then 
 						RunMacroText("/stopcasting")
 						RunMacroText("/stopcasting")
 						if castSpell("target",53351,false,false) then return; end
@@ -367,7 +371,7 @@ if select(3, UnitClass("player")) == 3 then
 				end
 
 				-- actions.careful_aim+=/aimed_shot
-				if isKnown(19434) then
+				if isKnown(19434) and (getSpellCD(53209) >= 0.5 or isKnown(53209) == false) then -----CHIMERA PRIO
 					if castSpell("target",19434,false,false) then return; end
 				end
 
@@ -463,21 +467,21 @@ if select(3, UnitClass("player")) == 3 then
 			end
 
 			-- actions+=/aimed_shot,if=talent.focusing_shot.enabled
-			if isKnown(19434) then 
+			if isKnown(19434) and (getSpellCD(53209) >= 0.5 or isKnown(53209) == false) then --CHIMERA PRIO
 				if isKnown(163485) then
 					if castSpell("target",19434,false,false) then return; end
 				end
 			end
 
 			-- actions+=/aimed_shot,if=focus+cast_regen>=85
-			if isKnown(19434) then 
+			if isKnown(19434) and (getSpellCD(53209) >= 0.5 or isKnown(53209) == false) then --CHIMERA PRIO
 				if current_focus + aimed_shot_regen >= 85 then
 					if castSpell("target",19434,false,false) then return; end
 				end
 			end
 
 			-- actions+=/aimed_shot,if=buff.thrill_of_the_hunt.react&focus+cast_regen>=65
-			if isKnown(19434) then 
+			if isKnown(19434) and (getSpellCD(53209) >= 0.5 or isKnown(53209) == false) then --CHIMERA PRIO 
 				if UnitBuffID("player",34720) ~= nil and current_focus + aimed_shot_regen >= 65 then
 					if castSpell("target",19434,false,false) then return; end
 				end
@@ -492,7 +496,9 @@ if select(3, UnitClass("player")) == 3 then
 
 			-- actions+=/steady_shot
 			if isKnown(56641) then
-				if castSpell("target",56641,false,false) then return; end
+				if (getSpellCD(53209) >= 0.5 and current_focus >= 35) or isKnown(53209) == false or current_focus < 35 then --CHIMERA PRIO
+					if castSpell("target",56641,false,false) then return; end
+				end
 			end
 
 		end
