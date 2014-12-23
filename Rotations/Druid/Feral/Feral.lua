@@ -402,7 +402,7 @@ if select(3, UnitClass("player")) == 11 then
 		                end
 					end
 		-- Savage Roar
-					if (srRemain<1 or (srRemain<rpRemain and newSr-rpRemain>1)) and combo>0 and power>25 and UnitExists(dynamicTarget(5,true)) then
+					if srRemain<3 and combo>0 and power>25 and UnitExists(dynamicTarget(5,true)) then --(srRemain<1 or (srRemain<rpRemain and newSr-rpRemain>1))
 						if castSpell("player",svr,true,false,false) then return end
 		            end
 		-- Thrash
@@ -476,12 +476,12 @@ if select(3, UnitClass("player")) == 11 then
 					end
 		-- Savage Roar
 					--if=(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)&buff.savage_roar.remains<12.6
-					if combo==5 and (ttm<=1 or berserking or tfCooldown<3) and srRemain<12.6 and power>25 and tarDist<5 then
+					if combo==5 and (ttm<=1 or berserk or tfCooldown<3) and srRemain<12.6 and power>25 and tarDist<5 then
 						if castSpell("player",svr,true,false,false) then return end
 		            end
 		-- Ferocious Bite
 					--if=(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)
-	    			if combo==5 and (ttm<=1 or berserking or tfCooldown<3) and rpRemain>10 and power>50 then
+	    			if combo==5 and (ttm<=1 or berserk or tfCooldown<3 or rpRemain>10) and power>50 then
 		    			if castSpell(dynamicTarget(5,true),fb,false,false,false) then return end
 		            end
 	    -- Rake 
