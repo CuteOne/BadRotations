@@ -10,27 +10,24 @@ if select(3, UnitClass("player")) == 5 then
 
 
 		-- Locals / Globals--
-			GCD = 1.5/(1+UnitSpellHaste("player")/100)
+			--GCD = 1.5/(1+UnitSpellHaste("player")/100)
 			--hasTarget = UnitExists("target")
 			--hasMouse = UnitExists("mouseover")
-			php = getHP("player")
+			--php = getHP("player")
 			-- thp = getHP("target")
-			ORBS = UnitPower("player", SPELL_POWER_SHADOW_ORBS)
+
 
 			--MBCD = getSpellCD(MB)
 			--SWDCD = getSpellCD(SWD)
 
-			-- DP
-			DPTIME = 6.0/(1+UnitSpellHaste("player")/100)
+			if lastDP==nil then	lastDP=99 end
+			
 			--DPTICK = DPTIME/6
 			-- SWP (18sec)
 			--SWPTICK = 18.0/(1+UnitSpellHaste("player")/100)/6
 			-- VT (15sec)
 			--VTTICK = 16.0/(1+UnitSpellHaste("player")/100)/5
 			--VTCASTTIME = 1.5/(1+UnitSpellHaste("player")/100)
-
-			if lastVT==nil then lastVT=0 end
-			if lastDP==nil then	lastDP=99 end
 
 			-- Set Enemies Table
 			if BadBoy_data['AoE'] == 3 and (myEnemiesTableTimer == nil or myEnemiesTableTimer <= GetTime() - 1) then
@@ -42,8 +39,12 @@ if select(3, UnitClass("player")) == 5 then
 			local options = {
 				-- Player values
 				player = {
-					GCD = 1.5/(1+UnitSpellHaste("player")/100),
-					php =		getHP("player")
+					GCD = 		1.5/(1+UnitSpellHaste("player")/100),
+					php =		getHP("player"),
+					ORBS = 		UnitPower("player", SPELL_POWER_SHADOW_ORBS),
+					DPTIME = 6.0/(1+UnitSpellHaste("player")/100),
+					lastVT,
+					lastDP
 				},
 				-- Buttons
 				buttons = {
@@ -98,6 +99,9 @@ if select(3, UnitClass("player")) == 5 then
 					MindSear = 			getValue("MS Targets")
 				}
 			}
+
+			if options.player.lastVT==nil then options.player.lastVT=0 end
+			if options.player.lastDP==nil then options.player.lastDP=99 end
 
 		-------------
 		-- TOGGLES --
@@ -219,7 +223,7 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- Single target
 			if options.buttons.Rotation == 1 then
-				Execute()
+				Execute(options)
 				LFOrbs()
 				if getHP("target")>20 then
 					if options.buttons.DoT>=2 then DotEmAll(options) end
@@ -237,7 +241,7 @@ if select(3, UnitClass("player")) == 5 then
 			
 			-- 3+ Targets
 			if options.buttons.Rotation == 2 then 
-				Execute()
+				Execute(options)
 				LFOrbs()
 				if getHP("target")>20 then IcyMultiTarget(options) end
 			end
