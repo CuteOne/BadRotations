@@ -215,6 +215,12 @@ if select(3, UnitClass("player")) == 11 then
 	                    if castSpell("player",rej,true,false,false) then return end
 	                end
 	            end
+-- Auto Rejuvenation
+				if isChecked("Auto Rejuvenation") and isKnown(erej) then
+					if getOptionValue("Auto Heal")==1 and getBuffRemain(nNova[1].unit,rej)==0 and nNova[1].hp<=getOptionValue("Auto Rejuvenation") and nNova[1].unit~="player" then
+	                    if castSpell(nNova[1].unit,rej,true,false,false) then return end
+	                end
+				end
 -- Pot/Stoned
 	            if isChecked("Pot/Stoned") and getHP("player") <= getOptionValue("Pot/Stoned") 
 	            	and isInCombat("player") and hasHealthPot() 

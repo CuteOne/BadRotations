@@ -1233,7 +1233,19 @@ function hasNoControl(spellID)
 		end
 	-- Death Knight
 		if select(3,UnitClass("player")) == 6 then
-
+            if spellID == 49039 --Lichborne
+                and (text == LOSS_OF_CONTROL_DISPLAY_CHARM
+                    or text == LOSS_OF_CONTROL_DISPLAY_FEAR
+                    or text == LOSS_OF_CONTROL_DISPLAY_SLEEP)
+            then
+                return true
+            end
+            if spellID == 108201 --Desecrated Ground
+                and (text == LOSS_OF_CONTROL_DISPLAY_ROOT
+                    or text == LOSS_OF_CONTROL_DISPLAY_SNARE)
+            then
+                return true
+            end
 		end
 	-- Shaman
 		if select(3,UnitClass("player")) == 7 then

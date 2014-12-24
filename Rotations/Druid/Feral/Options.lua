@@ -105,6 +105,11 @@ if select(3, UnitClass("player")) == 11 then
                 boxOp("Rejuvenation", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
                 textOp("Rejuvenation")
 
+                -- Auto Rejuvenation
+                checkOp("Auto Rejuvenation")
+                boxOp("Auto Rejuvenation", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+                textOp("Auto Rejuvenation")
+
                 -- Healthstone
                 checkOp("Pot/Stoned")
                 boxOp("Pot/Stoned", 0, 100, 5, 60, "|cffFFFFFFHealth Percent to Cast At")

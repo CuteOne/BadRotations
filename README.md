@@ -11,7 +11,7 @@
 |Moonkin|70%|CodeMyLife|
 ||||
 | **Death Knight** |  |  |
-|Frost|0%|CuteOne |
+|Frost|80%|CuteOne |
 |Blood|90%|CodeMyLife |
 |Unholy|0%|Empty|
 ||||
