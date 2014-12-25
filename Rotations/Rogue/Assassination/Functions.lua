@@ -56,11 +56,7 @@ if select(3, UnitClass("player")) == 4 then
 			end
 		end
 		if (canPickpocket == false or BadBoy_data['Picker'] == 3 or GetNumLootItems()>0) then
-			if lootTimer == nil or lootTimer <= GetTime() - 0.25 then
-				return true
-			else
-				return false
-			end
+			return true
 		else
 			return false
 		end
