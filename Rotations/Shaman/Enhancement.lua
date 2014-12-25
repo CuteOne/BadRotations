@@ -8,6 +8,13 @@ if select(3, UnitClass("player")) == 7 then
 	    if not canRun() then
 	    	return true
 	    end
+		
+		local UFtalent = getTalent(6,1)
+		local as = UnitBuffID("player",  _AncestralSwiftness) 
+		local ascandance = UnitBuffID("player",  _AscendanceBuff) 
+		local elementalFusionTalent, efstack = getTalent(7,1), select(4,UnitBuffID("player",157174))
+		local UnleashFlame = UnitBuffID("player",73683)
+		local flameshock, flameshockDuration = UnitDebuffID("target",_FlameShock) ,getDebuffRemain("target",_FlameShock)
 		-------------------------------------
 		--- Shields Up! / Weapons Online! ---
 		-------------------------------------
@@ -92,9 +99,6 @@ if select(3, UnitClass("player")) == 7 then
 				if castSpell("player",_EarthElementalTotem,true) then return; end
 			end
 			-- Fire
-			if useCDs() and targetDistance <= 10 and isInCombat("player") and (not hasFire() or hasSearing()) then
-				if castSpell("player",_FireElementalTotem,true) then return; end
-			end
 			if (not (hasSearing() or hasFireElemental()) or (hasSearing() and getTotemDistance("target") > 20)) and targetDistance<=20 and getNumEnemies("player",8)<6 and isInCombat("player") then
 				if castSpell("player",_SearingTotem,true) then return; end
 			end
@@ -150,6 +154,8 @@ if select(3, UnitClass("player")) == 7 then
 			--- Cooldowns ---
 			-----------------
 			if useCDs() and targetDistance<5 and isInCombat("player") and hasFire() then
+				--Fire Elemental
+				if castSpell("player",_FireElementalTotem,true) then return; end
 				-- Feral Spirit
 				if castSpell("player",_FeralSpirit,true) then return; end
 				-- Elemental Mastery
@@ -178,7 +184,7 @@ if select(3, UnitClass("player")) == 7 then
 			-----------------------------
 			--- Multi-Target Rotation ---
 			-----------------------------
-			if getNumEnemies("player",10) >= 3 and useAoE() then
+			if useAoE() then
 				-- Flame Shock
 				if getDebuffRemain("target",_FlameShock) < 3 then
 					if castSpell("target",_FlameShock,false) then return; end
@@ -220,48 +226,65 @@ if select(3, UnitClass("player")) == 7 then
 			------------------------------
 			if not useAoE() then
 				
-				-- Unleash Elements
-				if castSpell("target",_UnleashElements,false) then return; end
+				--liquid_magma,if=pet.searing_totem.remains>=15|pet.magma_totem.remains>=15|pet.fire_elemental_totem.remains>=15
 				
-				-- Elemental Blast
-				if getMWC() > 1 then
+				
+				
+				--unleash_elements,if=(talent.unleashed_fury.enabled|set_bonus.tier16_2pc_melee=1)
+				if UFtalent then
+					if castSpell("target",_UnleashElements,false) then return; end
+				end
+				
+				
+				--elemental_blast,if=buff.maelstrom_weapon.react>=4|buff.ancestral_swiftness.up
+				if getMWC() >= 4
+				or as then
 					if castSpell("target",_ElementalBlast,false) then return; end
 				end
 				
-				-- Lightning Bolt
-				if getMWC()==5 then
+				--lightning_bolt,if=buff.maelstrom_weapon.react=5|(buff.maelstrom_weapon.react>=4&!buff.ascendance.up)|(buff.ancestral_swiftness.up&buff.maelstrom_weapon.react>=3)
+				if (getMWC()==5)
+				or (getMWC()>=4 and not ascandance)
+				or ( as and getMWC()>=3)
+				then
 					if castSpell("target",_LightningBolt,false) then return; end
 				end
 				
 				--Stormstrike
-				if UnitLevel("player") >= 26 then
-					if castSpell("target",_Stormstrike,false,false,false,true) then return; end
-				else
-					-- Primal Strike
-					if castSpell("target",_PrimalStrike,false) then return; end
-				end
-				
+				if castSpell("target",_Stormstrike,false,false,false,true) then return; end
+
 				-- Lava Lash
 				if castSpell("target",_LavaLash,false) then return; end
 				
-				-- Flame Shock
-				if getDebuffRemain("target",_FlameShock)<=9 and getBuffRemain("player",_UnleashFlame)>0 then
+				--flame_shock,if=(talent.elemental_fusion.enabled&buff.elemental_fusion.stack=2&buff.unleash_flame.up&dot.flame_shock.remains<16)|(!talent.elemental_fusion.enabled&buff.unleash_flame.up&dot.flame_shock.remains<=9)|!ticking
+				if ( elementalFusionTalent and efstack == 2 and UnleashFlame and flameshockDuration <= 16)
+				or ( not elementalFusionTalent and UnleashFlame and flameshockDuration <= 9)
+				or (not flameshock) then
 					if castSpell("target",_FlameShock,false) then return; end
 				end
 				
-				-- Flame Shock
-				if not UnitDebuffID("target",_FlameShock, "PLAYER") then
-					if castSpell("target",_FlameShock,false) then return; end
+				-- Unleashed elements
+				if castSpell("target",_UnleashElements,false) then return; end
+				
+				--frost_shock,if=(talent.elemental_fusion.enabled&dot.flame_shock.remains>=16)|!talent.elemental_fusion.enabled
+				if (elementalFusionTalent and flameshockDuration > 16)
+				or ( not elementalFusionTalent) then
+					if castSpell("target",_FrostShock,false) then return; end
 				end
 				
-				-- Frost Shock
-				if castSpell("target",_FrostShock,false) then return; end
+				--elemental_blast,if=buff.maelstrom_weapon.react>=1
+				if getMWC() >= 1 then
+					if castSpell("target",_ElementalBlast,false) then return; end
+				end
 				
-				-- Lightning Bolt
-				if getMWC() > 1 
-				and not UnitBuffID("player", _AscendanceBuff) then
+				--lightning_bolt,if=buff.maelstrom_weapon.react>=1&!buff.ascendance.up
+				if getMWC() >= 1 
+				and not ascendance then
 					if castSpell("target",_LightningBolt,false) then return; end
 				end
+				
+				
+				
 			end --Single Target Rotation End
 			
 		end
