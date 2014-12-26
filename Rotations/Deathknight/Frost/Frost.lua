@@ -62,9 +62,9 @@ if select(3, UnitClass("player")) == 6 then
     local defile = getTalent(7,2)
     local cindragosa = getTalent(7,3)
     --Specific Target Variables
+    local ciRemain = getBuffRemain("target",_ChainsOfIce)
     local ffRemain = getDebuffRemain("target",_FrostFever,"player")
     local bpRemain = getDebuffRemain("target",_BloodPlague,"player")
-    local ciRemain = getDebuffRemain("target",_ChainsOfIce,"player")
     local necRemain = getDebuffRemain("target",_NecroticPlague,"player")
     local bocRemain = bocRemain
     if cindragosa then
@@ -89,17 +89,22 @@ if select(3, UnitClass("player")) == 6 then
     else
       profileStop=false
     end
+    -- AutoLooter
+    if isChecked("Auto Looter") then
+      if not isInCombat("player") then
+        getLoot()
+      end
+      if UnitExists("target") and UnitIsDeadOrGhost("target") 
+        and UnitCanAttack("target","player") and not castingUnit("player") 
+        and not select(1,CanLootUnit(UnitGUID("target")))
+      then
+          ClearTarget()
+      end
+    end
   -- Pause
     if pause() then
       return true
-    elseif not pause() then
-  -- AutoLooter
-    if isChecked("Auto Looter") then
-      getLoot()
-      if hastar and deadtar and attacktar and not castingUnit("player") then
-        ClearTarget()
-      end 
-    end
+    elseif not pause() then 
 -------------
 --- Buffs ---
 -------------
@@ -116,11 +121,11 @@ if select(3, UnitClass("player")) == 6 then
           end
       end
     -- Frost Presence
-      if not frostpres and php > getOptionValue("Blood Presence") and tarDist<=20 then
+      if not frostpres and php > getOptionValue("Blood Presence") and (tarDist<=20 and attacktar and not deadtar) then
         if castSpell("player",_FrostPresence,true,false,false) then return end
       end
     -- Unholy Presence
-      if not unholypres and (not isInCombat("player") or (tarDist>20 and power<40)) then
+      if not unholypres and ((not isInCombat("player") and IsMovingTime(2)) or (tarDist>20 and power<40)) then
         if castSpell("player",_UnholyPresence,true,false,false) then return end
       end
     -- Flask / Crystal
@@ -214,6 +219,10 @@ if select(3, UnitClass("player")) == 6 then
     -- Plague Strike
         if bpRemain==0 and bRunes>=1 and tarDist<5 then
           if castSpell("target",_PlagueStrike,false,false,false) then return end
+        end
+    -- Start Attack
+        if getDistance(thisUnit, "player")<5 then
+          StartAttack()
         end
       end
 -----------------

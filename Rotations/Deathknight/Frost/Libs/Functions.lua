@@ -25,58 +25,29 @@ if select(3,UnitClass("player")) == 6 then
     end
 
     function getLoot()
-        if lootedTargets == nil then lootedTargets = {} end
-        if #lootedTargets > 0 then
-            for x = 1, #lootedTargets do
-                if not UnitExists(lootedTargets[x].Unit) then
-                    --print("Looted Corpse no longer Exists")
-                    table.remove(lootedTargets,x)
-                    break
-                end
-            end
-        end
-        looted = false
         for i=1,ObjectCount() do
             if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
                 local thisUnit = ObjectWithIndex(i)
+                local canLoot = select(2,CanLootUnit(UnitGUID(thisUnit)))
+                local hasLoot = select(1,CanLootUnit(UnitGUID(thisUnit)))
                 if UnitGUID(thisUnit) ~= UnitGUID("target") and getCreatureType(thisUnit) == true then
                     if UnitCanAttack("player",thisUnit) == true and UnitIsDeadOrGhost(thisUnit) then
-                        local myDistance = getDistance("player",thisUnit)
-                        if myDistance < 5 then
-                            if #lootedTargets == 0 then looted = false end
-                            if #lootedTargets > 0 then
-                                for x = 1, #lootedTargets do
-                                    if UnitGUID(thisUnit)==UnitGUID(lootedTargets[x].Unit) then
-                                        looted = true
-                                    end
-                                end
-                            end
-                            if looted==false then
-                                --print("Found a lootable corpse")
-                                if PriorAutoLoot == nil then PriorAutoLoot = false end
-                                if GetCVar("autoLootDefault") == "1" then
-                                    ChatOverlay("Autoloot Begin")
-                                    PriorAutoLoot = true
-                                end
-                                if GetCVar("autoLootDefault") == "0" then 
-                                    SetCVar("autoLootDefault", "1")
-                                    ChatOverlay("Autoloot Begin")                   
-                                end
+                        if PriorAutoLoot == nil then PriorAutoLoot = false end
+                        if GetCVar("autoLootDefault") == "0" then 
+                            SetCVar("autoLootDefault", "1")
+                            PriorAutoLoot = false
+                        end
+                        if canLoot then
+                            if hasLoot then
                                 InteractUnit(thisUnit)
-                                if GetCVar("autoLootDefault") == "1" and PriorAutoLoot == true then
-                                    ChatOverlay("Autoloot End")
-                                end
-                                if GetCVar("autoLootDefault") == "1" and PriorAutoLoot == false then 
-                                    SetCVar("autoLootDefault", "0")
-                                    ChatOverlay("Autoloot End")
-                                end
-                                if GetNumLootItems()==0 then
-                                    --print("Looted Corpse")
-                                    table.insert(lootedTargets, {Unit = thisUnit, Looted = true})
-                                    ClearTarget()
-                                    looted = true
-                                end
+                                ClearTarget()
                             end
+                        end
+                        if UnitGUID(thisUnit) == UnitGUID("target") then
+                            ClearTarget()
+                        end
+                        if GetCVar("autoLootDefault") == "1" and PriorAutoLoot == false then 
+                            SetCVar("autoLootDefault", "0")
                         end
                     end
                 end

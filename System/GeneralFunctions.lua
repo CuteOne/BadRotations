@@ -2007,7 +2007,7 @@ function hasHealthPot()
                 local ItemType = select(7,GetItemInfo(itemID))
                 local ItemEffect = select(1,GetItemSpell(itemID))
                 if ItemType == select(7,GetItemInfo(2459)) then
-                    if strmatch(ItemEffect,strmatch(select(1,GetItemSpell(76097)),"%a+")) then
+                    if strmatch(ItemEffect,strmatch(tostring(select(1,GetItemSpell(76097))),"%a+")) then
                         local ItemCount = GetItemCount(itemID)
                         local ItemCooldown = GetItemCooldown(itemID)
                         if MinLevel<=UnitLevel("player") and ItemCooldown == 0 then
