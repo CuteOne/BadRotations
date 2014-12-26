@@ -161,7 +161,14 @@ Rotations\Rogue\Assassination\Options.lua
 Rotations\Rogue\Assassination\SpellList.lua
 Rotations\Rogue\Assassination\Toggles.lua
 
-Rotations\Rogue\Combat.lua
+Rotations\Rogue\Combat\Combat.lua
+Rotations\Rogue\Combat\Functions.lua
+Rotations\Rogue\Combat\Options.lua
+Rotations\Rogue\Combat\SpellList.lua
+Rotations\Rogue\Combat\Toggles.lua
+
+
+
 Rotations\Rogue\Subtlety.lua
 Rotations\Rogue\NewRogue.lua
 Rotations\Shaman\Enhancement.lua
