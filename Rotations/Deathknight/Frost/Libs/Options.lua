@@ -1,4 +1,4 @@
-if select(3,UnitClass("player")) == 6 then
+if select(3,UnitClass("player")) == 6 and GetSpecialization() == 2 then
 
     --[[This function will create a Value Box.]]
     -- function CreateNewBox(value,textString,minValue,maxValue,step,base,tip1)

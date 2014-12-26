@@ -1,4 +1,4 @@
-if select(3, UnitClass("player")) == 6 then
+if select(3, UnitClass("player")) == 6 and GetSpecialization() == 2 then
   function FrostDK()
     if currentConfig ~= "Frost DK CuteOne" then
       FrostOptions();
@@ -62,7 +62,7 @@ if select(3, UnitClass("player")) == 6 then
     local defile = getTalent(7,2)
     local cindragosa = getTalent(7,3)
     --Specific Target Variables
-    local ciRemain = getBuffRemain("target",_ChainsOfIce)
+    local ciRemain = getDebuffRemain("target",_ChainsOfIce,"player")
     local ffRemain = getDebuffRemain("target",_FrostFever,"player")
     local bpRemain = getDebuffRemain("target",_BloodPlague,"player")
     local necRemain = getDebuffRemain("target",_NecroticPlague,"player")
@@ -128,6 +128,10 @@ if select(3, UnitClass("player")) == 6 then
       if not unholypres and ((not isInCombat("player") and IsMovingTime(2)) or (tarDist>20 and power<40)) then
         if castSpell("player",_UnholyPresence,true,false,false) then return end
       end
+    -- Path of Frost
+      if not isInCombat("player") and IsSwimming() and not UnitBuffID("player",_PathOfFrost) then
+        if castSpell("player",_PathOfFrost,true,false,false) then return end
+      end
     -- Flask / Crystal
       if isChecked("Flask / Crystal") and not (IsFlying() or IsMounted()) then
           if (select(2,IsInInstance())=="raid" or select(2,IsInInstance())=="none") 
@@ -145,6 +149,10 @@ if select(3, UnitClass("player")) == 6 then
         -- Blood Presence
         if isChecked("Blood Presence") and php <= getOptionValue("Blood Presence") and not bloodpres then
           if castSpell("player",_BloodPresence,true,false,false) then return end
+        end
+        -- Death Strike
+        if isChecked("Death Strike") and php<=getOptionValue("Death Strike") and kmRemain==0 and dsRemain>0 and tarDist<5 then
+          if castSpell("target",_DeathStrike,false,false,false) then return end
         end
         -- Icebound Fortitude
         if isChecked("Icebound Fortitude") and php <= getOptionValue("Icebound Fortitude") and isInCombat("player") then
@@ -193,7 +201,7 @@ if select(3, UnitClass("player")) == 6 then
         and select(2,IsInInstance())=="none" and #members==1
       then
     -- Death Grip
-        if tarDist<30 then
+        if tarDist<30 and tarDist>8 then
           if castSpell("target",_DeathGrip,false,false,false) then return end
         end
     -- Frost Strike
@@ -285,6 +293,10 @@ if select(3, UnitClass("player")) == 6 then
   --------------------------
   --- In Combat Rotation ---
   --------------------------
+      -- Death Grip
+        if tarDist<30 and tarDist>8 and select(2,IsInInstance())=="none" then
+          if castSpell("target",_DeathGrip,false,false,false) then return end
+        end
       -- Chains of Ice
         if not getFacing("target","player") and getFacing("player","target") 
           and isMoving("target") and tarDist>8 and fRunes>=1 and isInCombat("target") and ciRemain==0
@@ -312,7 +324,7 @@ if select(3, UnitClass("player")) == 6 then
             if castSpell("target",_SoulReaper,false,false,false) then return end
           end
       -- Blood Tap
-          if (thp-3*(thp/ttd)<=35 and srCooldown==0) and bcStack>0 and tarDist<5 then
+          if (thp-3*(thp/ttd)<=35 and srCooldown==0) and bcStack>4 then
             if castSpell("player",_BloodTap,true,false,false) then return end
           end
       -- Defile
@@ -320,7 +332,7 @@ if select(3, UnitClass("player")) == 6 then
             if castGround("target",_Defile,30) then return end
           end
       -- Blood Tap
-          if defile and dCooldown==0 and bcStack>0 and tarDist<5 then
+          if defile and dCooldown==0 and bcStack>4 then
             if castSpell("player",_BloodTap,true,false,false) then return end
           end
       -- Howling Blast
@@ -348,14 +360,8 @@ if select(3, UnitClass("player")) == 6 then
           --------------------------
           if isBoss() and bocRemain>0 then
           -- Obliterate
-            if ((kmRemain>0 and uRunes>=1 and fRunes>=1)
-              or (dsRemain>0 and isChecked("Death Strike") and php<=getOptionValue("Death Strike"))) and tarDist<5
-            then
-              if isChecked("Death Strike") and php<=getOptionValue("Death Strike") then
-                if castSpell("target",_DeathStrike,false,false,false) then return end
-              else
-                if castSpell("target",_Obliterate,false,false,false) then return end
-              end
+            if kmRemain>0 and uRunes>=1 and fRunes>=1 and tarDist<5 then
+              if castSpell("target",_Obliterate,false,false,false) then return end
             end
           -- Blood Tap
             if kmRemain>0 and bcStack>=5 and tarDist<5 then
@@ -366,22 +372,16 @@ if select(3, UnitClass("player")) == 6 then
               if castSpell("target",_PlagueLeech,true,false,false) then return end
             end
           -- Blood Tap
-            if bcStack>=5 and tarDist<5 then
+            if bcStack>=5 then
               if castSpell("player",_BloodTap,true,false,false) then return end
             end
           -- Plague Leech
-            if ffRemain>0 and bpRemain>0 and tarDist<5 then
+            if ffRemain>0 and bpRemain>0 and tarDist<30 then
               if castSpell("target",_PlagueLeech,true,false,false) then return end
             end
           -- Obliterate
-            if ((power<76 and uRunes>=1 and fRunes>=1)
-              or (dsRemain>0 and isChecked("Death Strike") and php<=getOptionValue("Death Strike"))) and tarDist<5
-            then
-              if isChecked("Death Strike") and php<=getOptionValue("Death Strike") then
-                if castSpell("target",_DeathStrike,false,false,false) then return end
-              else
-                if castSpell("target",_Obliterate,false,false,false) then return end
-              end
+            if power<76 and uRunes>=1 and fRunes>=1 and tarDist<5 then
+              if castSpell("target",_Obliterate,false,false,false) then return end
             end
           -- Howling Blast
             if ((dRunes==1 and fRunes==0 and uRunes==0) or (dRunes==0 and fRunes==1 and uRunes==0)) and power<88 and tarDist<30 then
@@ -393,14 +393,8 @@ if select(3, UnitClass("player")) == 6 then
             end
           end
       -- Obliterate
-          if cindragosa and bocCooldown<7 and ((power<76 and uRunes>=1 and fRunes>=1) 
-              or (dsRemain>0 and isChecked("Death Strike") and php<=getOptionValue("Death Strike"))) and tarDist<5
-          then
-            if isChecked("Death Strike") and php<=getOptionValue("Death Strike") then
-              if castSpell("target",_DeathStrike,false,false,false) then return end
-            else
-              if castSpell("target",_Obliterate,false,false,false) then return end
-            end
+          if cindragosa and bocCooldown<7 and power<76 and uRunes>=1 and fRunes>=1 and tarDist<5 then
+            if castSpell("target",_Obliterate,false,false,false) then return end
           end
       -- Howling Blast
           if cindragosa and bocCooldown<3 and power<88 and fRunes>=1 and tarDist<30 then
@@ -431,7 +425,7 @@ if select(3, UnitClass("player")) == 6 then
             if castSpell("target",_PlagueStrike,false,false,false) then return end
           end
       -- Blood Tap
-          if bcStack>10 and power>76 and tarDist<5 then
+          if bcStack>10 and power>76 then
             if castSpell("player",_BloodTap,true,false,false) then return end
           end
       -- Frost Strike
@@ -447,14 +441,8 @@ if select(3, UnitClass("player")) == 6 then
             end
           end
       -- Obliterate
-          if (((bPercent>=1.8 or uPercent>=1.8 or fPercent>=1.8) and uRunes>=1 and fRunes>=1)
-            or (dsRemain>0 and isChecked("Death Strike") and php<=getOptionValue("Death Strike"))) and tarDist<5 
-          then
-            if isChecked("Death Strike") and php<=getOptionValue("Death Strike") then
-              if castSpell("target",_DeathStrike,false,false,false) then return end
-            else
-              if castSpell("target",_Obliterate,false,false,false) then return end
-            end
+          if (bPercent>=1.8 or uPercent>=1.8 or fPercent>=1.8) and uRunes>=1 and fRunes>=1 and tarDist<5 then
+            if castSpell("target",_Obliterate,false,false,false) then return end
           end
       -- Plague Leech
           if ffRemain<3 and ffRemain>0 and bpRemain<3 and bpRemain>0 and ((bPercent<=0.95 and uPercent<=0.95) or (fPercent<=0.95 and uPercent<=0.95) or (fPercent<=0.95 and bPercent<=0.95)) and tarDist<30 then
@@ -477,17 +465,11 @@ if select(3, UnitClass("player")) == 6 then
             end
           end
       -- Obliterate
-          if (((bPercent>=1.5 or uPercent>=1.6 or fPercent>=1.6 or plCooldown<=4) and uRunes>=1 and fRunes>=1)
-            or (dsRemain>0 and isChecked("Death Strike") and php<=getOptionValue("Death Strike"))) and tarDist<5 
-          then
-            if isChecked("Death Strike") and php<=getOptionValue("Death Strike") then
-              if castSpell("target",_DeathStrike,false,false,false) then return end
-            else
-              if castSpell("target",_Obliterate,false,false,false) then return end
-            end
+          if (bPercent>=1.5 or uPercent>=1.6 or fPercent>=1.6 or plCooldown<=4) and uRunes>=1 and fRunes>=1 and tarDist<5 then
+            if castSpell("target",_Obliterate,false,false,false) then return end
           end
       -- Blood Tap
-          if ((bcStack>10 and power>=20) or (bPercent>=1.4 or uPercent>=1.6 or fPercent>=1.6)) and tarDist<5 then
+          if ((bcStack>10 and power>=20) or (bPercent>=1.4 or uPercent>=1.6 or fPercent>=1.6)) and bcStack>4 then
             if castSpell("player",_BloodTap,true,false,false) then return end
           end
       -- Frost Strike
@@ -532,7 +514,7 @@ if select(3, UnitClass("player")) == 6 then
               if castSpell("target",_HowlingBlast,false,false,false) then return end
             end
         -- Blood Tap
-            if bcStack>10 and tarDist<5 then
+            if bcStack>10 then
               if castSpell("player",_BloodTap,true,false,false) then return end
             end
         -- Death and Decay
@@ -544,7 +526,7 @@ if select(3, UnitClass("player")) == 6 then
               if castSpell("target",_PlagueStrike,false,false,false) then return end
             end
         -- Blood Tap
-            if bcStack>0 and tarDist<5 then
+            if bcStack>4 then
               if castSpell("player",_BloodTap,true,false,false) then return end
             end
         -- Plague Leech
@@ -565,7 +547,7 @@ if select(3, UnitClass("player")) == 6 then
             if castSpell("target",_HowlingBlast,false,false,false) then return end
           end
       -- Blood Tap
-          if bcStack>10 and tarDist<5 then
+          if bcStack>10 then
             if castSpell("player",_BloodTap,true,false,false) then return end
           end
       -- Frost Strike
@@ -581,7 +563,7 @@ if select(3, UnitClass("player")) == 6 then
             if castSpell("target",_PlagueStrike,false,false,false) then return end
           end
       -- Blood Tap
-          if bcStack>0 and tarDist<5 then
+          if bcStack>4 then
             if castSpell("player",_BloodTap,true,false,false) then return end
           end
       -- Frost Strike

@@ -1,4 +1,4 @@
-if select(3,UnitClass("player")) == 6 then
+if select(3,UnitClass("player")) == 6 and GetSpecialization() == 2 then
 
     ------Member Check------
     function CalculateHP(unit)
@@ -40,11 +40,7 @@ if select(3,UnitClass("player")) == 6 then
                         if canLoot then
                             if hasLoot then
                                 InteractUnit(thisUnit)
-                                ClearTarget()
                             end
-                        end
-                        if UnitGUID(thisUnit) == UnitGUID("target") then
-                            ClearTarget()
                         end
                         if GetCVar("autoLootDefault") == "1" and PriorAutoLoot == false then 
                             SetCVar("autoLootDefault", "0")
@@ -54,99 +50,7 @@ if select(3,UnitClass("player")) == 6 then
             end
         end
     end
-
-    -- function getDeadEnemies(Unit,Radius)
-    --     local myEnemiesTable = {};
-    --     -- if UnitExists("target") == true and getCreatureType("target") == true then
-    --     --     if UnitCanAttack("player","target") == true and UnitIsDeadOrGhost("target") == false then
-    --     --         local myDistance = getDistance("player","target")
-    --     --         if myDistance <= Radius then
-    --     --             table.insert(myEnemiesTable, { unit = "target" , range = myDistance });
-    --     --         end
-    --     --     end
-    --     -- end
-    --     for i=1,ObjectCount() do
-    --         if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
-    --             local thisUnit = ObjectWithIndex(i)
-    --             if UnitGUID(thisUnit) ~= UnitGUID("target") and getCreatureType(thisUnit) == true then
-    --                 if UnitCanAttack("player",thisUnit) == true and UnitIsDeadOrGhost(thisUnit) then
-    --                     local myDistance = getDistance("player",thisUnit)
-    --                     if myDistance <= Radius then
-    --                         table.insert(myEnemiesTable, { unit = thisUnit , range = myDistance });
-    --                     end
-    --                 end
-    --             end
-    --         end
-    --     end
-    --     return myEnemiesTable;
-    -- end
-
-    -- function getCorpse()
-    --     local myEnemies = getDeadEnemies("player",5)
-    --     if corpseTargets == nil then corpseTargets = {} end
-    --     if #corpseTargets>0 then
-    --         for i = 1, #corpseTargets do
-    --             if corpseTargets[i].Looted == true and not UnitExists(corpseTargets[i].Unit) then
-    --                 table.remove(corpseTargets,i)
-    --             end
-    --         end
-    --     end
-    --     if #myEnemies>0 then
-    --         for i=1,#myEnemies do
-    --             thisUnit = myEnemies[i].unit
-    --             if UnitExists(thisUnit)
-    --                 and getCreatureType(thisUnit)
-    --                 and UnitCanAttack("player",thisUnit)
-    --                 and UnitIsDeadOrGhost(thisUnit)
-    --             then
-    --                 if corpseTargets == nil then
-    --                     table.insert(corpseTargets,{ Name = UnitName(thisUnit), Unit = thisUnit, Looted = false })
-    --                 elseif #corpseTargets>0 then
-    --                     matchFound = false
-    --                     for i = 1, #corpseTargets do
-    --                         if thisUnit == corpseTargets[i].Unit then
-    --                             matchFound = true
-    --                         end
-    --                     end
-    --                     if matchFound == false then
-    --                         table.insert(corpseTargets,{ Name = UnitName(thisUnit), Unit = thisUnit, Looted = false })
-    --                     end
-    --                 end
-    --             end
-    --         end
-    --     end
-    -- end
-
-    -- function getLoot()
-    --     local corpseTargets = corpseTargets
-    --     if #corpseTargets>0 then
-    --         for i=1,#corpseTargets do
-    --             if corpseTargets[i].Looted == false and not isMoving("player") then
-    --                 thisUnit = corpseTargets[i].Unit
-    --                 if PriorAutoLoot == nil then PriorAutoLoot = false end
-    --                 if GetCVar("autoLootDefault") == "1" then
-    --                     ChatOverlay("Autoloot Begin")
-    --                     PriorAutoLoot = true
-    --                 end
-    --                 if GetCVar("autoLootDefault") == "0" then 
-    --                     SetCVar("autoLootDefault", "1")
-    --                     ChatOverlay("Autoloot Begin")                   
-    --                 end
-    --                 InteractUnit(thisUnit)
-    --                 corpseTargets[i].Looted = true
-    --                 ClearTarget()
-    --                 if GetCVar("autoLootDefault") == "1" and PriorAutoLoot == true then
-    --                     ChatOverlay("Autoloot End")
-    --                 end
-    --                 if GetCVar("autoLootDefault") == "1" and PriorAutoLoot == false then 
-    --                     SetCVar("autoLootDefault", "0")
-    --                     ChatOverlay("Autoloot End")
-    --                 end
-    --             end
-    --         end
-    --     end
-    -- end
-    
+   
 	function getRuneInfo()
 		local bCount = 0
 		local uCount = 0

@@ -1,4 +1,4 @@
-if select(3,UnitClass("player")) == 6 then
+if select(3,UnitClass("player")) == 6 and GetSpecialization() == 2 then
 
     function KeyToggles()
      -- AoE Button
