@@ -1528,6 +1528,8 @@ function castingUnit(Unit)
 	  or UnitChannelInfo(Unit) ~= nil
 	  or (GetSpellCooldown(61304) ~= nil and GetSpellCooldown(61304) > 0.001) then
 	  	return true
+    else
+        return false
 	end
 end
 

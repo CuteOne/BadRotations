@@ -55,6 +55,10 @@ if select(3,UnitClass("player")) == 6 then
             textOp(" ")
             wrapOp("--- General (Profile) ---")
 
+                -- Auto Looter
+                checkOp("Auto Looter","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic corpse looting.")
+                textOp("Auto Looter")
+
                 -- Horn of Winter
                 checkOp("Horn of Winter","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Horn of Winter usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
                 textOp(tostring(select(1,GetSpellInfo(_HornOfWinter))))

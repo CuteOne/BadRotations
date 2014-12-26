@@ -31,7 +31,7 @@ if select(3,UnitClass("player")) == 6 then
     _HowlingBlast       = 49184
     _IceboundFortitude  = 48792
     _IcyTouch           = 45477
-    _KillingMachine     = 51128
+    _KillingMachine     = 51124
     _Lichborne          = 49039
     _MindFreeze         = 47528
     _NecroticPlague     = 155159
@@ -43,7 +43,7 @@ if select(3,UnitClass("player")) == 6 then
     _PlagueStrike       = 45462
     _RaiseAlly          = 61999
     _RemorselessWinter  = 108200
-    _Rime               = 59057
+    _Rime               = 59052
     _SoulReaper         = 130735
     _SoulReaperU        = 130736
     _Strangulate        = 47476
