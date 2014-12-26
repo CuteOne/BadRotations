@@ -493,9 +493,9 @@ function DruidRestoration()
 		if isKnown(33891) and UnitBuffID("player", 33891) and UnitAffectingCombat("player") then
 			if glyphSproutingMushroom then
 				if isChecked("Mushrooms") and getValue("Mushrooms Who") == 1 then
-					if GetUnitSpeed("focus") == 0 and canCast(145205,false,false)
+					if GetUnitSpeed("focustarget") == 0 and canCast(145205,false,false) and getDistance("focus","focustarget") < 5
 					  and (shroomsTable == nil or #shroomsTable == 0 or shroomsTable[1].guid == nil) then
-						if castGround("focus", 145205, 40) then
+						if castGround("focustarget", 145205, 40) then
 							shroomTimer = GetTime()
 							spellDebug("Shroom Tol Applied to tank for 1st time.")
 							return
@@ -557,10 +557,10 @@ function DruidRestoration()
 			if glyphSproutingMushroom then
 				if isChecked("Mushrooms") and getValue("Mushrooms Who") == 1
 				  and (shroomTimer == nil or shroomTimer <= GetTime() - 2) then
-					if GetUnitSpeed("focus") == 0 and canCast(145205,false,false) then
+					if GetUnitSpeed("focustarget") == 0 and canCast(145205,false,false) and getDistance("focus","focustarget") < 5 then
 						if shroomsTable ~= nil and #shroomsTable ~= 0 and findShroom() then
 							if getDistanceToObject("focus",shroomsTable[1].x,shroomsTable[1].y,shroomsTable[1].z) > 12 then
-								if castGround("focus", 145205, 40) then
+								if castGround("focustarget", 145205, 40) then
 									shroomTimer = GetTime()
 									spellDebug("Shroom Tol Reapplied to tank.")
 									return
@@ -729,9 +729,9 @@ function DruidRestoration()
 		--[[ 27 - WildMushroom Tank(if not any mushroom active )]]
 		if isChecked("Mushrooms") and getValue("Mushrooms Who") == 1 and UnitAffectingCombat("player") then
 			if glyphSproutingMushroom then
-				if GetUnitSpeed("focus") == 0 and canCast(145205,false,false)
+				if GetUnitSpeed("focustarget") == 0 and canCast(145205,false,false) and getDistance("focus","focustarget") < 5
 				  and (shroomsTable == nil or #shroomsTable == 0 or shroomsTable[1].guid == nil) then
-					if castGround("focus", 145205, 40) then
+					if castGround("focustarget", 145205, 40) then
 						shroomTimer = GetTime()
 						spellDebug("Shroom Applied to tank for 1st time.")
 						return
@@ -741,7 +741,8 @@ function DruidRestoration()
 		    	castMushFocus()
 		    end
 		end
-        --[[ 28 - LifebloomFocus--(Refresh if over threshold)]]
+        
+		--[[ 28 - LifebloomFocus--(Refresh if over threshold)]]
       	if isChecked("Lifebloom") then
 			if not UnitIsDeadOrGhost("focus") and getHP("focus") >= getValue("Lifebloom")
 			  and getBuffRemain("focus",33763,"player") < 2 and getDistance("player","focus") < 43 and UnitExists("focus") then
@@ -793,10 +794,10 @@ function DruidRestoration()
 		if isChecked("Mushrooms") and getValue("Mushrooms Who") == 1
 		  and (shroomTimer == nil or shroomTimer <= GetTime() - 2) and UnitAffectingCombat("player") then
 		  	if glyphSproutingMushroom then
-				if GetUnitSpeed("focus") == 0 and canCast(145205,false,false) then
+				if GetUnitSpeed("focustarget") == 0 and canCast(145205,false,false) and getDistance("focus","focustarget") < 5 then
 					if shroomsTable ~= nil and #shroomsTable ~= 0 and findShroom() then
 						if getDistanceToObject("focus",shroomsTable[1].x,shroomsTable[1].y,shroomsTable[1].z) > 12 then
-							if castGround("focus", 145205, 40) then
+							if castGround("focustarget", 145205, 40) then
 								shroomTimer = GetTime()
 								spellDebug("Shroom Reapplied to tank.")
 								return
