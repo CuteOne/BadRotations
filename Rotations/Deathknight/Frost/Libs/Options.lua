@@ -1,4 +1,4 @@
-if select(3,UnitClass("player")) == 6 and GetSpecialization() == 2 then
+if select(3,UnitClass("player")) == 6 then
 
     --[[This function will create a Value Box.]]
     -- function CreateNewBox(value,textString,minValue,maxValue,step,base,tip1)
@@ -46,160 +46,168 @@ if select(3,UnitClass("player")) == 6 and GetSpecialization() == 2 then
 
     -- Config Panel
     function FrostOptions()
-        if Currentconfig ~= "Frost DK" then
-            ClearConfig()
-            thisConfig = 0
-            -- Title
-            titleOp("Frost Death Knight")
-                    -- Spacer
-            textOp(" ")
-            wrapOp("--- General (Profile) ---")
+        if GetSpecialization() == 2 then    
+            if Currentconfig ~= "Frost DK" then
+                ClearConfig()
+                thisConfig = 0
+                -- Title
+                titleOp("Frost Death Knight")
+                        -- Spacer
+                textOp(" ")
+                wrapOp("--- General (Profile) ---")
 
-                -- Auto Looter
-                checkOp("Auto Looter","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic corpse looting.")
-                textOp("Auto Looter")
+                    -- Auto Looter
+                    checkOp("Auto Looter","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic corpse looting.")
+                    textOp("Auto Looter")
 
-                -- Horn of Winter
-                checkOp("Horn of Winter","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Horn of Winter usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
-                textOp(tostring(select(1,GetSpellInfo(_HornOfWinter))))
+                    -- Horn of Winter
+                    checkOp("Horn of Winter","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Horn of Winter usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
+                    textOp(tostring(select(1,GetSpellInfo(_HornOfWinter))))
 
-                -- Dummy DPS Test
-                checkOp("DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.")
-                boxOp("DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-                textOp("DPS Testing")
+                    -- Dummy DPS Test
+                    checkOp("DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.")
+                    boxOp("DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+                    textOp("DPS Testing")
 
-            -- Spacer
-            textOp(" ")
-            wrapOp("--- Cooldowns ---")
+                -- Spacer
+                textOp(" ")
+                wrapOp("--- Cooldowns ---")
 
-                -- Agi Pot
-                checkOp("Agi-Pot")
-                textOp("Agi-Pot")
+                    -- Agi Pot
+                    checkOp("Agi-Pot")
+                    textOp("Agi-Pot")
 
-                -- Flask / Crystal
-                checkOp("Flask / Crystal")
-                textOp("Flask / Crystal")
+                    -- Flask / Crystal
+                    checkOp("Flask / Crystal")
+                    textOp("Flask / Crystal")
 
-                -- Trinkets
-                checkOp("Trinkets")
-                textOp("Trinkets")
+                    -- Trinkets
+                    checkOp("Trinkets")
+                    textOp("Trinkets")
 
-                -- Empower Rune Weapon
-                if isKnown(_EmpowerRuneWeapon) then
-                   checkOp("Empower Rune Weapon")
-                   textOp("Empower Rune Weapon")
-                end 
+                    -- Empower Rune Weapon
+                    if isKnown(_EmpowerRuneWeapon) then
+                       checkOp("Empower Rune Weapon")
+                       textOp("Empower Rune Weapon")
+                    end 
 
-            -- Spacer
-            textOp(" ")
-            wrapOp("--- Defensive ---")
+                -- Spacer
+                textOp(" ")
+                wrapOp("--- Defensive ---")
 
-                -- Healthstone
-                checkOp("Pot/Stoned")
-                boxOp("Pot/Stoned", 0, 100, 5, 60, "|cffFFFFFFHealth Percent to Cast At")
-                textOp("Pot/Stoned")
+                    -- Healthstone
+                    checkOp("Pot/Stoned")
+                    boxOp("Pot/Stoned", 0, 100, 5, 60, "|cffFFFFFFHealth Percent to Cast At")
+                    textOp("Pot/Stoned")
 
-                -- Blood Presence
-                checkOp("Blood Presence")
-                boxOp("Blood Presence", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-                textOp(tostring(select(1,GetSpellInfo(_BloodPresence))))
+                    -- Blood Presence
+                    checkOp("Blood Presence")
+                    boxOp("Blood Presence", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+                    textOp(tostring(select(1,GetSpellInfo(_BloodPresence))))
 
-                -- Death Strike
-                checkOp("Death Strike")
-                boxOp("Death Strike", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-                textOp(tostring(select(1,GetSpellInfo(_DeathStrike))))
+                    -- Death Strike
+                    checkOp("Death Strike")
+                    boxOp("Death Strike", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+                    textOp(tostring(select(1,GetSpellInfo(_DeathStrike))))
 
-                -- Icebound Fortitude
-                checkOp("Icebound Fortitude")
-                boxOp("Icebound Fortitude", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-                textOp(tostring(select(1,GetSpellInfo(_IceboundFortitude))))
+                    -- Icebound Fortitude
+                    checkOp("Icebound Fortitude")
+                    boxOp("Icebound Fortitude", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+                    textOp(tostring(select(1,GetSpellInfo(_IceboundFortitude))))
 
-                -- Anti-Magic Shell/Zone
-                if getTalent(2,2) then
-                    checkOp("Anti-Magic Zone")
-                    boxOp("Anti-Magic Zone", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-                    textOp(tostring(select(1,GetSpellInfo(_AntiMagicZone))))
-                else
-                    checkOp("Anti-Magic Shell")
-                    boxOp("Anti-Magic Shell", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-                    textOp(tostring(select(1,GetSpellInfo(_AntiMagicShell))))
-                end
+                    -- Anti-Magic Shell/Zone
+                    if getTalent(2,2) then
+                        checkOp("Anti-Magic Zone")
+                        boxOp("Anti-Magic Zone", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+                        textOp(tostring(select(1,GetSpellInfo(_AntiMagicZone))))
+                    else
+                        checkOp("Anti-Magic Shell")
+                        boxOp("Anti-Magic Shell", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+                        textOp(tostring(select(1,GetSpellInfo(_AntiMagicShell))))
+                    end
 
-                -- Death Pact
-                if getTalent(5,1) then
-                    checkOp("Death Pact")
-                    boxOp("Death Pact", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-                    textOp(tostring(select(1,GetSpellInfo(_DeathPact))))
-                end
+                    -- Death Pact
+                    if getTalent(5,1) then
+                        checkOp("Death Pact")
+                        boxOp("Death Pact", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+                        textOp(tostring(select(1,GetSpellInfo(_DeathPact))))
+                    end
 
-                -- Death Siphon
-                if getTalent(5,2) then
-                    checkOp("Death Siphon")
-                    boxOp("Death Siphon", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-                    textOp(tostring(select(1,GetSpellInfo(_DeathSiphon))))
-                end
+                    -- Death Siphon
+                    if getTalent(5,2) then
+                        checkOp("Death Siphon")
+                        boxOp("Death Siphon", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+                        textOp(tostring(select(1,GetSpellInfo(_DeathSiphon))))
+                    end
 
-                -- Conversion
-                if getTalent(5,3) then
-                    checkOp("Conversion")
-                    boxOp("Conversion", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-                    textOp(tostring(select(1,GetSpellInfo(_Conversion))))
-                end
+                    -- Conversion
+                    if getTalent(5,3) then
+                        checkOp("Conversion")
+                        boxOp("Conversion", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+                        textOp(tostring(select(1,GetSpellInfo(_Conversion))))
+                    end
 
-            -- Spacer --
-            textOp(" ")
-            wrapOp("--- Interrupts ---")
+                -- Spacer --
+                textOp(" ")
+                wrapOp("--- Interrupts ---")
 
-                -- Mind Freeze
-                checkOp("Mind Freeze")
-                textOp(tostring(select(1,GetSpellInfo(_MindFreeze))))
+                    -- Mind Freeze
+                    checkOp("Mind Freeze")
+                    textOp(tostring(select(1,GetSpellInfo(_MindFreeze))))
 
-                -- Asphyxiate
-                checkOp("Asphyxiate")
-                textOp(tostring(select(1,GetSpellInfo(_Asphyxiate))))
+                    if isKnown(_Asphyxiate) then
+                        -- Asphyxiate
+                        checkOp("Asphyxiate")
+                        textOp(tostring(select(1,GetSpellInfo(_Asphyxiate))))
+                    else
+                        -- Strangulate
+                        checkOp("Strangulate")
+                        textOp(tostring(select(1,GetSpellInfo(_Strangulate))))
+                    end
 
-                -- Dark Simulacrum
-                checkOp("Dark Simulacrum")
-                textOp(tostring(select(1,GetSpellInfo(_DarkSimulacrum))))
+                    -- Dark Simulacrum
+                    checkOp("Dark Simulacrum")
+                    textOp(tostring(select(1,GetSpellInfo(_DarkSimulacrum))))
 
-                -- Interrupt Percentage
-                checkOp("Interrupts")
-                boxOp("Interrupts", 5, 95, 5, 0, "|cffFFFFFFCast Percent to Cast At")
-                textOp("Interrupt At")
+                    -- Interrupt Percentage
+                    checkOp("Interrupts")
+                    boxOp("Interrupts", 5, 95, 5, 0, "|cffFFFFFFCast Percent to Cast At")
+                    textOp("Interrupt At")
 
-            -- Spacer
-            textOp(" ")
-            wrapOp("--- Toggle Keys ---")
+                -- Spacer
+                textOp(" ")
+                wrapOp("--- Toggle Keys ---")
 
-                -- Single/Multi Toggle
-                checkOp("Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.")
-                dropOp("Rotation Mode", 4, "Toggle")
-                textOp("Rotation")
+                    -- Single/Multi Toggle
+                    checkOp("Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.")
+                    dropOp("Rotation Mode", 4, "Toggle")
+                    textOp("Rotation")
 
-                -- Cooldown Key Toggle
-                checkOp("Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.")
-                dropOp("Cooldown Mode", 3, "Toggle")
-                textOp("Cooldowns")
+                    -- Cooldown Key Toggle
+                    checkOp("Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.")
+                    dropOp("Cooldown Mode", 3, "Toggle")
+                    textOp("Cooldowns")
 
-                -- Defensive Key Toggle
-                checkOp("Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.")
-                dropOp("Defensive Mode", 6, "Toggle")
-                textOp("Defensive")
+                    -- Defensive Key Toggle
+                    checkOp("Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.")
+                    dropOp("Defensive Mode", 6, "Toggle")
+                    textOp("Defensive")
 
-                -- Interrupts Key Toggle
-                checkOp("Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.")
-                dropOp("Interrupt Mode", 6, "Toggle")
-                textOp("Interrupts")
+                    -- Interrupts Key Toggle
+                    checkOp("Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.")
+                    dropOp("Interrupt Mode", 6, "Toggle")
+                    textOp("Interrupts")
 
-                -- Cleave Toggle
-                checkOp("Cleave Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCleave Toggle Key|cffFFBB00.")
-                dropOp("Cleave Mode", 6, "Toggle")
-                textOp("Cleave Mode")
+                    -- Cleave Toggle
+                    checkOp("Cleave Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCleave Toggle Key|cffFFBB00.")
+                    dropOp("Cleave Mode", 6, "Toggle")
+                    textOp("Cleave Mode")
 
-            -- General Configs
-            CreateGeneralsConfig()
+                -- General Configs
+                CreateGeneralsConfig()
 
-            WrapsManager()
+                WrapsManager()
+            end
         end
     end
 end

@@ -1,5 +1,5 @@
 if select(3, UnitClass("player")) == 11 then
-
+    
     ------Member Check------
     function CalculateHP(unit)
       incomingheals = UnitGetIncomingHeals(unit) or 0
@@ -222,5 +222,4 @@ if select(3, UnitClass("player")) == 11 then
             return 1000;
         end
     end
-
 end

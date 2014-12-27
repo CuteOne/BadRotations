@@ -1,13 +1,5 @@
 if select(3, UnitClass("player")) == 11 then
 
-    --[[           ]]         --[[]]        --[[           ]]
-    --[[           ]]        --[[  ]]       --[[           ]]
-    --[[]]                  --[[    ]]           --[[ ]]
-    --[[]]                 --[[      ]]          --[[ ]]
-    --[[]]                --[[        ]]         --[[ ]]
-    --[[           ]]    --[[]]    --[[]]        --[[ ]]
-    --[[           ]]   --[[]]      --[[]]       --[[ ]]
-
     --[[This function will create a Value Box.]]
     -- function CreateNewBox(value,textString,minValue,maxValue,step,base,tip1)
 
@@ -54,149 +46,150 @@ if select(3, UnitClass("player")) == 11 then
 
     -- Config Panel
     function FeralCatConfig()
-        if Currentconfig ~= "Feral CuteOne" then
-            ClearConfig()
-            thisConfig = 0
-            -- Title
-            titleOp("CuteOne Feral Cat")
-                    -- Spacer
-            textOp(" ")
-            wrapOp("--- General (Profile) ---")
+        if GetSpecialization() == 2 then 
+            if Currentconfig ~= "Feral CuteOne" then
+                ClearConfig()
+                thisConfig = 0
+                -- Title
+                titleOp("CuteOne Feral Cat")
+                        -- Spacer
+                textOp(" ")
+                wrapOp("--- General (Profile) ---")
 
-                -- Death Cat
-                checkOp("Death Cat Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.")
-                textOp("Death Cat Mode")
+                    -- Death Cat
+                    checkOp("Death Cat Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.")
+                    textOp("Death Cat Mode")
 
-                -- Mark Of The Wild
-                checkOp("Mark of the Wild","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Mark of Wild usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
-                textOp(tostring(select(1,GetSpellInfo(mow))))
+                    -- Mark Of The Wild
+                    checkOp("Mark of the Wild","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Mark of Wild usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
+                    textOp(tostring(select(1,GetSpellInfo(mow))))
 
-                -- Dummy DPS Test
-                checkOp("DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.")
-                boxOp("DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-                textOp("DPS Testing")
+                    -- Dummy DPS Test
+                    checkOp("DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.")
+                    boxOp("DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+                    textOp("DPS Testing")
 
-                -- Travel Shapeshifts
-                checkOp("Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
-                textOp("Auto Shapeshifts")
+                    -- Travel Shapeshifts
+                    checkOp("Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
+                    textOp("Auto Shapeshifts")
 
-                -- Mouseover Targeting
-                checkOp("Mouseover Targeting","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFmouseover target validation.|cffFFBB00.")
-                textOp("Mouseover Targeting")
+                    -- Mouseover Targeting
+                    checkOp("Mouseover Targeting","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFmouseover target validation.|cffFFBB00.")
+                    textOp("Mouseover Targeting")
 
-            -- Spacer
-            textOp(" ")
-            wrapOp("--- Cooldowns ---")
+                -- Spacer
+                textOp(" ")
+                wrapOp("--- Cooldowns ---")
 
-                -- Agi Pot
-                checkOp("Agi-Pot")
-                textOp("Agi-Pot")
+                    -- Agi Pot
+                    checkOp("Agi-Pot")
+                    textOp("Agi-Pot")
 
-                -- Flask / Crystal
-                checkOp("Flask / Crystal")
-                textOp("Flask / Crystal")
+                    -- Flask / Crystal
+                    checkOp("Flask / Crystal")
+                    textOp("Flask / Crystal")
 
-            -- Spacer
-            textOp(" ")
-            wrapOp("--- Defensive ---")
+                -- Spacer
+                textOp(" ")
+                wrapOp("--- Defensive ---")
 
-                -- Rejuvenation
-                checkOp("Rejuvenation")
-                boxOp("Rejuvenation", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-                textOp("Rejuvenation")
+                    -- Rejuvenation
+                    checkOp("Rejuvenation")
+                    boxOp("Rejuvenation", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+                    textOp("Rejuvenation")
 
-                -- Auto Rejuvenation
-                checkOp("Auto Rejuvenation")
-                boxOp("Auto Rejuvenation", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-                textOp("Auto Rejuvenation")
+                    -- Auto Rejuvenation
+                    checkOp("Auto Rejuvenation")
+                    boxOp("Auto Rejuvenation", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+                    textOp("Auto Rejuvenation")
 
-                -- Healthstone
-                checkOp("Pot/Stoned")
-                boxOp("Pot/Stoned", 0, 100, 5, 60, "|cffFFFFFFHealth Percent to Cast At")
-                textOp("Pot/Stoned")
+                    -- Healthstone
+                    checkOp("Pot/Stoned")
+                    boxOp("Pot/Stoned", 0, 100, 5, 60, "|cffFFFFFFHealth Percent to Cast At")
+                    textOp("Pot/Stoned")
 
-                -- Nature's Vigil
-                checkOp("Nature's Vigil")
-                boxOp("Nature's Vigil", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At")
-                textOp(tostring(select(1,GetSpellInfo(nv))))
+                    -- Nature's Vigil
+                    checkOp("Nature's Vigil")
+                    boxOp("Nature's Vigil", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At")
+                    textOp(tostring(select(1,GetSpellInfo(nv))))
 
-                -- Survival Instincts
-                checkOp("Survival Instincts")
-                boxOp("Survival Instincts", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
-                textOp(tostring(select(1,GetSpellInfo(si))))
+                    -- Survival Instincts
+                    checkOp("Survival Instincts")
+                    boxOp("Survival Instincts", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
+                    textOp(tostring(select(1,GetSpellInfo(si))))
 
-                -- Healing Touch
-                checkOp("Healing Touch")
-                boxOp("Healing Touch", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At")
-                textOp(tostring(select(1,GetSpellInfo(ht))))
+                    -- Healing Touch
+                    checkOp("Healing Touch")
+                    boxOp("Healing Touch", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At")
+                    textOp(tostring(select(1,GetSpellInfo(ht))))
 
-                -- Dream of Cenarius Auto-Heal
-                checkOp("Auto Heal")
-                dropOp("Auto Heal", 1, "|cffFFFFFFSelect Target to Auto-Heal",
-                    "|cffFFDD11LowestHP",
-                    "|cffFFDD11Self")
-                textOp("Auto-Heal (DoC)")
+                    -- Dream of Cenarius Auto-Heal
+                    checkOp("Auto Heal")
+                    dropOp("Auto Heal", 1, "|cffFFFFFFSelect Target to Auto-Heal",
+                        "|cffFFDD11LowestHP",
+                        "|cffFFDD11Self")
+                    textOp("Auto-Heal (DoC)")
 
-            -- Spacer --
-            textOp(" ")
-            wrapOp("--- Interrupts ---")
+                -- Spacer --
+                textOp(" ")
+                wrapOp("--- Interrupts ---")
 
-                -- Skull Bash
-                checkOp("Skull Bash")
-                textOp(tostring(select(1,GetSpellInfo(sb))))
+                    -- Skull Bash
+                    checkOp("Skull Bash")
+                    textOp(tostring(select(1,GetSpellInfo(sb))))
 
-                -- Mighty Bash
-                checkOp("Mighty Bash")
-                textOp(tostring(select(1,GetSpellInfo(mb))))
+                    -- Mighty Bash
+                    checkOp("Mighty Bash")
+                    textOp(tostring(select(1,GetSpellInfo(mb))))
 
-                -- Maim
-                checkOp("Maim")
-                textOp(tostring(select(1,GetSpellInfo(ma))))
+                    -- Maim
+                    checkOp("Maim")
+                    textOp(tostring(select(1,GetSpellInfo(ma))))
 
-                -- Interrupt Percentage
-                checkOp("Interrupts")
-                boxOp("Interrupts", 5, 95, 5, 0, "|cffFFFFFFCast Percent to Cast At")
-                textOp("Interrupt At")
+                    -- Interrupt Percentage
+                    checkOp("Interrupts")
+                    boxOp("Interrupts", 5, 95, 5, 0, "|cffFFFFFFCast Percent to Cast At")
+                    textOp("Interrupt At")
 
-            -- Spacer
-            textOp(" ")
-            wrapOp("--- Toggle Keys ---")
+                -- Spacer
+                textOp(" ")
+                wrapOp("--- Toggle Keys ---")
 
-                -- Single/Multi Toggle
-                checkOp("Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.")
-                dropOp("Rotation Mode", 4, "Toggle")
-                textOp("Rotation")
+                    -- Single/Multi Toggle
+                    checkOp("Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.")
+                    dropOp("Rotation Mode", 4, "Toggle")
+                    textOp("Rotation")
 
-                -- Cooldown Key Toggle
-                checkOp("Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.")
-                dropOp("Cooldown Mode", 3, "Toggle")
-                textOp("Cooldowns")
+                    -- Cooldown Key Toggle
+                    checkOp("Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.")
+                    dropOp("Cooldown Mode", 3, "Toggle")
+                    textOp("Cooldowns")
 
-                -- Defensive Key Toggle
-                checkOp("Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.")
-                dropOp("Defensive Mode", 6, "Toggle")
-                textOp("Defensive")
+                    -- Defensive Key Toggle
+                    checkOp("Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.")
+                    dropOp("Defensive Mode", 6, "Toggle")
+                    textOp("Defensive")
 
-                -- Interrupts Key Toggle
-                checkOp("Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.")
-                dropOp("Interrupt Mode", 6, "Toggle")
-                textOp("Interrupts")
+                    -- Interrupts Key Toggle
+                    checkOp("Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.")
+                    dropOp("Interrupt Mode", 6, "Toggle")
+                    textOp("Interrupts")
 
-                -- Cleave Toggle
-                checkOp("Cleave Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCleave Toggle Key|cffFFBB00.")
-                dropOp("Cleave Mode", 6, "Toggle")
-                textOp("Cleave Mode")
+                    -- Cleave Toggle
+                    checkOp("Cleave Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCleave Toggle Key|cffFFBB00.")
+                    dropOp("Cleave Mode", 6, "Toggle")
+                    textOp("Cleave Mode")
 
-                -- Prowl Toggle
-                checkOp("Prowl Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFProwl Toggle Key|cffFFBB00.")
-                dropOp("Prowl Mode", 6, "Toggle")
-                textOp("Prowl Mode")
+                    -- Prowl Toggle
+                    checkOp("Prowl Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFProwl Toggle Key|cffFFBB00.")
+                    dropOp("Prowl Mode", 6, "Toggle")
+                    textOp("Prowl Mode")
 
-            -- General Configs
-            CreateGeneralsConfig()
+                -- General Configs
+                CreateGeneralsConfig()
 
-            WrapsManager()
+                WrapsManager()
+            end
         end
     end
-
 end

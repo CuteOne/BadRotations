@@ -1,4 +1,4 @@
-if select(3,UnitClass("player")) == 6 and GetSpecialization() == 2 then
+if select(3,UnitClass("player")) == 6 then
 
     ------Member Check------
     function CalculateHP(unit)
@@ -25,30 +25,43 @@ if select(3,UnitClass("player")) == 6 and GetSpecialization() == 2 then
     end
 
     function getLoot()
+        if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
+            enemiesTimer = GetTime()
+        end
+        looted = 0
         for i=1,ObjectCount() do
             if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
                 local thisUnit = ObjectWithIndex(i)
                 local canLoot = select(2,CanLootUnit(UnitGUID(thisUnit)))
                 local hasLoot = select(1,CanLootUnit(UnitGUID(thisUnit)))
-                if UnitGUID(thisUnit) ~= UnitGUID("target") and getCreatureType(thisUnit) == true then
-                    if UnitCanAttack("player",thisUnit) == true and UnitIsDeadOrGhost(thisUnit) then
-                        if PriorAutoLoot == nil then PriorAutoLoot = false end
-                        if GetCVar("autoLootDefault") == "0" then 
-                            SetCVar("autoLootDefault", "1")
-                            PriorAutoLoot = false
-                        end
-                        if canLoot then
-                            if hasLoot then
-                                InteractUnit(thisUnit)
+                if getCreatureType(thisUnit) == true 
+                    and UnitCanAttack("player",thisUnit) == true 
+                    and UnitIsDeadOrGhost(thisUnit) 
+                then
+                    if PriorAutoLoot == nil then PriorAutoLoot = false end
+                    if GetCVar("autoLootDefault") == "0" then 
+                        SetCVar("autoLootDefault", "1")
+                        PriorAutoLoot = false
+                    end
+                    if canLoot then
+                        if hasLoot then
+                            InteractUnit(thisUnit)
+                            if GetNumLootItems() > 0 then
+                                looted = 1
+                                return true
                             end
                         end
-                        if GetCVar("autoLootDefault") == "1" and PriorAutoLoot == false then 
-                            SetCVar("autoLootDefault", "0")
-                        end
+                    elseif looted==1 then
+                        looted = 0
+                        ClearTarget()
+                    end
+                    if GetCVar("autoLootDefault") == "1" and PriorAutoLoot == false then 
+                        SetCVar("autoLootDefault", "0")
                     end
                 end
             end
         end
+        return false
     end
    
 	function getRuneInfo()
