@@ -9,7 +9,7 @@ if select(3, UnitClass("player")) == 4 then
 	end
 
 	function useAoE()
-	    if (BadBoy_data['AoE'] == 1 and #getEnemies("player",8) >= 3) or BadBoy_data['AoE'] == 2 then
+	    if (BadBoy_data['AoE'] == 1 and #getEnemies("player",5) >= 2) or BadBoy_data['AoE'] == 2 then
 	        return true
 	    else
 	        return false
