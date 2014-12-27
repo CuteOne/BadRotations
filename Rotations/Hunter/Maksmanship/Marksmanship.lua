@@ -7,7 +7,7 @@ if select(3, UnitClass("player")) == 3 then
 			Currentconfig = "Marksmanship";
 		end
 
-		--Variables
+		--Variables-------------------------------------------------------------
 		local player_haste = round2(UnitSpellHaste("player"),2)
 		local current_focus = UnitPower("player")
 		local max_focus = UnitPowerMax("player")
@@ -23,25 +23,23 @@ if select(3, UnitClass("player")) == 3 then
 		local steady_shot_regen = (steady_shot_cast_time * focus_regen)
 		local PetDistance = getDistance("pet","target")
 
-		-- myEnemies
+		--myEnemies--------------------------------------------------------------------------------
 		if myEnemiesTimer == nil or myEnemiesTimer <= GetTime() - 0.5 or myEnemies == nil then
 			myEnemies, myEnemiesTimer = #getEnemies("target",10), GetTime();
 		end
 
-		--Middle Mouse Override
+		--Middle Mouse Override--------------------------------------------------------------------
 		if IsMouseButtonDown(3) then
 			RunMacroText("/click"..GetMouseFocus():GetName())
 		end
 
-		--Don't use rotation checks
+		--Don't use rotation checks-------------------------------------------------------------------------------
 		if UnitInVehicle("Player") then return false; end --Dont want to cast if we are in a vehicle
 		if UnitBuffID("player",5384) ~= nil then return false; end --Dont want to do anything if we feign death
 
-		-- OFF-GCD here we add the spells we want to be spamming all the time
+		-- OFF-GCD here we add the spells we want to be spamming all the time----------------------------------------
 		if UnitAffectingCombat("player") then
-			------------------
-			--- Interrupts --- Mavmins Updated
-			------------------
+			--Interrupts-------------------------------------------------------------
 			if isChecked("Counter Shot") then
 			 	--if isKnown(147362) and getSpellCD(147362) == 0 then
 					castInterrupt(147362,getValue("Counter Shot"))
@@ -54,7 +52,7 @@ if select(3, UnitClass("player")) == 3 then
 			 	end
 			end
 			
-			-- actions+=/kill_shot (with perk and without)
+			-- actions+=/kill_shot (with perk and without)----------------------------------------------------------------
 			if isKnown(157708) then
 				if getSpellCD(157708) == 0 and getHP("target") <= 35 then
 					if isChecked("Stop for Kill Shot") and select(1,UnitCastingInfo("player") == GetSpellInfo(56641)) then 
@@ -78,12 +76,12 @@ if select(3, UnitClass("player")) == 3 then
 			end
 		end
 
-		-- GCD check
+		--GCD check--------------------------------------------------------------
 		if castingUnit() then
 			return
 		end
 
-		-- Aspect of the Cheetah
+		---Aspect of the Cheetah-------------------------------------------------------------------
 		if not isInCombat("player") and isChecked("Auto-Cheetah") and getSpellCD(5118) == 0
 		  and not UnitBuffID("player", 5118)
 		  and not IsMounted()
@@ -105,9 +103,7 @@ if select(3, UnitClass("player")) == 3 then
 			end
 		end
 
-		----------------------------------------------------------
-		--Exotic Munitions   ADD WHEN 100--------------------
-		--------------------------------------------------------
+		--Exotic Munitions----------------------------------------------------------------------------------
 		if isKnown(162534) and isChecked("Exotic Munitions") and UnitCastingInfo("player") == nil then
 			if getValue("Exotic Munitions") == 1 then
 				if UnitBuffID("player",162536) == nil then
@@ -124,10 +120,7 @@ if select(3, UnitClass("player")) == 3 then
 			end
 		end
 
-
-		-------------------------
-		-- Pet Management -- Mavmins Updated
-		-------------------------
+		--Pet Management------------------------------------------------------------------------------------------------------------------
 		if isChecked("Auto Summon")  and not UnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
 			if waitForPetToAppear ~= nil and waitForPetToAppear < GetTime() - 2 then
 				if lastFailedWhistle and lastFailedWhistle > GetTime() - 3 then
@@ -164,18 +157,11 @@ if select(3, UnitClass("player")) == 3 then
 			if castSpell("pet",136) then return; end
 		end
 
-
-
-		--------------------
-		--- Combat Check ---
-		--------------------
+		--Combat Check---------------------------------------------------------------------------------------------------------------
 		if UnitAffectingCombat("player") == true and UnitExists("target") == true and UnitIsVisible("target") == true
 		  and UnitIsDeadOrGhost("target") == false and UnitCanAttack("target","player") == true then
 
-			---------------------------
-			--- Defensive Abilities --- Mavmins Updated
-			---------------------------
-
+			--Defensive Abilities---------------------------------------------------------------------------------------
 			--HP Stone
 	        if isChecked("Healthstone/Potion") == true then
 	            if getHP("player") <= getValue("Healthstone/Potion") then
@@ -230,24 +216,17 @@ if select(3, UnitClass("player")) == 3 then
 				end
 			end
 
-
-			-----------------
-			--- Cooldowns --- Mavmins Updated
-			-----------------
+			--Cooldowns--------------------------------------------------------------------------------------------------
 			-- Rapid Fire
-			if BadBoy_data["Cooldowns"] == 3 or (isChecked("Rapid Fire") and (getValue("Rapid Fire") == 3 or getValue("Rapid Fire") == 2 and BadBoy_data["Cooldowns"] == 2)) then
+			if BadBoy_data["Cooldowns"] == 3 or (isChecked("Rapid Fire") and BadBoy_data["Cooldowns"] == 2) then
 				if castSpell("player",3045,false,false) then return; end
 			end
 			-- Stampede
-			if BadBoy_data["Cooldowns"] == 3 or (isChecked("Check Stampede") and (getValue("Stampede") == 3 or getValue("Stampede") == 2 and BadBoy_data["Cooldowns"] == 2)) then
+			if BadBoy_data["Cooldowns"] == 3 or (isChecked("Stampede") and BadBoy_data["Cooldowns"] == 2) then
 				if castSpell("target",121818,false,false) then return; end
 			end
 
-			----------------------------
-			--- Damage Rotation ---
-			---------------------------
-
-			-- actions=auto_shot
+			--Damage Rotation-------------------------------------------------------------------------------------------------
 			-- actions+=/use_item,name=beating_heart_of_the_mountain (TRINKETS)
 			if isChecked("Trinkets") then
 				if GetInventoryItemCooldown(14)==0 then
@@ -399,9 +378,7 @@ if select(3, UnitClass("player")) == 3 then
 			-- actions+=/a_murder_of_crows
 	        if (BadBoy_data['Cooldowns'] == 2 and isChecked("A Murder of Crows") == true) or BadBoy_data['Cooldowns'] == 3 then
 	            if isKnown(131894) and getSpellCD(131894) == 0 then
-	                if castSpell("target",131894,true,false) then
-	                    return;
-	                end
+	                if castSpell("target",131894,true,false) then return; end
 	            end
 	        end
 
@@ -409,9 +386,7 @@ if select(3, UnitClass("player")) == 3 then
 	        if (BadBoy_data['Cooldowns'] == 2 and isChecked("Dire Beast") == true) or BadBoy_data['Cooldowns'] == 3 then
 	             if isKnown(120679) and getSpellCD(120679) == 0 then
 	       			if aimed_shot_regen + 18 < focus_defecit then
-		                if castSpell("target",120679,true,false) then
-		                    return;
-		            	end
+		                if castSpell("target",120679,true,false) then return; end
 		       		end
 	             end
 	         end

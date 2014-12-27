@@ -18,7 +18,7 @@
 | **Hunter** |  |  |
 |Beastmaster|80%|CodeMyLife |
 |Marksmanship|100%|Mavmins |
-|Survival|80%|Averykey |
+|Survival|100%|Mavmins |
 ||||
 | **Mage** |  |  |
 |Arcane|80%(lvl90)|ragnar |
