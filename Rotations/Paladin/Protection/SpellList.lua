@@ -10,6 +10,32 @@ if select(3,UnitClass("player")) == 2 then
 	end
 
 
+	function castHammerOfWrath(thisUnit,hpHammerOfWrath,buffAvengingWrath)
+		if canCast(_HammerOfWrath) and getLineOfSight("player",thisUnit.unit) and thisUnit.distance <= 30
+		  and (buffAvengingWrath or thisUnit.hp <= 20) then
+			if castSpell(thisUnit.unit,_HammerOfWrath,false,false) then
+				return true
+			end
+		end
+	end
+	function castHammerOfWrathMulti()
+		local hpHammerOfWrath = 20
+		local buffAvengingWrath = getBuffRemain("player",_AvengingWrath)
+		-- if empowered hammer of wrath, we need to get value for HoW hp at 35%
+		if isKnown(157496) then
+			hpHammerOfWrath = 35
+		end
+		for i = 1, #enemiesTable do
+			-- define thisUnit
+			local thisUnit = enemiesTable[i]
+			if castHammerOfWrath(thisUnit,hpHammerOfWrath,buffAvengingWrath,false) then
+				return true
+			end
+		end
+		return false
+	end
+
+
 	--Todo, we can check if the target is not inmelle there could be other targets in melee
 	function castHolyWrath(unit)
 		if canCast(_HolyWrath) and isInMelee(unit) then

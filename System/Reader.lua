@@ -256,8 +256,8 @@ function SuperReader(self,event,...)
 
         -----------------------
         --[[ Double Jeopardy ]]
-        if playerClass == 2 and spell == 20271 and source == playerGUID then
-            previousJudgmentTarget = destination
+        if playerClass == 2 and spell == 20271 and source == playerGUID and previousJudgmentTarget ~= destination then
+            core.previousJudgmentTarget = destination
         end
 
 		---------------------

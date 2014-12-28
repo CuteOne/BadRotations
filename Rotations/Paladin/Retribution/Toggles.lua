@@ -7,7 +7,7 @@ if select(3,UnitClass("player")) == 2 then
                     mode = "1-2",
                     value = 1,
                     overlay = "|cffFFFFFFSingle Target Enabled",
-                    tip = "|cff00FF00Recommended for \n|cffFFDD11Single Target(1-2).",
+                    tip = "|cffFF0000Used for \n|cffFFDD11Single Target(1-2).",
                     highlight = 0,
                     icon = 35395
                 },
@@ -15,7 +15,7 @@ if select(3,UnitClass("player")) == 2 then
                     mode = "3-4",
                     value = 2,
                     overlay = "|cffFFBC0BCleave AoE Enabled",
-                    tip = "|cffFF0000Recommended for \n|cffFFDD11AoE(3-4).",
+                    tip = "|cffFF0000Used for \n|cffFFDD11AoE(3-4).",
                     highlight = 0,
                     icon = 53385
                 },
@@ -23,7 +23,7 @@ if select(3,UnitClass("player")) == 2 then
                     mode = "5+",
                     value = 3,
                     overlay = "|cffAA55FFMass AoE Enabled",
-                    tip = "|cffFFDD11Recommended for \n|cffFFDD11AoE(5+) people.",
+                    tip = "|cffFF0000Used for \n|cffFFDD11AoE(5+) people.",
                     highlight = 0,
                     icon = 53595
                 },
@@ -31,7 +31,7 @@ if select(3,UnitClass("player")) == 2 then
                     mode = "Auto",
                     value = 4,
                     overlay = "|cff00F900Auto-AoE Enabled",
-                    tip = "|cffFFDD11Recommended for \n|cffFFDD11Lazy people.",
+                    tip = "|cffFFDD11Automatic calculations of ennemies.",
                     highlight = 1,
                     icon = 114158
                 }
@@ -77,7 +77,7 @@ if select(3,UnitClass("player")) == 2 then
                     mode = "None",
                     value = 1 ,
                     overlay = "Defensive Disabled",
-                    tip = "|cffFF0000No Defensive Cooldowns will be used.",
+                    tip =  "|cffFF0000Defensive Cooldowns Included: \n|cffFFDD11None.",
                     highlight = 0,
                     icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]]
                 },
@@ -85,17 +85,17 @@ if select(3,UnitClass("player")) == 2 then
                     mode = "User",
                     value = 1 ,
                     overlay = "Selective Defense Enabled",
-                    tip = "|cffFF0000Will use selected defensive spells.",
+                    tip = "|cffFF0000Defensive Cooldowns Included: \n|cffFFDD11Config's selected spells.",
                     highlight = 0,
-                    icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]]
+                    icon = 498
                 },
                 [3] = {
                     mode = "All",
                     value = 2 ,
                     overlay = "Defensive Enabled",
-                    tip = "|cffFF0000Spells Included: \nDivine Protection, \nDivine Shield.",
+                    tip = "|cffFF0000Defensive Cooldowns Included: |cffFFDD11\nDivine Protection, \nDivine Shield.",
                     highlight = 1,
-                    icon = 86659
+                    icon = 642
                 }
             }
             CreateButton("Defensive",1,1)
@@ -108,7 +108,7 @@ if select(3,UnitClass("player")) == 2 then
                     mode = "None",
                     value = 1 ,
                     overlay = "Cooldowns Disabled",
-                    tip = "|cffFF0000No cooldowns will be used.",
+                    tip = "|cffFF0000Cooldowns Included: \n|cffFFDD11None.",
                     highlight = 0,
                     icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]]
                 },
@@ -118,7 +118,7 @@ if select(3,UnitClass("player")) == 2 then
                     overlay = "User Cooldowns Enabled",
                     tip = "|cffFF0000Cooldowns Included: \n|cffFFDD11Config's selected spells.",
                     highlight = 1,
-                    icon = [[INTERFACE\ICONS\inv_misc_blackironbomb]]
+                    icon = 105809
                 },
                 [3] = {
                     mode = "All",
