@@ -167,8 +167,6 @@ Rotations\Rogue\Combat\Options.lua
 Rotations\Rogue\Combat\SpellList.lua
 Rotations\Rogue\Combat\Toggles.lua
 
-
-
 Rotations\Rogue\Subtlety.lua
 Rotations\Rogue\NewRogue.lua
 
@@ -177,12 +175,15 @@ Rotations\Shaman\Enhancement\libs\Functions.lua
 Rotations\Shaman\Enhancement\libs\Options.lua
 Rotations\Shaman\Enhancement\libs\SpellList.lua
 Rotations\Shaman\Enhancement\libs\Toggles.lua
+Rotations\Shaman\Enhancement\libs\Reader.lua
+
 Rotations\Shaman\Elemental.lua
 Rotations\Shaman\Restoration.lua
 
 Rotations\Warrior\Arms.lua
 Rotations\Warrior\Fury.lua
 Rotations\Warrior\Protection.lua
+
 Rotations\Warlock\Affliction.lua
 Rotations\Warlock\Demonology.lua
 Rotations\Warlock\Destruction.lua

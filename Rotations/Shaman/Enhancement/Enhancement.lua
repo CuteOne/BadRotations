@@ -4,17 +4,36 @@ if select(3, UnitClass("player")) == 7 then
 	        EnhancementConfig();
 	        Currentconfig = "Enhancement CuteOne";
 	    end
-	    KeyToggles()
 	    if not canRun() then
 	    	return true
 	    end
+		EnhanceReader()
+		KeyToggles()
+		makeEnemiesTable(40)
 		
+		----------------
+		--Local Vars--
+		----------------
 		local UFtalent = getTalent(6,1)
 		local as = UnitBuffID("player",  _AncestralSwiftness) 
 		local ascandance = UnitBuffID("player",  _AscendanceBuff) 
 		local elementalFusionTalent, efstack = getTalent(7,1), select(4,UnitBuffID("player",157174))
 		local UnleashFlame = UnitBuffID("player",73683)
-		local flameshock, flameshockDuration = UnitDebuffID("target",_FlameShock) ,getDebuffRemain("target",_FlameShock)
+		local flameshock, flameshockDuration = UnitDebuffID(dynamicTarget(5,true),_FlameShock) ,getDebuffRemain(dynamicTarget(5,true),_FlameShock)
+		
+		if FlameShockTargets == nil then
+			FlameShockTargets = {}
+		end
+		
+		--FlameShock Cleanup
+		for i=1, #FlameShockTargets do
+			if (GetTime() - FlameShockTargets[i].time) >= 40  then
+				--print("Removing "..FlameShockTargets[i].unit.." Because of timeout")
+				table.remove(FlameShockTargets, i)
+				break
+			end
+         end
+		
 		-------------------------------------
 		--- Shields Up! / Weapons Online! ---
 		-------------------------------------
@@ -181,112 +200,70 @@ if select(3, UnitClass("player")) == 7 then
 				return true
 			end
 
-			-----------------------------
-			--- Multi-Target Rotation ---
-			-----------------------------
-			if useAoE() then
-				-- Flame Shock
-				if getDebuffRemain("target",_FlameShock) < 3 then
-					if castSpell("target",_FlameShock,false) then return; end
-				end
-				-- Lava Lash
-				if getDebuffRemain("target",_FlameShock)>0 then
-					if castSpell("target",_LavaLash,false) then return; end
-				end
-				-- Unleash Elements
-				if castSpell("target",_UnleashElements,true) then return; end
-				-- Fire Nova
-				-- ToDo: Create a Flame shock Table and if theres less than 7 Flame shocks active then flameshock EVERYTHING!
-				if UnitDebuffID("target",_FlameShock, "PLAYER") then
-					if castSpell("target",_FireNova,true) then return; end
-				end
-
-				-- Chain Lightning - 5 Maelstrom Weapon Stacks
-				if getHP("player")>=50 and shouldBolt() then
-					if castSpell("target",_ChainLightning,false) then return; end
-				end
-				if UnitLevel("player") >= 26 then
-					if getBuffRemain("player",_AscendanceBuff)>0 then
-						-- Stormblast
-						if castSpell("target",_Stormblast,false,false,false,true) then return; end
-					else
-						-- Stormstrike
-						if castSpell("target",_Stormstrike,false,false,false,true) then return; end
-					end
-				else
-					-- Primal Strike
-					if castSpell("target",_PrimalStrike,false) then return; end
-				end
-				-- Frost Shock
-				if castSpell("target",_FrostShock,false) then return; end
-			end --Multi-Target Rotation End
-
-			------------------------------
-			--- Single Target Rotation ---
-			------------------------------
-			if not useAoE() then
+			-------------------------
+			---Combat Rotation---
+			-------------------------
 				
-				--liquid_magma,if=pet.searing_totem.remains>=15|pet.magma_totem.remains>=15|pet.fire_elemental_totem.remains>=15
-				
-				
-				
-				--unleash_elements,if=(talent.unleashed_fury.enabled|set_bonus.tier16_2pc_melee=1)
-				if UFtalent then
-					if castSpell("target",_UnleashElements,false) then return; end
-				end
-				
-				
-				--elemental_blast,if=buff.maelstrom_weapon.react>=4|buff.ancestral_swiftness.up
-				if getMWC() >= 4
-				or as then
-					if castSpell("target",_ElementalBlast,false) then return; end
-				end
-				
-				--lightning_bolt,if=buff.maelstrom_weapon.react=5|(buff.maelstrom_weapon.react>=4&!buff.ascendance.up)|(buff.ancestral_swiftness.up&buff.maelstrom_weapon.react>=3)
-				if (getMWC()==5)
-				or (getMWC()>=4 and not ascandance)
-				or ( as and getMWC()>=3)
-				then
-					if castSpell("target",_LightningBolt,false) then return; end
-				end
-				
-				--Stormstrike
-				if castSpell("target",_Stormstrike,false,false,false,true) then return; end
-
-				-- Lava Lash
-				if castSpell("target",_LavaLash,false) then return; end
-				
-				--flame_shock,if=(talent.elemental_fusion.enabled&buff.elemental_fusion.stack=2&buff.unleash_flame.up&dot.flame_shock.remains<16)|(!talent.elemental_fusion.enabled&buff.unleash_flame.up&dot.flame_shock.remains<=9)|!ticking
-				if ( elementalFusionTalent and efstack == 2 and UnleashFlame and flameshockDuration <= 16)
-				or ( not elementalFusionTalent and UnleashFlame and flameshockDuration <= 9)
-				or (not flameshock) then
-					if castSpell("target",_FlameShock,false) then return; end
-				end
-				
-				-- Unleashed elements
-				if castSpell("target",_UnleashElements,false) then return; end
-				
-				--frost_shock,if=(talent.elemental_fusion.enabled&dot.flame_shock.remains>=16)|!talent.elemental_fusion.enabled
-				if (elementalFusionTalent and flameshockDuration > 16)
-				or ( not elementalFusionTalent) then
-					if castSpell("target",_FrostShock,false) then return; end
-				end
-				
-				--elemental_blast,if=buff.maelstrom_weapon.react>=1
-				if getMWC() >= 1 then
-					if castSpell("target",_ElementalBlast,false) then return; end
-				end
-				
-				--lightning_bolt,if=buff.maelstrom_weapon.react>=1&!buff.ascendance.up
-				if getMWC() >= 1 
-				and not ascendance then
-					if castSpell("target",_LightningBolt,false) then return; end
-				end
-				
-				
-				
-			end --Single Target Rotation End
+			--liquid_magma,if=pet.searing_totem.remains>=15|pet.magma_totem.remains>=15|pet.fire_elemental_totem.remains>=15
+			if GetTotemTimeLeft(1)  >= 15 then
+				if castSpell("player",_LiquidMagma,false) then return; end
+			end
 			
+			
+			--unleash_elements,if=(talent.unleashed_fury.enabled|set_bonus.tier16_2pc_melee=1)
+			if UFtalent then
+				if castSpell(dynamicTarget(5,true),_UnleashElements,false) then return; end
+			end
+			
+			
+			--elemental_blast,if=buff.maelstrom_weapon.react>=4|buff.ancestral_swiftness.up
+			if getMWC() >= 4
+			or as then
+				if castSpell(dynamicTarget(5,true),_ElementalBlast,false) then return; end
+			end
+			
+			--lightning_bolt,if=buff.maelstrom_weapon.react=5|(buff.maelstrom_weapon.react>=4&!buff.ascendance.up)|(buff.ancestral_swiftness.up&buff.maelstrom_weapon.react>=3)
+			if (getMWC()==5)
+			or (getMWC()>=4 and not ascandance)
+			or ( as and getMWC()>=3)
+			then
+				if castSpell(dynamicTarget(5,true),_LightningBolt,false) then return; end
+			end
+			
+			--Stormstrike
+			if castSpell(dynamicTarget(5,true),_Stormstrike,false,false,false,true) then return; end
+
+			-- Lava Lash
+			if castSpell(dynamicTarget(5,true),_LavaLash,false) then return; end
+			
+			--flame_shock,if=(talent.elemental_fusion.enabled&buff.elemental_fusion.stack=2&buff.unleash_flame.up&dot.flame_shock.remains<16)|(!talent.elemental_fusion.enabled&buff.unleash_flame.up&dot.flame_shock.remains<=9)|!ticking
+			if ( elementalFusionTalent and efstack == 2 and UnleashFlame and flameshockDuration <= 16)
+			or ( not elementalFusionTalent and UnleashFlame and flameshockDuration <= 9)
+			or (not flameshock) then
+				if castSpell(dynamicTarget(5,true),_FlameShock,false) then return; end
+			end
+			
+			-- Unleashed elements
+			if castSpell(dynamicTarget(5,true),_UnleashElements,false) then return; end
+			
+			--frost_shock,if=(talent.elemental_fusion.enabled&dot.flame_shock.remains>=16)|!talent.elemental_fusion.enabled
+			if (elementalFusionTalent and flameshockDuration > 16)
+			or ( not elementalFusionTalent) then
+				if castSpell(dynamicTarget(5,true),_FrostShock,false) then return; end
+			end
+			
+			--elemental_blast,if=buff.maelstrom_weapon.react>=1
+			if getMWC() >= 1 then
+				if castSpell(dynamicTarget(5,true),_ElementalBlast,false) then return; end
+			end
+			
+			--lightning_bolt,if=buff.maelstrom_weapon.react>=1&!buff.ascendance.up
+			if getMWC() >= 1 
+			and not ascendance then
+				if castSpell(dynamicTarget(5,true),_LightningBolt,false) then return; end
+			end
+			
+				
 		end
 	end --Class Function End
 end --Final End
