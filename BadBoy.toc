@@ -171,9 +171,15 @@ Rotations\Rogue\Combat\Toggles.lua
 
 Rotations\Rogue\Subtlety.lua
 Rotations\Rogue\NewRogue.lua
-Rotations\Shaman\Enhancement.lua
+
+Rotations\Shaman\Enhancement\Enhancement.lua
+Rotations\Shaman\Enhancement\libs\Functions.lua
+Rotations\Shaman\Enhancement\libs\Options.lua
+Rotations\Shaman\Enhancement\libs\SpellList.lua
+Rotations\Shaman\Enhancement\libs\Toggles.lua
 Rotations\Shaman\Elemental.lua
 Rotations\Shaman\Restoration.lua
+
 Rotations\Warrior\Arms.lua
 Rotations\Warrior\Fury.lua
 Rotations\Warrior\Protection.lua
