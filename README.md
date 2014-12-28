@@ -21,9 +21,9 @@
 |Survival|100%|Mavmins |
 ||||
 | **Mage** |  |  |
-|Arcane|80%(lvl90)|ragnar |
+|Arcane|80%(lvl90)| |
 |Fire|0%| |
-|Frost|80%(lvl90)|ragnar |
+|Frost|80%(lvl90)| |
 ||||
 | **Monk** |  |  |
 |Brewmaster|90%|Chumii |
