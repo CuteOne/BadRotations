@@ -735,7 +735,7 @@ function getDistance(Unit1,Unit2)
 	if UnitIsVisible(Unit1) == true and (Unit2 == nil or UnitIsVisible(Unit2) == true) then
 		-- If Unit2 is nil we compare to Unit1
 		if Unit2 == nil then
-			if UnitCanAttack(Unit1,"player") == true then
+			if UnitCanAttack(Unit1,"player") == true and Unit2 == "player" then
 				return rc:GetRange(Unit1) or 1000
 			else
 				local X1,Y1 = ObjectPosition(Unit1)
@@ -743,7 +743,7 @@ function getDistance(Unit1,Unit2)
 				return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2))
 			end
 		else
-			if UnitCanAttack(Unit2,"player") == true then
+			if UnitCanAttack(Unit2,"player") == true and Unit1 == "player" then
 				return rc:GetRange(Unit2) or 1000
 			else
 				local X1,Y1 = ObjectPosition(Unit1)
