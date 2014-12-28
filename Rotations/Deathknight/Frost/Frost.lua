@@ -100,15 +100,6 @@ if select(3, UnitClass("player")) == 6 then
         if not isInCombat("player") and getLoot() then
           return true
         end
-        -- if not isInCombat("player") then
-        --   getLoot()
-        -- end
-        -- if UnitExists("target") and UnitIsDeadOrGhost("target") 
-        --   and UnitCanAttack("target","player") and not castingUnit("player") 
-        --   and not select(1,CanLootUnit(UnitGUID("target")))
-        -- then
-        --     ClearTarget()
-        -- end
       end
     -- Pause
       if pause() then
@@ -213,10 +204,9 @@ if select(3, UnitClass("player")) == 6 then
   ---------------------
         if hastar and attacktar and not isInCombat("player") 
           and ((not (IsMounted() or IsFlying() or friendly)) or isDummy())
-          and select(2,IsInInstance())=="none" and #members==1
         then
       -- Death Grip
-          if tarDist<30 and tarDist>8 then
+          if tarDist<30 and tarDist>8 and select(2,IsInInstance())=="none" and #members==1 then
             if castSpell("target",_DeathGrip,false,false,false) then return end
           end
       -- Frost Strike
