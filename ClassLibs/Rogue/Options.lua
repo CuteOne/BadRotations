@@ -103,7 +103,7 @@ function CombatOptions()
 
         -- Right Poison
         CreateNewCheck(thisConfig,"Right Poison");
-        CreateNewDrop(thisConfig,"Right Poison",1,"Right Hand poison.","|cff13A300Deadly","|cffFF8000Wound");
+        CreateNewDrop(thisConfig,"Right Poison",1,"Right Hand poison.","|cff13A300Instant","|cffFF8000Wound");
         CreateNewText(thisConfig,"Right Poison");
 
         -- Wrapper -----------------------------------------

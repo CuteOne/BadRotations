@@ -26,7 +26,7 @@ if select(3, UnitClass("player")) == 4 then
 -- --------------
      	local enemies = #getEnemies("player",8)
      	local thisUnit = dynamicTarget(5,true)
- 		local tarDist = getDistance("target")
+ 		local tarDist = getDistance("target","player")
  		local hasTarget = UnitExists(thisUnit)
  		local hasMouse = UnitExists("mouseover")
  		local level = UnitLevel("player")
@@ -41,7 +41,7 @@ if select(3, UnitClass("player")) == 4 then
  		local deadtar = UnitIsDeadOrGhost(thisUnit)
  		local attacktar = canAttack("player", thisUnit)
  		local swimming = IsSwimming()
- 		local stealth = UnitBuffID("player",_Stealth)
+ 		local stealth = getBuffRemain("player",_Stealth)~=0
  		local lethalRemain = getBuffRemain("player",_DeadlyPoison)--getBuffRemain("player",_LethalPoison)
  		local nonlethalRemain = getBuffRemain("player",_LeechingPoison)--getBuffRemain("player",_NonLethalPoison)
  		local recRemain = getBuffRemain("player",_Recuperate)
@@ -151,17 +151,18 @@ if select(3, UnitClass("player")) == 4 then
 					if castSpell("target",_Sap,false,false,false) then return end
 				end
 	-- Pick Pocket
-				if not isInCombat("player") and canPP() and not isPicked() and UnitBuffID("player",_Stealth) and level>=15 and tarDist < 8 then
-					if lootTimer == nil or lootTimer <= GetTime() - lootDelay then
-						if castSpell("target",_PickPocket,true) then
-					    	lootTimer = GetTime()
-					    	return
-						end
+				if not isInCombat("player") and canPP() and not isPicked() 
+					and (stealthTimer == nil or stealthTimer <= GetTime()-getValue("Stealth Timer")) 
+					and UnitBuffID("player",_Stealth) and level>=15 and tarDist < 8 
+				then
+					if castSpell("target",_PickPocket,true) then
+						stealthTimer=GetTime();
+					   	return
 					end
 				end
 	-- Ambush
 				if not isInCombat("player") and not noattack() and (isPicked() or level<15) and UnitBuffID("player",_Stealth) and combo<5 and power>60 then
-					if castSpell(thisUnit,_Ambush,false,false,false) then return end
+					if castSpell("target",_Ambush,false,false,false) then return end
 				end
 	-- 5 Combo Opener
 				if not isInCombat("player") and (isPicked() or level<15) and UnitBuffID("player",_Stealth) and not noattack() and combo == 5 then
@@ -169,15 +170,15 @@ if select(3, UnitClass("player")) == 4 then
 						if castSpell("player",_SliceAndDice,true,false,false) then return end
 					end
 					if power>25 and rupRemain<3 then
-						if castSpell(thisUnit,_Rupture,false,false,false) then return end
+						if castSpell("target",_Rupture,false,false,false) then return end
 					end
 					if power>35 and envRemain<2 then
-						if castSpell(thisUnit,_Envenom,false,false,false) then return end
+						if castSpell("target",_Envenom,false,false,false) then return end
 					end
 				end
 	-- Mutilate
 				if not isInCombat("player") and (isPicked() or level<15) and not noattack() and combo < 5 and power>55 then
-					if castSpell(thisUnit,_Mutilate,false,false,false) then return end
+					if castSpell("target",_Mutilate,false,false,false) then return end
 				end
 			end
 -----------------

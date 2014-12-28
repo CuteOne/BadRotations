@@ -9,7 +9,7 @@ if select(3, UnitClass("player")) == 4 then
 	end
 
 	function useAoE()
-	    if (BadBoy_data['AoE'] == 1 and #getEnemies("player",8) >= 3) or BadBoy_data['AoE'] == 2 then
+	    if (BadBoy_data['AoE'] == 1 and #getEnemies("player",5) >= 2) or BadBoy_data['AoE'] == 2 then
 	        return true
 	    else
 	        return false
@@ -30,36 +30,6 @@ if select(3, UnitClass("player")) == 4 then
 	    else
 	        return false
 	    end
-	end
-
-	function canPP() --Pick Pocket Toggle State
-		if BadBoy_data['Picker'] == 1 or BadBoy_data['Picker'] == 2 then
-			return true
-		else
-			return false
-		end
-	end
-
-	function noattack() --Pick Pocket Toggle State
-		if BadBoy_data['Picker'] == 2 then
-			return true
-		else
-			return false
-		end
-	end
-
-	function isPicked()	--	Pick Pocket Testing
-		if UnitExists("target") then
-			if myTarget ~= UnitGUID("target") then
-				canPickpocket = true
-				myTarget = UnitGUID("target")
-			end
-		end
-		if (canPickpocket == false or BadBoy_data['Picker'] == 3 or GetNumLootItems()>0) then
-			return true
-		else
-			return false
-		end
 	end
 
 	function getDistance2(Unit1,Unit2)
@@ -94,11 +64,11 @@ if select(3, UnitClass("player")) == 4 then
 
 	function poisonData()
 		if getOptionValue("Lethal")==1 then
-			_LethalPoison = _DeadlyPoison
+			_LethalPoison = _InstantPoison
 		end
-		if getOptionValue("Lethal")==2 then
-			_LethalPoison = _WoundPoison
-		end
+		--if getOptionValue("Lethal")==2 then
+		--	_LethalPoison = _WoundPoison
+		--end
 		if getOptionValue("Non-Lethal")==1 then
 			_NonLethalPoison = _CripplingPoison
 		end

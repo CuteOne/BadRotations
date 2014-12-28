@@ -68,8 +68,6 @@ _Vanish     			= 1856
 _VanishBuff				= 11327
 _Vendetta				= 79140
 _WoundPoison   			= 8679
-_ZenMeditation			= 115176
 _InstantPoison			= 157584
-
 
 end

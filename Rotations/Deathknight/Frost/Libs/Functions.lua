@@ -1,112 +1,200 @@
 if select(3,UnitClass("player")) == 6 then
 
-	function canTap()
-		local RuneCount = 0
+    ------Member Check------
+    function CalculateHP(unit)
+      incomingheals = UnitGetIncomingHeals(unit) or 0
+      return 100 * ( UnitHealth(unit) + incomingheals ) / UnitHealthMax(unit)
+    end
+
+    function GroupInfo()
+        members, group = { { Unit = "player", HP = CalculateHP("player") } }, { low = 0, tanks = { } }
+        group.type = IsInRaid() and "raid" or "party"
+        group.number = GetNumGroupMembers()
+        if group.number > 0 then
+            for i=1,group.number do
+                if canHeal(group.type..i) then
+                    local unit, hp = group.type..i, CalculateHP(group.type..i)
+                    table.insert( members,{ Unit = unit, HP = hp } )
+                    if hp < 90 then group.low = group.low + 1 end
+                    if UnitGroupRolesAssigned(unit) == "TANK" then table.insert(group.tanks,unit) end
+                end
+            end
+            if group.type == "raid" and #members > 1 then table.remove(members,1) end
+            table.sort(members, function(x,y) return x.HP < y.HP end)
+        end
+    end
+
+    function getLoot()
+        if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
+            enemiesTimer = GetTime()
+        end
+        looted = 0
+        for i=1,ObjectCount() do
+            if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
+                local thisUnit = ObjectWithIndex(i)
+                local canLoot = select(2,CanLootUnit(UnitGUID(thisUnit)))
+                local hasLoot = select(1,CanLootUnit(UnitGUID(thisUnit)))
+                if getCreatureType(thisUnit) == true 
+                    and UnitCanAttack("player",thisUnit) == true 
+                    and UnitIsDeadOrGhost(thisUnit) 
+                then
+                    if PriorAutoLoot == nil then PriorAutoLoot = false end
+                    if GetCVar("autoLootDefault") == "0" then 
+                        SetCVar("autoLootDefault", "1")
+                        PriorAutoLoot = false
+                    end
+                    if canLoot then
+                        if hasLoot then
+                            InteractUnit(thisUnit)
+                            if GetNumLootItems() > 0 then
+                                looted = 1
+                                return true
+                            end
+                        end
+                    elseif looted==1 then
+                        looted = 0
+                        ClearTarget()
+                    end
+                    if GetCVar("autoLootDefault") == "1" and PriorAutoLoot == false then 
+                        SetCVar("autoLootDefault", "0")
+                    end
+                end
+            end
+        end
+        return false
+    end
+   
+	function getRuneInfo()
+		local bCount = 0
+		local uCount = 0
+		local fCount = 0
+		local dCount = 0
+		local bPercent = 0
+		local uPercent = 0
+		local fPercent = 0
+		local dPercent = 0
+		if not runeTable then
+			runeTable = {}
+		else
+			table.wipe(runeTable)
+		end
 		for i = 1,6 do
-			RuneCount = RuneCount + GetRuneCount(i)
-		end
-		if RuneCount < 3 then
-			return true
-		end
-	end
-
-	function petMove()
-		if UnitExists("pet") then
-			if UnitExists("mouseover") == 1 then
-				PetAttack("mouseover")
-				return false
+			local CDstart = select(1,GetRuneCooldown(i))
+			local CDduration = select(2,GetRuneCooldown(i))
+			local CDready = select(3,GetRuneCooldown(i))
+			local CDrune = CDduration-(GetTime()-CDstart)
+			local CDpercent = CDpercent
+			local runePercent = 0
+			local runeCount = 0 
+			local runeCooldown = 0
+			if CDrune > CDduration then
+				CDpercent = 1-(CDrune/(CDduration*2))
+			else
+				CDpercent = 1-CDrune/CDduration
 			end
-			if not GetCurrentKeyBoardFocus() then
-				PetMoveTo()
-				CameraOrSelectOrMoveStart()
-				CameraOrSelectOrMoveStop()
+			if not CDready then
+				runePercent = CDpercent
+				runeCount = 0
+				runeCooldown = CDrune
+			else
+				runePercent = 1
+				runeCount = 1
+				runeCooldown = 0
 			end
-			return false
-		end
-	end
-
-	function getDeath()
-		local rune1 = select(3, GetRuneCooldown(1))
-		local rune2 = select(3, GetRuneCooldown(2))
-		if rune1 and rune2 then
-			return 2
-		end
-		if (rune1 and not rune2) or (rune2 and not rune1) then
-			return 1
-		end
-		if not rune1 and not rune2 then
-			return 0
-		end
-	end
-
-	function getFrost()
-		local rune3 = select(3, GetRuneCooldown(3))
-		local rune4 = select(3, GetRuneCooldown(4))
-		if rune3 and rune4 then
-			return 2
-		end
-		if (rune3 and not rune4) or (rune4 and not rune3) then
-			return 1
-		end
-		if not rune3 and not rune4 then
-			return 0
-		end
-	end
-
-	function getUnholy()
-		local rune5 = select(3, GetRuneCooldown(5))
-		local rune6 = select(3, GetRuneCooldown(6))
-		if rune5 and rune6 then
-			return 2
-		end
-		if (rune5 and not rune6) or (rune6 and not rune5) then
-			return 1
-		end
-		if not rune5 and not rune6 then
-			return 0
+			if GetRuneType(i) == 4 then
+				dPercent = runePercent
+				dCount = runeCount
+				dCooldown = runeCooldown
+				table.insert( runeTable,{ Type = "death", Index = i, Count = dCount, Percent = dPercent, Cooldown = dCooldown})
+			end
+			if GetRuneType(i) == 1 then
+				bPercent = runePercent
+				bCount = runeCount
+				bCooldown = runeCooldown
+				table.insert( runeTable,{ Type = "blood", Index = i, Count = bCount, Percent = bPercent, Cooldown = bCooldown})
+			end
+			if GetRuneType(i) == 2 then
+				uPercent = runePercent
+				uCount = runeCount
+				uCooldown = runeCooldown
+				table.insert( runeTable,{ Type = "unholy", Index = i, Count = uCount, Percent = uPercent, Cooldown = uCooldown})
+			end
+			if GetRuneType(i) == 3 then
+				fPercent = runePercent
+				fCount = runeCount
+				fCooldown = runeCooldown
+				table.insert( runeTable,{ Type = "frost", Index = i, Count = fCount, Percent = fPercent, Cooldown = fCooldown})
+			end
 		end
 	end
 
 	function getRunes(Type)
 		Type = string.lower(Type)
-		local bloodRunes = 0
-		local unholyRunes = 0
-		local frostRunes = 0
-		local deathRunes = 0
+		local runeCount = 0
+		local runeTable = runeTable
 		for i = 1, 6 do
-			if select(3, GetRuneCooldown(i)) then
-				if GetRuneType(i) == 4 then
-					deathRunes = deathRunes + 1
-				end
-				if GetRuneType(i) == 1 then
-					bloodRunes = bloodRunes + 1
-				end
-				if GetRuneType(i) == 2 then
-					frostRunes = frostRunes + 1
-				end
-				if GetRuneType(i) == 3 then
-					unholyRunes = unholyRunes + 1
-				end
+			if runeTable[i].Type == Type then
+				runeCount = runeCount + runeTable[i].Count
 			end
 		end
-  		if Type == "blood" then
-		    return bloodRunes
+		return runeCount
+	end
+
+	function getRunePercent(Type)
+		Type = string.lower(Type)
+		local runePercent = 0
+		local runeCooldown = 0
+		local runeTable = runeTable
+		for i = 1, 6 do
+			if runeTable[i].Type == Type and runeTable[i].Cooldown > runeCooldown then
+				runePercent = runeTable[i].Percent
+				runeCooldown = runeTable[i].Cooldown
+			end
 		end
-		if Type == "unholy" then
-		    return unholyRunes
+		if getRunes(Type)==2 then
+			return 2
+		elseif getRunes(Type)==1 then
+			return runePercent+1
+		else
+			return runePercent
 		end
-		if Type == "frost" then
-		    return frostRunes
-		end
-		if Type == "death" then
-		    return deathRunes
-		end
-		return 0
 	end
 
     function useAoE()
-        if (BadBoy_data['AoE'] == 1 and #getEnemies("player",8) >= 2) or BadBoy_data['AoE'] == 2 then
+        if (BadBoy_data['AoE'] == 1 and #getEnemies("player",8) >= 3) or BadBoy_data['AoE'] == 2 then
         -- if BadBoy_data['AoE'] == 1 or BadBoy_data['AoE'] == 2 then
+            return true
+        else
+            return false
+        end
+    end
+
+    function useCDs()
+        if (BadBoy_data['Cooldowns'] == 1 and isBoss()) or BadBoy_data['Cooldowns'] == 2 then
+            return true
+        else
+            return false
+        end
+    end
+
+    function useDefensive()
+        if BadBoy_data['Defensive'] == 1 then
+            return true
+        else
+            return false
+        end
+    end
+
+    function useInterrupts()
+        if BadBoy_data['Interrupts'] == 1 then
+            return true
+        else
+            return false
+        end
+    end
+
+    function useCleave()
+        if BadBoy_data['Cleave']==1 and BadBoy_data['AoE'] ~= 3 then
             return true
         else
             return false

@@ -10,27 +10,24 @@ if select(3, UnitClass("player")) == 5 then
 
 
 		-- Locals / Globals--
-			GCD = 1.5/(1+UnitSpellHaste("player")/100)
+			--GCD = 1.5/(1+UnitSpellHaste("player")/100)
 			--hasTarget = UnitExists("target")
 			--hasMouse = UnitExists("mouseover")
-			php = getHP("player")
+			--php = getHP("player")
 			-- thp = getHP("target")
-			ORBS = UnitPower("player", SPELL_POWER_SHADOW_ORBS)
 
-			MBCD = getSpellCD(MB)
-			SWDCD = getSpellCD(SWD)
 
-			-- DP
-			DPTIME = 6.0/(1+UnitSpellHaste("player")/100)
-			DPTICK = DPTIME/6
-			-- SWP (18sec)
-			SWPTICK = 18.0/(1+UnitSpellHaste("player")/100)/6
-			-- VT (15sec)
-			VTTICK = 16.0/(1+UnitSpellHaste("player")/100)/5
-			VTCASTTIME = 1.5/(1+UnitSpellHaste("player")/100)
+			--MBCD = getSpellCD(MB)
+			--SWDCD = getSpellCD(SWD)
 
-			if lastVT==nil then lastVT=0 end
 			if lastDP==nil then	lastDP=99 end
+			
+			--DPTICK = DPTIME/6
+			-- SWP (18sec)
+			--SWPTICK = 18.0/(1+UnitSpellHaste("player")/100)/6
+			-- VT (15sec)
+			--VTTICK = 16.0/(1+UnitSpellHaste("player")/100)/5
+			--VTCASTTIME = 1.5/(1+UnitSpellHaste("player")/100)
 
 			-- Set Enemies Table
 			if BadBoy_data['AoE'] == 3 and (myEnemiesTableTimer == nil or myEnemiesTableTimer <= GetTime() - 1) then
@@ -39,71 +36,72 @@ if select(3, UnitClass("player")) == 5 then
 			end
 
 
-
-			-- Buttons
-			ButtonDefensive = 	BadBoy_data['Defensive']
-			ButtonHalo = 		BadBoy_data['Halo']
-			ButtonDoT =			BadBoy_data['DoT']
-			ButtonSingle =		BadBoy_data['Single']
-			ButtonAoE = 		BadBoy_data['AoE']
-			ButtonCooldowns =	BadBoy_data['Cooldowns']
-			ButtonFeather = 	BadBoy_data['Feather']
-
-			-- Options
-				--isChecked
+			local options = {
+				-- Player values
+				player = {
+					GCD = 		1.5/(1+UnitSpellHaste("player")/100),
+					php =		getHP("player"),
+					ORBS = 		UnitPower("player", SPELL_POWER_SHADOW_ORBS),
+					DPTIME = 6.0/(1+UnitSpellHaste("player")/100),
+					lastVT,
+					lastDP
+				},
+				-- Buttons
+				buttons = {
+					Defensive =	BadBoy_data['Defensive'],
+					Halo =		BadBoy_data['Halo'],
+					DoT =		BadBoy_data['DoT'],
+					Single =	BadBoy_data['Single'],
+					Rotation =	BadBoy_data['Rotation'],
+					Cooldowns =	BadBoy_data['Cooldowns'],
+					Feather =	BadBoy_data['Feather']
+				},
+				-- isChecked
+				isChecked = {
 					-- Offensive
-					useBerserking =		 	isChecked("Berserking")
-					if isKnown(Mindbender) then
-						useMindbender = 	isChecked("Mindbender")
-					else
-						useShadowfiend	= 	isChecked("Shadowfiend")
-					end
-					useTrinket1 = 			isChecked("Trinket 1")
-					useTrinket2	= 			isChecked("Trinket 2")
-					if hasGlyph(GlyphOfSWD) then
-											isChecked("SWD glyphed")
-					end
-					useScanOrbs	= 			isChecked("Scan for Orbs")
+					Berserking = 		isChecked("Berserking"),
+					Mindbender = 		isChecked("Mindbender"),
+					Shadowfiend	= 		isChecked("Shadowfiend"),
+					Trinket1 = 			isChecked("Trinket 1"),
+					Trinket2 =	 		isChecked("Trinket 2"),
+					SWDglyphed =		isChecked("SWD glyphed"),
+					ScanOrbs = 			isChecked("Scan for Orbs"),
 					-- Defensive
-					useShield = 			isChecked("PW: Shield")
-					useHealthstone	= 		isChecked("Healthstone")
-					if isKnown(DesperatePrayer) then
-						useDesperatePrayer = isChecked("Desperate Prayer")
-					end 
-					useDispersion =			isChecked("Dispersion")
-					if hasGlyph(GlyphOfFade) then
-						useFadeGlyph =		isChecked("Fade Glyph")
-					end
-					useFade =				isChecked("Fade Aggro")
-					-- DoT Weave
-					useSWP =				isChecked("SWP")
-					useVT =					isChecked("VT")
-					-- Multidot
-					useMultiSWP =			isChecked("Multi SWP")
-					useMultiVT =			isChecked("Multi VT")
-					useBossSWP =			isChecked("Boss SWP")
-					useBossVT =				isChecked("Boss VT")
+					Shield = 			isChecked("PW: Shield"),
+					Healthstone	= 		isChecked("Healthstone"),
+					DesperatePrayer = 	isChecked("Desperate Prayer"),
+					FadeGlyph =			isChecked("Fade Glyph"),
+					Dispersion =		isChecked("Dispersion"),
+					Fade =				isChecked("Fade Aggro"),
+					--DoT Weave
+					SWP =				isChecked("SWP"),
+					VT =				isChecked("VT"),
+					-- Multitarget
+					MultiSWP =			isChecked("Multi SWP"),
+					MultiVT =			isChecked("Multi VT"),
+					BossSWP =			isChecked("Boss SWP"),
+					BossVT =			isChecked("Boss VT"),
 					-- Utilities
-					usePWF = 				isChecked("PW: Fortitude")
-					useShadowform =			isChecked("Shadowform Outfight")
-					if isKnown(AngelicFeather) then
-						useFeather =		isChecked("Angelic Feather")
-					end
-					if isKnown(BodyAndSoul) then
-						useBodyAndSoul = 	isChecked("Body And Soul")
-					end
+					PWF = 				isChecked("PW: Fortitude"),
+					Shadowform =		isChecked("Shadowform Outfight"),
+					Feather =			isChecked("Angelic Feather"),
+					BodyAndSoul = 		isChecked("Body And Soul")
+				},
+				-- Values
+				values = {
+					PWShield = 			getValue("PW: Shield"),
+					Healthstone =		getValue("Healthstone"),
+					Dispersion	=		getValue("Dispersion"),
+					Glyph = 			getValue("Fade Glyph"),
+					MinHealth =			getValue("Min Health")*1000000,
+					MaxTargets = 		getValue("Max Targets"),
+					RefreshTime = 		getValue("Refresh Time"),
+					MindSear = 			getValue("MS Targets")
+				}
+			}
 
-				-- getValue
-					-- Defensive
-					getPWShield = 			getValue("PW: Shield")
-					getHealthstone =		getValue("Healthstone")
-					getDispersion	=		getValue("Dispersion")
-					getGlyph = 				getValue("Fade Glyph")
-					-- Multidot
-					getMinHealth =			getValue("Min Health")*1000000
-					getMaxTargets = 		getValue("Max Targets")
-					getRefreshTime = 		getValue("Refresh Time")
-
+			if options.player.lastVT==nil then options.player.lastVT=0 end
+			if options.player.lastDP==nil then options.player.lastDP=99 end
 
 		-------------
 		-- TOGGLES --
@@ -148,7 +146,7 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- Power Word: Fortitude
 		if not isInCombat("player") then
-			if usePWF and (lastPWF == nil or lastPWF <= GetTime() - 5) then
+			if options.isChecked.PWF and (lastPWF == nil or lastPWF <= GetTime() - 5) then
 				for i = 1, #nNova do
 			  		if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{21562,109773,469,90364}) and (UnitInRange(nNova[i].unit) or UnitIsUnit(nNova[i].unit,"player")) then
 			  			if castSpell("player",PWF,true) then lastPWF = GetTime(); return; end
@@ -162,13 +160,14 @@ if select(3, UnitClass("player")) == 5 then
 		---------------------------------------
 
 		-- Shadowform outfight
-		if not UnitBuffID("player",Shadowform) and useShadowform==true then
+		if not UnitBuffID("player",Shadowform) and options.isChecked.Shadowform then
 			if castSpell("player",Shadowform,true,false) then return; end
 		end
 
 		-- Angelic Feather
-		if isKnown(AngelicFeather) and ButtonFeather==2 then
-			if useFeather==true and getGround("player") and IsMovingTime(0.2) and not UnitBuffID("player",AngelicFeatherBuff) then
+		if isKnown(AngelicFeather) and options.buttons.Feather==2 then
+			if getGround("player") and IsMovingTime(0.2) and not UnitBuffID("player",AngelicFeatherBuff) then
+			--if options.isChecked.Feather and getGround("player") and IsMovingTime(0.2) and not UnitBuffID("player",AngelicFeatherBuff) then
 			--if useFeather==true and IsMovingTime(0.2) and not UnitBuffID("player",AngelicFeatherBuff) then
 				if castGround("player",AngelicFeather,30) then
 					SpellStopTargeting();
@@ -179,7 +178,7 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- Body and Soul
 		if isKnown(BodyAndSoul) then 
-			if useBodyAndSoul==true then
+			if options.isChecked.BodyAndSoul then
 				if getGround("player") and IsMovingTime(0.75) and not UnitBuffID("player",PWS) and not UnitDebuffID("player",PWSDebuff) then
 					if castSpell("player",PWS,true,false) then return; end
 				end
@@ -214,43 +213,37 @@ if select(3, UnitClass("player")) == 5 then
 			----------------
 			-- Defensives --
 			----------------
-			ShadowDefensive()
+			ShadowDefensive(options)
 
 			----------------
 			-- Offensives --
 			----------------
-			ShadowCooldowns()
+			ShadowCooldowns(options)
 
-			-----------------------
-			-- Rotation Decision --
-			-----------------------
-			-- if isChecked("AutoTarget") then
-			-- 	noTargetTargetMainTankTarget()
-			-- end
-			
+
 			-- Single target
-			if ButtonAoE == 1 then
-				Execute()
+			if options.buttons.Rotation == 1 then
+				Execute(options)
 				LFOrbs()
 				if getHP("target")>20 then
-					if ButtonDoT>=2 then DotEmAll() end
-					if ButtonSingle==1 then IcySingle() end
-					if ButtonSingle==2 then IcySingleWeave() end
+					if options.buttons.DoT>=2 then DotEmAll(options) end
+					--if options.buttons.Single==1 then IcySingle() end
+					if options.buttons.Single==1 then IcySingleWeave(options) end
 				end
 			end
 
-			-- Dual Target
-			if ButtonAoE == 2 then
-				Execute()
-				LFOrbs()
-				if getHP("target")>20 then IcyDualTarget() end
-			end
+			-- -- Dual Target
+			-- if options.buttons.Rotation == 2 then
+			-- 	Execute()
+			-- 	LFOrbs()
+			-- 	if getHP("target")>20 then IcyDualTarget() end
+			-- end
 			
 			-- 3+ Targets
-			if ButtonAoE == 3 then 
-				Execute()
+			if options.buttons.Rotation == 2 then 
+				Execute(options)
 				LFOrbs()
-				if getHP("target")>20 then IcyMultiTarget() end
+				if getHP("target")>20 then IcyMultiTarget(options) end
 			end
 			
 			-- Auto

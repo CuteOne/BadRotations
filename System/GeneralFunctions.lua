@@ -269,7 +269,7 @@ function canRun()
 	if getOptionCheck("Pause") ~= 1 then
 		if getOptionCheck("Start/Stop BadBoy") and isAlive("player") then
 			if SpellIsTargeting()
-			  or UnitInVehicle("Player")
+			  --or UnitInVehicle("Player")
 			  or (IsMounted() and getUnitID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803))
 			  or UnitBuffID("player",11392) ~= nil
 			  or UnitBuffID("player",80169) ~= nil
@@ -1233,7 +1233,19 @@ function hasNoControl(spellID)
 		end
 	-- Death Knight
 		if select(3,UnitClass("player")) == 6 then
-
+            if spellID == 49039 --Lichborne
+                and (text == LOSS_OF_CONTROL_DISPLAY_CHARM
+                    or text == LOSS_OF_CONTROL_DISPLAY_FEAR
+                    or text == LOSS_OF_CONTROL_DISPLAY_SLEEP)
+            then
+                return true
+            end
+            if spellID == 108201 --Desecrated Ground
+                and (text == LOSS_OF_CONTROL_DISPLAY_ROOT
+                    or text == LOSS_OF_CONTROL_DISPLAY_SNARE)
+            then
+                return true
+            end
 		end
 	-- Shaman
 		if select(3,UnitClass("player")) == 7 then
@@ -1516,6 +1528,8 @@ function castingUnit(Unit)
 	  or UnitChannelInfo(Unit) ~= nil
 	  or (GetSpellCooldown(61304) ~= nil and GetSpellCooldown(61304) > 0.001) then
 	  	return true
+    else
+        return false
 	end
 end
 
@@ -1993,7 +2007,7 @@ function hasHealthPot()
                 local ItemType = select(7,GetItemInfo(itemID))
                 local ItemEffect = select(1,GetItemSpell(itemID))
                 if ItemType == select(7,GetItemInfo(2459)) then
-                    if strmatch(ItemEffect,strmatch(select(1,GetItemSpell(76097)),"%a+")) then
+                    if strmatch(ItemEffect,strmatch(tostring(select(1,GetItemSpell(76097))),"%a+")) then
                         local ItemCount = GetItemCount(itemID)
                         local ItemCooldown = GetItemCooldown(itemID)
                         if MinLevel<=UnitLevel("player") and ItemCooldown == 0 then

@@ -47,7 +47,7 @@ if select(3, UnitClass("player")) == 2 then
 			-- function for handling units to attack
 			ProtPaladinEnemyUnitHandler()
 			
-			ProtPaladinFriendlyUnitHandler()
+			--ProtPaladinFriendlyUnitHandler()
 
 			-- If we are close to dying
 			if ProtPaladinSurvivalSelf() then -- Check if we are close to dying and act accoridingly

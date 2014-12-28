@@ -11,19 +11,19 @@
 |Moonkin|70%|CodeMyLife|
 ||||
 | **Death Knight** |  |  |
-|Frost|0%|CuteOne |
+|Frost|80%|CuteOne |
 |Blood|90%|CodeMyLife |
 |Unholy|0%|Empty|
 ||||
 | **Hunter** |  |  |
 |Beastmaster|80%|CodeMyLife |
 |Marksmanship|100%|Mavmins |
-|Survival|80%|Averykey |
+|Survival|100%|Mavmins |
 ||||
 | **Mage** |  |  |
-|Arcane|80%(lvl90)|ragnar |
+|Arcane|80%(lvl90)| |
 |Fire|0%| |
-|Frost|80%(lvl90)|ragnar |
+|Frost|80%(lvl90)| |
 ||||
 | **Monk** |  |  |
 |Brewmaster|90%|Chumii |

@@ -96,5 +96,4 @@ if select(3, UnitClass("player")) == 11 then
     eprl=	157274	--Enhanced Prowl
     eber=	157269	--Enhanced Berserk
     irk =	157276	--Improved Rake
-
 end

@@ -52,23 +52,25 @@ if select(3, UnitClass("player")) == 5 then
 		-- Single Rotation Button
 		if SingleModesLoaded ~= "Shadow Priest Single Modes" then
 			SingleModes = {
-				[1] = { mode = "trad", value = 1 , overlay = "traditional rotation", tip = "|cffFF0000Single Target Rotation \n|cffFFDD11Traditional Rotation is active. \nPress to change rotation to DoT-Weave", highlight = 0, icon = 15407 },
-				[2] = { mode = "weave", value = 2 , overlay = "weave rotation", tip = "|cffFF0000Single Target Rotation \n|cffFFDD11DoT-Weave Rotation is active. \nPress to change rotation to Traditional", highlight = 0, icon = 73510 }
+				[1] = { mode = "weave", value = 1 , overlay = "weave rotation", tip = "|cffFF0000Single Target Rotation \n|cffFFDD11DoT-Weave Rotation is active. \nPress to change rotation to Traditional", highlight = 0, icon = 73510 }
+				--[1] = { mode = "trad", value = 1 , overlay = "traditional rotation", tip = "|cffFF0000Single Target Rotation \n|cffFFDD11Traditional Rotation is active. \nPress to change rotation to DoT-Weave", highlight = 0, icon = 15407 },
+				--[2] = { mode = "weave", value = 2 , overlay = "weave rotation", tip = "|cffFF0000Single Target Rotation \n|cffFFDD11DoT-Weave Rotation is active. \nPress to change rotation to Traditional", highlight = 0, icon = 73510 }
 			};
-			CreateButton("Single",3,1)
+			--CreateButton("Single",3,1)
+			CreateButton("Single",0,1)
 			SingleModesLoaded = "Shadow Priest Single Modes";
 		end
 
-		-- AoE Button
-		if AoEModesLoaded ~= "Shadow Priest AoE Modes" then
-			AoEModes = {
+		-- Rotation Button
+		if RotationModesLoaded ~= "Shadow Priest Rotation Modes" then
+			RotationModes = {
 				[1] = { mode = "1", value = 1 , overlay = "Single Target", tip = "|cff00FF00Single Target \n|cffFFDD11Style can be chosen with 'trad/weave' Button", highlight = 0, icon = 139139 },
-				[2] = { mode = "dual", value = 2 , overlay = "Dual Boss Targets", tip = "|cff00FF00Dual Target \n|cffFFDD11Chose this for two bosses", highlight = 0, icon = 78203 },
+				--[2] = { mode = "dual", value = 2 , overlay = "Dual Boss Targets", tip = "|cff00FF00Dual Target \n|cffFFDD11Chose this for two bosses", highlight = 0, icon = 78203 },
 				--[2] = { mode = "3+", value = 2 , overlay = "3+ Targets", tip = "|cff00FF002+ Enemies \n|cffFFDD11Choose # of dots in options.", highlight = 0, icon = 48045 }
-				[3] = { mode = "3+", value = 3 , overlay = "3+ Targets", tip = "|cff00FF002+ Enemies \n|cffFFDD11Choose # of dots in options.", highlight = 0, icon = 48045 }
+				[2] = { mode = "multi", value = 2 , overlay = "Multi Target", tip = "|cff00FF00Multi Target \n|cffFFDD11Choose # of dots in options.", highlight = 0, icon = 48045 }
 			};
-			CreateButton("AoE",3,0)
-			AoEModesLoaded = "Shadow Priest AoE Modes";
+			CreateButton("Rotation",3,0)
+			RotationModesLoaded = "Shadow Priest Rotation Modes";
 		end
 		-- Feather Button
 		if FeathertModesLoaded ~= "Shadow Priest Feather Modes" then
@@ -76,7 +78,8 @@ if select(3, UnitClass("player")) == 5 then
 				[1] = { mode = "off", value = 1 , overlay = "Feather Disabled", tip = "|cffFF0000Feather", highlight = 0, icon = 121536 },
 				[2] = { mode = "auto", value = 2 , overlay = "Feather Auto", tip = "|cff00FF00Feather", highlight = 1, icon = 121536 }
 			};
-			CreateButton("Feather",0,1)
+			--CreateButton("Feather",0,1)
+			CreateButton("Feather",3,1)
 			FeatherModesLoaded = "Shadow Priest Feather Modes";
 		end
 

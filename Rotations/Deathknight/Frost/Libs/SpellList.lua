@@ -4,6 +4,7 @@ if select(3,UnitClass("player")) == 6 then
     _Asphyxiate         = 108194
     _ArmyOfTheDead      = 42650
     _BloodBoil          = 50842
+    _BloodCharge        = 114851
     _BloodTap           = 45529
     _BloodPlague        = 55078
     _BloodPresence      = 48263
@@ -12,6 +13,7 @@ if select(3,UnitClass("player")) == 6 then
     _ChainsOfIce        = 45524
     _Conversion         = 119975
     _DarkSimulacrum     = 77606
+    _DarkSuccor         = 101568
     _DeathsAdvance      = 96268
     _DeathAndDecay      = 43265
     _DeathGrip          = 49576
@@ -29,8 +31,10 @@ if select(3,UnitClass("player")) == 6 then
     _HowlingBlast       = 49184
     _IceboundFortitude  = 48792
     _IcyTouch           = 45477
+    _KillingMachine     = 51124
     _Lichborne          = 49039
     _MindFreeze         = 47528
+    _NecroticPlague     = 155159
     _Obliterate         = 49020
     _Outbreak           = 77575
     _PathOfFrost        = 3714
@@ -39,8 +43,8 @@ if select(3,UnitClass("player")) == 6 then
     _PlagueStrike       = 45462
     _RaiseAlly          = 61999
     _RemorselessWinter  = 108200
-    _Rime               = 59057
-    _SoulReaperF        = 130735
+    _Rime               = 59052
+    _SoulReaper         = 130735
     _SoulReaperU        = 130736
     _Strangulate        = 47476
     _UnholyBlight       = 115989
