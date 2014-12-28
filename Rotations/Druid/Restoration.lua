@@ -493,7 +493,7 @@ function DruidRestoration()
 		if isKnown(33891) and UnitBuffID("player", 33891) and UnitAffectingCombat("player") then
 			if glyphSproutingMushroom then
 				if isChecked("Mushrooms") and getValue("Mushrooms Who") == 1 then
-					if GetUnitSpeed("target") == 0  and canCast(145205,false,false) 
+					if GetUnitSpeed("focustarget") == 0  and canCast(145205,false,false) and getDistance("focustarget", "focus") < 10
 					  and (shroomsTable == nil or #shroomsTable == 0 or shroomsTable[1].guid == nil) then
 						if castGround("focustarget", 145205, 40) then
 							shroomTimer = GetTime()
@@ -557,7 +557,7 @@ function DruidRestoration()
 			if glyphSproutingMushroom then
 				if isChecked("Mushrooms") and getValue("Mushrooms Who") == 1
 				  and (shroomTimer == nil or shroomTimer <= GetTime() - 2) then
-					if GetUnitSpeed("target") == 0  and canCast(145205,false,false)  then
+					if GetUnitSpeed("focustarget") == 0  and canCast(145205,false,false)  and getDistance("focustarget", "focus") < 10 then
 						if shroomsTable ~= nil and #shroomsTable ~= 0 and findShroom() then
 							if getDistanceToObject("focus",shroomsTable[1].x,shroomsTable[1].y,shroomsTable[1].z) > 12 then
 								if castGround("focustarget", 145205, 40) then
@@ -729,7 +729,7 @@ function DruidRestoration()
 		--[[ 27 - WildMushroom Tank(if not any mushroom active )]]
 		if isChecked("Mushrooms") and getValue("Mushrooms Who") == 1 and UnitAffectingCombat("player") then
 			if glyphSproutingMushroom then
-				if GetUnitSpeed("target") == 0  and canCast(145205,false,false) 
+				if GetUnitSpeed("focustarget") == 0  and canCast(145205,false,false) and getDistance("focustarget", "focus") < 10
 				  and (shroomsTable == nil or #shroomsTable == 0 or shroomsTable[1].guid == nil) then
 					if castGround("focustarget", 145205, 40) then
 						shroomTimer = GetTime()
@@ -796,7 +796,7 @@ function DruidRestoration()
 		if isChecked("Mushrooms") and getValue("Mushrooms Who") == 1
 		  and (shroomTimer == nil or shroomTimer <= GetTime() - 2) and UnitAffectingCombat("player") then
 		  	if glyphSproutingMushroom then
-				if GetUnitSpeed("target") == 0  and canCast(145205,false,false)  then
+				if GetUnitSpeed("focustarget") == 0  and canCast(145205,false,false) and getDistance("focustarget", "focus") < 10 then
 					if shroomsTable ~= nil and #shroomsTable ~= 0 and findShroom() then
 						if getDistanceToObject("focus",shroomsTable[1].x,shroomsTable[1].y,shroomsTable[1].z) > 12 then
 							if castGround("focustarget", 145205, 40) then
