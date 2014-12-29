@@ -52,6 +52,7 @@ if select(3, UnitClass("player")) == 3 then
 				 end
 			end
 		end	
+		
 		--GCD check---------------------------------------------
 		if castingUnit() then
 			return
@@ -338,9 +339,7 @@ if select(3, UnitClass("player")) == 3 then
 
 			-- actions+=/black_arrow,if=!ticking
 			if isKnown(3674) and getSpellCD(3674) == 0 then
-				if UnitDebuffID("target",3674) == nil then
-					if castSpell("target",3674,false,false) then return end
-				end
+				if castSpell("target",3674,false,false) then return end
 			end
 
 			-- actions+=/explosive_shot
