@@ -7,7 +7,8 @@ function Blood()
 	end
 
 	-- Locals
-	local runicPower, runesBlood, runesUnholy, runesFrost, runesDeath = UnitPower("player"), getRunes("blood"), getRunes("unholy"), getRunes("frost"), getRunes("death")
+	getRuneInfo()
+    local runicPower, runesBlood, runesUnholy, runesFrost, runesDeath = UnitPower("player"), getRunes("blood"), getRunes("unholy"), getRunes("frost"), getRunes("death")
     local myHealth = getHP("player")
 	-- Food/Invis Check
 	if canRun() ~= true or UnitInVehicle("Player") then return false end
@@ -30,10 +31,10 @@ function Blood()
     -- we want to avoid wasting CDs when targets are not hitting us
 	if UnitAffectingCombat("player") and dynamicUnit.dyn5Range < 5 then
 
-		-- Mind Freeze
-		if isChecked("Mind Freeze") == true then
-			castInterrupt(_MindFreeze, getValue("Mind Freeze"))
-		end
+        -- Mind Freeze
+        if isChecked("Mind Freeze") == true then
+            castInterrupt(_MindFreeze, getValue("Mind Freeze"))
+        end
 
     	-- Anti Magic Shell
     	if isChecked("Anti-Magic Shell") == true and myHealth <= getValue("Anti-Magic Shell")
@@ -72,7 +73,6 @@ function Blood()
     	end
 	end
 
-
 	if castingUnit() or getSpellCD(61304) > 0 then return end
 
     -- Presence
@@ -94,6 +94,11 @@ function Blood()
 	end
 
 	if isInCombat("player") then
+
+        -- Strangulate
+        if isChecked("Strangulate") == true then
+            castInterrupt(_Strangulate, getValue("Strangulate"))
+        end
 
         -- auto_attack
         if (startAttackThrottle == nil or startAttackThrottle < GetTime() - 1) and isInMelee() and getFacing("player", "target") == true then

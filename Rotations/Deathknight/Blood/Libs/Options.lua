@@ -126,6 +126,11 @@ function BloodOptions()
 	    CreateNewText(thisConfig,"Mind Freeze")
 	end
 
+    if isKnown(_Strangulate) then
+        CreateNewCheck(thisConfig,"Strangulate")
+        CreateNewBox(thisConfig,"Strangulate",0,100,5,35,"|cffFFBB00Over what % of cast we want to \n|cffFFFFFFStangulate.")
+        CreateNewText(thisConfig,"Strangulate")
+    end
     -- General Configs
     CreateGeneralsConfig()
 
