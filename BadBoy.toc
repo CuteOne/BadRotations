@@ -62,10 +62,6 @@ ClassLibs\Rogue\Options.lua
 ClassLibs\Rogue\Functions.lua
 ClassLibs\Rogue\SpellList.lua
 ClassLibs\Rogue\Toggles.lua
-ClassLibs\Shaman\Options.lua
-ClassLibs\Shaman\Functions.lua
-ClassLibs\Shaman\SpellList.lua
-ClassLibs\Shaman\Toggles.lua
 ClassLibs\Warlock\Options.lua
 ClassLibs\Warlock\Functions.lua
 ClassLibs\Warlock\SpellList.lua
@@ -170,15 +166,26 @@ Rotations\Rogue\Combat\Toggles.lua
 Rotations\Rogue\Subtlety.lua
 Rotations\Rogue\NewRogue.lua
 
+## Shaman
+Rotations\Shaman\SpellList.lua
+
 Rotations\Shaman\Enhancement\Enhancement.lua
 Rotations\Shaman\Enhancement\libs\Functions.lua
 Rotations\Shaman\Enhancement\libs\Options.lua
-Rotations\Shaman\Enhancement\libs\SpellList.lua
 Rotations\Shaman\Enhancement\libs\Toggles.lua
 Rotations\Shaman\Enhancement\libs\Reader.lua
 
-Rotations\Shaman\Elemental.lua
-Rotations\Shaman\Restoration.lua
+Rotations\Shaman\Elemental\Elemental.lua
+Rotations\Shaman\Elemental\Libs\Functions.lua
+Rotations\Shaman\Elemental\Libs\Options.lua
+Rotations\Shaman\Elemental\Libs\Toggles.lua
+
+Rotations\Shaman\Restoration\Restoration.lua
+Rotations\Shaman\Restoration\Libs\Functions.lua
+Rotations\Shaman\Restoration\Libs\Options.lua
+Rotations\Shaman\Restoration\Libs\Toggles.lua
+
+
 
 Rotations\Warrior\Arms.lua
 Rotations\Warrior\Fury.lua

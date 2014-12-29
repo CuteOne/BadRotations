@@ -1,232 +1,104 @@
 if select(3,UnitClass("player")) == 7 then
---[[           ]]	--[[]]				--[[           ]]
---[[           ]]	--[[]]				--[[           ]]
---[[]]				--[[]]				--[[]]
---[[           ]]	--[[]]				--[[           ]]
---[[]]				--[[]]				--[[]]
---[[           ]]	--[[]]				--[[           ]]
---[[           ]] 	--[[           ]]	--[[           ]]
-
-function ElementalConfig()
-    local redColor = "|cffFF0011"
-    local whiteColor = "|cffFFFFFF"
-    local myClassColor = classColors[select(3,UnitClass("player"))].hex
-    local function generateWrapper(wrapName)
-        CreateNewWrap(thisConfig,whiteColor.."- "..redColor..wrapName..whiteColor.." -")
-    end
-
-    ClearConfig()
-    thisConfig = 0
-    -- Title
-    CreateNewTitle(thisConfig,"Elemental CodeMyLife")
-
-    -- Wrapper
-    generateWrapper("Buffs")
-
-    -- Lightning Shield
-    CreateNewCheck(thisConfig,"Lightning Shield")
-    CreateNewText(thisConfig,"Lightning Shield")
-
-    -- Wrapper
-    generateWrapper("Cooldowns")
-
-    -- Ancestral Swiftness
-    if isKnown(_AncestralSwiftness) then
-        CreateNewCheck(thisConfig,"Ancestral Swiftness")
-        CreateNewDrop(thisConfig, "Ancestral Swiftness", 1,"CD")
-        CreateNewText(thisConfig,"Ancestral Swiftness")
-    end
-
-    -- Ascendance
-    CreateNewCheck(thisConfig,"Ascendance")
-    CreateNewDrop(thisConfig, "Ascendance", 1,"CD")
-    CreateNewText(thisConfig,"Ascendance")
-
-    -- Elemental Mastery
-    if isKnown(_ElementalMastery) then
-        CreateNewCheck(thisConfig,"Elemental Mastery")
-        CreateNewDrop(thisConfig,"Elemental Mastery",1,"CD")
-        CreateNewText(thisConfig,"Elemental Mastery")
-    end
-
-    -- Fire Elemental
-    CreateNewCheck(thisConfig,"Fire Elemental")
-    CreateNewDrop(thisConfig,"Fire Elemental",1,"CD")
-    CreateNewText(thisConfig,"Fire Elemental")
-
-    -- Storm Elemental Totem
-    if isKnown(_StormElementalTotem) then
-        CreateNewCheck(thisConfig,"Storm Elemental Totem")
-        CreateNewDrop(thisConfig,"Storm Elemental Totem",1,"CD")
-        CreateNewText(thisConfig,"Storm Elemental Totem")
-    end
-
-    -- Wrapper
-    generateWrapper("DPS Tweaks")
-
-    -- EarthQuake
-    CreateNewCheck(thisConfig,"EarthQuake")
-    CreateNewDrop(thisConfig,"EarthQuake",1,"CD")
-    CreateNewText(thisConfig,"EarthQuake")
-
-    -- Thunderstorm
-    CreateNewCheck(thisConfig,"Thunderstorm")
-    CreateNewDrop(thisConfig,"Thunderstorm",1,"CD")
-    CreateNewText(thisConfig,"Thunderstorm")
-
-    -- Wrapper
-    generateWrapper("Defensive")
-
-    -- Astral Shift
-    CreateNewCheck(thisConfig,"Astral Shift")
-    CreateNewBox(thisConfig,"Astral Shift",0,100,5,30,"|cffFFBB00Under what %HP to use |cffFFFFFFAstral Shit")
-    CreateNewText(thisConfig,"Astral Shift")
-
-    -- Healing Stream
-    CreateNewCheck(thisConfig,"Healing Stream")
-    CreateNewBox(thisConfig,"Healing Stream",0,100,5,50,"|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream")
-    CreateNewText(thisConfig,"Healing Stream")
-
-    -- Healing Rain
-    CreateNewCheck(thisConfig,"Healing Rain")
-    CreateNewBox(thisConfig,"Healing Rain",0,100,5,50,"|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream")
-    CreateNewText(thisConfig,"Healing Rain")
-
-    -- Shamanistic Rage
-    CreateNewCheck(thisConfig,"Shamanistic Rage")
-    CreateNewBox(thisConfig,"Shamanistic Rage",0,100,5,70,"|cffFFBB00Under what %HP to use |cffFFFFFFShamanistic Rage")
-    CreateNewText(thisConfig,"Shamanistic Rage")
-
-    -- Wrapper
-    generateWrapper("Utilities")
-
-    -- Healing Surge Toggle
-    CreateNewCheck(thisConfig,"Healing Surge Toggle")
-    CreateNewDrop(thisConfig,"Healing Surge Toggle",4,"Toggle2")
-    CreateNewText(thisConfig,"Healing Surge Toggle")
-
-    -- Pause Toggle
-    CreateNewCheck(thisConfig,"Pause Toggle")
-    CreateNewDrop(thisConfig,"Pause Toggle",3,"Toggle2")
-    CreateNewText(thisConfig,"Pause Toggle")
-
-    -- Standard Interrupt
-    CreateNewCheck(thisConfig,"Wind Shear")
-    CreateNewBox(thisConfig,"Wind Shear",0,100,5,35,"|cffFFBB00Over what % of cast we want to |cffFFFFFFWind Shear.")
-    CreateNewText(thisConfig,"Wind Shear")
-
-    -- General Configs
-    CreateGeneralsConfig()
-
-    WrapsManager()
-end
---[[           ]]	--[[]]	   --[[]]	--[[]]	   --[[]]		  --[[]]		--[[]]	   --[[]]	--[[   		   ]]	--[[           ]]
---[[           ]]	--[[  ]]   --[[]]	--[[]]	   --[[]]		 --[[  ]] 		--[[  ]]   --[[]]	--[[   		   ]]	--[[           ]]
---[[]]				--[[    ]] --[[]]	--[[]]	   --[[]]	    --[[    ]]		--[[    ]] --[[]]	--[[]]				--[[]]
---[[           ]]	--[[           ]]	--[[           ]]	   --[[      ]] 	--[[           ]]	--[[]]				--[[           ]]
---[[]]				--[[   		   ]]	--[[]]	   --[[]]	  --[[        ]]	--[[   		   ]]	--[[]]				--[[]]
---[[           ]]	--[[]]	 --[[  ]]	--[[]]	   --[[]]	 --[[]]    --[[]]	--[[]]	 --[[  ]]	--[[   		   ]]	--[[           ]]
---[[           ]] 	--[[]]	   --[[]]	--[[]]	   --[[]]	--[[]]      --[[]]	--[[]]	   --[[]]	--[[   		   ]]	--[[           ]]
 
 function EnhancementConfig()
     function titleOp(string)
-        return CreateNewTitle(thisConfig,string);
+        return CreateNewTitle(thisConfig,string)
     end
     function checkOp(string,tip)
         if tip == nil then
-            return CreateNewCheck(thisConfig,string);
+            return CreateNewCheck(thisConfig,string)
         else
-            return CreateNewCheck(thisConfig,string,tip);
+            return CreateNewCheck(thisConfig,string,tip)
         end
     end
     function textOp(string)
-        return CreateNewText(thisConfig,string);
+        return CreateNewText(thisConfig,string)
     end
     function wrapOp(string)
-        return CreateNewWrap(thisConfig,string);
+        return CreateNewWrap(thisConfig,string)
     end
     function boxOp(string, minnum, maxnum, stepnum, defaultnum, tip)
         if tip == nil then
-            return CreateNewBox(thisConfig,string, minnum, maxnum, stepnum, defaultnum);
+            return CreateNewBox(thisConfig,string, minnum, maxnum, stepnum, defaultnum)
         else
-            return CreateNewBox(thisConfig,string, minnum, maxnum, stepnum, defaultnum, tip);
+            return CreateNewBox(thisConfig,string, minnum, maxnum, stepnum, defaultnum, tip)
         end
     end
     function dropOp(string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
-        return CreateNewDrop(thisConfig, string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10);
+        return CreateNewDrop(thisConfig, string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
     end
 
 -- Config Panel
     --if not doneConfig then
         thisConfig = 0
         -- Title
-        titleOp("Cpoworks Enhancement");
+        titleOp("Cpoworks Enhancement")
                 -- Spacer
-        textOp(" ");
-        wrapOp("--- General ---");
+        textOp(" ")
+        wrapOp("--- General ---")
 
             -- Death Cat
-            --checkOp("Death Cat Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.");
-            --textOp("Death Cat Mode");
+            --checkOp("Death Cat Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.")
+            --textOp("Death Cat Mode")
 
             -- Mark Of The Wild
-            --checkOp("Mark of the Wild","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Mark of Wild usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.");
-            --textOp(tostring(select(1,GetSpellInfo(mow))));
+            --checkOp("Mark of the Wild","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Mark of Wild usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
+            --textOp(tostring(select(1,GetSpellInfo(mow))))
 
             -- Dummy DPS Test
-            checkOp("DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.");
+            checkOp("DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.")
             boxOp("DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-            textOp("DPS Testing");
+            textOp("DPS Testing")
 
             -- Single/Multi Toggle
-            checkOp("Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Key Toggle|cffFFBB00.");
+            checkOp("Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Key Toggle|cffFFBB00.")
             dropOp("Rotation Mode", 1, "Toggle")
-            textOp("Rotation Mode");
+            textOp("Rotation Mode")
 
         -- Spacer
-        textOp(" ");
-        wrapOp("--- Cooldowns ---");
+        textOp(" ")
+        wrapOp("--- Cooldowns ---")
         --dropOp("Cooldown Key", 1, "Toggle")
 
             -- Agi Pot
-            checkOp("Agi-Pot");
-            textOp("Agi-Pot");
+            checkOp("Agi-Pot")
+            textOp("Agi-Pot")
 
             -- Flask / Crystal
-            checkOp("Flask / Crystal");
-            textOp("Flask / Crystal");
+            checkOp("Flask / Crystal")
+            textOp("Flask / Crystal")
 
 			-- Earth  Ele
-            checkOp("Earth  Ele");
-            textOp("Earth  Ele");
+            checkOp("Earth  Ele")
+            textOp("Earth  Ele")
 
         -- Spacer
-        textOp(" ");
-        wrapOp("--- Defensive ---");
+        textOp(" ")
+        wrapOp("--- Defensive ---")
 
             -- Healthstone
-            checkOp("Pot/Stoned");
-            boxOp("Pot/Stoned", 0, 100, 5, 60);
-            textOp("Pot/Stoned");
+            checkOp("Pot/Stoned")
+            boxOp("Pot/Stoned", 0, 100, 5, 60)
+            textOp("Pot/Stoned")
 
             -- Barkskin
-            --checkOp("Barkskin");
-            --boxOp("Barkskin", 0, 100, 5, 50);
-            --textOp(tostring(select(1,GetSpellInfo(bar))));
+            --checkOp("Barkskin")
+            --boxOp("Barkskin", 0, 100, 5, 50)
+            --textOp(tostring(select(1,GetSpellInfo(bar))))
 
             -- Survival Instincts
-            --checkOp("Survival Instincts");
-            --boxOp("Survival Instincts", 0, 100, 5, 40);
-            --textOp(tostring(select(1,GetSpellInfo(si))));
+            --checkOp("Survival Instincts")
+            --boxOp("Survival Instincts", 0, 100, 5, 40)
+            --textOp(tostring(select(1,GetSpellInfo(si))))
 
             -- Frenzied Regeneration
-            --checkOp("Frenzied Regen");
-            --boxOp("Frenzied Regen", 0, 100, 5, 30);
-            --textOp(tostring(select(1,GetSpellInfo(fr))));
+            --checkOp("Frenzied Regen")
+            --boxOp("Frenzied Regen", 0, 100, 5, 30)
+            --textOp(tostring(select(1,GetSpellInfo(fr))))
 
         -- Spacer --
-        textOp(" ");
-        wrapOp("--- Interrupts ---");
+        textOp(" ")
+        wrapOp("--- Interrupts ---")
 
             -- Skull Bash
             --checkOp("Skull Bash")
@@ -242,131 +114,15 @@ function EnhancementConfig()
 
 
             -- Standard Interrupt
-            checkOp("Interrupts");
-            boxOp("Interrupts", 5, 95, 5, 0);
-            textOp("Interrupt At");
+            checkOp("Interrupts")
+            boxOp("Interrupts", 5, 95, 5, 0)
+            textOp("Interrupt At")
 
 
         -- General Configs
-        CreateGeneralsConfig();
+        CreateGeneralsConfig()
 
-        WrapsManager();
+        WrapsManager()
     --end
 end
---[[           ]]	--[[           ]]	--[[           ]]	--[[           ]]	--[[           ]]
---[[           ]]	--[[           ]]	--[[           ]]	--[[           ]]	--[[           ]]
---[[]]	   --[[]]	--[[]]				--[[]]					 --[[ ]]		--[[]]	   --[[]]
---[[           ]]	--[[           ]]	--[[           ]]		 --[[ ]]		--[[]]	   --[[]]
---[[        ]]		--[[]]						   --[[]]		 --[[ ]]		--[[]]	   --[[]]
---[[]]	  --[[]]	--[[           ]]	--[[           ]]		 --[[ ]]		--[[           ]]
---[[]]	   --[[]]	--[[           ]] 	--[[           ]]		 --[[ ]]		--[[           ]]
-
-function RestorationConfig()
-    local myClassColor = classColors[select(3,UnitClass("player"))].hex
-        ClearConfig()
-    --if not doneConfig then
-        thisConfig = 0
-        -- Title
-        CreateNewTitle(thisConfig,"|cff00EEFFRestoration |cffFF0000CodeMyLife");
-
-        -- Wrapper
-        CreateNewWrap(thisConfig,"--- |cffFF0011Buffs "..myClassColor.."---");
-
-        -- Earthliving Weapon
-        CreateNewCheck(thisConfig,"Earthliving Weapon");
-        CreateNewText(thisConfig,"Earthliving Weapon");
-
-        -- Water Shield
-        CreateNewCheck(thisConfig,"Water Shield");
-        CreateNewText(thisConfig,"Water Shield");
-
-
-        -- Wrapper
-        CreateNewWrap(thisConfig,"--- |cffFF0011Healing "..myClassColor.."---")
-
-        CreateNewCheck(thisConfig,"Healing Wave","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHealing Wave|cffFFBB00.",1);
-        CreateNewBox(thisConfig, "Healing Wave", 0, 100  , 5, 85, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Wave.");
-        CreateNewText(thisConfig,"Healing Wave");
-
-        CreateNewCheck(thisConfig,"Healing Surge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHealing Surge|cffFFBB00.",1);
-        CreateNewBox(thisConfig, "Healing Surge", 0, 100  , 5, 40, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Surge.");
-        CreateNewText(thisConfig,"Healing Surge");
-
-        CreateNewCheck(thisConfig,"Chain Heal","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFChain Heal|cffFFBB00.",1);
-        CreateNewBox(thisConfig, "Chain Heal", 0, 100  , 5, 70, "|cffFFBB00Under what %HP to use |cffFFFFFFChain Heal on 3 targets.");
-        CreateNewText(thisConfig,"Chain Heal");
-
-
-
-        -- Wrapper
-        CreateNewWrap(thisConfig,"--- |cffFF0011Cooldowns "..myClassColor.."---")
-
-        -- Ascendance
-        CreateNewCheck(thisConfig,"Ascendance");
-        CreateNewDrop(thisConfig, "Ascendance", 1, "CD")
-        CreateNewText(thisConfig,"Ascendance");
-
-        -- Fire Elemental
-        CreateNewCheck(thisConfig,"Fire Elemental");
-        CreateNewDrop(thisConfig, "Fire Elemental", 1, "CD")
-        CreateNewText(thisConfig,"Fire Elemental");
-
-        -- Stormlash
-        CreateNewCheck(thisConfig,"Stormlash");
-        CreateNewDrop(thisConfig, "Stormlash", 1, "CD")
-        CreateNewText(thisConfig,"Stormlash");
-
-        -- Wrapper
-        CreateNewWrap(thisConfig,"--- |cffFF0011DPS Tweaks "..myClassColor.."---")
-
-
-
-
-        -- Wrapper
-        CreateNewWrap(thisConfig,"--- |cffFF0011Defensive "..myClassColor.."---")
-
-        -- Astral Shift
-        CreateNewCheck(thisConfig,"Astral Shift");
-        CreateNewBox(thisConfig, "Astral Shift", 0, 100  , 5, 30, "|cffFFBB00Under what %HP to use |cffFFFFFFAstral Shit");
-        CreateNewText(thisConfig,"Astral Shift");
-
-        -- Healing Stream
-        CreateNewCheck(thisConfig,"Healing Stream");
-        CreateNewBox(thisConfig, "Healing Stream", 0, 100  , 5, 50, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream");
-        CreateNewText(thisConfig,"Healing Stream");
-
-        -- Shamanistic Rage
-        CreateNewCheck(thisConfig,"Shamanistic Rage");
-        CreateNewBox(thisConfig, "Shamanistic Rage", 0, 100  , 5, 70, "|cffFFBB00Under what %HP to use |cffFFFFFFShamanistic Rage");
-        CreateNewText(thisConfig,"Shamanistic Rage");
-
-        -- Wrapper
-        CreateNewWrap(thisConfig,"--- |cffFF0011Utilities "..myClassColor.."---")
-
-        -- Standard Interrupt
-        CreateNewCheck(thisConfig,"Wind Shear");
-        CreateNewBox(thisConfig, "Wind Shear", 0, 100  , 5, 35 , "|cffFFBB00Over what % of cast we want to |cffFFFFFFWind Shear.");
-        CreateNewText(thisConfig,"Wind Shear");
-
-
-        -- General Configs
-        CreateGeneralsConfig();
-
-        WrapsManager();
-    --end
-end
---[[           ]]	--[[]]	   --[[]]	--[[]]	   --[[]]	--[[   		   ]]	--[[   		   ]]	--[[   		   ]]	--[[           ]]	--[[]]	   --[[]]
---[[           ]]	--[[]]	   --[[]]	--[[  ]]   --[[]]	--[[   		   ]]	--[[   		   ]]	--[[   		   ]]	--[[           ]]	--[[  ]]   --[[]]
---[[]]				--[[]]	   --[[]]	--[[    ]] --[[]]   --[[]]					 --[[ ]]			 --[[ ]]		--[[]]	   --[[]]	--[[    ]] --[[]]
---[[           ]]	--[[]]	   --[[]]	--[[           ]]	--[[]]					 --[[ ]]			 --[[ ]]		--[[]]	   --[[]]	--[[           ]]
---[[           ]]	--[[]]	   --[[]]	--[[   		   ]]	--[[]]					 --[[ ]]			 --[[ ]]		--[[]]	   --[[]]	--[[   		   ]]
---[[]]	   			--[[           ]]	--[[]]	 --[[  ]]	--[[   		   ]]		 --[[ ]]		--[[   		   ]]	--[[           ]]	--[[]]	 --[[  ]]
---[[]]	   			--[[           ]]	--[[]]	   --[[]]	--[[   		   ]]		 --[[ ]]		--[[   		   ]]	--[[           ]]	--[[]]	   --[[]]
-
-
-
-
-
-
-
 end
