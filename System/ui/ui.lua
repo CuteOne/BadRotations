@@ -668,6 +668,10 @@ function ConstructUI()
         createOptions("Other Features")
         radioGeneral("options",selectedOption)
 
+        if BadBoy_data.options[GetSpecialization()]["optionsFrame"] == false then
+            optionsFrame:Hide()
+        end
+
 
 
 
