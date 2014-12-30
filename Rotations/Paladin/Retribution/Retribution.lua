@@ -371,7 +371,7 @@ if select(3, UnitClass("player")) == 2 then
 				end
 			end
 			-- judgment
-			if core:castJudgement(core.units.dyn5) then
+			if core:castJudgment(core.units.dyn5) then
 				return
 			end
 			-- exorcism
