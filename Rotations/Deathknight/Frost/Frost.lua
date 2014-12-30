@@ -61,6 +61,7 @@ if select(3, UnitClass("player")) == 6 then
       local dCooldown = getSpellCD(_Defile)
       local amsCooldown = getSpellCD(_AntiMagicShell)
       local pofCooldown = getSpellCD(_PillarOfFrost)
+      local raCooldown = getSpellCD(_RaiseAlly)
       local blight = getTalent(1,3)
       local bloodtap = getTalent(4,1)
       local runic = getTalent(4,2)
@@ -95,12 +96,20 @@ if select(3, UnitClass("player")) == 6 then
       else
         profileStop=false
       end
-      -- AutoLooter
+    -- AutoLooter
       if isChecked("Auto Looter") then
         if not isInCombat("player") and getLoot() then
           return true
         end
       end
+    -- Raise Ally
+      if isInCombat("player") and raCooldown==0 and power>30 and tarDist<40 then
+        if isChecked("Mouseover Targeting") and hasMouse and deadMouse and playerMouse then
+          if castSpell("mouseover",ra,true,true,false,false,true) then return end
+        elseif hastar and deadtar and playertar then
+          if castSpell("target",rb,true,false,false,false,true) then return end
+        end
+      end  
     -- Pause
       if pause() then
         return true
@@ -263,19 +272,19 @@ if select(3, UnitClass("player")) == 6 then
           if useInterrupts() then
         -- Mind Freeze
             if isChecked("Mind Freeze") then
-              if castInterrupt(_MindFreeze,getOptionValue("Interrupts")) then return end
+              if castInterrupt(_MindFreeze,getOptionValue("Interrupt At")) then return end
             end
         -- Strangulate
             if isChecked("Strangulate") and bRunes>0 then
-              if castInterrupt(_Strangulate,getOptionValue("Interrupts")) then return end
+              if castInterrupt(_Strangulate,getOptionValue("Interrupt At")) then return end
             end
         -- Asphyxiate
             if isChecked("Asphyxiate") then
-              if castInterrupt(_Asphyxiate,getOptionValue("Interrupts")) then return end
+              if castInterrupt(_Asphyxiate,getOptionValue("Interrupt At")) then return end
             end
         -- Dark Simulacrum
             if isChecked("Dark Simulacrum") and power>20 then
-              if castInterrupt(_DarkSimulacrum,getOptionValue("Interrupts")) then return end
+              if castInterrupt(_DarkSimulacrum,getOptionValue("Interrupt At")) then return end
             end 
           end
     -----------------------------

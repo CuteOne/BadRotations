@@ -301,15 +301,15 @@ if select(3, UnitClass("player")) == 11 then
 					if useInterrupts() and not stealth then
 			-- Skull Bash
 				        if isChecked("Skull Bash") then
-						    if castInterrupt(sb,getOptionValue("Interrupts")) then return end
+						    if castInterrupt(sb,getOptionValue("Interrupt At")) then return end
 						end
 			-- Mighty Bash
 				        if isChecked("Mighty Bash") then
-				        	if castInterrupt(mb,getOptionValue("Interrupts")) then return end
+				        	if castInterrupt(mb,getOptionValue("Interrupt At")) then return end
 				        end
 			-- Maim (PvP)
 				        if isChecked("Maim") and combo > 0 and power >= 35 and isInPvP() then
-				        	if castInterrupt(ma,getOptionValue("Interrupts")) then return end
+				        	if castInterrupt(ma,getOptionValue("Interrupt At")) then return end
 				        end
 				    end
 		-----------------------------

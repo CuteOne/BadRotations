@@ -24,44 +24,61 @@ if select(3,UnitClass("player")) == 6 then
         end
     end
 
-    function getLoot()
-        if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
-            enemiesTimer = GetTime()
+    function emptySlots()
+        openCount = 0
+        for i = 1, NUM_BAG_SLOTS do
+            openCount = openCount + select(1,GetContainerNumFreeSlots(i))
         end
-        looted = 0
-        for i=1,ObjectCount() do
-            if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
-                local thisUnit = ObjectWithIndex(i)
-                local canLoot = select(2,CanLootUnit(UnitGUID(thisUnit)))
-                local hasLoot = select(1,CanLootUnit(UnitGUID(thisUnit)))
-                if getCreatureType(thisUnit) == true 
-                    and UnitCanAttack("player",thisUnit) == true 
-                    and UnitIsDeadOrGhost(thisUnit) 
-                then
-                    if PriorAutoLoot == nil then PriorAutoLoot = false end
-                    if GetCVar("autoLootDefault") == "0" then 
-                        SetCVar("autoLootDefault", "1")
-                        PriorAutoLoot = false
-                    end
-                    if canLoot then
-                        if hasLoot then
-                            InteractUnit(thisUnit)
-                            if GetNumLootItems() > 0 then
-                                looted = 1
-                                return true
-                            end
+        if openCount > 0 then
+            return true
+        else
+            return false
+        end
+    end
+
+    function getLoot()
+        if emptySlots() then
+            if not enemiesTimer or enemiesTimer <= GetTime() - 1 then
+                enemiesTimer = GetTime()
+            end
+            looted = 0
+            for i=1,ObjectCount() do
+                if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
+                    local thisUnit = ObjectWithIndex(i)
+                    local canLoot = select(2,CanLootUnit(UnitGUID(thisUnit)))
+                    local hasLoot = select(1,CanLootUnit(UnitGUID(thisUnit)))
+                    if getCreatureType(thisUnit) == true 
+                        and UnitCanAttack("player",thisUnit) == true 
+                        and UnitIsDeadOrGhost(thisUnit) 
+                    then
+                        if PriorAutoLoot == nil then PriorAutoLoot = false end
+                        if GetCVar("autoLootDefault") == "0" then 
+                            SetCVar("autoLootDefault", "1")
+                            PriorAutoLoot = false
                         end
-                    elseif looted==1 then
-                        looted = 0
-                        ClearTarget()
-                    end
-                    if GetCVar("autoLootDefault") == "1" and PriorAutoLoot == false then 
-                        SetCVar("autoLootDefault", "0")
+                        if canLoot then
+                            if hasLoot then
+                                InteractUnit(thisUnit)
+                                if GetNumLootItems() > 0 then
+                                    looted = 1
+                                    return true
+                                end
+                            end
+                        elseif looted==1 then
+                            looted = 0
+                            ClearTarget()
+                        end
+                        if GetCVar("autoLootDefault") == "1" and PriorAutoLoot == false then 
+                            SetCVar("autoLootDefault", "0")
+                        end
                     end
                 end
             end
+            return false
+        else
+            ChatOverlay("Bags are full, nothing will be looted!")
+            return false
         end
-        return false
     end
    
 	function getRuneInfo()

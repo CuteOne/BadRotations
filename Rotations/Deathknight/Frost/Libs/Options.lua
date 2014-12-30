@@ -60,6 +60,10 @@ if select(3,UnitClass("player")) == 6 then
                     checkOp("Auto Looter","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic corpse looting.")
                     textOp("Auto Looter")
 
+                    -- Mouseover Targeting
+                    checkOp("Mouseover Targeting","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFmouseover target validation.|cffFFBB00.")
+                    textOp("Mouseover Targeting")
+
                     -- Horn of Winter
                     checkOp("Horn of Winter","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Horn of Winter usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
                     textOp(tostring(select(1,GetSpellInfo(_HornOfWinter))))
@@ -170,8 +174,8 @@ if select(3,UnitClass("player")) == 6 then
                     textOp(tostring(select(1,GetSpellInfo(_DarkSimulacrum))))
 
                     -- Interrupt Percentage
-                    checkOp("Interrupts")
-                    boxOp("Interrupts", 5, 95, 5, 0, "|cffFFFFFFCast Percent to Cast At")
+                    checkOp("Interrupt At")
+                    boxOp("Interrupt At", 5, 95, 5, 0, "|cffFFFFFFCast Percent to Cast At")
                     textOp("Interrupt At")
 
                 -- Spacer
