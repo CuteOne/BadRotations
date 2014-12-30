@@ -28,7 +28,7 @@ if select(3, UnitClass("player")) == 6 then
       local oneHand, twoHand = IsEquippedItemType("One-Hand"), IsEquippedItemType("Two-Hand")
       --General Target Variables
       local deadtar, attacktar, hastar, playertar = UnitIsDeadOrGhost("target"), UnitCanAttack("target", "player"), UnitExists("target"), UnitIsPlayer("target")
-      local tarDist = getDistance("target","player")
+      local tarDist = getDistance("player","target")
       local friendly = UnitIsFriend("target", "player")
       local thp,thp5 = getHP("target"),getHP(dynamicTarget(5,true))
       local ttd,ttd5 = getTimeToDie("target"), getTimeToDie(dynamicTarget(5,true))
@@ -109,20 +109,20 @@ if select(3, UnitClass("player")) == 6 then
         elseif hastar and deadtar and playertar then
           if castSpell("target",rb,true,false,false,false,true) then return end
         end
-      end  
+      end
     -- Pause
       if pause() then
         return true
-      elseif not pause() then 
+      elseif not pause() then
   -------------
   --- Buffs ---
   -------------
       -- Horn of Winter
         if isChecked("Horn of Winter") and not hasmouse and not (IsFlying() or IsMounted()) and not isInCombat("player") then
             for i = 1, #members do
-                if not isBuffed(members[i].Unit,{57330,19506,6673}) 
-                  and (#nNova==select(5,GetInstanceInfo()) 
-                    or select(2,IsInInstance())=="none" 
+                if not isBuffed(members[i].Unit,{57330,19506,6673})
+                  and (#nNova==select(5,GetInstanceInfo())
+                    or select(2,IsInInstance())=="none"
                     or (select(2,IsInInstance())=="party" and not UnitInParty("player")))
                 then
                     if castSpell("player",_HornOfWinter,true,false,false) then return end
@@ -143,13 +143,13 @@ if select(3, UnitClass("player")) == 6 then
         end
       -- Control Undead
         if UnitCreatureType("Undead") and uRunes>0 and not UnitExists("pet")
-          and (UnitClassification("target")~="normal" or UnitClassification("target")~="trivial" or UnitClassification("target")~="minus") 
+          and (UnitClassification("target")~="normal" or UnitClassification("target")~="trivial" or UnitClassification("target")~="minus")
         then
           if castSpell("target",_ControlUndead,false,false,false) then return end
         end
       -- Flask / Crystal
         if isChecked("Flask / Crystal") and not (IsFlying() or IsMounted()) then
-            if (select(2,IsInInstance())=="raid" or select(2,IsInInstance())=="none") 
+            if (select(2,IsInInstance())=="raid" or select(2,IsInInstance())=="none")
               and not (UnitBuffID("player",156073) or UnitBuffID("player",156064)) --Draenor Agi Flasks
             then
                 if not UnitBuffID("player",176151) and canUse(118922) then --Draenor Insanity Crystal
@@ -211,7 +211,7 @@ if select(3, UnitClass("player")) == 6 then
   ---------------------
   --- Out of Combat ---
   ---------------------
-        if hastar and attacktar and not isInCombat("player") 
+        if hastar and attacktar and not isInCombat("player")
           and ((not (IsMounted() or IsFlying() or friendly)) or isDummy())
         then
       -- Death Grip
@@ -243,7 +243,7 @@ if select(3, UnitClass("player")) == 6 then
             if castSpell("target",_PlagueStrike,false,false,false) then return end
           end
       -- Start Attack
-          if getDistance(thisUnit, "player")<5 then
+          if getDistance("player",thisUnit)<5 then
             StartAttack()
           end
         end
@@ -285,7 +285,7 @@ if select(3, UnitClass("player")) == 6 then
         -- Dark Simulacrum
             if isChecked("Dark Simulacrum") and power>20 then
               if castInterrupt(_DarkSimulacrum,getOptionValue("Interrupt At")) then return end
-            end 
+            end
           end
     -----------------------------
     --- In Combat - Cooldowns ---
@@ -312,7 +312,7 @@ if select(3, UnitClass("player")) == 6 then
     --- In Combat Rotation ---
     --------------------------
         -- Start Attack
-          if getDistance(thisUnit, "player")<5 then
+          if getDistance("player",thisUnit)<5 then
             StartAttack()
           end
         -- Death Grip
@@ -320,7 +320,7 @@ if select(3, UnitClass("player")) == 6 then
             if castSpell("target",_DeathGrip,false,false,false) then return end
           end
         -- Chains of Ice
-          if not getFacing("target","player") and getFacing("player","target") 
+          if not getFacing("target","player") and getFacing("player","target")
             and isMoving("target") and tarDist>8 and fRunes>=1 and isInCombat("target") and ciRemain==0
           then
             if castSpell("target",_ChainsOfIce,false,false,false) then return end
@@ -442,7 +442,7 @@ if select(3, UnitClass("player")) == 6 then
                 end
               end
             end
-        -- Defile (1H)  
+        -- Defile (1H)
             if oneHand and defile and uRunes>=1 and tarDist<30 then
               if castGround(thisUnit30AoE,_Defile,30) then return end
             end
@@ -457,7 +457,7 @@ if select(3, UnitClass("player")) == 6 then
               else
                 if castSpell("target",_IcyTouch,false,false,false) then return end
               end
-            end        
+            end
         -- Obliterate (1H/2H)
             if cindragosa and ((oneHand and bocCooldown<3) or (twoHand and bocCooldown<7)) and power<76 and uRunes>=1 and fRunes>=1 and tarDist<5 then
               if castSpell("target",_Obliterate,false,false,false) then return end
@@ -469,7 +469,7 @@ if select(3, UnitClass("player")) == 6 then
               else
                 if castSpell("target",_IcyTouch,false,false,false) then return end
               end
-            end 
+            end
         -- Frost Strike (1H)
             if oneHand and (kmRemain>0 or power>88) and tarDist<5 then
               if castSpell("target",_FrostStrike,false,false,false) then return end
@@ -489,7 +489,7 @@ if select(3, UnitClass("player")) == 6 then
         -- Unholy Blight (1H)
             if oneHand and ffRemain==0 and bpRemain==0 and tarDist<10 then
               if castSpell("player",_UnholyBlight,true,false,false) then return end
-            end  
+            end
         -- Howling Blast
             if not necrotic and ffRemain==0 and fRunes>=1 and tarDist<30 then
               if useCleave() or getNumEnemies("target",10)==1 then
@@ -605,10 +605,10 @@ if select(3, UnitClass("player")) == 6 then
           end
         ----------------------
         --- Multiple Target --
-        ----------------------  
+        ----------------------
           if useAoE() then
         -- Unholy Blight
-            if tarDist<10 then 
+            if tarDist<10 then
               if castSpell("player",_UnholyBlight,true,false,false) then return end
             end
         -- Blood Boil
