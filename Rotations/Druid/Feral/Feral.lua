@@ -223,7 +223,7 @@ if select(3, UnitClass("player")) == 11 then
 		                end
 					end
 	-- Pot/Stoned
-		            if isChecked("Pot/Stoned") and getHP("player") <= getOptionValue("Pot/Stoned") 
+		            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
 		            	and isInCombat("player") and hasHealthPot() 
 		            then
 	                    if canUse(5512) then
@@ -232,6 +232,10 @@ if select(3, UnitClass("player")) == 11 then
 	                        UseItemByName(tostring(select(1,GetItemInfo(healPot))))
 	                    end
 		            end
+	-- Engineering: Shield-o-tronic
+					if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic") and isInCombat("player") and canUse(118006) then
+						UseItemByName(tostring(select(1,GetItemInfo(118006))))
+					end
 	-- Tier 6 Talent: Nature's Vigil
 		            if isChecked("Nature's Vigil") and php <= getOptionValue("Nature's Vigil") then
 		                if castSpell("player",nv,true,false,false) then return end

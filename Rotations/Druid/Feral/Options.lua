@@ -61,8 +61,10 @@ if select(3, UnitClass("player")) == 11 then
                     textOp("Death Cat Mode")
 
                     -- Mark Of The Wild
-                    checkOp("Mark of the Wild","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Mark of Wild usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
-                    textOp(tostring(select(1,GetSpellInfo(mow))))
+                    if isKnown(mow) then
+                        checkOp("Mark of the Wild","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Mark of Wild usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
+                        textOp(tostring(select(1,GetSpellInfo(mow))))
+                    end
 
                     -- Dummy DPS Test
                     checkOp("DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.")
@@ -94,57 +96,80 @@ if select(3, UnitClass("player")) == 11 then
                 wrapOp("--- Defensive ---")
 
                     -- Rejuvenation
-                    checkOp("Rejuvenation")
-                    boxOp("Rejuvenation", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-                    textOp("Rejuvenation")
+                    if isKnown(rej) then
+                        checkOp("Rejuvenation")
+                        boxOp("Rejuvenation", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+                        textOp("Rejuvenation")
+                    end
 
                     -- Auto Rejuvenation
-                    checkOp("Auto Rejuvenation")
-                    boxOp("Auto Rejuvenation", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-                    textOp("Auto Rejuvenation")
+                    if isKnown(rej) then
+                        checkOp("Auto Rejuvenation")
+                        boxOp("Auto Rejuvenation", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+                        textOp("Auto Rejuvenation")
+                    end
 
                     -- Healthstone
                     checkOp("Pot/Stoned")
                     boxOp("Pot/Stoned", 0, 100, 5, 60, "|cffFFFFFFHealth Percent to Cast At")
                     textOp("Pot/Stoned")
 
+                    -- Engineering: Shield-o-tronic
+                    checkOp("Shield-o-tronic")
+                    boxOp("Shield-o-tronic", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At")
+                    textOp("Shield-o-tronic")
+
                     -- Nature's Vigil
-                    checkOp("Nature's Vigil")
-                    boxOp("Nature's Vigil", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At")
-                    textOp(tostring(select(1,GetSpellInfo(nv))))
+                    if getTalent(6,3) then
+                        checkOp("Nature's Vigil")
+                        boxOp("Nature's Vigil", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At")
+                        textOp(tostring(select(1,GetSpellInfo(nv))))
+                    end
 
                     -- Survival Instincts
-                    checkOp("Survival Instincts")
-                    boxOp("Survival Instincts", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
-                    textOp(tostring(select(1,GetSpellInfo(si))))
+                    if isKnown(si) then
+                        checkOp("Survival Instincts")
+                        boxOp("Survival Instincts", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
+                        textOp(tostring(select(1,GetSpellInfo(si))))
+                    end
 
                     -- Healing Touch
-                    checkOp("Healing Touch")
-                    boxOp("Healing Touch", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At")
-                    textOp(tostring(select(1,GetSpellInfo(ht))))
+                    if isKnown(ht) then
+                        checkOp("Healing Touch")
+                        boxOp("Healing Touch", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At")
+                        textOp(tostring(select(1,GetSpellInfo(ht))))
+                    end
 
                     -- Dream of Cenarius Auto-Heal
-                    checkOp("Auto Heal")
-                    dropOp("Auto Heal", 1, "|cffFFFFFFSelect Target to Auto-Heal",
-                        "|cffFFDD11LowestHP",
-                        "|cffFFDD11Self")
-                    textOp("Auto-Heal (DoC)")
+                    if getTalent(6,2) then
+                        checkOp("Auto Heal")
+                        dropOp("Auto Heal", 1, "|cffFFFFFFSelect Target to Auto-Heal",
+                            "|cffFFDD11LowestHP",
+                            "|cffFFDD11Self")
+                        textOp("Auto-Heal (DoC)")
+                    end
 
                 -- Spacer --
                 textOp(" ")
                 wrapOp("--- Interrupts ---")
 
                     -- Skull Bash
-                    checkOp("Skull Bash")
-                    textOp(tostring(select(1,GetSpellInfo(sb))))
+                    if isKnown(sb) then
+                        checkOp("Skull Bash")
+                        textOp(tostring(select(1,GetSpellInfo(sb))))
+                    end
 
                     -- Mighty Bash
-                    checkOp("Mighty Bash")
-                    textOp(tostring(select(1,GetSpellInfo(mb))))
+                    if getTalent(5,3) then
+                        checkOp("Mighty Bash")
+                        textOp(tostring(select(1,GetSpellInfo(mb))))
+                    end
 
                     -- Maim
-                    checkOp("Maim")
-                    textOp(tostring(select(1,GetSpellInfo(ma))))
+                    if isKnown(ma) then
+                        checkOp("Maim")
+                        textOp(tostring(select(1,GetSpellInfo(ma))))
+                    end
 
                     -- Interrupt Percentage
                     checkOp("Interrupts")
