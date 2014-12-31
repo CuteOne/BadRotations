@@ -147,17 +147,17 @@ function RestorationConfig()
         if isKnown(114107) then
             -- Harmoney SotF
             CreateNewCheck(thisConfig,"Harmoney SotF")
-            CreateNewBox(thisConfig, "Harmoney SotF",0,100,5,40,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRegrowth|cffFFBB00 to refresh Harmoney.")
+            CreateNewBox(thisConfig, "Harmoney SotF",0,100,5,40,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRegrowth|cffFFBB00 to refresh Harmoney during |cffFFFFFFSotF.")
             CreateNewText(thisConfig,"Harmoney SotF")
 
             -- WildGrowth SotF
             CreateNewCheck(thisConfig,"WildGrowth SotF")
-            CreateNewBox(thisConfig, "WildGrowth SotF",0,100,5,45,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFSwiftmend.")
+            CreateNewBox(thisConfig, "WildGrowth SotF",0,100,5,45,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFWild Growth with SotF.")
             CreateNewText(thisConfig,"WildGrowth SotF")
 
             -- WildGrowth SotF Count
             CreateNewCheck(thisConfig,"WildGrowth SotF Count")
-            CreateNewBox(thisConfig, "WildGrowth SotF Count",1,25,1,3,"|cffFFBB00Number of members under Force of Nature threshold needed to use |cffFFFFFFSwiftmend.")
+            CreateNewBox(thisConfig, "WildGrowth SotF Count",1,25,1,3,"|cffFFBB00Number of members under Wildgrowth SotF treshold to use |cffFFFFFFWild Growth with SotF.")
             CreateNewText(thisConfig,"WildGrowth SotF Count")
         elseif isKnown(102693) then
             -- Force of Nature
@@ -171,7 +171,7 @@ function RestorationConfig()
             CreateNewText(thisConfig,"Force of Nature Count")
         elseif isKnown(33891) then
            -- Germination Tol
-           CreateNewCheck(thisConfig,"Germination Tol")
+            CreateNewCheck(thisConfig,"Germination Tol")
             CreateNewBox(thisConfig, "Germination Tol",0,100,5,90,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRejuvenation|cffFFBB00 while in Tree of Life. \n|cffFFDD11Used after Rejuvenation if Rejuvenation All Tol is not selected.")
             CreateNewText(thisConfig,"Germination Tol")
 		   -- Germination All Tol
