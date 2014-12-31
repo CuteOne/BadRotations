@@ -16,9 +16,7 @@ if select(3, UnitClass("player")) == 6 then
       -- General Player Variables
       local profileStop = profileStop
       local lootDelay = getValue("LootDelay")
-      local hasMouse = UnitExists("mouseover")
-      local deadMouse = UnitIsDeadOrGhost("mouseover")
-      local playerMouse = UnitIsPlayer("mouseover")
+      local hasMouse, deadMouse, playerMouse, mouseDist = UnitExists("mouseover"), UnitIsDeadOrGhost("mouseover"), UnitIsPlayer("mouseover"), getDistance("player","mouseover") 
       local level = UnitLevel("player")
       local php = getHP("player")
       local power, powmax, powgen = getPower("player"), UnitPowerMax("player"), getRegen("player")
@@ -38,55 +36,34 @@ if select(3, UnitClass("player")) == 6 then
       local bloodpres = getBuffRemain("player",_BloodPresence)~=0
       local frostpres = getBuffRemain("player",_FrostPresence)~=0
       local unholypres = getBuffRemain("player",_UnholyPresence)~=0
-      local dRunes = getRunes("death")
-      local bRunes = getRunes("blood") + getRunes("death")
-      local fRunes = getRunes("frost") + getRunes("death")
-      local uRunes = getRunes("unholy") + getRunes("death")
-      local dPercent = getRunePercent("death")
-      local bPercent = getRunePercent("blood") + getRunes("death")
-      local fPercent = getRunePercent("frost") + getRunes("death")
-      local uPercent = getRunePercent("unholy") + getRunes("death")
+      local dRunes, bRunes, fRunes, uRunes = getRunes("death"), getRunes("blood") + getRunes("death"), getRunes("frost") + getRunes("death"), getRunePercent("death")
+      local bPercent, fPercent, uPercent = getRunePercent("blood") + getRunes("death"), getRunePercent("frost") + getRunes("death"), getRunePercent("unholy") + getRunes("death")
       local bcStack = bcStack
+      if getBuffRemain("player",_BloodCharge)>0 then
+        bcStack = select(4,UnitBuffID("player",_BloodCharge))
+      else
+        bcStack = 0
+      end
       local rRemain = getBuffRemain("player",_Rime)
       local kmRemain = getBuffRemain("player",_KillingMachine)
       local howRemain = getBuffRemain("player",_HornOfWinter)
-      local pofRemain = getBuffRemain("player",_PillarOfFrost)
       local empRemain = getBuffRemain("player",_EmpowerRuneWeapon)
       local dsRemain = getBuffRemain("player",_DarkSuccor)
-      local amsRemain = getBuffRemain("player",_AntiMagicShell)
+      local pofRemain, pofCooldown = getBuffRemain("player",_PillarOfFrost), getSpellCD(_PillarOfFrost)
+      local amsRemain, amsCooldown = getBuffRemain("player",_AntiMagicShell), getSpellCD(_AntiMagicShell)
+      local bosRemain, bosCooldown = getDebuffRemain("target",_BreathOfSindragosa,"player"), getSpellCD(_BreathOfSindragosa)
       local srCooldown = getSpellCD(_SoulReaper)
-      local bocCooldown = bocCooldown
       local plCooldown = getSpellCD(_PlagueLeech)
       local ubCooldown = getSpellCD(_UnholyBlight)
       local dCooldown = getSpellCD(_Defile)
-      local amsCooldown = getSpellCD(_AntiMagicShell)
-      local pofCooldown = getSpellCD(_PillarOfFrost)
       local raCooldown = getSpellCD(_RaiseAlly)
-      local blight = getTalent(1,3)
-      local bloodtap = getTalent(4,1)
-      local runic = getTalent(4,2)
-      local necrotic = getTalent(7,1)
-      local defile = getTalent(7,2)
-      local cindragosa = getTalent(7,3)
+      local blight, bloodtap, runic, necrotic, defile, sindragosa = getTalent(1,3), getTalent(4,1), getTalent(4,2), getTalent(7,1), getTalent(7,2), getTalent(7,3)
       local t17x2 = false
       --Specific Target Variables
       local ciRemain = getDebuffRemain("target",_ChainsOfIce,"player")
       local ffRemain = getDebuffRemain("target",_FrostFever,"player")
       local bpRemain = getDebuffRemain("target",_BloodPlague,"player")
       local necRemain = getDebuffRemain("target",_NecroticPlague,"player")
-      local bocRemain = bocRemain
-      if cindragosa then
-        bocCooldown = getSpellCD(_BreathOfCindragosa)
-        bocRemain = getDebuffRemain("target",_BreathOfCindragosa,"player")
-      else
-        bocCooldown = 120
-        bocRemain = 999
-      end
-      if getBuffRemain("player",_BloodCharge)>0 then
-        bcStack = select(4,UnitBuffID("player",_BloodCharge))
-      else
-        bcStack = 0
-      end
   --------------------------------------------------
   --- Ressurection/Dispelling/Healing/Pause/Misc ---
   --------------------------------------------------
@@ -103,10 +80,10 @@ if select(3, UnitClass("player")) == 6 then
         end
       end
     -- Raise Ally
-      if isInCombat("player") and raCooldown==0 and power>30 and tarDist<40 then
-        if isChecked("Mouseover Targeting") and hasMouse and deadMouse and playerMouse then
+      if isInCombat("player") and raCooldown==0 and power>30 then
+        if isChecked("Mouseover Targeting") and hasMouse and deadMouse and playerMouse and mouseDist<40 then
           if castSpell("mouseover",ra,true,true,false,false,true) then return end
-        elseif hastar and deadtar and playertar then
+        elseif hastar and deadtar and playertar and tarDist<40 then
           if castSpell("target",rb,true,false,false,false,true) then return end
         end
       end
@@ -250,7 +227,7 @@ if select(3, UnitClass("player")) == 6 then
   -----------------
   --- In Combat ---
   -----------------
-        if hastar and attacktar and isInCombat("player") then
+        if isInCombat("player") then
     ------------------------------
     --- In Combat - Dummy Test ---
     ------------------------------
@@ -393,14 +370,14 @@ if select(3, UnitClass("player")) == 6 then
             if ffRemain==0 and bpRemain==0 and useCleave() and tarDist<10 then
               if castSpell("target",_UnholyBlight,false,false,false) then return end
             end
-        -- Breath of Cindragosa
+        -- Breath of Sindragosa
             if power>75 and tarDist<5 then
-              if castSpell("target",_BreathOfCindragosa,false,false,false) then return end
+              if castSpell("target",_BreathOfSindragosa,false,false,false) then return end
             end
             --------------------------
             --- Boss Single Target ---
             --------------------------
-            if isBoss() and bocRemain>0 then
+            if isBoss() and bosRemain>0 then
             -- Obliterate
               if kmRemain>0 and uRunes>=1 and fRunes>=1 and tarDist<5 then
                 if castSpell("target",_Obliterate,false,false,false) then return end
@@ -451,7 +428,7 @@ if select(3, UnitClass("player")) == 6 then
               if castSpell("player",_BloodTap,true,false,false) then return end
             end
         -- Howling Blast (1H)
-            if oneHand and cindragosa and bocCooldown<7 and power<88 and fRunes>=1 and tarDist<30 then
+            if oneHand and sindragosa and bosCooldown<7 and power<88 and fRunes>=1 and tarDist<30 then
               if useCleave() or getNumEnemies("target",10)==1 then
                 if castSpell("target",_HowlingBlast,false,false,false) then return end
               else
@@ -459,11 +436,11 @@ if select(3, UnitClass("player")) == 6 then
               end
             end
         -- Obliterate (1H/2H)
-            if cindragosa and ((oneHand and bocCooldown<3) or (twoHand and bocCooldown<7)) and power<76 and uRunes>=1 and fRunes>=1 and tarDist<5 then
+            if sindragosa and ((oneHand and bosCooldown<3) or (twoHand and bosCooldown<7)) and power<76 and uRunes>=1 and fRunes>=1 and tarDist<5 then
               if castSpell("target",_Obliterate,false,false,false) then return end
             end
         -- Howling Blast (2H)
-            if twoHand and cindragosa and bocCooldown<3 and power<88 and fRunes>=1 and tarDist<30 then
+            if twoHand and sindragosa and bosCooldown<3 and power<88 and fRunes>=1 and tarDist<30 then
               if useCleave() or getNumEnemies("target",10)==1 then
                 if castSpell("target",_HowlingBlast,false,false,false) then return end
               else
@@ -619,14 +596,14 @@ if select(3, UnitClass("player")) == 6 then
             if defile and uRunes>=1 and tarDist<30 then
               if castGround(thisUnit30AoE,_Defile,30) then return end
             end
-        -- Breath of Cindragosa
+        -- Breath of Sindragosa
             if power>75 and tarDist<5 then
-              if castSpell("target",_BreathOfCindragosa,false,false,false) then return end
+              if castSpell("target",_BreathOfSindragosa,false,false,false) then return end
             end
             ----------------------------
             --- Boss Multiple Target ---
             ----------------------------
-            if isBoss() and bocRemain>0 then
+            if isBoss() and bosRemain>0 then
           -- Howling Blast
               if fRunes>=1 and tarDist<30 then
                 if castSpell("target",_HowlingBlast,false,false,false) then return end
@@ -685,7 +662,7 @@ if select(3, UnitClass("player")) == 6 then
               if castSpell("player",_BloodTap,true,false,false) then return end
             end
         -- Frost Strike
-            if (not cindragosa or bocCooldown>=10) and tarDist<5 then
+            if (not sindragosa or bosCooldown>=10) and tarDist<5 then
               if castSpell("target",_FrostStrike,true,false,false) then return end
             end
         -- Plague Leech

@@ -43,7 +43,7 @@ if select(3, UnitClass("player")) == 11 then
 			local thisUnit = thisUnit
 				if thisUnit == nil then thisUnit = "target" end
 			local tarDist = tarDist
-				if tarDist == nil then tarDist = getDistance("target","player") end
+				if tarDist == nil then tarDist = getDistance("player","target") end
 			local friendly = friendly
 				if friendly == nil then friendly = UnitIsFriend("target", "player") end
 			local thp = thp
@@ -336,7 +336,7 @@ if select(3, UnitClass("player")) == 11 then
 			                if castSpell("player",rber,true,false,false) then return end
 			            end
 			-- Tier 4 Talent: Incarnation - King of the Jungle
-			            if berCooldown<10 and ttm>1 then
+			            if berCooldown<10 and ttm>1 and tarDist<5 then
 			                if castSpell("player",inc,true,false,false) then return end
 			            end
 			-- Berserk
