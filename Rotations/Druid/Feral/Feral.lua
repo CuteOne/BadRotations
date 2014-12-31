@@ -209,7 +209,7 @@ if select(3, UnitClass("player")) == 11 then
 	------------------
 	--- Defensives ---
 	------------------
-				if useDefensive() and not stealth and not IsFlying() then
+				if useDefensive() and not stealth and not flight then
 	-- Rejuvenation
 		            if isChecked("Rejuvenation") and php <= getOptionValue("Rejuvenation") then
 		                if not stealth and rejRemain==0 and ((not isInCombat("player")) or isKnown(erej)) then
