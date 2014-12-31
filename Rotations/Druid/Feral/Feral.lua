@@ -209,7 +209,7 @@ if select(3, UnitClass("player")) == 11 then
 	------------------
 	--- Defensives ---
 	------------------
-				if useDefensive() and not stealth then
+				if useDefensive() and not stealth and not IsFlying() then
 	-- Rejuvenation
 		            if isChecked("Rejuvenation") and php <= getOptionValue("Rejuvenation") then
 		                if not stealth and rejRemain==0 and ((not isInCombat("player")) or isKnown(erej)) then
@@ -368,7 +368,7 @@ if select(3, UnitClass("player")) == 11 then
 					if stealth then
 						StopAttack()
 					end
-					if not stealth and isInCombat("player") then
+					if not stealth and isInCombat("player") and BadBoy_data['AoE'] ~= 4 then
 			-- Tiger's Fury
 						if ((not clearcast and powmax-power>=60) or powmax-power>=80) and UnitExists(dynamicTarget(5,true)) then
 							if canTrinket(13) and useCDs() then

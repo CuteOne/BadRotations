@@ -148,7 +148,7 @@ if select(3, UnitClass("player")) == 11 then
 
                     -- Interrupt Percentage
                     checkOp("Interrupts")
-                    boxOp("Interrupts", 5, 95, 5, 0, "|cffFFFFFFCast Percent to Cast At")
+                    boxOp("Interrupts", 0, 95, 5, 0, "|cffFFFFFFCast Percent to Cast At")
                     textOp("Interrupt At")
 
                 -- Spacer
