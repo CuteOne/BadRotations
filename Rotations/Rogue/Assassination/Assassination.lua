@@ -24,9 +24,10 @@ if select(3, UnitClass("player")) == 4 then
 -- --------------
 -- --- Locals ---
 -- --------------
+		if profileStop == nil then profileStop = false end
      	local enemies = #getEnemies("player",8)
      	local thisUnit = dynamicTarget(5,true)
- 		local tarDist = getDistance("target","player")
+ 		local tarDist = getDistance("player","target")
  		local hasTarget = UnitExists(thisUnit)
  		local hasMouse = UnitExists("mouseover")
  		local level = UnitLevel("player")
@@ -42,8 +43,8 @@ if select(3, UnitClass("player")) == 4 then
  		local attacktar = canAttack("player", thisUnit)
  		local swimming = IsSwimming()
  		local stealth = getBuffRemain("player",_Stealth)~=0
- 		local lethalRemain = getBuffRemain("player",_DeadlyPoison)--getBuffRemain("player",_LethalPoison)
- 		local nonlethalRemain = getBuffRemain("player",_LeechingPoison)--getBuffRemain("player",_NonLethalPoison)
+ 		local lethalRemain = getBuffRemain("player",_LethalPoison)
+ 		local nonlethalRemain = getBuffRemain("player",_NonLethalPoison)
  		local recRemain = getBuffRemain("player",_Recuperate)
  		local sapRemain = getDebuffRemain(thisUnit,_Sap)
  		local vanRemain = getBuffRemain("player",_VanishBuff)
@@ -57,7 +58,12 @@ if select(3, UnitClass("player")) == 4 then
  		local ddRemain = getDebuffRemain(thisUnit,113780,"player")
  		local envRemain = getDebuffRemain(thisUnit,_Envenom,"player")
  		local antCharge = getCharges(_Anticipation)
-  		local lootDelay = getValue("LootDelay");
+ 	-- Profile Stop
+		if isInCombat("player") and profileStop==true then
+			return true
+		else
+			profileStop=false
+		end
 ----------------------------------
 --- Poisons/Healing/Dispelling ---
 ----------------------------------
@@ -66,13 +72,11 @@ if select(3, UnitClass("player")) == 4 then
 		end
 	-- Leathal Poison
 		if lethalRemain<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
-			--if castSpell("player",_LethalPoison,true) then return end
-			if castSpell("player",_DeadlyPoison,true) then return end
+			if castSpell("player",_LethalPoison,true) then return end
 		end
 	-- Non-Leathal Poison
 		if nonlethalRemain<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
-			--if castSpell("player",_NonLethalPoison,true) then return end
-			if castSpell("player",_LeechingPoison,true) then return end
+			if castSpell("player",_NonLethalPoison,true) then return end
 		end
 	-- Recuperate
 		if php < 80 and recRemain==0 and combo>0 then
@@ -122,9 +126,12 @@ if select(3, UnitClass("player")) == 4 then
 ---------------------
 --- Out of Combat ---
 ---------------------
-			if not (IsMounted() or IsFlying() or UnitIsFriend("target","player")) then
+			if not isInCombat("player") and not (IsMounted() or IsFlying() or UnitIsFriend("target","player")) then
 	-- Stealth
-				if not isInCombat("player") and isChecked("Stealth") and (stealthTimer == nil or stealthTimer <= GetTime()-getValue("Stealth Timer")) and getCreatureType("target") == true and not stealth then
+				if isChecked("Stealth") 
+					and (stealthTimer == nil or stealthTimer <= GetTime()-getValue("Stealth Timer")) 
+					and getCreatureType("target") == true and not stealth 
+				then
 					-- Always
 					if getValue("Stealth") == 1 then 
 						if castSpell("player",_Stealth,true,false,false) then stealthTimer=GetTime(); return end
@@ -138,63 +145,67 @@ if select(3, UnitClass("player")) == 4 then
 						if castSpell("player",_Stealth,true,false,false) then stealthTimer=GetTime(); return end
 					end
 				end
-				if not isInCombat("player") and stealth and tarDist < 25 and tarDist >= 8 and level>=60 and getTalent(4,2) then
+				if UnitExists("target") and stealth then 
 	-- Shadowstep
-					if castSpell("target",_Shadowstep,false,false,false) then return end
-				end
-				if stealth and getDistance("target") < 40 and getDistance("target") >= 8 and level>=60 and getTalent(4,1) then
+					if tarDist < 25 and tarDist >= 8 and getTalent(4,2) then
+						if castSpell("target",_Shadowstep,false,false,false) then return end
+					end
 	-- Cloak and Dagger
-					if castSpell("target",_Ambush,false,false,false) then return end
-				end
+					if tarDist < 40 and tarDist >= 8 and getTalent(4,1) then
+						if castSpell("target",_Ambush,false,false,false) then return end
+					end
 	-- Sap
-				if not isInCombat("player") and noattack() and sapRemain==0 and UnitBuffID("player",_Stealth) and level>=15 and tarDist < 8 then
-					if castSpell("target",_Sap,false,false,false) then return end
-				end
+					if noattack() and sapRemain==0 and level>=15 and tarDist < 8 then
+						if castSpell("target",_Sap,false,false,false) then return end
+					end
 	-- Pick Pocket
-				if not isInCombat("player") and canPP() and not isPicked() 
-					and (stealthTimer == nil or stealthTimer <= GetTime()-getValue("Stealth Timer")) 
-					and UnitBuffID("player",_Stealth) and level>=15 and tarDist < 8 
-				then
-					if castSpell("target",_PickPocket,true) then
-						stealthTimer=GetTime();
-					   	return
+					if canPP() and not isPicked() and tarDist < 8 
+						and (stealthTimer == nil or stealthTimer <= GetTime()-getValue("Stealth Timer"))  
+					then
+						if castSpell("target",_PickPocket,true,false,false) then
+							stealthTimer=GetTime();
+						   	return
+						end
 					end
-				end
+					if not noattack() and (isPicked() or level<15) then
 	-- Ambush
-				if not isInCombat("player") and not noattack() and (isPicked() or level<15) and UnitBuffID("player",_Stealth) and combo<5 and power>60 then
-					if castSpell("target",_Ambush,false,false,false) then return end
-				end
+						if combo<5 and power>60 then
+							if castSpell("target",_Ambush,false,false,false) then return end
+						end
 	-- 5 Combo Opener
-				if not isInCombat("player") and (isPicked() or level<15) and UnitBuffID("player",_Stealth) and not noattack() and combo == 5 then
-					if power>25 and sndRemain<5 then
-						if castSpell("player",_SliceAndDice,true,false,false) then return end
-					end
-					if power>25 and rupRemain<3 then
-						if castSpell("target",_Rupture,false,false,false) then return end
-					end
-					if power>35 and envRemain<2 then
-						if castSpell("target",_Envenom,false,false,false) then return end
-					end
-				end
+						if combo == 5 then
+							if power>25 and sndRemain<5 then
+								if castSpell("player",_SliceAndDice,true,false,false) then return end
+							end
+							if power>25 and rupRemain<3 then
+								if castSpell("target",_Rupture,false,false,false) then return end
+							end
+							if power>35 and envRemain<2 then
+								if castSpell("target",_Envenom,false,false,false) then return end
+							end
+						end
 	-- Mutilate
-				if not isInCombat("player") and (isPicked() or level<15) and not noattack() and combo < 5 and power>55 then
-					if castSpell("target",_Mutilate,false,false,false) then return end
+						if combo < 5 and power>55 then
+							if castSpell("target",_Mutilate,false,false,false) then return end
+						end
+					end
 				end
 			end
 -----------------
 --- In Combat ---
 -----------------
-			if isInCombat("player") then
+			if isInCombat("player") and UnitExists("target") then
 	------------------------------
 	--- In Combat - Dummy Test ---
 	------------------------------
 		-- Dummy Test
 				if isChecked("DPS Testing") then
 					if UnitExists("target") then
-						if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
+						if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
 							StopAttack()
 							ClearTarget()
-							print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+							ChatOverlay(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+							profileStop = true
 						end
 					end
 				end
@@ -204,12 +215,12 @@ if select(3, UnitClass("player")) == 4 then
 				if useInterrupts() and not stealth then
 	-- Kick
 					if level>=18 then
-						if castInterrupt(_Kick,getValue("Interrupts")) then return end
+						if castInterrupt(_Kick,getValue("Interrupt At")) then return end
 					end
 	-- Gouge
-					if castInterrupt(_Gouge,getValue("Interrupts")) then return end
+					if castInterrupt(_Gouge,getValue("Interrupt At")) then return end
 	-- Blind
-					if castInterrupt(_Blind,getValue("Interrupts")) then return end
+					if castInterrupt(_Blind,getValue("Interrupt At")) then return end
 			    end
 	-----------------------------
 	--- In Combat - Cooldowns ---
@@ -316,7 +327,7 @@ if select(3, UnitClass("player")) == 4 then
 				end
 			end --In Combat End
 	-- Start Attack
-			if tarDist<5 and not stealth then
+			if tarDist<5 and not stealth and isInCombat("player") and UnitExists("target") and profileStop==false then
 				StartAttack()
 			end
 		end -- Pause End

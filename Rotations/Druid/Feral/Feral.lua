@@ -43,7 +43,7 @@ if select(3, UnitClass("player")) == 11 then
 			local thisUnit = thisUnit
 				if thisUnit == nil then thisUnit = "target" end
 			local tarDist = tarDist
-				if tarDist == nil then tarDist = getDistance("target","player") end
+				if tarDist == nil then tarDist = getDistance("player","target") end
 			local friendly = friendly
 				if friendly == nil then friendly = UnitIsFriend("target", "player") end
 			local thp = thp
@@ -209,7 +209,7 @@ if select(3, UnitClass("player")) == 11 then
 	------------------
 	--- Defensives ---
 	------------------
-				if useDefensive() and not stealth then
+				if useDefensive() and not stealth and not flight then
 	-- Rejuvenation
 		            if isChecked("Rejuvenation") and php <= getOptionValue("Rejuvenation") then
 		                if not stealth and rejRemain==0 and ((not isInCombat("player")) or isKnown(erej)) then
@@ -223,7 +223,7 @@ if select(3, UnitClass("player")) == 11 then
 		                end
 					end
 	-- Pot/Stoned
-		            if isChecked("Pot/Stoned") and getHP("player") <= getOptionValue("Pot/Stoned") 
+		            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
 		            	and isInCombat("player") and hasHealthPot() 
 		            then
 	                    if canUse(5512) then
@@ -232,6 +232,10 @@ if select(3, UnitClass("player")) == 11 then
 	                        UseItemByName(tostring(select(1,GetItemInfo(healPot))))
 	                    end
 		            end
+	-- Engineering: Shield-o-tronic
+					if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic") and isInCombat("player") and canUse(118006) then
+						UseItemByName(tostring(select(1,GetItemInfo(118006))))
+					end
 	-- Tier 6 Talent: Nature's Vigil
 		            if isChecked("Nature's Vigil") and php <= getOptionValue("Nature's Vigil") then
 		                if castSpell("player",nv,true,false,false) then return end
@@ -336,7 +340,7 @@ if select(3, UnitClass("player")) == 11 then
 			                if castSpell("player",rber,true,false,false) then return end
 			            end
 			-- Tier 4 Talent: Incarnation - King of the Jungle
-			            if berCooldown<10 and ttm>1 then
+			            if berCooldown<10 and ttm>1 and tarDist<5 then
 			                if castSpell("player",inc,true,false,false) then return end
 			            end
 			-- Berserk
@@ -368,7 +372,7 @@ if select(3, UnitClass("player")) == 11 then
 					if stealth then
 						StopAttack()
 					end
-					if not stealth and isInCombat("player") then
+					if not stealth and isInCombat("player") and BadBoy_data['AoE'] ~= 4 then
 			-- Tiger's Fury
 						if ((not clearcast and powmax-power>=60) or powmax-power>=80) and UnitExists(dynamicTarget(5,true)) then
 							if canTrinket(13) and useCDs() then

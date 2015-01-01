@@ -157,7 +157,7 @@ Rotations\Priest\Holy.lua
 Rotations\Priest\Shadow.lua
 
 ## Rogue ---------------------------------------------------
-Rotations\Rogue\Assassination.lua
+Rotations\Rogue\Assassination\Assassination.lua
 Rotations\Rogue\Assassination\Functions.lua
 Rotations\Rogue\Assassination\Options.lua
 Rotations\Rogue\Assassination\SpellList.lua

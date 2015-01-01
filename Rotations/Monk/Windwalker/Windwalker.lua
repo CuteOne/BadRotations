@@ -20,7 +20,7 @@ if select(3, UnitClass("player")) == 10 then
 --- Locals ---
 --------------
 		if tebCast == nil then tebCast = 0; end
-		local tarDist = getDistance("target","player")
+		local tarDist = getDistance("player","target")
 		local thisUnit = dynamicTarget(5,true)
 		local php = getHP("player")
 		local power = getPower("player")
