@@ -37,7 +37,7 @@ function PokeEngine()
 
 					for i = 1, ObjectCount() do
 						local thisPet = ObjectWithIndex(i)
-		 				if UnitExists(thisPet) and UnitIsVisible(thisPet) and 
+		 				if ObjectExists(thisPet) and UnitIsVisible(thisPet) and
 		 				  getDistance("player",thisPet) < getValue("Auto Clicker Range") then
 
 							for j = 1, #MopList do
@@ -164,7 +164,7 @@ function PokeEngine()
 		--[[                                       Normal Rotation                                             ]]
 
 		if inBattle and BadBoy_data["Check PokeRotation"] == 1 then
-			
+
 			Switch();
 			SimpleHealing();
 			CapturePet();

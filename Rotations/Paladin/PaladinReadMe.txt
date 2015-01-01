@@ -4,17 +4,14 @@ All paladin stuff in Rotation/Paladin folder. This folder includes:
 - Holy Folder
 -- Functions.lua -- Functions specific to Holy
 -- Options.lua -- Options for Holy
--- Spell List.lua -- Spells functions specific to Holy
 
 - Protection folder
--- Functions.lua -- Functions specific to Protection
+-- Functions.lua -- Functions and spells specific to Protection
 -- Options.lua -- Options for Protection
--- Spell List.lua -- Spells functions specific to Protection
 
 - Retribution folder
--- Functions.lua -- Functions specific to Retribution
+-- Functions.lua -- Functions and spells specific to Retribution
 -- Options.lua -- Options for Retribution
--- Spell List.lua -- Spells functions specific to Retribution
 
 Functions.lua -- General paladin functions -- ie: holy power calculation(include divine purp & holy avenger)
 Options.lua -- General paladin options -- ie: we should place there the hands, wog, loh etc

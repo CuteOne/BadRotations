@@ -199,14 +199,6 @@ if select(3,UnitClass("player")) == 2 then
 		return false
 	end
 
-	function castHandOfSacrifice()
-	-- Todo: We should add glyph check or health check, at the moment we assume the glyph
-	-- Todo:  We should be able to config who to use as candidate, other tank, healer, based on debuffs etc.
-	-- Todo: add check if target already have sacrifice buff
-	-- Todo Is the talent handle correctly? 2 charges? CD starts but u have 2 charges
-	-- This is returning false since its not proper designed yet. We need to have a list of scenarios when we should cast sacrifice, off tanking, dangerous debuffs/dots or high spike damage on someone.
-		return false
-	end
 
 	function castHandOfSalvation(unit)
 		-- This is not coded properly yet, we need a threat list to see how has threat, then we need to make sure to handle tank switching etc.

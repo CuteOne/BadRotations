@@ -239,7 +239,7 @@ end
 -- /dump UnitGUID("target")
 -- /dump getEnemies("target",10)
 function getEnemies(unit,Radius)
-	if UnitExists(unit) and UnitIsVisible(unit) then
+	if ObjectExists(unit) and UnitIsVisible(unit) then
 		local getEnemiesTable = { }
 	 	for i = 1, #enemiesTable do
 	 		thisUnit = enemiesTable[i].unit
@@ -255,7 +255,7 @@ end
 
 -- returns true if Unit is a valid enemy
 function getSanity(unit)
-	if UnitExists(unit) and bit.band(ObjectType(unit), ObjectTypes.Unit) == 8
+	if ObjectExists(unit) and bit.band(ObjectType(unit), ObjectTypes.Unit) == 8
 	  and UnitIsVisible(unit) == true and getCreatureType(unit) == true
 	  and UnitCanAttack(unit, "player") == true and UnitIsDeadOrGhost(unit) == false
 	  and (UnitAffectingCombat(unit) or isDummy(unit)) then

@@ -511,7 +511,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 	if CastSkip == nil then
 		CastSkip = false
 	end
-	if betterStopCasting(SpellID) ~= true and (not UnitIsDeadOrGhost(Unit) or DeadCheck) then
+	if ObjectExists(Unit) and betterStopCasting(SpellID) ~= true and (not UnitIsDeadOrGhost(Unit) or DeadCheck) then
 		-- stop if not enough power for that spell
 		if IsUsableSpell(SpellID) ~= true then
 			return false
@@ -525,7 +525,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 		-- gather our spell range information
 		local spellRange = select(6,GetSpellInfo(SpellID))
 		if DistanceSkip == nil then DistanceSkip = false end
-	  	if spellRange == nil or (spellRange < 5 and DistanceSkip==false) then spellRange = 5 end
+	  	if spellRange == nil or (spellRange < 4 and DistanceSkip==false) then spellRange = 4 end
 	  	if DistanceSkip == true then spellRange = 40 end
 		-- Check unit,if it's player then we can skip facing
 		if (Unit == nil or UnitIsUnit("player",Unit)) or -- Player
@@ -534,7 +534,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 		if MovementCheck == false or isMoving("player") ~= true or UnitBuffID("player",79206) ~= nil then
 			-- if ability is ready and in range
 			if (getOptionCheck("Allow Failcasts") or getSpellCD(SpellID) == 0) and (getOptionCheck("Skip Distance Check") or getDistance("player",Unit) <= spellRange or DistanceSkip == true) then
-				-- if spam is not allowed
+                -- if spam is not allowed
 	    		if SpamAllowed == false then
 	    			-- get our last/current cast
 	      			if timersTable == nil or (timersTable ~= nil and (timersTable[SpellID] == nil or timersTable[SpellID] <= GetTime() -0.6)) then
@@ -733,23 +733,19 @@ end
 function getDistance(Unit1,Unit2)
 	-- If both units are visible
 	if UnitIsVisible(Unit1) == true and (Unit2 == nil or UnitIsVisible(Unit2) == true) then
-		-- If Unit2 is nil we compare to Unit1
+		-- If Unit2 is nil we compare player to Unit1
 		if Unit2 == nil then
-			if UnitCanAttack(Unit1,"player") == true and Unit2 == "player" then
-				return rc:GetRange(Unit1) or 1000
-			else
-				local X1,Y1 = ObjectPosition(Unit1)
-				local X2,Y2 = ObjectPosition("player")
-				return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2))
-			end
+            Unit2 = Unit1
+            Unit1 = "player"
+        end
+        -- if unit1 is player, we can use our lib to get precise range
+		if Unit1 == "player" and (isDummy(Unit2) or UnitCanAttack(Unit2,"player") == true) then
+			return rc:GetRange(Unit2) or 1000
+        -- else, we use FH positions
 		else
-			if UnitCanAttack(Unit2,"player") == true and Unit1 == "player" then
-				return rc:GetRange(Unit2) or 1000
-			else
-				local X1,Y1 = ObjectPosition(Unit1)
-				local X2,Y2 = ObjectPosition(Unit2)
-				return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2))
-			end
+            local X1,Y1 = ObjectPosition(Unit1)
+			local X2,Y2 = ObjectPosition(Unit2)
+            return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2))
 		end
 	else
 		return 1000
@@ -985,7 +981,7 @@ end
 function getNumEnemies(Unit,Radius)
   	local Units = 0
  	for i=1,ObjectCount() do
-		if UnitExists(ObjectWithIndex(i)) == true and bit.band(ObjectType(ObjectWithIndex(i)),ObjectTypes.Unit) == 8 then
+		if ObjectExists(ObjectWithIndex(i)) == true and bit.band(ObjectType(ObjectWithIndex(i)),ObjectTypes.Unit) == 8 then
 	  		local thisUnit = ObjectWithIndex(i)
 	  		if getCreatureType(thisUnit) == true then
 	  			if UnitIsVisible(thisUnit) and UnitCanAttack("player",thisUnit) and not UnitIsDeadOrGhost(thisUnit) then

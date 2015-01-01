@@ -71,7 +71,7 @@ ClassLibs\Warrior\Functions.lua
 ClassLibs\Warrior\SpellList.lua
 ClassLibs\Warrior\Toggles.lua
 
-## Rotations
+## DeathKnight ---------------------------------------------------
 Rotations\Deathknight\Blood\Blood.lua
 Rotations\Deathknight\Blood\Libs\Functions.lua
 Rotations\Deathknight\Blood\Libs\Options.lua
@@ -88,7 +88,7 @@ Rotations\Deathknight\Unholy\Libs\Options.lua
 Rotations\Deathknight\Unholy\Libs\SpellList.lua
 Rotations\Deathknight\Unholy\Libs\Toggles.lua
 
-
+## Hunter ---------------------------------------------------
 Rotations\Hunter\Beastmaster\Beastmaster.lua
 Rotations\Hunter\Beastmaster\Options.lua
 Rotations\Hunter\Beastmaster\Functions.lua
@@ -104,26 +104,27 @@ Rotations\Hunter\Survival\Toggles.lua
 Rotations\Hunter\SpellList.lua
 Rotations\Hunter\Functions.lua
 
-
+## Paladin ---------------------------------------------------
 Rotations\Paladin\Holy\Holy.lua
-Rotations\Paladin\Holy\Functions.lua
-Rotations\Paladin\Holy\Options.lua
-Rotations\Paladin\Holy\SpellList.lua
-Rotations\Paladin\Holy\Toggles.lua
+Rotations\Paladin\Holy\Libs\Functions.lua
+Rotations\Paladin\Holy\Libs\Options.lua
+Rotations\Paladin\Holy\Libs\SpellList.lua
+Rotations\Paladin\Holy\Libs\Toggles.lua
+
 Rotations\Paladin\Protection\Protection.lua
-Rotations\Paladin\Protection\Functions.lua
-Rotations\Paladin\Protection\Options.lua
-Rotations\Paladin\Protection\SpellList.lua
-Rotations\Paladin\Protection\Toggles.lua
+Rotations\Paladin\Protection\Libs\Functions.lua
+Rotations\Paladin\Protection\Libs\Options.lua
+Rotations\Paladin\Protection\Libs\Toggles.lua
+
 Rotations\Paladin\Retribution\Retribution.lua
-Rotations\Paladin\Retribution\Functions.lua
-Rotations\Paladin\Retribution\Options.lua
-Rotations\Paladin\Retribution\SpellList.lua
-Rotations\Paladin\Retribution\Toggles.lua
+Rotations\Paladin\Retribution\Libs\Functions.lua
+Rotations\Paladin\Retribution\Libs\Options.lua
+Rotations\Paladin\Retribution\Libs\Toggles.lua
+
 Rotations\Paladin\SpellList.lua
 Rotations\Paladin\Functions.lua
 Rotations\Paladin\Options.lua
-
+## Druid ---------------------------------------------------
 Rotations\Druid\Feral\Feral.lua
 Rotations\Druid\Feral\Options.lua
 Rotations\Druid\Feral\Functions.lua
@@ -134,9 +135,12 @@ Rotations\Druid\Feral\Toggles.lua
 Rotations\Druid\Guardian.lua
 Rotations\Druid\Moonkin.lua
 Rotations\Druid\Restoration.lua
+## Mage ---------------------------------------------------
 Rotations\Mage\Arcane.lua
 Rotations\Mage\Fire.lua
 Rotations\Mage\Frost.lua
+
+## Monk ---------------------------------------------------
 Rotations\Monk\Brewmaster.lua
 Rotations\Monk\Mistweaver.lua
 Rotations\Monk\NewMonk.lua
@@ -147,10 +151,12 @@ Rotations\Monk\Windwalker\Functions.lua
 Rotations\Monk\Windwalker\SpellList.lua
 Rotations\Monk\Windwalker\Toggles.lua
 
+## Priest ---------------------------------------------------
 Rotations\Priest\Discipline.lua
 Rotations\Priest\Holy.lua
 Rotations\Priest\Shadow.lua
 
+## Rogue ---------------------------------------------------
 Rotations\Rogue\Assassination.lua
 Rotations\Rogue\Assassination\Functions.lua
 Rotations\Rogue\Assassination\Options.lua
@@ -166,7 +172,7 @@ Rotations\Rogue\Combat\Toggles.lua
 Rotations\Rogue\Subtlety.lua
 Rotations\Rogue\NewRogue.lua
 
-## Shaman
+## Shaman  ---------------------------------------------------
 Rotations\Shaman\SpellList.lua
 
 Rotations\Shaman\Enhancement\Enhancement.lua
@@ -186,11 +192,12 @@ Rotations\Shaman\Restoration\Libs\Options.lua
 Rotations\Shaman\Restoration\Libs\Toggles.lua
 
 
-
+## Warrior ---------------------------------------------------
 Rotations\Warrior\Arms.lua
 Rotations\Warrior\Fury.lua
 Rotations\Warrior\Protection.lua
 
+## Warlock ---------------------------------------------------
 Rotations\Warlock\Affliction.lua
 Rotations\Warlock\Demonology.lua
 Rotations\Warlock\Destruction.lua

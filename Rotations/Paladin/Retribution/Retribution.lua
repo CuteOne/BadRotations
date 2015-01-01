@@ -3,7 +3,7 @@ if select(3, UnitClass("player")) == 2 then
 	if currentConfig ~= "Retribution Paladin" then --Where is currentConfig set? Is this only used for init?
 		PaladinRetToggles() -- Setting up Toggles, AoE, Interrupt, Defensive CD, CD, Healing
 		PaladinRetOptions() -- Reading Config values from gui?
-		 PaladinRetFunctions()
+		PaladinRetFunctions()
 		core:ooc()
 		core:update()
 		currentConfig = "Retribution Paladin"
@@ -317,7 +317,7 @@ if select(3, UnitClass("player")) == 2 then
 				end
 			end
 			-- hammer_of_wrath
-			castHammerOfWrathRet(core.units.dyn30,buff.avengingWrath)
+			core:castHammerOfWrath()
 			-- judgment,if=talent.empowered_seals.enabled&seal.righteousness&buff.liadrins_righteousness.remains<=5
 			if talent.empoweredSeals then
 				if core.seal == false and buff.liadrinsRighteousness <= 5 then

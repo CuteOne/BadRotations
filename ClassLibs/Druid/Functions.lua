@@ -54,7 +54,7 @@ function findShroom()
     if shroomsTable[1].x == nil then
         local myShroom = shroomsTable[1].guid
         for i = 1, ObjectCount() do
-            if UnitExists(ObjectWithIndex(i)) == true then
+            if ObjectExists(ObjectWithIndex(i)) == true then
                 --print(UnitGUID(ObjectWithIndex(i)))
                 if shroomsTable[1].guid == UnitGUID(ObjectWithIndex(i)) then
                     X, Y, Z = ObjectPosition(ObjectWithIndex(i))
