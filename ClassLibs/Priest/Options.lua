@@ -29,7 +29,7 @@ if select(3, UnitClass("player")) == 5 then
 			ClearConfig();
 			thisConfig = 0;
 			-- Title
-			CreateNewTitle(thisConfig,"shadow ravens   |cffBA55D3by ragnar");
+			CreateNewTitle(thisConfig,"shadow ravens |cffBA55D3by ragnar");
 
 
 			-- Wrapper -----------------------------------------

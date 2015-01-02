@@ -75,6 +75,22 @@ if select(3, UnitClass("player")) == 5 then
 		-- return counter
 		return counter
 	end
+
+	function doNotDot(Unit)
+		local Blacklist = {
+			"Volatile Anomaly",
+			"Rarnok",
+		}
+		if Unit == nil then return true end
+		for i = 1, #Blacklist do
+			if UnitName(Unit) == Blacklist[i] then
+				return false
+			end
+		end
+		return true
+	end
+	
+	
 	--[[                    ]] -- General Functions end
 
 
@@ -186,7 +202,7 @@ if select(3, UnitClass("player")) == 5 then
 			if castSpell("target",SWD,true,false) then return; end
 
 			-- MF Filler
-			if select(1,UnitChannelInfo("player")) == nil then
+			if select(1,UnitChannelInfo("player")) == nil and options.player.ORBS<3 then
 				if castSpell("target",MF,false,true) then return; end
 			end
 		end
@@ -223,7 +239,7 @@ if select(3, UnitClass("player")) == 5 then
 							local thisUnit = enemiesTable[i].unit
 							local thisHP = enemiesTable[i].hp
 							--if isBoss(thisUnit) then
-								if not UnitIsUnit("target",thisUnit) then
+								if (not UnitIsUnit("target",thisUnit)) and doNotDot(thisUnit) then
 									local swpRem = getDebuffRemain(thisUnit,SWP,"player")
 									if swpRem<options.values.RefreshTime then
 										if castSpell(thisUnit,SWP,true,false) then return; end
@@ -241,7 +257,7 @@ if select(3, UnitClass("player")) == 5 then
 							local thisUnit = enemiesTable[i].unit
 							local thisHP = enemiesTable[i].hp
 							--if isBoss(thisUnit) then
-								if not UnitIsUnit("target",thisUnit) then
+								if (not UnitIsUnit("target",thisUnit)) and doNotDot(thisUnit) then
 									local vtRem = getDebuffRemain(thisUnit,VT,"player")
 									if vtRem<options.values.RefreshTime then
 										if castSpell(thisUnit,VT,true,false) then
@@ -381,9 +397,10 @@ if select(3, UnitClass("player")) == 5 then
 					end
 				end
 
-				if #getEnemies("target",10)<options.values.MindSear or #getEnemies("target",10)>10 then
-					-- Mind Spike									
-					if options.player.ORBS<5 and (getDebuffRemain("target",SWP,"player")<2*options.player.GCD or options.player.ORBS<2) then
+				--if #getEnemies("target",10)<options.values.MindSear or #getEnemies("target",10)>10 then
+					-- Mind Spike
+					--if options.player.ORBS<5 and (getDebuffRemain("target",SWP,"player")<2*options.player.GCD or options.player.ORBS<2) then
+					if options.player.ORBS<5 then
 						if getBuffRemain("player",InsanityBuff)<=0 then
 							if castSpell("target",MSp,false,true) then return; end
 						end
@@ -395,7 +412,7 @@ if select(3, UnitClass("player")) == 5 then
 							if castSpell("target",SWDG,true,false) then return; end
 						end
 					end
-				end
+				--end
 			end
 	end
 	--[[                    ]] -- IcySingle DotWeave end
