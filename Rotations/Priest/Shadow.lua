@@ -133,7 +133,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- Mounted Check (except nagrand outpost mounts)
-		if IsMounted("player") and not (UnitBuffID("player",164222) or UnitBuffID("player",165803) then
+		if IsMounted("player") and not (UnitBuffID("player",164222) or UnitBuffID("player",165803)) then
 			return false;
 		end
 
