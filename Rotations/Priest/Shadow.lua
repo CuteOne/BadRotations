@@ -132,8 +132,9 @@ if select(3, UnitClass("player")) == 5 then
 		if canRun() ~= true then return false;
 		end
 
-		-- Mounted Check
-		if IsMounted("player") then return false;
+		-- Mounted Check (except nagrand outpost mounts)
+		if IsMounted("player") and not (UnitBuffID("player",164222) or UnitBuffID("player",165803)) then
+			return false;
 		end
 
 		-- Do not Interrupt "player" while GCD (61304)
