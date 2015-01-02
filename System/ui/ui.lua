@@ -666,7 +666,7 @@ function ConstructUI()
         createOptions("Enemies Engine")
         createOptions("Healing Engine")
         createOptions("Other Features")
-        radioGeneral("options",selectedOption)
+        _G["options"..BadBoy_data.options.selected.."Button"]:Click()
 
         if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()]["optionsFrame"] ~= true then
             optionsFrame:Hide()
