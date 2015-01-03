@@ -7,7 +7,7 @@
 function createRow(parent,value,textString)
     local scale = BadBoy_data.BadBoyUI[parent.."Frame"].scale or 1
     _G[parent..value.."Frame"] = CreateFrame("Frame", "DebugRow", _G[parent.."Frame"])
-    _G[parent..value.."Frame"]:SetWidth((BadBoy_data.BadBoyUI[parent.."Frame"].width-25)*scale)
+    _G[parent..value.."Frame"]:SetWidth(290*scale)
     _G[parent..value.."Frame"]:SetHeight(24*scale)
     _G[parent..value.."Frame"]:SetPoint("TOPLEFT",5*scale,-(value*24)*scale)
     _G[parent..value.."Frame"]:SetAlpha(BadBoy_data.BadBoyUI.alpha)
@@ -20,7 +20,7 @@ function createRow(parent,value,textString)
         end
     end)
     _G[parent..value.."Text"] = _G[parent..value.."Frame"]:CreateFontString(_G[parent..value.."Frame"],"ARTWORK")
-    _G[parent..value.."Text"]:SetWidth((BadBoy_data.BadBoyUI[parent.."Frame"].width)*scale)
+    _G[parent..value.."Text"]:SetWidth(290*scale)
     _G[parent..value.."Text"]:SetHeight(24*scale)
     _G[parent..value.."Text"]:SetPoint("TOPLEFT",0,0)
     _G[parent..value.."Text"]:SetAlpha(BadBoy_data.BadBoyUI.alpha)

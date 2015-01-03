@@ -53,6 +53,7 @@ end
 -- burnUnitCandidates = List of UnitID/Names we should have highest prio on.
 -- could declare more filters
 burnUnitCandidates = {
+    -- old content stuff
     [71603] = { coef = 100, name = "Immersus Oozes" }, -- kill on sight
     -- Shadowmoon Burial Grounds
     [75966] = { coef = 100, name = "Defiled Spirit" }, -- need to be cc and snared and is not allowed to reach boss.
@@ -65,12 +66,17 @@ burnUnitCandidates = {
     -- UBRS
     [76222] = { coef = 100 },
     [163061] = { coef = 100 }, -- Windfury Totem
-    -- Proven Ground
+    -- Proving Grounds
     [71070] = { coef = 150, name = "Illusion Banshee" }, -- proving ground (will explode if not burned)
     [71075] = { coef = 150, name = "Illusion Banshee" }, -- proving ground (will explode if not burned)
-    [71072] = { coef = -20, buff = 142427 }, -- Proving ground Sha shielded (will unshield later so better wait)
-    [71072] = { coef = -20, buff = 142427 }, -- Proving ground Sha shielded (will unshield later so better wait)
     [71076] = { coef = 25 }, -- Proving ground healer
+}
+
+-- shielding and levels, we should add coef as shield %
+shieldedUnitCandidates = {
+    -- Proving Grounds
+    [71072] = { coef = -90, buff = 142427 }, -- Proving ground Sha shielded (will unshield later so better wait)
+    [71064] = { coef = -100, buff = 142174, frontal = true }, -- when shielded and we are in front of unit, dont attack
 }
 
 --  low prio
@@ -79,8 +85,8 @@ burnUnitCandidates = {
 -- can declare more filters: buff, debuff
 doNotTouchUnitCandidates = {
     -- Iron Docks
-    { unitID = 87451,   buff = 164504, spell = 164426 }, --Fleshrender Nok'gar, do not attack during defensive stance buff, Todo: Should stop when he cast 164504
-    { unitID = 1,       buff = 163689 }, -- Never attack Sanguine Sphere
+    { unitID = 87451, buff = 164504, spell = 164426 }, --Fleshrender Nok'gar, do not attack during defensive stance buff, Todo: Should stop when he cast 164504
+    { unitID = 1, buff = 163689 } -- Never attack Sanguine Sphere
 }
 
 -- list of units to stun, either always or udner certain condition such as having a buff or wirldwinding etc

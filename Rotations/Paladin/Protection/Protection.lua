@@ -25,7 +25,6 @@ if select(3, UnitClass("player")) == 2 then
 			return false
 		end
 
-
 		-- localising protCore functions stuff
 		-- local with short names
 		local buff,cd,mode,talent,glyph = core.buff,core.cd,core.mode,core.talent,core.glyph
@@ -36,6 +35,9 @@ if select(3, UnitClass("player")) == 2 then
 			core:ooc()
 		end
 
+		-- Buffs logic
+		core:castBuffs()
+
 		-- Only start if we and target is in combat or not in combat and pressing left control
 		if UnitAffectingCombat("player")  or (not UnitAffectingCombat("player") and IsLeftControlKeyDown() ) then
 
@@ -43,8 +45,6 @@ if select(3, UnitClass("player")) == 2 then
 			if startAttackTimer == nil or startAttackTimer <= GetTime() - 1 then
 				RunMacroText("/startattack")
 			end
-			core:castRighteousFury()
-			castBlessing()
 			-- actions+=/speed_of_light,if=movement.remains>1
 			-- actions+=/blood_fury
 			-- actions+=/berserking
@@ -61,6 +61,13 @@ if select(3, UnitClass("player")) == 2 then
 					return
 				end
 			end
+
+			core:survival()
+
+			if core:castInterrupts() then
+				return
+			end
+
 			-- we use defensive moves regardless of rotation
 			-- actions+=/divine_protection,if=time<5|!talent.seraphim.enabled|(buff.seraphim.down&cooldown.seraphim.remains>5&cooldown.seraphim.remains<9)
 			if core.combatLenght < 5 or not talent.seraphim or (buff.seraphim == 0 and cd.seraphim > 5 and cd.seraphim < 9) then
@@ -127,13 +134,13 @@ if select(3, UnitClass("player")) == 2 then
 				end
 				-- actions+=/shield_of_the_righteous,if=buff.divine_purpose.react
 				if buff.divinePurpose > 0 then
-					core:castShieldOfTheRighteous()
+					core:holyPowerConsumers()
 				end
 				-- actions+=/shield_of_the_righteous,if=(holy_power>=5|incoming_damage_1500ms>=health.max*0.3)&(!talent.seraphim.enabled|cooldown.seraphim.remains>5)
 				-- actions+=/shield_of_the_righteous,if=buff.holy_avenger.remains>time_to_hpg&(!talent.seraphim.enabled|cooldown.seraphim.remains>time_to_hpg)
 				if (holypower == 5 or (holypower >= 3 and buff.holyAvenger > core.globalCooldown))
-				  and (not talent.seraphim or cd.seraphim > 5) then
-					core:castShieldOfTheRighteous()
+				  and (not talent.seraphim or cd.seraphim > 5) or (holypower >= 3 and core.buff.bastionOfGlory > 0 and core.buff.bastionOfGlory < 3) then
+					core:holyPowerConsumers()
 				end
 
 				-- # GCD-bound spells start here
@@ -317,13 +324,13 @@ if select(3, UnitClass("player")) == 2 then
 				end
 				-- actions.max_dps+=/shield_of_the_righteous,if=buff.divine_purpose.react
 				if buff.divinePurpose > 0 then
-					core:castShieldOfTheRighteous()
+					core:holyPowerConsumers()
 				end
 				-- actions.max_dps+=/shield_of_the_righteous,if=(holy_power>=5|talent.holy_avenger.enabled)&(!talent.seraphim.enabled|cooldown.seraphim.remains>5)
 				-- actions.max_dps+=/shield_of_the_righteous,if=buff.holy_avenger.remains>time_to_hpg&(!talent.seraphim.enabled|cooldown.seraphim.remains>time_to_hpg)
 				if (holypower == 5 or (holypower >= 3 and buff.holyAvenger > core.globalCooldown))
-				  and (not talent.seraphim or cd.seraphim > 5) then
-					core:castShieldOfTheRighteous()
+				  and (not talent.seraphim or cd.seraphim > 5) or (holypower >= 3 and core.buff.bastionOfGlory > 0 and core.buff.bastionOfGlory < 3) then
+					core:holyPowerConsumers()
 				end
 				-- # #GCD-bound spells start here.
 				-- actions.max_dps+=/avengers_shield,if=buff.grand_crusader.react&active_enemies>1&!glyph.focused_shield.enabled
@@ -492,13 +499,13 @@ if select(3, UnitClass("player")) == 2 then
 
 				-- actions.max_survival+=/shield_of_the_righteous,if=buff.divine_purpose.react
 				if buff.divinePurpose > 0 then
-					core:castShieldOfTheRighteous()
+					core:holyPowerConsumers()
 				end
 				-- actions.max_survival+=/shield_of_the_righteous,if=(holy_power>=5|incoming_damage_1500ms>=health.max*0.3)&(!talent.seraphim.enabled|cooldown.seraphim.remains>5)
 				-- actions.max_survival+=/shield_of_the_righteous,if=buff.holy_avenger.remains>time_to_hpg&(!talent.seraphim.enabled|cooldown.seraphim.remains>time_to_hpg)
 				if (holypower == 5 or (holypower >= 3 and buff.holyAvenger > core.globalCooldown))
-				  and (not talent.seraphim or cd.seraphim > 5) then
-					core:castShieldOfTheRighteous()
+				  and (not talent.seraphim or cd.seraphim > 5) or (holypower >= 3 and core.buff.bastionOfGlory > 0 and core.buff.bastionOfGlory < 3) then
+					core:holyPowerConsumers()
 				end
 
 				-- # #GCD-bound spells start here.

@@ -507,13 +507,15 @@ end
 
 -- castSpell("target",12345,true)
 --                ( 1  ,    2  ,     3     ,     4       ,      5    ,   6     ,   7     ,    8       ,   9    )
-function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,DeadCheck,DistanceSkip,CastSkip)
-	if CastSkip == nil then
-		CastSkip = false
-	end
-	if ObjectExists(Unit) and betterStopCasting(SpellID) ~= true and (not UnitIsDeadOrGhost(Unit) or DeadCheck) then
-		-- stop if not enough power for that spell
-		if IsUsableSpell(SpellID) ~= true then
+function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,DeadCheck,DistanceSkip,usableSkip)
+	if ObjectExists(Unit) and betterStopCasting(SpellID) ~= true
+      and (not UnitIsDeadOrGhost(Unit) or DeadCheck) then
+		-- we create an usableSkip for some specific spells like hammer of wrath aoe mode
+        if usableSkip == nil then
+            usableSkip = false
+        end
+        -- stop if not enough power for that spell
+		if usableSkip ~= true and IsUsableSpell(SpellID) ~= true then
 			return false
 		end
 		-- Table used to prevent refiring too quick
@@ -529,7 +531,11 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 	  	if DistanceSkip == true then spellRange = 40 end
 		-- Check unit,if it's player then we can skip facing
 		if (Unit == nil or UnitIsUnit("player",Unit)) or -- Player
-			(Unit ~= nil and UnitIsFriend("player",Unit)) then FacingCheck = true end -- Ally
+			(Unit ~= nil and UnitIsFriend("player",Unit)) then  -- Ally
+            FacingCheck = true
+        elseif isSafeToAttack(Unit) ~= true then -- enemy
+            return false
+        end
 		-- if MovementCheck is nil or false then we dont check it
 		if MovementCheck == false or isMoving("player") ~= true or UnitBuffID("player",79206) ~= nil then
 			-- if ability is ready and in range
@@ -539,22 +545,21 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 	    			-- get our last/current cast
 	      			if timersTable == nil or (timersTable ~= nil and (timersTable[SpellID] == nil or timersTable[SpellID] <= GetTime() -0.6)) then
 	       				if (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true) then
-	        				if CastSkip==false then
-	        					timersTable[SpellID] = GetTime()
-	        					currentTarget = UnitGUID(Unit)
-	        					CastSpellByName(GetSpellInfo(SpellID),Unit)
-								if getOptionCheck("Start/Stop BadBoy") then mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID))) end
-							end
+	        				timersTable[SpellID] = GetTime()
+	        				currentTarget = UnitGUID(Unit)
+	        				CastSpellByName(GetSpellInfo(SpellID),Unit)
+                            -- change main button icon
+							if getOptionCheck("Start/Stop BadBoy") then
+                                mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
+                            end
 	        				return true
 	        			end
 					end
 				elseif (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true) then
-	  		   		if CastSkip==false then
-		  		   		currentTarget = UnitGUID(Unit)
-						CastSpellByName(GetSpellInfo(SpellID),Unit)
-						if getOptionCheck("Start/Stop BadBoy") then
-							mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
-						end
+	  		   		currentTarget = UnitGUID(Unit)
+					CastSpellByName(GetSpellInfo(SpellID),Unit)
+					if getOptionCheck("Start/Stop BadBoy") then
+						mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
 					end
 					return true
 				end

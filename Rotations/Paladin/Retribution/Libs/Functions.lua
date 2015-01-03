@@ -189,23 +189,23 @@ if select(3,UnitClass("player")) == 2 then
 
             -- Hammer of Wrath
             function retCore:castHammerOfWrath()
-                if canCast(self.spell.hammerOfWrath) then
+                --if canCast(self.spell.hammerOfWrath) then
                     if self.buff.avengingWrath > 0 then
-                        return castSpell(self.units.dyn30,self.spell.hammerOfWrath,false,false) == true or false
+                        return castSpell(self.units.dyn30,24275,false,false) == true or false
                     else
-                        local hpHammerOfWrath = 20
+                        local hpHammerOfWrath = 35
                         -- if empowered hammer of wrath, we need to get value for HoW hp at 35%
-                        if isKnown(157496) then
+                        if isKnown(158392) then
                             hpHammerOfWrath = 35
                         end
                         local enemiesTable = enemiesTable
                         for i = 1,#enemiesTable do
                             if enemiesTable[i].hp < hpHammerOfWrath then
-                                return castSpell(enemiesTable[i].unit,self.spell.hammerOfWrath,false,false) == true or false
+                                return castSpell(enemiesTable[i].unit,24275,false,false,false,false,false,false,true) == true or false
                             end
                         end
                     end
-                end
+                --end
             end
 
             -- Holy Avenger

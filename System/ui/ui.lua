@@ -107,15 +107,15 @@ function ConstructUI()
                 tempTable.base = base
             end
             -- checkbox
-            function CreateNewCheck(value,textString,base,tip1)
+            function CreateNewCheck(value,textString,tip1,base)
                 tempTable.check = true
                 if BadBoy_data.options[GetSpecialization()][textString.."Check"] == nil then
                     BadBoy_data.options[GetSpecialization()][textString.."Check"] = base
                 else
                     base = BadBoy_data.options[GetSpecialization()][textString.."Check"]
                 end
-                tempTable.basecheck = base
-                tempTable.checkTip = tip1
+                tempTable.checkBase = base or 0
+                tempTable.tip = tip1
             end
             -- new title and text need to insert in real array
             function CreateNewTitle(value,textString)
@@ -200,10 +200,8 @@ function ConstructUI()
                         createDropDownMenu(currentProfileName,thisOption,186*scale,ypos*scale-10,i)
                     end
                     if thisOption.check ~= nil then
-                        -- check                1               2             3         4
-                        createCheckBox(currentProfileName,thisOption,7*scale,ypos*scale-10,
-                        --          5                   6
-                          thisOption.checkBase,thisOption.checkTip)
+                        -- check                1               2             3         4          5
+                        createCheckBox(currentProfileName,thisOption,7*scale,ypos*scale-10,thisOption.checkBase)
                     end
                     if thisOption.status ~= nil then
                         -- status
@@ -298,25 +296,36 @@ function ConstructUI()
                         tip = "Check to allow forced Burn on specific whitelisted units."
                     },
                     [4] = {
+                        checkbase = true,
+                        check = true,
+                        name = "Avoid Shields",
+                        tip = "Check to avoid attacking shielded units."
+                    },
+                    [5] = {
                         checkbase = false,
                         check = true,
                         name = "Tank Threat",
                         tip = "Check add more priority to taregts you lost aggro on(tank only)."
                     },
-                    [5] = {
+                    [6] = {
                         checkbase = true,
                         check = true,
                         name = "Safe Damage Check",
                         tip = "Check to prevent damage to targets you dont want to attack."
                     },
-                    [6] = {
+                    [7] = {
                         checkbase = true,
                         check = true,
                         name = "Don't break CCs",
                         tip = "Check to prevent damage to targets that are CC."
                     },
-
-                    [7] = {
+                    [8] = {
+                        checkbase = true,
+                        check = true,
+                        name = "Crowd Control",
+                        tip = "Check to use crowd controls on select units/buffs."
+                    },
+                    [9] = {
                         checkbase = true,
                         check = true,
                         name = "Interrupts Handler",
@@ -335,18 +344,18 @@ function ConstructUI()
                             colorGold.."\nT/M/F(Target/Mouse/Focus)"..
                             colorGreen.."\nAll(Any available in range)"
                     },
-                    [8] = {
-                        checkbase = false,
-                        check = true,
-                        name = "Interrupts Frame",
-                        tip = "Check this to display Interrupts Frame."
-                    },
-                    [9] = {
+                    [10] = {
                         checkbase = false,
                         check = true,
                         name = "Only Known Units",
                         tip = "Check this to interrupt only on known units using whitelist."
                     },
+                    --[[[11] = {
+                        checkbase = false,
+                        check = true,
+                        name = "Interrupts Frame",
+                        tip = "Check this to display Interrupts Frame."
+                    },]]
                 },
                 ["Healing Engine"] = {
                     [1] = {
@@ -523,7 +532,7 @@ function ConstructUI()
 
             -- create frames
             frameCreation("options",791,147)
-            frameCreation("debug",200,150,"|cffFF001EDebug")
+            frameCreation("debug",300,150,"|cffFF001EDebug")
             for i = 1, 5 do
                 createRow("debug",i,"")
             end
@@ -651,21 +660,19 @@ function ConstructUI()
         -- 7 + 189 + 7 + 189 + 7 + 190 + 7 + 190 + 7
 
 
-
+        -- generate general options
         -- 7 - 196 - 203 - 392 - 399 - 588 591
         createButton("options","General",7,-5,"General")
+        createOptions("General")
         createButton("options","Enemies Engine",203,-5,"Enemies Engine")
+        createOptions("Enemies Engine")
         createButton("options","Healing Engine",399,-5,"Healing Engine")
+        createOptions("Healing Engine")
         createButton("options","Other Features",591,-5,"Other Features")
+        createOptions("Other Features")
         if BadBoy_data.options.selected == nil then
             BadBoy_data.options.selected = "General"
         end
-        local selectedOption = BadBoy_data.options.selected
-
-        createOptions("General")
-        createOptions("Enemies Engine")
-        createOptions("Healing Engine")
-        createOptions("Other Features")
         _G["options"..BadBoy_data.options.selected.."Button"]:Click()
 
         if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()]["optionsFrame"] ~= true then

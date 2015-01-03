@@ -39,6 +39,14 @@ if select(3, UnitClass("player")) == 2 then
 	-- Cast selected blessing or auto
 	castBlessing()
 
+
+	-- make sure we have a seal(often removed by changing talents/glyph)
+	if core.seal == 0 then
+		if core:castSeal(1) then
+			return
+		end
+	end
+
 	-- OFF-GCD here we add the spells we want to be spamming all the time
 	if core.inCombat then
 		-- Rebuke
@@ -321,7 +329,7 @@ if select(3, UnitClass("player")) == 2 then
 			-- judgment,if=talent.empowered_seals.enabled&seal.righteousness&buff.liadrins_righteousness.remains<=5
 			if talent.empoweredSeals then
 				if core.seal == false and buff.liadrinsRighteousness <= 5 then
-					if core:castJudgement() then
+					if core:castJudgment() then
 						return
 					end
 				end

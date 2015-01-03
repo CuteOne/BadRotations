@@ -1,4 +1,22 @@
 if select(3,UnitClass("player")) == 2 then
+
+
+
+
+
+
+	-- Debuffs we want to cleanse
+	shouldCleanseDebuff = {
+		{ debuff = 0 }
+	}
+
+
+
+
+
+
+
+
 	if not initDone then
 		_ArcaneTorrent				= 	155145
 		_ArdentDefender             =   31850
@@ -276,41 +294,22 @@ if select(3,UnitClass("player")) == 2 then
 
 	--Todo:Add who to loh logic
 	function castLayOnHands(unit)
-		if unit then
-			if castSpell(unit,_LayOnHands,true,false) then
-				return true
-			end
-		end
-		-- If no unit then be smart
-		if getHP("player") <= getValue("Lay On Hands") then
-			if castSpell("player",_LayOnHands,true, false) then
-				return true
-			end
-		else
-			for i = 1, #nNova do
-				if nNova[i].hp <= getValue("Lay On Hands") then
-					if castSpell(nNova[i].unit,_LayOnHands,true, false) then
-						return true
-					end
-				end
-			end
-		end
-		return false
+		return castSpell(unit,633,true,false) == true or false
 	end
 	-- done this works with profiles
 	function enhancedLayOnHands()
 		if isChecked("Lay On Hands") then
 			-- Lay on Hands Targets 1- me only 2- me prio 3- tank and heal 4- all
-			local LoHTargets = getValue("Lay On Hands Targets")
+			local LoHTargets = getValue("LoH Targets")
 			local LoHValue = getValue("Lay On Hands")
 			if LoHTargets == 1 then
-				if playerHealth <= LoHValue then
+				if core.health <= LoHValue then
 					if castLayOnHands("player") then
 						return true
 					end
 				end
 			elseif LoHTargets == 2 then
-				if playerHealth <= LoHValue then
+				if core.health <= LoHValue then
 					if castLayOnHands("player") then
 						return true
 					end
@@ -324,7 +323,7 @@ if select(3,UnitClass("player")) == 2 then
 					end
 				end
 			elseif LoHTargets == 3 then
-				if playerHealth <= LoHValue then
+				if core.health <= LoHValue then
 					if castLayOnHands("player") then
 						return true
 					end
@@ -363,8 +362,7 @@ if select(3,UnitClass("player")) == 2 then
 
 
 	function castRebuke(unit)
-		castInterrupt(_Rebuke, getValue("Rebuke"))
-		return false
+		return castInterrupt(_Rebuke, getValue("Rebuke"))
 	end
 
 
@@ -453,4 +451,5 @@ if select(3,UnitClass("player")) == 2 then
 		end
 		return false
 	end
+
 end

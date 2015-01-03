@@ -53,13 +53,14 @@ function makeEnemiesTable(maxDistance)
   				if unitDistance <= maxDistance then
 		  			-- get unit Infos
 		  			local safeUnit = isSafeToAttack(thisUnit)
-		  			local burnValue = isBurnTarget(thisUnit)
+		  			local burnValue = isBurnTarget(thisUnit) or 0
 		  			local unitName = UnitName(thisUnit)
 		  			local unitID = getUnitID(thisUnit)
 		  			local shouldCC = isCrowdControlCandidates(thisUnit)
 	  				local unitThreat = UnitThreatSituation("player",thisUnit) or -1
+	  				local shieldValue = isShieldedTarget(thisUnit) or 0
 	  				local X1,Y1,Z1 = ObjectPosition(thisUnit)
-					local unitCoeficient = getUnitCoeficient(thisUnit,unitDistance,unitThreat,burnValue,safeUnit) or 0
+					local unitCoeficient = getUnitCoeficient(thisUnit,unitDistance,unitThreat,burnValue,shieldValue) or 0
   					local unitHP = getHP(thisUnit)
   					local inCombat = UnitAffectingCombat(thisUnit)
   					local longTimeCC = false
@@ -107,8 +108,8 @@ function dynamicTarget(range,facing)
 		local bestUnit = "target"
 		for i = 1, #enemiesTable do
 			local thisUnit = enemiesTable[i]
-			if thisUnit.isCC == false and thisUnit.distance < range and (facing == false or thisUnit.facing == true) then
-				if thisUnit.coeficient >= bestUnitCoef then
+			if (not safeCheck or thisUnit.safe) and thisUnit.isCC == false and thisUnit.distance < range and (facing == false or thisUnit.facing == true) then
+				if thisUnit.coeficient >= 0 and thisUnit.coeficient >= bestUnitCoef then
 					bestUnitCoef = thisUnit.coeficient
 					bestUnit = thisUnit.unit
 				end
@@ -266,18 +267,11 @@ function getSanity(unit)
 end
 
 -- This function will set the prioritisation of the units, ie which target should i attack
-function getUnitCoeficient(unit,distance,threat,burnValue,safeStatus)
+function getUnitCoeficient(unit,distance,threat,burnValue,shieldValue)
 	local coef = 0
 	-- if unit is out of range, bad prio(0)
 	if distance < 40 then
 		local unitHP = getHP(unit)
-		-- safe check set to 0 if bad unit
-		if getOptionCheck("Safe Damage Check") == true then
-			if safeStatus ~= true then
-				return 0
-			end
-		end
-
 		-- if its our actual target we give it a bonus
 		if UnitIsUnit("target",unit) == true then
 			coef = coef + 1
@@ -295,10 +289,10 @@ function getUnitCoeficient(unit,distance,threat,burnValue,safeStatus)
 		end
 
 		-- raid target management
-		-- here we want to define an order for raid targets focussing
-		-- if GetRaidTargetIndex(unit) == 8 then
-		-- 	coef = coef + 50
-		-- end
+		-- if the unit have the skull and we have param for it add 50
+		if getOptionCheck("Skull First") and GetRaidTargetIndex(unit) == 8 then
+			coef = coef + 50
+		end
 
 		-- if threat is checked, add 100 points of prio if we lost aggro on that target
 		if getOptionCheck("Tank Threat") == true then
@@ -307,10 +301,10 @@ function getUnitCoeficient(unit,distance,threat,burnValue,safeStatus)
 			end
 		end
 
-		-- if user checked burn target then we check is unit should be burnt
-		if getOptionCheck("Forced Burn") then
-			coef = coef + burnValue
-		end
+		-- if user checked burn target then we add the value otherwise will be 0
+		coef = coef + burnValue
+		-- if user checked avoid shielded, we add the % this shield remove to coef
+		coef = coef + shieldValue
 		local displayCoef = math.floor(coef*10)/10
 		local displayName = UnitName(unit) or "invalid"
 		-- print("Unit "..displayName.." - "..displayCoef)
@@ -337,21 +331,16 @@ end
 
 -- returns true if target should be burnt
 function isBurnTarget(unit)
-	local unitID = getUnitID(unit)
-	local burnUnit = burnUnitCandidates[unitID]
-	if burnUnit then
-		coef = burnUnit.coef
-		-- if the unit have the skull and we have param for it add 100
-		if burnUnit.raidMarker ~= nil and burnUnit.raidMarker == GetRaidTargetIndex(unit) then
-			coef = coef + 100
+	local coef = 0
+	if getOptionCheck("Forced Burn") then
+		local unitID = getUnitID(unit)
+		local burnUnit = burnUnitCandidates[unitID]
+			-- if unit have selected debuff
+		if burnUnit and burnUnit.buff and UnitBuffID(unit,burnUnit.buff) then
+			coef = burnUnit.coef
 		end
-		-- if unit have selected debuff
-		if burnUnit.buff and UnitBuffID(unit,burnUnit.buff) then
-			coef = coef + 100
-		end
-		return coef
 	end
-	return 0
+	return coef
 end
 
 -- check for a unit see if its a cc candidate
@@ -385,24 +374,11 @@ end
 
 -- returns true if we can safely attack this target
 function isSafeToAttack(unit)
-	for i = 1, #doNotTouchUnitCandidates do
-		-- holds candidate ID
-		local candidateUnit = doNotTouchUnitCandidates[i].unitID
-		-- we only scan units #s until we find a match
-		if getUnitID(unit) == candidateUnit then
-
-			--if condition is a buff
-			local candidateBuff = doNotTouchUnitCandidates[i].buff
-			if candidateBuff ~= nil then
-				if UnitBuffID(unit,candidateBuff) ~= nil then
-					return false
-				end
-			end
-
-			-- if condition is a debuff
-			local candidateDebuff = doNotTouchUnitCandidates[i].deBuff
-			if candidateDebuff ~= nil then
-				if UnitDebuffID(unit,candidateDebuff) ~= nil then
+	if getOptionCheck("Safe Damage Check") == true then
+		local unitID = getUnitID(unit)
+		for i = 1, #doNotTouchUnitCandidates do
+			if doNotTouchUnitCandidates[i].unitID == 1 or doNotTouchUnitCandidates[i].unitID == unitID then
+				if UnitBuffID(unit,doNotTouchUnitCandidates[i].buff) or UnitDebuffID(unit,doNotTouchUnitCandidates[i].buff) then
 					return false
 				end
 			end
@@ -412,6 +388,22 @@ function isSafeToAttack(unit)
 	return true
 end
 
+-- returns true if target is shielded or should be avoided
+function isShieldedTarget(unit)
+	local coef = 0
+	if getOptionCheck("Avoid Shields") then
+		local unitID = getUnitID(unit)
+		local shieldedUnit = shieldedUnitCandidates[unitID]
+		-- if unit have selected debuff
+		if shieldedUnit and shieldedUnit.buff and UnitBuffID(unit,shieldedUnit.buff) then
+			-- if it's a frontal buff, see if we are in front of it
+			if shieldedUnit.frontal ~= true or getFacing(unit,"player") == true then
+				coef = shieldedUnit.coef
+			end
+		end
+	end
+	return coef
+end
 
 end
 

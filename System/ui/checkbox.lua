@@ -1,16 +1,18 @@
 -- creates a checkbox with current UI settings at location within parent
+-- createCheckBox("options",thisOption,(xpos+7),(ypos*-27)-10)
 function createCheckBox(parent,value,x,y,checkState)
     local name = value.name
     if _G[parent..name.."Check"] == nil then
         if BadBoy_data.options[GetSpecialization()] then
             if BadBoy_data.options[GetSpecialization()][name.."Check"] == nil then
-                if checkState == true then
+                if value.base == 1 then
                     BadBoy_data.options[GetSpecialization()][name.."Check"] = 1
                 end
             end
         end
 
         local scale = BadBoy_data.BadBoyUI.optionsFrame.scale or 1
+        local tip = value.tip
 
         _G[parent..name.."Check"] = CreateFrame("Button", _G[parent..name.."Check"], _G[parent.."Frame"])
         _G[parent..name.."Check"]:SetAlpha(BadBoy_data.BadBoyUI.alpha)
@@ -53,8 +55,8 @@ function createCheckBox(parent,value,x,y,checkState)
         _G[parent..name.."Check"]:SetScript("OnEnter", function(self)
             _G[parent..name.."Check"].texture:SetTexture(200/255,200/255,200/255,1)
             GameTooltip:SetOwner(self, "BOTTOMLEFT", 225, 5)
-            if tip1 ~= nil then
-                GameTooltip:SetText(tip1, nil, nil, nil, nil, true)
+            if tip ~= nil then
+                GameTooltip:SetText(tip, nil, nil, nil, nil, true)
             else
                 GameTooltip:SetText("|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFF"..name.."|cffFFBB00.", nil, nil, nil, nil, true)
             end
