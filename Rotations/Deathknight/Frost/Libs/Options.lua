@@ -207,6 +207,11 @@ if select(3,UnitClass("player")) == 6 then
                     dropOp("Cleave Mode", 6, "Toggle")
                     textOp("Cleave Mode")
 
+                    -- Pause Toggle
+                    checkOp("Pause Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFPause Toggle Key - None Defaults to LeftAlt|cffFFBB00.")
+                    dropOp("Pause Mode", 6, "Toggle")
+                    textOp("Pause Mode")
+
                 -- General Configs
                 CreateGeneralsConfig()
 

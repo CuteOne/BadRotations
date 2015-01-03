@@ -1889,7 +1889,12 @@ end
 
 -- if pause() then
 function pause()
-	if (IsLeftAltKeyDown() and GetCurrentKeyBoardFocus() == nil)
+    if SpecificToggle("Pause Mode") == nil or getValue("Pause Mode") == 6 then
+        pausekey = IsLeftAltKeyDown()
+    else
+        pausekey = SpecificToggle("Pause Mode")
+    end
+	if (pausekey and GetCurrentKeyBoardFocus() == nil)
   	  or (IsMounted() and getUnitID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803))
 	  or SpellIsTargeting()
 	  or (not UnitCanAttack("player","target") and not UnitIsPlayer("target") and UnitExists("target"))
@@ -1902,7 +1907,8 @@ function pause()
 	  or UnitBuffID("target",117961) --Impervious Shield - Qiang the Merciless
 	  or UnitDebuffID("player",135147) --Dead Zone - Iron Qon: Dam'ren
 	  or (((UnitHealth("target")/UnitHealthMax("target"))*100) > 10 and UnitBuffID("target",143593)) --Defensive Stance - General Nagrazim
-	  or UnitBuffID("target",140296) then--Conductive Shield - Thunder Lord / Lightning Guardian
+	  or UnitBuffID("target",140296) --Conductive Shield - Thunder Lord / Lightning Guardian
+    then
 		ChatOverlay("Profile Paused")
 		return true
 	end

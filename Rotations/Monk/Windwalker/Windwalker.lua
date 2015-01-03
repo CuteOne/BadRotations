@@ -248,7 +248,7 @@ if select(3, UnitClass("player")) == 10 then
 	-----------------------------
 	--- In Combat - Cooldowns ---
 	-----------------------------
-				if useCDs() then
+				if useCDs() and tarDist<5 and not IsMounted() then
 			-- Invoke Xuen
 					if isChecked(getOption(_InvokeXuen)) then
 						if castSpell(thisUnit,_InvokeXuen) then return end

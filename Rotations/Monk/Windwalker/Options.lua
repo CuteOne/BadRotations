@@ -197,6 +197,11 @@ if select(3,UnitClass("player")) == 10 then
                 dropOp("Builder Mode", 5, "Toggle")
                 textOp("Chi Builder");
 
+                -- Pause Toggle
+                checkOp("Pause Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFPause Toggle Key - None Defaults to LeftAlt|cffFFBB00.")
+                dropOp("Pause Mode", 6, "Toggle")
+                textOp("Pause Mode")
+
             -- Spacer
             textOp(" ");
 
