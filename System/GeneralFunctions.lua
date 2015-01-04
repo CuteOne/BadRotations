@@ -537,7 +537,9 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
             return false
         end
 		-- if MovementCheck is nil or false then we dont check it
-		if MovementCheck == false or isMoving("player") ~= true or UnitBuffID("player",79206) ~= nil then
+		if MovementCheck == false or isMoving("player") ~= true
+          -- skip movement check during spiritwalkers grace and aspect of the fox
+          or UnitBuffID("player",79206) ~= nil or UnitBuffID("player",172106) ~= nil then
 			-- if ability is ready and in range
 			if (getOptionCheck("Allow Failcasts") or getSpellCD(SpellID) == 0) and (getOptionCheck("Skip Distance Check") or getDistance("player",Unit) <= spellRange or DistanceSkip == true) then
                 -- if spam is not allowed

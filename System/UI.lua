@@ -1,6 +1,5 @@
 -- this handles old profiles buttons
 function BadBoyFrame()
-
 	emptyIcon = [[Interface\FrameGeneral\UI-Background-Marble]]
 	backIconOn = [[Interface\ICONS\Spell_Holy_PowerWordShield]]
 	backIconOff = [[Interface\ICONS\SPELL_HOLY_DEVOTIONAURA]]
@@ -20,14 +19,17 @@ function BadBoyFrame()
 	end
 
     function GarbageButtons()
-		for i = 1, #buttonsTable do
-			local Name = buttonsTable[i].name
-			_G["button"..Name]:Hide()
-			_G["text"..Name]:Hide()
-			_G["frame"..Name].texture:Hide()
-			_G[Name.."Modes"] = nil
+    	if buttonsTable then
+			for i = 1, #buttonsTable do
+				local Name = buttonsTable[i].name
+				_G["button"..Name]:Hide()
+				_G["text"..Name]:Hide()
+				_G["frame"..Name].texture:Hide()
+				_G[Name.."Modes"] = nil
+			end
 		end
 	end
+	GarbageButtons()
 
 	function ToggleValue(toggleValue)
 		-- prevent nil fails
