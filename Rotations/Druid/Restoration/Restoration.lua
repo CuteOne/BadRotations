@@ -79,20 +79,12 @@ function DruidRestoration()
 			end
 		end
 	end
+	
 	-- WildGroth Toggle
     if isChecked("WG Toggle") and SpecificToggle("WG Toggle") == true then
-		for i = 1, #nNova do
-			local thisUnit = nNova[i]
-		    if thisUnit.hp < 249 then
-			    local allies30Yards = getAllies(thisUnit.unit,30)
-				if #allies30Yards >= 1 then
-			        if castSpell(thisUnit.unit,48438,true,false) then
-			            return
-			        end
-				end
-			end
-		end
+		castWiseAoEHeal(nNova,48438,30,getValue("WildGrowth"),getValue("WildGrowth Count"),wgMaxCount,true,true)
 	end
+	
 	-- Regrowth Toggle
 	if isChecked("Regrowth Toggle") and SpecificToggle("Regrowth Toggle") == true then
 		if not UnitIsDeadOrGhost("mouseover") then
