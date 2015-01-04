@@ -984,20 +984,7 @@ end
 
 -- if getNumEnemies("target",10) >= 3 then
 function getNumEnemies(Unit,Radius)
-  	local Units = 0
- 	for i=1,ObjectCount() do
-		if ObjectExists(ObjectWithIndex(i)) == true and bit.band(ObjectType(ObjectWithIndex(i)),ObjectTypes.Unit) == 8 then
-	  		local thisUnit = ObjectWithIndex(i)
-	  		if getCreatureType(thisUnit) == true then
-	  			if UnitIsVisible(thisUnit) and UnitCanAttack("player",thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
-	  				if getDistance(Unit,thisUnit) <= Radius then
-	  					Units = Units+1
-	   				end
-		 		end
-		 	end
-		end
- 	end
- 	return Units
+ 	return #getEnemies(Unit,Radius)
 end
 
 -- if getLineOfSight("target"[,"target"]) then
