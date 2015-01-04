@@ -49,29 +49,29 @@ if select(3, UnitClass("player")) == 5 then
 			DoTModesLoaded = "Shadow Priest DoT Modes";
 		end
 
-		-- Single Rotation Button
-		if SingleModesLoaded ~= "Shadow Priest Single Modes" then
-			SingleModes = {
-				[1] = { mode = "weave", value = 1 , overlay = "weave rotation", tip = "|cffFF0000Single Target Rotation \n|cffFFDD11DoT-Weave Rotation is active. \nPress to change rotation to Traditional", highlight = 0, icon = 73510 }
-				--[1] = { mode = "trad", value = 1 , overlay = "traditional rotation", tip = "|cffFF0000Single Target Rotation \n|cffFFDD11Traditional Rotation is active. \nPress to change rotation to DoT-Weave", highlight = 0, icon = 15407 },
-				--[2] = { mode = "weave", value = 2 , overlay = "weave rotation", tip = "|cffFF0000Single Target Rotation \n|cffFFDD11DoT-Weave Rotation is active. \nPress to change rotation to Traditional", highlight = 0, icon = 73510 }
-			};
-			--CreateButton("Single",3,1)
-			CreateButton("Single",0,1)
-			SingleModesLoaded = "Shadow Priest Single Modes";
-		end
+		-- -- Single Rotation Button
+		-- if SingleModesLoaded ~= "Shadow Priest Single Modes" then
+		-- 	SingleModes = {
+		-- 		[1] = { mode = "weave", value = 1 , overlay = "weave rotation", tip = "|cffFF0000Single Target Rotation \n|cffFFDD11DoT-Weave Rotation is active. \nPress to change rotation to Traditional", highlight = 0, icon = 73510 }
+		-- 		--[1] = { mode = "trad", value = 1 , overlay = "traditional rotation", tip = "|cffFF0000Single Target Rotation \n|cffFFDD11Traditional Rotation is active. \nPress to change rotation to DoT-Weave", highlight = 0, icon = 15407 },
+		-- 		--[2] = { mode = "weave", value = 2 , overlay = "weave rotation", tip = "|cffFF0000Single Target Rotation \n|cffFFDD11DoT-Weave Rotation is active. \nPress to change rotation to Traditional", highlight = 0, icon = 73510 }
+		-- 	};
+		-- 	--CreateButton("Single",3,1)
+		-- 	CreateButton("Single",0,1)
+		-- 	SingleModesLoaded = "Shadow Priest Single Modes";
+		-- end
 
-		-- Rotation Button
-		if RotationModesLoaded ~= "Shadow Priest Rotation Modes" then
-			RotationModes = {
-				[1] = { mode = "1", value = 1 , overlay = "Single Target", tip = "|cff00FF00Single Target \n|cffFFDD11Style can be chosen with 'trad/weave' Button", highlight = 0, icon = 139139 },
-				--[2] = { mode = "dual", value = 2 , overlay = "Dual Boss Targets", tip = "|cff00FF00Dual Target \n|cffFFDD11Chose this for two bosses", highlight = 0, icon = 78203 },
-				--[2] = { mode = "3+", value = 2 , overlay = "3+ Targets", tip = "|cff00FF002+ Enemies \n|cffFFDD11Choose # of dots in options.", highlight = 0, icon = 48045 }
-				[2] = { mode = "multi", value = 2 , overlay = "Multi Target", tip = "|cff00FF00Multi Target \n|cffFFDD11Choose # of dots in options.", highlight = 0, icon = 48045 }
-			};
-			CreateButton("Rotation",3,0)
-			RotationModesLoaded = "Shadow Priest Rotation Modes";
-		end
+		-- -- Rotation Button
+		-- if RotationModesLoaded ~= "Shadow Priest Rotation Modes" then
+		-- 	RotationModes = {
+		-- 		[1] = { mode = "1", value = 1 , overlay = "Single Target", tip = "|cff00FF00Single Target \n|cffFFDD11Style can be chosen with 'trad/weave' Button", highlight = 0, icon = 139139 },
+		-- 		--[2] = { mode = "dual", value = 2 , overlay = "Dual Boss Targets", tip = "|cff00FF00Dual Target \n|cffFFDD11Chose this for two bosses", highlight = 0, icon = 78203 },
+		-- 		--[2] = { mode = "3+", value = 2 , overlay = "3+ Targets", tip = "|cff00FF002+ Enemies \n|cffFFDD11Choose # of dots in options.", highlight = 0, icon = 48045 }
+		-- 		--[2] = { mode = "multi", value = 2 , overlay = "Multi Target", tip = "|cff00FF00Multi Target \n|cffFFDD11Choose # of dots in options.", highlight = 0, icon = 48045 }
+		-- 	};
+		-- 	CreateButton("Rotation",3,0)
+		-- 	RotationModesLoaded = "Shadow Priest Rotation Modes";
+		-- end
 		-- Feather Button
 		if FeathertModesLoaded ~= "Shadow Priest Feather Modes" then
 			FeatherModes = {

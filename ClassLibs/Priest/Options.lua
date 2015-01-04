@@ -77,8 +77,8 @@ if select(3, UnitClass("player")) == 5 then
 				end
 
 				-- LR Orbs
-				CreateNewCheck(thisConfig,"Scan for Orbs");
-				CreateNewText(thisConfig,"Scan for Orbs");				
+				CreateNewCheck(thisConfig,"Scan for Orbs", "Scan all enemies to create an orb with SWD");
+				CreateNewText(thisConfig,"Scan for Orbs");
 
 
 			-- Wrapper -----------------------------------------
@@ -136,21 +136,21 @@ if select(3, UnitClass("player")) == 5 then
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"      |cffBA55D3Multitarget");
 
-				-- SWP
-				CreateNewCheck(thisConfig,"Multi SWP");
-				CreateNewText(thisConfig,"Multi SWP");
+				-- -- SWP
+				-- CreateNewCheck(thisConfig,"Multi SWP", "not used atm");
+				-- CreateNewText(thisConfig,"Multi SWP");
 
-				-- VT
-				CreateNewCheck(thisConfig,"Multi VT");
-				CreateNewText(thisConfig,"Multi VT");
+				-- -- VT
+				-- CreateNewCheck(thisConfig,"Multi VT", "not used atm");
+				-- CreateNewText(thisConfig,"Multi VT");
 
-				-- SWP
-				CreateNewCheck(thisConfig,"Boss SWP");
-				CreateNewText(thisConfig,"Boss SWP");
+				-- -- SWP
+				-- CreateNewCheck(thisConfig,"Boss SWP");
+				-- CreateNewText(thisConfig,"Boss SWP");
 
-				-- VT
-				CreateNewCheck(thisConfig,"Boss VT");
-				CreateNewText(thisConfig,"Boss VT");
+				-- -- VT
+				-- CreateNewCheck(thisConfig,"Boss VT");
+				-- CreateNewText(thisConfig,"Boss VT");
 
 				-- Min Health
 				CreateNewBox(thisConfig,"Min Health", 0.5, 5, 0.1, 1.5, "Minimum Health in |cffFF0000million HP|cffFFBB00.\nMin: 0.5 / Max: 5  / Interval: 0.1");
@@ -166,7 +166,9 @@ if select(3, UnitClass("player")) == 5 then
 				CreateNewText(thisConfig,"Refresh Time");
 				
 				-- Mind Sear Targets
-				CreateNewBox(thisConfig,"MS Targets", 1, 10, 1, 3, "Minimum count of enemies around target \nto use Mind Sear instead of Mind Spike. \nMin: 1 / Max: 10+ / Interval: 1");
+				-- Auto MindSear
+				CreateNewCheck(thisConfig,"MS Targets","Automatic Mind Sear if enough targets in range");
+				CreateNewBox(thisConfig,"MS Targets", 1, 10, 1, 3, "Minimum count of enemies around target \nto use Mind Sear instead of Mind Spike. \nMin: 1 / Max: 10+ / Interval: 1 / Standard: 3");
 				CreateNewText(thisConfig,"MS Targets");
 
 

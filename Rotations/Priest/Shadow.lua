@@ -51,8 +51,9 @@ if select(3, UnitClass("player")) == 5 then
 					Defensive =	BadBoy_data['Defensive'],
 					Halo =		BadBoy_data['Halo'],
 					DoT =		BadBoy_data['DoT'],
-					Single =	BadBoy_data['Single'],
-					Rotation =	BadBoy_data['Rotation'],
+					--Single =	BadBoy_data['Single'],
+					--Rotation =	BadBoy_data['Rotation'],
+					Rotation =	1,
 					Cooldowns =	BadBoy_data['Cooldowns'],
 					Feather =	BadBoy_data['Feather']
 				},
@@ -74,13 +75,14 @@ if select(3, UnitClass("player")) == 5 then
 					Dispersion =		isChecked("Dispersion"),
 					Fade =				isChecked("Fade Aggro"),
 					--DoT Weave
-					SWP =				isChecked("SWP"),
-					VT =				isChecked("VT"),
+					-- SWP =				isChecked("SWP"),
+					-- VT =				isChecked("VT"),
 					-- Multitarget
-					MultiSWP =			isChecked("Multi SWP"),
-					MultiVT =			isChecked("Multi VT"),
-					BossSWP =			isChecked("Boss SWP"),
-					BossVT =			isChecked("Boss VT"),
+					-- MultiSWP =			isChecked("Multi SWP"),
+					-- MultiVT =			isChecked("Multi VT"),
+					-- BossSWP =			isChecked("Boss SWP"),
+					-- BossVT =			isChecked("Boss VT"),
+					useMindSear =		isChecked("MS Targets"),
 					-- Utilities
 					PWF = 				isChecked("PW: Fortitude"),
 					Shadowform =		isChecked("Shadowform Outfight"),
@@ -223,15 +225,15 @@ if select(3, UnitClass("player")) == 5 then
 
 
 			-- Single target
-			if options.buttons.Rotation == 1 then
+			--if options.buttons.Rotation == 1 then
 				Execute(options)
-				LFOrbs()
+				LFOrbs(options)
 				if getHP("target")>20 then
 					if options.buttons.DoT>=2 then DotEmAll(options) end
 					--if options.buttons.Single==1 then IcySingle() end
-					if options.buttons.Single==1 then IcySingleWeave(options) end
+					IcySingleWeave(options)
 				end
-			end
+			--end
 
 			-- -- Dual Target
 			-- if options.buttons.Rotation == 2 then
@@ -240,12 +242,12 @@ if select(3, UnitClass("player")) == 5 then
 			-- 	if getHP("target")>20 then IcyDualTarget() end
 			-- end
 			
-			-- 3+ Targets
-			if options.buttons.Rotation == 2 then 
-				Execute(options)
-				LFOrbs()
-				if getHP("target")>20 then IcyMultiTarget(options) end
-			end
+			-- -- 3+ Targets
+			-- if options.buttons.Rotation == 2 then 
+			-- 	Execute(options)
+			-- 	LFOrbs(options)
+			-- 	if getHP("target")>20 then IcyMultiTarget(options) end
+			-- end
 			
 			-- Auto
 			-- if BadBoy_data['AoE'] == 3 then

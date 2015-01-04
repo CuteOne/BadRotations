@@ -143,7 +143,9 @@ if select(3, UnitClass("player")) == 5 then
 	--[[                    ]] -- Cooldowns
 	function ShadowCooldowns(options)
 		-- MB on CD
-		if castSpell("target",MB,false,false) then return; end
+		if options.buttons.Cooldowns == 2 then
+			if castSpell("target",MB,false,false) then return; end
+		end
 
 		if getBuffRemain("player",InsanityBuff)<=0 then
 			-- Mindbender
@@ -211,17 +213,23 @@ if select(3, UnitClass("player")) == 5 then
 
 
 	--[[                    ]] -- LF Orbs start
-	function LFOrbs()
-		-- if isChecked("Scan for Orbs") then
-		-- 	if getSpellCD(SWD)<=0 and ORBS<5 then
-		-- 		for i=1,#enemiesTable do
-		-- 			local thisUnit = enemiesTable[i].unit
-		-- 			if enemiesTable[i].hp<20 then
-		-- 				if castSpell(thisUnit,SWD,true,false) then return; end
-		-- 			end
-		-- 		end
-		-- 	end
-		-- end
+	function LFOrbs(options)
+		if isChecked("Scan for Orbs") then
+			--if getSpellCD(SWD)<=0 and UnitPower("player", SPELL_POWER_SHADOW_ORBS)<5 then
+			if UnitPower("player", SPELL_POWER_SHADOW_ORBS)<5 then
+				for i=1,#enemiesTable do
+					local thisUnit = enemiesTable[i].unit
+					local hp = enemiesTable[i].hp
+					--print("Scanned Unit:"..i)
+					--if enemiesTable[i].hp<20 then
+						if castSpell(thisUnit,SWD,true,false,false,false,false,false,true) then
+							print("ORBED on unit: ")
+							return
+						end
+					--end
+				end
+			end
+		end
 	end
 	--[[                    ]] -- LF Orbs end
 
@@ -388,11 +396,13 @@ if select(3, UnitClass("player")) == 5 then
 					end
 				end
 
-				--if #getEnemies("player",40)>=3 then
-				if #getEnemies("target",10)>=options.values.MindSear then
-					if select(1,UnitChannelInfo("player")) ~= "Mind Sear" then
-						if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
-							if castSpell("target",MS,false,true) then return; end
+				-- Mind Sear
+				if options.isChecked.useMindSear then
+					if #getEnemies("target",10)>=options.values.MindSear then
+						if select(1,UnitChannelInfo("player")) ~= "Mind Sear" then
+							if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
+								if castSpell("target",MS,false,true) then return; end
+							end
 						end
 					end
 				end
@@ -647,15 +657,15 @@ if select(3, UnitClass("player")) == 5 then
 		-- end
 		--if select(1,UnitChannelInfo("player")) == "Insanity" then return; end
 
-		-- SWD on Unit in range and hp<20
-		if getSpellCD(SWD)==0 and options.player.ORBS<5 then
-			for i=1,#enemiesTable do
-				local thisUnit = enemiesTable[i].unit
-				if enemiesTable[i].hp<20 then
-					if castSpell(thisUnit,SWD,true,false) then return; end
-				end
-			end
-		end
+		-- -- SWD on Unit in range and hp<20
+		-- if getSpellCD(SWD)==0 and options.player.ORBS<5 then
+		-- 	for i=1,#enemiesTable do
+		-- 		local thisUnit = enemiesTable[i].unit
+		-- 		if enemiesTable[i].hp<20 then
+		-- 			if castSpell(thisUnit,SWD,true,false) then return; end
+		-- 		end
+		-- 	end
+		-- end
 
 
 		-- SWP
@@ -665,12 +675,12 @@ if select(3, UnitClass("player")) == 5 then
 					local thisUnit = enemiesTable[i].unit
 					local thisHP = enemiesTable[i].hp
 					--if isBoss(thisUnit) then
-						if not UnitIsUnit("target",thisUnit) then
+						--if not UnitIsUnit("target",thisUnit) then
 							local swpRem = getDebuffRemain(thisUnit,SWP,"player")
 							if swpRem<options.values.RefreshTime then
 								if castSpell(thisUnit,SWP,true,false) then return; end
 							end
-						end
+						--end
 					--end
 				end
 			end
@@ -683,7 +693,7 @@ if select(3, UnitClass("player")) == 5 then
 					local thisUnit = enemiesTable[i].unit
 					local thisHP = enemiesTable[i].hp
 					--if isBoss(thisUnit) then
-						if not UnitIsUnit("target",thisUnit) then
+						--if not UnitIsUnit("target",thisUnit) then
 							local vtRem = getDebuffRemain(thisUnit,VT,"player")
 							if vtRem<options.values.RefreshTime then
 								if castSpell(thisUnit,VT,true,false) then
@@ -691,7 +701,7 @@ if select(3, UnitClass("player")) == 5 then
 									return; 
 								end
 							end
-						end
+						--end
 					--end
 				end
 			end
