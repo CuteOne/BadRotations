@@ -66,10 +66,6 @@ ClassLibs\Warlock\Options.lua
 ClassLibs\Warlock\Functions.lua
 ClassLibs\Warlock\SpellList.lua
 ClassLibs\Warlock\Toggles.lua
-ClassLibs\Warrior\Options.lua
-ClassLibs\Warrior\Functions.lua
-ClassLibs\Warrior\SpellList.lua
-ClassLibs\Warrior\Toggles.lua
 
 ## DeathKnight ---------------------------------------------------
 Rotations\Deathknight\Blood\Blood.lua
@@ -194,8 +190,22 @@ Rotations\Shaman\Restoration\Libs\Toggles.lua
 
 ## Warrior ---------------------------------------------------
 Rotations\Warrior\Arms.lua
-Rotations\Warrior\Fury.lua
-Rotations\Warrior\Protection.lua
+Rotations\Warrior\Arms\Libs\Functions.lua
+Rotations\Warrior\Arms\Libs\Options.lua
+Rotations\Warrior\Arms\Libs\SpellList.lua
+Rotations\Warrior\Arms\Libs\Toggles.lua
+
+Rotations\Warrior\Fury\Fury.lua
+Rotations\Warrior\Fury\Libs\Functions.lua
+Rotations\Warrior\Fury\Libs\Options.lua
+Rotations\Warrior\Fury\Libs\SpellList.lua
+Rotations\Warrior\Fury\Libs\Toggles.lua
+
+Rotations\Warrior\Protection\Protection.lua
+Rotations\Warrior\Protection\Libs\Functions.lua
+Rotations\Warrior\Protection\Libs\Options.lua
+Rotations\Warrior\Protection\Libs\SpellList.lua
+Rotations\Warrior\Protection\Libs\Toggles.lua
 
 ## Warlock ---------------------------------------------------
 Rotations\Warlock\Affliction.lua
