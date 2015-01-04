@@ -108,10 +108,12 @@ function dynamicTarget(range,facing)
 		local bestUnit = "target"
 		for i = 1, #enemiesTable do
 			local thisUnit = enemiesTable[i]
-			if (not safeCheck or thisUnit.safe) and thisUnit.isCC == false and thisUnit.distance < range and (facing == false or thisUnit.facing == true) then
-				if thisUnit.coeficient >= 0 and thisUnit.coeficient >= bestUnitCoef then
-					bestUnitCoef = thisUnit.coeficient
-					bestUnit = thisUnit.unit
+			if ObjectExists(thisUnit.unit) then
+				if (not safeCheck or thisUnit.safe) and thisUnit.isCC == false and thisUnit.distance < range and (facing == false or thisUnit.facing == true) then
+					if thisUnit.coeficient >= 0 and thisUnit.coeficient >= bestUnitCoef then
+						bestUnitCoef = thisUnit.coeficient
+						bestUnit = thisUnit.unit
+					end
 				end
 			end
 		end
