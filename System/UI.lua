@@ -31,7 +31,7 @@ function BadBoyFrame()
 
 	function ToggleValue(toggleValue)
 		-- prevent nil fails
-		local toggleOldValue = BadBoy_data[tostring(toggleValue)]
+		local toggleOldValue = BadBoy_data[tostring(toggleValue)] or 1
 		local modesCount = #_G[toggleValue.."Modes"]
 		if toggleOldValue == nil then
 			BadBoy_data[tostring(toggleValue)] = 1
@@ -71,7 +71,7 @@ function BadBoyFrame()
 		local modesCount = #_G[toggleValue.."Modes"]
 		-- Scan Table and find wich mode = our i
 		for i = 1,modesCount do
-			local thisValue = BadBoy_data[tostring(toggleValue)]
+			local thisValue = BadBoy_data[tostring(toggleValue)] or 1
 			if thisValue == i then
 				local Icon
 				-- see if we can go lower in modes
