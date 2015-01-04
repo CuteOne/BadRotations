@@ -26,7 +26,7 @@ if select(3, UnitClass("player")) == 7 then
 			if hastar == nil then hastar = UnitExists("target") end
 		local fs, fscd = UnitDebuffID(dynamicTarget(5,true), _FrostShock), getSpellCD(_FrostShock)
 		local fncd = getSpellCD(_FireNova)
-		local enemiesNear = getNumEnemies("player" 12)
+		local enemiesNear = getNumEnemies("player", 12)
 		
 		if FlameShockTargets == nil then
 			FlameShockTargets = {}
