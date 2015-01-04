@@ -355,6 +355,11 @@ if select(3, UnitClass("player")) == 5 then
 			if not UnitDebuffID("player",InsanityBuff) then
 				-- MB on CD
 				if castSpell("target",MB,false,false) then return; end
+
+				-- Ko'ragh barrier<20% (finisher can be cast if barrier<20%)
+				if GetUnitName("target")=="Ko'ragh" then
+					if castSpell("target",SWD,true,false) then return; end
+				end
 			
 				-- -- not used atm. multidotting by dotemall
 				-- -- Dot the bosses (only if DotEmAll is OFF)

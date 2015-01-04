@@ -29,6 +29,8 @@ if select(3, UnitClass("player")) == 5 then
 			--VTTICK = 16.0/(1+UnitSpellHaste("player")/100)/5
 			--VTCASTTIME = 1.5/(1+UnitSpellHaste("player")/100)
 
+
+
 			-- Set Enemies Table
 			makeEnemiesTable(40)
 
