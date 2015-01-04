@@ -10,13 +10,13 @@ if select(3, UnitClass("player")) == 7 then
 		EnhanceReader()
 		KeyToggles()
 		makeEnemiesTable(40)
-		
+
 		----------------
 		--Local Vars--
 		----------------
 		local UFtalent = getTalent(6,1)
-		local as = UnitBuffID("player",  _AncestralSwiftness) 
-		local ascandance = UnitBuffID("player",  _AscendanceBuff) 
+		local as = UnitBuffID("player",  _AncestralSwiftness)
+		local ascandance = UnitBuffID("player",  _AscendanceBuff)
 		local elementalFusionTalent, efstack = getTalent(7,1), select(4,UnitBuffID("player",157174))
 		local UnleashFlame = UnitBuffID("player",73683)
 		local flameshock, flameshockDuration = UnitDebuffID(dynamicTarget(5,true),_FlameShock) ,getDebuffRemain(dynamicTarget(5,true),_FlameShock)
@@ -27,11 +27,11 @@ if select(3, UnitClass("player")) == 7 then
 		local fs, fscd = UnitDebuffID(dynamicTarget(5,true), _FrostShock), getSpellCD(_FrostShock)
 		local fncd = getSpellCD(_FireNova)
 		local enemiesNear = getNumEnemies("player", 12)
-		
+
 		if FlameShockTargets == nil then
 			FlameShockTargets = {}
 		end
-		
+
 		--FlameShock Cleanup
 		for i=1, #FlameShockTargets do
 			if (GetTime() - FlameShockTargets[i].time) >= 40  then
@@ -40,7 +40,7 @@ if select(3, UnitClass("player")) == 7 then
 				break
 			end
          end
-		
+
 		-------------------------------------
 		--- Shields Up! / Weapons Online! ---
 		-------------------------------------
@@ -197,38 +197,38 @@ if select(3, UnitClass("player")) == 7 then
 			-------------
 			--- Pause ---
 			-------------
-			if pause() 
+			if pause()
 			or SpellIsTargeting()
 			or UnitInVehicle("player")
-			or UnitIsDead("target") 
+			or UnitIsDead("target")
 			or UnitIsDead("player") then
 				return true
 			end
-			
-			
+
+
 			if hastar and attacktar and isInCombat("player") then
 				-------------------------
 				---Combat Rotation---
 				-------------------------
-				if not useAoE() then	
+				if not useAoE() then
 					--liquid_magma,if=pet.searing_totem.remains>=15|pet.magma_totem.remains>=15|pet.fire_elemental_totem.remains>=15
 					if GetTotemTimeLeft(1)  >= 15 then
 						if castSpell("player",_LiquidMagma,false) then return; end
 					end
-					
-					
+
+
 					--unleash_elements,if=(talent.unleashed_fury.enabled|set_bonus.tier16_2pc_melee=1)
 					if UFtalent then
 						if castSpell("player",_UnleashElements,false) then return; end
 					end
-					
-					
+
+
 					--elemental_blast,if=buff.maelstrom_weapon.react>=4|buff.ancestral_swiftness.up
 					if getMWC() >= 4
 					or as then
 						if castSpell(dynamicTarget(40,true),_ElementalBlast,false) then return; end
 					end
-					
+
 					--lightning_bolt,if=buff.maelstrom_weapon.react=5|(buff.maelstrom_weapon.react>=4&!buff.ascendance.up)|(buff.ancestral_swiftness.up&buff.maelstrom_weapon.react>=3)
 					if (getMWC()==5)
 					or (getMWC()>=4 and not ascandance)
@@ -236,78 +236,78 @@ if select(3, UnitClass("player")) == 7 then
 					then
 						if castSpell(dynamicTarget(40,true),_LightningBolt,false) then return; end
 					end
-					
+
 					--Stormstrike
 					if castSpell(dynamicTarget(5,true),_Stormstrike,false,false,false,true) then return; end
 
 					-- Lava Lash
 					if castSpell(dynamicTarget(5,true),_LavaLash,false) then return; end
-					
+
 					--flame_shock,if=(talent.elemental_fusion.enabled&buff.elemental_fusion.stack=2&buff.unleash_flame.up&dot.flame_shock.remains<16)|(!talent.elemental_fusion.enabled&buff.unleash_flame.up&dot.flame_shock.remains<=9)|!ticking
 					if ( elementalFusionTalent and efstack == 2 and UnleashFlame and flameshockDuration <= 16)
 					or ( not elementalFusionTalent and UnleashFlame and flameshockDuration <= 9)
 					or (not flameshock) then
 						if castSpell(dynamicTarget(25,true),_FlameShock,false) then return; end
 					end
-					
+
 					-- Unleashed elements
 					if castSpell("player",_UnleashElements,false) then return; end
-					
+
 					--frost_shock,if=(talent.elemental_fusion.enabled&dot.flame_shock.remains>=16)|!talent.elemental_fusion.enabled
 					if (elementalFusionTalent and flameshockDuration > 16)
 					or ( not elementalFusionTalent) then
 						if castSpell(dynamicTarget(25,true),_FrostShock,false) then return; end
 					end
-					
+
 					--elemental_blast,if=buff.maelstrom_weapon.react>=1
 					if getMWC() >= 1 then
 						if castSpell(dynamicTarget(40,true),_ElementalBlast,false) then return; end
 					end
-					
+
 					--lightning_bolt,if=buff.maelstrom_weapon.react>=1&!buff.ascendance.up
-					if getMWC() >= 1 
+					if getMWC() >= 1
 					and not ascendance then
 						if castSpell(dynamicTarget(40,true),_LightningBolt,false) then return; end
 					end
 				end
-				
+
 				if useAoE() then
-						
-					enemiesNear = getNumEnemies("player" 12)
-					
+
+					enemiesNear = getNumEnemies("player", 12)
+
 					--unleash_elements,if=active_enemies>=4&dot.flame_shock.ticking&(cooldown.shock.remains>cooldown.fire_nova.remains|cooldown.fire_nova.remains=0)
 					if enemiesNear >= 4
 					and #FlameShockTargets >= 1
 					and ((fscd > fncd) or fncd ==0) then
 						if castSpell("player",_UnleashElements,false) then return; end
 					end
-					
+
 					--fire_nova,if=active_dot.flame_shock>=3
 					if #FlameShockTargets >=3 then
 						if castSpell("player",_FlameNova,false) then return; end
 					end
-					
+
 					--lava_lash,if=dot.flame_shock.ticking&(active_dot.flame_shock<active_enemies)
 					if UnitDebuffID("target", _FlameShock)
 					and #FlameShockTargets < enemiesNear then
 						if castSpell("target",_LavaLash,false) then return; end
 					end
-					
+
 					--chain_lightning,if=glyph.chain_lightning.enabled&active_enemies>=4&(buff.maelstrom_weapon.react=5|(buff.ancestral_swiftness.up&buff.maelstrom_weapon.react>=3))
-					
-					
+
+
 					--unleash_elements,if=active_enemies<4
 					if enemiesNear < 4 then
 						if castSpell("player",_UnleashElements,false) then return; end
 					end
-					
+
 					--flame_shock,cycle_targets=1,if=!ticking
 					if fscd == 0 then
 						for i=1, #enemiesTable do
 							if enemiesTable[i].distance<20 then
 								if not UnitDebuffID(enemiesTable[i].unit, _FlameShock) then
 									if castSpell(enemiesTable[i].unit,_FlameShock,false) then return end
-								end							
+								end
 							end
 						end
 					end
@@ -315,41 +315,41 @@ if select(3, UnitClass("player")) == 7 then
 					--windstrike
 					--elemental_blast,if=!buff.unleash_flame.up&buff.maelstrom_weapon.react>=1
 					--chain_lightning,if=glyph.chain_lightning.enabled&active_enemies>=4&buff.maelstrom_weapon.react>=1
-					
+
 					--fire_nova,if=active_dot.flame_shock>=2
 					if #FlameShockTargets >=2 then
 						if castSpell(dynamicTarget(5,true),_FlameNova,false) then return; end
 					end
-					
+
 					--Stormstrike
 					if castSpell(dynamicTarget(5,true),_Stormstrike,false,false,false,true) then return; end
-					
+
 					--frost_shock,if=active_enemies<4
 					if enemiesNear < 4 then
 						if castSpell(dynamicTarget(5,true),_FrostShock,false) then return; end
 					end
-					
+
 					--elemental_blast,if=buff.maelstrom_weapon.react>=1
-					
+
 					--chain_lightning,if=active_enemies>=3&buff.maelstrom_weapon.react>=1
 					if enemiesNear >= 3
 					and getMWC() >= 1 then
 						if castSpell(dynamicTarget(5,true),_ChainLightning,false) then return; end
 					end
-					
+
 					--lightning_bolt,if=active_enemies<3&buff.maelstrom_weapon.react>=1
 					if enemiesNear < 3
 					and getMWC() >= 1 then
 						if castSpell(dynamicTarget(5,true),_LightningBolt,false) then return; end
 					end
-					
+
 					--fire_nova,if=active_dot.flame_shock>=1
 					if #FlameShockTargets >=1 then
 						if castSpell(dynamicTarget(5,true),_FlameNova,false) then return; end
-					end	
-					
+					end
+
 				 end-- End of UseAoE()
-				
+
 			end --Combat Rotation
 		end	-- End IsMounted()
 	end --Class Function End
