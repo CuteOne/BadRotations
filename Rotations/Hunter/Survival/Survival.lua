@@ -259,7 +259,7 @@ if select(3, UnitClass("player")) == 3 then
 
 				-- actions.aoe+=/black_arrow,if=!ticking
 				if isKnown(3674) and getSpellCD(3674) == 0 then
-					if UnitDebuffID("target",3674) == nil then
+					if UnitDebuffID("target",3674,"player") == nil then
 						if castSpell("target",3674,false,false) then return end
 					end
 				end
@@ -273,7 +273,7 @@ if select(3, UnitClass("player")) == 3 then
 
 				-- actions.aoe+=/explosive_trap,if=dot.explosive_trap.remains<=5
 				if (isKnown(82939) and isChecked("Explosive Trap") and getSpellCD(82939) == 0) and UnitBuffID("player",77769) ~= nil then 
-					if getDebuffRemain("target",13812) <= 5 then
+					if getDebuffRemain("target",13812,"player") <= 5 then
 						if castGround("target",82939,40) then return end
 					end
 				end
@@ -294,7 +294,7 @@ if select(3, UnitClass("player")) == 3 then
 
 				-- actions.aoe+=/multishot,if=buff.thrill_of_the_hunt.react&focus>50&cast_regen<=focus.deficit|dot.serpent_sting.remains<=5|target.time_to_die<4.5 
 				if isKnown(2643) and getSpellCD(2643) == 0 then 
-					if UnitBuffID("player",34720) ~= nil and current_focus > 50 and player_gcd_regen <= focus_defecit or getDebuffRemain("target",118253) <= 5 or getTimeToDie("target") < 4.5 then
+					if UnitBuffID("player",34720) ~= nil and current_focus > 50 and player_gcd_regen <= focus_defecit or getDebuffRemain("target",118253,"player") <= 5 or getTimeToDie("target") < 4.5 then
 						if castSpell("target",2643,false,false) then return end
 					end
 				end
@@ -368,7 +368,7 @@ if select(3, UnitClass("player")) == 3 then
 
 			-- actions+=/arcane_shot,if=buff.thrill_of_the_hunt.react&focus>35&cast_regen<=focus.deficit|dot.serpent_sting.remains<=3|target.time_to_die<4.5
 			if isKnown(3044) and getSpellCD(3044) == 0 then
-				if UnitBuffID("player",34720) ~= nil and current_focus > 35 and player_gcd_regen <= focus_defecit or getDebuffRemain("target",118253) <= 3 or getTimeToDie("target") < 4.5 then
+				if UnitBuffID("player",34720) ~= nil and current_focus > 35 and player_gcd_regen <= focus_defecit or getDebuffRemain("target",118253,"player") <= 3 or getTimeToDie("target") < 4.5 then
 					if castSpell("target",3044,false,false) then return end
 				end
 			end
