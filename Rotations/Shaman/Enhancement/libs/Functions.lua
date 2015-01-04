@@ -8,15 +8,6 @@ if select(3,UnitClass("player")) == 7 then
 --[[           ]]   --[[]]   --[[  ]]   --[[]]     --[[]]    --[[]]    --[[]]   --[[]]   --[[  ]]   --[[           ]]   --[[           ]]
 --[[           ]]   --[[]]     --[[]]   --[[]]     --[[]]   --[[]]      --[[]]  --[[]]     --[[]]   --[[           ]]   --[[           ]]
 
-function numEnemiesAroundPlayer(yards)
-	for i=1, #enemiesTable do
-		if enemiesTable[i].distance <= yards then
-			enemiesNear = enemiesNear + 1
-		end
-	end
-
-	return enemiesNear
-end
 
 function getMWC()
     mwstack = select(4,UnitBuffID("player",53817))
@@ -73,7 +64,7 @@ function useCDs()
     end
 end
 function useAoE()
-    if (BadBoy_data['AoE'] == 1 and numEnemiesAroundPlayer(12) > 1) or BadBoy_data['AoE'] == 2 then
+    if (BadBoy_data['AoE'] == 1 and getNumEnemies("player" 12) > 1) or BadBoy_data['AoE'] == 2 then
         return true
     else
         return false

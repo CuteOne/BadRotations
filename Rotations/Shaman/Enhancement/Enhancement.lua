@@ -26,7 +26,7 @@ if select(3, UnitClass("player")) == 7 then
 			if hastar == nil then hastar = UnitExists("target") end
 		local fs, fscd = UnitDebuffID(dynamicTarget(5,true), _FrostShock), getSpellCD(_FrostShock)
 		local fncd = getSpellCD(_FireNova)
-		
+		local enemiesNear = getNumEnemies("player" 12)
 		
 		if FlameShockTargets == nil then
 			FlameShockTargets = {}
@@ -273,7 +273,7 @@ if select(3, UnitClass("player")) == 7 then
 				
 				if useAoE() then
 						
-					enemiesNear = numEnemiesAroundPlayer(12)
+					enemiesNear = getNumEnemies("player" 12)
 					
 					--unleash_elements,if=active_enemies>=4&dot.flame_shock.ticking&(cooldown.shock.remains>cooldown.fire_nova.remains|cooldown.fire_nova.remains=0)
 					if enemiesNear >= 4
