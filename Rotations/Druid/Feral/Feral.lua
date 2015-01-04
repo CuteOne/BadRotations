@@ -18,7 +18,7 @@ if select(3, UnitClass("player")) == 11 then
 			if profileStop == nil then profileStop = false end
 			-- General Player Variables
 			local lootDelay = getOptionValue("LootDelay")
-			local hasMouse = UnitExists("mouseover")
+			local hasMouse = ObjectExists("mouseover")
 			local deadMouse = UnitIsDeadOrGhost("mouseover")
 			local playerMouse = UnitIsPlayer("mouseover")
 			local level = UnitLevel("player")
@@ -39,7 +39,7 @@ if select(3, UnitClass("player")) == 11 then
 			local deadtar, attacktar, hastar, playertar = deadtar, attacktar, hastar, UnitIsPlayer("target")
 				if deadtar == nil then deadtar = UnitIsDeadOrGhost("target") end
 				if attacktar == nil then attacktar = UnitCanAttack("target", "player") end
-				if hastar == nil then hastar = UnitExists("target") end
+				if hastar == nil then hastar = ObjectExists("target") end
 			local thisUnit = thisUnit
 				if thisUnit == nil then thisUnit = "target" end
 			local tarDist = tarDist
@@ -72,11 +72,11 @@ if select(3, UnitClass("player")) == 11 then
 		    newSr = 18 + (6*(combo-1))
 		    tt5 = 40*getRegen("player")*(5-floor(UnitPower("player")/40))
 			--Specific Target Variables
-		    local rkCalc, rpCalc, rkDmg, rpDmg = CRKD(), CRPD(), RKD(dynamicTarget(5,true)), RPD(dynamicTarget(5,true))
-		    local rkRemain, rkDuration, stunRemain = getDebuffRemain(dynamicTarget(5,true),rk,"player"), getDebuffDuration(dynamicTarget(5,true),rk,"player"), 0
-		    local rpRemain, rpDuration = getDebuffRemain(dynamicTarget(5,true),rp,"player"), getDebuffDuration(dynamicTarget(5,true),rp,"player")
-		    local thrRemain, thrDuration = getDebuffRemain(dynamicTarget(8,false),thr,"player"), getDebuffDuration(dynamicTarget(8,false),thr,"player")
-		    local mfRemain, mfTick = getDebuffRemain(dynamicTarget(40,false),mf,"player"), 20.0/(1+UnitSpellHaste("player")/100)/10
+		    local rkCalc, rpCalc, rkDmg, rpDmg = CRKD(), CRPD(), RKD(dynamicUnit.dyn5), RPD(dynamicUnit.dyn5)
+		    local rkRemain, rkDuration, stunRemain = getDebuffRemain(dynamicUnit.dyn5,rk,"player"), getDebuffDuration(dynamicUnit.dyn5,rk,"player"), 0
+		    local rpRemain, rpDuration = getDebuffRemain(dynamicUnit.dyn5,rp,"player"), getDebuffDuration(dynamicUnit.dyn5,rp,"player")
+		    local thrRemain, thrDuration = getDebuffRemain(dynamicUnit.dyn8AoE,thr,"player"), getDebuffDuration(dynamicUnit.dyn8AoE,thr,"player")
+		    local mfRemain, mfTick = getDebuffRemaindynamicUnit.dyn40AoE,mf,"player"), 20.0/(1+UnitSpellHaste("player")/100)/10
 		    if srRemain - rpRemain >= 0 then
 		    	srrpDiff = srRemain - rpRemain
 		    end
@@ -262,7 +262,7 @@ if select(3, UnitClass("player")) == 11 then
 				then
 			-- Prowl
 			        if useProwl() and not stealth 
-			        	and (UnitExists(dynamicTarget(20,false)) or isKnown(eprl)) and GetTime()-leftCombat > lootDelay 
+			        	and (ObjectExists(dynamicTarget(20,false)) or isKnown(eprl)) and GetTime()-leftCombat > lootDelay 
 			        then
 						if castSpell("player",prl,false,false,false) then return end
 			        end
@@ -290,7 +290,7 @@ if select(3, UnitClass("player")) == 11 then
 		------------------------------
 			-- Dummy Test
 					if isChecked("DPS Testing") then
-						if UnitExists("target") then
+						if ObjectExists("target") then
 							if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
 								StopAttack()
 								ClearTarget()
@@ -319,7 +319,7 @@ if select(3, UnitClass("player")) == 11 then
 		-----------------------------
 		--- In Combat - Cooldowns ---
 		-----------------------------
-					if useCDs() and not stealth and UnitExists(dynamicTarget(5,true)) then
+					if useCDs() and not stealth and ObjectExists(dynamicTarget(5,true)) then
 						thisUnit = dynamicTarget(5,true)
 						ttd = getTimeToDie(dynamicTarget(5,true))
 						thp = getHP(dynamicTarget(5,true))
@@ -374,7 +374,7 @@ if select(3, UnitClass("player")) == 11 then
 					end
 					if not stealth and isInCombat("player") and BadBoy_data['AoE'] ~= 4 then
 			-- Tiger's Fury
-						if ((not clearcast and powmax-power>=60) or powmax-power>=80) and UnitExists(dynamicTarget(5,true)) then
+						if ((not clearcast and powmax-power>=60) or powmax-power>=80) and ObjectExists(dynamicTarget(5,true)) then
 							if canTrinket(13) and useCDs() then
 								RunMacroText("/use 13")
 							end
@@ -413,7 +413,7 @@ if select(3, UnitClass("player")) == 11 then
 			                end
 						end
 			-- Savage Roar
-						if srRemain<3 and combo>0 and power>25 and UnitExists(dynamicTarget(5,true)) then --(srRemain<1 or (srRemain<rpRemain and newSr-rpRemain>1))
+						if srRemain<3 and combo>0 and power>25 and ObjectExists(dynamicTarget(5,true)) then --(srRemain<1 or (srRemain<rpRemain and newSr-rpRemain>1))
 							if castSpell("player",svr,true,false,false) then return end
 			            end
 			-- Thrash
@@ -606,7 +606,7 @@ if select(3, UnitClass("player")) == 11 then
 				    end --not stealth end
 				end --In Combat End
 		-- Start Attack
-				if UnitExists(dynamicTarget(5,true)) and not stealth and isInCombat("player") and cat and profileStop==false then
+				if ObjectExists(dynamicTarget(5,true)) and not stealth and isInCombat("player") and cat and profileStop==false then
 					StartAttack()
 				end
 			end

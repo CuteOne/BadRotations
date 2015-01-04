@@ -54,6 +54,10 @@ if select(3,UnitClass("player")) == 10 then
             textOp(" ");
             wrapOp("--- General ---");
 
+                -- Auto Looter
+                checkOp("Auto Looter","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic corpse looting.")
+                textOp("Auto Looter")
+
                 -- Death Monk
                 checkOp("Death Monk Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.");
                 textOp("Death Monk Mode");

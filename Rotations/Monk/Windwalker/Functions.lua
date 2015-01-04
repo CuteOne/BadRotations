@@ -38,12 +38,12 @@ if select(3,UnitClass("player")) == 10 then
         end
         if currtar == nil then
             currtar = UnitGUID("player")
-        elseif UnitExists("target") then
+        elseif ObjectExists("target") then
             currtar = UnitGUID("target")
         end
         targets = {}
         for i=1,#enemies do
-            if UnitExists(enemies[i])
+            if ObjectExists(enemies[i])
                 and getCreatureType(enemies[i])
                 and UnitCanAttack("player",enemies[i])
                 and not UnitIsDeadOrGhost(enemies[i])
@@ -60,7 +60,7 @@ if select(3,UnitClass("player")) == 10 then
 
     -- function getDistance2(Unit1,Unit2)
     --     if Unit2 == nil then Unit2 = "player"; end
-    --     if UnitExists(Unit1) and UnitExists(Unit2) then
+    --     if ObjectExists(Unit1) and ObjectExists(Unit2) then
     --         local X1,Y1,Z1 = ObjectPosition(Unit1);
     --         local X2,Y2,Z2 = ObjectPosition(Unit2);
     --         local unitSize = 0;
@@ -90,7 +90,7 @@ if select(3,UnitClass("player")) == 10 then
     -- -- if getEnemiesTable("target",10) >= 3 then
     -- function getEnemiesTable(Unit,Radius)
     --     local enemiesTable = {};
-    --     if UnitExists("target") == true and getCreatureType("target") == true then
+    --     if ObjectExists("target") == true and getCreatureType("target") == true then
     --         if UnitCanAttack("player","target") == true and UnitIsDeadOrGhost("target") == false then
     --             local myDistance = getDistance("player","target")
     --             if myDistance <= Radius then
@@ -202,6 +202,63 @@ if select(3,UnitClass("player")) == 10 then
 
     function getOption(spellID)
         return tostring(select(1,GetSpellInfo(spellID)))
+    end
+
+    function emptySlots()
+        openCount = 0
+        for i = 1, NUM_BAG_SLOTS do
+            openCount = openCount + select(1,GetContainerNumFreeSlots(i))
+        end
+        if openCount > 0 then
+            return true
+        else
+            return false
+        end
+    end
+
+    function getLoot()
+        if emptySlots() then
+            if not enemyTimer or enemyTimer <= GetTime() - 1 then
+                enemyTimer = GetTime()
+            end
+            looted = 0
+            for i=1,ObjectCount() do
+                if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
+                    local thisUnit = ObjectWithIndex(i)
+                    local canLoot = select(2,CanLootUnit(UnitGUID(thisUnit)))
+                    local hasLoot = select(1,CanLootUnit(UnitGUID(thisUnit)))
+                    if getCreatureType(thisUnit) == true 
+                        and UnitCanAttack("player",thisUnit) == true 
+                        and UnitIsDeadOrGhost(thisUnit) 
+                    then
+                        if PriorAutoLoot == nil then PriorAutoLoot = false end
+                        if GetCVar("autoLootDefault") == "0" then 
+                            SetCVar("autoLootDefault", "1")
+                            PriorAutoLoot = false
+                        end
+                        if canLoot then
+                            if hasLoot then
+                                InteractUnit(thisUnit)
+                                if GetNumLootItems() > 0 then
+                                    looted = 1
+                                    return true
+                                end
+                            end
+                        elseif looted==1 then
+                            looted = 0
+                            ClearTarget()
+                        end
+                        if GetCVar("autoLootDefault") == "1" and PriorAutoLoot == false then 
+                            SetCVar("autoLootDefault", "0")
+                        end
+                    end
+                end
+            end
+            return false
+        else
+            ChatOverlay("Bags are full, nothing will be looted!")
+            return false
+        end
     end
 
 end

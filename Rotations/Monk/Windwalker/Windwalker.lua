@@ -58,6 +58,12 @@ if select(3, UnitClass("player")) == 10 then
 --------------------------------------------------
 --- Ressurection/Dispelling/Healing/Pause/Misc ---
 --------------------------------------------------
+	-- AutoLooter
+      	if isChecked("Auto Looter") then
+        	if not isInCombat("player") and getLoot() then
+        		return true
+        	end
+      	end
 	-- Death Monk mode
 		if isChecked("Death Monk Mode") then
 			-- if (#targets == 0 and sefStack==1) then --(#targets == 1 and sefStack==2) or
@@ -69,7 +75,7 @@ if select(3, UnitClass("player")) == 10 then
 			if sefStack == 1 and #targets>1 then
 				if castSpell(targets[2].Unit,_StormEarthFire,false,false,false) then return end
 			end
-			if UnitExists("target") then
+			if ObjectExists("target") then
 				if not useAoE() then
 					if castSpell("target",_Jab,false,false) then return end
 				else
@@ -115,7 +121,7 @@ if select(3, UnitClass("player")) == 10 then
 -------------
 --- Buffs ---
 -------------
-		   	if not UnitExists("mouseover") and not isInCombat("player") and isChecked(getOption(_LegacyOfTheWhiteTiger)) then
+		   	if not ObjectExists("mouseover") and not isInCombat("player") and isChecked(getOption(_LegacyOfTheWhiteTiger)) then
 			  	for i = 1, #members do
 			  		if (#members==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
 	-- Legacy of the White Tiger
@@ -198,10 +204,14 @@ if select(3, UnitClass("player")) == 10 then
 					if canFSK("target") and not isDummy() and (select(2,IsInInstance())=="none" or isInCombat("target")) then
 						if castSpell("player",_FlyingSerpentKick,false,false,false) then return end
 					end
-					if (tarDist < 5 or (not canContFSK("target") and UnitExists("target"))) and select(3,GetSpellInfo(101545)) == "INTERFACE\\ICONS\\priest_icon_chakra_green" then
+					if (tarDist < 5 or (not canContFSK("target") and ObjectExists("target"))) and select(3,GetSpellInfo(101545)) == "INTERFACE\\ICONS\\priest_icon_chakra_green" then
 						if castSpell("player",_FlyingSerpentKickEnd,false,false,false) then return end
 					end
 				end
+	-- Start Attack
+          		if getDistance("player",thisUnit)<5 then
+            		StartAttack()
+          		end
 			end
 
 -----------------
@@ -213,7 +223,7 @@ if select(3, UnitClass("player")) == 10 then
 	------------------------------
 	-- Dummy Test
 				if isChecked("DPS Testing") then
-					if UnitExists("target") then
+					if ObjectExists("target") then
 						if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
 							CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
 							StopAttack()
@@ -265,8 +275,12 @@ if select(3, UnitClass("player")) == 10 then
 	--------------------------------
 	--- In Combat - All Rotation ---
 	--------------------------------
+	-- Start Attack
+		        if getDistance("player",thisUnit)<5 then
+		        	StartAttack()
+		        end
 	-- Storm, Earth, and Fire
-				if UnitExists("target") and BadBoy_data['SEF']==1 then
+				if ObjectExists("target") and BadBoy_data['SEF']==1 then
 					if (#targets == 1 and sefStack==2) or (#targets == 0 and sefStack==1) then
 						CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
 					end
@@ -314,7 +328,7 @@ if select(3, UnitClass("player")) == 10 then
 				end
 
 	-- Tiger's Lust
-				if isMoving("player") and UnitExists("target") and not UnitIsDeadOrGhost("target") and tarDist>=15 then
+				if isMoving("player") and ObjectExists("target") and not UnitIsDeadOrGhost("target") and tarDist>=15 then
 					if castSpell("player",_TigersLust,false,false) then return end
 				end
 

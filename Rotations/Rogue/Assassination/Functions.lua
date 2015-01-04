@@ -49,7 +49,7 @@ if select(3, UnitClass("player")) == 4 then
 	end
 
 	function isPicked()	--	Pick Pocket Testing
-		if UnitExists("target") then
+		if ObjectExists("target") then
 			if myTarget ~= UnitGUID("target") then
 				canPickpocket = true
 				myTarget = UnitGUID("target")
@@ -64,7 +64,7 @@ if select(3, UnitClass("player")) == 4 then
 
 	function getDistance2(Unit1,Unit2)
 	    if Unit2 == nil then Unit2 = "player"; end
-	    if UnitExists(Unit1) and UnitExists(Unit2) then
+	    if ObjectExists(Unit1) and ObjectExists(Unit2) then
 	        local X1,Y1,Z1 = ObjectPosition(Unit1);
 	        local X2,Y2,Z2 = ObjectPosition(Unit2);
 	        local unitSize = 0;

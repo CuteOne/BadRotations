@@ -74,7 +74,7 @@ if select(3, UnitClass("player")) == 11 then
     function RKD(unit)
         if Rake_sDamage==nil then
             return 0.5
-        elseif UnitExists(unit) then
+        elseif ObjectExists(unit) then
             if getDebuffRemain(unit,rk,"player")==0 then
                 rakeDot = 0.5
             else
@@ -105,7 +105,7 @@ if select(3, UnitClass("player")) == 11 then
     function RPD(unit)
         if Rip_sDamage==nil then
             return 0.5
-        elseif UnitExists(unit) then
+        elseif ObjectExists(unit) then
             if getDebuffRemain(unit,rp,"player")==0 then
                 ripDot = 0.5
             else
@@ -195,7 +195,7 @@ if select(3, UnitClass("player")) == 11 then
 
     function getDistance2(Unit1,Unit2)
         if Unit2 == nil then Unit2 = "player"; end
-        if UnitExists(Unit1) and UnitExists(Unit2) then
+        if ObjectExists(Unit1) and ObjectExists(Unit2) then
             local X1,Y1,Z1 = ObjectPosition(Unit1);
             local X2,Y2,Z2 = ObjectPosition(Unit2);
             local unitSize = 0;

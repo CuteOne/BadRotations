@@ -16,7 +16,7 @@ if select(3, UnitClass("player")) == 6 then
       -- General Player Variables
       local profileStop = profileStop
       local lootDelay = getValue("LootDelay")
-      local hasMouse, deadMouse, playerMouse, mouseDist = UnitExists("mouseover"), UnitIsDeadOrGhost("mouseover"), UnitIsPlayer("mouseover"), getDistance("player","mouseover") 
+      local hasMouse, deadMouse, playerMouse, mouseDist = ObjectExists("mouseover"), UnitIsDeadOrGhost("mouseover"), UnitIsPlayer("mouseover"), getDistance("player","mouseover") 
       local level = UnitLevel("player")
       local php = getHP("player")
       local power, powmax, powgen = getPower("player"), UnitPowerMax("player"), getRegen("player")
@@ -25,7 +25,7 @@ if select(3, UnitClass("player")) == 6 then
       local falling, swimming = getFallTime(), IsSwimming()
       local oneHand, twoHand = IsEquippedItemType("One-Hand"), IsEquippedItemType("Two-Hand")
       --General Target Variables
-      local deadtar, attacktar, hastar, playertar = UnitIsDeadOrGhost("target"), UnitCanAttack("target", "player"), UnitExists("target"), UnitIsPlayer("target")
+      local deadtar, attacktar, hastar, playertar = UnitIsDeadOrGhost("target"), UnitCanAttack("target", "player"), ObjectExists("target"), UnitIsPlayer("target")
       local tarDist = getDistance("player","target")
       local friendly = UnitIsFriend("target", "player")
       local thp,thp5 = getHP("target"),getHP(dynamicTarget(5,true))
@@ -111,7 +111,7 @@ if select(3, UnitClass("player")) == 6 then
           if castSpell("player",_FrostPresence,true,false,false) then return end
         end
       -- Unholy Presence
-        if not unholypres and ((not isInCombat("player") and IsMovingTime(2)) or (UnitExists("target") and tarDist>20 and power<40)) then
+        if not unholypres and ((not isInCombat("player") and IsMovingTime(2)) or (ObjectExists("target") and tarDist>20 and power<40)) then
           if castSpell("player",_UnholyPresence,true,false,false) then return end
         end
       -- Path of Frost
@@ -119,7 +119,7 @@ if select(3, UnitClass("player")) == 6 then
           if castSpell("player",_PathOfFrost,true,false,false) then return end
         end
       -- Control Undead
-        if UnitCreatureType("Undead") and uRunes>0 and not UnitExists("pet")
+        if UnitCreatureType("Undead") and uRunes>0 and not ObjectExists("pet")
           and (UnitClassification("target")~="normal" or UnitClassification("target")~="trivial" or UnitClassification("target")~="minus")
         then
           if castSpell("target",_ControlUndead,false,false,false) then return end
@@ -233,7 +233,7 @@ if select(3, UnitClass("player")) == 6 then
     ------------------------------
       -- Dummy Test
           if isChecked("DPS Testing") then
-            if UnitExists("target") then
+            if ObjectExists("target") then
               if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
                 profileStop = true
                 StopAttack()
@@ -303,7 +303,7 @@ if select(3, UnitClass("player")) == 6 then
             if castSpell("target",_ChainsOfIce,false,false,false) then return end
           end
         -- Death's Advance
-          if isMoving("player") and UnitExists("target") and not UnitIsDeadOrGhost("target") and tarDist>=15 then
+          if isMoving("player") and ObjectExists("target") and not UnitIsDeadOrGhost("target") and tarDist>=15 then
             if castSpell("player",_DeathsAdvance,true,false,false) then return end
           end
         -- Pillar of Frost
@@ -680,7 +680,7 @@ if select(3, UnitClass("player")) == 6 then
           end
         end --In Combat End
     -- Start Attack
-        if UnitExists(dynamicTarget(5,true)) and not stealth and isInCombat("player") and profileStop==false and tarDist<5 then
+        if ObjectExists(dynamicTarget(5,true)) and not stealth and isInCombat("player") and profileStop==false and tarDist<5 then
           StartAttack()
         end
       end

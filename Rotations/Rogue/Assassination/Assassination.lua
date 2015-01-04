@@ -28,8 +28,8 @@ if select(3, UnitClass("player")) == 4 then
      	local enemies = #getEnemies("player",8)
      	local thisUnit = dynamicTarget(5,true)
  		local tarDist = getDistance("player","target")
- 		local hasTarget = UnitExists(thisUnit)
- 		local hasMouse = UnitExists("mouseover")
+ 		local hasTarget = ObjectExists(thisUnit)
+ 		local hasMouse = ObjectExists("mouseover")
  		local level = UnitLevel("player")
  		local php = getHP("player")
  		local thp = getHP(thisUnit)
@@ -145,7 +145,7 @@ if select(3, UnitClass("player")) == 4 then
 						if castSpell("player",_Stealth,true,false,false) then stealthTimer=GetTime(); return end
 					end
 				end
-				if UnitExists("target") and stealth then 
+				if ObjectExists("target") and stealth then 
 	-- Shadowstep
 					if tarDist < 25 and tarDist >= 8 and getTalent(4,2) then
 						if castSpell("target",_Shadowstep,false,false,false) then return end
@@ -194,13 +194,13 @@ if select(3, UnitClass("player")) == 4 then
 -----------------
 --- In Combat ---
 -----------------
-			if isInCombat("player") and UnitExists("target") then
+			if isInCombat("player") and ObjectExists("target") then
 	------------------------------
 	--- In Combat - Dummy Test ---
 	------------------------------
 		-- Dummy Test
 				if isChecked("DPS Testing") then
-					if UnitExists("target") then
+					if ObjectExists("target") then
 						if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
 							StopAttack()
 							ClearTarget()
@@ -327,7 +327,7 @@ if select(3, UnitClass("player")) == 4 then
 				end
 			end --In Combat End
 	-- Start Attack
-			if tarDist<5 and not stealth and isInCombat("player") and UnitExists("target") and profileStop==false then
+			if tarDist<5 and not stealth and isInCombat("player") and ObjectExists("target") and profileStop==false then
 				StartAttack()
 			end
 		end -- Pause End
