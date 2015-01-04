@@ -76,7 +76,7 @@ if select(3, UnitClass("player")) == 11 then
 		    local rkRemain, rkDuration, stunRemain = getDebuffRemain(dynamicUnit.dyn5,rk,"player"), getDebuffDuration(dynamicUnit.dyn5,rk,"player"), 0
 		    local rpRemain, rpDuration = getDebuffRemain(dynamicUnit.dyn5,rp,"player"), getDebuffDuration(dynamicUnit.dyn5,rp,"player")
 		    local thrRemain, thrDuration = getDebuffRemain(dynamicUnit.dyn8AoE,thr,"player"), getDebuffDuration(dynamicUnit.dyn8AoE,thr,"player")
-		    local mfRemain, mfTick = getDebuffRemaindynamicUnit.dyn40AoE,mf,"player"), 20.0/(1+UnitSpellHaste("player")/100)/10
+		    local mfRemain, mfTick = getDebuffRemain(dynamicUnit.dyn40AoE,mf,"player"), 20.0/(1+UnitSpellHaste("player")/100)/10
 		    if srRemain - rpRemain >= 0 then
 		    	srrpDiff = srRemain - rpRemain
 		    end
