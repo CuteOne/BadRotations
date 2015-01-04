@@ -221,12 +221,12 @@ if select(3, UnitClass("player")) == 5 then
 					local thisUnit = enemiesTable[i].unit
 					local hp = enemiesTable[i].hp
 					--print("Scanned Unit:"..i)
-					if hp<20 then
+					--if enemiesTable[i].hp<20 then
 						if castSpell(thisUnit,SWD,true,false,false,false,false,false,true) then
-							--print("ORBED on unit: ")
+							print("ORBED on unit: ")
 							return
 						end
-					end
+					--end
 				end
 			end
 		end
@@ -238,18 +238,18 @@ if select(3, UnitClass("player")) == 5 then
 	function DotEmAll(options)
 		-- Only DotEmAll if no InsanityBuff
 		if not UnitDebuffID("player",InsanityBuff) then
-			if getDebuffRemain("target",SWP,"player")<=options.values.RefreshTime then
+			if getDebuffRemain("target",SWP,"player")<options.values.RefreshTime then
 				-- Dot the bosses
 				-- SWP on all bosses except target
 				if options.buttons.DoT==2 or options.buttons.DoT==4 then
 					if getSWP()<=options.values.MaxTargets then
 						for i = 1, #enemiesTable do
 							local thisUnit = enemiesTable[i].unit
-							local thisHP = UnitHealth(enemiesTable[i].unit)
+							local thisHP = enemiesTable[i].hp
 							--if isBoss(thisUnit) then
 								if (not UnitIsUnit("target",thisUnit)) and doNotDot(thisUnit) then
 									local swpRem = getDebuffRemain(thisUnit,SWP,"player")
-									if swpRem<options.values.RefreshTime and thisHP<options.values.MinHealth then
+									if swpRem<options.values.RefreshTime then
 										if castSpell(thisUnit,SWP,true,false) then return; end
 									end
 								end
@@ -263,11 +263,11 @@ if select(3, UnitClass("player")) == 5 then
 					if getVT()<=options.values.MaxTargets then
 						for i = 1, #enemiesTable do
 							local thisUnit = enemiesTable[i].unit
-							local thisHP = UnitHealth(enemiesTable[i].unit)
+							local thisHP = enemiesTable[i].hp
 							--if isBoss(thisUnit) then
 								if (not UnitIsUnit("target",thisUnit)) and doNotDot(thisUnit) then
 									local vtRem = getDebuffRemain(thisUnit,VT,"player")
-									if vtRem<options.values.RefreshTime and thisHP<options.values.MinHealth then
+									if vtRem<options.values.RefreshTime then
 										if castSpell(thisUnit,VT,true,false) then
 											options.player.lastVT=GetTime()
 											return; 
@@ -350,57 +350,54 @@ if select(3, UnitClass("player")) == 5 then
 		--------------
 		-- get orbs --
 		--------------
-					
-
 			if not UnitDebuffID("player",InsanityBuff) then
 				-- MB on CD
 				if castSpell("target",MB,false,false) then return; end
-			
-				-- -- not used atm. multidotting by dotemall
-				-- -- Dot the bosses (only if DotEmAll is OFF)
-				-- -- SWP on all bosses except target
-				-- if options.buttons.DoT==1 then
-				-- 	if options.isChecked.BossSWP then
-				-- 		if getSWP()<=options.values.MaxTargets then
-				-- 			for i = 1, #enemiesTable do
-				-- 				local thisUnit = enemiesTable[i].unit
-				-- 				local thisHP = enemiesTable[i].hp
-				-- 				if isBoss(thisUnit) then
-				-- 					if not UnitIsUnit("target",thisUnit) then
-				-- 						local swpRem = getDebuffRemain(thisUnit,SWP,"player")
-				-- 						if swpRem<options.values.RefreshTime then
-				-- 							if castSpell(thisUnit,SWP,true,false) then return; end
-				-- 						end
-				-- 					end
-				-- 				end
-				-- 			end
-				-- 		end
-				-- 	end
 
-				-- 	-- VT on all bosses except target
-				-- 	if options.isChecked.BossVT then
-				-- 		if getVT()<=options.values.MaxTargets then
-				-- 			for i = 1, #enemiesTable do
-				-- 				local thisUnit = enemiesTable[i].unit
-				-- 				local thisHP = enemiesTable[i].hp
-				-- 				if isBoss(thisUnit) then
-				-- 					if not UnitIsUnit("target",thisUnit) then
-				-- 						local vtRem = getDebuffRemain(thisUnit,VT,"player")
-				-- 						if vtRem<options.values.RefreshTime then
-				-- 							if castSpell(thisUnit,VT,true,false) then
-				-- 								options.player.lastVT=GetTime()
-				-- 								return; 
-				-- 							end
-				-- 						end
-				-- 					end
-				-- 				end
-				-- 			end
-				-- 		end
-				-- 	end
-				-- end
+				-- Dot the bosses (only if DotEmAll is OFF)
+				-- SWP on all bosses except target
+				if options.buttons.DoT==1 then
+					if options.isChecked.BossSWP then
+						if getSWP()<=options.values.MaxTargets then
+							for i = 1, #enemiesTable do
+								local thisUnit = enemiesTable[i].unit
+								local thisHP = enemiesTable[i].hp
+								if isBoss(thisUnit) then
+									if not UnitIsUnit("target",thisUnit) then
+										local swpRem = getDebuffRemain(thisUnit,SWP,"player")
+										if swpRem<options.values.RefreshTime then
+											if castSpell(thisUnit,SWP,true,false) then return; end
+										end
+									end
+								end
+							end
+						end
+					end
+
+					-- VT on all bosses except target
+					if options.isChecked.BossVT then
+						if getVT()<=options.values.MaxTargets then
+							for i = 1, #enemiesTable do
+								local thisUnit = enemiesTable[i].unit
+								local thisHP = enemiesTable[i].hp
+								if isBoss(thisUnit) then
+									if not UnitIsUnit("target",thisUnit) then
+										local vtRem = getDebuffRemain(thisUnit,VT,"player")
+										if vtRem<options.values.RefreshTime then
+											if castSpell(thisUnit,VT,true,false) then
+												options.player.lastVT=GetTime()
+												return; 
+											end
+										end
+									end
+								end
+							end
+						end
+					end
+				end
 
 				-- Mind Sear
-				if options.isChecked.MindSear then
+				if options.isChecked.useMindSear then
 					if #getEnemies("target",10)>=options.values.MindSear then
 						if select(1,UnitChannelInfo("player")) ~= "Mind Sear" then
 							if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
@@ -410,19 +407,19 @@ if select(3, UnitClass("player")) == 5 then
 					end
 				end
 
-				-- SWD glyphed
-				if not getTalent(3,3) then
-					if hasGlyph(GlyphOfSWD) and options.isChecked.SWDglyphed and getHP("target")>=20 then
-						if castSpell("target",SWDG,true,false) then return; end
-					end
-				end
-
 				--if #getEnemies("target",10)<options.values.MindSear or #getEnemies("target",10)>10 then
 					-- Mind Spike
 					--if options.player.ORBS<5 and (getDebuffRemain("target",SWP,"player")<2*options.player.GCD or options.player.ORBS<2) then
-					if options.player.ORBS<5 and #getEnemies("target",10)<options.values.MindSear then
+					if options.player.ORBS<5 then
 						if getBuffRemain("player",InsanityBuff)<=0 then
 							if castSpell("target",MSp,false,true) then return; end
+						end
+					end
+
+					-- SWD glyphed
+					if not getTalent(3,3) then
+						if hasGlyph(GlyphOfSWD) and options.isChecked.SWDglyphed and getHP("target")>=20 then
+							if castSpell("target",SWDG,true,false) then return; end
 						end
 					end
 				--end
@@ -432,345 +429,345 @@ if select(3, UnitClass("player")) == 5 then
 
 
 	--[[                    ]] -- IcySingle start
-	-- function IcySingle()
-	-- 	-- DP
-	-- 	if options.player.ORBS>=5 then
-	-- 		if UnitDebuffID("target",SWP,"player") and getDebuffRemain("target",SWP,"player")>options.player.DPTIME and UnitDebuffID("target",VT,"player") and getDebuffRemain("target",VT,"player")>options.player.DPTIME then
-	-- 			if options.player.ORBS==5 then
-	-- 				if castSpell("target",DP,false,true) then
-	-- 					lastDP=GetTime()
-	-- 					return
-	-- 				end
-	-- 			end
-	-- 		end
-	-- 	end
+	function IcySingle()
+		-- DP
+		if options.player.ORBS>=5 then
+			if UnitDebuffID("target",SWP,"player") and getDebuffRemain("target",SWP,"player")>options.player.DPTIME and UnitDebuffID("target",VT,"player") and getDebuffRemain("target",VT,"player")>options.player.DPTIME then
+				if options.player.ORBS==5 then
+					if castSpell("target",DP,false,true) then
+						lastDP=GetTime()
+						return
+					end
+				end
+			end
+		end
 
-	-- 	-- Burn Down ORBS (options)
-	-- 	-- if (ORBS>=3 and not isChecked("DP5")) and GetTime()-lastDP<=DPTIME then
-	-- 	-- 	if castSpell("target",DP,false,true) then return; end
-	-- 	-- end
+		-- Burn Down ORBS (options)
+		-- if (ORBS>=3 and not isChecked("DP5")) and GetTime()-lastDP<=DPTIME then
+		-- 	if castSpell("target",DP,false,true) then return; end
+		-- end
 
-	-- 	-- Burn Down ORBS (Toggle)
-	-- 	if options.player.ORBS>=3 and BadBoy_data['Burn'] == 2 and getDebuffRemain("target",DP,"player")==0 then
-	-- 		if castSpell("target",DP,false,true) then return; end
-	-- 	end
+		-- Burn Down ORBS (Toggle)
+		if options.player.ORBS>=3 and BadBoy_data['Burn'] == 2 and getDebuffRemain("target",DP,"player")==0 then
+			if castSpell("target",DP,false,true) then return; end
+		end
 
-	-- 	-- Ko'ragh barroier bug (he is "under20% life" while barrier is under 20%)
-	-- 	if GetUnitName("target")=="Ko'ragh" then
-	-- 		if castSpell("target",SWD,true,false) then return; end
-	-- 	end
+		-- Ko'ragh barroier bug (he is "under20% life" while barrier is under 20%)
+		if GetUnitName("target")=="Ko'ragh" then
+			if castSpell("target",SWD,true,false) then return; end
+		end
 
-	-- 	-- MB
-	-- 	if castSpell("target",MB,false,false) then return; end
+		-- MB
+		if castSpell("target",MB,false,false) then return; end
 
-	-- 	-- Insanity
-	-- 	if getTalent(3,3) then
-	-- 		if UnitBuffID("player",InsanityBuff) then
-	-- 			if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
-	-- 				if castSpell("target",MF,false,true) then return; end
-	-- 			end
-	-- 		end
-	-- 	end
+		-- Insanity
+		if getTalent(3,3) then
+			if UnitBuffID("player",InsanityBuff) then
+				if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
+					if castSpell("target",MF,false,true) then return; end
+				end
+			end
+		end
 
-	-- 	-- MSp if SoD proc
-	-- 	if getTalent(3,1) then
-	-- 		if UnitBuffID("player",SoDProc) then
-	-- 			if castSpell("target",MSp,false,true) then return; end
-	-- 		end
-	-- 	end
+		-- MSp if SoD proc
+		if getTalent(3,1) then
+			if UnitBuffID("player",SoDProc) then
+				if castSpell("target",MSp,false,true) then return; end
+			end
+		end
 
-	-- 	-- Dot only if not burning
-	-- 	if not UnitBuffID("player",InsanityBuff) then
-	-- 		if getDebuffRemain("player",InsanityBuff)<=0 then
-	-- 			-- SWP
-	-- 			if getDebuffRemain("target",SWP,"player")<=5.4 then
-	-- 				if castSpell("target",SWP,true,false) then return; end
-	-- 			end	
+		-- Dot only if not burning
+		if not UnitBuffID("player",InsanityBuff) then
+			if getDebuffRemain("player",InsanityBuff)<=0 then
+				-- SWP
+				if getDebuffRemain("target",SWP,"player")<=5.4 then
+					if castSpell("target",SWP,true,false) then return; end
+				end	
 
-	-- 			-- VT
-	-- 			if options.player.lastVT==nil or GetTime()-options.player.lastVT > 2 then
-	-- 				if getDebuffRemain("target",VT,"player")<=4.5 then
-	-- 					if castSpell("target",VT,true,true) then 
-	-- 						options.player.lastVT=GetTime()
-	-- 						return
-	-- 					end
-	-- 				end
-	-- 			end
-	-- 		end
-	-- 	end
+				-- VT
+				if options.player.lastVT==nil or GetTime()-options.player.lastVT > 2 then
+					if getDebuffRemain("target",VT,"player")<=4.5 then
+						if castSpell("target",VT,true,true) then 
+							options.player.lastVT=GetTime()
+							return
+						end
+					end
+				end
+			end
+		end
 
-	-- 	-- MF Filler
-	-- 	if options.player.ORBS<5 then
-	-- 		if getSpellCD(MB)>0.2*options.player.GCD then
-	-- 			if select(1,UnitChannelInfo("player")) == nil then
-	-- 				if castSpell("target",MF,false,true) then return; end
-	-- 			end
-	-- 		end
-	-- 	end
-	-- end
+		-- MF Filler
+		if options.player.ORBS<5 then
+			if getSpellCD(MB)>0.2*options.player.GCD then
+				if select(1,UnitChannelInfo("player")) == nil then
+					if castSpell("target",MF,false,true) then return; end
+				end
+			end
+		end
+	end
 	--[[                    ]] -- IcySingle end
 
 
 	--[[                    ]] -- Dual Target start
-	-- function IcyDualTarget()
-	-- 	-----------------
-	-- 	-- DoT Weaving --
-	-- 	-----------------
-	-- 		-- if ORBS==5 --> apply DoTs if targetHP>20
-	-- 		if getTalent(3,3) then
-	-- 			-- function DoTWeaveBreak()
-	-- 			-- 	local counter=0
-	-- 			-- 	local factor=getValue("Weave Comp")/10
-	-- 			-- 	if isChecked("SWP") then counter=counter+1 end
-	-- 			-- 	if isChecked("VT") then counter=counter+1 end
-	-- 			-- 	return counter*GCD*factor
-	-- 			-- end
-	-- 			-- local Break=DoTWeaveBreak()
-	-- 			-- if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<Break then
-	-- 			if options.player.ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<2*options.player.GCD then
-	-- 				if isChecked("SWP") then
-	-- 					if not UnitDebuffID("target",SWP,"player") then
-	-- 						if castSpell("target",SWP,true,false) then return; end
-	-- 					end
-	-- 				end
-	-- 				if isChecked("VT") then
-	-- 					if not UnitDebuffID("target",VT,"player") and GetTime()-options.player.lastVT > 2 then
-	-- 						if castSpell("target",VT,true,true) then 
-	-- 							options.player.lastVT=GetTime()
-	-- 							return
-	-- 						end
-	-- 					end
-	-- 				end
-	-- 			end
-	-- 		end
-	-- 	----------------
-	-- 	-- spend orbs --
-	-- 	----------------
-	-- 		--DP if ORBS == 5
-	-- 		--if isStanding(0.3) then
-	-- 			if options.player.ORBS==5 then
-	-- 				if castSpell("target",DP,false,true) then
-	-- 					lastDP=GetTime()
-	-- 					return
-	-- 				end
-	-- 			end
-	-- 		--end
+	function IcyDualTarget()
+		-----------------
+		-- DoT Weaving --
+		-----------------
+			-- if ORBS==5 --> apply DoTs if targetHP>20
+			if getTalent(3,3) then
+				-- function DoTWeaveBreak()
+				-- 	local counter=0
+				-- 	local factor=getValue("Weave Comp")/10
+				-- 	if isChecked("SWP") then counter=counter+1 end
+				-- 	if isChecked("VT") then counter=counter+1 end
+				-- 	return counter*GCD*factor
+				-- end
+				-- local Break=DoTWeaveBreak()
+				-- if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<Break then
+				if options.player.ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<2*options.player.GCD then
+					if isChecked("SWP") then
+						if not UnitDebuffID("target",SWP,"player") then
+							if castSpell("target",SWP,true,false) then return; end
+						end
+					end
+					if isChecked("VT") then
+						if not UnitDebuffID("target",VT,"player") and GetTime()-options.player.lastVT > 2 then
+							if castSpell("target",VT,true,true) then 
+								options.player.lastVT=GetTime()
+								return
+							end
+						end
+					end
+				end
+			end
+		----------------
+		-- spend orbs --
+		----------------
+			--DP if ORBS == 5
+			--if isStanding(0.3) then
+				if options.player.ORBS==5 then
+					if castSpell("target",DP,false,true) then
+						lastDP=GetTime()
+						return
+					end
+				end
+			--end
 
-	-- 		-- DP if ORBS>=3 and lastDP<DPTIME and InsanityBuff<DPTICK
-	-- 		if options.player.ORBS>=3 and GetTime()-lastDP<=options.player.DPTIME+2 then
-	-- 			if castSpell("target",DP,false,true) then return; end
-	-- 		end
+			-- DP if ORBS>=3 and lastDP<DPTIME and InsanityBuff<DPTICK
+			if options.player.ORBS>=3 and GetTime()-lastDP<=options.player.DPTIME+2 then
+				if castSpell("target",DP,false,true) then return; end
+			end
 
-	-- 		-- Insanity if noChanneling
-	-- 		if getTalent(3,3) then
-	-- 			if UnitBuffID("player",InsanityBuff) and getBuffRemain("player",InsanityBuff)>0.7*options.player.GCD then
-	-- 				--if select(1,UnitChannelInfo("player")) == nil then
-	-- 					if castSpell("target",MF,false,true) then return; end
-	-- 				--end
-	-- 			end
-	-- 		end
+			-- Insanity if noChanneling
+			if getTalent(3,3) then
+				if UnitBuffID("player",InsanityBuff) and getBuffRemain("player",InsanityBuff)>0.7*options.player.GCD then
+					--if select(1,UnitChannelInfo("player")) == nil then
+						if castSpell("target",MF,false,true) then return; end
+					--end
+				end
+			end
 
-	-- 	--------------
-	-- 	-- get orbs --
-	-- 	--------------
-	-- 		if not UnitDebuffID("player",InsanityBuff) then
-	-- 			-- MB on CD
-	-- 			if select(1,UnitChannelInfo("player")) == nil then
-	-- 				if castSpell("target",MB,false,false) then return; end
-	-- 			end
+		--------------
+		-- get orbs --
+		--------------
+			if not UnitDebuffID("player",InsanityBuff) then
+				-- MB on CD
+				if select(1,UnitChannelInfo("player")) == nil then
+					if castSpell("target",MB,false,false) then return; end
+				end
 
-	-- 			-- Dot the bosses
-	-- 			-- SWP on all bosses except target
-	-- 			if isChecked("Boss SWP") then
-	-- 				for i = 1, #enemiesTable do
-	-- 					local thisUnit = enemiesTable[i].unit
-	-- 					if not UnitIsUnit("target",thisUnit) then
-	-- 						if isBoss(thisUnit) then
-	-- 							local swpRem = getDebuffRemain(thisUnit,SWP,"player")
-	-- 							if swpRem<getRefreshTime then
-	-- 								if castSpell(thisUnit,SWP,true,false) then return; end
-	-- 							end
-	-- 						end
-	-- 					end
-	-- 				end
-	-- 			end
+				-- Dot the bosses
+				-- SWP on all bosses except target
+				if isChecked("Boss SWP") then
+					for i = 1, #enemiesTable do
+						local thisUnit = enemiesTable[i].unit
+						if not UnitIsUnit("target",thisUnit) then
+							if isBoss(thisUnit) then
+								local swpRem = getDebuffRemain(thisUnit,SWP,"player")
+								if swpRem<getRefreshTime then
+									if castSpell(thisUnit,SWP,true,false) then return; end
+								end
+							end
+						end
+					end
+				end
 
-	-- 			-- VT on all bosses except target
-	-- 			if isChecked("Boss VT") then
-	-- 				for i = 1, #enemiesTable do
-	-- 					local thisUnit = enemiesTable[i].unit
-	-- 					if not UnitIsUnit("target",thisUnit) then
-	-- 						if isBoss(thisUnit) then
-	-- 							local vtRem = getDebuffRemain(thisUnit,VT,"player")
-	-- 							if vtRem<getRefreshTime then
-	-- 								if castSpell(thisUnit,VT,true,false) then
-	-- 									options.player.lastVT=GetTime()
-	-- 									return; 
-	-- 								end
-	-- 							end
-	-- 						end
-	-- 					end
-	-- 				end
-	-- 			end
+				-- VT on all bosses except target
+				if isChecked("Boss VT") then
+					for i = 1, #enemiesTable do
+						local thisUnit = enemiesTable[i].unit
+						if not UnitIsUnit("target",thisUnit) then
+							if isBoss(thisUnit) then
+								local vtRem = getDebuffRemain(thisUnit,VT,"player")
+								if vtRem<getRefreshTime then
+									if castSpell(thisUnit,VT,true,false) then
+										options.player.lastVT=GetTime()
+										return; 
+									end
+								end
+							end
+						end
+					end
+				end
 
-	-- 			-- Mind Spike
-	-- 			if options.player.ORBS<5 and getBuffRemain("player",InsanityBuff)<=options.player.GCD and getSpellCD(MB)>0 then
-	-- 				if castSpell("target",MSp,false,true) then return; end
-	-- 			end
+				-- Mind Spike
+				if options.player.ORBS<5 and getBuffRemain("player",InsanityBuff)<=options.player.GCD and getSpellCD(MB)>0 then
+					if castSpell("target",MSp,false,true) then return; end
+				end
 
-	-- 			-- SWD glyphed
-	-- 			if not getTalent(3,3) then
-	-- 				if hasGlyph(GlyphOfSWD) and isChecked("SWD glyphed") and getHP("target")>=20 then
-	-- 					if castSpell("target",SWDG,true,false) then return; end
-	-- 				end
-	-- 			end
-	-- 		end
-	-- end
+				-- SWD glyphed
+				if not getTalent(3,3) then
+					if hasGlyph(GlyphOfSWD) and isChecked("SWD glyphed") and getHP("target")>=20 then
+						if castSpell("target",SWDG,true,false) then return; end
+					end
+				end
+			end
+	end
 	--[[                    ]] -- Dual Target end
 
 
 	--[[                    ]] -- IcyMultiTarget start
-	-- function IcyMultiTarget(options)
-	-- 	-- DP
-	-- 	if options.player.ORBS>=5 then
-	-- 		--if (getDebuffRemain("target",SWP,"player")>DPTIME or not isChecked("Multi SWP")) and (getDebuffRemain("target",VT,"player")>DPTIME or not isChecked("Multi VT")) then
-	-- 			if castSpell("target",DP,false,true) then return; end
-	-- 		--end
-	-- 	end
+	function IcyMultiTarget(options)
+		-- DP
+		if options.player.ORBS>=5 then
+			--if (getDebuffRemain("target",SWP,"player")>DPTIME or not isChecked("Multi SWP")) and (getDebuffRemain("target",VT,"player")>DPTIME or not isChecked("Multi VT")) then
+				if castSpell("target",DP,false,true) then return; end
+			--end
+		end
 
-	-- 	-- -- Burn Down ORBS (Toggle)
-	-- 	-- if ORBS>=3 and BadBoy_data['Burn'] == 2 and getDebuffRemain("target",DP,"player")==0 then
-	-- 	-- 	if castSpell("target",DP,false,true) then return; end
-	-- 	-- end
+		-- -- Burn Down ORBS (Toggle)
+		-- if ORBS>=3 and BadBoy_data['Burn'] == 2 and getDebuffRemain("target",DP,"player")==0 then
+		-- 	if castSpell("target",DP,false,true) then return; end
+		-- end
 
-	-- 	-- MB
-	-- 	if options.player.ORBS<5 then
-	-- 		if castSpell("target",MB,false,false) then return; end
-	-- 	end
+		-- MB
+		if options.player.ORBS<5 then
+			if castSpell("target",MB,false,false) then return; end
+		end
 
-	-- 	-- -- Insanity with 2 targets
-	-- 	-- if getTalent(3,3) then
-	-- 	-- 	if #enemiesTable<=2 then
-	-- 	-- 		if UnitBuffID("player",InsanityBuff) then
-	-- 	-- 			if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
-	-- 	-- 				if castSpell("target",MF,false,true) then return; end
-	-- 	-- 			end
-	-- 	-- 		end
-	-- 	-- 	end
-	-- 	-- end
-	-- 	--if select(1,UnitChannelInfo("player")) == "Insanity" then return; end
+		-- -- Insanity with 2 targets
+		-- if getTalent(3,3) then
+		-- 	if #enemiesTable<=2 then
+		-- 		if UnitBuffID("player",InsanityBuff) then
+		-- 			if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
+		-- 				if castSpell("target",MF,false,true) then return; end
+		-- 			end
+		-- 		end
+		-- 	end
+		-- end
+		--if select(1,UnitChannelInfo("player")) == "Insanity" then return; end
 
-	-- 	-- -- SWD on Unit in range and hp<20
-	-- 	-- if getSpellCD(SWD)==0 and options.player.ORBS<5 then
-	-- 	-- 	for i=1,#enemiesTable do
-	-- 	-- 		local thisUnit = enemiesTable[i].unit
-	-- 	-- 		if enemiesTable[i].hp<20 then
-	-- 	-- 			if castSpell(thisUnit,SWD,true,false) then return; end
-	-- 	-- 		end
-	-- 	-- 	end
-	-- 	-- end
+		-- -- SWD on Unit in range and hp<20
+		-- if getSpellCD(SWD)==0 and options.player.ORBS<5 then
+		-- 	for i=1,#enemiesTable do
+		-- 		local thisUnit = enemiesTable[i].unit
+		-- 		if enemiesTable[i].hp<20 then
+		-- 			if castSpell(thisUnit,SWD,true,false) then return; end
+		-- 		end
+		-- 	end
+		-- end
 
 
-	-- 	-- SWP
-	-- 	if options.isChecked.MultiSWP then
-	-- 		if getSWP()<=options.values.MaxTargets then
-	-- 			for i = 1, #enemiesTable do
-	-- 				local thisUnit = enemiesTable[i].unit
-	-- 				local thisHP = enemiesTable[i].hp
-	-- 				--if isBoss(thisUnit) then
-	-- 					--if not UnitIsUnit("target",thisUnit) then
-	-- 						local swpRem = getDebuffRemain(thisUnit,SWP,"player")
-	-- 						if swpRem<options.values.RefreshTime then
-	-- 							if castSpell(thisUnit,SWP,true,false) then return; end
-	-- 						end
-	-- 					--end
-	-- 				--end
-	-- 			end
-	-- 		end
-	-- 	end
+		-- SWP
+		if options.isChecked.MultiSWP then
+			if getSWP()<=options.values.MaxTargets then
+				for i = 1, #enemiesTable do
+					local thisUnit = enemiesTable[i].unit
+					local thisHP = enemiesTable[i].hp
+					--if isBoss(thisUnit) then
+						--if not UnitIsUnit("target",thisUnit) then
+							local swpRem = getDebuffRemain(thisUnit,SWP,"player")
+							if swpRem<options.values.RefreshTime then
+								if castSpell(thisUnit,SWP,true,false) then return; end
+							end
+						--end
+					--end
+				end
+			end
+		end
 
-	-- 	-- VT on all bosses except target
-	-- 	if options.isChecked.MultiVT then
-	-- 		if getVT()<=options.values.MaxTargets then
-	-- 			for i = 1, #enemiesTable do
-	-- 				local thisUnit = enemiesTable[i].unit
-	-- 				local thisHP = enemiesTable[i].hp
-	-- 				--if isBoss(thisUnit) then
-	-- 					--if not UnitIsUnit("target",thisUnit) then
-	-- 						local vtRem = getDebuffRemain(thisUnit,VT,"player")
-	-- 						if vtRem<options.values.RefreshTime then
-	-- 							if castSpell(thisUnit,VT,true,false) then
-	-- 								options.player.lastVT=GetTime()
-	-- 								return; 
-	-- 							end
-	-- 						end
-	-- 					--end
-	-- 				--end
-	-- 			end
-	-- 		end
-	-- 	end
+		-- VT on all bosses except target
+		if options.isChecked.MultiVT then
+			if getVT()<=options.values.MaxTargets then
+				for i = 1, #enemiesTable do
+					local thisUnit = enemiesTable[i].unit
+					local thisHP = enemiesTable[i].hp
+					--if isBoss(thisUnit) then
+						--if not UnitIsUnit("target",thisUnit) then
+							local vtRem = getDebuffRemain(thisUnit,VT,"player")
+							if vtRem<options.values.RefreshTime then
+								if castSpell(thisUnit,VT,true,false) then
+									options.player.lastVT=GetTime()
+									return; 
+								end
+							end
+						--end
+					--end
+				end
+			end
+		end
 
-	-- 	-- -- SWP on max targets (options)
-	-- 	-- if getSWP()<=getValue("Max Targets") then
-	-- 	-- 	-- apply on current target before iterating
-	-- 	-- 	if getDebuffRemain("target",SWP,"player")<getValue("Refresh Time") then
-	-- 	-- 		if castSpell("target",SWP,true,false) then return; end
-	-- 	-- 	end
-	-- 	-- 	-- iterate the table if multiSWP
-	-- 	-- 	if isChecked("Multi SWP") then
-	-- 	-- 		for i = 1, #enemiesTable do
-	-- 	-- 			local thisUnit = enemiesTable[i].unit
-	-- 	-- 			local ttd = getTimeToDie(thisUnit)
-	-- 	-- 			local swpRem = getDebuffRemain(thisUnit,SWP,"player")
-	-- 	-- 			if (not isLongTimeCCed(thisUnit)) and swpRem<getValue("Refresh Time") then
-	-- 	-- 				if castSpell(thisUnit,SWP,true,false) then return; end
-	-- 	-- 			end
-	-- 	-- 		end
-	-- 	-- 	end
-	-- 	-- end
+		-- -- SWP on max targets (options)
+		-- if getSWP()<=getValue("Max Targets") then
+		-- 	-- apply on current target before iterating
+		-- 	if getDebuffRemain("target",SWP,"player")<getValue("Refresh Time") then
+		-- 		if castSpell("target",SWP,true,false) then return; end
+		-- 	end
+		-- 	-- iterate the table if multiSWP
+		-- 	if isChecked("Multi SWP") then
+		-- 		for i = 1, #enemiesTable do
+		-- 			local thisUnit = enemiesTable[i].unit
+		-- 			local ttd = getTimeToDie(thisUnit)
+		-- 			local swpRem = getDebuffRemain(thisUnit,SWP,"player")
+		-- 			if (not isLongTimeCCed(thisUnit)) and swpRem<getValue("Refresh Time") then
+		-- 				if castSpell(thisUnit,SWP,true,false) then return; end
+		-- 			end
+		-- 		end
+		-- 	end
+		-- end
 
-	-- 	-- -- VT on Unit in range
-	-- 	-- if getVT()<=getValue("Max Targets") then
-	-- 	-- 	-- apply on current target before iterating
-	-- 	-- 	if getDebuffRemain("target",VT,"player")<getValue("Refresh Time") and GetTime()-lastVT>2*GCD then
-	-- 	-- 		if castSpell("target",VT,true,true) then 
-	-- 	-- 			lastVT=GetTime()
-	-- 	-- 			return
-	-- 	-- 		end
-	-- 	-- 	end
-	-- 	-- 	-- iterate the table if multiVT
-	-- 	-- 	if isChecked("Multi VT") then
-	-- 	-- 		for i = 1, #enemiesTable do
-	-- 	-- 			local thisUnit = enemiesTable[i].unit
-	-- 	-- 			local ttd = getTimeToDie(thisUnit)
-	-- 	-- 			local vtRem = getDebuffRemain(thisUnit,VT,"player")
-	-- 	-- 			if (not isLongTimeCCed(thisUnit)) and vtRem<getValue("Refresh Time") and GetTime()-lastVT>2*GCD then
-	-- 	-- 				if castSpell(thisUnit,VT,true,true) then 
-	-- 	-- 					lastVT=GetTime()
-	-- 	-- 					return
-	-- 	-- 				end
-	-- 	-- 			end
-	-- 	-- 		end
-	-- 	-- 	end
-	-- 	-- end
+		-- -- VT on Unit in range
+		-- if getVT()<=getValue("Max Targets") then
+		-- 	-- apply on current target before iterating
+		-- 	if getDebuffRemain("target",VT,"player")<getValue("Refresh Time") and GetTime()-lastVT>2*GCD then
+		-- 		if castSpell("target",VT,true,true) then 
+		-- 			lastVT=GetTime()
+		-- 			return
+		-- 		end
+		-- 	end
+		-- 	-- iterate the table if multiVT
+		-- 	if isChecked("Multi VT") then
+		-- 		for i = 1, #enemiesTable do
+		-- 			local thisUnit = enemiesTable[i].unit
+		-- 			local ttd = getTimeToDie(thisUnit)
+		-- 			local vtRem = getDebuffRemain(thisUnit,VT,"player")
+		-- 			if (not isLongTimeCCed(thisUnit)) and vtRem<getValue("Refresh Time") and GetTime()-lastVT>2*GCD then
+		-- 				if castSpell(thisUnit,VT,true,true) then 
+		-- 					lastVT=GetTime()
+		-- 					return
+		-- 				end
+		-- 			end
+		-- 		end
+		-- 	end
+		-- end
 
-	-- 	-- Mind Sear Filler
-	-- 	--if #getEnemies("player",40)>=3 then
-	-- 	if #getEnemies("target",10)>=3 then
-	-- 		if select(1,UnitChannelInfo("player")) ~= "Mind Sear" then
-	-- 			if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
-	-- 				if castSpell("target",MS,false,true) then return; end
-	-- 			end
-	-- 		end
-	-- 	end
+		-- Mind Sear Filler
+		--if #getEnemies("player",40)>=3 then
+		if #getEnemies("target",10)>=3 then
+			if select(1,UnitChannelInfo("player")) ~= "Mind Sear" then
+				if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
+					if castSpell("target",MS,false,true) then return; end
+				end
+			end
+		end
 
-	-- 	-- MF/Insanity
-	-- 	--if getDebuffRemain("target",SWP,"player")<getValue("Refresh Time") then
-	-- 		if options.player.ORBS<=5 and select(1,UnitChannelInfo("player")) == nil then
-	-- 			if castSpell("target",MF,false,true) then return; end
-	-- 		end	
-	-- 	--end
-	-- end
+		-- MF/Insanity
+		--if getDebuffRemain("target",SWP,"player")<getValue("Refresh Time") then
+			if options.player.ORBS<=5 and select(1,UnitChannelInfo("player")) == nil then
+				if castSpell("target",MF,false,true) then return; end
+			end	
+		--end
+	end
 	--[[                    ]] -- IcyMultiTarget end
 end
 

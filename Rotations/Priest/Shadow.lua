@@ -30,8 +30,10 @@ if select(3, UnitClass("player")) == 5 then
 			--VTCASTTIME = 1.5/(1+UnitSpellHaste("player")/100)
 
 			-- Set Enemies Table
-			makeEnemiesTable(40)
-
+			if BadBoy_data['AoE'] == 3 and (myEnemiesTableTimer == nil or myEnemiesTableTimer <= GetTime() - 1) then
+				makeEnemiesTable(40)
+				myEnemiesTableTimer = GetTime()
+			end
 
 
 			local options = {
@@ -73,19 +75,19 @@ if select(3, UnitClass("player")) == 5 then
 					Dispersion =		isChecked("Dispersion"),
 					Fade =				isChecked("Fade Aggro"),
 					--DoT Weave
-					SWP =				isChecked("SWP"),
-					VT =				isChecked("VT"),
+					-- SWP =				isChecked("SWP"),
+					-- VT =				isChecked("VT"),
 					-- Multitarget
 					-- MultiSWP =			isChecked("Multi SWP"),
 					-- MultiVT =			isChecked("Multi VT"),
 					-- BossSWP =			isChecked("Boss SWP"),
 					-- BossVT =			isChecked("Boss VT"),
-					MindSear =			isChecked("MS Targets"),
+					useMindSear =		isChecked("MS Targets"),
 					-- Utilities
 					PWF = 				isChecked("PW: Fortitude"),
 					Shadowform =		isChecked("Shadowform Outfight"),
 					Feather =			isChecked("Angelic Feather"),
-					BodyAndSoul = 		isChecked("Body And Soul"),
+					BodyAndSoul = 		isChecked("Body And Soul")
 				},
 				-- Values
 				values = {
@@ -99,8 +101,6 @@ if select(3, UnitClass("player")) == 5 then
 					MindSear = 			getValue("MS Targets")
 				}
 			}
-
-			datleben=getValue("Min Health")*1000000
 
 			if options.player.lastVT==nil then options.player.lastVT=0 end
 			if options.player.lastDP==nil then options.player.lastDP=99 end
@@ -192,7 +192,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- IN COMBAT --
 		---------------
 		-- AffectingCombat, Pause, Target, Dead/Ghost Check
-		if UnitAffectingCombat("player") or UnitAffectingCombat("target") or options.isChecked.AttackAll then
+		if UnitAffectingCombat("player") or UnitAffectingCombat("target") then
 
 			-- Shadowform
 			if not UnitBuffID("player",Shadowform) then
