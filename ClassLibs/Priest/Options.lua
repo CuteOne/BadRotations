@@ -76,10 +76,21 @@ if select(3, UnitClass("player")) == 5 then
 					CreateNewText(thisConfig,"SWD glyphed");
 				end
 
-				-- LR Orbs
+				-- LFR Orbs
 				CreateNewCheck(thisConfig,"Scan for Orbs", "Scan all enemies to create an orb with SWD");
 				CreateNewText(thisConfig,"Scan for Orbs");
 
+				
+				-- LFR ToF
+				CreateNewCheck(thisConfig,"Scan for ToF", "Scan all enemies to get ToF");
+				CreateNewText(thisConfig,"Scan for ToF");
+			
+
+			-- Wrapper -----------------------------------------
+			CreateNewWrap(thisConfig,"      |cffBA55D3Encounter Specific");
+				-- DP on Focus
+				CreateNewCheck(thisConfig,"DP on Focus", "DP on Focus instead on target");
+				CreateNewText(thisConfig,"DP on Focus");
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"      |cffBA55D3Defensive");
@@ -153,7 +164,7 @@ if select(3, UnitClass("player")) == 5 then
 				-- CreateNewText(thisConfig,"Boss VT");
 
 				-- Min Health
-				CreateNewBox(thisConfig,"Min Health", 0.0, 5, 0.1, 1.5, "Minimum Health in |cffFF0000million HP|cffFFBB00.\nMin: 0 / Max: 5  / Interval: 0.1");
+				CreateNewBox(thisConfig,"Min Health", 0.0, 7.5, 0.1, 1.5, "Minimum Health in |cffFF0000million HP|cffFFBB00.\nMin: 0 / Max: 7.5  / Interval: 0.1");
 				CreateNewText(thisConfig,"Min Health");
 
 				-- Max Targets
