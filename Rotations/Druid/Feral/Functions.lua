@@ -27,7 +27,7 @@ if select(3, UnitClass("player")) == 11 then
     function WA_calcStats_feral()
         local DamageMult = 1
 
-        local CP = GetComboPoints("player", "target")
+        local CP = GetComboPoints("player", dynamicTarget(5,true))
         if CP == 0 then CP = 5 end
 
         if UnitBuffID("player",tf) then
