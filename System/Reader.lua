@@ -450,6 +450,15 @@ function SuperReader(self,event,...)
         if (param == "UNIT_DIED" or  param == "UNIT_DESTROYED" or GetTotemInfo(1) ~= true) and shroomsTable ~= nil and shroomsTable[1].guid == destination then
         	shroomsTable[1] = { }
         end
+        -- Moonkin
+        if source == playerGUID and playerClass == 11 and GetSpecialization() == 1 then
+            -- Starsurge Casted
+            if spell == 78674 and param == "SPELL_CAST_SUCCESS" then
+                if core then
+                    core.lastStarsurge = GetTime()
+                end
+            end
+        end
 
         ----------------
         --[[Item locks]]

@@ -1,28 +1,32 @@
 if select(3, UnitClass("player")) == 11 then
     function MoonkinConfig()
         if currentConfig ~= "Moonkin CodeMyLife" then
+
+            local myColor = "|cffC0C0C0"
+            local redColor = "|cffFF0011"
+            local whiteColor = "|cffFFFFFF"
+            local myClassColor = classColors[select(3,UnitClass("player"))].hex
+            local function generateWrapper(wrapName)
+                CreateNewWrap(thisConfig,whiteColor.."- "..redColor..wrapName..whiteColor.." -")
+            end
+
+
             ClearConfig()
             thisConfig = 0
             -- Title
             CreateNewTitle(thisConfig,"Moonkin |cffFF0000CodeMyLife")
-            -- Wrapper -----------------------------------------
-            CreateNewWrap(thisConfig,"---------- Buffs ---------")
+            generateWrapper("Buffs")
 
             -- Mark Of The Wild
             CreateNewCheck(thisConfig,"Mark Of The Wild")
             CreateNewText(thisConfig,"Mark Of The Wild")
 
-            -- Nature's Cure
-            CreateNewCheck(thisConfig,"Nature's Cure")
-            CreateNewDrop(thisConfig,"Nature's Cure", 1, "|cffFFBB00MMouse:|cffFFFFFFMouse / Match List. \n|cffFFBB00MRaid:|cffFFFFFFRaid / Match List. \n|cffFFBB00AMouse:|cffFFFFFFMouse / All. \n|cffFFBB00ARaid:|cffFFFFFFRaid / All.",
-                "|cffFFDD11MMouse",
-                "|cffFFDD11MRaid",
-                "|cff00FF00AMouse",
-                "|cff00FF00ARaid")
-            CreateNewText(thisConfig,"Nature's Cure")
+            generateWrapper("DPS")
+            -- Multi-Moonfire
+            CreateNewCheck(thisConfig,"Multi-Moonfire")
+            CreateNewText(thisConfig,"Multi-Moonfire")
 
-            -- Wrapper -----------------------------------------
-            CreateNewWrap(thisConfig,"------ Cooldowns ------")
+            generateWrapper("Cooldowns")
 
             -- Force Of Nature
             CreateNewCheck(thisConfig,"Force Of Nature")
@@ -36,16 +40,19 @@ if select(3, UnitClass("player")) == 11 then
             CreateNewCheck(thisConfig,"Celestial Alignment")
             CreateNewText(thisConfig,"Celestial Alignment")
 
-            -- Wrapper -----------------------------------------
-            CreateNewWrap(thisConfig,"--------- Healing -------")
+            generateWrapper("Healing")
 
             -- Healing Touch Ns
             CreateNewCheck(thisConfig,"Healing Touch Ns")
             CreateNewBox(thisConfig, "Healing Touch Ns", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealing Touch|cffFFBB00 with |cffFFFFFFNature Swiftness.")
             CreateNewText(thisConfig,"Healing Touch Ns")
 
-            -- Wrapper -----------------------------------------
-            CreateNewWrap(thisConfig,"------- Defensive ------")
+            -- Rejuvenation
+            CreateNewCheck(thisConfig,"Rejuvenation")
+            CreateNewBox(thisConfig, "Rejuvenation", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealing Touch|cffFFBB00 with |cffFFFFFFNature Swiftness.")
+            CreateNewText(thisConfig,"Rejuvenation")
+
+            generateWrapper("Defensive")
 
             -- Healthstone
             CreateNewCheck(thisConfig,"Healthstone")
@@ -57,13 +64,7 @@ if select(3, UnitClass("player")) == 11 then
             CreateNewBox(thisConfig, "Barkskin", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFBarkskin")
             CreateNewText(thisConfig,"Barkskin")
 
-            -- Might of Ursoc
-            CreateNewCheck(thisConfig,"Might of Ursoc")
-            CreateNewBox(thisConfig, "Might of Ursoc", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFMight of Ursoc")
-            CreateNewText(thisConfig,"Might of Ursoc")
-
-            -- Wrapper -----------------------------------------
-            CreateNewWrap(thisConfig,"-------- Toggles --------")
+            generateWrapper("Toggles")
 
             -- Pause Toggle
             CreateNewCheck(thisConfig,"Pause Toggle")
@@ -74,14 +75,6 @@ if select(3, UnitClass("player")) == 11 then
             CreateNewCheck(thisConfig,"Focus Toggle")
             CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle2")
             CreateNewText(thisConfig,"Focus Toggle")
-
-            -- Wrapper -----------------------------------------
-            CreateNewWrap(thisConfig,"------ Utilities ------")
-
-            -- Follow Tank
-            CreateNewCheck(thisConfig,"Follow Tank")
-            CreateNewBox(thisConfig, "Follow Tank", 10, 40  , 1, 25, "|cffFFBB00Range from focus...")
-            CreateNewText(thisConfig,"Follow Tank")
 
             -- General Configs
             CreateGeneralsConfig()

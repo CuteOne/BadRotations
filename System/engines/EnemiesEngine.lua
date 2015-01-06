@@ -194,7 +194,7 @@ function castDotCycle(units,spellID,range,facingCheck,movementCheck,duration)
 	if getDebuffCount(spellID) < units then
     	for i = 1, #enemiesTable do
      		local thisUnit = enemiesTable[i]
-     		if thisUnit.isCC == false then
+     		if thisUnit.isCC == false and UnitLevel(thisUnit.unit) < UnitLevel("player") + 5 then
 	     		local dotRemains = getDebuffRemain(thisUnit.unit,spellID,"player")
 	     		if dotRemains < duration then
 	      			if castSpell(thisUnit.unit,spellID,facingCheck,movementCheck) then
