@@ -1,9 +1,9 @@
 if select(3, UnitClass("player")) == 11 then
 function DruidMoonkin()
 	if currentConfig ~= "Moonkin CodeMyLife" then
+		MoonkinFunctions()
 		MoonkinConfig()
 		MoonkinToggles()
-		MoonkinFunctions()
 		currentConfig = "Moonkin CodeMyLife"
 	end
 
@@ -31,6 +31,16 @@ function DruidMoonkin()
 		return false
 	end
 
+	-- Rejuvenation
+	if core:castRejuvenation() then
+		return
+	end
+
+	-- Mark of the wild
+	if isChecked("Mark Of The Wild") and core:castMarkOfTheWild() then
+		return
+	end
+
 	if UnitAffectingCombat("player") == true and canRun() then
 
 
@@ -40,6 +50,7 @@ function DruidMoonkin()
 		-- actions+=/berserking,if=buff.celestial_alignment.up
 		-- actions+=/arcane_torrent,if=buff.celestial_alignment.up
 		-- actions+=/force_of_nature,if=trinket.stat.intellect.up|charges=3|target.time_to_die<21
+		core:cooldowns()
 
 
 		-- actions+=/call_action_list,name=single_target,if=active_enemies=1

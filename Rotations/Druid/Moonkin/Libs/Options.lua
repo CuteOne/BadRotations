@@ -28,35 +28,49 @@ if select(3, UnitClass("player")) == 11 then
 
             generateWrapper("Cooldowns")
 
+            -- Incarnation
+            if isKnown(core.spell.incarnation) then
+                CreateNewCheck(thisConfig,"Incarnation")
+                CreateNewDrop(thisConfig,"Incarnation",1,"CD")
+                CreateNewText(thisConfig,"Incarnation")
+            end
+
             -- Force Of Nature
-            CreateNewCheck(thisConfig,"Force Of Nature")
-            CreateNewText(thisConfig,"Force Of Nature")
+            if isKnown(core.spell.forceOfNature) then
+                CreateNewCheck(thisConfig,"Force Of Nature")
+                CreateNewDrop(thisConfig,"Force Of Nature",1,"CD")
+                CreateNewText(thisConfig,"Force Of Nature")
+            end
 
             -- Natures Vigil
-            CreateNewCheck(thisConfig,"Natures Vigil")
-            CreateNewText(thisConfig,"Natures Vigil")
+            if isKnown(core.spell.naturesVigil) then
+                CreateNewCheck(thisConfig,"Natures Vigil")
+                CreateNewDrop(thisConfig,"Natures Vigil",1,"CD")
+                CreateNewText(thisConfig,"Natures Vigil")
+            end
+
+            -- Celestial Alignment
+            CreateNewCheck(thisConfig,"Celestial Alignment")
+            CreateNewDrop(thisConfig,"Celestial Alignment",1,"CD")
+            CreateNewText(thisConfig,"Celestial Alignment")
 
             -- Starfall
-            CreateNewCheck(thisConfig,"Celestial Alignment")
-            CreateNewText(thisConfig,"Celestial Alignment")
+            CreateNewCheck(thisConfig,"Starfall")
+            CreateNewDrop(thisConfig,"Starfall",2,"CD")
+            CreateNewText(thisConfig,"Starfall")
 
             generateWrapper("Healing")
 
-            -- Healing Touch Ns
-            CreateNewCheck(thisConfig,"Healing Touch Ns")
-            CreateNewBox(thisConfig, "Healing Touch Ns", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealing Touch|cffFFBB00 with |cffFFFFFFNature Swiftness.")
-            CreateNewText(thisConfig,"Healing Touch Ns")
-
             -- Rejuvenation
             CreateNewCheck(thisConfig,"Rejuvenation")
-            CreateNewBox(thisConfig, "Rejuvenation", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealing Touch|cffFFBB00 with |cffFFFFFFNature Swiftness.")
+            CreateNewBox(thisConfig, "Rejuvenation", 0, 100  , 5, 75, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRejuvenation|cffFFBB00 on |cffFFFFFFSelf.")
             CreateNewText(thisConfig,"Rejuvenation")
 
             generateWrapper("Defensive")
 
             -- Healthstone
             CreateNewCheck(thisConfig,"Healthstone")
-            CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone")
+            CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 35, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone")
             CreateNewText(thisConfig,"Healthstone")
 
             -- Barkskin
