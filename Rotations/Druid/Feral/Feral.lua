@@ -165,7 +165,7 @@ if select(3, UnitClass("player")) == 11 then
 	                    if castSpell("player",svr,true,false,false) then return end
 	                end
 	                if power > 40 and enemies == 1 then
-		                if castSpell(dynamicTarget(5,true),shr,false,false,false) then swipeSoon = nil; return end
+		                if castSpell(dynamicUnit.dyn5,shr,false,false,false) then swipeSoon = nil; return end
 	                end
 	                if power > 45 and enemies > 1 then
 	                    if swipeSoon == nil then
@@ -262,16 +262,16 @@ if select(3, UnitClass("player")) == 11 then
 				then
 			-- Prowl
 			        if useProwl() and not stealth 
-			        	and (ObjectExists(dynamicTarget(20,false)) or isKnown(eprl)) and GetTime()-leftCombat > lootDelay 
+			        	and (ObjectExists(dynamicUnit.dyn20) or isKnown(eprl)) and GetTime()-leftCombat > lootDelay 
 			        then
 						if castSpell("player",prl,false,false,false) then return end
 			        end
 			-- Rake/Shred
-			        if power>40 and getDistance(dynamicTarget(5,true))<5 then
+			        if power>40 and getDistance(dynamicUnit.dyn5)<5 then
 			        	if isKnown(irk) then
-			        		if castSpell(dynamicTarget(5,true),rk,false,false,false) then return end
+			        		if castSpell(dynamicUnit.dyn5,rk,false,false,false) then return end
 			        	else
-			            	if castSpell(dynamicTarget(5,true),shr,false,false,false) then return end
+			            	if castSpell(dynamicUnit.dyn5,shr,false,false,false) then return end
 			            end
 			        end
 			        if stealth then
@@ -319,16 +319,16 @@ if select(3, UnitClass("player")) == 11 then
 		-----------------------------
 		--- In Combat - Cooldowns ---
 		-----------------------------
-					if useCDs() and not stealth and ObjectExists(dynamicTarget(5,true)) then
-						thisUnit = dynamicTarget(5,true)
-						ttd = getTimeToDie(dynamicTarget(5,true))
-						thp = getHP(dynamicTarget(5,true))
+					if useCDs() and not stealth and ObjectExists(dynamicUnit.dyn5) then
+						thisUnit = dynamicUnit.dyn5
+						ttd = getTimeToDie(dynamicUnit.dyn5)
+						thp = getHP(dynamicUnit.dyn5)
 			-- Tier 4 Talent: Force of Nature
 				        if fonCooldown == 0 then
 				            if fonCharge == 3 or (fonCharge == 2 and (fonRecharge - GetTime()) > 19) then
-				                if castSpell(dynamicTarget(5,true),fon,true,false,false) then return end
+				                if castSpell(dynamicUnit.dyn5,fon,true,false,false) then return end
 				            elseif (vicious>0 and vicious<1) or restlessagi==20 or ttd<20 then
-				                if castSpell(dynamicTarget(5,true),fon,true,false,true) then return end
+				                if castSpell(dynamicUnit.dyn5,fon,true,false,true) then return end
 				            end
 			            end
 			-- Agi-Pot
@@ -364,9 +364,9 @@ if select(3, UnitClass("player")) == 11 then
 			-- Rake/Shred from Stealth
 					if stealth and power>40 then
 						if isKnown(irk) then
-			        		if castSpell(dynamicTarget(5,true),rk,false,false,false) then return end
+			        		if castSpell(dynamicUnit.dyn5,rk,false,false,false) then return end
 			        	else
-			            	if castSpell(dynamicTarget(5,true),shr,false,false,false) then return end
+			            	if castSpell(dynamicUnit.dyn5,shr,false,false,false) then return end
 			            end
 					end
 					if stealth then
@@ -374,7 +374,7 @@ if select(3, UnitClass("player")) == 11 then
 					end
 					if not stealth and isInCombat("player") and BadBoy_data['AoE'] ~= 4 then
 			-- Tiger's Fury
-						if ((not clearcast and powmax-power>=60) or powmax-power>=80) and ObjectExists(dynamicTarget(5,true)) then
+						if ((not clearcast and powmax-power>=60) or powmax-power>=80) and ObjectExists(dynamicUnit.dyn5) then
 							if canTrinket(13) and useCDs() then
 								RunMacroText("/use 13")
 							end
@@ -398,7 +398,7 @@ if select(3, UnitClass("player")) == 11 then
 								end
 							end
 						else
-							thisUnit = dynamicTarget(5,true)
+							thisUnit = dynamicUnit.dyn5
 							if power>25 and ((rpRemain>0 and rpRemain < 3 and getHP(thisUnit)<25 and combo>0) or (((3.4*UnitAttackPower("player"))*combo/5)>UnitHealth(thisUnit))) then
 								if castSpell(thisUnit,fb,false,false,false) then return end
 							end
@@ -413,7 +413,7 @@ if select(3, UnitClass("player")) == 11 then
 			                end
 						end
 			-- Savage Roar
-						if srRemain<3 and combo>0 and power>25 and ObjectExists(dynamicTarget(5,true)) then --(srRemain<1 or (srRemain<rpRemain and newSr-rpRemain>1))
+						if srRemain<3 and combo>0 and power>25 and ObjectExists(dynamicUnit.dyn5) then --(srRemain<1 or (srRemain<rpRemain and newSr-rpRemain>1))
 							if castSpell("player",svr,true,false,false) then return end
 			            end
 			-- Thrash
@@ -451,7 +451,7 @@ if select(3, UnitClass("player")) == 11 then
 								end
 							end
 						else
-							thisUnit = dynamicTarget(5,true)
+							thisUnit = dynamicUnit.dyn5
 							ttd = getTimeToDie(thisUnit)
 							--max_energy=1,if=target.health.pct<25&dot.rip.ticking
 							if combo==5 and power>50 and getHP(thisUnit)<25 and (rpRemain>0 or ttd-rpRemain<=18) then
@@ -475,7 +475,7 @@ if select(3, UnitClass("player")) == 11 then
 								end
 							end
 						else
-							thisUnit = dynamicTarget(5,true)
+							thisUnit = dynamicUnit.dyn5
 							ttd = getTimeToDie(thisUnit)
 							if ttd-rpRemain>18 and combo==5 and power>30 then
 								--if=remains<3&target.time_to_die-remains>18
@@ -493,7 +493,7 @@ if select(3, UnitClass("player")) == 11 then
 			-- Ferocious Bite
 						--if=(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)
 		    			if combo==5 and (ttm<=1 or berserk or tfCooldown<3 or rpRemain>10) and power>50 then
-			    			if castSpell(dynamicTarget(5,true),fb,false,false,false) then return end
+			    			if castSpell(dynamicUnit.dyn5,fb,false,false,false) then return end
 			            end
 		    -- Rake 
 		    			if useCleave() then
@@ -521,8 +521,8 @@ if select(3, UnitClass("player")) == 11 then
 							    end
 						    end
 						else
-							thisUnit = dynamicTarget(5,true)
-							ttd = getTimeToDie(dynamicTarget(5,true))
+							thisUnit = dynamicUnit.dyn5
+							ttd = getTimeToDie(dynamicUnit.dyn5)
 							if ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) and stunRemain==0 and combo<5 and power>35 then
 								if not bloodtalons then
 					    			--if=!talent.bloodtalons.enabled&remains<3&combo_points<5&((target.time_to_die-remains>3&active_enemies<3)|target.time_to_die-remains>6)
@@ -566,7 +566,7 @@ if select(3, UnitClass("player")) == 11 then
 							    	end
 						    	end
 						    else
-						    	thisUnit = dynamicTarget(40,false)
+						    	thisUnit = dynamicUnit.dyn40AoE
 								ttd = getTimeToDie(thisUnit)
 								--if=combo_points<5&remains<4.2&active_enemies<6&target.time_to_die-remains>tick_time*5
 					    		if mfRemain<4.2 and enemies<6 and ttd-mfRemain>mfTick*5 then
@@ -588,7 +588,7 @@ if select(3, UnitClass("player")) == 11 then
 						        end
 					        end
 					    else
-					    	thisUnit = dynamicTarget(5,true)
+					    	thisUnit = dynamicUnit.dyn5
 							ttd = getTimeToDie(thisUnit)
 			    			--persistent_multiplier>dot.rake.pmultiplier&combo_points<5&active_enemies=1
 				    		if rkCalc>rkDmg and stunRemain==0 and combo<5 and enemies==1 and power>35 then
@@ -597,16 +597,16 @@ if select(3, UnitClass("player")) == 11 then
 					    end
 		    -- Swipe
 			    		if useAoE() and power>45 and combo<5 then
-			    			if castSpell(dynamicTarget(8,true),sw,false,false,false) then return end
+			    			if castSpell(dynamicUnit.dyn8,sw,false,false,false) then return end
 			            end
 		    -- Shred
 			    		if not useAoE() and power>40 and combo<5 then
-			    			if castSpell(dynamicTarget(5,true),shr,false,false,false) then return end
+			    			if castSpell(dynamicUnit.dyn5,shr,false,false,false) then return end
 			            end
 				    end --not stealth end
 				end --In Combat End
 		-- Start Attack
-				if ObjectExists(dynamicTarget(5,true)) and not stealth and isInCombat("player") and cat and profileStop==false then
+				if ObjectExists(dynamicUnit.dyn5) and not stealth and isInCombat("player") and cat and profileStop==false then
 					StartAttack()
 				end
 			end

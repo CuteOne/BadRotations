@@ -217,4 +217,75 @@ if select(3,UnitClass("player")) == 6 then
             return false
         end
     end
+
+    function getDisease(range,aoe,mod)
+        if mod == nil then mod = "min" end
+        if range == nil then range = 5 end
+        local range = tonumber(range)
+        local mod = tostring(mod)
+        if aoe == nil then aoe = false end
+        local dynTar = dynamicTarget(range,true)
+        local dynTarAoE = dynamicTarget(range,false)
+        local dist = getDistance("player",dynTar)
+        local distAoE = getDistance("player",dynTarAoE)
+        local ff = getDebuffRemain(dynTar,_FrostFever,"player")
+        local ffAoE = getDebuffRemain(dynTarAoE,_FrostFever,"player")
+        local bp = getDebuffRemain(dynTar,_BloodPlague,"player")
+        local bpAoE = getDebuffRemain(dynTarAoE,_BloodPlague,"player")
+        local np = getDebuffRemain(dynTar,_NecroticPlague,"player")
+        local npAoE = getDebuffRemain(dynTarAoE,_NecroticPlague,"player")
+        if mod == "min" then
+            if aoe == false then
+                if dist < range then
+                    if getTalent(7,1) then
+                        return np
+                    elseif ff <= bp then
+                        return ff
+                    else
+                        return bp 
+                    end
+                else
+                    return 99
+                end
+            elseif aoe == true then
+                if distAoE < range then
+                    if getTalent(7,1) then
+                        return npAoE
+                    elseif ffAoE <= bpAoE then
+                        return ffAoE
+                    else
+                        return bpAoE 
+                    end
+                else
+                    return 99
+                end
+            end
+        elseif mod == "max" then
+            if aoe == false then
+                if dist < range then
+                    if getTalent(7,1) then
+                        return np
+                    elseif ff <= bp then
+                        return bp
+                    else
+                        return ff
+                    end
+                else
+                    return 0
+                end
+            elseif aoe == true then
+                if distAoE < range then
+                    if getTalent(7,1) then
+                        return npAoE
+                    elseif ffAoE <= bpAoE then
+                        return bpAoE
+                    else
+                        return ffAoE 
+                    end
+                else
+                    return 90
+                end
+            end
+        end
+    end
 end

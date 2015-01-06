@@ -20,8 +20,27 @@ if select(3, UnitClass("player")) == 10 then
 --- Locals ---
 --------------
 		if tebCast == nil then tebCast = 0; end
+		local dynamicUnit = {
+			["dyn5"] = dynamicTarget(5,true), --Melee
+			["dyn8"] = dynamicTarget(8,true), --Crackling Jade Lightning - Minimal Range
+			["dyn8AoE"] = dynamicTarget(8,false), --Spinning Crane Kick
+			["dyn10AoE"] = dynamicTarget(10,false), --Zen Sphere
+			["dyn12AoE"] = dynamicTarget(12,false), --Hurricane Strikes
+			["dyn20AoE"] = dynamicTarget(20,false), --Paralysis
+			["dyn25AoE"] = dynamicTarget(25,false), --Touch of Karma
+			["dyn30"] = dynamicTarget(30,true), --Chi Explosion
+			["dyn40"] = dynamicTarget(40,true), --Crackling Jade Lightning
+			["dyn40AoE"] = dynamicTarget(40,false), --Chi Wave
+		}
+		local dynamicDist = {
+			["dyn5"] = getDistance("player",dynamicUnit.dyn5),
+			["dyn8"] = getDistance("player",dynamicUnit.dyn8),
+			["dyn10AoE"] = getDistance("player",dynamicUnit.dyn10AoE),
+			["dyn30"] = getDistance("player",dynamicUnit.dyn30),
+			["dyn40"] = getDistance("player",dynamicUnit.dyn40),
+			["dyn40AoE"] = getDistance("player",dynamicUnit.dyn40AoE),
+		}
 		local tarDist = getDistance("player","target")
-		local thisUnit = dynamicTarget(5,true)
 		local php = getHP("player")
 		local power = getPower("player")
 		local powgen = getRegen("player")
@@ -41,11 +60,11 @@ if select(3, UnitClass("player")) == 10 then
 		local tebStack = getBuffStacks("player",_TigereyeBrewStacks)
 		local sefStack = getBuffStacks("player",_StormEarthFire)
 		local ebRemain = getBuffRemain("player",_EnergizingBrew)
-		local ttd = getTimeToDie("target")
+		local ttd = getTimeToDie(dynamicUnit.dyn5)
 		local ttm = getTimeToMax("player")
 		local tpRemain = getBuffRemain("player",_TigerPower)
 		local serRemain = getBuffRemain("player",_Serenity)
-		local rskRemain = getDebuffRemain("target",_RaisingSunKick,"player")
+		local rskRemain = getDebuffRemain(dynamicUnit.dyn5,_RaisingSunKick,"player")
 		local fofChanTime = 4-(4*UnitSpellHaste("player")/100)
 		local hsChanTime = 2-(2*UnitSpellHaste("player")/100)
 		local powtime = (getPower("player")+getRegen("player"))*((1.5/GetHaste("player"))+1)
@@ -75,12 +94,10 @@ if select(3, UnitClass("player")) == 10 then
 			if sefStack == 1 and #targets>1 then
 				if castSpell(targets[2].Unit,_StormEarthFire,false,false,false) then return end
 			end
-			if ObjectExists("target") then
-				if not useAoE() then
-					if castSpell("target",_Jab,false,false) then return end
-				else
-					if castSpell("target",_SpinningCraneKick,false,false) then return end
-				end
+			if not useAoE() then
+				if castSpell(dynamicUnit.dyn5,_Jab,false,false) then return end
+			else
+				if castSpell(dynamicUnit.dyn5,_SpinningCraneKick,false,false) then return end
 			end
 		end
 	-- Tigereye Brew Timer
@@ -90,7 +107,7 @@ if select(3, UnitClass("player")) == 10 then
 			end
 		end
 	-- Stop Cast
-		if ((tarDist<5 or (BadBoy_data['FSK']==1 and getSpellCD(_FlyingSerpentKick)==0)) and isCastingSpell(_CracklingJadeLightning)) or (not useAoE() and isCastingSpell(_SpinningCraneKick)) then
+		if ((dynamicDist.dyn5<5 or (BadBoy_data['FSK']==1 and getSpellCD(_FlyingSerpentKick)==0)) and isCastingSpell(_CracklingJadeLightning)) or (not useAoE() and isCastingSpell(_SpinningCraneKick)) then
 			RunMacroText("/stopcasting")
 		end
 	-- Cancel Storm, Earth, and Fire
@@ -157,7 +174,7 @@ if select(3, UnitClass("player")) == 10 then
 				end
 	-- Touch of Karma
 				if isChecked(getOption(_TouchOfKarma)) and php<=getValue(getOption(_TouchOfKarma)) and isInCombat("player") then
-					if castSpell(thisUnit,_TouchOfKarma,false,false) then return end
+					if castSpell(dynamicUnit.dyn25AoE,_TouchOfKarma,false,false) then return end
 				end
 	-- Fortifying Brew
 				if isChecked(getOption(_FortifyingBrew)) and php<=getValue(getOption(_FortifyingBrew)) and isInCombat("player") then
@@ -194,9 +211,9 @@ if select(3, UnitClass("player")) == 10 then
 					if castSpell("player",_ExpelHarm,false,false,false) then return end
 				end
 	-- Provoke
-				if select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" and getSpellCD(_FlyingSerpentKick)>1 and tarDist > 10 then
+				if select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" and getSpellCD(_FlyingSerpentKick)>1 and dynamicDist.dyn40AoE > 10 then
 					if select(2,IsInInstance())=="none" and #members==1 then
-						if castSpell("target",_Provoke,false,false) then return end
+						if castSpell(dynamicUnit.dyn40AoE,_Provoke,false,false) then return end
 					end
 				end
 	-- Flying Serpent Kick
@@ -209,7 +226,7 @@ if select(3, UnitClass("player")) == 10 then
 					end
 				end
 	-- Start Attack
-          		if getDistance("player",thisUnit)<5 then
+          		if dynamicDist.dyn5<5 then
             		StartAttack()
           		end
 			end
@@ -247,7 +264,7 @@ if select(3, UnitClass("player")) == 10 then
 						if castInterrupt(_SpearHandStrike,tonumber(getValue("Interrupt At"))) then return end
 					end
 	-- Paralysis
-					if isChecked(getOption(_Paralysis)) and tarDist<20 then
+					if isChecked(getOption(_Paralysis)) then
 						if castInterrupt(_Paralysis,tonumber(getValue("Interrupt At"))) then return end
 					end
 	-- Leg Sweep
@@ -276,11 +293,11 @@ if select(3, UnitClass("player")) == 10 then
 	--- In Combat - All Rotation ---
 	--------------------------------
 	-- Start Attack
-		        if getDistance("player",thisUnit)<5 then
+		        if dynamicDist.dyn5<5 then
 		        	StartAttack()
 		        end
 	-- Storm, Earth, and Fire
-				if ObjectExists("target") and BadBoy_data['SEF']==1 then
+				if ObjectExists(dynamicUnit.dyn40AoE) and BadBoy_data['SEF']==1 then
 					if (#targets == 1 and sefStack==2) or (#targets == 0 and sefStack==1) then
 						CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
 					end
@@ -293,8 +310,8 @@ if select(3, UnitClass("player")) == 10 then
 				end
 
 	-- Crackling Jade Lightning
-				if tarDist >= 8 and (BadBoy_data['FSK']==1 and getSpellCD(_FlyingSerpentKick)>1) and power>20 and chiDiff>=2 and not isCastingSpell(_CracklingJadeLightning) and isInCombat("target") then
-					if castSpell("target",_CracklingJadeLightning,false) then return end
+				if dynamicDist.dyn8 >= 8 and (BadBoy_data['FSK']==1 and getSpellCD(_FlyingSerpentKick)>1) and power>20 and chiDiff>=2 and not isCastingSpell(_CracklingJadeLightning) and isInCombat(dynamicUnit.dyn40) then
+					if castSpell(dynamicUnit.dyn40,_CracklingJadeLightning,false) then return end
 				end
 	-- Chi Brew
 				if chiDiff>=2 and ((cbCharge==1 and cbRecharge<=10) or cbCharge==2 or ttd<cbCharge*10) and tebStack<=16 then
@@ -302,7 +319,7 @@ if select(3, UnitClass("player")) == 10 then
 				end
 	-- Tiger Palm
 				if tpRemain<=3 and chi>=1 and sckRemain==0 then
-					if castSpell(thisUnit,_TigerPalm,false,false) then return end
+					if castSpell(dynamicUnit.dyn5,_TigerPalm,false,false) then return end
 				end
 	-- Tigereye Brew
 				if tebRemain==0
@@ -316,17 +333,16 @@ if select(3, UnitClass("player")) == 10 then
 				end
 	-- Raising Sun Kick
 				if rskRemain==0 and sckRemain==0 and chi>=2 then
-					if castSpell(thisUnit,_RaisingSunKick,false,false) then return end
+					if castSpell(dynamicUnit.dyn5,_RaisingSunKick,false,false) then return end
 				end
 	-- Tiger Palm
 				if tpRemain==0 and rskRemain>1 and ttm>1 and chi>=1 and sckRemain==0 then
-					if castSpell(thisUnit,_TigerPalm,false,false) then return end
+					if castSpell(dynamicUnit.dyn5,_TigerPalm,false,false) then return end
 				end
 	-- Serenity
-				if getTalent(7,3) and tarDist<5 and chi>=2 and tpRemain>0 and rskRemain>0 then
+				if getTalent(7,3) and dynamicDist.dyn5<5 and chi>=2 and tpRemain>0 and rskRemain>0 then
 					if castSpell("player",_Serenity,true,false) then return end
 				end
-
 	-- Tiger's Lust
 				if isMoving("player") and ObjectExists("target") and not UnitIsDeadOrGhost("target") and tarDist>=15 then
 					if castSpell("player",_TigersLust,false,false) then return end
@@ -338,7 +354,7 @@ if select(3, UnitClass("player")) == 10 then
 				if useAoE() then
 	-- Chi Explosion
 					if getTalent(7,2) and chi>=4 then
-						if castSpell("target",_ChiExplosion,false,false) then return end
+						if castSpell(dynamicUnit.dyn30,_ChiExplosion,false,false) then return end
 					end
 	-- Rushing Jade Wind
 					if getTalent(6,1) and power>=40 and rjwRemain==0 then
@@ -346,43 +362,43 @@ if select(3, UnitClass("player")) == 10 then
 					end
 	-- Raising Sun Kick
 					if not getTalent(6,1) and chi==chimax then
-						if castSpell(thisUnit,_RaisingSunKick,false,false) then return end
+						if castSpell(dynamicUnit.dyn5,_RaisingSunKick,false,false) then return end
 					end
 	-- Fists of Fury
 					if getTalent(6,1) and ttm>fofChanTime and tpRemain>fofChanTime and rskRemain>fofChanTime and serRemain==0 then
-						if castSpell("target",_FistsOfFury,false,false) then return end
+						if castSpell(dynamicUnit.dyn5,_FistsOfFury,false,false) then return end
 					end
 	-- Touch of Death
-					if (UnitBuffID("player",_DeathNote) or UnitHealth("target")<=php) and not UnitIsPlayer("target") then
-						if castSpell(thisUnit,_TouchOfDeath,false,false) then return end
+					if (UnitBuffID("player",_DeathNote) or UnitHealth(dynamicUnit.dyn5)<=php) and not UnitIsPlayer(dynamicUnit.dyn5) then
+						if castSpell(dynamicUnit.dyn5,_TouchOfDeath,false,false) then return end
 					end
 	-- Hurricane Strike
 					if getTalent(6,1) and ttm>hsChanTime and tpRemain>hsChanTime and rskRemain>hsChanTime and ebRemain==0 then
-						if castSpell("target",_HurricaneStrike,false,false) then return end
+						if castSpell(dynamicUnit.dyn12AoE,_HurricaneStrike,false,false) then return end
 					end
 	-- Zen Sphere
-					if zsRemain==0 and tarDist<10 then
+					if zsRemain==0 and dynamicDist.dyn10AoE<10 then
 						if castSpell("player",_ZenSphere,false,false) then return end
 					end
 	-- Chi Wave
-					if ttm>2 and serRemain==0 and tarDist<40 then
+					if ttm>2 and serRemain==0 and dynamicDist.dyn40AoE<40 then
 						if castSpell("player",_ChiWave,false,false) then return end
 					end
 	-- Chi Burst
-					if getTalent(2,3) and ttm>2 and serRemain==0 and tarDist<40 then
+					if getTalent(2,3) and ttm>2 and serRemain==0 and dynamicDist.dyn40AoE<40 then
 						if castSpell("player",_ChiBurst,false,false) then return end
 					end
 	-- Blackout Kick
 					if getTalent(6,1) and not getTalent(7,2) and (bkcRemain>0 or serRemain>0) then
-						if castSpell(thisUnit,_BlackoutKick,false,false) then return end
+						if castSpell(dynamicUnit.dyn5,_BlackoutKick,false,false) then return end
 					end
 	-- Tiger Palm
 					if getTalent(6,1) and tpcRemain>0 and tpcRemain<=2 then
-						if castSpell(thisUnit,_TigerPalm,false,false) then return end
+						if castSpell(dynamicUnit.dyn5,_TigerPalm,false,false) then return end
 					end
 	-- Blackout Kick
 					if getTalent(6,1) and not getTalent(7,2) and chiDiff<2 then
-						if castSpell(thisUnit,_BlackoutKick,false,false) then return end
+						if castSpell(dynamicUnit.dyn5,_BlackoutKick,false,false) then return end
 					end
 	-- Spinning Crane Kick
 					if not getTalent(6,1) and power>=40 then
@@ -390,7 +406,7 @@ if select(3, UnitClass("player")) == 10 then
 					end
 	-- Jab
 					if getTalent(6,1) and chiDiff>=2 and power>=45 and (php>=getValue("Expel Harm") or getSpellCD(_ExpelHarm)>0) then
-						if castSpell(thisUnit,_Jab,false,false) then return end
+						if castSpell(dynamicUnit.dyn5,_Jab,false,false) then return end
 					end
 				end
 	-----------------------------------
@@ -399,15 +415,15 @@ if select(3, UnitClass("player")) == 10 then
 				if not useAoE() then
 	-- Fists of Fury
 					if ttm>fofChanTime and tpRemain>fofChanTime and rskRemain>fofChanTime and serRemain==0 then
-						if castSpell("target",_FistsOfFury,false,false) then return end
+						if castSpell(dynamicUnit.dyn5,_FistsOfFury,false,false) then return end
 					end
 	-- Touch of Death
-					if (UnitBuffID("player",_DeathNote) or UnitHealth("target")<=php) and not UnitIsPlayer("target") and sckRemain==0 then
-						if castSpell(thisUnit,_TouchOfDeath,false,false) then return end
+					if (UnitBuffID("player",_DeathNote) or UnitHealth(dynamicUnit.dyn5)<=php) and not UnitIsPlayer(dynamicUnit.dyn5) and sckRemain==0 then
+						if castSpell(dynamicUnit.dyn5,_TouchOfDeath,false,false) then return end
 					end
 	-- Hurricane Strike
 					if getTalent(7,1) and ttm>hsChanTime and tpRemain>hsChanTime and rskRemain>hsChanTime and ebRemain==0 then
-						if castSpell("target",_HurricaneStrike,false,false) then return end
+						if castSpell(dynamicUnit.dyn12AoE,_HurricaneStrike,false,false) then return end
 					end
 	-- Energizing Brew
 					if fofCD>6 and (not getTalent(7,3) or (serRemain==0 and getSpellCD(_Serenity)>4)) and powtime<50 then
@@ -415,43 +431,43 @@ if select(3, UnitClass("player")) == 10 then
 					end
 	-- Raising Sun Kick
 					if chi>=2 and not getTalent(7,2) then
-						if castSpell(thisUnit,_RaisingSunKick,false,false) then return end
+						if castSpell(dynamicUnit.dyn5,_RaisingSunKick,false,false) then return end
 					end
 	-- Chi Wave
-					if ttm>2 and serRemain==0 and tarDist<40 then
+					if ttm>2 and serRemain==0 and dynamicDist.dyn40AoE<40 then
 						if castSpell("player",_ChiWave,false,false) then return end
 					end
 	-- Chi Burst
-					if getTalent(2,3) and ttm>2 and serRemain==0 and tarDist<40 then
+					if getTalent(2,3) and ttm>2 and serRemain==0 and dynamicDist.dyn40AoE<40 then
 						if castSpell("player",_ChiBurst,false,false) then return end
 					end
 	-- Zen Sphere
-					if ttm>2 and zsRemain==0 and serRemain==0 and tarDist<10 then
+					if ttm>2 and zsRemain==0 and serRemain==0 and dynamicDist.dyn10AoE<10 then
 						if castSpell("player",_ZenSphere,false,false) then return end
 					end
 	-- Blackout Kick
 					if not getTalent(7,2) and (bkcRemain>0 or serRemain>0) then
-						if castSpell(thisUnit,_BlackoutKick,false,false) then return end
+						if castSpell(dynamicUnit.dyn5,_BlackoutKick,false,false) then return end
 					end
 	-- Chi Explosion
-					if getTalent(7,2) and chi>=3 and cecRemain>0 and tarDist<30 then
-						if castSpell("target",_ChiExplosion,false,false) then return end
+					if getTalent(7,2) and chi>=3 and cecRemain>0 and dynamicDist.dyn30<30 then
+						if castSpell(dynamicUnit.dyn30,_ChiExplosion,false,false) then return end
 					end
 	-- Tiger Palm
 					if tpcRemain>0 and tpcRemain<=2 then
-						if castSpell(thisUnit,_TigerPalm,false,false) then return end
+						if castSpell(dynamicUnit.dyn5,_TigerPalm,false,false) then return end
 					end
 	-- Blackout Kick
 					if not getTalent(7,2) and chiDiff<2 then
-						if castSpell(thisUnit,_BlackoutKick,false,false) then return end
+						if castSpell(dynamicUnit.dyn5,_BlackoutKick,false,false) then return end
 					end
 	-- Chi Explosion
-					if getTalent(7,2) and chi>=3 and tarDist<30 then
-						if castSpell("target",_ChiExplosion,false,false) then return end
+					if getTalent(7,2) and chi>=3 and dynamicDist.dyn30<30 then
+						if castSpell(dynamicUnit.dyn30,_ChiExplosion,false,false) then return end
 					end
 	-- Jab
 					if (chiDiff>=2 or chi==0) and power>=45 and (php>=getValue("Expel Harm") or getSpellCD(_ExpelHarm)>0) then
-						if castSpell(thisUnit,_Jab,false,false) then return end
+						if castSpell(dynamicUnit.dyn5,_Jab,false,false) then return end
 					end
 				end
 	-- Flying Serpent Kick
@@ -464,7 +480,7 @@ if select(3, UnitClass("player")) == 10 then
 					end
 				end
 				-- TODO: Start Attack automatticaly when in combat? Is this redundent?
-				if tarDist<5 and isInCombat("player") then
+				if dynamicDist.dyn5<5 and isInCombat("player") then
 					StartAttack()
 				end
 			end

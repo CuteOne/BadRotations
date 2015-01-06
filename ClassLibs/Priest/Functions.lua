@@ -76,14 +76,14 @@ if select(3, UnitClass("player")) == 5 then
 		return counter
 	end
 
-	function doNotDot(Unit)
+	function safeDoT(datUnit)
 		local Blacklist = {
 			"Volatile Anomaly",
 			"Rarnok",
 		}
 		if Unit == nil then return true end
 		for i = 1, #Blacklist do
-			if UnitName(Unit) == Blacklist[i] then
+			if UnitName(datUnit) == Blacklist[i] then
 				return false
 			end
 		end
@@ -214,7 +214,8 @@ if select(3, UnitClass("player")) == 5 then
 
 	--[[                    ]] -- LF Orbs start
 	function LFOrbs(options)
-		if isChecked("Scan for Orbs") then
+		if options.isChecked.ScanOrbs then
+		--if isChecked("Scan for Orbs") then
 			--if getSpellCD(SWD)<=0 and UnitPower("player", SPELL_POWER_SHADOW_ORBS)<5 then
 			if UnitPower("player", SPELL_POWER_SHADOW_ORBS)<5 then
 				for i=1,#enemiesTable do
@@ -226,6 +227,26 @@ if select(3, UnitClass("player")) == 5 then
 							--print("ORBED on unit: ")
 							return
 						end
+					end
+				end
+			end
+		end
+	end
+	--[[                    ]] -- LF Orbs end
+
+
+	--[[                    ]] -- LF ToF
+	function LFToF(options)
+		if options.isChecked.ScanToF then
+			--if getSpellCD(SWD)<=0 and UnitPower("player", SPELL_POWER_SHADOW_ORBS)<5 then
+			if getBuffRemain("player",ToF)<options.player.GCD then
+				for i=1,#enemiesTable do
+					local thisUnit = enemiesTable[i].unit
+					local hp = enemiesTable[i].hp
+					--print("Scanned Unit:"..i)
+					if hp<35 then
+						if castSpell(thisUnit,MB,false,false) then return; end
+						if castSpell(thisUnit,SWP,true,false) then return; end
 					end
 				end
 			end
@@ -247,9 +268,9 @@ if select(3, UnitClass("player")) == 5 then
 							local thisUnit = enemiesTable[i].unit
 							local thisHP = UnitHealth(enemiesTable[i].unit)
 							--if isBoss(thisUnit) then
-								if (not UnitIsUnit("target",thisUnit)) and doNotDot(thisUnit) then
+								if (not UnitIsUnit("target",thisUnit)) and safeDoT(thisUnit) then
 									local swpRem = getDebuffRemain(thisUnit,SWP,"player")
-									if swpRem<options.values.RefreshTime and thisHP<options.values.MinHealth then
+									if swpRem<options.values.RefreshTime and thisHP>options.values.MinHealth then
 										if castSpell(thisUnit,SWP,true,false) then return; end
 									end
 								end
@@ -265,9 +286,9 @@ if select(3, UnitClass("player")) == 5 then
 							local thisUnit = enemiesTable[i].unit
 							local thisHP = UnitHealth(enemiesTable[i].unit)
 							--if isBoss(thisUnit) then
-								if (not UnitIsUnit("target",thisUnit)) and doNotDot(thisUnit) then
+								if (not UnitIsUnit("target",thisUnit)) and safeDoT(thisUnit) then
 									local vtRem = getDebuffRemain(thisUnit,VT,"player")
-									if vtRem<options.values.RefreshTime and thisHP<options.values.MinHealth then
+									if vtRem<options.values.RefreshTime and thisHP>options.values.MinHealth then
 										if castSpell(thisUnit,VT,true,false) then
 											options.player.lastVT=GetTime()
 											return; 
@@ -309,7 +330,8 @@ if select(3, UnitClass("player")) == 5 then
 					--if options.isChecked.VT then
 						if not UnitDebuffID("target",VT,"player") and GetTime()-options.player.lastVT > 2 then
 							if castSpell("target",VT,true,true) then 
-								options.player.lastVT=GetTime()
+								--options.player.lastVT=GetTime()
+								lastVT=GetTime()
 								return
 							end
 						end
@@ -324,6 +346,14 @@ if select(3, UnitClass("player")) == 5 then
 				if options.player.ORBS==5 then 
 					if getDebuffRemain("target",SWP,"player")>0 or options.isChecked.SWP~=true then
 						--if getDebuffRemain("target",VT,"player")>0 or options.isChecked.VT~=true then
+							if options.isChecked.DPonFocus then
+								if UnitExists("focus") then
+									if castSpell("focus",DP,false,true) then
+										lastDP=GetTime()
+										return
+									end
+								end
+							end
 							if castSpell("target",DP,false,true) then
 								lastDP=GetTime()
 								return
@@ -335,6 +365,14 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- DP if ORBS>=3 and lastDP<DPTIME and InsanityBuff<DPTICK
 			if options.player.ORBS>=3 and GetTime()-lastDP<=options.player.DPTIME+2 then
+				if options.isChecked.DPonFocus then
+					if UnitExists("focus") then
+						if castSpell("focus",DP,false,true) then
+							lastDP=GetTime()
+							return
+						end
+					end
+				end
 				if castSpell("target",DP,false,true) then return; end
 			end
 

@@ -21,6 +21,7 @@ if select(3, UnitClass("player")) == 5 then
 			--SWDCD = getSpellCD(SWD)
 
 			if lastDP==nil then	lastDP=99 end
+			if lastVT==nil then lastVT=99 end
 			
 			--DPTICK = DPTIME/6
 			-- SWP (18sec)
@@ -67,6 +68,7 @@ if select(3, UnitClass("player")) == 5 then
 					Trinket2 =	 		isChecked("Trinket 2"),
 					SWDglyphed =		isChecked("SWD glyphed"),
 					ScanOrbs = 			isChecked("Scan for Orbs"),
+					ScanToF =			isChecked("Scan for ToF"),
 					-- Defensive
 					Shield = 			isChecked("PW: Shield"),
 					Healthstone	= 		isChecked("Healthstone"),
@@ -74,7 +76,7 @@ if select(3, UnitClass("player")) == 5 then
 					FadeGlyph =			isChecked("Fade Glyph"),
 					Dispersion =		isChecked("Dispersion"),
 					Fade =				isChecked("Fade Aggro"),
-					--DoT Weave
+					-- DoT Weave
 					SWP =				isChecked("SWP"),
 					VT =				isChecked("VT"),
 					-- Multitarget
@@ -83,6 +85,8 @@ if select(3, UnitClass("player")) == 5 then
 					-- BossSWP =			isChecked("Boss SWP"),
 					-- BossVT =			isChecked("Boss VT"),
 					MindSear =			isChecked("MS Targets"),
+					-- Encounter Specific
+					DPonFocus = 		isChecked("DP on Focus"),
 					-- Utilities
 					PWF = 				isChecked("PW: Fortitude"),
 					Shadowform =		isChecked("Shadowform Outfight"),
@@ -230,6 +234,7 @@ if select(3, UnitClass("player")) == 5 then
 			--if options.buttons.Rotation == 1 then
 				Execute(options)
 				LFOrbs(options)
+				LFToF(options)
 				if getHP("target")>20 then
 					if options.buttons.DoT>=2 then DotEmAll(options) end
 					--if options.buttons.Single==1 then IcySingle() end

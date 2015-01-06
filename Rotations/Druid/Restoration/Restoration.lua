@@ -27,6 +27,19 @@ function DruidRestoration()
 			averageCount = averageCount + 1
 		end
 	end
+	
+	---WildGrowth number
+	local wgMaxCount 
+		if UnitBuff("player",33891) and hasGlyph("62970") then
+			wgMaxCount = 8
+		elseif hasGlyph("62970") then
+			wgMaxCount = 6
+		elseif UnitBuff("player",33891) then
+			wgMaxCount = 7
+		else
+			wgMaxCount = 5
+		end
+		
 	averageHealth = averageHealth/averageCount
 	--[[Follow Tank]]
 	-- broken/will fix and reimplement later
@@ -79,20 +92,12 @@ function DruidRestoration()
 			end
 		end
 	end
+	
 	-- WildGroth Toggle
     if isChecked("WG Toggle") and SpecificToggle("WG Toggle") == true then
-		for i = 1, #nNova do
-			local thisUnit = nNova[i]
-		    if thisUnit.hp < 249 then
-			    local allies30Yards = getAllies(thisUnit.unit,30)
-				if #allies30Yards >= 1 then
-			        if castSpell(thisUnit.unit,48438,true,false) then
-			            return
-			        end
-				end
-			end
-		end
+		castWiseAoEHeal(nNova,48438,30,getValue("WildGrowth"),getValue("WildGrowth Count"),wgMaxCount,true,true)
 	end
+	
 	-- Regrowth Toggle
 	if isChecked("Regrowth Toggle") and SpecificToggle("Regrowth Toggle") == true then
 		if not UnitIsDeadOrGhost("mouseover") then
@@ -296,6 +301,8 @@ function DruidRestoration()
 				end
 			end
 		end
+		
+		
 		local function dpsRestoDruid()
 			if isChecked("DPS Toggle") == true and SpecificToggle("DPS Toggle") == true  then
 		        -- Let's get angry :D
@@ -668,7 +675,7 @@ function DruidRestoration()
 		end
 		--[[ 25 - WildGrowth--(Use with health and player count check)]]
 		if isChecked("WildGrowth") and lowestHP < getValue("WildGrowth") then
-			castWiseAoEHeal(nNova,48438,30,getValue("WildGrowth"),getValue("WildGrowth Count"),5,true,true)
+			castWiseAoEHeal(nNova,48438,30,getValue("WildGrowth"),getValue("WildGrowth Count"),wgMaxCount,true,true)
 		end
 		--[[ 20 - Regrowth --(cast regrowth on all usualy between 30 - 40)]]
 		if isChecked("Regrowth") and isStanding(0.3) and canCast(8936,false,true) and lowestHP <= getValue("Regrowth") then
