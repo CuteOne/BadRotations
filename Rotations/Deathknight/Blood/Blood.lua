@@ -175,16 +175,18 @@ function Blood()
             local unitNotDebuffed = false
             -- im gonna scan the list of valid units
             for i = 1, #enemiesTable do
-                if enemiesTable[i].distance < 8 then
-                    if UnitDebuffID(enemiesTable[i].unit,55078,"player") then
-                        unitDebuffed = true
-                    else
-                        unitNotDebuffed = true
+                if ObjectExists(enemiesTable[i].unit) then
+                    if enemiesTable[i].distance < 8 then
+                        if UnitDebuffID(enemiesTable[i].unit,55078,"player") then
+                            unitDebuffed = true
+                        else
+                            unitNotDebuffed = true
+                        end
                     end
-                end
-                if unitDebuffed == true and unitNotDebuffed == true then
-                    if castSpell("player",_BloodBoil,true,false) then
-                        return
+                    if unitDebuffed == true and unitNotDebuffed == true then
+                        if castSpell("player",_BloodBoil,true,false) then
+                            return
+                        end
                     end
                 end
             end

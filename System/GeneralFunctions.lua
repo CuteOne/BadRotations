@@ -739,7 +739,7 @@ end
 -- if getDistance("player","target") <= 40 then
 function getDistance(Unit1,Unit2)
 	-- If both units are visible
-	if UnitIsVisible(Unit1) == true and (Unit2 == nil or UnitIsVisible(Unit2) == true) then
+	if ObjectExists(Unit1) and UnitIsVisible(Unit1) == true and (Unit2 == nil or (ObjectExists(Unit2) and UnitIsVisible(Unit2) == true)) then
 		-- If Unit2 is nil we compare player to Unit1
 		if Unit2 == nil then
             Unit2 = Unit1
@@ -750,36 +750,35 @@ function getDistance(Unit1,Unit2)
 			return rc:GetRange(Unit2) or 1000
         -- else, we use FH positions
 		else
-            local X1,Y1 = ObjectPosition(Unit1)
-			local X2,Y2 = ObjectPosition(Unit2)
-            return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2))
+            local X1,Y1,Z1 = ObjectPosition(Unit1)
+            local X2,Y2,Z2 = ObjectPosition(Unit2)
+            return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - ((UnitCombatReach(Unit1)) + (UnitCombatReach(Unit2)))
 		end
 	else
-		return 1000
+		return 100
 	end
 end
 
 function getRealDistance(Unit1,Unit2)
-	-- If both units are visible
-	if UnitIsVisible(Unit1) == true and UnitIsVisible(Unit2) == true then
-		local X1,Y1 = ObjectPosition(Unit1)
-		local X2,Y2 = ObjectPosition(Unit2)
-		return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2))
+	if ObjectExists(Unit1) and UnitIsVisible(Unit1) == true
+      and ObjectExists(Unit2) and UnitIsVisible(Unit2) == true then
+		local X1,Y1,Z1 = ObjectPosition(Unit1)
+		local X2,Y2,Z2 = ObjectPosition(Unit2)
+        return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (UnitCombatReach(Unit1) + UnitCombatReach(Unit2))
 	else
-		return 1000
+		return 100
 	end
 end
 
--- if getDistance("player","target") <= 40 then
 function getDistanceToObject(Unit1,X2,Y2,Z2)
 	if Unit1 == nil then
 		Unit1 = "player"
 	end
-	if UnitIsVisible(Unit1) then
+	if ObjectExists(Unit1) and UnitIsVisible(Unit1) then
 		local X1,Y1 = ObjectPosition(Unit1)
-		return math.sqrt(((X2-X1)^2)+((Y2-Y1)^2))
+		return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2))
 	else
-		return 1000
+		return 100
 	end
 end
 
@@ -828,7 +827,7 @@ function getFacing(Unit1,Unit2,Degrees)
 	if Unit2 == nil then
 		Unit2 = "player"
 	end
-	if UnitIsVisible(Unit1) and UnitIsVisible(Unit2) then
+	if ObjectExists(Unit1) and UnitIsVisible(Unit1) and ObjectExists(Unit2) and UnitIsVisible(Unit2) then
 		local Angle1,Angle2,Angle3
 		local Angle1 = ObjectFacing(Unit1)
 		local Angle2 = ObjectFacing(Unit2)
@@ -873,19 +872,21 @@ end
 
 -- if getHP("player") then
 function getHP(Unit)
-	if UnitIsDeadOrGhost(Unit) or not UnitIsVisible(Unit) then
-		return 0
-	end
-	for i = 1,#nNova do
-		if nNova[i].guidsh == string.sub(UnitGUID(Unit),-5) then
-			return nNova[i].hp
-		end
-	end
-	if getOptionCheck("No Incoming Heals") ~= true and UnitGetIncomingHeals(Unit,"player") ~= nil then
-		return 100*(UnitHealth(Unit)+UnitGetIncomingHeals(Unit,"player"))/UnitHealthMax(Unit)
-	else
-		return 100*UnitHealth(Unit)/UnitHealthMax(Unit)
-	end
+    if ObjectExists(Unit) then
+    	if not UnitIsDeadOrGhost(Unit) and UnitIsVisible(Unit) then
+        	for i = 1,#nNova do
+        		if nNova[i].guidsh == string.sub(UnitGUID(Unit),-5) then
+        			return nNova[i].hp
+        		end
+        	end
+        	if getOptionCheck("No Incoming Heals") ~= true and UnitGetIncomingHeals(Unit,"player") ~= nil then
+        		return 100*(UnitHealth(Unit)+UnitGetIncomingHeals(Unit,"player"))/UnitHealthMax(Unit)
+        	else
+        		return 100*UnitHealth(Unit)/UnitHealthMax(Unit)
+        	end
+        end
+    end
+    return 0
 end
 
 -- if getLowAllies(60) > 3 then
@@ -968,20 +969,15 @@ end
 
 -- if getBossID("boss1") == 71734 then
 function getBossID(BossUnitID)
-	local UnitConvert = 0
-	if UnitIsVisible(BossUnitID) then
-		UnitConvert = tonumber(string.match(UnitGUID(BossUnitID),"-(%d+)-%x+$"))
-	end
-	return UnitConvert
+	return getUnitID(BossUnitID)
 end
 
-
 function getUnitID(Unit)
-	local UnitConvert = 0
-	if UnitIsVisible(Unit) then
-		UnitConvert = tonumber(strmatch(UnitGUID(Unit) or "","-(%d+)-%x+$"),10)
-	end
-	return UnitConvert
+    if ObjectExists(Unit) and UnitIsVisible(Unit) then
+        local id = select(6,strsplit("-", UnitGUID(Unit) or ""))
+        return tonumber(id)
+    end
+    return 0
 end
 
 -- if getNumEnemies("target",10) >= 3 then
@@ -1006,7 +1002,7 @@ function getLineOfSight(Unit1,Unit2)
 			return true
 		end
 	end
-	if UnitIsVisible(Unit1) and UnitIsVisible(Unit2) then
+	if ObjectExists(Unit1) and UnitIsVisible(Unit1) and ObjectExists(Unit2) and UnitIsVisible(Unit2) then
 		local X1,Y1,Z1 = ObjectPosition(Unit1)
 		local X2,Y2,Z2 = ObjectPosition(Unit2)
 		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
@@ -1021,7 +1017,7 @@ end
 
 -- if getGround("target"[,"target"]) then
 function getGround(Unit)
-	if UnitIsVisible(Unit) then
+	if ObjectExists(Unit) and UnitIsVisible(Unit) then
 		local X1,Y1,Z1 = ObjectPosition(Unit)
 		if TraceLine(X1,Y1,Z1,X1,Y1,Z1-2, 0x10) == nil and TraceLine(X1,Y1,Z1,X1,Y1,Z1-2, 0x100) == nil then
 			return nil
@@ -1032,7 +1028,7 @@ function getGround(Unit)
 end
 
 function getGroundDistance(Unit)
-	if UnitIsVisible(Unit) then
+	if ObjectExists(Unit) and UnitIsVisible(Unit) then
 		local X1,Y1,Z1 = ObjectPosition(Unit)
 		for i = 1,100 do
 			if TraceLine(X1,Y1,Z1,X1,Y1,Z1-i/10, 0x10) ~= nil or TraceLine(X1,Y1,Z1,X1,Y1,Z1-i/10, 0x100) ~= nil then
@@ -1044,7 +1040,7 @@ end
 
 -- if getPetLineOfSight("target"[,"target"]) then
 function getPetLineOfSight(Unit)
-	if UnitIsVisible("pet") and UnitIsVisible(Unit) then
+	if ObjectExists(Unit) and UnitIsVisible("pet") and UnitIsVisible(Unit) then
 		local X1,Y1,Z1 = ObjectPosition("pet")
 		local X2,Y2,Z2 = ObjectPosition(Unit)
 		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
@@ -1094,7 +1090,7 @@ function getTimeToDie(unit)
 	if timestart == nil then
 		timestart = 0
 	end
-	if UnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) then
+	if ObjectExists(unit) and UnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) then
 		if currtar ~= UnitGUID(unit) then
 			priortar = currtar
 			currtar = UnitGUID(unit)
@@ -1116,7 +1112,7 @@ function getTimeToDie(unit)
 				end
 			end
 		end
-	elseif not UnitIsVisible(unit) or currtar ~= UnitGUID(unit) then
+	elseif not ObjectExists(Unit) or not UnitIsVisible(unit) or currtar ~= UnitGUID(unit) then
 		currtar = 0
 		priortar = 0
 		thpstart = 0
@@ -1831,7 +1827,7 @@ end
 
 -- if isCasting(12345,"target") then
 function isCasting(SpellID,Unit)
-	if UnitExists(Unit) and UnitIsVisible(Unit) then
+	if ObjectExists(Unit) and UnitIsVisible(Unit) then
 		if isCasting(tostring(GetSpellInfo(SpellID)),Unit) == 1 then
 			return true
 		end

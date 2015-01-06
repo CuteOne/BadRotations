@@ -33,6 +33,7 @@ local varDir = BadBoy_data.options[GetSpecialization()]
 
 function makeEnemiesTable(maxDistance)
 	local  maxDistance = maxDistance or 50
+	if enemiesTable then cleanupEngine() end
 	if enemiesTable == nil or enemiesTableTimer == nil or enemiesTableTimer <= GetTime() - 1 then
 		enemiesTableTimer = GetTime()
 		-- create/empty table
@@ -97,6 +98,17 @@ function makeEnemiesTable(maxDistance)
 	 	table.sort(enemiesTable, function(x,y)
 	 		return x.coeficient and y.coeficient and x.coeficient > y.coeficient or false
 	 	end)
+	end
+end
+
+-- remove invalid units on pulse
+function cleanupEngine()
+	for i = #enemiesTable, 1, -1 do
+		-- here i want to scan the enemies table and find any occurances of invalid units
+		if not ObjectExists(enemiesTable[i].unit) then
+			-- i will remove such units from table
+			tremove(enemiesTable,i)
+		end
 	end
 end
 
@@ -169,7 +181,7 @@ function castCrowdControl(Unit,SpellID)
 end
 
 -- units can be "all" or a numeric value
-function castDotCycle(units,spellID,range,facingCheck,movementCheck)
+function castDotCycle(units,spellID,range,facingCheck,movementCheck,duration)
 	local units = units
 	-- unit can be "all" or numeric
 	if type(units) == "number" then
@@ -177,15 +189,16 @@ function castDotCycle(units,spellID,range,facingCheck,movementCheck)
 	else
 		units = 100
 	end
+	duration = duration or 1
 	-- cycle our units if we want MORE DOTS
 	if getDebuffCount(spellID) < units then
     	for i = 1, #enemiesTable do
-     		local thisUnit = enemiesTable[i].unit
+     		local thisUnit = enemiesTable[i]
      		if thisUnit.isCC == false then
-	     		local dotRemains = getDebuffRemain(thisUnit,spellID,"player")
-	     		if dotRemains < 1 then
-	      			if castSpell(thisUnit,spellID,true,true) then
-	       				return
+	     		local dotRemains = getDebuffRemain(thisUnit.unit,spellID,"player")
+	     		if dotRemains < duration then
+	      			if castSpell(thisUnit.unit,spellID,facingCheck,movementCheck) then
+	       				return true
 		      		end
 		     	end
 		    end

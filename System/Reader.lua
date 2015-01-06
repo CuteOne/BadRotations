@@ -195,6 +195,64 @@ local function SpellsChanged(self, event, ...)
 end
 Frame:SetScript("OnEvent", SpellsChanged)
 
+
+
+--[[ Addon reader ]]
+local Frame = CreateFrame('Frame')
+Frame:RegisterEvent("CHAT")
+--    "GROUP_ROSTER_UPDATE",
+--    "INSTANCE_GROUP_SIZE_CHANGED",
+--     "CHAT_MSG_ADDON",
+--     "BN_CHAT_MSG_ADDON",
+--     "PLAYER_REGEN_DISABLED",
+--     "PLAYER_REGEN_ENABLED",
+--     "INSTANCE_ENCOUNTER_ENGAGE_UNIT",
+--     "UNIT_TARGETABLE_CHANGED",
+--     "UNIT_SPELLCAST_SUCCEEDED",
+--     "ENCOUNTER_START",
+--     "ENCOUNTER_END",
+--     --"SPELL_UPDATE_CHARGES",
+--     "UNIT_DIED",
+--     "UNIT_DESTROYED",
+--     "UNIT_HEALTH mouseover target focus player",
+--     "CHAT_MSG_WHISPER",
+--     "CHAT_MSG_BN_WHISPER",
+--     "CHAT_MSG_MONSTER_YELL",
+--     "CHAT_MSG_MONSTER_EMOTE",
+--     "CHAT_MSG_MONSTER_SAY",
+--     "CHAT_MSG_RAID_BOSS_EMOTE",
+--     "RAID_BOSS_EMOTE",
+--     "PLAYER_ENTERING_WORLD",
+--     "LFG_ROLE_CHECK_SHOW",
+--     "LFG_PROPOSAL_SHOW",
+--     "LFG_PROPOSAL_FAILED",
+--     "LFG_PROPOSAL_SUCCEEDED",
+--     "UPDATE_BATTLEFIELD_STATUS",
+--     "CINEMATIC_START",
+--     "LFG_COMPLETION_REWARD",
+--     --"WORLD_STATE_TIMER_START",
+--     --"WORLD_STATE_TIMER_STOP",
+--     "CHALLENGE_MODE_START",
+--     "CHALLENGE_MODE_RESET",
+--     "CHALLENGE_MODE_END",
+--     "ACTIVE_TALENT_GROUP_CHANGED",
+--     "UPDATE_SHAPESHIFT_FORM",
+--     "PARTY_INVITE_REQUEST",
+--     "LOADING_SCREEN_DISABLED"
+-- )
+function addonReader(...)
+    function DBM:AddMsg(text, prefix)
+        prefix = prefix or (self.localization and self.localization.general.name) or "Deadly Boss Mods"
+        local frame = _G[tostring(DBM.Options.ChatFrame)]
+        print("!!")
+        frame = frame and frame:IsShown() and frame or DEFAULT_CHAT_FRAME
+        frame:AddMessage(("|cffff7d0a<|r|cffffd200%s|r|cffff7d0a>|r %s"):format(tostring(prefix), tostring(text)), 0.41, 0.8, 0.94)
+    end
+    print(...)
+end
+Frame:SetScript("OnEvent", addonReader)
+
+
 ---------------------------
 --[[ Combat Log Reader --]]
 local superReaderFrame = CreateFrame('Frame')
