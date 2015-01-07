@@ -16,7 +16,7 @@ function DruidMoonkin()
 		core:ooc()
 	end
 
-	core.debugEnabled = true
+	core.debugEnabled = false
 	-- Pause toggle
 	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then
 		ChatOverlay("|cffFF0000BadBoy Paused", 0)
