@@ -104,6 +104,18 @@ local function EnteringCombat(self,event,...)
 end
 Frame:SetScript("OnEvent",EnteringCombat)
 
+----------------------
+--[[ Loot Manager --]]
+local Frame = CreateFrame('Frame')
+Frame:RegisterEvent("LOOT_SLOT_CLEARED")
+local function LootEvents(self,event,...)
+    if event == "LOOT_SLOT_CLEARED" then
+        print("looted")
+        lM.lootedTimer = GetTime()
+    end
+end
+Frame:SetScript("OnEvent",LootEvents)
+
 -----------------------
 --[[ Leving Combat --]]
 local Frame = CreateFrame('Frame')
@@ -114,6 +126,7 @@ local function LeavingCombat(self,event,...)
         if lM then
             if not IsMounted("player") then
                 lM.shouldLoot = true
+                lM.looted = 0
             end
         end
 		potionReuse = true

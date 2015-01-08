@@ -297,11 +297,11 @@ local lootManager = { }
 lM = lootManager
 
 -- Debug
--- function lootManager:debug(message)
---     if getOptionCheck("Debug Frame") then
---         print("<lootManager> "..(math.floor(GetTime()*1000)/1000) .. " "..message)
---     end
--- end
+function lootManager:debug(message)
+    if lM.showDebug then
+        print("<lootManager> "..(math.floor(GetTime()*1000)/1000) .. " "..message)
+    end
+end
 
 -- Check if availables bag slots, return true if at least 1 free bag space
 function lootManager:emptySlots()
@@ -322,11 +322,13 @@ function lootManager:pulse()
     -- if we should find a loot
     if lM.shouldLoot == true then
         lM:getLoot()
-        --lM:debug("Main Pulse(leavign combat")
     end
+    -- it we seen a loot in reader
     if lM.lootedTimer and lM.lootedTimer < GetTime() - 0.5 then
         ClearTarget()
         lM.lootedTimer = nil
+        lM.shouldLoot = false
+        lM:debug("Clear Target")
     end
 end
 
@@ -335,26 +337,21 @@ function lootManager:getLoot()
         if UnitCastingInfo("player") == nil and UnitChannelInfo("player") == nil then
             -- find an unit to loot
             if lM.canLootUnit == nil then
+                lM:debug("Find Unit")
                 for i = 1,ObjectCount() do
                     if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
                         local thisUnit = ObjectWithIndex(i)
                         local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
-                        local inRange = CheckInteractDistance(thisUnit, 3) -- Duel range(9.9)
+                        local inRange = getRealDistance("player",thisUnit) < 2
                         -- if we can loot thisUnit we set it as unit to be looted
                         if hasLoot and canLoot and inRange then
                             lM.canLootTimer = GetTime()
                             lM.canLootUnit = thisUnit
-                            --lM:debug("Should loot "..UnitName(thisUnit))
+                            lM:debug("Should loot "..UnitName(thisUnit))
                             break
                         end
                     end
                 end
-            end
-            -- we didnt find any unit
-            if lM.canLootUnit == nil then
-                lM.shouldLoot = false
-                --lM:debug("We didnt find a valid unit to loot")
-                return
             end
             -- if we have a unit to loot, check if its time to
             if lM.canLootUnit and lM.canLootTimer and lM.canLootTimer <= GetTime() - getOptionValue("Auto Loot") then
@@ -363,19 +360,18 @@ function lootManager:getLoot()
                     if GetCVar("autoLootDefault") == "0" then
                         SetCVar("autoLootDefault", "1")
                         InteractUnit(lM.canLootUnit)
-                        --lM:debug("Interact with "..lM.canLootUnit)
+                        lM:debug("Interact with "..lM.canLootUnit)
                         SetCVar("autoLootDefault", "0")
                         return
                     else
                         InteractUnit(lM.canLootUnit)
-                        --lM:debug("Interact with "..lM.canLootUnit)
+                        lM:debug("Interact with "..lM.canLootUnit)
                     end
                 end
                 -- no matter what happened, we clear all values
                 lM.canLootTimer = nil
                 lM.canLootUnit = nil
-                lM.lootedTimer = GetTime()
-                --lM:debug("Clear Loot Timer and Unit")
+                lM:debug("Clear Loot Timer and Unit")
             end
         else
             -- if we were casting, we reset the delay
