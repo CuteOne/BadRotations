@@ -26,14 +26,17 @@ if select(3, UnitClass("player")) == 11 then
             CreateNewCheck(thisConfig,"Multi-Moonfire")
             CreateNewText(thisConfig,"Multi-Moonfire")
 
+            -- Starfall
+            CreateNewCheck(thisConfig,"Starfall")
+            CreateNewDrop(thisConfig,"Starfall",2,"CD")
+            CreateNewText(thisConfig,"Starfall")
+
             generateWrapper("Cooldowns")
 
-            -- Incarnation
-            if isKnown(core.spell.incarnation) then
-                CreateNewCheck(thisConfig,"Incarnation")
-                CreateNewDrop(thisConfig,"Incarnation",1,"CD")
-                CreateNewText(thisConfig,"Incarnation")
-            end
+            -- Celestial Alignment
+            CreateNewCheck(thisConfig,"Celestial Alignment")
+            CreateNewDrop(thisConfig,"Celestial Alignment",1,"CD")
+            CreateNewText(thisConfig,"Celestial Alignment")
 
             -- Force Of Nature
             if isKnown(core.spell.forceOfNature) then
@@ -42,24 +45,26 @@ if select(3, UnitClass("player")) == 11 then
                 CreateNewText(thisConfig,"Force Of Nature")
             end
 
+            -- Incarnation
+            if isKnown(core.spell.incarnation) then
+                CreateNewCheck(thisConfig,"Incarnation")
+                CreateNewDrop(thisConfig,"Incarnation",1,"CD")
+                CreateNewText(thisConfig,"Incarnation")
+            end
+
+            generateWrapper("Healing")
+
+            -- Healing Touch
+            CreateNewCheck(thisConfig,"Healing Touch")
+            CreateNewBox(thisConfig, "Healing Touch", 0, 100  , 5, 75, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRejuvenation|cffFFBB00 on |cffFFFFFFSelf.")
+            CreateNewText(thisConfig,"Healing Touch")
+
             -- Natures Vigil
             if isKnown(core.spell.naturesVigil) then
                 CreateNewCheck(thisConfig,"Natures Vigil")
                 CreateNewDrop(thisConfig,"Natures Vigil",1,"CD")
                 CreateNewText(thisConfig,"Natures Vigil")
             end
-
-            -- Celestial Alignment
-            CreateNewCheck(thisConfig,"Celestial Alignment")
-            CreateNewDrop(thisConfig,"Celestial Alignment",1,"CD")
-            CreateNewText(thisConfig,"Celestial Alignment")
-
-            -- Starfall
-            CreateNewCheck(thisConfig,"Starfall")
-            CreateNewDrop(thisConfig,"Starfall",2,"CD")
-            CreateNewText(thisConfig,"Starfall")
-
-            generateWrapper("Healing")
 
             -- Rejuvenation
             CreateNewCheck(thisConfig,"Rejuvenation")
@@ -90,6 +95,11 @@ if select(3, UnitClass("player")) == 11 then
             CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle2")
             CreateNewText(thisConfig,"Focus Toggle")
 
+            generateWrapper("Utilities")
+
+            --Debug
+            CreateNewCheck(666,"Debug")
+            CreateNewText(666,"Debug")
             -- General Configs
             CreateGeneralsConfig()
 

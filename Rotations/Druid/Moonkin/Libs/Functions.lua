@@ -24,17 +24,21 @@ if select(3, UnitClass("player")) == 11 then
                 units = { },
                 shape = 0,
                 spell = {
+                    barkskin = 22812,
                     celestialAlignment = 112071,
                     forceOfNature = 33831,
+                    healingTouch = 5185,
                     incarnation = 102560,
                     markOfTheWild = 1126,
                     moonfire = 8921,
                     moonkinForm = 24858,
                     naturesVigil = 124974,
                     rejuvenation = 774,
+                    solarBeam = 78675,
                     starfall = 48505,
                     starfire = 2912,
                     starsurge = 78674,
+                    stellarFlare = 152221,
                     sunfire = 93402,
                     wrath = 5176,
                  }
@@ -53,22 +57,28 @@ if select(3, UnitClass("player")) == 11 then
             local UnitHealth,castDotCycle,print,UnitHealthMax = UnitHealth,castDotCycle,print,UnitHealthMax
             local GetEclipseDirection,getDebuffRemain,SPELL_POWER_ECLIPSE = GetEclipseDirection,getDebuffRemain,SPELL_POWER_ECLIPSE
             local GetSpellInfo,UnitCastingInfo,GetTime,floor = GetSpellInfo,UnitCastingInfo,GetTime,math.floor
-            local nNova = nNova
+            local nNova,useItem = nNova,useItem
 
             -- no external access after here
             setfenv(1,moonCore)
 
             function moonCore:ooc()
+                -- update modes
+                updateModes()
                 -- Talents (refresh ooc)
                 talent.incarnation = isKnown(spell.incarnation)
                 -- Glyph (refresh ooc)
                 glyph.guidedStars = hasGlyph(175)
                 combatTime = GetTime()
                 inCombat = false
+                health = getHP(player)
+                nNova = nNova
             end
 
             -- this will be used to make the core refresh itself
             function moonCore:update()
+                -- update modes
+                updateModes()
                 -- player stats
                 if UnitCastingInfo(player) == GetSpellInfo(spell.starsurge) then
                     castingStarsurge = GetTime()
@@ -95,11 +105,6 @@ if select(3, UnitClass("player")) == 11 then
                 buff.starfall = getBuffRemain(player,spell.starfall)
                 -- Cooldowns
                 cd.incarnation = getSpellCD(spell.incarnation)
-                -- Modes
-                mode.aoe = BadBoy_data["MoonAoE"]
-                mode.cooldowns = BadBoy_data["MoonCooldowns"]
-                mode.defensive = BadBoy_data["MoonDefensive"]
-                mode.healing = BadBoy_data["MoonInterrupts"]
                 -- truth = true, right = false
                 shape = GetShapeshiftForm()
 
@@ -107,11 +112,10 @@ if select(3, UnitClass("player")) == 11 then
                 units.dyn40 = dynamicTarget(40,true)
             end
 
-            -- Debug
-            function moonCore:debug()
-                if debugEnabled == true then
-                    local time = (floor((GetTime() - combatTime)*1000))/1000
-                    print("Debug: "..time.." "..self)
+            -- Barkskin
+            function moonCore:castBarkskin()
+                if mode.defensive == 2 and isChecked("Barkskin") and health <= getValue("Barkskin") then
+                    return (castSpell(player,spell.barkskin,true,false) == true and debug("Baskskin on self")) or false
                 end
             end
 
@@ -124,9 +128,9 @@ if select(3, UnitClass("player")) == 11 then
             function moonCore:castFiller()
                 if (eclipseDirection == "sun" and eclipseEnergy >= -20)
                   or (eclipseDirection == "moon" and eclipseEnergy >= 20) then
-                    return (castSpell(units.dyn40,spell.wrath,false,true) == true and debug("Wrath")) or false
+                    castWrath()
                 else
-                    return (castSpell(units.dyn40,spell.starfire,false,true) == true and debug("Starfire")) or false
+                    castStarfire()
                 end
             end
 
@@ -135,17 +139,24 @@ if select(3, UnitClass("player")) == 11 then
                 if isSelected("Force Of Nature") then
                     if forceOfNatureStacks == 3 then
                         if (isDummy(units.dyn40) or (UnitHealth(units.dyn40) >= 400*UnitHealthMax(player)/100)) then
-                            return (castSpell(units.dyn40,spell.forceOfNature,true,false,false) == true and debug("Force Of Nature on "..units.dyn40.name)) or false
+                            return (castSpell(units.dyn40,spell.forceOfNature,true,false,false) == true and debug("Force Of Nature")) or false
                         end
                     end
                 end
             end
 
-            -- cooldowns
-            function moonCore:cooldowns()
-                castForceOfNature()
-                castIncarnation()
-                castNaturesVigil()
+            -- Healing Touch
+            function moonCore:castHealingTouch()
+                if mode.defensive == 2 and isChecked("Healing Touch") and health <= getValue("Healing Touch") then
+                    return (castSpell(player,spell.healingTouch,true,false) == true and debug("Healing Touch ".." with "..floor(health).."hp.")) or false
+                end
+            end
+
+            -- Health Stone
+            function moonCore:useHealthStone()
+                if useItem(5512) then
+                    return
+                end
             end
 
             -- Incarnation
@@ -165,7 +176,7 @@ if select(3, UnitClass("player")) == 11 then
                             local unit = nNova[i]
                             if unit.hp < 250 and getBuffRemain(unit.unit,spell.markOfTheWild) == 0 then
                                 lastMoTW = GetTime()
-                                return (castSpell(player,spell.markOfTheWild,true,false) == true and debug("Mark Of thw Wild on "..unit.name)) or false
+                                return (castSpell(player,spell.markOfTheWild,true,false) == true and debug("Mark Of the Wild on "..unit.name)) or false
                             end
                         end
                     end
@@ -191,6 +202,20 @@ if select(3, UnitClass("player")) == 11 then
                 end
             end
 
+            -- Moonkin Form
+            function moonCore:castMoonkinForm()
+                return (castSpell(units.dyn40,spell.moonkinForm,false,false) == true and debug("Moonkin Form")) or false
+            end
+
+            -- Cast while moving
+            function moonCore:castMovingFiller()
+                if not getSunfireStatus() then
+                    return (castSpell(units.dyn40,spell.moonfire,false,false) == true and debug("Moonfire while moving")) or false
+                else
+                    return (castSpell(units.dyn40,spell.moonfire,false,false) == true and debug("Sunfire while moving")) or false
+                end
+            end
+
             -- Natures Vigil
             function moonCore:castNaturesVigil()
                 if isSelected("Natures Vigil") then
@@ -202,9 +227,15 @@ if select(3, UnitClass("player")) == 11 then
 
             -- Rejuvenation
             function moonCore:castRejuvenation()
-                if health <= getValue("Rejuvenation") and not UnitBuffID(player,774,player) then
+                if mode.defensive == 2 and isChecked("Rejuvenation")
+                  and health <= getValue("Rejuvenation") and not UnitBuffID(player,774,player) then
                     return (castSpell(player,spell.rejuvenation,true,false) == true and debug("Rejuvenation on self.")) or false
                 end
+            end
+
+            -- Solar Beam
+            function moonCore:castSolarBeam()
+                castInterrupt(spell.solarBeam,60)
             end
 
             -- Starfall
@@ -216,9 +247,7 @@ if select(3, UnitClass("player")) == 11 then
 
             -- Starfire
             function moonCore:castStarfire()
-                if eclipseDirection == "moon" then
-                    return (castSpell(units.dyn40,spell.starfire,false,true) == true and debug("Starfire")) or false
-                end
+                return (castSpell(units.dyn40,spell.starfire,false,true) == true and debug("Starfire")) or false
             end
 
             -- Starsurge
@@ -226,10 +255,37 @@ if select(3, UnitClass("player")) == 11 then
                 return (castSpell(units.dyn40,spell.starsurge,false,true) == true and debug("Starsurge")) or false
             end
 
+            -- Stellar flare
+            function moonCore:castStellarFlare()
+                if isKnown(spell.stellarFlare) then
+                    return (castSpell(units.dyn40,spell.moonfire,false,false) == true and debug("Stellar Flare")) or false
+                end
+            end
+
             -- Sunfire
             function moonCore:castSunfire()
                 if getSunfireStatus() then
                     return (castSpell(units.dyn40,spell.moonfire,false,false) == true and debug("Sunfire")) or false
+                end
+            end
+
+            -- Wrath
+            function moonCore:castWrath()
+                return (castSpell(units.dyn40,spell.wrath,false,true) == true and debug("Wrath")) or false
+            end
+
+            -- cooldowns
+            function moonCore:cooldowns()
+                castForceOfNature()
+                castIncarnation()
+                castNaturesVigil()
+            end
+
+            -- Debug
+            function moonCore:debug()
+                if debugEnabled == true then
+                    local time = (floor((GetTime() - combatTime)*1000))/1000
+                    print("|cffFFBF00<|cffFF0000Debug|cffFFBF00> <|cffFFFFFF"..time.."|cffFFBF00> |cffFFFFFF"..self)
                 end
             end
 
@@ -249,7 +305,16 @@ if select(3, UnitClass("player")) == 11 then
                 end
                 return moonfireCandidates
             end
+
+            -- modes
+            function moonCore:updateModes()
+                -- Modes
+                mode.aoe = BadBoy_data["MoonAoE"]
+                mode.cooldowns = BadBoy_data["MoonCooldowns"]
+                mode.defensive = BadBoy_data["MoonDefensive"]
+                mode.healing = BadBoy_data["MoonInterrupts"]
+                debugEnabled = isChecked("Debug")
+            end
         end
     end
-
 end

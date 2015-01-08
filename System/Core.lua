@@ -164,8 +164,13 @@ frame:SetScript("OnEvent", frame.OnEvent)
     --[[This function is refired everytime wow ticks. This frame is located in Core.lua]]
     function BadBoyUpdate(self)
         -- prevent ticking when firechack isnt loaded
+        -- if user click power button, stop everything from pulsing.
+        if not getOptionCheck("Start/Stop BadBoy") or BadBoy_data["Power"] ~= 1 then
+            return false
+        end
+
         if FireHack == nil then
-            if not getOptionCheck("Start/Stop BadBoy") then
+            if getOptionCheck("Start/Stop BadBoy") then
                 ChatOverlay("FireHack not Loaded.")
             end
             return
@@ -175,10 +180,14 @@ frame:SetScript("OnEvent", frame.OnEvent)
 
         -- accept dungeon queues
         AcceptQueues()
-        -- if user click power button, stop everything from pulsing.
-        if not getOptionCheck("Start/Stop BadBoy") or BadBoy_data["Power"] ~= 1 then
-            return false
+
+        -- AutoLooter
+        if getOptionCheck("Auto Loot") then
+            if not isInCombat("player") then
+                lM:pulse()
+            end
         end
+
         --[[Class/Spec Selector]]
         local playerClass = select(3,UnitClass("player"))
         local playerSpec = GetSpecialization()

@@ -101,7 +101,7 @@ function ProfessionHelper()
                 }
                 processThatTable(tableDisenchant,13262)
             end
-            if isChecked("LeatherScraps") then
+            if isChecked("Leather Scraps") then
                 -- Raw Beast Hide Scraps
                 if GetItemCount(110610,false,false) >= 10 then
                     if lootTimer == nil or lootTimer <= GetTime() - lootDelay then

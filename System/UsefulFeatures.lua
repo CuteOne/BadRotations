@@ -287,3 +287,97 @@ if not LibStub or LibStub.minor < LIBSTUB_MINOR then
 
     setmetatable(LibStub, { __call = LibStub.GetLibrary })
 end
+
+
+------------------
+-- Loot Manager --
+------------------
+
+local lootManager = { }
+lM = lootManager
+
+-- Debug
+-- function lootManager:debug(message)
+--     if getOptionCheck("Debug Frame") then
+--         print("<lootManager> "..(math.floor(GetTime()*1000)/1000) .. " "..message)
+--     end
+-- end
+
+-- Check if availables bag slots, return true if at least 1 free bag space
+function lootManager:emptySlots()
+    local openCount = 0
+    for i = 1, NUM_BAG_SLOTS do
+        openCount = openCount + select(1,GetContainerNumFreeSlots(i))
+    end
+    --lM:debug("Counts of "..openCount.." empty slots.")
+    if openCount > 0 then
+        return true
+    else
+        return false
+    end
+end
+
+-- pulses always
+function lootManager:pulse()
+    -- if we should find a loot
+    if lM.shouldLoot == true then
+        lM:getLoot()
+        --lM:debug("Main Pulse(leavign combat")
+    end
+    -- clear target and timer when loot timer ends
+    if lM.lootedTimer and lM.lootedTimer < GetTime() - 1 then
+        ClearTarget()
+        lM.lootedTimer = nil
+        --lM:debug("Clear Target")
+    end
+end
+
+function lootManager:getLoot()
+    if lM:emptySlots() then
+        -- find an unit to loot
+        if lM.canLootUnit == nil then
+            for i = 1,ObjectCount() do
+                if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
+                    local thisUnit = ObjectWithIndex(i)
+                    local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
+                    local inRange = CheckInteractDistance(thisUnit, 3) -- Duel range(9.9)
+                    -- if we can loot thisUnit we set it as unit to be looted
+                    if hasLoot and canLoot and inRange then
+                        lM.canLootTimer = GetTime()
+                        lM.canLootUnit = thisUnit
+                        --lM:debug("Should loot "..UnitName(thisUnit))
+                        break
+                    end
+                end
+            end
+        end
+        -- we didnt find any unit
+        if lM.canLootUnit == nil then
+            lM.shouldLoot = false
+            --lM:debug("We didnt find a valid unit to loot")
+            return
+        end
+        -- if we have a unit to loot, check if its time to
+        if lM.canLootUnit and lM.canLootTimer and lM.canLootTimer <= GetTime() - getOptionValue("Auto Loot") then
+            if ObjectExists(lM.canLootUnit) then
+                -- make sure the user have the auto loot selected, if its not ,we will enable it when we need it
+                if GetCVar("autoLootDefault") == "0" then
+                    SetCVar("autoLootDefault", "1")
+                    InteractUnit(lM.canLootUnit)
+                    --lM:debug("Interact with "..lM.canLootUnit)
+                    SetCVar("autoLootDefault", "0")
+                    return
+                else
+                    InteractUnit(lM.canLootUnit)
+                    --lM:debug("Interact with "..lM.canLootUnit)
+                end
+            end
+            -- no matter what happened, we clear all values
+            lM.canLootTimer = nil
+            lM.canLootUnit = nil
+            --lM:debug("Clear Loot Timer and Unit")
+        end
+    else
+        ChatOverlay("Bags are full, nothing will be looted!")
+    end
+end

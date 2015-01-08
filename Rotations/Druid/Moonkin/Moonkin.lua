@@ -16,14 +16,18 @@ function DruidMoonkin()
 		core:ooc()
 	end
 
-	core.debugEnabled = false
+	-- Prevent pulse while mounted/eating etc
+	if not canRun() then
+		return
+	end
+
 	-- Pause toggle
-	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then
+	if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") then
 		ChatOverlay("|cffFF0000BadBoy Paused", 0)
 		return
 	end
 	-- Focus Toggle
-	if isChecked("Focus Toggle") and SpecificToggle("Focus Toggle") == 1 then
+	if isChecked("Focus Toggle") and SpecificToggle("Focus Toggle") then
 		RunMacroText("/focus mouseover")
 	end
 
@@ -31,8 +35,16 @@ function DruidMoonkin()
 		return false
 	end
 
+	-- Health Stone
+	core:useHealthStone()
+
 	-- Rejuvenation
 	if core:castRejuvenation() then
+		return
+	end
+
+	-- Healing Touch
+	if core:castHealingTouch() then
 		return
 	end
 
@@ -41,8 +53,17 @@ function DruidMoonkin()
 		return
 	end
 
-	if UnitAffectingCombat("player") == true and canRun() then
+	if UnitAffectingCombat("player") == true then
 
+		-- Moonkin Form
+		if core.shape == 0 then
+			if core:castMoonkinForm() then
+				return
+			end
+		end
+
+		-- Barkskin
+		core:castBarkskin()
 
 		-- actions.precombat+=/stellar_flare
 		-- actions=potion,name=draenic_intellect,if=buff.celestial_alignment.up
@@ -51,7 +72,7 @@ function DruidMoonkin()
 		-- actions+=/arcane_torrent,if=buff.celestial_alignment.up
 		-- actions+=/force_of_nature,if=trinket.stat.intellect.up|charges=3|target.time_to_die<21
 		core:cooldowns()
-
+		core:castSolarBeam()
 
 		-- actions+=/call_action_list,name=single_target,if=active_enemies=1
 		if core.mode.aoe == 1 or (core.mode.aoe == 3 and core.activeEnemies == 1) then
@@ -93,21 +114,29 @@ function DruidMoonkin()
 			end
 			-- actions.single_target+=/sunfire,if=remains<7|buff.solar_peak.up
 			if buff.solarPeak > 0
-			  or (getDebuffRemain(core.units.dyn40,core.spell.sunfire,"player") < 4 and core.eclipseEnergy < 50 and core.eclipseDirection == "sun") then
+			  or (getDebuffRemain(core.units.dyn40,core.spell.sunfire,"player") < 4 and eclipseEnergy < 50 and core.eclipseDirection == "sun") then
 				if core:castSunfire() then
 					return
 				end
 			end
 			-- actions.single_target+=/stellar_flare,if=remains<7
+			if eclipseEnergy > -30 and eclipseEnergy < 30 and getDebuffRemain(core.units.dyn40,core.spell.stellarFlare,"player") < 7 then
+				if core:castStellarFlare() then
+					return
+				end
+			end
 			-- actions.single_target+=/moonfire,if=buff.lunar_peak.up&remains<eclipse_change+20|remains<4|(buff.celestial_alignment.up&buff.celestial_alignment.remains<=2&remains<eclipse_change+20)
 			if buff.lunarPeak > 0
-			  or (getDebuffRemain(core.units.dyn40,core.spell.moonfire,"player") < 4 and core.eclipseEnergy > -50 and core.eclipseDirection == "moon")
+			  or (getDebuffRemain(core.units.dyn40,core.spell.moonfire,"player") < 4 and eclipseEnergy > -50 and core.eclipseDirection == "moon")
 			  or (buff.celestialAlignment > 0 and buff.celestialAlignment <= 2 and getDebuffRemain(core.units.dyn40,core.spell.moonfire,"player") < 12) then
 				if core:castMoonfire() then
 					return
 				end
 			end
 			if core:castFiller() then
+				return
+			end
+			if core:castMovingFiller() then
 				return
 			end
 		else
@@ -126,7 +155,7 @@ function DruidMoonkin()
 			end
 			-- actions.aoe+=/sunfire,if=remains<8
 			if buff.solarPeak > 0
-			  or (getDebuffRemain(core.units.dyn40,core.spell.sunfire,"player") < 4 and core.eclipseEnergy < 50 and core.eclipseDirection == "sun") then
+			  or (getDebuffRemain(core.units.dyn40,core.spell.sunfire,"player") < 4 and eclipseEnergy < 50 and core.eclipseDirection == "sun") then
 				if core:castSunfire() then
 					return
 				end

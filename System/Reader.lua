@@ -110,6 +110,12 @@ local Frame = CreateFrame('Frame')
 Frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 local function LeavingCombat(self,event,...)
 	if event == "PLAYER_REGEN_ENABLED" then
+        -- start loot manager
+        if lM then
+            if not IsMounted("player") then
+                lM.shouldLoot = true
+            end
+        end
 		potionReuse = true
 		AgiSnap = 0
 		usePot = true

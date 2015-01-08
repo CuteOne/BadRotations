@@ -249,8 +249,13 @@ function ConstructUI()
                     [5] = {
                         checkbase = true,
                         check = true,
-                        name = "Start/Stop BadBoy",
-                        tip = "Uncheck to prevent BadBoy pulsing."
+                        name = "Auto Loot",
+                        tip = "Check to allow auto-looting.",
+                        status = "|cffFFBB00Loot Delay.",
+                        statusBase = 0.5,
+                        statusMin = 0.1,
+                        statusMax = 3,
+                        statusStep = 0.1,
                     },
                     [6] = {
                         checkbase = true,
@@ -269,7 +274,13 @@ function ConstructUI()
                         check = true,
                         name = "Overlay Messages",
                         tip = "Check to enable chat overlay messages."
-                    }
+                    },
+                    [9] = {
+                        checkbase = true,
+                        check = true,
+                        name = "Start/Stop BadBoy",
+                        tip = "Uncheck to prevent BadBoy pulsing."
+                    },
                 },
                 ["Enemies Engine"] = {
                     [1] = {
@@ -510,12 +521,6 @@ function ConstructUI()
                     },
                 }
             }
-
-
-
-
-
-
 
             -- options buttons interation, set the one clicked white and others gray
             function radioGeneral(parent,value)
