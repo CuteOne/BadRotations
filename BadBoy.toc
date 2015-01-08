@@ -16,6 +16,7 @@ System\DebugFrame.lua
 System\Reader.lua
 System\UI.lua
 System\UsefulFeatures.lua
+System\LootManager.lua
 
 ## Engines
 System\engines\EnemiesEngine.lua

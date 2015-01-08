@@ -1,0 +1,120 @@
+------------------
+-- Loot Manager --
+------------------
+local lootManager = { }
+lM = lootManager
+
+-- Debug
+function lootManager:debug(message)
+    if lM.showDebug then
+        if message and lM.oldMessage ~= message then
+            print("<lootManager> "..(math.floor(GetTime()*1000)/1000).. " "..message)
+            lM.oldMessage = message
+        end
+    end
+end
+
+-- Check if availables bag slots, return true if at least 1 free bag space
+function lootManager:emptySlots()
+    local openCount = 0
+    for i = 1, NUM_BAG_SLOTS do
+        openCount = openCount + select(1,GetContainerNumFreeSlots(i))
+    end
+    --lM:debug("Counts of "..openCount.." empty slots.")
+    if openCount > 0 then
+        return true
+    else
+        return false
+    end
+end
+
+function lootManager:getLoot()
+    if lM:emptySlots() then
+        if UnitCastingInfo("player") == nil and UnitChannelInfo("player") == nil and DontMoveStartTime and GetTime() - DontMoveStartTime > 0 then
+            -- if we have a unit to loot, check if its time to
+            if lM.canLootUnit and lM.canLootTimer and lM.canLootTimer <= GetTime() - getOptionValue("Auto Loot") then
+                if ObjectExists(lM.canLootUnit) then
+                    -- make sure the user have the auto loot selected, if its not ,we will enable it when we need it
+                    if GetCVar("autoLootDefault") == "0" then
+                        SetCVar("autoLootDefault", "1")
+                        InteractUnit(lM.canLootUnit)
+                        lM.canLootTimer = GetTime() + 1.5
+                        lM:debug("Interact with "..lM.canLootUnit)
+                        SetCVar("autoLootDefault", "0")
+                        return
+                    else
+                        InteractUnit(lM.canLootUnit)
+                        lM.canLootTimer = GetTime() + 1.5
+                        lM:debug("Interact with "..lM.canLootUnit)
+                    end
+                    -- no matter what happened, we clear all values
+                    lM.canLootUnit = nil
+                    lM:debug("Clear Loot Timer and Unit")
+                end
+            -- find an unit to loot
+            elseif lM.canLootUnit == nil and (not lM.canLootTimer or lM.canLootTimer < GetTime()) then
+                lM:debug("Find Unit")
+                for i = 1,ObjectCount() do
+                    if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
+                        local thisUnit = ObjectWithIndex(i)
+                        local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
+                        local inRange = getRealDistance("player",thisUnit) < 2
+                        -- if we can loot thisUnit we set it as unit to be looted
+                        if hasLoot and canLoot and inRange then
+                            lM.canLootTimer = GetTime()
+                            lM.canLootUnit = thisUnit
+                            lM:debug("Should loot "..UnitName(thisUnit))
+                            break
+                        end
+                    end
+                end
+            end
+        else
+            -- if we were casting, we reset the delay
+            lM.canLootTimer = GetTime()
+        end
+    else
+        ChatOverlay("Bags are full, nothing will be looted!")
+    end
+end
+
+-- Frame
+local Frame = CreateFrame('Frame')
+Frame:RegisterEvent("LOOT_SLOT_CLEARED")
+Frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+-- loot slot cleared
+local function lootEvents(self,event,...)
+    if event == "LOOT_SLOT_CLEARED" then
+        lM.debug("Looted")
+        lM.canLootTimer = GetTime() + 1
+        lM.lootedTimer = GetTime()
+    elseif event == "PLAYER_REGEN_ENABLED" then
+        -- start loot manager
+        if lM then
+            if not IsMounted("player") then
+                lM.shouldLoot = true
+                lM.looted = 0
+            end
+        end
+    end
+end
+Frame:SetScript("OnEvent",lootEvents)
+-- pulses always
+local function pulse()
+    if getOptionCheck("Auto Loot") then
+        if not isInCombat("player") then
+            -- if we should find a loot
+            if lM.shouldLoot == true then
+                lM:getLoot()
+            end
+            -- it we seen a loot in reader
+            if lM.lootedTimer and lM.lootedTimer < GetTime() - 0.5 then
+                ClearTarget()
+                lM.lootedTimer = nil
+                lM.shouldLoot = false
+                lM:debug("Clear Target")
+            end
+        end
+    end
+end
+Frame:SetScript("OnUpdate",pulse)

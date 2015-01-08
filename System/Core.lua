@@ -3,9 +3,6 @@ function BadBoyEngine()
     if Pulse_Engine == nil then
         Pulse_Engine = CreateFrame("Frame", nil, UIParent)
         Pulse_Engine:SetScript("OnUpdate", BadBoyUpdate)
-        --Pulse_Engine:SetPoint("TOPLEFT",0,0)
-        --Pulse_Engine:SetHeight(1)
-        --Pulse_Engine:SetWidth(1)
         Pulse_Engine:Show()
     end
 end
@@ -180,13 +177,6 @@ frame:SetScript("OnEvent", frame.OnEvent)
 
         -- accept dungeon queues
         AcceptQueues()
-
-        -- AutoLooter
-        if getOptionCheck("Auto Loot") then
-            if not isInCombat("player") then
-                lM:pulse()
-            end
-        end
 
         --[[Class/Spec Selector]]
         local playerClass = select(3,UnitClass("player"))
