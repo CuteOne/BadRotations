@@ -381,3 +381,13 @@ function lootManager:getLoot()
         ChatOverlay("Bags are full, nothing will be looted!")
     end
 end
+
+local Frame = CreateFrame('Frame')
+Frame:RegisterEvent("LOOT_SLOT_CLEARED")
+local function LootEvents(self,event,...)
+    if event == "LOOT_SLOT_CLEARED" then
+        lM.debug("Looted")
+        lM.lootedTimer = GetTime()
+    end
+end
+Frame:SetScript("OnEvent",LootEvents)

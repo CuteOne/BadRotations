@@ -104,18 +104,6 @@ local function EnteringCombat(self,event,...)
 end
 Frame:SetScript("OnEvent",EnteringCombat)
 
-----------------------
---[[ Loot Manager --]]
-local Frame = CreateFrame('Frame')
-Frame:RegisterEvent("LOOT_SLOT_CLEARED")
-local function LootEvents(self,event,...)
-    if event == "LOOT_SLOT_CLEARED" then
-        print("looted")
-        lM.lootedTimer = GetTime()
-    end
-end
-Frame:SetScript("OnEvent",LootEvents)
-
 -----------------------
 --[[ Leving Combat --]]
 local Frame = CreateFrame('Frame')
