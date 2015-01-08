@@ -328,7 +328,7 @@ if select(3, UnitClass("player")) == 5 then
 						end
 					--end
 					--if options.isChecked.VT then
-						if not UnitDebuffID("target",VT,"player") and GetTime()-options.player.lastVT > 2 then
+						if not UnitDebuffID("target",VT,"player") and GetTime()-lastVT > 2*options.player.GCD then
 							if castSpell("target",VT,true,true) then 
 								--options.player.lastVT=GetTime()
 								lastVT=GetTime()
