@@ -30,7 +30,11 @@ if select(3,UnitClass("player")) == 10 then
     _QuakingPalm                =   107079  --Quaking Palm
     _RaisingSunKick             =   107428  --Raising Sun Kick
     _Resuscitate                =   115178  --Resuscitate
-    _Roll                       =   121827	--109132  --Roll
+    if getTalent(1,1) then
+        _Roll                   =   121827	--Roll w/ Celerity Talent
+    else
+        _Roll                   =   109132  --Roll
+    end
     _RushingJadeWind			=	116847	--Rushing Jade Wind
     _Serenity 					=	152173	--Serenity
     _SpinningCraneKick          =   101546  --Spinning Crane Kick

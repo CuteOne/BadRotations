@@ -47,7 +47,7 @@ if select(3, UnitClass("player")) == 6 then
       local bloodpres = getBuffRemain("player",_BloodPresence)~=0
       local frostpres = getBuffRemain("player",_FrostPresence)~=0
       local unholypres = getBuffRemain("player",_UnholyPresence)~=0
-      local dRunes, bRunes, fRunes, uRunes = getRunes("death"), getRunes("blood") + getRunes("death"), getRunes("frost") + getRunes("death"), getRunePercent("death")
+      local dRunes, bRunes, fRunes, uRunes = getRunes("death"), getRunes("blood") + getRunes("death"), getRunes("frost") + getRunes("death"), getRunes("unholy") + getRunes("death")
       local bPercent, fPercent, uPercent = getRunePercent("blood") + getRunes("death"), getRunePercent("frost") + getRunes("death"), getRunePercent("unholy") + getRunes("death")
       local bcStack = getBuffStacks("player",_BloodCharge,"player")
       local rRemain = getBuffRemain("player",_Rime)
@@ -111,16 +111,10 @@ if select(3, UnitClass("player")) == 6 then
       else
         profileStop=false
       end
-    -- AutoLooter
-      if isChecked("Auto Looter") then
-        if not isInCombat("player") and getLoot() then
-          return true
-        end
-      end
     -- Raise Ally
       if isInCombat("player") and raCooldown==0 and power>30 then
         if isChecked("Mouseover Targeting") and hasMouse and deadMouse and playerMouse and mouseDist<40 then
-          if castSpell("mouseover",ra,true,true,false,false,true) then return end
+          if castSpell("mouseover",_RaiseAlly,true,true,false,false,true) then return end
         elseif hastar and deadtar and playertar and tarDist.dyn0<40 then
           if castSpell(tarUnit.dyn0,_RaiseAlly,true,false,false,false,true) then return end
         end
@@ -149,7 +143,7 @@ if select(3, UnitClass("player")) == 6 then
           if castSpell("player",_FrostPresence,true,false,false) then return end
         end
       -- Unholy Presence
-        if not unholypres and ((not isInCombat("player") and IsMovingTime(2)) or (hastar and tarDist.dyn0>20 and power<40)) then
+        if not unholypres and ((not isInCombat("player") and IsMovingTime(2) and ((hastar and tarDist.dyn0>20 or not hastar))) or (hastar and tarDist.dyn0>20 and power<40)) then
           if castSpell("player",_UnholyPresence,true,false,false) then return end
         end
       -- Path of Frost
@@ -230,35 +224,35 @@ if select(3, UnitClass("player")) == 6 then
           and ((not (IsMounted() or IsFlying() or friendly)) or isDummy())
         then
       -- Death Grip
-          if tarDist.dyn30<30 and tarDist.dyn30>8 and select(2,IsInInstance())=="none" and #members==1 then
-            if castSpell(tarUnit.dyn30,_DeathGrip,false,false,false) then return end
+          if tarDist.dyn0<30 and tarDist.dyn0>8 and select(2,IsInInstance())=="none" and #members==1 then
+            if castSpell(tarUnit.dyn0,_DeathGrip,false,false,false) then return end
           end
       -- Frost Strike
-          if power>76 and tarDist.dyn5<5 then
-            if castSpell(tarUnit.dyn5,_FrostStrike,false,false,false) then return end
+          if power>76 and tarDist.dyn0<5 then
+            if castSpell(tarUnit.dyn0,_FrostStrike,false,false,false) then return end
           end
       -- Outbreak
-          if ffRemain.dyn30==0 and bpRemain.dyn30==0 and tarDist.dyn30<30 and select(2,IsInInstance())=="none" and #members==1 then
-            if castSpell(tarUnit.dyn30,_Outbreak,false,false,false) then return end
+          if ffRemain.dyn0==0 and bpRemain.dyn0==0 and tarDist.dyn0<30 and select(2,IsInInstance())=="none" and #members==1 then
+            if castSpell(tarUnit.dyn0,_Outbreak,false,false,false) then return end
           end
       -- Unholy Blight
-          if ffRemain.dyn10AoE==0 and bpRemain.dyn10AoE==0 and tarDist.dyn10AoE<10 and select(2,IsInInstance())=="none" and #members==1 then
-            if castSpell(tarUnit.dyn10AoE,_UnholyBlight,false,false,false) then return end
+          if ffRemain.dyn0==0 and bpRemain.dyn0==0 and tarDist.dyn0<10 and select(2,IsInInstance())=="none" and #members==1 then
+            if castSpell(tarUnit.dyn0,_UnholyBlight,false,false,false) then return end
           end
       -- Howling Blast
-          if ffRemain.dyn30==0 and fRunes>=1 and tarDist.dyn30<30 and select(2,IsInInstance())=="none" and #members==1 then
-            if getNumEnemies(tarUnit.dyn30,10)==1 and useCleave() then
-              if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
+          if ffRemain.dyn0==0 and fRunes>=1 and tarDist.dyn0<30 and select(2,IsInInstance())=="none" and #members==1 then
+            if getNumEnemies(tarUnit.dyn0,10)==1 and useCleave() then
+              if castSpell(tarUnit.dyn0,_HowlingBlast,false,false,false) then return end
             else
-              if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
+              if castSpell(tarUnit.dyn0,_IcyTouch,false,false,false) then return end
             end
           end
       -- Plague Strike
-          if bpRemain.dyn5==0 and bRunes>=1 and tarDist.dyn5<5 then
-            if castSpell(tarUnit.dyn5,_PlagueStrike,false,false,false) then return end
+          if bpRemain.dyn0==0 and bRunes>=1 and tarDist.dyn0<5 then
+            if castSpell(tarUnit.dyn0,_PlagueStrike,false,false,false) then return end
           end
       -- Start Attack
-          if tarDist.dyn5<5 then
+          if tarDist.dyn0<5 then
             StartAttack()
           end
         end
@@ -595,7 +589,7 @@ if select(3, UnitClass("player")) == 6 then
             end
         -- Howling Blast (2H)
             --if=buff.rime.react&disease.min_remains>5&(blood.frac>=1.8|unholy.frac>=1.8|frost.frac>=1.8)
-            if twoHand and rRemain>0 and getDisease(30,false,"min")>5 and (bPercent>=1.8 or uPercent>=1.8 or fPercent>=1.8) and fRunes>=1 and tarDist.dyn30<30 then
+            if twoHand and rRemain>0 and getDisease(30,false,"min")>5 and (bPercent>=1.8 or uPercent>=1.8 or fPercent>=1.8) and tarDist.dyn30<30 then
               if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
                 if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
               else
@@ -624,7 +618,7 @@ if select(3, UnitClass("player")) == 6 then
             end
         -- Howling Blast (2H)
             --if=buff.rime.react&disease.min_remains>5
-            if twoHand and rRemain>0 and getDisease(30,false,"min")>5 and fRunes>=1 and tarDist.dyn30<30 then
+            if twoHand and rRemain>0 and getDisease(30,false,"min")>5 and tarDist.dyn30<30 then
               if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
                 if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
               else
@@ -688,7 +682,7 @@ if select(3, UnitClass("player")) == 6 then
             end
         -- Blood Boil
             --if=dot.blood_plague.ticking&(!talent.unholy_blight.enabled|cooldown.unholy_blight.remains<49),line_cd=28
-            if bpRemain.dyn10AoE>0 and (not blight or ubCooldown<49) and (lineTimer == nil or lineTimer <= GetTime()-28) and bRunes>=1 and tarDist.dyn10AoE<10 then
+            if bpRemain.dyn10AoE>0 and ((not blight) or ubCooldown<49) and (lineTimer == nil or lineTimer <= GetTime()-28) and bRunes>=1 and tarDist.dyn10AoE<10 then
               if castSpell("player",_BloodBoil,true,false,false) then lineTimer=GetTime(); return end
             end
         -- Defile
@@ -705,7 +699,7 @@ if select(3, UnitClass("player")) == 6 then
             ----------------------------
             if isBoss() and bosRemain>0 then
           -- Howling Blast
-              if fRunes>=1 and tarDist.dyn30<30 then
+              if (fRunes>=1 or rRemain>0) and tarDist.dyn30<30 then
                 if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
               end
           -- Blood Tap
@@ -742,7 +736,7 @@ if select(3, UnitClass("player")) == 6 then
               end
             end --End Boss Special
         -- Howling Blast
-            if fRunes>=1 and tarDist.dyn0<30 then
+            if (fRunes>=1 or rRemain>0) and tarDist.dyn0<30 then
               if castSpell(tarUnit.dyn0,_HowlingBlast,false,false,false) then return end
             end
         -- Blood Tap

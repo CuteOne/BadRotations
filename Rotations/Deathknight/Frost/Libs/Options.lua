@@ -56,10 +56,6 @@ if select(3,UnitClass("player")) == 6 then
                 textOp(" ")
                 wrapOp("--- General (Profile) ---")
 
-                    -- Auto Looter
-                    checkOp("Auto Looter","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic corpse looting.")
-                    textOp("Auto Looter")
-
                     -- Mouseover Targeting
                     checkOp("Mouseover Targeting","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFmouseover target validation.|cffFFBB00.")
                     textOp("Mouseover Targeting")

@@ -92,11 +92,12 @@ function lootManager:emptySlots()
 end
 
 function lootManager:getLoot()
+    if looted == nil then looted = 0 end
     if lM:emptySlots() then
         if UnitCastingInfo("player") == nil and UnitChannelInfo("player") == nil and DontMoveStartTime and GetTime() - DontMoveStartTime > 0 then
             -- if we have a unit to loot, check if its time to
             if lM.canLootUnit and lM.canLootTimer and lM.canLootTimer <= GetTime() - getOptionValue("Auto Loot") then
-                if ObjectExists(lM.canLootUnit) then
+                if ObjectExists(lM.canLootUnit) and looted == 0 then
                     -- make sure the user have the auto loot selected, if its not ,we will enable it when we need it
                     if GetCVar("autoLootDefault") == "0" then
                         SetCVar("autoLootDefault", "1")
@@ -104,11 +105,13 @@ function lootManager:getLoot()
                         lM.canLootTimer = GetTime() + 1.5
                         lM:debug("Interact with "..lM.canLootUnit)
                         SetCVar("autoLootDefault", "0")
+                        looted = 1
                         return
                     else
                         InteractUnit(lM.canLootUnit)
                         lM.canLootTimer = GetTime() + 1.5
                         lM:debug("Interact with "..lM.canLootUnit)
+                        looted = 1
                     end
                     -- no matter what happened, we clear all values
                     lM.canLootUnit = nil
@@ -124,6 +127,7 @@ function lootManager:getLoot()
                         local inRange = getRealDistance("player",thisUnit) < 2
                         -- if we can loot thisUnit we set it as unit to be looted
                         if hasLoot and canLoot and inRange then
+                            looted = 0
                             lM.canLootTimer = GetTime()
                             lM.canLootUnit = thisUnit
                             lM:debug("Should loot "..UnitName(thisUnit))
