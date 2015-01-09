@@ -1,3 +1,66 @@
+-- Sell Greys Macros
+SLASH_Greys1 = "/grey"
+SLASH_Greys2 = "/greys"
+function SlashCmdList.Greys(msg, editbox)
+    SellGreys()
+end
+
+function SellGreys()
+    for bag = 0, 4 do
+        for slot = 1, GetContainerNumSlots(bag) do
+            local item = GetContainerItemLink(bag,slot)
+            if item then
+                    -- Is it grey quality item?
+                if string.find(item, qualityColors.grey) ~= nil then
+                    greyPrice = select(11, GetItemInfo(item)) * select(2, GetContainerItemInfo(bag, slot))
+                    if greyPrice > 0 then
+                        PickupContainerItem(bag, slot)
+                        PickupMerchantItem()
+                    end
+                end
+            end
+        end
+    end
+    RepairAllItems(1)
+    RepairAllItems(0)
+    ChatOverlay("Sold Greys.")
+end
+
+-- Dump Greys Macros
+SLASH_DumpGrey1 = "/dumpgreys"
+SLASH_DumpGrey2 = "/dg"
+function SlashCmdList.DumpGrey(msg, editbox)
+    DumpGreys(1)
+end
+
+function DumpGreys(Num)
+    local greyTable = {}
+    for bag = 0, 4 do
+      for slot = 1, GetContainerNumSlots(bag) do
+          local item = GetContainerItemLink(bag,slot)
+          if item then
+            -- Is it grey quality item?
+            if string.find(item, qualityColors.grey) ~= nil then
+                greyPrice = select(11, GetItemInfo(item)) * select(2, GetContainerItemInfo(bag, slot))
+                if greyPrice > 0 then
+                    tinsert(greyTable, { Bag = bag, Slot = slot, Price = greyPrice, Item = item})
+                end
+              end
+            end
+        end
+    end
+    table.sort(greyTable, function(x,y)
+        if x.Price and y.Price then return x.Price < y.Price end
+    end)
+    for i = 1, Num do
+        if greyTable[i]~= nil then
+            PickupContainerItem(greyTable[i].Bag, greyTable[i].Slot)
+            DeleteCursorItem()
+            print("|cffFF0000Removed Grey Item:"..greyTable[i].Item)
+        end
+    end
+end
+
 ------------------
 -- Loot Manager --
 ------------------
