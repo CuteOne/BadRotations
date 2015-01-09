@@ -98,13 +98,13 @@ if select(3, UnitClass("player")) == 5 then
 	function ShadowDefensive(options)
 		-- Shield
 		if isChecked("PW: Shield") and (BadBoy_data['Defensive'] == 2) and options.player.php <= getValue("PW: Shield") then
-			if castSpell("player",PWS) then return; end
+			if castSpell("player",PWS,true,false) then return; end
 		end
 
 		-- Fade (Glyphed)
 		if hasGlyph(GlyphOfFade) then
 			if isChecked("Fade Glyph") and (BadBoy_data['Defensive'] == 2) and options.player.php <= getValue("Fade Glyph") then
-				if castSpell("player",Fade) then return; end
+				if castSpell("player",Fade,true,false) then return; end
 			end
 		end
 
@@ -112,7 +112,7 @@ if select(3, UnitClass("player")) == 5 then
 		if IsInRaid() ~= false then
 			if isChecked("Fade Aggro") and BadBoy_data['Defensive']==2 and getThreat()>=3 then
 			--if isChecked("Fade Aggro") and BadBoy_data['Defensive'] == 2 then
-				if castSpell("player",Fade) then return; end
+				if castSpell("player",Fade,true,false) then return; end
 			end
 		end
 		
@@ -127,13 +127,13 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- Dispersion
 		if isChecked("Dispersion") and (BadBoy_data['Defensive'] == 2) and options.player.php <= getValue("Dispersion") then
-			if castSpell("player",Fade) then return; end
+			if castSpell("player",Disp,true,false) then return; end
 		end
 
 		-- Desperate Prayer
 		if isKnown(DesperatePrayer) then
 			if isChecked("Desperate Prayer") and (BadBoy_data['Defensive'] == 2) and options.player.php <= getValue("Desperate Prayer") then
-				if castSpell("player",DesperatePrayer) then return; end
+				if castSpell("player",DesperatePrayer,true,false) then return; end
 			end
 		end
 	end

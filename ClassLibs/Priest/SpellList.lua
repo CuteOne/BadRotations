@@ -20,6 +20,7 @@ if select(3, UnitClass("player")) == 5 then
 		Silence	= 15487;	-- Silence
 		ArcT	= 28730;	-- Arcane Torrent (BloodElv Racial)
 		Rez		= 2006;		-- Resurrection
+		Disp 	= 47585,	-- Dispersion
 
 	-- Procs
 		SoDProc		= 87160;	-- SoD Procs (max 3)
