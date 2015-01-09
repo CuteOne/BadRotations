@@ -116,7 +116,8 @@ function BadBoyMinimapButton()
         GameTooltip:SetText("BadBoy The Ultimate Raider", 214/255, 25/255, 25/255)
         GameTooltip:AddLine("CodeMyLife - CuteOne - Masoud")
         GameTooltip:AddLine("Gabbz - Chumii - AveryKey")
-        GameTooltip:AddLine("Ragnar - Kink - Cpoworks - Tocsin")
+        GameTooltip:AddLine("Ragnar - Cpoworks - Tocsin")
+        GameTooltip:AddLine("Mavmins - CukieMunster - Magnu")
         GameTooltip:AddLine("Left Click to toggle config frame.", 1, 1, 1, 1)
         GameTooltip:AddLine("Shift+Left Click to toggle toggles frame.", 1, 1, 1, 1)
         GameTooltip:AddLine("Alt+Shift+LeftButton to drag.", 1, 1, 1, 1)
@@ -163,10 +164,14 @@ frame:SetScript("OnEvent", frame.OnEvent)
         -- prevent ticking when firechack isnt loaded
         -- if user click power button, stop everything from pulsing.
         if not getOptionCheck("Start/Stop BadBoy") or BadBoy_data["Power"] ~= 1 then
+            optionsFrame:Hide()
+            _G["debugFrame"]:Hide()
             return false
         end
 
         if FireHack == nil then
+            optionsFrame:Hide()
+            _G["debugFrame"]:Hide()
             if getOptionCheck("Start/Stop BadBoy") then
                 ChatOverlay("FireHack not Loaded.")
             end

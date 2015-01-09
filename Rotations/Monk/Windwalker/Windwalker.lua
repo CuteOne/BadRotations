@@ -8,10 +8,6 @@ if select(3, UnitClass("player")) == 10 then
 	    GroupInfo()
        	sefTargets()
        	makeEnemiesTable(40)
-       --targets = enemiesTable
-       --table.sort(targets, function(x,y)
-       --  return x.hp > y.hp
-       --end)
 
 	    if not canRun() then
 	    	return true
@@ -77,17 +73,11 @@ if select(3, UnitClass("player")) == 10 then
 --------------------------------------------------
 --- Ressurection/Dispelling/Healing/Pause/Misc ---
 --------------------------------------------------
-	-- AutoLooter
-      	if isChecked("Auto Looter") then
-        	if not isInCombat("player") and getLoot() then
-        		return true
-        	end
-      	end
 	-- Death Monk mode
 		if isChecked("Death Monk Mode") then
-			-- if (#targets == 0 and sefStack==1) then --(#targets == 1 and sefStack==2) or
-			-- 	CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
-			-- end
+			if (#targets == 0 and sefStack==1) then --(#targets == 1 and sefStack==2) or
+				CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
+			end
 		 	if sefStack == 0 and #targets>0 then
 				if castSpell(targets[1].Unit,_StormEarthFire,false,false,false) then return end
 		 	end
@@ -225,6 +215,10 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell("player",_FlyingSerpentKickEnd,false,false,false) then return end
 					end
 				end
+	-- Roll
+				if not canFSK("target") and tarDist>=10 and getFacingDistance()<5 and getFacing("player","target",10) and getCharges(_Roll)>0 then
+					if castSpell("player",_Roll,true,false,false) then return end
+				end
 	-- Start Attack
           		if dynamicDist.dyn5<5 then
             		StartAttack()
@@ -308,7 +302,10 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell(targets[2].Unit,_StormEarthFire,false,false,false) then return end
 					end
 				end
-
+	-- Roll
+				if tarDist>=10 and getFacingDistance()<5 and getCharges(_Roll)>0 then
+					if castSpell("player",_Roll,true,false,false) then return end
+				end
 	-- Crackling Jade Lightning
 				if dynamicDist.dyn8 >= 8 and (BadBoy_data['FSK']==1 and getSpellCD(_FlyingSerpentKick)>1) and power>20 and chiDiff>=2 and not isCastingSpell(_CracklingJadeLightning) and isInCombat(dynamicUnit.dyn40) then
 					if castSpell(dynamicUnit.dyn40,_CracklingJadeLightning,false) then return end
@@ -418,7 +415,7 @@ if select(3, UnitClass("player")) == 10 then
 						if castSpell(dynamicUnit.dyn5,_FistsOfFury,false,false) then return end
 					end
 	-- Touch of Death
-					if (UnitBuffID("player",_DeathNote) or UnitHealth(dynamicUnit.dyn5)<=php) and not UnitIsPlayer(dynamicUnit.dyn5) and sckRemain==0 then
+					if (UnitBuffID("player",_DeathNote) or UnitHealth(dynamicUnit.dyn5)<=php) and not UnitIsPlayer(dynamicUnit.dyn5) and sckRemain==0 and trapping==false then
 						if castSpell(dynamicUnit.dyn5,_TouchOfDeath,false,false) then return end
 					end
 	-- Hurricane Strike
