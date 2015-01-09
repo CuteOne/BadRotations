@@ -152,7 +152,7 @@ if select(3, UnitClass("player")) == 4 then
 					end
 	-- Cloak and Dagger
 					if tarDist < 40 and tarDist >= 8 and getTalent(4,1) then
-						if castSpell("target",_Ambush,false,false,false) then return end
+						if castSpell("target",_Ambush,false,false,false,false,false,true) then return end
 					end
 	-- Sap
 					if noattack() and sapRemain==0 and level>=15 and tarDist < 8 then
@@ -170,7 +170,7 @@ if select(3, UnitClass("player")) == 4 then
 					if not noattack() and (isPicked() or level<15) then
 	-- Ambush
 						if combo<5 and power>60 then
-							if castSpell("target",_Ambush,false,false,false) then return end
+							if castSpell("target",_Ambush,false,false,false,false,true) then return end
 						end
 	-- 5 Combo Opener
 						if combo == 5 then
@@ -299,7 +299,7 @@ if select(3, UnitClass("player")) == 4 then
 				end
 	-- Ambush
 				if (isPicked() or level<15) and UnitBuffID("player",_Stealth) and combo<5 and power>60 then
-					if castSpell(thisUnit,_Ambush,false,false,false) then return end
+					if castSpell(thisUnit,_Ambush,false,false,false,false,false,true) then return end
 				end
 	-- Mutilate
 				if (thp>=35 or level<40) and combo<5 and enemies==2 and ddRemain==0 and venRemain==0 and not blindside and power>55 then
