@@ -42,6 +42,7 @@ if select(3, UnitClass("player")) == 3 then
 		-- OFF-GCD here we add the spells we want to be spamming all the time
 		if UnitAffectingCombat("player") then
 			---Interrupts---------------------------------------------
+			--Suggestion: we should use the dynamic targetting so we dont need to have it as target. cause max DPS or burnunits are on other targets.
 			if isChecked("Counter Shot") then
 				castInterrupt(147362,getValue("Counter Shot"))
 			end
@@ -140,8 +141,13 @@ if select(3, UnitClass("player")) == 3 then
 		--Combat Check-------------------------------------------------
 		if UnitAffectingCombat("player") == true and UnitExists("target") == true and UnitIsVisible("target") == true
 			and UnitIsDeadOrGhost("target") == false and UnitCanAttack("target","player") == true then
+			
+			--Suggestion: We should use some kind of autotargetting. If we dont have a target get one. Preferlyskull or a target that we can maximise our dps
 
 			--Defensive Abilities--------------------------------------
+			
+			--Suggestion: If we can tranq shot then do it. Should be used as a table where we can insert spells we want to remove.
+			--this should be done on any target using the dynamic targetting system so we dont need to have it as target.
 			--HP Stone
 	        if isChecked("Healthstone/Potion") == true then
 	            if getHP("player") <= getValue("Healthstone/Potion") then
@@ -204,6 +210,7 @@ if select(3, UnitClass("player")) == 3 then
 
 			--Damage Rotation--------------------------------------------------
 			--actions+=/use_item,name=gorashans_lodestone_spike
+			--Suggestion: Shouldnt you check against if cooldowns is checked ?
 			if isChecked("Trinkets") then
 				if GetInventoryItemCooldown(14)==0 then
 					UseInventoryItem(14)
