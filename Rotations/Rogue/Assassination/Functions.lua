@@ -92,7 +92,7 @@ if select(3, UnitClass("player")) == 4 then
 	    end
 	end
 
-	function poisonData()
+	function poisonAssData()
 		if getOptionValue("Lethal")==1 then
 			_LethalPoison = _DeadlyPoison
 		end
