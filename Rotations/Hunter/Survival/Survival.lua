@@ -60,7 +60,7 @@ if select(3, UnitClass("player")) == 3 then
 		end
 
 		--Aspect of the Cheetah------------------------------------
-		if (not isInCombat("player") or hasGlyph(692) == true) and isChecked("Auto-Cheetah") and getSpellCD(5118) == 0
+		if (not isInCombat("player") or hasGlyph(119462) == true) and isChecked("Auto-Cheetah") and getSpellCD(5118) == 0
 			and not UnitBuffID("player", 5118)
 			and not IsMounted()
 			and isCasting("player") == false
@@ -71,7 +71,7 @@ if select(3, UnitClass("player")) == 3 then
 		end
 
 		if (isInCombat("player") or IsMounted("player")) and UnitBuffID("player",5118) ~= nil then
-			if hasGlyph(692) == false then
+			if hasGlyph(119462) == false then
 				RunMacroText("/cancelaura Aspect of the Cheetah")
 			end
 		end
