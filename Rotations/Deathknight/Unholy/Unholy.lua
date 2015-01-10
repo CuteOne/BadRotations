@@ -248,7 +248,18 @@ if select(3,UnitClass("player")) == 6 then
   -- Offensive Cooldowns -------------------------------------------------------------------------------
   ------------------------------------------------------------------------------------------------------
       if useCDs() == true then
-
+        -- Orc / Troll Racial
+        if isChecked("Racial (Orc/Troll)") then
+          if select(2, UnitRace("player")) == "Troll" then
+            if castSpell("player",26297,true) then
+              return;
+            end
+          elseif select(2, UnitRace("player")) == "Orc" then
+            if castSpell("player",20572,true) then
+              return;
+            end
+          end
+        end
       end -- useCDs() end
   ------------------------------------------------------------------------------------------------------
   -- Do everytime --------------------------------------------------------------------------------------
