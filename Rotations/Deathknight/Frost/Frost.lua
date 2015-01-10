@@ -102,6 +102,7 @@ if select(3, UnitClass("player")) == 6 then
         ["dyn30"] = ((ffRemain.dyn30>0 and bpRemain.dyn30>0) or necRemain.dyn30>0),
         ["dyn30AoE"] = ((ffRemain.dyn30AoE>0 and bpRemain.dyn30AoE>0) or necRemain.dyn30AoE>0),
       }
+      ChatOverlay(hasDisease.dyn5)
   --------------------------------------------------
   --- Ressurection/Dispelling/Healing/Pause/Misc ---
   --------------------------------------------------
@@ -224,7 +225,7 @@ if select(3, UnitClass("player")) == 6 then
           and ((not (IsMounted() or IsFlying() or friendly)) or isDummy())
         then
       -- Death Grip
-          if tarDist.dyn0<30 and tarDist.dyn0>8 and select(2,IsInInstance())=="none" and #members==1 then
+          if tarDist.dyn0<30 and tarDist.dyn0>8 and ((select(2,IsInInstance())=="none" and #members==1) or hasThreat(tarUnit.dyn0)) then
             if castSpell(tarUnit.dyn0,_DeathGrip,false,false,false) then return end
           end
       -- Frost Strike
@@ -325,7 +326,7 @@ if select(3, UnitClass("player")) == 6 then
             StartAttack()
           end
         -- Death Grip
-          if tarDist.dyn30<30 and tarDist.dyn30>8 and select(2,IsInInstance())=="none" then
+          if tarDist.dyn30<30 and tarDist.dyn30>8 and (select(2,IsInInstance())=="none" or hasThreat(tarUnit.dyn30)) then
             if castSpell(tarUnit.dyn30,_DeathGrip,false,false,false) then return end
           end
         -- Chains of Ice

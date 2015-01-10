@@ -57,6 +57,7 @@ end
 
 -- Config Panel
 function AssOptions()
+    if GetSpecialization() == 1 then
     --if not doneConfig then
         thisConfig = 0
         -- Title
@@ -193,7 +194,7 @@ function AssOptions()
         CreateGeneralsConfig();
 
         WrapsManager();
-    --end
+    end
 end
 
 end

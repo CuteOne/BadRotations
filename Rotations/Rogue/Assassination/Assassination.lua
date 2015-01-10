@@ -1,5 +1,5 @@
-if select(3, UnitClass("player")) == 4 then
-	function AssassinationRogue()
+function AssassinationRogue()
+	if select(3, UnitClass("player")) == 4 and GetSpecialization() == 1 then
 		if Currentconfig ~= "Assassination CuteOne" then
 			AssOptions()
 			Currentconfig = "Assassination CuteOne"
@@ -8,7 +8,7 @@ if select(3, UnitClass("player")) == 4 then
 	    	return true
 	    end
 		AssToggles()
-		poisonAssData()
+		poisonData()
 		makeEnemiesTable(40)
 		-- if worgen==nil then
 		-- 	worgen=false
@@ -246,6 +246,16 @@ if select(3, UnitClass("player")) == 4 then
 	------------------------------------------
 	--- In Combat Rotation ---
 	------------------------------------------
+				if ObjectExists("target") and stealth then 
+	-- Shadowstep
+					if tarDist < 25 and tarDist >= 8 and getTalent(4,2) then
+						if castSpell("target",_Shadowstep,false,false,false) then return end
+					end
+	-- Cloak and Dagger
+					if tarDist < 40 and tarDist >= 8 and getTalent(4,1) then
+						if castSpell("target",_Ambush,false,false,false,false,false,true) then return end
+					end
+				end
 	-- Rupture
 				if combo==5 and rupRemain<3 and power>25 and tarDist<5 then
 					if castSpell(thisUnit,_Rupture,false,false,false) then return end

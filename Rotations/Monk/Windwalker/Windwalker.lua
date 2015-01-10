@@ -1,5 +1,5 @@
-if select(3, UnitClass("player")) == 10 then
-	function WindwalkerMonk()
+function WindwalkerMonk()
+	if select(3, UnitClass("player")) == 10 then
 	    if Currentconfig ~= "Windwalker CuteOne" then
 	        WindwalkerConfig();
 	        Currentconfig = "Windwalker CuteOne";
@@ -216,7 +216,7 @@ if select(3, UnitClass("player")) == 10 then
 					end
 				end
 	-- Roll
-				if not canFSK("target") and tarDist>=10 and getFacingDistance()<5 and getFacing("player","target",10) and getCharges(_Roll)>0 then
+				if not canFSK("target") and tarDist>10 and getFacingDistance()<5 and getFacing("player","target",10) and getCharges(_Roll)>0 then
 					if castSpell("player",_Roll,true,false,false) then return end
 				end
 	-- Start Attack
