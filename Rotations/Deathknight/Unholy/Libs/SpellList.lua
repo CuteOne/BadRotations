@@ -40,7 +40,6 @@ _MindFreeze = 47528;
 _Strangulate = 47476;
 _MarkOfSindragosa = 155166;
 _PlagueStrike = 45462;
-
 end
 -- _AntiMagicShell_uh = 48707;
 -- _ArmyOfTheDead_uh = 42650;
