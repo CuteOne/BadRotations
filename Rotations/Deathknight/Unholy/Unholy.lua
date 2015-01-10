@@ -451,9 +451,11 @@ if select(3,UnitClass("player")) == 6 then
         end
         -- actions.single_target+=/blood_boil,if=((Blood-death)>1)
         if (bRunes - dRunes) > 1 then
-          if castSpell("player",_BloodBoil,true,false,false) then
-            print("BB 1")
-            return
+          if tarDist.dyn10AoE<15 then
+            if castSpell("player",_BloodBoil,true,false,false) then
+              print("BB 1")
+              return
+            end
           end
         end
         -- actions.single_target+=/festering_strike,if=((Frost-death)>1)
@@ -563,9 +565,11 @@ if select(3,UnitClass("player")) == 6 then
         end
         -- actions.single_target+=/blood_boil,if=cooldown.empower_rune_weapon.remains=0
         if erwCooldown == 0 then
-          if castSpell("player",_BloodBoil,true,false,false) then
-            print("BB 2")
-            return
+          if tarDist.dyn10AoE<15 then
+            if castSpell("player",_BloodBoil,true,false,false) then
+              print("BB 2")
+              return
+            end
           end
         end
         -- actions.single_target+=/icy_touch,if=cooldown.empower_rune_weapon.remains=0
@@ -657,9 +661,11 @@ if select(3,UnitClass("player")) == 6 then
         -- actions.aoe+=/run_action_list,name=bos_aoe,if=dot.breath_of_sindragosa.ticking
         -- actions.aoe+=/blood_boil,if=blood=2|(frost=2&death=2)
         if bRunes == 2 or (fRunes == 2 and dRunes == 2) then
-          if castSpell("player",_BloodBoil,true,false) then
-            print("BB 2 nospread")
-            return
+          if tarDist.dyn10AoE<15 then
+            if castSpell("player",_BloodBoil,true,false) then
+              print("BB 2 nospread")
+              return
+            end
           end
         end
         -- actions.aoe+=/defile
@@ -723,10 +729,12 @@ if select(3,UnitClass("player")) == 6 then
           end
         end
         -- actions.aoe+=/blood_boil
-        if castSpell("player",_BloodBoil,true,false) then
+        if tarDist.dyn10AoE<15 then
+          if castSpell("player",_BloodBoil,true,false) then
             print("BB 3 nospread")
             return
           end
+        end
         -- actions.aoe+=/icy_touch
         if castSpell(tarUnit.dyn30,_IcyTouch,false,false) then
             print("IT 1 AoE")
