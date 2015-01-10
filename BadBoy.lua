@@ -1,5 +1,13 @@
 -- define bb global that will hold the bot global background features
 bb = { }
+
+-- developers debug, use /run BadBoy_data["Development Debug"] = true
+function bb:debug(message)
+    if BadBoy_data["Development Debug"] == true then
+        print(message)
+    end
+end
+
 function bb:Run()
 
 	rc = LibStub("LibRangeCheck-2.0")
@@ -276,7 +284,7 @@ function bb:StartUI()
 end
 
 --[[Updating UI]]
-function PulseUI()
+function bb:PulseUI()
 	-- distance on main icon
 	targetDistance = getDistance("target") or 0
 	displayDistance = math.ceil(targetDistance)

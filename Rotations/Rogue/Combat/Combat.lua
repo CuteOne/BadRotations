@@ -10,7 +10,7 @@ if select(3, UnitClass("player")) == 4 then
 		CombatToggles()
 		poisonData()
 		makeEnemiesTable(40)
-		
+
 
 -- --------------
 -- --- Locals ---
@@ -53,15 +53,15 @@ if select(3, UnitClass("player")) == 4 then
 
 
 -----------------------------
---- Blade Freaking Flurry --- 
+--- Blade Freaking Flurry ---
 -----------------------------
 
 	--Blade Flurry aoe on pita
-				if enemies >1 and not UnitBuffID("player",13877) then 
+				if enemies >1 and not UnitBuffID("player",13877) then
 					if castSpell("player",_BladeFlurry) then return; end
 				end
 	-- Blade Flurry aoe off (hope this works right)
-				if enemies <2 and UnitBuffID("player",13877) and getSpellCD(_BladeFlurry)==0 then 
+				if enemies <2 and UnitBuffID("player",13877) and getSpellCD(_BladeFlurry)==0 then
 					if castSpell("player",_BladeFlurry) then return; end
 				end
 
@@ -73,12 +73,12 @@ if select(3, UnitClass("player")) == 4 then
 			RunMacroText("/stopcasting")
 		end
 	-- Lethal Poison
-		if lethalRemain<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
-			if castSpell("player",2823,true) then return end --The casting spell id is different
+		if isChecked("Lethal") and lethalRemain<5 and getBuffRemain("player",2823)<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
+			if castSpell("player",2823,true,true) then return end --The casting spell id is different
 		end
 	-- Non-Lethal Poison
-		if nonlethalRemain<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
-			if castSpell("player",_CripplingPoison,true) then return end
+		if isChecked("Non-Lethal") and nonlethalRemain<5 and not isMoving("player") and not castingUnit("player") and not IsMounted() then
+			if castSpell("player",_CripplingPoison,true,true) then return end
 		end
 	-- Recuperate
 		if php < 25 and recRemain==0 and combo>0 then
@@ -123,7 +123,7 @@ if select(3, UnitClass("player")) == 4 then
 				if php<30 and combo>3 and recRemain==0 then
 					if castSpell("player",_Recuperate) then return end
 				end
-	-- Vanish  
+	-- Vanish
 				if php<15 then
 					if castSpell("player",_Vanish) then StopAttack(); ClearTarget(); return end
 				end
@@ -137,7 +137,7 @@ if select(3, UnitClass("player")) == 4 then
 	-- Stealth
 				if not isInCombat("player") and isChecked("Stealth") and (stealthTimer == nil or stealthTimer <= GetTime()-getValue("Stealth Timer")) and getCreatureType("target") == true and not stealth then
 					-- Always
-					if getValue("Stealth") == 1 then 
+					if getValue("Stealth") == 1 then
 						if castSpell("player",_Stealth,true,false,false) then stealthTimer=GetTime(); return end
 					end
 					-- Pre-Pot
@@ -160,7 +160,7 @@ if select(3, UnitClass("player")) == 4 then
 				if stealth and tarDist < 40 and tarDist >= 8 and level>=60 and getTalent(4,1) and (power>60 or (power>15 and getTalent(1,3))) then
 					if castSpell("target",_Ambush,false,false,false) then return end
 				end
-	
+
 	-- Ambush Main opener
 				if not isInCombat("player") and not noattack() and UnitBuffID("player",_Stealth) and combo<=5 and (power>60 or (power>15 and getTalent(1,3))) then
 					if castSpell("target",_Ambush,false,false,false) then return end
@@ -173,7 +173,7 @@ if select(3, UnitClass("player")) == 4 then
 -----------------
 
 			if isInCombat("player") then
-				
+
 	------------------------------
 	--- In Combat - Dummy Test ---
 	------------------------------
@@ -232,7 +232,7 @@ if select(3, UnitClass("player")) == 4 then
 	------------------------------------------
 	--- In Combat Rotation ---
 	------------------------------------------
-	
+
 	-- Slice and Dice
 				if sndRemain<5 and power>25 and tarDist<5 and combo>3 then
 					if castSpell("player",_SliceAndDice,true,false,false) then return end
@@ -252,23 +252,23 @@ if select(3, UnitClass("player")) == 4 then
 				if useAoE() and combo>4 and enemies>=5 and ctRemain<8 and power>35 and tarDist<5 then
 					if castSpell(thisUnit,_CrimsonTempest,true,false,false) then return end
 				end
-				
+
 	-- Death From Above
 				if power>50 and getTalent(7,3) then
 					if castSpell("target",_DeathFromAbove,false,false,false) then return end
-				end	
+				end
 
 	-- Deep Insight Early finisher w/ 30% dmg buff
 				if combo>=4 and deeRemain >=1 then
 					if castSpell(thisUnit,_Eviscerate,false,false,false) then return end
-				end	
+				end
 
 	-- Eviscerate
 				if combo>4 and power>35 then
 					if castSpell("target",_Eviscerate,false,false,false) then return end
 				end
 
-	-- Combo point builder		
+	-- Combo point builder
 				if combo<5 and power>=70 then
 					if castSpell("target",_SinisterStrike,true) then return; end
 				end

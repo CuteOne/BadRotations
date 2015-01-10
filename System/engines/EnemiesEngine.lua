@@ -208,6 +208,27 @@ function castDotCycle(units,spellID,range,facingCheck,movementCheck,duration)
 	    end
 	end
 end
+-- /run castDispelOffensiveBuffs(20271)
+-- function to Dispel offensive buffs, provide it a valid spell id(purge/arcane shot/etc)
+function castDispelOffensiveBuffs(spell)
+	-- gather spell informations
+	local spellName,_,_,_,_,spellDistance = GetSpellInfo(spell)
+	if spellDistance < 5 then
+		spellDistance = 5
+	end
+	-- iterate our enemies
+	for i = 1,#enemiesTable do
+		local thisUnit = enemiesTable[i]
+		if ObjectExists(thisUnit.unit) then
+			if thisUnit.distance <= spellDistance and thisUnit.offensiveBuff == true then
+				if castSpell(thisUnit.unit,spell,false,false) then
+					bb:debug("Dispelled "..thisUnit.name.. " using "..spellName)
+					return true
+				end
+			end
+		end
+	end
+end
 
 --[[           ]]   --[[           ]]    --[[           ]]
 --[[           ]]   --[[           ]]    --[[           ]]

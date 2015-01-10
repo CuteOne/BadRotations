@@ -178,10 +178,10 @@ frame:SetScript("OnEvent", frame.OnEvent)
             return
         end
         -- pulse enemiesEngine
-        PulseUI()
+        bb:PulseUI()
 
         -- accept dungeon queues
-        AcceptQueues()
+        bb:AcceptQueues()
 
         --[[Class/Spec Selector]]
         local playerClass = select(3,UnitClass("player"))
