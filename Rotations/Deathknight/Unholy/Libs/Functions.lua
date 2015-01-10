@@ -174,6 +174,12 @@ function CalculateHP(unit)
         end
     end
 
+    SLASH_DEFILE1 = '/defile';
+    function SlashCmdList.DEFILE(msg, editbox)      
+        RunMacroText('/run _G["buttonDefile"]:Click()');
+    end
+
+    
     function getDisease(range,aoe,mod)
         if mod == nil then mod = "min" end
         if range == nil then range = 5 end
@@ -244,6 +250,8 @@ function CalculateHP(unit)
             end
         end
     end
+
+
 
 end
 end
