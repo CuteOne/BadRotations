@@ -490,10 +490,23 @@ function DruidFeral()
 					-- 	if castSpell("player",svr,true,false,false) then return end
 		   --          end
 		-- Ferocious Bite
-					--if=(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)
-	    			if combo==5 and (ttm<=1 or berserk or tfCooldown<3 or rpRemain>10) and power>50 then
-		    			if castSpell(dynamicUnit.dyn5,fb,false,false,false) then return end
-		            end
+					if useCleave() then
+						for i=1, #enemiesTable do
+							if enemiesTable[i].distance<5 then
+								thisUnit = enemiesTable[i].unit
+								rpRemain = getDebuffRemain(thisUnit,rp,"player")
+								--if=(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)
+				    			if combo==5 and (ttm<=1 or berserk or tfCooldown<3 or rpRemain>10) and power>50 then
+					    			if castSpell(thisUnit,fb,false,false,false) then return end
+					            end
+					        end
+					    end
+					else
+						--if=(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)
+		    			if combo==5 and (ttm<=1 or berserk or tfCooldown<3 or rpRemain>10) and power>50 then
+			    			if castSpell(dynamicUnit.dyn5,fb,false,false,false) then return end
+			            end
+			        end
 	    -- Rake 
 	    			if useCleave() then
 						for i=1, #enemiesTable do
