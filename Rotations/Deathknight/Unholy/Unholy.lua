@@ -260,6 +260,20 @@ if select(3,UnitClass("player")) == 6 then
             end
           end
         end
+        -- summon_gargoyle
+        if isChecked("Summon Gargoyle") and useCDs() then
+          if castSpell("player",_SummonGargoyle,true) then
+            print("Gargoyle AoE")
+            return
+          end
+        end
+        -- dark_transformation
+        if isChecked("Dark Transformation") and useCDs() then
+          if castSpell("player",_DarkTransformation,true) then
+            print("Transformation AoE")
+            return
+          end
+        end
       end -- useCDs() end
   ------------------------------------------------------------------------------------------------------
   -- Do everytime --------------------------------------------------------------------------------------
@@ -451,13 +465,6 @@ if select(3,UnitClass("player")) == 6 then
             end
           end
         end
-        -- actions.single_target+=/summon_gargoyle
-        if isChecked("Summon Gargoyle") and useCDs() then
-          if castSpell("player",_SummonGargoyle,true) then
-            print("Gargoyle")
-            return
-          end
-        end
         -- actions.single_target+=/death_and_decay
         -- actions.single_target+=/defile
         if useDefile() then
@@ -481,13 +488,6 @@ if select(3,UnitClass("player")) == 6 then
         if (bpRemain.dyn5 == 0 or ffRemain.dyn5 == 0) then
           if castSpell(tarUnit.dyn5,_PlagueStrike,false,false) then
             print("PS 3")
-            return
-          end
-        end
-        -- actions.single_target+=/dark_transformation
-        if isChecked("Dark Transformation") and useCDs() then
-          if castSpell("player",_DarkTransformation,true) then
-            print("Transformation")
             return
           end
         end
@@ -662,20 +662,6 @@ if select(3,UnitClass("player")) == 6 then
             return
           end
         end
-        -- actions.aoe+=/summon_gargoyle
-        if isChecked("Summon Gargoyle") and useCDs() then
-          if castSpell("player",_SummonGargoyle,true) then
-            print("Gargoyle AoE")
-            return
-          end
-        end
-        -- actions.aoe+=/dark_transformation
-        if isChecked("Dark Transformation") and useCDs() then
-          if castSpell("player",_DarkTransformation,true) then
-            print("Transformation AoE")
-            return
-          end
-        end
         -- actions.aoe+=/defile
         -- actions.aoe+=/death_and_decay,if=unholy=1
         if useDefile() then
@@ -730,7 +716,7 @@ if select(3,UnitClass("player")) == 6 then
           end
         end
         -- actions.aoe+=/death_coil,if=runic_power>90|buff.sudden_doom.react|(buff.dark_transformation.down&unholy<=1)
-        if power > 90 or UnitBuffID("player",_SuddenDoom) then
+        if power > 90 or UnitBuffID("player",_SuddenDoom) or (not UnitBuffID("pet",_DarkTransformation) and uRunes <= 1) then
           if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
             print("DC 1 AoE")
             return
