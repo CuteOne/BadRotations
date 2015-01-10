@@ -343,9 +343,11 @@ if select(3,UnitClass("player")) == 6 then
         -- actions.single_target+=/blood_tap,if=((target.health.pct-3*(target.health.pct%target.time_to_die))<=45)&cooldown.soul_reaper.remains=0
         if getTalent(4,1) then
           if (thp-3*(thp/ttd)<=45) and srCooldown == 0 then
-            if castSpell("player",_BloodTap,true) then
-              print("BT 1")
-              return
+            if bcStack >= 5 then
+              if castSpell("player",_BloodTap,true) then
+                print("BT 1")
+                return
+              end
             end
           end
         end
