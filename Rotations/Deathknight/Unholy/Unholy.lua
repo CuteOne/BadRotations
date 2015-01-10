@@ -372,7 +372,7 @@ if select(3,UnitClass("player")) == 6 then
         end
         -- actions.single_target+=/defile,if=blood=2|frost=2
         -- actions.single_target+=/plague_strike,if=(!dot.blood_plague.ticking|!dot.frost_fever.ticking)&(blood=2|frost=2)
-        if (bpRemain.dyn30 == 0 or ffRemain.dyn30 == 0) and (bRunes == 2 or fRunes == 2) then
+        if (bpRemain.dyn5 == 0 or ffRemain.dyn5 == 0) and (bRunes == 2 or fRunes == 2) then
           if castSpell(tarUnit.dyn5,_PlagueStrike,false,false) then
             print("PS 2")
             return
@@ -434,7 +434,7 @@ if select(3,UnitClass("player")) == 6 then
           end
         end
         -- actions.single_target+=/plague_strike,if=(!dot.blood_plague.ticking|!dot.frost_fever.ticking)
-        if (bpRemain.dyn30 == 0 or ffRemain.dyn30 == 0) then
+        if (bpRemain.dyn5 == 0 or ffRemain.dyn5 == 0) then
           if castSpell(tarUnit.dyn5,_PlagueStrike,false,false) then
             print("PS 3")
             return
