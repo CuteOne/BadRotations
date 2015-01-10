@@ -353,7 +353,7 @@ if select(3,UnitClass("player")) == 6 then
         -- actions.single_target+=/defile,if=unholy=2
         if useDefile() then
           if uRunes == 2 then
-            if castGround("target",43265,30) then
+            if castGround("target",43265,6) then
               print("Auto Defile / DnD 1")
               return
             end
@@ -397,7 +397,7 @@ if select(3,UnitClass("player")) == 6 then
         -- actions.single_target+=/defile,if=blood=2|frost=2
         if useDefile() and getTalent(7,2) then
           if bRunes == 2 or fRunes == 2 then
-            if castGround("target",43265,30) then
+            if castGround("target",43265,6) then
               print("Auto Defile 2")
               return
             end
@@ -457,7 +457,7 @@ if select(3,UnitClass("player")) == 6 then
         -- actions.single_target+=/death_and_decay
         -- actions.single_target+=/defile
         if useDefile() then
-          if castGround("target",43265,30) then
+          if castGround("target",43265,6) then
             print("Auto Defile / DnD 3")
             return
           end
@@ -640,7 +640,7 @@ if select(3,UnitClass("player")) == 6 then
           end
         -- actions.aoe+=/defile
         if useDefile() and getTalent(7,2) then
-          if castGround("target",43265,30) then
+          if castGround("target",43265,6) then
             print("Auto Defile 1 AoE")
             return
           end
@@ -672,14 +672,14 @@ if select(3,UnitClass("player")) == 6 then
         -- actions.aoe+=/death_and_decay,if=unholy=1
         if useDefile() then
           if getTalent(7,2) then
-            if castGround("target",43265,30) then
+            if castGround("target",43265,6) then
               print("Auto Defile 2 AoE")
               return
             end
           end
           if not getTalent(7,2) then
             if uRunes == 1 then
-              if castGround("target",43265,30) then
+              if castGround("target",43265,6) then
                 print("Auto DnD 3 AoE")
                 return
               end
