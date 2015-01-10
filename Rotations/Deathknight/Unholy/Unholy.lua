@@ -522,9 +522,11 @@ if select(3,UnitClass("player")) == 6 then
         end
         -- actions.single_target+=/empower_rune_weapon,if=blood<1&unholy<1&frost<1
         if useCDs() and isChecked("Empower Rune Weapon") then
-          if castSpell("player",_EmpowerRuneWeapon,true) then
-            print("ERW")
-            return
+          if bRunes < 1 and uRunes < 1 and fRunes < 1 then
+            if castSpell("player",_EmpowerRuneWeapon,true) then
+              print("ERW")
+              return
+            end
           end
         end
 
