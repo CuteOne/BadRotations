@@ -441,9 +441,11 @@ if select(3,UnitClass("player")) == 6 then
         -- actions.single_target+=/blood_tap,if=((target.health.pct-3*(target.health.pct%target.time_to_die))<=45)&cooldown.soul_reaper.remains=0
         if getTalent(4,1) then
           if (thp-3*(thp/ttd)<=45) and srCooldown == 0 then
-            if castSpell("player",_BloodTap,true) then
-              print("BT 2")
-              return
+            if bcStack >= 5 then
+              if castSpell("player",_BloodTap,true) then
+                print("BT 2")
+                return
+              end
             end
           end
         end
@@ -465,9 +467,11 @@ if select(3,UnitClass("player")) == 6 then
         -- actions.single_target+=/blood_tap,if=cooldown.defile.remains=0
         if getTalent(4,1) and getTalent(7,2) then
           if dfCooldown == 0 then
-            if castSpell("player",_BloodTap,true) then
-              print("BT 3")
-              return
+            if bcStack >= 5 then
+              if castSpell("player",_BloodTap,true) then
+                print("BT 3")
+                return
+              end
             end
           end
         end
@@ -509,9 +513,11 @@ if select(3,UnitClass("player")) == 6 then
           end
         end
         -- actions.single_target+=/blood_tap
-        if castSpell("player",_BloodTap,true) then
-          print("BT 5")
-          return
+        if bcStack >= 5 then
+          if castSpell("player",_BloodTap,true) then
+            print("BT 5")
+            return
+          end
         end
         -- actions.single_target+=/festering_strike,if=!((target.health.pct-3*(target.health.pct%target.time_to_die))<=45)|(((Frost-death)>0)&((Blood-death)>0))
         if (thp-3*(thp/ttd)<= 45) or (((fRunes - dRunes) > 0) and ((bRunes - dRunes) > 0)) then
@@ -751,9 +757,11 @@ if select(3,UnitClass("player")) == 6 then
           return
         end
         -- actions.aoe+=/blood_tap
-        if castSpell("player",_BloodTap,true) then
-          print("BT 2 AoE")
-          return
+        if bcStack >= 5 then
+          if castSpell("player",_BloodTap,true) then
+            print("BT 2 AoE")
+            return
+          end
         end
         -- actions.aoe+=/plague_leech
         if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then
