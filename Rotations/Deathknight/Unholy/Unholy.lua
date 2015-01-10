@@ -274,6 +274,15 @@ if select(3,UnitClass("player")) == 6 then
             return
           end
         end
+         -- empower_rune_weapon,if=blood<1&unholy<1&frost<1
+        if useCDs() and isChecked("Empower Rune Weapon") then
+          if bRunes < 1 and uRunes < 1 and fRunes < 1 then
+            if castSpell("player",_EmpowerRuneWeapon,true) then
+              print("ERW")
+              return
+            end
+          end
+        end        
       end -- useCDs() end
   ------------------------------------------------------------------------------------------------------
   -- Do everytime --------------------------------------------------------------------------------------
@@ -566,15 +575,6 @@ if select(3,UnitClass("player")) == 6 then
             return
           end
         end
-        -- actions.single_target+=/empower_rune_weapon,if=blood<1&unholy<1&frost<1
-        if useCDs() and isChecked("Empower Rune Weapon") then
-          if bRunes < 1 and uRunes < 1 and fRunes < 1 then
-            if castSpell("player",_EmpowerRuneWeapon,true) then
-              print("ERW")
-              return
-            end
-          end
-        end
 
       end --single end
   -- AoE -----------------------------------------------------------------------------------------------
@@ -755,13 +755,6 @@ if select(3,UnitClass("player")) == 6 then
         if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then
           print("PL 1 AoE")
           return
-        end
-        -- actions.aoe+=/empower_rune_weapon
-        if useCDs() and isChecked("Empower Rune Weapon") then
-          if castSpell("player",_EmpowerRuneWeapon,true) then
-            print("ERW 1 AoE")
-            return
-          end
         end
 
       end --aoe end
