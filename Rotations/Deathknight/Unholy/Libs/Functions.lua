@@ -134,7 +134,7 @@ function CalculateHP(unit)
     end
 
     function useAoE()
-        if (BadBoy_data['AoE'] == 1 and #getEnemies("player",8) >= 3) or BadBoy_data['AoE'] == 2 then
+        if (BadBoy_data['AoE'] == 1 and #getEnemies("player",8) >= 2) or BadBoy_data['AoE'] == 2 then
         -- if BadBoy_data['AoE'] == 1 or BadBoy_data['AoE'] == 2 then
             return true
         else
