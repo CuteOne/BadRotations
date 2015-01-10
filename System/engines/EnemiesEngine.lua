@@ -68,6 +68,7 @@ function makeEnemiesTable(maxDistance)
   					if getOptionCheck("Don't break CCs") then
 						longTimeCC = isLongTimeCCed(thisUnit)
 					end
+		  			local shouldDispel = getOffensiveBuffs(thisUnit)
   					-- insert unit as a sub-array holding unit informations
    					tinsert(enemiesTable,
    						{
@@ -85,6 +86,7 @@ function makeEnemiesTable(maxDistance)
 	   						hpabs = UnitHealth(thisUnit),
 	   						safe = safeUnit,
 	   						burn = burnUnit,
+	   						offensiveBuff = shouldDispel,
 	   						-- Here should track inc damage / healing as well in order to get a timetodie value
 	   						-- we would need a more static design
 	   						x = X1,
@@ -206,6 +208,27 @@ function castDotCycle(units,spellID,range,facingCheck,movementCheck,duration)
 	    end
 	end
 end
+-- /run castDispelOffensiveBuffs(20271)
+-- function to Dispel offensive buffs, provide it a valid spell id(purge/arcane shot/etc)
+function castDispelOffensiveBuffs(spell)
+	-- gather spell informations
+	local spellName,_,_,_,_,spellDistance = GetSpellInfo(spell)
+	if spellDistance < 5 then
+		spellDistance = 5
+	end
+	-- iterate our enemies
+	for i = 1,#enemiesTable do
+		local thisUnit = enemiesTable[i]
+		if ObjectExists(thisUnit.unit) then
+			if thisUnit.distance <= spellDistance and thisUnit.offensiveBuff == true then
+				if castSpell(thisUnit.unit,spell,false,false) then
+					bb:debug("Dispelled "..thisUnit.name.. " using "..spellName)
+					return true
+				end
+			end
+		end
+	end
+end
 
 --[[           ]]   --[[           ]]    --[[           ]]
 --[[           ]]   --[[           ]]    --[[           ]]
@@ -268,6 +291,18 @@ function getEnemies(unit,Radius)
 	else
 	 	return { }
 	end
+end
+
+-- returns true if unit have an Offensive Buff that we should dispel
+function getOffensiveBuffs(unit)
+	if ObjectExists(unit) then
+		for i = 1,#dispellOffensiveBuffs do
+			if UnitBuffID(unit,dispellOffensiveBuffs[i]) then
+				return true
+			end
+		end
+	end
+	return false
 end
 
 -- returns true if Unit is a valid enemy

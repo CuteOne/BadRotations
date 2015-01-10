@@ -50,7 +50,7 @@ function CombatOptions()
         textOp(" ");
         wrapOp("--- General ---");
 
-    
+
             -- Dummy DPS Test
             checkOp("DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.");
             boxOp("DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
@@ -68,12 +68,12 @@ function CombatOptions()
 
             -- Leathal Poison
             checkOp("Lethal Poison");
-            dropOp("Lethal Poison",1,"Lethal Poison.","|cff13A300Instant","|cffFF8000Wound");
+            --dropOp("Lethal Poison",1,"Lethal Poison.","|cff13A300Instant","|cffFF8000Wound");
             textOp("Lethal");
 
             -- Non-Leathal Poison
             checkOp("Non-Lethal Poison");
-            dropOp("Non-Lethal Poison",2,"Non-Lethal Poison.","|cff6600FFCrip","|cff00CF1CLeech");
+            --dropOp("Non-Lethal Poison",2,"Non-Lethal Poison.","|cff6600FFCrip","|cff00CF1CLeech");
             textOp("Non-Lethal");
 
         -- Spacer
@@ -97,7 +97,7 @@ function CombatOptions()
             boxOp("Pot/Stoned", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
             textOp("Pot/Stoned");
 
-            
+
         -- Spacer --
         textOp(" ");
         wrapOp("--- Interrupts ---");
@@ -132,7 +132,7 @@ function CombatOptions()
             dropOp("Interrupt Mode", 6, "Toggle")
             textOp("Interrupts")
 
-            
+
 
         -- General Configs
         CreateGeneralsConfig();

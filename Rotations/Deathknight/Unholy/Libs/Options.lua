@@ -7,12 +7,101 @@ if select(3,UnitClass("player")) == 6 then
       CreateNewTitle(thisConfig,"Unholy |cffFF0000Chumii");
 
       -- Wrapper
-      CreateNewWrap(thisConfig,"---------- Keys ----------");
+      CreateNewWrap(thisConfig,"--- Keys ---");
 
       -- Pause Toggle
-      CreateNewCheck(thisConfig,"Pause Toggle");
-      CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle")
+      CreateNewCheck(thisConfig,"Pause Key");
+      CreateNewDrop(thisConfig,"Pause Key", 4, "Toggle2")
       CreateNewText(thisConfig,"Pause Key");
+
+      -- 2nd Pause Toggle
+      CreateNewCheck(thisConfig,"2nd Pause Key");
+      CreateNewDrop(thisConfig,"2nd Pause Key", 4, "Toggle2")
+      CreateNewText(thisConfig,"2nd Pause Key");
+
+      -- DnD / Defile Key
+      CreateNewCheck(thisConfig,"DnD / Defile Key");
+      CreateNewDrop(thisConfig,"DnD / Defile Key", 4, "Toggle2")
+      CreateNewText(thisConfig,"DnD / Defile Key");
+
+      -- Wrapper
+      CreateNewWrap(thisConfig,"--- Buffs ---");
+
+      -- Horn of Winter
+      CreateNewCheck(thisConfig,"Horn of Winter");
+      CreateNewText(thisConfig,"Horn of Winter");
+
+      -- Wrapper
+      CreateNewWrap(thisConfig,"--- Cooldowns ---");
+
+      -- Potion
+      CreateNewCheck(thisConfig,"Potion");
+      CreateNewText(thisConfig,"Potion");
+
+      -- Empower Rune Weapon
+      CreateNewCheck(thisConfig,"Empower Rune Weapon");
+      CreateNewText(thisConfig,"Empower Rune Weapon");
+
+      -- Summon Gargoyle
+      CreateNewCheck(thisConfig,"Summon Gargoyle");
+      CreateNewText(thisConfig,"Summon Gargoyle");
+
+      -- Dark Transformation
+      CreateNewCheck(thisConfig,"Dark Transformation");
+      CreateNewText(thisConfig,"Dark Transformation");
+
+      -- Racial (Orc/Troll)
+      CreateNewCheck(thisConfig,"Racial (Orc/Troll)");
+      CreateNewText(thisConfig,"Racial (Orc/Troll)");
+
+      -- Wrapper
+      CreateNewWrap(thisConfig,"--- Defensives ---");
+
+      -- Icebound Fortitude
+      CreateNewCheck(thisConfig,"Icebound Fortitude");
+      CreateNewBox(thisConfig, "Icebound Fortitude", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFIcebound Fortitude");
+      CreateNewText(thisConfig,"Icebound Fortitude");
+
+      -- Healthstone / Pot
+      CreateNewCheck(thisConfig,"Healthstone / Potion");
+      CreateNewBox(thisConfig, "Healthston / Potione", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone / Healing Potion");
+      CreateNewText(thisConfig,"Healthstone / Potion");
+
+      -- Death Pact
+      CreateNewCheck(thisConfig,"Death Pact");
+      CreateNewBox(thisConfig, "Death Pact", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Pact");
+      CreateNewText(thisConfig,"Death Pact");
+
+      -- Death Siphon
+      CreateNewCheck(thisConfig,"Death Siphon");
+      CreateNewBox(thisConfig, "Death Siphon", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Siphon");
+      CreateNewText(thisConfig,"Death Siphon");
+
+      -- Death Strike
+      CreateNewCheck(thisConfig,"Death Strike");
+      CreateNewBox(thisConfig, "Death Strike", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Strike");
+      CreateNewText(thisConfig,"Death Strike");
+
+      -- Death Strike (Dark Succor)
+      CreateNewCheck(thisConfig,"Death Strike (Dark Succor)");
+      CreateNewBox(thisConfig, "Death Strike (Dark Succor)", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Strike (Dark Succor)");
+      CreateNewText(thisConfig,"Death Strike (Dark Succor)");
+
+       -- Wrapper
+      CreateNewWrap(thisConfig,"--- Interrupts ---");
+
+      -- Mind Freeze
+      CreateNewCheck(thisConfig,"Mind Freeze");
+      CreateNewBox(thisConfig, "Mind Freeze", 0, 100  , 5, 20, "Interrupt at % casttime with Mind Freeze");
+      CreateNewText(thisConfig,"Mind Freeze");
+
+      -- Strangulate
+      CreateNewCheck(thisConfig,"Strangulate");
+      CreateNewBox(thisConfig, "Strangulate", 0, 100  , 5, 20, "Interrupt at % casttime with Strangulate");
+      CreateNewText(thisConfig,"Strangulate");
+
+      -- Wrapper
+      CreateNewWrap(thisConfig,"--- Misc ---");
 
       -- Dummy DPS Test
       CreateNewCheck(thisConfig,"DPS Testing");

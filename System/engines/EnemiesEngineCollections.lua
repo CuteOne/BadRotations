@@ -157,6 +157,7 @@ dispellOffensiveBuffs = {
     153909, -- Frenzy
     161203, -- Rejuvenating Serum
     81173,  -- Frenzy
+    --61574, -- Banner of the horde (dummy buff just to test)
 }
 
 longTimeCC = {

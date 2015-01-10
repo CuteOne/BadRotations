@@ -1,5 +1,17 @@
 #BadBoy - Ultimate Raider
 
+## Regarding Crashing
+What to do if you have crash to desktop or 132 errors.(not necessarily in this order)
+1 - Download Windows Updates.
+2 - Update gpu drivers.
+    - Uninstall, reinstall with personalised settings.
+    - Avoid raptr.
+    - Avoid 3D vision.
+3 - Change WoW to DX9.
+4 - Redownloaded fresh updated FH version.
+5 - Delete Cache, WTF, Data/indices folders(in WoW directory).
+6 - Start WoW-64.exe and FireHack.exe as Admin, always.
+
 ## Profile Status
 
 |spec |status|author|
@@ -31,7 +43,7 @@
 |Windwalker|100%|CuteOne |
 | **Paladin**  |  |  |
 |Holy|50%|Gabbz & CodeMyLife |
-|Protection|95%|Gabbz |
+|Protection|95%(SimC|Gabbz |
 |Retribution|95%(SimC)|Gabbz & CodeMyLife |
 ||||
 | **Priest**  |  |  |
@@ -58,5 +70,3 @@
 |Arms|75%|Chumii |
 |Fury|100%|Averykey |
 |Protection|85%|Chumii |
-
-
