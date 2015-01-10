@@ -480,7 +480,7 @@ if select(3,UnitClass("player")) == 6 then
         end
         -- actions.single_target+=/dark_transformation
         if isChecked("Dark Transformation") and useCDs() then
-          if castSpell(nil,_DarkTransformation,true) then
+          if castSpell("player",_DarkTransformation,true) then
             print("Transformation")
             return
           end
