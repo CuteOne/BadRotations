@@ -23,6 +23,7 @@ if select(3,UnitClass("player")) == 6 then
     local BREATHOFSIN_COOLDOWN = (BREATHOFSIN_START - GT + BREATHOFSIN_DURATION)
     local DND_START, DND_DURATION = GetSpellCooldown(_DeathAndDecay)
     local DND_COOLDOWN = (DND_START - GT + DND_DURATION)
+    local level = UnitLevel("player")
     --General Target Variables
     local tarUnit = {
       ["dyn0"] = "target", --No Dynamic
@@ -298,13 +299,25 @@ if select(3,UnitClass("player")) == 6 then
           end
         end
         -- actions.single_target+=/soul_reaper,if=(target.health.pct-3*(target.health.pct%target.time_to_die))<=45
-        if thp <= 35 then
-          if (thp-3*(thp/ttd)<=45) and uRunes>=1 and tarDist.dyn5<5 then
-            if castSpell(tarUnit.dyn5,_SoulReaper,false,false,false) then
-              print("SR 1")
-              return
-            end
-          end 
+        if level <= 99 then
+          if thp <= 35 then
+            if (thp-3*(thp/ttd)<=35) and uRunes>=1 and tarDist.dyn5<5 then
+              if castSpell(tarUnit.dyn5,_SoulReaper,false,false,false) then
+                print("SR 1")
+                return
+              end
+            end 
+          end
+        end
+        if level == 100 then
+          if thp <= 45 then
+            if (thp-3*(thp/ttd)<=45) and uRunes>=1 and tarDist.dyn5<5 then
+              if castSpell(tarUnit.dyn5,_SoulReaper,false,false,false) then
+                print("SR 1")
+                return
+              end
+            end 
+          end
         end
         -- actions.single_target+=/breath_of_sindragosa,if=runic_power>75
         -- actions.single_target+=/run_action_list,name=bos_st,if=dot.breath_of_sindragosa.ticking
@@ -612,13 +625,25 @@ if select(3,UnitClass("player")) == 6 then
         -- actions.aoe+=/defile
         -- actions.aoe+=/death_and_decay,if=unholy=1
         -- actions.aoe+=/soul_reaper,if=target.health.pct-3*(target.health.pct%target.time_to_die)<=45
-        if thp <= 35 then
-          if (thp-3*(thp/ttd)<=45) and uRunes>=1 and tarDist.dyn5<5 then
-            if castSpell(tarUnit.dyn5,_SoulReaper,false,false,false) then
-              print("SR 1 AoE")
-              return
-            end
-          end 
+        if level <= 99 then
+          if thp <= 35 then
+            if (thp-3*(thp/ttd)<=35) and uRunes>=1 and tarDist.dyn5<5 then
+              if castSpell(tarUnit.dyn5,_SoulReaper,false,false,false) then
+                print("SR 1 AoE")
+                return
+              end
+            end 
+          end
+        end
+        if level == 100 then
+          if thp <= 45 then
+            if (thp-3*(thp/ttd)<=45) and uRunes>=1 and tarDist.dyn5<5 then
+              if castSpell(tarUnit.dyn5,_SoulReaper,false,false,false) then
+                print("SR 1 AoE")
+                return
+              end
+            end 
+          end
         end
         -- actions.aoe+=/scourge_strike,if=unholy=2
         if uRunes == 2 then
