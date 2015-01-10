@@ -1,4 +1,6 @@
-function BadBoyRun()
+-- define bb global that will hold the bot global background features
+bb = { }
+function bb:Run()
 
 	rc = LibStub("LibRangeCheck-2.0")
 	minRange, maxRange = rc:GetRange('target')
@@ -13,7 +15,7 @@ function BadBoyRun()
 
 	--[[Init the readers codes (System/Reader.lua)]]
 
-	ReaderRun();
+	ReaderRun()
 	-- Globals
 	classColors = {
 		[1]				= {class = "Warrior", 	B=0.43,	G=0.61,	R=0.78,	hex="|cffc79c6e"},
@@ -164,37 +166,37 @@ function BadBoyRun()
 	SLASH_BadBoy1 = "/BadBoy"
 	function SlashCmdList.BadBoy(msg, editbox, ...)
 		print(...)
-		mainButton:Click();
+		mainButton:Click()
 	end
 
 	SLASH_AoE1 = "/aoe"
 	function SlashCmdList.AoE(msg, editbox)
-		ToggleValue("AoE");
+		ToggleValue("AoE")
 	end
 
 	SLASH_FHStop1 = "/fhstop"
 	function SlashCmdList.FHStop(msg, editbox)
-		StopFalling();
-		StopMoving();
+		StopFalling()
+		StopMoving()
 	end
 
 	SLASH_Cooldowns1 = "/Cooldowns"
 	function SlashCmdList.Cooldowns(msg, editbox)
-		ToggleValue("Cooldowns");
+		ToggleValue("Cooldowns")
 	end
 
 	SLASH_DPS1 = "/DPS"
 	function SlashCmdList.DPS(msg, editbox)
-		ToggleValue("DPS");
+		ToggleValue("DPS")
 	end
 
 	SLASH_BlackList1, SLASH_BlackList2 = "/blacklist", "/bbb"
 	function SlashCmdList.BlackList(msg, editbox)
-		if BadBoy_data.blackList == nil then BadBoy_data.blackList = { }; end
+		if BadBoy_data.blackList == nil then BadBoy_data.blackList = { } end
 
 		if msg == "dump" then
-			print("|cffFF0000BadBoy Blacklist:");
-			if #BadBoy_data.blackList == (0 or nil) then print("|cffFFDD11Empty"); end
+			print("|cffFF0000BadBoy Blacklist:")
+			if #BadBoy_data.blackList == (0 or nil) then print("|cffFFDD11Empty") end
 			if BadBoy_data.blackList then
 				for i = 1, #BadBoy_data.blackList do
 					print("|cffFFDD11- "..BadBoy_data.blackList[i].name)
@@ -202,25 +204,25 @@ function BadBoyRun()
 			end
 		elseif msg == "clear" then
 			BadBoy_data.blackList = { }
-			print("|cffFF0000BadBoy Blacklist Cleared");
+			print("|cffFF0000BadBoy Blacklist Cleared")
 		else
 			if UnitExists("mouseover") then
-				local mouseoverName = UnitName("mouseover");
-				local mouseoverGUID = UnitGUID("mouseover");
+				local mouseoverName = UnitName("mouseover")
+				local mouseoverGUID = UnitGUID("mouseover")
 				-- Now we're trying to find that unit in the blackList table to remove
-				local found;
+				local found
 				for k,v in pairs(BadBoy_data.blackList) do
 					-- Now we're trying to find that unit in the Cache table to remove
 					if UnitGUID("mouseover") == v.guid then
 						tremove(BadBoy_data.blackList, k)
-						print("|cffFFDD11"..mouseoverName.."|cffFF0000 Removed from Blacklist");
+						print("|cffFFDD11"..mouseoverName.."|cffFF0000 Removed from Blacklist")
 						found = true
-						--blackList[k] = nil;
+						--blackList[k] = nil
 					end
 				end
 				if not found then
-					print("|cffFFDD11"..mouseoverName.."|cffFF0000 Added to Blacklist");
-					tinsert(BadBoy_data.blackList, { guid = mouseoverGUID, name = mouseoverName});
+					print("|cffFFDD11"..mouseoverName.."|cffFF0000 Added to Blacklist")
+					tinsert(BadBoy_data.blackList, { guid = mouseoverGUID, name = mouseoverName})
 				end
 			end
 		end
@@ -229,36 +231,31 @@ function BadBoyRun()
 	SLASH_Pause1 = "/Pause"
 	function SlashCmdList.Pause(msg, editbox)
 		if BadBoy_data['Pause'] == 0 then
-	        ChatOverlay("\124cFFED0000 -- Paused -- ");
-			BadBoy_data['Pause'] = 1;
+	        ChatOverlay("\124cFFED0000 -- Paused -- ")
+			BadBoy_data['Pause'] = 1
 		else
-	        ChatOverlay("\124cFF3BB0FF -- Pause Removed -- ");
-			BadBoy_data['Pause'] = 0;
+	        ChatOverlay("\124cFF3BB0FF -- Pause Removed -- ")
+			BadBoy_data['Pause'] = 0
 		end
 	end
 
 	SLASH_Power1 = "/Power"
 	function SlashCmdList.Power(msg, editbox)
 		if BadBoy_data['Power'] == 0 then
-	        ChatOverlay("\124cFF3BB0FF -- BadBoy Enabled -- ");
-			BadBoy_data['Power'] = 1;
+	        ChatOverlay("\124cFF3BB0FF -- BadBoy Enabled -- ")
+			BadBoy_data['Power'] = 1
 		else
-	        ChatOverlay("\124cFFED0000 -- BadBoy Disabled -- ");
-			BadBoy_data['Power'] = 0;
+	        ChatOverlay("\124cFFED0000 -- BadBoy Disabled -- ")
+			BadBoy_data['Power'] = 0
 		end
 	end
 
 	-- Build up pulse frame (hearth)
-	BadBoyEngine()
-
-	-- enemies to be considered "in range" profiles can overwrite it
-
-	BadBoyMinimapButton()
-	--ConfigFrame()
-	--DebugFrameCreation()
-	--EngineFrameCreation()
-	--InterruptsFrameCreation()
-	StartUI()
+	bb:Engine()
+    -- add minimap fire icon
+	bb:MinimapButton()
+    -- build up UI
+	bb:StartUI()
 
 	-- start up enemies Engine
 	enemiesEngineRange = 55
@@ -269,33 +266,25 @@ end
 
 
 --[[Startup UI]]
-function StartUI()
+function bb:StartUI()
 	-- trigger frame creation in ui.lua
 	ConstructUI()
+    -- select the active option(refresh)
+    _G["options"..BadBoy_data.options.selected.."Button"]:Click()
     -- Build up buttons frame (toggles)
     BadBoyFrame()
 end
 
 --[[Updating UI]]
 function PulseUI()
-	-- Pulse engines
-
-	_G["options"..BadBoy_data.options.selected.."Button"]:Click()
-	-- global vars
+	-- distance on main icon
 	targetDistance = getDistance("target") or 0
 	displayDistance = math.ceil(targetDistance)
 	mainText:SetText(displayDistance)
-
 	-- enemies
 	makeEnemiesTable(maxDistance)
 	-- allies
---	if getOptionCheck("Engine Refresh") then
-		if NovaEngineUpdate == nil or NovaEngineUpdate <= GetTime() - getOptionValue("Debug Refresh")/1000 then
-			NovaEngineUpdate = GetTime()
-			nNova:Update()
-		end
---	end
-
+	nNova:Update()
 	-- Pulse other features
 	-- PokeEngine()
 	ProfessionHelper()

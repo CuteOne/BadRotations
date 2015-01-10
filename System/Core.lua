@@ -1,4 +1,4 @@
-function bb.Engine()
+function bb:Engine()
     -- Hidden Frame
     if Pulse_Engine == nil then
         Pulse_Engine = CreateFrame("Frame", nil, UIParent)
