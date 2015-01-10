@@ -1,4 +1,4 @@
-function BadBoyEngine()
+function bb.Engine()
     -- Hidden Frame
     if Pulse_Engine == nil then
         Pulse_Engine = CreateFrame("Frame", nil, UIParent)
@@ -36,7 +36,7 @@ function ChatOverlay(Message, FadingTime)
     end
 end
 
-function BadBoyMinimapButton()
+function bb:MinimapButton()
     local dragMode = nil --"free", nil
     local function moveButton(self)
         local centerX, centerY = Minimap:GetCenter()
@@ -147,7 +147,7 @@ frame:RegisterEvent("PLAYER_LOGOUT")
 
 function frame:OnEvent(event, arg1)
  	if event == "ADDON_LOADED" and arg1 == "BadBoy" then
- 		BadBoyRun()
+ 		bb:Run()
 	end
 end
 frame:SetScript("OnEvent", frame.OnEvent)

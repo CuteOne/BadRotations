@@ -68,6 +68,7 @@ function makeEnemiesTable(maxDistance)
   					if getOptionCheck("Don't break CCs") then
 						longTimeCC = isLongTimeCCed(thisUnit)
 					end
+		  			local shouldDispel = getOffensiveBuffs(thisUnit)
   					-- insert unit as a sub-array holding unit informations
    					tinsert(enemiesTable,
    						{
@@ -85,6 +86,7 @@ function makeEnemiesTable(maxDistance)
 	   						hpabs = UnitHealth(thisUnit),
 	   						safe = safeUnit,
 	   						burn = burnUnit,
+	   						offensiveBuff = shouldDispel,
 	   						-- Here should track inc damage / healing as well in order to get a timetodie value
 	   						-- we would need a more static design
 	   						x = X1,
@@ -268,6 +270,18 @@ function getEnemies(unit,Radius)
 	else
 	 	return { }
 	end
+end
+
+-- returns true if unit have an Offensive Buff that we should dispel
+function getOffensiveBuffs(unit)
+	if ObjectExists(unit) then
+		for i = 1,#dispellOffensiveBuffs do
+			if UnitBuffID(unit,dispellOffensiveBuffs[i]) then
+				return true
+			end
+		end
+	end
+	return false
 end
 
 -- returns true if Unit is a valid enemy
