@@ -166,8 +166,8 @@ function CalculateHP(unit)
         end
     end
 
-    function useCleave()
-        if BadBoy_data['Cleave']==1 and BadBoy_data['AoE'] ~= 3 then
+    function useDefile()
+        if BadBoy_data['Defile']==1 then
             return true
         else
             return false

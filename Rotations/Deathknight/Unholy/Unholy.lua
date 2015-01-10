@@ -335,6 +335,14 @@ if select(3,UnitClass("player")) == 6 then
         end
         -- actions.single_target+=/death_and_decay,if=unholy=2
         -- actions.single_target+=/defile,if=unholy=2
+        if useDefile() then
+          if uRunes == 2 then
+            if castGround("target",43265,30) then
+              print("Auto Defile / DnD 1")
+              return
+            end
+          end
+        end
         -- actions.single_target+=/plague_strike,if=(!dot.blood_plague.ticking|!dot.frost_fever.ticking)&unholy=2
         if (bpRemain.dyn5 == 0 or ffRemain.dyn5 == 0) and uRunes == 2 then
           if castSpell(tarUnit.dyn5,_PlagueStrike,false,false) then
@@ -371,6 +379,14 @@ if select(3,UnitClass("player")) == 6 then
           end
         end
         -- actions.single_target+=/defile,if=blood=2|frost=2
+        if useDefile() and getTalent(7,2) then
+          if bRunes == 2 or fRunes == 2 then
+            if castGround("target",43265,30) then
+              print("Auto Defile 2")
+              return
+            end
+          end
+        end
         -- actions.single_target+=/plague_strike,if=(!dot.blood_plague.ticking|!dot.frost_fever.ticking)&(blood=2|frost=2)
         if (bpRemain.dyn5 == 0 or ffRemain.dyn5 == 0) and (bRunes == 2 or fRunes == 2) then
           if castSpell(tarUnit.dyn5,_PlagueStrike,false,false) then
@@ -424,6 +440,12 @@ if select(3,UnitClass("player")) == 6 then
         end
         -- actions.single_target+=/death_and_decay
         -- actions.single_target+=/defile
+        if useDefile() then
+          if castGround("target",43265,30) then
+            print("Auto Defile / DnD 3")
+            return
+          end
+        end
         -- actions.single_target+=/blood_tap,if=cooldown.defile.remains=0
         if getTalent(4,1) and getTalent(7,2) then
           if dfCooldown == 0 then
@@ -442,7 +464,7 @@ if select(3,UnitClass("player")) == 6 then
         end
         -- actions.single_target+=/dark_transformation
         if isChecked("Dark Transformation") and useCDs() then
-          if castSpell("player",_DarkTransformation,true) then
+          if castSpell(nil,_DarkTransformation,true) then
             print("Transformation")
             return
           end
@@ -601,6 +623,12 @@ if select(3,UnitClass("player")) == 6 then
             end
           end
         -- actions.aoe+=/defile
+        if useDefile() and getTalent(7,2) then
+          if castGround("target",43265,30) then
+            print("Auto Defile 1 AoE")
+            return
+          end
+        end
         -- actions.aoe+=/breath_of_sindragosa,if=runic_power>75
         -- actions.aoe+=/run_action_list,name=bos_aoe,if=dot.breath_of_sindragosa.ticking
         -- actions.aoe+=/blood_boil,if=blood=2|(frost=2&death=2)
@@ -626,6 +654,22 @@ if select(3,UnitClass("player")) == 6 then
         end
         -- actions.aoe+=/defile
         -- actions.aoe+=/death_and_decay,if=unholy=1
+        if useDefile() then
+          if getTalent(7,2) then
+            if castGround("target",43265,30) then
+              print("Auto Defile 2 AoE")
+              return
+            end
+          end
+          if not getTalent(7,2) then
+            if uRunes == 1 then
+              if castGround("target",43265,30) then
+                print("Auto DnD 3 AoE")
+                return
+              end
+            end
+          end
+        end
         -- actions.aoe+=/soul_reaper,if=target.health.pct-3*(target.health.pct%target.time_to_die)<=45
         if level <= 99 then
           if thp <= 35 then

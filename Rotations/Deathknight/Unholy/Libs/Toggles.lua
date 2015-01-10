@@ -52,6 +52,17 @@ function UnholyToggles()
             InterruptsModesLoaded = "Interrupt Modes";
         end
 
+        --Defile Button
+        if DefileModesLoaded ~= "UH Defile Modes" then
+                CustomDefileModes = {
+                    [1] = { mode = "Auto", value = 1 , overlay = "Auto Defile / DnD Enabled", tip = "Rotation will use Defile / DnD.", highlight = 1, icon = _Defile },
+                    [2] = { mode = "Off", value = 2 , overlay = "Auto Defile / DnD Disabled", tip = "Rotation will not use Defile / DnD (Hotkey only)", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] }
+                };
+                DefileModes = CustomDefileModes
+                CreateButton("Defile",5,0)
+                DefileModesLoaded = "UH Defile Modes";
+            end
+
         function SpecificToggle(toggle)
             if getValue(toggle) == 1 then
                 return IsLeftControlKeyDown();
