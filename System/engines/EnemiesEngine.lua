@@ -82,6 +82,7 @@ function makeEnemiesTable(maxDistance)
 	   						unit = thisUnit,
 	   						distance = unitDistance,
 	   						hp = unitHP,
+	   						hpabs = UnitHealth(thisUnit),
 	   						safe = safeUnit,
 	   						burn = burnUnit,
 	   						-- Here should track inc damage / healing as well in order to get a timetodie value
