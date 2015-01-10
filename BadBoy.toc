@@ -202,7 +202,7 @@ Rotations\Shaman\Restoration\Libs\Toggles.lua
 Rotations\Shaman\SpellList.lua
 
 ## Warrior ---------------------------------------------------
-Rotations\Warrior\Arms.lua
+Rotations\Warrior\Arms\Arms.lua
 Rotations\Warrior\Arms\Libs\Functions.lua
 Rotations\Warrior\Arms\Libs\Options.lua
 Rotations\Warrior\Arms\Libs\SpellList.lua

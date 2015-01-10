@@ -165,37 +165,37 @@ if select(3,UnitClass("player")) == 10 then
                 -- Single/Multi Toggle
                 checkOp("Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.");
                 dropOp("Rotation Mode", 4, "Toggle")
-                textOp("Rotation");
+                textOp("Rotation Mode");
 
                 --Cooldown Key Toggle
                 checkOp("Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.");
                 dropOp("Cooldown Mode", 3, "Toggle")
-                textOp("Cooldowns")
+                textOp("Cooldowns Mode")
 
                 --Defensive Key Toggle
                 checkOp("Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.");
                 dropOp("Defensive Mode", 6, "Toggle")
-                textOp("Defensive")
+                textOp("Defensive Mode")
 
                 --Interrupts Key Toggle
                 checkOp("Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.");
                 dropOp("Interrupt Mode", 6, "Toggle")
-                textOp("Interrupts")
+                textOp("Interrupts Mode")
 
                 -- SEF Toggle
                 checkOp("SEF Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFSEF Toggle Key|cffFFBB00.");
                 dropOp("SEF Mode", 5, "Toggle")
-                textOp("Storm, Earth, and Fire");
+                textOp("SEF Mode");
 
                 -- FSK Toggle
                 checkOp("FSK Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFFSK Toggle Key|cffFFBB00.");
                 dropOp("FSK Mode", 5, "Toggle")
-                textOp("Flying Serpent Kick");
+                textOp("FSK Mode");
 
                 -- Chi Builder Toggle
                 checkOp("Builder Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFChi Builder Toggle Key|cffFFBB00.");
                 dropOp("Builder Mode", 5, "Toggle")
-                textOp("Chi Builder");
+                textOp("Builder Mode");
 
                 -- Pause Toggle
                 checkOp("Pause Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFPause Toggle Key - None Defaults to LeftAlt|cffFFBB00.")

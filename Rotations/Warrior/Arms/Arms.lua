@@ -49,15 +49,15 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 	-- Input / Keys --------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-    if isChecked("Heroic Leap Key") and SpecificToggle("Heroic Leap Key") == true then
-      if not IsMouselooking() then
-          CastSpellByName(GetSpellInfo(6544))
-          if SpellIsTargeting() then
-              CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
-              return true;
-          end
-      end
-  	end
+	    if isChecked("Heroic Leap Key") and SpecificToggle("Heroic Leap Key") == true then
+	      if not IsMouselooking() then
+	          CastSpellByName(GetSpellInfo(6544))
+	          if SpellIsTargeting() then
+	              CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+	              return true;
+	          end
+	      end
+	  	end
 	------------------------------------------------------------------------------------------------------
 	-- Out of Combat -------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
