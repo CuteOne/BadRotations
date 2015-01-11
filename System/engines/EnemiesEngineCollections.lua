@@ -11,6 +11,7 @@ function SlashCmdList.dumpInfo(msg, editbox)
             targetInfo.name = UnitName("target")
             local thisUnit = enemiesTable[i]
             targetInfo.unitID = thisUnit.id
+            local spellCastersTable = bb.im.casters
             for j = 1, #spellCastersTable do
                 if spellCastersTable[j].unit == thisUnit.unit then
                     if casterName ~= false then

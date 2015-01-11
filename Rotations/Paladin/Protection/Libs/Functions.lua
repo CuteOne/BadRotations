@@ -82,7 +82,7 @@ if select(3,UnitClass("player")) == 2 then
             local getGround,canCast,isKnown,enemiesTable,sp = getGround,canCast,isKnown,enemiesTable,core.spells
             local UnitHealth,previousJudgmentTarget,print,UnitHealthMax = UnitHealth,previousJudgmentTarget,print,UnitHealthMax
             local getDistance,getDebuffRemain,GetTime,getFacing = getDistance,getDebuffRemain,GetTime,getFacing
-            local spellCastersTable,enhancedLayOnHands,getOptionCheck = spellCastersTable,enhancedLayOnHands,getOptionCheck
+            local spellCastersTable,enhancedLayOnHands,getOptionCheck = bb.im.casters,enhancedLayOnHands,getOptionCheck
             local useItem,shouldCleanseDebuff,castBlessing = useItem,shouldCleanseDebuff,castBlessing
             -- no external access after here
             setfenv(1,protCore)

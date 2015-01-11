@@ -105,7 +105,7 @@ end
 Frame:SetScript("OnEvent",EnteringCombat)
 
 -----------------------
---[[ Leving Combat --]]
+--[[ Leaving Combat --]]
 local Frame = CreateFrame('Frame')
 Frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 local function LeavingCombat(self,event,...)

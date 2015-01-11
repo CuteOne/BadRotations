@@ -23,7 +23,6 @@ function EnemiesEngine()
 -- getEnemies(unit,Radius) - Number - Returns number of valid units within radius of unit
 -- castInterrupt(spell,percent) - Multi-Target Interupts - for facing/in movements spells of all ranges.
 -- makeEnemiesTable(55) - Triggered in badboy.lua - generate the enemiesTable
--- makeSpellCastersTable() - Makes an interupt table based on enemiesTable
 
 --[[------------------------------------------------------------------------------------------------------------------]]
 --[[------------------------------------------------------------------------------------------------------------------]]
@@ -246,6 +245,7 @@ function getBestAoEInterupt(Range)
 	local bestAoEInteruptAmount = 0
 	local bestAoEInteruptTarget = "target"
 	-- cycle spellCasters to find best case
+	local spellCastersTable = bb.im.casters
 	for i = 1, #spellCastersTable do
 		-- if dummy beat old dummy, update
 		if spellCastersTable[i].castersAround > bestAoEInteruptAmount then
