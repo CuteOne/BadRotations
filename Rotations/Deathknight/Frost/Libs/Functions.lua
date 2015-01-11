@@ -23,6 +23,15 @@ if select(3,UnitClass("player")) == 6 then
             table.sort(members, function(x,y) return x.HP < y.HP end)
         end
     end
+
+    function hasThreat()
+        local dynTar = dynamicTarget(40,true)
+        if select(1,UnitDetailedThreatSituation("player", "target")) == nil then
+            return false
+        elseif select(1,UnitDetailedThreatSituation("player", "target"))==true then
+            return true
+        end
+    end
    
 	function getRuneInfo()
 		local bCount = 0

@@ -213,11 +213,11 @@ function WindwalkerMonk()
 					end
 					if (tarDist < 5 or (not canContFSK("target") and ObjectExists("target"))) and select(3,GetSpellInfo(101545)) == "INTERFACE\\ICONS\\priest_icon_chakra_green" then
 						if castSpell("player",_FlyingSerpentKickEnd,false,false,false) then return end
-					end
-				end
+					end	
 	-- Roll
-				if not canFSK("target") and tarDist>10 and getFacingDistance()<5 and getFacing("player","target",10) and getCharges(_Roll)>0 then
-					if castSpell("player",_Roll,true,false,false) then return end
+					if not canFSK("target") and tarDist>10 and getFacingDistance()<5 and getFacing("player","target",10) and getCharges(_Roll)>0 then
+						if castSpell("player",_Roll,true,false,false) then return end
+					end
 				end
 	-- Start Attack
           		if dynamicDist.dyn5<5 then
@@ -303,11 +303,15 @@ function WindwalkerMonk()
 					end
 				end
 	-- Roll
-				if tarDist>=10 and getFacingDistance()<5 and getCharges(_Roll)>0 then
+				if BadBoy_data['FSK']==1 and not canFSK("target") and tarDist>10 
+					and getFacingDistance()<5 and getFacing("player","target",10) and getCharges(_Roll)>0 
+				then
 					if castSpell("player",_Roll,true,false,false) then return end
 				end
 	-- Crackling Jade Lightning
-				if dynamicDist.dyn8 >= 8 and (BadBoy_data['FSK']==1 and getSpellCD(_FlyingSerpentKick)>1) and power>20 and chiDiff>=2 and not isCastingSpell(_CracklingJadeLightning) and isInCombat(dynamicUnit.dyn40) then
+				if dynamicDist.dyn8 >= 8 and (BadBoy_data['FSK']==1 and getSpellCD(_FlyingSerpentKick)>1) and power>20 
+					and chiDiff>=2 and not isCastingSpell(_CracklingJadeLightning) and isInCombat(dynamicUnit.dyn40) 
+				then
 					if castSpell(dynamicUnit.dyn40,_CracklingJadeLightning,false) then return end
 				end
 	-- Chi Brew
