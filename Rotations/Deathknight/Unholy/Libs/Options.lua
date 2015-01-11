@@ -46,9 +46,9 @@ if select(3,UnitClass("player")) == 6 then
       CreateNewCheck(thisConfig,"Summon Gargoyle");
       CreateNewText(thisConfig,"Summon Gargoyle");
 
-      -- Dark Transformation
-      CreateNewCheck(thisConfig,"Dark Transformation");
-      CreateNewText(thisConfig,"Dark Transformation");
+      -- -- Dark Transformation
+      -- CreateNewCheck(thisConfig,"Dark Transformation");
+      -- CreateNewText(thisConfig,"Dark Transformation");
 
       -- Racial (Orc/Troll)
       CreateNewCheck(thisConfig,"Racial (Orc/Troll)");
@@ -62,9 +62,14 @@ if select(3,UnitClass("player")) == 6 then
       CreateNewBox(thisConfig, "Icebound Fortitude", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFIcebound Fortitude");
       CreateNewText(thisConfig,"Icebound Fortitude");
 
+      -- Anti Magic Shell
+      CreateNewCheck(thisConfig,"Anti Magic Shell");
+      CreateNewBox(thisConfig, "Anti Magic Shell", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFAnti Magic Shell");
+      CreateNewText(thisConfig,"Anti Magic Shell");
+
       -- Healthstone / Pot
       CreateNewCheck(thisConfig,"Healthstone / Potion");
-      CreateNewBox(thisConfig, "Healthston / Potione", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone / Healing Potion");
+      CreateNewBox(thisConfig, "Healthston / Potion", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone / Healing Potion");
       CreateNewText(thisConfig,"Healthstone / Potion");
 
       -- Death Pact
@@ -83,9 +88,9 @@ if select(3,UnitClass("player")) == 6 then
       CreateNewText(thisConfig,"Death Strike");
 
       -- Death Strike (Dark Succor)
-      CreateNewCheck(thisConfig,"Death Strike (Dark Succor)");
-      CreateNewBox(thisConfig, "Death Strike (Dark Succor)", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Strike (Dark Succor)");
-      CreateNewText(thisConfig,"Death Strike (Dark Succor)");
+      -- CreateNewCheck(thisConfig,"Death Strike (Dark Succor)");
+      -- CreateNewBox(thisConfig, "Death Strike (Dark Succor)", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Strike (Dark Succor)");
+      -- CreateNewText(thisConfig,"Death Strike (Dark Succor)");
 
        -- Wrapper
       CreateNewWrap(thisConfig,"--- Interrupts ---");
