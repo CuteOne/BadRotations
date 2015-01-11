@@ -608,11 +608,11 @@ function DruidFeral()
 			            end
 				    end
 	    -- Swipe
-		    		if useAoE() and power>45 and combo<5 then
+		    		if useAoE() and (rkRemain>6 or power>80) and power>45 and combo<5 then
 		    			if castSpell(dynamicUnit.dyn8,sw,false,false,false) then return end
 		            end
 	    -- Shred
-		    		if not useAoE() and power>40 and combo<5 then
+		    		if not useAoE() and (rkRemain>6 or power>80) and power>40 and combo<5 then
 		    			if castSpell(dynamicUnit.dyn5,shr,false,false,false) then return end
 		            end
 			    end --not stealth end
