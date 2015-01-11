@@ -33,7 +33,7 @@ if select(3, UnitClass("player")) == 5 then
 
 
 			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"      |cffBA55D3Offensive");
+			CreateNewWrap(thisConfig,"|cffBA55D3Offensive");
 
 				-- -- Min Orbs to cast DP on traditional single target
 				-- CreateNewDrop(thisConfig,"Min Orbs (trad)",1,"Choose the minimum orbs to cast DP if targetHP>20.","|cffCC00003","|cFF00CC005");
@@ -70,11 +70,11 @@ if select(3, UnitClass("player")) == 5 then
 					CreateNewCheck(thisConfig,"Trinket 2");
 					CreateNewText(thisConfig,"Trinket 2");
 
-				-- SWD Glyphed
-				if hasGlyph(GlyphOfSWD) then
-					CreateNewCheck(thisConfig,"SWD glyphed");
-					CreateNewText(thisConfig,"SWD glyphed");
-				end
+				-- -- SWD Glyphed
+				-- if hasGlyph(GlyphOfSWD) then
+				-- 	CreateNewCheck(thisConfig,"SWD glyphed");
+				-- 	CreateNewText(thisConfig,"SWD glyphed");
+				-- end
 
 				-- LFR Orbs
 				CreateNewCheck(thisConfig,"Scan for Orbs", "Scan all enemies to create an orb with SWD");
@@ -87,13 +87,13 @@ if select(3, UnitClass("player")) == 5 then
 			
 
 			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"      |cffBA55D3Encounter Specific");
+			CreateNewWrap(thisConfig,"|cffBA55D3Encounter Specific");
 				-- DP on Focus
-				CreateNewCheck(thisConfig,"DP on Focus", "DP on Focus instead on target");
-				CreateNewText(thisConfig,"DP on Focus");
+				CreateNewCheck(thisConfig,"TwinOgrons", "DP on Focus and no Insanity. \nTake POL in focus! \nMultidotting -> ALL");
+				CreateNewText(thisConfig,"TwinOgrons"); --DP on Focus
 
 			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"      |cffBA55D3Defensive");
+			CreateNewWrap(thisConfig,"|cffBA55D3Defensive");
 
 				-- Shield
 				CreateNewCheck(thisConfig,"PW: Shield");
@@ -131,21 +131,21 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- Wrapper -----------------------------------------
 				if isKnown(CoP) then
-					CreateNewWrap(thisConfig,"      |cffBA55D3DoT Weave");
+					CreateNewWrap(thisConfig,"|cffBA55D3DoT Weave");
 						-- General
-						--CreateNewCheck(thisConfig,"DoTWeave");
-						--CreateNewText(thisConfig,"DoTWeave");
-						-- SWP
-						CreateNewCheck(thisConfig,"SWP");
-						CreateNewText(thisConfig,"SWP");
-						-- VT
-						CreateNewCheck(thisConfig,"VT");
-						CreateNewText(thisConfig,"VT");
+						CreateNewCheck(thisConfig,"DoTWeave");
+						CreateNewText(thisConfig,"DoTWeave");
+						-- -- SWP
+						-- CreateNewCheck(thisConfig,"SWP");
+						-- CreateNewText(thisConfig,"SWP");
+						-- -- VT
+						-- CreateNewCheck(thisConfig,"VT");
+						-- CreateNewText(thisConfig,"VT");
 				end
 
 
 			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"      |cffBA55D3Multitarget");
+			CreateNewWrap(thisConfig,"|cffBA55D3Multitarget");
 
 				-- -- SWP
 				-- CreateNewCheck(thisConfig,"Multi SWP", "not used atm");
@@ -169,22 +169,22 @@ if select(3, UnitClass("player")) == 5 then
 
 				-- Max Targets
 				-- CreateNewCheck(thisConfig,"Max Targets");
-				CreateNewBox(thisConfig,"Max Targets", 1, 18, 1, 5, "Maximum count of SWP/VT on Units.\nShould be not more than 18/GCD.\nMin: 1 / Max: 18 / Interval: 1");
+				CreateNewBox(thisConfig,"Max Targets", 1, 10, 1, 5, "Maximum count of SWP/VT on Units. \nMin: 1 / Max: 5 / Interval: 1 \n|cffFF0000Standard: 5(SimCraft)");
 				CreateNewText(thisConfig,"Max Targets");
 
-				-- DoT Refresh
-				CreateNewBox(thisConfig,"Refresh Time", 0.0, 4.5, 0.1, 2.0, "Minimum time to refresh DoT.\nMin: 0 / Max: 4.5 / Interval: 0.1");
-				CreateNewText(thisConfig,"Refresh Time");
+				-- -- DoT Refresh
+				-- CreateNewBox(thisConfig,"Refresh Time", 0.0, 4.5, 0.1, 2.0, "Minimum time to refresh DoT.\nMin: 0 / Max: 4.5 / Interval: 0.1");
+				-- CreateNewText(thisConfig,"Refresh Time");
 				
 				-- Mind Sear Targets
 				-- Auto MindSear
 				CreateNewCheck(thisConfig,"MS Targets","Automatic Mind Sear if enough targets in range");
-				CreateNewBox(thisConfig,"MS Targets", 1, 10, 1, 4, "Minimum count of enemies around target \nto use Mind Sear instead of Mind Spike. \nMin: 1 / Max: 10+ / Interval: 1 / Standard: 4");
+				CreateNewBox(thisConfig,"MS Targets", 1, 6, 1, 4, "Minimum count of enemies around target \nto use Mind Sear instead of Mind Spike. \nMin: 1 / Max: 6 / Interval: 1 \n|cffFF0000Standard: 6(SimCraft)");
 				CreateNewText(thisConfig,"MS Targets");
 
 
 			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"      |cffBA55D3Utilities");
+			CreateNewWrap(thisConfig,"|cffBA55D3Utilities");
 
 				-- Pause Toggle
 				CreateNewCheck(thisConfig,"Pause Toggle");
@@ -199,9 +199,9 @@ if select(3, UnitClass("player")) == 5 then
 				CreateNewCheck(thisConfig,"Shadowform Outfight");
 				CreateNewText(thisConfig,"Shadowform Outfight");
 
-				-- Auto Rez
-				CreateNewCheck(thisConfig,"Auto Rez");
-				CreateNewText(thisConfig,"Auto Rez(TBD)");
+				-- -- Auto Rez
+				-- CreateNewCheck(thisConfig,"Auto Rez");
+				-- CreateNewText(thisConfig,"Auto Rez(TBD)");
 
 				-- -- AutoSpeedBuff
 				-- if isKnown(AngelicFeather) then
@@ -218,7 +218,7 @@ if select(3, UnitClass("player")) == 5 then
 
 				-- Dummy DPS Test
 				CreateNewCheck(thisConfig,"DPS Testing");
-				CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 5, "Set to desired time for test in minutes.\nMin: 1 / Max: 15 / Interval: 1");
+				CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 4, "Set to desired time for test in minutes.\nMin: 1 / Max: 15 / Interval: 1");
 				CreateNewText(thisConfig,"DPS Testing");
 
 

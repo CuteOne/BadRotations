@@ -29,6 +29,8 @@ if select(3, UnitClass("player")) == 5 then
 	-- Buffs
 		PWF 				= 21562;	-- Power Word: Fortitude
 		InsanityBuff		= 132573;	-- Buff if Insanity
+		MentalInstinct		= 167254;	-- Mental Instinct T17-4P
+		T172 				= 165628;	-- 
 
 	-- Talents
 		-- T15

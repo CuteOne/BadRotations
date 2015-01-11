@@ -26,15 +26,13 @@ if select(3, UnitClass("player")) == 5 then
 
 	function ShadowToggles()
 		-- Halo Button
-		if isKnown(Halo) then
-			if HaloModesLoaded ~= "Shadow Priest Halo Modes" then
-				HaloModes = {
-					[1] = { mode = "off", value = 1 , overlay = "Halo Disabled", tip = "|cffFF0000Halo \n|cffFFDD11No Halo will be used.", highlight = 0, icon = 120644 },
-					[2] = { mode = "on", value = 2 , overlay = "Halo Enabled", tip = "|cff00FF00Halo \n|cffFFDD11Will be used.", highlight = 1, icon = 120644 }
-				};
-				CreateButton("Halo",1,1)
-				HaloModesLoaded = "Shadow Priest Halo Modes";
-			end
+		if HaloModesLoaded ~= "Shadow Priest Halo Modes" then
+			HaloModes = {
+				[1] = { mode = "off", value = 1 , overlay = "Halo Disabled", tip = "|cffFF0000Halo/Star/Cascade \n|cffFFDD11wont be used.", highlight = 0, icon = 120644 },
+				[2] = { mode = "on", value = 2 , overlay = "Halo Enabled", tip = "|cff00FF00Halo/Star/Cascade \n|cffFFDD11will be used.", highlight = 1, icon = 120644 }
+			};
+			CreateButton("Halo",1,1)
+			HaloModesLoaded = "Shadow Priest Halo Modes";
 		end
 
 		-- DoT Button
@@ -61,17 +59,19 @@ if select(3, UnitClass("player")) == 5 then
 		-- 	SingleModesLoaded = "Shadow Priest Single Modes";
 		-- end
 
-		-- -- Rotation Button
-		-- if RotationModesLoaded ~= "Shadow Priest Rotation Modes" then
-		-- 	RotationModes = {
-		-- 		[1] = { mode = "1", value = 1 , overlay = "Single Target", tip = "|cff00FF00Single Target \n|cffFFDD11Style can be chosen with 'trad/weave' Button", highlight = 0, icon = 139139 },
-		-- 		--[2] = { mode = "dual", value = 2 , overlay = "Dual Boss Targets", tip = "|cff00FF00Dual Target \n|cffFFDD11Chose this for two bosses", highlight = 0, icon = 78203 },
-		-- 		--[2] = { mode = "3+", value = 2 , overlay = "3+ Targets", tip = "|cff00FF002+ Enemies \n|cffFFDD11Choose # of dots in options.", highlight = 0, icon = 48045 }
-		-- 		--[2] = { mode = "multi", value = 2 , overlay = "Multi Target", tip = "|cff00FF00Multi Target \n|cffFFDD11Choose # of dots in options.", highlight = 0, icon = 48045 }
-		-- 	};
-		-- 	CreateButton("Rotation",3,0)
-		-- 	RotationModesLoaded = "Shadow Priest Rotation Modes";
-		-- end
+		-- Rotation Button
+		if RotationModesLoaded ~= "Shadow Priest Rotation Modes" then
+			RotationModes = {
+				[1] = { mode = "std", value = 1 , overlay = "Single Target", tip = "|cff00FF00Single Target \n|cffFFDD11Style can be chosen with 'trad/weave' Button", highlight = 0, icon = 139139 },
+				--[2] = { mode = "dual", value = 2 , overlay = "Dual Boss Targets", tip = "|cff00FF00Dual Target \n|cffFFDD11Chose this for two bosses", highlight = 0, icon = 78203 },
+				--[2] = { mode = "3+", value = 2 , overlay = "3+ Targets", tip = "|cff00FF002+ Enemies \n|cffFFDD11Choose # of dots in options.", highlight = 0, icon = 48045 }
+				--[2] = { mode = "multi", value = 2 , overlay = "Multi Target", tip = "|cff00FF00Multi Target \n|cffFFDD11Choose # of dots in options.", highlight = 0, icon = 48045 }
+				[2] = { mode = "beta", value = 2 , overlay = "Beta Rotation", tip = "|cff00FF00Beta Rotation \n|cffFFDD11This is in development", highlight = 0, icon = 78203 },
+			};
+			CreateButton("Rotation",3,0)
+			RotationModesLoaded = "Shadow Priest Rotation Modes";
+		end
+
 		-- Feather Button
 		if FeathertModesLoaded ~= "Shadow Priest Feather Modes" then
 			FeatherModes = {
