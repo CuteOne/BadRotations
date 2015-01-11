@@ -8,7 +8,7 @@ function AssassinationRogue()
 	    	return true
 	    end
 		AssToggles()
-		poisonData()
+		poisonAssData()
 		makeEnemiesTable(40)
 		-- if worgen==nil then
 		-- 	worgen=false
@@ -168,16 +168,16 @@ function AssassinationRogue()
 				end
 				if ObjectExists(tarUnit.dyn0) and stealth then 
 	-- Shadowstep
-					if tarDist.dyn25AoE < 25 and tarDist.dyn25AoE >= 8 and getTalent(4,2) and (select(2,IsInInstance())=="none" or hasThreat(tarUnit.dyn25AoE)) then
+					if tarDist.dyn0 < 25 and tarDist.dyn0 >= 8 and getTalent(4,2) and (select(2,IsInInstance())=="none" or isInCombat(tarUnit.dyn0)) then
 						if castSpell(tarUnit.dyn25AoE,_Shadowstep,false,false,false) then return end
 					end
 	-- Cloak and Dagger
-					if tarDist.dyn40AoE < 40 and tarDist.dyn40AoE >= 8 and getTalent(4,1) and (select(2,IsInInstance())=="none" or hasThreat(tarUnit.dyn40AoE)) then
+					if tarDist.dyn0 < 40 and tarDist.dyn0 >= 8 and getTalent(4,1) and (select(2,IsInInstance())=="none" or isInCombat(tarUnit.dyn0)) then
 						if castSpell(tarUnit.dyn40AoE,_Ambush,false,false,false,false,false,true) then return end
 					end
 	-- Sap
-					if noattack() and sapRemain==0 and level>=15 and tarDist.dyn10 < 8 then
-						if castSpell(tarUnit.dyn10,_Sap,false,false,false) then return end
+					if noattack() and sapRemain==0 and level>=15 and tarDist.dyn0 < 8 then
+						if castSpell(tarUnit.dyn0,_Sap,false,false,false) then return end
 					end
 	-- Pick Pocket
 					if canPP() and not isPicked() and tarDist.dyn0 < 8 
