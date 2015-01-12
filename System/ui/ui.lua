@@ -330,11 +330,12 @@ function ConstructUI()
                         name = "Don't break CCs",
                         tip = "Check to prevent damage to targets that are CC."
                     },
+
                     [8] = {
                         checkbase = true,
                         check = true,
-                        name = "Crowd Control",
-                        tip = "Check to use crowd controls on select units/buffs."
+                        name = "Skull First",
+                        tip = "Check to enable focus skull dynamically."
                     },
                     [9] = {
                         checkbase = true,
@@ -360,6 +361,12 @@ function ConstructUI()
                         check = true,
                         name = "Only Known Units",
                         tip = "Check this to interrupt only on known units using whitelist."
+                    },
+                    [11] = {
+                        checkbase = true,
+                        check = true,
+                        name = "Crowd Control",
+                        tip = "Check to use crowd controls on select units/buffs."
                     },
                     --[[[11] = {
                         checkbase = false,
