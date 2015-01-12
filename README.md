@@ -18,14 +18,14 @@ What to do if you have crash to desktop or 132 errors.(not necessarily in this o
 |:----|------:|:-------|
 |**Druid**|||
 |Feral|100%|CuteOne|
-|Guardian|70%|Chumii|
+|Guardian|70%|chumii|
 |Restoration|100%|Masoud|
 |Moonkin|70%|CodeMyLife|
 ||||
 | **Death Knight** |||
 |Frost|80%|CuteOne|
 |Blood|90%|CodeMyLife|
-|Unholy|0%||
+|Unholy|85%|chumii|
 ||||
 | **Hunter** |||
 |Beastmaster|80%|CodeMyLife|
@@ -38,7 +38,7 @@ What to do if you have crash to desktop or 132 errors.(not necessarily in this o
 |Frost|80%(lvl90)| |
 ||||
 | **Monk** |||
-|Brewmaster|90%|Chumii|
+|Brewmaster|95%|chumii|
 |Mistweaver|70%|CodeMyLife|
 |Windwalker|100%|CuteOne|
 | **Paladin**  |||
@@ -67,6 +67,6 @@ What to do if you have crash to desktop or 132 errors.(not necessarily in this o
 |Destruction|0%||
 ||||
 | **Warrior**  |||
-|Arms|75%|Chumii|
+|Arms|75%|chumii|
 |Fury|100%|Averykey|
-|Protection|85%|Chumii|
+|Protection|85%|chumii|
