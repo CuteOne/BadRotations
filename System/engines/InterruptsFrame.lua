@@ -139,7 +139,7 @@ function castInterrupt(spell,percent)
 	if canCast(spell,false,false) == true then
 
 		-- ToDo if the user sets its selector to target, only interupt current target.
-		local selectedMode,selectedTargets = getOptionValue("Interrupts Handler"),{}
+		selectedMode,selectedTargets = getOptionValue("Interrupts Handler"),{ }
 		if selectedMode == 1 then
 			selectedTargets = { "target" }
 		elseif selectedMode == 2 then
