@@ -24,6 +24,11 @@ if select(3,UnitClass("player")) == 6 then
       CreateNewDrop(thisConfig,"DnD / Defile Key", 4, "Toggle2")
       CreateNewText(thisConfig,"DnD / Defile Key");
 
+      -- AMZ Key
+      CreateNewCheck(thisConfig,"AMZ Key");
+      CreateNewDrop(thisConfig,"AMZ Key", 4, "Toggle2")
+      CreateNewText(thisConfig,"AMZ Key");
+
       -- Wrapper
       CreateNewWrap(thisConfig,"--- Buffs ---");
 

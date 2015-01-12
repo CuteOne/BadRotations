@@ -155,7 +155,7 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- Shadowfiend
 			if isKnown(SF) and options.buttons.Cooldowns == 2 and options.isChecked.Shadowfiend then
-				if castSpell("target",SF) then return; end
+				if castSpell("target",SF,true,false) then return; end
 			end
 
 			-- -- Power Infusion
@@ -165,13 +165,13 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- Berserking (Troll Racial)
 			if isKnown(Berserking) and options.buttons.Cooldowns == 2 and options.isChecked.Berserking then
-				if castSpell("player",Berserking) then return; end
+				if castSpell("player",Berserking,true,false) then return; end
 			end
 
 			-- Halo
 			if isKnown(Halo) and options.buttons.Halo == 2 then
 				if getDistance("player","target")<=30 and getDistance("player","target")>=17 then
-					if castSpell("player",Halo) then return; end
+					if castSpell("player",Halo,true,false) then return; end
 				end
 			end
 
@@ -193,7 +193,7 @@ if select(3, UnitClass("player")) == 5 then
 	function Execute(options)
 		if getHP("target")<=20 then
 			-- ORBS>=3 -> DP
-			if options.player.ORBS>=3 and getDebuffRemain("target",DP,"player")==0 then
+			if options.player.ORBS>=3 and getBuffRemain("player",InsanityBuff)<=options.player.GCD then
 				if castSpell("target",DP,true,false) then return; end
 			end
 
@@ -245,8 +245,12 @@ if select(3, UnitClass("player")) == 5 then
 					local hp = enemiesTable[i].hp
 					--print("Scanned Unit:"..i)
 					if hp<35 then
-						if castSpell(thisUnit,MB,false,false) then return; end
-						if castSpell(thisUnit,SWP,true,false) then return; end
+						if getSpellCD(MB)==0 then
+							if castSpell(thisUnit,MB,false,false) then return; end
+						end
+						if getSpellCD(MB)>0 then
+							if castSpell(thisUnit,SWP,true,false) then return; end
+						end
 					end
 				end
 			end
@@ -261,7 +265,7 @@ if select(3, UnitClass("player")) == 5 then
 		if not UnitDebuffID("player",InsanityBuff) then
 			if getDebuffRemain("target",SWP,"player")<=options.values.RefreshTime then
 				-- Dot the bosses
-				-- SWP on all bosses except target
+				-- SWP on all bosses except focus
 				if options.buttons.DoT==2 or options.buttons.DoT==4 then
 					if getSWP()<=options.values.MaxTargets then
 						for i = 1, #enemiesTable do
@@ -310,33 +314,36 @@ if select(3, UnitClass("player")) == 5 then
 		-- DoT Weaving --
 		-----------------
 			-- if ORBS==5 --> apply DoTs if targetHP>20
-			--if isChecked("DoTWeave") and getTalent(3,3) then
-			if getTalent(3,3) then
-				-- function DoTWeaveBreak()
-				-- 	local counter=0
-				-- 	local factor=getValue("Weave Comp")/10
-				-- 	if isChecked("SWP") then counter=counter+1 end
-				-- 	if isChecked("VT") then counter=counter+1 end
-				-- 	return counter*GCD*factor
-				-- end
-				-- local Break=DoTWeaveBreak()
-				-- if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<Break then
-				if options.player.ORBS>=4 and getSpellCD(MB)<=2*options.player.GCD then
-					--if options.isChecked.SWP then
-						if not UnitDebuffID("target",SWP,"player") then
-							if castSpell("target",SWP,true,false) then return; end
-						end
-					--end
-					--if options.isChecked.VT then
-						if not UnitDebuffID("target",VT,"player") and GetTime()-lastVT > 2*options.player.GCD then
-							if castSpell("target",VT,true,true) then 
-								--options.player.lastVT=GetTime()
-								lastVT=GetTime()
-								return
+			if isChecked("DoTWeave") and getTalent(3,3) then
+				--if getTalent(3,3) then
+					-- function DoTWeaveBreak()
+					-- 	local counter=0
+					-- 	local factor=getValue("Weave Comp")/10
+					-- 	if isChecked("SWP") then counter=counter+1 end
+					-- 	if isChecked("VT") then counter=counter+1 end
+					-- 	return counter*GCD*factor
+					-- end
+					-- local Break=DoTWeaveBreak()
+					-- if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<Break then
+					
+					--if options.player.ORBS>=5 and getSpellCD(MB)<=2*options.player.GCD then
+					if options.player.ORBS>=4 and getSpellCD(MB)<=2*options.player.GCD then
+						if options.isChecked.SWP then
+							if not UnitDebuffID("target",SWP,"player") then
+								if castSpell("target",SWP,true,false) then return; end
 							end
 						end
-					--end
-				end
+						if options.isChecked.VT then
+							if not UnitDebuffID("target",VT,"player") and GetTime()-lastVT > 2*options.player.GCD then
+								if castSpell("target",VT,true,true) then 
+									--options.player.lastVT=GetTime()
+									lastVT=GetTime()
+									return
+								end
+							end
+						end
+					end
+				--end
 			end
 		----------------
 		-- spend orbs --
@@ -344,9 +351,9 @@ if select(3, UnitClass("player")) == 5 then
 			--DP if ORBS == 5
 			--if isStanding(0.3) then
 				if options.player.ORBS==5 then 
-					if getDebuffRemain("target",SWP,"player")>0 or options.isChecked.SWP~=true then
-						--if getDebuffRemain("target",VT,"player")>0 or options.isChecked.VT~=true then
-							if options.isChecked.DPonFocus then
+					if getDebuffRemain("target",SWP,"player")>0 or options.isChecked.SWP~=true or options.isChecked.DoTWeave~=true then
+						if getDebuffRemain("target",VT,"player")>0 or options.isChecked.VT~=true or options.isChecked.DoTWeave~=true then
+							if options.isChecked.TwinOgrons then
 								if UnitExists("focus") then
 									if castSpell("focus",DP,false,true) then
 										lastDP=GetTime()
@@ -354,26 +361,30 @@ if select(3, UnitClass("player")) == 5 then
 									end
 								end
 							end
-							if castSpell("target",DP,false,true) then
-								lastDP=GetTime()
-								return
+							if options.isChecked.TwinOgrons==nil then
+								if castSpell("target",DP,false,true) then
+									lastDP=GetTime()
+									return
+								end
 							end
-						--end
+						end
 					end
 				end
 			--end
 
 			-- DP if ORBS>=3 and lastDP<DPTIME and InsanityBuff<DPTICK
-			if options.player.ORBS>=3 and GetTime()-lastDP<=options.player.DPTIME+2 then
-				if options.isChecked.DPonFocus then
-					if UnitExists("focus") then
+			if options.player.ORBS>=3 and (GetTime()-lastDP<=options.player.DPTIME+2 or options.isChecked.TwinOgrons) then
+				if options.isChecked.TwinOgrons then
+					if UnitExists("focus") and getDebuffRemain("focus",DP,"player")<=0.3*options.player.DPTIME then
 						if castSpell("focus",DP,false,true) then
 							lastDP=GetTime()
 							return
 						end
 					end
 				end
-				if castSpell("target",DP,false,true) then return; end
+				if options.isChecked.TwinOgrons==nil then
+					if castSpell("target",DP,false,true) then return; end
+				end
 			end
 
 			-- Insanity if noChanneling
@@ -393,6 +404,11 @@ if select(3, UnitClass("player")) == 5 then
 			if not UnitDebuffID("player",InsanityBuff) then
 				-- MB on CD
 				if castSpell("target",MB,false,false) then return; end
+
+				-- SoD MSp Procs
+				if getBuffStacks("player",SoDProc)>=1 then
+					if castSpell("target",MSp,false,false) then return; end
+				end
 
 				-- Ko'ragh barrier<20% (finisher can be cast if barrier<20%)
 				if GetUnitName("target")=="Ko'ragh" then

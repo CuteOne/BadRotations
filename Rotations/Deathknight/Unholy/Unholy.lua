@@ -148,6 +148,18 @@ if select(3,UnitClass("player")) == 6 then
         end
       end
     end
+    -- DnD
+    if isKnown(_AntiMagicZone) == true then
+      if isChecked("AMZ Key") == true and SpecificToggle("AMZ Key") == true then
+        if not IsMouselooking() then
+            CastSpellByName(GetSpellInfo(51052))
+            if SpellIsTargeting() then
+                CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+                return true;
+            end
+        end
+      end
+    end
   ------------------------------------------------------------------------------------------------------
   -- Ress/Dispell --------------------------------------------------------------------------------------
   ------------------------------------------------------------------------------------------------------
