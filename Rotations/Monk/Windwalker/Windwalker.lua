@@ -75,7 +75,7 @@ function WindwalkerMonk()
 --------------------------------------------------
 	-- Death Monk mode
 		if isChecked("Death Monk Mode") then
-			if (#targets == 0 and sefStack==1) then --(#targets == 1 and sefStack==2) or
+			if UnitGUID(targets[1].Unit)==UnitGUID(dynmaicUnit.dyn5) or UnitGUID(targets[2].Unit)==UnitGUID(dynmaicUnit.dyn5) then
 				CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
 			end
 		 	if sefStack == 0 and #targets>0 then
@@ -292,8 +292,18 @@ function WindwalkerMonk()
 		        end
 	-- Storm, Earth, and Fire
 				if ObjectExists(dynamicUnit.dyn40AoE) and BadBoy_data['SEF']==1 then
-					if (#targets == 1 and sefStack==2) or (#targets == 0 and sefStack==1) then
-						CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
+					-- if (#targets == 1 and sefStack==2) or (#targets == 0 and sefStack==1) then
+					-- 	CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
+					-- end
+					if #targets==1 then
+						if UnitGUID(targets[1].Unit)==UnitGUID(dynamicUnit.dyn5) then
+							CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
+						end
+					end
+					if #targets>1 then
+						if UnitGUID(targets[1].Unit)==UnitGUID(dynamicUnit.dyn5) or UnitGUID(targets[2].Unit)==UnitGUID(dynamicUnit.dyn5) then
+							CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
+						end
 					end
 				 	if sefStack == 0 and #targets>0 then
 						if castSpell(targets[1].Unit,_StormEarthFire,false,false,false) then return end

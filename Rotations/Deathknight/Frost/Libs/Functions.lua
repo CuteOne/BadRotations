@@ -14,7 +14,7 @@ if select(3,UnitClass("player")) == 6 then
             for i=1,group.number do
                 if canHeal(group.type..i) then
                     local unit, hp = group.type..i, CalculateHP(group.type..i)
-                    table.insert( members,{ Unit = unit, HP = hp } )
+                    members[#members+1] = { Unit = unit, HP = hp }
                     if hp < 90 then group.low = group.low + 1 end
                     if UnitGroupRolesAssigned(unit) == "TANK" then table.insert(group.tanks,unit) end
                 end
@@ -74,25 +74,25 @@ if select(3,UnitClass("player")) == 6 then
 				dPercent = runePercent
 				dCount = runeCount
 				dCooldown = runeCooldown
-				table.insert( runeTable,{ Type = "death", Index = i, Count = dCount, Percent = dPercent, Cooldown = dCooldown})
+				runeTable[#runeTable+1] = { Type = "death", Index = i, Count = dCount, Percent = dPercent, Cooldown = dCooldown}
 			end
 			if GetRuneType(i) == 1 then
 				bPercent = runePercent
 				bCount = runeCount
 				bCooldown = runeCooldown
-				table.insert( runeTable,{ Type = "blood", Index = i, Count = bCount, Percent = bPercent, Cooldown = bCooldown})
+				runeTable[#runeTable+1] = { Type = "blood", Index = i, Count = bCount, Percent = bPercent, Cooldown = bCooldown}
 			end
 			if GetRuneType(i) == 2 then
 				uPercent = runePercent
 				uCount = runeCount
 				uCooldown = runeCooldown
-				table.insert( runeTable,{ Type = "unholy", Index = i, Count = uCount, Percent = uPercent, Cooldown = uCooldown})
+				runeTable[#runeTable+1] = { Type = "unholy", Index = i, Count = uCount, Percent = uPercent, Cooldown = uCooldown}
 			end
 			if GetRuneType(i) == 3 then
 				fPercent = runePercent
 				fCount = runeCount
 				fCooldown = runeCooldown
-				table.insert( runeTable,{ Type = "frost", Index = i, Count = fCount, Percent = fPercent, Cooldown = fCooldown})
+				runeTable[#runeTable+1] = { Type = "frost", Index = i, Count = fCount, Percent = fPercent, Cooldown = fCooldown}
 			end
 		end
 	end

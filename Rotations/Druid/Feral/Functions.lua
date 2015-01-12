@@ -14,7 +14,7 @@ if select(3, UnitClass("player")) == 11 then
             for i=1,group.number do
                 if canHeal(group.type..i) then
                     local unit, hp = group.type..i, CalculateHP(group.type..i)
-                    table.insert( members,{ Unit = unit, HP = hp } )
+                    members[#members+1] = { Unit = unit, HP = hp }
                     if hp < 90 then group.low = group.low + 1 end
                     if UnitGroupRolesAssigned(unit) == "TANK" then table.insert(group.tanks,unit) end
                 end

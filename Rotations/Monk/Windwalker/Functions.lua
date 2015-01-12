@@ -14,15 +14,13 @@ if select(3,UnitClass("player")) == 10 then
             for i=1,group.number do
                 if canHeal(group.type..i) then
                     local unit, hp = group.type..i, CalculateHP(group.type..i)
-                    table.insert( members,{ Unit = unit, HP = hp } )
+                    members[#members+1] = { Unit = unit, HP = hp }
                     if hp < 90 then group.low = group.low + 1 end
                     if UnitGroupRolesAssigned(unit) == "TANK" then table.insert(group.tanks,unit) end
                 end
             end
             if group.type == "raid" and #members > 1 then table.remove(members,1) end
             table.sort(members, function(x,y) return x.HP < y.HP end)
-            --local customtarget = canHeal("target") and "target" -- or CanHeal("mouseover") and GetMouseFocus() ~= WorldFrame and "mouseover"
-            --if customtarget then table.sort(members, function(x) return UnitIsUnit(customtarget,x.Unit) end) end
         end
     end
 
@@ -42,6 +40,7 @@ if select(3,UnitClass("player")) == 10 then
             currtar = UnitGUID("target")
         end
         targets = {}
+        --table.wipe(targets)
         for i=1,#enemies do
             if ObjectExists(enemies[i])
                 and getCreatureType(enemies[i])
@@ -52,7 +51,7 @@ if select(3,UnitClass("player")) == 10 then
                 and UnitDetailedThreatSituation("player", enemies[i]) ~= nil
                 and not isLongTimeCCed(enemies[i])
             then
-                table.insert( targets,{ Name = UnitName(enemies[i]), Unit = enemies[i], HP = UnitHealth(enemies[i]), Range = getDistance("player",enemies[i]) })
+                targets[#targets+1] = { Name = UnitName(enemies[i]), Unit = enemies[i], HP = UnitHealth(enemies[i]), Range = getDistance("player",enemies[i]) }
             end
         end
         table.sort(targets, function(x,y) return x.HP > y.HP end)
