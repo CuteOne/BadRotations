@@ -361,9 +361,11 @@ if select(3, UnitClass("player")) == 5 then
 									end
 								end
 							end
-							if castSpell("target",DP,false,true) then
-								lastDP=GetTime()
-								return
+							if options.isChecked.TwinOgrons==false then
+								if castSpell("target",DP,false,true) then
+									lastDP=GetTime()
+									return
+								end
 							end
 						end
 					end
@@ -371,16 +373,18 @@ if select(3, UnitClass("player")) == 5 then
 			--end
 
 			-- DP if ORBS>=3 and lastDP<DPTIME and InsanityBuff<DPTICK
-			if options.player.ORBS>=3 and GetTime()-lastDP<=options.player.DPTIME+2 then
+			if options.player.ORBS>=3 and (GetTime()-lastDP<=options.player.DPTIME+2 or options.isChecked.TwinOgrons) then
 				if options.isChecked.TwinOgrons then
-					if UnitExists("focus") then
+					if UnitExists("focus") and getDebuffRemain("focus",DP,"player")<=0.3*options.player.DPTIME then
 						if castSpell("focus",DP,false,true) then
 							lastDP=GetTime()
 							return
 						end
 					end
 				end
-				if castSpell("target",DP,false,true) then return; end
+				if options.isChecked.TwinOgrons==false then
+					if castSpell("target",DP,false,true) then return; end
+				end
 			end
 
 			-- Insanity if noChanneling
