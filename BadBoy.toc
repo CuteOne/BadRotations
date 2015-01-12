@@ -184,7 +184,12 @@ Rotations\Rogue\Combat\Options.lua
 Rotations\Rogue\Combat\SpellList.lua
 Rotations\Rogue\Combat\Toggles.lua
 
-Rotations\Rogue\Subtlety.lua
+Rotations\Rogue\Subtlety\Subtlety.lua
+Rotations\Rogue\Subtlety\Functions.lua
+Rotations\Rogue\Subtlety\Options.lua
+Rotations\Rogue\Subtlety\SpellList.lua
+Rotations\Rogue\Subtlety\Toggles.lua
+
 Rotations\Rogue\NewRogue.lua
 
 ## Shaman  ---------------------------------------------------
