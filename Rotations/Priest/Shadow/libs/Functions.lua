@@ -361,7 +361,7 @@ if select(3, UnitClass("player")) == 5 then
 									end
 								end
 							end
-							if options.isChecked.TwinOgrons==false then
+							if options.isChecked.TwinOgrons==nil then
 								if castSpell("target",DP,false,true) then
 									lastDP=GetTime()
 									return
@@ -382,7 +382,7 @@ if select(3, UnitClass("player")) == 5 then
 						end
 					end
 				end
-				if options.isChecked.TwinOgrons==false then
+				if options.isChecked.TwinOgrons==nil then
 					if castSpell("target",DP,false,true) then return; end
 				end
 			end
