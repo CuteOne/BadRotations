@@ -22,6 +22,23 @@ if select(3, UnitClass("player")) == 5 then
 		Rez		= 2006;		-- Resurrection
 		Disp 	= 47585;	-- Dispersion
 
+		AA 		= 81700;	-- Archangel
+		DispM	= 528;		-- Dispel Magic
+		FH 		= 2061;		-- Flash Heal
+		Heal	= 2060;		-- Heal
+		HF 		= 14914;	-- Holy Fire
+		HN		= 132157;	-- Holy Nova
+		MD 		= 32375;	-- Mass Dispel
+		PainSup = 33206;	-- Pain Supression
+		Penance = 47540;	-- Penance
+		PWB 	= 62618;	-- Power Word: Barrier
+		PWSol	= 129250;	-- Power Word: Solace
+		PoH		= 596;		-- Prayer of Healing
+		PoM		= 33076;	-- Prayer of Mending
+		Purify	= 527;		-- Purify
+		Smite	= 585;		-- Smite
+		
+
 	-- Procs
 		SoDProc		= 87160;	-- SoD Procs (max 3)
 		MBProc		= 124430;	-- Shadowy Insight Procs (max 1)
@@ -31,6 +48,7 @@ if select(3, UnitClass("player")) == 5 then
 		InsanityBuff		= 132573;	-- Buff if Insanity
 		MentalInstinct		= 167254;	-- Mental Instinct T17-4P
 		T172 				= 165628;	-- 
+		Evangelism			= 81662;
 
 	-- Talents
 		-- T15
@@ -46,6 +64,7 @@ if select(3, UnitClass("player")) == 5 then
 		SoD 				= 162448;
 		Mindbender			= 123040;
 		InsanityTalent		= 139139;
+		PWSolace			= 129250;	-- Power Word: Solace
 		-- T60
 		VoidTendrils		= 108920;
 		PsychicScream		= 8122;
@@ -58,6 +77,7 @@ if select(3, UnitClass("player")) == 5 then
 		Halo				= 120644;
 		DivineStar			= 122121;
 		Cascade				= 127632;
+		CascadeDisc			= 121135;
 		-- T100
 		CoP					= 155246;
 		VoidEntropy 		= 155361;
@@ -77,6 +97,8 @@ if select(3, UnitClass("player")) == 5 then
 		GlyphOfFade			= 55684;
 		GlyphOfMindHarvest	= 1202;
 		GlyphOfSWD			= 1005;
+		GlyphOfPenance		= 119866;
+		GlyphOfHolyFire		= 119853;
 
 	-- Racial
 		Berserking			= 26297;

@@ -225,6 +225,9 @@ frame:SetScript("OnEvent", frame.OnEvent)
             if playerSpec == 3 then
                 PriestShadow()
             end
+            if playerSpec == 1 then
+                PriestDiscipline()
+            end
         elseif playerClass == 6 then -- Deathknight
             if playerSpec == 1 then
                 Blood()

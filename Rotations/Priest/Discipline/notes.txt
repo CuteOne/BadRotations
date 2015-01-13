@@ -1,0 +1,14 @@
+
+
+- penance auf tank > others > enemies
+- evangelism mit "Power Word: Solace" bzw "Holy Fire"
+- Prayer Of Mending immer im Raid
+- Power Word: Solace immer specced
+- Word of Mending?
+
+TBD:
+1) PoM options (max times in raid)
+2) PW:S target selector?! DynTarget?
+3) PoH min group HP% (calculator?), min 3 Players to heal
+4) Archangel on KeyPress and/or High Raid Damage
+5) 
