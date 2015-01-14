@@ -246,6 +246,15 @@ if not metaTable1 then
 			end
 		end
 
+		-- Group Number of Player: getUnitGroupNumber(1)
+		function o:getUnitGroupNumber()
+			-- check if in raid
+			if IsInRaid() then
+				return select(3,GetRaidRosterInfo(UnitInRaid(o.unit)))
+			end
+			return nil
+		end
+
 		-- Updating the values of the Unit
 		function o:UpdateUnit()
 			-- assign Name of unit
@@ -254,6 +263,8 @@ if not metaTable1 then
 			o.guid = o:nGUID()
 			-- assign unit role
 			o.role = o:GetRole()
+			-- subgroup number
+			o.subgroup = o:getUnitGroupNumber()
 			-- Short GUID of unit for the SetupTable
 			o.guidsh = select(2, o:nGUID())
 			-- set to true if unit should be dispelled
