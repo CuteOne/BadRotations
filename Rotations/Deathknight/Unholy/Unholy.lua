@@ -692,7 +692,7 @@ if select(3,UnitClass("player")) == 6 then
         -- actions.aoe+=/breath_of_sindragosa,if=runic_power>75
         -- actions.aoe+=/run_action_list,name=bos_aoe,if=dot.breath_of_sindragosa.ticking
         -- actions.aoe+=/blood_boil,if=blood=2|(frost=2&death=2)
-        if #getEnemies("player",8) >= 5 then
+        if #getEnemies("player",8) >= getValue("Blood Boil Spam") then
           if bRunes == 2 or (fRunes == 2 and dRunes == 2) then
             if tarDist.dyn10AoE<15 then
               if castSpell("player",_BloodBoil,true,false) then
@@ -763,7 +763,7 @@ if select(3,UnitClass("player")) == 6 then
           end
         end
         -- actions.aoe+=/blood_boil
-        if #getEnemies("player",8) >= 5 then
+        if #getEnemies("player",8) >= getValue("Blood Boil Spam") then
           if tarDist.dyn10AoE<15 then
             if castSpell("player",_BloodBoil,true,false) then
               --print("BB 3 nospread")
