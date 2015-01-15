@@ -102,14 +102,18 @@ function DruidMoonkin()
 			end
 			-- actions.single_target+=/celestial_alignment,if=eclipse_energy>40
 			if eclipseEnergy < -99 then
-				if core:castCelestialAlignment() then
-					return
+				if isBoss() then
+					if core:castCelestialAlignment() then
+						return
+					end
 				end
 			end
 			-- actions.single_target+=/incarnation,if=eclipse_energy>0
 			if eclipseEnergy > 0 then
-				if core:castIncarnation() then
-					return
+				if isBoss() then
+					if core:castIncarnation() then
+						return
+					end
 				end
 			end
 			-- actions.single_target+=/sunfire,if=remains<7|buff.solar_peak.up
@@ -143,14 +147,18 @@ function DruidMoonkin()
 			-- actions+=/call_action_list,name=aoe,if=active_enemies>1
 			-- actions.aoe=celestial_alignment,if=lunar_max<8|target.time_to_die<20
 			if eclipseEnergy < -99 then
-				if core:castCelestialAlignment() then
-					return
+				if isBoss() then
+					if core:castCelestialAlignment() then
+						return
+					end
 				end
 			end
 			-- actions.aoe+=/incarnation,if=buff.celestial_alignment.up
 			if buff.celestialAlignment > 0 then
-				if core:castIncarnation() then
-					return
+				if isBoss() then
+					if core:castIncarnation() then
+						return
+					end
 				end
 			end
 			-- actions.aoe+=/sunfire,if=remains<8

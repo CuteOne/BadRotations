@@ -692,11 +692,13 @@ if select(3,UnitClass("player")) == 6 then
         -- actions.aoe+=/breath_of_sindragosa,if=runic_power>75
         -- actions.aoe+=/run_action_list,name=bos_aoe,if=dot.breath_of_sindragosa.ticking
         -- actions.aoe+=/blood_boil,if=blood=2|(frost=2&death=2)
-        if bRunes == 2 or (fRunes == 2 and dRunes == 2) then
-          if tarDist.dyn10AoE<15 then
-            if castSpell("player",_BloodBoil,true,false) then
-              --print("BB 2 nospread")
-              return
+        if #getEnemies("player",8) >= 5
+          if bRunes == 2 or (fRunes == 2 and dRunes == 2) then
+            if tarDist.dyn10AoE<15 then
+              if castSpell("player",_BloodBoil,true,false) then
+                --print("BB 2 nospread")
+                return
+              end
             end
           end
         end
@@ -761,10 +763,12 @@ if select(3,UnitClass("player")) == 6 then
           end
         end
         -- actions.aoe+=/blood_boil
-        if tarDist.dyn10AoE<15 then
-          if castSpell("player",_BloodBoil,true,false) then
-            --print("BB 3 nospread")
-            return
+        if #getEnemies("player",8) >= 5
+          if tarDist.dyn10AoE<15 then
+            if castSpell("player",_BloodBoil,true,false) then
+              --print("BB 3 nospread")
+              return
+            end
           end
         end
         -- actions.aoe+=/icy_touch
