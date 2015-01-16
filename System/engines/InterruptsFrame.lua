@@ -266,10 +266,12 @@ function im:manageCast(...)
 				end)
 
 				-- remove those that are over
-				for i = #casters,1,-1 do
-					if casters[i].castEnd < GetTime() then
-						im:debug("Removed "..casters[i].sourceName.." from casters list as its cast time expired.")
-						tremove(casters,i)
+				if #casters > 0 then
+					for i = #casters,1,-1 do
+						if casters[i].castEnd < GetTime() then
+							im:debug("Removed "..casters[i].sourceName.." from casters list as its cast time expired.")
+							tremove(casters,i)
+						end
 					end
 				end
 

@@ -356,6 +356,20 @@ function ConstructUI()
                         name = "Crowd Control",
                         tip = "Check to use crowd controls on select units/buffs."
                     },
+                    [12] = {
+                        checkbase = true,
+                        check = true,
+                        name = "Enrages Handler",
+                        tip = "Check this to allow Enrages Handler.",
+                        --dropbase = 4,
+                        --dropdown = "Choose who you want to tranquilize.",
+                        --dropOptions = {
+                        --    [1] = colorRed.."Target",
+                        --    [2] = colorBlue.."T/M",
+                        --    [3] = colorGold.."T/M/F",
+                        --    [4] = colorGreen.."All"
+                        --},
+                    }
                     --[[[11] = {
                         checkbase = false,
                         check = true,

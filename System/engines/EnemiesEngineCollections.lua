@@ -152,8 +152,8 @@ dangerousUnits  = {
  }
 
 dispellOffensiveBuffs = {
+    --[164257] = "Enrage", -- ogres gorgrond
     -- Auchindon
-    [144404] = "Enrage", -- pg test
     [160312] = "Magic",-- Void Shell
     -- UBRS
     [153909] = "Enrage",-- Frenzy
@@ -177,11 +177,11 @@ dispellOffensiveBuffs = {
     [78943] = "Enrage",[80084] = "Enrage",[80467] = "Enrage",[86736] = "Enrage",[102134] = "Enrage",
 	[102989] = "Enrage",[106925] = "Enrage",[108169] = "Enrage",[109889] = "Enrage",[111220] = "Enrage",
     [115430] = "Enrage",[117837] = "Enrage",[119629] = "Enrage",[123936] = "Enrage",[124019] = "Enrage",
-	[124309] = "Enrage",[126370] = "Enrage",[127823] = "Enrage",[127955] = "Enrage",
-    [128231] = "Enrage",[129016] = "Enrage",[129874] = "Enrage",[130196] = "Enrage",
-	[130202] = "Enrage",[131150] = "Enrage",[135524] = "Enrage",[135548] = "Enrage",[142760] = "Enrage",
-    [148295] = "Enrage",[151553] = "Enrage",[154017] = "Enrage",[155620] = "Enrage",
-	[164324] = "Enrage",[164835] = "Enrage",[175743] = "Enrage"
+	[124309] = "Enrage",[126370] = "Enrage",[127823] = "Enrage",[127955] = "Enrage",[128231] = "Enrage",
+    [129016] = "Enrage",[129874] = "Enrage",[130196] = "Enrage",[130202] = "Enrage",[131150] = "Enrage",
+    [135524] = "Enrage",[135548] = "Enrage",[142760] = "Enrage",[148295] = "Enrage",[151553] = "Enrage",
+    [154017] = "Enrage",[155620] = "Enrage",[164324] = "Enrage",[164835] = "Enrage",[175743] = "Enrage",
+    [144351] = "Magic" 
 }
 
 longTimeCC = {

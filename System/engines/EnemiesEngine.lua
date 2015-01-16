@@ -56,6 +56,7 @@ function makeEnemiesTable(maxDistance)
 		  			local burnValue = isBurnTarget(thisUnit) or 0
 		  			local unitName = UnitName(thisUnit)
 		  			local unitID = getUnitID(thisUnit)
+		  			local unitGUID = UnitGUID(thisUnit)
 		  			local shouldCC = isCrowdControlCandidates(thisUnit)
 	  				local unitThreat = UnitThreatSituation("player",thisUnit) or -1
 	  				local shieldValue = isShieldedTarget(thisUnit) or 0
@@ -67,12 +68,12 @@ function makeEnemiesTable(maxDistance)
   					if getOptionCheck("Don't break CCs") then
 						longTimeCC = isLongTimeCCed(thisUnit)
 					end
-		  			local shouldDispel = getOffensiveBuffs(thisUnit)
+		  			local shouldDispel = getOffensiveBuffs(thisUnit,unitGUID)
   					-- insert unit as a sub-array holding unit informations
    					tinsert(enemiesTable,
    						{
 	   						name = unitName,
-	   						guid = UnitGUID(thisUnit),
+	   						guid = unitGUID,
 	   						id = unitID,
 	   						coeficient = unitCoeficient,
 	   						cc = shouldCC,
@@ -294,12 +295,12 @@ function getEnemies(unit,Radius)
 end
 
 -- returns true if unit have an Offensive Buff that we should dispel
-function getOffensiveBuffs(unit)
+function getOffensiveBuffs(unit,guid)
 	if ObjectExists(unit) then
-		local tagrets = bb.read.enraged
-		for i = 1,#tagrets do
-			if UnitIsUnit(unit,tagrets[i].unit) then
-				print(targets[i].name)
+		local targets = bb.read.enraged
+		for i = 1,#targets do
+			if guid == targets[i].guid then
+				return targets[i].spellType
 			end
 		end
 	end

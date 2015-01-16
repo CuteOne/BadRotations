@@ -110,11 +110,13 @@ function getUnitsToHealAround(UnitID,radius,health,count)
                 local lowHealthUnitsCount = #lowHealthCandidates
                 local placedInTable = false
                 local bestPosition = 0
-                for j = lowHealthUnitsCount,1,-1 do
-                    if thisUnit.hp < lowHealthCandidates[j].hp then
-                        bestPosition = j
-                    else
-                        break
+                if lowHealthUnitsCount > 0 then
+                    for j = lowHealthUnitsCount,1,-1 do
+                        if thisUnit.hp < lowHealthCandidates[j].hp then
+                            bestPosition = j
+                        else
+                            break
+                        end
                     end
                 end
                 if bestPosition ~= 0 then
