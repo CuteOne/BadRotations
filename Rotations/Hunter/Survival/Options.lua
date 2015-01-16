@@ -94,6 +94,9 @@ if select(3, UnitClass("player")) == 3 then
 	    -- Wrapper
 	    CreateNewWrap(thisConfig,"<-Other->");
 
+	    CreateNewCheck(thisConfig,"Oralius Crystal","Check if you want to use Flask / Crystal");
+	    CreateNewText(thisConfig,"Oralius Crystal");
+
 	    CreateNewCheck(thisConfig,"Trap Launcher","Check if you want to use Trap Launcher");
 	    CreateNewText(thisConfig,"Trap Launcher");
 
@@ -115,6 +118,9 @@ if select(3, UnitClass("player")) == 3 then
 	    CreateNewBox(thisConfig, "Counter Shot", 0, 100  , 5, 35 , "|cffFFDD11What % of cast remaining to |cffFFFFFFCounter Shot.");
 	    CreateNewText(thisConfig,"Counter Shot");
 
+	    -- Tranquilizing Shot Toggle
+	    CreateNewCheck(thisConfig,"Tranquilizing Shot");
+	    CreateNewText(thisConfig,"Tranquilizing Shot");
 
 	    -- General Configs
 	    CreateGeneralsConfig();
