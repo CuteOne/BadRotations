@@ -5,6 +5,7 @@ if select(3,UnitClass("player")) == 2 then
 
             -- build core
             local retCore = {
+                profile = "Retribution",
                 -- player stats
                 buff = { },
                 cd = { },

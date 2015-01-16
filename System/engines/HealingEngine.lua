@@ -2,10 +2,11 @@
 -----------------------------------------Bubba's Healing Engine--------------------------------------]]
 if not metaTable1 then
 
-	local _MyClass = select(3,UnitClass("player"))
-
 	-- localizing the commonly used functions while inside loops
-	local getDistance, GetSpellInfo, tinsert, tremove, UnitDebuff, UnitHealth, UnitHealthMax, UnitExists, UnitGUID = getDistance, GetSpellInfo, tinsert, tremove, UnitDebuff, UnitHealth, UnitHealthMax, UnitExists, UnitGUID
+	local getDistance,tinsert,tremove,UnitGUID,UnitClass,UnitIsUnit = getDistance,tinsert,tremove,UnitGUID,UnitClass,UnitIsUnit
+	local UnitDebuff,UnitExists,UnitHealth,UnitHealthMax = UnitDebuff,UnitExists,UnitHealth,UnitHealthMax
+	local GetSpellInfo,GetTime,UnitDebuffID = GetSpellInfo,GetTime,UnitDebuffID
+
 	nNova = {} -- This is our main Table that the world will see
 	memberSetup = {} -- This is one of our MetaTables that will be the default user/contructor
 	memberSetup.cache = { } -- This is for the cache Table to check against
@@ -120,8 +121,8 @@ if not metaTable1 then
 
 		-- We are checking the HP of the person through their own function.
 		function o:CalcHP()
-			-- Place out of range players at the end of the list
- 			if not UnitInRange(o.unit) and getDistance(o.unit) > 42.98 and not UnitIsUnit("player", o.unit) then
+			-- Place out of range players at the end of the list -- replaced range to 40 as we should be using lib range
+ 			if not UnitInRange(o.unit) and getDistance(o.unit) > 40 and not UnitIsUnit("player", o.unit) then
  				return 250,250,250
  			end
 			-- Place Dead players at the end of the list
@@ -138,7 +139,7 @@ if not metaTable1 then
 			-- absorbs
 			local nAbsorbs
 			if getOptionCheck("No Absorbs") ~= true then
-				nAbsorbs = ( 25*UnitGetTotalAbsorbs(o.unit)/100 )
+				nAbsorbs = (UnitGetTotalAbsorbs(o.unit)*0.25)
 			else
 				nAbsorbs = 0
 			end
@@ -167,8 +168,8 @@ if not metaTable1 then
 				{buff = 142864,value = select(15,UnitDebuffID(o.unit,142864))}, -- Ancient Barrier (Yellow)
 				{buff = 142863,value = select(15,UnitDebuffID(o.unit,142863))}, -- Weak Ancient Barrier (Red)
 			}
-			if UnitDebuffID(o.unit, 142861) ~= nil then -- If Miasma found
-				for i = 1, #SpecificHPBuffs do -- start nomber of buff iteration
+			if UnitDebuffID(o.unit, 142861) then -- If Miasma found
+				for i = 1,#SpecificHPBuffs do -- start iteration
 					if UnitDebuffID(o.unit, SpecificHPBuffs[i].buff) ~= nil then -- if buff found
 						if SpecificHPBuffs[i].value ~= nil then
 							PercentWithIncoming = 100 + (SpecificHPBuffs[i].value/UnitHealthMax(o.unit)*100) -- we set its amount + 100 to make sure its within 50-100 range
@@ -405,7 +406,10 @@ if not metaTable1 then
 					end)
 				end
 			end
-			pulseNovaDebug()
+			if pulseNovaDebugTimer == nil or pulseNovaDebugTimer <= GetTime() then
+				pulseNovaDebugTimer = GetTime() + 0.5
+				pulseNovaDebug()
+			end
             -- update these frames to current nNova values via a pulse in nova engine
 		end
 		-- We are creating the initial Main Table

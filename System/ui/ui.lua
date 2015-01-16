@@ -1,8 +1,5 @@
 function ConstructUI()
 
-
-
-
         if configFunctions == nil then
             configFunctions = true
 
@@ -31,8 +28,6 @@ function ConstructUI()
                     return value
                 end
             end
-
-
 
             -- i will have 3 rows of 4 button, this could be extended to more if needed
             -- i will make an array that will hold the options, when we click the category button,
@@ -211,8 +206,6 @@ function ConstructUI()
                 _G[currentProfileName.."Frame"]:SetHeight(#currentProfile*27*scale+13)
             end
 
-
-
             local colorBlue = "|cff00CCFF"
             local colorGold = "|cffFFDD11"
             local colorGreen = "|cff00FF00"
@@ -226,7 +219,7 @@ function ConstructUI()
                         checkbase = false,
                         check = true,
                         name = "Debug Frame",
-                        tip = "Display Debug Frame."
+                        tip = "Display Debug Frame.",
                     },
                     [2] = {
                         checkbase = true,
@@ -235,16 +228,10 @@ function ConstructUI()
                         tip = "Dispaly Failcasts in Debug."
                     },
                     [3] = {
-                        checkbase = false,
-                        check = true,
-                        name = "Allow Failcasts",
-                        tip = "Allow Failcasts in CastSpell."
-                    },
-                    [4] = {
                         checkbase = true,
                         check = true,
                         name = "Queue Casting",
-                        tip = "Allow Queue Casting."
+                        tip = "Allow Queue Casting on some profiles."
                     },
                     [5] = {
                         checkbase = true,
@@ -294,6 +281,7 @@ function ConstructUI()
                         check = true,
                         name = "Wise Target",
                         tip = "|cffFFDD11Check if you want to use Wise Targetting, if unchecked there will be no priorisation from hp.",
+                        dropBase = 1,
                         dropdown = "Choose Units to priorise. Lowest Units or Highest Units.",
                         dropOptions = {
                             [1] = "Highest",
@@ -412,6 +400,7 @@ function ConstructUI()
                         check = true,
                         name = "Priorise Special Targets",
                         tip = "Priorise Special targets(mouseover/target/focus).",
+                        dropBase = 1,
                         dropdown = "Choose Wich Special Units to consider.",
                         dropOptions = {
                             [1] = "Special",
@@ -544,8 +533,8 @@ function ConstructUI()
 
             -- create frames
             frameCreation("options",791,147)
-            frameCreation("debug",300,150,"|cffFF001EDebug")
-            for i = 1, 5 do
+            frameCreation("debug",300,265,"|cffFF001EDebug")
+            for i = 1, 10 do
                 createRow("debug",i,"")
             end
 

@@ -6,6 +6,7 @@ if select(3, UnitClass("player")) == 11 then
 
             -- build core
             local moonCore = {
+                profile = "Moonkin",
                 -- player stats
                 buff = { },
                 castingStarsurge = 0,

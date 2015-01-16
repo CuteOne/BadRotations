@@ -4,6 +4,7 @@ if select(3,UnitClass("player")) == 2 then
 
             -- build core
             local protCore = {
+                profile = "Protection",
                 -- player stats
                 buff = { },
                 combatStarted = 0,

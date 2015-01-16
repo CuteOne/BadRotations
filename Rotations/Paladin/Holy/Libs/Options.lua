@@ -1,82 +1,17 @@
 if select(3,UnitClass("player")) == 2 then
 
-	function optionsLayOnHands()
-		-- Lay on Hands
-		CreateNewCheck(thisConfig,"Lay On Hands")
-		CreateNewBox(thisConfig,"Lay On Hands",0,100,1,12,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFLay On Hands")
-		CreateNewText(thisConfig,"Lay On Hands")
-
-		-- Lay on Hands Targets 1- me only 2- me prio 3- tank and heal 4- all
-		CreateNewCheck(thisConfig,"LoH Targets")
-		CreateNewDrop(thisConfig,"LoH Targets",1,"|cffFF0000Wich Targets\n|cffFFBB00We want to use \n|cffFFFFFFLay On Hands","|cffFF0000Me.Only","|cffFFDD11Me.Prio","|cff00FBEETank/Heal","|cff00FF00All")
-		CreateNewText(thisConfig,"LoH Targets")
-	end
-
-	function PaladinProtOptions()
-		ClearConfig()
-		thisConfig = 0
-		-- Title
-		CreateNewTitle(thisConfig,"Protection Gabbz")
-
-		-- Wrapper
-		CreateNewWrap(thisConfig,"-----  Gabbz -----")
-
-		if isKnown(_LightsHammer) then
-			-- Light's Hammer
-			CreateNewCheck(thisConfig,"Light's Hammer","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFLight's Hammer|cffFFBB00.",1)
-			CreateNewDrop(thisConfig, "Light's Hammer", 1, "CD")
-			CreateNewText(thisConfig,"Light's Hammer")
-		end
-
-		-- Word Of Glory Party
-		CreateNewCheck(thisConfig,"Word Of Glory On Self","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFWord of Glory|cffFFBB00 on self.",1)
-		CreateNewBox(thisConfig, "Word Of Glory On Self", 0, 100, 1, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to heal self with \n|cffFFFFFFWords Of Glory")
-		CreateNewText(thisConfig,"Word Of Glory On Self")
-
-		-- LoH options
-		optionsLayOnHands()
-
-		CreateNewCheck(thisConfig,"Hand Of Freedom","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHand Of Freedom|cffFFBB00.",1)
-		CreateNewDrop(thisConfig, "Hand Of Freedom", 1,"uNDER WICH conditions do we use Hand of Freedom on self.","Whitelist")
-		CreateNewText(thisConfig,"Hand Of Freedom")
-
-		-- Wrapper Interrupt
-		CreateNewWrap(thisConfig,"------ Interrupt -------")
-
-		CreateNewCheck(thisConfig,"Rebuke","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFRebuke|cffFFBB00.",1)
-		CreateNewBox(thisConfig, "Rebuke",0,100,5,35,"|cffFFBB00Over what % of cast we want to \n|cffFFFFFFRebuke.")
-		CreateNewText(thisConfig,"Rebuke")
-
-		CreateNewCheck(thisConfig,"Avengers Shield Interrupt","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFusing AS as Interrupt|cffFFBB00.",1)
-		CreateNewBox(thisConfig, "Avengers Shield Interrupt",0,100,5,35,"|cffFFBB00Over what % of cast we want to \n|cffFFFFFFAS as interrupt.")
-		CreateNewText(thisConfig,"Avengers Shield Interrupt")
-
-		CreateNewCheck(thisConfig,"Arcane Torrent Interrupt","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFusing Arcane Torrent as Interrupt|cffFFBB00.",1)
-		CreateNewBox(thisConfig, "Arcane Torrent Interrupt",0,100,5,35,"|cffFFBB00Over what % of cast we want to \n|cffFFFFFFArcane Torrent as interrupt.")
-		CreateNewText(thisConfig,"Arcane Torrent Interrupt")
-
-		CreateNewCheck(thisConfig,"Gabbz Debug","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFDebugging|cffFFBB00.",1)
-		CreateNewDrop(thisConfig, "Gabbz Debug", 1, "On")
-		CreateNewText(thisConfig,"Gabbz Debug")
-
-
-		-- General Configs
-		CreateGeneralsConfig()
-
-		WrapsManager()
-	end
-
 	function PaladinHolyOptions()
 		ClearConfig()
 		local myColor = ""
 		local redColor = ""
+		local whiteColor = "|cffFFFFFF"
 		local myClassColor = classColors[select(3,UnitClass("player"))].hex
 		local function myWrapper(Value)
-			CreateNewWrap(thisConfig,"---"..redColor.." "..Value.." "..myClassColor.."---")
+			CreateNewWrap(thisConfig,"--- "..Value.." ---")
 		end
 		thisConfig = 0
 		-- Title
-		CreateNewTitle(thisConfig,"Holy Gabbz & CodeMyLife")
+		CreateNewTitle(thisConfig,myClassColor.."Holy"..whiteColor.." Gabbz & CodeMyLife")
 
 -- Buffs
 		myWrapper("Buffs")
@@ -257,128 +192,6 @@ if select(3,UnitClass("player")) == 2 then
 		-- General Configs
 		CreateGeneralsConfig()
 
-		WrapsManager()
-	end
-
-	function PaladinRetOptions()
-
-		local myColor = "|cffC0C0C0"
-		local redColor = "|cffFF0011"
-		local whiteColor = "|cffFFFFFF"
-		local myClassColor = classColors[select(3,UnitClass("player"))].hex
-		local function generateWrapper(wrapName)
-			CreateNewWrap(thisConfig,whiteColor.."- "..redColor..wrapName..whiteColor.." -")
-		end
-
-		ClearConfig()
-
-		thisConfig = 0
-		-- Title
-		CreateNewTitle(thisConfig,"Retribution Gabbz & CML")
-
-		-- Wrapper
-		generateWrapper("Buffs")
-
-		-- Blessing
-		CreateNewCheck(thisConfig,"Blessing")
-		CreateNewDrop(thisConfig,"Blessing",1,"|cffFFFFFFWich blessing do you want to maintain on raid","|cff0374FEKings","|cffFFBC40Might","|cff00FF0DAuto")
-		CreateNewText(thisConfig,"Blessing")
-
-		-- Wrapper
-		generateWrapper("Coooldowns")
-
-		-- Avenging Wrath
-		CreateNewCheck(thisConfig,"Avenging Wrath")
-		CreateNewDrop(thisConfig,"Avenging Wrath",1,"CD")
-		CreateNewText(thisConfig,"Avenging Wrath")
-
-		if isKnown(_LightsHammer) then
-			-- Light's Hammer
-			CreateNewCheck(thisConfig,"Light's Hammer")
-			CreateNewDrop(thisConfig,"Light's Hammer",1,"CD")
-			CreateNewText(thisConfig,"Light's Hammer")
-		end
-
-		if isKnown(_HolyAvenger) then
-			-- Holy Avenger
-			CreateNewCheck(thisConfig,"Holy Avenger")
-			CreateNewDrop(thisConfig,"Holy Avenger",1,"CD")
-			CreateNewText(thisConfig,"Holy Avenger")
-		elseif isKnown(_SanctifiedWrath) then
-			-- Sanctified Wrath
-			CreateNewCheck(thisConfig,"Sanctified Wrath")
-			CreateNewDrop(thisConfig,"Sanctified Wrath",1,"CD")
-			CreateNewText(thisConfig,"Sanctified Wrath")
-		end
-
-		-- Wrapper
-		generateWrapper("Defensive")
-
-		-- Divine Protection
-		CreateNewCheck(thisConfig,"Divine Protection",1)
-		CreateNewBox(thisConfig,"Divine Protection",0,100,1,75,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFDivine Protection")
-		CreateNewText(thisConfig,"Divine Protection")
-
-		-- Divine Shield
-		CreateNewCheck(thisConfig,"Divine Shield",1)
-		CreateNewBox(thisConfig,"Divine Shield",0,100,1,10,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFDivine Shield")
-		CreateNewText(thisConfig,"Divine Shield")
-
-	   -- Wrapper
-		generateWrapper("Healing")
-
-
-
-		if isKnown(_HandOfPurity) == true then
-			CreateNewCheck(thisConfig,"Hand of Purity")
-			CreateNewBox(thisConfig,"Hand of Purity",0,100,1,50,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand of Purity")
-			CreateNewText(thisConfig,"Hand of Purity")
-		end
-		-- Hand of Sacrifice
-		CreateNewCheck(thisConfig,"Hand Of Sacrifice")
-		CreateNewBox(thisConfig,"Hand Of Sacrifice",0,100,1,35,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFHand Of Sacrifice")
-		CreateNewText(thisConfig,"Hand Of Sacrifice")
-
-		-- LoH options
-		optionsLayOnHands()
-
-		-- Tier 3 talents
-		if isKnown(_SacredShield) then
-			CreateNewCheck(thisConfig,"Sacred Shield")
-			CreateNewBox(thisConfig,"Sacred Shield",0,100,5,95,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFSacred Shield")
-			CreateNewText(thisConfig,"Sacred Shield")
-		elseif isKnown(_SelflessHealer) then
-			CreateNewCheck(thisConfig,"Selfless Healer")
-			CreateNewBox(thisConfig,"Selfless Healer",0,100,5,35,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFSelfless Healer on Raid")
-			CreateNewText(thisConfig,"Selfless Healer")
-		else
-			CreateNewCheck(thisConfig,"Self Flame")
-			CreateNewBox(thisConfig,"Self Flame",0,100,5,35,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFEternal Flame on Self")
-			CreateNewText(thisConfig,"Self Flame")
-			CreateNewCheck(thisConfig,"Eternal Flame")
-			CreateNewBox(thisConfig,"Eternal Flame",0,100,5,20,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFEternal Flame on Raid")
-			CreateNewText(thisConfig,"Eternal Flame")
-		end
-
-		if isKnown(_SelflessHealer) or isKnown(_SacredShield) then
-			CreateNewCheck(thisConfig,"Self Glory")
-			CreateNewBox(thisConfig,"Self Glory",0,100,5,70,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFWord Of Glory on Self")
-			CreateNewText(thisConfig,"Self Glory")
-			CreateNewCheck(thisConfig,"Word Of Glory")
-			CreateNewBox(thisConfig,"Word Of Glory",0,100,5,70,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFWord Of Glory on Raid")
-			CreateNewText(thisConfig,"Word Of Glory")
-		end
-
-		-- Wrapper
-		generateWrapper("Utilities")
-
-		-- Rebuke
-		CreateNewCheck(thisConfig,"Rebuke",1,redColor.."Check" ..whiteColor.."to use "..redColor.."Rebuke"..whiteColor..".")
-		CreateNewBox(thisConfig,"Rebuke",0,100,5,35,redColor.."Over what % of cast"..whiteColor.." we want to use "..redColor.."Rebuke"..whiteColor..".")
-		CreateNewText(thisConfig,redColor.."Rebuke")
-
-		-- General Configs
-		CreateGeneralsConfig()
 		WrapsManager()
 	end
 end

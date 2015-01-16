@@ -43,17 +43,14 @@ local function spellCastListener(self,category,...)
 			return im:removeCaster(sourceGUID," has been interrupted.1")
 		end
 	-- if event is player regen enabled
-	else
-		im:debug("Wiping casters table as we left combat.")
-		return table.wipe(im.casters)
 	end
 end
 -- pulse frame on event
 im:SetScript("OnEvent",spellCastListener)
 
 -- function to compare spells to casting units
-function castInterrupt(spell,percent)
-	return im.castInterrupt(spell,percent)
+function castInterrupt(spell,percent,keepInfo)
+	return im.castInterrupt(spell,percent,keepInfo)
 end
 
 -- local that will be used inside function environment
@@ -134,7 +131,7 @@ function castAoEInterrupt(spell,targets,radius)
 end
 
 -- function to compare spells to casting units
-function castInterrupt(spell,percent)
+function castInterrupt(spell,percent,keepInfo)
 	-- first make sure we will be able to cast the spell
 	if canCast(spell,false,false) == true then
 
@@ -167,6 +164,11 @@ function castInterrupt(spell,percent)
 						  and getDistance("player",thisCaster.unit) < allowedDistance then
 							if castSpell(thisCaster.unit,spell,false,false) then
 								im:debug("Cast Interrupt "..thisCaster.unit.." with "..spell.." at "..castPercent,true)
+								-- if developer need to keep this spell/unit combo
+								--if keepInfo == true then
+									simulacrumSpell = spell
+									print(simulacrumSpell)
+								--end
 								-- prevent intrupt on this target again by removing it
 								tremove(casters,i)
 								return true

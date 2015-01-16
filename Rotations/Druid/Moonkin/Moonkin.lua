@@ -1,7 +1,9 @@
 if select(3, UnitClass("player")) == 11 then
 function DruidMoonkin()
 	if currentConfig ~= "Moonkin CodeMyLife" then
-		MoonkinFunctions()
+		if not (core and core.profile == "Moonkin") then
+			MoonkinFunctions()
+		end
 		MoonkinConfig()
 		MoonkinToggles()
 		currentConfig = "Moonkin CodeMyLife"

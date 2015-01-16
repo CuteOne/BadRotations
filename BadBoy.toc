@@ -13,10 +13,13 @@ System\Core.lua
 System\GeneralFunctions.lua
 System\Config.lua
 System\DebugFrame.lua
-System\Reader.lua
 System\UI.lua
 System\UsefulFeatures.lua
 System\LootManager.lua
+
+## Readers
+System\readers\combatlog.lua
+System\readers\common.lua
 
 ## Engines
 System\engines\EnemiesEngine.lua

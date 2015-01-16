@@ -22,8 +22,10 @@ function bb:Run()
 	end
 
 	--[[Init the readers codes (System/Reader.lua)]]
-
-	ReaderRun()
+	-- combat log
+	bb.read.combatLog()
+	-- other readers
+	bb.read.commonReaders()
 	-- Globals
 	classColors = {
 		[1]				= {class = "Warrior", 	B=0.43,	G=0.61,	R=0.78,	hex="|cffc79c6e"},

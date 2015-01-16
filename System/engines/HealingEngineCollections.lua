@@ -40,10 +40,10 @@ novaEngineTables.SpecialHealUnitList = {
     [6464] = "Boss#3 SoO"
 };
 
--- these are the debuffs that we want to use to set specific health to a unit wearing it
--- set dot that need to be healed to max(needs to be topped) to very low values so that engine
+-- set dot that need to be healed to max(needs to be topped) to very low values so that engine will priorise them
+-- the value used here will be substract from current health, we could use negative values to add back health instead
+-- these are checked debuff on allies ie nNova[i].unit wear 145263 and its hp is 70, engine will use 50 instead
 novaEngineTables.SpecificHPDebuffs = {
-    -- needs to be topped
     { debuff = 145263 , value = 20 }, -- Proving Grounds Healer Debuff.
 }
 
@@ -61,3 +61,5 @@ novaEngineTables.SavedSpecialTargets = {
     ["mouseover"] = nil,
     ["focus"] = nil
 }
+
+-- ToDo: we need a powerful DoT handler to handle stuff such as hand of purity/heal over time

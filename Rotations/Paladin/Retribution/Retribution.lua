@@ -3,7 +3,10 @@ if select(3, UnitClass("player")) == 2 then
 	if currentConfig ~= "Retribution Paladin" then --Where is currentConfig set? Is this only used for init?
 		PaladinRetToggles() -- Setting up Toggles, AoE, Interrupt, Defensive CD, CD, Healing
 		PaladinRetOptions() -- Reading Config values from gui?
-		PaladinRetFunctions()
+		if not (core and core.profile == "Retribution") then
+			PaladinRetFunctions()
+		end
+		
 		core:ooc()
 		core:update()
 		currentConfig = "Retribution Paladin"

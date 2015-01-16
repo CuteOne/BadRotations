@@ -13,9 +13,10 @@ function createRow(parent,value,textString)
     _G[parent..value.."Frame"]:SetAlpha(BadBoy_data.BadBoyUI.alpha)
     _G[parent..value.."Frame"]:SetScript("OnEnter", function(self)
         local MyValue = value
-        if _G[parent.."Table"] ~= nil and _G[parent.."Table"][value] ~= nil then
+        local tooltip = _G[parent..value.."Text"]:GetText()
+        if tooltip then
             GameTooltip:SetOwner(self, "BOTTOMLEFT", 250, 5)
-            GameTooltip:SetText(_G[parent.."Table"][value].toolTip, nil, nil, nil, nil, false)
+            GameTooltip:SetText(tooltip, nil, nil, nil, nil, false)
             GameTooltip:Show()
         end
     end)
@@ -28,21 +29,17 @@ function createRow(parent,value,textString)
     _G[parent..value.."Text"]:SetFont(BadBoy_data.BadBoyUI.font,BadBoy_data.BadBoyUI.fontsize+1*scale,"THICKOUTLINE")
 end
 
--- /run badboyFrameRefresh("debug")
-function badboyFrameRefresh(name)
-    for i = 1, 5 do
-        local debugItem
-        if _G[name.."Table"][i] ~= nil then
-            debugItem = _G[name.."Table"][i].textString or ""
-        end
-        _G[name..i.."Text"]:SetText(debugItem, 1, 1, 1, 0.7)
-    end
-end
-
-function badboyDebugShown()
-    if BadBoy_data.options[GetSpecialization()]["Debug Frame"] == 1 then
-        _G["debugFrame"]:Show()
-    else
-        _G["debugFrame"]:Hide()
+function bb.read:display(...)
+    if getOptionCheck("Debug Frame") then
+        _G["debug10Text"]:SetText(_G["debug9Text"]:GetText(), 1, 1, 1, 0.7)
+        _G["debug9Text"]:SetText(_G["debug8Text"]:GetText(), 1, 1, 1, 0.7)
+        _G["debug8Text"]:SetText(_G["debug7Text"]:GetText(), 1, 1, 1, 0.7)
+        _G["debug7Text"]:SetText(_G["debug6Text"]:GetText(), 1, 1, 1, 0.7)
+        _G["debug6Text"]:SetText(_G["debug5Text"]:GetText(), 1, 1, 1, 0.7)
+        _G["debug5Text"]:SetText(_G["debug4Text"]:GetText(), 1, 1, 1, 0.7)
+        _G["debug4Text"]:SetText(_G["debug3Text"]:GetText(), 1, 1, 1, 0.7)
+        _G["debug3Text"]:SetText(_G["debug2Text"]:GetText(), 1, 1, 1, 0.7)
+        _G["debug2Text"]:SetText(_G["debug1Text"]:GetText(), 1, 1, 1, 0.7)
+        _G["debug1Text"]:SetText(..., 1, 1, 1, 0.7)
     end
 end

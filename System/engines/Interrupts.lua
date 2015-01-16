@@ -97,3 +97,5 @@ function canContinue()
 		end
 	end
 end
+
+

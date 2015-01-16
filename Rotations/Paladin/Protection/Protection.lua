@@ -4,7 +4,9 @@ if select(3, UnitClass("player")) == 2 then
 		if currentConfig ~= "Protection Gabbz & CML" then
 			PaladinProtToggles()
 			PaladinProtOptions()
-			PaladinProtFunctions()
+			if not (core and core.profile == "Protection") then
+				PaladinProtFunctions()
+			end
 			core:ooc()
 			core:update()
 			currentConfig = "Protection Gabbz & CML"

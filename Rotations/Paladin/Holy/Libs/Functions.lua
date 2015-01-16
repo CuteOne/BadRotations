@@ -1,6 +1,7 @@
 if select(3,UnitClass("player")) == 2 then
 	function PaladinHolyFunctions()
 		-- Eternal Flame
+		-- ToDo: we need a better handling over eternal flame
 		function castEternalFlame(hpValue)
 			if (eternalFlameTimer == nil or eternalFlameTimer <= GetTime() - 1.3) then
 				eternalFlameTimer = GetTime()
