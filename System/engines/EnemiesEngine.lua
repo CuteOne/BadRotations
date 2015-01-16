@@ -296,9 +296,10 @@ end
 -- returns true if unit have an Offensive Buff that we should dispel
 function getOffensiveBuffs(unit)
 	if ObjectExists(unit) then
-		for i = 1,#dispellOffensiveBuffs do
-			if UnitBuffID(unit,dispellOffensiveBuffs[i]) then
-				return true
+		local tagrets = bb.read.enraged
+		for i = 1,#tagrets do
+			if UnitIsUnit(unit,tagrets[i].unit) then
+				print(targets[i].name)
 			end
 		end
 	end

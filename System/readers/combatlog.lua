@@ -5,8 +5,38 @@ bb.guid = UnitGUID("player")
 bb.read = { }
 bb.read.combatLog = { }
 bb.read.debugTable = { }
+bb.read.enraged = { }
 
 local cl = bb.read
+
+-- will update the bb.read.enraged list
+function bb.read.enrageReader(...)
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, 
+            destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
+    -- here we will take all spell aura and check if we hold this aura in our enrage table
+    -- if we find a match, we set the unit to whitelist with time remaining on the buff
+    if param == "SPELL_AURA_APPLIED" and unit ~= nil and UnitCanAttack(unit,"player") then
+        print(...)
+        print(dispellOffensiveBuffs[spell])
+        if dispellOffensiveBuffs[spell] then
+            -- find unit in engine, if its not there, dont add it.
+            for i = 1,#enemiesTable do
+                local thisUnit = enemiesTable[i].unit
+                if thisUnit.guid == destination and ObjectExists(thisUnit) then
+                    print(targets[i].name)
+                    tinsert(bb.read.enraged, destination, {unit = thisUnit,spellType = dispellOffensiveBuffs[spell]})
+                    break
+                end
+            end
+        end
+    end 
+    if param == "SPELL_AURA_REMOVED" then
+        if bb.read.enraged[destination] then
+            tremove(bb.read.enraged, destination)
+        end
+    end
+    -- once a buff fades or is dispelled, we want to remove it from whitelist if its there
+end
 
 function bb.read.combatLog()
 ---------------------------
@@ -53,9 +83,10 @@ frame:SetScript("OnEvent", reader)
 
 -- class functions(Alphabetically)
 function cl:common(...)
-
+    bb.read.enrageReader(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, 
             destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
+
     ----------------
     --[[Item locks]]
     if source == bb.guid then
@@ -64,7 +95,6 @@ function cl:common(...)
 			[2] = {Buff = 105697, Item = 76089}, -- Agi
 			[3] = {Buff = 105706, Item = 76095}, -- Str
 		}
-
 		-- Synapse Springs
 		if spell == 126734 then
 			synapseUsed = GetTime()
