@@ -57,9 +57,9 @@ novaEngineTables.SpecificHPDebuffs = {
     { debuff = 163374 , value = 20 }, -- http://www.wowhead.com/spell=163374/arcane-volatility
     { debuff = 157763 , value = 20 }, -- http://www.wowhead.com/spell=157763/fixate
     --Brackenspore
-    { debuff = 163241 , value = 40 , stacks = 4 }, --http://www.wowhead.com/spell=163241/rot
-    { debuff = 163241 , value = 30 , stacks = 3 }, --http://www.wowhead.com/spell=163241/rot
-    { debuff = 163241 , value = 20 , stacks = 2 }, --http://www.wowhead.com/spell=163241/rot
+  --  { debuff = 163241 , value = 40 , stacks = 4 }, --http://www.wowhead.com/spell=163241/rot
+  --  { debuff = 163241 , value = 30 , stacks = 3 }, --http://www.wowhead.com/spell=163241/rot
+ --   { debuff = 163241 , value = 20 , stacks = 2 }, --http://www.wowhead.com/spell=163241/rot
     { debuff = 163241 , value = 10 , stacks = 1 }, --http://www.wowhead.com/spell=163241/rot
     { debuff = 145263 , value = 20 }, -- Proving Grounds Healer Debuff.
 }
