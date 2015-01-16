@@ -38,7 +38,7 @@ function CalculateHP(unit)
         end
     end
 
-function useAoE()
+function useAoEArms()
         if (BadBoy_data['AoE'] == 1 and #getEnemies("player",8) >= 2) or BadBoy_data['AoE'] == 2 then
         -- if BadBoy_data['AoE'] == 1 or BadBoy_data['AoE'] == 2 then
             return true
@@ -47,7 +47,7 @@ function useAoE()
         end
     end
 
-    function useCDs()
+    function useCDsArms()
         if (BadBoy_data['Cooldowns'] == 1 and isBoss()) or BadBoy_data['Cooldowns'] == 2 then
             return true
         else
@@ -55,7 +55,7 @@ function useAoE()
         end
     end
 
-    function useDefensive()
+    function useDefensiveArms()
         if BadBoy_data['Defensive'] == 1 then
             return true
         else
@@ -63,7 +63,7 @@ function useAoE()
         end
     end
 
-    function useInterrupts()
+    function useInterruptsArms()
         if BadBoy_data['Interrupts'] == 1 then
             return true
         else

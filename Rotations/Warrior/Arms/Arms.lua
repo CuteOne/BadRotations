@@ -193,7 +193,7 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 	-- Defensive Cooldowns -------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-			if useDefCDs() == true then
+			if useDefensiveArms() == true then
 				-- Die by the Sword
 				if isChecked("Die by the Sword") == true then
 					if getHP("player") <= getValue("Die by the Sword") then
@@ -250,7 +250,7 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 	-- Offensive Cooldowns -------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-			if useCDs() == true then
+			if useCDsArms() == true then
 				-- actions+=/potion,name=draenic_strength,if=(target.health.pct<20&buff.recklessness.up)|target.time_to_die<25
 				if (thp < 20 and reckup) or ttd < 25 then
 					if canUse(109219) then -- WoD Potion
@@ -319,7 +319,7 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 	-- Main Rotaion --------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-			if not useAoE() then
+			if not useAoEArms() then
 				ChatOverlay("Single", 0)
 				-- actions.single=rend,if=!ticking&target.time_to_die>4
 				-- if isChecked("Multi-Rend") and canCast(Rend) then
@@ -456,7 +456,7 @@ if select(3,UnitClass("player")) == 1 then
 				-- actions.single+=/shockwave
 			end -- Single Target end
 	------------------------------------------------------------------------------------------------------
-			if useAoE() then
+			if useAoEArms() then
 				ChatOverlay("AoE", 0)
 				-- actions.aoe=sweeping_strikes
 				if castSpell("player",_SweepingStrikes,true) then
