@@ -12,7 +12,9 @@ novaEngineTables.DispelID = {
     { id = 142913, stacks = 0, range = 10}, -- Malkorok(Displaced Energy)
     { id = 115181, stacks = 0 }, -- Spoils of Pandaria(Breath of Fire)
     { id = 143791, stacks = 0 }, -- Thok(Corrosive Blood)
-    { id = 145206, stacks = 0 } -- Aqua Bomb(Proving Grounds)
+    { id = 145206, stacks = 0 }, -- Aqua Bomb(Proving Grounds)
+    -- Ko'ragh
+    { id = 142913, stacks = 0, range = 5}, -- http://www.wowhead.com/spell=162185/expel-magic-fire
 }
 
 -- This is where we house the Debuffs that are bad for our users, and should not be healed when they have it
@@ -44,6 +46,11 @@ novaEngineTables.SpecialHealUnitList = {
 -- the value used here will be substract from current health, we could use negative values to add back health instead
 -- these are checked debuff on allies ie nNova[i].unit wear 145263 and its hp is 70, engine will use 50 instead
 novaEngineTables.SpecificHPDebuffs = {
+    { debuff = 159386 , value = 20 }, -- http://www.wowhead.com/spell=159386/iron-bomb
+    { debuff = 158241 , value = 20 }, -- http://www.wowhead.com/spell=158241/blaze
+    { debuff = 155569 , value = 20 }, -- http://www.wowhead.com/spell=155569/injured
+    { debuff = 163374 , value = 20 }, -- http://www.wowhead.com/spell=163374/arcane-volatility
+    { debuff = 157763 , value = 20 }, -- http://www.wowhead.com/spell=157763/fixate
     { debuff = 145263 , value = 20 }, -- Proving Grounds Healer Debuff.
 }
 
@@ -67,13 +74,15 @@ novaEngineTables.SavedSpecialTargets = {
 novaEngineTables.BadlyDeBuffed = {
 --High Maul
 --Kargath
-     159386,    --http://www.wowhead.com/spell=159386/iron-bomb
+    159386,    --http://www.wowhead.com/spell=159386/iron-bomb
 --Twin Ogron
-     158241,    --http://www.wowhead.com/spell=158241/blaze
-     155569,    --http://www.wowhead.com/spell=155569/injured
-     163374,    --http://www.wowhead.com/spell=163374/arcane-volatility
+    158241,    --http://www.wowhead.com/spell=158241/blaze
+    155569,    --http://www.wowhead.com/spell=155569/injured
+    163374,    --http://www.wowhead.com/spell=163374/arcane-volatility
+-- Ko'ragh
+    161442,     --http://www.wowhead.com/spell=161242/caustic-energy
 --Imperator Margok
-     157763,    --http://www.wowhead.com/spell=157763/fixate
---    { id = 142913, stacks = 0, range = 0}, -- Malkorok(Displaced Energy)
+    157763,    --http://www.wowhead.com/spell=157763/fixate
+--    { id = 142913, stacks = 0, range = 0}, -- Placeholder
 
 }
