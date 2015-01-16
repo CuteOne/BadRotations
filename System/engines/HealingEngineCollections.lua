@@ -31,7 +31,10 @@ novaEngineTables.BadDebuffList= {
     145832, -- Empowered Touch of Y'Shaarj (mind control garrosh)
     145171, -- Empowered Touch of Y'Shaarj (mind control garrosh)
     145065, -- Empowered Touch of Y'Shaarj (mind control garrosh)
-    145071 -- Empowered Touch of Y'Shaarj (mind control garrosh)
+    145071, -- Empowered Touch of Y'Shaarj (mind control garrosh)
+    --Brackenspore
+    159220, -- http://www.wowhead.com/spell=159220
+
 }
 
 -- list of special units we want to heal, these npc will go directly into healing engine(Special Heal must be checked)
@@ -46,11 +49,18 @@ novaEngineTables.SpecialHealUnitList = {
 -- the value used here will be substract from current health, we could use negative values to add back health instead
 -- these are checked debuff on allies ie nNova[i].unit wear 145263 and its hp is 70, engine will use 50 instead
 novaEngineTables.SpecificHPDebuffs = {
+    --{ debuff = 123456, value = 20, stacks = 1 }, -- Exemple.
+    --{ debuff = 123456, value = -100, stacks = 3 }, -- Exemple
     { debuff = 159386 , value = 20 }, -- http://www.wowhead.com/spell=159386/iron-bomb
     { debuff = 158241 , value = 20 }, -- http://www.wowhead.com/spell=158241/blaze
     { debuff = 155569 , value = 20 }, -- http://www.wowhead.com/spell=155569/injured
     { debuff = 163374 , value = 20 }, -- http://www.wowhead.com/spell=163374/arcane-volatility
     { debuff = 157763 , value = 20 }, -- http://www.wowhead.com/spell=157763/fixate
+    --Brackenspore
+    { debuff = 163241 , value = 40 stacks = 4 }, --http://www.wowhead.com/spell=163241/rot
+    { debuff = 163241 , value = 30 stacks = 3 }, --http://www.wowhead.com/spell=163241/rot
+    { debuff = 163241 , value = 20 stacks = 2 }, --http://www.wowhead.com/spell=163241/rot
+    { debuff = 163241 , value = 10 stacks = 1 }, --http://www.wowhead.com/spell=163241/rot
     { debuff = 145263 , value = 20 }, -- Proving Grounds Healer Debuff.
 }
 
