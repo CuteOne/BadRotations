@@ -148,14 +148,6 @@ function getLowHealthCoeficient(lowHealthCandidates)
     return tableCoef
 end
 
-
-
-
-
-
-
-
-
 -- old design with so many objectmanager queries it was wrong.
 -- if getAllies("player",40) > 5 then
 function getAllies(Unit,Radius)
@@ -181,4 +173,20 @@ function getAlliesInLocation(myX,myY,myZ,Radius)
         end
     end
     return alliesTable
+end
+
+--We check if unit has a badly debuff thats need a personal CD to survive or reduce damage
+--Todo check for more details for example how much damage are we going to take and whats the best spell to use.
+--For example we can check if we are going to die or not.
+function isBadlyDeBuffed(Unit)
+    if Unit == nil then
+        return false
+    end
+    
+    for i=1,#novaEngineTables.BadlyDeBuffed do
+        if UnitDebuffID(Unit,novaEngineTables.BadlyDeBuffed[i])~=nil then
+            return true
+        end
+    end
+    return false
 end

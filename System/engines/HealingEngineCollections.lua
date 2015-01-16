@@ -63,3 +63,17 @@ novaEngineTables.SavedSpecialTargets = {
 }
 
 -- ToDo: we need a powerful DoT handler to handle stuff such as hand of purity/heal over time
+
+novaEngineTables.BadlyDeBuffed = {
+--High Maul
+--Kargath
+     159386,    --http://www.wowhead.com/spell=159386/iron-bomb
+--Twin Ogron
+     158241,    --http://www.wowhead.com/spell=158241/blaze
+     155569,    --http://www.wowhead.com/spell=155569/injured
+     163374,    --http://www.wowhead.com/spell=163374/arcane-volatility
+--Imperator Margok
+     157763,    --http://www.wowhead.com/spell=157763/fixate
+--    { id = 142913, stacks = 0, range = 0}, -- Malkorok(Displaced Energy)
+
+}
