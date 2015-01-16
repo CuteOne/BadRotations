@@ -10,6 +10,7 @@ _BloodCharge = 114851;
 _BloodPlague = 55078;
 _BloodTap = 45529;
 _BreathOfSindragosa = 152279;
+_BreathOfSindragosaAura = 155166;
 _DarkTransformation = 63560;
 _DeathAdvance = 96268;
 _DeathAndDecay = 43265;

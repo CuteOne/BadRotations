@@ -24,6 +24,11 @@ CreateNewCheck(thisConfig,"Heroic Leap Key");
 CreateNewDrop(thisConfig,"Heroic Leap Key", 2, "Toggle2")
 CreateNewText(thisConfig,"Heroic Leap Key");
 
+-- Ravager
+CreateNewCheck(thisConfig,"Ravager Key");
+CreateNewDrop(thisConfig,"Ravager Key", 2, "Toggle2")
+CreateNewText(thisConfig,"Ravager Key");
+
 -- Wrapper
 CreateNewWrap(thisConfig,"---------- Buffs ---------");
 
@@ -112,17 +117,9 @@ end
 -- Wrapper
 CreateNewWrap(thisConfig,"---------- Misc -----------");
 
--- Rotation
-CreateNewDrop(thisConfig, "Rotation Priority", 1, "Choose Rotation to use.", "|cffFFBB00IcyVeins", "|cff0077FFSimCraft");
-CreateNewText(thisConfig, "Rotation Priority");
-
 -- Auto Bladestorm / DragonRoar Single Target
-CreateNewCheck(thisConfig,"Dragonroar ST","Dragonroar automatically in Single Target Rotation");
-CreateNewText(thisConfig,"Dragonroar ST")
-
--- Auto Bladestorm / DragonRoar Multi Target
-CreateNewCheck(thisConfig,"Bladestorm/Dragonroar","Use Bladestorm/Dragonroar automatically in Multi Target Rotation");
-CreateNewText(thisConfig,"Bladestorm/Dragonroar")
+CreateNewCheck(thisConfig,"Single BS/DR/RV");
+CreateNewText(thisConfig,"Single BS/DR/RV")
 
 -- Dummy DPS Test
 CreateNewCheck(thisConfig,"DPS Testing");

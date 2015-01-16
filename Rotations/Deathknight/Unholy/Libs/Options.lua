@@ -55,6 +55,10 @@ if select(3,UnitClass("player")) == 6 then
       CreateNewCheck(thisConfig,"Summon Gargoyle");
       CreateNewText(thisConfig,"Summon Gargoyle");
 
+      -- Breath of Sindragosa
+      CreateNewCheck(thisConfig,"Breath of Sindragosa");
+      CreateNewText(thisConfig,"Breath of Sindragosa");
+
       -- -- Dark Transformation
       -- CreateNewCheck(thisConfig,"Dark Transformation");
       -- CreateNewText(thisConfig,"Dark Transformation");

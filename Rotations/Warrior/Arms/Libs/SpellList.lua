@@ -1,107 +1,70 @@
 if select(3, UnitClass("player")) == 1 then
-
-	--Prot--
-	DemoralizingShout	= 1160;
-	Devastate			= 20243;
-	LastStand			= 12975;
-	ShieldSlam			= 23922;
-	Revenge				= 6572;
-	ShieldBarrier		= 112048;
-	ShieldBlock			= 2565;
-	HeroicStrike		= 78;
-	ShieldCharge = 156321;
-	ShieldChargeBuff = 169667;
-
-	--Arms--
-	MortalStrike		= 12294;
-	SweepingStrikes		= 12328;
-	Slam				= 1464;
-	Rend       			= 772;
-	ExecuteArms   		= 163201;
-	ColossusSmash	    = 167105;
-
-	--Fury--
-	Bloodthirst 		= 23881;
-	RagingBlow			= 85288;
-	WildStrike 			= 100130;
-
-	--Shared--
-	Charge 				= 100;
-	HeroicThrow			= 57755;
-	Execute				= 5308;
-	HeroicLeap			= 6544;
-	Recklessness		= 1719;
-	ShatteringThrow		= 64382;
-	ThunderClap			= 6343;
-	VictoryRush			= 34428;
-	Whirlwind			= 1680;
-	ShieldBarrierDPS    = 174926;
-
-	--Utility--
-	DemoralizingBanner	= 114203;
-	DiebytheSword		= 118038;
-	Intervene			= 3411;
-	Hamstring			= 1715;
-	IntimidatingShout 	= 5246;
-	MockingBanner		= 114192;
-	Pummel				= 6552;
-	RallyingCry			= 97462;
-	SunderArmor			= 7386;
-	Taunt				= 355;
-	ShieldWall			= 871;
-	SpellReflection		= 23920;
-
-	--Buffs--
-	BattleShout 		= 6673;
-	BerserkerRage 		= 18499;
-	CommandingShout 	= 469;
-	ShieldBarrierBuff	= 112048;
-	ShieldBlockBuff		= 132404;
-
-	--Debuffs--
-	DeepWounds			= 115767;
-	WeakenedBlows		= 115798;
-
-	--Stance--
-	BattleStance 		= 2457;
-	DefensiveStance 	= 71;
-	GladiatorStance = 156291;
-
-	--Talents--
-	EnragedRegeneration	= 55694;
-	ImpendingVictory 	= 103840;
-	Bladestorm			= 46924;
-	Shockwave			= 46968;
-	DragonRoar 			= 118000;
-	MassSpellReflection	= 114028;
-	Safeguard			= 114029;
-	Vigilance			= 114030;
-	Avatar				= 107574;
-	Bloodbath			= 12292;
-	StormBolt			= 107570;
-	Ravager       		= 152277;
-	Siegebreaker 		= 176289;
-	SuddenDeathTalent 	= 29725;
-	UnquenchableThirst	= 169683;
-	UnyieldingStrikesTalent = 169685;
-	UnyieldingStrikesAura = 169686;
-
-	--Procs--
-	Enrage				= 12880;
-	Incite				= 122016;
-	MeatCleaver			= 85739;
-	RagingBlowProc		= 131116;
-	Ultimatum			= 122510;
-	Bloodsurge			= 46916;
-	SuddenDeathProc		= 52437;
-
-	--Trinkets--
-	Determination		= 146250;
-	Outrage				= 146245;
-
-	--Racials--
-	QuakingPalm			= 107079;
-
-	--Glyphs--
-
+	local playerSpec = GetSpecialization()
+	if playerSpec == 1 then
+		_Avatar                  = 107574;
+		_BattleShout             = 6673;
+		_BattleStance            = 2457;
+		_BerserkerRage           = 18499;
+		_Bladestorm              = 46924;
+		_Bloodbath               = 12292;
+		_Bloodsurge              = 46916;
+		_Charge                  = 100;
+		_ColossusSmash           = 167105;
+		_CommandingShout         = 469;
+		_DeepWounds              = 115767;
+		_DefensiveStance         = 71;
+		_DemoralizingBanner      = 114203;
+		_Determination           = 146250;
+		_DiebytheSword           = 118038;
+		_DragonRoar              = 118000;
+		_Enrage                  = 12880;
+		_EnragedRegeneration     = 55694;
+		_Execute                 = 5308;
+		_ExecuteArms             = 163201;
+		_GladiatorStance         = 156291;
+		_Hamstring               = 1715;
+		_HeroicLeap              = 6544;
+		_HeroicThrow             = 57755;
+		_ImpendingVictory        = 103840;
+		_Incite                  = 122016;
+		_Intervene               = 3411;
+		_IntimidatingShout       = 5246;
+		_MassSpellReflection     = 114028;
+		_MeatCleaver             = 85739;
+		_MockingBanner           = 114192;
+		_MortalStrike            = 12294;
+		_Outrage                 = 146245;
+		_Pummel                  = 6552;
+		_QuakingPalm             = 107079;
+		_RagingBlowProc          = 131116;
+		_RallyingCry             = 97462;
+		_Ravager                 = 152277;
+		_Recklessness            = 1719;
+		_Rend                    = 772;
+		_Safeguard               = 114029;
+		_ShatteringThrow         = 64382;
+		_ShieldBarrierBuff       = 112048;
+		_ShieldBarrierDPS        = 174926;
+		_ShieldBlockBuff         = 132404;
+		_ShieldWall              = 871;
+		_Shockwave               = 46968;
+		_Siegebreaker            = 176289;
+		_Slam                    = 1464;
+		_SpellReflection         = 23920;
+		_StormBolt               = 107570;
+		_SuddenDeathProc         = 52437;
+		_SuddenDeathTalent       = 29725;
+		_SunderArmor             = 7386;
+		_SweepingStrikes         = 12328;
+		_Taunt                   = 355;
+		_ThunderClap             = 6343;
+		_Ultimatum               = 122510;
+		_UnquenchableThirst      = 169683;
+		_UnyieldingStrikesAura   = 169686;
+		_UnyieldingStrikesTalent = 169685;
+		_VictoryRush             = 34428;
+		_Vigilance               = 114030;
+		_WeakenedBlows           = 115798;
+		_Whirlwind               = 1680;
+	end
 end

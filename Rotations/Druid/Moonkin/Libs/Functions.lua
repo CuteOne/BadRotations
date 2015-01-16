@@ -59,6 +59,7 @@ if select(3, UnitClass("player")) == 11 then
             local GetEclipseDirection,getDebuffRemain,SPELL_POWER_ECLIPSE = GetEclipseDirection,getDebuffRemain,SPELL_POWER_ECLIPSE
             local GetSpellInfo,UnitCastingInfo,GetTime,floor = GetSpellInfo,UnitCastingInfo,GetTime,math.floor
             local nNova,useItem = nNova,useItem
+            local isBoss = isBoss
 
             -- no external access after here
             setfenv(1,moonCore)
@@ -122,7 +123,9 @@ if select(3, UnitClass("player")) == 11 then
 
             -- Celestial Alignment
             function moonCore:castCelestialAlignment()
-                return (castSpell(player,spell.celestialAlignment,true,false) == true and debug("Celestial Alignment")) or false
+                if isBoss(units.dyn40) then
+                    return (castSpell(player,spell.celestialAlignment,true,false) == true and debug("Celestial Alignment")) or false
+                end
             end
 
             -- Fillers
@@ -163,7 +166,8 @@ if select(3, UnitClass("player")) == 11 then
             -- Incarnation
             function moonCore:castIncarnation()
                 if isSelected("Incarnation") then
-                    if (isDummy(units.dyn40) or (UnitHealth(units.dyn40) >= 400*UnitHealthMax(player)/100)) then
+                    -- if (isDummy(units.dyn40) or (UnitHealth(units.dyn40) >= 400*UnitHealthMax(player)/100)) then
+                    if (isDummy(units.dyn40) or isBoss(units.dyn40)) then
                         return (castSpell(player,spell.incarnation,true,false) == true and debug("Incarnation")) or false
                     end
                 end

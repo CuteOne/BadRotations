@@ -50,6 +50,7 @@ if select(3,UnitClass("player")) == 6 then
     local dsRemain = getBuffRemain("player",_DarkSuccor)
     local amsRemain, amsCooldown = getBuffRemain("player",_AntiMagicShell), getSpellCD(_AntiMagicShell)
     local bosRemain, bosCooldown = getBuffRemain("player",_BreathOfSindragosa), getSpellCD(_BreathOfSindragosa)
+    local bosDebuffRemain = getDebuffRemain("target",_BreathOfSindragosaAura,"player")
     local strPotRemain = getBuffRemain("player",156428)
     local srCooldown = getSpellCD(_SoulReaper)
     local obCooldown = getSpellCD(_Outbreak)
@@ -119,6 +120,7 @@ if select(3,UnitClass("player")) == 6 then
   ------------------------------------------------------------------------------------------------------
     if _Queues == nil then
      _Queues = {
+     [_BloodBoil]  = false,
      }
     end
   ------------------------------------------------------------------------------------------------------
@@ -392,10 +394,88 @@ if select(3,UnitClass("player")) == 6 then
           end
         end
         -- actions.single_target+=/breath_of_sindragosa,if=runic_power>75
+        if isChecked("Breath of Sindragosa") and useCDs() then
+          if getTalent(7,3) then
+            if power > 75 then
+              if castSpell("player",_BreathOfSindragosa,true) then
+                return
+              end
+            end
+          end
+        end
         -- actions.single_target+=/run_action_list,name=bos_st,if=dot.breath_of_sindragosa.ticking
+        if bosDebuffRemain > 0 then
+          -- actions.bos_st=death_and_decay,if=runic_power<88
+          if power < 88 then
+            if castGround("target",43265,6) then
+              print("Defile / DnD BoS active")
+              return
+            end
+          end
+          -- actions.bos_st+=/festering_strike,if=runic_power<77
+          if power < 77 then
+            if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
+              print("FS BoS active")
+              return
+            end
+          end
+          -- actions.bos_st+=/scourge_strike,if=runic_power<88
+          if power < 88 then
+            if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
+              print("SS BoS active")
+              return
+            end
+          end
+          -- actions.bos_st+=/blood_tap,if=buff.blood_charge.stack>=5
+          if bcStack >= 5 then
+            if castSpell("player",_BloodTap,true) then
+              print("BT BoS active")
+              return
+            end
+          end
+          -- actions.bos_st+=/plague_leech
+          if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then
+            print("PL BoS active")
+            return
+          end
+          -- actions.bos_st+=/empower_rune_weapon
+          -- actions.bos_st+=/death_coil,if=buff.sudden_doom.react
+          if UnitBuffID("player",_SuddenDoom) then
+            if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
+              print("DC BoS active")
+              return
+            end
+          end 
+        end
         -- actions.single_target+=/death_and_decay,if=cooldown.breath_of_sindragosa.remains<7&runic_power<88&talent.breath_of_sindragosa.enabled
+        if getTalent(7,3) then
+          if useDefile() then
+            if bosCooldown < 7 and power < 78 then          
+              if castGround("target",43265,6) then
+                print("Defile / DnD BoS < 7")
+                return
+              end
+            end
+          end
+        end
         -- actions.single_target+=/scourge_strike,if=cooldown.breath_of_sindragosa.remains<7&runic_power<88&talent.breath_of_sindragosa.enabled
+        if getTalent(7,3) then          
+          if bosCooldown < 7 and power < 78 then          
+            if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
+              print("SS BoS < 7")
+              return
+            end
+          end
+        end
         -- actions.single_target+=/festering_strike,if=cooldown.breath_of_sindragosa.remains<7&runic_power<76&talent.breath_of_sindragosa.enabled
+        if getTalent(7,3) then          
+          if bosCooldown < 7 and power < 66 then          
+            if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
+              print("FS BoS < 7")
+              return
+            end
+          end
+        end
         -- actions.single_target+=/blood_tap,if=((target.health.pct-3*(target.health.pct%target.time_to_die))<=45)&cooldown.soul_reaper.remains=0
         if getTalent(4,1) then
           if (thp-3*(thp/ttd)<=45) and srCooldown == 0 then
