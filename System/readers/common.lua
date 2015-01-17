@@ -8,7 +8,7 @@ function bb.read.commonReaders()
 local frame = CreateFrame('Frame')
 frame:RegisterEvent("LOSS_OF_CONTROL_UPDATE")
 local function lostControl(self,event,...)
-	print("I have been stunned")
+	print(...)
 end
 frame:SetScript("OnEvent",lostControl)
 

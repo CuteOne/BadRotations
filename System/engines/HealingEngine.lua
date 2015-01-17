@@ -184,6 +184,7 @@ if not metaTable1 then
 				local _,_,_,count,_,_,_,_,_,_,spellID = UnitDebuffID(o.unit,HpDebuffs[i].debuff)
 				if spellID ~= nil and (HpDebuffs[i].stacks == nil or (count and count >= HpDebuffs[i].stacks)) then
 					PercentWithIncoming = PercentWithIncoming - HpDebuffs[i].value
+					break
 				end
 			end
 			if getOptionCheck("Blacklist") == true and BadBoy_data.blackList ~= nil then
@@ -250,10 +251,10 @@ if not metaTable1 then
 		-- Group Number of Player: getUnitGroupNumber(1)
 		function o:getUnitGroupNumber()
 			-- check if in raid
-			if IsInRaid() then
+			if IsInRaid() and UnitInRaid(o.unit) ~= nil then
 				return select(3,GetRaidRosterInfo(UnitInRaid(o.unit)))
 			end
-			return nil
+			return 0
 		end
 
 		-- Updating the values of the Unit

@@ -76,4 +76,81 @@ if select(3, UnitClass("player")) == 11 then
         end
     end
 
+    function dpsRestoDruid()
+        if isChecked("DPS Toggle") == true and SpecificToggle("DPS Toggle") == true  then
+            -- Let's get angry :D
+            makeEnemiesTable(40)
+            if UnitExists("target") == true and UnitCanAttack("target","player") == true then
+                myTarget = "target"
+                myDistance = targetDistance
+            elseif enemiesTable and enemiesTable[1] ~= nil then
+                myTarget = enemiesTable[1].unit
+                myDistance = enemiesTable[1].distance
+            else
+                myTarget = "target"
+            end
+            if UnitExists(myTarget) and UnitCanAttack(myTarget,"player") == true then
+                if myDistance < 5 and not isChecked("No Kitty DPS") then
+                    --- Catform
+                    if not UnitBuffID("player",768) and not UnitBuffID("player",783) and not UnitBuffID("player",5487) then
+                        if castSpell("player",768,true,false) then
+                            catSwapped = GetTime()
+                            return
+                        end
+                    end
+                    if UnitBuffID("player",768) and catSwapped <= GetTime() - 1.5 then
+                        -- Ferocious Bite
+                        if getCombo() == 5 and UnitBuffID("player",768) ~= nil then
+                            if castSpell(myTarget,22568,false,false) then
+                                return
+                            end
+                        end
+                        -- Trash
+                        if getDebuffRemain(myTarget,106830) < 2 then
+                            if castSpell("player",106832,false,false) then
+                                return
+                            end
+                        end
+                        -- Shred
+                        if castSpell(myTarget,5221,false,false) then
+                            return
+                        end
+                    end
+                else
+                    if UnitBuffID("player",768) ~= nil then
+                        CancelShapeshiftForm()
+                    end
+                    -- Moonfire
+                    if isChecked("Multidotting") then
+                        castDotCycle("all",8921,40,false,false,2)
+                    end
+
+                    if isStanding(0.1) == false then
+                        -- MonFire Spam
+                        if castSpell(myTarget,_Moonfire,false,false) then
+                            return
+                        end
+                    else
+                        -- if we dont have DoC then dot our target
+                        if not isKnown(158504) then
+                            if getDebuffRemain(myTarget,164812) < 2 then
+                                if castSpell(myTarget,_Moonfire,false,false) then
+                                    return
+                                end
+                            end
+                        end
+                        -- Wrath
+                        if castSpell(myTarget,5176,false,true) then
+                            return
+                        end
+                    end
+                end
+            end
+        else
+            if UnitBuffID("player",768) ~= nil then
+                CancelShapeshiftForm()
+            end
+        end
+    end
+
 end
