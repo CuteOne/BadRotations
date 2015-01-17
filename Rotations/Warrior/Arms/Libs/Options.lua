@@ -56,6 +56,10 @@ CreateNewText(thisConfig,"Avatar");
 CreateNewCheck(thisConfig,"Racial (Orc / Troll)");
 CreateNewText(thisConfig,"Racial (Orc / Troll)");
 
+-- Recklessness
+CreateNewCheck(thisConfig,"StormBolt");
+CreateNewText(thisConfig,"StormBolt");
+
 -- Wrapper
 CreateNewWrap(thisConfig,"------- Defensive ------");
 

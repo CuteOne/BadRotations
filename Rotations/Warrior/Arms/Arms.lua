@@ -29,10 +29,10 @@ if select(3,UnitClass("player")) == 1 then
 		local ravager               = getTalent(7,2)
 		local siegebreaker          = getTalent(7,3)
 		local GT                    = GetTime()
-		local CS_START, CS_DURATION = GetSpellCooldown(_ColossusSmash)
-		local CS_COOLDOWN           = (CS_START - GT + CS_DURATION)
-		local RV_START, RV_DURATION = GetSpellCooldown(_Ravager)
-		local RV_COOLDOWN           = (RV_START - GT + RV_DURATION)
+		-- local CS_START, CS_DURATION = GetSpellCooldown(_ColossusSmash)
+		-- local CS_COOLDOWN           = (CS_START - GT + CS_DURATION)
+		-- local RV_START, RV_DURATION = GetSpellCooldown(_Ravager)
+		-- local RV_COOLDOWN           = (RV_START - GT + RV_DURATION)
 		local BLADESTORM            = UnitBuffID("player",_Bladestorm)
 		local suddendeathup					= UnitBuffID("player",_SuddenDeathProc)
 		local reckup								= UnitBuffID("player",_Recklessness)
@@ -189,6 +189,9 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 
 			-- actions+=/auto_attack
+			if tarDist.dyn0<5 then
+            RunMacroText("/startattack")
+          end
 
 	------------------------------------------------------------------------------------------------------
 	-- Defensive Cooldowns -------------------------------------------------------------------------------
@@ -388,9 +391,11 @@ if select(3,UnitClass("player")) == 1 then
 				end
 				-- actions.single+=/storm_bolt,if=(cooldown.colossus_smash.remains>4|debuff.colossus_smash.up)&rage<90
 				if stormbolt then
-					if (cscd > 4 or csRemain.dyn30 > 0) and rage > 90 then
-						if castSpell(tarUnit.dyn30,_StormBolt,false,false) then
-							return
+					if isChecked("StormBolt") then
+						if csRemain.dyn30 > 0 then
+							if castSpell(tarUnit.dyn30,_StormBolt,false,false) then
+								return
+							end
 						end
 					end
 				end
