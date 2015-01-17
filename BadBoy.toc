@@ -45,12 +45,6 @@ System\ui\ui.lua
 System\ui\wrapper.lua
 
 ## ClassLibs
-
-
-ClassLibs\Mage\Options.lua
-ClassLibs\Mage\Functions.lua
-ClassLibs\Mage\SpellList.lua
-ClassLibs\Mage\Toggles.lua
 ClassLibs\Monk\Options.lua
 ClassLibs\Monk\Functions.lua
 ClassLibs\Monk\SpellList.lua
@@ -128,9 +122,11 @@ Rotations\Hunter\SpellList.lua
 Rotations\Hunter\Functions.lua
 
 ## Mage ---------------------------------------------------
-Rotations\Mage\Arcane.lua
-Rotations\Mage\Fire.lua
-Rotations\Mage\Frost.lua
+Rotations\Mage\Frost\Frost.lua
+Rotations\Mage\Frost\Options.lua
+Rotations\Mage\Frost\Functions.lua
+Rotations\Mage\Frost\SpellList.lua
+Rotations\Mage\Frost\Toggles.lua
 
 ## Monk ---------------------------------------------------
 Rotations\Monk\Brewmaster.lua
