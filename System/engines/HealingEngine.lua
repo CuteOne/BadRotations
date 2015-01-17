@@ -179,7 +179,7 @@ if not metaTable1 then
 			end
 
 			-- Debuffs HP compensation
-			local HpDebuffs = #novaEngineTables.SpecificHPDebuffs
+			local HpDebuffs = novaEngineTables.SpecificHPDebuffs
 			for i = 1, #HpDebuffs do
 				local _,_,_,count,_,_,_,_,_,_,spellID = UnitDebuffID(o.unit,HpDebuffs[i].debuff)
 				if spellID ~= nil and (HpDebuffs[i].stacks == nil or (count and count >= HpDebuffs[i].stacks)) then
