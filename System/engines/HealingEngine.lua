@@ -5,7 +5,7 @@ if not metaTable1 then
 	-- localizing the commonly used functions while inside loops
 	local getDistance,tinsert,tremove,UnitGUID,UnitClass,UnitIsUnit = getDistance,tinsert,tremove,UnitGUID,UnitClass,UnitIsUnit
 	local UnitDebuff,UnitExists,UnitHealth,UnitHealthMax = UnitDebuff,UnitExists,UnitHealth,UnitHealthMax
-	local GetSpellInfo,GetTime,UnitDebuffID = GetSpellInfo,GetTime,UnitDebuffID
+	local GetSpellInfo,GetTime,UnitDebuffID,getBuffStacks = GetSpellInfo,GetTime,UnitDebuffID,getBuffStacks
 
 	nNova = {} -- This is our main Table that the world will see
 	memberSetup = {} -- This is one of our MetaTables that will be the default user/contructor
@@ -61,9 +61,7 @@ if not metaTable1 then
 	-- We are checking if the user has a Debuff we either can not or don't want to heal them
 	local function CheckBadDebuff(tar)
 		for i=1, #novaEngineTables.BadDebuffList do
-			if UnitDebuff(tar, GetSpellInfo(novaEngineTables.BadDebuffList[i])) or
-			UnitBuff(tar, GetSpellInfo(novaEngineTables.BadDebuffList[i]))
-			then
+			if UnitDebuff(tar, GetSpellInfo(novaEngineTables.BadDebuffList[i])) or UnitBuff(tar, GetSpellInfo(novaEngineTables.BadDebuffList[i])) then
 				return false
 			end
 		end
@@ -181,9 +179,11 @@ if not metaTable1 then
 			end
 
 			-- Debuffs HP compensation
-			for i = 1, #novaEngineTables.SpecificHPDebuffs do
-				if UnitDebuffID(o.unit, novaEngineTables.SpecificHPDebuffs[i].debuff) ~= nil then
-					PercentWithIncoming = PercentWithIncoming - novaEngineTables.SpecificHPDebuffs[i].value
+			local HpDebuffs = #novaEngineTables.SpecificHPDebuffs
+			for i = 1, #HpDebuffs do
+				local _,_,_,count,_,_,_,_,_,_,spellID = UnitDebuffID(o.unit,HpDebuffs[i].debuff)
+				if spellID ~= nil and (HpDebuffs[i].stacks == nil or (count and count >= HpDebuffs[i].stacks)) then
+					PercentWithIncoming = PercentWithIncoming - HpDebuffs[i].value
 				end
 			end
 			if getOptionCheck("Blacklist") == true and BadBoy_data.blackList ~= nil then
