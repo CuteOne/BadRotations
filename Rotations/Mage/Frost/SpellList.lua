@@ -2,20 +2,20 @@ if select(3, UnitClass("player")) == 8 then
 
 -- All
 	MirrorImage 		= 55342
-	_ArcaneBrilliance	= 1459
+	ArcaneBrilliance	= 1459
 
 -- Frost
 	CometStorm		= 153595
-	_Frostbolt		= 116
-	FrostfireBolt	= 44614
+	FrostBolt		= 116
+	FrostFireBolt	= 44614
 	FrozenOrb		= 84714
 	FrozenOrbDebuff = 84721
-	_IceLance		= 30455
+	IceLance		= 30455
 	IcyVeins		= 12472
-	_IceBarrier		= 11426
+	IceBarrier		= 11426
 -- Pet
-	SummonPet		= 31687;
-	WaterJet		= 135029;
+	SummonPet		= 31687
+	WaterJet		= 135029
 -- FrTalents
 	FrostBomb 		= 112948;
 	IceNova			= 157997;
@@ -60,7 +60,7 @@ if select(3, UnitClass("player")) == 8 then
 
 -- Buffs
 	-- frost
-	BrainFreeze		= 57761;
+	BrainFreeze		= 57761
 	EnhancedFB		= 157646;
 	FingersOfFrost	= 44544;
 	IceShard		= 166869;
@@ -97,5 +97,61 @@ if select(3, UnitClass("player")) == 8 then
 
 -- Racial
 	Berserkering 	= 26297;	-- Troll Racial
+
+	function castFrozenOrb(target)
+		if not target then
+			target = dynamicUnit.dyn40
+		end
+		print("Casting castFrozenOrb")
+		if castSpell(target, FrozenOrb,false,true) then
+			return true
+		end
+		return false
+	end
+
+	function castFrostFireBolt(target)
+		if not target then
+			target = dynamicUnit.dyn40
+		end
+		print("Casting castFrostFireBolt")
+		if castSpell(target, FrostFireBolt, false,true) then 
+			return true
+		end
+		return false
+	end
+
+	function castFrostBomb(target)
+		if not target then
+			target = dynamicUnit.dyn40
+		end
+		if not lastFrostBomb or lastFrostBomb < GetTime() - 4 then
+			if castSpell(target, FrostBomb,false,true, false) then -- Hm we can cast it 360 but since IceLance is only facing
+				lastFrostBomb = GetTime()
+				lastFrostBombTarget = target
+				return true
+			end
+		end
+		return false
+	end
+
+	function castIceLance(target)
+		if not target then
+			target = dynamicUnit.dyn40
+		end
+		if castSpell(target, IceLance,false,false) then
+			return true
+		end
+		return false
+	end
+
+	function castFrostBolt(target)
+		if not target then
+			target = dynamicUnit.dyn40
+		end
+		if castSpell(target, FrostBolt,false,true) then
+			return true
+		end
+		return false
+	end
 
 end
