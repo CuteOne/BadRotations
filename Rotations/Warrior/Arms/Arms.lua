@@ -300,20 +300,22 @@ if select(3,UnitClass("player")) == 1 then
 		      end
 		    end
 				--On use Trinkets
-        if canTrinket(13) and useCDs() then
-          RunMacroText("/use 13")
-          if IsAoEPending() then
-            local X,Y,Z = ObjectPosition(Unit)
-            CastAtPosition(X,Y,Z)
-          end
-        end
-        if canTrinket(14) and useCDs() then
-          RunMacroText("/use 14")
-          if IsAoEPending() then
-            local X,Y,Z = ObjectPosition(Unit)
-            CastAtPosition(X,Y,Z)
-          end
-        end
+				if isChecked("Use Trinket") then
+	        if canTrinket(13) and useCDs() then
+	          RunMacroText("/use 13")
+	          if IsAoEPending() then
+	            local X,Y,Z = ObjectPosition(Unit)
+	            CastAtPosition(X,Y,Z)
+	          end
+	        end
+	        if canTrinket(14) and useCDs() then
+	          RunMacroText("/use 14")
+	          if IsAoEPending() then
+	            local X,Y,Z = ObjectPosition(Unit)
+	            CastAtPosition(X,Y,Z)
+	          end
+	        end
+	      end
 			end -- useCDs() end
 	------------------------------------------------------------------------------------------------------
 	-- Interrupts ----------------------------------------------------------------------------------------

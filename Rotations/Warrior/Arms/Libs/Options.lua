@@ -56,9 +56,13 @@ CreateNewText(thisConfig,"Avatar");
 CreateNewCheck(thisConfig,"Racial (Orc / Troll)");
 CreateNewText(thisConfig,"Racial (Orc / Troll)");
 
--- Recklessness
+-- StormBolt
 CreateNewCheck(thisConfig,"StormBolt");
 CreateNewText(thisConfig,"StormBolt");
+
+-- Trinket
+CreateNewCheck(thisConfig,"Use Trinket");
+CreateNewText(thisConfig,"Use Trinket");
 
 -- Wrapper
 CreateNewWrap(thisConfig,"------- Defensive ------");
