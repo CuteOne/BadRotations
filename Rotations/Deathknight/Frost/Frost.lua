@@ -296,12 +296,15 @@ if select(3, UnitClass("player")) == 6 then
               if castInterrupt(_Asphyxiate,getOptionValue("Interrupt At")) then return end
             end
         -- Dark Simulacrum
-            if isChecked("Dark Simulacrum") and power>20 and castingSimSpell then
+            if isChecked("Dark Simulacrum") and power>20 and (isInPvP() or castingSimSpell) then
               if castInterrupt(_DarkSimulacrum,10,true) then return end
             end
-            if simSpell~=_DarkSimulacrum then
+            if simSpell~=_DarkSimulacrum and getBuffRemain("player",_DarkSimulacrum)>0 then
               if castSpell(tarUnit.dyn40,simSpell,false,false,true,true,false,true,false) then bb.im.simulacrum = nil return end
               --CastSpellByName(GetSpellInfo(simSpell),tarUnit.dyn40)
+            end
+            if simSpell~=nil and getBuffRemain("player",_DarkSimulacrum)==0 then
+              bb.im.simulacrum = nil
             end
           end
     -----------------------------
