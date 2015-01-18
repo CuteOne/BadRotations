@@ -1,4 +1,5 @@
-if select(3, UnitClass("player")) == 1 then
+if select(3, UnitClass("player")) == 1 
+and  GetSpecialization() == 3 then
 
 	--Prot--
 	DemoralizingShout	= 1160;

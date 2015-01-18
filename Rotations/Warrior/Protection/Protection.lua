@@ -86,21 +86,21 @@ if select(3,UnitClass("player")) == 1 then
 			end
 
 			-- Commanding Shout
-				if isChecked("Shout") == true and getValue("Shout") == 1 and not UnitExists("mouseover") then
-            for i = 1, #members do --members
-                if not isBuffed(members[i].Unit,{21562,109773,469,90364}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
-                    if castSpell("player",CommandingShout,false,false) then return; end
-                end
-            end
-        end
-        -- Battle Shout
-				if isChecked("Shout") == true and getValue("Shout") == 2 and not UnitExists("mouseover") then
-            for i = 1, #members do --members
-                if not isBuffed(members[i].Unit,{57330,19506,6673}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
-                    if castSpell("player",BattleShout,false,false) then return; end
-                end
-            end
-        end
+			if isChecked("Shout") == true and getValue("Shout") == 1 and not UnitExists("mouseover") then
+				for i = 1, #members do --members
+					if not isBuffed(members[i].Unit,{21562,109773,469,90364}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
+						if castSpell("player",CommandingShout,false,false) then return; end
+					end
+				end
+			end
+			-- Battle Shout
+			if isChecked("Shout") == true and getValue("Shout") == 2 and not UnitExists("mouseover") then
+				for i = 1, #members do --members
+					if not isBuffed(members[i].Unit,{57330,19506,6673}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
+						if castSpell("player",BattleShout,false,false) then return; end
+					end
+				end
+			end
 		end -- Out of Combat end
 	------------------------------------------------------------------------------------------------------
 	-- In Combat -----------------------------------------------------------------------------------------
@@ -428,7 +428,7 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 	-- Gladiator --------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
-	if getValue("GladiProt") == 1 then
+	if getValue("Gladiator / Protection") == 1 then
 		-- actions+=/shield_charge,if=(!buff.shield_charge.up&!cooldown.shield_slam.remains)|charges=2
 			if (not UnitBuffID("player",ShieldChargeBuff) and getSpellCD(ShieldSlam) == 0) or SC_STACK == 2 then
 				if castSpell("target",ShieldCharge,false,false) then
