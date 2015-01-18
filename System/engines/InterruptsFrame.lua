@@ -165,8 +165,9 @@ function castInterrupt(spell,percent,keepInfo)
 							if castSpell(thisCaster.unit,spell,false,false) then
 								im:debug("Cast Interrupt "..thisCaster.unit.." with "..spell.." at "..castPercent,true)
 								-- if developer need to keep this spell/unit combo
-								if keepInfo == true then
-									simulacrumSpell = thisCaster.spell
+								if spell == 77606 then
+									simulacrumSpell = thisCaster.cast
+									print(simulacrumSpell)
 								end
 								-- prevent intrupt on this target again by removing it
 								tremove(casters,i)

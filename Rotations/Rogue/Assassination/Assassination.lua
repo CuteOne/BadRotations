@@ -249,7 +249,7 @@ function AssassinationRogue()
 				if useCDs() and not stealth and tarDist.dyn5<5 then
 	-- Preparation
 					--if=!buff.vanish.up&cooldown.vanish.remains>30
-					if vanRemain==0 and getSpellCD(_Vanish)>30 then
+					if vanRemain==0 and GetSpellCooldown(_Vanish)>30 then
 						if castSpell("player",_Preparation,true,false,false) then return end
 					end
 	-- Trinkets
@@ -277,7 +277,7 @@ function AssassinationRogue()
 					end
 	-- Shadow Reflection
 					--if=cooldown.vendetta.remains=0
-					if getSpellCD(_Vendetta)==0 then
+					if GetSpellCooldown(_Vendetta)==0 then
 						if castSpell(tarUnit.dyn20AoE,_ShadowReflection,true,false,false) then return end
 					end
 	-- Vendetta
@@ -346,7 +346,7 @@ function AssassinationRogue()
 	                    	local venRemain = getDebuffRemain(thisUnit,_Vendetta,"player")
 		-- Envenom
 							--if=(combo_points>4&buff.envenom.remains<2&(cooldown.death_from_above.remains>2|!talent.death_from_above.enabled))&active_enemies<4&!dot.deadly_poison_dot.ticking
-							if (combo>4 and envRemain<2 and (getSpellCD(_DeathFromAbove)>2 or not getTalent(7,3))) and enemies<4 and dpRemain==0 and power>35 then
+							if (combo>4 and envRemain<2 and (GetSpellCooldown(_DeathFromAbove)>2 or not getTalent(7,3))) and enemies<4 and dpRemain==0 and power>35 then
 								if castSpell(thisUnit,_Envenom,false,false,false) then return end
 							end
 		-- Eviscerate
@@ -378,7 +378,7 @@ function AssassinationRogue()
 				else
 		-- Envenom
 					--if=(combo_points>4&buff.envenom.remains<2&(cooldown.death_from_above.remains>2|!talent.death_from_above.enabled))&active_enemies<4
-					if (combo>4 and envRemain<2 and (getSpellCD(_DeathFromAbove)>2 or not getTalent(7,3))) and enemies<4 and power>35 then
+					if (combo>4 and envRemain<2 and (GetSpellCooldown(_DeathFromAbove)>2 or not getTalent(7,3))) and enemies<4 and power>35 then
 						if castSpell(tarUnit.dyn5,_Envenom,false,false,false) then return end
 					end
 		-- Mutilate

@@ -222,4 +222,26 @@ if select(3, UnitClass("player")) == 11 then
             return 1000;
         end
     end
+
+    -- units can be "all" or a numeric value
+    function unitDotCycle(units,spellID,range,facingCheck,movementCheck)
+        local units = units
+        -- unit can be "all" or numeric
+        if type(units) == "number" then
+            units = units
+        else
+            units = 100
+        end
+        -- cycle our units if we want MORE DOTS
+        if getDebuffCount(spellID) < units then
+            for i = 1, #enemiesTable do
+                local thisUnit = enemiesTable[i]
+                if thisUnit.isCC == false and UnitLevel(thisUnit.unit) < UnitLevel("player") + 5 then
+                    if castSpell(thisUnit.unit,spellID,facingCheck,movementCheck) then
+                        return thisUnit.unit
+                    end
+                end
+            end
+        end
+    end
 end

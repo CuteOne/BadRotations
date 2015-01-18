@@ -115,6 +115,12 @@ if select(3,UnitClass("player")) == 6 then
                     boxOp("Icebound Fortitude", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
                     textOp(tostring(select(1,GetSpellInfo(_IceboundFortitude))))
 
+                    -- Lichbourne
+                    if getTalent(2,1) then
+                        checkOp("Lichbourne")
+                        textOp(tostring(select(1,GetSpellInfo(_Lichbourne))))
+                    end
+
                     -- Anti-Magic Shell/Zone
                     if getTalent(2,2) then
                         checkOp("Anti-Magic Zone")
@@ -145,6 +151,19 @@ if select(3,UnitClass("player")) == 6 then
                         checkOp("Conversion")
                         boxOp("Conversion", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
                         textOp(tostring(select(1,GetSpellInfo(_Conversion))))
+                    end
+
+                    -- Remorseless Winter
+                    if getTalent(6,2) then
+                        checkOp("Remorseless Winter")
+                        boxOp("Remorseless Winter", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+                        textOp(tostring(select(1,GetSpellInfo(_RemorselessWinter))))
+                    end
+
+                    -- Desecrated Ground
+                    if getTalent(6,3) then
+                        checkOp("Desecrated Ground")
+                        textOp(tostring(select(1,GetSpellInfo(_DesecratedGround))))
                     end
 
                 -- Spacer --

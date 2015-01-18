@@ -33,7 +33,7 @@ novaEngineTables.BadDebuffList= {
     145065, -- Empowered Touch of Y'Shaarj (mind control garrosh)
     145071, -- Empowered Touch of Y'Shaarj (mind control garrosh)
     --Brackenspore
-    159220, -- http://www.wowhead.com/spell=159220
+    159220, -- http://www.wowhead.com/spell=159220  A debuff that removes 99% of healing so no point healing them
 
 }
 
@@ -42,7 +42,7 @@ novaEngineTables.SpecialHealUnitList = {
     [71604] = "Immersus Oozes" ,
     [6459] = "Boss#3 SoO",
     [6460] = "Boss#3 SoO",
-    [6464] = "Boss#3 SoO"
+    [6464] = "Boss#3 SoO",
 };
 
 -- set dot that need to be healed to max(needs to be topped) to very low values so that engine will priorise them
@@ -51,16 +51,29 @@ novaEngineTables.SpecialHealUnitList = {
 novaEngineTables.SpecificHPDebuffs = {
     --{ debuff = 123456, value = 20, stacks = 1 }, -- Exemple.
     --{ debuff = 123456, value = -100, stacks = 3 }, -- Exemple
-    { debuff = 159386 , value = 20 }, -- http://www.wowhead.com/spell=159386/iron-bomb
+-- Twin Ogrons
     { debuff = 158241 , value = 20 }, -- http://www.wowhead.com/spell=158241/blaze
     { debuff = 155569 , value = 20 }, -- http://www.wowhead.com/spell=155569/injured
     { debuff = 163374 , value = 20 }, -- http://www.wowhead.com/spell=163374/arcane-volatility
+-- Imperator
     { debuff = 157763 , value = 20 }, -- http://www.wowhead.com/spell=157763/fixate
-    --Brackenspore
-  --  { debuff = 163241 , value = 40 , stacks = 4 }, --http://www.wowhead.com/spell=163241/rot
-  --  { debuff = 163241 , value = 30 , stacks = 3 }, --http://www.wowhead.com/spell=163241/rot
- --   { debuff = 163241 , value = 20 , stacks = 2 }, --http://www.wowhead.com/spell=163241/rot
-    { debuff = 163241 , value = 10 , stacks = 1 }, --http://www.wowhead.com/spell=163241/rot
+    { debuff = 156225 , value = 40 , stacks = 8 }, --http://www.wowhead.com/spell=156225/branded
+    { debuff = 156225 , value = 35 , stacks = 7 }, --http://www.wowhead.com/spell=156225/branded
+    { debuff = 156225 , value = 30 , stacks = 6 }, --http://www.wowhead.com/spell=156225/branded
+    { debuff = 156225 , value = 25 , stacks = 5 }, --http://www.wowhead.com/spell=156225/branded
+    { debuff = 156225 , value = 20 , stacks = 4 }, --http://www.wowhead.com/spell=156225/branded
+    { debuff = 156225 , value = 15 , stacks = 3 }, --http://www.wowhead.com/spell=156225/branded
+    { debuff = 156225 , value = 10 , stacks = 2 }, --http://www.wowhead.com/spell=156225/branded
+    { debuff = 156225 , value = 5  , stacks = 1 }, --http://www.wowhead.com/spell=156225/branded  
+--Kargath
+    { debuff = 159113 , value = 20 }, --http://www.wowhead.com/spell=159113/impale
+    { debuff = 159386 , value = 20 }, --http://www.wowhead.com/spell=159386/iron-bomb
+    { debuff = 159413 , value = 30 }, --http://www.wowhead.com/spell=159413/mauling-brew
+--Brackenspore
+    { debuff = 163241 , value = 40 , stacks = 4 }, --http://www.wowhead.com/spell=163241/rot
+    { debuff = 163241 , value = 30 , stacks = 3 }, --http://www.wowhead.com/spell=163241/rot
+    { debuff = 163241 , value = 20 , stacks = 2 }, --http://www.wowhead.com/spell=163241/rot
+    { debuff = 163241 , value = 20 , stacks = 1 }, --http://www.wowhead.com/spell=163241/rot
     { debuff = 145263 , value = 20 }, -- Proving Grounds Healer Debuff.
 }
 
@@ -76,7 +89,7 @@ novaEngineTables.roleTable = {
 novaEngineTables.SavedSpecialTargets = {
     ["target"] = nil,
     ["mouseover"] = nil,
-    ["focus"] = nil
+    ["focus"] = nil,
 }
 
 -- ToDo: we need a powerful DoT handler to handle stuff such as hand of purity/heal over time

@@ -30,6 +30,7 @@ if select(3, UnitClass("player")) == 6 then
         ["dyn10AoE"] = dynamicTarget(10,false), --Defensive Abilites
         ["dyn30"] = dynamicTarget(30,true), --Death Grip
         ["dyn30AoE"] = dynamicTarget(30,false), --Control Undead
+        ["dyn40"] = dynamicTarget(40,true),
       }
       local tarDist = {
         ["dyn0"] = getDistance("player",tarUnit.dyn0),
@@ -55,17 +56,19 @@ if select(3, UnitClass("player")) == 6 then
       local howRemain = getBuffRemain("player",_HornOfWinter)
       local empRemain = getBuffRemain("player",_EmpowerRuneWeapon)
       local dsRemain = getBuffRemain("player",_DarkSuccor)
-      local pofRemain, pofCooldown = getBuffRemain("player",_PillarOfFrost), getSpellCD(_PillarOfFrost)
-      local amsRemain, amsCooldown = getBuffRemain("player",_AntiMagicShell), getSpellCD(_AntiMagicShell)
-      local bosRemain, bosCooldown = getBuffRemain("player",_BreathOfSindragosa), getSpellCD(_BreathOfSindragosa)
+      local pofRemain, pofCooldown = getBuffRemain("player",_PillarOfFrost), GetSpellCooldown(_PillarOfFrost)
+      local amsRemain, amsCooldown = getBuffRemain("player",_AntiMagicShell), GetSpellCooldown(_AntiMagicShell)
+      local bosRemain, bosCooldown = getBuffRemain("player",_BreathOfSindragosa), GetSpellCooldown(_BreathOfSindragosa)
       local strPotRemain = getBuffRemain("player",156428)
-      local srCooldown = getSpellCD(_SoulReaper)
-      local plCooldown = getSpellCD(_PlagueLeech)
-      local ubCooldown = getSpellCD(_UnholyBlight)
-      local dCooldown = getSpellCD(_Defile)
-      local raCooldown = getSpellCD(_RaiseAlly)
+      local srCooldown = GetSpellCooldown(_SoulReaper)
+      local plCooldown = GetSpellCooldown(_PlagueLeech)
+      local ubCooldown = GetSpellCooldown(_UnholyBlight)
+      local dCooldown = GetSpellCooldown(_Defile)
+      local dndCooldown = GetSpellCooldown(_DeathAndDecay)
+      local raCooldown = GetSpellCooldown(_RaiseAlly)
       local blight, bloodtap, runic, necrotic, defile, sindragosa = getTalent(1,3), getTalent(4,1), getTalent(4,2), getTalent(7,1), getTalent(7,2), getTalent(7,3)
       local t17x2 = false
+      local simSpell, castingSimSpell = bb.im.simulacrumSpell, isSimSpell()
       --Specific Target Variables
       local ciRemain = {
         ["dyn0"] = getDebuffRemain(tarUnit.dyn0,_ChainsOfIce,"player"),
@@ -102,7 +105,7 @@ if select(3, UnitClass("player")) == 6 then
         ["dyn30"] = ((ffRemain.dyn30>0 and bpRemain.dyn30>0) or necRemain.dyn30>0),
         ["dyn30AoE"] = ((ffRemain.dyn30AoE>0 and bpRemain.dyn30AoE>0) or necRemain.dyn30AoE>0),
       }
-      ChatOverlay(hasDisease.dyn5)
+      --ChatOverlay(tostring(select(1,GetSpellInfo(simSpell))))
   --------------------------------------------------
   --- Ressurection/Dispelling/Healing/Pause/Misc ---
   --------------------------------------------------
@@ -152,11 +155,11 @@ if select(3, UnitClass("player")) == 6 then
           if castSpell("player",_PathOfFrost,true,false,false) then return end
         end
       -- Control Undead
-        if UnitCreatureType(tarUnit.dyn30AoE)=="Undead" and uRunes>0 and not ObjectExists("pet")
-          and (UnitClassification(tarUnit.dyn30AoE)~="normal" or UnitClassification(tarUnit.dyn30AoE)~="trivial" or UnitClassification(tarUnit.dyn30AoE)~="minus")
-        then
-          if castSpell(tarUnit.dyn30AoE,_ControlUndead,false,false,false) then return end
-        end
+        -- if UnitCreatureType(tarUnit.dyn30AoE)=="Undead" and uRunes>0 and not ObjectExists("pet")
+        --   and (UnitClassification(tarUnit.dyn30AoE)~="normal" or UnitClassification(tarUnit.dyn30AoE)~="trivial" or UnitClassification(tarUnit.dyn30AoE)~="minus")
+        -- then
+        --   if castSpell(tarUnit.dyn30AoE,_ControlUndead,false,false,false) then return end
+        -- end
       -- Flask / Crystal
         if isChecked("Flask / Crystal") and not (IsFlying() or IsMounted()) then
             if (select(2,IsInInstance())=="raid" or select(2,IsInInstance())=="none")
@@ -281,20 +284,24 @@ if select(3, UnitClass("player")) == 6 then
     ------------------------------
           if useInterrupts() then
         -- Mind Freeze
-            if isChecked("Mind Freeze") then
+            if isChecked("Mind Freeze") and not castingSimSpell then
               if castInterrupt(_MindFreeze,getOptionValue("Interrupt At")) then return end
             end
         -- Strangulate
-            if isChecked("Strangulate") and bRunes>0 then
+            if isChecked("Strangulate") and bRunes>0 and not castingSimSpell then
               if castInterrupt(_Strangulate,getOptionValue("Interrupt At")) then return end
             end
         -- Asphyxiate
-            if isChecked("Asphyxiate") then
+            if isChecked("Asphyxiate") and not castingSimSpell then
               if castInterrupt(_Asphyxiate,getOptionValue("Interrupt At")) then return end
             end
         -- Dark Simulacrum
-            if isChecked("Dark Simulacrum") and power>20 then
-              if castInterrupt(_DarkSimulacrum,getOptionValue("Interrupt At")) then return end
+            if isChecked("Dark Simulacrum") and power>20 and castingSimSpell then
+              if castInterrupt(_DarkSimulacrum,10,true) then return end
+            end
+            if simSpell~=_DarkSimulacrum then
+              if castSpell(tarUnit.dyn40,simSpell,false,false,true,true,false,true,false) then bb.im.simulacrum = nil return end
+              --CastSpellByName(GetSpellInfo(simSpell),tarUnit.dyn40)
             end
           end
     -----------------------------
@@ -309,13 +316,20 @@ if select(3, UnitClass("player")) == 6 then
             if isChecked("Empower Rune Weapon") and ttd<=60 and fRunes==0 and uRunes==0 and strPotRemain>0 then
               if castSpell("player",_EmpowerRuneWeapon,true,false,false) then return end
             end
-        -- Trinket 1
-            if isChecked("Trinkets") and canTrinket(13) and useCDs() then
+        -- Trinkets
+            if canTrinket(13) and useCDs() then
               RunMacroText("/use 13")
+              if IsAoEPending() then
+                local X,Y,Z = ObjectPosition(Unit)
+                CastAtPosition(X,Y,Z)
+              end
             end
-        -- Trinket 2
-            if isChecked("Trinkets") and canTrinket(14) and useCDs() then
+            if canTrinket(14) and useCDs() then
               RunMacroText("/use 14")
+              if IsAoEPending() then
+                local X,Y,Z = ObjectPosition(Unit)
+                CastAtPosition(X,Y,Z)
+              end
             end
           end
     --------------------------
@@ -368,7 +382,7 @@ if select(3, UnitClass("player")) == 6 then
               if castSpell("player",_BloodTap,true,false,false) then return end
             end
         -- Defile (2H)
-            if twoHand and defile and uRunes>=1 and useCleave() and tarDist.dyn30AoE<30 then
+            if twoHand and defile and uRunes>=1 and useCleave() and dCooldown==0 and not isMoving(tarUnit.dyn30AoE) and tarDist.dyn30AoE<30 then
               if castGround(tarUnit.dyn30AoE,_Defile,30) then return end
             end
         -- Blood Tap (2H)
@@ -485,7 +499,7 @@ if select(3, UnitClass("player")) == 6 then
               end
             end --End Boss Special
         -- Defile (1H)
-            if oneHand and defile and uRunes>=1 and tarDist.dyn30AoE<30 then
+            if oneHand and defile and uRunes>=1 and dCooldown==0 and not isMoving(tarUnit.dyn30AoE) and tarDist.dyn30AoE<30 then
               if castGround(tarUnit.dyn30AoE,_Defile,30) then return end
             end
         -- Blood Tap (1H)
@@ -687,7 +701,7 @@ if select(3, UnitClass("player")) == 6 then
               if castSpell("player",_BloodBoil,true,false,false) then lineTimer=GetTime(); return end
             end
         -- Defile
-            if defile and uRunes>=1 and tarDist.dyn30AoE<30 then
+            if defile and uRunes>=1 and dCooldown==0 and not isMoving(tarUnit.dyn30AoE) and tarDist.dyn30AoE<30 then
               if castGround(tarUnit.dyn30AoE,_Defile,30) then return end
             end
         -- Breath of Sindragosa
@@ -710,7 +724,7 @@ if select(3, UnitClass("player")) == 6 then
               end
           -- Death and Decay
               --if=unholy=1
-              if uRunes==1 and tarDist.dyn30AoE<30 then
+              if uRunes==1 and not defile and dndCooldown==0 and hasThreat(tarUnit.dyn30AoE) and not isMoving(tarUnit.dyn30AoE) and tarDist.dyn30AoE<30 then
                 if castGround(tarUnit.dyn30AoE,_DeathAndDecay,30) then return end
               end
           -- Plague Strike
@@ -752,7 +766,7 @@ if select(3, UnitClass("player")) == 6 then
             end
         -- Death and Decay
             --if=unholy=1
-            if uRunes==1 and tarDist.dyn30AoE<30 then
+            if uRunes==1 and not defile and dndCooldown==0 and hasThreat(tarUnit.dyn30AoE) and not isMoving(tarUnit.dyn30AoE) and tarDist.dyn30AoE<30 then
               if castGround(tarUnit.dyn30AoE,_DeathAndDecay,30) then return end
             end
         -- Plague Strike
@@ -785,7 +799,7 @@ if select(3, UnitClass("player")) == 6 then
           end
         end --In Combat End
     -- Start Attack
-        if ObjectExists(tarUnit.dyn5) and not stealth and isInCombat("player") and profileStop==false and tarDist.dyn5<5 then
+        if ObjectExists(tarUnit.dyn5) and isInCombat("player") and profileStop==false and tarDist.dyn5<5 then
           StartAttack()
         end
       end

@@ -33,7 +33,7 @@ if select(3,UnitClass("player")) == 1 then
 		-- local CS_COOLDOWN           = (CS_START - GT + CS_DURATION)
 		-- local RV_START, RV_DURATION = GetSpellCooldown(_Ravager)
 		-- local RV_COOLDOWN           = (RV_START - GT + RV_DURATION)
-		local BLADESTORM            = UnitBuffID("player",_Bladestorm)
+		-- local BLADESTORM            = UnitBuffID("player",_Bladestorm)
 		local suddendeathup					= UnitBuffID("player",_SuddenDeathProc)
 		local reckup								= UnitBuffID("player",_Recklessness)
 		local bbathup								= UnitBuffID("player",_Bloodbath)
@@ -490,7 +490,6 @@ if select(3,UnitClass("player")) == 1 then
 				-- actions.aoe+=/colossus_smash,if=dot.rend.ticking
 				if rendRemain.dyn0 > 0 then
 					if castSpell(tarUnit.dyn0,_ColossusSmash,false,false) then
-						print("aoe")
 						return
 					end
 				end

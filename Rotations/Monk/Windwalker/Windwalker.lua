@@ -15,6 +15,7 @@ function WindwalkerMonk()
 --------------
 --- Locals ---
 --------------
+		if profileStop == nil then profileStop = false end
 		if tebCast == nil then tebCast = 0; end
 		local dynamicUnit = {
 			["dyn5"] = dynamicTarget(5,true), --Melee
@@ -64,7 +65,7 @@ function WindwalkerMonk()
 		local fofChanTime = 4-(4*UnitSpellHaste("player")/100)
 		local hsChanTime = 2-(2*UnitSpellHaste("player")/100)
 		local powtime = (getPower("player")+getRegen("player"))*((1.5/GetHaste("player"))+1)
-		local fofCD = getSpellCD(_FistsOfFury)
+		local fofCD = GetSpellCooldown(_FistsOfFury)
 		local zsRemain = getBuffRemain("player",_ZenSphere)
 		local bkcRemain = getBuffRemain("player",_ComboBreakerBlackoutKick)
 		local cecRemain = getBuffRemain("player",_ComboBreakerChiExplosion)
@@ -73,6 +74,12 @@ function WindwalkerMonk()
 --------------------------------------------------
 --- Ressurection/Dispelling/Healing/Pause/Misc ---
 --------------------------------------------------
+	-- Profile Stop
+		if isInCombat("player") and profileStop==true then
+			return true
+		else
+			profileStop=false
+		end
 	-- Death Monk mode
 		if isChecked("Death Monk Mode") then
 			if UnitGUID(targets[1].Unit)==UnitGUID(dynmaicUnit.dyn5) or UnitGUID(targets[2].Unit)==UnitGUID(dynmaicUnit.dyn5) then
@@ -97,7 +104,7 @@ function WindwalkerMonk()
 			end
 		end
 	-- Stop Cast
-		if ((dynamicDist.dyn5<5 or (BadBoy_data['FSK']==1 and getSpellCD(_FlyingSerpentKick)==0)) and isCastingSpell(_CracklingJadeLightning)) or (not useAoE() and isCastingSpell(_SpinningCraneKick)) then
+		if ((dynamicDist.dyn5<5 or (BadBoy_data['FSK']==1 and GetSpellCooldown(_FlyingSerpentKick)==0)) and isCastingSpell(_CracklingJadeLightning)) or (not useAoE() and isCastingSpell(_SpinningCraneKick)) then
 			RunMacroText("/stopcasting")
 		end
 	-- Cancel Storm, Earth, and Fire
@@ -153,7 +160,7 @@ function WindwalkerMonk()
 		            end
 		        end
 	--	Expel Harm
-				if isChecked(getOption(_ExpelHarm)) and php<=getValue(getOption(_ExpelHarm)) and power>=40 and getSpellCD(_ExpelHarm)==0 then
+				if isChecked(getOption(_ExpelHarm)) and php<=getValue(getOption(_ExpelHarm)) and power>=40 and GetSpellCooldown(_ExpelHarm)==0 then
 					if (isInCombat("player") and chiDiff>=2) or not isInCombat("player") then
 						if castSpell("player",_ExpelHarm,true,false,false) then return end
 					end
@@ -195,13 +202,13 @@ function WindwalkerMonk()
 ---------------------
 --- Out of Combat ---
 ---------------------
-			if not isInCombat("player") then
+			if not isInCombat("player") and ObjectExists("target") then
 	-- Expel Harm (Chi Builer)
-				if BadBoy_data['Builder']==1 and chiDiff>=2 and power>=40 and getSpellCD(_ExpelHarm) then
+				if BadBoy_data['Builder']==1 and chiDiff>=2 and power>=40 and GetSpellCooldown(_ExpelHarm) then
 					if castSpell("player",_ExpelHarm,false,false,false) then return end
 				end
 	-- Provoke
-				if select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" and getSpellCD(_FlyingSerpentKick)>1 and dynamicDist.dyn40AoE > 10 then
+				if select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" and GetSpellCooldown(_FlyingSerpentKick)>1 and dynamicDist.dyn40AoE > 10 then
 					if select(2,IsInInstance())=="none" and #members==1 then
 						if castSpell(dynamicUnit.dyn40AoE,_Provoke,false,false) then return end
 					end
@@ -228,7 +235,7 @@ function WindwalkerMonk()
 -----------------
 --- In Combat ---
 -----------------
-		if isInCombat("player") then
+		if isInCombat("player") and profileStop==false then
 	------------------------------
 	--- In Combat - Dummy Test ---
 	------------------------------
@@ -270,18 +277,33 @@ function WindwalkerMonk()
 	--- In Combat - Cooldowns ---
 	-----------------------------
 				if useCDs() and tarDist<5 and not IsMounted() then
+			-- Trinkets
+					if canTrinket(13) and useCDs() then
+						RunMacroText("/use 13")
+						if IsAoEPending() then
+							local X,Y,Z = ObjectPosition(Unit)
+							CastAtPosition(X,Y,Z)
+						end
+					end
+					if canTrinket(14) and useCDs() then
+						RunMacroText("/use 14")
+						if IsAoEPending() then
+							local X,Y,Z = ObjectPosition(Unit)
+							CastAtPosition(X,Y,Z)
+						end
+					end
 			-- Invoke Xuen
 					if isChecked(getOption(_InvokeXuen)) then
-						if castSpell(thisUnit,_InvokeXuen) then return end
+						if castSpell(thisUnit,_InvokeXuen,true,false,false) then return end
 					end
 			-- Potion
 					if canUse(109217) and serRemain>0 and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") then
 						UseItemByName(tostring(select(1,GetItemInfo(109217))))
 	            	end
 			-- Racial: Troll Berserking
-			          if isChecked("Racial") and select(2, UnitRace("player")) == "Troll" then
-			            if castSpell("player",_Berserking,false,false) then return end
-			          end
+					if isChecked("Racial") and select(2, UnitRace("player")) == "Troll" then
+						if castSpell("player",_Berserking,false,false) then return end
+					end
 	      		end
 	--------------------------------
 	--- In Combat - All Rotation ---
@@ -295,13 +317,19 @@ function WindwalkerMonk()
 					-- if (#targets == 1 and sefStack==2) or (#targets == 0 and sefStack==1) then
 					-- 	CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
 					-- end
+					if #targets==0 and UnitBuffID("player",_StormEarthFire) then
+						--RunMacroText("/cancelaura Storm, Earth, and Fire")
+						CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
+					end
 					if #targets==1 then
 						if UnitGUID(targets[1].Unit)==UnitGUID(dynamicUnit.dyn5) then
+							--RunMacroText("/cancelaura Storm, Earth, and Fire")
 							CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
 						end
 					end
 					if #targets>1 then
 						if UnitGUID(targets[1].Unit)==UnitGUID(dynamicUnit.dyn5) or UnitGUID(targets[2].Unit)==UnitGUID(dynamicUnit.dyn5) then
+							--RunMacroText("/cancelaura Storm, Earth, and Fire")
 							CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
 						end
 					end
@@ -319,7 +347,7 @@ function WindwalkerMonk()
 					if castSpell("player",_Roll,true,false,false) then return end
 				end
 	-- Crackling Jade Lightning
-				if dynamicDist.dyn8 >= 8 and (BadBoy_data['FSK']==1 and getSpellCD(_FlyingSerpentKick)>1) and power>20 
+				if dynamicDist.dyn8 >= 8 and (BadBoy_data['FSK']==1 and GetSpellCooldown(_FlyingSerpentKick)>1) and power>20 
 					and chiDiff>=2 and not isCastingSpell(_CracklingJadeLightning) and isInCombat(dynamicUnit.dyn40) 
 				then
 					if castSpell(dynamicUnit.dyn40,_CracklingJadeLightning,false) then return end
@@ -337,7 +365,7 @@ function WindwalkerMonk()
 					and (tebStack==20
 						or (tebStack>=10 and serRemain>0)
 						or (tebStack>=10 and fofCD==0 and chi>=3 and rskRemain>0 and tpRemain>0)
-						or (getTalent(7,1) and tebStack>=10 and getSpellCD(_HurricaneStrike)>0 and chi>=3 and rskRemain>0 and tpRemain>0)
+						or (getTalent(7,1) and tebStack>=10 and GetSpellCooldown(_HurricaneStrike)>0 and chi>=3 and rskRemain>0 and tpRemain>0)
 						or (chi>=2 and (tebStack>=16 or ttd<40) and rskRemain>0 and tpRemain>0))
 				then
 					if castSpell("player",_TigereyeBrew,false,false) then tebCast = GetTime()+15; return end
@@ -416,7 +444,7 @@ function WindwalkerMonk()
 						if castSpell("player",_SpinningCraneKick,false,false) then return end
 					end
 	-- Jab
-					if getTalent(6,1) and chiDiff>=2 and power>=45 and (php>=getValue("Expel Harm") or getSpellCD(_ExpelHarm)>0) then
+					if getTalent(6,1) and chiDiff>=2 and power>=45 and (php>=getValue("Expel Harm") or GetSpellCooldown(_ExpelHarm)>0) then
 						if castSpell(dynamicUnit.dyn5,_Jab,false,false) then return end
 					end
 				end
@@ -437,7 +465,7 @@ function WindwalkerMonk()
 						if castSpell(dynamicUnit.dyn12AoE,_HurricaneStrike,false,false) then return end
 					end
 	-- Energizing Brew
-					if fofCD>6 and (not getTalent(7,3) or (serRemain==0 and getSpellCD(_Serenity)>4)) and powtime<50 then
+					if fofCD>6 and (not getTalent(7,3) or (serRemain==0 and GetSpellCooldown(_Serenity)>4)) and powtime<50 then
 						if castSpell("player",_EnergizingBrew,false,false) then return end
 					end
 	-- Raising Sun Kick
@@ -477,7 +505,7 @@ function WindwalkerMonk()
 						if castSpell(dynamicUnit.dyn30,_ChiExplosion,false,false) then return end
 					end
 	-- Jab
-					if (chiDiff>=2 or chi==0) and power>=45 and (php>=getValue("Expel Harm") or getSpellCD(_ExpelHarm)>0) then
+					if (chiDiff>=2 or chi==0) and power>=45 and (php>=getValue("Expel Harm") or GetSpellCooldown(_ExpelHarm)>0) then
 						if castSpell(dynamicUnit.dyn5,_Jab,false,false) then return end
 					end
 				end
@@ -491,7 +519,7 @@ function WindwalkerMonk()
 					end
 				end
 				-- TODO: Start Attack automatticaly when in combat? Is this redundent?
-				if dynamicDist.dyn5<5 and isInCombat("player") then
+				if dynamicDist.dyn5<5 and isInCombat("player") and profileStop==false then
 					StartAttack()
 				end
 			end

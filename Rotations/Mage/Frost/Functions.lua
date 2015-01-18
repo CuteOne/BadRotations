@@ -1,5 +1,82 @@
 if select(3, UnitClass("player")) == 8 then
 
+	function getMagePetSpellCD(spellID)
+		-- Freeze and Waterjet Share CD... so we can clean this up a bit
+		local FreezeIndex = 4
+		local WaterJetIndex = 6
+		local index = 0
+
+		-- Hack, we only care for 2 spells atm
+		if spellID == WaterJet then
+			index = 6
+		else
+			index = 4
+		end
+		if GetPetActionCooldown(index) == 0 then
+			return 0
+		else
+			local Start ,CD = GetPetActionCooldown(index)
+			local MyCD = Start + CD - GetTime()
+			if getOptionCheck("Latency Compensation") then
+				MyCD = MyCD - getLatency()
+			end
+			return MyCD
+		end
+		return 0
+	end
+
+	function isPetCastingSpell(spellID)
+		local spellName = GetSpellInfo(spellID)
+		local spellCasting = UnitCastingInfo("pet")
+
+		if spellCasting == nil then
+			spellCasting = UnitChannelInfo("pet")
+		end
+		if spellCasting == spellName then
+			return true
+		else
+			return false
+		end
+	end
+
+	-- Function that will init the WaterJet phase of frost
+	function initWaterJetActions()
+		--frost_bomb,if=remains<3.6
+		if getDebuffRemain("target",FrostBomb,"player") < 3.6 then
+			--Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,DeadCheck,DistanceSkip,usableSkip)
+			if castFrostBomb("target") then
+				return true -- We are not done with init phase yet so return true
+			end
+		end
+		--ice_lance,if=buff.fingers_of_frost.react&pet.water_elemental.cooldown.water_jet.up
+		if UnitBuffID("player",FingersOfFrost) and getMagePetSpellCD(WaterJets) < 1 then
+			if castIceLance("target") then
+				return true
+			end
+		end
+
+		--water_jet,if=prev_gcd.frostbolt
+		if isCastingSpell(FrostBolt) then
+			RunMacroText("/cast Water Jet")
+			WaterJetTime = GetTime()
+		end
+		--frostbolt,if=prev.water_jet
+		--frostbolt
+		if isPetCastingSpell(WaterJet) then -- Need to check if our pet is casting WaterJets
+			print("WaterJetting")
+			if UnitBuffID("player",FingersOfFrost) then-- Need to check 2 stacks but in a hurry so only check if we have
+				if castIceLance("target") then 
+					return true
+				end
+			end
+			--frostbolt,if=debuff.water_jet.remains>cast_time+travel_time
+			if castFrostBolt("target") then
+				return true
+			end
+		end
+		return false
+	end
+
 	function FrostMageDefensives()
 
 
@@ -409,13 +486,5 @@ if select(3, UnitClass("player")) == 8 then
 				return;
 			end
 		end
-
-		-- actions.single_target+=/ice_lance,moving=1
-		if isMoving("player") then
-			if castSpell("target",IceLance,false,false) then
-				return;
-			end
-		end
-
 	end
 end

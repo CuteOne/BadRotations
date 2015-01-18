@@ -1520,12 +1520,13 @@ function castingUnit(Unit)
 end
 
 -- if isCastingSpell(12345) == true then
-function isCastingSpell(spellID)
+function isCastingSpell(spellID,unit)
+    if unit == nil then unit = "player" end
 	local spellName = GetSpellInfo(spellID)
-	local spellCasting = UnitCastingInfo("player")
+	local spellCasting = UnitCastingInfo(unit)
 
 	if spellCasting == nil then
-		spellCasting = UnitChannelInfo("player")
+		spellCasting = UnitChannelInfo(unit)
 	end
 	if spellCasting == spellName then
 		return true
