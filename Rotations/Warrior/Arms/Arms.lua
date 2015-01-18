@@ -170,17 +170,17 @@ if select(3,UnitClass("player")) == 1 then
 	-- Queued Spells -------------------------------------------------------------------------------------
 	------------------------------------------------------------------------------------------------------
 			if _Queues[Shockwave] == true then
-				if castSpell("target",Shockwave,false,false) then
+				if castSpell("target",_Shockwave,false,false) then
 					return;
 				end
 			end
 			if _Queues[Bladestorm] == true then
-				if castSpell("target",Bladestorm,false,false) then
+				if castSpell("target",_Bladestorm,false,false) then
 					return;
 				end
 			end
 			if _Queues[DragonRoar] == true then
-				if castSpell("target",DragonRoar,false,false) then
+				if castSpell("target",_DragonRoar,false,false) then
 					return;
 				end
 			end
@@ -200,7 +200,7 @@ if select(3,UnitClass("player")) == 1 then
 				-- Die by the Sword
 				if isChecked("Die by the Sword") == true then
 					if getHP("player") <= getValue("Die by the Sword") then
-						if castSpell("player",DiebytheSword,true) then
+						if castSpell("player",_DiebytheSword,true) then
 							return;
 						end
 					end
@@ -208,15 +208,15 @@ if select(3,UnitClass("player")) == 1 then
 				-- Rallying Cry
 				if isChecked("Rallying Cry") == true then
 					if getHP("player") <= getValue("Rallying Cry") then
-						if castSpell("player",RallyingCry,true) then
+						if castSpell("player",_RallyingCry,true) then
 							return;
 						end
 					end
 				end
 				-- Enraged Regeneration
 				if isChecked("Enraged Regeneration") == true then
-					if isKnown(EnragedRegeneration) and getHP("player") <= getValue("Enraged Regeneration") then
-						if castSpell("player",EnragedRegeneration,true) then
+					if isKnown(_EnragedRegeneration) and getHP("player") <= getValue("Enraged Regeneration") then
+						if castSpell("player",_EnragedRegeneration,true) then
 							return;
 						end
 					end
@@ -232,7 +232,7 @@ if select(3,UnitClass("player")) == 1 then
 				-- Vigilance Focus
 				if isChecked("Vigilance on Focus") == true then
 					if getHP("focus") <= getValue("Vigilance on Focus") then
-						if castSpell("focus",Vigilance,false,false) then
+						if castSpell("focus",_Vigilance,false,false) then
 							return;
 						end
 					end
@@ -240,11 +240,11 @@ if select(3,UnitClass("player")) == 1 then
 				-- Def Stance
 				if isChecked("DefensiveStance") == true then
 					if getHP("player") <= getValue("DefensiveStance") and GetShapeshiftForm() ~= 2 then
-						if castSpell("player",DefensiveStance,true) then
+						if castSpell("player",_DefensiveStance,true) then
 							return;
 						end
 					elseif getHP("player") > getValue("DefensiveStance") and GetShapeshiftForm() ~= 1 then
-						if castSpell("player",BattleStance,true) then
+						if castSpell("player",_BattleStance,true) then
 							return;
 						end
 					end
