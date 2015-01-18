@@ -1,523 +1,262 @@
-if select(3, UnitClass("player")) == 1 
-and GetSpecialization() == 3 then
+if select(3, UnitClass("player")) == 1  then
 
--------------------------------------
---- Evil Eye CD Reduction Trinket ---
--------------------------------------
-function EvilEye()
-  if CD_Trinket == nil then
+	function ProtWarriorFunctions()
 
-    if (GetInventoryItemID("player", 13) == 105491
-      or GetInventoryItemID("player", 14) == 105491) then -- heroic warforged 47%
-        CD_Reduction_Value = (1 / 1.47)
-        CD_Trinket = true
+		-- build core
+            local protCore = {
+                profile = "Protection",
+                -- player stats
+                buff = { },
+                combatStarted = 0,
+                cd = { },
+                globalCooldown = 0,
+                glyph = { },
+                health = 100,
+                inCombat = false,
+                melee5Yards = 0,
+                mode = { },
+                nova = {
+                	lowestHP = 0,
+                	lowestUnit = "player",
+                	lowestTankHP = 0,
+                	lowestTankUnit = "player"
+                },
+				rage =0,
+                recharge = { },
+				stance = 1,
+                talent = { },
+                units = { },
+                spell = {
+                    Charge 				= 100,
+					DemoralizingBanner	= 114203,
+					DemoralizingShout	= 1160,
+					Devastate			= 20243,
+					Execute				= 5308,
+					Hamstring			= 1715,
+					HeroicLeap			= 6544,
+					HeroicStrike		= 78,
+					HeroicThrow			= 57755,
+					Intervene			= 3411,
+					IntimidatingShout 	= 5246,
+					LastStand			= 12975,
+					MockingBanner		= 114192,
+					Pummel				= 6552,
+					RallyingCry			= 97462,
+					Revenge				= 6572,
+					ShatteringThrow		= 64382,
+					ShieldBarrier		= 112048,
+					ShieldBlock			= 2565,
+					ShieldCharge = 156321,
+					ShieldChargeBuff = 169667,
+					ShieldSlam			= 23922,
+					ShieldWall			= 871,
+					SpellReflection		= 23920,
+					Taunt				= 355,
+					ThunderClap			= 6343,
+					VictoryRush			= 34428,
+					EnragedRegeneration	= 55694,
+					ImpendingVictory 	= 103840,
+					Bladestorm			= 46924,
+					Shockwave			= 46968,
+					DragonRoar 			= 118000,
+					MassSpellReflection	= 114028,
+					Safeguard			= 114029,
+					Vigilance			= 114030,
+					Avatar				= 107574,
+					Bloodbath			= 12292,
+					StormBolt			= 107570,
+					Ravager       		= 152277,
+					Siegebreaker 		= 176289,
+					SuddenDeathTalent 	= 29725,
+					UnquenchableThirst	= 169683,
+					UnyieldingStrikesTalent = 169685,
+					UnyieldingStrikesAura = 169686,
 
-    elseif (GetInventoryItemID("player", 13) == 104495 -- heroic 44%
-      or GetInventoryItemID("player", 14) == 104495) then
-        CD_Reduction_Value = (1 / 1.44)
-        CD_Trinket = true
+                 }
+            }
 
-    elseif (GetInventoryItemID("player", 13) == 105242 -- warforged 41%
-      or GetInventoryItemID("player", 14) == 105242) then
-        CD_Reduction_Value = (1 / 1.41)
-        CD_Trinket = true
-
-    elseif (GetInventoryItemID("player", 13) == 102298  -- normal 39%
-      or GetInventoryItemID("player", 14) == 102298) then
-        CD_Reduction_Value = (1 / 1.39)
-        CD_Trinket = true
-
-    elseif (GetInventoryItemID("player", 13) == 104744 -- flex 34%
-      or GetInventoryItemID("player", 14) == 104744) then
-        CD_Reduction_Value = (1 / 1.34)
-        CD_Trinket = true
-
-    elseif (GetInventoryItemID("player", 13) == 104993  -- lfr 31%
-      or GetInventoryItemID("player", 14) == 104993) then
-        CD_Reduction_Value = (1 / 1.31)
-        CD_Trinket = true
-    end
-
-    if CD_Trinket ~= true then
-      CD_Trinket = false
-      CD_Reduction_Value = 1
-    end
-  end
-end
-
------------
---- AoE ---
------------
- -- if ScanTimer == nil or ScanTimer <= GetTime() - 1 then
- --    print(meleeEnemies);
- --      meleeEnemies, ScanTimer = getNumEnemies("player",8), GetTime();
- --     end
-
-function getmeleeEnemies()
-    if ScanTimer == nil or ScanTimer <= GetTime() - 1 then
-    meleeEnemies, ScanTimer = getNumEnemies("player",8), GetTime();
-   -- print("MeleeEnemies:"..meleeEnemies);
-    end
-    return meleeEnemies;
-end
-
-function useAoE()
-    if BadBoy_data['AoE'] == 1 and getmeleeEnemies() >= 3 then
-    -- if BadBoy_data['AoE'] == 1 or BadBoy_data['AoE'] == 2 then
-        return true
-    else
-        return false
-    end
-end
-
-------------------
---- Multi Rend ---
-------------------
-function SpreadRend()
- -- Here i do my target checks and i make sure i want to iterate. I use canCast prior to everything just to save power, i dont want to scan if that spell is not ready.
-    if isChecked("Multi-Rend") and canCast(Rend) then
-        if myEnemies == nil or myEnemiesTimer == nil or myEnemiesTimer <= GetTime() - 1 then
-            myEnemies, myEnemiesTimer = getEnemies("player",5), GetTime();
-        end
-        -- begin loop
-        if myEnemies ~= nil then
-            for i = 1, #myEnemies do
-                -- we check if it's a valid unit
-                if getCreatureType(myEnemies[i]) == true then
-                    -- now that we know the unit is valid, we can use it to check whatever we want.. let's call it thisUnit
-                    local thisUnit = myEnemies[i]
-                    -- Here I do my specific spell checks
-                    if ((UnitCanAttack(thisUnit,"player") == true and UnitAffectingCombat(thisUnit) == true) or isDummy(thisUnit))
-                    and getDebuffRemain(thisUnit,Rend) < 5
-                    and getDistance("player",thisUnit) < 5 then
-                        -- All is good, let's cast.
-                        if isGarrMCd(thisUnit) == false then
-                            if castSpell(thisUnit,Rend,false,false) then
-                                return;
-                            end
-                        end
-                    end
-                end
+			-- Global
+            core = protCore
+			
+			-- localise commonly used functions
+            local getHP,hasGlyph,UnitPower,getBuffRemain,getBuffStacks = getHP,hasGlyph,UnitPower,getBuffRemain,getBuffStacks
+            local UnitBuffID,isInMelee,getSpellCD,getEnemies = UnitBuffID,isInMelee,getSpellCD,getEnemies
+            local player,BadBoy_data,GetShapeshiftForm,dynamicTarget = "player",BadBoy_data,GetShapeshiftForm,dynamicTarget
+            local GetSpellCooldown,select,getValue,isChecked,castInterrupt = GetSpellCooldown,select,getValue,isChecked,castInterrupt
+            local isSelected,UnitExists,isDummy,isMoving,castSpell,castGround = isSelected,UnitExists,isDummy,isMoving,castSpell,castGround
+            local getGround,canCast,isKnown,enemiesTable,sp = getGround,canCast,isKnown,enemiesTable,core.spells
+            local UnitHealth,print,UnitHealthMax = UnitHealth,print,UnitHealthMax
+            local getDistance,getDebuffRemain,GetTime,getFacing = getDistance,getDebuffRemain,GetTime,getFacing
+            local spellCastersTable,getOptionCheck = bb.im.casters,getOptionCheck
+            local useItem = useItem
+            -- no external access after here
+            setfenv(1,protCore)
+			
+			function protCore:ooc()
+				
+                -- Talents (refresh ooc)
+               self.talent.UnyieldingStrikes = isKnown(self.spell.UnyieldingStrikesTalent)
+			   self.talent.DragonRoar  = isKnown(self.spell.DragonRoar)  
+			   self.talent.StormBolt = isKnown(self.spell.StormBolt)
+			   self.talent.Shockwave = isKnown(self.spell.Shockwave)
+			   self.talent.Bloodbath = isKnown(self.spell.Bloodbath)
+			   
+                -- Glyph (refresh ooc)
+                
+				
+                self.inCombat = false
             end
-        end
-    end
-end
+			
+			-- this will be used to make the core refresh itself
+            function protCore:update()
+                -- player stats
+                self.health = getHP(player)
+                self.rage = UnitPower(player)
+                -- Buffs
+                self.buff.ShieldBlock = getBuffRemain(player,self.spell.ShieldBlock)
+                self.buff.ShieldBarrier = getBuffRemain(player,self.spell.ShieldBarrier)
+				self.buff.ShieldCharge = getBuffRemain(player,self.spell.ShieldChargeBuff)
+				self.buff.ShieldWall = getBuffRemain(player,self.spell.ShieldWall)
+				self.buff.LastStand = getBuffRemain(player,self.spell.LastStand)
+				self.buff.Ultimatum = getBuffRemain(player, 122510)
+				self.buff.UnyieldingStrikesStack = getBuffStacks(player, self.spell.UnyieldingStrikesAura)
+				self.buff.SuddenDeath = getBuffRemain(player,self.spell.SuddenDeathTalent)
+				self.buff.Ravager = getBuffRemain(player, self.spell.Ravager)
+				self.buff.EnragedRegeneration = getBuffRemain(player, self.spell.EnragedRegeneration)
+                -- Cooldowns
+                self.cd.DemoralizingShout = getSpellCD(self.spell.DemoralizingShout)
+                self.cd.LastStand = getSpellCD(self.spell.LastStand)
+                self.cd.ShieldBlock = getSpellCD(self.spell.ShieldBlock)
+                self.cd.ShieldWall = getSpellCD(self.spell.ShieldWall)
+                self.globalCooldown = getSpellCD(self.spell.Devastate)
+                self.inCombat = true
+                -- Units
+                self.melee5Yards = #getEnemies(player,5) -- (meleeEnemies)
+                -- Modes
+                self.mode.aoe = BadBoy_data["AoE"]
+                self.mode.cooldowns = BadBoy_data["Cooldowns"]
+                self.mode.defensive = BadBoy_data["Defensive"]
+                self.mode.interupts = BadBoy_data["Interrupts"]
+                -- truth = true, right = false
+                self.stance = GetShapeshiftForm()
+                -- dynamic units
+                self.units.dyn5 = dynamicTarget(5,true)
+                self.units.dyn5AoE = dynamicTarget(5,false)
+                self.units.dyn8AoE = dynamicTarget(8,false)
+                self.units.dyn25AoE = dynamicTarget(25,false)
+                self.units.dyn30 = dynamicTarget(30,true)
+                self.units.dyn30AoE = dynamicTarget(30,false)
+                self.units.dyn40 = dynamicTarget(40,true)
 
------------------
---- Cooldowns ---
------------------
-function useCDs()
-    if (BadBoy_data['Cooldowns'] == 1 and (isBoss("target") or isDummy("target"))) or BadBoy_data['Cooldowns'] == 2 then
-        return true
-    else
-        return false
-    end
-end
+	    		-- Generic Lowest Tank and Raider
+	    		local validMembers = 0
 
-function useDefCDs()
-    if BadBoy_data['Defensive'] == 1 then
-        return true
-    else
-        return false
-    end
-end
-
------------------------
---- Bloodlust check ---
------------------------
-function hasLust()
-    if UnitBuffID("player",2825)        -- Bloodlust
-    or UnitBuffID("player",80353)       -- Timewarp
-    or UnitBuffID("player",32182)       -- Heroism
-    or UnitBuffID("player",90355) then  -- Ancient Hysteria
-        return true
-    else
-        return false
-    end
-end
-
--------------------------------------
---- Shield Block / Barrier Switch ---
--------------------------------------
-
-SLASH_BLOCKBARRIER1 = '/blockbarrier';
-function SlashCmdList.BLOCKBARRIER(msg, editbox)
-  if getValue("Block or Barrier") == 1 then
-    RunMacroText("/run BadBoy_data['Drop Block or Barrier'] = 2");
-    ChatOverlay("Using Shield Barrier")
-  elseif getValue("Block or Barrier") == 2 then
-    RunMacroText("/run BadBoy_data['Drop Block or Barrier'] = 1");
-    ChatOverlay("Using Shield Block")
-  end
-end
-
-function CalculateHP(unit)
-  incomingheals = UnitGetIncomingHeals(unit) or 0
-  return 100 * ( UnitHealth(unit) + incomingheals ) / UnitHealthMax(unit)
-end
-
-function GroupInfo()
-    members, group = { { Unit = "player", HP = CalculateHP("player") } }, { low = 0, tanks = { } }
-    group.type = IsInRaid() and "raid" or "party"
-    group.number = GetNumGroupMembers()
-    if group.number > 0 then
-        for i=1,group.number do
-            if canHeal(group.type..i) then
-                local unit, hp = group.type..i, CalculateHP(group.type..i)
-                table.insert( members,{ Unit = unit, HP = hp } )
-                if hp < 90 then group.low = group.low + 1 end
-                if UnitGroupRolesAssigned(unit) == "TANK" then table.insert(group.tanks,unit) end
+                -- others
+                self.unitInFront = getFacing("player",self.units.dyn5) == true or false
+                self.combatLenght = GetTime() - BadBoy_data["Combat Started"]
             end
-        end
-        if group.type == "raid" and #members > 1 then table.remove(members,1) end
-        table.sort(members, function(x,y) return x.HP < y.HP end)
-        --local customtarget = canHeal("target") and "target" -- or CanHeal("mouseover") and GetMouseFocus() ~= WorldFrame and "mouseover"
-        --if customtarget then table.sort(members, function(x) return UnitIsUnit(customtarget,x.Unit) end) end
-    end
-end
-
-function ArmsSingleTarIcyVeins()
-    if castSpell("player",Bloodbath,true) then
-        return;
-    end
-    --and getDistance("player","target") <= 5
-    if not useAoE() then
-        if UnitBuffID("player",SuddenDeathProc) then
-            if castSpell("target",ExecuteArms,false,false) then
-                return;
+			
+			-- Last Stand
+            function protCore:castLastStand()
+                return isChecked("Last Stand") and self.health <= getValue("Last Stand") and castSpell(player,self.spell.LastStand,true,false)
             end
-        end
-        if getHP("target") > 20 then
-            -- Outside CS
-            if not UnitDebuffID("target",ColossusSmash,"player") then
-
-                -- Multi Rend
-                SpreadRend();
-                -- Rend
-                if isGarrMCd("target") == false then
-                    if getDebuffRemain("target",Rend,"player") <= 5 then
-                        if castSpell("target",Rend,false,false) then
-                            return;
-                        end
-                    end
-                end
-                -- MS
-                if castSpell("target",MortalStrike,false,false) then
-                    return;
-                end
-                -- CS
-                if castSpell("target",ColossusSmash,false,false) then
-                    return;
-                end
-                -- DragonRoar
-                if isKnown(DragonRoar) then
-                    if castSpell("target",DragonRoar,true) then
-                        return;
-                    end
-                end
-                -- Stormbolt
-                if isKnown(StormBolt) then
-                    if castSpell("target",StormBolt,false,false) then
-                        return;
-                    end
-                end
-                -- Slam
-                if not isKnown(Slam) then
-                    if castSpell("target",Whirlwind,false,false) then
-                        return;
-                    end
-                end
-                -- Whirlwind
-                if isKnown(Slam) then
-                    if castSpell("target",Slam,false,false) then
-                        return;
-                    end
-                end
-            end -- Outside CS end
-            -- Inside CS
-            if UnitDebuffID("target",ColossusSmash,"player") then
-                -- MS
-                if castSpell("target",MortalStrike,false,false) then
-                    return;
-                end
-                -- Stormbolt
-                if isKnown(StormBolt) then
-                    if castSpell("target",StormBolt,false,false) then
-                        return;
-                    end
-                end
-                if not isKnown(Slam) then
-                    if castSpell("target",Whirlwind,false,false) then
-                        return;
-                    end
-                end
-                if isKnown(Slam) then
-                    if castSpell("target",Slam,false,false) then
-                        return;
-                    end
-                end
-            end -- Inside CS end
-        end -- > 20% end
-        -- Execute Phase
-        if getHP("target") < 20 then
-            -- Outside CS
-            if not UnitDebuffID("target",ColossusSmash,"player") then
-                -- Multi Rend
-                SpreadRend();
-                -- Rend
-                if isGarrMCd("target") == false then
-                    if getDebuffRemain("target",Rend,"player") <= 5 then
-                        if castSpell("target",Rend,false,false) then
-                            return;
-                        end
-                    end
-                end
-                -- Execute
-                if UnitPower("player") >= 60 then
-                    if castSpell("target",ExecuteArms,false,false) then
-                        return;
-                    end
-                end
-                -- CS
-                    if castSpell("target",ColossusSmash,false,false) then
-                        return;
-                    end
-                -- DragonRoar
-                if isKnown(DragonRoar) then
-                    if castSpell("target",DragonRoar,true) then
-                        return;
-                    end
-                end
-                -- Stormbolt
-                if isKnown(StormBolt) then
-                    if castSpell("target",StormBolt,false,false) then
-                        return;
-                    end
-                end
-            end -- Outside CS end
-            -- Inside CS
-            if UnitDebuffID("target",ColossusSmash,"player") then
-                -- Stormbolt
-                if isKnown(StormBolt) then
-                    if UnitPower("player") < 70 then
-                        if castSpell("target",StormBolt,false,false) then
-                            return;
-                        end
-                    end
-                end
-                -- Execute
-                if castSpell("target",ExecuteArms,false,false) then
-                    return;
-                end
-            end -- Inside CS end
-        end -- < 20% end
-    end -- Single Target end
-end
-
-function ArmsMultiTarIcyVeins()
-    if useAoE() then
-        if castSpell("player",Bloodbath,true) then
-        return;
-    end
-                -- SweepingStrikes
-                if not UnitBuffID("player",SweepingStrikes) then
-                    if castSpell("player",SweepingStrikes,true) then
-                        return;
-                    end
-                end
-                -- Multi Rend
-                SpreadRend();
-                -- Rend
-                if isGarrMCd("target") == false then
-                    if getDebuffRemain("target",Rend,"player") <= 5 then
-                        if castSpell("target",Rend,false,false) then
-                            return;
-                        end
-                    end
-                end
-                -- Dragon Roar
-                if isKnown(DragonRoar) then
-                    if castSpell("target",DragonRoar,true) then
-                        return;
-                    end
-                end
-                --Whirlwind
-                if castSpell("target",Whirlwind,false,false) then
-                    return;
-                end
-            end -- Multi Target end
-        end
-
-function ArmsSingleTarSimCraft()
-    if not useAoE() then
-        if castSpell("player",Bloodbath,true) then
-            return;
-        end
-        -- Multi Rend
-        SpreadRend();
-        -- actions.single=rend,if=ticks_remain<2&target.time_to_die>4
-        if isGarrMCd("target") == false then
-            if getDebuffRemain("target",Rend) < 5 and getTimeToDie("target") > 4 then
-                if castSpell("target",Rend,false,false) then
-                    return;
-                end
+			
+			-- Shield Wall
+            function protCore:castShieldWall()
+                return isChecked("Shield Wall") and self.health <= getValue("Shield Wall") and castSpell(player,self.spell.ShieldWall,true,false)
             end
-        end
-        -- actions.single+=/mortal_strike,if=target.health.pct>20
-        if getHP("target") > 20 then
-            if castSpell("target",MortalStrike,false,false) then
-                return;
+			
+			-- Enraged Regeneration
+            function protCore:castEnragedRegeneration()
+                return isChecked("Enraged Regeneration") and self.health <= getValue("Enraged Regeneration") and castSpell(player,self.spell.EnragedRegeneration,true,false)
             end
-        end
-        -- actions.single+=/ravager,if=cooldown.colossus_smash.remains<3
-
-        -- actions.single+=/colossus_smash
-        if castSpell("target",ColossusSmash,false,false) then
-            return;
-        end
-        -- actions.single+=/storm_bolt,if=(cooldown.colossus_smash.remains>4|debuff.colossus_smash.up)&rage<90
-        if (getSpellCD(ColossusSmash) > 4 or UnitDebuffID("target",ColossusSmash)) and UnitPower("player") < 90 then
-            if castSpell("target",StormBolt,false,false) then
-                return;
+			
+			-- TODO create functions for shouts and other buffs we might want to add
+			function protCore:castBuffs()
+			end
+			
+			
+			-- ShieldBlock
+            function protCore:castShieldBlock()
+                return castSpell(player,self.spell.ShieldBlock,true,false)
             end
-        end
-        -- actions.single+=/siegebreaker
-
-        -- actions.single+=/dragon_roar,if=!debuff.colossus_smash.up
-        if isKnown(DragonRoar) then
-            if not UnitDebuffID("target",ColossusSmash) and getDistance("player","target") < 8 then
-                if castSpell("target",DragonRoar,true) then
-                    return;
-                end
+			
+			-- ShieldBarrier
+            function protCore:castShieldBarrier()
+                return castSpell(player,self.spell.ShieldBarrier,true,false)
             end
-        end
-        -- actions.single+=/execute,if=(rage>60&cooldown.colossus_smash.remains>execute_time)|debuff.colossus_smash.up|buff.sudden_death.react|target.time_to_die<5
-        if UnitPower("player") > 60 or UnitDebuffID("target",ColossusSmash) or UnitBuffID("player",SuddenDeathProc) or getTimeToDie("target") < 5 then
-            if castSpell("target",ExecuteArms,false,false) then
-                return;
+			
+			-- Heroic Strike
+            function protCore:castHeroicStrike()
+                return castSpell(self.units.dyn5,self.spell.HeroicStrike,true,false)
             end
-        end
-        -- actions.single+=/slam,if=(rage>20|cooldown.colossus_smash.remains>execute_time)&target.health.pct>20
-        if isKnown(Slam) then
-            if UnitPower("player") > 20 and getHP("target") > 20 then
-                if castSpell("target",Slam,false,false) then
-                    return;
-                end
+			
+			-- ShieldSlam
+            function protCore:castShieldSlam()
+                return castSpell(self.units.dyn5,self.spell.ShieldSlam,true,false)
             end
-        end
-        -- actions.single+=/whirlwind,if=target.health.pct>20&!talent.slam.enabled&(rage>40|set_bonus.tier17_4pc)
-        if getHP("target") > 20 and not isKnown(Slam) and UnitPower("player") > 40 then
-            if castSpell("target",Whirlwind,false,false) then
-                return;
+			
+			-- Revenge
+            function protCore:castRevenge()
+                return castSpell(self.units.dyn5,self.spell.Revenge,true,false)
             end
-        end
-        -- actions.single+=/shockwave
-    end
-end
-
-function ArmsMultiTarSimCraft()
-    if useAoE() then
-        if castSpell("player",Bloodbath,true) then
-        return;
-    end
-        -- actions.aoe=sweeping_strikes
-        if castSpell("player",SweepingStrikes,true) then
-            return;
-        end
-        -- actions.aoe+=/bladestorm
-        if isKnown(Bladestorm) then
-            if getDistance("player","target") < 8 then
-                if castSpell("target",Bladestorm,true) then
-                    return;
-                end
+			
+			-- Ravager TODO Fix Logic
+            function protCore:castRavager()
+                return false
             end
-        end
-        -- Multi Rend
-        SpreadRend();
-        -- actions.aoe+=/rend,if=active_enemies<=4&ticks_remain<2
-        if isGarrMCd("target") == false then
-            if getDebuffRemain("target",Rend,"player") <= 5 then
-                if castSpell("target",Rend,false,false) then
-                    return;
-                end
+			
+			-- StormBolt TODO Fix dyn range
+            function protCore:castStormBolt()
+                return castSpell(self.units.dyn5,self.spell.StormBolt,true,false)
             end
-        end
-        -- actions.aoe+=/ravager,if=buff.bloodbath.up|!talent.bloodbath.enabled
-        -- actions.aoe+=/colossus_smash
-        if castSpell("target",ColossusSmash,false,false) then
-            return;
-        end
-        -- actions.aoe+=/dragon_roar,if=!debuff.colossus_smash.up
-        if isKnown(DragonRoar) then
-            if not UnitDebuffID("target",ColossusSmash) and getDistance("player","target") < 8 then
-                if castSpell("target",DragonRoar,true) then
-                    return;
-                end
+			
+			-- DragonRoar
+            function protCore:castDragonRoar()
+                return castSpell(self.units.dyn5,self.spell.StormBolt,true,false)
             end
-        end
-        -- actions.aoe+=/execute,if=active_enemies<=3&((rage>60&cooldown.colossus_smash.remains>execute_time)|debuff.colossus_smash.up|target.time_to_die<5)
-        if getmeleeEnemies() <= 3 and (UnitPower("player") > 60 or UnitDebuffID("target",ColossusSmash) or getTimeToDie("target") < 5) then
-            if castSpell("target",ExecuteArms,false,false) then
-                return;
+			
+			-- ImpendingVictory
+            function protCore:castImpendingVictory()
+                return castSpell(self.units.dyn5,self.spell.DragonRoar,true,false)
             end
-        end
-        -- actions.aoe+=/whirlwind,if=active_enemies>=4|(active_enemies<=3&(rage>60|cooldown.colossus_smash.remains>execute_time)&target.health.pct>20)
-        if getmeleeEnemies() >= 4 or (getmeleeEnemies() <= 3 and UnitPower("player") > 60 and getHP("target") > 20) then
-            if castSpell("target",Whirlwind,false,false) then
-                return;
+			
+			-- Execute
+            function protCore:castExecute()
+                return castSpell(self.units.dyn5,self.spell.Execute,true,false)
             end
-        end
-        -- actions.aoe+=/bladestorm,interrupt_if=!cooldown.colossus_smash.remains|!cooldown.ravager.remains
-        if isChecked("Bladestorm/Dragonroar") and isKnown(Bladestorm) then
-            if (CS_COOLDOWN <= 1 or canCast(ColossusSmash)) and BLADESTORM ~= nil
-            or (RV_COOLDOWN <= 1 or canCast(Ravager)) and BLADESTORM ~= nil then
-                RunMacroText("/cancelaura bladestorm")
-                return false;
-                else
-                  if castSpell("target",Bladestorm,true) then
-                    return;
-                  end
+			
+			-- Devastate
+            function protCore:castDevastate()
+                return castSpell(self.units.dyn5,self.spell.Devastate,true,false)
             end
-        end
-        -- actions.aoe+=/rend,cycle_targets=1,if=!ticking
-        -- actions.aoe+=/siegebreaker,if=active_enemies=2
-        -- actions.aoe+=/storm_bolt,if=cooldown.colossus_smash.remains>4|debuff.colossus_smash.up
-        if getSpellCD(ColossusSmash) > 4 or UnitDebuffID("target",ColossusSmash) then
-            if castSpell("target",StormBolt,false,false) then
-                return;
+			
+			-- Shockwave
+			-- TODO add check box checks
+            function protCore:castShockwave()
+                return isChecked("Auto Shockwave") and  castSpell(self.units.dyn5,self.spell.Shockwave,true,false)
             end
-        end
-        -- actions.aoe+=/shockwave
-    end
-end
-
-
-
---[[           ]]	--[[]]	   --[[]]	--[[           ]]	--[[]]	  --[[]]
---[[           ]]	--[[]]	   --[[]]	--[[           ]]	--[[]]	  --[[]]
---[[]] 				--[[]]	   --[[]]	--[[]]	   --[[]]	   --[[    ]]
---[[           ]]	--[[]]	   --[[]]	--[[         ]]		   --[[    ]]
---[[           ]]	--[[]]	   --[[]]	--[[        ]]			 --[[]]
---[[]] 				--[[           ]]	--[[]]	  --[[]]		 --[[]]
---[[]]      		--[[           ]]	--[[]]		--[[]]		 --[[]]
-
---[[           ]]	--[[           ]]	--[[           ]] 	--[[           ]]
---[[           ]]	--[[           ]]	--[[           ]] 	--[[           ]]
---[[]]	   --[[]]	--[[]]	   --[[]]	--[[]]	   --[[]]		 --[[ ]]
---[[         ]]		--[[         ]]	    --[[]]	   --[[]]		 --[[ ]]
---[[       ]]		--[[        ]]		--[[]]	   --[[]]		 --[[ ]]
---[[]]				--[[]]	  --[[]]	--[[           ]]	 	 --[[ ]]
---[[]] 				--[[]]	   --[[]]	--[[           ]]		 --[[ ]]
-
-
-
-
---[[           ]]	--[[]]	   --[[]]	--[[]]	   --[[]]	--[[   		   ]]	--[[   		   ]]	--[[   		   ]]	--[[           ]]	--[[]]	   --[[]]
---[[           ]]	--[[]]	   --[[]]	--[[  ]]   --[[]]	--[[   		   ]]	--[[   		   ]]	--[[   		   ]]	--[[           ]]	--[[  ]]   --[[]]
---[[]]				--[[]]	   --[[]]	--[[    ]] --[[]]   --[[]]					 --[[ ]]			 --[[ ]]		--[[]]	   --[[]]	--[[    ]] --[[]]
---[[           ]]	--[[]]	   --[[]]	--[[           ]]	--[[]]					 --[[ ]]			 --[[ ]]		--[[]]	   --[[]]	--[[           ]]
---[[           ]]	--[[]]	   --[[]]	--[[   		   ]]	--[[]]					 --[[ ]]			 --[[ ]]		--[[]]	   --[[]]	--[[   		   ]]
---[[]]	   			--[[           ]]	--[[]]	 --[[  ]]	--[[   		   ]]		 --[[ ]]		--[[   		   ]]	--[[           ]]	--[[]]	 --[[  ]]
---[[]]	   			--[[           ]]	--[[]]	   --[[]]	--[[   		   ]]		 --[[ ]]		--[[   		   ]]	--[[           ]]	--[[]]	   --[[]]
+			
+			-- Bladestorm
+			-- TODO add check box checks
+            function protCore:castBladestorm()
+                return isChecked("Auto Bladestorm") and castSpell(self.units.dyn5,self.spell.Bladestorm,true,false)
+            end
+			
+			-- Bloodbath
+            function protCore:castBloodbath()
+                return isChecked("Auto Bloodbath") and castSpell(player,self.spell.Bloodbath,true,false)
+            end
+			
+			-- Avatar
+            function protCore:castAvatar()
+                return isChecked("Auto Avatar") and castSpell(player,self.spell.Avatar,true,false)
+            end
+			
+			-- ThunderClap
+            function protCore:castThunderClap()
+                return castSpell(self.units.dyn5,self.spell.ThunderClap,true,false)
+            end
+	end  --end for ProtWArriorFunctions
 
 end

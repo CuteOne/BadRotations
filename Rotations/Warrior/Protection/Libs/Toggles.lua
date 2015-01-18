@@ -1,5 +1,4 @@
-if select(3, UnitClass("player")) == 1 
-and GetSpecialization() == 3 then
+if select(3, UnitClass("player")) == 1  then
 
    function WarriorProtToggles()
         if AoEModesLoaded ~= "Prot Warrior AoE Modes" then
