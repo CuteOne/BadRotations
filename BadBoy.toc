@@ -161,18 +161,19 @@ Rotations\Paladin\Functions.lua
 Rotations\Paladin\Options.lua
 
 ## Priest ---------------------------------------------------
+Rotations\Priest\SpellList.lua
+
 Rotations\Priest\Discipline\Discipline.lua
 Rotations\Priest\Discipline\libs\Functions.lua
 Rotations\Priest\Discipline\libs\Options.lua
 Rotations\Priest\Discipline\libs\Toggles.lua
 
-Rotations\Priest\Holy.lua
-
 Rotations\Priest\Shadow\Shadow.lua
 Rotations\Priest\Shadow\libs\Functions.lua
 Rotations\Priest\Shadow\libs\Options.lua
-Rotations\Priest\Shadow\libs\SpellList.lua
 Rotations\Priest\Shadow\libs\Toggles.lua
+
+Rotations\Priest\Holy.lua
 
 ## Rogue ---------------------------------------------------
 Rotations\Rogue\Assassination\Assassination.lua
