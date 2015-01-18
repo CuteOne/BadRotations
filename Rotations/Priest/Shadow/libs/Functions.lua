@@ -80,6 +80,7 @@ if select(3, UnitClass("player")) == 5 then
 		local Blacklist = {
 			"Volatile Anomaly",
 			"Rarnok",
+			--"Spore Shooter",
 		}
 		if Unit == nil then return true end
 		for i = 1, #Blacklist do
@@ -275,6 +276,7 @@ if select(3, UnitClass("player")) == 5 then
 								if (not UnitIsUnit("target",thisUnit)) and safeDoT(thisUnit) then
 									local swpRem = getDebuffRemain(thisUnit,SWP,"player")
 									if swpRem<options.values.RefreshTime and thisHP>options.values.MinHealth then
+										if UnitExists("focus") then thisUnit="focus" end
 										if castSpell(thisUnit,SWP,true,false) then return; end
 									end
 								end
@@ -293,6 +295,7 @@ if select(3, UnitClass("player")) == 5 then
 								if (not UnitIsUnit("target",thisUnit)) and safeDoT(thisUnit) then
 									local vtRem = getDebuffRemain(thisUnit,VT,"player")
 									if vtRem<options.values.RefreshTime and thisHP>options.values.MinHealth then
+										if UnitExists("focus") then thisUnit="focus" end
 										if castSpell(thisUnit,VT,true,false) then
 											options.player.lastVT=GetTime()
 											return; 
@@ -314,7 +317,8 @@ if select(3, UnitClass("player")) == 5 then
 		-- DoT Weaving --
 		-----------------
 			-- if ORBS==5 --> apply DoTs if targetHP>20
-			if isChecked("DoTWeave") and getTalent(3,3) then
+			if options.isChecked.DoTWeave and getTalent(3,3)
+			  and ((not UnitExists("focus")) or UnitIsDead("focus")) then
 				--if getTalent(3,3) then
 					-- function DoTWeaveBreak()
 					-- 	local counter=0
@@ -353,15 +357,13 @@ if select(3, UnitClass("player")) == 5 then
 				if options.player.ORBS==5 then 
 					if getDebuffRemain("target",SWP,"player")>0 or options.isChecked.SWP~=true or options.isChecked.DoTWeave~=true then
 						if getDebuffRemain("target",VT,"player")>0 or options.isChecked.VT~=true or options.isChecked.DoTWeave~=true then
-							if options.isChecked.TwinOgrons then
-								if UnitExists("focus") then
-									if castSpell("focus",DP,false,true) then
-										lastDP=GetTime()
-										return
-									end
+							if options.isChecked.TwinOgrons and UnitExists("focus") and not UnitIsDead("focus") then
+								if castSpell("focus",DP,false,true) then
+									lastDP=GetTime()
+									return
 								end
 							end
-							if options.isChecked.TwinOgrons==nil then
+							if ((not UnitExists("focus")) or UnitIsDead("focus")) then
 								if castSpell("target",DP,false,true) then
 									lastDP=GetTime()
 									return
@@ -373,24 +375,27 @@ if select(3, UnitClass("player")) == 5 then
 			--end
 
 			-- DP if ORBS>=3 and lastDP<DPTIME and InsanityBuff<DPTICK
-			if options.player.ORBS>=3 and (GetTime()-lastDP<=options.player.DPTIME+2 or options.isChecked.TwinOgrons) then
-				if options.isChecked.TwinOgrons then
-					if UnitExists("focus") and getDebuffRemain("focus",DP,"player")<=0.3*options.player.DPTIME then
+			if options.player.ORBS>=3 and (GetTime()-lastDP<=options.player.DPTIME+2 or (options.isChecked.TwinOgrons and UnitExists("focus") and not UnitIsDead("focus"))) then
+				if options.isChecked.TwinOgrons and UnitExists("focus") then
+					if getDebuffRemain("focus",DP,"player")<=0.3*options.player.DPTIME then
 						if castSpell("focus",DP,false,true) then
 							lastDP=GetTime()
 							return
 						end
 					end
 				end
-				if options.isChecked.TwinOgrons==nil then
-					if castSpell("target",DP,false,true) then return; end
+				if not UnitExists("focus") then
+					if getDebuffRemain("focus",DP,"player")<=0.3*options.player.DPTIME then
+						if castSpell("target",DP,false,true) then return; end
+					end
 				end
 			end
 
 			-- Insanity if noChanneling
 			if getTalent(3,3) then
-				if UnitBuffID("player",InsanityBuff) and getBuffRemain("player",InsanityBuff)>0.7*options.player.GCD then
-					if select(1,UnitChannelInfo("player")) == nil then
+				if UnitBuffID("player",InsanityBuff) and getBuffRemain("player",InsanityBuff)>0.7*options.player.GCD
+				  and ((not UnitExists("focus")) or UnitIsDead("focus")) then
+				  	if select(1,UnitChannelInfo("player")) == nil then
 						if castSpell("target",MF,false,true) then return; end
 					end
 				end
@@ -399,22 +404,21 @@ if select(3, UnitClass("player")) == 5 then
 		--------------
 		-- get orbs --
 		--------------
-					
 
-			if not UnitDebuffID("player",InsanityBuff) then
+			if (options.isChecked.TwinOgrons and UnitExists("focus") and not UnitIsDead("focus")) or (not UnitBuffID("player",InsanityBuff)) then
 				-- MB on CD
 				if castSpell("target",MB,false,false) then return; end
+
+				-- Ko'ragh barrier<20% (finisher can be cast if barrier<20%)
+				if GetUnitName("target")=="Ko'ragh" then
+					if castSpell("target",SWD,true,false) then return; end
+				end
 
 				-- SoD MSp Procs
 				if getBuffStacks("player",SoDProc)>=1 then
 					if castSpell("target",MSp,false,false) then return; end
 				end
 
-				-- Ko'ragh barrier<20% (finisher can be cast if barrier<20%)
-				if GetUnitName("target")=="Ko'ragh" then
-					if castSpell("target",SWD,true,false) then return; end
-				end
-			
 				-- -- not used atm. multidotting by dotemall
 				-- -- Dot the bosses (only if DotEmAll is OFF)
 				-- -- SWP on all bosses except target
@@ -476,15 +480,14 @@ if select(3, UnitClass("player")) == 5 then
 					end
 				end
 
-				--if #getEnemies("target",10)<options.values.MindSear or #getEnemies("target",10)>10 then
-					-- Mind Spike
-					--if options.player.ORBS<5 and (getDebuffRemain("target",SWP,"player")<2*options.player.GCD or options.player.ORBS<2) then
-					if options.player.ORBS<5 and #getEnemies("target",10)<options.values.MindSear then
-						if getBuffRemain("player",InsanityBuff)<=0 then
-							if castSpell("target",MSp,false,true) then return; end
-						end
+				-- Mind Spike
+				--if options.player.ORBS<5 and (getDebuffRemain("target",SWP,"player")<2*options.player.GCD or options.player.ORBS<2) then
+				if not(#getEnemies("target",10)<options.values.MindSear and options.isChecked.MindSear) and options.player.ORBS<5 then
+					if getBuffRemain("player",InsanityBuff)<=0 
+					  or (options.isChecked.TwinOgrons and UnitExists("focus") and not UnitIsDead("focus")) then
+						if castSpell("target",MSp,false,true) then return; end
 					end
-				--end
+				end
 			end
 	end
 	--[[                    ]] -- IcySingle DotWeave end

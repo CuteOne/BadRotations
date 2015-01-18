@@ -1,5 +1,21 @@
 if select(3, UnitClass("player")) == 5 then
 
+--[[         ]]		--[[           ]]	--[[           ]]	--[[           ]]
+--[[          ]]		  --[[]]		--[[           ]]	--[[           ]]
+--[[]]	   --[[]]		  --[[]]		--[[]]	   			--[[]]
+--[[]]	   --[[]]		  --[[]]		--[[           ]]	--[[]]
+--[[]]	   --[[]]		  --[[]]				   --[[]]	--[[]]
+--[[          ]]		  --[[]]		--[[           ]]	--[[           ]]
+--[[         ]] 	--[[           ]]	--[[           ]]	--[[           ]]
+
+--[[]]	   --[[]]	--[[           ]]	--[[]]				--[[]]	  --[[]]
+--[[]]	   --[[]]	--[[           ]]	--[[]]				--[[]]	  --[[]]
+--[[           ]]	--[[]]	   --[[]]	--[[]]				   --[[    ]]
+--[[           ]]	--[[]]	   --[[]]	--[[]]				   --[[    ]]
+--[[           ]]	--[[]]	   --[[]]	--[[]]					 --[[]]
+--[[]]	   --[[]]	--[[           ]]	--[[           ]]		 --[[]]
+--[[]]	   --[[]]	--[[           ]]	--[[           ]]		 --[[]]
+
 --[[           ]]	--[[]]	   --[[]]		  --[[]]		--[[         ]]		--[[           ]]	--[[]] 	   --[[]]
 --[[           ]]	--[[]]	   --[[]]	     --[[  ]]		--[[          ]]	--[[           ]]	--[[]] 	   --[[]]
 --[[]]				--[[]]	   --[[]]	    --[[    ]] 		--[[]]	   --[[]]	--[[]]	   --[[]]	--[[ ]]   --[[ ]]
@@ -73,7 +89,7 @@ if select(3, UnitClass("player")) == 5 then
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"|cffBA55D3Encounter Specific");
 				-- DP on Focus
-				CreateNewCheck(thisConfig,"TwinOgrons", "DP on Focus and no Insanity. \nTake POL in focus! \nMultidotting -> ALL");
+				CreateNewCheck(thisConfig,"TwinOgrons", "DP on Focus and no Insanity. \nTake PHEMOS in focus! \nMultidotting -> ALL");
 				CreateNewText(thisConfig,"TwinOgrons"); --DP on Focus
 
 			-- Wrapper -----------------------------------------

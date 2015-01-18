@@ -89,7 +89,7 @@ if select(3, UnitClass("player")) == 5 then
 					-- BossVT =			isChecked("Boss VT"),
 					MindSear =			isChecked("MS Targets"),
 					-- Encounter Specific
-					TwinOgrons = 		isChecked("TwinOgrons"),  -- DP on Focus, DPonFocus
+					TwinOgrons = 		isChecked("Ogron Focus Style"),  -- DP on Focus, DPonFocus
 					-- Utilities
 					PWF = 				isChecked("PW: Fortitude"),
 					Shadowform =		isChecked("Shadowform Outfight"),
@@ -109,8 +109,10 @@ if select(3, UnitClass("player")) == 5 then
 				}
 			}
 
-			datleben=getValue("Min Health")*1000000
+			-- correct twin ogrons options for SoD talent automatically
+			if getTalent(3,1) then options.isChecked.TwinOgrons=true end
 
+			-- set îf not set
 			if options.player.lastVT==nil then options.player.lastVT=0 end
 			if options.player.lastDP==nil then options.player.lastDP=99 end
 
