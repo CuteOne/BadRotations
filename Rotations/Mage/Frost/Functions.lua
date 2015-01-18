@@ -63,7 +63,6 @@ if select(3, UnitClass("player")) == 8 then
 		--frostbolt,if=prev.water_jet
 		--frostbolt
 		if isPetCastingSpell(WaterJet) then -- Need to check if our pet is casting WaterJets
-			print("WaterJetting")
 			if UnitBuffID("player",FingersOfFrost) then-- Need to check 2 stacks but in a hurry so only check if we have
 				if castIceLance("target") then 
 					return true

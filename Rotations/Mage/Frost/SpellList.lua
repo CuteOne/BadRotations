@@ -102,7 +102,6 @@ if select(3, UnitClass("player")) == 8 then
 		if not target then
 			target = dynamicUnit.dyn40
 		end
-		print("Casting castFrozenOrb")
 		if castSpell(target, FrozenOrb,false,true) then
 			return true
 		end
@@ -113,7 +112,6 @@ if select(3, UnitClass("player")) == 8 then
 		if not target then
 			target = dynamicUnit.dyn40
 		end
-		print("Casting castFrostFireBolt")
 		if castSpell(target, FrostFireBolt, false,true) then 
 			return true
 		end
