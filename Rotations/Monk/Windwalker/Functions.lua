@@ -39,8 +39,11 @@ if select(3,UnitClass("player")) == 10 then
         elseif ObjectExists("target") then
             currtar = UnitGUID("target")
         end
-        targets = {}
-        --table.wipe(targets)
+        if targets == nil then 
+            targets = {}
+        else
+            table.wipe(targets)
+        end
         for i=1,#enemies do
             if ObjectExists(enemies[i])
                 and getCreatureType(enemies[i])

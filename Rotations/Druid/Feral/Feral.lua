@@ -57,14 +57,14 @@ function DruidFeral()
 		local rejRemain = getBuffRemain("player", rej)
 		local psRemain = getBuffRemain("player", ps)
 		local siBuff, siCharge = UnitBuffID("player",si), getCharges(si)
-		local rbCooldown = getSpellCD(rb)
-		local sbCooldown = getSpellCD(sb)
-		local mbCooldown = getSpellCD(mb)
+		local rbCooldown = GetSpellCooldown(rb)
+		local sbCooldown = GetSpellCooldown(sb)
+		local mbCooldown = GetSpellCooldown(mb)
 	    local srRemain = getBuffRemain("player",svr)
-	    local tfRemain, tfCooldown = getBuffRemain("player",tf), getSpellCD(tf)
-	    local fonCooldown, fonCharge, fonRecharge = getSpellCD(fon), getCharges(fon), getRecharge(fon)
-	    local berserk, berCooldown = UnitBuffID("player",ber), getSpellCD(ber)
-	    local incarnation, incBuff, incCooldown = getTalent(4,2), UnitBuffID("player",inc), getSpellCD(inc)
+	    local tfRemain, tfCooldown = getBuffRemain("player",tf), GetSpellCooldown(tf)
+	    local fonCooldown, fonCharge, fonRecharge = GetSpellCooldown(fon), getCharges(fon), getRecharge(fon)
+	    local berserk, berCooldown = UnitBuffID("player",ber), GetSpellCooldown(ber)
+	    local incarnation, incBuff, incCooldown = getTalent(4,2), UnitBuffID("player",inc), GetSpellCooldown(inc)
 	    local vicious = getBuffRemain("player",148903)
 	    local restlessagi = getBuffRemain("player",146310)
 	    local bloodtalons, btRemain = getTalent(7,2), getBuffRemain("player",bt)
@@ -82,6 +82,7 @@ function DruidFeral()
 	    if rpRemain - srRemain > 0 then
 	    	srrpDiff = rpRemain - srRemain
 	    end
+	    ChatOverlay(swapper)
 --------------------------------------------------
 --- Ressurection/Dispelling/Healing/Pause/Misc ---
 --------------------------------------------------
@@ -376,9 +377,17 @@ function DruidFeral()
 					if ((not clearcast and powmax-power>=60) or powmax-power>=80) and ObjectExists(dynamicUnit.dyn5) then
 						if canTrinket(13) and useCDs() then
 							RunMacroText("/use 13")
+							if IsAoEPending() then
+								local X,Y,Z = ObjectPosition(Unit)
+								CastAtPosition(X,Y,Z)
+							end
 						end
 						if canTrinket(14) and useCDs() then
 							RunMacroText("/use 14")
+							if IsAoEPending() then
+								local X,Y,Z = ObjectPosition(Unit)
+								CastAtPosition(X,Y,Z)
+							end
 						end
 						if castSpell("player",tf,true,false,false) then return end
 					end
@@ -412,7 +421,7 @@ function DruidFeral()
 		                end
 					end
 		-- Savage Roar
-					if (srRemain<1 or (srRemain<rpRemain and newSr-rpRemain>1)) and combo>0 and power>25 and ObjectExists(dynamicUnit.dyn5) then --(srRemain<1 or (srRemain<rpRemain and newSr-rpRemain>1))
+					if (srRemain<1 or (srRemain<rpRemain and newSr-rpRemain>1)) and combo>0 and power>25 and ObjectExists(dynamicUnit.dyn5) then 
 						if castSpell("player",svr,true,false,false) then return end
 		            end
 		-- Thrash

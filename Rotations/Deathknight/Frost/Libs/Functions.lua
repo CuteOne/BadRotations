@@ -170,6 +170,85 @@ if select(3,UnitClass("player")) == 6 then
         end
     end
 
+    simList = {
+        -- Highmaul
+        {spell = 161630, spelltype = "Damage",}, --Bladespire Sorcerer - Molten Bomb
+        {spell = 161634, spelltype = "Damage",}, --Bladespire Sorcerer - Molten Bomb
+        {spell = 175610, spelltype = "Damage",}, --Night-Twisted Shadowsworn - Chaos Blast
+        {spell = 175614, spelltype = "Damage",}, --Night-Twisted Shadowsworn - Chaos Blast
+        {spell = 175899, spelltype = "Damage",}, --Gorian Runemaster - Rune of Unmaking
+        {spell = 172066, spelltype = "Damage",}, --Oro - Radiating Poison
+        -- Auchindoun
+        {spell = 176518, spelltype = "Damage",}, --Sargerei Soulpriest - Shadow Word: Pain
+        {spell = 154477, spelltype = "Damage",}, --Soulbinder Nyami - Shadow Word: Pain
+        {spell = 167092, spelltype = "Damage",}, --Cackling Pyromaniac - Felblast
+        {spell = 178837, spelltype = "Damage",}, --Cackling Pyromaniac - Felblast
+        {spell = 154221, spelltype = "Damage",}, --Cackling Pyromaniac - Felblast
+        {spell = 157053, spelltype = "Damage",}, --Durag the Dominator - Shadow Bolt
+        {spell = 156954, spelltype = "Damage",}, --Gul'kosh - Unstable Affliction
+        {spell = 157049, spelltype = "Damage",}, --Grom'tash the Destructor - Immolate
+        {spell = 156842, spelltype = "Damage",}, --Teron'gor - Corruption
+        {spell = 156925, spelltype = "Damage",}, --Teron'gor - Agony
+        {spell = 156829, spelltype = "Damage",}, --Teron'gor - Shadow Bolt
+        {spell = 156975, spelltype = "Damage",}, --Teron'gor - Chaos Bolt
+        {spell = 156964, spelltype = "Damage",}, --Teron'gor - Immolate
+        {spell = 156965, spelltype = "Damage",}, --Teron'gor - Doom
+        -- Bloodmaul Slag Mines
+        {spell = 151558, spelltype = "Damage",}, --Bloodmaul Ogre Mage - Lava Burst
+        {spell = 152427, spelltype = "Damage",}, --Magma Lord - Fireball
+        {spell = 150290, spelltype = "Damage",}, --Calamity - Scorch
+        {spell = 164615, spelltype = "Damage",}, --Bloodmaul Flamespeaker - Channel Flames
+        {spell = 164616, spelltype = "Damage",}, --Bloodmaul Flamespeaker - Channel Flames
+        {spell = 150677, spelltype = "Damage",}, --Gug'rokk - Molten Blast
+        -- Grimrail Depot
+        -- Iron Docks
+        {spell = 165122, spelltype = "Damage",}, --Ahri'ok Dugru - Blood Bolt
+        -- Shadowmoon Burial Grounds
+        {spell = 152819, spelltype = "Damage",}, --Shadowmoon Bone-Mender - Shadow Word: Frailty
+        {spell = 156776, spelltype = "Damage",}, --Shadowmoon Enslaver - Rending Voidlash
+        {spell = 156722, spelltype = "Damage",}, --Shadowmoon Exhumer - Void Bolt
+        {spell = 156717, spelltype = "Damage",}, --Monstrous Corpse Spider - Death Venom
+        {spell = 153524, spelltype = "Damage",}, --Plagued Bat - Plague Spit
+        -- Skyreach
+        {spell = 152894, spelltype = "Non-Damage",}, --Adept of the Dawn - Flash Heal
+        {spell = 154396, spelltype = "Damage",}, --High Sage Viryx - Solar Burst
+        -- The Everbloom
+        {spell = 165213, spelltype = "Non-Damage",}, --Everbloom Tender - Enraged Growth
+        {spell = 167966, spelltype = "Damage",}, --Earthshaper Telu - Bramble Patch
+        {spell = 169843, spelltype = "Damage",}, --Putrid Pyromancer - Dragon's Breath
+        {spell = 169844, spelltype = "Damage",}, --Putrid Pyromancer - Dragon's Breath
+        -- Upper Blackrock Spire
+        {spell = 155588, spelltype = "Damage",}, --Black Iron Dreadweaver - Shadow Bolt Volley
+        {spell = 155587, spelltype = "Damage",}, --Black Iron Dreadweaver - Shadow Bolt
+        {spell = 155590, spelltype = "Damage",}, --Black Iron Summoner - Fireball
+        {spell = 163057, spelltype = "Damage",}, --Black Iron Flame Reaver - Flame Shock
+    }
+
+    function isSimSpell()
+        local simSpell = _DarkSimulacrum
+        for i=1, #enemiesTable do
+            if enemiesTable[i].distance<40 then
+                local thisUnit = enemiesTable[i].unit
+                if castingUnit(thisUnit) then
+                    for f=1, #simList do
+                        local simListSpell = simList[f].spell
+                        if isCastingSpell(simListSpell,thisUnit) then
+                            simSpell = simListSpell
+                            break
+                        else
+                            simSpell = _DarkSimulacrum
+                        end
+                    end
+                end
+            end
+        end
+        if simSpell~=_DarkSimulacrum then
+            return true
+        else
+            return false
+        end
+    end
+
     function getDisease(range,aoe,mod)
         if mod == nil then mod = "min" end
         if range == nil then range = 5 end

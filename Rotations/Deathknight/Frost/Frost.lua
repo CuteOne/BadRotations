@@ -30,6 +30,7 @@ if select(3, UnitClass("player")) == 6 then
         ["dyn10AoE"] = dynamicTarget(10,false), --Defensive Abilites
         ["dyn30"] = dynamicTarget(30,true), --Death Grip
         ["dyn30AoE"] = dynamicTarget(30,false), --Control Undead
+        ["dyn40"] = dynamicTarget(40,true),
       }
       local tarDist = {
         ["dyn0"] = getDistance("player",tarUnit.dyn0),
@@ -55,17 +56,19 @@ if select(3, UnitClass("player")) == 6 then
       local howRemain = getBuffRemain("player",_HornOfWinter)
       local empRemain = getBuffRemain("player",_EmpowerRuneWeapon)
       local dsRemain = getBuffRemain("player",_DarkSuccor)
-      local pofRemain, pofCooldown = getBuffRemain("player",_PillarOfFrost), getSpellCD(_PillarOfFrost)
-      local amsRemain, amsCooldown = getBuffRemain("player",_AntiMagicShell), getSpellCD(_AntiMagicShell)
-      local bosRemain, bosCooldown = getBuffRemain("player",_BreathOfSindragosa), getSpellCD(_BreathOfSindragosa)
+      local pofRemain, pofCooldown = getBuffRemain("player",_PillarOfFrost), GetSpellCooldown(_PillarOfFrost)
+      local amsRemain, amsCooldown = getBuffRemain("player",_AntiMagicShell), GetSpellCooldown(_AntiMagicShell)
+      local bosRemain, bosCooldown = getBuffRemain("player",_BreathOfSindragosa), GetSpellCooldown(_BreathOfSindragosa)
       local strPotRemain = getBuffRemain("player",156428)
-      local srCooldown = getSpellCD(_SoulReaper)
-      local plCooldown = getSpellCD(_PlagueLeech)
-      local ubCooldown = getSpellCD(_UnholyBlight)
-      local dCooldown = getSpellCD(_Defile)
-      local raCooldown = getSpellCD(_RaiseAlly)
+      local srCooldown = GetSpellCooldown(_SoulReaper)
+      local plCooldown = GetSpellCooldown(_PlagueLeech)
+      local ubCooldown = GetSpellCooldown(_UnholyBlight)
+      local dCooldown = GetSpellCooldown(_Defile)
+      local dndCooldown = GetSpellCooldown(_DeathAndDecay)
+      local raCooldown = GetSpellCooldown(_RaiseAlly)
       local blight, bloodtap, runic, necrotic, defile, sindragosa = getTalent(1,3), getTalent(4,1), getTalent(4,2), getTalent(7,1), getTalent(7,2), getTalent(7,3)
       local t17x2 = false
+      local simSpell, castingSimSpell = bb.im.simulacrumSpell, isSimSpell()
       --Specific Target Variables
       local ciRemain = {
         ["dyn0"] = getDebuffRemain(tarUnit.dyn0,_ChainsOfIce,"player"),
@@ -102,7 +105,7 @@ if select(3, UnitClass("player")) == 6 then
         ["dyn30"] = ((ffRemain.dyn30>0 and bpRemain.dyn30>0) or necRemain.dyn30>0),
         ["dyn30AoE"] = ((ffRemain.dyn30AoE>0 and bpRemain.dyn30AoE>0) or necRemain.dyn30AoE>0),
       }
-      ChatOverlay(hasDisease.dyn5)
+      --ChatOverlay(tostring(select(1,GetSpellInfo(simSpell))))
   --------------------------------------------------
   --- Ressurection/Dispelling/Healing/Pause/Misc ---
   --------------------------------------------------
@@ -152,11 +155,11 @@ if select(3, UnitClass("player")) == 6 then
           if castSpell("player",_PathOfFrost,true,false,false) then return end
         end
       -- Control Undead
-        if UnitCreatureType(tarUnit.dyn30AoE)=="Undead" and uRunes>0 and not ObjectExists("pet")
-          and (UnitClassification(tarUnit.dyn30AoE)~="normal" or UnitClassification(tarUnit.dyn30AoE)~="trivial" or UnitClassification(tarUnit.dyn30AoE)~="minus")
-        then
-          if castSpell(tarUnit.dyn30AoE,_ControlUndead,false,false,false) then return end
-        end
+        -- if UnitCreatureType(tarUnit.dyn30AoE)=="Undead" and uRunes>0 and not ObjectExists("pet")
+        --   and (UnitClassification(tarUnit.dyn30AoE)~="normal" or UnitClassification(tarUnit.dyn30AoE)~="trivial" or UnitClassification(tarUnit.dyn30AoE)~="minus")
+        -- then
+        --   if castSpell(tarUnit.dyn30AoE,_ControlUndead,false,false,false) then return end
+        -- end
       -- Flask / Crystal
         if isChecked("Flask / Crystal") and not (IsFlying() or IsMounted()) then
             if (select(2,IsInInstance())=="raid" or select(2,IsInInstance())=="none")
@@ -281,20 +284,24 @@ if select(3, UnitClass("player")) == 6 then
     ------------------------------
           if useInterrupts() then
         -- Mind Freeze
-            if isChecked("Mind Freeze") then
+            if isChecked("Mind Freeze") and not castingSimSpell then
               if castInterrupt(_MindFreeze,getOptionValue("Interrupt At")) then return end
             end
         -- Strangulate
-            if isChecked("Strangulate") and bRunes>0 then
+            if isChecked("Strangulate") and bRunes>0 and not castingSimSpell then
               if castInterrupt(_Strangulate,getOptionValue("Interrupt At")) then return end
             end
         -- Asphyxiate
-            if isChecked("Asphyxiate") then
+            if isChecked("Asphyxiate") and not castingSimSpell then
               if castInterrupt(_Asphyxiate,getOptionValue("Interrupt At")) then return end
             end
         -- Dark Simulacrum
-            if isChecked("Dark Simulacrum") and power>20 then
-              if castInterrupt(_DarkSimulacrum,getOptionValue("Interrupt At")) then return end
+            if isChecked("Dark Simulacrum") and power>20 and castingSimSpell then
+              if castInterrupt(_DarkSimulacrum,10,true) then return end
+            end
+            if simSpell~=_DarkSimulacrum then
+              if castSpell(tarUnit.dyn40,simSpell,false,false,true,true,false,true,false) then bb.im.simulacrum = nil return end
+              --CastSpellByName(GetSpellInfo(simSpell),tarUnit.dyn40)
             end
           end
     -----------------------------
@@ -309,485 +316,496 @@ if select(3, UnitClass("player")) == 6 then
             if isChecked("Empower Rune Weapon") and ttd<=60 and fRunes==0 and uRunes==0 and strPotRemain>0 then
               if castSpell("player",_EmpowerRuneWeapon,true,false,false) then return end
             end
-        -- Trinket 1
-            if isChecked("Trinkets") and canTrinket(13) and useCDs() then
+        -- Trinkets
+            if canTrinket(13) and useCDs() then
               RunMacroText("/use 13")
+              if IsAoEPending() then
+                local X,Y,Z = ObjectPosition(Unit)
+                CastAtPosition(X,Y,Z)
+              end
             end
-        -- Trinket 2
-            if isChecked("Trinkets") and canTrinket(14) and useCDs() then
+            if canTrinket(14) and useCDs() then
               RunMacroText("/use 14")
+              if IsAoEPending() then
+                local X,Y,Z = ObjectPosition(Unit)
+                CastAtPosition(X,Y,Z)
+              end
             end
           end
     --------------------------
     --- In Combat Rotation ---
     --------------------------
-        -- Start Attack
-          if tarDist.dyn5<5 then
-            StartAttack()
+          if power<20 and fRunes>=1 and tarDist.dyn30<30 then
+            if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
           end
-        -- Death Grip
-          if tarDist.dyn30<30 and tarDist.dyn30>8 and (select(2,IsInInstance())=="none" or hasThreat(tarUnit.dyn30)) then
-            if castSpell(tarUnit.dyn30,_DeathGrip,false,false,false) then return end
-          end
-        -- Chains of Ice
-          if not getFacing(tarUnit.dyn30AoE,"player") and getFacing("player",tarUnit.dyn30AoE)
-            and isMoving(tarUnit.dyn30AoE) and tarDist.dyn30AoE>8 and fRunes>=1 and isInCombat(tarUnit.dyn30) and ciRemain.dyn30AoE==0
-          then
-            if castSpell(tarUnit.dyn30AoE,_ChainsOfIce,false,false,false) then return end
-          end
-        -- Death's Advance
-          if isMoving("player") and hastar and not deadtar and tarDist.dyn0>=15 then
-            if castSpell("player",_DeathsAdvance,true,false,false) then return end
-          end
-        -- Pillar of Frost
-          if fRunes>=1 and tarDist.dyn5<5 then
-            if castSpell("player",_PillarOfFrost,true,false,false) then return end
-          end
-        --------------------
-        --- Single Target --
-        --------------------
-          if not useAoE() then
-        -- Blood Tap (1H)
-            --if=buff.blood_charge.stack>10&(runic_power>76|(runic_power>=20&buff.killing_machine.react))
-            if oneHand and bcStack>10 and (power>76 or (power>=20 and kmRemain>0)) then
-              if castSpell("player",_BloodTap,true,false,false) then return end
-            end
-        -- Plague Leech (2H)
-            --if=disease.min_remains<1
-            if twoHand and hasDisease.dyn30AoE and getDisease(30,true,"min")<1 and tarDist.dyn30AoE<30 then
-              if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then return end
-            end
-        -- Soul Reaper
-            --if=target.health.pct-3*(target.health.pct%target.time_to_die)<=35
-            if thp-3*(thp/ttd)<=35 and fRunes>=1 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_SoulReaper,false,false,false) then return end
-            end
-        -- Blood Tap
-            --if=(target.health.pct-3*(target.health.pct%target.time_to_die)<=35&cooldown.soul_reaper.remains=0)
-            if (thp-3*(thp/ttd)<=35 and srCooldown==0) and bcStack>4 then
-              if castSpell("player",_BloodTap,true,false,false) then return end
-            end
-        -- Defile (2H)
-            if twoHand and defile and uRunes>=1 and useCleave() and tarDist.dyn30AoE<30 then
-              if castGround(tarUnit.dyn30AoE,_Defile,30) then return end
-            end
-        -- Blood Tap (2H)
-            --if=talent.defile.enabled&cooldown.defile.remains=0
-            if twoHand and defile and dCooldown==0 and bcStack>4 then
-              if castSpell("player",_BloodTap,true,false,false) then return end
-            end
-        -- Howling Blast (2H)
-            --if=buff.rime.react&disease.min_remains>5&buff.killing_machine.react
-            if twoHand and rRemain>0 and getDisease(30,false,"min")>5 and kmRemain>0 and tarDist.dyn30<30 then
-              if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
-                if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
-              else
-                if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
-              end
-            end
-        -- Obliterate (2H)
-            --if=buff.killing_machine.react
-            if twoHand and kmRemain>0 and fRunes>=1 and uRunes<=1 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_Obliterate,false,false,false) then return end
-            end
-        -- Blood Tap (2H)
-            --if=buff.killing_machine.react
-            if twoHand and kmRemain>0 and bcStack>4 then
-              if castSpell("player",_BloodTap,true,false,false) then return end
-            end
-        -- Howling Blast (2H)
-            --if=!talent.necrotic_plague.enabled&!dot.frost_fever.ticking&buff.rime.react
-            if twoHand and not necrotic and ffRemain.dyn30==0 and rRemain>0 and tarDist.dyn30<30 then
-              if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
-                if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
-              else
-                if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
-              end
-            end
-        -- Outbreak (2H)
-            --!disease.max_ticking
-            if twoHand and getDisease(30,true,"max")==0 and tarDist.dyn30AoE<30 then
-              if castSpell(tarUnit.dyn30AoE,_Outbreak,false,false,false) then return end
-            end
-        -- Unholy Blight (2H)
-            --if=!disease.min_ticking
-            if getDisease(10,true,"min")==0 and useCleave() and tarDist.dyn10AoE<10 then
-              if castSpell(tarUnit.dyn10AoE,_UnholyBlight,false,false,false) then return end
-            end
-        -- Breath of Sindragosa
-            --if=runic_power>75
-            if power>75 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_BreathOfSindragosa,false,false,false) then return end
-            end
-            --------------------------
-            --- Boss Single Target ---
-            --------------------------
-            if isBoss() and bosRemain>0 then
-            -- Obliterate
-              --if=buff.killing_machine.react
-              if kmRemain>0 and uRunes>=1 and fRunes>=1 and tarDist.dyn5<5 then
-                if castSpell(tarUnit.dyn5,_Obliterate,false,false,false) then return end
-              end
-            -- Blood Tap
-              --if=buff.killing_machine.react&buff.blood_charge.stack>=5
-              if kmRemain>0 and bcStack>=5 and tarDist.dyn5<5 then
-                if castSpell("player",_BloodTap,true,false,false) then return end
-              end
-            -- Plague Leech
-              --if=buff.killing_machine.react
-              if kmRemain>0 and ffRemain.dyn30>0 and bpRemain.dyn30>0 and tarDist.dyn30<30 then
-                if castSpell(tarUnit.dyn30,_PlagueLeech,true,false,false) then return end
-              end
-            -- Howling Blast (1H)
-              --if=runic_power<88
-              if oneHand and power<88 and fRunes>0 and tarDist.dyn30<30 then
-                if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
-                  if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
-                else
-                  if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
-                end
-              end
-            -- Blood Tap (2H)
-              --if=buff.blood_charge.stack>=5
-              if twoHand and bcStack>=5 then
-                if castSpell("player",_BloodTap,true,false,false) then return end
-              end
-            -- Plague Leech (2H)
-              if twoHand and ffRemain.dyn30>0 and bpRemain.dyn30>0 and tarDist.dyn30<30 then
-                if castSpell(tarUnit.dyn30,_PlagueLeech,true,false,false) then return end
-              end
-            -- Obliterate
-              --if=unholy>0&runic_power<76
-              if power<76 and uRunes>=1 and fRunes>=1 and tarDist.dyn5<5 then
-                if castSpell(tarUnit.dyn5,_Obliterate,false,false,false) then return end
-              end
-            -- Howling Blast (2H)
-              --if=((death=1&frost=0&unholy=0)|death=0&frost=1&unholy=0)&runic_power<88
-              if twoHand and fRunes==1 and uRunes==0 and power<88 and tarDist.dyn30<30 then
-                if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
-                  if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
-                else
-                  if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
-                end
-              end
-            -- Blood Tap (1H)
-              --if=buff.blood_charge.stack>=5
-              if oneHand and bcStack>=5 then
-                if castSpell("player",_BloodTap,true,false,false) then return end
-              end
-            -- Plague Leech (1H)
-              if oneHand and ffRemain.dyn30>0 and bpRemain.dyn30>0 and tarDist.dyn30<30 then
-                if castSpell(tarUnit.dyn30,_PlagueLeech,true,false,false) then return end
-              end
-            -- Empower Rune Weapon (1H)
-              if isChecked("Empower Rune Weapon") and fRunes==0 and uRunes==0 then
-                if castSpell("player",_EmpowerRuneWeapon,true,false,false) then return end
-              end
-            end --End Boss Special
-        -- Defile (1H)
-            if oneHand and defile and uRunes>=1 and tarDist.dyn30AoE<30 then
-              if castGround(tarUnit.dyn30AoE,_Defile,30) then return end
-            end
-        -- Blood Tap (1H)
-            --if=talent.defile.enabled&cooldown.defile.remains=0
-            if oneHand and defile and dCooldown==0 and bcStack>4 then
-              if castSpell("player",_BloodTap,true,false,false) then return end
-            end
-        -- Howling Blast (1H)
-            --if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains<7&runic_power<88
-            if oneHand and sindragosa and bosCooldown<7 and power<88 and fRunes>=1 and tarDist.dyn30<30 then
-              if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
-                if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
-              else
-                if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
-              end
-            end
-        -- Obliterate (1H/2H)
-            --One - if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains<3&runic_power<76
-            --Two - if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains<7&runic_power<76
-            if sindragosa and ((oneHand and bosCooldown<3) or (twoHand and bosCooldown<7)) and power<76 and uRunes>=1 and fRunes>=1 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_Obliterate,false,false,false) then return end
-            end
-        -- Howling Blast (2H)
-            --if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains<3&runic_power<88
-            if twoHand and sindragosa and bosCooldown<3 and power<88 and fRunes>=1 and tarDist.dyn30<30 then
-              if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
-                if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
-              else
-                if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
-              end
-            end
-        -- Frost Strike (1H)
-            --buff.killing_machine.react|runic_power>88
-            if oneHand and (kmRemain>0 or power>88) and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_FrostStrike,false,false,false) then return end
-            end
-        -- Frost Strike (1H)
-            --if=cooldown.antimagic_shell.remains<1&runic_power>=50&!buff.antimagic_shell.up
-            if oneHand and amsCooldown<1 and power>=50 and amsRemain==0 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_FrostStrike,false,false,false) then return end
-            end
-        -- Howling Blast (1H)
-            --if=death>1|frost>1
-            if oneHand and fRunes>1 and tarDist.dyn30<30 then
-               if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
-                if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
-              else
-                if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
-              end
-            end
-        -- Unholy Blight (1H)
-            --if=!disease.ticking
-            if oneHand and not hasDisease.dyn10AoE and tarDist.dyn10AoE<10 then
-              if castSpell("player",_UnholyBlight,true,false,false) then return end
-            end
-        -- Howling Blast
-            --if=!talent.necrotic_plague.enabled&!dot.frost_fever.ticking
-            if not necrotic and ffRemain.dyn30==0 and fRunes>=1 and tarDist.dyn30<30 then
-              if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
-                if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
-              else
-                if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
-              end
-            end
-        -- Howling Blast
-            --if=talent.necrotic_plague.enabled&!dot.necrotic_plague.ticking
-            if necrotic and necRemain.dyn30==0 and fRunes>=1 and tarDist.dyn30<30 then
-              if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
-                if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
-              else
-                if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
-              end
-            end
-        -- Plague Strike
-            --if=!talent.necrotic_plague.enabled&!dot.blood_plague.ticking&unholy>0
-            if not necrotic and bpRemain.dyn5==0 and uRunes>=1 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_PlagueStrike,false,false,false) then return end
-            end
-        -- Howling Blast (1H)
-            --if=buff.rime.react
-            if oneHand and rRemain>0 and tarDist.dyn30<30 then
-              if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
-                if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
-              else
-                if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
-              end
-            end
-        -- Blood Tap (2H)
-            --if=buff.blood_charge.stack>10&runic_power>76
-            if twoHand and bcStack>10 and power>76 then
-              if castSpell("player",_BloodTap,true,false,false) then return end
-            end
-        -- Frost Strike (1H)
-            --if=set_bonus.tier17_2pc=1&(runic_power>=50&(cooldown.pillar_of_frost.remains<5))
-            if oneHand and t17x2 and power>=50 and pofCooldown<5 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_FrostStrike,false,false,false) then return end
-            end
-        -- Frost Strike
-            --if=runic_power>76
-            if power>76 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_FrostStrike,false,false,false) then return end
-            end
-        -- Howling Blast (2H)
-            --if=buff.rime.react&disease.min_remains>5&(blood.frac>=1.8|unholy.frac>=1.8|frost.frac>=1.8)
-            if twoHand and rRemain>0 and getDisease(30,false,"min")>5 and (bPercent>=1.8 or uPercent>=1.8 or fPercent>=1.8) and tarDist.dyn30<30 then
-              if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
-                if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
-              else
-                if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
-              end
-            end
-        -- Obliterate (2H)
-            --if=blood.frac>=1.8|unholy.frac>=1.8|frost.frac>=1.8
-            if twoHand and (bPercent>=1.8 or uPercent>=1.8 or fPercent>=1.8) and uRunes>=1 and fRunes>=1 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_Obliterate,false,false,false) then return end
-            end
-        -- Plague Leech (2H)
-            --if=disease.min_remains<3&((blood.frac<=0.95&unholy.frac<=0.95)|(frost.frac<=0.95&unholy.frac<=0.95)|(frost.frac<=0.95&blood.frac<=0.95))
-            if twoHand and hasDisease.dyn30AoE and getDisease(30,true,"min")<3 and ((bPercent<=0.95 and uPercent<=0.95) or (fPercent<=0.95 and uPercent<=0.95) or (fPercent<=0.95 and bPercent<=0.95)) and tarDist.dyn30AoE<30 then
-              if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then return end
-            end
-        -- Frost Stike (2H)
-            --if=talent.runic_empowerment.enabled&(frost=0|unholy=0|blood=0)&(!buff.killing_machine.react|!obliterate.ready_in<=1)
-            if twoHand and runic and (fRunes==0 or uRunes==0 or bRunes==0) and (kmRemain==0 or (fPercent<=0.95 and uPercent<=0.95)) and power>25 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_FrostStrike,true,false,false) then return end
-            end
-        -- Frost Strike (2H)
-            --if=talent.blood_tap.enabled&buff.blood_charge.stack<=10&(!buff.killing_machine.react|!obliterate.ready_in<=1)
-            if twoHand and bloodtap and bcStack<=10 and (kmRemain==0 or (fPercent<=0.95 and uPercent<=0.95)) and power>25 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_FrostStrike,true,false,false) then return end
-            end
-        -- Howling Blast (2H)
-            --if=buff.rime.react&disease.min_remains>5
-            if twoHand and rRemain>0 and getDisease(30,false,"min")>5 and tarDist.dyn30<30 then
-              if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
-                if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
-              else
-                if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
-              end
-            end
-        -- Obliterate (2H)
-            --if=blood.frac>=1.5|unholy.frac>=1.6|frost.frac>=1.6|buff.bloodlust.up|cooldown.plague_leech.remains<=4
-            if twoHand and (bPercent>=1.5 or uPercent>=1.6 or fPercent>=1.6 or plCooldown<=4) and uRunes>=1 and fRunes>=1 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_Obliterate,false,false,false) then return end
-            end
-        -- Blood Tap (2H)
-            --if=(buff.blood_charge.stack>10&runic_power>=20)|(blood.frac>=1.4|unholy.frac>=1.6|frost.frac>=1.6)
-            if twoHand and ((bcStack>10 and power>=20) or (bPercent>=1.4 or uPercent>=1.6 or fPercent>=1.6)) and bcStack>4 then
-              if castSpell("player",_BloodTap,true,false,false) then return end
-            end
-        -- Obliterate (1H)
-            --if=unholy>0&!buff.killing_machine.react
-            if oneHand and fRunes>0 and uRunes>0 and kmRemain==0 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_Obliterate,false,false,false) then return end
-            end
-        -- Frost Strike (2H)
-            --if=!buff.killing_machine.react
-            if twoHand and kmRemain==0 and power>25 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_FrostStrike,true,false,false) then return end
-            end
-        -- Plague Leech (2H)
-            --if=(blood.frac<=0.95&unholy.frac<=0.95)|(frost.frac<=0.95&unholy.frac<=0.95)|(frost.frac<=0.95&blood.frac<=0.95)
-            if twoHand and ((bPercent<=0.95 and uPercent<=0.95) or (fPercent<=0.95 and uPercent<=0.95) or (fPercent<=0.95 and bPercent<=0.95)) and ffRemain.dyn30>0 and bpRemain.dyn30>0 and tarDist.dyn30<30 then
-              if castSpell(tarUnit.dyn30,_PlagueLeech,true,false,false) then return end
-            end
-        -- Howling Blast (1H)
-            --if=!(target.health.pct-3*(target.health.pct%target.time_to_die)<=35&cooldown.soul_reaper.remains<3)|death+frost>=2
-            if oneHand and (not (thp-3*(thp*ttd)<=35 and srCooldown<3 and fRunes>0) or fRunes>=2) and tarDist.dyn30<30 then
-             if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
-                if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
-              else
-                if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
-              end
-            end
-        -- Blood Tap (1H)
-            if oneHand and bcStack>4 then
-              if castSpell("player",_BloodTap,true,false,false) then return end
-            end
-        -- Plague Leech (1H)
-            if oneHand and ffRemain.dyn30>0 and bpRemain.dyn30>0 and tarDist.dyn30<30 then
-              if castSpell(tarUnit.dyn30,_PlagueLeech,true,false,false) then return end
-            end
-        -- Empower Rune Weapon
-            if isChecked("Empower Rune Weapon") and useCDs() and fRunes==0 and uRunes==0 and tarDist.dyn5<5 then
-              if castSpell("player",_EmpowerRuneWeapon,true,false,false) then return end
-            end
-          end
-        ----------------------
-        --- Multiple Target --
-        ----------------------
-          if useAoE() then
-        -- Unholy Blight
-            if tarDist.dyn10AoE<10 then
-              if castSpell("player",_UnholyBlight,true,false,false) then return end
-            end
-        -- Blood Boil
-            --if=dot.blood_plague.ticking&(!talent.unholy_blight.enabled|cooldown.unholy_blight.remains<49),line_cd=28
-            if bpRemain.dyn10AoE>0 and ((not blight) or ubCooldown<49) and (lineTimer == nil or lineTimer <= GetTime()-28) and bRunes>=1 and tarDist.dyn10AoE<10 then
-              if castSpell("player",_BloodBoil,true,false,false) then lineTimer=GetTime(); return end
-            end
-        -- Defile
-            if defile and uRunes>=1 and tarDist.dyn30AoE<30 then
-              if castGround(tarUnit.dyn30AoE,_Defile,30) then return end
-            end
-        -- Breath of Sindragosa
-            --if=runic_power>75
-            if power>75 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_BreathOfSindragosa,false,false,false) then return end
-            end
-            ----------------------------
-            --- Boss Multiple Target ---
-            ----------------------------
-            if isBoss() and bosRemain>0 then
-          -- Howling Blast
-              if (fRunes>=1 or rRemain>0) and tarDist.dyn30<30 then
-                if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
-              end
-          -- Blood Tap
-              --if=buff.blood_charge.stack>10
-              if bcStack>10 then
-                if castSpell("player",_BloodTap,true,false,false) then return end
-              end
-          -- Death and Decay
-              --if=unholy=1
-              if uRunes==1 and tarDist.dyn30AoE<30 then
-                if castGround(tarUnit.dyn30AoE,_DeathAndDecay,30) then return end
-              end
-          -- Plague Strike
-              --if=unholy=2
-              if uRunes==2 and tarDist.dyn5<5 then
-                if castSpell(tarUnit.dyn5,_PlagueStrike,false,false,false) then return end
-              end
-          -- Blood Tap
-              if bcStack>4 then
-                if castSpell("player",_BloodTap,true,false,false) then return end
-              end
-          -- Plague Leech
-              if bpRemain.dyn30AoE>0 and ffRemain.dyn30AoE>0 and tarDist.dyn30AoE<30 then
-                if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then return end
-              end
-          -- Plague Strike
-              --if=unholy=1
-              if uRunes==1 and tarDist.dyn5<5 then
-                if castSpell(tarUnit.dyn5,_PlagueStrike,false,false,false) then return end
-              end
-          -- Empower Rune Weapon
-              if isChecked("Empower Rune Weapon") and useCDs() and fRunes==0 and uRunes==0 and tarDist.dyn5<5 then
-                if castSpell("player",_EmpowerRuneWeapon,true,false,false) then return end
-              end
-            end --End Boss Special
-        -- Howling Blast
-            if (fRunes>=1 or rRemain>0) and tarDist.dyn0<30 then
-              if castSpell(tarUnit.dyn0,_HowlingBlast,false,false,false) then return end
-            end
-        -- Blood Tap
-            --if=buff.blood_charge.stack>10
-            if bcStack>10 then
-              if castSpell("player",_BloodTap,true,false,false) then return end
-            end
-        -- Frost Strike
-            --if=runic_power>88
-            if power>88 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_FrostStrike,true,false,false) then return end
-            end
-        -- Death and Decay
-            --if=unholy=1
-            if uRunes==1 and tarDist.dyn30AoE<30 then
-              if castGround(tarUnit.dyn30AoE,_DeathAndDecay,30) then return end
-            end
-        -- Plague Strike
-            --if=unholy=2
-            if uRunes==2 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_PlagueStrike,false,false,false) then return end
-            end
-        -- Blood Tap
-            if bcStack>4 then
-              if castSpell("player",_BloodTap,true,false,false) then return end
-            end
-        -- Frost Strike
-            --if=!talent.breath_of_sindragosa.enabled|cooldown.breath_of_sindragosa.remains>=10
-            if (not sindragosa or bosCooldown>=10) and power>25 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_FrostStrike,true,false,false) then return end
-            end
-        -- Plague Leech
-            if bpRemain.dyn30AoE>0 and ffRemain.dyn30AoE>0 and tarDist.dyn30AoE<30 then
-              if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then return end
-            end
-        -- Plague Strike
-            --if=unholy=1
-            if uRunes==1 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_PlagueStrike,false,false,false) then return end
-            end
-        -- Empower Rune Weapon
-            if isChecked("Empower Rune Weapon") and useCDs() and fRunes==0 and uRunes==0 and tarDist.dyn0<5 then
-              if castSpell("player",_EmpowerRuneWeapon,true,false,false) then return end
-            end
-          end
-        end --In Combat End
-    -- Start Attack
-        if ObjectExists(tarUnit.dyn5) and not stealth and isInCombat("player") and profileStop==false and tarDist.dyn5<5 then
-          StartAttack()
         end
+    --     -- Start Attack
+    --       if tarDist.dyn5<5 then
+    --         StartAttack()
+    --       end
+    --     -- Death Grip
+    --       if tarDist.dyn30<30 and tarDist.dyn30>8 and (select(2,IsInInstance())=="none" or hasThreat(tarUnit.dyn30)) then
+    --         if castSpell(tarUnit.dyn30,_DeathGrip,false,false,false) then return end
+    --       end
+    --     -- Chains of Ice
+    --       if not getFacing(tarUnit.dyn30AoE,"player") and getFacing("player",tarUnit.dyn30AoE)
+    --         and isMoving(tarUnit.dyn30AoE) and tarDist.dyn30AoE>8 and fRunes>=1 and isInCombat(tarUnit.dyn30) and ciRemain.dyn30AoE==0
+    --       then
+    --         if castSpell(tarUnit.dyn30AoE,_ChainsOfIce,false,false,false) then return end
+    --       end
+    --     -- Death's Advance
+    --       if isMoving("player") and hastar and not deadtar and tarDist.dyn0>=15 then
+    --         if castSpell("player",_DeathsAdvance,true,false,false) then return end
+    --       end
+    --     -- Pillar of Frost
+    --       if fRunes>=1 and tarDist.dyn5<5 then
+    --         if castSpell("player",_PillarOfFrost,true,false,false) then return end
+    --       end
+    --     --------------------
+    --     --- Single Target --
+    --     --------------------
+    --       if not useAoE() then
+    --     -- Blood Tap (1H)
+    --         --if=buff.blood_charge.stack>10&(runic_power>76|(runic_power>=20&buff.killing_machine.react))
+    --         if oneHand and bcStack>10 and (power>76 or (power>=20 and kmRemain>0)) then
+    --           if castSpell("player",_BloodTap,true,false,false) then return end
+    --         end
+    --     -- Plague Leech (2H)
+    --         --if=disease.min_remains<1
+    --         if twoHand and hasDisease.dyn30AoE and getDisease(30,true,"min")<1 and tarDist.dyn30AoE<30 then
+    --           if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then return end
+    --         end
+    --     -- Soul Reaper
+    --         --if=target.health.pct-3*(target.health.pct%target.time_to_die)<=35
+    --         if thp-3*(thp/ttd)<=35 and fRunes>=1 and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_SoulReaper,false,false,false) then return end
+    --         end
+    --     -- Blood Tap
+    --         --if=(target.health.pct-3*(target.health.pct%target.time_to_die)<=35&cooldown.soul_reaper.remains=0)
+    --         if (thp-3*(thp/ttd)<=35 and srCooldown==0) and bcStack>4 then
+    --           if castSpell("player",_BloodTap,true,false,false) then return end
+    --         end
+    --     -- Defile (2H)
+    --         if twoHand and defile and uRunes>=1 and useCleave() and dCooldown==0 and not isMoving(tarUnit.dyn30AoE) and tarDist.dyn30AoE<30 then
+    --           if castGround(tarUnit.dyn30AoE,_Defile,30) then return end
+    --         end
+    --     -- Blood Tap (2H)
+    --         --if=talent.defile.enabled&cooldown.defile.remains=0
+    --         if twoHand and defile and dCooldown==0 and bcStack>4 then
+    --           if castSpell("player",_BloodTap,true,false,false) then return end
+    --         end
+    --     -- Howling Blast (2H)
+    --         --if=buff.rime.react&disease.min_remains>5&buff.killing_machine.react
+    --         if twoHand and rRemain>0 and getDisease(30,false,"min")>5 and kmRemain>0 and tarDist.dyn30<30 then
+    --           if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
+    --             if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
+    --           else
+    --             if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
+    --           end
+    --         end
+    --     -- Obliterate (2H)
+    --         --if=buff.killing_machine.react
+    --         if twoHand and kmRemain>0 and fRunes>=1 and uRunes<=1 and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_Obliterate,false,false,false) then return end
+    --         end
+    --     -- Blood Tap (2H)
+    --         --if=buff.killing_machine.react
+    --         if twoHand and kmRemain>0 and bcStack>4 then
+    --           if castSpell("player",_BloodTap,true,false,false) then return end
+    --         end
+    --     -- Howling Blast (2H)
+    --         --if=!talent.necrotic_plague.enabled&!dot.frost_fever.ticking&buff.rime.react
+    --         if twoHand and not necrotic and ffRemain.dyn30==0 and rRemain>0 and tarDist.dyn30<30 then
+    --           if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
+    --             if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
+    --           else
+    --             if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
+    --           end
+    --         end
+    --     -- Outbreak (2H)
+    --         --!disease.max_ticking
+    --         if twoHand and getDisease(30,true,"max")==0 and tarDist.dyn30AoE<30 then
+    --           if castSpell(tarUnit.dyn30AoE,_Outbreak,false,false,false) then return end
+    --         end
+    --     -- Unholy Blight (2H)
+    --         --if=!disease.min_ticking
+    --         if getDisease(10,true,"min")==0 and useCleave() and tarDist.dyn10AoE<10 then
+    --           if castSpell(tarUnit.dyn10AoE,_UnholyBlight,false,false,false) then return end
+    --         end
+    --     -- Breath of Sindragosa
+    --         --if=runic_power>75
+    --         if power>75 and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_BreathOfSindragosa,false,false,false) then return end
+    --         end
+    --         --------------------------
+    --         --- Boss Single Target ---
+    --         --------------------------
+    --         if isBoss() and bosRemain>0 then
+    --         -- Obliterate
+    --           --if=buff.killing_machine.react
+    --           if kmRemain>0 and uRunes>=1 and fRunes>=1 and tarDist.dyn5<5 then
+    --             if castSpell(tarUnit.dyn5,_Obliterate,false,false,false) then return end
+    --           end
+    --         -- Blood Tap
+    --           --if=buff.killing_machine.react&buff.blood_charge.stack>=5
+    --           if kmRemain>0 and bcStack>=5 and tarDist.dyn5<5 then
+    --             if castSpell("player",_BloodTap,true,false,false) then return end
+    --           end
+    --         -- Plague Leech
+    --           --if=buff.killing_machine.react
+    --           if kmRemain>0 and ffRemain.dyn30>0 and bpRemain.dyn30>0 and tarDist.dyn30<30 then
+    --             if castSpell(tarUnit.dyn30,_PlagueLeech,true,false,false) then return end
+    --           end
+    --         -- Howling Blast (1H)
+    --           --if=runic_power<88
+    --           if oneHand and power<88 and fRunes>0 and tarDist.dyn30<30 then
+    --             if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
+    --               if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
+    --             else
+    --               if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
+    --             end
+    --           end
+    --         -- Blood Tap (2H)
+    --           --if=buff.blood_charge.stack>=5
+    --           if twoHand and bcStack>=5 then
+    --             if castSpell("player",_BloodTap,true,false,false) then return end
+    --           end
+    --         -- Plague Leech (2H)
+    --           if twoHand and ffRemain.dyn30>0 and bpRemain.dyn30>0 and tarDist.dyn30<30 then
+    --             if castSpell(tarUnit.dyn30,_PlagueLeech,true,false,false) then return end
+    --           end
+    --         -- Obliterate
+    --           --if=unholy>0&runic_power<76
+    --           if power<76 and uRunes>=1 and fRunes>=1 and tarDist.dyn5<5 then
+    --             if castSpell(tarUnit.dyn5,_Obliterate,false,false,false) then return end
+    --           end
+    --         -- Howling Blast (2H)
+    --           --if=((death=1&frost=0&unholy=0)|death=0&frost=1&unholy=0)&runic_power<88
+    --           if twoHand and fRunes==1 and uRunes==0 and power<88 and tarDist.dyn30<30 then
+    --             if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
+    --               if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
+    --             else
+    --               if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
+    --             end
+    --           end
+    --         -- Blood Tap (1H)
+    --           --if=buff.blood_charge.stack>=5
+    --           if oneHand and bcStack>=5 then
+    --             if castSpell("player",_BloodTap,true,false,false) then return end
+    --           end
+    --         -- Plague Leech (1H)
+    --           if oneHand and ffRemain.dyn30>0 and bpRemain.dyn30>0 and tarDist.dyn30<30 then
+    --             if castSpell(tarUnit.dyn30,_PlagueLeech,true,false,false) then return end
+    --           end
+    --         -- Empower Rune Weapon (1H)
+    --           if isChecked("Empower Rune Weapon") and fRunes==0 and uRunes==0 then
+    --             if castSpell("player",_EmpowerRuneWeapon,true,false,false) then return end
+    --           end
+    --         end --End Boss Special
+    --     -- Defile (1H)
+    --         if oneHand and defile and uRunes>=1 and dCooldown==0 and not isMoving(tarUnit.dyn30AoE) and tarDist.dyn30AoE<30 then
+    --           if castGround(tarUnit.dyn30AoE,_Defile,30) then return end
+    --         end
+    --     -- Blood Tap (1H)
+    --         --if=talent.defile.enabled&cooldown.defile.remains=0
+    --         if oneHand and defile and dCooldown==0 and bcStack>4 then
+    --           if castSpell("player",_BloodTap,true,false,false) then return end
+    --         end
+    --     -- Howling Blast (1H)
+    --         --if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains<7&runic_power<88
+    --         if oneHand and sindragosa and bosCooldown<7 and power<88 and fRunes>=1 and tarDist.dyn30<30 then
+    --           if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
+    --             if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
+    --           else
+    --             if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
+    --           end
+    --         end
+    --     -- Obliterate (1H/2H)
+    --         --One - if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains<3&runic_power<76
+    --         --Two - if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains<7&runic_power<76
+    --         if sindragosa and ((oneHand and bosCooldown<3) or (twoHand and bosCooldown<7)) and power<76 and uRunes>=1 and fRunes>=1 and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_Obliterate,false,false,false) then return end
+    --         end
+    --     -- Howling Blast (2H)
+    --         --if=talent.breath_of_sindragosa.enabled&cooldown.breath_of_sindragosa.remains<3&runic_power<88
+    --         if twoHand and sindragosa and bosCooldown<3 and power<88 and fRunes>=1 and tarDist.dyn30<30 then
+    --           if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
+    --             if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
+    --           else
+    --             if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
+    --           end
+    --         end
+    --     -- Frost Strike (1H)
+    --         --buff.killing_machine.react|runic_power>88
+    --         if oneHand and (kmRemain>0 or power>88) and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_FrostStrike,false,false,false) then return end
+    --         end
+    --     -- Frost Strike (1H)
+    --         --if=cooldown.antimagic_shell.remains<1&runic_power>=50&!buff.antimagic_shell.up
+    --         if oneHand and amsCooldown<1 and power>=50 and amsRemain==0 and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_FrostStrike,false,false,false) then return end
+    --         end
+    --     -- Howling Blast (1H)
+    --         --if=death>1|frost>1
+    --         if oneHand and fRunes>1 and tarDist.dyn30<30 then
+    --            if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
+    --             if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
+    --           else
+    --             if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
+    --           end
+    --         end
+    --     -- Unholy Blight (1H)
+    --         --if=!disease.ticking
+    --         if oneHand and not hasDisease.dyn10AoE and tarDist.dyn10AoE<10 then
+    --           if castSpell("player",_UnholyBlight,true,false,false) then return end
+    --         end
+    --     -- Howling Blast
+    --         --if=!talent.necrotic_plague.enabled&!dot.frost_fever.ticking
+    --         if not necrotic and ffRemain.dyn30==0 and fRunes>=1 and tarDist.dyn30<30 then
+    --           if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
+    --             if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
+    --           else
+    --             if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
+    --           end
+    --         end
+    --     -- Howling Blast
+    --         --if=talent.necrotic_plague.enabled&!dot.necrotic_plague.ticking
+    --         if necrotic and necRemain.dyn30==0 and fRunes>=1 and tarDist.dyn30<30 then
+    --           if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
+    --             if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
+    --           else
+    --             if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
+    --           end
+    --         end
+    --     -- Plague Strike
+    --         --if=!talent.necrotic_plague.enabled&!dot.blood_plague.ticking&unholy>0
+    --         if not necrotic and bpRemain.dyn5==0 and uRunes>=1 and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_PlagueStrike,false,false,false) then return end
+    --         end
+    --     -- Howling Blast (1H)
+    --         --if=buff.rime.react
+    --         if oneHand and rRemain>0 and tarDist.dyn30<30 then
+    --           if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
+    --             if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
+    --           else
+    --             if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
+    --           end
+    --         end
+    --     -- Blood Tap (2H)
+    --         --if=buff.blood_charge.stack>10&runic_power>76
+    --         if twoHand and bcStack>10 and power>76 then
+    --           if castSpell("player",_BloodTap,true,false,false) then return end
+    --         end
+    --     -- Frost Strike (1H)
+    --         --if=set_bonus.tier17_2pc=1&(runic_power>=50&(cooldown.pillar_of_frost.remains<5))
+    --         if oneHand and t17x2 and power>=50 and pofCooldown<5 and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_FrostStrike,false,false,false) then return end
+    --         end
+    --     -- Frost Strike
+    --         --if=runic_power>76
+    --         if power>76 and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_FrostStrike,false,false,false) then return end
+    --         end
+    --     -- Howling Blast (2H)
+    --         --if=buff.rime.react&disease.min_remains>5&(blood.frac>=1.8|unholy.frac>=1.8|frost.frac>=1.8)
+    --         if twoHand and rRemain>0 and getDisease(30,false,"min")>5 and (bPercent>=1.8 or uPercent>=1.8 or fPercent>=1.8) and tarDist.dyn30<30 then
+    --           if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
+    --             if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
+    --           else
+    --             if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
+    --           end
+    --         end
+    --     -- Obliterate (2H)
+    --         --if=blood.frac>=1.8|unholy.frac>=1.8|frost.frac>=1.8
+    --         if twoHand and (bPercent>=1.8 or uPercent>=1.8 or fPercent>=1.8) and uRunes>=1 and fRunes>=1 and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_Obliterate,false,false,false) then return end
+    --         end
+    --     -- Plague Leech (2H)
+    --         --if=disease.min_remains<3&((blood.frac<=0.95&unholy.frac<=0.95)|(frost.frac<=0.95&unholy.frac<=0.95)|(frost.frac<=0.95&blood.frac<=0.95))
+    --         if twoHand and hasDisease.dyn30AoE and getDisease(30,true,"min")<3 and ((bPercent<=0.95 and uPercent<=0.95) or (fPercent<=0.95 and uPercent<=0.95) or (fPercent<=0.95 and bPercent<=0.95)) and tarDist.dyn30AoE<30 then
+    --           if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then return end
+    --         end
+    --     -- Frost Stike (2H)
+    --         --if=talent.runic_empowerment.enabled&(frost=0|unholy=0|blood=0)&(!buff.killing_machine.react|!obliterate.ready_in<=1)
+    --         if twoHand and runic and (fRunes==0 or uRunes==0 or bRunes==0) and (kmRemain==0 or (fPercent<=0.95 and uPercent<=0.95)) and power>25 and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_FrostStrike,true,false,false) then return end
+    --         end
+    --     -- Frost Strike (2H)
+    --         --if=talent.blood_tap.enabled&buff.blood_charge.stack<=10&(!buff.killing_machine.react|!obliterate.ready_in<=1)
+    --         if twoHand and bloodtap and bcStack<=10 and (kmRemain==0 or (fPercent<=0.95 and uPercent<=0.95)) and power>25 and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_FrostStrike,true,false,false) then return end
+    --         end
+    --     -- Howling Blast (2H)
+    --         --if=buff.rime.react&disease.min_remains>5
+    --         if twoHand and rRemain>0 and getDisease(30,false,"min")>5 and tarDist.dyn30<30 then
+    --           if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
+    --             if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
+    --           else
+    --             if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
+    --           end
+    --         end
+    --     -- Obliterate (2H)
+    --         --if=blood.frac>=1.5|unholy.frac>=1.6|frost.frac>=1.6|buff.bloodlust.up|cooldown.plague_leech.remains<=4
+    --         if twoHand and (bPercent>=1.5 or uPercent>=1.6 or fPercent>=1.6 or plCooldown<=4) and uRunes>=1 and fRunes>=1 and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_Obliterate,false,false,false) then return end
+    --         end
+    --     -- Blood Tap (2H)
+    --         --if=(buff.blood_charge.stack>10&runic_power>=20)|(blood.frac>=1.4|unholy.frac>=1.6|frost.frac>=1.6)
+    --         if twoHand and ((bcStack>10 and power>=20) or (bPercent>=1.4 or uPercent>=1.6 or fPercent>=1.6)) and bcStack>4 then
+    --           if castSpell("player",_BloodTap,true,false,false) then return end
+    --         end
+    --     -- Obliterate (1H)
+    --         --if=unholy>0&!buff.killing_machine.react
+    --         if oneHand and fRunes>0 and uRunes>0 and kmRemain==0 and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_Obliterate,false,false,false) then return end
+    --         end
+    --     -- Frost Strike (2H)
+    --         --if=!buff.killing_machine.react
+    --         if twoHand and kmRemain==0 and power>25 and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_FrostStrike,true,false,false) then return end
+    --         end
+    --     -- Plague Leech (2H)
+    --         --if=(blood.frac<=0.95&unholy.frac<=0.95)|(frost.frac<=0.95&unholy.frac<=0.95)|(frost.frac<=0.95&blood.frac<=0.95)
+    --         if twoHand and ((bPercent<=0.95 and uPercent<=0.95) or (fPercent<=0.95 and uPercent<=0.95) or (fPercent<=0.95 and bPercent<=0.95)) and ffRemain.dyn30>0 and bpRemain.dyn30>0 and tarDist.dyn30<30 then
+    --           if castSpell(tarUnit.dyn30,_PlagueLeech,true,false,false) then return end
+    --         end
+    --     -- Howling Blast (1H)
+    --         --if=!(target.health.pct-3*(target.health.pct%target.time_to_die)<=35&cooldown.soul_reaper.remains<3)|death+frost>=2
+    --         if oneHand and (not (thp-3*(thp*ttd)<=35 and srCooldown<3 and fRunes>0) or fRunes>=2) and tarDist.dyn30<30 then
+    --          if useCleave() or getNumEnemies(tarUnit.dyn30,10)==1 then
+    --             if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
+    --           else
+    --             if castSpell(tarUnit.dyn30,_IcyTouch,false,false,false) then return end
+    --           end
+    --         end
+    --     -- Blood Tap (1H)
+    --         if oneHand and bcStack>4 then
+    --           if castSpell("player",_BloodTap,true,false,false) then return end
+    --         end
+    --     -- Plague Leech (1H)
+    --         if oneHand and ffRemain.dyn30>0 and bpRemain.dyn30>0 and tarDist.dyn30<30 then
+    --           if castSpell(tarUnit.dyn30,_PlagueLeech,true,false,false) then return end
+    --         end
+    --     -- Empower Rune Weapon
+    --         if isChecked("Empower Rune Weapon") and useCDs() and fRunes==0 and uRunes==0 and tarDist.dyn5<5 then
+    --           if castSpell("player",_EmpowerRuneWeapon,true,false,false) then return end
+    --         end
+    --       end
+    --     ----------------------
+    --     --- Multiple Target --
+    --     ----------------------
+    --       if useAoE() then
+    --     -- Unholy Blight
+    --         if tarDist.dyn10AoE<10 then
+    --           if castSpell("player",_UnholyBlight,true,false,false) then return end
+    --         end
+    --     -- Blood Boil
+    --         --if=dot.blood_plague.ticking&(!talent.unholy_blight.enabled|cooldown.unholy_blight.remains<49),line_cd=28
+    --         if bpRemain.dyn10AoE>0 and ((not blight) or ubCooldown<49) and (lineTimer == nil or lineTimer <= GetTime()-28) and bRunes>=1 and tarDist.dyn10AoE<10 then
+    --           if castSpell("player",_BloodBoil,true,false,false) then lineTimer=GetTime(); return end
+    --         end
+    --     -- Defile
+    --         if defile and uRunes>=1 and dCooldown==0 and not isMoving(tarUnit.dyn30AoE) and tarDist.dyn30AoE<30 then
+    --           if castGround(tarUnit.dyn30AoE,_Defile,30) then return end
+    --         end
+    --     -- Breath of Sindragosa
+    --         --if=runic_power>75
+    --         if power>75 and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_BreathOfSindragosa,false,false,false) then return end
+    --         end
+    --         ----------------------------
+    --         --- Boss Multiple Target ---
+    --         ----------------------------
+    --         if isBoss() and bosRemain>0 then
+    --       -- Howling Blast
+    --           if (fRunes>=1 or rRemain>0) and tarDist.dyn30<30 then
+    --             if castSpell(tarUnit.dyn30,_HowlingBlast,false,false,false) then return end
+    --           end
+    --       -- Blood Tap
+    --           --if=buff.blood_charge.stack>10
+    --           if bcStack>10 then
+    --             if castSpell("player",_BloodTap,true,false,false) then return end
+    --           end
+    --       -- Death and Decay
+    --           --if=unholy=1
+    --           if uRunes==1 and not defile and dndCooldown==0 and hasThreat(tarUnit.dyn30AoE) and not isMoving(tarUnit.dyn30AoE) and tarDist.dyn30AoE<30 then
+    --             if castGround(tarUnit.dyn30AoE,_DeathAndDecay,30) then return end
+    --           end
+    --       -- Plague Strike
+    --           --if=unholy=2
+    --           if uRunes==2 and tarDist.dyn5<5 then
+    --             if castSpell(tarUnit.dyn5,_PlagueStrike,false,false,false) then return end
+    --           end
+    --       -- Blood Tap
+    --           if bcStack>4 then
+    --             if castSpell("player",_BloodTap,true,false,false) then return end
+    --           end
+    --       -- Plague Leech
+    --           if bpRemain.dyn30AoE>0 and ffRemain.dyn30AoE>0 and tarDist.dyn30AoE<30 then
+    --             if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then return end
+    --           end
+    --       -- Plague Strike
+    --           --if=unholy=1
+    --           if uRunes==1 and tarDist.dyn5<5 then
+    --             if castSpell(tarUnit.dyn5,_PlagueStrike,false,false,false) then return end
+    --           end
+    --       -- Empower Rune Weapon
+    --           if isChecked("Empower Rune Weapon") and useCDs() and fRunes==0 and uRunes==0 and tarDist.dyn5<5 then
+    --             if castSpell("player",_EmpowerRuneWeapon,true,false,false) then return end
+    --           end
+    --         end --End Boss Special
+    --     -- Howling Blast
+    --         if (fRunes>=1 or rRemain>0) and tarDist.dyn0<30 then
+    --           if castSpell(tarUnit.dyn0,_HowlingBlast,false,false,false) then return end
+    --         end
+    --     -- Blood Tap
+    --         --if=buff.blood_charge.stack>10
+    --         if bcStack>10 then
+    --           if castSpell("player",_BloodTap,true,false,false) then return end
+    --         end
+    --     -- Frost Strike
+    --         --if=runic_power>88
+    --         if power>88 and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_FrostStrike,true,false,false) then return end
+    --         end
+    --     -- Death and Decay
+    --         --if=unholy=1
+    --         if uRunes==1 and not defile and dndCooldown==0 and hasThreat(tarUnit.dyn30AoE) and not isMoving(tarUnit.dyn30AoE) and tarDist.dyn30AoE<30 then
+    --           if castGround(tarUnit.dyn30AoE,_DeathAndDecay,30) then return end
+    --         end
+    --     -- Plague Strike
+    --         --if=unholy=2
+    --         if uRunes==2 and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_PlagueStrike,false,false,false) then return end
+    --         end
+    --     -- Blood Tap
+    --         if bcStack>4 then
+    --           if castSpell("player",_BloodTap,true,false,false) then return end
+    --         end
+    --     -- Frost Strike
+    --         --if=!talent.breath_of_sindragosa.enabled|cooldown.breath_of_sindragosa.remains>=10
+    --         if (not sindragosa or bosCooldown>=10) and power>25 and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_FrostStrike,true,false,false) then return end
+    --         end
+    --     -- Plague Leech
+    --         if bpRemain.dyn30AoE>0 and ffRemain.dyn30AoE>0 and tarDist.dyn30AoE<30 then
+    --           if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then return end
+    --         end
+    --     -- Plague Strike
+    --         --if=unholy=1
+    --         if uRunes==1 and tarDist.dyn5<5 then
+    --           if castSpell(tarUnit.dyn5,_PlagueStrike,false,false,false) then return end
+    --         end
+    --     -- Empower Rune Weapon
+    --         if isChecked("Empower Rune Weapon") and useCDs() and fRunes==0 and uRunes==0 and tarDist.dyn0<5 then
+    --           if castSpell("player",_EmpowerRuneWeapon,true,false,false) then return end
+    --         end
+    --       end
+    --     end --In Combat End
+    -- -- Start Attack
+    --     if ObjectExists(tarUnit.dyn5) and isInCombat("player") and profileStop==false and tarDist.dyn5<5 then
+    --       StartAttack()
+    --     end
       end
     end
   end -- FrostDK() end
