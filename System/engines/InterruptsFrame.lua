@@ -1,4 +1,4 @@
--- Interrupts Manager(im) 
+-- Interrupts Manager(im)
 -- By CodeMyLife
 
 -- This interupt reader intend to take as few ressources as possible while giving a lot of possibilities.
@@ -34,7 +34,7 @@ local function spellCastListener(self,category,...)
 		-- if its a success cast, remove unit from the casters
 		if event == "SPELL_CAST_SUCCESS" then
 			if unitType == "Creature" then
-			-- unitType == "Player" 
+			-- unitType == "Player"
 				return im:removeCaster(sourceGUID," has finished casting.")
 			end
 		end
@@ -166,7 +166,7 @@ function castInterrupt(spell,percent,keepInfo)
 								im:debug("Cast Interrupt "..thisCaster.unit.." with "..spell.." at "..castPercent,true)
 								-- if developer need to keep this spell/unit combo
 								if keepInfo == true then
-									simulacrumSpell = spell
+									simulacrumSpell = thisCaster.spell
 								end
 								-- prevent intrupt on this target again by removing it
 								tremove(casters,i)
@@ -207,77 +207,79 @@ function im:manageCast(...)
 	-- find if that unit/spell combination should be interrupted
 	local enemiesTable = enemiesTable
 	-- Prepare GUID to be reused via UnitID
-	for i = 1,#enemiesTable do
-		if sourceGUID == enemiesTable[i].guid and ObjectExists(enemiesTable[i].unit) then
-			local thisUnit = enemiesTable[i]
-			-- gather our infos
-			if getOptionCheck("Only Known Units") and not isInteruptCandidate(thisUnit.unit, spellID) then
-				im:debug(sourceName.." started casting "..spellID.." but is not gonna be interrupt.")
-			    return --exit since we have checkd only known units but is not on the list
-			else
-				im:debug("We are adding "..sourceName.." that is casting "..spellID..".")
-				-- make sure to define values
-				destName = destName or "|cffFFFFFFNo Target"
-				if destGUID == "" then
-					destGUID = "|cffFFFFFFNo Target"
-				end
-				-- Send to table
-	  			local unitCasting,unitCastLenght,unitCastTime,unitCantBeInterrupt,unitCastType = getCastingInfo(thisUnit.unit)
-	  			local X1,Y1,Z1 = ObjectPosition(thisUnit.unit)
-				tinsert(casters,
-        			{
-        				cast = spellID,
-        				castType = unitCastType,
-	        			canInterupt = unitCantBeInterrupt == false,
-	        			castEnd = unitCastTime,
-	        			castLenght = unitCastLenght,
-	        			castType = castOrChan,
-	        			-- usually this distance check should use lib range
-	        			distance = getDistance("player",thisUnit),
-	        			guid = sourceGUID,
-	        			id = thisUnit.id,
-	        			shouldInterupt = candidate,
-	        			sourceGUID = sourceGUID,
-	        			sourceName = sourceName,
-	        			spellName = unitCasting,
-	        			targetGUID = destGUID,
-	        			targetName = destName,
-	        			unit = thisUnit.unit,
-	        			pos = {
-	   						x = X1,
-	   						y = Y1,
-	   						z = Z1
-	   					}
-        			}
-        		)
-        		
-				-- Sorting with the endTime
-				sort(casters,function(x,y)
-					-- if both value exists then
-					if x.endTime and y.endTime then
-						-- place higher above
-						return x.endTime > y.endTime
-					-- otherwise place empty at bottom
-					elseif x.endTime then
-						return true
-					elseif y.endTime then
-						return false
+	if enemiesTable and #enemiesTable > 0 then
+		for i = #enemiesTable,1,-1 do
+			if enemiesTable[i] and sourceGUID == enemiesTable[i].guid and ObjectExists(enemiesTable[i].unit) then
+				local thisUnit = enemiesTable[i]
+				-- gather our infos
+				if getOptionCheck("Only Known Units") and not isInteruptCandidate(thisUnit.unit, spellID) then
+					im:debug(sourceName.." started casting "..spellID.." but is not gonna be interrupt.")
+				    return --exit since we have checkd only known units but is not on the list
+				else
+					im:debug("We are adding "..sourceName.." that is casting "..spellID..".")
+					-- make sure to define values
+					destName = destName or "|cffFFFFFFNo Target"
+					if destGUID == "" then
+						destGUID = "|cffFFFFFFNo Target"
 					end
-				end)
+					-- Send to table
+		  			local unitCasting,unitCastLenght,unitCastTime,unitCantBeInterrupt,unitCastType = getCastingInfo(thisUnit.unit)
+		  			local X1,Y1,Z1 = ObjectPosition(thisUnit.unit)
+					tinsert(casters,
+	        			{
+	        				cast = spellID,
+	        				castType = unitCastType,
+		        			canInterupt = unitCantBeInterrupt == false,
+		        			castEnd = unitCastTime,
+		        			castLenght = unitCastLenght,
+		        			castType = castOrChan,
+		        			-- usually this distance check should use lib range
+		        			distance = getDistance("player",thisUnit),
+		        			guid = sourceGUID,
+		        			id = thisUnit.id,
+		        			shouldInterupt = candidate,
+		        			sourceGUID = sourceGUID,
+		        			sourceName = sourceName,
+		        			spellName = unitCasting,
+		        			targetGUID = destGUID,
+		        			targetName = destName,
+		        			unit = thisUnit.unit,
+		        			pos = {
+		   						x = X1,
+		   						y = Y1,
+		   						z = Z1
+		   					}
+	        			}
+	        		)
 
-				-- remove those that are over
-				if #casters > 0 then
-					for i = #casters,1,-1 do
-						if casters[i].castEnd < GetTime() then
-							im:debug("Removed "..casters[i].sourceName.." from casters list as its cast time expired.")
-							tremove(casters,i)
+					-- Sorting with the endTime
+					sort(casters,function(x,y)
+						-- if both value exists then
+						if x.endTime and y.endTime then
+							-- place higher above
+							return x.endTime > y.endTime
+						-- otherwise place empty at bottom
+						elseif x.endTime then
+							return true
+						elseif y.endTime then
+							return false
+						end
+					end)
+
+					-- remove those that are over
+					if #casters > 0 then
+						for i = #casters,1,-1 do
+							if casters[i].castEnd < GetTime() then
+								im:debug("Removed "..casters[i].sourceName.." from casters list as its cast time expired.")
+								tremove(casters,i)
+							end
 						end
 					end
-				end
 
-				-- we first build up the table and then we come back to find who is near who
-				-- getCastersAround(10)
-				-- here we should spring the UI
+					-- we first build up the table and then we come back to find who is near who
+					-- getCastersAround(10)
+					-- here we should spring the UI
+				end
 			end
 		end
 	end
@@ -302,7 +304,7 @@ function getCastersAround(radius)
 		end
 		-- add castersAround
 		thatCaster.castersAround = enemyCastersAround
-	end	
+	end
 end
 
 -- function that return frange from thisCaster to thatCaster using their stored positions
