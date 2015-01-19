@@ -128,26 +128,26 @@ if select(3,UnitClass("player")) == 1 then
 		if not isInCombat("player") then
 			-- actions.precombat+=/stance,choose=battle
 			if GetShapeshiftForm() ~= 1 then
-				if castSpell("player",BattleStance,true) then
+				if castSpell("player",_BattleStance,true) then
 					return;
 				end
 			end
-				-- Commanding Shout
-				if isChecked("Shout") == true and getValue("Shout") == 1 and not UnitExists("mouseover") then
-            for i = 1, #members do --members
-                if not isBuffed(members[i].Unit,{21562,109773,469,90364}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
-                    if castSpell("player",CommandingShout,false,false) then return; end
-                end
-            end
-        end
-        -- Battle Shout
-				if isChecked("Shout") == true and getValue("Shout") == 2 and not UnitExists("mouseover") then
-            for i = 1, #members do --members
-                if not isBuffed(members[i].Unit,{57330,19506,6673}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
-                    if castSpell("player",BattleShout,false,false) then return; end
-                end
-            end
-        end
+			-- Commanding Shout
+			if isChecked("Shout") == true and getValue("Shout") == 1 and not UnitExists("mouseover") then
+          for i = 1, #members do --members
+              if not isBuffed(members[i].Unit,{21562,109773,469,90364}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
+                  if castSpell("player",_CommandingShout,false,false) then return; end
+              end
+          end
+      end
+      -- Battle Shout
+			if isChecked("Shout") == true and getValue("Shout") == 2 and not UnitExists("mouseover") then
+          for i = 1, #members do --members
+              if not isBuffed(members[i].Unit,{57330,19506,6673}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
+                  if castSpell("player",_BattleShout,false,false) then return; end
+              end
+          end
+      end
 		end -- Out of Combat end
 	------------------------------------------------------------------------------------------------------
 	-- In Combat -----------------------------------------------------------------------------------------
@@ -237,7 +237,7 @@ if select(3,UnitClass("player")) == 1 then
 						end
 					end
 				end
-				-- Def Stance
+				--Def Stance
 				if isChecked("DefensiveStance") == true then
 					if getHP("player") <= getValue("DefensiveStance") and GetShapeshiftForm() ~= 2 then
 						if castSpell("player",_DefensiveStance,true) then
@@ -301,14 +301,14 @@ if select(3,UnitClass("player")) == 1 then
 		    end
 				--On use Trinkets
 				if isChecked("Use Trinket") then
-	        if canTrinket(13) and useCDs() then
+	        if canTrinket(13) and useCDsArms() then
 	          RunMacroText("/use 13")
 	          if IsAoEPending() then
 	            local X,Y,Z = ObjectPosition(Unit)
 	            CastAtPosition(X,Y,Z)
 	          end
 	        end
-	        if canTrinket(14) and useCDs() then
+	        if canTrinket(14) and useCDsArms() then
 	          RunMacroText("/use 14")
 	          if IsAoEPending() then
 	            local X,Y,Z = ObjectPosition(Unit)

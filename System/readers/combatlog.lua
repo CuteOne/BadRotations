@@ -12,7 +12,7 @@ local cl = bb.read
 -- will update the bb.read.enraged list
 function bb.read.enrageReader(...)
     if getOptionCheck("Enrages Handler") then
-        local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, 
+        local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
                 destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
         -- here we will take all spell aura and check if we hold this aura in our enrage table
         -- if we find a match, we set the unit to whitelist with time remaining on the buff
@@ -23,7 +23,7 @@ function bb.read.enrageReader(...)
                     tinsert(bb.read.enraged, 1, {guid = destination,spellType = dispellOffensiveBuffs[spell],buffID = spell})
                 end
             end
-        end 
+        end
         if param == "SPELL_AURA_REMOVED" then
             -- look for a match to remove
             local targets = bb.read.enraged
@@ -85,7 +85,7 @@ frame:SetScript("OnEvent", reader)
 -- class functions(Alphabetically)
 function cl:common(...)
     bb.read.enrageReader(...)
-    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, 
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
             destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
 
     ----------------
@@ -182,7 +182,7 @@ function cl:common(...)
     --[[ Debug --]]
     if getOptionCheck("Debug Frame") == true and source == bb.guid and (param == "SPELL_CAST_SUCCESS" or (param == "SPELL_CAST_FAILED" and getOptionCheck("Display Failcasts"))) then
         -- available locals
-        -- timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, 
+        -- timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
         -- destName, destFlags, destRaidFlags, spell, spellName, _, spellType
 
 	   if SpellID ~= 75 and SpellID ~= 88263 and SpellID ~= 172 and SpellID ~= 8690 then -- Add spells we dont want to appear here.
@@ -226,15 +226,15 @@ function cl:common(...)
 end
 
 function cl:Druid(...)
-    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, 
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
             destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
 	-----------
 	-- Kitty ---------------
 	--[[ Bleed Recorder --]]
 	if GetSpecialization() == 2 then
 		-- define dot table(kitties)
-	    Rip_sDamage = Rip_sDamage or {}; 
-	    Rake_sDamage = Rake_sDamage or {} 
+	    Rip_sDamage = Rip_sDamage or {};
+	    Rake_sDamage = Rake_sDamage or {}
 	    --Thrash_sDamage = Thrash_sDamage or {}
 		if source == bb.guid then
 			function WA_calcStats()
@@ -327,9 +327,9 @@ function cl:Deathknight(...)
 end
 
 function cl:Hunter(...)
-    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, 
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
             destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
-	
+
 	--[[ Steady Focus ]]
     if spell == 77767 and param == "SPELL_CAST_SUCCESS" then
         if BadBoy_data["1stFocus"] ~= true then
@@ -341,25 +341,25 @@ function cl:Hunter(...)
 end
 
 function cl:Mage(...)
-    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, 
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
             destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
 
 end
 
 function cl:Monk(...)
-    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, 
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
             destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
-	
+
 end
 
 function cl:Priest(...)
-    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, 
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
             destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
-	
+
 end
 
 function cl:Paladin(...)
-    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, 
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
             destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
 
     -----------------------
@@ -370,7 +370,7 @@ function cl:Paladin(...)
 end
 
 function cl:Rogue(...)
-    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, 
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
             destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
 
 	--------------------------------------
@@ -384,7 +384,7 @@ function cl:Rogue(...)
 end
 
 function cl:Shaman(...) -- 7
-    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, 
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
             destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
 
     --------------------
@@ -399,9 +399,9 @@ function cl:Shaman(...) -- 7
 end
 
 function cl:Warlock(...) -- 9
-    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, 
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
             destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
-	
+
 	---------------------
 	--[[ Pet Manager --]]
 	if class == 9 then
@@ -432,7 +432,7 @@ end
 
 
 function cl:Warrior(...)
-    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, 
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
             destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
 
 	----------------------------------
