@@ -344,6 +344,45 @@ function cl:Mage(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
             destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
 
+    if source == bb.guid then
+        -- Params 
+        -- SPELL
+        -- SPEL_PERIODIC
+        -- SPELL_CAST_SUCCESS, 
+        -- SPELL_DAMAGE, 
+        -- SPELL_MISSED, 
+        -- SPELL_AURA_REFRESH, 
+        -- SPELL_AURA_APPLIED, 
+        -- SPELL_AURA_APPLIED_DOSE, 
+        -- SPELL_AURA_APPLIED_REMOVED,
+        if param == "SPELL" and spell == 30451 then
+            --print("Spell " ..GetTime())
+        end
+        if param == "SPEL_PERIODIC" and spell == 30451 then
+            --print("Spell Periodic " ..GetTime())
+        end
+        if param == "SPELL_CAST_SUCCESS" and spell == 30451 then
+            --print("Spell Cast Success " ..GetTime())
+        end
+        if param == "SPELL_DAMAGE" and spell == 30451 then
+            --print("Spell Damage " ..GetTime())
+        end
+        if param == "SPELL_MISSED" and spell == 30451 then
+            --print("Spell Missed " ..GetTime())
+        end
+        if param == "SPELL_AURA_REFRESH" and spell == 36032 then
+            --print("Spell Aura Refresh " ..GetTime())
+        end
+        if param == "SPELL_AURA_APPLIED" and spell == 36032 then
+            --print("Spell Aura Applied " ..GetTime())
+        end
+        if param == "SPELL_AURA_APPLIED_DOSE" and spell == 36032 then
+            --print("Spell Aura Applied Dose " ..GetTime())
+        end
+        if param == "SPELL_AURA_REMOVED" and spell == 36032 then
+            --print("Spell Aura Removed " ..GetTime())
+        end
+    end
 end
 
 function cl:Monk(...)

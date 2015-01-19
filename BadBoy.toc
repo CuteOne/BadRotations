@@ -122,11 +122,13 @@ Rotations\Hunter\SpellList.lua
 Rotations\Hunter\Functions.lua
 
 ## Mage ---------------------------------------------------
-Rotations\Mage\Frost\Frost.lua
-Rotations\Mage\Frost\Options.lua
-Rotations\Mage\Frost\Functions.lua
-Rotations\Mage\Frost\SpellList.lua
-Rotations\Mage\Frost\Toggles.lua
+Rotations\Mage\Frost.lua
+Rotations\Mage\Arcane.lua
+Rotations\Mage\Fire.lua
+Rotations\Mage\Options.lua
+Rotations\Mage\Functions.lua
+Rotations\Mage\SpellList.lua
+Rotations\Mage\Toggles.lua
 
 ## Monk ---------------------------------------------------
 Rotations\Monk\Brewmaster.lua

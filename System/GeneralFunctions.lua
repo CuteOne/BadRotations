@@ -935,11 +935,12 @@ end
 
 function getRecharge(spellID)
 	local charges,maxCharges,chargeStart,chargeDuration = GetSpellCharges(spellID)
-	if charges < maxCharges then
-		chargeEnd = chargeStart + chargeDuration
-		return chargeEnd - GetTime()
-	else
-		return 0
+	if charges then
+		if charges < maxCharges then
+			chargeEnd = chargeStart + chargeDuration
+			return chargeEnd - GetTime()
+		end
+	return 0
 	end
 end
 

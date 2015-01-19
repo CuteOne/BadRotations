@@ -247,16 +247,103 @@ end
 --[[ Combat Log Reader --]]
 local superReaderFrame = CreateFrame('Frame')
 superReaderFrame:RegisterEvent("PLAYER_TOTEM_UPDATE")
+superReaderFrame:RegisterEvent("UNIT_SPELLCAST_START")
 superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SENT")
 superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 superReaderFrame:RegisterEvent("UNIT_SPELLCAST_FAILED")
+superReaderFrame:RegisterEvent("UNIT_SPELLCAST_STOP")
+superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
+superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
+superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
+
+superReaderFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 local function SuperReader(self,event,...)
 	-------------------------------------------------
 	--[[ SpellCast Sents (used to define target) --]]
 	if event == "UNIT_SPELLCAST_SENT" then
-		spellCastTarget = select(4,...)
+		local SourceUnit 	= select(1,...)
+		local SpellName 	= select(2,...)
+		spellCastTarget 	= select(4,...)
 		--print("UNIT_SPELLCAST_SENT spellCastTarget = "..spellCastTarget)
+
+		local MyClass = UnitClass("player")
+		if SourceUnit == "player" then
+			if MyClass == "Mage" then -- Mage
+				if SpellName == "Arcane Blast" then --ArcaneBlast
+					insertSpellCastSent(ArcaneBlast, GetTime())
+				end
+			end
+		end
 	end
+
+	
+	if event == "UNIT_SPELLCAST_INTERRUPTED" then
+		local SourceUnit 	= select(1,...)
+		local SpellID 		= select(5,...)
+		if SourceUnit == "player" then
+
+			local MyClass = UnitClass("player")
+			if MyClass == "Mage" then -- Mage
+				if SpellID == 30451 then --ArcaneBlast
+					insertSpellCastInterrupted(ArcaneBlast, GetTime())
+				end
+			end
+		end
+	end
+
+	-----------------------------
+	--[[ SpellCast Succeeded --]]
+	if event == "UNIT_SPELLCAST_START" then
+		local SourceUnit 	= select(1,...)
+		local SpellID 		= select(5,...)
+		if SourceUnit == "player" then
+
+			local MyClass = UnitClass("player")
+
+			-- Hunter
+			if MyClass == 3 then
+				-- Serpent Sting
+				if SpellID == 1978 then
+					LastSerpent = GetTime()
+					LastSerpentTarget = spellCastTarget
+				end
+				-- Steady Shot Logic
+				if SpellID == 56641 then
+					if SteadyCast and SteadyCast >= GetTime() - 2 and SteadyCount == 1 then
+						SteadyCast = GetTime(); SteadyCount = 2
+					else
+						SteadyCast = GetTime(); SteadyCount = 1
+					end
+				end
+				-- Focus Generation
+				if SpellID == 77767 then
+					focusBuilt = GetTime()
+				end
+			end
+
+			if MyClass == "Mage" then -- Mage
+				if SpellID == 30451 then --ArcaneBlast
+					insertSpellCastStart(ArcaneBlast, GetTime())
+				end
+			end
+		end
+	end
+
+	if event == "UNIT_SPELLCAST_STOP" then
+		local SourceUnit 	= select(1,...)
+		local SpellID 		= select(5,...)
+		if SourceUnit == "player" then
+
+			local MyClass = UnitClass("player")
+
+			if MyClass == "Mage" then -- Mage
+				if SpellID == 30451 then --ArcaneBlast
+					insertSpellCastStop(ArcaneBlast, GetTime())
+				end
+			end
+		end
+	end
+	
 
 	-----------------------------
 	--[[ SpellCast Succeeded --]]
@@ -287,6 +374,12 @@ local function SuperReader(self,event,...)
 					focusBuilt = GetTime()
 				end
 			end
+
+			if MyClass == "Mage" then -- Mage
+				if SpellID == 30451 then --ArcaneBlast
+					insertSpellCastSucceeded(ArcaneBlast, GetTime())
+				end
+			end
 		end
 	end
 
@@ -295,6 +388,8 @@ local function SuperReader(self,event,...)
 	if event == "UNIT_SPELLCAST_FAILED" then
 		local SourceUnit 	= select(1,...)
 		local SpellID 		= select(5,...)
+		local MyClass = UnitClass("player")
+
 		if SourceUnit == "player" and isKnown(SpellID) then
 
 			-- Kill Command
@@ -307,7 +402,15 @@ local function SuperReader(self,event,...)
 				lastFailedWhistle = GetTime()
 			end
 		end
-	end
+
+		if SourceUnit == "player" then
+			if MyClass == "Mage" then -- Mage
+				if SpellID == 30451 then --ArcaneBlast
+					insertSpellCastFailed(ArcaneBlast, GetTime())		
+				end
+			end
+		end
+	end			
 
 	-----------------------------
 	--[[ Spell Failed Immune --]]
@@ -350,6 +453,33 @@ local function SuperReader(self,event,...)
 			end
 		end
 	end
+
+	if event == "UNIT_SPELLCAST_CHANNEL_START" then
+		local SourceUnit 	= select(1,...)
+		local SpellID 		= select(5,...)
+		if SourceUnit == "player" then
+			--print("Channel Start")
+		end
+	end
+
+	if event == "UNIT_SPELLCAST_CHANNEL_STOP" then
+		local SourceUnit 	= select(1,...)
+		local SpellID 		= select(5,...)
+		if SourceUnit == "player" then
+			--print("Channel STOP")
+		end
+	end
+
+	if event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
+		local SourceUnit 	= select(1,...)
+		local SpellID 		= select(5,...)
+		if SourceUnit == "player" then
+			--print("Channel Update")
+		end
+	end
+
+
+
 end
 superReaderFrame:SetScript("OnEvent", SuperReader)
 end

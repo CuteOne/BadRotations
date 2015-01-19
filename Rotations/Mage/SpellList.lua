@@ -30,13 +30,15 @@ if select(3, UnitClass("player")) == 8 then
 -- FiTalents
 
 -- Arcane
-	ArcaneBarrage	= 44425;
-	ArcaneBlast		= 30451;
-	ArcaneExplosion	= 1449;
-	ArcaneMissiles	= 5143;
-	UnstableExplo	= 157976;
-	PresenceOfMind  = 12043;
-	Evocation		= 12051;
+	ArcaneBarrage	= 44425
+	ArcaneBlast		= 30451
+	ArcaneExplosion	= 1449
+	ArcaneMissiles	= 5143
+	ArcaneMissilesP	= 79683
+	UnstableExplo	= 157976
+	PresenceOfMind  = 12043
+	Evocation		= 12051 --Standard
+	EvocationImp	= 157614 -- improved versions
 -- ArTalents
 	Supernova 		= 175980;
 	ArcaneOrb		= 153626;
@@ -73,7 +75,6 @@ if select(3, UnitClass("player")) == 8 then
 	-- arcane
 	ArcaneAffinity	= 166871;
 	ArcaneCharge	= 36032;
-	ArcaneMissilesP	= 79683;
 	ArcanePower		= 12042;
 
 	-- all
@@ -96,5 +97,67 @@ if select(3, UnitClass("player")) == 8 then
 
 -- Racial
 	Berserkering 	= 26297;	-- Troll Racial
+
+	ArcaneSpellBook = {
+	    [ArcaneBlast] = { isKnown = isKnown(ArcaneBlast), cd = 0, lastStart = 0, lastSent = 0, lastSucceeded = 0, lastStop = 0, lastFailed = 0 }, 
+	}
+
+
+	function insertSpellCastStart(spellID, time)
+		ArcaneSpellBook[spellID].LastStart = time
+	end
+	function insertSpellCastSent(spellID, time)
+		ArcaneSpellBook[spellID].LastSent = time
+	end
+	function insertSpellCastSucceeded(spellID, time)
+		ArcaneSpellBook[spellID].lastSucceeded = time
+	end
+	function insertSpellCastStop(spellID, time)
+		ArcaneSpellBook[spellID].LastStop = time
+	end
+	function insertSpellCastInterrupted(spellID, time)
+		ArcaneSpellBook[spellID].Interrupted = time
+	end
+	function insertSpellCastFailed(spellID, time)
+		ArcaneSpellBook[spellID].LastFailed = time
+	end
+
+	-- Todo : Here we should look into what the best value for clipping, 50 atm, why 50? Is it related to latency or custom lag tolerance?
+	-- Further testing is needed.
+	function isItOkToClipp()
+		local  name, _, _, _, _, endTime = UnitChannelInfo("player")
+		if name then
+			if (endTime - (GetTime()*1000)) > 50 then
+				return false
+			end
+			return true		
+		end
+		local name, _, _, _, _, endTime = UnitCastingInfo("player")
+		if name then
+			if (endTime - (GetTime()*1000)) > 50 then
+				return false
+			end
+			return true
+		end
+		return true
+	end
+
+	function cancelEvocation() 
+		local  name, _, _, _, _, endTime = UnitChannelInfo("player")
+		if name and name == "Evocation" then
+			print("Evoing")
+			if playerMana > 92 then
+				print("Cancel")
+				return true
+			end
+		end
+		return false
+	end
+
+	function castArcaneBlast(target)
+		if castSpell(target,ArcaneBlast,false,true) then
+			return true
+		end
+	end
 
 end
