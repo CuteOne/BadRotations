@@ -22,8 +22,7 @@ if select(3, UnitClass("player")) == 1  then
                 	lowestTankUnit = "player"
                 },
 				rage =0,
-                recharge = { },
-				stance = 1,
+				stance = 2,
                 talent = { },
                 units = { },
                 spell = {
@@ -71,7 +70,12 @@ if select(3, UnitClass("player")) == 1  then
 					UnquenchableThirst	= 169683,
 					UnyieldingStrikesTalent = 169685,
 					UnyieldingStrikesAura = 169686,
-
+					BattleStance 		= 2457,
+					DefensiveStance 	= 71,
+					GladiatorStance = 156291,
+					BattleShout 		= 6673,
+					BerserkerRage 		= 18499,
+					CommandingShout 	= 469,	
                  }
             }
 
@@ -88,7 +92,7 @@ if select(3, UnitClass("player")) == 1  then
             local UnitHealth,print,UnitHealthMax = UnitHealth,print,UnitHealthMax
             local getDistance,getDebuffRemain,GetTime,getFacing = getDistance,getDebuffRemain,GetTime,getFacing
             local spellCastersTable,getOptionCheck = bb.im.casters,getOptionCheck
-            local useItem = useItem
+            local useItem, nNova, isBuffed = useItem, nNova, isBuffed
             -- no external access after here
             setfenv(1,protCore)
 			
@@ -103,6 +107,13 @@ if select(3, UnitClass("player")) == 1  then
 			   
                 -- Glyph (refresh ooc)
                 
+				
+				--Stance Selector
+				if getValue("Stance") == 1 then
+					self.stance = 1
+				else
+					self.stance = 2
+				end	
 				
                 self.inCombat = false
             end
@@ -134,7 +145,7 @@ if select(3, UnitClass("player")) == 1  then
                 self.melee5Yards = #getEnemies(player,5) -- (meleeEnemies)
                 -- Modes
                 self.mode.aoe = BadBoy_data["AoE"]
-                self.mode.cooldowns = BadBoy_data["Cooldowns"]
+                --self.mode.cooldowns = BadBoy_data["Cooldowns"]
                 self.mode.defensive = BadBoy_data["Defensive"]
                 self.mode.interupts = BadBoy_data["Interrupts"]
                 -- truth = true, right = false
@@ -144,7 +155,7 @@ if select(3, UnitClass("player")) == 1  then
                 self.units.dyn5AoE = dynamicTarget(5,false)
                 self.units.dyn8AoE = dynamicTarget(8,false)
                 self.units.dyn25AoE = dynamicTarget(25,false)
-                self.units.dyn30 = dynamicTarget(30,true)
+                self.units.dyn30 = dynamicTarget(30,true) 
                 self.units.dyn30AoE = dynamicTarget(30,false)
                 self.units.dyn40 = dynamicTarget(40,true)
 
@@ -173,6 +184,36 @@ if select(3, UnitClass("player")) == 1  then
 			
 			-- TODO create functions for shouts and other buffs we might want to add
 			function protCore:castBuffs()
+				--Def Stance
+				if self.stance == 2 then
+					if GetShapeshiftForm() ~= 2 then
+						if castSpell("player",self.spell.DefensiveStance,true) then return; end
+					end
+				end
+				--Glad stance
+				if self.stance == 1 then
+					if GetShapeshiftForm() ~= 1 then
+						if castSpell("player",self.spell.BattleStance,true) then return; end
+					end
+				end
+				-- Commanding Shout
+				if isChecked("Shout") == true and getValue("Shout") == 1 and not UnitExists("mouseover") then
+					for i = 1, #nNova do
+						local unit = nNova[i]
+						if not isBuffed(unit.unit,{21562,109773,469,90364})  then
+							if castSpell("player",self.spell.CommandingShout,false,false) then return; end
+						end
+					end
+				end
+				-- Battle Shout
+				if isChecked("Shout") == true and getValue("Shout") == 2 and not UnitExists("mouseover") then
+					for i = 1, #nNova do
+						local unit = nNova[i]
+						if not isBuffed(unit.unit,{57330,19506,6673}) then
+							if castSpell("player",self.spell.BattleShout,false,false) then return; end
+						end
+					end
+				end
 			end
 			
 			
@@ -201,9 +242,9 @@ if select(3, UnitClass("player")) == 1  then
                 return castSpell(self.units.dyn5,self.spell.Revenge,true,false)
             end
 			
-			-- Ravager TODO Fix Logic
+			-- Ravager 
             function protCore:castRavager()
-                return false
+                castGround(self.units.dyn5,self.spell.Ravager,40)
             end
 			
 			-- StormBolt TODO Fix dyn range
