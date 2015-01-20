@@ -61,16 +61,15 @@ if select(3, UnitClass("player")) == 1  then
 			CreateNewText(thisConfig,"Auto Avatar");
 		end
 		
+		-- Racial
+		CreateNewCheck(thisConfig,"Racial (Orc / Troll)")
+		CreateNewText(thisConfig,"Racial (Orc / Troll)")
 		
 		-- Dummy DPS Test
 		CreateNewCheck(thisConfig,"DPS Testing");
 		CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 5, "Set to desired time for test in minutes. Min: 1 / Max: 15 / Interval: 1");
 		CreateNewText(thisConfig,"DPS Testing");
-
-		-- Racial
-		CreateNewCheck(thisConfig,"Racial (Orc / Troll)")
-		CreateNewText(thisConfig,"Racial (Orc / Troll)")
-
+		
 		-- Wrapper
 		generateWrapper("Defensive")
 

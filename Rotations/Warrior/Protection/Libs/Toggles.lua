@@ -2,24 +2,13 @@ if select(3, UnitClass("player")) == 1  then
 
    function WarriorProtToggles()
         if AoEModesLoaded ~= "Prot Warrior AoE Modes" then
-            AoEModes = {
-                [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = ThunderClap },
-                [2] = { mode = "Sing", value = 2 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = Devastate }
+            AoEModes = {                
+				[1] = { mode = "Sing", value = 1 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = Devastate },
+                [2] = { mode = "AoE", value = 2 , overlay = "Aoe Target Rotation", tip = "Aoe target rotation used.", highlight = 0, icon = ThunderClap },
+				[3] = { mode = "Auto", value = 3 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = ThunderClap }
             };
            CreateButton("AoE",1,0)
            AoEModesLoaded = "Prot Warrior AoE Modes";
-        end
-
-        -- Cooldowns Button
-        if CooldownsModesLoaded ~= "Cooldown Modes" then
-            CustomCooldownsModes = {
-                [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = Avatar },
-                [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = Avatar },
-                [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = Avatar }
-            };
-           CooldownsModes = CustomCooldownsModes
-           CreateButton("Cooldowns",2,0)
-           CooldownsModesLoaded = "Cooldown Modes";
         end
 
         -- Defensive Button
@@ -29,31 +18,21 @@ if select(3, UnitClass("player")) == 1  then
                 [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = ShieldWall }
             };
             DefensiveModes = CustomDefensiveModes
-            CreateButton("Defensive",3,0)
+            CreateButton("Defensive",2,0)
             DefensiveModesLoaded = "Defensive Modes";
         end
 
-     -- Interrupts Button
+		-- Interrupts Button
         if InterruptsModesLoaded ~= "Interrupt Modes" then
             CustomInterruptsModes = {
                 [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = Pummel },
                 [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = Pummel }
             };
             InterruptsModes = CustomInterruptsModes
-            CreateButton("Interrupts",4,0)
+            CreateButton("Interrupts",3,0)
             InterruptsModesLoaded = "Interrupt Modes";
         end
 
-        -- --Gladiator Button
-        -- if GladiatorModesLoaded ~= "Gladiator Modes" then
-        --     CustomGladiatorModes = {
-        --         [1] = { mode = "Glad", value = 1 , overlay = "Gladiator Enabled", tip = "Gladiator Rotation", highlight = 0, icon = GladiatorStance },
-        --         [2] = { mode = "Prot", value = 2 , overlay = "Protection Enabled", tip = "Protection Rotation", highlight = 0, icon = DefensiveStance }
-        --     };
-        --     GladiatorModes = CustomGladiatorModes
-        --     CreateButton("Gladiator",5,0)
-        --     GladiatorModesLoaded = "Gladiator Modes";
-        -- end
 
         function SpecificToggle(toggle)
             if getValue(toggle) == 1 then

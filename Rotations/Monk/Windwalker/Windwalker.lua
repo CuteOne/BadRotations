@@ -456,8 +456,12 @@ function WindwalkerMonk()
 					if ttm>fofChanTime and tpRemain>fofChanTime and rskRemain>fofChanTime and serRemain==0 then
 						if castSpell(dynamicUnit.dyn5,_FistsOfFury,false,false) then return end
 					end
+	-- Empowered Touch of Death
+					if canEnhanceToD() and sckRemain==0 then
+						if castSpell("player",_FortifyingBrew,true,false) then return end
+					end
 	-- Touch of Death
-					if (UnitBuffID("player",_DeathNote) or UnitHealth(dynamicUnit.dyn5)<=php) and not UnitIsPlayer(dynamicUnit.dyn5) and sckRemain==0 and trapping==false then
+					if canToD() and sckRemain==0 then
 						if castSpell(dynamicUnit.dyn5,_TouchOfDeath,false,false) then return end
 					end
 	-- Hurricane Strike

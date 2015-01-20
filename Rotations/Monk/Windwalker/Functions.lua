@@ -116,6 +116,25 @@ if select(3,UnitClass("player")) == 10 then
     --     return enemiesTable;
     -- end
 
+    function canToD()
+        local thisUnit = dynamicTarget(5,true)
+        if (getHP(thisUnit)<=10 or UnitHealth(thisUnit)<=UnitHealthMax("player")) and not UnitIsPlayer(thisUnit) then
+            return true
+        else
+            return false
+        end
+    end
+
+    function canEnhanceToD()
+        local thisUnit = dynamicTarget(5,true)
+        local boostedHP = UnitHealthMax("player")+(UnitHealthMax("player")*0.2)
+        if (getHP(thisUnit)<=10 or (UnitHealth(thisUnit)<=boostedHP and UnitHealth(thisUnit) > UnitHealthMax("player"))) and not UnitIsPlayer(thisUnit) then
+            return true
+        else
+            return false
+        end
+    end
+
     function useAoE()
         if ((BadBoy_data['AoE'] == 1 and #getEnemies("player",8) >= 3) or BadBoy_data['AoE'] == 2) and UnitLevel("player")>=46 then
             return true
