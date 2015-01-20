@@ -51,11 +51,22 @@ if select(3, UnitClass("player")) == 3 then
 			end
 
 		--Tranquilizing Shot (Enrage/Magic)
-			--if isChecked("Tranquilizing Shot") then
-			-- 	if LibDispellable:CanDispelWith('target', 19801) then
-     		--		if castSpell("target",19801,false,false) then return end
- 		 	--	end
-  	 		--end
+			if isChecked("Tranq Shot-Magic") then
+				if getValue("Tranq Shot-Magic") == 1 then
+					for i = 1, 40 do
+					    if select(9, UnitBuff("target", i)) == 1 then
+					        if castSpell("target",19801,false,false) then return end
+					    end
+					end
+				elseif getValue("Tranq Shot-Magic") == 2 then
+					bb.castOffensiveDispel(19801)
+				end
+
+  	 		end
+
+  	 		if isChecked("Tranq Shot-Enrage") then
+  	 			bb.castOffensiveDispel(19801)
+  	 		end
 
  		end	
 		
@@ -298,11 +309,9 @@ if select(3, UnitClass("player")) == 3 then
 					end
 				end
 
-				-- actions.aoe+=/explosive_trap,if=dot.explosive_trap.remains<=5
-				if (isKnown(82939) and isChecked("Explosive Trap") and getSpellCD(82939) == 0) and UnitBuffID("player",77769) ~= nil then 
-					if getDebuffRemain(dyn40,13812,"player") <= 5 then
-						if castGround(dyn40,82939,40) then return end
-					end
+				-- actions.aoe+=/explosive_trap
+				if (isKnown(82939) and isChecked("Explosive Trap") and getSpellCD(82939) == 0) and UnitBuffID("player",77769) ~= nil and isMoving("target") == false then 
+					if castGround(dyn40,82939,40) then return end
 				end
 
 				-- actions.aoe+=/a_murder_of_crows
@@ -337,7 +346,7 @@ if select(3, UnitClass("player")) == 3 then
 				end
 
 				-- actions.aoe+=/cobra_shot,if=buff.pre_steady_focus.up&buff.steady_focus.remains<5&focus+14+cast_regen<80
-				if isKnown(77767) and getSpellCD(77767) == 0 then
+				if isKnown(77767) and getSpellCD(77767) == 0 and isKnown(152245) == false then
 					if UnitBuffID("player",177668) ~= nil and getBuffRemain("player",177668) < 5 and (current_focus + 14 + cobra_shot_regen < 80) then
 						if castSpell(dyn40,77767,false,false) then return end
 					end
@@ -345,35 +354,23 @@ if select(3, UnitClass("player")) == 3 then
 				
 				-- actions.aoe+=/multishot,if=focus>=70|talent.focusing_shot.enabled
 				if isKnown(2643) and getSpellCD(2643) == 0 then 
-					if current_focus >= 70 or isKnown(163485) then
+					if current_focus >= 70 or isKnown(152245) then
 						if castSpell(dyn40,2643,false,false) then return end
 					end
 				end
 
 				-- actions.aoe+=/focusing_shot
-				if isKnown(163485) and getSpellCD(163485) == 0 then
-					if castSpell(dyn40,163485,false,true) then return end
+				if isKnown(152245) and getSpellCD(152245) == 0 then
+					if castSpell(dyn40,152245,false,true) then return end
 				end
 
 				-- actions.aoe+=/cobra_shot
-				if isKnown(77767) and getSpellCD(77767) == 0 then
+				if isKnown(77767) and getSpellCD(77767) == 0 and isKnown(152245) == false then
 					if castSpell(dyn40,77767,false,false) then return end
 				end
 			end
 
 			-- actions+=/stampede,if=buff.potion.up|(cooldown.potion.remains&(buff.archmages_greater_incandescence_agi.up|trinket.stat.any.up))|target.time_to_die<=25 (archmage buff 177172)
-			--TBC
-
-			-- actions+=/black_arrow,if=!ticking
-			if isKnown(3674) and getSpellCD(3674) == 0 then
-				if castSpell(dyn40,3674,false,false) then return end
-			end
-
-			-- actions+=/explosive_shot
-			if isKnown(53301) and getSpellCD(53301) == 0 then
-				if castSpell(dyn40,53301,false,false) then return end
-			end
-
 			-- actions+=/stampede  -- TEMPORARY
 			if BadBoy_data["Cooldowns"] == 3 or (isChecked("Stampede") and BadBoy_data["Cooldowns"] == 2) then
 				if castSpell(dyn40,121818,false,false) then return end
@@ -385,6 +382,16 @@ if select(3, UnitClass("player")) == 3 then
 	                if castSpell(dyn40,131894,true,false) then return end
 	            end
 	        end
+
+			-- actions+=/black_arrow,if=!ticking
+			if isKnown(3674) and getSpellCD(3674) == 0 then
+				if castSpell(dyn40,3674,false,false) then return end
+			end
+
+			-- actions+=/explosive_shot
+			if isKnown(53301) and getSpellCD(53301) == 0 then
+				if castSpell(dyn40,53301,false,false) then return end
+			end
 
 			-- actions+=/dire_beast
 	        if (BadBoy_data['Cooldowns'] == 2 and isChecked("Dire Beast") == true) or BadBoy_data['Cooldowns'] == 3 then
@@ -400,23 +407,28 @@ if select(3, UnitClass("player")) == 3 then
 				end
 			end
 
-			-- actions+=/glaive_toss
-			if isKnown(117050) and getSpellCD(117050) == 0 then
-				if castSpell(dyn40,117050,false,false) then return end
-			end
+			-- -- actions+=/glaive_toss
+			-- if isKnown(117050) and getSpellCD(117050) == 0 then
+			-- 	if castSpell(dyn40,117050,false,false) then return end
+			-- end
 
-			-- actions+=/powershot
-			if isKnown(109259) and getSpellCD(109259) == 0 then
-				if castSpell(dyn40,109259,false,false) then return end
-			end
+			-- -- actions+=/powershot
+			-- if isKnown(109259) and getSpellCD(109259) == 0 then
+			-- 	if castSpell(dyn40,109259,false,false) then return end
+			-- end
 
-			-- actions+=/barrage
-			if isKnown(120360) and getSpellCD(120360) == 0 then
-				if castSpell(dyn40,120360,false,false) then return end
+			-- -- actions+=/barrage
+			-- if isKnown(120360) and getSpellCD(120360) == 0 then
+			-- 	if castSpell(dyn40,120360,false,false) then return end
+			-- end
+
+			-- actions+=/explosive_trap
+			if (isKnown(82939) and isChecked("Explosive Trap") and getSpellCD(82939) == 0) and isMoving("target") == false then 
+				if castGround(dyn40,82939,40) then return end
 			end
 
 			-- actions+=/cobra_shot,if=buff.pre_steady_focus.up&buff.steady_focus.remains<5&(14+cast_regen)<=focus.deficit<80
-			if isKnown(77767) and getSpellCD(77767) == 0 then
+			if isKnown(77767) and getSpellCD(77767) == 0 and isKnown(152245) == false then
 				if UnitBuffID("player",177668) ~= nil and getBuffRemain("player",177668) < 5 and ((14 + cobra_shot_regen) <= focus_defecit) then 
 					if castSpell(dyn40,77767,false,false) then return end
 				end
@@ -424,18 +436,18 @@ if select(3, UnitClass("player")) == 3 then
 
 			-- actions+=/arcane_shot,if=focus>=80|talent.focusing_shot.enabled
 			if isKnown(3044) and getSpellCD(3044) == 0 then
-				if current_focus >= 80 or isKnown(163485) then
+				if current_focus >= 80 or isKnown(152245) then
 					if castSpell(dyn40,3044,false,false) then return end
 				end
 			end
 
 			-- actions+=/focusing_shot
-			if isKnown(163485) and getSpellCD(163485) == 0 then
-				if castSpell(dyn40,163485,false,true) then return end
+			if isKnown(152245) and getSpellCD(152245) == 0 then
+				if castSpell(dyn40,152245,false,true) then return end
 			end
 
 			-- actions+=/cobra_shot
-			if isKnown(77767) and getSpellCD(77767) == 0 then
+			if isKnown(77767) and getSpellCD(77767) == 0 and isKnown(152245) == false then
 				if castSpell(dyn40,77767,false,false) then return end
 			end
 

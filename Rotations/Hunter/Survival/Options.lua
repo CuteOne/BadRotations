@@ -119,8 +119,12 @@ if select(3, UnitClass("player")) == 3 then
 	    CreateNewText(thisConfig,"Counter Shot");
 
 	    -- Tranquilizing Shot Toggle
-	    CreateNewCheck(thisConfig,"Tranquilizing Shot");
-	    CreateNewText(thisConfig,"Tranquilizing Shot");
+	   	CreateNewCheck(thisConfig,"Tranq Shot-Magic");
+	    CreateNewDrop(thisConfig,"Tranq Shot-Magic", 2,"|cffFFDD11Sets what you want |cffFFFFFFTranq Shot |cffFFDD11to dispel on TARGET.", "|cffFF0000All", "|cff00FF00Preset")
+	    CreateNewText(thisConfig,"Tranq Shot-Magic");
+
+	    CreateNewCheck(thisConfig,"Tranq Shot-Enrage");
+	    CreateNewText(thisConfig,"Tranq Shot-Enrage");
 
 	    -- General Configs
 	    CreateGeneralsConfig();
