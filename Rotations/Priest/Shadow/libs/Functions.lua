@@ -349,20 +349,23 @@ if select(3, UnitClass("player")) == 5 then
 					end
 				--end
 			end
+
 		----------------
 		-- spend orbs --
 		----------------
 			--DP if ORBS == 5
 			--if isStanding(0.3) then
-				if options.player.ORBS==5 then 
-					if getDebuffRemain("target",SWP,"player")>0 or options.isChecked.SWP~=true or options.isChecked.DoTWeave~=true then
-						if getDebuffRemain("target",VT,"player")>0 or options.isChecked.VT~=true or options.isChecked.DoTWeave~=true then
+				if options.player.ORBS==5 then
+					if getDebuffRemain("target",SWP,"player")>0 or options.isChecked.SWP~=true or options.isChecked.DoTWeave~=true or (options.isChecked.TwinOgrons and UnitExists("focus") and not UnitIsDead("focus")) then
+						if getDebuffRemain("target",VT,"player")>0 or options.isChecked.VT~=true or options.isChecked.DoTWeave~=true or (options.isChecked.TwinOgrons and UnitExists("focus") and not UnitIsDead("focus")) then
+							-- DP focus
 							if options.isChecked.TwinOgrons and UnitExists("focus") and not UnitIsDead("focus") then
 								if castSpell("focus",DP,false,true) then
 									lastDP=GetTime()
 									return
 								end
 							end
+							-- DP not focus
 							if ((not UnitExists("focus")) or UnitIsDead("focus")) then
 								if castSpell("target",DP,false,true) then
 									lastDP=GetTime()
@@ -374,10 +377,72 @@ if select(3, UnitClass("player")) == 5 then
 				end
 			--end
 
+			-- -- DP if ORBS>=3 and lastDP<DPTIME and InsanityBuff<DPTICK
+			-- if options.player.ORBS>=3 and (GetTime()-lastDP<=options.player.DPTIME+2 or (options.isChecked.TwinOgrons and UnitExists("focus") and not UnitIsDead("focus"))) then
+			-- 	if options.isChecked.TwinOgrons and UnitExists("focus") then
+			-- 		if getDebuffRemain("focus",DP,"player")<=0.3*options.player.DPTIME then
+			-- 			if castSpell("focus",DP,false,true) then
+			-- 				lastDP=GetTime()
+			-- 				return
+			-- 			end
+			-- 		end
+			-- 	end
+			-- 	if not UnitExists("focus") then
+			-- 		if getDebuffRemain("focus",DP,"player")<=0.3*options.player.DPTIME then
+			-- 			if castSpell("target",DP,false,true) then return; end
+			-- 		end
+			-- 	end
+			-- end
+
+
+			-- ----------------
+			-- -- spend orbs --
+			-- ----------------
+			-- 	--DP if ORBS == 5
+			-- 	--if isStanding(0.3) then
+			-- 		if options.player.ORBS==5 then 
+			-- 			if getDebuffRemain("target",SWP,"player")>0 or options.isChecked.SWP~=true or options.isChecked.DoTWeave~=true or options.isChecked.TwinOgrons then
+			-- 				if getDebuffRemain("target",VT,"player")>0 or options.isChecked.VT~=true or options.isChecked.DoTWeave~=true or options.isChecked.TwinOgrons then
+			-- 					if options.isChecked.TwinOgrons and UnitExists("focus") and not UnitIsDead("focus") then
+			-- 						if castSpell("focus",DP,false,true) then
+			-- 							lastDP=GetTime()
+			-- 							return
+			-- 						end
+			-- 					end
+			-- 					if ((not UnitExists("focus")) or UnitIsDead("focus")) then
+			-- 						if castSpell("target",DP,false,true) then
+			-- 							lastDP=GetTime()
+			-- 							return
+			-- 						end
+			-- 					end
+			-- 				end
+			-- 			end
+			-- 		end
+			-- 	--end
+
+			-- -- DP3+ focus style
+			-- if options.player.ORBS>=3 then
+			-- 	if options.isChecked.TwinOgrons and UnitExists("focus") and not UnitIsDead("focus") then
+			-- 		if getBuffRemain("player",InsanityBuff)<=0.3*options.player.DPTIME then
+			-- 			if castSpell("focus",DP,false,true) then return; end
+			-- 		end
+			-- 	end
+			-- end
+
+			-- -- DP if ORBS>=3 and lastDP<DPTIME and InsanityBuff<DPTICK
+			-- --if options.player.ORBS>=3 and ((GetTime()-lastDP<=options.player.DPTIME+2) or (options.isChecked.TwinOgrons and UnitExists("focus") and not UnitIsDead("focus"))) then
+
+			-- if options.player.ORBS>=3 and (GetTime()-lastDP<=options.player.DPTIME+2) then
+			-- 	--if not UnitExists("focus") then
+			-- 		if castSpell("target",DP,false,true) then return; end
+			-- 	--end
+			-- end
+
+
 			-- DP if ORBS>=3 and lastDP<DPTIME and InsanityBuff<DPTICK
 			if options.player.ORBS>=3 and (GetTime()-lastDP<=options.player.DPTIME+2 or (options.isChecked.TwinOgrons and UnitExists("focus") and not UnitIsDead("focus"))) then
 				if options.isChecked.TwinOgrons and UnitExists("focus") then
-					if getDebuffRemain("focus",DP,"player")<=0.3*options.player.DPTIME then
+					if getDebuffRemain("focus",DP,"player")<=0 then
 						if castSpell("focus",DP,false,true) then
 							lastDP=GetTime()
 							return

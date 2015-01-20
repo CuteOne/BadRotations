@@ -89,8 +89,8 @@ if select(3, UnitClass("player")) == 5 then
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"|cffBA55D3Encounter Specific");
 				-- DP on Focus
-				CreateNewCheck(thisConfig,"TwinOgrons", "DP on Focus and no Insanity. \nTake PHEMOS in focus! \nMultidotting -> ALL");
-				CreateNewText(thisConfig,"TwinOgrons"); --DP on Focus
+				CreateNewCheck(thisConfig,"Ogron Focus Style", "DP on Focus and no Insanity. \nTake PHEMOS in focus! \nMultidotting -> ALL");
+				CreateNewText(thisConfig,"Ogron Focus Style"); --DP on Focus
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"|cffBA55D3Defensive");

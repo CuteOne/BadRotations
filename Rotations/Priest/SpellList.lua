@@ -83,6 +83,8 @@ if select(3, UnitClass("player")) == 5 then
 		VoidEntropy 		= 155361;
 		AuspiciousSpirits	= 155271;
 
+		CoW					= 152118;
+
 	-- Utility (TierSet Bonus, etc.)
 		T17_2pc				= 165628;
 		T17_4pc				= 165629;
