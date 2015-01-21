@@ -147,6 +147,10 @@ if select(3, UnitClass("player")) == 5 then
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"|cffBA55D3Multitarget");
 
+				-- Sort EnemiesTable by HPabs
+				CreateNewCheck(thisConfig,"sortByHPabs");
+				CreateNewText(thisConfig,"sortByHPabs");
+
 				-- -- SWP
 				-- CreateNewCheck(thisConfig,"Multi SWP", "not used atm");
 				-- CreateNewText(thisConfig,"Multi SWP");

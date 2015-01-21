@@ -35,6 +35,12 @@ if select(3, UnitClass("player")) == 5 then
 			-- Set Enemies Table
 			makeEnemiesTable(40)
 
+			if isChecked("sortByHPabs") then
+				table.sort(enemiesTable, function(x,y)
+		 			return x.hpabs and y.hpabs and x.hpabs > y.hpabs or false
+		 		end)
+			end
+
 
 
 			local options = {
