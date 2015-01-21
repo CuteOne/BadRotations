@@ -1,5 +1,6 @@
 if select(3, UnitClass("player")) == 1 then
-	
+	local playerSpec = GetSpecialization()
+	if playerSpec == 2 then
 	--Damage Abilities--
 	Bloodthirst 		= 23881;
 	Execute				= 5308;
@@ -9,7 +10,7 @@ if select(3, UnitClass("player")) == 1 then
 	VictoryRush			= 34428;
 	Whirlwind			= 1680;
 	WildStrike 			= 100130;
-	
+
 	--Damage Cooldowns--
 	Recklessness		= 1719;
 	ShatteringThrow		= 64382;
@@ -60,5 +61,7 @@ if select(3, UnitClass("player")) == 1 then
 	RagingBlowProc		= 131116;
 	Bloodsurge			= 46916;
 	SuddenDeathProc		= 52437;
+
+end
 
 end

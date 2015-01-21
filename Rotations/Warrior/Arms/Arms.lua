@@ -96,9 +96,9 @@ if select(3,UnitClass("player")) == 1 then
 	------------------------------------------------------------------------------------------------------
 		if _Queues == nil then
 		 _Queues = {
-				[Shockwave]  = false,
-				[Bladestorm] = false,
-				[DragonRoar] = false,
+				[_Shockwave]  = false,
+				[_Bladestorm] = false,
+				[_DragonRoar] = false,
 		 }
 		end
 	------------------------------------------------------------------------------------------------------
@@ -353,6 +353,14 @@ if select(3,UnitClass("player")) == 1 then
 	   --        end
 	   --      end
 	   --    end
+
+	    -- Ko'ragh barrier<20% (finisher can be cast if barrier<20%)
+    if GetUnitName("target")=="Ko'ragh" then
+	    if castSpell("target",_Execute,false,false) then
+	     	return
+	    end
+    end
+
 	   		if isChecked("Multi-Rend") and ttd > 4 then
 	   			if castDotCycle("all",772,5,false,false,5) then
 	   				return

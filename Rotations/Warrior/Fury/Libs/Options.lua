@@ -1,95 +1,140 @@
 if select(3,UnitClass("player")) == 1 then
 
-    function CreateTitle(string)
-        return CreateNewTitle(thisConfig,string)
-    end
-    function CreateCheck(string,tip)
-        if tip == nil then
-            return CreateNewCheck(thisConfig,string)
-        else
-            return CreateNewCheck(thisConfig,string,tip)
-        end
-    end
-    function CreateText(string)
-        return CreateNewText(thisConfig,string)
-    end
-    function CreateWrap(string)
-        return CreateNewWrap(thisConfig,string)
-    end
-    function CreateBox(string, minnum, maxnum, stepnum, defaultnum, tip)
-        if tip == nil then
-            return CreateNewBox(thisConfig,string, minnum, maxnum, stepnum, defaultnum)
-        else
-            return CreateNewBox(thisConfig,string, minnum, maxnum, stepnum, defaultnum, tip)
-        end
-    end
-    function CreateDrop(string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
-        return CreateNewDrop(thisConfig, string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
-    end
-
     function FuryOptions()
-        if GetSpecialization() == 2 then    
+        if GetSpecialization() == 2 then
             if Currentconfig ~= "Fury Warrior" then
                 ClearConfig()
                 thisConfig = 0
-				
+
                 -- Title
-                CreateTitle("Fury Warrior")
-				
-                -- Spacer
-                CreateText(" ")
-                CreateWrap("--- General (Profile) ---")
-					
-					-- Automatic Aoe Toggle
-					CreateCheck("AutoAoE","Check if you want to use automatic AoE, tarplus/minus wont do anything until you toggle this off");
-					CreateText("Auto AoE") 
-			
-                -- Spacer
-                CreateText(" ")
-                CreateWrap("--- Cooldowns ---")
+                CreateNewTitle(thisConfig,"Fury Warrior")
 
-                -- Spacer
-                CreateText(" ")
-                CreateWrap("--- Defensive ---")
+                -- Wrapper
+                CreateNewWrap(thisConfig,"-------- General Rotation --------");
 
-                    -- Healthstone
-                    CreateCheck("Pot/Stoned")
-                    CreateBox("Pot/Stoned", 0, 100, 5, 60, "Percent to Use At")
-                    CreateText("Pot/Stoned")
+                -- Pause Toggle
+                CreateNewCheck(thisConfig,"Pause Key");
+                CreateNewDrop(thisConfig,"Pause Key", 4, "Toggle")
+                CreateNewText(thisConfig,"Pause Key");
 
-                -- Spacer --
-                CreateText(" ")
-                CreateWrap("--- Interrupts ---")
-       
-                    -- Interrupt Percentage
-                    CreateCheck("Interrupt At")
-                    CreateBox("Interrupt At", 5, 95, 5, 0, "|cffFFFFFFCast Percent to Cast At")
-                    CreateText("Interrupt At")
+                -- Heroic Leap
+                CreateNewCheck(thisConfig,"Heroic Leap Key");
+                CreateNewDrop(thisConfig,"Heroic Leap Key", 2, "Toggle2")
+                CreateNewText(thisConfig,"Heroic Leap Key");
 
-                -- Spacer
-                CreateText(" ")
-                CreateWrap("--- Toggle Keys ---")
+                -- Ravager
+                CreateNewCheck(thisConfig,"Ravager Key");
+                CreateNewDrop(thisConfig,"Ravager Key", 2, "Toggle2")
+                CreateNewText(thisConfig,"Ravager Key");
 
-                    -- Target Plus Key Toggle
-					CreateCheck("Rotation Up","Switch through Rotation Modes (1 target/2 targets/3 targets/4+targets)")
-					CreateDrop("Rotation Up", 1, "Toggle")
-					CreateText("Tar Plus")
+                -- Auto Bladestorm / DragonRoar Single Target
+                CreateNewCheck(thisConfig,"Single BS/DR/RV");
+                CreateNewText(thisConfig,"Single BS/DR/RV")
 
-					-- Target Minus Key Toggle
-					CreateCheck("Rotation Down","Switch through Rotation Modes (1 target/2 targets/3 targets/4+targets)")
-					CreateDrop("Rotation Down", 2, "Toggle")
-					CreateText("Tar Minus")
+                -- Auto Ravager AoE
+                CreateNewCheck(thisConfig,"AoE Auto Ravager");
+                CreateNewText(thisConfig,"AoE Auto Ravager")
 
-                    -- Interrupts Key Toggle
-                    CreateCheck("Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.")
-                    CreateDrop("Interrupt Mode", 6, "Toggle")
-                    CreateText("Interrupts")
+                -- Wrapper
+                CreateNewWrap(thisConfig,"---------- Buffs ---------");
 
-                -- General Configs
-                CreateGeneralsConfig()
-                WrapsManager()
+                -- Shout
+                CreateNewCheck(thisConfig,"Shout");
+                CreateNewDrop(thisConfig, "Shout", 2, "Choose Shout to use.", "|cffFFBB00Command", "|cff0077FFBattle")
+                CreateNewText(thisConfig,"Shout");
+
+                -- Wrapper
+                CreateNewWrap(thisConfig,"------ Cooldowns ------");
+
+                -- Potion
+                CreateNewCheck(thisConfig,"Use Potion");
+                CreateNewText(thisConfig,"Use Potion");
+
+                -- Recklessness
+                CreateNewCheck(thisConfig,"Recklessness");
+                CreateNewText(thisConfig,"Recklessness");
+
+                -- Avatar
+                CreateNewCheck(thisConfig,"Avatar");
+                CreateNewText(thisConfig,"Avatar");
+
+                -- Racial
+                CreateNewCheck(thisConfig,"Racial (Orc / Troll)");
+                CreateNewText(thisConfig,"Racial (Orc / Troll)");
+
+                -- StormBolt
+                CreateNewCheck(thisConfig,"StormBolt");
+                CreateNewText(thisConfig,"StormBolt");
+
+                -- Trinket
+                CreateNewCheck(thisConfig,"Use Trinket");
+                CreateNewText(thisConfig,"Use Trinket");
+
+                -- Wrapper
+                CreateNewWrap(thisConfig,"------- Defensive ------");
+
+                -- Die by the Sword
+                CreateNewCheck(thisConfig,"Die by the Sword");
+                CreateNewBox(thisConfig, "Die by the Sword", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDie by the Sword");
+                CreateNewText(thisConfig,"Die by the Sword");
+
+                -- Rallying Cry
+                CreateNewCheck(thisConfig,"Rallying Cry");
+                CreateNewBox(thisConfig, "Rallying Cry", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRallying Cry");
+                CreateNewText(thisConfig,"Rallying Cry");
+
+                -- Enraged Regeneration
+                CreateNewCheck(thisConfig,"Enraged Regeneration");
+                CreateNewBox(thisConfig, "Enraged Regeneration", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFEnraged Regeneration");
+                CreateNewText(thisConfig,"Enraged Regeneration");
+
+                -- ImpendingVictory/Victory Rush
+                CreateNewCheck(thisConfig,"Impending Victory");
+                CreateNewBox(thisConfig, "Impending Victory", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFImpending Victory (Victory Rush)");
+                CreateNewText(thisConfig,"Impending Victory");
+
+                -- Vigilance Focus
+                CreateNewCheck(thisConfig,"Vigilance on Focus");
+                CreateNewBox(thisConfig, "Vigilance on Focus", 0, 100  , 5, 25, "% HP of Focustarget to use Vigilance on Focustarget");
+                CreateNewText(thisConfig,"Vigilance on Focus");
+
+                -- Def Stance
+                CreateNewCheck(thisConfig,"Defensive Stance");
+                CreateNewBox(thisConfig, "Defensive Stance", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDefensive Stance");
+                CreateNewText(thisConfig,"Defensive Stance");
+
+                -- Healthstone
+                CreateNewCheck(thisConfig,"Healthstone");
+                CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
+                CreateNewText(thisConfig,"Healthstone");
+
+                -- Wrapper
+                CreateNewWrap(thisConfig,"-------- Interrupts --------");
+
+                -- Pummel
+                CreateNewCheck(thisConfig,"Pummel");
+                CreateNewBox(thisConfig, "Pummel", 0, 100  , 5, 60 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFPummel.");
+                CreateNewText(thisConfig,"Pummel");
+
+                -- Disrupting Shout
+                CreateNewCheck(thisConfig,"Disrupting Shout");
+                CreateNewBox(thisConfig, "Disrupting Shout", 0, 100  , 5, 60 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFDisrupting Shout.");
+                CreateNewText(thisConfig,"Disrupting Shout");
+
+
+                -- Wrapper
+                CreateNewWrap(thisConfig,"---------- Misc -----------");
+
+                -- Dummy DPS Test
+                CreateNewCheck(thisConfig,"DPS Testing");
+                CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 5, "Set to desired time for test in minutes. Min: 1 / Max: 15 / Interval: 1");
+                CreateNewText(thisConfig,"DPS Testing");
+
+                -- Healing/general/poke/hacks/tracking
+                CreateGeneralsConfig();
+                WrapsManager();
             end
         end
     end
-	
+
 end
