@@ -1127,6 +1127,57 @@ function getTimeToDie(unit)
 	end
 end
 
+-- if getTimeTo("target",20) < 10 then
+function getTimeTo(unit,percent)
+  unit = unit or "target"
+  perchp = (UnitHealthMax(unit) / 100 * percent)
+  if ttpthpcurr == nil then
+    ttpthpcurr = 0
+  end
+  if ttpthpstart == nil then
+    ttpthpstart = 0
+  end
+  if ttptimestart == nil then
+    ttptimestart = 0
+  end
+  if ObjectExists(unit) and UnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) then
+    if ttpcurrtar ~= UnitGUID(unit) then
+      ttppriortar = currtar
+      ttpcurrtar = UnitGUID(unit)
+    end
+    if ttpthpstart == 0 and ttptimestart == 0 then
+      ttpthpstart = UnitHealth(unit)
+      ttptimestart = GetTime()
+    else
+      ttpthpcurr = UnitHealth(unit)
+      ttptimecurr = GetTime()
+      if ttpthpcurr >= ttpthpstart then
+        ttpthpstart = ttpthpcurr
+        timeToPercent = 999
+      else
+        if ((timecurr - timestart)==0) or ((thpstart - thpcurr)==0) then
+          timeToPercent = 999
+        elseif ttpthpcurr < perchp then
+          timeToPercent = 0
+        else
+          timeToPercent = round2((ttpthpcurr - perchp)/((ttpthpstart - ttpthpcurr) / (ttptimecurr - ttptimestart)),2)
+        end
+      end
+    end
+  elseif not ObjectExists(Unit) or not UnitIsVisible(unit) or ttpcurrtar ~= UnitGUID(unit) then
+    ttpcurrtar = 0
+    ttppriortar = 0
+    ttpthpstart = 0
+    ttptimestart = 0
+    ttptimeToPercent = 0
+  end
+  if timeToPercent==nil then
+    return 999
+  else
+    return timeToPercent
+  end
+end
+
 -- if getTimeToMax("player") < 3 then
 function getTimeToMax(Unit)
   	local max = UnitPowerMax(Unit)
