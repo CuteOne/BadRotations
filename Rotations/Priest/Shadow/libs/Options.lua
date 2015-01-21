@@ -221,6 +221,10 @@ if select(3, UnitClass("player")) == 5 then
 				CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 4, "Set to desired time for test in minutes.\nMin: 1 / Max: 15 / Interval: 1");
 				CreateNewText(thisConfig,"DPS Testing");
 
+				-- Bubble Wand
+				CreateNewCheck(thisConfig,"Bubble");
+				CreateNewText(thisConfig,"Bubble");
+
 
 			-- General Configs ---------------------------------
 			CreateGeneralsConfig();
