@@ -104,7 +104,6 @@ if select(3, UnitClass("player")) == 8 then
 		end
 		-- actions.crystal_sequence+=/frozen_orb
 		if castSpell("target",FrozenOrb,false,false) then
-			print("crystalorb");
 			return;
 		end
 
@@ -507,12 +506,11 @@ if select(3, UnitClass("player")) == 8 then
 
 	-- Cooldowns
 	function ArcaneMageCooldowns()
-
 		-- Berserk
 		if isChecked("Racial") then
 			if isKnown(Berserkering) then
 				if castSpell("player",Berserkering,true,true) then
-					return;
+					return true
 				end
 			end
 		end
@@ -520,7 +518,7 @@ if select(3, UnitClass("player")) == 8 then
 		-- Arcane Power
 		if isChecked("Arcane Power") then
 			if castSpell("player",ArcanePower,true,true) then
-				return;
+				return true
 			end
 		end
 
@@ -540,6 +538,8 @@ if select(3, UnitClass("player")) == 8 then
 
 		--# High mana usage, "Burn" sequence
 		-- actions.burn=call_action_list,name=cooldowns
+		-- actions.burn+=/arcane_blast,if=buff.arcane_charge.stack=4&mana.pct>93
+		ArcaneMageCooldowns()
 		-- actions.burn+=/arcane_missiles,if=buff.arcane_missiles.react=3
 
 		if stacksArcaneMisslesP == 3 then
@@ -557,18 +557,16 @@ if select(3, UnitClass("player")) == 8 then
 
 		-- actions.burn+=/supernova,if=time_to_die<8|charges=2
 		if isKnown(Supernova) then
-			if getTimeToDie("target") < 8 or arcaneCharge == 2 then
+			if getTimeToDie("target") < 8 or arcaneCharge > 1 then
 				if castSpell("target",Supernova,false,false) then
 					return true
 				end
 			end
 		end
 
-
-
 		-- actions.burn+=/nether_tempest,cycle_targets=1,if=target!=prismatic_crystal&buff.arcane_charge.stack=4&(active_dot.nether_tempest=0|(ticking&remains<3.6))
 		-- Todo :  Is this correct? Why should we not cast on crystal?
-		if UnitName("target") ~= "Prismatic Crystal" and arcaneCharge == 4 and (not UnitDebuffID("target",NetherTempest) or ((UnitDebuffID("target",NetherTempest) and getDebuffRemain("target",NetherTempest)<3.6))) then
+		if UnitName("target") ~= "Prismatic Crystal" and arcaneCharge > 3 and (not UnitDebuffID("target",NetherTempest) or ((UnitDebuffID("target",NetherTempest) and getDebuffRemain("target",NetherTempest)<3.6))) then
 			if castSpell("target",NetherTempest,true,false) then
 				return true
 			end
@@ -576,7 +574,7 @@ if select(3, UnitClass("player")) == 8 then
 
 		-- actions.burn+=/arcane_orb,if=buff.arcane_charge.stack<4
 		if isKnown(ArcaneOrb) then
-			if arcaneCharge == 4 then
+			if arcaneCharge < 3 then
 				if castSpell("target",ArcaneOrb,false,true) then
 					return true
 				end
@@ -601,7 +599,7 @@ if select(3, UnitClass("player")) == 8 then
 
 
 		-- actions.burn+=/arcane_blast,if=buff.arcane_charge.stack=4&mana.pct>93
-		if arcaneCharge == 4 and getMana("player")>getValue("ArcaneBlast (x4)") then
+		if arcaneCharge > 3 and getMana("player")>getValue("ArcaneBlast (x4)") then
 			if castSpell("target",ArcaneBlast,false,true) then
 				return true
 			end
@@ -609,7 +607,7 @@ if select(3, UnitClass("player")) == 8 then
 		
 
 		-- actions.burn+=/arcane_missiles,if=buff.arcane_charge.stack=4&(mana.pct>70|!cooldown.evocation.up)
-		if arcaneCharge == 4 and (playerMana > 70 or cdEvocation > 0) and playerBuffArcaneMissile then
+		if arcaneCharge > 3 and (playerMana > 70 or cdEvocation > 0) and playerBuffArcaneMissile then
 			if castSpell("target",ArcaneMissiles,false,false) then
 				return true
 			end
@@ -647,7 +645,7 @@ if select(3, UnitClass("player")) == 8 then
 		end
 		
 		-- actions.burn+=/presence_of_mind,if=!talent.prismatic_crystal.enabled|!cooldown.prismatic_crystal.up
-		if not isKnownPrismaticCrystal or not cdPristmaticCrystal > 0 then
+		if not isKnownPrismaticCrystal or cdPristmaticCrystal > 0 then
 			if castSpell("player",PresenceOfMind,true,false) then
 				return true
 			end
@@ -658,8 +656,6 @@ if select(3, UnitClass("player")) == 8 then
 		if castArcaneBlast("target") then
 			return true
 		end
-
-		print("End of Burn")
 
 		return false
 	end
@@ -686,7 +682,7 @@ if select(3, UnitClass("player")) == 8 then
 		end
 		
 		--  actions.conserve+=/nether_tempest,cycle_targets=1,if=target!=prismatic_crystal&buff.arcane_charge.stack=4&(active_dot.nether_tempest=0|(ticking&remains<3.6))
-		if UnitName("target") ~= "Prismatic Crystal" and arcaneCharge == 4 and (not targetDebuffNetherTempest or ((targetDebuffNetherTempest and targetDebuffNetherTempestTimeLeft < 3.6))) then
+		if UnitName("target") ~= "Prismatic Crystal" and arcaneCharge > 3 and (not targetDebuffNetherTempest or ((targetDebuffNetherTempest and targetDebuffNetherTempestTimeLeft < 3.6))) then
 			if castSpell("target",NetherTempest,true,false) then
 				return true
 			end
@@ -694,7 +690,7 @@ if select(3, UnitClass("player")) == 8 then
 
 
 		--  actions.conserve+=/supernova,if=time_to_die<8|(charges=2&(buff.arcane_power.up|!cooldown.arcane_power.up)&(!talent.prismatic_crystal.enabled|cooldown.prismatic_crystal.remains>8))
-		if getTimeToDie("target") < 8 or (arcaneCharge == 2 and (playerBuffArcanePower or cdArcanePower > 0)) then 
+		if getTimeToDie("target") < 8 or (arcaneCharge > 1 and (playerBuffArcanePower or cdArcanePower > 0)) then 
 			if castSpell("target",Supernova,false,false) then
 				return true
 			end
@@ -718,22 +714,29 @@ if select(3, UnitClass("player")) == 8 then
 		end
 		
 		--  actions.conserve+=/arcane_blast,if=buff.arcane_charge.stack=4&mana.pct>93
-		if arcaneCharge == 4 and playerMana > getValue("ArcaneBlast (x4)") then
+		if arcaneCharge > 3 and playerMana > getValue("ArcaneBlast (x4)") then
 			if castArcaneBlast("target") then
 				return true
 			end
 		end
 		
-		--  actions.conserve+=/arcane_missiles,if=buff.arcane_charge.stack=4&(!talent.overpowered.enabled|cooldown.arcane_power.remains>10*spell_haste)
-		if arcaneCharge == 4 and (not isKnownOverPowered or (cdArcanePower > 10 * playerHaste)) then
+		-- actions.conserve+=/arcane_missiles,if=buff.arcane_charge.stack=4&(!talent.overpowered.enabled|cooldown.arcane_power.remains>10*spell_haste)
+		if arcaneCharge > 3 and (not isKnownOverPowered or (cdArcanePower > 10 * playerHaste)) then
 			if castSpell("target",ArcaneMissiles,false,true) then
 				return true
 			end
 		end
 		
 		--  actions.conserve+=/supernova,if=mana.pct<96&(buff.arcane_missiles.stack<2|buff.arcane_charge.stack=4)&(buff.arcane_power.up|(charges=1&cooldown.arcane_power.remains>recharge_time))&(!talent.prismatic_crystal.enabled|current_target=prismatic_crystal|(charges=1&cooldown.prismatic_crystal.remains>recharge_time+8))
-		if playerMana < 96 and (stacksArcaneMisslesP < 2 or arcaneCharge == 4) and (playerBuffArcanePower or (chargesSuperNova == 1 and cdArcanePower > reChargeSuperNova)) and (isKnownPrismaticCrystal or UnitName("target") == "Prismatic Crystal" or (chargesSuperNova == 1 and cdPristmaticCrystal > (reChargeSuperNova+8))) then
+		if playerMana < 96 and (stacksArcaneMisslesP < 2 or arcaneCharge > 3) and (playerBuffArcanePower or (chargesSuperNova == 1 and cdArcanePower > reChargeSuperNova)) and (isKnownPrismaticCrystal or UnitName("target") == "Prismatic Crystal" or (chargesSuperNova == 1 and cdPristmaticCrystal > (reChargeSuperNova+8))) then
 			if castSpell("target",Supernova,true,false) then
+				return true
+			end
+		end
+
+		-- Todo: actions.conserve+=/nether_tempest,cycle_targets=1,if=target!=prismatic_crystal&buff.arcane_charge.stack=4&(active_dot.nether_tempest=0|(ticking&remains<(10-3*talent.arcane_orb.enabled)*spell_haste))
+		if arcaneCharge > 3 and (not targetDebuffNetherTempest or ((targetDebuffNetherTempest and targetDebuffNetherTempestTimeLeft < 3.6))) then
+			if castSpell("target",NetherTempest,true,false) then
 				return true
 			end
 		end
@@ -747,6 +750,149 @@ if select(3, UnitClass("player")) == 8 then
 
 		--	actions.conserve+=/presence_of_mind,if=buff.arcane_charge.stack<2&(!talent.prismatic_crystal.enabled|!cooldown.prismatic_crystal.up)
 		if arcaneCharge < 2 and (not isKnownPrismaticCrystal or cdPristmaticCrystal > 0) then
+			if castSpell("player",PresenceOfMind,true,false) then
+				return true
+			end
+		end
+
+		--	actions.conserve+=/arcane_blast
+		if castArcaneBlast("target") then
+			return true
+		end
+
+		--  actions.conserve+=/arcane_barrage,moving=1
+		if isPlayerMoving then
+			if castSpell("target",ArcaneBarrage,false,false) then
+				return true
+			end
+		end
+	end
+
+		-- burn Mana down
+	function GabbzBurn()
+
+		--# High mana usage, "Burn" sequence
+		-- actions.burn=call_action_list,name=cooldowns
+		-- actions.burn+=/arcane_blast,if=buff.arcane_charge.stack=4&mana.pct>93
+
+		ArcaneMageCooldowns()
+		-- actions.burn+=/arcane_missiles,if=buff.arcane_missiles.react=3
+
+		if stacksArcaneMisslesP == 3 then
+			if castSpell("target",ArcaneMissiles,false,true) then
+				return true
+			end
+		end
+
+		if arcaneCharge > 3 and (not UnitDebuffID("target",NetherTempest) or (UnitDebuffID("target",NetherTempest) and getDebuffRemain("target",NetherTempest) < 3.6)) then
+			if castSpell("target",NetherTempest,true,false) then
+				return true
+			end
+		end
+
+		if arcaneCharge < 3 then
+			if castSpell("target",ArcaneOrb,false,true) then
+				return true
+			end
+		end
+		
+		if getMana("player") > 96 then
+			if castSpell("player",PresenceOfMind,true,false) then
+				return true
+			end
+		end
+
+		if arcaneCharge > 3 and getMana("player") > getValue("ArcaneBlast (x4)") then
+			if castSpell("target",ArcaneBlast,false,true) then
+				return true
+			end
+		end
+		
+
+		-- actions.burn+=/arcane_missiles,if=buff.arcane_charge.stack=4&(mana.pct>70|!cooldown.evocation.up)
+		if arcaneCharge > 3 and (playerMana > 70 or cdEvocation > 0) and playerBuffArcaneMissile then
+			if castSpell("target",ArcaneMissiles,false,false) then
+				return true
+			end
+		end
+
+		if isKnown(EvocationImp) then
+			if (90 - cdEvocation) < 5 then
+				ArcaneMageSingleTargetSimcraftConserve()
+			end
+		end
+		if playerMana < 50 then
+			if castSpell("player",Evocation,true,false) then
+				return true
+			end
+		end
+		
+		if castSpell("player",PresenceOfMind,true,false) then
+			return true
+		end
+		--actions.burn+=/arcane_blast
+		if castArcaneBlast("target") then
+			return true
+		end
+
+		return false
+	end
+
+
+	function GabbzConserve()
+
+		--	# Low mana usage, "Conserve" sequence
+		--	actions.conserve=call_action_list,name=cooldowns,if=time_to_die<30|(buff.arcane_charge.stack=4&(!talent.prismatic_crystal.enabled|cooldown.prismatic_crystal.remains>15))
+			
+		if stacksArcaneMisslesP == 3 then
+			if castSpell("target",ArcaneMissiles,false,true) then
+				return true
+			end
+		end
+		
+		if arcaneCharge > 3 and (not targetDebuffNetherTempest or ((targetDebuffNetherTempest and targetDebuffNetherTempestTimeLeft < 3.6))) then
+			if castSpell("target",NetherTempest,true,false) then
+				return true
+			end
+		end
+		
+		if arcaneCharge < 2 then
+			if castSpell("target",ArcaneOrb,false,true) then
+				return true
+			end
+		end
+
+		if playerMana > 96 then
+			if castSpell("player",PresenceOfMind,true,false) then
+				return true
+			end
+		end
+		
+		if arcaneCharge > 3 and playerMana > getValue("ArcaneBlast (x4)") then
+			if castArcaneBlast("target") then
+				return true
+			end
+		end
+		
+		if arcaneCharge > 3 then
+			if castSpell("target",ArcaneMissiles,false,true) then
+				return true
+			end
+		end
+
+		if arcaneCharge > 3 and (not targetDebuffNetherTempest or ((targetDebuffNetherTempest and targetDebuffNetherTempestTimeLeft < 3.6))) then
+			if castSpell("target",NetherTempest,true,false) then
+				return true
+			end
+		end
+
+		if arcaneCharge > 3 then
+			if castSpell("target",ArcaneBarrage,false,false) then
+				return true
+			end
+		end
+
+		if arcaneCharge < 2 then
 			if castSpell("player",PresenceOfMind,true,false) then
 				return true
 			end
@@ -808,7 +954,15 @@ if select(3, UnitClass("player")) == 8 then
 	-- Logic is to see how many charges of Acrance we have.
 	-- However since Arcane Blast is adding a charge and we react to fast so the buff stack have not been updated we need to cater for current cast as well
 	function Charge()
+		if not ArcaneSpellBook[ArcaneBlast].LastStart then
+			ArcaneSpellBook[ArcaneBlast].LastStart = 0
+		end
+		if not ArcaneSpellBook[ArcaneBlast].LastStop then
+			ArcaneSpellBook[ArcaneBlast].LastStop = 0
+		end
+
 		if UnitDebuffID("player",ArcaneCharge) then
+
 			if ArcaneSpellBook[ArcaneBlast].LastStart < ArcaneSpellBook[ArcaneBlast].LastStop then
 				return select(4,UnitDebuffID("player",ArcaneCharge))
 			else

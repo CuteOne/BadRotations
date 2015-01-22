@@ -76,7 +76,7 @@ if select(3, UnitClass("player")) == 8 then
 
 		-- Do not Interrupt "player" while GCD (61304)k
 		if getSpellCD(61304) > 0 then
-			return false;
+			return false
 		end
 
 		---- Arcane Brilliance
@@ -134,14 +134,15 @@ if select(3, UnitClass("player")) == 8 then
 
 			castTimeArcaneBlast					 = select(4,GetSpellInfo(ArcaneBlast))/1000
 
-
+			if cancelEvocation() then
+				RunMacroText("/stopcasting")
+			end
+			
 			if not isItOkToClipp() then
 				return true
 			end
 
-			if cancelEvocation() then
-				RunMacroText("/stopcasting")
-			end
+			
 
 			--Todo :  Seems that Magic Missile is clipping
 			-- 5 ticks, men klipper på 3
@@ -181,16 +182,21 @@ if select(3, UnitClass("player")) == 8 then
 			end
 			
 			--actions+=/call_action_list,name=conserve
+			--print("CD Evo "  ..cdEvocation)
+			--print("First : " ..(playerMana-30)*0.3*(10/playerHaste))
 
 			if isChecked("Burn Phase") then
 				-- actions+=/call_action_list,name=burn,if=time_to_die<mana.pct*0.35*spell_haste|cooldown.evocation.remains<=(mana.pct-30)*0.3*spell_haste|(buff.arcane_power.up&cooldown.evocation.remains<=(mana.pct-30)*0.4*spell_haste)
-				if (getTimeToDie("target") < playerMana*0.35*playerHaste) or (cdEvocation <= (playerMana-30)*0.3*playerHaste) or (playerBuffArcanePower and cdEvocation <= (playerMana-30)*0.4*playerHaste) then
+				--if (getTimeToDie("target") < playerMana*0.35*(1/playerHaste)) or (cdEvocation <= (playerMana-30)*0.3*(1/playerHaste)) or (playerBuffArcanePower and cdEvocation <= (playerMana-30)*0.4*(1/playerHaste)) then -- 
+				if cdEvocation < 20 then
 					if ArcaneMageSingleTargetSimcraftBurn() then
+			--		if GabbzBurn() then
 						return true
 					end
 				end
 			end
 			if ArcaneMageSingleTargetSimcraftConserve() then
+			--if GabbzConserve() then
 				return true
 			end
 		end
