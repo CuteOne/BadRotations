@@ -438,7 +438,7 @@ if select(3,UnitClass("player")) == 1 then
   ------------------------------------------------------------------------------------------------------
       if useAoEFury() then
         -- 2 Targets
-        if #getEnemies("player",8) >= 2 then
+        if #getEnemies("player",8) == 2 then
         ChatOverlay("AoE 2 Targets", 0)
 	    		-- actions.two_targets=bloodbath
 	    		if bloodbath and enraged then
@@ -448,7 +448,7 @@ if select(3,UnitClass("player")) == 1 then
 	          end
 	        end
 					-- actions.two_targets+=/ravager,if=buff.bloodbath.up|!talent.bloodbath.enabled
-					if isChecked("AoE Auto Ravager") then
+					if isChecked("AoE BS/DR/RV") then
 						if (bloodbath and bbathup) or not bloodbath then
 							if castGround("target",152277,6) then
 	              print("AoE 2T Ravager 1")
@@ -457,19 +457,23 @@ if select(3,UnitClass("player")) == 1 then
 	          end
 	        end
 					-- actions.two_targets+=/dragon_roar,if=buff.bloodbath.up|!talent.bloodbath.enabled
-					if (bloodbath and bbathup) or not bloodbath then
-						if castSpell("player",DragonRoar,true) then
-              print("AoE 2T DragonRoar")
-              return
+					if isChecked("AoE BS/DR/RV") then
+            if (bloodbath and bbathup) or not bloodbath then
+  						if castSpell("player",DragonRoar,true) then
+                print("AoE 2T DragonRoar")
+                return
+              end
             end
           end
 					-- actions.two_targets+=/bladestorm,if=buff.enrage.up
-					if enraged then
-						if castSpell("player",Bladestorm,true) then
-							print("AoE 2T Bladestorm")
-							return
-						end
-					end
+					if isChecked("AoE BS/DR/RV") then
+            if enraged then
+  						if castSpell("player",Bladestorm,true) then
+  							print("AoE 2T Bladestorm")
+  							return
+  						end
+  					end
+          end
 					-- actions.two_targets+=/bloodthirst,if=buff.enrage.down|rage<50|buff.raging_blow.down
 					if not enraged or rage < 50 or not ragingblowproc then
 						if castSpell(tarUnit.dyn5,Bloodthirst,false,false) then
@@ -527,7 +531,7 @@ if select(3,UnitClass("player")) == 1 then
 					end
 				end -- 2 Targets end
 				-- 3 Targets
-				if #getEnemies("player",8) >= 3 then
+				if #getEnemies("player",8) == 3 then
 				ChatOverlay("AoE 3 Targets", 0)
 					-- actions.three_targets=bloodbath
 					if bloodbath and enraged then
@@ -537,7 +541,7 @@ if select(3,UnitClass("player")) == 1 then
 	          end
 	        end
 					-- actions.three_targets+=/ravager,if=buff.bloodbath.up|!talent.bloodbath.enabled
-					if isChecked("AoE Auto Ravager") then
+					if isChecked("AoE BS/DR/RV") then
 						if (bloodbath and bbathup) or not bloodbath then
 							if castGround("target",152277,6) then
 	              print("AoE 3T Ravager 1")
@@ -546,12 +550,14 @@ if select(3,UnitClass("player")) == 1 then
 	          end
 	        end
 					-- actions.three_targets+=/bladestorm,if=buff.enrage.up
-					if enraged then
-						if castSpell("player",Bladestorm,true) then
-							print("AoE 3T Bladestorm")
-							return
-						end
-					end
+					if isChecked("AoE BS/DR/RV") then
+            if enraged then
+  						if castSpell("player",Bladestorm,true) then
+  							print("AoE 3T Bladestorm")
+  							return
+  						end
+  					end
+          end
 					-- actions.three_targets+=/bloodthirst,if=buff.enrage.down|rage<50|buff.raging_blow.down
 					if not enraged or rage < 50 or not ragingblowproc then
 						if castSpell(tarUnit.dyn5,Bloodthirst,false,false) then
@@ -576,10 +582,12 @@ if select(3,UnitClass("player")) == 1 then
 						end
 					end
 					-- actions.three_targets+=/dragon_roar,if=buff.bloodbath.up|!talent.bloodbath.enabled
-					if (bloodbath and bbathup) or not bloodbath then
-						if castSpell("player",DragonRoar,true) then
-              print("AoE 3T DragonRoar")
-              return
+					if isChecked("AoE BS/DR/RV") then
+            if (bloodbath and bbathup) or not bloodbath then
+  						if castSpell("player",DragonRoar,true) then
+                print("AoE 3T DragonRoar")
+                return
+              end
             end
           end
 					-- actions.three_targets+=/whirlwind
@@ -610,7 +618,7 @@ if select(3,UnitClass("player")) == 1 then
 	          end
 	        end
 					-- actions.aoe+=/ravager,if=buff.bloodbath.up|!talent.bloodbath.enabled
-					if isChecked("AoE Auto Ravager") then
+					if isChecked("AoE BS/DR/RV") then
 						if (bloodbath and bbathup) or not bloodbath then
 							if castGround("target",152277,6) then
 	              print("AoE 4+ Ravager 1")
@@ -641,12 +649,14 @@ if select(3,UnitClass("player")) == 1 then
 					end
 					-- actions.aoe+=/recklessness,sync=bladestorm
 					-- actions.aoe+=/bladestorm,if=buff.enrage.remains>6
-					if enragedRemain > 6 or reckup then
-						if castSpell("player",Bladestorm,true) then
-							print("AoE 4+ Bladestorm")
-							return
-						end
-					end
+					if isChecked("AoE BS/DR/RV") then
+            if enragedRemain > 6 or reckup then
+  						if castSpell("player",Bladestorm,true) then
+  							print("AoE 4+ Bladestorm")
+  							return
+  						end
+  					end
+          end
 					-- actions.aoe+=/whirlwind
 					if castSpell("player",Whirlwind,true) then
 						print("AoE 4+ Whirlwind 1")
@@ -660,10 +670,12 @@ if select(3,UnitClass("player")) == 1 then
 						end
 					end
 					-- actions.aoe+=/dragon_roar,if=buff.bloodbath.up|!talent.bloodbath.enabled
-					if (bloodbath and bbathup) or not bloodbath then
-						if castSpell("player",DragonRoar,true) then
-              print("AoE 4+ DragonRoar")
-              return
+					if isChecked("AoE BS/DR/RV") then
+            if (bloodbath and bbathup) or not bloodbath then
+  						if castSpell("player",DragonRoar,true) then
+                print("AoE 4+ DragonRoar")
+                return
+              end
             end
           end
 					-- actions.aoe+=/bloodthirst

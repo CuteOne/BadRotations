@@ -887,7 +887,7 @@ if not useAoE() then
       end --aoe end
       end -- rotation 1 end
       if getValue("Rotation") == 2 then
-    -- Plague Leech when:
+      -- Plague Leech when:
       -- Two runes are fully exhausted
       -- AND/OR
       -- Diseases are about to expire
@@ -902,6 +902,9 @@ if not useAoE() then
             return
           end
         end
+      end
+      if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then
+        return
       end
       -- Soul Reaper when:
       -- The target will reach execute range within 5 seconds

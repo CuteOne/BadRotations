@@ -41,6 +41,7 @@ if select(3, UnitClass("player")) == 1 then
 	DefensiveStance 	= 71;
 
 	--Talents--
+	EnragedRegeneration = 55694;
 	ImpendingVictory 	= 103840;
 	FuriousStrikes		= 169679;
 	SuddenDeathTalent	= 29725;

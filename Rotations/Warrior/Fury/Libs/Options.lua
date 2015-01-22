@@ -32,8 +32,8 @@ if select(3,UnitClass("player")) == 1 then
                 CreateNewText(thisConfig,"Single BS/DR/RV")
 
                 -- Auto Ravager AoE
-                CreateNewCheck(thisConfig,"AoE Auto Ravager");
-                CreateNewText(thisConfig,"AoE Auto Ravager")
+                CreateNewCheck(thisConfig,"AoE BS/DR/RV");
+                CreateNewText(thisConfig,"AoE BS/DR/RV")
 
                 -- Wrapper
                 CreateNewWrap(thisConfig,"---------- Buffs ---------");
