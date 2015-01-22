@@ -223,6 +223,30 @@ if select(3, UnitClass("player")) == 11 then
         end
     end
 
+    function multiDot(spell,variable)
+        for i = 1, #unitInfo do
+            if variable == "remains" then
+                if spell==rk then
+                    return unitInfo[i].rkremain
+                end
+                if spell==rp then
+                    return unitInfo[i].rpremain
+                end
+            end
+            if variable == "ttd" then
+                return unitInfo[i].ttd
+            end
+            if variable == "damage" then
+                if spell==rk then
+                    return unitInfo[i].rkd
+                end
+                if spell==rp then
+                    return unitInfo[i].rpd
+                end
+            end
+        end
+    end
+
     -- units can be "all" or a numeric value
     function unitDotCycle(units,spellID,range,facingCheck,movementCheck)
         local units = units
@@ -243,5 +267,77 @@ if select(3, UnitClass("player")) == 11 then
                 end
             end
         end
+    end
+
+-- Rake
+    --if=!talent.bloodtalons.enabled&remains<3&combo_points<5&((target.time_to_die-remains>3&active_enemies<3)|target.time_to_die-remains>6)
+    --if=!talent.bloodtalons.enabled&remains<4.5&combo_points<5&persistent_multiplier>dot.rake.pmultiplier&((target.time_to_die-remains>3&active_enemies<3)|target.time_to_die-remains>6)
+    --if=talent.bloodtalons.enabled&remains<4.5&combo_points<5&(!buff.predatory_swiftness.up|buff.bloodtalons.up|persistent_multiplier>dot.rake.pmultiplier)&((target.time_to_die-remains>3&andctive_enemies<3)|target.time_to_die-remains>6)
+    --persistent_multiplier>dot.rake.pmultiplier&combo_points<5&active_enemies=1
+-- Rip
+    --if=remains<3&target.time_to_die-remains>18
+    --if=remains<7.2&persistent_multiplier>dot.rip.pmultiplier&target.time_to_die-remains>18
+-- Thrash
+    --if=buff.omen_of_clarity.react&remains<4.5&active_enemies>1
+    --if=!talent.bloodtalons.enabled&combo_points=5&remains<4.5&buff.omen_of_clarity.react
+    --if=talent.bloodtalons.enabled&combo_points=5&remains<4.5&buff.omen_of_clarity.react
+
+    function castDot(unit, spell, powercheck, remain, timeLeftCheck, buffedDotCheck)
+        local thisUnit = unit
+        local ttd = getTimeToDie(thisUnit)
+        local combo = getCombo()
+        local talons = getTalent(7,2)
+        local haspower = getPower("player")>powercheck
+        local enemies = #getEnemies("player",5)
+        local psBuff = getBuffRemain("player",ps)>0
+        local btBuff = getBuffRemain("player",bt)>0
+        local ccBuff = getBuffRemain("player",cc)>0
+        local dotRemain = getDebuffRemain(thisUnit,spell,"player")
+        local remain = remain
+        local dotLimit = dotLimit
+        local talons = talons
+        local hascombo = false
+        local timeLeft = false
+        local buffedDot = false
+        if type(remain)=="boolean" then
+            dotLimit = false
+        else
+            remain = tonumber(remain)
+            dotLimit = dotRemain<remain
+        end
+        if spell==rk then
+            if combo<5 then hascombo = true end
+            if timeLeftCheck == true then timeLeft = ((ttd-dotRemain<3 and enemies<3) or ttd-dotRemain>6) end
+            if buffedDotCheck == true then buffedDot = CRKD(thisUnit) > RKD(thisUnit) end
+        end
+        if spell==rp then
+            if combo==5 then hascombo = true end
+            if timeLeftCheck == true then timeLeft = ttd-dotRemain>18 end
+            if buffedDotCheck == true then buffedDot = CRPD(thisUnit) > RPD(thisUnit) end
+        end
+        if spell==thr then
+            if ccBuff then haspower = true end
+            if timeLeftCheck == false then timeLeft = true end
+            if buffedDotCheck == false then buffedDot = true end
+        end
+        if hascombo and haspower then
+            if dotLimit and timeLeft then
+                if spell==rk then
+                    if not talons or (not talons and buffedDot) or (talons and (not psBuff or btBuff or buffedDot)) then
+                        return castSpell(unit,spell,false,false,false)
+                    end
+                end
+                if spell==rp or (spell==rp and buffedDot) then
+                    return castSpell(unit,spell,false,false,false)
+                end
+                if spell==thr and (enemies>1 or combo==5) then
+                    return castSpell(unit,spell,false,false,false)
+                end
+            end
+            if spell==rk and buffedDot and enemies==1 then
+                return castSpell(unit,spell,false,false,false)
+            end
+        end
+        return false
     end
 end

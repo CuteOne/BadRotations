@@ -26,17 +26,17 @@ if select(3,UnitClass("player")) == 10 then
 
     function sefTargets()
         if enemies == nil then enemies = 0 end
-        if select(1,UnitDetailedThreatSituation("player", "target")) == nil then
-            hasThreat = false
-        elseif select(1,UnitDetailedThreatSituation("player", "target"))==true then
-            hasThreat = true
-        end
+        -- if select(1,UnitDetailedThreatSituation("player", "target")) == nil then
+        --     hasThreat = false
+        -- elseif select(1,UnitDetailedThreatSituation("player", "target"))==true then
+        --     hasThreat = true
+        -- end
         if not myenemiesTimer or myenemiesTimer <= GetTime() - 1 then
             enemies, myenemiesTimer = getEnemies("player",40), GetTime()
         end
         if currtar == nil then
             currtar = UnitGUID("player")
-        elseif ObjectExists("target") then
+        elseif ObjectExists(dynamicTarget(40,false)) then
             currtar = UnitGUID("target")
         end
         if targets == nil then 
@@ -45,16 +45,17 @@ if select(3,UnitClass("player")) == 10 then
             table.wipe(targets)
         end
         for i=1,#enemies do
-            if ObjectExists(enemies[i])
-                and getCreatureType(enemies[i])
-                and UnitCanAttack("player",enemies[i])
-                and not UnitIsDeadOrGhost(enemies[i])
-                and (isInCombat(enemies[i]) or isDummy(enemies[i]) or isChecked("Death Monk Mode"))
-                and UnitGUID(enemies[i])~=currtar
-                and UnitDetailedThreatSituation("player", enemies[i]) ~= nil
-                and not isLongTimeCCed(enemies[i])
+            local thisUnit = enemies[i]
+            if ObjectExists(thisUnit)
+                and getCreatureType(thisUnit)
+                and UnitCanAttack("player",thisUnit)
+                and not UnitIsDeadOrGhost(thisUnit)
+                and (isInCombat(thisUnit) or isDummy(thisUnit) or isChecked("Death Monk Mode"))
+                and UnitGUID(thisUnit)~=currtar
+                and UnitDetailedThreatSituation("player", thisUnit) ~= nil
+                and not isLongTimeCCed(thisUnit)
             then
-                targets[#targets+1] = { Name = UnitName(enemies[i]), Unit = enemies[i], HP = UnitHealth(enemies[i]), Range = getDistance("player",enemies[i]) }
+                targets[#targets+1] = { Name = UnitName(thisUnit), Unit = thisUnit, HP = UnitHealth(thisUnit), Range = getDistance("player",thisUnit) }
             end
         end
         table.sort(targets, function(x,y) return x.HP > y.HP end)
@@ -128,7 +129,7 @@ if select(3,UnitClass("player")) == 10 then
     function canEnhanceToD()
         local thisUnit = dynamicTarget(5,true)
         local boostedHP = UnitHealthMax("player")+(UnitHealthMax("player")*0.2)
-        if (getHP(thisUnit)<=10 or (UnitHealth(thisUnit)<=boostedHP and UnitHealth(thisUnit) > UnitHealthMax("player"))) and not UnitIsPlayer(thisUnit) then
+        if (getHP(thisUnit)<=10 or (UnitHealth(thisUnit)<=boostedHP)) and UnitHealth(thisUnit) > UnitHealthMax("player") and not UnitIsPlayer(thisUnit) then
             return true
         else
             return false

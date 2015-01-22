@@ -550,6 +550,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 	        				timersTable[SpellID] = GetTime()
 	        				currentTarget = UnitGUID(Unit)
 	        				CastSpellByName(GetSpellInfo(SpellID),Unit)
+                            lastSpellCast = SpellID
                             -- change main button icon
 							if getOptionCheck("Start/Stop BadBoy") then
                                 mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
@@ -1937,24 +1938,43 @@ function pause()
     else
         pausekey = SpecificToggle("Pause Mode")
     end
-	if (pausekey and GetCurrentKeyBoardFocus() == nil)
-  	  or (IsMounted() and getUnitID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803))
-	  or SpellIsTargeting()
-	  or (not UnitCanAttack("player","target") and not UnitIsPlayer("target") and UnitExists("target"))
-	  or UnitCastingInfo("player")
-	  or UnitChannelInfo("player")
-	  or UnitIsDeadOrGhost("player")
-	  or (UnitIsDeadOrGhost("target") and not UnitIsPlayer("target"))
-	  or UnitBuffID("player",80169) -- Eating
-	  or UnitBuffID("player",87959) -- Drinking
-	  or UnitBuffID("target",117961) --Impervious Shield - Qiang the Merciless
-	  or UnitDebuffID("player",135147) --Dead Zone - Iron Qon: Dam'ren
-	  or (((UnitHealth("target")/UnitHealthMax("target"))*100) > 10 and UnitBuffID("target",143593)) --Defensive Stance - General Nagrazim
-	  or UnitBuffID("target",140296) --Conductive Shield - Thunder Lord / Lightning Guardian
+    if isChecked("DPS Testing")~=nil then
+        if ObjectExists("target") and isInCombat("player") then
+            if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+                StopAttack()
+                ClearTarget()
+                print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                profileStop = true
+            else
+                profileStop = false
+            end
+        elseif not isInCombat("player") and profileStop==true then
+            if ObjectExists("target") then
+                StopAttack()
+                ClearTarget()
+                profileStop=false
+            end
+        end
+    end
+    if (pausekey and GetCurrentKeyBoardFocus() == nil)
+      or profileStop
+      or (IsMounted() and getUnitID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803))
+      or SpellIsTargeting()
+      or (not UnitCanAttack("player","target") and not UnitIsPlayer("target") and UnitExists("target"))
+      or UnitCastingInfo("player")
+      or UnitChannelInfo("player")
+      or UnitIsDeadOrGhost("player")
+      or (UnitIsDeadOrGhost("target") and not UnitIsPlayer("target"))
+      or UnitBuffID("player",80169) -- Eating
+      or UnitBuffID("player",87959) -- Drinking
+      or UnitBuffID("target",117961) --Impervious Shield - Qiang the Merciless
+      or UnitDebuffID("player",135147) --Dead Zone - Iron Qon: Dam'ren
+      or (((UnitHealth("target")/UnitHealthMax("target"))*100) > 10 and UnitBuffID("target",143593)) --Defensive Stance - General Nagrazim
+      or UnitBuffID("target",140296) --Conductive Shield - Thunder Lord / Lightning Guardian
     then
-		ChatOverlay("Profile Paused")
-		return true
-	end
+        ChatOverlay("Profile Paused")
+        return true
+    end
 end
 
 -- feed a var
