@@ -26,11 +26,6 @@ if select(3,UnitClass("player")) == 10 then
 
     function sefTargets()
         if enemies == nil then enemies = 0 end
-        -- if select(1,UnitDetailedThreatSituation("player", "target")) == nil then
-        --     hasThreat = false
-        -- elseif select(1,UnitDetailedThreatSituation("player", "target"))==true then
-        --     hasThreat = true
-        -- end
         if not myenemiesTimer or myenemiesTimer <= GetTime() - 1 then
             enemies, myenemiesTimer = getEnemies("player",40), GetTime()
         end

@@ -78,6 +78,7 @@ if select(3, UnitClass("player")) == 11 then
     spd	=	81022	--Stampede
     obf =   33697   --Orc Racia: Blood Fury
     rber=	26297	--Troll Racial: Berserking
+    beat=   25046   --Blood Elf Racial: Arcane Torrent
     sm 	=	58984	--Night Elf Racial: Shadowmeld
     tac = 	135286 	--Tooth and Claw
     rks	=	163505	--Rake - Pounce Effect
