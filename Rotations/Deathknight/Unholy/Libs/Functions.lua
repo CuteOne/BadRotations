@@ -36,7 +36,7 @@ function CalculateHP(unit)
             table.sort(members, function(x,y) return x.HP < y.HP end)
         end
     end
-   
+
     function getRuneInfo()
         local bCount = 0
         local uCount = 0
@@ -58,7 +58,7 @@ function CalculateHP(unit)
             local CDrune = CDduration-(GetTime()-CDstart)
             local CDpercent = CDpercent
             local runePercent = 0
-            local runeCount = 0 
+            local runeCount = 0
             local runeCooldown = 0
             if CDrune > CDduration then
                 CDpercent = 1-(CDrune/(CDduration*2))
@@ -175,11 +175,11 @@ function CalculateHP(unit)
     end
 
     SLASH_DEFILE1 = '/defile';
-    function SlashCmdList.DEFILE(msg, editbox)      
+    function SlashCmdList.DEFILE(msg, editbox)
         RunMacroText('/run _G["buttonDefile"]:Click()');
     end
 
-    
+
     function getDisease(range,aoe,mod)
         if mod == nil then mod = "min" end
         if range == nil then range = 5 end
@@ -204,7 +204,7 @@ function CalculateHP(unit)
                     elseif ff <= bp then
                         return ff
                     else
-                        return bp 
+                        return bp
                     end
                 else
                     return 99
@@ -216,7 +216,7 @@ function CalculateHP(unit)
                     elseif ffAoE <= bpAoE then
                         return ffAoE
                     else
-                        return bpAoE 
+                        return bpAoE
                     end
                 else
                     return 99
@@ -242,7 +242,7 @@ function CalculateHP(unit)
                     elseif ffAoE <= bpAoE then
                         return bpAoE
                     else
-                        return ffAoE 
+                        return ffAoE
                     end
                 else
                     return 90
@@ -250,6 +250,12 @@ function CalculateHP(unit)
             end
         end
     end
+
+
+
+
+
+
 
 
 

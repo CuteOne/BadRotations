@@ -7,7 +7,7 @@ if select(3,UnitClass("player")) == 6 then
       CreateNewTitle(thisConfig,"Unholy |cffFF0000Chumii");
 
       -- Wrapper
-      CreateNewWrap(thisConfig,"--- Keys ---");
+      CreateNewWrap(thisConfig,"--- General Rotation ---");
 
       -- Pause Toggle
       CreateNewCheck(thisConfig,"Pause Key");
@@ -30,8 +30,12 @@ if select(3,UnitClass("player")) == 6 then
       CreateNewText(thisConfig,"AMZ Key");
 
       -- Blood Boil Spam Targets
-      CreateNewBox(thisConfig, "Blood Boil Spam", 0, 10  , 1, 5, "Start spamming Blood Boil at |cffFF0000XX|cffFFBB00 targets.");
+      CreateNewBox(thisConfig, "Blood Boil Spam", 0, 10  , 1, 5, "Start spamming Blood Boil at |cffFF0000XX|cffFFBB00 targets. (Simc Rotation only)");
       CreateNewText(thisConfig,"Blood Boil Spam");
+
+      CreateNewCheck(thisConfig,"Rotation")
+      CreateNewDrop(thisConfig,"Rotation",1,"Choose Rotation to use.","Simc","Simple")
+      CreateNewText(thisConfig,"Rotation")
 
       -- Wrapper
       CreateNewWrap(thisConfig,"--- Buffs ---");
