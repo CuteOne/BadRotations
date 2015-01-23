@@ -359,7 +359,7 @@ function isInteruptCandidate(Unit,SpellID)
 	return false
 end
 
--- see if we should priorise these targets
+-- see if we should prioritize these targets
 function isSelectedTarget(casterGUID)
 	for i = 1, #selectedTargets do
 		if UnitGUID(selectedTargets[i]) == casterGUID then

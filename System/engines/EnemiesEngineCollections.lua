@@ -59,7 +59,7 @@ burnUnitCandidates = {
     -- Shadowmoon Burial Grounds
     [75966] = { coef = 100, name = "Defiled Spirit" }, -- need to be cc and snared and is not allowed to reach boss.
     [75899] = { coef = 100, name = "Possessed Soul" },
-    [76518] = { coef = 100, unitMarker = 8 }, -- Ritual of Bones, marked one will be priorised
+    [76518] = { coef = 100, unitMarker = 8 }, -- Ritual of Bones, marked one will be prioritized
     -- Auchindon
     [77812] = { coef = 150, name = "Sargerei Souldbinder" }, -- casts a Mind Control
     -- Grimrail Depot

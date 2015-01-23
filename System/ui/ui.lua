@@ -282,7 +282,7 @@ function ConstructUI()
                         name = "Wise Target",
                         tip = "|cffFFDD11Check if you want to use Wise Targetting, if unchecked there will be no priorisation from hp.",
                         dropBase = 1,
-                        dropdown = "Choose Units to priorise. Lowest Units or Highest Units.",
+                        dropdown = "Choose Units to prioritize. Lowest Units or Highest Units.",
                         dropOptions = {
                             [1] = "Highest",
                             [2] = "Lowest"
@@ -412,8 +412,8 @@ function ConstructUI()
                     [4] = {
                         checkbase = false,
                         check = true,
-                        name = "Priorise Special Targets",
-                        tip = "Priorise Special targets(mouseover/target/focus).",
+                        name = "Prioritize Special Targets",
+                        tip = "Prioritize Special targets(mouseover/target/focus).",
                         dropBase = 1,
                         dropdown = "Choose Which Special Units to consider.",
                         dropOptions = {
