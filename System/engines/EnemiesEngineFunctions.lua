@@ -41,7 +41,7 @@ function bb.castOffensiveDispel(spell)
 
 		for i = 1, #bb.read.enraged do
 			if bb.read.enraged[i] ~= nil then
-				-- if i still dont know wich unit it is compared to my fh units, find it.
+				-- if i still dont know which unit it is compared to my fh units, find it.
 				local thisUnit = bb.read.enraged[i].unit
 				if thisUnit == nil then
 					thisUnit = bb.matchUnit(bb.read.enraged[i],enemiesTable)

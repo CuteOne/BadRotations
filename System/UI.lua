@@ -39,7 +39,7 @@ function BadBoyFrame()
 			BadBoy_data[tostring(toggleValue)] = 1
 			toggleOldValue = BadBoy_data[tostring(toggleValue)]
 		end
-		-- Scan Table and find wich mode = our i
+		-- Scan Table and find which mode = our i
 		for i = 1,modesCount do
 			if toggleOldValue == i then
 				-- see if we can go higher in modes is #modes > i
@@ -71,7 +71,7 @@ function BadBoyFrame()
 			BadBoy_data[tostring(toggleValue)] = 1
 		end
 		local modesCount = #_G[toggleValue.."Modes"]
-		-- Scan Table and find wich mode = our i
+		-- Scan Table and find which mode = our i
 		for i = 1,modesCount do
 			local thisValue = BadBoy_data[tostring(toggleValue)] or 1
 			if thisValue == i then

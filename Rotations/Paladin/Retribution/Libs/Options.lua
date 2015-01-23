@@ -18,7 +18,7 @@ if select(3,UnitClass("player")) == 2 then
 
 		-- Blessing
 		CreateNewCheck(thisConfig,"Blessings")
-		CreateNewDrop(thisConfig,"Blessings",1,"|cffFFFFFFWich blessing do you want to maintain on raid","|cff0374FEKings","|cffFFBC40Might","|cff00FF0DAuto")
+		CreateNewDrop(thisConfig,"Blessings",1,"|cffFFFFFFWhich blessing do you want to maintain on raid","|cff0374FEKings","|cffFFBC40Might","|cff00FF0DAuto")
 		CreateNewText(thisConfig,"Blessings")
 
 		-- Wrapper

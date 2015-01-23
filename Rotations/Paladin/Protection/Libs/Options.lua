@@ -20,7 +20,7 @@ if select(3,UnitClass("player")) == 2 then
 
 		-- Blessing
 		CreateNewCheck(thisConfig,"Blessings")
-		CreateNewDrop(thisConfig,"Blessings",1,"|cffFFFFFFWich blessing do you want to maintain on raid","|cff0374FEKings","|cffFFBC40Might","|cff00FF0DAuto")
+		CreateNewDrop(thisConfig,"Blessings",1,"|cffFFFFFFWhich blessing do you want to maintain on raid","|cff0374FEKings","|cffFFBC40Might","|cff00FF0DAuto")
 		CreateNewText(thisConfig,"Blessings")
 
 		-- Righteous Fury
@@ -75,7 +75,7 @@ if select(3,UnitClass("player")) == 2 then
 
 		-- Todo: reimplement later
 		--CreateNewCheck(thisConfig,"Hand Of Freedom","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHand Of Freedom|cffFFBB00.",1)
-		--CreateNewDrop(thisConfig,"Hand Of Freedom",1,"Under wich conditions do we use Hand of Freedom on self.","|cffFFFFFFWhitelist","|cff00FF00All")
+		--CreateNewDrop(thisConfig,"Hand Of Freedom",1,"Under which conditions do we use Hand of Freedom on self.","|cffFFFFFFWhitelist","|cff00FF00All")
 		--CreateNewText(thisConfig,"Hand Of Freedom")
 
 		generateWrapper("Defensive")

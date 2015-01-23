@@ -11,7 +11,7 @@ function shouldStopCasting(Spell)
 		else
 			return false
 		end
-		-- Spells wich make us immune (buff)
+		-- Spells which make us immune (buff)
 		local ShouldContinue = {
 			1022,-- Hand of Protection
 			31821,-- Devotion

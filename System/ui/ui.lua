@@ -415,7 +415,7 @@ function ConstructUI()
                         name = "Priorise Special Targets",
                         tip = "Priorise Special targets(mouseover/target/focus).",
                         dropBase = 1,
-                        dropdown = "Choose Wich Special Units to consider.",
+                        dropdown = "Choose Which Special Units to consider.",
                         dropOptions = {
                             [1] = "Special",
                             [2] = "All"
@@ -435,14 +435,14 @@ function ConstructUI()
                     [6] = {
                         checkbase = false,
                         check = true,
-                        name = "No Absorbs",
-                        tip = "Uncheck this if you want to prevent overhealing shielded units. If checked, it will add shieldBuffValue/4 to hp."
+                        name = "Ignore Absorbs",
+                        tip = "Check this if you want to ignore absorb shields. If checked, it will add shieldBuffValue/4 to hp. May end up as overheals, disable to save mana."
                     },
                     [7] = {
                         checkbase = false,
                         check = true,
-                        name = "No Incoming Heals",
-                        tip = "Uncheck this if you want to prevent overhealing units. If checked, it will add incoming health from other healers to hp."
+                        name = "Incoming Heals",
+                        tip = "If checked, it will add incoming health from other healers to hp. Uncheck this if you want to prevent overhealing units."
                     },
                     [8] = {
                         checkbase = false,
@@ -450,7 +450,7 @@ function ConstructUI()
                         name = "Overhealing Cancel",
                         --"Harmoney SotF", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRegrowth|cffFFBB00 to refresh Harmoney.")
 
-                        status = "Set Desired Threshold at wich you want to prevent your own casts.",
+                        status = "Set Desired Threshold at which you want to prevent your own casts.",
                         statusBase = 95,
                         statusMin = 0,
                         statusMax = 100,
@@ -495,7 +495,7 @@ function ConstructUI()
                         name = "Prospect Ores",
                         tip = "Prospect Desired Ores.",
                         dropBase = 4,
-                        dropdown = "Wich ores?.",
+                        dropdown = "Which ores?.",
                         dropOptions = {
                             [1] = "WoD",
                             [2] = "MoP",
@@ -509,7 +509,7 @@ function ConstructUI()
                         name = "Mill Herbs",
                         tip = "Mill Desired Herbs.",
                         dropBase = 4,
-                        dropdown = "Wich ores?.",
+                        dropdown = "Which ores?.",
                         dropOptions = {
                             [1] = "WoD",
                             [2] = "MoP",

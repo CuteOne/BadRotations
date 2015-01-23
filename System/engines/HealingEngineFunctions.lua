@@ -3,7 +3,7 @@
 -- find best tank to put our lb/beacon/earth shield on
 function getFocusedTank()
     local tanks = getTanksTable()
-    -- if we are targetting a mob and its targetting a tank we want to define wich tank it is.
+    -- if we are targetting a mob and its targetting a tank we want to define which tank it is.
     if #tanks > 0 and UnitExists("target") and UnitIsVisible("target") and UnitExists("targettarget")
       and UnitIsVisible("targettarget") then
         local targetTargetGUID = UnitGUID("targettarget")
@@ -14,7 +14,7 @@ function getFocusedTank()
             end
         end
     elseif #tanks > 0 then
-        -- otherwise we want to see wich tank is beign targetted by its mob and whos threat is highest
+        -- otherwise we want to see which tank is beign targetted by its mob and whos threat is highest
         for i = 1,#tanks do
             print(UnitGUID(tanks[i].target)..""..tanks[i].guid)
             if UnitGUID(tanks[i].target) == tanks[i].guid then

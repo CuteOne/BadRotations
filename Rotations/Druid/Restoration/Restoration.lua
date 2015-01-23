@@ -616,7 +616,7 @@ function DruidRestoration()
 				end
 			end
 		end
-		--[[ 18.5 - LifeBloom Fast Swich]]
+		--[[ 18.5 - LifeBloom Fast Switch]]
 		if isChecked("Lifebloom") and canCast(33763,false,false) then
 	    	for i = 1, #nNova do
 				if nNova[i].hp < 249 and not UnitIsDeadOrGhost("focus") and getBuffRemain("focus",33763) == 0

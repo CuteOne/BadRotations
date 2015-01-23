@@ -340,7 +340,7 @@ function canTrinket(trinketSlot)
 end
 
 function castAoEHeal(spellID,numUnits,missingHP,rangeValue)
-	-- i start an iteration that i use to build each units Table,wich i will reuse for the next second
+	-- i start an iteration that i use to build each units Table,which i will reuse for the next second
 	if not holyRadianceRangeTable or not holyRadianceRangeTableTimer or holyRadianceRangeTable <= GetTime() - 1 then
 		holyRadianceRangeTable = { }
 		for i = 1,#nNova do

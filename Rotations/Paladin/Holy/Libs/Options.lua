@@ -18,7 +18,7 @@ if select(3,UnitClass("player")) == 2 then
 
 -- Blessing
 		CreateNewCheck(thisConfig,"Blessing","Normal",1)
-		CreateNewDrop(thisConfig,"Blessing",1,"Select wich blessing you want to use.","|cff006AFFKings","|cffFFAE00Might")
+		CreateNewDrop(thisConfig,"Blessing",1,"Select which blessing you want to use.","|cff006AFFKings","|cffFFAE00Might")
 		CreateNewText(thisConfig,myColor.."Blessing")
 
 		-- Seal
@@ -155,7 +155,7 @@ if select(3,UnitClass("player")) == 2 then
 		CreateNewText(thisConfig,myColor.."Lay On Hands")
 
 		CreateNewCheck(thisConfig,"LoH Targets","Normal",1)
-		CreateNewDrop(thisConfig,"LoH Targets",1,"|cffFF0000Wich Targets\n|cffFFBB00We want to use \n|cffFFFFFFLay On Hands", "|cffFF0000Me.Only", "|cffFFDD11Me.Prio", "|cff00FBEETank/Heal","|cff00FF00All")
+		CreateNewDrop(thisConfig,"LoH Targets",1,"|cffFF0000Which Targets\n|cffFFBB00We want to use \n|cffFFFFFFLay On Hands", "|cffFF0000Me.Only", "|cffFFDD11Me.Prio", "|cff00FBEETank/Heal","|cff00FF00All")
 		CreateNewText(thisConfig,myColor.."LoH Targets")
 
 		CreateNewCheck(thisConfig,"Hand Of Sacrifice","Normal",1)

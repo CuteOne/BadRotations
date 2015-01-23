@@ -84,7 +84,7 @@ function BeastConfig()
     CreateNewBox(thisConfig,"Auto-Aspect",1,10,1,3,"|cffFFDD11How long do you want to run before enabling |cffFFFFFFAspect.")
     CreateNewText(thisConfig,"Auto-Aspect")
 
-    CreateNewDrop(thisConfig,"Aspect",1,"|cffFFDD11Sets wich Aspect to use.","|cffFF0000Cheetah","|cffFFDD11Pack")
+    CreateNewDrop(thisConfig,"Aspect",1,"|cffFFDD11Sets which Aspect to use.","|cffFF0000Cheetah","|cffFFDD11Pack")
     CreateNewText(thisConfig,"Aspect")
 
     -- Standard Interrupt
