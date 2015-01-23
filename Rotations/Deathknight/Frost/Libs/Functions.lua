@@ -234,9 +234,11 @@ if select(3,UnitClass("player")) == 6 then
                         local simListSpell = simList[f].spell
                         if isCastingSpell(simListSpell,thisUnit) then
                             simSpell = simListSpell
+                            simUnit = thisUnit
                             break
                         else
                             simSpell = _DarkSimulacrum
+                            simUnit = "target"
                         end
                     end
                 end

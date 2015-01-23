@@ -1226,7 +1226,9 @@ function hasBloodLust()
     if UnitBuffID("player",2825)        -- Bloodlust
     or UnitBuffID("player",80353)       -- Timewarp
     or UnitBuffID("player",32182)       -- Heroism
-    or UnitBuffID("player",90355) then  -- Ancient Hysteria
+    or UnitBuffID("player",90355)       -- Ancient Hysteria
+    or UnitBuffID("player",146555)      -- Drums of Rage
+    then
         return true
     else
         return false
@@ -1560,6 +1562,16 @@ function isCastingTime(lagTolerance)
 	end
 end
 
+function getCastTimeRemain(unit)
+    if UnitCastingInfo(unit) ~= nil then
+        return select(6,UnitCastingInfo(unit)) - GetTime()
+    elseif UnitChannelInfo(unit) ~= nil then
+        return select(6,UnitChannelInfo(unit)) - GetTime()
+    else
+        return 0
+    end
+end
+
 -- if isCasting() == true then
 function castingUnit(Unit)
 	if Unit == nil then Unit = "player" end
@@ -1794,6 +1806,43 @@ function isLooting()
 	else
 		return false
 	end
+end
+
+function getLoot2()
+    if looted == nil then looted = 0 end
+    for i=1,ObjectCount() do
+        if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
+            local thisUnit = ObjectWithIndex(i)
+            local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
+            local inRange = getRealDistance("player",thisUnit) < 2
+            if UnitIsDeadOrGhost(thisUnit) then
+                if hasLoot and canLoot and inRange and (canLootTimer == nil or canLootTimer <= GetTime()-0.5)--[[getOptionValue("Auto Loot"))]] then
+                    if GetCVar("autoLootDefault") == "0" then
+                        SetCVar("autoLootDefault", "1")
+                        InteractUnit(thisUnit)
+                        if isLooting() then
+                            return true
+                        end
+                        canLootTimer = GetTime()
+                        SetCVar("autoLootDefault", "0")
+                        looted = 1
+                        return
+                    else
+                        InteractUnit(thisUnit)
+                        if isLooting() then
+                            return true
+                        end
+                        canLootTimer = GetTime()
+                        looted = 1
+                    end
+                end
+            end
+        end
+    end
+    if UnitExists("target") and UnitIsDeadOrGhost("target") and looted==1 and not isLooting() then
+        ClearTarget()
+        looted=0
+    end
 end
 
 -- if not isMoving("target") then

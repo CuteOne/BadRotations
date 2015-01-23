@@ -8,6 +8,8 @@ function WindwalkerMonk()
 	    GroupInfo()
        	sefTargets()
        	makeEnemiesTable(40)
+       	getLoot2()
+       	ChatOverlay(GetCurrentKeyBoardFocus())
 
 	    if not canRun() then
 	    	return true
@@ -202,19 +204,19 @@ function WindwalkerMonk()
 ---------------------
 --- Out of Combat ---
 ---------------------
-			if not isInCombat("player") and ObjectExists("target") then
+			if not isInCombat("player") then
 	-- Expel Harm (Chi Builer)
-				if BadBoy_data['Builder']==1 and chiDiff>=2 and power>=40 and GetSpellCooldown(_ExpelHarm) then
+				if BadBoy_data['Builder']==1 and chiDiff>=2 and power>=40 and GetSpellCooldown(_ExpelHarm)==0 then
 					if castSpell("player",_ExpelHarm,false,false,false) then return end
 				end
 	-- Provoke
-				if select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" and GetSpellCooldown(_FlyingSerpentKick)>1 and dynamicDist.dyn40AoE > 10 then
+				if select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" and GetSpellCooldown(_FlyingSerpentKick)>1 and dynamicDist.dyn40AoE > 10 and ObjectExists("target") then
 					if select(2,IsInInstance())=="none" and #members==1 then
 						if castSpell(dynamicUnit.dyn40AoE,_Provoke,false,false) then return end
 					end
 				end
 	-- Flying Serpent Kick
-				if BadBoy_data['FSK']==1 then
+				if BadBoy_data['FSK']==1 and ObjectExists("target") then
 					if canFSK("target") and not isDummy() and (select(2,IsInInstance())=="none" or isInCombat("target")) then
 						if castSpell("player",_FlyingSerpentKick,false,false,false) then return end
 					end
@@ -222,12 +224,12 @@ function WindwalkerMonk()
 						if castSpell("player",_FlyingSerpentKickEnd,false,false,false) then return end
 					end	
 	-- Roll
-					if not canFSK("target") and tarDist>10 and getFacingDistance()<5 and getFacing("player","target",10) and getCharges(_Roll)>0 then
+					if not canFSK("target") and not canContFSK("target") and tarDist>10 and getFacingDistance()<5 and getFacing("player","target",10) and getCharges(_Roll)>0 then
 						if castSpell("player",_Roll,true,false,false) then return end
 					end
 				end
 	-- Start Attack
-          		if dynamicDist.dyn5<5 then
+          		if dynamicDist.dyn5<5 and ObjectExists("target") then
             		StartAttack()
           		end
 			end
@@ -318,17 +320,22 @@ function WindwalkerMonk()
 						CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
 					end
 					if #targets>0 then
-						for i = 1, #targets do
+						--for i = 1, #targets do
 							if sefStack == 0 and #targets==1 then
-								if castSpell(targets[i].Unit,_StormEarthFire,false,false,false) then return end
+								sefTar1 = targets[1].Unit
+								if castSpell(targets[1].Unit,_StormEarthFire,false,false,false) then return end
 							end
 							if sefStack == 1 and #targets>1 then
-								if castSpell(targets[i].Unit,_StormEarthFire,false,false,false) then return end
+								sefTar2 = targets[2].Unit
+								if castSpell(targets[2].Unit,_StormEarthFire,false,false,false) then return end
 							end
-							if UnitGUID(targets[i].Unit) == UnitGUID("target") then
+							if sefStack == 1 and UnitGUID(sefTar1) == UnitGUID("target") then
 								CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
 							end
-						end
+							if sefStack == 2 and (UnitGUID(sefTar1) == UnitGUID("target") or UnitGUID(sefTar2) == UnitGUID("target")) then
+								CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
+							end
+						--end
 					end
 				end
 	-- Roll

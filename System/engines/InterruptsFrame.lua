@@ -167,7 +167,6 @@ function castInterrupt(spell,percent,keepInfo)
 								-- if developer need to keep this spell/unit combo
 								if spell == 77606 then
 									simulacrumSpell = thisCaster.cast
-									print(simulacrumSpell)
 								end
 								-- prevent intrupt on this target again by removing it
 								tremove(casters,i)

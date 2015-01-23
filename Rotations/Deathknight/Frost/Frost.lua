@@ -8,7 +8,6 @@ if select(3, UnitClass("player")) == 6 then
       end
       GroupInfo()
       getRuneInfo()
-
   --------------
   --- Locals ---
   --------------
@@ -66,6 +65,7 @@ if select(3, UnitClass("player")) == 6 then
       local dCooldown = GetSpellCooldown(_Defile)
       local dndCooldown = GetSpellCooldown(_DeathAndDecay)
       local raCooldown = GetSpellCooldown(_RaiseAlly)
+      local oCooldown = getSpellCD(_Obliterate)
       local blight, bloodtap, runic, necrotic, defile, sindragosa = getTalent(1,3), getTalent(4,1), getTalent(4,2), getTalent(7,1), getTalent(7,2), getTalent(7,3)
       local t17x2 = false
       local simSpell, castingSimSpell = bb.im.simulacrumSpell, isSimSpell()
@@ -163,7 +163,7 @@ if select(3, UnitClass("player")) == 6 then
       -- Flask / Crystal
         if isChecked("Flask / Crystal") and not (IsFlying() or IsMounted()) then
             if (select(2,IsInInstance())=="raid" or select(2,IsInInstance())=="none")
-              and not (UnitBuffID("player",156073) or UnitBuffID("player",156064)) --Draenor Agi Flasks
+              and not (UnitBuffID("player",109156) or UnitBuffID("player",109148)) --Draenor Str Flasks
             then
                 if not UnitBuffID("player",176151) and canUse(118922) then --Draenor Insanity Crystal
                     UseItemByName(tostring(select(1,GetItemInfo(118922))))
@@ -299,8 +299,8 @@ if select(3, UnitClass("player")) == 6 then
             if isChecked("Dark Simulacrum") and power>20 and (isInPvP() or castingSimSpell) then
               if castInterrupt(_DarkSimulacrum,10,true) then return end
             end
-            if simSpell~=_DarkSimulacrum and getBuffRemain("player",_DarkSimulacrum)>0 then
-              if castSpell(tarUnit.dyn40,simSpell,false,false,true,true,false,true,false) then bb.im.simulacrum = nil return end
+            if simSpell~=_DarkSimulacrum and getBuffRemain("player",_DarkSimulacrum)>0 and getCastTimeRemain(simUnit)<8 then
+              if castSpell(simUnit,simSpell,false,false,true,true,false,true,false) then bb.im.simulacrum = nil return end
               --CastSpellByName(GetSpellInfo(simSpell),tarUnit.dyn40)
             end
             if simSpell~=nil and getBuffRemain("player",_DarkSimulacrum)==0 then
@@ -316,7 +316,7 @@ if select(3, UnitClass("player")) == 6 then
               UseItemByName(tostring(select(1,GetItemInfo(109219))))
             end
         -- Empower Rune Weapon
-            if isChecked("Empower Rune Weapon") and ttd<=60 and fRunes==0 and uRunes==0 and strPotRemain>0 then
+            if isChecked("Empower Rune Weapon") and ttd<=60 and getRunes("Frost")==0 and getRunes("Unholy")==0 and strPotRemain>0 then
               if castSpell("player",_EmpowerRuneWeapon,true,false,false) then return end
             end
         -- Trinkets
@@ -404,7 +404,7 @@ if select(3, UnitClass("player")) == 6 then
             end
         -- Obliterate (2H)
             --if=buff.killing_machine.react
-            if twoHand and kmRemain>0 and fRunes>=1 and uRunes<=1 and tarDist.dyn5<5 then
+            if twoHand and kmRemain>0 and fRunes>=1 and uRunes>=1 and tarDist.dyn5<5 then
               if castSpell(tarUnit.dyn5,_Obliterate,false,false,false) then return end
             end
         -- Blood Tap (2H)
@@ -497,7 +497,7 @@ if select(3, UnitClass("player")) == 6 then
                 if castSpell(tarUnit.dyn30,_PlagueLeech,true,false,false) then return end
               end
             -- Empower Rune Weapon (1H)
-              if isChecked("Empower Rune Weapon") and fRunes==0 and uRunes==0 then
+              if isChecked("Empower Rune Weapon") and getRunes("Frost")==0 and getRunes("Unholy")==0 then
                 if castSpell("player",_EmpowerRuneWeapon,true,false,false) then return end
               end
             end --End Boss Special
@@ -626,12 +626,12 @@ if select(3, UnitClass("player")) == 6 then
             end
         -- Frost Stike (2H)
             --if=talent.runic_empowerment.enabled&(frost=0|unholy=0|blood=0)&(!buff.killing_machine.react|!obliterate.ready_in<=1)
-            if twoHand and runic and (fRunes==0 or uRunes==0 or bRunes==0) and (kmRemain==0 or (fPercent<=0.95 and uPercent<=0.95)) and power>25 and tarDist.dyn5<5 then
+            if twoHand and runic and (fRunes==0 or uRunes==0 or bRunes==0) and (kmRemain==0 or oCooldown>1) and power>25 and tarDist.dyn5<5 then
               if castSpell(tarUnit.dyn5,_FrostStrike,true,false,false) then return end
             end
         -- Frost Strike (2H)
             --if=talent.blood_tap.enabled&buff.blood_charge.stack<=10&(!buff.killing_machine.react|!obliterate.ready_in<=1)
-            if twoHand and bloodtap and bcStack<=10 and (kmRemain==0 or (fPercent<=0.95 and uPercent<=0.95)) and power>25 and tarDist.dyn5<5 then
+            if twoHand and bloodtap and bcStack<=10 and (kmRemain==0 or oCooldown>1) and power>25 and tarDist.dyn5<5 then
               if castSpell(tarUnit.dyn5,_FrostStrike,true,false,false) then return end
             end
         -- Howling Blast (2H)
@@ -645,7 +645,7 @@ if select(3, UnitClass("player")) == 6 then
             end
         -- Obliterate (2H)
             --if=blood.frac>=1.5|unholy.frac>=1.6|frost.frac>=1.6|buff.bloodlust.up|cooldown.plague_leech.remains<=4
-            if twoHand and (bPercent>=1.5 or uPercent>=1.6 or fPercent>=1.6 or plCooldown<=4) and uRunes>=1 and fRunes>=1 and tarDist.dyn5<5 then
+            if twoHand and (bPercent>=1.5 or uPercent>=1.6 or fPercent>=1.6 or hasBloodLust() or plCooldown<=4) and uRunes>=1 and fRunes>=1 and tarDist.dyn5<5 then
               if castSpell(tarUnit.dyn5,_Obliterate,false,false,false) then return end
             end
         -- Blood Tap (2H)
@@ -665,7 +665,7 @@ if select(3, UnitClass("player")) == 6 then
             end
         -- Plague Leech (2H)
             --if=(blood.frac<=0.95&unholy.frac<=0.95)|(frost.frac<=0.95&unholy.frac<=0.95)|(frost.frac<=0.95&blood.frac<=0.95)
-            if twoHand and ((bPercent<=0.95 and uPercent<=0.95) or (fPercent<=0.95 and uPercent<=0.95) or (fPercent<=0.95 and bPercent<=0.95)) and ffRemain.dyn30>0 and bpRemain.dyn30>0 and tarDist.dyn30<30 then
+            if twoHand and ((bPercent<=0.95 and uPercent<=0.95) or (fPercent<=0.95 and uPercent<=0.95) or (fPercent<=0.95 and bPercent<=0.95)) and hasDisease.dyn30AoE and tarDist.dyn30<30 then
               if castSpell(tarUnit.dyn30,_PlagueLeech,true,false,false) then return end
             end
         -- Howling Blast (1H)
@@ -686,7 +686,7 @@ if select(3, UnitClass("player")) == 6 then
               if castSpell(tarUnit.dyn30,_PlagueLeech,true,false,false) then return end
             end
         -- Empower Rune Weapon
-            if isChecked("Empower Rune Weapon") and useCDs() and fRunes==0 and uRunes==0 and tarDist.dyn5<5 then
+            if isChecked("Empower Rune Weapon") and useCDs() and getRunes("Frost")==0 and getRunes("Unholy")==0 and tarDist.dyn5<5 then
               if castSpell("player",_EmpowerRuneWeapon,true,false,false) then return end
             end
           end
@@ -749,7 +749,7 @@ if select(3, UnitClass("player")) == 6 then
                 if castSpell(tarUnit.dyn5,_PlagueStrike,false,false,false) then return end
               end
           -- Empower Rune Weapon
-              if isChecked("Empower Rune Weapon") and useCDs() and fRunes==0 and uRunes==0 and tarDist.dyn5<5 then
+              if isChecked("Empower Rune Weapon") and useCDs() and getRunes("Frost")==0 and getRunes("Unholy")==0 and tarDist.dyn5<5 then
                 if castSpell("player",_EmpowerRuneWeapon,true,false,false) then return end
               end
             end --End Boss Special
@@ -796,7 +796,7 @@ if select(3, UnitClass("player")) == 6 then
               if castSpell(tarUnit.dyn5,_PlagueStrike,false,false,false) then return end
             end
         -- Empower Rune Weapon
-            if isChecked("Empower Rune Weapon") and useCDs() and fRunes==0 and uRunes==0 and tarDist.dyn0<5 then
+            if isChecked("Empower Rune Weapon") and useCDs() and getRunes("Frost")==0 and getRunes("Unholy")==0 and tarDist.dyn0<5 then
               if castSpell("player",_EmpowerRuneWeapon,true,false,false) then return end
             end
           end
