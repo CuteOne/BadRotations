@@ -38,7 +38,7 @@ if select(3, UnitClass("player")) == 3 then
 		if UnitBuffID("player",5384) ~= nil then return false end --Dont want to do anything if we feign death
 
 		-- OFF-GCD here we add the spells we want to be spamming all the time
-		if UnitAffectingCombat("player") then
+		if UnitAffectingCombat("player") and not isCastingSpell(120360) then
 			---Interrupts---------------------------------------------
 			if isChecked("Counter Shot") then
 				castInterrupt(147362,getValue("Counter Shot"))
