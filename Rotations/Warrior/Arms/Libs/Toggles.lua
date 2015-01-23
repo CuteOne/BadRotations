@@ -28,9 +28,9 @@ if select(3, UnitClass("player")) == 1 then
         -- Cooldowns Button
         if CooldownsModesLoaded ~= "Cooldown Modes" then
             CustomCooldownsModes = {
-                [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = Recklessness },
-                [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = Recklessness },
-                [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = Recklessness }
+                [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = _Recklessness },
+                [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = _Recklessness },
+                [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = _Recklessness }
             };
            CooldownsModes = CustomCooldownsModes
            CreateButton("Cooldowns",2,0)
@@ -40,8 +40,8 @@ if select(3, UnitClass("player")) == 1 then
         -- Defensive Button
         if DefensiveModesLoaded ~= "Defensive Modes" then
             CustomDefensiveModes = {
-                [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = DiebytheSword },
-                [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = DiebytheSword }
+                [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = _DiebytheSword },
+                [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = _DiebytheSword }
             };
             DefensiveModes = CustomDefensiveModes
             CreateButton("Defensive",3,0)
@@ -51,8 +51,8 @@ if select(3, UnitClass("player")) == 1 then
      -- Interrupts Button
         if InterruptsModesLoaded ~= "Interrupt Modes" then
             CustomInterruptsModes = {
-                [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = Pummel },
-                [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = Pummel }
+                [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = _Pummel },
+                [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = _Pummel }
             };
             InterruptsModes = CustomInterruptsModes
             CreateButton("Interrupts",4,0)
