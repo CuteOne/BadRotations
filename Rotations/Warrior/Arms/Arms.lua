@@ -493,8 +493,10 @@ if select(3,UnitClass("player")) == 1 then
 				end
 				-- actions.aoe+=/bladestorm
 				if bladestorm then
-					if castSpell("player",_Bladestorm,true) then
-						return
+					if UnitBuffID("player",_SweepingStrikes) then
+						if castSpell("player",_Bladestorm,true) then
+							return
+						end
 					end
 				end
 				-- actions.aoe+=/colossus_smash,if=dot.rend.ticking
