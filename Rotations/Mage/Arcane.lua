@@ -143,11 +143,6 @@ if select(3, UnitClass("player")) == 8 then
 			end
 
 			
-
-			--Todo :  Seems that Magic Missile is clipping
-			-- 5 ticks, men klipper på 3
-			-- 3 Charges
-
 	--		if BadBoy_data['Defensive'] == 2 then
 	--			ArcaneMageDefensives()
 	--		end
