@@ -24,36 +24,22 @@ if select(3,UnitClass("player")) == 10 then
         end
     end
 
-    function sefTargets()
-        if enemies == nil then enemies = 0 end
-        if not myenemiesTimer or myenemiesTimer <= GetTime() - 1 then
-            enemies, myenemiesTimer = getEnemies("player",40), GetTime()
-        end
-        if currtar == nil then
-            currtar = UnitGUID("player")
-        elseif ObjectExists(dynamicTarget(40,false)) then
-            currtar = UnitGUID("target")
-        end
-        if targets == nil then 
-            targets = {}
-        else
-            table.wipe(targets)
-        end
-        for i=1,#enemies do
-            local thisUnit = enemies[i]
-            if ObjectExists(thisUnit)
-                and getCreatureType(thisUnit)
-                and UnitCanAttack("player",thisUnit)
-                and not UnitIsDeadOrGhost(thisUnit)
-                and (isInCombat(thisUnit) or isDummy(thisUnit) or isChecked("Death Monk Mode"))
-                and UnitGUID(thisUnit)~=currtar
-                and UnitDetailedThreatSituation("player", thisUnit) ~= nil
-                and not isLongTimeCCed(thisUnit)
-            then
-                targets[#targets+1] = { Name = UnitName(thisUnit), Unit = thisUnit, HP = UnitHealth(thisUnit), Range = getDistance("player",thisUnit) }
+    function isAggroed(unit)
+        local members = members
+        if hasAggro == nil then hasAggro = false end
+        for i=1,#members do
+            local threat = select(3,UnitDetailedThreatSituation(members[i].Unit,unit))
+            if threat~=nil then
+                if threat>=100 then
+                    hasAggro = true
+                end
             end
         end
-        table.sort(targets, function(x,y) return x.HP > y.HP end)
+        if hasAggro==true then
+            return true
+        else
+            return false
+        end
     end
 
     -- function getDistance2(Unit1,Unit2)
