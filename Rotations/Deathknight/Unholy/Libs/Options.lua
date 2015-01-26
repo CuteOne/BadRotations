@@ -30,7 +30,7 @@ if select(3,UnitClass("player")) == 6 then
       CreateNewText(thisConfig,"AMZ Key");
 
       -- Blood Boil Spam Targets
-      CreateNewBox(thisConfig, "Blood Boil Spam", 0, 10  , 1, 5, "Start spamming Blood Boil at |cffFF0000XX|cffFFBB00 targets. (Simc Rotation only)");
+      CreateNewBox(thisConfig, "Blood Boil Spam", 0, 10  , 1, 5, "Start spamming Blood Boil at |cffFF0000XX|cffFFBB00 targets.");
       CreateNewText(thisConfig,"Blood Boil Spam");
 
       CreateNewCheck(thisConfig,"Rotation")

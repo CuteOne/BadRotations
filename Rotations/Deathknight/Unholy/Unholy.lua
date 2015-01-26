@@ -41,7 +41,7 @@ if select(3,UnitClass("player")) == 6 then
     }
     local thp = getHP(tarUnit.dyn5)
     local ttd = getTimeToDie(tarUnit.dyn5)
-
+    local GCD = 1.5/(1+UnitSpellHaste("player")/100)
     local dRunes, bRunes, fRunes, uRunes = getRunes("death"), getRunes("blood") + getRunes("death"), getRunes("frost") + getRunes("death"), getRunes("unholy") + getRunes("death")
     local bPercent, fPercent, uPercent = getRunePercent("blood") + getRunes("death"), getRunePercent("frost") + getRunes("death"), getRunePercent("unholy") + getRunes("death")
     local bcStack = getBuffStacks("player",_BloodCharge,"player")
@@ -97,6 +97,15 @@ if select(3,UnitClass("player")) == 6 then
       ["dyn10AoE"] = ((ffRemain.dyn10AoE>0 and bpRemain.dyn10AoE>0) or necRemain.dyn10AoE>0),
       ["dyn30"] = ((ffRemain.dyn30>0 and bpRemain.dyn30>0) or necRemain.dyn30>0),
       ["dyn30AoE"] = ((ffRemain.dyn30AoE>0 and bpRemain.dyn30AoE>0) or necRemain.dyn30AoE>0),
+    }
+
+    local opener = {
+      sumgargop = 49206,
+      outbreakop = 77575,
+      feststrikeop1 = 85948,
+      scourgeop1 = 55090,
+      feststrikeop2 = 85948,
+      scourgeop2 = 55090,
     }
   ------------------------------------------------------------------------------------------------------
   -- Food/Invis Check ----------------------------------------------------------------------------------
@@ -886,7 +895,18 @@ if not useAoE() then
 
       end --aoe end
       end -- rotation 1 end
+
       if getValue("Rotation") == 2 then
+      -- Opener // 1. Army of the Dead 6s before pull 2. Pre-pot 3. Deaths Advance
+        -- if getCombatTime() <=  and (isBoss() or isDummy("target")) then
+          -- 4. Summon Gargoyle -- gcd
+          -- 5. Outbreak -- gcd
+          -- 6. Festering Strike x1 --  gcd
+          -- 7. Defile if the target will remain in the ground effect for 5 ticks or more, otherwise use Scourge Strike
+          -- 8. Festering Strike x1 --  gcd
+          -- 9. Scourge Strike unless Defile was not used. -- gcd
+          -- for i = 1, opener[i]
+        -- end
       -- Plague Leech when:
       -- Two runes are fully exhausted
       -- AND/OR
@@ -950,25 +970,27 @@ if not useAoE() then
       -- Blood Boil when:
       -- Diseases are not active on 2 or more targets
       if useAoE then
-        if canCast(_BloodBoil) then
-          local unitDebuffed = false
-          local unitNotDebuffed = false
-          for i = 1, #enemiesTable do
+        if #getEnemies("player",8) >= getValue("Blood Boil Spam") then
+          if canCast(_BloodBoil) then
+            local unitDebuffed = false
+            local unitNotDebuffed = false
+            for i = 1, #enemiesTable do
               if ObjectExists(enemiesTable[i].unit) then
-                  if enemiesTable[i].distance < 8 then
-                      if UnitDebuffID(enemiesTable[i].unit,55078,"player") then
-                          unitDebuffed = true
-                      else
-                          unitNotDebuffed = true
-                      end
+                if enemiesTable[i].distance < 8 then
+                  if UnitDebuffID(enemiesTable[i].unit,55078,"player") then
+                      unitDebuffed = true
+                  else
+                      unitNotDebuffed = true
                   end
-                  if unitDebuffed == true and unitNotDebuffed == true then
-                      if castSpell("player",_BloodBoil,true,false) then
-                          --print("BB 1 AoE Spread Diseases")
-                          return
-                      end
+                end
+                if unitDebuffed == true and unitNotDebuffed == true then
+                  if castSpell("player",_BloodBoil,true,false) then
+                      --print("BB 1 AoE Spread Diseases")
+                      return
                   end
+                end
               end
+            end
           end
         end
       end
@@ -1003,7 +1025,7 @@ if not useAoE() then
       -- Four or more targets are in cleavable range
       -- AND
       -- Both sets of Death runes are capped
-      if useAoE() and #getEnemies("player",10) >= 4 then
+      if useAoE() and #getEnemies("player",8) >= getValue("Blood Boil Spam") then
         if dRunes >= 4 then
           if castSpell("player",_BloodBoil,true) then
             return
