@@ -263,7 +263,7 @@ function unholyOpener()
     RegisterCVar("startopener", 0)
     RegisterCVar("resetopener", 0)
     openerstarted = false
-      --opone = true
+      opone = true
       optwo = true
       opthree = true
       opfour = true
@@ -314,7 +314,7 @@ function unholyOpener()
   if tonumber(GetCVar("resetopener")) == 1 then
     SetCVar("resetopener", 0 )
     openerstarted = false
-      --opone = true
+      opone = true
       optwo = true
       opthree = true
       opfour = true
@@ -329,7 +329,7 @@ function unholyOpener()
   if tonumber(GetCVar("startopener")) == 1 then
     SetCVar("startopener", 0)
     openerstarted = true
-      --opone = false
+      opone = false
       optwo = false
       opthree = false
       opfour = false
