@@ -98,15 +98,6 @@ if select(3,UnitClass("player")) == 6 then
       ["dyn30"] = ((ffRemain.dyn30>0 and bpRemain.dyn30>0) or necRemain.dyn30>0),
       ["dyn30AoE"] = ((ffRemain.dyn30AoE>0 and bpRemain.dyn30AoE>0) or necRemain.dyn30AoE>0),
     }
-
-    local opener = {
-      sumgargop = 49206,
-      outbreakop = 77575,
-      feststrikeop1 = 85948,
-      scourgeop1 = 55090,
-      feststrikeop2 = 85948,
-      scourgeop2 = 55090,
-    }
   ------------------------------------------------------------------------------------------------------
   -- Food/Invis Check ----------------------------------------------------------------------------------
   ------------------------------------------------------------------------------------------------------
@@ -172,6 +163,12 @@ if select(3,UnitClass("player")) == 6 then
         end
       end
     end
+
+  -- Opener --------------------------------------------------------------------------------------------
+  -- use /uhopener 6 seconds before Pull (5 seconds to be 100% sure to not pull to early)
+  -- Will only start if: Army of the Dead is ready / Gargoyle is ready /  Pre-Pot is ready / You have a target
+  -- use /uhopenerreset for emergency
+    unholyOpener()
   ------------------------------------------------------------------------------------------------------
   -- Ress/Dispell --------------------------------------------------------------------------------------
   ------------------------------------------------------------------------------------------------------
@@ -354,7 +351,7 @@ if select(3,UnitClass("player")) == 6 then
   ------------------------------------------------------------------------------------------------------
       if getValue("Rotation") == 1 then
 
-if not useAoE() then
+      if not useAoE() then
         -- actions.single_target=plague_leech,if=(cooldown.outbreak.remains<1)&((blood<1&frost<1)|(blood<1&unholy<1)|(frost<1&unholy<1))
         if hasDisease.dyn30AoE and getDisease(30,true,"min")<1 and tarDist.dyn30AoE<30 then
           if obCooldown < 1 and ((bRunes < 1 and fRunes < 1) or (bRunes < 1 and uRunes < 1) or (fRunes < 1 and uRunes < 1)) then
@@ -894,219 +891,212 @@ if not useAoE() then
         end
 
       end --aoe end
-      end -- rotation 1 end
+      end -- rotation 1 (simc) end
 
       if getValue("Rotation") == 2 then
-      -- Opener // 1. Army of the Dead 6s before pull 2. Pre-pot 3. Deaths Advance
-        -- if getCombatTime() <=  and (isBoss() or isDummy("target")) then
-          -- 4. Summon Gargoyle -- gcd
-          -- 5. Outbreak -- gcd
-          -- 6. Festering Strike x1 --  gcd
-          -- 7. Defile if the target will remain in the ground effect for 5 ticks or more, otherwise use Scourge Strike
-          -- 8. Festering Strike x1 --  gcd
-          -- 9. Scourge Strike unless Defile was not used. -- gcd
-          -- for i = 1, opener[i]
-        -- end
-      -- Plague Leech when:
-      -- Two runes are fully exhausted
-      -- AND/OR
-      -- Diseases are about to expire
-      -- AND/OR
-      -- Outbreak is off cooldown or within 1 GCD of coming off cooldown
-      -- AND/OR
-      -- You have GCDs to fill in your rotation
-      if hasDisease.dyn30AoE and getDisease(30,true,"min") < 1 and tarDist.dyn30AoE<30 then
-        if obCooldown < 1 and ((bRunes < 1 and fRunes < 1) or (bRunes < 1 and uRunes < 1) or (fRunes < 1 and uRunes < 1)) then
+        if openerstarted == false then
+          ChatOverlay("Simpel", 0)
+          -- Plague Leech when:
+          -- Two runes are fully exhausted
+          -- AND/OR
+          -- Diseases are about to expire
+          -- AND/OR
+          -- Outbreak is off cooldown or within 1 GCD of coming off cooldown
+          -- AND/OR
+          -- You have GCDs to fill in your rotation
+          if hasDisease.dyn30AoE and getDisease(30,true,"min") < 1 and tarDist.dyn30AoE<30 then
+            if obCooldown < 1 and ((bRunes < 1 and fRunes < 1) or (bRunes < 1 and uRunes < 1) or (fRunes < 1 and uRunes < 1)) then
+              if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then
+                --print("PL 1")
+                return
+              end
+            end
+          end
           if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then
-            --print("PL 1")
             return
           end
-        end
-      end
-      if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then
-        return
-      end
-      -- Soul Reaper when:
-      -- The target will reach execute range within 5 seconds
-      -- OR
-      -- The target is at or below 45%
-      -- Ko'ragh barrier < 20% (finisher can be cast if barrier<20%)
-      if GetUnitName("target")=="Ko'ragh" then
-        if castSpell("target",_SoulReaper,false,false) then
-          return
-        end
-      end
-      if (isBoss() and getTimeTo("target",45) < 5) or thp <= 45 then
-        if castSpell(tarUnit.dyn5,_SoulReaper,false,false) then
-          return
-        end
-      end
-      -- Summon Gargoyle when:
-      -- It is off-cooldown // In Offensive CDs
+          -- Soul Reaper when:
+          -- The target will reach execute range within 5 seconds
+          -- OR
+          -- The target is at or below 45%
+          -- Ko'ragh barrier < 20% (finisher can be cast if barrier<20%)
+          if GetUnitName("target")=="Ko'ragh" then
+            if castSpell("target",_SoulReaper,false,false) then
+              return
+            end
+          end
+          if (isBoss() and getTimeTo("target",45) < 5) or thp <= 45 then
+            if castSpell(tarUnit.dyn5,_SoulReaper,false,false) then
+              return
+            end
+          end
+          -- Summon Gargoyle when:
+          -- It is off-cooldown // In Offensive CDs
 
-      -- Unholy Blight when:
-      -- Disease(s) are not active on any target
-      if blight and not hasDisease.dyn10AoE then
-        if castSpell("player",_UnholyBlight,true) then
-          return
-        end
-      end
-      -- Outbreak when:
-      -- Disease(s) are not active on any target
-      if not hasDisease.dyn30AoE then
-        if castSpell(tarUnit.dyn30AoE,_Outbreak,true,false,false) then
-          return
-        end
-      end
-      -- Plague Strike when:
-      -- Outbreak is on cooldown
-      -- AND
-      -- Disease(s) are not active on any target
-      if obCooldown > 0 and not hasDisease.dyn5 then
-        if castSpell(tarUnit.dyn5,_PlagueStrike,false,false) then
-          return
-        end
-      end
-      -- Blood Boil when:
-      -- Diseases are not active on 2 or more targets
-      if useAoE then
-        if #getEnemies("player",8) >= getValue("Blood Boil Spam") then
-          if canCast(_BloodBoil) then
-            local unitDebuffed = false
-            local unitNotDebuffed = false
-            for i = 1, #enemiesTable do
-              if ObjectExists(enemiesTable[i].unit) then
-                if enemiesTable[i].distance < 8 then
-                  if UnitDebuffID(enemiesTable[i].unit,55078,"player") then
-                      unitDebuffed = true
-                  else
-                      unitNotDebuffed = true
-                  end
-                end
-                if unitDebuffed == true and unitNotDebuffed == true then
-                  if castSpell("player",_BloodBoil,true,false) then
-                      --print("BB 1 AoE Spread Diseases")
-                      return
+          -- Unholy Blight when:
+          -- Disease(s) are not active on any target
+          if blight and not hasDisease.dyn10AoE then
+            if castSpell("player",_UnholyBlight,true) then
+              return
+            end
+          end
+          -- Outbreak when:
+          -- Disease(s) are not active on any target
+          if not hasDisease.dyn30AoE then
+            if castSpell(tarUnit.dyn30AoE,_Outbreak,true,false,false) then
+              return
+            end
+          end
+          -- Plague Strike when:
+          -- Outbreak is on cooldown
+          -- AND
+          -- Disease(s) are not active on any target
+          if obCooldown > 0 and not hasDisease.dyn5 then
+            if castSpell(tarUnit.dyn5,_PlagueStrike,false,false) then
+              return
+            end
+          end
+          -- Blood Boil when:
+          -- Diseases are not active on 2 or more targets
+          if useAoE then
+            if #getEnemies("player",8) >= getValue("Blood Boil Spam") then
+              if canCast(_BloodBoil) then
+                local unitDebuffed = false
+                local unitNotDebuffed = false
+                for i = 1, #enemiesTable do
+                  if ObjectExists(enemiesTable[i].unit) then
+                    if enemiesTable[i].distance < 8 then
+                      if UnitDebuffID(enemiesTable[i].unit,55078,"player") then
+                          unitDebuffed = true
+                      else
+                          unitNotDebuffed = true
+                      end
+                    end
+                    if unitDebuffed == true and unitNotDebuffed == true then
+                      if castSpell("player",_BloodBoil,true,false) then
+                          --print("BB 1 AoE Spread Diseases")
+                          return
+                      end
+                    end
                   end
                 end
               end
             end
           end
-        end
-      end
-      -- Death and Decay when:
-      -- Two or more targets are in range of each other
-      -- AND
-      -- The targets will remain in the ground effect for most of its duration
-      -- Defile when:
-      -- The target will remain in the ground effect for most of its duration
-      if useDefile() then
-        if getTalent(7,2) then
-          if castGround("target",43265,6) then --Defile
-            return
+          -- Death and Decay when:
+          -- Two or more targets are in range of each other
+          -- AND
+          -- The targets will remain in the ground effect for most of its duration
+          -- Defile when:
+          -- The target will remain in the ground effect for most of its duration
+          if useDefile() then
+            if getTalent(7,2) then
+              if castGround("target",43265,6) then --Defile
+                return
+              end
+            end
+            if not getTalent(7,2) then
+              if uRunes == 1 then
+                if castGround("target",43265,6) then -- DnD
+                  return
+                end
+              end
+            end
           end
-        end
-        if not getTalent(7,2) then
-          if uRunes == 1 then
-            if castGround("target",43265,6) then -- DnD
+          -- Scourge Strike when:
+          -- Both Unholy runes are capped
+          if uRunes == 2 then
+            if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
               return
             end
           end
-        end
-      end
-      -- Scourge Strike when:
-      -- Both Unholy runes are capped
-      if uRunes == 2 then
-        if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
-          return
-        end
-      end
-      -- Blood Boil when:
-      -- Four or more targets are in cleavable range
-      -- AND
-      -- Both sets of Death runes are capped
-      if useAoE() and #getEnemies("player",8) >= getValue("Blood Boil Spam") then
-        if dRunes >= 4 then
-          if castSpell("player",_BloodBoil,true) then
-            return
+          -- Blood Boil when:
+          -- Four or more targets are in cleavable range
+          -- AND
+          -- Both sets of Death runes are capped
+          if useAoE() and #getEnemies("player",8) >= getValue("Blood Boil Spam") then
+            if dRunes >= 4 then
+              if castSpell("player",_BloodBoil,true) then
+                return
+              end
+            end
           end
-        end
-      end
-      -- Scourge Strike when:
-      -- Both Death runes are capped
-      if dRunes == 2 then
-        if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
-          return
-        end
-      end
-      -- Festering Strike when:
-      -- Both Blood and Frost runes are capped
-      if bRunes == 2 and fRunes == 2 then
-        if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
-          return
-        end
-      end
-      -- Dark Transformation when:
-      -- Shadow Infusion is at 5 stacks // in Do everytime
+          -- Scourge Strike when:
+          -- Both Death runes are capped
+          if dRunes == 2 then
+            if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
+              return
+            end
+          end
+          -- Festering Strike when:
+          -- Both Blood and Frost runes are capped
+          if bRunes == 2 and fRunes == 2 then
+            if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
+              return
+            end
+          end
+          -- Dark Transformation when:
+          -- Shadow Infusion is at 5 stacks // in Do everytime
 
-      -- Blood Tap when:
-      -- Blood Charges are at 12
-      if bcStack == 12 then
-        if castSpell("player",_BloodTap,true) then
-          return
-        end
-      end
-      -- Death Coil when:
-      -- Sudden Doom proc is active
-      -- AND/OR
-      -- Runic power is greater than 90
-      -- AND
-      -- Blood Charges are less than or equal to 10
-      if (suddendoom > 0 or power > 90) and bcStack == 10 then
-        if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
-          return
-        end
-      end
-      -- Scourge Strike when:
-      -- An Unholy or Death rune is recharged
-      if uRunes >= 1 or dRunes >= 1 then
-        if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
-          return
-        end
-      end
-      -- Festering Strike when:
-      -- A pair of Blood and Frost runes are recharged
-      if bRunes == 2 or fRunes == 2 then
-        if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
-          return
-        end
-      end
-      -- Blood Tap when:
-      -- Blood Charges are at 10
-      if bcStack == 10 then
-        if castSpell("player",_BloodTap,true) then
-          return
-        end
-      end
-      -- Death Coil when:
-      -- Runic Power is greater than or equal to 30
-      if power >= 30 then
-        if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
-          return
-        end
-      end
-      -- Blood Tap when:
-      -- Blood Charges are at 5 or more
-      if bcStack >= 5 then
-        if castSpell("player",_BloodTap,true) then
-          return
-        end
-      end
-      -- Empower Rune Weapon when:
-      -- All runes are exhausted
-      -- AND/OR
-      -- Runic Power is exhausted // in Offensives
-  end
+          -- Blood Tap when:
+          -- Blood Charges are at 12
+          if bcStack == 12 then
+            if castSpell("player",_BloodTap,true) then
+              return
+            end
+          end
+          -- Death Coil when:
+          -- Sudden Doom proc is active
+          -- AND/OR
+          -- Runic power is greater than 90
+          -- AND
+          -- Blood Charges are less than or equal to 10
+          if (suddendoom > 0 or power > 90) and bcStack == 10 then
+            if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
+              return
+            end
+          end
+          -- Scourge Strike when:
+          -- An Unholy or Death rune is recharged
+          if uRunes >= 1 or dRunes >= 1 then
+            if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
+              return
+            end
+          end
+          -- Festering Strike when:
+          -- A pair of Blood and Frost runes are recharged
+          if bRunes == 2 or fRunes == 2 then
+            if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
+              return
+            end
+          end
+          -- Blood Tap when:
+          -- Blood Charges are at 10
+          if bcStack == 10 then
+            if castSpell("player",_BloodTap,true) then
+              return
+            end
+          end
+          -- Death Coil when:
+          -- Runic Power is greater than or equal to 30
+          if power >= 30 then
+            if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
+              return
+            end
+          end
+          -- Blood Tap when:
+          -- Blood Charges are at 5 or more
+          if bcStack >= 5 then
+            if castSpell("player",_BloodTap,true) then
+              return
+            end
+          end
+          -- Empower Rune Weapon when:
+          -- All runes are exhausted
+          -- AND/OR
+          -- Runic Power is exhausted // in Offensives
+        end -- opener false end
+      end -- simple end
 
 
     end -- In Combat end
