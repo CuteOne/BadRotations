@@ -29,6 +29,7 @@ function DruidFeral()
 		local enemies, enemiesList = #getEnemies("player",8), getEnemies("player",8)
 		local falling, swimming = getFallTime(), IsSwimming()
 		local gcd = ((1.5/GetHaste("player"))+1)
+		local p2t17 = false
 		--General Target Variables
 		local dynamicUnit = {
 			["dyn5"] = dynamicTarget(5,true), --Melee
@@ -54,7 +55,7 @@ function DruidFeral()
 			if ttd == nil then ttd = getTimeToDie("target") end
 		-- Specific Player Variables
 		local combo = getCombo()
-		local clearcast = UnitBuffID("player",cc)
+		local clearcast = UnitBuffID("player",cc)~=nil
 		local travel, flight, cat, stag = UnitBuffID("player", trf), UnitBuffID("player", flf), UnitBuffID("player",cf) or UnitBuffID("player",cosf), hasGlyph(114338)
 		local stealth = UnitBuffID("player",prl) or UnitBuffID("player",sm)
 		local rejRemain = getBuffRemain("player", rej)
@@ -66,8 +67,8 @@ function DruidFeral()
 	    local srRemain = getBuffRemain("player",svr)
 	    local tfRemain, tfCooldown = getBuffRemain("player",tf), GetSpellCooldown(tf)
 	    local fonCooldown, fonCharge, fonRecharge = GetSpellCooldown(fon), getCharges(fon), getRecharge(fon)
-	    local berserk, berCooldown = UnitBuffID("player",ber), GetSpellCooldown(ber)
-	    local incarnation, incBuff, incCooldown = getTalent(4,2), UnitBuffID("player",inc), GetSpellCooldown(inc)
+	    local berserk, berCooldown = UnitBuffID("player",ber)~=nil, GetSpellCooldown(ber)
+	    local incarnation, incBuff, incCooldown, incRemain = getTalent(4,2), UnitBuffID("player",inc)~=nil, GetSpellCooldown(inc), getBuffRemain("player",inc)
 	    local vicious = getBuffRemain("player",148903)
 	    local restlessagi = getBuffRemain("player",146310)
 	    local bloodtalons, btRemain = getTalent(7,2), getBuffRemain("player",bt)
@@ -341,22 +342,22 @@ function DruidFeral()
 		            end
 		-- Trinkets
 					-- if=(prev.tigers_fury&(target.time_to_die>trinket.stat.any.cooldown|target.time_to_die<45))|prev.berserk|(buff.king_of_the_jungle.up&time<10)
-					if useCDs() and ((lastSpellCast==tf and (ttd>120 or ttd<45)) or lastSpellCast==ber or (incBuff and getCombatTime()<10)) then
-						if canTrinket(13) then
-							RunMacroText("/use 13")
-							if IsAoEPending() then
-								local X,Y,Z = ObjectPosition(Unit)
-								CastAtPosition(X,Y,Z)
-							end
-						end
-						if canTrinket(14) then
-							RunMacroText("/use 14")
-							if IsAoEPending() then
-								local X,Y,Z = ObjectPosition(Unit)
-								CastAtPosition(X,Y,Z)
-							end
-						end
-					end
+					-- if useCDs() and ((lastSpellCast==tf and (ttd>120 or ttd<45)) or lastSpellCast==ber or (incBuff and getCombatTime()<10)) then
+					-- 	if canTrinket(13) then
+					-- 		RunMacroText("/use 13")
+					-- 		if IsAoEPending() then
+					-- 			local X,Y,Z = ObjectPosition(Unit)
+					-- 			CastAtPosition(X,Y,Z)
+					-- 		end
+					-- 	end
+					-- 	if canTrinket(14) then
+					-- 		RunMacroText("/use 14")
+					-- 		if IsAoEPending() then
+					-- 			local X,Y,Z = ObjectPosition(Unit)
+					-- 			CastAtPosition(X,Y,Z)
+					-- 		end
+					-- 	end
+					-- end
 		-- Agi-Pot
 					-- if=(buff.berserk.remains>10&(target.time_to_die<180|(trinket.proc.all.react&target.health.pct<25)))|target.time_to_die<=40
 		            if useCDs() and canUse(109217) and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") and ((berRemain>10 and (ttd(dynamicUnit.dyn5)<180 or (thp<25))) or ttd(dynamicUnit.dyn5)<=40) then
@@ -388,6 +389,7 @@ function DruidFeral()
 					-- dot.rake.remains<4.5&energy>=35&dot.rake.pmultiplier<2&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(!talent.incarnation.enabled|cooldown.incarnation.remains>15)&!buff.king_of_the_jungle.up
 					if useCDs() and (rkRemain<4.5 and power>=35 and rkDmg<2 
 						and (btRemain>0 or not bloodtalons) and (not incarnation or incCooldown>15) and not incBuff)
+						and select(2,IsInInstance())~="none"
 					then
 						if castSpell("player",sm,false,false) then return end
 					end
@@ -454,7 +456,7 @@ function DruidFeral()
 								end
 				-- Thrash
 								-- if=remains<4.5&(active_enemies>=2&set_bonus.tier17_2pc|active_enemies>=4)
-								if thrRemain<=4.5 and ((enemies>=2 and p2t17) or enemies>=4) and power>50 then
+								if thrRemain<4.5 and ((enemies>=2 and p2t17) or enemies>=4) and power>50 then
 									if castSpell(dynamicUnit.dyn8AoE,thr,true,false,false) then return end
 								end
 							end
@@ -462,7 +464,7 @@ function DruidFeral()
 					end
 		-- Finishers
 					-- if=combo_points=5
-					if combo==5 then
+					if combo==5 then 
 			-- Finisher: Ferocious Bite
 						if useCleave() then
 							for i=1, #enemiesTable do
@@ -621,29 +623,10 @@ function DruidFeral()
 						    end
 					   	end 	        
     		-- Maintain: Rake
-		    			if useCleave() then
-							for i=1, #enemiesTable do
-								if enemiesTable[i].distance<5 then
-									thisUnit = enemiesTable[i].unit
-									rkRemain = getDebuffRemain(thisUnit,rk,"player")
-		    						ttd = getTimeToDie(thisUnit)
-		    						rkDmg = RKD(thisUnit)
-									-- if=persistent_multiplier>dot.rake.pmultiplier&active_enemies=1&((target.time_to_die-remains>3&active_enemies<3)|target.time_to_die-remains>6)
-									if power>35 and rkCalc>rkDmg and enemies==1 and ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) then
-						        		if castSpell(thisUnit,rk,false,false,false) then return end
-	    							end
-						        end
-					        end
-					    else
-					    	thisUnit = dynamicUnit.dyn5
-					    	rkRemain = getDebuffRemain(thisUnit,rk,"player")
-    						ttd = getTimeToDie(thisUnit)
-    						rkDmg = RKD(thisUnit)
-							-- if=persistent_multiplier>dot.rake.pmultiplier&active_enemies=1&((target.time_to_die-remains>3&active_enemies<3)|target.time_to_die-remains>6)
-							if power>35 and rkCalc>rkDmg and enemies==1 and ((ttd-rkRemain>3 and enemies<3) or ttd-rkRemain>6) then
-				        		if castSpell(thisUnit,rk,false,false,false) then return end
-							end
-					    end
+						-- if=persistent_multiplier>dot.rake.pmultiplier&active_enemies=1&target.time_to_die-remains>3
+						if power>35 and rkCalc>rkDmg and enemies==1 and ttd-rkRemain>3 then
+			        		if castSpell(thisUnit,rk,false,false,false) then return end
+						end
 					end --End Maintain
 		-- Pool Energy then Thrash
 					if useCleave() or (BadBoy_data['AoE'] == 2 and not useCleave()) then
@@ -657,7 +640,7 @@ function DruidFeral()
 								end
 				-- Thrash
 								-- if=remains<4.5&active_enemies>=2
-								if thrRemain<=4.5 and enemies>=2 and power>50 then
+								if thrRemain<4.5 and enemies>=2 and power>50 then
 									if castSpell(dynamicUnit.dyn8AoE,thr,true,false,false) then return end
 								end
 							end
@@ -665,7 +648,9 @@ function DruidFeral()
 					end
 		-- Generator
 					-- if=combo_points<5
-					if combo<5 then
+					-- if=combo_points<5&(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3|buff.tigers_fury.up|(buff.king_of_the_jungle.up&buff.king_of_the_jungle.remains<3)|dot.rip.remains<8-combo_points|buff.omen_of_clarity.react|(talent.bloodtalons.enabled&buff.predatory_swiftness.up&buff.predatory_swiftness.remains<6.5-combo_points))
+					--if combo<5 then
+					if combo<5 and (ttm<=1 or berserk or tfCooldown<3 or tfRemain>0 or (incBuff and incRemain<3) or rpRemain<8-combo or clearcast or (bloodtalons and psRemain>0 and psRemain<6.5-combo)) then
 		    -- Swipe
 			    		if useAoE() and power>45 then
 			    			if castSpell(dynamicUnit.dyn8,sw,false,false,false) then return end
