@@ -76,19 +76,29 @@ if select(3,UnitClass("player")) == 1 then
 			if core.stance == 2 then
 				--shield_block,if=!(debuff.demoralizing_shout.up|buff.ravager.up|buff.shield_wall.up|buff.last_stand.up|buff.enraged_regeneration.up|buff.shield_block.up)
 				-- TODO add Demo Shout
-				if not (buff.Ravager > 0 or buff.ShieldWall > 0 or buff.LastStand > 0 or buff.EnragedRegeneration > 0 or buff.ShieldBlock > 0) then
-					core:castShieldBlock()
+				if getValue("Block or Barrier") == 1 then
+					if not (buff.Ravager > 0 or buff.ShieldWall > 0 or buff.LastStand > 0 or buff.EnragedRegeneration > 0 or buff.ShieldBlock > 0) then
+						core:castShieldBlock()
+					end
+					--shield_barrier,if=buff.shield_barrier.down&((buff.shield_block.down&action.shield_block.charges_fractional<0.75)|rage>=85)
+					if buff.ShieldBarrier == 0 and (core.rage >= 85) then
+						core:castShieldBarrier()
+					end
 				end
-				--shield_barrier,if=buff.shield_barrier.down&((buff.shield_block.down&action.shield_block.charges_fractional<0.75)|rage>=85)
-				if buff.ShieldBarrier == 0 and (core.rage >= 85) then
-					core:castShieldBarrier()
+				
+				if getValue("Block or Barrier") == 2 then
+					if buff.ShieldBarrier == 0 and (core.rage >= 60) then
+						core:castShieldBarrier()
+					end
 				end
+				
 				--demoralizing_shout,if=incoming_damage_2500ms>health.max*0.1&!(debuff.demoralizing_shout.up|buff.ravager.up|buff.shield_wall.up|buff.last_stand.up|buff.enraged_regeneration.up|buff.shield_block.up|buff.potion.up)
 				--enraged_regeneration,if=incoming_damage_2500ms>health.max*0.1&!(debuff.demoralizing_shout.up|buff.ravager.up|buff.shield_wall.up|buff.last_stand.up|buff.enraged_regeneration.up|buff.shield_block.up|buff.potion.up)
 				--shield_wall,if=incoming_damage_2500ms>health.max*0.1&!(debuff.demoralizing_shout.up|buff.ravager.up|buff.shield_wall.up|buff.last_stand.up|buff.enraged_regeneration.up|buff.shield_block.up|buff.potion.up)
 				--last_stand,if=incoming_damage_2500ms>health.max*0.1&!(debuff.demoralizing_shout.up|buff.ravager.up|buff.shield_wall.up|buff.last_stand.up|buff.enraged_regeneration.up|buff.shield_block.up|buff.potion.up)
 				--potion,name=draenic_armor,if=incoming_damage_2500ms>health.max*0.1&!(debuff.demoralizing_shout.up|buff.ravager.up|buff.shield_wall.up|buff.last_stand.up|buff.enraged_regeneration.up|buff.shield_block.up|buff.potion.up)|target.time_to_die<=25
 				--stoneform,if=incoming_damage_2500ms>health.max*0.1&!(debuff.demoralizing_shout.up|buff.ravager.up|buff.shield_wall.up|buff.last_stand.up|buff.enraged_regeneration.up|buff.shield_block.up|buff.potion.up)
+				
 				
 				--AoE Rotation
 				if rotationMode == 2 then
@@ -109,7 +119,11 @@ if select(3,UnitClass("player")) == 1 then
 						core:castShieldSlam()
 					end
 					--ravager,if=(buff.avatar.up|cooldown.avatar.remains>10)|!talent.avatar.enabled
+					core:castRavager()
 					--dragon_roar,if=(buff.bloodbath.up|cooldown.bloodbath.remains>10)|!talent.bloodbath.enabled
+					if (buff.Bloodbath > 0 or cooldown.Bloodbath > 10) or not talent.Bloodbath then
+						core:castDragonRoar()
+					end
 					--shockwave
 					core:castShockwave()
 					--revenge

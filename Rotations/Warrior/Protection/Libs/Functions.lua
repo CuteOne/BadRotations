@@ -92,7 +92,7 @@ if select(3, UnitClass("player")) == 1  then
             local UnitHealth,print,UnitHealthMax = UnitHealth,print,UnitHealthMax
             local getDistance,getDebuffRemain,GetTime,getFacing = getDistance,getDebuffRemain,GetTime,getFacing
             local spellCastersTable,getOptionCheck = bb.im.casters,getOptionCheck
-            local useItem, nNova, isBuffed = useItem, nNova, isBuffed
+            local useItem, nNova, isBuffed, isBoss = useItem, nNova, isBuffed, isBoss
             -- no external access after here
             setfenv(1,protCore)
 			
@@ -134,18 +134,23 @@ if select(3, UnitClass("player")) == 1  then
 				self.buff.SuddenDeath = getBuffRemain(player,self.spell.SuddenDeathTalent)
 				self.buff.Ravager = getBuffRemain(player, self.spell.Ravager)
 				self.buff.EnragedRegeneration = getBuffRemain(player, self.spell.EnragedRegeneration)
+				self.buff.Bloodbath = getBuffRemain(player, self.spell.Bloodbath)
                 -- Cooldowns
                 self.cd.DemoralizingShout = getSpellCD(self.spell.DemoralizingShout)
                 self.cd.LastStand = getSpellCD(self.spell.LastStand)
                 self.cd.ShieldBlock = getSpellCD(self.spell.ShieldBlock)
                 self.cd.ShieldWall = getSpellCD(self.spell.ShieldWall)
+				self.cd.DragonRoar = getSpellCD(self.spell.DragonRoar)
+				self.cd.StormBolt = getSpellCD(self.spell.StormBolt)
+				self.cd.Shockwave = getSpellCD(self.spell.Shockwave)
+				self.cd.Bloodbath = getSpellCD(self.spell.Bloodbath)
                 self.globalCooldown = getSpellCD(self.spell.Devastate)
                 self.inCombat = true
                 -- Units
                 self.melee5Yards = #getEnemies(player,5) -- (meleeEnemies)
                 -- Modes
                 self.mode.aoe = BadBoy_data["AoE"]
-                --self.mode.cooldowns = BadBoy_data["Cooldowns"]
+                self.mode.cooldowns = UseCDs()
                 self.mode.defensive = BadBoy_data["Defensive"]
                 self.mode.interupts = BadBoy_data["Interrupts"]
                 -- truth = true, right = false
@@ -166,6 +171,15 @@ if select(3, UnitClass("player")) == 1  then
                 self.unitInFront = getFacing("player",self.units.dyn5) == true or false
                 self.combatLenght = GetTime() - BadBoy_data["Combat Started"]
             end
+			
+			--Cooldowns
+			function UseCDs()
+				if (BadBoy_data['Cooldowns'] == 1 and isBoss()) or BadBoy_data['Cooldowns'] == 2 then
+					return true
+				else
+					return false
+				end
+			end
 			
 			-- Last Stand
             function protCore:castLastStand()
@@ -244,7 +258,7 @@ if select(3, UnitClass("player")) == 1  then
 			
 			-- Ravager 
             function protCore:castRavager()
-                castGround(self.units.dyn5,self.spell.Ravager,40)
+                castGround(self.units.dyn5,self.spell.Ravager,10)
             end
 			
 			-- StormBolt TODO Fix dyn range
@@ -254,12 +268,12 @@ if select(3, UnitClass("player")) == 1  then
 			
 			-- DragonRoar
             function protCore:castDragonRoar()
-                return castSpell(self.units.dyn5,self.spell.StormBolt,true,false)
+					return castSpell(self.units.dyn5,self.spell.DragonRoar,true,false)
             end
 			
 			-- ImpendingVictory
             function protCore:castImpendingVictory()
-                return castSpell(self.units.dyn5,self.spell.DragonRoar,true,false)
+                return castSpell(self.units.dyn5,self.spell.ImpendingVictory,true,false)
             end
 			
 			-- Execute
