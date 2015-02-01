@@ -33,9 +33,9 @@ What to do if you have crash to desktop or 132 errors.(not necessarily in this o
 |Survival|100%|Mavmins|
 ||||
 | **Mage** |  |  |
-|Arcane|80%(lvl90)| |
-|Fire|0%| |
-|Frost|80%(lvl90)| |
+|Arcane|80%(lvl90)|Gabbz & ragnar|
+|Fire|0%|Gabbz & ragnar|
+|Frost|80%(lvl90)|Gabbz & ragnar|
 ||||
 | **Monk** |||
 |Brewmaster|95%|chumii|
