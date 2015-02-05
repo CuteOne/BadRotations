@@ -338,6 +338,9 @@ if select(3, UnitClass("player")) == 6 then
     --------------------------
     --- In Combat Rotation ---
     --------------------------
+
+      --TODO: create a table checking for each target in 30yrds and recording # of targets around the target in 8yrds, sort table by highest # of targets and cast on first target.
+
         -- Start Attack
           if tarDist.dyn5<5 then
             StartAttack()

@@ -1,12 +1,5 @@
--- Todo : How will we implement Ice Floes? 3 Charges, 20 sec recharge. If we are moving then cast if we should have critical spell
-		--if isKnown(IceFloes) then
-		--		if isMoving("player") then
-		--			if castSpell("player",IceFloes,true,false) then
-		--				return true
-		--			end
-		--		end
-		--	end
 -- Todo : Fix the spellname in UNIT_SPELL_SENT
+-- Todo : Handle Mana Burst toggle
 
 if select(3, UnitClass("player")) == 8 then
 
@@ -21,43 +14,10 @@ if select(3, UnitClass("player")) == 8 then
 		-- Manual Input
 		if IsLeftShiftKeyDown() or IsLeftAltKeyDown() then -- Pause the script, keybind in wow shift+1 etc for manual cast
 			return true
+
 		end
 		
-		-------------------
-		-- Rune Of Power --
-		-------------------
-		if BadBoy_data["Rune"] == 1 and getOptionCheck("Start/Stop BadBoy") then
-			--[[ begin Rune Stuff ]]					-- add rune of power toggle!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-			--AoESpell, AoESpellTarget= nil, nil;
-			if AoESpell == RuneOfPower then
-				AoESpellTarget = "player"
-			else
-				AoESpellTarget = nil
-			end
-			if IsAoEPending() and AoESpellTarget ~= nil then
-				local X, Y, Z = ObjectPosition("player")
-				CastAtPosition(X,Y,Z)
-				SpellStopTargeting()
-				return true
-			end
-
-
-			--[[rune_of_power,if=talent.rune_of_power.enabled&(buff.rune_of_power.remains<cast_time&buff.alter_time.down)]]
-			if isKnown(RuneOfPower) then
-				if not UnitBuffID("player",RuneOfPower) and isStanding(0.5) then
-					if runeTimer == nil or runeTimer <= GetTime() - 3 then
-						AoESpell = RuneOfPower
-						runeTimer = GetTime()
-						CastSpellByName(GetSpellInfo(RuneOfPower),nil)
-						return true
-					end
-				end
-			end
-
-			--[[ end Rune Stuff ]]
-		end
-
+		
 
 		------------
 		-- Checks --
@@ -68,33 +28,11 @@ if select(3, UnitClass("player")) == 8 then
 			return false
 		end
 
-		-- Pause
-		if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == true then
-			ChatOverlay("|cffFF0000BadBoy Paused", 0)
-			return true
-		end
-
 		-- Do not Interrupt "player" while GCD (61304)k
-		if getSpellCD(61304) > 0 then
-			return false
-		end
-
-		---- Arcane Brilliance
-		--if isChecked("Arcane Brilliance") then
-		--	if not UnitExists("mouseover") then
-			-- if isChecked("Arcane Brilliance") == true and not UnitExists("mouseover") then
-		--		GroupInfo()
-		--		for i = 1, #members do --members
-		--			if not isBuffed(members[i].Unit,{1459}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
-		--				if castSpell("player",ArcaneBrilliance,false,false) then
-		--					return;
-		--				end
-		--			end
-		--		end
-		--	end
-		--end
-
-		------------
+		--if getSpellCD(61304) > 0 then
+		--		return false
+	--	end
+			------------
 		-- COMBAT --
 		------------
 
@@ -142,20 +80,21 @@ if select(3, UnitClass("player")) == 8 then
 				return true
 			end
 
+			if isPlayerMoving and not UnitBuffID("player", IceFloes) then
+				castIceFloes()
+			end	
+
+
 			
-
-			--Todo :  Seems that Magic Missile is clipping
-			-- 5 ticks, men klipper på 3
-			-- 3 Charges
-
-	--		if BadBoy_data['Defensive'] == 2 then
-	--			ArcaneMageDefensives()
-	--		end
+			if BadBoy_data['Defensive'] == 2 then
+				ArcaneMageDefensives()
+			end
 
 
-	--		if BadBoy_data['Cooldowns'] == 2 then
-	--			ArcaneMageCooldowns()
-	--		end
+			if BadBoy_data['Cooldowns'] == 2 then
+				ArcaneMageCooldowns()
+			end
+
 
 			-- actions+=/call_action_list,name=aoe,if=active_enemies>=5
 			-- AoE
@@ -175,7 +114,10 @@ if select(3, UnitClass("player")) == 8 then
 			-- Todo : actions+=/call_action_list,name=init_crystal,if=talent.prismatic_crystal.enabled&cooldown.prismatic_crystal.up
 			-- Todo : actions+=/call_action_list,name=crystal_sequence,if=talent.prismatic_crystal.enabled&pet.prismatic_crystal.active
 			--actions+=/call_action_list,name=aoe,if=active_enemies>=4
-			if getNumEnemies("player",10) > 4 then -- This is only checking for melee
+
+			--runeOfPower()
+
+			if getNumEnemies("player",10) > 5 then -- This is only checking for melee
 				if BadBoy_data['AoE'] == 2 or BadBoy_data['AoE'] == 3 then -- We need to sort out the auto aoe, ie == 3 
 					ArcaneMageAoESimcraft()
 				end

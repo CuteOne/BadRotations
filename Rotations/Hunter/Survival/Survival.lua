@@ -38,7 +38,7 @@ if select(3, UnitClass("player")) == 3 then
 		if UnitBuffID("player",5384) ~= nil then return false end --Dont want to do anything if we feign death
 
 		-- OFF-GCD here we add the spells we want to be spamming all the time
-		if UnitAffectingCombat("player") then
+		if UnitAffectingCombat("player") and not isCastingSpell(120360) then
 			---Interrupts---------------------------------------------
 			if isChecked("Counter Shot") then
 				castInterrupt(147362,getValue("Counter Shot"))
@@ -311,7 +311,7 @@ if select(3, UnitClass("player")) == 3 then
 
 				-- actions.aoe+=/explosive_trap
 				if (isKnown(82939) and isChecked("Explosive Trap") and getSpellCD(82939) == 0) and UnitBuffID("player",77769) ~= nil and isMoving("target") == false then 
-					if castGround(dyn40,82939,40) then return end
+					if castGround(dyn40,82939,36) then return end
 				end
 
 				-- actions.aoe+=/a_murder_of_crows
@@ -424,7 +424,7 @@ if select(3, UnitClass("player")) == 3 then
 
 			-- actions+=/explosive_trap
 			if (isKnown(82939) and isChecked("Explosive Trap") and getSpellCD(82939) == 0) and isMoving("target") == false then 
-				if castGround(dyn40,82939,40) then return end
+				if castGround(dyn40,82939,36) then return end
 			end
 
 			-- actions+=/cobra_shot,if=buff.pre_steady_focus.up&buff.steady_focus.remains<5&(14+cast_regen)<=focus.deficit<80

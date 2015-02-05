@@ -6,7 +6,6 @@ function WindwalkerMonk()
 	    end
 	    WindwalkerToggles()
 	    GroupInfo()
-       	sefTargets()
        	makeEnemiesTable(40)
        	getLoot2()
        	ChatOverlay(GetCurrentKeyBoardFocus())
@@ -206,7 +205,7 @@ function WindwalkerMonk()
 ---------------------
 			if not isInCombat("player") then
 	-- Expel Harm (Chi Builer)
-				if BadBoy_data['Builder']==1 and chiDiff>=2 and power>=40 and GetSpellCooldown(_ExpelHarm)==0 then
+				if BadBoy_data['Builder']==1 and chiDiff>=2 and power>=40 and GetSpellCooldown(_ExpelHarm)==0 and select(2,IsInInstance())~="none" then
 					if castSpell("player",_ExpelHarm,false,false,false) then return end
 				end
 	-- Provoke
@@ -316,26 +315,21 @@ function WindwalkerMonk()
 		        end
 	-- Storm, Earth, and Fire
 				if ObjectExists(dynamicUnit.dyn40AoE) and BadBoy_data['SEF']==1 then
-					if #targets==0 and UnitBuffID("player",_StormEarthFire) then
+					local sefEnemies = getEnemies("player",40)
+					if #sefEnemies>1 then
+						for i=1, #sefEnemies do
+							local sefTar = sefEnemies[i]
+							local sefGUID = UnitGUID(sefTar)
+							local tarGUID = UnitGUID("target")
+							local sefed = UnitDebuffID(sefTar,_StormEarthFireDebuff,"player")~=nil
+							if not sefed and sefGUID~=tarGUID and sefStack<2 and isAggroed(sefTar) then
+								if castSpell(sefTar,_StormEarthFire,false,false,false) then sefTar1 = sefTar; return end
+							elseif sefed and sefGUID==tarGUID then
+								CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
+							end
+						end
+					elseif sefStack>0 and #sefEnemies==1 then
 						CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
-					end
-					if #targets>0 then
-						--for i = 1, #targets do
-							if sefStack == 0 and #targets==1 then
-								sefTar1 = targets[1].Unit
-								if castSpell(targets[1].Unit,_StormEarthFire,false,false,false) then return end
-							end
-							if sefStack == 1 and #targets>1 then
-								sefTar2 = targets[2].Unit
-								if castSpell(targets[2].Unit,_StormEarthFire,false,false,false) then return end
-							end
-							if sefStack == 1 and UnitGUID(sefTar1) == UnitGUID("target") then
-								CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
-							end
-							if sefStack == 2 and (UnitGUID(sefTar1) == UnitGUID("target") or UnitGUID(sefTar2) == UnitGUID("target")) then
-								CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
-							end
-						--end
 					end
 				end
 	-- Roll

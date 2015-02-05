@@ -150,4 +150,61 @@ if select(3, UnitClass("player")) == 8 then
 			WrapsManager()
 		end
 	end
+	function FireMageConfig()
+		if currentConfig ~= "Fire Mage Gabbz" then
+			ClearConfig()
+			thisConfig = 0
+			--[[Title]]
+			 titleOp("Fire Gabbz")
+
+			-- Wrapper -----------------------------------------
+			wrapOp("--- Buffs ---")
+
+			
+			-- Wrapper -----------------------------------------
+			wrapOp("--- Cooldowns ---")
+
+			if isKnown(MirrorImage) then
+				checkOp("Mirror Image")
+				textOp("Mirror Image")
+			end
+
+			if isKnown(ColdSnap) then
+				checkOp("Cold Snap")
+				textOp("Cold Snap")
+			end
+
+			checkOp("Racial")
+			textOp("Racial")
+
+			checkOp("Potions")
+			textOp("Potions")
+
+			-- Wrapper -----------------------------------------
+			wrapOp("--- Defensives ---")
+
+			if isKnown(Evanesce) then
+				CreateNewCheck(thisConfig,"Evanesce");
+				boxOp("Evanesce", 0, 100  , 5, 30, "|cffFFBB00Under what |cff69ccf0%HP|cffFFBB00 cast |cff69ccf0Evanesce.")
+				textOp("Evanesce")
+			end
+
+			-- Healthstone
+			checkOp("Healthstone")
+			boxOp("Healthstone", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone")
+			textOp("Healthstone")
+
+			-- Wrapper -----------------------------------------
+			wrapOp("--- Rotation ---")
+			checkOp("Gabbz")
+			textOp("Gabbz Standard")
+
+			checkOp("Burst")
+			textOp("Burst")
+
+			--[[General Configs]]
+			CreateGeneralsConfig()
+			WrapsManager()
+		end
+	end
 end

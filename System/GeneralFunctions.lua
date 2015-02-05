@@ -1810,38 +1810,42 @@ end
 
 function getLoot2()
     if looted == nil then looted = 0 end
-    for i=1,ObjectCount() do
-        if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
-            local thisUnit = ObjectWithIndex(i)
-            local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
-            local inRange = getRealDistance("player",thisUnit) < 2
-            if UnitIsDeadOrGhost(thisUnit) then
-                if hasLoot and canLoot and inRange and (canLootTimer == nil or canLootTimer <= GetTime()-0.5)--[[getOptionValue("Auto Loot"))]] then
-                    if GetCVar("autoLootDefault") == "0" then
-                        SetCVar("autoLootDefault", "1")
-                        InteractUnit(thisUnit)
-                        if isLooting() then
-                            return true
+    if lM:emptySlots() then
+        for i=1,ObjectCount() do
+            if bit.band(ObjectType(ObjectWithIndex(i)), ObjectTypes.Unit) == 8 then
+                local thisUnit = ObjectWithIndex(i)
+                local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
+                local inRange = getRealDistance("player",thisUnit) < 2
+                if UnitIsDeadOrGhost(thisUnit) then
+                    if hasLoot and canLoot and inRange and (canLootTimer == nil or canLootTimer <= GetTime()-0.5)--[[getOptionValue("Auto Loot"))]] then
+                        if GetCVar("autoLootDefault") == "0" then
+                            SetCVar("autoLootDefault", "1")
+                            InteractUnit(thisUnit)
+                            if isLooting() then
+                                return true
+                            end
+                            canLootTimer = GetTime()
+                            SetCVar("autoLootDefault", "0")
+                            looted = 1
+                            return
+                        else
+                            InteractUnit(thisUnit)
+                            if isLooting() then
+                                return true
+                            end
+                            canLootTimer = GetTime()
+                            looted = 1
                         end
-                        canLootTimer = GetTime()
-                        SetCVar("autoLootDefault", "0")
-                        looted = 1
-                        return
-                    else
-                        InteractUnit(thisUnit)
-                        if isLooting() then
-                            return true
-                        end
-                        canLootTimer = GetTime()
-                        looted = 1
                     end
                 end
             end
         end
-    end
-    if UnitExists("target") and UnitIsDeadOrGhost("target") and looted==1 and not isLooting() then
-        ClearTarget()
-        looted=0
+        if UnitExists("target") and UnitIsDeadOrGhost("target") and looted==1 and not isLooting() then
+            ClearTarget()
+            looted=0
+        end
+    else
+        ChatOverlay("Bags are full, nothing will be looted!")
     end
 end
 

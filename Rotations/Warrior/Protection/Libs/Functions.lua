@@ -92,7 +92,7 @@ if select(3, UnitClass("player")) == 1  then
             local UnitHealth,print,UnitHealthMax = UnitHealth,print,UnitHealthMax
             local getDistance,getDebuffRemain,GetTime,getFacing = getDistance,getDebuffRemain,GetTime,getFacing
             local spellCastersTable,getOptionCheck = bb.im.casters,getOptionCheck
-            local useItem, nNova, isBuffed = useItem, nNova, isBuffed
+            local useItem, nNova, isBuffed, isBoss = useItem, nNova, isBuffed, isBoss
             -- no external access after here
             setfenv(1,protCore)
 			
@@ -134,18 +134,23 @@ if select(3, UnitClass("player")) == 1  then
 				self.buff.SuddenDeath = getBuffRemain(player,self.spell.SuddenDeathTalent)
 				self.buff.Ravager = getBuffRemain(player, self.spell.Ravager)
 				self.buff.EnragedRegeneration = getBuffRemain(player, self.spell.EnragedRegeneration)
+				self.buff.Bloodbath = getBuffRemain(player, self.spell.Bloodbath)
                 -- Cooldowns
                 self.cd.DemoralizingShout = getSpellCD(self.spell.DemoralizingShout)
                 self.cd.LastStand = getSpellCD(self.spell.LastStand)
                 self.cd.ShieldBlock = getSpellCD(self.spell.ShieldBlock)
                 self.cd.ShieldWall = getSpellCD(self.spell.ShieldWall)
+				self.cd.DragonRoar = getSpellCD(self.spell.DragonRoar)
+				self.cd.StormBolt = getSpellCD(self.spell.StormBolt)
+				self.cd.Shockwave = getSpellCD(self.spell.Shockwave)
+				self.cd.Bloodbath = getSpellCD(self.spell.Bloodbath)
                 self.globalCooldown = getSpellCD(self.spell.Devastate)
                 self.inCombat = true
                 -- Units
                 self.melee5Yards = #getEnemies(player,5) -- (meleeEnemies)
                 -- Modes
                 self.mode.aoe = BadBoy_data["AoE"]
-                --self.mode.cooldowns = BadBoy_data["Cooldowns"]
+                self.mode.cooldowns = UseCDs()
                 self.mode.defensive = BadBoy_data["Defensive"]
                 self.mode.interupts = BadBoy_data["Interrupts"]
                 -- truth = true, right = false
@@ -167,6 +172,15 @@ if select(3, UnitClass("player")) == 1  then
                 self.combatLenght = GetTime() - BadBoy_data["Combat Started"]
             end
 			
+			--Cooldowns
+			function UseCDs()
+				if (BadBoy_data['Cooldowns'] == 1 and isBoss()) or BadBoy_data['Cooldowns'] == 2 then
+					return true
+				else
+					return false
+				end
+			end
+			
 			-- Last Stand
             function protCore:castLastStand()
                 return isChecked("Last Stand") and self.health <= getValue("Last Stand") and castSpell(player,self.spell.LastStand,true,false)
@@ -182,25 +196,30 @@ if select(3, UnitClass("player")) == 1  then
                 return isChecked("Enraged Regeneration") and self.health <= getValue("Enraged Regeneration") and castSpell(player,self.spell.EnragedRegeneration,true,false)
             end
 			
+			-- Healthstone
+            function protCore:useHealthstone()
+				return isChecked("Healthstone") and self.health <= getValue("Healthstone") and useItem(5512)  
+             end
+			
 			-- TODO create functions for shouts and other buffs we might want to add
 			function protCore:castBuffs()
 				--Def Stance
 				if self.stance == 2 then
 					if GetShapeshiftForm() ~= 2 then
-						if castSpell("player",self.spell.DefensiveStance,true) then return; end
+						if castSpell("player",self.spell.DefensiveStance,true, false) then return; end
 					end
 				end
 				--Glad stance
 				if self.stance == 1 then
 					if GetShapeshiftForm() ~= 1 then
-						if castSpell("player",self.spell.BattleStance,true) then return; end
+						if castSpell("player",self.spell.BattleStance,true, false) then return; end
 					end
 				end
 				-- Commanding Shout
 				if isChecked("Shout") == true and getValue("Shout") == 1 and not UnitExists("mouseover") then
 					for i = 1, #nNova do
 						local unit = nNova[i]
-						if not isBuffed(unit.unit,{21562,109773,469,90364})  then
+						if not isBuffed(unit.unit,{21562,109773,469,90364})  and getDistance("player", unit.unit) < 40 then
 							if castSpell("player",self.spell.CommandingShout,false,false) then return; end
 						end
 					end
@@ -209,7 +228,7 @@ if select(3, UnitClass("player")) == 1  then
 				if isChecked("Shout") == true and getValue("Shout") == 2 and not UnitExists("mouseover") then
 					for i = 1, #nNova do
 						local unit = nNova[i]
-						if not isBuffed(unit.unit,{57330,19506,6673}) then
+						if not isBuffed(unit.unit,{57330,19506,6673}) and getDistance("player", unit.unit) < 40 then
 							if castSpell("player",self.spell.BattleShout,false,false) then return; end
 						end
 					end
@@ -229,74 +248,74 @@ if select(3, UnitClass("player")) == 1  then
 			
 			-- Heroic Strike
             function protCore:castHeroicStrike()
-                return castSpell(self.units.dyn5,self.spell.HeroicStrike,true,false)
+                return castSpell(self.units.dyn5,self.spell.HeroicStrike,false,false)
             end
 			
 			-- ShieldSlam
             function protCore:castShieldSlam()
-                return castSpell(self.units.dyn5,self.spell.ShieldSlam,true,false)
+                return castSpell(self.units.dyn5,self.spell.ShieldSlam,false,false)
             end
 			
 			-- Revenge
             function protCore:castRevenge()
-                return castSpell(self.units.dyn5,self.spell.Revenge,true,false)
+                return castSpell(self.units.dyn5,self.spell.Revenge,false,false)
             end
 			
 			-- Ravager 
             function protCore:castRavager()
-                castGround(self.units.dyn5,self.spell.Ravager,40)
+                return self.mode.cooldowns and castGround(self.units.dyn5,self.spell.Ravager,10)
             end
 			
 			-- StormBolt TODO Fix dyn range
             function protCore:castStormBolt()
-                return castSpell(self.units.dyn5,self.spell.StormBolt,true,false)
+                return self.mode.cooldowns and castSpell(self.units.dyn5,self.spell.StormBolt,false,false)
             end
 			
 			-- DragonRoar
             function protCore:castDragonRoar()
-                return castSpell(self.units.dyn5,self.spell.StormBolt,true,false)
+					return self.mode.cooldowns and castSpell(self.units.dyn5,self.spell.DragonRoar,true,false)
             end
 			
 			-- ImpendingVictory
             function protCore:castImpendingVictory()
-                return castSpell(self.units.dyn5,self.spell.DragonRoar,true,false)
+                return castSpell(self.units.dyn5,self.spell.ImpendingVictory,false,false)
             end
 			
 			-- Execute
             function protCore:castExecute()
-                return castSpell(self.units.dyn5,self.spell.Execute,true,false)
+                return castSpell(self.units.dyn5,self.spell.Execute,false,false)
             end
 			
 			-- Devastate
             function protCore:castDevastate()
-                return castSpell(self.units.dyn5,self.spell.Devastate,true,false)
+                return castSpell(self.units.dyn5,self.spell.Devastate,false,false)
             end
 			
 			-- Shockwave
 			-- TODO add check box checks
             function protCore:castShockwave()
-                return isChecked("Auto Shockwave") and  castSpell(self.units.dyn5,self.spell.Shockwave,true,false)
+                return self.mode.cooldowns and isChecked("Auto Shockwave") and  castSpell(self.units.dyn5,self.spell.Shockwave,true,false)
             end
 			
 			-- Bladestorm
 			-- TODO add check box checks
             function protCore:castBladestorm()
-                return isChecked("Auto Bladestorm") and castSpell(self.units.dyn5,self.spell.Bladestorm,true,false)
+                return self.mode.cooldowns and isChecked("Auto Bladestorm") and castSpell(self.units.dyn5,self.spell.Bladestorm,true, false)
             end
 			
 			-- Bloodbath
             function protCore:castBloodbath()
-                return isChecked("Auto Bloodbath") and castSpell(player,self.spell.Bloodbath,true,false)
+                return self.mode.cooldowns and isChecked("Auto Bloodbath") and castSpell(player,self.spell.Bloodbath,true, false)
             end
 			
 			-- Avatar
             function protCore:castAvatar()
-                return isChecked("Auto Avatar") and castSpell(player,self.spell.Avatar,true,false)
+                return self.mode.cooldowns and isChecked("Auto Avatar") and castSpell(player,self.spell.Avatar,true, false)
             end
 			
 			-- ThunderClap
             function protCore:castThunderClap()
-                return castSpell(self.units.dyn5,self.spell.ThunderClap,true,false)
+                return castSpell(self.units.dyn5,self.spell.ThunderClap,true, false)
             end
 	end  --end for ProtWArriorFunctions
 

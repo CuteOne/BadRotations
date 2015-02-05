@@ -209,7 +209,7 @@ function im:manageCast(...)
 	-- Prepare GUID to be reused via UnitID
 	if enemiesTable and #enemiesTable > 0 then
 		for i = #enemiesTable,1,-1 do
-			if enemiesTable[i] and sourceGUID == enemiesTable[i].guid and ObjectExists(enemiesTable[i].unit) then
+			if enemiesTable[i] and enemiesTable[i].unit and sourceGUID == enemiesTable[i].guid and ObjectExists(enemiesTable[i].unit) then
 				local thisUnit = enemiesTable[i]
 				-- gather our infos
 				if getOptionCheck("Only Known Units") and not isInteruptCandidate(thisUnit.unit, spellID) then

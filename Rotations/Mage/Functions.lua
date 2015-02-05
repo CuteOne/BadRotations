@@ -248,13 +248,14 @@ if select(3, UnitClass("player")) == 8 then
 		-- Get GCD Time
 		local HASTE = GetHaste()
 		local GCDTIME = 1.5/(1+HASTE/100)
-
-
-
+		local FBCASTTIME = select(4,GetSpellInfo(Frostbolt))/1000
+		--actions.crystal_sequence+=/ice_lance,if=buff.fingers_of_frost.react=2|(buff.fingers_of_frost.react&active_dot.frozen_orb>=1)
 		-- actions.single_target=call_action_list,name=cooldowns,if=!talent.prismatic_crystal.enabled|cooldown.prismatic_crystal.remains>45
 		-- actions.single_target+=/ice_lance,if=buff.fingers_of_frost.react&buff.fingers_of_frost.remains<action.frostbolt.execute_time
-		local FBCASTTIME = select(4,GetSpellInfo(Frostbolt))/1000
-
+		
+		if castIceLanceSingleTarget() then
+			return true
+		end
 		if UnitBuffID("player",FingersOfFrost) and getBuffRemain("player",FingersOfFrost) < FBCASTTIME then
 			if castSpell("target",IceLance,false,false) then
 				return;
@@ -464,7 +465,7 @@ if select(3, UnitClass("player")) == 8 then
 		-- actions.aoe=call_action_list,name=cooldowns
 		-- actions.aoe+=/nether_tempest,cycle_targets=1,if=buff.arcane_charge.stack=4&(active_dot.nether_tempest=0|(ticking&remains<3.6))
 		if Charge()==4 and (not UnitDebuffID("target",NetherTempest) or (UnitDebuffID("target",NetherTempest) and getDebuffRemain("target",NetherTempest)<3.6)) then
-			return;
+			return
 		end
 
 		-- actions.aoe+=/supernova
@@ -473,19 +474,13 @@ if select(3, UnitClass("player")) == 8 then
 		end
 
 		-- actions.aoe+=/arcane_barrage,if=buff.arcane_charge.stack=4
-		if Charge()==4 then
-			if castSpell("target",ArcaneBarrage,false,false) then
-				return;
-			end
+		if castArcaneBarrage("target", 4) then
+			return true
 		end
 
 		-- actions.aoe+=/arcane_orb,if=buff.arcane_charge.stack<4
-		if isKnown(ArcaneOrb) then
-			if Charge()<4 then
-				if castSpell("target",ArcaneOrb,false,true) then
-					return;
-				end
-			end
+		if castArcaneOrb("target", 3) then
+			return true
 		end
 
 		-- actions.aoe+=/cone_of_cold,if=glyph.cone_of_cold.enabled
@@ -539,7 +534,9 @@ if select(3, UnitClass("player")) == 8 then
 		--# High mana usage, "Burn" sequence
 		-- actions.burn=call_action_list,name=cooldowns
 		-- actions.burn+=/arcane_blast,if=buff.arcane_charge.stack=4&mana.pct>93
-		ArcaneMageCooldowns()
+		if BadBoy_data['Cooldowns'] == 2 then
+			ArcaneMageCooldowns()
+		end
 		-- actions.burn+=/arcane_missiles,if=buff.arcane_missiles.react=3
 
 		if stacksArcaneMisslesP == 3 then
@@ -573,14 +570,10 @@ if select(3, UnitClass("player")) == 8 then
 		end
 
 		-- actions.burn+=/arcane_orb,if=buff.arcane_charge.stack<4
-		if isKnown(ArcaneOrb) then
-			if arcaneCharge < 3 then
-				if castSpell("target",ArcaneOrb,false,true) then
-					return true
-				end
-			end
+		if castArcaneOrb("target", 3) then
+			return true
 		end
-
+	
 		-- Todo : Still valid?
 		if isKnown(Supernova) then
 			if UnitName("target") == "Prismatic Crystal" then
@@ -698,12 +691,8 @@ if select(3, UnitClass("player")) == 8 then
 		
 		
 		--	actions.conserve+=/arcane_orb,if=buff.arcane_charge.stack<2
-		if isKnownArcaneOrb then
-			if arcaneCharge < 2 then
-				if castSpell("target",ArcaneOrb,false,true) then
-					return true
-				end
-			end
+		if castArcaneOrb("target", 2) then
+			return true
 		end
 
 		--	actions.conserve+=/presence_of_mind,if=mana.pct>96&(!talent.prismatic_crystal.enabled|!cooldown.prismatic_crystal.up)
@@ -742,10 +731,8 @@ if select(3, UnitClass("player")) == 8 then
 		end
 
 		--  actions.conserve+=/arcane_barrage,if=buff.arcane_charge.stack=4
-		if arcaneCharge > 3 then
-			if castSpell("target",ArcaneBarrage,false,false) then
-				return true
-			end
+		if castArcaneBarrage("target", 4) then
+			return true
 		end
 
 		--	actions.conserve+=/presence_of_mind,if=buff.arcane_charge.stack<2&(!talent.prismatic_crystal.enabled|!cooldown.prismatic_crystal.up)
@@ -762,7 +749,7 @@ if select(3, UnitClass("player")) == 8 then
 
 		--  actions.conserve+=/arcane_barrage,moving=1
 		if isPlayerMoving then
-			if castSpell("target",ArcaneBarrage,false,false) then
+			if castArcaneBarrage("target", 0) then
 				return true
 			end
 		end
@@ -790,10 +777,8 @@ if select(3, UnitClass("player")) == 8 then
 			end
 		end
 
-		if arcaneCharge < 3 then
-			if castSpell("target",ArcaneOrb,false,true) then
-				return true
-			end
+		if castArcaneOrb("target", 3) then
+			return true
 		end
 		
 		if getMana("player") > 96 then
@@ -856,10 +841,8 @@ if select(3, UnitClass("player")) == 8 then
 			end
 		end
 		
-		if arcaneCharge < 2 then
-			if castSpell("target",ArcaneOrb,false,true) then
-				return true
-			end
+		if castArcaneOrb("target", 2) then
+			return true
 		end
 
 		if playerMana > 96 then
@@ -886,10 +869,8 @@ if select(3, UnitClass("player")) == 8 then
 			end
 		end
 
-		if arcaneCharge > 3 then
-			if castSpell("target",ArcaneBarrage,false,false) then
-				return true
-			end
+		if castArcaneBarrage("target", 4) then
+			return true
 		end
 
 		if arcaneCharge < 2 then
@@ -905,7 +886,7 @@ if select(3, UnitClass("player")) == 8 then
 
 		--  actions.conserve+=/arcane_barrage,moving=1
 		if isPlayerMoving then
-			if castSpell("target",ArcaneBarrage,false,false) then
+			if castArcaneBarrage(target, 0) then
 				return true
 			end
 		end
@@ -974,6 +955,43 @@ if select(3, UnitClass("player")) == 8 then
 			else
 				return 1
 			end
+		end
+	end
+
+	function runeOfPower()
+		-------------------
+		-- Rune Of Power --
+		-------------------
+		if BadBoy_data["Rune"] == 1 and getOptionCheck("Start/Stop BadBoy") then
+			--[[ begin Rune Stuff ]]					-- add rune of power toggle!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+			AoESpell, AoESpellTarget= nil, nil;
+			if AoESpell == RuneOfPower then
+				AoESpellTarget = "player"
+			else
+				AoESpellTarget = nil
+			end
+			if IsAoEPending() and AoESpellTarget ~= nil then
+				local X, Y, Z = ObjectPosition("player")
+				CastAtPosition(X,Y,Z)
+				SpellStopTargeting()
+				return true
+			end
+
+
+			--[[rune_of_power,if=talent.rune_of_power.enabled&(buff.rune_of_power.remains<cast_time&buff.alter_time.down)]]
+			if isKnown(RuneOfPower) then
+				if not UnitBuffID("player",RuneOfPower) and isStanding(0.5) then
+					if runeTimer == nil or runeTimer <= GetTime() - 3 then
+						AoESpell = RuneOfPower
+						runeTimer = GetTime()
+						CastSpellByName(GetSpellInfo(RuneOfPower),nil)
+						return true
+					end
+				end
+			end
+
+			--[[ end Rune Stuff ]]
 		end
 	end
 end

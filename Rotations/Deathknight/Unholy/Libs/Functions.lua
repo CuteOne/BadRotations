@@ -252,8 +252,196 @@ function CalculateHP(unit)
     end
 
 
+---- Opener
+
+function unholyOpener()
+
+  local GCD = 1.5/(1+UnitSpellHaste("player")/100)
+
+  if unholyOpenerEvents == nil then
+    -- Initialize
+    RegisterCVar("startopener", 0)
+    RegisterCVar("resetopener", 0)
+    openerstarted = false
+      opone = true
+      optwo = true
+      opthree = true
+      opfour = true
+      opfive = true
+      opsix = true
+      opseven = true
+      opeight = true
+      opnine = true
+    unholyOpenerEvents = true
+    print("|cffC41F3BUnholy Opener Variables Loaded")
+  end
+
+  SLASH_uhopener1 = "/uhopener"
+  function SlashCmdList.uhopener(msg, editbox)
+    SetCVar("startopener", 1)
+    print("|cffC41F3BOpener started!")
+  end
+
+  SLASH_uhopenerreset1 = "/uhopenerreset"
+  function SlashCmdList.uhopenerreset(msg, editbox)
+    SetCVar("resetopener", 1)
+  end
+
+  if tonumber(GetCVar("startopener")) == 1 and getSpellCD(_SummonGargoyle) > 0 then
+    SetCVar("resetopener", 1)
+    SetCVar("startopener", 0)
+    print("|cffC41F3BSummon Gargoyle is not ready - Opener stopped!")
+  end
+
+  if tonumber(GetCVar("startopener")) == 1 and getSpellCD(_ArmyOfTheDead) > 0 then
+    SetCVar("resetopener", 1)
+    SetCVar("startopener", 0)
+    print("|cffC41F3BArmy of the Dead is not ready - Opener stopped!")
+  end
+
+  if tonumber(GetCVar("startopener")) == 1 and not canUse(109219) then
+    SetCVar("resetopener", 1 )
+    SetCVar("startopener", 0 )
+    print("|cffC41F3BYou must have potions to start the opener!")
+  end
+
+  if tonumber(GetCVar("startopener")) == 1 and not UnitExists("target") then
+    SetCVar("resetopener", 1 )
+    SetCVar("startopener", 0 )
+    print("|cffC41F3BYou must have a target to start the opener!")
+  end
+
+  if tonumber(GetCVar("resetopener")) == 1 then
+    SetCVar("resetopener", 0 )
+    openerstarted = false
+      opone = true
+      optwo = true
+      opthree = true
+      opfour = true
+      opfive = true
+      opsix = true
+      opseven = true
+      opeight = true
+      opnine = true
+    print("|cffC41F3BOpener resetted sucessfully!")
+   end
+
+  if tonumber(GetCVar("startopener")) == 1 then
+    SetCVar("startopener", 0)
+    openerstarted = true
+      opone = false
+      optwo = false
+      opthree = false
+      opfour = false
+      opfive = false
+      opsix = false
+      opseven = false
+      opeight = false
+      opnine = false
+  end
+
+  if not openerstarted then return false end
+  if UnitChannelInfo("player") then return true end
+  if UnitCastingInfo("player") then return true end
+
+  -- 1. Army of the Dead 6s before pull
+  -- 2. Pre-pot
+  -- 3. Deaths Advance
+  -- 4. Summon Gargoyle
+  -- 5. Outbreak
+  -- 6. Festering Strike x1
+  -- 7. Defile if the target will remain in the ground effect for 5 ticks or more, otherwise use Scourge Strike
+  -- 8. Festering Strike x1
+  -- 9. Scourge Strike unless Defile was not used.
+  -- 10. If you have GCDs to fill (i.e. you will not cap runes), you can use Plague Leech here to gain a rune. Simply apply diseases first with Plague Strike and then Scourge Strike the second rune gained. Under Heroism/Bloodlust, this is not ideal as you will cap runes.
+
+  if not opone and canCast(_ArmyOfTheDead) then
+    CastSpellByName(tostring(GetSpellInfo(42650)),"player")
+    print("|cffC41F3B1: Army of the Dead")
+    delay = GetTime()
+    opone = true
+    return
+  elseif not optwo and opone and canUse(109219) then
+    --DELAY 4 seconds
+    if delay == nil or delay <= GetTime() - 4 then
+      UseItemByName(tostring(select(1,GetItemInfo(109219))))
+      print("|cffC41F3B2: Pre-Pot")
+      optwo = true
+      return
+    end
+  elseif not opthree and optwo and canCast(_DeathAdvance) then
+    --DELAY 4 seconds
+    if delay == nil or delay <= GetTime() - 4 then
+      CastSpellByName(tostring(GetSpellInfo(96268)),"player")
+      print("|cffC41F3B3: Death Advance")
+      opthree = true
+      return
+    end
+  elseif not opfour and opthree and canCast(_SummonGargoyle) then
+    if delay == nil or delay <= GetTime() - 4 then
+      CastSpellByName(tostring(GetSpellInfo(49206)),"target")
+      print("|cffC41F3B4: Summon Gargoyle")
+      delay = GetTime()
+      opfour = true
+      return
+    end
+  elseif not opfive and opfour and canCast(_Outbreak) then
+    if delay == nil or delay <= GetTime() - GCD then
+    CastSpellByName(tostring(GetSpellInfo(77575)),"target")
+      print("|cffC41F3B5: Outbreak")
+      delay = GetTime()
+      opfive = true
+      return
+    end
+  elseif not opsix and opfive and canCast(_FesteringStrike) then
+    if delay == nil or delay <= GetTime() - GCD then
+      CastSpellByName(tostring(GetSpellInfo(85948)),"target")
+      print("|cffC41F3B6: Festering Strike")
+      delay = GetTime()
+      opsix = true
+      return
+    end
+  elseif not opseven and opsix and canCast(_ScourgeStrike) then
+    if delay == nil or delay <= GetTime() - GCD then
+      CastSpellByName(tostring(GetSpellInfo(55090)),"target")
+      print("|cffC41F3B7: Scourge Strike")
+      delay = GetTime()
+      opseven = true
+      return
+    end
+  elseif not opeight and opseven and canCast(_FesteringStrike) then
+    if delay == nil or delay <= GetTime() - GCD then
+      CastSpellByName(tostring(GetSpellInfo(85948)),"target")
+      print("|cffC41F3B8: Festering Strike")
+      delay = GetTime()
+      opeight = true
+      return
+    end
+  elseif not opnine and opeight and canCast(_ScourgeStrike) then
+    if delay == nil or delay <= GetTime() - GCD then
+      CastSpellByName(tostring(GetSpellInfo(55090)),"target")
+      print("|cffC41F3B9: Scourge Strike")
+      delay = GetTime()
+      opnine = true
+      return
+    end
+  end
+
+  if opone and optwo and opthree and opfour and opfive and opsix and opseven and opeight and opnine then
+    SetCVar("startopener", 0 )
+    SetCVar("resetopener", 1 )
+    openerstarted = false
+  end
+
+  if openerstarted then return end
 
 
+
+end -- end unholyOpener()
+
+function openerdump()
+  return openerstarted
+end
 
 
 
