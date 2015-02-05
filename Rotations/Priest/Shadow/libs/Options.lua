@@ -35,6 +35,10 @@ if select(3, UnitClass("player")) == 5 then
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"|cffBA55D3Offensive");
 
+				-- bosscheck
+				CreateNewCheck(thisConfig,"isBoss");
+				CreateNewText(thisConfig,"isBoss");
+
 				-- -- Min Orbs to cast DP on traditional single target
 				-- CreateNewDrop(thisConfig,"Min Orbs (trad)",1,"Choose the minimum orbs to cast DP if targetHP>20.","|cffCC00003","|cFF00CC005");
 				-- CreateNewText(thisConfig,"Min Orbs (trad)");

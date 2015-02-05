@@ -33,7 +33,7 @@ if select(3, UnitClass("player")) == 5 then
 
 
 			-- Set Enemies Table
-			makeEnemiesTable(40)
+			--makeEnemiesTable(40)
 
 			if isChecked("sortByHPabs") then
 				table.sort(enemiesTable, function(x,y)
@@ -70,6 +70,7 @@ if select(3, UnitClass("player")) == 5 then
 				-- isChecked
 				isChecked = {
 					-- Offensive
+					isBoss = 			isChecked("isBoss"),
 					Berserking = 		isChecked("Berserking"),
 					Mindbender = 		isChecked("Mindbender"),
 					Shadowfiend	= 		isChecked("Shadowfiend"),
@@ -114,7 +115,7 @@ if select(3, UnitClass("player")) == 5 then
 					RefreshTime = 		getValue("Refresh Time"),
 					VTRefresh =			4.5,
 					SWPRefresh = 		5.4,
-					MindSear = 			getValue("MS Targets")
+					MindSear = 			getValue("MS Targets"),
 				}
 			}
 
@@ -150,6 +151,11 @@ if select(3, UnitClass("player")) == 5 then
 		------------
 		-- CHECKS --
 		------------
+
+		-- Ko'ragh Mind Controll Check
+		if UnitDebuffID("player",163472) then
+			return false
+		end
 
 		-- Food/Invis Check
 		if canRun() ~= true then return false;
@@ -254,7 +260,11 @@ if select(3, UnitClass("player")) == 5 then
 			----------------
 			-- Offensives --
 			----------------
-				ShadowCooldowns(options)
+				if options.isChecked.isBoss and isBoss() then
+					ShadowCooldowns(options)
+				else
+					ShadowCooldowns(options)
+				end
 
 			----------------
 			-- Single target

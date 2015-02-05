@@ -273,6 +273,10 @@ if not metaTable1 then
 			o.dispel = o:Dispel(o.unit)
 			-- Unit's threat situation(1-4)
 			o.threat = UnitThreatSituation(o.unit)
+			-- Unit HP absolute
+			o.hpabs = UnitHealth(o.unit)
+			-- Unit HP missing absolute
+			o.hpmissing = UnitHealthMax(o.unit) - UnitHealth(o.unit)
 			-- Unit HP
 			o.hp = o:CalcHP()
 			-- Unit Absorb

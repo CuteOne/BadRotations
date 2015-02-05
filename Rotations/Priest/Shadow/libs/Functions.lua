@@ -82,13 +82,31 @@ if select(3, UnitClass("player")) == 5 then
 			"Rarnok",
 			--"Spore Shooter",
 		}
-		if Unit == nil then return true end
+		if datUnit == nil then return true end
 		for i = 1, #Blacklist do
 			if UnitName(datUnit) == Blacklist[i] then
 				return false
 			end
 		end
 		return true
+	end
+
+	-- Units not to dotweave, just press damage
+	function noDoTWeave(datUnit)
+		local Blacklist = {
+				--"Dungeoneer's Training Dummy",  -- Debug use only
+				"Fortified Arcane Aberration",
+				"Replicating Arcane Aberration",
+				"Displacing Arcane Aberration",
+				"Arcane Aberration",
+		}
+		if datUnit==nil then return false end
+		for i = 1, #Blacklist do
+			if UnitName(datUnit) == Blacklist[i] then
+				return  true
+			end
+		end
+		return false
 	end
 	
 	
@@ -164,11 +182,6 @@ if select(3, UnitClass("player")) == 5 then
 			-- 	if castSpell("player",PI) then return; end
 			-- end
 
-			-- Berserking (Troll Racial)
-			if isKnown(Berserking) and options.buttons.Cooldowns == 2 and options.isChecked.Berserking then
-				if castSpell("player",Berserking,true,false) then return; end
-			end
-
 			-- Halo
 			if isKnown(Halo) and options.buttons.Halo == 2 then
 				if getDistance("player","target")<=30 and getDistance("player","target")>=17 then
@@ -185,6 +198,13 @@ if select(3, UnitClass("player")) == 5 then
 			if options.isChecked.Trinket2 and options.buttons.Cooldowns == 2 and canTrinket(14) then
 				RunMacroText("/use 14")
 			end
+
+			-- Berserking (Troll Racial)
+			--if not UnitBuffID("player",176875) then
+				if isKnown(Berserking) and options.buttons.Cooldowns == 2 and options.isChecked.Berserking then
+					if castSpell("player",Berserking,true,false) then return; end
+				end
+			--end
 		end
 	end
 	--[[                    ]] -- Cooldowns end
@@ -331,21 +351,23 @@ if select(3, UnitClass("player")) == 5 then
 					-- if ORBS>=4 and getHP("target")>20 and getSpellCD(MB)<Break then
 					
 					--if options.player.ORBS>=5 and getSpellCD(MB)<=2*options.player.GCD then
-					if options.player.ORBS>=4 and getSpellCD(MB)<=2*options.player.GCD then
-						--if options.isChecked.SWP then
-							if not UnitDebuffID("target",SWP,"player") then
-								if castSpell("target",SWP,true,false) then return; end
-							end
-						--end
-						--if options.isChecked.VT then
-							if not UnitDebuffID("target",VT,"player") and GetTime()-lastVT > 2*options.player.GCD then
-								if castSpell("target",VT,true,true) then 
-									--options.player.lastVT=GetTime()
-									lastVT=GetTime()
-									return
+					if noDoTWeave("target")==false then
+						if options.player.ORBS>=4 and getSpellCD(MB)<=2*options.player.GCD then
+							--if options.isChecked.SWP then
+								if not UnitDebuffID("target",SWP,"player") then
+									if castSpell("target",SWP,true,false) then return; end
 								end
-							end
-						--end
+							--end
+							--if options.isChecked.VT then
+								if not UnitDebuffID("target",VT,"player") and GetTime()-lastVT > 2*options.player.GCD then
+									if castSpell("target",VT,true,true) then 
+										--options.player.lastVT=GetTime()
+										lastVT=GetTime()
+										return
+									end
+								end
+							--end
+						end
 					end
 				--end
 			end
@@ -356,9 +378,9 @@ if select(3, UnitClass("player")) == 5 then
 			--DP if ORBS == 5
 			--if isStanding(0.3) then
 				if options.player.ORBS==5 then
-					if getDebuffRemain("target",SWP,"player")>0 or options.isChecked.DoTWeave~=true 
+					if getDebuffRemain("target",SWP,"player")>0 or options.isChecked.DoTWeave~=true or noDoTWeave("target")
 					  or (options.isChecked.TwinOgrons and UnitExists("focus") and not UnitIsDead("focus")) then
-						if getDebuffRemain("target",VT,"player")>0 or options.isChecked.DoTWeave~=true 
+						if getDebuffRemain("target",VT,"player")>0 or options.isChecked.DoTWeave~=true  or noDoTWeave("target")
 						  or (options.isChecked.TwinOgrons and UnitExists("focus") and not UnitIsDead("focus")) then
 							-- DP focus
 							if options.isChecked.TwinOgrons and UnitExists("focus") and not UnitIsDead("focus") then
@@ -452,7 +474,7 @@ if select(3, UnitClass("player")) == 5 then
 					end
 				end
 				if not UnitExists("focus") or (options.isChecked.TwinOgrons~=true and UnitExists("focus")) then
-					if getDebuffRemain("focus",DP,"player")<=0.3*options.player.DPTIME then
+					if getBuffRemain("player",InsanityBuff)<=0 then
 						if castSpell("target",DP,false,true) then return; end
 					end
 				end
@@ -529,30 +551,33 @@ if select(3, UnitClass("player")) == 5 then
 				-- 	end
 				-- end
 
-				-- Mind Sear
-				if options.isChecked.MindSear then
-					if #getEnemies("target",10)>=options.values.MindSear then
-						if select(1,UnitChannelInfo("player")) ~= "Mind Sear" then
-							if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
-								if castSpell("target",MS,false,true) then return; end
+				if not select(1,UnitChannelInfo("player")) ~= "Insanity" then
+
+					-- Mind Sear
+					if options.isChecked.MindSear then
+						if #getEnemies("target",10)>=options.values.MindSear then
+							if select(1,UnitChannelInfo("player")) ~= "Mind Sear" then
+								if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
+									if castSpell("target",MS,false,true) then return; end
+								end
 							end
 						end
 					end
-				end
 
-				-- SWD glyphed
-				if not getTalent(3,3) then
-					if hasGlyph(GlyphOfSWD) and options.isChecked.SWDglyphed and getHP("target")>=20 then
-						if castSpell("target",SWDG,true,false) then return; end
+					-- Mind Spike
+					--if options.player.ORBS<5 and (getDebuffRemain("target",SWP,"player")<2*options.player.GCD or options.player.ORBS<2) then
+					if not(#getEnemies("target",10)<options.values.MindSear and options.isChecked.MindSear) and options.player.ORBS<5 then
+						if getBuffRemain("player",InsanityBuff)<=0 
+						  or (options.isChecked.TwinOgrons and UnitExists("focus") and not UnitIsDead("focus")) then
+							if castSpell("target",MSp,false,true) then return; end
+						end
 					end
-				end
 
-				-- Mind Spike
-				--if options.player.ORBS<5 and (getDebuffRemain("target",SWP,"player")<2*options.player.GCD or options.player.ORBS<2) then
-				if not(#getEnemies("target",10)<options.values.MindSear and options.isChecked.MindSear) and options.player.ORBS<5 then
-					if getBuffRemain("player",InsanityBuff)<=0 
-					  or (options.isChecked.TwinOgrons and UnitExists("focus") and not UnitIsDead("focus")) then
-						if castSpell("target",MSp,false,true) then return; end
+					-- SWD glyphed
+					if not getTalent(3,3) then
+						if hasGlyph(GlyphOfSWD) and options.isChecked.SWDglyphed and getHP("target")>=20 then
+							if castSpell("target",SWDG,true,false) then return; end
+						end
 					end
 				end
 			end
@@ -908,7 +933,5 @@ end
 
 
 -- TTD with DoTs
--- minHP for dotting
--- weave rota burn!
 
 -- farm mode -> dot all with swp in range. option for it
