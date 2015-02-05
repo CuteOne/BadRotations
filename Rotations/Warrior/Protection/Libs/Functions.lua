@@ -206,13 +206,13 @@ if select(3, UnitClass("player")) == 1  then
 				--Def Stance
 				if self.stance == 2 then
 					if GetShapeshiftForm() ~= 2 then
-						if castSpell("player",self.spell.DefensiveStance,true) then return; end
+						if castSpell("player",self.spell.DefensiveStance,true, false) then return; end
 					end
 				end
 				--Glad stance
 				if self.stance == 1 then
 					if GetShapeshiftForm() ~= 1 then
-						if castSpell("player",self.spell.BattleStance,true) then return; end
+						if castSpell("player",self.spell.BattleStance,true, false) then return; end
 					end
 				end
 				-- Commanding Shout
@@ -300,22 +300,22 @@ if select(3, UnitClass("player")) == 1  then
 			-- Bladestorm
 			-- TODO add check box checks
             function protCore:castBladestorm()
-                return self.mode.cooldowns and isChecked("Auto Bladestorm") and castSpell(self.units.dyn5,self.spell.Bladestorm,true)
+                return self.mode.cooldowns and isChecked("Auto Bladestorm") and castSpell(self.units.dyn5,self.spell.Bladestorm,true, false)
             end
 			
 			-- Bloodbath
             function protCore:castBloodbath()
-                return self.mode.cooldowns and isChecked("Auto Bloodbath") and castSpell(player,self.spell.Bloodbath,true)
+                return self.mode.cooldowns and isChecked("Auto Bloodbath") and castSpell(player,self.spell.Bloodbath,true, false)
             end
 			
 			-- Avatar
             function protCore:castAvatar()
-                return self.mode.cooldowns and isChecked("Auto Avatar") and castSpell(player,self.spell.Avatar,true)
+                return self.mode.cooldowns and isChecked("Auto Avatar") and castSpell(player,self.spell.Avatar,true, false)
             end
 			
 			-- ThunderClap
             function protCore:castThunderClap()
-                return castSpell(self.units.dyn5,self.spell.ThunderClap,true)
+                return castSpell(self.units.dyn5,self.spell.ThunderClap,true, false)
             end
 	end  --end for ProtWArriorFunctions
 
