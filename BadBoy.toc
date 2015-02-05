@@ -233,7 +233,6 @@ Rotations\Warrior\Fury\Libs\Toggles.lua
 Rotations\Warrior\Protection\Protection.lua
 Rotations\Warrior\Protection\Libs\Functions.lua
 Rotations\Warrior\Protection\Libs\Options.lua
-Rotations\Warrior\Protection\Libs\SpellList.lua
 Rotations\Warrior\Protection\Libs\Toggles.lua
 
 ## Warlock ---------------------------------------------------

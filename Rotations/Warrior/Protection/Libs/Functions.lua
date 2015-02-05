@@ -196,6 +196,11 @@ if select(3, UnitClass("player")) == 1  then
                 return isChecked("Enraged Regeneration") and self.health <= getValue("Enraged Regeneration") and castSpell(player,self.spell.EnragedRegeneration,true,false)
             end
 			
+			-- Healthstone
+            function protCore:useHealthstone()
+				return isChecked("Healthstone") and self.health <= getValue("Healthstone") and useItem(5512)  
+             end
+			
 			-- TODO create functions for shouts and other buffs we might want to add
 			function protCore:castBuffs()
 				--Def Stance
@@ -214,7 +219,7 @@ if select(3, UnitClass("player")) == 1  then
 				if isChecked("Shout") == true and getValue("Shout") == 1 and not UnitExists("mouseover") then
 					for i = 1, #nNova do
 						local unit = nNova[i]
-						if not isBuffed(unit.unit,{21562,109773,469,90364})  then
+						if not isBuffed(unit.unit,{21562,109773,469,90364})  and getDistance("player", unit.unit) < 40 then
 							if castSpell("player",self.spell.CommandingShout,false,false) then return; end
 						end
 					end
@@ -223,7 +228,7 @@ if select(3, UnitClass("player")) == 1  then
 				if isChecked("Shout") == true and getValue("Shout") == 2 and not UnitExists("mouseover") then
 					for i = 1, #nNova do
 						local unit = nNova[i]
-						if not isBuffed(unit.unit,{57330,19506,6673}) then
+						if not isBuffed(unit.unit,{57330,19506,6673}) and getDistance("player", unit.unit) < 40 then
 							if castSpell("player",self.spell.BattleShout,false,false) then return; end
 						end
 					end
@@ -243,74 +248,74 @@ if select(3, UnitClass("player")) == 1  then
 			
 			-- Heroic Strike
             function protCore:castHeroicStrike()
-                return castSpell(self.units.dyn5,self.spell.HeroicStrike,true,false)
+                return castSpell(self.units.dyn5,self.spell.HeroicStrike,false,false)
             end
 			
 			-- ShieldSlam
             function protCore:castShieldSlam()
-                return castSpell(self.units.dyn5,self.spell.ShieldSlam,true,false)
+                return castSpell(self.units.dyn5,self.spell.ShieldSlam,false,false)
             end
 			
 			-- Revenge
             function protCore:castRevenge()
-                return castSpell(self.units.dyn5,self.spell.Revenge,true,false)
+                return castSpell(self.units.dyn5,self.spell.Revenge,false,false)
             end
 			
 			-- Ravager 
             function protCore:castRavager()
-                castGround(self.units.dyn5,self.spell.Ravager,10)
+                return self.mode.cooldowns and castGround(self.units.dyn5,self.spell.Ravager,10)
             end
 			
 			-- StormBolt TODO Fix dyn range
             function protCore:castStormBolt()
-                return castSpell(self.units.dyn5,self.spell.StormBolt,true,false)
+                return self.mode.cooldowns and castSpell(self.units.dyn5,self.spell.StormBolt,false,false)
             end
 			
 			-- DragonRoar
             function protCore:castDragonRoar()
-					return castSpell(self.units.dyn5,self.spell.DragonRoar,true,false)
+					return self.mode.cooldowns and castSpell(self.units.dyn5,self.spell.DragonRoar,true,false)
             end
 			
 			-- ImpendingVictory
             function protCore:castImpendingVictory()
-                return castSpell(self.units.dyn5,self.spell.ImpendingVictory,true,false)
+                return castSpell(self.units.dyn5,self.spell.ImpendingVictory,false,false)
             end
 			
 			-- Execute
             function protCore:castExecute()
-                return castSpell(self.units.dyn5,self.spell.Execute,true,false)
+                return castSpell(self.units.dyn5,self.spell.Execute,false,false)
             end
 			
 			-- Devastate
             function protCore:castDevastate()
-                return castSpell(self.units.dyn5,self.spell.Devastate,true,false)
+                return castSpell(self.units.dyn5,self.spell.Devastate,false,false)
             end
 			
 			-- Shockwave
 			-- TODO add check box checks
             function protCore:castShockwave()
-                return isChecked("Auto Shockwave") and  castSpell(self.units.dyn5,self.spell.Shockwave,true,false)
+                return self.mode.cooldowns and isChecked("Auto Shockwave") and  castSpell(self.units.dyn5,self.spell.Shockwave,true,false)
             end
 			
 			-- Bladestorm
 			-- TODO add check box checks
             function protCore:castBladestorm()
-                return isChecked("Auto Bladestorm") and castSpell(self.units.dyn5,self.spell.Bladestorm,true,false)
+                return self.mode.cooldowns and isChecked("Auto Bladestorm") and castSpell(self.units.dyn5,self.spell.Bladestorm,true)
             end
 			
 			-- Bloodbath
             function protCore:castBloodbath()
-                return isChecked("Auto Bloodbath") and castSpell(player,self.spell.Bloodbath,true,false)
+                return self.mode.cooldowns and isChecked("Auto Bloodbath") and castSpell(player,self.spell.Bloodbath,true)
             end
 			
 			-- Avatar
             function protCore:castAvatar()
-                return isChecked("Auto Avatar") and castSpell(player,self.spell.Avatar,true,false)
+                return self.mode.cooldowns and isChecked("Auto Avatar") and castSpell(player,self.spell.Avatar,true)
             end
 			
 			-- ThunderClap
             function protCore:castThunderClap()
-                return castSpell(self.units.dyn5,self.spell.ThunderClap,true,false)
+                return castSpell(self.units.dyn5,self.spell.ThunderClap,true)
             end
 	end  --end for ProtWArriorFunctions
 
