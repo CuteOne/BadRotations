@@ -1,5 +1,5 @@
 function GetObjectExists(Unit)
-  if select(1,pcall(ObjectExists,Unit)) == true then
+  if select(2,pcall(ObjectExists,Unit)) == 1 then
     return true
   else
     return false
