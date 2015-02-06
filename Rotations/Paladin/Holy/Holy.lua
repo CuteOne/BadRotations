@@ -30,17 +30,17 @@
 
 
 
--- holy prism 
+-- holy prism
 -- in order to get the best results out of our holy prism for holy, we will need to calc best scenario of
 -- 5 users in 15 yards around a given units that have the lowest hp
 
 -- will first need to target a enemy unit then
-	-- compare health to user selected threshold
-	-- test its position agains mobs position and calc range(we need to find a way to refresh that only once per cast or something)
-	-- add it to a table of valid units around a mob
-	-- calc the table best results coefficients
-	-- if it beat previous best table then we keep that new one
-	-- table will look like
+-- compare health to user selected threshold
+-- test its position agains mobs position and calc range(we need to find a way to refresh that only once per cast or something)
+-- add it to a table of valid units around a mob
+-- calc the table best results coefficients
+-- if it beat previous best table then we keep that new one
+-- table will look like
 --	prismBestTable = {
 --		coefficient = wise maths to find best case,
 --		heavilyDamagedUnits = number of units under 30% hp,
@@ -48,11 +48,11 @@
 --		totalmissingHealth = total health missing in range of unit,
 --		unit = enemyFH tag
 --	}
-	-- function will need to find positions trought crossing x-y so we need to gather units positions
-	-- we can get enemy position in enemiesTable and the players positions trought nNova
+-- function will need to find positions trought crossing x-y so we need to gather units positions
+-- we can get enemy position in enemiesTable and the players positions trought nNova
 
 
-		--[[On GCD Out of Combat]]
+--[[On GCD Out of Combat]]
 
 
 -- blessing_of_kings,if=(!aura.str_agi_int.up)&(aura.mastery.up)
@@ -64,175 +64,175 @@
 -- snapshot_stats
 
 if select(3, UnitClass("player")) == 2 then
-	function PaladinHoly()
-	-- Init Holy specific funnctions, toggles and configs.
-		if currentConfig ~= "Holy Gabbz & CML" then
-			PaladinHolyFunctions()
-			PaladinHolyToggles()
-			PaladinHolyOptions()
-			currentConfig = "Holy Gabbz & CML"
-		end
+  function PaladinHoly()
+    -- Init Holy specific funnctions, toggles and configs.
+    if currentConfig ~= "Holy Gabbz & CML" then
+      PaladinHolyFunctions()
+      PaladinHolyToggles()
+      PaladinHolyOptions()
+      currentConfig = "Holy Gabbz & CML"
+    end
 
-		-- Locals Variables
-		_HolyPower = UnitPower("player", 9)
+    -- Locals Variables
+    _HolyPower = UnitPower("player", 9)
 
-		-- We should start with analysing who to heal so we know what todo later
-		--	We should get all tanks and have them
-		-- 	Then lowest non tank
-		-- 	Then best AoE Heal candidate, for each possible spell we have, Light Of Dawn, Holy Radiance and Holy Shock with Daybreak.
-		-- 	Then we need to see who we have beaconed
-		--	Then we need to get dispell targets.
+    -- We should start with analysing who to heal so we know what todo later
+    --	We should get all tanks and have them
+    -- 	Then lowest non tank
+    -- 	Then best AoE Heal candidate, for each possible spell we have, Light Of Dawn, Holy Radiance and Holy Shock with Daybreak.
+    -- 	Then we need to see who we have beaconed
+    --	Then we need to get dispell targets.
 
-		-- 	We should calcualte best healing options and considere mana levels
-		-- What different healing roles can we have
-		--	Tank healer, beacon on both tanks and heal them or if they are above 90 heal lowest raid unit.
-		--		When tanks are getting lower then we switch to heal them
-		-- How do we handle beacons, so if we have light and faith, if one of them are full health and we are healing a non tank? 
-		-- If we switch beacon it cost 1K mana but we heal for 50%
-		-- We start with tank healing, ie beacon on both tanks, heal raid if tanks are above a configured value in options, if below start focusing on tanks.
-		--[[Lowest]]
+    -- 	We should calcualte best healing options and considere mana levels
+    -- What different healing roles can we have
+    --	Tank healer, beacon on both tanks and heal them or if they are above 90 heal lowest raid unit.
+    --		When tanks are getting lower then we switch to heal them
+    -- How do we handle beacons, so if we have light and faith, if one of them are full health and we are healing a non tank?
+    -- If we switch beacon it cost 1K mana but we heal for 50%
+    -- We start with tank healing, ie beacon on both tanks, heal raid if tanks are above a configured value in options, if below start focusing on tanks.
+    --[[Lowest]]
 
-		lowestHP, lowestUnit, lowestTankHP, lowestTankUnit, highestTankHP, highestTankUnit, averageHealth = 100, "player", 100, "player", 100, "player", 0
-		
-		for i = 1, #nNova do
-			if nNova[i].role == "TANK" then
-				if nNova[i].hp < lowestTankHP then
-					lowestTankHP = nNova[i].hp
-					lowestTankUnit = nNova[i].unit
-				end
-			end
-			if nNova[i].hp < lowestHP then
-				lowestHP = nNova[i].hp
-				lowestUnit = nNova[i].unit
-			end
-			averageHealth = averageHealth + nNova[i].hp
-		end
-		averageHealth = averageHealth/#nNova
+    lowestHP, lowestUnit, lowestTankHP, lowestTankUnit, highestTankHP, highestTankUnit, averageHealth = 100, "player", 100, "player", 100, "player", 0
 
-		--iterate one more time to get highest hp tank
-		for i = 1, #nNova do
-			if nNova[i].role == "TANK" then
-				if nNova[i].unit ~= lowestTankUnit then
-					highestTankHP = nNova[i].hp
-					highestTankUnit = nNova[i].unit
-				end
-			end
-		end
+    for i = 1, #nNova do
+      if nNova[i].role == "TANK" then
+        if nNova[i].hp < lowestTankHP then
+          lowestTankHP = nNova[i].hp
+          lowestTankUnit = nNova[i].unit
+        end
+      end
+      if nNova[i].hp < lowestHP then
+        lowestHP = nNova[i].hp
+        lowestUnit = nNova[i].unit
+      end
+      averageHealth = averageHealth + nNova[i].hp
+    end
+    averageHealth = averageHealth/#nNova
 
-		--[[Set Main Healing Tank]]
-		if IsLeftAltKeyDown() then -- Set focus, ie primary healing target with left alt and mouseover target
-			if UnitIsFriend("player","mouseover") and not UnitIsDeadOrGhost("mouseover") then
-				RunMacroText("/focus mouseover")
-			end
-		end
-		local favoriteTank = { name = "NONE" , health = 0}
-		if UnitIsDeadOrGhost("focus") then
-			if favoriteTank.name ~= "NONE" then
-				favoriteTank = { name = "NONE" , health = 0}
-				ClearFocus()
-			end
-		end
-		if UnitExists("focus") == nil and favoriteTank.name == "NONE" then
-			for i = 1, # nNova do
-				if UnitIsDeadOrGhost("focus") == nil and nNova[i].role == "TANK" and UnitHealthMax(nNova[i].unit) > favoriteTank.health then
-					favoriteTank = { name = UnitName(nNova[i].unit), health = UnitHealthMax(nNova[i].unit) }
-					RunMacroText("/focus "..favoriteTank.name)
-				end
-			end
-		end
+    --iterate one more time to get highest hp tank
+    for i = 1, #nNova do
+      if nNova[i].role == "TANK" then
+        if nNova[i].unit ~= lowestTankUnit then
+          highestTankHP = nNova[i].hp
+          highestTankUnit = nNova[i].unit
+        end
+      end
+    end
 
-		-- Food/Invis Check   Hm here we are checking if we should abort the rotation pulse due to if we are a vehicle or some stuff
-		if canRun() ~= true or UnitInVehicle("Player") then
-			return false
-		end
+    --[[Set Main Healing Tank]]
+    if IsLeftAltKeyDown() then -- Set focus, ie primary healing target with left alt and mouseover target
+      if UnitIsFriend("player","mouseover") and not UnitIsDeadOrGhost("mouseover") then
+        RunMacroText("/focus mouseover")
+    end
+    end
+    local favoriteTank = { name = "NONE" , health = 0}
+    if UnitIsDeadOrGhost("focus") then
+      if favoriteTank.name ~= "NONE" then
+        favoriteTank = { name = "NONE" , health = 0}
+        ClearFocus()
+      end
+    end
+    if UnitExists("focus") == nil and favoriteTank.name == "NONE" then
+      for i = 1, # nNova do
+        if UnitIsDeadOrGhost("focus") == nil and nNova[i].role == "TANK" and UnitHealthMax(nNova[i].unit) > favoriteTank.health then
+          favoriteTank = { name = UnitName(nNova[i].unit), health = UnitHealthMax(nNova[i].unit) }
+          RunMacroText("/focus "..favoriteTank.name)
+        end
+      end
+    end
 
-		if IsLeftShiftKeyDown() then -- Pause the script, keybind in wow shift+1 etc for manual cast
-			return true
-		end
+    -- Food/Invis Check   Hm here we are checking if we should abort the rotation pulse due to if we are a vehicle or some stuff
+    if canRun() ~= true or UnitInVehicle("Player") then
+      return false
+    end
 
-		--[[Off GCD in combat]]
-		if UnitAffectingCombat("player") or IsLeftControlKeyDown() then -- Only heal if we are in combat or if left control is down for out of combat rotation
-			if castingUnit() then -- Do not interrupt if we are already casting
-				return false
-			end
+    if IsLeftShiftKeyDown() then -- Pause the script, keybind in wow shift+1 etc for manual cast
+      return true
+    end
 
-			if BeaconOfLight() then 	-- Set Beacon of Light and faith on correct target
-				return true
-			end
+    --[[Off GCD in combat]]
+    if UnitAffectingCombat("player") or IsLeftControlKeyDown() then -- Only heal if we are in combat or if left control is down for out of combat rotation
+      if castingUnit() then -- Do not interrupt if we are already casting
+        return false
+    end
 
-			if not UnitAffectingCombat("player") then
-				if preCombatHandlingHoly() then
-					return true
-				end
-			end
+    if BeaconOfLight() then 	-- Set Beacon of Light and faith on correct target
+      return true
+    end
 
-			if castDispell() then
-				return true
-			end
+    if not UnitAffectingCombat("player") then
+      if preCombatHandlingHoly() then
+        return true
+      end
+    end
 
-			--[[Auto Attack if in melee]]
-			if isInMelee() and getFacing("player","target") == true then
-				RunMacroText("/startattack")
-			end
+    if castDispell() then
+      return true
+    end
 
-			--Todo: Layon hands is just values, we need to add logic regarding who
-			if castLayOnHands() then
-				return true
-			end
+    --[[Auto Attack if in melee]]
+    if isInMelee() and getFacing("player","target") == true then
+      RunMacroText("/startattack")
+    end
 
-			--if unit is critical low 
-			--	Holy Light if we have Infusion of Light buff
-			--	Holy Shock on CD
-			--	Flash of Light and do a beacon switch?
-			-- Todo: Need to set this in options
-			if lowestTankHP < getValue("Critical Health Level") or lowestHP < getValue("Critical Health Level") then
-				if UnitBuffID("player",_InfusionOfLight) then
-					if castHolyLight(40) then
-						return true
-					end
-				end
-				if canCast(_HolyShock) then
-					if castHolyShock(nil, 40) then
-						return true
-					end
-				end
-				if castFlashOfLight(nil, 40) then
-					return true
-				end
-			end
+    --Todo: Layon hands is just values, we need to add logic regarding who
+    if castLayOnHands() then
+      return true
+    end
 
-			if castHolyPrism(nil) then
-				return true
-			end
+    --if unit is critical low
+    --	Holy Light if we have Infusion of Light buff
+    --	Holy Shock on CD
+    --	Flash of Light and do a beacon switch?
+    -- Todo: Need to set this in options
+    if lowestTankHP < getValue("Critical Health Level") or lowestHP < getValue("Critical Health Level") then
+      if UnitBuffID("player",_InfusionOfLight) then
+        if castHolyLight(40) then
+          return true
+        end
+      end
+      if canCast(_HolyShock) then
+        if castHolyShock(nil, 40) then
+          return true
+        end
+      end
+      if castFlashOfLight(nil, 40) then
+        return true
+      end
+    end
 
-			-- AoE healing
-			 if castAoEHeals() then
-			 	return true
-			 end
+    if castHolyPrism(nil) then
+      return true
+    end
 
-			--[[holy_shock,if=holy_power<=3]] -- Should add not cast if 5 HoPo
-			if getOptionCheck("Holy Shock") and _HolyPower < 5 and castHolyShock(nil, getValue("Holy Shock"))  then
-				return true
-			end
+    -- AoE healing
+    if castAoEHeals() then
+      return true
+    end
 
-			--Todo Need to add a check if we have 5 then use it
-			if getOptionCheck("Eternal Flame") and castEternalFlame(getValue("Eternal Flame")) then
-				return true
-			end
+    --[[holy_shock,if=holy_power<=3]] -- Should add not cast if 5 HoPo
+    if getOptionCheck("Holy Shock") and _HolyPower < 5 and castHolyShock(nil, getValue("Holy Shock"))  then
+      return true
+    end
 
-			--[[flash_of_light,if=target.health.pct<=30]]
-			if isChecked("Flash Of Light") and castFlashOfLight(nil, getValue("Flash Of Light")) then
-				return true
-			end
+    --Todo Need to add a check if we have 5 then use it
+    if getOptionCheck("Eternal Flame") and castEternalFlame(getValue("Eternal Flame")) then
+      return true
+    end
 
-			if getOptionCheck("Holy Prism") and HolyPrism(getValue("Holy Prism")) then
-				return true
-			end
+    --[[flash_of_light,if=target.health.pct<=30]]
+    if isChecked("Flash Of Light") and castFlashOfLight(nil, getValue("Flash Of Light")) then
+      return true
+    end
 
-			if getOptionCheck("Holy Light") and castHolyLight(getValue("Holy Light")) then
-				return true
-			end
-			-- Crusader strik for HoPo
-		end
-	end
+    if getOptionCheck("Holy Prism") and HolyPrism(getValue("Holy Prism")) then
+      return true
+    end
+
+    if getOptionCheck("Holy Light") and castHolyLight(getValue("Holy Light")) then
+      return true
+    end
+    -- Crusader strik for HoPo
+    end
+  end
 end

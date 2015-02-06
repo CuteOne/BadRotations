@@ -7,9 +7,9 @@ if select(3,UnitClass("player")) == 6 then
     UnholyToggles()
     GroupInfo()
     getRuneInfo()
-  ------------------------------------------------------------------------------------------------------
-  -- Locals --------------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
+    -- Locals --------------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
     local php = getHP("player")
     local power, powmax, powgen = getPower("player"), UnitPowerMax("player"), getRegen("player")
     local ttm = getTimeToMax("player")
@@ -98,56 +98,56 @@ if select(3,UnitClass("player")) == 6 then
       ["dyn30"] = ((ffRemain.dyn30>0 and bpRemain.dyn30>0) or necRemain.dyn30>0),
       ["dyn30AoE"] = ((ffRemain.dyn30AoE>0 and bpRemain.dyn30AoE>0) or necRemain.dyn30AoE>0),
     }
-  ------------------------------------------------------------------------------------------------------
-  -- Food/Invis Check ----------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
+    -- Food/Invis Check ----------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
     if canRun() ~= true or UnitInVehicle("Player") then
       return false;
     end
     if IsMounted("player") then
       return false;
     end
-  ------------------------------------------------------------------------------------------------------
-  -- Pause ---------------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
+    -- Pause ---------------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
     if isChecked("Pause Key") == true and SpecificToggle("Pause Key") == true then
       ChatOverlay("|cffFF0000BadBoy Paused", 0); return;
     end
     if isChecked("2nd Pause Key") == true and SpecificToggle("2nd Pause Key") == true then
       ChatOverlay("|cffFF0000BadBoy Paused", 0); return;
     end
-  ------------------------------------------------------------------------------------------------------
-  -- Spell Queue ---------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
+    -- Spell Queue ---------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
     if _Queues == nil then
-     _Queues = {
-     [_BloodBoil]  = false,
-     }
+      _Queues = {
+        [_BloodBoil]  = false,
+      }
     end
-  ------------------------------------------------------------------------------------------------------
-  -- Input / Keys --------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
+    -- Input / Keys --------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
     -- Defile
     if isKnown(_Defile) == true then
       if isChecked("DnD / Defile Key") == true and SpecificToggle("DnD / Defile Key") == true then
         if not IsMouselooking() then
-            CastSpellByName(GetSpellInfo(43265))
-            if SpellIsTargeting() then
-                CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
-                return true;
-            end
+          CastSpellByName(GetSpellInfo(43265))
+          if SpellIsTargeting() then
+            CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+            return true;
+          end
         end
       end
     end
-  -- DnD
+    -- DnD
     if isKnown(_Defile) == false then
       if isChecked("DnD / Defile Key") == true and SpecificToggle("DnD / Defile Key") == true then
         if not IsMouselooking() then
-            CastSpellByName(GetSpellInfo(43265))
-            if SpellIsTargeting() then
-                CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
-                return true;
-            end
+          CastSpellByName(GetSpellInfo(43265))
+          if SpellIsTargeting() then
+            CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+            return true;
+          end
         end
       end
     end
@@ -155,47 +155,47 @@ if select(3,UnitClass("player")) == 6 then
     if isKnown(_AntiMagicZone) == true then
       if isChecked("AMZ Key") == true and SpecificToggle("AMZ Key") == true then
         if not IsMouselooking() then
-            CastSpellByName(GetSpellInfo(51052))
-            if SpellIsTargeting() then
-                CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
-                return true;
-            end
+          CastSpellByName(GetSpellInfo(51052))
+          if SpellIsTargeting() then
+            CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+            return true;
+          end
         end
       end
     end
 
-  -- Opener --------------------------------------------------------------------------------------------
-  -- use /uhopener 6 seconds before Pull (5 seconds to be 100% sure to not pull to early)
-  -- Will only start if: Army of the Dead is ready / Gargoyle is ready /  Pre-Pot is ready / You have a target
-  -- use /uhopenerreset for emergency
+    -- Opener --------------------------------------------------------------------------------------------
+    -- use /uhopener 6 seconds before Pull (5 seconds to be 100% sure to not pull to early)
+    -- Will only start if: Army of the Dead is ready / Gargoyle is ready /  Pre-Pot is ready / You have a target
+    -- use /uhopenerreset for emergency
     unholyOpener()
-  ------------------------------------------------------------------------------------------------------
-  -- Ress/Dispell --------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
+    -- Ress/Dispell --------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
 
-  ------------------------------------------------------------------------------------------------------
-  -- Buffs ---------------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
+    -- Buffs ---------------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
     if isChecked("Horn of Winter") == true and (lastHOW == nil or lastHOW <= GetTime() - 5) then
       for i = 1, #nNova do
-          if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{57330,19506,6673}) and (UnitInRange(nNova[i].unit) or UnitIsUnit(nNova[i].unit,"player")) then
-            if castSpell("player",_HornOfWinter,true) then lastHOW = GetTime(); return; end
+        if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{57330,19506,6673}) and (UnitInRange(nNova[i].unit) or UnitIsUnit(nNova[i].unit,"player")) then
+          if castSpell("player",_HornOfWinter,true) then lastHOW = GetTime(); return; end
         end
       end
     end
-  ------------------------------------------------------------------------------------------------------
-  -- Out of Combat -------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
+    -- Out of Combat -------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
     if not isInCombat("player") then
 
     end -- Out of Combat end
-  ------------------------------------------------------------------------------------------------------
-  -- In Combat -----------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
+    -- In Combat -----------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
     if isInCombat("player") then
-  ------------------------------------------------------------------------------------------------------
-  -- Dummy Test ----------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
+      -- Dummy Test ----------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
       if isChecked("DPS Testing") == true then
         if UnitExists("target") then
           if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
@@ -205,13 +205,13 @@ if select(3,UnitClass("player")) == 6 then
           end
         end
       end
-  ------------------------------------------------------------------------------------------------------
-  -- Queued Spells -------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
+      -- Queued Spells -------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
 
-  ------------------------------------------------------------------------------------------------------
-  -- Defensive Cooldowns -------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
+      -- Defensive Cooldowns -------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
       if useDefensive() == true then
         -- Icebound Fortitude
         if isChecked("Icebound Fortitude") == true then
@@ -231,11 +231,11 @@ if select(3,UnitClass("player")) == 6 then
         end
         -- Healthstone
         if isChecked("Healthstone / Potion") == true and php <= getValue("Healthstone / Potion")
-        and isInCombat("player") and hasHealthPot() then
+          and isInCombat("player") and hasHealthPot() then
           if canUse(5512) then
-              UseItemByName(tostring(select(1,GetItemInfo(5512))))
+            UseItemByName(tostring(select(1,GetItemInfo(5512))))
           elseif canUse(healPot) then
-              UseItemByName(tostring(select(1,GetItemInfo(healPot))))
+            UseItemByName(tostring(select(1,GetItemInfo(healPot))))
           end
         end
         -- Death Pact
@@ -273,9 +273,9 @@ if select(3,UnitClass("player")) == 6 then
         --   end
         -- end
       end -- isChecked("Defensive Mode") end
-  ------------------------------------------------------------------------------------------------------
-  -- Offensive Cooldowns -------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
+      -- Offensive Cooldowns -------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
       if useCDs() == true then
         -- Orc / Troll Racial
         if isChecked("Racial (Orc/Troll)") then
@@ -296,7 +296,7 @@ if select(3,UnitClass("player")) == 6 then
             return
           end
         end
-         -- empower_rune_weapon,if=blood<1&unholy<1&frost<1
+        -- empower_rune_weapon,if=blood<1&unholy<1&frost<1
         if isChecked("Empower Rune Weapon") then
           if bRunes < 1 and uRunes < 1 and fRunes < 1 then
             if castSpell("player",_EmpowerRuneWeapon,true) then
@@ -309,21 +309,21 @@ if select(3,UnitClass("player")) == 6 then
         if canTrinket(13) and useCDs() then
           RunMacroText("/use 13")
           if IsAoEPending() then
-            local X,Y,Z = ObjectPosition(Unit)
+            local X,Y,Z = GetObjectPosition(Unit)
             CastAtPosition(X,Y,Z)
           end
         end
         if canTrinket(14) and useCDs() then
           RunMacroText("/use 14")
           if IsAoEPending() then
-            local X,Y,Z = ObjectPosition(Unit)
+            local X,Y,Z = GetObjectPosition(Unit)
             CastAtPosition(X,Y,Z)
           end
         end
       end -- useCDs() end
-  ------------------------------------------------------------------------------------------------------
-  -- Do everytime --------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
+      -- Do everytime --------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
       if not UnitExists("pet") then
         if castSpell("player",_RaiseDead,true) then
           --print("Call Pet")
@@ -335,9 +335,9 @@ if select(3,UnitClass("player")) == 6 then
         --print("Transformation AoE")
         return
       end
-  ------------------------------------------------------------------------------------------------------
-  -- Interrupts ----------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
+      -- Interrupts ----------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
       -- Mind Freeze
       if isChecked("Mind Freeze") == true then
         castInterrupt(_MindFreeze, getValue("Mind Freeze"))
@@ -346,395 +346,395 @@ if select(3,UnitClass("player")) == 6 then
       if isChecked("Strangulate") == true then
         castInterrupt(_Strangulate, getValue("Strangulate"))
       end
-  ------------------------------------------------------------------------------------------------------
-  -- Rotation ------------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
+      -- Rotation ------------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
       if getValue("Rotation") == 1 then
 
-      if not useAoE() then
-        -- actions.single_target=plague_leech,if=(cooldown.outbreak.remains<1)&((blood<1&frost<1)|(blood<1&unholy<1)|(frost<1&unholy<1))
-        if hasDisease.dyn30AoE and getDisease(30,true,"min")<1 and tarDist.dyn30AoE<30 then
-          if obCooldown < 1 and ((bRunes < 1 and fRunes < 1) or (bRunes < 1 and uRunes < 1) or (fRunes < 1 and uRunes < 1)) then
+        if not useAoE() then
+          -- actions.single_target=plague_leech,if=(cooldown.outbreak.remains<1)&((blood<1&frost<1)|(blood<1&unholy<1)|(frost<1&unholy<1))
+          if hasDisease.dyn30AoE and getDisease(30,true,"min")<1 and tarDist.dyn30AoE<30 then
+            if obCooldown < 1 and ((bRunes < 1 and fRunes < 1) or (bRunes < 1 and uRunes < 1) or (fRunes < 1 and uRunes < 1)) then
+              if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then
+                --print("PL 1")
+                return
+              end
+            end
+          end
+          -- actions.single_target+=/plague_leech,if=((blood<1&frost<1)|(blood<1&unholy<1)|(frost<1&unholy<1))&(dot.blood_plague.remains<3|dot.frost_fever.remains<3)
+          -- actions.single_target+=/plague_leech,if=(dot.blood_plague.remains<1|dot.frost_fever.remains<1)
+          -- actions.single_target+=/outbreak,if=!talent.necrotic_plague.enabled&(!dot.frost_fever.ticking|!dot.blood_plague.ticking)
+          if not getTalent(7,1) then
+            if (bpRemain.dyn30 == 0 or ffRemain.dyn30 == 0) and tarDist.dyn30AoE<30 then
+              if castSpell(tarUnit.dyn30AoE,_Outbreak,true,false,false) then
+                --print("OB 1")
+                return
+              end
+            end
+          end
+          -- actions.single_target+=/unholy_blight,if=!talent.necrotic_plague.enabled&(dot.frost_fever.remains<3|dot.blood_plague.remains<3)
+          -- actions.single_target+=/unholy_blight,if=talent.necrotic_plague.enabled&dot.necrotic_plague.remains<1
+          -- actions.single_target+=/death_coil,if=runic_power>90
+          if power > 90 then
+            if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
+              --print("DC 1")
+              return
+            end
+          end
+          -- actions.single_target+=/soul_reaper,if=(target.health.pct-3*(target.health.pct%target.time_to_die))<=45
+          if level <= 99 then
+            if thp <= 35 then
+              if (thp-3*(thp/ttd)<=35) and uRunes>=1 and tarDist.dyn5<5 then
+                if castSpell(tarUnit.dyn5,_SoulReaper,false,false,false) then
+                  --print("SR 1")
+                  return
+                end
+              end
+            end
+          end
+          if level == 100 then
+            if thp <= 45 then
+              if (thp-3*(thp/ttd)<=45) and uRunes>=1 and tarDist.dyn5<5 then
+                if castSpell(tarUnit.dyn5,_SoulReaper,false,false,false) then
+                  --print("SR 1")
+                  return
+                end
+              end
+            end
+          end
+          -- actions.single_target+=/breath_of_sindragosa,if=runic_power>75
+          if isChecked("Breath of Sindragosa") and useCDs() then
+            if getTalent(7,3) then
+              if power > 75 then
+                if castSpell("player",_BreathOfSindragosa,true) then
+                  return
+                end
+              end
+            end
+          end
+          -- actions.single_target+=/run_action_list,name=bos_st,if=dot.breath_of_sindragosa.ticking
+          if bosDebuffRemain > 0 then
+            -- actions.bos_st=death_and_decay,if=runic_power<88
+            if power < 88 then
+              if castGround("target",43265,6) then
+                print("Defile / DnD BoS active")
+                return
+              end
+            end
+            -- actions.bos_st+=/festering_strike,if=runic_power<77
+            if power < 77 then
+              if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
+                print("FS BoS active")
+                return
+              end
+            end
+            -- actions.bos_st+=/scourge_strike,if=runic_power<88
+            if power < 88 then
+              if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
+                print("SS BoS active")
+                return
+              end
+            end
+            -- actions.bos_st+=/blood_tap,if=buff.blood_charge.stack>=5
+            if bcStack >= 5 then
+              if castSpell("player",_BloodTap,true) then
+                print("BT BoS active")
+                return
+              end
+            end
+            -- actions.bos_st+=/plague_leech
             if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then
-              --print("PL 1")
+              print("PL BoS active")
               return
             end
-          end
-        end
-        -- actions.single_target+=/plague_leech,if=((blood<1&frost<1)|(blood<1&unholy<1)|(frost<1&unholy<1))&(dot.blood_plague.remains<3|dot.frost_fever.remains<3)
-        -- actions.single_target+=/plague_leech,if=(dot.blood_plague.remains<1|dot.frost_fever.remains<1)
-        -- actions.single_target+=/outbreak,if=!talent.necrotic_plague.enabled&(!dot.frost_fever.ticking|!dot.blood_plague.ticking)
-        if not getTalent(7,1) then
-          if (bpRemain.dyn30 == 0 or ffRemain.dyn30 == 0) and tarDist.dyn30AoE<30 then
-            if castSpell(tarUnit.dyn30AoE,_Outbreak,true,false,false) then
-              --print("OB 1")
-              return
-            end
-          end
-        end
-        -- actions.single_target+=/unholy_blight,if=!talent.necrotic_plague.enabled&(dot.frost_fever.remains<3|dot.blood_plague.remains<3)
-        -- actions.single_target+=/unholy_blight,if=talent.necrotic_plague.enabled&dot.necrotic_plague.remains<1
-        -- actions.single_target+=/death_coil,if=runic_power>90
-        if power > 90 then
-          if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
-            --print("DC 1")
-            return
-          end
-        end
-        -- actions.single_target+=/soul_reaper,if=(target.health.pct-3*(target.health.pct%target.time_to_die))<=45
-        if level <= 99 then
-          if thp <= 35 then
-            if (thp-3*(thp/ttd)<=35) and uRunes>=1 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_SoulReaper,false,false,false) then
-                --print("SR 1")
+            -- actions.bos_st+=/empower_rune_weapon
+            -- actions.bos_st+=/death_coil,if=buff.sudden_doom.react
+            if UnitBuffID("player",_SuddenDoom) then
+              if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
+                print("DC BoS active")
                 return
               end
             end
           end
-        end
-        if level == 100 then
-          if thp <= 45 then
-            if (thp-3*(thp/ttd)<=45) and uRunes>=1 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_SoulReaper,false,false,false) then
-                --print("SR 1")
-                return
-              end
-            end
-          end
-        end
-        -- actions.single_target+=/breath_of_sindragosa,if=runic_power>75
-        if isChecked("Breath of Sindragosa") and useCDs() then
+          -- actions.single_target+=/death_and_decay,if=cooldown.breath_of_sindragosa.remains<7&runic_power<88&talent.breath_of_sindragosa.enabled
           if getTalent(7,3) then
-            if power > 75 then
-              if castSpell("player",_BreathOfSindragosa,true) then
+            if useDefile() then
+              if bosCooldown < 7 and power < 78 then
+                if castGround("target",43265,6) then
+                  print("Defile / DnD BoS < 7")
+                  return
+                end
+              end
+            end
+          end
+          -- actions.single_target+=/scourge_strike,if=cooldown.breath_of_sindragosa.remains<7&runic_power<88&talent.breath_of_sindragosa.enabled
+          if getTalent(7,3) then
+            if bosCooldown < 7 and power < 78 then
+              if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
+                print("SS BoS < 7")
                 return
               end
             end
           end
-        end
-        -- actions.single_target+=/run_action_list,name=bos_st,if=dot.breath_of_sindragosa.ticking
-        if bosDebuffRemain > 0 then
-          -- actions.bos_st=death_and_decay,if=runic_power<88
-          if power < 88 then
-            if castGround("target",43265,6) then
-              print("Defile / DnD BoS active")
+          -- actions.single_target+=/festering_strike,if=cooldown.breath_of_sindragosa.remains<7&runic_power<76&talent.breath_of_sindragosa.enabled
+          if getTalent(7,3) then
+            if bosCooldown < 7 and power < 66 then
+              if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
+                print("FS BoS < 7")
+                return
+              end
+            end
+          end
+          -- actions.single_target+=/blood_tap,if=((target.health.pct-3*(target.health.pct%target.time_to_die))<=45)&cooldown.soul_reaper.remains=0
+          if getTalent(4,1) then
+            if (thp-3*(thp/ttd)<=45) and srCooldown == 0 then
+              if bcStack >= 5 then
+                if castSpell("player",_BloodTap,true) then
+                  --print("BT 1")
+                  return
+                end
+              end
+            end
+          end
+          -- actions.single_target+=/death_and_decay,if=unholy=2
+          -- actions.single_target+=/defile,if=unholy=2
+          if useDefile() then
+            if uRunes == 2 then
+              if castGround("target",43265,6) then
+                --print("Auto Defile / DnD 1")
+                return
+              end
+            end
+          end
+          -- actions.single_target+=/plague_strike,if=(!dot.blood_plague.ticking|!dot.frost_fever.ticking)&unholy=2
+          if (bpRemain.dyn5 == 0 or ffRemain.dyn5 == 0) and uRunes == 2 then
+            if castSpell(tarUnit.dyn5,_PlagueStrike,false,false) then
+              --print("PS 1")
               return
             end
           end
-          -- actions.bos_st+=/festering_strike,if=runic_power<77
-          if power < 77 then
-            if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
-              print("FS BoS active")
-              return
-            end
-          end
-          -- actions.bos_st+=/scourge_strike,if=runic_power<88
-          if power < 88 then
+          -- actions.single_target+=/scourge_strike,if=unholy=2
+          if uRunes == 2 then
             if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
-              print("SS BoS active")
+              --print("SS 1")
               return
             end
           end
-          -- actions.bos_st+=/blood_tap,if=buff.blood_charge.stack>=5
+          -- actions.single_target+=/death_coil,if=runic_power>80
+          if power > 80 then
+            if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
+              --print("DC 2")
+              return
+            end
+          end
+          -- actions.single_target+=/festering_strike,if=blood=2&frost=2&(((Frost-death)>0)|((Blood-death)>0))
+          if bRunes == 2 and fRunes == 2 and (((fRunes - dRunes)>0) or ((bRunes - dRunes)>0)) then
+            if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
+              --print("FS 1")
+              return
+            end
+          end
+          -- actions.single_target+=/festering_strike,if=(blood=2|frost=2)&(((Frost-death)>0)&((Blood-death)>0))
+          if (bRunes == 2 or fRunes == 2) and (((fRunes - dRunes)>0) or ((bRunes - dRunes)>0)) then
+            if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
+              --print("FS 2")
+              return
+            end
+          end
+          -- actions.single_target+=/defile,if=blood=2|frost=2
+          if useDefile() and getTalent(7,2) then
+            if bRunes == 2 or fRunes == 2 then
+              if castGround("target",43265,6) then
+                --print("Auto Defile 2")
+                return
+              end
+            end
+          end
+          -- actions.single_target+=/plague_strike,if=(!dot.blood_plague.ticking|!dot.frost_fever.ticking)&(blood=2|frost=2)
+          if (bpRemain.dyn5 == 0 or ffRemain.dyn5 == 0) and (bRunes == 2 or fRunes == 2) then
+            if castSpell(tarUnit.dyn5,_PlagueStrike,false,false) then
+              --print("PS 2")
+              return
+            end
+          end
+          -- actions.single_target+=/scourge_strike,if=blood=2|frost=2
+          if bRunes == 2 or fRunes == 2 then
+            if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
+              --print("SS 2")
+              return
+            end
+          end
+          -- actions.single_target+=/festering_strike,if=((Blood-death)>1)
+          if (bRunes - dRunes) > 1 then
+            if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
+              --print("FS 3")
+              return
+            end
+          end
+          -- actions.single_target+=/blood_boil,if=((Blood-death)>1)
+          if (bRunes - dRunes) > 1 then
+            if tarDist.dyn10AoE<15 then
+              if castSpell("player",_BloodBoil,true,false,false) then
+                --print("BB 1")
+                return
+              end
+            end
+          end
+          -- actions.single_target+=/festering_strike,if=((Frost-death)>1)
+          if (fRunes - dRunes) > 1 then
+            if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
+              --print("FS 4")
+              return
+            end
+          end
+          -- actions.single_target+=/blood_tap,if=((target.health.pct-3*(target.health.pct%target.time_to_die))<=45)&cooldown.soul_reaper.remains=0
+          if getTalent(4,1) then
+            if (thp-3*(thp/ttd)<=45) and srCooldown == 0 then
+              if bcStack >= 5 then
+                if castSpell("player",_BloodTap,true) then
+                  --print("BT 2")
+                  return
+                end
+              end
+            end
+          end
+          -- actions.single_target+=/death_and_decay
+          -- actions.single_target+=/defile
+          if useDefile() then
+            if castGround("target",43265,6) then
+              --print("Auto Defile / DnD 3")
+              return
+            end
+          end
+          -- actions.single_target+=/blood_tap,if=cooldown.defile.remains=0
+          if getTalent(4,1) and getTalent(7,2) then
+            if dfCooldown == 0 then
+              if bcStack >= 5 then
+                if castSpell("player",_BloodTap,true) then
+                  --print("BT 3")
+                  return
+                end
+              end
+            end
+          end
+          -- actions.single_target+=/plague_strike,if=(!dot.blood_plague.ticking|!dot.frost_fever.ticking)
+          if (bpRemain.dyn5 == 0 or ffRemain.dyn5 == 0) then
+            if castSpell(tarUnit.dyn5,_PlagueStrike,false,false) then
+              --print("PS 3")
+              return
+            end
+          end
+          -- actions.single_target+=/blood_tap,if=buff.blood_charge.stack>10&(buff.sudden_doom.react|(buff.dark_transformation.down&unholy<=1))
+          if getTalent(4,1) then
+            if bcStack > 10 and (UnitBuffID("player",_SuddenDoom) or (UnitBuffID("pet",_DarkTransformation) and uRunes <= 1)) then
+              if castSpell("player",_BloodTap,true) then
+                --print("BT 4")
+                return
+              end
+            end
+          end
+          -- actions.single_target+=/death_coil,if=buff.sudden_doom.react|(buff.dark_transformation.down&unholy<=1)
+          if UnitBuffID("player",_SuddenDoom) or (UnitBuffID("pet",_DarkTransformation) and uRunes <= 1) then
+            if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
+              --print("DC 3")
+              return
+            end
+          end
+          -- actions.single_target+=/scourge_strike,if=!((target.health.pct-3*(target.health.pct%target.time_to_die))<=45)|(Unholy>=2)
+          if (thp-3*(thp/ttd)<= 45) or uRunes >= 2 then
+            if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
+              --print("SS 3")
+              return
+            end
+          end
+          -- actions.single_target+=/blood_tap
           if bcStack >= 5 then
             if castSpell("player",_BloodTap,true) then
-              print("BT BoS active")
+              --print("BT 5")
               return
             end
           end
-          -- actions.bos_st+=/plague_leech
-          if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then
-            print("PL BoS active")
-            return
-          end
-          -- actions.bos_st+=/empower_rune_weapon
-          -- actions.bos_st+=/death_coil,if=buff.sudden_doom.react
-          if UnitBuffID("player",_SuddenDoom) then
-            if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
-              print("DC BoS active")
-              return
-            end
-          end
-        end
-        -- actions.single_target+=/death_and_decay,if=cooldown.breath_of_sindragosa.remains<7&runic_power<88&talent.breath_of_sindragosa.enabled
-        if getTalent(7,3) then
-          if useDefile() then
-            if bosCooldown < 7 and power < 78 then
-              if castGround("target",43265,6) then
-                print("Defile / DnD BoS < 7")
-                return
-              end
-            end
-          end
-        end
-        -- actions.single_target+=/scourge_strike,if=cooldown.breath_of_sindragosa.remains<7&runic_power<88&talent.breath_of_sindragosa.enabled
-        if getTalent(7,3) then
-          if bosCooldown < 7 and power < 78 then
-            if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
-              print("SS BoS < 7")
-              return
-            end
-          end
-        end
-        -- actions.single_target+=/festering_strike,if=cooldown.breath_of_sindragosa.remains<7&runic_power<76&talent.breath_of_sindragosa.enabled
-        if getTalent(7,3) then
-          if bosCooldown < 7 and power < 66 then
+          -- actions.single_target+=/festering_strike,if=!((target.health.pct-3*(target.health.pct%target.time_to_die))<=45)|(((Frost-death)>0)&((Blood-death)>0))
+          if (thp-3*(thp/ttd)<= 45) or (((fRunes - dRunes) > 0) and ((bRunes - dRunes) > 0)) then
             if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
-              print("FS BoS < 7")
+              --print("FS 4")
               return
             end
           end
-        end
-        -- actions.single_target+=/blood_tap,if=((target.health.pct-3*(target.health.pct%target.time_to_die))<=45)&cooldown.soul_reaper.remains=0
-        if getTalent(4,1) then
-          if (thp-3*(thp/ttd)<=45) and srCooldown == 0 then
-            if bcStack >= 5 then
-              if castSpell("player",_BloodTap,true) then
-                --print("BT 1")
-                return
-              end
-            end
-          end
-        end
-        -- actions.single_target+=/death_and_decay,if=unholy=2
-        -- actions.single_target+=/defile,if=unholy=2
-        if useDefile() then
-          if uRunes == 2 then
-            if castGround("target",43265,6) then
-              --print("Auto Defile / DnD 1")
-              return
-            end
-          end
-        end
-        -- actions.single_target+=/plague_strike,if=(!dot.blood_plague.ticking|!dot.frost_fever.ticking)&unholy=2
-        if (bpRemain.dyn5 == 0 or ffRemain.dyn5 == 0) and uRunes == 2 then
-          if castSpell(tarUnit.dyn5,_PlagueStrike,false,false) then
-            --print("PS 1")
-            return
-          end
-        end
-        -- actions.single_target+=/scourge_strike,if=unholy=2
-        if uRunes == 2 then
-          if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
-            --print("SS 1")
-            return
-          end
-        end
-        -- actions.single_target+=/death_coil,if=runic_power>80
-        if power > 80 then
-          if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
-            --print("DC 2")
-            return
-          end
-        end
-        -- actions.single_target+=/festering_strike,if=blood=2&frost=2&(((Frost-death)>0)|((Blood-death)>0))
-        if bRunes == 2 and fRunes == 2 and (((fRunes - dRunes)>0) or ((bRunes - dRunes)>0)) then
-          if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
-            --print("FS 1")
-            return
-          end
-        end
-        -- actions.single_target+=/festering_strike,if=(blood=2|frost=2)&(((Frost-death)>0)&((Blood-death)>0))
-        if (bRunes == 2 or fRunes == 2) and (((fRunes - dRunes)>0) or ((bRunes - dRunes)>0)) then
-          if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
-            --print("FS 2")
-            return
-          end
-        end
-        -- actions.single_target+=/defile,if=blood=2|frost=2
-        if useDefile() and getTalent(7,2) then
-          if bRunes == 2 or fRunes == 2 then
-            if castGround("target",43265,6) then
-              --print("Auto Defile 2")
-              return
-            end
-          end
-        end
-        -- actions.single_target+=/plague_strike,if=(!dot.blood_plague.ticking|!dot.frost_fever.ticking)&(blood=2|frost=2)
-        if (bpRemain.dyn5 == 0 or ffRemain.dyn5 == 0) and (bRunes == 2 or fRunes == 2) then
-          if castSpell(tarUnit.dyn5,_PlagueStrike,false,false) then
-            --print("PS 2")
-            return
-          end
-        end
-        -- actions.single_target+=/scourge_strike,if=blood=2|frost=2
-        if bRunes == 2 or fRunes == 2 then
-          if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
-            --print("SS 2")
-            return
-          end
-        end
-        -- actions.single_target+=/festering_strike,if=((Blood-death)>1)
-        if (bRunes - dRunes) > 1 then
-          if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
-            --print("FS 3")
-            return
-          end
-        end
-        -- actions.single_target+=/blood_boil,if=((Blood-death)>1)
-        if (bRunes - dRunes) > 1 then
-          if tarDist.dyn10AoE<15 then
-            if castSpell("player",_BloodBoil,true,false,false) then
-              --print("BB 1")
-              return
-            end
-          end
-        end
-        -- actions.single_target+=/festering_strike,if=((Frost-death)>1)
-        if (fRunes - dRunes) > 1 then
-          if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
-            --print("FS 4")
-            return
-          end
-        end
-        -- actions.single_target+=/blood_tap,if=((target.health.pct-3*(target.health.pct%target.time_to_die))<=45)&cooldown.soul_reaper.remains=0
-        if getTalent(4,1) then
-          if (thp-3*(thp/ttd)<=45) and srCooldown == 0 then
-            if bcStack >= 5 then
-              if castSpell("player",_BloodTap,true) then
-                --print("BT 2")
-                return
-              end
-            end
-          end
-        end
-        -- actions.single_target+=/death_and_decay
-        -- actions.single_target+=/defile
-        if useDefile() then
-          if castGround("target",43265,6) then
-            --print("Auto Defile / DnD 3")
-            return
-          end
-        end
-        -- actions.single_target+=/blood_tap,if=cooldown.defile.remains=0
-        if getTalent(4,1) and getTalent(7,2) then
-          if dfCooldown == 0 then
-            if bcStack >= 5 then
-              if castSpell("player",_BloodTap,true) then
-                --print("BT 3")
-                return
-              end
-            end
-          end
-        end
-        -- actions.single_target+=/plague_strike,if=(!dot.blood_plague.ticking|!dot.frost_fever.ticking)
-        if (bpRemain.dyn5 == 0 or ffRemain.dyn5 == 0) then
-          if castSpell(tarUnit.dyn5,_PlagueStrike,false,false) then
-            --print("PS 3")
-            return
-          end
-        end
-        -- actions.single_target+=/blood_tap,if=buff.blood_charge.stack>10&(buff.sudden_doom.react|(buff.dark_transformation.down&unholy<=1))
-        if getTalent(4,1) then
-          if bcStack > 10 and (UnitBuffID("player",_SuddenDoom) or (UnitBuffID("pet",_DarkTransformation) and uRunes <= 1)) then
-            if castSpell("player",_BloodTap,true) then
-              --print("BT 4")
-              return
-            end
-          end
-        end
-        -- actions.single_target+=/death_coil,if=buff.sudden_doom.react|(buff.dark_transformation.down&unholy<=1)
-        if UnitBuffID("player",_SuddenDoom) or (UnitBuffID("pet",_DarkTransformation) and uRunes <= 1) then
+          -- actions.single_target+=/death_coil
           if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
             --print("DC 3")
             return
           end
-        end
-        -- actions.single_target+=/scourge_strike,if=!((target.health.pct-3*(target.health.pct%target.time_to_die))<=45)|(Unholy>=2)
-        if (thp-3*(thp/ttd)<= 45) or uRunes >= 2 then
-          if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
-            --print("SS 3")
+          -- actions.single_target+=/plague_leech
+          if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then
+            --print("PL 2")
             return
           end
-        end
-        -- actions.single_target+=/blood_tap
-        if bcStack >= 5 then
-          if castSpell("player",_BloodTap,true) then
-            --print("BT 5")
-            return
-          end
-        end
-        -- actions.single_target+=/festering_strike,if=!((target.health.pct-3*(target.health.pct%target.time_to_die))<=45)|(((Frost-death)>0)&((Blood-death)>0))
-        if (thp-3*(thp/ttd)<= 45) or (((fRunes - dRunes) > 0) and ((bRunes - dRunes) > 0)) then
-          if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
-            --print("FS 4")
-            return
-          end
-        end
-        -- actions.single_target+=/death_coil
-        if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
-          --print("DC 3")
-          return
-        end
-        -- actions.single_target+=/plague_leech
-        if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then
-          --print("PL 2")
-          return
-        end
-        -- actions.single_target+=/scourge_strike,if=cooldown.empower_rune_weapon.remains=0
-        if erwCooldown == 0 then
-          if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
-            --print("SS 4")
-            return
-          end
-        end
-        -- actions.single_target+=/festering_strike,if=cooldown.empower_rune_weapon.remains=0
-        if erwCooldown == 0 then
-          if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
-            --print("FS 5")
-            return
-          end
-        end
-        -- actions.single_target+=/blood_boil,if=cooldown.empower_rune_weapon.remains=0
-        if erwCooldown == 0 then
-          if tarDist.dyn10AoE<15 then
-            if castSpell("player",_BloodBoil,true,false,false) then
-              --print("BB 2")
+          -- actions.single_target+=/scourge_strike,if=cooldown.empower_rune_weapon.remains=0
+          if erwCooldown == 0 then
+            if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
+              --print("SS 4")
               return
             end
           end
-        end
-        -- actions.single_target+=/icy_touch,if=cooldown.empower_rune_weapon.remains=0
-        if erwCooldown == 0 then
-          if castSpell(tarUnit.dyn30,_IcyTouch,false,false) then
-            --print("IT 1")
-            return
+          -- actions.single_target+=/festering_strike,if=cooldown.empower_rune_weapon.remains=0
+          if erwCooldown == 0 then
+            if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
+              --print("FS 5")
+              return
+            end
           end
-        end
+          -- actions.single_target+=/blood_boil,if=cooldown.empower_rune_weapon.remains=0
+          if erwCooldown == 0 then
+            if tarDist.dyn10AoE<15 then
+              if castSpell("player",_BloodBoil,true,false,false) then
+                --print("BB 2")
+                return
+              end
+            end
+          end
+          -- actions.single_target+=/icy_touch,if=cooldown.empower_rune_weapon.remains=0
+          if erwCooldown == 0 then
+            if castSpell(tarUnit.dyn30,_IcyTouch,false,false) then
+              --print("IT 1")
+              return
+            end
+          end
 
-      end --single end
-  -- AoE -----------------------------------------------------------------------------------------------
-      if useAoE() then
-        -- actions.aoe=unholy_blight
-        if getTalent(1,3) then
-          if castSpell("player",_UnholyBlight,true) then
-            --print("UB 1 AoE")
-            return
+        end --single end
+        -- AoE -----------------------------------------------------------------------------------------------
+        if useAoE() then
+          -- actions.aoe=unholy_blight
+          if getTalent(1,3) then
+            if castSpell("player",_UnholyBlight,true) then
+              --print("UB 1 AoE")
+              return
+            end
           end
-        end
-        -- actions.aoe+=/run_action_list,name=spread,if=!dot.blood_plague.ticking|!dot.frost_fever.ticking
+          -- actions.aoe+=/run_action_list,name=spread,if=!dot.blood_plague.ticking|!dot.frost_fever.ticking
           -- actions.spread=blood_boil,cycle_targets=1,if=dot.blood_plague.ticking|dot.frost_fever.ticking
           if canCast(_BloodBoil) then
             local unitDebuffed = false
             local unitNotDebuffed = false
             for i = 1, #enemiesTable do
-                if ObjectExists(enemiesTable[i].unit) then
-                    if enemiesTable[i].distance < 8 then
-                        if UnitDebuffID(enemiesTable[i].unit,55078,"player") then
-                            unitDebuffed = true
-                        else
-                            unitNotDebuffed = true
-                        end
-                    end
-                    if unitDebuffed == true and unitNotDebuffed == true then
-                        if castSpell("player",_BloodBoil,true,false) then
-                            --print("BB 1 AoE Spread Diseases")
-                            return
-                        end
-                    end
+              if GetObjectExists(enemiesTable[i].unit) then
+                if enemiesTable[i].distance < 8 then
+                  if UnitDebuffID(enemiesTable[i].unit,55078,"player") then
+                    unitDebuffed = true
+                  else
+                    unitNotDebuffed = true
+                  end
                 end
+                if unitDebuffed == true and unitNotDebuffed == true then
+                  if castSpell("player",_BloodBoil,true,false) then
+                    --print("BB 1 AoE Spread Diseases")
+                    return
+                  end
+                end
+              end
             end
-        end
+          end
           -- actions.spread+=/outbreak,if=!talent.necrotic_plague.enabled&(!dot.blood_plague.ticking|!dot.frost_fever.ticking)
           if not getTalent(7,1) then
             if (bpRemain.dyn30AoE == 0 or ffRemain.dyn30AoE == 0) and tarDist.dyn30AoE<30 then
@@ -771,126 +771,126 @@ if select(3,UnitClass("player")) == 6 then
               end
             end
           end
-        -- actions.aoe+=/defile
-        if useDefile() and getTalent(7,2) then
-          if castGround("target",43265,6) then
-            --print("Auto Defile 1 AoE")
-            return
+          -- actions.aoe+=/defile
+          if useDefile() and getTalent(7,2) then
+            if castGround("target",43265,6) then
+              --print("Auto Defile 1 AoE")
+              return
+            end
           end
-        end
-        -- actions.aoe+=/breath_of_sindragosa,if=runic_power>75
-        -- actions.aoe+=/run_action_list,name=bos_aoe,if=dot.breath_of_sindragosa.ticking
-        -- actions.aoe+=/blood_boil,if=blood=2|(frost=2&death=2)
-        if #getEnemies("player",8) >= getValue("Blood Boil Spam") then
-          if bRunes == 2 or (fRunes == 2 and dRunes == 2) then
+          -- actions.aoe+=/breath_of_sindragosa,if=runic_power>75
+          -- actions.aoe+=/run_action_list,name=bos_aoe,if=dot.breath_of_sindragosa.ticking
+          -- actions.aoe+=/blood_boil,if=blood=2|(frost=2&death=2)
+          if #getEnemies("player",8) >= getValue("Blood Boil Spam") then
+            if bRunes == 2 or (fRunes == 2 and dRunes == 2) then
+              if tarDist.dyn10AoE<15 then
+                if castSpell("player",_BloodBoil,true,false) then
+                  --print("BB 2 nospread")
+                  return
+                end
+              end
+            end
+          end
+          -- actions.aoe+=/defile
+          -- actions.aoe+=/death_and_decay,if=unholy=1
+          if useDefile() then
+            if getTalent(7,2) then
+              if castGround("target",43265,6) then
+                --print("Auto Defile 2 AoE")
+                return
+              end
+            end
+            if not getTalent(7,2) then
+              if uRunes == 1 then
+                if castGround("target",43265,6) then
+                  --print("Auto DnD 3 AoE")
+                  return
+                end
+              end
+            end
+          end
+          -- actions.aoe+=/soul_reaper,if=target.health.pct-3*(target.health.pct%target.time_to_die)<=45
+          if level <= 99 then
+            if thp <= 35 then
+              if (thp-3*(thp/ttd)<=35) and uRunes>=1 and tarDist.dyn5<5 then
+                if castSpell(tarUnit.dyn5,_SoulReaper,false,false,false) then
+                  --print("SR 1 AoE")
+                  return
+                end
+              end
+            end
+          end
+          if level == 100 then
+            if thp <= 45 then
+              if (thp-3*(thp/ttd)<=45) and uRunes>=1 and tarDist.dyn5<5 then
+                if castSpell(tarUnit.dyn5,_SoulReaper,false,false,false) then
+                  --print("SR 1 AoE")
+                  return
+                end
+              end
+            end
+          end
+          -- actions.aoe+=/scourge_strike,if=unholy=2
+          if uRunes == 2 then
+            if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
+              --print("SS 1 AoE")
+              return
+            end
+          end
+          -- actions.aoe+=/blood_tap,if=buff.blood_charge.stack>10
+          if bcStack > 10 then
+            if castSpell("player",_BloodTap,true) then
+              --print("BT 1 AoE")
+              return
+            end
+          end
+          -- actions.aoe+=/death_coil,if=runic_power>90|buff.sudden_doom.react|(buff.dark_transformation.down&unholy<=1)
+          if power > 90 or UnitBuffID("player",_SuddenDoom) or (not UnitBuffID("pet",_DarkTransformation) and uRunes <= 1) then
+            if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
+              --print("DC 1 AoE")
+              return
+            end
+          end
+          -- actions.aoe+=/blood_boil
+          if #getEnemies("player",8) >= getValue("Blood Boil Spam") then
             if tarDist.dyn10AoE<15 then
               if castSpell("player",_BloodBoil,true,false) then
-                --print("BB 2 nospread")
+                --print("BB 3 nospread")
                 return
               end
             end
           end
-        end
-        -- actions.aoe+=/defile
-        -- actions.aoe+=/death_and_decay,if=unholy=1
-        if useDefile() then
-          if getTalent(7,2) then
-            if castGround("target",43265,6) then
-              --print("Auto Defile 2 AoE")
-              return
-            end
-          end
-          if not getTalent(7,2) then
-            if uRunes == 1 then
-              if castGround("target",43265,6) then
-                --print("Auto DnD 3 AoE")
-                return
-              end
-            end
-          end
-        end
-        -- actions.aoe+=/soul_reaper,if=target.health.pct-3*(target.health.pct%target.time_to_die)<=45
-        if level <= 99 then
-          if thp <= 35 then
-            if (thp-3*(thp/ttd)<=35) and uRunes>=1 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_SoulReaper,false,false,false) then
-                --print("SR 1 AoE")
-                return
-              end
-            end
-          end
-        end
-        if level == 100 then
-          if thp <= 45 then
-            if (thp-3*(thp/ttd)<=45) and uRunes>=1 and tarDist.dyn5<5 then
-              if castSpell(tarUnit.dyn5,_SoulReaper,false,false,false) then
-                --print("SR 1 AoE")
-                return
-              end
-            end
-          end
-        end
-        -- actions.aoe+=/scourge_strike,if=unholy=2
-        if uRunes == 2 then
-          if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
-            --print("SS 1 AoE")
-            return
-          end
-        end
-        -- actions.aoe+=/blood_tap,if=buff.blood_charge.stack>10
-        if bcStack > 10 then
-          if castSpell("player",_BloodTap,true) then
-            --print("BT 1 AoE")
-            return
-          end
-        end
-        -- actions.aoe+=/death_coil,if=runic_power>90|buff.sudden_doom.react|(buff.dark_transformation.down&unholy<=1)
-        if power > 90 or UnitBuffID("player",_SuddenDoom) or (not UnitBuffID("pet",_DarkTransformation) and uRunes <= 1) then
-          if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
-            --print("DC 1 AoE")
-            return
-          end
-        end
-        -- actions.aoe+=/blood_boil
-        if #getEnemies("player",8) >= getValue("Blood Boil Spam") then
-          if tarDist.dyn10AoE<15 then
-            if castSpell("player",_BloodBoil,true,false) then
-              --print("BB 3 nospread")
-              return
-            end
-          end
-        end
-        -- actions.aoe+=/icy_touch
-        if castSpell(tarUnit.dyn30,_IcyTouch,false,false) then
+          -- actions.aoe+=/icy_touch
+          if castSpell(tarUnit.dyn30,_IcyTouch,false,false) then
             --print("IT 1 AoE")
             return
           end
-        -- actions.aoe+=/scourge_strike,if=unholy=1
-        if uRunes == 1 then
-          if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
-            --print("SS 2 AoE")
+          -- actions.aoe+=/scourge_strike,if=unholy=1
+          if uRunes == 1 then
+            if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
+              --print("SS 2 AoE")
+              return
+            end
+          end
+          -- actions.aoe+=/death_coil
+          if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
+            --print("DC 2 AoE")
             return
           end
-        end
-        -- actions.aoe+=/death_coil
-        if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
-          --print("DC 2 AoE")
-          return
-        end
-        -- actions.aoe+=/blood_tap
-        if bcStack >= 5 then
-          if castSpell("player",_BloodTap,true) then
-            --print("BT 2 AoE")
+          -- actions.aoe+=/blood_tap
+          if bcStack >= 5 then
+            if castSpell("player",_BloodTap,true) then
+              --print("BT 2 AoE")
+              return
+            end
+          end
+          -- actions.aoe+=/plague_leech
+          if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then
+            --print("PL 1 AoE")
             return
           end
-        end
-        -- actions.aoe+=/plague_leech
-        if castSpell(tarUnit.dyn30AoE,_PlagueLeech,true,false,false) then
-          --print("PL 1 AoE")
-          return
-        end
 
-      end --aoe end
+        end --aoe end
       end -- rotation 1 (simc) end
 
       if getValue("Rotation") == 2 then
@@ -964,18 +964,18 @@ if select(3,UnitClass("player")) == 6 then
                 local unitDebuffed = false
                 local unitNotDebuffed = false
                 for i = 1, #enemiesTable do
-                  if ObjectExists(enemiesTable[i].unit) then
+                  if GetObjectExists(enemiesTable[i].unit) then
                     if enemiesTable[i].distance < 8 then
                       if UnitDebuffID(enemiesTable[i].unit,55078,"player") then
-                          unitDebuffed = true
+                        unitDebuffed = true
                       else
-                          unitNotDebuffed = true
+                        unitNotDebuffed = true
                       end
                     end
                     if unitDebuffed == true and unitNotDebuffed == true then
                       if castSpell("player",_BloodBoil,true,false) then
-                          --print("BB 1 AoE Spread Diseases")
-                          return
+                        --print("BB 1 AoE Spread Diseases")
+                        return
                       end
                     end
                   end

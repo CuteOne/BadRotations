@@ -21,7 +21,7 @@ if select(3, UnitClass("player")) == 8 then
 				AoESpellTarget = nil;
 			end
 			if IsAoEPending() and AoESpellTarget ~= nil then
-				local X, Y, Z = ObjectPosition("player");
+				local X, Y, Z = GetObjectPosition("player");
 				CastAtPosition(X,Y,Z);
 				SpellStopTargeting()
 				return true;

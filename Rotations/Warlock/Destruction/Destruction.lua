@@ -1,9 +1,9 @@
 if select(3, UnitClass("player")) == 9 then
-	function WarlockDestruction()
+  function WarlockDestruction()
 
 
 
 
 
-	end
+  end
 end

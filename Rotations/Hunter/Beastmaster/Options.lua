@@ -1,15 +1,15 @@
 if select(3,UnitClass("player")) == 3 then
 
 
--- Config Panel
-function BeastConfig()
+  -- Config Panel
+  function BeastConfig()
 
     local silverColor = "|cffC0C0C0"
     local redColor = "|cffFF0011"
     local whiteColor = "|cffFFFFFF"
     local myClassColor = classColors[select(3,UnitClass("player"))].hex
     local function generateWrapper(wrapName)
-        CreateNewWrap(thisConfig,whiteColor.."- "..redColor..wrapName..whiteColor.." -")
+      CreateNewWrap(thisConfig,whiteColor.."- "..redColor..wrapName..whiteColor.." -")
     end
 
     thisConfig = 0
@@ -52,10 +52,10 @@ function BeastConfig()
     CreateNewText(thisConfig,"Focus Fire")
 
     if isKnown(Stampede) then
-        -- Stampede
-        CreateNewCheck(thisConfig,"Stampede")
-        CreateNewDrop(thisConfig,"Stampede",2,"CD")
-        CreateNewText(thisConfig,"Stampede")
+      -- Stampede
+      CreateNewCheck(thisConfig,"Stampede")
+      CreateNewDrop(thisConfig,"Stampede",2,"CD")
+      CreateNewText(thisConfig,"Stampede")
     end
 
     -- Wrapper
@@ -97,7 +97,7 @@ function BeastConfig()
     CreateGeneralsConfig()
 
     WrapsManager()
-end
+  end
 
 
 end

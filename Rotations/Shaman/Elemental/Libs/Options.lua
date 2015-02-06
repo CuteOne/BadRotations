@@ -1,11 +1,11 @@
 if select(3,UnitClass("player")) == 7 then
 
-function ElementalConfig()
+  function ElementalConfig()
     local redColor = "|cffFF0011"
     local whiteColor = "|cffFFFFFF"
     local myClassColor = classColors[select(3,UnitClass("player"))].hex
     local function generateWrapper(wrapName)
-        CreateNewWrap(thisConfig,whiteColor.."- "..redColor..wrapName..whiteColor.." -")
+      CreateNewWrap(thisConfig,whiteColor.."- "..redColor..wrapName..whiteColor.." -")
     end
 
     ClearConfig()
@@ -25,9 +25,9 @@ function ElementalConfig()
 
     -- Ancestral Swiftness
     if isKnown(_AncestralSwiftness) then
-        CreateNewCheck(thisConfig,"Ancestral Swiftness")
-        CreateNewDrop(thisConfig, "Ancestral Swiftness", 1,"CD")
-        CreateNewText(thisConfig,"Ancestral Swiftness")
+      CreateNewCheck(thisConfig,"Ancestral Swiftness")
+      CreateNewDrop(thisConfig, "Ancestral Swiftness", 1,"CD")
+      CreateNewText(thisConfig,"Ancestral Swiftness")
     end
 
     -- Ascendance
@@ -37,9 +37,9 @@ function ElementalConfig()
 
     -- Elemental Mastery
     if isKnown(_ElementalMastery) then
-        CreateNewCheck(thisConfig,"Elemental Mastery")
-        CreateNewDrop(thisConfig,"Elemental Mastery",1,"CD")
-        CreateNewText(thisConfig,"Elemental Mastery")
+      CreateNewCheck(thisConfig,"Elemental Mastery")
+      CreateNewDrop(thisConfig,"Elemental Mastery",1,"CD")
+      CreateNewText(thisConfig,"Elemental Mastery")
     end
 
     -- Fire Elemental
@@ -49,9 +49,9 @@ function ElementalConfig()
 
     -- Storm Elemental Totem
     if isKnown(_StormElementalTotem) then
-        CreateNewCheck(thisConfig,"Storm Elemental Totem")
-        CreateNewDrop(thisConfig,"Storm Elemental Totem",1,"CD")
-        CreateNewText(thisConfig,"Storm Elemental Totem")
+      CreateNewCheck(thisConfig,"Storm Elemental Totem")
+      CreateNewDrop(thisConfig,"Storm Elemental Totem",1,"CD")
+      CreateNewText(thisConfig,"Storm Elemental Totem")
     end
 
     -- Wrapper
@@ -112,6 +112,6 @@ function ElementalConfig()
     CreateGeneralsConfig()
 
     WrapsManager()
-end
+  end
 
 end

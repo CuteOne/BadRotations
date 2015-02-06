@@ -1,74 +1,74 @@
 if select(3,UnitClass("player")) == 1 then
 
-	function FuryWarrior()
+  function FuryWarrior()
 
-		if currentConfig ~= "Fury Warrior" then
-			FuryOptions();
-			currentConfig = "Fury Warrior";
-		end
-		FuryKeyToggles();
-		GroupInfo();
-		------------------------------------------------------------------------------------------------------
-		-- Locals --------------------------------------------------------------------------------------------
-		------------------------------------------------------------------------------------------------------
-		-- Player / Target values
-		local rage    = UnitPower("player")
-		local maxrage = UnitPowerMax("player")
-		local php     = getHP("player")
-		local thp     = getHP("target")
-		-- Talents
-		local enragedregen          = getTalent(2,1)
-		local impvic                = getTalent(2,3)
-		local furiousstrikes				= getTalent(3,1)
-		local suddendeathup					= getTalent(3,2)
-		local thirst                = getTalent(3,3)
-		local stormbolt             = getTalent(4,1)
-		local shockwave							= getTalent(4,2)
-		local dragonroar            = getTalent(4,3)
-		local massreflect           = getTalent(5,1)
-		local safeguard             = getTalent(5,2)
-		local vigilance							= getTalent(5,3)
-		local avatar                = getTalent(6,1)
-		local bloodbath             = getTalent(6,2)
-		local bladestorm            = getTalent(6,3)
-		local angermanagement 			= getTalent(7,1)
-		local ravager               = getTalent(7,2)
-		local siegebreaker          = getTalent(7,3)
-		-- Buffs / Debuffs
-		local enraged 							= UnitBuffID("player",Enrage)
-		local enragedRemain					= getBuffRemain("player",Enrage)
-		local suddendeathup					= UnitBuffID("player",SuddenDeathProc)
-		local reckup								= UnitBuffID("player",Recklessness)
-		local bbathup								= UnitBuffID("player",Bloodbath)
-		local ragingblowproc				= UnitBuffID("player",RagingBlowProc)
-		local bloodsurgeup					= UnitBuffID("player",Bloodsurge)
-		local meatcleaver 					= UnitBuffID("player",MeatCleaver)
-		local meatcleaverstacks			= getBuffStacks("player",MeatCleaver)
-		-- Dynamic Targeting
-		local tarUnit = {
-		["dyn0"]      = "target", --No Dynamic
-		["dyn5"]      = dynamicTarget(5,true), --Melee
-		['dyn8AoE']   = dynamicTarget(8,false), -- BladeStorm
-		["dyn10"]     = dynamicTarget(10,true),
-		["dyn30"]  		= dynamicTarget(30,true), -- StormBolt
-		["dyn25AoE"]  = dynamicTarget(25,false),
-		["dyn40AoE"]  = dynamicTarget(40,false),
-		}
-		local tarDist = {
-		["dyn0"]      = getDistance("player",tarUnit.dyn0),
-		["dyn5"]      = getDistance("player",tarUnit.dyn5),
-		["dyn8AoE"]   = getDistance("player",tarUnit.dyn8AoE),
-		["dyn10"]     = getDistance("player",tarUnit.dyn10),
-		["dyn20AoE"]  = getDistance("player",tarUnit.dyn20AoE),
-		["dyn25AoE"]  = getDistance("player",tarUnit.dyn25AoE),
-		["dyn40AoE"]  = getDistance("player",tarUnit.dyn40AoE),
-		}
-	  local ttd	= getTimeToDie(tarUnit.dyn5)
-	  local thpaoe = getHP(tarUnit.dyn5)
-		------------------------------------------------------------------------------------------------------
-		-- Food/Invis Check ----------------------------------------------------------------------------------
-		------------------------------------------------------------------------------------------------------
-		if canRun() ~= true or UnitInVehicle("Player") then
+    if currentConfig ~= "Fury Warrior" then
+      FuryOptions();
+      currentConfig = "Fury Warrior";
+    end
+    FuryKeyToggles();
+    GroupInfo();
+    ------------------------------------------------------------------------------------------------------
+    -- Locals --------------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
+    -- Player / Target values
+    local rage    = UnitPower("player")
+    local maxrage = UnitPowerMax("player")
+    local php     = getHP("player")
+    local thp     = getHP("target")
+    -- Talents
+    local enragedregen          = getTalent(2,1)
+    local impvic                = getTalent(2,3)
+    local furiousstrikes				= getTalent(3,1)
+    local suddendeathup					= getTalent(3,2)
+    local thirst                = getTalent(3,3)
+    local stormbolt             = getTalent(4,1)
+    local shockwave							= getTalent(4,2)
+    local dragonroar            = getTalent(4,3)
+    local massreflect           = getTalent(5,1)
+    local safeguard             = getTalent(5,2)
+    local vigilance							= getTalent(5,3)
+    local avatar                = getTalent(6,1)
+    local bloodbath             = getTalent(6,2)
+    local bladestorm            = getTalent(6,3)
+    local angermanagement 			= getTalent(7,1)
+    local ravager               = getTalent(7,2)
+    local siegebreaker          = getTalent(7,3)
+    -- Buffs / Debuffs
+    local enraged 							= UnitBuffID("player",Enrage)
+    local enragedRemain					= getBuffRemain("player",Enrage)
+    local suddendeathup					= UnitBuffID("player",SuddenDeathProc)
+    local reckup								= UnitBuffID("player",Recklessness)
+    local bbathup								= UnitBuffID("player",Bloodbath)
+    local ragingblowproc				= UnitBuffID("player",RagingBlowProc)
+    local bloodsurgeup					= UnitBuffID("player",Bloodsurge)
+    local meatcleaver 					= UnitBuffID("player",MeatCleaver)
+    local meatcleaverstacks			= getBuffStacks("player",MeatCleaver)
+    -- Dynamic Targeting
+    local tarUnit = {
+      ["dyn0"]      = "target", --No Dynamic
+      ["dyn5"]      = dynamicTarget(5,true), --Melee
+      ['dyn8AoE']   = dynamicTarget(8,false), -- BladeStorm
+      ["dyn10"]     = dynamicTarget(10,true),
+      ["dyn30"]  		= dynamicTarget(30,true), -- StormBolt
+      ["dyn25AoE"]  = dynamicTarget(25,false),
+      ["dyn40AoE"]  = dynamicTarget(40,false),
+    }
+    local tarDist = {
+      ["dyn0"]      = getDistance("player",tarUnit.dyn0),
+      ["dyn5"]      = getDistance("player",tarUnit.dyn5),
+      ["dyn8AoE"]   = getDistance("player",tarUnit.dyn8AoE),
+      ["dyn10"]     = getDistance("player",tarUnit.dyn10),
+      ["dyn20AoE"]  = getDistance("player",tarUnit.dyn20AoE),
+      ["dyn25AoE"]  = getDistance("player",tarUnit.dyn25AoE),
+      ["dyn40AoE"]  = getDistance("player",tarUnit.dyn40AoE),
+    }
+    local ttd	= getTimeToDie(tarUnit.dyn5)
+    local thpaoe = getHP(tarUnit.dyn5)
+    ------------------------------------------------------------------------------------------------------
+    -- Food/Invis Check ----------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
+    if canRun() ~= true or UnitInVehicle("Player") then
       return false;
     end
     ------------------------------------------------------------------------------------------------------
@@ -81,36 +81,36 @@ if select(3,UnitClass("player")) == 1 then
     -- Spell Queue ---------------------------------------------------------------------------------------
     ------------------------------------------------------------------------------------------------------
     if _Queues == nil then
-     _Queues = {
+      _Queues = {
         [Shockwave]  = false,
         [Bladestorm] = false,
         [DragonRoar] = false,
-     }
+      }
     end
     ------------------------------------------------------------------------------------------------------
     -- Input / Keys --------------------------------------------------------------------------------------
     ------------------------------------------------------------------------------------------------------
     if isChecked("Heroic Leap Key") and SpecificToggle("Heroic Leap Key") == true then
       if not IsMouselooking() then
-          CastSpellByName(GetSpellInfo(6544))
-          if SpellIsTargeting() then
-              CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
-              return true;
-          end
+        CastSpellByName(GetSpellInfo(6544))
+        if SpellIsTargeting() then
+          CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+          return true;
+        end
       end
     end
     if isChecked("Ravager Key") and SpecificToggle("Ravager Key") == true then
       if not IsMouselooking() then
-          CastSpellByName(GetSpellInfo(152277))
-          if SpellIsTargeting() then
-              CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
-              return true;
-          end
+        CastSpellByName(GetSpellInfo(152277))
+        if SpellIsTargeting() then
+          CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+          return true;
+        end
       end
     end
     ------------------------------------------------------------------------------------------------------
-  -- Out of Combat -------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+    -- Out of Combat -------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
     if not isInCombat("player") then
       -- actions.precombat+=/stance,choose=battle
       if GetShapeshiftForm() ~= 1 then
@@ -120,28 +120,28 @@ if select(3,UnitClass("player")) == 1 then
       end
       -- Commanding Shout
       if isChecked("Shout") == true and getValue("Shout") == 1 and not UnitExists("mouseover") then
-          for i = 1, #members do --members
-              if not isBuffed(members[i].Unit,{21562,109773,469,90364}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
-                  if castSpell("player",CommandingShout,false,false) then return; end
-              end
-          end
+        for i = 1, #members do --members
+          if not isBuffed(members[i].Unit,{21562,109773,469,90364}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
+            if castSpell("player",CommandingShout,false,false) then return; end
+        end
+        end
       end
       -- Battle Shout
       if isChecked("Shout") == true and getValue("Shout") == 2 and not UnitExists("mouseover") then
-          for i = 1, #members do --members
-              if not isBuffed(members[i].Unit,{57330,19506,6673}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
-                  if castSpell("player",BattleShout,false,false) then return; end
-              end
-          end
+        for i = 1, #members do --members
+          if not isBuffed(members[i].Unit,{57330,19506,6673}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
+            if castSpell("player",BattleShout,false,false) then return; end
+        end
+        end
       end
     end -- Out of Combat end
-  ------------------------------------------------------------------------------------------------------
-  -- In Combat -----------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
+    -- In Combat -----------------------------------------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------
     if isInCombat("player") then
-  ------------------------------------------------------------------------------------------------------
-  -- Dummy Test ----------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
+      -- Dummy Test ----------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
       if isChecked("DPS Testing") then
         if UnitExists("target") then
           if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
@@ -151,9 +151,9 @@ if select(3,UnitClass("player")) == 1 then
           end
         end
       end
-  ------------------------------------------------------------------------------------------------------
-  -- Queued Spells -------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
+      -- Queued Spells -------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
       if _Queues[Shockwave] == true then
         if castSpell("target",Shockwave,false,false) then
           return;
@@ -169,9 +169,9 @@ if select(3,UnitClass("player")) == 1 then
           return;
         end
       end
-  ------------------------------------------------------------------------------------------------------
-  -- Do everytime --------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
+      -- Do everytime --------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
       -- actions+=/auto_attack
       if tarDist.dyn0<5 then
         RunMacroText("/startattack")
@@ -179,12 +179,12 @@ if select(3,UnitClass("player")) == 1 then
       -- actions+=/berserker_rage,if=buff.enrage.down|(talent.unquenchable_thirst.enabled&buff.raging_blow.down)
       if not enraged or (thirst and not ragingblowproc) then
         if castSpell("player",BerserkerRage,true) then
-          ----print("Berserker Rage 1")
+        ----print("Berserker Rage 1")
         end
       end
-  ------------------------------------------------------------------------------------------------------
-  -- Defensive Cooldowns -------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
+      -- Defensive Cooldowns -------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
       if useDefensiveFury() == true then
         -- Die by the Sword
         if isChecked("Die by the Sword") == true then
@@ -239,17 +239,17 @@ if select(3,UnitClass("player")) == 1 then
           end
         end
       end -- isChecked("Defensive Mode") end
-  ------------------------------------------------------------------------------------------------------
-  -- Offensive Cooldowns -------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
+      -- Offensive Cooldowns -------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
       if useCDsFury() == true then
-      	if isChecked("Use Potion") then
-	      	if (thp < 20 and reckup) or ttd < 25 then
-						if canUse(109219) then -- WoD Potion
-							UseItemByName(tostring(select(1,GetItemInfo(109219))))
-						end
-					end
-				end
+        if isChecked("Use Potion") then
+          if (thp < 20 and reckup) or ttd < 25 then
+            if canUse(109219) then -- WoD Potion
+              UseItemByName(tostring(select(1,GetItemInfo(109219))))
+            end
+          end
+        end
         -- actions+=/recklessness,if=((target.time_to_die>190|target.health.pct<20)&(buff.bloodbath.up|!talent.bloodbath.enabled))|target.time_to_die<=12|talent.anger_management.enabled
         if isChecked("Recklessness") then
           if ((ttd > 190 or thp < 20) and (bbathup or not bloodbath)) or ttd <= 12 or angermanagement then
@@ -288,26 +288,26 @@ if select(3,UnitClass("player")) == 1 then
           if canTrinket(13) and useCDsFury() then
             RunMacroText("/use 13")
             if IsAoEPending() then
-              local X,Y,Z = ObjectPosition(Unit)
+              local X,Y,Z = GetObjectPosition(Unit)
               CastAtPosition(X,Y,Z)
             end
           end
           if canTrinket(14) and useCDsFury() then
             RunMacroText("/use 14")
             if IsAoEPending() then
-              local X,Y,Z = ObjectPosition(Unit)
+              local X,Y,Z = GetObjectPosition(Unit)
               CastAtPosition(X,Y,Z)
             end
           end
         end
       end -- useCDs() end
-  ------------------------------------------------------------------------------------------------------
-  -- Interrupts ----------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
+      -- Interrupts ----------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
 
-  ------------------------------------------------------------------------------------------------------
-  -- Main Rotaion --------------------------------------------------------------------------------------
-  ------------------------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
+      -- Main Rotaion --------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
       if not useAoEFury() then
         ChatOverlay("Single", 0)
         -- Ko'ragh barrier<20% (finisher can be cast if barrier<20%)
@@ -435,262 +435,262 @@ if select(3,UnitClass("player")) == 1 then
           return
         end
       end -- Single Target end
-  ------------------------------------------------------------------------------------------------------
+      ------------------------------------------------------------------------------------------------------
       if useAoEFury() then
         -- 2 Targets
         if #getEnemies("player",8) == 2 then
-        ChatOverlay("AoE 2 Targets", 0)
-	    		-- actions.two_targets=bloodbath
-	    		if bloodbath and enraged then
-	          if castSpell("player",Bloodbath,true) then
-	            ----print("AoE 2T Bloodbath 1")
-	            return
-	          end
-	        end
-					-- actions.two_targets+=/ravager,if=buff.bloodbath.up|!talent.bloodbath.enabled
-					if isChecked("AoE BS/DR/RV") then
-						if (bloodbath and bbathup) or not bloodbath then
-							if castGround("target",152277,6) then
-	              ----print("AoE 2T Ravager 1")
-	              return
-	            end
-	          end
-	        end
-					-- actions.two_targets+=/dragon_roar,if=buff.bloodbath.up|!talent.bloodbath.enabled
-					if isChecked("AoE BS/DR/RV") then
+          ChatOverlay("AoE 2 Targets", 0)
+          -- actions.two_targets=bloodbath
+          if bloodbath and enraged then
+            if castSpell("player",Bloodbath,true) then
+              ----print("AoE 2T Bloodbath 1")
+              return
+            end
+          end
+          -- actions.two_targets+=/ravager,if=buff.bloodbath.up|!talent.bloodbath.enabled
+          if isChecked("AoE BS/DR/RV") then
             if (bloodbath and bbathup) or not bloodbath then
-  						if castSpell("player",DragonRoar,true) then
+              if castGround("target",152277,6) then
+                ----print("AoE 2T Ravager 1")
+                return
+              end
+            end
+          end
+          -- actions.two_targets+=/dragon_roar,if=buff.bloodbath.up|!talent.bloodbath.enabled
+          if isChecked("AoE BS/DR/RV") then
+            if (bloodbath and bbathup) or not bloodbath then
+              if castSpell("player",DragonRoar,true) then
                 ----print("AoE 2T DragonRoar")
                 return
               end
             end
           end
-					-- actions.two_targets+=/bladestorm,if=buff.enrage.up
-					if isChecked("AoE BS/DR/RV") then
+          -- actions.two_targets+=/bladestorm,if=buff.enrage.up
+          if isChecked("AoE BS/DR/RV") then
             if enraged then
-  						if castSpell("player",Bladestorm,true) then
-  							----print("AoE 2T Bladestorm")
-  							return
-  						end
-  					end
+              if castSpell("player",Bladestorm,true) then
+                ----print("AoE 2T Bladestorm")
+                return
+              end
+            end
           end
-					-- actions.two_targets+=/bloodthirst,if=buff.enrage.down|rage<50|buff.raging_blow.down
-					if not enraged or rage < 50 or not ragingblowproc then
-						if castSpell(tarUnit.dyn5,Bloodthirst,false,false) then
-							----print("AoE 2T Bloodthirst 1")
-							return
-						end
-					end
-					-- actions.two_targets+=/execute,target=2
-					-- actions.two_targets+=/execute,if=target.health.pct<20|buff.sudden_death.react
-					if thpaoe < 20 or suddendeathup then
-						if castSpell(tarUnit.dyn5,Execute,false,false) then
-							----print("AoE 2T Execute 1")
-							return
-						end
-					end
-					-- actions.two_targets+=/raging_blow,if=buff.meat_cleaver.up
-					if meatcleaver then
-						if castSpell(tarUnit.dyn5,RagingBlow,false,false) then
-							----print("AoE 2T RagingBlow 1")
-							return
-						end
-					end
-					-- actions.two_targets+=/whirlwind,if=!buff.meat_cleaver.up
-					if not meatcleaver then
-						if castSpell("player",Whirlwind,true) then
-							----print("AoE 2T Whirlwind 1")
-							return
-						end
-					end
-					-- actions.two_targets+=/wild_strike,if=buff.bloodsurge.up&rage>75
-					if bloodsurgeup and rage > 75 then
-						if castSpell(tarUnit.dyn5,WildStrike,false,false) then
-							----print("AoE 2T WildStrike 1")
-							return
-						end
-					end
-					-- actions.two_targets+=/bloodthirst
-					if castSpell(tarUnit.dyn5,Bloodthirst,false,false) then
-						----print("AoE 2T Bloodthirst 2")
-						return
-					end
-					-- actions.two_targets+=/whirlwind,if=rage>rage.max-20
-					if rage >= (maxrage - 20) then
-						if castSpell("player",Whirlwind,true) then
-							----print("AoE 2T Whirlwind 2")
-							return
-						end
-					end
-					-- actions.two_targets+=/wild_strike,if=buff.bloodsurge.up
-					if bloodsurgeup then
-						if castSpell(tarUnit.dyn5,WildStrike,false,false) then
-							----print("AoE 2T WildStrike 2")
-							return
-						end
-					end
-				end -- 2 Targets end
-				-- 3 Targets
-				if #getEnemies("player",8) == 3 then
-				ChatOverlay("AoE 3 Targets", 0)
-					-- actions.three_targets=bloodbath
-					if bloodbath and enraged then
-	          if castSpell("player",Bloodbath,true) then
-	            ----print("AoE 3T Bloodbath 1")
-	            return
-	          end
-	        end
-					-- actions.three_targets+=/ravager,if=buff.bloodbath.up|!talent.bloodbath.enabled
-					if isChecked("AoE BS/DR/RV") then
-						if (bloodbath and bbathup) or not bloodbath then
-							if castGround("target",152277,6) then
-	              ----print("AoE 3T Ravager 1")
-	              return
-	            end
-	          end
-	        end
-					-- actions.three_targets+=/bladestorm,if=buff.enrage.up
-					if isChecked("AoE BS/DR/RV") then
-            if enraged then
-  						if castSpell("player",Bladestorm,true) then
-  							----print("AoE 3T Bladestorm")
-  							return
-  						end
-  					end
+          -- actions.two_targets+=/bloodthirst,if=buff.enrage.down|rage<50|buff.raging_blow.down
+          if not enraged or rage < 50 or not ragingblowproc then
+            if castSpell(tarUnit.dyn5,Bloodthirst,false,false) then
+              ----print("AoE 2T Bloodthirst 1")
+              return
+            end
           end
-					-- actions.three_targets+=/bloodthirst,if=buff.enrage.down|rage<50|buff.raging_blow.down
-					if not enraged or rage < 50 or not ragingblowproc then
-						if castSpell(tarUnit.dyn5,Bloodthirst,false,false) then
-							----print("AoE 3T Bloodthirst 1")
-							return
-						end
-					end
-					-- actions.three_targets+=/raging_blow,if=buff.meat_cleaver.stack>=2
-					if meatcleaverstacks >= 2 then
-						if castSpell(tarUnit.dyn5,RagingBlow,false,false) then
-							----print("AoE 3T RagingBlow 1")
-							return
-						end
-					end
-					-- actions.three_targets+=/execute,if=buff.sudden_death.react
-					-- actions.three_targets+=/execute,target=2
-					-- actions.three_targets+=/execute,target=3
-					if thpaoe < 20 or suddendeathup then
-						if castSpell(tarUnit.dyn5,Execute,false,false) then
-							----print("AoE 3T Execute 1")
-							return
-						end
-					end
-					-- actions.three_targets+=/dragon_roar,if=buff.bloodbath.up|!talent.bloodbath.enabled
-					if isChecked("AoE BS/DR/RV") then
+          -- actions.two_targets+=/execute,target=2
+          -- actions.two_targets+=/execute,if=target.health.pct<20|buff.sudden_death.react
+          if thpaoe < 20 or suddendeathup then
+            if castSpell(tarUnit.dyn5,Execute,false,false) then
+              ----print("AoE 2T Execute 1")
+              return
+            end
+          end
+          -- actions.two_targets+=/raging_blow,if=buff.meat_cleaver.up
+          if meatcleaver then
+            if castSpell(tarUnit.dyn5,RagingBlow,false,false) then
+              ----print("AoE 2T RagingBlow 1")
+              return
+            end
+          end
+          -- actions.two_targets+=/whirlwind,if=!buff.meat_cleaver.up
+          if not meatcleaver then
+            if castSpell("player",Whirlwind,true) then
+              ----print("AoE 2T Whirlwind 1")
+              return
+            end
+          end
+          -- actions.two_targets+=/wild_strike,if=buff.bloodsurge.up&rage>75
+          if bloodsurgeup and rage > 75 then
+            if castSpell(tarUnit.dyn5,WildStrike,false,false) then
+              ----print("AoE 2T WildStrike 1")
+              return
+            end
+          end
+          -- actions.two_targets+=/bloodthirst
+          if castSpell(tarUnit.dyn5,Bloodthirst,false,false) then
+            ----print("AoE 2T Bloodthirst 2")
+            return
+          end
+          -- actions.two_targets+=/whirlwind,if=rage>rage.max-20
+          if rage >= (maxrage - 20) then
+            if castSpell("player",Whirlwind,true) then
+              ----print("AoE 2T Whirlwind 2")
+              return
+            end
+          end
+          -- actions.two_targets+=/wild_strike,if=buff.bloodsurge.up
+          if bloodsurgeup then
+            if castSpell(tarUnit.dyn5,WildStrike,false,false) then
+              ----print("AoE 2T WildStrike 2")
+              return
+            end
+          end
+        end -- 2 Targets end
+        -- 3 Targets
+        if #getEnemies("player",8) == 3 then
+          ChatOverlay("AoE 3 Targets", 0)
+          -- actions.three_targets=bloodbath
+          if bloodbath and enraged then
+            if castSpell("player",Bloodbath,true) then
+              ----print("AoE 3T Bloodbath 1")
+              return
+            end
+          end
+          -- actions.three_targets+=/ravager,if=buff.bloodbath.up|!talent.bloodbath.enabled
+          if isChecked("AoE BS/DR/RV") then
             if (bloodbath and bbathup) or not bloodbath then
-  						if castSpell("player",DragonRoar,true) then
+              if castGround("target",152277,6) then
+                ----print("AoE 3T Ravager 1")
+                return
+              end
+            end
+          end
+          -- actions.three_targets+=/bladestorm,if=buff.enrage.up
+          if isChecked("AoE BS/DR/RV") then
+            if enraged then
+              if castSpell("player",Bladestorm,true) then
+                ----print("AoE 3T Bladestorm")
+                return
+              end
+            end
+          end
+          -- actions.three_targets+=/bloodthirst,if=buff.enrage.down|rage<50|buff.raging_blow.down
+          if not enraged or rage < 50 or not ragingblowproc then
+            if castSpell(tarUnit.dyn5,Bloodthirst,false,false) then
+              ----print("AoE 3T Bloodthirst 1")
+              return
+            end
+          end
+          -- actions.three_targets+=/raging_blow,if=buff.meat_cleaver.stack>=2
+          if meatcleaverstacks >= 2 then
+            if castSpell(tarUnit.dyn5,RagingBlow,false,false) then
+              ----print("AoE 3T RagingBlow 1")
+              return
+            end
+          end
+          -- actions.three_targets+=/execute,if=buff.sudden_death.react
+          -- actions.three_targets+=/execute,target=2
+          -- actions.three_targets+=/execute,target=3
+          if thpaoe < 20 or suddendeathup then
+            if castSpell(tarUnit.dyn5,Execute,false,false) then
+              ----print("AoE 3T Execute 1")
+              return
+            end
+          end
+          -- actions.three_targets+=/dragon_roar,if=buff.bloodbath.up|!talent.bloodbath.enabled
+          if isChecked("AoE BS/DR/RV") then
+            if (bloodbath and bbathup) or not bloodbath then
+              if castSpell("player",DragonRoar,true) then
                 ----print("AoE 3T DragonRoar")
                 return
               end
             end
           end
-					-- actions.three_targets+=/whirlwind
-					if castSpell("player",Whirlwind,true) then
-						----print("AoE 3T Whirlwind 1")
-						return
-					end
-					-- actions.three_targets+=/bloodthirst
-					if castSpell(tarUnit.dyn5,Bloodthirst,false,false) then
-						----print("AoE 3T Bloodthirst 2")
-						return
-					end
-					-- actions.three_targets+=/wild_strike,if=buff.bloodsurge.up
-					if bloodsurgeup then
-						if castSpell(tarUnit.dyn5,WildStrike,false,false) then
-							----print("AoE 3T WildStrike 1")
-							return
-						end
-					end
-				end -- 3+ Targets end
-				if #getEnemies("player",8) >= 4 then
-				ChatOverlay("AoE 4+ Targets", 0)
-					-- actions.aoe=bloodbath
-					if bloodbath and enraged then
-	          if castSpell("player",Bloodbath,true) then
-	            ----print("AoE 4+ Bloodbath 1")
-	            return
-	          end
-	        end
-					-- actions.aoe+=/ravager,if=buff.bloodbath.up|!talent.bloodbath.enabled
-					if isChecked("AoE BS/DR/RV") then
-						if (bloodbath and bbathup) or not bloodbath then
-							if castGround("target",152277,6) then
-	              ----print("AoE 4+ Ravager 1")
-	              return
-	            end
-	          end
-	        end
-					-- actions.aoe+=/raging_blow,if=buff.meat_cleaver.stack>=3&buff.enrage.up
-					if meatcleaverstacks >= 3 and enraged then
-						if castSpell(tarUnit.dyn5,RagingBlow,false,false) then
-							----print("AoE 4+ RagingBlow 1")
-							return
-						end
-					end
-					-- actions.aoe+=/bloodthirst,if=buff.enrage.down|rage<50|buff.raging_blow.down
-					if not enraged or rage < 50 or not ragingblowproc then
-						if castSpell(tarUnit.dyn5,Bloodthirst,false,false) then
-							----print("AoE 4+ Bloodthirst 1")
-							return
-						end
-					end
-					-- actions.aoe+=/raging_blow,if=buff.meat_cleaver.stack>=3
-					if meatcleaverstacks >= 3 then
-						if castSpell(tarUnit.dyn5,RagingBlow,false,false) then
-							----print("AoE 4+ RagingBlow 2")
-							return
-						end
-					end
-					-- actions.aoe+=/recklessness,sync=bladestorm
-					-- actions.aoe+=/bladestorm,if=buff.enrage.remains>6
-					if isChecked("AoE BS/DR/RV") then
-            if enragedRemain > 6 or reckup then
-  						if castSpell("player",Bladestorm,true) then
-  							----print("AoE 4+ Bladestorm")
-  							return
-  						end
-  					end
+          -- actions.three_targets+=/whirlwind
+          if castSpell("player",Whirlwind,true) then
+            ----print("AoE 3T Whirlwind 1")
+            return
           end
-					-- actions.aoe+=/whirlwind
-					if castSpell("player",Whirlwind,true) then
-						----print("AoE 4+ Whirlwind 1")
-						return
-					end
-					-- actions.aoe+=/execute,if=buff.sudden_death.react
-					if thpaoe < 20 or suddendeathup then
-						if castSpell(tarUnit.dyn5,Execute,false,false) then
-							----print("AoE 4+ Execute 1")
-							return
-						end
-					end
-					-- actions.aoe+=/dragon_roar,if=buff.bloodbath.up|!talent.bloodbath.enabled
-					if isChecked("AoE BS/DR/RV") then
+          -- actions.three_targets+=/bloodthirst
+          if castSpell(tarUnit.dyn5,Bloodthirst,false,false) then
+            ----print("AoE 3T Bloodthirst 2")
+            return
+          end
+          -- actions.three_targets+=/wild_strike,if=buff.bloodsurge.up
+          if bloodsurgeup then
+            if castSpell(tarUnit.dyn5,WildStrike,false,false) then
+              ----print("AoE 3T WildStrike 1")
+              return
+            end
+          end
+        end -- 3+ Targets end
+        if #getEnemies("player",8) >= 4 then
+          ChatOverlay("AoE 4+ Targets", 0)
+          -- actions.aoe=bloodbath
+          if bloodbath and enraged then
+            if castSpell("player",Bloodbath,true) then
+              ----print("AoE 4+ Bloodbath 1")
+              return
+            end
+          end
+          -- actions.aoe+=/ravager,if=buff.bloodbath.up|!talent.bloodbath.enabled
+          if isChecked("AoE BS/DR/RV") then
             if (bloodbath and bbathup) or not bloodbath then
-  						if castSpell("player",DragonRoar,true) then
+              if castGround("target",152277,6) then
+                ----print("AoE 4+ Ravager 1")
+                return
+              end
+            end
+          end
+          -- actions.aoe+=/raging_blow,if=buff.meat_cleaver.stack>=3&buff.enrage.up
+          if meatcleaverstacks >= 3 and enraged then
+            if castSpell(tarUnit.dyn5,RagingBlow,false,false) then
+              ----print("AoE 4+ RagingBlow 1")
+              return
+            end
+          end
+          -- actions.aoe+=/bloodthirst,if=buff.enrage.down|rage<50|buff.raging_blow.down
+          if not enraged or rage < 50 or not ragingblowproc then
+            if castSpell(tarUnit.dyn5,Bloodthirst,false,false) then
+              ----print("AoE 4+ Bloodthirst 1")
+              return
+            end
+          end
+          -- actions.aoe+=/raging_blow,if=buff.meat_cleaver.stack>=3
+          if meatcleaverstacks >= 3 then
+            if castSpell(tarUnit.dyn5,RagingBlow,false,false) then
+              ----print("AoE 4+ RagingBlow 2")
+              return
+            end
+          end
+          -- actions.aoe+=/recklessness,sync=bladestorm
+          -- actions.aoe+=/bladestorm,if=buff.enrage.remains>6
+          if isChecked("AoE BS/DR/RV") then
+            if enragedRemain > 6 or reckup then
+              if castSpell("player",Bladestorm,true) then
+                ----print("AoE 4+ Bladestorm")
+                return
+              end
+            end
+          end
+          -- actions.aoe+=/whirlwind
+          if castSpell("player",Whirlwind,true) then
+            ----print("AoE 4+ Whirlwind 1")
+            return
+          end
+          -- actions.aoe+=/execute,if=buff.sudden_death.react
+          if thpaoe < 20 or suddendeathup then
+            if castSpell(tarUnit.dyn5,Execute,false,false) then
+              ----print("AoE 4+ Execute 1")
+              return
+            end
+          end
+          -- actions.aoe+=/dragon_roar,if=buff.bloodbath.up|!talent.bloodbath.enabled
+          if isChecked("AoE BS/DR/RV") then
+            if (bloodbath and bbathup) or not bloodbath then
+              if castSpell("player",DragonRoar,true) then
                 ----print("AoE 4+ DragonRoar")
                 return
               end
             end
           end
-					-- actions.aoe+=/bloodthirst
-					if castSpell(tarUnit.dyn5,Bloodthirst,false,false) then
-						----print("AoE 4+ Bloodthirst 2")
-						return
-					end
-					-- actions.aoe+=/wild_strike,if=buff.bloodsurge.up
-					if bloodsurgeup then
-						if castSpell(tarUnit.dyn5,WildStrike,false,false) then
-							----print("AoE 3T WildStrike 1")
-							return
-						end
-					end
-				end -- 4+ Targets end
+          -- actions.aoe+=/bloodthirst
+          if castSpell(tarUnit.dyn5,Bloodthirst,false,false) then
+            ----print("AoE 4+ Bloodthirst 2")
+            return
+          end
+          -- actions.aoe+=/wild_strike,if=buff.bloodsurge.up
+          if bloodsurgeup then
+            if castSpell(tarUnit.dyn5,WildStrike,false,false) then
+              ----print("AoE 3T WildStrike 1")
+              return
+            end
+          end
+        end -- 4+ Targets end
       end -- AoE end
     end -- In Combat end
 
@@ -699,5 +699,5 @@ if select(3,UnitClass("player")) == 1 then
 
 
 
-	end -- Fury End
+  end -- Fury End
 end -- Warrior End
