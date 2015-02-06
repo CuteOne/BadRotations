@@ -14,6 +14,7 @@ im:RegisterEvent("PLAYER_REGEN_ENABLED") -- wipe when we get out of combat(its n
 im:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED") -- pulse when combat log events occurs
 local function spellCastListener(self,category,...)
 	-- if event is a combatlog event
+	if  getOptionCheck("Interrupts Handler") then
 	if category == "COMBAT_LOG_EVENT_UNFILTERED" then
 		-- prevent nils of bot not started
 		if enemiesTable == nil then
@@ -44,6 +45,7 @@ local function spellCastListener(self,category,...)
 		end
 	-- if event is player regen enabled
 	end
+end
 end
 -- pulse frame on event
 im:SetScript("OnEvent",spellCastListener)
