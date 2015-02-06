@@ -12,6 +12,9 @@ What to do if you have crash to desktop or 132 errors.(not necessarily in this o
 5 - Delete Cache, WTF, Data/indices folders(in WoW directory).
 6 - Start WoW-64.exe and FireHack.exe as Admin, always.
 
+What to do if you have crash to desktop or 134 errors.
+1 - Disable Interrupt Handler
+
 ## Profile Status
 
 |spec |status|author|
