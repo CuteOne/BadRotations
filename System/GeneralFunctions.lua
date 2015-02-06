@@ -286,7 +286,7 @@ function canRun()
     if getOptionCheck("Start/Stop BadBoy") and isAlive("player") then
       if SpellIsTargeting()
         --or UnitInVehicle("Player")
-        or (IsMounted() and getUnitID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803))
+        or (IsMounted() and getUnitID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) and not UnitBuffID("player",157060))
         or UnitBuffID("player",11392) ~= nil
         or UnitBuffID("player",80169) ~= nil
         or UnitBuffID("player",87959) ~= nil
@@ -1892,7 +1892,7 @@ function pause()
   end
   if (pausekey and GetCurrentKeyBoardFocus() == nil)
     or profileStop
-    or (IsMounted() and getUnitID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803))
+    or (IsMounted() and getUnitID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) and not UnitBuffID("player",157060))
     or SpellIsTargeting()
     or (not UnitCanAttack("player","target") and not UnitIsPlayer("target") and UnitExists("target"))
     or UnitCastingInfo("player")

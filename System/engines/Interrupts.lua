@@ -23,6 +23,7 @@ function shouldStopCasting(Spell)
       138763,-- Interrupting Jolt(Dark Animus)
       143343,-- Deafening Screech(Thok)
       158093,-- Interrupting Shout (Twin Ogrons:Pol)
+      160838,-- Disrupting Roar (Hans'gar and Franzok)
     }
     -- find casting informations
     if UnitCastingInfo("boss1") then
@@ -80,6 +81,7 @@ stopCasting = {
   shouldStop = {
     [137457] = "Melee",-- Piercing Roar(Oondasta)
     [138763] = "Spell",-- Interrupting Jolt(Dark Animus)
+    [160838] = "Spell",-- Disrupting Roar (Hans'gar and Franzok)
     [143343] = "Melee",-- Deafening Screech(Thok)
     [19750] = "Spell" -- Flash heal(Test)
   }
