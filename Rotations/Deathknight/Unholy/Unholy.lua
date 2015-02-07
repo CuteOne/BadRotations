@@ -174,7 +174,7 @@ if select(3,UnitClass("player")) == 6 then
 		-- use /uhopener 6 seconds before Pull (5 seconds to be 100% sure to not pull to early)
 		-- Will only start if: Army of the Dead is ready / Gargoyle is ready /  Pre-Pot is ready / You have a target
 		-- use /uhopenerreset for emergency
-		unholyOpener()
+		--unholyOpener()
 		------------------------------------------------------------------------------------------------------
 		-- Ress/Dispell --------------------------------------------------------------------------------------
 		------------------------------------------------------------------------------------------------------
