@@ -66,9 +66,7 @@ if select(3,UnitClass("player")) == 6 then
 		local raCooldown = getSpellCD(_RaiseAlly)
 		local dfCooldown = getSpellCD(_Defile)
 		local erwCooldown = getSpellCD(_EmpowerRuneWeapon)
-		if UnitBuffID("player",_SuddenDoom) ~= nil then
-			local suddendoom = getBuffRemain("player",_SuddenDoom)
-		end
+		--local suddendoom = getBuffRemain("player",_SuddenDoom)
 		local blight, bloodtap, runic, necrotic, defile, sindragosa = getTalent(1,3), getTalent(4,1), getTalent(4,2), getTalent(7,1), getTalent(7,2), getTalent(7,3)
 		--Specific Target Variables
 		local ciRemain = {
@@ -1059,7 +1057,7 @@ if select(3,UnitClass("player")) == 6 then
 					-- Runic power is greater than 90
 					-- AND
 					-- Blood Charges are less than or equal to 10
-					if (suddendoom > 0 or power > 90) and bcStack == 10 then
+					if (UnitBuffID("player",_SuddenDoom) ~= nil or power > 90) and bcStack == 10 then
 						if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
 							return
 						end
