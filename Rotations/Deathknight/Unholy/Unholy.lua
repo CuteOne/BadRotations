@@ -66,7 +66,9 @@ if select(3,UnitClass("player")) == 6 then
 		local raCooldown = getSpellCD(_RaiseAlly)
 		local dfCooldown = getSpellCD(_Defile)
 		local erwCooldown = getSpellCD(_EmpowerRuneWeapon)
-		local suddendoom = getBuffRemain("player",_SuddenDoom)
+		if UnitBuffID("player",_SuddenDoom) ~= nil then
+			local suddendoom = getBuffRemain("player",_SuddenDoom)
+		end
 		local blight, bloodtap, runic, necrotic, defile, sindragosa = getTalent(1,3), getTalent(4,1), getTalent(4,2), getTalent(7,1), getTalent(7,2), getTalent(7,3)
 		--Specific Target Variables
 		local ciRemain = {
