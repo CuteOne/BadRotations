@@ -53,7 +53,7 @@ if select(3,UnitClass("player")) == 6 then
     if getTalent(7,3) then
 	    if UnitDebuffID("target",_BreathOfSindragosaAura,"player") ~= nil then
 	    	local bosDebuffRemain = getDebuffRemain("target",_BreathOfSindragosaAura,"player")
-	    else 
+	    else
 	    	local bosDebuffRemain = nil
 	    end
     end
@@ -109,10 +109,10 @@ if select(3,UnitClass("player")) == 6 then
     ------------------------------------------------------------------------------------------------------
     if canRun() ~= true or UnitInVehicle("Player") then
       return false;
-    end
-    if IsMounted("player") then
-      return false;
-    end
+    -- end
+    -- if IsMounted("player") then
+    --   return false;
+    -- end
     ------------------------------------------------------------------------------------------------------
     -- Pause ---------------------------------------------------------------------------------------------
     ------------------------------------------------------------------------------------------------------
