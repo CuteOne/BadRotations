@@ -38,7 +38,7 @@ function GetObjectCount()
 end
 
 function castInterrupt(SpellID,Percent,Unit)
-if Unit == nil then Unit == "target" end
+if Unit == nil then Unit = "target" end
 	if GetObjectExists(Unit) then
 		local castName, _, _, _, castStartTime, castEndTime, _, _, castInterruptable = UnitCastingInfo(Unit)
 		local channelName, _, _, _, channelStartTime, channelEndTime, _, channelInterruptable = UnitChannelInfo(Unit)
