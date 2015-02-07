@@ -419,7 +419,7 @@ if select(3,UnitClass("player")) == 6 then
             end
           end
           -- actions.single_target+=/run_action_list,name=bos_st,if=dot.breath_of_sindragosa.ticking
-          if bosDebuffRemain > 0 then
+          if getTalent(7,3) and bosDebuffRemain > 0 then
             -- actions.bos_st=death_and_decay,if=runic_power<88
             if power < 88 then
               if castGround("target",43265,6) then
