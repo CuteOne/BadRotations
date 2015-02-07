@@ -50,8 +50,12 @@ if select(3,UnitClass("player")) == 6 then
     local dsRemain = getBuffRemain("player",_DarkSuccor)
     local amsRemain, amsCooldown = getBuffRemain("player",_AntiMagicShell), getSpellCD(_AntiMagicShell)
     local bosRemain, bosCooldown = getBuffRemain("player",_BreathOfSindragosa), getSpellCD(_BreathOfSindragosa)
-    if UnitDebuffID("target",_BreathOfSindragosaAura,"player") ~= nil then
-    	local bosDebuffRemain = getDebuffRemain("target",_BreathOfSindragosaAura,"player")
+    if getTalent(7,3) then
+	    if UnitDebuffID("target",_BreathOfSindragosaAura,"player") ~= nil then
+	    	local bosDebuffRemain = getDebuffRemain("target",_BreathOfSindragosaAura,"player")
+	    else 
+	    	local bosDebuffRemain = nil
+	    end
     end
     local strPotRemain = getBuffRemain("player",156428)
     local srCooldown = getSpellCD(_SoulReaper)
