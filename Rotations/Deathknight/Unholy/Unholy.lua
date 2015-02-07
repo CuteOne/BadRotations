@@ -50,8 +50,12 @@ if select(3,UnitClass("player")) == 6 then
     local dsRemain = getBuffRemain("player",_DarkSuccor)
     local amsRemain, amsCooldown = getBuffRemain("player",_AntiMagicShell), getSpellCD(_AntiMagicShell)
     local bosRemain, bosCooldown = getBuffRemain("player",_BreathOfSindragosa), getSpellCD(_BreathOfSindragosa)
-    if UnitDebuffID("target",_BreathOfSindragosaAura,"player") ~= nil then
-    	local bosDebuffRemain = getDebuffRemain("target",_BreathOfSindragosaAura,"player")
+    if getTalent(7,3) then
+	    if UnitDebuffID("target",_BreathOfSindragosaAura,"player") ~= nil then
+	    	local bosDebuffRemain = getDebuffRemain("target",_BreathOfSindragosaAura,"player")
+	    else 
+	    	local bosDebuffRemain = nil
+	    end
     end
     local strPotRemain = getBuffRemain("player",156428)
     local srCooldown = getSpellCD(_SoulReaper)
@@ -415,7 +419,7 @@ if select(3,UnitClass("player")) == 6 then
             end
           end
           -- actions.single_target+=/run_action_list,name=bos_st,if=dot.breath_of_sindragosa.ticking
-          if bosDebuffRemain > 0 then
+          if getTalent(7,3) and bosDebuffRemain > 0 then
             -- actions.bos_st=death_and_decay,if=runic_power<88
             if power < 88 then
               if castGround("target",43265,6) then
