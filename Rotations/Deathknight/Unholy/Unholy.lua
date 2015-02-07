@@ -268,6 +268,16 @@ if select(3,UnitClass("player")) == 6 then
 						end
 					end
 				end
+				-- Death Strike
+				if isChecked("Death Strike (Dark Succor)") == true then
+					if UnitBuffID("player",_DarkSuccor) ~= nil then
+						if php <= getValue("Death Strike (Dark Succor)") then
+							if castSpell("target",_DeathStrike,true) then
+								return;
+							end
+						end
+					end
+				end
 				-- -- Death Strike (Dark Succor)
 				-- if isChecked("Death Strike (Dark Succor)") == true then
 				--   if UnitBuffID("player",_DarkSuccor) then
