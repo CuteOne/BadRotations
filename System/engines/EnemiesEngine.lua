@@ -191,7 +191,7 @@ function EnemiesEngine()
 			for i = 1, #enemiesTable do
 				thisUnit = enemiesTable[i].unit
 				-- check if unit is valid
-				if GetObjectExists(thisunit) then
+				if GetObjectExists(thisUnit) then
 					if getDistanceXYZ(unit,i) <= Radius then
 						tinsert(getEnemiesTable,thisUnit)
 					end
