@@ -66,6 +66,7 @@ if select(3, UnitClass("player")) == 5 then
 			"Replicating Arcane Aberration",
 			"Displacing Arcane Aberration",
 			"Arcane Aberration",
+			"Siegemaker",
 		}
 		if datUnit==nil then return false end
 			for i = 1, #Blacklist do
@@ -75,8 +76,6 @@ if select(3, UnitClass("player")) == 5 then
 			return false
 		end
 	end
-
-
 	--[[                    ]] -- General Functions end
 
 

@@ -1094,7 +1094,7 @@ function getTimeToDie(unit)
 	if timestart == nil then
 		timestart = 0
 	end
-	if GetObjectExists(Unit) and UnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) then
+	if GetObjectExists(unit) and UnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) then
 		if currtar ~= UnitGUID(unit) then
 			priortar = currtar
 			currtar = UnitGUID(unit)
@@ -1116,7 +1116,7 @@ function getTimeToDie(unit)
 				end
 			end
 		end
-	elseif not GetObjectExists(Unit) or not UnitIsVisible(unit) or currtar ~= UnitGUID(unit) then
+	elseif not GetObjectExists(unit) or not UnitIsVisible(unit) or currtar ~= UnitGUID(unit) then
 		currtar = 0
 		priortar = 0
 		thpstart = 0
@@ -1142,7 +1142,7 @@ function getTimeTo(unit,percent)
 	if ttptimestart == nil then
 		ttptimestart = 0
 	end
-	if GetObjectExists(Unit) and UnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) then
+	if GetObjectExists(unit) and UnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) then
 		if ttpcurrtar ~= UnitGUID(unit) then
 			ttppriortar = currtar
 			ttpcurrtar = UnitGUID(unit)
@@ -1166,7 +1166,7 @@ function getTimeTo(unit,percent)
 				end
 			end
 		end
-	elseif not GetObjectExists(Unit) or not UnitIsVisible(unit) or ttpcurrtar ~= UnitGUID(unit) then
+	elseif not GetObjectExists(unit) or not UnitIsVisible(unit) or ttpcurrtar ~= UnitGUID(unit) then
 		ttpcurrtar = 0
 		ttppriortar = 0
 		ttpthpstart = 0
