@@ -45,9 +45,9 @@ function EnemiesEngine()
 						-- get the unit distance
 						--local _, ObjectPosition1 = pcall(ObjectPosition,"player")
 						--local _, ObjectPosition2 = pcall(ObjectPosition,thisUnit)
-						local playerX, playerY, playerZ = GetObjectPosition("player")
+						--local playerX, playerY, playerZ = GetObjectPosition("player")
 
-						local targetX, targetY, targetZ =  GetObjectPosition(thisUnit)
+						--local targetX, targetY, targetZ =  GetObjectPosition(thisUnit)
 						--LibDraw.Line(playerX, playerY, playerZ, targetX, targetY, targetZ)
 						--end
 						local unitDistance = getDistance("player",thisUnit)
