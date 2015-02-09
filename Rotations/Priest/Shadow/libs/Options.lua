@@ -172,7 +172,7 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- Pause Toggle
 			CreateNewCheck(thisConfig,"Pause Toggle");
-			CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle")
+			CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
 			CreateNewText(thisConfig,"Pause Toggle");
 
 			--Power Word: Fortitude
