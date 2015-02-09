@@ -105,9 +105,9 @@ if select(3,UnitClass("player")) == 6 then
       CreateNewText(thisConfig,"Death Strike");
 
       -- Death Strike (Dark Succor)
-      -- CreateNewCheck(thisConfig,"Death Strike (Dark Succor)");
-      -- CreateNewBox(thisConfig, "Death Strike (Dark Succor)", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Strike (Dark Succor)");
-      -- CreateNewText(thisConfig,"Death Strike (Dark Succor)");
+       CreateNewCheck(thisConfig,"Death Strike (Dark Succor)");
+       CreateNewBox(thisConfig, "Death Strike (Dark Succor)", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Strike (Dark Succor)");
+       CreateNewText(thisConfig,"Death Strike (Dark Succor)");
 
       -- Wrapper
       CreateNewWrap(thisConfig,"--- Interrupts ---");

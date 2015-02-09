@@ -45,9 +45,9 @@ function EnemiesEngine()
 						-- get the unit distance
 						--local _, ObjectPosition1 = pcall(ObjectPosition,"player")
 						--local _, ObjectPosition2 = pcall(ObjectPosition,thisUnit)
-						local playerX, playerY, playerZ = GetObjectPosition("player")
+						--local playerX, playerY, playerZ = GetObjectPosition("player")
 
-						local targetX, targetY, targetZ =  GetObjectPosition(thisUnit)
+						--local targetX, targetY, targetZ =  GetObjectPosition(thisUnit)
 						--LibDraw.Line(playerX, playerY, playerZ, targetX, targetY, targetZ)
 						--end
 						local unitDistance = getDistance("player",thisUnit)
@@ -177,7 +177,7 @@ function EnemiesEngine()
 	-- to enlight redundant checks in getDistance within getEnemies
 	function getDistanceXYZ(unit1,unit2)
 		-- check if unit is valid
-		if GetObjectExists(unit1) and GetObjectExists(unit2) then
+		if GetObjectExists(unit1) and GetObjectExists(enemiesTable[unit2].unit) then
 			local x1, y1, z1 = GetObjectPosition(unit1)
 			local x2, y2, z2 = enemiesTable[unit2].x, enemiesTable[unit2].y, enemiesTable[unit2].z
 			return math.sqrt(((x2-x1)^2)+((y2-y1)^2)+((z2-z1)^2));
@@ -191,7 +191,7 @@ function EnemiesEngine()
 			for i = 1, #enemiesTable do
 				thisUnit = enemiesTable[i].unit
 				-- check if unit is valid
-				if GetObjectExists(thisunit) then
+				if GetObjectExists(thisUnit) then
 					if getDistanceXYZ(unit,i) <= Radius then
 						tinsert(getEnemiesTable,thisUnit)
 					end
