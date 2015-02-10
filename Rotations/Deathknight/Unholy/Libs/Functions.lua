@@ -621,7 +621,7 @@ if select(3,UnitClass("player")) == 6 then
       elseif not opten and opnine and canCast(_FesteringStrike) then
         if delay == nil or delay <= GetTime() - GCD then
           CastSpellByName(tostring(GetSpellInfo(85948)),"target")
-          print("|cffC41F3B6: Festering Strike")
+          print("|cffC41F3B10: Festering Strike")
           delay = GetTime()
           opten = true
           return
@@ -629,7 +629,7 @@ if select(3,UnitClass("player")) == 6 then
       elseif not opeleven and opten and canCast(_ScourgeStrike) then
         if delay == nil or delay <= GetTime() - GCD then
           CastSpellByName(tostring(GetSpellInfo(55090)),"target")
-          print("|cffC41F3B7: Scourge Strike")
+          print("|cffC41F3B11: Scourge Strike")
           delay = GetTime()
           opeleven = true
           return
