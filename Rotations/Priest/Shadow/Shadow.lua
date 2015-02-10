@@ -35,6 +35,7 @@ if select(3, UnitClass("player")) == 5 then
 		-- Set Enemies Table
 		--makeEnemiesTable(40)
 
+		-- Sort enemiesTable by absolute HP
 		if isChecked("sortByHPabs") then
 			table.sort(enemiesTable, function(x,y)
 				return x.hpabs and y.hpabs and x.hpabs > y.hpabs or false
