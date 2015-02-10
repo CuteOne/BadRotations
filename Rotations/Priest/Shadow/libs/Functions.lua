@@ -67,6 +67,12 @@ if select(3, UnitClass("player")) == 5 then
 			"Displacing Arcane Aberration",
 			"Arcane Aberration",
 			"Siegemaker",
+			"Ore Crate",
+			"Dominator Turret",
+			"Grasping Earth",
+			"Cinder Wolf",
+			"Iron Gunnery Sergeant",
+			"Heavy Spear",
 		}
 		if datUnit==nil then return false end
 			for i = 1, #Blacklist do
