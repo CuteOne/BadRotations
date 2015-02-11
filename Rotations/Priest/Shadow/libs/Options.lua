@@ -163,7 +163,7 @@ if select(3, UnitClass("player")) == 5 then
 			-- Mind Sear Targets
 			-- Auto MindSear
 			CreateNewCheck(thisConfig,"MS Targets","Automatic Mind Sear if enough targets in range");
-			CreateNewBox(thisConfig,"MS Targets", 1, 6, 1, 4, "Minimum count of enemies around target \nto use Mind Sear instead of Mind Spike. \nMin: 1 / Max: 6 / Interval: 1 \n|cffFF0000Standard: 6(SimCraft)");
+			CreateNewBox(thisConfig,"MS Targets", 1, 10, 1, 4, "Minimum count of enemies around target \nto use Mind Sear instead of Mind Spike. \nMin: 1 / Max: 10 / Interval: 1 \n|cffFF0000Standard: 6(SimCraft)");
 			CreateNewText(thisConfig,"MS Targets");
 
 

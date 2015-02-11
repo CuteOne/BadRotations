@@ -46,7 +46,7 @@ if select(3, UnitClass("player")) == 5 then
 		local Blacklist = {
 			"Volatile Anomaly",
 			"Rarnok",
-			--"Spore Shooter",
+			"Pack Beast",
 		}
 		-- nil Protection
 		if datUnit == nil then 
@@ -66,6 +66,7 @@ if select(3, UnitClass("player")) == 5 then
 	function noDoTWeave(datUnit)
 		local Blacklist = {
 			--"Dungeoneer's Training Dummy",  -- Debug use only
+			"Spore Shooter",
 			"Fortified Arcane Aberration",
 			"Replicating Arcane Aberration",
 			"Displacing Arcane Aberration",
@@ -292,7 +293,7 @@ if select(3, UnitClass("player")) == 5 then
 					end
 					-- refresh VT
 					if options.buttons.DoT==3 or options.buttons.DoT==4 then
-						if SWPCount <= options.values.MaxTargets then
+						if VTCount <= options.values.MaxTargets then
 							for i=1, #enemiesTable do
 								local thisUnit = enemiesTable[i].unit
 								local thisHP = enemiesTable[i].hpabs
@@ -308,7 +309,7 @@ if select(3, UnitClass("player")) == 5 then
 							end
 						end
 						-- apply VT
-						if SWPCount<options.values.MaxTargets then
+						if VTCount<options.values.MaxTargets then
 							for i=1, #enemiesTable do
 								local thisUnit = enemiesTable[i].unit
 								local thisHP = enemiesTable[i].hpabs
@@ -571,10 +572,14 @@ if select(3, UnitClass("player")) == 5 then
 
 					-- Mind Spike
 					--if options.player.ORBS<5 and (getDebuffRemain("target",SWP,"player")<2*options.player.GCD or options.player.ORBS<2) then
-					if not(#getEnemies("target",10)<options.values.MindSear and options.isChecked.MindSear) and options.player.ORBS<5 then
-						if (getBuffRemain("player",InsanityBuff)<=0 and select(1,UnitChannelInfo("player")) ~= "Insanity")
-						  or (options.isChecked.TwinOgrons and UnitExists("focus") and not UnitIsDead("focus")) then
-							if castSpell("target",MSp,false,true) then return; end
+					--if not(#getEnemies("target",10)<options.values.MindSear and options.isChecked.MindSear) and options.player.ORBS<5 then
+					if options.player.ORBS<5 then
+						if #getEnemies("target",10)<options.values.MindSear and options.isChecked.MindSear
+						or not options.isChecked.MindSear then
+							if (getBuffRemain("player",InsanityBuff)<=0 and select(1,UnitChannelInfo("player")) ~= "Insanity")
+							  or (options.isChecked.TwinOgrons and UnitExists("focus") and not UnitIsDead("focus")) then
+								if castSpell("target",MSp,false,true) then return; end
+							end
 						end
 					end
 
