@@ -486,12 +486,16 @@ if select(3, UnitClass("player")) == 5 then
 		-- MB on CD
 		if castSpell("target",MB,false,true) then return; end
 
+
 		-- SWP on MaxTargets
 		throwSWP(options,true)
 
 		-- VT on target
-		if getDebuffRemain("target",VT,"player")<=options.values.VTRefresh then
-			if castSpell("target",VT,true,true) then return; end
+		if getDebuffRemain("target",VT,"player")<=options.values.VTRefresh and GetTime()-lastVT > 2*options.player.GCD then
+			if castSpell("target",VT,true,true) then 
+				lastVT=GetTime()
+				return
+			end
 		end
 
 		-- VT on all
@@ -513,6 +517,7 @@ if select(3, UnitClass("player")) == 5 then
 		if select(1,UnitChannelInfo("player")) == nil then
 			if castSpell("target",MF,false,true) then return; end
 		end
+
 	end
 	--[[                    ]] -- AS Insanity end
 

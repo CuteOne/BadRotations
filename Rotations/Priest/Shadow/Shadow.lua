@@ -127,7 +127,6 @@ if select(3, UnitClass("player")) == 5 then
 			},
 		}
 
-
 		-- correct twin ogrons options for SoD talent automatically
 		if getTalent(3,1) then options.isChecked.TwinOgrons=true end
 
@@ -263,7 +262,6 @@ if select(3, UnitClass("player")) == 5 then
 			ShadowDefensive(options)
 
 
-		--if options.buttons.Rotation == 1 then
 		----------------
 		-- Offensives --
 		----------------
@@ -277,7 +275,7 @@ if select(3, UnitClass("player")) == 5 then
 			-- 	if castSpell("target",MB,false,false) then return; end
 			-- end
 
-			--if isCasting() then return; end
+			if isCasting() then return; end
 
 			Execute(options)
 			LFOrbs(options)
