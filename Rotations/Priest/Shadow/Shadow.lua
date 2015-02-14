@@ -277,7 +277,15 @@ if select(3, UnitClass("player")) == 5 then
 
 			if isCasting() then return; end
 
-			Execute(options)
+			-- Execute
+			-- CoP
+			if getTalent(7,1) then ExecuteCoP(options) end
+			if getTalent(7,3) then ExecuteAS(options) end
+
+
+
+
+			--Execute(options)
 			LFOrbs(options)
 			LFToF(options)
 

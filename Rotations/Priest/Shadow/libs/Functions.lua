@@ -185,8 +185,8 @@ if select(3, UnitClass("player")) == 5 then
 		end
 	--[[                    ]] -- Cooldowns end
 
-	--[[                    ]] -- Execute start
-		function Execute(options)
+	--[[                    ]] -- Execute CoP start
+		function ExecuteCoP(options)
 			if getHP("target")<=20 then
 				-- ORBS>=3 -> DP
 				if options.player.ORBS>=3 and getBuffRemain("player",InsanityBuff)<=0.3*options.player.DPTIME then
@@ -199,13 +199,68 @@ if select(3, UnitClass("player")) == 5 then
 				-- SWD
 				if castSpell("target",SWD,true,false) then return; end
 
+				-- SoD Proc
+				if getBuffStacks("player",SoDProc)>=1 then
+					if castSpell("target",MSp,false,false) then return; end
+				end
+
 				-- MF Filler
 				if select(1,UnitChannelInfo("player")) == nil and options.player.ORBS<3 then
 					if castSpell("target",MF,false,true) then return; end
 				end
 			end
 		end
-	--[[                    ]] -- Execute end
+	--[[                    ]] -- Execute CoP end
+	
+	--[[                    ]] -- Execute AS start
+		function ExecuteAS(options)
+			if getHP("target")<=20 then
+				-- DP on 3+ Orbs
+				if options.player.ORBS>=3 and getBuffRemain("player",InsanityBuff)<=0.3*options.player.DPTIME then
+					if castSpell("target",DP,true,false) then return; end
+				end
+
+				-- MB
+				if castSpell("target",MB,false,true) then return; end
+
+				-- SoD Proc
+				if getBuffStacks("player",SoDProc)>=1 then
+					if castSpell("target",MSp,false,false) then return; end
+				end
+
+				-- SWD
+				if castSpell("target",SWD,true,false) then return; end
+
+				-- Insanity if noChannel
+				if getBuffRemain("player",InsanityBuff)>0 then
+					-- Check for current channel and cast Insanity
+					if select(1,UnitChannelInfo("player")) == nil then
+						if castSpell("target",MF,false,true) then return; end
+					end
+				end
+
+				-- SWP / VT
+				if getTimeToDie("target")>25 then
+					-- SWP
+					if getDebuffRemain("target",SWP,"player")<options.values.SWPRefresh then
+						if castSpell("target",SWP,true,false) then return; end
+					end
+					-- VT
+					if getDebuffRemain("target",VT,"player")<=options.values.VTRefresh and GetTime()-lastVT > 2*options.player.GCD then
+						if castSpell("target",VT,true,true) then 
+							lastVT=GetTime()
+							return
+						end
+					end
+				end
+
+				-- MF Filler
+				if select(1,UnitChannelInfo("player")) == nil then
+					if castSpell("target",MF,false,true) then return; end
+				end
+			end
+		end
+	--[[                    ]] -- Execute AS end
 
 	--[[                    ]] -- LF Orbs start
 		function LFOrbs(options)
