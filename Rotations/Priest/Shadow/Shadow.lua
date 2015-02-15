@@ -127,7 +127,6 @@ if select(3, UnitClass("player")) == 5 then
 			},
 		}
 
-
 		-- correct twin ogrons options for SoD talent automatically
 		if getTalent(3,1) then options.isChecked.TwinOgrons=true end
 
@@ -170,9 +169,6 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- Mounted Check (except nagrand outpost mounts)
 			if IsMounted("player") and not (UnitBuffID("player",164222) or UnitBuffID("player",165803)) then return false; end
-
-			-- Do not Interrupt "player" while GCD (61304)
-			if getSpellCD(61304) > 0 then return false;	end
 
 		-------------------
 		-- OUT OF COMBAT --
@@ -263,7 +259,6 @@ if select(3, UnitClass("player")) == 5 then
 			ShadowDefensive(options)
 
 
-		--if options.buttons.Rotation == 1 then
 		----------------
 		-- Offensives --
 		----------------
@@ -279,7 +274,18 @@ if select(3, UnitClass("player")) == 5 then
 
 			--if isCasting() then return; end
 
-			Execute(options)
+			-- Do not Interrupt "player" while GCD (61304)
+			if getSpellCD(61304) > 0 then return false;	end
+
+			-- Execute
+			-- CoP
+			if getTalent(7,1) then ExecuteCoP(options) end
+			if getTalent(7,3) then ExecuteAS(options) end
+
+
+
+
+			--Execute(options)
 			LFOrbs(options)
 			LFToF(options)
 
