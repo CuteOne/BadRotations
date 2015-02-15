@@ -170,9 +170,6 @@ if select(3, UnitClass("player")) == 5 then
 			-- Mounted Check (except nagrand outpost mounts)
 			if IsMounted("player") and not (UnitBuffID("player",164222) or UnitBuffID("player",165803)) then return false; end
 
-			-- Do not Interrupt "player" while GCD (61304)
-			if getSpellCD(61304) > 0 then return false;	end
-
 		-------------------
 		-- OUT OF COMBAT --
 		-------------------
@@ -275,7 +272,10 @@ if select(3, UnitClass("player")) == 5 then
 			-- 	if castSpell("target",MB,false,false) then return; end
 			-- end
 
-			if isCasting() then return; end
+			--if isCasting() then return; end
+
+			-- Do not Interrupt "player" while GCD (61304)
+			if getSpellCD(61304) > 0 then return false;	end
 
 			-- Execute
 			-- CoP

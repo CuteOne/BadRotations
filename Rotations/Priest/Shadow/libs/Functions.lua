@@ -459,15 +459,15 @@ if select(3, UnitClass("player")) == 5 then
 				-- Check for last DP
 				if GetTime()-lastDP<=options.player.DPTIME+2 then
 					-- Check that Insanity isnt on me
-					if getBuffRemain("player",InsanityBuff)<=0 then
+					--if getBuffRemain("player",InsanityBuff)<=0 then
 						-- DP on target
 						if castSpell("target",DP,false,true) then return; end
-					end
+					--end
 				end
 			end
 
 			-- Insanity if noChannel
-			if getBuffRemain("player",InsanityBuff)>=0.7*options.player.GCD then
+			if getBuffRemain("player",InsanityBuff)>=0.3*options.player.GCD then
 				-- Check for current channel and cast Insanity
 				if select(1,UnitChannelInfo("player")) == nil then
 					if castSpell("target",MF,false,true) then return; end
