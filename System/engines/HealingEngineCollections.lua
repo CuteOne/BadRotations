@@ -69,7 +69,25 @@ novaEngineTables.SpecificHPDebuffs = {
   { debuff = 163241 , value = 30 , stacks = 3 }, --http://www.wowhead.com/spell=163241/rot
   { debuff = 163241 , value = 20 , stacks = 2 }, --http://www.wowhead.com/spell=163241/rot
   { debuff = 163241 , value = 20 , stacks = 1 }, --http://www.wowhead.com/spell=163241/rot
+  -- Gruul
+  { debuff = 155506 , value = 30 }, --http://www.wowhead.com/spell=155506/petrified
+  { debuff = 173192 , value = 30 }, --http://www.wowhead.com/spell=173192/cave-in
   { debuff = 145263 , value = 20 }, -- Proving Grounds Healer Debuff.
+  -- Blast Furnace
+  { debuff = 155196 , value = 30 }, --http://www.wowhead.com/spell=155196/fixate
+  { debuff = 155242 , value = 30 }, --http://www.wowhead.com/spell=155242/heat
+  { debuff = 156934 , value = 15 }, --http://www.wowhead.com/spell=156934/rupture
+  { debuff = 176121 , value = 15 }, --http://www.wowhead.com/spell=176121/volatile-fire
+  --Flame Bender
+  { debuff = 155277 , value = 30 }, --http://www.wowhead.com/spell=155277/blazing-radiance 
+  --BeastMaster 
+  { debuff = 162283 , value = 30 }, --http://www.wowhead.com/spell=162283/rend-and-tear
+  -- Iron Maidens
+  { debuff = 158078 , value = 30 }, --http://www.wowhead.com/spell=158078/blood-ritual
+  { debuff = 156112 , value = 30 }, --http://www.wowhead.com/spell=156112/convulsive-shadows
+  { debuff = 158315 , value = 15 }, --http://www.wowhead.com/spell=158315/dark-hunt
+  --Trains 
+  { debuff = 165195 , value = 30 }, --http://www.wowhead.com/spell=165195/prototype-pulse-grenade
 }
 -- this table will assign role to any unit wearing the unit name
 novaEngineTables.roleTable = {
@@ -97,5 +115,11 @@ novaEngineTables.BadlyDeBuffed = {
   161442,     --http://www.wowhead.com/spell=161242/caustic-energy
   --Imperator Margok
   157763,    --http://www.wowhead.com/spell=157763/fixate
---    { id = 142913, stacks = 0, range = 0}, -- Placeholder
+  --Black Rock Foundry
+  --Iron Maidens
+  156112, --http://www.wowhead.com/spell=156112/convulsive-shadows
+  158315, --http://www.wowhead.com/spell=158315/dark-hunt
+  --Trains
+ 165195,--http://www.wowhead.com/spell=165195/prototype-pulse-grenade
+
 }
