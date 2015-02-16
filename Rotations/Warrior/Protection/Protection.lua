@@ -17,6 +17,39 @@ if select(3,UnitClass("player")) == 1 then
       return false
     end
 
+    if isChecked("Pause Key") and SpecificToggle("Pause Key") == true then
+        ChatOverlay("|cffFF0000BadBoy Paused", 0); return;
+      end
+
+      if isChecked("Heroic Leap Key") and SpecificToggle("Heroic Leap Key") == true then
+      if not IsMouselooking() then
+        CastSpellByName(GetSpellInfo(6544))
+        if SpellIsTargeting() then
+          CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+          return true;
+        end
+      end
+    end
+    if isChecked("Ravager Key") and SpecificToggle("Ravager Key") == true then
+      if not IsMouselooking() then
+        CastSpellByName(GetSpellInfo(152277))
+        if SpellIsTargeting() then
+          CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+          return true;
+        end
+      end
+    end
+
+    if isChecked("Mocking Banner Key") and SpecificToggle("Mocking Banner Key") == true then
+      if not IsMouselooking() then
+        CastSpellByName(GetSpellInfo(114192))
+        if SpellIsTargeting() then
+          CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+          return true;
+        end
+      end
+    end
+
     -- localising protCore functions stuff
     -- local with short names
     local buff,cooldown,mode,talent,glyph = core.buff,core.cd,core.mode,core.talent,core.glyph
@@ -50,6 +83,8 @@ if select(3,UnitClass("player")) == 1 then
       end
 
 
+
+
       --Gladiator
       if core.stance ==1 then
       --avatar
@@ -57,11 +92,11 @@ if select(3,UnitClass("player")) == 1 then
       --shield_charge,if=(!buff.shield_charge.up&!cooldown.shield_slam.remains)|charges=2
       -- TODO add shieldcharge charge support
       --if (buff.ShieldCharge == 0 and Cooldown.ShieldSlam == 0) then
-      --	core:castShieldCharge
+      --  core:castShieldCharge
       --end
       --berserker_rage,if=buff.enrage.down
       --if buff.Enrage = 0 then
-      --	core:castBerserkerRage
+      --  core:castBerserkerRage
       --end
       --heroic_strike,if=(buff.shield_charge.up|(buff.unyielding_strikes.up&rage>=50-buff.unyielding_strikes.stack*5))&target.health.pct>20
 
