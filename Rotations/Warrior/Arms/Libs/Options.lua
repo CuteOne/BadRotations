@@ -11,8 +11,8 @@ if select(3, UnitClass("player")) == 1 then
         CreateNewWrap(thisConfig,"-------- General Rotation --------");
 
         --Multi-Rend
-        -- CreateNewCheck(thisConfig,"Multi-Rend","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRend spreading|cffFFBB00.");
-        -- CreateNewText(thisConfig,"Multi-Rend");
+        CreateNewCheck(thisConfig,"Multi-Rend","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRend spreading|cffFFBB00.");
+        CreateNewText(thisConfig,"Multi-Rend");
 
         -- Pause Toggle
         CreateNewCheck(thisConfig,"Pause Key");
@@ -28,14 +28,6 @@ if select(3, UnitClass("player")) == 1 then
         CreateNewCheck(thisConfig,"Ravager Key");
         CreateNewDrop(thisConfig,"Ravager Key", 2, "Toggle2")
         CreateNewText(thisConfig,"Ravager Key");
-
-        -- Auto Bladestorm / DragonRoar Single Target
-        CreateNewCheck(thisConfig,"Single BS/DR/RV");
-        CreateNewText(thisConfig,"Single BS/DR/RV")
-
-        -- Auto Bladestorm / DragonRoar Multi Target
-        CreateNewCheck(thisConfig,"Multi BS/DR/RV");
-        CreateNewText(thisConfig,"Multi BS/DR/RV")
 
         -- Wrapper
         CreateNewWrap(thisConfig,"---------- Buffs ---------");
@@ -127,7 +119,9 @@ if select(3, UnitClass("player")) == 1 then
         -- Wrapper
         CreateNewWrap(thisConfig,"---------- Misc -----------");
 
-
+        -- Auto Bladestorm / DragonRoar Single Target
+        CreateNewCheck(thisConfig,"Single BS/DR/RV");
+        CreateNewText(thisConfig,"Single BS/DR/RV")
 
         -- Dummy DPS Test
         CreateNewCheck(thisConfig,"DPS Testing");

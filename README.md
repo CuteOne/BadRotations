@@ -52,7 +52,7 @@ What to do if you have crash to desktop or 134 errors.
 | **Priest**  |||
 |Discipline|0%|ragnar|
 |Holy|0%||
-|Shadow|100%(CoP&AS)|ragnar|
+|Shadow|100%(CoP only)|ragnar|
 ||||
 | **Rogue**  |||
 |Assassination|90%|CuteOne|
