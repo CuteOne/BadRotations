@@ -45,8 +45,9 @@ if select(3, UnitClass("player")) == 5 then
 	-- Units not to dot with DoTEmAll
 	function safeDoT(datUnit)
 		local Blacklist = {
+			-- Highmauk
 			"Volatile Anomaly",
-			"Rarnok",
+			-- Blackrock Foundry
 			"Pack Beast",
 		}
 		-- nil Protection
@@ -66,11 +67,12 @@ if select(3, UnitClass("player")) == 5 then
 	-- Units not to dotweave, just press damage
 	function noDoTWeave(datUnit)
 		local Blacklist = {
-			--"Dungeoneer's Training Dummy",  -- Debug use only
+			-- Highmaul
 			"Fortified Arcane Aberration",
 			"Replicating Arcane Aberration",
 			"Displacing Arcane Aberration",
 			"Arcane Aberration",
+			-- Blackrock Foundry
 			"Siegemaker",
 			"Ore Crate",
 			"Dominator Turret",
@@ -459,10 +461,10 @@ if select(3, UnitClass("player")) == 5 then
 				-- Check for last DP
 				if GetTime()-lastDP<=options.player.DPTIME+2 then
 					-- Check that Insanity isnt on me
-					--if getBuffRemain("player",InsanityBuff)<=0 then
+					if getBuffRemain("player",InsanityBuff)<=1 then
 						-- DP on target
 						if castSpell("target",DP,false,true) then return; end
-					--end
+					end
 				end
 			end
 
@@ -541,38 +543,39 @@ if select(3, UnitClass("player")) == 5 then
 		-- MB on CD
 		if castSpell("target",MB,false,true) then return; end
 
-
 		-- SWP on MaxTargets
 		throwSWP(options,true)
-
-		-- VT on target
-		if getDebuffRemain("target",VT,"player")<=options.values.VTRefresh and GetTime()-lastVT > 2*options.player.GCD then
-			if castSpell("target",VT,true,true) then 
-				lastVT=GetTime()
-				return
-			end
-		end
-
-		-- VT on all
-		if options.buttons.DoT==3 or options.buttons.DoT==4 then
-			throwVT(options,true)
-		end
-		-- -- Mind Sear
-		-- if options.isChecked.MindSear then
-		-- 	if #getEnemies("target",10)>=options.values.MindSear then
-		-- 		if select(1,UnitChannelInfo("player")) ~= "Mind Sear" then
-		-- 			if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
-		-- 				if castSpell("target",MS,false,true) then return; end
-		-- 			end
-		-- 		end
-		-- 	end
-		-- end
 
 		-- Insanity / MF
 		if select(1,UnitChannelInfo("player")) == nil then
 			if castSpell("target",MF,false,true) then return; end
 		end
 
+
+		if select(1,UnitChannelInfo("player")) == nil then
+			-- VT on target
+			if getDebuffRemain("target",VT,"player")<=options.values.VTRefresh and GetTime()-lastVT > 2*options.player.GCD then
+				if castSpell("target",VT,true,true) then 
+					lastVT=GetTime()
+					return
+				end
+			end
+
+			-- VT on all
+			if options.buttons.DoT==3 or options.buttons.DoT==4 then
+				throwVT(options,true)
+			end
+			-- -- Mind Sear
+			-- if options.isChecked.MindSear then
+			-- 	if #getEnemies("target",10)>=options.values.MindSear then
+			-- 		if select(1,UnitChannelInfo("player")) ~= "Mind Sear" then
+			-- 			if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
+			-- 				if castSpell("target",MS,false,true) then return; end
+			-- 			end
+			-- 		end
+			-- 	end
+			-- end
+		end
 	end
 	--[[                    ]] -- AS Insanity end
 
