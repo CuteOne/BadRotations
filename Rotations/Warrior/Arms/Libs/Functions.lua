@@ -71,15 +71,6 @@ if select(3, UnitClass("player")) == 1 then
       end
     end
 
-    SLASH_armshelp1 = "/armshelp"
-    function SlashCmdList.armshelp(msg, editbox)
-      print("|cFFC79C6EBadBoy Arms Warrior")
-      print("|cFFC79C6EUsage: |rAuto AoE if 2+ Targets in 8y\nWill always spread Rend on all targets in Melee-Range\nWill Execute nearby low enemies\nAll other spells will be casted regarding your Dyncamic Target Settings")
-      print("|cFFC79C6EOptions:|rSingle / Multi BS/DR/RV\nWill use Bladestorm, Dragon Roar, Ravager automatically (turn off you want to use them manually for specific Raid Events)")
-      print("Ravager will be excluded from auto-usage if >Ravager Key< is checked")
-    end
-
-
   end --end arms check
 end--end functions
 

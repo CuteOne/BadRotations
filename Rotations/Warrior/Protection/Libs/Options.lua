@@ -128,11 +128,6 @@ if select(3, UnitClass("player")) == 1  then
     CreateNewDrop(thisConfig,"Mocking Banner Key", 7, "Toggle2")
     CreateNewText(thisConfig,"Mocking Banner Key")
 
-    --Ravager
-    CreateNewCheck(thisConfig,"Ravager Key")
-    CreateNewDrop(thisConfig,"Ravager Key", 7, "Toggle2")
-    CreateNewText(thisConfig,"Ravager Key")
-
 
 
     CreateGeneralsConfig();
