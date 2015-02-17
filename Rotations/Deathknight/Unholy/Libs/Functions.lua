@@ -447,8 +447,262 @@ if select(3,UnitClass("player")) == 6 then
 
     end -- end unholyOpener()
 
+    function unholyOpenernecro()
+
+      local GCD = 1.5/(1+UnitSpellHaste("player")/100)
+
+      if unholyOpenernecroEvents == nil then
+        -- Initialize
+        RegisterCVar("startopenernecro", 0)
+        RegisterCVar("resetopenernecro", 0)
+        openernecrostarted = false
+        opone = true
+        optwo = true
+        opthree = true
+        opfour = true
+        opfive = true
+        opsix = true
+        opseven = true
+        opeight = true
+        opnine = true
+        opten = true
+        opeleven = true
+        unholyOpenernecroEvents = true
+        print("|cffC41F3BUnholy Openernecro Variables Loaded")
+      end
+
+      SLASH_uhopenernecro1 = "/uhopenernecro"
+      function SlashCmdList.uhopenernecro(msg, editbox)
+        SetCVar("startopenernecro", 1)
+        print("|cffC41F3BOpenernecro started!")
+      end
+
+      SLASH_uhopenernecroreset1 = "/uhopenernecroreset"
+      function SlashCmdList.uhopenernecroreset(msg, editbox)
+        SetCVar("resetopenernecro", 1)
+      end
+
+      if tonumber(GetCVar("startopenernecro")) == 1 and getSpellCD(_SummonGargoyle) > 0 then
+        SetCVar("resetopenernecro", 1)
+        SetCVar("startopenernecro", 0)
+        print("|cffC41F3BSummon Gargoyle is not ready - Openernecro stopped!")
+      end
+
+      if tonumber(GetCVar("startopenernecro")) == 1 and getSpellCD(_ArmyOfTheDead) > 0 then
+        SetCVar("resetopenernecro", 1)
+        SetCVar("startopenernecro", 0)
+        print("|cffC41F3BArmy of the Dead is not ready - Openernecro stopped!")
+      end
+
+      if tonumber(GetCVar("startopenernecro")) == 1 and not canUse(109219) then
+        SetCVar("resetopenernecro", 1 )
+        SetCVar("startopenernecro", 0 )
+        print("|cffC41F3BYou must have potions to start the openernecro!")
+      end
+
+      if tonumber(GetCVar("startopenernecro")) == 1 and not UnitExists("target") then
+        SetCVar("resetopenernecro", 1 )
+        SetCVar("startopenernecro", 0 )
+        print("|cffC41F3BYou must have a target to start the openernecro!")
+      end
+
+      if tonumber(GetCVar("resetopenernecro")) == 1 then
+        SetCVar("resetopenernecro", 0 )
+        openernecrostarted = false
+        opone = true
+        optwo = true
+        opthree = true
+        opfour = true
+        opfive = true
+        opsix = true
+        opseven = true
+        opeight = true
+        opnine = true
+        opten = true
+        opeleven = true
+        print("|cffC41F3BOpenernecro resetted sucessfully!")
+      end
+
+      if tonumber(GetCVar("startopenernecro")) == 1 then
+        SetCVar("startopenernecro", 0)
+        openernecrostarted = true
+        opone = false
+        optwo = false
+        opthree = false
+        opfour = false
+        opfive = false
+        opsix = false
+        opseven = false
+        opeight = false
+        opnine = false
+        opten = false
+        opeleven = false
+      end
+
+      if not openernecrostarted then return false end
+      if UnitChannelInfo("player") then return true end
+      if UnitCastingInfo("player") then return true end
+
+      -- 1. Army of the Dead 6s before pull
+      -- 2. Pre-potion
+      -- 3. Deaths Advance
+      -- 4. Summon Gargoyle
+      -- 5. Unholy Blight; if running from range, use Outbreak instead.
+      -- 6. Festering Strike x1
+      -- 7. Scourge Strike
+      -- 8. Death Coil if Sudden Doom procced
+      -- 9. Outbreak; Unholy Blight if it was not used earlier.
+      -- 10. Festering Strike x1
+      -- 11. Scourge Strike
+
+      if not opone and canCast(_ArmyOfTheDead) then
+        CastSpellByName(tostring(GetSpellInfo(42650)),"player")
+        print("|cffC41F3B1: Army of the Dead")
+        delay = GetTime()
+        opone = true
+        return
+      elseif not optwo and opone and canUse(109219) then
+        --DELAY 4 seconds
+        if delay == nil or delay <= GetTime() - 4 then
+          UseItemByName(tostring(select(1,GetItemInfo(109219))))
+          print("|cffC41F3B2: Pre-Pot")
+          optwo = true
+          return
+        end
+      elseif not opthree and optwo and canCast(_DeathAdvance) then
+        --DELAY 4 seconds
+        if delay == nil or delay <= GetTime() - 4 then
+          CastSpellByName(tostring(GetSpellInfo(96268)),"player")
+          print("|cffC41F3B3: Death Advance")
+          opthree = true
+          return
+        end
+      elseif not opfour and opthree and canCast(_SummonGargoyle) then
+        if delay == nil or delay <= GetTime() - 4 then
+          CastSpellByName(tostring(GetSpellInfo(49206)),"target")
+          print("|cffC41F3B4: Summon Gargoyle")
+          delay = GetTime()
+          opfour = true
+          return
+        end
+      elseif not opfive and opfour and canCast(_Outbreak) then
+        if delay == nil or delay <= GetTime() - GCD then
+          CastSpellByName(tostring(GetSpellInfo(77575)),"target")
+          print("|cffC41F3B5: Outbreak")
+          delay = GetTime()
+          opfive = true
+          return
+        end
+      elseif not opsix and opfive and canCast(_FesteringStrike) then
+        if delay == nil or delay <= GetTime() - GCD then
+          CastSpellByName(tostring(GetSpellInfo(85948)),"target")
+          print("|cffC41F3B6: Festering Strike")
+          delay = GetTime()
+          opsix = true
+          return
+        end
+      elseif not opseven and opsix and canCast(_ScourgeStrike) then
+        if delay == nil or delay <= GetTime() - GCD then
+          CastSpellByName(tostring(GetSpellInfo(55090)),"target")
+          print("|cffC41F3B7: Scourge Strike")
+          delay = GetTime()
+          opseven = true
+          return
+        end
+      elseif not opeight and opseven and UnitBuffID("player",_SuddenDoom) and canCast(_DeathCoil) then
+        if delay == nil or delay <= GetTime() - GCD then
+          CastSpellByName(tostring(GetSpellInfo(47541)),"target")
+          print("|cffC41F3B8: Death Coil")
+          delay = GetTime()
+          opeight = true
+          return
+        end
+      elseif not opeight and opseven and not UnitBuffID("player",_SuddenDoom) then
+        opeight = true
+        return
+      elseif not opnine and opeight and canCast(_UnholyBlight) then
+        if delay == nil or delay <= GetTime() - GCD then
+          CastSpellByName(tostring(GetSpellInfo(115989)),"target")
+          print("|cffC41F3B9: Unholy Blight")
+          delay = GetTime()
+          opnine = true
+          return
+        end
+      elseif not opten and opnine and canCast(_FesteringStrike) then
+        if delay == nil or delay <= GetTime() - GCD then
+          CastSpellByName(tostring(GetSpellInfo(85948)),"target")
+          print("|cffC41F3B10: Festering Strike")
+          delay = GetTime()
+          opten = true
+          return
+        end
+      elseif not opeleven and opten and canCast(_ScourgeStrike) then
+        if delay == nil or delay <= GetTime() - GCD then
+          CastSpellByName(tostring(GetSpellInfo(55090)),"target")
+          print("|cffC41F3B11: Scourge Strike")
+          delay = GetTime()
+          opeleven = true
+          return
+        end
+      end
+
+      if opone and optwo and opthree and opfour and opfive and opsix and opseven and opeight and opnine and opten and opeleven then
+        SetCVar("startopenernecro", 0 )
+        SetCVar("resetopenernecro", 1 )
+        openernecrostarted = false
+      end
+
+      if openernecrostarted then return end
+    end -- end unholyOpenernecro()
+
+
+
+
     function openerdump()
       return openerstarted
+    end
+
+
+
+    function PL_BOS()
+      -- actions.unholy=plague_leech,if=((cooldown.outbreak.remains<1)|disease.min_remains<1)&((blood<1&frost<1)|(blood<1&unholy<1)|(frost<1&unholy<1))
+      -- actions.unholy+=/soul_reaper,if=(target.health.pct-3*(target.health.pct%target.time_to_die))<=45
+      -- actions.unholy+=/blood_tap,if=((target.health.pct-3*(target.health.pct%target.time_to_die))<=45)&cooldown.soul_reaper.remains=0
+      -- actions.unholy+=/breath_of_sindragosa,if=runic_power>75&((frost>=1&blood>=1)|unholy>=1|death>=1)&talent.breath_of_sindragosa.enabled
+      -- actions.unholy+=/run_action_list,name=bos,if=dot.breath_of_sindragosa.ticking
+      -- actions.unholy+=/summon_gargoyle
+      -- actions.unholy+=/unholy_blight,if=(!talent.necrotic_plague.enabled&!(dot.blood_plague.ticking|dot.frost_fever.ticking))|(talent.necrotic_plague.enabled&!dot.necrotic_plague.ticking)
+      -- actions.unholy+=/outbreak,cycle_targets=1,if=(!talent.necrotic_plague.enabled&!(dot.blood_plague.ticking|dot.frost_fever.ticking))|(talent.necrotic_plague.enabled&!dot.necrotic_plague.ticking)
+      -- actions.unholy+=/plague_strike,if=(!talent.necrotic_plague.enabled&!(dot.blood_plague.ticking|dot.frost_fever.ticking))|(talent.necrotic_plague.enabled&!dot.necrotic_plague.ticking)
+      -- actions.unholy+=/blood_boil,cycle_targets=1,if=(!talent.necrotic_plague.enabled&!(dot.blood_plague.ticking|dot.frost_fever.ticking))|(talent.necrotic_plague.enabled&!dot.necrotic_plague.ticking)
+      -- actions.unholy+=/defile
+      -- actions.unholy+=/death_and_decay,if=active_enemies>1&unholy>1
+      -- actions.unholy+=/festering_strike,if=blood>1&frost>1
+      -- actions.unholy+=/scourge_strike,if=((unholy>1|death>1)&active_enemies<=3)|(unholy>1&active_enemies>=4)
+      -- actions.unholy+=/festering_strike,if=talent.necrotic_plague.enabled&talent.unholy_blight.enabled&dot.necrotic_plague.remains<cooldown.unholy_blight.remains%2
+      -- actions.unholy+=/death_and_decay,if=active_enemies>1
+      -- actions.unholy+=/blood_boil,if=active_enemies>=4&death>=1
+      -- actions.unholy+=/dark_transformation
+      -- actions.unholy+=/outbreak,if=talent.necrotic_plague.enabled&debuff.necrotic_plague.stack<=14
+      -- actions.unholy+=/blood_tap,if=buff.blood_charge.stack>10
+      -- actions.unholy+=/death_coil,if=(buff.sudden_doom.react|runic_power>80)&(buff.blood_charge.stack<=10)
+      -- actions.unholy+=/scourge_strike
+      -- actions.unholy+=/festering_strike
+      -- actions.unholy+=/death_coil
+      -- actions.unholy+=/plague_leech
+      -- actions.unholy+=/empower_rune_weapon
+
+      -- actions.bos+=/plague_strike,if=!disease.ticking
+      -- actions.bos+=/blood_boil,cycle_targets=1,if=(active_enemies>=2&!(dot.blood_plague.ticking|dot.frost_fever.ticking))|active_enemies>=4&(runic_power<88&runic_power>30)
+      -- actions.bos+=/scourge_strike,if=active_enemies<=3&(runic_power<88&runic_power>30)
+      -- actions.bos+=/festering_strike,if=runic_power<77
+      -- actions.bos+=/blood_boil,if=active_enemies>=4
+      -- actions.bos+=/scourge_strike,if=active_enemies<=3
+      -- actions.bos+=/blood_tap,if=buff.blood_charge.stack>=5
+      -- actions.bos+=/arcane_torrent,if=runic_power<70
+      -- actions.bos+=/plague_leech
+      -- actions.bos+=/empower_rune_weapon,if=runic_power<60
+      -- actions.bos+=/death_coil,if=buff.sudden_doom.react
     end
 
 

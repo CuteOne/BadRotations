@@ -16,6 +16,16 @@ if select(3,UnitClass("player")) == 6 then
     -- Wrapper
     generateWrapper("Buffs")
 
+    -- Pause Toggle
+      CreateNewCheck(thisConfig,"Pause Key");
+      CreateNewDrop(thisConfig,"Pause Key", 4, "Toggle2")
+      CreateNewText(thisConfig,"Pause Key");
+
+      -- DnD / Defile Key
+      CreateNewCheck(thisConfig,"DnD / Defile Key");
+      CreateNewDrop(thisConfig,"DnD / Defile Key", 4, "Toggle2")
+      CreateNewText(thisConfig,"DnD / Defile Key");
+
     -- Horn of Winter
     if isKnown(_HornOfWinter) then
       CreateNewCheck(thisConfig,"Horn of Winter")

@@ -24,4 +24,5 @@ if select(3,UnitClass("player")) == 6 then
   _SoulReaper         = 114866
   _Strangulate        = 47476
   _VampiricBlood      = 55233
+  _Defile             = 152280
 end

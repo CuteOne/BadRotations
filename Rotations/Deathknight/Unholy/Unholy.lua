@@ -556,7 +556,7 @@ if select(3,UnitClass("player")) == 6 then
             end
           end
           -- actions.unholy+=/unholy_blight,if=(talent.necrotic_plague.enabled&!dot.necrotic_plague.ticking)
-          if necRemain.dyn10AoE == 0 then
+          if necRemain.dyn10AoE == 0 and getDistance("player","target") <= 5 then
             if castSpell("player",_UnholyBlight,true) then
               return
             end
@@ -665,15 +665,15 @@ if select(3,UnitClass("player")) == 6 then
               return
             end
           end
-          -- actions.unholy+=/scourge_strike
-          if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
-            return
-          end
           -- actions.unholy+=/festering_strike
           if FSCount() > 0 then
             if castSpell(tarUnit.dyn5,_FesteringStrike,false,false) then
               return
             end
+          end
+          -- actions.unholy+=/scourge_strike
+          if castSpell(tarUnit.dyn5,_ScourgeStrike,false,false) then
+            return
           end
           -- actions.unholy+=/death_coil
           if castSpell(tarUnit.dyn30,_DeathCoil,false,false) then
