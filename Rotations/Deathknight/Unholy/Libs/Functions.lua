@@ -252,6 +252,14 @@ if select(3,UnitClass("player")) == 6 then
     end
 
 
+    function FSCount()
+      local ubStart, ubDuration, ubEnabled = GetSpellCooldown(115989)
+      local ubReadyAt = ubStart > 0 and (ubStart + ubDuration) or GetTime()
+      local npDuration, npExpires = select(6, UnitDebuff("target", "Necrotic Plague", nil, "player"))
+      local npCount = npExpires and (math.max(ubReadyAt - npExpires) / 6) or 0
+      return math.floor(0.5+npCount)
+    end
+
     ---- Opener
 
     function unholyOpener()
