@@ -14,6 +14,34 @@ if select(3, UnitClass("player")) == 6 then
     if canRun() ~= true or UnitInVehicle("Player") then return false end
     if IsMounted("player") then return false end
 
+    if isChecked("Pause Key") == true and SpecificToggle("Pause Key") == true then
+      ChatOverlay("|cffFF0000BadBoy Paused", 0); return;
+    end
+
+    if isKnown(_Defile) == true then
+      if isChecked("DnD / Defile Key") == true and SpecificToggle("DnD / Defile Key") == true then
+        if not IsMouselooking() then
+          CastSpellByName(GetSpellInfo(43265))
+          if SpellIsTargeting() then
+            CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+            return true;
+          end
+        end
+      end
+    end
+    -- DnD
+    if isKnown(_Defile) == false then
+      if isChecked("DnD / Defile Key") == true and SpecificToggle("DnD / Defile Key") == true then
+        if not IsMouselooking() then
+          CastSpellByName(GetSpellInfo(43265))
+          if SpellIsTargeting() then
+            CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+            return true;
+          end
+        end
+      end
+    end
+
     dynamicUnit = {
       dyn5 = dynamicTarget(5,true),
       dyn6 = dynamicTarget(6,true),
