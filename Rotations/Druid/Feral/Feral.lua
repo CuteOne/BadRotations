@@ -700,12 +700,12 @@ function DruidFeral()
 					if combo<5 and (ttm<=1 or berserk or tfCooldown<3 or tfRemain>0 or (incBuff and incRemain<3) or rpRemain<8-combo or clearcast or (bloodtalons and psRemain>0 and psRemain<6.5-combo)) then
 		    -- Swipe
 			    		--if=(buff.king_of_the_jungle.up&active_enemies>=3)|active_enemies>=4
-			    		if useAoE() and power>45 and ((incBuff and enemies>=3) or enemies>=4) then
+			    		if power>45 and ((incBuff and enemies>=3) or enemies>=4) then
 			    			if castSpell(dynamicUnit.dyn8,sw,false,false,false) then return end
 			            end
 		    -- Shred
 			    		--if=active_enemies<3
-			    		if not useAoE() and power>40 and enemies<3 then
+			    		if power>40 and ((incBuff and enemies<3) or enemies<4) then
 			    			if castSpell(dynamicUnit.dyn5,shr,false,false,false) then return end
 			            end
 			        end --End Generator

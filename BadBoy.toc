@@ -267,3 +267,6 @@ Rotations\ProfessionHelper\ProfessionHelper.lua
 LibStub-1.0\LibStub.lua
 System\Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
 System\Libs\LibRangeCheck-2.0\LibRangeCheck-2.0.lua
+
+## LoadManagers: AddonLoader
+## X-LoadOn-Always: delayed
