@@ -15,42 +15,48 @@ if select(3, UnitClass("player")) == 11 then
       thisConfig = 0
       -- Title
       CreateNewTitle(thisConfig,"Moonkin |cffFF0000CodeMyLife")
-      generateWrapper("Buffs")
+
+      generateWrapper("General")
+
+      -- Pause Toggle
+      CreateNewCheck(thisConfig,"Pause Toggle")
+      CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
+      CreateNewText(thisConfig,"Pause Toggle")
 
       -- Mark Of The Wild
-      CreateNewCheck(thisConfig,"Mark Of The Wild")
-      CreateNewText(thisConfig,"Mark Of The Wild")
+      CreateNewCheck(thisConfig,"Mark of the Wild")
+      CreateNewText(thisConfig,"Mark of the Wild")
 
-      generateWrapper("DPS")
-      -- Multi-Moonfire
-      CreateNewCheck(thisConfig,"Multi-Moonfire")
-      CreateNewText(thisConfig,"Multi-Moonfire")
+       -- Mark Of The Wild
+      CreateNewCheck(thisConfig,"Moonkin Form")
+      CreateNewText(thisConfig,"Moonkin Form")
 
-      -- Starfall
-      CreateNewCheck(thisConfig,"Starfall")
-      CreateNewDrop(thisConfig,"Starfall",2,"CD")
-      CreateNewText(thisConfig,"Starfall")
+      -- Dummy DPS Test
+      CreateNewCheck(thisConfig,"DPS Testing");
+      CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 5, "Set to desired time for test in minutes. Min: 1 / Max: 15 / Interval: 1");
+      CreateNewText(thisConfig,"DPS Testing");
 
       generateWrapper("Cooldowns")
 
       -- Celestial Alignment
       CreateNewCheck(thisConfig,"Celestial Alignment")
-      CreateNewDrop(thisConfig,"Celestial Alignment",1,"CD")
       CreateNewText(thisConfig,"Celestial Alignment")
 
       -- Force Of Nature
-      if isKnown(core.spell.forceOfNature) then
-        CreateNewCheck(thisConfig,"Force Of Nature")
-        CreateNewDrop(thisConfig,"Force Of Nature",1,"CD")
-        CreateNewText(thisConfig,"Force Of Nature")
-      end
+      CreateNewCheck(thisConfig,"Force Of Nature")
+      CreateNewText(thisConfig,"Force Of Nature")
 
       -- Incarnation
-      if isKnown(core.spell.incarnation) then
-        CreateNewCheck(thisConfig,"Incarnation")
-        CreateNewDrop(thisConfig,"Incarnation",1,"CD")
-        CreateNewText(thisConfig,"Incarnation")
-      end
+      CreateNewCheck(thisConfig,"Incarnation")
+      CreateNewText(thisConfig,"Incarnation")
+
+      -- Racial
+      CreateNewCheck(thisConfig,"Racial");
+      CreateNewText(thisConfig,"Racial");
+
+      -- Trinket
+      CreateNewCheck(thisConfig,"Use Trinket");
+      CreateNewText(thisConfig,"Use Trinket");
 
       generateWrapper("Healing")
 
@@ -60,11 +66,8 @@ if select(3, UnitClass("player")) == 11 then
       CreateNewText(thisConfig,"Healing Touch")
 
       -- Natures Vigil
-      if isKnown(core.spell.naturesVigil) then
-        CreateNewCheck(thisConfig,"Natures Vigil")
-        CreateNewDrop(thisConfig,"Natures Vigil",1,"CD")
-        CreateNewText(thisConfig,"Natures Vigil")
-      end
+      CreateNewCheck(thisConfig,"Natures Vigil")
+      CreateNewText(thisConfig,"Natures Vigil")
 
       -- Rejuvenation
       CreateNewCheck(thisConfig,"Rejuvenation")
@@ -74,32 +77,16 @@ if select(3, UnitClass("player")) == 11 then
       generateWrapper("Defensive")
 
       -- Healthstone
-      CreateNewCheck(thisConfig,"Healthstone")
-      CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 35, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone")
-      CreateNewText(thisConfig,"Healthstone")
+      CreateNewCheck(thisConfig,"Healthstone / Potion")
+      CreateNewBox(thisConfig, "Healthstone / Potion", 0, 100  , 5, 35, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone or Healing Potion (Pot > Stone)")
+      CreateNewText(thisConfig,"Healthstone / Potion")
 
       -- Barkskin
       CreateNewCheck(thisConfig,"Barkskin")
       CreateNewBox(thisConfig, "Barkskin", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFBarkskin")
       CreateNewText(thisConfig,"Barkskin")
 
-      generateWrapper("Toggles")
-
-      -- Pause Toggle
-      CreateNewCheck(thisConfig,"Pause Toggle")
-      CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
-      CreateNewText(thisConfig,"Pause Toggle")
-
-      -- Focus Toggle
-      CreateNewCheck(thisConfig,"Focus Toggle")
-      CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle2")
-      CreateNewText(thisConfig,"Focus Toggle")
-
       generateWrapper("Utilities")
-
-      --Debug
-      CreateNewCheck(666,"Debug")
-      CreateNewText(666,"Debug")
       -- General Configs
       CreateGeneralsConfig()
 
