@@ -86,7 +86,7 @@ function DruidFeral()
 	    if rpRemain - srRemain > 0 then
 	    	srrpDiff = rpRemain - srRemain
 	    end
-	    ChatOverlay(round2(rkRemain))
+	    --ChatOverlay(round2(rkRemain))
 --------------------------------------------------
 --- Ressurection/Dispelling/Healing/Pause/Misc ---
 --------------------------------------------------
