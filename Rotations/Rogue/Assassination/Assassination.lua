@@ -10,6 +10,7 @@ function AssassinationRogue()
     AssToggles()
     poisonAssData()
     makeEnemiesTable(40)
+    getLoot2()
     -- if worgen==nil then
     -- 	worgen=false
     -- end
@@ -40,6 +41,7 @@ function AssassinationRogue()
       ["dyn5"] = dynamicTarget(5,true), --Melee
       ['dyn8AoE'] = dynamicTarget(8,false), --Pick Pocket
       ["dyn10"] = dynamicTarget(10,true), --Sap
+      ["dyn15"] = dynamicTarget(15,true), --Death from Above
       ["dyn20AoE"] = dynamicTarget(20,false), --Stealth
       ["dyn25AoE"] = dynamicTarget(25,false), --Shadowstep
       ["dyn40AoE"] = dynamicTarget(40,false), --Cloak and Dagger
@@ -49,6 +51,7 @@ function AssassinationRogue()
       ["dyn5"] = getDistance("player",tarUnit.dyn5),
       ["dyn8AoE"] = getDistance("player",tarUnit.dyn8AoE),
       ["dyn10"] = getDistance("player",tarUnit.dyn10),
+      ["dyn15"] = getDistance("player",tarUnit.dyn15),
       ["dyn20AoE"] = getDistance("player",tarUnit.dyn20AoE),
       ["dyn25AoE"] = getDistance("player",tarUnit.dyn25AoE),
       ["dyn40AoE"] = getDistance("player",tarUnit.dyn40AoE),
@@ -88,6 +91,9 @@ function AssassinationRogue()
     ----------------------------------
     --- Poisons/Healing/Dispelling ---
     ----------------------------------
+    -- if power>115 and isInCombat("player") and not stealth then
+    --   if castSpell(tarUnit.dyn5,_Mutilate,false,false,false) then return end
+    -- end
     if (isCastingSpell(_DeadlyPoison) and lethalRemain>5) or ((isCastingSpell(_LeechingPoison) and nonlethalRemain>5)) then
       RunMacroText("/stopcasting")
     end
@@ -180,7 +186,7 @@ function AssassinationRogue()
             if castSpell(tarUnit.dyn0,_Sap,false,false,false) then return end
           end
           -- Pick Pocket
-          if canPP() and not isPicked() and tarDist.dyn0 < 8
+          if canPP() and not isPicked() and tarDist.dyn0 < 5
             and (stealthTimer == nil or stealthTimer <= GetTime()-getValue("Stealth Timer"))
           then
             if castSpell(tarUnit.dyn0,_PickPocket,true,false,false) then
@@ -248,8 +254,8 @@ function AssassinationRogue()
         -----------------------------
         if useCDs() and not stealth and tarDist.dyn5<5 then
           -- Preparation
-          --if=!buff.vanish.up&cooldown.vanish.remains>30
-          if vanRemain==0 and GetSpellCooldown(_Vanish)>30 then
+          --if=!buff.vanish.up&cooldown.vanish.remains>60
+          if vanRemain==0 and GetSpellCooldown(_Vanish)>60 then
             if castSpell("player",_Preparation,true,false,false) then return end
           end
           -- Trinkets
@@ -276,8 +282,8 @@ function AssassinationRogue()
             if castSpell("player",_Vanish,true,false,false) then return end
           end
           -- Shadow Reflection
-          --if=cooldown.vendetta.remains=0
-          if GetSpellCooldown(_Vendetta)==0 then
+          --if=combo_points>4
+          if combo>4 then
             if castSpell(tarUnit.dyn20AoE,_ShadowReflection,true,false,false) then return end
           end
           -- Vendetta
@@ -306,8 +312,21 @@ function AssassinationRogue()
         end
         -- Rupture - Multi-Dot
         --if=active_enemies>1&!ticking&combo_points=5
-        if useAoE() and combo==5 and power>25 then
-          if castDotCycle(100,_Rupture,false,false,0) then return end
+        if combo==5 and power>25 and enemies>1 then
+          for i = 1, #enemiesTable do
+            if enemiesTable[i].distance<5 then
+              local thisunit = enemiesTable[i].unit
+              local rupRemain = getDebuffRemain(thisUnit,_Rupture,"player")
+              if rupRemain==0 then 
+                if castSpell(thisUnit,_Rupture,false,false,false) then return end
+              end
+            end
+          end
+        end
+        -- Mutilate
+        --if=buff.stealth.up
+        if stealth and power>55 then
+          if castSpell(tarUnit.dyn5,_Mutilate,false,false,false) then return end
         end
         -- Slice and Dice
         --if=buff.slice_and_dice.remains<5
@@ -325,8 +344,8 @@ function AssassinationRogue()
           if castSpell(tarUnit.dyn8AoE,_CrimsonTempest,true,false,false) then return end
         end
         -- Fan of Knives
-        --if=combo_points<5&active_enemies>=4
-        if useAoE() and combo<5 and enemies>=4 and power>35 and tarDist.dyn5<5 then
+        --if=(combo_points<5|(talent.anticipation.enabled&anticipation_charges<4))&active_enemies>=4
+        if useAoE() and (combo<5 or (getTalent(6,3) and antCharge<4)) and enemies>=4 and power>35 and tarDist.dyn5<5 then
           if castSpell("player",_FanOfKnives,true,false,false) then return end
         end
         -- Rupture
@@ -334,68 +353,112 @@ function AssassinationRogue()
         if (rupRemain<2 or (combo==5 and rupRemain<=(rupDuration*0.3))) and enemies==1 and combo>0 and power>25 then
           if castSpell(tarUnit.dyn5,_Rupture,false,false,false) then return end
         end
-        -- AoE
-        if useAoE() then
+        -- Death From Above
+        --if=combo_points>4
+        if combo>4 and getSpellCD(_DeathFromAbove)==0 and power>50 and tarDist.dyn15<15 then
+          if castSpell(tarUnit.dyn15,_DeathFromAbove,true,false,false) then return end
+        end
+        -- Envenom
+        --if=(combo_points>4&(cooldown.death_from_above.remains>2|!talent.death_from_above.enabled))&active_enemies<4&!dot.deadly_poison_dot.ticking
+        if (combo>4 and (getSpellCD(_DeathFromAbove)>2 or not getTalent(7,3))) and enemies<4 and power>35 then
           for i = 1, #enemiesTable do
             if enemiesTable[i].distance<5 then
               local thisunit = enemiesTable[i].unit
-              local ttd = getTimeToDie(thisUnit)
-              local thp = getHP(thisUnit)
               local dpRemain = getDebuffRemain(thisUnit,_DeadlyPoison,"player")
-              local envRemain = getDebuffRemain(thisUnit,_Envenom,"player")
-              local venRemain = getDebuffRemain(thisUnit,_Vendetta,"player")
-              -- Envenom
-              --if=(combo_points>4&buff.envenom.remains<2&(cooldown.death_from_above.remains>2|!talent.death_from_above.enabled))&active_enemies<4&!dot.deadly_poison_dot.ticking
-              if (combo>4 and envRemain<2 and (GetSpellCooldown(_DeathFromAbove)>2 or not getTalent(7,3))) and enemies<4 and dpRemain==0 and power>35 then
-                if castSpell(thisUnit,_Envenom,false,false,false) then return end
+              if dpRemain==0 then
+                if level>=20 then
+                  if castSpell(thisUnit,_Envenom,false,false,false) then return end
+                else
+                  if castSpell(thisUnit,_Mutilate,false,false,false) then return end
+                end
               end
-              -- Eviscerate
-              if (combo>4 or (combo>3 and ttd<3)) and level<20 and power>35 then
-                if castSpell(thisUnit,_Eviscerate,false,false,false) then return end
-              end
-              -- Fan of Knives
-              --if=active_enemies>2&!dot.deadly_poison_dot.ticking&debuff.vendetta.down
-              if enemies>2 and dpRemain==0 and venRemain==0 and power>35 then
+            end
+          end
+        --if=(combo_points>4&(cooldown.death_from_above.remains>2|!talent.death_from_above.enabled))&active_enemies<4&(buff.envenom.remains<=1.8|energy>55)
+          local thisUnit = tarUnit.dyn5
+          local envRemain = getDebuffRemain(thisUnit,_Envenom,"player")
+          if envRemain<=1.8 or power>55 then
+            if level>=20 then
+              if castSpell(tarUnit.dyn5,_Envenom,false,false,false) then return end
+            else
+              if castSpell(tarUnit.dyn5,_Mutilate,false,false,false) then return end
+            end
+          end
+        end
+        -- Fan of Knives
+        --if=active_enemies>2&!dot.deadly_poison_dot.ticking&debuff.vendetta.down
+        if enemies>2 and venRemain==0 then
+          for i = 1, #enemiesTable do
+            if enemiesTable[i].distance<5 then
+              local thisunit = enemiesTable[i].unit
+              local dpRemain = getDebuffRemain(thisUnit,_DeadlyPoison,"player")
+              if dpRemain==0 then
                 if castSpell("player",_FanOfKnives,true,false,false) then return end
               end
-              -- Mutilate
-              --if=target.health.pct>35&combo_points<5&active_enemies=2&!dot.deadly_poison_dot.ticking&debuff.vendetta.down
-              if (thp>=35 or level<40) and combo<5 and enemies==2 and dpRemain==0 and venRemain==0 and not blindside and power>55 then
-                if castSpell(thisUnit,_Mutilate,false,false,false) then return end
-              end
-              -- Dispatch
-              --if=(combo_points<5|(talent.anticipation.enabled&anticipation_charges<4))&active_enemies=2&!dot.deadly_poison_dot.ticking&debuff.vendetta.down
-              if (combo<5 or (getTalent(6,3) and antCharge<4)) and enemies==2 and dpRemain==0 and venRemain==0 and ((power>30 and thp<35) or blindside) then
+            end
+          end
+        end
+        -- Dispatch
+        --if=(combo_points<5|(talent.anticipation.enabled&anticipation_charges<4))&active_enemies=2&!dot.deadly_poison_dot.ticking&debuff.vendetta.down
+        if (combo<5 or (getTalent(6,3) and antCharge<4)) and power>35 and level>=40 then
+          for i = 1, #enemiesTable do
+            if enemiesTable[i].distance<5 then
+              local thisunit = enemiesTable[i].unit
+              local thp = getHP(thisUnit)
+              local dpRemain = getDebuffRemain(thisUnit,_DeadlyPoison,"player")
+              local venRemain = getDebuffRemain(thisUnit,_Vendetta,"player")
+              if dpRemain==0 and venRemain==0 and (thp<=35 or blindside) and enemies==2 then
                 if castSpell(thisUnit,_Dispatch,false,false,false) then return end
               end
-              -- Mutilate
-              --if=active_enemies=2&!dot.deadly_poison_dot.ticking&debuff.vendetta.down
-              if (thp>=35 or level<40) and enemies==2 and dpRemain==0 and not blindside and venRemain==0 and power>55 then
+            end
+          end
+        --if=(combo_points<5|(talent.anticipation.enabled&anticipation_charges<4))&active_enemies<4
+          local thisUnit = tarUnit.dyn5
+          local thp = getHP(thisUnit)
+          if (thp<=35 or blindside) and enemies<4 then
+            if castSpell(thisUnit,_Dispatch,false,false,false) then return end
+          end
+        end
+        -- Mutilate
+        --if=target.health.pct>35&(combo_points<4|(talent.anticipation.enabled&anticipation_charges<3))&active_enemies=2&!dot.deadly_poison_dot.ticking&debuff.vendetta.down
+        if (combo<4 or (getTalent(6,3) and antCharge<3)) and power>55 then
+          for i = 1, #enemiesTable do
+            if enemiesTable[i].distance<5 then
+              local thisunit = enemiesTable[i].unit
+              local thp = getHP(thisUnit)
+              local dpRemain = getDebuffRemain(thisUnit,_DeadlyPoison,"player")
+              local venRemain = getDebuffRemain(thisUnit,_Vendetta,"player")
+              if (thp>35 or level<40) and not blindside and dpRemain==0 and venRemain==0 and enemies==2 then
                 if castSpell(thisUnit,_Mutilate,false,false,false) then return end
               end
             end
           end
-        else
-          -- Envenom
-          --if=(combo_points>4&buff.envenom.remains<2&(cooldown.death_from_above.remains>2|!talent.death_from_above.enabled))&active_enemies<4
-          if (combo>4 and envRemain<2 and (GetSpellCooldown(_DeathFromAbove)>2 or not getTalent(7,3))) and enemies<4 and power>35 then
-            if castSpell(tarUnit.dyn5,_Envenom,false,false,false) then return end
+        --if=target.health.pct>35&(combo_points<4|(talent.anticipation.enabled&anticipation_charges<3))&active_enemies<5
+          local thisunit = tarUnit.dyn5
+          local thp = getHP(thisUnit)
+          if (thp>35 or level<40) and not blindside and enemies<5 then
+            if castSpell(thisUnit,_Mutilate,false,false,false) then return end
           end
-          -- Mutilate
-          --if=target.health.pct>35&combo_points<5&active_enemies<5
-          if (thp>=35 or level<40) and combo<5 and enemies<5 and not blindside and power>55 then
-            if castSpell(tarUnit.dyn5,_Mutilate,false,false,false) then return end
+        end
+        -- Mutilate
+        --if=active_enemies=2&!dot.deadly_poison_dot.ticking&debuff.vendetta.down
+        if enemies==2 and power>55 then
+          for i = 1, #enemiesTable do
+            if enemiesTable[i].distance<5 then
+              local thisunit = enemiesTable[i].unit
+              local thp = getHP(thisUnit)
+              local dpRemain = getDebuffRemain(thisUnit,_DeadlyPoison,"player")
+              local venRemain = getDebuffRemain(thisUnit,_Vendetta,"player")
+              if dpRemain==0 or venRemain==0 and (thp>35 or level<40) and not blindside then
+                if castSpell(thisUnit,_Mutilate,false,false,false) then return end
+              end
+            end
           end
-          -- Dispatch
-          --if=(combo_points<5|(talent.anticipation.enabled&anticipation_charges<4))&active_enemies<4
-          if (combo<5 or (getTalent(6,3) and antCharge<4)) and enemies<4 and ((power>30 and thp<35) or blindside) then
-            if castSpell(tarUnit.dyn5,_Dispatch,false,false,false) then return end
-          end
-          -- Mutilate
-          --if=active_enemies<5
-          if (thp>=35 or level<40) and enemies<5 and power>55 and not blindside then
-            if castSpell(tarUnit.dyn5,_Mutilate,false,false,false) then return end
-          end
+        end
+        -- Mutilate
+        --if=active_enemies<5
+        if enemies<5 and power>55 and (thp>35 or level<40) and not blindside and tarDist.dyn5<5 then
+          if castSpell(tarUnit.dyn5,_Mutilate,false,false,false) then return end
         end
       end --In Combat End
       -- Start Attack
