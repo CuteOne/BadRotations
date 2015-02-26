@@ -598,7 +598,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 				if SpamAllowed == false then
 					-- get our last/current cast
 					if timersTable == nil or (timersTable ~= nil and (timersTable[SpellID] == nil or timersTable[SpellID] <= GetTime() -0.6)) then
-						if (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true) then
+						if (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true or UnitName(Unit)=="Oregorger") then
 							timersTable[SpellID] = GetTime()
 							currentTarget = UnitGUID(Unit)
 							CastSpellByName(GetSpellInfo(SpellID),Unit)
@@ -610,7 +610,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 							return true
 						end
 					end
-				elseif (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true) then
+				elseif (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true or UnitName(Unit)=="Oregorger") then
 					currentTarget = UnitGUID(Unit)
 					CastSpellByName(GetSpellInfo(SpellID),Unit)
 					if getOptionCheck("Start/Stop BadBoy") then
