@@ -1,5 +1,48 @@
 if select(3, UnitClass("player")) == 5 then
 
+	-- raidbuff
+	function Raidbuff_Priest()
+		if not PWF_last_check or PWF_last_check + 5 < GetTime() then
+			PWF_last_check = GetTime()
+			PWF_unbuffedPlayers = {}
+			--local unbuffedPlayers = PWF_unbuffedPlayers
+
+			local StaminaTable = {"Power Word: Fortitude","Blood Pact","Commanding Shout"}
+			if GetNumGroupMembers()==0 then
+				if not UnitIsDeadOrGhost("player")  then
+					local playerBuffed=false
+					for auraIndex=1, #StaminaTable do
+						local buffActive=UnitAura("player", StaminaTable[auraIndex])
+						playerBuffed=playerBuffed or buffActive ~= nil
+					end
+
+					if not playerBuffed then
+						local playerName=UnitName("player");
+						--table.insert(unbuffedPlayers, playerName)
+						if castSpell("player",PWF,true) then return; end
+					end
+					--return unbuffedPlayers[1] ~= nil
+				end
+			else
+				for index=1, GetNumGroupMembers() do
+					local name, _, subgroup, _, _, _, zone, online, isDead, _, _ = GetRaidRosterInfo(index)
+					if online and not isDead and 1==IsSpellInRange(StaminaTable[1], "raid"..index) then
+						local playerBuffed = false
+						for auraIndex=1, #StaminaTable do
+							local buffActive = UnitAura(("raid"..index), StaminaTable[auraIndex])
+							playerBuffed = playerBuffed or buffActive ~= nil
+						end
+						if not playerBuffed then
+							--table.insert(unbuffedPlayers, name)
+							if castSpell("player",PWF,true) then return; end
+						end
+					end
+				end
+				--return unbuffedPlayers[1] ~= nil
+			end
+		end
+	end
+
 	-- get threat situation on player and return the number
 	function getThreat()
 		if UnitThreatSituation("player") ~= nil then
@@ -80,6 +123,7 @@ if select(3, UnitClass("player")) == 5 then
 			"Cinder Wolf",
 			"Iron Gunnery Sergeant",
 			"Heavy Spear",
+			"Aknor Steelbringer",
 		}
 		if datUnit==nil then return false end
 			for i = 1, #Blacklist do
@@ -384,7 +428,7 @@ if select(3, UnitClass("player")) == 5 then
 		end
 	--[[                    ]] -- VT em all end
 
-	--[[                    ]] -- Weave Throw DP start
+	--[[                    ]] -- Throw DP start
 		function ThrowDP(options)
 			-- Priorize Focus
 			if options.player.TwinStyle then
@@ -397,16 +441,17 @@ if select(3, UnitClass("player")) == 5 then
 				for i=1, #enemiesTable do
 					local thisUnit = enemiesTable[i].unit
 					local thisHP = enemiesTable[i].hpabs
-					if safeDoT(thisUnit) and not UnitIsUnit("target",thisUnit) then
+					--if safeDoT(thisUnit) and not UnitIsUnit("target",thisUnit) then
+					if safeDoT(thisUnit) then
 						-- check remaining DP Time
-						if getDebuffRemain(thisUnit,DP,"player")<=0.3*options.values.DPTIME and thisHP>options.values.MinHealth then
+						if getDebuffRemain(thisUnit,DP,"player")<=0.3*options.values.DPTIME then
 							if castSpell(thisUnit,DP,true,false) then return; end
 						end
 					end
 				end
 			end
 		end
-	--[[                    ]] -- Weave Throw DP end
+	--[[                    ]] -- Throw DP end
 
 	--[[                    ]] -- CoP Insanity start
 		function CoPInsanity(options)
@@ -461,7 +506,7 @@ if select(3, UnitClass("player")) == 5 then
 				-- Check for last DP
 				if GetTime()-lastDP<=options.player.DPTIME+2 then
 					-- Check that Insanity isnt on me
-					if getBuffRemain("player",InsanityBuff)<=1 then
+					if getBuffRemain("player",InsanityBuff)<=0.3*options.player.DPTIME then
 						-- DP on target
 						if castSpell("target",DP,false,true) then return; end
 					end
@@ -532,6 +577,17 @@ if select(3, UnitClass("player")) == 5 then
 
 	--[[                    ]] -- AS Insanity start
 	function ASInsanity(options)
+
+		-- DP on 3+ Orbs - THROWDP
+		if options.isChecked.ThrowDP then
+			if options.player.ORBS==5 then
+				-- check for running DP
+				if getDebuffRemain("target",DP,"player")>=0.3*options.player.DPTIME then
+					throwDP()
+				end
+			end
+		end
+
 		-- DP on 3+ Orbs
 		if options.player.ORBS>=3 then
 			-- check for running DP
@@ -547,17 +603,20 @@ if select(3, UnitClass("player")) == 5 then
 		throwSWP(options,true)
 
 		-- Insanity / MF
-		if select(1,UnitChannelInfo("player")) == nil then
-			if castSpell("target",MF,false,true) then return; end
+		if getBuffRemain("player",InsanityBuff)>0 then
+			if select(1,UnitChannelInfo("player")) == nil then
+				if castSpell("target",MF,false,true) then return; end
+			end
 		end
-
 
 		if select(1,UnitChannelInfo("player")) == nil then
 			-- VT on target
-			if getDebuffRemain("target",VT,"player")<=options.values.VTRefresh and GetTime()-lastVT > 2*options.player.GCD then
-				if castSpell("target",VT,true,true) then 
-					lastVT=GetTime()
-					return
+			if options.isChecked.VTonTarget then
+				if getDebuffRemain("target",VT,"player")<=options.values.VTRefresh and GetTime()-lastVT > 2*options.player.GCD then
+					if castSpell("target",VT,true,true) then 
+						lastVT=GetTime()
+						return
+					end
 				end
 			end
 
@@ -575,6 +634,11 @@ if select(3, UnitClass("player")) == 5 then
 			-- 		end
 			-- 	end
 			-- end
+
+			-- Insanity / MF
+			if select(1,UnitChannelInfo("player")) == nil then
+				if castSpell("target",MF,false,true) then return; end
+			end
 		end
 	end
 	--[[                    ]] -- AS Insanity end
