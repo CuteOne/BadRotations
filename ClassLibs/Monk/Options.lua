@@ -79,9 +79,9 @@ This function will use table row #1.]]
       -- Wrapper -----------------------------------------
       CreateNewWrap(thisConfig,"-------- General Rotation --------");
 
-      -- Legacy of the Emperor
-      -- CreateNewCheck(thisConfig,"Legacy of the White Tiger");
-      -- CreateNewText(thisConfig,"Legacy of the White Tiger");
+      -- Stats Buff
+      CreateNewCheck(thisConfig,"Stats Buff");
+      CreateNewText(thisConfig,"Stats Buff");
 
       -- Detox
       CreateNewCheck(thisConfig,"Detox");

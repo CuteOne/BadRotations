@@ -2,9 +2,9 @@ if select(3, UnitClass("player")) == 5 then
 	function PriestShadow()
 
 		if currentConfig ~= "Shadow ragnar" then
-			ShadowConfig();
-			ShadowToggles();
-			currentConfig = "Shadow ragnar";
+			ShadowConfig()
+			ShadowToggles()
+			currentConfig = "Shadow ragnar"
 		end
 		-- Head End
 
@@ -84,6 +84,7 @@ if select(3, UnitClass("player")) == 5 then
 				SWDglyphed =		isChecked("SWD glyphed"),
 				ScanOrbs = 			isChecked("Scan for Orbs"),
 				ScanToF =			isChecked("Scan for ToF"),
+				ThrowDP =			isChecked("ThrowDP"),
 				-- Defensive
 				Shield = 			isChecked("PW: Shield"),
 				Healthstone	= 		isChecked("Healthstone"),
@@ -96,6 +97,7 @@ if select(3, UnitClass("player")) == 5 then
 				SWP =				isChecked("SWP"),
 				VT =				isChecked("VT"),
 				-- Multitarget
+				VTonTarget =		isChecked("VT on Target"),
 				-- MultiSWP =			isChecked("Multi SWP"),
 				-- MultiVT =			isChecked("Multi VT"),
 				-- BossSWP =			isChecked("Boss SWP"),
@@ -128,9 +130,9 @@ if select(3, UnitClass("player")) == 5 then
 		}
 
 		-- correct twin ogrons options for SoD talent automatically
-		if getTalent(3,1) then options.isChecked.TwinOgrons=true end
+		--if getTalent(3,1) then options.isChecked.TwinOgrons=true end
 
-		-- set îf not set
+		-- set if not set
 		if options.player.lastVT==nil then options.player.lastVT=0 end
 		if options.player.lastDP==nil then options.player.lastDP=99 end
 
@@ -143,10 +145,10 @@ if select(3, UnitClass("player")) == 5 then
 			ChatOverlay("|cffFF0000BadBoy Paused", 0); return;
 		end
 
-		-- Focus Toggle
-		if isChecked("Focus Toggle") and SpecificToggle("Focus Toggle") == 1 then
-			RunMacroText("/focus mouseover");
-		end
+		-- -- Focus Toggle
+		-- if isChecked("Focus Toggle") and SpecificToggle("Focus Toggle") == 1 then
+		-- 	RunMacroText("/focus mouseover");
+		-- end
 
 		-- -- Auto Resurrection
 		-- if isChecked("Auto Rez") then
@@ -176,17 +178,21 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- Power Word: Fortitude
 			if not isInCombat("player") then
-				if options.isChecked.PWF and (lastPWF == nil or lastPWF <= GetTime() - 5) then
-					for i = 1, #nNova do
-						if isPlayer(nNova[i].unit) == true 
-							and not isBuffed(nNova[i].unit,{21562,109773,469,90364}) 
-							and (UnitInRange(nNova[i].unit) 
-								or UnitIsUnit(nNova[i].unit,"player")) then
-							if castSpell("player",PWF,true) then lastPWF = GetTime(); return; end
-						end
-					end
-				end
+				if options.isChecked.PWF then Raidbuff_Priest() end
 			end
+
+			-- if not isInCombat("player") then
+			-- 	if options.isChecked.PWF and (lastPWF == nil or lastPWF <= GetTime() - 5) then
+			-- 		for i = 1, #nNova do
+			-- 			if isPlayer(nNova[i].unit) == true 
+			-- 				and not isBuffed(nNova[i].unit,{21562,109773,469,90364}) 
+			-- 				and (UnitInRange(nNova[i].unit) 
+			-- 					or UnitIsUnit(nNova[i].unit,"player")) then
+			-- 				if castSpell("player",PWF,true) then lastPWF = GetTime(); return; end
+			-- 			end
+			-- 		end
+			-- 	end
+			-- end
 
 		---------------------------------------
 		-- Shadowform and AutoSpeed Selfbuff --
@@ -221,8 +227,8 @@ if select(3, UnitClass("player")) == 5 then
 		---------------
 		-- IN COMBAT --
 		---------------
-			-- AffectingCombat, Pause, Target, Dead/Ghost Check
-			if UnitAffectingCombat("player") or UnitAffectingCombat("target") or options.isChecked.AttackAll then
+		-- AffectingCombat, Pause, Target, Dead/Ghost Check
+		if UnitAffectingCombat("player") or UnitAffectingCombat("target") then
 
 			-- Shadowform
 			if not UnitBuffID("player",Shadowform) then
@@ -238,9 +244,9 @@ if select(3, UnitClass("player")) == 5 then
 				end
 			end
 
-		-------------------
-		-- Dummy Testing --
-		-------------------
+			-------------------
+			-- Dummy Testing --
+			-------------------
 			if isChecked("DPS Testing") then
 				if UnitExists("target") then
 					if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
@@ -252,27 +258,35 @@ if select(3, UnitClass("player")) == 5 then
 			end
 
 
-		--[[-----------------------------------------------------------------------------------------------------------------------------------------------]]
-		----------------
-		-- Defensives --
-		----------------
+			--[[-----------------------------------------------------------------------------------------------------------------------------------------------]]
+			----------------
+			-- Defensives --
+			----------------
 			ShadowDefensive(options)
 
 
-		----------------
-		-- Offensives --
-		----------------
+			----------------
+			-- Offensives --
+			----------------
 			if options.isChecked.isBoss and isBoss() then ShadowCooldowns(options) end
 			if not options.isChecked.isBoss then ShadowCooldowns(options) end
 
-		-------------------
-		-- Single target --
-		-------------------
+			-------------------
+			-- Single target --
+			-------------------
 			-- if isCastingSpell(129197) and getSpellCD(MB)==0 then
 			-- 	if castSpell("target",MB,false,false) then return; end
 			-- end
 
-			--if isCasting() then return; end
+
+
+			if UnitCastingInfo("player") ~= nil
+				--or UnitChannelInfo("player") ~= nil
+				or (GetSpellCooldown(61304) ~= nil and GetSpellCooldown(61304) > 0.001) then
+				return false
+			end
+
+			-- if castingUnit() then return false; end
 
 			-- Do not Interrupt "player" while GCD (61304)
 			if getSpellCD(61304) > 0 then return false;	end
@@ -311,7 +325,7 @@ if select(3, UnitClass("player")) == 5 then
 				if getTalent(3,1) then ASSoD(options) end
 			end
 
-		--[[-----------------------------------------------------------------------------------------------------------------------------------------------]]
+			--[[-----------------------------------------------------------------------------------------------------------------------------------------------]]
 
 		end -- AffectingCombat, Pause, Target, Dead/Ghost Check
 	end

@@ -7,7 +7,7 @@ if select(3,UnitClass("player")) == 10 then
       currentConfig = "Brewmaster Chumii";
     end
     MonkBrewToggles()
-    GroupInfo();
+    --GroupInfo();
     ------------------------------------------------------------------------------------------------------
     -- Locals --------------------------------------------------------------------------------------------
     ------------------------------------------------------------------------------------------------------
@@ -32,9 +32,9 @@ if select(3,UnitClass("player")) == 10 then
     if canRun() ~= true or UnitInVehicle("Player") then
       return false
     end
-    if IsMounted("player") then
-      return false
-    end
+    -- if IsMounted("player") then
+    --   return false
+    -- end
     ------------------------------------------------------------------------------------------------------
     -- Pause ---------------------------------------------------------------------------------------------
     ------------------------------------------------------------------------------------------------------
@@ -104,10 +104,14 @@ if select(3,UnitClass("player")) == 10 then
         end
       end
     end
+
     ------------------------------------------------------------------------------------------------------
     -- Out of Combat -------------------------------------------------------------------------------------
     ------------------------------------------------------------------------------------------------------
     if not isInCombat("player") then
+    if isChecked("Stats Buff") then
+      Raidbuff_Monk()
+    end
     --  	-- Legacy of the White Tiger
     -- if isChecked("Legacy of the White Tiger") == true and canCast(116781,false,false) and (lastLotWT == nil or lastLotWT <= GetTime() - 5) then
     -- 	for i = 1, #nNova do
@@ -219,6 +223,9 @@ if select(3,UnitClass("player")) == 10 then
       ------------------------------------------------------------------------------------------------------
       -- Do everytime --------------------------------------------------------------------------------------
       ------------------------------------------------------------------------------------------------------
+      if isChecked("Stats Buff") then
+        Raidbuff_Monk()
+      end
       --Purifying Brew
       if DrinkStagger() then
         if castSpell("player",_PurifyingBrew,true,false) then

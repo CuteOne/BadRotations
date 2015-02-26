@@ -15,6 +15,10 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewCheck(thisConfig,"isBoss");
 			CreateNewText(thisConfig,"isBoss");
 
+			-- bosscheck
+			CreateNewCheck(thisConfig,"ThrowDP");
+			CreateNewText(thisConfig,"ThrowDP");
+
 			-- -- Min Orbs to cast DP on traditional single target
 			-- CreateNewDrop(thisConfig,"Min Orbs (trad)",1,"Choose the minimum orbs to cast DP if targetHP>20.","|cffCC00003","|cFF00CC005");
 			-- CreateNewText(thisConfig,"Min Orbs (trad)");
@@ -130,6 +134,12 @@ if select(3, UnitClass("player")) == 5 then
 			-- Sort EnemiesTable by HPabs
 			CreateNewCheck(thisConfig,"sortByHPabs");
 			CreateNewText(thisConfig,"sortByHPabs");
+			
+			if getTalent(7,3) then
+				-- VT on Target
+				CreateNewCheck(thisConfig,"VT on Target");
+				CreateNewText(thisConfig,"VT on Target");
+			end
 
 			-- -- SWP
 			-- CreateNewCheck(thisConfig,"Multi SWP", "not used atm");
