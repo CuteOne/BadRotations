@@ -9,6 +9,7 @@ function AssassinationRogue()
     end
     AssToggles()
     poisonAssData()
+    GroupInfo()
     makeEnemiesTable(40)
     getLoot2()
     -- if worgen==nil then
@@ -309,11 +310,11 @@ function AssassinationRogue()
         ------------------------------------------
         -- Shadowstep
         if GetObjectExists(tarUnit.dyn0) and tarDist.dyn25AoE < 25 and tarDist.dyn25AoE >= 8 and getTalent(4,2) and ((select(2,IsInInstance())=="none" and #members==1) or hasThreat(tarUnit.dyn25AoE)) then
-          if castSpell(tarUnit.0,_Shadowstep,false,false,false) then return end
+          if castSpell(tarUnit.dyn0,_Shadowstep,false,false,false) then return end
         end
         -- Cloak and Dagger
         if GetObjectExists(tarUnit.dyn0) and stealth and tarDist.dyn40AoE < 40 and tarDist.dyn40AoE >= 8 and getTalent(4,1) and ((select(2,IsInInstance())=="none" and #members==1) or hasThreat(tarUnit.dyn40AoE)) then
-          if castSpell(tarUnit.0,_Ambush,false,false,false,false,false,true) then return end
+          if castSpell(tarUnit.dyn0,_Ambush,false,false,false,false,false,true) then return end
         end
         -- Rupture
         --if=combo_points=5&ticks_remain<3
