@@ -257,21 +257,30 @@ function WindwalkerMonk()
         --- In Combat - Interrupts ---
         ------------------------------
         if useInterrupts() then
-          -- Quaking Palm
-          if isChecked(getOption(_QuakingPalm)) then
-            if castInterrupt(_QuakingPalm,tonumber(getValue("Interrupt At"))) then return end
-          end
-          -- Spear Hand Strike
-          if isChecked(getOption(_SpearHandStrike)) then
-            if castInterrupt(_SpearHandStrike,tonumber(getValue("Interrupt At"))) then return end
-          end
-          -- Paralysis
-          if isChecked(getOption(_Paralysis)) then
-            if castInterrupt(_Paralysis,tonumber(getValue("Interrupt At"))) then return end
-          end
-          -- Leg Sweep
-          if isChecked(getOption(_LegSweep)) then
-            if castInterrupt(_LegSweep,tonumber(getValue("Interrupt At"))) then return end
+          for i=1, #enemiesTable do
+            thisUnit = enemiesTable[i].unit
+            if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+              -- Quaking Palm
+              if isChecked(getOption(_QuakingPalm)) then
+                --if castInterrupt(_QuakingPalm,tonumber(getValue("Interrupt At"))) then return end
+                if castSpell(thisUnit,_QuakingPalm,false,false,false) then return end
+              end
+              -- Spear Hand Strike
+              if isChecked(getOption(_SpearHandStrike)) then
+                --if castInterrupt(_SpearHandStrike,tonumber(getValue("Interrupt At"))) then return end
+                if castSpell(thisUnit,_SpearHandStrike,false,false,false) then return end
+              end
+              -- Paralysis
+              if isChecked(getOption(_Paralysis)) then
+                --if castInterrupt(_Paralysis,tonumber(getValue("Interrupt At"))) then return end
+                if castSpell(thisUnit,_Paralysis,true,false,false) then return end
+              end
+              -- Leg Sweep
+              if isChecked(getOption(_LegSweep)) then
+                --if castInterrupt(_LegSweep,tonumber(getValue("Interrupt At"))) then return end
+                if castSpell(thisUnit,_LegSweep,false,false,false) then return end
+              end
+            end
           end
         end
         -----------------------------

@@ -307,19 +307,27 @@ function DruidFeral()
 	--- In Combat - Interrupts ---
 	------------------------------
 				if useInterrupts() and not stealth then
+          for i=1, #enemiesTable do
+            thisUnit = enemiesTable[i].unit
+            if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
 		-- Skull Bash
-			        if isChecked("Skull Bash") then
-					    if castInterrupt(sb,getOptionValue("Interrupt At")) then return end
-					end
+    			    if isChecked("Skull Bash") then
+    					    --if castInterrupt(sb,getOptionValue("Interrupt At")) then return end
+                  if castSpell(thisUnit,sb,false,false,false) then return end
+    					end
 		-- Mighty Bash
-			        if isChecked("Mighty Bash") then
-			        	if castInterrupt(mb,getOptionValue("Interrupt At")) then return end
-			        end
+    			    if isChecked("Mighty Bash") then
+    			        --if castInterrupt(mb,getOptionValue("Interrupt At")) then return end
+                  if castSpell(thisUnit,mb,false,false,false) then return end
+    			    end
 		-- Maim (PvP)
-			        if isChecked("Maim") and combo > 0 and power >= 35 and isInPvP() then
-			        	if castInterrupt(ma,getOptionValue("Interrupt At")) then return end
-			        end
-			    end
+    			    if isChecked("Maim") and combo > 0 and power >= 35 and isInPvP() then
+    			        --if castInterrupt(ma,getOptionValue("Interrupt At")) then return end
+                  if castSpell(thisUnit,ma,false,false,false) then return end
+    			    end
+            end
+          end
+			  end
 	-----------------------------
 	--- In Combat - Cooldowns ---
 	-----------------------------
