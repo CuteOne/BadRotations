@@ -283,21 +283,30 @@ if select(3, UnitClass("player")) == 6 then
           --- In Combat - Interrupts ---
           ------------------------------
           if useInterrupts() then
-            -- Mind Freeze
-            if isChecked("Mind Freeze") and not castingSimSpell then
-              if castInterrupt(_MindFreeze,getOptionValue("Interrupt At")) then return end
-            end
-            -- Strangulate
-            if isChecked("Strangulate") and bRunes>0 and not castingSimSpell then
-              if castInterrupt(_Strangulate,getOptionValue("Interrupt At")) then return end
-            end
-            -- Asphyxiate
-            if isChecked("Asphyxiate") and not castingSimSpell then
-              if castInterrupt(_Asphyxiate,getOptionValue("Interrupt At")) then return end
-            end
-            -- Dark Simulacrum
-            if isChecked("Dark Simulacrum") and power>20 and (isInPvP() or castingSimSpell) then
-              if castInterrupt(_DarkSimulacrum,10,true) then return end
+            for i=1, #enemiesTable do
+              thisUnit = enemiesTable[i].unit
+              if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                -- Mind Freeze
+                if isChecked("Mind Freeze") and not castingSimSpell then
+                  --if castInterrupt(_MindFreeze,getOptionValue("Interrupt At")) then return end
+                  if castSpell(thisUnit,_MindFreeze,false,false,false) then return end
+                end
+                -- Strangulate
+                if isChecked("Strangulate") and bRunes>0 and not castingSimSpell then
+                  --if castInterrupt(_Strangulate,getOptionValue("Interrupt At")) then return end
+                  if castSpell(thisUnit,_MindFreeze,false,false,false) then return end
+                end
+                -- Asphyxiate
+                if isChecked("Asphyxiate") and not castingSimSpell then
+                  --if castInterrupt(_Asphyxiate,getOptionValue("Interrupt At")) then return end
+                  if castSpell(thisUnit,_MindFreeze,false,false,false) then return end
+                end
+                -- Dark Simulacrum
+                if isChecked("Dark Simulacrum") and power>20 and (isInPvP() or castingSimSpell) then
+                  --if castInterrupt(_DarkSimulacrum,10,true) then return end
+                  if castSpell(thisUnit,_MindFreeze,false,false,false) then return end
+                end
+              end
             end
             if simSpell~=_DarkSimulacrum and getBuffRemain("player",_DarkSimulacrum)>0 and getCastTimeRemain(simUnit)<8 then
               if castSpell(simUnit,simSpell,false,false,true,true,false,true,false) then bb.im.simulacrum = nil return end

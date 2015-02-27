@@ -175,11 +175,11 @@ function AssassinationRogue()
         if GetObjectExists(tarUnit.dyn0) and stealth then
           -- Shadowstep
           if tarDist.dyn0 < 25 and tarDist.dyn0 >= 8 and getTalent(4,2) and (select(2,IsInInstance())=="none" or isInCombat(tarUnit.dyn0)) then
-            if castSpell(tarUnit.dyn25AoE,_Shadowstep,false,false,false) then return end
+            if castSpell(tarUnit.dyn0,_Shadowstep,false,false,false) then return end
           end
           -- Cloak and Dagger
           if tarDist.dyn0 < 40 and tarDist.dyn0 >= 8 and getTalent(4,1) and (select(2,IsInInstance())=="none" or isInCombat(tarUnit.dyn0)) then
-            if castSpell(tarUnit.dyn40AoE,_Ambush,false,false,false,false,false,true) then return end
+            if castSpell(tarUnit.dyn0,_Ambush,false,false,false,false,false,true) then return end
           end
           -- Sap
           if noattack() and sapRemain==0 and level>=15 and tarDist.dyn0 < 8 then
@@ -240,14 +240,26 @@ function AssassinationRogue()
         --- In Combat - Interrupts ---
         ------------------------------
         if useInterrupts() and not stealth then
+          for i=1, #enemiesTable do
+            thisUnit = enemiesTable[i].unit
+            if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
           -- Kick
-          if level>=18 then
-            if castInterrupt(_Kick,getValue("Interrupt At")) then return end
-          end
+              if level>=18 and getSpellCD(_Kick)==0 then
+                --if castInterrupt(_Kick,getValue("Interrupt At")) then return end
+                if castSpell(thisUnit,_Kick,false,false,false) then return end
+              end
           -- Gouge
-          if castInterrupt(_Gouge,getValue("Interrupt At")) then return end
+              if power>45 and getSpellCD(_Gouge)==0 then
+              --if castInterrupt(_Gouge,getValue("Interrupt At")) then return end
+                if castSpell(thisUnit,_Gouge,false,false,false) then return end
+              end
           -- Blind
-          if castInterrupt(_Blind,getValue("Interrupt At")) then return end
+              if power>15 and getSpellCD(_Blind)==0 then
+              --if castInterrupt(_Blind,getValue("Interrupt At")) then return end
+                if castSpell(thisUnit,_Blind,false,false,false) then return end
+              end
+            end
+          end
         end
         -----------------------------
         --- In Combat - Cooldowns ---
@@ -295,19 +307,17 @@ function AssassinationRogue()
         ------------------------------------------
         --- In Combat Rotation ---
         ------------------------------------------
-        if GetObjectExists(tarUnit.dyn0) and stealth then
-          -- Shadowstep
-          if tarDist.dyn25AoE < 25 and tarDist.dyn25AoE >= 8 and getTalent(4,2) and ((select(2,IsInInstance())=="none" and #members==1) or hasThreat(tarUnit.dyn25AoE)) then
-            if castSpell(tarUnit.dyn25AoE,_Shadowstep,false,false,false) then return end
-          end
-          -- Cloak and Dagger
-          if tarDist.dyn40AoE < 40 and tarDist.dyn40AoE >= 8 and getTalent(4,1) and ((select(2,IsInInstance())=="none" and #members==1) or hasThreat(tarUnit.dyn40AoE)) then
-            if castSpell(tarUnit.dyn40AoE,_Ambush,false,false,false,false,false,true) then return end
-          end
+        -- Shadowstep
+        if GetObjectExists(tarUnit.dyn0) and tarDist.dyn25AoE < 25 and tarDist.dyn25AoE >= 8 and getTalent(4,2) and ((select(2,IsInInstance())=="none" and #members==1) or hasThreat(tarUnit.dyn25AoE)) then
+          if castSpell(tarUnit.0,_Shadowstep,false,false,false) then return end
+        end
+        -- Cloak and Dagger
+        if GetObjectExists(tarUnit.dyn0) and stealth and tarDist.dyn40AoE < 40 and tarDist.dyn40AoE >= 8 and getTalent(4,1) and ((select(2,IsInInstance())=="none" and #members==1) or hasThreat(tarUnit.dyn40AoE)) then
+          if castSpell(tarUnit.0,_Ambush,false,false,false,false,false,true) then return end
         end
         -- Rupture
         --if=combo_points=5&ticks_remain<3
-        if combo==5 and rupRemain<3 and power>25 and tarDist.dyn5<5 then
+        if combo==5 and rupRemain<3 and power>25 then
           if castSpell(tarUnit.dyn5,_Rupture,false,false,false) then return end
         end
         -- Rupture - Multi-Dot
@@ -330,12 +340,12 @@ function AssassinationRogue()
         end
         -- Slice and Dice
         --if=buff.slice_and_dice.remains<5
-        if not isKnown(_ImprovedSliceAndDice) and sndRemain<5 and power>25 and tarDist.dyn5<5 and combo>0 then
+        if not isKnown(_ImprovedSliceAndDice) and sndRemain<5 and power>25 and combo>0 then
           if castSpell("player",_SliceAndDice,true,false,false) then return end
         end
         -- Marked for Death
         --if=combo_points=0
-        if combo>0 and tarDist.dyn5<5 then
+        if combo>0 then
           if castSpell(tarUnit.dyn5,_MarkedForDeath,true,false,false) then return end
         end
         -- Crimson Tempest
@@ -345,7 +355,7 @@ function AssassinationRogue()
         end
         -- Fan of Knives
         --if=(combo_points<5|(talent.anticipation.enabled&anticipation_charges<4))&active_enemies>=4
-        if useAoE() and (combo<5 or (getTalent(6,3) and antCharge<4)) and enemies>=4 and power>35 and tarDist.dyn5<5 then
+        if useAoE() and (combo<5 or (getTalent(6,3) and antCharge<4)) and enemies>=4 and power>35 then
           if castSpell("player",_FanOfKnives,true,false,false) then return end
         end
         -- Rupture
