@@ -29,7 +29,7 @@ function DruidFeral()
 		local enemies, enemiesList = #getEnemies("player",8), getEnemies("player",8)
 		local falling, swimming = getFallTime(), IsSwimming()
 		local gcd = ((1.5/GetHaste("player"))+1)
-		local p2t17 = false
+		local p2t17 = TierScan("T17")>=2
 		--General Target Variables
 		local dynamicUnit = {
 			["dyn5"] = dynamicTarget(5,true), --Melee
@@ -191,10 +191,11 @@ function DruidFeral()
 	 -- Mark of the Wild
 	        if isChecked("Mark of the Wild") and not hasmouse and not (IsFlying() or IsMounted()) and not stealth and not isInCombat("player") then
 	            for i = 1, #members do --members
-	                if not isBuffed(members[i].Unit,{115921,20217,1126,90363,159988,160017,160077}) 
-	                	and (#nNova==select(5,GetInstanceInfo()) 
-	                		or select(2,IsInInstance())=="none" 
-	                		or (select(2,IsInInstance())=="party" and not UnitInParty("player")))
+	                if not isBuffed(members[i].Unit,{1126,115921,116781,20217,160206,69378,159988,160017,90363,160077}) 
+	                	and (--#nNova==select(5,GetInstanceInfo()) 
+	                		--[[or]] select(2,IsInInstance())=="none" 
+	                		or (select(2,IsInInstance())=="party" and not UnitInParty("player"))
+                      or (select(2,IsInInstance())=="raid"))
 	                then
 	                    if castSpell("player",mow,true,false,false) then return end
 	                end
@@ -525,7 +526,7 @@ function DruidFeral()
 						if castSpell("player",svr,true,false,false) then return end
 					end
 		-- Rake
-					if useCleave() then
+					if useCleave() and enemies>1 then
 	    				for i=1, #enemiesTable do
 	    					if enemiesTable[i].distance<5 then
 	    						thisUnit = enemiesTable[i].unit
@@ -551,7 +552,7 @@ function DruidFeral()
 					-- if=combo_points<5&active_enemies<=7
 					if combo<5 and enemies<=7 then
 		    -- Maintina: Rake 
-		    			if useCleave() then
+		    			if useCleave() and enemies>1 then
 		    				for i=1, #enemiesTable do
 		    					if enemiesTable[i].distance<5 then
 		    						thisUnit = enemiesTable[i].unit
@@ -611,7 +612,7 @@ function DruidFeral()
 						    end
 					   	end 	        
     		-- Maintain: Rake
-    					if useCleave() then
+    					if useCleave() and enemies>1 then
 		    				for i=1, #enemiesTable do
 		    					if enemiesTable[i].distance<5 then
 		    						thisUnit = enemiesTable[i].unit

@@ -3,6 +3,7 @@ if select(3, UnitClass("player")) == 4 and GetSpecialization() == 1 then
   _AdrenalineRush			= 13750
   _Ambush     			= 8676
   _Anticipation 			= 114015
+  _AnticipationBuff   = 115189
   _Backstab     			= 53
   _Berserking  			= 26297
   _BladeFlurry			= 13877
