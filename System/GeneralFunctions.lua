@@ -2116,3 +2116,105 @@ function ShouldTaunt()
 		end
 	end
 end
+
+-- if TierScan("T17")>=2 then
+function TierScan(thisTier)
+    local equippedItems = 0;
+    local myClass = select(2,UnitClass("player"));
+    local thisTier = string.upper(thisTier);
+    local sets = {
+        ["T17"] = {
+            ["DRUID"] = {
+                115540, -- chest
+                115541, -- hands
+                115542, -- head
+                115543, -- legs
+                115544 -- shoulder
+            },
+            ["DEATH KNIGHT"] = {
+                115535, -- legs
+                115536, -- shoulder
+                115537, -- chest
+                115538, -- hands
+                115539 -- head
+            },
+            ["HUNTER"] = {
+                115545, -- head
+                115546, -- legs
+                115547, -- shoulder
+                115548, -- chest
+                115549 -- hands
+            },
+            ["MAGE"] = {
+                115550, -- chest
+                115551, -- shoulder
+                155552, -- hands
+                155553, -- head
+                155554 -- legs
+            },
+            ["MONK"] = {
+                115555, -- hands
+                115556, -- head
+                115557, -- legs
+                115558, -- chest
+                115559 -- shoulder
+            },
+            ["PALADIN"] = {
+                115565, -- shoulder
+                115566, -- chest
+                115567, -- hands
+                115568, -- head
+                115569 -- legs
+            },
+            ["PRIEST"] = {
+                115560, -- chest
+                115561, -- shoulder
+                115562, -- hands
+                115563, -- head
+                115564 -- legs
+            },
+            ["ROGUE"] = {
+                115570, -- chest
+                115571, -- hands
+                115572, -- head
+                115573, -- legs
+                115574 -- shoulder
+            },
+            ["SHAMAN"] = {
+                115575, -- legs
+                115576, -- shoulder
+                115577, -- chest
+                115578, -- hands
+                115579 -- head
+            },
+            ["WARLOCK"] = {
+                115585, -- hands
+                115586, -- head
+                115587, -- legs
+                115588, -- chest
+                115589 -- shoulder
+            },
+            ["WARRIOR"] = {
+                115580, -- legs
+                115581, -- shoulder
+                115582, -- chest
+                115583, -- hands
+                115584 -- head
+            }
+        }
+    }
+    -- scan every items
+    for i=1, 19 do
+        -- if there is an item in that slot
+        if GetInventoryItemID("player", i) ~= nil then
+            -- compare to items in our items list
+            for j = 1, 5 do
+            	--print(sets[thisTier][myClass][j]) 
+                if GetItemInfo(GetInventoryItemID("player", i)) == GetItemInfo(sets[thisTier][myClass][j]) then
+                    equippedItems = equippedItems + 1;
+                end
+            end
+        end
+    end
+    return equippedItems;
+end
