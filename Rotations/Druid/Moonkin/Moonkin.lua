@@ -230,8 +230,7 @@ if select(3, UnitClass("player")) == 11 then
         end
         --sunfire
         if getSunfireStatus() then
-          if bsolarPeak
-          or (sunfireremain(dynamicTarget(40,true)) < 4) then
+          if sunfireremain(dynamicTarget(40,true)) < 4 then
             if castSpell(dynamicTarget(40,true),_moonfire,false,false) then
               return
             end
@@ -247,8 +246,7 @@ if select(3, UnitClass("player")) == 11 then
         end
         --moonfire
         if not getSunfireStatus() then
-          if blunarPeak
-          or (moonfireremain(dynamicTarget(40,true)) < 4)
+          if (moonfireremain(dynamicTarget(40,true)) < 4)
           or (bcelestialAlignment and bcelestialAlignmentremain <= 2 and moonfireremain(dynamicTarget(40,true)) < 12) then
             if castSpell(dynamicTarget(40,true),_moonfire,false,false) then
               return
