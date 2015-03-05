@@ -103,6 +103,7 @@ if select(3, UnitClass("player")) == 5 then
 				-- BossSWP =			isChecked("Boss SWP"),
 				-- BossVT =			isChecked("Boss VT"),
 				MindSear =			isChecked("MS Targets"),
+				DPmode = 			isChecked("DP mode"),
 				-- Encounter Specific
 				TwinStyle = 		isChecked("Ogron Focus Style"),  -- DP on Focus, DPonFocus
 				-- Utilities
@@ -123,6 +124,8 @@ if select(3, UnitClass("player")) == 5 then
 				VTRefresh =			4.5+1.5/(1+UnitSpellHaste("player")/100),
 				SWPRefresh = 		5.4,
 				MindSear = 			getValue("MS Targets"),
+				DPmode =			getValue("DP mode"),
+				PushTime = 			getValue("Push Time"),
 			},
 			ASInsanity = {
 				VTAll =				false,

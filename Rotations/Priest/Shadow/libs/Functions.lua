@@ -235,7 +235,7 @@ if select(3, UnitClass("player")) == 5 then
 		function ExecuteCoP(options)
 			if getHP("target")<=20 then
 				-- ORBS>=3 -> DP
-				if options.player.ORBS>=3 and getBuffRemain("player",InsanityBuff)<=0.3*options.player.DPTIME then
+				if options.player.ORBS>=3 then
 					if castSpell("target",DP,true,false) then return; end
 				end
 
@@ -262,7 +262,7 @@ if select(3, UnitClass("player")) == 5 then
 		function ExecuteAS(options)
 			if getHP("target")<=20 then
 				-- DP on 3+ Orbs
-				if options.player.ORBS>=3 and getBuffRemain("player",InsanityBuff)<=0.3*options.player.DPTIME then
+				if options.player.ORBS>=3 then
 					if castSpell("target",DP,true,false) then return; end
 				end
 
@@ -344,11 +344,11 @@ if select(3, UnitClass("player")) == 5 then
 		end
 	--[[                    ]] -- LF Orbs end
 
-	--[[                    ]] -- SWP em all start
-		function throwSWP(options,targetAlso)
+	--[[                    ]] -- SWP
+		-- refresh
+		function refreshSWP(options,targetAlso)
 			--if options.buttons.DoT==2 or options.buttons.DoT==4 then
 				local SWPCount = getSWP()
-				-- refresh SWP
 				if SWPCount <= options.values.MaxTargets then
 					for i=1, #enemiesTable do
 						local thisUnit = enemiesTable[i].unit
@@ -366,7 +366,13 @@ if select(3, UnitClass("player")) == 5 then
 						end
 					end
 				end
-				-- apply SWP
+			--end
+		end
+		
+		-- apply
+		function throwSWP(options,targetAlso)
+			--if options.buttons.DoT==2 or options.buttons.DoT==4 then
+				local SWPCount = getSWP()
 				if SWPCount<options.values.MaxTargets then
 					for i=1, #enemiesTable do
 						local thisUnit = enemiesTable[i].unit
@@ -384,10 +390,10 @@ if select(3, UnitClass("player")) == 5 then
 				end
 			--end
 		end
-	--[[                    ]] -- SWP em all end
+	--[[                    ]] -- SWP
 
-	--[[                    ]] -- VT em all start
-		function throwVT(options,targetAlso)
+	--[[                    ]] -- VT
+		function refreshVT(options,targetAlso)
 			--if options.buttons.DoT==3 or options.buttons.DoT==4 then
 				local VTCount = getVT()
 				-- refresh VT
@@ -408,7 +414,12 @@ if select(3, UnitClass("player")) == 5 then
 						end
 					end
 				end
-				-- apply VT
+			--end
+		end
+		
+		function throwVT(options,targetAlso)
+			--if options.buttons.DoT==3 or options.buttons.DoT==4 then
+				local VTCount = getVT()
 				if VTCount<options.values.MaxTargets then
 					for i=1, #enemiesTable do
 						local thisUnit = enemiesTable[i].unit
@@ -426,25 +437,28 @@ if select(3, UnitClass("player")) == 5 then
 				end
 			--end
 		end
-	--[[                    ]] -- VT em all end
+	--[[                    ]] -- VT
 
 	--[[                    ]] -- Throw DP start
-		function ThrowDP(options)
+		function ThrowDP()
 			-- Priorize Focus
-			if options.player.TwinStyle then
-				if UnitExists("focus") and not UnitIsDead("focus") then
-					if castSpell("focus",DP,true,false) then return; end
-				end
-			end
+			-- if options.player.TwinStyle then
+			-- 	if UnitExists("focus") and not UnitIsDead("focus") then
+			-- 		if castSpell("focus",DP,true,false) then return; end
+			-- 	end
+			-- end
 			-- Throw DP on Highest HP unit
+			if enemiesTable==nil then return "ERROR: Table == nil" end
+
 			if #enemiesTable>=2 then
 				for i=1, #enemiesTable do
 					local thisUnit = enemiesTable[i].unit
 					local thisHP = enemiesTable[i].hpabs
+					local DPTime = 6.0/(1+UnitSpellHaste("player")/100)
 					--if safeDoT(thisUnit) and not UnitIsUnit("target",thisUnit) then
 					if safeDoT(thisUnit) then
 						-- check remaining DP Time
-						if getDebuffRemain(thisUnit,DP,"player")<=0.3*options.values.DPTIME then
+						if getDebuffRemain(thisUnit,DP,"player")<=0.3*DPTime then
 							if castSpell(thisUnit,DP,true,false) then return; end
 						end
 					end
@@ -506,7 +520,8 @@ if select(3, UnitClass("player")) == 5 then
 				-- Check for last DP
 				if GetTime()-lastDP<=options.player.DPTIME+2 then
 					-- Check that Insanity isnt on me
-					if getBuffRemain("player",InsanityBuff)<=0.3*options.player.DPTIME then
+					--if getBuffRemain("player",InsanityBuff)<=0.3*options.player.DPTIME then
+					if getBuffRemain("player",InsanityBuff)<=0 then
 						-- DP on target
 						if castSpell("target",DP,false,true) then return; end
 					end
@@ -534,11 +549,13 @@ if select(3, UnitClass("player")) == 5 then
 					-- SWP
 					if options.buttons.DoT==2 or options.buttons.DoT==4 then 
 						throwSWP(options,false)
+						refreshSWP(options,false)
 					end
 
 					-- VT
 					if options.buttons.DoT==3 or options.buttons.DoT==4 then
 						throwVT(options,false)
+						refreshVT(options,false)
 					end
 
 					-- Mind Sear
@@ -578,12 +595,18 @@ if select(3, UnitClass("player")) == 5 then
 	--[[                    ]] -- AS Insanity start
 	function ASInsanity(options)
 
-		-- DP on 3+ Orbs - THROWDP
-		if options.isChecked.ThrowDP then
+		-- DP: push or throw?
+		if options.isChecked.DPmode then
 			if options.player.ORBS==5 then
-				-- check for running DP
-				if getDebuffRemain("target",DP,"player")>=0.3*options.player.DPTIME then
-					throwDP()
+				-- Push DP
+				if options.isChecked.DPmode==1 then
+					if getDebuffRemain("target",DP,"player")<=options.values.PushTime then
+						if castSpell("target",DP,true,false) then return; end
+					end
+				end
+				-- Throw DP
+				if options.isChecked.DPmode==2 then
+					ThrowDP()
 				end
 			end
 		end
@@ -602,12 +625,15 @@ if select(3, UnitClass("player")) == 5 then
 		-- SWP on MaxTargets
 		throwSWP(options,true)
 
-		-- Insanity / MF
+		-- Insanity
 		if getBuffRemain("player",InsanityBuff)>0 then
 			if select(1,UnitChannelInfo("player")) == nil then
 				if castSpell("target",MF,false,true) then return; end
 			end
 		end
+
+		-- SWP refresh
+		refreshSWP(options,true)
 
 		if select(1,UnitChannelInfo("player")) == nil then
 			-- VT on target
@@ -673,6 +699,12 @@ if select(3, UnitClass("player")) == 5 then
 		if getBuffStacks("player",SoDProc)>=1 then
 			if castSpell("target",MSp,false,false) then return; end
 		end
+
+		-- SWP refresh
+		refreshSWP(options,true)
+
+		-- VT refresh
+		refreshVT(options,true)
 
 		-- Mind Sear
 		if options.isChecked.MindSear then
