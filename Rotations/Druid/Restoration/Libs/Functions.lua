@@ -121,7 +121,7 @@ if select(3, UnitClass("player")) == 11 then
             CancelShapeshiftForm()
           end
           -- Moonfire
-          if isChecked("Multidotting") then
+          if isChecked("Multidotting") and isChecked("MoonFire") then
             castDotCycle("all",8921,40,false,false,2)
           end
 
@@ -132,7 +132,7 @@ if select(3, UnitClass("player")) == 11 then
             end
           else
             -- if we dont have DoC then dot our target
-            if not isKnown(158504) then
+            if not isKnown(158504) and isChecked("MoonFire")then
               if getDebuffRemain(myTarget,164812) < 2 then
                 if castSpell(myTarget,_Moonfire,false,false) then
                   return

@@ -317,7 +317,9 @@ if select(3, UnitClass("player")) == 11 then
       -- Multidotting
       CreateNewCheck(thisConfig,"Multidotting","|cffFF0011Check |cffFFDD11this to allow |cffFFFFFFMoonfire |cffFFDD11Multidotting",0)
       CreateNewText(thisConfig,"Multidotting")
-
+      -- MoonFire
+	  CreateNewCheck(thisConfig,"MoonFire","|cffFF0011Check |cffFFDD11this to allow |cffFFFFFFMoonfire",0)
+      CreateNewText(thisConfig,"MoonFire")
       -- Safe DPS Threshold
       CreateNewCheck(thisConfig,"Safe DPS Threshold","|cffFF0011Check |cffFFFFFF to force healing when units in your group fall under threshold.")
       CreateNewBox(thisConfig, "Safe DPS Threshold",1,100,5,45,"|cffFFBB00What threshold you want to force start healing allies while DPSing.")
