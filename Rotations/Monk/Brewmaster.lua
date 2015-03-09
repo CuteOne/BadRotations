@@ -3,25 +3,29 @@ if select(3,UnitClass("player")) == 10 then
   function BrewmasterMonk()
 
     if currentConfig ~= "Brewmaster Chumii" then
+      MonkBrewToggles()
       MonkBrewConfig();
       currentConfig = "Brewmaster Chumii";
     end
-    MonkBrewToggles()
     --GroupInfo();
     ------------------------------------------------------------------------------------------------------
     -- Locals --------------------------------------------------------------------------------------------
     ------------------------------------------------------------------------------------------------------
-    local chi = UnitPower("player", SPELL_POWER_CHI)
-    local chiMax = UnitPowerMax("player", SPELL_POWER_CHI)
-    local chiDif = chiMax-chi; --chi.max-chi
-    local energy = getPower("player")
-    local energytomax = getTimeToMax("player")
-    local energyreg = getRegen("player")
-    local myHP = getHP("player")
-    local GCD = 1.5/(1+UnitSpellHaste("player")/100)
-    local ElusiveStacks = getBuffStacks("player",_ElusiveBrewStacks)
-    local dyn5 = dynamicTarget(5,true) -- Melee
-    local dyn40 = dynamicTarget(40,false) -- Chi wave
+    local chi                 = UnitPower("player", SPELL_POWER_CHI)
+    local chiMax              = UnitPowerMax("player", SPELL_POWER_CHI)
+    local chiDif              = chiMax-chi; --chi.max-chi
+    local energy              = getPower("player")
+    local energytomax         = getTimeToMax("player")
+    local energyreg           = getRegen("player")
+    local myHP                = getHP("player")
+    local tarHP               = getHP("target")
+    local GCD                 = 1.5/(1+UnitSpellHaste("player")/100)
+    local ElusiveStacks       = getBuffStacks("player",_ElusiveBrewStacks)
+    local dyn5                = dynamicTarget(5,true) -- Melee
+    local dyn40               = dynamicTarget(40,false) -- Chi wave
+    local KegCD               = getSpellCD(_KegSmash)
+    local ToDglyph            = hasGlyph(123391)
+    local ttd                 = getTimeToDie("target")
     -- if myEnemiesTableTimer == nil or myEnemiesTableTimer <= GetTime() - 1 then
     --   makeEnemiesTable(10)
     --   myEnemiesTableTimer = GetTime()
@@ -232,6 +236,16 @@ if select(3,UnitClass("player")) == 10 then
           return
         end
       end
+      -- actions.st+=/guard,if=(charges=1&recharge_time<5)|charges=2|target.time_to_die<15
+      if useDefCDsBrM() == true then
+        if isChecked("Guard on CD") and not UnitBuffID("player",_Guard) then
+          if (getCharges(_Guard) == 1 and getRecharge(_Guard) < 5) or getCharges(_Guard) == 2 or ttd < 15 then
+            if castSpell("player",_Guard,true) then
+              return
+            end
+          end
+        end
+      end
       -- Nimble Brew
       if hasNoControl() then
         if castSpell("player",_NimbleBrew,true,false) then
@@ -255,12 +269,22 @@ if select(3,UnitClass("player")) == 10 then
           return
         end
       end
-      -- actions+=/serenity,if=talent.serenity.enabled&energy<=40
+      -- actions+=/serenity,if=talent.serenity.enabled&cooldown.keg_smash.remains>6
       if isKnown(_Serenity) then
-        if energy <= 40 then
+        if KegCD > 6 and chi >= 2 then
           if castSpell("player",_Serenity,true) then
             return
           end
+        end
+      end
+      --actions+=/touch_of_death,if=target.health.percent<10&cooldown.touch_of_death.remains=0&
+      --((!glyph.touch_of_death.enabled&chi>=3&target.time_to_die<8)|
+      --(glyph.touch_of_death.enabled&target.time_to_die<5))
+      if tarHP < 10 and
+      ((not ToDglyph and chi >= 3 and ttd < 8) or
+      (ToDglyph and ttd < 5)) then
+        if castSpell("target",_TouchOfDeath,false,false) then
+          return
         end
       end
       ------------------------------------------------------------------------------------------------------
@@ -282,58 +306,13 @@ if select(3,UnitClass("player")) == 10 then
         -- actions.st+=/purifying_brew,if=!talent.chi_explosion.enabled&stagger.heavy
         -- actions.st+=/purifying_brew,if=buff.serenity.up
         if UnitBuffID("player",_Serenity)
-          and UnitBuffID("player",_StaggerLight)
+          and (UnitBuffID("player",_StaggerLight)
           or UnitBuffID("player",_StaggerModerate)
-          or UnitBuffID("player",_StaggerHeavy) then
+          or UnitBuffID("player",_StaggerHeavy)) then
           if castSpell("player",_PurifyingBrew,true) then
             return
           end
         end
-        -- actions.st+=/guard
-        if useDefCDsBrM() == true then
-          if isChecked("Guard on CD") and not UnitBuffID("player",_Guard) then
-            if castSpell("player",_Guard,true) then
-              return
-            end
-          end
-        end
-        -- actions.st+=/keg_smash,if=chi.max-chi>=2&!buff.serenity.remains
-        --if chiDif >= 2 and not UnitBuffID("player",_Serenity) then
-        if not UnitBuffID("player",_Serenity) then
-          if castSpell(dyn5,_KegSmash,false,false) then
-            return
-          end
-        end
-        -- actions.st+=/chi_burst,if=talent.chi_burst.enabled&energy.time_to_max>3
-        if isKnown(_ChiBurst) then
-          if energytomax > 3 then
-            if castSpell("player",_ChiBurst,true) then
-              return
-            end
-          end
-        end
-        -- actions.st+=/chi_wave,if=talent.chi_wave.enabled&energy.time_to_max>3
-        if isKnown(_ChiWave) then
-          if energytomax > 3 then
-            if castSpell("player",_ChiWave,true) then
-              return
-            end
-          end
-        end
-        -- actions.st+=/zen_sphere,cycle_targets=1,if=talent.zen_sphere.enabled&!dot.zen_sphere.ticking
-        if isKnown(_ZenSphere) then
-          if not UnitBuffID("player",_ZenSphere) then
-            if castSpell("player",_ZenSphere,true) then
-              return
-            end
-          end
-          if not UnitBuffID("focus",_ZenSphere) then
-            if castSpell("focus",_ZenSphere,true) then
-              return
-            end
-          end
-        end
-        -- chi explosion
         -- actions.st+=/chi_explosion,if=chi>=3
         if chi >= 3 then
           if castSpell(dyn5,_ChiExplosion,false,false) then
@@ -341,64 +320,86 @@ if select(3,UnitClass("player")) == 10 then
             return
           end
         end
+        -- actions.st+=/keg_smash,if=chi.max-chi>=1&!buff.serenity.remains
+        if not UnitBuffID("player",_Serenity) and chiDif >= 1 then
+          if castSpell(dyn5,_KegSmash,false,false) then
+            return
+          end
+        end
+        -- actions.st+=/chi_burst,if=energy.time_to_max>2&buff.serenity.down
+        if isKnown(_ChiBurst) then
+          if energytomax > 2 and not UnitBuffID("player",_Serenity) then
+            if castSpell("player",_ChiBurst,true,true) then
+              return
+            end
+          end
+        end
+        -- actions.st+=/chi_wave,if=energy.time_to_max>2&buff.serenity.down
+        if isKnown(_ChiWave) then
+          if energytomax > 2 and not UnitBuffID("player",_Serenity) then
+            if castSpell("player",_ChiWave,true,false) then
+              return
+            end
+          end
+        end
+        -- actions.st+=/zen_sphere,cycle_targets=1,if=talent.zen_sphere.enabled&!dot.zen_sphere.ticking
+        if isKnown(_ZenSphere) then
+          if not UnitBuffID("player",_ZenSphere) then
+            if castSpell("player",_ZenSphere,true,false) then
+              return
+            end
+          end
+          if not UnitBuffID("focus",_ZenSphere) then
+            if castSpell("focus",_ZenSphere,true,false) then
+              return
+            end
+          end
+        end
+        -- actions.st+=/blackout_kick,if=chi.max-chi<2
         -- actions.st+=/blackout_kick,if=buff.shuffle.remains<=3&cooldown.keg_smash.remains>=gcd
-        if getBuffRemain("player",_Shuffle) <= 3 then
+        -- actions.st+=/blackout_kick,if=buff.serenity.up
+        if chiDif < 2 then
           if castSpell(dyn5,_BlackoutKick,false,false) then
             return
           end
         end
-        -- actions.st+=/blackout_kick,if=buff.serenity.up
+        if getBuffRemain("player",_Shuffle) <= 3 and KegCD >= GCD then
+          if castSpell(dyn5,_BlackoutKick,false,false) then
+            return
+          end
+        end
         if UnitBuffID("player",_Serenity) then
           if castSpell(dyn5,_BlackoutKick,false,false) then
             return
           end
         end
-        -- actions.st+=/blackout_kick,if=chi>=4
-        if chi >= 4 then
-          if castSpell(dyn5,_BlackoutKick,false,false) then
+        if useSingleRJW() then
+          if castSpell("player",_RushingJadeWind,true) then
             return
           end
         end
-        -- actions.st+=/expel_harm,if=chi.max-chi>=1&cooldown.keg_smash.remains>=gcd
-        -- if chiDif >= 1 and getSpellCD(_KegSmash) >= GCD then
-        --   if castSpell("player",_ExpelHarm,true) then
-        --     return
-        --   end
-        -- end
-        -- actions.st+=/jab,if=chi.max-chi>=1&cooldown.keg_smash.remains>=gcd&cooldown.expel_harm.remains>=gcd
-        if chiDif >= 1 then
+        --actions.st+=/expel_harm,if=chi.max-chi>=1&cooldown.keg_smash.remains>=gcd&(energy+(energy.regen*(cooldown.keg_smash.remains)))>=80
+        if chiDif >= 1 and KegCD >= GCD then
+          if castSpell("player",_ExpelHarm,true) then
+            return
+          end
+        end
+        -- actions.st+=/jab,if=chi.max-chi>=1&cooldown.keg_smash.remains>=gcd&cooldown.expel_harm.remains>=gcd&(energy+(energy.regen*(cooldown.keg_smash.remains)))>=80
+        if chiDif >= 1 and KegCD >= GCD and getSpellCD(_ExpelHarm) >= GCD then
           if castSpell(dyn5,_Jab,false,false) then
             return
           end
         end
-        -- actions.st+=/purifying_brew,if=!talent.chi_explosion.enabled&stagger.moderate&buff.shuffle.remains>=6
-
-        -- actions.st+=/tiger_palm,if=(energy+(energy.regen*(cooldown.keg_smash.remains)))>=40
-        --if (energy+(energyreg*getSpellCD(_KegSmash))) >= 40 then
+        -- actions.st+=/tiger_palm
         if castSpell(dyn5,_TigerPalm,false,false) then
           return
         end
-        --end
-        -- actions.st+=/tiger_palm,if=cooldown.keg_smash.remains>=gcd
-        -- if getSpellCD(_KegSmash) >= GCD then
-        --   if castSpell(dyn5,_TigerPalm,false,false) then
-        --     return
-        --   end
-        -- end
       end --single end
       -- AoE -----------------------------------------------------------------------------------------------
       if useAoEBrM() then
-        -- actions.aoe=guard
-        if useDefCDsBrM() == true then
-          if isChecked("Guard") and not UnitBuffID("player",_Guard) then
-            if castSpell("player",_Guard,true) then
-              return
-            end
-          end
-        end
-        -- actions.aoe+=/breath_of_fire,if=chi>=3&buff.shuffle.remains>=6&dot.breath_of_fire.remains<=gcd
-        if chi >= 3 and getBuffRemain("player",_Shuffle) >= 6 and getDebuffRemain(dyn5,_BreathOfFire) <= 1.5 then
-          if castSpell(dyn5,_BreathOfFire,false,false) then
+        --actions.aoe+=/blackout_kick,if=buff.shuffle.down
+        if not UnitBuffID("player",_Shuffle) then
+          if castSpell(dyn5,_BlackoutKick,false,false) then
             return
           end
         end
@@ -406,6 +407,18 @@ if select(3,UnitClass("player")) == 10 then
         if chi >= 4 then
           if castSpell(dyn5,_ChiExplosion,false,false) then
             print("Chi Explosion at 4 Chi")
+            return
+          end
+        end
+        --actions.aoe+=/breath_of_fire,if=(chi>=3|buff.serenity.up)&buff.shuffle.remains>=6&dot.breath_of_fire.remains<=2.4&!talent.chi_explosion.enabled
+        if (chi >= 3 or UnitBuffID("player",_Serenity)) and getBuffRemain("player",_Shuffle) >= 6 and getDebuffRemain(dyn5,_BreathOfFire) <= 2.4 and not getTalent(7,2) then
+          if castSpell(dyn5,_BreathOfFire,false,false) then
+            return
+          end
+        end
+        --actions.aoe+=/keg_smash,if=chi.max-chi>=1&!buff.serenity.remains
+        if not UnitBuffID("player",_Serenity) and chiDif >= 1 then
+          if castSpell(dyn5,_KegSmash,false,false) then
             return
           end
         end
@@ -417,33 +430,17 @@ if select(3,UnitClass("player")) == 10 then
             end
           end
         end
-        -- actions.aoe+=/purifying_brew,if=!talent.chi_explosion.enabled&stagger.heavy
-        -- actions.aoe+=/guard
-        if useDefCDsBrM() == true then
-          if isChecked("Guard") and not UnitBuffID("player",_Guard) then
-            if castSpell("player",_Guard,true) then
-              return
-            end
-          end
-        end
-        -- actions.aoe+=/keg_smash,if=chi.max-chi>=2&!buff.serenity.remains
-        --if chiDif >= 2 and not UnitBuffID("player",_Serenity) then
-        if not UnitBuffID("player",_Serenity) then
-          if castSpell(dyn5,_KegSmash,false,false) then
-            return
-          end
-        end
-        -- actions.aoe+=/chi_burst,if=talent.chi_burst.enabled&energy.time_to_max>3
+        -- actions.aoe+=/chi_burst,if=energy.time_to_max>2&buff.serenity.down
         if isKnown(_ChiBurst) then
-          if energytomax > 3 then
+          if energytomax > 2 and not UnitBuffID("player",_Serenity) then
             if castSpell("player",_ChiBurst,true) then
               return
             end
           end
         end
-        -- actions.aoe+=/chi_wave,if=talent.chi_wave.enabled&energy.time_to_max>3
+        -- actions.aoe+=/chi_wave,if=energy.time_to_max>2&buff.serenity.down
         if isKnown(_ChiWave) then
-          if energytomax > 3 then
+          if energytomax > 2 and not UnitBuffID("player",_Serenity) then
             if castSpell("player",_ChiWave,true) then
               return
             end
@@ -462,36 +459,30 @@ if select(3,UnitClass("player")) == 10 then
             end
           end
         end
-        -- actions.aoe+=/blackout_kick,if=talent.rushing_jade_wind.enabled&buff.shuffle.remains<=3&cooldown.keg_smash.remains>=gcd
-        if isKnown(_RushingJadeWind) then
-          if getBuffRemain("player",_Shuffle) <= 3 then
-            if castSpell(dyn5,_BlackoutKick,false,false) then
-              return
-            end
+        -- actions.aoe+=/blackout_kick,if=chi>=4
+        -- actions.aoe+=/blackout_kick,if=buff.shuffle.remains<=3&cooldown.keg_smash.remains>=gcd
+        -- actions.aoe+=/blackout_kick,if=buff.serenity.up
+        if chi >= 4 then
+          if castSpell(dyn5,_BlackoutKick,false,false) then
+            return
           end
         end
-        -- actions.aoe+=/blackout_kick,if=talent.rushing_jade_wind.enabled&buff.serenity.up
-        if isKnown(_RushingJadeWind) then
-          if UnitBuffID("player",_Serenity) then
-            if castSpell(dyn5,_BlackoutKick,false,false) then
-              return
-            end
+        if getBuffRemain("player",_Shuffle) <= 3 and KegCD >= GCD then
+          if castSpell(dyn5,_BlackoutKick,false,false) then
+            return
           end
         end
-        -- actions.aoe+=/blackout_kick,if=talent.rushing_jade_wind.enabled&chi>=4
-        if isKnown(_RushingJadeWind) then
-          if chi >= 4 then
-            if castSpell(dyn5,_BlackoutKick,false,false) then
-              return
-            end
+        if UnitBuffID("player",_Serenity) then
+          if castSpell(dyn5,_BlackoutKick,false,false) then
+            return
           end
         end
-        -- actions.aoe+=/expel_harm,if=chi.max-chi>=1&cooldown.keg_smash.remains>=gcd&(energy+(energy.regen*(cooldown.keg_smash.remains)))>=40
-        -- if chiDif >= 1 and getSpellCD(_KegSmash) >= 2 then
-        --   if castSpell("player",_ExpelHarm,true) then
-        --     return
-        --   end
-        -- end
+        --actions.aoe+=/expel_harm,if=chi.max-chi>=1&cooldown.keg_smash.remains>=gcd&(energy+(energy.regen*(cooldown.keg_smash.remains)))>=80
+        if chiDif >= 1 and KegCD >= GCD then
+          if castSpell("player",_ExpelHarm,true) then
+            return
+          end
+        end
         -- actions.aoe+=/spinning_crane_kick,if=chi.max-chi>=1&!talent.rushing_jade_wind.enabled
         if not isKnown(_RushingJadeWind) then
           if chiDif >= 1 then
@@ -500,21 +491,15 @@ if select(3,UnitClass("player")) == 10 then
             end
           end
         end
-        -- actions.aoe+=/jab,if=talent.rushing_jade_wind.enabled&chi.max-chi>=1&cooldown.keg_smash.remains>=gcd&cooldown.expel_harm.remains>=gcd
-        if isKnown(_RushingJadeWind) then
-          if chiDif >= 1 then
-            if castSpell(dyn5,_Jab,false,false) then
-              return
-            end
-          end
-        end
-        -- actions.aoe+=/tiger_palm,if=talent.rushing_jade_wind.enabled&(energy+(energy.regen*(cooldown.keg_smash.remains)))>=40
-        if isKnown(_RushingJadeWind) then
-          --if (energy+(energyreg*getSpellCD(_KegSmash))) >= 40 then
-          if castSpell(dyn5,_TigerPalm,false,false) then
+        -- actions.aoe+=/jab,if=chi.max-chi>=1&cooldown.keg_smash.remains>=gcd&cooldown.expel_harm.remains>=gcd&(energy+(energy.regen*(cooldown.keg_smash.remains)))>=80
+        if chiDif >= 1 and KegCD >= GCD and getSpellCD(_ExpelHarm) >= GCD then
+          if castSpell(dyn5,_Jab,false,false) then
             return
           end
-          --end
+        end
+        -- actions.aoe+=/tiger_palm
+        if castSpell(dyn5,_TigerPalm,false,false) then
+          return
         end
         -- actions.aoe+=/tiger_palm,if=talent.rushing_jade_wind.enabled&cooldown.keg_smash.remains>=gcd
         -- if isKnown(_RushingJadeWind) then

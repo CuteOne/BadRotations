@@ -1,13 +1,33 @@
 if select(3, UnitClass("player")) == 11 then
 
   function DruidMoonkin()
+    -- Spell List
+    _barkskin           = 22812
+    _celestialAlignment = 112071
+    _forceOfNature      = 33831
+    _healingTouch       = 5185
+    _incarnationboom    = 102560
+    _markOfTheWild      = 1126
+    _moonfire           = 8921
+    _moonkinForm        = 24858
+    _naturesVigil       = 124974
+    _rejuvenation       = 774
+    _solarBeam          = 78675
+    _starfall           = 48505
+    _starfire           = 2912
+    _starsurge          = 78674
+    _stellarFlare       = 152221
+    _sunfire            = 93402
+    _wrath              = 5176
+    _moonfiredebuff = 164812
+    _sunfiredebuff = 164815
 
     if currentConfig ~= "Moonkin CodeMyLife" then
+      MoonkinToggles()
       MoonkinConfig()
       currentConfig = "Moonkin CodeMyLife"
     end
     MoonkinFunctions()
-    MoonkinToggles()
     GroupInfo();
     ------------------------------------------------------------------------------------------------------
     -- Locals --------------------------------------------------------------------------------------------
@@ -35,6 +55,7 @@ if select(3, UnitClass("player")) == 11 then
     local bsolarPeakremain                        = getBuffRemain("player",171744)
     local bstarfallremain                         = getBuffRemain("player",_starfall)
     local incarnationcd                           = getSpellCD(_incarnationboom)
+    local forceOfNatureStacks                     = GetSpellCharges(_forceOfNature)
     local surgeStacks,_,surgeTime                 = GetSpellCharges(_starsurge)
     local surgeRechargetime                       = getRecharge(_starsurge)
     local starfireOverlayed                       = IsSpellOverlayed(2912)
@@ -149,8 +170,6 @@ if select(3, UnitClass("player")) == 11 then
       ------------------------------------------------------------------------------------------------------
       -- Offensive Cooldowns -------------------------------------------------------------------------------
       ------------------------------------------------------------------------------------------------------
-
-
       -- actions+=/berserking,if=buff.celestial_alignment.up
       if isChecked("Racial") then
         if select(2, UnitRace("player")) == "Troll" then
@@ -177,6 +196,11 @@ if select(3, UnitClass("player")) == 11 then
         end
       end
       -- actions+=/force_of_nature,if=trinket.stat.intellect.up|charges=3|target.time_to_die<21
+      if forceOfNatureStacks == 3 then
+        if castSpell(dynamicTarget(40,true),_forceOfNature,false,false) then
+          return
+        end
+      end
       ------------------------------------------------------------------------------------------------------
       -- Do everytime --------------------------------------------------------------------------------------
       ------------------------------------------------------------------------------------------------------
@@ -184,9 +208,10 @@ if select(3, UnitClass("player")) == 11 then
       ------------------------------------------------------------------------------------------------------
       -- Rotation ------------------------------------------------------------------------------------------
       ------------------------------------------------------------------------------------------------------
-      --if openerstarted == false then
-      if not useBoomAoE() then
-        --Moving Filler
+      if openerstarted == false then
+        if not useBoomAoE() then
+          ChatOverlay("Single", 0)
+          --Moving Filler
         if isMoving("player") and IsMovingTime(1) and not hasfox() then
           if castSpell("target",_moonfire,false,false) then
             return
@@ -352,7 +377,7 @@ if select(3, UnitClass("player")) == 11 then
           end
         end
       end -- use BoomAoE() end
-      --end --if openerstarted == false end
+      end --if openerstarted == false end
 
 
     end -- In Combat end

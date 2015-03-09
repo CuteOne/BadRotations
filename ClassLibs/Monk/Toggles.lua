@@ -35,15 +35,15 @@ if select(3,UnitClass("player")) == 10 then
       DefensiveModesLoaded = "Defensive Modes";
     end
 
-    -- Interrupts Button
-    if InterruptsModesLoaded ~= "Interrupt Modes" then
-      CustomInterruptsModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = _SpearHandStrike },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] }
+    -- Singlerjw Button
+    if SinglerjwModesLoaded ~= "Interrupt Modes" then
+      CustomSinglerjwModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Singletarget RJW Enabled", tip = "Will Use RJW on Single Target", highlight = 1, icon = _RushingJadeWind },
+        [2] = { mode = "Off", value = 2 , overlay = "Singletarget RJW Disabled", tip = "Will not Use RJW on Single Target", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] }
       };
-      InterruptsModes = CustomInterruptsModes
-      CreateButton("Interrupts",4,0)
-      InterruptsModesLoaded = "Interrupt Modes";
+      SinglerjwModes = CustomSinglerjwModes
+      CreateButton("Singlerjw",4,0)
+      SinglerjwModesLoaded = "Interrupt Modes";
     end
 
     function SpecificToggle(toggle)
