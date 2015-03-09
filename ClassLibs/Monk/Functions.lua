@@ -65,6 +65,12 @@ if select(3,UnitClass("player")) == 10 then
     -- end
   end
 
+  function GuardSize()
+    local name = GetSpellInfo(115295)
+    local guard_size = select(15, UnitAura("player", name))
+    return guard_size
+  end
+
   function useCDsBrM()
     if (BadBoy_data['Cooldowns'] == 1 and (isBoss("target") or isDummy("target"))) or BadBoy_data['Cooldowns'] == 2 then
       return true
@@ -75,6 +81,14 @@ if select(3,UnitClass("player")) == 10 then
 
   function useDefCDsBrM()
     if BadBoy_data['Defensive'] == 1 then
+      return true
+    else
+      return false
+    end
+  end
+
+  function useSingleRJW()
+    if BadBoy_data['Singlerjw'] == 1 then
       return true
     else
       return false

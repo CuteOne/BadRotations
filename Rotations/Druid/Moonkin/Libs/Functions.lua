@@ -1,26 +1,7 @@
 if select(3, UnitClass("player")) == 11 then
   function MoonkinFunctions()
 
-    -- Spell List
-    _barkskin           = 22812
-    _celestialAlignment = 112071
-    _forceOfNature      = 33831
-    _healingTouch       = 5185
-    _incarnationboom    = 102560
-    _markOfTheWild      = 1126
-    _moonfire           = 8921
-    _moonkinForm        = 24858
-    _naturesVigil       = 124974
-    _rejuvenation       = 774
-    _solarBeam          = 78675
-    _starfall           = 48505
-    _starfire           = 2912
-    _starsurge          = 78674
-    _stellarFlare       = 152221
-    _sunfire            = 93402
-    _wrath              = 5176
-    _moonfiredebuff = 164812
-    _sunfiredebuff = 164815
+
 
     -----------------------
     --- Bloodlust check ---
@@ -48,9 +29,15 @@ if select(3, UnitClass("player")) == 11 then
       local sfremain = getDebuffRemain(unit,164815,"player")
       return sfremain
     end
+
     function moonfireremain(unit)
       local mfremain = getDebuffRemain(unit,164812,"player")
       return mfremain
+    end
+
+    function stellarflareremain(unit)
+      local stellarflareremain = getDebuffRemain(unit,152221,"player")
+      return stellarflareremain
     end
 
     function dumpsfremain()
@@ -212,15 +199,15 @@ if select(3, UnitClass("player")) == 11 then
         opeight = true
         opnine = true
         opten = true
-        opeleven = true
-        optwelve = true
-        opthirt = true
-        opfourt = true
-        opfift = true
-        opsixt = true
-        opsevent = true
-        opeightt = true
-        opninet = true
+        -- opeleven = true
+        -- optwelve = true
+        -- opthirt = true
+        -- opfourt = true
+        -- opfift = true
+        -- opsixt = true
+        -- opsevent = true
+        -- opeightt = true
+        -- opninet = true
         boomOpenerEvents = true
         print("|cffFF7D0ABoomkin Opener Variables Loaded")
       end
@@ -267,15 +254,15 @@ if select(3, UnitClass("player")) == 11 then
         opeight = true
         opnine = true
         opten = true
-        opeleven = true
-        optwelve = true
-        opthirt = true
-        opfourt = true
-        opfift = true
-        opsixt = true
-        opsevent = true
-        opeightt = true
-        opninet = true
+        -- opeleven = true
+        -- optwelve = true
+        -- opthirt = true
+        -- opfourt = true
+        -- opfift = true
+        -- opsixt = true
+        -- opsevent = true
+        -- opeightt = true
+        -- opninet = true
         print("|cffFF7D0AOpener resetted sucessfully!")
       end
 
@@ -292,15 +279,15 @@ if select(3, UnitClass("player")) == 11 then
         opeight = false
         opnine = false
         opten = false
-        opeleven = false
-        optwelve = false
-        opthirt = false
-        opfourt = false
-        opfift = false
-        opsixt = false
-        opsevent = false
-        opeightt = false
-        opninet = false
+        -- opeleven = false
+        -- optwelve = false
+        -- opthirt = false
+        -- opfourt = false
+        -- opfift = false
+        -- opsixt = false
+        -- opsevent = false
+        -- opeightt = false
+        -- opninet = false
       end
 
       if not openerstarted then return false end
@@ -316,16 +303,6 @@ if select(3, UnitClass("player")) == 11 then
       -- 8. Starsurge
       -- 9. Starfire
       -- 10. Starfire
-      -- 11. Moonfire (if duration will fall off before returning to Lunar)
-      -- 12. Starfire until you swap to Solar Eclipse side
-      -- <enter solar eclipse>
-      -- 13. Sunfire
-      -- 14. Wrath until almost peak eclipse
-      -- 15. Starsurge
-      -- 16. Wrath
-      -- 17. Wrath
-      -- 18. Wrath
-      -- 19. Sunfire (refresh before leaving Solar)
       if not opone and canUse(109218) then
         UseItemByName(tostring(select(1,GetItemInfo(109218))))
         print("|cffFF7D0A1: Pre-Pot")
@@ -400,92 +377,92 @@ if select(3, UnitClass("player")) == 11 then
           opten = true
           return
         end
-      elseif not opeleven and opten and canCast(_moonfire) then
-        if delay == nil or delay <= GetTime() - GCD then
-          CastSpellByName(tostring(GetSpellInfo(8921)),"target")
-          print("|cffFF7D0A11: Moonfire")
-          delay = GetTime()
-          opeleven = true
-          return
-        end
-      elseif not optwelve and opeleven and canCast(_starfire) then
-        if UnitPower("player",8) < 0 then
-          CastSpellByName(tostring(GetSpellInfo(2912)),"target")
-        elseif (UnitPower("player",8) < 0 and eclipseChangeTimer() < starfirect) or UnitPower("player",8) > 0 then
-          if delay == nil or delay <= GetTime() - starfirect then
-            CastSpellByName(tostring(GetSpellInfo(2912)),"target")
-            print("|cffFF7D0A12: Starfire")
-            delay = GetTime()
-            optwelve = true
-            return
-          end
-        end
-      elseif not opthirt and optwelve and getSunfireStatus() and canCast(8921) then
-        if delay == nil or delay <= GetTime() - GCD then
-          CastSpellByName(tostring(GetSpellInfo(8921)),"target")
-          print("|cffFF7D0A13: Sunfire")
-          delay = GetTime()
-          opthirt = true
-          return
-        end
-      elseif not opfourt and opthirt and canCast(_wrath) then
-        if delay == nil or delay <= GetTime() - wrathct then
-          CastSpellByName(tostring(GetSpellInfo(5176)),"target")
-          print("|cffFF7D0A14: Wrath")
-          delay = GetTime()
-          opfourt = true
-          return
-        end
-      elseif not opfift and opfourt and canCast(_starsurge) then
-        if delay == nil or delay <= GetTime() - GCD then
-          CastSpellByName(tostring(GetSpellInfo(78674)),"target")
-          print("|cffFF7D0A15: Starsurge")
-          delay = GetTime()
-          opfift = true
-          return
-        end
-      elseif not opsixt and opfift and canCast(_wrath) then
-        if delay == nil or delay <= GetTime() - wrathct then
-          CastSpellByName(tostring(GetSpellInfo(5176)),"target")
-          print("|cffFF7D0A16: Wrath")
-          delay = GetTime()
-          opsixt = true
-          return
-        end
-      elseif not opsevent and opsixt and canCast(_wrath) then
-        if delay == nil or delay <= GetTime() - wrathct then
-          CastSpellByName(tostring(GetSpellInfo(5176)),"target")
-          print("|cffFF7D0A17: Wrath")
-          delay = GetTime()
-          opsevent = true
-          return
-        end
-      elseif not opeightt and opsevent and canCast(_wrath) then
-        if UnitPower("player",8) < 0 then
-          CastSpellByName(tostring(GetSpellInfo(5176)),"target")
-        elseif (UnitPower("player",8) < 0 and eclipseChangeTimer() < starfirect) or UnitPower("player",8) > 0 then
-          if delay == nil or delay <= GetTime() - wrathct then
-            CastSpellByName(tostring(GetSpellInfo(5176)),"target")
-            print("|cffFF7D0A18: Wrath")
-            delay = GetTime()
-            opeightt = true
-            return
-          end
-        end
-      elseif not opninet and opeightt and getSunfireStatus() and canCast(8921) then
-        if delay == nil or delay <= GetTime() - GCD then
-          CastSpellByName(tostring(GetSpellInfo(8921)),"target")
-          print("|cffFF7D0A19: Sunfire")
-          delay = GetTime()
-          opninet = true
-          return
-        end
+      -- elseif not opeleven and opten and canCast(_moonfire) then
+      --   if delay == nil or delay <= GetTime() - GCD then
+      --     CastSpellByName(tostring(GetSpellInfo(8921)),"target")
+      --     print("|cffFF7D0A11: Moonfire")
+      --     delay = GetTime()
+      --     opeleven = true
+      --     return
+      --   end
+      -- elseif not optwelve and opeleven and canCast(_starfire) then
+      --   if UnitPower("player",8) < 0 then
+      --     CastSpellByName(tostring(GetSpellInfo(2912)),"target")
+      --   elseif (UnitPower("player",8) < 0 and eclipseChangeTimer() < starfirect) or UnitPower("player",8) > 0 then
+      --     if delay == nil or delay <= GetTime() - starfirect then
+      --       CastSpellByName(tostring(GetSpellInfo(2912)),"target")
+      --       print("|cffFF7D0A12: Starfire")
+      --       delay = GetTime()
+      --       optwelve = true
+      --       return
+      --     end
+      --   end
+      -- elseif not opthirt and optwelve and getSunfireStatus() and canCast(8921) then
+      --   if delay == nil or delay <= GetTime() - GCD then
+      --     CastSpellByName(tostring(GetSpellInfo(8921)),"target")
+      --     print("|cffFF7D0A13: Sunfire")
+      --     delay = GetTime()
+      --     opthirt = true
+      --     return
+      --   end
+      -- elseif not opfourt and opthirt and canCast(_wrath) then
+      --   if delay == nil or delay <= GetTime() - wrathct then
+      --     CastSpellByName(tostring(GetSpellInfo(5176)),"target")
+      --     print("|cffFF7D0A14: Wrath")
+      --     delay = GetTime()
+      --     opfourt = true
+      --     return
+      --   end
+      -- elseif not opfift and opfourt and canCast(_starsurge) then
+      --   if delay == nil or delay <= GetTime() - GCD then
+      --     CastSpellByName(tostring(GetSpellInfo(78674)),"target")
+      --     print("|cffFF7D0A15: Starsurge")
+      --     delay = GetTime()
+      --     opfift = true
+      --     return
+      --   end
+      -- elseif not opsixt and opfift and canCast(_wrath) then
+      --   if delay == nil or delay <= GetTime() - wrathct then
+      --     CastSpellByName(tostring(GetSpellInfo(5176)),"target")
+      --     print("|cffFF7D0A16: Wrath")
+      --     delay = GetTime()
+      --     opsixt = true
+      --     return
+      --   end
+      -- elseif not opsevent and opsixt and canCast(_wrath) then
+      --   if delay == nil or delay <= GetTime() - wrathct then
+      --     CastSpellByName(tostring(GetSpellInfo(5176)),"target")
+      --     print("|cffFF7D0A17: Wrath")
+      --     delay = GetTime()
+      --     opsevent = true
+      --     return
+      --   end
+      -- elseif not opeightt and opsevent and canCast(_wrath) then
+      --   if UnitPower("player",8) < 0 then
+      --     CastSpellByName(tostring(GetSpellInfo(5176)),"target")
+      --   elseif (UnitPower("player",8) < 0 and eclipseChangeTimer() < starfirect) or UnitPower("player",8) > 0 then
+      --     if delay == nil or delay <= GetTime() - wrathct then
+      --       CastSpellByName(tostring(GetSpellInfo(5176)),"target")
+      --       print("|cffFF7D0A18: Wrath")
+      --       delay = GetTime()
+      --       opeightt = true
+      --       return
+      --     end
+      --   end
+      -- elseif not opninet and opeightt and getSunfireStatus() and canCast(8921) then
+      --   if delay == nil or delay <= GetTime() - GCD then
+      --     CastSpellByName(tostring(GetSpellInfo(8921)),"target")
+      --     print("|cffFF7D0A19: Sunfire")
+      --     delay = GetTime()
+      --     opninet = true
+      --     return
+      --   end
       end
 
       if opone and optwo and opthree and opfour and opfive
-      and opsix and opseven and opeight and opnine and opten
-      and opeleven and optwelve and opthirt and opfourt and opfift
-      and opsixt and opsevent and opeightt and opninet then
+      and opsix and opseven and opeight and opnine and opten then
+      -- and opeleven and optwelve and opthirt and opfourt and opfift
+      -- and opsixt and opsevent and opeightt and opninet
         SetCVar("startopener", 0 )
         SetCVar("resetopener", 1 )
         openerstarted = false
