@@ -187,7 +187,7 @@ if select(3, UnitClass("player")) == 5 then
 				if castSpell("target",MB,false,false) then return; end
 			end
 
-			if getBuffRemain("player",InsanityBuff)<=0 then
+			--if getBuffRemain("player",InsanityBuff)<=0 then
 
 				-- Trinket 1
 				if options.isChecked.Trinket1 and options.buttons.Cooldowns == 2 and canTrinket(13) then
@@ -199,22 +199,22 @@ if select(3, UnitClass("player")) == 5 then
 					RunMacroText("/use 14")
 				end
 
-				-- Halo
-				if isKnown(Halo) and options.buttons.Halo == 2 then
-					if getDistance("player","target")<=30 and getDistance("player","target")>=17 then
-						if castSpell("player",Halo,true,false) then return; end
-					end
-				end
+				-- -- Halo
+				-- if isKnown(Halo) and options.buttons.Halo == 2 then
+				-- 	if getDistance("player","target")<=30 and getDistance("player","target")>=17 then
+				-- 		if castSpell("player",Halo,true,false) then return; end
+				-- 	end
+				-- end
 
-				-- Mindbender
-				if isKnown(Mindbender) and options.buttons.Cooldowns == 2 and options.isChecked.Mindbender then
-					if castSpell("target",Mindbender) then return; end
-				end
+				-- -- Mindbender
+				-- if isKnown(Mindbender) and options.buttons.Cooldowns == 2 and options.isChecked.Mindbender then
+				-- 	if castSpell("target",Mindbender) then return; end
+				-- end
 
-				-- Shadowfiend
-				if isKnown(SF) and options.buttons.Cooldowns == 2 and options.isChecked.Shadowfiend then
-					if castSpell("target",SF,true,false) then return; end
-				end
+				-- -- Shadowfiend
+				-- if isKnown(SF) and options.buttons.Cooldowns == 2 and options.isChecked.Shadowfiend then
+				-- 	if castSpell("target",SF,true,false) then return; end
+				-- end
 
 				-- -- Power Infusion
 				-- if isKnown(PI) and options.buttons.Cooldowns == 2 and isChecked("Power Infusion") then
@@ -227,6 +227,25 @@ if select(3, UnitClass("player")) == 5 then
 					if castSpell("player",Berserking,true,false) then return; end
 				end
 				--end
+			--end
+		end
+
+		function ShadowCooldownsSmall(options)
+			-- Halo
+			if isKnown(Halo) and options.buttons.Halo == 2 then
+				if getDistance("player","target")<=30 and getDistance("player","target")>=17 then
+					if castSpell("player",Halo,true,false) then return; end
+				end
+			end
+
+			-- Mindbender
+			if isKnown(Mindbender) and options.buttons.Cooldowns == 2 and options.isChecked.Mindbender then
+				if castSpell("target",Mindbender) then return; end
+			end
+
+			-- Shadowfiend
+			if isKnown(SF) and options.buttons.Cooldowns == 2 and options.isChecked.Shadowfiend then
+				if castSpell("target",SF,true,false) then return; end
 			end
 		end
 	--[[                    ]] -- Cooldowns end
@@ -546,6 +565,9 @@ if select(3, UnitClass("player")) == 5 then
 					-- MB on CD
 					if castSpell("target",MB,false,false) then return; end
 
+					-- Halo, Shadowfiend, Mindbender
+					ShadowCooldownsSmall(options)
+
 					-- SWP
 					if options.buttons.DoT==2 or options.buttons.DoT==4 then 
 						throwSWP(options,false)
@@ -632,6 +654,9 @@ if select(3, UnitClass("player")) == 5 then
 			end
 		end
 
+		-- Halo, Shadowfiend, Mindbender
+		ShadowCooldownsSmall(options)
+
 		-- SWP refresh
 		refreshSWP(options,true)
 
@@ -688,6 +713,9 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- MB on CD
 		if castSpell("target",MB,false,true) then return; end
+
+		-- Halo, Shadowfiend, Mindbender
+		ShadowCooldownsSmall(options)
 
 		-- SWP on MaxTargets
 		throwSWP(options,true)
