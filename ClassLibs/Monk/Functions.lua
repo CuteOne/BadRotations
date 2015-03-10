@@ -72,7 +72,7 @@ if select(3,UnitClass("player")) == 10 then
   end
 
   function useCDsBrM()
-    if (BadBoy_data['Cooldowns'] == 1 and (isBoss("target") or isDummy("target"))) or BadBoy_data['Cooldowns'] == 2 then
+    if (BadBoy_data['Cooldowns'] == 1 and (isBoss() or isDummy("target"))) or BadBoy_data['Cooldowns'] == 2 then
       return true
     else
       return false

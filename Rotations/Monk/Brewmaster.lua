@@ -280,11 +280,13 @@ if select(3,UnitClass("player")) == 10 then
       --actions+=/touch_of_death,if=target.health.percent<10&cooldown.touch_of_death.remains=0&
       --((!glyph.touch_of_death.enabled&chi>=3&target.time_to_die<8)|
       --(glyph.touch_of_death.enabled&target.time_to_die<5))
-      if tarHP < 10 and
-      ((not ToDglyph and chi >= 3 and ttd < 8) or
-      (ToDglyph and ttd < 5)) then
-        if castSpell("target",_TouchOfDeath,false,false) then
-          return
+      if isBoss() then
+        if tarHP < 10 and
+        ((not ToDglyph and chi >= 3 and ttd < 8) or
+        (ToDglyph and ttd < 5)) then
+          if castSpell("target",_TouchOfDeath,false,false) then
+            return
+          end
         end
       end
       ------------------------------------------------------------------------------------------------------
