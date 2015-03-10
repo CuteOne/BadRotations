@@ -104,6 +104,7 @@ if select(3, UnitClass("player")) == 5 then
 				-- BossVT =			isChecked("Boss VT"),
 				MindSear =			isChecked("MS Targets"),
 				DPmode = 			isChecked("DP mode"),
+				MSinsanity = 		isChecked("MSinsanity Key"),
 				-- Encounter Specific
 				TwinStyle = 		isChecked("Ogron Focus Style"),  -- DP on Focus, DPonFocus
 				-- Utilities
@@ -294,13 +295,19 @@ if select(3, UnitClass("player")) == 5 then
 			-- Do not Interrupt "player" while GCD (61304)
 			if getSpellCD(61304) > 0 then return false;	end
 
+			-- Do not Interrupt Searing Insanity
+			if UnitChannelInfo("player") == "Searing Insanity" then
+				if getSpellCD(MB)>0 then
+					return false
+				end
+			else 
+				SearingInsanity(options)
+			end
+
 			-- Execute
 			-- CoP
 			if getTalent(7,1) then ExecuteCoP(options) end
 			if getTalent(7,3) then ExecuteAS(options) end
-
-
-
 
 			--Execute(options)
 			LFOrbs(options)
