@@ -4,8 +4,8 @@ if select(3, UnitClass("player")) == 5 then
 		-- Halo Button
 		if HaloModesLoaded ~= "Shadow Priest Halo Modes" then
 			HaloModes = {
-				[1] = { mode = "off", value = 1 , overlay = "Halo Disabled", tip = "|cffFF0000Halo/Star/Cascade \n|cffFFDD11wont be used.", highlight = 0, icon = 120644 },
-				[2] = { mode = "on", value = 2 , overlay = "Halo Enabled", tip = "|cff00FF00Halo/Star/Cascade \n|cffFFDD11will be used.", highlight = 1, icon = 120644 }
+				[1] = { mode = "off", value = 1 , overlay = "Halo/Cascade Disabled", tip = "|cffFF0000Halo/Star/Cascade \n|cffFFDD11wont be used.", highlight = 0, icon = 120644 },
+				[2] = { mode = "on", value = 2 , overlay = "Halo/Cascade Enabled", tip = "|cff00FF00Halo/Star/Cascade \n|cffFFDD11will be used.", highlight = 1, icon = 120644 }
 			};
 			CreateButton("Halo",1,1)
 			HaloModesLoaded = "Shadow Priest Halo Modes";

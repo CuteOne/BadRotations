@@ -238,6 +238,13 @@ if select(3, UnitClass("player")) == 5 then
 				end
 			end
 
+			-- Cascade
+			if isKnown(Cascade) and options.buttons.Halo == 2 then
+				if getDistance("player","target")>=28 and getDistance("player","target")<=40 then
+					if castSpell("target",Cascade,true,false) then return; end
+				end
+			end
+
 			-- Mindbender
 			if isKnown(Mindbender) and options.buttons.Cooldowns == 2 and options.isChecked.Mindbender then
 				if castSpell("target",Mindbender) then return; end
