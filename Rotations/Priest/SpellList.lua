@@ -17,6 +17,7 @@ if select(3, UnitClass("player")) == 5 then
   MFI 	= 129197;	-- Mind Flay Insanity
   SF 		= 34433;	-- Shadowfiend
   MS 		= 48045;	-- Mind Sear
+  MSi   = 179338; -- Searing Insanity
   Silence	= 15487;	-- Silence
   ArcT	= 28730;	-- Arcane Torrent (BloodElv Racial)
   Rez		= 2006;		-- Resurrection

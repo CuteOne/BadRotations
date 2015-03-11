@@ -458,6 +458,33 @@ if select(3, UnitClass("player")) == 5 then
 		end
 	--[[                    ]] -- VT
 
+	--[[                    ]] -- Searing Insanity
+	function SearingInsanity(options)
+		if options.isChecked.MSinsanity then
+			if SpecificToggle("MSinsanity Key") then
+				-- Chat Overlay
+				ChatOverlay("Searing Insanity active")
+				-- MB CoP Insanity
+				if getTalent(7,1) and getTalent(3,3) then
+					if castSpell("target",MB,false,false) then return; end
+				end
+				-- DP
+				if options.player.ORBS>=3 then
+					if select(1,UnitChannelInfo("player")) ~= "Searing Insanity" then
+						if castSpell("target",DP,true,false) then return; end
+					end
+				end
+				-- Searing Insanity
+				if select(1,UnitChannelInfo("player")) ~= "Searing Insanity" then
+					if getBuffRemain("player",InsanityBuff)>0 then
+						if castSpell("target",MS,true,true) then return; end
+					end
+				end
+			end
+		end
+	end
+	--[[                    ]] -- Searing Insanity
+
 	--[[                    ]] -- Throw DP start
 		function ThrowDP()
 			-- Priorize Focus
@@ -537,7 +564,7 @@ if select(3, UnitClass("player")) == 5 then
 			-- Check for >= 3 Orbs
 			if options.player.ORBS>=3 then
 				-- Check for last DP
-				if GetTime()-lastDP<=options.player.DPTIME+2 then
+				if GetTime()-lastDP<=options.player.DPTIME+1 then
 					-- Check that Insanity isnt on me
 					--if getBuffRemain("player",InsanityBuff)<=0.3*options.player.DPTIME then
 					if getBuffRemain("player",InsanityBuff)<=0 then
@@ -562,11 +589,9 @@ if select(3, UnitClass("player")) == 5 then
 			if getBuffRemain("player",InsanityBuff)<=0 then
 				-- only collect Orbs if not channeling insanity atm
 				if not select(1,UnitChannelInfo("player")) ~= "Insanity" then
-					-- MB on CD
-					if castSpell("target",MB,false,false) then return; end
-
 					-- Halo, Shadowfiend, Mindbender
-					ShadowCooldownsSmall(options)
+					if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
+					if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
 
 					-- SWP
 					if options.buttons.DoT==2 or options.buttons.DoT==4 then 
@@ -655,7 +680,8 @@ if select(3, UnitClass("player")) == 5 then
 		end
 
 		-- Halo, Shadowfiend, Mindbender
-		ShadowCooldownsSmall(options)
+		if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
+		if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
 
 		-- SWP refresh
 		refreshSWP(options,true)
@@ -715,7 +741,8 @@ if select(3, UnitClass("player")) == 5 then
 		if castSpell("target",MB,false,true) then return; end
 
 		-- Halo, Shadowfiend, Mindbender
-		ShadowCooldownsSmall(options)
+		if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
+		if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
 
 		-- SWP on MaxTargets
 		throwSWP(options,true)

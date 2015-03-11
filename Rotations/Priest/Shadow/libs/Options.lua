@@ -186,13 +186,18 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewBox(thisConfig,"MS Targets", 1, 10, 1, 4, "Minimum count of enemies around target \nto use Mind Sear instead of Mind Spike. \nMin: 1 / Max: 10 / Interval: 1 \n|cffFF0000Standard: 6(SimCraft)")
 			CreateNewText(thisConfig,"MS Targets")
 
+			-- Mind Sear Key
+			CreateNewCheck(thisConfig,"MSinsanity Key", "Searing Insanity current target while pressing the key")
+			CreateNewDrop(thisConfig,"MSinsanity Key", 3, "Toggle2")
+			CreateNewText(thisConfig,"MSinsanity Key")
+
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"|cffBA55D3Utilities")
 
 			-- Pause Toggle
 			CreateNewCheck(thisConfig,"Pause Toggle")
-			CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
+			CreateNewDrop(thisConfig,"Pause Toggle", 10, "Toggle2")
 			CreateNewText(thisConfig,"Pause Toggle")
 
 			--Power Word: Fortitude
