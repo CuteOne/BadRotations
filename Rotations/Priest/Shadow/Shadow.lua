@@ -300,7 +300,7 @@ if select(3, UnitClass("player")) == 5 then
 				if getSpellCD(MB)>0 then
 					return false
 				end
-			else 
+			else
 				SearingInsanity(options)
 			end
 

@@ -478,13 +478,17 @@ if select(3, UnitClass("player")) == 5 then
 				-- DP
 				if options.player.ORBS>=3 then
 					if select(1,UnitChannelInfo("player")) ~= "Searing Insanity" then
-						if castSpell("target",DP,true,false) then return; end
+						if getBuffRemain("player",InsanityBuff)<=0 then
+							if castSpell("target",DP,true,false) then return; end
+						end
 					end
 				end
 				-- Searing Insanity
-				if select(1,UnitChannelInfo("player")) ~= "Searing Insanity" then
-					if getBuffRemain("player",InsanityBuff)>0 then
-						if castSpell("target",MS,true,true) then return; end
+				if getBuffRemain("player",InsanityBuff)>0 then
+					if select(1,UnitChannelInfo("player")) ~= "Searing Insanity" then
+						--if getBuffRemain("player",InsanityBuff)>0 then
+							if castSpell("target",MS,true,true) then return; end
+						--end
 					end
 				end
 			end
