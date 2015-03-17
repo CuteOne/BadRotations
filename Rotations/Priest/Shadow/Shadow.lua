@@ -67,7 +67,7 @@ if select(3, UnitClass("player")) == 5 then
 				Halo =		BadBoy_data['Halo'],
 				DoT =		BadBoy_data['DoT'],
 				--Single =	BadBoy_data['Single'],
-				Rotation =	BadBoy_data['Rotation'],
+				--Rotation =	BadBoy_data['Rotation'],
 				--Rotation =	1,
 				Cooldowns =	BadBoy_data['Cooldowns'],
 				Feather =	BadBoy_data['Feather'],
@@ -106,7 +106,7 @@ if select(3, UnitClass("player")) == 5 then
 				DPmode = 			isChecked("DP mode"),
 				MSinsanity = 		isChecked("MSinsanity Key"),
 				-- Encounter Specific
-				TwinStyle = 		isChecked("Ogron Focus Style"),  -- DP on Focus, DPonFocus
+				AutoGuise = 		isChecked("Auto Guise"),
 				-- Utilities
 				PWF = 				isChecked("PW: Fortitude"),
 				Shadowform =		isChecked("Shadowform Outfight"),
@@ -126,6 +126,7 @@ if select(3, UnitClass("player")) == 5 then
 				SWPRefresh = 		5.4,
 				MindSear = 			getValue("MS Targets"),
 				DPmode =			getValue("DP mode"),
+				DPon =				getValue("DP on Orbs"),
 				PushTime = 			getValue("Push Time"),
 			},
 			ASInsanity = {
@@ -268,6 +269,16 @@ if select(3, UnitClass("player")) == 5 then
 			----------------
 			ShadowDefensive(options)
 
+			-- Boss Specific
+				-- Auto Guise
+				if getTalent(1,2) then
+					if options.isChecked.AutoGuise then
+						if getDebuffRemain("player",PenetratingShot)>0 then
+							if castSpell("player",SpectralGuise,true,false) then return; end
+						end
+					end
+				end
+
 
 			----------------
 			-- Offensives --
@@ -281,28 +292,41 @@ if select(3, UnitClass("player")) == 5 then
 			-- if isCastingSpell(129197) and getSpellCD(MB)==0 then
 			-- 	if castSpell("target",MB,false,false) then return; end
 			-- end
+			
+			-- Do not Interrupt "player" while GCD (61304)
+			-- if getSpellCD(61304) > 0 then return false;	end
+			-- if UnitCastingInfo("player") ~= nil
+			-- 	--or UnitChannelInfo("player") ~= nil
+			-- 	or (GetSpellCooldown(61304) ~= nil and GetSpellCooldown(61304) > 0.001) then
+			-- 	return false
+			-- end
 
-
-
-			if UnitCastingInfo("player") ~= nil
-				--or UnitChannelInfo("player") ~= nil
-				or (GetSpellCooldown(61304) ~= nil and GetSpellCooldown(61304) > 0.001) then
+			print("TOP")
+			-- GCD Check
+			if select(2,GetSpellCooldown(61304))>0 then
+				print("On GCD, return to TOP")
 				return false
 			end
+			print("END")
 
-			-- if castingUnit() then return false; end
+			-- Some Spell specific checks for channels
+				-- Do not Interrupt Searing Insanity
+				if UnitChannelInfo("player") == "Searing Insanity" then
+					if getSpellCD(MB)>0 then
+						return false
+					end
+				else
+					SearingInsanity(options)
+				end
 
-			-- Do not Interrupt "player" while GCD (61304)
-			if getSpellCD(61304) > 0 then return false;	end
-
-			-- Do not Interrupt Searing Insanity
-			if UnitChannelInfo("player") == "Searing Insanity" then
-				if getSpellCD(MB)>0 then
+				-- 
+				if UnitChannelInfo("player") ~=nil and not select(1,UnitChannelInfo("player")) == "Mind Flay" then
 					return false
 				end
-			else
-				SearingInsanity(options)
-			end
+
+			-- if castingUnit() then return false; end
+			
+
 
 			-- Execute
 			-- CoP
