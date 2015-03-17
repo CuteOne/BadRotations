@@ -82,9 +82,10 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"|cffBA55D3Encounter Specific")
-			-- DP on Focus
-			CreateNewCheck(thisConfig,"Ogron Focus Style", "DP on Focus and no Insanity. \nTake PHEMOS in focus! \nMultidotting -> ALL")
-			CreateNewText(thisConfig,"Ogron Focus Style") --DP on Focus
+
+			-- Maidens Auto Guise
+			CreateNewCheck(thisConfig,"Auto Guise", "Auto Spectral Guise on: \nBRF: Iron Maidens")
+			CreateNewText(thisConfig,"Auto Guise")
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"|cffBA55D3Defensive")
@@ -142,7 +143,7 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewWrap(thisConfig,"|cffBA55D3Multitarget")
 
 			-- Sort EnemiesTable by HPabs
-			CreateNewCheck(thisConfig,"sortByHPabs")
+			CreateNewCheck(thisConfig,"sortByHPabs","Sort enemiesTable by descending health, so the highest absolute health unit will be dotted first.")
 			CreateNewText(thisConfig,"sortByHPabs")
 			
 			if getTalent(7,3) then
@@ -175,6 +176,12 @@ if select(3, UnitClass("player")) == 5 then
 			-- CreateNewCheck(thisConfig,"Max Targets");
 			CreateNewBox(thisConfig,"Max Targets", 1, 10, 1, 5, "Maximum count of SWP/VT on Units. \nMin: 1 / Max: 5 / Interval: 1 \n|cffFF0000Standard: 5(SimCraft)")
 			CreateNewText(thisConfig,"Max Targets")
+
+			-- Hold Orbs back
+			if getTalent(7,3) then
+				CreateNewBox(thisConfig,"DP on Orbs", 3, 4, 1, 4, "Start DP on 3 Orbs for faster DMG.\nStart DP on 4 Orb should improve Damage and uptime of Mental Instinct!")
+				CreateNewText(thisConfig,"DP on Orbs")
+			end
 
 			-- -- DoT Refresh
 			-- CreateNewBox(thisConfig,"Refresh Time", 0.0, 4.5, 0.1, 2.0, "Minimum time to refresh DoT.\nMin: 0 / Max: 4.5 / Interval: 0.1")

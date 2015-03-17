@@ -107,6 +107,25 @@ if select(3, UnitClass("player")) == 5 then
 		return true
 	end
 
+	function safeVT(datUnit)
+		local Blacklist = {
+			-- Blackrock Foundry
+			"Grasping Earth",
+		}
+		-- nil Protection
+		if datUnit == nil then 
+			return true
+		end
+		-- Iterate the blacklist
+		for i = 1, #Blacklist do
+			if UnitName(datUnit) == Blacklist[i] then
+				return false
+			end
+		end
+		-- unit is not in blacklist
+		return true
+	end
+
 	-- Units not to dotweave, just press damage
 	function noDoTWeave(datUnit)
 		local Blacklist = {
@@ -407,7 +426,7 @@ if select(3, UnitClass("player")) == 5 then
 						if safeDoT(thisUnit) then
 							if not UnitIsUnit("target",thisUnit) or targetAlso then
 							-- check remaining time and minhealth
-								if getDebuffRemain(thisUnit,SWP,"player")<=options.values.SWPRefresh and thisHP>options.values.MinHealth then
+								if getDebuffRemain(thisUnit,SWP,"player")<=0 and thisHP>options.values.MinHealth then
 									if castSpell(thisUnit,SWP,true,false) then return; end
 								end
 							end
@@ -429,11 +448,13 @@ if select(3, UnitClass("player")) == 5 then
 						local thisHP = enemiesTable[i].hpabs
 						-- check for target and safeDoT
 						if safeDoT(thisUnit) then
-							if not UnitIsUnit("target",thisUnit) or targetAlso then
-								if UnitDebuffID(thisUnit,VT,"player") then
-									-- check remaining time and minhealth
-									if getDebuffRemain(thisUnit,VT,"player")<=options.values.VTRefresh and thisHP>options.values.MinHealth then
-										if castSpell(thisUnit,VT,true,true) then return; end
+							if safeVT(thisUnit) then
+								if not UnitIsUnit("target",thisUnit) or targetAlso then
+									if UnitDebuffID(thisUnit,VT,"player") then
+										-- check remaining time and minhealth
+										if getDebuffRemain(thisUnit,VT,"player")<=options.values.VTRefresh and thisHP>options.values.MinHealth then
+											if castSpell(thisUnit,VT,true,true) then return; end
+										end
 									end
 								end
 							end
@@ -452,10 +473,12 @@ if select(3, UnitClass("player")) == 5 then
 						local thisHP = enemiesTable[i].hpabs
 						-- check for target and safeDoT
 						if safeDoT(thisUnit) then
-							if not UnitIsUnit("target",thisUnit) or targetAlso then
-								-- check remaining time and minhealth
-								if getDebuffRemain(thisUnit,VT,"player")<=options.values.VTRefresh and thisHP>options.values.MinHealth then
-									if castSpell(thisUnit,VT,true,true) then return; end
+							if safeVT(thisUnit) then
+								if not UnitIsUnit("target",thisUnit) or targetAlso then
+									-- check remaining time and minhealth
+									if getDebuffRemain(thisUnit,VT,"player")<=0 and thisHP>options.values.MinHealth then
+										if castSpell(thisUnit,VT,true,true) then return; end
+									end
 								end
 							end
 						end
@@ -498,12 +521,6 @@ if select(3, UnitClass("player")) == 5 then
 
 	--[[                    ]] -- Throw DP start
 		function ThrowDP()
-			-- Priorize Focus
-			-- if options.player.TwinStyle then
-			-- 	if UnitExists("focus") and not UnitIsDead("focus") then
-			-- 		if castSpell("focus",DP,true,false) then return; end
-			-- 	end
-			-- end
 			-- Throw DP on Highest HP unit
 			if enemiesTable==nil then return "ERROR: Table == nil" end
 
@@ -733,11 +750,44 @@ if select(3, UnitClass("player")) == 5 then
 
 	--[[                    ]] -- AS SoD start
 	function ASSoD(options)
+
+		-- DP: push or throw?
+		if options.isChecked.DPmode then
+			if options.player.ORBS==5 then
+				-- Push DP
+				if options.isChecked.DPmode==1 then
+					if getDebuffRemain("target",DP,"player")<=options.values.PushTime then
+						if castSpell("target",DP,true,false) then return; end
+					end
+				end
+				-- Throw DP
+				if options.isChecked.DPmode==2 then
+					ThrowDP()
+				end
+			end
+		end
+
+		-- DP on 5 Orbs
+		if options.player.ORBS==5 then
+			if castSpell("target",DP,true,false) then return; end
+		end
+
+		-- Hold Back DP to improve 4 set uptime
+		if TierScan("T17")>=4 then
+			if options.player.ORBS>=options.values.DPon then
+				if getBuffRemain("player",MentalInstinct)<1.8*options.player.GCD then
+					if castSpell("target",DP,true,false) then return; end
+				end
+			end
+		end
+
 		-- DP on 3+ Orbs
-		if options.player.ORBS>=3 then
-			-- check for running DP
-			if getDebuffRemain("target",DP,"player")<=0.3*options.player.DPTIME then
-				if castSpell("target",DP,true,false) then return; end
+		if TierScan("T17")<4 then
+			if options.player.ORBS>=3 then
+				-- check for running DP
+				if getBuffRemain("player",InsanityBuff)<=0 then
+					if castSpell("target",DP,true,false) then return; end
+				end
 			end
 		end
 
