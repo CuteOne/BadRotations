@@ -301,13 +301,10 @@ if select(3, UnitClass("player")) == 5 then
 			-- 	return false
 			-- end
 
-			print("TOP")
 			-- GCD Check
 			if select(2,GetSpellCooldown(61304))>0 then
-				print("On GCD, return to TOP")
 				return false
 			end
-			print("END")
 
 			-- Some Spell specific checks for channels
 				-- Do not Interrupt Searing Insanity
