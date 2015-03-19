@@ -83,9 +83,21 @@ if select(3, UnitClass("player")) == 5 then
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"|cffBA55D3Encounter Specific")
 
-			-- Maidens Auto Guise
+			-- Auto Guise
 			CreateNewCheck(thisConfig,"Auto Guise", "Auto Spectral Guise on: \nBRF: Iron Maidens")
 			CreateNewText(thisConfig,"Auto Guise")
+
+			-- Auto Mass Dispel
+			CreateNewCheck(thisConfig,"Auto Mass Dispel", "Auto Mass Dispel on: \nBRF: Operator Thogar")
+			CreateNewText(thisConfig,"Auto Mass Dispel")
+
+			-- Auto Dispel
+			CreateNewCheck(thisConfig,"Auto Dispel", "Auto Dispel on: \nBRF: Blast Furnace")
+			CreateNewText(thisConfig,"Auto Dispel")
+
+			-- Auto Silence
+			CreateNewCheck(thisConfig,"Auto Silence", "Auto Silence on: \nBRF: Blast Furnace")
+			CreateNewText(thisConfig,"Auto Silence")
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"|cffBA55D3Defensive")
