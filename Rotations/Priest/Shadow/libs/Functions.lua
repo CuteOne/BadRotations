@@ -495,7 +495,7 @@ if select(3, UnitClass("player")) == 5 then
 				-- Chat Overlay
 				ChatOverlay("Searing Insanity active")
 				-- MB CoP Insanity
-				if getTalent(7,1) and getTalent(3,3) then
+				if getTalent(7,1) and getTalent(3,3) and options.player.ORBS<3 then
 					if castSpell("target",MB,false,false) then return; end
 				end
 				-- DP
@@ -504,6 +504,15 @@ if select(3, UnitClass("player")) == 5 then
 						if getBuffRemain("player",InsanityBuff)<=0 then
 							if castSpell("target",DP,true,false) then return; end
 						end
+					end
+				end
+				-- Clip it
+				if getBuffRemain("player",InsanityBuff)>0 and getBuffRemain("player",InsanityBuff)<options.player.GCD then
+					local cEnd = select(6,UnitChannelInfo("player"))
+					local cRem = cEnd - GetTime()*1000
+					-- Clip it
+					if cRem<500 then
+						if castSpell("target",MS,true,true) then return; end
 					end
 				end
 				-- Searing Insanity
@@ -518,6 +527,22 @@ if select(3, UnitClass("player")) == 5 then
 		end
 	end
 	--[[                    ]] -- Searing Insanity
+
+	--[[                    ]] -- Clip Insanity
+	function ClipInsanity(options)
+		if UnitChannelInfo("player") then
+			if getBuffRemain("player",InsanityBuff)>0 and getBuffRemain("player",InsanityBuff)<options.player.GCD then
+				local cEnd = select(6,UnitChannelInfo("player"))
+				local cRem = cEnd - GetTime()*1000
+				print(cRem)
+				-- Clip it
+				if cRem<500 then
+					if castSpell("target",MF,false,true) then return; end
+				end
+			end
+		end
+	end
+	--[[                    ]] -- Clip Insanity
 
 	--[[                    ]] -- Throw DP start
 		function ThrowDP()
@@ -590,14 +615,16 @@ if select(3, UnitClass("player")) == 5 then
 			end
 
 			-- Check for >= 3 Orbs
-			if options.player.ORBS>=3 then
-				-- Check for last DP
-				if GetTime()-lastDP<=options.player.DPTIME+1 then
-					-- Check that Insanity isnt on me
-					--if getBuffRemain("player",InsanityBuff)<=0.3*options.player.DPTIME then
-					if getBuffRemain("player",InsanityBuff)<=0 then
-						-- DP on target
-						if castSpell("target",DP,false,true) then return; end
+			if UnitChannelInfo("player")~="Insanity" or getSpellCD(MB)<=1.5 then
+				if options.player.ORBS>=3 then
+					-- Check for last DP
+					if GetTime()-lastDP<=options.player.DPTIME+2.2*options.player.GCD then
+						-- Check that Insanity isnt on me
+						--if getBuffRemain("player",InsanityBuff)<=0.3*options.player.DPTIME then
+						if getBuffRemain("player",InsanityBuff)<=0 then
+							-- DP on target
+							if castSpell("target",DP,false,true) then return; end
+						end
 					end
 				end
 			end
@@ -645,7 +672,7 @@ if select(3, UnitClass("player")) == 5 then
 					end
 
 					-- Mind Spike
-					if options.player.ORBS<5 then
+					if options.player.ORBS<5 and not (UnitChannelInfo("player")=="Insanity") then
 						if #getEnemies("target",10)<options.values.MindSear and options.isChecked.MindSear
 						or not options.isChecked.MindSear then
 							if castSpell("target",MSp,false,true) then return; end
@@ -686,35 +713,53 @@ if select(3, UnitClass("player")) == 5 then
 			end
 		end
 
+		-- DP on 5 Orbs
+		if options.player.ORBS==5 then
+			if castSpell("target",DP,true,false) then return; end
+		end
+
+		-- Hold Back DP to improve 4 set uptime
+		if TierScan("T17")>=4 then
+			if options.player.ORBS>=options.values.DPon 
+			or (getBuffRemain("player",MentalInstinct)<1.8*options.player.GCD and options.player.ORBS>=3) then
+				if getBuffRemain("player",MentalInstinct)<1.8*options.player.GCD then
+					if castSpell("target",DP,true,false) then return; end
+				end
+			end
+		end
+
 		-- DP on 3+ Orbs
-		if options.player.ORBS>=3 then
-			-- check for running DP
-			if getDebuffRemain("target",DP,"player")<=0.3*options.player.DPTIME then
-				if castSpell("target",DP,true,false) then return; end
+		if TierScan("T17")<4 then
+			if options.player.ORBS>=3 then
+				-- check for running DP
+				if getBuffRemain("player",InsanityBuff)<=0 then
+					if castSpell("target",DP,true,false) then return; end
+				end
 			end
 		end
 
 		-- MB on CD
 		if castSpell("target",MB,false,true) then return; end
 
-		-- SWP on MaxTargets
-		throwSWP(options,true)
+		if select(1,UnitChannelInfo("player")) ~= "Insanity" then
+			-- SWP on MaxTargets
+			throwSWP(options,true)
 
-		-- Insanity
-		if getBuffRemain("player",InsanityBuff)>0 then
-			if select(1,UnitChannelInfo("player")) == nil then
-				if castSpell("target",MF,false,true) then return; end
+			-- Insanity
+			if getBuffRemain("player",InsanityBuff)>0 then
+				if select(1,UnitChannelInfo("player")) == nil then
+					if castSpell("target",MF,false,true) then return; end
+				end
 			end
-		end
 
-		-- Halo, Shadowfiend, Mindbender
-		if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
-		if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
+			-- Halo, Shadowfiend, Mindbender
+			if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
+			if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
 
-		-- SWP refresh
-		refreshSWP(options,true)
+			-- SWP refresh
+			refreshSWP(options,true)
 
-		if select(1,UnitChannelInfo("player")) == nil then
+		
 			-- VT on target
 			if options.isChecked.VTonTarget then
 				if getDebuffRemain("target",VT,"player")<=options.values.VTRefresh and GetTime()-lastVT > 2*options.player.GCD then
@@ -774,7 +819,8 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- Hold Back DP to improve 4 set uptime
 		if TierScan("T17")>=4 then
-			if options.player.ORBS>=options.values.DPon then
+			if options.player.ORBS>=options.values.DPon 
+			or (getBuffRemain("player",MentalInstinct)<1.8*options.player.GCD and options.player.ORBS>=3) then
 				if getBuffRemain("player",MentalInstinct)<1.8*options.player.GCD then
 					if castSpell("target",DP,true,false) then return; end
 				end

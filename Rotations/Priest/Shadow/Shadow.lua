@@ -107,6 +107,9 @@ if select(3, UnitClass("player")) == 5 then
 				MSinsanity = 		isChecked("MSinsanity Key"),
 				-- Encounter Specific
 				AutoGuise = 		isChecked("Auto Guise"),
+				AutoMassDispel = 	isChecked("Auto Mass Dispel"),
+				AutoDispel = 		isChecked("Auto Dispel"),
+				AutoSilence = 		isChecked("Auto Silence"),
 				-- Utilities
 				PWF = 				isChecked("PW: Fortitude"),
 				Shadowform =		isChecked("Shadowform Outfight"),
@@ -214,8 +217,8 @@ if select(3, UnitClass("player")) == 5 then
 					--if options.isChecked.Feather and getGround("player") and IsMovingTime(0.2) and not UnitBuffID("player",AngelicFeatherBuff) then
 					--if useFeather==true and IsMovingTime(0.2) and not UnitBuffID("player",AngelicFeatherBuff) then
 					if castGround("player",AngelicFeather,30) then
-						SpellStopTargeting();
-						return;
+						SpellStopTargeting()
+						return
 					end
 				end
 			end
@@ -271,10 +274,57 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- Boss Specific
 				-- Auto Guise
+				--Iron Maidens
 				if getTalent(1,2) then
 					if options.isChecked.AutoGuise then
 						if getDebuffRemain("player",PenetratingShot)>0 then
 							if castSpell("player",SpectralGuise,true,false) then return; end
+						end
+					end
+				end
+				-- Mass Dispel
+				-- Operator Thogar
+				if options.isChecked.AutoMassDispel then
+					for i=1,#enemiesTable do
+						local thisUnit = enemiesTable[i].unit
+						if getSpellCD(MD)<=0 then
+							if getBuffRemain(thisUnit,160140)>0 then
+								if castGround(thisUnit,MD,30) then
+								SpellStopTargeting()
+								return
+								end
+							end
+						end
+					end
+				end
+				-- Dispel
+				-- Blast Furnace
+				if options.isChecked.AutoDispel then
+					for i=1,#enemiesTable do
+						local thisUnit = enemiesTable[i].unit
+						if getBuffRemain(thisUnit,155173)>0 then
+							if castSpell(thisUnit,DispM,true,false) then return; end
+						end
+					end
+				end
+				-- Silence
+				-- Blast Furnace
+				if options.isChecked.AutoSilence then
+					for i=1,#enemiesTable do
+						local thisUnit = enemiesTable[i].unit
+						if UnitCastingInfo(thisUnit) == "Repair" 
+						and UnitName(thisUnit) == "Furnace Engineer" then
+							local cRem = select(6,UnitCastingInfo(thisUnit)) - GetTime()*1000
+							if cRem <= 250 then
+								if getSpellCD(Silence)<=0 then
+									if castSpell(thisUnit,Silence,true,false) then return; end
+								end
+								if isKnown(ArcT) then
+									if getSpellCD(ArcT)<=0 and getDistance("player",thisUnit)<=8 then
+										if castSpell(thisUnit,ArcT,true,false) then return; end
+									end
+								end
+							end
 						end
 					end
 				end
@@ -343,7 +393,10 @@ if select(3, UnitClass("player")) == 5 then
 			-- Cop
 			if getTalent(7,1) then
 				-- Insanity
-				if getTalent(3,3) then CoPInsanity(options) end
+				if getTalent(3,3) then 
+					ClipInsanity(options)
+					CoPInsanity(options) 
+				end
 				-- SoD
 				if getTalent(3,1) then CoPSoD(options) end
 			end
@@ -351,7 +404,10 @@ if select(3, UnitClass("player")) == 5 then
 			-- AS
 			if getTalent(7,3) then
 				-- Insanity
-				if getTalent(3,3) then ASInsanity(options) end
+				if getTalent(3,3) then
+					ClipInsanity(options)
+					ASInsanity(options) 
+				end
 				-- SoD
 				if getTalent(3,1) then ASSoD(options) end
 			end
