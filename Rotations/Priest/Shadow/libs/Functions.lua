@@ -264,14 +264,17 @@ if select(3, UnitClass("player")) == 5 then
 				end
 			end
 
-			-- Mindbender
-			if isKnown(Mindbender) and options.buttons.Cooldowns == 2 and options.isChecked.Mindbender then
-				if castSpell("target",Mindbender) then return; end
-			end
+			if isBoss() and options.isChecked.isBoss
+			or not options.isChecked.isBoss then
+				-- Mindbender
+				if isKnown(Mindbender) and options.buttons.Cooldowns == 2 and options.isChecked.Mindbender then
+					if castSpell("target",Mindbender) then return; end
+				end
 
-			-- Shadowfiend
-			if isKnown(SF) and options.buttons.Cooldowns == 2 and options.isChecked.Shadowfiend then
-				if castSpell("target",SF,true,false) then return; end
+				-- Shadowfiend
+				if isKnown(SF) and options.buttons.Cooldowns == 2 and options.isChecked.Shadowfiend then
+					if castSpell("target",SF,true,false) then return; end
+				end
 			end
 		end
 	--[[                    ]] -- Cooldowns end
@@ -534,7 +537,6 @@ if select(3, UnitClass("player")) == 5 then
 			if getBuffRemain("player",InsanityBuff)>0 and getBuffRemain("player",InsanityBuff)<options.player.GCD then
 				local cEnd = select(6,UnitChannelInfo("player"))
 				local cRem = cEnd - GetTime()*1000
-				print(cRem)
 				-- Clip it
 				if cRem<500 then
 					if castSpell("target",MF,false,true) then return; end
@@ -645,8 +647,9 @@ if select(3, UnitClass("player")) == 5 then
 				-- only collect Orbs if not channeling insanity atm
 				if not select(1,UnitChannelInfo("player")) ~= "Insanity" then
 					-- Halo, Shadowfiend, Mindbender
-					if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
-					if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
+					ShadowCooldownsSmall(options)
+					--if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
+					--if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
 
 					-- SWP
 					if options.buttons.DoT==2 or options.buttons.DoT==4 then 
@@ -753,8 +756,9 @@ if select(3, UnitClass("player")) == 5 then
 			end
 
 			-- Halo, Shadowfiend, Mindbender
-			if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
-			if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
+			ShadowCooldownsSmall(options)
+			--if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
+			--if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
 
 			-- SWP refresh
 			refreshSWP(options,true)
@@ -848,8 +852,9 @@ if select(3, UnitClass("player")) == 5 then
 		if castSpell("target",MB,false,true) then return; end
 
 		-- Halo, Shadowfiend, Mindbender
-		if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
-		if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
+		ShadowCooldownsSmall(options)
+		--if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
+		--if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
 
 		-- SWP on MaxTargets
 		throwSWP(options,true)

@@ -299,6 +299,7 @@ if select(3, UnitClass("player")) == 5 then
 				end
 				-- Dispel
 				-- Blast Furnace
+				-- Reactive Earth Shield
 				if options.isChecked.AutoDispel then
 					for i=1,#enemiesTable do
 						local thisUnit = enemiesTable[i].unit
