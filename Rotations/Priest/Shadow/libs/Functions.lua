@@ -88,7 +88,7 @@ if select(3, UnitClass("player")) == 5 then
 	-- Units not to dot with DoTEmAll
 	function safeDoT(datUnit)
 		local Blacklist = {
-			-- Highmauk
+			-- Highmaul
 			"Volatile Anomaly",
 			-- Blackrock Foundry
 			"Pack Beast",
@@ -150,6 +150,68 @@ if select(3, UnitClass("player")) == 5 then
 					return  true
 				end
 			return false
+		end
+	end
+
+	-- Looking for Unit
+	-- not for use atm
+	function LFU2(datName,rangeCheck)
+		-- range Check: FALSE
+		if rangeCheck==nil or rangeCheck>0 then
+			if rangeCheck==nil then
+				-- 1) check
+				if UnitName("target")~=datName then
+					TargetUnit(datName)
+				end
+				-- 2) return
+				if UnitName("target")==datName then
+					return true
+				else
+					return false
+				end
+			-- range check: TRUE
+			elseif rangeCheck>0 then
+				-- 1) check and target
+				if UnitName("target")==datName and getDistance("player","target")<rangeCheck then
+					return false
+				elseif UnitName("target")~=datName and getDistance("player",datName)<=rangeCheck then
+					TargetUnit(datName)
+				end
+				-- 2) return
+				if UnitName("target")==datName then
+					return true
+				else
+					return false
+				end
+			else
+				return false
+			end
+		end
+		return false
+	end
+
+	-- Looking for Unit
+	function LFU(datName)
+		-- nil prevention
+		if datName==nil then 
+			return false 
+		end
+		-- target specified Unit
+		TargetUnit(datName)
+		-- check and return
+		if UnitName("target")==datName then
+			return true
+		else 
+			return false
+		end
+	end
+
+	-- Sort enemiesTable by distance
+	function sortByDistance()
+		if enemiesTable then
+			table.sort(enemiesTable, function(x,y)
+				return x.distance and y.distance and x.distance > y.distance or false
+			end)
 		end
 	end
 	--[[                    ]] -- General Functions end
@@ -355,6 +417,169 @@ if select(3, UnitClass("player")) == 5 then
 			end
 		end
 	--[[                    ]] -- Execute AS end
+
+	--[[                    ]] -- BossHelper start
+		function BossHelper()
+			-- Blackrock Foundry (T17)
+			if GetRealZoneText()=="Blackrock Foundry" then
+				-- Oregorger
+
+				-- Hans & Franz
+					if UnitName("boss1")=="Hans'gar" or UnitName("boss2")=="Hans'gar" or UnitName("boss1")=="Franzok" or UnitName("boss2")=="Franzok" then
+						-- Auto Target Franz if in range, else target Hans
+						if GetObjectExists("target")==false then 
+							if LFU("Hans'gar") then return; end
+						end
+						if GetObjectExists("target")==false then 
+							if LFU("Franzok") then return; end
+						end
+					end
+
+				-- Beastlord Darmac
+					if GetSubZoneText()=="Iron Assembly" then
+						-- Pack Beast - Cascade
+						if getTalent(6,1) then
+							if getSpellCD(Cascade)<=0 then
+								for i=1,#enemiesTable do
+									local thisUnit = enemiesTable[i].unit
+									if UnitName(thisUnit) == "Pack Beast" then
+										if getDistance("player",thisUnit)<40 then
+											if castSpell(thisUnit,Cascade,true,false) then return; end
+										end
+									end
+								end
+							end
+						end
+						-- target Beastlord Darmac
+						if GetObjectExists("target")==false then 
+							if LFU("Beastlord Darmac") then return; end
+						end
+						-- target Cruelfang
+						if GetObjectExists("target")==false then 
+							if LFU("Cruelfang") then return; end
+						end
+						-- target Dreadwing
+						if GetObjectExists("target")==false then 
+							if LFU("Dreadwing") then return; end
+						end
+						-- target Ironcrusher
+						if GetObjectExists("target")==false then 
+							if LFU("Ironcrusher") then return; end
+						end
+						-- target Faultine
+						if GetObjectExists("target")==false then 
+							if LFU("Faultine") then return; end
+						end
+					end
+					
+				-- Gruul
+					if UnitName("boss1")=="Gruul" and GetObjectExists("target")==false then
+						if LFU("Gruul") then return; end
+					end
+
+				-- Flamebender Ka'graz
+					-- Cascade Dogs
+					if UnitName("boss1")=="Flamebender Ka'graz" then
+						if getTalent(6,1) then
+							if getSpellCD(Cascade)<=0 then
+								-- sort enemiesTable by distance
+								sortByDistance()
+								-- Cascade farest dog
+								for i=1,#enemiesTable do
+									local thisUnit = enemiesTable[i].unit
+									if getDistance("player",thisUnit)<40 then
+										--if UnitName(thisUnit) == "Cinder Wolf" then
+											if castSpell(thisUnit,Cascade,true,false) then return; end
+										--end
+									end
+								end
+							end
+						end
+					end
+
+				-- Operator Thogar
+					if UnitName("boss1")=="Operator Thogar" then
+						-- target Grom'kar Man-at-Arms
+						if UnitName("target")~="Grom'kar Man-at-Arms" then
+							if LFU("Grom'kar Man-at-Arms") then return; end
+						end
+						-- target Iron Gunnery Sergeant / SWD, DP, MB
+						if UnitName("target")~="Iron Gunnery Sergeant" then
+							if LFU("Grom'kar Man-at-Arms") then
+								if getDistance("player","target")>=40 then
+									RunMacroText("/targetlasttarget")
+								end
+							end
+						end
+						-- Halo/Cascade Reinforcements
+						if (getSpellCD(Halo) and getTalent(6,3)) or (getSpellCD(Cascade) and getTalent(6,1)) then
+							-- sort enemiesTable by distance
+							sortByDistance()
+							for i=1,#enemiesTable do
+								local thisUnit = enemiesTable[i].unit
+								if getDistance("player",thisUnit)<40 then
+									if UnitName("Iron Raider") or UnitName("Iron Crack-Shot") then
+										if getTalent(6,1) then
+											if castSpell(thisUnit,Cascade,true,false) then return; end
+										end
+										if getTalent(6,3) then
+											if castSpell(thisUnit,Halo,true,false) then return; end
+										end
+									end
+								end
+							end
+						end
+					end
+
+				-- The Blast Furnace
+					if GetSubZoneText()=="Slagworks" then
+						if getTalent(6,1) then
+							if getSpellCD(Cascade)<=0 then
+								-- sort enemiesTable by distance
+								sortByDistance()
+								-- Cascade farest dog
+								for i=1,#enemiesTable do
+									local thisUnit = enemiesTable[i].unit
+									if getDistance("player",thisUnit)<40 then
+										--if UnitName(thisUnit) == "Cinder Wolf" then
+											if castSpell(thisUnit,Cascade,true,false) then return; end
+										--end
+									end
+								end
+							end
+						end
+					end
+
+				-- Kromog
+					if UnitName("boss1")=="Kromog" then
+						-- Cascade farest possible hand
+						if getSpellCD(Cascade)<=0 then
+							-- sort enemiesTable by distance
+							sortByDistance()
+							-- Cascade farest dog
+							for i=1,#enemiesTable do
+								local thisUnit = enemiesTable[i].unit
+								if getDistance("player",thisUnit)<40 then
+									if UnitName(thisUnit) == "Grasping Earth" then
+										if castSpell(thisUnit,Cascade,true,false) then return; end
+									end
+								end
+							end
+						end
+					end
+
+				-- The Iron Maidens
+					if UnitName("boss1")=="Marak the Blooded" or UnitName("boss1")=="Enforcer Sorka" or UnitName("boss1")=="Admiral Gar'an" then
+						-- Automatic Target Dominator Turret
+						if UnitName("target")~="Dominator Turret" then
+							if LFU("Dominator Turret") then return; end
+						end
+					end
+
+				-- Blackhand
+			end
+		end
+	--[[                    ]] -- BossHelper end
 
 	--[[                    ]] -- LF Orbs start
 		function LFOrbs(options)
@@ -790,8 +1015,10 @@ if select(3, UnitClass("player")) == 5 then
 			-- end
 
 			-- Insanity / MF
-			if select(1,UnitChannelInfo("player")) == nil then
-				if castSpell("target",MF,false,true) then return; end
+			if getSpellCD(MB)>0.5 then
+				if select(1,UnitChannelInfo("player")) == nil then
+					if castSpell("target",MF,false,true) then return; end
+				end
 			end
 		end
 	end
@@ -823,11 +1050,20 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- Hold Back DP to improve 4 set uptime
 		if TierScan("T17")>=4 then
-			if options.player.ORBS>=options.values.DPon 
+			if options.player.ORBS>=options.values.DPon
 			or (getBuffRemain("player",MentalInstinct)<1.8*options.player.GCD and options.player.ORBS>=3) then
 				if getBuffRemain("player",MentalInstinct)<1.8*options.player.GCD then
 					if castSpell("target",DP,true,false) then return; end
 				end
+			end
+		end
+
+		-- DP on 3+ Orbs
+		if TierScan("T17")>=4 then
+			-- check for options
+			if options.player.ORBS>=options.values.DPon then
+				-- DP
+				if castSpell("target",DP,true,false) then return; end
 			end
 		end
 
