@@ -63,14 +63,15 @@ if select(3, UnitClass("player")) == 5 then
 				},
 			-- Buttons
 			buttons = {
-				Defensive =	BadBoy_data['Defensive'],
-				Halo =		BadBoy_data['Halo'],
-				DoT =		BadBoy_data['DoT'],
-				--Single =	BadBoy_data['Single'],
+				Defensive =		BadBoy_data['Defensive'],
+				Halo =			BadBoy_data['Halo'],
+				DoT =			BadBoy_data['DoT'],
+				--Single =		BadBoy_data['Single'],
 				--Rotation =	BadBoy_data['Rotation'],
 				--Rotation =	1,
-				Cooldowns =	BadBoy_data['Cooldowns'],
-				Feather =	BadBoy_data['Feather'],
+				Cooldowns =		BadBoy_data['Cooldowns'],
+				Feather =		BadBoy_data['Feather'],
+				BossHelper = 	BadBoy_data['BossHelper'],
 			},
 			-- isChecked
 			isChecked = {
@@ -374,14 +375,16 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- if castingUnit() then return false; end
 			
-
+			-- Special Boss Mechanics
+			if options.buttons.BossHelper then
+				BossHelper()
+			end
 
 			-- Execute
 			-- CoP
 			if getTalent(7,1) then ExecuteCoP(options) end
 			if getTalent(7,3) then ExecuteAS(options) end
 
-			--Execute(options)
 			LFOrbs(options)
 			LFToF(options)
 
