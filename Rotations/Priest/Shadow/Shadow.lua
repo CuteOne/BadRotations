@@ -257,17 +257,6 @@ if select(3, UnitClass("player")) == 5 then
 				end
 			end
 
-			for i=1,#nNova do
-							local thisUnit = nNova[i].unit
-							-- Burning Cinders (162498)
-							if getDebuffRemain(thisUnit,6788)>0 then
-								if castGround(thisUnit,MD,30) then
-									SpellStopTargeting()
-									return
-								end
-							end
-						end
-
 		---------------
 		-- IN COMBAT --
 		---------------
@@ -343,7 +332,7 @@ if select(3, UnitClass("player")) == 5 then
 						for i=1,#nNova do
 							local thisUnit = nNova[i].unit
 							-- Burning Cinders (162498)
-							if getDebuffRemain(thisUnit,6788)>0 then
+							if getDebuffRemain(thisUnit,162498)>0 then
 								if castGround(thisUnit,MD,30) then
 									SpellStopTargeting()
 									return
