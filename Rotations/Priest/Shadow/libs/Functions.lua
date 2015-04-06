@@ -216,6 +216,22 @@ if select(3, UnitClass("player")) == 5 then
 	end
 	--[[                    ]] -- General Functions end
 
+	--[[                    ]] -- Drawing Functions start
+		function CascadeCircle()
+			-- player position
+			local playerX, playerY, playerZ = ObjectPosition("player")
+
+			-- Sync drawing
+			LibDraw.Sync(function()
+			-- Do your drawing here!
+				-- Cascade max range
+				if getSpellCD(Cascade)<=5 then
+					LibDraw.Circle(playerX, playerY, playerZ, 40)
+				end
+			end) 
+		end
+	--[[                    ]] -- Drawing Functions end
+
 	--[[                    ]] -- Defensives
 		function ShadowDefensive(options)
 			-- Dispersion
@@ -322,6 +338,7 @@ if select(3, UnitClass("player")) == 5 then
 			-- Cascade
 			if isKnown(Cascade) and options.buttons.Halo == 2 then
 				if getDistance("player","target")>=28 and getDistance("player","target")<=40 then
+					print("---------- LINE 325")
 					if castSpell("target",Cascade,true,false) then return; end
 				end
 			end
@@ -420,6 +437,10 @@ if select(3, UnitClass("player")) == 5 then
 
 	--[[                    ]] -- BossHelper start
 		function BossHelper()
+			-- testing: delay cause performance
+			if enemiesTable == nil or BossHelperTimer == nil or BossHelperTimer <= GetTime() - 1 then
+			BossHelperTimer = GetTime()
+
 			-- Blackrock Foundry (T17)
 			if GetRealZoneText()=="Blackrock Foundry" then
 				-- Oregorger
@@ -437,38 +458,40 @@ if select(3, UnitClass("player")) == 5 then
 
 				-- Beastlord Darmac
 					if GetSubZoneText()=="Iron Assembly" then
-						-- Pack Beast - Cascade
-						if getTalent(6,1) then
-							if getSpellCD(Cascade)<=0 then
-								for i=1,#enemiesTable do
-									local thisUnit = enemiesTable[i].unit
-									if UnitName(thisUnit) == "Pack Beast" then
-										if getDistance("player",thisUnit)<40 then
-											if castSpell(thisUnit,Cascade,true,false) then return; end
+						if UnitName("boss1")=="Beastlord Darmac" or UnitName("boss1")=="Cruelfang" or UnitName("boss1")=="Dreadwing" or UnitName("boss1")=="Ironcrusher" or UnitName("boss1")=="Faultine" then
+							-- Pack Beast - Cascade
+							if getTalent(6,1) then
+								if getSpellCD(Cascade)<=0 then
+									for i=1,#enemiesTable do
+										local thisUnit = enemiesTable[i].unit
+										if UnitName(thisUnit) == "Pack Beast" then
+											if getDistance("player",thisUnit)<40 then
+												if castSpell(thisUnit,Cascade,true,false) then return; end
+											end
 										end
 									end
 								end
 							end
-						end
-						-- target Beastlord Darmac
-						if GetObjectExists("target")==false then 
-							if LFU("Beastlord Darmac") then return; end
-						end
-						-- target Cruelfang
-						if GetObjectExists("target")==false then 
-							if LFU("Cruelfang") then return; end
-						end
-						-- target Dreadwing
-						if GetObjectExists("target")==false then 
-							if LFU("Dreadwing") then return; end
-						end
-						-- target Ironcrusher
-						if GetObjectExists("target")==false then 
-							if LFU("Ironcrusher") then return; end
-						end
-						-- target Faultine
-						if GetObjectExists("target")==false then 
-							if LFU("Faultine") then return; end
+							-- target Beastlord Darmac
+							if GetObjectExists("target")==false then 
+								if LFU("Beastlord Darmac") then return; end
+							end
+							-- target Cruelfang
+							if GetObjectExists("target")==false then 
+								if LFU("Cruelfang") then return; end
+							end
+							-- target Dreadwing
+							if GetObjectExists("target")==false then 
+								if LFU("Dreadwing") then return; end
+							end
+							-- target Ironcrusher
+							if GetObjectExists("target")==false then 
+								if LFU("Ironcrusher") then return; end
+							end
+							-- target Faultine
+							if GetObjectExists("target")==false then 
+								if LFU("Faultine") then return; end
+							end
 						end
 					end
 					
@@ -532,18 +555,20 @@ if select(3, UnitClass("player")) == 5 then
 					end
 
 				-- The Blast Furnace
-					if GetSubZoneText()=="Slagworks" then
-						if getTalent(6,1) then
-							if getSpellCD(Cascade)<=0 then
-								-- sort enemiesTable by distance
-								sortByDistance()
-								-- Cascade farest dog
-								for i=1,#enemiesTable do
-									local thisUnit = enemiesTable[i].unit
-									if getDistance("player",thisUnit)<40 then
-										--if UnitName(thisUnit) == "Cinder Wolf" then
-											if castSpell(thisUnit,Cascade,true,false) then return; end
-										--end
+					if UnitName("boss1")=="Heart of the Mountain" then
+						if GetSubZoneText()=="Slagworks" then
+							if getTalent(6,1) then
+								if getSpellCD(Cascade)<=0 then
+									-- sort enemiesTable by distance
+									sortByDistance()
+									-- Cascade farest dog
+									for i=1,#enemiesTable do
+										local thisUnit = enemiesTable[i].unit
+										if getDistance("player",thisUnit)<40 then
+											--if UnitName(thisUnit) == "Cinder Wolf" then
+												if castSpell(thisUnit,Cascade,true,false) then return; end
+											--end
+										end
 									end
 								end
 							end
