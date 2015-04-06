@@ -227,6 +227,10 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewCheck(thisConfig,"Shadowform Outfight")
 			CreateNewText(thisConfig,"Shadowform Outfight")
 
+			-- Farmer
+			CreateNewCheck(thisConfig,"Farmer","SWP on mouseover.")
+			CreateNewText(thisConfig,"Farmer")
+
 			-- -- Auto Rez
 			-- CreateNewCheck(thisConfig,"Auto Rez")
 			-- CreateNewText(thisConfig,"Auto Rez(TBD)")

@@ -551,19 +551,17 @@ if select(3, UnitClass("player")) == 5 then
 
 					-- The Blast Furnace
 						if currentBoss=="Heart of the Mountain" then
-							if GetSubZoneText()=="Slagworks" then
-								if getTalent(6,1) then
-									if getSpellCD(Cascade)<=0 then
-										-- sort enemiesTable by distance
-										sortByDistance()
-										-- Cascade farest dog
-										for i=1,#enemiesTable do
-											local thisUnit = enemiesTable[i].unit
-											if getDistance("player",thisUnit)<40 then
-												--if UnitName(thisUnit) == "Cinder Wolf" then
-													if castSpell(thisUnit,Cascade,true,false) then return; end
-												--end
-											end
+							if getTalent(6,1) then
+								if getSpellCD(Cascade)<=0 then
+									-- sort enemiesTable by distance
+									sortByDistance()
+									-- Cascade farest dog
+									for i=1,#enemiesTable do
+										local thisUnit = enemiesTable[i].unit
+										if getDistance("player",thisUnit)<40 then
+											--if UnitName(thisUnit) == "Cinder Wolf" then
+												if castSpell(thisUnit,Cascade,true,false) then return; end
+											--end
 										end
 									end
 								end
