@@ -207,7 +207,7 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- Boss detection
 				-- not infight - reset current boss
-				if UnitAffectingCombat("player")==nil then
+				if UnitAffectingCombat("player")==false then
 					currentBoss = nil
 				end
 

@@ -338,7 +338,6 @@ if select(3, UnitClass("player")) == 5 then
 			-- Cascade
 			if isKnown(Cascade) and options.buttons.Halo == 2 then
 				if getDistance("player","target")>=28 and getDistance("player","target")<=40 then
-					print("---------- LINE 325")
 					if castSpell("target",Cascade,true,false) then return; end
 				end
 			end
@@ -437,28 +436,25 @@ if select(3, UnitClass("player")) == 5 then
 
 	--[[                    ]] -- BossHelper start
 		function BossHelper()
-		-- testing: delay cause performance
-		if enemiesTable == nil or BossHelperTimer == nil or BossHelperTimer <= GetTime() - 1 then
-		BossHelperTimer = GetTime()
+			if currentBoss~=nil then
 
-			-- Blackrock Foundry (T17)
-			if GetRealZoneText()=="Blackrock Foundry" then
-				-- Oregorger
+				-- Blackrock Foundry (T17)
+				if GetRealZoneText()=="Blackrock Foundry" then
+					-- Oregorger
 
-				-- Hans & Franz
-					if UnitName("boss1")=="Hans'gar" or UnitName("boss2")=="Hans'gar" or UnitName("boss1")=="Franzok" or UnitName("boss2")=="Franzok" then
-						-- Auto Target Franz if in range, else target Hans
-						if GetObjectExists("target")==false then 
-							if LFU("Hans'gar") then return; end
+					-- Hans & Franz
+						if currentBoss=="Hans'gar" or currentBoss=="Franzok" then
+							-- Auto Target Franz if in range, else target Hans
+							if GetObjectExists("target")==false then 
+								if LFU("Hans'gar") then return; end
+							end
+							if GetObjectExists("target")==false then 
+								if LFU("Franzok") then return; end
+							end
 						end
-						if GetObjectExists("target")==false then 
-							if LFU("Franzok") then return; end
-						end
-					end
 
-				-- Beastlord Darmac
-					if GetSubZoneText()=="Iron Assembly" then
-						if UnitName("boss1")=="Beastlord Darmac" or UnitName("boss1")=="Cruelfang" or UnitName("boss1")=="Dreadwing" or UnitName("boss1")=="Ironcrusher" or UnitName("boss1")=="Faultine" then
+					-- Beastlord Darmac
+						if currentBoss=="Beastlord Darmac" or currentBoss=="Cruelfang" or currentBoss=="Dreadwing" or currentBoss=="Ironcrusher" or currentBoss=="Faultine" then
 							-- Pack Beast - Cascade
 							if getTalent(6,1) then
 								if getSpellCD(Cascade)<=0 then
@@ -493,70 +489,15 @@ if select(3, UnitClass("player")) == 5 then
 								if LFU("Faultine") then return; end
 							end
 						end
-					end
-					
-				-- Gruul
-					if UnitName("boss1")=="Gruul" and GetObjectExists("target")==false then
-						if LFU("Gruul") then return; end
-					end
+						
+					-- Gruul
+						if currentBoss=="Gruul" and GetObjectExists("target")==false then
+							if LFU("Gruul") then return; end
+						end
 
-				-- Flamebender Ka'graz
-					-- Cascade Dogs
-					if UnitName("boss1")=="Flamebender Ka'graz" then
-						if getTalent(6,1) then
-							if getSpellCD(Cascade)<=0 then
-								-- sort enemiesTable by distance
-								sortByDistance()
-								-- Cascade farest dog
-								for i=1,#enemiesTable do
-									local thisUnit = enemiesTable[i].unit
-									if getDistance("player",thisUnit)<40 then
-										--if UnitName(thisUnit) == "Cinder Wolf" then
-											if castSpell(thisUnit,Cascade,true,false) then return; end
-										--end
-									end
-								end
-							end
-						end
-					end
-
-				-- Operator Thogar
-					if UnitName("boss1")=="Operator Thogar" then
-						-- target Grom'kar Man-at-Arms
-						if UnitName("target")~="Grom'kar Man-at-Arms" then
-							if LFU("Grom'kar Man-at-Arms") then return; end
-						end
-						-- target Iron Gunnery Sergeant / SWD, DP, MB
-						if UnitName("target")~="Iron Gunnery Sergeant" then
-							if LFU("Grom'kar Man-at-Arms") then
-								if getDistance("player","target")>=40 then
-									RunMacroText("/targetlasttarget")
-								end
-							end
-						end
-						-- Halo/Cascade Reinforcements
-						if (getSpellCD(Halo) and getTalent(6,3)) or (getSpellCD(Cascade) and getTalent(6,1)) then
-							-- sort enemiesTable by distance
-							sortByDistance()
-							for i=1,#enemiesTable do
-								local thisUnit = enemiesTable[i].unit
-								if getDistance("player",thisUnit)<40 then
-									if UnitName("Iron Raider") or UnitName("Iron Crack-Shot") then
-										if getTalent(6,1) then
-											if castSpell(thisUnit,Cascade,true,false) then return; end
-										end
-										if getTalent(6,3) then
-											if castSpell(thisUnit,Halo,true,false) then return; end
-										end
-									end
-								end
-							end
-						end
-					end
-
-				-- The Blast Furnace
-					if UnitName("boss1")=="Heart of the Mountain" then
-						if GetSubZoneText()=="Slagworks" then
+					-- Flamebender Ka'graz
+						-- Cascade Dogs
+						if currentBoss=="Flamebender Ka'graz" then
 							if getTalent(6,1) then
 								if getSpellCD(Cascade)<=0 then
 									-- sort enemiesTable by distance
@@ -573,38 +514,97 @@ if select(3, UnitClass("player")) == 5 then
 								end
 							end
 						end
-					end
 
-				-- Kromog
-					if UnitName("boss1")=="Kromog" then
-						-- Cascade farest possible hand
-						if getSpellCD(Cascade)<=0 then
-							-- sort enemiesTable by distance
-							sortByDistance()
-							-- Cascade farest dog
-							for i=1,#enemiesTable do
-								local thisUnit = enemiesTable[i].unit
-								if getDistance("player",thisUnit)<40 then
-									if UnitName(thisUnit) == "Grasping Earth" then
-										if castSpell(thisUnit,Cascade,true,false) then return; end
+					-- Operator Thogar
+						if currentBoss=="Operator Thogar" then
+							-- target Grom'kar Man-at-Arms
+							if UnitName("target")~="Grom'kar Man-at-Arms" then
+								if LFU("Grom'kar Man-at-Arms") then return; end
+							end
+							-- target Iron Gunnery Sergeant / SWD, DP, MB
+							if UnitName("target")~="Iron Gunnery Sergeant" then
+								if LFU("Grom'kar Man-at-Arms") then
+									if getDistance("player","target")>=40 then
+										RunMacroText("/targetlasttarget")
+									end
+								end
+							end
+							-- Halo/Cascade Reinforcements
+							if (getSpellCD(Halo) and getTalent(6,3)) or (getSpellCD(Cascade) and getTalent(6,1)) then
+								-- sort enemiesTable by distance
+								sortByDistance()
+								for i=1,#enemiesTable do
+									local thisUnit = enemiesTable[i].unit
+									if getDistance("player",thisUnit)<40 then
+										if UnitName("Iron Raider") or UnitName("Iron Crack-Shot") then
+											if getTalent(6,1) then
+												if castSpell(thisUnit,Cascade,true,false) then return; end
+											end
+											if getTalent(6,3) then
+												if castSpell(thisUnit,Halo,true,false) then return; end
+											end
+										end
 									end
 								end
 							end
 						end
-					end
 
-				-- The Iron Maidens
-					if UnitName("boss1")=="Marak the Blooded" or UnitName("boss1")=="Enforcer Sorka" or UnitName("boss1")=="Admiral Gar'an" then
-						-- Automatic Target Dominator Turret
-						if UnitName("target")~="Dominator Turret" then
-							if LFU("Dominator Turret") then return; end
+					-- The Blast Furnace
+						if currentBoss=="Heart of the Mountain" then
+							if GetSubZoneText()=="Slagworks" then
+								if getTalent(6,1) then
+									if getSpellCD(Cascade)<=0 then
+										-- sort enemiesTable by distance
+										sortByDistance()
+										-- Cascade farest dog
+										for i=1,#enemiesTable do
+											local thisUnit = enemiesTable[i].unit
+											if getDistance("player",thisUnit)<40 then
+												--if UnitName(thisUnit) == "Cinder Wolf" then
+													if castSpell(thisUnit,Cascade,true,false) then return; end
+												--end
+											end
+										end
+									end
+								end
+							end
 						end
-					end
 
-				-- Blackhand
+					-- Kromog
+						if currentBoss=="Kromog" then
+							-- Cascade farest possible hand
+							if getSpellCD(Cascade)<=0 then
+								-- sort enemiesTable by distance
+								sortByDistance()
+								-- Cascade farest dog
+								for i=1,#enemiesTable do
+									local thisUnit = enemiesTable[i].unit
+									if getDistance("player",thisUnit)<40 then
+										if UnitName(thisUnit) == "Grasping Earth" then
+											if castSpell(thisUnit,Cascade,true,false) then return; end
+										end
+									end
+								end
+							end
+						end
+
+					-- The Iron Maidens
+						if currentBoss=="Marak the Blooded" or currentBoss=="Enforcer Sorka" or currentBoss=="Admiral Gar'an" then
+							-- Automatic Target Dominator Turret
+							if UnitName("target")~="Dominator Turret" then
+								if LFU("Dominator Turret") then return; end
+							end
+						end
+
+					-- Blackhand
+						if currentBoss=="Blackhand" then
+							if GetObjectExists("target")==false then
+								if LFU("Blackhand") then return; end
+							end
+						end
+				end
 			end
 		end
-	end
 	--[[                    ]] -- BossHelper end
 
 	--[[                    ]] -- LF Orbs start
