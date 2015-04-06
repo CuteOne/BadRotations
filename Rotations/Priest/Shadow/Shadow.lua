@@ -4,6 +4,8 @@ if select(3, UnitClass("player")) == 5 then
 		if currentConfig ~= "Shadow ragnar" then
 			ShadowConfig()
 			ShadowToggles()
+			-- Load LibDraw
+			LibDraw = LibStub("LibDraw-1.0")
 			currentConfig = "Shadow ragnar"
 		end
 		-- Head End
@@ -202,6 +204,18 @@ if select(3, UnitClass("player")) == 5 then
 			-- 		end
 			-- 	end
 			-- end
+
+			-- Boss detection
+				-- not infight - reset current boss
+				if UnitAffectingCombat("player")==nil then
+					currentBoss = nil
+				end
+
+				if UnitAffectingCombat("player") then
+					if currentBoss==nil then
+						currentBoss=UnitName("boss1")
+					end
+				end
 
 		---------------------------------------
 		-- Shadowform and AutoSpeed Selfbuff --

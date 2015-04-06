@@ -437,9 +437,9 @@ if select(3, UnitClass("player")) == 5 then
 
 	--[[                    ]] -- BossHelper start
 		function BossHelper()
-			-- testing: delay cause performance
-			if enemiesTable == nil or BossHelperTimer == nil or BossHelperTimer <= GetTime() - 1 then
-			BossHelperTimer = GetTime()
+		-- testing: delay cause performance
+		if enemiesTable == nil or BossHelperTimer == nil or BossHelperTimer <= GetTime() - 1 then
+		BossHelperTimer = GetTime()
 
 			-- Blackrock Foundry (T17)
 			if GetRealZoneText()=="Blackrock Foundry" then
@@ -604,6 +604,7 @@ if select(3, UnitClass("player")) == 5 then
 				-- Blackhand
 			end
 		end
+	end
 	--[[                    ]] -- BossHelper end
 
 	--[[                    ]] -- LF Orbs start
