@@ -4,6 +4,8 @@ if select(3, UnitClass("player")) == 5 then
 		if currentConfig ~= "Shadow ragnar" then
 			ShadowConfig()
 			ShadowToggles()
+			-- Load LibDraw
+			LibDraw = LibStub("LibDraw-1.0")
 			currentConfig = "Shadow ragnar"
 		end
 		-- Head End
@@ -116,6 +118,7 @@ if select(3, UnitClass("player")) == 5 then
 				Shadowform =		isChecked("Shadowform Outfight"),
 				Feather =			isChecked("Angelic Feather"),
 				BodyAndSoul = 		isChecked("Body And Soul"),
+				Farmer = 			isChecked("Farmer"),
 				},
 			-- Values
 			values = {
@@ -203,6 +206,18 @@ if select(3, UnitClass("player")) == 5 then
 			-- 	end
 			-- end
 
+			-- Boss detection
+				-- not infight - reset current boss
+				if UnitAffectingCombat("player")==false then
+					currentBoss = nil
+				end
+
+				if UnitAffectingCombat("player") then
+					if currentBoss==nil then
+						currentBoss=UnitName("boss1")
+					end
+				end
+
 		---------------------------------------
 		-- Shadowform and AutoSpeed Selfbuff --
 		---------------------------------------
@@ -229,6 +244,15 @@ if select(3, UnitClass("player")) == 5 then
 				if options.isChecked.BodyAndSoul then
 					if getGround("player") and IsMovingTime(0.75) and not UnitBuffID("player",PWS) and not UnitDebuffID("player",PWSDebuff) then
 						if castSpell("player",PWS,true,false) then return; end
+					end
+				end
+			end
+
+			-- Farmer
+			if options.isChecked.Farmer then
+				if GetObjectExists("mouseover") then
+					if getDebuffRemain("mouseover",SWP,"player")<=0 then
+						if castSpell("mouseover",SWP,true,false) then return; end
 					end
 				end
 			end
@@ -273,57 +297,80 @@ if select(3, UnitClass("player")) == 5 then
 			----------------
 			ShadowDefensive(options)
 
-			-- Boss Specific
+			-------------------
+			-- Boss Specific --
+			-------------------
 				-- Auto Guise
-				--Iron Maidens
 				if getTalent(1,2) then
 					if options.isChecked.AutoGuise then
-						if getDebuffRemain("player",PenetratingShot)>0 then
-							if castSpell("player",SpectralGuise,true,false) then return; end
+						-- Iron Maidens
+						if currentBoss=="Marak the Blooded" or currentBoss=="Enforcer Sorka" or currentBoss=="Admiral Gar'an" then
+							if getDebuffRemain("player",PenetratingShot)>0 then
+								if castSpell("player",SpectralGuise,true,false) then return; end
+							end
 						end
 					end
 				end
 				-- Mass Dispel
-				-- Operator Thogar
 				if options.isChecked.AutoMassDispel then
-					for i=1,#enemiesTable do
-						local thisUnit = enemiesTable[i].unit
-						if getSpellCD(MD)<=0 then
-							if getBuffRemain(thisUnit,160140)>0 then
+					-- Operator Thogar
+					if currentBoss=="Operator Thogar" then
+						for i=1,#enemiesTable do
+							local thisUnit = enemiesTable[i].unit
+							if getSpellCD(MD)<=0 then
+								if getBuffRemain(thisUnit,160140)>0 then
+									if castGround(thisUnit,MD,30) then
+									SpellStopTargeting()
+									return
+									end
+								end
+							end
+						end
+					end
+					-- Blackhand Mythic
+					if currentBoss=="Blackhand" then
+						for i=1,#nNova do
+							local thisUnit = nNova[i].unit
+							-- Burning Cinders (162498)
+							if getDebuffRemain(thisUnit,162498)>0 then
 								if castGround(thisUnit,MD,30) then
-								SpellStopTargeting()
-								return
+									SpellStopTargeting()
+									return
 								end
 							end
 						end
 					end
 				end
 				-- Dispel
-				-- Blast Furnace
-				-- Reactive Earth Shield
 				if options.isChecked.AutoDispel then
-					for i=1,#enemiesTable do
-						local thisUnit = enemiesTable[i].unit
-						if getBuffRemain(thisUnit,155173)>0 then
-							if castSpell(thisUnit,DispM,true,false) then return; end
+					-- Blast Furnace
+					if currentBoss=="Heart of the Mountain" then
+						-- Reactive Earth Shield
+						for i=1,#enemiesTable do
+							local thisUnit = enemiesTable[i].unit
+							if getBuffRemain(thisUnit,155173)>0 then
+								if castSpell(thisUnit,DispM,true,false) then return; end
+							end
 						end
 					end
 				end
 				-- Silence
-				-- Blast Furnace
 				if options.isChecked.AutoSilence then
-					for i=1,#enemiesTable do
-						local thisUnit = enemiesTable[i].unit
-						if UnitCastingInfo(thisUnit) == "Repair" 
-						and UnitName(thisUnit) == "Furnace Engineer" then
-							local cRem = select(6,UnitCastingInfo(thisUnit)) - GetTime()*1000
-							if cRem <= 250 then
-								if getSpellCD(Silence)<=0 then
-									if castSpell(thisUnit,Silence,true,false) then return; end
-								end
-								if isKnown(ArcT) then
-									if getSpellCD(ArcT)<=0 and getDistance("player",thisUnit)<=8 then
-										if castSpell(thisUnit,ArcT,true,false) then return; end
+					-- Blast Furnace
+					if currentBoss=="Heart of the Mountain" then
+						for i=1,#enemiesTable do
+							local thisUnit = enemiesTable[i].unit
+							if UnitCastingInfo(thisUnit) == "Repair" 
+							and UnitName(thisUnit) == "Furnace Engineer" then
+								local cRem = select(6,UnitCastingInfo(thisUnit)) - GetTime()*1000
+								if cRem <= 250 then
+									if getSpellCD(Silence)<=0 then
+										if castSpell(thisUnit,Silence,true,false) then return; end
+									end
+									if isKnown(ArcT) then
+										if getSpellCD(ArcT)<=0 and getDistance("player",thisUnit)<=8 then
+											if castSpell(thisUnit,ArcT,true,false) then return; end
+										end
 									end
 								end
 							end
