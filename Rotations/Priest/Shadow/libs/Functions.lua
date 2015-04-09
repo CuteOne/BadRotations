@@ -316,17 +316,22 @@ if select(3, UnitClass("player")) == 5 then
 						-- cascade
 						if getTalent(6,1) then
 							-- colors
+							--if getSpellCD(Cascade)<=25   and getSpellCD(Cascade)>10   then LibDraw.SetColor(255,   0,   0, 66) end
+							if getSpellCD(Cascade)<=7.5   and getSpellCD(Cascade)> 5   then LibDraw.SetColor(255, 140,   0, 100) end
 							if getSpellCD(Cascade)<= 5   and getSpellCD(Cascade)> 2.5 then LibDraw.SetColor(255, 255,   0, 100) end
 							if getSpellCD(Cascade)<= 2.5 and getSpellCD(Cascade)>=0   then LibDraw.SetColor(  0, 255,   0, 100) end
 							-- if getSpellCD(Cascade)==5 then LibDraw.SetColor(0, 255, 0, 66) end
 							-- draw
+							if getSpellCD(Cascade)<=7.5 then
 								LibDraw.Circle(playerX, playerY, playerZ, 40)
 							end
 						end
 						-- halo
 						if getTalent(6,3) then
 							-- colors
+							if getSpellCD(Halo)<=7.5 and getSpellCD(Halo)>2.5 then LibDraw.SetColor(192, 0, 0, 66) end
 							if getSpellCD(Halo)<=2.5 and getSpellCD(Halo)>0 then LibDraw.SetColor(255, 128, 0, 66) end
+							if getSpellCD(Halo)==0 then LibDraw.SetColor(0, 255, 0, 66) end
 							-- draw
 							if getSpellCD(Halo)<=5 then
 								LibDraw.Circle(playerX, playerY, playerZ, 25)
