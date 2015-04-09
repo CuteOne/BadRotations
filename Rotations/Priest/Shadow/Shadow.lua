@@ -423,7 +423,7 @@ if select(3, UnitClass("player")) == 5 then
 			-- if castingUnit() then return false; end
 			
 			-- Special Boss Mechanics
-			if options.buttons.BossHelper then
+			if options.buttons.BossHelper==2 then
 				BossHelper()
 			end
 
