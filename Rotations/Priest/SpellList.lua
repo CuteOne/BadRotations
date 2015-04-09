@@ -76,7 +76,7 @@ if select(3, UnitClass("player")) == 5 then
 	-- T60
 	VoidTendrils		= 108920;
 	PsychicScream		= 8122;
-	DominateMind		= 605;
+	MC					= 605;
 	-- T75
 	ToF					= 109142;
 	PI 					= 10060;

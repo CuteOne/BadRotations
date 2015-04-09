@@ -97,6 +97,10 @@ if select(3, UnitClass("player")) == 5 then
 		if datUnit == nil then 
 			return true 
 		end
+		-- BRF: Blast Furnace: Primal Elementalist: http://www.wowhead.com/spell=155176/damage-shield
+		if getBuffRemain(datUnit,155176) then
+			return false
+		end
 		-- Iterate the blacklist
 		for i = 1, #Blacklist do
 			if UnitName(datUnit) == Blacklist[i] then
@@ -214,22 +218,171 @@ if select(3, UnitClass("player")) == 5 then
 			end)
 		end
 	end
+
+	-- Blast Furnace
+		-- Furnace Engineer
+		function BlastFurnaceEngineer()
+			if enemiesTable then
+				for i=1,5,1 do
+					print("Try to MC Enigneer")
+				end
+				if UnitHealth("Heat Regulator")>100000 then
+					if getBuffRemain("player",MC)<=0 then
+						for i=1,#enemiesTable do
+							local thisUnit = enemiesTable[i].unit
+							-- check for engineer
+							if UnitName(thisUnit)=="Furnace Engineer" then
+								if getDistance("player",thisUnit)<=30 then
+									-- http://www.wowhead.com/spell=155170/infuriated - MC no more working
+									if UnitDebuffID(thisUnit,155170)==nil then
+										if castSpell(thisUnit,MC,true,true) then return; end
+									end
+								end
+							end
+						end
+					end
+				end
+			else
+				print("no enemiesTable")
+			end
+		end
+
+		-- Security Guard
+		function BlastFurnaceSecurityGuard()
+			if enemiesTable then
+				for i=1,5,1 do
+					print("Try to MC Security Guard")
+				end
+				if getBuffRemain("player",MC)<=0 then
+					for i=1,#enemiesTable do
+						local thisUnit = enemiesTable[i].unit
+						-- check for security guard
+						if UnitName(thisUnit)=="Security Guard" and isAlive(thisUnit) then
+							-- http://www.wowhead.com/spell=155170/infuriated - MC no more working
+							if UnitDebuffID(thisUnit,155170)==nil then
+								if castSpell(thisUnit,MC,true,true) then return; end
+							end
+						end
+					end
+				end
+				-- target Slag Elemental with http://www.wowhead.com/spell=176141/hardened-slag
+				if getBuffRemain("player",MC)>0 then
+					for i=1,#enemiesTable do
+						local thisUnit = enemiesTable[i].unit
+						-- check for Slag Elemental
+						if UnitName(thisUnit)=="Slag Elemental" and isAlive(thisUnit) then
+							-- http://www.wowhead.com/spell=176141/hardened-slag
+							if UnitBuffID(thisUnit,176141) then
+								if LFU("Slag Elemental") then return; end
+							end
+						end
+					end
+				end
+			else
+				print("no enemiesTable")
+			end
+		end
 	--[[                    ]] -- General Functions end
 
 	--[[                    ]] -- Drawing Functions start
-		function CascadeCircle()
-			-- player position
-			local playerX, playerY, playerZ = ObjectPosition("player")
+		function Drawing()
+			if LibDraw then
+				-- table wipe
+				-- if LibDraw.callbacks == nil then
+				-- 	LibDraw.callbacks = { }
+				-- else
+				-- 	table.wipe(LibDraw.callbacks)
+				-- end
 
-			-- Sync drawing
-			LibDraw.Sync(function()
-			-- Do your drawing here!
-				-- Cascade max range
-				if getSpellCD(Cascade)<=5 then
-					LibDraw.Circle(playerX, playerY, playerZ, 40)
-				end
-			end) 
+				LibDraw.Sync(function()
+					-- Set line width
+					LibDraw.SetWidth(2)
+					--LibDraw.helper = true
+					local playerX, playerY, playerZ = ObjectPosition("player")
+
+					--local red,green,blue,alpha = getValue("red"),getValue("green"),getValue("blue"),getValue("alpha")
+					--LibDraw.SetColor(red, green, blue, alpha)
+
+					-- Mind Control Distance Helper
+					-- if getBuffRemain("player",MC)>0 and GetObjectExists("pet") then
+					-- 	local targetX, targetY, targetZ = ObjectPosition("target")
+					-- 	local petX, petY, petZ = ObjectPosition("pet")
+					-- 	LibDraw.Text("D: "..math.floor(getDistance("player","pet"),2), "GameFontNormal", petX, petY, petZ + 4)
+					-- 	LibDraw.Text("R: "..math.floor(getBuffRemain("player",MC),2),"GameFontNormal",petX,petY,petZ+6)
+					-- end
+
+					-- T90
+					if isChecked("T90") then
+						-- cascade
+						if getTalent(6,1) then
+							-- colors
+							if getSpellCD(Cascade)<= 5   and getSpellCD(Cascade)> 2.5 then LibDraw.SetColor(255, 255,   0, 100) end
+							if getSpellCD(Cascade)<= 2.5 and getSpellCD(Cascade)>=0   then LibDraw.SetColor(  0, 255,   0, 100) end
+							-- if getSpellCD(Cascade)==5 then LibDraw.SetColor(0, 255, 0, 66) end
+							-- draw
+								LibDraw.Circle(playerX, playerY, playerZ, 40)
+							end
+						end
+						-- halo
+						if getTalent(6,3) then
+							-- colors
+							if getSpellCD(Halo)<=2.5 and getSpellCD(Halo)>0 then LibDraw.SetColor(255, 128, 0, 66) end
+							-- draw
+							if getSpellCD(Halo)<=5 then
+								LibDraw.Circle(playerX, playerY, playerZ, 25)
+							end
+						end
+					end
+
+					-- Line to target
+					if isChecked("Target Line") and GetObjectExists("target") then
+						local targetX, targetY, targetZ = ObjectPosition("target")
+						LibDraw.SetColor(82,255,0,66)
+
+						LibDraw.Line(playerX, playerY, playerZ, targetX, targetY, targetZ)
+					end
+
+					-- target circle
+					if isChecked("Target Circle") and GetObjectExists("target") then
+						local targetX, targetY, targetZ = ObjectPosition("target")
+						LibDraw.SetColor(82,255,0,66)
+						LibDraw.SetWidth(5)
+
+						LibDraw.Circle(targetX,targetY,targetZ,1.25)
+					end
+
+					-- BossHelper
+					if isChecked("BossHelper") then
+						if currentBoss=="Heart of the Mountain" then
+							for i=1,#enemiesTable do
+								local thisUnit = enemiesTable[i].unit
+								local uX,uY,uZ = ObjectPosition(thisUnit)
+								-- iteration
+								for i=1,#enemiesTable do
+									local thisUnit = enemiesTable[i].unit
+									-- check for Slag Elemental
+									if UnitName(thisUnit)=="Slag Elemental" and isAlive(thisUnit) then
+										-- http://www.wowhead.com/spell=176141/hardened-slag
+										if UnitBuffID(thisUnit,176141) then
+											-- Line
+											LibDraw.SetColor(255,0,255,100)
+											LibDraw.SetWidth(2)
+											LibDraw.Line(playerX, playerY, playerZ, uX, uY, uZ)
+											-- Circle
+											LibDraw.SetWidth(5)
+											LibDraw.Circle(uX,uY,uZ,1.25)
+										end
+									end
+								end
+							end
+						end
+					end
+
+				end)
+			end
 		end
+
+
 	--[[                    ]] -- Drawing Functions end
 
 	--[[                    ]] -- Defensives
@@ -246,12 +399,10 @@ if select(3, UnitClass("player")) == 5 then
 				end
 			end
 
-			-- Healthstone/HealPot
-			if isChecked("Healthstone") and getHP("player") <= getValue("Healthstone") and hasHealthPot() then
-				if canUse(5512) then
-					UseItemByName(tostring(select(1,GetItemInfo(5512))))
-				elseif canUse(healPot) then
-					UseItemByName(tostring(select(1,GetItemInfo(healPot))))
+			-- Healing Tonic
+			if isChecked("Healing Tonic") and getHP("player") <= getValue("HealingTonic") then
+				if canUse(109223) then
+					UseItemByName(tostring(select(1,GetItemInfo(109223))))
 				end
 			end
 
@@ -518,16 +669,12 @@ if select(3, UnitClass("player")) == 5 then
 					-- Operator Thogar
 						if currentBoss=="Operator Thogar" then
 							-- target Grom'kar Man-at-Arms
-							if UnitName("target")~="Grom'kar Man-at-Arms" and isAlive("Grom'kar Man-at-Arms") and getDistance("player","Grom'kar Man-at-Arms") then
+							if UnitName("target")~="Grom'kar Man-at-Arms" and isAlive("Grom'kar Man-at-Arms") and getDistance("Grom'kar Man-at-Arms")<=40 then
 								if LFU("Grom'kar Man-at-Arms") then return; end
 							end
 							-- target Iron Gunnery Sergeant / SWD, DP, MB
-							if UnitName("target")~="Iron Gunnery Sergeant" and isAlive("Iron Gunnery Sergeant") and getDistance("Iron Gunnery Sergeant") then
-								if LFU("Grom'kar Man-at-Arms") then
-									if getDistance("player","target")>=40 then
-										RunMacroText("/targetlasttarget")
-									end
-								end
+							if UnitName("target")~="Iron Gunnery Sergeant" and isAlive("Iron Gunnery Sergeant") and getDistance("Iron Gunnery Sergeant")<=40 then
+								if LFU("Grom'kar Man-at-Arms") then return; end
 							end
 							-- Halo/Cascade Reinforcements
 							if (getSpellCD(Halo) and getTalent(6,3)) or (getSpellCD(Cascade) and getTalent(6,1)) then
