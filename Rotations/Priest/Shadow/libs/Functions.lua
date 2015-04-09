@@ -98,7 +98,7 @@ if select(3, UnitClass("player")) == 5 then
 			return true 
 		end
 		-- BRF: Blast Furnace: Primal Elementalist: http://www.wowhead.com/spell=155176/damage-shield
-		if getBuffRemain(datUnit,155176) then
+		if getBuffRemain(datUnit,155176)>0 then
 			return false
 		end
 		-- Iterate the blacklist
