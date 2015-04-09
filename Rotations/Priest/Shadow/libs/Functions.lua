@@ -518,11 +518,11 @@ if select(3, UnitClass("player")) == 5 then
 					-- Operator Thogar
 						if currentBoss=="Operator Thogar" then
 							-- target Grom'kar Man-at-Arms
-							if UnitName("target")~="Grom'kar Man-at-Arms" then
+							if UnitName("target")~="Grom'kar Man-at-Arms" and isAlive("Grom'kar Man-at-Arms") and getDistance("player","Grom'kar Man-at-Arms") then
 								if LFU("Grom'kar Man-at-Arms") then return; end
 							end
 							-- target Iron Gunnery Sergeant / SWD, DP, MB
-							if UnitName("target")~="Iron Gunnery Sergeant" then
+							if UnitName("target")~="Iron Gunnery Sergeant" and isAlive("Iron Gunnery Sergeant") and getDistance("Iron Gunnery Sergeant") then
 								if LFU("Grom'kar Man-at-Arms") then
 									if getDistance("player","target")>=40 then
 										RunMacroText("/targetlasttarget")
