@@ -2,10 +2,14 @@ if select(3, UnitClass("player")) == 5 then
 	function PriestShadow()
 
 		if currentConfig ~= "Shadow ragnar" then
-			ShadowConfig()
-			ShadowToggles()
 			-- Load LibDraw
 			LibDraw = LibStub("LibDraw-1.0")
+			ShadowConfig()
+			ShadowToggles()
+			
+			
+			-- load my draws
+			Drawing()
 			currentConfig = "Shadow ragnar"
 		end
 		-- Head End
@@ -90,7 +94,7 @@ if select(3, UnitClass("player")) == 5 then
 				ThrowDP =			isChecked("ThrowDP"),
 				-- Defensive
 				Shield = 			isChecked("PW: Shield"),
-				Healthstone	= 		isChecked("Healthstone"),
+				HealingTonic = 		isChecked("Healing Tonic"),
 				DesperatePrayer = 	isChecked("Desperate Prayer"),
 				FadeGlyph =			isChecked("Fade Glyph"),
 				Dispersion =		isChecked("Dispersion"),
@@ -123,7 +127,7 @@ if select(3, UnitClass("player")) == 5 then
 			-- Values
 			values = {
 				PWShield = 			getValue("PW: Shield"),
-				Healthstone =		getValue("Healthstone"),
+				HealingTonic =		getValue("Healing Tonic"),
 				Dispersion	=		getValue("Dispersion"),
 				Glyph = 			getValue("Fade Glyph"),
 				MinHealth =			getValue("Min Health")*1000000,
@@ -140,6 +144,15 @@ if select(3, UnitClass("player")) == 5 then
 				VTAll =				false,
 			},
 		}
+
+
+
+
+		--------------
+		-- Drawings --
+		--------------
+		
+
 
 		-- correct twin ogrons options for SoD talent automatically
 		--if getTalent(3,1) then options.isChecked.TwinOgrons=true end
@@ -358,12 +371,31 @@ if select(3, UnitClass("player")) == 5 then
 				if options.isChecked.AutoSilence then
 					-- Blast Furnace
 					if currentBoss=="Heart of the Mountain" then
+						-- Furnace Engineer: Repair
 						for i=1,#enemiesTable do
 							local thisUnit = enemiesTable[i].unit
 							if UnitCastingInfo(thisUnit) == "Repair" 
 							and UnitName(thisUnit) == "Furnace Engineer" then
 								local cRem = select(6,UnitCastingInfo(thisUnit)) - GetTime()*1000
 								if cRem <= 250 then
+									if getSpellCD(Silence)<=0 then
+										if castSpell(thisUnit,Silence,true,false) then return; end
+									end
+									if isKnown(ArcT) then
+										if getSpellCD(ArcT)<=0 and getDistance("player",thisUnit)<=8 then
+											if castSpell(thisUnit,ArcT,true,false) then return; end
+										end
+									end
+								end
+							end
+						end
+						-- Firecaller: Cauterize Wounds
+						for i=1,#enemiesTable do
+							local thisUnit = enemiesTable[i].unit
+							if UnitCastingInfo(thisUnit) == "Cauterize Wounds" 
+							and UnitName(thisUnit) == "Firecaller" then
+								local cRem = select(6,UnitCastingInfo(thisUnit)) - GetTime()*1000
+								if cRem <= 1000 then
 									if getSpellCD(Silence)<=0 then
 										if castSpell(thisUnit,Silence,true,false) then return; end
 									end
@@ -423,9 +455,11 @@ if select(3, UnitClass("player")) == 5 then
 			-- if castingUnit() then return false; end
 			
 			-- Special Boss Mechanics
-			if options.buttons.BossHelper==2 then
+			if options.buttons.BossHelper == 2 then
 				BossHelper()
 			end
+
+			if getBuffRemain("player",MC,"player")>0 then return false end
 
 			-- Execute
 			-- CoP
