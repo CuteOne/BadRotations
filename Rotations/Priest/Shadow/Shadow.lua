@@ -3,7 +3,9 @@ if select(3, UnitClass("player")) == 5 then
 
 		if currentConfig ~= "Shadow ragnar" then
 			-- Load LibDraw
-			LibDraw = LibStub("LibDraw-1.0")
+			if select(1,IsAddOnLoaded("!LibDraw"))==true then
+				LibDraw = LibStub("LibDraw-1.0")
+			end
 			ShadowConfig()
 			ShadowToggles()
 			
