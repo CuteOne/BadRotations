@@ -212,40 +212,40 @@ if select(3, UnitClass("player")) == 5 then
 
 
 			-- Wrapper -----------------------------------------
-			if LibDraw then
-				CreateNewWrap(thisConfig,"|cffBA55D3Drawing")
-				-- -- r
-				-- CreateNewBox(thisConfig,"red", 0, 255, 5, 128, "red value")
-				-- CreateNewText(thisConfig,"red")
+			-- if LibDraw then
+			-- 	CreateNewWrap(thisConfig,"|cffBA55D3Drawing")
+			-- 	-- -- r
+			-- 	-- CreateNewBox(thisConfig,"red", 0, 255, 5, 128, "red value")
+			-- 	-- CreateNewText(thisConfig,"red")
 
-				-- -- g
-				-- CreateNewBox(thisConfig,"green", 0, 255, 5, 128, "green value")
-				-- CreateNewText(thisConfig,"green")
+			-- 	-- -- g
+			-- 	-- CreateNewBox(thisConfig,"green", 0, 255, 5, 128, "green value")
+			-- 	-- CreateNewText(thisConfig,"green")
 
-				-- -- b
-				-- CreateNewBox(thisConfig,"blue", 0, 255, 5, 128, "blue value")
-				-- CreateNewText(thisConfig,"blue")
+			-- 	-- -- b
+			-- 	-- CreateNewBox(thisConfig,"blue", 0, 255, 5, 128, "blue value")
+			-- 	-- CreateNewText(thisConfig,"blue")
 
-				-- -- a
-				-- CreateNewBox(thisConfig,"alpha", 0, 100, 5, 66, "alpha value")
-				-- CreateNewText(thisConfig,"alpha")
+			-- 	-- -- a
+			-- 	-- CreateNewBox(thisConfig,"alpha", 0, 100, 5, 66, "alpha value")
+			-- 	-- CreateNewText(thisConfig,"alpha")
 
-				-- BossHelper
-				CreateNewCheck(thisConfig,"BossHelper")
-				CreateNewText(thisConfig,"BossHelper")
+			-- 	-- BossHelper
+			-- 	CreateNewCheck(thisConfig,"BossHelper")
+			-- 	CreateNewText(thisConfig,"BossHelper")
 
-				-- T90
-				CreateNewCheck(thisConfig,"T90")
-				CreateNewText(thisConfig,"T90")
+			-- 	-- T90
+			-- 	CreateNewCheck(thisConfig,"T90")
+			-- 	CreateNewText(thisConfig,"T90")
 
-				-- Target Line
-				CreateNewCheck(thisConfig,"Target Line")
-				CreateNewText(thisConfig,"Target Line")
+			-- 	-- Target Line
+			-- 	CreateNewCheck(thisConfig,"Target Line")
+			-- 	CreateNewText(thisConfig,"Target Line")
 
-				-- Target Box
-				CreateNewCheck(thisConfig,"Target Circle")
-				CreateNewText(thisConfig,"Target Circle")
-			end
+			-- 	-- Target Box
+			-- 	CreateNewCheck(thisConfig,"Target Circle")
+			-- 	CreateNewText(thisConfig,"Target Circle")
+			-- end
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"|cffBA55D3Utilities")
@@ -292,6 +292,11 @@ if select(3, UnitClass("player")) == 5 then
 			-- Bubble Wand
 			CreateNewCheck(thisConfig,"Bubble")
 			CreateNewText(thisConfig,"Bubble")
+
+			-- Disable Combat
+			CreateNewCheck(thisConfig,"disable Combat")
+			CreateNewText(thisConfig,"disable Combat")
+			
 
 
 			-- General Configs ---------------------------------
