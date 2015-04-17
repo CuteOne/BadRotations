@@ -3,15 +3,15 @@ if select(3, UnitClass("player")) == 5 then
 
 		if currentConfig ~= "Shadow ragnar" then
 			-- Load LibDraw
-			if select(1,IsAddOnLoaded("!LibDraw"))==true then
-				LibDraw = LibStub("LibDraw-1.0")
-			end
+			-- if select(1,IsAddOnLoaded("!LibDraw"))==true then
+			-- 	LibDraw = LibStub("LibDraw-1.0")
+			-- end
 			ShadowConfig()
 			ShadowToggles()
 			
 			
 			-- load my draws
-			Drawing()
+			--Drawing()
 			currentConfig = "Shadow ragnar"
 		end
 		-- Head End
@@ -307,6 +307,11 @@ if select(3, UnitClass("player")) == 5 then
 
 
 			--[[-----------------------------------------------------------------------------------------------------------------------------------------------]]
+
+
+			if isChecked("disable Combat")==nil then
+
+				
 			----------------
 			-- Defensives --
 			----------------
@@ -413,91 +418,99 @@ if select(3, UnitClass("player")) == 5 then
 				end
 
 
-			----------------
-			-- Offensives --
-			----------------
-			if options.isChecked.isBoss and isBoss() then ShadowCooldowns(options) end
-			if not options.isChecked.isBoss then ShadowCooldowns(options) end
 
-			-------------------
-			-- Single target --
-			-------------------
-			-- if isCastingSpell(129197) and getSpellCD(MB)==0 then
-			-- 	if castSpell("target",MB,false,false) then return; end
-			-- end
 			
-			-- Do not Interrupt "player" while GCD (61304)
-			-- if getSpellCD(61304) > 0 then return false;	end
-			-- if UnitCastingInfo("player") ~= nil
-			-- 	--or UnitChannelInfo("player") ~= nil
-			-- 	or (GetSpellCooldown(61304) ~= nil and GetSpellCooldown(61304) > 0.001) then
-			-- 	return false
-			-- end
+				----------------
+				-- Offensives --
+				----------------
+				if options.isChecked.isBoss and isBoss() then ShadowCooldowns(options) end
+				if not options.isChecked.isBoss then ShadowCooldowns(options) end
 
-			-- GCD Check
-			if select(2,GetSpellCooldown(61304))>0 then
-				return false
-			end
+				-------------------
+				-- Single target --
+				-------------------
+				-- if isCastingSpell(129197) and getSpellCD(MB)==0 then
+				-- 	if castSpell("target",MB,false,false) then return; end
+				-- end
+				
+				-- Do not Interrupt "player" while GCD (61304)
+				-- if getSpellCD(61304) > 0 then return false;	end
+				-- if UnitCastingInfo("player") ~= nil
+				-- 	--or UnitChannelInfo("player") ~= nil
+				-- 	or (GetSpellCooldown(61304) ~= nil and GetSpellCooldown(61304) > 0.001) then
+				-- 	return false
+				-- end
 
-			-- Some Spell specific checks for channels
-				-- Do not Interrupt Searing Insanity
-				if UnitChannelInfo("player") == "Searing Insanity" then
-					if getSpellCD(MB)>0 then
-						return false
-					end
-				else
-					SearingInsanity(options)
-				end
-
-				-- 
-				if UnitChannelInfo("player") ~=nil and not select(1,UnitChannelInfo("player")) == "Mind Flay" then
+				-- GCD Check
+				if select(2,GetSpellCooldown(61304))>0 then
 					return false
 				end
 
-			-- if castingUnit() then return false; end
-			
-			-- Special Boss Mechanics
-			if options.buttons.BossHelper == 2 then
-				BossHelper()
-			end
+				-- Some Spell specific checks for channels
 
-			if getBuffRemain("player",MC,"player")>0 then return false end
+					-- if SpecificToggle("Engineer") then
+					-- 	BlastFurnaceEngineer()
+					-- end
 
-			-- Execute
-			-- CoP
-			if getTalent(7,1) then ExecuteCoP(options) end
-			if getTalent(7,3) then ExecuteAS(options) end
+					-- Do not Interrupt Searing Insanity
+					if UnitChannelInfo("player") == "Searing Insanity" then
+						if getSpellCD(MB)>0 then
+							return false
+						end
+					else
+						SearingInsanity(options)
+					end
 
-			LFOrbs(options)
-			LFToF(options)
+					-- 
+					if UnitChannelInfo("player") ~=nil and not select(1,UnitChannelInfo("player")) == "Mind Flay" then
+						return false
+					end
 
-			-- if getHP("target")>20 then
-			-- 	if options.buttons.DoT>=2 then DotEmAll(options) end
-			-- 	if options.buttons.Rotation==1 and getTalent(7,1) then IcySingleWeave(options) end
-			-- 	if options.buttons.Rotation==2 then IcyMultiTarget(options) end
-			-- end
-
-			-- Cop
-			if getTalent(7,1) then
-				-- Insanity
-				if getTalent(3,3) then 
-					ClipInsanity(options)
-					CoPInsanity(options) 
+				-- if castingUnit() then return false; end
+				
+				-- Special Boss Mechanics
+				if options.buttons.BossHelper == 2 then
+					BossHelper()
 				end
-				-- SoD
-				if getTalent(3,1) then CoPSoD(options) end
-			end
 
-			-- AS
-			if getTalent(7,3) then
-				-- Insanity
-				if getTalent(3,3) then
-					ClipInsanity(options)
-					ASInsanity(options) 
+				--if getBuffRemain("player",MC,"player")>0 then return false end
+
+				-- Execute
+				-- CoP
+				if getTalent(7,1) then ExecuteCoP(options) end
+				if getTalent(7,3) then ExecuteAS(options) end
+
+				LFOrbs(options)
+				LFToF(options)
+
+				-- if getHP("target")>20 then
+				-- 	if options.buttons.DoT>=2 then DotEmAll(options) end
+				-- 	if options.buttons.Rotation==1 and getTalent(7,1) then IcySingleWeave(options) end
+				-- 	if options.buttons.Rotation==2 then IcyMultiTarget(options) end
+				-- end
+
+				-- Cop
+				if getTalent(7,1) then
+					-- Insanity
+					if getTalent(3,3) then 
+						ClipInsanity(options)
+						CoPInsanity(options) 
+					end
+					-- SoD
+					if getTalent(3,1) then CoPSoD(options) end
 				end
-				-- SoD
-				if getTalent(3,1) then ASSoD(options) end
-			end
+
+				-- AS
+				if getTalent(7,3) then
+					-- Insanity
+					if getTalent(3,3) then
+						ClipInsanity(options)
+						ASInsanity(options) 
+					end
+					-- SoD
+					if getTalent(3,1) then ASSoD(options) end
+				end
+			end -- disable combat option
 
 			--[[-----------------------------------------------------------------------------------------------------------------------------------------------]]
 

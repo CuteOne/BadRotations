@@ -224,10 +224,11 @@ if select(3, UnitClass("player")) == 5 then
 		function BlastFurnaceEngineer()
 			if enemiesTable then
 				for i=1,5,1 do
-					print("Try to MC Enigneer")
+					print("Try to MC Engineer")
 				end
-				if UnitHealth("Heat Regulator")>100000 then
-					if getBuffRemain("player",MC)<=0 then
+				print("==================")
+				--if UnitHealth("Heat Regulator")>100000 then
+					if not isCastingSpell(605,"player") then
 						for i=1,#enemiesTable do
 							local thisUnit = enemiesTable[i].unit
 							-- check for engineer
@@ -235,13 +236,15 @@ if select(3, UnitClass("player")) == 5 then
 								if getDistance("player",thisUnit)<=30 then
 									-- http://www.wowhead.com/spell=155170/infuriated - MC no more working
 									if UnitDebuffID(thisUnit,155170)==nil then
-										if castSpell(thisUnit,MC,true,true) then return; end
+										print("try casting Dominate Mind")
+										if castSpell(thisUnit,DominateMind,true,true) then return; end
+										return
 									end
 								end
 							end
 						end
 					end
-				end
+				--end
 			else
 				print("no enemiesTable")
 			end
@@ -253,20 +256,22 @@ if select(3, UnitClass("player")) == 5 then
 				for i=1,5,1 do
 					print("Try to MC Security Guard")
 				end
-				if getBuffRemain("player",MC)<=0 then
+				print("==================")
+				if not isCastingSpell(605,"player") then
 					for i=1,#enemiesTable do
 						local thisUnit = enemiesTable[i].unit
 						-- check for security guard
 						if UnitName(thisUnit)=="Security Guard" and isAlive(thisUnit) then
 							-- http://www.wowhead.com/spell=155170/infuriated - MC no more working
 							if UnitDebuffID(thisUnit,155170)==nil then
-								if castSpell(thisUnit,MC,true,true) then return; end
+								if castSpell(thisUnit,DominateMind,true,true) then return; end
+								return
 							end
 						end
 					end
 				end
 				-- target Slag Elemental with http://www.wowhead.com/spell=176141/hardened-slag
-				if getBuffRemain("player",MC)>0 then
+				if isCastingSpell(605,"player") then
 					for i=1,#enemiesTable do
 						local thisUnit = enemiesTable[i].unit
 						-- check for Slag Elemental
@@ -274,6 +279,7 @@ if select(3, UnitClass("player")) == 5 then
 							-- http://www.wowhead.com/spell=176141/hardened-slag
 							if UnitBuffID(thisUnit,176141) then
 								if LFU("Slag Elemental") then return; end
+								return
 							end
 						end
 					end
@@ -282,110 +288,135 @@ if select(3, UnitClass("player")) == 5 then
 				print("no enemiesTable")
 			end
 		end
+
+		function MC()
+			if enemiesTable then
+				for i=1,5,1 do
+					print("Try to MC Security Guard")
+				end
+				print("==================")
+
+				if not isCastingSpell(605,"player") then
+					print("1) Not casting spell")
+					for i=1,#enemiesTable do
+						local thisUnit = enemiesTable[i].unit
+						print("2) Unit: "..UnitName(thisUnit))
+						if UnitName(thisUnit)=="Frost Wolf" and isAlive(thisUnit) then
+							print("3) Frostwolf found, alive, try casting")
+							--TargetUnit(thisUnit)
+							if castSpell(thisUnit,DominateMind,true,true) then return; end
+							return
+						end
+					end
+				end
+			end
+		end
+
+
 	--[[                    ]] -- General Functions end
 
 	--[[                    ]] -- Drawing Functions start
-		function Drawing()
-			if LibDraw then
-				-- table wipe
-				-- if LibDraw.callbacks == nil then
-				-- 	LibDraw.callbacks = { }
-				-- else
-				-- 	table.wipe(LibDraw.callbacks)
-				-- end
+		-- function Drawing()
+		-- 	if LibDraw then
+		-- 		-- table wipe
+		-- 		-- if LibDraw.callbacks == nil then
+		-- 		-- 	LibDraw.callbacks = { }
+		-- 		-- else
+		-- 		-- 	table.wipe(LibDraw.callbacks)
+		-- 		-- end
 
-				LibDraw.Sync(function()
-					-- Set line width
-					LibDraw.SetWidth(2)
-					--LibDraw.helper = true
-					local playerX, playerY, playerZ = ObjectPosition("player")
+		-- 		LibDraw.Sync(function()
+		-- 			-- Set line width
+		-- 			LibDraw.SetWidth(2)
+		-- 			--LibDraw.helper = true
+		-- 			local playerX, playerY, playerZ = ObjectPosition("player")
 
-					--local red,green,blue,alpha = getValue("red"),getValue("green"),getValue("blue"),getValue("alpha")
-					--LibDraw.SetColor(red, green, blue, alpha)
+		-- 			--local red,green,blue,alpha = getValue("red"),getValue("green"),getValue("blue"),getValue("alpha")
+		-- 			--LibDraw.SetColor(red, green, blue, alpha)
 
-					-- Mind Control Distance Helper
-					-- if getBuffRemain("player",MC)>0 and GetObjectExists("pet") then
-					-- 	local targetX, targetY, targetZ = ObjectPosition("target")
-					-- 	local petX, petY, petZ = ObjectPosition("pet")
-					-- 	LibDraw.Text("D: "..math.floor(getDistance("player","pet"),2), "GameFontNormal", petX, petY, petZ + 4)
-					-- 	LibDraw.Text("R: "..math.floor(getBuffRemain("player",MC),2),"GameFontNormal",petX,petY,petZ+6)
-					-- end
+		-- 			-- Mind Control Distance Helper
+		-- 			-- if getBuffRemain("player",MC)>0 and GetObjectExists("pet") then
+		-- 			-- 	local targetX, targetY, targetZ = ObjectPosition("target")
+		-- 			-- 	local petX, petY, petZ = ObjectPosition("pet")
+		-- 			-- 	LibDraw.Text("D: "..math.floor(getDistance("player","pet"),2), "GameFontNormal", petX, petY, petZ + 4)
+		-- 			-- 	LibDraw.Text("R: "..math.floor(getBuffRemain("player",MC),2),"GameFontNormal",petX,petY,petZ+6)
+		-- 			-- end
 
-					-- T90
-					if isChecked("T90") then
-						-- cascade
-						if getTalent(6,1) then
-							-- colors
-							--if getSpellCD(Cascade)<=25   and getSpellCD(Cascade)>10   then LibDraw.SetColor(255,   0,   0, 66) end
-							if getSpellCD(Cascade)<=7.5   and getSpellCD(Cascade)> 5   then LibDraw.SetColor(255, 140,   0, 100) end
-							if getSpellCD(Cascade)<= 5   and getSpellCD(Cascade)> 2.5 then LibDraw.SetColor(255, 255,   0, 100) end
-							if getSpellCD(Cascade)<= 2.5 and getSpellCD(Cascade)>=0   then LibDraw.SetColor(  0, 255,   0, 100) end
-							-- if getSpellCD(Cascade)==5 then LibDraw.SetColor(0, 255, 0, 66) end
-							-- draw
-							if getSpellCD(Cascade)<=7.5 then
-								LibDraw.Circle(playerX, playerY, playerZ, 40)
-							end
-						end
-						-- halo
-						if getTalent(6,3) then
-							-- colors
-							if getSpellCD(Halo)<=7.5 and getSpellCD(Halo)>2.5 then LibDraw.SetColor(192, 0, 0, 66) end
-							if getSpellCD(Halo)<=2.5 and getSpellCD(Halo)>0 then LibDraw.SetColor(255, 128, 0, 66) end
-							if getSpellCD(Halo)==0 then LibDraw.SetColor(0, 255, 0, 66) end
-							-- draw
-							if getSpellCD(Halo)<=5 then
-								LibDraw.Circle(playerX, playerY, playerZ, 25)
-							end
-						end
-					end
+		-- 			-- T90
+		-- 			if isChecked("T90") then
+		-- 				-- cascade
+		-- 				if getTalent(6,1) then
+		-- 					-- colors
+		-- 					--if getSpellCD(Cascade)<=25   and getSpellCD(Cascade)>10   then LibDraw.SetColor(255,   0,   0, 66) end
+		-- 					if getSpellCD(Cascade)<=7.5   and getSpellCD(Cascade)> 5   then LibDraw.SetColor(255, 140,   0, 100) end
+		-- 					if getSpellCD(Cascade)<= 5   and getSpellCD(Cascade)> 2.5 then LibDraw.SetColor(255, 255,   0, 100) end
+		-- 					if getSpellCD(Cascade)<= 2.5 and getSpellCD(Cascade)>=0   then LibDraw.SetColor(  0, 255,   0, 100) end
+		-- 					-- if getSpellCD(Cascade)==5 then LibDraw.SetColor(0, 255, 0, 66) end
+		-- 					-- draw
+		-- 					if getSpellCD(Cascade)<=7.5 then
+		-- 						LibDraw.Circle(playerX, playerY, playerZ, 40)
+		-- 					end
+		-- 				end
+		-- 				-- halo
+		-- 				if getTalent(6,3) then
+		-- 					-- colors
+		-- 					if getSpellCD(Halo)<=7.5 and getSpellCD(Halo)>2.5 then LibDraw.SetColor(192, 0, 0, 66) end
+		-- 					if getSpellCD(Halo)<=2.5 and getSpellCD(Halo)>0 then LibDraw.SetColor(255, 128, 0, 66) end
+		-- 					if getSpellCD(Halo)==0 then LibDraw.SetColor(0, 255, 0, 66) end
+		-- 					-- draw
+		-- 					if getSpellCD(Halo)<=5 then
+		-- 						LibDraw.Circle(playerX, playerY, playerZ, 25)
+		-- 					end
+		-- 				end
+		-- 			end
 
-					-- Line to target
-					if isChecked("Target Line") and GetObjectExists("target") then
-						local targetX, targetY, targetZ = ObjectPosition("target")
-						LibDraw.SetColor(82,255,0,66)
+		-- 			-- Line to target
+		-- 			if isChecked("Target Line") and GetObjectExists("target") then
+		-- 				local targetX, targetY, targetZ = ObjectPosition("target")
+		-- 				LibDraw.SetColor(82,255,0,66)
 
-						LibDraw.Line(playerX, playerY, playerZ, targetX, targetY, targetZ)
-					end
+		-- 				LibDraw.Line(playerX, playerY, playerZ, targetX, targetY, targetZ)
+		-- 			end
 
-					-- target circle
-					if isChecked("Target Circle") and GetObjectExists("target") then
-						local targetX, targetY, targetZ = ObjectPosition("target")
-						LibDraw.SetColor(82,255,0,66)
-						LibDraw.SetWidth(5)
+		-- 			-- target circle
+		-- 			if isChecked("Target Circle") and GetObjectExists("target") then
+		-- 				local targetX, targetY, targetZ = ObjectPosition("target")
+		-- 				LibDraw.SetColor(82,255,0,66)
+		-- 				LibDraw.SetWidth(5)
 
-						LibDraw.Circle(targetX,targetY,targetZ,1.25)
-					end
+		-- 				LibDraw.Circle(targetX,targetY,targetZ,1.25)
+		-- 			end
 
-					-- BossHelper
-					if isChecked("BossHelper") then
-						if currentBoss=="Heart of the Mountain" then
-							for i=1,#enemiesTable do
-								local thisUnit = enemiesTable[i].unit
-								local uX,uY,uZ = ObjectPosition(thisUnit)
-								-- iteration
-								for i=1,#enemiesTable do
-									local thisUnit = enemiesTable[i].unit
-									-- check for Slag Elemental
-									if UnitName(thisUnit)=="Slag Elemental" and isAlive(thisUnit) then
-										-- http://www.wowhead.com/spell=176141/hardened-slag
-										if UnitBuffID(thisUnit,176141) then
-											-- Line
-											LibDraw.SetColor(255,0,255,100)
-											LibDraw.SetWidth(2)
-											LibDraw.Line(playerX, playerY, playerZ, uX, uY, uZ)
-											-- Circle
-											LibDraw.SetWidth(5)
-											LibDraw.Circle(uX,uY,uZ,1.25)
-										end
-									end
-								end
-							end
-						end
-					end
+		-- 			-- BossHelper
+		-- 			if isChecked("BossHelper") then
+		-- 				if currentBoss=="Heart of the Mountain" then
+		-- 					for i=1,#enemiesTable do
+		-- 						local thisUnit = enemiesTable[i].unit
+		-- 						local uX,uY,uZ = ObjectPosition(thisUnit)
+		-- 						-- iteration
+		-- 						for i=1,#enemiesTable do
+		-- 							local thisUnit = enemiesTable[i].unit
+		-- 							-- check for Slag Elemental
+		-- 							if UnitName(thisUnit)=="Slag Elemental" and isAlive(thisUnit) then
+		-- 								-- http://www.wowhead.com/spell=176141/hardened-slag
+		-- 								if UnitBuffID(thisUnit,176141) then
+		-- 									-- Line
+		-- 									LibDraw.SetColor(255,0,255,100)
+		-- 									LibDraw.SetWidth(2)
+		-- 									LibDraw.Line(playerX, playerY, playerZ, uX, uY, uZ)
+		-- 									-- Circle
+		-- 									LibDraw.SetWidth(5)
+		-- 									LibDraw.Circle(uX,uY,uZ,1.25)
+		-- 								end
+		-- 							end
+		-- 						end
+		-- 					end
+		-- 				end
+		-- 			end
 
-				end)
-			end
-		end
+		-- 		end)
+		-- 	end
+		-- end
 
 
 	--[[                    ]] -- Drawing Functions end
