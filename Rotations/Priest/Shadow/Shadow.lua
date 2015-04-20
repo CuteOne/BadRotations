@@ -17,31 +17,9 @@ if select(3, UnitClass("player")) == 5 then
 		-- Head End
 
 
-		-- Locals / Globals--
-		--GCD = 1.5/(1+UnitSpellHaste("player")/100)
-		--hasTarget = UnitExists("target")
-		--hasMouse = UnitExists("mouseover")
-		--php = getHP("player")
-		-- thp = getHP("target")
-
-
-		--MBCD = getSpellCD(MB)
-		--SWDCD = getSpellCD(SWD)
-
 		if lastDP==nil then	lastDP=99 end
 		if lastVT==nil then lastVT=99 end
 
-		--DPTICK = DPTIME/6
-		-- SWP (18sec)
-		--SWPTICK = 18.0/(1+UnitSpellHaste("player")/100)/6
-		-- VT (15sec)
-		--VTTICK = 16.0/(1+UnitSpellHaste("player")/100)/5
-		--VTCASTTIME = 1.5/(1+UnitSpellHaste("player")/100)
-
-
-
-		-- Set Enemies Table
-		--makeEnemiesTable(40)
 
 		-- Sort enemiesTable by absolute HP
 		if isChecked("sortByHPabs") then
@@ -53,8 +31,6 @@ if select(3, UnitClass("player")) == 5 then
 				end
 			end
 		end
-
-
 
 		local options = {
 			-- Player values
@@ -184,9 +160,9 @@ if select(3, UnitClass("player")) == 5 then
 		-- 	end
 		-- end
 
-		------------
-		-- CHECKS --
-		------------
+		------------------------------------------------------------------------------------------------------------------------------------------------------------
+		-- CHECKS --------------------------------------------------------------------------------------------------------------------------------------------------
+		------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 			-- Ko'ragh Mind Controll Check
 			if UnitDebuffID("player",163472) then
@@ -199,9 +175,9 @@ if select(3, UnitClass("player")) == 5 then
 			-- Mounted Check (except nagrand outpost mounts)
 			if IsMounted("player") and not (UnitBuffID("player",164222) or UnitBuffID("player",165803)) then return false; end
 
-		-------------------
-		-- OUT OF COMBAT --
-		-------------------
+		------------------------------------------------------------------------------------------------------------------------------------------------------------
+		-- OUT OF COMBAT -------------------------------------------------------------------------------------------------------------------------------------------
+		------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 			-- Power Word: Fortitude
 			if not isInCombat("player") then
@@ -233,9 +209,9 @@ if select(3, UnitClass("player")) == 5 then
 					end
 				end
 
-		---------------------------------------
-		-- Shadowform and AutoSpeed Selfbuff --
-		---------------------------------------
+		------------------------------------------------------------------------------------------------------------------------------------------------------------
+		-- Shadowform and AutoSpeed Selfbuff -----------------------------------------------------------------------------------------------------------------------
+		------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 			-- Shadowform outfight
 			if not UnitBuffID("player",Shadowform) and options.isChecked.Shadowform then
@@ -272,9 +248,9 @@ if select(3, UnitClass("player")) == 5 then
 				end
 			end
 
-		---------------
-		-- IN COMBAT --
-		---------------
+		------------------------------------------------------------------------------------------------------------------------------------------------------------
+		-- IN COMBAT -----------------------------------------------------------------------------------------------------------------------------------------------
+		------------------------------------------------------------------------------------------------------------------------------------------------------------
 		-- AffectingCombat, Pause, Target, Dead/Ghost Check
 		if UnitAffectingCombat("player") or UnitAffectingCombat("target") then
 
@@ -292,9 +268,9 @@ if select(3, UnitClass("player")) == 5 then
 				end
 			end
 
-			-------------------
-			-- Dummy Testing --
-			-------------------
+			------------------------------------------------------------------------------------------------------------------------------------------------------------
+			-- Dummy Testing -------------------------------------------------------------------------------------------------------------------------------------------
+			------------------------------------------------------------------------------------------------------------------------------------------------------------
 			if isChecked("DPS Testing") then
 				if UnitExists("target") then
 					if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
@@ -312,14 +288,14 @@ if select(3, UnitClass("player")) == 5 then
 			if isChecked("disable Combat")==nil then
 
 				
-			----------------
-			-- Defensives --
-			----------------
+			------------------------------------------------------------------------------------------------------------------------------------------------------------
+			-- Defensives ----------------------------------------------------------------------------------------------------------------------------------------------
+			------------------------------------------------------------------------------------------------------------------------------------------------------------
 			ShadowDefensive(options)
 
-			-------------------
-			-- Boss Specific --
-			-------------------
+			------------------------------------------------------------------------------------------------------------------------------------------------------------
+			-- Boss Specific -------------------------------------------------------------------------------------------------------------------------------------------
+			------------------------------------------------------------------------------------------------------------------------------------------------------------
 				-- Auto Guise
 				if getTalent(1,2) then
 					if options.isChecked.AutoGuise then
@@ -420,26 +396,11 @@ if select(3, UnitClass("player")) == 5 then
 
 
 			
-				----------------
-				-- Offensives --
-				----------------
+				------------------------------------------------------------------------------------------------------------------------------------------------------------
+				-- Offensives ----------------------------------------------------------------------------------------------------------------------------------------------
+				------------------------------------------------------------------------------------------------------------------------------------------------------------
 				if options.isChecked.isBoss and isBoss() then ShadowCooldowns(options) end
 				if not options.isChecked.isBoss then ShadowCooldowns(options) end
-
-				-------------------
-				-- Single target --
-				-------------------
-				-- if isCastingSpell(129197) and getSpellCD(MB)==0 then
-				-- 	if castSpell("target",MB,false,false) then return; end
-				-- end
-				
-				-- Do not Interrupt "player" while GCD (61304)
-				-- if getSpellCD(61304) > 0 then return false;	end
-				-- if UnitCastingInfo("player") ~= nil
-				-- 	--or UnitChannelInfo("player") ~= nil
-				-- 	or (GetSpellCooldown(61304) ~= nil and GetSpellCooldown(61304) > 0.001) then
-				-- 	return false
-				-- end
 
 				-- GCD Check
 				if select(2,GetSpellCooldown(61304))>0 then
@@ -492,24 +453,342 @@ if select(3, UnitClass("player")) == 5 then
 				-- Cop
 				if getTalent(7,1) then
 					-- Insanity
-					if getTalent(3,3) then 
+					if getTalent(3,3) then
+						-- Clip Insanity
 						ClipInsanity(options)
-						CoPInsanity(options) 
-					end
+
+						------------------------------------------------------------------------------------------------------------------------------------------------------------
+						--[[CoPInsanity(options)]]
+						------------------------------------------------------------------------------------------------------------------------------------------------------------
+						-- MB on CD
+						if castSpell("target",MB,false,false) then return; end
+
+						-----------------
+						-- DoT Weaving --
+						-----------------
+						-- Option Check: DoT Weave
+						if options.isChecked.DoTWeave then
+							-- Unit Check: DoT Weave on Unit allowed?
+							if noDoTWeave("target")==false then
+								if options.player.ORBS>=4 and getSpellCD(MB)<=2*options.player.GCD then
+									-- apply SWP
+									if not UnitDebuffID("target",SWP,"player") then
+										if castSpell("target",SWP,true,false) then return; end
+									end
+									-- apply VT
+									if not UnitDebuffID("target",VT,"player") and GetTime()-lastVT > 2*options.player.GCD then
+										if castSpell("target",VT,true,true) then
+											--options.player.lastVT=GetTime()
+											lastVT=GetTime()
+											return
+										end
+									end
+								end
+							end
+						end
+
+						----------------
+						-- spend orbs --
+						----------------
+						-- Check for 5 Orbs
+						if options.player.ORBS==5 then
+							-- Check for SWP, DoTweave option, noWeave Unit
+							if getDebuffRemain("target",SWP,"player")>0 or options.isChecked.DoTWeave~=true or noDoTWeave("target") then
+								-- Check for VT, DoTweave option, noWeave Unit
+								if getDebuffRemain("target",VT,"player")>0 or options.isChecked.DoTWeave~=true or noDoTWeave("target") then
+									-- DP on target
+									if castSpell("target",DP,false,true) then
+										lastDP=GetTime()
+										return
+									end
+								end
+							end
+						end
+
+						-- Check for >= 3 Orbs
+						if UnitChannelInfo("player")~="Insanity" or getSpellCD(MB)<=1.5 then
+							if options.player.ORBS>=3 then
+								-- Check for last DP
+								if GetTime()-lastDP<=options.player.DPTIME+2.2*options.player.GCD then
+									-- Check that Insanity isnt on me
+									--if getBuffRemain("player",InsanityBuff)<=0.3*options.player.DPTIME then
+									if getBuffRemain("player",InsanityBuff)<=0 then
+										-- DP on target
+										if castSpell("target",DP,false,true) then return; end
+									end
+								end
+							end
+						end
+
+						-- Insanity if noChannel
+						if getBuffRemain("player",InsanityBuff)>=0.3*options.player.GCD then
+							-- Check for current channel and cast Insanity
+							if select(1,UnitChannelInfo("player")) == nil then
+								if castSpell("target",MF,false,true) then return; end
+							end
+						end
+
+						--------------
+						-- get orbs --
+						--------------
+						-- only collect Orbs if no InsanityBuff
+						if getBuffRemain("player",InsanityBuff)<=0 then
+							-- only collect Orbs if not channeling insanity atm
+							if not select(1,UnitChannelInfo("player")) ~= "Insanity" then
+								-- Halo, Shadowfiend, Mindbender
+								ShadowCooldownsSmall(options)
+								--if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
+								--if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
+
+								-- SWP
+								if options.buttons.DoT==2 or options.buttons.DoT==4 then 
+									throwSWP(options,false)
+									refreshSWP(options,false)
+								end
+
+								-- VT
+								if options.buttons.DoT==3 or options.buttons.DoT==4 then
+									throwVT(options,false)
+									refreshVT(options,false)
+								end
+
+								-- Mind Sear
+								if options.isChecked.MindSear then
+									if #getEnemies("target",10)>=options.values.MindSear then
+										if select(1,UnitChannelInfo("player")) ~= "Mind Sear" then
+											if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
+												if castSpell("target",MS,false,true) then return; end
+											end
+										end
+									end
+								end
+
+								-- Mind Spike
+								if options.player.ORBS<5 and not (UnitChannelInfo("player")=="Insanity") then
+									if #getEnemies("target",10)<options.values.MindSear and options.isChecked.MindSear
+									or not options.isChecked.MindSear then
+										if castSpell("target",MSp,false,true) then return; end
+									end
+								end
+							end -- Unitchannel(Insanity)
+						end -- Insanity Buff
+					end -- getTalent(3,3)
+					
 					-- SoD
-					if getTalent(3,1) then CoPSoD(options) end
-				end
+					if getTalent(3,1) then --[[CoPSoD(options)]] end
+				end -- getTalent(7,1)
 
 				-- AS
 				if getTalent(7,3) then
-					-- Insanity
+					-- Insanity Talent
 					if getTalent(3,3) then
+						-- Clip Insanity
 						ClipInsanity(options)
-						ASInsanity(options) 
-					end
-					-- SoD
-					if getTalent(3,1) then ASSoD(options) end
-				end
+						------------------------------------------------------------------------------------------------------------------------------------------------------------
+						--[[ASInsanity(options)]]
+						------------------------------------------------------------------------------------------------------------------------------------------------------------
+						-- DP: push or throw?
+						if options.isChecked.DPmode then
+							if options.player.ORBS==5 then
+								-- Push DP
+								if options.isChecked.DPmode==1 then
+									if getDebuffRemain("target",DP,"player")<=options.values.PushTime then
+										if castSpell("target",DP,true,false) then return; end
+									end
+								end
+								-- Throw DP
+								if options.isChecked.DPmode==2 then
+									ThrowDP()
+								end
+							end
+						end
+
+						-- DP on 5 Orbs
+						if options.player.ORBS==5 then
+							if castSpell("target",DP,true,false) then return; end
+						end
+
+						-- Hold Back DP to improve 4 set uptime
+						if TierScan("T17")>=4 then
+							if options.player.ORBS>=options.values.DPon 
+							or (getBuffRemain("player",MentalInstinct)<1.8*options.player.GCD and options.player.ORBS>=3) then
+								if getBuffRemain("player",MentalInstinct)<1.8*options.player.GCD then
+									if castSpell("target",DP,true,false) then return; end
+								end
+							end
+						end
+
+						-- DP on 3+ Orbs
+						if TierScan("T17")<4 then
+							if options.player.ORBS>=3 then
+								-- check for running DP
+								if getBuffRemain("player",InsanityBuff)<=0 then
+									if castSpell("target",DP,true,false) then return; end
+								end
+							end
+						end
+
+						-- MB on CD
+						if castSpell("target",MB,false,true) then return; end
+
+						if select(1,UnitChannelInfo("player")) ~= "Insanity" then
+							-- SWP on MaxTargets
+							throwSWP(options,true)
+
+							-- Insanity
+							if getBuffRemain("player",InsanityBuff)>0 then
+								if select(1,UnitChannelInfo("player")) == nil then
+									if castSpell("target",MF,false,true) then return; end
+								end
+							end
+
+							-- Halo, Shadowfiend, Mindbender
+							ShadowCooldownsSmall(options)
+							--if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
+							--if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
+
+							-- SWP refresh
+							refreshSWP(options,true)
+
+						
+							-- VT on target
+							if options.isChecked.VTonTarget then
+								if getDebuffRemain("target",VT,"player")<=options.values.VTRefresh and GetTime()-lastVT > 2*options.player.GCD then
+									if castSpell("target",VT,true,true) then 
+										lastVT=GetTime()
+										return
+									end
+								end
+							end
+
+							-- VT on all
+							if options.buttons.DoT==3 or options.buttons.DoT==4 then
+								throwVT(options,true)
+							end
+							-- -- Mind Sear
+							-- if options.isChecked.MindSear then
+							-- 	if #getEnemies("target",10)>=options.values.MindSear then
+							-- 		if select(1,UnitChannelInfo("player")) ~= "Mind Sear" then
+							-- 			if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
+							-- 				if castSpell("target",MS,false,true) then return; end
+							-- 			end
+							-- 		end
+							-- 	end
+							-- end
+
+							-- Insanity / MF
+							if getSpellCD(MB)>0.5 then
+								if select(1,UnitChannelInfo("player")) == nil then
+									if castSpell("target",MF,false,true) then return; end
+								end
+							end
+						end -- UnitChannel(Insanity)
+					end -- getTalent(3,3)
+					
+					-- SoD Talent
+					if getTalent(3,1) then
+						------------------------------------------------------------------------------------------------------------------------------------------------------------
+						--[[ASSoD(options)]]
+						------------------------------------------------------------------------------------------------------------------------------------------------------------
+						-- DP: push or throw?
+						if options.isChecked.DPmode then
+							if options.player.ORBS==5 then
+								-- Push DP
+								if options.isChecked.DPmode==1 then
+									if getDebuffRemain("target",DP,"player")<=options.values.PushTime then
+										if castSpell("target",DP,true,false) then return; end
+									end
+								end
+								-- Throw DP
+								if options.isChecked.DPmode==2 then
+									ThrowDP()
+								end
+							end
+						end
+
+						-- DP on 5 Orbs
+						if options.player.ORBS==5 then
+							if castSpell("target",DP,true,false) then return; end
+						end
+
+						-- Hold Back DP to improve 4 set uptime
+						if TierScan("T17")>=4 then
+							if options.player.ORBS>=options.values.DPon
+							or (getBuffRemain("player",MentalInstinct)<1.8*options.player.GCD and options.player.ORBS>=3) then
+								if getBuffRemain("player",MentalInstinct)<1.8*options.player.GCD then
+									if castSpell("target",DP,true,false) then return; end
+								end
+							end
+						end
+
+						-- DP on 3+ Orbs
+						if TierScan("T17")>=4 then
+							-- check for options
+							if options.player.ORBS>=options.values.DPon then
+								-- DP
+								if castSpell("target",DP,true,false) then return; end
+							end
+						end
+
+						-- DP on 3+ Orbs
+						if TierScan("T17")<4 then
+							if options.player.ORBS>=3 then
+								-- check for running DP
+								if getBuffRemain("player",InsanityBuff)<=0 then
+									if castSpell("target",DP,true,false) then return; end
+								end
+							end
+						end
+
+						-- SoD Proc if moving
+						if isMoving("player") then
+							if getBuffStacks("player",SoDProc)>=1 then
+								if castSpell("target",MSp,false,false) then return; end
+							end
+						end
+
+						-- MB on CD
+						if castSpell("target",MB,false,true) then return; end
+
+						-- Halo, Shadowfiend, Mindbender
+						ShadowCooldownsSmall(options)
+						--if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
+						--if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
+
+						-- SWP on MaxTargets
+						throwSWP(options,true)
+
+						-- VT on MaxTargets
+						throwVT(options,true)
+
+						-- SoD Proc
+						if getBuffStacks("player",SoDProc)>=1 then
+							if castSpell("target",MSp,false,false) then return; end
+						end
+
+						-- SWP refresh
+						refreshSWP(options,true)
+
+						-- VT refresh
+						refreshVT(options,true)
+
+						-- Mind Sear
+						if options.isChecked.MindSear then
+							if #getEnemies("target",10)>=options.values.MindSear then
+								if select(1,UnitChannelInfo("player")) ~= "Mind Sear" then
+									if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
+										if castSpell("target",MS,false,true) then return; end
+									end
+								end
+							end
+						end
+
+						-- MF
+						if select(1,UnitChannelInfo("player")) == nil then
+							if castSpell("target",MF,false,true) then return; end
+						end
+					end -- getTalent(3,1)
+				end -- getTalent(7,3)
 			end -- disable combat option
 
 			--[[-----------------------------------------------------------------------------------------------------------------------------------------------]]
