@@ -549,23 +549,23 @@ if select(3, UnitClass("player")) == 5 then
 			if getHP("target")<=20 then
 				-- ORBS>=3 -> DP
 				if options.player.ORBS>=3 then
-					if castSpell("target",DP,true,false) then return; end
+					if castSpell("target",DP,true,false) then return end
 				end
 
 				-- MB
-				if castSpell("target",MB,false,false) then return; end
+				if castSpell("target",MB,false,false) then return end
 
 				-- SWD
-				if castSpell("target",SWD,true,false) then return; end
+				if castSpell("target",SWD,true,false) then return end
 
 				-- SoD Proc
 				if getBuffStacks("player",SoDProc)>=1 then
-					if castSpell("target",MSp,false,false) then return; end
+					if castSpell("target",MSp,false,false) then return end
 				end
 
 				-- MF Filler
 				if select(1,UnitChannelInfo("player")) == nil and options.player.ORBS<3 then
-					if castSpell("target",MF,false,true) then return; end
+					if castSpell("target",MF,false,true) then return end
 				end
 			end
 		end
@@ -576,25 +576,25 @@ if select(3, UnitClass("player")) == 5 then
 			if getHP("target")<=20 then
 				-- DP on 3+ Orbs
 				if options.player.ORBS>=3 then
-					if castSpell("target",DP,true,false) then return; end
+					if castSpell("target",DP,true,false) then return end
 				end
 
 				-- MB
-				if castSpell("target",MB,false,true) then return; end
+				if castSpell("target",MB,false,true) then return end
 
 				-- SoD Proc
 				if getBuffStacks("player",SoDProc)>=1 then
-					if castSpell("target",MSp,false,false) then return; end
+					if castSpell("target",MSp,false,false) then return end
 				end
 
 				-- SWD
-				if castSpell("target",SWD,true,false) then return; end
+				if castSpell("target",SWD,true,false) then return end
 
 				-- Insanity if noChannel
 				if getBuffRemain("player",InsanityBuff)>0 then
 					-- Check for current channel and cast Insanity
 					if select(1,UnitChannelInfo("player")) == nil then
-						if castSpell("target",MF,false,true) then return; end
+						if castSpell("target",MF,false,true) then return end
 					end
 				end
 
@@ -602,7 +602,7 @@ if select(3, UnitClass("player")) == 5 then
 				if getTimeToDie("target")>25 then
 					-- SWP
 					if getDebuffRemain("target",SWP,"player")<options.values.SWPRefresh then
-						if castSpell("target",SWP,true,false) then return; end
+						if castSpell("target",SWP,true,false) then return end
 					end
 					-- VT
 					if getDebuffRemain("target",VT,"player")<=options.values.VTRefresh and GetTime()-lastVT > 2*options.player.GCD then
@@ -615,7 +615,7 @@ if select(3, UnitClass("player")) == 5 then
 
 				-- MF Filler
 				if select(1,UnitChannelInfo("player")) == nil then
-					if castSpell("target",MF,false,true) then return; end
+					if castSpell("target",MF,false,true) then return end
 				end
 			end
 		end
@@ -633,10 +633,10 @@ if select(3, UnitClass("player")) == 5 then
 						if currentBoss=="Hans'gar" or currentBoss=="Franzok" then
 							-- Auto Target Franz if in range, else target Hans
 							if GetObjectExists("target")==false then 
-								if LFU("Hans'gar") then return; end
+								if LFU("Hans'gar") then return true end
 							end
 							if GetObjectExists("target")==false then 
-								if LFU("Franzok") then return; end
+								if LFU("Franzok") then return true end
 							end
 						end
 
@@ -797,7 +797,7 @@ if select(3, UnitClass("player")) == 5 then
 							local thisUnit = enemiesTable[i].unit
 							local hp = enemiesTable[i].hp
 							if hp<20 then
-								if castSpell(thisUnit,SWD,true,false,false,false,false,false,true) then return; end
+								if castSpell(thisUnit,SWD,true,false,false,false,false,false,true) then return true end
 							end
 						end
 					end
@@ -815,7 +815,7 @@ if select(3, UnitClass("player")) == 5 then
 						local hp = enemiesTable[i].hp
 						if hp<35 then
 							if getSpellCD(MB)>0 then
-								if castSpell(thisUnit,SWP,true,false) then return; end
+								if castSpell(thisUnit,SWP,true,false) then return true end
 							end
 						end
 					end
@@ -839,7 +839,9 @@ if select(3, UnitClass("player")) == 5 then
 								if UnitDebuffID(thisUnit,SWP,"player") then
 									-- check remaining time and minhealth
 									if getDebuffRemain(thisUnit,SWP,"player")<=options.values.SWPRefresh and thisHP>options.values.MinHealth then
-										if castSpell(thisUnit,SWP,true,false) then return; end
+										if castSpell(thisUnit,SWP,true,false) then 
+											return true
+										end
 									end
 								end
 							end
@@ -862,7 +864,9 @@ if select(3, UnitClass("player")) == 5 then
 							if not UnitIsUnit("target",thisUnit) or targetAlso then
 							-- check remaining time and minhealth
 								if getDebuffRemain(thisUnit,SWP,"player")<=0 and thisHP>options.values.MinHealth then
-									if castSpell(thisUnit,SWP,true,false) then return; end
+									if castSpell(thisUnit,SWP,true,false) then 
+										return true
+									end
 								end
 							end
 						end
@@ -888,7 +892,9 @@ if select(3, UnitClass("player")) == 5 then
 									if UnitDebuffID(thisUnit,VT,"player") then
 										-- check remaining time and minhealth
 										if getDebuffRemain(thisUnit,VT,"player")<=options.values.VTRefresh and thisHP>options.values.MinHealth then
-											if castSpell(thisUnit,VT,true,true) then return; end
+											if castSpell(thisUnit,VT,true,true) then 
+												return true
+											end
 										end
 									end
 								end
@@ -912,7 +918,9 @@ if select(3, UnitClass("player")) == 5 then
 								if not UnitIsUnit("target",thisUnit) or targetAlso then
 									-- check remaining time and minhealth
 									if getDebuffRemain(thisUnit,VT,"player")<=0 and thisHP>options.values.MinHealth then
-										if castSpell(thisUnit,VT,true,true) then return; end
+										if castSpell(thisUnit,VT,true,true) then 
+											return true
+										end
 									end
 								end
 							end

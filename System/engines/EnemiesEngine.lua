@@ -219,7 +219,7 @@ function EnemiesEngine()
 		if GetObjectExists(unit) and bit.band(GetObjectType(unit), ObjectTypes.Unit) == 8
 			and UnitIsVisible(unit) == true and getCreatureType(unit) == true
 			and UnitCanAttack(unit, "player") == true and UnitIsDeadOrGhost(unit) == false
-			and (UnitAffectingCombat(unit) or isDummy(unit)) then
+			and (UnitAffectingCombat(unit) or isDummy(unit) or true) then
 			return true
 		else
 			return false
