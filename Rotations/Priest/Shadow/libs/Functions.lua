@@ -436,9 +436,9 @@ if select(3, UnitClass("player")) == 5 then
 			end
 
 			-- Healing Tonic
-			if isChecked("Healing Tonic") and getHP("player") <= getValue("HealingTonic") then
+			if isChecked("Healing Tonic") and getHP("player") <= getValue("Healing Tonic") then
 				if canUse(109223) then
-					UseItemByName(tostring(select(1,GetItemInfo(109223))))
+					UseItemByName(109223)
 				end
 			end
 
@@ -793,11 +793,15 @@ if select(3, UnitClass("player")) == 5 then
 			if options.isChecked.ScanOrbs then
 				if getSpellCD(SWD)<=0 then
 					if options.player.ORBS<5 then
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
-							local hp = enemiesTable[i].hp
-							if hp<20 then
-								if castSpell(thisUnit,SWD,true,false,false,false,false,false,true) then return true end
+						if getHP("target")<=20 then
+							if castSpell("target",SWD,true,false) then return end
+						else
+							for i=1,#enemiesTable do
+								local thisUnit = enemiesTable[i].unit
+								local hp = enemiesTable[i].hp
+								if hp<20 then
+									if castSpell(thisUnit,SWD,true,false,false,false,false,false,true) then return end
+								end
 							end
 						end
 					end
@@ -815,7 +819,7 @@ if select(3, UnitClass("player")) == 5 then
 						local hp = enemiesTable[i].hp
 						if hp<35 then
 							if getSpellCD(MB)>0 then
-								if castSpell(thisUnit,SWP,true,false) then return true end
+								if castSpell(thisUnit,SWP,true,false) then return end
 							end
 						end
 					end

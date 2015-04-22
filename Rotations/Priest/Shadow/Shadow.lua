@@ -437,8 +437,12 @@ if select(3, UnitClass("player")) == 5 then
 
 				-- Execute
 				-- CoP
-				if getTalent(7,1) then ExecuteCoP(options) end
-				if getTalent(7,3) then ExecuteAS(options) end
+				if getTalent(7,1) then 
+					if ExecuteCoP(options) then return end
+				end
+				if getTalent(7,3) then 
+					if ExecuteAS(options) then return end
+				end
 
 				LFOrbs(options)
 				LFToF(options)
@@ -535,7 +539,7 @@ if select(3, UnitClass("player")) == 5 then
 							-- only collect Orbs if not channeling insanity atm
 							if not select(1,UnitChannelInfo("player")) ~= "Insanity" then
 								-- Halo, Shadowfiend, Mindbender
-								ShadowCooldownsSmall(options)
+								if ShadowCooldownsSmall(options) then return end
 								--if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
 								--if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
 
@@ -547,8 +551,8 @@ if select(3, UnitClass("player")) == 5 then
 
 								-- VT
 								if options.buttons.DoT==3 or options.buttons.DoT==4 then
-									throwVT(options,false)
-									refreshVT(options,false)
+									if throwVT(options,false) then return end
+									if refreshVT(options,false) then return end
 								end
 
 								-- Mind Sear
@@ -597,7 +601,7 @@ if select(3, UnitClass("player")) == 5 then
 								end
 								-- Throw DP
 								if options.isChecked.DPmode==2 then
-									ThrowDP()
+									if ThrowDP() then return end
 								end
 							end
 						end
@@ -632,7 +636,7 @@ if select(3, UnitClass("player")) == 5 then
 
 						if select(1,UnitChannelInfo("player")) ~= "Insanity" then
 							-- SWP on MaxTargets
-							throwSWP(options,true)
+							if throwSWP(options,true) then return end
 
 							-- Insanity
 							if getBuffRemain("player",InsanityBuff)>0 then
@@ -642,12 +646,12 @@ if select(3, UnitClass("player")) == 5 then
 							end
 
 							-- Halo, Shadowfiend, Mindbender
-							ShadowCooldownsSmall(options)
+							if ShadowCooldownsSmall(options) then return end
 							--if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
 							--if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
 
 							-- SWP refresh
-							refreshSWP(options,true)
+							if refreshSWP(options,true) then return end
 
 						
 							-- VT on target
@@ -662,7 +666,7 @@ if select(3, UnitClass("player")) == 5 then
 
 							-- VT on all
 							if options.buttons.DoT==3 or options.buttons.DoT==4 then
-								throwVT(options,true)
+								if throwVT(options,true) then return end
 							end
 							-- -- Mind Sear
 							-- if options.isChecked.MindSear then
@@ -700,7 +704,7 @@ if select(3, UnitClass("player")) == 5 then
 								end
 								-- Throw DP
 								if options.isChecked.DPmode==2 then
-									ThrowDP()
+									if ThrowDP() then return end
 								end
 							end
 						end
@@ -750,15 +754,15 @@ if select(3, UnitClass("player")) == 5 then
 						if castSpell("target",MB,false,true) then return; end
 
 						-- Halo, Shadowfiend, Mindbender
-						ShadowCooldownsSmall(options)
+						if ShadowCooldownsSmall(options) then return end
 						--if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
 						--if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
 
 						-- SWP on MaxTargets
-						throwSWP(options,true)
+						if throwSWP(options,true) then return end
 
 						-- VT on MaxTargets
-						throwVT(options,true)
+						if throwVT(options,true) then return end
 
 						-- SoD Proc
 						if getBuffStacks("player",SoDProc)>=1 then
@@ -766,10 +770,10 @@ if select(3, UnitClass("player")) == 5 then
 						end
 
 						-- SWP refresh
-						refreshSWP(options,true)
+						if refreshSWP(options,true) then return end
 
 						-- VT refresh
-						refreshVT(options,true)
+						if refreshVT(options,true) then return end
 
 						-- Mind Sear
 						if options.isChecked.MindSear then
