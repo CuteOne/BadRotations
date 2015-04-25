@@ -83,9 +83,21 @@ if select(3, UnitClass("player")) == 5 then
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"|cffBA55D3Encounter Specific")
 
-			-- Maidens Auto Guise
+			-- Auto Guise
 			CreateNewCheck(thisConfig,"Auto Guise", "Auto Spectral Guise on: \nBRF: Iron Maidens")
 			CreateNewText(thisConfig,"Auto Guise")
+
+			-- Auto Mass Dispel
+			CreateNewCheck(thisConfig,"Auto Mass Dispel", "Auto Mass Dispel on: \nBRF: Operator Thogar")
+			CreateNewText(thisConfig,"Auto Mass Dispel")
+
+			-- Auto Dispel
+			CreateNewCheck(thisConfig,"Auto Dispel", "Auto Dispel on: \nBRF: Blast Furnace")
+			CreateNewText(thisConfig,"Auto Dispel")
+
+			-- Auto Silence
+			CreateNewCheck(thisConfig,"Auto Silence", "Auto Silence on: \nBRF: Blast Furnace")
+			CreateNewText(thisConfig,"Auto Silence")
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"|cffBA55D3Defensive")
@@ -96,9 +108,9 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewText(thisConfig,"PW: Shield")
 
 			-- Healthstone
-			CreateNewCheck(thisConfig,"Healthstone")
-			CreateNewBox(thisConfig, "Healthstone", 0,100,2,25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone")
-			CreateNewText(thisConfig,"Healthstone")
+			CreateNewCheck(thisConfig,"Healing Tonic")
+			CreateNewBox(thisConfig, "Healing Tonic", 0,100,2,25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealing Tonic")
+			CreateNewText(thisConfig,"Healing Tonic")
 
 			-- Desperate Prayer
 			if isKnown(DesperatePrayer) then
@@ -200,6 +212,42 @@ if select(3, UnitClass("player")) == 5 then
 
 
 			-- Wrapper -----------------------------------------
+			-- if LibDraw then
+			-- 	CreateNewWrap(thisConfig,"|cffBA55D3Drawing")
+			-- 	-- -- r
+			-- 	-- CreateNewBox(thisConfig,"red", 0, 255, 5, 128, "red value")
+			-- 	-- CreateNewText(thisConfig,"red")
+
+			-- 	-- -- g
+			-- 	-- CreateNewBox(thisConfig,"green", 0, 255, 5, 128, "green value")
+			-- 	-- CreateNewText(thisConfig,"green")
+
+			-- 	-- -- b
+			-- 	-- CreateNewBox(thisConfig,"blue", 0, 255, 5, 128, "blue value")
+			-- 	-- CreateNewText(thisConfig,"blue")
+
+			-- 	-- -- a
+			-- 	-- CreateNewBox(thisConfig,"alpha", 0, 100, 5, 66, "alpha value")
+			-- 	-- CreateNewText(thisConfig,"alpha")
+
+			-- 	-- BossHelper
+			-- 	CreateNewCheck(thisConfig,"BossHelper")
+			-- 	CreateNewText(thisConfig,"BossHelper")
+
+			-- 	-- T90
+			-- 	CreateNewCheck(thisConfig,"T90")
+			-- 	CreateNewText(thisConfig,"T90")
+
+			-- 	-- Target Line
+			-- 	CreateNewCheck(thisConfig,"Target Line")
+			-- 	CreateNewText(thisConfig,"Target Line")
+
+			-- 	-- Target Box
+			-- 	CreateNewCheck(thisConfig,"Target Circle")
+			-- 	CreateNewText(thisConfig,"Target Circle")
+			-- end
+
+			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"|cffBA55D3Utilities")
 
 			-- Pause Toggle
@@ -214,6 +262,10 @@ if select(3, UnitClass("player")) == 5 then
 			-- Shadowform Outfight
 			CreateNewCheck(thisConfig,"Shadowform Outfight")
 			CreateNewText(thisConfig,"Shadowform Outfight")
+
+			-- Farmer
+			CreateNewCheck(thisConfig,"Farmer","SWP on mouseover.")
+			CreateNewText(thisConfig,"Farmer")
 
 			-- -- Auto Rez
 			-- CreateNewCheck(thisConfig,"Auto Rez")
@@ -240,6 +292,11 @@ if select(3, UnitClass("player")) == 5 then
 			-- Bubble Wand
 			CreateNewCheck(thisConfig,"Bubble")
 			CreateNewText(thisConfig,"Bubble")
+
+			-- Disable Combat
+			CreateNewCheck(thisConfig,"disable Combat")
+			CreateNewText(thisConfig,"disable Combat")
+			
 
 
 			-- General Configs ---------------------------------

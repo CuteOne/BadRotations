@@ -88,7 +88,7 @@ if select(3, UnitClass("player")) == 5 then
 	-- Units not to dot with DoTEmAll
 	function safeDoT(datUnit)
 		local Blacklist = {
-			-- Highmauk
+			-- Highmaul
 			"Volatile Anomaly",
 			-- Blackrock Foundry
 			"Pack Beast",
@@ -96,6 +96,10 @@ if select(3, UnitClass("player")) == 5 then
 		-- nil Protection
 		if datUnit == nil then 
 			return true 
+		end
+		-- BRF: Blast Furnace: Primal Elementalist: http://www.wowhead.com/spell=155176/damage-shield
+		if getBuffRemain(datUnit,155176)>0 then
+			return false
 		end
 		-- Iterate the blacklist
 		for i = 1, #Blacklist do
@@ -152,7 +156,270 @@ if select(3, UnitClass("player")) == 5 then
 			return false
 		end
 	end
+
+	-- Looking for Unit
+	-- not for use atm
+	function LFU2(datName,rangeCheck)
+		-- range Check: FALSE
+		if rangeCheck==nil or rangeCheck>0 then
+			if rangeCheck==nil then
+				-- 1) check
+				if UnitName("target")~=datName then
+					TargetUnit(datName)
+				end
+				-- 2) return
+				if UnitName("target")==datName then
+					return true
+				else
+					return false
+				end
+			-- range check: TRUE
+			elseif rangeCheck>0 then
+				-- 1) check and target
+				if UnitName("target")==datName and getDistance("player","target")<rangeCheck then
+					return false
+				elseif UnitName("target")~=datName and getDistance("player",datName)<=rangeCheck then
+					TargetUnit(datName)
+				end
+				-- 2) return
+				if UnitName("target")==datName then
+					return true
+				else
+					return false
+				end
+			else
+				return false
+			end
+		end
+		return false
+	end
+
+	-- Looking for Unit
+	function LFU(datName)
+		-- nil prevention
+		if datName==nil then 
+			return false 
+		end
+		-- target specified Unit
+		TargetUnit(datName)
+		-- check and return
+		if UnitName("target")==datName then
+			return true
+		else 
+			return false
+		end
+	end
+
+	-- Sort enemiesTable by distance
+	function sortByDistance()
+		if enemiesTable then
+			table.sort(enemiesTable, function(x,y)
+				return x.distance and y.distance and x.distance > y.distance or false
+			end)
+		end
+	end
+
+	-- Blast Furnace
+		-- Furnace Engineer
+		function BlastFurnaceEngineer()
+			if enemiesTable then
+				for i=1,5,1 do
+					print("Try to MC Engineer")
+				end
+				print("==================")
+				--if UnitHealth("Heat Regulator")>100000 then
+					if not isCastingSpell(605,"player") then
+						for i=1,#enemiesTable do
+							local thisUnit = enemiesTable[i].unit
+							-- check for engineer
+							if UnitName(thisUnit)=="Furnace Engineer" then
+								if getDistance("player",thisUnit)<=30 then
+									-- http://www.wowhead.com/spell=155170/infuriated - MC no more working
+									if UnitDebuffID(thisUnit,155170)==nil then
+										print("try casting Dominate Mind")
+										if castSpell(thisUnit,DominateMind,true,true) then return; end
+										return
+									end
+								end
+							end
+						end
+					end
+				--end
+			else
+				print("no enemiesTable")
+			end
+		end
+
+		-- Security Guard
+		function BlastFurnaceSecurityGuard()
+			if enemiesTable then
+				for i=1,5,1 do
+					print("Try to MC Security Guard")
+				end
+				print("==================")
+				if not isCastingSpell(605,"player") then
+					for i=1,#enemiesTable do
+						local thisUnit = enemiesTable[i].unit
+						-- check for security guard
+						if UnitName(thisUnit)=="Security Guard" and isAlive(thisUnit) then
+							-- http://www.wowhead.com/spell=155170/infuriated - MC no more working
+							if UnitDebuffID(thisUnit,155170)==nil then
+								if castSpell(thisUnit,DominateMind,true,true) then return; end
+								return
+							end
+						end
+					end
+				end
+				-- target Slag Elemental with http://www.wowhead.com/spell=176141/hardened-slag
+				if isCastingSpell(605,"player") then
+					for i=1,#enemiesTable do
+						local thisUnit = enemiesTable[i].unit
+						-- check for Slag Elemental
+						if UnitName(thisUnit)=="Slag Elemental" and isAlive(thisUnit) then
+							-- http://www.wowhead.com/spell=176141/hardened-slag
+							if UnitBuffID(thisUnit,176141) then
+								if LFU("Slag Elemental") then return; end
+								return
+							end
+						end
+					end
+				end
+			else
+				print("no enemiesTable")
+			end
+		end
+
+		function MC()
+			if enemiesTable then
+				for i=1,5,1 do
+					print("Try to MC Security Guard")
+				end
+				print("==================")
+
+				if not isCastingSpell(605,"player") then
+					print("1) Not casting spell")
+					for i=1,#enemiesTable do
+						local thisUnit = enemiesTable[i].unit
+						print("2) Unit: "..UnitName(thisUnit))
+						if UnitName(thisUnit)=="Frost Wolf" and isAlive(thisUnit) then
+							print("3) Frostwolf found, alive, try casting")
+							--TargetUnit(thisUnit)
+							if castSpell(thisUnit,DominateMind,true,true) then return; end
+							return
+						end
+					end
+				end
+			end
+		end
+
+
 	--[[                    ]] -- General Functions end
+
+	--[[                    ]] -- Drawing Functions start
+		-- function Drawing()
+		-- 	if LibDraw then
+		-- 		-- table wipe
+		-- 		-- if LibDraw.callbacks == nil then
+		-- 		-- 	LibDraw.callbacks = { }
+		-- 		-- else
+		-- 		-- 	table.wipe(LibDraw.callbacks)
+		-- 		-- end
+
+		-- 		LibDraw.Sync(function()
+		-- 			-- Set line width
+		-- 			LibDraw.SetWidth(2)
+		-- 			--LibDraw.helper = true
+		-- 			local playerX, playerY, playerZ = ObjectPosition("player")
+
+		-- 			--local red,green,blue,alpha = getValue("red"),getValue("green"),getValue("blue"),getValue("alpha")
+		-- 			--LibDraw.SetColor(red, green, blue, alpha)
+
+		-- 			-- Mind Control Distance Helper
+		-- 			-- if getBuffRemain("player",MC)>0 and GetObjectExists("pet") then
+		-- 			-- 	local targetX, targetY, targetZ = ObjectPosition("target")
+		-- 			-- 	local petX, petY, petZ = ObjectPosition("pet")
+		-- 			-- 	LibDraw.Text("D: "..math.floor(getDistance("player","pet"),2), "GameFontNormal", petX, petY, petZ + 4)
+		-- 			-- 	LibDraw.Text("R: "..math.floor(getBuffRemain("player",MC),2),"GameFontNormal",petX,petY,petZ+6)
+		-- 			-- end
+
+		-- 			-- T90
+		-- 			if isChecked("T90") then
+		-- 				-- cascade
+		-- 				if getTalent(6,1) then
+		-- 					-- colors
+		-- 					--if getSpellCD(Cascade)<=25   and getSpellCD(Cascade)>10   then LibDraw.SetColor(255,   0,   0, 66) end
+		-- 					if getSpellCD(Cascade)<=7.5   and getSpellCD(Cascade)> 5   then LibDraw.SetColor(255, 140,   0, 100) end
+		-- 					if getSpellCD(Cascade)<= 5   and getSpellCD(Cascade)> 2.5 then LibDraw.SetColor(255, 255,   0, 100) end
+		-- 					if getSpellCD(Cascade)<= 2.5 and getSpellCD(Cascade)>=0   then LibDraw.SetColor(  0, 255,   0, 100) end
+		-- 					-- if getSpellCD(Cascade)==5 then LibDraw.SetColor(0, 255, 0, 66) end
+		-- 					-- draw
+		-- 					if getSpellCD(Cascade)<=7.5 then
+		-- 						LibDraw.Circle(playerX, playerY, playerZ, 40)
+		-- 					end
+		-- 				end
+		-- 				-- halo
+		-- 				if getTalent(6,3) then
+		-- 					-- colors
+		-- 					if getSpellCD(Halo)<=7.5 and getSpellCD(Halo)>2.5 then LibDraw.SetColor(192, 0, 0, 66) end
+		-- 					if getSpellCD(Halo)<=2.5 and getSpellCD(Halo)>0 then LibDraw.SetColor(255, 128, 0, 66) end
+		-- 					if getSpellCD(Halo)==0 then LibDraw.SetColor(0, 255, 0, 66) end
+		-- 					-- draw
+		-- 					if getSpellCD(Halo)<=5 then
+		-- 						LibDraw.Circle(playerX, playerY, playerZ, 25)
+		-- 					end
+		-- 				end
+		-- 			end
+
+		-- 			-- Line to target
+		-- 			if isChecked("Target Line") and GetObjectExists("target") then
+		-- 				local targetX, targetY, targetZ = ObjectPosition("target")
+		-- 				LibDraw.SetColor(82,255,0,66)
+
+		-- 				LibDraw.Line(playerX, playerY, playerZ, targetX, targetY, targetZ)
+		-- 			end
+
+		-- 			-- target circle
+		-- 			if isChecked("Target Circle") and GetObjectExists("target") then
+		-- 				local targetX, targetY, targetZ = ObjectPosition("target")
+		-- 				LibDraw.SetColor(82,255,0,66)
+		-- 				LibDraw.SetWidth(5)
+
+		-- 				LibDraw.Circle(targetX,targetY,targetZ,1.25)
+		-- 			end
+
+		-- 			-- BossHelper
+		-- 			if isChecked("BossHelper") then
+		-- 				if currentBoss=="Heart of the Mountain" then
+		-- 					for i=1,#enemiesTable do
+		-- 						local thisUnit = enemiesTable[i].unit
+		-- 						local uX,uY,uZ = ObjectPosition(thisUnit)
+		-- 						-- iteration
+		-- 						for i=1,#enemiesTable do
+		-- 							local thisUnit = enemiesTable[i].unit
+		-- 							-- check for Slag Elemental
+		-- 							if UnitName(thisUnit)=="Slag Elemental" and isAlive(thisUnit) then
+		-- 								-- http://www.wowhead.com/spell=176141/hardened-slag
+		-- 								if UnitBuffID(thisUnit,176141) then
+		-- 									-- Line
+		-- 									LibDraw.SetColor(255,0,255,100)
+		-- 									LibDraw.SetWidth(2)
+		-- 									LibDraw.Line(playerX, playerY, playerZ, uX, uY, uZ)
+		-- 									-- Circle
+		-- 									LibDraw.SetWidth(5)
+		-- 									LibDraw.Circle(uX,uY,uZ,1.25)
+		-- 								end
+		-- 							end
+		-- 						end
+		-- 					end
+		-- 				end
+		-- 			end
+
+		-- 		end)
+		-- 	end
+		-- end
+
+
+	--[[                    ]] -- Drawing Functions end
 
 	--[[                    ]] -- Defensives
 		function ShadowDefensive(options)
@@ -168,12 +435,10 @@ if select(3, UnitClass("player")) == 5 then
 				end
 			end
 
-			-- Healthstone/HealPot
-			if isChecked("Healthstone") and getHP("player") <= getValue("Healthstone") and hasHealthPot() then
-				if canUse(5512) then
-					UseItemByName(tostring(select(1,GetItemInfo(5512))))
-				elseif canUse(healPot) then
-					UseItemByName(tostring(select(1,GetItemInfo(healPot))))
+			-- Healing Tonic
+			if isChecked("Healing Tonic") and getHP("player") <= getValue("Healing Tonic") then
+				if canUse(109223) then
+					UseItemByName(109223)
 				end
 			end
 
@@ -264,14 +529,17 @@ if select(3, UnitClass("player")) == 5 then
 				end
 			end
 
-			-- Mindbender
-			if isKnown(Mindbender) and options.buttons.Cooldowns == 2 and options.isChecked.Mindbender then
-				if castSpell("target",Mindbender) then return; end
-			end
+			if isBoss() and options.isChecked.isBoss
+			or not options.isChecked.isBoss then
+				-- Mindbender
+				if isKnown(Mindbender) and options.buttons.Cooldowns == 2 and options.isChecked.Mindbender then
+					if castSpell("target",Mindbender) then return; end
+				end
 
-			-- Shadowfiend
-			if isKnown(SF) and options.buttons.Cooldowns == 2 and options.isChecked.Shadowfiend then
-				if castSpell("target",SF,true,false) then return; end
+				-- Shadowfiend
+				if isKnown(SF) and options.buttons.Cooldowns == 2 and options.isChecked.Shadowfiend then
+					if castSpell("target",SF,true,false) then return; end
+				end
 			end
 		end
 	--[[                    ]] -- Cooldowns end
@@ -281,23 +549,23 @@ if select(3, UnitClass("player")) == 5 then
 			if getHP("target")<=20 then
 				-- ORBS>=3 -> DP
 				if options.player.ORBS>=3 then
-					if castSpell("target",DP,true,false) then return; end
+					if castSpell("target",DP,true,false) then return end
 				end
 
 				-- MB
-				if castSpell("target",MB,false,false) then return; end
+				if castSpell("target",MB,false,false) then return end
 
 				-- SWD
-				if castSpell("target",SWD,true,false) then return; end
+				if castSpell("target",SWD,true,false) then return end
 
 				-- SoD Proc
 				if getBuffStacks("player",SoDProc)>=1 then
-					if castSpell("target",MSp,false,false) then return; end
+					if castSpell("target",MSp,false,false) then return end
 				end
 
 				-- MF Filler
 				if select(1,UnitChannelInfo("player")) == nil and options.player.ORBS<3 then
-					if castSpell("target",MF,false,true) then return; end
+					if castSpell("target",MF,false,true) then return end
 				end
 			end
 		end
@@ -308,25 +576,25 @@ if select(3, UnitClass("player")) == 5 then
 			if getHP("target")<=20 then
 				-- DP on 3+ Orbs
 				if options.player.ORBS>=3 then
-					if castSpell("target",DP,true,false) then return; end
+					if castSpell("target",DP,true,false) then return end
 				end
 
 				-- MB
-				if castSpell("target",MB,false,true) then return; end
+				if castSpell("target",MB,false,true) then return end
 
 				-- SoD Proc
 				if getBuffStacks("player",SoDProc)>=1 then
-					if castSpell("target",MSp,false,false) then return; end
+					if castSpell("target",MSp,false,false) then return end
 				end
 
 				-- SWD
-				if castSpell("target",SWD,true,false) then return; end
+				if castSpell("target",SWD,true,false) then return end
 
 				-- Insanity if noChannel
 				if getBuffRemain("player",InsanityBuff)>0 then
 					-- Check for current channel and cast Insanity
 					if select(1,UnitChannelInfo("player")) == nil then
-						if castSpell("target",MF,false,true) then return; end
+						if castSpell("target",MF,false,true) then return end
 					end
 				end
 
@@ -334,7 +602,7 @@ if select(3, UnitClass("player")) == 5 then
 				if getTimeToDie("target")>25 then
 					-- SWP
 					if getDebuffRemain("target",SWP,"player")<options.values.SWPRefresh then
-						if castSpell("target",SWP,true,false) then return; end
+						if castSpell("target",SWP,true,false) then return end
 					end
 					-- VT
 					if getDebuffRemain("target",VT,"player")<=options.values.VTRefresh and GetTime()-lastVT > 2*options.player.GCD then
@@ -347,22 +615,193 @@ if select(3, UnitClass("player")) == 5 then
 
 				-- MF Filler
 				if select(1,UnitChannelInfo("player")) == nil then
-					if castSpell("target",MF,false,true) then return; end
+					if castSpell("target",MF,false,true) then return end
 				end
 			end
 		end
 	--[[                    ]] -- Execute AS end
+
+	--[[                    ]] -- BossHelper start
+		function BossHelper()
+			if currentBoss~=nil then
+
+				-- Blackrock Foundry (T17)
+				if GetRealZoneText()=="Blackrock Foundry" then
+					-- Oregorger
+
+					-- Hans & Franz
+						if currentBoss=="Hans'gar" or currentBoss=="Franzok" then
+							-- Auto Target Franz if in range, else target Hans
+							if GetObjectExists("target")==false then 
+								if LFU("Hans'gar") then return true end
+							end
+							if GetObjectExists("target")==false then 
+								if LFU("Franzok") then return true end
+							end
+						end
+
+					-- Beastlord Darmac
+						if currentBoss=="Beastlord Darmac" or currentBoss=="Cruelfang" or currentBoss=="Dreadwing" or currentBoss=="Ironcrusher" or currentBoss=="Faultine" then
+							-- Pack Beast - Cascade
+							if getTalent(6,1) then
+								if getSpellCD(Cascade)<=0 then
+									for i=1,#enemiesTable do
+										local thisUnit = enemiesTable[i].unit
+										if UnitName(thisUnit) == "Pack Beast" then
+											if getDistance("player",thisUnit)<40 then
+												if castSpell(thisUnit,Cascade,true,false) then return; end
+											end
+										end
+									end
+								end
+							end
+							-- target Beastlord Darmac
+							if GetObjectExists("target")==false then 
+								if LFU("Beastlord Darmac") then return; end
+							end
+							-- target Cruelfang
+							if GetObjectExists("target")==false then 
+								if LFU("Cruelfang") then return; end
+							end
+							-- target Dreadwing
+							if GetObjectExists("target")==false then 
+								if LFU("Dreadwing") then return; end
+							end
+							-- target Ironcrusher
+							if GetObjectExists("target")==false then 
+								if LFU("Ironcrusher") then return; end
+							end
+							-- target Faultine
+							if GetObjectExists("target")==false then 
+								if LFU("Faultine") then return; end
+							end
+						end
+						
+					-- Gruul
+						if currentBoss=="Gruul" and GetObjectExists("target")==false then
+							if LFU("Gruul") then return; end
+						end
+
+					-- Flamebender Ka'graz
+						-- Cascade Dogs
+						if currentBoss=="Flamebender Ka'graz" then
+							if getTalent(6,1) then
+								if getSpellCD(Cascade)<=0 then
+									-- sort enemiesTable by distance
+									sortByDistance()
+									-- Cascade farest dog
+									for i=1,#enemiesTable do
+										local thisUnit = enemiesTable[i].unit
+										if getDistance("player",thisUnit)<40 then
+											--if UnitName(thisUnit) == "Cinder Wolf" then
+												if castSpell(thisUnit,Cascade,true,false) then return; end
+											--end
+										end
+									end
+								end
+							end
+						end
+
+					-- Operator Thogar
+						if currentBoss=="Operator Thogar" then
+							-- target Grom'kar Man-at-Arms
+							if UnitName("target")~="Grom'kar Man-at-Arms" and isAlive("Grom'kar Man-at-Arms") and getDistance("Grom'kar Man-at-Arms")<=40 then
+								if LFU("Grom'kar Man-at-Arms") then return; end
+							end
+							-- target Iron Gunnery Sergeant / SWD, DP, MB
+							if UnitName("target")~="Iron Gunnery Sergeant" and isAlive("Iron Gunnery Sergeant") and getDistance("Iron Gunnery Sergeant")<=40 then
+								if LFU("Grom'kar Man-at-Arms") then return; end
+							end
+							-- Halo/Cascade Reinforcements
+							if (getSpellCD(Halo) and getTalent(6,3)) or (getSpellCD(Cascade) and getTalent(6,1)) then
+								-- sort enemiesTable by distance
+								sortByDistance()
+								for i=1,#enemiesTable do
+									local thisUnit = enemiesTable[i].unit
+									if getDistance("player",thisUnit)<40 then
+										if UnitName("Iron Raider") or UnitName("Iron Crack-Shot") then
+											if getTalent(6,1) then
+												if castSpell(thisUnit,Cascade,true,false) then return; end
+											end
+											if getTalent(6,3) then
+												if castSpell(thisUnit,Halo,true,false) then return; end
+											end
+										end
+									end
+								end
+							end
+						end
+
+					-- The Blast Furnace
+						if currentBoss=="Heart of the Mountain" then
+							if getTalent(6,1) then
+								if getSpellCD(Cascade)<=0 then
+									-- sort enemiesTable by distance
+									sortByDistance()
+									-- Cascade farest dog
+									for i=1,#enemiesTable do
+										local thisUnit = enemiesTable[i].unit
+										if getDistance("player",thisUnit)<40 then
+											--if UnitName(thisUnit) == "Cinder Wolf" then
+												if castSpell(thisUnit,Cascade,true,false) then return; end
+											--end
+										end
+									end
+								end
+							end
+						end
+
+					-- Kromog
+						if currentBoss=="Kromog" then
+							-- Cascade farest possible hand
+							if getSpellCD(Cascade)<=0 then
+								-- sort enemiesTable by distance
+								sortByDistance()
+								-- Cascade farest dog
+								for i=1,#enemiesTable do
+									local thisUnit = enemiesTable[i].unit
+									if getDistance("player",thisUnit)<40 then
+										if UnitName(thisUnit) == "Grasping Earth" then
+											if castSpell(thisUnit,Cascade,true,false) then return; end
+										end
+									end
+								end
+							end
+						end
+
+					-- The Iron Maidens
+						if currentBoss=="Marak the Blooded" or currentBoss=="Enforcer Sorka" or currentBoss=="Admiral Gar'an" then
+							-- Automatic Target Dominator Turret
+							if UnitName("target")~="Dominator Turret" then
+								if LFU("Dominator Turret") then return; end
+							end
+						end
+
+					-- Blackhand
+						if currentBoss=="Blackhand" then
+							if GetObjectExists("target")==false then
+								if LFU("Blackhand") then return; end
+							end
+						end
+				end
+			end
+		end
+	--[[                    ]] -- BossHelper end
 
 	--[[                    ]] -- LF Orbs start
 		function LFOrbs(options)
 			if options.isChecked.ScanOrbs then
 				if getSpellCD(SWD)<=0 then
 					if options.player.ORBS<5 then
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
-							local hp = enemiesTable[i].hp
-							if hp<20 then
-								if castSpell(thisUnit,SWD,true,false,false,false,false,false,true) then return; end
+						if getHP("target")<=20 then
+							if castSpell("target",SWD,true,false) then return end
+						else
+							for i=1,#enemiesTable do
+								local thisUnit = enemiesTable[i].unit
+								local hp = enemiesTable[i].hp
+								if hp<20 then
+									if castSpell(thisUnit,SWD,true,false,false,false,false,false,true) then return end
+								end
 							end
 						end
 					end
@@ -380,7 +819,7 @@ if select(3, UnitClass("player")) == 5 then
 						local hp = enemiesTable[i].hp
 						if hp<35 then
 							if getSpellCD(MB)>0 then
-								if castSpell(thisUnit,SWP,true,false) then return; end
+								if castSpell(thisUnit,SWP,true,false) then return end
 							end
 						end
 					end
@@ -404,7 +843,9 @@ if select(3, UnitClass("player")) == 5 then
 								if UnitDebuffID(thisUnit,SWP,"player") then
 									-- check remaining time and minhealth
 									if getDebuffRemain(thisUnit,SWP,"player")<=options.values.SWPRefresh and thisHP>options.values.MinHealth then
-										if castSpell(thisUnit,SWP,true,false) then return; end
+										if castSpell(thisUnit,SWP,true,false) then 
+											return true
+										end
 									end
 								end
 							end
@@ -427,7 +868,9 @@ if select(3, UnitClass("player")) == 5 then
 							if not UnitIsUnit("target",thisUnit) or targetAlso then
 							-- check remaining time and minhealth
 								if getDebuffRemain(thisUnit,SWP,"player")<=0 and thisHP>options.values.MinHealth then
-									if castSpell(thisUnit,SWP,true,false) then return; end
+									if castSpell(thisUnit,SWP,true,false) then 
+										return true
+									end
 								end
 							end
 						end
@@ -453,7 +896,9 @@ if select(3, UnitClass("player")) == 5 then
 									if UnitDebuffID(thisUnit,VT,"player") then
 										-- check remaining time and minhealth
 										if getDebuffRemain(thisUnit,VT,"player")<=options.values.VTRefresh and thisHP>options.values.MinHealth then
-											if castSpell(thisUnit,VT,true,true) then return; end
+											if castSpell(thisUnit,VT,true,true) then 
+												return true
+											end
 										end
 									end
 								end
@@ -477,7 +922,9 @@ if select(3, UnitClass("player")) == 5 then
 								if not UnitIsUnit("target",thisUnit) or targetAlso then
 									-- check remaining time and minhealth
 									if getDebuffRemain(thisUnit,VT,"player")<=0 and thisHP>options.values.MinHealth then
-										if castSpell(thisUnit,VT,true,true) then return; end
+										if castSpell(thisUnit,VT,true,true) then 
+											return true
+										end
 									end
 								end
 							end
@@ -495,7 +942,7 @@ if select(3, UnitClass("player")) == 5 then
 				-- Chat Overlay
 				ChatOverlay("Searing Insanity active")
 				-- MB CoP Insanity
-				if getTalent(7,1) and getTalent(3,3) then
+				if getTalent(7,1) and getTalent(3,3) and options.player.ORBS<3 then
 					if castSpell("target",MB,false,false) then return; end
 				end
 				-- DP
@@ -504,6 +951,15 @@ if select(3, UnitClass("player")) == 5 then
 						if getBuffRemain("player",InsanityBuff)<=0 then
 							if castSpell("target",DP,true,false) then return; end
 						end
+					end
+				end
+				-- Clip it
+				if getBuffRemain("player",InsanityBuff)>0 and getBuffRemain("player",InsanityBuff)<options.player.GCD then
+					local cEnd = select(6,UnitChannelInfo("player"))
+					local cRem = cEnd - GetTime()*1000
+					-- Clip it
+					if cRem<500 then
+						if castSpell("target",MS,true,true) then return; end
 					end
 				end
 				-- Searing Insanity
@@ -518,6 +974,21 @@ if select(3, UnitClass("player")) == 5 then
 		end
 	end
 	--[[                    ]] -- Searing Insanity
+
+	--[[                    ]] -- Clip Insanity
+	function ClipInsanity(options)
+		if UnitChannelInfo("player") then
+			if getBuffRemain("player",InsanityBuff)>0 and getBuffRemain("player",InsanityBuff)<options.player.GCD then
+				local cEnd = select(6,UnitChannelInfo("player"))
+				local cRem = cEnd - GetTime()*1000
+				-- Clip it
+				if cRem<500 then
+					if castSpell("target",MF,false,true) then return; end
+				end
+			end
+		end
+	end
+	--[[                    ]] -- Clip Insanity
 
 	--[[                    ]] -- Throw DP start
 		function ThrowDP()
@@ -590,14 +1061,16 @@ if select(3, UnitClass("player")) == 5 then
 			end
 
 			-- Check for >= 3 Orbs
-			if options.player.ORBS>=3 then
-				-- Check for last DP
-				if GetTime()-lastDP<=options.player.DPTIME+1 then
-					-- Check that Insanity isnt on me
-					--if getBuffRemain("player",InsanityBuff)<=0.3*options.player.DPTIME then
-					if getBuffRemain("player",InsanityBuff)<=0 then
-						-- DP on target
-						if castSpell("target",DP,false,true) then return; end
+			if UnitChannelInfo("player")~="Insanity" or getSpellCD(MB)<=1.5 then
+				if options.player.ORBS>=3 then
+					-- Check for last DP
+					if GetTime()-lastDP<=options.player.DPTIME+2.2*options.player.GCD then
+						-- Check that Insanity isnt on me
+						--if getBuffRemain("player",InsanityBuff)<=0.3*options.player.DPTIME then
+						if getBuffRemain("player",InsanityBuff)<=0 then
+							-- DP on target
+							if castSpell("target",DP,false,true) then return; end
+						end
 					end
 				end
 			end
@@ -618,8 +1091,9 @@ if select(3, UnitClass("player")) == 5 then
 				-- only collect Orbs if not channeling insanity atm
 				if not select(1,UnitChannelInfo("player")) ~= "Insanity" then
 					-- Halo, Shadowfiend, Mindbender
-					if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
-					if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
+					ShadowCooldownsSmall(options)
+					--if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
+					--if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
 
 					-- SWP
 					if options.buttons.DoT==2 or options.buttons.DoT==4 then 
@@ -645,7 +1119,7 @@ if select(3, UnitClass("player")) == 5 then
 					end
 
 					-- Mind Spike
-					if options.player.ORBS<5 then
+					if options.player.ORBS<5 and not (UnitChannelInfo("player")=="Insanity") then
 						if #getEnemies("target",10)<options.values.MindSear and options.isChecked.MindSear
 						or not options.isChecked.MindSear then
 							if castSpell("target",MSp,false,true) then return; end
@@ -686,35 +1160,54 @@ if select(3, UnitClass("player")) == 5 then
 			end
 		end
 
+		-- DP on 5 Orbs
+		if options.player.ORBS==5 then
+			if castSpell("target",DP,true,false) then return; end
+		end
+
+		-- Hold Back DP to improve 4 set uptime
+		if TierScan("T17")>=4 then
+			if options.player.ORBS>=options.values.DPon 
+			or (getBuffRemain("player",MentalInstinct)<1.8*options.player.GCD and options.player.ORBS>=3) then
+				if getBuffRemain("player",MentalInstinct)<1.8*options.player.GCD then
+					if castSpell("target",DP,true,false) then return; end
+				end
+			end
+		end
+
 		-- DP on 3+ Orbs
-		if options.player.ORBS>=3 then
-			-- check for running DP
-			if getDebuffRemain("target",DP,"player")<=0.3*options.player.DPTIME then
-				if castSpell("target",DP,true,false) then return; end
+		if TierScan("T17")<4 then
+			if options.player.ORBS>=3 then
+				-- check for running DP
+				if getBuffRemain("player",InsanityBuff)<=0 then
+					if castSpell("target",DP,true,false) then return; end
+				end
 			end
 		end
 
 		-- MB on CD
 		if castSpell("target",MB,false,true) then return; end
 
-		-- SWP on MaxTargets
-		throwSWP(options,true)
+		if select(1,UnitChannelInfo("player")) ~= "Insanity" then
+			-- SWP on MaxTargets
+			throwSWP(options,true)
 
-		-- Insanity
-		if getBuffRemain("player",InsanityBuff)>0 then
-			if select(1,UnitChannelInfo("player")) == nil then
-				if castSpell("target",MF,false,true) then return; end
+			-- Insanity
+			if getBuffRemain("player",InsanityBuff)>0 then
+				if select(1,UnitChannelInfo("player")) == nil then
+					if castSpell("target",MF,false,true) then return; end
+				end
 			end
-		end
 
-		-- Halo, Shadowfiend, Mindbender
-		if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
-		if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
+			-- Halo, Shadowfiend, Mindbender
+			ShadowCooldownsSmall(options)
+			--if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
+			--if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
 
-		-- SWP refresh
-		refreshSWP(options,true)
+			-- SWP refresh
+			refreshSWP(options,true)
 
-		if select(1,UnitChannelInfo("player")) == nil then
+		
 			-- VT on target
 			if options.isChecked.VTonTarget then
 				if getDebuffRemain("target",VT,"player")<=options.values.VTRefresh and GetTime()-lastVT > 2*options.player.GCD then
@@ -741,8 +1234,10 @@ if select(3, UnitClass("player")) == 5 then
 			-- end
 
 			-- Insanity / MF
-			if select(1,UnitChannelInfo("player")) == nil then
-				if castSpell("target",MF,false,true) then return; end
+			if getSpellCD(MB)>0.5 then
+				if select(1,UnitChannelInfo("player")) == nil then
+					if castSpell("target",MF,false,true) then return; end
+				end
 			end
 		end
 	end
@@ -774,10 +1269,20 @@ if select(3, UnitClass("player")) == 5 then
 
 		-- Hold Back DP to improve 4 set uptime
 		if TierScan("T17")>=4 then
-			if options.player.ORBS>=options.values.DPon then
+			if options.player.ORBS>=options.values.DPon
+			or (getBuffRemain("player",MentalInstinct)<1.8*options.player.GCD and options.player.ORBS>=3) then
 				if getBuffRemain("player",MentalInstinct)<1.8*options.player.GCD then
 					if castSpell("target",DP,true,false) then return; end
 				end
+			end
+		end
+
+		-- DP on 3+ Orbs
+		if TierScan("T17")>=4 then
+			-- check for options
+			if options.player.ORBS>=options.values.DPon then
+				-- DP
+				if castSpell("target",DP,true,false) then return; end
 			end
 		end
 
@@ -802,8 +1307,9 @@ if select(3, UnitClass("player")) == 5 then
 		if castSpell("target",MB,false,true) then return; end
 
 		-- Halo, Shadowfiend, Mindbender
-		if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
-		if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
+		ShadowCooldownsSmall(options)
+		--if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
+		--if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
 
 		-- SWP on MaxTargets
 		throwSWP(options,true)
