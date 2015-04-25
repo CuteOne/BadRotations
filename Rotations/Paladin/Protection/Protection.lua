@@ -17,7 +17,7 @@ if select(3, UnitClass("player")) == 2 then
       return true
     end
     --if IsLeftControlKeyDown() then -- Pause the script, keybind in wow ctrl+1 etc for manual cast
-    --	return true
+    --  return true
     --end
     if IsLeftAltKeyDown() then
       return true
@@ -40,6 +40,10 @@ if select(3, UnitClass("player")) == 2 then
     -- Buffs logic
     core:castBuffs()
 
+    --[[  TODO: Update Seals (no more truth)
+
+    ]]--
+
     -- Only start if we and target is in combat or not in combat and pressing left control
     if UnitAffectingCombat("player")  or (not UnitAffectingCombat("player") and IsLeftControlKeyDown() ) then
 
@@ -58,6 +62,7 @@ if select(3, UnitClass("player")) == 2 then
       -- actions+=/potion,name=draenic_armor,if=buff.shield_of_the_righteous.down&buff.seraphim.down&buff.divine_protection.down&buff.guardian_of_ancient_kings.down&buff.ardent_defender.down
 
       -- make sure we have a seal(often removed by changing talents/glyph)
+      -- Default: Insight
       if core.seal == 0 then
         if core:castSeal(3) then
           return
@@ -103,8 +108,8 @@ if select(3, UnitClass("player")) == 2 then
       -------------------------------------------------------------------------------------------------------------------------------
       -------------------------------------------------------------------------------------------------------------------------------
 
+      -- # Standard survival priority list starts here
       if rotationMode == 1 then
-        -- # Standard survival priority list starts here
         -- # This section covers off-GCD spells.
         -- actions+=/holy_avenger
         core:castHolyAvenger()
@@ -124,15 +129,6 @@ if select(3, UnitClass("player")) == 2 then
         if (core.combatLenght < 5 and buff.guardianOfAncientKings == 0) or (buff.holyAvenger == 0 and buff.shieldOfTheRighteous == 0
           and buff.divineProtection == 0 and buff.guardianOfAncientKings == 0) then
           core:castArdentDefender()
-        end
-        -- actions+=/eternal_flame,if=buff.eternal_flame.remains<2&buff.bastion_of_glory.react>2&(holy_power>=3|buff.divine_purpose.react|buff.bastion_of_power.react)
-        -- actions+=/eternal_flame,if=buff.bastion_of_power.react&buff.bastion_of_glory.react>=5
-        -- actions+=/harsh_word,if=glyph.harsh_words.enabled&holy_power>=3
-        if glyph.harshWords and getDistance("player",core.units.dyn5) > 5 and (buff.divinePurpose > 0 or holypower == 5 or (holypower >= 3 and buff.holyAvenger > core.globalCooldown))
-          and (not talent.seraphim or cd.seraphim > 5) then
-          if core:castHarshWords() then
-            return
-          end
         end
         -- actions+=/shield_of_the_righteous,if=buff.divine_purpose.react
         if buff.divinePurpose > 0 then
@@ -244,8 +240,10 @@ if select(3, UnitClass("player")) == 2 then
           return
         end
         -- actions+=/consecration,if=target.debuff.flying.down&active_enemies>=3
-        if core:castConsecration() then
-          return
+        if core.melee9Yards >=3 then
+          if core:castConsecration() then
+            return
+          end
         end
         -- actions+=/execution_sentence,if=!talent.seraphim.enabled|buff.seraphim.up|time<12
         if core:castExecutionSentence() then
@@ -269,6 +267,7 @@ if select(3, UnitClass("player")) == 2 then
         if core:castHolyWrath() then
           return
         end
+        -- TODO: Update Seals
         if talent.empoweredSeals then
           -- actions+=/seal_of_insight,if=!seal.insight&buff.uthers_insight.remains<=buff.liadrins_righteousness.remains&buff.uthers_insight.remains<=buff.maraads_truth.remains
           if core.seal ~= 3 then
@@ -308,21 +307,14 @@ if select(3, UnitClass("player")) == 2 then
       -------------------------------------------------------------------------------------------------------------------------------
       -------------------------------------------------------------------------------------------------------------------------------
 
+      -- # Max-DPS priority list starts here.
       if rotationMode == 2 then
-        -- # Max-DPS priority list starts here.
         -- # This section covers off-GCD spells.
         -- actions.max_dps+=/holy_avenger
         core:castHolyAvenger()
         -- actions.max_dps+=/seraphim
         if core:castSeraphim() then
           return
-        end
-        -- actions.max_dps+=/harsh_words if glyphed and holypower at 5 or holy avenger or divine purpose
-        if glyph.harshWords and (buff.divinePurpose > 0 or holypower == 5 or (holypower >= 3 and buff.holyAvenger > core.globalCooldown))
-          and (not talent.seraphim or cd.seraphim > 5) then
-          if core:castHarshWords() then
-            return
-          end
         end
         -- actions.max_dps+=/shield_of_the_righteous,if=buff.divine_purpose.react
         if buff.divinePurpose > 0 then
@@ -355,6 +347,7 @@ if select(3, UnitClass("player")) == 2 then
           end
         end
         -- actions.max_dps+=/judgment,if=talent.empowered_seals.enabled&(buff.maraads_truth.down|buff.liadrins_righteousness.down)
+        -- TODO: update only 2 seals, no truth
         if talent.empoweredSeals and ((core.seal == 1 and buff.maraadsTruth == 0) or
           (core.seal == 2 and buff.liadrinsRighteousness == 0)) then
           if core:castJeopardy() then
@@ -412,6 +405,7 @@ if select(3, UnitClass("player")) == 2 then
         if core:castAvengersShield() then
           return
         end
+        -- TODO: update, only 2 seals
         if talent.empoweredSeals then
           -- actions.max_dps+=/seal_of_truth,if=!seal.truth&buff.maraads_truth.remains<cooldown.judgment.remains
           if core.seal ~= 1 and buff.maraadsTruth < cd.judgment and not (core.seal == 3 and buff.uthersInsight == 0) then
@@ -436,7 +430,7 @@ if select(3, UnitClass("player")) == 2 then
           return
         end
         -- actions.max_dps+=/consecration,if=target.debuff.flying.down&active_enemies>=3
-        if mode.aoe == 2 or (mode.aoe == 3 and core.melee5Yards >= 3) then
+        if mode.aoe == 2 or (mode.aoe == 3 and core.melee9Yards >= 3) then
           if core:castConsecration() then
             return
           end
@@ -457,6 +451,7 @@ if select(3, UnitClass("player")) == 2 then
         if core:castHolyWrath() then
           return
         end
+        -- TODO: update, only 2 seals
         if talent.empoweredSeals then
           -- actions.max_dps+=/seal_of_truth,if=talent.empowered_seals.enabled&!seal.truth&buff.maraads_truth.remains<buff.liadrins_righteousness.remains
           if core.seal ~= 1 and buff.maraadsTruth < buff.liadrinsRighteousness then
@@ -484,6 +479,7 @@ if select(3, UnitClass("player")) == 2 then
       -------------------------------------------------------------------------------------------------------------------------------
       -------------------------------------------------------------------------------------------------------------------------------
 
+      -- # Max survival priority list starts here
       if rotationMode == 3 then
         -- # Max survival priority list starts here
         -- # This section covers off-GCD spells.
@@ -495,9 +491,6 @@ if select(3, UnitClass("player")) == 2 then
             return
           end
         end
-
-        -- actions.max_survival+=/eternal_flame,if=buff.eternal_flame.remains<2&buff.bastion_of_glory.react>2&(holy_power>=3|buff.divine_purpose.react|buff.bastion_of_power.react)
-        -- actions.max_survival+=/eternal_flame,if=buff.bastion_of_power.react&buff.bastion_of_glory.react>=5
 
         -- actions.max_survival+=/shield_of_the_righteous,if=buff.divine_purpose.react
         if buff.divinePurpose > 0 then
@@ -557,12 +550,13 @@ if select(3, UnitClass("player")) == 2 then
           end
         end
         -- actions.max_survival+=/sacred_shield,if=target.dot.sacred_shield.remains<2
-        if talent.sacredShield and buff.sacredShield < 2 then
+        if buff.sacredShield < 2 then
           if core:castSacredShield() then
             return
           end
         end
         -- we want at least to keep uthersInsight
+        -- TODO: Update seals
         if talent.empoweredSeals then
           -- actions.max_survival+=/seal_of_insight,if=!seal.insight&buff.uthers_insight.remains<=buff.liadrins_righteousness.remains&buff.uthers_insight.remains<=buff.maraads_truth.remains
           if core.seal ~= 3 then
@@ -586,7 +580,7 @@ if select(3, UnitClass("player")) == 2 then
           return
         end
         -- actions.max_survival+=/consecration,if=target.debuff.flying.down&active_enemies>=3
-        if core.melee5Yards >= 3 then
+        if core.melee9Yards >= 3 then
           if core:castConsecration() then
             return
           end
@@ -613,6 +607,7 @@ if select(3, UnitClass("player")) == 2 then
             return
           end
         end
+        -- TODO: Update seals
         if talent.empoweredSeals then
           -- actions.max_survival+=/seal_of_insight,if=!seal.insight&buff.uthers_insight.remains<=buff.liadrins_righteousness.remains&buff.uthers_insight.remains<=buff.maraads_truth.remains
           if core.seal ~= 3 then
@@ -632,6 +627,7 @@ if select(3, UnitClass("player")) == 2 then
           end
         end
         -- actions.max_survival+=/holy_wrath,if=glyph.final_wrath.enabled&target.health.pct<=20
+        -- TODO: use this in all rotations
         if glyph.finalWrath and getHP(core.units.dyn8AoE) <= 20 then
           if core:castHolyWrath() then
             return
@@ -666,76 +662,76 @@ end
 
 --[[
 
-		-- Only run rotation if we or our target is in combat.
-		-- this should be handled by the dynamic target
-			-- Locals Variables
-			_HolyPower = UnitPower("player", 9) --ToDo: We should normalise the variables name, playerHP, buffDivine etc. _HolyPower is not consistent with the rest.
-			playerHP = getHP("player")
-			buffDivineCrusader = getBuffRemain("player",_DivineCrusader)
-			buffHolyAvenger = getBuffRemain("player",_HolyAvenger)
-			buffDivinePurpose = getBuffRemain("player",_DivinePurpose)
-			buffGrandCrusader = getBuffRemain("player",85043) --Todo: Add this to spellist as _GrandCrusader, at the moment i dont know what hte purpose is of the differnt spelllist files
-			buffSeraPhim = getBuffRemain("player",_Seraphim)
-			sealOfTruth = GetShapeshiftForm() == 1 or nil
-			sealOfRighteousness = GetShapeshiftForm() == 2 or nil
-			sealOfInsight = GetShapeshiftForm() == 3 or nil
+    -- Only run rotation if we or our target is in combat.
+    -- this should be handled by the dynamic target
+      -- Locals Variables
+      _HolyPower = UnitPower("player", 9) --ToDo: We should normalise the variables name, playerHP, buffDivine etc. _HolyPower is not consistent with the rest.
+      playerHP = getHP("player")
+      buffDivineCrusader = getBuffRemain("player",_DivineCrusader)
+      buffHolyAvenger = getBuffRemain("player",_HolyAvenger)
+      buffDivinePurpose = getBuffRemain("player",_DivinePurpose)
+      buffGrandCrusader = getBuffRemain("player",85043) --Todo: Add this to spellist as _GrandCrusader, at the moment i dont know what hte purpose is of the differnt spelllist files
+      buffSeraPhim = getBuffRemain("player",_Seraphim)
+      sealOfTruth = GetShapeshiftForm() == 1 or nil
+      sealOfRighteousness = GetShapeshiftForm() == 2 or nil
+      sealOfInsight = GetShapeshiftForm() == 3 or nil
 
 
 
-			-- function for handling units to attack
-			ProtPaladinEnemyUnitHandler()
+      -- function for handling units to attack
+      ProtPaladinEnemyUnitHandler()
 
-			--ProtPaladinFriendlyUnitHandler()
+      --ProtPaladinFriendlyUnitHandler()
 
-			-- If we are close to dying
-			if ProtPaladinSurvivalSelf() then -- Check if we are close to dying and act accoridingly
-				return true
-			end
+      -- If we are close to dying
+      if ProtPaladinSurvivalSelf() then -- Check if we are close to dying and act accoridingly
+        return true
+      end
 
-			-- If someone else is close to dying
-			if ProtPaladinSurvivalOther() then -- Check if raidmember are close to dying and act accoridingly
-				return
-			end
+      -- If someone else is close to dying
+      if ProtPaladinSurvivalOther() then -- Check if raidmember are close to dying and act accoridingly
+        return
+      end
 
-			-- Interrupt
-			if ProtPaladinInterrupt() then
-				return true
-			end
-			-- Dispell Logics Todo, includes removal using Divine Shield and Hand of Protection
-			if ProtPaladinDispell() then
-				return true
-			end
+      -- Interrupt
+      if ProtPaladinInterrupt() then
+        return true
+      end
+      -- Dispell Logics Todo, includes removal using Divine Shield and Hand of Protection
+      if ProtPaladinDispell() then
+        return true
+      end
 
-			-- If we are already casting then dont continue
-			if castingUnit() then
-				return false
-			end
+      -- If we are already casting then dont continue
+      if castingUnit() then
+        return false
+      end
 
-			if ProtPaladinControl("target") then
-				return true
-			end
+      if ProtPaladinControl("target") then
+        return true
+      end
 
-			if ProtPaladinUtility() then
-				--print("Casting Utility spell")
-				return true
-			end
+      if ProtPaladinUtility() then
+        --print("Casting Utility spell")
+        return true
+      end
 
-			-- Check if we are missing any buffs
-			if ProtPaladinBuffs() then -- Make sure that we are buffed, 2 modes, inCombat and Out Of Combat, Blessings, RF,
-				return true
-			end
+      -- Check if we are missing any buffs
+      if ProtPaladinBuffs() then -- Make sure that we are buffed, 2 modes, inCombat and Out Of Combat, Blessings, RF,
+        return true
+      end
 
-			-- Handle the use of HolyPower
-			if ProtPaladinHolyPowerConsumers() then
-				-- Dont return since this is off GCD
-				--print("We use HoPo now")
-			end
+      -- Handle the use of HolyPower
+      if ProtPaladinHolyPowerConsumers() then
+        -- Dont return since this is off GCD
+        --print("We use HoPo now")
+      end
 
-			if ProtPaladinHolyPowerCreaters() then -- Handle the normal rotation
-				--print("Something is cast within PowerCreaters")
-				return true
-			end
-			--print("We did not do anything")
-		end
-	end
+      if ProtPaladinHolyPowerCreaters() then -- Handle the normal rotation
+        --print("Something is cast within PowerCreaters")
+        return true
+      end
+      --print("We did not do anything")
+    end
+  end
 end]]
