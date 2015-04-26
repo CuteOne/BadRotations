@@ -40,10 +40,6 @@ if select(3, UnitClass("player")) == 2 then
     -- Buffs logic
     core:castBuffs()
 
-    --[[  TODO: Update Seals (no more truth)
-
-    ]]--
-
     -- Only start if we and target is in combat or not in combat and pressing left control
     if UnitAffectingCombat("player")  or (not UnitAffectingCombat("player") and IsLeftControlKeyDown() ) then
 
@@ -51,20 +47,11 @@ if select(3, UnitClass("player")) == 2 then
       if startAttackTimer == nil or startAttackTimer <= GetTime() - 1 then
         RunMacroText("/startattack")
       end
-      -- actions+=/speed_of_light,if=movement.remains>1
-      -- actions+=/blood_fury
-      -- actions+=/berserking
-      -- actions+=/arcane_torrent
-
-      -- actions+=/run_action_list,name=max_dps,if=role.attack|0
-      -- # This line will shortcut to a high-survival (but low-DPS) action list. Change 0 to 1 if you want it to do this all the time.
-      -- actions+=/run_action_list,name=max_survival,if=0
-      -- actions+=/potion,name=draenic_armor,if=buff.shield_of_the_righteous.down&buff.seraphim.down&buff.divine_protection.down&buff.guardian_of_ancient_kings.down&buff.ardent_defender.down
 
       -- make sure we have a seal(often removed by changing talents/glyph)
       -- Default: Insight
       if core.seal == 0 then
-        if core:castSeal(3) then
+        if core:castSeal(2) then
           return
         end
       end
@@ -80,15 +67,15 @@ if select(3, UnitClass("player")) == 2 then
       if core.combatLenght < 5 or not talent.seraphim or (buff.seraphim == 0 and cd.seraphim > 5 and cd.seraphim < 9) then
         core:castDivineProtection()
       end
-      -- actions+=/guardian_of_ancient_kings,if=buff.holy_avenger.down&buff.shield_of_the_righteous.down&buff.divine_protection.down
-      if buff.guardianOfAncientKings == 0 and buff.holyAvenger == 0 and buff.divineProtection == 0 then
+      -- actions+=/guardian_of_ancient_kings,if=time<5|(buff.holy_avenger.down&buff.shield_of_the_righteous.down&buff.divine_protection.down)
+      if core.combatLenght < 5 or (buff.holyAvenger == 0 and buff.shieldOfTheRighteous == 0 and buff.divineProtection == 0) then
         core:castGuardianOfAncientKings()
       end
-      -- actions+=/ardent_defender,if=buff.holy_avenger.down&buff.shield_of_the_righteous.down&buff.divine_protection.down&buff.guardian_of_ancient_kings.down
-      if buff.holyAvenger == 0 and buff.shieldOfTheRighteous == 0 and buff.divineProtection == 0
-        and buff.guardianOfAncientKings == 0 then
+      -- actions+=/ardent_defender,if=time<5|(buff.holy_avenger.down&buff.shield_of_the_righteous.down&buff.divine_protection.down&buff.guardian_of_ancient_kings.down)
+      if core.combatLenght < 5  or (buff.holyAvenger == 0 and buff.shieldOfTheRighteous == 0 and buff.divineProtection == 0 and buff.guardianOfAncientKings == 0) then
         core:castArdentDefender()
       end
+      -- actions+=/potion,name=draenic_armor,if=buff.shield_of_the_righteous.down&buff.seraphim.down&buff.divine_protection.down&buff.guardian_of_ancient_kings.down&buff.ardent_defender.down
 
       -- here we need a rotation selector
       if mode.rotation == 4 then
@@ -114,27 +101,11 @@ if select(3, UnitClass("player")) == 2 then
         -- actions+=/holy_avenger
         core:castHolyAvenger()
         -- actions+=/seraphim
-        if core:castSeraphim() then
-          return
-        end
-        -- actions+=/divine_protection,if=time<5|!talent.seraphim.enabled|(buff.seraphim.down&cooldown.seraphim.remains>5&cooldown.seraphim.remains<9)
-        if core.combatLenght < 5 or not talent.seraphim or (buff.seraphim == 0 and cd.seraphim > 5 and cd.seraphim < 9) then
-          core:castDivineProtection()
-        end
-        -- actions+=/guardian_of_ancient_kings,if=time<5|(buff.holy_avenger.down&buff.shield_of_the_righteous.down&buff.divine_protection.down)
-        if core.combatLenght < 5 or (buff.holyAvenger == 0 and buff.shieldOfTheRighteous == 0 and buff.divineProtection == 0) then
-          core:castGuardianOfAncientKings()
-        end
-        -- actions+=/ardent_defender,if=time<5|(buff.holy_avenger.down&buff.shield_of_the_righteous.down&buff.divine_protection.down&buff.guardian_of_ancient_kings.down)
-        if (core.combatLenght < 5 and buff.guardianOfAncientKings == 0) or (buff.holyAvenger == 0 and buff.shieldOfTheRighteous == 0
-          and buff.divineProtection == 0 and buff.guardianOfAncientKings == 0) then
-          core:castArdentDefender()
-        end
+        core:castSeraphim()
         -- actions+=/shield_of_the_righteous,if=buff.divine_purpose.react
         if buff.divinePurpose > 0 then
           core:holyPowerConsumers()
         end
-        -- actions+=/shield_of_the_righteous,if=(holy_power>=5|incoming_damage_1500ms>=health.max*0.3)&(!talent.seraphim.enabled|cooldown.seraphim.remains>5)
         -- actions+=/shield_of_the_righteous,if=buff.holy_avenger.remains>time_to_hpg&(!talent.seraphim.enabled|cooldown.seraphim.remains>time_to_hpg)
         if (holypower == 5 or (holypower >= 3 and buff.holyAvenger > core.globalCooldown))
           and (not talent.seraphim or cd.seraphim > 5) or (holypower >= 3 and core.buff.bastionOfGlory > 0 and core.buff.bastionOfGlory < 3) then
@@ -144,28 +115,21 @@ if select(3, UnitClass("player")) == 2 then
         -- # GCD-bound spells start here
         if talent.empoweredSeals then
           -- actions+=/seal_of_insight,if=!seal.insight&buff.uthers_insight.remains<cooldown.judgment.remains
-          if core.seal ~= 3 and buff.uthersInsight < core.recharge.judgment then
-            if core:castSeal(3) then
-              return
-            end
-          end
-          -- actions+=/seal_of_righteousness,if=!seal.righteousness&buff.uthers_insight.remains>cooldown.judgment.remains&buff.liadrins_righteousness.down
-          if core.seal ~= 2 and buff.uthersInsight > core.recharge.judgment
-            and buff.liadrinsRighteousness < core.recharge.judgment then
+          if core.seal ~= 2 and buff.uthersInsight < core.recharge.judgment then
             if core:castSeal(2) then
               return
             end
           end
-          -- actions+=/seal_of_truth,if=!seal.truth&buff.uthers_insight.remains>cooldown.judgment.remains&buff.liadrins_righteousness.remains>cooldown.judgment.remains&buff.maraads_truth.down
+          -- actions+=/seal_of_righteousness,if=!seal.righteousness&buff.uthers_insight.remains>cooldown.judgment.remains&buff.liadrins_righteousness.down
           if core.seal ~= 1 and buff.uthersInsight > core.recharge.judgment
-            and buff.liadrinsRighteousness < cd.judgment and buff.maraadsTruth == 0 then
+            and buff.liadrinsRighteousness < core.recharge.judgment then
             if core:castSeal(1) then
               return
             end
           end
         end
         -- actions+=/avengers_shield,if=buff.grand_crusader.react&active_enemies>1&!glyph.focused_shield.enabled
-        if buff.grandCrusader > 0 then
+        if buff.grandCrusader > 0 and core.aroundTarget7Yards > 1 and not glyph.focusedShield then
           if core:castAvengersShield() then
             return
           end
@@ -186,13 +150,8 @@ if select(3, UnitClass("player")) == 2 then
           return
         end
         -- actions+=/judgment,cycle_targets=1,if=glyph.double_jeopardy.enabled&last_judgment_target!=target
-        if glyph.doubleJeopardy then
-          if core:castJeopardy() then
-            return
-          end
-        end
         -- actions+=/judgment
-        if core:castJudgment() then
+        if core:castJeopardy() then
           return
         end
         -- actions+=/wait,sec=cooldown.judgment.remains,if=cooldown.judgment.remains>0&cooldown.judgment.remains<=0.35
@@ -200,8 +159,10 @@ if select(3, UnitClass("player")) == 2 then
           return
         end
         -- actions+=/avengers_shield,if=active_enemies>1&!glyph.focused_shield.enabled
-        if core:castAvengersShield() then
-          return
+        if core.aroundTarget7Yards > 1 and not glyph.focusedShield then
+          if core:castAvengersShield() then
+            return
+          end
         end
         -- actions+=/holy_wrath,if=talent.sanctified_wrath.enabled
         if talent.sanctifiedWrath then
@@ -222,7 +183,7 @@ if select(3, UnitClass("player")) == 2 then
           end
         end
         -- actions+=/holy_wrath,if=glyph.final_wrath.enabled&target.health.pct<=20
-        if glyph.finalWrath and core.target.health < 20 then
+        if glyph.finalWrath and getHP(core.units.dyn8AoE) <= 20 then
           if core:castHolyWrath() then
             return
           end
@@ -267,29 +228,19 @@ if select(3, UnitClass("player")) == 2 then
         if core:castHolyWrath() then
           return
         end
-        -- TODO: Update Seals
+        -- Seals
         if talent.empoweredSeals then
-          -- actions+=/seal_of_insight,if=!seal.insight&buff.uthers_insight.remains<=buff.liadrins_righteousness.remains&buff.uthers_insight.remains<=buff.maraads_truth.remains
-          if core.seal ~= 3 then
-            if buff.uthersInsight <= buff.liadrinsRighteousness
-              and buff.uthersInsight < buff.maraadsTruth then
-              if core:castSeal(3) then
-                return
-              end
-            end
-          end
-          -- actions+=/seal_of_righteousness,if=!seal.righteousness&buff.liadrins_righteousness.remains<=buff.uthers_insight.remains&buff.liadrins_righteousness.remains<=buff.maraads_truth.remains
+          -- actions+=/seal_of_insight,if=!seal.insight&buff.uthers_insight.remains<=buff.liadrins_righteousness.remains
           if core.seal ~= 2 then
-            if buff.liadrinsRighteousness < buff.uthersInsight
-              and buff.liadrinsRighteousness < buff.maraadsTruth then
+            if buff.uthersInsight <= buff.liadrinsRighteousness then
               if core:castSeal(2) then
                 return
               end
             end
           end
-          -- actions+=/seal_of_truth,if=!seal.truth&buff.maraads_truth.remains<buff.uthers_insight.remains&buff.maraads_truth.remains<buff.liadrins_righteousness.remains
+          -- actions+=/seal_of_righteousness,if=!seal.righteousness&buff.liadrins_righteousness.remains<=buff.uthers_insight.remains
           if core.seal ~= 1 then
-            if buff.maraadsTruth < buff.uthersInsight and buff.maraadsTruth < buff.liadrinsRighteousness then
+            if buff.liadrinsRighteousness <= buff.uthersInsight then
               if core:castSeal(1) then
                 return
               end
@@ -313,9 +264,7 @@ if select(3, UnitClass("player")) == 2 then
         -- actions.max_dps+=/holy_avenger
         core:castHolyAvenger()
         -- actions.max_dps+=/seraphim
-        if core:castSeraphim() then
-          return
-        end
+        core:castSeraphim()
         -- actions.max_dps+=/shield_of_the_righteous,if=buff.divine_purpose.react
         if buff.divinePurpose > 0 then
           core:holyPowerConsumers()
@@ -328,14 +277,14 @@ if select(3, UnitClass("player")) == 2 then
         end
         -- # #GCD-bound spells start here.
         -- actions.max_dps+=/avengers_shield,if=buff.grand_crusader.react&active_enemies>1&!glyph.focused_shield.enabled
-        if buff.grandCrusader > 0 then
+        if buff.grandCrusader > 0 and core.aroundTarget7Yards > 1 and not glyph.focusedShield then
           if core:castAvengersShield() then
             return
           end
         end
         -- actions.max_dps+=/holy_wrath,if=talent.sanctified_wrath.enabled&(buff.seraphim.react|(glyph.final_wrath.enabled&target.health.pct<=20))
         if talent.sanctifiedWrath and (buff.seraphim > 0 or
-          (glyph.finalWrath and getHP(core.units.dyn8AoE) < 20)) then
+          (glyph.finalWrath and getHP(core.units.dyn8AoE) <= 20)) then
           if core:castHolyWrath() then
             return
           end
@@ -346,10 +295,8 @@ if select(3, UnitClass("player")) == 2 then
             return
           end
         end
-        -- actions.max_dps+=/judgment,if=talent.empowered_seals.enabled&(buff.maraads_truth.down|buff.liadrins_righteousness.down)
-        -- TODO: update only 2 seals, no truth
-        if talent.empoweredSeals and ((core.seal == 1 and buff.maraadsTruth == 0) or
-          (core.seal == 2 and buff.liadrinsRighteousness == 0)) then
+        -- actions.max_dps+=/judgment,if=talent.empowered_seals.enabled&buff.liadrins_righteousness.down
+        if talent.empoweredSeals and (core.seal == 1 and buff.liadrinsRighteousness == 0) then
           if core:castJeopardy() then
             return
           end
@@ -364,7 +311,7 @@ if select(3, UnitClass("player")) == 2 then
         end
         -- actions.max_dps+=/judgment,cycle_targets=1,if=glyph.double_jeopardy.enabled&last_judgment_target!=target
         -- actions.max_dps+=/judgment
-        if core:castJudgment() then
+        if core:castJeopardy() then
           return
         end
         -- actions.max_dps+=/wait,sec=cooldown.judgment.remains,if=cooldown.judgment.remains>0&cooldown.judgment.remains<=0.35
@@ -372,7 +319,7 @@ if select(3, UnitClass("player")) == 2 then
           return
         end
         -- actions.max_dps+=/avengers_shield,if=active_enemies>1&!glyph.focused_shield.enabled
-        if core.aroundTarget7Yards > 1 or glyph.focusedShield then
+        if core.aroundTarget7Yards > 1 and not glyph.focusedShield then
           if core:castAvengersShield() then
             return
           end
@@ -384,7 +331,7 @@ if select(3, UnitClass("player")) == 2 then
           end
         end
         -- actions.max_dps+=/avengers_shield,if=buff.grand_crusader.react
-        if buff.grandCrusader then
+        if buff.grandCrusader > 0 then
           if core:castAvengersShield() then
             return
           end
@@ -396,7 +343,7 @@ if select(3, UnitClass("player")) == 2 then
           end
         end
         -- actions.max_dps+=/holy_wrath,if=glyph.final_wrath.enabled&target.health.pct<=20
-        if glyph.finalWrath and getHP(self.units.dyn8AoE) < 20 then
+        if glyph.finalWrath and getHP(self.units.dyn8AoE) <= 20 then
           if core:castHolyWrath() then
             return
           end
@@ -405,21 +352,11 @@ if select(3, UnitClass("player")) == 2 then
         if core:castAvengersShield() then
           return
         end
-        -- TODO: update, only 2 seals
-        if talent.empoweredSeals then
-          -- actions.max_dps+=/seal_of_truth,if=!seal.truth&buff.maraads_truth.remains<cooldown.judgment.remains
-          if core.seal ~= 1 and buff.maraadsTruth < cd.judgment and not (core.seal == 3 and buff.uthersInsight == 0) then
+        -- actions.max_dps+=/seal_of_righteousness,if=talent.empowered_seals.enabled&!seal.righteousness
+        if talent.empoweredSeals and core.seal ~= 1 then
             if core:castSeal(1) then
               return
             end
-          end
-          -- actions.max_dps+=/seal_of_righteousness,if=!seal.righteousness&buff.maraads_truth.remains>cooldown.judgment.remains&buff.liadrins_righteousness.down
-          if core.seal ~= 2 and buff.maraadsTruth > core.recharge.judgment
-            and buff.liadrinsRighteousness < cd.judgment and not (core.seal == 3 and buff.uthersInsight == 0) then
-            if core:castSeal(2) then
-              return
-            end
-          end
         end
         -- actions.max_dps+=/lights_hammer
         if core:castLightsHammer() then
@@ -430,7 +367,7 @@ if select(3, UnitClass("player")) == 2 then
           return
         end
         -- actions.max_dps+=/consecration,if=target.debuff.flying.down&active_enemies>=3
-        if mode.aoe == 2 or (mode.aoe == 3 and core.melee9Yards >= 3) then
+        if core.melee9Yards >= 3 then
           if core:castConsecration() then
             return
           end
@@ -451,27 +388,18 @@ if select(3, UnitClass("player")) == 2 then
         if core:castHolyWrath() then
           return
         end
-        -- TODO: update, only 2 seals
-        if talent.empoweredSeals then
-          -- actions.max_dps+=/seal_of_truth,if=talent.empowered_seals.enabled&!seal.truth&buff.maraads_truth.remains<buff.liadrins_righteousness.remains
-          if core.seal ~= 1 and buff.maraadsTruth < buff.liadrinsRighteousness then
-            if core:castSeal(1) then
-              return
-            end
-          end
-          -- actions.max_dps+=/seal_of_righteousness,if=talent.empowered_seals.enabled&!seal.righteousness&buff.liadrins_righteousness.remains<buff.maraads_truth.remains
-          if core.seal ~= 2 and buff.maraadsTruth > core.recharge.judgment
-            and buff.maraadsTruth > buff.liadrinsRighteousness then
-            if core:castSeal(2) then
-              return
-            end
-          end
-        end
         -- actions.max_dps+=/sacred_shield
         if core:castSacredShield() then
           return
         end
         -- actions.max_dps+=/flash_of_light,if=talent.selfless_healer.enabled&buff.selfless_healer.stack>=3
+        if talent.selflessHealer then
+          if buff.selflessHealerStack == 3 then
+            if core:castSelflessHealer() then
+              return
+            end
+          end
+        end
       end
 
       -------------------------------------------------------------------------------------------------------------------------------
@@ -487,11 +415,8 @@ if select(3, UnitClass("player")) == 2 then
         core:castHolyAvenger()
         -- actions.max_survival+=/seraphim,if=buff.divine_protection.down&cooldown.divine_protection.remains>0
         if buff.divineProtection == 0 and cd.divineProtection > 0 then
-          if core:castSeraphim() then
-            return
-          end
+          core:castSeraphim()
         end
-
         -- actions.max_survival+=/shield_of_the_righteous,if=buff.divine_purpose.react
         if buff.divinePurpose > 0 then
           core:holyPowerConsumers()
@@ -520,11 +445,8 @@ if select(3, UnitClass("player")) == 2 then
           return
         end
         -- actions.max_survival+=/judgment,cycle_targets=1,if=glyph.double_jeopardy.enabled&last_judgment_target!=target
-        if core:castJeopardy() then
-          return
-        end
         -- actions.max_survival+=/judgment
-        if core:castJudgment() then
+        if core:castJeopardy() then
           return
         end
         -- actions.max_survival+=/wait,sec=cooldown.judgment.remains,if=cooldown.judgment.remains>0&cooldown.judgment.remains<=0.35
@@ -556,12 +478,12 @@ if select(3, UnitClass("player")) == 2 then
           end
         end
         -- we want at least to keep uthersInsight
-        -- TODO: Update seals
+        -- NOTE: No longer in survial APL, but kept if seal=righteousness
         if talent.empoweredSeals then
-          -- actions.max_survival+=/seal_of_insight,if=!seal.insight&buff.uthers_insight.remains<=buff.liadrins_righteousness.remains&buff.uthers_insight.remains<=buff.maraads_truth.remains
-          if core.seal ~= 3 then
+          -- actions.max_survival+=/seal_of_insight,if=!seal.insight&buff.uthers_insight.remains<=buff.liadrins_righteousness.remains
+          if core.seal ~= 2 then
             if buff.uthersInsight < core.recharge.judgment then
-              if core:castSeal(3) then
+              if core:castSeal(2) then
                 return
               end
             end
@@ -607,27 +529,7 @@ if select(3, UnitClass("player")) == 2 then
             return
           end
         end
-        -- TODO: Update seals
-        if talent.empoweredSeals then
-          -- actions.max_survival+=/seal_of_insight,if=!seal.insight&buff.uthers_insight.remains<=buff.liadrins_righteousness.remains&buff.uthers_insight.remains<=buff.maraads_truth.remains
-          if core.seal ~= 3 then
-            if buff.uthersInsight <= buff.liadrinsRighteousness then
-              if core:castSeal(3) then
-                return
-              end
-            end
-          end
-          -- actions.max_survival+=/seal_of_righteousness,if=!seal.righteousness&buff.liadrins_righteousness.remains<=buff.uthers_insight.remains&buff.liadrins_righteousness.remains<=buff.maraads_truth.remains
-          if core.seal ~= 2 then
-            if buff.liadrinsRighteousness < buff.uthersInsight then
-              if core:castSeal(2) then
-                return
-              end
-            end
-          end
-        end
         -- actions.max_survival+=/holy_wrath,if=glyph.final_wrath.enabled&target.health.pct<=20
-        -- TODO: use this in all rotations
         if glyph.finalWrath and getHP(core.units.dyn8AoE) <= 20 then
           if core:castHolyWrath() then
             return

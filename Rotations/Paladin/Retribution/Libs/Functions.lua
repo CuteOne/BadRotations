@@ -100,7 +100,7 @@ if select(3,UnitClass("player")) == 2 then
 				self.buff.liadrinsRighteousness = getBuffRemain(player,156989)
 				self.buff.seraphim = getBuffRemain(player,self.spell.seraphim)
 				self.buff.blazingContempt = getBuffRemain(player,166831) -- IsSpellOverlayed(122032)	-- T17 - 4 Set Bonus 166831
-					self.buff.crusaderFury = getBuffRemain(player,165442) --IsSpellOverlayed(158392) 	-- T17 - 2 Set Bonus 165442
+				self.buff.crusaderFury = getBuffRemain(player,165442) --IsSpellOverlayed(158392) 	-- T17 - 2 Set Bonus 165442
 				self.buff.maraadsTruth = getBuffRemain(player,156990)
 				-- Cooldowns
 				self.cd.avengingWrath = getSpellCD(self.spell.avengingWrath)
