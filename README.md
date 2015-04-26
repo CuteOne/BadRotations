@@ -1,5 +1,9 @@
 #BadBoy - Ultimate Raider
 
+## updates
+If you have code to improve a class you can send a "pull request".
+We will look over it and may merge it with BadBoy.
+
 ## Regarding Crashing
 What to do if you have crash to desktop or 132 errors.(not necessarily in this order)
 1 - Download Windows Updates.
