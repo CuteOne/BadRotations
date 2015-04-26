@@ -29,10 +29,10 @@ if select(3,UnitClass("player")) == 2 then
       units = { },
       seal = true,
       spell = {
-        arcaneTorrent = 28730,
+        arcaneTorrent = 28730, 
         ardentDefender = 31850,
         avengersShield = 31935,
-        avengingWrath = 31884,
+        -- avengingWrath = 31884, -- Outdated
         consecration = 26573,
         crusaderStrike = 35395,
         divineProtection = 498,
@@ -48,7 +48,7 @@ if select(3,UnitClass("player")) == 2 then
         hammerOfJustice = 853,
         hammerOfTheRighteous = 53595,
         hammerOfWrath = 24275,
-        harshWords = 136494,
+        -- harshWords = 136494, -- Outdated
         holyAvenger = 105809,
         holyPrism = 114165,
         holyWrath = 119072,
@@ -94,7 +94,7 @@ if select(3,UnitClass("player")) == 2 then
       self.talent.seraphim = isKnown(self.spell.seraphim)
       -- Glyph (refresh ooc)
       self.glyph.doubleJeopardy = hasGlyph(183)
-      self.glyph.harshWords = hasGlyph(197)
+      -- self.glyph.harshWords = hasGlyph(197) -- Outdated
       self.glyph.consecration = hasGlyph(189)
       self.buff.righteousFury = UnitBuffID(player,self.spell.righteousFury)
       self.buff.sacredShield = getBuffRemain(player,self.spell.sacredShield)
@@ -108,11 +108,11 @@ if select(3,UnitClass("player")) == 2 then
       self.holyPower = UnitPower(player,9)
       -- Buffs
       self.buff.ardentDefender = getBuffRemain(player,self.spell.ardentDefender)
-      self.buff.avengingWrath = getBuffRemain(player,self.spell.avengingWrath)
+      -- self.buff.avengingWrath = getBuffRemain(player,self.spell.avengingWrath) -- Outdated
       self.buff.bastionOfGlory = getBuffRemain(player,114637)
       self.buff.holyAvenger = getBuffRemain(player,self.spell.holyAvenger)
       self.buff.divineProtection = getBuffRemain(player,self.spell.divineProtection)
-      self.buff.divinePurpose = getBuffRemain(player,self.spell.divinePurpose)
+      self.buff.divinePurpose = getBuffRemain(player,self.spell.divinePurposeBuff)
       self.buff.grandCrusader = getBuffRemain(player,85416)
       self.buff.guardianOfAncientKings = getBuffRemain(player,self.spell.guardianOfAncientKings)
       self.buff.liadrinsRighteousness = getBuffRemain(player,156989)
@@ -121,9 +121,9 @@ if select(3,UnitClass("player")) == 2 then
       self.buff.shieldOfTheRighteous = getBuffRemain(player,132403)
       self.buff.seraphim = getBuffRemain(player,self.spell.seraphim)
       self.buff.uthersInsight = getBuffRemain(player,156988)
-      self.buff.maraadsTruth = getBuffRemain(player,156990)
+      -- self.buff.maraadsTruth = getBuffRemain(player,156990) -- Outdated
       -- Cooldowns
-      self.cd.avengingWrath = getSpellCD(self.spell.avengingWrath)
+      -- self.cd.avengingWrath = getSpellCD(self.spell.avengingWrath) -- Outdated
       self.cd.crusaderStrike = getSpellCD(self.spell.crusaderStrike)
       self.cd.divineProtection = getSpellCD(self.spell.divineProtection)
       self.cd.judgment = getSpellCD(self.spell.judgment)
@@ -141,7 +141,7 @@ if select(3,UnitClass("player")) == 2 then
       self.mode.defensive = BadBoy_data["Defensive"]
       self.mode.healing = BadBoy_data["Healing"]
       self.mode.rotation = BadBoy_data["Rota"]
-      -- truth = true, right = false
+      -- Right = 1, Insight = 2
       self.seal = GetShapeshiftForm()
       -- dynamic units
       self.units.dyn5 = dynamicTarget(5,true)
@@ -234,11 +234,13 @@ if select(3,UnitClass("player")) == 2 then
     end
 
     -- Guardian Of Ancient Kings
+	--[[ Double see LINE : 269
     function protCore:castGuardianOfAncientKings()
       return self.health < getValue("Guardian Of Ancient Kings") and castSpell(player,self.spell.guardianOfAncientKings,true,false)
     end
+	]]--
 
-    -- Guardian Of Ancient Kings
+    -- Divine Protection
     function protCore:castDivineProtection()
       return isChecked("Divine Protection") and self.health <= getValue("Divine Protection") and castSpell(player,self.spell.divineProtection,true,false)
     end
@@ -310,10 +312,11 @@ if select(3,UnitClass("player")) == 2 then
     end
 
     -- Harsh Words(glyphed WoG)
-    -- Todo more logical use, pants off or wise
+    -- Outdated, no longer available to prot
     function protCore:castHarshWords()
       return castSpell(self.units.dyn40,self.spell.harshWords,false,false) == true or false
     end
+	
 
     -- Holy Avenger
     function protCore:castHolyAvenger()
@@ -435,9 +438,9 @@ if select(3,UnitClass("player")) == 2 then
     -- Seals
     function protCore:castSeal(value)
       if value == 1 then
-        return castSpell(player,self.spell.sealOfThruth,true,false) == true or false
-      elseif value == 2 then
         return castSpell(player,self.spell.sealOfRighteousness,true,false) == true or false
+      elseif value == 2 then
+        return castSpell(player,self.spell.sealOfInsight,true,false) == true or false
       else
         return castSpell(player,self.spell.sealOfInsight,true,false) == true or false
       end
