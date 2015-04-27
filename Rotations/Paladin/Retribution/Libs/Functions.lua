@@ -9,6 +9,7 @@ if select(3,UnitClass("player")) == 2 then
 				-- player stats
 				buff = { },
 				cd = { },
+				globalCooldown = 0,
 				glyph = { },
 				health = 100,
 				holyPower = 0,
@@ -105,7 +106,9 @@ if select(3,UnitClass("player")) == 2 then
 				-- Cooldowns
 				self.cd.avengingWrath = getSpellCD(self.spell.avengingWrath)
 				self.cd.judgment = getSpellCD(self.spell.judgment)
+				self.cd.crusaderStrike = getSpellCD(self.spell.crusaderStrike)
 				self.cd.seraphim = getSpellCD(self.spell.seraphim)
+				self.globalCooldown = getSpellCD(61304)
 				self.inCombat = true
 				-- Units
 				self.melee5Yards = #getEnemies(player,5)

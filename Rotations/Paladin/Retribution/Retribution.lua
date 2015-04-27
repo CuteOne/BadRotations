@@ -32,7 +32,7 @@ if select(3, UnitClass("player")) == 2 then
 	-- localising retCore functions stuff
 	-- local with short names
 	local buff,cd,mode,talent,glyph = core.buff,core.cd,core.mode,core.talent,core.glyph
-	local holypower = core.holyPower
+	local holyPower = core.holyPower
 	if UnitAffectingCombat("player") then
 		core:update()
 	else
@@ -94,13 +94,21 @@ if select(3, UnitClass("player")) == 2 then
 		if core:castExecutionSentence(core.units.dyn40) then
 			return
 		end
-		-- lights_hammer (off gcd)
+		-- lights_hammer
 		if core:castLightsHammer() then
 			return
 		end
 		-- Holy Avenger (off gcd)
-		core:castHolyAvenger()
+		-- actions+=/holy_avenger,sync=seraphim,if=talent.seraphim.enabled
+		-- actions+=/holy_avenger,if=holy_power<=2&!talent.seraphim.enabled
+		-- TODO: implement sync
+		if holyPower <= 2 then
+			core:castHolyAvenger()
+		end 
 		-- Avenging Wrath (off gcd) (sync with SoK)
+		-- actions+=/avenging_wrath,sync=seraphim,if=talent.seraphim.enabled
+		-- actions+=/avenging_wrath,if=!talent.seraphim.enabled
+		-- TODO: implement sync
 		if core:castAvengingWrath() then
 			core:castSoK()
 		end
@@ -109,189 +117,244 @@ if select(3, UnitClass("player")) == 2 then
 			return
 		end
 		-- seraphim
+		-- actions+=/seraphim
 		if core:castSeraphim() then
 			return
 		end
-		-- TODO: maybe optimize FV usage while 2 enemies are alive (alternate between FV and DS)
+		-- actions+=/wait,sec=cooldown.seraphim.remains,if=talent.seraphim.enabled&cooldown.seraphim.remains>0&cooldown.seraphim.remains<gcd.max&holy_power>=5
+
 		--[[Single(1-2)]]
 		----------------
 		-- Single 1-2 --
 		----------------
-		if (core.melee8Yards < 3  and mode.aoe == 4) or mode.aoe == 1 then
-			-- divine_storm,if=buff.divine_crusader.react&holy_power=5&buff.final_verdict.up
-			if (buff.divineCrusader > 0 and holypower == 5 and buff.finalVerdict > 0)
-				-- divine_storm,if=buff.divine_crusader.react&holy_power=5&active_enemies=2&!talent.final_verdict.enabled
-				or (buff.divineCrusader > 0 and holypower == 5 and core.melee8Yards == 2 and not talent.finalVerdict)
-				-- divine_storm,if=holy_power=5&active_enemies=2&buff.final_verdict.up
-				or (holypower == 5 and core.melee12Yards == 2 and buff.finalVerdict > 0)
-				-- divine_storm,if=buff.divine_crusader.react&holy_power=5&(talent.seraphim.enabled&cooldown.seraphim.remains<=4)
-				or (holypower == 5 and core.melee8Yards == 2 and talent.seraphim and cd.seraphim <= 4) then
-				if core:castDivineStorm() then
-					return
-				end
+		--actions+=/call_action_list,name=single
+		if ((core.melee8Yards < 3 or (talent.finalVerdict and core.melee12Yards < 3))  and mode.aoe == 4) or mode.aoe == 1 then
+			-- actions.single+=/divine_storm,if=buff.divine_crusader.react&(holy_power=5|buff.holy_avenger.up&holy_power>=3)&buff.final_verdict.up
+			if (buff.divineCrusader > 0 and (holyPower == 5 or (buff.holyAvenger > 0 and holyPower >= 3)) and buff.finalVerdict > 0)
+				-- actions.single+=/divine_storm,if=buff.divine_crusader.react&(holy_power=5|buff.holy_avenger.up&holy_power>=3)&active_enemies=2&!talent.final_verdict.enabled
+				or (buff.divineCrusader > 0 and (holyPower == 5 or (buff.holyAvenger > 0 and holyPower >= 3)) and core.melee8Yards == 2 and not talent.finalVerdict)
+				-- actions.single+=/divine_storm,if=(holy_power=5|buff.holy_avenger.up&holy_power>=3)&active_enemies=2&buff.final_verdict.up
+				or ((holyPower == 5 or (buff.holyAvenger > 0 and holyPower >= 3)) and core.melee12Yards == 2 and buff.finalVerdict > 0)
+				-- actions.single+=/divine_storm,if=buff.divine_crusader.react&(holy_power=5|buff.holy_avenger.up&holy_power>=3)&(talent.seraphim.enabled&cooldown.seraphim.remains<gcd*4)
+				or (buff.divineCrusader > 0 and (holyPower == 5 or (buff.holyAvenger > 0 and holyPower >= 3)) and (talent.seraphim and cd.seraphim <= cd.globalCooldown*4)) then
+					if core:castDivineStorm() then
+						return
+					end
 			end
-			-- templars_verdict,if=holy_power=5|buff.holy_avenger.up&holy_power>=3&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
-			if holypower == 5
-				or ((buff.holyAvenger > 0 and holypower >= 3) and (not talent.seraphim or cd.seraphim > 4))
-				-- templars_verdict,if=buff.divine_purpose.react&buff.divine_purpose.remains<4
-				or (buff.divinePurpose > 0 and buff.divinePurpose < 4) then
-				if core:castTemplarsVerdict() then
-					return
-				end
+			-- actions.single+=/templars_verdict,if=(holy_power=5|buff.holy_avenger.up&holy_power>=3)&(buff.avenging_wrath.down|target.health.pct>35)&(!talent.seraphim.enabled|cooldown.seraphim.remains>gcd*4)
+			if ( (holyPower == 5 or (buff.holyAvenger > 0 and holyPower >= 3)) and (buff.avengingWrath == 0 or getHP(core.units.dyn5) > 35) and (not talent.seraphim or cd.seraphim > cd.globalCooldown*4) )
+				-- actions.single+=/templars_verdict,if=buff.divine_purpose.react&buff.divine_purpose.remains<3
+				or (buff.divinePurpose > 0 and buff.divinePurpose < 3) then
+					if core:castTemplarsVerdict() then
+						return
+					end
 			end
-			-- divine_storm,if=buff.divine_crusader.react&buff.divine_crusader.remains<4&!talent.final_verdict.enabled
-			if buff.divineCrusader > 0 and buff.divineCrusader < 4 and not talent.finalVerdict then
+			-- actions.single+=/divine_storm,if=buff.divine_crusader.react&buff.divine_crusader.remains<3& !talent.final_verdict.enabled
+			-- actions.single+=/divine_storm,if=buff.divine_crusader.react&buff.divine_crusader.remains<3& buff.final_verdict.up
+			if buff.divineCrusader > 0 and buff.divineCrusader < 3 and (not talent.finalVerdict or buff.finalVerdict > 0) then
 				if core:castDivineStorm() then
 					return
 				end
 			end
 			if talent.finalVerdict
-				-- final_verdict,if=holy_power=5|buff.holy_avenger.up&holy_power>=3
-				and (holypower == 5 or (buff.holyAvenger > 1 and holypower >= 3)
-				-- final_verdict,if=buff.divine_purpose.react&buff.divine_purpose.remains<4
-				or (buff.divinePurpose > 0 and buff.divinePurpose < 4)) then
-				if core:castTemplarsVerdict() then
-					return
-				end
+				-- actions.single+=/final_verdict,if=holy_power=5|buff.holy_avenger.up&holy_power>=3
+				and (holyPower == 5 or (buff.holyAvenger > 0 and holyPower >= 3)
+				-- actions.single+=/final_verdict,if=buff.divine_purpose.react&buff.divine_purpose.remains<3
+				or (buff.divinePurpose > 0 and buff.divinePurpose < 3)) then
+					if core:castTemplarsVerdict() then
+						return
+					end
 			end
-			-- hammer_of_wrath
+			-- actions.single+=/hammer_of_wrath
 			if core:castHammerOfWrath() then
 				return
 			end
 			-- templars verdict to dump holy power if avenging wrath up
-			if holypower >= 4 and buff.avengingWrath > 0 then
+			--[[ TODO: use it?
+			if holyPower >= 4 and buff.avengingWrath > 0 then
 				if core:castTemplarsVerdict() then
 					return
 				end
 			end
-			-- judgment,if=talent.empowered_seals.enabled&((seal.truth&buff.maraads_truth.remains<cooldown.judgment.duration*2)
+			]]--
+			-- actions.single+=/judgment,if=talent.empowered_seals.enabled
 			if talent.empoweredSeals then
-				if (core.seal == true and buff.maraadsTruth < core.recharge.judgment*2)
-				-- |(seal.righteousness&buff.liadrins_righteousness.remains<cooldown.judgment.duration*2))
-				or (core.seal == false and buff.liadrinsRighteousness < core.recharge.judgment*2) then
+				-- &seal.truth&buff.maraads_truth.remains<cooldown.judgment.duration
+				if (core.seal == true and buff.maraadsTruth < core.recharge.judgment)
+				-- & seal.righteousness&buff.liadrins_righteousness.remains<cooldown.judgment.duration
+				or (core.seal == false and buff.liadrinsRighteousness < core.recharge.judgment)
+				-- &seal.righteousness&cooldown.avenging_wrath.remains<cooldown.judgment.duration
+				or (core.seal == false and cd.avengingWrath < core.recharge.judgment) then
 					if core:castJudgment() then
 						return
 					end
 				end
 			end
-			-- exorcism,if=buff.blazing_contempt.up&holy_power<=2&buff.holy_avenger.down
-			if buff.blazingContempt > 0 and holypower <= 2 and buff.holyAvenger == 0 then
+			-- actions.single+=/exorcism,if=buff.blazing_contempt.up&holy_power<=2&buff.holy_avenger.down
+			if buff.blazingContempt > 0 and holyPower <= 2 and buff.holyAvenger == 0 then
 				if core:castExorcism() then
 					return
 				end
 			end
-			-- seal_of_truth,if=talent.empowered_seals.enabled&buff.maraads_truth.remains<(cooldown.judgment.duration)&buff.maraads_truth.remains<=3
+			-- actions.single+=/seal_of_truth,if=talent.empowered_seals.enabled
 			if talent.empoweredSeals then
-				if core.seal ~= true and buff.maraadsTruth < core.recharge.judgment and cd.judgment <= 3 then
-					if core:castSeal(1) then
+				-- &buff.maraads_truth.down
+				if (core.seal ~= true and buff.maraadsTruth == 0) 
+					-- &cooldown.avenging_wrath.remains<cooldown.judgment.duration&buff.liadrins_righteousness.remains>cooldown.judgment.duration
+					or (core.seal ~= true and cd.avengingWrath < core.recharge.judgment and buff.liadrinsRighteousness > core.recharge.judgment) then
+						if core:castSeal(1) then
+							return
+						end
+				-- actions.single+=/seal_of_righteousness &buff.maraads_truth.remains>cooldown.judgment.duration&buff.liadrins_righteousness.down&!buff.avenging_wrath.up&!buff.bloodlust.up
+				elseif (core.seal == true and buff.maraadsTruth > core.recharge.judgment and buff.liadrinsRighteousness == 0 and buff.avengingWrath == 0 and not hasBloodLust()) then
+					if core:castSeal(2) then
 						return
 					end
 				end
 			end
-			-- divine_storm,if=buff.divine_crusader.react&buff.final_verdict.up&(buff.avenging_wrath.up|target.health.pct<35)
-			if buff.divineCrusader > 0 and buff.finalVerdict > 0 and (buff.avengingWrath > 0 or getHP(core.units.dyn5) < 35) then
+			-- actions.single+=/divine_storm,if=buff.divine_crusader.react 	&buff.final_verdict.up&(buff.avenging_wrath.up|target.health.pct<35)
+			-- actions.single+=/divine_storm,if=active_enemies=2			&buff.final_verdict.up&(buff.avenging_wrath.up|target.health.pct<35)
+			if (buff.divineCrusader > 0 or core.melee12Yards == 2) and buff.finalVerdict > 0 and (buff.avengingWrath > 0 or getHP(core.units.dyn5) < 35) then
 				if core:castDivineStorm() then
 					return
 				end
 			end
-			-- final_verdict,if=buff.divine_purpose.react|target.health.pct<35
-			if talent.finalVerdict and buff.divinePurpose > 0 or getHP(core.units.dyn5) < 35 then
+			-- actions.single+=/final_verdict,if=buff.avenging_wrath.up|target.health.pct<35
+			if talent.finalVerdict and (buff.avengingWrath > 0 or getHP(core.units.dyn5) < 35) then
 				if core:castTemplarsVerdict() then
 					return
 				end
 			end
-			-- templars_verdict,if=buff.avenging_wrath.up|target.health.pct<35&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
-			if (buff.avengingWrath > 0 or getHP(core.units.dyn5) < 35) and (not talent.seraphim or cd.seraphim > 4) then
-				if core:castTemplarsVerdict() then
+			-- actions.single+=/divine_storm,if=buff.divine_crusader.react&active_enemies=2&(buff.avenging_wrath.up|target.health.pct<35)&!talent.final_verdict.enabled
+			if buff.divineCrusader > 0 and core.melee8Yards == 2 and (buff.avengingWrath > 0 or getHP(core.units.dyn5) < 35) and not talent.finalVerdict then
+				if core:castDivineStorm() then
 					return
 				end
 			end
-			-- crusader_strike
-			if core:castCrusaderStrike() then
-				return
+			-- actions.single+=/templars_verdict,if=holy_power=5&(buff.avenging_wrath.up|target.health.pct<35)&(!talent.seraphim.enabled|cooldown.seraphim.remains>gcd*3)
+			if (holyPower == 5 and (buff.avengingWrath > 0 or getHP(core.units.dyn5) < 35) and (not talent.seraphim or cd.seraphim > cd.globalCooldown*3))
+				-- actions.single+=/templars_verdict,if=holy_power=4&(buff.avenging_wrath.up|target.health.pct<35)&(!talent.seraphim.enabled|cooldown.seraphim.remains>gcd*4)
+				or (holyPower == 4 and (buff.avengingWrath > 0 or getHP(core.units.dyn5) < 35) and (not talent.seraphim or cd.seraphim > cd.globalCooldown*4))
+				-- actions.single+=/templars_verdict,if=holy_power=3&(buff.avenging_wrath.up|target.health.pct<35)&(!talent.seraphim.enabled|cooldown.seraphim.remains>gcd*5)
+				or (holyPower == 3 and (buff.avengingWrath > 0 or getHP(core.units.dyn5) < 35) and (not talent.seraphim or cd.seraphim > cd.globalCooldown*5)) then
+					if core:castTemplarsVerdict() then
+						return
+					end
 			end
-			-- divine_storm,if=buff.divine_crusader.react&(buff.avenging_wrath.up|target.health.pct<35)&!talent.final_verdict.enabled
+			-- actions.single+=/crusader_strike,if=holy_power<5&talent.seraphim.enabled
+			if (holyPower < 5 and talent.seraphim) 
+				-- actions.single+=/crusader_strike,if=holy_power<=3|(holy_power=4&target.health.pct>=35&buff.avenging_wrath.down)
+				or (holyPower <= 3 or (holyPower == 4 and buff.avengingWrath == 0 or getHP(core.units.dyn5) >= 35)) then
+					if core:castCrusaderStrike() then
+						return
+					end
+			end
+			-- actions.single+=/divine_storm,if=buff.divine_crusader.react&(buff.avenging_wrath.up|target.health.pct<35)&!talent.final_verdict.enabled
 			if buff.divineCrusader > 0 and (buff.avengingWrath > 0 or getHP(core.units.dyn5) < 35) and not talent.finalVerdict then
 				if core:castDivineStorm() then
 					return
 				end
 			end
-			-- divine_storm,if=buff.divine_crusader.react&buff.final_verdict.up
-			if buff.divineCrusader > 0 and buff.finalVerdict > 0 then
-				if core:castDivineStorm() then
-					return
-				end
-			end
-			-- final_verdict
-			if talent.finalVerdict then
-				if core:castTemplarsVerdict() then
-					return
-				end
-			end
-			-- seal_of_righteousness,if=talent.empowered_seals.enabled&buff.liadrins_righteousness.remains<(cooldown.judgment.duration)&buff.liadrins_righteousness.remains<=3
-			if talent.empoweredSeals then
-				if buff.maraadsTruth > 10 and core.seal == true
-				and buff.liadrinsRighteousness < core.recharge.judgment
-				and cd.judgment <= 3 then
-					if core:castSeal(2) then
-						return
-					end
-				end
-			end
-			-- judgment,cycle_targets=1,if=glyph.double_jeopardy.enabled
-			if glyph.doubleJeopardy then
+			-- actions.single+=/judgment,cycle_targets=1,if=last_judgment_target!=target&glyph.double_jeopardy.enabled&holy_power<5
+			if glyph.doubleJeopardy and holyPower < 5 then
 				if core:castJeopardy() then
 					return
 				end
 			end
-			-- judgment
-			if core:castJudgment() then
-				return
+
+			-- actions.single+=/exorcism,if=glyph.mass_exorcism.enabled&active_enemies>=2&holy_power<5&!glyph.double_jeopardy.enabled&!set_bonus.tier17_4pc=1
+			-- TODO: update
+
+			-- actions.single+=/judgment,if=holy_power<5&talent.seraphim.enabled
+			if (holyPower < 5 and talent.seraphim) 
+				-- actions.single+=/judgment,if=holy_power<=3|(holy_power=4&cooldown.crusader_strike.remains>=gcd*2&target.health.pct>35&buff.avenging_wrath.down)
+				or (holyPower <= 3 or (holyPower == 4 and cd.crusaderStrike >= cd.globalCooldown*2 and buff.avengingWrath == 0 or getHP(core.units.dyn5) > 35)) then
+					if core:castJudgment() then
+						return
+					end
 			end
-			-- templars_verdict,if=buff.divine_purpose.react
+			-- actions.single+=/divine_storm,if=buff.divine_crusader.react&buff.final_verdict.up
+			if (buff.divineCrusader > 0 and buff.finalVerdict > 0) 
+				-- actions.single+=/divine_storm,if=active_enemies=2&holy_power>=4&buff.final_verdict.up
+				or (core.melee12Yards == 2 and holyPower >= 4 and buff.finalVerdict > 0) then
+					if core:castDivineStorm() then
+						return
+					end
+			end
+			-- actions.single+=/final_verdict,if=buff.divine_purpose.react
+			-- actions.single+=/final_verdict,if=holy_power>=4
+			if talent.finalVerdict and (buff.divinePurpose > 0 or holyPower >= 4) then
+				if core:castTemplarsVerdict() then
+					return
+				end
+			end
+			-- actions.single+=/divine_storm,if=buff.divine_crusader.react&active_enemies=2&holy_power>=4&!talent.final_verdict.enabled
+			if (buff.divineCrusader > 0 and core.melee8Yards == 2 and holyPower >= 4 and not talent.finalVerdict) then
+				if core:castDivineStorm() then
+					return
+				end
+			end
+			-- actions.single+=/templars_verdict,if=buff.divine_purpose.react
 			if buff.divinePurpose > 0 then
 				if core:castTemplarsVerdict() then
 					return
 				end
 			end
-			-- divine_storm,if=buff.divine_crusader.react&!talent.final_verdict.enabled
-			if buff.divineCrusader > 0 and not talent.finalVerdict and (not talent.seraphim or cd.seraphim < 4) then
+			-- actions.single+=/divine_storm,if=buff.divine_crusader.react&!talent.final_verdict.enabled
+			if buff.divineCrusader > 0 and not talent.finalVerdict then
 				if core:castDivineStorm() then
 					return
 				end
 			end
-			-- templars_verdict,if=holy_power>=4&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
-			if holypower >= 4 and (not talent.seraphim or cd.seraphim > 4) then
+			-- actions.single+=/templars_verdict,if=holy_power>=4&(!talent.seraphim.enabled|cooldown.seraphim.remains>gcd*5)
+			if holyPower >= 4 and (not talent.seraphim or cd.seraphim > cd.globalCooldown*5) then
 				if core:castTemplarsVerdict() then
 					return
 				end
 			end
-			-- exorcism
-			if core:castExorcism() then
-				return
-			end
-			-- templars_verdict,if=holy_power>=3&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
-			if holypower >= 3 and (not talent.seraphim or cd.seraphim > 4) then
-				if core:castTemplarsVerdict() then
-					return
-				end
-			end
-			-- holy_prism 1
-			if core:castHolyPrism(1) then
-				return
-			end
-			-- seal fillers
+			-- actions.single+=/seal_of_truth,if=talent.empowered_seals.enabled
 			if talent.empoweredSeals then
-				if not core.seal ~= true and buff.maraadsTruth < 7 then
+				-- actions.single+=/seal_of_truth,if=talent.empowered_seals.enabled&buff.maraads_truth.remains<cooldown.judgment.duration
+				if (core.seal ~= true and buff.maraadsTruth < core.recharge.judgment)
 					if core:castSeal(1) then
 						return
 					end
-				end
-				if core.seal == true and buff.maraadsTruth > 7 and buff.liadrinsRighteousness < 7 then
+				-- actions.single+=/seal_of_righteousness,if=talent.empowered_seals.enabled&buff.liadrins_righteousness.remains<cooldown.judgment.duration&!buff.bloodlust.up
+				elseif (core.seal == true and buff.liadrinsRighteousness < core.recharge.judgment and not hasBloodLust()) then
 					if core:castSeal(2) then
 						return
 					end
 				end
+			end
+			-- actions.single+=/exorcism,if=holy_power<5&talent.seraphim.enabled
+			if (holyPower < 5 and talent.seraphim)
+				-- actions.single+=/exorcism,if=holy_power<=3|(holy_power=4&(cooldown.judgment.remains>=gcd*2&cooldown.crusader_strike.remains>=gcd*2&target.health.pct>35&buff.avenging_wrath.down))
+				or (holyPower <= 3 or (holyPower == 4 and core.recharge.judgment >= cd.globalCooldown*2  and cd.crusaderStrike >= cd.globalCooldown*2 and buff.avengingWrath == 0 or getHP(core.units.dyn5) > 35))) then
+					if core:castExorcism() then
+						return
+					end
+			end
+			-- actions.single+=/divine_storm,if=active_enemies=2&holy_power>=3&buff.final_verdict.up
+			if (core.melee12Yards == 2 and holyPower >= 3 and buff.finalVerdict > 0) then
+				if core:castDivineStorm() then
+					return
+				end
+			end
+			-- actions.single+=/final_verdict,if=holy_power>=3
+			if (talent.finalVerdict and holyPower >= 3) then
+				if core:castTemplarsVerdict() then
+					return
+				end
+			end
+			-- actions.single+=/templars_verdict,if=holy_power>=3&(!talent.seraphim.enabled|cooldown.seraphim.remains>gcd*6)
+			if holyPower >= 3 and (not talent.seraphim or cd.seraphim > cd.globalCooldown*6) then
+				if core:castTemplarsVerdict() then
+					return
+				end
+			end
+			-- actions.single+=/holy_prism
+			if core:castHolyPrism(1) then
+				return
 			end
 		----------------
 		-- Cleave 3-4 --
@@ -300,38 +363,38 @@ if select(3, UnitClass("player")) == 2 then
 			--[[Cleave(3-4)]]
 			-- final_verdict,if=buff.final_verdict.down&holy_power=5
 			if talent.finalVerdict then
-				if buff.finalVerdict == 0 and holypower == 5 then
+				if buff.finalVerdict == 0 and holyPower == 5 then
 					if core:castTemplarsVerdict(core.units.dyn5) then
 						return
 					end
 				end
 			end
 			-- divine_storm,if=buff.divine_crusader.react&holy_power=5&buff.final_verdict.up
-			if buff.divineCrusader > 0 and holypower == 5 and buff.finalVerdict > 0 then
+			if buff.divineCrusader > 0 and holyPower == 5 and buff.finalVerdict > 0 then
 				if core:castDivineStorm() then
 					return
 				end
 			end
 			-- divine_storm,if=holy_power=5&buff.final_verdict.up
-			if holypower == 5 and buff.finalVerdict > 0 then
+			if holyPower == 5 and buff.finalVerdict > 0 then
 				if core:castDivineStorm() then
 					return
 				end
 			end
 			-- divine_storm,if=buff.divine_crusader.react&holy_power=5&!talent.final_verdict.enabled
-			if buff.divineCrusader > 0 and holypower == 5 and not talent.finalVerdict then
+			if buff.divineCrusader > 0 and holyPower == 5 and not talent.finalVerdict then
 				if core:castDivineStorm() then
 					return
 				end
 			end
 			-- divine_storm,if=holy_power=5&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)&!talent.final_verdict.enabled
-			if holypower == 5 and (not talent.seraphim or cd.seraphim > 4) and not talent.finalVerdict then
+			if holyPower == 5 and (not talent.seraphim or cd.seraphim > 4) and not talent.finalVerdict then
 				if core:castDivineStorm() then
 					return
 				end
 			end
 			-- exorcism,if=buff.blazing_contempt.up&holy_power<=2&buff.holy_avenger.down
-			if buff.blazingContempt > 0 and holypower <= 2 and buff.holyAvenger == 0 then
+			if buff.blazingContempt > 0 and holyPower <= 2 and buff.holyAvenger == 0 then
 				if core:castExorcism() then
 					return
 				end
@@ -349,7 +412,7 @@ if select(3, UnitClass("player")) == 2 then
 				end
 			end
 			-- divine_storm,if=holy_power>=4&(!talent.seraphim.enabled|cooldown.seraphim.remains>6)&!talent.final_verdict.enabled
-			if holypower >= 4 and (not talent.seraphim or cd.seraphim > 6) and not talent.finalVerdict then
+			if holyPower >= 4 and (not talent.seraphim or cd.seraphim > 6) and not talent.finalVerdict then
 				if core:castDivineStorm() then
 					return
 				end
@@ -361,7 +424,7 @@ if select(3, UnitClass("player")) == 2 then
 				return
 			end
 			-- divine_storm,if=holy_power>=3&(!talent.seraphim.enabled|cooldown.seraphim.remains>7)&!talent.final_verdict.enabled
-			if holypower >= 3 and (not talent.seraphim or cd.seraphim > 7) and not talent.finalVerdict then
+			if holyPower >= 3 and (not talent.seraphim or cd.seraphim > 7) and not talent.finalVerdict then
 				if core:castDivineStorm() then
 					return
 				end
@@ -405,13 +468,13 @@ if select(3, UnitClass("player")) == 2 then
 		elseif (core.melee8Yards >= 5 and mode.aoe == 4) or mode.aoe == 3 then
 			--[[AoE(5+)]]
 			-- divine_storm,if=holy_power=5&(!talent.seraphim.enabled|cooldown.seraphim.remains>4)
-			if holypower == 5 and (not talent.seraphim or cd.seraphim > 4) then
+			if holyPower == 5 and (not talent.seraphim or cd.seraphim > 4) then
 				if core:castDivineStorm() then
 					return
 				end
 			end
 			-- exorcism,if=buff.blazing_contempt.up&holy_power<=2&buff.holy_avenger.down
-			if buff.blazingContempt > 0 and holypower <= 2 and buff.holyAvenger == 0 then
+			if buff.blazingContempt > 0 and holyPower <= 2 and buff.holyAvenger == 0 then
 				if castExorcism() then
 					return
 				end
@@ -465,3 +528,5 @@ if select(3, UnitClass("player")) == 2 then
 		end
 	end
 end
+
+--- NEW ROTATION ---
