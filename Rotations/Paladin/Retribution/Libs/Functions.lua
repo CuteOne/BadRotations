@@ -9,7 +9,6 @@ if select(3,UnitClass("player")) == 2 then
 				-- player stats
 				buff = { },
 				cd = { },
-				globalCooldown = 0,
 				glyph = { },
 				health = 100,
 				holyPower = 0,
@@ -70,7 +69,7 @@ if select(3,UnitClass("player")) == 2 then
 			local isSelected,UnitExists,isDummy,isMoving,castSpell,castGround = isSelected,UnitExists,isDummy,isMoving,castSpell,castGround
 			local getGround,canCast,isKnown,enemiesTable,sp = getGround,canCast,isKnown,enemiesTable,core.spells
 			local UnitHealth,previousJudgmentTarget,print,UnitHealthMax = UnitHealth,previousJudgmentTarget,print,UnitHealthMax
-			local canTrinket,useItem,GetInventoryItemID = canTrinket,useItem,GetInventoryItemID
+			local canTrinket,useItem,GetInventoryItemID,UnitSpellHaste = canTrinket,useItem,GetInventoryItemID,UnitSpellHaste
 
 
 			-- no external access after here
@@ -108,7 +107,15 @@ if select(3,UnitClass("player")) == 2 then
 				self.cd.judgment = getSpellCD(self.spell.judgment)
 				self.cd.crusaderStrike = getSpellCD(self.spell.crusaderStrike)
 				self.cd.seraphim = getSpellCD(self.spell.seraphim)
-				self.globalCooldown = getSpellCD(61304)
+
+				-- Global Cooldown = 1.5 / ((Spell Haste Percentage / 100) + 1)
+				local gcd = (1.5 / ((UnitSpellHaste(player)/100)+1))
+				if gcd < 1 then
+					self.cd.globalCooldown = 1
+				else
+					self.cd.globalCooldown = gcd
+				end
+				
 				self.inCombat = true
 				-- Units
 				self.melee5Yards = #getEnemies(player,5)

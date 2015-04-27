@@ -44,6 +44,7 @@ if select(3, UnitClass("player")) == 2 then
 
 
 	-- make sure we have a seal(often removed by changing talents/glyph)
+	-- Default: Truth
 	if core.seal == 0 then
 		if core:castSeal(1) then
 			return
@@ -63,10 +64,6 @@ if select(3, UnitClass("player")) == 2 then
 	if castingUnit() then
 		return
 	end
-
-	--[[	TODO: 	Update rotation to match SimC
-					Update 2 target alternate rotate between FV and DS
-	]]--
 
 	-- Combats Starts Here
 	if core.inCombat then
@@ -116,12 +113,13 @@ if select(3, UnitClass("player")) == 2 then
 		if core:castHolyPrism(2) then
 			return
 		end
-		-- seraphim
-		-- actions+=/seraphim
-		if core:castSeraphim() then
+		-- Seraphim (off gcd) 
+		-- actions+=/seraphim 
+		core:castSeraphim()
+		-- actions+=/wait,sec=cooldown.seraphim.remains,if=talent.seraphim.enabled&cooldown.seraphim.remains>0&cooldown.seraphim.remains<gcd.max&holy_power>=5
+		if (talent.seraphim and cd.seraphim > 0 and cd.seraphim < cd.globalCooldown and holyPower == 5) then
 			return
 		end
-		-- actions+=/wait,sec=cooldown.seraphim.remains,if=talent.seraphim.enabled&cooldown.seraphim.remains>0&cooldown.seraphim.remains<gcd.max&holy_power>=5
 
 		--[[Single(1-2)]]
 		----------------
@@ -156,6 +154,7 @@ if select(3, UnitClass("player")) == 2 then
 					return
 				end
 			end
+			-- actions.single+=/final_verdict
 			if talent.finalVerdict
 				-- actions.single+=/final_verdict,if=holy_power=5|buff.holy_avenger.up&holy_power>=3
 				and (holyPower == 5 or (buff.holyAvenger > 0 and holyPower >= 3)
@@ -180,9 +179,9 @@ if select(3, UnitClass("player")) == 2 then
 			-- actions.single+=/judgment,if=talent.empowered_seals.enabled
 			if talent.empoweredSeals then
 				-- &seal.truth&buff.maraads_truth.remains<cooldown.judgment.duration
-				if (core.seal == true and buff.maraadsTruth < core.recharge.judgment)
+				if (core.seal == true and (buff.maraadsTruth < core.recharge.judgment or buff.maraadsTruth == 0))
 				-- & seal.righteousness&buff.liadrins_righteousness.remains<cooldown.judgment.duration
-				or (core.seal == false and buff.liadrinsRighteousness < core.recharge.judgment)
+				or (core.seal == false and (buff.liadrinsRighteousness < core.recharge.judgment or buff.liadrinsRighteousness == 0))
 				-- &seal.righteousness&cooldown.avenging_wrath.remains<cooldown.judgment.duration
 				or (core.seal == false and cd.avengingWrath < core.recharge.judgment) then
 					if core:castJudgment() then
@@ -315,7 +314,7 @@ if select(3, UnitClass("player")) == 2 then
 			-- actions.single+=/seal_of_truth,if=talent.empowered_seals.enabled
 			if talent.empoweredSeals then
 				-- actions.single+=/seal_of_truth,if=talent.empowered_seals.enabled&buff.maraads_truth.remains<cooldown.judgment.duration
-				if (core.seal ~= true and buff.maraadsTruth < core.recharge.judgment)
+				if (core.seal ~= true and buff.maraadsTruth < core.recharge.judgment) then
 					if core:castSeal(1) then
 						return
 					end
@@ -329,7 +328,7 @@ if select(3, UnitClass("player")) == 2 then
 			-- actions.single+=/exorcism,if=holy_power<5&talent.seraphim.enabled
 			if (holyPower < 5 and talent.seraphim)
 				-- actions.single+=/exorcism,if=holy_power<=3|(holy_power=4&(cooldown.judgment.remains>=gcd*2&cooldown.crusader_strike.remains>=gcd*2&target.health.pct>35&buff.avenging_wrath.down))
-				or (holyPower <= 3 or (holyPower == 4 and core.recharge.judgment >= cd.globalCooldown*2  and cd.crusaderStrike >= cd.globalCooldown*2 and buff.avengingWrath == 0 or getHP(core.units.dyn5) > 35))) then
+				or (holyPower <= 3 or (holyPower == 4 and core.recharge.judgment >= cd.globalCooldown*2  and cd.crusaderStrike >= cd.globalCooldown*2 and buff.avengingWrath == 0 or getHP(core.units.dyn5) > 35)) then
 					if core:castExorcism() then
 						return
 					end
@@ -475,7 +474,7 @@ if select(3, UnitClass("player")) == 2 then
 			end
 			-- exorcism,if=buff.blazing_contempt.up&holy_power<=2&buff.holy_avenger.down
 			if buff.blazingContempt > 0 and holyPower <= 2 and buff.holyAvenger == 0 then
-				if castExorcism() then
+				if core:castExorcism() then
 					return
 				end
 			end
