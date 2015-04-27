@@ -400,7 +400,7 @@ if select(3, UnitClass("player")) == 2 then
 				end
 			end
 			-- actions.cleave+=/final_verdict,if=buff.final_verdict.down&(buff.avenging_wrath.up|target.health.pct<35)
-			if (talent.finalVerdict adn buff.finalVerdict == 0 and (buff.avengingWrath > 0 or getHP(core.units.dyn5) < 35)) then
+			if (talent.finalVerdict and buff.finalVerdict == 0 and (buff.avengingWrath > 0 or getHP(core.units.dyn5) < 35)) then
 				if core:castTemplarsVerdict() then
 					return
 				end
@@ -481,7 +481,7 @@ if select(3, UnitClass("player")) == 2 then
 			end
 			-- actions.cleave+=/exorcism,if=holy_power<5&talent.seraphim.enabled
 			-- actions.cleave+=/exorcism,if=holy_power<=3|(holy_power=4&(cooldown.judgment.remains>=gcd*2&cooldown.crusader_strike.remains>=gcd*2&target.health.pct>35&buff.avenging_wrath.down))
-			if (holyPower < 5 adn talent.seraphim)
+			if (holyPower < 5 and talent.seraphim)
 				or (holyPower <= 3 or (holyPower == 4 and (core.recharge.judgment >= cd.globalCooldown*2 and cd.crusaderStrike >= cd.globalCooldown*2 and getHP(core.units.dyn5) > 35 and buff.avengingWrath == 0))) then
 					if core:castExorcism() then
 						return

@@ -55,7 +55,7 @@ if select(3,UnitClass("player")) == 2 then
         rebuke = 96231,
         repentance = 20066,
         righteousFury = 25780,
-        sanctifiedWrath = 53376,
+        sanctifiedWrath = 171648,
         sacredShield = 20925,
         sealOfInsight = 20165,
         sealOfRighteousness = 20154,
@@ -80,7 +80,7 @@ if select(3,UnitClass("player")) == 2 then
     local UnitHealth,previousJudgmentTarget,print,UnitHealthMax = UnitHealth,previousJudgmentTarget,print,UnitHealthMax
     local getDistance,getDebuffRemain,GetTime,getFacing = getDistance,getDebuffRemain,GetTime,getFacing
     local spellCastersTable,enhancedLayOnHands,getOptionCheck = bb.im.casters,enhancedLayOnHands,getOptionCheck
-    local useItem,shouldCleanseDebuff,castBlessing = useItem,shouldCleanseDebuff,castBlessing
+    local useItem,shouldCleanseDebuff,castBlessing,UnitSpellHaste = useItem,shouldCleanseDebuff,castBlessing,UnitSpellHaste
     -- no external access after here
     setfenv(1,protCore)
 
@@ -88,6 +88,7 @@ if select(3,UnitClass("player")) == 2 then
       -- Talents (refresh ooc)
       self.talent.empoweredSeals = isKnown(152263)
       self.talent.seraphim = isKnown(self.spell.seraphim)
+      self.talent.sanctifiedWrath = isKnown(self.spell.sanctifiedWrath)
       -- Glyph (refresh ooc)
       self.glyph.doubleJeopardy = hasGlyph(183)
       self.glyph.consecration = hasGlyph(189)
