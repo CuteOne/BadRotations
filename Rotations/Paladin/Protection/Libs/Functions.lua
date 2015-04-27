@@ -122,7 +122,16 @@ if select(3,UnitClass("player")) == 2 then
       self.cd.divineProtection = getSpellCD(self.spell.divineProtection)
       self.cd.judgment = getSpellCD(self.spell.judgment)
       self.cd.seraphim = getSpellCD(self.spell.seraphim)
-      self.globalCooldown = getSpellCD(61304)
+      --self.globalCooldown = getSpellCD(61304)
+
+      -- Global Cooldown = 1.5 / ((Spell Haste Percentage / 100) + 1)
+      local gcd = (1.5 / ((UnitSpellHaste(player)/100)+1))
+      if gcd < 1 then
+        self.globalCooldown = 1
+      else
+        self.globalCooldown = gcd
+      end
+
       self.inCombat = true
       -- Units
       self.melee5Yards = #getEnemies(player,5) -- (meleeEnemies)

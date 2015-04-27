@@ -215,17 +215,13 @@ if select(3,UnitClass("player")) == 2 then
 					--if self.buff.avengingWrath > 0 or self.buff.crusaderFury then
 					return castSpell(self.units.dyn30,self.spell.hammerOfWrath,false,false) == true or false
 				else
-				local hpHammerOfWrath = 35
-				-- if empowered hammer of wrath, we need to get value for HoW hp at 35%
-				-- 158392 = HoW SpellID HP < 35%; hpHammerOfWrath is also 2 times set to 35 ?!; Profile for LVL 100
-				-- if isKnown(158392) then 
-				--  hpHammerOfWrath = 35
-				--end
-				local enemiesTable = enemiesTable
-				for i = 1,#enemiesTable do
-					if enemiesTable[i].hp < hpHammerOfWrath then
-						return castSpell(enemiesTable[i].unit,self.spell.hammerOfWrath,false,false,false,false,false,false,true) == true or false
-					end
+					local hpHammerOfWrath = 35
+					-- 158392 = HoW SpellID HP < 35%; hpHammerOfWrath is also 2 times set to 35 ?!; Profile for LVL 100
+					local enemiesTable = enemiesTable
+					for i = 1,#enemiesTable do
+						if enemiesTable[i].hp < hpHammerOfWrath then
+							return castSpell(enemiesTable[i].unit,self.spell.hammerOfWrath,false,false,false,false,false,false,true) == true or false
+						end
 					end
 				end
 				--end
