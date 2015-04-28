@@ -12,24 +12,16 @@ if select(3,UnitClass("player")) == 2 then
           icon = 35395
         },
         [2] = {
-          mode = "3-4",
+          mode = ">2",
           value = 2,
           overlay = "|cffFFBC0BCleave AoE Enabled",
-          tip = "|cffFF0000Used for \n|cffFFDD11AoE(3-4).",
+          tip = "|cffFF0000Used for \n|cffFFDD11AoE(>2).",
           highlight = 0,
           icon = 53385
         },
         [3] = {
-          mode = "5+",
-          value = 3,
-          overlay = "|cffAA55FFMass AoE Enabled",
-          tip = "|cffFF0000Used for \n|cffFFDD11AoE(5+) people.",
-          highlight = 0,
-          icon = 53595
-        },
-        [4] = {
           mode = "Auto",
-          value = 4,
+          value = 3,
           overlay = "|cff00F900Auto-AoE Enabled",
           tip = "|cffFFDD11Automatic calculations of ennemies.",
           highlight = 1,

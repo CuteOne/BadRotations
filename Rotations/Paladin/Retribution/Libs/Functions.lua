@@ -69,7 +69,7 @@ if select(3,UnitClass("player")) == 2 then
 			local isSelected,UnitExists,isDummy,isMoving,castSpell,castGround = isSelected,UnitExists,isDummy,isMoving,castSpell,castGround
 			local getGround,canCast,isKnown,enemiesTable,sp = getGround,canCast,isKnown,enemiesTable,core.spells
 			local UnitHealth,previousJudgmentTarget,print,UnitHealthMax = UnitHealth,previousJudgmentTarget,print,UnitHealthMax
-			local canTrinket,useItem,GetInventoryItemID = canTrinket,useItem,GetInventoryItemID
+			local canTrinket,useItem,GetInventoryItemID,UnitSpellHaste = canTrinket,useItem,GetInventoryItemID,UnitSpellHaste
 
 
 			-- no external access after here
@@ -100,12 +100,22 @@ if select(3,UnitClass("player")) == 2 then
 				self.buff.liadrinsRighteousness = getBuffRemain(player,156989)
 				self.buff.seraphim = getBuffRemain(player,self.spell.seraphim)
 				self.buff.blazingContempt = getBuffRemain(player,166831) -- IsSpellOverlayed(122032)	-- T17 - 4 Set Bonus 166831
-					self.buff.crusaderFury = getBuffRemain(player,165442) --IsSpellOverlayed(158392) 	-- T17 - 2 Set Bonus 165442
+				self.buff.crusaderFury = getBuffRemain(player,165442) --IsSpellOverlayed(158392) 	-- T17 - 2 Set Bonus 165442
 				self.buff.maraadsTruth = getBuffRemain(player,156990)
 				-- Cooldowns
 				self.cd.avengingWrath = getSpellCD(self.spell.avengingWrath)
 				self.cd.judgment = getSpellCD(self.spell.judgment)
+				self.cd.crusaderStrike = getSpellCD(self.spell.crusaderStrike)
 				self.cd.seraphim = getSpellCD(self.spell.seraphim)
+
+				-- Global Cooldown = 1.5 / ((Spell Haste Percentage / 100) + 1)
+				local gcd = (1.5 / ((UnitSpellHaste(player)/100)+1))
+				if gcd < 1 then
+					self.cd.globalCooldown = 1
+				else
+					self.cd.globalCooldown = gcd
+				end
+				
 				self.inCombat = true
 				-- Units
 				self.melee5Yards = #getEnemies(player,5)
@@ -205,17 +215,13 @@ if select(3,UnitClass("player")) == 2 then
 					--if self.buff.avengingWrath > 0 or self.buff.crusaderFury then
 					return castSpell(self.units.dyn30,self.spell.hammerOfWrath,false,false) == true or false
 				else
-				local hpHammerOfWrath = 35
-				-- if empowered hammer of wrath, we need to get value for HoW hp at 35%
-				-- 158392 = HoW SpellID HP < 35%; hpHammerOfWrath is also 2 times set to 35 ?!; Profile for LVL 100
-				-- if isKnown(158392) then 
-				--  hpHammerOfWrath = 35
-				--end
-				local enemiesTable = enemiesTable
-				for i = 1,#enemiesTable do
-					if enemiesTable[i].hp < hpHammerOfWrath then
-						return castSpell(enemiesTable[i].unit,self.spell.hammerOfWrath,false,false,false,false,false,false,true) == true or false
-					end
+					local hpHammerOfWrath = 35
+					-- 158392 = HoW SpellID HP < 35%; hpHammerOfWrath is also 2 times set to 35 ?!; Profile for LVL 100
+					local enemiesTable = enemiesTable
+					for i = 1,#enemiesTable do
+						if enemiesTable[i].hp < hpHammerOfWrath then
+							return castSpell(enemiesTable[i].unit,self.spell.hammerOfWrath,false,false,false,false,false,false,true) == true or false
+						end
 					end
 				end
 				--end
