@@ -29,17 +29,15 @@ if select(3,UnitClass("player")) == 2 then
       units = { },
       seal = true,
       spell = {
-        arcaneTorrent = 28730,
+        arcaneTorrent = 28730, 
         ardentDefender = 31850,
         avengersShield = 31935,
-        avengingWrath = 31884,
         consecration = 26573,
         crusaderStrike = 35395,
         divineProtection = 498,
         divinePurpose = 86172,
         divinePurposeBuff = 90174,
         divineShield = 642,
-        divineStorm = 53385,
         eternalFlame = 114163,
         executionSentence = 114157,
         fistOfJustice = 105593,
@@ -48,7 +46,6 @@ if select(3,UnitClass("player")) == 2 then
         hammerOfJustice = 853,
         hammerOfTheRighteous = 53595,
         hammerOfWrath = 24275,
-        harshWords = 136494,
         holyAvenger = 105809,
         holyPrism = 114165,
         holyWrath = 119072,
@@ -58,11 +55,10 @@ if select(3,UnitClass("player")) == 2 then
         rebuke = 96231,
         repentance = 20066,
         righteousFury = 25780,
-        sanctifiedWrath = 53376,
+        sanctifiedWrath = 171648,
         sacredShield = 20925,
         sealOfInsight = 20165,
         sealOfRighteousness = 20154,
-        sealOfThruth = 31801,
         selflessHealerBuff = 114250,
         seraphim = 152262,
         shieldOfTheRighteous = 53600,
@@ -84,7 +80,7 @@ if select(3,UnitClass("player")) == 2 then
     local UnitHealth,previousJudgmentTarget,print,UnitHealthMax = UnitHealth,previousJudgmentTarget,print,UnitHealthMax
     local getDistance,getDebuffRemain,GetTime,getFacing = getDistance,getDebuffRemain,GetTime,getFacing
     local spellCastersTable,enhancedLayOnHands,getOptionCheck = bb.im.casters,enhancedLayOnHands,getOptionCheck
-    local useItem,shouldCleanseDebuff,castBlessing = useItem,shouldCleanseDebuff,castBlessing
+    local useItem,shouldCleanseDebuff,castBlessing,UnitSpellHaste = useItem,shouldCleanseDebuff,castBlessing,UnitSpellHaste
     -- no external access after here
     setfenv(1,protCore)
 
@@ -92,10 +88,12 @@ if select(3,UnitClass("player")) == 2 then
       -- Talents (refresh ooc)
       self.talent.empoweredSeals = isKnown(152263)
       self.talent.seraphim = isKnown(self.spell.seraphim)
+      self.talent.sanctifiedWrath = isKnown(self.spell.sanctifiedWrath)
       -- Glyph (refresh ooc)
       self.glyph.doubleJeopardy = hasGlyph(183)
-      self.glyph.harshWords = hasGlyph(197)
       self.glyph.consecration = hasGlyph(189)
+      self.glyph.focusedShield = hasGlyph(191)
+      self.glyph.finalWrath = hasGlyph(194)
       self.buff.righteousFury = UnitBuffID(player,self.spell.righteousFury)
       self.buff.sacredShield = getBuffRemain(player,self.spell.sacredShield)
       self.inCombat = false
@@ -108,11 +106,10 @@ if select(3,UnitClass("player")) == 2 then
       self.holyPower = UnitPower(player,9)
       -- Buffs
       self.buff.ardentDefender = getBuffRemain(player,self.spell.ardentDefender)
-      self.buff.avengingWrath = getBuffRemain(player,self.spell.avengingWrath)
       self.buff.bastionOfGlory = getBuffRemain(player,114637)
       self.buff.holyAvenger = getBuffRemain(player,self.spell.holyAvenger)
       self.buff.divineProtection = getBuffRemain(player,self.spell.divineProtection)
-      self.buff.divinePurpose = getBuffRemain(player,self.spell.divinePurpose)
+      self.buff.divinePurpose = getBuffRemain(player,self.spell.divinePurposeBuff)
       self.buff.grandCrusader = getBuffRemain(player,85416)
       self.buff.guardianOfAncientKings = getBuffRemain(player,self.spell.guardianOfAncientKings)
       self.buff.liadrinsRighteousness = getBuffRemain(player,156989)
@@ -121,14 +118,21 @@ if select(3,UnitClass("player")) == 2 then
       self.buff.shieldOfTheRighteous = getBuffRemain(player,132403)
       self.buff.seraphim = getBuffRemain(player,self.spell.seraphim)
       self.buff.uthersInsight = getBuffRemain(player,156988)
-      self.buff.maraadsTruth = getBuffRemain(player,156990)
       -- Cooldowns
-      self.cd.avengingWrath = getSpellCD(self.spell.avengingWrath)
       self.cd.crusaderStrike = getSpellCD(self.spell.crusaderStrike)
       self.cd.divineProtection = getSpellCD(self.spell.divineProtection)
       self.cd.judgment = getSpellCD(self.spell.judgment)
       self.cd.seraphim = getSpellCD(self.spell.seraphim)
-      self.globalCooldown = getSpellCD(61304)
+      --self.globalCooldown = getSpellCD(61304)
+
+      -- Global Cooldown = 1.5 / ((Spell Haste Percentage / 100) + 1)
+      local gcd = (1.5 / ((UnitSpellHaste(player)/100)+1))
+      if gcd < 1 then
+        self.globalCooldown = 1
+      else
+        self.globalCooldown = gcd
+      end
+
       self.inCombat = true
       -- Units
       self.melee5Yards = #getEnemies(player,5) -- (meleeEnemies)
@@ -141,7 +145,7 @@ if select(3,UnitClass("player")) == 2 then
       self.mode.defensive = BadBoy_data["Defensive"]
       self.mode.healing = BadBoy_data["Healing"]
       self.mode.rotation = BadBoy_data["Rota"]
-      -- truth = true, right = false
+      -- Right = 1, Insight = 2
       self.seal = GetShapeshiftForm()
       -- dynamic units
       self.units.dyn5 = dynamicTarget(5,true)
@@ -166,7 +170,7 @@ if select(3,UnitClass("player")) == 2 then
       end
     end
 
-    -- Todo : Check Glyphs(is on us or can we cast it on ground 25 yards
+    -- Bloodelf Racial
     function protCore:castArcaneTorrent()
       if canCast(self.spell.arcaneTorrent) then
         if castSpell("player",self.spell.arcaneTorrent,true,false) then
@@ -201,7 +205,7 @@ if select(3,UnitClass("player")) == 2 then
 
     -- Todo: populate list, link to profile, add option for it
     -- Cleanse
-    function protCore:castClease()
+    function protCore:castCleanse()
       if isChecked("Cleanse") then
         for i = 1, #shouldCleanseDebuff do
           if UnitDebuffID("player",shouldCleanseDebuff[i].debuff) then
@@ -233,12 +237,7 @@ if select(3,UnitClass("player")) == 2 then
       return castSpell(self.units.dyn5,self.spell.crusaderStrike,false,false) == true or false
     end
 
-    -- Guardian Of Ancient Kings
-    function protCore:castGuardianOfAncientKings()
-      return self.health < getValue("Guardian Of Ancient Kings") and castSpell(player,self.spell.guardianOfAncientKings,true,false)
-    end
-
-    -- Guardian Of Ancient Kings
+    -- Divine Protection
     function protCore:castDivineProtection()
       return isChecked("Divine Protection") and self.health <= getValue("Divine Protection") and castSpell(player,self.spell.divineProtection,true,false)
     end
@@ -309,12 +308,6 @@ if select(3,UnitClass("player")) == 2 then
       return false
     end
 
-    -- Harsh Words(glyphed WoG)
-    -- Todo more logical use, pants off or wise
-    function protCore:castHarshWords()
-      return castSpell(self.units.dyn40,self.spell.harshWords,false,false) == true or false
-    end
-
     -- Holy Avenger
     function protCore:castHolyAvenger()
       if isSelected("Holy Avenger") then
@@ -377,25 +370,30 @@ if select(3,UnitClass("player")) == 2 then
       end
     end
 
-    -- Jeopardy
+    -- Jeopardy 
+    -- Uses Jeopardy if glyph is found, uses normal judgment if not
     function protCore:castJeopardy()
-      -- scan enemies for a different unit
-      local enemiesTable = enemiesTable
-      if #enemiesTable > 1 then
-        for i = 1, #enemiesTable do
-          local thisEnemy = enemiesTable[i]
-          -- if its in range
-          if thisEnemy.distance < 30 then
-            -- here i will need to compare my previous judgment target with the previous one
-            -- we declare a var in core updated by reader with last judged unit
-            if self.previousJudgmentTarget ~= thisEnemy.guid then
-              return castSpell(thisEnemy.unit,self.spell.judgment,true,false) == true or false
+      -- Check if glyph is present
+      if self.glyph.doubleJeopardy then 
+        -- scan enemies for a different unit
+        local enemiesTable = enemiesTable
+        if #enemiesTable > 1 then
+          for i = 1, #enemiesTable do
+            local thisEnemy = enemiesTable[i]
+            -- if its in range
+            if thisEnemy.distance < 30 then
+              -- here i will need to compare my previous judgment target with the previous one
+              -- we declare a var in core updated by reader with last judged unit
+              if self.previousJudgmentTarget ~= thisEnemy.guid then
+                return castSpell(thisEnemy.unit,self.spell.judgment,true,false) == true or false
+              end
             end
           end
         end
+      else -- if no jeopardy glyph is found use normal judgment
+        -- if no unit found for jeo, cast on actual target
+        return castSpell(self.units.dyn30AoE,self.spell.judgment,true,false) == true or false
       end
-      -- if no unit found for jeo, cast on actual target
-      return castSpell(self.units.dyn30AoE,self.spell.judgment,true,false) == true or false
     end
 
     -- Judgment
@@ -435,9 +433,9 @@ if select(3,UnitClass("player")) == 2 then
     -- Seals
     function protCore:castSeal(value)
       if value == 1 then
-        return castSpell(player,self.spell.sealOfThruth,true,false) == true or false
-      elseif value == 2 then
         return castSpell(player,self.spell.sealOfRighteousness,true,false) == true or false
+      elseif value == 2 then
+        return castSpell(player,self.spell.sealOfInsight,true,false) == true or false
       else
         return castSpell(player,self.spell.sealOfInsight,true,false) == true or false
       end
@@ -532,13 +530,13 @@ if select(3,UnitClass("player")) == 2 then
     function protCore:survival() -- Check if we are close to dying and act accoridingly
       if enhancedLayOnHands() then
         return
-    end
-    if self.health < 40 then
-      if useItem(5512) then -- Healthstone
-        return true
       end
-    end
-    return false
+      if self.health < 40 then
+        if useItem(5512) then -- Healthstone
+          return true
+        end
+      end
+      return false
     end
 
     -- Todo: not implemented, still need to think about it
