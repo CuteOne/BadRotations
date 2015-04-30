@@ -96,7 +96,7 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewText(thisConfig,"Auto Dispel")
 
 			-- Auto Silence
-			CreateNewCheck(thisConfig,"Auto Silence", "Auto Silence on: \nBRF: Blast Furnace")
+			CreateNewCheck(thisConfig,"Auto Silence", "Auto Silence on: \nBRF: Blast Furnace\nBRF: Operator Thogar")
 			CreateNewText(thisConfig,"Auto Silence")
 
 			-- Wrapper -----------------------------------------

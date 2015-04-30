@@ -390,6 +390,26 @@ if select(3, UnitClass("player")) == 5 then
 							end
 						end
 					end
+					-- Operator Thogar
+					if currentBoss=="Operator Thogar" then
+						-- Grom'kar Firemender: Cauterizing Bolt
+						for i=1,#enemiesTable do
+							local thisUnit = enemiesTable[i].unit
+							if UnitCastingInfo(thisUnit) == "Cauterizing Bolt" then
+								local cRem = select(6,UnitCastingInfo(thisUnit)) - GetTime()*1000
+								if cRem <= 1000 then
+									if getSpellCD(Silence)<=0 then
+										if castSpell(thisUnit,Silence,true,false) then return; end
+									end
+									if isKnown(ArcT) then
+										if getSpellCD(ArcT)<=0 and getDistance("player",thisUnit)<=8 then
+											if castSpell(thisUnit,ArcT,true,false) then return; end
+										end
+									end
+								end
+							end
+						end
+					end
 				end
 
 
