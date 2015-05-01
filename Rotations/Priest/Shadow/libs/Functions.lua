@@ -92,6 +92,7 @@ if select(3, UnitClass("player")) == 5 then
 			"Volatile Anomaly",
 			-- Blackrock Foundry
 			"Pack Beast",
+			"Grasping Earth",
 		}
 		-- nil Protection
 		if datUnit == nil then 
@@ -693,9 +694,9 @@ if select(3, UnitClass("player")) == 5 then
 									for i=1,#enemiesTable do
 										local thisUnit = enemiesTable[i].unit
 										if getDistance("player",thisUnit)<40 then
-											--if UnitName(thisUnit) == "Cinder Wolf" then
+											if UnitName(thisUnit) == "Cinder Wolf" then
 												if castSpell(thisUnit,Cascade,true,false) then return; end
-											--end
+											end
 										end
 									end
 								end
@@ -742,9 +743,7 @@ if select(3, UnitClass("player")) == 5 then
 									for i=1,#enemiesTable do
 										local thisUnit = enemiesTable[i].unit
 										if getDistance("player",thisUnit)<40 then
-											--if UnitName(thisUnit) == "Cinder Wolf" then
-												if castSpell(thisUnit,Cascade,true,false) then return; end
-											--end
+											if castSpell(thisUnit,Cascade,true,false) then return; end
 										end
 									end
 								end
@@ -798,8 +797,9 @@ if select(3, UnitClass("player")) == 5 then
 						else
 							for i=1,#enemiesTable do
 								local thisUnit = enemiesTable[i].unit
+								local range = enemiesTable[i].distance
 								local hp = enemiesTable[i].hp
-								if hp<20 then
+								if hp<20 and range < 40 then
 									if castSpell(thisUnit,SWD,true,false,false,false,false,false,true) then return end
 								end
 							end
@@ -816,8 +816,9 @@ if select(3, UnitClass("player")) == 5 then
 				if getBuffRemain("player",ToF)<options.player.GCD then
 					for i=1,#enemiesTable do
 						local thisUnit = enemiesTable[i].unit
+						local range = enemiesTable[i].distance
 						local hp = enemiesTable[i].hp
-						if hp<35 then
+						if hp<35 and range < 40 then
 							if getSpellCD(MB)>0 then
 								if castSpell(thisUnit,SWP,true,false) then return end
 							end
@@ -836,15 +837,18 @@ if select(3, UnitClass("player")) == 5 then
 				if SWPCount <= options.values.MaxTargets then
 					for i=1, #enemiesTable do
 						local thisUnit = enemiesTable[i].unit
+						local range = enemiesTable[i].distance
 						local thisHP = enemiesTable[i].hpabs
 						-- check for target and safeDoT
 						if safeDoT(thisUnit) then
-							if not UnitIsUnit("target",thisUnit) or targetAlso then
-								if UnitDebuffID(thisUnit,SWP,"player") then
-									-- check remaining time and minhealth
-									if getDebuffRemain(thisUnit,SWP,"player")<=options.values.SWPRefresh and thisHP>options.values.MinHealth then
-										if castSpell(thisUnit,SWP,true,false) then 
-											return true
+							if range < 40 then 
+								if not UnitIsUnit("target",thisUnit) or targetAlso then
+									if UnitDebuffID(thisUnit,SWP,"player") then
+										-- check remaining time and minhealth
+										if getDebuffRemain(thisUnit,SWP,"player")<=options.values.SWPRefresh and thisHP>options.values.MinHealth then
+											if castSpell(thisUnit,SWP,true,false) then 
+												return true
+											end
 										end
 									end
 								end
@@ -862,14 +866,17 @@ if select(3, UnitClass("player")) == 5 then
 				if SWPCount<options.values.MaxTargets then
 					for i=1, #enemiesTable do
 						local thisUnit = enemiesTable[i].unit
+						local range = enemiesTable[i].distance
 						local thisHP = enemiesTable[i].hpabs
 						-- check for target and safeDoT
 						if safeDoT(thisUnit) then
-							if not UnitIsUnit("target",thisUnit) or targetAlso then
-							-- check remaining time and minhealth
-								if getDebuffRemain(thisUnit,SWP,"player")<=0 and thisHP>options.values.MinHealth then
-									if castSpell(thisUnit,SWP,true,false) then 
-										return true
+							if range < 40 then
+								if not UnitIsUnit("target",thisUnit) or targetAlso then
+								-- check remaining time and minhealth
+									if getDebuffRemain(thisUnit,SWP,"player")<=0 and thisHP>options.values.MinHealth then
+										if castSpell(thisUnit,SWP,true,false) then 
+											return true
+										end
 									end
 								end
 							end
@@ -888,16 +895,19 @@ if select(3, UnitClass("player")) == 5 then
 				if VTCount <= options.values.MaxTargets then
 					for i=1, #enemiesTable do
 						local thisUnit = enemiesTable[i].unit
+						local range = enemiesTable[i].distance
 						local thisHP = enemiesTable[i].hpabs
 						-- check for target and safeDoT
 						if safeDoT(thisUnit) then
 							if safeVT(thisUnit) then
-								if not UnitIsUnit("target",thisUnit) or targetAlso then
-									if UnitDebuffID(thisUnit,VT,"player") then
-										-- check remaining time and minhealth
-										if getDebuffRemain(thisUnit,VT,"player")<=options.values.VTRefresh and thisHP>options.values.MinHealth then
-											if castSpell(thisUnit,VT,true,true) then 
-												return true
+								if range < 40 then
+									if not UnitIsUnit("target",thisUnit) or targetAlso then
+										if UnitDebuffID(thisUnit,VT,"player") then
+											-- check remaining time and minhealth
+											if getDebuffRemain(thisUnit,VT,"player")<=options.values.VTRefresh and thisHP>options.values.MinHealth then
+												if castSpell(thisUnit,VT,true,true) then 
+													return true
+												end
 											end
 										end
 									end
@@ -915,15 +925,18 @@ if select(3, UnitClass("player")) == 5 then
 				if VTCount<options.values.MaxTargets then
 					for i=1, #enemiesTable do
 						local thisUnit = enemiesTable[i].unit
+						local range = enemiesTable[i].unit
 						local thisHP = enemiesTable[i].hpabs
 						-- check for target and safeDoT
 						if safeDoT(thisUnit) then
 							if safeVT(thisUnit) then
-								if not UnitIsUnit("target",thisUnit) or targetAlso then
-									-- check remaining time and minhealth
-									if getDebuffRemain(thisUnit,VT,"player")<=0 and thisHP>options.values.MinHealth then
-										if castSpell(thisUnit,VT,true,true) then 
-											return true
+								if range < 40 then
+									if not UnitIsUnit("target",thisUnit) or targetAlso then
+										-- check remaining time and minhealth
+										if getDebuffRemain(thisUnit,VT,"player")<=0 and thisHP>options.values.MinHealth then
+											if castSpell(thisUnit,VT,true,true) then 
+												return true
+											end
 										end
 									end
 								end
