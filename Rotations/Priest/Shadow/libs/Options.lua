@@ -267,6 +267,10 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewCheck(thisConfig,"Farmer","SWP on mouseover.")
 			CreateNewText(thisConfig,"Farmer")
 
+			-- Level Rotation
+			CreateNewCheck(thisConfig,"Level Rotation","only available under lvl100 \nactivate to use level rotation")
+			CreateNewText("Level Rotation")
+
 			-- -- Auto Rez
 			-- CreateNewCheck(thisConfig,"Auto Rez")
 			-- CreateNewText(thisConfig,"Auto Rez(TBD)")

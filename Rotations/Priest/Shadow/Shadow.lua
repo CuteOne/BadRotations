@@ -101,6 +101,7 @@ if select(3, UnitClass("player")) == 5 then
 				Feather =			isChecked("Angelic Feather"),
 				BodyAndSoul = 		isChecked("Body And Soul"),
 				Farmer = 			isChecked("Farmer"),
+				LevelRotation =		isChecked("Level Rotation"),
 				},
 			-- Values
 			values = {
@@ -476,6 +477,35 @@ if select(3, UnitClass("player")) == 5 then
 				-- 	if options.buttons.Rotation==1 and getTalent(7,1) then IcySingleWeave(options) end
 				-- 	if options.buttons.Rotation==2 then IcyMultiTarget(options) end
 				-- end
+
+				------------------------------------------------------------------------------------------------------------------------------------------------------------
+				--[[Level Rotation]]
+				------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+				if options.isChecked.LevelRotation then
+					if UnitLevel("player")<100 then
+						-- Insanity
+						if getBuffRemain("player",InsanityBuff)>0 then
+							-- Check for current channel and cast Insanity
+							if select(1,UnitChannelInfo("player")) == nil then
+								if castSpell("target",MF,false,true) then return; end
+							end
+						end
+						-- DP
+						if castSpell("target",DP,false,true) then return end
+						-- MB
+						if castSpell("target",MB,false,true) then return end
+						-- SoD Proc
+						if getBuffStacks("player",SoDProc)>=1 then
+							if castSpell("target",MSp,false,false) then return; end
+						end
+						-- Dots
+						if throwSWP(options,true) then return end
+						if refreshSWP(options,true) then return end
+						if throwVT(options,true) then return end
+						if refreshVT(options,true) then return end
+					end
+				end
 
 				-- Cop
 				if getTalent(7,1) then
