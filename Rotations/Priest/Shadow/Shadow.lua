@@ -88,7 +88,7 @@ if select(3, UnitClass("player")) == 5 then
 				-- BossSWP =			isChecked("Boss SWP"),
 				-- BossVT =			isChecked("Boss VT"),
 				MindSear =			isChecked("MS Targets"),
-				DPmode = 			isChecked("DP mode"),
+				pushDP = 			isChecked("pushDP"),
 				MSinsanity = 		isChecked("MSinsanity Key"),
 				-- Encounter Specific
 				AutoGuise = 		isChecked("Auto Guise"),
@@ -114,7 +114,6 @@ if select(3, UnitClass("player")) == 5 then
 				VTRefresh =			4.5+1.5/(1+UnitSpellHaste("player")/100),
 				SWPRefresh = 		5.4,
 				MindSear = 			getValue("MS Targets"),
-				DPmode =			getValue("DP mode"),
 				DPon =				getValue("DP on Orbs"),
 				PushTime = 			getValue("Push Time"),
 			},
@@ -433,12 +432,17 @@ if select(3, UnitClass("player")) == 5 then
 					-- end
 
 					-- Do not Interrupt Searing Insanity
-					if UnitChannelInfo("player") == "Searing Insanity" then
-						if getSpellCD(MB)>0 then
-							return false
+					if options.isChecked.MSinsanity then
+						if SpecificToggle("MSinsanity Key") then
+							if isChecked("Burst MSi") then
+								SearingInsanity(options,false)
+							else
+								SearingInsanity(options,true)
+							end
 						end
-					else
-						SearingInsanity(options)
+						if UnitChannelInfo("player") == "Searing Insanity" then
+							return
+						end
 					end
 
 					-- 
@@ -610,49 +614,70 @@ if select(3, UnitClass("player")) == 5 then
 						------------------------------------------------------------------------------------------------------------------------------------------------------------
 						--[[ASInsanity(options)]]
 						------------------------------------------------------------------------------------------------------------------------------------------------------------
-						-- DP: push or throw?
-						if options.isChecked.DPmode then
-							if options.player.ORBS==5 then
-								-- Push DP
-								if options.isChecked.DPmode==1 then
-									if getDebuffRemain("target",DP,"player")<=options.values.PushTime then
-										if castSpell("target",DP,true,false) then return; end
+						-- -- DP: push or throw?
+						-- if options.isChecked.DPmode then
+						-- 	if options.player.ORBS==5 then
+						-- 		-- Push DP
+						-- 		if options.isChecked.DPmode==1 then
+						-- 			if getDebuffRemain("target",DP,"player")<=options.values.PushTime then
+						-- 				if castSpell("target",DP,true,false) then 
+						-- 					return
+						-- 				end
+						-- 			end
+						-- 			-- Throw DP
+						-- 		elseif options.isChecked.DPmode==2 then
+						-- 			if ThrowDP() then 
+						-- 				return 
+						-- 			end
+						-- 		end
+						-- 	end
+						-- end
+
+						-- -- DP on 5 Orbs
+						-- if options.player.ORBS==5 then
+						-- 	if castSpell("target",DP,true,false) then 
+						-- 		return
+						-- 	end
+						-- end
+
+						-- DP on 5 logic
+						if options.player.ORBS==5 then
+							if options.isChecked.pushDP then
+								if castSpell("target",DP,true,false) then return end
+							elseif not options.isChecked.pushDP then
+								if getDebuffRemain("target",DP,player)<=0 then
+									if castSpell("target",DP,true,false) then return end
+								end
+							end
+						end
+						
+						-- DP<5 - Hold Back DP to improve 4 set uptime
+						if options.player.ORBS<5 then
+							if TierScan("T17")>=4 then
+								if options.player.ORBS>=options.values.DPon or getBuffRemain("player",MentalInstinct)<1.8 then
+									if getBuffRemain("player",MentalInstinct)<1.8 then
+										if castSpell("target",DP,true,false) then 
+											return
+										end
 									end
 								end
-								-- Throw DP
-								if options.isChecked.DPmode==2 then
-									if ThrowDP() then return end
-								end
-							end
-						end
-
-						-- DP on 5 Orbs
-						if options.player.ORBS==5 then
-							if castSpell("target",DP,true,false) then return; end
-						end
-
-						-- Hold Back DP to improve 4 set uptime
-						if TierScan("T17")>=4 then
-							if options.player.ORBS>=options.values.DPon 
-							or (getBuffRemain("player",MentalInstinct)<1.8*options.player.GCD and options.player.ORBS>=3) then
-								if getBuffRemain("player",MentalInstinct)<1.8*options.player.GCD then
-									if castSpell("target",DP,true,false) then return; end
-								end
-							end
-						end
-
-						-- DP on 3+ Orbs
-						if TierScan("T17")<4 then
-							if options.player.ORBS>=3 then
-								-- check for running DP
-								if getBuffRemain("player",InsanityBuff)<=0 then
-									if castSpell("target",DP,true,false) then return; end
+								-- DP on 3+ Orbs
+							elseif TierScan("T17")<4 then
+								if options.player.ORBS>=3 then
+									-- check for running DP
+									if getBuffRemain("player",InsanityBuff)<=0 then
+										if castSpell("target",DP,true,false) then 
+											return
+										end
+									end
 								end
 							end
 						end
 
 						-- MB on CD
-						if castSpell("target",MB,false,true) then return; end
+						if options.player.ORBS<5 then
+							if castSpell("target",MB,false,true) then return; end
+						end
 
 						if select(1,UnitChannelInfo("player")) ~= "Insanity" then
 							-- SWP on MaxTargets

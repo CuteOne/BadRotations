@@ -19,14 +19,10 @@ if select(3, UnitClass("player")) == 5 then
 			-- CreateNewCheck(thisConfig,"ThrowDP")
 			-- CreateNewText(thisConfig,"ThrowDP")
 
-			-- ThrowDP or PushDP on AS
+			-- pushDP
 			if getTalent(7,3) then
-				CreateNewCheck(thisConfig,"DP mode")
-				CreateNewDrop(thisConfig,"DP mode",1,"|cffFFDD11Set to desired |cffFFFFFFDevouring Plague Mode.","|cffFFDD11Push","|cffFFDD11Throw")
-				CreateNewText(thisConfig,"DP mode")
-
-				CreateNewBox(thisConfig,"Push Time", 0, 6, 0.1, 0.3, "Minimum time left of DP for push again")
-				CreateNewText(thisConfig,"Push Time")
+				CreateNewCheck(thisConfig,"pushDP","If you have 5 Orbs and DP is running on target, push it again")
+				CreateNewText(thisConfig,"pushDP")
 			end
 
 			-- -- Min Orbs to cast DP on traditional single target
@@ -209,6 +205,10 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewCheck(thisConfig,"MSinsanity Key", "Searing Insanity current target while pressing the key")
 			CreateNewDrop(thisConfig,"MSinsanity Key", 3, "Toggle2")
 			CreateNewText(thisConfig,"MSinsanity Key")
+
+			-- Burst MSi
+			CreateNewCheck(thisConfig,"Burst MSi","MSi rotation without MB \nuse it for short living Adds")
+			CreateNewText(thisConfig,"Burst MSi")
 
 
 			-- Wrapper -----------------------------------------
