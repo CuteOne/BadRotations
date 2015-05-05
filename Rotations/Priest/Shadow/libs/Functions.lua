@@ -93,6 +93,8 @@ if select(3, UnitClass("player")) == 5 then
 			-- Blackrock Foundry
 			"Pack Beast",
 			"Grasping Earth",
+			"Iron Igniter",
+			"Iron Soldier",
 		}
 		-- nil Protection
 		if datUnit == nil then 
@@ -425,14 +427,14 @@ if select(3, UnitClass("player")) == 5 then
 	--[[                    ]] -- Defensives
 		function ShadowDefensive(options)
 			-- Dispersion
-			if isChecked("Dispersion") and (BadBoy_data['Defensive'] == 2) and options.player.php <= getValue("Dispersion") then
-				if castSpell("player",Disp,true,false) then return; end
+			if isChecked("Dispersion") and (BadBoy_data['Defensive'] == 2) and getHP("player") <= getValue("Dispersion") then
+				if castSpell("player",Disp) then return; end
 			end
 
 			-- Desperate Prayer
 			if isKnown(DesperatePrayer) then
-				if isChecked("Desperate Prayer") and (BadBoy_data['Defensive'] == 2) and options.player.php <= getValue("Desperate Prayer") then
-					if castSpell("player",DesperatePrayer,true,false) then return; end
+				if isChecked("Desperate Prayer") and (BadBoy_data['Defensive'] == 2) and getHP("player") <= getValue("Desperate Prayer") then
+					if castSpell("player",DesperatePrayer) then return; end
 				end
 			end
 
@@ -444,14 +446,14 @@ if select(3, UnitClass("player")) == 5 then
 			end
 
 			-- Shield
-			if isChecked("PW: Shield") and (BadBoy_data['Defensive'] == 2) and options.player.php <= getValue("PW: Shield") then
-				if castSpell("player",PWS,true,false) then return; end
+			if isChecked("PW: Shield") and (BadBoy_data['Defensive'] == 2) and getHP("player") <= getValue("PW: Shield") then
+				if castSpell("player",PWS) then return; end
 			end
 
 			-- Fade (Glyphed)
 			if hasGlyph(GlyphOfFade) then
-				if isChecked("Fade Glyph") and (BadBoy_data['Defensive'] == 2) and options.player.php <= getValue("Fade Glyph") then
-					if castSpell("player",Fade,true,false) then return; end
+				if isChecked("Fade Glyph") and (BadBoy_data['Defensive'] == 2) and getHP("player") <= getValue("Fade Glyph") then
+					if castSpell("player",Fade) then return; end
 				end
 			end
 
@@ -459,7 +461,7 @@ if select(3, UnitClass("player")) == 5 then
 			if IsInRaid() ~= false then
 				if isChecked("Fade Aggro") and BadBoy_data['Defensive']==2 and getThreat()>=3 then
 					--if isChecked("Fade Aggro") and BadBoy_data['Defensive'] == 2 then
-					if castSpell("player",Fade,true,false) then return; end
+					if castSpell("player",Fade) then return; end
 				end
 			end
 		end
@@ -777,11 +779,11 @@ if select(3, UnitClass("player")) == 5 then
 						end
 
 					-- Blackhand
-						if currentBoss=="Blackhand" then
-							if GetObjectExists("target")==false then
-								if LFU("Blackhand") then return; end
-							end
-						end
+						-- if currentBoss=="Blackhand" then
+						-- 	if GetObjectExists("target")==false then
+						-- 		if LFU("Blackhand") then return; end
+						-- 	end
+						-- end
 				end
 			end
 		end
@@ -925,7 +927,7 @@ if select(3, UnitClass("player")) == 5 then
 				if VTCount<options.values.MaxTargets then
 					for i=1, #enemiesTable do
 						local thisUnit = enemiesTable[i].unit
-						local range = enemiesTable[i].unit
+						local range = enemiesTable[i].distance
 						local thisHP = enemiesTable[i].hpabs
 						-- check for target and safeDoT
 						if safeDoT(thisUnit) then
@@ -949,40 +951,36 @@ if select(3, UnitClass("player")) == 5 then
 	--[[                    ]] -- VT
 
 	--[[                    ]] -- Searing Insanity
-	function SearingInsanity(options)
-		if options.isChecked.MSinsanity then
-			if SpecificToggle("MSinsanity Key") then
-				-- Chat Overlay
-				ChatOverlay("Searing Insanity active")
-				-- MB CoP Insanity
-				if getTalent(7,1) and getTalent(3,3) and options.player.ORBS<3 then
-					if castSpell("target",MB,false,false) then return; end
+	function SearingInsanity(options,withMB)
+		-- Chat Overlay
+		ChatOverlay("Searing Insanity active")
+		-- MB 
+		if withMB then
+			if options.player.ORBS<3 then
+				if castSpell("target",MB,false,false) then return; end
+			end
+		end
+		-- DP
+		if options.player.ORBS>=3 then
+			if select(1,UnitChannelInfo("player")) ~= "Searing Insanity" then
+				if getBuffRemain("player",InsanityBuff)<=0 then
+					if castSpell("target",DP,true,false) then return; end
 				end
-				-- DP
-				if options.player.ORBS>=3 then
-					if select(1,UnitChannelInfo("player")) ~= "Searing Insanity" then
-						if getBuffRemain("player",InsanityBuff)<=0 then
-							if castSpell("target",DP,true,false) then return; end
-						end
-					end
-				end
-				-- Clip it
-				if getBuffRemain("player",InsanityBuff)>0 and getBuffRemain("player",InsanityBuff)<options.player.GCD then
-					local cEnd = select(6,UnitChannelInfo("player"))
-					local cRem = cEnd - GetTime()*1000
-					-- Clip it
-					if cRem<500 then
-						if castSpell("target",MS,true,true) then return; end
-					end
-				end
-				-- Searing Insanity
-				if getBuffRemain("player",InsanityBuff)>0 then
-					if select(1,UnitChannelInfo("player")) ~= "Searing Insanity" then
-						--if getBuffRemain("player",InsanityBuff)>0 then
-							if castSpell("target",MS,true,true) then return; end
-						--end
-					end
-				end
+			end
+		end
+		-- Clip it
+		if getBuffRemain("player",InsanityBuff)>0 and getBuffRemain("player",InsanityBuff)<2*options.player.GCD then
+			local cEnd = select(6,UnitChannelInfo("player"))
+			local cRem = cEnd - GetTime()*1000
+			-- Clip it
+			if cRem<666 then
+				if castSpell("target",MS,true,true) then return; end
+			end
+		end
+		-- Searing Insanity
+		if getBuffRemain("player",InsanityBuff)>0 then
+			if select(1,UnitChannelInfo("player")) ~= "Searing Insanity" then
+				if castSpell("target",MS,true,true) then return; end
 			end
 		end
 	end
