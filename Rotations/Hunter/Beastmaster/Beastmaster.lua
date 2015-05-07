@@ -24,6 +24,10 @@ if select(3, UnitClass("player")) == 3 then
           remains = getBuffRemain("player",114050),
           up = UnitBuffID("player",114050)
         },
+        misdirection = {
+          remains = getBuffRemain("player",MisdirectionBuff),
+          up = UnitBuffID("player",MisdirectionBuff)
+        },
         bloodLust = {
           up = hasBloodLust()
         },
@@ -154,22 +158,22 @@ if select(3, UnitClass("player")) == 3 then
           focusTarget = UnitGUID("focustargettarget") or "No Target"
         end
         local misdirectOption = getValue("Misdirection")
-        local shoudlMisdirect = false
+        local shouldMisdirect = false
         local focusSituation = UnitThreatSituation(misdirectUnit)
         -- 1 - Me.Aggro if facing me and aggro on me then misdirect
         if misdirectOption == 1 and focusTarget == player.guidPlayer then
-          shoudlMisdirect = true
+          shouldMisdirect = true
           -- 2 - Any.Aggro - threat < 2 then misdirect
         elseif misdirectOption == 2 and focusTarget ~= "No Target" and focusTarget ~= UnitGUID(misdirectUnit) then
-          shoudlMisdirect = true
+          shouldMisdirect = true
           -- 3 - Enforce - threat < 3 then misdirect
         elseif misdirectOption == 3 and focusTarget ~= "No Target" and focusSituation ~= 3 then
-          shoudlMisdirect = true
+          shouldMisdirect = true
           -- 4 - Always - misdirect
         elseif misdirectOption == 4 then
-          shoudlMisdirect = true
+          shouldMisdirect = true
         end
-        if shoudlMisdirect then
+        if shouldMisdirect and not player.misdirection.up then
           if castSpell("pet",34477,true,false) then
             return
           end
@@ -193,7 +197,7 @@ if select(3, UnitClass("player")) == 3 then
       end
       -- stampede,if=buff.bloodlust.up|buff.focus_fire.up|target.time_to_die<=25
       if isSelected("Stampede") and (player.buff.bloodLust.up or player.buff.focusFire.up or player.target.timeToDie <= 25) then
-        if castSpell("player",Stampede,true,false) then
+        if castSpell(dynamicUnit.dyn40,Stampede,true,false) then
           return
         end
       end
@@ -251,7 +255,7 @@ if select(3, UnitClass("player")) == 3 then
       end
       -- a_murder_of_crows
       if player.talent.aMurderOfCrows then
-        if castSpell("player",AMurderOfCrows,true,false) then
+        if castSpell(dynamicUnit.dyn40,AMurderOfCrows,true,false) then
           return
         end
       end
