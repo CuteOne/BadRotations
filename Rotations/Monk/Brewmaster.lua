@@ -113,9 +113,9 @@ if select(3,UnitClass("player")) == 10 then
     -- Out of Combat -------------------------------------------------------------------------------------
     ------------------------------------------------------------------------------------------------------
     if not isInCombat("player") then
-    if isChecked("Stats Buff") then
-      Raidbuff_Monk()
-    end
+      if isChecked("Stats Buff") then
+        Raidbuff_Monk()
+      end
     --  	-- Legacy of the White Tiger
     -- if isChecked("Legacy of the White Tiger") == true and canCast(116781,false,false) and (lastLotWT == nil or lastLotWT <= GetTime() - 5) then
     -- 	for i = 1, #nNova do
@@ -488,7 +488,7 @@ if select(3,UnitClass("player")) == 10 then
         -- actions.aoe+=/spinning_crane_kick,if=chi.max-chi>=1&!talent.rushing_jade_wind.enabled
         if not isKnown(_RushingJadeWind) then
           if chiDif >= 1 then
-            if castSpell(dyn5,_RushingCraneKick,false,false) then
+            if castSpell(dyn5,_SpinningCraneKick,false,false) then
               return
             end
           end
