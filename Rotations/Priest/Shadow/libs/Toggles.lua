@@ -42,7 +42,7 @@ if select(3, UnitClass("player")) == 5 then
 				[1] = { mode = "off", value = 1 , overlay = "Halo/Cascade Disabled", tip = "|cffFF0000Halo/Star/Cascade \n|cffFFDD11wont be used.", highlight = 0, icon = 120644 },
 				[2] = { mode = "on", value = 2 , overlay = "Halo/Cascade Enabled", tip = "|cff00FF00Halo/Star/Cascade \n|cffFFDD11will be used.", highlight = 1, icon = 120644 }
 			};
-			CreateButton("Halo",0,1)
+			CreateButton("Halo",4,0)
 			HaloModesLoaded = "Shadow Priest Halo Modes";
 		end
 
@@ -52,7 +52,7 @@ if select(3, UnitClass("player")) == 5 then
 				[1] = { mode = "off", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffFF0000Cooldowns \n|cffFFDD11No cooldowns will be used.", highlight = 0, icon = 34433 },
 				[2] = { mode = "on", value = 2 , overlay = "Cooldowns Enabled", tip = "|cff00FF00Cooldowns \n|cffFFDD11Only used if enabled in Settings. \n|cffFF0000Spells Included: \n|cffFFDD11Power Infusion \nShadowfiend \nMindbender", highlight = 1, icon = 34433 }
 			};
-			CreateButton("Cooldowns",1,1)
+			CreateButton("Cooldowns",5,0)
 			CooldownsModesLoaded = "Shadow Priest Cooldowns Modes";
 		end
 
@@ -63,7 +63,7 @@ if select(3, UnitClass("player")) == 5 then
 				[2] = { mode = "auto", value = 2 , overlay = "Feather Auto", tip = "|cff00FF00Feather", highlight = 1, icon = 121536 }
 			};
 			--CreateButton("Feather",0,1)
-			CreateButton("Feather",2,1)
+			CreateButton("Feather",6,0)
 			FeatherModesLoaded = "Shadow Priest Feather Modes";
 		end
 	end -- END TOGGLES

@@ -92,13 +92,17 @@ if select(3, UnitClass("player")) == 5 then
 			"Volatile Anomaly",
 			-- Blackrock Foundry
 			"Pack Beast",
+			"Grasping Earth",
+			"Iron Igniter",
+			"Iron Soldier",
 		}
 		-- nil Protection
 		if datUnit == nil then 
 			return true 
 		end
 		-- BRF: Blast Furnace: Primal Elementalist: http://www.wowhead.com/spell=155176/damage-shield
-		if getBuffRemain(datUnit,155176)>0 then
+		-- BRF: Blast Furnace: Slag Elemental: http://www.wowhead.com/spell=176141/hardened-slag
+		if getBuffRemain(datUnit,155176)>0 or getBuffRemain(datUnit,176141)>0 then
 			return false
 		end
 		-- Iterate the blacklist
@@ -198,7 +202,11 @@ if select(3, UnitClass("player")) == 5 then
 	function LFU(datName)
 		-- nil prevention
 		if datName==nil then 
-			return false 
+			return false
+		end
+		-- first in Table
+		if datName=="first" then
+			TargetUnit(enemiesTable[1].name)
 		end
 		-- target specified Unit
 		TargetUnit(datName)
@@ -424,14 +432,14 @@ if select(3, UnitClass("player")) == 5 then
 	--[[                    ]] -- Defensives
 		function ShadowDefensive(options)
 			-- Dispersion
-			if isChecked("Dispersion") and (BadBoy_data['Defensive'] == 2) and options.player.php <= getValue("Dispersion") then
-				if castSpell("player",Disp,true,false) then return; end
+			if isChecked("Dispersion") and (BadBoy_data['Defensive'] == 2) and getHP("player") <= getValue("Dispersion") then
+				if castSpell("player",Disp) then return; end
 			end
 
 			-- Desperate Prayer
 			if isKnown(DesperatePrayer) then
-				if isChecked("Desperate Prayer") and (BadBoy_data['Defensive'] == 2) and options.player.php <= getValue("Desperate Prayer") then
-					if castSpell("player",DesperatePrayer,true,false) then return; end
+				if isChecked("Desperate Prayer") and (BadBoy_data['Defensive'] == 2) and getHP("player") <= getValue("Desperate Prayer") then
+					if castSpell("player",DesperatePrayer) then return; end
 				end
 			end
 
@@ -443,14 +451,14 @@ if select(3, UnitClass("player")) == 5 then
 			end
 
 			-- Shield
-			if isChecked("PW: Shield") and (BadBoy_data['Defensive'] == 2) and options.player.php <= getValue("PW: Shield") then
-				if castSpell("player",PWS,true,false) then return; end
+			if isChecked("PW: Shield") and (BadBoy_data['Defensive'] == 2) and getHP("player") <= getValue("PW: Shield") then
+				if castSpell("player",PWS) then return; end
 			end
 
 			-- Fade (Glyphed)
 			if hasGlyph(GlyphOfFade) then
-				if isChecked("Fade Glyph") and (BadBoy_data['Defensive'] == 2) and options.player.php <= getValue("Fade Glyph") then
-					if castSpell("player",Fade,true,false) then return; end
+				if isChecked("Fade Glyph") and (BadBoy_data['Defensive'] == 2) and getHP("player") <= getValue("Fade Glyph") then
+					if castSpell("player",Fade) then return; end
 				end
 			end
 
@@ -458,7 +466,7 @@ if select(3, UnitClass("player")) == 5 then
 			if IsInRaid() ~= false then
 				if isChecked("Fade Aggro") and BadBoy_data['Defensive']==2 and getThreat()>=3 then
 					--if isChecked("Fade Aggro") and BadBoy_data['Defensive'] == 2 then
-					if castSpell("player",Fade,true,false) then return; end
+					if castSpell("player",Fade) then return; end
 				end
 			end
 		end
@@ -693,9 +701,9 @@ if select(3, UnitClass("player")) == 5 then
 									for i=1,#enemiesTable do
 										local thisUnit = enemiesTable[i].unit
 										if getDistance("player",thisUnit)<40 then
-											--if UnitName(thisUnit) == "Cinder Wolf" then
+											if UnitName(thisUnit) == "Cinder Wolf" then
 												if castSpell(thisUnit,Cascade,true,false) then return; end
-											--end
+											end
 										end
 									end
 								end
@@ -742,9 +750,7 @@ if select(3, UnitClass("player")) == 5 then
 									for i=1,#enemiesTable do
 										local thisUnit = enemiesTable[i].unit
 										if getDistance("player",thisUnit)<40 then
-											--if UnitName(thisUnit) == "Cinder Wolf" then
-												if castSpell(thisUnit,Cascade,true,false) then return; end
-											--end
+											if castSpell(thisUnit,Cascade,true,false) then return; end
 										end
 									end
 								end
@@ -778,11 +784,11 @@ if select(3, UnitClass("player")) == 5 then
 						end
 
 					-- Blackhand
-						if currentBoss=="Blackhand" then
-							if GetObjectExists("target")==false then
-								if LFU("Blackhand") then return; end
-							end
-						end
+						-- if currentBoss=="Blackhand" then
+						-- 	if GetObjectExists("target")==false then
+						-- 		if LFU("Blackhand") then return; end
+						-- 	end
+						-- end
 				end
 			end
 		end
@@ -798,8 +804,9 @@ if select(3, UnitClass("player")) == 5 then
 						else
 							for i=1,#enemiesTable do
 								local thisUnit = enemiesTable[i].unit
+								local range = enemiesTable[i].distance
 								local hp = enemiesTable[i].hp
-								if hp<20 then
+								if hp<20 and range < 40 then
 									if castSpell(thisUnit,SWD,true,false,false,false,false,false,true) then return end
 								end
 							end
@@ -816,8 +823,9 @@ if select(3, UnitClass("player")) == 5 then
 				if getBuffRemain("player",ToF)<options.player.GCD then
 					for i=1,#enemiesTable do
 						local thisUnit = enemiesTable[i].unit
+						local range = enemiesTable[i].distance
 						local hp = enemiesTable[i].hp
-						if hp<35 then
+						if hp<35 and range < 40 then
 							if getSpellCD(MB)>0 then
 								if castSpell(thisUnit,SWP,true,false) then return end
 							end
@@ -836,15 +844,18 @@ if select(3, UnitClass("player")) == 5 then
 				if SWPCount <= options.values.MaxTargets then
 					for i=1, #enemiesTable do
 						local thisUnit = enemiesTable[i].unit
+						local range = enemiesTable[i].distance
 						local thisHP = enemiesTable[i].hpabs
 						-- check for target and safeDoT
 						if safeDoT(thisUnit) then
-							if not UnitIsUnit("target",thisUnit) or targetAlso then
-								if UnitDebuffID(thisUnit,SWP,"player") then
-									-- check remaining time and minhealth
-									if getDebuffRemain(thisUnit,SWP,"player")<=options.values.SWPRefresh and thisHP>options.values.MinHealth then
-										if castSpell(thisUnit,SWP,true,false) then 
-											return true
+							if range < 40 then 
+								if not UnitIsUnit("target",thisUnit) or targetAlso then
+									if UnitDebuffID(thisUnit,SWP,"player") then
+										-- check remaining time and minhealth
+										if getDebuffRemain(thisUnit,SWP,"player")<=options.values.SWPRefresh and thisHP>options.values.MinHealth then
+											if castSpell(thisUnit,SWP,true,false) then 
+												return true
+											end
 										end
 									end
 								end
@@ -862,14 +873,17 @@ if select(3, UnitClass("player")) == 5 then
 				if SWPCount<options.values.MaxTargets then
 					for i=1, #enemiesTable do
 						local thisUnit = enemiesTable[i].unit
+						local range = enemiesTable[i].distance
 						local thisHP = enemiesTable[i].hpabs
 						-- check for target and safeDoT
 						if safeDoT(thisUnit) then
-							if not UnitIsUnit("target",thisUnit) or targetAlso then
-							-- check remaining time and minhealth
-								if getDebuffRemain(thisUnit,SWP,"player")<=0 and thisHP>options.values.MinHealth then
-									if castSpell(thisUnit,SWP,true,false) then 
-										return true
+							if range < 40 then
+								if not UnitIsUnit("target",thisUnit) or targetAlso then
+								-- check remaining time and minhealth
+									if getDebuffRemain(thisUnit,SWP,"player")<=0 and thisHP>options.values.MinHealth then
+										if castSpell(thisUnit,SWP,true,false) then 
+											return true
+										end
 									end
 								end
 							end
@@ -888,16 +902,19 @@ if select(3, UnitClass("player")) == 5 then
 				if VTCount <= options.values.MaxTargets then
 					for i=1, #enemiesTable do
 						local thisUnit = enemiesTable[i].unit
+						local range = enemiesTable[i].distance
 						local thisHP = enemiesTable[i].hpabs
 						-- check for target and safeDoT
 						if safeDoT(thisUnit) then
 							if safeVT(thisUnit) then
-								if not UnitIsUnit("target",thisUnit) or targetAlso then
-									if UnitDebuffID(thisUnit,VT,"player") then
-										-- check remaining time and minhealth
-										if getDebuffRemain(thisUnit,VT,"player")<=options.values.VTRefresh and thisHP>options.values.MinHealth then
-											if castSpell(thisUnit,VT,true,true) then 
-												return true
+								if range < 40 then
+									if not UnitIsUnit("target",thisUnit) or targetAlso then
+										if UnitDebuffID(thisUnit,VT,"player") then
+											-- check remaining time and minhealth
+											if getDebuffRemain(thisUnit,VT,"player")<=options.values.VTRefresh and thisHP>options.values.MinHealth then
+												if castSpell(thisUnit,VT,true,true) then 
+													return true
+												end
 											end
 										end
 									end
@@ -915,15 +932,18 @@ if select(3, UnitClass("player")) == 5 then
 				if VTCount<options.values.MaxTargets then
 					for i=1, #enemiesTable do
 						local thisUnit = enemiesTable[i].unit
+						local range = enemiesTable[i].distance
 						local thisHP = enemiesTable[i].hpabs
 						-- check for target and safeDoT
 						if safeDoT(thisUnit) then
 							if safeVT(thisUnit) then
-								if not UnitIsUnit("target",thisUnit) or targetAlso then
-									-- check remaining time and minhealth
-									if getDebuffRemain(thisUnit,VT,"player")<=0 and thisHP>options.values.MinHealth then
-										if castSpell(thisUnit,VT,true,true) then 
-											return true
+								if range < 40 then
+									if not UnitIsUnit("target",thisUnit) or targetAlso then
+										-- check remaining time and minhealth
+										if getDebuffRemain(thisUnit,VT,"player")<=0 and thisHP>options.values.MinHealth then
+											if castSpell(thisUnit,VT,true,true) then 
+												return true
+											end
 										end
 									end
 								end
@@ -936,40 +956,36 @@ if select(3, UnitClass("player")) == 5 then
 	--[[                    ]] -- VT
 
 	--[[                    ]] -- Searing Insanity
-	function SearingInsanity(options)
-		if options.isChecked.MSinsanity then
-			if SpecificToggle("MSinsanity Key") then
-				-- Chat Overlay
-				ChatOverlay("Searing Insanity active")
-				-- MB CoP Insanity
-				if getTalent(7,1) and getTalent(3,3) and options.player.ORBS<3 then
-					if castSpell("target",MB,false,false) then return; end
+	function SearingInsanity(options,withMB)
+		-- Chat Overlay
+		ChatOverlay("Searing Insanity active")
+		-- MB 
+		if withMB then
+			if options.player.ORBS<3 then
+				if castSpell("target",MB,false,false) then return; end
+			end
+		end
+		-- DP
+		if options.player.ORBS>=3 then
+			if select(1,UnitChannelInfo("player")) ~= "Searing Insanity" then
+				if getBuffRemain("player",InsanityBuff)<=0 then
+					if castSpell("target",DP,true,false) then return; end
 				end
-				-- DP
-				if options.player.ORBS>=3 then
-					if select(1,UnitChannelInfo("player")) ~= "Searing Insanity" then
-						if getBuffRemain("player",InsanityBuff)<=0 then
-							if castSpell("target",DP,true,false) then return; end
-						end
-					end
-				end
-				-- Clip it
-				if getBuffRemain("player",InsanityBuff)>0 and getBuffRemain("player",InsanityBuff)<options.player.GCD then
-					local cEnd = select(6,UnitChannelInfo("player"))
-					local cRem = cEnd - GetTime()*1000
-					-- Clip it
-					if cRem<500 then
-						if castSpell("target",MS,true,true) then return; end
-					end
-				end
-				-- Searing Insanity
-				if getBuffRemain("player",InsanityBuff)>0 then
-					if select(1,UnitChannelInfo("player")) ~= "Searing Insanity" then
-						--if getBuffRemain("player",InsanityBuff)>0 then
-							if castSpell("target",MS,true,true) then return; end
-						--end
-					end
-				end
+			end
+		end
+		-- Clip it
+		if getBuffRemain("player",InsanityBuff)>0 and getBuffRemain("player",InsanityBuff)<2*options.player.GCD then
+			local cEnd = select(6,UnitChannelInfo("player"))
+			local cRem = cEnd - GetTime()*1000
+			-- Clip it
+			if cRem<666 then
+				if castSpell("target",MS,true,true) then return; end
+			end
+		end
+		-- Searing Insanity
+		if getBuffRemain("player",InsanityBuff)>0 then
+			if select(1,UnitChannelInfo("player")) ~= "Searing Insanity" then
+				if castSpell("target",MS,true,true) then return; end
 			end
 		end
 	end
