@@ -267,6 +267,11 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewCheck(thisConfig,"Farmer","SWP on mouseover.")
 			CreateNewText(thisConfig,"Farmer")
 
+			-- SWP all
+			CreateNewCheck(thisConfig,"SWP all","SWP on all units in selected range.")
+			CreateNewBox(thisConfig,"SWP all", 1, 40, 1, 4, "Set to desired range for throwing SWP around.")
+			CreateNewText(thisConfig,"SWP all")
+
 			-- Level Rotation
 			CreateNewCheck(thisConfig,"Level Rotation","only available under lvl100 \nactivate to use level rotation")
 			CreateNewText("Level Rotation")

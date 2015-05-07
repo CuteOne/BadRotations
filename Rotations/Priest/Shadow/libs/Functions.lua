@@ -101,7 +101,8 @@ if select(3, UnitClass("player")) == 5 then
 			return true 
 		end
 		-- BRF: Blast Furnace: Primal Elementalist: http://www.wowhead.com/spell=155176/damage-shield
-		if getBuffRemain(datUnit,155176)>0 then
+		-- BRF: Blast Furnace: Slag Elemental: http://www.wowhead.com/spell=176141/hardened-slag
+		if getBuffRemain(datUnit,155176)>0 or getBuffRemain(datUnit,176141)>0 then
 			return false
 		end
 		-- Iterate the blacklist
@@ -201,7 +202,11 @@ if select(3, UnitClass("player")) == 5 then
 	function LFU(datName)
 		-- nil prevention
 		if datName==nil then 
-			return false 
+			return false
+		end
+		-- first in Table
+		if datName=="first" then
+			TargetUnit(enemiesTable[1].name)
 		end
 		-- target specified Unit
 		TargetUnit(datName)

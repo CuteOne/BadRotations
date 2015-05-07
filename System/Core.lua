@@ -172,105 +172,105 @@ function BadBoyUpdate(self)
 	if playerClass == 1 then -- Warrior
 		if playerSpec == 2 then
 			FuryWarrior()
-	elseif playerSpec == 3 then
-		ProtectionWarrior()
-	else
-		ArmsWarrior()
-	end
+		elseif playerSpec == 3 then
+			ProtectionWarrior()
+		else
+			ArmsWarrior()
+		end
 	elseif playerClass == 2 then -- Paladin
 		if playerSpec == 1 then
 			PaladinHoly()
-	elseif playerSpec == 2 then
-		PaladinProtection()
-	elseif playerSpec == 3 then
-		PaladinRetribution()
-	end
+		elseif playerSpec == 2 then
+			PaladinProtection()
+		elseif playerSpec == 3 then
+			PaladinRetribution()
+		end
 	elseif playerClass == 3 then -- Hunter
 		if playerSpec == 1 then
 			BeastHunter()
-	elseif playerSpec == 2 then
-		MarkHunter()
-	else
-		SurvHunter()
-	end
+		elseif playerSpec == 2 then
+			MarkHunter()
+		else
+			SurvHunter()
+		end
 	elseif playerClass == 4 then -- Rogue
 		if playerSpec == nil then
 			NewRogue()
-	end
-	if playerSpec == 1 then
-		AssassinationRogue()
-	elseif playerSpec == 2 then
-		CombatRogue()
-	elseif playerSpec == 3 then
-		SubRogue()
-	end
+		end
+		if playerSpec == 1 then
+			AssassinationRogue()
+		elseif playerSpec == 2 then
+			CombatRogue()
+		elseif playerSpec == 3 then
+			SubRogue()
+		end
 	elseif playerClass == 5 then -- Priest
 		if playerSpec == 3 then
 			PriestShadow()
-	end
-	if playerSpec == 1 then
-		PriestDiscipline()
-	end
+		end
+		if playerSpec == 1 then
+			PriestDiscipline()
+		end
 	elseif playerClass == 6 then -- Deathknight
 		if playerSpec == 1 then
 			Blood()
-	end
-	if playerSpec == 2 then
-		FrostDK()
-	end
-	if playerSpec == 3 then
-		UnholyDK()
-	end
+		end
+		if playerSpec == 2 then
+			FrostDK()
+		end
+		if playerSpec == 3 then
+			UnholyDK()
+		end
 	elseif playerClass == 7 then -- Shaman
 		if playerSpec == 1 then
 			ShamanElemental()
-	end
-	if playerSpec == 2 then
-		ShamanEnhancement()
-	end
-	if playerSpec == 3 then
-		ShamanRestoration()
-	end
+		end
+		if playerSpec == 2 then
+			ShamanEnhancement()
+		end
+		if playerSpec == 3 then
+			ShamanRestoration()
+		end
 	elseif playerClass == 8 then -- Mage
 		if playerSpec == 1 then
 			ArcaneMage()
-	end
-	if playerSpec == 2 then
-		FireMage()
-	end
-	if playerSpec == 3 then
-		FrostMage()
-	end
+		end
+		if playerSpec == 2 then
+			FireMage()
+		end
+		if playerSpec == 3 then
+			FrostMage()
+		end
 	elseif playerClass == 9 then -- Warlock
 		if playerSpec == 2 then
 			WarlockDemonology()
-	elseif playerSpec == 3 then
-		WarlockDestruction()
-	end
+		elseif playerSpec == 3 then
+			WarlockDestruction()
+		end
 	elseif playerClass == 10 then -- Monk
 		if playerSpec == nil then
 			NewMonk()
-	end
-	if playerSpec == 1 then
-		BrewmasterMonk()
-	elseif playerSpec == 2 then
-		MistweaverMonk();
-	elseif playerSpec == 3 then
-		WindwalkerMonk()
-	end
+		end
+		if playerSpec == 1 then
+			BrewmasterMonk()
+		elseif playerSpec == 2 then
+			MistweaverMonk();
+		elseif playerSpec == 3 then
+			WindwalkerMonk()
+		end
 	elseif playerClass == 11 then -- Druid
 		if playerSpec == 1 then
 			DruidMoonkin()
-	end
-	if playerSpec == 2 then
-		DruidFeral()
-	end
-	if playerSpec == 3 then
-		DruidGuardian()
-	end
-	if playerSpec == 4 then
-		DruidRestoration()
-	end
+		end
+		if playerSpec == 2 then
+			DruidFeral()
+		end
+		if playerSpec == 3 then
+			DruidGuardian()
+		end
+		if playerSpec == 4 then
+			DruidRestoration()
+		end
 	end
 end
 
