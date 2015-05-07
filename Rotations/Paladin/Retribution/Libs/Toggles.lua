@@ -1,5 +1,6 @@
 if select(3,UnitClass("player")) == 2 then
   function PaladinRetToggles()
+    GarbageButtons()
     -- Aoe Button
     if AoEModesLoaded ~= "Ret Pal AoE Modes" then
       AoEModes = {
