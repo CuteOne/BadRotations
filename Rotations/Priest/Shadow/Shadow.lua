@@ -101,6 +101,7 @@ if select(3, UnitClass("player")) == 5 then
 				Feather =			isChecked("Angelic Feather"),
 				BodyAndSoul = 		isChecked("Body And Soul"),
 				Farmer = 			isChecked("Farmer"),
+				SWPall = 			isChecked("SWP all"),
 				LevelRotation =		isChecked("Level Rotation"),
 				},
 			-- Values
@@ -117,6 +118,7 @@ if select(3, UnitClass("player")) == 5 then
 				MindSear = 			getValue("MS Targets"),
 				DPon =				getValue("DP on Orbs"),
 				PushTime = 			getValue("Push Time"),
+				SWPall = 			getValue("SWP all"),
 			},
 			ASInsanity = {
 				VTAll =				false,
@@ -245,6 +247,31 @@ if select(3, UnitClass("player")) == 5 then
 						if castSpell("mouseover",SWP,true,false) then return; end
 					end
 				end
+			end
+
+			-- SWP all
+			if options.isChecked.SWPall then
+				ChatOverlay("!! SWP all active !!")
+				for i=1, #enemiesTable do
+					local thisUnit = enemiesTable[i].unit
+					local range = enemiesTable[i].distance
+					local thisHP = enemiesTable[i].hpabs
+					local maxRange = options.values.SWPall
+					-- check for target and safeDoT
+					if safeDoT(thisUnit) then
+						if range < maxRange then
+							if not UnitIsUnit("target",thisUnit) or targetAlso then
+							-- check remaining time and minhealth
+								if getDebuffRemain(thisUnit,SWP,"player")<=0 then
+									if castSpell(thisUnit,SWP,true,false) then 
+										return true
+									end
+								end
+							end
+						end
+					end
+				end
+				if LFU("first") then return end
 			end
 
 		------------------------------------------------------------------------------------------------------------------------------------------------------------
