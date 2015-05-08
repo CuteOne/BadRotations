@@ -659,7 +659,9 @@ if select(3, UnitClass("player")) == 5 then
 					end -- getTalent(3,3)
 					
 					-- SoD
-					if getTalent(3,1) then --[[CoPSoD(options)]] end
+					if getTalent(3,1) then 
+						--[[CoPSoD(options) not implemented]] 
+					end
 				end -- getTalent(7,1)
 
 				-- AS
@@ -669,7 +671,7 @@ if select(3, UnitClass("player")) == 5 then
 						-- Clip Insanity
 						ClipInsanity(options)
 						------------------------------------------------------------------------------------------------------------------------------------------------------------
-						--[[ASInsanity(options)]]
+						--[[ASInsanity]]
 						------------------------------------------------------------------------------------------------------------------------------------------------------------
 						-- -- DP: push or throw?
 						-- if options.isChecked.DPmode then
@@ -711,7 +713,7 @@ if select(3, UnitClass("player")) == 5 then
 						-- DP<5 - Hold Back DP to improve 4 set uptime
 						if options.player.ORBS<5 then
 							if TierScan("T17")>=4 then
-								if options.player.ORBS>=options.values.DPon or getBuffRemain("player",MentalInstinct)<1.8 then
+								if options.player.ORBS>=options.values.DPon or (getBuffRemain("player",MentalInstinct)<1.8 and getBuffRemain("player",MentalInstinct)>0) then
 									if getBuffRemain("player",MentalInstinct)<1.8 then
 										if castSpell("target",DP,true,false) then 
 											return
@@ -791,56 +793,43 @@ if select(3, UnitClass("player")) == 5 then
 					end -- getTalent(3,3)
 					
 					-- SoD Talent
-					if getTalent(3,1) then
+					if getTalent(3,1) or getTalent(3,2) then
 						------------------------------------------------------------------------------------------------------------------------------------------------------------
-						--[[ASSoD(options)]]
+						--[[ASSoD & ASMindbender]]
 						------------------------------------------------------------------------------------------------------------------------------------------------------------
-						-- DP: push or throw?
-						if options.isChecked.DPmode then
-							if options.player.ORBS==5 then
-								-- Push DP
-								if options.isChecked.DPmode==1 then
-									if getDebuffRemain("target",DP,"player")<=options.values.PushTime then
-										if castSpell("target",DP,true,false) then return; end
+						-- Halo, Shadowfiend, Mindbender
+						if ShadowCooldownsSmall(options) then return end
+
+						-- DP on 5 logic
+						if options.player.ORBS==5 then
+							if options.isChecked.pushDP then
+								if castSpell("target",DP,true,false) then return end
+							elseif not options.isChecked.pushDP then
+								if getDebuffRemain("target",DP,player)<=0 then
+									if castSpell("target",DP,true,false) then return end
+								end
+							end
+						end
+						
+						-- DP<5 - Hold Back DP to improve 4 set uptime
+						if options.player.ORBS<5 then
+							if TierScan("T17")>=4 then
+								if options.player.ORBS>=options.values.DPon or getBuffRemain("player",MentalInstinct)<1.8 then
+									if getBuffRemain("player",MentalInstinct)<1.8 then
+										if castSpell("target",DP,true,false) then 
+											return
+										end
 									end
 								end
-								-- Throw DP
-								if options.isChecked.DPmode==2 then
-									if ThrowDP() then return end
-								end
-							end
-						end
-
-						-- DP on 5 Orbs
-						if options.player.ORBS==5 then
-							if castSpell("target",DP,true,false) then return; end
-						end
-
-						-- Hold Back DP to improve 4 set uptime
-						if TierScan("T17")>=4 then
-							if options.player.ORBS>=options.values.DPon
-							or (getBuffRemain("player",MentalInstinct)<1.8*options.player.GCD and options.player.ORBS>=3) then
-								if getBuffRemain("player",MentalInstinct)<1.8*options.player.GCD then
-									if castSpell("target",DP,true,false) then return; end
-								end
-							end
-						end
-
-						-- DP on 3+ Orbs
-						if TierScan("T17")>=4 then
-							-- check for options
-							if options.player.ORBS>=options.values.DPon then
-								-- DP
-								if castSpell("target",DP,true,false) then return; end
-							end
-						end
-
-						-- DP on 3+ Orbs
-						if TierScan("T17")<4 then
-							if options.player.ORBS>=3 then
-								-- check for running DP
-								if getBuffRemain("player",InsanityBuff)<=0 then
-									if castSpell("target",DP,true,false) then return; end
+								-- DP on 3+ Orbs
+							elseif TierScan("T17")<4 then
+								if options.player.ORBS>=3 then
+									-- check for running DP
+									if getBuffRemain("player",InsanityBuff)<=0 then
+										if castSpell("target",DP,true,false) then 
+											return
+										end
+									end
 								end
 							end
 						end
@@ -854,11 +843,6 @@ if select(3, UnitClass("player")) == 5 then
 
 						-- MB on CD
 						if castSpell("target",MB,false,true) then return; end
-
-						-- Halo, Shadowfiend, Mindbender
-						if ShadowCooldownsSmall(options) then return end
-						--if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
-						--if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
 
 						-- SWP on MaxTargets
 						if throwSWP(options,true) then return end

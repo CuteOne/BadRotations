@@ -287,10 +287,10 @@ if not metaTable1 then
 	function SetupTables() -- Creating the cache (we use this to check if some1 is already in the table)
 		setmetatable(nNova, metaTable1) -- Set the metaTable of Main to Meta
 		function nNova:Update()
-			local refreshTimer = getOptionValue("Update Speed")/1000
+			local refreshTimer = 0.666
 			if nNovaTableTimer == nil or nNovaTableTimer <= GetTime() - refreshTimer then
 				nNovaTableTimer = GetTime()
-				
+				-- print("HEAL PULSE: "..GetTime())		-- debug print to check update time
 				-- This is for special situations, IE world healing or NPC healing in encounters
 				local selectedMode,SpecialTargets = getOptionValue("Special Heal"), {}
 				if getOptionCheck("Special Heal") == true then
