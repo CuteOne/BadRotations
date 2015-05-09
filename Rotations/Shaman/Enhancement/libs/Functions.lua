@@ -124,7 +124,7 @@ if select(3,UnitClass("player")) == 7 then
     elseif UnitLevel("player") < 87 then
       lowestCD = min(getSpellCD(_Stormstrike),getSpellCD(_FlameShock),getSpellCD(_LavaLash),getSpellCD(_UnleashElements))
     elseif UnitLevel("player") >= 87 then
-      if getBuffRemain("player",_AscendanceBuff) > 0 then
+      if getBuffRemain("player",_AscendanceEnhancement) > 0 then
         lowestCD = min(getSpellCD(_Stormblast),getSpellCD(_FlameShock),getSpellCD(_LavaLash),getSpellCD(_UnleashElements))
       else
         lowestCD = min(getSpellCD(_Stormstrike),getSpellCD(_FlameShock),getSpellCD(_LavaLash),getSpellCD(_UnleashElements))

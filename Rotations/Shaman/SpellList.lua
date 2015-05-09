@@ -13,9 +13,12 @@ _Purge = 370
 _HealingSurge = 8004
 _WaterWalking = 546
 _WindShear = 57994
+_AscendanceElemental = 114050
+_AscendanceEnhancement = 114051 
+_AscendanceRestoration = 114052
 
 
---Defencives
+--Defensives
 _ShamanisticRage = 30823
 
 
@@ -28,9 +31,8 @@ _ElementalMastery = 16166
 _LiquidMagma = 152255
 _StormElementalTotem = 152256
 
+
 ---Enhance---
-_Ascendance = 165341
-_AscendanceBuff = 114050
 _FeralSpirit = 51533
 _FireNova = 1535
 _LavaLash = 60103
@@ -49,6 +51,7 @@ _LavaBurst = 51505
 _Thunderstorm = 51490
 _LavaSurge = 77762
 
+
 ---Restoration---
 _ChainHeal = 1064
 _CleanseSpirit = 51886
@@ -66,11 +69,7 @@ _WaterShield = 52127
 
 
 ------Weapon Imbues------
-_EarthlivingWeapon = 51730
-_FlametongueWeapon = 8024
-_FrostbrandWeapon = 8033
-_RockbiterWeapon = 8017
-_WindfuryWeapon = 8232
+-- No more imbues :( 
 
 
 ------Totems------
