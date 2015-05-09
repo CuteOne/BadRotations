@@ -20,10 +20,10 @@ if select(3, UnitClass("player")) == 5 then
 			-- CreateNewText(thisConfig,"ThrowDP")
 
 			-- pushDP
-			if getTalent(7,3) then
+			--if getTalent(7,3) then
 				CreateNewCheck(thisConfig,"pushDP","If you have 5 Orbs and DP is running on target, push it again")
 				CreateNewText(thisConfig,"pushDP")
-			end
+			--end
 
 			-- -- Min Orbs to cast DP on traditional single target
 			-- CreateNewDrop(thisConfig,"Min Orbs (trad)",1,"Choose the minimum orbs to cast DP if targetHP>20.","|cffCC00003","|cFF00CC005")
@@ -34,10 +34,10 @@ if select(3, UnitClass("player")) == 5 then
 			-- CreateNewText(thisConfig,"DP only with 5 orbs")
 
 			-- Power Infusion
-			if isKnown(PI) then
+			--if isKnown(PI) then
 				CreateNewCheck(thisConfig,"Power Infusion")
 				CreateNewText(thisConfig,"Power Infusion")
-			end
+			--end
 
 			-- Troll Racial
 			if isKnown(Berserking) then
@@ -109,11 +109,11 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewText(thisConfig,"Healing Tonic")
 
 			-- Desperate Prayer
-			if isKnown(DesperatePrayer) then
+			--if isKnown(DesperatePrayer) then
 				CreateNewCheck(thisConfig,"Desperate Prayer")
 				CreateNewBox(thisConfig, "Desperate Prayer", 0,100,2,30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDesperate Prayer")
 				CreateNewText(thisConfig,"Desperate Prayer")
-			end
+			--end
 
 			-- Dispersion
 			CreateNewCheck(thisConfig,"Dispersion")
@@ -121,11 +121,11 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewText(thisConfig,"Dispersion")
 
 			-- Fade DMG reduction (with glyph)
-			if hasGlyph(GlyphOfFade) then
+			--if hasGlyph(GlyphOfFade) then
 				CreateNewCheck(thisConfig,"Fade Glyph")
 				CreateNewBox(thisConfig, "Fade Glyph", 0, 100  , 2, 80, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFade")
 				CreateNewText(thisConfig,"Fade Glyph")
-			end
+			--end
 
 			-- Fade (aggro reduction)
 			CreateNewCheck(thisConfig,"Fade Aggro", "|cffFFBB00Fade on Aggression |cffFF0000(only in group or raid)")
@@ -154,11 +154,11 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewCheck(thisConfig,"sortByHPabs","Sort enemiesTable by descending health, so the highest absolute health unit will be dotted first.")
 			CreateNewText(thisConfig,"sortByHPabs")
 			
-			if getTalent(7,3) then
+			--if getTalent(7,3) then
 				-- VT on Target
 				CreateNewCheck(thisConfig,"VT on Target")
 				CreateNewText(thisConfig,"VT on Target")
-			end
+			--end
 
 			-- -- SWP
 			-- CreateNewCheck(thisConfig,"Multi SWP", "not used atm")
@@ -186,10 +186,10 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewText(thisConfig,"Max Targets")
 
 			-- Hold Orbs back
-			if getTalent(7,3) then
+			--if getTalent(7,3) then
 				CreateNewBox(thisConfig,"DP on Orbs", 3, 4, 1, 4, "Start DP on 3 Orbs for faster DMG.\nStart DP on 4 Orb should improve Damage and uptime of Mental Instinct!")
 				CreateNewText(thisConfig,"DP on Orbs")
-			end
+			--end
 
 			-- -- DoT Refresh
 			-- CreateNewBox(thisConfig,"Refresh Time", 0.0, 4.5, 0.1, 2.0, "Minimum time to refresh DoT.\nMin: 0 / Max: 4.5 / Interval: 0.1")

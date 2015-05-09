@@ -1,5 +1,6 @@
 if select(3,UnitClass("player")) == 2 then
   function PaladinProtToggles()
+    GarbageButtons()
     -- Aoe Button
     if  AoEModesLoaded ~= "Prot Pal AoE Modes" then
       AoEModes = {
@@ -7,7 +8,7 @@ if select(3,UnitClass("player")) == 2 then
         [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "|cffFF0000Recommended for \n|cffFFDD11AoE(3+).", highlight = 0, icon = 53595 },
         [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "|cffFFDD11Recommended for \n|cffFFDD11Lazy people.", highlight = 1, icon = 114158 }
       }
-      CreateButton("AoE",-1,0)
+      CreateButton("AoE",0,1)
       AoEModesLoaded = "Prot Pal AoE Modes"
     end
     if  RotaModesLoaded ~= "Prot Pal Rota Modes" then
@@ -26,7 +27,7 @@ if select(3,UnitClass("player")) == 2 then
         [1] = { mode = "None", value = 1 , overlay = "Interrupts Disabled", tip = "|cffFF0000No Interrupts will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
         [2] = { mode = "All", value = 2 , overlay = "Interrupts Enabled", tip = "|cffFF0000Spells Included: \n|cffFFDD11Rebuke.", highlight = 1, icon = 96231 }
       }
-      CreateButton("Interrupts",1.5,-1)
+      CreateButton("Interrupts",1,0)
       InterruptsModesLoaded = "Prot Pal Interrupts Modes"
     end
     -- Cooldowns Button
@@ -36,7 +37,7 @@ if select(3,UnitClass("player")) == 2 then
         [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "|cffFF0000Cooldowns Included: \n|cffFFDD11Config's selected spells.", highlight = 1, icon = [[INTERFACE\ICONS\inv_misc_blackironbomb]] },
         [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "|cffFF0000Cooldowns Included: \n|cffFFDD11Holy Avenger.", highlight = 1, icon = 31884 }
       }
-      CreateButton("Cooldowns",0.5,-1)
+      CreateButton("Cooldowns",2,0)
       CooldownsModesLoaded = "Prot Pal Cooldowns Modes"
     end
     -- Defensive Button
@@ -45,7 +46,7 @@ if select(3,UnitClass("player")) == 2 then
         [1] = { mode = "None", value = 1 , overlay = "Defensive Disabled", tip = "|cffFF0000No Defensive Cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
         [2] = { mode = "All", value = 2 , overlay = "Defensive Enabled", tip = "|cffFF0000Spells Included: \n|cffFFDD11Ardent Defender, \nDivine Protection, \nGuardian of Ancient Kings.", highlight = 1, icon = 86659 }
       }
-      CreateButton("Defensive",-0.5,-1)
+      CreateButton("Defensive",1,1)
       DefensiveModesLoaded = "Prot Pal Defensive Modes"
     end
     -- Healing Button
@@ -55,7 +56,7 @@ if select(3,UnitClass("player")) == 2 then
         [2] = { mode = "Self", value = 2 , overlay = "Heal only Self.", tip = "|cffFF0000Healing: |cffFFDD11On self only.", highlight = 1, icon = 19750 },
         [3] = { mode = "All", value = 3 , overlay = "Heal Everyone.", tip = "|cffFF0000Healing: |cffFFDD11On Everyone.", highlight = 1, icon = 114163 }
       }
-      CreateButton("Healing",-1.5,-1)
+      CreateButton("Healing",2,1)
       HealingModesLoaded = "Prot Pal Healing Modes"
     end
   end

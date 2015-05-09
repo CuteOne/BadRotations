@@ -470,17 +470,17 @@ function ConstructUI()
 					statusStep = 25,
 					tip = "Debug Table Refresh throttle(ms)."
 				},
-				[11] = {
-					--checkbase = false,
-					--check = false,
-					name = "Update Speed",
-					status = "Set desired Healing Engine update rate in ms.\n|cffFF0000The Timer is always active, regardless to the check button",
-					statusBase = 1000,
-					statusMin = 0,
-					statusMax = 2000,
-					statusStep = 25,
-					tip = "Engine Update Refresh throttle (ms)"
-				}
+				-- [11] = {
+				-- 	--checkbase = false,
+				-- 	--check = false,
+				-- 	name = "Update Speed",
+				-- 	status = "Set desired Healing Engine update rate in ms.\n|cffFF0000The Timer is always active, regardless to the check button",
+				-- 	statusBase = 1000,
+				-- 	statusMin = 0,
+				-- 	statusMax = 2000,
+				-- 	statusStep = 25,
+				-- 	tip = "Engine Update Refresh throttle (ms)"
+				-- }
 			},
 			["Other Features"] = {
 				[1] = {

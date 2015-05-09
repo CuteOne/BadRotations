@@ -13,7 +13,6 @@ if select(3, UnitClass("player")) == 7 then
       dyn40 = dynamicTarget(40,true), -- flame shock
       dyn40AoE = dynamicTarget(40,false) -- searing
     }
-    local _Ascendance = 165339
 
     player = {
       buff = {
@@ -47,7 +46,7 @@ if select(3, UnitClass("player")) == 7 then
       moving = isMoving("player"),
       spell = {
         ascendance = {
-          cooldown = getSpellCD(165339)
+          cooldown = getSpellCD(_AscendanceElemental)
         },
         elementalBlast = {
           cooldown = getSpellCD(_ElementalBlast)
@@ -190,7 +189,7 @@ if select(3, UnitClass("player")) == 7 then
       end
       -- ancestral_swiftness,if=!buff.ascendance.up
       if ((player.cooldowns == 2 and isChecked("Ancestral Swiftness")) or player.cooldowns == 3) and player.talent.ancestralSwiftness and not player.buff.ascendance then
-        if castSpell("player",_Ascendance,true,false) then
+        if castSpell("player",_AscendanceElemental,true,false) then
           return
         end
       end
@@ -212,7 +211,7 @@ if select(3, UnitClass("player")) == 7 then
         or (player.target.debuff.flameShock.remains > player.buff.ascendance.duration and (player.target.timeToDie < 20 or player.buff.bloodlust.up or player.time >= 60)
         -- &cooldown.lava_burst.remains>0)
         and player.spell.lavaBurst.cooldown > 0)) then
-        if castSpell("player",_Ascendance,true,false) then
+        if castSpell("player",_AscendanceElemental,true,false) then
           return
         end
       end

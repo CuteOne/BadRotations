@@ -516,7 +516,7 @@ if select(3, UnitClass("player")) == 5 then
 				-- Berserking (Troll Racial)
 				--if not UnitBuffID("player",176875) then
 				if isKnown(Berserking) and options.buttons.Cooldowns == 2 and options.isChecked.Berserking then
-					if castSpell("player",Berserking,true,false) then return; end
+					if castSpell("player",Berserking,true,false) then return end
 				end
 				--end
 			--end
@@ -526,14 +526,14 @@ if select(3, UnitClass("player")) == 5 then
 			-- Halo
 			if isKnown(Halo) and options.buttons.Halo == 2 then
 				if getDistance("player","target")<=30 and getDistance("player","target")>=17 then
-					if castSpell("player",Halo,true,false) then return; end
+					if castSpell("player",Halo,true,false) then return end
 				end
 			end
 
 			-- Cascade
 			if isKnown(Cascade) and options.buttons.Halo == 2 then
 				if getDistance("player","target")>=28 and getDistance("player","target")<=40 then
-					if castSpell("target",Cascade,true,false) then return; end
+					if castSpell("target",Cascade,true,false) then return end
 				end
 			end
 
@@ -541,12 +541,12 @@ if select(3, UnitClass("player")) == 5 then
 			or not options.isChecked.isBoss then
 				-- Mindbender
 				if isKnown(Mindbender) and options.buttons.Cooldowns == 2 and options.isChecked.Mindbender then
-					if castSpell("target",Mindbender) then return; end
+					if castSpell("target",Mindbender) then return end
 				end
 
 				-- Shadowfiend
 				if isKnown(SF) and options.buttons.Cooldowns == 2 and options.isChecked.Shadowfiend then
-					if castSpell("target",SF,true,false) then return; end
+					if castSpell("target",SF) then return end
 				end
 			end
 		end
@@ -582,6 +582,10 @@ if select(3, UnitClass("player")) == 5 then
 	--[[                    ]] -- Execute AS start
 		function ExecuteAS(options)
 			if getHP("target")<=20 then
+
+				-- Shadowfiend/Mindbender etc.
+				ShadowCooldownsSmall(options)
+
 				-- DP on 3+ Orbs
 				if options.player.ORBS>=3 then
 					if castSpell("target",DP,true,false) then return end

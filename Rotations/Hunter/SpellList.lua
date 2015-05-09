@@ -30,6 +30,7 @@ if select(3, UnitClass("player")) == 3 then
   SerpentSting        = 1978
   RapidFire           = 3045
   Misdirection        = 34477
+  MisdirectionBuff    = 35079
 
   --Utility
   ConcussiveShot      = 5116
