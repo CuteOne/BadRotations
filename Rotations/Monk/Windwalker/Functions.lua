@@ -112,13 +112,6 @@ if select(3,UnitClass("player")) == 10 then
 				self.talent.rushingJadeWind = isKnown(self.spell.rushingJadeWind)
 				self.talent.powerStrikes = isKnown(121817)
 
-				--if getTalent(1,1) then
-				--	self.spell.roll = 121827 --Roll w/ Celerity Talent
-				--else
-				--	self.spell.roll = 109132  --Roll
-				--end
-
-
 				-- GET Jab SpellID
 				local itemId = GetInventoryItemID(player,select(1,GetInventorySlotInfo("MainHandSlot")))
 				local _, _, _, _, _, _, SubType, _ = GetItemInfo(itemId)
@@ -209,10 +202,10 @@ if select(3,UnitClass("player")) == 10 then
 				self.melee12Yards = #getEnemies(player,12) 
 
 				-- Modes
-				self.mode.aoe = BadBoy_data["AoE"]
+				self.mode.sef = BadBoy_data["SEF"]
 				self.mode.cooldowns = BadBoy_data["Cooldowns"]
-				self.mode.defensive = BadBoy_data["Defensive"]
-				self.mode.healing = BadBoy_data["Healing"]
+				--self.mode.defensive = BadBoy_data["Defensive"]
+				--self.mode.healing = BadBoy_data["Healing"]
 
 				-- dynamic units
 				self.units.dyn5 = dynamicTarget(5,true)
@@ -240,7 +233,9 @@ if select(3,UnitClass("player")) == 10 then
 			end
 
 			function wwCore:castChiBrew()
-				return castSpell(player,self.spell.chiBrew,true,false) == true or false
+				if self.mode.cooldowns == 1 then
+					return castSpell(player,self.spell.chiBrew,true,false) == true or false
+				end
 			end
 
 			function wwCore:castChiBurst()
@@ -260,7 +255,9 @@ if select(3,UnitClass("player")) == 10 then
 			end
 
 			function wwCore:castEnergizingBrew()
-				return castSpell(player,self.spell.energizingBrew,true,false) == true or false
+				if self.mode.cooldowns == 1 then
+					return castSpell(player,self.spell.energizingBrew,true,false) == true or false
+				end
 			end
 
 			function wwCore:castExpelHarm()
@@ -276,7 +273,9 @@ if select(3,UnitClass("player")) == 10 then
 
 			-- Fortifying Brew
 			function wwCore:castFortifyingBrew()
-				return castSpell(player,self.spell.fortifyingBrew,true,false) == true or false
+				if self.mode.cooldowns == 1 then
+					return castSpell(player,self.spell.fortifyingBrew,true,false) == true or false
+				end
 			end
 
 			function wwCore:castHurricaneStrike()
@@ -284,8 +283,9 @@ if select(3,UnitClass("player")) == 10 then
 			end
 
 			function wwCore:castInvokeXuen()
-				-- TODO: Cooldown Toggle
-				return castSpell(self.units.dyn40,self.spell.invokeXuen,true,false) == true or false
+				if self.mode.cooldowns == 1 then
+					return castSpell(self.units.dyn40,self.spell.invokeXuen,true,false) == true or false
+				end
 			end
 
 			function wwCore:castJab()
@@ -309,7 +309,9 @@ if select(3,UnitClass("player")) == 10 then
 			end
 
 			function wwCore:castSerenity()
-				return castSpell(player,self.spell.serenity,true,false) == true or false
+				if self.mode.cooldowns == 1 then
+					return castSpell(player,self.spell.serenity,true,false) == true or false
+				end
 			end
 
 			-- Spear Hand Strike
@@ -335,7 +337,9 @@ if select(3,UnitClass("player")) == 10 then
 			end
 
 			function wwCore:castTouchOfDeath()
-				return castSpell(self.units.dyn5,self.spell.touchOfDeath,true,false) == true or false
+				if self.mode.cooldowns == 1 then
+					return castSpell(self.units.dyn5,self.spell.touchOfDeath,true,false) == true or false
+				end
 			end
 
 			function wwCore:castTouchOfKarma() -- TODO: range glyph, 25y

@@ -13,16 +13,15 @@ if select(3,UnitClass("player")) == 10 then
     -- end
 
     -- -- Cooldowns Button
-    -- if CooldownsModesLoaded ~= "Cute Cooldowns Modes" then
-    --   CustomCooldownsModes = {
-    --     [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = _InvokeXuen},
-    --     [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = _InvokeXuen},
-    --     [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = _InvokeXuen}
-    --   };
-    --   CooldownsModes = CustomCooldownsModes
-    --   CreateButton("Cooldowns",2,0)
-    --   CooldownsModesLoaded = "Cute Cooldowns Modes";
-    -- end
+    if CooldownsModesLoaded ~= "Cooldowns Modes" then
+       CustomCooldownsModes = {
+         [1] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target. Includes\nChi Brew\nEnergizing Brew\nFortifying Brew\nSerenity\nTouch of Death\nXuen ", highlight = 1, icon = _InvokeXuen},
+         [2] = { mode = "Off", value = 2 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = _InvokeXuen}
+       };
+       CooldownsModes = CustomCooldownsModes
+       CreateButton("Cooldowns",1,0)
+       CooldownsModesLoaded = "Cooldowns Modes";
+    end
 
     -- -- Defensive Button
     -- if DefensiveModesLoaded ~= "Cute Defensive Modes" then
@@ -47,15 +46,15 @@ if select(3,UnitClass("player")) == 10 then
     -- end
 
     -- -- Storm, Earth, and Fire Button
-    -- if SEFModesLoaded ~= "Cute SEF Modes" then
-    --   CustomSEFModes = {
-    --     [1] = { mode = "On", value = 2 , overlay = "Auto SEF Enabled", tip = "Will cast Storm, Earth, and Fire.", highlight = 1, icon = _StormEarthFire},
-    --     [2] = { mode = "Off", value = 1 , overlay = "Auto SEF Disabled", tip = "Will NOT cast Storm, Earth, and Fire.", highlight = 0, icon = _StormEarthFire}
-    --   };
-    --   SEFModes = CustomSEFModes
-    --   CreateButton("SEF",5,0)
-    --   SEFModesLoaded = "Cute SEF Modes";
-    -- end
+    if SEFModesLoaded ~= "SEF Modes" then
+       CustomSEFModes = {
+         [1] = { mode = "On", value = 1 , overlay = "Auto SEF Enabled", tip = "Will cast Storm, Earth, and Fire.", highlight = 1, icon = _StormEarthFire},
+         [2] = { mode = "Off", value = 2 , overlay = "Auto SEF Disabled", tip = "Will NOT cast Storm, Earth, and Fire.", highlight = 0, icon = _StormEarthFire}
+       };
+       SEFModes = CustomSEFModes
+       CreateButton("SEF",2,0)
+       SEFModesLoaded = "SEF Modes";
+    end
 
     -- -- Flying Serpent Kick Button
     -- if FSKModesLoaded ~= "Cute FSK Modes" then

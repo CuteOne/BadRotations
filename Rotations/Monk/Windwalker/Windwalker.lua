@@ -108,24 +108,32 @@ if select(3, UnitClass("player")) == 10 then
 
 			-- actions+=/storm_earth_and_fire,target=2,if=debuff.storm_earth_and_fire_target.down
 			-- actions+=/storm_earth_and_fire,target=3,if=debuff.storm_earth_and_fire_target.down
-			if GetObjectExists(core.units.dyn40AoE) then
-				local sefEnemies = getEnemies("player",40)
-				if #sefEnemies>1 then
-					for i=1, #sefEnemies do
-						local sefTarget = sefEnemies[i]
-						local sefGUID = UnitGUID(sefTarget)
-						local tarGUID = UnitGUID("target")
-						local sefed = UnitDebuffID(sefTarget,core.spell.stormEarthFireDebuff,"player")~=nil
-						if not sefed and sefGUID~=tarGUID and stacks.stormEarthFire<2 and isInCombat(sefTarget) then
-							if castSpell(sefTarget,core.spell.stormEarthFire,true,false,false) then sefTarget1 = sefTarget; return end
-						elseif sefed and sefGUID==tarGUID then
-							CancelUnitBuff("player", GetSpellInfo(core.spell.stormEarthFire))
+			if mode.sef == 1 then -- Check for toggle
+				if GetObjectExists(core.units.dyn40AoE) then
+					local sefEnemies = getEnemies("player",40)
+					if #sefEnemies>1 then
+						for i=1, #sefEnemies do
+							local sefTarget = sefEnemies[i]
+							local sefGUID = UnitGUID(sefTarget)
+							local tarGUID = UnitGUID("target")
+							local sefed = UnitDebuffID(sefTarget,core.spell.stormEarthFireDebuff,"player")~=nil
+							if not sefed and sefGUID~=tarGUID and stacks.stormEarthFire<2 and isInCombat(sefTarget) then
+								if castSpell(sefTarget,core.spell.stormEarthFire,true,false,false) then sefTarget1 = sefTarget; return end
+							elseif sefed and sefGUID==tarGUID then
+								CancelUnitBuff("player", GetSpellInfo(core.spell.stormEarthFire))
+							end
 						end
+					elseif stacks.stormEarthFire>0 and #sefEnemies==1 then
+						CancelUnitBuff("player", GetSpellInfo(core.spell.stormEarthFire))
 					end
-				elseif stacks.stormEarthFire>0 and #sefEnemies==1 then
+				end
+			else
+				-- Always remove SEF on current target
+				if (UnitDebuffID("target", core.spell.stormEarthFireDebuff, "player")) then
 					CancelUnitBuff("player", GetSpellInfo(core.spell.stormEarthFire))
 				end
 			end
+
 
 			-- actions+=/call_action_list,name=opener,if=talent.serenity.enabled&talent.chi_brew.enabled&cooldown.fists_of_fury.up&time<20
 			--if () then
@@ -232,7 +240,7 @@ if select(3, UnitClass("player")) == 10 then
 			end
 
 			-- actions+=/call_action_list,name=st_chix,if=active_enemies=1&talent.chi_explosion.enabled
-			if (core.melee8Yards == 1 and talent.chiExplosion) then
+			if (core.melee8Yards <= 1 and talent.chiExplosion) then
 				if rotationSingleTargetChiExplosion() then
 					return
 				end
