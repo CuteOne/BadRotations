@@ -488,7 +488,7 @@ if select(3,UnitClass("player")) == 10 then
         -- actions.aoe+=/spinning_crane_kick,if=chi.max-chi>=1&!talent.rushing_jade_wind.enabled
         if not isKnown(_RushingJadeWind) then
           if chiDif >= 1 then
-            if castSpell(dyn5,_RushingCraneKick,false,false) then
+            if castSpell(dyn5,_SpinningCraneKick,false,false) then
               return
             end
           end

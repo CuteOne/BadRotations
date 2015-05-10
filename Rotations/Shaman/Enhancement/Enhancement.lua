@@ -21,7 +21,7 @@ if select(3, UnitClass("player")) == 7 then
     }
     local UFtalent = getTalent(6,1)
     local as = UnitBuffID("player",  _AncestralSwiftness)
-    local ascandance = UnitBuffID("player",  _AscendanceBuff)
+    local ascendance = UnitBuffID("player",  _AscendanceEnhancement)
     local elementalFusionTalent, efstack = getTalent(7,1), select(4,UnitBuffID("player",157174))
     local UnleashFlame = UnitBuffID("player",73683)
     local enemiesNear = getNumEnemies("player", 12)
@@ -80,7 +80,7 @@ if select(3, UnitClass("player")) == 7 then
         and not UnitBuffID("player",_GhostWolf)
         and isMoving("player")
         and not castingUnit("player")
-        and getBuffRemain("player",_AscendanceBuff)==0
+        and getBuffRemain("player",_AscendanceEnhancement)==0
         and (not isInCombat("player") or (isInCombat("player") and targetDistance>10)) then
         if castSpell("player",_GhostWolf,true) then return; end
       end
@@ -197,8 +197,8 @@ if select(3, UnitClass("player")) == 7 then
         -- Ancestral Swiftness
         if castSpell("player",_AncestralSwiftness,true) then return; end
         -- Ascendance
-        if getBuffRemain("player",_AscendanceBuff) == 0 then
-          if castSpell("player",_Ascendance,true) then return; end
+        if getBuffRemain("player",_AscendanceEnhancement) == 0 then
+          if castSpell("player",_AscendanceEnhancement,true) then return; end
         end
       end
 
@@ -239,7 +239,7 @@ if select(3, UnitClass("player")) == 7 then
 
           --lightning_bolt,if=buff.maelstrom_weapon.react=5|(buff.maelstrom_weapon.react>=4&!buff.ascendance.up)|(buff.ancestral_swiftness.up&buff.maelstrom_weapon.react>=3)
           if (getMWC()==5)
-            or (getMWC()>=4 and not ascandance)
+            or (getMWC()>=4 and not ascendance)
             or ( as and getMWC()>=3)
           then
             if castSpell(dynamicUnit.dyn40,_LightningBolt,false) then return; end
@@ -295,7 +295,7 @@ if select(3, UnitClass("player")) == 7 then
 
           --fire_nova,if=active_dot.flame_shock>=3
           if #FlameShockTargets >=3 then
-            if castSpell("player",_FlameNova,false) then return; end
+            if castSpell("player",_FireNova,false) then return; end
           end
 
           --lava_lash,if=dot.flame_shock.ticking&(active_dot.flame_shock<active_enemies)
@@ -329,7 +329,7 @@ if select(3, UnitClass("player")) == 7 then
 
           --fire_nova,if=active_dot.flame_shock>=2
           if #FlameShockTargets >=2 then
-            if castSpell("player",_FlameNova,false) then return; end
+            if castSpell("player",_FireNova,false) then return; end
           end
 
           --Stormstrike
@@ -356,7 +356,7 @@ if select(3, UnitClass("player")) == 7 then
 
           --fire_nova,if=active_dot.flame_shock>=1
           if #FlameShockTargets >=1 then
-            if castSpell("player",_FlameNova,false) then return; end
+            if castSpell("player",_FireNova,false) then return; end
           end
 
         end-- End of UseAoE()

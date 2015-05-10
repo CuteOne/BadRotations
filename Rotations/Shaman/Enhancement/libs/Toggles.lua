@@ -16,9 +16,9 @@ if select(3, UnitClass("player")) == 7 then
     -- Cooldowns Button
     if CooldownsModesLoaded ~= "Cute Cooldowns Modes" then
       CustomCooldownsModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = _Ascendance},
-        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = _Ascendance},
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = _Ascendance}
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = _AscendanceEnhancement},
+        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = _AscendanceEnhancement},
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = _AscendanceEnhancement}
       };
       CooldownsModes = CustomCooldownsModes
       CreateButton("Cooldowns",2,0)
