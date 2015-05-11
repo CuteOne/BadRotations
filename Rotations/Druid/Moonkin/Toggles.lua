@@ -1,8 +1,15 @@
 if select(3, UnitClass("player")) == 11 then
 	function MoonkinToggles()
 
-
-
+		if MultidotModesLoaded ~= "Multidot Modes" then
+			CustomMultidotModes = {
+				[1] = { mode = "On", value = 1 , overlay = "Multidotting Enabled", tip = "Rotation will Multidot on AoE", highlight = 1, icon = [[INTERFACE\ICONS\achievement_doublerainbow]] },
+				[2] = { mode = "Off", value = 2 , overlay = "Multidotting Disabled", tip = "Rotation will not Multidot on AoE", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] }
+			};
+			MultidotModes = CustomMultidotModes
+			CreateButton("Multidot",5,0)
+			MultidotModesLoaded = "Multidot Modes";
+		end
 
 
 
@@ -25,5 +32,5 @@ if select(3, UnitClass("player")) == 11 then
 				return 1
 			end
 		end
-	end
+	end -- end toggles
 end
