@@ -90,10 +90,15 @@ Rotations\Druid\Guardian\Libs\Options.lua
 Rotations\Druid\Guardian\Libs\Functions.lua
 Rotations\Druid\Guardian\Libs\Toggles.lua
 
-Rotations\Druid\Moonkin\Moonkin.lua
-Rotations\Druid\Moonkin\Libs\Options.lua
-Rotations\Druid\Moonkin\Libs\Functions.lua
-Rotations\Druid\Moonkin\Libs\Toggles.lua
+Rotations\Druid\Moonkin\Boomkin.lua
+Rotations\Druid\Moonkin\BoomkinFunctions.lua
+Rotations\Druid\Moonkin\BoomkinOptions.lua
+Rotations\Druid\Moonkin\BoomkinToggles.lua
+
+##Rotations\Druid\Moonkin\Moonkin.lua
+##Rotations\Druid\Moonkin\Libs\Options.lua
+##Rotations\Druid\Moonkin\Libs\Functions.lua
+##Rotations\Druid\Moonkin\Libs\Toggles.lua
 
 Rotations\Druid\Restoration\Restoration.lua
 Rotations\Druid\Restoration\Libs\Options.lua
