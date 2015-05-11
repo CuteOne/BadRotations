@@ -27,7 +27,7 @@ What to do if you have crash to desktop or 134 errors.
 |Feral|100%|CuteOne|
 |Guardian|70%|chumii|
 |Restoration|100%|Masoud|
-|Moonkin|70%|CodeMyLife|
+|Moonkin|work in progress|ragnar|
 ||||
 | **Death Knight** |||
 |Frost|80%|CuteOne|
@@ -40,9 +40,9 @@ What to do if you have crash to desktop or 134 errors.
 |Survival|100%|Mavmins|
 ||||
 | **Mage** |  |  |
-|Arcane|WorkInProgress|ragnar|
-|Fire|comingSoon|ragnar|
-|Frost|||
+|Arcane|unknown||
+|Fire|unknown||
+|Frost|unknown||
 ||||
 | **Monk** |||
 |Brewmaster|95%|chumii|
