@@ -21,10 +21,12 @@ if select(3, UnitClass("player")) == 11 then
 			celestialAlignment = 112071,
 			incarnation = 102560,
 			barkskin = 22812,
-			healingTouch = 5185,
+			
 			markOfTheWild = 1126,
 			moonkinForm = 24858,
+			
 			rejuvenation = 774,
+			healingTouch = 5185,
 
 			--buffs
 			lunarEmpowerment = 164547,
@@ -107,6 +109,42 @@ if select(3, UnitClass("player")) == 11 then
 			incapacitatingRoar=99, 	ursolsVortex=102793, 		mightyBash=5211,
 			heartOfTheWild=108291, 	dreamOfCenarius=108373, 	naturesVigil=124974,
 			euphoria=152222, 		stellarFlare=152221, 		balanceOfPower=125220,
+		}
+
+		options = {
+			offensive = {
+				isBoss = {check=isChecked("isBoss")},
+				berserking = {check=isChecked("Berserking")},
+				celestialAlignment = {check=isChecked("Celestial Alignment")},
+				incarnation = {check=isChecked("Incarnation")},
+				trinket1 = {check=isChecked("Trinket 1")},
+				trinket2 = {check=isChecked("Trinket 2")},
+			},
+			defensive = {
+				rejuvenation = {check=isChecked("Rejuvenation"),value=getValue("Rejuvenation")},
+				healingTouch = {check=isChecked("Healing Touch"),value=getValue("Healing Touch")},
+				naturesVigil = {check=isChecked("Natures Vigil")},
+				healingTonic = {check=isChecked("Healing Tonic"),value=getValue("Healing Tonic")},
+			},
+			boss = {},
+			multitarget = {
+				sortByHPabs = {check=isChecked("sortByHPabs")},
+				minHP = {value=getValue("Min Health")},
+				maxTargets = {value=getValue("Max Targets")},
+				starfallTargets = {check=isChecked("Starfall Targets"),value=getValue("Starfall Targets")},
+			},
+			utilities = {
+				pauseToggle = {check=isChecked("Pause Toggle")},
+				MotW = {check=isChecked("MotW")},
+				boomkinForm = {check=isChecked("Boomkin Form")},
+			}
+		}
+
+		toggles = {
+			defensive = 	BadBoy_data['Defensive'],
+			dot = 			BadBoy_data['DoT'],
+			bossHelper = 	BadBoy_data['BossHeler'],
+			cooldowns = 	BadBoy_data['Cooldowns'],
 		}
 
 		
