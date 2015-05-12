@@ -10,13 +10,14 @@ if select(3, UnitClass("player")) == 11 then
 			-- casts
 			moonfire = 8921,
 			moonfireDebuff = 164812,
-			sunfireDebuff = 164815,
 			sunfire = 93402,
+			sunfireDebuff = 164815,
 			starsurge = 78674,
 			wrath = 5176,
+			wrathCastTime = (select(4, GetSpellInfo(5176))/1000),
 			starfire = 2912,
 			starfireCastTime = (select(4, GetSpellInfo(2912))/1000),
-			wrathCastTime = (select(4, GetSpellInfo(5176))/1000),
+			starfall = 48505,
 			celestialAlignment = 112071,
 			incarnation = 102560,
 			barkskin = 22812,
@@ -64,6 +65,11 @@ if select(3, UnitClass("player")) == 11 then
 				remains = getBuffRemain("player",102560),
 				cd = getSpellCD(102560),
 				},
+			starfall = {
+				up = UnitBuffID("player",48505),
+				remains = getBuffRemain("player",48505),
+				cd = getSpellCD(48505),
+				},
 		}
 		local debuff = {
 
@@ -83,7 +89,9 @@ if select(3, UnitClass("player")) == 11 then
 			direction = GetEclipseDirection(),
 			energy = UnitPower("player",8),
 			timer = getEclipseTimer(),
-			changeTimer = getEclipseTimer2(),
+			changeTimer = getEclipseChangeTimer(),
+			timeTillLunarMax = lunar_max(),
+			timeTillSolarMax = solar_max(),
 		}
 
 		starsurge = {
@@ -163,9 +171,9 @@ if select(3, UnitClass("player")) == 11 then
 			------------------------------------------------------------------------------------------------------
 			-- Rotation ------------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
-				
+
 				------------------------------------------------------------------------------------------------------
-				-- call always --------------------------------------------------------------------------------------
+				-- call always ---------------------------------------.-----------------------------------------------
 				------------------------------------------------------------------------------------------------------
 				-- actions=potion,name=draenic_intellect,if=buff.celestial_alignment.up
 				-- actions+=/blood_fury,if=buff.celestial_alignment.up
@@ -175,98 +183,153 @@ if select(3, UnitClass("player")) == 11 then
 				-- actions+=/call_action_list,name=single_target,if=active_enemies=1
 				-- actions+=/call_action_list,name=aoe,if=active_enemies>1
 
+				-- if casting prevention
+				if castingUnit("player") then return end
 				------------------------------------------------------------------------------------------------------
-				-- AoE --------------------------------------------------------------------------------------
+				-- AoE ------------------------.........--------------------------------------------------------------
 				------------------------------------------------------------------------------------------------------
-				-- actions.aoe=celestial_alignment,if=lunar_max<8|target.time_to_die<20
-				-- actions.aoe+=/incarnation,if=buff.celestial_alignment.up
-				-- actions.aoe+=/sunfire,cycle_targets=1,if=remains<8
-				-- actions.aoe+=/starfall,if=!buff.starfall.up&active_enemies>2
-				-- actions.aoe+=/starsurge,if=(charges=2&recharge_time<6)|charges=3
-				-- actions.aoe+=/moonfire,cycle_targets=1,if=remains<12
-				-- actions.aoe+=/stellar_flare,cycle_targets=1,if=remains<7
-				-- actions.aoe+=/starsurge,if=buff.lunar_empowerment.down&eclipse_energy>20&active_enemies=2
-				-- actions.aoe+=/starsurge,if=buff.solar_empowerment.down&eclipse_energy<-40&active_enemies=2
-				-- actions.aoe+=/wrath,if=(eclipse_energy<=0&eclipse_change>cast_time)|(eclipse_energy>0&cast_time>eclipse_change)
-				-- actions.aoe+=/starfire,if=(eclipse_energy>=0&eclipse_change>cast_time)|(eclipse_energy<0&cast_time>eclipse_change)
-				-- actions.aoe+=/wrath
+				if getNumEnemies("player",40)>2 then 
+					-- actions.aoe=celestial_alignment,if=lunar_max<8|target.time_to_die<20
+					if eclipse.timeTillLunarMax<8 then
+						if castSpell("player",spell.celestialAlignment) then return end
+					end
+
+					-- actions.aoe+=/incarnation,if=buff.celestial_alignment.up
+					if buff.celestialAlignment.up then
+						if castSpell("player",spell.incarnation) then return end
+					end
+
+					-- actions.aoe+=/sunfire,cycle_targets=1,if=remains<8
+					if throwSunfire(3,1) then return end
+
+					-- actions.aoe+=/starfall,if=!buff.starfall.up&active_enemies>2
+					if getNumEnemies("player",40)>2 and not buff.starfall.up then
+						if castSpell("player",starfall) then return end
+					end
+
+					-- actions.aoe+=/starsurge,if=(charges=2&recharge_time<6)|charges=3
+					if starsurge.charges==2 and starsurge.rechargeTime<6
+					or starsurge.charges==3 then
+						if castSpell("target",spell.starsurge,false,false) then return end
+					end
+
+					-- actions.aoe+=/moonfire,cycle_targets=1,if=remains<12
+					if throwMoonfire(3,1) then return end
+
+					-- actions.aoe+=/stellar_flare,cycle_targets=1,if=remains<7
+					
+					-- actions.aoe+=/starsurge,if=buff.lunar_empowerment.down&eclipse_energy>20&active_enemies=2
+					if getNumEnemies("player",40)>2 then
+						if (not buff.lunarEmpowerment.up) and eclipse.energy>20 then
+							if castSpell("target",spell.starsurge,false,false) then return end
+						end
+					end
+
+					-- actions.aoe+=/starsurge,if=buff.solar_empowerment.down&eclipse_energy<-40&active_enemies=2
+					if getNumEnemies("player",40)>2 then
+						if (not buff.solarEmpowerment.up) and eclipse.energy<(-40) then
+							if castSpell("target",spell.starsurge,false,false) then return end
+						end
+					end
+
+					-- actions.aoe+=/wrath,if=(eclipse_energy<=0&eclipse_change>cast_time)|(eclipse_energy>0&cast_time>eclipse_change)
+					if (eclipse.energy>0 and eclipse.direction=="sun")
+						or (eclipse.energy<0 and eclipse.direction=="sun" and eclipse.timer<spell.wrathCastTime)
+						or (eclipse.energy>0 and eclipse.direction=="moon" and eclipse.timer>spell.wrathCastTime) then
+							if castSpell("target",spell.wrath,false,true) then return end
+						end
+
+					-- actions.aoe+=/starfire,if=(eclipse_energy>=0&eclipse_change>cast_time)|(eclipse_energy<0&cast_time>eclipse_change)
+					if (eclipse.energy<0 and eclipse.direction=="moon")
+						or (eclipse.energy>0 and eclipse.direction=="moon" and eclipse.timer<spell.starfireCastTime)
+						or (eclipse.energy<0 and eclipse.direction=="sun" and eclipse.timer>spell.starfireCastTime) then
+							if castSpell("target",spell.starfire,false,true) then return end
+						end
+
+					-- actions.aoe+=/wrath
+					if castSpell("target",spell.wrath,false,true) then return end
+				end
 
 					
 				------------------------------------------------------------------------------------------------------
 				-- SingleTarget --------------------------------------------------------------------------------------
 				------------------------------------------------------------------------------------------------------
-				-- actions.single_target=starsurge,if=buff.lunar_empowerment.down&eclipse_energy>20
-				if (not buff.lunarEmpowerment.up) and eclipse.energy>20 then
-					if castSpell("target",spell.starsurge,false,false) then return end
-				end
 				
-				-- actions.single_target+=/starsurge,if=buff.solar_empowerment.down&eclipse_energy<-40
-				if (not buff.solarEmpowerment.up) and eclipse.energy<(-40) then
-					if castSpell("target",spell.starsurge,false,false) then return end
-				end
-				
-				-- -- actions.single_target+=/starsurge,if=(charges=2&recharge_time<6)|charges=3
-				if starsurge.charges==2 and starsurge.rechargeTime<6
-				or starsurge.charges==3 then
-					if castSpell("target",spell.starsurge,false,false) then return end
-				end
-				
-				-- -- actions.single_target+=/celestial_alignment,if=eclipse_energy>40
-				-- if eclipse.energy>40 then
-				-- 	if castSpell("player",spell.celestialAlignment) then return end
-				-- end
-				
-				-- -- actions.single_target+=/incarnation,if=eclipse_energy>0
-				-- if eclipse.energy>0 then
-				-- 	if castSpell("player",spell.incarnation) then return end
-				-- end
-				
-				-- actions.single_target+=/sunfire,if=remains<7|(buff.solar_peak.up&!talent.balance_of_power.enabled)
-				if isSunfire() then
-					if getDebuffRemain("target",spell.sunfireDebuff,"player")<7
-					or (buff.solarPeak.up and not getTalent(7,3)) then
-						if castSpell("target",spell.moonfire,false,false) then return end
+					-- actions.single_target=starsurge,if=buff.lunar_empowerment.down&eclipse_energy>20
+					if (not buff.lunarEmpowerment.up) and eclipse.energy>20 then
+						if castSpell("target",spell.starsurge,false,false) then return end
 					end
-				end
-				
-				-- actions.single_target+=/stellar_flare,if=remains<7
-				if getTalent(7,2) then
-					if getDebuffRemain("target",talent.stellarFlare,"player")<7 then
-						if castSpell("target",talent.stellarFlare,false,true) then return end
+					
+					-- actions.single_target+=/starsurge,if=buff.solar_empowerment.down&eclipse_energy<-40
+					if (not buff.solarEmpowerment.up) and eclipse.energy<(-40) then
+						if castSpell("target",spell.starsurge,false,false) then return end
 					end
-				end
-				
-				-- actions.single_target+=/moonfire,if=!talent.balance_of_power.enabled&(buff.lunar_peak.up&remains<eclipse_change+20|remains<4|(buff.celestial_alignment.up&buff.celestial_alignment.remains<=2&remains<eclipse_change+20))
-				if not getTalent(7,3) then
-					if buff.lunarPeak.up and buff.lunarPeak.remains<eclipse.changeTimer+20
-					or getDebuffRemain("target",spell.moonfireDebuff,"player")<4
-					or (buff.celestialAlignment.up and buff.celestialAlignment.remains<=2 and getDebuffRemain("target",spell.moonfireDebuff,"player")<eclipse.changeTimer+20) then
-						if castSpell("target",spell.moonfire,false,false) then return end
+					
+					-- -- actions.single_target+=/starsurge,if=(charges=2&recharge_time<6)|charges=3
+					if starsurge.charges==2 and starsurge.rechargeTime<6
+					or starsurge.charges==3 then
+						if castSpell("target",spell.starsurge,false,false) then return end
 					end
-				end
+					
+					-- actions.single_target+=/celestial_alignment,if=eclipse_energy>40
+					if eclipse.energy>40 then
+						if castSpell("player",spell.celestialAlignment) then return end
+					end
+					
+					-- actions.single_target+=/incarnation,if=eclipse_energy>0
+					if eclipse.energy>0 then
+						if castSpell("player",spell.incarnation) then return end
+					end
+					
+					-- actions.single_target+=/sunfire,if=remains<7|(buff.solar_peak.up&!talent.balance_of_power.enabled)
+					if isSunfire() then
+						if getDebuffRemain("target",spell.sunfireDebuff,"player")<7
+						or (buff.solarPeak.up and not getTalent(7,3)) then
+							if castSpell("target",spell.moonfire,false,false) then return end
+						end
+					end
+					
+					-- actions.single_target+=/stellar_flare,if=remains<7
+					if getTalent(7,2) then
+						if getDebuffRemain("target",talent.stellarFlare,"player")<7 then
+							if castSpell("target",talent.stellarFlare,false,true) then return end
+						end
+					end
+					
+					-- actions.single_target+=/moonfire,if=!talent.balance_of_power.enabled&(buff.lunar_peak.up&remains<eclipse_change+20|remains<4|(buff.celestial_alignment.up&buff.celestial_alignment.remains<=2&remains<eclipse_change+20))
+					if not getTalent(7,3) then
+						if buff.lunarPeak.up and buff.lunarPeak.remains<eclipse.changeTimer+20
+						or getDebuffRemain("target",spell.moonfireDebuff,"player")<4
+						or (buff.celestialAlignment.up and buff.celestialAlignment.remains<=2 and getDebuffRemain("target",spell.moonfireDebuff,"player")<eclipse.changeTimer+20) then
+							if castSpell("target",spell.moonfire,false,false) then return end
+						end
+					end
 
-				-- actions.single_target+=/moonfire,if=talent.balance_of_power.enabled&(remains<4|(buff.celestial_alignment.up&buff.celestial_alignment.remains<=2&remains<eclipse_change+20))
-				if getTalent(7,3) then
-					if getDebuffRemain("target",spell.moonfireDebuff,"player")<4
-					or (buff.celestialAlignment.up and buff.celestialAlignment.remains<=2 and getDebuffRemain("target",spell.moonfireDebuff,"player")<eclipse.changeTimer+20) then
-						if castSpell("target",spell.moonfire,false,false) then return end
+					-- actions.single_target+=/moonfire,if=talent.balance_of_power.enabled&(remains<4|(buff.celestial_alignment.up&buff.celestial_alignment.remains<=2&remains<eclipse_change+20))
+					if getTalent(7,3) then
+						if getDebuffRemain("target",spell.moonfireDebuff,"player")<4
+						or (buff.celestialAlignment.up and buff.celestialAlignment.remains<=2 and getDebuffRemain("target",spell.moonfireDebuff,"player")<eclipse.changeTimer+20) then
+							if castSpell("target",spell.moonfire,false,false) then return end
+						end
 					end
-				end
 
-				-- actions.single_target+=/wrath,if=(eclipse_energy<=0&eclipse_change>cast_time)|(eclipse_energy>0&cast_time>eclipse_change)
-				if (eclipse.energy<0 and eclipse.changeTimer>spell.wrathCastTime)
-				or (eclipse.energy>0 and spell.wrathCastTime>eclipse.changeTimer) then
+					-- wrath
+					if (eclipse.energy>0 and eclipse.direction=="sun")
+					or (eclipse.energy<0 and eclipse.direction=="sun" and eclipse.timer<spell.wrathCastTime)
+					or (eclipse.energy>0 and eclipse.direction=="moon" and eclipse.timer>spell.wrathCastTime) then
+						if castSpell("target",spell.wrath,false,true) then return end
+					end
+
+					-- starfire
+					if (eclipse.energy<0 and eclipse.direction=="moon")
+					or (eclipse.energy>0 and eclipse.direction=="moon" and eclipse.timer<spell.starfireCastTime)
+					or (eclipse.energy<0 and eclipse.direction=="sun" and eclipse.timer>spell.starfireCastTime) then
+						if castSpell("target",spell.starfire,false,true) then return end
+					end
+
+					-- actions.single_target+=/wrath
 					if castSpell("target",spell.wrath,false,true) then return end
-				end
-
-				-- actions.single_target+=/starfire,if=(eclipse_energy>=0&eclipse_change>cast_time)|(eclipse_energy<0&cast_time>eclipse_change)
-				if (eclipse.energy>0 and eclipse.changeTimer<spell.starfireCastTime) 
-				or (eclipse.energy<0 and spell.starfireCastTime>eclipse.changeTimer) then
-					if castSpell("target",spell.starfire,false,true) then return end
-				end
-
-				-- -- actions.single_target+=/wrath
-				-- if castSpell("target",spell.wrath,false,true) then return end
+				
 
 
 		end -- In Combat end
