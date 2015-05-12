@@ -1,6 +1,6 @@
 if select(3, UnitClass("player")) == 10 then
 	function WindwalkerMonk()
-		if Currentconfig ~= "Windwalker Defmaster" then
+		if currentConfig ~= "Windwalker Defmaster" then
 			MonkWwToggles()
 			MonkWwOptions()
 

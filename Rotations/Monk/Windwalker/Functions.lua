@@ -233,13 +233,15 @@ if select(3,UnitClass("player")) == 10 then
 			end
 
 			function wwCore:castChiBrew()
-				if self.mode.cooldowns == 1 then
+				if isSelected("Chi Brew") then
 					return castSpell(player,self.spell.chiBrew,true,false) == true or false
 				end
 			end
 
 			function wwCore:castChiBurst()
-				return castSpell(self.units.dyn40,self.spell.chiBurst,false,false) == true or false
+				if isSelected("Talent Row 2") then
+					return castSpell(self.units.dyn40,self.spell.chiBurst,false,false) == true or false
+				end
 			end
 
 			function wwCore:castChiExplosion()
@@ -247,7 +249,9 @@ if select(3,UnitClass("player")) == 10 then
 			end
 
 			function wwCore:castChiWave()
-				return castSpell(self.units.dyn25AoE,self.spell.chiWave,true,false) == true or false
+				if isSelected("Talent Row 2") then
+					return castSpell(self.units.dyn25AoE,self.spell.chiWave,true,false) == true or false
+				end
 			end
 
 			function wwCore:castCracklingJadeLightning()
@@ -255,7 +259,7 @@ if select(3,UnitClass("player")) == 10 then
 			end
 
 			function wwCore:castEnergizingBrew()
-				if self.mode.cooldowns == 1 then
+				if isSelected("Energizing Brew") then
 					return castSpell(player,self.spell.energizingBrew,true,false) == true or false
 				end
 			end
@@ -273,7 +277,7 @@ if select(3,UnitClass("player")) == 10 then
 
 			-- Fortifying Brew
 			function wwCore:castFortifyingBrew()
-				if self.mode.cooldowns == 1 then
+				if isSelected("Fortifying Brew") and isSelected("Touch Of Death") then
 					return castSpell(player,self.spell.fortifyingBrew,true,false) == true or false
 				end
 			end
@@ -283,7 +287,7 @@ if select(3,UnitClass("player")) == 10 then
 			end
 
 			function wwCore:castInvokeXuen()
-				if self.mode.cooldowns == 1 then
+				if isSelected("Invoke Xuen") then
 					return castSpell(self.units.dyn40,self.spell.invokeXuen,true,false) == true or false
 				end
 			end
@@ -309,7 +313,7 @@ if select(3,UnitClass("player")) == 10 then
 			end
 
 			function wwCore:castSerenity()
-				if self.mode.cooldowns == 1 then
+				if isSelected("Serenity") then
 					return castSpell(player,self.spell.serenity,true,false) == true or false
 				end
 			end
@@ -337,7 +341,7 @@ if select(3,UnitClass("player")) == 10 then
 			end
 
 			function wwCore:castTouchOfDeath()
-				if self.mode.cooldowns == 1 then
+				if isSelected("Touch Of Death") then
 					return castSpell(self.units.dyn5,self.spell.touchOfDeath,true,false) == true or false
 				end
 			end
@@ -347,7 +351,9 @@ if select(3,UnitClass("player")) == 10 then
 			end
 
 			function wwCore:castZenSphere()
-				return castSpell(player,self.spell.zenSphere,true,false) == true or false
+				if isSelected("Talent Row 2") then
+					return castSpell(player,self.spell.zenSphere,true,false) == true or false
+				end
 			end
 
 			--function wwCore:castSPELL()

@@ -12,11 +12,12 @@ if select(3,UnitClass("player")) == 10 then
     --   AoEModesLoaded = "Cute AoE Modes";
     -- end
 
-    -- -- Cooldowns Button
+    -- Cooldowns Button
     if CooldownsModesLoaded ~= "Cooldowns Modes" then
        CustomCooldownsModes = {
-         [1] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target. Includes\nChi Brew\nEnergizing Brew\nFortifying Brew\nSerenity\nTouch of Death\nXuen ", highlight = 1, icon = _InvokeXuen},
-         [2] = { mode = "Off", value = 2 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = _InvokeXuen}
+         [1] = { mode = "None", value = 1 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = _InvokeXuen},
+         [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "User Cooldowns will be used.", highlight = 0, icon = _InvokeXuen}, -- TODO: other icons
+         [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "All Cooldowns will be used.", highlight = 1, icon = _InvokeXuen}
        };
        CooldownsModes = CustomCooldownsModes
        CreateButton("Cooldowns",1,0)
