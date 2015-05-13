@@ -58,6 +58,9 @@ ClassLibs\Rogue\Functions.lua
 ClassLibs\Rogue\SpellList.lua
 ClassLibs\Rogue\Toggles.lua
 
+## Custom Functions
+Custom\Functions.lua
+
 ## DeathKnight ---------------------------------------------------
 Rotations\Deathknight\Blood\Blood.lua
 Rotations\Deathknight\Blood\Libs\Functions.lua
