@@ -93,8 +93,6 @@ if select(3, UnitClass("player")) == 5 then
 			-- Blackrock Foundry
 			"Pack Beast",
 			"Grasping Earth",
-			"Iron Igniter",
-			"Iron Soldier",
 		}
 		-- nil Protection
 		if datUnit == nil then 
@@ -102,7 +100,8 @@ if select(3, UnitClass("player")) == 5 then
 		end
 		-- BRF: Blast Furnace: Primal Elementalist: http://www.wowhead.com/spell=155176/damage-shield
 		-- BRF: Blast Furnace: Slag Elemental: http://www.wowhead.com/spell=176141/hardened-slag
-		if getBuffRemain(datUnit,155176)>0 or getBuffRemain(datUnit,176141)>0 then
+		if UnitBuffID(datUnit,155176)
+		or UnitBuffID(datUnit,176141) then
 			return false
 		end
 		-- Iterate the blacklist
