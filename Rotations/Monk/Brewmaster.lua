@@ -474,7 +474,7 @@ if select(3,UnitClass("player")) == 10 then
           end
         end
         --actions.aoe+=/expel_harm,if=chi.max-chi>=1&cooldown.keg_smash.remains>=gcd&(energy+(energy.regen*(cooldown.keg_smash.remains)))>=80
-        if chiDif >= 1 and KegCD >= GCD and (energy+(energyreg*(KegCD))) >= 80 then
+        if chiDif >= 1 and KegCD >= GCD and (energy+(energyreg*(KegCD))) >= 80 and myHP< 90 then
           if castSpell("player",_ExpelHarm,true) then
             return
           end
@@ -488,7 +488,7 @@ if select(3,UnitClass("player")) == 10 then
           end
         end
         -- actions.aoe+=/jab,if=chi.max-chi>=1&cooldown.keg_smash.remains>=gcd&cooldown.expel_harm.remains>=gcd&(energy+(energy.regen*(cooldown.keg_smash.remains)))>=80
-        if chiDif >= 1 and KegCD >= GCD and getSpellCD(_ExpelHarm) >= GCD and (energy+(energyreg*(KegCD))) >= 80 and myHP < 90 then
+        if chiDif >= 1 and KegCD >= GCD and getSpellCD(_ExpelHarm) >= GCD and (energy+(energyreg*(KegCD))) >= 80 then
           if castSpell(dyn5,_Jab,false,false) then
             return
           end
