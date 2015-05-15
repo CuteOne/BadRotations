@@ -15,6 +15,7 @@ if select(3,UnitClass("player")) == 10 then
 				health = 100,
 				chi = 0,
 				chiMax = 0,
+				chiDiff = 0,
 				energyTimeToMax = 0,
 				inCombat = false,
 				melee5Yards = 0,
@@ -102,15 +103,15 @@ if select(3,UnitClass("player")) == 10 then
 			-- Refresh out of combat
 			function wwCore:ooc()
 				-- Talents (refresh ooc)
-				self.talent.chiWave = isKnown(self.spell.chiWave)
-				self.talent.zenSphere = isKnown(self.spell.zenSphere)
-				self.talent.chiBurst = isKnown(self.spell.chiBurst)
-				self.talent.serenity = isKnown(self.spell.serenity)
-				self.talent.chiBrew = isKnown(self.spell.chiBrew)
-				self.talent.chiExplosion = isKnown(self.spell.chiExplosion)
+				self.talent.chiWave 		= isKnown(self.spell.chiWave)
+				self.talent.zenSphere 		= isKnown(self.spell.zenSphere)
+				self.talent.chiBurst 		= isKnown(self.spell.chiBurst)
+				self.talent.serenity 		= isKnown(self.spell.serenity)
+				self.talent.chiBrew 		= isKnown(self.spell.chiBrew)
+				self.talent.chiExplosion 	= isKnown(self.spell.chiExplosion)
 				self.talent.hurricaneStrike = isKnown(self.spell.hurricaneStrike)
 				self.talent.rushingJadeWind = isKnown(self.spell.rushingJadeWind)
-				self.talent.powerStrikes = isKnown(121817)
+				self.talent.powerStrikes 	= isKnown(121817)
 
 				-- GET Jab SpellID
 				local itemId = GetInventoryItemID(player,select(1,GetInventorySlotInfo("MainHandSlot")))
@@ -132,6 +133,7 @@ if select(3,UnitClass("player")) == 10 then
 				elseif SubType == "Polearms" then
 					self.spell.jab = 115698
 				end
+				-- END get Jab Spellid
 
 				-- Glyph (refresh ooc)
 				self.glyph.touchOfDeath = hasGlyph(1014)
@@ -142,47 +144,45 @@ if select(3,UnitClass("player")) == 10 then
 			-- this will be used to make the core refresh itself
 			function wwCore:update()
 				-- player stats
-				self.health = getHP(player)
-				self.chi = getChi(player)
-				self.chiMax = getChiMax(player)
+				self.health 	= getHP(player)
+				self.chi 		= getChi(player)
+				self.chiMax 	= getChiMax(player)
+				self.chiDiff	= self.chiMax - self.chi
 
 				-- Buffs
-				--self.buff. = getBuffRemain(player,self.spell.)
-				self.buff.comboBreakerBlackoutKick = getBuffRemain(player,self.spell.comboBreakerBlackoutKick)
-				self.buff.comboBreakerChiExplosion = getBuffRemain(player,self.spell.comboBreakerChiExplosion)
-				self.buff.comboBreakerTigerPalm = getBuffRemain(player,self.spell.comboBreakerTigerPalm)
-				self.buff.energizingBrew = getBuffRemain(player,self.spell.energizingBrew)
-				self.buff.serenity = getBuffRemain(player,self.spell.serenity)
-				self.buff.tigereyeBrew = getBuffRemain(player,self.spell.tigereyeBrew)
-				self.buff.tigereyeBrewStacks = getBuffRemain(player,self.spell.tigereyeBrewStacks)
-				self.buff.tigerPower = getBuffRemain(player,self.spell.tigerPower)
-				self.buff.zenSphere = getBuffRemain(player,self.spell.zenSphere)
+				self.buff.comboBreakerBlackoutKick 	= getBuffRemain(player,self.spell.comboBreakerBlackoutKick)
+				self.buff.comboBreakerChiExplosion 	= getBuffRemain(player,self.spell.comboBreakerChiExplosion)
+				self.buff.comboBreakerTigerPalm 	= getBuffRemain(player,self.spell.comboBreakerTigerPalm)
+				self.buff.energizingBrew 			= getBuffRemain(player,self.spell.energizingBrew)
+				self.buff.serenity 					= getBuffRemain(player,self.spell.serenity)
+				self.buff.tigereyeBrew 				= getBuffRemain(player,self.spell.tigereyeBrew)
+				self.buff.tigereyeBrewStacks 		= getBuffRemain(player,self.spell.tigereyeBrewStacks)
+				self.buff.tigerPower 				= getBuffRemain(player,self.spell.tigerPower)
+				self.buff.zenSphere 				= getBuffRemain(player,self.spell.zenSphere)
 
 				-- Buff Stacks
-				self.stacks.tigereyeBrewStacks = getBuffStacks(player,self.spell.tigereyeBrewStacks)
-				self.stacks.stormEarthFire = getBuffStacks(player,self.spell.stormEarthFire)
+				self.stacks.tigereyeBrewStacks 	= getBuffStacks(player,self.spell.tigereyeBrewStacks)
+				self.stacks.stormEarthFire 		= getBuffStacks(player,self.spell.stormEarthFire)
 
 				-- Buff Charges
-				self.charges.chiBrew = getCharges(self.spell.chiBrew)
+				self.charges.chiBrew 	= getCharges(self.spell.chiBrew)
 
 				-- Buff Recharge
-				self.recharge.chiBrew = getRecharge(self.spell.chiBrew)
-
+				self.recharge.chiBrew 	= getRecharge(self.spell.chiBrew)
 
 				-- Cooldowns
-				-- self.cd. = getSpellCD(self.spell.)
-				self.cd.fistsOfFury = getSpellCD(self.spell.fistsOfFury)
+				self.cd.fistsOfFury 	= getSpellCD(self.spell.fistsOfFury)
 				self.cd.hurricaneStrike = getSpellCD(self.spell.hurricaneStrike)
-				self.cd.touchOfDeath = getSpellCD(self.spell.touchOfDeath)
-				self.cd.serenity = getSpellCD(self.spell.serenity)
-				self.cd.risingSunKick = getSpellCD(self.spell.risingSunKick)
-				self.cd.invokeXuen = getSpellCD(self.spell.invokeXuen)
+				self.cd.touchOfDeath 	= getSpellCD(self.spell.touchOfDeath)
+				self.cd.serenity 		= getSpellCD(self.spell.serenity)
+				self.cd.risingSunKick 	= getSpellCD(self.spell.risingSunKick)
+				self.cd.invokeXuen 		= getSpellCD(self.spell.invokeXuen)
 
 				-- Channel Time
-				self.channel.fistsOfFury = 4-(4*UnitSpellHaste(player)/100)
-				self.channel.hurricaneStrike = 2-(2*UnitSpellHaste(player)/100)
+				self.channel.fistsOfFury 		= 4-(4*UnitSpellHaste(player)/100)
+				self.channel.hurricaneStrike 	= 2-(2*UnitSpellHaste(player)/100)
 
-				self.energyTimeToMax = (UnitPowerMax(player)-UnitPower(player)) / (10*(1+(UnitSpellHaste(player)/100)))
+				self.energyTimeToMax 	= (UnitPowerMax(player)-UnitPower(player)) / (10*(1+(UnitSpellHaste(player)/100)))
 				
 
 				-- Global Cooldown = 1.5 / ((Spell Haste Percentage / 100) + 1)
@@ -196,74 +196,82 @@ if select(3,UnitClass("player")) == 10 then
 				self.inCombat = true
 
 				-- Units
-				self.melee5Yards = #getEnemies(player,5)
-				self.melee8Yards = #getEnemies(player,8)
-				self.melee10Yards = #getEnemies(player,10)
-				self.melee12Yards = #getEnemies(player,12) 
+				self.melee5Yards 	= #getEnemies(player,5)
+				self.melee8Yards 	= #getEnemies(player,8)
+				self.melee10Yards 	= #getEnemies(player,10)
+				self.melee12Yards 	= #getEnemies(player,12) 
 
 				-- Modes
-				self.mode.sef = BadBoy_data["SEF"]
+				self.mode.sef 		= BadBoy_data["SEF"]
 				self.mode.cooldowns = BadBoy_data["Cooldowns"]
 				--self.mode.defensive = BadBoy_data["Defensive"]
 				--self.mode.healing = BadBoy_data["Healing"]
 
 				-- dynamic units
-				self.units.dyn5 = dynamicTarget(5,true)
+				self.units.dyn5 	= dynamicTarget(5,true)
 
-				self.units.dyn8AoE = dynamicTarget(8,false)
-				self.units.dyn8 = dynamicTarget(8,true)
+				self.units.dyn8AoE 	= dynamicTarget(8,false)
+				self.units.dyn8 	= dynamicTarget(8,true)
 
-				self.units.dyn10 = dynamicTarget(10,true)
+				self.units.dyn10 	= dynamicTarget(10,true)
 
-				self.units.dyn12 = dynamicTarget(12,true)
+				self.units.dyn12 	= dynamicTarget(12,true)
 				self.units.dyn12AoE = dynamicTarget(12,false)
 
-				self.units.dyn25 = dynamicTarget(25,true)
+				self.units.dyn25 	= dynamicTarget(25,true)
 				self.units.dyn25AoE = dynamicTarget(25,false)
 
-				self.units.dyn30 = dynamicTarget(30,true)
-				self.units.dyn40 = dynamicTarget(40,true)
+				self.units.dyn30 	= dynamicTarget(30,true)
+				self.units.dyn40 	= dynamicTarget(40,true)
 				self.units.dyn40AoE = dynamicTarget(40,false)
 				-- 
-
 			end
 
+			-- Blackout Kick
 			function wwCore:castBlackoutKick()
 				return castSpell(self.units.dyn5,self.spell.blackoutKick,false,false) == true or false
 			end
 
+			-- Chi Brew
 			function wwCore:castChiBrew()
 				if isSelected("Chi Brew") then
 					return castSpell(player,self.spell.chiBrew,true,false) == true or false
 				end
 			end
 
+			-- Chi Burst
 			function wwCore:castChiBurst()
 				if isSelected("Talent Row 2") then
 					return castSpell(self.units.dyn40,self.spell.chiBurst,false,false) == true or false
 				end
 			end
 
+			-- Chi Explosion
 			function wwCore:castChiExplosion()
 				return castSpell(self.units.dyn30,self.spell.chiExplosion,false,false) == true or false
 			end
 
+			-- Chi Wave
 			function wwCore:castChiWave()
 				if isSelected("Talent Row 2") then
 					return castSpell(self.units.dyn25AoE,self.spell.chiWave,true,false) == true or false
 				end
 			end
 
+			-- Crackling Jade Lightning
+			-- TODO: add into rotation if not in melee range and stand still for > 1
 			function wwCore:castCracklingJadeLightning()
 				return castSpell(self.units.dyn40,self.spell.cracklingJadeLightning,false,false) == true or false
 			end
 
+			-- Energizing Brew
 			function wwCore:castEnergizingBrew()
 				if isSelected("Energizing Brew") then
 					return castSpell(player,self.spell.energizingBrew,true,false) == true or false
 				end
 			end
 
+			-- Expel Harm
 			function wwCore:castExpelHarm()
 				return castSpell(player,self.spell.expelHarm,true,false) == true or false
 			end
@@ -273,7 +281,7 @@ if select(3,UnitClass("player")) == 10 then
 				return castSpell(self.units.dyn5,self.spell.fistsOfFury,false,false) == true or false
 			end
 
-			-- Flying Serpent Kick
+			-- TODO: Flying Serpent Kick
 
 			-- Fortifying Brew
 			function wwCore:castFortifyingBrew()
@@ -282,84 +290,102 @@ if select(3,UnitClass("player")) == 10 then
 				end
 			end
 
+			-- Hurricane Strike
 			function wwCore:castHurricaneStrike()
 				return castSpell(self.units.dyn12AoE,self.spell.hurricaneStrike,true,false) == true or false
 			end
 
+			-- Invoke Xuen
 			function wwCore:castInvokeXuen()
 				if isSelected("Invoke Xuen") then
 					return castSpell(self.units.dyn40,self.spell.invokeXuen,true,false) == true or false
 				end
 			end
 
+			-- Jab
+			-- TODO: different spellids needed?
 			function wwCore:castJab()
 				return castSpell(self.units.dyn5,self.spell.jab,false,false) == true or false
 			end
 
-			-- Nimble Brew
+			-- TODO: Nimble Brew
 
-			-- Paralysis
+			-- TODO: Paralysis
 
-			-- Resuscitate
+			-- TODO: Resuscitate
 
+			-- Rising Sun Kick
 			function wwCore:castRisingSunKick()
 				return castSpell(self.units.dyn5,self.spell.risingSunKick,false,false) == true or false
 			end
 
-			-- Roll
+			-- TODO: Roll
 
+			-- Rushing Jade Wind
 			function wwCore:castRushingJadeWind() -- 8y
 				return castSpell(player,self.spell.rushingJadeWind,true,false) == true or false
 			end
 
+			-- Serenity
 			function wwCore:castSerenity()
 				if isSelected("Serenity") then
 					return castSpell(player,self.spell.serenity,true,false) == true or false
 				end
 			end
 
-			-- Spear Hand Strike
+			-- TODO: Spear Hand Strike
 
+			-- Spinning Crane Kick
 			function wwCore:castSpinningCraneKick() -- 8y
 				return castSpell(player,self.spell.spinningCraneKick,true,false) == true or false
 			end
 
+			-- Storm Earth Fire
 			function wwCore:castStormEarthFire()
 				return castSpell(self.units.dyn40AoE,self.spell.stormEarthFire,true,false) == true or false
 			end
 
+			-- Surging Mist
 			function wwCore:castSurgingMist()
 				return castSpell(player,self.spell.surgingMist,true,false) == true or false
 			end
 
+			-- Tigerpalm
 			function wwCore:castTigerPalm()
 				return castSpell(self.units.dyn5,self.spell.tigerPalm,false,false) == true or false
 			end
 
+			-- Tigereye Brew
 			function wwCore:castTigereyeBrew()
 				return castSpell(player,self.spell.tigereyeBrew,true,false) == true or false
 			end
 
+			-- Touch of Death
 			function wwCore:castTouchOfDeath()
 				if isSelected("Touch Of Death") then
 					return castSpell(self.units.dyn5,self.spell.touchOfDeath,true,false) == true or false
 				end
 			end
 
+			-- Touch of Karma
 			function wwCore:castTouchOfKarma() -- TODO: range glyph, 25y
 				return castSpell(self.units.dyn5,self.spell.touchOfKarma,true,false) == true or false
 			end
 
+			-- Zen Sphere
+			-- Used on self or if already on player cast on focus
 			function wwCore:castZenSphere()
 				if isSelected("Talent Row 2") then
-					return castSpell(player,self.spell.zenSphere,true,false) == true or false
+					if not UnitBuffID(player,self.buff.zenSphere) then
+						return castSpell(player,self.spell.zenSphere,true,false) == true or false
+					end
+					if not UnitBuffID("focus",self.buff.zenSphere) then
+						return castSpell("focus",self.spell.zenSphere,true,false) == true or false
+					end
+					return false
 				end
 			end
 
-			--function wwCore:castSPELL()
-			--	return castSpell(self.units.dyn5,self.spell.,true,false) == true or false
-			--end
-
-		end
-	end
-end
+		end -- function wwCore:update()
+	end -- function MonkWwFunctions()
+end -- select(3,UnitClass("player")) == 10

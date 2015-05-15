@@ -33,7 +33,7 @@ if select(3,UnitClass("player")) == 10 then
     ------------------------------------------------------------------------------------------------------
     -- Food/Invis Check ----------------------------------------------------------------------------------
     ------------------------------------------------------------------------------------------------------
-    if canRun() ~= true or UnitInVehicle("Player") then
+    if canRun() ~= true --[[or UnitInVehicle("Player")]] then
       return false
     end
     -- if IsMounted("player") then
@@ -81,6 +81,7 @@ if select(3,UnitClass("player")) == 10 then
     ------------------------------------------------------------------------------------------------------
     -- Ress/Dispell --------------------------------------------------------------------------------------
     ------------------------------------------------------------------------------------------------------
+    --[[
     if isValidTarget("mouseover")
       and UnitIsPlayer("mouseover")
       and not UnitBuffID("player", 80169) -- Food
@@ -108,6 +109,7 @@ if select(3,UnitClass("player")) == 10 then
         end
       end
     end
+    ]]
 
     ------------------------------------------------------------------------------------------------------
     -- Out of Combat -------------------------------------------------------------------------------------
@@ -116,14 +118,6 @@ if select(3,UnitClass("player")) == 10 then
       if isChecked("Stats Buff") then
         Raidbuff_Monk()
       end
-    --  	-- Legacy of the White Tiger
-    -- if isChecked("Legacy of the White Tiger") == true and canCast(116781,false,false) and (lastLotWT == nil or lastLotWT <= GetTime() - 5) then
-    -- 	for i = 1, #nNova do
-    --   		if isPlayer(nNova[i].unit) == true and not UnitBuffID(nNova[i].unit,{115921,116781,20217,1126,90363,160017,159988,160077}) and UnitInRange(nNova[i].unit) then
-    --   			if castSpell("player",116781,true) then lastLotWT = GetTime(); return; end
-    -- 		end
-    -- 	end
-    -- end
     end -- Out of Combat end
     ------------------------------------------------------------------------------------------------------
     -- In Combat -----------------------------------------------------------------------------------------
@@ -227,9 +221,9 @@ if select(3,UnitClass("player")) == 10 then
       ------------------------------------------------------------------------------------------------------
       -- Do everytime --------------------------------------------------------------------------------------
       ------------------------------------------------------------------------------------------------------
-      if isChecked("Stats Buff") then
-        Raidbuff_Monk()
-      end
+      --if isChecked("Stats Buff") then
+      --  Raidbuff_Monk()
+      --end
       --Purifying Brew
       if DrinkStagger() then
         if castSpell("player",_PurifyingBrew,true,false) then
@@ -250,8 +244,8 @@ if select(3,UnitClass("player")) == 10 then
       if hasNoControl() then
         if castSpell("player",_NimbleBrew,true,false) then
           return
-        elseif castSpell("player",_TigersLust,true,false) then
-          return
+        --elseif castSpell("player",_TigersLust,true,false) then
+        --  return
         end
       end
       -- actions+=/chi_brew,if=talent.chi_brew.enabled&chi.max-chi>=2&buff.elusive_brew_stacks.stack<=10
@@ -318,7 +312,7 @@ if select(3,UnitClass("player")) == 10 then
         -- actions.st+=/chi_explosion,if=chi>=3
         if chi >= 3 then
           if castSpell(dyn5,_ChiExplosion,false,false) then
-            print("Chi Explosion at 3 Chi")
+            --print("Chi Explosion at 3 Chi")
             return
           end
         end
@@ -381,13 +375,13 @@ if select(3,UnitClass("player")) == 10 then
           end
         end
         --actions.st+=/expel_harm,if=chi.max-chi>=1&cooldown.keg_smash.remains>=gcd&(energy+(energy.regen*(cooldown.keg_smash.remains)))>=80
-        if chiDif >= 1 and KegCD >= GCD then
+        if chiDif >= 1 and KegCD >= GCD and (energy+(energyreg*(KegCD))) >= 80 and myHP < 90 then
           if castSpell("player",_ExpelHarm,true) then
             return
           end
         end
         -- actions.st+=/jab,if=chi.max-chi>=1&cooldown.keg_smash.remains>=gcd&cooldown.expel_harm.remains>=gcd&(energy+(energy.regen*(cooldown.keg_smash.remains)))>=80
-        if chiDif >= 1 and KegCD >= GCD and getSpellCD(_ExpelHarm) >= GCD then
+        if chiDif >= 1 and KegCD >= GCD and getSpellCD(_ExpelHarm) >= GCD and (energy+(energyreg*(KegCD))) >= 80 then
           if castSpell(dyn5,_Jab,false,false) then
             return
           end
@@ -408,7 +402,7 @@ if select(3,UnitClass("player")) == 10 then
         -- actions.aoe+=/chi_explosion,if=chi>=4
         if chi >= 4 then
           if castSpell(dyn5,_ChiExplosion,false,false) then
-            print("Chi Explosion at 4 Chi")
+            --print("Chi Explosion at 4 Chi")
             return
           end
         end
@@ -480,7 +474,7 @@ if select(3,UnitClass("player")) == 10 then
           end
         end
         --actions.aoe+=/expel_harm,if=chi.max-chi>=1&cooldown.keg_smash.remains>=gcd&(energy+(energy.regen*(cooldown.keg_smash.remains)))>=80
-        if chiDif >= 1 and KegCD >= GCD then
+        if chiDif >= 1 and KegCD >= GCD and (energy+(energyreg*(KegCD))) >= 80 then
           if castSpell("player",_ExpelHarm,true) then
             return
           end
@@ -494,7 +488,7 @@ if select(3,UnitClass("player")) == 10 then
           end
         end
         -- actions.aoe+=/jab,if=chi.max-chi>=1&cooldown.keg_smash.remains>=gcd&cooldown.expel_harm.remains>=gcd&(energy+(energy.regen*(cooldown.keg_smash.remains)))>=80
-        if chiDif >= 1 and KegCD >= GCD and getSpellCD(_ExpelHarm) >= GCD then
+        if chiDif >= 1 and KegCD >= GCD and getSpellCD(_ExpelHarm) >= GCD and (energy+(energyreg*(KegCD))) >= 80 and myHP < 90 then
           if castSpell(dyn5,_Jab,false,false) then
             return
           end

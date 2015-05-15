@@ -62,8 +62,8 @@ if select(3,UnitClass("player")) == 10 then
       -- textOp("Death Monk Mode");
 
       -- -- Legacy of the White Tiger
-      checkOp("Legacy of the White Tiger","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Legacy of the White Tiger usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.");
-      textOp("LotWT (NYI)");
+      checkOp("Legacy of the White Tiger","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Not yet implemented");
+      textOp("Legacy of the White Tiger");
 
       -- -- Dummy DPS Test
       -- checkOp("DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.");
@@ -76,16 +76,16 @@ if select(3,UnitClass("player")) == 10 then
       wrapOp("--- Cooldowns ---");
 
       -- Agi Pot
-      checkOp("Agi-Pot");
-      textOp("Agi-Pot (NYI)");
+      checkOp("Agi-Pot","|cffFFFFFFOnly used on bosses.");
+      textOp("Agi-Pot");
 
       -- Flask / Crystal
-      checkOp("Flask / Crystal");
-      textOp("Flask / Crystal (NYI)");
+      checkOp("Flask / Crystal","|cffFFFFFF(NYI)");
+      textOp("Flask / Crystal");
 
       -- Racial
-      checkOp("Racial");
-      textOp("Racial (NYI)");
+      checkOp("Racial","|cffFFFFFF(NYI)");
+      textOp("Racial");
 
       -- Xuen
       checkOp("Invoke Xuen");
@@ -98,8 +98,8 @@ if select(3,UnitClass("player")) == 10 then
       textOp("Chi Brew");
 
       -- Zen Sphere / Chi Wave / Chi Burst
-      checkOp("Talent Row 2");
-      dropOp("Talent Row 2",1,"CD","|cffFFFFFFUses your 2. Talentrow spell. Sphere/Wave/Burst");
+      checkOp("Talent Row 2","|cffFFFFFFUses your 2. Talentrow spell. Sphere/Wave/Burst");
+      dropOp("Talent Row 2",1,"CD");
       textOp("Talent Row 2");
 
       -- Energizing Brew
@@ -108,8 +108,8 @@ if select(3,UnitClass("player")) == 10 then
       textOp("Energizing Brew");
 
       -- Fortifying Brew
-      checkOp("Fortifying Brew");
-      dropOp("Fortifying Brew",1,"CD","|cffFFFFFFUsed offensivly with Touch of Death.");
+      checkOp("Fortifying Brew","|cffFFFFFFUsed offensivly with Touch of Death.");
+      dropOp("Fortifying Brew",1,"CD");
       textOp("Fortifying Brew");
 
       -- Serenity
@@ -128,10 +128,10 @@ if select(3,UnitClass("player")) == 10 then
       -- Wrapper
       wrapOp("--- Defensive ---");
 
-      -- -- Healthstone
-      checkOp("Pot/Stoned");
+      -- Healthstone
+      checkOp("Pot/Stoned","|cffFFFFFF(NYI)");
       boxOp("Pot/Stoned", 0, 100, 5, 60, "|cffFFFFFFHealth Percent to Cast At");
-      textOp("Pot/Stoned (NYI)");
+      textOp("Pot/Stoned");
 
       -- --  Expel Harm
       -- checkOp("Expel Harm");

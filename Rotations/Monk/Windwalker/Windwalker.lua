@@ -16,11 +16,6 @@ if select(3, UnitClass("player")) == 10 then
 		--makeEnemiesTable(40)
 		--ChatOverlay(GetCurrentKeyBoardFocus())
 
-		--[[ TODO
-		Kromog doesnt get attacked, think its a range problem
-
-
-		]]
 
 		-- Manual Input
 		-- PAUSE
@@ -43,7 +38,7 @@ if select(3, UnitClass("player")) == 10 then
 		--- Locals ---
 		--------------
 		local buff,cd,mode,talent,glyph = core.buff,core.cd,core.mode,core.talent,core.glyph
-		local chi,chiMax,stacks,recharge,charges = core.chi,core.chiMax,core.stacks,core.recharge,core.charges
+		local chi,chiMax,chiDiff,stacks,recharge,charges = core.chi,core.chiMax,core.chiDiff,core.stacks,core.recharge,core.charges
 		local debuffRisingSunKick,channel = 130320,core.channel
 
 		if tigereyeBrewCast == nil then tigereyeBrewCast = 0; end
@@ -95,6 +90,7 @@ if select(3, UnitClass("player")) == 10 then
 				RunMacroText("/startattack")
 			end
 
+			-- Track Tigereyebrew Damage Buff
 			if tigereyeBrewCast ~= 0 then
 				if tigereyeBrewCast <= GetTime() then
 					tigereyeBrewCast = 0
@@ -134,14 +130,22 @@ if select(3, UnitClass("player")) == 10 then
 				end
 			end
 
-
-			-- actions+=/call_action_list,name=opener,if=talent.serenity.enabled&talent.chi_brew.enabled&cooldown.fists_of_fury.up&time<20
-			--if () then
-			--	rotationOpener()
-			--end
-
 			-- actions+=/potion,name=draenic_agility,if=buff.serenity.up|(!talent.serenity.enabled&(trinket.proc.agility.react|trinket.proc.multistrike.react))|buff.bloodlust.react|target.time_to_die<=60
 			-- TODO: DPS Potion
+			if (isChecked("Agi-Pot") and isBoss()) then
+				if (buff.serenity > 0 or hasBloodLust() or getTimeToDie("target") <= 60) then
+					if useItem(109217) then
+						return
+					end
+				end
+			end
+
+			-- actions+=/call_action_list,name=opener,if=talent.serenity.enabled&talent.chi_brew.enabled&cooldown.fists_of_fury.up&time<20
+			if (talent.serenity and talent.chiBrew and cd.fistsOfFury > 0 and getCombatTime() < 20) then
+				if rotationOpener() then
+					return
+				end
+			end
 
 			-- actions+=/blood_fury,if=buff.tigereye_brew_use.up|target.time_to_die<18
 			-- actions+=/berserking,if=buff.tigereye_brew_use.up|target.time_to_die<18
@@ -150,7 +154,9 @@ if select(3, UnitClass("player")) == 10 then
 
 			-- actions+=/chi_brew,if=chi.max-chi>=2&((charges=1&recharge_time<=10)|charges=2|target.time_to_die<charges*10)&buff.tigereye_brew.stack<=16
 			if (chiMax-chi >= 2 and ((charges.chiBrew == 1 and recharge.chiBrew <= 10) or charges.chiBrew == 2 or getTimeToDie("target") < charges.chiBrew*10) and stacks.tigereyeBrewStacks <= 16) then
-				core:castChiBrew()
+				if core:castChiBrew() then
+					return
+				end
 			end
 
 
@@ -209,7 +215,7 @@ if select(3, UnitClass("player")) == 10 then
 			end
 
 			-- actions+=/fortifying_brew,if=target.health.percent<10&cooldown.touch_of_death.remains=0&(glyph.touch_of_death.enabled|chi>=3)
-			if (getHP(core.units.dyn5) < 10 and cd.touchOfDeath == 0 and (glyph.touchOfDeath or chi >= 3)) then
+			if (getHP(core.units.dyn5) < 10 and isAlive(core.units.dyn5) and cd.touchOfDeath == 0 and (glyph.touchOfDeath or chi >= 3)) then
 				core:castFortifyingBrew()
 			end
 
@@ -280,7 +286,7 @@ if select(3, UnitClass("player")) == 10 then
 	--- Rotations ---
 	-----------------
 	function rotationSingleTarget()
-		local buff,talent,chi,chiMax = core.buff,core.talent,core.chi,core.chiMax
+		local buff,talent,chiDiff = core.buff,core.talent,core.chiDiff
 
 		-- actions.st=rising_sun_kick
 		if core:castRisingSunKick() then
@@ -315,9 +321,8 @@ if select(3, UnitClass("player")) == 10 then
 			end
 		end
 
-		-- TODO: Cycle zen Sphere look @jeopardy code
 		-- actions.st+=/zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking&buff.serenity.down
-		 if (core.energyTimeToMax > 2 and buff.serenity == 0 and buff.zenSphere == 0) then
+		 if (talent.zenSphere and core.energyTimeToMax > 2 and buff.serenity == 0) then
 			if core:castZenSphere() then
 				return
 			end
@@ -327,21 +332,21 @@ if select(3, UnitClass("player")) == 10 then
 		-- actions.st+=/chi_torpedo,if=energy.time_to_max>2&buff.serenity.down
 
 		-- actions.st+=/blackout_kick,if=chi.max-chi<2
-		if (chiMax-chi < 2) then
+		if (chiDiff < 2) then
 			if core:castBlackoutKick() then
 				return
 			end
 		end
 
 		-- actions.st+=/expel_harm,if=chi.max-chi>=2&health.percent<95
-		if (chiMax-chi >= 2 and core.health < 95) then
+		if (chiDiff >= 2 and core.health < 95) then
 			if core:castExpelHarm() then
 				return
 			end
 		end
 
 		-- actions.st+=/jab,if=chi.max-chi>=2
-		if (chiMax-chi >= 2) then
+		if (chiDiff >= 2) then
 			if core:castJab() then
 				return
 			end
@@ -349,7 +354,7 @@ if select(3, UnitClass("player")) == 10 then
 	end
 	
 	function rotationSingleTargetChiExplosion()
-		local buff,cd,talent,chi,chiMax = core.buff,core.cd,core.talent,core.chi,core.chiMax
+		local buff,cd,talent,chi,chiMax,chiDiff = core.buff,core.cd,core.talent,core.chi,core.chiMax,core.chiDiff
 
 		-- actions.st_chix=chi_explosion,if=chi>=2&buff.combo_breaker_ce.react&cooldown.fists_of_fury.remains>2
 		if (chi >= 2 and buff.comboBreakerChiExplosion > 0 and cd.fistsOfFury > 2) then
@@ -384,9 +389,8 @@ if select(3, UnitClass("player")) == 10 then
 			end
 		end
 
-		-- TODO: zen sphere
 		-- actions.st_chix+=/zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking
-		 if (core.energyTimeToMax > 2 and buff.zenSphere == 0) then
+		 if (talent.zenSphere and core.energyTimeToMax > 2) then
 			if core:castZenSphere() then
 				return
 			end
@@ -409,14 +413,14 @@ if select(3, UnitClass("player")) == 10 then
 		-- actions.st_chix+=/chi_torpedo,if=energy.time_to_max>2
 
 		-- actions.st_chix+=/expel_harm,if=chi.max-chi>=2&health.percent<95
-		if (chiMax-chi >= 2 and core.health < 95) then
+		if (chiDiff >= 2 and core.health < 95) then
 			if core:castExpelHarm() then
 				return
 			end
 		end
 
 		-- actions.st_chix+=/jab,if=chi.max-chi>=2
-		if (chiMax-chi >= 2) then
+		if (chiDiff >= 2) then
 			if core:castJab() then
 				return
 			end
@@ -424,7 +428,7 @@ if select(3, UnitClass("player")) == 10 then
 	end
 	
 	function rotationCleaveChiExplosion()
-		local buff,cd,talent,chi,chiMax = core.buff,core.cd,core.talent,core.chi,core.chiMax
+		local buff,cd,talent,chi,chiMax,chiDiff = core.buff,core.cd,core.talent,core.chi,core.chiMax,core.chiDiff
 
 		-- actions.cleave_chix=chi_explosion,if=chi>=4&cooldown.fists_of_fury.remains>4
 		if (chi >= 4 and cd.fistsOfFury > 4) then
@@ -441,21 +445,21 @@ if select(3, UnitClass("player")) == 10 then
 		end
 
 		-- actions.cleave_chix+=/chi_wave,if=energy.time_to_max>2
-		if (core.energyTimeToMax > 2) then
+		if (talent.chiWave and core.energyTimeToMax > 2) then
 			if core:castChiWave() then
 				return
 			end
 		end
 
 		-- actions.cleave_chix+=/chi_burst,if=energy.time_to_max>2
-		if (core.energyTimeToMax > 2) then
+		if (talent.chiBurst and core.energyTimeToMax > 2) then
 			if core:castChiBurst() then
 				return
 			end
 		end
 
-		-- TODO: Zen Sphere
-		 if (core.energyTimeToMax > 2 and buff.zenSphere == 0) then
+		-- actions.cleave_chix+=/zen_sphere,if=energy.time_to_max>2
+		 if (talent.zenSphere and core.energyTimeToMax > 2 and buff.zenSphere == 0) then
 			if core:castZenSphere() then
 				return
 			end
@@ -464,14 +468,14 @@ if select(3, UnitClass("player")) == 10 then
 		-- actions.cleave_chix+=/chi_torpedo,if=energy.time_to_max>2
 
 		-- actions.cleave_chix+=/expel_harm,if=chi.max-chi>=2&health.percent<95
-		if (chiMax-chi >= 2 and core.health < 95) then
+		if (chiDiff >= 2 and core.health < 95) then
 			if core:castExpelHarm() then
 				return
 			end
 		end
 
 		-- actions.cleave_chix+=/jab,if=chi.max-chi>=2
-		if (chiMax-chi >= 2) then
+		if (chiDiff >= 2) then
 			if core:castJab() then
 				return
 			end
@@ -479,25 +483,24 @@ if select(3, UnitClass("player")) == 10 then
 	end
 
 	function rotationAoeNoRJW()
-		local buff,cd,talent,chi,chiMax = core.buff,core.cd,core.talent,core.chi,core.chiMax
+		local buff,cd,talent,chiDiff = core.buff,core.cd,core.talent,core.chiDiff
 
 		-- actions.aoe_norjw=chi_wave,if=energy.time_to_max>2&buff.serenity.down
-		if (core.energyTimeToMax > 2 and buff.serenity == 0) then
+		if (talent.chiWave and core.energyTimeToMax > 2 and buff.serenity == 0) then
 			if core:castChiWave() then
 				return
 			end
 		end
 
 		-- actions.aoe_norjw+=/chi_burst,if=energy.time_to_max>2&buff.serenity.down
-		if (core.energyTimeToMax > 2 and buff.serenity == 0) then
+		if (talent.chiBurst and core.energyTimeToMax > 2 and buff.serenity == 0) then
 			if core:castChiBurst() then
 				return
 			end
 		end
 
-		-- TODO: Zen Sphere
 		-- actions.aoe_norjw+=/zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking&buff.serenity.down
-		 if (core.energyTimeToMax > 2 and buff.serenity == 0 and buff.zenSphere == 0) then
+		 if (talent.zenSphere and core.energyTimeToMax > 2 and buff.serenity == 0) then
 			if core:castZenSphere() then
 				return
 			end
@@ -518,7 +521,7 @@ if select(3, UnitClass("player")) == 10 then
 		end
 
 		-- actions.aoe_norjw+=/blackout_kick,if=chi.max-chi<2&cooldown.fists_of_fury.remains>3
-		if (chiMax-chi < 2 and cd.fistsOfFury > 3) then
+		if (chiDiff < 2 and cd.fistsOfFury > 3) then
 			if core:castBlackoutKick() then
 				return
 			end
@@ -527,11 +530,13 @@ if select(3, UnitClass("player")) == 10 then
 		-- actions.aoe_norjw+=/chi_torpedo,if=energy.time_to_max>2
 
 		-- actions.aoe_norjw+=/spinning_crane_kick
-		core:castSpinningCraneKick()
+		if core:castSpinningCraneKick() then
+			return
+		end
 	end
 
 	function rotationAoeNoRJWChiExplosion()
-		local buff,cd,talent,chi,chiMax = core.buff,core.cd,core.talent,core.chi,core.chiMax
+		local buff,cd,talent,chi,chiMax,chiDiff = core.buff,core.cd,core.talent,core.chi,core.chiMax,core.chiDiff
 
 		-- actions.aoe_norjw_chix=chi_explosion,if=chi>=4&cooldown.fists_of_fury.remains>4
 		if (chi >= 4 and cd.fistsOfFury > 4) then
@@ -548,22 +553,21 @@ if select(3, UnitClass("player")) == 10 then
 		end
 
 		-- actions.aoe_norjw_chix+=/chi_wave,if=energy.time_to_max>2
-		if (core.energyTimeToMax > 2) then
+		if (talent.chiWave and core.energyTimeToMax > 2) then
 			if core:castChiWave() then
 				return
 			end
 		end
 		
 		-- actions.aoe_norjw_chix+=/chi_burst,if=energy.time_to_max>2
-		if (core.energyTimeToMax > 2) then
+		if (talent.chiBurst and core.energyTimeToMax > 2) then
 			if core:castChiBurst() then
 				return
 			end
 		end
 		
-		-- TODO: Zen Sphere
 		-- actions.aoe_norjw_chix+=/zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking
-		 if (core.energyTimeToMax > 2 and buff.zenSphere == 0) then
+		 if (talent.zenSphere and core.energyTimeToMax > 2) then
 			if core:castZenSphere() then
 				return
 			end
@@ -572,11 +576,13 @@ if select(3, UnitClass("player")) == 10 then
 		-- actions.aoe_norjw_chix+=/chi_torpedo,if=energy.time_to_max>2
 
 		-- actions.aoe_norjw_chix+=/spinning_crane_kick
-		core:castSpinningCraneKick()
+		if core:castSpinningCraneKick() then
+			return
+		end
 	end
 
 	function rotationAoeRJW()
-		local buff,cd,talent,chi,chiMax = core.buff,core.cd,core.talent,core.chi,core.chiMax
+		local buff,cd,talent,chi,chiMax,chiDiff = core.buff,core.cd,core.talent,core.chi,core.chiMax,core.chiDiff
 
 		-- actions.aoe_rjw=chi_explosion,if=chi>=4&cooldown.fists_of_fury.remains>4
 		if (chi >= 4 and cd.fistsOfFury > 4) then
@@ -586,25 +592,26 @@ if select(3, UnitClass("player")) == 10 then
 		end
 
 		-- actions.aoe_rjw+=/rushing_jade_wind
-		core:castRushingJadeWind()
+		if core:castRushingJadeWind() then
+			return
+		end
 
 		-- actions.aoe_rjw+=/chi_wave,if=energy.time_to_max>2&buff.serenity.down
-		if (core.energyTimeToMax > 2 and buff.serenity == 0) then
+		if (talent.chiWave and core.energyTimeToMax > 2 and buff.serenity == 0) then
 			if core:castChiWave() then
 				return
 			end
 		end
 		
 		-- actions.aoe_rjw+=/chi_burst,if=energy.time_to_max>2&buff.serenity.down
-		if (core.energyTimeToMax > 2 and buff.serenity == 0) then
+		if (talent.chiBurst and core.energyTimeToMax > 2 and buff.serenity == 0) then
 			if core:castChiBurst() then
 				return
 			end
 		end
 		
-		-- TODO: Zen Sphere cycle
 		-- actions.aoe_rjw+=/zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking&buff.serenity.down
-		 if (core.energyTimeToMax > 2 and buff.serenity == 0 and buff.zenSphere == 0) then
+		 if (talent.zenSphere and core.energyTimeToMax > 2 and buff.serenity == 0) then
 			if core:castZenSphere() then
 				return
 			end
@@ -625,7 +632,7 @@ if select(3, UnitClass("player")) == 10 then
 		end
 		
 		-- actions.aoe_rjw+=/blackout_kick,if=chi.max-chi<2&cooldown.fists_of_fury.remains>3
-		if (chiMax-chi < 2 and cd.fistsOfFury > 3) then
+		if (chiDiff < 2 and cd.fistsOfFury > 3) then
 			if core:castBlackoutKick() then
 				return
 			end
@@ -635,14 +642,14 @@ if select(3, UnitClass("player")) == 10 then
 
 		
 		-- actions.aoe_rjw+=/expel_harm,if=chi.max-chi>=2&health.percent<95
-		if (chiMax-chi >= 2 and core.health < 95) then
+		if (chiDiff >= 2 and core.health < 95) then
 			if core:castExpelHarm() then
 				return
 			end
 		end
 		
 		-- actions.aoe_rjw+=/jab,if=chi.max-chi>=2
-		if (chiMax-chi >= 2) then
+		if (chiDiff >= 2) then
 			if core:castJab() then
 				return
 			end
@@ -651,17 +658,67 @@ if select(3, UnitClass("player")) == 10 then
 	end
 
 	function rotationOpener()
+		local buff,stacks,cd,channel,recharge,charges,chiDiff = core.buff,core.stacks,core.cd,core.channel,core.recharge,core.charges,core.chiDiff
+
 		-- actions.opener=tigereye_brew,if=buff.tigereye_brew_use.down&buff.tigereye_brew.stack>=9
+		if (tigereyeBrewRemain == 0 and stacks.tigereyeBrewStacks >= 9) then
+			if core:castTigereyeBrew() then
+				tigereyeBrewCast = GetTime()+15;
+				return
+			end
+		end
+
 		-- actions.opener+=/blood_fury,if=buff.tigereye_brew_use.up
 		-- actions.opener+=/berserking,if=buff.tigereye_brew_use.up
 		-- actions.opener+=/arcane_torrent,if=buff.tigereye_brew_use.up&chi.max-chi>=1
+		-- TODO: racial
+
 		-- actions.opener+=/fists_of_fury,if=buff.tiger_power.remains>cast_time&debuff.rising_sun_kick.remains>cast_time&buff.serenity.up&buff.serenity.remains<1.5
+		if (buff.tigerPower > channel.fistsOfFury and getDebuffDuration("target",130320) > channel.fistsOfFury and buff.serenity > 0 and buff.serenity < 1.5) then
+			if core:castFistsOfFury() then
+				return
+			end
+		end
+
 		-- actions.opener+=/tiger_palm,if=buff.tiger_power.remains<2
-		-- actions.opener+=/use_item,name=beating_heart_of_the_mountain
+		if (buff.tigerPower < 2) then
+			if core:castTigerPalm() then
+				return
+			end
+		end
+		
 		-- actions.opener+=/rising_sun_kick
+		if core:castRisingSunKick() then
+			return
+		end
+
 		-- actions.opener+=/blackout_kick,if=chi.max-chi<=1&cooldown.chi_brew.up|buff.serenity.up
+		if (chiDiff <= 1 and ((charges.chiBrew <= 0 and recharge.chiBrew > 0) or buff.serenity > 0)) then
+			if core:castBlackoutKick() then
+				return
+			end
+		end
+
 		-- actions.opener+=/chi_brew,if=chi.max-chi>=2
+		if (chiDiff >= 2) then
+			if core:castChiBrew() then
+				return
+			end
+		end
+
 		-- actions.opener+=/serenity,if=chi.max-chi<=2
+		if (chiDiff <= 2) then
+			if core:castSerenity() then
+				return
+			end
+		end
+
 		-- actions.opener+=/jab,if=chi.max-chi>=2&!buff.serenity.up
+		if (chiDiff >= 2 and buff.serenity == 0) then
+			if core:castJab() then
+				return
+			end
+		end
+
 	end
 end
