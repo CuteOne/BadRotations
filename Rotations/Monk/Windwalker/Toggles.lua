@@ -1,5 +1,6 @@
 if select(3,UnitClass("player")) == 10 then
   function MonkWwToggles()
+    GarbageButtons()
     -- -- AoE Button
     -- if AoEModesLoaded ~= "Cute AoE Modes" then
     --   CustomAoEModes = {

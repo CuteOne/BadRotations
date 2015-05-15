@@ -2,7 +2,7 @@ if select(3,UnitClass("player")) == 10 then
 
 
   function MonkBrewToggles()
-
+    GarbageButtons()
     -- Aoe Button
     if AoEModesLoaded ~= "Brew Monk AoE Modes" then
       AoEModes = {

@@ -13,7 +13,6 @@ if select(3, UnitClass("player")) == 10 then
 			currentConfig = "Windwalker Defmaster";
 		end
 
-		--makeEnemiesTable(40)
 		--ChatOverlay(GetCurrentKeyBoardFocus())
 
 
@@ -56,24 +55,19 @@ if select(3, UnitClass("player")) == 10 then
 			tigereyeBrewRemain = 0
 		end
 
-		-- Cast Buff
-		-- TODO: cast buff
-
 		-----------------
 		--- OOC Stuff ---
 		-----------------
 		if not core.inCombat  then
-			-- Cancel Storm, Earth, and Fire
-			--if stacks.stormEarthFire~=0  then
-			--	CancelUnitBuff("player", GetSpellInfo(_StormEarthFire))
-			--end
-			
 			-- Surging Mist
 			--if isChecked(getOption(_SurgingMist)) and php<=getValue(getOption(_SurgingMist)) and not isInCombat("player") and power>=30 and not isMoving("player") then
 			--	if castSpell("player",_SurgingMist,true,false) then 
 			--		return 
 			--	end
 			--end
+
+			-- Cast Buff
+			-- TODO: cast buff
 		end
 
 		-- Combat
@@ -158,7 +152,6 @@ if select(3, UnitClass("player")) == 10 then
 					return
 				end
 			end
-
 
 			-- actions+=/tiger_palm,if=!talent.chi_explosion.enabled&buff.tiger_power.remains<6.6
 			if (not talent.chiExplosion and buff.tigerPower < 6.6) then
@@ -279,446 +272,430 @@ if select(3, UnitClass("player")) == 10 then
 					return
 				end
 			end
-		end
-	end
+		end -- Combat
 
-	-----------------
-	--- Rotations ---
-	-----------------
-	function rotationSingleTarget()
-		local buff,talent,chiDiff = core.buff,core.talent,core.chiDiff
-
-		-- actions.st=rising_sun_kick
-		if core:castRisingSunKick() then
-			return
-		end
-
-		-- actions.st+=/blackout_kick,if=buff.combo_breaker_bok.react|buff.serenity.up
-		if (buff.comboBreakerBlackoutKick > 0 or buff.serenity > 0) then
-			if core:castBlackoutKick() then
-				return
-			end
-		end
-
-		-- actions.st+=/tiger_palm,if=buff.combo_breaker_tp.react&buff.combo_breaker_tp.remains<=2
-		if (buff.comboBreakerTigerPalm > 0 and buff.comboBreakerTigerPalm <= 2) then
-			if core:castTigerPalm() then
-				return
-			end
-		end
-
-		-- actions.st+=/chi_wave,if=energy.time_to_max>2&buff.serenity.down
-		if (talent.chiWave and core.energyTimeToMax > 2 and buff.serenity == 0) then
-			if core:castChiWave() then
-				return
-			end
-		end
-
-		-- actions.st+=/chi_burst,if=energy.time_to_max>2&buff.serenity.down
-		if (talent.chiBurst and core.energyTimeToMax > 2 and buff.serenity == 0) then
-			if core:castChiBurst() then
-				return
-			end
-		end
-
-		-- actions.st+=/zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking&buff.serenity.down
-		 if (talent.zenSphere and core.energyTimeToMax > 2 and buff.serenity == 0) then
-			if core:castZenSphere() then
-				return
-			end
-		 end
-
-		-- Who is using chi torpedo as WW ?!
-		-- actions.st+=/chi_torpedo,if=energy.time_to_max>2&buff.serenity.down
-
-		-- actions.st+=/blackout_kick,if=chi.max-chi<2
-		if (chiDiff < 2) then
-			if core:castBlackoutKick() then
-				return
-			end
-		end
-
-		-- actions.st+=/expel_harm,if=chi.max-chi>=2&health.percent<95
-		if (chiDiff >= 2 and core.health < 95) then
-			if core:castExpelHarm() then
-				return
-			end
-		end
-
-		-- actions.st+=/jab,if=chi.max-chi>=2
-		if (chiDiff >= 2) then
-			if core:castJab() then
-				return
-			end
-		end
-	end
-	
-	function rotationSingleTargetChiExplosion()
-		local buff,cd,talent,chi,chiMax,chiDiff = core.buff,core.cd,core.talent,core.chi,core.chiMax,core.chiDiff
-
-		-- actions.st_chix=chi_explosion,if=chi>=2&buff.combo_breaker_ce.react&cooldown.fists_of_fury.remains>2
-		if (chi >= 2 and buff.comboBreakerChiExplosion > 0 and cd.fistsOfFury > 2) then
-			if core:castChiExplosion() then
-				return
-			end
-		end
-
-		-- actions.st_chix+=/tiger_palm,if=buff.combo_breaker_tp.react&buff.combo_breaker_tp.remains<=2
-		if (buff.comboBreakerTigerPalm > 0 and buff.comboBreakerTigerPalm <= 2) then
-			if core:castTigerPalm() then
-				return
-			end
-		end
-
-		-- actions.st_chix+=/rising_sun_kick
-		if core:castRisingSunKick() then
-			return
-		end
-
-		-- actions.st_chix+=/chi_wave,if=energy.time_to_max>2
-		if (talent.chiWave and core.energyTimeToMax > 2) then
-			if core:castChiWave() then
-				return
-			end
-		end
-
-		-- actions.st_chix+=/chi_burst,if=energy.time_to_max>2
-		if (talent.chiBurst and core.energyTimeToMax > 2) then
-			if core:castChiBurst() then
-				return
-			end
-		end
-
-		-- actions.st_chix+=/zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking
-		 if (talent.zenSphere and core.energyTimeToMax > 2) then
-			if core:castZenSphere() then
-				return
-			end
-		 end
-
-		-- actions.st_chix+=/tiger_palm,if=chi=4&!buff.combo_breaker_tp.react
-		if (chi == 4 and not (buff.comboBreakerTigerPalm > 0)) then
-			if core:castTigerPalm() then
-				return
-			end
-		end
-
-		-- actions.st_chix+=/chi_explosion,if=chi>=3&cooldown.fists_of_fury.remains>4
-		if (chi >= 3 and cd.fistsOfFury > 4) then
-			if core:castChiExplosion() then
-				return
-			end
-		end
-
-		-- actions.st_chix+=/chi_torpedo,if=energy.time_to_max>2
-
-		-- actions.st_chix+=/expel_harm,if=chi.max-chi>=2&health.percent<95
-		if (chiDiff >= 2 and core.health < 95) then
-			if core:castExpelHarm() then
-				return
-			end
-		end
-
-		-- actions.st_chix+=/jab,if=chi.max-chi>=2
-		if (chiDiff >= 2) then
-			if core:castJab() then
-				return
-			end
-		end
-	end
-	
-	function rotationCleaveChiExplosion()
-		local buff,cd,talent,chi,chiMax,chiDiff = core.buff,core.cd,core.talent,core.chi,core.chiMax,core.chiDiff
-
-		-- actions.cleave_chix=chi_explosion,if=chi>=4&cooldown.fists_of_fury.remains>4
-		if (chi >= 4 and cd.fistsOfFury > 4) then
-			if core:castChiExplosion() then
-				return
-			end
-		end
-
-		-- actions.cleave_chix+=/tiger_palm,if=buff.combo_breaker_tp.react&buff.combo_breaker_tp.remains<=2
-		if (buff.comboBreakerTigerPalm > 0 and buff.comboBreakerTigerPalm <= 2) then
-			if core:castTigerPalm() then
-				return
-			end
-		end
-
-		-- actions.cleave_chix+=/chi_wave,if=energy.time_to_max>2
-		if (talent.chiWave and core.energyTimeToMax > 2) then
-			if core:castChiWave() then
-				return
-			end
-		end
-
-		-- actions.cleave_chix+=/chi_burst,if=energy.time_to_max>2
-		if (talent.chiBurst and core.energyTimeToMax > 2) then
-			if core:castChiBurst() then
-				return
-			end
-		end
-
-		-- actions.cleave_chix+=/zen_sphere,if=energy.time_to_max>2
-		 if (talent.zenSphere and core.energyTimeToMax > 2 and buff.zenSphere == 0) then
-			if core:castZenSphere() then
-				return
-			end
-		 end
-
-		-- actions.cleave_chix+=/chi_torpedo,if=energy.time_to_max>2
-
-		-- actions.cleave_chix+=/expel_harm,if=chi.max-chi>=2&health.percent<95
-		if (chiDiff >= 2 and core.health < 95) then
-			if core:castExpelHarm() then
-				return
-			end
-		end
-
-		-- actions.cleave_chix+=/jab,if=chi.max-chi>=2
-		if (chiDiff >= 2) then
-			if core:castJab() then
-				return
-			end
-		end
-	end
-
-	function rotationAoeNoRJW()
-		local buff,cd,talent,chiDiff = core.buff,core.cd,core.talent,core.chiDiff
-
-		-- actions.aoe_norjw=chi_wave,if=energy.time_to_max>2&buff.serenity.down
-		if (talent.chiWave and core.energyTimeToMax > 2 and buff.serenity == 0) then
-			if core:castChiWave() then
-				return
-			end
-		end
-
-		-- actions.aoe_norjw+=/chi_burst,if=energy.time_to_max>2&buff.serenity.down
-		if (talent.chiBurst and core.energyTimeToMax > 2 and buff.serenity == 0) then
-			if core:castChiBurst() then
-				return
-			end
-		end
-
-		-- actions.aoe_norjw+=/zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking&buff.serenity.down
-		 if (talent.zenSphere and core.energyTimeToMax > 2 and buff.serenity == 0) then
-			if core:castZenSphere() then
-				return
-			end
-		 end
-
-		-- actions.aoe_norjw+=/blackout_kick,if=buff.combo_breaker_bok.react|buff.serenity.up
-		if (buff.comboBreakerBlackoutKick > 0 or buff.serenity > 0) then
-			if core:castBlackoutKick() then
-				return
-			end
-		end
-
-		-- actions.aoe_norjw+=/tiger_palm,if=buff.combo_breaker_tp.react&buff.combo_breaker_tp.remains<=2
-		if (buff.comboBreakerTigerPalm > 0 and buff.comboBreakerTigerPalm <= 2) then
-			if core:castTigerPalm() then
-				return
-			end
-		end
-
-		-- actions.aoe_norjw+=/blackout_kick,if=chi.max-chi<2&cooldown.fists_of_fury.remains>3
-		if (chiDiff < 2 and cd.fistsOfFury > 3) then
-			if core:castBlackoutKick() then
-				return
-			end
-		end
-
-		-- actions.aoe_norjw+=/chi_torpedo,if=energy.time_to_max>2
-
-		-- actions.aoe_norjw+=/spinning_crane_kick
-		if core:castSpinningCraneKick() then
-			return
-		end
-	end
-
-	function rotationAoeNoRJWChiExplosion()
-		local buff,cd,talent,chi,chiMax,chiDiff = core.buff,core.cd,core.talent,core.chi,core.chiMax,core.chiDiff
-
-		-- actions.aoe_norjw_chix=chi_explosion,if=chi>=4&cooldown.fists_of_fury.remains>4
-		if (chi >= 4 and cd.fistsOfFury > 4) then
-			if core:castChiExplosion() then
-				return
-			end
-		end
-
-		-- actions.aoe_norjw_chix+=/rising_sun_kick,if=chi=chi.max
-		if (chi == chiMax) then
+		-----------------
+		--- Rotations ---
+		-----------------
+		function rotationSingleTarget()
+			-- actions.st=rising_sun_kick
 			if core:castRisingSunKick() then
 				return
 			end
+
+			-- actions.st+=/blackout_kick,if=buff.combo_breaker_bok.react|buff.serenity.up
+			if (buff.comboBreakerBlackoutKick > 0 or buff.serenity > 0) then
+				if core:castBlackoutKick() then
+					return
+				end
+			end
+
+			-- actions.st+=/tiger_palm,if=buff.combo_breaker_tp.react&buff.combo_breaker_tp.remains<=2
+			if (buff.comboBreakerTigerPalm > 0 and buff.comboBreakerTigerPalm <= 2) then
+				if core:castTigerPalm() then
+					return
+				end
+			end
+
+			-- actions.st+=/chi_wave,if=energy.time_to_max>2&buff.serenity.down
+			if (talent.chiWave and core.energyTimeToMax > 2 and buff.serenity == 0) then
+				if core:castChiWave() then
+					return
+				end
+			end
+
+			-- actions.st+=/chi_burst,if=energy.time_to_max>2&buff.serenity.down
+			if (talent.chiBurst and core.energyTimeToMax > 2 and buff.serenity == 0) then
+				if core:castChiBurst() then
+					return
+				end
+			end
+
+			-- actions.st+=/zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking&buff.serenity.down
+			if (talent.zenSphere and core.energyTimeToMax > 2 and buff.serenity == 0) then
+				if core:castZenSphere() then
+					return
+				end
+			end
+
+			-- Who is using chi torpedo as WW ?!
+			-- actions.st+=/chi_torpedo,if=energy.time_to_max>2&buff.serenity.down
+
+			-- actions.st+=/blackout_kick,if=chi.max-chi<2
+			if (chiDiff < 2) then
+				if core:castBlackoutKick() then
+					return
+				end
+			end
+
+			-- actions.st+=/expel_harm,if=chi.max-chi>=2&health.percent<95
+			if (chiDiff >= 2 and core.health < 95) then
+				if core:castExpelHarm() then
+					return
+				end
+			end
+
+			-- actions.st+=/jab,if=chi.max-chi>=2
+			if (chiDiff >= 2) then
+				if core:castJab() then
+					return
+				end
+			end
+		end
+	
+		function rotationSingleTargetChiExplosion()
+			-- actions.st_chix=chi_explosion,if=chi>=2&buff.combo_breaker_ce.react&cooldown.fists_of_fury.remains>2
+			if (chi >= 2 and buff.comboBreakerChiExplosion > 0 and cd.fistsOfFury > 2) then
+				if core:castChiExplosion() then
+					return
+				end
+			end
+
+			-- actions.st_chix+=/tiger_palm,if=buff.combo_breaker_tp.react&buff.combo_breaker_tp.remains<=2
+			if (buff.comboBreakerTigerPalm > 0 and buff.comboBreakerTigerPalm <= 2) then
+				if core:castTigerPalm() then
+					return
+				end
+			end
+
+			-- actions.st_chix+=/rising_sun_kick
+			if core:castRisingSunKick() then
+				return
+			end
+
+			-- actions.st_chix+=/chi_wave,if=energy.time_to_max>2
+			if (talent.chiWave and core.energyTimeToMax > 2) then
+				if core:castChiWave() then
+					return
+				end
+			end
+
+			-- actions.st_chix+=/chi_burst,if=energy.time_to_max>2
+			if (talent.chiBurst and core.energyTimeToMax > 2) then
+				if core:castChiBurst() then
+					return
+				end
+			end
+
+			-- actions.st_chix+=/zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking
+			if (talent.zenSphere and core.energyTimeToMax > 2) then
+				if core:castZenSphere() then
+					return
+				end
+			end
+
+			-- actions.st_chix+=/tiger_palm,if=chi=4&!buff.combo_breaker_tp.react
+			if (chi == 4 and not (buff.comboBreakerTigerPalm > 0)) then
+				if core:castTigerPalm() then
+					return
+				end
+			end
+
+			-- actions.st_chix+=/chi_explosion,if=chi>=3&cooldown.fists_of_fury.remains>4
+			if (chi >= 3 and cd.fistsOfFury > 4) then
+				if core:castChiExplosion() then
+					return
+				end
+			end
+
+			-- actions.st_chix+=/chi_torpedo,if=energy.time_to_max>2
+
+			-- actions.st_chix+=/expel_harm,if=chi.max-chi>=2&health.percent<95
+			if (chiDiff >= 2 and core.health < 95) then
+				if core:castExpelHarm() then
+					return
+				end
+			end
+
+			-- actions.st_chix+=/jab,if=chi.max-chi>=2
+			if (chiDiff >= 2) then
+				if core:castJab() then
+					return
+				end
+			end
+		end
+	
+		function rotationCleaveChiExplosion()
+			-- actions.cleave_chix=chi_explosion,if=chi>=4&cooldown.fists_of_fury.remains>4
+			if (chi >= 4 and cd.fistsOfFury > 4) then
+				if core:castChiExplosion() then
+					return
+				end
+			end
+
+			-- actions.cleave_chix+=/tiger_palm,if=buff.combo_breaker_tp.react&buff.combo_breaker_tp.remains<=2
+			if (buff.comboBreakerTigerPalm > 0 and buff.comboBreakerTigerPalm <= 2) then
+				if core:castTigerPalm() then
+					return
+				end
+			end
+
+			-- actions.cleave_chix+=/chi_wave,if=energy.time_to_max>2
+			if (talent.chiWave and core.energyTimeToMax > 2) then
+				if core:castChiWave() then
+					return
+				end
+			end
+
+			-- actions.cleave_chix+=/chi_burst,if=energy.time_to_max>2
+			if (talent.chiBurst and core.energyTimeToMax > 2) then
+				if core:castChiBurst() then
+					return
+				end
+			end
+
+			-- actions.cleave_chix+=/zen_sphere,if=energy.time_to_max>2
+			if (talent.zenSphere and core.energyTimeToMax > 2 and buff.zenSphere == 0) then
+				if core:castZenSphere() then
+					return
+				end
+			end
+
+			-- actions.cleave_chix+=/chi_torpedo,if=energy.time_to_max>2
+
+			-- actions.cleave_chix+=/expel_harm,if=chi.max-chi>=2&health.percent<95
+			if (chiDiff >= 2 and core.health < 95) then
+				if core:castExpelHarm() then
+					return
+				end
+			end
+
+			-- actions.cleave_chix+=/jab,if=chi.max-chi>=2
+			if (chiDiff >= 2) then
+				if core:castJab() then
+					return
+				end
+			end
 		end
 
-		-- actions.aoe_norjw_chix+=/chi_wave,if=energy.time_to_max>2
-		if (talent.chiWave and core.energyTimeToMax > 2) then
-			if core:castChiWave() then
-				return
+		function rotationAoeNoRJW()
+			-- actions.aoe_norjw=chi_wave,if=energy.time_to_max>2&buff.serenity.down
+			if (talent.chiWave and core.energyTimeToMax > 2 and buff.serenity == 0) then
+				if core:castChiWave() then
+					return
+				end
 			end
-		end
-		
-		-- actions.aoe_norjw_chix+=/chi_burst,if=energy.time_to_max>2
-		if (talent.chiBurst and core.energyTimeToMax > 2) then
-			if core:castChiBurst() then
-				return
-			end
-		end
-		
-		-- actions.aoe_norjw_chix+=/zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking
-		 if (talent.zenSphere and core.energyTimeToMax > 2) then
-			if core:castZenSphere() then
-				return
-			end
-		 end
-		
-		-- actions.aoe_norjw_chix+=/chi_torpedo,if=energy.time_to_max>2
 
-		-- actions.aoe_norjw_chix+=/spinning_crane_kick
-		if core:castSpinningCraneKick() then
-			return
-		end
-	end
+			-- actions.aoe_norjw+=/chi_burst,if=energy.time_to_max>2&buff.serenity.down
+			if (talent.chiBurst and core.energyTimeToMax > 2 and buff.serenity == 0) then
+				if core:castChiBurst() then
+					return
+				end
+			end
 
-	function rotationAoeRJW()
-		local buff,cd,talent,chi,chiMax,chiDiff = core.buff,core.cd,core.talent,core.chi,core.chiMax,core.chiDiff
+			-- actions.aoe_norjw+=/zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking&buff.serenity.down
+			if (talent.zenSphere and core.energyTimeToMax > 2 and buff.serenity == 0) then
+				if core:castZenSphere() then
+					return
+				end
+			end
 
-		-- actions.aoe_rjw=chi_explosion,if=chi>=4&cooldown.fists_of_fury.remains>4
-		if (chi >= 4 and cd.fistsOfFury > 4) then
-			if core:castChiExplosion() then
-				return
+			-- actions.aoe_norjw+=/blackout_kick,if=buff.combo_breaker_bok.react|buff.serenity.up
+			if (buff.comboBreakerBlackoutKick > 0 or buff.serenity > 0) then
+				if core:castBlackoutKick() then
+					return
+				end
 			end
-		end
 
-		-- actions.aoe_rjw+=/rushing_jade_wind
-		if core:castRushingJadeWind() then
-			return
-		end
+			-- actions.aoe_norjw+=/tiger_palm,if=buff.combo_breaker_tp.react&buff.combo_breaker_tp.remains<=2
+			if (buff.comboBreakerTigerPalm > 0 and buff.comboBreakerTigerPalm <= 2) then
+				if core:castTigerPalm() then
+					return
+				end
+			end
 
-		-- actions.aoe_rjw+=/chi_wave,if=energy.time_to_max>2&buff.serenity.down
-		if (talent.chiWave and core.energyTimeToMax > 2 and buff.serenity == 0) then
-			if core:castChiWave() then
-				return
+			-- actions.aoe_norjw+=/blackout_kick,if=chi.max-chi<2&cooldown.fists_of_fury.remains>3
+			if (chiDiff < 2 and cd.fistsOfFury > 3) then
+				if core:castBlackoutKick() then
+					return
+				end
 			end
-		end
-		
-		-- actions.aoe_rjw+=/chi_burst,if=energy.time_to_max>2&buff.serenity.down
-		if (talent.chiBurst and core.energyTimeToMax > 2 and buff.serenity == 0) then
-			if core:castChiBurst() then
-				return
-			end
-		end
-		
-		-- actions.aoe_rjw+=/zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking&buff.serenity.down
-		 if (talent.zenSphere and core.energyTimeToMax > 2 and buff.serenity == 0) then
-			if core:castZenSphere() then
-				return
-			end
-		 end
-		
-		-- actions.aoe_rjw+=/blackout_kick,if=buff.combo_breaker_bok.react|buff.serenity.up
-		if (buff.comboBreakerBlackoutKick > 0 or buff.serenity > 0) then
-			if core:castBlackoutKick() then
-				return
-			end
-		end
-		
-		-- actions.aoe_rjw+=/tiger_palm,if=buff.combo_breaker_tp.react&buff.combo_breaker_tp.remains<=2
-		if (buff.comboBreakerTigerPalm > 0 and buff.comboBreakerTigerPalm <= 2) then
-			if core:castTigerPalm() then
-				return
-			end
-		end
-		
-		-- actions.aoe_rjw+=/blackout_kick,if=chi.max-chi<2&cooldown.fists_of_fury.remains>3
-		if (chiDiff < 2 and cd.fistsOfFury > 3) then
-			if core:castBlackoutKick() then
-				return
-			end
-		end
-		
-		-- actions.aoe_rjw+=/chi_torpedo,if=energy.time_to_max>2
 
-		
-		-- actions.aoe_rjw+=/expel_harm,if=chi.max-chi>=2&health.percent<95
-		if (chiDiff >= 2 and core.health < 95) then
-			if core:castExpelHarm() then
-				return
-			end
-		end
-		
-		-- actions.aoe_rjw+=/jab,if=chi.max-chi>=2
-		if (chiDiff >= 2) then
-			if core:castJab() then
-				return
-			end
-		end
-		
-	end
+			-- actions.aoe_norjw+=/chi_torpedo,if=energy.time_to_max>2
 
-	function rotationOpener()
-		local buff,stacks,cd,channel,recharge,charges,chiDiff = core.buff,core.stacks,core.cd,core.channel,core.recharge,core.charges,core.chiDiff
-
-		-- actions.opener=tigereye_brew,if=buff.tigereye_brew_use.down&buff.tigereye_brew.stack>=9
-		if (tigereyeBrewRemain == 0 and stacks.tigereyeBrewStacks >= 9) then
-			if core:castTigereyeBrew() then
-				tigereyeBrewCast = GetTime()+15;
+			-- actions.aoe_norjw+=/spinning_crane_kick
+			if core:castSpinningCraneKick() then
 				return
 			end
 		end
 
-		-- actions.opener+=/blood_fury,if=buff.tigereye_brew_use.up
-		-- actions.opener+=/berserking,if=buff.tigereye_brew_use.up
-		-- actions.opener+=/arcane_torrent,if=buff.tigereye_brew_use.up&chi.max-chi>=1
-		-- TODO: racial
+		function rotationAoeNoRJWChiExplosion()
+			-- actions.aoe_norjw_chix=chi_explosion,if=chi>=4&cooldown.fists_of_fury.remains>4
+			if (chi >= 4 and cd.fistsOfFury > 4) then
+				if core:castChiExplosion() then
+					return
+				end
+			end
 
-		-- actions.opener+=/fists_of_fury,if=buff.tiger_power.remains>cast_time&debuff.rising_sun_kick.remains>cast_time&buff.serenity.up&buff.serenity.remains<1.5
-		if (buff.tigerPower > channel.fistsOfFury and getDebuffDuration("target",130320) > channel.fistsOfFury and buff.serenity > 0 and buff.serenity < 1.5) then
-			if core:castFistsOfFury() then
+			-- actions.aoe_norjw_chix+=/rising_sun_kick,if=chi=chi.max
+			if (chi == chiMax) then
+				if core:castRisingSunKick() then
+					return
+				end
+			end
+
+			-- actions.aoe_norjw_chix+=/chi_wave,if=energy.time_to_max>2
+			if (talent.chiWave and core.energyTimeToMax > 2) then
+				if core:castChiWave() then
+					return
+				end
+			end
+			
+			-- actions.aoe_norjw_chix+=/chi_burst,if=energy.time_to_max>2
+			if (talent.chiBurst and core.energyTimeToMax > 2) then
+				if core:castChiBurst() then
+					return
+				end
+			end
+			
+			-- actions.aoe_norjw_chix+=/zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking
+			if (talent.zenSphere and core.energyTimeToMax > 2) then
+				if core:castZenSphere() then
+					return
+				end
+			end
+			
+			-- actions.aoe_norjw_chix+=/chi_torpedo,if=energy.time_to_max>2
+
+			-- actions.aoe_norjw_chix+=/spinning_crane_kick
+			if core:castSpinningCraneKick() then
 				return
 			end
 		end
 
-		-- actions.opener+=/tiger_palm,if=buff.tiger_power.remains<2
-		if (buff.tigerPower < 2) then
-			if core:castTigerPalm() then
+		function rotationAoeRJW()
+			-- actions.aoe_rjw=chi_explosion,if=chi>=4&cooldown.fists_of_fury.remains>4
+			if (chi >= 4 and cd.fistsOfFury > 4) then
+				if core:castChiExplosion() then
+					return
+				end
+			end
+
+			-- actions.aoe_rjw+=/rushing_jade_wind
+			if core:castRushingJadeWind() then
 				return
 			end
-		end
-		
-		-- actions.opener+=/rising_sun_kick
-		if core:castRisingSunKick() then
-			return
-		end
 
-		-- actions.opener+=/blackout_kick,if=chi.max-chi<=1&cooldown.chi_brew.up|buff.serenity.up
-		if (chiDiff <= 1 and ((charges.chiBrew <= 0 and recharge.chiBrew > 0) or buff.serenity > 0)) then
-			if core:castBlackoutKick() then
-				return
+			-- actions.aoe_rjw+=/chi_wave,if=energy.time_to_max>2&buff.serenity.down
+			if (talent.chiWave and core.energyTimeToMax > 2 and buff.serenity == 0) then
+				if core:castChiWave() then
+					return
+				end
+			end
+			
+			-- actions.aoe_rjw+=/chi_burst,if=energy.time_to_max>2&buff.serenity.down
+			if (talent.chiBurst and core.energyTimeToMax > 2 and buff.serenity == 0) then
+				if core:castChiBurst() then
+					return
+				end
+			end
+			
+			-- actions.aoe_rjw+=/zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking&buff.serenity.down
+			if (talent.zenSphere and core.energyTimeToMax > 2 and buff.serenity == 0) then
+				if core:castZenSphere() then
+					return
+				end
+			end
+			
+			-- actions.aoe_rjw+=/blackout_kick,if=buff.combo_breaker_bok.react|buff.serenity.up
+			if (buff.comboBreakerBlackoutKick > 0 or buff.serenity > 0) then
+				if core:castBlackoutKick() then
+					return
+				end
+			end
+			
+			-- actions.aoe_rjw+=/tiger_palm,if=buff.combo_breaker_tp.react&buff.combo_breaker_tp.remains<=2
+			if (buff.comboBreakerTigerPalm > 0 and buff.comboBreakerTigerPalm <= 2) then
+				if core:castTigerPalm() then
+					return
+				end
+			end
+			
+			-- actions.aoe_rjw+=/blackout_kick,if=chi.max-chi<2&cooldown.fists_of_fury.remains>3
+			if (chiDiff < 2 and cd.fistsOfFury > 3) then
+				if core:castBlackoutKick() then
+					return
+				end
+			end
+			
+			-- actions.aoe_rjw+=/chi_torpedo,if=energy.time_to_max>2
+
+			
+			-- actions.aoe_rjw+=/expel_harm,if=chi.max-chi>=2&health.percent<95
+			if (chiDiff >= 2 and core.health < 95) then
+				if core:castExpelHarm() then
+					return
+				end
+			end
+			
+			-- actions.aoe_rjw+=/jab,if=chi.max-chi>=2
+			if (chiDiff >= 2) then
+				if core:castJab() then
+					return
+				end
 			end
 		end
 
-		-- actions.opener+=/chi_brew,if=chi.max-chi>=2
-		if (chiDiff >= 2) then
-			if core:castChiBrew() then
+		function rotationOpener()
+			-- actions.opener=tigereye_brew,if=buff.tigereye_brew_use.down&buff.tigereye_brew.stack>=9
+			if (tigereyeBrewRemain == 0 and stacks.tigereyeBrewStacks >= 9) then
+				if core:castTigereyeBrew() then
+					tigereyeBrewCast = GetTime()+15;
+					return
+				end
+			end
+
+			-- actions.opener+=/blood_fury,if=buff.tigereye_brew_use.up
+			-- actions.opener+=/berserking,if=buff.tigereye_brew_use.up
+			-- actions.opener+=/arcane_torrent,if=buff.tigereye_brew_use.up&chi.max-chi>=1
+			-- TODO: racial
+
+			-- actions.opener+=/fists_of_fury,if=buff.tiger_power.remains>cast_time&debuff.rising_sun_kick.remains>cast_time&buff.serenity.up&buff.serenity.remains<1.5
+			if (buff.tigerPower > channel.fistsOfFury and getDebuffDuration("target",130320) > channel.fistsOfFury and buff.serenity > 0 and buff.serenity < 1.5) then
+				if core:castFistsOfFury() then
+					return
+				end
+			end
+
+			-- actions.opener+=/tiger_palm,if=buff.tiger_power.remains<2
+			if (buff.tigerPower < 2) then
+				if core:castTigerPalm() then
+					return
+				end
+			end
+			
+			-- actions.opener+=/rising_sun_kick
+			if core:castRisingSunKick() then
 				return
 			end
-		end
 
-		-- actions.opener+=/serenity,if=chi.max-chi<=2
-		if (chiDiff <= 2) then
-			if core:castSerenity() then
-				return
+			-- actions.opener+=/blackout_kick,if=chi.max-chi<=1&cooldown.chi_brew.up|buff.serenity.up
+			if (chiDiff <= 1 and ((charges.chiBrew <= 0 and recharge.chiBrew > 0) or buff.serenity > 0)) then
+				if core:castBlackoutKick() then
+					return
+				end
+			end
+
+			-- actions.opener+=/chi_brew,if=chi.max-chi>=2
+			if (chiDiff >= 2) then
+				if core:castChiBrew() then
+					return
+				end
+			end
+
+			-- actions.opener+=/serenity,if=chi.max-chi<=2
+			if (chiDiff <= 2) then
+				if core:castSerenity() then
+					return
+				end
+			end
+
+			-- actions.opener+=/jab,if=chi.max-chi>=2&!buff.serenity.up
+			if (chiDiff >= 2 and buff.serenity == 0) then
+				if core:castJab() then
+					return
+				end
 			end
 		end
-
-		-- actions.opener+=/jab,if=chi.max-chi>=2&!buff.serenity.up
-		if (chiDiff >= 2 and buff.serenity == 0) then
-			if core:castJab() then
-				return
-			end
-		end
-
-	end
-end
+	end -- function WindwalkerMonk()
+end -- select(3, UnitClass("player")) == 10
