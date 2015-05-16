@@ -88,6 +88,10 @@ if select(3, UnitClass("player")) == 4 then
     checkOp("Flask / Crystal");
     textOp("Flask / Crystal");
 
+    -- Vanish
+    checkOp("Vanish","Enable or Disable usage of Vanish.");
+    textOp("Vanish");
+
     -- Spacer
     textOp(" ");
     wrapOp("--- Defensive ---");

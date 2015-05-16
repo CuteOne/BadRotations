@@ -111,6 +111,10 @@ This function will use table row #1.]]
       checkOp("Flask / Crystal");
       textOp("Flask / Crystal");
 
+      -- Vanish
+      checkOp("Vanish","Enable or Disable usage of Vanish.");
+      textOp("Vanish");
+
       -- Spacer
       textOp(" ");
       wrapOp("--- Defensive ---");
