@@ -269,4 +269,5 @@ function bb:PulseUI()
 	-- Pulse other features
 	-- PokeEngine()
 	ProfessionHelper()
+	SalvageHelper()
 end
