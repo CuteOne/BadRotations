@@ -27,7 +27,7 @@ if select(3,UnitClass("player")) == 2 then
         [1] = { mode = "None", value = 1 , overlay = "Interrupts Disabled", tip = "|cffFF0000No Interrupts will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
         [2] = { mode = "All", value = 2 , overlay = "Interrupts Enabled", tip = "|cffFF0000Spells Included: \n|cffFFDD11Rebuke.", highlight = 1, icon = 96231 }
       }
-      CreateButton("Interrupts",1,0)
+      CreateButton("Interrupts",3,0)
       InterruptsModesLoaded = "Prot Pal Interrupts Modes"
     end
     -- Cooldowns Button
