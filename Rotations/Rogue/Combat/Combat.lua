@@ -124,7 +124,7 @@ if select(3, UnitClass("player")) == 4 then
           if castSpell("player",_Recuperate) then return end
         end
         -- Vanish
-        if php<15 then
+        if isChecked("Vanish") and php<15 then
           if castSpell("player",_Vanish) then StopAttack(); ClearTarget(); return end
         end
       end
@@ -216,7 +216,7 @@ if select(3, UnitClass("player")) == 4 then
             if castSpell("player",_Preparation,true,false,false) then return end
           end
           -- Vanish
-          if combo<5 and power<60 and getCombatTime()>10 then
+          if isChecked("Vanish") and combo<5 and power<60 and getCombatTime()>10 then
             if castSpell("player",_Vanish,true,false,false) then return end
           end
           -- Adrenaline Rush

@@ -108,3 +108,43 @@ end
 --[[                                                                                                ]]
 --[[ Defmaster                                                                                      ]]
 --[[                                                                                                ]]
+
+function SalvageHelper()
+	-- Description:
+		-- salvage your boxes from garrision mission
+		-- only when in 'Salvage Yard'
+		-- abort if empytSlots in inventory < 3
+		-- salvageWaiting = wait x sec before starting again
+
+	-- Returns:
+		-- nothing
+
+	if isChecked("Salvage") and GetMinimapZoneText() == "Salvage Yard" then
+
+		local salvageWaiting = getValue("Salvage")
+
+		if salvageTimer == nil or (GetTime() - salvageTimer > salvageWaiting) then
+			local freeSlots = 0
+
+			for i=1,5 do 
+				freeSlots = freeSlots + GetContainerNumFreeSlots(i-1)
+			end
+
+			if freeSlots > 3 then
+				-- Bag of Salvaged Goods
+				if GetItemCount(114116, false, false) > 0 then
+					UseItemByName(114116)
+				-- Crate of Salvage
+				elseif GetItemCount(114119, false, false) > 0 then
+					UseItemByName(114119)
+				-- Big Crate of Salvage
+				elseif GetItemCount(114120, false, false) > 0 then
+					UseItemByName(114120)
+				end
+			else
+				salvageTimer = GetTime() -- if no more free slots, start timer
+			end -- freeSlots
+		end -- gettime()
+	end -- isChecked()
+end -- salvage()
+	

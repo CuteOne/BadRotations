@@ -18,7 +18,7 @@ if select(3,UnitClass("player")) == 2 then
         [3] = { mode = "Surv", value = 3 , overlay = "Maximum Survivability Rotation", tip = "|cffFFDD11Recommended for \n|cffFFDD11Maximum survivability Rotation.", highlight = 0, icon = 157488 },
         [4] = { mode = "Auto", value = 4, overlay = "Auto Rotation", tip = "|cffFFDD11Will change dynamically.", highlight = 1, icon = 83950 }
       }
-      CreateButton("Rota",1,0)
+      CreateButton("Rota",3,0)
       AoEModesLoaded = "Prot Pal AoE Modes"
     end
     -- Interrupts Button
