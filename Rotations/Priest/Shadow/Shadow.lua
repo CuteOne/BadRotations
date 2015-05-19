@@ -271,7 +271,7 @@ if select(3, UnitClass("player")) == 5 then
 						end
 					end
 				end
-				if LFU("first") then return end
+				--if LFU("first") then return end
 			end
 
 		------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -714,7 +714,7 @@ if select(3, UnitClass("player")) == 5 then
 						if options.player.ORBS<5 then
 							if TierScan("T17")>=4 then
 								if options.player.ORBS>=options.values.DPon or (getBuffRemain("player",MentalInstinct)<1.8 and getBuffRemain("player",MentalInstinct)>0) then
-									if getBuffRemain("player",MentalInstinct)<1.8 then
+									if getBuffRemain("player",MentalInstinct)<2.8 then
 										if castSpell("target",DP,true,false) then 
 											return
 										end
