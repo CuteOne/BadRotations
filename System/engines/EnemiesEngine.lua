@@ -177,9 +177,9 @@ function EnemiesEngine()
 	-- to enlight redundant checks in getDistance within getEnemies
 	function getDistanceXYZ(unit1,unit2)
 		-- check if unit is valid
-		if GetObjectExists(unit1) and GetObjectExists(enemiesTable[unit2].unit) then
+		if GetObjectExists(unit1) and GetObjectExists(unit2) then
 			local x1, y1, z1 = GetObjectPosition(unit1)
-			local x2, y2, z2 = enemiesTable[unit2].x, enemiesTable[unit2].y, enemiesTable[unit2].z
+			local x2, y2, z2 = GetObjectPosition(unit2)
 			return math.sqrt(((x2-x1)^2)+((y2-y1)^2)+((z2-z1)^2));
 		end
 	end
@@ -192,7 +192,7 @@ function EnemiesEngine()
 				thisUnit = enemiesTable[i].unit
 				-- check if unit is valid
 				if GetObjectExists(thisUnit) then
-					if getDistanceXYZ(unit,i) <= Radius then
+					if getDistanceXYZ(unit,thisUnit) <= Radius then
 						tinsert(getEnemiesTable,thisUnit)
 					end
 				end
