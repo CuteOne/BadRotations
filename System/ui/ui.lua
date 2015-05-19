@@ -535,6 +535,17 @@ function ConstructUI()
 					name = "Leather Scraps",
 					tip = "Combine leather scraps."
 				},
+				[6] = {
+					checkbase = false,
+					check = true,
+					name = "Salvage",
+					status = "Set Desired waiting after full inventory.",
+					statusBase = 10,
+					statusMin = 5,
+					statusMax = 30,
+					statusStep = 1,
+					tip = "Check to enable Salvage Helper."
+				},
 			}
 		}
 		-- options buttons interation, set the one clicked white and others gray

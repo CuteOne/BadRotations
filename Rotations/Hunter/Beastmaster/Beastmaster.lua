@@ -26,7 +26,7 @@ if select(3, UnitClass("player")) == 3 then
         },
         misdirection = {
           remains = getBuffRemain("player",MisdirectionBuff),
-          up = UnitBuffID("player",MisdirectionBuff)
+          up = UnitBuffID("player",MisdirectionBuff) ~= nil
         },
         bloodLust = {
           up = hasBloodLust()
@@ -34,11 +34,25 @@ if select(3, UnitClass("player")) == 3 then
         focusFire = {
           up = UnitBuffID("player",FocusFire) ~= nil
         },
-        steadyFocus = UnitBuffID("player",177668) ~= nil,
+        stampede = { 
+          up = UnitBuffID("player",Stampede) ~= nil
+        },
+        steadyFocus = {
+          remains = getBuffRemain("player",177668),
+          up = UnitBuffID("player",177668) ~= nil
+        },
         trapLauncher = TrapLauncher ~= nil,
+        thrillOfTheHunt = {
+          up = UnitBuffID("player",34720) ~= nil
+        },
       },
       cooldowns = BadBoy_data["Cooldowns"],
       focus = getPower("player"),
+      focusMax = UnitPowerMax("player"),
+      focusDeficit = UnitPowerMax("player") - getPower("player"),
+      focusRegen = getRegen("player"),
+      focusTimeToMax = getTimeToMax("player"),
+      gcd = 1,
       glyph = {
         pathfinding = hasGlyph(19560)
       },
@@ -53,9 +67,11 @@ if select(3, UnitClass("player")) == 3 then
         active = (not UnitIsDeadOrGhost("pet") and UnitExists("pet")),
         buff = {
           beastCleave = {
+            remains = getBuffRemain("pet",118455),
             up = UnitBuffID("pet",118455) ~= nil
           },
           frenzy = {
+            remains = getBuffRemain("pet",19615),
             stacks = getBuffStacks("pet",19615)
           },
           mendPet = UnitBuffID("pet",136) ~= nil
@@ -73,10 +89,14 @@ if select(3, UnitClass("player")) == 3 then
         },
         explosiveTrap = {
           selected = isChecked("Explosive Trap")
+        },
+        powerShot = {
+          castTime = select(4,GetSpellInfo(PowerShot))/1000
         }
       },
       standing = isMovingStartTime == 0,
       talent = {
+        aMurderOfCrows = isKnown(AMurderOfCrows),
         barrage = isKnown(Barrage),
         direBeast = isKnown(DireBeast),
         steadyFocus = isKnown(SteadyFocus),
@@ -173,7 +193,7 @@ if select(3, UnitClass("player")) == 3 then
         elseif misdirectOption == 4 then
           shouldMisdirect = true
         end
-        if shouldMisdirect and not player.misdirection.up then
+        if shouldMisdirect and not player.buff.misdirection.up then
           if castSpell("pet",34477,true,false) then
             return
           end
@@ -198,6 +218,7 @@ if select(3, UnitClass("player")) == 3 then
       -- stampede,if=buff.bloodlust.up|buff.focus_fire.up|target.time_to_die<=25
       if isSelected("Stampede") and (player.buff.bloodLust.up or player.buff.focusFire.up or player.target.timeToDie <= 25) then
         if castSpell(dynamicUnit.dyn40,Stampede,true,false) then
+          -- start timer for stampede uptime calc
           return
         end
       end
@@ -207,7 +228,91 @@ if select(3, UnitClass("player")) == 3 then
           return
         end
       end
-      -- explosive_trap,if=active_enemies>1
+      -- actions+=/focus_fire,if=buff.focus_fire.down&((cooldown.bestial_wrath.remains<1&buff.bestial_wrath.down)|(talent.stampede.enabled&buff.stampede.remains)|pet.cat.buff.frenzy.remains<1)
+      -- TODO: add stampede timer and condition
+      if isSelected("Focus Fire") and player.pet.buff.frenzy.stacks == 5 and not player.buff.focusFire.up 
+        and ((player.spell.bestialWrath.cooldown < 1 and not player.buff.bestialWrath.up) or player.pet.buff.frenzy.remains < 1) then
+        if castSpell("player",FocusFire,true,false) then
+          return
+        end
+      end
+      -- bestial_wrath,if=focus>30&!buff.bestial_wrath.up
+      if isSelected("Bestial Wrath") and player.focus > 30 and not player.buff.bestialWrath.up and player.pet.distanceToTarget <= 25 then
+        if castSpell("player",BestialWrath,true,false) then
+          return
+        end
+      end
+      -- actions+=/multishot,if=active_enemies>1&pet.cat.buff.beast_cleave.remains<0.5
+      if player.target.enemiesIn10 > 1 and player.pet.buff.beastCleave.remains < 0.5 then
+        if castSpell(dynamicUnit.dyn40,MultiShot,false,false) then
+          return
+        end
+      end
+      -- actions+=/focus_fire,five_stacks=1,if=buff.focus_fire.down
+      if isSelected("Focus Fire") and player.pet.buff.frenzy.stacks == 5 and not player.buff.focusFire.up then
+        if castSpell("player",FocusFire,true,false) then
+          return
+        end
+      end
+      -- barrage,if=active_enemies>1
+      if player.talent.barrage and player.target.enemiesIn10 > 1 then
+        if castSpell(dynamicUnit.dyn40,Barrage,false,false) then
+          return
+        end
+      end
+      -- actions+=/explosive_trap,if=active_enemies>5
+      if player.spell.explosiveTrap.selected then
+        if not player.buff.trapLauncher then
+          castSpell("player",TrapLauncher,true,false)
+        end
+        -- match the selectors
+        local explosiveValue = getValue("Explosive Trap")
+        if (explosiveValue == 2 and player.target.enemiesIn10 > 5) or explosiveValue == 3 then
+          -- check if its a dummy or mobs have enough hp to be worth it
+          if (isDummy(dynamicUnit.dyn40) or player.target.hp*player.target.enemiesIn10 >= 400*UnitHealthMax("player")/100) then
+            if castGround(dynamicUnit.dyn40,TrapLauncherExplosive,40) then
+              return
+            end
+          end
+        end
+      end
+      -- actions+=/multishot,if=active_enemies>5
+      if player.target.enemiesIn10 > 5 then
+        if castSpell(dynamicUnit.dyn40,MultiShot,false,false) then
+          return
+        end
+      end
+      -- actions+=/kill_command
+      if UnitExists("pet") and player.pet.distanceToTarget <= 25 and getLineOfSight("pet","target") then
+        if castSpell(dynamicUnit.dyn40,KillCommand,false) then
+          return
+        end
+      end
+      -- actions+=/a_murder_of_crows
+      if player.talent.aMurderOfCrows then
+        if castSpell(dynamicUnit.dyn40,AMurderOfCrows,true,false) then
+          return
+        end
+      end
+      -- kill_shot,if=focus.time_to_max>gcd
+      if player.focusTimeToMax > player.gcd then
+        if castSpell(dynamicUnit.dyn40,KillShot,false,false) then
+          return
+        end
+      end
+      -- focusing_shot,if=focus<50
+      if player.focus < 50 and player.standing then
+        if castSpell(dynamicUnit.dyn40,FocusingShot,false,true) then
+          return
+        end
+      end
+      -- cobra_shot,if=buff.pre_steady_focus.up&(14+cast_regen)<=focus.deficit
+      if player.talent.steadyFocus and player.talent.steadyFocus1st and (14+(player.spell.cobraShot.castTime*player.focusRegen)) <= player.focusDeficit then
+        if castSpell(dynamicUnit.dyn40,CobraShot,false,false) then
+          return
+        end
+      end
+      -- actions+=/explosive_trap,if=active_enemies>1
       if player.spell.explosiveTrap.selected then
         if not player.buff.trapLauncher then
           castSpell("player",TrapLauncher,true,false)
@@ -223,60 +328,8 @@ if select(3, UnitClass("player")) == 3 then
           end
         end
       end
-      -- bestial_wrath,if=focus>60&!buff.bestial_wrath.up
-      if isSelected("Bestial Wrath") and not player.buff.bestialWrath.up and player.pet.distanceToTarget <= 25 then
-        if castSpell("player",BestialWrath,true,false) then
-          return
-        end
-      end
-      -- barrage,if=active_enemies>1
-      if player.talent.barrage and player.target.enemiesIn10 > 2 then
-        if castSpell(dynamicUnit.dyn40,Barrage,false,false) then
-          return
-        end
-      end
-      -- multishot,if=active_enemies>5|(active_enemies>1&pet.cat.buff.beast_cleave.down)
-      if player.target.enemiesIn10 > 5 or (player.target.enemiesIn10 > 1 and not player.pet.buff.beastCleave.up) then
-        if castSpell(dynamicUnit.dyn40,MultiShot,false,false) then
-          return
-        end
-      end
-      -- focus_fire,five_stacks=1
-      if isSelected("Focus Fire") and player.pet.buff.frenzy.stacks == 5 then
-        if castSpell("player",FocusFire,true,false) then
-          return
-        end
-      end
-      -- barrage,if=active_enemies>1
-      if player.talent.barrage and player.target.enemiesIn10 > 1 then
-        if castSpell(dynamicUnit.dyn40,Barrage,false,false) then
-          return
-        end
-      end
-      -- a_murder_of_crows
-      if player.talent.aMurderOfCrows then
-        if castSpell(dynamicUnit.dyn40,AMurderOfCrows,true,false) then
-          return
-        end
-      end
-      -- kill_shot,if=focus.time_to_max>gcd
-      if castSpell(dynamicUnit.dyn40,KillShot,false,false) then
-        return
-      end
-      -- kill_command
-      if UnitExists("pet") and player.pet.distanceToTarget <= 25 and getLineOfSight("pet","target") then
-        if castSpell(dynamicUnit.dyn40,KillCommand,false) then
-          return
-        end
-      end
-      -- focusing_shot,if=focus<50
-      if player.focus < 50 and player.standing then
-        if castSpell(dynamicUnit.dyn40,FocusingShot,false,true) then
-          return
-        end
-      end
-      -- cobra_shot,if=buff.pre_steady_focus.up&(14+cast_regen)<=focus.deficit
-      if player.talent.steadyFocus and player.talent.steadyFocus1st and player.focus < 70 then
+      -- actions+=/cobra_shot,if=talent.steady_focus.enabled&buff.steady_focus.remains<4&focus<50
+      if player.talent.steadyFocus and player.buff.steadyFocus.remains < 4 and player.focus < 50 then
         if castSpell(dynamicUnit.dyn40,CobraShot,false,false) then
           return
         end
@@ -290,8 +343,10 @@ if select(3, UnitClass("player")) == 3 then
         return
       end
       -- powershot,if=focus.time_to_max>cast_time
-      if castSpell(dynamicUnit.dyn40,PowerShot,false) then
-        return
+      if player.focusTimeToMax > player.spell.powerShot.castTime then
+        if castSpell(dynamicUnit.dyn40,PowerShot,false) then
+          return
+        end
       end
       -- cobra_shot,if=active_enemies>5
       if player.target.enemiesIn10 > 5 then
@@ -299,8 +354,14 @@ if select(3, UnitClass("player")) == 3 then
           return
         end
       end
-      -- arcane_shot,if=(buff.thrill_of_the_hunt.react&focus>35)|buff.bestial_wrath.up|focus>=64
-      if (player.focus > 35 and player.buff.thrillOfTheHunt) or player.buff.bestialWrath.up or player.focus > 64 then
+      -- arcane_shot,if=(buff.thrill_of_the_hunt.react&focus>35)|buff.bestial_wrath.up
+      if (player.focus > 35 and player.buff.thrillOfTheHunt.up) or player.buff.bestialWrath.up  then
+        if castSpell(dynamicUnit.dyn40,ArcaneShot,false,false) then
+          return
+        end
+      end
+      -- actions+=/arcane_shot,if=focus>=75
+      if player.focus >= 75 then
         if castSpell(dynamicUnit.dyn40,ArcaneShot,false,false) then
           return
         end

@@ -45,13 +45,13 @@ What to do if you have crash to desktop or 134 errors.
 |Frost|unknown||
 ||||
 | **Monk** |||
-|Brewmaster|95%|chumii|
+|Brewmaster|95%|chumii,Defmaster|
 |Mistweaver|70%|CodeMyLife|
-|Windwalker|100%|CuteOne|
+|Windwalker|90% (SimC)|Defmaster|
 | **Paladin**  |||
 |Holy|50%|Gabbz & CodeMyLife|
-|Protection|95%(SimC|Gabbz|
-|Retribution|95%(SimC)|Gabbz & CodeMyLife|
+|Protection|95%(SimC)|Gabbz,Defmaster|
+|Retribution|95%(SimC)|Gabbz,CodeMyLife,Defmaster|
 ||||
 | **Priest**  |||
 |Discipline|0%|ragnar|

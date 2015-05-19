@@ -147,7 +147,7 @@ function AssassinationRogue()
           if castSpell("player",_Recuperate) then return end
         end
         -- Vanish
-        if php<15 then
+        if isChecked("Vanish") and php<15 then
           if castSpell("player",_Vanish) then StopAttack(); ClearTarget(); return end
         end
       end
@@ -291,7 +291,7 @@ function AssassinationRogue()
           end
           -- Vanish
           --if=time>10&!buff.stealth.up
-          if combo<5 and power<60 and getCombatTime()>10 then
+          if isChecked("Vanish") and combo<5 and power<60 and getCombatTime()>10 then
             if castSpell("player",_Vanish,true,false,false) then return end
           end
           -- Shadow Reflection
