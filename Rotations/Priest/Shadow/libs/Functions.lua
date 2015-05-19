@@ -9,7 +9,7 @@ if select(3, UnitClass("player")) == 5 then
 
 			local StaminaTable = {"Power Word: Fortitude","Blood Pact","Commanding Shout"}
 			if GetNumGroupMembers()==0 then
-				if not UnitIsDeadOrGhost("player")  then
+				if not UnitIsDeadOrGhost("player") then
 					local playerBuffed=false
 					for auraIndex=1, #StaminaTable do
 						local buffActive=UnitAura("player", StaminaTable[auraIndex])
@@ -205,7 +205,11 @@ if select(3, UnitClass("player")) == 5 then
 		end
 		-- first in Table
 		if datName=="first" then
-			TargetUnit(enemiesTable[1].name)
+			if enemiesTable[1] ~= nil then
+				if enemiesTable[1].distance<40 then
+					TargetUnit(enemiesTable[1].name)
+				end
+			end
 		end
 		-- target specified Unit
 		TargetUnit(datName)
@@ -649,6 +653,11 @@ if select(3, UnitClass("player")) == 5 then
 							if GetObjectExists("target")==false then 
 								if LFU("Franzok") then return true end
 							end
+
+							-- Auto Cascade
+							if getDistance("boss1","boss2")>20 then
+								if castSpell("boss1",Cascade,true,false) then return end
+							end
 						end
 
 					-- Beastlord Darmac
@@ -660,7 +669,7 @@ if select(3, UnitClass("player")) == 5 then
 										local thisUnit = enemiesTable[i].unit
 										if UnitName(thisUnit) == "Pack Beast" then
 											if getDistance("player",thisUnit)<40 then
-												if castSpell(thisUnit,Cascade,true,false) then return; end
+												if castSpell(thisUnit,Cascade,true,false) then return end
 											end
 										end
 									end
@@ -668,29 +677,29 @@ if select(3, UnitClass("player")) == 5 then
 							end
 							-- target Beastlord Darmac
 							if GetObjectExists("target")==false then 
-								if LFU("Beastlord Darmac") then return; end
+								if LFU("Beastlord Darmac") then return end
 							end
 							-- target Cruelfang
 							if GetObjectExists("target")==false then 
-								if LFU("Cruelfang") then return; end
+								if LFU("Cruelfang") then return end
 							end
 							-- target Dreadwing
 							if GetObjectExists("target")==false then 
-								if LFU("Dreadwing") then return; end
+								if LFU("Dreadwing") then return end
 							end
 							-- target Ironcrusher
 							if GetObjectExists("target")==false then 
-								if LFU("Ironcrusher") then return; end
+								if LFU("Ironcrusher") then return end
 							end
 							-- target Faultine
 							if GetObjectExists("target")==false then 
-								if LFU("Faultine") then return; end
+								if LFU("Faultine") then return end
 							end
 						end
 						
 					-- Gruul
 						if currentBoss=="Gruul" and GetObjectExists("target")==false then
-							if LFU("Gruul") then return; end
+							if LFU("Gruul") then return end
 						end
 
 					-- Flamebender Ka'graz
@@ -705,7 +714,7 @@ if select(3, UnitClass("player")) == 5 then
 										local thisUnit = enemiesTable[i].unit
 										if getDistance("player",thisUnit)<40 then
 											if UnitName(thisUnit) == "Cinder Wolf" then
-												if castSpell(thisUnit,Cascade,true,false) then return; end
+												if castSpell(thisUnit,Cascade,true,false) then return end
 											end
 										end
 									end
@@ -717,11 +726,11 @@ if select(3, UnitClass("player")) == 5 then
 						if currentBoss=="Operator Thogar" then
 							-- target Grom'kar Man-at-Arms
 							if UnitName("target")~="Grom'kar Man-at-Arms" and isAlive("Grom'kar Man-at-Arms") and getDistance("Grom'kar Man-at-Arms")<=40 then
-								if LFU("Grom'kar Man-at-Arms") then return; end
+								if LFU("Grom'kar Man-at-Arms") then return end
 							end
 							-- target Iron Gunnery Sergeant / SWD, DP, MB
 							if UnitName("target")~="Iron Gunnery Sergeant" and isAlive("Iron Gunnery Sergeant") and getDistance("Iron Gunnery Sergeant")<=40 then
-								if LFU("Grom'kar Man-at-Arms") then return; end
+								if LFU("Grom'kar Man-at-Arms") then return end
 							end
 							-- Halo/Cascade Reinforcements
 							if (getSpellCD(Halo) and getTalent(6,3)) or (getSpellCD(Cascade) and getTalent(6,1)) then
@@ -732,10 +741,10 @@ if select(3, UnitClass("player")) == 5 then
 									if getDistance("player",thisUnit)<40 then
 										if UnitName("Iron Raider") or UnitName("Iron Crack-Shot") then
 											if getTalent(6,1) then
-												if castSpell(thisUnit,Cascade,true,false) then return; end
+												if castSpell(thisUnit,Cascade,true,false) then return end
 											end
 											if getTalent(6,3) then
-												if castSpell(thisUnit,Halo,true,false) then return; end
+												if castSpell(thisUnit,Halo,true,false) then return end
 											end
 										end
 									end
@@ -753,7 +762,7 @@ if select(3, UnitClass("player")) == 5 then
 									for i=1,#enemiesTable do
 										local thisUnit = enemiesTable[i].unit
 										if getDistance("player",thisUnit)<40 then
-											if castSpell(thisUnit,Cascade,true,false) then return; end
+											if castSpell(thisUnit,Cascade,true,false) then return end
 										end
 									end
 								end
@@ -771,7 +780,7 @@ if select(3, UnitClass("player")) == 5 then
 									local thisUnit = enemiesTable[i].unit
 									if getDistance("player",thisUnit)<40 then
 										if UnitName(thisUnit) == "Grasping Earth" then
-											if castSpell(thisUnit,Cascade,true,false) then return; end
+											if castSpell(thisUnit,Cascade,true,false) then return end
 										end
 									end
 								end
@@ -782,7 +791,7 @@ if select(3, UnitClass("player")) == 5 then
 						if currentBoss=="Marak the Blooded" or currentBoss=="Enforcer Sorka" or currentBoss=="Admiral Gar'an" then
 							-- Automatic Target Dominator Turret
 							if UnitName("target")~="Dominator Turret" then
-								if LFU("Dominator Turret") then return; end
+								if LFU("Dominator Turret") then return end
 							end
 						end
 
@@ -851,7 +860,7 @@ if select(3, UnitClass("player")) == 5 then
 						local thisHP = enemiesTable[i].hpabs
 						-- check for target and safeDoT
 						if safeDoT(thisUnit) then
-							if range < 40 then 
+							if range < 40 and getLineOfSight(thisUnit) then 
 								if not UnitIsUnit("target",thisUnit) or targetAlso then
 									if UnitDebuffID(thisUnit,SWP,"player") then
 										-- check remaining time and minhealth
@@ -880,7 +889,7 @@ if select(3, UnitClass("player")) == 5 then
 						local thisHP = enemiesTable[i].hpabs
 						-- check for target and safeDoT
 						if safeDoT(thisUnit) then
-							if range < 40 then
+							if range < 40 and getLineOfSight(thisUnit) then
 								if not UnitIsUnit("target",thisUnit) or targetAlso then
 								-- check remaining time and minhealth
 									if getDebuffRemain(thisUnit,SWP,"player")<=0 and thisHP>options.values.MinHealth then
@@ -910,7 +919,7 @@ if select(3, UnitClass("player")) == 5 then
 						-- check for target and safeDoT
 						if safeDoT(thisUnit) then
 							if safeVT(thisUnit) then
-								if range < 40 then
+								if range < 40 and getLineOfSight(thisUnit) then
 									if not UnitIsUnit("target",thisUnit) or targetAlso then
 										if UnitDebuffID(thisUnit,VT,"player") then
 											-- check remaining time and minhealth
@@ -940,7 +949,7 @@ if select(3, UnitClass("player")) == 5 then
 						-- check for target and safeDoT
 						if safeDoT(thisUnit) then
 							if safeVT(thisUnit) then
-								if range < 40 then
+								if range < 40 and getLineOfSight(thisUnit) then
 									if not UnitIsUnit("target",thisUnit) or targetAlso then
 										-- check remaining time and minhealth
 										if getDebuffRemain(thisUnit,VT,"player")<=0 and thisHP>options.values.MinHealth then
