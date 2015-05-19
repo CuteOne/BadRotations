@@ -987,11 +987,13 @@ if select(3, UnitClass("player")) == 5 then
 		end
 		-- Clip it
 		if getBuffRemain("player",InsanityBuff)>0 and getBuffRemain("player",InsanityBuff)<2*options.player.GCD then
-			local cEnd = select(6,UnitChannelInfo("player"))
-			local cRem = cEnd - GetTime()*1000
-			-- Clip it
-			if cRem<666 then
-				if castSpell("target",MS,true,true) then return; end
+			if select(1,UnitChannelInfo("player")) ~= nil then
+				local cEnd = select(6,UnitChannelInfo("player"))
+				local cRem = cEnd - GetTime()*1000
+				-- Clip it
+				if cRem<666 then
+					if castSpell("target",MS,true,true) then return; end
+				end
 			end
 		end
 		-- Searing Insanity
