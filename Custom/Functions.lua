@@ -12,6 +12,12 @@ function RaidBuff(BuffSlot,myBuffSpellID)
 		-- check for raidbuff
 		-- cast raidbuff if missing
 
+	-- returns:
+		-- true/nil
+
+	-- example:
+		-- 
+
 	-- how to use:
 		-- Buffslots:
 			-- 1 Stats
@@ -101,6 +107,85 @@ function RaidBuff(BuffSlot,myBuffSpellID)
 				end
 			end
 		end
+	end
+end
+
+function getUnitCluster(minUnits,maxRange)
+	-- Description:
+		-- returns the enemy with minUnits around in maxRange
+	
+	-- rerturns:
+		-- "0x0000000110E4F09C"
+	
+	-- how to use:
+		-- castSpell(getUnitCluster(2,10),SpellID,...,...)
+		-- use "getUnitCluster(minUnits,maxRange)" instead of "target"
+
+	if type(minUnits) ~= "number" then return nil end
+	if type(maxRange) ~= "number" then return nil end
+
+	local range = maxRange
+	local enemies = minUnits
+	local enemiesInRange = 0
+	
+	local theReturnUnit
+
+	for i=1,#enemiesTable do
+		local thisUnit = enemiesTable[i].unit
+		local thisEnemies = getNumEnemies(thisUnit,range)
+		if thisEnemies>=enemies and thisEnemies>=enemiesInRange then
+			theReturnUnit = thisUnit
+		end
+	end
+	return select(1,theReturnUnit)
+end
+
+function getBiggestUnitCluster(maxRange)
+	-- Description:
+		-- returns the enemy with most enemies around in maxRange
+	
+	-- rerturns:
+		-- "0x0000000110E4F09C"
+	
+	-- how to use:
+		-- castSpell(getBiggestUnitCluster(10),SpellID,...,...)
+		-- use "getBiggestUnitCluster(minUnits,maxRange)" instead of "target"
+
+	if type(maxRange) ~= "number" then return nil end
+
+	local range = maxRange
+	local enemiesInRange = 0
+	
+	local theReturnUnit
+
+	for i=1,#enemiesTable do
+		local thisUnit = enemiesTable[i].unit
+		if getNumEnemies(thisUnit,range)>=enemiesInRange then
+			theReturnUnit = thisUnit
+		end
+	end
+	return select(1,theReturnUnit)
+end
+
+function hasLust()
+	-- Description:
+		-- check for bloodlust buff
+
+	-- returns:
+		-- true/false
+
+	-- how to use:
+		-- if hasLust() then ... end
+
+	-- Credits to chumii
+
+	if UnitBuffID("player",2825)			-- Bloodlust
+		or UnitBuffID("player",80353)		-- Timewarp
+		or UnitBuffID("player",32182)		-- Heroism
+		or UnitBuffID("player",90355) then 	-- Ancient Hysteria
+		return true
+	else
+		return false
 	end
 end
 
