@@ -110,16 +110,16 @@ function RaidBuff(BuffSlot,myBuffSpellID)
 	end
 end
 
-function getBiggestUnitCluster(minUnits,maxRange)
+function getUnitCluster(minUnits,maxRange)
 	-- Description:
-		-- returns the unit with minUnits around in maxRange
+		-- returns the enemy with minUnits around in maxRange
 	
 	-- rerturns:
 		-- "0x0000000110E4F09C"
 	
 	-- how to use:
-		-- castSpell(getBiggestUnitCluster(2,10),SpellID,...,...)
-		-- use "getBiggestUnitCluster(minUnits,maxRange)" instead of "target"
+		-- castSpell(getUnitCluster(2,10),SpellID,...,...)
+		-- use "getUnitCluster(minUnits,maxRange)" instead of "target"
 
 	if type(minUnits) ~= "number" then return nil end
 	if type(maxRange) ~= "number" then return nil end
@@ -132,7 +132,35 @@ function getBiggestUnitCluster(minUnits,maxRange)
 
 	for i=1,#enemiesTable do
 		local thisUnit = enemiesTable[i].unit
-		if getNumEnemies(thisUnit,range)>=enemies then
+		local thisEnemies = getNumEnemies(thisUnit,range)
+		if thisEnemies>=enemies and thisEnemies>=enemiesInRange then
+			theReturnUnit = thisUnit
+		end
+	end
+	return select(1,theReturnUnit)
+end
+
+function getBiggestUnitCluster(maxRange)
+	-- Description:
+		-- returns the enemy with most enemies around in maxRange
+	
+	-- rerturns:
+		-- "0x0000000110E4F09C"
+	
+	-- how to use:
+		-- castSpell(getBiggestUnitCluster(10),SpellID,...,...)
+		-- use "getBiggestUnitCluster(minUnits,maxRange)" instead of "target"
+
+	if type(maxRange) ~= "number" then return nil end
+
+	local range = maxRange
+	local enemiesInRange = 0
+	
+	local theReturnUnit
+
+	for i=1,#enemiesTable do
+		local thisUnit = enemiesTable[i].unit
+		if getNumEnemies(thisUnit,range)>=enemiesInRange then
 			theReturnUnit = thisUnit
 		end
 	end
