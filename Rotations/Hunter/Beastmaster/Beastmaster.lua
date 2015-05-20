@@ -6,6 +6,18 @@ if select(3, UnitClass("player")) == 3 then
       HunterBeastToggles()
       Currentconfig = "Beastmaster CodeMyLife"
     end
+    
+    -- ToDo add pause toggle
+    -- Manual Input
+    if IsLeftShiftKeyDown() then -- Pause the script, keybind in wow shift+1 etc for manual cast
+      return true
+    end
+    if IsLeftControlKeyDown() then -- Pause the script, keybind in wow ctrl+1 etc for manual cast
+      return true
+    end
+    if IsLeftAltKeyDown() then
+      return true
+    end
 
     local dynamicUnit = {
       dyn25 = dynamicTarget(25,true), -- wind shear
@@ -35,7 +47,9 @@ if select(3, UnitClass("player")) == 3 then
           up = UnitBuffID("player",FocusFire) ~= nil
         },
         stampede = { 
-          up = UnitBuffID("player",Stampede) ~= nil
+          duration = 40,
+          startCast = 0,
+          remains = 0
         },
         steadyFocus = {
           remains = getBuffRemain("player",177668),
@@ -99,6 +113,7 @@ if select(3, UnitClass("player")) == 3 then
         aMurderOfCrows = isKnown(AMurderOfCrows),
         barrage = isKnown(Barrage),
         direBeast = isKnown(DireBeast),
+        stampede = isKnown(Stampede),
         steadyFocus = isKnown(SteadyFocus),
         steadyFocus1st = BadBoy_data["1stFocus"]
       },
@@ -151,7 +166,7 @@ if select(3, UnitClass("player")) == 3 then
     -- Pet Management
     if isChecked("Auto Call Pet") and not player.pet.active then
       -- if BadBoy_data["Pet Dead"] is true, we want to revive it, otherwise, whistle select stable
-      if BadBoy_data["Pet Dead"] == true then
+      if BadBoy_data["Pet Dead"] == true or UnitIsDeadOrGhost("pet") then
         if castSpell("player",RevivePet,true,true) then
           return
         end
@@ -169,6 +184,15 @@ if select(3, UnitClass("player")) == 3 then
       end
     end
     if player.inCombat then
+      -- Stampede check
+      -- custom timer, because blizzard gives us no timer...
+      if player.buff.stampede.startCast ~= 0 then
+        if (GetTime() - player.buff.stampede.startCast) < player.buff.stampede.duration then
+          player.buff.stampede.remains = player.buff.stampede.duration - (GetTime() - player.buff.stampede.startCast)
+        else
+          player.buff.stampede.startCast = 0
+        end
+      end
       -- Misdirection
       if isChecked("Misdirection") then
         local misdirectUnit = "pet"
@@ -219,6 +243,7 @@ if select(3, UnitClass("player")) == 3 then
       if isSelected("Stampede") and (player.buff.bloodLust.up or player.buff.focusFire.up or player.target.timeToDie <= 25) then
         if castSpell(dynamicUnit.dyn40,Stampede,true,false) then
           -- start timer for stampede uptime calc
+          player.buff.stampede.startCast = GetTime()
           return
         end
       end
@@ -229,9 +254,8 @@ if select(3, UnitClass("player")) == 3 then
         end
       end
       -- actions+=/focus_fire,if=buff.focus_fire.down&((cooldown.bestial_wrath.remains<1&buff.bestial_wrath.down)|(talent.stampede.enabled&buff.stampede.remains)|pet.cat.buff.frenzy.remains<1)
-      -- TODO: add stampede timer and condition
-      if isSelected("Focus Fire") and player.pet.buff.frenzy.stacks == 5 and not player.buff.focusFire.up 
-        and ((player.spell.bestialWrath.cooldown < 1 and not player.buff.bestialWrath.up) or player.pet.buff.frenzy.remains < 1) then
+      if isSelected("Focus Fire") and player.pet.buff.frenzy.stacks > 1 and not player.buff.focusFire.up 
+        and ((player.spell.bestialWrath.cooldown < 1 and not player.buff.bestialWrath.up) or (player.talent.stampede and player.buff.stampede.remains > 0) or player.pet.buff.frenzy.remains < 3) then
         if castSpell("player",FocusFire,true,false) then
           return
         end
