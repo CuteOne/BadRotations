@@ -167,6 +167,28 @@ function getBiggestUnitCluster(maxRange)
 	return select(1,theReturnUnit)
 end
 
+function hasLust()
+	-- Description:
+		-- check for bloodlust buff
+
+	-- returns:
+		-- true/false
+
+	-- how to use:
+		-- if hasLust() then ... end
+
+	-- Credits to chumii
+
+	if UnitBuffID("player",2825)			-- Bloodlust
+		or UnitBuffID("player",80353)		-- Timewarp
+		or UnitBuffID("player",32182)		-- Heroism
+		or UnitBuffID("player",90355) then 	-- Ancient Hysteria
+		return true
+	else
+		return false
+	end
+end
+
 
 --[[                                                                                                ]]
 --[[ Defmaster                                                                                      ]]
