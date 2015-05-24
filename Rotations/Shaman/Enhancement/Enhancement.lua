@@ -133,7 +133,7 @@ if select(3, UnitClass("player")) == 7 then
         if castSpell("player",_EarthElementalTotem,true) then return; end
       end
       -- Fire
-      if (not (hasSearing() or hasFireElemental()) or (hasSearing() and getTotemDistance("target") > 20)) and targetDistance<=20 and getNumEnemies("player",8)<6 and isInCombat("player") then
+      if (not (hasSearing() or hasFireElemental()) or (hasSearing() and getTotemDistance("target") > 20)) and targetDistance<=20 and getNumEnemies("player",8)<6 and isInCombat("player") and isChecked("Searing") then
         if castSpell("player",_SearingTotem,true) then return; end
       end
       if (not (hasMagma() or hasFireElemental()) or (hasMagma() and getTotemDistance("target") > 8)) and targetDistance<8 and getNumEnemies("player",8)>=6 and isInCombat("player") then

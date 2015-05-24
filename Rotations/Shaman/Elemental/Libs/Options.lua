@@ -54,6 +54,10 @@ if select(3,UnitClass("player")) == 7 then
       CreateNewText(thisConfig,"Storm Elemental Totem")
     end
 
+    -- Searing
+    checkOp("Searing")
+    textOp("Searing")
+
     -- Wrapper
     generateWrapper("DPS Tweaks")
 
