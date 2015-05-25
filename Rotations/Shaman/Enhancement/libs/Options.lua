@@ -55,6 +55,10 @@ if select(3,UnitClass("player")) == 7 then
     dropOp("Rotation Mode", 1, "Toggle")
     textOp("Rotation Mode")
 
+    -- Searing
+    checkOp("Searing")
+    textOp("Searing")
+
     -- Spacer
     textOp(" ")
     wrapOp("--- Cooldowns ---")

@@ -296,7 +296,7 @@ if select(3, UnitClass("player")) == 7 then
           -- &!pet.fire_elemental_totem.active
           and player.totem.fire.current ~= GetSpellInfo(_FireElementalTotem)
           -- &!buff.liquid_magma.up)
-          and not player.buff.liquidMagma.up) then
+          and not player.buff.liquidMagma.up) and isChecked("Searing") then
           if castSpell("player",_SearingTotem,true,false) then
             return
           end
@@ -350,7 +350,7 @@ if select(3, UnitClass("player")) == 7 then
           -- &!pet.fire_elemental_totem.active
           and player.totem.fire.current ~= GetSpellInfo(_FireElementalTotem)
           -- &!buff.liquid_magma.up)
-          and not player.buff.liquidMagma.up) then
+          and not player.buff.liquidMagma.up) and isChecked("Searing") then
           if castSpell("player",_SearingTotem,true,false) then
             return
           end
