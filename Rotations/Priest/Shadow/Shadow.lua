@@ -709,6 +709,11 @@ if select(3, UnitClass("player")) == 5 then
 								end
 							end
 						end
+
+						-- MB on CD
+						if options.player.ORBS<5 then
+							if castSpell("target",MB,false,true) then return; end
+						end
 						
 						-- DP<5 - Hold Back DP to improve 4 set uptime
 						if options.player.ORBS<5 then
@@ -731,11 +736,6 @@ if select(3, UnitClass("player")) == 5 then
 									end
 								end
 							end
-						end
-
-						-- MB on CD
-						if options.player.ORBS<5 then
-							if castSpell("target",MB,false,true) then return; end
 						end
 
 						if select(1,UnitChannelInfo("player")) ~= "Insanity" then

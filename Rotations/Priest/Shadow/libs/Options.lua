@@ -25,14 +25,6 @@ if select(3, UnitClass("player")) == 5 then
 				CreateNewText(thisConfig,"pushDP")
 			--end
 
-			-- -- Min Orbs to cast DP on traditional single target
-			-- CreateNewDrop(thisConfig,"Min Orbs (trad)",1,"Choose the minimum orbs to cast DP if targetHP>20.","|cffCC00003","|cFF00CC005")
-			-- CreateNewText(thisConfig,"Min Orbs (trad)")
-
-			-- -- only cast DP with 5 Orbs on traditional single rota
-			-- CreateNewCheck(thisConfig,"DP5")
-			-- CreateNewText(thisConfig,"DP only with 5 orbs")
-
 			-- Power Infusion
 			--if isKnown(PI) then
 				CreateNewCheck(thisConfig,"Power Infusion")
