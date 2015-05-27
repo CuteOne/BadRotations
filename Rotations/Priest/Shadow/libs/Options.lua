@@ -179,7 +179,7 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- Hold Orbs back
 			--if getTalent(7,3) then
-				CreateNewBox(thisConfig,"DP on Orbs", 3, 4, 1, 4, "Start DP on 3 Orbs for faster DMG.\nStart DP on 4 Orb should improve Damage and uptime of Mental Instinct!")
+				CreateNewBox(thisConfig,"DP on Orbs", 3, 5, 1, 4, "Start DP on 3 Orbs for faster DMG.\nStart DP on 4 Orbs should improve Damage and uptime of Mental Instinct.\nStart on 5 Orbs should improve T17-4pc more than on 4 Orbs.")
 				CreateNewText(thisConfig,"DP on Orbs")
 			--end
 
