@@ -9,44 +9,36 @@
 
 function RaidBuff(BuffSlot,myBuffSpellID)
 	-- description: 
-		-- check for raidbuff
-		-- cast raidbuff if missing
+		-- check for raidbuff and cast if missing
 
 	-- returns:
-		-- true/nil
+		-- true: 	someone was without buff and spell casted
+		-- false: 	"BuffSlot" or "myBuffSpellID" is missing
+		-- nil: 	all raidmembers in range are buffed
 
 	-- example:
-		-- 
+		-- Check for Stamina as Priest:
+			-- Buffslot Stamina: 2
+			-- Power Word: Fortitude Spell ID: 21562
+			-- RaidBuff(2,21562)
+	-- Buffslots:
+		-- 1 Stats
+		-- 2 Stamina
+		-- 3 Attack Power
+		-- 4 Haste
+		-- 5 Spell Power
+		-- 6 Critical Strike
+		-- 7 Mastery
+		-- 8 Multistrike
+		-- 9 Versatility
 
-	-- how to use:
-		-- Buffslots:
-			-- 1 Stats
-			-- 2 Stamina
-			-- 3 Attack Power
-			-- 4 Haste
-			-- 5 Spell Power
-			-- 6 Critical Strike
-			-- 7 Mastery
-			-- 8 Multistrike
-			-- 9 Versatility
-
-		-- RaidBuff(1)
-			-- check if all members in the raid are buffed in slot 1
-
-		-- RaidBuff(1,myBuffSpellID)
-			-- use the spellID (spellID and not the spellname)
-			-- check if all memebers in the raid are buffed in slot 1
-			-- if one member is not buffed in slot 1 and is in range then cast your buff
-
-	if BuffSlot==nil then return false end
+	if BuffSlot==nil or myBuffSpellID==nil then return false end
 	
-	local class
-	local spec
 	local id = BuffSlot
 	local SpellID = myBuffSpellID
 	local bufftable = {
 		stats = {1126,115921,116781,20217,160206,159988,160017,90363,160077},
-		stamina = {21562,166298,469,160199,50256,160003,90364},
+		stamina = {21562,166928,469,160199,50256,160003,90364},
 		attackPower = {57330,19506,6673},
 		spellPower = {1459,61316,109773,160205,128433,90364,126309},
 		mastery = {155522,24907,19740,116956,160198,93435,160039,128997,160073},
@@ -56,7 +48,6 @@ function RaidBuff(BuffSlot,myBuffSpellID)
 		versatility = {55610,1126,167187,167188,172967,159735,35290,57386,160045,50518,173035,160007}
 	}
 
-	local chosenTable
 	if id == 1 then
 		chosenTable = bufftable.stats
 	elseif id == 2 then
@@ -79,15 +70,9 @@ function RaidBuff(BuffSlot,myBuffSpellID)
 		
 	if GetNumGroupMembers()==0 then
 		if not UnitIsDeadOrGhost("player") then
-			if GetRaidBuffTrayAuraInfo(id) then
-				return true
-			elseif not GetRaidBuffTrayAuraInfo(id) then
+			if not GetRaidBuffTrayAuraInfo(id) then
 				if castSpell("player",SpellID) then return true end
-			else 
-				return false
 			end
-		else
-			return false
 		end
 	else 
 		if UnitIsDeadOrGhost("player") then
@@ -96,13 +81,12 @@ function RaidBuff(BuffSlot,myBuffSpellID)
 			for index=1,GetNumGroupMembers() do
 				local name, _, subgroup, _, _, _, zone, online, isDead, _, _ = GetRaidRosterInfo(index)
 				if online and not isDead and 1==IsSpellInRange(select(1,GetSpellInfo(SpellID)), "raid"..index) then
-					local playerBuffed = false
-					for auraIndex=1, #StaminaTable do
-						local buffActive = UnitAura("raid"..index, select(1,GetSpellInfo(chosenTable[auraindex])))
-						playerBuffed = playerBuffed or buffActive ~= nil
-					end
-					if not playerBuffed then
-						if castSpell("player",SpellID) then return true end
+					local playerBuffed=false
+					for auraIndex=1,#chosenTable do
+						if getBuffRemain("raid"..index,chosenTable[auraIndex])>0 then break end
+						if getBuffRemain("raid"..index,chosenTable[auraIndex])<=0 then
+							if castSpell("player",PWF,true,false) then return true end
+						end
 					end
 				end
 			end
@@ -167,27 +151,6 @@ function getBiggestUnitCluster(maxRange)
 	return select(1,theReturnUnit)
 end
 
-function hasLust()
-	-- Description:
-		-- check for bloodlust buff
-
-	-- returns:
-		-- true/false
-
-	-- how to use:
-		-- if hasLust() then ... end
-
-	-- Credits to chumii
-
-	if UnitBuffID("player",2825)			-- Bloodlust
-		or UnitBuffID("player",80353)		-- Timewarp
-		or UnitBuffID("player",32182)		-- Heroism
-		or UnitBuffID("player",90355) then 	-- Ancient Hysteria
-		return true
-	else
-		return false
-	end
-end
 
 
 --[[                                                                                                ]]
