@@ -176,6 +176,13 @@ if select(3, UnitClass("player")) == 5 then
 			-- Mounted Check (except nagrand outpost mounts)
 			if IsMounted("player") and not (UnitBuffID("player",164222) or UnitBuffID("player",165803)) then return false; end
 
+			if _Queues == nil then
+				_Queues = {
+					[Halo]  = false,
+					[Cascade] = false,
+				}
+			end
+
 		------------------------------------------------------------------------------------------------------------------------------------------------------------
 		-- OUT OF COMBAT -------------------------------------------------------------------------------------------------------------------------------------------
 		------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -312,6 +319,18 @@ if select(3, UnitClass("player")) == 5 then
 
 
 			if isChecked("disable Combat")==nil then
+
+
+			------------------------------------------------------------------------------------------------------------------------------------------------------------
+			-- Queued Spells -------------------------------------------------------------------------------------------------------------------------------------------
+			------------------------------------------------------------------------------------------------------------------------------------------------------------
+			if _Queues[Halo] == true then
+				if castSpell("player",Halo,true,false) then return end
+			end
+			if _Queues[Cascade] == true then
+				if castSpell("target",Cascade,true,false) then return end
+			end
+
 
 				
 			------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -716,7 +735,7 @@ if select(3, UnitClass("player")) == 5 then
 						end
 						
 						-- DP<5 - Hold Back DP to improve 4 set uptime
-						if options.player.ORBS<5 then
+						if options.player.ORBS<=5 then
 							if TierScan("T17")>=4 then
 								if options.player.ORBS>=options.values.DPon or (getBuffRemain("player",MentalInstinct)<1.8 and getBuffRemain("player",MentalInstinct)>0) then
 									if getBuffRemain("player",MentalInstinct)<2.8 then
