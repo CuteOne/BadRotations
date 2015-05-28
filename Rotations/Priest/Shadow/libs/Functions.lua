@@ -87,26 +87,33 @@ if select(3, UnitClass("player")) == 5 then
 
 	-- Units not to dot with DoTEmAll
 	function safeDoT(datUnit)
-		local Blacklist = {
+		local BlacklistName = {
 			-- Highmaul
 			"Volatile Anomaly",
 			-- Blackrock Foundry
 			"Pack Beast",
 			"Grasping Earth",
 		}
+		local BlacklistBuff = {
+			155176, 			-- BRF: Blast Furnace: Primal Elementalist: http://www.wowhead.com/spell=155176/damage-shield
+			176141, 			-- BRF: Blast Furnace: Slag Elemental: http://www.wowhead.com/spell=176141/hardened-slag
+		}
 		-- nil Protection
 		if datUnit == nil then 
 			return true 
 		end
-		-- BRF: Blast Furnace: Primal Elementalist: http://www.wowhead.com/spell=155176/damage-shield
-		-- BRF: Blast Furnace: Slag Elemental: http://www.wowhead.com/spell=176141/hardened-slag
-		if UnitBuffID(datUnit,155176)
-		or UnitBuffID(datUnit,176141) then
-			return false
+		-- check buff
+		for i = 1, #BlacklistBuff do
+			if getBuffRemain(datUnit,BlacklistBuff[i])>0 
+			or getDebuffRemain(datUnit,BlacklistBuff[i])>0 then
+				print("buff false")
+				return false
+			end
 		end
-		-- Iterate the blacklist
-		for i = 1, #Blacklist do
-			if UnitName(datUnit) == Blacklist[i] then
+		-- check name
+		for i = 1, #BlacklistName do
+			if UnitName(datUnit) == BlacklistName[i] then
+				print("name false")
 				return false
 			end
 		end
@@ -207,7 +214,7 @@ if select(3, UnitClass("player")) == 5 then
 		if datName=="first" then
 			if enemiesTable[1] ~= nil then
 				if enemiesTable[1].distance<40 then
-					TargetUnit(enemiesTable[1].name)
+					TargetUnit(enemiesTable[1].unit)
 				end
 			end
 		end
@@ -754,6 +761,7 @@ if select(3, UnitClass("player")) == 5 then
 
 					-- The Blast Furnace
 						if currentBoss=="Heart of the Mountain" then
+							-- Cascade
 							if getTalent(6,1) then
 								if getSpellCD(Cascade)<=0 then
 									-- sort enemiesTable by distance
@@ -764,6 +772,15 @@ if select(3, UnitClass("player")) == 5 then
 										if getDistance("player",thisUnit)<40 then
 											if castSpell(thisUnit,Cascade,true,false) then return end
 										end
+									end
+								end
+							end
+							-- Burn Elementalist (http://www.wowhead.com/spell=158345/shields-down)
+							for i=1,#enemiesTable do
+								local thisUnit = enemiesTable[i].unit
+								if UnitName(thisUnit) == "Primal Elementalist" then
+									if getBuffRemain(thisUnit,158345)>0 then
+										TargetUnit(thisUnit)
 									end
 								end
 							end
@@ -891,7 +908,7 @@ if select(3, UnitClass("player")) == 5 then
 						if safeDoT(thisUnit) then
 							if range < 40 and getLineOfSight(thisUnit) then
 								if not UnitIsUnit("target",thisUnit) or targetAlso then
-								-- check remaining time and minhealth
+									-- check remaining time and minhealth
 									if getDebuffRemain(thisUnit,SWP,"player")<=0 and thisHP>options.values.MinHealth then
 										if castSpell(thisUnit,SWP,true,false) then 
 											return true

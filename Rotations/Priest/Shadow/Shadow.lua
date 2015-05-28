@@ -180,6 +180,7 @@ if select(3, UnitClass("player")) == 5 then
 				_Queues = {
 					[Halo]  = false,
 					[Cascade] = false,
+					[DP] = false,
 				}
 			end
 
@@ -330,6 +331,9 @@ if select(3, UnitClass("player")) == 5 then
 			if _Queues[Cascade] == true then
 				if castSpell("target",Cascade,true,false) then return end
 			end
+			if _Queues[DP] == true then
+				if castSpell("target",DP,false,true) then return end
+			end
 
 
 				
@@ -346,8 +350,8 @@ if select(3, UnitClass("player")) == 5 then
 					if options.isChecked.AutoGuise then
 						-- Iron Maidens
 						if currentBoss=="Marak the Blooded" or currentBoss=="Enforcer Sorka" or currentBoss=="Admiral Gar'an" then
-							if getDebuffRemain("player",PenetratingShot)>0 then
-								if castSpell("player",SpectralGuise,true,false) then return; end
+							if getDebuffRemain("player",PenetratingShot)<=4 then
+								if castSpell("player",SpectralGuise,true,false) then return end
 							end
 						end
 					end
@@ -390,7 +394,7 @@ if select(3, UnitClass("player")) == 5 then
 						for i=1,#enemiesTable do
 							local thisUnit = enemiesTable[i].unit
 							if getBuffRemain(thisUnit,155173)>0 then
-								if castSpell(thisUnit,DispM,true,false) then return; end
+								if castSpell(thisUnit,DispM,true,false) then return end
 							end
 						end
 					end
@@ -411,7 +415,7 @@ if select(3, UnitClass("player")) == 5 then
 									end
 									if isKnown(ArcT) then
 										if getSpellCD(ArcT)<=0 and getDistance("player",thisUnit)<=8 then
-											if castSpell(thisUnit,ArcT,true,false) then return; end
+											if castSpell(thisUnit,ArcT,true,false) then return end
 										end
 									end
 								end
@@ -429,7 +433,7 @@ if select(3, UnitClass("player")) == 5 then
 									end
 									if isKnown(ArcT) then
 										if getSpellCD(ArcT)<=0 and getDistance("player",thisUnit)<=8 then
-											if castSpell(thisUnit,ArcT,true,false) then return; end
+											if castSpell(thisUnit,ArcT,true,false) then return end
 										end
 									end
 								end
@@ -445,11 +449,11 @@ if select(3, UnitClass("player")) == 5 then
 								local cRem = select(6,UnitCastingInfo(thisUnit)) - GetTime()*1000
 								if cRem <= 1000 then
 									if getSpellCD(Silence)<=0 then
-										if castSpell(thisUnit,Silence,true,false) then return; end
+										if castSpell(thisUnit,Silence,true,false) then return end
 									end
 									if isKnown(ArcT) then
 										if getSpellCD(ArcT)<=0 and getDistance("player",thisUnit)<=8 then
-											if castSpell(thisUnit,ArcT,true,false) then return; end
+											if castSpell(thisUnit,ArcT,true,false) then return end
 										end
 									end
 								end
@@ -458,9 +462,6 @@ if select(3, UnitClass("player")) == 5 then
 					end
 				end
 
-
-
-			
 				------------------------------------------------------------------------------------------------------------------------------------------------------------
 				-- Offensives ----------------------------------------------------------------------------------------------------------------------------------------------
 				------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -692,32 +693,6 @@ if select(3, UnitClass("player")) == 5 then
 						------------------------------------------------------------------------------------------------------------------------------------------------------------
 						--[[ASInsanity]]
 						------------------------------------------------------------------------------------------------------------------------------------------------------------
-						-- -- DP: push or throw?
-						-- if options.isChecked.DPmode then
-						-- 	if options.player.ORBS==5 then
-						-- 		-- Push DP
-						-- 		if options.isChecked.DPmode==1 then
-						-- 			if getDebuffRemain("target",DP,"player")<=options.values.PushTime then
-						-- 				if castSpell("target",DP,true,false) then 
-						-- 					return
-						-- 				end
-						-- 			end
-						-- 			-- Throw DP
-						-- 		elseif options.isChecked.DPmode==2 then
-						-- 			if ThrowDP() then 
-						-- 				return 
-						-- 			end
-						-- 		end
-						-- 	end
-						-- end
-
-						-- -- DP on 5 Orbs
-						-- if options.player.ORBS==5 then
-						-- 	if castSpell("target",DP,true,false) then 
-						-- 		return
-						-- 	end
-						-- end
-
 						-- DP on 5 logic
 						if options.player.ORBS==5 then
 							if options.isChecked.pushDP then
