@@ -141,7 +141,7 @@ function bb.read.combatLog()
     end
     ------------------
     --[[Spell Queues]]
-    if getOptionCheck("Spell Queues") then
+    if getOptionCheck("Queue Casting") then
       -----------------
       --[[ Cast Failed --> Queue]]
       if param == "SPELL_CAST_FAILED" then
