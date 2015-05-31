@@ -15,7 +15,7 @@ if select(3, UnitClass("player")) == 11 then
 		if DoTModesLoaded ~= "Boomkin DoT Modes" then
 			DoTModes = {
 				[1] = { mode = "off", value = 1 , overlay = "DotEmAll off", tip = "|cffFF0000Multidot off \n|cffFFDD11No multidotting.", highlight = 0, icon = [[INTERFACE\ICONS\achievement_doublerainbow]] },
-				[2] = { mode = "All", value = 2 , overlay = "DotEmAll", tip = "|cff00FF00Multidot on \n|cffFFDD11Dots all Targets with Moonfire & Sunfire.\nSet minimum health in Options", highlight = 1, icon = [[INTERFACE\ICONS\achievement_doublerainbow]] }
+				[2] = { mode = "on", value = 2 , overlay = "DotEmAll", tip = "|cff00FF00Multidot on \n|cffFFDD11Dots all Targets with Moonfire & Sunfire.\nSet minimum health and maxTargets in Options", highlight = 1, icon = [[INTERFACE\ICONS\achievement_doublerainbow]] }
 			};
 			CreateButton("DoT",2,0)
 			DoTModesLoaded = "Boomkin DoT Modes";
@@ -29,6 +29,16 @@ if select(3, UnitClass("player")) == 11 then
 			};
 			CreateButton("BossHelper",3,0)
 			BossHelperModesLoaded = "Boomkin Boss Helper Modes";
+		end
+
+		-- Starfall Button
+		if StarfallModesLoaded ~= "Boomkin Starfall Modes" then
+			StarfallModes = {
+				[1] = { mode = "off", value = 1, overlay = "Starfall Disabled", tip = "|cffFF0000Starfall \n|cffFFDD11Starfall inactive.", highlight = 0, icon = 48505 },
+				[2] = { mode = "on", value = 2, overlay = "Starfall Enabled", tip = "|cff00FF00Starfall \n|cffFF0000Starfall activated.", highlight = 1, icon = 48505 }
+			};
+			CreateButton("Starfall",4,0)
+			StarfallModesLoaded = "Boomkin Starfall Modes";
 		end
 
 		-- Cooldowns Button

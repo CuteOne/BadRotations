@@ -123,15 +123,16 @@ if select(3, UnitClass("player")) == 11 then
 				return eclipseHalf + eclipseRemaining
 			end
 			if eclipseDirection=="sun" 
-			and eclipseEnergy<=0 then
-				return 3*eclipseHalf + peakTime + eclipseRemaining
+			and eclipseEnergy<0 then
+				return 3*eclipseHalf + 0 + eclipseRemaining
 			end
 			if eclipseDirection=="sun" 
-			and eclipseEnergy>0 then
-				return 2*eclipseHalf + peakTime + eclipseRemaining
+			and eclipseEnergy>=0 then
+				return 2*eclipseHalf + 0 + eclipseRemaining
 			end
+			return eclipseHalf
 		end
-		
+
 		-- time till solar max
 		function solar_max()
 			local eclipseDirection = GetEclipseDirection()
@@ -152,19 +153,29 @@ if select(3, UnitClass("player")) == 11 then
 				return eclipseHalf + eclipseRemaining
 			end
 			if eclipseDirection=="moon" 
-			and eclipseEnergy>=0 then
+			and eclipseEnergy>0 then
 				return 3*eclipseHalf + peakTime + eclipseRemaining
 			end
 			if eclipseDirection=="moon" 
-			and eclipseEnergy<0 then
+			and eclipseEnergy<=0 then
 				return 2*eclipseHalf + peakTime + eclipseRemaining
 			end
+			return 3*eclipseHalf + peakTime
 		end
 
 		-- isSunfire()
 		function isSunfire()
 			-- moonfire: 8921, sunfire: 93402
 			if select(3,GetSpellInfo(8921)) == select(3,GetSpellInfo(93402)) then
+				return true
+			else
+				return false
+			end
+		end
+
+		-- should starfall
+		function shouldStarfall()
+			if getNumEnemies("player",50)>=2 then
 				return true
 			else
 				return false
@@ -250,34 +261,8 @@ if select(3, UnitClass("player")) == 11 then
 
 		function throwSunfire(maxTargets,minHP)
 			if isSunfire() then
-				--if options.buttons.DoT==2 or options.buttons.DoT==4 then
-					local SunfireCount = getSunfire()
-					if SunfireCount<=maxTargets then
-						for i=1, #enemiesTable do
-							local thisUnit = enemiesTable[i].unit
-							local range = enemiesTable[i].distance
-							local thisHP = enemiesTable[i].hpabs
-							-- check for target and safeDoT
-							if safeDoT(thisUnit) then
-								if range < 40 then
-									-- check remaining time and minhealth
-									if getDebuffRemain(thisUnit,164815,"player")<=8 and thisHP>minHP then
-										if castSpell(thisUnit,8921,false,false) then 
-											return true
-										end
-									end
-								end
-							end
-						end
-					end
-				--end
-			end
-		end
-
-		function throwMoonfire(maxTargets,minHP)
-			--if options.buttons.DoT==2 or options.buttons.DoT==4 then
-				local MoonfireCount = getMoonfire()
-				if MoonfireCount<=maxTargets then
+				local SunfireCount = getSunfire()
+				if SunfireCount<=maxTargets then
 					for i=1, #enemiesTable do
 						local thisUnit = enemiesTable[i].unit
 						local range = enemiesTable[i].distance
@@ -286,7 +271,7 @@ if select(3, UnitClass("player")) == 11 then
 						if safeDoT(thisUnit) then
 							if range < 40 then
 								-- check remaining time and minhealth
-								if getDebuffRemain(thisUnit,164812,"player")<=8 and thisHP>minHP then
+								if getDebuffRemain(thisUnit,164815,"player")<=0 and thisHP>minHP then
 									if castSpell(thisUnit,8921,false,false) then 
 										return true
 									end
@@ -295,7 +280,74 @@ if select(3, UnitClass("player")) == 11 then
 						end
 					end
 				end
-			--end
+			end
+		end
+
+		function throwSunfireMax(maxTargets)
+			if isSunfire() then
+				local SunfireCount = getSunfire()
+				if SunfireCount<=maxTargets then
+					local range = enemiesTable[i].distance
+					local thisHP = enemiesTable[i].hpabs
+					-- get biggest cluster
+					thisClusterUnit = getBiggestUnitCluster(5)
+					if safeDoT(thisClusterUnit) then
+						if range<40 and getLineOfSight(thisClusterUnit) then
+							if not UnitIsUnit("target",thisClusterUnit) then
+								if castSpell(thisClusterUnit,8921,false,false) then 
+									return true
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+
+		function throwMoonfire(maxTargets,minHP)
+			local MoonfireCount = getMoonfire()
+			if MoonfireCount<=maxTargets then
+				for i=1, #enemiesTable do
+					local thisUnit = enemiesTable[i].unit
+					local range = enemiesTable[i].distance
+					local thisHP = enemiesTable[i].hpabs
+					-- check for target and safeDoT
+					if safeDoT(thisUnit) then
+						if range < 40 and getLineOfSight(thisUnit) then
+							if not UnitIsUnit("target",thisUnit) then
+								-- check remaining time and minhealth
+								if getDebuffRemain(thisUnit,164812,"player")<=0 and thisHP>minHP then
+									if castSpell(thisUnit,8921,false,false) then 
+										return true
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+
+		function refreshMoonfire(maxTargets,minHP)
+			local MoonfireCount = getMoonfire()
+			if MoonfireCount<=maxTargets then
+				for i=1, #enemiesTable do
+					local thisUnit = enemiesTable[i].unit
+					local range = enemiesTable[i].distance
+					local thisHP = enemiesTable[i].hpabs
+					-- check for target and safeDoT
+					if safeDoT(thisUnit) then
+						if range < 40 and getLineOfSight(thisUnit) then
+							-- check remaining time and minhealth
+							if getDebuffRemain(thisUnit,164812,"player")<=12 and thisHP>minHP then
+								if castSpell(thisUnit,8921,false,false) then 
+									return true
+								end
+							end
+						end
+					end
+				end
+			end
 		end
 
 
