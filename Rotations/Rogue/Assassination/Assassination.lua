@@ -202,6 +202,9 @@ function AssassinationRogue()
             end
             -- 5 Combo Opener
             if combo == 5 then
+              if power>35 and level<20 and (sndRemain>=5 or level<14) then
+                if castSpell(tarUnit.dyn5,_Eviscerate,false,false,false) then return end
+              end
               if power>25 and sndRemain<5 then
                 if castSpell("player",_SliceAndDice,true,false,false) then return end
               end
@@ -368,6 +371,9 @@ function AssassinationRogue()
         --if=combo_points>4
         if combo>4 and getSpellCD(_DeathFromAbove)==0 and power>50 and tarDist.dyn15<15 then
           if castSpell(tarUnit.dyn15,_DeathFromAbove,true,false,false) then return end
+        end
+        if combo==5 and power>35 and level<20 and (sndRemain>=5 or level<14) then
+          if castSpell(tarUnit.dyn5,_Eviscerate,false,false,false) then return end
         end
         -- Envenom
         --if=(combo_points>4&(cooldown.death_from_above.remains>2|!talent.death_from_above.enabled))&active_enemies<4&!dot.deadly_poison_dot.ticking
