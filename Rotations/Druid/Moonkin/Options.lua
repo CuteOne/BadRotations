@@ -13,7 +13,7 @@ if select(3, UnitClass("player")) == 11 then
 				CreateNewCheck(thisConfig,"isBoss")
 				CreateNewText(thisConfig,"isBoss")
 
-				if isKnown(Berserking) then
+				if isKnown(26297) then
 					CreateNewCheck(thisConfig,"Berserking")
 					CreateNewText(thisConfig,"Berserking")
 				end
@@ -21,6 +21,9 @@ if select(3, UnitClass("player")) == 11 then
 				-- Celestial Alignment
 				CreateNewCheck(thisConfig,"Celestial Alignment")
 				CreateNewText(thisConfig,"Celestial Alignment")
+
+				CreateNewCheck(thisConfig,"CA: Wrath","Cast Wrath instead of Starfire on Celestial Alignment")
+				CreateNewText(thisConfig,"CA: Wrath")
 
 				-- Incarnation
 				CreateNewCheck(thisConfig,"Incarnation")
@@ -69,8 +72,8 @@ if select(3, UnitClass("player")) == 11 then
 			CreateNewWrap(thisConfig,"|cffBA55D3Multitarget")
 
 				-- Sort EnemiesTable by HPabs
-				CreateNewCheck(thisConfig,"sortByHPabs","Sort enemiesTable by descending health, so the highest absolute health unit will be dotted first.")
-				CreateNewText(thisConfig,"sortByHPabs")
+				-- CreateNewCheck(thisConfig,"sortByHPabs","Sort enemiesTable by descending health, so the highest absolute health unit will be dotted first.")
+				-- CreateNewText(thisConfig,"sortByHPabs")
 
 				-- Min Health
 				CreateNewBox(thisConfig,"Min Health", 0.0, 7.5, 0.1, 0.1, "Minimum Health in |cffFF0000million HP|cffFFBB00.\nMin: 0 / Max: 7.5  / Interval: 0.1")
@@ -78,14 +81,14 @@ if select(3, UnitClass("player")) == 11 then
 
 				-- Max Targets
 				-- CreateNewCheck(thisConfig,"Max Targets");
-				CreateNewBox(thisConfig,"Max Targets", 1, 10, 1, 5, "Maximum count of SWP/VT on Units. \nMin: 1 / Max: 5 / Interval: 1 \n|cffFF0000Standard: 5(SimCraft)")
+				CreateNewBox(thisConfig,"Max Targets", 1, 10, 1, 5, "Maximum count of Moonfire/Sunfire on Units.")
 				CreateNewText(thisConfig,"Max Targets")
 
 				-- Starfall Targets
 				-- Auto Starfall
-				CreateNewCheck(thisConfig,"Starfall Targets","Automatic Starfall if enough targets in range")
-				CreateNewBox(thisConfig,"Starfall Targets", 1, 10, 1, 2, "Minimum count of enemies around target \nto use Starfall. \nMin: 1 / Max: 10 / Interval: 1")
-				CreateNewText(thisConfig,"Starfall Targets")
+				--CreateNewCheck(thisConfig,"Starfall Charges","Automatic Starfall if enough charges")
+				CreateNewBox(thisConfig,"Starfall Charges", 1, 10, 1, 2, "Minimum count of charges \nto use Starfall. \nMin: 0 / Max: 3 / Interval: 1")
+				CreateNewText(thisConfig,"Starfall Charges")
 
 
 			-- Wrapper -----------------------------------------
