@@ -171,10 +171,10 @@ if select(3, UnitClass("player")) == 5 then
 			end
 
 			-- Food/Invis Check
-			if canRun() ~= true then return false; end
+			if canRun() ~= true then return false end
 
 			-- Mounted Check (except nagrand outpost mounts)
-			if IsMounted("player") and not (UnitBuffID("player",164222) or UnitBuffID("player",165803)) then return false; end
+			if IsMounted("player") and not (UnitBuffID("player",164222) or UnitBuffID("player",165803)) then return false end
 
 			if _Queues == nil then
 				_Queues = {
@@ -190,7 +190,10 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- Power Word: Fortitude
 			if not isInCombat("player") then
-				if options.isChecked.PWF then Raidbuff_Priest() end
+				if options.isChecked.PWF then 
+					--Raidbuff_Priest()
+					RaidBuff(2,21562)
+				end
 			end
 
 			-- if not isInCombat("player") then
@@ -229,7 +232,7 @@ if select(3, UnitClass("player")) == 5 then
 
 			-- Angelic Feather
 			if isKnown(AngelicFeather) and options.buttons.Feather==2 then
-				if getGround("player") and IsMovingTime(0.2) and not UnitBuffID("player",AngelicFeatherBuff) then
+				if getGround("player") and IsMovingTime(0.2) and getBuffRemain("player",AngelicFeatherBuff)<1 then
 					--if options.isChecked.Feather and getGround("player") and IsMovingTime(0.2) and not UnitBuffID("player",AngelicFeatherBuff) then
 					--if useFeather==true and IsMovingTime(0.2) and not UnitBuffID("player",AngelicFeatherBuff) then
 					if castGround("player",AngelicFeather,30) then

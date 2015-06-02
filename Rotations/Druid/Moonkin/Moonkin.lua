@@ -28,6 +28,8 @@ if select(3, UnitClass("player")) == 11 then
 			rejuvenation = 774,
 			healingTouch = 5185,
 
+			stampedingRoar = 106898,
+
 			--buffs
 			lunarEmpowerment = 164547,
 			solarEmpowerment = 164545,
@@ -148,6 +150,7 @@ if select(3, UnitClass("player")) == 11 then
 				rejuvenation = {check=isChecked("Rejuvenation"),value=getValue("Rejuvenation")},
 				healingTouch = {check=isChecked("Healing Touch"),value=getValue("Healing Touch")},
 				naturesVigil = {check=isChecked("Natures Vigil")},
+				barkskin 	 = {check=isChecked("Barkskin"),value=getValue("Barkskin")},
 				healingTonic = {check=isChecked("Healing Tonic"),value=getValue("Healing Tonic")},
 			},
 			boss = {},
@@ -173,12 +176,22 @@ if select(3, UnitClass("player")) == 11 then
 		}
 
 
-		------------------------------------------------------------------------------------------------------
-		-- Food/Invis Check ----------------------------------------------------------------------------------
-		------------------------------------------------------------------------------------------------------
+		------------------------------------------------------------------------------------------------------------------------------------------------------------
+		-- CHECKS --------------------------------------------------------------------------------------------------------------------------------------------------
+		------------------------------------------------------------------------------------------------------------------------------------------------------------
 		if canRun() ~= true or UnitInVehicle("Player") then
 			return false
 		end
+
+		-- Mounted Check (except nagrand outpost mounts)
+		if IsMounted("player") and not (UnitBuffID("player",164222) or UnitBuffID("player",165803)) then return false end
+
+		if _Queues == nil then
+			_Queues = {
+				[spell.stampedingRoar]  = false,
+			}
+		end
+
 		------------------------------------------------------------------------------------------------------
 		-- Pause ---------------------------------------------------------------------------------------------
 		------------------------------------------------------------------------------------------------------
@@ -231,6 +244,10 @@ if select(3, UnitClass("player")) == 11 then
 		-- Out of Combat -------------------------------------------------------------------------------------
 		------------------------------------------------------------------------------------------------------
 		if not isInCombat("player") then
+			-- MotW
+			if options.utilities.MotW.check then
+				RaidBuff(1,1126)
+			end
 		end -- Out of Combat end
 		------------------------------------------------------------------------------------------------------
 		-- In Combat -----------------------------------------------------------------------------------------
@@ -249,10 +266,51 @@ if select(3, UnitClass("player")) == 11 then
 					end
 				end
 			end
+
+			------------------------------------------------------------------------------------------------------------------------------------------------------------
+			-- Queued Spells -------------------------------------------------------------------------------------------------------------------------------------------
+			------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+			-- Stampeding Roar
+			if _Queues[spell.stampedingRoar] == true then
+				if castSpell("player",spell.stampedingRoar,true,false) then return end
+			end
 			
 			------------------------------------------------------------------------------------------------------
 			-- Defensive -----------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------
+
+			if toggles.defensive==2 then
+				-- rejuvenation
+				if options.defensive.rejuvenation.check then
+					if player.hp <= options.defensive.rejuvenation.value then
+						if castSpell("player",spell.rejuvenation,true,false) then return end
+					end
+				end
+				-- healing touch
+				if options.defensive.healingTouch.check then
+					if player.hp <= options.defensive.healingTouch.value then
+						if castSpell("player",spell.healingTouch,true,true) then return end
+					end
+				end
+				-- barkskin
+				if options.defensive.barkskin.check then
+					if player.hp <= options.defensive.barkskin.value then
+						if castSpell("player",spell.barkskin,true,false) then return end
+					end
+				end
+				-- natures vigil TBD
+
+				-- healing tonic
+				if options.defensive.healingTonic.check then
+					if player.hp <= options.defensive.healingTonic.value then
+						if canUse(109223) then
+							UseItemByName(109223)
+						end
+					end
+				end
+				-- rebirth TBD
+			end
 
 			------------------------------------------------------------------------------------------------------
 			-- Offensive -----------------------------------------------------------------------------------------

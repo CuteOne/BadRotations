@@ -54,9 +54,9 @@ if select(3, UnitClass("player")) == 11 then
 				CreateNewBox(thisConfig, "Barkskin", 0,100,2,25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFBarkskin")
 				CreateNewText(thisConfig,"Barkskin")
 
-				-- Natures Vigil
-				CreateNewCheck(thisConfig,"Natures Vigil")
-				CreateNewText(thisConfig,"Natures Vigil")
+				-- -- Natures Vigil
+				-- CreateNewCheck(thisConfig,"Natures Vigil")
+				-- CreateNewText(thisConfig,"Natures Vigil")
 
 				-- Healing Tonic
 				CreateNewCheck(thisConfig,"Healing Tonic")
