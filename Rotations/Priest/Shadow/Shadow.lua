@@ -477,11 +477,6 @@ if select(3, UnitClass("player")) == 5 then
 				end
 
 				-- Some Spell specific checks for channels
-
-					-- if SpecificToggle("Engineer") then
-					-- 	BlastFurnaceEngineer()
-					-- end
-
 					-- Do not Interrupt Searing Insanity
 					if options.isChecked.MSinsanity then
 						if SpecificToggle("MSinsanity Key") then
@@ -496,10 +491,11 @@ if select(3, UnitClass("player")) == 5 then
 						end
 					end
 
-					-- 
-					if UnitChannelInfo("player") ~=nil and not select(1,UnitChannelInfo("player")) == "Mind Flay" then
-						return false
-					end
+					-- -- pass if channeling mindflay
+					-- if UnitChannelInfo("player")~=nil 
+					-- 	and not select(1,UnitChannelInfo("player")) == "Mind Flay" then
+					-- 	return false
+					-- end
 
 				-- if castingUnit() then return false; end
 				
@@ -531,31 +527,30 @@ if select(3, UnitClass("player")) == 5 then
 				------------------------------------------------------------------------------------------------------------------------------------------------------------
 				--[[Level Rotation]]
 				------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-				if options.isChecked.LevelRotation then
-					if UnitLevel("player")<100 then
-						-- Insanity
-						if getBuffRemain("player",InsanityBuff)>0 then
-							-- Check for current channel and cast Insanity
-							if select(1,UnitChannelInfo("player")) == nil then
-								if castSpell("target",MF,false,true) then return; end
-							end
+				if UnitLevel("player")<100 then
+					-- Insanity
+					if getBuffRemain("player",InsanityBuff)>0 then
+						-- Check for current channel and cast Insanity
+						if select(1,UnitChannelInfo("player")) == nil then
+							if castSpell("target",MF,false,true) then return; end
 						end
-						-- DP
-						if castSpell("target",DP,false,true) then return end
-						-- MB
-						if castSpell("target",MB,false,true) then return end
-						-- SoD Proc
-						if getBuffStacks("player",SoDProc)>=1 then
-							if castSpell("target",MSp,false,false) then return; end
-						end
-						-- Dots
-						if throwSWP(options,true) then return end
-						if refreshSWP(options,true) then return end
-						if throwVT(options,true) then return end
-						if refreshVT(options,true) then return end
 					end
+					-- DP
+					if castSpell("target",DP,false,true) then return end
+					-- MB
+					if castSpell("target",MB,false,true) then return end
+					-- SoD Proc
+					if getBuffStacks("player",SoDProc)>=1 then
+						if castSpell("target",MSp,false,false) then return; end
+					end
+					-- Dots
+					if throwSWP(options,true) then return end
+					if refreshSWP(options,true) then return end
+					if throwVT(options,true) then return end
+					if refreshVT(options,true) then return end
 				end
+
+
 
 				-- Cop
 				if getTalent(7,1) then
@@ -567,86 +562,73 @@ if select(3, UnitClass("player")) == 5 then
 						------------------------------------------------------------------------------------------------------------------------------------------------------------
 						--[[CoPInsanity(options)]]
 						------------------------------------------------------------------------------------------------------------------------------------------------------------
-						-- MB on CD
-						if castSpell("target",MB,false,false) then return; end
 
+						-- MB on CD
+						if castSpell("target",MB,false,false) then return end
+						
 						-----------------
 						-- DoT Weaving --
 						-----------------
-						-- Option Check: DoT Weave
-						if options.isChecked.DoTWeave then
-							-- Unit Check: DoT Weave on Unit allowed?
+						-- apply SWP
 							if noDoTWeave("target")==false then
-								if options.player.ORBS>=4 and getSpellCD(MB)<=2*options.player.GCD then
-									-- apply SWP
-									if not UnitDebuffID("target",SWP,"player") then
-										if castSpell("target",SWP,true,false) then return; end
-									end
-									-- apply VT
+								if options.player.ORBS==4 then
+										if getSpellCD(MB)<=options.player.GCD then
+											if not UnitDebuffID("target",SWP,"player") then
+												if castSpell("target",SWP,true,false) then return end
+											end
+										end
+								end
+								-- apply VT
+								if options.player.ORBS==5 then
 									if not UnitDebuffID("target",VT,"player") and GetTime()-lastVT > 2*options.player.GCD then
 										if castSpell("target",VT,true,true) then
-											--options.player.lastVT=GetTime()
 											lastVT=GetTime()
 											return
 										end
 									end
 								end
 							end
-						end
-
 						----------------
 						-- spend orbs --
 						----------------
-						-- Check for 5 Orbs
-						if options.player.ORBS==5 then
-							-- Check for SWP, DoTweave option, noWeave Unit
-							if getDebuffRemain("target",SWP,"player")>0 or options.isChecked.DoTWeave~=true or noDoTWeave("target") then
-								-- Check for VT, DoTweave option, noWeave Unit
-								if getDebuffRemain("target",VT,"player")>0 or options.isChecked.DoTWeave~=true or noDoTWeave("target") then
-									-- DP on target
-									if castSpell("target",DP,false,true) then
-										lastDP=GetTime()
-										return
+							-- DP 5
+							if options.player.ORBS==5 then
+								if getDebuffRemain("target",SWP,"player")>0 or options.isChecked.DoTWeave~=true or noDoTWeave("target")
+								and getDebuffRemain("target",VT,"player")>0 or options.isChecked.DoTWeave~=true or noDoTWeave("target") then
+									-- DP
+									if GetTime()-lastDP>2 then
+										if castSpell("target",DP,false,true) then
+											lastDP=GetTime()
+											return
+										end
 									end
 								end
 							end
-						end
-
-						-- Check for >= 3 Orbs
-						if UnitChannelInfo("player")~="Insanity" or getSpellCD(MB)<=1.5 then
-							if options.player.ORBS>=3 then
-								-- Check for last DP
-								if GetTime()-lastDP<=options.player.DPTIME+2.2*options.player.GCD then
-									-- Check that Insanity isnt on me
-									--if getBuffRemain("player",InsanityBuff)<=0.3*options.player.DPTIME then
+							-- 6 Insanity Ticks
+							if getBuffRemain("player",InsanityBuff)>0 then
+								-- Check for current channel and cast Insanity
+								if select(1,UnitChannelInfo("player")) == nil then
+									if castSpell("target",MF,false,true) then return; end
+								end
+							end
+							-- DP 3
+							if options.player.ORBS==4 then
+								if GetTime()-lastDP <= 8
+								and GetTime()-lastDP >= 6 then
 									if getBuffRemain("player",InsanityBuff)<=0 then
-										-- DP on target
-										if castSpell("target",DP,false,true) then return; end
+										if select(1,UnitChannelInfo("player")) == nil then
+											if castSpell("target",DP,false,true) then return end
+										end
 									end
 								end
 							end
-						end
-
-						-- Insanity if noChannel
-						if getBuffRemain("player",InsanityBuff)>=0.3*options.player.GCD then
-							-- Check for current channel and cast Insanity
-							if select(1,UnitChannelInfo("player")) == nil then
-								if castSpell("target",MF,false,true) then return; end
-							end
-						end
 
 						--------------
 						-- get orbs --
 						--------------
-						-- only collect Orbs if no InsanityBuff
-						if getBuffRemain("player",InsanityBuff)<=0 then
-							-- only collect Orbs if not channeling insanity atm
+						if getBuffRemain("player",InsanityBuff)<=0
+						and GetTime()-lastDP > 8 then
 							if not select(1,UnitChannelInfo("player")) ~= "Insanity" then
-								-- Halo, Shadowfiend, Mindbender
-								if ShadowCooldownsSmall(options) then return end
-								--if options.isChecked.isBoss and isBoss() then ShadowCooldownsSmall(options) end
-								--if not options.isChecked.isBoss then ShadowCooldownsSmall(options) end
-
 								-- SWP
 								if options.buttons.DoT==2 or options.buttons.DoT==4 then 
 									throwSWP(options,false)
@@ -659,26 +641,12 @@ if select(3, UnitClass("player")) == 5 then
 									if refreshVT(options,false) then return end
 								end
 
-								-- Mind Sear
-								if options.isChecked.MindSear then
-									if #getEnemies("target",10)>=options.values.MindSear then
-										if select(1,UnitChannelInfo("player")) ~= "Mind Sear" then
-											if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
-												if castSpell("target",MS,false,true) then return; end
-											end
-										end
-									end
-								end
-
 								-- Mind Spike
 								if options.player.ORBS<5 and not (UnitChannelInfo("player")=="Insanity") then
-									if #getEnemies("target",10)<options.values.MindSear and options.isChecked.MindSear
-									or not options.isChecked.MindSear then
-										if castSpell("target",MSp,false,true) then return; end
-									end
+									if castSpell("target",MSp,false,true) then return end
 								end
-							end -- Unitchannel(Insanity)
-						end -- Insanity Buff
+							end
+						end
 					end -- getTalent(3,3)
 					
 					-- SoD
