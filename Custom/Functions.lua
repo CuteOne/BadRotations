@@ -6,6 +6,19 @@
 --[[                                                                                                ]]
 --[[ ragnar                                                                                         ]]
 --[[                                                                                                ]]
+function getTooltipSize(SpellID)
+	-- description
+		-- get the dmg or heal value from a tooltip
+
+	-- return:
+		-- number
+		
+	-- example:
+		-- getTooltipSize(2061)
+
+	_, _, n1, n2 = GetSpellDescription(SpellID):find("(%d+),(%d%d%d)")
+	return n1..n2
+end
 
 function RaidBuff(BuffSlot,myBuffSpellID)
 	-- description: 
