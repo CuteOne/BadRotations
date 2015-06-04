@@ -264,10 +264,6 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewBox(thisConfig,"SWP all", 1, 40, 1, 4, "Set to desired range for throwing SWP around.")
 			CreateNewText(thisConfig,"SWP all")
 
-			-- Level Rotation
-			CreateNewCheck(thisConfig,"Level Rotation","only available under lvl100 \nactivate to use level rotation")
-			CreateNewText("Level Rotation")
-
 			-- -- Auto Rez
 			-- CreateNewCheck(thisConfig,"Auto Rez")
 			-- CreateNewText(thisConfig,"Auto Rez(TBD)")
