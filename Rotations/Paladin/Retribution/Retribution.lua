@@ -77,6 +77,12 @@ if select(3, UnitClass("player")) == 2 then
 		if isChecked("Selfless Healer") and core:castSelfLessHealer() then
 			return
 		end
+    -- Sacred Shield
+    if isChecked("Sacred Shield") then
+      if core:castSacredShield() then
+        return
+      end
+    end
 		-- Self Glory
 		if isChecked("Self Glory") then
 			core:castWordOfGlory()
@@ -98,14 +104,12 @@ if select(3, UnitClass("player")) == 2 then
 		-- Holy Avenger (off gcd)
 		-- actions+=/holy_avenger,sync=seraphim,if=talent.seraphim.enabled
 		-- actions+=/holy_avenger,if=holy_power<=2&!talent.seraphim.enabled
-		-- TODO: implement sync
 		if holyPower <= 2 then
 			core:castHolyAvenger()
 		end 
 		-- Avenging Wrath (off gcd) (sync with SoK)
 		-- actions+=/avenging_wrath,sync=seraphim,if=talent.seraphim.enabled
 		-- actions+=/avenging_wrath,if=!talent.seraphim.enabled
-		-- TODO: implement sync
 		if core:castAvengingWrath() then
 			core:castSoK()
 		end
@@ -167,14 +171,6 @@ if select(3, UnitClass("player")) == 2 then
 			if core:castHammerOfWrath() then
 				return
 			end
-			-- templars verdict to dump holy power if avenging wrath up
-			--[[ TODO: use it?
-			if holyPower >= 4 and buff.avengingWrath > 0 then
-				if core:castTemplarsVerdict() then
-					return
-				end
-			end
-			]]--
 			-- actions.single+=/judgment,if=talent.empowered_seals.enabled
 			if talent.empoweredSeals then
 				-- &seal.truth&buff.maraads_truth.remains<cooldown.judgment.duration

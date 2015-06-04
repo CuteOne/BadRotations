@@ -149,7 +149,7 @@ if select(3,UnitClass("player")) == 2 then
 			-- Avenging Wrath
 			function retCore:castAvengingWrath()
 				if isSelected("Avenging Wrath") then
-					if (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 400*UnitHealthMax(player)/100)) then
+					if (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4*UnitHealthMax(player))) then
 						if self.talent.seraphim and self.buff.seraphim or (not self.talent.seraphim and self.holyPower <= 2) then
 							return castSpell(player,self.spell.avengingWrath,true,false) == true or false
 						end
@@ -230,7 +230,7 @@ if select(3,UnitClass("player")) == 2 then
 			-- Holy Avenger
 			function retCore:castHolyAvenger()
 				if isSelected("Holy Avenger") then
-					if isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 400*UnitHealthMax(player)/100) then
+					if isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4*UnitHealthMax(player)) then
 						if self.talent.seraphim and self.buff.seraphim or (not self.talent.seraphim and self.holyPower <= 2) then
 							return castSpell(player,self.spell.holyAvenger,true,false) == true or false
 						end
@@ -291,6 +291,11 @@ if select(3,UnitClass("player")) == 2 then
 			function retCore:castRebuke()
 				castInterrupt(self.spell.rebuke, getValue("Rebuke"))
 			end
+      
+      function retCore:castSacredShield()
+        return castSpell(player,self.spell.sacredShield,true,false) == true or false
+      end
+    
 
 			-- Seals
 			function retCore:castSeal(value)
@@ -313,7 +318,7 @@ if select(3,UnitClass("player")) == 2 then
 			-- Seraphim
 			function retCore:castSeraphim()
 				if self.talent.seraphim and self.holyPower == 5 then
-					if isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 400*UnitHealthMax(player)/100) then
+					if isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4*UnitHealthMax(player)) then
 						return castSpell(player,self.spell.seraphim,true,false) == true or false
 					end
 				end
