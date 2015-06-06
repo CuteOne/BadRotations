@@ -124,11 +124,11 @@ if select(3,UnitClass("player")) == 10 then
 				--			Polearm	- 115698
 				if SubType == "Staves" then
 					self.spell.jab = 108557
-				elseif SubType == "One-Handed Axes" or sSubType == "Two-Handed Axes" then
+				elseif SubType == "One-Handed Axes" or SubType == "Two-Handed Axes" then
 					self.spell.jab = 115687
-				elseif SubType == "One-Handed Maces" or sSubType == "Two-Handed Maces" then
+				elseif SubType == "One-Handed Maces" or SubType == "Two-Handed Maces" then
 					self.spell.jab = 115693
-				elseif SubType == "One-Handed Swords" or sSubType == "Two-Handed Swords" then
+				elseif SubType == "One-Handed Swords" or SubType == "Two-Handed Swords" then
 					self.spell.jab = 115695
 				elseif SubType == "Polearms" then
 					self.spell.jab = 115698
