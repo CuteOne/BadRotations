@@ -54,7 +54,8 @@ if select(3, UnitClass("player")) == 2 then
 	-- OFF-GCD here we add the spells we want to be spamming all the time
 	if core.inCombat then
 		-- Rebuke
-		core:castRebuke()
+		-- Currently interrupts not working
+		--core:castRebuke()
 
 		-- Divine Protection
 		castDivineProtection()

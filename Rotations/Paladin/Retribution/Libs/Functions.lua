@@ -99,9 +99,10 @@ if select(3,UnitClass("player")) == 2 then
 				self.buff.finalVerdict = getBuffRemain(player,self.spell.finalVerdict)
 				self.buff.liadrinsRighteousness = getBuffRemain(player,156989)
 				self.buff.seraphim = getBuffRemain(player,self.spell.seraphim)
-				self.buff.blazingContempt = getBuffRemain(player,166831) -- IsSpellOverlayed(122032)	-- T17 - 4 Set Bonus 166831
-				self.buff.crusaderFury = getBuffRemain(player,165442) --IsSpellOverlayed(158392) 	-- T17 - 2 Set Bonus 165442
+				self.buff.blazingContempt = getBuffRemain(player,166831) -- IsSpellOverlayed(122032)    -- T17 - 4 Set Bonus 166831
+				self.buff.crusaderFury = getBuffRemain(player,165442) --IsSpellOverlayed(158392)    -- T17 - 2 Set Bonus 165442
 				self.buff.maraadsTruth = getBuffRemain(player,156990)
+				self.buff.sacredShield = getBuffRemain(player,self.spell.sacredShield)
 				-- Cooldowns
 				self.cd.avengingWrath = getSpellCD(self.spell.avengingWrath)
 				self.cd.judgment = getSpellCD(self.spell.judgment)
@@ -279,7 +280,7 @@ if select(3,UnitClass("player")) == 2 then
 			function retCore:castLightsHammer()
 				if isSelected("Light's Hammer") then
 					local thisUnit = self.units.dyn30AoE
-			  		if UnitExists(thisUnit) and (isDummy(thisUnit) or not isMoving(thisUnit)) then
+					if UnitExists(thisUnit) and (isDummy(thisUnit) or not isMoving(thisUnit)) then
 						if getGround(thisUnit) then
 							return castGround(thisUnit,self.spell.lightsHammer,30) == true or false
 						end
@@ -289,14 +290,20 @@ if select(3,UnitClass("player")) == 2 then
 
 			-- Rebuke
 			function retCore:castRebuke()
-				castInterrupt(self.spell.rebuke, getValue("Rebuke"))
+				if BadBoy_data["Interrupts"] ~= 1 and isChecked("Rebuke") then
+					castInterrupt(self.spell.rebuke, getValue("Rebuke"))
+				end
 			end
-      
-      function retCore:castSacredShield()
-        return castSpell(player,self.spell.sacredShield,true,false) == true or false
-      end
-    
-
+	  
+			-- Sacred Shield
+			function retCore:castSacredShield()
+				if self.health <= getValue("Sacred Shield") then
+					if self.buff.sacredShield < 6 then
+						return castSpell(player,self.spell.sacredShield,true,false) == true or false
+					end
+				end
+			end
+	
 			-- Seals
 			function retCore:castSeal(value)
 				if value == 1 then
