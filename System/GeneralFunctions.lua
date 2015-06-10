@@ -2130,79 +2130,158 @@ function TierScan(thisTier)
                 115541, -- hands
                 115542, -- head
                 115543, -- legs
-                115544 -- shoulder
+                115544, -- shoulder
             },
             ["DEATH KNIGHT"] = {
                 115535, -- legs
                 115536, -- shoulder
                 115537, -- chest
                 115538, -- hands
-                115539 -- head
+                115539, -- head
             },
             ["HUNTER"] = {
                 115545, -- head
                 115546, -- legs
                 115547, -- shoulder
                 115548, -- chest
-                115549 -- hands
+                115549, -- hands
             },
             ["MAGE"] = {
                 115550, -- chest
                 115551, -- shoulder
                 155552, -- hands
                 155553, -- head
-                155554 -- legs
+                155554, -- legs
             },
             ["MONK"] = {
                 115555, -- hands
                 115556, -- head
                 115557, -- legs
                 115558, -- chest
-                115559 -- shoulder
+                115559, -- shoulder
             },
             ["PALADIN"] = {
                 115565, -- shoulder
                 115566, -- chest
                 115567, -- hands
                 115568, -- head
-                115569 -- legs
+                115569, -- legs
             },
             ["PRIEST"] = {
                 115560, -- chest
                 115561, -- shoulder
                 115562, -- hands
                 115563, -- head
-                115564 -- legs
+                115564, -- legs
             },
             ["ROGUE"] = {
                 115570, -- chest
                 115571, -- hands
                 115572, -- head
                 115573, -- legs
-                115574 -- shoulder
+                115574, -- shoulder
             },
             ["SHAMAN"] = {
                 115575, -- legs
                 115576, -- shoulder
                 115577, -- chest
                 115578, -- hands
-                115579 -- head
+                115579, -- head
             },
             ["WARLOCK"] = {
                 115585, -- hands
                 115586, -- head
                 115587, -- legs
                 115588, -- chest
-                115589 -- shoulder
+                115589, -- shoulder
             },
             ["WARRIOR"] = {
                 115580, -- legs
                 115581, -- shoulder
                 115582, -- chest
                 115583, -- hands
-                115584 -- head
-            }
-        }
+                115584, -- head
+            },
+        },
+        ["T18"] = {
+            ["DRUID"] = {
+				124246, -- chest
+				124255, -- hands
+				124261, -- head
+				124267, -- legs
+				124272, -- shoulder
+            },
+            ["DEATH KNIGHT"] = {
+				124317, -- chest
+				124327, -- hands
+				124332, -- head
+				124338, -- legs
+				124344, -- shoulder
+            },
+            ["HUNTER"] = {
+				124284, -- chest
+				124292, -- hands
+				124296, -- head
+				124301, -- legs
+				124307, -- shoulder
+            },
+            ["MAGE"] = {
+				124171, -- chest
+				124154, -- hands
+				124160, -- head
+				124165, -- legs
+				124177, -- shoulder
+            },
+            ["MONK"] = {
+				124247, -- chest
+				124256, -- hands
+				124262, -- head
+				124268, -- legs
+				124273, -- shoulder
+            },
+            ["PALADIN"] = {
+				124318, -- chest
+				124328, -- hands
+				124333, -- head
+				124339, -- legs
+				124345, -- shoulder
+            },
+            ["PRIEST"] = {
+				124172, -- chest
+				124155, -- hands
+				124161, -- head
+				124166, -- legs
+				124178, -- shoulder
+            },
+            ["ROGUE"] = {
+				124248, -- chest
+				124257, -- hands
+				124263, -- head
+				124269, -- legs
+				124274, -- shoulder
+            },
+            ["SHAMAN"] = {
+				124303, -- chest
+				124293, -- hands
+				124297, -- head
+				124302, -- legs
+				124308, -- shoulder
+            },
+            ["WARLOCK"] = {
+				124173, -- chest
+				124156, -- hands
+				124162, -- head
+				124167, -- legs
+				124179, -- shoulder
+            },
+            ["WARRIOR"] = {
+				124319, -- chest
+				124329, -- hands
+				124334, -- head
+				124340, -- legs
+				124346, -- shoulder
+            },
+        },
     }
     -- scan every items
     for i=1, 19 do
