@@ -64,7 +64,7 @@ if select(3,UnitClass("player")) == 2 then
     generateWrapper("Defensive")
 
     -- Divine Protection
-    CreateNewCheck(thisConfig,"Divine Protection",1)
+    CreateNewCheck(thisConfig,"Divine Protection","Divine Protection",1)
     CreateNewBox(thisConfig,"Divine Protection",0,100,1,75,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFDivine Protection")
     CreateNewText(thisConfig,"Divine Protection")
 
@@ -122,9 +122,9 @@ if select(3,UnitClass("player")) == 2 then
     generateWrapper("Utilities")
 
     -- Rebuke
-    CreateNewCheck(thisConfig,"Rebuke",1,redColor.."Check" ..whiteColor.."to use "..redColor.."Rebuke"..whiteColor..".")
+    CreateNewCheck(thisConfig,"Rebuke",redColor.."Check" ..whiteColor.."to use "..redColor.."Rebuke"..whiteColor..".",1)
     CreateNewBox(thisConfig,"Rebuke",0,100,5,35,redColor.."Over what % of cast"..whiteColor.." we want to use "..redColor.."Rebuke"..whiteColor..".")
-    CreateNewText(thisConfig,redColor.."Rebuke")
+    CreateNewText(thisConfig,"Rebuke")
 
     -- General Configs
     CreateGeneralsConfig()

@@ -35,7 +35,7 @@ What to do if you have crash to desktop or 134 errors.
 |Unholy|85%|chumii|
 ||||
 | **Hunter** |||
-|Beastmaster|80%|CodeMyLife|
+|Beastmaster|100%|CodeMyLife,Defmaster|
 |Marksmanship|100%|Mavmins|
 |Survival|100%|Mavmins|
 ||||
