@@ -17,7 +17,7 @@ function getTooltipSize(SpellID)
 		-- getTooltipSize(2061)
 
 	_, _, n1, n2 = GetSpellDescription(SpellID):find("(%d+),(%d%d%d)")
-	return n1..n2
+	return tonumber(n1..n2)
 end
 
 function RaidBuff(BuffSlot,myBuffSpellID)
