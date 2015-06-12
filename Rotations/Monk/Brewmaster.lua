@@ -225,7 +225,7 @@ if select(3,UnitClass("player")) == 10 then
       --  Raidbuff_Monk()
       --end
       --Purifying Brew
-      if DrinkStagger() then
+      if DrinkStagger() or UnitBuffID("player",_Serenity) then
         if castSpell("player",_PurifyingBrew,true,false) then
           return
         end
@@ -258,10 +258,12 @@ if select(3,UnitClass("player")) == 10 then
       end
       -- actions+=/elusive_brew,if=buff.elusive_brew_stacks.react>=9&(buff.dampen_harm.down|buff.diffuse_magic.down)&buff.elusive_brew_activated.down
       --and (not UnitBuffID("player",_DampenHarm) or not UnitBuffID("player",_DiffuseMagic))
-      if ElusiveStacks >= 9 and not UnitBuff("player",115308) then
-        if castSpell("player",_ElusiveBrew,true,false) then
-          return
-        end
+      if (ElusiveStacks >= 9 and not UnitBuff("player",115308) and not isChecked("Elusive Brew")) or
+        (isChecked("Elusive Brew") and ElusiveStacks >= getValue("Elusive Brew")) 
+        then
+          if castSpell("player",_ElusiveBrew,true,false) then
+            return
+          end
       end
       -- actions+=/serenity,if=talent.serenity.enabled&cooldown.keg_smash.remains>6
       if isKnown(_Serenity) then
@@ -408,8 +410,10 @@ if select(3,UnitClass("player")) == 10 then
         end
         --actions.aoe+=/breath_of_fire,if=(chi>=3|buff.serenity.up)&buff.shuffle.remains>=6&dot.breath_of_fire.remains<=2.4&!talent.chi_explosion.enabled
         if (chi >= 3 or UnitBuffID("player",_Serenity)) and getBuffRemain("player",_Shuffle) >= 6 and getDebuffRemain(dyn5,_BreathOfFire) <= 2.4 and not getTalent(7,2) then
-          if castSpell(dyn5,_BreathOfFire,false,false) then
-            return
+          if not isChecked("Breath of Fire") then
+            if castSpell(dyn5,_BreathOfFire,false,false) then
+              return
+            end
           end
         end
         --actions.aoe+=/keg_smash,if=chi.max-chi>=1&!buff.serenity.remains

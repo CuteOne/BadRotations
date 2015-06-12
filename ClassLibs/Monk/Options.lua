@@ -111,6 +111,14 @@ This function will use table row #1.]]
       CreateNewCheck(thisConfig,"Invoke Xuen");
       CreateNewText(thisConfig,"Invoke Xuen");
 
+      -- Breath of Fire
+      CreateNewCheck(thisConfig,"Breath of Fire","Disable usage of Breath of Fire");
+      CreateNewText(thisConfig,"Breath of Fire");
+
+      CreateNewCheck(thisConfig,"Elusive Brew");
+      CreateNewBox(thisConfig, "Elusive Brew", 0, 16  , 1, 9, "|cffFFBB00At what |cffFF0000Stack|cffFFBB00 to use |cffFFFFFFElusive Brew");
+      CreateNewText(thisConfig,"Elusive Brew");
+
       --Spacer
       CreateNewText(thisConfig," ");
       -- Wrapper -----------------------------------------
