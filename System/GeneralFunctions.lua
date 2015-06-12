@@ -602,10 +602,11 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 							timersTable[SpellID] = GetTime()
 							currentTarget = UnitGUID(Unit)
 							CastSpellByName(GetSpellInfo(SpellID),Unit)
-							lastSpellCast = SpellID
+							--lastSpellCast = SpellID
 							-- change main button icon
 							if getOptionCheck("Start/Stop BadBoy") then
 								mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
+								lastSpellCast = SpellID
 							end
 							return true
 						end
@@ -615,6 +616,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 					CastSpellByName(GetSpellInfo(SpellID),Unit)
 					if getOptionCheck("Start/Stop BadBoy") then
 						mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
+						lastSpellCast = SpellID
 					end
 					return true
 				end
