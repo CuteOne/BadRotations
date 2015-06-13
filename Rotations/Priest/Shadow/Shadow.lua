@@ -2,16 +2,8 @@ if select(3, UnitClass("player")) == 5 then
 	function PriestShadow()
 
 		if currentConfig ~= "Shadow ragnar" then
-			-- Load LibDraw
-			-- if select(1,IsAddOnLoaded("!LibDraw"))==true then
-			-- 	LibDraw = LibStub("LibDraw-1.0")
-			-- end
 			ShadowConfig()
 			ShadowToggles()
-			
-			
-			-- load my draws
-			--Drawing()
 			currentConfig = "Shadow ragnar"
 		end
 		-- Head End
@@ -22,7 +14,7 @@ if select(3, UnitClass("player")) == 5 then
 
 
 		-- Sort enemiesTable by absolute HP
-		if isChecked("sortByHPabs") then
+		--if isChecked("sortByHPabs") then
 			if enemiesTable then
 				if enemiesTableTimer <= GetTime() - 0.5 then
 					table.sort(enemiesTable, function(x,y)
@@ -30,7 +22,7 @@ if select(3, UnitClass("player")) == 5 then
 					end)
 				end
 			end
-		end
+		--end
 
 		local options = {
 			-- Player values
@@ -329,12 +321,15 @@ if select(3, UnitClass("player")) == 5 then
 			-- Queued Spells -------------------------------------------------------------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------------------------------------------------------------
 			if _Queues[Halo] == true then
+				ChatOverlay("Q - HALO")
 				if castSpell("player",Halo,true,false) then return end
 			end
 			if _Queues[Cascade] == true then
+				ChatOverlay("Q - CASCADE")
 				if castSpell("target",Cascade,true,false) then return end
 			end
 			if _Queues[DP] == true then
+				ChatOverlay("Q - DP")
 				if castSpell("target",DP,false,true) then return end
 			end
 
@@ -629,6 +624,9 @@ if select(3, UnitClass("player")) == 5 then
 						if getBuffRemain("player",InsanityBuff)<=0
 						and GetTime()-lastDP > 8 then
 							if not select(1,UnitChannelInfo("player")) ~= "Insanity" then
+								-- small CDs
+								if ShadowCooldownsSmall(options) then return end
+								
 								-- SWP
 								if options.buttons.DoT==2 or options.buttons.DoT==4 then 
 									throwSWP(options,false)
@@ -641,8 +639,19 @@ if select(3, UnitClass("player")) == 5 then
 									if refreshVT(options,false) then return end
 								end
 
+								-- Mind Sear
+								if options.isChecked.MindSear then
+									if #getEnemies("target",10)>=options.values.MindSear then
+										if select(1,UnitChannelInfo("player")) ~= "Mind Sear" then
+											if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
+												if castSpell("target",MS,false,true) then return; end
+											end
+										end
+									end
+								end
+
 								-- Mind Spike
-								if options.player.ORBS<5 and not (UnitChannelInfo("player")=="Insanity") then
+								if options.player.ORBS<5 then
 									if castSpell("target",MSp,false,true) then return end
 								end
 							end
@@ -737,16 +746,16 @@ if select(3, UnitClass("player")) == 5 then
 							if options.buttons.DoT==3 or options.buttons.DoT==4 then
 								if throwVT(options,true) then return end
 							end
-							-- -- Mind Sear
-							-- if options.isChecked.MindSear then
-							-- 	if #getEnemies("target",10)>=options.values.MindSear then
-							-- 		if select(1,UnitChannelInfo("player")) ~= "Mind Sear" then
-							-- 			if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
-							-- 				if castSpell("target",MS,false,true) then return; end
-							-- 			end
-							-- 		end
-							-- 	end
-							-- end
+							-- Mind Sear
+							if options.isChecked.MindSear then
+								if #getEnemies("target",10)>=options.values.MindSear then
+									if select(1,UnitChannelInfo("player")) ~= "Mind Sear" then
+										if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
+											if castSpell("target",MS,false,true) then return; end
+										end
+									end
+								end
+							end
 
 							-- Insanity / MF
 							if getSpellCD(MB)>0.5 then

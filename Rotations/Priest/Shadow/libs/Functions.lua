@@ -1,5 +1,10 @@
 if select(3, UnitClass("player")) == 5 then
 
+	-- reset Queue
+	function resetQ()
+		_Queues = nil
+	end
+
 	-- raidbuff
 	function Raidbuff_Priest()
 		if not PWF_last_check or PWF_last_check + 5 < GetTime() then
@@ -106,14 +111,12 @@ if select(3, UnitClass("player")) == 5 then
 		for i = 1, #BlacklistBuff do
 			if getBuffRemain(datUnit,BlacklistBuff[i])>0 
 			or getDebuffRemain(datUnit,BlacklistBuff[i])>0 then
-				print("buff false")
 				return false
 			end
 		end
 		-- check name
 		for i = 1, #BlacklistName do
 			if UnitName(datUnit) == BlacklistName[i] then
-				print("name false")
 				return false
 			end
 		end
@@ -763,12 +766,10 @@ if select(3, UnitClass("player")) == 5 then
 						if currentBoss=="Heart of the Mountain" then
 							-- Cascade
 							if getTalent(6,1) then
-								if getSpellCD(Cascade)<=0 then
-									-- sort enemiesTable by distance
-									sortByDistance()
-									-- Cascade farest dog
-									for i=1,#enemiesTable do
-										local thisUnit = enemiesTable[i].unit
+								-- Cascade farest enemy in LoS
+								for i=1,#enemiesTable do
+									local thisUnit = enemiesTable[i].unit
+									if getLineOfSight(thisUnit) then
 										if getDistance("player",thisUnit)<40 then
 											if castSpell(thisUnit,Cascade,true,false) then return end
 										end
@@ -809,6 +810,18 @@ if select(3, UnitClass("player")) == 5 then
 							-- Automatic Target Dominator Turret
 							if UnitName("target")~="Dominator Turret" then
 								if LFU("Dominator Turret") then return end
+							end
+							-- Cascade
+							if getTalent(6,1) then
+								-- Cascade farest enemy in LoS
+								for i=1,#enemiesTable do
+									local thisUnit = enemiesTable[i].unit
+									if getLineOfSight(thisUnit) then
+										if getDistance("player",thisUnit)<40 and getDistance("player",thisUnit)>25 then
+											if castSpell(thisUnit,Cascade,true,false) then return end
+										end
+									end
+								end
 							end
 						end
 

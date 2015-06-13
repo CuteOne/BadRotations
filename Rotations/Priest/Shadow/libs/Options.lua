@@ -142,9 +142,9 @@ if select(3, UnitClass("player")) == 5 then
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"|cffBA55D3Multitarget")
 
-			-- Sort EnemiesTable by HPabs
-			CreateNewCheck(thisConfig,"sortByHPabs","Sort enemiesTable by descending health, so the highest absolute health unit will be dotted first.")
-			CreateNewText(thisConfig,"sortByHPabs")
+			-- -- Sort EnemiesTable by HPabs
+			-- CreateNewCheck(thisConfig,"sortByHPabs","Sort enemiesTable by descending health, so the highest absolute health unit will be dotted first.")
+			-- CreateNewText(thisConfig,"sortByHPabs")
 			
 			--if getTalent(7,3) then
 				-- VT on Target
@@ -286,9 +286,9 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 4, "Set to desired time for test in minutes.\nMin: 1 / Max: 15 / Interval: 1")
 			CreateNewText(thisConfig,"DPS Testing")
 
-			-- Bubble Wand
-			CreateNewCheck(thisConfig,"Bubble")
-			CreateNewText(thisConfig,"Bubble")
+			-- -- Bubble Wand
+			-- CreateNewCheck(thisConfig,"Bubble")
+			-- CreateNewText(thisConfig,"Bubble")
 
 			-- Disable Combat
 			CreateNewCheck(thisConfig,"disable Combat")
