@@ -217,6 +217,7 @@ function bb.read.combatLog()
     if source == bb.guid and param == "SPELL_CAST_SUCCESS" then
       -- Add spells we dont want to appear here.
       if spell ~= 155521 then     -- Auspicious Spirits
+        secondLastSpellCastSucess = lastSpellCastSuccess
         lastSpellCastSuccess = spell
       end
     end
