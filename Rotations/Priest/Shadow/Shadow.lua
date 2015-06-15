@@ -82,11 +82,12 @@ if select(3, UnitClass("player")) == 5 then
 				MindSear =			isChecked("MS Targets"),
 				pushDP = 			isChecked("pushDP"),
 				MSinsanity = 		isChecked("MSinsanity Key"),
-				-- Encounter Specific
+				-- Bosshelper
 				AutoGuise = 		isChecked("Auto Guise"),
 				AutoMassDispel = 	isChecked("Auto Mass Dispel"),
 				AutoDispel = 		isChecked("Auto Dispel"),
 				AutoSilence = 		isChecked("Auto Silence"),
+				AutoTarget = 		isChecked("Target Helper"),
 				-- Utilities
 				PWF = 				isChecked("PW: Fortitude"),
 				Shadowform =		isChecked("Shadowform Outfight"),
@@ -173,7 +174,12 @@ if select(3, UnitClass("player")) == 5 then
 					[Halo]  = false,
 					[Cascade] = false,
 					[DP] = false,
+					[AngelicFeather] = false,
 				}
+			end
+
+			if options.player.ORBS < 3 then
+				_Queues[DP] = false
 			end
 
 		------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -332,6 +338,12 @@ if select(3, UnitClass("player")) == 5 then
 				ChatOverlay("Q - DP")
 				if castSpell("target",DP,false,true) then return end
 			end
+			if _Queues[AngelicFeather] == true then
+				if castGround("player",AngelicFeather,30) then
+					SpellStopTargeting()
+					return
+				end
+			end
 
 
 				
@@ -343,122 +355,9 @@ if select(3, UnitClass("player")) == 5 then
 			------------------------------------------------------------------------------------------------------------------------------------------------------------
 			-- Boss Specific -------------------------------------------------------------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------------------------------------------------------------
-				-- Auto Guise
-				if getTalent(1,2) then
-					if options.isChecked.AutoGuise then
-						-- Iron Maidens
-						if currentBoss=="Marak the Blooded" or currentBoss=="Enforcer Sorka" or currentBoss=="Admiral Gar'an" then
-							if getDebuffRemain("player",PenetratingShot)<=4 then
-								if castSpell("player",SpectralGuise,true,false) then return end
-							end
-						end
-					end
-				end
-				-- Mass Dispel
-				if options.isChecked.AutoMassDispel then
-					-- Operator Thogar
-					if currentBoss=="Operator Thogar" then
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
-							if getSpellCD(MD)<=0 then
-								if getBuffRemain(thisUnit,160140)>0 then
-									if castGround(thisUnit,MD,30) then
-									SpellStopTargeting()
-									return
-									end
-								end
-							end
-						end
-					end
-					-- Blackhand Mythic
-					if currentBoss=="Blackhand" then
-						for i=1,#nNova do
-							local thisUnit = nNova[i].unit
-							-- Burning Cinders (162498)
-							if getDebuffRemain(thisUnit,162498)>0 then
-								if castGround(thisUnit,MD,30) then
-									SpellStopTargeting()
-									return
-								end
-							end
-						end
-					end
-				end
-				-- Dispel
-				if options.isChecked.AutoDispel then
-					-- Blast Furnace
-					if currentBoss=="Heart of the Mountain" then
-						-- Reactive Earth Shield
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
-							if getBuffRemain(thisUnit,155173)>0 then
-								if castSpell(thisUnit,DispM,true,false) then return end
-							end
-						end
-					end
-				end
-				-- Silence
-				if options.isChecked.AutoSilence then
-					-- Blast Furnace
-					if currentBoss=="Heart of the Mountain" then
-						-- Furnace Engineer: Repair
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
-							if UnitCastingInfo(thisUnit) == "Repair" 
-							and UnitName(thisUnit) == "Furnace Engineer" then
-								local cRem = select(6,UnitCastingInfo(thisUnit)) - GetTime()*1000
-								if cRem <= 250 then
-									if getSpellCD(Silence)<=0 then
-										if castSpell(thisUnit,Silence,true,false) then return; end
-									end
-									if isKnown(ArcT) then
-										if getSpellCD(ArcT)<=0 and getDistance("player",thisUnit)<=8 then
-											if castSpell(thisUnit,ArcT,true,false) then return end
-										end
-									end
-								end
-							end
-						end
-						-- Firecaller: Cauterize Wounds
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
-							if UnitCastingInfo(thisUnit) == "Cauterize Wounds" 
-							and UnitName(thisUnit) == "Firecaller" then
-								local cRem = select(6,UnitCastingInfo(thisUnit)) - GetTime()*1000
-								if cRem <= 1000 then
-									if getSpellCD(Silence)<=0 then
-										if castSpell(thisUnit,Silence,true,false) then return; end
-									end
-									if isKnown(ArcT) then
-										if getSpellCD(ArcT)<=0 and getDistance("player",thisUnit)<=8 then
-											if castSpell(thisUnit,ArcT,true,false) then return end
-										end
-									end
-								end
-							end
-						end
-					end
-					-- Operator Thogar
-					if currentBoss=="Operator Thogar" then
-						-- Grom'kar Firemender: Cauterizing Bolt
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
-							if UnitCastingInfo(thisUnit) == "Cauterizing Bolt" then
-								local cRem = select(6,UnitCastingInfo(thisUnit)) - GetTime()*1000
-								if cRem <= 1000 then
-									if getSpellCD(Silence)<=0 then
-										if castSpell(thisUnit,Silence,true,false) then return end
-									end
-									if isKnown(ArcT) then
-										if getSpellCD(ArcT)<=0 and getDistance("player",thisUnit)<=8 then
-											if castSpell(thisUnit,ArcT,true,false) then return end
-										end
-									end
-								end
-							end
-						end
-					end
-				end
+
+			BossHelper(options)
+				
 
 				------------------------------------------------------------------------------------------------------------------------------------------------------------
 				-- Offensives ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -494,10 +393,10 @@ if select(3, UnitClass("player")) == 5 then
 
 				-- if castingUnit() then return false; end
 				
-				-- Special Boss Mechanics
-				if options.buttons.BossHelper == 2 then
-					BossHelper()
-				end
+				-- -- Special Boss Mechanics
+				-- if options.buttons.BossHelper == 2 then
+				-- 	BossHelper()
+				-- end
 
 				--if getBuffRemain("player",MC,"player")>0 then return false end
 
