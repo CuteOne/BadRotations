@@ -69,7 +69,7 @@ if select(3, UnitClass("player")) == 5 then
 
 
 			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"|cffBA55D3Encounter Specific")
+			CreateNewWrap(thisConfig,"|cffBA55D3Bosshelper Specific")
 
 			-- Auto Guise
 			CreateNewCheck(thisConfig,"Auto Guise", "Auto Spectral Guise on: \nBRF: Iron Maidens")
@@ -86,6 +86,10 @@ if select(3, UnitClass("player")) == 5 then
 			-- Auto Silence
 			CreateNewCheck(thisConfig,"Auto Silence", "Auto Silence on: \nBRF: Blast Furnace\nBRF: Operator Thogar")
 			CreateNewText(thisConfig,"Auto Silence")
+
+			-- Auto Silence
+			CreateNewCheck(thisConfig,"Target Helper", "Assists to target the correct unit")
+			CreateNewText(thisConfig,"Target Helper")			
 
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"|cffBA55D3Defensive")
