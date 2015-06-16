@@ -171,6 +171,7 @@ Rotations\Paladin\Functions.lua
 Rotations\Paladin\Options.lua
 
 ## Priest ---------------------------------------------------
+Rotations\Priest\BossHelper.lua
 Rotations\Priest\SpellList.lua
 
 Rotations\Priest\Discipline\Discipline.lua
@@ -182,6 +183,11 @@ Rotations\Priest\Shadow\Shadow.lua
 Rotations\Priest\Shadow\libs\Functions.lua
 Rotations\Priest\Shadow\libs\Options.lua
 Rotations\Priest\Shadow\libs\Toggles.lua
+
+Rotations\Priest\Shadow\libs\Cooldowns.lua
+Rotations\Priest\Shadow\libs\Defensive.lua
+Rotations\Priest\Shadow\libs\DoT.lua
+Rotations\Priest\Shadow\libs\Execute.lua
 
 Rotations\Priest\Holy.lua
 

@@ -2,16 +2,8 @@ if select(3, UnitClass("player")) == 5 then
 	function PriestShadow()
 
 		if currentConfig ~= "Shadow ragnar" then
-			-- Load LibDraw
-			-- if select(1,IsAddOnLoaded("!LibDraw"))==true then
-			-- 	LibDraw = LibStub("LibDraw-1.0")
-			-- end
 			ShadowConfig()
 			ShadowToggles()
-			
-			
-			-- load my draws
-			--Drawing()
 			currentConfig = "Shadow ragnar"
 		end
 		-- Head End
@@ -22,7 +14,7 @@ if select(3, UnitClass("player")) == 5 then
 
 
 		-- Sort enemiesTable by absolute HP
-		if isChecked("sortByHPabs") then
+		--if isChecked("sortByHPabs") then
 			if enemiesTable then
 				if enemiesTableTimer <= GetTime() - 0.5 then
 					table.sort(enemiesTable, function(x,y)
@@ -30,7 +22,7 @@ if select(3, UnitClass("player")) == 5 then
 					end)
 				end
 			end
-		end
+		--end
 
 		local options = {
 			-- Player values
@@ -90,11 +82,12 @@ if select(3, UnitClass("player")) == 5 then
 				MindSear =			isChecked("MS Targets"),
 				pushDP = 			isChecked("pushDP"),
 				MSinsanity = 		isChecked("MSinsanity Key"),
-				-- Encounter Specific
+				-- Bosshelper
 				AutoGuise = 		isChecked("Auto Guise"),
 				AutoMassDispel = 	isChecked("Auto Mass Dispel"),
 				AutoDispel = 		isChecked("Auto Dispel"),
 				AutoSilence = 		isChecked("Auto Silence"),
+				AutoTarget = 		isChecked("Target Helper"),
 				-- Utilities
 				PWF = 				isChecked("PW: Fortitude"),
 				Shadowform =		isChecked("Shadowform Outfight"),
@@ -181,7 +174,12 @@ if select(3, UnitClass("player")) == 5 then
 					[Halo]  = false,
 					[Cascade] = false,
 					[DP] = false,
+					[AngelicFeather] = false,
 				}
+			end
+
+			if options.player.ORBS < 3 then
+				_Queues[DP] = false
 			end
 
 		------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -329,13 +327,22 @@ if select(3, UnitClass("player")) == 5 then
 			-- Queued Spells -------------------------------------------------------------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------------------------------------------------------------
 			if _Queues[Halo] == true then
+				ChatOverlay("Q - HALO")
 				if castSpell("player",Halo,true,false) then return end
 			end
 			if _Queues[Cascade] == true then
+				ChatOverlay("Q - CASCADE")
 				if castSpell("target",Cascade,true,false) then return end
 			end
 			if _Queues[DP] == true then
+				ChatOverlay("Q - DP")
 				if castSpell("target",DP,false,true) then return end
+			end
+			if _Queues[AngelicFeather] == true then
+				if castGround("player",AngelicFeather,30) then
+					SpellStopTargeting()
+					return
+				end
 			end
 
 
@@ -348,122 +355,9 @@ if select(3, UnitClass("player")) == 5 then
 			------------------------------------------------------------------------------------------------------------------------------------------------------------
 			-- Boss Specific -------------------------------------------------------------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------------------------------------------------------------
-				-- Auto Guise
-				if getTalent(1,2) then
-					if options.isChecked.AutoGuise then
-						-- Iron Maidens
-						if currentBoss=="Marak the Blooded" or currentBoss=="Enforcer Sorka" or currentBoss=="Admiral Gar'an" then
-							if getDebuffRemain("player",PenetratingShot)<=4 then
-								if castSpell("player",SpectralGuise,true,false) then return end
-							end
-						end
-					end
-				end
-				-- Mass Dispel
-				if options.isChecked.AutoMassDispel then
-					-- Operator Thogar
-					if currentBoss=="Operator Thogar" then
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
-							if getSpellCD(MD)<=0 then
-								if getBuffRemain(thisUnit,160140)>0 then
-									if castGround(thisUnit,MD,30) then
-									SpellStopTargeting()
-									return
-									end
-								end
-							end
-						end
-					end
-					-- Blackhand Mythic
-					if currentBoss=="Blackhand" then
-						for i=1,#nNova do
-							local thisUnit = nNova[i].unit
-							-- Burning Cinders (162498)
-							if getDebuffRemain(thisUnit,162498)>0 then
-								if castGround(thisUnit,MD,30) then
-									SpellStopTargeting()
-									return
-								end
-							end
-						end
-					end
-				end
-				-- Dispel
-				if options.isChecked.AutoDispel then
-					-- Blast Furnace
-					if currentBoss=="Heart of the Mountain" then
-						-- Reactive Earth Shield
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
-							if getBuffRemain(thisUnit,155173)>0 then
-								if castSpell(thisUnit,DispM,true,false) then return end
-							end
-						end
-					end
-				end
-				-- Silence
-				if options.isChecked.AutoSilence then
-					-- Blast Furnace
-					if currentBoss=="Heart of the Mountain" then
-						-- Furnace Engineer: Repair
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
-							if UnitCastingInfo(thisUnit) == "Repair" 
-							and UnitName(thisUnit) == "Furnace Engineer" then
-								local cRem = select(6,UnitCastingInfo(thisUnit)) - GetTime()*1000
-								if cRem <= 250 then
-									if getSpellCD(Silence)<=0 then
-										if castSpell(thisUnit,Silence,true,false) then return; end
-									end
-									if isKnown(ArcT) then
-										if getSpellCD(ArcT)<=0 and getDistance("player",thisUnit)<=8 then
-											if castSpell(thisUnit,ArcT,true,false) then return end
-										end
-									end
-								end
-							end
-						end
-						-- Firecaller: Cauterize Wounds
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
-							if UnitCastingInfo(thisUnit) == "Cauterize Wounds" 
-							and UnitName(thisUnit) == "Firecaller" then
-								local cRem = select(6,UnitCastingInfo(thisUnit)) - GetTime()*1000
-								if cRem <= 1000 then
-									if getSpellCD(Silence)<=0 then
-										if castSpell(thisUnit,Silence,true,false) then return; end
-									end
-									if isKnown(ArcT) then
-										if getSpellCD(ArcT)<=0 and getDistance("player",thisUnit)<=8 then
-											if castSpell(thisUnit,ArcT,true,false) then return end
-										end
-									end
-								end
-							end
-						end
-					end
-					-- Operator Thogar
-					if currentBoss=="Operator Thogar" then
-						-- Grom'kar Firemender: Cauterizing Bolt
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
-							if UnitCastingInfo(thisUnit) == "Cauterizing Bolt" then
-								local cRem = select(6,UnitCastingInfo(thisUnit)) - GetTime()*1000
-								if cRem <= 1000 then
-									if getSpellCD(Silence)<=0 then
-										if castSpell(thisUnit,Silence,true,false) then return end
-									end
-									if isKnown(ArcT) then
-										if getSpellCD(ArcT)<=0 and getDistance("player",thisUnit)<=8 then
-											if castSpell(thisUnit,ArcT,true,false) then return end
-										end
-									end
-								end
-							end
-						end
-					end
-				end
+
+			BossHelper(options)
+				
 
 				------------------------------------------------------------------------------------------------------------------------------------------------------------
 				-- Offensives ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -499,10 +393,10 @@ if select(3, UnitClass("player")) == 5 then
 
 				-- if castingUnit() then return false; end
 				
-				-- Special Boss Mechanics
-				if options.buttons.BossHelper == 2 then
-					BossHelper()
-				end
+				-- -- Special Boss Mechanics
+				-- if options.buttons.BossHelper == 2 then
+				-- 	BossHelper()
+				-- end
 
 				--if getBuffRemain("player",MC,"player")>0 then return false end
 
@@ -629,6 +523,9 @@ if select(3, UnitClass("player")) == 5 then
 						if getBuffRemain("player",InsanityBuff)<=0
 						and GetTime()-lastDP > 8 then
 							if not select(1,UnitChannelInfo("player")) ~= "Insanity" then
+								-- small CDs
+								if ShadowCooldownsSmall(options) then return end
+								
 								-- SWP
 								if options.buttons.DoT==2 or options.buttons.DoT==4 then 
 									throwSWP(options,false)
@@ -641,8 +538,19 @@ if select(3, UnitClass("player")) == 5 then
 									if refreshVT(options,false) then return end
 								end
 
+								-- Mind Sear
+								if options.isChecked.MindSear then
+									if #getEnemies("target",10)>=options.values.MindSear then
+										if select(1,UnitChannelInfo("player")) ~= "Mind Sear" then
+											if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
+												if castSpell("target",MS,false,true) then return; end
+											end
+										end
+									end
+								end
+
 								-- Mind Spike
-								if options.player.ORBS<5 and not (UnitChannelInfo("player")=="Insanity") then
+								if options.player.ORBS<5 then
 									if castSpell("target",MSp,false,true) then return end
 								end
 							end
@@ -737,16 +645,16 @@ if select(3, UnitClass("player")) == 5 then
 							if options.buttons.DoT==3 or options.buttons.DoT==4 then
 								if throwVT(options,true) then return end
 							end
-							-- -- Mind Sear
-							-- if options.isChecked.MindSear then
-							-- 	if #getEnemies("target",10)>=options.values.MindSear then
-							-- 		if select(1,UnitChannelInfo("player")) ~= "Mind Sear" then
-							-- 			if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
-							-- 				if castSpell("target",MS,false,true) then return; end
-							-- 			end
-							-- 		end
-							-- 	end
-							-- end
+							-- Mind Sear
+							if options.isChecked.MindSear then
+								if #getEnemies("target",10)>=options.values.MindSear then
+									if select(1,UnitChannelInfo("player")) ~= "Mind Sear" then
+										if select(1,UnitChannelInfo("player")) == nil or select(1,UnitChannelInfo("player")) == "Mind Flay" then
+											if castSpell("target",MS,false,true) then return; end
+										end
+									end
+								end
+							end
 
 							-- Insanity / MF
 							if getSpellCD(MB)>0.5 then

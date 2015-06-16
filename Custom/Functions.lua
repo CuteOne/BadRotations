@@ -20,6 +20,29 @@ function getTooltipSize(SpellID)
 	return tonumber(n1..n2)
 end
 
+function castBossButton(target)
+	if target==nil then
+		RunMacroText("/click ExtraActionButton1")
+		return true
+	else
+		TargetUnit(target)
+		RunMacroText("/click ExtraActionButton1")
+		return true
+	end
+end
+
+-- get threat situation on player and return the number
+function getThreat()
+	if UnitThreatSituation("player") ~= nil then
+		return UnitThreatSituation("player")
+	end
+	-- 0 - Unit has less than 100% raw threat (default UI shows no indicator)
+	-- 1 - Unit has 100% or higher raw threat but isn't mobUnit's primary target (default UI shows yellow indicator)
+	-- 2 - Unit is mobUnit's primary target, and another unit has 100% or higher raw threat (default UI shows orange indicator)
+	-- 3 - Unit is mobUnit's primary target, and no other unit has 100% or higher raw threat (default UI shows red indicator)
+	return 0
+end
+
 function RaidBuff(BuffSlot,myBuffSpellID)
 	-- description: 
 		-- check for raidbuff and cast if missing

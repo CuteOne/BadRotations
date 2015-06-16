@@ -171,7 +171,11 @@ function bb.read.combatLog()
       -- available locals
       -- timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
       -- destName, destFlags, destRaidFlags, spell, spellName, _, spellType
-      if SpellID ~= 75 and SpellID ~= 88263 and SpellID ~= 172 and SpellID ~= 8690 then -- Add spells we dont want to appear here.
+      -- Add spells we dont want to appear here.
+      if SpellID ~= 75              -- Auto Shot
+        and SpellID ~= 88263        -- 88263
+        --and SpellID ~= 172        -- Corruption
+        and SpellID ~= 8690 then    -- Hearthstone
         local color = "|cff12C8FF"
         local white = "|cffFFFFFF"
         local red = "|cffFF001E"
@@ -207,6 +211,14 @@ function bb.read.combatLog()
           ..red..debugdest..color..debugSpell.."|cffFFDD11"..Power
         -- pulse display
         bb.read:display(textString)
+      end
+    end
+    --[[ Last Spell Cast Success ]]
+    if source == bb.guid and param == "SPELL_CAST_SUCCESS" then
+      -- Add spells we dont want to appear here.
+      if spell ~= 155521 then     -- Auspicious Spirits
+        secondLastSpellCastSucess = lastSpellCastSuccess
+        lastSpellCastSuccess = spell
       end
     end
   end

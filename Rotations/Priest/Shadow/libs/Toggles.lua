@@ -6,7 +6,7 @@ if select(3, UnitClass("player")) == 5 then
 		if DefensiveModesLoaded ~= "Shadow Priest Defensive Modes" then
 			DefensiveModes = {
 				[1] = { mode = "off", value = 1, overlay = "Defensive Disabled", tip = "|cffFF0000Defensive \n|cffFFDD11No Defensive Cooldowns will be used.", highlight = 0, icon = 17 },
-				[2] = { mode = "on", value = 2, overlay = "Defensive Enabled", tip = "|cff00FF00Defensive \n|cffFF0000Spells Included: \n|cffFFDD11Power Word: Shield \nFade (glyphed) \nDesperate Prayer \nHealthstone", highlight = 1, icon = 17 }
+				[2] = { mode = "on", value = 2, overlay = "Defensive Enabled", tip = "|cff00FF00Defensive \n|cffFF0000", highlight = 1, icon = 17 }
 			};
 			CreateButton("Defensive",1,0)
 			DefensiveModesLoaded = "Shadow Priest Defensive Modes";
@@ -15,10 +15,10 @@ if select(3, UnitClass("player")) == 5 then
 		-- DoT Button
 		if DoTModesLoaded ~= "Shadow Priest DoT Modes" then
 			DoTModes = {
-				[1] = { mode = "off", value = 1 , overlay = "DotEmAll off", tip = "|cffFF0000No Multidot \n|cffFFDD11This modes are only for \nSingleTarget=1 and Rotation=weave \n\n|cffFF0000This stuff is experimental!", highlight = 0, icon = 155271 },
-				[2] = { mode = "SWP", value = 2 , overlay = "SWP only on", tip = "|cff00FF00SWP only \n|cffFFDD11Dots all Targets with SWP.\nSet min. health in Options", highlight = 1, icon = 589 },
-				[3] = { mode = "VT", value = 3 , overlay = "VT only on", tip = "|cff00FF00VT only \n|cffFFDD11Dots all Targets with VT.\nSet min. health in Options", highlight = 1, icon = 34914 },
-				[4] = { mode = "All", value = 4 , overlay = "DotEmAll", tip = "|cff00FF00SWP&VT \n|cffFFDD11Dots all Targets with SWP&VT.\nSet min. health in Options", highlight = 1, icon = 165370 }
+				[1] = { mode = "off", value = 1 , overlay = "DotEmAll off", tip = "|cffFF0000No Multidot \n|cffFFDD11", highlight = 0, icon = 155271 },
+				[2] = { mode = "SWP", value = 2 , overlay = "SWP only on", tip = "|cff00FF00SWP only \n|cffFFDD11Dots all Targets with SWP.\nSet min. health and max targets in Options", highlight = 1, icon = 589 },
+				[3] = { mode = "VT", value = 3 , overlay = "VT only on", tip = "|cff00FF00VT only \n|cffFFDD11Dots all Targets with VT.\nSet min. health and max targets in Options", highlight = 1, icon = 34914 },
+				[4] = { mode = "All", value = 4 , overlay = "DotEmAll", tip = "|cff00FF00SWP&VT \n|cffFFDD11Dots all Targets with SWP&VT.\nSet min. health and max targets in Options", highlight = 1, icon = 165370 }
 			};
 			CreateButton("DoT",2,0)
 			DoTModesLoaded = "Shadow Priest DoT Modes";
@@ -28,7 +28,7 @@ if select(3, UnitClass("player")) == 5 then
 		if BossHelperModesLoaded ~= "Shadow Priest Boss Helper Modes" then
 			BossHelperModes = {
 				[1] = { mode = "off", value = 1, overlay = "Boss Helper Disabled", tip = "|cffFF0000Boss Helper \n|cffFFDD11Boss Helper inactive.", highlight = 0, icon = 15031 },
-				[2] = { mode = "on", value = 2, overlay = "Boss Helper Enabled", tip = "|cff00FF00Boss Helper \n|cffFF0000Boss Helper activated. \nType in chat for Help: /BB BossHelper", highlight = 1, icon = 15031 }
+				[2] = { mode = "on", value = 2, overlay = "Boss Helper Enabled", tip = "|cff00FF00Boss Helper \n|cffFFDD11Boss Helper activated.", highlight = 1, icon = 15031 }
 			};
 			CreateButton("BossHelper",3,0)
 			BossHelperModesLoaded = "Shadow Priest Boss Helper Modes";
@@ -50,7 +50,7 @@ if select(3, UnitClass("player")) == 5 then
 		if CooldownsModesLoaded ~= "Shadow Priest Cooldowns Modes" then
 			CooldownsModes = {
 				[1] = { mode = "off", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffFF0000Cooldowns \n|cffFFDD11No cooldowns will be used.", highlight = 0, icon = 34433 },
-				[2] = { mode = "on", value = 2 , overlay = "Cooldowns Enabled", tip = "|cff00FF00Cooldowns \n|cffFFDD11Only used if enabled in Settings. \n|cffFF0000Spells Included: \n|cffFFDD11Power Infusion \nShadowfiend \nMindbender", highlight = 1, icon = 34433 }
+				[2] = { mode = "on", value = 2 , overlay = "Cooldowns Enabled", tip = "|cff00FF00Cooldowns \n|cffFFDD11Only used if enabled in Settings.", highlight = 1, icon = 34433 }
 			};
 			CreateButton("Cooldowns",5,0)
 			CooldownsModesLoaded = "Shadow Priest Cooldowns Modes";
