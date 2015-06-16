@@ -1,23 +1,23 @@
 --- Retribution Class
 -- Inherit from: ../cCharacter.lua and ../cPaladin.lua
 -- All Paladin specs inherit from cPaladin.lua
+if select(3, UnitClass("player")) == 2 and GetSpecialization() == 3 then
 
 cRetribution = {}
 
 -- Creates Retribution Paladin
-function cRetribution.new()
-	local self = cPaladin.new("Retribution")
+function cRetribution:new()
+	local self = cPaladin:new("Retribution")
 
 	local player = "player" -- if someone forgets ""
 
 	self.enemies = {
-		5yards,
-		8yards,
-		12yards,
+		yards5,
+		yards8,
+		yards12,
 	}
 	self.previousJudgmentTarget = previousJudgmentTarget
-	self.defaultSeal = self.spell.sealOfThruth
-	self.spell = {
+	self.retributionSpell = {
 		avengingWrath        = 31884,
 		divineCrusader       = 144595,
 		divinePurpose        = 86172,
@@ -34,36 +34,42 @@ function cRetribution.new()
 		templarsVerdict      = 85256,
 		turnEvil             = 10326,
 		-- Empowered Seals
-		liadrinsRighteousness = 156989
-		maraadsTruth          = 156990
+		liadrinsRighteousness = 156989,
+		maraadsTruth          = 156990,
 	}
 
+	-- Merge all spell tables into self.spell
+	self.spell = {}
+	self.spell = mergeSpellTables(self.spell, self.characterSpell, self.paladinSpell, self.retributionSpell)
+
+	self.defaultSeal = self.spell.sealOfThruth
+
 -- Update 
-	function self.Update()
+	function self.update()
 		self.classUpdate()
 		self.getBuffs()
 		self.getCooldowns()
 		self.getJudgmentRecharge()
 		self.getDynamicUnits()
 		self.getEnemies()
-		self.getRotation()
+		--self.getRotation()
 
-	-- truth = true, right = false
+		-- truth = true, right = false
 		self.seal = GetShapeshiftForm() == 1
 
-	-- Casting and GCD check
+		-- Casting and GCD check
 		if castingUnit() then
 			return
 		end
 
 
-	-- Start selected rotation
-		self.startRotation()
+		-- Start selected rotation
+		self:startRotation()
 	end
 
 -- Update OOC
-	function self.UpdateOOC()
-	-- Call classUpdateOOC()
+	function self.updateOOC()
+		-- Call classUpdateOOC()
 		self.classUpdateOOC()
 
 		self.getGlyphs()
@@ -133,14 +139,15 @@ function cRetribution.new()
 		-- AoE
 		self.units.dyn8AoE  = dynamicTarget(8,false) -- Divine Storm
 		self.units.dyn12AoE = dynamicTarget(12,false) -- Divine Storm w/ Final Verdict Buff
+	end
 
 -- Update Number of Enemies around player
 	function self.getEnemies()
 		local getEnemies = getEnemies
 
-		self.enemies.5yards  = #getEnemies("player",5)
-		self.enemies.8yards  = #getEnemies("player",8)
-		self.enemies.12yards = #getEnemies("player",12)
+		self.enemies.yards5  = #getEnemies("player",5)
+		self.enemies.yards8  = #getEnemies("player",8)
+		self.enemies.yards12 = #getEnemies("player",12)
 	end
 
 -- Updates Judgment recharge time (cooldown)
@@ -159,7 +166,7 @@ function cRetribution.new()
 	function self.startRotation()
 		if self.inCombat then
 			if self.rotation == 1 then
-				self.retributionSimC()
+				self:retributionSimC()
 			-- put different rotations below; dont forget to setup your rota in options
 			else
 				ChatOverlay("No ROTATION ?!", 2000)
@@ -262,7 +269,7 @@ function cRetribution.new()
 
 -- Holy Prism
 	function self.castHolyPrism(minimumUnits)
-		if self.enemies.12yards >= minimumUnits then
+		if self.enemies.yards12 >= minimumUnits then
 			return castSpell("player",self.spell.holyPrism,true,false) == true or false
 		else
 			if minimumUnits == 1 then
@@ -369,4 +376,5 @@ function cRetribution.new()
 
 -- Return
 	return self
+end
 end

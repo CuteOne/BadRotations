@@ -1,10 +1,10 @@
 --- Character Class
--- All classes inherit from the base class
+-- All classes inherit from the base class /cCharacter.lua
 
 cCharacter = {}
 
 -- Creates new character with given class
-function cCharacter.new(class)
+function cCharacter:new(class)
 	local self = {}
 
 	self.profile  = "None"
@@ -21,7 +21,7 @@ function cCharacter.new(class)
 	self.rotation = 1 -- Default: First avaiable rotation
 	self.inCombat = false
 	self.talent   = {}
-	self.spell    = {}
+	self.characterSpell    = {}
 	self.recharge = {} -- Time to recharge
 	self.units    = { -- Dynamic Units
 		dyn5,
@@ -34,34 +34,33 @@ function cCharacter.new(class)
 	self.enemies  = {} -- Number of Enemies
 
 -- Things which get updated for every class in combat
-	-- All classes call the baseUpdate()
+-- All classes call the baseUpdate()
 	function self.baseUpdate()
-	-- Pause
+		-- Pause
 		-- TODO
 
-	-- Health and Power
+		-- Health and Power
 		self.health = getHP("player")
 		self.power = UnitPower("player")
 
-	-- Food/Invis Check
+		-- Food/Invis Check
 		if canRun() ~= true then
 			return false
 		end
 
-	-- Set Global Cooldown 
+		-- Set Global Cooldown 
 		self.gcd = self.getGlobalCooldown()
 
-	-- Get toggle modes
+		-- Get toggle modes
 		self.getToggleModes()
 
-	-- Update common Dynamic Units
+		-- Update common Dynamic Units
 		self.baseGetDynamicUnits()
 
-	-- Combat state update
+		-- Combat state update
 		self.getInCombat()
 
-
-	-- Start attacking (melee)
+		-- Start attacking (melee)
 		self.startMeleeAttack()
 	end
 
@@ -121,6 +120,15 @@ function cCharacter.new(class)
 		end
 	end
 
+--[[ TODO:
+	- add Flask usage
+	- add Potion usage based on class and spec (both)
+	- add pause toggle
+	- add new options frame
+	- add startRangeCombat()
+	- many more
+
+	]]
 
 -- Return
 	return self
