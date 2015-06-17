@@ -240,6 +240,11 @@ if not metaTable1 then
 			end
 			return 0
 		end
+		-- Unit distance to player
+		function o:getUnitDistance()
+			if UnitIsUnit("player",o.unit) then return 0 end
+			return getDistance("player",o.unit)
+		end
 		-- Updating the values of the Unit
 		function o:UpdateUnit()
 			-- assign Name of unit
@@ -254,6 +259,8 @@ if not metaTable1 then
 			o.guidsh = select(2, o:nGUID())
 			-- set to true if unit should be dispelled
 			o.dispel = o:Dispel(o.unit)
+			-- distance to player
+			o.distance = o:getUnitDistance()
 			-- Unit's threat situation(1-4)
 			o.threat = UnitThreatSituation(o.unit)
 			-- Unit HP absolute

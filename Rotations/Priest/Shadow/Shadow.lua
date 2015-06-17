@@ -174,12 +174,13 @@ if select(3, UnitClass("player")) == 5 then
 					[Halo]  = false,
 					[Cascade] = false,
 					[DP] = false,
-					[AngelicFeather] = false,
 				}
 			end
 
-			if options.player.ORBS < 3 then
-				_Queues[DP] = false
+			if _Queues ~= nil then
+				if _Queues[Halo] ~= true then 		_Queues[Halo]=false end
+				if _Queues[Cascade] ~= true then 	_Queues[Cascade]=false end
+				if _Queues[DP] ~= true then 		_Queues[DP]=false end
 			end
 
 		------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -231,4 +231,20 @@ function SalvageHelper()
 		end -- gettime()
 	end -- isChecked()
 end -- salvage()
+
+-- Used to merge two tables
+function mergeTables(a, b)
+    if type(a) == 'table' and type(b) == 'table' then
+        for k,v in pairs(b) do if type(v)=='table' and type(a[k] or false)=='table' then merge(a[k],v) else a[k]=v end end
+    end
+    return a
+end
+
+-- Used by new Class Framework to put all seperat Spell-Tables into new spell table
+function mergeSpellTables(tSpell, tCharacter, tClass, tSpec)
+  tSpell = mergeTables(tSpell, tCharacter)
+  tSpell = mergeTables(tSpell, tClass)
+  tSpell = mergeTables(tSpell, tSpec)
+  return tSpell
+end
 	

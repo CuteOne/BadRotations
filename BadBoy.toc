@@ -145,6 +145,11 @@ Rotations\Monk\Windwalker\SpellList.lua
 Rotations\Monk\Windwalker\Toggles.lua
 
 ## Paladin ---------------------------------------------------
+Rotations\cCharacter.lua
+Rotations\Paladin\cPaladin.lua
+Rotations\Paladin\Retribution\cRetribution.lua
+Rotations\Paladin\Retribution\retributionSimC.lua
+
 Rotations\Paladin\Holy\Holy.lua
 Rotations\Paladin\Holy\Libs\Functions.lua
 Rotations\Paladin\Holy\Libs\Options.lua
