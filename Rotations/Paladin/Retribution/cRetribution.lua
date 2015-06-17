@@ -337,7 +337,7 @@ function cRetribution:new()
 
 -- Selfless Healer
 	function self.castSelfLessHealer()
-		if getBuffStacks("player",selflessHealerBuff) == 3 then
+		if getBuffStacks("player",self.spell.selflessHealerBuff) == 3 then
 			if self.health <= getValue("Selfless Healer") then
 				return castSpell("player",self.spell.flashOfLight,true,false) == true or false
 			end
