@@ -105,21 +105,21 @@ novaEngineTables.SavedSpecialTargets = {
 -- ToDo: we need a powerful DoT handler to handle stuff such as hand of purity/heal over time
 novaEngineTables.BadlyDeBuffed = {
 	--High Maul
-	--Kargath
-	159386,    --http://www.wowhead.com/spell=159386/iron-bomb
-	--Twin Ogron
-	158241,    --http://www.wowhead.com/spell=158241/blaze
-	155569,    --http://www.wowhead.com/spell=155569/injured
-	163374,    --http://www.wowhead.com/spell=163374/arcane-volatility
-	-- Ko'ragh
-	161442,     --http://www.wowhead.com/spell=161242/caustic-energy
-	--Imperator Margok
-	157763,    --http://www.wowhead.com/spell=157763/fixate
+		--Kargath
+		159386,    --http://www.wowhead.com/spell=159386/iron-bomb
+		--Twin Ogron
+		158241,    --http://www.wowhead.com/spell=158241/blaze
+		155569,    --http://www.wowhead.com/spell=155569/injured
+		163374,    --http://www.wowhead.com/spell=163374/arcane-volatility
+		-- Ko'ragh
+		161442,     --http://www.wowhead.com/spell=161242/caustic-energy
+		--Imperator Margok
+		157763,    --http://www.wowhead.com/spell=157763/fixate
 	--Black Rock Foundry
-	--Iron Maidens
-	156112, --http://www.wowhead.com/spell=156112/convulsive-shadows
-	158315, --http://www.wowhead.com/spell=158315/dark-hunt
-	--Trains
-	165195,--http://www.wowhead.com/spell=165195/prototype-pulse-grenade
+		--Iron Maidens
+		156112, --http://www.wowhead.com/spell=156112/convulsive-shadows
+		158315, --http://www.wowhead.com/spell=158315/dark-hunt
+		--Trains
+		165195,--http://www.wowhead.com/spell=165195/prototype-pulse-grenade
 
 }

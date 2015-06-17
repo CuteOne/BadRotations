@@ -1,244 +1,295 @@
 if select(3, UnitClass("player")) == 5 then
-  function PriestDiscipline()
+	function PriestDiscipline()
 
-    if currentConfig ~= "Discipline ragnar" then
-      DisciplineConfig();
-      DisciplineToggles();
-      currentConfig = "Discipline ragnar";
-    end
-    -- Head End
+		if currentConfig ~= "Discipline ragnar" then
+		DisciplineConfig()
+		--DisciplineToggles()
+		currentConfig = "Discipline ragnar"
+		end
+		-- Head End
 
+		spell = {
+			archangel = 81700,
+			cascade = 121135,
+			clarityOfWill = 152118,
+			desperatePrayer = 19236,
+			dispelMagi = 528,
+			divineStar = 110774,
+			fade = 586,
+			fearWard = 6346,
+			flashHeal = 2061,
+			halo = 120517,
+			heal = 2060,
+			holyFire = 14914,
+			holyNova = 132157,
+			leapOfFaith = 73325,
+			levitate = 1706,
+			massDispel = 32375,
+			mindbender = 123040,
+			mindSear = 48045,
+			painSupression = 33206,
+			penance = 47540,
+			powerInfusion = 10060,
+			pwBarrier = 62618,
+			pws = 17,
+			pwSolace = 129250,
+			pwsDebuff = 6788,
+			PoH = 596,
+			PoM = 33076,
+			PoMBuff = 41635,
+			purify = 527,
+			savingGrace = 152116,
+			spectralGuise = 112833,
+			SWP = 589,
+			shadowfiend = 34433,
+			silence = 15487,
+			spiritShell = 109964,
+			smite = 585,
+		}
 
-    -- Locals / Globals--
-    --GCD = 1.5/(1+UnitSpellHaste("player")/100)
-    --hasTarget = UnitExists("target")
-    --hasMouse = UnitExists("mouseover")
-    --php = getHP("player")
-    -- thp = getHP("target")
+		buff = {
+			evangelism = {
+				up = UnitBuffID("player",81661),
+				remains = getBuffRemain("player",81661),
+				stacks = getBuffStacks("player",81661),
+			},
+			archangel = {
+				up = UnitBuffID("player",81700),
+				remains = getBuffRemain("player",81700),
+				cd = getSpellCD(81700),
+			},
+			empoweredAA = {
+				up = UnitBuffID("player",172359),
+				remains = getBuffRemain("player",172359),
+			},
+			borrowedTime = {
+				up = UnitBuffID("player",59889),
+				remains = getBuffRemain("player",59889),
+			},
+			wordOfMending = {
+				up = UnitBuffID("player",155362),
+				remains = getBuffRemain("player",155362),
+				stacks = getBuffStacks("player",155362),
+			},
+		}
 
+		debuff = {
+		}
 
-    --MBCD = getSpellCD(MB)
-    --SWDCD = getSpellCD(SWD)
+		player = {
+			hp = getHP("player"),
+			mana = getMana("player"),
+			GCD = 1.5/(1+UnitSpellHaste("player")/100),
+			spellpower = GetSpellBonusDamage(2),
+			crit = GetCritChance(),
+			mastery = GetMastery(),
+			multistrike = GetMultistrike(),
+		}
 
-    if lastDP==nil then	lastDP=99 end
-    if lastVT==nil then lastVT=99 end
+		health = {
+			raidDeficitPercent = 0,
+			raidDeficitAbsolute = 0,
+			group1DeficitPercent = 0,
+			group1DeficitAbsolute = 0,
+			group2DeficitPercent = 0,
+			group2DeficitAbsolute = 0,
+			group3DeficitPercent = 0,
+			group3DeficitAbsolute = 0,
+			group4DeficitPercent = 0,
+			group4DeficitAbsolute = 0,
+		}
 
-    --DPTICK = DPTIME/6
-    -- SWP (18sec)
-    --SWPTICK = 18.0/(1+UnitSpellHaste("player")/100)/6
-    -- VT (15sec)
-    --VTTICK = 16.0/(1+UnitSpellHaste("player")/100)/5
-    --VTCASTTIME = 1.5/(1+UnitSpellHaste("player")/100)
+		heal = {
+			pws = {
+				shield = getTooltipSize(spell.pws),
+			},
+			CoW = {
+				shield = getTooltipSize(spell.clarityOfWill),
+			},
+			penance = {
+				heal = getTooltipSize(spell.penance)*2.96,
+			},
+			heal = {
+				heal = getTooltipSize(spell.heal),
+			},
+			flashHeal = {
+				heal = getTooltipSize(spell.flashHeal),
+			},
+			PoH = {
+				heal = getTooltipSize(spell.PoH),
+			},
+			PoM = {
+				heal = getTooltipSize(spell.PoM),
+			},
+			holyNova = {
+				heal = getTooltipSize(spell.holyNova)*1.8795,
+			},
+		}
 
+		talent = {
+		}
 
+		options = {
+			cooldowns = {
+				powerInfusion = {check=isChecked("Heal"),value=getValue("Heal")},
+				mindbender = {check=isChecked("Heal"),value=getValue("Heal")},
+				shadowfiend = {check=isChecked("Heal"),value=getValue("Heal")},
 
-    -- Set Enemies Table
-    makeEnemiesTable(40)
+			},
+			heal = {
+				PWS = {check=isChecked("PW:Shield"),value=getValue("PW:Shield")},
+				heal = {check=isChecked("Heal"),value=getValue("Heal")},
+				flashHeal = {check=isChecked("Flash Heal"),value=getValue("Flash Heal")},
+				penance = {check=isChecked("Penance"),value=getValue("Penance")},
+			},
+			utilities = {
+				PWF = {check = isChecked("PW:Fortitude")},
+			},
+		}
 
+		toggles = {
+		}
 
+		------------------------------------------------------------------------------------------------------------------------------------------------------------
+		-- CHECKS --------------------------------------------------------------------------------------------------------------------------------------------------
+		------------------------------------------------------------------------------------------------------------------------------------------------------------
+		if canRun() ~= true or UnitInVehicle("Player") then
+			return false
+		end
 
-    local options = {
-      -- Player values
-      player = {
-        GCD = 		1.5/(1+UnitSpellHaste("player")/100),
-        php =		getHP("player"),
-        PWSolCD =	getSpellCD(PWSol),
-        PENCD =		getSpellCD(Penance),
-        AASTACKS =	getBuffStacks("player",AA),
-      },
-      -- Buttons
-      buttons = {
-        Feather =	BadBoy_data['Feather'],
-      },
-      isChecked = {
-        Feather =			isChecked("Angelic Feather"),
-        BodyAndSoul = 		isChecked("Body And Soul"),
-      },
-      healing = {
-        PenanceTankCheck 	= isChecked("Penance Tank"),
-        PenanceTankValue 	= getValue("Penance Tank"),
-        PenanceCheck 		= isChecked("Penance"),
-        PenanceValue 		= getValue("Penance"),
-      },
-    }
+		-- Mounted Check (except nagrand outpost mounts)
+		if IsMounted("player") and not (UnitBuffID("player",164222) or UnitBuffID("player",165803)) then return false end
 
-    -------------
-    -- TOGGLES --
-    -------------
+		if _Queues == nil then
+			_Queues = {
+				[spell.archangel]  = false,
+				[spell.cascade] = false,
+			}
+		end
 
-    -- Pause toggle
-    if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == true then
-      ChatOverlay("|cffFF0000BadBoy Paused", 0); return;
-    end
+		------------------------------------------------------------------------------------------------------
+		-- Pause ---------------------------------------------------------------------------------------------
+		------------------------------------------------------------------------------------------------------
+		if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == true then
+			ChatOverlay("|cffFF0000BadBoy Paused", 0) return
+		end
 
-    -- Focus Toggle
-    if isChecked("Focus Toggle") and SpecificToggle("Focus Toggle") == 1 then
-      RunMacroText("/focus mouseover");
-    end
+		------------------------------------------------------------------------------------------------------
+		-- Input / Keys --------------------------------------------------------------------------------------
+		------------------------------------------------------------------------------------------------------
 
-    -- -- Auto Resurrection
-    -- if isChecked("Auto Rez") then
-    -- 	if not isInCombat("player") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("player","mouseover") then
-    -- 		if castSpell("mouseover",Rez,true,true) then return; end
-    -- 	end
-    -- end
+		------------------------------------------------------------------------------------------------------
+		-- Always check/do -----------------------------------------------------------------------------------
+		------------------------------------------------------------------------------------------------------
+		if enemiesTable then
+			if enemiesTableTimer <= GetTime() - 0.5 then
+				table.sort(enemiesTable, function(x,y)
+					return x.hpabs and y.hpabs and x.hpabs > y.hpabs or false
+				end)
+			end
+		end
 
-    ------------
-    -- CHECKS --
-    ------------
+		------------------------------------------------------------------------------------------------------
+		-- Out of Combat -------------------------------------------------------------------------------------
+		------------------------------------------------------------------------------------------------------
+		if not isInCombat("player") then
+			-- Power Word: Fortitude
+			if options.utilities.PWF.check then 
+				--Raidbuff_Priest()
+				RaidBuff(2,21562)
+			end
+		end -- Out of Combat end
 
-    -- Food/Invis Check
-    if canRun() ~= true then return false;
-    end
+		------------------------------------------------------------------------------------------------------
+		-- In Combat -----------------------------------------------------------------------------------------
+		------------------------------------------------------------------------------------------------------
+		if isInCombat("player") or isInCombat("target") then
 
-    -- Mounted Check (except nagrand outpost mounts)
-    if IsMounted("player") and not (UnitBuffID("player",164222) or UnitBuffID("player",165803)) then
-      return false;
-    end
+			------------------------------------------------------------------------------------------------------
+			-- Dummy Test ----------------------------------------------------------------------------------------
+			------------------------------------------------------------------------------------------------------
+			if isChecked("DPS Testing") then
+				if UnitExists("target") then
+					if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
+						StopAttack()
+						ClearTarget()
+						print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+					end
+				end
+			end
 
-    -- Do not Interrupt "player" while GCD (61304)
-    -- if getSpellCD(61304) > 0 then return false;
-    -- end
-    if castingUnit() then
-      return false
-    end
+			------------------------------------------------------------------------------------------------------------------------------------------------------------
+			-- Queued Spells -------------------------------------------------------------------------------------------------------------------------------------------
+			------------------------------------------------------------------------------------------------------------------------------------------------------------
+			if _Queues[spell.archangel] == true then
+				ChatOverlay("Q - ARCHANGEL")
+				if castArchangel() then return end
+			end
+			if _Queues[spell.cascade] == true then
+				ChatOverlay("Q - CASCADE")
+				if castCascadeAuto() then return end
+			end
 
-    -------------------
-    -- OUT OF COMBAT --
-    -------------------
+			------------------------------------------------------------------------------------------------------
+			-- Defensive -----------------------------------------------------------------------------------------
+			------------------------------------------------------------------------------------------------------
 
-    -- Power Word: Fortitude
-    if not isInCombat("player") then
-      if options.isChecked.PWF and (lastPWF == nil or lastPWF <= GetTime() - 5) then
-        for i = 1, #nNova do
-          if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{21562,109773,469,90364}) and (UnitInRange(nNova[i].unit) or UnitIsUnit(nNova[i].unit,"player")) then
-            if castSpell("player",PWF,true) then lastPWF = GetTime(); return; end
-          end
-        end
-      end
-    end
+			------------------------------------------------------------------------------------------------------
+			-- Offensive -----------------------------------------------------------------------------------------
+			------------------------------------------------------------------------------------------------------
+			
+			------------------------------------------------------------------------------------------------------
+			-- Do everytime --------------------------------------------------------------------------------------
+			------------------------------------------------------------------------------------------------------
 
-    ------------------------
-    -- AutoSpeed Selfbuff --
-    ------------------------
+			------------------------------------------------------------------------------------------------------
+			-- Rotation ------------------------------------------------------------------------------------------
+			------------------------------------------------------------------------------------------------------
+			if select(1,UnitChannelInfo("player")) ~= "Penance" then
+				-- Penance
+					-- tank
+					if castPenanceTank() then return end
+					-- player
+					if castPenancePlayer() then return end
+					-- damage
+					if castPenanceEnemy() then return end
+--print("1")
+				-- holy fire / power word: solace
+				if getTalent(3,3) then
+					if player.mana <= 98 then
+						if castPWSolace() then return end
+					end
+				else
+					if buff.evangelism.stacks<5 then
+						if castHolyFire() then return end
+					end
+				end
+--print("2")
+				-- smite
+				if buff.evangelism.stacks<5 then
+					if castSmite() then return end
+				end
+--print("3")
+				-- PWS
+				if castPWSTank() then return end
+				if castPWSPlayer() then return end
+--print("4")
+				-- PoM (maxPoM?)
+				if getPoM()<1 then
+					if castPoM() then return end
+				end
+--print("5")
+				-- PoH on group with 3+ targets with minimal overheal
 
-    -- Angelic Feather
-    if isKnown(AngelicFeather) and options.buttons.Feather==2 then
-      if getGround("player") and IsMovingTime(0.2) and not UnitBuffID("player",AngelicFeatherBuff) then
-        --if options.isChecked.Feather and getGround("player") and IsMovingTime(0.2) and not UnitBuffID("player",AngelicFeatherBuff) then
-        --if useFeather==true and IsMovingTime(0.2) and not UnitBuffID("player",AngelicFeatherBuff) then
-        if castGround("player",AngelicFeather,30) then
-          SpellStopTargeting();
-          return;
-        end
-      end
-    end
+				-- flash heal
+				if castFlashHeal() then return end
+--print("6")
+				-- heal
+				if castHeal() then return end
 
-    -- Body and Soul
-    if isKnown(BodyAndSoul) then
-      if options.isChecked.BodyAndSoul then
-        if getGround("player") and IsMovingTime(0.75) and not UnitBuffID("player",PWS) and not UnitDebuffID("player",PWSDebuff) then
-          if castSpell("player",PWS,true,false) then return; end
-        end
-      end
-    end
-
-    ---------------
-    -- IN COMBAT --
-    ---------------
-    -- AffectingCombat, Pause, Target, Dead/Ghost Check
-    if UnitAffectingCombat("player") or UnitAffectingCombat("target") then
-
-      makeEnemiesTable(40)
-      -------------------
-      -- Dummy Testing --
-      -------------------
-      if isChecked("DPS Testing") then
-        if UnitExists("target") then
-          if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
-            StopAttack()
-            ClearTarget()
-            print("____ " .. tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped ____")
-          end
-        end
-      end
-
-
-      --[[-----------------------------------------------------------------------------------------------------------------------------------------------]]
-      ----------------
-      -- Defensives --
-      ----------------
-      --ShadowDefensive(options)
-
-
-      ----------------
-      -- Offensives --
-      ----------------
-      --ShadowCooldowns(options)
-
-      -------------
-      -- Healing --
-      -------------
-      if BadBoy_data["Power"] == 2 then
-
-        -- Penance on Tank
-        if options.healing.PenanceTankCheck then
-          for i=1, #nNova do
-            if (nNova[i].role == "TANK" or UnitGroupRolesAssigned(nNova[i].unit) == "TANK")
-              and nNova[i].hp <= options.healing.PenanceTankValue then
-              if castSpell(nNova[i].unit,Penance,false,false) then return; end
-            end
-          end
-        end
-
-        -- Penance on Low HP player
-        --if options.healing.PenanceCheck then
-        for i=1, #nNova do
-          if nNova[i].hp <= options.healing.PenanceValue then
-            if castSpell(nNova[i].unit,Penance,false,false) then return; end
-          end
-        end
-        --end
-
-        -- Holy Fire / Power Word: Solace
-        if (getTalent(3,3) and getSpellCD(PWSol)==0) or (not getTalent(3,3) and getSpellCD(HF)==0) then
-          if enemiesTable and enemiesTable[1] ~= nil then
-            myTarget = enemiesTable[1].unit
-            myDistance = enemiesTable[1].distance
-
-            if UnitExists(myTarget) and UnitCanAttack(myTarget,"player") == true then
-              if isKnown(PWSol) then
-                if castSpell(mytarget,PWSol,false,false) then return; end
-              else
-                if castSpell(mytarget,HF,false,false) then return; end
-              end
-            end
-          end
-        end
-
-        -- Smite
-        if getBuffStacks(Evangelism)<5 or (getBuffStacks(Evangelism)==5 and getBuffRemain("player",Evangelism)<=2*options.player.GCD) then
-          if enemiesTable and enemiesTable[1] ~= nil then
-            myTarget = enemiesTable[1].unit
-            myDistance = enemiesTable[1].distance
-
-            if UnitExists(myTarget) and UnitCanAttack(myTarget,"player") == true then
-              if isKnown(PWSol) then
-                if castSpell(mytarget,Smite,false,true) then return; end
-              end
-            end
-          end
-        end
-
-        -- Clarity of Will (if specced)
-
-        -- Prayer of Mending
-
-      end -- POWER BUTTON ON
-
-
-      --[[-----------------------------------------------------------------------------------------------------------------------------------------------]]
-
-    end -- AffectingCombat, Pause, Target, Dead/Ghost Check
-  end
+				-- smite filler
+				if castSmite() then return end
+			end
+		end
+	end
 end

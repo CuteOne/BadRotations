@@ -1,135 +1,231 @@
 if select(3, UnitClass("player")) == 5 then
 
-  -- get threat situation on player and return the number
-  function getThreat()
-    if UnitThreatSituation("player") ~= nil then
-      return UnitThreatSituation("player")
-    end
-    -- 0 - Unit has less than 100% raw threat (default UI shows no indicator)
-    -- 1 - Unit has 100% or higher raw threat but isn't mobUnit's primary target (default UI shows yellow indicator)
-    -- 2 - Unit is mobUnit's primary target, and another unit has 100% or higher raw threat (default UI shows orange indicator)
-    -- 3 - Unit is mobUnit's primary target, and no other unit has 100% or higher raw threat (default UI shows red indicator)
-    return 0
-  end
 
-  -- Check if SWP is on 3 units or if #enemiesTable is <3 then on #enemiesTable
-  function getSWP()
-    local counter = 0
-    -- iterate units for SWP
-    for i=1,#enemiesTable do
-      local thisUnit = enemiesTable[i].unit
-      -- increase counter for each SWP
-      if (UnitAffectingCombat(thisUnit) or isDummy(thisUnit)) and UnitDebuffID(thisUnit,SWP,"player") then
-        counter=counter+1
-      end
-    end
-    -- return counter
-    return counter
-  end
+	------------------------------------------------------------------------------------------------------
+	-- misc ----------------------------------------------------------------------------------------------
+	------------------------------------------------------------------------------------------------------
 
-  function safeDoT(datUnit)
-    local Blacklist = {
-      "Volatile Anomaly",
-      "Rarnok",
-    }
-    if Unit == nil then return true end
-    for i = 1, #Blacklist do
-      if UnitName(datUnit) == Blacklist[i] then
-        return false
-      end
-    end
-    return true
-  end
+	function getRole(unit)
+		-- DAMAGER
+		-- HEALER
+		-- NONE
+		-- TANK
+		return UnitGroupRolesAssigned(unit)
+	end
 
-  -- count all PoM of Player in Raid
-  function getPoM(options)
+	function isTank(unit)
+		if getRole(unit)=="TANK" then return true end
+	end
 
-  end
+	function getPoM()
+		local counter = 0
+		for i=1,#nNova do
+			thisUnit = nNova[i]
+			if getBuffStacks(thisUnit.unit,41635,"player") then
+				counter = counter + 1
+			end
+		end
+		return counter
+	end
 
+	function getPWS()
+		local counter = 0
+		for i=1,#nNova do
+			thisUnit = nNova[i].unit
+			if getBuffRemain(thisUnit,17,"player") then
+				counter = counter + 1
+			end
+		end
+		return counter
+	end
 
-  --[[                    ]] -- General Functions end
+	------------------------------------------------------------------------------------------------------
+	-- Casts ---------------------------------------------------------------------------------------------
+	------------------------------------------------------------------------------------------------------
 
+	-- Mindbender
+	function castMindbender(targetUnit)
+		if getTalent(3,2) then
+			if targetUnit==nil then
+				return castSpell(enemiesTable[1].unit,spell.mindbender,true,false)
+			else
+				return castSpell(targetUnit,spell.mindbender,true,false)
+			end
+		end
+	end
 
-  --[[                    ]] -- Defensives
-  function ShadowDefensive(options)
-    -- Shield
-    if isChecked("PW: Shield") and (BadBoy_data['Defensive'] == 2) and options.player.php <= getValue("PW: Shield") then
-      if castSpell("player",PWS,true,false) then return; end
-    end
+	-- Holy Fire
+	function castHolyFire()
+		for i=1,#enemiesTable do
+			local thisUnit = enemiesTable[i].unit
+			return castSpell(thisUnit,spell.holyFire,false,false)
+		end
+	end
 
-    -- Fade (Glyphed)
-    if hasGlyph(GlyphOfFade) then
-      if isChecked("Fade Glyph") and (BadBoy_data['Defensive'] == 2) and options.player.php <= getValue("Fade Glyph") then
-        if castSpell("player",Fade,true,false) then return; end
-      end
-    end
+	-- PW Solace
+	function castPWSolace()
+		for i=1,#enemiesTable do
+			local thisUnit = enemiesTable[i].unit
+			return castSpell(thisUnit,spell.pwSolace,false,false)
+		end
+	end		
 
-    -- Fade (Aggro)
-    if IsInRaid() ~= false then
-      if isChecked("Fade Aggro") and BadBoy_data['Defensive']==2 and getThreat()>=3 then
-        --if isChecked("Fade Aggro") and BadBoy_data['Defensive'] == 2 then
-        if castSpell("player",Fade,true,false) then return; end
-      end
-    end
+	-- Smite
+	function castSmite()
+		for i=1,#enemiesTable do
+			local thisUnit = enemiesTable[i].unit
+			return castSpell(thisUnit,spell.smite,false,true)
+		end
+	end
 
-    -- Healthstone/HealPot
-    if isChecked("Healthstone") and getHP("player") <= getValue("Healthstone") and hasHealthPot() then
-      if canUse(5512) then
-        UseItemByName(tostring(select(1,GetItemInfo(5512))))
-      elseif canUse(healPot) then
-        UseItemByName(tostring(select(1,GetItemInfo(healPot))))
-      end
-    end
+	-- Penance
+	function castPenance(targetUnit)
+		-- can cast while moving
+		if hasGlyph(119866) then
+			return castSpell(targetUnit,spell.penance,true,false)
+		else 
+			return castSpell(targetUnit,spell.penance,true,true)
+		end
+	end
+	function castPenanceE(targetUnit)
+		-- can cast while moving
+		if hasGlyph(119866) then
+			return castSpell(targetUnit,spell.penance,false,false)
+		else 
+			return castSpell(targetUnit,spell.penance,false,true)
+		end
+	end
 
-    -- Desperate Prayer
-    if isKnown(DesperatePrayer) then
-      if isChecked("Desperate Prayer") and (BadBoy_data['Defensive'] == 2) and options.player.php <= getValue("Desperate Prayer") then
-        if castSpell("player",DesperatePrayer,true,false) then return; end
-      end
-    end
-  end
-  --[[                    ]] -- Defensives end
+	function castPenanceTank()
+		for i=1,#nNova do
+			local thisUnit = nNova[i]
+			if isTank(thisUnit) then
+				if nNova[i].hpmissing >= heal.penance.heal then
+					return castPenance(thisUnit.unit)
+				end
+			end
+		end
+	end
 
+	function castPenancePlayer()
+		for i=1,#nNova do
+			local thisUnit = nNova[i]
+			if thisUnit.hpmissing >= heal.penance.heal then
+				return castPenance(thisUnit.unit)
+			end
+		end
+	end
 
-  --[[                    ]] -- Cooldowns
-  function DisciplineCooldowns(options)
-    -- Mindbender
-    if isKnown(Mindbender) and options.buttons.Cooldowns == 2 and options.isChecked.Mindbender then
-      if castSpell("target",Mindbender) then return; end
-    end
+	function castPenanceEnemy()
+		for i=1,#enemiesTable do
+			local thisUnit = enemiesTable[i].unit
+			return castPenanceE(thisUnit)
+		end
+	end
 
-    -- Shadowfiend
-    if isKnown(SF) and options.buttons.Cooldowns == 2 and options.isChecked.Shadowfiend then
-      if castSpell("target",SF,true,false) then return; end
-    end
+	-- PWS
+	function castPWS(targetUnit)
+		if not UnitDebuffID(targetUnit,6788) then
+			return castSpell(targetUnit,spell.pws,true,false)
+		end
+	end
 
-    -- -- Power Infusion
-    -- if isKnown(PI) and options.buttons.Cooldowns == 2 and isChecked("Power Infusion") then
-    -- 	if castSpell("player",PI) then return; end
-    -- end
+	function castPWSTank()
+		if getPWS() <= options.heal.PWS.value then
+			for i=1,#nNova do
+				local thisUnit = nNova[i]
+				if isTank(thisUnit.unit) then
+					if not UnitDebuffID(thisUnit.unit,6788) then
+						return castSpell(thisUnit.unit,spell.pws,true,false)
+					end
+				end
+			end
+		end
+	end
 
-    -- Berserking (Troll Racial)
-    if isKnown(Berserking) and options.buttons.Cooldowns == 2 and options.isChecked.Berserking then
-      if castSpell("player",Berserking,true,false) then return; end
-    end
+	function castPWSPlayer()
+		if getPWS() <= options.heal.PWS.value then
+			for i=1,#nNova do
+				local thisUnit = nNova[i]
+				if not UnitDebuffID(thisUnit.unit,6788) then
+					return castSpell(thisUnit.unit,spell.pws,true,false)
+				end
+			end
+		end
+	end
 
-    -- Halo
-    if isKnown(Halo) and options.buttons.Halo == 2 then
-      if getDistance("player","target")<=30 and getDistance("player","target")>=17 then
-        if castSpell("player",Halo,true,false) then return; end
-      end
-    end
+	-- Archangel
+	function castArchangel()
+		return castSpell("player",spell.archangel,true,false)
+	end
 
-    -- Trinket 1
-    if options.isChecked.Trinket1 and options.buttons.Cooldowns == 2 and canTrinket(13) then
-      RunMacroText("/use 13")
-    end
+	-- PoM
+	function castPoM()
+		if GetNumGroupMembers()>0 then
+			--print("tank check")
+			-- tank
+			for i=1,#nNova do
+				local thisUnit = nNova[i]
+				if isTank(thisUnit) then
+					if nNova[i].hpmissing >= heal.PoM.heal then
+						--print("tank cast")
+						return castSpell(thisUnit.unit,spell.PoM,true,true)
+					end
+				end
+			end
+			--print("player check")
+			-- player
+			for i=1,#nNova do
+				local thisUnit = nNova[i]
+				if nNova[i].hpmissing >= heal.PoM.heal then
+					--print("player cast")
+					return castSpell(thisUnit.unit,spell.PoM,true,true)
+				end
+			end
+		end
+	end
 
-    -- Trinket 2
-    if options.isChecked.Trinket2 and options.buttons.Cooldowns == 2 and canTrinket(14) then
-      RunMacroText("/use 14")
-    end
-  end
-  --[[                    ]] -- Cooldowns end
+	-- Heal
+	function castHeal()
+		if options.heal.heal.check then
+			for i=1,#nNova do
+				local thisUnit = nNova[i]
+				if nNova[i].hp <= options.heal.heal.value then
+					return castSpell(thisUnit.unit,spell.heal,true,true)
+				end
+			end
+		end
+	end
 
+	-- Flash Heal
+	function castFlashHeal()
+		if options.heal.flashHeal.check then
+			for i=1,#nNova do
+				local thisUnit = nNova[i]
+				if nNova[i].hp <=  options.heal.flashHeal.value then
+					return castSpell(thisUnit.unit,spell.heal,true,true)
+				end
+			end
+		end
+	end
+
+	-- Cascade
+	function castCascadeAuto()
+		for i=1,#nNova do
+			local thisUnit = nNova[i].unit
+			local thisUnitdistance = getDistance("player",thisUnit)
+
+			print(thisUnit.." __ "..thisUnitdistance)
+			-- sort nNova for best initial target
+			if nNova then
+				table.sort(nNova, function(x,y)
+					return x.distance and y.distance and x.distance > y.distance or false
+				end)
+			end
+			-- cast
+			if thisUnitdistance < 40 and getLineOfSight(thisUnit) then
+				if castSpell(thisUnit,spell.cascade,true,true) then return end
+			end
+		end
+	end
 end
