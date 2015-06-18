@@ -141,7 +141,7 @@ function frame:OnEvent(event, arg1)
 		bb:Run()
 	end
 	if event == "PLAYER_SPECIALIZATION_CHANGED" then
-		ReloadUI(); -- Reloads UI when spec changed, prevents some bugs
+		--ReloadUI(); -- Reloads UI when spec changed, prevents some bugs
 	end
 end
 frame:SetScript("OnEvent", frame.OnEvent)
