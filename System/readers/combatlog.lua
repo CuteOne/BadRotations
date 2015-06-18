@@ -145,10 +145,12 @@ function bb.read.combatLog()
       -----------------
       --[[ Cast Failed --> Queue]]
       if param == "SPELL_CAST_FAILED" then
-        if _Queues[spell] ~= true and _Queues[spell] ~= nil then
-          if (_Queues[spell] == false or _Queues[spell] < (GetTime() - 10)) and getSpellCD(spell) <= 3 then
-            _Queues[spell] = true
-            ChatOverlay("Queued "..GetSpellInfo(spell))
+        if source == bb.guid then
+          if _Queues[spell] ~= true and _Queues[spell] ~= nil then
+            if (_Queues[spell] == false or _Queues[spell] < (GetTime() - 10)) and getSpellCD(spell) <= 3 then
+              _Queues[spell] = true
+              ChatOverlay("Queued "..GetSpellInfo(spell))
+            end
           end
         end
       end
