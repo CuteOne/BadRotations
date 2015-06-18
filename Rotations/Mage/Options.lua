@@ -79,7 +79,7 @@ if select(3, UnitClass("player")) == 8 then
 
       -- Rotation
       CreateNewDrop(thisConfig, "RotationSelect", 1, "Choose Rotation to use.", "|cffFFBB00IcyVeins", "|cff0077FFSimCraft");
-      CreateNewText(thisConfig, "Rotation Priority");
+      CreateNewText(thisConfig, "RotationSelect");
 
       --[[General Configs]]
       CreateGeneralsConfig();

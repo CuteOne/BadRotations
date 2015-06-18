@@ -253,9 +253,9 @@ if select(3, UnitClass("player")) == 8 then
     -- actions.single_target=call_action_list,name=cooldowns,if=!talent.prismatic_crystal.enabled|cooldown.prismatic_crystal.remains>45
     -- actions.single_target+=/ice_lance,if=buff.fingers_of_frost.react&buff.fingers_of_frost.remains<action.frostbolt.execute_time
 
-    if castIceLanceSingleTarget() then
-      return true
-    end
+   -- if castIceLanceSingleTarget() then
+    --  return true
+    --end
     if UnitBuffID("player",FingersOfFrost) and getBuffRemain("player",FingersOfFrost) < FBCASTTIME then
       if castSpell("target",IceLance,false,false) then
         return;
