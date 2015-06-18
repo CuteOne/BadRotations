@@ -207,7 +207,7 @@ function SalvageHelper()
 
 		local salvageWaiting = getValue("Salvage")
 
-		if salvageTimer == nil or (GetTime() - salvageTimer > salvageWaiting) then
+		if (salvageTimer == nil or (GetTime() - salvageTimer > salvageWaiting)) and not castingUnit() then
 			local freeSlots = 0
 
 			for i=1,5 do 

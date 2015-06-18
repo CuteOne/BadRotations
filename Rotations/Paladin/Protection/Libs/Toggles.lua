@@ -59,5 +59,15 @@ if select(3,UnitClass("player")) == 2 then
       CreateButton("Healing",2,1)
       HealingModesLoaded = "Prot Pal Healing Modes"
     end
+    -- Empowered Seals Button
+    if  TrashModesLoaded ~= "Prot Pal EmpS Modes" then
+      EmpSModes = {
+        [1] = { mode = "Twist", value = 1 , overlay = "Twist.", tip = "|cffFF0000Twist between Right and Insight.", highlight = 1, icon = 152263 },
+        [2] = { mode = "Right", value = 2 , overlay = "Right.", tip = "|cffFF0000Stays in Righteousness.", highlight = 0, icon = 20154 },
+        [3] = { mode = "Insight", value = 3 , overlay = "Insight.", tip = "|cffFF0000Stays in Insight.", highlight = 0, icon = 20165 }
+      }
+      CreateButton("EmpS",3,1)
+      EmpSModesLoaded = "Prot Pal EmpS Modes"
+    end
   end
 end

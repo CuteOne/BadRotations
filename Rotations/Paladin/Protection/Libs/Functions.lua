@@ -145,6 +145,7 @@ if select(3,UnitClass("player")) == 2 then
       self.mode.defensive = BadBoy_data["Defensive"]
       self.mode.healing = BadBoy_data["Healing"]
       self.mode.rotation = BadBoy_data["Rota"]
+      self.mode.empS = BadBoy_data["EmpS"]
       -- Right = 1, Insight = 2
       self.seal = GetShapeshiftForm()
       -- dynamic units
