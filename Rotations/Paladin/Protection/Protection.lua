@@ -41,7 +41,7 @@ if select(3, UnitClass("player")) == 2 then
     core:castBuffs()
 
     -- Only start if we and target is in combat or not in combat and pressing left control
-    if UnitAffectingCombat("player")  or (not UnitAffectingCombat("player") and IsLeftControlKeyDown() ) then
+    if UnitAffectingCombat("player") --[[ or (not UnitAffectingCombat("player") and IsLeftControlKeyDown() )]] then
 
       -- actions=auto_attack
       if startAttackTimer == nil or startAttackTimer <= GetTime() - 1 then
@@ -115,14 +115,14 @@ if select(3, UnitClass("player")) == 2 then
         -- # GCD-bound spells start here
         if talent.empoweredSeals then
           -- actions+=/seal_of_insight,if=!seal.insight&buff.uthers_insight.remains<cooldown.judgment.remains
-          if core.seal ~= 2 and buff.uthersInsight < core.recharge.judgment then
+          if core.seal ~= 2 and buff.uthersInsight < core.recharge.judgment and (mode.empS == 1 or mode.empS == 3) then
             if core:castSeal(2) then
               return
             end
           end
           -- actions+=/seal_of_righteousness,if=!seal.righteousness&buff.uthers_insight.remains>cooldown.judgment.remains&buff.liadrins_righteousness.down
           if core.seal ~= 1 and buff.uthersInsight > core.recharge.judgment
-            and buff.liadrinsRighteousness < core.recharge.judgment then
+            and buff.liadrinsRighteousness < core.recharge.judgment and (mode.empS == 1 or mode.empS == 2) then
             if core:castSeal(1) then
               return
             end
@@ -232,7 +232,7 @@ if select(3, UnitClass("player")) == 2 then
         if talent.empoweredSeals then
           -- actions+=/seal_of_insight,if=!seal.insight&buff.uthers_insight.remains<=buff.liadrins_righteousness.remains
           if core.seal ~= 2 then
-            if buff.uthersInsight <= buff.liadrinsRighteousness then
+            if buff.uthersInsight <= buff.liadrinsRighteousness and (mode.empS == 1 or mode.empS == 3) then
               if core:castSeal(2) then
                 return
               end
@@ -240,7 +240,7 @@ if select(3, UnitClass("player")) == 2 then
           end
           -- actions+=/seal_of_righteousness,if=!seal.righteousness&buff.liadrins_righteousness.remains<=buff.uthers_insight.remains
           if core.seal ~= 1 then
-            if buff.liadrinsRighteousness <= buff.uthersInsight then
+            if buff.liadrinsRighteousness <= buff.uthersInsight and (mode.empS == 1 or mode.empS == 2) then
               if core:castSeal(1) then
                 return
               end
@@ -353,7 +353,7 @@ if select(3, UnitClass("player")) == 2 then
           return
         end
         -- actions.max_dps+=/seal_of_righteousness,if=talent.empowered_seals.enabled&!seal.righteousness
-        if talent.empoweredSeals and core.seal ~= 1 then
+        if talent.empoweredSeals and core.seal ~= 1 and (mode.empS == 1 or mode.empS == 2) then
             if core:castSeal(1) then
               return
             end
@@ -482,7 +482,7 @@ if select(3, UnitClass("player")) == 2 then
         if talent.empoweredSeals then
           -- actions.max_survival+=/seal_of_insight,if=!seal.insight&buff.uthers_insight.remains<=buff.liadrins_righteousness.remains
           if core.seal ~= 2 then
-            if buff.uthersInsight < core.recharge.judgment then
+            if buff.uthersInsight < core.recharge.judgment and (mode.empS == 1 or mode.empS == 3) then
               if core:castSeal(2) then
                 return
               end
