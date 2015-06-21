@@ -43,6 +43,11 @@ function cRetribution:new()
 	self.spell = mergeSpellTables(self.spell, self.characterSpell, self.paladinSpell, self.retributionSpell)
 
 	self.defaultSeal = self.spell.sealOfThruth
+	self.eq = {
+		t18_2p = false,
+		t18_4p = false,
+		t18_classTrinket = false,
+	}
 
 -- Update 
 	function self.update()
@@ -58,6 +63,7 @@ function cRetribution:new()
 		self.seal = GetShapeshiftForm() == 1
 
 		-- Casting and GCD check
+		-- TODO: -> does not use off-GCD stuff like pots, dp etc
 		if castingUnit() then
 			return
 		end
@@ -74,7 +80,26 @@ function cRetribution:new()
 
 		self.getGlyphs()
 		self.getTalents()
+		self.getEquip()
 	end
+
+-- Updates special Equipslots
+	function self.getEquip()
+		-- Checks T18 Set
+			local t18 = TierScan("T18")
+			if t18 > 2 then 
+				self.eq.t18_2p = true 
+			end
+			if t18 > 3 then
+				self.eq.t18_4p = true
+			end
+		-- Checks class trinket (124518 - Libram of Vindication)
+			if (GetInventoryItemID("player", 13) == 124518 or GetInventoryItemID("player", 14) == 124518) then
+				self.eq.t18_classTrinket = true
+			end
+
+		
+	end 
 
 -- Buff updates
 	function self.getBuffs()
@@ -95,6 +120,12 @@ function cRetribution:new()
 		-- T17
 		self.buff.blazingContempt = getBuffRemain(player,166831)
 		self.buff.crusaderFury    = getBuffRemain(player,165442)
+
+		-- T18
+		self.buff.wingsOfLiberty = getBuffRemain(player,185647)
+
+		-- T18 - Class trinket 
+		self.buff.focusOfVengeance    = getBuffRemain(player,184911)
 	end
 
 -- Cooldown updates
@@ -182,7 +213,7 @@ function cRetribution:new()
 	function self.castAvengingWrath()
 		if isSelected("Avenging Wrath") then
 			if (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4*UnitHealthMax("player"))) then
-				if self.talent.seraphim and self.buff.seraphim or (not self.talent.seraphim and self.holyPower <= 2) then
+				if (self.talent.seraphim and self.buff.seraphim) or (not self.talent.seraphim) then
 					return castSpell("player",self.spell.avengingWrath,true,false) == true or false
 				end
 			end
