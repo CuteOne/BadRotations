@@ -199,6 +199,8 @@ function cRetribution:new()
 			if self.rotation == 1 then
 				self:retributionSimC()
 			-- put different rotations below; dont forget to setup your rota in options
+			elseif self.rotation == 2 then
+				self:retributionSimC_T18()
 			else
 				ChatOverlay("No ROTATION ?!", 2000)
 			end
