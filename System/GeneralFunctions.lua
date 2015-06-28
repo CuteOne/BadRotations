@@ -1,5 +1,5 @@
 function GetObjectExists(Unit)
-	if select(2,pcall(ObjectExists,Unit)) == 1 then
+	if select(2,pcall(ObjectExists,Unit)) == true then
 		return true
 	else
 		return false
@@ -27,14 +27,14 @@ function GetObjectType(Unit)
 	end
 end
 function GetObjectIndex(Index)
-	if GetObjectExists(select(2,pcall(ObjectWithIndex,Index))) then
-		return select(2,pcall(ObjectWithIndex,Index))
+	if GetObjectExists(select(2,pcall(GetObjectWithIndex,Index))) then
+		return select(2,pcall(GetObjectWithIndex,Index))
 	else
 		return false
 	end
 end
-function GetObjectCount()
-	return select(2,pcall(ObjectCount))
+function GetObjectCountBB()
+	return select(2,pcall(GetObjectCount))
 end
 
 function castInterrupt(SpellID,Percent,Unit)
@@ -969,7 +969,7 @@ function getTotemDistance(Unit1)
 		Unit1 = "player"
 	end
 	if activeTotem ~= nil and UnitIsVisible(Unit1) then
-		for i = 1,GetObjectCount() do
+		for i = 1,GetObjectCountBB() do
 			--print(UnitGUID(ObjectWithIndex(i)))
 			if activeTotem == UnitGUID(GetObjectIndex(i)) then
 				X2,Y2,Z2 = GetObjectPosition(GetObjectIndex(i))
@@ -1764,7 +1764,7 @@ end
 function getLoot2()
 	if looted == nil then looted = 0 end
 	if lM:emptySlots() then
-		for i=1,GetObjectCount() do
+		for i=1,GetObjectCountBB() do
 			if GetObjectExists(i) and bit.band(GetObjectType(i), ObjectTypes.Unit) == 8 then
 				local thisUnit = GetObjectIndex(i)
 				local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
