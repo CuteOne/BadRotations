@@ -1,5 +1,6 @@
 -- SimC Rotation
--- Based on Version: 620 - b984d5465015
+-- Based on Version: 6.2.0 r1
+-- Released on 23 Jun 2015
 if select(3, UnitClass("player")) == 2 and GetSpecialization() == 3 then
 
 function cRetribution:retributionSimC_T18()
