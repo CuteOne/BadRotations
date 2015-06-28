@@ -1,5 +1,9 @@
 if select(3, UnitClass("player")) == 5 and GetSpecialization()==3 then
 
+	function OnOff()
+		mainButton:Click()
+	end
+
 	--[[ reset Queue]]
 	function resetQ()
 		_Queues = nil

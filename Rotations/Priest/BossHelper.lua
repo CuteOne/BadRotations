@@ -310,66 +310,196 @@ if select(3, UnitClass("player")) == 5 then
 					-- Burn Felfire Artillery
 
 				-- Iron Reaver
-					
 
-
-				-- Shadow Lord Iskar
-				if currentBoss=="Shadow-Lord Iskar" then
-					-- holding eye of anzu
-					if UnitBuffID("player",179202) then 		-- http://ptr.wowhead.com/spell=179202/eye-of-anzu
-						-- Tank debuff Phantasmal Corruption		-- http://ptr.wowhead.com/spell=181824/phantasmal-corruption
-						for i=1,#nNova do
-							local thisUnit = nNova[i].unit
-							if UnitDebuffID(thisUnit,181824) then
-								castBossButton(thisUnit)
-							end
-						end
-						-- Shadowfel Warden cast: Fel Conduit		-- http://ptr.wowhead.com/spell=181827/fel-conduit
+				-- Kormrok
+				if currentBoss=="Kromrok" then
+					if getSpellCD(Cascade)<=0 then
+						-- sort enemiesTable by distance
+						sortByDistance()
+						-- Cascade 
 						for i=1,#enemiesTable do
 							local thisUnit = enemiesTable[i].unit
-							if UnitCastingInfo(thisUnit) == "Fel Conduit" 
-							and UnitName(thisUnit) == "Shadowfel Warden" then
-								ShadowSimpleKick(thisUnit)
-							end
-						end
-						-- Auto Dispel: someone holding fel bomb	-- http://ptr.wowhead.com/spell=181753/fel-bomb
-						if options.isChecked.AutoMassDispel then
-							for i=1,#nNova do
-								local thisUnit = nNova[i].unit
-								if getDebuffRemain(thisUnit,181753) and getDistance("player",thisUnit) < 30 then
-									if castGround(thisUnit,MD,30) then
-										SpellStopTargeting()
-										return
-									end
+							if getDistance("player",thisUnit)<40 then
+								if getUnitID(thisUnit) == 93713 then
+									if castSpell(thisUnit,Cascade,true,false) then return end
 								end
 							end
 						end
-						-- Phantasmal Winds		-- http://ptr.wowhead.com/spell=181957/phantasmal-winds
-						for i=1,#nNova do
-							local thisUnit = nNova[i].unit
-							if UnitDebuffID(thisUnit,181957) then
-								castBossButton(thisUnit)
-								return
-							end
-						end
-						-- Phantasmal Wounds	-- http://ptr.wowhead.com/spell=182325/phantasmal-wounds
-						for i=1,#nNova do
-							local thisUnit = nNova[i].unit
-							if UnitDebuffID(thisUnit,182325) then
-								castBossButton(thisUnit)
-								return
-							end
-						end
-						-- throw eye to healer
-						for i=1,#nNova do
-							local thisUnit = nNova[i].unit
-							if UnitGroupRolesAssigned(thisUnit)=="HEALER" then
-								castBossButton(thisUnit)
-								return
-							end
-						end
-					end -- holding eye
+					end
 				end
+
+
+				-- Hellfire High Council
+				if currentBoss=="Gurtogg Bloodboil" or currentBoss=="Blademaster Jubei'thos" or currentBoss=="Dia Darkwhisper" then
+					-- Jubei mirror ID: 93713
+					-- Cascade
+					if getSpellCD(Cascade)<=0 then
+						-- sort enemiesTable by distance
+						sortByDistance()
+						-- Cascade 
+						for i=1,#enemiesTable do
+							local thisUnit = enemiesTable[i].unit
+							if getDistance("player",thisUnit)<40 then
+								if getUnitID(thisUnit) == 94865 then 
+									if castSpell(thisUnit,Cascade,true,false) then return end
+								end
+							end
+						end
+					end
+				end
+
+				-- Kilrogg Deadeye
+
+				-- Gorefiend
+
+				-- Shadow Lord Iskar
+				if currentBoss=="Shadow-Lord Iskar" then
+					if options.isChecked.AutoTarget then
+						-- target Shadowfel Warden
+						if GetObjectExists("target")==false then 
+							if LFU("Shadowfel Warden") then return end
+						end
+						-- target Corrupted Priest of Terokk
+						if GetObjectExists("target")==false then 
+							if LFU("Corrupted Priest of Terokk") then return end
+						end
+					end					
+					-- Cascade
+					if getSpellCD(Cascade)<=0 then
+						-- sort enemiesTable by distance
+						sortByDistance()
+						-- Cascade 
+						for i=1,#enemiesTable do
+							local thisUnit = enemiesTable[i].unit
+							if getDistance("player",thisUnit)<40 then
+								if UnitName(thisUnit) == "Corrupted Talonpriest" then 
+									if castSpell(thisUnit,Cascade,true,false) then return end
+								end
+							end
+						end
+					end
+
+					-- -- holding eye of anzu
+					-- if false and UnitBuffID("player",179202) then 		-- http://ptr.wowhead.com/spell=179202/eye-of-anzu
+					-- 	-- Tank debuff Phantasmal Corruption		-- http://ptr.wowhead.com/spell=181824/phantasmal-corruption
+					-- 	for i=1,#nNova do
+					-- 		local thisUnit = nNova[i].unit
+					-- 		if UnitDebuffID(thisUnit,181824) then
+					-- 			castBossButton(thisUnit)
+					-- 		end
+					-- 	end
+					-- 	-- Shadowfel Warden cast: Fel Conduit		-- http://ptr.wowhead.com/spell=181827/fel-conduit
+					-- 	for i=1,#enemiesTable do
+					-- 		local thisUnit = enemiesTable[i].unit
+					-- 		if UnitCastingInfo(thisUnit) == "Fel Conduit" 
+					-- 		and UnitName(thisUnit) == "Shadowfel Warden" then
+					-- 			ShadowSimpleKick(thisUnit)
+					-- 		end
+					-- 	end
+					-- 	-- Auto Dispel: someone holding fel bomb	-- http://ptr.wowhead.com/spell=181753/fel-bomb
+					-- 	if options.isChecked.AutoMassDispel then
+					-- 		for i=1,#nNova do
+					-- 			local thisUnit = nNova[i].unit
+					-- 			if getDebuffRemain(thisUnit,181753) and getDistance("player",thisUnit) < 30 then
+					-- 				if castGround(thisUnit,MD,30) then
+					-- 					SpellStopTargeting()
+					-- 					return
+					-- 				end
+					-- 			end
+					-- 		end
+					-- 	end
+					-- 	-- Phantasmal Winds		-- http://ptr.wowhead.com/spell=181957/phantasmal-winds
+					-- 	for i=1,#nNova do
+					-- 		local thisUnit = nNova[i].unit
+					-- 		if UnitDebuffID(thisUnit,181957) then
+					-- 			castBossButton(thisUnit)
+					-- 			return
+					-- 		end
+					-- 	end
+					-- 	-- Phantasmal Wounds	-- http://ptr.wowhead.com/spell=182325/phantasmal-wounds
+					-- 	for i=1,#nNova do
+					-- 		local thisUnit = nNova[i].unit
+					-- 		if UnitDebuffID(thisUnit,182325) then
+					-- 			castBossButton(thisUnit)
+					-- 			return
+					-- 		end
+					-- 	end
+					-- 	-- throw eye to healer
+					-- 	for i=1,#nNova do
+					-- 		local thisUnit = nNova[i].unit
+					-- 		if UnitGroupRolesAssigned(thisUnit)=="HEALER" then
+					-- 			castBossButton(thisUnit)
+					-- 			return
+					-- 		end
+					-- 	end
+					-- end -- holding eye
+				end
+
+				-- Socrethar the Eternal
+				if currentBoss=="Soulbound Construct" then
+					-- Auto Target
+
+					-- Cascade
+					if getSpellCD(Cascade)<=0 then
+						-- sort enemiesTable by distance
+						sortByDistance()
+						-- Cascade 
+						for i=1,#enemiesTable do
+							local thisUnit = enemiesTable[i].unit
+							if getDistance("player",thisUnit)<40 then
+								if UnitName(thisUnit) == "Haunting Soul" or UnitName(thisUnit) == "Sargerei Shadowcaller" then 
+									if castSpell(thisUnit,Cascade,true,false) then return end
+								end
+							end
+						end
+					end
+				end
+
+				-- Feld Lord Zakuun
+
+				-- Xhul'horac
+				if currentBoss=="Xhul'horac" then
+					-- Cascade
+					if getSpellCD(Cascade)<=0 then
+						-- sort enemiesTable by distance
+						sortByDistance()
+						-- Cascade 
+						for i=1,#enemiesTable do
+							local thisUnit = enemiesTable[i].unit
+							if getDistance("player",thisUnit)<40 then
+								if UnitName(thisUnit) == "Wild Pyromaniac" or UnitName(thisUnit) == "Unstable Voidfiend" then 
+									if castSpell(thisUnit,Cascade,true,false) then return end
+								end
+							end
+						end
+					end
+				end
+
+				-- Tyrant Velhari
+
+				-- Mannoroth
+				if currentBoss=="Fel Iron Summoner" then
+					-- Cascade
+					if getSpellCD(Cascade)<=0 then
+						-- sort enemiesTable by distance
+						sortByDistance()
+						-- Cascade 
+						for i=1,#enemiesTable do
+							local thisUnit = enemiesTable[i].unit
+							if getDistance("player",thisUnit)<40 then
+								if UnitName(thisUnit) == "Fel Imp" then 
+									if castSpell(thisUnit,Cascade,true,false) then return end
+								end
+							end
+						end
+					end
+				end
+
+				-- Archimonde
+
+
+
+
 			end -- HFC T18
 		end
 	end

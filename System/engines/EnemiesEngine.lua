@@ -34,7 +34,7 @@ function EnemiesEngine()
 				table.wipe(enemiesTable)
 			end
 			-- use objectmanager to build up table
-			for i = 1, GetObjectCount() do
+			for i = 1, GetObjectCountBB() do
 				--for i = 1, ObjectCount() do
 				-- define our unit
 				local thisUnit = GetObjectIndex(i)

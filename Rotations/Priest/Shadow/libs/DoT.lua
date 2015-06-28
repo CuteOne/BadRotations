@@ -30,84 +30,81 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization()==3 then
 		return counter
 	end
 
-	-- Units not to dot with DoTEmAll
-	function safeDoT(datUnit)
-		local BlacklistName = {
-			-- Highmaul
-			"Volatile Anomaly",
-			-- Blackrock Foundry
-			"Pack Beast",
-			"Grasping Earth",
+	-- check unit for dot blacklist
+	function safeDoT(checkUnit)
+		local checkUnit = checkUnit
+		local unitID = getUnitID(checkUnit)
+
+		local blacklistUnitID = {
+		-- highmaul
+			79956,		-- Ko'ragh: Volatile Anomaly
+			78077,		-- Mar'gok: Volatile Anomaly
+		-- blackrock foundry
+			77128,		-- Darmac: Pack Beast
+			77394,		-- Thogar: Iron Raider (Train Ads)
+			77893,		-- Kromog: Grasping Earth (Hands)
+			77665,		-- Blackhand: Iron Soldier
+		-- Hellfire Citadel
 		}
-		local BlacklistBuff = {
-			155176, 			-- BRF: Blast Furnace: Primal Elementalist: http://www.wowhead.com/spell=155176/damage-shield
-			176141, 			-- BRF: Blast Furnace: Slag Elemental: http://www.wowhead.com/spell=176141/hardened-slag
+		local blacklistBuffID = {
+			155176, 	-- BRF: Blast Furnace: Primal Elementalist: http://www.wowhead.com/spell=155176/damage-shield
+			176141, 	-- BRF: Blast Furnace: Slag Elemental: http://www.wowhead.com/spell=176141/hardened-slag
 		}
-		-- nil Protection
-		if datUnit == nil then 
-			return true 
-		end
+		if checkUnit == nil then return false end
 		-- check buff
-		for i = 1, #BlacklistBuff do
-			if getBuffRemain(datUnit,BlacklistBuff[i])>0 
-			or getDebuffRemain(datUnit,BlacklistBuff[i])>0 then
-				return false
-			end
+		for i = 1, #blacklistBuffID do
+			if getBuffRemain(checkUnit,blacklistBuffID[i]) > 0 or getDebuffRemain(checkUnit,blacklistBuffID[i]) > 0 then return false end
 		end
-		-- check name
-		for i = 1, #BlacklistName do
-			if UnitName(datUnit) == BlacklistName[i] then
-				return false
-			end
+		-- check unitID
+		for i = 1, #blacklistUnitID do
+			if getUnitID(checkUnit) == blacklistUnitID[i] then return false	end
 		end
 		-- unit is not in blacklist
 		return true
 	end
 
-	function safeVT(datUnit)
-		local Blacklist = {
+	-- check unit for VT blacklist
+	function safeVT(checkUnit)
+		local checkUnit = checkUnit
+		local unitID = getUnitID(checkUnit)
+
+		local blacklistUnitID = {
 			-- Blackrock Foundry
-			"Grasping Earth",
+			77893,		-- Kromog: Grasping Earth (Hands)
+			78981,		-- Thogar: Iron Gunnery Sergeant (canons on trains)
+			93717,		-- Iron Reaver: Volatile Firebomb
+			-- Hellfire Citadel
+			94865,		-- Hellfire Council: Jubei'thos Mirrors
+			94231,		-- Xhul'horac: Wild Pyromaniac
 		}
-		-- nil Protection
-		if datUnit == nil then 
-			return true
-		end
-		-- Iterate the blacklist
-		for i = 1, #Blacklist do
-			if UnitName(datUnit) == Blacklist[i] then
-				return false
-			end
+		if checkUnit == nil then return false end
+		-- check unitID
+		for i = 1, #blacklistUnitID do
+			if getUnitID(checkUnit) == blacklistUnitID[i] then return false	end
 		end
 		-- unit is not in blacklist
 		return true
 	end
 
-	-- Units not to dotweave, just press damage
+	-- no dotweave, just press damage
 	function noDoTWeave(datUnit)
-		local Blacklist = {
+		local blacklistUnitID = {
 			-- Highmaul
-			"Fortified Arcane Aberration",
-			"Replicating Arcane Aberration",
-			"Displacing Arcane Aberration",
-			"Arcane Aberration",
+			77878, 		-- Mar'gok: Fortified Arcane Aberration
+			77877, 		-- Mar'gok: Replicating Arcane Aberration
+			77879, 		-- Mar'gok: Displacing Arcane Aberration
+			77809,		-- Mar'gok: Arcane Aberration
 			-- Blackrock Foundry
-			"Siegemaker",
-			"Ore Crate",
-			"Dominator Turret",
-			"Grasping Earth",
-			"Cinder Wolf",
-			"Iron Gunnery Sergeant",
-			"Heavy Spear",
-			"Aknor Steelbringer",
+			77893,		-- Kromog: Grasping Earth (Hands)
+			78981,		-- Thogar: Iron Gunnery Sergeant (canons on trains)
 		}
-		if datUnit==nil then return false end
-			for i = 1, #Blacklist do
-				if UnitName(datUnit) == Blacklist[i] then
-					return  true
-				end
-			return false
+		if checkUnit == nil then return false end
+		-- check unitID
+		for i = 1, #blacklistUnitID do
+			if getUnitID(checkUnit) == blacklistUnitID[i] then return true end
 		end
+		-- unit is not in blacklist, we can dotweave -> return false
+		return false
 	end
 
 	--[[                    ]] -- SWP

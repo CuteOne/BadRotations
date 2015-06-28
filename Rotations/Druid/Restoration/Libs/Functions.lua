@@ -14,7 +14,7 @@ if select(3, UnitClass("player")) == 11 then
   function findShroom()
     if shroomsTable[1].x == nil then
       local myShroom = shroomsTable[1].guid
-      for i = 1, GetObjectCount() do
+      for i = 1, GetObjectCountBB() do
         if GetObjectExists(GetObjectIndex(i)) == true then
           --print(UnitGUID(ObjectWithIndex(i)))
           if shroomsTable[1].guid == UnitGUID(GetObjectIndex(i)) then
