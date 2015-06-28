@@ -310,7 +310,7 @@ function cRetribution:retributionSimC()
 		if self.castHammerOfWrath() then return end
 
 	-- actions.cleave+=/hammer_of_the_righteous,if=t18_class_trinket=1&buff.focus_of_vengeance.remains<gcd.max*2
-		if eq.t18_classTrinket and buff.focusOfVengeance < gcd*2
+		if eq.t18_classTrinket and buff.focusOfVengeance < gcd*2 then
 			if self.castHammerOfTheRighteous() then return end
 		end
 
