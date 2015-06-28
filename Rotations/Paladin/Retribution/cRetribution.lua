@@ -87,7 +87,7 @@ function cRetribution:new()
 	function self.getEquip()
 		-- Checks T18 Set
 			local t18 = TierScan("T18")
-			if t18 > 2 then 
+			if t18 > 1 then 
 				self.eq.t18_2p = true 
 			end
 			if t18 > 3 then
@@ -97,8 +97,6 @@ function cRetribution:new()
 			if (GetInventoryItemID("player", 13) == 124518 or GetInventoryItemID("player", 14) == 124518) then
 				self.eq.t18_classTrinket = true
 			end
-
-		
 	end 
 
 -- Buff updates
