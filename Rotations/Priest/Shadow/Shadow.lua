@@ -159,9 +159,7 @@ if select(3, UnitClass("player")) == 5 then
 		------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 			-- Ko'ragh Mind Controll Check
-			if UnitDebuffID("player",163472) then
-				return false
-			end
+			if UnitDebuffID("player",163472) then return end
 
 			-- Food/Invis Check
 			if canRun() ~= true then return false end
@@ -174,6 +172,8 @@ if select(3, UnitClass("player")) == 5 then
 					[Halo]  = false,
 					[Cascade] = false,
 					[DP] = false,
+					[SF] = false,
+					[MB] = false,
 				}
 			end
 
@@ -181,6 +181,8 @@ if select(3, UnitClass("player")) == 5 then
 				if _Queues[Halo] ~= true then 		_Queues[Halo]=false end
 				if _Queues[Cascade] ~= true then 	_Queues[Cascade]=false end
 				if _Queues[DP] ~= true then 		_Queues[DP]=false end
+				if _Queues[SF] ~= true then 		_Queues[SF]=false end
+				if _Queues[MB] ~= true then 		_Queues[MB]=false end
 			end
 
 		------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -225,7 +227,7 @@ if select(3, UnitClass("player")) == 5 then
 		------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 			-- Shadowform outfight
-			if not UnitBuffID("player",Shadowform) and options.isChecked.Shadowform then
+			if not getBuffRemain("player",Shadowform) and options.isChecked.Shadowform then
 				if castSpell("player",Shadowform,true,false) then return; end
 			end
 
@@ -304,6 +306,15 @@ if select(3, UnitClass("player")) == 5 then
 				end
 			end
 
+
+
+
+
+
+
+
+
+
 			------------------------------------------------------------------------------------------------------------------------------------------------------------
 			-- Dummy Testing -------------------------------------------------------------------------------------------------------------------------------------------
 			------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -336,15 +347,15 @@ if select(3, UnitClass("player")) == 5 then
 				if castSpell("target",Cascade,true,false) then return end
 			end
 			if _Queues[DP] == true then
+				if options.player.ORBS < 3 then _Queues[DP] = false end
 				ChatOverlay("Q - DP")
 				if castSpell("target",DP,false,true) then return end
 			end
-			if _Queues[AngelicFeather] == true then
-				if castGround("player",AngelicFeather,30) then
-					SpellStopTargeting()
-					return
-				end
+			if _Queues[SF] == true or _Queues[Mindbender] == true then
+				if castSpell("target",SF,true,false) then return end
+				if castSpell("target",Mindbender,true,false) then return end
 			end
+
 
 
 				
@@ -422,28 +433,28 @@ if select(3, UnitClass("player")) == 5 then
 				------------------------------------------------------------------------------------------------------------------------------------------------------------
 				--[[Level Rotation]]
 				------------------------------------------------------------------------------------------------------------------------------------------------------------
-				if UnitLevel("player")<100 then
-					-- Insanity
-					if getBuffRemain("player",InsanityBuff)>0 then
-						-- Check for current channel and cast Insanity
-						if select(1,UnitChannelInfo("player")) == nil then
-							if castSpell("target",MF,false,true) then return; end
-						end
-					end
-					-- DP
-					if castSpell("target",DP,false,true) then return end
-					-- MB
-					if castSpell("target",MB,false,true) then return end
-					-- SoD Proc
-					if getBuffStacks("player",SoDProc)>=1 then
-						if castSpell("target",MSp,false,false) then return; end
-					end
-					-- Dots
-					if throwSWP(options,true) then return end
-					if refreshSWP(options,true) then return end
-					if throwVT(options,true) then return end
-					if refreshVT(options,true) then return end
-				end
+				-- if UnitLevel("player")<100 then
+				-- 	-- Insanity
+				-- 	if getBuffRemain("player",InsanityBuff)>0 then
+				-- 		-- Check for current channel and cast Insanity
+				-- 		if select(1,UnitChannelInfo("player")) == nil then
+				-- 			if castSpell("target",MF,false,true) then return; end
+				-- 		end
+				-- 	end
+				-- 	-- DP
+				-- 	if castSpell("target",DP,false,true) then return end
+				-- 	-- MB
+				-- 	if castSpell("target",MB,false,true) then return end
+				-- 	-- SoD Proc
+				-- 	if getBuffStacks("player",SoDProc)>=1 then
+				-- 		if castSpell("target",MSp,false,false) then return; end
+				-- 	end
+				-- 	-- Dots
+				-- 	if throwSWP(options,true) then return end
+				-- 	if refreshSWP(options,true) then return end
+				-- 	if throwVT(options,true) then return end
+				-- 	if refreshVT(options,true) then return end
+				-- end
 
 
 
@@ -586,7 +597,7 @@ if select(3, UnitClass("player")) == 5 then
 
 						-- MB on CD
 						if options.player.ORBS<5 then
-							if castSpell("target",MB,false,true) then return; end
+							if castSpell("target",MB,false,true) then return end
 						end
 						
 						-- DP<5 - Hold Back DP to improve 4 set uptime
@@ -635,9 +646,11 @@ if select(3, UnitClass("player")) == 5 then
 							-- VT on target
 							if options.isChecked.VTonTarget then
 								if getDebuffRemain("target",VT,"player")<=options.values.VTRefresh and GetTime()-lastVT > 2*options.player.GCD then
-									if castSpell("target",VT,true,true) then 
-										lastVT=GetTime()
-										return
+									if safeDoT("target") and safeVT("target") then
+										if castSpell("target",VT,true,true) then
+											lastVT=GetTime()
+											return
+										end
 									end
 								end
 							end
