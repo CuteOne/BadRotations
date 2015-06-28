@@ -356,14 +356,14 @@ function DruidFeral()
 					-- 		RunMacroText("/use 13")
 					-- 		if IsAoEPending() then
 					-- 			local X,Y,Z = ObjectPosition(Unit)
-					-- 			CastAtPosition(X,Y,Z)
+					-- 			ClickPosition(X,Y,Z)
 					-- 		end
 					-- 	end
 					-- 	if canTrinket(14) then
 					-- 		RunMacroText("/use 14")
 					-- 		if IsAoEPending() then
 					-- 			local X,Y,Z = ObjectPosition(Unit)
-					-- 			CastAtPosition(X,Y,Z)
+					-- 			ClickPosition(X,Y,Z)
 					-- 		end
 					-- 	end
 					-- end
