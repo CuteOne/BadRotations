@@ -89,13 +89,19 @@ function cRetribution:new()
 			local t18 = TierScan("T18")
 			if t18 > 1 then 
 				self.eq.t18_2p = true 
+			else
+				self.eq.t18_2p = false 
 			end
 			if t18 > 3 then
 				self.eq.t18_4p = true
+			else
+				self.eq.t18_4p = false
 			end
 		-- Checks class trinket (124518 - Libram of Vindication)
 			if (GetInventoryItemID("player", 13) == 124518 or GetInventoryItemID("player", 14) == 124518) then
 				self.eq.t18_classTrinket = true
+			else
+				self.eq.t18_classTrinket = false
 			end
 	end 
 
