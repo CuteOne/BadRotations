@@ -399,7 +399,7 @@ function cRetribution:new()
 	function self.castWordOfGlory()
 		if isChecked("Self Glory") then
 			if self.health <= getValue("Self Glory") then
-				if self.holyPower >= 3 or self.buff.divinePurpose then
+				if self.holyPower >= 3 or self.buff.divinePurpose > 0 then
 					return castSpell("player",self.spell.wordOfGlory,true,false) == true or false
 				end
 			end

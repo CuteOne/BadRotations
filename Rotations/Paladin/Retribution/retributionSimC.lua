@@ -71,7 +71,7 @@ function cRetribution:retributionSimC()
 
 -- Self Glory
 	if isChecked("Self Glory") then
-		self.castWordOfGlory()
+		if self.castWordOfGlory() then return end
 	end
 
 -- holy_prism 2+
