@@ -87,18 +87,22 @@ function cRetribution:new()
 	function self.getEquip()
 		-- Checks T18 Set
 			local t18 = TierScan("T18")
-			if t18 > 2 then 
+			if t18 > 1 then 
 				self.eq.t18_2p = true 
+			else
+				self.eq.t18_2p = false 
 			end
 			if t18 > 3 then
 				self.eq.t18_4p = true
+			else
+				self.eq.t18_4p = false
 			end
 		-- Checks class trinket (124518 - Libram of Vindication)
 			if (GetInventoryItemID("player", 13) == 124518 or GetInventoryItemID("player", 14) == 124518) then
 				self.eq.t18_classTrinket = true
+			else
+				self.eq.t18_classTrinket = false
 			end
-
-		
 	end 
 
 -- Buff updates
@@ -199,8 +203,6 @@ function cRetribution:new()
 			if self.rotation == 1 then
 				self:retributionSimC()
 			-- put different rotations below; dont forget to setup your rota in options
-			elseif self.rotation == 2 then
-				self:retributionSimC_T18()
 			else
 				ChatOverlay("No ROTATION ?!", 2000)
 			end
@@ -397,7 +399,7 @@ function cRetribution:new()
 	function self.castWordOfGlory()
 		if isChecked("Self Glory") then
 			if self.health <= getValue("Self Glory") then
-				if self.holyPower >= 3 or self.buff.divinePurpose then
+				if self.holyPower >= 3 or self.buff.divinePurpose > 0 then
 					return castSpell("player",self.spell.wordOfGlory,true,false) == true or false
 				end
 			end

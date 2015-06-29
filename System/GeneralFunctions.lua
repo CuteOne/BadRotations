@@ -456,7 +456,7 @@ function castGround(Unit,SpellID,maxDistance)
 		if IsAoEPending() then
 			--local distanceToGround = getGroundDistance(Unit) or 0
 			local X,Y,Z = GetObjectPosition(Unit)
-			CastAtPosition(X,Y,Z) --distanceToGround
+			ClickPosition(X,Y,Z,true) --distanceToGround
 			return true
 		end
 	end
@@ -468,7 +468,7 @@ function castGroundBetween(Unit,SpellID,maxDistance)
 		CastSpellByName(GetSpellInfo(SpellID),"player")
 		if IsAoEPending() then
 			local X,Y,Z = GetObjectPosition(Unit)
-			CastAtPosition(X,Y,Z)
+			ClickPosition(X,Y,Z,true)
 			return true
 		end
 	end
@@ -532,7 +532,7 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 				if math.sqrt(((medX-myX)^2)+((medY-myY)^2)) < 40 then
 					CastSpellByName(GetSpellInfo(SpellID),"player")
 					if IsAoEPending() then
-						CastAtPosition(medX,medY,medZ)
+						ClickPosition(medX,medY,medZ,true)
 						if SpellID == 145205 then shroomsTable[1] = { x = medX,y = medY,z = medZ} end
 						return true
 					end end end end end

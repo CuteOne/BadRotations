@@ -115,7 +115,7 @@ if select(3, UnitClass("player")) == 8 then
     -- actions.crystal_sequence+=/prismatic_crystal
     if isKnown(PrismaticCrystal) and getSpellCD(PrismaticCrystal) <= 0 then
       local X, Y, Z = GetObjectPosition("focus");
-      CastAtPosition(X,Y,Z);
+      ClickPosition(X,Y,Z,true);
     end
 
     --[[TBD ACTIVE ENEMIES]]
@@ -973,7 +973,7 @@ if select(3, UnitClass("player")) == 8 then
       end
       if IsAoEPending() and AoESpellTarget ~= nil then
         local X, Y, Z = GetObjectPosition("player")
-        CastAtPosition(X,Y,Z)
+        ClickPosition(X,Y,Z,true)
         SpellStopTargeting()
         return true
       end

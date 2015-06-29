@@ -1,4 +1,4 @@
-if select(3, UnitClass("player")) == 5 then
+if select(3, UnitClass("player")) == 5 and GetSpecialization()==1 then
 
 
 	------------------------------------------------------------------------------------------------------
