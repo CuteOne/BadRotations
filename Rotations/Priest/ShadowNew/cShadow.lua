@@ -239,11 +239,11 @@ function cShadow:new()
 		local t17 = TierScan("T17")
 		local t18 = TierScan("T18")
 		-- T17
-		if t17 >= 2 then self.set_bonus.tier17_2p = true end
-		if t17 >= 4 then self.set_bonus.tier17_2p = true end
+		if t17 >= 2 then self.set_bonus.tier17_2pc = true else self.set_bonus.tier17_2pc = false end
+		if t17 >= 4 then self.set_bonus.tier17_4pc = true else self.set_bonus.tier17_4pc = false end
 		-- T18
-		if t18 >= 2 then self.set_bonus.tier18_2p = true end
-		if t18 >= 4 then self.set_bonus.tier18_2p = true end
+		if t18 >= 2 then self.set_bonus.tier18_2pc = true else self.set_bonus.tier18_2pc = false end
+		if t18 >= 4 then self.set_bonus.tier18_4pc = true else self.set_bonus.tier18_4pc = false end
 		-- T18 class trinket
 		if GetInventoryItemID("player",13) == 124519 or GetInventoryItemID("player",14) == 124519 then
 			self.set_bonus.class_trinket = true
