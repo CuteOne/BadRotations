@@ -44,8 +44,8 @@ function cRetribution:new()
 
 	self.defaultSeal = self.spell.sealOfThruth
 	self.eq = {
-		t18_2p = false,
-		t18_4p = false,
+		t18_2pc = false,
+		t18_4pc = false,
 		t18_classTrinket = false,
 	}
 
@@ -87,8 +87,8 @@ function cRetribution:new()
 	function self.getEquip()
 		-- Checks T18 Set
 			local t18 = TierScan("T18")
-			self.eq.t18_2p = t18>=2 or false
-			self.eq.t18_4p = t18>=4 or false
+			self.eq.t18_2pc = t18>=2 or false
+			self.eq.t18_4pc = t18>=4 or false
 		-- Checks class trinket (124518 - Libram of Vindication)
 			self.eq.t18_classTrinket = isTrinketEquipped(124518)
 

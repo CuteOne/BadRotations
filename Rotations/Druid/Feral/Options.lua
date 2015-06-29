@@ -141,13 +141,13 @@ if select(3, UnitClass("player")) == 11 then
                     end
 
                     -- Dream of Cenarius Auto-Heal
-                    if getTalent(6,2) then
+                    --if getTalent(6,2) then
                         checkOp("Auto Heal")
                         dropOp("Auto Heal", 1, "|cffFFFFFFSelect Target to Auto-Heal",
                             "|cffFFDD11LowestHP",
                             "|cffFFDD11Self")
-                        textOp("Auto-Heal (DoC)")
-                    end
+                        textOp("Auto Heal")
+                    --end
 
                 -- Spacer --
                 textOp(" ")
