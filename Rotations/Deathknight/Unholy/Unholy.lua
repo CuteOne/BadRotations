@@ -342,14 +342,14 @@ if select(3,UnitClass("player")) == 6 then
           RunMacroText("/use 13")
           if IsAoEPending() then
             local X,Y,Z = GetObjectPosition(Unit)
-            ClickPosition(X,Y,Z)
+            ClickPosition(X,Y,Z,true)
           end
         end
         if canTrinket(14) and useCDs() then
           RunMacroText("/use 14")
           if IsAoEPending() then
             local X,Y,Z = GetObjectPosition(Unit)
-            ClickPosition(X,Y,Z)
+            ClickPosition(X,Y,Z,true)
           end
         end
       end -- useCDs() end
