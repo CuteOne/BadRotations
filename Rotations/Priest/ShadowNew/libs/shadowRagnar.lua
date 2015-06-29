@@ -63,6 +63,11 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		if options.utilities.pause.enabled and SpecificToggle("Pause Toggle") == true then
 			ChatOverlay("|cffFF0000BadBoy Paused", 0) return
 		end
+
+		-- shadow form
+		if not shadowform then
+			if self.castShadowform() then return end
+		end
 		
 		------------------------------------------------------------------------------------------------------
 		-- Boss Helper ---------------------------------------------------------------------------------------

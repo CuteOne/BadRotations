@@ -139,6 +139,8 @@ function cShadow:new()
 		-- AS Update
 		self.ASUpdate()
 
+		self.BossDetection()
+
 		-- Casting and GCD check
 		if select(2,GetSpellCooldown(61304))>0 then
 			return false
@@ -162,6 +164,27 @@ function cShadow:new()
 
 		-- to do ooc
 		self.castAngelicFeatherOnMe()
+		self.BossDetection()
+
+		-- raid buff
+		if self.options.utilities.pwf.enabled then RaidBuff(2,21562) end
+	end
+
+	-- Boss detection
+	function self.BossDetection()
+		-- not infight: reset current boss
+		if UnitAffectingCombat("player")==false then
+			currentBoss = "noBoss"
+		end
+		-- infight: detect boss
+		if UnitAffectingCombat("player") then
+			if currentBoss=="noBoss" or currentBoss==nil then
+				if UnitName("boss1")==nil then 
+					currentBoss="noBoss"
+				else currentBoss=UnitName("boss1") 
+				end
+			end
+		end
 	end
 
 	-- update options
@@ -537,7 +560,7 @@ function cShadow:new()
 		end
 		-- desperate_prayer
 		function self.castDesperatePrayer()
-			return castSpell("player",spell.desperate_prayer,true,false) == true or  false
+			return castSpell("player",self.spell.desperate_prayer,true,false) == true or  false
 		end
 		-- devouring_plague
 		function self.castDP(thisTarget)
@@ -584,7 +607,9 @@ function cShadow:new()
 		end
 		-- mind_flay
 		function self.castMindFlay(thisTarget)
-			return castSpell(thisTarget,self.spell.mind_flay,false,true) == true or false
+			if not UnitChannelInfo("player") then
+				return castSpell(thisTarget,self.spell.mind_flay,false,true) == true or false
+			end
 		end
 		-- mind_sear
 		function self.castMindSear(thisTarget)

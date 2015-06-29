@@ -1,15 +1,22 @@
 if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 	function cShadow:BossHelperT18()
 
+		if currentBoss=="noBoss" then
+			if self.castCascadeAuto() then return end
+		end
+
 		--[[ Hellfire Citadel - T18 ]]
 		if GetRealZoneText()=="Hellfire Citadel" then
+			local _cascade = 127632
+
 			-- Hellfire Assault
 				if currentBoss=="Reinforced Hellfire Door" then
 					-- auto target
 					
 					-- cascade
-					if getSpellCD(spell.cascade) then
+					if getSpellCD(_cascade)<=0 then
 						if active_enemies_40 >= 5 then
+							if castCascadeAuto() then return end
 						end
 					end
 				end
@@ -27,7 +34,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- auto target
 					
 					-- cascade
-					if getSpellCD(spell.cascade)<=0 then
+					if getSpellCD(_cascade)<=0 then
 						if isUnitThere("Grasping Hand",40) then
 							if castCascadeAuto() then return end
 						end
@@ -40,7 +47,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- auto target
 					
 					-- cascade
-					if getSpellCD(spell.cascade)<=0 then
+					if getSpellCD(_cascade)<=0 then
 						-- cascade Jubei Mirrors
 						if isUnitThere(94865,40) then
 							if castCascadeAuto() then return end
@@ -49,15 +56,23 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				end
 
 			-- Kilrogg Deadeye
+				if currentBoss=="Kilrogg Deadeye" then
+					-- target boss if no target
+					if GetObjectExists("target")==false then TargetUnit("Kilrogg Deadeye") end
+				end
 
 			-- Gorefiend
 				if currentBoss=="Gorefiend" then
+					-- cascade
+					if getSpellCD(_cascade)<=0 then
+						if castCascadeAuto() then return end
+					end
 				end
 
 			-- Shadow Lord Iskar
 				if currentBoss=="Shadow-Lord Iskar" then
 					-- auto target
-					if options.isChecked.AutoTarget then
+					if self.options.bosshelper.target then
 						-- target Shadowfel Warden
 						if isUnitThere("Shadowfel Warden") then
 							TargetUnit("Shadowfel Warden")
@@ -69,10 +84,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 						end
 					end					
 					-- cascade
-					if getSpellCD(spell.cascade)<=0 then
-						-- sort enemiesTable by distance
-						sortByDistance()
-						-- cascade farest dog
+					if getSpellCD(_cascade)<=0 then
+						-- cascade
 						if isUnitThere("Corrupted Talonpriest",40) then
 							if castCascadeAuto() then return end
 						end
@@ -84,7 +97,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- auto target
 					
 					-- cascade
-					if getSpellCD(spell.cascade)<=0 then
+					if getSpellCD(_cascade)<=0 then
 						if isUnitThere("Haunting Soul",40) or isUnitThere("Sargerei Shadowcaller",40) then
 							if castCascadeAuto() then return end
 						end
@@ -98,7 +111,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- auto target
 
 					-- cascade
-					if getSpellCD(spell.cascade)<=0 then
+					if getSpellCD(_cascade)<=0 then
 						if isUnitThere("Wild Pyromaniac",40) or isUnitThere("Unstable Voidfiend",40) then
 							if castCascadeAuto() then return end
 						end
@@ -108,6 +121,16 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			-- Tyrant Velhari
 
 			-- Mannoroth
+			if currentBoss=="Fel Iron Summoner" then
+				-- auto target
+				
+				-- cascade
+				if getSpellCD(_cascade)<=0 then
+					if isUnitThere("Fel Imp",40) then
+						if castCascadeAuto() then return end
+					end
+				end
+			end
 
 			-- Archimonde
 

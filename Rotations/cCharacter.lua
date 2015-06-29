@@ -124,7 +124,8 @@ function cCharacter:new(class)
 
 -- Returns if in combat
 	function self.getInCombat()
-		if UnitAffectingCombat("player") then
+		if UnitAffectingCombat("player")
+		or (GetNumGroupMembers()>1 and (UnitAffectingCombat("player") or UnitAffectingCombat("target"))) then
 			self.inCombat = true
 		else
 			self.inCombat = false

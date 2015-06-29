@@ -14,20 +14,19 @@ if select(3, UnitClass("player")) == 5 then
 
 		}
 
-	-- Update 
+		-- Update 
 		function self.classUpdate()
 			-- Call baseUpdate()
 			self.baseUpdate()
 		end
 
-	-- Update OOC
-	function self.classUpdateOOC()
-		-- Call baseUpdateOOC()
-		self.baseUpdateOOC()
-	end
+		-- Update OOC
+		function self.classUpdateOOC()
+			-- Call baseUpdateOOC()
+			self.baseUpdateOOC()
+		end
 
-	-- Return
+		-- Return
 		return self
 	end
-
 end
