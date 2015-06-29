@@ -36,9 +36,9 @@ function cRetribution:retributionSimC()
 -- actions+=/avenging_wrath,if=prev.execution_sentence&set_bonus.tier18_4pc=1&talent.execution_sentence.enabled&!talent.seraphim.enabled
 -- actions+=/avenging_wrath,if=prev.lights_hammer&set_bonus.tier18_4pc=1&talent.lights_hammer.enabled&!talent.seraphim.enabled
 	if (talent.seraphim and buff.seraphim > 0) or 
-		(not talent.seraphim and not eq.t18_4p) or
-		(not talent.seraphim and eq.t18_4p and getCombatTime() < 20) or
-		(not talent.seraphim and eq.t18_4p and (lastSpellCast == spell.executionSentence or lastSpellCast == spell.lightsHammer))
+		(not talent.seraphim and not eq.t18_4pc) or
+		(not talent.seraphim and eq.t18_4pc and getCombatTime() < 20) or
+		(not talent.seraphim and eq.t18_4pc and (lastSpellCast == spell.executionSentence or lastSpellCast == spell.lightsHammer))
 		then
 			if self.castAvengingWrath() then return end
 	end

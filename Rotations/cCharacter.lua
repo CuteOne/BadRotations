@@ -73,20 +73,20 @@ function cCharacter:new(class)
 	function self.getToggleModes()
 		local BadBoy_data   = BadBoy_data
 		-- Paladin:
-		if select(3, UnitClass("player")) == 2 then
+		if self.class == "Paladin" then
 			self.mode.aoe       = BadBoy_data["AoE"]
 			self.mode.cooldowns = BadBoy_data["Cooldowns"]
 			self.mode.defensive = BadBoy_data["Defensive"]
 			self.mode.healing   = BadBoy_data["Healing"]
 		end
 		-- Priest - Shadow:
-		if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
-			self.mode.defensive = 	BadBoy_data['Defensive']
-			self.mode.multidot = 		BadBoy_data['DoT']
+		if self.class == "Priest" and self.profile == "Shadow" then
+			self.mode.defensive  = 	BadBoy_data['Defensive']
+			self.mode.multidot   = 	BadBoy_data['DoT']
 			self.mode.bosshelper = 	BadBoy_data['BossHelper']
-			self.mode.t90 = 			BadBoy_data['T90']
-			self.mode.cooldowns = 	BadBoy_data['Cooldowns']
-			self.mode.feather = 		BadBoy_data['Feather']
+			self.mode.t90        = 	BadBoy_data['T90']
+			self.mode.cooldowns  = 	BadBoy_data['Cooldowns']
+			self.mode.feather    = 	BadBoy_data['Feather']
 		end
 	end
 
