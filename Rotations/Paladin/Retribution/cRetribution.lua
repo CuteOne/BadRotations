@@ -87,22 +87,11 @@ function cRetribution:new()
 	function self.getEquip()
 		-- Checks T18 Set
 			local t18 = TierScan("T18")
-			if t18 > 1 then 
-				self.eq.t18_2p = true 
-			else
-				self.eq.t18_2p = false 
-			end
-			if t18 > 3 then
-				self.eq.t18_4p = true
-			else
-				self.eq.t18_4p = false
-			end
+			self.eq.t18_2p = t18>=2 or false
+			self.eq.t18_4p = t18>=4 or false
 		-- Checks class trinket (124518 - Libram of Vindication)
-			if (GetInventoryItemID("player", 13) == 124518 or GetInventoryItemID("player", 14) == 124518) then
-				self.eq.t18_classTrinket = true
-			else
-				self.eq.t18_classTrinket = false
-			end
+			self.eq.t18_classTrinket = isTrinketEquipped(124518)
+
 	end 
 
 -- Buff updates
