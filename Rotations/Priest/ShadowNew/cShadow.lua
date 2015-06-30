@@ -489,10 +489,15 @@ function cShadow:new()
 		-- Blackrock Foundry
 			77893,		-- Kromog: Grasping Earth (Hands)
 			78981,		-- Thogar: Iron Gunnery Sergeant (canons on trains)
+			80654,		-- Blackhand Mythic Siegemakers
+			80659,		-- Blackhand Mythic Siegemakers
+			80646,		-- Blackhand Mythic Siegemakers
+			80660,		-- Blackhand Mythic Siegemakers
 		-- Hellfire Citadel
 			94865,		-- Hellfire Council: Jubei'thos Mirrors
 			94231,		-- Xhul'horac: Wild Pyromaniac
 			92208,		-- Archimonde: Doomfire Spirit
+
 		}
 		if checkUnit == nil then return false end
 		-- check unitID

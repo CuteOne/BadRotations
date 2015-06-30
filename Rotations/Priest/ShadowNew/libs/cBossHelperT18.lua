@@ -141,7 +141,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				
 				-- cascade
 				if getSpellCD(self.spell.cascade)<=0 then
-					if isUnitThere("Dreadstalker",40) then
+					if isUnitThere("Dreadstalker",40) or isUnitThere("Doomfire Spirit",40) or isUnitThere("Infernal Doombringer",40) then
 						if self.castCascadeAuto() then return end
 					end
 				end
