@@ -116,6 +116,10 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewCheck(thisConfig,"VT on Target","VT on current target (AS)")
 			CreateNewText(thisConfig,"VT on Target")
 
+			-- Ignore orbs for SWD
+			CreateNewCheck(thisConfig,"SWD ignore Orbs","SWD with 5 orbs.")
+			CreateNewText(thisConfig,"SWD ignore Orbs")
+
 			-- Min Health
 			CreateNewBox(thisConfig,"Min Health", 0.0, 7.5, 0.1, 1.5, "Minimum Health in |cffFF0000million HP|cffFFBB00.\nMin: 0 / Max: 7.5+  / Interval: 0.1")
 			CreateNewText(thisConfig,"Min Health")
@@ -149,7 +153,7 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewWrap(thisConfig,"|cffBA55D3Utilities")
 
 			-- Rotation
-			CreateNewDrop(thisConfig,"Rotation",1,"Choose rotation to use.","ragnar")
+			CreateNewDrop(thisConfig,"Rotation",1,"Choose rotation to use.","|cffBA55D3ravens")
 			CreateNewText(thisConfig,"Rotation")
 
 			-- Pause Toggle

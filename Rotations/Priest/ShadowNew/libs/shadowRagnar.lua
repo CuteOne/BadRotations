@@ -181,8 +181,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			end
 
 			-- Shadow Word: Death
-			if self.castSWDAuto() then return end
 			if self.castSWDAuto("target") then return end
+			--if self.castSWDAuto("target") then return end
 
 			-- Mind Blast with Mind Harvest TBD
 

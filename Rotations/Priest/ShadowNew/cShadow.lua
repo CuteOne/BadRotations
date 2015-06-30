@@ -88,6 +88,7 @@ function cShadow:new()
 		rotation = {
 			dot_weave = 		{enabled=isChecked("DoTWeave")},
 			vt_on_target = 		{enabled=isChecked("VT on Target")},
+			swd_ignore = 		{enabled=isChecked("SWD ignore Orbs")},
 			min_health = 		{enabled=isChecked("Min Health"),value=getValue("Min Health")*1000000,},
 			max_targets = 		{enabled=isChecked("Max Targets"),value=getValue("Max Targets"),},
 			dp_on_orbs = 		{enabled=isChecked("DP on Orbs"),value=getValue("DP on Orbs"),},
@@ -228,6 +229,7 @@ function cShadow:new()
 
 		self.options.rotation.dot_weave.enabled = 			isChecked("DoTWeave")
 		self.options.rotation.vt_on_target.enabled = 		isChecked("VT on Target")
+		self.options.rotation.swd_ignore.enabled = 			isChecked("SWD ignore Orbs")
 		self.options.rotation.min_health.enabled = 			isChecked("Min Health")
 		self.options.rotation.min_health.value = 			getValue("Min Health")*1000000
 		self.options.rotation.max_targets.enabled = 		isChecked("Max Targets")
@@ -652,35 +654,62 @@ function cShadow:new()
 		-- resurrection
 		-- shackle_undead
 		-- shadow_word_death
-		function self.castSWDAuto(thisTarget,ignore)
-			if ignore then
-				for i=1,#enemiesTable do
-					local thisUnit = enemiesTable[i].unit
-					local range = enemiesTable[i].distance
-					local hp = enemiesTable[i].hp
-					if hp < 20 and range < 40 then
-						return castSpell(thisUnit,self.spell.shadow_word_death,true,false,false,false,false,false,true) == true or false
-					end
-				end
-			else
-				if self.orbs < 5 then
-					if thisTarget then
-						if getHP(thisTarget)<=20 then
-							return castSpell(thisTarget,self.spell.shadow_word_death,true,false) == true or false
+		function self.castSWDAuto(thisTarget)
+			if self.orbs < 5 or self.options.rotation.swd_ignore.enabled then
+				if self.cd.shadow_word_death <= 0 then
+					if GetObjectExists(thisTarget) then
+						local thisUnit = thisTarget
+						local range = getDistance("player",thisUnit)
+						local hp = getHP(thisUnit)
+						if hp < 20 and range < 40 then
+							return castSpell(thisUnit,self.spell.shadow_word_death,true,false) == true or false
 						end
-					else
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
-							local range = enemiesTable[i].distance
-							local hp = enemiesTable[i].hp
-							if hp < 20 and range < 40 then
-								return castSpell(thisUnit,self.spell.shadow_word_death,true,false,false,false,false,false,true) == true or false
-							end
+					end
+					for i=1,#enemiesTable do
+						local thisUnit = enemiesTable[i].unit
+						local range = enemiesTable[i].distance
+						local hp = enemiesTable[i].hp
+						if hp < 20 and range < 40 then
+							return castSpell(thisUnit,self.spell.shadow_word_death,true,false,false,false,false,false,true) == true or false
 						end
 					end
 				end
 			end
 		end
+
+
+		-- function self.castSWDAuto(thisTarget,ignore)
+		-- 	if ignore then
+		-- 		print("1 insinde ignore")
+		-- 		for i=1,#enemiesTable do
+		-- 			local thisUnit = enemiesTable[i].unit
+		-- 			local range = enemiesTable[i].distance
+		-- 			local hp = enemiesTable[i].hp
+		-- 			print("2 check: "..UnitName(thisUnit).." with "..hp)
+		-- 			if hp < 20 and range < 40 then
+		-- 				print("3 is under 20% and inside 40y")
+		-- 				return castSpell(thisUnit,self.spell.shadow_word_death,true,false,false,false,false,false,true) == true or false
+		-- 			end
+		-- 		end
+		-- 	else
+		-- 		if self.orbs < 5 then
+		-- 			if thisTarget then
+		-- 				if getHP(thisTarget)<=20 then
+		-- 					return castSpell(thisTarget,self.spell.shadow_word_death,true,false) == true or false
+		-- 				end
+		-- 			else
+		-- 				for i=1,#enemiesTable do
+		-- 					local thisUnit = enemiesTable[i].unit
+		-- 					local range = enemiesTable[i].distance
+		-- 					local hp = enemiesTable[i].hp
+		-- 					if hp < 20 and range < 40 then
+		-- 						return castSpell(thisUnit,self.spell.shadow_word_death,true,false,false,false,false,false,true) == true or false
+		-- 					end
+		-- 				end
+		-- 			end
+		-- 		end
+		-- 	end
+		-- end
 		-- shadow_word_pain
 		function self.castSWPAutoApply(maxTargets)
 			if self.getSWP() < maxTargets then
