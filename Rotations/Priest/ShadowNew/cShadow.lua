@@ -497,7 +497,6 @@ function cShadow:new()
 			94865,		-- Hellfire Council: Jubei'thos Mirrors
 			94231,		-- Xhul'horac: Wild Pyromaniac
 			92208,		-- Archimonde: Doomfire Spirit
-
 		}
 		if checkUnit == nil then return false end
 		-- check unitID
@@ -573,7 +572,7 @@ function cShadow:new()
 				self.sortByDistance()
 				local thisUnit = enemiesTable[i].unit
 				if getDistance("player",thisUnit) < 40 then
-					return castSpell(thisUnit,self.spell.cascade,true,false) == true or false
+					return castSpell(thisUnit,self.spell.cascade,true,false) 
 				end
 			end
 		end
@@ -583,24 +582,24 @@ function cShadow:new()
 		end
 		-- devouring_plague
 		function self.castDP(thisTarget)
-			return castSpell(thisTarget,self.spell.devouring_plague,true,false) == true or false
+			return castSpell(thisTarget,self.spell.devouring_plague,true,false) 
 		end
 		-- dispel_magic
 		-- dispersion
 		function self.castDispersion()
-			return castSpell("player",self.spell.dispersion,true,false) == true or false
+			return castSpell("player",self.spell.dispersion,true,false) 
 		end
 		-- divine_star
 		-- dominate_mind
 		-- fade
 		function self.castFade()
-			return castSpell("player",self.spell.fade,true,false) == true or false
+			return castSpell("player",self.spell.fade,true,false) 
 		end
 		-- fear_ward
 		-- flash_heal
 		-- halo
 		function self.castHalo()
-			return castSpell("player",self.spell.halo,true,false) == true or false
+			return castSpell("player",self.spell.halo,true,false) 
 		end
 		-- insanity
 		function self.castInsanity(thisTarget)
@@ -612,45 +611,45 @@ function cShadow:new()
 		function self.castMindbender(thisTarget)
 			if self.mode.cooldowns == 2 then
 				if self.options.offensive.shadowfiend.enabled then
-					return castSpell(thisTarget,self.spell.mindbender,true,false) == true or false
+					return castSpell(thisTarget,self.spell.mindbender,true,false) 
 				end
 			end
 		end
 		-- mind_blast
 		function self.castMindBlast(thisTarget)
 			if getTalent(7,1) then
-				return castSpell(thisTarget,self.spell.mind_blast,false,false) == true or false
+				return castSpell(thisTarget,self.spell.mind_blast,false,false) 
 			else
-				return castSpell(thisTarget,self.spell.mind_blast,false,true) == true or false
+				return castSpell(thisTarget,self.spell.mind_blast,false,true) 
 			end
 		end
 		-- mind_flay
 		function self.castMindFlay(thisTarget)
 			if not UnitChannelInfo("player") then
-				return castSpell(thisTarget,self.spell.mind_flay,false,true) == true or false
+				return castSpell(thisTarget,self.spell.mind_flay,false,true) 
 			end
 		end
 		-- mind_sear
 		function self.castMindSear(thisTarget)
-			return castSpell(thisTarget,self.spell.mind_sear,true,true) == true or false
+			return castSpell(thisTarget,self.spell.mind_sear,true,true) 
 		end
 		-- mind_spike
 		function self.castMindSpike(thisTarget,proc)
 			if proc==true or proc=="proc" then
-				return castSpell(thisTarget,self.spell.mind_spike,false,false) == true or false
+				return castSpell(thisTarget,self.spell.mind_spike,false,false) 
 			else
-				return castSpell(thisTarget,self.spell.mind_spike,false,true) == true or false
+				return castSpell(thisTarget,self.spell.mind_spike,false,true) 
 			end
 		end
 		-- mind_vision
 		-- power_infusion
 		function self.castPowerInfusion()
-			return castSpell("player",self.spell.power_infusion,true,false) == true or false
+			return castSpell("player",self.spell.power_infusion,true,false) 
 		end
 		-- power_word_fortitude
 		-- power_word_shield
 		function self.castPWS(thisTarget)
-			return castSpell(thisTarget,self.spell.power_word_shield,true,false) == true or false
+			return castSpell(thisTarget,self.spell.power_word_shield,true,false) 
 		end
 
 
@@ -667,7 +666,7 @@ function cShadow:new()
 						local range = getDistance("player",thisUnit)
 						local hp = getHP(thisUnit)
 						if hp < 20 and range < 40 then
-							return castSpell(thisUnit,self.spell.shadow_word_death,true,false) == true or false
+							return castSpell(thisUnit,self.spell.shadow_word_death,true,false) 
 						end
 					end
 					for i=1,#enemiesTable do
@@ -675,7 +674,7 @@ function cShadow:new()
 						local range = enemiesTable[i].distance
 						local hp = enemiesTable[i].hp
 						if hp < 20 and range < 40 then
-							return castSpell(thisUnit,self.spell.shadow_word_death,true,false,false,false,false,false,true) == true or false
+							return castSpell(thisUnit,self.spell.shadow_word_death,true,false,false,false,false,false,true) 
 						end
 					end
 				end
@@ -693,14 +692,14 @@ function cShadow:new()
 		-- 			print("2 check: "..UnitName(thisUnit).." with "..hp)
 		-- 			if hp < 20 and range < 40 then
 		-- 				print("3 is under 20% and inside 40y")
-		-- 				return castSpell(thisUnit,self.spell.shadow_word_death,true,false,false,false,false,false,true) == true or false
+		-- 				return castSpell(thisUnit,self.spell.shadow_word_death,true,false,false,false,false,false,true) 
 		-- 			end
 		-- 		end
 		-- 	else
 		-- 		if self.orbs < 5 then
 		-- 			if thisTarget then
 		-- 				if getHP(thisTarget)<=20 then
-		-- 					return castSpell(thisTarget,self.spell.shadow_word_death,true,false) == true or false
+		-- 					return castSpell(thisTarget,self.spell.shadow_word_death,true,false) 
 		-- 				end
 		-- 			else
 		-- 				for i=1,#enemiesTable do
@@ -708,7 +707,7 @@ function cShadow:new()
 		-- 					local range = enemiesTable[i].distance
 		-- 					local hp = enemiesTable[i].hp
 		-- 					if hp < 20 and range < 40 then
-		-- 						return castSpell(thisUnit,self.spell.shadow_word_death,true,false,false,false,false,false,true) == true or false
+		-- 						return castSpell(thisUnit,self.spell.shadow_word_death,true,false,false,false,false,false,true) 
 		-- 					end
 		-- 				end
 		-- 			end
@@ -726,7 +725,7 @@ function cShadow:new()
 						if getDebuffRemain(thisUnit,self.spell.shadow_word_pain,"player") <= 18*0.3 then
 							if distance < 40 then
 								if hp >= self.options.rotation.min_health.value then
-									return castSpell(thisUnit,self.spell.shadow_word_pain,true,false) == true or false
+									return castSpell(thisUnit,self.spell.shadow_word_pain,true,false) 
 								end
 							end
 						end
@@ -738,20 +737,20 @@ function cShadow:new()
 		function self.castShadowfiend(thisTarget)
 			if self.mode.cooldowns == 2 then
 				if self.options.offensive.shadowfiend.enabled then
-					return castSpell(thisTarget,self.spell.shadowfiend,true,false) == true or false
+					return castSpell(thisTarget,self.spell.shadowfiend,true,false) 
 				end
 			end
 		end
 		-- shadowform
 		function self.castShadowform()
-			return castSpell("player",self.spell.shadowform,true,false) == true or false
+			return castSpell("player",self.spell.shadowform,true,false) 
 		end
 		-- silence
 		-- surge_of_darkness
 		-- spectral_guise
 		-- vampiric_embrace
 		function self.castVE()
-			return castSpell("player",self.spell.vampiric_embrace,true,false) == true or false
+			return castSpell("player",self.spell.vampiric_embrace,true,false) 
 		end
 		-- vampiric_touch
 		function self.castVTAutoApply(maxTargets)
@@ -760,11 +759,15 @@ function cShadow:new()
 					local thisUnit = enemiesTable[i].unit
 					local hp = enemiesTable[i].hpabs
 					local distance = enemiesTable[i].distance
-					if self.safeDoT(thisUnit) and self.safeVT(thisUnit) and UnitIsTappedByPlayer(thisUnit) then
-						if getDebuffRemain(thisUnit,self.spell.vampiric_touch,"player") <= 15*0.3+(0.001*select(4,GetSpellInfo(34914))) then
-							if distance < 40 then
-								if hp >= self.options.rotation.min_health.value then
-									return castSpell(thisUnit,self.spell.vampiric_touch,true,true) == true or false
+					local lastVTTarget = lastVTTarget
+					local lastVTTime = lastVTTime
+					if thisUnit ~= lastVTTarget and lastVTTime < GetTime() then
+						if self.safeDoT(thisUnit) and self.safeVT(thisUnit) and UnitIsTappedByPlayer(thisUnit) then
+							if getDebuffRemain(thisUnit,self.spell.vampiric_touch,"player") <= 15*0.3+(0.001*select(4,GetSpellInfo(34914))) then
+								if distance < 40 then
+									if hp >= self.options.rotation.min_health.value then
+										return castSpell(thisUnit,self.spell.vampiric_touch,true,true) 
+									end
 								end
 							end
 						end

@@ -37,20 +37,19 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 
 
 		-- Check for queued spells
-		if _Queues[120644] == true then
+		if _Queues[spell.halo] == true then
 			ChatOverlay("Q - HALO")
 			if self.castHalo() then return end
 		end
-		if _Queues[127632] == true then
+		if _Queues[spell.cascade] == true then
 			ChatOverlay("Q - CASCADE")
 			if self.castCascadeAuto() then return end
 		end
-		if _Queues[2944] == true then
-			if orbs < 3 then _Queues[2944] = false end
+		if _Queues[spell.devouring_plague] == true then
 			ChatOverlay("Q - DP")
 			if self.castDP("target") then return end
 		end
-		if _Queues[34433] == true or _Queues[123040] == true then
+		if _Queues[spell.shadowfiend] == true or _Queues[spell.mindbender] == true then
 			if self.castShadowfiend("target") then return end
 			if self.castMindbender("target") then return end
 		end
@@ -68,6 +67,9 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		if not shadowform then
 			if self.castShadowform() then return end
 		end
+
+		-- lastVTTime nil prevention
+		if lastVTTime == nil then lastVTTime=GetTime()-10 end
 		
 		------------------------------------------------------------------------------------------------------
 		-- Boss Helper ---------------------------------------------------------------------------------------
