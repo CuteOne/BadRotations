@@ -6,6 +6,38 @@
 --[[                                                                                                ]]
 --[[ ragnar                                                                                         ]]
 --[[                                                                                                ]]
+function isUnitThere(unitNameOrID,distance)
+	-- description:
+		-- check if Unit with ID or name is around
+
+	-- return:
+		-- true/nil
+
+	-- example:
+		-- isUnitThere("Shadowfel Warden")
+
+	if type(unitNameOrID)=="number" then
+		for i=1,#enemiesTable do
+			local thisUnit = enemiesTable[i].unit
+			if getUnitID(thisUnit) then
+				if distance==nil or getDistance("player",thisUnit) < distance then
+					return true 
+				end
+			end
+		end
+	end
+	if type(unitNameOrID)=="string" then
+		for i=1,#enemiesTable do
+			local thisUnit = enemiesTable[i].unit
+			if UnitName(thisUnit)==unitNameOrID then 
+				if distance==nil or getDistance("player",thisUnit) < distance then
+					return true 
+				end
+			end
+		end
+	end
+end
+
 function getTooltipSize(SpellID)
 	-- description
 		-- get the dmg or heal value from a tooltip

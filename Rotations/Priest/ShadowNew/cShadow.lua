@@ -168,6 +168,17 @@ function cShadow:new()
 
 		-- raid buff
 		if self.options.utilities.pwf.enabled then RaidBuff(2,21562) end
+
+		-- Setup Queues
+		if _Queues == nil then
+			_Queues = {
+				[120644]  = false,		-- Halo
+				[127632] = 	false,		-- Cascade
+				[2944] = 	false,		-- Devouring Plague
+				[34433] = 	false,		-- Shadowfiend
+				[123040] = 	false,		-- Mindbender
+			}
+		end
 	end
 
 	-- Boss detection
@@ -479,6 +490,7 @@ function cShadow:new()
 		-- Hellfire Citadel
 			94865,		-- Hellfire Council: Jubei'thos Mirrors
 			94231,		-- Xhul'horac: Wild Pyromaniac
+			92208,		-- Archimonde: Doomfire Spirit
 		}
 		if checkUnit == nil then return false end
 		-- check unitID

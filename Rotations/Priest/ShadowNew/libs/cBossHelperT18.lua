@@ -67,7 +67,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			-- Shadow Lord Iskar
 				if currentBoss=="Shadow-Lord Iskar" then
 					-- auto target
-					if self.options.bosshelper.target then
+					if self.options.bosshelper.target.enabled then
 						-- target Shadowfel Warden
 						if isUnitThere("Shadowfel Warden") then
 							TargetUnit("Shadowfel Warden")
@@ -128,6 +128,24 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			end
 
 			-- Archimonde
+			if currentBoss=="Archimonde" then
+				-- auto target
+				--if self.options.bosshelper.target.enabled then
+					-- if isUnitThere("Doomfire Spirit",40) then TargetUnit("Doomfire Spirit") end
+					-- if isUnitThere("Hellfire Deathcaller",40) then TargetUnit("Hellfire Deathcaller") end
+					-- if isUnitThere("Felborne Overfiend",40) then TargetUnit("Felborne Overfiend") end
+					-- if isUnitThere("Living Shadow",40) then TargetUnit("Living Shadow") end
+				--end
+
+				-- if GetObjectExists("target")==false then TargetUnit("Archimonde") end
+				
+				-- cascade
+				if getSpellCD(self.spell.cascade)<=0 then
+					if isUnitThere("Dreadstalker",40) then
+						if self.castCascadeAuto() then return end
+					end
+				end
+			end
 
 		end
 	end

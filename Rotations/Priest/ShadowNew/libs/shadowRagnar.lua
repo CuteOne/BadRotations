@@ -15,25 +15,25 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		-- Spell Queue ---------------------------------------------------------------------------------------
 		------------------------------------------------------------------------------------------------------
 
-		-- setup queue
-		if _Queues == nil then
-			_Queues = {
-				[120644]  = false,		-- Halo
-				[127632] = 	false,		-- Cascade
-				[2944] = 	false,		-- Devouring Plague
-				[34433] = 	false,		-- Shadowfiend
-				[123040] = 	false,		-- Mindbender
-			}
-		end
+		-- setup queue: in OOC
+		-- if _Queues == nil then
+		-- 	_Queues = {
+		-- 		[120644]  = false,		-- Halo
+		-- 		[127632] = 	false,		-- Cascade
+		-- 		[2944] = 	false,		-- Devouring Plague
+		-- 		[34433] = 	false,		-- Shadowfiend
+		-- 		[123040] = 	false,		-- Mindbender
+		-- 	}
+		-- end
 
-		-- check queue vars
-		if _Queues ~= nil then
-			if _Queues[120644] ~= true then 		_Queues[120644]=false end
-			if _Queues[127632] ~= true then 		_Queues[127632]=false end
-			if _Queues[2944] ~= true then 			_Queues[2944]=false end
-			if _Queues[34433] ~= true then 			_Queues[34433]=false end
-			if _Queues[123040] ~= true then 		_Queues[123040]=false end
-		end
+		-- -- check queue vars
+		-- if _Queues ~= nil then
+		-- 	if _Queues[120644] ~= true then 	_Queues[120644]=false end
+		-- 	if _Queues[127632] ~= true then 	_Queues[127632]=false end
+		-- 	if _Queues[2944] ~= true then 		_Queues[2944]=false end
+		-- 	if _Queues[34433] ~= true then 		_Queues[34433]=false end
+		-- 	if _Queues[123040] ~= true then 	_Queues[123040]=false end
+		-- end
 
 
 		-- Check for queued spells
@@ -72,8 +72,10 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		------------------------------------------------------------------------------------------------------
 		-- Boss Helper ---------------------------------------------------------------------------------------
 		------------------------------------------------------------------------------------------------------
-		--self.BossHelperT17()
-		self:BossHelperT18()
+		if mode.bosshelper == 2 then
+			--self.BossHelperT17()
+			self:BossHelperT18()
+		end
 
 		------------------------------------------------------------------------------------------------------
 		-- Defensive -----------------------------------------------------------------------------------------
@@ -179,6 +181,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			end
 
 			-- Shadow Word: Death
+			if self.castSWDAuto() then return end
 			if self.castSWDAuto("target") then return end
 
 			-- Mind Blast with Mind Harvest TBD
@@ -301,9 +304,9 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			end
 
 			-- Vampiric Touch cycle targets 5
-			if mode.multidot == 3 or mode.multidot == 4 then
+			--if mode.multidot == 3 or mode.multidot == 4 then
 				if self.castVTAutoApply(5) then return end
-			end
+			--end
 
 			-- SoD proc
 			if buff.surge_of_darkness > 0 then

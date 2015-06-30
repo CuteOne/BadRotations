@@ -61,7 +61,9 @@ function cCharacter:new(class)
 		self.getInCombat()
 
 		-- Start attacking (melee)
-		self.startMeleeAttack()
+		if not self.class=="Priest" then
+			self.startMeleeAttack()
+		end
 	end
 
 -- Updates things Out of Combat like Talents, Gear, etc.
@@ -81,11 +83,11 @@ function cCharacter:new(class)
 		end
 		-- Priest - Shadow:
 		if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
-			self.mode.defensive = 	BadBoy_data['Defensive']
+			self.mode.defensive = 		BadBoy_data['Defensive']
 			self.mode.multidot = 		BadBoy_data['DoT']
-			self.mode.bosshelper = 	BadBoy_data['BossHelper']
+			self.mode.bosshelper = 		BadBoy_data['BossHelper']
 			self.mode.t90 = 			BadBoy_data['T90']
-			self.mode.cooldowns = 	BadBoy_data['Cooldowns']
+			self.mode.cooldowns = 		BadBoy_data['Cooldowns']
 			self.mode.feather = 		BadBoy_data['Feather']
 		end
 	end
