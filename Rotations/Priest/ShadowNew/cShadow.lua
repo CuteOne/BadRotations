@@ -629,6 +629,15 @@ function cShadow:new()
 		function self.castMindFlay(thisTarget)
 			if not UnitChannelInfo("player") then
 				return castSpell(thisTarget,self.spell.mind_flay,false,true) 
+			else 
+				if select(1,UnitChannelInfo("player")) == "Insanity" then
+					local cEnd = select(6,UnitChannelInfo("player"))
+					local cRem = cEnd - GetTime()*1000
+					-- Clip it
+					if cRem < 666 then
+						return castSpell(thisTarget,self.spell.mind_flay,false,true)
+					end
+				end
 			end
 		end
 		-- mind_sear
