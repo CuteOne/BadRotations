@@ -347,9 +347,11 @@ function cShadow:new()
 
 	-- AS: update
 	function self.ASUpdate()
-		self.AS.flying = self.AS_flying()
-		self.AS.nextImpactTime = self.AS_next_impact()
-		self.AS.nextImpactTwoSeconds = self.AS_next_two_seconds()
+		if conspicuous_spirits_wa then
+			self.AS.flying = self.AS_flying()
+			self.AS.nextImpactTime = self.AS_next_impact()
+			self.AS.nextImpactTwoSeconds = self.AS_next_two_seconds()
+		end
 	end
 
 	-- AS: impact next to seconds
