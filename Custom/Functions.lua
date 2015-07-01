@@ -6,6 +6,143 @@
 --[[                                                                                                ]]
 --[[ ragnar                                                                                         ]]
 --[[                                                                                                ]]
+-- Player:CastGround(Earthquake, Soapbox.GetOptionValue(Earthquake:Name()), 8, 30, false);
+function castGoundAtBestLocation(spellID, radius, minUnits, maxRange)
+	-- description:
+		-- find best position for AoE spell and cast it there
+
+	-- return:
+		-- true/nil
+
+	-- example:
+		-- castGroundAtBestLocation(121536,2,10,40)
+
+	
+	local function isNotBlacklisted(checkUnit)
+		local blacklistUnitID = {
+		}
+		if checkUnit == nil then return false end
+		for i = 1, #blacklistUnitID do
+			if getUnitID(checkUnit) == blacklistUnitID[i] then return false end
+		end
+		return true
+	end
+
+	-- begin
+	local allUnitsInRange = {}
+	-- fill allUnitsInRange with data from enemiesEngine
+	--print("______________________1")
+	for i=1,#enemiesTable do
+		local thisUnit = enemiesTable[i].unit
+		local thisDistance = enemiesTable[i].distance
+		--print(thisUnit.." - "..thisDistance)
+		if isNotBlacklisted(thisUnit) then
+			--print("blacklist passed")
+			if thisDistance < maxRange then
+				--print("distance passed")
+				if not UnitIsDeadOrGhost(thisUnit) then
+					--print("ghost passed")
+					if UnitAffectingCombat(thisUnit) or isDummy(thisUnit) then
+						--print("combat and dummy passed")
+						table.insert(allUnitsInRange,thisUnit)
+					end
+				end
+			end
+		end
+	end
+	-- check units in allUnitsInRange against each them
+	--print("______________________2")
+	local goodUnits = {}
+	for i=1,#allUnitsInRange do
+		local thisUnit = allUnitsInRange[i]
+		local unitsAroundThisUnit = {}
+		--print("units around "..thisUnit..":")
+		for j=1,#allUnitsInRange do
+			local checkUnit = allUnitsInRange[j]
+			--print(checkUnit.."?")
+			if getDistance(thisUnit,checkUnit) < radius then
+				--print(checkUnit.." added")
+				table.insert(unitsAroundThisUnit,checkUnit)
+			end
+		end
+		if #goodUnits <= #unitsAroundThisUnit then
+			--print("units around check: "..#unitsAroundThisUnit.." >= "..#goodUnits)
+			if minUnits <= #unitsAroundThisUnit then
+				--print("enough units around: "..#unitsAroundThisUnit)
+				goodUnits = unitsAroundThisUnit
+			end
+		end
+	end
+	-- where to cast
+	--print("______________________3")
+	if #goodUnits > 0 then
+		--print("goodUnits > 0")
+		if #goodUnits > 1 then
+			--print("goodUnits > 1")
+			local mX,my,mZ = 0,0,0
+			for i=1,#goodUnits do
+				local thisUnit = goodUnits[i]
+				local thisX,thisY,thisZ = GetObjectPosition(thisUnit)
+				if mX == 0 or mY == 0 or mZ == 0 then
+					mX,mY,mZ = thisX,thisY,thisZ
+				else
+					mX = 0.5*(mX + thisX)
+					my = 0.5*(mY + thisY)
+					mZ = 0.5*(mZ + thisZ)
+				end
+			end
+			--print(mX.." "..mY.." "..mZ)
+			if mX ~= 0 and mY ~= 0 and mZ ~= 0 then
+				CastSpellByName(GetSpellInfo(spellID),"player")
+				if IsAoEPending() then
+					ClickPosition(mX,mY,mZ,true)
+					return true
+				end
+			end
+		else
+			local thisX,thisY,thisZ = GetObjectPosition(goodUnits[1])
+			CastSpellByName(GetSpellInfo(spellID),"player")
+			if IsAoEPending() then
+				ClickPosition(thisX,thisY,thisZ,true)
+				return true
+			end
+		end
+	end
+end
+
+
+function isUnitThere(unitNameOrID,distance)
+	-- description:
+		-- check if Unit with ID or name is around
+
+	-- return:
+		-- true/nil
+
+	-- example:
+		-- isUnitThere("Shadowfel Warden")
+
+	if type(unitNameOrID)=="number" then
+		for i=1,#enemiesTable do
+			local thisUnit = enemiesTable[i].unit
+			if getUnitID(thisUnit) then
+				if distance==nil or getDistance("player",thisUnit) < distance then
+					return true 
+				end
+			end
+		end
+	end
+	if type(unitNameOrID)=="string" then
+		for i=1,#enemiesTable do
+			local thisUnit = enemiesTable[i].unit
+			if UnitName(thisUnit)==unitNameOrID then 
+				if distance==nil or getDistance("player",thisUnit) < distance then
+					return true 
+				end
+			end
+		end
+	end
+end
+
 function getTooltipSize(SpellID)
 	-- description
 		-- get the dmg or heal value from a tooltip

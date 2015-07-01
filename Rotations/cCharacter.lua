@@ -70,7 +70,9 @@ function cCharacter:new(class)
 		self.getInCombat()
 
 		-- Start attacking (melee)
-		self.startMeleeAttack()
+		if not self.class=="Priest" then
+			self.startMeleeAttack()
+		end
 	end
 
 -- Updates things Out of Combat like Talents, Gear, etc.
@@ -134,7 +136,8 @@ function cCharacter:new(class)
 
 -- Returns if in combat
 	function self.getInCombat()
-		if UnitAffectingCombat("player") or self.ignoreCombat then
+		if UnitAffectingCombat("player") or self.ignoreCombat
+		or (GetNumGroupMembers()>1 and (UnitAffectingCombat("player") or UnitAffectingCombat("target"))) then
 			self.inCombat = true
 		else
 			self.inCombat = false
