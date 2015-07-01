@@ -38,13 +38,9 @@ if select(3, UnitClass("player")) == 5 then
 			end
 
 			-- Shadowfiend / Mindbender
-			if isKnown(Mindbender) then
-				CreateNewCheck(thisConfig,"Mindbender")
-				CreateNewText(thisConfig,"Mindbender")
-			else
-				CreateNewCheck(thisConfig,"Shadowfiend")
-				CreateNewText(thisConfig,"Shadowfiend")
-			end
+			CreateNewCheck(thisConfig,"Shadowfiend/Mindbender")
+			CreateNewText(thisConfig,"Shadowfiend/Mindbender")
+
 
 			-- onUse Trinkets
 			CreateNewCheck(thisConfig,"Trinket 1")

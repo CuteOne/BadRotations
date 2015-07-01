@@ -6,7 +6,6 @@
 --[[                                                                                                ]]
 --[[ ragnar                                                                                         ]]
 --[[                                                                                                ]]
--- Player:CastGround(Earthquake, Soapbox.GetOptionValue(Earthquake:Name()), 8, 30, false);
 function castGoundAtBestLocation(spellID, radius, minUnits, maxRange)
 	-- description:
 		-- find best position for AoE spell and cast it there
