@@ -10,7 +10,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					
 					-- cascade
 					if getSpellCD(self.spell.cascade)<=0 then
-						if active_enemies_40 > 5 then
+						if self.enemies.active_enemies_40 > 5 then
 							if self.castCascadeAuto() then return end
 						end
 					end

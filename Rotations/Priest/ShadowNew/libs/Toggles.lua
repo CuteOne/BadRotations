@@ -49,8 +49,8 @@ if select(3, UnitClass("player")) == 5 then
 		-- Cooldowns Button
 		if CooldownsModesLoaded ~= "Shadow Priest Cooldowns Modes" then
 			CooldownsModes = {
-				[1] = { mode = "off", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffFF0000Cooldowns \n|cffFFDD11No Cooldowns will be used.", highlight = 0, icon = 34433 },
-				[2] = { mode = "on", value = 2 , overlay = "Cooldowns Enabled", tip = "|cff00FF00Cooldowns \n|cffFFDD11Cooldowns will be used.", highlight = 1, icon = 34433 }
+				[1] = { mode = "off", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffFF0000Cooldowns \n|cffFFDD11No Cooldowns will be used.", highlight = 0, icon = 123040 },
+				[2] = { mode = "on", value = 2 , overlay = "Cooldowns Enabled", tip = "|cff00FF00Cooldowns \n|cffFFDD11Cooldowns will be used.", highlight = 1, icon = 123040 }
 			};
 			CreateButton("Cooldowns",5,0)
 			CooldownsModesLoaded = "Shadow Priest Cooldowns Modes";

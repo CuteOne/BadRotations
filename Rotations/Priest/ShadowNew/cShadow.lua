@@ -65,7 +65,7 @@ function cShadow:new()
 			isBoss 	= 			{enabled=isChecked("isBoss")},
 			power_infusion = 	{enabled=isChecked("Power Infusion")},
 			berserking = 		{enabled=isChecked("Berserking")},
-			shadowfiend = 		{enabled=isChecked("Shadowfiend")},
+			shadowfiend = 		{enabled=isChecked("Shadowfiend/Mindbender")},
 			trinket1 = 			{enabled=isChecked("Trinket 1")},
 			trinket2 = 			{enabled=isChecked("Trinket 2")},
 			scanToF = 			{enabled=isChecked("Scan for ToF")},
@@ -204,7 +204,7 @@ function cShadow:new()
 		self.options.offensive.isBoss.enabled = 			isChecked("isBoss")
 		self.options.offensive.power_infusion.enabled = 	isChecked("Power Infusion")
 		self.options.offensive.berserking.enabled = 		isChecked("Berserking")
-		self.options.offensive.shadowfiend.enabled = 		isChecked("Shadowfiend")
+		self.options.offensive.shadowfiend.enabled = 		isChecked("Shadowfiend/Mindbender")
 		self.options.offensive.trinket1.enabled = 			isChecked("Trinket 1")
 		self.options.offensive.trinket2.enabled = 			isChecked("Trinket 2")
 		self.options.offensive.scanToF.enabled = 			isChecked("Scan for ToF")

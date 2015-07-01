@@ -6,7 +6,6 @@
 --[[                                                                                                ]]
 --[[ ragnar                                                                                         ]]
 --[[                                                                                                ]]
--- Player:CastGround(Earthquake, Soapbox.GetOptionValue(Earthquake:Name()), 8, 30, false);
 function castGoundAtBestLocation(spellID, radius, minUnits, maxRange)
 	-- description:
 		-- find best position for AoE spell and cast it there
@@ -258,7 +257,7 @@ function RaidBuff(BuffSlot,myBuffSpellID)
 					for auraIndex=1,#chosenTable do
 						if getBuffRemain("raid"..index,chosenTable[auraIndex])>0 then break end
 						if getBuffRemain("raid"..index,chosenTable[auraIndex])<=0 then
-							if castSpell("player",PWF,true,false) then return true end
+							if castSpell("player",spellID,true,false) then return true end
 						end
 					end
 				end
