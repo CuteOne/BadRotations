@@ -135,13 +135,13 @@ end
 local frame = CreateFrame("FRAME")
 frame:RegisterEvent("ADDON_LOADED")
 frame:RegisterEvent("PLAYER_LOGOUT")
-frame:RegisterUnitEvent("PLAYER_SPECIALIZATION_CHANGED","player")
+frame:RegisterUnitEvent("ACTIVE_TALENT_GROUP_CHANGED")
 function frame:OnEvent(event, arg1)
 	if event == "ADDON_LOADED" and arg1 == "BadBoy" then
 		bb:Run()
 	end
-	if event == "PLAYER_SPECIALIZATION_CHANGED" then
-		--ReloadUI(); -- Reloads UI when spec changed, prevents some bugs
+	if event == "ACTIVE_TALENT_GROUP_CHANGED" then
+		ReloadUI(); -- Reloads UI when spec changed, prevents some bugs
 	end
 end
 frame:SetScript("OnEvent", frame.OnEvent)

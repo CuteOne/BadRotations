@@ -385,3 +385,12 @@ function mergeSpellTables(tSpell, tCharacter, tClass, tSpec)
   return tSpell
 end
 	
+--- Returns if specified trinket is equipped in either slot
+-- if isTrinketEquipped(124518) then trinket = "Libram of Vindication" end
+function isTrinketEquipped(trinket)
+	if (GetInventoryItemID("player", 13) == trinket or GetInventoryItemID("player", 14) == trinket) then
+		return true
+	else
+		return false
+	end
+end
