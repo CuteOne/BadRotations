@@ -347,9 +347,11 @@ function cShadow:new()
 
 	-- AS: update
 	function self.ASUpdate()
-		self.AS.flying = self.AS_flying()
-		self.AS.nextImpactTime = self.AS_next_impact()
-		self.AS.nextImpactTwoSeconds = self.AS_next_two_seconds()
+		if conspicuous_spirits_wa then
+			self.AS.flying = self.AS_flying()
+			self.AS.nextImpactTime = self.AS_next_impact()
+			self.AS.nextImpactTwoSeconds = self.AS_next_two_seconds()
+		end
 	end
 
 	-- AS: impact next to seconds
@@ -627,6 +629,15 @@ function cShadow:new()
 		function self.castMindFlay(thisTarget)
 			if not UnitChannelInfo("player") then
 				return castSpell(thisTarget,self.spell.mind_flay,false,true) 
+			else 
+				if select(1,UnitChannelInfo("player")) == "Insanity" then
+					local cEnd = select(6,UnitChannelInfo("player"))
+					local cRem = cEnd - GetTime()*1000
+					-- Clip it
+					if cRem < 666 then
+						return castSpell(thisTarget,self.spell.mind_flay,false,true)
+					end
+				end
 			end
 		end
 		-- mind_sear
