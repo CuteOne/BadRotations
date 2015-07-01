@@ -70,7 +70,9 @@ function cCharacter:new(class)
 		self.getInCombat()
 
 		-- Start attacking (melee)
-		self.startMeleeAttack()
+		if not self.class=="Priest" then
+			self.startMeleeAttack()
+		end
 	end
 
 -- Updates things Out of Combat like Talents, Gear, etc.
@@ -90,6 +92,15 @@ function cCharacter:new(class)
 			self.mode.healing   = BadBoy_data["Healing"]
 		end
 		-- Priest - Shadow:
+<<<<<<< HEAD
+		if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
+			self.mode.defensive = 		BadBoy_data['Defensive']
+			self.mode.multidot = 		BadBoy_data['DoT']
+			self.mode.bosshelper = 		BadBoy_data['BossHelper']
+			self.mode.t90 = 			BadBoy_data['T90']
+			self.mode.cooldowns = 		BadBoy_data['Cooldowns']
+			self.mode.feather = 		BadBoy_data['Feather']
+=======
 		if self.class == "Priest" and self.profile == "Shadow" then
 			self.mode.defensive  = 	BadBoy_data['Defensive']
 			self.mode.multidot   = 	BadBoy_data['DoT']
@@ -97,6 +108,7 @@ function cCharacter:new(class)
 			self.mode.t90        = 	BadBoy_data['T90']
 			self.mode.cooldowns  = 	BadBoy_data['Cooldowns']
 			self.mode.feather    = 	BadBoy_data['Feather']
+>>>>>>> master
 		end
 	end
 
@@ -134,7 +146,12 @@ function cCharacter:new(class)
 
 -- Returns if in combat
 	function self.getInCombat()
+<<<<<<< HEAD
+		if UnitAffectingCombat("player")
+		or (GetNumGroupMembers()>1 and (UnitAffectingCombat("player") or UnitAffectingCombat("target"))) then
+=======
 		if UnitAffectingCombat("player") or self.ignoreCombat then
+>>>>>>> master
 			self.inCombat = true
 		else
 			self.inCombat = false

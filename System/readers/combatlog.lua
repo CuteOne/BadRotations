@@ -377,6 +377,11 @@ function bb.read.combatLog()
   function cl:Priest(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
       destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
+      -- last VT
+      if param == "SPELL_CAST_SUCCESS" and spell==34914 then
+        lastVTTarget=destination
+        lastVTTime=GetTime()
+      end
   end
   function cl:Paladin(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
