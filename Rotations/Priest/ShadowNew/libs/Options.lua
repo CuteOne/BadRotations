@@ -27,8 +27,8 @@ if select(3, UnitClass("player")) == 5 then
 			end
 
 			-- Shadowfien / Mindbender
-			CreateNewCheck(thisConfig,"Shadowfiend","use Shadowfiend or Mindbender")
-			CreateNewText(thisConfig,"Shadowfiend")
+			CreateNewCheck(thisConfig,"Shadowfiend/Mindbender","use Shadowfiend or Mindbender")
+			CreateNewText(thisConfig,"Shadowfiend/Mindbender")
 
 			-- onUse Trinkets
 			CreateNewCheck(thisConfig,"Trinket 1","use Trinket 1 if on use")

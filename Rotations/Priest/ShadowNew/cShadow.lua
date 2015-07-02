@@ -140,15 +140,19 @@ function cShadow:new()
 		-- AS Update
 		self.ASUpdate()
 
+		
 		self.BossDetection()
-
 		-- Casting and GCD check
-		if select(2,GetSpellCooldown(61304))>0 then
-			return false
+		
+		
+
+		if not (select(1,UnitChannelInfo("player")) ~= "Insanity" and select(1,UnitChannelInfo("player")) ~= "Mind Flay") then
+			if select(2,GetSpellCooldown(61304))>0 then
+				return
+			end
 		end
-		-- if castingUnit() then
-		-- 	return
-		-- end
+
+		--if select(2,GetSpellCooldown(61304))>0 then return end
 
 		-- Start selected rotation
 		self:startRotation()
@@ -164,7 +168,7 @@ function cShadow:new()
 		self.getEquip()
 
 		-- to do ooc
-		self.castAngelicFeatherOnMe()
+		if not IsMounted("player") then self.castAngelicFeatherOnMe() end
 		self.BossDetection()
 
 		-- raid buff
@@ -284,6 +288,7 @@ function cShadow:new()
 		self.cd.mind_blast  = 		getSpellCD(self.spell.mind_blast)
 		self.cd.shadow_word_death = getSpellCD(self.spell.shadow_word_death)
 		self.cd.shadowfiend =		getSpellCD(self.spell.shadowfiend)
+		self.cd.cascade = 			getSpellCD(self.spell.cascade)
 		--self.cd.judgment       = getSpellCD(self.spell.judgment)
 		--self.cd.crusaderStrike = getSpellCD(self.spell.crusaderStrike)
 		--self.cd.seraphim       = getSpellCD(self.spell.seraphim)
@@ -499,6 +504,7 @@ function cShadow:new()
 			94865,		-- Hellfire Council: Jubei'thos Mirrors
 			94231,		-- Xhul'horac: Wild Pyromaniac
 			92208,		-- Archimonde: Doomfire Spirit
+			91938,		-- Socrethar: Haunting Soul
 		}
 		if checkUnit == nil then return false end
 		-- check unitID
@@ -570,38 +576,46 @@ function cShadow:new()
 		end
 		-- cascade
 		function self.castCascadeAuto()
-			for i=1,#enemiesTable do
-				self.sortByDistance()
-				local thisUnit = enemiesTable[i].unit
-				if getDistance("player",thisUnit) < 40 then
-					return castSpell(thisUnit,self.spell.cascade,true,false) 
+			if self.cd.cascade <= 0 then
+				for i=1,#enemiesTable do
+					self.sortByDistance()
+					local thisUnit = enemiesTable[i].unit
+					if getDistance("player",thisUnit) < 40 then
+						if UnitIsTappedByPlayer(thisUnit) then
+							return castSpell(thisUnit,self.spell.cascade,true,false)
+						end
+					end
 				end
 			end
 		end
 		-- desperate_prayer
 		function self.castDesperatePrayer()
-			return castSpell("player",self.spell.desperate_prayer,true,false) == true or  false
+			return castSpell("player",self.spell.desperate_prayer,true,false) == true or false
 		end
 		-- devouring_plague
 		function self.castDP(thisTarget)
-			return castSpell(thisTarget,self.spell.devouring_plague,true,false) 
+			if GetObjectExists(thisTarget) == false then
+				return castSpell(enemiesTable[1],self.spell.devouring_plague,true,false)
+			else
+				return castSpell(thisTarget,self.spell.devouring_plague,true,false)
+			end
 		end
 		-- dispel_magic
 		-- dispersion
 		function self.castDispersion()
-			return castSpell("player",self.spell.dispersion,true,false) 
+			return castSpell("player",self.spell.dispersion,true,false)
 		end
 		-- divine_star
 		-- dominate_mind
 		-- fade
 		function self.castFade()
-			return castSpell("player",self.spell.fade,true,false) 
+			return castSpell("player",self.spell.fade,true,false)
 		end
 		-- fear_ward
 		-- flash_heal
 		-- halo
 		function self.castHalo()
-			return castSpell("player",self.spell.halo,true,false) 
+			return castSpell("player",self.spell.halo,true,false)
 		end
 		-- insanity
 		function self.castInsanity(thisTarget)
@@ -613,16 +627,16 @@ function cShadow:new()
 		function self.castMindbender(thisTarget)
 			if self.mode.cooldowns == 2 then
 				if self.options.offensive.shadowfiend.enabled then
-					return castSpell(thisTarget,self.spell.mindbender,true,false) 
+					return castSpell(thisTarget,self.spell.mindbender,true,false)
 				end
 			end
 		end
 		-- mind_blast
 		function self.castMindBlast(thisTarget)
 			if getTalent(7,1) then
-				return castSpell(thisTarget,self.spell.mind_blast,false,false) 
+				return castSpell(thisTarget,self.spell.mind_blast,false,false)
 			else
-				return castSpell(thisTarget,self.spell.mind_blast,false,true) 
+				return castSpell(thisTarget,self.spell.mind_blast,false,true)
 			end
 		end
 		-- mind_flay
@@ -685,7 +699,9 @@ function cShadow:new()
 						local range = enemiesTable[i].distance
 						local hp = enemiesTable[i].hp
 						if hp < 20 and range < 40 then
-							return castSpell(thisUnit,self.spell.shadow_word_death,true,false,false,false,false,false,true) 
+							if castSpell(thisUnit,self.spell.shadow_word_death,true,false,false,false,false,false,true) then
+								return true
+							end
 						end
 					end
 				end
@@ -736,7 +752,9 @@ function cShadow:new()
 						if getDebuffRemain(thisUnit,self.spell.shadow_word_pain,"player") <= 18*0.3 then
 							if distance < 40 then
 								if hp >= self.options.rotation.min_health.value then
-									return castSpell(thisUnit,self.spell.shadow_word_pain,true,false) 
+									if castSpell(thisUnit,self.spell.shadow_word_pain,true,false) then
+										return true
+									end
 								end
 							end
 						end
@@ -777,7 +795,9 @@ function cShadow:new()
 							if getDebuffRemain(thisUnit,self.spell.vampiric_touch,"player") <= 15*0.3+(0.001*select(4,GetSpellInfo(34914))) then
 								if distance < 40 then
 									if hp >= self.options.rotation.min_health.value then
-										return castSpell(thisUnit,self.spell.vampiric_touch,true,true) 
+										if castSpell(thisUnit,self.spell.vampiric_touch,true,true) then
+											return true
+										end
 									end
 								end
 							end

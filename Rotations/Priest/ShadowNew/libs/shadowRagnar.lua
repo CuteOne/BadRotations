@@ -49,8 +49,12 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			ChatOverlay("Q - DP")
 			if self.castDP("target") then return end
 		end
-		if _Queues[spell.shadowfiend] == true or _Queues[spell.mindbender] == true then
+		if _Queues[spell.shadowfiend] == true then
+			ChatOverlay("Q - SHADOWFIEND")
 			if self.castShadowfiend("target") then return end
+		end
+		if _Queues[spell.mindbender] == true then
+			ChatOverlay("Q - MINDBENDER")
 			if self.castMindbender("target") then return end
 		end
 
@@ -257,11 +261,22 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 						end
 					end
 				end
+				-- 80 without T17 4pc
+				if orbs >= 3 then
+					if not set_bonus.tier17_4pc then
+						if getDebuffRemain("target",spell.devouring_plague,"player") <= 0 then
+							if self.castDP("target") then return end
+						end
+					end
+				end
+
 
 			-- Mind Blast: Mind Harvest -- TBD
 
 			-- Mind Blast
-			if self.castMindBlast("target") then return end
+			if self.castMindBlast("target") then 
+				return 
+			end
 
 			-- SWP cycle targets 7
 			if self.castSWPAutoApply(7) then return end
@@ -269,7 +284,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			-- Insanity: extend mental fatigue
 			if set_bonus.class_trinket then
 				if buff.insanity > 0 then
-					if getDebuffRemain("target",spell.mental_fatigue,"player") < gcd then
+					if getDebuffRemain("target",spell.mental_fatigue,"player") < 3 then
 						if getDebuffRemain("target",spell.mental_fatigue,"player") > 0 then
 							if self.castMindFlay("target") then return end
 						end
@@ -351,7 +366,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 
 			-- -- wait for MB
 			-- if cd.mind_blast < 0.5 then
-			-- 	if active_enemies_40 <= 1 then
+			-- 	if enemies.active_enemies_40 <= 1 then
 			-- 		return
 			-- 	end
 			-- end
@@ -388,19 +403,19 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			-- Mind Flay
 			if self.castMindFlay("target") then return end
 
-			-- moving
-			if IsMovingTime(0.3) then
-				-- SWD
-				if self.castSWDAuto("target",true) then return end
-				-- PWS
-				if talent.body_and_soul then
-					if getDebuffRemain("player",6788) <= 0 then
-						if self.castPWS("player") then return end
-					end
-				end
-				-- SWP
-				if self.castSWPAutoApply(10) then return end
-			end
+			-- -- moving
+			-- if IsMovingTime(0.3) then
+			-- 	-- SWD
+			-- 	if self.castSWDAuto("target",true) then return end
+			-- 	-- PWS
+			-- 	if talent.body_and_soul then
+			-- 		if getDebuffRemain("player",6788) <= 0 then
+			-- 			if self.castPWS("player") then return end
+			-- 		end
+			-- 	end
+			-- 	-- SWP
+			-- 	if self.castSWPAutoApply(10) then return end
+			-- end
 		end -- AS rotation
 		--[[ clarity_of_power ]]
 		if talent.clarity_of_power then
