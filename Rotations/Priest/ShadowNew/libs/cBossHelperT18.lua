@@ -21,7 +21,9 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- auto target
 
 					-- cascade
-
+					if isUnitThere(93717,40) or isUnitThere(94955,40) or isUnitThere(94312,40) or isUnitThere(94322,40) then
+						if self.castCascadeAuto() then return end
+					end
 				end
 
 			-- Kormrok
@@ -130,23 +132,25 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			-- Archimonde
 			if currentBoss=="Archimonde" then
 				-- auto target
-				--if self.options.bosshelper.target.enabled then
-					-- if isUnitThere("Doomfire Spirit",40) then TargetUnit("Doomfire Spirit") end
-					-- if isUnitThere("Hellfire Deathcaller",40) then TargetUnit("Hellfire Deathcaller") end
-					-- if isUnitThere("Felborne Overfiend",40) then TargetUnit("Felborne Overfiend") end
-					-- if isUnitThere("Living Shadow",40) then TargetUnit("Living Shadow") end
-				--end
+				if self.options.bosshelper.target.enabled then
+					--if isUnitThere("Doomfire Spirit",40) then TargetUnit("Doomfire Spirit") end
+					--if isUnitThere("Hellfire Deathcaller",40) then TargetUnit("Hellfire Deathcaller") end
+					--if isUnitThere("Felborne Overfiend",40) then TargetUnit("Felborne Overfiend") end
+					--if isUnitThere("Living Shadow",40) then TargetUnit("Living Shadow") end
+					if UnitTarget("player")==nil then TargetUnit("Archimonde") end
+				end
 
 				-- if GetObjectExists("target")==false then TargetUnit("Archimonde") end
 				
 				-- cascade
 				if getSpellCD(self.spell.cascade)<=0 then
-					if isUnitThere("Dreadstalker",40) or isUnitThere("Doomfire Spirit",40) or isUnitThere("Infernal Doombringer",40) then
+					if getUnitCount(93616,40,true) >= 3 				-- Dreadstalker
+					or isUnitThere("Doomfire Spirit",40) 
+					or isUnitThere("Infernal Doombringer",40) then
 						if self.castCascadeAuto() then return end
 					end
 				end
 			end
-
 		end
 	end
 end

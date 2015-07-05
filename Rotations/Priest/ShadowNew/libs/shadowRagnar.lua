@@ -16,7 +16,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		------------------------------------------------------------------------------------------------------
 
 		-- setup queue: in OOC
-		-- if _Queues == nil then
+		-- if _Queues[120644] == nil or _Queues == nil then
 		-- 	_Queues = {
 		-- 		[120644]  = false,		-- Halo
 		-- 		[127632] = 	false,		-- Cascade
@@ -62,6 +62,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		-- Do everytime --------------------------------------------------------------------------------------
 		------------------------------------------------------------------------------------------------------
 		self.castAngelicFeatherOnMe()
+		
 		-- Pause toggle
 		if options.utilities.pause.enabled and SpecificToggle("Pause Toggle") == true then
 			ChatOverlay("|cffFF0000BadBoy Paused", 0) return
@@ -419,6 +420,9 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		end -- AS rotation
 		--[[ clarity_of_power ]]
 		if talent.clarity_of_power then
+			-- execute range
+
+			-- cr
 
 		end -- CoP rotation
 	end
