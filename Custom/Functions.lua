@@ -282,7 +282,7 @@ function RaidBuff(BuffSlot,myBuffSpellID)
 	end
 end
 
-function getUnitCluster(minUnits,maxRange)
+function getUnitCluster(minUnits,maxRange,radius)
 	-- Description:
 		-- returns the enemy with minUnits around in maxRange
 	
@@ -295,45 +295,50 @@ function getUnitCluster(minUnits,maxRange)
 
 	if type(minUnits) ~= "number" then return nil end
 	if type(maxRange) ~= "number" then return nil end
+	if type(radius) ~= "number" then return nil end
 
-	local range = maxRange
-	local enemies = minUnits
 	local enemiesInRange = 0
-	
 	local theReturnUnit
 
 	for i=1,#enemiesTable do
 		local thisUnit = enemiesTable[i].unit
-		local thisEnemies = getNumEnemies(thisUnit,range)
-		if thisEnemies>=enemies and thisEnemies>=enemiesInRange then
-			theReturnUnit = thisUnit
+		local thisEnemies = getNumEnemies(thisUnit,radius)
+		if getLineOfSight(thisUnit) == true then
+		if enemiesTable[i].distance < maxRange then
+				if thisEnemies >= minUnits and thisEnemies >= enemiesInRange then
+					theReturnUnit = thisUnit
+				end
+			end
 		end
 	end
 	return select(1,theReturnUnit)
 end
 
-function getBiggestUnitCluster(maxRange)
+function getBiggestUnitCluster(maxRange,radius)
 	-- Description:
-		-- returns the enemy with most enemies around in maxRange
+		-- returns the enemy with most enemies in radius in maxRange from player
 	
 	-- rerturns:
 		-- "0x0000000110E4F09C"
 	
 	-- how to use:
-		-- castSpell(getBiggestUnitCluster(10),SpellID,...,...)
-		-- use "getBiggestUnitCluster(minUnits,maxRange)" instead of "target"
+		-- castSpell(getBiggestUnitCluster(40,10),SpellID,...,...)
+		-- use "getBiggestUnitCluster(maxRange,radius)" instead of "target"
 
 	if type(maxRange) ~= "number" then return nil end
+	if type(radius) ~= "number" then return nil end
 
-	local range = maxRange
 	local enemiesInRange = 0
-	
 	local theReturnUnit
 
 	for i=1,#enemiesTable do
 		local thisUnit = enemiesTable[i].unit
-		if getNumEnemies(thisUnit,range)>=enemiesInRange then
-			theReturnUnit = thisUnit
+		if getLineOfSight(thisUnit) == true then
+			if enemiesTable[i].distance < maxRange then
+				if getNumEnemies(thisUnit,radius) >= enemiesInRange then
+					theReturnUnit = thisUnit
+				end
+			end
 		end
 	end
 	return select(1,theReturnUnit)
