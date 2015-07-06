@@ -174,7 +174,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization()==3 then
 	end
 
 	--[[ Kick Spell ]]
-	function ShadowSimpleKick(datUnit)
+	function ShadowSimpleKick(datUnit,spellname)
 		local thisUnit
 
 		if datUnit==nil and UnitExists("target") then thisUnit = "target"
@@ -182,7 +182,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization()==3 then
 			else return
 		end
 
-		if UnitChannelInfo(thisUnit) or UnitCastingInfo(thisUnit) then
+		if UnitChannelInfo(thisUnit) == spellname or UnitCastingInfo(thisUnit) == spellname then
 			local notInterruptible
 			-- cast remain
 			if UnitChannelInfo(thisUnit) then 

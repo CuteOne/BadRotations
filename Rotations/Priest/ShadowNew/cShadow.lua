@@ -175,14 +175,16 @@ function cShadow:new()
 		if self.options.utilities.pwf.enabled then RaidBuff(2,21562) end
 
 		-- Setup Queues
-		if _Queues == nil then
-			_Queues = {
-				[120644]  = false,		-- Halo
-				[127632] = 	false,		-- Cascade
-				[2944] = 	false,		-- Devouring Plague
-				[34433] = 	false,		-- Shadowfiend
-				[123040] = 	false,		-- Mindbender
-			}
+		if _Queues == nil or #_Queues<=0 then
+			--if _Queues[120644] == nil then
+				_Queues = {
+					[120644]  = false,		-- Halo
+					[127632] = 	false,		-- Cascade
+					[2944] = 	false,		-- Devouring Plague
+					[34433] = 	false,		-- Shadowfiend
+					[123040] = 	false,		-- Mindbender
+				}
+			--end
 		end
 	end
 
@@ -468,6 +470,9 @@ function cShadow:new()
 			77394,		-- Thogar: Iron Raider (Train Ads)
 			77893,		-- Kromog: Grasping Earth (Hands)
 			77665,		-- Blackhand: Iron Soldier
+		-- HFC
+			90114,		-- Hellfire Assault: damn small ads
+			94326,		-- Iron Reaver: Reactive Bomb
 		-- Hellfire Citadel
 		}
 		local blacklistBuffID = {
@@ -505,6 +510,9 @@ function cShadow:new()
 			94231,		-- Xhul'horac: Wild Pyromaniac
 			92208,		-- Archimonde: Doomfire Spirit
 			91938,		-- Socrethar: Haunting Soul
+			90409,		-- Hellfire Assault: Gorebound Felcaster
+			93717,		-- Iron Reaver: Volatile Firebomb
+			91368,		-- Kormrok: Crushing Hand
 		}
 		if checkUnit == nil then return false end
 		-- check unitID
@@ -527,7 +535,8 @@ function cShadow:new()
 			77893,		-- Kromog: Grasping Earth (Hands)
 			78981,		-- Thogar: Iron Gunnery Sergeant (canons on trains)
 			-- Hellfire Citadel
-			94865,		-- Hellfire Council: Jubei'thos Mirrors
+			94865,		-- Jubei'thos Mirrors
+
 		}
 		if checkUnit == nil then return false end
 		-- check unitID
@@ -558,6 +567,46 @@ function cShadow:new()
 		end
 	end
 
+	-- --[[ Kick Spell ]]
+	-- function self.shadowSimpleKick(datUnit,spellname)
+	-- 	local thisUnit
+
+	-- 	if datUnit==nil and UnitExists("target") then thisUnit = "target"
+	-- 		elseif datUnit then	thisUnit = datUnit
+	-- 		else return
+	-- 	end
+
+	-- 	if UnitChannelInfo(thisUnit) == spellname or UnitCastingInfo(thisUnit) == spellname then
+	-- 		local notInterruptible
+	-- 		-- cast remain
+	-- 		if UnitChannelInfo(thisUnit) then 
+	-- 			cRem = select(6,UnitChannelInfo(thisUnit)) - GetTime()*1000 
+	-- 			interruptible = not select(9,UnitChannelInfo(thisUnit))
+	-- 		end
+	-- 		if UnitCastingInfo(thisUnit) then 
+	-- 			cRem = select(6,UnitCastingInfo(thisUnit)) - GetTime()*1000 
+	-- 			interruptible = not select(9,UnitCastingInfo(thisUnit))
+	-- 		end
+	-- 		-- random number
+	-- 		local rndRemaining = math.random(200,500)
+	-- 		-- kick
+	-- 		if cRem <= rndRemaining and interruptible then
+	-- 			-- try to kick in melee range
+	-- 			if isKnown(ArcT) then
+	-- 				if getSpellCD(ArcT) <= 0 and getDistance("player",thisUnit) < 8 then
+	-- 					if castArcaneTorrent then return end
+	-- 				end
+	-- 			end
+	-- 			-- if unit is casting after melee try kick it with silence
+	-- 			if UnitChannelInfo(thisUnit) or UnitCastingInfo(thisUnit) then
+	-- 				if getSpellCD(Silence) <= 0 then
+	-- 					if castSilence(thisUnit) then return end
+	-- 				end
+	-- 			end
+	-- 		end
+	-- 	end
+	-- end
+
 
 
 	---------------------------------------------------------------
@@ -573,6 +622,10 @@ function cShadow:new()
 					end
 				end
 			end
+		end
+		-- arcane_torrent
+		function self.castArcaneTorrent()
+			return castSpell("player",self.spell.arcane_torrent,true,false)
 		end
 		-- cascade
 		function self.castCascadeAuto()
@@ -775,6 +828,9 @@ function cShadow:new()
 			return castSpell("player",self.spell.shadowform,true,false) 
 		end
 		-- silence
+		function self.castSilence(thisTarget)
+			return castSpell(thisTarget,self.spell.silence,true,false)
+		end
 		-- surge_of_darkness
 		-- spectral_guise
 		-- vampiric_embrace

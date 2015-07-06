@@ -6,6 +6,22 @@
 --[[                                                                                                ]]
 --[[ ragnar                                                                                         ]]
 --[[                                                                                                ]]
+function getUnitCount(ID,maxRange,tapped)
+	local counter = 0
+	for i=1,#enemiesTable do
+		local thisUnit = enemiesTable[i].unit
+		local thisUnitID = enemiesTable[i].id
+		if thisUnitID == ID then
+			if enemiesTable[i].distance < maxRange then
+				if (tapped == true and UnitIsTappedByPlayer(thisUnit)) or tapped == nil or tapped == false then
+					counter = counter + 1
+				end
+			end
+		end
+	end
+	return counter
+end
+
 function castGoundAtBestLocation(spellID, radius, minUnits, maxRange)
 	-- description:
 		-- find best position for AoE spell and cast it there
