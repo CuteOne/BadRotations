@@ -641,6 +641,12 @@ function cShadow:new()
 				end
 			end
 		end
+		function self.castCascade(thisTarget)
+			return castSpell(thisTarget,self.spell.cascade,true,false)
+		end
+		function self.castCascadeBiggestCluster()
+			return castSpell(getBiggestUnitCluster(40,40),self.spell.cascade,true,false)
+		end
 		-- desperate_prayer
 		function self.castDesperatePrayer()
 			return castSpell("player",self.spell.desperate_prayer,true,false) == true or false
