@@ -43,7 +43,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		end
 		if _Queues[spell.cascade] == true then
 			ChatOverlay("Q - CASCADE")
-			if self.castCascadeAuto() then return end
+			if self.castCascadeBiggestCluster() then return end
 		end
 		if _Queues[spell.devouring_plague] == true then
 			ChatOverlay("Q - DP")
@@ -316,7 +316,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			if mode.t90 == 2 then
 				if talent.cascade then
 					if active_enemies_40 > 2 then
-						if self.castCascadeAuto() then return end
+						if self.castCascadeBiggestCluster() then return end
 					end
 				end
 			end
@@ -353,7 +353,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			if mode.t90 == 2 then
 				if talent.cascade then
 					if (active_enemies_40 > 1 or getDistance("player","target") >= 28) then
-						if self.castCascadeAuto() then return end
+						if self.castCascadeBiggestCluster() then return end
 					end
 				end
 			end
