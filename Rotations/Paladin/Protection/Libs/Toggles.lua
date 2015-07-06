@@ -19,7 +19,7 @@ if select(3,UnitClass("player")) == 2 then
         [4] = { mode = "Auto", value = 4, overlay = "Auto Rotation", tip = "|cffFFDD11Will change dynamically.", highlight = 1, icon = 83950 }
       }
       CreateButton("Rota",3,0)
-      AoEModesLoaded = "Prot Pal AoE Modes"
+      RotaModesLoaded = "Prot Pal Rota Modes"
     end
     -- Interrupts Button
     if  InterruptsModesLoaded ~= "Prot Pal Interrupts Modes" then

@@ -204,6 +204,10 @@ Rotations\Priest\Discipline\libs\Toggles.lua
 Rotations\Priest\Holy.lua
 
 ## Rogue ---------------------------------------------------
+Rotations\Rogue\cRogue.lua
+Rotations\Rogue\Combat\cCombat.lua
+Rotations\Rogue\Combat\combatSimC.lua
+
 Rotations\Rogue\Assassination\Assassination.lua
 Rotations\Rogue\Assassination\Functions.lua
 Rotations\Rogue\Assassination\Options.lua
