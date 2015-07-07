@@ -305,7 +305,7 @@ function getUnitCluster(minUnits,maxRange,radius)
 		local thisEnemies = getNumEnemies(thisUnit,radius)
 		if getLineOfSight(thisUnit) == true then
 		if enemiesTable[i].distance < maxRange then
-				if thisEnemies >= minUnits and thisEnemies >= enemiesInRange then
+				if thisEnemies >= minUnits and thisEnemies > enemiesInRange then
 					theReturnUnit = thisUnit
 				end
 			end
@@ -335,7 +335,7 @@ function getBiggestUnitCluster(maxRange,radius)
 		local thisUnit = enemiesTable[i].unit
 		if getLineOfSight(thisUnit) == true then
 			if enemiesTable[i].distance < maxRange then
-				if getNumEnemies(thisUnit,radius) >= enemiesInRange then
+				if getNumEnemies(thisUnit,radius) > enemiesInRange then
 					theReturnUnit = thisUnit
 				end
 			end

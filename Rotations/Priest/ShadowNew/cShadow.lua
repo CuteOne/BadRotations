@@ -146,10 +146,15 @@ function cShadow:new()
 		
 		
 
-		if not (select(1,UnitChannelInfo("player")) ~= "Insanity" and select(1,UnitChannelInfo("player")) ~= "Mind Flay") then
-			if select(2,GetSpellCooldown(61304))>0 then
-				return
-			end
+		-- if not (select(1,UnitChannelInfo("player")) ~= "Insanity" and select(1,UnitChannelInfo("player")) ~= "Mind Flay") then
+		-- 	if select(2,GetSpellCooldown(61304))>0 then
+		-- 		print("pause")
+		-- 		return
+		-- 	end
+		-- end
+
+		if select(2,GetSpellCooldown(61304))>0 then
+			return
 		end
 
 		--if select(2,GetSpellCooldown(61304))>0 then return end
@@ -175,7 +180,7 @@ function cShadow:new()
 		if self.options.utilities.pwf.enabled then RaidBuff(2,21562) end
 
 		-- Setup Queues
-		if _Queues == nil or #_Queues<=0 then
+		if _Queues == nil or #_Queues <= 0 then
 			--if _Queues[120644] == nil then
 				_Queues = {
 					[120644]  = false,		-- Halo
@@ -187,6 +192,8 @@ function cShadow:new()
 			--end
 		end
 	end
+
+	--[[                                                                                                                                            ]]
 
 	-- Boss detection
 	function self.BossDetection()
@@ -357,6 +364,7 @@ function cShadow:new()
 		if conspicuous_spirits_wa then
 			self.AS.flying = self.AS_flying()
 			self.AS.nextImpactTime = self.AS_next_impact()
+			self.AS.nextImpactRemaining = self.AS_next_impact_remaining()
 			self.AS.nextImpactTwoSeconds = self.AS_next_two_seconds()
 		end
 	end
@@ -376,6 +384,15 @@ function cShadow:new()
 		end
 		return counterTwoSeconds
 		--end
+	end
+
+	-- AS: time till next impact
+	function self.AS_next_impact_remaining()
+		if self.AS_next_impact() > GetTime() then
+			return self.AS_next_impact() - GetTime()
+		else
+			return 99
+		end
 	end
 	
 	-- AS: next impact
