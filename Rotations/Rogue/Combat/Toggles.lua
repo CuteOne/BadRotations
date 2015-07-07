@@ -6,8 +6,8 @@ if select(3, UnitClass("player")) == 4 then
     if AoEModesLoaded ~= "AoE Modes" then
       CustomAoEModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = _FanOfKnives},
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = _FanOfKnives},
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = _Mutilate}
+        --[2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = _FanOfKnives},
+        --[3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = _Mutilate}
       };
       AoEModes = CustomAoEModes
       CreateButton("AoE",1,0)
@@ -17,9 +17,9 @@ if select(3, UnitClass("player")) == 4 then
     -- Cooldowns Button
     if CooldownsModesLoaded ~= "Cooldowns Modes" then
       CustomCooldownsModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = _Preparation},
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = _Preparation},
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = _Preparation}
+        [1] = { mode = "None", value = 1 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = _Preparation},
+        [2] = { mode = "User", value = 2 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = _Preparation},
+        [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1, icon = _Preparation},
       };
       CooldownsModes = CustomCooldownsModes
       CreateButton("Cooldowns",2,0)
@@ -37,17 +37,28 @@ if select(3, UnitClass("player")) == 4 then
       DefensiveModesLoaded = "Defensive Modes";
     end
 
+    -- Blade Flurry Button
+    if  TrashModesLoaded ~= "Blade Flurry Modes" then
+      BladeFlurryModes = {
+        [1] = { mode = "Off", value = 1 , overlay = "Blade Flurry OFF", tip = "|cffFF0000No Blade Flurry.", highlight = 0, icon = 13877 },
+        [2] = { mode = "On", value = 2 , overlay = "Blade Flurry ON", tip = "|cffFF0000Use Blade Flurry.", highlight = 1, icon = 13877 },
+      }
+      CreateButton("BladeFlurry",4,0)
+      EmpSModesLoaded = "Blade Flurry Modes"
+    end
+
     -- Interrupts Button
+  --[[
     if InterruptsModesLoaded ~= "Interrupt Modes" then
       CustomInterruptsModes = {
         [1] = { mode = "On", value = 2 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = _Kick},
         [2] = { mode = "Off", value = 1 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = _Kick}
       };
       InterruptsModes = CustomInterruptsModes
-      CreateButton("Interrupts",4,0)
+      CreateButton("Interrupts",6,0)
       InterruptsModesLoaded = "Interrupt Modes";
     end
-
+    ]]
 
 
     function SpecificToggle(toggle)

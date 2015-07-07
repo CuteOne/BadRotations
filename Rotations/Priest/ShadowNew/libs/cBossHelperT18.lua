@@ -10,9 +10,9 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					
 					-- cascade
 					if getSpellCD(self.spell.cascade)<=0 then
-						if self.enemies.active_enemies_40 > 5 then
-							if self.castCascadeAuto() then return end
-						end
+						--if self.enemies.active_enemies_40 > 5 then
+							if self.castCascadeBiggestCluster() then return end
+						--end
 					end
 				end
 
@@ -22,7 +22,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 
 					-- cascade
 					if isUnitThere(93717,40) or isUnitThere(94955,40) or isUnitThere(94312,40) or isUnitThere(94322,40) then
-						if self.castCascadeAuto() then return end
+						if self.castCascadeBiggestCluster() then return end
 					end
 				end
 
@@ -33,7 +33,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- cascade
 					if getSpellCD(self.spell.cascade)<=0 then
 						if isUnitThere("Grasping Hand",40) then
-							if self.castCascadeAuto() then return end
+							if self.castCascadeBiggestCluster() then return end
 						end
 					end
 				end
@@ -47,7 +47,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					if getSpellCD(self.spell.cascade)<=0 then
 						-- cascade Jubei Mirrors
 						if isUnitThere(94865,40) then
-							if self.castCascadeAuto() then return end
+							if self.castCascadeBiggestCluster() then return end
 						end
 					end
 				end
@@ -62,7 +62,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				if currentBoss=="Gorefiend" then
 					-- cascade
 					if getSpellCD(self.spell.cascade)<=0 then
-						if self.castCascadeAuto() then return end
+						if self.castCascadeBiggestCluster() then return end
 					end
 				end
 
@@ -82,9 +82,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					end					
 					-- cascade
 					if getSpellCD(self.spell.cascade)<=0 then
-						-- cascade
 						if isUnitThere("Corrupted Talonpriest",40) then
-							if castCascadeAuto() then return end
+							if self.castCascadeBiggestCluster() then return end
 						end
 					end
 				end
@@ -96,7 +95,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- cascade
 					if getSpellCD(self.spell.cascade)<=0 then
 						if isUnitThere("Haunting Soul",40) or isUnitThere("Sargerei Shadowcaller",40) then
-							if self.castCascadeAuto() then return end
+							if self.castCascadeBiggestCluster() then return end
 						end
 					end
 				end
@@ -110,7 +109,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- cascade
 					if getSpellCD(self.spell.cascade)<=0 then
 						if isUnitThere("Wild Pyromaniac",40) or isUnitThere("Unstable Voidfiend",40) then
-							if self.castCascadeAuto() then return end
+							if self.castCascadeBiggestCluster() then return end
 						end
 					end
 				end
@@ -124,7 +123,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				-- cascade
 				if getSpellCD(self.spell.cascade)<=0 then
 					if isUnitThere("Fel Imp",40) then
-						if self.castCascadeAuto() then return end
+						if self.castCascadeBiggestCluster() then return end
 					end
 				end
 			end
@@ -147,7 +146,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					if getUnitCount(93616,40,true) >= 3 				-- Dreadstalker
 					or isUnitThere("Doomfire Spirit",40) 
 					or isUnitThere("Infernal Doombringer",40) then
-						if self.castCascadeAuto() then return end
+						if self.castCascadeBiggestCluster() then return end
 					end
 				end
 			end

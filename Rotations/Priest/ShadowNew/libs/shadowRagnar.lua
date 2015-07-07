@@ -43,7 +43,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		end
 		if _Queues[spell.cascade] == true then
 			ChatOverlay("Q - CASCADE")
-			if self.castCascadeAuto() then return end
+			if self.castCascadeBiggestCluster() then return end
 		end
 		if _Queues[spell.devouring_plague] == true then
 			ChatOverlay("Q - DP")
@@ -75,6 +75,9 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 
 		-- lastVTTime nil prevention
 		if lastVTTime == nil then lastVTTime=GetTime()-10 end
+
+		-- DP queue fix
+		if _Queues[2944]==true and orbs<3 then _Queues[2944]=false end
 		
 		------------------------------------------------------------------------------------------------------
 		-- Boss Helper ---------------------------------------------------------------------------------------
@@ -211,7 +214,6 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				end
 				-- -- 20 spread DPx4 on SoD
 				-- if orbs >= 4 then
-				-- 	if talent.auspicious_spirits then
 				-- 		if talent.surge_of_darkness then
 				-- 			if getDebuffRemain("target",spell.devouring_plague,"player") == 0 then
 				-- 				if castDP("target") then return end
@@ -223,7 +225,6 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				-- 					end
 				-- 				end
 				-- 			end
-				-- 		end
 				-- 	end
 				-- end
 				-- 30 DPx5
@@ -232,16 +233,18 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				end
 				--40 dump for incoming spirits
 				if orbs >= 3 then
-					if talent.auspicious_spirits then
-						if AS.flying >= 3 then
-							if self.castDP("target") then return end
+					if AS.flying >= 3 then
+						if AS.nextImpactTwoSeconds >= 2 then
+							--if AS.nextImpactRemaining <= 1.5*gcd then
+								if self.castDP("target") then return end
+							--end
 						end
 					end
 				end
 				-- 50 dump for incoming spirits
-				if orbs >= 4 then
-					if talent.auspicious_spirits then
-						if AS.flying >= 2 then
+				if orbs >= 3 then
+					if AS.nextImpactTwoSeconds >= 2 then
+						if AS.nextImpactRemaining <= 1.5*gcd then
 							if self.castDP("target") then return end
 						end
 					end
@@ -254,17 +257,19 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 						end
 					end
 				end
-				-- 70 mindbender and t18_4pc
+				-- 70 t18_4pc
 				if orbs >= 3 then
 					if set_bonus.tier18_4pc then
 						if talent.mindbender then
-							if self.castDP("target") then return end
+							if buff.premonition > 0 and buff.premonition <= gcd then
+								if self.castDP("target") then return end
+							end
 						end
 					end
 				end
-				-- 80 without T17 4pc
+				-- 80 without any 4pc
 				if orbs >= 3 then
-					if not set_bonus.tier17_4pc then
+					if not set_bonus.tier17_4pc and not set_bonus.tier18_4pc then
 						if getDebuffRemain("target",spell.devouring_plague,"player") <= 0 then
 							if self.castDP("target") then return end
 						end
@@ -316,7 +321,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			if mode.t90 == 2 then
 				if talent.cascade then
 					if active_enemies_40 > 2 then
-						if self.castCascadeAuto() then return end
+						if self.castCascadeBiggestCluster() then return end
 					end
 				end
 			end
@@ -353,7 +358,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			if mode.t90 == 2 then
 				if talent.cascade then
 					if (active_enemies_40 > 1 or getDistance("player","target") >= 28) then
-						if self.castCascadeAuto() then return end
+						if self.castCascadeBiggestCluster() then return end
 					end
 				end
 			end

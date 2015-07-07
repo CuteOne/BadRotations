@@ -1,17 +1,32 @@
 if select(3, UnitClass("player")) == 4 then
   function CombatRogue()
-    if Currentconfig ~= "Combat Toxin" then
+    if Currentconfig ~= "Combat Defmaster" and rogueCombat == nil then
+      rogueCombat = cCombat:new()
+      setmetatable(rogueCombat, {__index = cCombat})
+      CombatToggles()
       CombatOptions()
-      Currentconfig = "Combat Toxin"
+      rogueCombat:updateOOC()
+      rogueCombat:update()
+      Currentconfig = "Combat Defmaster"
     end
-    if not canRun() then
+    -- ToDo add pause toggle
+    -- Manual Input
+    if IsLeftShiftKeyDown() then -- Pause the script, keybind in wow shift+1 etc for manual cast
       return true
     end
-    CombatToggles()
-    poisonData()
-    makeEnemiesTable(40)
+    if IsLeftControlKeyDown() then -- Pause the script, keybind in wow ctrl+1 etc for manual cast
+      return true
+    end
+    if IsLeftAltKeyDown() then
+      return true
+    end
+    
+    if not UnitAffectingCombat("player") then
+      rogueCombat:updateOOC()
+    end
+    rogueCombat:update()
 
-
+    --[[
     -- --------------
     -- --- Locals ---
     -- --------------
@@ -244,7 +259,7 @@ if select(3, UnitClass("player")) == 4 then
         end
 
         -- Marked for Death
-        if combo>=0 and getTalent(6,2) then
+        if combo<=2 and getTalent(6,2) then
           if castSpell(thisUnit,_MarkedForDeath,true,false,false) then return end
         end
 
@@ -277,7 +292,7 @@ if select(3, UnitClass("player")) == 4 then
       -- Start Attack
       if tarDist<5 and not stealth then
         StartAttack()
-      end
-    end -- Pause End
+      end 
+    end]] -- Pause End
   end --Rogue Function End
 end --Class Check End
