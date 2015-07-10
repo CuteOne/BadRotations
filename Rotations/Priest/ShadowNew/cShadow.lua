@@ -154,7 +154,7 @@ function cShadow:new()
 		-- end
 
 		if select(2,GetSpellCooldown(61304))>0 then
-			return
+			return false
 		end
 
 		--if select(2,GetSpellCooldown(61304))>0 then return end
@@ -309,6 +309,7 @@ function cShadow:new()
 
 		--self.glyph.massExorcism   = hasGlyph(122028)
 		self.glyph.fade =	hasGlyph(55684)
+		self.glyph.pws =	hasGlyph(263)
 	end
 
 	-- Talent updates
@@ -717,17 +718,19 @@ function cShadow:new()
 		end
 		-- mind_flay
 		function self.castMindFlay(thisTarget)
-			if not UnitChannelInfo("player") then
-				return castSpell(thisTarget,self.spell.mind_flay,false,true) 
-			else 
-				if select(1,UnitChannelInfo("player")) == "Insanity" then
-					local cEnd = select(6,UnitChannelInfo("player"))
-					local cRem = cEnd - GetTime()*1000
-					-- Clip it
-					if cRem < 666 then
+			if select(1,UnitChannelInfo("player")) == nil then
+				return castSpell(thisTarget,self.spell.mind_flay,false,true)
+			elseif select(1,UnitChannelInfo("player")) == "Insanity" or select(1,UnitChannelInfo("player")) == "MindFlay" then
+				local cRem = select(6,UnitChannelInfo("player")) - GetTime()*1000
+				local rnd = math.random(10,300)
+				-- Clip it
+				if cRem < rnd then
+					if self.cd.mind_blast > cRem then
 						return castSpell(thisTarget,self.spell.mind_flay,false,true)
 					end
+					return true
 				end
+				return true
 			end
 		end
 		-- mind_sear
@@ -737,9 +740,9 @@ function cShadow:new()
 		-- mind_spike
 		function self.castMindSpike(thisTarget,proc)
 			if proc==true or proc=="proc" then
-				return castSpell(thisTarget,self.spell.mind_spike,false,false) 
+				return castSpell(thisTarget,self.spell.mind_spike,false,false)
 			else
-				return castSpell(thisTarget,self.spell.mind_spike,false,true) 
+				return castSpell(thisTarget,self.spell.mind_spike,false,true)
 			end
 		end
 		-- mind_vision
@@ -838,6 +841,9 @@ function cShadow:new()
 				end
 			end
 		end
+		function self.castSWP(thisTarget)
+			return castSpell(thisTarget,self.spell.shadow_word_pain,true,false)
+		end
 		-- shadowfiend
 		function self.castShadowfiend(thisTarget)
 			if self.mode.cooldowns == 2 then
@@ -883,6 +889,13 @@ function cShadow:new()
 						end
 					end
 				end
+			end
+		end
+		function self.castVT(thisTarget)
+			if thisUnit ~= lastVTTarget and lastVTTime < GetTime() then
+				return castSpell(thisTarget,self.spell.vampiric_touch,true,true)
+			else 
+				return false 
 			end
 		end
 		-- void_entropy

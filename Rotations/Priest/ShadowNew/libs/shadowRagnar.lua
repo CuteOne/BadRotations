@@ -141,7 +141,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		if options.rotation.msi_key.enabled then
 			if SpecificToggle("MSinsanity Key") then
 				-- Mind Blast
-				if options.rotation.msi_burst.enabled then
+				if options.rotation.msi_burst.enabled == false then
 					if orbs <= 3 then
 						if self.castMindBlast("target") then return end
 					end
@@ -157,8 +157,9 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					if select(1,UnitChannelInfo("player")) ~= nil then
 						local cEnd = select(6,UnitChannelInfo("player"))
 						local cRem = cEnd - GetTime()*1000
+						local rnd = math.random(100,500)
 						-- Clip it
-						if cRem<666 then
+						if cRem < rnd then
 							if self.castMindFlay("target") then return end
 						end
 					end
@@ -169,9 +170,9 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 						if self.castMindSear("target") then return end
 					end
 				end
-			end
-			if UnitChannelInfo("player") == "Searing Insanity" then
-				return
+				if UnitChannelInfo("player") == "Searing Insanity" then
+					return
+				end
 			end
 		end
 
@@ -234,19 +235,15 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				--40 dump for incoming spirits
 				if orbs >= 3 then
 					if AS.flying >= 3 then
-						if AS.nextImpactTwoSeconds >= 2 then
-							--if AS.nextImpactRemaining <= 1.5*gcd then
-								if self.castDP("target") then return end
-							--end
-						end
+						--if AS.nextImpactRemaining <= 1.5*gcd then
+							if self.castDP("target") then return end
+						--end
 					end
 				end
 				-- 50 dump for incoming spirits
-				if orbs >= 3 then
-					if AS.nextImpactTwoSeconds >= 2 then
-						if AS.nextImpactRemaining <= 1.5*gcd then
-							if self.castDP("target") then return end
-						end
+				if orbs >= 4 then
+					if AS.flying >= 2 then
+						if self.castDP("target") then return end
 					end
 				end
 				-- 60 extend mental instinct
@@ -260,10 +257,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				-- 70 t18_4pc
 				if orbs >= 3 then
 					if set_bonus.tier18_4pc then
-						if talent.mindbender then
-							if buff.premonition > 0 and buff.premonition <= gcd then
-								if self.castDP("target") then return end
-							end
+						if buff.premonition > 0 and getDebuffRemain("target",spell.devouring_plague,"player") <= 0 then
+							if self.castDP("target") then return end
 						end
 					end
 				end
@@ -425,10 +420,69 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		end -- AS rotation
 		--[[ clarity_of_power ]]
 		if talent.clarity_of_power then
-			-- execute range
+			-- High Priority
+			--S hadow Word: Death
+			if self.castSWDAuto("target") then return end
 
-			-- cr
+			-- Mind Blast
+			if self.castMindBlast("target") then return end
 
+			-- DP
+			if getDebuffRemain("target",spell.shadow_word_pain,"player") > 0 then
+				if getDebuffRemain("target",spell.vampiric_touch,"player") > 0 then
+					if self.castDP("target") then return end
+				end
+			end
+			-- Below 20%, Devouring Plague
+			if getHP("target") <= 20 then
+				if self.castDP("target") then return end
+			end
+			-- DoTweave cast sequence
+			if orbs >= 4 then
+				if cd.mind_blast <= gcd then
+					if getDebuffRemain("target",spell.shadow_word_pain,"player") <= 0 then
+						if self.castSWP("target") then return end
+					end
+				end
+			end
+			if orbs == 5 then
+				if getDebuffRemain("target",spell.vampiric_touch,"player") <= 0 then
+					if self.castVT("target") then return end
+				end
+			end
+			-- Insanity: extend mental fatigue
+			if set_bonus.class_trinket then
+				if buff.insanity > 0 then
+					if getDebuffRemain("target",spell.mental_fatigue,"player") < 3 then
+						if getDebuffRemain("target",spell.mental_fatigue,"player") > 0 then
+							if self.castMindFlay("target") then return end
+						end
+					end
+				end
+			end
+
+			-- Filler
+			-- Shadowfiend
+			if self.castShadowfiend("target") then return end
+
+			-- Cascade (or other L90 talent)
+			if mode.t90 == 2 then
+				if self.castCascadeBiggestCluster() then return end
+			end
+
+			-- Power Word: Shield (only when taking damage)
+			if glyph.pws then
+				if getDebuffRemain("player",6788) <= 0 then
+					if self.castPWS("player") then return end
+				end
+			end
+			-- Insanity (only when the Insanity buff is active)
+			if buff.insanity > 0 then
+				if self.castMindFlay("target") then return end
+			end
+
+			-- Mind Spike
+			if self.castMindSpike("target") then return end
 		end -- CoP rotation
 	end
 end
