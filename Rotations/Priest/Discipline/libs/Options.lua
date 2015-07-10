@@ -10,6 +10,11 @@ if select(3, UnitClass("player")) == 5 then
 			-- Wrapper -----------------------------------------
 			CreateNewWrap(thisConfig,"|cffBA55D3Offensive")
 
+			-- Smite
+			CreateNewCheck(thisConfig,"Smite Filler","use smite")
+			CreateNewBox(thisConfig,"Smite Filler", 1, 100, 2, 50, "Smite until %Mana")
+			CreateNewText(thisConfig,"Smite Filler")
+
 			-- PWS
 			CreateNewCheck(thisConfig,"PW:Shield","max PWS count in raid")
 			CreateNewBox(thisConfig,"PW:Shield", 1, 40, 1, 5, "Set to max count for PWS in raid")
