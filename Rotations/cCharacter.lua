@@ -45,9 +45,9 @@ function cCharacter:new(class)
 	self.racial   = nil             -- Contains racial spell id
 	self.faction  = select(1,UnitFactionGroup("player")) -- Faction non-localised name
 	self.augmentRune = {            -- Contains the different buff IDs for Augment Runes
-		agility   = 175456
-		strength  = 175439
-		intellect = 175457
+		agility   = 175456,
+		strength  = 175439,
+		intellect = 175457,
 	}
 
 -- Things which get updated for every class in combat
