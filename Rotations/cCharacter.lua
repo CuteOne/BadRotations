@@ -49,6 +49,7 @@ function cCharacter:new(class)
 		strength  = 175439,
 		intellect = 175457,
 	}
+	self.options = {}               -- Contains options
 
 -- Things which get updated for every class in combat
 -- All classes call the baseUpdate()
