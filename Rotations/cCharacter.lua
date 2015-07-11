@@ -51,11 +51,14 @@ function cCharacter:new(class)
 		-- TODO
 
 		-- Get base options
-		self.getBaseOptions()
+		self.baseGetOptions()
 
 		-- Health and Power
 		self.health = getHP("player")
 		self.power  = UnitPower("player")
+
+		-- Racial Cooldown
+		self.cd.racial = getSpellCD(self.racial)
 
 		-- Food/Invis Check
 		if canRun() ~= true then
@@ -207,10 +210,12 @@ function cCharacter:new(class)
 
 -- Casts the racial
 	function self.castRacial()
-		if self.race == "Pandaren" or self.race == "Goblin" then
-			return castSpell("target",self.racial,true,false) == true
-		else
-			return castSpell("player",self.racial,true,false) == true
+		if self.cd.racial == 0 then
+			if self.race == "Pandaren" or self.race == "Goblin" then
+				return castSpell("target",self.racial,true,false) == true
+			else
+				return castSpell("player",self.racial,true,false) == true
+			end
 		end
 	end
 
@@ -225,13 +230,37 @@ function cCharacter:new(class)
 		CreateNewCheck(thisConfig,"Ignore Combat","Ignore Combat. Farm mode.","0")
 		CreateNewText(thisConfig, "Ignore Combat");
 
+		-- Use Crystal Flask
+		CreateNewCheck(thisConfig,"Use Crystal","Use Oralius Crystal +100 to all Stats","0")
+		CreateNewText(thisConfig, "Use Crystal");
+
+		-- Use Empowered Rune (unlimited rune)
+		CreateNewCheck(thisConfig,"Use emp. Rune","Use Empowered Rune. +50 to primary Stat.","0")
+		CreateNewText(thisConfig, "Use emp. Rune");
+
 		-- Spacer
 		textOp(" ");
 	end
 
 -- Get option modes
-	function self.getBaseOptions()
-		self.ignoreCombat = isChecked("Ignore Combat")==true or false
+	function self.baseGetOptions()
+		self.ignoreCombat             = isChecked("Ignore Combat")==true or false
+		self.options.useCrystal       = isChecked("Use Crystal")==true or false
+		self.options.useEmpoweredRune = isChecked("Use emp. Rune")==true or false
+	end
+
+-- Use Oralius Crystal +100 to all Stat
+	function self.useCrystal()
+		if self.options.useCrystal then
+			
+		end
+	end
+
+-- Use Empowered Augument Rune +50 to prim. Stat
+	function self.useEmpoweredRune()
+		if self.options.useEmpoweredRune then
+			
+		end
 	end
 
 --[[ TODO:
