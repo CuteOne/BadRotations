@@ -210,7 +210,7 @@ function cCharacter:new(class)
 
 -- Casts the racial
 	function self.castRacial()
-		if self.cd.racial == 0 then
+		if self.cd.racial == 0 and self.options.useRacial then
 			if self.race == "Pandaren" or self.race == "Goblin" then
 				return castSpell("target",self.racial,true,false) == true
 			else
@@ -231,12 +231,16 @@ function cCharacter:new(class)
 		CreateNewText(thisConfig, "Ignore Combat");
 
 		-- Use Crystal Flask
-		CreateNewCheck(thisConfig,"Use Crystal","Use Oralius Crystal +100 to all Stats","0")
+		CreateNewCheck(thisConfig,"Use Crystal","Use Oralius Crystal +100 to all Stats".,"0")
 		CreateNewText(thisConfig, "Use Crystal");
 
 		-- Use Empowered Rune (unlimited rune)
 		CreateNewCheck(thisConfig,"Use emp. Rune","Use Empowered Rune. +50 to primary Stat.","0")
 		CreateNewText(thisConfig, "Use emp. Rune");
+
+		-- Use Racial
+		CreateNewCheck(thisConfig,"Use Racial","Use Racial.","0")
+		CreateNewText(thisConfig, "Use Racial");
 
 		-- Spacer
 		textOp(" ");
@@ -247,6 +251,7 @@ function cCharacter:new(class)
 		self.ignoreCombat             = isChecked("Ignore Combat")==true or false
 		self.options.useCrystal       = isChecked("Use Crystal")==true or false
 		self.options.useEmpoweredRune = isChecked("Use emp. Rune")==true or false
+		self.options.useRacial        = isSelected("Use Racial")==true or false
 	end
 
 -- Use Oralius Crystal +100 to all Stat
