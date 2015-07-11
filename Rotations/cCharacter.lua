@@ -60,6 +60,12 @@ function cCharacter:new(class)
 		-- Racial Cooldown
 		self.cd.racial = getSpellCD(self.racial)
 
+		-- Crystal
+		self.useCrystal()
+
+		-- Empowered Augument Rune
+		self.useEmpoweredRune()
+
 		-- Food/Invis Check
 		if canRun() ~= true then
 			return false
@@ -231,7 +237,7 @@ function cCharacter:new(class)
 		CreateNewText(thisConfig, "Ignore Combat");
 
 		-- Use Crystal Flask
-		CreateNewCheck(thisConfig,"Use Crystal","Use Oralius Crystal +100 to all Stats".,"0")
+		CreateNewCheck(thisConfig,"Use Crystal","Use Oralius Crystal +100 to all Stats.","0")
 		CreateNewText(thisConfig, "Use Crystal");
 
 		-- Use Empowered Rune (unlimited rune)
@@ -254,17 +260,17 @@ function cCharacter:new(class)
 		self.options.useRacial        = isSelected("Use Racial")==true or false
 	end
 
--- Use Oralius Crystal +100 to all Stat
+-- Use Oralius Crystal +100 to all Stat - ID: 118922
 	function self.useCrystal()
-		if self.options.useCrystal then
-			
+		if self.options.useCrystal and getBuffRemain("player",128482) < 600 then
+			useItem(118922)
 		end
 	end
 
--- Use Empowered Augument Rune +50 to prim. Stat
+-- Use Empowered Augument Rune +50 to prim. Stat - ID: 128482
 	function self.useEmpoweredRune()
-		if self.options.useEmpoweredRune then
-			
+		if self.options.useEmpoweredRune and getBuffRemain("player",128482) < 600 then
+			useItem(128482)
 		end
 	end
 
