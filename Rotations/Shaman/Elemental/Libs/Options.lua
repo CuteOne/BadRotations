@@ -55,8 +55,8 @@ if select(3,UnitClass("player")) == 7 then
     end
 
     -- Searing
-    checkOp("Searing")
-    textOp("Searing")
+    CreateNewCheck(thisConfig,"Searing")
+    CreateNewText(thisConfig,"Searing")
 
     -- Wrapper
     generateWrapper("DPS Tweaks")

@@ -30,6 +30,8 @@ function DruidFeral()
 		local falling, swimming = getFallTime(), IsSwimming()
 		local gcd = ((1.5/GetHaste("player"))+1)
 		local p2t17 = TierScan("T17")>=2
+		local t18_2pc = TierScan("T18")>=2
+		local t18_4pc = TierScan("T18")>=4
 		--General Target Variables
 		local dynamicUnit = {
 			["dyn5"] = dynamicTarget(5,true), --Melee
@@ -71,7 +73,7 @@ function DruidFeral()
 	    local incarnation, incBuff, incCooldown, incRemain = getTalent(4,2), UnitBuffID("player",inc)~=nil, GetSpellCooldown(inc), getBuffRemain("player",inc)
 	    local vicious = getBuffRemain("player",148903)
 	    local restlessagi = getBuffRemain("player",146310)
-	    local bloodtalons, btRemain = getTalent(7,2), getBuffRemain("player",bt)
+	    local bloodtalons, btRemain,btStacks = getTalent(7,2), getBuffRemain("player",bt), getBuffStacks("player",bt,"player")
 	    newSr = 18 + (6*(combo-1))
 	    tt5 = 40*getRegen("player")*(5-floor(UnitPower("player")/40))
 		--Specific Target Variables
@@ -308,26 +310,26 @@ function DruidFeral()
 	--- In Combat - Interrupts ---
 	------------------------------
 				if useInterrupts() and not stealth then
-          for i=1, #enemiesTable do
-            thisUnit = enemiesTable[i].unit
-            if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-		-- Skull Bash
-    			    if isChecked("Skull Bash") then
-    					    --if castInterrupt(sb,getOptionValue("Interrupt At")) then return end
-                  if castSpell(thisUnit,sb,false,false,false) then return end
-    					end
-		-- Mighty Bash
-    			    if isChecked("Mighty Bash") then
-    			        --if castInterrupt(mb,getOptionValue("Interrupt At")) then return end
-                  if castSpell(thisUnit,mb,false,false,false) then return end
-    			    end
-		-- Maim (PvP)
-    			    if isChecked("Maim") and combo > 0 and power >= 35 and isInPvP() then
-    			        --if castInterrupt(ma,getOptionValue("Interrupt At")) then return end
-                  if castSpell(thisUnit,ma,false,false,false) then return end
-    			    end
-            end
-          end
+		          for i=1, #enemiesTable do
+		            thisUnit = enemiesTable[i].unit
+		            if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+				-- Skull Bash
+		    			    if isChecked("Skull Bash") then
+		    					    --if castInterrupt(sb,getOptionValue("Interrupt At")) then return end
+		                  if castSpell(thisUnit,sb,false,false,false) then return end
+		    					end
+				-- Mighty Bash
+		    			    if isChecked("Mighty Bash") then
+		    			        --if castInterrupt(mb,getOptionValue("Interrupt At")) then return end
+		                  if castSpell(thisUnit,mb,false,false,false) then return end
+		    			    end
+				-- Maim (PvP)
+		    			    if isChecked("Maim") and combo > 0 and power >= 35 and isInPvP() then
+		    			        --if castInterrupt(ma,getOptionValue("Interrupt At")) then return end
+		                  if castSpell(thisUnit,ma,false,false,false) then return end
+		    			    end
+		            end
+		          end
 			  end
 	-----------------------------
 	--- In Combat - Cooldowns ---
@@ -439,7 +441,8 @@ function DruidFeral()
 						end
 					end
 		-- Healing Touch
-					if psRemain>0 and ((combo>=4 and bloodtalons) or psRemain<1.5) then
+					--actions+=/healing_touch,if=talent.bloodtalons.enabled&buff.predatory_swiftness.up&((combo_points>=4&!set_bonus.tier18_4pc)|combo_points=5|buff.predatory_swiftness.remains<1.5)
+					if bloodtalons and psRemain > 0 and ((combo >= 4 and not t18_4pc) or combo == 5 or psRemain < 1.5) then
 						if getOptionValue("Auto Heal")==1 then
 		                    if castSpell(nNova[1].unit,ht,true,false,false) then return end
 		                end
@@ -453,6 +456,11 @@ function DruidFeral()
 					--if (srRemain<1 or (srRemain<rpRemain and newSr-rpRemain>1)) and combo>0 and power>25 and ObjectExists(dynamicUnit.dyn5) then 
 						if castSpell("player",svr,true,false,false) then return end
 		            end
+		-- Thrash with T18 4pc
+					-- actions+=/thrash_cat,if=set_bonus.tier18_4pc&buff.omen_of_clarity.react&remains<4.5&combo_points+buff.bloodtalons.stack!=6
+					if t18_4pc and clearcast and thrRemain < 4.5 and (combo + btStacks) ~= 6 then
+						if castSpell(dynamicUnit.dyn8AoE,thr,true,false,false) then return end
+					end
 		-- Pool Energy then Thrash
 					if useCleave() or (BadBoy_data['AoE'] == 2 and not useCleave()) then
 						for i=1, #enemiesTable do
@@ -510,15 +518,15 @@ function DruidFeral()
 							end
 						end
 			-- Finisher: Savage Roar
-						--if=(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)&buff.savage_roar.remains<12.6
-						if combo==5 and (ttm<=1 or berserk or tfCooldown<3) and srRemain<12.6 and power>25 and tarDist<5 then
+						-- actions.finisher+=/savage_roar,if=((set_bonus.tier18_4pc&energy>50)|(set_bonus.tier18_2pc&buff.omen_of_clarity.react)|energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)&buff.savage_roar.remains<12.6
+						if ((t18_4pc and power > 50) or (t18_2pc and clearcast) or ttm<=1 or berserk or tfCooldown<3) and srRemain<12.6 and power>25 then
 							if castSpell("player",svr,true,false,false) then return end
-			      end
+			      		end
 			-- Finisher: Ferocious Bite
-					--if=(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)
-	    			if (ttm<=1 or berserk or tfCooldown<3) and power>50 then
+					--actions.finisher+=/ferocious_bite,max_energy=1,if=(set_bonus.tier18_4pc&energy>50)|(set_bonus.tier18_2pc&buff.omen_of_clarity.react)|energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3
+	    			if (t18_4pc and power > 50) or (t18_2pc and clearcast) or ttm<=1 or berserk or tfCooldown<3 then
 		    			if castSpell(dynamicUnit.dyn5,fb,false,false,false) then return end
-		        end
+		       		end
 				  end --End Finishers
 		-- Savage Roar
 					-- if=buff.savage_roar.remains<gcd

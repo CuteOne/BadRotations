@@ -115,6 +115,18 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				end
 
 			-- Tyrant Velhari
+				if currentBoss=="Tyrant Velhari" then
+					-- auto target
+
+					-- cascade
+					if getSpellCD(self.spell.cascade)<=0 then
+						if isUnitThere("Ancient Sovereign",40)
+						or isUnitThere("Ancient Enforcer",40)
+						or isUnitThere("Ancient Harbinger",40) then
+							if self.castCascadeBiggestCluster() then return end
+						end
+					end
+				end
 
 			-- Mannoroth
 			if currentBoss=="Fel Iron Summoner" then

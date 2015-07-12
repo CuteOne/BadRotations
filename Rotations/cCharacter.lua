@@ -43,6 +43,13 @@ function cCharacter:new(class)
 	self.enemies  = {}              -- Number of Enemies around player (must be overwritten by cCLASS or cSPEC)
 	self.race     = select(2,UnitRace("player")) -- Race as non-localised name (undead = Scourge) !
 	self.racial   = nil             -- Contains racial spell id
+	self.faction  = select(1,UnitFactionGroup("player")) -- Faction non-localised name
+	self.augmentRune = {            -- Contains the different buff IDs for Augment Runes
+		agility   = 175456,
+		strength  = 175439,
+		intellect = 175457,
+	}
+	self.options = {}               -- Contains options
 
 -- Things which get updated for every class in combat
 -- All classes call the baseUpdate()
@@ -51,11 +58,20 @@ function cCharacter:new(class)
 		-- TODO
 
 		-- Get base options
-		self.getBaseOptions()
+		self.baseGetOptions()
 
 		-- Health and Power
 		self.health = getHP("player")
 		self.power  = UnitPower("player")
+
+		-- Racial Cooldown
+		self.cd.racial = getSpellCD(self.racial)
+
+		-- Crystal
+		self.useCrystal()
+
+		-- Empowered Augment Rune
+		self.useEmpoweredRune()
 
 		-- Food/Invis Check
 		if canRun() ~= true then
@@ -207,10 +223,12 @@ function cCharacter:new(class)
 
 -- Casts the racial
 	function self.castRacial()
-		if self.race == "Pandaren" or self.race == "Goblin" then
-			return castSpell("target",self.racial,true,false) == true
-		else
-			return castSpell("player",self.racial,true,false) == true
+		if self.cd.racial == 0 and self.options.useRacial then
+			if self.race == "Pandaren" or self.race == "Goblin" then
+				return castSpell("target",self.racial,true,false) == true
+			else
+				return castSpell("player",self.racial,true,false) == true
+			end
 		end
 	end
 
@@ -225,13 +243,50 @@ function cCharacter:new(class)
 		CreateNewCheck(thisConfig,"Ignore Combat","Ignore Combat. Farm mode.","0")
 		CreateNewText(thisConfig, "Ignore Combat");
 
+		-- Use Crystal Flask
+		CreateNewCheck(thisConfig,"Use Crystal","Use Oralius Crystal +100 to all Stats.","0")
+		CreateNewText(thisConfig, "Use Crystal");
+
+		-- Use Empowered Rune (unlimited rune)
+		CreateNewCheck(thisConfig,"Use emp. Rune","Use Empowered Rune. +50 to primary Stat.","0")
+		CreateNewText(thisConfig, "Use emp. Rune");
+
+		-- Use Racial
+		CreateNewCheck(thisConfig,"Use Racial","Use Racial.","0")
+		CreateNewText(thisConfig, "Use Racial");
+
 		-- Spacer
 		textOp(" ");
 	end
 
 -- Get option modes
-	function self.getBaseOptions()
-		self.ignoreCombat = isChecked("Ignore Combat")==true or false
+	function self.baseGetOptions()
+		self.ignoreCombat             = isChecked("Ignore Combat")==true or false
+		self.options.useCrystal       = isChecked("Use Crystal")==true or false
+		self.options.useEmpoweredRune = isChecked("Use emp. Rune")==true or false
+		self.options.useRacial        = isSelected("Use Racial")==true or false
+	end
+
+-- Use Oralius Crystal +100 to all Stat - ID: 118922, Buff: 176151 (Whispers of Insanity)
+	function self.useCrystal()
+		if self.options.useCrystal and getBuffRemain("player",176151) < 600 then
+			useItem(118922)
+		end
+	end
+
+-- Use Empowered Augment Rune +50 to prim. Stat - ID: 128482 Alliance / ID: 128475 Horde
+	function self.useEmpoweredRune()
+		if self.options.useEmpoweredRune then
+			for _,augmentBuff in pairs(self.augmentRune) do 
+				if getBuffRemain("player",augmentBuff) < 600 then
+					if self.faction == "Alliance" then
+						useItem(128482)
+					else
+						useItem(128475)
+					end
+				end
+			end
+		end
 	end
 
 --[[ TODO:

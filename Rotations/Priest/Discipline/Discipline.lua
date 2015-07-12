@@ -2,9 +2,9 @@ if select(3, UnitClass("player")) == 5 then
 	function PriestDiscipline()
 
 		if currentConfig ~= "Discipline ragnar" then
-		DisciplineConfig()
-		--DisciplineToggles()
-		currentConfig = "Discipline ragnar"
+			DisciplineConfig()
+			--DisciplineToggles()
+			currentConfig = "Discipline ragnar"
 		end
 		-- Head End
 
@@ -137,6 +137,7 @@ if select(3, UnitClass("player")) == 5 then
 
 			},
 			heal = {
+				SmiteFiller = {check=isChecked("Smite Filler"),value=getValue("Smite Filler")},
 				PWS = {check=isChecked("PW:Shield"),value=getValue("PW:Shield")},
 				heal = {check=isChecked("Heal"),value=getValue("Heal")},
 				flashHeal = {check=isChecked("Flash Heal"),value=getValue("Flash Heal")},
@@ -153,12 +154,13 @@ if select(3, UnitClass("player")) == 5 then
 		------------------------------------------------------------------------------------------------------------------------------------------------------------
 		-- CHECKS --------------------------------------------------------------------------------------------------------------------------------------------------
 		------------------------------------------------------------------------------------------------------------------------------------------------------------
-		if canRun() ~= true or UnitInVehicle("Player") then
-			return false
-		end
+		if canRun() ~= true or UnitInVehicle("Player") then return false end
 
 		-- Mounted Check (except nagrand outpost mounts)
-		if IsMounted("player") and not (UnitBuffID("player",164222) or UnitBuffID("player",165803)) then return false end
+		if IsMounted("player") and not (UnitBuffID("player",164222) 
+			or UnitBuffID("player",165803)) then 
+			return false 
+		end
 
 		if _Queues == nil then
 			_Queues = {
@@ -171,7 +173,8 @@ if select(3, UnitClass("player")) == 5 then
 		-- Pause ---------------------------------------------------------------------------------------------
 		------------------------------------------------------------------------------------------------------
 		if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == true then
-			ChatOverlay("|cffFF0000BadBoy Paused", 0) return
+			ChatOverlay("|cffFF0000BadBoy Paused", 0)
+			return
 		end
 
 		------------------------------------------------------------------------------------------------------
@@ -181,13 +184,13 @@ if select(3, UnitClass("player")) == 5 then
 		------------------------------------------------------------------------------------------------------
 		-- Always check/do -----------------------------------------------------------------------------------
 		------------------------------------------------------------------------------------------------------
-		if enemiesTable then
-			if enemiesTableTimer <= GetTime() - 0.5 then
-				table.sort(enemiesTable, function(x,y)
-					return x.hpabs and y.hpabs and x.hpabs > y.hpabs or false
-				end)
-			end
-		end
+		-- if enemiesTable then
+		-- 	if enemiesTableTimer <= GetTime() - 0.5 then
+		-- 		table.sort(enemiesTable, function(x,y)
+		-- 			return x.hpabs and y.hpabs and x.hpabs > y.hpabs or false
+		-- 		end)
+		-- 	end
+		-- end
 
 		------------------------------------------------------------------------------------------------------
 		-- Out of Combat -------------------------------------------------------------------------------------
@@ -253,7 +256,7 @@ if select(3, UnitClass("player")) == 5 then
 					if castPenancePlayer() then return end
 					-- damage
 					if castPenanceEnemy() then return end
---print("1")
+				
 				-- holy fire / power word: solace
 				if getTalent(3,3) then
 					if player.mana <= 98 then
@@ -264,31 +267,36 @@ if select(3, UnitClass("player")) == 5 then
 						if castHolyFire() then return end
 					end
 				end
---print("2")
+				
 				-- smite
 				if buff.evangelism.stacks<5 then
 					if castSmite() then return end
 				end
---print("3")
+				
 				-- PWS
 				if castPWSTank() then return end
 				if castPWSPlayer() then return end
---print("4")
+				
 				-- PoM (maxPoM?)
 				if getPoM()<1 then
 					if castPoM() then return end
 				end
---print("5")
+				
 				-- PoH on group with 3+ targets with minimal overheal
 
 				-- flash heal
 				if castFlashHeal() then return end
---print("6")
+				
 				-- heal
 				if castHeal() then return end
 
 				-- smite filler
-				if castSmite() then return end
+				if options.heal.SmiteFiller.check then
+					if player.mana >= options.heal.SmiteFiller.value then
+						if castSmite() then return end
+					end
+				end	
+
 			end
 		end
 	end
