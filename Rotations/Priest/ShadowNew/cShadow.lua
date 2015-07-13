@@ -831,9 +831,10 @@ function cShadow:new()
 						if getDebuffRemain(thisUnit,self.spell.shadow_word_pain,"player") <= 18*0.3 then
 							if distance < 40 then
 								if hp >= self.options.rotation.min_health.value then
-									if castSpell(thisUnit,self.spell.shadow_word_pain,true,false) then
-										return true
-									end
+									return castSpell(thisUnit,self.spell.shadow_word_pain,true,false)
+									-- if castSpell(thisUnit,self.spell.shadow_word_pain,true,false) then
+									-- 	return true
+									-- end
 								end
 							end
 						end
@@ -871,18 +872,20 @@ function cShadow:new()
 			if self.getVT() < maxTargets then
 				for i=1,#enemiesTable do
 					local thisUnit = enemiesTable[i].unit
+					local thisUnitGUID = enemiesTable[i].guid
 					local hp = enemiesTable[i].hpabs
 					local distance = enemiesTable[i].distance
 					local lastVTTarget = lastVTTarget
 					local lastVTTime = lastVTTime
-					if thisUnit ~= lastVTTarget and lastVTTime < GetTime() then
+					if thisUnitGUID ~= lastVTTarget or lastVTTime+2 < GetTime() then
 						if self.safeDoT(thisUnit) and self.safeVT(thisUnit) and UnitIsTappedByPlayer(thisUnit) then
 							if getDebuffRemain(thisUnit,self.spell.vampiric_touch,"player") <= 15*0.3+(0.001*select(4,GetSpellInfo(34914))) then
 								if distance < 40 then
 									if hp >= self.options.rotation.min_health.value then
-										if castSpell(thisUnit,self.spell.vampiric_touch,true,true) then
-											return true
-										end
+										return castSpell(thisUnit,self.spell.vampiric_touch,true,true)
+										-- if castSpell(thisUnit,self.spell.vampiric_touch,true,true) then
+										-- 	return true
+										-- end
 									end
 								end
 							end

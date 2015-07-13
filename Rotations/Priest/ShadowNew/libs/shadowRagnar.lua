@@ -257,7 +257,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				-- 70 t18_4pc
 				if orbs >= 3 then
 					if set_bonus.tier18_4pc then
-						if buff.premonition > 0 and getDebuffRemain("target",spell.devouring_plague,"player") <= 0 then
+						if (buff.premonition > 0 and getDebuffRemain("target",spell.devouring_plague,"player") <= 0) or AS.flying > 2 then
 							if self.castDP("target") then return end
 						end
 					end
@@ -428,8 +428,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			if self.castMindBlast("target") then return end
 
 			-- DP
-			if getDebuffRemain("target",spell.shadow_word_pain,"player") > 0 then
-				if getDebuffRemain("target",spell.vampiric_touch,"player") > 0 then
+			if getDebuffRemain("target",spell.shadow_word_pain,"player") > 0 or not talent.insanity then
+				if getDebuffRemain("target",spell.vampiric_touch,"player") > 0 or not talent.insanity then
 					if self.castDP("target") then return end
 				end
 			end
@@ -438,16 +438,18 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				if self.castDP("target") then return end
 			end
 			-- DoTweave cast sequence
-			if orbs >= 4 then
-				if cd.mind_blast <= gcd then
-					if getDebuffRemain("target",spell.shadow_word_pain,"player") <= 0 then
-						if self.castSWP("target") then return end
+			if talent.insanity then
+				if orbs >= 4 then
+					if cd.mind_blast <= gcd then
+						if getDebuffRemain("target",spell.shadow_word_pain,"player") <= 0 then
+							if self.castSWP("target") then return end
+						end
 					end
 				end
-			end
-			if orbs == 5 then
-				if getDebuffRemain("target",spell.vampiric_touch,"player") <= 0 then
-					if self.castVT("target") then return end
+				if orbs == 5 then
+					if getDebuffRemain("target",spell.vampiric_touch,"player") <= 0 then
+						if self.castVT("target") then return end
+					end
 				end
 			end
 			-- Insanity: extend mental fatigue
@@ -476,6 +478,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					if self.castPWS("player") then return end
 				end
 			end
+			
 			-- Insanity (only when the Insanity buff is active)
 			if buff.insanity > 0 then
 				if self.castMindFlay("target") then return end
