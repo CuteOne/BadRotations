@@ -9,7 +9,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- auto target
 					
 					-- cascade
-					if getSpellCD(self.spell.cascade)<=0 then
+					if getSpellCD(self.spell.cascade) <= 0 then
 						--if self.enemies.active_enemies_40 > 5 then
 							if self.castCascadeBiggestCluster() then return end
 						--end
@@ -31,7 +31,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- auto target
 					
 					-- cascade
-					if getSpellCD(self.spell.cascade)<=0 then
+					if getSpellCD(self.spell.cascade) <= 0 then
 						if isUnitThere("Grasping Hand",40) then
 							if self.castCascadeBiggestCluster() then return end
 						end
@@ -44,7 +44,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- auto target
 					
 					-- cascade
-					if getSpellCD(self.spell.cascade)<=0 then
+					if getSpellCD(self.spell.cascade) <= 0 then
 						-- cascade Jubei Mirrors
 						if isUnitThere(94865,40) then
 							if self.castCascadeBiggestCluster() then return end
@@ -55,13 +55,24 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			-- Kilrogg Deadeye
 				if currentBoss=="Kilrogg Deadeye" then
 					-- target boss if no target
+					if isUnitThere("Fel Blood Globule",40) then TargetUnit("Fel Blood Globule") end
+					if isUnitThere("Blood Globule",40) then TargetUnit("Blood Globule") end
 					if GetObjectExists("target")==false then TargetUnit("Kilrogg Deadeye") end
+
+					-- cascade
+					if getSpellCD(self.spell.cascade) <= 0 then
+						if getNumEnemies("player",40) >= 4 then
+							if getEnemies(getBiggestUnitCluster(40,40),40) >= 4 then
+								if self.castCascadeBiggestCluster() then return end
+							end
+						end
+					end
 				end
 
 			-- Gorefiend
 				if currentBoss=="Gorefiend" then
 					-- cascade
-					if getSpellCD(self.spell.cascade)<=0 then
+					if getSpellCD(self.spell.cascade) <= 0 then
 						if self.castCascadeBiggestCluster() then return end
 					end
 				end
@@ -81,7 +92,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 						end
 					end					
 					-- cascade
-					if getSpellCD(self.spell.cascade)<=0 then
+					if getSpellCD(self.spell.cascade) <= 0 then
 						if isUnitThere("Corrupted Talonpriest",40) then
 							if self.castCascadeBiggestCluster() then return end
 						end
@@ -93,7 +104,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- auto target
 					
 					-- cascade
-					if getSpellCD(self.spell.cascade)<=0 then
+					if getSpellCD(self.spell.cascade) <= 0 then
 						if isUnitThere("Haunting Soul",40) or isUnitThere("Sargerei Shadowcaller",40) then
 							if self.castCascadeBiggestCluster() then return end
 						end
@@ -107,7 +118,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- auto target
 
 					-- cascade
-					if getSpellCD(self.spell.cascade)<=0 then
+					if getSpellCD(self.spell.cascade) <= 0 then
 						if isUnitThere("Wild Pyromaniac",40) or isUnitThere("Unstable Voidfiend",40) then
 							if self.castCascadeBiggestCluster() then return end
 						end
@@ -119,7 +130,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- auto target
 
 					-- cascade
-					if getSpellCD(self.spell.cascade)<=0 then
+					if getSpellCD(self.spell.cascade) <= 0 then
 						if isUnitThere("Ancient Sovereign",40)
 						or isUnitThere("Ancient Enforcer",40)
 						or isUnitThere("Ancient Harbinger",40) then
@@ -133,7 +144,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				-- auto target
 				
 				-- cascade
-				if getSpellCD(self.spell.cascade)<=0 then
+				if getSpellCD(self.spell.cascade) <= 0 then
 					if isUnitThere("Fel Imp",40) then
 						if self.castCascadeBiggestCluster() then return end
 					end
@@ -154,7 +165,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				-- if GetObjectExists("target")==false then TargetUnit("Archimonde") end
 				
 				-- cascade
-				if getSpellCD(self.spell.cascade)<=0 then
+				if getSpellCD(self.spell.cascade) <= 0 then
 					if getUnitCount(93616,40,true) >= 3 				-- Dreadstalker
 					or isUnitThere("Doomfire Spirit",40) 
 					or isUnitThere("Infernal Doombringer",40) then
