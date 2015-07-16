@@ -188,6 +188,7 @@ function cShadow:new()
 					[2944] = 	false,		-- Devouring Plague
 					[34433] = 	false,		-- Shadowfiend
 					[123040] = 	false,		-- Mindbender
+					[47585] = 	false, 		-- Dispersion
 				}
 			--end
 		end
@@ -528,9 +529,11 @@ function cShadow:new()
 			94231,		-- Xhul'horac: Wild Pyromaniac
 			92208,		-- Archimonde: Doomfire Spirit
 			91938,		-- Socrethar: Haunting Soul
-			90409,		-- Hellfire Assault: Gorebound Felcaster
+			--90409,		-- Hellfire Assault: Gorebound Felcaster
 			93717,		-- Iron Reaver: Volatile Firebomb
 			91368,		-- Kormrok: Crushing Hand
+			93830,		-- Hellfire Assault: Iron Dragoon
+			90114,		-- Hellfire Assault: Iron Dragoon
 		}
 		if checkUnit == nil then return false end
 		-- check unitID
