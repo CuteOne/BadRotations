@@ -10,9 +10,9 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					
 					-- cascade
 					if getSpellCD(self.spell.cascade) <= 0 then
-						--if self.enemies.active_enemies_40 > 5 then
+						if isUnitThere(93830,40) or isUnitThere(90114,40) then
 							if self.castCascadeBiggestCluster() then return end
-						--end
+						end
 					end
 				end
 
@@ -62,7 +62,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- cascade
 					if getSpellCD(self.spell.cascade) <= 0 then
 						if getNumEnemies("player",40) >= 4 then
-							if getEnemies(getBiggestUnitCluster(40,40),40) >= 4 then
+							if #getEnemies(getBiggestUnitCluster(40,40),40) >= 4 then
 								if self.castCascadeBiggestCluster() then return end
 							end
 						end
