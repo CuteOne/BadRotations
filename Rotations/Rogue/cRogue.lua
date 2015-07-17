@@ -17,8 +17,9 @@ function cRogue:new(spec)
 	self.stealth		 = false
 	self.rogueSpell = {
 		-- Buff
-		anticipation   = 114015, -- TODO: charges ?
-		sliceAndDice   = 5171,
+		anticipation     = 114015,
+        anticipationBuff = 115189,
+		sliceAndDice     = 5171,
 		-- Defensive
 		cloakOfShadows = 31224,
 		evasion        = 5277,
@@ -74,7 +75,7 @@ function cRogue:new(spec)
 
 -- Buff updates
 	function self.getClassBuffs()
-		local getBuffRemain,getCharges = getBuffRemain,getCharges
+		local getBuffRemain = getBuffRemain
 
 		self.buff.cloakOfShadows   = getBuffRemain(player,self.spell.cloakOfShadows)
 		self.buff.deadlyPoison     = getBuffRemain(player,self.spell.deadlyPoison)
@@ -88,7 +89,7 @@ function cRogue:new(spec)
 		self.buff.tricksOfTheTrade = getBuffRemain(player,self.spell.tricksOfTheTrade)
 		self.buff.vanish           = getBuffRemain(player,self.spell.vanish)
 
-		self.charges.anticipation  = getCharges(self.spell.anticipation)
+		self.charges.anticipation  = select(4, UnitBuff("player", GetSpellInfo(115189))) or 0
 	end
 
 -- Cooldown updates
@@ -124,30 +125,7 @@ function cRogue:new(spec)
 		self.talent.shadowReflection = isKnown(self.spell.shadowReflection)
 	end
 
--- Class options
--- Options which every Rogue should have
-	function self.classOptions()
-		-- Class Wrap
-		CreateNewWrap(thisConfig, "--- Class Options ---")
 
-		-- Leathal Poison
-		CreateNewCheck(thisConfig, "Lethal");
-		CreateNewDrop(thisConfig, "Lethal",1,"Lethal Poison.","|cffFF8000Wound","|cff13A300Instant");
-		CreateNewText(thisConfig, "Lethal");
-
-		-- Non-Leathal Poison
-		CreateNewCheck(thisConfig, "Non-Lethal");
-		CreateNewDrop(thisConfig, "Non-Lethal",1,"Non-Lethal Poison.","|cff6600FFCrip","|cff00CF1CLeech");
-		CreateNewText(thisConfig, "Non-Lethal");
-
-		-- Poison re-apply timer
-		-- Use poison if X minutes remain
-		CreateNewBox(thisConfig,"Poison remain",5,50,1,10,"How many minutes left until reapply?")
-		CreateNewText(thisConfig, "Poison remain");
-
-		-- Spacer
-		textOp(" ");
-	end
 
 -- Get Class option modes
 	function self.getClassOptions()
@@ -161,12 +139,12 @@ function cRogue:new(spec)
 
 		-------------------
 		--- INFORMATION ---
-		-------------------
-		--- Everybody has Wound Poison hence its always Value 1
-		--- If its not selected Deadly will be used (instant for combat)
-		--- Everybody has Crippling Poison hence its always Value != 2
-		--- If its not selected Leeching will be used
-		-----------------------------------------------------------
+		--------------------------------------------------------------------
+		--- Everybody has Wound Poison hence its always Value 1          ---
+		--- If its not selected Deadly will be used (instant for combat) ---
+		--- Everybody has Crippling Poison hence its always Value != 2   ---
+		--- If its not selected Leeching will be used                    ---
+		--------------------------------------------------------------------
 
 		-- Lethal
 		self.lethalPoison    = getValue("Lethal")
@@ -210,6 +188,38 @@ function cRogue:new(spec)
 	function self.getCrimsonTempestDebuff()
 		return getDebuffRemain("target",self.spell.crimsonTempest)
 	end 
+
+---------------
+--- OPTIONS ---
+---------------
+
+	-- Class options
+	-- Options which every Rogue should have
+	function self.createClassOptions()
+		-- Create Base Options
+		self.createBaseOptions()
+
+		-- Class Wrap
+		CreateNewWrap(thisConfig, "--- Class Options ---")
+
+		-- Leathal Poison
+		CreateNewCheck(thisConfig, "Lethal");
+		CreateNewDrop(thisConfig, "Lethal",1,"Lethal Poison.","|cffFF8000Wound","|cff13A300Instant");
+		CreateNewText(thisConfig, "Lethal");
+
+		-- Non-Leathal Poison
+		CreateNewCheck(thisConfig, "Non-Lethal");
+		CreateNewDrop(thisConfig, "Non-Lethal",1,"Non-Lethal Poison.","|cff6600FFCrip","|cff00CF1CLeech");
+		CreateNewText(thisConfig, "Non-Lethal");
+
+		-- Poison re-apply timer
+		-- Use poison if X minutes remain
+		CreateNewBox(thisConfig,"Poison remain",5,50,1,10,"How many minutes left until reapply?")
+		CreateNewText(thisConfig, "Poison remain");
+
+		-- Spacer
+		CreateNewText(" ");
+	end
 
 --------------
 --- SPELLS ---
