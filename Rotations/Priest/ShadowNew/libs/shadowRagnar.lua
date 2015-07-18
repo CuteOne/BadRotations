@@ -57,6 +57,10 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			ChatOverlay("Q - MINDBENDER")
 			if self.castMindbender("target") then return end
 		end
+		if _Queues[spell.dispersion] == true then
+			ChatOverlay("Q - Dispersion")
+			if self.castDispersion() then return end
+		end
 
 		------------------------------------------------------------------------------------------------------
 		-- Do everytime --------------------------------------------------------------------------------------
@@ -234,7 +238,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				end
 				--40 dump for incoming spirits
 				if orbs >= 3 then
-					if AS.flying >= 3 then
+					if AS.flying >= 2 then
 						--if AS.nextImpactRemaining <= 1.5*gcd then
 							if self.castDP("target") then return end
 						--end
@@ -257,7 +261,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				-- 70 t18_4pc
 				if orbs >= 3 then
 					if set_bonus.tier18_4pc then
-						if buff.premonition > 0 and getDebuffRemain("target",spell.devouring_plague,"player") <= 0 then
+						if buff.premonition > 0 or AS.flying > 2 then
 							if self.castDP("target") then return end
 						end
 					end
@@ -421,42 +425,44 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		--[[ clarity_of_power ]]
 		if talent.clarity_of_power then
 			-- High Priority
-			--S hadow Word: Death
+			-- Shadow Word: Death
 			if self.castSWDAuto("target") then return end
 
 			-- Mind Blast
 			if self.castMindBlast("target") then return end
 
 			-- DP
-			if getDebuffRemain("target",spell.shadow_word_pain,"player") > 0 then
-				if getDebuffRemain("target",spell.vampiric_touch,"player") > 0 then
+			if getDebuffRemain("target",spell.shadow_word_pain,"player") > 0 or not talent.insanity then
+				--if getDebuffRemain("target",spell.vampiric_touch,"player") > 0 or not talent.insanity then
 					if self.castDP("target") then return end
-				end
+				--end
 			end
 			-- Below 20%, Devouring Plague
 			if getHP("target") <= 20 then
 				if self.castDP("target") then return end
 			end
 			-- DoTweave cast sequence
-			if orbs >= 4 then
-				if cd.mind_blast <= gcd then
-					if getDebuffRemain("target",spell.shadow_word_pain,"player") <= 0 then
-						if self.castSWP("target") then return end
+			if talent.insanity then
+				if orbs >= 4 then
+					if cd.mind_blast <= gcd then
+						if getDebuffRemain("target",spell.shadow_word_pain,"player") <= 0 then
+							if self.castSWP("target") then return end
+						end
 					end
 				end
-			end
-			if orbs == 5 then
-				if getDebuffRemain("target",spell.vampiric_touch,"player") <= 0 then
-					if self.castVT("target") then return end
-				end
+				-- if orbs == 5 then
+				-- 	if getDebuffRemain("target",spell.vampiric_touch,"player") <= 0 then
+				-- 		if self.castVT("target") then return end
+				-- 	end
+				-- end
 			end
 			-- Insanity: extend mental fatigue
 			if set_bonus.class_trinket then
 				if buff.insanity > 0 then
-					if getDebuffRemain("target",spell.mental_fatigue,"player") < 3 then
-						if getDebuffRemain("target",spell.mental_fatigue,"player") > 0 then
+					if getDebuffRemain("target",spell.mental_fatigue,"player") < 3 or getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
+						--if getDebuffRemain("target",spell.mental_fatigue,"player") > 0 then
 							if self.castMindFlay("target") then return end
-						end
+						--end
 					end
 				end
 			end
@@ -476,6 +482,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					if self.castPWS("player") then return end
 				end
 			end
+			
 			-- Insanity (only when the Insanity buff is active)
 			if buff.insanity > 0 then
 				if self.castMindFlay("target") then return end

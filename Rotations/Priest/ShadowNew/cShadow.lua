@@ -188,6 +188,7 @@ function cShadow:new()
 					[2944] = 	false,		-- Devouring Plague
 					[34433] = 	false,		-- Shadowfiend
 					[123040] = 	false,		-- Mindbender
+					[47585] = 	false, 		-- Dispersion
 				}
 			--end
 		end
@@ -528,9 +529,11 @@ function cShadow:new()
 			94231,		-- Xhul'horac: Wild Pyromaniac
 			92208,		-- Archimonde: Doomfire Spirit
 			91938,		-- Socrethar: Haunting Soul
-			90409,		-- Hellfire Assault: Gorebound Felcaster
+			--90409,		-- Hellfire Assault: Gorebound Felcaster
 			93717,		-- Iron Reaver: Volatile Firebomb
 			91368,		-- Kormrok: Crushing Hand
+			93830,		-- Hellfire Assault: Iron Dragoon
+			90114,		-- Hellfire Assault: Iron Dragoon
 		}
 		if checkUnit == nil then return false end
 		-- check unitID
@@ -831,9 +834,10 @@ function cShadow:new()
 						if getDebuffRemain(thisUnit,self.spell.shadow_word_pain,"player") <= 18*0.3 then
 							if distance < 40 then
 								if hp >= self.options.rotation.min_health.value then
-									if castSpell(thisUnit,self.spell.shadow_word_pain,true,false) then
-										return true
-									end
+									return castSpell(thisUnit,self.spell.shadow_word_pain,true,false)
+									-- if castSpell(thisUnit,self.spell.shadow_word_pain,true,false) then
+									-- 	return true
+									-- end
 								end
 							end
 						end
@@ -871,18 +875,20 @@ function cShadow:new()
 			if self.getVT() < maxTargets then
 				for i=1,#enemiesTable do
 					local thisUnit = enemiesTable[i].unit
+					local thisUnitGUID = enemiesTable[i].guid
 					local hp = enemiesTable[i].hpabs
 					local distance = enemiesTable[i].distance
 					local lastVTTarget = lastVTTarget
 					local lastVTTime = lastVTTime
-					if thisUnit ~= lastVTTarget and lastVTTime < GetTime() then
+					if thisUnitGUID ~= lastVTTarget or lastVTTime+2 < GetTime() then
 						if self.safeDoT(thisUnit) and self.safeVT(thisUnit) and UnitIsTappedByPlayer(thisUnit) then
 							if getDebuffRemain(thisUnit,self.spell.vampiric_touch,"player") <= 15*0.3+(0.001*select(4,GetSpellInfo(34914))) then
 								if distance < 40 then
 									if hp >= self.options.rotation.min_health.value then
-										if castSpell(thisUnit,self.spell.vampiric_touch,true,true) then
-											return true
-										end
+										return castSpell(thisUnit,self.spell.vampiric_touch,true,true)
+										-- if castSpell(thisUnit,self.spell.vampiric_touch,true,true) then
+										-- 	return true
+										-- end
 									end
 								end
 							end
