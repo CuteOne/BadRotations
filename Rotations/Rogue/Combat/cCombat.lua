@@ -10,6 +10,9 @@ function cCombat:new()
 
 	local player = "player" -- if someone forgets ""
 
+-----------------
+--- VARIABLES ---
+-----------------
 	self.enemies = {
 		yards5,
 		yards8,
@@ -30,15 +33,30 @@ function cCombat:new()
 		-- Poison
 		instantPoison   = 157584,
 	}
-	self.rotation = 1
 	-- Merge all spell tables into self.spell
 	self.spell = {}
 	self.spell = mergeSpellTables(self.spell, self.characterSpell, self.rogueSpell, self.combatSpell)
 	
+------------------
+--- OOC UPDATE ---
+------------------
+	function self.updateOOC()
+		-- Call classUpdateOOC()
+		self.classUpdateOOC()
 
--- Update 
+		self.getGlyphs()
+		self.getTalents()
+	end
+
+--------------
+--- UPDATE ---
+--------------
 	function self.update()
+		-- Call Base and Class update
 		self.classUpdate()
+		-- Updates OOC things
+		if not UnitAffectingCombat("player") then self.updateOOC() end
+
 		self.getBuffs()
 		self.getCooldowns()
 		self.getDynamicUnits()
@@ -58,16 +76,9 @@ function cCombat:new()
 		self:startRotation()
 	end
 
--- Update OOC
-	function self.updateOOC()
-		-- Call classUpdateOOC()
-		self.classUpdateOOC()
-
-		self.getGlyphs()
-		self.getTalents()
-	end
-
--- Buff updates
+-------------
+--- BUFFS ---
+-------------
 	function self.getBuffs()
 		local getBuffRemain,UnitBuffID = getBuffRemain,UnitBuffID
 
@@ -78,7 +89,17 @@ function cCombat:new()
 		self.buff.killingSpree   = getBuffRemain(player,self.spell.killingSpree)
 	end
 
--- Cooldown updates
+---------------
+--- DEBUFFS ---
+---------------
+	-- Revealing Strike Debuff
+	function self.getRevealingStrikeDebuff()
+		return getDebuffRemain("target",self.spell.revealingStrike)
+	end
+
+-----------------
+--- COOLDOWNS ---
+-----------------
 	function self.getCooldowns()
 		local getSpellCD = getSpellCD
 
@@ -87,21 +108,27 @@ function cCombat:new()
 		self.cd.killingSpree   = getSpellCD(self.spell.killingSpree)
 	end
 
--- Glyph updates
+--------------
+--- GLYPHS ---
+--------------
 	function self.getGlyphs()
 		--local hasGlyph = hasGlyph
 
 		--self.glyph.   = hasGlyph()
 	end
 
--- Talent updates
+---------------
+--- TALENTS ---
+---------------
 	function self.getTalents()
 		--local isKnown = isKnown
 
 		--self.talent. = isKnown(self.spell.)
 	end
 
--- Update Dynamic units
+---------------------
+--- DYNAMIC UNITS ---
+---------------------
 	function self.getDynamicUnits()
 		local dynamicTarget = dynamicTarget
 
@@ -113,7 +140,9 @@ function cCombat:new()
 
 	end
 
--- Update Number of Enemies around player
+---------------
+--- ENEMIES ---
+---------------
 	function self.getEnemies()
 		local getEnemies = getEnemies
 
@@ -124,7 +153,9 @@ function cCombat:new()
 	end
 
 
--- Starts rotation, uses default if no other specified; starts if inCombat == true
+----------------------
+--- START ROTATION ---
+----------------------
 	function self.startRotation()
 		if self.rotation == 1 then
 			self:combatSimC()
@@ -134,16 +165,111 @@ function cCombat:new()
 		end
 	end
 
--- Revealing Strike Debuff
-	function self.getRevealingStrikeDebuff()
-		return getDebuffRemain("target",self.spell.revealingStrike)
-	end 
+---------------
+--- OPTIONS ---
+---------------
+	function self.createOptions()
+		thisConfig = 0
 
----------------------------------------------------------------
--------------------- Spell functions --------------------------
----------------------------------------------------------------
+		-- Title
+		CreateNewTitle(thisConfig,"Combat Defmaster")
 
--- Adrenaline Rush
+		-- Create Base and Class options
+		self.createClassOptions()
+
+		-- Combat options
+		CreateNewWrap(thisConfig,"--- General ---");
+
+		-- Rotation
+		CreateNewDrop(thisConfig,"Rotation",1,"Select Rotation.","|cff00FF00SimC");
+		CreateNewText(thisConfig,"Rotation");
+
+		-- Dummy DPS Test
+		--CreateNewCheck(thisConfig,"DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.");
+		--CreateNewBox(thisConfig,"DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+		--CreateNewText(thisConfig,"DPS Testing");
+
+		-- Stealth Timer
+		CreateNewCheck(thisConfig,"Stealth Timer");
+		CreateNewBox(thisConfig,"Stealth Timer", 0, 2, 0.25, 1, "|cffFFBB00How long to wait(seconds) before using \n|cffFFFFFFStealth.");
+		CreateNewText(thisConfig,"Stealth Timer");
+
+		-- Stealth
+		CreateNewCheck(thisConfig,"Stealth");
+		CreateNewDrop(thisConfig,"Stealth",1,"Stealthing method.","|cff00FF00Always","|cffFFDD00PrePot","|cffFF000020Yards");
+		CreateNewText(thisConfig,"Stealth");
+
+		-- Spacer
+		CreateNewText(thisConfig," ");
+		CreateNewWrap(thisConfig,"--- Cooldowns ---");
+
+		-- Agi Pot
+		--CreateNewCheck(thisConfig,"Agi-Pot");
+		--CreateNewText(thisConfig,"Agi-Pot");
+
+		-- Vanish
+		CreateNewCheck(thisConfig,"Vanish","Enable or Disable usage of Vanish.");
+		CreateNewDrop(thisConfig,"Vanish",2,"CD")
+		CreateNewText(thisConfig,"Vanish");
+
+		-- Adrenaline Rush
+		CreateNewCheck(thisConfig,"Adrenaline Rush","Enable or Disable usage of Adrenaline Rush.");
+		CreateNewDrop(thisConfig,"Adrenaline Rush",2,"CD")
+		CreateNewText(thisConfig,"Adrenaline Rush");
+
+		-- Killing Spree
+		CreateNewCheck(thisConfig,"Killing Spree","Enable or Disable usage of Killing Spree.");
+		CreateNewDrop(thisConfig,"Killing Spree",2,"CD")
+		CreateNewText(thisConfig,"Killing Spree");
+
+		-- Blade Flurry
+		CreateNewCheck(thisConfig,"Blade Flurry","Enable or Disable usage of Blade Flurry.",1);
+		CreateNewText(thisConfig,"Blade Flurry");
+
+		-- Spacer
+		CreateNewText(thisConfig," ");
+		CreateNewWrap(thisConfig,"--- Defensive ---");
+
+		-- Healthstone
+		--CreateNewCheck(thisConfig,"Pot/Stoned");
+		--CreateNewBox(thisConfig,"Pot/Stoned", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
+		--CreateNewText(thisConfig,"Pot/Stoned");
+
+		-- Spacer
+		CreateNewText(thisConfig," ");
+		CreateNewWrap(thisConfig,"--- Toggle Keys ---");
+
+		-- Single/Multi Toggle
+		CreateNewCheck(thisConfig,"Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.");
+		CreateNewDrop(thisConfig,"Rotation Mode", 4, "Toggle")
+		CreateNewText(thisConfig,"Rotation Mode");
+
+		--Cooldown Key Toggle
+		CreateNewCheck(thisConfig,"Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.");
+		CreateNewDrop(thisConfig,"Cooldown Mode", 3, "Toggle")
+		CreateNewText(thisConfig,"Cooldowns")
+
+		--Defensive Key Toggle
+		CreateNewCheck(thisConfig,"Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.");
+		CreateNewDrop(thisConfig,"Defensive Mode", 6, "Toggle")
+		CreateNewText(thisConfig,"Defensive")
+
+		--Interrupts Key Toggle
+		CreateNewCheck(thisConfig,"Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.");
+		CreateNewDrop(thisConfig,"Interrupt Mode", 6, "Toggle")
+		CreateNewText(thisConfig,"Interrupts")
+
+
+		-- General Configs
+		CreateGeneralsConfig();
+
+		WrapsManager();
+	end
+
+--------------
+--- SPELLS ---
+--------------
+	-- Adrenaline Rush
 	function self.castAdrenalineRush()
 		if isSelected("Adrenaline Rush") then
 			if (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4*UnitHealthMax("player"))) then
@@ -155,11 +281,11 @@ function cCombat:new()
 		return false
 	end
 
--- Killing Spree
+	-- Killing Spree
 	function self.castKillingSpree()
 		if isSelected("Killing Spree") then
 			if (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4*UnitHealthMax("player"))) then
-				if castSpell("target",self.spell.killingSpree,false,false) then
+				if castSpell(self.units.dyn5,self.spell.killingSpree,false,false) then
 					return true
 				end
 			end
@@ -167,7 +293,7 @@ function cCombat:new()
 		return false
 	end
 
--- Blade Flurry
+	-- Blade Flurry
 	function self.castBladeFlurry()
 		if isChecked("Blade Flurry") and self.mode.bladeFlurry ~= 1 then
 			if castSpell("player",self.spell.bladeFlurry,true,false) then
@@ -175,20 +301,33 @@ function cCombat:new()
 			end
 		end
 		return false
-	end
+    end
 
--- Revealing Strike
+    -- Cancel Blade Flurry
+    function self.cancelBladeFlurry()
+        if isChecked("Blade Flurry") and self.mode.bladeFlurry ~= 1 then
+            CancelUnitBuff("player", buff.bladeFlurry )
+        end
+    end
+
+	-- Revealing Strike
 	function self.castRevealingStrike()
 		return castSpell(self.units.dyn5,self.spell.revealingStrike,false,false) == true or false
 	end
 
--- Sinister Strike
+	-- Sinister Strike
 	function self.castSinisterStrike()
 		return castSpell(self.units.dyn5,self.spell.sinisterStrike,false,false) == true or false
 	end
 
+-----------------------------
+--- CALL CREATE FUNCTIONS ---
+-----------------------------
+
+	self.createOptions()
+
 
 -- Return
 	return self
-end
-end
+end -- cCombat
+end -- select Rogue

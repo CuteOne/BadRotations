@@ -14,11 +14,13 @@ function cRogue:new(spec)
 	self.lethalPoison    = nil
 	self.nonLethalPoison = nil
 	self.poisonTimer     = 10
+    self.powerRegen      = getRegen("player")
 	self.stealth		 = false
 	self.rogueSpell = {
 		-- Buff
-		anticipation   = 114015, -- TODO: charges ?
-		sliceAndDice   = 5171,
+		anticipation     = 114015,
+        anticipationBuff = 115189,
+		sliceAndDice     = 5171,
 		-- Defensive
 		cloakOfShadows = 31224,
 		evasion        = 5277,
@@ -36,6 +38,7 @@ function cRogue:new(spec)
 		shadowReflection = 152151,
 		shiv             = 5938,
 		-- Misc
+        pickPocket       = 921,
 		preparation      = 14185,
 		tricksOfTheTrade = 57934,
 		-- Poison
@@ -56,6 +59,9 @@ function cRogue:new(spec)
 		-- Update Combo Points
 		self.comboPoints = GetComboPoints("player")
 
+        -- Update Energy Regeneration
+        self.powerRegen  = getRegen("player")
+
 		-- Stealth
 		self.stealth = GetShapeshiftForm() == 1
 	end
@@ -74,7 +80,7 @@ function cRogue:new(spec)
 
 -- Buff updates
 	function self.getClassBuffs()
-		local getBuffRemain,getCharges = getBuffRemain,getCharges
+		local getBuffRemain = getBuffRemain
 
 		self.buff.cloakOfShadows   = getBuffRemain(player,self.spell.cloakOfShadows)
 		self.buff.deadlyPoison     = getBuffRemain(player,self.spell.deadlyPoison)
@@ -88,7 +94,7 @@ function cRogue:new(spec)
 		self.buff.tricksOfTheTrade = getBuffRemain(player,self.spell.tricksOfTheTrade)
 		self.buff.vanish           = getBuffRemain(player,self.spell.vanish)
 
-		self.charges.anticipation  = getCharges(self.spell.anticipation)
+		self.charges.anticipation  = select(4, UnitBuff("player", GetSpellInfo(115189))) or 0
 	end
 
 -- Cooldown updates
@@ -109,9 +115,9 @@ function cRogue:new(spec)
 
 -- Glyph updates
 	function self.getClassGlyphs()
-		--local hasGlyph = hasGlyph
+		local hasGlyph = hasGlyph
 
-		--self.glyph.   = hasGlyph()
+		self.glyph.pickPocket   = hasGlyph(58017)
 	end
 
 -- Talent updates
@@ -124,30 +130,7 @@ function cRogue:new(spec)
 		self.talent.shadowReflection = isKnown(self.spell.shadowReflection)
 	end
 
--- Class options
--- Options which every Rogue should have
-	function self.classOptions()
-		-- Class Wrap
-		CreateNewWrap(thisConfig, "--- Class Options ---")
 
-		-- Leathal Poison
-		CreateNewCheck(thisConfig, "Lethal");
-		CreateNewDrop(thisConfig, "Lethal",1,"Lethal Poison.","|cffFF8000Wound","|cff13A300Instant");
-		CreateNewText(thisConfig, "Lethal");
-
-		-- Non-Leathal Poison
-		CreateNewCheck(thisConfig, "Non-Lethal");
-		CreateNewDrop(thisConfig, "Non-Lethal",1,"Non-Lethal Poison.","|cff6600FFCrip","|cff00CF1CLeech");
-		CreateNewText(thisConfig, "Non-Lethal");
-
-		-- Poison re-apply timer
-		-- Use poison if X minutes remain
-		CreateNewBox(thisConfig,"Poison remain",5,50,1,10,"How many minutes left until reapply?")
-		CreateNewText(thisConfig, "Poison remain");
-
-		-- Spacer
-		textOp(" ");
-	end
 
 -- Get Class option modes
 	function self.getClassOptions()
@@ -161,12 +144,12 @@ function cRogue:new(spec)
 
 		-------------------
 		--- INFORMATION ---
-		-------------------
-		--- Everybody has Wound Poison hence its always Value 1
-		--- If its not selected Deadly will be used (instant for combat)
-		--- Everybody has Crippling Poison hence its always Value != 2
-		--- If its not selected Leeching will be used
-		-----------------------------------------------------------
+		--------------------------------------------------------------------
+		--- Everybody has Wound Poison hence its always Value 1          ---
+		--- If its not selected Deadly will be used (instant for combat) ---
+		--- Everybody has Crippling Poison hence its always Value != 2   ---
+		--- If its not selected Leeching will be used                    ---
+		--------------------------------------------------------------------
 
 		-- Lethal
 		self.lethalPoison    = getValue("Lethal")
@@ -211,6 +194,38 @@ function cRogue:new(spec)
 		return getDebuffRemain("target",self.spell.crimsonTempest)
 	end 
 
+---------------
+--- OPTIONS ---
+---------------
+
+	-- Class options
+	-- Options which every Rogue should have
+	function self.createClassOptions()
+		-- Create Base Options
+		self.createBaseOptions()
+
+		-- Class Wrap
+		CreateNewWrap(thisConfig, "--- Class Options ---")
+
+		-- Leathal Poison
+		CreateNewCheck(thisConfig, "Lethal");
+		CreateNewDrop(thisConfig, "Lethal",1,"Lethal Poison.","|cffFF8000Wound","|cff13A300Instant");
+		CreateNewText(thisConfig, "Lethal");
+
+		-- Non-Leathal Poison
+		CreateNewCheck(thisConfig, "Non-Lethal");
+		CreateNewDrop(thisConfig, "Non-Lethal",1,"Non-Lethal Poison.","|cff6600FFCrip","|cff00CF1CLeech");
+		CreateNewText(thisConfig, "Non-Lethal");
+
+		-- Poison re-apply timer
+		-- Use poison if X minutes remain
+		CreateNewBox(thisConfig,"Poison remain",5,50,1,10,"How many minutes left until reapply?")
+		CreateNewText(thisConfig, "Poison remain");
+
+		-- Spacer
+		CreateNewText(" ");
+	end
+
 --------------
 --- SPELLS ---
 --------------
@@ -242,7 +257,55 @@ function cRogue:new(spec)
 		if self.talent.markedForDeath then
 			return castSpell(self.units.dyn30,self.spell.markedForDeath,false,false) == true or false
 		end
-	end
+    end
+
+-- Pick Pocket
+    -- TODO: improve pick pocket, does not always loot correctly
+    function self.canPickPocket() --Pick Pocket Toggle State
+        if BadBoy_data['Picker'] == 1 or BadBoy_data['Picker'] == 2 then
+            return true
+        else
+            return false
+        end
+    end
+
+   --function self.noattack() --Pick Pocket Toggle State
+   --    if BadBoy_data['Picker'] == 2 then
+   --        return true
+   --    else
+   --        return false
+   --    end
+   --end
+
+    function self.isPicked()	--	Pick Pocket Testing
+        if GetObjectExists("target") then
+            if myTarget ~= UnitGUID("target") then
+                canPickpocket = true
+                myTarget = UnitGUID("target")
+            end
+        end
+        if (canPickpocket == false or BadBoy_data['Picker'] == 3 or GetNumLootItems() > 0) then
+            return true
+        else
+            return false
+        end
+    end
+
+    function self.getPickPocketRange()
+        if self.glyph.pickPocket then
+            return 10
+        else
+            return 5
+        end
+    end
+
+    function self.castPickPocket()
+        local targetDistance = getRealDistance("player", "target")
+        if self.canPickPocket() and not self.isPicked() and targetDistance < self.getPickPocketRange()
+        then
+            if castSpell("target",self.spell.pickPocket,true,false,false) then return end
+        end
+    end
 
 -- Preparation
 	function self.castPreparation()
