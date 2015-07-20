@@ -142,7 +142,7 @@ function cCombat:combatSimC()
 	if (enemies.yards8 >= 2 and buff.bladeFlurry == nil ) then
 		self:castBladeFlurry()
 	elseif (enemies.yards8 < 2 and buff.bladeFlurry ~= nil) then
-		CancelUnitBuff("player", buff.bladeFlurry ) -- as sometimes just using again does not work
+		self.cancelBladeFlurry() -- as sometimes just using again does not work
 	end
 
 	-- actions+=/shadow_reflection,if=(cooldown.killing_spree.remains<10&combo_points>3)|buff.adrenaline_rush.up

@@ -2,6 +2,9 @@ if select(3, UnitClass("player")) == 2 then
   function PaladinProtection()
     -- Init if this is the first time we are running.
     if currentConfig ~= "Protection Gabbz & CML" then
+      -- TEMP !
+      protPaladin = cPaladin:new("Protection")
+      --- TEMP
       PaladinProtToggles()
       PaladinProtOptions()
       if not (core and core.profile == "Protection") then
@@ -9,6 +12,7 @@ if select(3, UnitClass("player")) == 2 then
       end
       core:ooc()
       core:update()
+
       currentConfig = "Protection Gabbz & CML"
     end
 
@@ -37,11 +41,13 @@ if select(3, UnitClass("player")) == 2 then
       core:ooc()
     end
 
+    protPaladin:classUpdate()
+
     -- Buffs logic
     core:castBuffs()
 
     -- Only start if we and target is in combat or not in combat and pressing left control
-    if UnitAffectingCombat("player") --[[ or (not UnitAffectingCombat("player") and IsLeftControlKeyDown() )]] then
+    if UnitAffectingCombat("player") or protPaladin.inCombat --[[ or (not UnitAffectingCombat("player") and IsLeftControlKeyDown() )]] then
 
       -- actions=auto_attack
       if startAttackTimer == nil or startAttackTimer <= GetTime() - 1 then

@@ -14,6 +14,7 @@ function cRogue:new(spec)
 	self.lethalPoison    = nil
 	self.nonLethalPoison = nil
 	self.poisonTimer     = 10
+    self.powerRegen      = getRegen("player")
 	self.stealth		 = false
 	self.rogueSpell = {
 		-- Buff
@@ -37,6 +38,7 @@ function cRogue:new(spec)
 		shadowReflection = 152151,
 		shiv             = 5938,
 		-- Misc
+        pickPocket       = 921,
 		preparation      = 14185,
 		tricksOfTheTrade = 57934,
 		-- Poison
@@ -56,6 +58,9 @@ function cRogue:new(spec)
 
 		-- Update Combo Points
 		self.comboPoints = GetComboPoints("player")
+
+        -- Update Energy Regeneration
+        self.powerRegen  = getRegen("player")
 
 		-- Stealth
 		self.stealth = GetShapeshiftForm() == 1
@@ -110,9 +115,9 @@ function cRogue:new(spec)
 
 -- Glyph updates
 	function self.getClassGlyphs()
-		--local hasGlyph = hasGlyph
+		local hasGlyph = hasGlyph
 
-		--self.glyph.   = hasGlyph()
+		self.glyph.pickPocket   = hasGlyph(58017)
 	end
 
 -- Talent updates
@@ -252,7 +257,55 @@ function cRogue:new(spec)
 		if self.talent.markedForDeath then
 			return castSpell(self.units.dyn30,self.spell.markedForDeath,false,false) == true or false
 		end
-	end
+    end
+
+-- Pick Pocket
+    -- TODO: improve pick pocket, does not always loot correctly
+    function self.canPickPocket() --Pick Pocket Toggle State
+        if BadBoy_data['Picker'] == 1 or BadBoy_data['Picker'] == 2 then
+            return true
+        else
+            return false
+        end
+    end
+
+   --function self.noattack() --Pick Pocket Toggle State
+   --    if BadBoy_data['Picker'] == 2 then
+   --        return true
+   --    else
+   --        return false
+   --    end
+   --end
+
+    function self.isPicked()	--	Pick Pocket Testing
+        if GetObjectExists("target") then
+            if myTarget ~= UnitGUID("target") then
+                canPickpocket = true
+                myTarget = UnitGUID("target")
+            end
+        end
+        if (canPickpocket == false or BadBoy_data['Picker'] == 3 or GetNumLootItems() > 0) then
+            return true
+        else
+            return false
+        end
+    end
+
+    function self.getPickPocketRange()
+        if self.glyph.pickPocket then
+            return 10
+        else
+            return 5
+        end
+    end
+
+    function self.castPickPocket()
+        local targetDistance = getRealDistance("player", "target")
+        if self.canPickPocket() and not self.isPicked() and targetDistance < self.getPickPocketRange()
+        then
+            if castSpell("target",self.spell.pickPocket,true,false,false) then return end
+        end
+    end
 
 -- Preparation
 	function self.castPreparation()

@@ -1981,12 +1981,32 @@ function toggleTrueNil(var)
 	end
 end
 -- useItem(12345)
-function useItem(itemID)
+function useItem_old(itemID)
 	if GetItemCount(itemID) > 0 then
 		if select(2,GetItemCooldown(itemID))==0 then
 			local itemName = GetItemInfo(itemID)
 			RunMacroText("/use "..itemName)
 			return true
+		end
+	end
+	return false
+end
+-- useItem(12345)
+function useItem(itemID)
+	--Anti-Spam--
+	local spamDelayTime = 1
+	if spamDelay == nil then
+	 spamDelay = GetTime()
+	end
+
+	if GetItemCount(itemID) > 0 then
+		if select(2,GetItemCooldown(itemID))==0 then
+			if GetTime() > spamDelay then
+				local itemName = GetItemInfo(itemID)
+				UseItemByName(select(1,UseItemByName(itemID)))
+				spamDelay = GetTime() + spamDelayTime 
+				return true
+			end
 		end
 	end
 	return false
@@ -2123,181 +2143,181 @@ end
 
 -- if TierScan("T17")>=2 then
 function TierScan(thisTier)
-    local equippedItems = 0;
-    local myClass = select(2,UnitClass("player"));
-    local thisTier = string.upper(thisTier);
-    local sets = {
-        ["T17"] = {
-            ["DRUID"] = {
-                115540, -- chest
-                115541, -- hands
-                115542, -- head
-                115543, -- legs
-                115544, -- shoulder
-            },
-            ["DEATH KNIGHT"] = {
-                115535, -- legs
-                115536, -- shoulder
-                115537, -- chest
-                115538, -- hands
-                115539, -- head
-            },
-            ["HUNTER"] = {
-                115545, -- head
-                115546, -- legs
-                115547, -- shoulder
-                115548, -- chest
-                115549, -- hands
-            },
-            ["MAGE"] = {
-                115550, -- chest
-                115551, -- shoulder
-                155552, -- hands
-                155553, -- head
-                155554, -- legs
-            },
-            ["MONK"] = {
-                115555, -- hands
-                115556, -- head
-                115557, -- legs
-                115558, -- chest
-                115559, -- shoulder
-            },
-            ["PALADIN"] = {
-                115565, -- shoulder
-                115566, -- chest
-                115567, -- hands
-                115568, -- head
-                115569, -- legs
-            },
-            ["PRIEST"] = {
-                115560, -- chest
-                115561, -- shoulder
-                115562, -- hands
-                115563, -- head
-                115564, -- legs
-            },
-            ["ROGUE"] = {
-                115570, -- chest
-                115571, -- hands
-                115572, -- head
-                115573, -- legs
-                115574, -- shoulder
-            },
-            ["SHAMAN"] = {
-                115575, -- legs
-                115576, -- shoulder
-                115577, -- chest
-                115578, -- hands
-                115579, -- head
-            },
-            ["WARLOCK"] = {
-                115585, -- hands
-                115586, -- head
-                115587, -- legs
-                115588, -- chest
-                115589, -- shoulder
-            },
-            ["WARRIOR"] = {
-                115580, -- legs
-                115581, -- shoulder
-                115582, -- chest
-                115583, -- hands
-                115584, -- head
-            },
-        },
-        ["T18"] = {
-            ["DRUID"] = {
+	local equippedItems = 0;
+	local myClass = select(2,UnitClass("player"));
+	local thisTier = string.upper(thisTier);
+	local sets = {
+		["T17"] = {
+			["DRUID"] = {
+				115540, -- chest
+				115541, -- hands
+				115542, -- head
+				115543, -- legs
+				115544, -- shoulder
+			},
+			["DEATH KNIGHT"] = {
+				115535, -- legs
+				115536, -- shoulder
+				115537, -- chest
+				115538, -- hands
+				115539, -- head
+			},
+			["HUNTER"] = {
+				115545, -- head
+				115546, -- legs
+				115547, -- shoulder
+				115548, -- chest
+				115549, -- hands
+			},
+			["MAGE"] = {
+				115550, -- chest
+				115551, -- shoulder
+				155552, -- hands
+				155553, -- head
+				155554, -- legs
+			},
+			["MONK"] = {
+				115555, -- hands
+				115556, -- head
+				115557, -- legs
+				115558, -- chest
+				115559, -- shoulder
+			},
+			["PALADIN"] = {
+				115565, -- shoulder
+				115566, -- chest
+				115567, -- hands
+				115568, -- head
+				115569, -- legs
+			},
+			["PRIEST"] = {
+				115560, -- chest
+				115561, -- shoulder
+				115562, -- hands
+				115563, -- head
+				115564, -- legs
+			},
+			["ROGUE"] = {
+				115570, -- chest
+				115571, -- hands
+				115572, -- head
+				115573, -- legs
+				115574, -- shoulder
+			},
+			["SHAMAN"] = {
+				115575, -- legs
+				115576, -- shoulder
+				115577, -- chest
+				115578, -- hands
+				115579, -- head
+			},
+			["WARLOCK"] = {
+				115585, -- hands
+				115586, -- head
+				115587, -- legs
+				115588, -- chest
+				115589, -- shoulder
+			},
+			["WARRIOR"] = {
+				115580, -- legs
+				115581, -- shoulder
+				115582, -- chest
+				115583, -- hands
+				115584, -- head
+			},
+		},
+		["T18"] = {
+			["DRUID"] = {
 				124246, -- chest
 				124255, -- hands
 				124261, -- head
 				124267, -- legs
 				124272, -- shoulder
-            },
-            ["DEATH KNIGHT"] = {
+			},
+			["DEATH KNIGHT"] = {
 				124317, -- chest
 				124327, -- hands
 				124332, -- head
 				124338, -- legs
 				124344, -- shoulder
-            },
-            ["HUNTER"] = {
+			},
+			["HUNTER"] = {
 				124284, -- chest
 				124292, -- hands
 				124296, -- head
 				124301, -- legs
 				124307, -- shoulder
-            },
-            ["MAGE"] = {
+			},
+			["MAGE"] = {
 				124171, -- chest
 				124154, -- hands
 				124160, -- head
 				124165, -- legs
 				124177, -- shoulder
-            },
-            ["MONK"] = {
+			},
+			["MONK"] = {
 				124247, -- chest
 				124256, -- hands
 				124262, -- head
 				124268, -- legs
 				124273, -- shoulder
-            },
-            ["PALADIN"] = {
+			},
+			["PALADIN"] = {
 				124318, -- chest
 				124328, -- hands
 				124333, -- head
 				124339, -- legs
 				124345, -- shoulder
-            },
-            ["PRIEST"] = {
+			},
+			["PRIEST"] = {
 				124172, -- chest
 				124155, -- hands
 				124161, -- head
 				124166, -- legs
 				124178, -- shoulder
-            },
-            ["ROGUE"] = {
+			},
+			["ROGUE"] = {
 				124248, -- chest
 				124257, -- hands
 				124263, -- head
 				124269, -- legs
 				124274, -- shoulder
-            },
-            ["SHAMAN"] = {
+			},
+			["SHAMAN"] = {
 				124303, -- chest
 				124293, -- hands
 				124297, -- head
 				124302, -- legs
 				124308, -- shoulder
-            },
-            ["WARLOCK"] = {
+			},
+			["WARLOCK"] = {
 				124173, -- chest
 				124156, -- hands
 				124162, -- head
 				124167, -- legs
 				124179, -- shoulder
-            },
-            ["WARRIOR"] = {
+			},
+			["WARRIOR"] = {
 				124319, -- chest
 				124329, -- hands
 				124334, -- head
 				124340, -- legs
 				124346, -- shoulder
-            },
-        },
-    }
-    -- scan every items
-    for i=1, 19 do
-        -- if there is an item in that slot
-        if GetInventoryItemID("player", i) ~= nil then
-            -- compare to items in our items list
-            for j = 1, 5 do
-            	--print(sets[thisTier][myClass][j]) 
-                if GetItemInfo(GetInventoryItemID("player", i)) == GetItemInfo(sets[thisTier][myClass][j]) then
-                    equippedItems = equippedItems + 1;
-                end
-            end
-        end
-    end
-    return equippedItems;
+			},
+		},
+	}
+	-- scan every items
+	for i=1, 19 do
+		-- if there is an item in that slot
+		if GetInventoryItemID("player", i) ~= nil then
+			-- compare to items in our items list
+			for j = 1, 5 do
+				--print(sets[thisTier][myClass][j]) 
+				if GetItemInfo(GetInventoryItemID("player", i)) == GetItemInfo(sets[thisTier][myClass][j]) then
+					equippedItems = equippedItems + 1;
+				end
+			end
+		end
+	end
+	return equippedItems;
 end

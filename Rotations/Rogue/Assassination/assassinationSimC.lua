@@ -3,9 +3,9 @@
 -- Released on 15 July 2015
 if select(2, UnitClass("player")) == "ROGUE" then
 
-    function cCombat:combatSimC()
+    function cAssassination:assassinationSimC()
         -- Locals
-        local player, comboPoints, recharge, stealth, power = "player", self.comboPoints, self.recharge, self.stealth, self.power
+        local player, comboPoints, recharge, stealth, power, powerRegen = "player", self.comboPoints, self.recharge, self.stealth, self.power, self.powerRegen
         local buff, debuff, cd, mode, talent, glyph, gcd = self.buff, self.debuff, self.cd, self.mode, self.talent, self.glyph, self.gcd
         local isChecked, enemies, units, eq, charges, getCombatTime = isChecked, self.enemies, self.units, self.eq, self.charges, getCombatTime
         local lastSpellCast, getTimeToDie, UnitExists = lastSpellCast, getTimeToDie, UnitExists
@@ -18,29 +18,61 @@ if select(2, UnitClass("player")) == "ROGUE" then
         --------------------
 
         --- # Combo point generators
-        -- actions.generators=dispatch,cycle_targets=1,if=dot.deadly_poison_dot.remains<4&talent.anticipation.enabled&((anticipation_charges<4&set_bonus.tier18_4pc=0)|(anticipation_charges<2&set_bonus.tier18_4pc=1))
-        -- actions.generators+=/dispatch,cycle_targets=1,if=dot.deadly_poison_dot.remains<4&!talent.anticipation.enabled&combo_points<5&set_bonus.tier18_4pc=0
-        -- actions.generators+=/dispatch,cycle_targets=1,if=dot.deadly_poison_dot.remains<4&!talent.anticipation.enabled&set_bonus.tier18_4pc=1&(combo_points<2|target.health.pct<35)
-        -- actions.generators+=/dispatch,if=talent.anticipation.enabled&((anticipation_charges<4&set_bonus.tier18_4pc=0)|(anticipation_charges<2&set_bonus.tier18_4pc=1))
-        -- actions.generators+=/dispatch,if=!talent.anticipation.enabled&combo_points<5&set_bonus.tier18_4pc=0
-        -- actions.generators+=/dispatch,if=!talent.anticipation.enabled&set_bonus.tier18_4pc=1&(combo_points<2|target.health.pct<35)
-        -- actions.generators+=/mutilate,cycle_targets=1,if=dot.deadly_poison_dot.remains<4&target.health.pct>35&(combo_points<5|(talent.anticipation.enabled&anticipation_charges<3))
-        -- actions.generators+=/mutilate,if=target.health.pct>35&(combo_points<5|(talent.anticipation.enabled&anticipation_charges<3))
-        -- actions.generators+=/preparation,if=(cooldown.vanish.remains>50|!glyph.disappearance.enabled&cooldown.vanish.remains>110)&buff.vanish.down&buff.stealth.down
+        -- TODO: AoE Fan of Knives + Crimson Tempest
         local function actionList_Generator()
+            -- dispatch,cycle_targets=1,if=dot.deadly_poison_dot.remains<4& talent.anticipation.enabled&((anticipation_charges<4&set_bonus.tier18_4pc=0)|(anticipation_charges<2&set_bonus.tier18_4pc=1))
+            -- dispatch,cycle_targets=1,if=dot.deadly_poison_dot.remains<4& !talent.anticipation.enabled&combo_points<5&set_bonus.tier18_4pc=0
+            -- dispatch,cycle_targets=1,if=dot.deadly_poison_dot.remains<4& !talent.anticipation.enabled&set_bonus.tier18_4pc=1&(combo_points<2|target.health.pct<35)
+            --
+            -- dispatch,if=                                                 talent.anticipation.enabled&((anticipation_charges<4&set_bonus.tier18_4pc=0)|(anticipation_charges<2&set_bonus.tier18_4pc=1))
+            -- dispatch,if=                                                 !talent.anticipation.enabled&combo_points<5&set_bonus.tier18_4pc=0
+            -- dispatch,if=                                                 !talent.anticipation.enabled&set_bonus.tier18_4pc=1&(combo_points<2|target.health.pct<35)
+            if talent.anticipation and ((charges.anticipation < 4 and not eq.t18_4pc) or (charges.anticipation < 2 and eq.t18_4pc))
+                    or not talent.anticipation and comboPoints < 5 and not eq.t18_4pc
+                    or not talent.anticipation and eq.t18_4pc and comboPoints < 2
+            then
+                -- Deadly Poison cond. inside cycle
+                if self.castDispatch(true) then return end -- Cycle
+                if self.castDispatch() then return end
+            end
 
+            -- mutilate,cycle_targets=1,if=dot.deadly_poison_dot.remains<4&target.health.pct>35&(combo_points<5|(talent.anticipation.enabled&anticipation_charges<3))
+            -- mutilate,if=                                                target.health.pct>35&(combo_points<5|(talent.anticipation.enabled&anticipation_charges<3))
+            if comboPoints < 5 or (talent.anticipation and charges.anticipation < 3) then
+                -- Deadly Poison cond. inside cycle
+                if self.castMutilate(true) then return end -- Cycle
+                if self.castMutilate() then return end
+            end
+
+            -- preparation,if=(cooldown.vanish.remains>50|!glyph.disappearance.enabled&cooldown.vanish.remains>110)&buff.vanish.down&buff.stealth.down
+            -- TODO: preparation
         end
 
         --- # Combo point finishers
-        -- actions.finishers=rupture,cycle_targets=1,if=(remains<2|(combo_points=5&remains<=(duration*0.3)))
-        -- actions.finishers+=/pool_resource,for_next=1
-        -- actions.finishers+=/death_from_above,if=(cooldown.vendetta.remains>10|debuff.vendetta.up|target.time_to_die<=25)
-        -- actions.finishers+=/envenom,cycle_targets=1,if=dot.deadly_poison_dot.remains<4&target.health.pct<=35&(energy+energy.regen*cooldown.vendetta.remains>=105&(buff.envenom.remains<=1.8|energy>45))|buff.bloodlust.up|debuff.vendetta.up
-        -- actions.finishers+=/envenom,cycle_targets=1,if=dot.deadly_poison_dot.remains<4&target.health.pct>35&(energy+energy.regen*cooldown.vendetta.remains>=105&(buff.envenom.remains<=1.8|energy>55))|buff.bloodlust.up|debuff.vendetta.up
-        -- actions.finishers+=/envenom,if=target.health.pct<=35&(energy+energy.regen*cooldown.vendetta.remains>=105&(buff.envenom.remains<=1.8|energy>45))|buff.bloodlust.up|debuff.vendetta.up
-        -- actions.finishers+=/envenom,if=target.health.pct>35&(energy+energy.regen*cooldown.vendetta.remains>=105&(buff.envenom.remains<=1.8|energy>55))|buff.bloodlust.up|debuff.vendetta.up
         local function actionList_Finisher()
+            -- rupture,cycle_targets=1,if=(remains<2|(combo_points=5&remains<=(duration*0.3)))
+            if self.castRuptureCycle() then return end
 
+            -- pool_resource,for_next=1
+            -- TODO: pool energy ?
+            -- death_from_above,if=(cooldown.vendetta.remains>10|debuff.vendetta.up|target.time_to_die<=25)
+            if talent.deathFromAbove then
+                -- if self.power < 50 and cd.deathFromAbove < 2 then return end
+                if cd.vendetta > 10 or debuff.vendetta > 0 or timeToDie <= 25 then
+                    if self.castDeathFromAbove then return end
+                end
+            end
+
+            -- envenom,cycle_targets=1,if=dot.deadly_poison_dot.remains<4&target.health.pct<=35&(energy+energy.regen*cooldown.vendetta.remains>=105&(buff.envenom.remains<=1.8|energy>45))|buff.bloodlust.up|debuff.vendetta.up
+            -- envenom,cycle_targets=1,if=dot.deadly_poison_dot.remains<4&target.health.pct>35 &(energy+energy.regen*cooldown.vendetta.remains>=105&(buff.envenom.remains<=1.8|energy>55))|buff.bloodlust.up|debuff.vendetta.up
+            --
+            -- envenom,if=                                                target.health.pct<=35&(energy+energy.regen*cooldown.vendetta.remains>=105&(buff.envenom.remains<=1.8|energy>45))|buff.bloodlust.up|debuff.vendetta.up
+            -- envenom,if=                                                target.health.pct>35 &(energy+energy.regen*cooldown.vendetta.remains>=105&(buff.envenom.remains<=1.8|energy>55))|buff.bloodlust.up|debuff.vendetta.up
+            if ((power + powerRegen * cd.vendetta >= 105) and (buff.envenom <= 1.8 or power > 45)) or hasBloodLust() or debuff.vendetta > 0 then
+                -- Deadly Poison cond. inside cycle
+                if self.castEnvenom(true) then return end -- Cycle
+                if self.castEnvenom() then return end
+            end
         end
 
         --------------------------------
@@ -63,6 +95,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
                     --	if castSpell("player",_Stealth,true,false,false) then stealthTimer=GetTime(); return end
                     --end
                 end
+
+                self.castPickPocket()
             end
 
             -- actions.precombat+=/marked_for_death
@@ -70,7 +104,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if talent.markedForDeath and hasTarget and targetDistance < 10 and not UnitIsFriend("target", "player") then
                 if comboPoints == 0 then
                     self.castMarkedForDeath()
-                elseif comboPoints == 5 then
+                end
+                if comboPoints == 5 then
                     if self.castSliceAndDice() then return end
                 end
             end
@@ -121,7 +156,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
         end
 
         -- actions+=/rupture,cycle_targets=1,if=spell_targets.fan_of_knives>1&!ticking&combo_points=5
-        -- TODO
+        if enemies.yards10 > 1 and comboPoints == 5 then
+            if self.castRuptureCycle() then return end
+        end
 
         -- actions+=/marked_for_death,if=combo_points=0
         if comboPoints == 0 then
@@ -133,27 +170,25 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if self.castShadowReflection() then return end
         end
 
-
         -- actions+=/vendetta,if=buff.shadow_reflection.up|!talent.shadow_reflection.enabled|target.time_to_die<=20|(target.time_to_die<=30&glyph.vendetta.enabled)
         if buff.shadowReflection > 0 or not talent.shadowReflection or timeToDie <=20 or (timeToDie <= 30 and glyph.vendetta) then
             if self.castVendetta() then return end
         end
 
-
         -- actions+=/rupture,cycle_targets=1,if=combo_points=5&remains<=duration*0.3&spell_targets.fan_of_knives>1
-
+        if enemies.yards10 > 1 and comboPoints == 5 then
+            if self.castRuptureCycle() then return end
+        end
 
         -- actions+=/call_action_list,name=finishers,if=combo_points=5&((!cooldown.death_from_above.remains&talent.death_from_above.enabled)|buff.envenom.down|!talent.anticipation.enabled|anticipation_charges+combo_points>=6)
         if comboPoints == 5 and ((cd.deathFromAbove == 0 and talent.deathFromAbove) or buff.envenom == 0 or not talent.anticipation or charges.anticipation+comboPoints >= 6) then
             if actionList_Finisher() then return end
         end
 
-
         -- actions+=/call_action_list,name=finishers,if=dot.rupture.remains<2
         if debuff.rupture < 2 then
             if actionList_Finisher() then return end
         end
-
 
         -- actions+=/call_action_list,name=generators
         if actionList_Generator() then return end

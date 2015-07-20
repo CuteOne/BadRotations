@@ -14,6 +14,7 @@ if select(3,UnitClass("player")) == 2 then
     thisConfig = 0
     -- Title
     CreateNewTitle(thisConfig,"Protection Gabbz")
+    protPaladin:createBaseOptions()
 
     -- Wrapper
     generateWrapper("Buffs")

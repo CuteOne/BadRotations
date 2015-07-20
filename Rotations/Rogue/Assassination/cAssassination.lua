@@ -60,6 +60,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if not UnitAffectingCombat("player") then self.updateOOC() end
 
             self.getBuffs()
+            self.getDebuffs()
             self.getCooldowns()
             self.getDynamicUnits()
             self.getEnemies()
@@ -85,6 +86,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             local getBuffRemain = getBuffRemain
 
             self.buff.blindside = getBuffRemain("player", self.spell.blindside)
+            self.buff.envenom   = getBuffRemain("player", self.spell.envenom)
         end
 
         ---------------
@@ -93,12 +95,11 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getDebuffs()
             local getDebuffRemain, getDebuffDuration = getDebuffRemain, getDebuffDuration
 
-            self.debuff.rupture         = getDebuffRemain(self.units.dyn5, self.spell.rupture, "player")
-            self.debuff.ruptureDuration = getDebuffDuration(self.units.dyn5, self.spell.rupture, "player")
-            self.debuff.crimsonTempest  = getDebuffRemain(self.units.dyn5, self.spell.crimsonTempest, "player")
-            self.debuff.vendetta        = getDebuffRemain(self.units.dyn5, self.spell.vendetta, "player")
-            self.debuff.deadlyPoison    = getDebuffRemain(self.units.dyn5, self.spell.deadlyPoison, "player")
-            self.debuff.envenom         = getDebuffRemain(self.units.dyn5, self.spell.envenom, "player")
+            self.debuff.rupture         = getDebuffRemain(self.units.dyn5, self.spell.rupture, "player") or 0
+            self.debuff.ruptureDuration = getDebuffDuration(self.units.dyn5, self.spell.rupture, "player") or 0
+            self.debuff.crimsonTempest  = getDebuffRemain(self.units.dyn5, self.spell.crimsonTempest, "player") or 0
+            self.debuff.vendetta        = getDebuffRemain(self.units.dyn5, self.spell.vendetta, "player") or 0
+            self.debuff.deadlyPoison    = getDebuffRemain(self.units.dyn5, self.spell.deadlyPoison, "player") or 0
         end
         
         -----------------
@@ -165,6 +166,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if self.rotation == 1 then
                 self:assassinationSimC()
                 -- put different rotations below; dont forget to setup your rota in options
+            elseif self.rotation == 2 then
+                self:oldAssassination()
             else
                 ChatOverlay("No ROTATION ?!", 2000)
             end
@@ -187,7 +190,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             CreateNewWrap(thisConfig, "--- General ---");
 
             -- Rotation
-            CreateNewDrop(thisConfig, "Rotation", 1, "Select Rotation.", "|cff00FF00SimC");
+            CreateNewDrop(thisConfig, "Rotation", 1, "Select Rotation.", "|cff00FF00SimC", "|cff00FF00OLD_ONE");
             CreateNewText(thisConfig, "Rotation");
 
             -- Dummy DPS Test
@@ -262,13 +265,43 @@ if select(2, UnitClass("player")) == "ROGUE" then
         --------------
 
         -- Dispatch
-        function self.castDispatch()
-            return castSpell(self.units.dyn5, self.spell.dispatch, false, false) == true or false
+        function self.castDispatch(cycle)
+            if cycle ~= nil then
+                for i = 1, #enemiesTable do
+                    if enemiesTable[i].distance < 5 then
+                        local thisUnit = enemiesTable[i].unit
+                        local targetHP = getHP(thisUnit)
+                        local deadlyPoision = getDebuffRemain(thisUnit, self.spell.deadlyPoison, "player")
+                        if (targetHP < 35 or self.buff.blindside) and deadlyPoision < 4 then
+                            return castSpell(thisUnit,self.spell.dispatch,false,false,false) == true or false
+                        end
+                    end
+                end
+            else
+                local thisUnit = self.units.dyn5
+                local targetHP = getHP(thisUnit)
+                if (targetHP < 35 or self.buff.blindside) then
+                    return castSpell(thisUnit, self.spell.dispatch, false, false) == true or false
+                end
+            end
         end
 
         -- Envenom
-        function self.castEnvenom()
-            return castSpell(self.units.dyn5, self.spell.envenom, false, false) == true or false
+        function self.castEnvenom(cycle)
+            if cycle ~= nil then
+                for i = 1, #enemiesTable do
+                    if enemiesTable[i].distance < 5 then
+                        local thisUnit = enemiesTable[i].unit
+                        local deadlyPoision = getDebuffRemain(thisUnit, self.spell.deadlyPoison, "player")
+                        if deadlyPoision < 4 then
+                            return castSpell(thisUnit,self.spell.envenom,false,false,false) == true or false
+                        end
+                    end
+                end
+            else
+                local thisUnit = self.units.dyn5
+                return castSpell(thisUnit, self.spell.envenom, false, false) == true or false
+            end
         end
 
         -- Fan of Knives
@@ -277,8 +310,25 @@ if select(2, UnitClass("player")) == "ROGUE" then
         end
 
         -- Mutilate
-        function self.castMutilate()
-            return castSpell(self.units.dyn5, self.spell.mutilate, false, false) == true or false
+        function self.castMutilate(cycle)
+            if cycle ~= nil then
+                for i = 1, #enemiesTable do
+                    if enemiesTable[i].distance < 5 then
+                        local thisUnit = enemiesTable[i].unit
+                        local targetHP = getHP(thisUnit)
+                        local deadlyPoision = getDebuffRemain(thisUnit, self.spell.deadlyPoison, "player")
+                        if targetHP > 35 and deadlyPoision < 4 then
+                            return castSpell(thisUnit,self.spell.mutilate,false,false,false) == true or false
+                        end
+                    end
+                end
+            else
+                local thisUnit = self.units.dyn5
+                local targetHP = getHP(thisUnit)
+                if targetHP > 35 then
+                    return castSpell(thisUnit, self.spell.mutilate, false, false) == true or false
+                end
+            end
         end
 
         -- Rupture
@@ -291,9 +341,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
             for i = 1, #enemiesTable do
                 if enemiesTable[i].distance < 5 then
                     local thisUnit = enemiesTable[i].unit
-                    local ruptureRemain = getDebuffRemain(thisUnit,self.spell.rupture,"player")
-                    if ruptureRemain == 0 then
-                        if castSpell(thisUnit,_self.spell.rupture,false,false,false) then return end
+                    local ruptureRemain   = getDebuffRemain(thisUnit,self.spell.rupture,"player")
+                    local ruptureDuration = getDebuffDuration(thisUnit, self.spell.rupture, "player")
+                    if ruptureRemain == 0 or ruptureRemain <= ruptureDuration*0.3 then
+                        return castSpell(thisUnit, self.spell.rupture,false,false,false) == true or false
                     end
                 end
             end
