@@ -165,7 +165,7 @@ function EnemiesEngine()
 		for i=1,#enemiesTable do
 			local thisUnit = enemiesTable[i].unit
 			-- check if unit is valid
-			if GetObjectExists(thisunit) then
+			if GetObjectExists(thisUnit) then
 				-- increase counter for each occurences
 				if UnitDebuffID(thisUnit,spellID,"player") then
 					counter = counter + 1

@@ -4,8 +4,6 @@ if select(3, UnitClass("player")) == 4 then
       rogueCombat = cCombat:new()
       setmetatable(rogueCombat, {__index = cCombat})
       CombatToggles()
-      CombatOptions()
-      rogueCombat:updateOOC()
       rogueCombat:update()
       Currentconfig = "Combat Defmaster"
     end
@@ -21,9 +19,6 @@ if select(3, UnitClass("player")) == 4 then
       return true
     end
     
-    if not UnitAffectingCombat("player") then
-      rogueCombat:updateOOC()
-    end
     rogueCombat:update()
 
     --[[

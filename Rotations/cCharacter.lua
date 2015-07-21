@@ -10,8 +10,9 @@ function cCharacter:new(class)
 	self.profile        = "None"    -- Spec
 	self.class          = class     -- Class
 	self.buff           = {}        -- Buffs
+    self.debuff         = {}        -- Debuffs on target
 	self.cd             = {}        -- Cooldowns
-	self.charges        = {}        -- Number of charges 
+	self.charges        = {}        -- Number of charges
 	self.eq             = {         -- Special Equip like set bonus or class trinket (archimonde)
 		--T17
 		t17_2pc = false,
@@ -39,17 +40,18 @@ function cCharacter:new(class)
 		dyn5AoE,
 		dyn30AoE,
 		dyn40AoE,
-	} 
+	}
 	self.enemies  = {}              -- Number of Enemies around player (must be overwritten by cCLASS or cSPEC)
 	self.race     = select(2,UnitRace("player")) -- Race as non-localised name (undead = Scourge) !
 	self.racial   = nil             -- Contains racial spell id
 	self.faction  = select(1,UnitFactionGroup("player")) -- Faction non-localised name
 	self.augmentRune = {            -- Contains the different buff IDs for Augment Runes
-		agility   = 175456,
-		strength  = 175439,
-		intellect = 175457,
+		Agility   = 175456,
+		Strength  = 175439,
+		Intellect = 175457,
 	}
 	self.options = {}               -- Contains options
+	self.primaryStat = nil          -- Contains the primary Stat: Strength, Agility or Intellect
 
 -- Things which get updated for every class in combat
 -- All classes call the baseUpdate()
@@ -78,7 +80,7 @@ function cCharacter:new(class)
 			return false
 		end
 
-		-- Set Global Cooldown 
+		-- Set Global Cooldown
 		self.gcd = self.getGlobalCooldown()
 
 		-- Get toggle modes
@@ -232,10 +234,14 @@ function cCharacter:new(class)
 		end
 	end
 
--- Character options
--- Options which every Class should have
--- Call after Title 
-	function self.baseOptions()
+---------------
+--- OPTIONS ---
+---------------
+
+ -- Character options
+ -- Options which every Class should have
+ -- Call after Title
+	function self.createBaseOptions()
 		-- Base Wrap
 		CreateNewWrap(thisConfig, "--- Base Options ---")
 
@@ -256,10 +262,10 @@ function cCharacter:new(class)
 		CreateNewText(thisConfig, "Use Racial");
 
 		-- Spacer
-		textOp(" ");
+		CreateNewText(thisConfig, " ");
 	end
 
--- Get option modes
+ -- Get option modes
 	function self.baseGetOptions()
 		self.ignoreCombat             = isChecked("Ignore Combat")==true or false
 		self.options.useCrystal       = isChecked("Use Crystal")==true or false
@@ -277,17 +283,39 @@ function cCharacter:new(class)
 -- Use Empowered Augment Rune +50 to prim. Stat - ID: 128482 Alliance / ID: 128475 Horde
 	function self.useEmpoweredRune()
 		if self.options.useEmpoweredRune then
-			for _,augmentBuff in pairs(self.augmentRune) do 
-				if getBuffRemain("player",augmentBuff) < 600 then
-					if self.faction == "Alliance" then
-						useItem(128482)
-					else
-						useItem(128475)
-					end
+			if getBuffRemain("player",self.augmentRune[self.primaryStat]) < 600 then
+				if self.faction == "Alliance" then
+					useItem(128482)
+				else
+					useItem(128475)
 				end
 			end
 		end
 	end
+
+-- Returns and sets highest stat, which will be the primary stat
+	function self.getPrimaryStat()
+		-- local stat, effectiveStat, posBuff, negBuff = UnitStat("player", statIndex)
+		-- 1 - Strength, 2 - Agility, 3 - Stamina, 4 - Intellect, 5 - Spirit
+
+		local stat = {
+			Strength = select(2,UnitStat("player", 1)),
+			Agility  = select(2,UnitStat("player", 2)),
+			Intellect = select(2,UnitStat("player", 4)),
+		}
+		local highestStat = ""
+		local highestStatValue = 0
+
+		for statName,statValue in pairs(stat) do
+			if statValue > highestStatValue then
+				highestStatValue = statValue
+				highestStat = statName
+			end
+		end
+
+		return highestStat
+	end
+	self.primaryStat = self.getPrimaryStat()
 
 --[[ TODO:
 	- add Flask usage
