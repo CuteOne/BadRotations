@@ -225,9 +225,8 @@ function bb.read.combatLog()
     end
     --[[ Last Spell Cast Started ]]
     if source == bb.guid and (param == "SPELL_CAST_START" or param == "SPELL_CAST_SUCCESS") then
-        -- Add spells we dont want to appear here.
-        if spell == 120361 or spell == 75 then     -- Barrage fires
-            if param == "SPELL_CAST_SUCCESS" and (spell == 77767 or spell == 163485) or param == "SPELL_CAST_START" and (spell == 77767 or spell == 163485) then
+        if spell == 120361 or spell == 75 then     -- Barrage fires / Auto Shot
+            if param == "SPELL_CAST_SUCCESS" and (spell == 77767 or spell == 163485) or param == "SPELL_CAST_START" then
                 secondLastSpellStarted = lastSpellStarted
                 lastSpellStarted = spell
             end
