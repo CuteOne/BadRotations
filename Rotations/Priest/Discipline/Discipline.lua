@@ -121,9 +121,9 @@ if select(3, UnitClass("player")) == 5 then
 			PoM = {
 				heal = getTooltipSize(spell.PoM),
 			},
-			holyNova = {
-				heal = getTooltipSize(spell.holyNova)*1.8795,
-			},
+			-- holyNova = {
+			-- 	heal = getTooltipSize(spell.holyNova)*1.8795,
+			-- },
 		}
 
 		talent = {
