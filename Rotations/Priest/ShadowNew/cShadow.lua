@@ -18,6 +18,7 @@ function cShadow:new()
 
 	self.shadowSpell = {
 		angelic_feather = 121536,
+		angelic_feather_buff = 121557,
 		cascade = 127632,
 		desperate_prayer = 19236,
 		devouring_plague = 2944,
@@ -100,6 +101,7 @@ function cShadow:new()
 			pause = 			{enabled=isChecked("Pause Toggle")},
 			pwf = 				{enabled=isChecked("PW: Fortitude")},
 			dps_test = 			{enabled=isChecked("DPS Testing"),value=getValue("DPS Testing"),},
+			dot_farm = 			{enabled=isChecked("Dot Farm")},
 		},
 	}
 
@@ -159,6 +161,9 @@ function cShadow:new()
 
 		--if select(2,GetSpellCooldown(61304))>0 then return end
 
+		-- SWP Farmer
+		self.castSWPFarm()
+
 		-- Start selected rotation
 		self:startRotation()
 	end
@@ -173,7 +178,9 @@ function cShadow:new()
 		self.getEquip()
 
 		-- to do ooc
-		if not IsMounted("player") then self.castAngelicFeatherOnMe() end
+		if not IsMounted("player") and IsMovingTime(0.2) and self.mode.feather == 2 then 
+			self.castAngelicFeatherOnMe() 
+		end
 		self.BossDetection()
 
 		-- raid buff
@@ -259,6 +266,7 @@ function cShadow:new()
 		self.options.utilities.pwf.enabled = 				isChecked("PW: Fortitude")
 		self.options.utilities.dps_test.enabled = 			isChecked("DPS Testing")
 		self.options.utilities.dps_test.value = 			getValue("DPS Testing")
+		self.options.utilities.dot_farm.enabled = 			isChecked("Dot Farm")
 	end
 
 	-- Update special equip
@@ -282,6 +290,7 @@ function cShadow:new()
 	function self.getBuffs()
 		local getBuffRemain = getBuffRemain
 
+		self.buff.angelic_feather =		getBuffRemain(player,self.spell.angelic_feather_buff)
 		self.buff.insanity = 			getBuffRemain(player,self.spell.insanity)
 		self.buff.surge_of_darkness = 	getBuffRemain(player,self.spell.surge_of_darkness)
 
@@ -492,7 +501,10 @@ function cShadow:new()
 		-- HFC
 			90114,		-- Hellfire Assault: damn small ads
 			94326,		-- Iron Reaver: Reactive Bomb
-		-- Hellfire Citadel
+			90513,		-- Kilrogg: Fel Blood Globule
+			96077,		-- Kilrogg: Fel Blood Globule
+			90477,		-- Kilrogg: Blood Globule
+			--93288,		-- Gorefiend: Corrupted Players
 		}
 		local blacklistBuffID = {
 			155176, 	-- BRF: Blast Furnace: Primal Elementalist: http://www.wowhead.com/spell=155176/damage-shield
@@ -534,6 +546,10 @@ function cShadow:new()
 			91368,		-- Kormrok: Crushing Hand
 			93830,		-- Hellfire Assault: Iron Dragoon
 			90114,		-- Hellfire Assault: Iron Dragoon
+			93369,		-- Kilrogg: Salivating Bloodthirster
+			90521,		-- Kilrogg: Salivating Bloodthirster
+			90388,		-- Gorefiend: Digest Mobs
+			93288,		-- Gorefiend: Corrupted Players
 		}
 		if checkUnit == nil then return false end
 		-- check unitID
@@ -630,13 +646,12 @@ function cShadow:new()
 
 
 
-	---------------------------------------------------------------
-	-------------------- Spell functions --------------------------
-	---------------------------------------------------------------
+	--[[------------------------------------------------------------ Spell functions ------------------------------------------------------------]]
 		-- angelic_feather
 		function self.castAngelicFeatherOnMe()
-			if self.mode.feather == 2 then
-				if getGround("player") and IsMovingTime(0.2) and getBuffRemain("player",121557)<1 then
+			--if getGround("player") and getBuffRemain("player",121557)<1 then
+			if getFallTime() <= 0.5 and not IsSwimming() then
+				if getBuffRemain("player",121557)<1 then
 					if castGround("player",121536,30) then
 						SpellStopTargeting()
 						return
@@ -848,6 +863,24 @@ function cShadow:new()
 		function self.castSWP(thisTarget)
 			return castSpell(thisTarget,self.spell.shadow_word_pain,true,false)
 		end
+		function self.castSWPFarm()
+			if self.options.utilities.dot_farm.enabled then
+				ChatOverlay("!! SWP all active !!")
+				for i=1, #enemiesTable do
+					local thisUnit = enemiesTable[i].unit
+					local range = enemiesTable[i].distance
+					if range<40 then
+						-- check remaining time and minhealth
+						if getDebuffRemain(thisUnit,self.spell.shadow_word_pain,"player")<=0 then
+							if castSpell(thisUnit,self.spell.shadow_word_pain,true,false) then 
+								return true
+							end
+						end
+					end
+				end
+				--if LFU("first") then return end
+			end
+		end
 		-- shadowfiend
 		function self.castShadowfiend(thisTarget)
 			if self.mode.cooldowns == 2 then
@@ -878,9 +911,7 @@ function cShadow:new()
 					local thisUnitGUID = enemiesTable[i].guid
 					local hp = enemiesTable[i].hpabs
 					local distance = enemiesTable[i].distance
-					local lastVTTarget = lastVTTarget
-					local lastVTTime = lastVTTime
-					if thisUnitGUID ~= lastVTTarget or lastVTTime+2 < GetTime() then
+					if thisUnitGUID ~= lastVTTarget or lastVTTime+5 < GetTime() then
 						if self.safeDoT(thisUnit) and self.safeVT(thisUnit) and UnitIsTappedByPlayer(thisUnit) then
 							if getDebuffRemain(thisUnit,self.spell.vampiric_touch,"player") <= 15*0.3+(0.001*select(4,GetSpellInfo(34914))) then
 								if distance < 40 then

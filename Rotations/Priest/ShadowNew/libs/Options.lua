@@ -156,6 +156,10 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewDrop(thisConfig,"Rotation",1,"Choose rotation to use.","|cffBA55D3ravens")
 			CreateNewText(thisConfig,"Rotation")
 
+			--SWP Farm
+			CreateNewCheck(thisConfig,"Dot Farm","SWP all in range.")
+			CreateNewText(thisConfig,"Dot Farm")
+
 			-- Pause Toggle
 			CreateNewCheck(thisConfig,"Pause Toggle")
 			CreateNewDrop(thisConfig,"Pause Toggle", 10, "Toggle2")

@@ -255,7 +255,8 @@ function RaidBuff(BuffSlot,myBuffSpellID)
 	elseif id == 9 then
 		chosenTable = bufftable.versatility
 	end
-		
+
+
 	if GetNumGroupMembers()==0 then
 		if not UnitIsDeadOrGhost("player") then
 			if not GetRaidBuffTrayAuraInfo(id) then

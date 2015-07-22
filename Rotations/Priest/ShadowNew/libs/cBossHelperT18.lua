@@ -71,6 +71,15 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 
 			-- Gorefiend
 				if currentBoss=="Gorefiend" then
+					-- Touch of Doom: Auto Speed
+					if getDebuffRemain("player",179977) > 1 then
+						if getDebuffRemain("player",179977) <= 6 then
+							if buff.angelic_feather <= 0 then
+								if self.castAngelicFeatherOnMe() then return end
+							end
+						end
+					end
+
 					-- cascade
 					if getSpellCD(self.spell.cascade) <= 0 then
 						if self.castCascadeBiggestCluster() then return end

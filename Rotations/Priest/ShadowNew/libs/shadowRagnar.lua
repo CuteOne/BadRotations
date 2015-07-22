@@ -65,7 +65,9 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		------------------------------------------------------------------------------------------------------
 		-- Do everytime --------------------------------------------------------------------------------------
 		------------------------------------------------------------------------------------------------------
-		self.castAngelicFeatherOnMe()
+		if mode.feather == 2 and IsMovingTime(0.2) then
+			if self.castAngelicFeatherOnMe() then return end
+		end
 		
 		-- Pause toggle
 		if options.utilities.pause.enabled and SpecificToggle("Pause Toggle") == true then
