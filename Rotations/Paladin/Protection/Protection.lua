@@ -39,6 +39,7 @@ if select(3, UnitClass("player")) == 2 then
       core:update()
     else
       core:ooc()
+        protPaladin:classUpdateOOC()
     end
 
     protPaladin:classUpdate()

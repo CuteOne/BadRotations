@@ -470,6 +470,18 @@ function ConstructUI()
 					statusStep = 25,
 					tip = "Debug Table Refresh throttle(ms)."
 				},
+                -- TODO: Dispel delay
+                [11] = {
+                	checkbase = false,
+                	check = false,
+                	name = "Dispel delay",
+                	status = "Set desired dispel delay in % of debuff duration.\n|cffFF0000Will randomise around the value you set.",
+                	statusBase = 15,
+                	statusMin = 5,
+                	statusMax = 90,
+                	statusStep = 1,
+                	tip = "Dispel delay in % of debuff duration"
+                },
 				-- [11] = {
 				-- 	--checkbase = false,
 				-- 	--check = false,

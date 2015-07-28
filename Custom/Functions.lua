@@ -415,3 +415,20 @@ function isTrinketEquipped(trinket)
 		return false
 	end
 end
+
+--- Return true if player has buff X
+-- Parameter: ID
+-- hasBuff(12345)
+function hasBuff(spellID)
+    local buffs, i = { }, 1
+    local buff = UnitBuff("player", i)
+    while buff do
+        buffs[#buffs + 1] = buff
+        i = i + 1
+        buff = select(11,UnitBuff("player", i))
+        if buff ~= nil then
+            if buff == spellID then return true end
+        end
+    end
+    return false
+end

@@ -49,7 +49,36 @@ function cCharacter:new(class)
 		Agility   = 175456,
 		Strength  = 175439,
 		Intellect = 175457,
-	}
+    }
+    self.flask = {}
+    self.flask.wod = {
+        -- Agility
+        agilityLow = 109145,
+        agilityBig = 109153,
+        -- Intellect
+        intellectLow = 109147,
+        intellectBig = 109155,
+        -- Stamina
+        staminaLow = 109152,
+        staminaBig = 109160,
+        -- Strength
+        strengthLow = 109148,
+        strengthBig = 109156,
+    }
+    self.flask.wod.buff = {
+        -- Agility
+        agilityLow = 156073,
+        agilityBig = 156064,
+        -- Intellect
+        intellectLow = 156070,
+        intellectBig = 156079,
+        -- Stamina
+        staminaLow = 156077,
+        staminaBig = 156084,
+        -- Strength
+        strengthLow = 156071,
+        strengthBig = 156080,
+    }
 	self.options = {}               -- Contains options
 	self.primaryStat = nil          -- Contains the primary Stat: Strength, Agility or Intellect
 
@@ -276,9 +305,13 @@ function cCharacter:new(class)
 -- Use Oralius Crystal +100 to all Stat - ID: 118922, Buff: 176151 (Whispers of Insanity)
 	function self.useCrystal()
 		if self.options.useCrystal and getBuffRemain("player",176151) < 600 then
-			useItem(118922)
+            -- Check if other flask is present, if so abort here
+            for _,flaskID in pairs(self.flask.wod.buff) do
+                if hasBuff(flaskID) then return end
+            end
+            useItem(118922)
 		end
-	end
+    end
 
 -- Use Empowered Augment Rune +50 to prim. Stat - ID: 128482 Alliance / ID: 128475 Horde
 	function self.useEmpoweredRune()

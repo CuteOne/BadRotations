@@ -134,7 +134,6 @@ function cRogue:new(spec)
 
 -- Get Class option modes
 	function self.getClassOptions()
-		self.ignoreCombat = isChecked("Ignore Combat")==true or false
 		self.poisonTimer = getValue("Poison remain")
 	end
 
