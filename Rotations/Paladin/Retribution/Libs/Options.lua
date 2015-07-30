@@ -12,7 +12,7 @@ if select(3,UnitClass("player")) == 2 then
     ClearConfig()
     -- Title
     CreateNewTitle(thisConfig,"Retribution Gabbz & CML")
-    ret:baseOptions()
+    retPaladin:baseOptions()
 
     -- Wrapper
     generateWrapper("Buffs")

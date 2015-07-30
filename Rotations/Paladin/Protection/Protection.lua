@@ -136,7 +136,7 @@ if select(3, UnitClass("player")) == 2 then
           end
         end
         -- actions+=/avengers_shield,if=buff.grand_crusader.react&active_enemies>1&!glyph.focused_shield.enabled
-        if buff.grandCrusader > 0 and core.aroundTarget7Yards > 1 and not glyph.focusedShield then
+        if (buff.grandCrusader > 0 and core.aroundTarget7Yards > 1 and not glyph.focusedShield) or protPaladin.eq.t18_2pc then
           if core:castAvengersShield() then
             return
           end
