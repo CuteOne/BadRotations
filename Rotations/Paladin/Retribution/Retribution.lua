@@ -1,15 +1,14 @@
 if select(3, UnitClass("player")) == 2 then
 	function PaladinRetribution()
-	if currentConfig ~= "Retribution Paladin" and ret == nil then --Where is currentConfig set? Is this only used for init?
-        ret = cRetribution:new()
-        setmetatable(ret, {__index = cRetribution})
+	if currentConfig ~= "Retribution Paladin" and retPaladin == nil then --Where is currentConfig set? Is this only used for init?
+        retPaladin = cRetribution:new()
+        setmetatable(retPaladin, {__index = cRetribution})
 		PaladinRetToggles() -- Setting up Toggles, AoE, Interrupt, Defensive CD, CD, Healing
-		PaladinRetOptions() -- Reading Config values from gui?
+		--PaladinRetOptions() -- Reading Config values from gui?
 		---if not (core and core.profile == "Retribution") then
 		--	PaladinRetFunctions()
 		--end
-		ret:updateOOC()
-		ret:update()
+		retPaladin:update()
 		currentConfig = "Retribution Paladin"
 	end
 
@@ -25,10 +24,7 @@ if select(3, UnitClass("player")) == 2 then
 		return true
 	end
 
-	if not UnitAffectingCombat("player") then
-		ret:updateOOC()
-	end
-	ret:update()
+	retPaladin:update()
 
 	--[[
 	-- Food/Invis Check
