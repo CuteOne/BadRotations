@@ -106,6 +106,8 @@ function cRetribution:new()
 
 		-- T18 - Class trinket 
 		self.buff.focusOfVengeance    = getBuffRemain(player,184911)
+
+        self.charges.avengingWrath = getCharges(self.spell.avengingWrath)
 	end
 
 -- Cooldown updates
@@ -220,6 +222,11 @@ function cRetribution:new()
         CreateNewDrop(thisConfig,"Avenging Wrath",1,"CD")
         CreateNewText(thisConfig,"Avenging Wrath")
 
+        CreateNewCheck(thisConfig,"AW Charges")
+        CreateNewBox(thisConfig,"AW Charges",0,3,1,1,"|cffFFBB00How many charges should be unused from \n|cffFFFFFFAvenging Wrath ?")
+        CreateNewText(thisConfig,"AW Charges")
+
+
         if isKnown(self.spell.lightsHammer) then
             -- Light's Hammer
             CreateNewCheck(thisConfig,"Light's Hammer")
@@ -322,7 +329,8 @@ function cRetribution:new()
 	function self.castAvengingWrath()
 		if isSelected("Avenging Wrath") then
 			if (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4*UnitHealthMax("player"))) then
-				if (self.talent.seraphim and self.buff.seraphim) or (not self.talent.seraphim) then
+				if ((self.talent.seraphim and self.buff.seraphim) or (not self.talent.seraphim)) and self.buff.avengingWrath == 0 then
+                    if self.eq.t18_2pc and isChecked("AW Charges") and getValue("AW Charges") >= self.charges.avengingWrath then return false end
 					return castSpell("player",self.spell.avengingWrath,true,false) == true or false
 				end
 			end

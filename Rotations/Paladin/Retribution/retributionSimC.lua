@@ -38,9 +38,10 @@ function cRetribution:retributionSimC()
 	if (talent.seraphim and buff.seraphim > 0) or 
 		(not talent.seraphim and not eq.t18_4pc) or
 		(not talent.seraphim and eq.t18_4pc and getCombatTime() < 20) or
-		(not talent.seraphim and eq.t18_4pc and (lastSpellCast == spell.executionSentence or lastSpellCast == spell.lightsHammer))
+		(not talent.seraphim and eq.t18_4pc and (lastSpellCast == self.spell.executionSentence or lastSpellCast == self.spell.lightsHammer))
 		then
-			if self.castAvengingWrath() then return end
+            -- TODO: charge left option
+            if self.castAvengingWrath() then return end
 	end
 
 -- actions+=/holy_avenger,sync=avenging_wrath,if=!talent.seraphim.enabled
