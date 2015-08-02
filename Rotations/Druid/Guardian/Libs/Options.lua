@@ -21,7 +21,7 @@ if select(3, UnitClass("player")) == 11 then
       -- DoC Healing Touch
       CreateNewCheck(thisConfig, "DoCHT")
       CreateNewDrop(thisConfig, "DoCHT", 2, "Use DoC Procs Healing Touch on...", "|cffFFBB00Player", "|cff0077FFLowest")
-      CreateNewText(thisConfig,"Healing Touch")
+      CreateNewText(thisConfig,"DoCHT")
 
       -- Cenarion Ward
       CreateNewDrop(thisConfig, "CenWard", 2, "Use Cenarion Ward on...", "|cffFFBB00Player", "|cff0077FFLowest")
@@ -32,7 +32,7 @@ if select(3, UnitClass("player")) == 11 then
       CreateNewWrap(thisConfig,"------- Cooldowns -----")
 
       CreateNewCheck(thisConfig,"useBerserk", "Check to use Berserk on CD (Boss/Dummy)")
-      CreateNewText(thisConfig,"Berserk")
+      CreateNewText(thisConfig,"useBerserk")
 
       CreateNewCheck(thisConfig,"useHotW", "Check to use Berserk on CD (Boss/Dummy)")
       CreateNewBox(thisConfig, "useHotW", 0, 100  , 5, 65, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHotW and start keeping Rejuvenation up")
