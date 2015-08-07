@@ -196,8 +196,8 @@ if select(3,UnitClass("player")) == 10 then
       -- textOp("Interrupt At");
 
       -- -- Spacer
-      -- textOp(" ");
-      -- wrapOp("--- Toggle Keys ---");
+      textOp(" ");
+      wrapOp("--- Toggle Keys ---");
 
       -- -- Single/Multi Toggle
       -- checkOp("Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.");
@@ -219,10 +219,10 @@ if select(3,UnitClass("player")) == 10 then
       -- dropOp("Interrupt Mode", 6, "Toggle")
       -- textOp("Interrupts Mode")
 
-      -- -- SEF Toggle
-      -- checkOp("SEF Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFSEF Toggle Key|cffFFBB00.");
-      -- dropOp("SEF Mode", 5, "Toggle")
-      -- textOp("SEF Mode");
+      -- SEF Toggle
+      checkOp("SEF Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFSEF Toggle Key|cffFFBB00.");
+      dropOp("SEF Mode", 5, "Toggle")
+      textOp("SEF Mode");
 
       -- -- FSK Toggle
       -- checkOp("FSK Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFFSK Toggle Key|cffFFBB00.");
@@ -235,9 +235,9 @@ if select(3,UnitClass("player")) == 10 then
       -- textOp("Builder Mode");
 
       -- -- Pause Toggle
-      -- checkOp("Pause Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFPause Toggle Key - None Defaults to LeftAlt|cffFFBB00.")
-      -- dropOp("Pause Mode", 6, "Toggle")
-      -- textOp("Pause Mode")
+      checkOp("Pause Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFPause Toggle Key - None Defaults to LeftAlt|cffFFBB00.")
+      dropOp("Pause Mode", 6, "Toggle")
+      textOp("Pause Mode")
 
       -- Spacer
       --textOp(" ");

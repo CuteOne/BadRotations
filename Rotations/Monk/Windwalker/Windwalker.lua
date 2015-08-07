@@ -13,18 +13,20 @@ if select(3, UnitClass("player")) == 10 then
 			currentConfig = "Windwalker Defmaster";
 		end
 
+        --SEF Key Toggle
+        if SEFTimer == nil then SEFTimer = 0; end
+        if SpecificToggle("SEF Mode") --[[and not GetCurrentKeyBoardFocus()]] and GetTime() - SEFTimer > 0.25 then
+            SEFTimer = GetTime()
+            UpdateButton("SEF")
+        end
+
 		--ChatOverlay(GetCurrentKeyBoardFocus())
 
 
 		-- Manual Input
 		-- PAUSE
-		if IsLeftShiftKeyDown() then -- Pause the script, keybind in wow shift+1 etc for manual cast
-			return true
-		end
-		if IsLeftControlKeyDown() then -- Pause the script, keybind in wow ctrl+1 etc for manual cast
-			return true
-		end
-		if IsLeftAltKeyDown() then
+		if SpecificToggle("Pause Mode") then -- Pause the script, keybind in wow shift+1 etc for manual cast
+            ChatOverlay("PAUSE", 1)
 			return true
 		end
 
