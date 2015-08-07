@@ -37,9 +37,9 @@ if select(3,UnitClass("player")) == 2 then
       CreateNewText(thisConfig,"Light's Hammer")
     elseif isKnown(_ExecutionSentence) then
       -- Execution sentence
-      CreateNewCheck(thisConfig,"Execution sentence")
-      CreateNewDrop(thisConfig,"Execution sentence",1,"CD")
-      CreateNewText(thisConfig,"Execution sentence")
+      CreateNewCheck(thisConfig,"Execution Sentence")
+      CreateNewDrop(thisConfig,"Execution Sentence",1,"CD")
+      CreateNewText(thisConfig,"Execution Sentence")
     elseif isKnown(_HolyPrism) then
       -- Execution sentence
       CreateNewCheck(thisConfig,"Holy Prism")

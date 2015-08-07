@@ -80,21 +80,21 @@ if select(3,UnitClass("player")) == 10 then
     --   BuilderModesLoaded = "Cute Chi Builder Modes";
     -- end
 
-    -- function SpecificToggle(toggle)
-    --   if getValue(toggle) == 1 then
-    --     return IsLeftControlKeyDown();
-    --   elseif getValue(toggle) == 2 then
-    --     return IsLeftShiftKeyDown();
-    --   elseif getValue(toggle) == 3 then
-    --     return IsRightControlKeyDown();
-    --   elseif getValue(toggle) == 4 then
-    --     return IsRightShiftKeyDown();
-    --   elseif getValue(toggle) == 5 then
-    --     return IsRightAltKeyDown();
-    --   elseif getValue(toggle) == 6 then
-    --     return false
-    --   end
-    -- end
+    function SpecificToggle(toggle)
+      if getValue(toggle) == 1 then
+        return IsLeftControlKeyDown();
+      elseif getValue(toggle) == 2 then
+        return IsLeftShiftKeyDown();
+      elseif getValue(toggle) == 3 then
+        return IsRightControlKeyDown();
+      elseif getValue(toggle) == 4 then
+        return IsRightShiftKeyDown();
+      elseif getValue(toggle) == 5 then
+        return IsRightAltKeyDown();
+      elseif getValue(toggle) == 6 then
+        return false
+      end
+    end
 
     -- --AoE Key Toggle
     -- if AOETimer == nil then AOETimer = 0; end
@@ -124,12 +124,12 @@ if select(3,UnitClass("player")) == 10 then
     --   UpdateButton("Interrupts")
     -- end
 
-    -- --SEF Key Toggle
-    -- if SEFTimer == nil then SEFTimer = 0; end
-    -- if SpecificToggle("SEF Mode") and not GetCurrentKeyBoardFocus() and GetTime() - SEFTimer > 0.25 then
-    --   SEFTimer = GetTime()
-    --   UpdateButton("SEF")
-    -- end
+    --SEF Key Toggle
+    if SEFTimer == nil then SEFTimer = 0; end
+    if SpecificToggle("SEF Mode") --[[and not GetCurrentKeyBoardFocus()]] and GetTime() - SEFTimer > 0.25 then
+      SEFTimer = GetTime()
+      UpdateButton("SEF")
+    end
 
     -- --FSK Key Toggle
     -- if FSKTimer == nil then FSKTimer = 0; end

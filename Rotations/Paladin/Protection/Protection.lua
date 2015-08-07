@@ -136,7 +136,10 @@ if select(3, UnitClass("player")) == 2 then
           end
         end
         -- actions+=/avengers_shield,if=buff.grand_crusader.react&active_enemies>1&!glyph.focused_shield.enabled
-        if (buff.grandCrusader > 0 and core.aroundTarget7Yards > 1 and not glyph.focusedShield) or protPaladin.eq.t18_2pc then
+        if (buff.grandCrusader > 0 and core.aroundTarget7Yards > 1 and not glyph.focusedShield) or
+                (protPaladin.eq.t18_2pc and not buff.holyAvenger)  or
+                (protPaladin.eq.t18_2pc and buff.holyAvenger and buff.grandCrusader > 0)
+        then
           if core:castAvengersShield() then
             return
           end
@@ -350,7 +353,7 @@ if select(3, UnitClass("player")) == 2 then
           end
         end
         -- actions.max_dps+=/holy_wrath,if=glyph.final_wrath.enabled&target.health.pct<=20
-        if glyph.finalWrath and getHP(self.units.dyn8AoE) <= 20 then
+        if glyph.finalWrath and getHP(core.units.dyn8AoE) <= 20 then
           if core:castHolyWrath() then
             return
           end
