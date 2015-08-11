@@ -1,5 +1,9 @@
 #BadBoy - Ultimate Raider
 
+## IMPORTANT !
+
+**From End of August '15 to Mid September '15 there will be only very limited support, as ragnar and me are on vacation, very busy etc.**
+
 ## Updates
 If you have code to improve a class you can send a "pull request".
 We will look over it and may merge it with BadBoy.
