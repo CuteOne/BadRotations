@@ -145,7 +145,6 @@ function DruidFeral()
 		        and not cat 
 		        and (falling==0 or tarDist<10)
 		    then
-				
 		        if castSpell("player",cf,true,false,false) then return end
 		    end
 		end
@@ -158,6 +157,24 @@ function DruidFeral()
 	            end
 	        end
 	    end
+	-- Perma Fire Cat
+		if isChecked("Perma Fire Cat") and not isInCombat("player") and not stealth then
+			if getBuffRemain("player",138927)<60 then
+				if PlayerHasToy(122304) then
+					if GetItemCooldown(122304)==0 then
+						if spamToyDelay == nil then
+			 				spamToyDelay = GetTime()
+						end
+						if GetTime() > spamToyDelay then
+							UseItemByName(select(1,UseItemByName(122304)))
+							spamToyDelay = GetTime() + 1
+						end
+					end
+				elseif canUse(94604) then
+					useItem(94604)
+				end
+			end
+		end 
 	-- Death Cat mode
 		if isChecked("Death Cat Mode") and cat then
 	        if hastar and tarDist > 8 then
