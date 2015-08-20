@@ -2322,3 +2322,18 @@ function TierScan(thisTier)
 	end
 	return equippedItems;
 end
+
+function hasEquiped(itemID)
+	--Scan Armor Slots to see if specified item was equiped
+	local foundItem = false
+	for i=1, 19 do
+		-- if there is an item in that slot
+		if GetInventoryItemID("player", i) ~= nil then
+			-- check if it matches 
+			if GetInventoryItemID("player", i) == itemID then
+				foundItem = true
+			end
+		end
+	end
+	return foundItem;
+end
