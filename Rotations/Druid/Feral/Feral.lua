@@ -158,23 +158,26 @@ function DruidFeral()
 	        end
 	    end
 	-- Perma Fire Cat
+		-- check if its check and player out of combat an not stealthed
 		if isChecked("Perma Fire Cat") and not isInCombat("player") and not stealth then
+			-- check if Burning Essence buff has less than 60secs remaining
 			if getBuffRemain("player",138927)<60 then
+				-- check if player has the Fandral's Seed Pouch
 				if PlayerHasToy(122304) then
+					-- check if item is off cooldown
 					if GetItemCooldown(122304)==0 then
-						if spamToyDelay == nil then
-			 				spamToyDelay = GetTime()
-						end
-						if GetTime() > spamToyDelay then
+						-- Let's only use it once and not spam it
+						if not spamToyDelay or GetTime() > spamToyDelay then
 							UseItemByName(select(1,UseItemByName(122304)))
 							spamToyDelay = GetTime() + 1
 						end
 					end
+				-- check if Burning Seeds exist and are useable if Fandral's Seed Pouch doesn't exist
 				elseif canUse(94604) then
 					useItem(94604)
 				end
 			end
-		end 
+		end
 	-- Death Cat mode
 		if isChecked("Death Cat Mode") and cat then
 	        if hastar and tarDist > 8 then

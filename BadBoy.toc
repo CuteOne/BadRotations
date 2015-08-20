@@ -85,7 +85,6 @@ Rotations\Druid\Feral\Feral.lua
 Rotations\Druid\Feral\Options.lua
 Rotations\Druid\Feral\Functions.lua
 Rotations\Druid\Feral\CuteBar.lua
-Rotations\Druid\Feral\SpellList.lua
 Rotations\Druid\Feral\Toggles.lua
 
 Rotations\Druid\Guardian\Guardian.lua
