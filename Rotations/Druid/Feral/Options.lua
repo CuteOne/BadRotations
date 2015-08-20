@@ -57,26 +57,30 @@ if select(3, UnitClass("player")) == 11 then
                 wrapOp("--- General (Profile) ---")
 
                     -- Death Cat
-                    checkOp("Death Cat Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.")
+                    checkOp("Death Cat Mode","|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.")
                     textOp("Death Cat Mode")
+
+                    -- Fire Cat
+                    checkOp("Perma Fire Cat","|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic use of Fandrel's Seed Pouch or Burning Seeds.")
+                    textOp("Perma Fire Cat")
 
                     -- Mark Of The Wild
                     if isKnown(mow) then
-                        checkOp("Mark of the Wild","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Mark of Wild usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
+                        checkOp("Mark of the Wild","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFautomatic Mark of Wild usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
                         textOp(tostring(select(1,GetSpellInfo(mow))))
                     end
 
                     -- Dummy DPS Test
-                    checkOp("DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.")
+                    checkOp("DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.")
                     boxOp("DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
                     textOp("DPS Testing")
 
                     -- Travel Shapeshifts
-                    checkOp("Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
+                    checkOp("Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
                     textOp("Auto Shapeshifts")
 
                     -- Mouseover Targeting
-                    checkOp("Mouseover Targeting","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFmouseover target validation.|cffFFBB00.")
+                    checkOp("Mouseover Targeting","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFmouseover target validation.|cffFFBB00.")
                     textOp("Mouseover Targeting")
 
                 -- Spacer

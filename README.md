@@ -40,7 +40,7 @@ Raiable means if its good to raid with.
 |spec |status|author|patch|raidable?|
 |:----|------:|:-------|:---:|:-----:|
 |**Druid**||||
-|Feral|100%|CuteOne|6.1|:white_check_mark:|
+|Feral|100%|CuteOne|**6.2**|:white_check_mark:|
 |Guardian|70%|chumii|6.1|:white_check_mark:
 |Restoration|100%|Masoud|6.1|:interrobang:
 |Moonkin|work in progress|ragnar| ? |:x:

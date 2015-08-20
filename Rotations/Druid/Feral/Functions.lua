@@ -63,19 +63,44 @@ if select(3, UnitClass("player")) == 11 then
         WA_stats_ThrashTick = DamageMult
     end
 
+    --Moonfire Debuff Time Remaining
+    function moonfireRemain(unit)
+        return getDebuffRemain(unit,mf,"player")
+    end
+
+    --Thrash Debuff Time Remaining
+    function thrashRemain(unit)
+        return getDebuffRemain(unit,thr,"player")
+    end
+
+    --Thrash Debuff Total Time
+    function thrashDuration(unit)
+        return getDebuffDuration(unit,thr,"player")
+    end
+
+    --Rake Debuff Time Remaining
+    function rakeRemain(unit)
+        return getDebuffRemain(unit,rk,"player")
+    end
+
+    --Rake Debuff Total Time
+    function rakeRemain(unit)
+        return getDebuffDuration(unit,rk,"player")
+    end
+
     --Calculated Rake Dot Damage
-    function CRKD()
+    function rakeCalcDotDmg()
         WA_calcStats_feral()
         local calcRake = WA_stats_RakeTick
         return calcRake
     end
 
     --Applied Rake Dot Damage
-    function RKD(unit)
+    function rakeAppliedDotDmg(unit)
         if Rake_sDamage==nil then
             return 0.5
         elseif ObjectExists(unit) then
-            if getDebuffRemain(unit,rk,"player")==0 then
+            if rakeRemain(unit)==0 then
                 rakeDot = 0.5
             else
                 rakeDot = Rake_sDamage[UnitGUID(unit)]
@@ -89,24 +114,34 @@ if select(3, UnitClass("player")) == 11 then
     end
 
     --Rake Dot Damage Percent
-    function RKP(unit)
-        local RatioPercent = floor(CRKD()/RKD(unit)*100+0.5)
+    function rakePercentDotDmg(unit)
+        local RatioPercent = floor(rakeCalcDotDmg()/rakeAppliedDotDmg(unit)*100+0.5)
         return RatioPercent
     end
 
+    --Rip Debuff Time Remaining
+    function ripRemain(unit)
+        return getDebuffRemain(unit,rp,"player")
+    end
+
+    --Rip Debuff Total Duration
+    function ripDuration(unit)
+        return getDebuffDuration(unit,rp,"player")
+    end
+
     --Calculated Rip Dot Damage
-    function CRPD()
+    function ripCalcDotDmg()
         WA_calcStats_feral()
         local calcRip = WA_stats_RipTick5
         return calcRip
     end
 
     --Applied Rip Dot Damage
-    function RPD(unit)
+    function ripAppliedDotDmg(unit)
         if Rip_sDamage==nil then
             return 0.5
         elseif ObjectExists(unit) then
-            if getDebuffRemain(unit,rp,"player")==0 then
+            if ripRemain(unit)==0 then
                 ripDot = 0.5
             else
                 ripDot = Rip_sDamage[UnitGUID(unit)]
@@ -120,9 +155,24 @@ if select(3, UnitClass("player")) == 11 then
     end
 
     --Rip Dot Damage Percent
-    function RPP()
-        local RatioPercent = floor(CRPD()/RPD(unit)*100+0.5)
+    function ripPercentDotDmg(unit)
+        local RatioPercent = floor(ripCalcDotDmg()/ripAppliedDotDmg(unit)*100+0.5)
         return RatioPercent
+    end
+
+    --Target HP
+    function thp(unit)
+        return getHP(unit)
+    end
+
+    --Target Time to Die
+    function ttd(unit)
+        return getTimeToDie(unit)
+    end
+
+    --Target Distance
+    function tarDist(unit)
+        return getDistance("player",unit)
     end
 
     function useCDs()

@@ -32,29 +32,6 @@ function DruidFeral()
 		local p2t17 = TierScan("T17")>=2
 		local t18_2pc = TierScan("T18")>=2
 		local t18_4pc = TierScan("T18")>=4
-		--General Target Variables
-		local dynamicUnit = {
-			["dyn5"] = dynamicTarget(5,true), --Melee
-			["dyn8"] = dynamicTarget(8,true), --Swipe
-			["dyn8AoE"] = dynamicTarget(8,false), --Thrash
-			["dyn20AoE"] = dynamicTarget(20,false), --Prowl
-			["dyn13"] = dynamicTarget(13,true), --Skull Bash
-			["dyn40AoE"] = dynamicTarget(40,false), --Cat Form/Moonfire
-		}
-		local deadtar, attacktar, hastar, playertar = deadtar, attacktar, hastar, UnitIsPlayer("target")
-			if deadtar == nil then deadtar = UnitIsDeadOrGhost("target") end
-			if attacktar == nil then attacktar = UnitCanAttack("target", "player") end
-			if hastar == nil then hastar = ObjectExists("target") end
-		local thisUnit = thisUnit
-			if thisUnit == nil then thisUnit = "target" end
-		local tarDist = tarDist
-			if tarDist == nil then tarDist = getDistance("player","target") end
-		local friendly = friendly
-			if friendly == nil then friendly = UnitIsFriend("target", "player") end
-		local thp = thp
-			if thp == nil then thp = getHP("target") end
-		local ttd = ttd
-			if ttd == nil then ttd = getTimeToDie("target") end
 		-- Specific Player Variables
 		local combo = getCombo()
 		local clearcast = UnitBuffID("player",cc)~=nil
@@ -69,26 +46,38 @@ function DruidFeral()
 	    local srRemain = getBuffRemain("player",svr)
 	    local tfRemain, tfCooldown = getBuffRemain("player",tf), GetSpellCooldown(tf)
 	    local fonCooldown, fonCharge, fonRecharge = GetSpellCooldown(fon), getCharges(fon), getRecharge(fon)
-	    local berserk, berCooldown = UnitBuffID("player",ber)~=nil, GetSpellCooldown(ber)
+	    local berserk, berRemain, berCooldown = UnitBuffID("player",ber)~=nil, getBuffRemain("player",ber), GetSpellCooldown(ber)
 	    local incarnation, incBuff, incCooldown, incRemain = getTalent(4,2), UnitBuffID("player",inc)~=nil, GetSpellCooldown(inc), getBuffRemain("player",inc)
 	    local vicious = getBuffRemain("player",148903)
 	    local restlessagi = getBuffRemain("player",146310)
 	    local bloodtalons, btRemain,btStacks = getTalent(7,2), getBuffRemain("player",bt), getBuffStacks("player",bt,"player")
-	    newSr = 18 + (6*(combo-1))
-	    tt5 = 40*getRegen("player")*(5-floor(UnitPower("player")/40))
-		--Specific Target Variables
-	    local rkCalc, rpCalc, rkDmg, rpDmg = CRKD(), CRPD(), RKD(dynamicUnit.dyn5), RPD(dynamicUnit.dyn5)
-	    local rkRemain, rkDuration, stunRemain = getDebuffRemain(dynamicUnit.dyn5,rk,"player"), getDebuffDuration(dynamicUnit.dyn5,rk,"player"), 0
-	    local rpRemain, rpDuration = getDebuffRemain(dynamicUnit.dyn5,rp,"player"), getDebuffDuration(dynamicUnit.dyn5,rp,"player")
-	    local thrRemain, thrDuration = getDebuffRemain(dynamicUnit.dyn8AoE,thr,"player"), getDebuffDuration(dynamicUnit.dyn8AoE,thr,"player")
-	    local mfRemain, mfTick = getDebuffRemain(dynamicUnit.dyn40AoE,mf,"player"), 20.0/(1+UnitSpellHaste("player")/100)/10
-	    if srRemain - rpRemain >= 0 then
-	    	srrpDiff = srRemain - rpRemain
+	    local newSr = 18 + (6*(combo-1))
+	    local tt5 = 40*getRegen("player")*(5-floor(UnitPower("player")/40))
+		-- Target Variables
+		local dynTar5 = dynamicTarget(5,true) --Melee
+		local dynTar8 = dynamicTarget(8,true) --Swipe
+		local dynTar8AoE = dynamicTarget(8,false) --Thrash
+		local dynTar13 = dynamicTarget(13,true) --Skull Bash
+		local dynTar20AoE = dynamicTarget(20,false) --Prowl
+		local dynTar40AoE = dynamicTarget(40,false) --Cat Form/Moonfire		
+		local deadtar, attacktar, hastar, playertar = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
+		local dynTable5 = (useCleave() and enemiesTable) or { [1] = {["unit"]=dynTar5, ["distance"] = tarDist(dynTar5)}}
+		local dynTable8 = (useCleave() and enemiesTable) or { [1] = {["unit"]=dynTar8, ["distance"] = tarDist(dynTar8)}}
+		local dynTable8AoE = (useCleave() and enemiesTable) or { [1] = {["unit"]=dynTar8AoE, ["distance"] = tarDist(dynTar8AoE)}}
+		local dynTable13 = (useCleave() and enemiesTable) or { [1] = {["unit"]=dynTar13, ["distance"] = tarDist(dynTar13)}}
+		local dynTable20AoE = (useCleave() and enemiesTable) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = tarDist(dynTar20AoE)}}
+		local dynTable40AoE = (useCleave() and enemiesTable) or { [1] = {["unit"]=dynTar40AoE, ["distance"] = tarDist(dynTar40AoE)}}
+		local friendly = friendly or UnitIsFriend("target", "player")
+	    local stunRemain = getDebuffRemain(dynTar5,rks,"player")
+	    local mfTick = 20.0/(1+UnitSpellHaste("player")/100)/10
+
+		if srRemain - ripRemain(thisUnit) >= 0 then
+	    	srrpDiff = srRemain - ripRemain(thisUnit)
 	    end
-	    if rpRemain - srRemain > 0 then
-	    	srrpDiff = rpRemain - srRemain
+	    if ripRemain(thisUnit) - srRemain > 0 then
+	    	srrpDiff = ripRemain(thisUnit) - srRemain
 	    end
-	    --ChatOverlay(round2(rkRemain))
+
 --------------------------------------------------
 --- Ressurection/Dispelling/Healing/Pause/Misc ---
 --------------------------------------------------
@@ -139,13 +128,12 @@ function DruidFeral()
 		        if castSpell("player",trf,true,false,false) then return end
 		    end
 	-- Cat Form
-		    if ((not dead and hastar and not friendly and attacktar and tarDist<=40)
+		    if ((not dead and hastar and not friendly and attacktar and tarDist(dynTar20AoE)<=40)
 		    		or (isMoving("player") and not travel and not IsFalling()))
-		        and (not IsFlying() or (IsFlying() and tarDist<10))
+		        and (not IsFlying() or (IsFlying() and tarDist(dynTar20AoE)<10))
 		        and not cat 
-		        and (falling==0 or tarDist<10)
+		        and (falling==0 or tarDist(dynTar20AoE)<10)
 		    then
-				
 		        if castSpell("player",cf,true,false,false) then return end
 		    end
 		end
@@ -158,9 +146,30 @@ function DruidFeral()
 	            end
 	        end
 	    end
+	-- Perma Fire Cat
+		-- check if its check and player out of combat an not stealthed
+		if isChecked("Perma Fire Cat") and not isInCombat("player") and not stealth and cat then
+			-- check if Burning Essence buff has less than 60secs remaining
+			if getBuffRemain("player",138927)<60 then
+				-- check if player has the Fandral's Seed Pouch
+				if PlayerHasToy(122304) then
+					-- check if item is off cooldown
+					if GetItemCooldown(122304)==0 then
+						-- Let's only use it once and not spam it
+						if not spamToyDelay or GetTime() > spamToyDelay then
+							UseItemByName(select(1,UseItemByName(122304)))
+							spamToyDelay = GetTime() + 1
+						end
+					end
+				-- check if Burning Seeds exist and are useable if Fandral's Seed Pouch doesn't exist
+				elseif canUse(94604) then
+					useItem(94604)
+				end
+			end
+		end
 	-- Death Cat mode
 		if isChecked("Death Cat Mode") and cat then
-	        if hastar and tarDist > 8 then
+	        if hastar and tarDist(dynTar8AoE) > 8 then
 	            ClearTarget()
 	        end
             if enemies > 0 then
@@ -171,7 +180,7 @@ function DruidFeral()
                     if castSpell("player",svr,true,false,false) then return end
                 end
                 if power > 40 and enemies == 1 then
-	                if castSpell(dynamicUnit.dyn5,shr,false,false,false) then swipeSoon = nil; return end
+	                if castSpell(dynTar5,shr,false,false,false) then swipeSoon = nil; return end
                 end
                 if power > 45 and enemies > 1 then
                     if swipeSoon == nil then
@@ -269,16 +278,16 @@ function DruidFeral()
 			then
 		-- Prowl
 		        if useProwl() and not stealth 
-		        	and (ObjectExists(dynamicUnit.dyn20) or isKnown(eprl)) and GetTime()-leftCombat > lootDelay 
+		        	and (ObjectExists(dynTar20) or isKnown(eprl)) and GetTime()-leftCombat > lootDelay 
 		        then
 					if castSpell("player",prl,false,false,false) then return end
 		        end
 		-- Rake/Shred
-		        if power>40 and getDistance(dynamicUnit.dyn5)<5 then
+		        if power>40 and tarDist(dynTar5)<5 then
 		        	if isKnown(irk) then
-		        		if castSpell(dynamicUnit.dyn5,rk,false,false,false) then return end
+		        		if castSpell(dynTar5,rk,false,false,false) then return end
 		        	else
-		            	if castSpell(dynamicUnit.dyn5,shr,false,false,false) then return end
+		            	if castSpell(dynTar5,shr,false,false,false) then return end
 		            end
 		        end
 		        if stealth then
@@ -296,59 +305,56 @@ function DruidFeral()
 	--- In Combat - Dummy Test ---
 	------------------------------
 		-- Dummy Test
-				-- if isChecked("DPS Testing") then
-				-- 	if ObjectExists("target") then
-				-- 		if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
-				-- 			StopAttack()
-				-- 			ClearTarget()
-				-- 			print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
-				-- 			profileStop = true
-				-- 		end
-				-- 	end
-				-- end
+				if isChecked("DPS Testing") then
+					if ObjectExists("target") then
+						if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+							StopAttack()
+							ClearTarget()
+							print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+							profileStop = true
+						end
+					end
+				end
 	------------------------------
 	--- In Combat - Interrupts ---
 	------------------------------
 				if useInterrupts() and not stealth then
-		          for i=1, #enemiesTable do
-		            thisUnit = enemiesTable[i].unit
-		            if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+		          	for i=1, #enemiesTable do
+			            thisUnit = enemiesTable[i].unit
+			            if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
 				-- Skull Bash
-		    			    if isChecked("Skull Bash") then
-		    					    --if castInterrupt(sb,getOptionValue("Interrupt At")) then return end
-		                  if castSpell(thisUnit,sb,false,false,false) then return end
-		    					end
+			    			if isChecked("Skull Bash") and enemiesTable[i].distance<13 then
+			    			    --if castInterrupt(sb,getOptionValue("Interrupt At")) then return end
+			                	if castSpell(thisUnit,sb,false,false,false) then return end
+			    			end
 				-- Mighty Bash
-		    			    if isChecked("Mighty Bash") then
-		    			        --if castInterrupt(mb,getOptionValue("Interrupt At")) then return end
-		                  if castSpell(thisUnit,mb,false,false,false) then return end
-		    			    end
+			    			if isChecked("Mighty Bash") then
+			    			    --if castInterrupt(mb,getOptionValue("Interrupt At")) then return end
+			                	if castSpell(thisUnit,mb,false,false,false) then return end
+			    			end
 				-- Maim (PvP)
-		    			    if isChecked("Maim") and combo > 0 and power >= 35 and isInPvP() then
-		    			        --if castInterrupt(ma,getOptionValue("Interrupt At")) then return end
-		                  if castSpell(thisUnit,ma,false,false,false) then return end
-		    			    end
-		            end
-		          end
-			  end
+			    			if isChecked("Maim") and combo > 0 and power >= 35 and isInPvP() then
+			    			    --if castInterrupt(ma,getOptionValue("Interrupt At")) then return end
+			                	if castSpell(thisUnit,ma,false,false,false) then return end
+			    			end
+		            	end
+		          	end
+			 	end
 	-----------------------------
 	--- In Combat - Cooldowns ---
 	-----------------------------
-				if not stealth and ObjectExists(dynamicUnit.dyn5) then
-					thisUnit = dynamicUnit.dyn5
-					ttd = getTimeToDie(dynamicUnit.dyn5)
-					thp = getHP(dynamicUnit.dyn5)
+				if not stealth and ObjectExists(dynTar5) then
 		-- Tier 4 Talent: Force of Nature
 			        if useCDs() and fonCooldown == 0 then
 			            if fonCharge == 3 or (fonCharge == 2 and (fonRecharge - GetTime()) > 19) then
-			                if castSpell(dynamicUnit.dyn5,fon,true,false,false) then return end
-			            elseif (vicious>0 and vicious<1) or restlessagi==20 or ttd<20 then
-			                if castSpell(dynamicUnit.dyn5,fon,true,false,true) then return end
+			                if castSpell(dynTar5,fon,true,false,false) then return end
+			            elseif (vicious>0 and vicious<1) or restlessagi==20 or ttd(dynTar5)<20 then
+			                if castSpell(dynTar5,fon,true,false,true) then return end
 			            end
 		            end
 		-- Berserk
-					--if=buff.king_of_the_jungle.up|!talent.incarnation.enabled
-		            if useCDs() and tfRemain>0 and power>60 and ttd >= 18 and (incBuff or not incarnation) then
+					--if=buff.tigers_fury.up&(buff.incarnation.up|!talent.incarnation_king_of_the_jungle.enabled)
+		            if useCDs() and tfRemain>0 and ttd(dynTar5) >= 18 and (incBuff or not incarnation) then
 		                if castSpell("player",ber,true,false,false) then return end
 		            end
 		-- Trinkets
@@ -371,7 +377,7 @@ function DruidFeral()
 					-- end
 		-- Agi-Pot
 					-- if=(buff.berserk.remains>10&(target.time_to_die<180|(trinket.proc.all.react&target.health.pct<25)))|target.time_to_die<=40
-		            if useCDs() and canUse(109217) and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") and ((berRemain>10 and (ttd(dynamicUnit.dyn5)<180 or (thp<25))) or ttd(dynamicUnit.dyn5)<=40) then
+		            if useCDs() and canUse(109217) and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") and ((berRemain>10 and (ttd(dynTar5)<180 or (thp(dynTar5)<25))) or ttd(dynTar5)<=40) then
 		                UseItemByName(tostring(select(1,GetItemInfo(109217))))
 		            end
 		-- Racial: Orc Blood Fury
@@ -387,18 +393,18 @@ function DruidFeral()
 		                if castSpell("player",beat,true,false,false) then return end
 		            end
 		-- Tiger's Fury
-					-- if=(!buff.omen_of_clarity.react&energy.max-energy>=60)|energy.max-energy>=80
-					if ((not clearcast and powmax-power>=60) or powmax-power>=80) and ObjectExists(dynamicUnit.dyn5) then
+					-- if=(!buff.omen_of_clarity.react&energy.deficit>=60)|energy.deficit>=80|(t18_class_trinket&buff.berserk.up&buff.tigers_fury.down)
+					if ((not clearcast and powmax-power>=60) or powmax-power>=80 or (hasEquiped(124514) and berRemain>0 and tfRemain==0)) and ObjectExists(dynTar5) then
 						if castSpell("player",tf,true,false,false) then return end
 					end
 		-- Tier 4 Talent: Incarnation - King of the Jungle
 					-- if=cooldown.berserk.remains<10&energy.time_to_max>1
-		            if useCDs() and berCooldown<10 and ttm>1 and tarDist<5 then
+		            if useCDs() and berCooldown<10 and ttm>1 and tarDist(dynTar5)<5 then
 		                if castSpell("player",inc,true,false,false) then return end
 		            end
 		-- Racial: Night Elf Shadowmeld
 					-- dot.rake.remains<4.5&energy>=35&dot.rake.pmultiplier<2&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(!talent.incarnation.enabled|cooldown.incarnation.remains>15)&!buff.king_of_the_jungle.up
-					if useCDs() and (rkRemain<4.5 and power>=35 and rkDmg<2 
+					if useCDs() and (rakeRemain(dynTar5)<4.5 and power>=35 and rakeAppliedDotDmg(dynTar5)<2 
 						and (btRemain>0 or not bloodtalons) and (not incarnation or incCooldown>15) and not incBuff)
 						and select(2,IsInInstance())~="none"
 					then
@@ -411,9 +417,9 @@ function DruidFeral()
 		-- Rake/Shred from Stealth
 				if stealth and power>40 and stunRemain==0 then
 					if isKnown(irk) then
-		        		if castSpell(dynamicUnit.dyn5,rk,false,false,false) then return end
+		        		if castSpell(dynTar5,rk,false,false,false) then return end
 		        	else
-		            	if castSpell(dynamicUnit.dyn5,shr,false,false,false) then return end
+		            	if castSpell(dynTar5,shr,false,false,false) then return end
 		            end
 				end
 				if stealth then
@@ -421,27 +427,17 @@ function DruidFeral()
 				end
 				if not stealth and isInCombat("player") and BadBoy_data['AoE'] ~= 4 then
 		-- Ferocious Bite
-					--if=dot.rip.ticking&dot.rip.remains<3&target.health.pct<25
-					if useCleave() then
-						for i=1, #enemiesTable do
-							if enemiesTable[i].distance<5 then
-								thisUnit = enemiesTable[i].unit
-								rpRemain = getDebuffRemain(thisUnit,rp,"player")
-								if power>25 and ((rpRemain>0 and rpRemain < 3 and combo>0 and enemiesTable[i].hp<25)
-									or (((3.4*UnitAttackPower("player"))*combo/5)>UnitHealth(thisUnit))) 
-								then
-									if castSpell(thisUnit,fb,false,false,false) then return end
-								end
+					-- cycle_targets=1,if=dot.rip.ticking&dot.rip.remains<3&target.health.pct<25
+					for i=1, #dynTable5 do
+						local thisUnit = dynTable5[i].unit
+						if dynTable5[i].distance<5 then
+							if ripRemain(thisUnit)>0 and ripRemain(thisUnit)<3 and thp(thisUnit)<25 and combo>0 and power>25 then
+								if castSpell(thisUnit,fb,false,false,false) then return end
 							end
-						end
-					else
-						thisUnit = dynamicUnit.dyn5
-						if power>25 and ((rpRemain>0 and rpRemain < 3 and getHP(thisUnit)<25 and combo>0) or (((3.4*UnitAttackPower("player"))*combo/5)>UnitHealth(thisUnit))) then
-							if castSpell(thisUnit,fb,false,false,false) then return end
 						end
 					end
 		-- Healing Touch
-					--actions+=/healing_touch,if=talent.bloodtalons.enabled&buff.predatory_swiftness.up&((combo_points>=4&!set_bonus.tier18_4pc)|combo_points=5|buff.predatory_swiftness.remains<1.5)
+					-- if=talent.bloodtalons.enabled&buff.predatory_swiftness.up&((combo_points>=4&!set_bonus.tier18_4pc)|combo_points=5|buff.predatory_swiftness.remains<1.5)
 					if bloodtalons and psRemain > 0 and ((combo >= 4 and not t18_4pc) or combo == 5 or psRemain < 1.5) then
 						if getOptionValue("Auto Heal")==1 then
 		                    if castSpell(nNova[1].unit,ht,true,false,false) then return end
@@ -452,29 +448,27 @@ function DruidFeral()
 					end
 		-- Savage Roar
 					-- if=buff.savage_roar.down
-					if srRemains==0 and combo>0 and power>25 and ObjectExists(dynamicUnit.dyn5) then
-					--if (srRemain<1 or (srRemain<rpRemain and newSr-rpRemain>1)) and combo>0 and power>25 and ObjectExists(dynamicUnit.dyn5) then 
+					if srRemains==0 and combo>0 and power>25 and ObjectExists(dynTar5) then
+					--if (srRemain<1 or (srRemain<rpRemain and newSr-rpRemain>1)) and combo>0 and power>25 and ObjectExists(dynTar5) then 
 						if castSpell("player",svr,true,false,false) then return end
 		            end
 		-- Thrash with T18 4pc
-					-- actions+=/thrash_cat,if=set_bonus.tier18_4pc&buff.omen_of_clarity.react&remains<4.5&combo_points+buff.bloodtalons.stack!=6
-					if t18_4pc and clearcast and thrRemain < 4.5 and (combo + btStacks) ~= 6 then
-						if castSpell(dynamicUnit.dyn8AoE,thr,true,false,false) then return end
+					-- if=set_bonus.tier18_4pc&buff.omen_of_clarity.react&remains<4.5&combo_points+buff.bloodtalons.stack!=6
+					if t18_4pc and clearcast and thrashRemain(dynTar8AoE)<4.5 and (combo + btStacks) ~= 6 then
+						if castSpell(dynTar8AoE,thr,true,false,false) then return end
 					end
 		-- Pool Energy then Thrash
-					if useCleave() or (BadBoy_data['AoE'] == 2 and not useCleave()) then
-						for i=1, #enemiesTable do
-							if enemiesTable[i].distance<8 then
-								thisUnit = enemiesTable[i].unit
-								thrRemain = getDebuffRemain(thisUnit,thr,"player")
+					-- cycle_targets=1,if=remains<4.5&(active_enemies>=2&set_bonus.tier17_2pc|active_enemies>=4)
+					for i=1, #dynTable8AoE do
+						local thisUnit = dynTable8AoE[i].unit
+						if dynTable8AoE[i].distance<8 then
+							if thrashRemain(thisUnit)<4.5 and ((enemies>=2 and p2t17) or enemies>=4) then
+								if power < 50 then
 				-- Pool Energy
-								if power<50 and thrRemain<4.5 and ((enemies>=2 and p2t17) or enemies>=4) and power>50 then
 									return true
-								end
+								else
 				-- Thrash
-								-- if=remains<4.5&(active_enemies>=2&set_bonus.tier17_2pc|active_enemies>=4)
-								if thrRemain<4.5 and ((enemies>=2 and p2t17) or enemies>=4) and power>50 then
-									if castSpell(dynamicUnit.dyn8AoE,thr,true,false,false) then return end
+									if castSpell(dynTar8AoE,thr,true,false,false) then return end
 								end
 							end
 						end
@@ -482,209 +476,141 @@ function DruidFeral()
 		-- Finishers
 					-- if=combo_points=5
 					if combo==5 then 
-      -- Finisher: Rip
-            if useCleave() then
-              for i=1, #enemiesTable do
-                if enemiesTable[i].distance<5 then
-                  thisUnit = enemiesTable[i].unit
-                  rpRemain = getDebuffRemain(thisUnit,rp,"player")
-                  ttd = getTimeToDie(thisUnit)
-                  thp = getHP(thisUnit)
-                  -- if=(remains<7.2&target.health.pct>=25|!ticking)&target.time_to_die-remains>18&active_enemies>1
-                  if (rpRemain<7.2 and thp>=25 or rpRemain==0) and ttd-rpRemain>18 and enemies > 1 and power>30 then
-                      if castSpell(thisUnit,rp,false,false,false) then return end
-                  end
-                end
-              end
-            end
-			-- Finisher: Ferocious Bite
-						--if=target.health.pct<25&dot.rip.ticking
-						if power>50 and getHP(thisUnit)<25 and rpRemain>0 then
-							if castSpell(thisUnit,fb,false,false,false) then return end
-						end
-			-- Finisher: Rip
-						if power>30 and tarDist<5 then
-							-- if=remains<7.2&persistent_multiplier>dot.rip.pmultiplier&target.time_to_die-remains>18
-							if rpRemain<7.2 and rpCalc>rpDmg and ttd-rpRemain>18 then
-								if castSpell(thisUnit,rp,false,false,false) then return end
-							end
-							-- if=remains<7.2&persistent_multiplier=dot.rip.pmultiplier&(energy.time_to_max<=1|!talent.bloodtalons.enabled)&target.time_to_die-remains>18
-							if rpRemain<7.2 and rpCalc==rpDmg and (ttm<=1 or not bloodtalons) and ttd-rpRemain>18 then
-								if castSpell(thisUnit,rp,false,false,false) then return end
-							end
-							-- if=remains<2&target.time_to_die-remains>18
-							if rpRemain<2 and ttd-rpRemain>18 then
-								if castSpell(thisUnit,rp,false,false,false) then return end
+      			-- Finisher: Rip
+      					-- cycle_targets=1,if=remains<2&target.time_to_die-remains>18&(target.health.pct>25|!dot.rip.ticking)
+			            for i=1, #dynTable5 do
+							local thisUnit = dynTable5[i].unit
+							if dynTable5[i].distance<5 then
+								if (ripRemain(thisUnit)<2 and ttd(thisUnit)-ripRemain(thisUnit)>18 and (thp(thisUnit)>25 or ripRemain(thisUnit)<2)) and power>30 then
+									if castSpell(thisUnit,rp,false,false,false) then return end
+								end
 							end
 						end
-			-- Finisher: Savage Roar
-						-- actions.finisher+=/savage_roar,if=((set_bonus.tier18_4pc&energy>50)|(set_bonus.tier18_2pc&buff.omen_of_clarity.react)|energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)&buff.savage_roar.remains<12.6
+				-- Finisher: Ferocious Bite
+						-- cycle_targets=1,max_energy=1,if=target.health.pct<25&dot.rip.ticking
+						for i=1, #dynTable5 do
+							local thisUnit = dynTable5[i].unit
+							if dynTable5[i].distance<5 then
+								if power>50 and thp(thisUnit)<25 and ripRemain(thisUnit)>0 then
+									if castSpell(thisUnit,fb,false,false,false) then return end
+								end
+							end
+						end
+				-- Finisher: Rip
+						-- cycle_targets=1,if=remains<7.2&persistent_multiplier>dot.rip.pmultiplier&target.time_to_die-remains>18
+						for i=1, #dynTable5 do
+							local thisUnit = dynTable5[i].unit
+							if dynTable5[i].distance<5 and power>30 then
+								if ripRemain(thisUnit)<7.2 and ripCalcDotDmg()>ripAppliedDotDmg(thisUnit) and ttd(thisUnit)-ripRemain(thisUnit)>18 then
+									if castSpell(thisUnit,rp,false,false,false) then return end
+								end
+							end
+						end
+						-- if=remains<7.2&persistent_multiplier=dot.rip.pmultiplier&(energy.time_to_max<=1|!talent.bloodtalons.enabled)&target.time_to_die-remains>18
+						for i=1, #dynTable5 do
+							local thisUnit = dynTable5[i].unit
+							if dynTable5[i].distance<5 and power>30 then
+								if ripRemain(thisUnit)<7.2 and ripCalcDotDmg()==ripAppliedDotDmg(thisUnit) and (ttm<=1 or not bloodtalons) and ttd(thisUnit)-ripRemain(thisUnit)>18 then
+									if castSpell(thisUnit,rp,false,false,false) then return end
+								end
+							end
+						end
+				-- Finisher: Savage Roar
+						-- if=((set_bonus.tier18_4pc&energy>50)|(set_bonus.tier18_2pc&buff.omen_of_clarity.react)|energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)&buff.savage_roar.remains<12.6
 						if ((t18_4pc and power > 50) or (t18_2pc and clearcast) or ttm<=1 or berserk or tfCooldown<3) and srRemain<12.6 and power>25 then
 							if castSpell("player",svr,true,false,false) then return end
 			      		end
-			-- Finisher: Ferocious Bite
-					--actions.finisher+=/ferocious_bite,max_energy=1,if=(set_bonus.tier18_4pc&energy>50)|(set_bonus.tier18_2pc&buff.omen_of_clarity.react)|energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3
-	    			if (t18_4pc and power > 50) or (t18_2pc and clearcast) or ttm<=1 or berserk or tfCooldown<3 then
-		    			if castSpell(dynamicUnit.dyn5,fb,false,false,false) then return end
-		       		end
-				  end --End Finishers
+				-- Finisher: Ferocious Bite
+						-- max_energy=1,if=(set_bonus.tier18_4pc&energy>50)|(set_bonus.tier18_2pc&buff.omen_of_clarity.react)|energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3
+		    			if ((t18_4pc and power > 50) or (t18_2pc and clearcast) or ttm<=1 or berserk or tfCooldown<3) and power>50 then
+			    			if castSpell(dynTar5,fb,false,false,false) then return end
+			       		end
+					end --End Finishers
 		-- Savage Roar
 					-- if=buff.savage_roar.remains<gcd
 					if srRemain<gcd and power>25 and combo>0 then
 						if castSpell("player",svr,true,false,false) then return end
 					end
-		-- Rake
-					if useCleave() and enemies>1 then
-	    				for i=1, #enemiesTable do
-	    					if enemiesTable[i].distance<5 then
-	    						thisUnit = enemiesTable[i].unit
-	    						rkRemain = getDebuffRemain(thisUnit,rk,"player")
-								ttd = getTimeToDie(thisUnit)
-								-- if=combo_points<5&remains<3&buff.king_of_the_jungle.up&active_enemies<=15&((target.time_to_die-remains>3&active_enemies<=5)|target.time_to_die-remains>3*(active_enemies%2-2))
-								if combo<5 and rkRemain<3 and incBuff and enemies<=15 and ((ttd-rkRemain>3 and enemies <=5) or ttd-rkRemain>3*(enemies/2-2)) and power>35 and stunRemain==0 then
-									if castSpell(thisUnit,rk,false,false,false) then return end
-								end
-							end
-						end
-					else
-						thisUnit = dynamicUnit.dyn5
-						rkRemain = getDebuffRemain(thisUnit,rk,"player")
-						ttd = getTimeToDie(thisUnit)
-						-- if=combo_points<5&remains<3&buff.king_of_the_jungle.up&active_enemies<=15&((target.time_to_die-remains>3&active_enemies<=5)|target.time_to_die-remains>3*(active_enemies%2-2))
-						if combo<5 and rkRemain<3 and incBuff and enemies<=15 and ((ttd-rkRemain>3 and enemies <=5) or ttd-rkRemain>3*(enemies/2-2)) and power>35 and stunRemain==0 then
-							if castSpell(thisUnit,rk,false,false,false) then return end
-						end
-					end
-
 		-- Maintain
-					-- if=combo_points<5&active_enemies<=7
-					if combo<5 and enemies<=7 then
-		    -- Maintina: Rake 
-		    			if useCleave() and enemies>1 then
-		    				for i=1, #enemiesTable do
-		    					if enemiesTable[i].distance<5 then
-		    						thisUnit = enemiesTable[i].unit
-		    						rkRemain = getDebuffRemain(thisUnit,rk,"player")
-		    						ttd = getTimeToDie(thisUnit)
-		    						rkDmg = RKD(thisUnit)
-		    						if power>35 then
-			    						-- if=remains<3&((target.time_to_die-remains>3&active_enemies<=2)|target.time_to_die-remains>3*(active_enemies-2))
-			    						if rkRemain<3 and ((ttd-rkRemain>3 and enemies<=2) or ttd-rkRemain>3*(enemies-2)) and stunRemain==0 then
-			    							if castSpell(thisUnit,rk,false,false,false) then return end
-			    						end
-			    						-- if=remains<4.5&(persistent_multiplier>=dot.rake.pmultiplier|(talent.bloodtalons.enabled&(buff.bloodtalons.up|!buff.predatory_swiftness.up)))&((target.time_to_die-remains>3&active_enemies<=2)|target.time_to_die-remains>3*(active_enemies-2))
-							 	    	if rkRemain<4.5 and (rkCalc>=rkDmg or (bloodtalons and (btRemain>0 or psRemain==0))) and ((ttd-rkRemain>3 and enemies<=2) or ttd-rkRemain>3*(enemies-2)) and stunRemain==0 then
-							 	    		if castSpell(thisUnit,rk,false,false,false) then return end
-			    						end
-			    					end
-						 	    end
+					-- if=combo_points<5
+					if combo<5 then
+		    	-- Maintain: Rake
+		    			-- cycle_targets=1,if=remains<3&((target.time_to_die-remains>3&spell_targets.swipe<3)|target.time_to_die-remains>6)
+		    			for i=1, #dynTable5 do
+							local thisUnit = dynTable5[i].unit
+							if dynTable5[i].distance<5 then 
+			    				if rakeRemain(thisUnit)<3 and ((ttd(thisUnit)-rakeRemain(thisUnit)>3 and enemies<3) or ttd(thisUnit)-rakeRemain(thisUnit)>6) and stunRemain==0 and power>35 then
+			    					if castSpell(thisUnit,rk,false,false,false) then return end
+			    				end
 						 	end
-						else
-							thisUnit = dynamicUnit.dyn5
-	    					rkRemain = getDebuffRemain(thisUnit,rk,"player")
-    						ttd = getTimeToDie(thisUnit)
-    						rkDmg = RKD(thisUnit)
-    						if power>35 then
-	    						-- if=remains<3&((target.time_to_die-remains>3&active_enemies<=2)|target.time_to_die-remains>3*(active_enemies-2))
-	    						if rkRemain<3 and ((ttd-rkRemain>3 and enemies<=2) or ttd-rkRemain>3*(enemies-2)) and stunRemain==0 then
-	    							if castSpell(thisUnit,rk,false,false,false) then return end
-	    						end
-	    						-- if=remains<4.5&(persistent_multiplier>=dot.rake.pmultiplier|(talent.bloodtalons.enabled&(buff.bloodtalons.up|!buff.predatory_swiftness.up)))&((target.time_to_die-remains>3&active_enemies<=2)|target.time_to_die-remains>3*(active_enemies-2))
-					 	    	if rkRemain<4.5 and (rkCalc>=rkDmg or (bloodtalons and (btRemain>0 or psRemain==0))) and ((ttd-rkRemain>3 and enemies<=2) or ttd-rkRemain>3*(enemies-2)) and stunRemain==0 then
-					 	    		if castSpell(thisUnit,rk,false,false,false) then return end
-	    						end
-	    					end
 					 	end
-			-- Maintain: Moonfire
+					 	-- cycle_targets=1,if=remains<4.5&(persistent_multiplier>=dot.rake.pmultiplier|(talent.bloodtalons.enabled&(buff.bloodtalons.up|!buff.predatory_swiftness.up)))&((target.time_to_die-remains>3&spell_targets.swipe<3)|target.time_to_die-remains>6)
+						for i=1, #dynTable5 do
+							local thisUnit = dynTable5[i].unit
+							if dynTable5[i].distance<5 then
+								if rakeRemain(thisUnit)<4.5 and (rakeCalcDotDmg()>=rakeAppliedDotDmg(thisUnit) or (bloodtalons and (btRemain>0 or psRemain==0))) and ((ttd(thisUnit)-rakeRemain(thisUnit)>3 and enemies<3) or ttd(thisUnit)-rakeRemain(thisUnit)>6) and stunRemain==0 and power>35 then
+									if castSpell(thisUnit,rk,false,false,false) then return end
+			    				end
+						 	end
+					 	end 
+				-- Maintain: Moonfire
+						-- cycle_targets=1,if=remains<4.2&spell_targets.swipe<=5&target.time_to_die-remains>tick_time*5
 						if getTalent(7,1) and power>30 then
-							if useCleave() then
-								for i=1, #enemiesTable do
-									if enemiesTable[i].distance<40 then
-										thisUnit = enemiesTable[i].unit
-										mfRemain = getDebuffRemain(thisUnit,mf,"player")
-										ttd = getTimeToDie(thisUnit)
-										--if=remains<4.2&active_enemies<=5&((target.time_to_die-remains>tick_time*5&active_enemies<=2)|target.time_to_die-remains>tick_time*(active_enemies+2))
-							    		if mfRemain<4.2 and enemies<=5 and ((ttd-mfRemain>mfTick*5 and enemies<=2) or ttd-mfRemain>mfTick*(enemies+2)) then
-							    			if castSpell(thisUnit,mf,true,false,false) then return end
-							    		end
-							    	end
+							for i=1, #dynTable40AoE do
+								local thisUnit = dynTable40AoE[i].unit
+								if dynTable40AoE[i].distance<40 then
+									if moonfireRemain(thisUnit)<4.2 and enemies<=5 and ttd(thisUnit)-moonfireRemain(thisUnit)>mfTick*5 then
+						    			if castSpell(thisUnit,mf,true,false,false) then return end
+						    		end
 						    	end
-						    else
-						    	thisUnit = dynamicUnit.dyn40AoE
-						    	mfRemain = getDebuffRemain(thisUnit,mf,"player")
-								ttd = getTimeToDie(thisUnit)
-								--if=remains<4.2&active_enemies<=5&((target.time_to_die-remains>tick_time*5&active_enemies<=2)|target.time_to_die-remains>tick_time*(active_enemies+2))
-					    		if mfRemain<4.2 and enemies<=5 and ((ttd-mfRemain>mfTick*5 and enemies<=2) or ttd-mfRemain>mfTick*(enemies+2)) then
-					    			if castSpell(thisUnit,mf,true,false,false) then return end
-					    		end
 						    end
 					   	end 	        
-    		-- Maintain: Rake
-    					if useCleave() and enemies>1 then
-		    				for i=1, #enemiesTable do
-		    					if enemiesTable[i].distance<5 then
-		    						thisUnit = enemiesTable[i].unit
-		    						rkRemain = getDebuffRemain(thisUnit,rk,"player")
-		    						ttd = getTimeToDie(thisUnit)
-		    						rkDmg = RKD(thisUnit)
-									-- if=persistent_multiplier>dot.rake.pmultiplier&active_enemies=1&((target.time_to_die-remains>3&active_enemies<=2)|target.time_to_die-remains>3*(active_enemies-2))
-									if power>35 and rkCalc>rkDmg and enemies==1 and ((ttd-rkRemain>3 and enemies<=2) or ttd-rkRemain>3*(enemies-2)) and stunRemain==0 then
-						        		if castSpell(thisUnit,rk,false,false,false) then return end
-									end
-								end
-							end
-						else
-							thisUnit = dynamicUnit.dyn5
-    						rkRemain = getDebuffRemain(thisUnit,rk,"player")
-    						ttd = getTimeToDie(thisUnit)
-    						rkDmg = RKD(thisUnit)
-    						-- if=persistent_multiplier>dot.rake.pmultiplier&active_enemies=1&((target.time_to_die-remains>3&active_enemies<=2)|target.time_to_die-remains>3*(active_enemies-2))
-							if power>35 and rkCalc>rkDmg and enemies==1 and ((ttd-rkRemain>3 and enemies<=2) or ttd-rkRemain>3*(enemies-2)) and stunRemain==0 then
-				        		if castSpell(thisUnit,rk,false,false,false) then return end
-							end
-						end
+    			-- Maintain: Rake
+    					-- cycle_targets=1,if=persistent_multiplier>dot.rake.pmultiplier&spell_targets.swipe=1&((target.time_to_die-remains>3&spell_targets.swipe<3)|target.time_to_die-remains>6)
+    					for i=1, #dynTable5 do
+							local thisUnit = dynTable5[i].unit
+							if dynTable5[i].distance<5 then
+								if rakeCalcDotDmg()>rakeAppliedDotDmg(thisUnit) and enemies==1 and ((ttd(thisUnit)-rakeRemain(thisUnit)>3 and enemies<3) or ttd(thisUnit)-rakeRemain(thisUnit)>6) and stunRemain==0 and power>35 then
+									if castSpell(thisUnit,rk,false,false,false) then return end
+			    				end
+			    			end
+			    		end	
 					end --End Maintain
-		-- Pool Energy then Thrash
-					if useCleave() or (BadBoy_data['AoE'] == 2 and not useCleave()) then
-						for i=1, #enemiesTable do
-							if enemiesTable[i].distance<8 then
-								thisUnit = enemiesTable[i].unit
-								thrRemain = getDebuffRemain(thisUnit,thr,"player")
-				-- Pool Energy
-								if power<50 and thrRemain<4.5 and enemies>=2 then
+			-- Pool Energy then Thrash
+					--if useCleave() or (BadBoy_data['AoE'] == 2 and not useCleave()) then
+					for i=1, #dynTable8AoE do
+						local thisUnit = dynTable8AoE[i].unit
+						if dynTable8AoE[i].distance<8 then
+							-- cycle_targets=1,if=remains<4.5&spell_targets.thrash_cat>=2
+							if thrashRemain(thisUnit)<4.5 and enemies>=2 then
+								if power<50 then
+				-- Pool Energy 
 									return true
-								end
-				-- Thrash
-								-- if=remains<4.5&active_enemies>=2
-								if thrRemain<4.5 and enemies>=2 and power>50 then
-									if castSpell(thisUnit,thr,true,false,false) then return end
+								else
+				-- Thrash			
+									if castSpell(thisUnit,thr,true,false,false) then return end	
 								end
 							end
 						end
 					end
-		-- Rake
-					-- if=buff.king_of_the_jungle.up&buff.king_of_the_jungle.remains<=3&dot.rake.remains<15&target.time_to_die-remains>15
-					if incBuff and incRemain<=3 and rkRemain<15 and ttd-rkRemain>15 and power>35 and stunRemain==0 then
-						if castSpell(dynamicUnit.dyn5,rk,false,false,false) then return end
-					end
-		-- Generator
-					-- if=combo_points<5&(energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3|buff.tigers_fury.up|(buff.king_of_the_jungle.up&buff.king_of_the_jungle.remains<3)|dot.rip.remains<8-combo_points|buff.omen_of_clarity.react|(talent.bloodtalons.enabled&buff.predatory_swiftness.up&buff.predatory_swiftness.remains<6.5-combo_points))
-					if combo<5 and (ttm<=1 or berserk or tfCooldown<3 or tfRemain>0 or (incBuff and incRemain<3) or rpRemain<8-combo or clearcast or (bloodtalons and psRemain>0 and psRemain<6.5-combo)) then
-		    -- Swipe
-			   		--if=(buff.king_of_the_jungle.up&active_enemies>=3)|active_enemies>=4
-			   		if power>45 and ((incBuff and enemies>=3) or enemies>=4) then
-			   			if castSpell(dynamicUnit.dyn8,sw,false,false,false) then return end
-			      end
-		    -- Shred
-			   		--if=active_enemies<3
-			   		if power>40 and ((incBuff and enemies<3) or enemies<4) then
-			   			if castSpell(dynamicUnit.dyn5,shr,false,false,false) then return end
-			      end
-			    end --End Generator
-			  end --End No Stealth
+			-- Generator
+					-- if=combo_points<5
+					if combo<5 then
+		    	-- Generator: Swipe
+				   		-- if=spell_targets.swipe>=4|(spell_targets.swipe>=3&buff.incarnation.down)
+				   		if enemies>=4 or (enemies>=3 and incRemain==0) and power>45 then
+				   			if castSpell(dynTar8,sw,false,false,false) then return end
+				      	end
+		    	-- Generator: Shred
+				   		-- if=spell_targets.swipe<3|(spell_targets.swipe=3&buff.incarnation.up)
+				   		if enemies<3 or (enemies==3 and incRemain>0) and power>40 then
+				   			if castSpell(dynTar5,shr,false,false,false) then return end
+				      	end
+			    	end --End Generator
+				end --End No Stealth
 			end --In Combat End
 	-- Start Attack
-			if ObjectExists(dynamicUnit.dyn5) and not stealth and isInCombat("player") and cat and profileStop==false then
+			if ObjectExists(dynTar5) and not stealth and isInCombat("player") and cat and profileStop==false then
 				StartAttack()
 			end
 		end
