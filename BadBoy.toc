@@ -81,6 +81,10 @@ Rotations\Deathknight\Unholy\Libs\SpellList.lua
 Rotations\Deathknight\Unholy\Libs\Toggles.lua
 
 ## Druid ---------------------------------------------------
+Rotations\Druid\cDruid.lua
+Rotations\Druid\Feral\cFeral.lua
+Rotations\Druid\Feral\FeralCuteOne.lua
+
 Rotations\Druid\Feral\Feral.lua
 Rotations\Druid\Feral\Options.lua
 Rotations\Druid\Feral\Functions.lua
