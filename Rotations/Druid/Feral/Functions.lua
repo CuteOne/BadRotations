@@ -84,7 +84,7 @@ if select(3, UnitClass("player")) == 11 then
     end
 
     --Rake Debuff Total Time
-    function rakeRemain(unit)
+    function rakeDuration(unit)
         return getDebuffDuration(unit,rk,"player")
     end
 
@@ -172,7 +172,7 @@ if select(3, UnitClass("player")) == 11 then
 
     --Target Distance
     function tarDist(unit)
-        return getDistance("player",unit)
+        return getDistance(unit)
     end
 
     function useCDs()
@@ -242,6 +242,58 @@ if select(3, UnitClass("player")) == 11 then
             return false
         end
     end
+
+    -- function getDistance2(Unit1,Unit2)
+    --     -- If both units are visible
+    --     if GetObjectExists(Unit1) and UnitIsVisible(Unit1) == true and (Unit2 == nil or (GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true)) then
+    --         -- If Unit2 is nil we compare player to Unit1
+    --         if Unit2 == nil then
+    --             Unit2 = Unit1
+    --             Unit1 = "player"
+    --         end
+    --         -- if unit1 is player, we can use our lib to get precise range
+    --         -- if Unit1 == "player" and (isDummy(Unit2) or UnitCanAttack(Unit2,"player") == true) then
+    --         --     return rc:GetRange(Unit2) or 1000
+    --         --         -- else, we use FH positions
+    --         -- else
+    --             local X1,Y1,Z1 = GetObjectPosition(Unit1)
+    --             local X2,Y2,Z2 = GetObjectPosition(Unit2)
+    --             dist = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) -- ((UnitCombatReach(Unit1)) + (UnitCombatReach(Unit2)))
+    --             if dist-UnitBoundingRadius("player") <= 5 and getDistance("target") < 5 then
+    --                 return dist
+    --             elseif dist+UnitCombatReach("player") <= 8 and getDistance("target") < 8 then
+    --                 return dist-((UnitCombatReach(Unit1))+(UnitCombatReach(Unit2)))+UnitCombatReach("player")
+    --             else
+    --                 return dist-((UnitCombatReach(Unit1))+(UnitCombatReach(Unit2)))
+    --             end
+    --         -- end
+    --     else
+    --         return 100
+    --     end
+    -- end
+
+    -- function getDistancePoint(Unit1,Unit2)
+    --     -- If both units are visible
+    --     if GetObjectExists(Unit1) and UnitIsVisible(Unit1) == true and (Unit2 == nil or (GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true)) then
+    --         -- If Unit2 is nil we compare player to Unit1
+    --         if Unit2 == nil then
+    --             Unit2 = Unit1
+    --             Unit1 = "player"
+    --         end
+    --         -- if unit1 is player, we can use our lib to get precise range
+    --         -- if Unit1 == "player" and (isDummy(Unit2) or UnitCanAttack(Unit2,"player") == true) then
+    --         --     return rc:GetRange(Unit2) or 1000
+    --         --         -- else, we use FH positions
+    --         -- else
+    --             local X1,Y1,Z1 = GetObjectPosition(Unit1)
+    --             local X2,Y2,Z2 = GetObjectPosition(Unit2)
+    --             return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2))
+    --         -- end
+    --     else
+    --         return 100
+    --     end
+    -- end
+
 
     function getDistance2(Unit1,Unit2)
         if Unit2 == nil then Unit2 = "player"; end

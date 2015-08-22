@@ -59,24 +59,19 @@ function DruidFeral()
 		local dynTar8AoE = dynamicTarget(8,false) --Thrash
 		local dynTar13 = dynamicTarget(13,true) --Skull Bash
 		local dynTar20AoE = dynamicTarget(20,false) --Prowl
-		local dynTar40AoE = dynamicTarget(40,false) --Cat Form/Moonfire		
-		local deadtar, attacktar, hastar, playertar = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
+		local dynTar40AoE = dynamicTarget(40,false) --Cat Form/Moonfire	
 		local dynTable5 = (useCleave() and enemiesTable) or { [1] = {["unit"]=dynTar5, ["distance"] = tarDist(dynTar5)}}
 		local dynTable8 = (useCleave() and enemiesTable) or { [1] = {["unit"]=dynTar8, ["distance"] = tarDist(dynTar8)}}
 		local dynTable8AoE = (useCleave() and enemiesTable) or { [1] = {["unit"]=dynTar8AoE, ["distance"] = tarDist(dynTar8AoE)}}
 		local dynTable13 = (useCleave() and enemiesTable) or { [1] = {["unit"]=dynTar13, ["distance"] = tarDist(dynTar13)}}
 		local dynTable20AoE = (useCleave() and enemiesTable) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = tarDist(dynTar20AoE)}}
 		local dynTable40AoE = (useCleave() and enemiesTable) or { [1] = {["unit"]=dynTar40AoE, ["distance"] = tarDist(dynTar40AoE)}}
+		local deadtar, attacktar, hastar, playertar = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
 		local friendly = friendly or UnitIsFriend("target", "player")
 	    local stunRemain = getDebuffRemain(dynTar5,rks,"player")
 	    local mfTick = 20.0/(1+UnitSpellHaste("player")/100)/10
 
-		if srRemain - ripRemain(thisUnit) >= 0 then
-	    	srrpDiff = srRemain - ripRemain(thisUnit)
-	    end
-	    if ripRemain(thisUnit) - srRemain > 0 then
-	    	srrpDiff = ripRemain(thisUnit) - srRemain
-	    end
+	    --ChatOverlay(getDistance2("player","target").." | "..tarDist("target"))
 
 --------------------------------------------------
 --- Ressurection/Dispelling/Healing/Pause/Misc ---
@@ -150,7 +145,7 @@ function DruidFeral()
 		-- check if its check and player out of combat an not stealthed
 		if isChecked("Perma Fire Cat") and not isInCombat("player") and not stealth and cat then
 			-- check if Burning Essence buff has less than 60secs remaining
-			if getBuffRemain("player",138927)<60 then
+			if getBuffRemain("player",138927)==0 then
 				-- check if player has the Fandral's Seed Pouch
 				if PlayerHasToy(122304) then
 					-- check if item is off cooldown
@@ -273,17 +268,18 @@ function DruidFeral()
 ---------------------
 --- Out of Combat ---
 ---------------------
-			if hastar and attacktar and not isInCombat("player") and cat 
+			if not isInCombat("player") and cat 
 				and ((not (IsMounted() or IsFlying() or friendly)) or isDummy()) 
 			then
 		-- Prowl
-		        if useProwl() and not stealth 
-		        	and (ObjectExists(dynTar20) or isKnown(eprl)) and GetTime()-leftCombat > lootDelay 
-		        then
-					if castSpell("player",prl,false,false,false) then return end
-		        end
+				for i=1, #dynTable20AoE do
+					local thisUnit = dynTable20AoE[i].unit
+			        if useProwl() and not stealth and (ObjectExists(thisUnit) or isKnown(eprl)) and GetTime()-leftCombat > lootDelay then
+						if castSpell("player",prl,false,false,false) then return end
+			        end
+			    end
 		-- Rake/Shred
-		        if power>40 and tarDist(dynTar5)<5 then
+		        if hastar and attacktar and power>40 and tarDist(dynTar5)<5 then
 		        	if isKnown(irk) then
 		        		if castSpell(dynTar5,rk,false,false,false) then return end
 		        	else
@@ -415,7 +411,7 @@ function DruidFeral()
 	--- In Combat Rotation ---
 	------------------------------------------
 		-- Rake/Shred from Stealth
-				if stealth and power>40 and stunRemain==0 then
+				if hastar and attacktar and stealth and power>40 and stunRemain==0 then
 					if isKnown(irk) then
 		        		if castSpell(dynTar5,rk,false,false,false) then return end
 		        	else
@@ -430,8 +426,8 @@ function DruidFeral()
 					-- cycle_targets=1,if=dot.rip.ticking&dot.rip.remains<3&target.health.pct<25
 					for i=1, #dynTable5 do
 						local thisUnit = dynTable5[i].unit
-						if dynTable5[i].distance<5 then
-							if ripRemain(thisUnit)>0 and ripRemain(thisUnit)<3 and thp(thisUnit)<25 and combo>0 and power>25 then
+						if dynTable5[i].distance<5 and combo>0 and power>25 then
+							if ripRemain(thisUnit)>0 and ripRemain(thisUnit)<3 and thp(thisUnit)<25 then
 								if castSpell(thisUnit,fb,false,false,false) then return end
 							end
 						end
@@ -452,6 +448,16 @@ function DruidFeral()
 					--if (srRemain<1 or (srRemain<rpRemain and newSr-rpRemain>1)) and combo>0 and power>25 and ObjectExists(dynTar5) then 
 						if castSpell("player",svr,true,false,false) then return end
 		            end
+		-- Rake
+					--if rake will expire before energy maxes out for FB then reapply rake. 
+					for i=1, #dynTable5 do
+						local thisUnit = dynTable5[i].unit
+						if dynTable5[i].distance<5 then
+							if ttm>rakeRemain(thisUnit) and stunRemain==0 and power>35 and combo>3 then
+								if castSpell(thisUnit,rk,false,false,false) then return end
+		    				end
+					 	end
+					 end
 		-- Thrash with T18 4pc
 					-- if=set_bonus.tier18_4pc&buff.omen_of_clarity.react&remains<4.5&combo_points+buff.bloodtalons.stack!=6
 					if t18_4pc and clearcast and thrashRemain(dynTar8AoE)<4.5 and (combo + btStacks) ~= 6 then
@@ -463,19 +469,19 @@ function DruidFeral()
 						local thisUnit = dynTable8AoE[i].unit
 						if dynTable8AoE[i].distance<8 then
 							if thrashRemain(thisUnit)<4.5 and ((enemies>=2 and p2t17) or enemies>=4) then
-								if power < 50 then
+								if power <= 50 then
 				-- Pool Energy
 									return true
 								else
 				-- Thrash
-									if castSpell(dynTar8AoE,thr,true,false,false) then return end
+									if castSpell(thisUnit,thr,true,false,false) then return end
 								end
 							end
 						end
 					end
 		-- Finishers
 					-- if=combo_points=5
-					if combo==5 then 
+					if combo==5 then
       			-- Finisher: Rip
       					-- cycle_targets=1,if=remains<2&target.time_to_die-remains>18&(target.health.pct>25|!dot.rip.ticking)
 			            for i=1, #dynTable5 do
@@ -506,11 +512,11 @@ function DruidFeral()
 								end
 							end
 						end
-						-- if=remains<7.2&persistent_multiplier=dot.rip.pmultiplier&(energy.time_to_max<=1|!talent.bloodtalons.enabled)&target.time_to_die-remains>18
+						-- if=remains<7.2&persistent_multiplier=dot.rip.pmultiplier&(energy.time_to_max<=1|!talent.bloodtalons.enabled|(set_bonus.tier18_4pc&energy>50))&target.time_to_die-remains>18
 						for i=1, #dynTable5 do
 							local thisUnit = dynTable5[i].unit
 							if dynTable5[i].distance<5 and power>30 then
-								if ripRemain(thisUnit)<7.2 and ripCalcDotDmg()==ripAppliedDotDmg(thisUnit) and (ttm<=1 or not bloodtalons) and ttd(thisUnit)-ripRemain(thisUnit)>18 then
+								if ripRemain(thisUnit)<7.2 and ripCalcDotDmg()==ripAppliedDotDmg(thisUnit) and (ttm<=1 or not bloodtalons or (t18_4pc and power > 50)) and ttd(thisUnit)-ripRemain(thisUnit)>18 then
 									if castSpell(thisUnit,rp,false,false,false) then return end
 								end
 							end
@@ -538,8 +544,8 @@ function DruidFeral()
 		    			-- cycle_targets=1,if=remains<3&((target.time_to_die-remains>3&spell_targets.swipe<3)|target.time_to_die-remains>6)
 		    			for i=1, #dynTable5 do
 							local thisUnit = dynTable5[i].unit
-							if dynTable5[i].distance<5 then 
-			    				if rakeRemain(thisUnit)<3 and ((ttd(thisUnit)-rakeRemain(thisUnit)>3 and enemies<3) or ttd(thisUnit)-rakeRemain(thisUnit)>6) and stunRemain==0 and power>35 then
+							if dynTable5[i].distance<5 and stunRemain==0 and power>35 then 
+			    				if rakeRemain(thisUnit)<3 and ((ttd(thisUnit)-rakeRemain(thisUnit)>3 and enemies<3) or ttd(thisUnit)-rakeRemain(thisUnit)>6) then
 			    					if castSpell(thisUnit,rk,false,false,false) then return end
 			    				end
 						 	end
@@ -547,8 +553,8 @@ function DruidFeral()
 					 	-- cycle_targets=1,if=remains<4.5&(persistent_multiplier>=dot.rake.pmultiplier|(talent.bloodtalons.enabled&(buff.bloodtalons.up|!buff.predatory_swiftness.up)))&((target.time_to_die-remains>3&spell_targets.swipe<3)|target.time_to_die-remains>6)
 						for i=1, #dynTable5 do
 							local thisUnit = dynTable5[i].unit
-							if dynTable5[i].distance<5 then
-								if rakeRemain(thisUnit)<4.5 and (rakeCalcDotDmg()>=rakeAppliedDotDmg(thisUnit) or (bloodtalons and (btRemain>0 or psRemain==0))) and ((ttd(thisUnit)-rakeRemain(thisUnit)>3 and enemies<3) or ttd(thisUnit)-rakeRemain(thisUnit)>6) and stunRemain==0 and power>35 then
+							if dynTable5[i].distance<5 and stunRemain==0 and power>35 then
+								if rakeRemain(thisUnit)<4.5 and (rakeCalcDotDmg()>=rakeAppliedDotDmg(thisUnit) or (bloodtalons and (btRemain>0 or psRemain==0))) and ((ttd(thisUnit)-rakeRemain(thisUnit)>3 and enemies<3) or ttd(thisUnit)-rakeRemain(thisUnit)>6) then
 									if castSpell(thisUnit,rk,false,false,false) then return end
 			    				end
 						 	end
@@ -569,8 +575,8 @@ function DruidFeral()
     					-- cycle_targets=1,if=persistent_multiplier>dot.rake.pmultiplier&spell_targets.swipe=1&((target.time_to_die-remains>3&spell_targets.swipe<3)|target.time_to_die-remains>6)
     					for i=1, #dynTable5 do
 							local thisUnit = dynTable5[i].unit
-							if dynTable5[i].distance<5 then
-								if rakeCalcDotDmg()>rakeAppliedDotDmg(thisUnit) and enemies==1 and ((ttd(thisUnit)-rakeRemain(thisUnit)>3 and enemies<3) or ttd(thisUnit)-rakeRemain(thisUnit)>6) and stunRemain==0 and power>35 then
+							if dynTable5[i].distance<5 and stunRemain==0 and power>35 then
+								if rakeCalcDotDmg()>rakeAppliedDotDmg(thisUnit) and enemies==1 and ((ttd(thisUnit)-rakeRemain(thisUnit)>3 and enemies<3) or ttd(thisUnit)-rakeRemain(thisUnit)>6) then
 									if castSpell(thisUnit,rk,false,false,false) then return end
 			    				end
 			    			end
@@ -583,7 +589,7 @@ function DruidFeral()
 						if dynTable8AoE[i].distance<8 then
 							-- cycle_targets=1,if=remains<4.5&spell_targets.thrash_cat>=2
 							if thrashRemain(thisUnit)<4.5 and enemies>=2 then
-								if power<50 then
+								if power<=50 then
 				-- Pool Energy 
 									return true
 								else
@@ -598,12 +604,12 @@ function DruidFeral()
 					if combo<5 then
 		    	-- Generator: Swipe
 				   		-- if=spell_targets.swipe>=4|(spell_targets.swipe>=3&buff.incarnation.down)
-				   		if enemies>=4 or (enemies>=3 and incRemain==0) and power>45 then
+				   		if (enemies>=4 or (enemies>=3 and incRemain==0)) and power>45 then
 				   			if castSpell(dynTar8,sw,false,false,false) then return end
 				      	end
 		    	-- Generator: Shred
 				   		-- if=spell_targets.swipe<3|(spell_targets.swipe=3&buff.incarnation.up)
-				   		if enemies<3 or (enemies==3 and incRemain>0) and power>40 then
+				   		if (enemies<3 or (enemies==3 and incRemain>0)) and rakeRemain(dynTar5)>=3 and power>40 then
 				   			if castSpell(dynTar5,shr,false,false,false) then return end
 				      	end
 			    	end --End Generator
