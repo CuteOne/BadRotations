@@ -2,7 +2,6 @@
 -- All Druid specs inherit from this file
 if select(2, UnitClass("player")) == "DRUID" then
 	cDruid = {}
-
 	-- Creates Druid with given specialisation
 	function cDruid:new(spec)
 		local self = cCharacter:new("Druid")
@@ -13,6 +12,10 @@ if select(2, UnitClass("player")) == "DRUID" then
 		self.comboPoints     = getCombo("player")
 	    self.powerRegen      = getRegen("player")
 		self.stealth		 = false
+		self.buff.duration	 = {}		-- Buff Durations
+		self.buff.remain 	 = {}		-- Buff Time Remaining
+		self.debuff.duration = {}		-- Debuff Durations
+		self.debuff.remain 	 = {}		-- Debuff Time Remaining
 		self.druidSpell 	 = {
 
 			-- Ability - Crowd Control
@@ -205,54 +208,54 @@ if select(2, UnitClass("player")) == "DRUID" then
 		function self.getClassBuffs()
 			local UnitBuffID = UnitBuffID
 
-			self.buff.barkskin 				= UnitBuffID("player",self.spell.barkskinBuff)
-			self.buff.bearForm 				= UnitBuffID("player",self.spell.bearFormBuff)
-			self.buff.berserk 				= UnitBuffID("player",self.spell.berserkBuff)
-			self.buff.catForm 				= UnitBuffID("player",self.spell.catFormBuff)
-			self.buff.cenarionWard 			= UnitBuffID("player",self.spell.cenarionWardBuff)
-			self.buff.clearcasting 			= UnitBuffID("player",self.spell.clearcastingBuff)
-			self.buff.dash 					= UnitBuffID("player",self.spell.dash)
-			self.buff.displacerBeast		= UnitBuffID("player",self.spell.displacerBeastBuff)
-			self.buff.flightForm 			= UnitBuffID("player",self.spell.flightFormBuff)
-			self.buff.frenziedRegeneration 	= UnitBuffID("player",self.spell.frenziedRegenerationBuff) 
-			self.buff.innervate 			= UnitBuffID("player",self.spell.innervateBuff)
-			self.buff.markOfTheWild 		= UnitBuffID("player",self.spell.markOfTheWildBuff)
-			self.buff.prowl 				= UnitBuffID("player",self.spell.prowlBuff)
-			self.buff.rejuvenation 			= UnitBuffID("player",self.spell.rejuvenationBuff)
-			self.buff.survivalInstincts 	= UnitBuffID("player",self.spell.survivalInstinctsBuff)
-			self.buff.travelForm 			= UnitBuffID("player",self.spell.travelFormBuff)
+			self.buff.barkskin 				= UnitBuffID("player",self.spell.barkskinBuff)~=nil or false
+			self.buff.bearForm 				= UnitBuffID("player",self.spell.bearFormBuff)~=nil or false
+			self.buff.berserk 				= UnitBuffID("player",self.spell.berserkBuff)~=nil or false
+			self.buff.catForm 				= UnitBuffID("player",self.spell.catFormBuff)~=nil or false
+			self.buff.cenarionWard 			= UnitBuffID("player",self.spell.cenarionWardBuff)~=nil or false
+			self.buff.clearcasting 			= UnitBuffID("player",self.spell.clearcastingBuff)~=nil or false
+			self.buff.dash 					= UnitBuffID("player",self.spell.dash)~=nil or false
+			self.buff.displacerBeast		= UnitBuffID("player",self.spell.displacerBeastBuff)~=nil or false
+			self.buff.flightForm 			= UnitBuffID("player",self.spell.flightFormBuff)~=nil or false
+			self.buff.frenziedRegeneration 	= UnitBuffID("player",self.spell.frenziedRegenerationBuff)~=nil or false
+			self.buff.innervate 			= UnitBuffID("player",self.spell.innervateBuff)~=nil or false
+			self.buff.markOfTheWild 		= UnitBuffID("player",self.spell.markOfTheWildBuff)~=nil or false
+			self.buff.prowl 				= UnitBuffID("player",self.spell.prowlBuff)~=nil or false
+			self.buff.rejuvenation 			= UnitBuffID("player",self.spell.rejuvenationBuff)~=nil or false
+			self.buff.survivalInstincts 	= UnitBuffID("player",self.spell.survivalInstinctsBuff)~=nil or false
+			self.buff.travelForm 			= UnitBuffID("player",self.spell.travelFormBuff)~=nil or false
 		end
 
 		function self.getClassBuffsDuration()
 			local getBuffDuration = getBuffDuration
 
-			self.buff.barkskinDuration 				= getBuffDuration("player",self.spell.barkskinBuff)
-			self.buff.berserkDuration 				= getBuffDuration("player",self.spell.berserkBuff)
-			self.buff.cenarionWardDuration 			= getBuffDuration("player",self.spell.cenarionWardBuff)
-			self.buff.clearcastingDuration 			= getBuffDuration("player",self.spell.clearcastingBuff)
-			self.buff.dashDuration 					= getBuffDuration("player",self.spell.dash)
-			self.buff.displacerBeastDuration 		= getBuffDuration("player",self.spell.displacerBeastBuff)
-			self.buff.frenziedRegenerationDuration	= getBuffDuration("player",self.spell.frenziedRegenerationBuff) 
-			self.buff.innervateDuration 			= getBuffDuration("player",self.spell.innervateBuff)
-			self.buff.markOfTheWildDuration			= getBuffDuration("player",self.spell.markOfTheWildBuff)
-			self.buff.rejuvenationDuration 			= getBuffDuration("player",self.spell.rejuvenationBuff)
-			self.buff.survivalInstinctsDuration 	= getBuffDuration("player",self.spell.survivalInstinctsBuff)
+			self.buff.duration.barkskin				= getBuffDuration("player",self.spell.barkskinBuff) or 0
+			self.buff.duration.berserk 				= getBuffDuration("player",self.spell.berserkBuff) or 0
+			self.buff.duration.cenarionWard			= getBuffDuration("player",self.spell.cenarionWardBuff) or 0
+			self.buff.duration.clearcasting			= getBuffDuration("player",self.spell.clearcastingBuff) or 0
+			self.buff.duration.dash					= getBuffDuration("player",self.spell.dash) or 0
+			self.buff.duration.displacerBeast 		= getBuffDuration("player",self.spell.displacerBeastBuff) or 0
+			self.buff.duration.frenziedRegeneration	= getBuffDuration("player",self.spell.frenziedRegenerationBuff) or 0
+			self.buff.duration.innervate 			= getBuffDuration("player",self.spell.innervateBuff) or 0
+			self.buff.duration.markOfTheWild		= getBuffDuration("player",self.spell.markOfTheWildBuff) or 0
+			self.buff.duration.rejuvenation 		= getBuffDuration("player",self.spell.rejuvenationBuff) or 0
+			self.buff.duration.survivalInstincts 	= getBuffDuration("player",self.spell.survivalInstinctsBuff) or 0
 		end
 
 		function self.getClassBuffsRemain()
 			local getBuffRemain = getBuffRemain
 
-			self.buff.barkskinRemain 				= getBuffRemain("player",self.spell.barkskinBuff)
-			self.buff.berserkRemain 				= getBuffRemain("player",self.spell.berserkBuff)
-			self.buff.cenarionWardRemain 			= getBuffRemain("player",self.spell.cenarionWardBuff)
-			self.buff.clearcastingRemain 			= getBuffRemain("player",self.spell.clearcastingBuff)
-			self.buff.dashRemain 					= getBuffRemain("player",self.spell.dash)
-			self.buff.displacerBeastRemain 			= getBuffRemain("player",self.spell.displacerBeastBuff)
-			self.buff.frenziedRegenerationRemain 	= getBuffRemain("player",self.spell.frenziedRegenerationBuff) 
-			self.buff.innervateRemain 				= getBuffRemain("player",self.spell.innervateBuff)
-			self.buff.markOfTheWildRemain 			= getBuffRemain("player",self.spell.markOfTheWildBuff)
-			self.buff.rejuvenationRemain 			= getBuffRemain("player",self.spell.rejuvenationBuff)
-			self.buff.survivalInstinctsRemain 		= getBuffRemain("player",self.spell.survivalInstinctsBuff)
+			self.buff.remain.barkskin 				= getBuffRemain("player",self.spell.barkskinBuff) or 0
+			self.buff.remain.berserk 				= getBuffRemain("player",self.spell.berserkBuff) or 0
+			self.buff.remain.cenarionWard 			= getBuffRemain("player",self.spell.cenarionWardBuff) or 0
+			self.buff.remain.clearcasting 			= getBuffRemain("player",self.spell.clearcastingBuff) or 0
+			self.buff.remain.dash 					= getBuffRemain("player",self.spell.dash) or 0
+			self.buff.remain.displacerBeast			= getBuffRemain("player",self.spell.displacerBeastBuff) or 0
+			self.buff.remain.frenziedRegeneration 	= getBuffRemain("player",self.spell.frenziedRegenerationBuff) or 0
+			self.buff.remain.innervate 				= getBuffRemain("player",self.spell.innervateBuff) or 0
+			self.buff.remain.markOfTheWild 			= getBuffRemain("player",self.spell.markOfTheWildBuff) or 0
+			self.buff.remain.rejuvenation 			= getBuffRemain("player",self.spell.rejuvenationBuff) or 0
+			self.buff.remain.survivalInstincts 		= getBuffRemain("player",self.spell.survivalInstinctsBuff) or 0
 		end
 
 	-- Charge updates
@@ -305,29 +308,29 @@ if select(2, UnitClass("player")) == "DRUID" then
 		function self.getClassDebuffsDuration()
 			local getDebuffDuration = getDebuffDuration
 
-			self.debuff.cycloneDuration 			= getDebuffDuration(self.units.dyn20AoE,self.spell.cycloneDebuff,"player") or 0
-			self.debuff.entanglingRootsDuration 	= getDebuffRemain(self.units.dyn35AoE,self.spell.entanglingRootsDebuff,"player") or 0
-			self.debuff.hurricaneDuration 			= getDebuffRemain(self.units.dyn35AoE,self.spell.hurricaneDebuff,"player") or 0
-			self.debuff.incapacitatingRoarDuration 	= getDebuffRemain(self.units.dyn10AoE,self.spell.incapacitatingRoarDebuff,"player") or 0
-			self.debuff.faerieFireDuration 			= getDebuffRemain(self.units.dyn35AoE,self.spell.faerieFireDebuff,"player") or 0
-			self.debuff.faerieSwarmDuration 		= getDebuffRemain(self.units.dyn35AoE,self.spell.faerieSwarmDebuff,"player") or 0
-			self.debuff.infectedWoundsDuration 		= getDebuffRemain(self.units.dyn5,self.spell.infectedWoundsDebuff,"player") or 0
-			self.debuff.moonfireDuration 			= getDebuffRemain(self.units.dyn40AoE,self.spell.moonfireDebuff,"player") or 0
-			self.debuff.growlDuration 				= getDebuffRemain(self.units.dyn30AoE,self.spell.growlDebuff,"player") or 0
+			self.debuff.duration.cyclone 			= getDebuffDuration(self.units.dyn20AoE,self.spell.cycloneDebuff,"player") or 0
+			self.debuff.duration.entanglingRoots 	= getDebuffRemain(self.units.dyn35AoE,self.spell.entanglingRootsDebuff,"player") or 0
+			self.debuff.duration.hurricane 			= getDebuffRemain(self.units.dyn35AoE,self.spell.hurricaneDebuff,"player") or 0
+			self.debuff.duration.incapacitatingRoar = getDebuffRemain(self.units.dyn10AoE,self.spell.incapacitatingRoarDebuff,"player") or 0
+			self.debuff.duration.faerieFire 		= getDebuffRemain(self.units.dyn35AoE,self.spell.faerieFireDebuff,"player") or 0
+			self.debuff.duration.faerieSwarm 		= getDebuffRemain(self.units.dyn35AoE,self.spell.faerieSwarmDebuff,"player") or 0
+			self.debuff.duration.infectedWounds 	= getDebuffRemain(self.units.dyn5,self.spell.infectedWoundsDebuff,"player") or 0
+			self.debuff.duration.moonfire 			= getDebuffRemain(self.units.dyn40AoE,self.spell.moonfireDebuff,"player") or 0
+			self.debuff.duration.growl 				= getDebuffRemain(self.units.dyn30AoE,self.spell.growlDebuff,"player") or 0
 		end
 
 		function self.getClassDebuffsRemain()
 			local getDebuffRemain = getDebuffRemain
 
-			self.debuff.cycloneRemain 				= getDebuffRemain(self.units.dyn20AoE,self.spell.cycloneDebuff,"player") or 0
-			self.debuff.entanglingRootsRemain 		= getDebuffRemain(self.units.dyn35AoE,self.spell.entanglingRootsDebuff,"player") or 0
-			self.debuff.hurricaneRemain 			= getDebuffRemain(self.units.dyn35AoE,self.spell.hurricaneDebuff,"player") or 0
-			self.debuff.incapacitatingRoarRemain 	= getDebuffRemain(self.units.dyn10AoE,self.spell.incapacitatingRoarDebuff,"player") or 0
-			self.debuff.faerieFireRemain 			= getDebuffRemain(self.units.dyn35AoE,self.spell.faerieFireDebuff,"player") or 0
-			self.debuff.faerieSwarmRemain 			= getDebuffRemain(self.units.dyn35AoE,self.spell.faerieSwarmDebuff,"player") or 0
-			self.debuff.infectedWoundsRemain 		= getDebuffRemain(self.units.dyn5,self.spell.infectedWoundsDebuff,"player") or 0
-			self.debuff.moonfireRemain 				= getDebuffRemain(self.units.dyn40AoE,self.spell.moonfireDebuff,"player") or 0
-			self.debuff.growlRemain 				= getDebuffRemain(self.units.dyn30AoE,self.spell.growlDebuff,"player") or 0
+			self.debuff.remain.cyclone 					= getDebuffRemain(self.units.dyn20AoE,self.spell.cycloneDebuff,"player") or 0
+			self.debuff.remain.entanglingRoots 			= getDebuffRemain(self.units.dyn35AoE,self.spell.entanglingRootsDebuff,"player") or 0
+			self.debuff.remain.hurricane 	 			= getDebuffRemain(self.units.dyn35AoE,self.spell.hurricaneDebuff,"player") or 0
+			self.debuff.remain.incapacitatingRoar 		= getDebuffRemain(self.units.dyn10AoE,self.spell.incapacitatingRoarDebuff,"player") or 0
+			self.debuff.remain.faerieFire 				= getDebuffRemain(self.units.dyn35AoE,self.spell.faerieFireDebuff,"player") or 0
+			self.debuff.remain.faerieSwarm  			= getDebuffRemain(self.units.dyn35AoE,self.spell.faerieSwarmDebuff,"player") or 0
+			self.debuff.remain.infectedWounds 			= getDebuffRemain(self.units.dyn5,self.spell.infectedWoundsDebuff,"player") or 0
+			self.debuff.remain.moonfire					= getDebuffRemain(self.units.dyn40AoE,self.spell.moonfireDebuff,"player") or 0
+			self.debuff.remain.growl 					= getDebuffRemain(self.units.dyn30AoE,self.spell.growlDebuff,"player") or 0
 		end
 
 	-- Glyph updates
@@ -398,27 +401,6 @@ if select(2, UnitClass("player")) == "DRUID" then
 		function self.createClassOptions()
 			-- Create Base Options
 			self.createBaseOptions()
-
-			-- -- Class Wrap
-			-- CreateNewWrap(thisConfig, "--- Class Options ---")
-
-			-- -- Leathal Poison
-			-- CreateNewCheck(thisConfig, "Lethal");
-			-- CreateNewDrop(thisConfig, "Lethal",1,"Lethal Poison.","|cffFF8000Wound","|cff13A300Instant");
-			-- CreateNewText(thisConfig, "Lethal");
-
-			-- -- Non-Leathal Poison
-			-- CreateNewCheck(thisConfig, "Non-Lethal");
-			-- CreateNewDrop(thisConfig, "Non-Lethal",1,"Non-Lethal Poison.","|cff6600FFCrip","|cff00CF1CLeech");
-			-- CreateNewText(thisConfig, "Non-Lethal");
-
-			-- -- Poison re-apply timer
-			-- -- Use poison if X minutes remain
-			-- CreateNewBox(thisConfig,"Poison remain",5,50,1,10,"How many minutes left until reapply?")
-			-- CreateNewText(thisConfig, "Poison remain");
-
-			-- -- Spacer
-			-- CreateNewText(" ");
 		end
 
 	------------------------------

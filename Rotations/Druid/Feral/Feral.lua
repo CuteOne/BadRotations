@@ -1,11 +1,11 @@
 if select(3, UnitClass("player")) == 11 then
     function DruidFeral()
-        if Currentconfig ~= "Feral CuteOne" and druidFeral == nil then
+        if Currentconfig ~= "Feral CuteOne" and FeralCuteOne == nil then
             --FeralOptions()
-            druidFeral = cFeral:new()
-            setmetatable(druidFeral, {__index = cFeral})
+            FeralCuteOne = cFeral:new()
+            setmetatable(FeralCuteOne, {__index = cFeral})
+            FeralCuteOne:update()
             KeyToggles()
-            druidFeral:update()
             Currentconfig = "Feral CuteOne"
         end
 
@@ -25,7 +25,7 @@ if select(3, UnitClass("player")) == 11 then
             return true
         end
 
-        druidFeral:update()
+        FeralCuteOne:update()
 
     end --DruidFeral Function End
 end --Class Check End

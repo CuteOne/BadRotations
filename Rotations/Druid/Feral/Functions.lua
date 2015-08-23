@@ -1,5 +1,4 @@
-if select(3, UnitClass("player")) == 11 then
-    
+if select(3, UnitClass("player")) == 11 then    
     ------Member Check------
     function CalculateHP(unit)
       incomingheals = UnitGetIncomingHeals(unit) or 0
@@ -30,16 +29,16 @@ if select(3, UnitClass("player")) == 11 then
         local CP = GetComboPoints("player", dynamicTarget(5,true))
         if CP == 0 then CP = 5 end
 
-        if UnitBuffID("player",tf) then
+        if FeralCuteOne.buff.tigersFury then
             DamageMult = DamageMult * 1.15
         end
 
-        if UnitBuffID("player",svr) then
+        if FeralCuteOne.buff.savageRoar then
             DamageMult = DamageMult * 1.4
         end
 
         WA_stats_BTactive = WA_stats_BTactive or  0
-        if UnitBuffID("player",bt) then
+        if FeralCuteOne.buff.bloodtalons then
             WA_stats_BTactive = GetTime()
             DamageMult = DamageMult * 1.3
         elseif GetTime() - WA_stats_BTactive < .2 then
@@ -48,9 +47,9 @@ if select(3, UnitClass("player")) == 11 then
 
         local RakeMult = 1
         WA_stats_prowlactive = WA_stats_prowlactive or  0
-        if UnitBuffID("player",inc) then
+        if FeralCuteOne.buff.incarnationKingOfTheJungle then
             RakeMult = 2
-        elseif UnitBuffID("player",prl) or UnitBuffID("player",sm) then
+        elseif FeralCuteOne.stealth then
             WA_stats_prowlactive = GetTime()
             RakeMult = 2
         elseif GetTime() - WA_stats_prowlactive < .2 then
@@ -65,27 +64,27 @@ if select(3, UnitClass("player")) == 11 then
 
     --Moonfire Debuff Time Remaining
     function moonfireRemain(unit)
-        return getDebuffRemain(unit,mf,"player")
+        return getDebuffRemain(unit,FeralCuteOne.spell.thrashDebuff,"player")
     end
 
     --Thrash Debuff Time Remaining
     function thrashRemain(unit)
-        return getDebuffRemain(unit,thr,"player")
+        return getDebuffRemain(unit,FeralCuteOne.spell.thrashDebuff,"player")
     end
 
     --Thrash Debuff Total Time
     function thrashDuration(unit)
-        return getDebuffDuration(unit,thr,"player")
+        return getDebuffDuration(unit,FeralCuteOne.spell.thrashDebuff,"player")
     end
 
     --Rake Debuff Time Remaining
     function rakeRemain(unit)
-        return getDebuffRemain(unit,rk,"player")
+        return getDebuffRemain(unit,FeralCuteOne.spell.rakeDebuff,"player")
     end
 
     --Rake Debuff Total Time
     function rakeDuration(unit)
-        return getDebuffDuration(unit,rk,"player")
+        return getDebuffDuration(unit,FeralCuteOne.spell.rakeDebuff,"player")
     end
 
     --Calculated Rake Dot Damage
@@ -121,12 +120,12 @@ if select(3, UnitClass("player")) == 11 then
 
     --Rip Debuff Time Remaining
     function ripRemain(unit)
-        return getDebuffRemain(unit,rp,"player")
+        return getDebuffRemain(unit,FeralCuteOne.spell.ripDebuff,"player")
     end
 
     --Rip Debuff Total Duration
     function ripDuration(unit)
-        return getDebuffDuration(unit,rp,"player")
+        return getDebuffDuration(unit,FeralCuteOne.spell.ripDebuff,"player")
     end
 
     --Calculated Rip Dot Damage
@@ -208,7 +207,7 @@ if select(3, UnitClass("player")) == 11 then
     end
 
     function useCleave()
-        if BadBoy_data['Cleave']==1 and BadBoy_data['AoE'] ~= 3 then
+        if BadBoy_data['Cleave']==1 and BadBoy_data['AoE'] < 3 then
             return true
         else
             return false

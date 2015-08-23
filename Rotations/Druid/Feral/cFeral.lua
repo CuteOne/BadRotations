@@ -13,6 +13,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-----------------
         --- VARIABLES ---
         -----------------
+        self.trinket = {}        -- Trinket Procs
         self.enemies = {
             yards5,
             yards8,
@@ -64,6 +65,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 			-- Debuff - Offensive
 			rakeDebuff 							= 155722,
+            rakeStunDebuff                      = 163505,
 			ripDebuff 							= 1079,
 			thrashDebuff 						= 106830,
 
@@ -127,7 +129,8 @@ if select(2, UnitClass("player")) == "DRUID" then
             self.getDebuffs()
             self.getDebuffsDuration()
             self.getDebuffsRemain()
-            
+            self.getTrinketProc()
+            self.hasTrinketProc()
             self.getEnemies()
             self.getRecharges()
             self.getRotation()
@@ -166,38 +169,65 @@ if select(2, UnitClass("player")) == "DRUID" then
         function self.getBuffs()
         	local UnitBuffID = UnitBuffID
 
-        	self.buff.heartOfTheWild 				= UnitBuffID("player",self.spell.heartOfTheWildBuff)~=nil or false
-        	self.buff.predatorySwiftness 			= UnitBuffID("player",self.spell.predatorySwiftnessBuff)~=nil or false
-        	self.buff.clawsOfShirvallahForm 		= UnitBuffID("player",self.spell.clawsOfShirvallahFormBuff)~=nil or false
-        	self.buff.incarnationKingOfTheJungle 	= UnitBuffID("player",self.spell.incarnationKingOfTheJungleBuff)~=nil or false
-        	self.buff.bloodtalons 					= UnitBuffID("player",self.spell.bloodtalonsBuff)~=nil or false
-        	self.buff.savageRoar 					= (UnitBuffID("player",self.spell.savageRoarGlyphBuff) or UnitBuffID(player,self.spell.savageRoarNoGlyphBuff))~=nil or false
-        	self.buff.tigersFury 					= UnitBuffID("player",self.spell.tigersFuryBuff)~=nil or false
-        	self.buff.stampedingRoar 				= UnitBuffID("player",self.spell.stampedingRoarBuff)~=nil or false
+        	self.buff.heartOfTheWild               = UnitBuffID("player",self.spell.heartOfTheWildBuff)~=nil or false
+        	self.buff.predatorySwiftness           = UnitBuffID("player",self.spell.predatorySwiftnessBuff)~=nil or false
+        	self.buff.clawsOfShirvallahForm        = UnitBuffID("player",self.spell.clawsOfShirvallahFormBuff)~=nil or false
+        	self.buff.incarnationKingOfTheJungle   = UnitBuffID("player",self.spell.incarnationKingOfTheJungleBuff)~=nil or false
+        	self.buff.bloodtalons                  = UnitBuffID("player",self.spell.bloodtalonsBuff)~=nil or false
+        	self.buff.savageRoar                   = (UnitBuffID("player",self.spell.savageRoarGlyphBuff) or UnitBuffID(player,self.spell.savageRoarNoGlyphBuff))~=nil or false
+        	self.buff.tigersFury                   = UnitBuffID("player",self.spell.tigersFuryBuff)~=nil or false
+        	self.buff.stampedingRoar               = UnitBuffID("player",self.spell.stampedingRoarBuff)~=nil or false
         end
 
         function self.getBuffsDuration()
         	local getBuffDuration = getBuffDuration
 
-        	self.buff.heartOfTheWildDuration 				= getBuffDuration("player",self.spell.heartOfTheWildBuff) or 0
-        	self.buff.predatorySwiftnessDuration 			= getBuffDuration("player",self.spell.predatorySwiftnessBuff) or 0
-        	self.buff.incarnationKingOfTheJungleDuration 	= getBuffDuration("player",self.spell.incarnationKingOfTheJungleBuff) or 0
-        	self.buff.bloodtalonsDuration 					= getBuffDuration("player",self.spell.bloodtalonsBuff) or 0
-        	self.buff.savageRoarDuration 					= getBuffDuration("player",self.spell.savageRoarGlyphBuff) or getBuffDuration(player,self.spell.savageRoarNoGlyphBuff) or 0
-        	self.buff.tigersFuryDuration 					= getBuffDuration("player",self.spell.tigersFuryBuff) or 0
-        	self.buff.stampedingRoarDuration 				= getBuffDuration("player",self.spell.stampedingRoarBuff) or 0
+        	self.buff.duration.heartOfTheWild              = getBuffDuration("player",self.spell.heartOfTheWildBuff) or 0
+        	self.buff.duration.predatorySwiftness          = getBuffDuration("player",self.spell.predatorySwiftnessBuff) or 0
+        	self.buff.duration.incarnationKingOfTheJungle  = getBuffDuration("player",self.spell.incarnationKingOfTheJungleBuff) or 0
+        	self.buff.duration.bloodtalons                 = getBuffDuration("player",self.spell.bloodtalonsBuff) or 0
+        	self.buff.duration.savageRoar                  = getBuffDuration("player",self.spell.savageRoarGlyphBuff) or getBuffDuration(player,self.spell.savageRoarNoGlyphBuff) or 0
+        	self.buff.duration.tigersFury                  = getBuffDuration("player",self.spell.tigersFuryBuff) or 0
+        	self.buff.duration.stampedingRoar              = getBuffDuration("player",self.spell.stampedingRoarBuff) or 0
         end
 
         function self.getBuffsRemain()
         	local getBuffRemain = getBuffRemain
 
-        	self.buff.heartOfTheWildRemain				= getBuffRemain("player",self.spell.heartOfTheWildBuff) or 0
-        	self.buff.predatorySwiftnessRemain 			= getBuffRemain("player",self.spell.predatorySwiftnessBuff) or 0
-        	self.buff.incarnationKingOfTheJungleRemain 	= getBuffRemain("player",self.spell.incarnationKingOfTheJungleBuff) or 0
-        	self.buff.bloodtalonsRemain					= getBuffRemain("player",self.spell.bloodtalonsBuff) or 0
-        	self.buff.savageRoarRemain					= getBuffRemain("player",self.spell.savageRoarGlyphBuff) or getBuffRemain(player,self.spell.savageRoarNoGlyphBuff) or 0
-        	self.buff.tigersFuryRemain 					= getBuffRemain("player",self.spell.tigersFuryBuff) or 0
-        	self.buff.stampedingRoarRemain 				= getBuffRemain("player",self.spell.stampedingRoarBuff) or 0
+        	self.buff.remain.heartOfTheWild				= getBuffRemain("player",self.spell.heartOfTheWildBuff) or 0
+        	self.buff.remain.predatorySwiftness 		= getBuffRemain("player",self.spell.predatorySwiftnessBuff) or 0
+        	self.buff.remain.incarnationKingOfTheJungle = getBuffRemain("player",self.spell.incarnationKingOfTheJungleBuff) or 0
+        	self.buff.remain.bloodtalons				= getBuffRemain("player",self.spell.bloodtalonsBuff) or 0
+        	self.buff.remain.savageRoar					= getBuffRemain("player",self.spell.savageRoarGlyphBuff) or getBuffRemain(player,self.spell.savageRoarNoGlyphBuff) or 0
+        	self.buff.remain.tigersFury					= getBuffRemain("player",self.spell.tigersFuryBuff) or 0
+        	self.buff.remain.stampedingRoar 			= getBuffRemain("player",self.spell.stampedingRoarBuff) or 0
+        end
+
+        function self.getTrinketProc()
+            local UnitBuffID = UnitBuffID
+
+            self.trinket.WitherbarksBranch              = UnitBuffID("player",165822)~=nil or false --Haste Proc
+            self.trinket.TurbulentVialOfToxin           = UnitBuffID("player",176883)~=nil or false --Mastery Proc
+            self.trinket.KihrasAdrenalineInjector       = UnitBuffID("player",165485)~=nil or false --Mastery Proc
+            self.trinket.GorashansLodestoneSpike        = UnitBuffID("player",165542)~=nil or false --Multi-Strike Proc
+            self.trinket.DraenicPhilosophersStone       = UnitBuffID("player",157136)~=nil or false --Agility Proc
+            self.trinket.BlackheartEnforcersMedallion   = UnitBuffID("player",176984)~=nil or false --Multi-Strike Proc
+            self.trinket.MunificentEmblemOfTerror       = UnitBuffID("player",165830)~=nil or false --Critical Strike Proc
+            self.trinket.PrimalCombatantsInsignia       = UnitBuffID("player",182059)~=nil or false --Agility Proc
+            self.trinket.SkullOfWar                     = UnitBuffID("player",162915)~=nil or false --Critical Strike Proc
+            self.trinket.ScalesOfDoom                   = UnitBuffID("player",177038)~=nil or false --Multi-Strike Proc
+            self.trinket.LuckyDoubleSidedCoin           = UnitBuffID("player",177597)~=nil or false --Agility Proc
+            self.trinket.MeatyDragonspineTrophy         = UnitBuffID("player",177035)~=nil or false --Haste Proc
+            self.trinket.PrimalGladiatorsInsignia       = UnitBuffID("player",182068)~=nil or false --Agility Proc
+            self.trinket.BeatingHeartOfTheMountain      = UnitBuffID("player",176878)~=nil or false --Multi-Strike Proc
+            self.trinket.HummingBlackironTrigger        = UnitBuffID("player",177067)~=nil or false --Critical Stike Proc
+            self.trinket.MaliciousCenser                = UnitBuffID("player",183926)~=nil or false --Agility Proc
+        end
+
+        function self.hasTrinketProc()
+            for i = 1, #self.trinket do
+                if self.trinket[i]==true then return true else return false end
+            end
         end
 
     ---------------
@@ -207,6 +237,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         	local UnitDebuffID = UnitDebuffID
 
         	self.debuff.rake 	= UnitDebuffID(self.units.dyn5,self.spell.rakeDebuff,"player")~=nil or false
+            self.debuff.rakeStun= UnitDebuffID(self.units.dyn5,self.spell.rakeStunDebuff,"player")~=nil or false
         	self.debuff.rip 	= UnitDebuffID(self.units.dyn5,self.spell.ripDebuff,"player")~=nil or false
         	self.debuff.thrash 	= UnitDebuffID(self.units.dyn8AoE,self.spell.thrashDebuff,"player")~=nil or false
 		end
@@ -214,17 +245,19 @@ if select(2, UnitClass("player")) == "DRUID" then
 		function self.getDebuffsDuration()
 			local getDebuffDuration = getDebuffDuration
 
-			self.debuff.rakeDuration	= getDebuffDuration(self.units.dyn5,self.spell.rakeDebuff,"player") or 0
-			self.debuff.ripDuration		= getDebuffDuration(self.units.dyn5,self.spell.ripDebuff,"player") or 0
-			self.debuff.thrashDuration 	= getDebuffDuration(self.units.dyn8AoE,self.spell.thrashDebuff,"player") or 0
+			self.debuff.duration.rake    = getDebuffDuration(self.units.dyn5,self.spell.rakeDebuff,"player") or 0
+            self.debuff.duration.rakeStun= getDebuffDuration(self.units.dyn5,self.spell.rakeStunDebuff,"player") or 0
+			self.debuff.duration.rip     = getDebuffDuration(self.units.dyn5,self.spell.ripDebuff,"player") or 0
+			self.debuff.duration.thrash  = getDebuffDuration(self.units.dyn8AoE,self.spell.thrashDebuff,"player") or 0
 		end
 
 		function self.getDebuffsRemain()
 			local getDebuffRemain = getDebuffRemain
 
-			self.debuff.rakeRemain		= getDebuffRemain(self.units.dyn5,self.spell.rakeDebuff,"player") or 0
-			self.debuff.ripRemain		= getDebuffRemain(self.units.dyn5,self.spell.ripDebuff,"player") or 0
-			self.debuff.thrashRemain 	= getDebuffRemain(self.units.dyn8AoE,self.spell.thrashDebuff,"player") or 0
+			self.debuff.remain.rake      = getDebuffRemain(self.units.dyn5,self.spell.rakeDebuff,"player") or 0
+            self.debuff.remain.rakeStun  = getDebuffRemain(self.units.dyn5,self.spell.rakeStunDebuff,"player") or 0
+			self.debuff.remain.rip       = getDebuffRemain(self.units.dyn5,self.spell.ripDebuff,"player") or 0
+			self.debuff.remain.thrash    = getDebuffRemain(self.units.dyn8AoE,self.spell.thrashDebuff,"player") or 0
 		end
 
     ---------------
@@ -329,9 +362,9 @@ if select(2, UnitClass("player")) == "DRUID" then
         function self.startRotation()
         	if self.rotation == 1 then
                 self:FeralCuteOne()
-                -- put different rotations below; dont forget to setup your rota in options
-            -- elseif self.rotation == 2 then
-            --     self:oldAssassination()
+            -- put different rotations below; dont forget to setup your rota in options
+            elseif self.rotation == 2 then
+                ChatOverlay("No Rotation Selected!")
             else
                 ChatOverlay("No ROTATION ?!", 2000)
             end
@@ -368,16 +401,23 @@ if select(2, UnitClass("player")) == "DRUID" then
 		    function dropOp(string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
 		        return CreateNewDrop(thisConfig, string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
 		    end
+
             thisConfig = 0
             -- Title
-            titleOp("CuteOne Feral Cat")
-                    -- Spacer
-
+            titleOp("Feral")
+            -- Spacer
             -- Create Base and Class options
             self.createClassOptions()
 
             textOp(" ")
-            wrapOp("--- General (Profile) ---")
+            wrapOp("--- Select Rotation ---")
+
+                -- Rotation
+                dropOp("Rotation", 1, "Select Rotation.", "|cff00FF00CuteOne", "|cffD60000No Rotation");
+                textOp("Rotation");
+
+            textOp(" ")
+            wrapOp("--- General ---")
 
                 -- Death Cat
                 checkOp("Death Cat Mode","|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.")
@@ -510,22 +550,22 @@ if select(2, UnitClass("player")) == "DRUID" then
                 -- Single/Multi Toggle
                 checkOp("Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.")
                 dropOp("Rotation Mode", 4, "Toggle")
-                textOp("Rotation")
+                textOp("Rotation Mode")
 
                 -- Cooldown Key Toggle
                 checkOp("Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.")
                 dropOp("Cooldown Mode", 3, "Toggle")
-                textOp("Cooldowns")
+                textOp("Cooldown Mode")
 
                 -- Defensive Key Toggle
                 checkOp("Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.")
                 dropOp("Defensive Mode", 6, "Toggle")
-                textOp("Defensive")
+                textOp("Defensive Mode")
 
                 -- Interrupts Key Toggle
                 checkOp("Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.")
                 dropOp("Interrupt Mode", 6, "Toggle")
-                textOp("Interrupts")
+                textOp("Interrupt Mode")
 
                 -- Cleave Toggle
                 checkOp("Cleave Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCleave Toggle Key|cffFFBB00.")
@@ -544,7 +584,6 @@ if select(2, UnitClass("player")) == "DRUID" then
 
             -- General Configs
             CreateGeneralsConfig()
-
             WrapsManager()
         end
 
@@ -554,7 +593,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         -- Maim - Set target via thisUnit variable
     	function self.castMaim(thisUnit)
-    		if self.power>35 and self.cd.maim==0 and self.comboPoints>0 and ObjectExists(self.units.dyn5) then
+    		if self.power>35 and self.cd.maim==0 and self.comboPoints>0 and ObjectExists(thisUnit) then
     			return castSpell(thisUnit,self.spell.maim,true,false) == true or false
     		end
     	end
@@ -581,10 +620,10 @@ if select(2, UnitClass("player")) == "DRUID" then
     --- SPELLS - OFFENSIVE ---
     --------------------------
 
-        -- Force of Nature - Set target via thisUnit variable
-        function self.castForceOfNature(thisUnit)
+        -- Force of Nature
+        function self.castForceOfNature()
         	if self.charges.forceOfNature > 0 and ObjectExists(self.units.dyn5) then
-        		return castSpell(thisUnit,self.spell.forceOfNature,false,false) == true or false
+        		return castSpell(self.units.dyn5,self.spell.forceOfNature,false,false) == true or false
         	end
         end
 
@@ -597,14 +636,14 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         -- Rake - Set target via thisUnit variable
         function self.castRake(thisUnit)
-        	if self.power > 35 and ObjectExists(self.units.dyn5) then
+        	if self.power > 35 and ObjectExists(thisUnit) then
         		return castSpell(thisUnit,self.spell.rake,true,false) == true or false
         	end
         end
 
         -- Rip - Set target via thisUnit variable
         function self.castRip(thisUnit)
-        	if self.power > 30 and self.comboPoints==5 and ObjectExists(self.units.dyn5) then
+        	if self.power > 30 and self.comboPoints==5 and ObjectExists(thisUnit) then
         		return castSpell(thisUnit,self.spell.rip,true,false) == true or false
         	end
         end
@@ -632,7 +671,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         -- Thrash - Set target via thisUnit variable
         function self.castThrash(thisUnit)
-        	if self.power>50 and ObjectExists(self.units.dyn8AoE) then
+        	if self.power>50 and ObjectExists(thisUnit) and BadBoy_data['Cleave']==1 and BadBoy_data['AoE'] < 3 then
         		return castSpell(thisUnit,self.spell.thrash,false,false) == true or false
         	end
         end
