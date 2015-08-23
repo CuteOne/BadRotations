@@ -276,7 +276,9 @@ function bb:PulseUI()
 	-- enemies
 	makeEnemiesTable(maxDistance)
 	-- allies
-	nNova:Update()
+    if isChecked("HE Active") then
+	    nNova:Update()
+    end
 	-- Pulse other features
 	-- PokeEngine()
 	ProfessionHelper()
