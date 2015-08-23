@@ -458,9 +458,9 @@ if select(3,UnitClass("player")) == 2 then
     function protCore:castSeraphim()
       if isSelected("Seraphim") then
         if self.talent.seraphim and self.holyPower == 5 then
-          if isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4*UnitHealthMax(player)) then
+          --if isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4*UnitHealthMax(player)) then
             return castSpell(player,self.spell.seraphim,true,false) == true or false
-          end
+          --end
         end
       end
     end
