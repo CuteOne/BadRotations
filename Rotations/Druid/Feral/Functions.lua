@@ -64,7 +64,7 @@ if select(3, UnitClass("player")) == 11 then
 
     --Moonfire Debuff Time Remaining
     function moonfireRemain(unit)
-        return getDebuffRemain(unit,FeralCuteOne.spell.thrashDebuff,"player")
+        return getDebuffRemain(unit,FeralCuteOne.spell.moonfireDebuff,"player")
     end
 
     --Thrash Debuff Time Remaining
