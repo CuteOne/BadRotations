@@ -20,9 +20,9 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local ttm 											= self.timeToMax
 		local falling, swimming 							= getFallTime(), IsSwimming()
 		local gcd 											= self.gcd
-		local t17_2pc 										= TierScan("T17")>=2
-		local t18_2pc 										= TierScan("T18")>=2
-		local t18_4pc 										= TierScan("T18")>=4
+		local t17_2pc 										= self.eq.t17_2pc
+		local t18_2pc 										= self.eq.t18_2pc 
+		local t18_4pc 										= self.eq.t18_4pc 
 		-- Specific Player Variables
 		local combo 										= self.comboPoints
 		local clearcast 									= self.buff.clearcast
@@ -274,7 +274,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		 			if cat and (not friendly or isDummy()) then
 						for i=1, #dynTable20AoE do
 							local thisUnit = dynTable20AoE[i].unit
-					        if useProwl() and (ObjectExists(thisUnit) or self.perk.enhancedProwl) and GetTime()-leftCombat > lootDelay then
+					        if useProwl() and ((ObjectExists(thisUnit) and UnitCanAttack(thisUnit,"player")) or self.perk.enhancedProwl) and GetTime()-leftCombat > lootDelay then
 					        	if self.castProwl() then return end
 					        end
 					    end
@@ -399,9 +399,9 @@ if select(2, UnitClass("player")) == "DRUID" then
 		elseif (inCombat and profileStop==true) or pause() then
 			return true
 		else
-----------------------
+-----------------------
 --- Extras Rotation ---
-----------------------
+-----------------------
 			if actionList_Extras() then return end
 --------------------------
 --- Defensive Rotation ---
@@ -417,10 +417,10 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-- Cat is 4 fyte!
 			if inCombat and not cat then
 				if self.castCatForm() then return end
-			elseif hastar and attacktar and inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") then
+			elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") then --hastar and attacktar
 		-- TODO: Wild Charge
 		-- TODO: Displacer Beast
-		-- TODO: Dash
+		-- TODO: Dash/Worgen Racial
 		-- Rake/Shred from Stealth
 				-- rake,if=buff.prowl.up|buff.shadowmeld.up
 				if stealth then
@@ -430,6 +430,8 @@ if select(2, UnitClass("player")) == "DRUID" then
 		        		if self.castShred() then StopAttack(); return end
 		            end
 				elseif not stealth and BadBoy_data['AoE'] ~= 4 then
+					-- auto_attack
+					StartAttack()
 	------------------------------
 	--- In Combat - Interrupts ---
 	------------------------------

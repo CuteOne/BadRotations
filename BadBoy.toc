@@ -214,6 +214,7 @@ Rotations\Rogue\Combat\combatSimC.lua
 Rotations\Rogue\Assassination\cAssassination.lua
 Rotations\Rogue\Assassination\assassinationSimC.lua
 Rotations\Rogue\Assassination\oldAssassination.lua
+Rotations\Rogue\Assassination\AssassinationCuteOne.lua
 
 Rotations\Rogue\Assassination\Assassination.lua
 Rotations\Rogue\Assassination\Functions.lua
