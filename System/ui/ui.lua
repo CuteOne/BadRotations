@@ -473,7 +473,7 @@ function ConstructUI()
                 -- TODO: Dispel delay
                 [11] = {
                 	checkbase = false,
-                	check = false,
+                	check = true,
                 	name = "Dispel delay",
                 	status = "Set desired dispel delay in % of debuff duration.\n|cffFF0000Will randomise around the value you set.",
                 	statusBase = 15,
@@ -482,17 +482,12 @@ function ConstructUI()
                 	statusStep = 1,
                 	tip = "Dispel delay in % of debuff duration"
                 },
-				-- [11] = {
-				-- 	--checkbase = false,
-				-- 	--check = false,
-				-- 	name = "Update Speed",
-				-- 	status = "Set desired Healing Engine update rate in ms.\n|cffFF0000The Timer is always active, regardless to the check button",
-				-- 	statusBase = 1000,
-				-- 	statusMin = 0,
-				-- 	statusMax = 2000,
-				-- 	statusStep = 25,
-				-- 	tip = "Engine Update Refresh throttle (ms)"
-				-- }
+				[12] = {
+					checkbase = true,
+					check = true,
+					name = "HE Active",
+					tip = "Enable the Healing Engine."
+				},
 			},
 			["Other Features"] = {
 				[1] = {

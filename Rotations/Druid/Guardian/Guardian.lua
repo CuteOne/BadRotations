@@ -40,7 +40,7 @@ function DruidGuardian()
     local fonCooldown = getSpellCD(fon)
     local fonCharge = getCharges(fon)
     local fonRecharge = getRecharge(fon)
-    local berserk = UnitBuffID("player", berg)
+    local berserk = UnitBuffID("player", ber)
     local vicious = getBuffRemain("player", 148903)
     local restlessagi = getBuffRemain("player", 146310)
     local thbRemain = getDebuffRemain("target", thb, "player")
@@ -267,7 +267,7 @@ function DruidGuardian()
         -- actions+=/berserking
         if isChecked("useBerserk") then
             if BossDummyG() == true then
-                if castSpell("player", berg) then
+                if castSpell("player", ber) then
                     return;
                 end
             end
@@ -295,7 +295,7 @@ function DruidGuardian()
                 end
             end
             -- Mangle Berserk
-            if UnitBuffID("player", berg) then
+            if berserk then
                 if castSpell("target", mgl, false, false) then
                     return;
                 end
@@ -367,9 +367,17 @@ function DruidGuardian()
             end
             -- actions+=/Lacerate
             if not chumiiuseAoE() then
-                if castSpell("target", lac, false, false) then
+                -- TODO: better cylce, prio 1 should be the one with lowest time remain (if < 4sec) -> with lowest stack -> if all at 3 then lowest time remain
+                if isKnown(pulv) and lacStacks < 3 then
+                    if castSpell("target", lac, false, false) then
+                        return;
+                    end
+                end
+
+                if castSpell(getLacerateTarget(), lac, false, false) then
                     return;
                 end
+
             else -- Trash if AoE
                 --Trash
                 if castSpell("target", thb, true) then
@@ -377,6 +385,8 @@ function DruidGuardian()
                 end
             end
         end -- singletarget end
+
+
         ------------------------------------------------------------------------------------------------------
         -- Multi Target --------------------------------------------------------------------------------------
         ------------------------------------------------------------------------------------------------------
