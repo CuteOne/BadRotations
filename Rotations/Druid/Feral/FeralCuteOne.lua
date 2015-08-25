@@ -3,7 +3,6 @@ if select(2, UnitClass("player")) == "DRUID" then
    	-- Global Functions
     	GroupInfo() -- Determings Player with Lowest HP
     	KeyToggles() -- Keyboard Toggles
-    	--makeEnemiesTable(40)
    	-- Locals
    		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end
@@ -59,6 +58,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local deadtar, attacktar, hastar, playertar 		= deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
 		local friendly 										= friendly or UnitIsFriend("target", "player")
 	    local mfTick 										= 20.0/(1+UnitSpellHaste("player")/100)/10  
+	    ChatOverlay(getDistance2("target"))
 --------------------
 --- Action Lists ---
 --------------------

@@ -362,8 +362,9 @@ if select(2, UnitClass("player")) == "DRUID" then
         function self.startRotation()
         	if self.rotation == 1 then
                 self:FeralCuteOne()
-            -- put different rotations below; dont forget to setup your rota in options
             elseif self.rotation == 2 then
+                self:OLDFeral()
+            elseif self.rotation == 3 then
                 ChatOverlay("No Rotation Selected!")
             else
                 ChatOverlay("No ROTATION ?!", 2000)
@@ -413,7 +414,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             wrapOp("--- Select Rotation ---")
 
                 -- Rotation
-                dropOp("Rotation", 1, "Select Rotation.", "|cff00FF00CuteOne", "|cffD60000No Rotation");
+                dropOp("Rotation", 1, "Select Rotation.", "|cff00FF00CuteOne", "|cffD60000OLD Feral","|cffD60000No Rotation");
                 textOp("Rotation");
 
             textOp(" ")
@@ -594,7 +595,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         -- Maim - Set target via thisUnit variable
     	function self.castMaim(thisUnit)
     		if self.power>35 and self.cd.maim==0 and self.comboPoints>0 and ObjectExists(thisUnit) then
-    			return castSpell(thisUnit,self.spell.maim,true,false) == true or false
+    			return castSpell(thisUnit,self.spell.maim,false,false) == true or false
     		end
     	end
 
@@ -604,7 +605,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         -- Heart of the Wild
         function self.castHeartOfTheWild()
-        	return castSpell("player",self.spell.heartOfTheWild,true,false) == true or false
+        	return castSpell("player",self.spell.heartOfTheWild,false,false) == true or false
         end
 
     ----------------------
@@ -613,7 +614,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         -- Claws of Shirvallah
         function self.castClawsOfShirvallah()
-        	return castSpell("player",self.spell.clawsOfShirvallah,true,false) == true or false
+        	return castSpell("player",self.spell.clawsOfShirvallah,false,false) == true or false
         end
 
     --------------------------
@@ -630,42 +631,42 @@ if select(2, UnitClass("player")) == "DRUID" then
         -- Incarnation: King of the Jungle
         function self.castIncarnationKingOfTheJungle()
         	if self.cd.incarnationKingOfTheJungle == 0 and ObjectExists(self.units.dyn5) then
-        		return castSpell("player",self.spell.incarnationKingOfTheJungle,true,false) == true or false
+        		return castSpell("player",self.spell.incarnationKingOfTheJungle,false,false) == true or false
         	end
         end
 
         -- Rake - Set target via thisUnit variable
         function self.castRake(thisUnit)
         	if self.power > 35 and ObjectExists(thisUnit) and self.debuff.remain.rakeStun==0 then
-        		return castSpell(thisUnit,self.spell.rake,true,false) == true or false
+        		return castSpell(thisUnit,self.spell.rake,false,false) == true or false
         	end
         end
 
         -- Rip - Set target via thisUnit variable
         function self.castRip(thisUnit)
         	if self.power > 30 and self.comboPoints==5 and ObjectExists(thisUnit) then
-        		return castSpell(thisUnit,self.spell.rip,true,false) == true or false
+        		return castSpell(thisUnit,self.spell.rip,false,false) == true or false
         	end
         end
 
         -- Savage Roar
         function self.castSavageRoar()
         	if self.power > 25 and self.comboPoints>0 and ObjectExists(self.units.dyn5) then
-        		return castSpell("player",self.spell.savageRoar,true,false) == true or false
+        		return castSpell("player",self.spell.savageRoar,false,false) == true or false
         	end
         end
 
         -- Swipe
         function self.castSwipe()
         	if self.power > 45 and ObjectExists(self.units.dyn8) then
-        		return castSpell(self.units.dyn8,self.spell.swipe,true,false) == true or false
+        		return castSpell(self.units.dyn8,self.spell.swipe,false,false) == true or false
         	end
         end
 
         -- Tiger's Fury
         function self.castTigersFury()
         	if self.cd.tigersFury==0 and ObjectExists(self.units.dyn5) then
-        		return castSpell("player",self.spell.tigersFury,true,false) == true or false
+        		return castSpell("player",self.spell.tigersFury,false,false) == true or false
         	end
         end
 
@@ -678,7 +679,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         -- Stampeding Roar
         function self.castStampedingRoar()
-        	return castSpell("player",self.spell.stampedingRoar,true,false) == true or false
+        	return castSpell("player",self.spell.stampedingRoar,false,false) == true or false
         end
 
     -----------------------------
