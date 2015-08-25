@@ -58,7 +58,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             -- death_from_above,if=(cooldown.vendetta.remains>10|debuff.vendetta.up|target.time_to_die<=25)
             if talent.deathFromAbove then
                 -- if self.power < 50 and cd.deathFromAbove < 2 then return end
-                if cd.vendetta > 10 or debuff.vendetta > 0 or timeToDie <= 25 then
+                if cd.vendetta > 10 or debuff.vendetta or timeToDie <= 25 then
                     if self.castDeathFromAbove then return end
                 end
             end
@@ -68,7 +68,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             --
             -- envenom,if=                                                target.health.pct<=35&(energy+energy.regen*cooldown.vendetta.remains>=105&(buff.envenom.remains<=1.8|energy>45))|buff.bloodlust.up|debuff.vendetta.up
             -- envenom,if=                                                target.health.pct>35 &(energy+energy.regen*cooldown.vendetta.remains>=105&(buff.envenom.remains<=1.8|energy>55))|buff.bloodlust.up|debuff.vendetta.up
-            if ((power + powerRegen * cd.vendetta >= 105) and (buff.envenom <= 1.8 or power > 45)) or hasBloodLust() or debuff.vendetta > 0 then
+            if ((power + powerRegen * cd.vendetta >= 105) and (buff.remain.envenom <= 1.8 or power > 45)) or hasBloodLust() or debuff.vendetta then
                 -- Deadly Poison cond. inside cycle
                 if self.castEnvenom(true) then return end -- Cycle
                 if self.castEnvenom() then return end
@@ -129,7 +129,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         -- TODO: Pot usage
 
         -- actions+=/preparation,if=!buff.vanish.up&cooldown.vanish.remains>60&time>10
-        if buff.vanish == 0 and cd.vanish > 30 and getCombatTime() > 10 then
+        if buff.vanish and cd.vanish > 30 and getCombatTime() > 10 then
             if self.castPreparation() then return end
         end
 
@@ -146,12 +146,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
         -- TODO: fucking long line
 
         -- actions+=/mutilate,if=buff.stealth.up|buff.vanish.up
-        if buff.stealth or buff.vanish > 0 then
+        if buff.stealth or buff.vanish then
             if self.castMutilate() then return end
         end
 
         -- actions+=/rupture,if=((combo_points>=4&!talent.anticipation.enabled)|combo_points=5)&ticks_remain<3
-        if ((comboPoints >= 4 and not talent.anticipation) or comboPoints == 5) and debuff.rupture*2 < 3 then
+        if ((comboPoints >= 4 and not talent.anticipation) or comboPoints == 5) and debuff.remain.rupture*2 < 3 then
             if self.castRupture() then return end
         end
 
@@ -171,7 +171,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         end
 
         -- actions+=/vendetta,if=buff.shadow_reflection.up|!talent.shadow_reflection.enabled|target.time_to_die<=20|(target.time_to_die<=30&glyph.vendetta.enabled)
-        if buff.shadowReflection > 0 or not talent.shadowReflection or timeToDie <=20 or (timeToDie <= 30 and glyph.vendetta) then
+        if buff.shadowReflection or not talent.shadowReflection or timeToDie <=20 or (timeToDie <= 30 and glyph.vendetta) then
             if self.castVendetta() then return end
         end
 
@@ -181,12 +181,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
         end
 
         -- actions+=/call_action_list,name=finishers,if=combo_points=5&((!cooldown.death_from_above.remains&talent.death_from_above.enabled)|buff.envenom.down|!talent.anticipation.enabled|anticipation_charges+combo_points>=6)
-        if comboPoints == 5 and ((cd.deathFromAbove == 0 and talent.deathFromAbove) or buff.envenom == 0 or not talent.anticipation or charges.anticipation+comboPoints >= 6) then
+        if comboPoints == 5 and ((cd.deathFromAbove == 0 and talent.deathFromAbove) or buff.envenom or not talent.anticipation or charges.anticipation+comboPoints >= 6) then
             if actionList_Finisher() then return end
         end
 
         -- actions+=/call_action_list,name=finishers,if=dot.rupture.remains<2
-        if debuff.rupture < 2 then
+        if debuff.remain.rupture < 2 then
             if actionList_Finisher() then return end
         end
 

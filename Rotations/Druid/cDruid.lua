@@ -429,12 +429,12 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		-- Mighty Bash
 		function self.castMightyBash()
-			return castSpell(self.units.dyn5,self.spell.mightyBash,true,false) == true or false
+			return castSpell(self.units.dyn5,self.spell.mightyBash,false,false) == true or false
 		end
 
 		-- Typhoon
 		function self.castTyphoon()
-			return castSpell(self.units.dyn15,self.spell.typhoon,true,false) == true or false
+			return castSpell(self.units.dyn15,self.spell.typhoon,false,false) == true or false
 		end
 
 		-- Ursol's Vortex
@@ -448,7 +448,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		-- Barkskin
 		function self.castBarkskin()
-			return castSpell("player",self.spell.barkskin,true,false) == true or false
+			return castSpell("player",self.spell.barkskin,false,false) == true or false
 		end
 
 		-- Cenarion Ward - Set target via thisUnit variable
@@ -458,7 +458,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		-- Frenzied Regeneration
 		function self.castFrenziedRegeneration()
-			return castSpell("player",self.spell.frenziedRegeneration,true,false) == true or false
+			return castSpell("player",self.spell.frenziedRegeneration,false,false) == true or false
 		end
 
 		-- Healing Touch - Set target via thisUnit variable
@@ -468,7 +468,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		-- Nature's Vigil
 		function self.castNaturesVigil()
-			return castSpell("player",self.spell.naturesVigil,true,false) == true or false
+			return castSpell("player",self.spell.naturesVigil,false,false) == true or false
 		end
 
 		-- Rejuvenation - Set target via thisUnit variable
@@ -484,12 +484,12 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		-- Renewal
 		function self.castRenewal()
-			return castSpell("player",self.spell.renewal,true,false) == true or false
+			return castSpell("player",self.spell.renewal,false,false) == true or false
 		end
 
 		-- Survival Instincts
 		function self.castSurvivalInstincts()
-			return castSpell("player",self.spell.survivalInstincts,true,false) == true or false
+			return castSpell("player",self.spell.survivalInstincts,false,false) == true or false
 		end
 
 	----------------------
@@ -498,22 +498,22 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		-- Bear Form
 		function self.castBearForm()
-			return castSpell("player",self.spell.bearForm,true,false) == true or false
+			return castSpell("player",self.spell.bearForm,false,false) == true or false
 		end
 
 		-- Cat Form
 		function self.castCatForm()
-			return castSpell("player",self.spell.catForm,true,false) == true or false
+			return castSpell("player",self.spell.catForm,false,false) == true or false
 		end
 
 		-- Flight Form
 		function self.castFlightForm()
-			return castSpell("player",self.spell.flightForm,true,false) == true or false
+			return castSpell("player",self.spell.flightForm,false,false) == true or false
 		end
 
 		-- Travel Form
 		function self.castTravelForm()
-			return castSpell("player",self.spell.travelForm,true,false) == true or false
+			return castSpell("player",self.spell.travelForm,false,false) == true or false
 		end
 
 	--------------------------
@@ -523,7 +523,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-- Berserk
 		function self.castBerserk()
 			if self.cd.berserk==0 then
-				return castSpell("player",self.spell.berserk,true,false) == true or false
+				return castSpell("player",self.spell.berserk,false,false) == true or false
 			end
 		end
 
@@ -540,18 +540,18 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-- Ferocious Bite - Set target via thisUnit variable
 		function self.castFerociousBite(thisUnit)
 			if self.power > 25 and ObjectExists(self.units.dyn5) then
-				return castSpell(thisUnit,self.spell.ferociousBite,true,false) == true or false
+				return castSpell(thisUnit,self.spell.ferociousBite,false,false) == true or false
 			end
 		end
 
 		-- Mark of the Wild
 		function self.castMarkOfTheWild()
-			return castSpell("player",self.spell.markOfTheWild,true,false) == true or false
+			return castSpell("player",self.spell.markOfTheWild,false,false) == true or false
 		end
 
 		-- Mangle
 		function self.castMangle()
-			return castSpell(self.units.dyn5,self.spell.mangle,true,false) == true or false
+			return castSpell(self.units.dyn5,self.spell.mangle,false,false) == true or false
 		end
 
 		-- Moonfire - Set target via thisUnit variable
@@ -562,13 +562,13 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-- Shred
 		function self.castShred()
 			if self.power > 40 and ObjectExists(self.units.dyn5) then
-				return castSpell(self.units.dyn5,self.spell.shred,true,false) == true or false
+				return castSpell(self.units.dyn5,self.spell.shred,false,false) == true or false
 			end
 		end
 
 		-- Wrath
 		function self.castWrath()
-			return castSpell(self.units.dyn40,self.spell.wrath,true,false) == true or false
+			return castSpell(self.units.dyn40,self.spell.wrath,false,false) == true or false
 		end
 
 	------------------------
@@ -577,7 +577,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		-- Dash
 		function self.castDash()
-			return castSpell("player",self.spell.dash,true,false) == true or false
+			return castSpell("player",self.spell.dash,false,false) == true or false
 		end
 
 		-- Displacer Beast
@@ -597,23 +597,23 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		-- Prowl
 		function self.castProwl()
-			return castSpell("player",self.spell.prowl,true,false) == true or false
+			return castSpell("player",self.spell.prowl,false,false) == true or false
 		end
 
 		-- Rebirth - Set target via thisUnit variable
 		function self.castRebirth(thisUnit)
-			return castSpell(thisUnit,self.spell.rebirth,true,false,false,false,true) == true or false
+			return castSpell(thisUnit,self.spell.rebirth,false,false,false,false,true) == true or false
 		end
 
 		-- Revive - Set target via thisUnit variable
 		function self.castRevive(thisUnit)
-			return castSpell(thisUnit,self.spell.revive,true,false,false,false,true) == true or false
+			return castSpell(thisUnit,self.spell.revive,false,false,false,false,true) == true or false
 		end
 
 		-- Skull Bash - Set target via thisUnit variable
 		function self.castSkullBash(thisUnit)
 			if ObjectExists(self.units.dyn13) then 
-				return castSpell(thisUnit,self.spell.skullBash,true,false) == true or false
+				return castSpell(thisUnit,self.spell.skullBash,false,false) == true or false
 			end
 		end
 
@@ -624,17 +624,17 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		-- Teleport: Moonglade
 		function self.castTeleportMoonglade()
-			return castSpell("player",self.spell.teleportMoonglade,true,false) == true or false
+			return castSpell("player",self.spell.teleportMoonglade,false,false) == true or false
 		end
 
 		-- Track Humanoids
 		function self.castTrackHumanoids()
-			return castSpell("player",self.spell.trackHumanoids,true,false) == true or false
+			return castSpell("player",self.spell.trackHumanoids,false,false) == true or false
 		end
 
 		-- Wild Charge - Set target via thisUnit variable
 		function self.castWildCharge(thisUnit)
-			return self.castSpell(thisUnit,self.spell.wildCharge,true,false) == true or false
+			return self.castSpell(thisUnit,self.spell.wildCharge,false,false) == true or false
 		end
 
 		-- Return

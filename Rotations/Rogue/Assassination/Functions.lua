@@ -24,6 +24,36 @@ if select(3, UnitClass("player")) == 4 then
       end
   end
 
+  --Rupture Debuff Time Remaining
+  function ruptureRemain(unit)
+      return getDebuffRemain(unit,rogueAssassination.spell.ruptureDebuff,"player")
+  end
+
+  --Rupture Debuff Total Time
+  function ruptureDuration(unit)
+      return getDebuffDuration(unit,rogueAssassination.spell.ruptureDebuff,"player")
+  end
+
+  --Deadly Poison Remain
+  function deadlyRemain(unit)
+    return getDebuffRemain(unit,rogueAssassination.spell.deadlyPoisonDebuff,"player")
+  end
+
+  --Envenom Remain
+  function envenomRemain(unit)
+    return getBuffRemain("player",rogueAssassination.spell.envenomBuff)
+  end
+
+  --Target HP
+  function thp(unit)
+      return getHP(unit)
+  end
+
+  --Target Time to Die
+  function ttd(unit)
+      return getTimeToDie(unit)
+  end
+
   function useCDs()
     if (BadBoy_data['Cooldowns'] == 1 and isBoss()) or BadBoy_data['Cooldowns'] == 2 then
       return true
@@ -56,20 +86,28 @@ if select(3, UnitClass("player")) == 4 then
     end
   end
 
+  function useCleave()
+    if BadBoy_data['Cleave']==1 and BadBoy_data['AoE'] < 3 then
+      return true
+    else
+      return false
+    end
+  end
+
   function canPP() --Pick Pocket Toggle State
     if BadBoy_data['Picker'] == 1 or BadBoy_data['Picker'] == 2 then
       return true
-  else
-    return false
-  end
+    else
+      return false
+    end
   end
 
   function noattack() --Pick Pocket Toggle State
     if BadBoy_data['Picker'] == 2 then
       return true
-  else
-    return false
-  end
+    else
+      return false
+    end
   end
 
   function isPicked()	--	Pick Pocket Testing
@@ -78,12 +116,12 @@ if select(3, UnitClass("player")) == 4 then
         canPickpocket = true
         myTarget = UnitGUID("target")
       end
-  end
-  if (canPickpocket == false or BadBoy_data['Picker'] == 3 or GetNumLootItems()>0) then
-    return true
-  else
-    return false
-  end
+    end
+    if (canPickpocket == false or BadBoy_data['Picker'] == 3 or GetNumLootItems()>0) then
+      return true
+    else
+      return false
+    end
   end
 
   function getDistance2(Unit1,Unit2)

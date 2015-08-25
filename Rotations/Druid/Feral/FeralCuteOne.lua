@@ -3,7 +3,6 @@ if select(2, UnitClass("player")) == "DRUID" then
    	-- Global Functions
     	GroupInfo() -- Determings Player with Lowest HP
     	KeyToggles() -- Keyboard Toggles
-    	--makeEnemiesTable(40)
    	-- Locals
    		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end
@@ -20,9 +19,9 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local ttm 											= self.timeToMax
 		local falling, swimming 							= getFallTime(), IsSwimming()
 		local gcd 											= self.gcd
-		local t17_2pc 										= TierScan("T17")>=2
-		local t18_2pc 										= TierScan("T18")>=2
-		local t18_4pc 										= TierScan("T18")>=4
+		local t17_2pc 										= self.eq.t17_2pc
+		local t18_2pc 										= self.eq.t18_2pc 
+		local t18_4pc 										= self.eq.t18_4pc 
 		-- Specific Player Variables
 		local combo 										= self.comboPoints
 		local clearcast 									= self.buff.clearcast
@@ -59,6 +58,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local deadtar, attacktar, hastar, playertar 		= deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
 		local friendly 										= friendly or UnitIsFriend("target", "player")
 	    local mfTick 										= 20.0/(1+UnitSpellHaste("player")/100)/10  
+	    ChatOverlay(getDistance2("target"))
 --------------------
 --- Action Lists ---
 --------------------
@@ -274,9 +274,11 @@ if select(2, UnitClass("player")) == "DRUID" then
 		 			if cat and (not friendly or isDummy()) then
 						for i=1, #dynTable20AoE do
 							local thisUnit = dynTable20AoE[i].unit
-					        if useProwl() and (ObjectExists(thisUnit) or self.perk.enhancedProwl) and GetTime()-leftCombat > lootDelay then
-					        	if self.castProwl() then return end
-					        end
+							if dynTable20AoE[i].distance < 20 then
+						        if useProwl() and ((ObjectExists(thisUnit) and UnitCanAttack(thisUnit,"player")) or self.perk.enhancedProwl) and GetTime()-leftCombat > lootDelay then
+						        	if self.castProwl() then return end
+						        end
+						    end
 					    end
 					end
 				end -- End No Stealth
@@ -301,31 +303,39 @@ if select(2, UnitClass("player")) == "DRUID" then
 			-- cycle_targets=1,if=remains<2&target.time_to_die-remains>18&(target.health.pct>25|!dot.rip.ticking)
 	        for i=1, #dynTable5 do
 				local thisUnit = dynTable5[i].unit
-				if ripRemain(thisUnit)<2 and ttd(thisUnit)-ripRemain(thisUnit)>18 and (thp(thisUnit)>25 or ripRemain(thisUnit)<2) then
-					if self.castRip(thisUnit) then return end
+				if dynTable5[i].distance < 5 then
+					if ripRemain(thisUnit)<2 and ttd(thisUnit)-ripRemain(thisUnit)>18 and (thp(thisUnit)>25 or ripRemain(thisUnit)<2) then
+						if self.castRip(thisUnit) then return end
+					end
 				end
 			end
 		-- Finisher: Ferocious Bite
 			-- cycle_targets=1,max_energy=1,if=target.health.pct<25&dot.rip.ticking
 			for i=1, #dynTable5 do
 				local thisUnit = dynTable5[i].unit
-				if power>50 and thp(thisUnit)<25 and ripRemain(thisUnit)>0 then
-					if self.castFerociousBite(thisUnit) then return end
+				if dynTable5[i].distance < 5 then
+					if power>50 and thp(thisUnit)<25 and ripRemain(thisUnit)>0 then
+						if self.castFerociousBite(thisUnit) then return end
+					end
 				end
 			end
 		-- Finisher: Rip
 			-- cycle_targets=1,if=remains<7.2&persistent_multiplier>dot.rip.pmultiplier&target.time_to_die-remains>18
 			for i=1, #dynTable5 do
 				local thisUnit = dynTable5[i].unit
-				if ripRemain(thisUnit)<7.2 and ripCalcDotDmg()>ripAppliedDotDmg(thisUnit) and ttd(thisUnit)-ripRemain(thisUnit)>18 then
-					if self.castRip(thisUnit) then return end
+				if dynTable5[i].distance < 5 then
+					if ripRemain(thisUnit)<7.2 and ripCalcDotDmg()>ripAppliedDotDmg(thisUnit) and ttd(thisUnit)-ripRemain(thisUnit)>18 then
+						if self.castRip(thisUnit) then return end
+					end
 				end
 			end
 			-- if=remains<7.2&persistent_multiplier=dot.rip.pmultiplier&(energy.time_to_max<=1|!talent.bloodtalons.enabled|(set_bonus.tier18_4pc&energy>50))&target.time_to_die-remains>18
 			for i=1, #dynTable5 do
 				local thisUnit = dynTable5[i].unit
-				if ripRemain(thisUnit)<7.2 and ripCalcDotDmg()==ripAppliedDotDmg(thisUnit) and (ttm<=1 or not bloodtalons or (t18_4pc and power > 50)) and ttd(thisUnit)-ripRemain(thisUnit)>18 then
-					if self.castRip(thisUnit) then return end
+				if dynTable5[i].distance < 5 then
+					if ripRemain(thisUnit)<7.2 and ripCalcDotDmg()==ripAppliedDotDmg(thisUnit) and (ttm<=1 or not bloodtalons or (t18_4pc and power > 50)) and ttd(thisUnit)-ripRemain(thisUnit)>18 then
+						if self.castRip(thisUnit) then return end
+					end
 				end
 			end
 		-- Finisher: Savage Roar
@@ -345,16 +355,20 @@ if select(2, UnitClass("player")) == "DRUID" then
 			-- cycle_targets=1,if=remains<3&((target.time_to_die-remains>3&spell_targets.swipe<3)|target.time_to_die-remains>6)
 			for i=1, #dynTable5 do
 				local thisUnit = dynTable5[i].unit
-				if rakeRemain(thisUnit)<3 and ((ttd(thisUnit)-rakeRemain(thisUnit)>3 and self.enemies.yards8<3) or ttd(thisUnit)-rakeRemain(thisUnit)>6) then
-					if self.castRake(thisUnit) then return end
+				if dynTable5[i].distance < 5 then
+					if rakeRemain(thisUnit)<3 and ((ttd(thisUnit)-rakeRemain(thisUnit)>3 and self.enemies.yards8<3) or ttd(thisUnit)-rakeRemain(thisUnit)>6) then
+						if self.castRake(thisUnit) then return end
+					end
 				end
 		 	end
 		 	-- cycle_targets=1,if=remains<4.5&(persistent_multiplier>=dot.rake.pmultiplier|(talent.bloodtalons.enabled&(buff.bloodtalons.up|!buff.predatory_swiftness.up)))&((target.time_to_die-remains>3&spell_targets.swipe<3)|target.time_to_die-remains>6)
 			for i=1, #dynTable5 do
 				local thisUnit = dynTable5[i].unit
-				if rakeRemain(thisUnit)<4.5 and (rakeCalcDotDmg()>=rakeAppliedDotDmg(thisUnit) or (bloodtalons and (btRemain>0 or psRemain==0))) and ((ttd(thisUnit)-rakeRemain(thisUnit)>3 and self.enemies.yards8<3) or ttd(thisUnit)-rakeRemain(thisUnit)>6) then
-					if self.castRake(thisUnit) then return end
-			 	end
+				if dynTable5[i].distance < 5 then
+					if rakeRemain(thisUnit)<4.5 and (rakeCalcDotDmg()>=rakeAppliedDotDmg(thisUnit) or (bloodtalons and (btRemain>0 or psRemain==0))) and ((ttd(thisUnit)-rakeRemain(thisUnit)>3 and self.enemies.yards8<3) or ttd(thisUnit)-rakeRemain(thisUnit)>6) then
+						if self.castRake(thisUnit) then return end
+				 	end
+				end
 		 	end 
 		-- Maintain: Moonfire
 			-- cycle_targets=1,if=remains<4.2&spell_targets.swipe<=5&target.time_to_die-remains>tick_time*5
@@ -372,8 +386,10 @@ if select(2, UnitClass("player")) == "DRUID" then
 			-- cycle_targets=1,if=persistent_multiplier>dot.rake.pmultiplier&spell_targets.swipe=1&((target.time_to_die-remains>3&spell_targets.swipe<3)|target.time_to_die-remains>6)
 			for i=1, #dynTable5 do
 				local thisUnit = dynTable5[i].unit
-				if rakeCalcDotDmg()>rakeAppliedDotDmg(thisUnit) and self.enemies.yards8>=1 and ((ttd(thisUnit)-rakeRemain(thisUnit)>3 and self.enemies.yards8<3) or ttd(thisUnit)-rakeRemain(thisUnit)>6) then
-					if self.castRake(thisUnit) then return end
+				if dynTable5[i].distance < 5 then
+					if rakeCalcDotDmg()>rakeAppliedDotDmg(thisUnit) and self.enemies.yards8>=1 and ((ttd(thisUnit)-rakeRemain(thisUnit)>3 and self.enemies.yards8<3) or ttd(thisUnit)-rakeRemain(thisUnit)>6) then
+						if self.castRake(thisUnit) then return end
+					end
 				end
 			end	
 		end -- End Action List - Maintain
@@ -399,9 +415,9 @@ if select(2, UnitClass("player")) == "DRUID" then
 		elseif (inCombat and profileStop==true) or pause() then
 			return true
 		else
-----------------------
+-----------------------
 --- Extras Rotation ---
-----------------------
+-----------------------
 			if actionList_Extras() then return end
 --------------------------
 --- Defensive Rotation ---
@@ -417,10 +433,10 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-- Cat is 4 fyte!
 			if inCombat and not cat then
 				if self.castCatForm() then return end
-			elseif hastar and attacktar and inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") then
+			elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") then --hastar and attacktar
 		-- TODO: Wild Charge
 		-- TODO: Displacer Beast
-		-- TODO: Dash
+		-- TODO: Dash/Worgen Racial
 		-- Rake/Shred from Stealth
 				-- rake,if=buff.prowl.up|buff.shadowmeld.up
 				if stealth then
@@ -430,6 +446,8 @@ if select(2, UnitClass("player")) == "DRUID" then
 		        		if self.castShred() then StopAttack(); return end
 		            end
 				elseif not stealth and BadBoy_data['AoE'] ~= 4 then
+					-- auto_attack
+					StartAttack()
 	------------------------------
 	--- In Combat - Interrupts ---
 	------------------------------
@@ -521,8 +539,10 @@ if select(2, UnitClass("player")) == "DRUID" then
 					-- cycle_targets=1,if=dot.rip.ticking&dot.rip.remains<3&target.health.pct<25
 					for i=1, #dynTable5 do
 						local thisUnit = dynTable5[i].unit
-						if ripRemain(thisUnit)>0 and ripRemain(thisUnit)<3 and thp(thisUnit)<25 then
-							if self.castRip(thisUnit) then return end
+						if dynTable5[i].distance < 5 then
+							if ripRemain(thisUnit)>0 and ripRemain(thisUnit)<3 and thp(thisUnit)<25 then
+								if self.castRip(thisUnit) then return end
+							end
 						end
 					end
 		-- Healing Touch
@@ -553,6 +573,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-- Thrash with T18 4pc
 					-- if=set_bonus.tier18_4pc&buff.omen_of_clarity.react&remains<4.5&combo_points+buff.bloodtalons.stack!=6
 					if t18_4pc and clearcast and thrashRemain(dynTar8AoE)<4.5 and (combo + btStacks) ~= 6 then
+						CharOverlay("Thrash 1")
 						if self.castThrash(dynTar8AoE) then return end
 					end
 		-- Pool Energy then Thrash
@@ -566,6 +587,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 									return true
 								else
 					-- Thrash
+									ChatOverlay("Thrash 2")
 									if self.castThrash(thisUnit) then return end
 								end
 							end
@@ -590,14 +612,17 @@ if select(2, UnitClass("player")) == "DRUID" then
 					--if useCleave() or (BadBoy_data['AoE'] == 2 and not useCleave()) then
 					for i=1, #dynTable8AoE do
 						local thisUnit = dynTable8AoE[i].unit
-						-- cycle_targets=1,if=remains<4.5&spell_targets.thrash_cat>=2
-						if thrashRemain(thisUnit)<4.5 and self.enemies.yards8>=2 then
-							if power<=50 then
-					-- Pool Energy 
-								return true
-							else
-					-- Thrash			
-								if self.castThrash(thisUnit) then return end	
+						if dynTable8AoE[i].distance < 8 then
+							-- cycle_targets=1,if=remains<4.5&spell_targets.thrash_cat>=2
+							if thrashRemain(thisUnit)<4.5 and self.enemies.yards8>=2 then
+								if power<=50 then
+						-- Pool Energy 
+									return true
+								else
+						-- Thrash			
+									ChatOverlay("Thrash 3")
+									if self.castThrash(thisUnit) then return end	
+								end
 							end
 						end
 					end

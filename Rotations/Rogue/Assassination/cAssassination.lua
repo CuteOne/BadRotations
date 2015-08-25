@@ -20,18 +20,27 @@ if select(2, UnitClass("player")) == "ROGUE" then
             yards12,
         }
         self.assassinationSpell = {
-            -- Buff
-            blindside = 121153,
-            -- Defensive
-            -- Offensive
-            dispatch = 111240,
-            envenom = 32645,
-            fanOfKnives = 51723,
-            mutilate = 1329,
-            rupture = 1943,
-            vendetta = 79140,
-            -- Misc
-            -- Poison
+            -- Ability - Offensive
+            dispatch                = 111240,
+            envenom                 = 32645,
+            mutilate                = 1329,
+            vendetta                = 79140,
+            
+            -- Buff - Offensive
+            blindsideBuff           = 121153,
+            envenomBuff             = 32645,
+
+            -- Debuff - Offensive
+            vendettaDebuff          = 79140,
+
+            -- Glyphs
+            vendettaGlyph           = 63249,
+
+            -- Perks
+            empoweredEnvenom        = 157569,
+            enhancedCrimsonTempest  = 157561,
+            enhancedVendetta        = 157514,
+            improvedSliceAndDice    = 157513,
         }
         -- Merge all spell tables into self.spell
         self.spell = {}
@@ -46,6 +55,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             self.classUpdateOOC()
 
             self.getGlyphs()
+            self.getPerks()
             self.getTalents()
         end
 
@@ -60,9 +70,13 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if not UnitAffectingCombat("player") then self.updateOOC() end
 
             self.getBuffs()
-            self.getDebuffs()
-            self.getCooldowns()
+            self.getBuffsDuration()
+            self.getBuffsRemain()
             self.getDynamicUnits()
+            self.getDebuffs()
+            self.getDebuffsDuration()
+            self.getDebuffsRemain()
+            self.getCooldowns()
             self.getEnemies()
             self.getRotation()
 
@@ -83,25 +97,46 @@ if select(2, UnitClass("player")) == "ROGUE" then
         -------------
 
         function self.getBuffs()
+            local UnitBuffID = UnitBuffID
+
+            self.buff.blindside = UnitBuffID("player",self.spell.blindsideBuff)~=nil or false
+            self.buff.envenom = UnitBuffID("player",self.spell.envenomBuff)~=nil or false
+        end
+
+        function self.getBuffsDuration()
+            local getBuffDuration = getBuffDuration
+
+            self.buff.duration.blindside = getBuffRemain("player",self.spell.blindsideBuff) or 0
+            self.buff.duration.envenom = getBuffDuration("player",self.spell.envenomBuff) or 0
+        end
+
+        function self.getBuffsRemain()
             local getBuffRemain = getBuffRemain
 
-            self.buff.blindside = getBuffRemain("player", self.spell.blindside)
-            self.buff.envenom   = getBuffRemain("player", self.spell.envenom)
+            self.buff.remain.blindside = getBuffRemain("player", self.spell.blindsideBuff) or 0
+            self.buff.remain.envenom = getBuffRemain("player",self.spell.envenomBuff) or 0
         end
 
         ---------------
         --- DEBUFFS ---
         ---------------
         function self.getDebuffs()
-            local getDebuffRemain, getDebuffDuration = getDebuffRemain, getDebuffDuration
+            local UnitDebuffID = UnitDebuffID
 
-            self.debuff.rupture         = getDebuffRemain(self.units.dyn5, self.spell.rupture, "player") or 0
-            self.debuff.ruptureDuration = getDebuffDuration(self.units.dyn5, self.spell.rupture, "player") or 0
-            self.debuff.crimsonTempest  = getDebuffRemain(self.units.dyn5, self.spell.crimsonTempest, "player") or 0
-            self.debuff.vendetta        = getDebuffRemain(self.units.dyn5, self.spell.vendetta, "player") or 0
-            self.debuff.deadlyPoison    = getDebuffRemain(self.units.dyn5, self.spell.deadlyPoison, "player") or 0
+            self.debuff.vendetta = UnitDebuffID(self.units.dyn5,self.spell.vendetta,"player")~=nil or false
         end
-        
+
+        function self.getDebuffsDuration()
+            local getDebuffDuration = getDebuffDuration
+
+            self.debuff.duration.vendetta = getDebuffDuration(self.units.dyn5,self.spell.vendetta,"player") or 0
+        end
+
+        function self.getDebuffsRemain()
+            local getDebuffRemain = getDebuffRemain
+
+            self.debuff.remain.vendetta = getDebuffRemain(self.units.dyn5,self.spell.vendetta,"player") or 0
+        end
         -----------------
         --- COOLDOWNS ---
         -----------------
@@ -117,9 +152,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
         --------------
 
         function self.getGlyphs()
-            --local hasGlyph = hasGlyph
+            local hasGlyph = hasGlyph
 
-            --self.glyph.   = hasGlyph()
+            self.glyph.vendetta = hasGlyph(self.spell.vendettaGlyph)
         end
 
         ---------------
@@ -130,6 +165,19 @@ if select(2, UnitClass("player")) == "ROGUE" then
             --local isKnown = isKnown
 
             --self.talent. = isKnown(self.spell.)
+        end
+
+        -------------
+        --- PERKS ---
+        -------------
+
+        function self.getPerks()
+            local isKnown = isKnown
+
+            self.perk.empoweredEnvenom          = isKnown(self.spell.empoweredEnvenom)
+            self.perk.enhancedCrimsonTempest    = isKnown(self.spell.enhancedCrimsonTempest)
+            self.perk.enhancedVendetta          = isKnown(self.spell.enhancedVendetta)
+            self.perk.improvedSliceAndDice      = isKnown(self.spell.improvedSliceAndDice)
         end
 
         ---------------------
@@ -167,6 +215,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 self:assassinationSimC()
                 -- put different rotations below; dont forget to setup your rota in options
             elseif self.rotation == 2 then
+                self:AssassinationCuteOne()
+            elseif self.rotation == 3 then
                 self:oldAssassination()
             else
                 ChatOverlay("No ROTATION ?!", 2000)
@@ -181,7 +231,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             thisConfig = 0
 
             -- Title
-            CreateNewTitle(thisConfig, "Assassination Defmaster")
+            CreateNewTitle(thisConfig, "Assassination")
 
             -- Create Base and Class options
             self.createClassOptions()
@@ -190,7 +240,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             CreateNewWrap(thisConfig, "--- General ---");
 
             -- Rotation
-            CreateNewDrop(thisConfig, "Rotation", 1, "Select Rotation.", "|cff00FF00SimC", "|cff00FF00OLD_ONE");
+            CreateNewDrop(thisConfig, "Rotation", 1, "Select Rotation.", "|cff00FF00SimC", "|cff00FF00CuteOne", "|cff00FF00OLD_ONE");
             CreateNewText(thisConfig, "Rotation");
 
             -- Dummy DPS Test
@@ -227,13 +277,22 @@ if select(2, UnitClass("player")) == "ROGUE" then
             CreateNewText(thisConfig, "Vendetta");
 
             -- Spacer
-            CreateNewText(thisConfig, " ");
+            CreateNewText(thisConfig," ");
             CreateNewWrap(thisConfig, "--- Defensive ---");
 
             -- Healthstone
-            --CreateNewCheck(thisConfig,"Pot/Stoned");
-            --CreateNewBox(thisConfig,"Pot/Stoned", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
-            --CreateNewText(thisConfig,"Pot/Stoned");
+            -- checkOp("Pot/Stoned");
+            -- boxOp("Pot/Stoned", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
+            -- textOp("Pot/Stoned");
+
+            -- Spacer --
+            CreateNewText(thisConfig," ");
+            CreateNewWrap(thisConfig, "--- Interrupts ---");
+
+            -- Interrupt Percentage
+            CreateNewCheck(thisConfig,"Interrupts");
+            CreateNewBox(thisConfig, "Interrupts", 5, 95, 5, 0, "|cffFFBB00Cast Percentage to use at.");
+            CreateNewText(thisConfig,"Interrupt At");
 
             -- Spacer
             CreateNewText(thisConfig, " ");
@@ -247,12 +306,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
             --Cooldown Key Toggle
             CreateNewCheck(thisConfig, "Cooldown Mode", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.");
             CreateNewDrop(thisConfig, "Cooldown Mode", 3, "Toggle")
-            CreateNewText(thisConfig, "Cooldowns")
+            CreateNewText(thisConfig, "Cooldown Mode")
 
             --Defensive Key Toggle
             CreateNewCheck(thisConfig, "Defensive Mode", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.");
             CreateNewDrop(thisConfig, "Defensive Mode", 6, "Toggle")
-            CreateNewText(thisConfig, "Defensive")
+            CreateNewText(thisConfig, "Defensive Mode")
 
             -- General Configs
             CreateGeneralsConfig();
@@ -286,6 +345,13 @@ if select(2, UnitClass("player")) == "ROGUE" then
             end
         end
 
+        function self.castDispatch2(thisUnit)
+            local thisUnit = thisUnit
+            if self.power>30 and self.level>=40 and ObjectExists(thisUnit) then
+                return castSpell(thisUnit,self.spell.dispatch,true,false,false) == true or false
+            end
+        end
+
         -- Envenom
         function self.castEnvenom(cycle)
             if cycle ~= nil then
@@ -304,9 +370,11 @@ if select(2, UnitClass("player")) == "ROGUE" then
             end
         end
 
-        -- Fan of Knives
-        function self.castFanOfKnives()
-            return castSpell("player", self.spell.fanOfKnives, true, false) == true or false
+        function self.castEnvenom2(thisUnit)
+            local thisUnit = thisUnit
+            if self.power>35 and self.level>=20 and self.comboPoints>0 and ObjectExists(thisUnit) then
+                return castSpell(thisUnit,self.spell.envenom,true,false,false) == true or false
+            end
         end
 
         -- Mutilate
@@ -318,7 +386,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                         local targetHP = getHP(thisUnit)
                         local deadlyPoision = getDebuffRemain(thisUnit, self.spell.deadlyPoison, "player")
                         if targetHP > 35 and deadlyPoision < 4 then
-                            return castSpell(thisUnit,self.spell.mutilate,false,false,false) == true or false
+                            return castSpell(thisUnit,self.spell.mutilate,true,false,false) == true or false
                         end
                     end
                 end
@@ -326,34 +394,22 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 local thisUnit = self.units.dyn5
                 local targetHP = getHP(thisUnit)
                 if targetHP > 35 then
-                    return castSpell(thisUnit, self.spell.mutilate, false, false) == true or false
+                    return castSpell(thisUnit, self.spell.mutilate,true,false,false) == true or false
                 end
             end
         end
 
-        -- Rupture
-        function self.castRupture()
-            return castSpell(self.units.dyn5, self.spell.rupture, false, false) == true or false
-        end
-
-        -- Rupture Cycle
-        function self.castRuptureCycle()
-            for i = 1, #enemiesTable do
-                if enemiesTable[i].distance < 5 then
-                    local thisUnit = enemiesTable[i].unit
-                    local ruptureRemain   = getDebuffRemain(thisUnit,self.spell.rupture,"player")
-                    local ruptureDuration = getDebuffDuration(thisUnit, self.spell.rupture, "player")
-                    if ruptureRemain == 0 or ruptureRemain <= ruptureDuration*0.3 then
-                        return castSpell(thisUnit, self.spell.rupture,false,false,false) == true or false
-                    end
-                end
+        function self.castMutilate2(thisUnit)
+            local thisUnit = thisUnit
+            if self.power>55 and self.level>=10 then
+                return castSpell(thisUnit,self.spell.mutilate,false,false,false) == true or false
             end
         end
 
         -- Vendetta
         function self.castVendetta()
             if isSelected("Vendetta") then
-                if (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4 * UnitHealthMax("player"))) then
+                if self.cd.vendetta==0 and self.level>=80 and (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4 * UnitHealthMax("player"))) then
                     if castSpell(self.units.dyn30, self.spell.vendetta, true, false) then
                         return true
                     end

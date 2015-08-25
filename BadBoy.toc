@@ -85,6 +85,7 @@ Rotations\Druid\cDruid.lua
 Rotations\Druid\Feral\cFeral.lua
 Rotations\Druid\Feral\FeralCuteOne.lua
 
+Rotations\Druid\Feral\OLDFeral.lua
 Rotations\Druid\Feral\Feral.lua
 Rotations\Druid\Feral\Options.lua
 Rotations\Druid\Feral\Functions.lua
@@ -214,6 +215,7 @@ Rotations\Rogue\Combat\combatSimC.lua
 Rotations\Rogue\Assassination\cAssassination.lua
 Rotations\Rogue\Assassination\assassinationSimC.lua
 Rotations\Rogue\Assassination\oldAssassination.lua
+Rotations\Rogue\Assassination\AssassinationCuteOne.lua
 
 Rotations\Rogue\Assassination\Assassination.lua
 Rotations\Rogue\Assassination\Functions.lua
