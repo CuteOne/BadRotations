@@ -1928,6 +1928,21 @@ function nDbDmg(tar,spellID,player)
 		end
 	end
 end
+function SpecificToggle(toggle)
+    if getOptionValue(toggle) == 1 then
+        return IsLeftControlKeyDown();
+    elseif getOptionValue(toggle) == 2 then
+        return IsLeftShiftKeyDown();
+    elseif getOptionValue(toggle) == 3 then
+        return IsRightControlKeyDown();
+    elseif getOptionValue(toggle) == 4 then
+        return IsRightShiftKeyDown();
+    elseif getOptionValue(toggle) == 5 then
+        return IsRightAltKeyDown();
+    elseif getOptionValue(toggle) == 6 then
+        return false
+    end
+end
 -- if pause() then
 function pause()
 	if SpecificToggle("Pause Mode") == nil or getValue("Pause Mode") == 6 then

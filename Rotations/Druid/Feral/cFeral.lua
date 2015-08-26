@@ -482,6 +482,11 @@ if select(2, UnitClass("player")) == "DRUID" then
                 boxOp("Pot/Stoned", 0, 100, 5, 60, "|cffFFFFFFHealth Percent to Cast At")
                 textOp("Pot/Stoned")
 
+                -- Heirloom Neck
+                checkOp("Heirloom Neck");
+                boxOp("Heirloom Neck", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
+                textOp("Heirloom Neck");
+
                 -- Engineering: Shield-o-tronic
                 checkOp("Shield-o-tronic")
                 boxOp("Shield-o-tronic", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At")

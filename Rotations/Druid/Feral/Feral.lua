@@ -21,9 +21,9 @@ if select(3, UnitClass("player")) == 11 then
         -- if IsLeftControlKeyDown() then -- Pause the script, keybind in wow ctrl+1 etc for manual cast
         -- return true
         -- end
-        if IsLeftAltKeyDown() then
-            return true
-        end
+        -- if IsLeftAltKeyDown() then
+        --     return true
+        -- end
 
         FeralCuteOne:update()
 

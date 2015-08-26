@@ -41,7 +41,10 @@ if select(2, UnitClass("player")) == "DRUID" then
 	    local bloodtalons, btRemain,btStacks 				= self.talent.bloodtalons, self.buff.remain.bloodtalons, self.charges.bloodtalons
 	    local trinketProc									= self.hasTrinketProc()
 	    local flaskBuff										= getBuffRemain("player",self.flask.wod.buff.agilityBig)
-		local canFlask										= canUse(self.flask.wod.agilityBig)		
+		local canFlask										= canUse(self.flask.wod.agilityBig)
+		local inRaid 										= select(2,IsInInstance())=="raid"
+		local inInstance 									= select(2,IsInInstance())=="party"
+		local solo 											= select(2,IsInInstance())=="none"		
 		-- Target Variables
 		local dynTar5 										= self.units.dyn5 --Melee
 		local dynTar8 										= self.units.dyn8 --Swipe
@@ -58,7 +61,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local deadtar, attacktar, hastar, playertar 		= deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
 		local friendly 										= friendly or UnitIsFriend("target", "player")
 	    local mfTick 										= 20.0/(1+UnitSpellHaste("player")/100)/10  
-	    ChatOverlay(getDistance2("target"))
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -213,6 +216,14 @@ if select(2, UnitClass("player")) == "DRUID" then
                         UseItemByName(tostring(select(1,GetItemInfo(healPot))))
                     end
 	            end
+	    -- Heirloom Neck
+	    		if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
+	    			if hasEquiped(122668) then
+	    				if GetItemCooldown(122668)==0 then
+	    					UseItemByName(tostring(select(1,GetItemInfo(122668))))
+	    				end
+	    			end
+	    		end
 		-- Engineering: Shield-o-tronic
 				if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic") and inCombat and canUse(118006) then
 					UseItemByName(tostring(select(1,GetItemInfo(118006))))
@@ -236,6 +247,89 @@ if select(2, UnitClass("player")) == "DRUID" then
 	            end
     		end -- End Defensive Toggle
 		end -- End Action List - Defensive
+	-- Action List - Interrupts
+		local function actionList_Interrupts()
+			if useInterrupts() then
+		-- Skull Bash
+				if isChecked("Skull Bash") then
+					for i=1, #dynTable13 do
+						thisUnit = dynTable13[i].unit
+						if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+							if self.castSkullBash(thisUnit) then return end
+						end
+					end
+				end
+		-- Mighty Bash
+    			if isChecked("Mighty Bash") then
+    				for i=1, #dynTable5 do
+						thisUnit = dynTable5[i].unit
+						if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+							if self.castMightyBash(thisUnit) then return end
+						end
+					end
+				end
+		-- Maim (PvP)
+    			if isChecked("Maim") then 
+    				for i=1, #dynTable5 do
+						thisUnit = dynTable5[i].unit
+    					if canInterrupt(thisUnit,getOptionValue("InterruptAt")) and isInPvP() then
+    						if self.castMaim(thisUnit) then return end
+		    			end
+	            	end
+	          	end
+		 	end -- End useInterrupts check
+		end -- End Action List - Interrupts
+	-- Action List - Cooldowns
+		local function actionList_Cooldowns()
+			if ObjectExists(dynTar5) then
+		-- Force of Nature
+				-- if=charges=3|trinket.proc.all.react|target.time_to_die<20
+				if useCDs() then
+					if fonCharge==3 or trinketProc or ttd(dynTar5)<20 then
+						if self.castForceOfNature() then return end
+					end
+				end
+		-- Berserk
+				--if=buff.tigers_fury.up&(buff.incarnation.up|!talent.incarnation_king_of_the_jungle.enabled)
+	            if useCDs() and tfRemain>0 and (incBuff or not incarnation) and ttd(dynTar5) >= 18 then
+	            	if self.castBerserk() then return end
+	            end
+		-- Legendary Ring
+						-- use_item,slot=finger1
+						-- TODO: Write Legendary Ring Usage
+		-- Agi-Pot
+				-- if=(buff.berserk.remains>10&(target.time_to_die<180|(trinket.proc.all.react&target.health.pct<25)))|target.time_to_die<=40
+	            if useCDs() and canUse(109217) and inRaid and isChecked("Agi-Pot") then
+	            	if (berRemain>10 and (ttd(dynTar5)<180 or (trinketProc and thp(dynTar5)<25))) or ttd(dynTar5)<=40 then
+	                	UseItemByName(tostring(select(1,GetItemInfo(109217))))
+	                end
+	            end
+		-- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
+				-- blood_fury,sync=tigers_fury | berserking,sync=tigers_fury | arcane_torrent,sync=tigers_fury
+				if useCDs() and (self.race == "Orc" or self.race == "Troll" or self.race == "Blood Elf") then
+					if (not clearcast and self.powerDeficit>=60) or self.powerDeficit>=80 or (hasEquiped(124514) and berRemain>0 and tfRemain==0) then
+						if self.castRacial() then return end
+					end
+	            end            
+		-- Tiger's Fury
+				-- if=(!buff.omen_of_clarity.react&energy.deficit>=60)|energy.deficit>=80|(t18_class_trinket&buff.berserk.up&buff.tigers_fury.down)
+				if (not clearcast and self.powerDeficit>=60) or self.powerDeficit>=80 or (hasEquiped(124514) and berRemain>0 and tfRemain==0) then
+					if self.castTigersFury() then return end
+				end
+		-- Incarnation - King of the Jungle
+				-- if=cooldown.berserk.remains<10&energy.time_to_max>1
+	            if useCDs() and berCooldown<10 and ttm>1 then
+	            	if self.castIncarnationKingOfTheJungle() then return end
+	            end
+		-- Racial: Night Elf Shadowmeld
+				-- dot.rake.remains<4.5&energy>=35&dot.rake.pmultiplier<2&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(!talent.incarnation.enabled|cooldown.incarnation.remains>15)&!buff.king_of_the_jungle.up
+				if useCDs() and self.race == "Night Elf" and (rakeRemain(dynTar5)<4.5 and power>=35 and rakeAppliedDotDmg(dynTar5)<2 
+					and (btRemain>0 or not bloodtalons) and (not incarnation or incCooldown>15) and not incBuff) and not solo
+				then
+					if self.castRacial() then return end
+				end
+	        end -- End useCooldowns check
+		end -- End Action List - Cooldowns
 	-- Action List - PreCombat
 		local function actionList_PreCombat()
 			if not inCombat and not (IsFlying() or IsMounted()) then
@@ -243,11 +337,11 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-- Flask / Crystal
 					-- flask,type=greater_draenic_agility_flask
 					if isChecked("Agi-Pot") and not stealth then
-						if select(2,IsInInstance())=="raid" and canFlask and flaskBuff==0 and not UnitBuffID("player",176151) then
+						if inRaid and canFlask and flaskBuff==0 and not UnitBuffID("player",176151) then
 							useItem(self.flask.wod.agilityBig)
 							return true
 						end
-			            if (select(2,IsInInstance())=="raid" or select(2,IsInInstance())=="none") and flaskBuff==0 then
+			            if flaskBuff==0 then
 			                -- if not UnitBuffID("player",176151) and canUse(118922) then --Draenor Insanity Crystal
 			                --     UseItemByName(tostring(select(1,GetItemInfo(118922))))
 			                -- end
@@ -260,9 +354,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			        if isChecked("Mark of the Wild") and not stealth then
 			            for i = 1, #members do --members
 			                if not isBuffed(members[i].Unit,{1126,115921,116781,20217,160206,69378,159988,160017,90363,160077}) 
-			                	and (select(2,IsInInstance())=="none" 
-			                		or (select(2,IsInInstance())=="party" and not UnitInParty("player"))
-		                      or (select(2,IsInInstance())=="raid"))
+			                	--and (solo or (inInstance and not UnitInParty("player")) or inRaid)
 			                then
 			                	if self.castMarkOfTheWild() then return end
 			                end
@@ -275,7 +367,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 						for i=1, #dynTable20AoE do
 							local thisUnit = dynTable20AoE[i].unit
 							if dynTable20AoE[i].distance < 20 then
-						        if useProwl() and ((ObjectExists(thisUnit) and UnitCanAttack(thisUnit,"player")) or self.perk.enhancedProwl) and GetTime()-leftCombat > lootDelay then
+						        if useProwl() and not inInstance and not inRaid and ((ObjectExists(thisUnit) and UnitCanAttack(thisUnit,"player")) or self.perk.enhancedProwl) and GetTime()-leftCombat > lootDelay then
 						        	if self.castProwl() then return end
 						        end
 						    end
@@ -451,87 +543,11 @@ if select(2, UnitClass("player")) == "DRUID" then
 	------------------------------
 	--- In Combat - Interrupts ---
 	------------------------------
-					if useInterrupts() then
-		-- Skull Bash
-						if isChecked("Skull Bash") then
-							for i=1, #dynTable13 do
-								thisUnit = dynTable13[i].unit
-								if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
-									if self.castSkullBash(thisUnit) then return end
-								end
-							end
-						end
-		-- Mighty Bash
-		    			if isChecked("Mighty Bash") then
-		    				for i=1, #dynTable5 do
-								thisUnit = dynTable5[i].unit
-								if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
-									if self.castMightyBash(thisUnit) then return end
-								end
-							end
-						end
-		-- Maim (PvP)
-		    			if isChecked("Maim") then 
-		    				for i=1, #dynTable5 do
-								thisUnit = dynTable5[i].unit
-		    					if canInterrupt(thisUnit,getOptionValue("InterruptAt")) and isInPvP() then
-		    						if self.castMaim(thisUnit) then return end
-				    			end
-			            	end
-			          	end
-				 	end -- End Interrupts
+					if actionList_Interrupts() then return end
 	-----------------------------
 	--- In Combat - Cooldowns ---
 	-----------------------------
-					if ObjectExists(dynTar5) then
-		-- Force of Nature
-						-- if=charges=3|trinket.proc.all.react|target.time_to_die<20
-						if useCDs() then
-							if fonCharge==3 or trinketProc or ttd(dynTar5)<20 then
-								if self.castForceOfNature() then return end
-							end
-						end
-		-- Berserk
-						--if=buff.tigers_fury.up&(buff.incarnation.up|!talent.incarnation_king_of_the_jungle.enabled)
-			            if useCDs() and tfRemain>0 and (incBuff or not incarnation) and ttd(dynTar5) >= 18 then
-			            	if self.castBerserk() then return end
-			            end
-		-- Legendary Ring
-						-- use_item,slot=finger1
-						-- TODO: Write Legendary Ring Usage
-		-- Agi-Pot
-						-- if=(buff.berserk.remains>10&(target.time_to_die<180|(trinket.proc.all.react&target.health.pct<25)))|target.time_to_die<=40
-			            if useCDs() and canUse(109217) and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") then
-			            	if (berRemain>10 and (ttd(dynTar5)<180 or (trinketProc and thp(dynTar5)<25))) or ttd(dynTar5)<=40 then
-			                	UseItemByName(tostring(select(1,GetItemInfo(109217))))
-			                end
-			            end
-		-- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-						-- blood_fury,sync=tigers_fury | berserking,sync=tigers_fury | arcane_torrent,sync=tigers_fury
-						if useCDs() and (self.race == "Orc" or self.race == "Troll" or self.race == "Blood Elf") then
-							if (not clearcast and self.powerDeficit>=60) or self.powerDeficit>=80 or (hasEquiped(124514) and berRemain>0 and tfRemain==0) then
-								if self.castRacial() then return end
-							end
-			            end            
-		-- Tiger's Fury
-						-- if=(!buff.omen_of_clarity.react&energy.deficit>=60)|energy.deficit>=80|(t18_class_trinket&buff.berserk.up&buff.tigers_fury.down)
-						if (not clearcast and self.powerDeficit>=60) or self.powerDeficit>=80 or (hasEquiped(124514) and berRemain>0 and tfRemain==0) then
-							if self.castTigersFury() then return end
-						end
-		-- Incarnation - King of the Jungle
-						-- if=cooldown.berserk.remains<10&energy.time_to_max>1
-			            if useCDs() and berCooldown<10 and ttm>1 then
-			            	if self.castIncarnationKingOfTheJungle() then return end
-			            end
-		-- Racial: Night Elf Shadowmeld
-						-- dot.rake.remains<4.5&energy>=35&dot.rake.pmultiplier<2&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(!talent.incarnation.enabled|cooldown.incarnation.remains>15)&!buff.king_of_the_jungle.up
-						if useCDs() and self.race == "Night Elf" and (rakeRemain(dynTar5)<4.5 and power>=35 and rakeAppliedDotDmg(dynTar5)<2 
-							and (btRemain>0 or not bloodtalons) and (not incarnation or incCooldown>15) and not incBuff)
-							and select(2,IsInInstance())~="none"
-						then
-							if self.castRacial() then return end
-						end
-			        end -- End Cooldowns
+					if actionList_Cooldowns() then return end
 	---------------------------
 	--- In Combat - Attacks ---
 	---------------------------
@@ -573,7 +589,6 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-- Thrash with T18 4pc
 					-- if=set_bonus.tier18_4pc&buff.omen_of_clarity.react&remains<4.5&combo_points+buff.bloodtalons.stack!=6
 					if t18_4pc and clearcast and thrashRemain(dynTar8AoE)<4.5 and (combo + btStacks) ~= 6 then
-						CharOverlay("Thrash 1")
 						if self.castThrash(dynTar8AoE) then return end
 					end
 		-- Pool Energy then Thrash
@@ -587,7 +602,6 @@ if select(2, UnitClass("player")) == "DRUID" then
 									return true
 								else
 					-- Thrash
-									ChatOverlay("Thrash 2")
 									if self.castThrash(thisUnit) then return end
 								end
 							end
@@ -620,7 +634,6 @@ if select(2, UnitClass("player")) == "DRUID" then
 									return true
 								else
 						-- Thrash			
-									ChatOverlay("Thrash 3")
 									if self.castThrash(thisUnit) then return end	
 								end
 							end
