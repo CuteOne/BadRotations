@@ -128,6 +128,7 @@ function cRogue:new(spec)
         combatReadinessTalent 	= 74001,
         deadlyThrowTalent 		= 26679,
         deathFromAboveTalent 	= 152150,
+        dirtyTricksTalent 		= 108216,
         leechingPoisonTalent 	= 108211,
         markedForDeathTalent    = 137619,
         shadowReflectionTalent 	= 152151,
@@ -337,6 +338,7 @@ function cRogue:new(spec)
 		self.talent.cloakAndDagger 	 = getTalent(4,1)
 		self.talent.shadowStep 		 = getTalent(4,2)
 		self.talent.burstOfSpeed 	 = getTalent(4,3)
+		self.talent.dirtyTricks 	 = getTalent(5,3)
 		self.talent.shurikenToss 	 = getTalent(6,1)
 		self.talent.markedForDeath   = getTalent(6,2)
 		self.talent.anticipation     = getTalent(6,3)
@@ -539,7 +541,7 @@ function cRogue:new(spec)
 	-- Vanish
 	function self.castVanish()
 		if isSelected("Vanish") and self.cd.vanish==0 and self.level>=34 then
-			if castSpell("player",self.spell.vanish,true,false) then StopAttack(); return end
+			if castSpell("player",self.spell.vanish,true,false,false) then StopAttack(); return end
 		end
 	end
 

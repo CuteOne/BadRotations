@@ -269,7 +269,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             -- Vanish
             CreateNewCheck(thisConfig, "Vanish", "Enable or Disable usage of Vanish.");
             CreateNewDrop(thisConfig, "Vanish", 2, "CD")
-            CreateNewText(thisConfig, "Vanish");
+            CreateNewText(thisConfig, "Vanish - Offensive");
 
             -- Vendetta
             CreateNewCheck(thisConfig, "Vendetta", "Enable or Disable usage of Vendetta.");
@@ -278,20 +278,83 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
             -- Spacer
             CreateNewText(thisConfig," ");
-            CreateNewWrap(thisConfig, "--- Defensive ---");
+            CreateNewWrap(thisConfig,"--- Defensive ---");
+
+            -- Cloak of Shadows
+            if isKnown(self.spell.cloakOfShadows) then
+                CreateNewCheck(thisConfig,"Cloak of Shadows","Enable or Disable the usage to auto dispel")
+                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.cloakOfShadows))))
+            end
+
+            -- Combat Readiness
+            if self.talent.combatReadiness then
+                CreateNewCheck(thisConfig,"Combat Readiness","Set health percent threshhold to cast at - In Combat Only!")
+                CreateNewBox(thisConfig,"Combat Readiness", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
+                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.combatReadiness))))
+            end
+
+            -- Evasion
+            if isKnown(self.spell.evasion) then
+                CreateNewCheck(thisConfig,"Evasion","Set health percent threshhold to cast at - In Combat Only!")
+                CreateNewBox(thisConfig,"Evasion", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
+                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.evasion))))
+            end
 
             -- Healthstone
-            -- checkOp("Pot/Stoned");
-            -- boxOp("Pot/Stoned", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
-            -- textOp("Pot/Stoned");
+            CreateNewCheck(thisConfig,"Healthstone");
+            CreateNewBox(thisConfig,"Healthstone", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
+            CreateNewText(thisConfig,"Healthstone");
+
+            -- Heirloom Neck
+            CreateNewCheck(thisConfig,"Heirloom Neck");
+            CreateNewBox(thisConfig,"Heirloom Neck", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
+            CreateNewText(thisConfig,"Heirloom Neck");
+
+            -- Recuperate
+            if isKnown(self.spell.recuperate) then
+                CreateNewCheck(thisConfig,"Recuperate","Set health percent and combo point threshhold to cast at")
+                CreateNewBox(thisConfig,"Recuperate Health %", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
+                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.recuperate))).." Health %")
+                CreateNewBox(thisConfig,"Recuperate Combo Point", 1, 5, 1, 3, "|cffFFFFFFCombo Points to Use At")
+                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.recuperate))).." Combo Points")
+            end
+
+            -- Smoke Bomb
+            if isKnown(self.spell.smokeBomb) then
+                CreateNewCheck(thisConfig,"Smoke Bomb","Set health percent threshhold to cast at - In Combat Only!")
+                CreateNewBox(thisConfig,"Smoke Bomb", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
+                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.smokeBomb))))
+            end
+
+            -- Smoke Bomb
+            if isKnown(self.spell.vanish) then
+                CreateNewCheck(thisConfig,"Vanish - Defensive","Set health percent threshhold to cast at - Defensive Use Only, see Cooldowns for Offensive Use")
+                CreateNewBox(thisConfig,"Vanish - Defensive", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
+                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.vanish))).." - Defensive")
+            end 
 
             -- Spacer --
             CreateNewText(thisConfig," ");
-            CreateNewWrap(thisConfig, "--- Interrupts ---");
+            CreateNewWrap(thisConfig,"--- Interrupts ---");
+
+            -- Kick
+            CreateNewCheck(thisConfig,"Kick")
+            CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.kick))))
+
+          
+            if getTalent(5,3) then
+            -- Gouge
+                CreateNewCheck(thisConfig,"Gouge")
+                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.gouge))))
+
+            -- Blind
+                CreateNewCheck(thisConfig,"Blind")
+                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.blind)))) 
+            end
 
             -- Interrupt Percentage
-            CreateNewCheck(thisConfig,"Interrupts");
-            CreateNewBox(thisConfig, "Interrupts", 5, 95, 5, 0, "|cffFFBB00Cast Percentage to use at.");
+            CreateNewCheck(thisConfig,"Interrupt At");
+            CreateNewBox(thisConfig, "Interrupt At", 5, 95, 5, 0, "|cffFFBB00Cast Percentage to use at.");
             CreateNewText(thisConfig,"Interrupt At");
 
             -- Spacer
@@ -312,6 +375,26 @@ if select(2, UnitClass("player")) == "ROGUE" then
             CreateNewCheck(thisConfig, "Defensive Mode", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.");
             CreateNewDrop(thisConfig, "Defensive Mode", 6, "Toggle")
             CreateNewText(thisConfig, "Defensive Mode")
+
+            -- Interrupts Key Toggle
+            CreateNewCheck(thisConfig, "Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.")
+            CreateNewDrop(thisConfig, "Interrupt Mode", 6, "Toggle")
+            CreateNewText(thisConfig, "Interrupts")
+
+            -- Cleave Toggle
+            CreateNewCheck(thisConfig, "Cleave Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCleave Toggle Key|cffFFBB00.")
+            CreateNewDrop(thisConfig, "Cleave Mode", 6, "Toggle")
+            CreateNewText(thisConfig, "Cleave Mode")
+
+            -- Prowl Toggle
+            CreateNewCheck(thisConfig, "Pick Pocket Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFPick Pocket Toggle Key|cffFFBB00.")
+            CreateNewDrop(thisConfig, "Pick Pocket Mode", 6, "Toggle")
+            CreateNewText(thisConfig, "Pick Pocket Mode")
+
+            -- Pause Toggle
+            CreateNewCheck(thisConfig, "Pause Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFPause Toggle Key - None Defaults to LeftAlt|cffFFBB00.")
+            CreateNewDrop(thisConfig, "Pause Mode", 6, "Toggle")
+            CreateNewText(thisConfig, "Pause Mode")
 
             -- General Configs
             CreateGeneralsConfig();
