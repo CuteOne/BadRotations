@@ -106,7 +106,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 						if GetItemCooldown(122304)==0 then
 							-- Let's only use it once and not spam it
 							if not spamToyDelay or GetTime() > spamToyDelay then
-								UseItemByName(select(1,UseItemByName(122304)))
+								useItem(122304)
 								spamToyDelay = GetTime() + 1
 								return true
 							end
@@ -130,7 +130,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 	                end
 	            -- Savage Roar - Use Combo Points
 	                if combo >= 5 and power>25 then
-	                	if self.SavageRoar() then return end
+	                	if self.castSavageRoar() then return end
 	                end
 	            -- Shred - Single
 	                if power > 40 and self.enemies.yards5 == 1 then
@@ -211,22 +211,22 @@ if select(2, UnitClass("player")) == "DRUID" then
 	            	and inCombat and hasHealthPot() 
 	            then
                     if canUse(5512) then
-                        UseItemByName(tostring(select(1,GetItemInfo(5512))))
+                        useItem(5512)
                     elseif canUse(healPot) then
-                        UseItemByName(tostring(select(1,GetItemInfo(healPot))))
+                        useItem(healPot)
                     end
 	            end
 	    -- Heirloom Neck
 	    		if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
 	    			if hasEquiped(122668) then
 	    				if GetItemCooldown(122668)==0 then
-	    					UseItemByName(tostring(select(1,GetItemInfo(122668))))
+	    					useItem(122668)
 	    				end
 	    			end
 	    		end
 		-- Engineering: Shield-o-tronic
 				if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic") and inCombat and canUse(118006) then
-					UseItemByName(tostring(select(1,GetItemInfo(118006))))
+					useItem(118006)
 				end
 		-- Tier 6 Talent: Nature's Vigil
 	            if isChecked("Nature's Vigil") and php <= getOptionValue("Nature's Vigil") then
@@ -301,7 +301,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 				-- if=(buff.berserk.remains>10&(target.time_to_die<180|(trinket.proc.all.react&target.health.pct<25)))|target.time_to_die<=40
 	            if useCDs() and canUse(109217) and inRaid and isChecked("Agi-Pot") then
 	            	if (berRemain>10 and (ttd(dynTar5)<180 or (trinketProc and thp(dynTar5)<25))) or ttd(dynTar5)<=40 then
-	                	UseItemByName(tostring(select(1,GetItemInfo(109217))))
+	                	useItem(109217)
 	                end
 	            end
 		-- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
@@ -343,7 +343,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 						end
 			            if flaskBuff==0 then
 			                -- if not UnitBuffID("player",176151) and canUse(118922) then --Draenor Insanity Crystal
-			                --     UseItemByName(tostring(select(1,GetItemInfo(118922))))
+			                --     useItem(118922))
 			                -- end
 			                if self.useCrystal() then return end
 			            end

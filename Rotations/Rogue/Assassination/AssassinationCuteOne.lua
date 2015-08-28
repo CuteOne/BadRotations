@@ -1,5 +1,6 @@
 if select(2, UnitClass("player")) == "ROGUE" then
     function cAssassination:AssassinationCuteOne()
+    	AssToggles()
 --------------
 --- Locals ---
 --------------
@@ -13,6 +14,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		local deadtar										= UnitIsDeadOrGhost("target")
 		local debuff, debuffRemain							= self.debuff, self.debuff.remain
 		local dynTar5, dynTable5							= self.units.dyn5, (BadBoy_data['Cleave']==1 and enemiesTable) or { [1] = {["unit"]=dynTar5, ["distance"] = getDistance(dynTar5)}} --Melee
+		local dynTar15, dynTable15							= self.units.dyn15, (BadBoy_data['Cleave']==1 and enemiesTable) or { [1] = {["unit"]=dynTar15, ["distance"] = getDistance(dyn1Tar5)}}
 		local dynTar20AoE, dynTable20AoE					= self.units.dyn20AoE, (BadBoy_data['Cleave']==1 and enemiesTable) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getDistance(dynTar20AoE)}} --Stealth
 		local dynTar30AoE 									= self.units.dyn30AoE
 		local enemies10										= self.enemies.yards10
@@ -56,20 +58,18 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			-- TODO: Add Defensive Abilities
 			if useDefensive() and not stealth then
 				-- Pot/Stoned
-	            if isChecked("Healthstone") and php <= getOptionValue("Healthstone") 
-	            	and inCombat and hasHealthPot() 
-	            then
+	            if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and inCombat and hasHealthPot() then
                     if canUse(5512) then
-                        UseItemByName(tostring(select(1,GetItemInfo(5512))))
+                        useItem(5512)
                     elseif canUse(healPot) then
-                        UseItemByName(tostring(select(1,GetItemInfo(healPot))))
+                        useItem(healPot)
                     end
 	            end
 	           	-- Heirloom Neck
-	    		if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
+	    		if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") and not inCombat then
 	    			if hasEquiped(122668) then
 	    				if GetItemCooldown(122668)==0 then
-	    					UseItemByName(tostring(select(1,GetItemInfo(122668))))
+	    					useItem(122668)
 	    				end
 	    			end
 	    		end
@@ -86,7 +86,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                     if self.castCombatReadiness() then return end
                 end
                 -- Recuperate
-                if isChecked("Recuperate") and php<getOptionValue("Recuperate - Health %") and combo>getOptionValue("Recuperate - Combo Points") and not buff.recuperate then
+                if isChecked("Recuperate Health %") and php<getOptionValue("Recuperate Health %") and combo>getOptionValue("Recuperate Combo Point") and not buff.recuperate then
                     if self.castRecuperate() then return end
                 end
                 -- Cloak of Shadows
@@ -134,6 +134,28 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				end -- End Dirty Tricks Talent Check
 			end -- End Interrupt and No Stealth Check
 		end -- End Action List - Interrupts
+	-- Action List - Cooldowns
+		local function actionList_Cooldowns()
+			if useCDs() then
+		-- Preparation
+				-- if=!buff.vanish.up&cooldown.vanish.remains>60&time>10
+				if isChecked("Preparation") and not buff.vanish and cd.vanish>60 and time>10 then
+					if self.castPreparation() then return end
+				end
+		-- Legendary Ring
+				-- use_item,slot=finger1,if=spell_targets.fan_of_knives>1|(debuff.vendetta.up&spell_targets.fan_of_knives=1)
+		-- Racials - Orc: Blood Fury | Troll: Berserking | Blood Elf: Arcane Torrent
+				-- blood_fury | berserking | arcane_torrent,if=energy<60
+				if isChecked("Racials") and self.race == "Orc" or self.race== "Troll" or (self.race=="Blood Elf" and power<60) then
+					if self.castRacial() then return end
+				end
+		-- Vanish
+				-- if=time>10&energy>13&!buff.stealth.up&buff.blindside.down&energy.time_to_max>gcd*2&((combo_points+anticipation_charges<8)|(!talent.anticipation.enabled&combo_points<=1))
+				if isChecked("Vanish - Offensive") and time>10 and power>13 and not stealth and not buff.blindside and ttm>gcd*2 and ((combo + charge.anticipation<8) or (not talent.anticipation and combo<=1)) then
+					if self.castVanish() then return end
+				end
+			end -- End Cooldown Usage Check
+		end -- End Action List - Cooldowns
 	-- Action List - PreCombat
 		local function actionList_PreCombat()
 			if not inCombat then
@@ -160,10 +182,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		-- Potion
 					-- potion,name=draenic_agility
 		-- Stealth
-					if isChecked("Stealth") and (stealthTimer == nil or stealthTimer <= GetTime() - getValue("Stealth Timer")) and getCreatureType("target") == true and not stealth then
+					if isChecked("Stealth") and (stealthTimer == nil or stealthTimer <= GetTime() - getValue("Stealth Timer")) and not stealth then
 	                    -- Always
 	                    if getValue("Stealth") == 1 then
-	                        if self.castStealth() then stealthTimer = GetTime()-getValue("Stealth Timer"); return end
+	                        if self.castStealth() then stealthTimer = GetTime()+2; return end
 	                    end
 	                    -- Pre-Pot
 	                    if getValue("Stealth") == 2 and getBuffRemain("player",105697) > 0 and getDistance(dynTar20AoE) < 20 then
@@ -239,96 +261,106 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		end -- End Action List - PreCombat
 	-- Action List - Finishers
 		local function actionList_Finishers()
+			if enemies10>5 and level>=83 and (useCleave() or BadBoy_data['AoE'] == 2) then
+		-- Crimson Tempest
+				if self.castCrimsonTempest() then return end
+			else
 		-- Rupture
-			-- cycle_targets=1,if=(remains<2|(combo_points=5&remains<=(duration*0.3)))
-			for i=1, #dynTable5 do
-				local thisUnit = dynTable5[i].unit
-				if (ruptureRemain(thisUnit)<2 or (combo==5 and ruptureRemain(thisUnit)<=ruptureDuration(thisUnit)*0.3)) then
-					if self.castRupture(thisUnit) then return end
+				-- cycle_targets=1,if=(remains<2|(combo_points=5&remains<=(duration*0.3)))
+				for i=1, #dynTable5 do
+					local thisUnit = dynTable5[i].unit
+					if (ruptureRemain(thisUnit)<2 or (combo==5 and ruptureRemain(thisUnit)<=ruptureDuration(thisUnit)*0.3)) then
+						if self.castRupture(thisUnit) then return end
+					end
 				end
-			end
 		-- Pool/Death From Above
-			-- if=(cooldown.vendetta.remains>10|debuff.vendetta.up|target.time_to_die<=25)
-			if useCDs() and (cd.vendetta>10 or debuff.vendetta or ttd(dynTar5)<=25) then
-				if power<=50 then
+				-- if=(cooldown.vendetta.remains>10|debuff.vendetta.up|target.time_to_die<=25)
+				if useCDs() and (cd.vendetta>10 or debuff.vendetta or ttd(dynTar5)<=25) then
+					if power<=50 then
 
-					return true
-				else
-					if self.castDeathFromAbove() then return end
+						return true
+					else
+						if self.castDeathFromAbove() then return end
+					end
 				end
-			end
 		-- Envenom
-			-- cycle_targets=1,if=dot.deadly_poison_dot.remains<4&target.health.pct<=35&(energy+energy.regen*cooldown.vendetta.remains>=105&(buff.envenom.remains<=1.8|energy>45))|buff.bloodlust.up|debuff.vendetta.up
-			for i=1, #dynTable5 do
-				local thisUnit = dynTable5[i].unit
-				if deadlyRemain(thisUnit)<4 and thp(thisUnit)<=35 and (power+powerRegen*cd.vendetta>=105 and (buffRemain.envenom<=1.8 or power>40)) or hasBloodLust() or debuff.vendetta then
-					if self.castEnvenom2(thisUnit) then return end
+				-- cycle_targets=1,if=dot.deadly_poison_dot.remains<4&target.health.pct<=35&(energy+energy.regen*cooldown.vendetta.remains>=105&(buff.envenom.remains<=1.8|energy>45))|buff.bloodlust.up|debuff.vendetta.up
+				for i=1, #dynTable5 do
+					local thisUnit = dynTable5[i].unit
+					if deadlyRemain(thisUnit)<4 and thp(thisUnit)<=35 and (power+powerRegen*cd.vendetta>=105 and (buffRemain.envenom<=1.8 or power>40)) or hasBloodLust() or debuff.vendetta then
+						if self.castEnvenom2(thisUnit) then return end
+					end
+				end 
+				-- cycle_targets=1,if=dot.deadly_poison_dot.remains<4&target.health.pct>35&(energy+energy.regen*cooldown.vendetta.remains>=105&(buff.envenom.remains<=1.8|energy>55))|buff.bloodlust.up|debuff.vendetta.up
+				for i=1, #dynTable5 do
+					local thisUnit = dynTable5[i].unit
+					if deadlyRemain(thisUnit)<4 and thp(thisUnit)>35 and (power+powerRegen*cd.vendetta>=105 and (buffRemain.envenom<=1.8 or power>55)) or hasBloodLust() or debuff.vendetta then
+						if self.castEnvenom2(thisUnit) then return end
+					end
+				end 
+				-- if=target.health.pct<=35&(energy+energy.regen*cooldown.vendetta.remains>=105&(buff.envenom.remains<=1.8|energy>45))|buff.bloodlust.up|debuff.vendetta.up
+				if thp(dynTar5)<=35 and (power+powerRegen*cd.vendetta>=105 and (buffRemain.envenom<=1.8 or power>45)) or hasBloodLust() or debuff.vendetta then
+					if self.castEnvenom2(dynTar5) then return end
 				end
-			end 
-			-- cycle_targets=1,if=dot.deadly_poison_dot.remains<4&target.health.pct>35&(energy+energy.regen*cooldown.vendetta.remains>=105&(buff.envenom.remains<=1.8|energy>55))|buff.bloodlust.up|debuff.vendetta.up
-			for i=1, #dynTable5 do
-				local thisUnit = dynTable5[i].unit
-				if deadlyRemain(thisUnit)<4 and thp(thisUnit)>35 and (power+powerRegen*cd.vendetta>=105 and (buffRemain.envenom<=1.8 or power>55)) or hasBloodLust() or debuff.vendetta then
-					if self.castEnvenom2(thisUnit) then return end
+				-- if=target.health.pct>35&(energy+energy.regen*cooldown.vendetta.remains>=105&(buff.envenom.remains<=1.8|energy>55))|buff.bloodlust.up|debuff.vendetta.up
+				if thp(dynTar5)>35 and (power+powerRegen*cd.vendetta>=105 and (buffRemain.envenom<=1.8 or power>55)) or hasBloodLust() or debuff.vendetta then
+					if self.castEnvenom2(dynTar5) then return end
 				end
-			end 
-			-- if=target.health.pct<=35&(energy+energy.regen*cooldown.vendetta.remains>=105&(buff.envenom.remains<=1.8|energy>45))|buff.bloodlust.up|debuff.vendetta.up
-			if thp(dynTar5)<=35 and (power+powerRegen*cd.vendetta>=105 and (buffRemain.envenom<=1.8 or power>45)) or hasBloodLust() or debuff.vendetta then
-				if self.castEnvenom2(dynTar5) then return end
-			end
-			-- if=target.health.pct>35&(energy+energy.regen*cooldown.vendetta.remains>=105&(buff.envenom.remains<=1.8|energy>55))|buff.bloodlust.up|debuff.vendetta.up
-			if thp(dynTar5)>35 and (power+powerRegen*cd.vendetta>=105 and (buffRemain.envenom<=1.8 or power>55)) or hasBloodLust() or debuff.vendetta then
-				if self.castEnvenom2(dynTar5) then return end
-			end
+			end -- End Crimson Tempest usage
 		end -- End Action List - Finishers
 	-- Action List - Generators
 		local function actionList_Generators()
-			-- Dispatch
-			-- cycle_targets=1,if=dot.deadly_poison_dot.remains<4&talent.anticipation.enabled&((anticipation_charges<4&set_bonus.tier18_4pc=0)|(anticipation_charges<2&set_bonus.tier18_4pc=1))
-			for i=1, #dynTable5 do
-				local thisUnit = dynTable5[i].unit
-				if deadlyRemain(thisUnit)<4 and talent.anticipation and ((charge.anticipation<4 and t18_4pc==false) or (charge.anticipation<2 and t18_4pc==true)) then
-					if self.castDispatch2(thisUnit) then return end
+			-- Fan of Knives
+			if enemies10>3 and level>=66 and (useCleave() or BadBoy_data['AoE'] == 2) then
+				if self.castFanOfKnives() then return end
+			else
+				-- Dispatch
+				-- cycle_targets=1,if=dot.deadly_poison_dot.remains<4&talent.anticipation.enabled&((anticipation_charges<4&set_bonus.tier18_4pc=0)|(anticipation_charges<2&set_bonus.tier18_4pc=1))
+				for i=1, #dynTable5 do
+					local thisUnit = dynTable5[i].unit
+					if deadlyRemain(thisUnit)<4 and talent.anticipation and ((charge.anticipation<4 and t18_4pc==false) or (charge.anticipation<2 and t18_4pc==true)) then
+						if self.castDispatch2(thisUnit) then return end
+					end
 				end
-			end
-			-- cycle_targets=1,if=dot.deadly_poison_dot.remains<4&!talent.anticipation.enabled&combo_points<5&set_bonus.tier18_4pc=0
-			for i=1, #dynTable5 do
-				local thisUnit = dynTable5[i].unit
-				if deadlyRemain(thisUnit)<4 and not talent.anticipation and combo<5 and t18_4pc==false then
-					if self.castDispatch2(thisUnit) then return end
+				-- cycle_targets=1,if=dot.deadly_poison_dot.remains<4&!talent.anticipation.enabled&combo_points<5&set_bonus.tier18_4pc=0
+				for i=1, #dynTable5 do
+					local thisUnit = dynTable5[i].unit
+					if deadlyRemain(thisUnit)<4 and not talent.anticipation and combo<5 and t18_4pc==false then
+						if self.castDispatch2(thisUnit) then return end
+					end
 				end
-			end
-			-- cycle_targets=1,if=dot.deadly_poison_dot.remains<4&!talent.anticipation.enabled&set_bonus.tier18_4pc=1&(combo_points<2|target.health.pct<35)
-			for i=1, #dynTable5 do
-				local thisUnit = dynTable5[i].unit
-				if deadlyRemain(thisUnit)<4 and not talent.anticipation and t18_4pc==true and (combo<2 or thp(thisUnit)<35) then
-					if self.castDispatch2(thisUnit) then return end
+				-- cycle_targets=1,if=dot.deadly_poison_dot.remains<4&!talent.anticipation.enabled&set_bonus.tier18_4pc=1&(combo_points<2|target.health.pct<35)
+				for i=1, #dynTable5 do
+					local thisUnit = dynTable5[i].unit
+					if deadlyRemain(thisUnit)<4 and not talent.anticipation and t18_4pc==true and (combo<2 or thp(thisUnit)<35) then
+						if self.castDispatch2(thisUnit) then return end
+					end
 				end
-			end
-			-- if=talent.anticipation.enabled&((anticipation_charges<4&set_bonus.tier18_4pc=0)|(anticipation_charges<2&set_bonus.tier18_4pc=1))
-			if talent.anticipation and ((charge.anticipation<4 and t18_4pc==false) or charge.anticipation<2 and t18_4pc==true) then
-				if self.castDispatch2(dynTar5) then return end
-			end
-			-- if=!talent.anticipation.enabled&combo_points<5&set_bonus.tier18_4pc=0
-			if not talent.anticipation and combo<5 and t18_4pc==false then
-				if self.castDispatch2(dynTar5) then return end
-			end
-			-- if=!talent.anticipation.enabled&set_bonus.tier18_4pc=1&(combo_points<2|target.health.pct<35)
-			if not talent.anticipation and t18_4pc==true and (combo<2 or thp(dynTar5)<35) then
-				if self.castDispatch2(dynTar5) then return end
-			end	
-		-- Mutilate
-			-- cycle_targets=1,if=dot.deadly_poison_dot.remains<4&target.health.pct>35&(combo_points<5|(talent.anticipation.enabled&anticipation_charges<3))
-			for i=1, #dynTable5 do
-				local thisUnit = dynTable5[i].unit
-				if deadlyRemain(thisUnit)<4 and thp(thisUnit)>35 and (combo<5 or (talent.anticipation and charge.anticipation<3)) and hastar then
-					if self.castMutilate2(thisUnit) then return end
+				-- if=talent.anticipation.enabled&((anticipation_charges<4&set_bonus.tier18_4pc=0)|(anticipation_charges<2&set_bonus.tier18_4pc=1))
+				if talent.anticipation and ((charge.anticipation<4 and t18_4pc==false) or charge.anticipation<2 and t18_4pc==true) then
+					if self.castDispatch2(dynTar5) then return end
 				end
-			end
-			-- if=target.health.pct>35&(combo_points<5|(talent.anticipation.enabled&anticipation_charges<3))
-			if thp(dynTar5)>35 and (combo<5 or (talent.anticipation and charge.anticipation<3)) then
-				if self.castMutilate2(dynTar5) then return end
-			end
+				-- if=!talent.anticipation.enabled&combo_points<5&set_bonus.tier18_4pc=0
+				if not talent.anticipation and combo<5 and t18_4pc==false then
+					if self.castDispatch2(dynTar5) then return end
+				end
+				-- if=!talent.anticipation.enabled&set_bonus.tier18_4pc=1&(combo_points<2|target.health.pct<35)
+				if not talent.anticipation and t18_4pc==true and (combo<2 or thp(dynTar5)<35) then
+					if self.castDispatch2(dynTar5) then return end
+				end	
+			-- Mutilate
+				-- cycle_targets=1,if=dot.deadly_poison_dot.remains<4&target.health.pct>35&(combo_points<5|(talent.anticipation.enabled&anticipation_charges<3))
+				for i=1, #dynTable5 do
+					local thisUnit = dynTable5[i].unit
+					if deadlyRemain(thisUnit)<4 and thp(thisUnit)>35 and (combo<5 or (talent.anticipation and charge.anticipation<3)) and hastar then
+						if self.castMutilate2(thisUnit) then return end
+					end
+				end
+				-- if=target.health.pct>35&(combo_points<5|(talent.anticipation.enabled&anticipation_charges<3))
+				if thp(dynTar5)>35 and (combo<5 or (talent.anticipation and charge.anticipation<3)) then
+					if self.castMutilate2(dynTar5) then return end
+				end
+			end -- End Fan of Knives usage
 		-- Preparation
 			-- if=(cooldown.vanish.remains>50|!glyph.disappearance.enabled&cooldown.vanish.remains>110)&buff.vanish.down&buff.stealth.down
 			if (cd.vanish>50 or (not glyph.disappearance and cd.vanish>110)) and not buff.vanish and not buff.stealth then
@@ -371,41 +403,28 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				-- draenic_agility,if=buff.bloodlust.react|target.time_to_die<40|debuff.vendetta.up
 				if useCDs() and canUse(109217) and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") then
 	            	if hasBloodLust() or ttd(dynTar5) or debuff.vendetta then
-	                	UseItemByName(tostring(select(1,GetItemInfo(109217))))
+	                	useItem(109217)
 	                end
 	            end
 ------------------------------
 --- In Combat - Interrupts ---
 ------------------------------
 				if actionList_Interrupts() then return end
+-----------------------------
+--- In Combat - Cooldowns ---
+-----------------------------
+				if actionList_Cooldowns() then return end
 ----------------------------------
 --- In Combat - Begin Rotation ---
 ----------------------------------
-		-- Preparation
-				-- if=!buff.vanish.up&cooldown.vanish.remains>60&time>10
-				if not buff.vanish and cd.vanish>60 and time>10 then
-					if self.castPreparation() then return end
-				end
-		-- Legendary Ring
-				-- use_item,slot=finger1,if=spell_targets.fan_of_knives>1|(debuff.vendetta.up&spell_targets.fan_of_knives=1)
-		-- Racials - Orc: Blood Fury | Troll: Berserking | Blood Elf: Arcane Torrent
-				-- blood_fury | berserking | arcane_torrent,if=energy<60
-				if self.race == "Orc" or self.race== "Troll" or (self.race=="Blood Elf" and power<60) then
-					if self.castRacial() then return end
-				end
-		-- Vanish
-				-- if=time>10&energy>13&!buff.stealth.up&buff.blindside.down&energy.time_to_max>gcd*2&((combo_points+anticipation_charges<8)|(!talent.anticipation.enabled&combo_points<=1))
-				if time>10 and power>13 and not stealth and not buff.blindside and ttm>gcd*2 and ((combo + charge.anticipation<8) or (not talent.anticipation and combo<=1)) then
-					if self.castVanish() then return end
-				end
 		-- Mutilate
 				-- if=buff.stealth.up|buff.vanish.up
-				if stealth or buff.vanish then
+				if (stealth or buff.vanish) and (enemies10<6 or level<83 or not useCleave() or BadBoy_data['AoE'] == 3) then
 					if self.castMutilate2(dynTar5) then return end
 				end
 		-- Rupture
 				-- if=((combo_points>=4&!talent.anticipation.enabled)|combo_points=5)&ticks_remain<3
-				if ((combo>=4 and not talent.anticipation) or combo==5) and ruptureTick<3 then
+				if ((combo>=4 and not talent.anticipation) or combo==5) and ruptureTick<3 and (enemies10<6 or level<83 or not useCleave() or BadBoy_data['AoE'] == 3) then
 					if self.castRupture(dynTar5) then return end
 				end
 				-- cycle_targets=1,if=spell_targets.fan_of_knives>1&!ticking&combo_points=5
@@ -427,15 +446,17 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				end
 		-- Vendetta
 				-- if=buff.shadow_reflection.up|!talent.shadow_reflection.enabled|target.time_to_die<=20|(target.time_to_die<=30&glyph.vendetta.enabled)
-				if buff.ShadowRelection or not talent.shadowReflection or ttd(dynTar5)<=20 or (ttd(dynTar5)<=30 and glyph.vendetta) then
+				if useCDs() and isChecked("Vendetta") and buff.ShadowRelection or not talent.shadowReflection or ttd(dynTar5)<=20 or (ttd(dynTar5)<=30 and glyph.vendetta) then
 					if self.castVendetta() then return end
 				end
 		-- Rupture
 				-- cycle_targets=1,if=combo_points=5&remains<=duration*0.3&spell_targets.fan_of_knives>1
-				for i=1, #dynTable5 do
-					local thisUnit = dynTable5[i].unit
-					if combo==5 and ruptureRemain(thisUnit)<=ruptureDuration(thisUnit)*0.3 and targets10>1 then
-						if self.castRupture(thisUnit) then return end
+				if (enemies10<6 or level<83 or not useCleave() or BadBoy_data['AoE'] == 3) then
+					for i=1, #dynTable5 do
+						local thisUnit = dynTable5[i].unit
+						if combo==5 and ruptureRemain(thisUnit)<=ruptureDuration(thisUnit)*0.3 and targets10>1 then
+							if self.castRupture(thisUnit) then return end
+						end
 					end
 				end
 		-- Finishers

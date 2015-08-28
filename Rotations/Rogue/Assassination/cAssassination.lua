@@ -123,19 +123,19 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getDebuffs()
             local UnitDebuffID = UnitDebuffID
 
-            self.debuff.vendetta = UnitDebuffID(self.units.dyn5,self.spell.vendetta,"player")~=nil or false
+            self.debuff.vendetta = UnitDebuffID(self.units.dyn5,self.spell.vendettaDebuff,"player")~=nil or false
         end
 
         function self.getDebuffsDuration()
             local getDebuffDuration = getDebuffDuration
 
-            self.debuff.duration.vendetta = getDebuffDuration(self.units.dyn5,self.spell.vendetta,"player") or 0
+            self.debuff.duration.vendetta = getDebuffDuration(self.units.dyn5,self.spell.vendettaDebuff,"player") or 0
         end
 
         function self.getDebuffsRemain()
             local getDebuffRemain = getDebuffRemain
 
-            self.debuff.remain.vendetta = getDebuffRemain(self.units.dyn5,self.spell.vendetta,"player") or 0
+            self.debuff.remain.vendetta = getDebuffRemain(self.units.dyn5,self.spell.vendettaDebuff,"player") or 0
         end
         -----------------
         --- COOLDOWNS ---
@@ -266,14 +266,26 @@ if select(2, UnitClass("player")) == "ROGUE" then
             --CreateNewCheck(thisConfig,"Agi-Pot");
             --CreateNewText(thisConfig,"Agi-Pot");
 
+            -- Legendary Ring
+            CreateNewCheck(thisConfig, "Legendary Ring", "Enable or Disable usage of Legendary Ring.");
+            CreateNewText(thisConfig, "Legendary Ring");
+
+            -- Preparation
+            CreateNewCheck(thisConfig, "Preparation", "Enable or Disable usage of Preparation.");
+            CreateNewText(thisConfig, "Preparation");
+
+            -- Racials
+            CreateNewCheck(thisConfig, "Racials", "Enable or Disable usage of Racials.");
+            CreateNewText(thisConfig, "Racials");
+
             -- Vanish
-            CreateNewCheck(thisConfig, "Vanish", "Enable or Disable usage of Vanish.");
-            CreateNewDrop(thisConfig, "Vanish", 2, "CD")
+            CreateNewCheck(thisConfig, "Vanish - Offensive", "Enable or Disable usage of Vanish.");
+            --CreateNewDrop(thisConfig, "Vanish", 2, "CD") - This is handled by toggles
             CreateNewText(thisConfig, "Vanish - Offensive");
 
             -- Vendetta
             CreateNewCheck(thisConfig, "Vendetta", "Enable or Disable usage of Vendetta.");
-            CreateNewDrop(thisConfig, "Vendetta", 2, "CD")
+            --CreateNewDrop(thisConfig, "Vendetta", 2, "CD") - This is handled by toggles
             CreateNewText(thisConfig, "Vendetta");
 
             -- Spacer
@@ -386,7 +398,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             CreateNewDrop(thisConfig, "Cleave Mode", 6, "Toggle")
             CreateNewText(thisConfig, "Cleave Mode")
 
-            -- Prowl Toggle
+            -- Pick Pocket Toggle
             CreateNewCheck(thisConfig, "Pick Pocket Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFPick Pocket Toggle Key|cffFFBB00.")
             CreateNewDrop(thisConfig, "Pick Pocket Mode", 6, "Toggle")
             CreateNewText(thisConfig, "Pick Pocket Mode")
@@ -491,7 +503,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         -- Vendetta
         function self.castVendetta()
-            if isSelected("Vendetta") then
+            if isChecked("Vendetta") or isChecked("Vendetta - Defensive") then
                 if self.cd.vendetta==0 and self.level>=80 and (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4 * UnitHealthMax("player"))) then
                     if castSpell(self.units.dyn30, self.spell.vendetta, true, false) then
                         return true

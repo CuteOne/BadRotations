@@ -359,7 +359,7 @@ function canRun()
 end
 -- if canUse(1710) then
 function canUse(itemID)
-	if hasHealthPot() then Pot = healPot; else Pot = 0 end
+	local Pot = getHealthPot()
 	local goOn = true
 	local DPSPotionsSet = {
 		[1] = {Buff = 105702, Item = 76093}, -- Int
@@ -2015,7 +2015,7 @@ function useItem(itemID)
 	 spamDelay = GetTime()
 	end
 
-	if GetItemCount(itemID) > 0 then
+	if GetItemCount(itemID) > 0 or select(2,C_ToyBox.GetToyInfo(itemID))~=false then
 		if select(2,GetItemCooldown(itemID))==0 then
 			if GetTime() > spamDelay then
 				local itemName = GetItemInfo(itemID)
@@ -2074,10 +2074,10 @@ function getOptionValue(Value)
 	end
 end
 --[[Health Potion Table]]
-function hasHealthPot()
+function healthPotTable()
 	healthPot = { }
-	for i = 1, 4 do
-		for x = 1, GetContainerNumSlots(i) do
+	for i = 0, 4 do --Let's look at each bag
+		for x = 1, GetContainerNumSlots(i) do --Let's look at each bag slot
 			local itemID = GetContainerItemID(i,x)
 			if itemID~=nil then
 				local ItemName = select(1,GetItemInfo(itemID))
@@ -2089,7 +2089,7 @@ function hasHealthPot()
 						local ItemCount = GetItemCount(itemID)
 						local ItemCooldown = GetItemCooldown(itemID)
 						if MinLevel<=UnitLevel("player") and ItemCooldown == 0 then
-							tinsert(healthPot,
+							table.insert(healthPot,
 								{
 									item = itemID,
 									itemName = ItemName,
@@ -2108,12 +2108,23 @@ function hasHealthPot()
 			end)
 		end
 	end
+end
+function hasHealthPot()
+	healthPotTable()
+	local healthPot = healthPot
 	if healthPot[1]==nil then
-		healPot=0
 		return false
 	else
-		healPot=healthPot[1].item
 		return true
+	end
+end
+function getHealthPot()
+	healthPotTable()
+	local healthPot = healthPot
+	if healthPot[1]==nil then
+		return 0
+	else
+		return healthPot[1].item
 	end
 end
 --[[Taunts Table!! load once]]

@@ -99,12 +99,14 @@ function lootManager:getLoot()
 						lM:debug("Interact with "..lM.canLootUnit)
 						SetCVar("autoLootDefault", "0")
 						looted = 1
+						ClearTarget()
 						return
 					else
 						InteractUnit(lM.canLootUnit)
 						lM.canLootTimer = GetTime() + 1.5
 						lM:debug("Interact with "..lM.canLootUnit)
 						looted = 1
+						ClearTarget()
 					end
 					-- no matter what happened, we clear all values
 					lM.canLootUnit = nil
