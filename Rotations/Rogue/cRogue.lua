@@ -147,7 +147,7 @@ function cRogue:new(spec)
 		self.getClassBuffsRemain()
 		self.getClassCharges()
 		self.getClassCooldowns()
-		self.getDynamicUnits()
+		self.getClassDynamicUnits()
 		self.getClassDebuffs()
 		self.getClassDebuffsDuration()
 		self.getClassDebuffsRemain()
@@ -174,11 +174,11 @@ function cRogue:new(spec)
 	end
 
 -- Dynamic Units updates
-	function self.getDynamicUnits()
-		local dynmaicTarget = dynmaicTarget
+	function self.getClassDynamicUnits()
+		local dynamicTarget = dynamicTarget
 
-		self.units.dyn10 = dynmaicTarget(10, true)
-		self.units.dyn15 = dynmaicTarget(15, true)
+		self.units.dyn10 = dynamicTarget(10, true)
+		self.units.dyn15 = dynamicTarget(15, true)
 	end
 
 -- Buff updates
@@ -444,9 +444,10 @@ function cRogue:new(spec)
 --- SPELLS - CROWD CONTROL --- 
 ------------------------------
 	-- Blind
-	function self.castBlind()
-		if self.cd.blind==0 and self.power>15 and self.level>=38 and ObjectExists(self.units.dyn15) then
-			return castSpell(self.units.dyn15,self.spell.blind,true,false,false) == true or false
+	function self.castBlind(thisUnit)
+		local thisUnit = thisUnit
+		if self.cd.blind==0 and self.power>15 and self.level>=38 and ObjectExists(thisUnit) then
+			return castSpell(thisUnit,self.spell.blind,true,false,false) == true or false
 		end
 	end
 
@@ -465,9 +466,9 @@ function cRogue:new(spec)
 	end
 
 	-- Gouge
-	function self.castGouge()
-		if self.cd.gouge==0 and self.power>45 and self.level>=22 and ObjectExists(self.units.dyn5) then
-			return castSpell(self.units.dyn5,self.spell.gouge,true,false,false) == true or false
+	function self.castGouge(thisUnit)
+		if self.cd.gouge==0 and self.power>45 and self.level>=22 and ObjectExists(thisUnit) then
+			return castSpell(thisUnit,self.spell.gouge,true,false,false) == true or false
 		end
 	end
 
@@ -520,14 +521,14 @@ function cRogue:new(spec)
 	function self.castKick(thisUnit)
 		local thisUnit = thisUnit
 		if self.cd.kick==0 and self.power>25 and self.level>=40 and ObjectExists(thisUnit) then
-			return castSpell(thisUnt,self.spell.kick,true,false,false) == true or false
+			return castSpell(thisUnit,self.spell.kick,false,false,false) == true or false
 		end
 	end
 
 	-- Recuperate
 	function self.castRecuperate()
 		if self.power>30 and self.level>=16 and self.comboPoints>0 then
-			return castSpell("player",self.spell.recuperate,true,false,false) == true or false
+			return castSpell("player",self.spell.recuperate) == true or false
 		end
 	end
 
@@ -540,7 +541,7 @@ function cRogue:new(spec)
 
 	-- Vanish
 	function self.castVanish()
-		if isSelected("Vanish") and self.cd.vanish==0 and self.level>=34 then
+		if self.cd.vanish==0 and self.level>=34 then
 			if castSpell("player",self.spell.vanish,true,false,false) then StopAttack(); return end
 		end
 	end
@@ -562,7 +563,7 @@ function cRogue:new(spec)
 
 	-- Crimson Tempest
 	function self.castCrimsonTempest()
-		if self.power>35 and self.level>=83 and ObjectExists(self.units.dyn5) then
+		if self.power>35 and self.level>=83 and self.comboPoints>=5 and ObjectExists(self.units.dyn5) then
 			return castSpell("player",self.spell.crimsonTempest,true,false) == true or false
 		end
 	end
@@ -607,7 +608,7 @@ function cRogue:new(spec)
                 local thisUnit = enemiesTable[i].unit
                 local ruptureRemain   = getDebuffRemain(thisUnit,self.spell.rupture,"player")
                 local ruptureDuration = getDebuffDuration(thisUnit, self.spell.rupture, "player")
-                if ruptureRemain == 0 or ruptureRemain <= ruptureDuration*0.3 then
+                if ruptureRemain <= ruptureDuration*0.3 then
                     return castSpell(thisUnit, self.spell.rupture,false,false,false) == true or false
                 end
             end
@@ -662,7 +663,7 @@ function cRogue:new(spec)
 
 	-- Burst of Speed
 	function self.castBurstOfSpeed()
-		if self.talent.burstOfSpeed and self.cd.burstOfSpeed and self.power>30 and self.level>=60 then
+		if self.talent.burstOfSpeed and self.cd.burstOfSpeed==0 and self.power>30 and self.level>=60 then
 			return castSpell("player",self.spell.burstOfSpeed,true,false,false) == true or false
 		end
 	end 
@@ -676,7 +677,7 @@ function cRogue:new(spec)
 
 	-- Marked for Death
 	function self.castMarkedForDeath()
-		if self.talent.markedForDeath and self.cd.markedForDeath and self.comboPoints<0 and ObjectExists(self.units.dyn30AoE) then
+		if self.talent.markedForDeath and self.cd.markedForDeath==0 and self.comboPoints<0 and ObjectExists(self.units.dyn30AoE) then
 			return castSpell(self.units.dyn30AoE,self.spell.markedForDeath,false,false) == true or false
 		end
     end
@@ -737,7 +738,7 @@ function cRogue:new(spec)
 
 	-- ShadowStep
 	function self.castShadowStep()
-		if self.talent.shadowStep and self.cd.shadowStep and self.level>=60 and ObjectExists("target") then
+		if self.talent.shadowStep and self.cd.shadowStep==0 and self.level>=60 and ObjectExists("target") then
 			return castSpell("target",self.spell.shadowStep,true,false,false) == true or false
 		end
 	end
