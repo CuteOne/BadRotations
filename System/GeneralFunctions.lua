@@ -297,11 +297,26 @@ function canInterrupt(unit,percentint)
 			castDuration = (castEndTime - castStartTime)/1000
 			castTimeRemain = ((castEndTime/1000) - GetTime())
 			if percentint == nil and castPercent == 0 then
-				castPercent = math.random(75,95) --  I am not sure that this is working,we are doing this check every pulse so its different randoms each time
+				if castType == "spellcast" then
+					castPercent = math.random(25,75) --  I am not sure that this is working,we are doing this check every pulse so its different randoms each time
+				end
+				if castType == "spellchannel" then
+					castPercent = math.random(75, 95)
+				end
 			elseif percentint == 0 and castPercent == 0 then
-				castPercent = math.random(75,95)
+				if castType == "spellcast" then
+					castPercent = math.random(25,75)
+				end
+				if castType == "spellchannel" then
+					castPercent = math.random(75, 95)
+				end
 			elseif percentint > 0 then
-				castPercent = percentint
+				if castType == "spellcast" then
+					castPercent = percentint
+				end
+				if castType == "spellchannel" then
+					castPercent = math.random(75, 95)
+				end
 			end
 		else
 			castDuration = 0
@@ -314,7 +329,8 @@ function canInterrupt(unit,percentint)
 			end
 		end
 		if castType == "spellchannel" then
-			if (GetTime() - castStartTime/1000) > channelDelay and interruptable == true then
+			--if (GetTime() - castStartTime/1000) > channelDelay and interruptable == true then
+			if math.ceil((castTimeRemain/castDuration)*100) <= castPercent and interruptable == true then
 				return true
 			end
 		end

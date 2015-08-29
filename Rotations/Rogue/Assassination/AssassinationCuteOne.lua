@@ -74,15 +74,15 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	    			end
 	    		end
 				-- Smoke Bomb
-				if isChecked("Smoke Bomb") and php<getOptionValue("Smoke Bomb") and not inCombat then
+				if isChecked("Smoke Bomb") and php<getOptionValue("Smoke Bomb") and inCombat then
 					if self.castSmokeBomb() then return end
 				end
                 -- Evasion
-                if isChecked("Evasion") and php<getOptionValue("Evasion") and not inCombat then
+                if isChecked("Evasion") and php<getOptionValue("Evasion") and inCombat then
                     if self.castEvasion() then return end
                 end
                 -- Combat Readiness
-                if isChecked("Combat Readiness") and php<getOptionValue("Combat Readiness") and not inCombat then
+                if isChecked("Combat Readiness") and php<getOptionValue("Combat Readiness") and inCombat then
                     if self.castCombatReadiness() then return end
                 end
                 -- Recuperate
@@ -136,25 +136,25 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		end -- End Action List - Interrupts
 	-- Action List - Cooldowns
 		local function actionList_Cooldowns()
-			if useCDs() then
+			--if useCDs() then
 		-- Preparation
 				-- if=!buff.vanish.up&cooldown.vanish.remains>60&time>10
-				if isChecked("Preparation") and not buff.vanish and cd.vanish>60 and time>10 then
+				if isSelected("Preparation") and not buff.vanish and cd.vanish>60 and time>10 then
 					if self.castPreparation() then return end
 				end
 		-- Legendary Ring
 				-- use_item,slot=finger1,if=spell_targets.fan_of_knives>1|(debuff.vendetta.up&spell_targets.fan_of_knives=1)
 		-- Racials - Orc: Blood Fury | Troll: Berserking | Blood Elf: Arcane Torrent
 				-- blood_fury | berserking | arcane_torrent,if=energy<60
-				if isChecked("Racials") and self.race == "Orc" or self.race== "Troll" or (self.race=="Blood Elf" and power<60) then
+				if isSelected("Racials") and self.race == "Orc" or self.race== "Troll" or (self.race=="Blood Elf" and power<60) then
 					if self.castRacial() then return end
 				end
 		-- Vanish
 				-- if=time>10&energy>13&!buff.stealth.up&buff.blindside.down&energy.time_to_max>gcd*2&((combo_points+anticipation_charges<8)|(!talent.anticipation.enabled&combo_points<=1))
-				if isChecked("Vanish - Offensive") and time>10 and power>13 and not stealth and not buff.blindside and ttm>gcd*2 and ((combo + charge.anticipation<8) or (not talent.anticipation and combo<=1)) then
+				if isSelected("Vanish - Offensive") and time>10 and power>13 and not stealth and not buff.blindside and ttm>gcd*2 and ((combo + charge.anticipation<8) or (not talent.anticipation and combo<=1)) then
 					if self.castVanish() then return end
 				end
-			end -- End Cooldown Usage Check
+			--end -- End Cooldown Usage Check
 		end -- End Action List - Cooldowns
 	-- Action List - PreCombat
 		local function actionList_PreCombat()

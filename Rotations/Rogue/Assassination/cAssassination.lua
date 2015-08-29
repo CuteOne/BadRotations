@@ -268,24 +268,22 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
             -- Legendary Ring
             CreateNewCheck(thisConfig, "Legendary Ring", "Enable or Disable usage of Legendary Ring.");
+            CreateNewDrop(thisConfig, "Legendary Ring", 2, "CD")
             CreateNewText(thisConfig, "Legendary Ring");
 
             -- Preparation
             CreateNewCheck(thisConfig, "Preparation", "Enable or Disable usage of Preparation.");
+            CreateNewDrop(thisConfig, "Preparation", 2, "CD")
             CreateNewText(thisConfig, "Preparation");
-
-            -- Racials
-            CreateNewCheck(thisConfig, "Racials", "Enable or Disable usage of Racials.");
-            CreateNewText(thisConfig, "Racials");
 
             -- Vanish
             CreateNewCheck(thisConfig, "Vanish - Offensive", "Enable or Disable usage of Vanish.");
-            --CreateNewDrop(thisConfig, "Vanish", 2, "CD") - This is handled by toggles
+            CreateNewDrop(thisConfig, "Vanish - Offensive", 2, "CD")
             CreateNewText(thisConfig, "Vanish - Offensive");
 
             -- Vendetta
             CreateNewCheck(thisConfig, "Vendetta", "Enable or Disable usage of Vendetta.");
-            --CreateNewDrop(thisConfig, "Vendetta", 2, "CD") - This is handled by toggles
+            CreateNewDrop(thisConfig, "Vendetta", 2, "CD")
             CreateNewText(thisConfig, "Vendetta");
 
             -- Spacer
@@ -366,7 +364,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
             -- Interrupt Percentage
             CreateNewCheck(thisConfig,"Interrupt At");
-            CreateNewBox(thisConfig, "Interrupt At", 5, 95, 5, 0, "|cffFFBB00Cast Percentage to use at.");
+            CreateNewBox(thisConfig, "Interrupt At", 0, 95, 5, 0, "|cffFFBB00Cast Percentage to use at.");
             CreateNewText(thisConfig,"Interrupt At");
 
             -- Spacer
@@ -503,14 +501,11 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         -- Vendetta
         function self.castVendetta()
-            if isChecked("Vendetta") or isChecked("Vendetta - Defensive") then
-                if self.cd.vendetta==0 and self.level>=80 and (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4 * UnitHealthMax("player"))) then
-                    if castSpell(self.units.dyn30, self.spell.vendetta, true, false) then
-                        return true
-                    end
+            if self.cd.vendetta==0 and self.level>=80 and (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4 * UnitHealthMax("player"))) then
+                if castSpell(self.units.dyn30, self.spell.vendetta, true, false) then
+                    return true
                 end
             end
-            return false
         end
 
         -----------------------------
