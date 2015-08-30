@@ -44,6 +44,21 @@ if select(3, UnitClass("player")) == 4 then
     return getBuffRemain("player",rogueAssassination.spell.envenomBuff)
   end
 
+  --Internal Bleeding Debuff Time Remaining
+  function internalBleedingRemain(unit)
+      return getDebuffRemain(unit,rogueAssassination.spell.internalBleedingDebuff,"player")
+  end
+
+  --Internal Bleeding Debuff Total Time
+  function internalBleedingDuration(unit)
+      return getDebuffDuration(unit,rogueAssassination.spell.internalBleedingDebuff,"player")
+  end
+
+  --Sap Debuff Time Remaining
+  function sapRemain(unit)
+    return getDebuffRemain(unit,rogueAssassination.spell.sapDebuff,"player")
+  end
+
   --Target HP
   function thp(unit)
       return getHP(unit)

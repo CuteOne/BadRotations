@@ -248,15 +248,19 @@ if select(2, UnitClass("player")) == "ROGUE" then
             --CreateNewBox(thisConfig,"DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             --CreateNewText(thisConfig,"DPS Testing");
 
-            -- Stealth Timer
-            CreateNewCheck(thisConfig, "Stealth Timer");
-            CreateNewBox(thisConfig, "Stealth Timer", 0, 2, 0.25, 1, "|cffFFBB00How long to wait(seconds) before using \n|cffFFFFFFStealth.");
-            CreateNewText(thisConfig, "Stealth Timer");
-
             -- Stealth
             CreateNewCheck(thisConfig, "Stealth");
             CreateNewDrop(thisConfig, "Stealth", 1, "Stealthing method.", "|cff00FF00Always", "|cffFFDD00PrePot", "|cffFF000020Yards");
             CreateNewText(thisConfig, "Stealth");
+            CreateNewBox(thisConfig, "Stealth Timer", 0, 2, 0.25, 1, "|cffFFBB00How long to wait(seconds) before using \n|cffFFFFFFStealth.");
+            CreateNewText(thisConfig, "Stealth Timer");
+
+            -- Opening Attack
+            CreateNewDrop(thisConfig,"Opener", 1, "|cffFFFFFFSelect Attack to Break Stealth with",
+                "Ambush",
+                "Mutilate",
+                "Cheap Shot")
+            CreateNewText(thisConfig,"Opener")
 
             -- Spacer
             CreateNewText(thisConfig, " ");
@@ -310,6 +314,13 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.evasion))))
             end
 
+            -- Feint
+            if isKnown(self.spell.feint) then
+                CreateNewCheck(thisConfig,"Feint","Set health percent threshhold to cast at - In Combat Only!")
+                CreateNewBox(thisConfig,"Feint", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
+                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.feint))))
+            end
+
             -- Healthstone
             CreateNewCheck(thisConfig,"Healthstone");
             CreateNewBox(thisConfig,"Healthstone", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
@@ -329,6 +340,13 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.recuperate))).." Combo Points")
             end
 
+            --Shiv
+            if isKnown(self.spell.shiv) and getTalent(3,2) then
+                CreateNewCheck(thisConfig,"Shiv","Set health percent threshhold to cast at - In Combat Only!")
+                CreateNewBox(thisConfig,"Shiv", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
+                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.shiv))))
+            end 
+
             -- Smoke Bomb
             if isKnown(self.spell.smokeBomb) then
                 CreateNewCheck(thisConfig,"Smoke Bomb","Set health percent threshhold to cast at - In Combat Only!")
@@ -336,7 +354,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.smokeBomb))))
             end
 
-            -- Smoke Bomb
+            -- Vanish - Defensive
             if isKnown(self.spell.vanish) then
                 CreateNewCheck(thisConfig,"Vanish - Defensive","Set health percent threshhold to cast at - Defensive Use Only, see Cooldowns for Offensive Use")
                 CreateNewBox(thisConfig,"Vanish - Defensive", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
@@ -439,7 +457,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         end
 
         function self.castDispatch2(thisUnit)
-            local thisUnit = thisUnit
+            local thisUnit = thisUnit or "target"
             if self.power>30 and self.level>=40 and ObjectExists(thisUnit) then
                 return castSpell(thisUnit,self.spell.dispatch,true,false,false) == true or false
             end
@@ -464,7 +482,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         end
 
         function self.castEnvenom2(thisUnit)
-            local thisUnit = thisUnit
+            local thisUnit = thisUnit or "target"
             if self.power>35 and self.level>=20 and self.comboPoints>0 and ObjectExists(thisUnit) then
                 return castSpell(thisUnit,self.spell.envenom,true,false,false) == true or false
             end
@@ -493,7 +511,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         end
 
         function self.castMutilate2(thisUnit)
-            local thisUnit = thisUnit
+            local thisUnit = thisUnit or "target"
             if self.power>55 and self.level>=10 then
                 return castSpell(thisUnit,self.spell.mutilate,false,false,false) == true or false
             end

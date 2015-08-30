@@ -103,6 +103,7 @@ function cRogue:new(spec)
         crimsonTempestDebuff 	= 121411,
         deadlyPoisonDebuff		= 2823,
         garroteDebuff 			= 703,
+        internalBleedingDebuff 	= 154953,
         ruptureDebuff 			= 1943,
 
         -- Debuff - Defensive
@@ -129,6 +130,8 @@ function cRogue:new(spec)
         deadlyThrowTalent 		= 26679,
         deathFromAboveTalent 	= 152150,
         dirtyTricksTalent 		= 108216,
+        elusivenessTalent		= 79008,
+        internalBleedingTalent 	= 154904,
         leechingPoisonTalent 	= 108211,
         markedForDeathTalent    = 137619,
         shadowReflectionTalent 	= 152151,
@@ -275,17 +278,19 @@ function cRogue:new(spec)
 	function self.getClassDebuffs()
 		local UnitDebuffID = UnitDebuffID
 
-		self.debuff.blind 			= UnitDebuffID(self.units.dyn15,self.spell.blindDebuff,"player")~=nil or false
-		self.debuff.cheapShot 		= UnitDebuffID(self.units.dyn5,self.spell.cheapShotDebuff,"player")~=nil or false
-		self.debuff.crimsonTempest 	= UnitDebuffID(self.units.dyn5,self.spell.crimsonTempestDebuff,"player")~=nil or false
-		self.debuff.cripplingPoison = UnitDebuffID(self.units.dyn5,self.spell.cripplingPoisonDebuff,"player")~=nil or false
-		self.debuff.deadlyPoison    = UnitDebuffID(self.units.dyn5,self.spell.deadlyPoisonDebuff,"player")~=nil or false
-		self.debuff.deadlyThrow 	= UnitDebuffID(self.units.dyn30,self.spell.deadlyThrowDebuff,"player")~=nil or false
-		self.debuff.garrote 		= UnitDebuffID(self.units.dyn5,self.spell.garroteDebuff,"player")~=nil or false
-		self.debuff.gouge 			= UnitDebuffID(self.units.dyn5,self.spell.gougeDebuff,"player")~=nil or false
-		self.debuff.kidneyShot 		= UnitDebuffID(self.units.dyn5,self.spell.kidneyShotDebuff,"player")~=nil or false	
-		self.debuff.rupture 		= UnitDebuffID(self.units.dyn5,self.spell.ruptureDebuff,"player")~=nil or false
-		self.debuff.woundPoison 	= UnitDebuffID(self.units.dyn5,self.spell.woundPoisonDebuff,"player")~=nil or false
+		self.debuff.blind 				= UnitDebuffID(self.units.dyn15,self.spell.blindDebuff,"player")~=nil or false
+		self.debuff.cheapShot 			= UnitDebuffID(self.units.dyn5,self.spell.cheapShotDebuff,"player")~=nil or false
+		self.debuff.crimsonTempest 		= UnitDebuffID(self.units.dyn5,self.spell.crimsonTempestDebuff,"player")~=nil or false
+		self.debuff.cripplingPoison 	= UnitDebuffID(self.units.dyn5,self.spell.cripplingPoisonDebuff,"player")~=nil or false
+		self.debuff.deadlyPoison    	= UnitDebuffID(self.units.dyn5,self.spell.deadlyPoisonDebuff,"player")~=nil or false
+		self.debuff.deadlyThrow 		= UnitDebuffID(self.units.dyn30,self.spell.deadlyThrowDebuff,"player")~=nil or false
+		self.debuff.garrote 			= UnitDebuffID(self.units.dyn5,self.spell.garroteDebuff,"player")~=nil or false
+		self.debuff.gouge 				= UnitDebuffID(self.units.dyn5,self.spell.gougeDebuff,"player")~=nil or false
+		self.debuff.kidneyShot 			= UnitDebuffID(self.units.dyn5,self.spell.kidneyShotDebuff,"player")~=nil or false
+		self.debuff.internalBleeding 	= UnitDebuffID(self.units.dyn5,self.spell.internalBleedingDebuff,"player")~=nil or false		
+		self.debuff.rupture 			= UnitDebuffID(self.units.dyn5,self.spell.ruptureDebuff,"player")~=nil or false
+		self.debuff.sap 				= UnitDebuffID(self.units.dyn5,self.spell.sapDebuff,"player")~=nil or false
+		self.debuff.woundPoison 		= UnitDebuffID(self.units.dyn5,self.spell.woundPoisonDebuff,"player")~=nil or false
 	end
 
 	function self.getClassDebuffsDuration()
@@ -299,8 +304,10 @@ function cRogue:new(spec)
 		self.debuff.duration.deadlyThrow 		= getDebuffDuration(self.units.dyn30,self.spell.deadlyThrowDebuff,"player") or 0
 		self.debuff.duration.garrote 			= getDebuffDuration(self.units.dyn5,self.spell.garroteDebuff,"player") or 0
 		self.debuff.duration.gouge 				= getDebuffDuration(self.units.dyn5,self.spell.gougeDebuff,"player") or 0
-		self.debuff.duration.kidneyShot 		= getDebuffDuration(self.units.dyn5,self.spell.kidneyShotDebuff,"player")  or 0	
+		self.debuff.duration.kidneyShot 		= getDebuffDuration(self.units.dyn5,self.spell.kidneyShotDebuff,"player")  or 0
+		self.debuff.duration.internalBleeding	= getDebuffDuration(self.units.dyn5,self.spell.internalBleedingDebuff,"player")  or 0	
 		self.debuff.duration.rupture 			= getDebuffDuration(self.units.dyn5,self.spell.ruptureDebuff,"player") or 0
+		self.debuff.duration.sap				= getDebuffDuration(self.units.dyn5,self.spell.sapDebuff,"player") or 0
 		self.debuff.duration.woundPoison 		= getDebuffDuration(self.units.dyn5,self.spell.woundPoisonDebuff,"player") or 0		
 	end
 
@@ -316,7 +323,9 @@ function cRogue:new(spec)
 		self.debuff.remain.garrote 			= getDebuffRemain(self.units.dyn5,self.spell.garroteDebuff,"player") or 0
 		self.debuff.remain.gouge 			= getDebuffRemain(self.units.dyn5,self.spell.gougeDebuff,"player") or 0
 		self.debuff.remain.kidneyShot 		= getDebuffRemain(self.units.dyn5,self.spell.kidneyShotDebuff,"player") or 0 	
+		self.debuff.remain.internalBleeding	= getDebuffRemain(self.units.dyn5,self.spell.internalBleedingDebuff,"player")  or 0
 		self.debuff.remain.rupture 			= getDebuffRemain(self.units.dyn5,self.spell.ruptureDebuff,"player") or 0
+		self.debuff.remain.sap 				= getDebuffRemain(self.units.dyn5,self.spell.sapDebuff,"player") or 0
 		self.debuff.remain.woundPoison 		= getDebuffRemain(self.units.dyn5,self.spell.woundPoisonDebuff,"player") or 0		
 	end
 
@@ -335,9 +344,11 @@ function cRogue:new(spec)
 		self.talent.deadlyThrow 	 = getTalent(2,1)
 		self.talent.combatReadiness  = getTalent(2,3)
 		self.talent.leechingPoison 	 = getTalent(3,2)
+		self.talent.elusiveness		 = getTalent(3,3)
 		self.talent.cloakAndDagger 	 = getTalent(4,1)
 		self.talent.shadowStep 		 = getTalent(4,2)
 		self.talent.burstOfSpeed 	 = getTalent(4,3)
+		self.talent.internalBleeding = getTalent(5,2)
 		self.talent.dirtyTricks 	 = getTalent(5,3)
 		self.talent.shurikenToss 	 = getTalent(6,1)
 		self.talent.markedForDeath   = getTalent(6,2)
@@ -445,7 +456,7 @@ function cRogue:new(spec)
 ------------------------------
 	-- Blind
 	function self.castBlind(thisUnit)
-		local thisUnit = thisUnit
+		local thisUnit = thisUnit or "target"
 		if self.cd.blind==0 and self.power>15 and self.level>=38 and ObjectExists(thisUnit) then
 			return castSpell(thisUnit,self.spell.blind,true,false,false) == true or false
 		end
@@ -453,8 +464,8 @@ function cRogue:new(spec)
 
 	-- Cheap Shot
 	function self.castCheapShot()
-		if self.power>40 and self.stealth and self.level>=30 and ObjectExists(self.units.dyn5) then
-			return castSpell(self.units.dyn5,self.spell.cheapShot,true,false,false) == true or false
+		if self.power>40 and self.stealth and self.level>=30 and ObjectExists("target") then
+			return castSpell("target",self.spell.cheapShot,false,false,false,false,false,true) == true or false
 		end
 	end
 
@@ -467,22 +478,25 @@ function cRogue:new(spec)
 
 	-- Gouge
 	function self.castGouge(thisUnit)
+		local thisUnit = thisUnit or "target"
 		if self.cd.gouge==0 and self.power>45 and self.level>=22 and ObjectExists(thisUnit) then
 			return castSpell(thisUnit,self.spell.gouge,true,false,false) == true or false
 		end
 	end
 
 	-- Kidney Shot
-	function self.castKidneyShot()
-		if self.cd.kidneyShot==0 and self.power>25 and self.level>=40 and ObjectExists(self.units.dyn5) then
-			return castSpell(self.units.dyn5,self.spell.kidneyShot,true,false,false) == true or false
+	function self.castKidneyShot(thisUnit)
+		local thisUnit = thisUnit or "target"
+		if self.cd.kidneyShot==0 and self.power>25 and self.level>=40 and ObjectExists(thisUnit) then
+			return castSpell(thisUnit,self.spell.kidneyShot,true,false,false) == true or false
 		end
 	end
 
 	-- Sap
-	function self.castSap()
-		if self.power>35 and self.level>=12 and self.stealth and ObjectExists(self.units.dyn10) then
-			return castSpell(self.units.dyn10,self.spell.sap,true,false,false) == true or false
+	function self.castSap(thisUnit)
+		local thisUnit = thisUnit or "target"
+		if self.power>35 and self.level>=12 and self.stealth and ObjectExists(thisUnit) then
+			return castSpell(thisUnit,self.spell.sap,true,false,false) == true or false
 		end
 	end
 
@@ -519,7 +533,7 @@ function cRogue:new(spec)
 
 	-- Kick
 	function self.castKick(thisUnit)
-		local thisUnit = thisUnit
+		local thisUnit = thisUnit or "target"
 		if self.cd.kick==0 and self.power>25 and self.level>=40 and ObjectExists(thisUnit) then
 			return castSpell(thisUnit,self.spell.kick,false,false,false) == true or false
 		end
@@ -551,13 +565,8 @@ function cRogue:new(spec)
 --------------------------
 	-- Ambush
 	function self.castAmbush()
-
 		if self.stealth and self.power>60 and self.level>=6 then
-			-- if self.talent.cloakAndDagger and ObjectExists(thisUnit) then
-				-- return castSpell(thisUnit,self.spell.ambush,true,false,false) == true or false
-			-- else
-				return castSpell("target",self.spell.ambush,false,false,false,false,false,true) == true or false
-			-- end
+			return castSpell("target",self.spell.ambush,false,false,false,false,false,true) == true or false
 		end
 	end
 
@@ -617,6 +626,7 @@ function cRogue:new(spec)
 
     -- Rupture
     function self.castRupture(thisUnit)
+    	local thisUnit = thisUnit or "target"
     	if self.power>25 and self.level>=46 and self.comboPoints>0 and ObjectExists(thisUnit) then
     		return castSpell(thisUnit,self.spell.rupture,true,false,false) == true or false
     	end
@@ -624,7 +634,7 @@ function cRogue:new(spec)
 
     -- Shadow Reflection
 	function self.castShadowReflection()
-		if self.talent.shadowReflection and self.cd.shadowReflection==0 and self.level>=100 and ObjectExists(self.units.dyn20AoE) then
+		if self.talent.shadowReflection and self.cd.shadowReflection==0 and self.level>=100 and ObjectExists(self.units.dyn20AoE) and (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4 * UnitHealthMax("player"))) then
 			return castSpell(self.units.dyn20AoE,self.spell.shadowReflection,false,false) == true or false
 		end
 	end
@@ -692,21 +702,18 @@ function cRogue:new(spec)
         end
     end
 
-   	--function self.noattack() --Pick Pocket Toggle State
-   	--    if BadBoy_data['Picker'] == 2 then
-   	--        return true
-   	--    else
-   	--        return false
-   	--    end
-   	--end
+   	function self.noAttack() --Pick Pocket Toggle State
+   	   if BadBoy_data['Picker'] == 2 then
+   	       return true
+   	   else
+   	       return false
+   	   end
+   	end
 
-    function self.isPicked()	--	Pick Pocket Testing
-        if GetObjectExists("target") then
-            if myTarget ~= UnitGUID("target") then
-                canPickpocket = true
-                myTarget = UnitGUID("target")
-            end
-        end
+    function self.isPicked(thisUnit)	--	Pick Pocket Testing
+    	local myTarget = myTarget or "target"
+    	local thisUnit = thisUnit or "target"
+    	if myTarget~=thisUnit then canPickpocket = true end
         if (canPickpocket == false or BadBoy_data['Picker'] == 3 or GetNumLootItems() > 0) then
             return true
         else
@@ -722,10 +729,11 @@ function cRogue:new(spec)
         end
     end
 
-    function self.castPickPocket()
-        local targetDistance = getRealDistance("player", "target")
+    function self.castPickPocket(thisUnit)
+    	local thisUnit = thisUnit or "target"
+        local targetDistance = getRealDistance("player", thisUnit)
         if self.stealth and self.level>=15 and self.canPickPocket() and not self.isPicked() and targetDistance < self.getPickPocketRange() then
-            return castSpell("target",self.spell.pickPocket,true,false,false) == true or false
+            return castSpell(thisUnit,self.spell.pickPocket,false,false) == true or false
         end
     end
     
@@ -766,6 +774,7 @@ function cRogue:new(spec)
 
 	-- Tricks of the Trade
 	function self.castTricksOfTheTrade(thisUnit)
+		local thisUnit = thisUnit or "target"
 		if self.cd.tricksOfTheTrade and self.level>=78 then
 			return castSpell(thisUnit,self.spell.tricksOfTheTrade,false,false,false) == true or false
 		end
