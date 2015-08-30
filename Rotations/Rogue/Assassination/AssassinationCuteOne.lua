@@ -13,10 +13,13 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		local combo 										= self.comboPoints
 		local deadtar										= UnitIsDeadOrGhost("target")
 		local debuff, debuffRemain							= self.debuff, self.debuff.remain
-		local dynTar5, dynTable5							= self.units.dyn5, (BadBoy_data['Cleave']==1 and enemiesTable) or { [1] = {["unit"]=dynTar5, ["distance"] = getDistance(dynTar5)}} --Melee
-		local dynTar15, dynTable15							= self.units.dyn15, (BadBoy_data['Cleave']==1 and enemiesTable) or { [1] = {["unit"]=dynTar15, ["distance"] = getDistance(dyn1Tar5)}}
-		local dynTar20AoE, dynTable20AoE					= self.units.dyn20AoE, (BadBoy_data['Cleave']==1 and enemiesTable) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getDistance(dynTar20AoE)}} --Stealth
+		local dynTar5 										= self.units.dyn5 --Melee
+		local dynTar15 										= self.units.dyn15 
+		local dynTar20AoE 									= self.units.dyn20AoE --Stealth
 		local dynTar30AoE 									= self.units.dyn30AoE
+		local dynTable5										= (BadBoy_data['Cleave']==1 and enemiesTable) or { [1] = {["unit"]=dynTar5, ["distance"] = getDistance(dynTar5)}}
+		local dynTable15									= (BadBoy_data['Cleave']==1 and enemiesTable) or { [1] = {["unit"]=dynTar15, ["distance"] = getDistance(dynTar15)}}
+		local dynTable20AoE 								= (BadBoy_data['Cleave']==1 and enemiesTable) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getDistance(dynTar20AoE)}}
 		local enemies10										= self.enemies.yards10
 		local flaskBuff, canFlask							= getBuffRemain("player",self.flask.wod.buff.agilityBig), canUse(self.flask.wod.agilityBig)	
 		local gcd 											= self.gcd
@@ -28,6 +31,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		local php											= self.health
 		local power, powerRegen								= self.power, self.powerRegen
 		local ruptureTick 									= self.debuff.remain.rupture/2
+		local solo											= select(2,IsInInstance())=="none"	
 		local stealth 										= self.stealth
 		local t18_4pc 										= self.eq.t18_4pc
 		local talent 										= self.talent
@@ -52,11 +56,59 @@ if select(2, UnitClass("player")) == "ROGUE" then
                     end
                 end
             end
+        -- Pick Pocket
+        	if canPP() then
+        		if self.noAttack() then
+        			for i=1, #dynTable5 do 
+						if getDistance(dynTable5[i].unit)<5 then
+							thisUnit = dynTable5[i].unit
+							if self.isPicked(thisUnit) then 
+								ClearTarget() 
+							elseif sapRemain(thisUnit)==0 then
+		        -- Sap
+			        			if self.castSap(thisUnit) then return end
+			        		elseif not self.isPicked(thisUnit) then
+		        -- Pick Pocket
+	               				myTarget=thisUnit
+	               				if self.castPickPocket(thisUnit) then return end
+				            end
+				        end
+			        end               		
+               	end
+               	if not self.noAttack() and not self.isPicked("target") then
+               		myTarget="target"
+               		if self.castPickPocket("target") then return end
+               	end
+        	end -- End Pick Pocket
 		end -- End Action List - Extras
 	-- Action List - Defensives
 		local function actionList_Defensive()
 			-- TODO: Add Defensive Abilities
 			if useDefensive() and not stealth then
+				-- Cloak of Shadows
+		        if isChecked("Cloak of Shadows") and canDispel("player") then
+		            if self.castCloakOfShadows() then return end
+		        end
+		        -- Combat Readiness
+                if isChecked("Combat Readiness") and php<getOptionValue("Combat Readiness") and inCombat then
+                    if self.castCombatReadiness() then return end
+                end
+                -- Evasion
+                if isChecked("Evasion") and php<getOptionValue("Evasion") and inCombat then
+                    if self.castEvasion() then return end
+                end
+                -- Feint
+                if isChecked("Feint") and talent.Elusiveness and php<getOptionValue("Feint") and inCombat then
+                	if self.castFeint() then return end
+                end
+                -- Heirloom Neck
+	    		if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") and not inCombat then
+	    			if hasEquiped(122668) then
+	    				if GetItemCooldown(122668)==0 then
+	    					useItem(122668)
+	    				end
+	    			end
+	    		end
 				-- Pot/Stoned
 	            if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and inCombat and hasHealthPot() then
                     if canUse(5512) then
@@ -65,34 +117,18 @@ if select(2, UnitClass("player")) == "ROGUE" then
                         useItem(healPot)
                     end
 	            end
-	           	-- Heirloom Neck
-	    		if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") and not inCombat then
-	    			if hasEquiped(122668) then
-	    				if GetItemCooldown(122668)==0 then
-	    					useItem(122668)
-	    				end
-	    			end
-	    		end
-				-- Smoke Bomb
-				if isChecked("Smoke Bomb") and php<getOptionValue("Smoke Bomb") and not inCombat then
-					if self.castSmokeBomb() then return end
-				end
-                -- Evasion
-                if isChecked("Evasion") and php<getOptionValue("Evasion") and not inCombat then
-                    if self.castEvasion() then return end
-                end
-                -- Combat Readiness
-                if isChecked("Combat Readiness") and php<getOptionValue("Combat Readiness") and not inCombat then
-                    if self.castCombatReadiness() then return end
-                end
-                -- Recuperate
+	            -- Recuperate
                 if isChecked("Recuperate Health %") and php<getOptionValue("Recuperate Health %") and combo>getOptionValue("Recuperate Combo Point") and not buff.recuperate then
                     if self.castRecuperate() then return end
                 end
-                -- Cloak of Shadows
-		        if isChecked("Cloak of Shadows") and canDispel("player") then
-		            if self.castCloakOfShadows() then return end
-		        end
+	    		-- Shiv
+	    		if isChecked("Shiv") and talent.leechingPoison and php<getOptionValue("Shiv") and inCombat then
+	    			if self.castShiv() then return end
+	    		end
+ 				-- Smoke Bomb
+				if isChecked("Smoke Bomb") and php<getOptionValue("Smoke Bomb") and inCombat then
+					if self.castSmokeBomb() then return end
+				end
                 -- Vanish
                 if isChecked("Vanish - Defensive") and php<getOptionValue("Vanish - Defensive") then
                     if self.castVanish() then StopAttack(); ClearTarget(); return end
@@ -151,9 +187,16 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				end
 		-- Vanish
 				-- if=time>10&energy>13&!buff.stealth.up&buff.blindside.down&energy.time_to_max>gcd*2&((combo_points+anticipation_charges<8)|(!talent.anticipation.enabled&combo_points<=1))
-				if isChecked("Vanish - Offensive") and time>10 and power>13 and not stealth and not buff.blindside and ttm>gcd*2 and ((combo + charge.anticipation<8) or (not talent.anticipation and combo<=1)) then
+				if isChecked("Vanish - Offensive") and not solo and time>10 and power>13 and not stealth and not buff.blindside and ttm>gcd*2 and ((combo + charge.anticipation<8) or (not talent.anticipation and combo<=1)) then
 					if self.castVanish() then return end
 				end
+		-- Potion
+				-- draenic_agility,if=buff.bloodlust.react|target.time_to_die<40|debuff.vendetta.up
+				if useCDs() and canUse(109217) and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") then
+	            	if hasBloodLust() or ttd(dynTar5) or debuff.vendetta then
+	                	useItem(109217)
+	                end
+	            end
 			end -- End Cooldown Usage Check
 		end -- End Action List - Cooldowns
 	-- Action List - PreCombat
@@ -189,7 +232,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	                    end
 	                    -- Pre-Pot
 	                    if getValue("Stealth") == 2 and getBuffRemain("player",105697) > 0 and getDistance(dynTar20AoE) < 20 then
-	                    	if castSpell("player",_Stealth,true,false,false) then stealthTimer=GetTime(); return end
+	                    	if self.castStealth() then stealthTimer=GetTime(); return end
 	                    end
 	                    -- 20 Yards
 	                    if not friendly or isDummy() then
@@ -207,7 +250,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				if self.castMarkedForDeath(dynTar30AoE) then return end
 		-- Slice And Dice
 				-- slice_and_dice,if=talent.marked_for_death.enabled
-				if talent.markedForDeath then
+				if talent.markedForDeath and not perk.improvedSliceAndDice then
 					if self.castSliceAndDice() then return end
 				end
 			end -- End No Combat
@@ -217,32 +260,43 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				if self.castSliceAndDice() then return end
 			end
 		-- Opener
-			if hastar and attacktar and stealth then
+			if hastar and attacktar and stealth and not self.noAttack() then
                 -- Shadowstep
                 if getDistance("target") < 25 and getDistance("target") >= 8 and talent.shadowStep and (select(2,IsInInstance())=="none" or isInCombat("target")) then
                     if self.castShadowStep() then return end
                 end
                 -- Cloak and Dagger
                 if getDistance("target") < 40 and getDistance("target") >= 8 and talent.cloakAndDagger and (select(2,IsInInstance())=="none" or isInCombat("target")) then
-                    if self.castAmbush() then return end
+                	if getOptionValue("Opener")==1 then
+                    	if self.castAmbush() then return end
+                    end
+                    if getOptionValue("Opener")==2 then
+                    	ChatOverlay("Used Ambush instead of Mutilate due to Cloak and Dagger Talent")
+                    	if self.castAmbush() then return end
+                    end
+                    if getOptionValue("Opener")==3 then
+                    	if self.castCheapShot() then return end
+                    end
                 end
-                -- Sap
-                if noattack() and sapRemain==0 and getDistance("target") < 8 then
-                    if self.castSap("target") then return end
-                end
-                -- Pick Pocket
-               	self.castPickPocket()
-                if not noattack() and (self.isPicked() or level<15) then
-                    -- Ambush
-                    if combo<5 and power>60 then
-                        if self.castAmbush() then return end
+                if (self.isPicked() or level<15) then
+                    -- Low Combo Opener
+                    if combo<5 then
+                    	if getOptionValue("Opener")==1 then
+	                    	if self.castAmbush() then return end
+	                    end
+	                    if getOptionValue("Opener")==2 then
+	                    	if self.castMutilate2(dynTar5) then return end
+	                    end
+	                    if getOptionValue("Opener")==3 then
+	                    	if self.castCheapShot() then return end
+	                    end
                     end
                     -- 5 Combo Opener
                     if combo == 5 then
                         if power>35 and level<20 and (buffRemain.sliceAndDice>=5 or level<14) then
                             if self.castEviscerate() then return end
                         end
-                        if power>25 and buffRemain.sliceAndDice<5 then
+                        if power>25 and buffRemain.sliceAndDice<5 and not perk.improvedSliceAndDice then
                             if self.castSliceAndDice() then return end
                         end
                         if power>25 and debuffRemain.rupture<3 then
@@ -306,6 +360,15 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				if thp(dynTar5)>35 and (power+powerRegen*cd.vendetta>=105 and (buffRemain.envenom<=1.8 or power>55)) or hasBloodLust() or debuff.vendetta then
 					if self.castEnvenom2(dynTar5) then return end
 				end
+		-- Kidney Shot
+				if talent.internalBleeding then
+					for i=1, #dynTable5 do
+						local thisUnit = dynTable5[i].unit
+						if (internalBleedingRemain(thisUnit)<2 or (combo==5 and internalBleedingRemain(thisUnit)<=internalBleedingDuration(thisUnit)*0.3)) then
+							if self.castKidneyShot(thisUnit) then return end
+						end
+					end
+				end
 			end -- End Crimson Tempest usage
 		end -- End Action List - Finishers
 	-- Action List - Generators
@@ -347,6 +410,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				-- if=!talent.anticipation.enabled&set_bonus.tier18_4pc=1&(combo_points<2|target.health.pct<35)
 				if not talent.anticipation and t18_4pc==true and (combo<2 or thp(dynTar5)<35) then
 					if self.castDispatch2(dynTar5) then return end
+				end
+				if combo==0 and power>30 then
+					if self.castDispatch2(dynTar5) then return end
 				end	
 			-- Mutilate
 				-- cycle_targets=1,if=dot.deadly_poison_dot.remains<4&target.health.pct>35&(combo_points<5|(talent.anticipation.enabled&anticipation_charges<3))
@@ -359,6 +425,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				-- if=target.health.pct>35&(combo_points<5|(talent.anticipation.enabled&anticipation_charges<3))
 				if thp(dynTar5)>35 and (combo<5 or (talent.anticipation and charge.anticipation<3)) then
 					if self.castMutilate2(dynTar5) then return end
+				end
+				if combo==0 and power>55 then
+					if self.castDispatch2(dynTar5) then return end
 				end
 			end -- End Fan of Knives usage
 		-- Preparation
@@ -399,13 +468,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				if ((hartar and deadtar) or (not hastar and not isDummy())) and ObjectExists(dynTar5) then
 					StartAttack()
 				end
-		-- Potion
-				-- draenic_agility,if=buff.bloodlust.react|target.time_to_die<40|debuff.vendetta.up
-				if useCDs() and canUse(109217) and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") then
-	            	if hasBloodLust() or ttd(dynTar5) or debuff.vendetta then
-	                	useItem(109217)
-	                end
-	            end
 ------------------------------
 --- In Combat - Interrupts ---
 ------------------------------
@@ -417,6 +479,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
 ----------------------------------
 --- In Combat - Begin Rotation ---
 ----------------------------------
+		-- Shadowstep
+                if getDistance("target") < 25 and getDistance("target") >= 8 and talent.shadowStep and (select(2,IsInInstance())=="none" or isInCombat("target")) then
+                    if self.castShadowStep() then return end
+                end
 		-- Mutilate
 				-- if=buff.stealth.up|buff.vanish.up
 				if (stealth or buff.vanish) and (enemies10<6 or level<83 or not useCleave() or BadBoy_data['AoE'] == 3) then
@@ -441,7 +507,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				end
 		-- Shadow Reflection
 				-- if=combo_points>4|target.time_to_die<=20
-				if combo>4 or ttd(dynTar20AoE) then
+				if useCDs() and (combo>4 or ttd(dynTar20AoE)<=20) then
 					if self.castShadowReflection() then return end
 				end
 		-- Vendetta
