@@ -8,6 +8,10 @@ cPaladin = {}
 function cPaladin:new(spec)
 	local self = cCharacter:new("Paladin")
 
+    -----------------
+    --- VARIABLES ---
+    -----------------
+
 	self.profile     = spec
 	self.holyPower   = 0
 	self.defaultSeal = 1 -- Uses first Seal as default if no one is specified in c_SPEC_.lua
@@ -32,10 +36,23 @@ function cPaladin:new(spec)
 		sacredShield        = 20925,
 		sealOfRighteousness = 20154,
 		sealOfThruth        = 31801,
+        selflessHealer      = 85804,
 		wordOfGlory         = 85673,
-	}
+    }
 
--- Update 
+    ------------------
+    --- OOC UPDATE ---
+    ------------------
+
+    function self.classUpdateOOC()
+        -- Call baseUpdateOOC()
+        self.baseUpdateOOC()
+    end
+
+    --------------
+    --- UPDATE ---
+    --------------
+
 	function self.classUpdate()
 		-- Call baseUpdate()
 		self.baseUpdate()
@@ -48,20 +65,59 @@ function cPaladin:new(spec)
 
 		-- Blessing check
 		self.castBlessing()
-	end
+    end
 
--- Update OOC
-	function self.classUpdateOOC()
-		-- Call baseUpdateOOC()
-		self.baseUpdateOOC()
-	end
+    -------------
+    --- BUFFS ---
+    -------------
 
--- Casts given Seal
+    ---------------
+    --- DEBUFFS ---
+    ---------------
+
+    -----------------
+    --- COOLDOWNS ---
+    -----------------
+
+    --------------
+    --- GLYPHS ---
+    --------------
+
+    ---------------
+    --- TALENTS ---
+    ---------------
+
+    ---------------
+    --- OPTIONS ---
+    ---------------
+
+    -- Class options
+    -- Options which every Paladin should have
+    function self.createClassOptions()
+        -- Create Base Options
+        self.createBaseOptions()
+
+        -- Class Wrap
+        CreateNewWrap(thisConfig, "--- Class Options ---")
+
+        -- Blessing
+        CreateNewCheck(thisConfig,"Blessings")
+        CreateNewDrop(thisConfig,"Blessings",1,"|cffFFFFFFWhich blessing do you want to maintain on raid","|cff0374FEKings","|cffFFBC40Might","|cff00FF0DAuto")
+        CreateNewText(thisConfig,"Blessings")
+
+        -- Spacer
+        CreateNewText(" ");
+    end
+    --------------
+    --- SPELLS ---
+    --------------
+
+    -- Casts given Seal
 	function self.castSeal(seal)
 		return castSpell("player",seal,true,false) == true or false
 	end
 
--- Checks if seal is applied; casts given seal or defaultSeal if not
+    -- Checks if seal is applied; casts given seal or defaultSeal if not
 	function self.checkSeal(seal)
 		if self.seal == 0 then
 			if seal == nil then
@@ -73,7 +129,7 @@ function cPaladin:new(spec)
 		end
 	end
 	
--- Common blessing selector(all specs)
+    -- Common blessing selector(all specs)
 	function self.castBlessing()
 		-- if ability is selected
 		if isChecked("Blessings") then
@@ -101,7 +157,7 @@ function cPaladin:new(spec)
 		end
 	end
 
--- Finds best blessing based on group members
+    -- Finds best blessing based on group members
 	function self.findBestBlessing()
 		local modeBlessing = getValue("Blessings")
 		local myBlessing = _BlessingOfKings
@@ -125,7 +181,7 @@ function cPaladin:new(spec)
 		return myBlessing
 	end
 
--- Return
+    -- Return
 	return self
 end
 

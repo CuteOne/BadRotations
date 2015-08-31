@@ -48,6 +48,17 @@ if select(3, UnitClass("player")) == 4 then
         InterruptsModesLoaded = "Cute Interrupt Modes";
       end
 
+      -- Cleave Button
+      if CleaveModesLoaded ~= "Cute Cleave Modes" then
+          CustomCleaveModes = {
+              [1] = { mode = "On", value = 1 , overlay = "Cleaving Enabled", tip = "Rotation will cleave targets.", highlight = 1, icon = _CrimsonTempest },
+              [2] = { mode = "Off", value = 2 , overlay = "Cleaving Disabled", tip = "Rotation will not cleave targets", highlight = 0, icon = _CrimsonTempest }
+          };
+          CleaveModes = CustomCleaveModes
+          CreateButton("Cleave",5,0)
+          CleaveModesLoaded = "Cute Cleave Modes";
+      end
+
       -- Pick Pocket Button
       if PickerModesLoaded ~= "Cute Pick Pocket Modes" then
         CustomPickerModes = {
@@ -56,7 +67,7 @@ if select(3, UnitClass("player")) == 4 then
           [3] = { mode = "Off", value = 3, overlay = "Pick Pocket Disabled", tip = "Profile will not use Pick Pocket.", highlight = 0, icon = _PickPocket}
         };
         PickerModes = CustomPickerModes
-        CreateButton("Picker",5,0)
+        CreateButton("Picker",6,0)
         PickerModesLoaded = "Cute Pick Pocket Modes";
       end
 
@@ -78,35 +89,42 @@ if select(3, UnitClass("player")) == 4 then
 
       --AoE Key Toggle
       if AOETimer == nil then AOETimer = 0; end
-      if SpecificToggle("Rotation") and not GetCurrentKeyBoardFocus() and GetTime() - AOETimer > 0.25 then
+      if SpecificToggle("Rotation Mode") and not GetCurrentKeyBoardFocus() and GetTime() - AOETimer > 0.25 then
         AOETimer = GetTime()
         UpdateButton("AoE")
       end
 
       --Cooldown Key Toggle
       if CDTimer == nil then CDTimer = 0; end
-      if SpecificToggle("Cooldowns") and not GetCurrentKeyBoardFocus() and GetTime() - CDTimer > 0.25 then
+      if SpecificToggle("Cooldown Mode") and not GetCurrentKeyBoardFocus() and GetTime() - CDTimer > 0.25 then
         CDTimer = GetTime()
         UpdateButton("Cooldowns")
       end
 
       --Defensive Key Toggle
       if DefTimer == nil then DefTimer = 0; end
-      if SpecificToggle("Defensive") and not GetCurrentKeyBoardFocus() and GetTime() - DefTimer > 0.25 then
+      if SpecificToggle("Defensive Mode") and not GetCurrentKeyBoardFocus() and GetTime() - DefTimer > 0.25 then
         DefTimer = GetTime()
         UpdateButton("Defensive")
       end
 
       --Interrupt Key Toggle
       if IntTimer == nil then IntTimer = 0; end
-      if SpecificToggle("Interrupt") and not GetCurrentKeyBoardFocus() and GetTime() - IntTimer > 0.25 then
+      if SpecificToggle("Interrupt Mode") and not GetCurrentKeyBoardFocus() and GetTime() - IntTimer > 0.25 then
         IntTimer = GetTime()
         UpdateButton("Interrupts")
       end
 
+      --Cleave Key Toggle
+      if CleaveTimer == nil then CleaveTimer = 0; end
+      if SpecificToggle("Cleave Mode") and not GetCurrentKeyBoardFocus() and GetTime() - CleaveTimer > 0.25 then
+        CleaveTimer = GetTime()
+        UpdateButton("Cleave")
+      end
+
       --Pick Pocket Key Toggle
       if PPTimer == nil then PPTimer = 0; end
-      if SpecificToggle("Pick Pocket") and not GetCurrentKeyBoardFocus() and GetTime() - PPTimer > 0.25 then
+      if SpecificToggle("Pick Pocket Mode") and not GetCurrentKeyBoardFocus() and GetTime() - PPTimer > 0.25 then
         PPTimer = GetTime()
         UpdateButton("Picker")
       end

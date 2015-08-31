@@ -95,7 +95,9 @@ if not metaTable1 then
 		function o:Dispel()
 			for i = 1, #novaEngineTables.DispelID do
 				if UnitDebuff(o.unit,GetSpellInfo(novaEngineTables.DispelID[i].id)) ~= nil and novaEngineTables.DispelID[i].id ~= nil then
-					if select(4,UnitDebuff(o.unit,GetSpellInfo(novaEngineTables.DispelID[i].id))) >= novaEngineTables.DispelID[i].stacks then
+					if select(4,UnitDebuff(o.unit,GetSpellInfo(novaEngineTables.DispelID[i].id))) >= novaEngineTables.DispelID[i].stacks
+                    and (isChecked("Dispel delay") and
+                            (getDebuffDuration(o.unit, novaEngineTables.DispelID[i].id) - getDebuffRemain(o.unit, novaEngineTables.DispelID[i].id)) > (getDebuffDuration(o.unit, novaEngineTables.DispelID[i].id) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100) ))then -- Dispel Delay
 						if novaEngineTables.DispelID[i].range ~= nil then
 							if #getAllies(o.unit,novaEngineTables.DispelID[i].range) > 1 then
 								return false

@@ -1,5 +1,4 @@
-if select(3, UnitClass("player")) == 11 then
-    
+if select(3, UnitClass("player")) == 11 then    
     ------Member Check------
     function CalculateHP(unit)
       incomingheals = UnitGetIncomingHeals(unit) or 0
@@ -30,16 +29,16 @@ if select(3, UnitClass("player")) == 11 then
         local CP = GetComboPoints("player", dynamicTarget(5,true))
         if CP == 0 then CP = 5 end
 
-        if UnitBuffID("player",tf) then
+        if FeralCuteOne.buff.tigersFury then
             DamageMult = DamageMult * 1.15
         end
 
-        if UnitBuffID("player",svr) then
+        if FeralCuteOne.buff.savageRoar then
             DamageMult = DamageMult * 1.4
         end
 
         WA_stats_BTactive = WA_stats_BTactive or  0
-        if UnitBuffID("player",bt) then
+        if FeralCuteOne.buff.bloodtalons then
             WA_stats_BTactive = GetTime()
             DamageMult = DamageMult * 1.3
         elseif GetTime() - WA_stats_BTactive < .2 then
@@ -48,9 +47,9 @@ if select(3, UnitClass("player")) == 11 then
 
         local RakeMult = 1
         WA_stats_prowlactive = WA_stats_prowlactive or  0
-        if UnitBuffID("player",inc) then
+        if FeralCuteOne.buff.incarnationKingOfTheJungle then
             RakeMult = 2
-        elseif UnitBuffID("player",prl) or UnitBuffID("player",sm) then
+        elseif FeralCuteOne.stealth then
             WA_stats_prowlactive = GetTime()
             RakeMult = 2
         elseif GetTime() - WA_stats_prowlactive < .2 then
@@ -63,19 +62,44 @@ if select(3, UnitClass("player")) == 11 then
         WA_stats_ThrashTick = DamageMult
     end
 
+    --Moonfire Debuff Time Remaining
+    function moonfireRemain(unit)
+        return getDebuffRemain(unit,FeralCuteOne.spell.moonfireDebuff,"player")
+    end
+
+    --Thrash Debuff Time Remaining
+    function thrashRemain(unit)
+        return getDebuffRemain(unit,FeralCuteOne.spell.thrashDebuff,"player")
+    end
+
+    --Thrash Debuff Total Time
+    function thrashDuration(unit)
+        return getDebuffDuration(unit,FeralCuteOne.spell.thrashDebuff,"player")
+    end
+
+    --Rake Debuff Time Remaining
+    function rakeRemain(unit)
+        return getDebuffRemain(unit,FeralCuteOne.spell.rakeDebuff,"player")
+    end
+
+    --Rake Debuff Total Time
+    function rakeDuration(unit)
+        return getDebuffDuration(unit,FeralCuteOne.spell.rakeDebuff,"player")
+    end
+
     --Calculated Rake Dot Damage
-    function CRKD()
+    function rakeCalcDotDmg()
         WA_calcStats_feral()
         local calcRake = WA_stats_RakeTick
         return calcRake
     end
 
     --Applied Rake Dot Damage
-    function RKD(unit)
+    function rakeAppliedDotDmg(unit)
         if Rake_sDamage==nil then
             return 0.5
         elseif ObjectExists(unit) then
-            if getDebuffRemain(unit,rk,"player")==0 then
+            if rakeRemain(unit)==0 then
                 rakeDot = 0.5
             else
                 rakeDot = Rake_sDamage[UnitGUID(unit)]
@@ -89,24 +113,34 @@ if select(3, UnitClass("player")) == 11 then
     end
 
     --Rake Dot Damage Percent
-    function RKP(unit)
-        local RatioPercent = floor(CRKD()/RKD(unit)*100+0.5)
+    function rakePercentDotDmg(unit)
+        local RatioPercent = floor(rakeCalcDotDmg()/rakeAppliedDotDmg(unit)*100+0.5)
         return RatioPercent
     end
 
+    --Rip Debuff Time Remaining
+    function ripRemain(unit)
+        return getDebuffRemain(unit,FeralCuteOne.spell.ripDebuff,"player")
+    end
+
+    --Rip Debuff Total Duration
+    function ripDuration(unit)
+        return getDebuffDuration(unit,FeralCuteOne.spell.ripDebuff,"player")
+    end
+
     --Calculated Rip Dot Damage
-    function CRPD()
+    function ripCalcDotDmg()
         WA_calcStats_feral()
         local calcRip = WA_stats_RipTick5
         return calcRip
     end
 
     --Applied Rip Dot Damage
-    function RPD(unit)
+    function ripAppliedDotDmg(unit)
         if Rip_sDamage==nil then
             return 0.5
         elseif ObjectExists(unit) then
-            if getDebuffRemain(unit,rp,"player")==0 then
+            if ripRemain(unit)==0 then
                 ripDot = 0.5
             else
                 ripDot = Rip_sDamage[UnitGUID(unit)]
@@ -120,9 +154,24 @@ if select(3, UnitClass("player")) == 11 then
     end
 
     --Rip Dot Damage Percent
-    function RPP()
-        local RatioPercent = floor(CRPD()/RPD(unit)*100+0.5)
+    function ripPercentDotDmg(unit)
+        local RatioPercent = floor(ripCalcDotDmg()/ripAppliedDotDmg(unit)*100+0.5)
         return RatioPercent
+    end
+
+    --Target HP
+    function thp(unit)
+        return getHP(unit)
+    end
+
+    --Target Time to Die
+    function ttd(unit)
+        return getTimeToDie(unit)
+    end
+
+    --Target Distance
+    function tarDist(unit)
+        return getDistance(unit)
     end
 
     function useCDs()
@@ -158,7 +207,7 @@ if select(3, UnitClass("player")) == 11 then
     end
 
     function useCleave()
-        if BadBoy_data['Cleave']==1 and BadBoy_data['AoE'] ~= 3 then
+        if BadBoy_data['Cleave']==1 and BadBoy_data['AoE'] < 3 then
             return true
         else
             return false
@@ -192,6 +241,81 @@ if select(3, UnitClass("player")) == 11 then
             return false
         end
     end
+
+    -- function getDistanceCustom(Unit1,Unit2)
+    --     -- If both units are visible
+    --     if GetObjectExists(Unit1) and UnitIsVisible(Unit1) == true and (Unit2 == nil or (GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true)) then
+    --         -- If Unit2 is nil we compare player to Unit1
+    --         if Unit2 == nil then
+    --             Unit2 = Unit1
+    --             Unit1 = "player"
+    --         end
+    --         -- if unit1 is player, we can use our lib to get precise range
+    --         -- if Unit1 == "player" and (isDummy(Unit2) or UnitCanAttack(Unit2,"player") == true) then
+    --         --     return rc:GetRange(Unit2) or 1000
+    --         --         -- else, we use FH positions
+    --         -- else
+    --             local X1,Y1,Z1 = GetObjectPosition(Unit1)
+    --             local X2,Y2,Z2 = GetObjectPosition(Unit2)
+    --             dist = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (UnitCombatReach(Unit1) + UnitCombatReach(Unit2))
+    --             return dist
+    --         -- end
+    --     else
+    --         return 100
+    --     end
+    -- end
+
+    function getDistanceCustom(Unit1,Unit2)
+        -- If both units are visible
+        if GetObjectExists(Unit1) and UnitIsVisible(Unit1) == true and (Unit2 == nil or (GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true)) then
+            -- If Unit2 is nil we compare player to Unit1
+            if Unit2 == nil then
+                Unit2 = Unit1
+                Unit1 = "player"
+            end
+            -- if unit1 is player, we can use our lib to get precise range
+            -- if Unit1 == "player" and (isDummy(Unit2) or UnitCanAttack(Unit2,"player") == true) then
+            --     return rc:GetRange(Unit2) or 1000
+            --         -- else, we use FH positions
+            -- else
+                local X1,Y1,Z1 = GetObjectPosition(Unit1)
+                local X2,Y2,Z2 = GetObjectPosition(Unit2)
+                dist = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) -- ((UnitCombatReach(Unit1)) + (UnitCombatReach(Unit2)))
+                if dist-UnitBoundingRadius("player") <= 5 and getDistance("target") < 5 then
+                    return dist
+                elseif dist+UnitCombatReach("player") <= 8 and getDistance("target") < 8 then
+                    return dist-((UnitCombatReach(Unit1))+(UnitCombatReach(Unit2)))+UnitCombatReach("player")
+                else
+                    return dist-((UnitCombatReach(Unit1))+(UnitCombatReach(Unit2)))
+                end
+            -- end
+        else
+            return 100
+        end
+    end
+
+    -- function getDistancePoint(Unit1,Unit2)
+    --     -- If both units are visible
+    --     if GetObjectExists(Unit1) and UnitIsVisible(Unit1) == true and (Unit2 == nil or (GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true)) then
+    --         -- If Unit2 is nil we compare player to Unit1
+    --         if Unit2 == nil then
+    --             Unit2 = Unit1
+    --             Unit1 = "player"
+    --         end
+    --         -- if unit1 is player, we can use our lib to get precise range
+    --         -- if Unit1 == "player" and (isDummy(Unit2) or UnitCanAttack(Unit2,"player") == true) then
+    --         --     return rc:GetRange(Unit2) or 1000
+    --         --         -- else, we use FH positions
+    --         -- else
+    --             local X1,Y1,Z1 = GetObjectPosition(Unit1)
+    --             local X2,Y2,Z2 = GetObjectPosition(Unit2)
+    --             return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2))
+    --         -- end
+    --     else
+    --         return 100
+    --     end
+    -- end
+
 
     function getDistance2(Unit1,Unit2)
         if Unit2 == nil then Unit2 = "player"; end

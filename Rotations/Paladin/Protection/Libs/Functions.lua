@@ -138,6 +138,7 @@ if select(3,UnitClass("player")) == 2 then
       self.melee5Yards = #getEnemies(player,5) -- (meleeEnemies)
       self.melee9Yards = #getEnemies(player,9) -- (Consecration)
       self.melee10Yards = #getEnemies(player,10) -- (Holy Wrath)
+      self.melee15Yards = #getEnemies(player,15) -- Holy Prism on friendly AoE
       self.aroundTarget7Yards = #getEnemies(self.units.dyn5,7) -- (Hammer of the Righteous)
       -- Modes
       self.mode.aoe = BadBoy_data["AoE"]
@@ -324,7 +325,7 @@ if select(3,UnitClass("player")) == 2 then
     -- Todo: find cluster of units to heal(single) or aoe around self
     -- Todo: Similiar to Lights Hammer, this can be improved, number of heals and enemies will give this a higher prio
     function protCore:castHolyPrism()
-      if self.melee16Yards >= 2 then
+      if self.melee15Yards >= 2 then
         return castSpell(player,self.spell.holyPrism,true,false) == true or false
       else
         return castSpell(self.units.dyn30,self.spell.holyPrism,false,false) == true or false
@@ -457,9 +458,9 @@ if select(3,UnitClass("player")) == 2 then
     function protCore:castSeraphim()
       if isSelected("Seraphim") then
         if self.talent.seraphim and self.holyPower == 5 then
-          if isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 400*UnitHealthMax(player)/100) then
+          --if isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4*UnitHealthMax(player)) then
             return castSpell(player,self.spell.seraphim,true,false) == true or false
-          end
+          --end
         end
       end
     end
@@ -475,6 +476,7 @@ if select(3,UnitClass("player")) == 2 then
 
     -- Word of glory
     -- Todo: add better logic for group support
+    -- TODO: Calculate WoD heal, #ofHolyPower * 330% Spellpower * resolve * bastion of glory
     -- Only cast WoG if we are buffed with bastion of glory, base heal of 3 stacks is 11K(5% of hp)
     function protCore:castWordOfGlory(unit)
       if self.holyPower >= 3 or self.buff.divinePurpose then

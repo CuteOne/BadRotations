@@ -297,11 +297,26 @@ function canInterrupt(unit,percentint)
 			castDuration = (castEndTime - castStartTime)/1000
 			castTimeRemain = ((castEndTime/1000) - GetTime())
 			if percentint == nil and castPercent == 0 then
-				castPercent = math.random(75,95) --  I am not sure that this is working,we are doing this check every pulse so its different randoms each time
+				if castType == "spellcast" then
+					castPercent = math.random(25,75) --  I am not sure that this is working,we are doing this check every pulse so its different randoms each time
+				end
+				if castType == "spellchannel" then
+					castPercent = math.random(75, 95)
+				end
 			elseif percentint == 0 and castPercent == 0 then
-				castPercent = math.random(75,95)
+				if castType == "spellcast" then
+					castPercent = math.random(25,75)
+				end
+				if castType == "spellchannel" then
+					castPercent = math.random(75, 95)
+				end
 			elseif percentint > 0 then
-				castPercent = percentint
+				if castType == "spellcast" then
+					castPercent = percentint
+				end
+				if castType == "spellchannel" then
+					castPercent = math.random(75, 95)
+				end
 			end
 		else
 			castDuration = 0
@@ -314,7 +329,8 @@ function canInterrupt(unit,percentint)
 			end
 		end
 		if castType == "spellchannel" then
-			if (GetTime() - castStartTime/1000) > channelDelay and interruptable == true then
+			--if (GetTime() - castStartTime/1000) > channelDelay and interruptable == true then
+			if math.ceil((castTimeRemain/castDuration)*100) <= castPercent and interruptable == true then
 				return true
 			end
 		end
@@ -359,7 +375,7 @@ function canRun()
 end
 -- if canUse(1710) then
 function canUse(itemID)
-	if hasHealthPot() then Pot = healPot; else Pot = 0 end
+	local Pot = getHealthPot()
 	local goOn = true
 	local DPSPotionsSet = {
 		[1] = {Buff = 105702, Item = 76093}, -- Int
@@ -593,7 +609,8 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 			-- skip movement check during spiritwalkers grace and aspect of the fox
 			or UnitBuffID("player",79206) ~= nil then
 			-- if ability is ready and in range
-			if getSpellCD(SpellID) == 0 and (getOptionCheck("Skip Distance Check") or getDistance("player",Unit) <= spellRange or DistanceSkip == true) then
+            -- if getSpellCD(SpellID) < select(4,GetNetStats()) / 1000
+			if (getSpellCD(SpellID) < select(4,GetNetStats()) / 1000) and (getOptionCheck("Skip Distance Check") or getDistance("player",Unit) <= spellRange or DistanceSkip == true) then
 				-- if spam is not allowed
 				if SpamAllowed == false then
 					-- get our last/current cast
@@ -1929,6 +1946,21 @@ function nDbDmg(tar,spellID,player)
 		end
 	end
 end
+function SpecificToggle(toggle)
+    if getOptionValue(toggle) == 1 then
+        return IsLeftControlKeyDown();
+    elseif getOptionValue(toggle) == 2 then
+        return IsLeftShiftKeyDown();
+    elseif getOptionValue(toggle) == 3 then
+        return IsRightControlKeyDown();
+    elseif getOptionValue(toggle) == 4 then
+        return IsRightShiftKeyDown();
+    elseif getOptionValue(toggle) == 5 then
+        return IsRightAltKeyDown();
+    elseif getOptionValue(toggle) == 6 then
+        return false
+    end
+end
 -- if pause() then
 function pause()
 	if SpecificToggle("Pause Mode") == nil or getValue("Pause Mode") == 6 then
@@ -2001,7 +2033,7 @@ function useItem(itemID)
 	 spamDelay = GetTime()
 	end
 
-	if GetItemCount(itemID) > 0 then
+	if GetItemCount(itemID) > 0 or select(2,C_ToyBox.GetToyInfo(itemID))~=false then
 		if select(2,GetItemCooldown(itemID))==0 then
 			if GetTime() > spamDelay then
 				local itemName = GetItemInfo(itemID)
@@ -2060,10 +2092,10 @@ function getOptionValue(Value)
 	end
 end
 --[[Health Potion Table]]
-function hasHealthPot()
+function healthPotTable()
 	healthPot = { }
-	for i = 1, 4 do
-		for x = 1, GetContainerNumSlots(i) do
+	for i = 0, 4 do --Let's look at each bag
+		for x = 1, GetContainerNumSlots(i) do --Let's look at each bag slot
 			local itemID = GetContainerItemID(i,x)
 			if itemID~=nil then
 				local ItemName = select(1,GetItemInfo(itemID))
@@ -2075,7 +2107,7 @@ function hasHealthPot()
 						local ItemCount = GetItemCount(itemID)
 						local ItemCooldown = GetItemCooldown(itemID)
 						if MinLevel<=UnitLevel("player") and ItemCooldown == 0 then
-							tinsert(healthPot,
+							table.insert(healthPot,
 								{
 									item = itemID,
 									itemName = ItemName,
@@ -2094,12 +2126,23 @@ function hasHealthPot()
 			end)
 		end
 	end
+end
+function hasHealthPot()
+	healthPotTable()
+	local healthPot = healthPot
 	if healthPot[1]==nil then
-		healPot=0
 		return false
 	else
-		healPot=healthPot[1].item
 		return true
+	end
+end
+function getHealthPot()
+	healthPotTable()
+	local healthPot = healthPot
+	if healthPot[1]==nil then
+		return 0
+	else
+		return healthPot[1].item
 	end
 end
 --[[Taunts Table!! load once]]
@@ -2322,4 +2365,19 @@ function TierScan(thisTier)
 		end
 	end
 	return equippedItems;
+end
+
+function hasEquiped(itemID)
+	--Scan Armor Slots to see if specified item was equiped
+	local foundItem = false
+	for i=1, 19 do
+		-- if there is an item in that slot
+		if GetInventoryItemID("player", i) ~= nil then
+			-- check if it matches 
+			if GetInventoryItemID("player", i) == itemID then
+				foundItem = true
+			end
+		end
+	end
+	return foundItem;
 end

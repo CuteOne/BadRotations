@@ -19,15 +19,15 @@ if select(3, UnitClass("player")) == 4 then
 
         -- ToDo add pause toggle
         -- Manual Input
-        if IsLeftShiftKeyDown() then -- Pause the script, keybind in wow shift+1 etc for manual cast
-        return true
-        end
-        if IsLeftControlKeyDown() then -- Pause the script, keybind in wow ctrl+1 etc for manual cast
-        return true
-        end
-        if IsLeftAltKeyDown() then
-            return true
-        end
+        -- if IsLeftShiftKeyDown() then -- Pause the script, keybind in wow shift+1 etc for manual cast
+        -- return true
+        -- end
+        -- if IsLeftControlKeyDown() then -- Pause the script, keybind in wow ctrl+1 etc for manual cast
+        -- return true
+        -- end
+        -- if IsLeftAltKeyDown() then
+        --     return true
+        -- end
 
         rogueAssassination:update()
 

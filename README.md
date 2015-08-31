@@ -1,5 +1,9 @@
 #BadBoy - Ultimate Raider
 
+## IMPORTANT !
+
+**From End of August '15 to Mid September '15 there will be only very limited support, as ragnar and me are on vacation, very busy etc.**
+
 ## Updates
 If you have code to improve a class you can send a "pull request".
 We will look over it and may merge it with BadBoy.
@@ -36,7 +40,7 @@ Raiable means if its good to raid with.
 |spec |status|author|patch|raidable?|
 |:----|------:|:-------|:---:|:-----:|
 |**Druid**||||
-|Feral|100%|CuteOne|6.1|:white_check_mark:|
+|Feral|100%|CuteOne|**6.2**|:white_check_mark:|
 |Guardian|70%|chumii|6.1|:white_check_mark:
 |Restoration|100%|Masoud|6.1|:interrobang:
 |Moonkin|work in progress|ragnar| ? |:x:
