@@ -85,6 +85,7 @@ function cShadow:new()
 			dispel = 			{enabled=isChecked("Auto Dispel")},
 			silence = 			{enabled=isChecked("Auto Silence")},
 			target = 			{enabled=isChecked("Target Helper")},
+			gorefiendSWP = 		{enabled=isChecked("Gorefiend SWP")},
 		},
 		rotation = {
 			dot_weave = 		{enabled=isChecked("DoTWeave")},
@@ -247,6 +248,7 @@ function cShadow:new()
 		self.options.bosshelper.dispel.enabled = 			isChecked("Auto Dispel")
 		self.options.bosshelper.silence.enabled = 			isChecked("Auto Silence")
 		self.options.bosshelper.target.enabled = 			isChecked("Target Helper")
+		self.options.bosshelper.gorefiendSWP.enabled = 		isChecked("Gorefiend SWP")
 
 		self.options.rotation.dot_weave.enabled = 			isChecked("DoTWeave")
 		self.options.rotation.vt_on_target.enabled = 		isChecked("VT on Target")
@@ -484,6 +486,14 @@ function cShadow:new()
 		return counter
 	end
 
+
+	--   _______          _______  
+	--  / ____\ \        / /  __ \ 
+	-- | (___  \ \  /\  / /| |__) |
+	--  \___ \  \ \/  \/ / |  ___/ 
+	--  ____) |  \  /\  /  | |     
+	-- |_____/    \/  \/   |_|     
+
 	-- check unit for dot blacklist
 	function self.safeDoT(checkUnit)
 		local checkUnit = checkUnit
@@ -504,7 +514,9 @@ function cShadow:new()
 			90513,		-- Kilrogg: Fel Blood Globule
 			96077,		-- Kilrogg: Fel Blood Globule
 			90477,		-- Kilrogg: Blood Globule
-			--93288,		-- Gorefiend: Corrupted Players
+			93288,		-- Gorefiend: Corrupted Players
+			95101,		-- Socrethar: Phase1 Ghost
+			--92919,		-- Zakuun: Mythic dat orb
 		}
 		local blacklistBuffID = {
 			155176, 	-- BRF: Blast Furnace: Primal Elementalist: http://www.wowhead.com/spell=155176/damage-shield
@@ -550,6 +562,7 @@ function cShadow:new()
 			90521,		-- Kilrogg: Salivating Bloodthirster
 			90388,		-- Gorefiend: Digest Mobs
 			93288,		-- Gorefiend: Corrupted Players
+			95101,		-- Socrethar: Phase1 Ghost
 		}
 		if checkUnit == nil then return false end
 		-- check unitID
@@ -679,6 +692,16 @@ function cShadow:new()
 		end
 		function self.castCascade(thisTarget)
 			return castSpell(thisTarget,self.spell.cascade,true,false)
+		end
+		function self.castCascadeOn(theUnit)
+			for i=1,#enemiesTable do
+				local thisUnit = enemiesTable[i].unit
+				if UnitName(thisUnit)==theUnit then
+					if getDistance("player",thisUnit) < 40 then
+						return castSpell(thisUnit,self.spell.cascade,true,false)
+					end
+				end
+			end
 		end
 		function self.castCascadeBiggestCluster()
 			return castSpell(getBiggestUnitCluster(40,40),self.spell.cascade,true,false)
@@ -845,7 +868,7 @@ function cShadow:new()
 					local thisUnit = enemiesTable[i].unit
 					local hp = enemiesTable[i].hpabs
 					local distance = enemiesTable[i].distance
-					if self.safeDoT(thisUnit) and UnitIsTappedByPlayer(thisUnit) then
+					if self.safeDoT(thisUnit) and UnitIsTappedByPlayer(thisUnit) and not isCCed(thisUnit) then
 						if getDebuffRemain(thisUnit,self.spell.shadow_word_pain,"player") <= 18*0.3 then
 							if distance < 40 then
 								if hp >= self.options.rotation.min_health.value then
@@ -912,7 +935,7 @@ function cShadow:new()
 					local hp = enemiesTable[i].hpabs
 					local distance = enemiesTable[i].distance
 					if thisUnitGUID ~= lastVTTarget or lastVTTime+5 < GetTime() then
-						if self.safeDoT(thisUnit) and self.safeVT(thisUnit) and UnitIsTappedByPlayer(thisUnit) then
+						if self.safeDoT(thisUnit) and self.safeVT(thisUnit) and UnitIsTappedByPlayer(thisUnit) and not isCCed(thisUnit) then
 							if getDebuffRemain(thisUnit,self.spell.vampiric_touch,"player") <= 15*0.3+(0.001*select(4,GetSpellInfo(34914))) then
 								if distance < 40 then
 									if hp >= self.options.rotation.min_health.value then

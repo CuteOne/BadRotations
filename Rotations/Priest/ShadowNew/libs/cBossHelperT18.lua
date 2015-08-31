@@ -10,7 +10,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					
 					-- cascade
 					if getSpellCD(self.spell.cascade) <= 0 then
-						if isUnitThere(93830,40) or isUnitThere(90114,40) then
+						if (isUnitThere(93830,40) or isUnitThere(90114,40)) and (getUnitCount(93830,40,true)>=4 or getUnitCount(90114,40,true)>=4) then
 							if self.castCascadeBiggestCluster() then return end
 						end
 					end
@@ -55,8 +55,11 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			-- Kilrogg Deadeye
 				if currentBoss=="Kilrogg Deadeye" then
 					-- target boss if no target
-					if isUnitThere("Fel Blood Globule",40) then TargetUnit("Fel Blood Globule") end
-					if isUnitThere("Blood Globule",40) then TargetUnit("Blood Globule") end
+					if not (UnitName("target") == "Fel Blood Globule" or UnitName("target") == "Blood Globule") then
+						if isUnitThere("Fel Blood Globule",40) then TargetUnit("Fel Blood Globule") end
+						if isUnitThere("Blood Globule",40) then TargetUnit("Blood Globule") end
+					end
+
 					if GetObjectExists("target")==false then TargetUnit("Kilrogg Deadeye") end
 
 					-- cascade
@@ -76,6 +79,20 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 						if getDebuffRemain("player",179977) <= 6 then
 							if buff.angelic_feather <= 0 then
 								if self.castAngelicFeatherOnMe() then return end
+							end
+						end
+					end
+
+					-- SWP every Mirror Image
+					if self.options.bosshelper.gorefiendSWP.enabled then
+						for i=1, #enemiesTable do
+							local thisUnit = enemiesTable[i].unit
+							if UnitCastingInfo(thisUnit) == "Resisting" or UnitBuffID(thisUnit,189131) or UnitDebuffID(thisUnit,189131) then
+								if getDebuffRemain(thisUnit,self.spell.shadow_word_pain,"player") <= 18*0.3 then
+									if getHP(thisUnit) > 20 then
+										if castSpell(thisUnit,self.spell.shadow_word_pain,true,false) then return end
+									end
+								end
 							end
 						end
 					end
@@ -113,9 +130,14 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- auto target
 					
 					-- cascade
+					-- if getSpellCD(self.spell.cascade) <= 0 then
+					-- 	if isUnitThere("Haunting Soul",40) or isUnitThere("Sargerei Shadowcaller",40) then
+					-- 		if self.castCascadeBiggestCluster() then return end
+					-- 	end
+					-- end
 					if getSpellCD(self.spell.cascade) <= 0 then
-						if isUnitThere("Haunting Soul",40) or isUnitThere("Sargerei Shadowcaller",40) then
-							if self.castCascadeBiggestCluster() then return end
+						if isUnitThere("Haunting Soul",40) then
+							if self.castCascadeOn("Haunting Soul") then return end
 						end
 					end
 				end

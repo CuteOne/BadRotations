@@ -7,7 +7,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		local player,orbs,health = "player",self.orbs,self.health
 		local buff,cd,mode,talent,glyph,gcd = self.buff,self.cd,self.mode,self.talent,self.glyph,self.gcd
 		local isChecked,enemies,units = isChecked,self.enemies,self.units
-		local spell,options,set_bonus = self.spell,self.options,self.set_bonus
+		local spell,options,set_bonus,eq = self.spell,self.options,self.set_bonus,self.eq
 		local AS = self.AS
 		local active_enemies_30, active_enemies_40 = self.enemies.active_enemies_30, self.enemies.active_enemies_40
 
@@ -181,6 +181,12 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				end
 			end
 		end
+
+		------------------------------------------------------------------------------------------------------
+		-- dot farm ------------------------------------------------------------------------------------------
+		------------------------------------------------------------------------------------------------------
+
+		if options.utilities.dot_farm then return end
 
 		------------------------------------------------------------------------------------------------------
 		-- Rotation ------------------------------------------------------------------------------------------
@@ -426,72 +432,130 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		end -- AS rotation
 		--[[ clarity_of_power ]]
 		if talent.clarity_of_power then
-			-- High Priority
-			-- Shadow Word: Death
+
+			-- Insanity: extend mental fatigue
+			if eq.t18_classTrinket then
+				if (getDebuffRemain("target",spell.mental_fatigue,"player") > 0 and getDebuffRemain("target",spell.mental_fatigue,"player") < 1.2*gcd) 
+				or getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
+					if self.castMindFlay("target") then return end
+				end
+			end
+
+			-- SWD
 			if self.castSWDAuto("target") then return end
 
-			-- Mind Blast
+			-- MB
 			if self.castMindBlast("target") then return end
 
 			-- DP
-			if getDebuffRemain("target",spell.shadow_word_pain,"player") > 0 or not talent.insanity then
-				--if getDebuffRemain("target",spell.vampiric_touch,"player") > 0 or not talent.insanity then
-					if self.castDP("target") then return end
-				--end
+			if not talent.insanity then
+				if self.castDP("target") then return end
+			else 
+				if getDebuffRemain("target",spell.shadow_word_pain,"player") then
+					if getDebuffRemain("target",spell.vampiric_touch,"player") then
+						if self.castDP("target") then return end
+					end
+				end
 			end
-			-- Below 20%, Devouring Plague
-			if getHP("target") <= 20 then
+
+			-- Shadowfiend, Mindbender
+			if self.castShadowfiend("target") then return end
+			if self.castMindbender("target") then return end
+
+			-- DP execute
+			if getHP("target") < 20 then
 				if self.castDP("target") then return end
 			end
-			-- DoTweave cast sequence
-			if talent.insanity then
-				if orbs >= 4 then
-					if cd.mind_blast <= gcd then
-						if getDebuffRemain("target",spell.shadow_word_pain,"player") <= 0 then
-							if self.castSWP("target") then return end
-						end
-					end
-				end
-				-- if orbs == 5 then
-				-- 	if getDebuffRemain("target",spell.vampiric_touch,"player") <= 0 then
-				-- 		if self.castVT("target") then return end
-				-- 	end
-				-- end
-			end
-			-- Insanity: extend mental fatigue
-			if set_bonus.class_trinket then
-				if buff.insanity > 0 then
-					if getDebuffRemain("target",spell.mental_fatigue,"player") < 3 or getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
-						--if getDebuffRemain("target",spell.mental_fatigue,"player") > 0 then
-							if self.castMindFlay("target") then return end
-						--end
-					end
-				end
-			end
 
-			-- Filler
-			-- Shadowfiend
-			if self.castShadowfiend("target") then return end
+			-- Cascade, Halo
+			if self.castCascadeBiggestCluster() then return end
+			if self.castHalo() then return end
 
-			-- Cascade (or other L90 talent)
-			if mode.t90 == 2 then
-				if self.castCascadeBiggestCluster() then return end
-			end
-
-			-- Power Word: Shield (only when taking damage)
-			if glyph.pws then
-				if getDebuffRemain("player",6788) <= 0 then
-					if self.castPWS("player") then return end
+			-- Mind Flay, Insanity
+			if UnitChannelInfo("player") ~= "Mind Flay" and UnitChannelInfo("player") ~= "Insanity" then
+				if buff.insanity > 0
+				or getDebuffRemain("target",spell.devouring_plague,"player") > 0 then
+					if self.castMindFlay("target") then return end
 				end
-			end
-			
-			-- Insanity (only when the Insanity buff is active)
-			if buff.insanity > 0 then
-				if self.castMindFlay("target") then return end
 			end
 
 			-- Mind Spike
-			if self.castMindSpike("target") then return end
+			if UnitChannelInfo("player") ~= "Mind Flay" and UnitChannelInfo("player") ~= "Insanity"
+			or getDebuffRemain("target",spell.devouring_plague,"player") <= 0 then
+				if self.castMindSpike("target") then return end
+			end
+
 		end -- CoP rotation
 	end
 end
+
+
+
+			-- -- High Priority
+			-- -- Shadow Word: Death
+			-- if self.castSWDAuto("target") then return end
+
+			-- -- Mind Blast
+			-- if self.castMindBlast("target") then return end
+
+			-- -- DP
+			-- if getDebuffRemain("target",spell.shadow_word_pain,"player") > 0 or not talent.insanity then
+			-- 	if getDebuffRemain("target",spell.vampiric_touch,"player") > 0 or not talent.insanity then
+			-- 		if self.castDP("target") then return end
+			-- 	end
+			-- end
+			-- -- Below 20%, Devouring Plague
+			-- if getHP("target") <= 20 then
+			-- 	if self.castDP("target") then return end
+			-- end
+			-- -- DoTweave cast sequence
+			-- if talent.insanity then
+			-- 	if orbs >= 4 then
+			-- 		if cd.mind_blast <= gcd then
+			-- 			if getDebuffRemain("target",spell.shadow_word_pain,"player") <= 0 then
+			-- 				if self.castSWP("target") then return end
+			-- 			end
+			-- 		end
+			-- 	end
+			-- 	-- if orbs == 5 then
+			-- 	-- 	if getDebuffRemain("target",spell.vampiric_touch,"player") <= 0 then
+			-- 	-- 		if self.castVT("target") then return end
+			-- 	-- 	end
+			-- 	-- end
+			-- end
+			
+			-- -- Insanity: extend mental fatigue
+			-- if eq.t18_classTrinket then
+			-- 	if (getDebuffRemain("target",spell.mental_fatigue,"player") > 0 and getDebuffRemain("target",spell.mental_fatigue,"player") < 5) 
+			-- 	or getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
+			-- 		if self.castMindFlay("target") then return end
+			-- 	end
+			-- end
+
+			-- -- Filler
+			-- -- Shadowfiend
+			-- if self.castShadowfiend("target") then return end
+
+			-- -- Cascade/Halo
+			-- if mode.t90 == 2 then
+			-- 	if self.castCascadeBiggestCluster() then return end
+			-- 	if self.castHalo() then return end
+			-- end
+
+			-- -- Power Word: Shield (only when taking damage)
+			-- --if talent.mindbender and (lastSpellCast==2944 or lastSpellCast==17 or lastSpellCast==127632) then
+			-- 	if glyph.pws then
+			-- 		if getDebuffRemain("player",6788) <= 0 then
+			-- 			if self.castPWS("player") then return end
+			-- 		end
+			-- 	end
+			-- --end
+
+			-- -- Insanity (only when the Insanity buff is active)
+			-- if buff.insanity > 0
+			-- or getDebuffRemain("target",spell.devouring_plague,"player") > 0 then
+			-- 	if self.castMindFlay("target") then return end
+			-- end	
+
+			-- -- Mind Spike
+			-- if self.castMindSpike("target") then return end

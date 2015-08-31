@@ -1725,26 +1725,28 @@ function isLongTimeCCed(Unit)
 	if Unit == nil then
 		return false
 	end
-	local longTimeCC = {
-		339,	-- Druid - Entangling Roots
-		102359,	-- Druid - Mass Entanglement
-		1499,	-- Hunter - Freezing Trap
-		19386,	-- Hunter - Wyvern Sting
-		118,	-- Mage - Polymorph
-		115078,	-- Monk - Paralysis
-		20066,	-- Paladin - Repentance
-		10326,	-- Paladin - Turn Evil
-		9484,	-- Priest - Shackle Undead
-		605,	-- Priest - Dominate Mind
-		6770,	-- Rogue - Sap
-		2094,	-- Rogue - Blind
-		51514,	-- Shaman - Hex
-		710,	-- Warlock - Banish
-		5782,	-- Warlock - Fear
-		5484,	-- Warlock - Howl of Terror
-		115268,	-- Warlock - Mesmerize
-		6358,	-- Warlock - Seduction
-	}
+	local longTimeCC = {84868, 3355, 19386, 118, 28272, 28271, 61305, 61721, 161372, 61780, 161355, 126819, 161354, 115078, 20066, 9484, 6770, 1776, 51514, 107079, 10326, 8122, 154359, 2094, 5246, 5782, 5484, 6358, 115268, 339};
+
+	-- {
+	-- 	339,	-- Druid - Entangling Roots
+	-- 	102359,	-- Druid - Mass Entanglement
+	-- 	1499,	-- Hunter - Freezing Trap
+	-- 	19386,	-- Hunter - Wyvern Sting
+	-- 	118,	-- Mage - Polymorph
+	-- 	115078,	-- Monk - Paralysis
+	-- 	20066,	-- Paladin - Repentance
+	-- 	10326,	-- Paladin - Turn Evil
+	-- 	9484,	-- Priest - Shackle Undead
+	-- 	605,	-- Priest - Dominate Mind
+	-- 	6770,	-- Rogue - Sap
+	-- 	2094,	-- Rogue - Blind
+	-- 	51514,	-- Shaman - Hex
+	-- 	710,	-- Warlock - Banish
+	-- 	5782,	-- Warlock - Fear
+	-- 	5484,	-- Warlock - Howl of Terror
+	-- 	115268,	-- Warlock - Mesmerize
+	-- 	6358,	-- Warlock - Seduction
+	-- }
 	for i=1,#longTimeCC do
 		--local checkCC=longTimeCC[i]
 		if UnitDebuffID(Unit,longTimeCC[i])~=nil then

@@ -98,10 +98,13 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewCheck(thisConfig,"Auto Silence", "Auto Silence on: \nBRF: Blast Furnace\nBRF: Operator Thogar")
 			CreateNewText(thisConfig,"Auto Silence")
 
-			-- Auto Silence
+			-- Target Helper
 			CreateNewCheck(thisConfig,"Target Helper", "Assists to target the correct unit")
 			CreateNewText(thisConfig,"Target Helper")
 
+			-- Gorefiend SWP
+			CreateNewCheck(thisConfig,"Gorefiend SWP", "SWP every Corrupted Soul in Mythic")
+			CreateNewText(thisConfig,"Gorefiend SWP")
 
 			----------------------------------------------------
 			-- Rotation ----------------------------------------
