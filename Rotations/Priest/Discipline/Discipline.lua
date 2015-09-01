@@ -268,11 +268,6 @@ if select(3, UnitClass("player")) == 5 then
 					end
 				end
 				
-				-- smite
-				if buff.evangelism.stacks<5 then
-					if castSmite() then return end
-				end
-				
 				-- PWS
 				if castPWSTank() then return end
 				if castPWSPlayer() then return end
@@ -289,6 +284,11 @@ if select(3, UnitClass("player")) == 5 then
 				
 				-- heal
 				if castHeal() then return end
+
+				-- smite
+				if buff.evangelism.stacks<5 then
+					if castSmite() then return end
+				end
 
 				-- smite filler
 				if options.heal.SmiteFiller.check then

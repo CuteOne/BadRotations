@@ -22,6 +22,16 @@ function getUnitCount(ID,maxRange,tapped)
 	return counter
 end
 
+function isCCed(Unit)
+	local CCTable = {84868, 3355, 19386, 118, 28272, 28271, 61305, 61721, 161372, 61780, 161355, 126819, 161354, 115078, 20066, 9484, 6770, 1776, 51514, 107079, 10326, 8122, 154359, 2094, 5246, 5782, 5484, 6358, 115268, 339};
+	for i=1, #CCTable do
+		if UnitDebuffID(Unit,CCTable[i]) then
+			return true
+		end
+	end
+	return false
+end
+
 function castGoundAtBestLocation(spellID, radius, minUnits, maxRange)
 	-- description:
 		-- find best position for AoE spell and cast it there
