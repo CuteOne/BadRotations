@@ -6,6 +6,20 @@
 --[[                                                                                                ]]
 --[[ ragnar                                                                                         ]]
 --[[                                                                                                ]]
+function unitLookup(Unit,returnType)
+	for i=1,#enemiesTable do
+		if enemiesTable[i].guid == Unit or enemiesTable[i].unit == Unit then
+			if returnType == "guid" then
+				return enemiesTable[i].guid
+			elseif returnType == "table" then
+				return i
+			else
+				return enemiesTable[i].unit
+			end
+		end
+	end
+end
+
 function getUnitCount(ID,maxRange,tapped)
 	local counter = 0
 	for i=1,#enemiesTable do
