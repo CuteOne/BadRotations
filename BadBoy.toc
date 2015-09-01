@@ -62,13 +62,19 @@ ClassLibs\Rogue\Toggles.lua
 Custom\Functions.lua
 
 ## DeathKnight ---------------------------------------------------
+Rotations\Deathknight\cDeathKnight.lua
+Rotations\Deathknight\Frost\cFrost.lua
+Rotations\Deathknight\Frost\Frost.lua
+Rotations\Deathknight\Frost\FrostCuteOne.lua
+Rotations\Deathknight\Frost\FrostOld.lua
+
 Rotations\Deathknight\Blood\Blood.lua
 Rotations\Deathknight\Blood\Libs\Functions.lua
 Rotations\Deathknight\Blood\Libs\Options.lua
 Rotations\Deathknight\Blood\Libs\SpellList.lua
 Rotations\Deathknight\Blood\Libs\Toggles.lua
 
-Rotations\Deathknight\Frost\Frost.lua
+## Rotations\Deathknight\Frost\Frost.lua
 Rotations\Deathknight\Frost\Libs\Functions.lua
 Rotations\Deathknight\Frost\Libs\Options.lua
 Rotations\Deathknight\Frost\Libs\SpellList.lua
