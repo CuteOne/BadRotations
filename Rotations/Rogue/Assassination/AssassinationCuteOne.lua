@@ -259,6 +259,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			if not perk.improvedSliceAndDice and buffRemain.sliceAndDice<5 then
 				if self.castSliceAndDice() then return end
 			end
+		end -- End Action List - PreCombat
+	-- Action List - Opener
+		local function actionList_Opener()
 		-- Opener
 			if hastar and attacktar and stealth and not self.noAttack() then
                 -- Shadowstep
@@ -306,13 +309,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
                             if self.castEnvenom2(dynTar5) then return end
                         end
                     end
-                    -- Mutilate
-                    if combo < 5 and power>55 then
-                        if self.castMutilate2(dynTar5) then return end
-                    end
                 end -- End Open Attack from Stealth
             end -- End Stealth
-		end -- End Action List - PreCombat
+		end -- End Action List - Opener
 	-- Action List - Finishers
 		local function actionList_Finishers()
 			if enemies10>5 and level>=83 and (useCleave() or BadBoy_data['AoE'] == 2) then
@@ -457,6 +456,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
 --- Out of Combat Rotation ---
 ------------------------------
 			if actionList_PreCombat() then return end
+----------------------------
+--- Out of Combat Opener ---
+----------------------------
+			if actionList_Opener() then return end
 --------------------------
 --- In Combat Rotation ---
 --------------------------
@@ -465,7 +468,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				if hartar and deadtar then
 					ClearTarget()
 				end
-				if ((hartar and deadtar) or (not hastar and not isDummy())) and ObjectExists(dynTar5) then
+				if ((hartar and deadtar) or (not hastar and not isDummy())) and getDistance(dynTar5)<5 then
 					StartAttack()
 				end
 ------------------------------
@@ -476,13 +479,13 @@ if select(2, UnitClass("player")) == "ROGUE" then
 --- In Combat - Cooldowns ---
 -----------------------------
 				if actionList_Cooldowns() then return end
+--------------------------
+--- In Combat - Opener ---
+--------------------------
+				if actionList_Opener() then return end
 ----------------------------------
 --- In Combat - Begin Rotation ---
 ----------------------------------
-		-- Shadowstep
-                if getDistance("target") < 25 and getDistance("target") >= 8 and talent.shadowStep and (select(2,IsInInstance())=="none" or isInCombat("target")) then
-                    if self.castShadowStep() then return end
-                end
 		-- Mutilate
 				-- if=buff.stealth.up|buff.vanish.up
 				if (stealth or buff.vanish) and (enemies10<6 or level<83 or not useCleave() or BadBoy_data['AoE'] == 3) then
@@ -507,12 +510,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				end
 		-- Shadow Reflection
 				-- if=combo_points>4|target.time_to_die<=20
-				if useCDs() and (combo>4 or ttd(dynTar20AoE)<=20) then
+				if useCDs() and isChecked("Shadow Reflection") and (combo>4 or ttd(dynTar20AoE)<=20) then
 					if self.castShadowReflection() then return end
 				end
 		-- Vendetta
 				-- if=buff.shadow_reflection.up|!talent.shadow_reflection.enabled|target.time_to_die<=20|(target.time_to_die<=30&glyph.vendetta.enabled)
-				if useCDs() and isChecked("Vendetta") and buff.ShadowRelection or not talent.shadowReflection or ttd(dynTar5)<=20 or (ttd(dynTar5)<=30 and glyph.vendetta) then
+				if useCDs() and isChecked("Vendetta") and (buff.shadowReflection or not talent.shadowReflection or ttd(dynTar5)<=20 or (ttd(dynTar5)<=30 and glyph.vendetta)) then
 					if self.castVendetta() then return end
 				end
 		-- Rupture

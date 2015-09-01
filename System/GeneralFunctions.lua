@@ -398,10 +398,12 @@ function canUse(itemID)
 					end
 				end
 			end
+		else
+			goOn = true
 		end
 	end
-	if goOn == true and GetItemCount(itemID,false,false) > 0 then
-		if select(2,GetItemCooldown(itemID))==0 then
+	if goOn == true and (GetItemCount(itemID,false,false) > 0 or select(2,C_ToyBox.GetToyInfo(itemID))~=false) then
+		if GetItemCooldown(itemID)==0 then
 			return true
 		else
 			return false
@@ -2031,20 +2033,13 @@ function useItem_old(itemID)
 end
 -- useItem(12345)
 function useItem(itemID)
-	--Anti-Spam--
-	local spamDelayTime = 1
-	if spamDelay == nil then
-	 spamDelay = GetTime()
-	end
-
-	if GetItemCount(itemID) > 0 or select(2,C_ToyBox.GetToyInfo(itemID))~=false then
-		if select(2,GetItemCooldown(itemID))==0 then
-			if GetTime() > spamDelay then
-				local itemName = GetItemInfo(itemID)
-				UseItemByName(select(1,UseItemByName(itemID)))
-				spamDelay = GetTime() + spamDelayTime 
+	if (GetItemCount(itemID) > 0) or (select(2,C_ToyBox.GetToyInfo(itemID))~=false) then
+		if GetItemCooldown(itemID)==0 then
+			-- if not spamDelay or GetTime() > spamDelay then
+				UseItemByName(select(1,GetItemInfo(itemID)));
+				-- spamDelay = GetTime() + 1;
 				return true
-			end
+			-- end
 		end
 	end
 	return false

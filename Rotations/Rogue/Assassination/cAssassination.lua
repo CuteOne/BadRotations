@@ -280,6 +280,13 @@ if select(2, UnitClass("player")) == "ROGUE" then
             CreateNewDrop(thisConfig, "Preparation", 2, "CD")
             CreateNewText(thisConfig, "Preparation");
 
+            -- Shadow Reflection
+            if getTalent(7,2) then
+                CreateNewCheck(thisConfig, "Shadow Reflection", "Enable or Disable usage of Shadow Reflection.");
+                CreateNewDrop(thisConfig, "Shadow Reflection", 2, "CD")
+                CreateNewText(thisConfig, "Shadow Reflection");
+            end
+
             -- Vanish
             CreateNewCheck(thisConfig, "Vanish - Offensive", "Enable or Disable usage of Vanish.");
             CreateNewDrop(thisConfig, "Vanish - Offensive", 2, "CD")
@@ -459,7 +466,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.castDispatch2(thisUnit)
             local thisUnit = thisUnit or "target"
             if self.power>30 and self.level>=40 and ObjectExists(thisUnit) then
-                return castSpell(thisUnit,self.spell.dispatch,true,false,false) == true or false
+                return castSpell(thisUnit,self.spell.dispatch,false,false,false) == true or false
             end
         end
 
@@ -484,7 +491,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.castEnvenom2(thisUnit)
             local thisUnit = thisUnit or "target"
             if self.power>35 and self.level>=20 and self.comboPoints>0 and ObjectExists(thisUnit) then
-                return castSpell(thisUnit,self.spell.envenom,true,false,false) == true or false
+                return castSpell(thisUnit,self.spell.envenom,false,false,false) == true or false
             end
         end
 
@@ -519,10 +526,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         -- Vendetta
         function self.castVendetta()
-            if self.cd.vendetta==0 and self.level>=80 and (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4 * UnitHealthMax("player"))) then
-                if castSpell(self.units.dyn30, self.spell.vendetta, true, false) then
-                    return true
-                end
+            if self.cd.vendetta==0 and self.level>=80 then --and (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4 * UnitHealthMax("player"))) then
+                return castSpell(self.units.dyn5,self.spell.vendetta,false,false,false) == true or false
             end
         end
 
