@@ -88,6 +88,7 @@ function cRogue:new(spec)
         -- Buff - Offensive
         deadlyPoisonBuff 		= 2823,
         sliceAndDiceBuff		= 5171,
+        shadowReflectionBuff 	= 152151,
 
         -- Buff - Utility
         anticipationBuff        = 115189,
@@ -196,6 +197,7 @@ function cRogue:new(spec)
 		self.buff.evasion          = UnitBuffID("player",self.spell.evasionBuff)~=nil or false
 		self.buff.leechingPoison   = UnitBuffID("player",self.spell.leechingPoisonBuff)~=nil or false
 		self.buff.recuperate       = UnitBuffID("player",self.spell.recuperateBuff)~=nil or false
+		self.buff.shadowReflection = UnitBuffID("player",self.spell.shadowReflectionBuff)~=nil or false
 		self.buff.shadowStep       = UnitBuffID("player",self.spell.shadowStepBuff)~=nil or false
 		self.buff.sliceAndDice     = UnitBuffID("player",self.spell.sliceAndDiceBuff)~=nil or false
 		self.buff.sprint           = UnitBuffID("player",self.spell.sprintBuff)~=nil or false
@@ -215,6 +217,7 @@ function cRogue:new(spec)
 		self.buff.duration.evasion          = getBuffDuration("player",self.spell.evasionBuff) or 0
 		self.buff.duration.leechingPoison   = getBuffDuration("player",self.spell.leechingPoisonBuff) or 0
 		self.buff.duration.recuperate       = getBuffDuration("player",self.spell.recuperateBuff) or 0
+		self.buff.duration.shadowReflection = getBuffDuration("player",self.spell.shadowReflectionBuff) or 0
 		self.buff.duration.shadowStep       = getBuffDuration("player",self.spell.shadowStepBuff) or 0
 		self.buff.duration.sliceAndDice     = getBuffDuration("player",self.spell.sliceAndDiceBuff) or 0
 		self.buff.duration.sprint           = getBuffDuration("player",self.spell.sprintBuff) or 0
@@ -233,6 +236,7 @@ function cRogue:new(spec)
 		self.buff.remain.evasion          = getBuffRemain("player",self.spell.evasionBuff) or 0
 		self.buff.remain.leechingPoison   = getBuffRemain("player",self.spell.leechingPoisonBuff) or 0
 		self.buff.remain.recuperate       = getBuffRemain("player",self.spell.recuperateBuff) or 0
+		self.buff.remain.shadowReflection = getBuffRemain("player",self.spell.shadowReflectionBuff) or 0
 		self.buff.remain.shadowStep       = getBuffRemain("player",self.spell.shadowStepBuff) or 0
 		self.buff.remain.sliceAndDice     = getBuffRemain("player",self.spell.sliceAndDiceBuff) or 0
 		self.buff.remain.sprint           = getBuffRemain("player",self.spell.sprintBuff) or 0
@@ -279,7 +283,7 @@ function cRogue:new(spec)
 		local UnitDebuffID = UnitDebuffID
 
 		self.debuff.blind 				= UnitDebuffID(self.units.dyn15,self.spell.blindDebuff,"player")~=nil or false
-		self.debuff.cheapShot 			= UnitDebuffID(self.units.dyn5,self.spell.cheapShotDebuff,"player")~=nil or false
+		--self.debuff.cheapShot 			= UnitDebuffID(self.units.dyn5,self.spell.cheapShotDebuff,"player")~=nil or false
 		self.debuff.crimsonTempest 		= UnitDebuffID(self.units.dyn5,self.spell.crimsonTempestDebuff,"player")~=nil or false
 		self.debuff.cripplingPoison 	= UnitDebuffID(self.units.dyn5,self.spell.cripplingPoisonDebuff,"player")~=nil or false
 		self.debuff.deadlyPoison    	= UnitDebuffID(self.units.dyn5,self.spell.deadlyPoisonDebuff,"player")~=nil or false
@@ -297,7 +301,7 @@ function cRogue:new(spec)
 		local getDebuffDuration = getDebuffDuration
 
 		self.debuff.duration.blind 				= getDebuffDuration(self.units.dyn15,self.spell.blindDebuff,"player") or 0
-		self.debuff.duration.cheapShot 			= getDebuffDuration(self.units.dyn5,self.spell.cheapShotDebuff,"player") or 0
+		--self.debuff.duration.cheapShot 			= getDebuffDuration(self.units.dyn5,self.spell.cheapShotDebuff,"player") or 0
 		self.debuff.duration.crimsonTempest 	= getDebuffDuration(self.units.dyn5,self.spell.crimsonTempestDebuff,"player") or 0
 		self.debuff.duration.cripplingPoison 	= getDebuffDuration(self.units.dyn5,self.spell.cripplingPoisonDebuff,"player") or 0
 		self.debuff.duration.deadlyPoison    	= getDebuffDuration(self.units.dyn5,self.spell.deadlyPoison,"player") or 0
@@ -315,7 +319,7 @@ function cRogue:new(spec)
 		local getDebuffRemain = getDebuffRemain
 
 		self.debuff.remain.blind 			= getDebuffRemain(self.units.dyn15,self.spell.blindDebuff,"player") or 0
-		self.debuff.remain.cheapShot 		= getDebuffRemain(self.units.dyn5,self.spell.cheapShotDebuff,"player") or 0
+		--self.debuff.remain.cheapShot 		= getDebuffRemain(self.units.dyn5,self.spell.cheapShotDebuff,"player") or 0
 		self.debuff.remain.crimsonTempest 	= getDebuffRemain(self.units.dyn5,self.spell.crimsonTempestDebuff,"player") or 0
 		self.debuff.remain.cripplingPoison 	= getDebuffRemain(self.units.dyn5,self.spell.cripplingPoisonDebuff,"player") or 0
 		self.debuff.remain.deadlyPoison     = getDebuffRemain(self.units.dyn5,self.spell.deadlyPoisonDebuff,"player") or 0
@@ -634,8 +638,8 @@ function cRogue:new(spec)
 
     -- Shadow Reflection
 	function self.castShadowReflection()
-		if self.talent.shadowReflection and self.cd.shadowReflection==0 and self.level>=100 and ObjectExists(self.units.dyn20AoE) and (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4 * UnitHealthMax("player"))) then
-			return castSpell(self.units.dyn20AoE,self.spell.shadowReflection,false,false) == true or false
+		if self.talent.shadowReflection and self.cd.shadowReflection==0 and self.level>=100 and ObjectExists(self.units.dyn5) and (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4 * UnitHealthMax("player"))) then
+			return castSpell(self.units.dyn5,self.spell.shadowReflection,false,false) == true or false
 		end
 	end
 	

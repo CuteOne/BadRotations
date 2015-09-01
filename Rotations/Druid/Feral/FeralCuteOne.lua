@@ -107,14 +107,14 @@ if select(2, UnitClass("player")) == "DRUID" then
 							-- Let's only use it once and not spam it
 							if not spamToyDelay or GetTime() > spamToyDelay then
 								useItem(122304)
+								--UseItemByName(select(1,UseItemByName(122304)))
 								spamToyDelay = GetTime() + 1
-								return true
 							end
 						end
 					-- check if Burning Seeds exist and are useable if Fandral's Seed Pouch doesn't exist
-					elseif canUse(94604) then
+					elseif GetItemCooldown(94604)==0 and GetItemCount(94604,false,false) > 0 then
 						useItem(94604)
-						return true
+						--UseItemByName(select(1,UseItemByName(94604)))
 					end
 				end -- End Burning Essence Check
 			end -- End Perma Fire Cat

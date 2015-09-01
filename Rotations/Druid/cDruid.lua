@@ -300,7 +300,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			self.debuff.incapacitatingRoar 	= UnitDebuffID(self.units.dyn10AoE,self.spell.incapacitatingRoarDebuff,"player")~=nil or false
 			self.debuff.faerieFire 			= UnitDebuffID(self.units.dyn35AoE,self.spell.faerieFireDebuff,"player")~=nil or false
 			self.debuff.faerieSwarm 		= UnitDebuffID(self.units.dyn35AoE,self.spell.faerieSwarmDebuff,"player")~=nil or false
-			self.debuff.infectedWounds 		= UnitDebuffID(self.units.dyn5,self.spell.infectedWoundsDebuff,"player")~=nil or false
+			--self.debuff.infectedWounds 		= UnitDebuffID(self.units.dyn5,self.spell.infectedWoundsDebuff,"player")~=nil or false
 			self.debuff.moonfire 			= UnitDebuffID(self.units.dyn40AoE,self.spell.moonfireDebuff,"player")~=nil or false
 			self.debuff.growl 				= UnitDebuffID(self.units.dyn30AoE,self.spell.growlDebuff,"player")~=nil or false
 		end
@@ -314,7 +314,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			self.debuff.duration.incapacitatingRoar = getDebuffRemain(self.units.dyn10AoE,self.spell.incapacitatingRoarDebuff,"player") or 0
 			self.debuff.duration.faerieFire 		= getDebuffRemain(self.units.dyn35AoE,self.spell.faerieFireDebuff,"player") or 0
 			self.debuff.duration.faerieSwarm 		= getDebuffRemain(self.units.dyn35AoE,self.spell.faerieSwarmDebuff,"player") or 0
-			self.debuff.duration.infectedWounds 	= getDebuffRemain(self.units.dyn5,self.spell.infectedWoundsDebuff,"player") or 0
+			--self.debuff.duration.infectedWounds 	= getDebuffRemain(self.units.dyn5,self.spell.infectedWoundsDebuff,"player") or 0
 			self.debuff.duration.moonfire 			= getDebuffRemain(self.units.dyn40AoE,self.spell.moonfireDebuff,"player") or 0
 			self.debuff.duration.growl 				= getDebuffRemain(self.units.dyn30AoE,self.spell.growlDebuff,"player") or 0
 		end
@@ -328,7 +328,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			self.debuff.remain.incapacitatingRoar 		= getDebuffRemain(self.units.dyn10AoE,self.spell.incapacitatingRoarDebuff,"player") or 0
 			self.debuff.remain.faerieFire 				= getDebuffRemain(self.units.dyn35AoE,self.spell.faerieFireDebuff,"player") or 0
 			self.debuff.remain.faerieSwarm  			= getDebuffRemain(self.units.dyn35AoE,self.spell.faerieSwarmDebuff,"player") or 0
-			self.debuff.remain.infectedWounds 			= getDebuffRemain(self.units.dyn5,self.spell.infectedWoundsDebuff,"player") or 0
+			--self.debuff.remain.infectedWounds 			= getDebuffRemain(self.units.dyn5,self.spell.infectedWoundsDebuff,"player") or 0
 			self.debuff.remain.moonfire					= getDebuffRemain(self.units.dyn40AoE,self.spell.moonfireDebuff,"player") or 0
 			self.debuff.remain.growl 					= getDebuffRemain(self.units.dyn30AoE,self.spell.growlDebuff,"player") or 0
 		end
