@@ -863,21 +863,42 @@ function cShadow:new()
 		-- end
 		-- shadow_word_pain
 		function self.castSWPAutoApply(maxTargets)
+			-- try to apply on target first
+			self.castSWPOnTarget()
+			-- then apply on others
 			if self.getSWP() < maxTargets then
 				for i=1,#enemiesTable do
 					local thisUnit = enemiesTable[i].unit
 					local hp = enemiesTable[i].hpabs
+					local ttd = enemiesTable[i].ttd
 					local distance = enemiesTable[i].distance
 					if self.safeDoT(thisUnit) and UnitIsTappedByPlayer(thisUnit) and not isCCed(thisUnit) then
 						if getDebuffRemain(thisUnit,self.spell.shadow_word_pain,"player") <= 18*0.3 then
 							if distance < 40 then
 								if hp >= self.options.rotation.min_health.value then
-									return castSpell(thisUnit,self.spell.shadow_word_pain,true,false)
-									-- if castSpell(thisUnit,self.spell.shadow_word_pain,true,false) then
-									-- 	return true
-									-- end
+									if ttd > 18*0.75 or isDummy(thisUnit) then
+										return castSpell(thisUnit,self.spell.shadow_word_pain,true,false)
+										-- if castSpell(thisUnit,self.spell.shadow_word_pain,true,false) then
+										-- 	return true
+										-- end
+									end
 								end
 							end
+						end
+					end
+				end
+			end
+		end
+		function self.castSWPOnTarget()
+			if self.getSWP() < self.options.rotation.max_targets.value then
+				if self.safeDoT("target") and UnitIsTappedByPlayer("target") and not isCCed("target") then
+					if getDebuffRemain("target",self.spell.shadow_word_pain,"player") <= 18*0.3 then
+						if getDistance("player","target") < 40 then
+							--if UnitHealth("target") >= self.options.rotation.min_health.value then
+								if getTTD("target") > 18*0.75 then
+									return castSpell("target",self.spell.shadow_word_pain,true,false)
+								end
+							--end
 						end
 					end
 				end
@@ -928,23 +949,47 @@ function cShadow:new()
 		end
 		-- vampiric_touch
 		function self.castVTAutoApply(maxTargets)
+			-- try to apply on target first
+			self.castVTOnTarget()
+			-- then apply on others
 			if self.getVT() < maxTargets then
 				for i=1,#enemiesTable do
 					local thisUnit = enemiesTable[i].unit
 					local thisUnitGUID = enemiesTable[i].guid
 					local hp = enemiesTable[i].hpabs
+					local ttd = enemiesTable[i].ttd
 					local distance = enemiesTable[i].distance
+					local castTime = 0.001*select(4,GetSpellInfo(34914))
 					if thisUnitGUID ~= lastVTTarget or lastVTTime+5 < GetTime() then
 						if self.safeDoT(thisUnit) and self.safeVT(thisUnit) and UnitIsTappedByPlayer(thisUnit) and not isCCed(thisUnit) then
-							if getDebuffRemain(thisUnit,self.spell.vampiric_touch,"player") <= 15*0.3+(0.001*select(4,GetSpellInfo(34914))) then
+							if getDebuffRemain(thisUnit,self.spell.vampiric_touch,"player") <= 15*0.3+castTime then
 								if distance < 40 then
 									if hp >= self.options.rotation.min_health.value then
-										return castSpell(thisUnit,self.spell.vampiric_touch,true,true)
-										-- if castSpell(thisUnit,self.spell.vampiric_touch,true,true) then
-										-- 	return true
-										-- end
+										if ttd > 15*0.75+castTime or isDummy(thisUnit) then
+											return castSpell(thisUnit,self.spell.vampiric_touch,true,true)
+											-- if castSpell(thisUnit,self.spell.vampiric_touch,true,true) then
+											-- 	return true
+											-- end
+										end
 									end
 								end
+							end
+						end
+					end
+				end
+			end
+		end
+		function self.castVTOnTarget()
+			if self.getVT() < self.options.rotation.max_targets.value then
+				if thisUnitGUID ~= lastVTTarget or lastVTTime+5 < GetTime() then
+					if self.safeDoT("target") and self.safeVT("target") and UnitIsTappedByPlayer("target") and not isCCed("target") then
+						if getDebuffRemain("target",self.spell.vampiric_touch,"player") <= 15*0.3+(0.001*select(4,GetSpellInfo(34914))) then
+							if getDistance("player","target") < 40 then
+								--if UnitHealth("target") >= self.options.rotation.min_health.value then
+									if getTTD("target") > 15*0.3+(0.001*select(4,GetSpellInfo(34914))) then
+										return castSpell("target",self.spell.vampiric_touch,true,true)
+									end
+								--end
 							end
 						end
 					end

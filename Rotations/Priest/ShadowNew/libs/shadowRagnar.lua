@@ -292,7 +292,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			end
 
 			-- SWP cycle targets 7
-			if self.castSWPAutoApply(7) then return end
+			if self.castSWPAutoApply(options.rotation.max_targets.value) then return end
 
 			-- Insanity: extend mental fatigue
 			if set_bonus.class_trinket then
@@ -335,7 +335,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 
 			-- Vampiric Touch cycle targets 5
 			--if mode.multidot == 3 or mode.multidot == 4 then
-				if self.castVTAutoApply(5) then return end
+				if self.castVTAutoApply(options.rotation.max_targets.value) then return end
 			--end
 
 			-- SoD proc
