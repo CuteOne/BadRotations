@@ -32,6 +32,7 @@ System\engines\HealingEngineFrame.lua
 System\engines\HealingEngineFunctions.lua
 System\engines\InterruptsFrame.lua
 System\engines\Interrupts.lua
+System\engines\ttdTable.lua
 
 ## BadBoy UI
 System\ui\button.lua
