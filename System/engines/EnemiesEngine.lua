@@ -33,6 +33,8 @@ function EnemiesEngine()
 			else
 				table.wipe(enemiesTable)
 			end
+			-- refresh enemyTable (the TTD one)
+			TTDRefresh()
 			-- use objectmanager to build up table
 			for i = 1, GetObjectCountBB() do
 				--for i = 1, ObjectCount() do
@@ -89,6 +91,7 @@ function EnemiesEngine()
 									safe = safeUnit,
 									burn = burnUnit,
 									offensiveBuff = shouldDispel,
+									ttd = getTTD(thisUnit),
 									-- Here should track inc damage / healing as well in order to get a timetodie value
 									-- we would need a more static design
 									x = X1,
