@@ -916,16 +916,20 @@ end
 -- if getHP("player") then
 function getHP(Unit)
 	if GetObjectExists(Unit) then
-		if not UnitIsDeadOrGhost(Unit) and UnitIsVisible(Unit) then
-			for i = 1,#nNova do
-				if nNova[i].guidsh == string.sub(UnitGUID(Unit),-5) then
-					return nNova[i].hp
+		if UnitIsEnemy("player", Unit) then
+			return 100*UnitHealth(Unit)/UnitHealthMax(Unit)
+		else
+			if not UnitIsDeadOrGhost(Unit) and UnitIsVisible(Unit) then
+				for i = 1,#nNova do
+					if nNova[i].guidsh == string.sub(UnitGUID(Unit),-5) then
+						return nNova[i].hp
+					end
 				end
-			end
-			if getOptionCheck("No Incoming Heals") ~= true and UnitGetIncomingHeals(Unit,"player") ~= nil then
-				return 100*(UnitHealth(Unit)+UnitGetIncomingHeals(Unit,"player"))/UnitHealthMax(Unit)
-			else
-				return 100*UnitHealth(Unit)/UnitHealthMax(Unit)
+				if getOptionCheck("No Incoming Heals") ~= true and UnitGetIncomingHeals(Unit,"player") ~= nil then
+					return 100*(UnitHealth(Unit)+UnitGetIncomingHeals(Unit,"player"))/UnitHealthMax(Unit)
+				else
+					return 100*UnitHealth(Unit)/UnitHealthMax(Unit)
+				end
 			end
 		end
 	end
