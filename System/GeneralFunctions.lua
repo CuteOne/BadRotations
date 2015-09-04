@@ -283,7 +283,7 @@ function canInterrupt(unit,percentint)
 			castEndTime = select(6,UnitCastingInfo(unit))
 			interruptable = true
 			castType = "spellcast"
-		elseif select(6,UnitChannelInfo(unit)) and select(8,UnitChannelInfo(unit)) then -- Get spell channel time
+		elseif select(6,UnitChannelInfo(unit)) and not select(8,UnitChannelInfo(unit)) then -- Get spell channel time
 			castStartTime = select(5,UnitChannelInfo(unit))
 			castEndTime = select(6,UnitChannelInfo(unit))
 			interruptable = true

@@ -69,31 +69,38 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local function actionList_Extras()
 		-- Shapeshift Form Management
 			if isChecked("Auto Shapeshifts") then
-			-- Travel Form
-			    if (falling > 1 or (not swimming and travel)) and not inCombat and IsFlyableArea() then
-			        if ((not travel and not flight) or (not swimming and travel)) and level>=58 and not isInDraenor() then
-			            if stag then
+				if not inCombat then
+			-- Flight Form
+					if IsFlyableArea() and ((not isInDraenor()) or isKnown(191633)) and not swimming and falling > 1 and level>=58 then 
+						if stag then
 			            	if self.castFlightForm() then return end
 			            elseif not stag then
 			                if self.castTravelForm() then return end
 			            end
-			        elseif not cat then
+			-- Aquatic Form
+			        elseif swimming and not travel and not hasTarget then
+				    	if self.castTravelForm() then return end
+			-- Cat Form
+				    elseif not cat and not (flight or swimming or travel) then
 			        	if self.castCatForm() then return end
 			        end
-			    end
-			-- Aquatic Form
-			    if swimming and not travel and not hasTarget and not inCombat then
-			    	if self.castTravelForm() then return end
-			    end
-			-- Cat Form
-			    if ((not dead and hastar and not friendly and attacktar and getDistance(dynTar20AoE)<=40)
-			    		or (isMoving("player") and not travel and not IsFalling()))
-			        and (not IsFlying() or (IsFlying() and getDistance(dynTar20AoE)<10))
-			        and not cat 
-			        and (falling==0 or getDistance(dynTar20AoE)<10)
-			    then
-			    	if self.castCatForm() then return end
-			    end
+		      	end
+			    -- if (falling > 1 or (not swimming and travel)) and not inCombat and IsFlyableArea() then
+			    --     if ((not travel and not flight) or (not swimming and not travel)) and level>=58 and not isInDraenor() then
+			            
+			    --     elseif 
+			    -- end
+			-- -- Aquatic Form
+			    
+			-- -- Cat Form
+			--     if ((not dead and hastar and not friendly and attacktar and getDistance(dynTar20AoE)<=40)
+			--     		or (isMoving("player") and not travel and not IsFalling()))
+			--         and (not IsFlying() or (IsFlying() and getDistance(dynTar20AoE)<10))
+			--         and not cat 
+			--         and (falling==0 or getDistance(dynTar20AoE)<10)
+			--     then
+			--     	if self.castCatForm() then return end
+			--     end
 			end -- End Shapeshift Form Management 
 		-- Perma Fire Cat
 			-- check if its check and player out of combat an not stealthed
@@ -363,7 +370,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-- TODO: healing_touch,if=talent.bloodtalons.enabled
 		-- TODO: Cat Form
 		-- Prowl
-		 			if cat and (not friendly or isDummy()) then
+		 			if cat then --and (not friendly or isDummy()) 
 						for i=1, #dynTable20AoE do
 							local thisUnit = dynTable20AoE[i].unit
 							if dynTable20AoE[i].distance < 20 then
@@ -432,12 +439,12 @@ if select(2, UnitClass("player")) == "DRUID" then
 			end
 		-- Finisher: Savage Roar
 			-- if=((set_bonus.tier18_4pc&energy>50)|(set_bonus.tier18_2pc&buff.omen_of_clarity.react)|energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3)&buff.savage_roar.remains<12.6
-			if ((t18_4pc and power > 50) or (t18_2pc and clearcast) or ttm<=1 or berserk or tfCooldown<3) and srRemain<12.6 then
+			if ((t18_4pc and power > 50) or (t18_2pc and clearcast) or ttm<=1 or berserk or tfCooldown<3) and srRemain<12.6 and getDistance(dynTar5)<5 then
 				if self.castSavageRoar() then return end
 	  		end
 		-- Finisher: Ferocious Bite
 			-- max_energy=1,if=(set_bonus.tier18_4pc&energy>50)|(set_bonus.tier18_2pc&buff.omen_of_clarity.react)|energy.time_to_max<=1|buff.berserk.up|cooldown.tigers_fury.remains<3
-			if (t18_4pc and power > 50) or (t18_2pc and clearcast) or ttm<=1 or berserk or tfCooldown<3 then
+			if (t18_4pc and power > 50) or (t18_2pc and clearcast) or ttm<=1 or berserk or tfCooldown<3 and getDistance(dynTar5)<5 then
 				if self.castFerociousBite(dynTar5) then return end
 	   		end
 		end -- End Action List - Finisher
@@ -489,12 +496,12 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local function actionList_Generator()
 		-- Generator: Swipe
 	   		-- if=spell_targets.swipe>=4|(spell_targets.swipe>=3&buff.incarnation.down)
-	   		if BadBoy_data['AoE']==2 or (BadBoy_data['AoE']==1 and (self.enemies.yards8>=4 or (self.enemies.yards8>=3 and incRemain==0))) then
+	   		if BadBoy_data['AoE']==2 or (BadBoy_data['AoE']==1 and (self.enemies.yards8>=4 or (self.enemies.yards8>=3 and incRemain==0))) and getDistance(dynTar8)<8 then
 	   			if self.castSwipe() then return end
 	      	end
 		-- Generator: Shred
 	   		-- if=spell_targets.swipe<3|(spell_targets.swipe=3&buff.incarnation.up)
-	   		if (BadBoy_data['AoE']==3 or (BadBoy_data['AoE']==1 and (self.enemies.yards8<3 or (self.enemies.yards8==3 and incRemain>0)))) and rakeRemain(dynTar5)>=3 then
+	   		if (BadBoy_data['AoE']==3 or (BadBoy_data['AoE']==1 and (self.enemies.yards8<3 or (self.enemies.yards8==3 and incRemain>0)))) and rakeRemain(dynTar5)>=3 and getDistance(dynTar5)<5 then
 	   			if self.castShred() then return end
 	      	end
 		end -- End Action List - Generator
@@ -523,9 +530,9 @@ if select(2, UnitClass("player")) == "DRUID" then
 --- In Combat Rotation ---
 --------------------------
 		-- Cat is 4 fyte!
-			if inCombat and not cat then
+			if inCombat and not cat and not (flight or travel) then
 				if self.castCatForm() then return end
-			elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") then --hastar and attacktar
+			elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and hastar and attacktar then
 		-- TODO: Wild Charge
 		-- TODO: Displacer Beast
 		-- TODO: Dash/Worgen Racial
@@ -588,7 +595,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 					end
 		-- Thrash with T18 4pc
 					-- if=set_bonus.tier18_4pc&buff.omen_of_clarity.react&remains<4.5&combo_points+buff.bloodtalons.stack!=6
-					if t18_4pc and clearcast and thrashRemain(dynTar8AoE)<4.5 and (combo + btStacks) ~= 6 then
+					if t18_4pc and clearcast and thrashRemain(dynTar8AoE)<4.5 and (combo + btStacks) ~= 6 and getDistance(dynTar8AoE)<8 then
 						if self.castThrash(dynTar8AoE) then return end
 					end
 		-- Pool Energy then Thrash

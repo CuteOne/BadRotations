@@ -45,206 +45,171 @@ if select(3,UnitClass("player")) == 10 then
   end
 
   -- Config Panel
-  function MonkWwOptions()
-      ClearConfig()
-      thisConfig = 0
+  function WindwalkerConfig()
+    --if not doneConfig then
+    thisConfig = 0
+    -- Title
+    titleOp("CuteOne Windwalker");
+    -- Spacer
+    textOp(" ");
+    wrapOp("--- General ---");
 
-      -- Title
-      titleOp("Defmaster Windwalker");
+    -- Death Monk
+    checkOp("Death Monk Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.");
+    textOp("Death Monk Mode");
 
-      -- Spacer
-      --textOp(" ");
-      -- Wrapper
-      wrapOp("--- General ---");
+    -- Legacy of the White Tiger
+    checkOp("Legacy of the White Tiger","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Legacy of the White Tiger usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.");
+    textOp(tostring(select(1,GetSpellInfo(_LegacyOfTheWhiteTiger))));
 
-      -- -- Death Monk
-      -- checkOp("Death Monk Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.");
-      -- textOp("Death Monk Mode");
+    -- Dummy DPS Test
+    checkOp("DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.");
+    boxOp("DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+    textOp("DPS Testing");
 
-      -- -- Legacy of the White Tiger
-      checkOp("Legacy of the White Tiger","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Not yet implemented");
-      textOp("Legacy of the White Tiger");
+    -- Spacer
+    textOp(" ");
+    wrapOp("--- Cooldowns ---");
 
-      -- -- Dummy DPS Test
-      -- checkOp("DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.");
-      -- boxOp("DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-      -- textOp("DPS Testing");
+    -- Agi Pot
+    checkOp("Agi-Pot");
+    textOp("Agi-Pot");
 
-      -- Spacer
-      --textOp(" ");
-      -- Wrapper
-      wrapOp("--- Cooldowns ---");
+    -- Flask / Crystal
+    checkOp("Flask / Crystal");
+    textOp("Flask / Crystal");
 
-      -- Agi Pot
-      checkOp("Agi-Pot","|cffFFFFFFOnly used on bosses.");
-      textOp("Agi-Pot");
+    -- Racial
+    checkOp("Racial");
+    textOp("Racial");
 
-      -- Flask / Crystal
-      checkOp("Flask / Crystal","|cffFFFFFF(NYI)");
-      textOp("Flask / Crystal");
+    -- Xuen
+    checkOp("Xuen");
+    textOp(tostring(select(1,GetSpellInfo(_InvokeXuen))));
 
-      -- Racial
-      checkOp("Racial","|cffFFFFFF(NYI)");
-      textOp("Racial");
+    -- Spacer
+    textOp(" ");
+    wrapOp("--- Defensive ---");
 
-      -- Xuen
-      checkOp("Invoke Xuen");
-      dropOp("Invoke Xuen",1,"CD");
-      textOp("Invoke Xuen");
+    -- Healthstone
+    checkOp("Pot/Stoned");
+    boxOp("Pot/Stoned", 0, 100, 5, 60, "|cffFFFFFFHealth Percent to Cast At");
+    textOp("Pot/Stoned");
 
-      -- Chi Brew
-      checkOp("Chi Brew");
-      dropOp("Chi Brew",1,"CD");
-      textOp("Chi Brew");
+    --  Expel Harm
+    checkOp("Expel Harm");
+    boxOp("Expel Harm", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
+    textOp(tostring(select(1,GetSpellInfo(_ExpelHarm))));
 
-      -- Zen Sphere / Chi Wave / Chi Burst
-      checkOp("Talent Row 2","|cffFFFFFFUses your 2. Talentrow spell. Sphere/Wave/Burst");
-      dropOp("Talent Row 2",1,"CD");
-      textOp("Talent Row 2");
+    -- Surging Mist
+    checkOp("Surging Mist");
+    boxOp("Surging Mist", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
+    textOp(tostring(select(1,GetSpellInfo(_SurgingMist))));
 
-      -- Energizing Brew
-      checkOp("Energizing Brew");
-      dropOp("Energizing Brew",1,"CD");
-      textOp("Energizing Brew");
+    -- Touch of Karma
+    checkOp("Touch of Karma");
+    boxOp("Touch of Karma", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
+    textOp(tostring(select(1,GetSpellInfo(_TouchOfKarma))));
 
-      -- Fortifying Brew
-      checkOp("Fortifying Brew","|cffFFFFFFUsed offensivly with Touch of Death.");
-      dropOp("Fortifying Brew",1,"CD");
-      textOp("Fortifying Brew");
+    -- Fortifying Brew
+    checkOp("Fortifying Brew");
+    boxOp("Fortifying Brew", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
+    textOp(tostring(select(1,GetSpellInfo(_FortifyingBrew))));
 
-      -- Serenity
-      checkOp("Serenity");
-      dropOp("Serenity",1,"CD");
-      textOp("Serenity");
+    -- Diffuse Magic/Dampen Harm
+    checkOp("Diffuse/Dampen");
+    boxOp("Diffuse/Dampen", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
+    if getTalent(5,2) then
+      textOp(tostring(select(1,GetSpellInfo(_DampenHarm))));
+    else
+      textOp(tostring(select(1,GetSpellInfo(_DiffuseMagic))));
+    end
 
-      -- Touch Of Death
-      checkOp("Touch Of Death");
-      dropOp("Touch Of Death",1,"CD");
-      textOp("Touch Of Death");
+    -- Zen Meditation
+    checkOp("Zen Meditation");
+    boxOp("Zen Meditation", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
+    textOp(tostring(select(1,GetSpellInfo(_ZenMeditation))));
 
-      -- Spacer
-      --textOp(" ");
+    -- Nimble Brew
+    checkOp("Nimble Brew");
+    textOp(tostring(select(1,GetSpellInfo(_NimbleBrew))));
 
-      -- Wrapper
-      wrapOp("--- Defensive ---");
+    -- Spacer --
+    textOp(" ");
+    wrapOp("--- Interrupts ---");
+    --Quaking Palm
+    checkOp("Quaking Palm")
+    textOp(tostring(select(1,GetSpellInfo(_QuakingPalm))))
 
-      -- Healthstone
-      checkOp("Pot/Stoned","|cffFFFFFF(NYI)");
-      boxOp("Pot/Stoned", 0, 100, 5, 60, "|cffFFFFFFHealth Percent to Cast At");
-      textOp("Pot/Stoned");
+    -- Spear Hand Strike
+    checkOp("Spear Hand Strike")
+    textOp(tostring(select(1,GetSpellInfo(_SpearHandStrike))))
 
-      -- --  Expel Harm
-      -- checkOp("Expel Harm");
-      -- boxOp("Expel Harm", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-      -- textOp(tostring(select(1,GetSpellInfo(_ExpelHarm))));
+    -- Paralysis
+    checkOp("Paralysis")
+    textOp(tostring(select(1,GetSpellInfo(_Paralysis))))
 
-      -- -- Surging Mist
-      -- checkOp("Surging Mist");
-      -- boxOp("Surging Mist", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-      -- textOp(tostring(select(1,GetSpellInfo(_SurgingMist))));
+    -- Leg Sweep
+    checkOp("Leg Sweep")
+    textOp(tostring(select(1,GetSpellInfo(_LegSweep))))
 
-      -- -- Touch of Karma
-      -- checkOp("Touch of Karma");
-      -- boxOp("Touch of Karma", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-      -- textOp(tostring(select(1,GetSpellInfo(_TouchOfKarma))));
+    -- Interrupt Percentage
+    checkOp("Interrupt At");
+    boxOp("Interrupt At", 5, 95, 5, 0, "|cffFFFFFFCast Percent to Cast At");
+    textOp("Interrupt At");
 
-      -- -- Fortifying Brew
-      -- checkOp("Fortifying Brew");
-      -- boxOp("Fortifying Brew", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-      -- textOp(tostring(select(1,GetSpellInfo(_FortifyingBrew))));
+    -- Spacer
+    textOp(" ");
+    wrapOp("--- Toggle Keys ---");
 
-      -- -- Diffuse Magic/Dampen Harm
-      -- checkOp("Diffuse/Dampen");
-      -- boxOp("Diffuse/Dampen", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-      -- if getTalent(5,2) then
-      --   textOp(tostring(select(1,GetSpellInfo(_DampenHarm))));
-      -- else
-      --   textOp(tostring(select(1,GetSpellInfo(_DiffuseMagic))));
-      -- end
+    -- Single/Multi Toggle
+    checkOp("Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.");
+    dropOp("Rotation Mode", 4, "Toggle")
+    textOp("Rotation Mode");
 
-      -- -- Zen Meditation
-      -- checkOp("Zen Meditation");
-      -- boxOp("Zen Meditation", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-      -- textOp(tostring(select(1,GetSpellInfo(_ZenMeditation))));
+    --Cooldown Key Toggle
+    checkOp("Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.");
+    dropOp("Cooldown Mode", 3, "Toggle")
+    textOp("Cooldowns Mode")
 
-      -- -- Nimble Brew
-      -- checkOp("Nimble Brew");
-      -- textOp(tostring(select(1,GetSpellInfo(_NimbleBrew))));
+    --Defensive Key Toggle
+    checkOp("Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.");
+    dropOp("Defensive Mode", 6, "Toggle")
+    textOp("Defensive Mode")
 
-      -- -- Spacer --
-      -- textOp(" ");
-      -- wrapOp("--- Interrupts ---");
-      -- --Quaking Palm
-      -- checkOp("Quaking Palm")
-      -- textOp(tostring(select(1,GetSpellInfo(_QuakingPalm))))
+    --Interrupts Key Toggle
+    checkOp("Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.");
+    dropOp("Interrupt Mode", 6, "Toggle")
+    textOp("Interrupts Mode")
 
-      -- -- Spear Hand Strike
-      -- checkOp("Spear Hand Strike")
-      -- textOp(tostring(select(1,GetSpellInfo(_SpearHandStrike))))
+    -- SEF Toggle
+    checkOp("SEF Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFSEF Toggle Key|cffFFBB00.");
+    dropOp("SEF Mode", 5, "Toggle")
+    textOp("SEF Mode");
 
-      -- -- Paralysis
-      -- checkOp("Paralysis")
-      -- textOp(tostring(select(1,GetSpellInfo(_Paralysis))))
+    -- FSK Toggle
+    checkOp("FSK Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFFSK Toggle Key|cffFFBB00.");
+    dropOp("FSK Mode", 5, "Toggle")
+    textOp("FSK Mode");
 
-      -- -- Leg Sweep
-      -- checkOp("Leg Sweep")
-      -- textOp(tostring(select(1,GetSpellInfo(_LegSweep))))
+    -- Chi Builder Toggle
+    checkOp("Builder Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFChi Builder Toggle Key|cffFFBB00.");
+    dropOp("Builder Mode", 5, "Toggle")
+    textOp("Builder Mode");
 
-      -- -- Interrupt Percentage
-      -- checkOp("Interrupt At");
-      -- boxOp("Interrupt At", 5, 95, 5, 0, "|cffFFFFFFCast Percent to Cast At");
-      -- textOp("Interrupt At");
+    -- Pause Toggle
+    checkOp("Pause Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFPause Toggle Key - None Defaults to LeftAlt|cffFFBB00.")
+    dropOp("Pause Mode", 6, "Toggle")
+    textOp("Pause Mode")
 
-      -- -- Spacer
-      textOp(" ");
-      wrapOp("--- Toggle Keys ---");
+    -- Spacer
+    textOp(" ");
 
-      -- -- Single/Multi Toggle
-      -- checkOp("Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.");
-      -- dropOp("Rotation Mode", 4, "Toggle")
-      -- textOp("Rotation Mode");
+    -- General Configs
+    CreateGeneralsConfig();
 
-      -- --Cooldown Key Toggle
-      -- checkOp("Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.");
-      -- dropOp("Cooldown Mode", 3, "Toggle")
-      -- textOp("Cooldowns Mode")
-
-      -- --Defensive Key Toggle
-      -- checkOp("Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.");
-      -- dropOp("Defensive Mode", 6, "Toggle")
-      -- textOp("Defensive Mode")
-
-      -- --Interrupts Key Toggle
-      -- checkOp("Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.");
-      -- dropOp("Interrupt Mode", 6, "Toggle")
-      -- textOp("Interrupts Mode")
-
-      -- SEF Toggle
-      checkOp("SEF Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFSEF Toggle Key|cffFFBB00.");
-      dropOp("SEF Mode", 5, "Toggle")
-      textOp("SEF Mode");
-
-      -- -- FSK Toggle
-      -- checkOp("FSK Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFFSK Toggle Key|cffFFBB00.");
-      -- dropOp("FSK Mode", 5, "Toggle")
-      -- textOp("FSK Mode");
-
-      -- -- Chi Builder Toggle
-      -- checkOp("Builder Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFChi Builder Toggle Key|cffFFBB00.");
-      -- dropOp("Builder Mode", 5, "Toggle")
-      -- textOp("Builder Mode");
-
-      -- -- Pause Toggle
-      checkOp("Pause Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFPause Toggle Key - None Defaults to LeftAlt|cffFFBB00.")
-      dropOp("Pause Mode", 6, "Toggle")
-      textOp("Pause Mode")
-
-      -- Spacer
-      --textOp(" ");
-
-      -- General Configs
-      CreateGeneralsConfig();
-      WrapsManager();
-    --end
+    WrapsManager();
+  --end
   end
+
 end
