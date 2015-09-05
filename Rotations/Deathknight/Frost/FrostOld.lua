@@ -6,7 +6,7 @@
 --         KeyToggles();
 --         currentConfig = "Frost DK CuteOne";
 --       end
-if select(2, UnitClass("player")) == "DEATH KNIGHT" then
+if select(2, UnitClass("player")) == "DEATHKNIGHT" then
   function cFrost:FrostOld()
       GroupInfo()
       getRuneInfo()
@@ -49,8 +49,8 @@ if select(2, UnitClass("player")) == "DEATH KNIGHT" then
       local bloodpres = getBuffRemain("player",_BloodPresence)~=0
       local frostpres = getBuffRemain("player",_FrostPresence)~=0
       local unholypres = getBuffRemain("player",_UnholyPresence)~=0
-      local dRunes, bRunes, fRunes, uRunes = getRunes("death"), getRunes("blood") + getRunes("death"), getRunes("frost") + getRunes("death"), getRunes("unholy") + getRunes("death")
-      local bPercent, fPercent, uPercent = getRunePercent("blood") + getRunes("death"), getRunePercent("frost") + getRunes("death"), getRunePercent("unholy") + getRunes("death")
+      local dRunes, bRunes, fRunes, uRunes = getRuneCount("death"), getRuneCount("blood") + getRuneCount("death"), getRuneCount("frost") + getRuneCount("death"), getRuneCount("unholy") + getRuneCount("death")
+      local bPercent, fPercent, uPercent = getRunePercent("blood"), getRunePercent("frost"), getRunePercent("unholy")
       local bcStack = getBuffStacks("player",_BloodCharge,"player")
       local rRemain = getBuffRemain("player",_Rime)
       local kmRemain = getBuffRemain("player",_KillingMachine)

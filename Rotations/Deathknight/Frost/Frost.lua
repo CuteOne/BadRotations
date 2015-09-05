@@ -1,11 +1,11 @@
-if select(3, UnitClass("player")) == 4 then
+if select(3, UnitClass("player")) == 6 then
     function FrostDK()
-        if Currentconfig ~= "Frost DK CuteOne" and deathKnightFrost == nil then
-            --AssOptions()
-            deathKnightFrost = cFrost:new()
-            setmetatable(deathKnightFrost, {__index = cFrost})
+        if Currentconfig ~= "Frost DK CuteOne" and FrostCuteOne == nil then
+            --FeralOptions()
+            FrostCuteOne = cFrost:new()
+            setmetatable(FrostCuteOne, {__index = cFrost})
+            FrostCuteOne:update()
             KeyToggles()
-            deathKnightFrost:update()
             Currentconfig = "Frost DK CuteOne"
         end
 
@@ -25,7 +25,7 @@ if select(3, UnitClass("player")) == 4 then
         --     return true
         -- end
 
-        deathKnightFrost:update()
+        FrostCuteOne:update()
 
     end --Rogue Function End
 end --Class Check End

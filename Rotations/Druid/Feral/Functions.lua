@@ -166,7 +166,7 @@ if select(3, UnitClass("player")) == 11 then
 
     --Target Time to Die
     function ttd(unit)
-        return getTimeToDie(unit)
+        return getTTD(unit)
     end
 
     --Target Distance
