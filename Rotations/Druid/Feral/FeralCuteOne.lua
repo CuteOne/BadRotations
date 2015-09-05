@@ -85,22 +85,6 @@ if select(2, UnitClass("player")) == "DRUID" then
 			        	if self.castCatForm() then return end
 			        end
 		      	end
-			    -- if (falling > 1 or (not swimming and travel)) and not inCombat and IsFlyableArea() then
-			    --     if ((not travel and not flight) or (not swimming and not travel)) and level>=58 and not isInDraenor() then
-			            
-			    --     elseif 
-			    -- end
-			-- -- Aquatic Form
-			    
-			-- -- Cat Form
-			--     if ((not dead and hastar and not friendly and attacktar and getDistance(dynTar20AoE)<=40)
-			--     		or (isMoving("player") and not travel and not IsFalling()))
-			--         and (not IsFlying() or (IsFlying() and getDistance(dynTar20AoE)<10))
-			--         and not cat 
-			--         and (falling==0 or getDistance(dynTar20AoE)<10)
-			--     then
-			--     	if self.castCatForm() then return end
-			--     end
 			end -- End Shapeshift Form Management 
 		-- Perma Fire Cat
 			-- check if its check and player out of combat an not stealthed
