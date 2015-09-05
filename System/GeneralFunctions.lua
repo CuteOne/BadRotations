@@ -985,6 +985,103 @@ function getRecharge(spellID)
 		return 0
 	end
 end
+-- Rune Tracking Table
+function getRuneInfo()
+    local bCount = 0
+    local uCount = 0
+    local fCount = 0
+    local dCount = 0
+    local bPercent = 0
+    local uPercent = 0
+    local fPercent = 0
+    local dPercent = 0
+    if not runeTable then
+      	runeTable = {}
+    else
+      	table.wipe(runeTable)
+    end
+    for i = 1,6 do
+      	local CDstart = select(1,GetRuneCooldown(i))
+	    local CDduration = select(2,GetRuneCooldown(i))
+	    local CDready = select(3,GetRuneCooldown(i))
+	    local CDrune = CDduration-(GetTime()-CDstart)
+	    local CDpercent = CDpercent
+	    local runePercent = 0
+	    local runeCount = 0
+	    local runeCooldown = 0
+	    if CDrune > CDduration then
+        	CDpercent = 1-(CDrune/(CDduration*2))
+      	else
+        	CDpercent = 1-CDrune/CDduration
+      	end
+      	if not CDready then
+        	runePercent = CDpercent
+        	runeCount = 0
+        	runeCooldown = CDrune
+      	else
+        	runePercent = 1
+        	runeCount = 1
+        	runeCooldown = 0
+      	end
+      	if GetRuneType(i) == 4 then
+        	dPercent = runePercent
+        	dCount = runeCount
+        	dCooldown = runeCooldown
+        	runeTable[#runeTable+1] = { Type = "death", Index = i, Count = dCount, Percent = dPercent, Cooldown = dCooldown}
+      	end
+      	if GetRuneType(i) == 1 then
+        	bPercent = runePercent
+        	bCount = runeCount
+        	bCooldown = runeCooldown
+        	runeTable[#runeTable+1] = { Type = "blood", Index = i, Count = bCount, Percent = bPercent, Cooldown = bCooldown}
+      	end
+      	if GetRuneType(i) == 2 then
+        	uPercent = runePercent
+        	uCount = runeCount
+        	uCooldown = runeCooldown
+        	runeTable[#runeTable+1] = { Type = "unholy", Index = i, Count = uCount, Percent = uPercent, Cooldown = uCooldown}
+      	end
+      	if GetRuneType(i) == 3 then
+        	fPercent = runePercent
+        	fCount = runeCount
+        	fCooldown = runeCooldown
+        	runeTable[#runeTable+1] = { Type = "frost", Index = i, Count = fCount, Percent = fPercent, Cooldown = fCooldown}
+      	end
+	end
+	return runeTable
+end
+-- Get Count of Specific Rune Time
+function getRuneCount(Type)
+	local Type = string.lower(Type)
+	local runeCount = 0
+	local runeTable = runeTable
+	for i = 1, 6 do
+  		if runeTable[i].Type == Type then
+    		runeCount = runeCount + runeTable[i].Count
+  		end
+	end
+	return runeCount
+end
+-- Get Colldown Percent Remaining of Specific Runes
+function getRunePercent(Type)
+	Type = string.lower(Type)
+	local runePercent = 0
+	local runeCooldown = 0
+	local runeTable = runeTable
+	for i = 1, 6 do
+      	if runeTable[i].Type == Type then --and runeTable[i].Cooldown > runeCooldown then
+        	runePercent = runeTable[i].Percent
+        	runeCooldown = runeTable[i].Cooldown
+      	end
+	end
+	if getRuneCount(Type)==2 then
+  		return 2
+	elseif getRuneCount(Type)==1 then
+  		return runePercent+1
+	else
+  		return runePercent
+	end
+end
 --/dump TraceLine()
 -- /dump getTotemDistance("target")
 function getTotemDistance(Unit1)
@@ -2199,7 +2296,7 @@ function TierScan(thisTier)
 				115543, -- legs
 				115544, -- shoulder
 			},
-			["DEATH KNIGHT"] = {
+			["DEATHKNIGHT"] = {
 				115535, -- legs
 				115536, -- shoulder
 				115537, -- chest
@@ -2278,7 +2375,7 @@ function TierScan(thisTier)
 				124267, -- legs
 				124272, -- shoulder
 			},
-			["DEATH KNIGHT"] = {
+			["DEATHKNIGHT"] = {
 				124317, -- chest
 				124327, -- hands
 				124332, -- head

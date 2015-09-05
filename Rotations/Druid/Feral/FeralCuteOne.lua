@@ -17,7 +17,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local php	 										= self.health
 		local power, powmax, powgen 						= self.power, self.powerMax, self.powerRegen
 		local ttm 											= self.timeToMax
-		local falling, swimming 							= getFallTime(), IsSwimming()
+		local falling, swimming, flying						= getFallTime(), IsSwimming(), IsFlying()
 		local gcd 											= self.gcd
 		local t17_2pc 										= self.eq.t17_2pc
 		local t18_2pc 										= self.eq.t18_2pc 
@@ -81,7 +81,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			        elseif swimming and not travel and not hasTarget then
 				    	if self.castTravelForm() then return end
 			-- Cat Form
-				    elseif not cat and not (flight or swimming or travel) then
+				    elseif not cat and travel and not flying and not (flight or swimming or travel) then
 			        	if self.castCatForm() then return end
 			        end
 		      	end

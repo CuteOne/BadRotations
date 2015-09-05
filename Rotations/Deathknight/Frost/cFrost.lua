@@ -1,12 +1,12 @@
---- Assassination Class
--- Inherit from: ../cCharacter.lua and ../cRogue.lua
-if select(2, UnitClass("player")) == "Death Knight" then
+--- Frosy Class
+-- Inherit from: ../cCharacter.lua and ../cDeathKnight.lua
+if select(2, UnitClass("player")) == "DEATHKNIGHT" then
 
-    cAssassination = {}
+    cFrost = {}
 
-    -- Creates Combat Rogue
-    function cAssassination:new()
-        local self = cRogue:new("Frost")
+    -- Creates Frost Death Knight
+    function cFrost:new()
+        local self = cDK:new("Frost")
 
         local player = "player" -- if someone forgets ""
 
@@ -19,7 +19,7 @@ if select(2, UnitClass("player")) == "Death Knight" then
             yards8,
             yards12,
         }
-        self.assassinationSpell = {
+        self.frostSpell = {
             -- Ability - Offensive
             
             -- Buff - Offensive
@@ -32,7 +32,7 @@ if select(2, UnitClass("player")) == "Death Knight" then
         }
         -- Merge all spell tables into self.spell
         self.spell = {}
-        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.rogueSpell, self.assassinationSpell)
+        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.dkSpell, self.frostSpell)
 
         ------------------
         --- OOC UPDATE ---
@@ -195,7 +195,6 @@ if select(2, UnitClass("player")) == "Death Knight" then
         function self.startRotation()
             if self.rotation == 1 then
                 self:FrostCuteOne()
-                -- put different rotations below; dont forget to setup your rota in options
             elseif self.rotation == 2 then
                 self:FrostOld()
             else
@@ -228,6 +227,10 @@ if select(2, UnitClass("player")) == "Death Knight" then
             CreateNewBox(thisConfig,"DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             CreateNewText(thisConfig,"DPS Testing");
 
+            -- Mouseover Targeting
+            CreateNewCheck(thisConfig,"Mouseover Targeting","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFmouseover target validation.|cffFFBB00.")
+            CreateNewText(thisConfig,"Mouseover Targeting")
+
             -- Spacer
             CreateNewText(thisConfig, " ");
             CreateNewWrap(thisConfig, "--- Cooldowns ---");
@@ -241,6 +244,19 @@ if select(2, UnitClass("player")) == "Death Knight" then
             CreateNewDrop(thisConfig, "Legendary Ring", 2, "CD")
             CreateNewText(thisConfig, "Legendary Ring");
 
+            -- Flask / Crystal
+            CreateNewCheck(thisConfig,"Flask / Crystal")
+            CreateNewText(thisConfig,"Flask / Crystal")
+
+            -- Trinkets
+            CreateNewCheck(thisConfig,"Trinkets")
+            CreateNewText(thisConfig,"Trinkets")
+
+            -- Empower Rune Weapon
+            if isKnown(_EmpowerRuneWeapon) then
+              CreateNewCheck(thisConfig,"Empower Rune Weapon")
+              CreateNewText(thisConfig,"Empower Rune Weapon")
+            end
 
             -- Spacer
             CreateNewText(thisConfig," ");
@@ -256,24 +272,93 @@ if select(2, UnitClass("player")) == "Death Knight" then
             CreateNewBox(thisConfig,"Heirloom Neck", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
             CreateNewText(thisConfig,"Heirloom Neck");
 
+            -- Blood Presence
+            CreateNewCheck(thisConfig,"Blood Presence")
+            CreateNewBox(thisConfig,"Blood Presence", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+            CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_BloodPresence))))
+
+            -- Death Strike
+            CreateNewCheck(thisConfig,"Death Strike")
+            CreateNewBox(thisConfig,"Death Strike", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+            CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_DeathStrike))))
+
+            -- Icebound Fortitude
+            CreateNewCheck(thisConfig,"Icebound Fortitude")
+            CreateNewBox(thisConfig,"Icebound Fortitude", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+            CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_IceboundFortitude))))
+
+            -- Lichbourne
+            if getTalent(2,1) then
+              CreateNewCheck(thisConfig,"Lichbourne")
+              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_Lichbourne))))
+            end
+
+            -- Anti-Magic Shell/Zone
+            if getTalent(2,2) then
+              CreateNewCheck(thisConfig,"Anti-Magic Zone")
+              CreateNewBox(thisConfig,"Anti-Magic Zone", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_AntiMagicZone))))
+            else
+              CreateNewCheck(thisConfig,"Anti-Magic Shell")
+              CreateNewBox(thisConfig,"Anti-Magic Shell", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_AntiMagicShell))))
+            end
+
+            -- Death Pact
+            if getTalent(5,1) then
+              CreateNewCheck(thisConfig,"Death Pact")
+              CreateNewBox(thisConfig,"Death Pact", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_DeathPact))))
+            end
+
+            -- Death Siphon
+            if getTalent(5,2) then
+              CreateNewCheck(thisConfig,"Death Siphon")
+              CreateNewBox(thisConfig,"Death Siphon", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_DeathSiphon))))
+            end
+
+            -- Conversion
+            if getTalent(5,3) then
+              CreateNewCheck(thisConfig,"Conversion")
+              CreateNewBox(thisConfig,"Conversion", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_Conversion))))
+            end
+
+            -- Remorseless Winter
+            if getTalent(6,2) then
+              CreateNewCheck(thisConfig,"Remorseless Winter")
+              CreateNewBox(thisConfig,"Remorseless Winter", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_RemorselessWinter))))
+            end
+
+            -- Desecrated Ground
+            if getTalent(6,3) then
+              CreateNewCheck(thisConfig,"Desecrated Ground")
+              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_DesecratedGround))))
+            end
+
             -- Spacer --
             CreateNewText(thisConfig," ");
             CreateNewWrap(thisConfig,"--- Interrupts ---");
 
-            -- -- Kick
-            -- CreateNewCheck(thisConfig,"Kick")
-            -- CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.kick))))
+            -- Mind Freeze
+            CreateNewCheck(thisConfig,"Mind Freeze")
+            CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_MindFreeze))))
 
-          
-            -- if getTalent(5,3) then
-            -- -- Gouge
-            --     CreateNewCheck(thisConfig,"Gouge")
-            --     CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.gouge))))
+            if isKnown(_Asphyxiate) then
+              -- Asphyxiate
+              CreateNewCheck(thisConfig,"Asphyxiate")
+              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_Asphyxiate))))
+            else
+              -- Strangulate
+              CreateNewCheck(thisConfig,"Strangulate")
+              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_Strangulate))))
+            end
 
-            -- -- Blind
-            --     CreateNewCheck(thisConfig,"Blind")
-            --     CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.blind)))) 
-            -- end
+            -- Dark Simulacrum
+            CreateNewCheck(thisConfig,"Dark Simulacrum")
+            CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_DarkSimulacrum))))
 
             -- Interrupt Percentage
             CreateNewCheck(thisConfig,"Interrupt At");
@@ -308,11 +393,6 @@ if select(2, UnitClass("player")) == "Death Knight" then
             CreateNewCheck(thisConfig, "Cleave Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCleave Toggle Key|cffFFBB00.")
             CreateNewDrop(thisConfig, "Cleave Mode", 6, "Toggle")
             CreateNewText(thisConfig, "Cleave Mode")
-
-            -- Pick Pocket Toggle
-            CreateNewCheck(thisConfig, "Pick Pocket Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFPick Pocket Toggle Key|cffFFBB00.")
-            CreateNewDrop(thisConfig, "Pick Pocket Mode", 6, "Toggle")
-            CreateNewText(thisConfig, "Pick Pocket Mode")
 
             -- Pause Toggle
             CreateNewCheck(thisConfig, "Pause Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFPause Toggle Key - None Defaults to LeftAlt|cffFFBB00.")
