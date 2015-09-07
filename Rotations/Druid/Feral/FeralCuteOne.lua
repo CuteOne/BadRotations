@@ -17,7 +17,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local php	 										= self.health
 		local power, powmax, powgen 						= self.power, self.powerMax, self.powerRegen
 		local ttm 											= self.timeToMax
-		local falling, swimming, flying						= getFallTime(), IsSwimming(), IsFlying()
+		local falling, swimming, flying, moving				= getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
 		local gcd 											= self.gcd
 		local t17_2pc 										= self.eq.t17_2pc
 		local t18_2pc 										= self.eq.t18_2pc 
@@ -25,7 +25,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-- Specific Player Variables
 		local combo 										= self.comboPoints
 		local clearcast 									= self.buff.clearcast
-		local travel, flight, cat, stag 					= self.buff.travelForm, self.buff.flightForm, self.buff.catForm or self.buff.clawsOfShirvallahForm, self.glyph.stag
+		local travel, flight, cat, noform, stag				= self.buff.travelForm, self.buff.flightForm, self.buff.catForm or self.buff.clawsOfShirvallahForm, GetShapeshiftForm()==0, self.glyph.stag
 		local stealth 										= self.stealth
 		local rejRemain 									= self.buff.remain.rejuvenation
 		local psRemain 										= self.buff.remain.predatorySwiftness
@@ -78,11 +78,22 @@ if select(2, UnitClass("player")) == "DRUID" then
 			                if self.castTravelForm() then return end
 			            end
 			-- Aquatic Form
-			        elseif swimming and not travel and not hasTarget then
+			        elseif swimming and not travel and not hastar and not deadtar and attacktar then
 				    	if self.castTravelForm() then return end
 			-- Cat Form
-				    elseif not cat and travel and not flying and not (flight or swimming or travel) then
-			        	if self.castCatForm() then return end
+				    elseif not cat then --and (travel or (noform and moving)) and not flying and not (flight or swimming or travel) then
+				    	-- Cat Form when not swimming or flying and not in combat
+				    	if not inCombat and not (swimming or flying) and (travel or (noform and moving)) then
+			        		if self.castCatForm() then return end
+			        	end
+			        	-- Cat Form when not in combat and target selected and within 20yrds
+			        	if not inCombat and hastar and attacktar and not deadtar and getDistance("target")<20 then
+			        		if self.castCatForm() then return end
+			        	end
+			        	--Cat Form when in combat and not flying
+			        	if inCombat and not flying then
+			        		if self.castCatForm() then return end
+			        	end
 			        end
 		      	end
 			end -- End Shapeshift Form Management 

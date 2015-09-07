@@ -32,6 +32,7 @@ System\engines\HealingEngineFrame.lua
 System\engines\HealingEngineFunctions.lua
 System\engines\InterruptsFrame.lua
 System\engines\Interrupts.lua
+System\engines\MinimumEnclosingCircle.lua
 System\engines\ttdTable.lua
 
 ## BadBoy UI
@@ -145,15 +146,25 @@ Rotations\Mage\SpellList.lua
 Rotations\Mage\Toggles.lua
 
 ## Monk ---------------------------------------------------
+Rotations\Monk\cMonk.lua
+Rotations\Monk\Windwalker\cWindwalker.lua
+Rotations\Monk\Windwalker\Windwalker.lua
+Rotations\Monk\Windwalker\WindwalkerCuteOne.lua
+Rotations\Monk\Windwalker\TogglesCuteOne.lua
+Rotations\Monk\Windwalker\OptionsCuteOne.lua
+Rotations\Monk\Windwalker\WindwalkerDef.lua
+Rotations\Monk\Windwalker\TogglesDef.lua
+Rotations\Monk\Windwalker\OptionsDef.lua
+
 Rotations\Monk\Brewmaster.lua
 Rotations\Monk\Mistweaver.lua
 Rotations\Monk\NewMonk.lua
 
-Rotations\Monk\Windwalker\Windwalker.lua
-Rotations\Monk\Windwalker\Options.lua
+## Rotations\Monk\Windwalker\Windwalker.lua
+## Rotations\Monk\Windwalker\Options.lua
 Rotations\Monk\Windwalker\Functions.lua
 Rotations\Monk\Windwalker\SpellList.lua
-Rotations\Monk\Windwalker\Toggles.lua
+## Rotations\Monk\Windwalker\Toggles.lua
 
 ## Paladin ---------------------------------------------------
 Rotations\cCharacter.lua

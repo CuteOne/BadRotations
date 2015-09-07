@@ -1,8 +1,11 @@
-if select(3, UnitClass("player")) == 10 then
-	function WindwalkerMonk()
+if select(2, UnitClass("player")) == "MONK" then
+    function cWindwalker:WindwalkerDef()
+
+-- if select(3, UnitClass("player")) == 10 then
+-- 	function WindwalkerMonk()
 		if currentConfig ~= "Windwalker Defmaster" then
 			MonkWwToggles()
-			MonkWwOptions()
+			-- MonkWwOptions()
 
 			if not (core and core.profile == "Windwalker") then
 			  MonkWwFunctions()

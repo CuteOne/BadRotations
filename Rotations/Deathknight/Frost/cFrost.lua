@@ -1,4 +1,4 @@
---- Frosy Class
+--- Frost Class
 -- Inherit from: ../cCharacter.lua and ../cDeathKnight.lua
 if select(2, UnitClass("player")) == "DEATHKNIGHT" then
 
@@ -18,17 +18,33 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             yards5,
             yards8,
             yards12,
+            yards30,
         }
         self.frostSpell = {
             -- Ability - Offensive
+            frostStrike         = 49143,
+            howlingBlast        = 49184,
+            obliterate          = 49020,
+            soulReaper          = 130735,
             
             -- Buff - Offensive
+            killingMachineBuff  = 51124,
+            freezingFogBuff     = 59052, 
 
             -- Debuff - Offensive
 
             -- Glyphs
 
             -- Perks
+
+            -- Items
+            strengthFlaskLow    = self.flask.wod.strengthLow,
+            strengthFlaskBig    = self.flask.wod.strengthBig,
+            strengthFlaskLowBuff= self.flask.wod.buff.strengthLow,
+            strengthFlaskBigBuff= self.flask.wod.buff.strengthBig,
+            strengthPotBasic    = self.potion.wod.strengthBasic,
+            strengthPotGarrison = self.potion.wod.strengthPotGarrison,
+            strengthPotBuff     = self.potion.wod.buff.strength, 
         }
         -- Merge all spell tables into self.spell
         self.spell = {}
@@ -87,19 +103,31 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         function self.getBuffs()
             local UnitBuffID = UnitBuffID
 
-            -- self.buff.blindside = UnitBuffID("player",self.spell.blindsideBuff)~=nil or false
+            self.buff.killingMachine    = UnitBuffID("player",self.spell.killingMachineBuff)~=nil or false
+            self.buff.rime              = UnitBuffID("player",self.spell.freezingFogBuff)~=nil or false
+            self.buff.strengthFlaskLow  = UnitBuffID("player",self.spell.strengthFlaskLowBuff)~=nil or false
+            self.buff.strengthFlaskBig  = UnitBuffID("player",self.spell.strengthFlaskBigBuff)~=nil or false
+            self.buff.strengthPot       = UnitBuffID("player",self.spell.strengthPotBuff)~=nil or false
         end
 
         function self.getBuffsDuration()
             local getBuffDuration = getBuffDuration
 
-            -- self.buff.duration.envenom = getBuffDuration("player",self.spell.envenomBuff) or 0
+            self.buff.duration.killingMachine       = getBuffDuration("player",self.spell.killingMachineBuff) or 0
+            self.buff.duration.rime                 = getBuffDuration("player",self.spell.freezingFogBuff) or 0
+            self.buff.duration.strengthFlaskLow     = getBuffDuration("player",self.spell.strengthFlaskLowBuff) or 0
+            self.buff.duration.strengthFlaskBig     = getBuffDuration("player",self.spell.strengthFlaskBigBuff) or 0
+            self.buff.duration.strengthPot          = getBuffDuration("player",self.spell.strengthPotBuff) or 0
         end
 
         function self.getBuffsRemain()
             local getBuffRemain = getBuffRemain
 
-            -- self.buff.remain.blindside = getBuffRemain("player", self.spell.blindsideBuff) or 0
+            self.buff.remain.killingMachine     = getBuffRemain("player",self.spell.killingMachineBuff) or 0
+            self.buff.remain.rime               = getBuffRemain("player",self.spell.freezingFogBuff) or 0
+            self.buff.remain.strengthFlaskLow   = getBuffRemain("player",self.spell.strengthFlaskLowBuff) or 0
+            self.buff.remain.strengthFlaskBig   = getBuffRemain("player",self.spell.strengthFlaskBigBuff) or 0
+            self.buff.remain.strengthPot        = getBuffRemain("player",self.spell.strengthPotBuff) or 0
         end
 
         ---------------
@@ -129,7 +157,8 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         function self.getCooldowns()
             local getSpellCD = getSpellCD
 
-            -- self.cd.vendetta = getSpellCD(self.spell.vendetta)
+            self.cd.obliterate = getSpellCD(self.spell.obliterate)
+            self.cd.soulReaper = getSpellCD(self.spell.soulReaper)
         end
 
         --------------
@@ -186,6 +215,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             self.enemies.yards5 = #getEnemies("player", 5)
             self.enemies.yards10 = #getEnemies("player", 10)
             self.enemies.yards12 = #getEnemies("player", 12)
+            self.enemies.yards30 = #getEnemies("player", 30)
         end
 
         ----------------------
@@ -408,7 +438,30 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         --------------
         --- SPELLS ---
         --------------
-
+        -- Frost Strike
+        function self.castFrostStrike()
+            if self.level>=55 and self.power>40 and getDistance(self.units.dyn5)<5 then
+                if castSpell(self.units.dyn5,self.spell.frostStrike,false,false,false) then return end
+            end
+        end
+        -- Howling Blast
+        function self.castHowlingBlast()
+            if self.level>=55 and (self.rune.count.frost>=1 or self.rune.count.death>=1) and getDistance(self.units.dyn30)<30 then
+                if castSpell(self.units.dyn30,self.spell.howlingBlast,false,false,false) then return end
+            end
+        end
+        -- Obliterate
+        function self.castObliterate()
+            if self.level>=58 and ((self.rune.count.frost>=1 and self.rune.count.unholy>=1) or (self.rune.count.frost>=1 and self.rune.count.death>=1) or (self.rune.count.death>=1 and self.rune.count.unholy>=1) or self.rune.count.death>=2) and getDistance(self.units.dyn5)<5 then
+                if castSpell(self.units.dyn5,self.spell.obliterate,false,false,false) then return end
+            end
+        end
+        -- Soul Reaper
+        function self.castSoulReaper()
+            if self.level>=87 and self.cd.soulReaper==0 and (self.rune.count.frost>=1 or self.run.count.death>=1) and getDistance(self.units.dyn5)<5 then
+                if castSpel(self.units.dyn5,self.spell.soulReaper,false,false,false) then return end
+            end
+        end
 
         -----------------------------
         --- CALL CREATE FUNCTIONS ---
