@@ -86,6 +86,31 @@ function cCharacter:new(class)
 	self.options = {}               -- Contains options
 	self.primaryStat = nil          -- Contains the primary Stat: Strength, Agility or Intellect
 	self.perk = {}
+	self.potion = {}
+	self.potion.wod = {
+		-- Agility
+		agilityBasic    = 109217,
+		agilityGarrison = 122453,
+		-- Intellect
+		intellectBasic    = 109218,
+		intellectGarrison = 122454,
+		-- Armor
+		armorBasic    = 109220,
+		armorGarrison = 122456,
+		-- Strength
+		strengthBasic 	 = 109219,
+		strengthGarrison = 122455,
+	}
+	self.potion.wod.buff = {
+		-- Agility
+		agility = 156423,
+		-- Intellect
+		intellect = 156426,
+		-- Armor
+		armor = 156430,
+		-- Strength
+		strength = 156428,
+	} 
 
 -- Things which get updated for every class in combat
 -- All classes call the baseUpdate()

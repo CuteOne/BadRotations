@@ -492,6 +492,19 @@ function castGroundBetween(Unit,SpellID,maxDistance)
 	end
 	return false
 end
+-- castGroundLocation(12345,10,30,makeEnemiesTable(30))
+function castGroundLocation(SpellID,spellRadius,spellRange,enemyTable)
+	if getSpellCD(SpellID) == 0 then
+		CastSpellByName(GetSpellInfo(SpellID),"player")
+		if IsAoEPending() then
+			--local distanceToGround = getGroundDistance(Unit) or 0
+			local X,Y,Z = CalcSpellPosForGroup(spellRadius,spellRange,enemyTable)
+			ClickPosition(X,Y,Z,true) --distanceToGround
+			return true
+		end
+	end
+	return false
+end
 -- if shouldNotOverheal(spellCastTarget) > 80 then
 function shouldNotOverheal(Unit)
 	local myIncomingHeal,allIncomingHeal = 0,0
@@ -786,6 +799,157 @@ function getDebuffStacks(Unit,DebuffID,Source)
 		return 0
 	end
 end
+-- if getDisease(30,true,min) < 2 then
+function getDisease(range,aoe,mod)
+    if mod == nil then mod = "min" end
+    if range == nil then range = 5 end
+    if aoe == nil then aoe = false end
+    local range     	= tonumber(range)
+    local mod 			= tostring(mod)
+    local dynTar 		= dynamicTarget(range,true)
+    local dynTarAoE 	= dynamicTarget(range,false)
+    local dist 			= getDistance("player",dynTar)
+    local distAoE 		= getDistance("player",dynTarAoE)
+    local ff 			= getDebuffRemain(dynTar,55095,"player") or 0
+    local ffAoE 		= getDebuffRemain(dynTarAoE,55095,"player") or 0
+    local bp 			= getDebuffRemain(dynTar,55078,"player") or 0
+    local bpAoE 		= getDebuffRemain(dynTarAoE,55078,"player") or 0
+    local np 			= getDebuffRemain(dynTar,155159,"player") or 0
+    local npAoE 		= getDebuffRemain(dynTarAoE,155159,"player") or 0
+    local diseases 		= {ff,bp}
+    local diseasesAoE 	= {ffAoE,bpAoE}
+    local minD			= 99
+    local maxD 			= 0
+    if mod == "min" then
+      	if aoe == false then
+        	if dist < range then
+          		if getTalent(7,1) then
+            		return np
+            	else
+            		for i = 1, #diseases do
+            			if diseases[i]>0 and diseases[i]<minD then
+            				minD = diseases[i]
+            			end
+            		end
+            		return minD
+            	end
+        	else
+          		return 99
+        	end
+      	elseif aoe == true then
+        	if distAoE < range then
+          		if getTalent(7,1) then
+            		return npAoE
+            	else
+            		for i = 1, #diseasesAoE do
+            			if diseases[i]>0 and diseases[i]<minD then
+            				minD = diseases[i]
+            			end
+            		end
+            		return minD
+            	end
+        	else
+          		return 99
+        	end
+      	end
+    elseif mod == "max" then
+      	if aoe == false then
+        	if dist < range then
+          		if getTalent(7,1) then
+            		return np
+            	else
+            		for i = 1, #diseases do
+            			if diseases[i]>0 and diseases[i]>maxD then
+            				maxD = diseases[i]
+            			end
+            		end
+            		return maxD
+            	end
+        	else
+          		return 0
+        	end
+      	elseif aoe == true then
+        	if distAoE < range then
+          		if getTalent(7,1) then
+            		return npAoE
+            	else
+            		for i = 1, #diseasesAoE do
+            			if diseases[i]>0 and diseases[i]<maxD then
+            				maxD = diseases[i]
+            			end
+            		end
+            		return maxD
+            	end
+        	else
+          		return 0
+        	end
+      	end
+    end
+ end
+-- if getDisease(30,true,min) < 2 then
+-- function getDisease(range,aoe,mod)
+--     if mod == nil then mod = "min" end
+--     if range == nil then range = 5 end
+--     if aoe == nil then aoe = false end
+
+--     local range = tonumber(range)
+--     local mod = tostring(mod)
+
+--     local frost_feaver = 55095
+--     local blood_plague = 55078
+--     local necrotic_plague = 155159
+
+--     local lowest_disease = 99
+--     local highest_disease = 0
+
+--     if #enemiesTable == 0 then
+--     	return 0
+--     else
+-- 	    for i=1, #enemiesTable do
+-- 	        local thisUnit  = enemiesTable[i].unit
+-- 	        local distance  = enemiesTable[i].distance
+-- 	        local facing    = enemiesTable[i].facing
+-- 	        -- check for range
+-- 	        if range < distance then
+-- 	            -- check for facing
+-- 	            if aoe == true or (aoe == false and facing == true) then
+-- 	                -- buffer debuff remain times
+-- 	                local frost_feaver_remain = getDebuffRemain(thisUnit,frost_feaver,"player") or 0
+-- 	                local blood_plague_remain = getDebuffRemain(thisUnit,blood_plague,"player") or 0
+-- 	                local necrotic_plague_remain = getDebuffRemain(thisUnit,necrotic_plague,"player") or 0
+-- 	                -- find lowest disease time
+-- 	                if mod == "min" then
+-- 	                    if frost_feaver_remain < lowest_disease and frost_feaver_remain > 0 then
+-- 	                        lowest_disease = frost_feaver_remain
+-- 	                    end
+-- 	                    if blood_plague_remain < lowest_disease and blood_plague_remain > 0 then
+-- 	                        lowest_disease = blood_plague_remain
+-- 	                    end
+-- 	                    if necrotic_plague_remain < lowest_disease and necrotic_plague_remain > 0 then
+-- 	                        lowest_disease = necrotic_plague_remain
+-- 	                    end
+-- 	                    -- return lowest disease remain time
+-- 	                    return lowest_disease
+-- 	                end
+-- 	                -- find highest disease time
+-- 	                if mod == "max" then
+-- 	                    if frost_feaver_remain > highest_disease and frost_feaver_remain > 0 then
+-- 	                        highest_disease = frost_feaver_remain
+-- 	                    end
+-- 	                    if blood_plague_remain > highest_disease and blood_plague_remain > 0 then
+-- 	                        highest_disease = blood_plague_remain
+-- 	                    end
+-- 	                    if necrotic_plague_remain > highest_disease and necrotic_plague_remain > 0 then
+-- 	                        highest_disease = necrotic_plague_remain
+-- 	                    end
+-- 	                    -- return highest disease remain time
+-- 	                    return highest_disease
+-- 	                end
+-- 	            end
+-- 	        end
+-- 	    end
+-- 	end
+-- end
 -- if getDistance("player","target") <= 40 then
 function getDistance(Unit1,Unit2)
 	-- If both units are visible

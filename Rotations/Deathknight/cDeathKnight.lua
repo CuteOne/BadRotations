@@ -3,7 +3,7 @@
 if select(2, UnitClass("player")) == "DEATHKNIGHT" then
 cDK = {}
 
--- Creates Paladin with given specialisation
+-- Creates Death Knight with given specialisation
 function cDK:new(spec)
 	local self = cCharacter:new("Death Knight")
 
@@ -15,6 +15,9 @@ function cDK:new(spec)
 	self.buff.remain 	 = {}		-- Buff Time Remaining
 	self.debuff.duration = {}		-- Debuff Durations
 	self.debuff.remain 	 = {}		-- Debuff Time Remaining
+	self.disease		 = {}		-- Disease Info
+	self.disease.min 	 = {} 		-- Disease with lowest duration
+	self.disease.max 	 = {}		-- Disease with longest duration
 	self.rune 			 = {}		-- Rune Info
 	self.rune.count		 = {} 		-- Rune Count
 	self.rune.percent 	 = {}		-- Rune Percent
@@ -23,38 +26,84 @@ function cDK:new(spec)
 		-- Ability - Crowd Control
 
         -- Ability - Defensive
+        antiMagicShell 				= 48707,
+        antiMagicZone				= 51052,
+        iceboundFortitude 			= 48792,
 
         -- Ability - Forms
 
-        -- Ability - Offensive  
-        hornOfWinter 		= 57330,
+        -- Ability - Offensive
+        bloodTap 					= 45529,
+        breathOfSindragosa 			= 152279,
+        deathAndDecay 				= 43265,
+        deathStrike 				= 49998,
+        defile 						= 152280,
+        bloodBoil					= 50842,
+        empowerRuneWeapon 			= 47568,  
+        hornOfWinter 				= 57330,
+        icyTouch 					= 45477,
+        outbreak 					= 77575,
+        pillarOfFrost 				= 51271,
+        plagueLeech 				= 123693,
+        plagueStrike 				= 45462,
+        unholyBlight 				= 115989,
 
         -- Ability - Presense
-        frostPresense 		= 48266,      
+        bloodPresence				= 48263,
+        frostPresence 				= 48266,
+        unholyPresence 				= 48265,      
 
         -- Ability - Utility
+        deathsAdvance 				= 96268,
+        lichborne 					= 49039,
+        pathOfFrost					= 3714,
+        raiseAlly 					= 61999,
 
         -- Buff - Defensive
+        iceboundFortitudeBuff 		= 48792,
 
         -- Buff - Forms
 
         -- Buff - Offensive
-        hornOfWinterBuff 	= 57330, 
+        breathOfSindragosaBuff 		= 152279,
+        hornOfWinterBuff 			= 57330,
+        pillarOfFrostBuff 			= 51271, 
 
         -- Buff - Presense
-        frostPresenseBuff 	= 48266,
+        bloodPresenceBuff 			= 48263,
+        frostPresenceBuff 			= 48266,
+        unholyPresenceBuff 			= 48265,
 
         -- Buff - Utility
+        pathOfFrostBuff 			= 3714,
+
+        -- Charges
+        bloodCharge 				= 114851,
 
         -- Debuff - Offensive
+        bloodPlagueDebuff 			= 55078,
+        defileDebuff 				= 156004,
+        frostFeverDebuff 			= 55095,
+        necroticPlagueDebuff 		= 155159,
 
         -- Debuff - Defensive
 
         -- Glyphs
+        shiftingPresencesGlyph 		= 58647,
 
         -- Perks
 
         -- Talents
+        antiMagicZoneTalent 		= 51052,
+        bloodTapTalent 				= 45529,
+        breathOfSindragosaTalent 	= 152279,
+        deathsAdvanceTalent 		= 96268,
+        defileTalent 				= 152280,
+        lichborneTalent 			= 49039,
+        necroticPlagueTalent 		= 152281,
+        plagueLeechTalent 			= 123693,
+        runicEmpowermentTalent 		= 81229,
+        unholyBlightTalent 			= 115989,
 
 	}
 
@@ -72,6 +121,8 @@ function cDK:new(spec)
 		self.getClassDebuffs()
 		self.getClassDebuffsDuration()
 		self.getClassDebuffsRemain()
+		self.getMinDiseases()
+		self.getMaxDiseases()
 		self.getRunes()
 		self.getRuneCounts()
 		self.getRunePercents()
@@ -89,74 +140,136 @@ function cDK:new(spec)
 	function self.getClassDynamicUnits()
 		local dynamicTarget = dynamicTarget
 
-		self.units.dyn10 = dynamicTarget(10, true)
-		self.units.dyn15 = dynamicTarget(15, true)
+		self.units.dyn10 	= dynamicTarget(10, true)
+		self.units.dyn10AoE = dynamicTarget(10, false)
+		self.units.dyn12 	= dynamicTarget(12, true)
+		self.units.dyn15 	= dynamicTarget(15, true)
 	end
 
 -- Buff updates
 	function self.getClassBuffs()
 		local UnitBuffID = UnitBuffID
 
-		self.buff.frostPresense 	= UnitBuffID("player",self.spell.frostPresenseBuff)~=nil or false 
-		self.buff.hornOfWinter 		= UnitBuffID("player",self.spell.hornOfWinterBuff)~=nil or false
+		self.buff.bloodPresence 		= UnitBuffID("player",self.spell.bloodPresenceBuff)~=nil or false
+		self.buff.breathOfSindragosa 	= UnitBuffID("player",self.spell.breathOfSindragosaBuff)~=nil or false
+		self.buff.frostPresence 		= UnitBuffID("player",self.spell.frostPresenceBuff)~=nil or false 
+		self.buff.hornOfWinter 			= UnitBuffID("player",self.spell.hornOfWinterBuff)~=nil or false
+		self.buff.iceboundFortitude 	= UnitBuffID("player",self.spell.iceboundFortitudeBuff)~=nil or false
+		self.buff.pathOfFrost 			= UnitBuffID("player",self.spell.pathOfFrostBuff)~=nil or false
+		self.buff.pillarOfFrost 		= UnitBuffID("player",self.spell.pillarOfFrostBuff)~=nil or false
+		self.buff.unholyPresence 		= UnitBuffID("player",self.spell.unholyPresenceBuff)~=nil or false
 	end	
 
 	function self.getClassBuffsDuration()
 		local getBuffDuration = getBuffDuration
 
-		self.buff.duration.hornOfWinter = getDebuffDuration("player",self.spell.hornOfWinterBuff) or 0
+		self.buff.duration.breathOfSindragosa 	= getBuffDuration("player",self.spell.breathOfSindragosaBuff) or 0
+		self.buff.duration.hornOfWinter 		= getBuffDuration("player",self.spell.hornOfWinterBuff) or 0
+		self.buff.duration.iceboundFortitude 	= getBuffDuration("player",self.spell.iceboundFortitudeBuff) or 0
+		self.buff.duration.pillarOfFrost 		= getBuffDuration("player",self.spell.pillarOfFrostBuff) or 0
 	end
 
 	function self.getClassBuffsRemain()
 		local getBuffRemain = getBuffRemain
 
-		self.buff.remain.hornOfWinter = getBuffRemain("player",self.spell.hornOfWinterBuff) or 0
+		self.buff.remain.breathOfSindragosa = getBuffRemain("player",self.spell.breathOfSindragosaBuff) or 0
+		self.buff.remain.hornOfWinter 		= getBuffRemain("player",self.spell.hornOfWinterBuff) or 0
+		self.buff.remain.iceboundFortitude 	= getBuffRemain("player",self.spell.iceboundFortitudeBuff) or 0
+		self.buff.remain.pillarOfFrost 		= getBuffRemain("player",self.spell.pillarOfFrostBuff) or 0
 	end
 
 	function self.getClassCharges()
-		local getBuffStacks = getBuffStacks
+		local getBuffStacks 	= getBuffStacks
+		local getDebuffStacks 	= getDebuffStacks
 
-		-- self.charges.anticipation = getBuffStacks("player",self.spell.anticipationBuff,"player")
+		self.charges.bloodTap 		= getBuffStacks("player",self.spell.bloodCharge,"player")
+		self.charges.necroticPlague = getDebuffStacks(self.units.dyn30,self.spell.necroticPlagueDebuff,"player")
 	end
 
 -- Cooldown updates
 	function self.getClassCooldowns()
 		local getSpellCD = getSpellCD
 
-		-- self.cd.blind 			 = getSpellCD(self.spell.blind)
+		self.cd.antiMagicShell 		= getSpellCD(self.spell.antiMagicShell)
+		self.cd.antiMagicZone 		= getSpellCD(self.spell.antiMagicZone)
+		self.cd.deathsAdvance 		= getSpellCD(self.spell.deathsAdvance)
+		self.cd.deathAndDecay 		= getSpellCD(self.spell.deathAndDecay)
+		self.cd.defile 				= getSpellCD(self.spell.defile)
+		self.cd.breathOfSindragosa 	= getSpellCD(self.spell.breathOfSindragosa)
+		self.cd.empowerRuneWeapon 	= getSpellCD(self.spell.empowerRuneWeapon)
+		self.cd.iceboundFortitude 	= getSpellCD(self.spell.iceboundFortitude)
+		self.cd.lichborne 			= getSpellCD(self.spell.lichborne)
+		self.cd.outbreak 			= getSpellCD(self.spell.outbreak)
+		self.cd.pillarOfFrost 		= getSpellCD(self.spell.pillarOfFrost)
+		self.cd.plagueLeech 		= getSpellCD(self.spell.plagueLeech)
+		self.cd.raiseAlly 			= getSpellCD(self.spell.raiseAlly)
+		self.cd.unholyBlight 		= getSpellCD(self.spell.unholyBlight)
 	end
 
 -- Debuff updates
 	function self.getClassDebuffs()
 		local UnitDebuffID = UnitDebuffID
 
-		-- self.debuff.blind 				= UnitDebuffID(self.units.dyn15,self.spell.blindDebuff,"player")~=nil or false
+		self.debuff.bloodPlague 		= UnitDebuffID(self.units.dyn30AoE,self.spell.bloodPlagueDebuff,"player")~=nil or false
+		self.debuff.defile 				= UnitDebuffID(self.units.dyn30AoE,self.spell.defileDebuff,"player")~=nil or false
+		self.debuff.frostFever 			= UnitDebuffID(self.units.dyn30AoE,self.spell.frostFeverDebuff,"player")~=nil or false
+		self.debuff.necroticPlague 		= UnitDebuffID(self.units.dyn30AoE,self.spell.necroticPlagueDebuff,"player")~=nil or false
 	end
 
 	function self.getClassDebuffsDuration()
 		local getDebuffDuration = getDebuffDuration
 
-		-- self.debuff.duration.blind 				= getDebuffDuration(self.units.dyn15,self.spell.blindDebuff,"player") or 0
+		self.debuff.duration.bloodPlague 		= getDebuffDuration(self.units.dyn30AoE,self.spell.bloodPlagueDebuff,"player") or 0
+		self.debuff.duration.defile 			= getDebuffDuration(self.units.dyn30AoE,self.spell.defileDebuff,"player") or 0
+		self.debuff.duration.frostFever 		= getDebuffDuration(self.units.dyn30AoE,self.spell.frostFeverDebuff,"player") or 0
+		self.debuff.duration.necroticPlague 	= getDebuffDuration(self.units.dyn30AoE,self.spell.necroticPlagueDebuff,"player") or 0
 	end
 
 	function self.getClassDebuffsRemain()
 		local getDebuffRemain = getDebuffRemain
 
-		-- self.debuff.remain.blind 			= getDebuffRemain(self.units.dyn15,self.spell.blindDebuff,"player") or 0
+		self.debuff.remain.bloodPlague 			= getDebuffRemain(self.units.dyn30AoE,self.spell.bloodPlagueDebuff,"player") or 0
+		self.debuff.remain.defile 				= getDebuffRemain(self.units.dyn30AoE,self.spell.defileDebuff,"player") or 0
+		self.debuff.remain.frostFever 			= getDebuffRemain(self.units.dyn30AoE,self.spell.frostFeverDebuff,"player") or 0
+		self.debuff.remain.necroticPlague 		= getDebuffRemain(self.units.dyn30AoE,self.spell.necroticPlagueDebuff,"player") or 0
 	end
 
 -- Glyph updates
 	function self.getClassGlyphs()
 		local hasGlyph = hasGlyph
 
-		-- self.glyph.disappearance 	= hasGlyph(self.spell.disappearanceGlyph)
+		self.glyph.shiftingPresences = hasGlyph(self.spell.shiftingPresencesGlyph)
 	end
 
 -- Talent updates
 	function self.getClassTalents()
 		local getTalent = getTalent
 
-		-- self.talent.deadlyThrow 	 = getTalent(2,1)
+		self.talent.plagueLeech 		= getTalent(1,2)
+		self.talent.unholyBlight 		= getTalent(1,3)
+		self.talent.lichborne 			= getTalent(2,1)
+		self.talent.antiMagicZone 		= getTalent(2,2)
+		self.talent.deathsAdvance 		= getTalent(3,1)
+		self.talent.bloodTap 			= getTalent(4,1)
+		self.talent.runicEmpowerment 	= getTalent(4,2)
+		self.talent.necroticPlague 		= getTalent(7,1)
+		self.talent.defile 				= getTalent(7,2)
+		self.talent.breathOfSindragosa 	= getTalent(7,3)
+	end
+
+-- Diseases Update
+	function self.getMinDiseases()
+		local getDisease = getDisease	
+
+		self.disease.min.dyn10AoE 	= getDisease(10,true,"min")
+		self.disease.min.dyn30 		= getDisease(30,false,"min") 
+	end
+
+	function self.getMaxDiseases()
+		local getDisease = getDisease	
+
+		self.disease.max.dyn10AoE 	= getDisease(10,true,"max")
+		self.disease.max.dyn30 		= getDisease(30,false,"max") 
 	end
 
 -- Rune Updates
@@ -170,18 +283,18 @@ function cDK:new(spec)
 		local getRuneCount = getRuneCount
 
 		self.rune.count.death 	= getRuneCount("death")
-		self.rune.count.blood 	= getRuneCount("blood")+getRuneCount("death")
-		self.rune.count.frost 	= getRuneCount("frost")+getRuneCount("death")
-		self.rune.count.unholy 	= getRuneCount("unholy")+getRuneCount("death")
+		self.rune.count.blood 	= getRuneCount("blood")
+		self.rune.count.frost 	= getRuneCount("frost")
+		self.rune.count.unholy 	= getRuneCount("unholy")
 	end
 
 	function self.getRunePercents()
 		local getRunePercent = getRunePercent
 
 		self.rune.percent.death 	= getRunePercent("death")
-		self.rune.percent.blood 	= getRunePercent("blood")+getRunePercent("death")
-		self.rune.percent.frost 	= getRunePercent("frost")+getRunePercent("death")
-		self.rune.percent.unholy 	= getRunePercent("unholy")+getRunePercent("death")
+		self.rune.percent.blood 	= getRunePercent("blood")
+		self.rune.percent.frost 	= getRunePercent("frost")
+		self.rune.percent.unholy 	= getRunePercent("unholy")
 	end
 
 -- Get Class option modes
@@ -217,14 +330,79 @@ function cDK:new(spec)
 --------------------------
 --- SPELLS - DEFENSIVE ---
 --------------------------
-
+	-- Anti-Magic Shell
+	function self.castAntiMagicShell()
+		if (not getTalent(2,2)) and self.level>=68 and self.cd.antiMagicShell==0 then
+			if castSpell("player",self.spell.antiMagicShell,false,false,false) then return end
+		end
+	end
+	-- Anti-Magic Zone
+	function self.castAntiMagicZone()
+		if getTalent(2,2) and self.cd.antiMagicShell==0 then
+			if castGround("player",self.spell.antiMagicZone,false,false,false) then return end
+		end
+	end
+	-- Blood Presence
+	function self.castBloodPresence()
+		if self.level>=57 then
+			if castSpell("player",self.spell.bloodPresence,false,false,false) then return end
+		end
+	end
+	-- Death Strike
+	function self.castDeathStrike()
+		if self.level>=56 and ((self.rune.count.frost>=1 and self.rune.count.unholy>=1) or (self.rune.count.frost>=1 and self.rune.count.death>=1) or (self.rune.count.death>=1 and self.rune.count.unholy>=1) or self.rune.count.death>=2) and getDistance(self.units.dyn5)<5 then
+			if castSpell(self.units.dyn5,self.spell.deathStrike,false,false,false) then return end
+        end
+	end
+	-- Icebound Fortitude
+	function self.castIceboundFortitude()
+		if self.level>=62 and self.cd.iceboundFortitude==0 then
+			if castSpell("player",self.spell.iceboundFortitude,true,false,false) then return end
+        end
+    end
 --------------------------
 --- SPELLS - OFFENSIVE ---
 --------------------------
+	-- Blood Boil
+	function self.castBloodBoil()
+		if self.level>=55 and (self.rune.count.blood>=1 or self.rune.count.death>=1) and getDistance(self.units.dyn10AoE)<10 then
+			if castSpell("player",self.spell.bloodBoil,false,false,false) then return end
+		end
+	end
+	-- Blood Tap
+	function self.castBloodTap()
+		if getTalent(4,1) and self.charges.bloodTap>4 and getDistance(self.units.dyn5)<5 then
+			if castSpell("player",self.spell.bloodTap,true,false,false) then return end
+		end
+	end
+	-- Breath of Sindragosa
+	function self.castBreathOfSindragosa()
+		if getTalent(7,3) and self.cd.breathOfSindragosa==0 and self.power>15 and getDistance(self.units.dyn12)<12 then
+			if castSpell("player",self.spell.breathOfSindragosa,false,false,false) then return end
+		end
+	end
+	-- Death and Decay
+	function self.castDeathAndDecay()
+		if (not getTalent(7,2)) and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and self.cd.deathAndDecay==0 and getDistance(self.units.dyn30AoE)<30 then
+			if castGoundAtBestLocation(self.spell.defile,10,1,30) then return end
+		end
+	end
+	-- Defile
+	function self.castDefile()
+		if getTalent(7,2) and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and self.cd.defile==0 and getDistance(self.units.dyn30AoE)<30 then
+			if castGoundAtBestLocation(self.spell.defile,8,1,30) then return end
+		end
+	end
+	-- Empower Rune Weapon
+	function self.castEmpowerRuneWeapon()
+		if self.level>=76 and self.cd.empowerRuneWeapon==0 and getDistance(self.units.dyn5)<5 then
+			if castSpell("player",self.spell.empowerRuneWeapon,false,false,false) then return end
+		end
+	end
 	-- Frost Presense
-	function self.castFrostPresense()
+	function self.castFrostPresence()
 		if self.level>=55 then
-			if castSpell("player",self.spell.frostPresence,true,false,false) then return end
+			if castSpell("player",self.spell.frostPresence,false,false,false) then return end
 		end
 	end
 	-- Horn of Winter
@@ -233,10 +411,81 @@ function cDK:new(spec)
 			if castSpell("player",self.spell.hornOfWinter,true,false,false) then return end
 		end
 	end
+	-- Icy Touch
+    function self.castIcyTouch()
+        if self.level>=55 and (self.rune.count.frost>=1 or self.rune.count.death>=1) and getDistance(self.units.dyn30)<30 then
+            if castSpell(self.units.dyn30,self.spell.icyTouch,false,false,false) then return end
+        end
+    end
+	-- Outbreak
+	function self.castOutbreak()
+		if self.level>=81 and self.cd.outbreak==0 and getDistance(self.units.dyn30)<30 then
+			if castSpell(self.units.dyn30,self.spell.outbreak,true,false,false) then return end
+		end
+	end
+	-- Pillar of Frost
+	function self.castPillarOfFrost()
+		if self.level>=68 and self.cd.pillarOfFrost==0 and (self.rune.count.frost>=1 or self.rune.count.death>=1) and getDistance(self.units.dyn5)<5 then
+			if castSpell("player",self.spell.pillarOfFrost,false,false,false) then return end
+		end
+	end
+	-- Plague Leech
+	function self.castPlagueLeech()
+		if getTalent(1,2) and self.cd.plagueLeech==0 and ((self.debuff.frostFever and self.debuff.bloodPlague) or self.debuff.necroticPlague) and getDistance(self.units.dyn30)<30 then
+			if castSpell(self.units.dyn30,self.spell.plagueLeech,true,false,false) then return end
+		end
+	end
+	-- Plague Strike
+	function self.castPlagueStrike()
+		if self.level>55 and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and getDistance(self.units.dyn5)<5 then
+			if castSpell(self.units.dyn5,self.spell.plagueStrike,true,false,false) then return end
+		end
+	end
+	-- Unholy Blight
+	function self.castUnholyBlight()
+		if getTalent(1,3) and self.cd.unholyBlight==0 and getDistance(self.units.dyn10AoE)<10 then
+			if castSpell("player",self.spell.unholyBlight,false,false,false) then return end
+		end
+	end
 
 ------------------------
 --- SPELLS - UTILITY ---
 ------------------------
+	-- Death's Advance
+	function self.castDeathsAdvance()
+		if getTalent(3,1) and self.cd.deathsAdvance==0 then
+			if castSpell("player",self.spell.deathsAdvance,false,false,false) then return end
+		end
+	end
+	-- Lichborne
+	function self.castLichborne()
+		if getTalent(2,1) and self.cd.lichborne==0 then
+			if castSpell("player",self.spell.lichborne,true,false,false) then return end
+        end
+	end
+	-- Path of Frost
+	function self.castPathOfFrost()
+		if self.level>=66 and (self.rune.count.frost>=1 or self.rune.count.death>=1) then
+			if castSpell("player",self.spell.pathOfFrost,false,false,false) then return end
+		end
+	end
+	-- Raise Ally
+	function self.castRaiseAlly()
+		if self.level>=72 and self.power>30 and self.cd.raiseAlly==0 and getDistance("target")<40 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") then
+			if castSpell("target",self.spell.raiseAlly,false,false,false) then return end
+		end
+	end
+	function self.castRaiseAllyMouseover()
+		if self.level>=72 and self.power>30 and self.cd.raiseAlly==0 and getDistance("mouseover")<40 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") then
+			if castSpell("mouseover",self.spell.raiseAlly,false,false,false) then return end
+		end
+	end
+	-- Unholy Presence
+	function self.castUnholyPresence()
+		if self.level>=64 then
+			if castSpell("player",self.spell.unholyPresence,false,false,false) then return end
+		end
+	end
 
 -- Return
 	return self
