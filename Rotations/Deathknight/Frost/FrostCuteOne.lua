@@ -4,19 +4,21 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
 ------------------------
 --- Global Functions ---
 ------------------------
-        KeyToggles()
         GroupInfo()
 --------------
 --- Locals ---
 --------------
         local attacktar         = UnitCanAttack("target", "player")
         local buff              = self.buff
+        local castingSimSpell   = isSimSpell()
         local cd                = self.cd
         local charges           = self.charges
         local deadtar           = UnitIsDeadOrGhost("target") or isDummy()
         local debuff            = self.debuff
         local disease           = self.disease
+        local dynTar5AoE        = self.units.dyn5AoE
         local dynTar30AoE       = self.units.dyn30AoE
+        local dynTable5AoE      = (BadBoy_data['Cleave']==1 and enemiesTable) or { [1] = {["unit"]=dynTar5AoE, ["distance"] = getDistance(dynTar5AoE)}} 
         local dynTable30AoE     = (BadBoy_data['Cleave']==1 and enemiesTable) or { [1] = {["unit"]=dynTar30AoE, ["distance"] = getDistance(dynTar30AoE)}} 
         local glyph             = self.glyph
         local inCombat          = self.inCombat
@@ -28,19 +30,66 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         local raid              = select(2,IsInInstance())=="raid"
         local rune              = self.rune.count
         local runeFrac          = self.rune.percent
+        local simSpell          = bb.im.simulacrumSpell
         local solo              = select(2,IsInInstance())=="none"
+        local profileStop       = false
         local swimming          = IsSwimming()
         local talent            = self.talent
         local thp               = getHP("target")
+    -- Profile Stop
+        if inCombat and profileStop==true then
+            return true
+        else
+            profileStop=false
+        end
 --------------------
 --- Action Lists ---
 --------------------
+    -- Action List - Extras
+        function actionList_Extras()
+        -- Dummy Test
+            if isChecked("DPS Testing") then
+                if GetObjectExists("target") then
+                    if getCombatTime() >= (tonumber(getValue("DPS Testing"))*60) and isDummy() then
+                        profileStop = true
+                        StopAttack()
+                        ClearTarget()
+                        print(tonumber(getValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                        return true
+                    end
+                end
+            end
+        -- Dark Simulacrum
+            if simSpell~=_DarkSimulacrum and getBuffRemain("player",_DarkSimulacrum)>0 and getCastTimeRemain(simUnit)<8 then
+                if castSpell(simUnit,simSpell,false,false,true,true,false,true,false) then bb.im.simulacrum = nil return end
+                --CastSpellByName(GetSpellInfo(simSpell),tarUnit.dyn40)
+            end
+            if simSpell~=nil and getBuffRemain("player",_DarkSimulacrum)==0 then
+                bb.im.simulacrum = nil
+            end
+        end -- End Action List - Extras
     -- Action List - Utility
         function actionList_Utility()
+        -- Chains of Ice
+            for i = 1, #dynTable30AoE do
+                local thisUnit = dynTable30AoE[i].unit
+                local chainsOfIceRemain = getDebuffRemain(thisUnit,self.spell.chainsOfIce,"player") or 0
+                if not getFacing(thisUnit,"player") and getFacing("player",thisUnit) and isMoving(thisUnit) and getDistance(thisUnit)>8 and inCombat then
+                    if self.castChainsOfIce() then return end
+                end
+            end
         -- Death's Advance
             -- deaths_advance,if=movement.remains>2
-            if isMoving("player") and getNumEnemies("player",20)==0 then
+            if isMoving("player") and getNumEnemies("player",20)==0 and inCombat then
                 if self.castDeathsAdvance() then return end
+            end
+        -- Death Grip
+            if ((solo and #members==1) or hasThreat(self.units.dyn30AoE)) then
+                if self.castDeathGrip() then return end
+            end
+        -- Gorefiend's Grasp
+            if ((solo and #members==1) or hasThreat(self.units.dyn20AoE)) then
+                if self.castDeathGrip() then return end
             end
         -- Unholy Presence
             if not buff.unholyPresence and self.enemies.yards30==0 and moving and (not inCombat or (inCombat and (power<40 or (power<70 and glyph.shiftingPresences)))) then
@@ -49,6 +98,12 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         -- Path of Frost
             if not inCombat and swimming and not buff.pathOfFrost then
                 if self.castPathOfFrost() then return end
+            end
+        -- Raise Ally
+            if isChecked("Mouseover Targetting") then
+                if self.castRaiseAllyMouseover() then return end
+            else
+                if self.castRaiseAlly() then return end
             end
         end -- End Action List - Utility
     -- Action List - Defensive
@@ -68,8 +123,20 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 if isChecked("Blood Presence") and php<=getOptionValue("Blood Presence") and not buff.bloodPresence and self.enemies.yards30>0 then
                     if self.castBloodPresence() then return end
                 end
+        -- Conversion
+                if isChecked("Conversion") and php <= getOptionValue("Conversion") and power>=50 and inCombat then
+                    if self.castConversion() then return end
+                end
+        -- Death Pact
+                if isChecked("Death Pact") and php <= getOptionValue("Death Pact") and inCombat then
+                    if self.castDeathPact() then return end
+                end
+        -- Death Siphon
+                if isChecked("Death Siphon") and php <= getOptionValue("Death Siphon") and inCombat then
+                    if self.castDeathSiphon() then return end
+                end
         -- Death Strike
-                if isChecked("Death Strike") and php<=getOptionValue("Death Strike") and buff.killingMachine and buff.deathStrike then
+                if isChecked("Death Strike") and php<=getOptionValue("Death Strike") and not buff.killingMachine and inCombat then
                     if self.castDeathStrike() then return end
                 end
         -- Icebound Fortitude
@@ -80,14 +147,57 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 if isChecked("Lichborne") and hasNoControl(self.spell.lichborne) then
                     if self.castLichborne() then return end
                 end
-        -- Raise Ally
-                if isChecked("Mouseover Targetting") then
-                    if self.castRaiseAllyMouseover() then return end
-                else
-                    if self.castRaiseAlly() then return end
+        -- Remorseless Winter
+                if isChecked("Remorseless Winter") and (useAoE() or php <= getOptionValue("Remorseless Winter")) and inCombat then
+                    if self.castRemorselessWinter() then return end
+                end
+        -- Desecrated Ground
+                if isChecked("Desecrated Ground") and hasNoControl(self.spell.desecratedGround) then
+                    if self.castDesecratedGround() then return end
                 end
             end -- End Use Defensive Check
         end -- End Action List - Defensive
+    -- Action List - Interrupts
+        function actionList_Interrupts()
+            if useInterrupts() then
+        -- Asphyxiate
+                if isChecked("Asphyxiate") then
+                    for i=1, #dynTable30AoE do
+                        thisUnit = dynTable30AoE[i].unit
+                        if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                            if self.castAsphyxiate(thisUnit) then return end
+                        end
+                    end
+                end
+        -- Dark Simulacrum
+                if isChecked("Dark Simulacrum") and (isInPvP() or castingSimSpell) then
+                    for i=1, #dynTable30AoE do
+                        thisUnit = dynTable30AoE[i].unit
+                        if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                            if self.castDarkSimulacrum() then return end
+                        end
+                    end
+                end
+        -- Mind Freeze
+                if isChecked("Mind Freeze") then
+                    for i=1, #dynTable5AoE do
+                        thisUnit = dynTable5AoE[i].unit
+                        if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                            if self.castMindFreeze() then return end
+                        end
+                    end
+                end
+        -- Strangulate
+                if isChecked("Strangulate") then
+                    for i=1, #dynTable30AoE do
+                        thisUnit = dynTable30AoE[i].unit
+                        if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                            if self.castStrangulate(thisUnit) then return end
+                        end
+                    end
+                end   
+            end -- End Use Interrupts Check
+        end -- End Action List - Interrupts
     -- Action List - Cooldowns
         function actionList_Cooldowns()
             if useCDs() then
@@ -145,7 +255,11 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             end
         -- army_of_the_dead
         -- potion,name=draenic_strength
-         -- pillar_of_frost
+        -- pillar_of_frost
+        -- Start Attack
+            if attacktar and not deadtar and getDistance("target")<5 and not inCombat then
+                StartAttack()
+            end
         end -- End Action List - PreCombat
     -- Action List - Single Target: Boss
         function actionList_SingleBoss()
@@ -533,6 +647,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
 ---------------------
 --- Out Of Combat ---
 ---------------------
+        if actionList_Extras() then return end
         if actionList_Utility() then return end
         if actionList_Defensive() then return end
         if actionList_PreCombat() then return end
@@ -545,6 +660,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             if ObjectExists("target") then
                 StartAttack()
             end
+            if actionList_Interrupts() then return end
         -- Pillar of Frost
             -- pillar_of_frost
             if self.castPillarOfFrost() then return end

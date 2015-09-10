@@ -60,8 +60,8 @@ end
 -- Mettre a jour les valeurs chaque frame.
 function Cute_FrameUpdate(self, elapsed)
 	-- Frame 1
-	if RKP() ~= nil and UnitDebuffID("Target", 1822, "Player") then
-		local rkpDisplay = RKP()
+	if rakePercentDotDmg("target") ~= nil and UnitDebuffID("Target", 1822, "Player") then
+		local rkpDisplay = rakePercentDotDmg("target")
 		--if rkpDisplay > 1000 then
 			Cute_Frame.Text:SetText((rkpDisplay).."%") 
 		--else 
@@ -79,8 +79,8 @@ function Cute_FrameUpdate(self, elapsed)
 		Cute_Frame.Text:SetText("RKP")
 	end
 	-- Frame 2
-	if RKD() ~= nil and UnitDebuffID("Target", 1822, "Player") then
-		local rkdDisplay = RKD()--math.floor(RKD())
+	if rakeAppliedDotDmg() ~= nil and UnitDebuffID("Target", 1822, "Player") then
+		local rkdDisplay = rakeCalcDotDmg()--math.floor(RKD())
 		-- if rkdDisplay > 1000 then
 		-- 	Cute_Frame2.Text:SetText((math.floor(rkdDisplay/1000)).."k") 
 		-- else 
@@ -94,8 +94,8 @@ function Cute_FrameUpdate(self, elapsed)
 
 	end
 	-- Frame 3
-	if RPP() ~= nil and UnitDebuffID("Target", 1079, "Player") then
-		local rppDisplay = RPP()
+	if ripPercentDotDmg("target") ~= nil and UnitDebuffID("Target", 1079, "Player") then
+		local rppDisplay = ripPercentDotDmg("target")
 		--if rppDisplay > 1000 then
 			Cute_Frame3.Text:SetText((rppDisplay).."%") 
 		--else 
@@ -113,8 +113,8 @@ function Cute_FrameUpdate(self, elapsed)
 		Cute_Frame3.Text:SetText("RPP")
 	end
 	-- Frame 4
-	if RPD() ~= nil and UnitDebuffID("Target", 1079, "Player") then
-		local rpdDisplay = RPD()--math.floor(RPD())
+	if ripAppliedDotDmg() ~= nil and UnitDebuffID("Target", 1079, "Player") then
+		local rpdDisplay = ripCalcDotDmg()--math.floor(RPD())
 		-- if rpdDisplay > 1000 then
 		-- 	Cute_Frame4.Text:SetText((math.floor(rpdDisplay/1000)).."k") 
 		-- else 
@@ -128,8 +128,8 @@ function Cute_FrameUpdate(self, elapsed)
 
 	end	
 	-- Frame 5
-	if CRKD() ~= nil then --and UnitDebuffID("Target", 1822, "Player") then
-		local crkdDisplay = CRKD()--math.floor(CRKD())
+	if rakeCalcDotDmg() ~= nil then --and UnitDebuffID("Target", 1822, "Player") then
+		local crkdDisplay = rakeCalcDotDmg()--math.floor(CRKD())
 		-- if crkdDisplay > 1000 then
 		-- 	Cute_Frame5.Text:SetText((math.floor(crkdDisplay/1000)).."k") 
 		-- else 
@@ -142,8 +142,8 @@ function Cute_FrameUpdate(self, elapsed)
 		Cute_Frame5.Text:SetText("CRKD")
 	end
 	-- Frame 6
-	if CRPD() ~= nil then --and UnitDebuffID("Target", 1079, "Player") then
-		local crpdDisplay = CRPD()--math.floor(CRPD())
+	if ripCalcDotDmg() ~= nil then --and UnitDebuffID("Target", 1079, "Player") then
+		local crpdDisplay = ripCalcDotDmg()--math.floor(CRPD())
 		-- if crpdDisplay > 1000 then
 		-- 	Cute_Frame6.Text:SetText((math.floor(crpdDisplay/1000)).."k") 
 		-- else 

@@ -492,19 +492,6 @@ function castGroundBetween(Unit,SpellID,maxDistance)
 	end
 	return false
 end
--- castGroundLocation(12345,10,30,makeEnemiesTable(30))
-function castGroundLocation(SpellID,spellRadius,spellRange,enemyTable)
-	if getSpellCD(SpellID) == 0 then
-		CastSpellByName(GetSpellInfo(SpellID),"player")
-		if IsAoEPending() then
-			--local distanceToGround = getGroundDistance(Unit) or 0
-			local X,Y,Z = CalcSpellPosForGroup(spellRadius,spellRange,enemyTable)
-			ClickPosition(X,Y,Z,true) --distanceToGround
-			return true
-		end
-	end
-	return false
-end
 -- if shouldNotOverheal(spellCastTarget) > 80 then
 function shouldNotOverheal(Unit)
 	local myIncomingHeal,allIncomingHeal = 0,0
