@@ -25,11 +25,13 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             frostStrike         = 49143,
             howlingBlast        = 49184,
             obliterate          = 49020,
+            pillarOfFrost       = 51271,
             soulReaper          = 130735,
             
             -- Buff - Offensive
             killingMachineBuff  = 51124,
-            freezingFogBuff     = 59052, 
+            freezingFogBuff     = 59052,
+            pillarOfFrostBuff   = 51271, 
 
             -- Debuff - Offensive
 
@@ -108,6 +110,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             self.buff.strengthFlaskLow  = UnitBuffID("player",self.spell.strengthFlaskLowBuff)~=nil or false
             self.buff.strengthFlaskBig  = UnitBuffID("player",self.spell.strengthFlaskBigBuff)~=nil or false
             self.buff.strengthPot       = UnitBuffID("player",self.spell.strengthPotBuff)~=nil or false
+            self.buff.pillarOfFrost     = UnitBuffID("player",self.spell.pillarOfFrostBuff)~=nil or false
         end
 
         function self.getBuffsDuration()
@@ -118,6 +121,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             self.buff.duration.strengthFlaskLow     = getBuffDuration("player",self.spell.strengthFlaskLowBuff) or 0
             self.buff.duration.strengthFlaskBig     = getBuffDuration("player",self.spell.strengthFlaskBigBuff) or 0
             self.buff.duration.strengthPot          = getBuffDuration("player",self.spell.strengthPotBuff) or 0
+            self.buff.duration.pillarOfFrost        = getBuffDuration("player",self.spell.pillarOfFrostBuff) or 0
         end
 
         function self.getBuffsRemain()
@@ -128,6 +132,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             self.buff.remain.strengthFlaskLow   = getBuffRemain("player",self.spell.strengthFlaskLowBuff) or 0
             self.buff.remain.strengthFlaskBig   = getBuffRemain("player",self.spell.strengthFlaskBigBuff) or 0
             self.buff.remain.strengthPot        = getBuffRemain("player",self.spell.strengthPotBuff) or 0
+            self.buff.remain.pillarOfFrost      = getBuffRemain("player",self.spell.pillarOfFrostBuff) or 0
         end
 
         ---------------
@@ -158,6 +163,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             local getSpellCD = getSpellCD
 
             self.cd.obliterate = getSpellCD(self.spell.obliterate)
+            self.cd.pillarOfFrost = getSpellCD(self.spell.pillarOfFrost)
             self.cd.soulReaper = getSpellCD(self.spell.soulReaper)
         end
 
@@ -391,9 +397,9 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_DarkSimulacrum))))
 
             -- Interrupt Percentage
-            CreateNewCheck(thisConfig,"Interrupt At");
-            CreateNewBox(thisConfig, "Interrupt At", 0, 95, 5, 0, "|cffFFBB00Cast Percentage to use at.");
-            CreateNewText(thisConfig,"Interrupt At");
+            CreateNewCheck(thisConfig,"InterruptAt");
+            CreateNewBox(thisConfig, "InterruptAt", 0, 95, 5, 0, "|cffFFBB00Cast Percentage to use at.");
+            CreateNewText(thisConfig,"InterruptAt");
 
             -- Spacer
             CreateNewText(thisConfig, " ");
@@ -456,10 +462,16 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 if castSpell(self.units.dyn5,self.spell.obliterate,false,false,false) then return end
             end
         end
+        -- Pillar of Frost
+        function self.castPillarOfFrost()
+            if self.level>=68 and self.cd.pillarOfFrost==0 and (self.rune.count.frost>=1 or self.rune.count.death>=1) and getDistance(self.units.dyn5)<5 then
+                if castSpell("player",self.spell.pillarOfFrost,false,false,false) then return end
+            end
+        end
         -- Soul Reaper
         function self.castSoulReaper()
-            if self.level>=87 and self.cd.soulReaper==0 and (self.rune.count.frost>=1 or self.run.count.death>=1) and getDistance(self.units.dyn5)<5 then
-                if castSpel(self.units.dyn5,self.spell.soulReaper,false,false,false) then return end
+            if self.level>=87 and self.cd.soulReaper==0 and (self.rune.count.frost>=1 or self.rune.count.death>=1) and getDistance(self.units.dyn5)<5 then
+                if castSpell(self.units.dyn5,self.spell.soulReaper,false,false,false) then return end
             end
         end
 

@@ -168,9 +168,9 @@ if select(2, UnitClass("player")) == "MONK" then
         -- Pot/Stoned
         if isChecked("Pot/Stoned") and getHP("player") <= getValue("Pot/Stoned") and isInCombat("player") and usePot then
           if canUse(5512) then
-            UseItemByName(tostring(select(1,GetItemInfo(5512))))
+            useItem(5512) --UseItemByName(tostring(select(1,GetItemInfo(5512))))
           elseif canUse(76097) then
-            UseItemByName(tostring(select(1,GetItemInfo(76097))))
+            useItem(76097) --UseItemByName(tostring(select(1,GetItemInfo(76097))))
           end
         end
         --	Expel Harm
