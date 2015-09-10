@@ -585,19 +585,13 @@ if select(2, UnitClass("player")) == "DRUID" then
 					if t18_4pc and clearcast and thrashRemain(dynTar8AoE)<4.5 and (combo + btStacks) ~= 6 and getDistance(dynTar8AoE)<8 then
 						if self.castThrash(dynTar8AoE) then return end
 					end
-		-- Pool Energy then Thrash
+		-- Thrash with T17 2pc
 					-- cycle_targets=1,if=remains<4.5&(active_enemies>=2&set_bonus.tier17_2pc|active_enemies>=4)
 					for i=1, #dynTable8AoE do
 						local thisUnit = dynTable8AoE[i].unit
 						if dynTable8AoE[i].distance<8 then
 							if thrashRemain(thisUnit)<4.5 and ((self.enemies.yards8>=2 and t17_2pc) or self.enemies.yards8>=4) then
-								if power <= 50 then
-					-- Pool Energy
-									return true
-								else
-					-- Thrash
-									if self.castThrash(thisUnit) then return end
-								end
+								if self.castThrash(thisUnit) then return end
 							end
 						end
 					end
@@ -616,20 +610,13 @@ if select(2, UnitClass("player")) == "DRUID" then
 					if combo<5 then
 		    			if actionList_Maintain() then return end
 					end --End Maintain
-		-- Pool Energy then Thrash
-					--if useCleave() or (BadBoy_data['AoE'] == 2 and not useCleave()) then
+		-- Thrash
+					-- cycle_targets=1,if=remains<4.5&spell_targets.thrash_cat>=2
 					for i=1, #dynTable8AoE do
 						local thisUnit = dynTable8AoE[i].unit
 						if dynTable8AoE[i].distance < 8 then
-							-- cycle_targets=1,if=remains<4.5&spell_targets.thrash_cat>=2
-							if thrashRemain(thisUnit)<4.5 and self.enemies.yards8>=2 then
-								if power<=50 then
-						-- Pool Energy 
-									return true
-								else
-						-- Thrash			
-									if self.castThrash(thisUnit) then return end	
-								end
+							if thrashRemain(thisUnit)<4.5 and self.enemies.yards8>=2 then		
+								if self.castThrash(thisUnit) then return end	
 							end
 						end
 					end
