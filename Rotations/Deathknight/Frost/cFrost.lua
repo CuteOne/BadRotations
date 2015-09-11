@@ -325,8 +325,8 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
 
             -- Lichbourne
             if getTalent(2,1) then
-              CreateNewCheck(thisConfig,"Lichbourne")
-              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_Lichbourne))))
+              CreateNewCheck(thisConfig,"Lichborne")
+              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_Lichborne))))
             end
 
             -- Anti-Magic Shell/Zone

@@ -71,33 +71,33 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local function actionList_Extras()
 		-- Shapeshift Form Management
 			if isChecked("Auto Shapeshifts") then
-				if not inCombat then
 			-- Flight Form
-					if IsFlyableArea() and ((not isInDraenor()) or isKnown(191633)) and not swimming and falling > 1 and level>=58 then 
-						if stag then
-			            	if self.castFlightForm() then return end
-			            elseif not stag then
-			                if self.castTravelForm() then return end
-			            end
+				if IsFlyableArea() and ((not isInDraenor()) or isKnown(191633)) and not swimming and falling > 1 and level>=58 then 
+					if stag then
+		            	if self.castFlightForm() then return end
+		            elseif not stag then
+		                if self.castTravelForm() then return end
+		            end
+		        end
 			-- Aquatic Form
-			        elseif swimming and not travel and not hastar and not deadtar and attacktar then
-				    	if self.castTravelForm() then return end
+			    if swimming and not travel and not hastar and not deadtar then
+				  	if self.castTravelForm() then return end
+				end
 			-- Cat Form
-				    elseif not cat then --and (travel or (noform and moving)) and not flying and not (flight or swimming or travel) then
-				    	-- Cat Form when not swimming or flying and not in combat
-				    	if not inCombat and not (swimming or flying) and (travel or (noform and moving)) then
-			        		if self.castCatForm() then return end
-			        	end
-			        	-- Cat Form when not in combat and target selected and within 20yrds
-			        	if not inCombat and hastar and attacktar and not deadtar and getDistance("target")<20 then
-			        		if self.castCatForm() then return end
-			        	end
-			        	--Cat Form when in combat and not flying
-			        	if inCombat and not flying then
-			        		if self.castCatForm() then return end
-			        	end
-			        end
-		      	end
+				if not cat then
+			    	-- Cat Form when not swimming or flying and not in combat
+			    	if not inCombat and moving and not swimming and not flying then
+		        		if self.castCatForm() then return end
+		        	end
+		        	-- Cat Form when not in combat and target selected and within 20yrds
+		        	if not inCombat and hastar and attacktar and not deadtar and getDistance("target")<20 then
+		        		if self.castCatForm() then return end
+		        	end
+		        	--Cat Form when in combat and not flying
+		        	if inCombat and not flying then
+		        		if self.castCatForm() then return end
+		        	end
+		        end
 			end -- End Shapeshift Form Management 
 		-- Perma Fire Cat
 			-- check if its check and player out of combat an not stealthed
