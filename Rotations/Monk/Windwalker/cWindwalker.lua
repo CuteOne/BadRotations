@@ -18,17 +18,46 @@ if select(2, UnitClass("player")) == "MONK" then
             yards5,
             yards8,
             yards12,
+            yards40,
         }
         self.windwalkerSpell = {
+            -- Ability - Defensive
+            touchOfKarma                    = 122470,
+
             -- Ability - Offensive
+            chiExplosion                    = 152174,
+            energizingBrew                  = 115288,
+            fistsOfFury                     = 113656,
+            flyingSerpentKick               = 101545,
+            flyingSerpentKickEnd            = 115057,
+            stormEarthAndFire               = 137639,
+            tigereyeBrew                    = 116740,
+
+            -- Buff - Defensive
+            touchOfKarmaBuff                = 122470,
             
             -- Buff - Offensive
+            comboBreakerBlackoutKickBuff    = 116768,
+            comboBreakerChiExplosionBuff    = 159407,
+            comboBreakerTigerPalmBuff       = 118864,
+            energizingBrewBuff              = 115288,
+            stormEarthAndFireBuff           = 137639,
+            tigereyeBrewBuff                = 116740,
+
+            -- Buff - Stacks
+            stormEarthAndFireStacks         = 137639,
+            tigereyeBrewStacks              = 125195,
 
             -- Debuff - Offensive
+            stormEarthAndFireDebuff         = 138130,
 
             -- Glyphs
+            touchOfKarmaGlyph               = 125678,
 
             -- Perks
+
+            -- Talent
+            chiExplosionTalent              = 152174,
         }
         -- Merge all spell tables into self.spell
         self.spell = {}
@@ -60,6 +89,7 @@ if select(2, UnitClass("player")) == "MONK" then
             self.getBuffs()
             self.getBuffsDuration()
             self.getBuffsRemain()
+            self.getCharges()
             self.getDynamicUnits()
             self.getDebuffs()
             self.getDebuffsDuration()
@@ -87,19 +117,53 @@ if select(2, UnitClass("player")) == "MONK" then
         function self.getBuffs()
             local UnitBuffID = UnitBuffID
 
-            -- self.buff.blindside = UnitBuffID("player",self.spell.blindsideBuff)~=nil or false
+            self.buff.comboBreakerBlackoutKick  = UnitBuffID("player",self.spell.comboBreakerBlackoutKickBuff)~=nil or false
+            self.buff.comboBreakerChiExplosion  = UnitBuffID("player",self.spell.comboBreakerChiExplosionBuff)~=nil or false
+            self.buff.comboBreakerTigerPalm     = UnitBuffID("player",self.spell.comboBreakerTigerPalmBuff)~=nil or false
+            self.buff.energizingBrew            = UnitBuffID("player",self.spell.energizingBrewBuff)~=nil or false
+            if getBuffRemain("player",self.spell.tigereyeBrewBuff)>15 then
+                self.buff.tigereyeBrew          = false
+            else
+                self.buff.tigereyeBrew          = true
+            end
+            self.buff.touchOfKarma              = UnitBuffID("player",self.spell.touchOfKarmaBuff)~=nil or false
         end
 
         function self.getBuffsDuration()
             local getBuffDuration = getBuffDuration
 
-            -- self.buff.duration.envenom = getBuffDuration("player",self.spell.envenomBuff) or 0
+            self.buff.duration.comboBreakerBlackoutKick = getBuffDuration("player",self.spell.comboBreakerBlackoutKickBuff) or 0
+            self.buff.duration.comboBreakerChiExplosion = getBuffDuration("player",self.spell.comboBreakerChiExplosionBuff) or 0
+            self.buff.duration.comboBreakerTigerPalm    = getBuffDuration("player",self.spell.comboBreakerTigerPalmBuff) or 0
+            self.buff.duration.energizingBrew           = getBuffDuration("player",self.spell.energizingBrewBuff) or 0
+            if getBuffRemain("player",self.spell.tigereyeBrewBuff)>15 then
+                self.buff.duration.tigereyeBrew         = 15
+            else
+                self.buff.duration.tigereyeBrew         = 0
+            end
+            self.buff.duration.touchOfKarma             = getBuffDuration("player",self.spell.touchOfKarmaBuff) or 0
         end
 
         function self.getBuffsRemain()
             local getBuffRemain = getBuffRemain
 
-            -- self.buff.remain.blindside = getBuffRemain("player", self.spell.blindsideBuff) or 0
+            self.buff.remain.comboBreakerBlackoutKick   = getBuffRemain("player",self.spell.comboBreakerBlackoutKickBuff) or 0
+            self.buff.remain.comboBreakerChiExplosion   = getBuffRemain("player",self.spell.comboBreakerChiExplosionBuff) or 0
+            self.buff.remain.comboBreakerTigerPalm      = getBuffRemain("player",self.spell.comboBreakerTigerPalmBuff) or 0
+            self.buff.remain.energizingBrew             = getBuffRemain("player",self.spell.energizingBrewBuff) or 0
+            if getBuffRemain("player",self.spell.tigereyeBrewBuff)>15 then
+                self.buff.remain.tigereyeBrew           = 0
+            else
+                self.buff.remain.tigereyeBrew           = getBuffRemain("player",self.spell.tigereyeBrewBuff)
+            end
+            self.buff.remain.touchOfKarma               = getBuffRemain("player", self.spell.touchOfKarmaBuff) or 0
+        end
+
+        function self.getCharges()
+        local getBuffStacks = getBuffStacks
+
+            self.charges.stormEarthAndFire  = getBuffStacks("player",self.spell.stormEarthAndFireStacks,"player") or 0
+            self.charges.tigereyeBrew       = getBuffStacks("player",self.spell.tigereyeBrewStacks,"player") or 0
         end
 
         ---------------
@@ -129,7 +193,11 @@ if select(2, UnitClass("player")) == "MONK" then
         function self.getCooldowns()
             local getSpellCD = getSpellCD
 
-            -- self.cd.vendetta = getSpellCD(self.spell.vendetta)
+            self.cd.energizingBrew      = getSpellCD(self.spell.energizingBrew)
+            self.cd.fistsOfFury         = getSpellCD(self.spell.fistsOfFury)
+            self.cd.flyingSerpentKick   = getSpellCD(self.spell.flyingSerpentKick)
+            self.cd.tigereyeBrew        = getSpellCD(self.spell.tigereyeBrew)
+            self.cd.touchOfKarma        = getSpellCD(self.spell.touchOfKarma)
         end
 
         --------------
@@ -139,7 +207,7 @@ if select(2, UnitClass("player")) == "MONK" then
         function self.getGlyphs()
             local hasGlyph = hasGlyph
 
-            -- self.glyph.vendetta = hasGlyph(self.spell.vendettaGlyph)
+            self.glyph.touchOfKarma = hasGlyph(self.spell.touchOfKarmaGlyph)
         end
 
         ---------------
@@ -147,9 +215,9 @@ if select(2, UnitClass("player")) == "MONK" then
         ---------------
 
         function self.getTalents()
-            --local isKnown = isKnown
+            local getTalent = getTalent
 
-            --self.talent. = isKnown(self.spell.)
+            self.talent.chiExplosion = getTalent(7,2)
         end
 
         -------------
@@ -170,10 +238,13 @@ if select(2, UnitClass("player")) == "MONK" then
             local dynamicTarget = dynamicTarget
 
             -- Normal
-            self.units.dyn15 = dynamicTarget(15, true)
-            self.units.dyn20 = dynamicTarget(20, true)
+            self.units.dyn8     = dynamicTarget(8, true)
+            self.units.dyn15    = dynamicTarget(15, true)
+            self.units.dyn20    = dynamicTarget(20, true)
 
             -- AoE
+            self.units.dyn8AoE  = dynamicTarget(8,false)
+            self.units.dyn20AoE = dynamicTarget(20,false)
         end
 
         ---------------
@@ -183,9 +254,10 @@ if select(2, UnitClass("player")) == "MONK" then
         function self.getEnemies()
             local getEnemies = getEnemies
 
-            self.enemies.yards5 = #getEnemies("player", 5)
-            self.enemies.yards10 = #getEnemies("player", 10)
-            self.enemies.yards12 = #getEnemies("player", 12)
+            self.enemies.yards5     = #getEnemies("player", 5)
+            self.enemies.yards8     = #getEnemies("player", 8)
+            self.enemies.yards12    = #getEnemies("player", 12)
+            self.enemies.yards40    = #getEnemies("player", 40)
         end
 
         ----------------------
@@ -197,6 +269,8 @@ if select(2, UnitClass("player")) == "MONK" then
                 self:WindwalkerCuteOne()
             elseif self.rotation == 2 then
                 self:WindwalkerDef()
+            elseif self.rotation == 3 then
+                self:WindwalkerOld()
             else
                 ChatOverlay("No ROTATION ?!", 2000)
             end
@@ -219,7 +293,7 @@ if select(2, UnitClass("player")) == "MONK" then
             CreateNewWrap(thisConfig, "--- General ---");
 
             -- Rotation
-            CreateNewDrop(thisConfig, "Rotation", 1, "Select Rotation.", "|cff00FF00CuteOne", "|cff00FF00Def");
+            CreateNewDrop(thisConfig, "Rotation", 1, "Select Rotation.", "|cff00FF00CuteOne", "|cff00FF00Def", "|cff00FF00Old");
             CreateNewText(thisConfig, "Rotation");
 
             -- Dummy DPS Test
@@ -384,9 +458,9 @@ if select(2, UnitClass("player")) == "MONK" then
             end
 
             -- Interrupt Percentage
-            CreateNewCheck(thisConfig,"Interrupt At");
-            CreateNewBox(thisConfig, "Interrupt At", 0, 95, 5, 0, "|cffFFBB00Cast Percentage to use at.");
-            CreateNewText(thisConfig,"Interrupt At");
+            CreateNewCheck(thisConfig,"InterruptAt");
+            CreateNewBox(thisConfig, "InterruptAt", 0, 95, 5, 0, "|cffFFBB00Cast Percentage to use at.");
+            CreateNewText(thisConfig,"InterruptAt");
 
             -- Spacer
             CreateNewText(thisConfig, " ");
@@ -450,8 +524,74 @@ if select(2, UnitClass("player")) == "MONK" then
         --------------
         --- SPELLS ---
         --------------
+        -- Chi Explosion
+        function self.castChiExplosion()
+            if getTalent(7,2) and self.chi.count>=1 and getDistance(self.units.dyn30)<30 then
+                if castSpell(self.units.dyn30,self.spell.chiExplosion,false,false,false) then return end
+            end
+        end
+        -- Energizing Brew
+        function self.castEnergizingBrew()
+            if self.level>=36 and self.cd.energizingBrew==0 and self.timeToMax>6 then
+                if castSpell("player",self.spell.energizingBrew,false,false,false) then return end
+            end
+        end
+        -- Fists of Fury
+        function self.castFistsOfFury()
+            if self.level>=10 and self.cd.fistsOfFury==0 and self.chi.count>=3 and getDistance(self.units.dyn5)<5 then
+                if castSpell(self.units.dyn5,self.spell.fistsOfFury,false,false,false) then return end
+            end
+        end
+        -- Flying Serpent Kick
+        function self.castFlyingSerpentKick()
+            if self.level>=18 and self.cd.flyingSerpentKick==0 then
+                if castSpell("player",self.spell.flyingSerpentKick,false,false,false) then return end
+            end
+        end
+        function self.castFlyingSerpentKickEnd()
+            if self.level>=18 then
+                if castSpell("player",self.spell.flyingSerpentKickEnd,false,false,false) then return end
+            end
+        end
+        -- Storm Earth and Fire
+        function self.castStormEarthAndFire()
+            if self.enemies.yards40>1 then
+                local myTarget   = 0
+                local sefEnemies = getEnemies("player",40)
+                if ObjectExists("target") then
+                    myTarget = ObjectPointer("target")
+                else
+                    myTarget = 0
+                end
+                for i=1, #sefEnemies do
+                    local thisUnit                  = sefEnemies[i]
+                    local debuffStormEarthAndFire   = UnitDebuffID(thisUnit,self.spell.stormEarthAndFireDebuff,"player")~=nil or false
 
-
+                    if not debuffStormEarthAndFire and thisUnit~=myTarget and self.charges.stormEarthAndFire<2 and UnitIsTappedByPlayer(thisUnit) then
+                        if castSpell(thisUnit,self.spell.stormEarthAndFire,false,false,false) then return end
+                    end
+                    if debuffStormEarthAndFire and thisUnit==myTarget then
+                        if CancelUnitBuff("player", GetSpellInfo(self.spell.stormEarthAndFire)) then return end
+                    end
+                end
+            end
+        end
+        -- Tiger's Eye Brew
+        function self.castTigereyeBrew()
+            if self.level>=56 and self.cd.tigereyeBrew==0 and self.charges.tigereyeBrew>0 and getDistance(self.units.dyn5)<5 then
+                if castSpell("player",self.spell.tigereyeBrew,false,false,false) then return end
+            end
+        end
+        -- Touch of Karma
+        function self.castTouchOfKarma()
+            if self.level>=22 and self.cd.touchOfKarma==0 then
+                if self.glyph.touchOfKarma and getDistance(self.units.dyn20AoE)<20 then
+                    if castSpell(self.units.dyn20AoE,self.spell.touchOfKarma,false,false,false) then return end
+                elseif getDistance(self.units.dyn5)<5 then
+                    if castSpell(self.units.dyn5,self.spell.touchOfKarma,false,false,false) then return end
+                end
+            end
+        end
         -----------------------------
         --- CALL CREATE FUNCTIONS ---
         -----------------------------

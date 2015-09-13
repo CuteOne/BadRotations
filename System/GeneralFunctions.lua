@@ -1583,6 +1583,24 @@ function hasNoControl(spellID)
 	end
 	return false
 end
+-- if isAggroed("target") then
+function isAggroed(unit)
+local nNova = nNova
+	if hasAggro == nil then hasAggro = false end
+	for i=1,#nNova do
+		local threat = select(5,UnitDetailedThreatSituation(nNova[i].unit,unit))
+		if threat~=nil then
+			if threat>=0 then
+	  			hasAggro = true
+			end
+		end
+	end
+	if hasAggro==true then
+		return true
+	else
+		return false
+	end
+end
 -- if isAlive([Unit]) == true then
 function isAlive(Unit)
 	local Unit = Unit or "player"
