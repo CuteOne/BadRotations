@@ -149,6 +149,7 @@ Rotations\Monk\cMonk.lua
 Rotations\Monk\Windwalker\cWindwalker.lua
 Rotations\Monk\Windwalker\Windwalker.lua
 Rotations\Monk\Windwalker\WindwalkerCuteOne.lua
+Rotations\Monk\Windwalker\WindwalkerOld.lua
 Rotations\Monk\Windwalker\TogglesCuteOne.lua
 Rotations\Monk\Windwalker\OptionsCuteOne.lua
 Rotations\Monk\Windwalker\WindwalkerDef.lua

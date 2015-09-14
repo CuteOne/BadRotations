@@ -24,24 +24,6 @@ if select(3,UnitClass("player")) == 10 then
     end
   end
 
-  function isAggroed(unit)
-    local members = members
-    if hasAggro == nil then hasAggro = false end
-    for i=1,#members do
-      local threat = select(3,UnitDetailedThreatSituation(members[i].Unit,unit))
-      if threat~=nil then
-        if threat>=100 then
-          hasAggro = true
-        end
-      end
-    end
-    if hasAggro==true then
-      return true
-    else
-      return false
-    end
-  end
-
   -- function getDistance2(Unit1,Unit2)
   --     if Unit2 == nil then Unit2 = "player"; end
   --     if ObjectExists(Unit1) and ObjectExists(Unit2) then
@@ -152,6 +134,7 @@ if select(3,UnitClass("player")) == 10 then
 
   function getFacingDistance()
     if UnitIsVisible("player") and UnitIsVisible("target") then
+      --local targetDistance = getRealDistance("player","target")
       local Y1,X1,Z1 = GetObjectPosition("player");
       local Y2,X2,Z2 = GetObjectPosition("target");
       local Angle1 = GetObjectFacing("player")
@@ -163,36 +146,34 @@ if select(3,UnitClass("player")) == 10 then
       elseif deltaX <0 then
         Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
       end
-      return round2(math.tan(math.abs(Angle2 - Angle1)*math.pi/180)*targetDistance*10000)/10000
+      local Dist = round2(math.tan(math.abs(Angle2 - Angle1)*math.pi/180)*targetDistance*10000)/10000
+      if ObjectIsFacing("player","target") then
+        return Dist
+      else
+        return -(math.abs(Dist))
+      end
     else
       return 1000
     end
   end
 
-  function canFSK(unit)
-  	local targetDistance = getDistance("target")
-    if ((targetDistance <= 8 and isInCombat("player")) or (targetDistance < 60 and targetDistance > 5 and getFacing("player",unit)))
-      and not hasGlyph(1017)
-      and getSpellCD(_FlyingSerpentKick)==0
-      and getFacingDistance() < 5
-      and select(3,GetSpellInfo(_FlyingSerpentKick)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green"
-      and not UnitIsDeadOrGhost(unit)
-      and getTimeToDie(unit) > 2
-      and not IsSwimming()
-    then
-      return true
-    else
-      return false
-    end
+  function usingFSK()
+      if select(3,GetSpellInfo(101545)) == "INTERFACE\\ICONS\\priest_icon_chakra_green" then
+          return true
+      else
+          return false
+      end
   end
 
-  function canContFSK(unit)
-  	local targetDistance = getDistance("target")
-    if ((targetDistance <= 8 and isInCombat("player")) or (targetDistance < 60 and targetDistance > 5 and getFacing("player",unit)))
+  function canFSK(unit)
+  	local targetDistance = getRealDistance("player","target")
+    if ((targetDistance < 8 and isInCombat("player")) or (targetDistance < 60 and targetDistance > 5)) 
       and not hasGlyph(1017)
-      and getFacingDistance() < 5
+      and ((getSpellCD(_FlyingSerpentKick)==0 and not usingFSK()) 
+          or usingFSK())
+      and (getFacingDistance() < 5 and getFacingDistance()>0)
       and not UnitIsDeadOrGhost(unit)
-      and getTimeToDie(unit) > 2
+      and getTimeToDie(unit) > 10
       and not IsSwimming()
     then
       return true
