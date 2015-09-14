@@ -226,19 +226,31 @@ function cMonk:new(spec)
 	function self.getClassDebuffs()
 		local UnitDebuffID = UnitDebuffID
 
-		self.debuff.risingSunKick = UnitDebuffID(self.units.dyn5,self.spell.risingSunKickDebuff,"player")~=nil or false
+		if self.level<56 then
+			self.debuff.risingSunKick = true
+		else
+			self.debuff.risingSunKick = UnitDebuffID(self.units.dyn5,self.spell.risingSunKickDebuff,"player")~=nil or false
+		end
 	end
 
 	function self.getClassDebuffsDuration()
 		local getDebuffDuration = getDebuffDuration
 
-		self.debuff.duration.risingSunKick = getDebuffDuration(self.units.dyn5,self.spell.risingSunKickDebuff,"player") or 0
+		if self.level<56 then
+			self.debuff.duration.risingSunKick = 99
+		else
+			self.debuff.duration.risingSunKick = getDebuffDuration(self.units.dyn5,self.spell.risingSunKickDebuff,"player") or 0
+		end
 	end
 
 	function self.getClassDebuffsRemain()
 		local getDebuffRemain = getDebuffRemain
 
-		self.debuff.remain.risingSunKick = getDebuffRemain(self.units.dyn5,self.spell.risingSunKickDebuff,"player") or 0
+		if self.level<56 then
+			self.debuff.remain.risingSunKick = 99
+		else
+			self.debuff.remain.risingSunKick = getDebuffRemain(self.units.dyn5,self.spell.risingSunKickDebuff,"player") or 0
+		end
 	end
 
 -- Recharge updates

@@ -71,7 +71,11 @@ if select(2, UnitClass("player")) == "MONK" then
                     end
                 else
                     if power>40 then
-                        if self.castSpinningCraneKick() then return end
+                        if self.level<46 then
+                            if self.castJab() then return end
+                        else
+                            if self.castSpinningCraneKick() then return end
+                        end
                     elseif chi.count>2 then
                         if self.castRisingSunKick() then return end
                     end
@@ -550,7 +554,11 @@ if select(2, UnitClass("player")) == "MONK" then
             end
         -- Spinning Crane Kick
             -- spinning_crane_kick
-            if self.castSpinningCraneKick() then return end
+            if self.level<46 then
+                if self.castJab() then return end
+            else
+                if self.castSpinningCraneKick() then return end
+            end
         end -- End Action List - Multi-Target: No Rushing Jade Wind
     -- Action List - Multi-Target: No Rushing Jade Wind - Chi Explosion
         function actionList_MultiTargetNoRushingJadeWindChiExplosion()
@@ -591,7 +599,11 @@ if select(2, UnitClass("player")) == "MONK" then
             end
         -- Spinning Crane Kick
             -- spinning_crane_kick
-            if self.castSpinningCraneKick() then return end
+            if self.level<46 then
+                if self.castJab() then return end
+            else
+                if self.castSpinningCraneKick() then return end
+            end
         end -- End Action List - Multi-Target: No Rushing Jade Wind - Chi Explosion
     -- Action List - Multi-Target: Rushing Jade Wind
         function actionList_MultiTargetRushingJadeWind()
@@ -771,12 +783,12 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
     -- Fortifying Brew
                 -- fortifying_brew,if=target.health.percent<10&cooldown.touch_of_death.remains=0&(glyph.touch_of_death.enabled|chi>=3)
-                if thp<10 and cd.touchOfDeath==0 and (glyph.touchOfDeath or chi.count>=3) and ObjectExists("target") then
+                if (thp<10 or UnitHealth("player")*1.2>=UnitHealth("target")) and cd.touchOfDeath==0 and (glyph.touchOfDeath or chi.count>=3) and ObjectExists("target") then
                     if self.castFortifyingBrew() then return end
                 end
     -- Touch of Death
                 -- touch_of_death,if=target.health.percent<10&(glyph.touch_of_death.enabled|chi>=3)
-                if thp<10 and (glyph.touchOfDeath or chi.count>=3) then
+                if (thp<10 or UnitHealth("player")>=UnitHealth("target")) and (glyph.touchOfDeath or chi.count>=3) then
                     if self.castTouchOfDeath() then return end
                 end
     -- Rising Sun Kick
