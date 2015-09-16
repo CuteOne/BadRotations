@@ -1,6 +1,5 @@
 if select(2, UnitClass("player")) == "DEATHKNIGHT" then
     function cFrost:FrostCuteOne()
-        ChatOverlay("UNDER CONSTRUCTION - Use OLD Rotation")
 ------------------------
 --- Global Functions ---
 ------------------------

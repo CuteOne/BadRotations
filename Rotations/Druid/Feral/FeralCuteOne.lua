@@ -61,9 +61,6 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local deadtar, attacktar, hastar, playertar 		= deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
 		local friendly 										= friendly or UnitIsFriend("target", "player")
 	    local mfTick 										= 20.0/(1+UnitSpellHaste("player")/100)/10  
-	    --if rakeCalcDotDmg()>=rakeAppliedDotDmg("target") then
-	    	--ChatOverlay("Calc Rake: "..rakeCalcDotDmg().." | Applied Rake: "..rakeAppliedDotDmg("target"))
-	    --end
 --------------------
 --- Action Lists ---
 --------------------
