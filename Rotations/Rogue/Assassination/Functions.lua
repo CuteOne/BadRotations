@@ -66,7 +66,7 @@ if select(3, UnitClass("player")) == 4 then
 
   --Target Time to Die
   function ttd(unit)
-      return getTimeToDie(unit)
+      return getTTD(unit)
   end
 
   function useCDs()

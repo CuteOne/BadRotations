@@ -283,7 +283,7 @@ function canInterrupt(unit,percentint)
 			castEndTime = select(6,UnitCastingInfo(unit))
 			interruptable = true
 			castType = "spellcast"
-		elseif select(6,UnitChannelInfo(unit)) and select(8,UnitChannelInfo(unit)) then -- Get spell channel time
+		elseif select(6,UnitChannelInfo(unit)) and not select(8,UnitChannelInfo(unit)) then -- Get spell channel time
 			castStartTime = select(5,UnitChannelInfo(unit))
 			castEndTime = select(6,UnitChannelInfo(unit))
 			interruptable = true
@@ -786,6 +786,157 @@ function getDebuffStacks(Unit,DebuffID,Source)
 		return 0
 	end
 end
+-- if getDisease(30,true,min) < 2 then
+function getDisease(range,aoe,mod)
+    if mod == nil then mod = "min" end
+    if range == nil then range = 5 end
+    if aoe == nil then aoe = false end
+    local range     	= tonumber(range)
+    local mod 			= tostring(mod)
+    local dynTar 		= dynamicTarget(range,true)
+    local dynTarAoE 	= dynamicTarget(range,false)
+    local dist 			= getDistance("player",dynTar)
+    local distAoE 		= getDistance("player",dynTarAoE)
+    local ff 			= getDebuffRemain(dynTar,55095,"player") or 0
+    local ffAoE 		= getDebuffRemain(dynTarAoE,55095,"player") or 0
+    local bp 			= getDebuffRemain(dynTar,55078,"player") or 0
+    local bpAoE 		= getDebuffRemain(dynTarAoE,55078,"player") or 0
+    local np 			= getDebuffRemain(dynTar,155159,"player") or 0
+    local npAoE 		= getDebuffRemain(dynTarAoE,155159,"player") or 0
+    local diseases 		= {ff,bp}
+    local diseasesAoE 	= {ffAoE,bpAoE}
+    local minD			= 99
+    local maxD 			= 0
+    if mod == "min" then
+      	if aoe == false then
+        	if dist < range then
+          		if getTalent(7,1) then
+            		return np
+            	else
+            		for i = 1, #diseases do
+            			if diseases[i]>0 and diseases[i]<minD then
+            				minD = diseases[i]
+            			end
+            		end
+            		return minD
+            	end
+        	else
+          		return 99
+        	end
+      	elseif aoe == true then
+        	if distAoE < range then
+          		if getTalent(7,1) then
+            		return npAoE
+            	else
+            		for i = 1, #diseasesAoE do
+            			if diseases[i]>0 and diseases[i]<minD then
+            				minD = diseases[i]
+            			end
+            		end
+            		return minD
+            	end
+        	else
+          		return 99
+        	end
+      	end
+    elseif mod == "max" then
+      	if aoe == false then
+        	if dist < range then
+          		if getTalent(7,1) then
+            		return np
+            	else
+            		for i = 1, #diseases do
+            			if diseases[i]>0 and diseases[i]>maxD then
+            				maxD = diseases[i]
+            			end
+            		end
+            		return maxD
+            	end
+        	else
+          		return 0
+        	end
+      	elseif aoe == true then
+        	if distAoE < range then
+          		if getTalent(7,1) then
+            		return npAoE
+            	else
+            		for i = 1, #diseasesAoE do
+            			if diseases[i]>0 and diseases[i]<maxD then
+            				maxD = diseases[i]
+            			end
+            		end
+            		return maxD
+            	end
+        	else
+          		return 0
+        	end
+      	end
+    end
+ end
+-- if getDisease(30,true,min) < 2 then
+-- function getDisease(range,aoe,mod)
+--     if mod == nil then mod = "min" end
+--     if range == nil then range = 5 end
+--     if aoe == nil then aoe = false end
+
+--     local range = tonumber(range)
+--     local mod = tostring(mod)
+
+--     local frost_feaver = 55095
+--     local blood_plague = 55078
+--     local necrotic_plague = 155159
+
+--     local lowest_disease = 99
+--     local highest_disease = 0
+
+--     if #enemiesTable == 0 then
+--     	return 0
+--     else
+-- 	    for i=1, #enemiesTable do
+-- 	        local thisUnit  = enemiesTable[i].unit
+-- 	        local distance  = enemiesTable[i].distance
+-- 	        local facing    = enemiesTable[i].facing
+-- 	        -- check for range
+-- 	        if range < distance then
+-- 	            -- check for facing
+-- 	            if aoe == true or (aoe == false and facing == true) then
+-- 	                -- buffer debuff remain times
+-- 	                local frost_feaver_remain = getDebuffRemain(thisUnit,frost_feaver,"player") or 0
+-- 	                local blood_plague_remain = getDebuffRemain(thisUnit,blood_plague,"player") or 0
+-- 	                local necrotic_plague_remain = getDebuffRemain(thisUnit,necrotic_plague,"player") or 0
+-- 	                -- find lowest disease time
+-- 	                if mod == "min" then
+-- 	                    if frost_feaver_remain < lowest_disease and frost_feaver_remain > 0 then
+-- 	                        lowest_disease = frost_feaver_remain
+-- 	                    end
+-- 	                    if blood_plague_remain < lowest_disease and blood_plague_remain > 0 then
+-- 	                        lowest_disease = blood_plague_remain
+-- 	                    end
+-- 	                    if necrotic_plague_remain < lowest_disease and necrotic_plague_remain > 0 then
+-- 	                        lowest_disease = necrotic_plague_remain
+-- 	                    end
+-- 	                    -- return lowest disease remain time
+-- 	                    return lowest_disease
+-- 	                end
+-- 	                -- find highest disease time
+-- 	                if mod == "max" then
+-- 	                    if frost_feaver_remain > highest_disease and frost_feaver_remain > 0 then
+-- 	                        highest_disease = frost_feaver_remain
+-- 	                    end
+-- 	                    if blood_plague_remain > highest_disease and blood_plague_remain > 0 then
+-- 	                        highest_disease = blood_plague_remain
+-- 	                    end
+-- 	                    if necrotic_plague_remain > highest_disease and necrotic_plague_remain > 0 then
+-- 	                        highest_disease = necrotic_plague_remain
+-- 	                    end
+-- 	                    -- return highest disease remain time
+-- 	                    return highest_disease
+-- 	                end
+-- 	            end
+-- 	        end
+-- 	    end
+-- 	end
+-- end
 -- if getDistance("player","target") <= 40 then
 function getDistance(Unit1,Unit2)
 	-- If both units are visible
@@ -983,6 +1134,103 @@ function getRecharge(spellID)
 			return chargeEnd - GetTime()
 		end
 		return 0
+	end
+end
+-- Rune Tracking Table
+function getRuneInfo()
+    local bCount = 0
+    local uCount = 0
+    local fCount = 0
+    local dCount = 0
+    local bPercent = 0
+    local uPercent = 0
+    local fPercent = 0
+    local dPercent = 0
+    if not runeTable then
+      	runeTable = {}
+    else
+      	table.wipe(runeTable)
+    end
+    for i = 1,6 do
+      	local CDstart = select(1,GetRuneCooldown(i))
+	    local CDduration = select(2,GetRuneCooldown(i))
+	    local CDready = select(3,GetRuneCooldown(i))
+	    local CDrune = CDduration-(GetTime()-CDstart)
+	    local CDpercent = CDpercent
+	    local runePercent = 0
+	    local runeCount = 0
+	    local runeCooldown = 0
+	    if CDrune > CDduration then
+        	CDpercent = 1-(CDrune/(CDduration*2))
+      	else
+        	CDpercent = 1-CDrune/CDduration
+      	end
+      	if not CDready then
+        	runePercent = CDpercent
+        	runeCount = 0
+        	runeCooldown = CDrune
+      	else
+        	runePercent = 1
+        	runeCount = 1
+        	runeCooldown = 0
+      	end
+      	if GetRuneType(i) == 4 then
+        	dPercent = runePercent
+        	dCount = runeCount
+        	dCooldown = runeCooldown
+        	runeTable[#runeTable+1] = { Type = "death", Index = i, Count = dCount, Percent = dPercent, Cooldown = dCooldown}
+      	end
+      	if GetRuneType(i) == 1 then
+        	bPercent = runePercent
+        	bCount = runeCount
+        	bCooldown = runeCooldown
+        	runeTable[#runeTable+1] = { Type = "blood", Index = i, Count = bCount, Percent = bPercent, Cooldown = bCooldown}
+      	end
+      	if GetRuneType(i) == 2 then
+        	uPercent = runePercent
+        	uCount = runeCount
+        	uCooldown = runeCooldown
+        	runeTable[#runeTable+1] = { Type = "unholy", Index = i, Count = uCount, Percent = uPercent, Cooldown = uCooldown}
+      	end
+      	if GetRuneType(i) == 3 then
+        	fPercent = runePercent
+        	fCount = runeCount
+        	fCooldown = runeCooldown
+        	runeTable[#runeTable+1] = { Type = "frost", Index = i, Count = fCount, Percent = fPercent, Cooldown = fCooldown}
+      	end
+	end
+	return runeTable
+end
+-- Get Count of Specific Rune Time
+function getRuneCount(Type)
+	local Type = string.lower(Type)
+	local runeCount = 0
+	local runeTable = runeTable
+	for i = 1, 6 do
+  		if runeTable[i].Type == Type then
+    		runeCount = runeCount + runeTable[i].Count
+  		end
+	end
+	return runeCount
+end
+-- Get Colldown Percent Remaining of Specific Runes
+function getRunePercent(Type)
+	Type = string.lower(Type)
+	local runePercent = 0
+	local runeCooldown = 0
+	local runeTable = runeTable
+	for i = 1, 6 do
+      	if runeTable[i].Type == Type then --and runeTable[i].Cooldown > runeCooldown then
+        	runePercent = runeTable[i].Percent
+        	runeCooldown = runeTable[i].Cooldown
+      	end
+	end
+	if getRuneCount(Type)==2 then
+  		return 2
+	elseif getRuneCount(Type)==1 then
+  		return runePercent+1
+	else
+  		return runePercent
 	end
 end
 --/dump TraceLine()
@@ -1334,6 +1582,24 @@ function hasNoControl(spellID)
 		eventIndex = eventIndex - 1
 	end
 	return false
+end
+-- if isAggroed("target") then
+function isAggroed(unit)
+local nNova = nNova
+	if hasAggro == nil then hasAggro = false end
+	for i=1,#nNova do
+		local threat = select(5,UnitDetailedThreatSituation(nNova[i].unit,unit))
+		if threat~=nil then
+			if threat>=0 then
+	  			hasAggro = true
+			end
+		end
+	end
+	if hasAggro==true then
+		return true
+	else
+		return false
+	end
 end
 -- if isAlive([Unit]) == true then
 function isAlive(Unit)
@@ -2199,7 +2465,7 @@ function TierScan(thisTier)
 				115543, -- legs
 				115544, -- shoulder
 			},
-			["DEATH KNIGHT"] = {
+			["DEATHKNIGHT"] = {
 				115535, -- legs
 				115536, -- shoulder
 				115537, -- chest
@@ -2278,7 +2544,7 @@ function TierScan(thisTier)
 				124267, -- legs
 				124272, -- shoulder
 			},
-			["DEATH KNIGHT"] = {
+			["DEATHKNIGHT"] = {
 				124317, -- chest
 				124327, -- hands
 				124332, -- head

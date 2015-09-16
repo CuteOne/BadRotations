@@ -1,4 +1,5 @@
 if select(3,UnitClass("player")) == 10 then
+  function OptionsDef()
 
   --[[This function will create a Value Box.]]
   -- function CreateNewBox(value,textString,minValue,maxValue,step,base,tip1)
@@ -245,6 +246,6 @@ if select(3,UnitClass("player")) == 10 then
       -- General Configs
       CreateGeneralsConfig();
       WrapsManager();
-    --end
+  end
   end
 end

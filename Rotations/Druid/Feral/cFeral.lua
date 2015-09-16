@@ -642,8 +642,8 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         -- Rake - Set target via thisUnit variable
         function self.castRake(thisUnit)
-        	if self.power > 35 and ObjectExists(thisUnit) and self.debuff.remain.rakeStun==0 then
-        		return castSpell(thisUnit,self.spell.rake,false,false) == true or false
+        	if self.power > 35 and (getDebuffDuration(thisUnit,self.spell.rakeDebuff,"player")>4 or getDebuffDuration(thisUnit,self.spell.rakeDebuff,"player")==0) and ObjectExists(thisUnit) then
+        		return castSpell(thisUnit,self.spell.rake,false,false,false) == true or false
         	end
         end
 
