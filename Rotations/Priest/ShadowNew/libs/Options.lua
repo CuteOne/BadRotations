@@ -112,12 +112,8 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewWrap(thisConfig,"|cffBA55D3Rotation")
 
 			-- DoTWeave
-			CreateNewCheck(thisConfig,"DoTWeave","DoTWeave on CoP")
+			CreateNewCheck(thisConfig,"DoTWeave","DoTWeave on CoP Rotation")
 			CreateNewText(thisConfig,"DoTWeave")
-
-			-- VT on Target
-			CreateNewCheck(thisConfig,"VT on Target","VT on current target (AS)")
-			CreateNewText(thisConfig,"VT on Target")
 
 			-- Ignore orbs for SWD
 			CreateNewCheck(thisConfig,"SWD ignore Orbs","SWD with 5 orbs.")
@@ -156,7 +152,7 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewWrap(thisConfig,"|cffBA55D3Utilities")
 
 			-- Rotation
-			CreateNewDrop(thisConfig,"Rotation",1,"Choose rotation to use.","|cffBA55D3ravens")
+			CreateNewDrop(thisConfig,"Rotation",1,"Choose rotation to use.","|cffBA55D3ravens","|cffBA55D3SimC")
 			CreateNewText(thisConfig,"Rotation")
 
 			--SWP Farm

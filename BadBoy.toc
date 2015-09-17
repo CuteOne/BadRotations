@@ -214,6 +214,7 @@ Rotations\Priest\ShadowNew\libs\cBossHelperT18.lua
 Rotations\Priest\ShadowNew\libs\Options.lua
 Rotations\Priest\ShadowNew\libs\Shadow.lua
 Rotations\Priest\ShadowNew\libs\shadowRagnar.lua
+Rotations\Priest\ShadowNew\libs\shadowSimC.lua
 Rotations\Priest\ShadowNew\libs\Toggles.lua
 
 

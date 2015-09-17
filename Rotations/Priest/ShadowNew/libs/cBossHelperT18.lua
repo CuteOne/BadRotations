@@ -105,6 +105,12 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 
 			-- Shadow Lord Iskar
 				if currentBoss=="Shadow-Lord Iskar" then
+					-- escape fel chakram: 182200, 182178
+					if talent.spectral_guise then
+						if UnitDebuffID("player",18220) or UnitDebuffID("player",182178) then
+							if self.castSpectralGuise() then return end
+						end
+					end
 					-- auto target
 					if self.options.bosshelper.target.enabled then
 						-- target Shadowfel Warden
