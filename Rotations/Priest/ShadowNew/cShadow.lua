@@ -290,14 +290,14 @@ function cShadow:new()
 	function self.getBuffs()
 		local getBuffRemain = getBuffRemain
 
-		self.buff.angelic_feather =		getBuffRemain(player,self.spell.angelic_feather_buff)
-		self.buff.insanity = 			getBuffRemain(player,self.spell.insanity)
-		self.buff.surge_of_darkness = 	getBuffRemain(player,self.spell.surge_of_darkness)
+		self.buff.angelic_feather =		getBuffRemain("player",self.spell.angelic_feather_buff)
+		self.buff.insanity = 			getBuffRemain("player",self.spell.insanity)
+		self.buff.surge_of_darkness = 	getBuffRemain("player",self.spell.surge_of_darkness)
 
 		-- T17
-		self.buff.mental_instinct = 	getBuffRemain(player,167254)
+		self.buff.mental_instinct = 	getBuffRemain("player",167254)
 		-- T18
-		self.buff.premonition = 		getBuffRemain(player,188779)
+		self.buff.premonition = 		getBuffRemain("player",188779)
 	end
 
 	-- Cooldown updates
@@ -966,10 +966,12 @@ function cShadow:new()
 								if distance < 40 then
 									if hp >= self.options.rotation.min_health.value then
 										if ttd > 1*15*0.75+castTime or isDummy(thisUnit) then
-											return castSpell(thisUnit,self.spell.vampiric_touch,true,true) == true or false
-											-- if castSpell(thisUnit,self.spell.vampiric_touch,true,true) then
-											-- 	return true
-											-- end
+											-- return castSpell(thisUnit,self.spell.vampiric_touch,true,true) == true or false
+											if castSpell(thisUnit,self.spell.vampiric_touch,true,true) then
+												lastVTTarget=destination
+												lastVTTime=GetTime()
+												return true
+											end
 										end
 									end
 								end
@@ -978,6 +980,7 @@ function cShadow:new()
 					end
 				end
 			end
+			return false
 		end
 		function self.castVTOnTarget()
 			if self.getVT() < self.options.rotation.max_targets.value then
@@ -987,7 +990,11 @@ function cShadow:new()
 							if getDistance("player","target") < 40 then
 								--if UnitHealth("target") >= self.options.rotation.min_health.value then
 									if getTTD("target") > 1*15*0.3+(0.001*select(4,GetSpellInfo(34914))) then
-										return castSpell("target",self.spell.vampiric_touch,true,true) == true or false
+										if castSpell("target",self.spell.vampiric_touch,true,true) then
+											lastVTTarget=destination
+											lastVTTime=GetTime()
+											return true
+										end
 									end
 								--end
 							end
@@ -995,10 +1002,15 @@ function cShadow:new()
 					end
 				end
 			end
+			return false
 		end
 		function self.castVT(thisTarget)
 			if UnitGUID(thisTarget) ~= lastVTTarget or lastVTTime+5 < GetTime() then
-				return castSpell(thisTarget,self.spell.vampiric_touch,true,true) == true or false
+				if castSpell(thisTarget,self.spell.vampiric_touch,true,true) then
+					lastVTTarget=destination
+					lastVTTime=GetTime()
+					return true
+				end
 			else 
 				return false 
 			end
