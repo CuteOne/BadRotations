@@ -940,6 +940,9 @@ function cShadow:new()
 		end
 		-- surge_of_darkness
 		-- spectral_guise
+		function self.castSpectralGuise()
+			return castSpell("player",self.spell.spectral_guise,true,false) == true or false
+		end
 		-- vampiric_embrace
 		function self.castVE()
 			return castSpell("player",self.spell.vampiric_embrace,true,false) == true or false
