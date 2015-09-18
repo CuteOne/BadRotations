@@ -1820,9 +1820,9 @@ function isCastingTime(lagTolerance)
 end
 function getCastTimeRemain(unit)
 	if UnitCastingInfo(unit) ~= nil then
-		return select(6,UnitCastingInfo(unit)) - GetTime()
+		return select(6,UnitCastingInfo(unit))/1000 - GetTime()
 	elseif UnitChannelInfo(unit) ~= nil then
-		return select(6,UnitChannelInfo(unit)) - GetTime()
+		return select(6,UnitChannelInfo(unit))/1000 - GetTime()
 	else
 		return 0
 	end

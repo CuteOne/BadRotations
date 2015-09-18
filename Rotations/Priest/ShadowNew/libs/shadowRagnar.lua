@@ -81,6 +81,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 
 		-- lastVTTime nil prevention
 		if lastVTTime == nil then lastVTTime=GetTime()-10 end
+		if lastVTTarget == nil then lastVTTarget="0" end
 
 		-- DP queue fix
 		if _Queues[2944]==true and orbs<3 then _Queues[2944]=false end
@@ -434,6 +435,41 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		--[[ clarity_of_power ]]
 		if talent.clarity_of_power then
 			if 1==1 then
+				--[[ start stopcasting ]]
+				local mfrefreshtime = 2*gcd
+
+				-- mindflay if full t18 class trinket stacks
+				if UnitChannelInfo("player") == "Mind Flay" and eq.t18_classTrinket then
+					if getDebuffStacks("target",spell.mental_fatigue,"player") >= 5 and getDebuffRemain("target",spell.mental_fatigue,"player") > mfrefreshtime then
+						SpellStopCasting()
+						return
+					end
+				end
+
+				-- clip mindflay while building stacks
+				if UnitChannelInfo("player") == "Mind Flay" and eq.t18_classTrinket then
+					if getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
+						if getCastTimeRemain("player") < 0.61 then
+							SpellStopCasting()
+							return
+						end
+					end
+				end
+
+				-- MB ready
+				if UnitChannelInfo("player") == "Mind Flay" or UnitChannelInfo("Insanity") then
+					if cd.mind_blast < 0.1 and cd.mind_blast > 0
+					or cd.shadow_word_death < 0.1 and cd.shadow_word_death > 0 then
+						SpellStopCasting()
+						return
+					end
+				end
+
+				-- return rest
+				if UnitCastingInfo("player") ~= nil or UnitChannelInfo("player") ~= nil then return end
+				--[[ end stopcasting ]]
+
+
 				-- High Priority
 				-- Shadow Word: Death
 				if self.castSWDAuto("target") then return end
@@ -443,7 +479,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 
 				-- Insanity: extend mental fatigue
 				if eq.t18_classTrinket then
-					if (getDebuffRemain("target",spell.mental_fatigue,"player") > 0 and getDebuffRemain("target",spell.mental_fatigue,"player") < 1.5*gcd) 
+					if (getDebuffRemain("target",spell.mental_fatigue,"player") > 0 and getDebuffRemain("target",spell.mental_fatigue,"player") < mfrefreshtime) 
 					or getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
 						if self.castMindFlay("target") then return end
 					end
