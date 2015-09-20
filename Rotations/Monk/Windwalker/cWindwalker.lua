@@ -338,6 +338,10 @@ if select(2, UnitClass("player")) == "MONK" then
             CreateNewCheck(thisConfig,"Trinkets")
             CreateNewText(thisConfig,"Trinkets")
 
+            -- Touch of the Void
+            CreateNewCheck(thisConfig,"Touch of the Void");
+            CreateNewText(thisConfig,"Touch of the Void");
+
             if self.rotation == 1 then
                 -- Xuen
                 CreateNewCheck(thisConfig,"Xuen");

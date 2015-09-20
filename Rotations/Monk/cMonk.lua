@@ -76,6 +76,7 @@ function cMonk:new(spec)
         serenityBuff 					= 152173,
         touchOfDeathBuff 				= 121125,
         tigerPowerBuff 					= 125359,
+        zenSphereBuff 					= 124081,
 
         -- Buff - Presense
 
@@ -158,6 +159,7 @@ function cMonk:new(spec)
 		self.buff.serenity 					= UnitBuffID("player",self.spell.serenityBuff)~=nil or false
 		self.buff.tigerPower 				= UnitBuffID("player",self.spell.tigerPowerBuff)~=nil or false 
 		self.buff.touchOfDeath 				= UnitBuffID("player",self.spell.touchOfDeathBuff)~=nil or false
+		self.buff.zenSphere 				= UnitBuffID("player",self.spell.zenSphereBuff)~=nil or false
 	end	
 
 	function self.getClassBuffsDuration()
@@ -170,6 +172,7 @@ function cMonk:new(spec)
 		self.buff.duration.serenity 				= getBuffDuration("player",self.spell.serenityBuff) or 0		
 		self.buff.duration.tigerPower 				= getBuffDuration("player",self.spell.tigerPowerBuff) or 0
 		self.buff.duration.touchOfDeath 			= getBuffDuration("player",self.spell.touchOfDeathBuff) or 0
+		self.buff.duration.zenSphere 	 			= getBuffDuration("player",self.spell.zenSphereBuff) or 0
 	end
 
 	function self.getClassBuffsRemain()
@@ -182,6 +185,7 @@ function cMonk:new(spec)
 		self.buff.remain.serenity 				= getBuffRemain("player",self.spell.serenityBuff) or 0
 		self.buff.remain.tigerPower 			= getBuffRemain("player",self.spell.tigerPowerBuff) or 0
 		self.buff.remain.touchOfDeath 			= getBuffRemain("player",self.spell.touchOfDeathBuff) or 0
+		self.buff.remain.zenSphere 				= getBuffRemain("player",self.spell.zenSphereBuff) or 0
 	end
 
 	function self.getClassCharges()

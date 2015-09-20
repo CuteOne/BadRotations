@@ -384,6 +384,7 @@ function canUse(itemID)
 		[4] = {Buff = nil,    Item = 5512}, --Healthstone
 		[5] = {Buff = nil,    Item = Pot}, --Healing Pot
 	}
+	if itemID==0 then return false end
 	for i = 1, #DPSPotionsSet do
 		if DPSPotionsSet[i].Item == itemID then
 			if potionUsed then
@@ -2299,13 +2300,14 @@ function useItem_old(itemID)
 end
 -- useItem(12345)
 function useItem(itemID)
+	local spamDelay = spamDelay or 0
 	if (GetItemCount(itemID) > 0) or (select(2,C_ToyBox.GetToyInfo(itemID))~=false) then
 		if GetItemCooldown(itemID)==0 then
-			-- if not spamDelay or GetTime() > spamDelay then
-				UseItemByName(select(1,GetItemInfo(itemID)));
-				-- spamDelay = GetTime() + 1;
+			if not spamDelay or GetTime() > spamDelay then
+				UseItemByName(tostring(select(1,GetItemInfo(itemID))));
+				spamDelay = GetTime() + 1;
 				return true
-			-- end
+			end
 		end
 	end
 	return false

@@ -21,6 +21,7 @@ if select(2, UnitClass("player")) == "MONK" then
         local enemies           = self.enemies
         local flaskBuff         = getBuffRemain("player",self.flask.wod.buff.agilityBig) or 0
         local glyph             = self.glyph
+        local healthPot         = getHealthPot() or 0
         local inCombat          = self.inCombat
         local inRaid            = select(2,IsInInstance())=="raid"
         local level             = self.level
@@ -154,16 +155,32 @@ if select(2, UnitClass("player")) == "MONK" then
             if getDistance("target")>=8 and (BadBoy_data['FSK']==1 and cd.flyingSerpentKick>1) and chi.diff>=2 and not isCastingSpell(self.spell.cracklingJadeLightning) and isInCombat("target") then
                 if self.castCracklingJadeLightning() then return end
             end
+        -- Touch of the Void
+            if (useCDs() or useAoE()) and isChecked("Touch of the Void") and inCombat and getDistance(self.units.dyn5)<5 then
+                if hasEquiped(128318) then
+                    if GetItemCooldown(128318)==0 then
+                        useItem(128318)
+                    end
+                end
+            end
         end -- End Action List - Extras
     -- Action List - Defensive
         function actionList_Defensive()
             if useDefensive() then
         -- Pot/Stoned
-                if isChecked("Pot/Stoned") and getHP("player") <= getValue("Pot/Stoned") and isInCombat("player") and usePot then
+                if isChecked("Pot/Stoned") and getHP("player") <= getValue("Pot/Stoned") and inCombat then
                     if canUse(5512) then
-                        useItem(5512) --UseItemByName(tostring(select(1,GetItemInfo(5512))))
-                    elseif canUse(76097) then
-                        useItem(76097) --UseItemByName(tostring(select(1,GetItemInfo(76097))))
+                        useItem(5512)
+                    elseif canUse(healthPot) then
+                        useItem(healthPot)
+                    end
+                end
+        -- Heirloom Neck
+                if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
+                    if hasEquiped(122668) then
+                        if GetItemCooldown(122668)==0 then
+                            useItem(122668)
+                        end
                     end
                 end
         --  Expel Harm
@@ -375,7 +392,7 @@ if select(2, UnitClass("player")) == "MONK" then
             for i =1, #members do
                 thisUnit = members[i].Unit
                 if getDistance(thisUnit)<40 then
-                    if ttm>2 and not getBuffRemain(thisUnit,self.spell.zenSphere)==0 and not buff.serenity then
+                    if ttm>2 and getBuffRemain(thisUnit,self.spell.zenSphereBuff)==0 and not buff.serenity then
                         if self.castZenSphere(thisUnit) then return end
                     end
                 end
@@ -431,7 +448,7 @@ if select(2, UnitClass("player")) == "MONK" then
             for i=1, #members do
                 thisUnit = members[i].Unit
                 if getDistance(thisUnit)<40 then
-                    if ttm>2 and not getBuffRemain(thisUnit,self.spell.zenSphere)==0 then
+                    if ttm>2 and getBuffRemain(thisUnit,self.spell.zenSphere)==0 then
                         if self.castZenSphere(thisUnit) then return end
                     end
                 end
@@ -489,7 +506,7 @@ if select(2, UnitClass("player")) == "MONK" then
             for i =1, #members do
                 thisUnit = members[i].Unit
                 if getDistance(thisUnit)<40 then
-                    if ttm>2 and not getBuffRemain(thisUnit,self.spell.zenSphere)==0 then
+                    if ttm>2 and getBuffRemain(thisUnit,self.spell.zenSphere)==0 then
                         if self.castZenSphere(thisUnit) then return end
                     end
                 end
@@ -527,7 +544,7 @@ if select(2, UnitClass("player")) == "MONK" then
             for i =1, #members do
                 thisUnit = members[i].Unit
                 if getDistance(thisUnit)<40 then
-                    if ttm>2 and not getBuffRemain(thisUnit,self.spell.zenSphere)==0 and not buff.serenity then
+                    if ttm>2 and getBuffRemain(thisUnit,self.spell.zenSphere)==0 and not buff.serenity then
                         if self.castZenSphere(thisUnit) then return end
                     end
                 end
@@ -587,7 +604,7 @@ if select(2, UnitClass("player")) == "MONK" then
             for i =1, #members do
                 thisUnit = members[i].Unit
                 if getDistance(thisUnit)<40 then
-                    if ttm>2 and not getBuffRemain(thisUnit,self.spell.zenSphere)==0 then
+                    if ttm>2 and getBuffRemain(thisUnit,self.spell.zenSphere)==0 then
                         if self.castZenSphere(thisUnit) then return end
                     end
                 end
@@ -630,7 +647,7 @@ if select(2, UnitClass("player")) == "MONK" then
             for i =1, #members do
                 thisUnit = members[i].Unit
                 if getDistance(thisUnit)<40 then
-                    if ttm>2 and not getBuffRemain(thisUnit,self.spell.zenSphere)==0 and not buff.serenity then
+                    if ttm>2 and getBuffRemain(thisUnit,self.spell.zenSphere)==0 and not buff.serenity then
                         if self.castZenSphere(thisUnit) then return end
                     end
                 end
@@ -686,6 +703,11 @@ if select(2, UnitClass("player")) == "MONK" then
 -----------------
     -- Run Action List - Defensive
             if actionList_Defensive() then return end
+------------------
+--- Pre-Combat ---
+------------------
+    -- Run Action List - Pre-Combat
+            if actionList_PreCombat() then return end
 -----------------
 --- In Combat ---
 -----------------
