@@ -403,7 +403,7 @@ function canUse(itemID)
 			goOn = true
 		end
 	end
-	if goOn == true and (GetItemCount(itemID,false,false) > 0 or select(2,C_ToyBox.GetToyInfo(itemID))~=false) then
+	if goOn == true and (GetItemCount(itemID,false,false) > 0 or PlayerHasToy(itemID)) then
 		if GetItemCooldown(itemID)==0 then
 			return true
 		else
@@ -2301,7 +2301,7 @@ end
 -- useItem(12345)
 function useItem(itemID)
 	local spamDelay = spamDelay or 0
-	if (GetItemCount(itemID) > 0) or (select(2,C_ToyBox.GetToyInfo(itemID))~=false) then
+	if GetItemCount(itemID) > 0 or PlayerHasToy(itemID) then
 		if GetItemCooldown(itemID)==0 then
 			if not spamDelay or GetTime() > spamDelay then
 				UseItemByName(tostring(select(1,GetItemInfo(itemID))));

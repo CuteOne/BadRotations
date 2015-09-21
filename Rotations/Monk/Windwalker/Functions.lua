@@ -167,7 +167,7 @@ if select(3,UnitClass("player")) == 10 then
 
   function canFSK(unit)
   	local targetDistance = getRealDistance("player","target")
-    if ((targetDistance < 8 and isInCombat("player")) or (targetDistance < 60 and targetDistance > 5)) 
+    if ((targetDistance < 5 and isInCombat("player")) or (targetDistance < 60 and targetDistance > 5)) 
       and not hasGlyph(1017)
       and ((getSpellCD(_FlyingSerpentKick)==0 and not usingFSK()) 
           or usingFSK())

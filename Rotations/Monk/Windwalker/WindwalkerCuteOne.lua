@@ -83,8 +83,8 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
             end -- End Death Monk Mode
         -- Stop Casting
-            if ((getDistance(self.units.dyn5)<5 or (BadBoy_data['FSK']==1 and cd.flyingSerpentKick==0)) and isCastingSpell(self.spell.cracklingJadeLightning)) or (not useAoE() and isCastingSpell(self.spell.spinningCraneKick)) then
-                RunMacroText("/stopcasting")
+            if ((getDistance("target")<5 or (BadBoy_data['FSK']==1 and cd.flyingSerpentKick==0)) and isCastingSpell(self.spell.cracklingJadeLightning)) or (not useAoE() and isCastingSpell(self.spell.spinningCraneKick)) then
+                SpellStopCasting()
             end
         -- Cancel Storm, Earth, and Fire
             if charges.stormEarthAndFire~=0 and (not inCombat or BadBoy_data['SEF']~=1) then
@@ -128,7 +128,11 @@ if select(2, UnitClass("player")) == "MONK" then
         -- Flying Serpent Kick
             if BadBoy_data['FSK']==1 and ObjectExists("target") then
                 if canFSK("target") and not isDummy() and (solo or inCombat) then
-                    if self.castFlyingSerpentKick() then return end
+                    if self.castFlyingSerpentKick() then 
+                        if inCombat and usingFSK() then 
+                            if self.castFlyingSerpentKickEnd() then return end
+                        end
+                    end
                 end
                 if (not ObjectIsFacing("player","target") or getRealDistance("player","target")<8) and usingFSK() then
                     if self.castFlyingSerpentKickEnd() then return end
@@ -152,7 +156,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
             end
         -- Crackling Jade Lightning
-            if getDistance("target")>=8 and (BadBoy_data['FSK']==1 and cd.flyingSerpentKick>1) and chi.diff>=2 and not isCastingSpell(self.spell.cracklingJadeLightning) and isInCombat("target") then
+            if getDistance("target")>=8 and (BadBoy_data['FSK']==1 and cd.flyingSerpentKick>1) and chi.diff>=2 and not isCastingSpell(self.spell.cracklingJadeLightning) and isInCombat("target") and not isMoving("player") then
                 if self.castCracklingJadeLightning() then return end
             end
         -- Touch of the Void
