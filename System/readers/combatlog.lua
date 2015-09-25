@@ -398,6 +398,10 @@ function bb.read.combatLog()
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
       destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
     -----------------------
+    --[[ Class Trinket ]]
+    if (source == bb.guid and (spell == 35395 or spell == 53595)) then
+      previousT18classTrinket = destination
+    end
     --[[ Double Jeopardy ]]
     if core ~= nil and class == 2 and spell == 20271 and source == bb.guid and previousJudgmentTarget ~= destination then
       core.previousJudgmentTarget = destination

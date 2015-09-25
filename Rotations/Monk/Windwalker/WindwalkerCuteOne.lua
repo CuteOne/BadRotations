@@ -39,7 +39,7 @@ if select(2, UnitClass("player")) == "MONK" then
         local thp               = getHP(self.units.dyn5)
         local ttd               = getTimeToDie(self.units.dyn5)
         local ttm               = self.timeToMax
-
+        
     --------------------
     --- Action Lists ---
     --------------------
