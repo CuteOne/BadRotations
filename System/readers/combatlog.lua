@@ -403,8 +403,8 @@ function bb.read.combatLog()
       previousT18classTrinket = destination
     end
     --[[ Double Jeopardy ]]
-    if core ~= nil and class == 2 and spell == 20271 and source == bb.guid and previousJudgmentTarget ~= destination then
-      core.previousJudgmentTarget = destination
+    if spell == 20271 and source == bb.guid and previousJudgmentTarget ~= destination then
+      previousJudgmentTarget = destination
     end
   end
   function cl:Rogue(...)
