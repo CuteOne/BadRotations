@@ -464,7 +464,7 @@ function cRetribution:new()
 					if thisEnemy.distance < 30 then
 						-- here i will need to compare my previous judgment target with the previous one
 						-- we declare a var in in core updated by reader with last judged unit
-						if self.previousJudgmentTarget ~= thisEnemy.guid then
+						if previousJudgmentTarget ~= thisEnemy.guid then
 							return castSpell(thisEnemy.unit,self.spell.judgment,true,false) == true or false
 						end
 					end
