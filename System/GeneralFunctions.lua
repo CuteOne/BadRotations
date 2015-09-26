@@ -1240,10 +1240,10 @@ function getTotemDistance(Unit1)
 	if Unit1 == nil then
 		Unit1 = "player"
 	end
-	if activeTotem ~= nil and UnitIsVisible(Unit1) then
+
+	if UnitIsVisible(Unit1) then
 		for i = 1,GetObjectCountBB() do
-			--print(UnitGUID(ObjectWithIndex(i)))
-			if activeTotem == UnitGUID(GetObjectIndex(i)) then
+			if UnitCreator(ObjectWithIndex(i)) == ObjectPointer("player") and UnitName(ObjectWithIndex(i)) == "Searing Totem" then
 				X2,Y2,Z2 = GetObjectPosition(GetObjectIndex(i))
 			end
 		end

@@ -82,7 +82,7 @@ if select(3, UnitClass("player")) == 7 then
         and not castingUnit("player")
         and getBuffRemain("player",_AscendanceEnhancement)==0
         and (not isInCombat("player") or (isInCombat("player") and targetDistance>10)) then
-        if castSpell("player",_GhostWolf,true) then return; end
+        if castSpell("player",_GhostWolf,false,false,false) then return; end
       end
       -- Water Walking
       if IsSwimming() and not isInCombat("player") and not UnitBuffID("player",_WaterWalking) then
@@ -133,10 +133,10 @@ if select(3, UnitClass("player")) == 7 then
         if castSpell("player",_EarthElementalTotem,true) then return; end
       end
       -- Fire
-      if (not (hasSearing() or hasFireElemental()) or (hasSearing() and getTotemDistance("target") > 20)) and targetDistance<=20 and getNumEnemies("player",8)<6 and isInCombat("player") and isChecked("Searing") then
+      if (not (hasSearing() or hasFireElemental()) or (hasSearing() and getTotemDistance("target") > 20)) and getDistance("target")<=20 and getNumEnemies("player",8)<6 and isInCombat("player") and isChecked("Searing") then
         if castSpell("player",_SearingTotem,true) then return; end
       end
-      if (not (hasMagma() or hasFireElemental()) or (hasMagma() and getTotemDistance("target") > 8)) and targetDistance<8 and getNumEnemies("player",8)>=6 and isInCombat("player") then
+      if (not (hasMagma() or hasFireElemental()) or (hasMagma() and getTotemDistance("target") > 8)) and getDistance("target")<8 and getNumEnemies("player",8)>=6 and isInCombat("player") then
         if castSpell("player",_MagmaTotem,true) then return; end
       end
       -- Wind
@@ -184,6 +184,19 @@ if select(3, UnitClass("player")) == 7 then
         if castSpell("target",_WindShear,false) then return; end
       end
 
+      -------------
+      --- Pause ---
+      -------------
+      if hastar and attacktar and not deadtar and getDistance("target")<5 then StartAttack() end
+      if pause()
+        or SpellIsTargeting()
+        or UnitInVehicle("player")
+        or UnitIsDead("target")
+        or UnitIsDead("player") then
+        return true
+      end
+
+      if hastar and attacktar and not deadtar and isInCombat("player") then
       -----------------
       --- Cooldowns ---
       -----------------
@@ -202,19 +215,6 @@ if select(3, UnitClass("player")) == 7 then
         end
       end
 
-      -------------
-      --- Pause ---
-      -------------
-      if pause()
-        or SpellIsTargeting()
-        or UnitInVehicle("player")
-        or UnitIsDead("target")
-        or UnitIsDead("player") then
-        return true
-      end
-
-
-      if hastar and attacktar and isInCombat("player") then
         -------------------------
         ---Combat Rotation---
         -------------------------
