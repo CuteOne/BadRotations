@@ -1,7 +1,7 @@
 if select(2, UnitClass("player")) == "DRUID" then
     function cFeral:FeralCuteOne()
    	-- Global Functions
-    	GroupInfo() -- Determings Player with Lowest HP
+    	-- GroupInfo() -- Determings Player with Lowest HP
     	KeyToggles() -- Keyboard Toggles
    	-- Locals
    		if leftCombat == nil then leftCombat = GetTime() end
@@ -353,8 +353,8 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-- Mark of the Wild
 					-- mark_of_the_wild,if=!aura.str_agi_int.up
 			        if isChecked("Mark of the Wild") and not stealth then
-			            for i = 1, #members do --members
-			                if not isBuffed(members[i].Unit,{1126,115921,116781,20217,160206,69378,159988,160017,90363,160077}) 
+			            for i = 1, #nNova do --nNova
+			                if not isBuffed(nNova[i].Unit,{1126,115921,116781,20217,160206,69378,159988,160017,90363,160077}) 
 			                	--and (solo or (inInstance and not UnitInParty("player")) or inRaid)
 			                then
 			                	if self.castMarkOfTheWild() then return end

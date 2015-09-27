@@ -1,8 +1,7 @@
 if select(2, UnitClass("player")) == "SHAMAN" then
     function cEnhancement:EnhancementCuteOne()
-    	GroupInfo()
+    	-- GroupInfo()
     	KeyToggles()
-    	ChatOverlay("In Development: Use Old Rotation")
     --------------
     --- Locals ---
     --------------
@@ -25,6 +24,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         local php               = self.health
         local power             = self.power
         local race              = self.race
+        local racial 			= self.getRacial()
         local recharge          = self.recharge
         local regen             = self.powerRegen
         local solo              = select(2,IsInInstance())=="none"
@@ -78,8 +78,8 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         	end
         -- Tremor Totem
         	if isChecked("Tremor Totem") and cd.tremorTotem==0 then
-        		for i=1,#members do
-        			local thisUnit=members[i].Unit
+        		for i=1,#nNova do
+        			local thisUnit=nNova[i].unit
         			local thisUnitDist=getDistance(thisUnit)
         			if thisUnitDist<30 and hasNoControl(self.spell.tremorTotem,thisUnit) then
         				if self.castTremorTotem() then return end
@@ -97,23 +97,23 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 		-- Ancestral Guidance
 				if isChecked("Ancestral Guidance") then
 					if not inCombat and needsHealing>0 then needsHealing=0 end
-					for i=1,#members do
-						local thisUnit = members[i].Unit
-						local thisUnitHP = members[i].HP
+					for i=1,#nNova do
+						local thisUnit = nNova[i].unit
+						local thisUnitHP = getHP(thisUnit)
 						if thisUnitHP < getOptionValue("Ancestral Guidance") then
 							needsHealing = needsHealing+1
 						end
 					end
-					if needsHealing >= 3 or needsHealing==#members then
+					if needsHealing >= 3 or needsHealing==#nNova then
 						if self.castAncestralGuidance() then return end
 					end
 				end
 		-- Ancestral Spirit
 				if isChecked("Ancestral Spirit") then
-					if getOptionValue("Ancestral Spirit")=="Selected Target" then
+					if getOptionValue("Ancestral Spirit")==1 then
 						if self.castAncestralSpirit("target") then return end
 					end
-					if getOptionValue("Ancestral Spirit")=="Mouseover Target" then
+					if getOptionValue("Ancestral Spirit")==2 then
 						if self.castAncestralSpirit("mouseover") then return end
 					end
 				end
@@ -122,18 +122,18 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 		          	if self.castAstralShift() then return end
 		        end
 		-- Capacitor Totem
-				if isChecked("Capacitor Totem - Defensive") and php<=getOptionValue("Capacitor Totem") then
+				if isChecked("Capacitor Totem - Defensive") and php<=getOptionValue("Capacitor Totem") and ttd>5 then
 					if self.castCapacitorTotem() then return end
 				end
 		-- Cleanse Spirit
         		if isChecked("Cleanse Spirit") then
-			        if getOptionValue("Cleanse Spirit")=="Player Only" and canDispel("player",self.spell.cleanseSpirit) then
+			        if getOptionValue("Cleanse Spirit")==1 and canDispel("player",self.spell.cleanseSpirit) then
 			          	if self.castCleanseSpirit("player") then return; end
 			        end
-			        if getOptionValue("Cleanse Spirit")=="Selected Target" and canDispel("target",self.spell.cleanseSpirit) then
+			        if getOptionValue("Cleanse Spirit")==2 and canDispel("target",self.spell.cleanseSpirit) then
 			        	if self.castCleanseSpirit("target") then return end
 			        end
-			        if getOptionValue("Cleanse Spirit")=="Mouseover Target" and canDispel("mouseover",self.spell.cleanseSpirit) then
+			        if getOptionValue("Cleanse Spirit")==3 and canDispel("mouseover",self.spell.cleanseSpirit) then
 			          	if self.castCleanseSpirit("mouseover") then return end
 			        end
 			    end
@@ -142,8 +142,8 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 					if self.castEarthElementalTotem() then return end
 				end
 		-- Gift of the Naaru
-		        if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") then
-		          	if self.castRacial() then return end
+		        if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and self.race=="Draenei" then
+		          	if castSpell("player",racial,false,false,false) then return end
 		        end
 		-- Healing Rain
 				if isChecked("Healing Rain") then
@@ -154,17 +154,17 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			      	if self.castHealingStreamTotem() then return end
 			    end
 		-- Healing Surge
-				if isChecked("Healing Surge") and (not inCombat or charges.maelstromWeapon>=4) then
-					if (getOptionValue("Healing Surge - Target") == "Player Only" or not inCombat) and php < getOptionValue("Healing Surge - Level") then
+				if isChecked("Healing Surge") then
+					if (getOptionValue("Healing Surge - Target")==1 or not inCombat) and php < getOptionValue("Healing Surge - Level") then
 						if self.castHealingSurge("player") then return end
 					end
-					if getOptionValue("Healing Surge - Target") == "Mouseover Target" and ObjectExists("mouseover") and getHP("mouseover") < getOptionValue("Healing Surge - Level") then
+					if getOptionValue("Healing Surge - Target")==3 and ObjectExists("mouseover") and getHP("mouseover") < getOptionValue("Healing Surge - Level") then
 						if self.castHealingSurge("mouseover") then return end
 					end
-					if getOptionValue("Healing Surge - Target") == "Lowest Target" then
-						for i=1,#members do
-							local thisUnit = members[i].Unit
-							local thisUnitHP = members[i].HP
+					if getOptionValue("Healing Surge - Target")==2 then
+						for i=1,#nNova do
+							local thisUnit = nNova[i].unit
+							local thisUnitHP = getHP(thisUnit)
 							local thisUnitDist = getDistance(thisUnit)
 							if thisUnitDist<40 and thisUnitHP < getOptionValue("Healing Surge - Level") then
 								if self.castHealingSurge(thisUnit) then return end
@@ -202,7 +202,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 	                end
 	            end
 	    -- Capacitor Totem
-				if isChecked("Capacitor Totem - Interrupt") then
+				if isChecked("Capacitor Totem - Interrupt") and ttd>5 then
 					for i=1, #getEnemies("player",8) do
 	    				thisUnit = getEnemies("player",8)[i]
 	                    if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
@@ -331,7 +331,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			end
 		-- Lava Lash
 			-- lava_lash,if=!talent.echo_of_the_elements.enabled|(talent.echo_of_the_elements.enabled&(charges=2|(action.lava_lash.charges_fractional>1.8)|target.time_to_die<8))
-			if not talent.echoOfTheElements or (talent.echoOfTheElements and (charges.lavalash==2 or (frac.lavalash>1.8) or ttd<8)) then
+			if not talent.echoOfTheElements or (talent.echoOfTheElements and (charges.lavaLash==2 or (frac.lavaLash>1.8) or ttd<8)) then
 				if self.castLavaLash() then return end
 			end
 		-- Flame Shock

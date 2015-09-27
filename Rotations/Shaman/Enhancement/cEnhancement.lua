@@ -169,10 +169,13 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         function self.getFrac()
             local getCharges = getCharges
             local getRecharge = getRecharge
+            local lavaLashRechargeTime = select(4,GetSpellCharges(self.spell.lavaLashStacks))
+            local stormstrikeRechargeTime = select(4,GetSpellCharges(self.spell.stormstrikeStacks))
+            local windstrikeRechargeTime = select(4,GetSpellCharges(self.spell.windstrikeStacks))
 
-            self.frac.lavaLash      = (getCharges(self.spell.lavaLashStacks)+((7.5-getRecharge(self.spell.lavaLashStacks))/7.5)) or 0
-            self.frac.stormstrike   = (getCharges(self.spell.stormstrikeStacks)+((7.5-getRecharge(self.spell.stormstrikeStacks))/7.5)) or 0
-            self.frac.windstrike    = (getCharges(self.spell.windstrikeStacks)+((7.5-getRecharge(self.spell.windstrikeStacks))/7.5)) or 0
+            self.frac.lavaLash      = (getCharges(self.spell.lavaLashStacks)+((lavaLashRechargeTime-getRecharge(self.spell.lavaLashStacks))/lavaLashRechargeTime)) or 0
+            self.frac.stormstrike   = (getCharges(self.spell.stormstrikeStacks)+((stormstrikeRechargeTime-getRecharge(self.spell.stormstrikeStacks))/stormstrikeRechargeTime)) or 0
+            self.frac.windstrike    = (getCharges(self.spell.windstrikeStacks)+((windstrikeRechargeTime-getRecharge(self.spell.windstrikeStacks))/windstrikeRechargeTime)) or 0
         end
 
         ---------------
@@ -605,7 +608,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         end
         -- Magma Totem
         function self.castMagmaTotem()
-            if self.level>=36 and ((not self.totem.magmaTotem) or (self.totem.magmaTotem and ObjectExists("target") and getTotemDistance("target")>=8)) and self.powerPercent>21.1 and ObjectExists("target") then
+            if self.level>=36 and ((not self.totem.magmaTotem) or (self.totem.magmaTotem and ObjectExists("target") and getTotemDistance("target")>=8 and getDistance("target")<8)) and self.powerPercent>21.1 and ObjectExists("target") then
                 if castSpell("player",self.spell.magmaTotem,false,false,false) then return end
             end
         end

@@ -83,11 +83,11 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 if self.castDeathsAdvance() then return end
             end
         -- Death Grip
-            if ((solo and #members==1) or hasThreat(self.units.dyn30AoE)) then
+            if ((solo and #nNova==1) or hasThreat(self.units.dyn30AoE)) then
                 if self.castDeathGrip() then return end
             end
         -- Gorefiend's Grasp
-            if ((solo and #members==1) or hasThreat(self.units.dyn20AoE)) then
+            if ((solo and #nNova==1) or hasThreat(self.units.dyn20AoE)) then
                 if self.castDeathGrip() then return end
             end
         -- Unholy Presence
@@ -241,8 +241,8 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         -- food,type=buttered_sturgeon
         -- Horn of Winter
             if isChecked("Horn of Winter") and not (IsFlying() or IsMounted()) and not inCombat then
-                for i = 1, #members do
-                    if not isBuffed(members[i].Unit,{57330,19506,6673}) and (#nNova==select(5,GetInstanceInfo()) or solo or (party and not UnitInParty("player")))
+                for i = 1, #nNova do
+                    if not isBuffed(nNova[i].unit,{57330,19506,6673}) and (#nNova==select(5,GetInstanceInfo()) or solo or (party and not UnitInParty("player")))
                     then
                         if self.castHornOfWinter() then return end
                     end
