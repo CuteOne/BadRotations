@@ -206,6 +206,7 @@ function canDispel(Unit,spellID)
 	end
 	if ClassNum == 7 then --Shaman
 		if spellID == 51886 then typesList = { "Curse" } end -- Cleanse Spirit
+		if spellID == 370 then typesList = { "Magic" } end -- Purge
 	end
 	if ClassNum == 8 then --Mage
 		typesList = { }
@@ -1243,7 +1244,7 @@ function getTotemDistance(Unit1)
 
 	if UnitIsVisible(Unit1) then
 		for i = 1,GetObjectCountBB() do
-			if UnitCreator(ObjectWithIndex(i)) == ObjectPointer("player") and UnitName(ObjectWithIndex(i)) == "Searing Totem" then
+			if UnitCreator(ObjectWithIndex(i)) == ObjectPointer("player") and (UnitName(ObjectWithIndex(i)) == "Searing Totem" or UnitName(ObjectWithIndex(i)) == "Magma Totem") then
 				X2,Y2,Z2 = GetObjectPosition(GetObjectIndex(i))
 			end
 		end
@@ -1252,7 +1253,7 @@ function getTotemDistance(Unit1)
 		--print(TotemDistance)
 		return TotemDistance
 	else
-		return 1000
+		return 0
 	end
 end
 -- if getBossID("boss1") == 71734 then
@@ -1509,7 +1510,8 @@ function hasGlyph(glyphid)
 	return false
 end
 -- if hasNoControl(12345) == true then
-function hasNoControl(spellID)
+function hasNoControl(spellID,unit)
+	if unit==nil then unit="player" end
 	local eventIndex = C_LossOfControl.GetNumEvents()
 	while (eventIndex > 0) do
 		local _,_,text = C_LossOfControl.GetEventInfo(eventIndex)
@@ -1549,8 +1551,13 @@ function hasNoControl(spellID)
 		end
 		-- Shaman
 		if select(3,UnitClass("player")) == 7 then
+			if spellID == 58875 -- Spirit Walk
+				and (text == LOSS_OF_CONTROL_DISPLAY_ROOT or text == LOSS_OF_CONTROL_DISPLAY_SNARE)
+			then
+				return true
+			end
 			if spellID == 8143 --Tremor Totem
-				and	(text == LOSS_OF_CONTROL_DISPLAY_STUN
+				and	(text == LOSS_OF_CONTROL_DISPLAY_CHARM
 				or text == LOSS_OF_CONTROL_DISPLAY_FEAR
 				or text == LOSS_OF_CONTROL_DISPLAY_SLEEP)
 			then

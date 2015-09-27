@@ -270,7 +270,7 @@ function cCharacter:new(class)
 			-- Alliance
 			Dwarf    = 20594, -- Stoneform
 			Gnome    = 20589, -- Escape Artist
-			Draenei  = 121093, -- Gift of the Naaru
+			Draenei  = 59547, -- Gift of the Naaru
 			Human    = 59752, -- Every Man for Himself
 			NightElf = 58984, -- Shadowmeld
 			Worgen   = 68992, -- Darkflight
