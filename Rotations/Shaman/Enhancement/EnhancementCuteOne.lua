@@ -104,7 +104,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 							needsHealing = needsHealing+1
 						end
 					end
-					if needsHealing >= 3 or needsHealing==#nNova then
+					if inCombat and (needsHealing >= 3 or needsHealing==#nNova) then
 						if self.castAncestralGuidance() then return end
 					end
 				end
@@ -118,11 +118,11 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 					end
 				end
         -- Astral Shift
-		        if isChecked("Astral Shift") and not castingUnit("player") and php<=getOptionValue("Astral Shift") then
+		        if isChecked("Astral Shift") and inCombat and not castingUnit("player") and php<=getOptionValue("Astral Shift") then
 		          	if self.castAstralShift() then return end
 		        end
 		-- Capacitor Totem
-				if isChecked("Capacitor Totem - Defensive") and php<=getOptionValue("Capacitor Totem") and ttd>5 then
+				if isChecked("Capacitor Totem - Defensive") and inCombat and php<=getOptionValue("Capacitor Totem") and ttd>5 then
 					if self.castCapacitorTotem() then return end
 				end
 		-- Cleanse Spirit
@@ -138,7 +138,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			        end
 			    end
 		-- Earth Elemental Totem
-				if isChecked("Earth Elemental Totem") and php <= getOptionValue("Earth Elemental Totem") then
+				if isChecked("Earth Elemental Totem") and inCombat and php <= getOptionValue("Earth Elemental Totem") then
 					if self.castEarthElementalTotem() then return end
 				end
 		-- Gift of the Naaru
@@ -173,7 +173,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 					end
 				end
 		-- Shamanistic Rage
-		        if isChecked("Shamanistic Rage") and php <= getOptionValue("Shamanistic Rage") then
+		        if isChecked("Shamanistic Rage") and inCombat and php <= getOptionValue("Shamanistic Rage") then
 		          	if self.castShamanisticRage() then return end
 		        end
     		end -- End Defensive Check
@@ -424,7 +424,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			end
 		-- Chain Lightning
 			-- chain_lightning,if=buff.maelstrom_weapon.react=5&((glyph.chain_lightning.enabled&spell_targets.chain_lightning>=3)|(!glyph.chain_lightning.enabled&spell_targets.chain_lightning>=2))
-			if charges.maelstromWeapon==5 and ((glyph.chainLightning and #getEnemies(self.units.dyn10,false)>=3) or (not glyph.chainLightning and #getEnemies(self.units.dyn10,false)>=2)) then
+			if charges.maelstromWeapon==5 and ((glyph.chainLightning and #getEnemies(self.units.dyn10AoE,10)>=3) or (not glyph.chainLightning and #getEnemies(self.units.dyn10AoE,10)>=2)) then
 				if self.castChainLightning() then return end
 			end
 		-- Unleash Elements
@@ -459,7 +459,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			end
 		-- Chain Lightning
 			-- chain_lightning,if=(buff.maelstrom_weapon.react>=3|buff.ancestral_swiftness.up)&((glyph.chain_lightning.enabled&spell_targets.chain_lightning>=4)|(!glyph.chain_lightning.enabled&spell_targets.chain_lightning>=3))
-			if (charges.maelstromWeapon>=3 or buff.ancestralSwiftness) and ((glyph.chainLightning and #getEnemies(self.units.dyn10,false)>=4) or (not glyph.chainLightning and #getEnemies(self.units.dyn10,false)>=3)) then
+			if (charges.maelstromWeapon>=3 or buff.ancestralSwiftness) and ((glyph.chainLightning and #getEnemies(self.units.dyn10AoE,10)>=4) or (not glyph.chainLightning and #getEnemies(self.units.dyn10AoE,10)>=3)) then
 				if self.castChainLightning() then return end
 			end
 		-- Magma Totem
@@ -469,7 +469,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			end
 		-- Lightning Bolt
 			-- lightning_bolt,if=buff.maelstrom_weapon.react=5&glyph.chain_lightning.enabled&spell_targets.chain_lightning<3
-			if charges.maelstromWeapon==5 and glyph.chainLightning and #getEnemies(self.units.dyn10,false)<3 then
+			if charges.maelstromWeapon==5 and glyph.chainLightning and #getEnemies(self.units.dyn10AoE,10)<3 then
 				if self.castLightningBolt() then return end
 			end
 		-- Stormstrike
@@ -502,12 +502,12 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			end
 		-- Chain Lightning
 			-- chain_lightning,if=(buff.maelstrom_weapon.react>=1|buff.ancestral_swiftness.up)&((glyph.chain_lightning.enabled&spell_targets.chain_lightning>=3)|(!glyph.chain_lightning.enabled&spell_targets.chain_lightning>=2))
-			if (charges.maelstromWeapon>=1 or buff.ancestralSwiftness) and ((glyph.chainLightning and #getEnemies(self.units.dyn10,false)>=3) or (not glyph.chainLightning and #getEnemies(self.units.dyn10,false)>=2)) then
+			if (charges.maelstromWeapon>=1 or buff.ancestralSwiftness) and ((glyph.chainLightning and #getEnemies(self.units.dyn10AoE,10)>=3) or (not glyph.chainLightning and #getEnemies(self.units.dyn10AoE,10)>=2)) then
 				if self.castChainLightning() then return end
 			end
 		-- Lightning Bolt
 			-- lightning_bolt,if=(buff.maelstrom_weapon.react>=1|buff.ancestral_swiftness.up)&glyph.chain_lightning.enabled&spell_targets.chain_lightning<3
-			if (charges.maelstromWeapon>=1 or buff.ancestralSwiftness) and glyph.chainLightning and #getEnemies(self.units.dyn10,false)<3 then
+			if (charges.maelstromWeapon>=1 or buff.ancestralSwiftness) and glyph.chainLightning and #getEnemies(self.units.dyn10AoE,10)<3 then
 				if self.castLightningBolt() then return end
 			end
 		-- Fire Nova

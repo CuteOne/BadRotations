@@ -304,10 +304,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             local dynamicTarget = dynamicTarget
 
             -- -- Normal
-            -- self.units.dyn8     = dynamicTarget(8, true)
+            self.units.dyn10     = dynamicTarget(10, true)
 
             -- -- AoE
-            -- self.units.dyn8AoE  = dynamicTarget(8,false)
+            self.units.dyn10AoE  = dynamicTarget(10,false)
         end
 
         ---------------
