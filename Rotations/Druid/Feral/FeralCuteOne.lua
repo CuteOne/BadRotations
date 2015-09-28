@@ -22,6 +22,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local t17_2pc 										= self.eq.t17_2pc
 		local t18_2pc 										= self.eq.t18_2pc 
 		local t18_4pc 										= self.eq.t18_4pc 
+		local racial 										= self.getRacial()
 		-- Specific Player Variables
 		local combo 										= self.comboPoints
 		local clearcast 									= self.buff.clearcast
@@ -203,7 +204,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 	            end
 		-- Auto Rejuvenation
 				if isChecked("Auto Rejuvenation") and self.perk.enhancedRejuvenation then
-					if getOptionValue("Auto Heal")==1 and getBuffRemain(nNova[1].unit,self.spell.rejuvenationBuff)==0 and nNova[1].hp<=getOptionValue("Auto Rejuvenation") and nNova[1].unit~="player" then
+					if getOptionValue("Auto Heal")==1 and getBuffRemain(nNova[1].unit,self.spell.rejuvenationBuff)==0 and getHP(nNova[1].unit)<=getOptionValue("Auto Rejuvenation") and nNova[1].unit~="player" then
 	                    if self.castRejuvenation(nNova[1].unit) then return end
 	                end
 				end
@@ -296,8 +297,10 @@ if select(2, UnitClass("player")) == "DRUID" then
 	            	if self.castBerserk() then return end
 	            end
 		-- Legendary Ring
-						-- use_item,slot=finger1
-						-- TODO: Write Legendary Ring Usage
+				-- use_item,slot=finger1
+				if useCDs() and hasEquiped(124636) and canUse(124636) then
+					useItem(124636)
+				end
 		-- Agi-Pot
 				-- if=(buff.berserk.remains>10&(target.time_to_die<180|(trinket.proc.all.react&target.health.pct<25)))|target.time_to_die<=40
 	            if useCDs() and canUse(109217) and inRaid and isChecked("Agi-Pot") then
@@ -309,7 +312,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 				-- blood_fury,sync=tigers_fury | berserking,sync=tigers_fury | arcane_torrent,sync=tigers_fury
 				if useCDs() and (self.race == "Orc" or self.race == "Troll" or self.race == "Blood Elf") then
 					if (not clearcast and self.powerDeficit>=60) or self.powerDeficit>=80 or (hasEquiped(124514) and berRemain>0 and tfRemain==0) then
-						if self.castRacial() then return end
+						if castSpell("player",racial,false,false,false) then return end
 					end
 	            end            
 		-- Tiger's Fury
@@ -323,8 +326,8 @@ if select(2, UnitClass("player")) == "DRUID" then
 	            	if self.castIncarnationKingOfTheJungle() then return end
 	            end
 		-- Racial: Night Elf Shadowmeld
-				-- dot.rake.remains<4.5&energy>=35&dot.rake.pmultiplier<2&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(!talent.incarnation.enabled|cooldown.incarnation.remains>15)&!buff.king_of_the_jungle.up
-				if useCDs() and self.race == "Night Elf" and (rakeRemain(dynTar5)<4.5 and power>=35 and rakeAppliedDotDmg(dynTar5)<2 
+				-- if=energy>=35&dot.rake.pmultiplier<2&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(!talent.incarnation.enabled|cooldown.incarnation.remains>15)&!buff.incarnation.up
+				if useCDs() and self.race == "Night Elf" and (power>=35 and rakeAppliedDotDmg(dynTar5)<2 
 					and (btRemain>0 or not bloodtalons) and (not incarnation or incCooldown>15) and not incBuff) and not solo
 				then
 					if self.castRacial() then return end
@@ -354,7 +357,8 @@ if select(2, UnitClass("player")) == "DRUID" then
 					-- mark_of_the_wild,if=!aura.str_agi_int.up
 			        if isChecked("Mark of the Wild") and not stealth then
 			            for i = 1, #nNova do --nNova
-			                if not isBuffed(nNova[i].Unit,{1126,115921,116781,20217,160206,69378,159988,160017,90363,160077}) 
+			            	local thisUnit = nNova[i].unit
+			                if not isBuffed(thisUnit,{1126,115921,116781,20217,160206,69378,159988,160017,90363,160077}) and getDistance(thisUnit)<30
 			                	--and (solo or (inInstance and not UnitInParty("player")) or inRaid)
 			                then
 			                	if self.castMarkOfTheWild() then return end
