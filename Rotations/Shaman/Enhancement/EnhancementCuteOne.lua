@@ -155,7 +155,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			    end
 		-- Healing Surge
 				if isChecked("Healing Surge") then
-					if (getOptionValue("Healing Surge - Target")==1 or not inCombat) and php < getOptionValue("Healing Surge - Level") then
+					if ((getOptionValue("Healing Surge - Target")==1 and charges.maelstromWeapon>3) or not inCombat) and php < getOptionValue("Healing Surge - Level") then
 						if self.castHealingSurge("player") then return end
 					end
 					if getOptionValue("Healing Surge - Target")==3 and ObjectExists("mouseover") and getHP("mouseover") < getOptionValue("Healing Surge - Level") then

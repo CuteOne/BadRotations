@@ -358,7 +358,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			        if isChecked("Mark of the Wild") and not stealth then
 			            for i = 1, #nNova do --nNova
 			            	local thisUnit = nNova[i].unit
-			                if not isBuffed(thisUnit,{1126,115921,116781,20217,160206,69378,159988,160017,90363,160077}) and getDistance(thisUnit)<30
+			                if not isBuffed(thisUnit,{1126,115921,116781,20217,160206,69378,159988,160017,90363,160077}) and getDistance(thisUnit)<30 and ObjectExists(thisUnit) 
 			                	--and (solo or (inInstance and not UnitInParty("player")) or inRaid)
 			                then
 			                	if self.castMarkOfTheWild() then return end
@@ -538,7 +538,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-- TODO: Dash/Worgen Racial
 		-- Rake/Shred from Stealth
 				-- rake,if=buff.prowl.up|buff.shadowmeld.up
-				if stealth and combatStart==false then
+				if stealth and combatStart==false and not incBuff then
 					if self.perk.improvedRake then
 						if self.castRake(dynTar5) then combatStart=true; StopAttack(); return end
 		        	else
