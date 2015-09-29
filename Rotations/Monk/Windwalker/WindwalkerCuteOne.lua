@@ -1,8 +1,8 @@
 if select(2, UnitClass("player")) == "MONK" then
     function cWindwalker:WindwalkerCuteOne()
         WindwalkerToggles()
-        GroupInfo()
-        getLoot2()
+        -- GroupInfo()
+        -- getLoot2()
     --------------
     --- Locals ---
     --------------
@@ -107,9 +107,9 @@ if select(2, UnitClass("player")) == "MONK" then
             if self.castResuscitate() then return end
         -- Legacy of the White Tiger
             if not inCombat and isChecked("Legacy of the White Tiger") then
-                for i = 1, #members do
-                    if (#members==select(5,GetInstanceInfo()) or solo) then
-                        if not isBuffed(members[i].Unit,{17007,1459,61316,116781,90309,126373,160052,126309,24604}) then
+                for i = 1, #nNova do
+                    if (#nNova==select(5,GetInstanceInfo()) or solo) then
+                        if not isBuffed(nNova[i].unit,{17007,1459,61316,116781,90309,126373,160052,126309,24604}) then
                             if self.castLegacyOfTheWhiteTiger() then return end
                         end
                     end
@@ -121,7 +121,7 @@ if select(2, UnitClass("player")) == "MONK" then
             end
         -- Provoke
             if not inCombat and select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" and cd.flyingSerpentKick>1 and getDistance("target")>10 and ObjectExists("target") then
-                if solo or #members==1 then
+                if solo or #nNova==1 then
                     if self.castProvoke() then return end
                 end
             end
@@ -393,8 +393,8 @@ if select(2, UnitClass("player")) == "MONK" then
             end
         -- Zen Sphere
             -- zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking&buff.serenity.down
-            for i =1, #members do
-                thisUnit = members[i].Unit
+            for i =1, #nNova do
+                thisUnit = nNova[i].unit
                 if getDistance(thisUnit)<40 then
                     if ttm>2 and getBuffRemain(thisUnit,self.spell.zenSphereBuff)==0 and not buff.serenity then
                         if self.castZenSphere(thisUnit) then return end
@@ -449,8 +449,8 @@ if select(2, UnitClass("player")) == "MONK" then
             end
         -- Zen Sphere
             -- zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking
-            for i=1, #members do
-                thisUnit = members[i].Unit
+            for i=1, #nNova do
+                thisUnit = nNova[i].unit
                 if getDistance(thisUnit)<40 then
                     if ttm>2 and getBuffRemain(thisUnit,self.spell.zenSphere)==0 then
                         if self.castZenSphere(thisUnit) then return end
@@ -507,8 +507,8 @@ if select(2, UnitClass("player")) == "MONK" then
             end
         -- Zen Sphere
             -- zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking
-            for i =1, #members do
-                thisUnit = members[i].Unit
+            for i =1, #nNova do
+                thisUnit = nNova[i].unit
                 if getDistance(thisUnit)<40 then
                     if ttm>2 and getBuffRemain(thisUnit,self.spell.zenSphere)==0 then
                         if self.castZenSphere(thisUnit) then return end
@@ -545,8 +545,8 @@ if select(2, UnitClass("player")) == "MONK" then
             end
         -- Zen Sphere
             -- zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking&buff.serenity.down
-            for i =1, #members do
-                thisUnit = members[i].Unit
+            for i =1, #nNova do
+                thisUnit = nNova[i].unit
                 if getDistance(thisUnit)<40 then
                     if ttm>2 and getBuffRemain(thisUnit,self.spell.zenSphere)==0 and not buff.serenity then
                         if self.castZenSphere(thisUnit) then return end
@@ -605,8 +605,8 @@ if select(2, UnitClass("player")) == "MONK" then
             end
         -- Zen Sphere
             -- zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking
-            for i =1, #members do
-                thisUnit = members[i].Unit
+            for i =1, #nNova do
+                thisUnit = nNova[i].unit
                 if getDistance(thisUnit)<40 then
                     if ttm>2 and getBuffRemain(thisUnit,self.spell.zenSphere)==0 then
                         if self.castZenSphere(thisUnit) then return end
@@ -648,8 +648,8 @@ if select(2, UnitClass("player")) == "MONK" then
             end
         -- Zen Sphere
             -- zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking&buff.serenity.down
-            for i =1, #members do
-                thisUnit = members[i].Unit
+            for i =1, #nNova do
+                thisUnit = nNova[i].unit
                 if getDistance(thisUnit)<40 then
                     if ttm>2 and getBuffRemain(thisUnit,self.spell.zenSphere)==0 and not buff.serenity then
                         if self.castZenSphere(thisUnit) then return end

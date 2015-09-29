@@ -579,7 +579,7 @@ function cShaman:new(spec)
 	end
 	-- Searing Elemental Totem
 	function self.castSearingTotem()
-		if self.level>=16 and ((not self.totem.searingTotem) or (self.totem.searingTotem and ObjectExists("target") and getTotemDistance("target")>=25)) and self.powerPercent>3 and ObjectExists("target") then
+		if self.level>=16 and ((not self.totem.searingTotem) or (self.totem.searingTotem and ObjectExists("target") and getTotemDistance("target")>=25 and getDistance("target")<25)) and self.powerPercent>3 and ObjectExists("target") then
 			if castSpell("player",self.spell.searingTotem,false,false,false) then return end
 		end
 	end
