@@ -325,13 +325,13 @@ function canInterrupt(unit,percentint)
 			castPercent = 0
 		end
 		if castType == "spellcast" then
-			if math.ceil((castTimeRemain/castDuration)*100) <= castPercent and interruptable == true then
+			if math.ceil((castTimeRemain/castDuration)*100) <= castPercent and interruptable == true and getTimeToDie(unit)>castTimeRemain then
 				return true
 			end
 		end
 		if castType == "spellchannel" then
 			--if (GetTime() - castStartTime/1000) > channelDelay and interruptable == true then
-			if math.ceil((castTimeRemain/castDuration)*100) <= castPercent and interruptable == true then
+			if (GetTime() - castStartTime/1000) > channelDelay and math.ceil((castTimeRemain/castDuration)*100) <= castPercent and interruptable == true and getTimeToDie(unit)>castTimeRemain then
 				return true
 			end
 		end
