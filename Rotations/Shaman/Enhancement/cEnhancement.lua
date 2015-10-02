@@ -26,6 +26,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             feralSpirit             = 51533,
             fireNova                = 1535,
             lavaLash                = 60103,
+            primalStrike            = 73899,
             stormstrike             = 17364,
             unleashElements         = 73680,
             windstrike              = 115356,
@@ -234,6 +235,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             self.cd.feralSpirit     = getSpellCD(self.spell.feralSpirit)
             self.cd.fireNova        = getSpellCD(self.spell.fireNova)
             self.cd.lavaLash        = getSpellCD(self.spell.lavaLash)
+            self.cd.primalStrike    = getSpellCD(self.spell.primalStrike)
             self.cd.stormstrike     = getSpellCD(self.spell.stormstrike)
             self.cd.unleashElements = getSpellCD(self.spell.unleashElements)
             self.cd.windstrike      = getSpellCD(self.spell.windstrike)
@@ -608,7 +610,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         end
         -- Magma Totem
         function self.castMagmaTotem()
-            if self.level>=36 and ((not self.totem.magmaTotem) or (self.totem.magmaTotem and ObjectExists("target") and getTotemDistance("target")>=8 and getDistance("target")<8)) and self.powerPercent>21.1 and ObjectExists("target") then
+            if self.level>=36 and ((not self.totem.magmaTotem) or (self.totem.magmaTotem and ObjectExists("target") and getTotemDistance("target")>=8 and getDistance("target")<8)) and self.powerPercent>21.1 and not isMoving("player") and ObjectExists("target") then
                 if castSpell("player",self.spell.magmaTotem,false,false,false) then return end
             end
         end
@@ -618,6 +620,9 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             if self.level>=26 and self.cd.stormstrike==0 and not self.buff.ascendance and getDistance(self.units.dyn5)<5 then
                 if castSpell(self.units.dyn5,self.spell.stormstrike,false,false,false) then return end
             end
+            if self.level<26 and self.cd.primalStrike==0 and getDistance(self.units.dyn5)<5 then
+               if castSpell(self.units.dyn5,self.spell.primalStrike,false,false,false) then return end
+            end 
         end
         -- Unleash Elements
         function self.castUnleashElements()

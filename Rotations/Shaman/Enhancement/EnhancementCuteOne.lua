@@ -158,10 +158,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 					if ((getOptionValue("Healing Surge - Target")==1 and charges.maelstromWeapon>3) or not inCombat) and php < getOptionValue("Healing Surge - Level") then
 						if self.castHealingSurge("player") then return end
 					end
-					if getOptionValue("Healing Surge - Target")==3 and ObjectExists("mouseover") and getHP("mouseover") < getOptionValue("Healing Surge - Level") then
+					if getOptionValue("Healing Surge - Target")==3 and charges.maelstromWeapon>3 and ObjectExists("mouseover") and getHP("mouseover") < getOptionValue("Healing Surge - Level") then
 						if self.castHealingSurge("mouseover") then return end
 					end
-					if getOptionValue("Healing Surge - Target")==2 then
+					if getOptionValue("Healing Surge - Target")==2 and charges.maelstromWeapon>3 then
 						for i=1,#nNova do
 							local thisUnit = nNova[i].unit
 							local thisUnitHP = getHP(thisUnit)
@@ -271,7 +271,15 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 	    		-- ascendance
 	    		if isChecked("Ascendance") then
 	    			if self.castAscendance() then return end
-	    		end		
+	    		end
+	    -- Touch of the Void
+	            if (useCDs() or useAoE()) and isChecked("Touch of the Void") and inCombat and getDistance(self.units.dyn5)<5 then
+	                if hasEquiped(128318) then
+	                    if GetItemCooldown(128318)==0 then
+	                        useItem(128318)
+	                    end
+	                end
+	            end		
 	    	end
     	end -- End Action List - Cooldowns
     -- Action List - Pre-Combat
