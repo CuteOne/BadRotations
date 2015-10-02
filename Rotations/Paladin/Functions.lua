@@ -15,6 +15,15 @@ if select(3,UnitClass("player")) == 2 then
       if doBlessings ~= nil then
         -- after timer we find if we have other buffers in group via findBestBlessing
         local myBlessing = findBestBlessing()
+        -- if HE is disabled
+        if not isChecked("HE Active") and not UnitBuffID("player",myBlessing) then
+            if castSpell("player",myBlessing,true,false) then
+                timerBlessing = GetTime() + random(10,20)
+                doBlessings = nil
+                return
+            end
+        end
+
         for i = 1,#nNova do
           local thisUnit = nNova[i]
           if thisUnit.hp < 250 and thisUnit.isPlayer and not UnitBuffID(thisUnit.unit,myBlessing) then

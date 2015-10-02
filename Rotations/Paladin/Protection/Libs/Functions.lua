@@ -102,7 +102,7 @@ if select(3,UnitClass("player")) == 2 then
     -- this will be used to make the core refresh itself
     function protCore:update()
       -- player stats
-      self.health = getHP(player)
+      self.health = 100*UnitHealth("player")/UnitHealthMax("player") --getHP(player)
       self.holyPower = UnitPower(player,9)
       -- Buffs
       self.buff.ardentDefender = getBuffRemain(player,self.spell.ardentDefender)
