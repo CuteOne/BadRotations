@@ -474,7 +474,8 @@ function cShaman:new(spec)
 	end
 	-- Chain Lightning
 	function self.castChainLightning()
-		if self.level>=28 and self.powerPercent>1 and getDistance(self.units.dyn30)<30 then
+		local hasThreat = UnitThreatSituation("player",thisUnit)~=nil or false
+		if self.level>=28 and self.powerPercent>1 and getDistance(self.units.dyn30)<30 and (hasThreat or isDummy()) then
 			if castSpell(self.units.dyn30,self.spell.chainLightning,false,false,false) then return end
 		end
 	end
@@ -515,7 +516,8 @@ function cShaman:new(spec)
 	end
 	-- Lightning Bolt
 	function self.castLightningBolt()
-		if self.level>=1 and self.powerPercent>1.75 and getDistance(self.units.dyn30)<30 then
+		local hasThreat = UnitThreatSituation("player",thisUnit)~=nil or false
+		if self.level>=1 and self.powerPercent>1.75 and getDistance(self.units.dyn30)<30 and (hasThreat or isDummy()) then
 			if castSpell(self.units.dyn30,self.spell.lightningBolt,false,false,false) then return end
 		end
 	end
@@ -577,9 +579,11 @@ function cShaman:new(spec)
 			if castSpell("player",self.spell.healingStreamTotem,false,false,false) then return end
 		end
 	end
-	-- Searing Elemental Totem
+	-- Searing Totem
 	function self.castSearingTotem()
-		if self.level>=16 and ((not self.totem.searingTotem) or (self.totem.searingTotem and ObjectExists("target") and getTotemDistance("target")>=25 and getDistance("target")<25)) and self.powerPercent>3 and ObjectExists("target") then
+		if self.level>=16 and ((not self.totem.searingTotem) or (self.totem.searingTotem and ObjectExists("target") and getTotemDistance("target")>=25 and getDistance("target")<25)) 
+			and self.powerPercent>3 and ObjectExists("target") and getTimeToDie("target")>5 and (getEnemies("target",10)==1 or BadBoy_data['AoE'] == 3) 
+		then
 			if castSpell("player",self.spell.searingTotem,false,false,false) then return end
 		end
 	end

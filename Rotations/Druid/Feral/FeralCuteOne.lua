@@ -380,13 +380,11 @@ if select(2, UnitClass("player")) == "DRUID" then
 					end
 				end -- End No Stealth
 				if stealth then
-		-- Reset Start Combat from Stealth Break Indicator
-					if not combatStart or combatStart==true then combatStart=false end
 		-- TODO: snapshot_stats
 		-- TODO: potion,name=draenic_agility
 		-- TODO: incarnation
 		-- Rake/Shred
-			        if hastar and attacktar and getDistance(dynTar5)<5 then
+			        if hastar and attacktar and getDistance(dynTar5)<5 and not incBuff then
 			        	if self.perk.improvedRake then
 			        		if self.castRake(dynTar5) then StopAttack(); return end
 			        	else
@@ -538,11 +536,11 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-- TODO: Dash/Worgen Racial
 		-- Rake/Shred from Stealth
 				-- rake,if=buff.prowl.up|buff.shadowmeld.up
-				if stealth and combatStart==false and not incBuff then
+				if stealth and not incBuff then
 					if self.perk.improvedRake then
-						if self.castRake(dynTar5) then combatStart=true; StopAttack(); return end
+						if self.castRake(dynTar5) then StopAttack(); return end
 		        	else
-		        		if self.castShred() then combatStart=true; StopAttack(); return end
+		        		if self.castShred() then StopAttack(); return end
 		            end
 				elseif not stealth and BadBoy_data['AoE'] ~= 4 then
 					-- auto_attack
