@@ -546,7 +546,21 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		-- Mark of the Wild
 		function self.castMarkOfTheWild()
-			return castSpell("player",self.spell.markOfTheWild,false,false) == true or false
+	        local totalCount = GetNumGroupMembers()
+	        local currentCount = currentCount or 0
+	        local solo = (select(2,IsInInstance())=="none")
+	        for i=1,#nNova do
+	            local thisUnit = nNova[i].unit
+	            local distance = getDistance(thisUnit)
+	            if distance<30 then
+	                currentCount = currentCount+1
+	            end
+	        end
+	        if currentCount==totalCount or solo then
+	            return castSpell("player",self.spell.markOfTheWild,false,false) == true or false
+	        else
+	            return false
+	        end
 		end
 
 		-- Mangle

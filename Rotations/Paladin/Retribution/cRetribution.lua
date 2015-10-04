@@ -351,6 +351,19 @@ function cRetribution:new()
 
 -- Crusader Strike
 	function self.castCrusaderStrike()
+		if self.eq.t18_classTrinket or isDummy(self.units.dyn5) then
+			local enemiesTable = enemiesTable
+			if #enemiesTable > 1 then
+				for i=1,#enemiesTable do
+					local thisEnemy = enemiesTable[i]
+					if thisEnemy.distance <= 5 then
+						if previousT18classTrinket == thisEnemy.guid and getFacing("player", thisEnemy.unit) then
+							return castSpell(thisEnemy.unit,self.spell.crusaderStrike,false,false) == true or false
+						end
+					end
+				end
+			end
+		end
 		return castSpell(self.units.dyn5,self.spell.crusaderStrike,false,false) == true or false
 	end
 
@@ -385,6 +398,19 @@ function cRetribution:new()
 
 -- Hammer of the Righteous
 	function self.castHammerOfTheRighteous()
+		if self.eq.t18_classTrinket or isDummy(self.units.dyn5) then
+			local enemiesTable = enemiesTable
+			if #enemiesTable > 1 then
+				for i=1,#enemiesTable do
+					local thisEnemy = enemiesTable[i]
+					if thisEnemy.distance <= 5 then
+						if previousT18classTrinket == thisEnemy.guid and getFacing("player", thisEnemy.unit) then
+							return castSpell(thisEnemy.unit,self.spell.hammerOfTheRighteous,false,false) == true or false
+						end
+					end
+				end
+			end
+		end
 		return castSpell(self.units.dyn5,self.spell.hammerOfTheRighteous,false,false) == true or false
 	end
 
@@ -438,7 +464,7 @@ function cRetribution:new()
 					if thisEnemy.distance < 30 then
 						-- here i will need to compare my previous judgment target with the previous one
 						-- we declare a var in in core updated by reader with last judged unit
-						if self.previousJudgmentTarget ~= thisEnemy.guid then
+						if previousJudgmentTarget ~= thisEnemy.guid then
 							return castSpell(thisEnemy.unit,self.spell.judgment,true,false) == true or false
 						end
 					end

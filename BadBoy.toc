@@ -257,7 +257,13 @@ Rotations\Rogue\Subtlety\Toggles.lua
 Rotations\Rogue\NewRogue.lua
 
 ## Shaman  ---------------------------------------------------
+Rotations\Shaman\cShaman.lua
+Rotations\Shaman\Enhancement\cEnhancement.lua
 Rotations\Shaman\Enhancement\Enhancement.lua
+Rotations\Shaman\Enhancement\EnhancementCuteOne.lua
+Rotations\Shaman\Enhancement\EnhancementOld.lua
+
+##Rotations\Shaman\Enhancement\Enhancement.lua
 Rotations\Shaman\Enhancement\libs\Functions.lua
 Rotations\Shaman\Enhancement\libs\Options.lua
 Rotations\Shaman\Enhancement\libs\Toggles.lua

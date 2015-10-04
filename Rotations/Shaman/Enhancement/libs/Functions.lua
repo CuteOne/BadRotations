@@ -1,4 +1,27 @@
 if select(3,UnitClass("player")) == 7 then
+  -- ------Member Check------
+  -- function CalculateHP(unit)
+  --   incomingheals = UnitGetIncomingHeals(unit) or 0
+  --   return 100 * ( UnitHealth(unit) + incomingheals ) / UnitHealthMax(unit)
+  -- end
+
+  -- function GroupInfo()
+  --   members, group = { { Unit = "player", HP = CalculateHP("player") } }, { low = 0, tanks = { } }
+  --   group.type = IsInRaid() and "raid" or "party"
+  --   group.number = GetNumGroupMembers()
+  --   if group.number > 0 then
+  --     for i=1,group.number do
+  --       if canHeal(group.type..i) then
+  --         local unit, hp = group.type..i, CalculateHP(group.type..i)
+  --         members[#members+1] = { Unit = unit, HP = hp }
+  --         if hp < 90 then group.low = group.low + 1 end
+  --         if UnitGroupRolesAssigned(unit) == "TANK" then table.insert(group.tanks,unit) end
+  --       end
+  --     end
+  --     if group.type == "raid" and #members > 1 then table.remove(members,1) end
+  --     table.sort(members, function(x,y) return x.HP < y.HP end)
+  --   end
+  -- end
 
   function getMWC()
     mwstack = select(4,UnitBuffID("player",53817))
@@ -55,7 +78,28 @@ if select(3,UnitClass("player")) == 7 then
     end
   end
   function useAoE()
-    if (BadBoy_data['AoE'] == 1 and getNumEnemies("player", 12) > 1) or BadBoy_data['AoE'] == 2 then
+    if BadBoy_data['AoE'] == 1 or BadBoy_data['AoE'] == 2 then
+      return true
+    else
+      return false
+    end
+  end
+  function useSingle()
+    if BadBoy_data['AoE'] == 1 or BadBoy_data['AoE'] == 3 then
+      return true
+    else
+      return false
+    end
+  end
+  function useInterrupts()
+    if BadBoy_data['Interrupts'] == 1 then
+      return true
+    else
+      return false
+    end
+  end
+  function useDefensive()
+    if BadBoy_data['Defensive'] == 1 then
       return true
     else
       return false
@@ -120,7 +164,7 @@ if select(3,UnitClass("player")) == 7 then
     elseif UnitLevel("player") < 26 then
       lowestCD = min(getSpellCD(_PrimalStrike),getSpellCD(_LavaLash),getSpellCD(_FlameShock))
     elseif UnitLevel("player") < 81 then
-      lowestCD = min(getSpellCD(_StormStrike),getSpellCD(_LavaLash),getSpellCD(_FlameShock))
+      lowestCD = min(getSpellCD(_Stormstrike),getSpellCD(_LavaLash),getSpellCD(_FlameShock))
     elseif UnitLevel("player") < 87 then
       lowestCD = min(getSpellCD(_Stormstrike),getSpellCD(_FlameShock),getSpellCD(_LavaLash),getSpellCD(_UnleashElements))
     elseif UnitLevel("player") >= 87 then
