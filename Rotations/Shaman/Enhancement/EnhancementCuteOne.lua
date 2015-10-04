@@ -273,7 +273,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 	    			if self.castAscendance() then return end
 	    		end
 	    -- Touch of the Void
-	            if (useCDs() or useAoE()) and isChecked("Touch of the Void") and inCombat and getDistance(self.units.dyn5)<5 then
+	            if isChecked("Touch of the Void") and getDistance(self.units.dyn5)<5 then
 	                if hasEquiped(128318) then
 	                    if GetItemCooldown(128318)==0 then
 	                        useItem(128318)
@@ -403,6 +403,14 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 		end -- End Action List - Single
 	-- Action List - MultiTarget
 		function actionList_MultiTarget()
+		-- Touch of the Void
+            if isChecked("Touch of the Void") and getDistance(self.units.dyn5)<5 then
+                if hasEquiped(128318) then
+                    if GetItemCooldown(128318)==0 then
+                        useItem(128318)
+                    end
+                end
+            end	
 		-- Unleash Elements
 			-- unleash_elements,if=spell_targets.fire_nova_explosion>=4&dot.flame_shock.ticking&(cooldown.shock.remains>cooldown.fire_nova.remains|cooldown.fire_nova.remains=0)
 			if enemies.yards10>=4 and debuff.flameShock and (cd.flameShock>cd.fireNova or cd.fireNova==0) then
