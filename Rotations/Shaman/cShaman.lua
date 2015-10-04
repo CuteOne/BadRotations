@@ -493,13 +493,15 @@ function cShaman:new(spec)
 	end
 	-- Flame Shock
 	function self.castFlameShock()
-		if self.level>=12 and self.cd.flameShock==0 and self.powerPercent>1.25 and getDistance(self.units.dyn25)<25 then
+		local hasThreat = UnitThreatSituation("player",thisUnit)~=nil or false
+		if self.level>=12 and self.cd.flameShock==0 and self.powerPercent>1.25 and getDistance(self.units.dyn25)<25 and (hasThreat or isDummy()) then
 			if castSpell(self.units.dyn25,self.spell.flameShock,false,false,false) then return end
 		end
 	end
 	-- Frost Shock
 	function self.castFrostShock()
-		if self.level>=22 and self.cd.frostShock==0 and self.powerPercent>=1.25 and getDistance(self.units.dyn25)<25 then
+		local hasThreat = UnitThreatSituation("player",thisUnit)~=nil or false
+		if self.level>=22 and self.cd.frostShock==0 and self.powerPercent>=1.25 and getDistance(self.units.dyn25)<25 and (hasThreat or isDummy()) then
 			if castSpell(self.units.dyn25,self.spell.frostShock,false,false,false) then return end
 		end
 	end
@@ -607,7 +609,7 @@ function cShaman:new(spec)
 	function self.castAncestralSpirit(thisUnit)
 		local thisUnit = thisUnit
 		if self.level>=14 and self.powerPercent>4 and not isMoving("player") and UnitIsDeadOrGhost(thisUnit) and UnitIsPlayer(thisUnit) and UnitIsFriend(thisUnit,"player") and getDistance(thisUnit)<40 then
-			if castSpell(thisUnit,self.spell.ancestralSpirit,false,false,false) then return end
+			if castSpell(thisUnit,self.spell.ancestralSpirit,false,false,false,false,true) then return end
 		end
 	end
 	-- Cleanse Spirit
