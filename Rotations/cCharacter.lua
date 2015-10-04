@@ -182,7 +182,6 @@ function cCharacter:new(class)
 		-- Priest - Shadow:
 		if self.class == "Priest" and self.profile == "Shadow" then
 			self.mode.defensive  =  BadBoy_data['Defensive']
-			self.mode.multidot   =  BadBoy_data['DoT']
 			self.mode.bosshelper =  BadBoy_data['BossHelper']
 			self.mode.t90        =  BadBoy_data['T90']
 			self.mode.cooldowns  =  BadBoy_data['Cooldowns']
