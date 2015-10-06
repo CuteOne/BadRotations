@@ -1,71 +1,76 @@
 if select(3, UnitClass("player")) == 5 then
-
 	function ShadowConfig()
 		if currentConfig ~= "Shadow ragnar" then
 			ClearConfig()
 			thisConfig = 0
 			-- Title
-			CreateNewTitle(thisConfig,"shadow ravens |cffBA55D3by ragnar")
+			CreateNewTitle(thisConfig,"ravens v3beta |cffBA55D3by ragnar")
 
 
-			-- Wrapper -----------------------------------------
+			--   _____            _     _                         
+			--  / ____|          | |   | |                        
+			-- | |     ___   ___ | | __| | _____      ___ __  ___ 
+			-- | |    / _ \ / _ \| |/ _` |/ _ \ \ /\ / / '_ \/ __|
+			-- | |___| (_) | (_) | | (_| | (_) \ V  V /| | | \__ \
+			--  \_____\___/ \___/|_|\__,_|\___/ \_/\_/ |_| |_|___/
 			CreateNewWrap(thisConfig,"|cffBA55D3Offensive")
 
 			-- bosscheck
-			CreateNewCheck(thisConfig,"isBoss")
+			CreateNewCheck(thisConfig,"isBoss","use CDs only on Boss Units")
 			CreateNewText(thisConfig,"isBoss")
 
-			-- -- Throw DP around
-			-- CreateNewCheck(thisConfig,"ThrowDP")
-			-- CreateNewText(thisConfig,"ThrowDP")
-
-			-- pushDP
-			--if getTalent(7,3) then
-				CreateNewCheck(thisConfig,"pushDP","If you have 5 Orbs and DP is running on target, push it again")
-				CreateNewText(thisConfig,"pushDP")
-			--end
-
 			-- Power Infusion
-			--if isKnown(PI) then
-				CreateNewCheck(thisConfig,"Power Infusion")
-				CreateNewText(thisConfig,"Power Infusion")
-			--end
+			CreateNewCheck(thisConfig,"PI","Power Infusion")
+			CreateNewText(thisConfig,"PI")
 
-			-- Troll Racial
-			if isKnown(Berserking) then
-				CreateNewCheck(thisConfig,"Berserking")
-				CreateNewText(thisConfig,"Berserking")
-			end
-
-			-- Shadowfiend / Mindbender
-			CreateNewCheck(thisConfig,"Shadowfiend/Mindbender")
-			CreateNewText(thisConfig,"Shadowfiend/Mindbender")
+			-- Shadowfien / Mindbender
+			CreateNewCheck(thisConfig,"MB/SF","Mindbender / Shadowfiend")
+			CreateNewText(thisConfig,"MB/SF")
 
 
-			-- onUse Trinkets
-			CreateNewCheck(thisConfig,"Trinket 1")
-			CreateNewText(thisConfig,"Trinket 1")
-			CreateNewCheck(thisConfig,"Trinket 2")
-			CreateNewText(thisConfig,"Trinket 2")
+			--  _____        __               _           
+			-- |  __ \      / _|             (_)          
+			-- | |  | | ___| |_ ___ _ __  ___ ___   _____ 
+			-- | |  | |/ _ \  _/ _ \ '_ \/ __| \ \ / / _ \
+			-- | |__| |  __/ ||  __/ | | \__ \ |\ V /  __/
+			-- |_____/ \___|_| \___|_| |_|___/_| \_/ \___|
+			CreateNewWrap(thisConfig,"|cffBA55D3Defensive")
 
-			-- -- SWD Glyphed
-			-- if hasGlyph(GlyphOfSWD) then
-			-- 	CreateNewCheck(thisConfig,"SWD glyphed")
-			-- 	CreateNewText(thisConfig,"SWD glyphed")
-			-- end
+			-- Shield
+			CreateNewCheck(thisConfig,"PW:S","Power Word: Shield")
+			CreateNewBox(thisConfig, "PW:S",0,100,1,75,"|cffFFFFFFhealth percent to cast at")
+			CreateNewText(thisConfig,"PW:S")
 
-			-- LF Orbs
-			CreateNewCheck(thisConfig,"Scan for Orbs", "Scan all enemies to create an orb with SWD")
-			CreateNewText(thisConfig,"Scan for Orbs")
-
-
-			-- LF ToF
-			CreateNewCheck(thisConfig,"Scan for ToF", "Scan all enemies to get ToF")
-			CreateNewText(thisConfig,"Scan for ToF")
+			-- Desperate Prayer
+			CreateNewCheck(thisConfig,"Desperate Prayer","Desperate Prayer Talent")
+			CreateNewBox(thisConfig, "Desperate Prayer",0,100,1,30,"|cffFFFFFFhealth percent to cast at")
+			CreateNewText(thisConfig,"Desperate Prayer")
 
 
-			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"|cffBA55D3Bosshelper Specific")
+			-- Fade with glyph
+			CreateNewCheck(thisConfig,"Fade","glyphed fade: 10% Damage reduction")
+			CreateNewBox(thisConfig, "Fade", 0, 100 , 2, 70, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFade")
+			CreateNewText(thisConfig,"Fade")
+
+			-- Healing Tonic
+			CreateNewCheck(thisConfig,"Healing Tonic","Healing Tonic")
+			CreateNewBox(thisConfig, "Healing Tonic",0,100,1,25,"|cffFFFFFFhealth percent to cast at")
+			CreateNewText(thisConfig,"Healing Tonic")
+
+			-- Dispersion
+			CreateNewCheck(thisConfig,"Dispersion")
+			CreateNewBox(thisConfig, "Dispersion",0,100,1,20,"|cffFFFFFFhealth percent to cast at")
+			CreateNewText(thisConfig,"Dispersion")
+
+			--  ____                  _    _      _                 
+			-- |  _ \                | |  | |    | |                
+			-- | |_) | ___  ___ ___  | |__| | ___| |_ __   ___ _ __ 
+			-- |  _ < / _ \/ __/ __| |  __  |/ _ \ | '_ \ / _ \ '__|
+			-- | |_) | (_) \__ \__ \ | |  | |  __/ | |_) |  __/ |   
+			-- |____/ \___/|___/___/ |_|  |_|\___|_| .__/ \___|_|   
+			--                                     | |              
+			--                                     |_|              
+			CreateNewWrap(thisConfig,"|cffBA55D3Bosshelper")
 
 			-- Auto Guise
 			CreateNewCheck(thisConfig,"Auto Guise", "Auto Spectral Guise on: \nBRF: Iron Maidens")
@@ -83,217 +88,57 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewCheck(thisConfig,"Auto Silence", "Auto Silence on: \nBRF: Blast Furnace\nBRF: Operator Thogar")
 			CreateNewText(thisConfig,"Auto Silence")
 
-			-- Auto Silence
+			-- Target Helper
 			CreateNewCheck(thisConfig,"Target Helper", "Assists to target the correct unit")
-			CreateNewText(thisConfig,"Target Helper")			
+			CreateNewText(thisConfig,"Target Helper")
 
-			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"|cffBA55D3Defensive")
+			-- Gorefiend SWP
+			CreateNewCheck(thisConfig,"Gorefiend SWP", "SWP every Corrupted Soul in Mythic")
+			CreateNewText(thisConfig,"Gorefiend SWP")
 
-			-- Shield
-			CreateNewCheck(thisConfig,"PW: Shield")
-			CreateNewBox(thisConfig, "PW: Shield", 0,100,2,90, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFShield")
-			CreateNewText(thisConfig,"PW: Shield")
+			--  _____       _        _   _             
+			-- |  __ \     | |      | | (_)            
+			-- | |__) |___ | |_ __ _| |_ _  ___  _ __  
+			-- |  _  // _ \| __/ _` | __| |/ _ \| '_ \ 
+			-- | | \ \ (_) | || (_| | |_| | (_) | | | |
+			-- |_|  \_\___/ \__\__,_|\__|_|\___/|_| |_|
+			CreateNewWrap(thisConfig,"|cffBA55D3Rotation")
 
-			-- Healthstone
-			CreateNewCheck(thisConfig,"Healing Tonic")
-			CreateNewBox(thisConfig, "Healing Tonic", 0,100,2,25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealing Tonic")
-			CreateNewText(thisConfig,"Healing Tonic")
-
-			-- Desperate Prayer
-			--if isKnown(DesperatePrayer) then
-				CreateNewCheck(thisConfig,"Desperate Prayer")
-				CreateNewBox(thisConfig, "Desperate Prayer", 0,100,2,30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDesperate Prayer")
-				CreateNewText(thisConfig,"Desperate Prayer")
-			--end
-
-			-- Dispersion
-			CreateNewCheck(thisConfig,"Dispersion")
-			CreateNewBox(thisConfig, "Dispersion", 0,100,2,20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDispersion")
-			CreateNewText(thisConfig,"Dispersion")
-
-			-- Fade DMG reduction (with glyph)
-			--if hasGlyph(GlyphOfFade) then
-				CreateNewCheck(thisConfig,"Fade Glyph")
-				CreateNewBox(thisConfig, "Fade Glyph", 0, 100  , 2, 80, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFade")
-				CreateNewText(thisConfig,"Fade Glyph")
-			--end
-
-			-- Fade (aggro reduction)
-			CreateNewCheck(thisConfig,"Fade Aggro", "|cffFFBB00Fade on Aggression |cffFF0000(only in group or raid)")
-			CreateNewText(thisConfig,"Fade Aggro")
-
-
-			-- Wrapper -----------------------------------------
-			if isKnown(CoP) then
-				CreateNewWrap(thisConfig,"|cffBA55D3DoT Weave")
-				-- General
-				CreateNewCheck(thisConfig,"DoTWeave")
-				CreateNewText(thisConfig,"DoTWeave")
-			-- -- SWP
-			-- CreateNewCheck(thisConfig,"SWP")
-			-- CreateNewText(thisConfig,"SWP")
-			-- -- VT
-			-- CreateNewCheck(thisConfig,"VT")
-			-- CreateNewText(thisConfig,"VT")
-			end
-
-
-			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"|cffBA55D3Multitarget")
-
-			-- -- Sort EnemiesTable by HPabs
-			-- CreateNewCheck(thisConfig,"sortByHPabs","Sort enemiesTable by descending health, so the highest absolute health unit will be dotted first.")
-			-- CreateNewText(thisConfig,"sortByHPabs")
-			
-			--if getTalent(7,3) then
-				-- VT on Target
-				CreateNewCheck(thisConfig,"VT on Target")
-				CreateNewText(thisConfig,"VT on Target")
-			--end
-
-			-- -- SWP
-			-- CreateNewCheck(thisConfig,"Multi SWP", "not used atm")
-			-- CreateNewText(thisConfig,"Multi SWP")
-
-			-- -- VT
-			-- CreateNewCheck(thisConfig,"Multi VT", "not used atm")
-			-- CreateNewText(thisConfig,"Multi VT")
-
-			-- -- SWP
-			-- CreateNewCheck(thisConfig,"Boss SWP")
-			-- CreateNewText(thisConfig,"Boss SWP")
-
-			-- -- VT
-			-- CreateNewCheck(thisConfig,"Boss VT")
-			-- CreateNewText(thisConfig,"Boss VT")
-
-			-- Min Health
-			CreateNewBox(thisConfig,"Min Health", 0.0, 7.5, 0.1, 1.5, "Minimum Health in |cffFF0000million HP|cffFFBB00.\nMin: 0 / Max: 7.5  / Interval: 0.1")
-			CreateNewText(thisConfig,"Min Health")
+			-- Ignore orbs for SWD
+			CreateNewCheck(thisConfig,"SWD ignore Orbs","use SWD despite 5 Orbs")
+			CreateNewText(thisConfig,"SWD ignore Orbs")
 
 			-- Max Targets
-			-- CreateNewCheck(thisConfig,"Max Targets");
-			CreateNewBox(thisConfig,"Max Targets", 1, 10, 1, 5, "Maximum count of SWP/VT on Units. \nMin: 1 / Max: 5 / Interval: 1 \n|cffFF0000Standard: 5(SimCraft)")
-			CreateNewText(thisConfig,"Max Targets")
+			CreateNewBox(thisConfig,"max dot targets", 0, 10, 1, 4, "|cffFFFFFFnumber of running dots of each")
+			CreateNewText(thisConfig,"max dot targets")
 
-			-- Hold Orbs back
-			--if getTalent(7,3) then
-				CreateNewBox(thisConfig,"DP on Orbs", 3, 5, 1, 4, "Start DP on 3 Orbs for faster DMG.\nStart DP on 4 Orbs should improve Damage and uptime of Mental Instinct.\nStart on 5 Orbs should improve T17-4pc more than on 4 Orbs.")
-				CreateNewText(thisConfig,"DP on Orbs")
-			--end
-
-			-- -- DoT Refresh
-			-- CreateNewBox(thisConfig,"Refresh Time", 0.0, 4.5, 0.1, 2.0, "Minimum time to refresh DoT.\nMin: 0 / Max: 4.5 / Interval: 0.1")
-			-- CreateNewText(thisConfig,"Refresh Time")
-
-			-- Mind Sear Targets
-			-- Auto MindSear
-			CreateNewCheck(thisConfig,"MS Targets","Automatic Mind Sear if enough targets in range")
-			CreateNewBox(thisConfig,"MS Targets", 1, 10, 1, 4, "Minimum count of enemies around target \nto use Mind Sear instead of Mind Spike. \nMin: 1 / Max: 10 / Interval: 1 \n|cffFF0000Standard: 6(SimCraft)")
-			CreateNewText(thisConfig,"MS Targets")
-
-			-- Mind Sear Key
-			CreateNewCheck(thisConfig,"MSinsanity Key", "Searing Insanity current target while pressing the key")
-			CreateNewDrop(thisConfig,"MSinsanity Key", 3, "Toggle2")
-			CreateNewText(thisConfig,"MSinsanity Key")
-
-			-- Burst MSi
-			CreateNewCheck(thisConfig,"Burst MSi","MSi rotation without MB \nuse it for short living Adds")
-			CreateNewText(thisConfig,"Burst MSi")
+			-- Mind Sear / Searing Insanity Key
+			CreateNewCheck(thisConfig,"Burst SI", "Burst Searing Insanity")
+			CreateNewDrop(thisConfig,"Burst SI", 3, "Toggle2")
+			CreateNewText(thisConfig,"Burst SI")
 
 
-			-- Wrapper -----------------------------------------
-			-- if LibDraw then
-			-- 	CreateNewWrap(thisConfig,"|cffBA55D3Drawing")
-			-- 	-- -- r
-			-- 	-- CreateNewBox(thisConfig,"red", 0, 255, 5, 128, "red value")
-			-- 	-- CreateNewText(thisConfig,"red")
-
-			-- 	-- -- g
-			-- 	-- CreateNewBox(thisConfig,"green", 0, 255, 5, 128, "green value")
-			-- 	-- CreateNewText(thisConfig,"green")
-
-			-- 	-- -- b
-			-- 	-- CreateNewBox(thisConfig,"blue", 0, 255, 5, 128, "blue value")
-			-- 	-- CreateNewText(thisConfig,"blue")
-
-			-- 	-- -- a
-			-- 	-- CreateNewBox(thisConfig,"alpha", 0, 100, 5, 66, "alpha value")
-			-- 	-- CreateNewText(thisConfig,"alpha")
-
-			-- 	-- BossHelper
-			-- 	CreateNewCheck(thisConfig,"BossHelper")
-			-- 	CreateNewText(thisConfig,"BossHelper")
-
-			-- 	-- T90
-			-- 	CreateNewCheck(thisConfig,"T90")
-			-- 	CreateNewText(thisConfig,"T90")
-
-			-- 	-- Target Line
-			-- 	CreateNewCheck(thisConfig,"Target Line")
-			-- 	CreateNewText(thisConfig,"Target Line")
-
-			-- 	-- Target Box
-			-- 	CreateNewCheck(thisConfig,"Target Circle")
-			-- 	CreateNewText(thisConfig,"Target Circle")
-			-- end
-
-			-- Wrapper -----------------------------------------
+			--  _    _ _   _ _ _ _   _           
+			-- | |  | | | (_) (_) | (_)          
+			-- | |  | | |_ _| |_| |_ _  ___  ___ 
+			-- | |  | | __| | | | __| |/ _ \/ __|
+			-- | |__| | |_| | | | |_| |  __/\__ \
+			--  \____/ \__|_|_|_|\__|_|\___||___/
 			CreateNewWrap(thisConfig,"|cffBA55D3Utilities")
+
+			-- Rotation
+			CreateNewDrop(thisConfig,"Rotation",1,"Choose rotation to use.","|cffBA55D3ravens","|cffBA55D3SimC")
+			CreateNewText(thisConfig,"Rotation")
 
 			-- Pause Toggle
 			CreateNewCheck(thisConfig,"Pause Toggle")
 			CreateNewDrop(thisConfig,"Pause Toggle", 10, "Toggle2")
 			CreateNewText(thisConfig,"Pause Toggle")
 
-			--Power Word: Fortitude
-			CreateNewCheck(thisConfig,"PW: Fortitude")
-			CreateNewText(thisConfig,"PW: Fortitude")
-
-			-- Shadowform Outfight
-			CreateNewCheck(thisConfig,"Shadowform Outfight")
-			CreateNewText(thisConfig,"Shadowform Outfight")
-
-			-- Farmer
-			CreateNewCheck(thisConfig,"Farmer","SWP on mouseover.")
-			CreateNewText(thisConfig,"Farmer")
-
-			-- SWP all
-			CreateNewCheck(thisConfig,"SWP all","SWP on all units in selected range.")
-			CreateNewBox(thisConfig,"SWP all", 1, 40, 1, 4, "Set to desired range for throwing SWP around.")
-			CreateNewText(thisConfig,"SWP all")
-
-			-- -- Auto Rez
-			-- CreateNewCheck(thisConfig,"Auto Rez")
-			-- CreateNewText(thisConfig,"Auto Rez(TBD)")
-
-			-- -- AutoSpeedBuff
-			-- if isKnown(AngelicFeather) then
-			-- 	--Angelic Feather
-			-- 	CreateNewCheck(thisConfig,"Angelic Feather")
-			-- 	CreateNewText(thisConfig,"Angelic Feather")
-			-- end
-
-			if isKnown(BodyAndSoul) then
-				--Body And Soul
-				CreateNewCheck(thisConfig,"Body And Soul")
-				CreateNewText(thisConfig,"Body And Soul")
-			end
-
-			-- Dummy DPS Test
-			CreateNewCheck(thisConfig,"DPS Testing")
-			CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 4, "Set to desired time for test in minutes.\nMin: 1 / Max: 15 / Interval: 1")
-			CreateNewText(thisConfig,"DPS Testing")
-
-			-- -- Bubble Wand
-			-- CreateNewCheck(thisConfig,"Bubble")
-			-- CreateNewText(thisConfig,"Bubble")
-
-			-- Disable Combat
-			CreateNewCheck(thisConfig,"disable Combat")
-			CreateNewText(thisConfig,"disable Combat")
-			
+			-- -- Dummy DPS Test
+			-- CreateNewCheck(thisConfig,"DPS Testing")
+			-- CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 4, "Set to desired time for test in minutes.\nMin: 1 / Max: 15 / Interval: 1")
+			-- CreateNewText(thisConfig,"DPS Testing")
 
 
 			-- General Configs ---------------------------------

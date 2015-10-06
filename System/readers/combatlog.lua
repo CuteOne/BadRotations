@@ -390,8 +390,8 @@ function bb.read.combatLog()
       destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
       -- last VT
       if param == "SPELL_CAST_SUCCESS" and spell==34914 then
-        lastVTTarget=destination
-        lastVTTime=GetTime()
+        --lastVTTarget=destination
+        --lastVTTime=GetTime()
       end
   end
   function cl:Paladin(...)
