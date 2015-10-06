@@ -193,29 +193,16 @@ Rotations\Paladin\Functions.lua
 Rotations\Paladin\Options.lua
 
 ## Priest ---------------------------------------------------
-##Rotations\Priest\BossHelper.lua
-##Rotations\Priest\SpellList.lua
-
-##Rotations\Priest\Shadow\Shadow.lua
-##Rotations\Priest\Shadow\libs\Functions.lua
-##Rotations\Priest\Shadow\libs\Options.lua
-##Rotations\Priest\Shadow\libs\Toggles.lua
-
-##Rotations\Priest\Shadow\libs\Cooldowns.lua
-##Rotations\Priest\Shadow\libs\Defensive.lua
-##Rotations\Priest\Shadow\libs\DoT.lua
-##Rotations\Priest\Shadow\libs\Execute.lua
-
 
 Rotations\Priest\cPriest.lua
-Rotations\Priest\ShadowNew\cShadow.lua
-Rotations\Priest\ShadowNew\libs\cBossHelperT17.lua
-Rotations\Priest\ShadowNew\libs\cBossHelperT18.lua
-Rotations\Priest\ShadowNew\libs\Options.lua
-Rotations\Priest\ShadowNew\libs\Shadow.lua
-Rotations\Priest\ShadowNew\libs\shadowRagnar.lua
-Rotations\Priest\ShadowNew\libs\shadowSimC.lua
-Rotations\Priest\ShadowNew\libs\Toggles.lua
+Rotations\Priest\Shadow\cShadow.lua
+Rotations\Priest\Shadow\libs\cBossHelperT17.lua
+Rotations\Priest\Shadow\libs\cBossHelperT18.lua
+Rotations\Priest\Shadow\libs\Options.lua
+Rotations\Priest\Shadow\libs\Shadow.lua
+Rotations\Priest\Shadow\libs\shadowRavens.lua
+Rotations\Priest\Shadow\libs\shadowSimC.lua
+Rotations\Priest\Shadow\libs\Toggles.lua
 
 
 
@@ -224,7 +211,6 @@ Rotations\Priest\Discipline\libs\Functions.lua
 Rotations\Priest\Discipline\libs\Options.lua
 Rotations\Priest\Discipline\libs\Toggles.lua
 
-Rotations\Priest\Holy.lua
 
 ## Rogue ---------------------------------------------------
 Rotations\Rogue\cRogue.lua
