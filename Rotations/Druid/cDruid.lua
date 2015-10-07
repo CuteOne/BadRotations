@@ -10,7 +10,6 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		self.profile         = spec
 		self.comboPoints     = getCombo("player")
-	    self.powerRegen      = getRegen("player")
 		self.stealth		 = false
 		self.buff.duration	 = {}		-- Buff Durations
 		self.buff.remain 	 = {}		-- Buff Time Remaining
@@ -300,7 +299,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			self.debuff.incapacitatingRoar 	= UnitDebuffID(self.units.dyn10AoE,self.spell.incapacitatingRoarDebuff,"player")~=nil or false
 			self.debuff.faerieFire 			= UnitDebuffID(self.units.dyn35AoE,self.spell.faerieFireDebuff,"player")~=nil or false
 			self.debuff.faerieSwarm 		= UnitDebuffID(self.units.dyn35AoE,self.spell.faerieSwarmDebuff,"player")~=nil or false
-			--self.debuff.infectedWounds 		= UnitDebuffID(self.units.dyn5,self.spell.infectedWoundsDebuff,"player")~=nil or false
+			self.debuff.infectedWounds 		= UnitDebuffID(self.units.dyn5,self.spell.infectedWoundsDebuff,"player")~=nil or false
 			self.debuff.moonfire 			= UnitDebuffID(self.units.dyn40AoE,self.spell.moonfireDebuff,"player")~=nil or false
 			self.debuff.growl 				= UnitDebuffID(self.units.dyn30AoE,self.spell.growlDebuff,"player")~=nil or false
 		end
@@ -314,7 +313,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			self.debuff.duration.incapacitatingRoar = getDebuffRemain(self.units.dyn10AoE,self.spell.incapacitatingRoarDebuff,"player") or 0
 			self.debuff.duration.faerieFire 		= getDebuffRemain(self.units.dyn35AoE,self.spell.faerieFireDebuff,"player") or 0
 			self.debuff.duration.faerieSwarm 		= getDebuffRemain(self.units.dyn35AoE,self.spell.faerieSwarmDebuff,"player") or 0
-			--self.debuff.duration.infectedWounds 	= getDebuffRemain(self.units.dyn5,self.spell.infectedWoundsDebuff,"player") or 0
+			self.debuff.duration.infectedWounds 	= getDebuffRemain(self.units.dyn5,self.spell.infectedWoundsDebuff,"player") or 0
 			self.debuff.duration.moonfire 			= getDebuffRemain(self.units.dyn40AoE,self.spell.moonfireDebuff,"player") or 0
 			self.debuff.duration.growl 				= getDebuffRemain(self.units.dyn30AoE,self.spell.growlDebuff,"player") or 0
 		end
@@ -328,7 +327,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			self.debuff.remain.incapacitatingRoar 		= getDebuffRemain(self.units.dyn10AoE,self.spell.incapacitatingRoarDebuff,"player") or 0
 			self.debuff.remain.faerieFire 				= getDebuffRemain(self.units.dyn35AoE,self.spell.faerieFireDebuff,"player") or 0
 			self.debuff.remain.faerieSwarm  			= getDebuffRemain(self.units.dyn35AoE,self.spell.faerieSwarmDebuff,"player") or 0
-			--self.debuff.remain.infectedWounds 			= getDebuffRemain(self.units.dyn5,self.spell.infectedWoundsDebuff,"player") or 0
+			self.debuff.remain.infectedWounds 			= getDebuffRemain(self.units.dyn5,self.spell.infectedWoundsDebuff,"player") or 0
 			self.debuff.remain.moonfire					= getDebuffRemain(self.units.dyn40AoE,self.spell.moonfireDebuff,"player") or 0
 			self.debuff.remain.growl 					= getDebuffRemain(self.units.dyn30AoE,self.spell.growlDebuff,"player") or 0
 		end
@@ -409,37 +408,45 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		-- Cyclone
 		function self.castCyclone()
-			return castSpell(self.units.dyn20AoE,self.spell.cyclone,false,false) == true or false
+			if self.level>=78 and self.powerPercentMana>7.5 and getDistance(self.units.dyn20AoE)<20 then
+				if castSpell(self.units.dyn20AoE,self.spell.cyclone,false,false,false) then return end
+			end
 		end
-
 		-- Entangling Roots
 		function self.castEntanglingRoots()
-			return castSpell(self.units.dyn35AoE,self.spell.entanglingRoots,false,false) == true or false
+			if self.level>=10 and self.powerPercentMana>6.5 and getDistance(self.units.dyn35AoE)<35 then
+				if castSpell(self.units.dyn35AoE,self.spell.entanglingRoots,false,false,false) then return end
+			end
 		end
-
 		-- Hurricane
 		function self.castHurricane()
-			return castSpell(self.units.dyn35AoE,self.spell.hurricane,false,false) == true or false
+			if self.level>=42 and self.powerPercentMana>10 and getDistance(self.units.dyn35AoE)<35 then
+				if castGoundAtBestLocation(self.spell.hurricane,8,1,35) then return end
+			end
 		end
-
 		-- Incapacitating Roar
 		function self.castIncapacitatingRoar()
-			return castSpell(self.units.dyn10AoE,self.spell.incapacitatingRoar,false,false) == true or false
+			if self.level>=75 and self.cd.incapacitatingRoar==0 and getDistance(self.units.dyn10AoE)<10 then
+				if castSpell(self.units.dyn10AoE,self.spell.incapacitatingRoar,false,false,false) then return end
+			end
 		end
-
 		-- Mighty Bash
 		function self.castMightyBash()
-			return castSpell(self.units.dyn5,self.spell.mightyBash,false,false) == true or false
+			if self.talent.mightyBash and self.cd.mightyBash==0 and getDistance(self.units.dyn5)<5 then
+				if castSpell(self.units.dyn5,self.spell.mightyBash,false,false,false) then return end
+			end
 		end
-
 		-- Typhoon
 		function self.castTyphoon()
-			return castSpell(self.units.dyn15,self.spell.typhoon,false,false) == true or false
+			if self.talent.typhoon and self.cd.typhoon==0 and getDistance(self.units.dyn15)<15 then
+				if castSpell(self.units.dyn15,self.spell.typhoon,false,false,false) then return end
+			end
 		end
-
 		-- Ursol's Vortex
 		function self.castUrsolsVortex()
-			return castSpell(self.units.dyn30AoE,self.spell.ursolsVortex,false,false) == true or false
+			if self.talent.ursolsVortex and self.cd.ursolsVortex==0 and getDistance(self.units.dyn30AoE)<30 then
+				if castGoundAtBestLocation(self.spell.ursolsVortex,8,1,30) then return end
+			end
 		end
 
 	--------------------------
@@ -448,48 +455,63 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		-- Barkskin
 		function self.castBarkskin()
-			return castSpell("player",self.spell.barkskin,false,false) == true or false
+			if (self.spec=="Balance" or self.spec=="Guardian" or self.spec=="Restoration") and self.level>=44 and self.cd.barkskin==0 then
+				if castSpell("player",self.spell.barkskin,false,false,false) then return end
+			end
 		end
-
 		-- Cenarion Ward - Set target via thisUnit variable
 		function self.castCenarionWard(thisUnit)
-			return castSpell(thisUnit,self.spell.cenarionWard,false,false) == true or false
-		end
+			local isLivePlayer = UnitIsPlayer(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and UnitIsFriend(thisUnit,"player")
 
+			if self.talent.cenarionWard and self.cd.cenarionWard==0 and self.powerPercentMana>9.2 and isLivePlayer and getDistance(thisUnit)<40 then
+				if castSpell(thisUnit,self.spell.cenarionWard,false,false,false) then return end
+			end
+		end
 		-- Frenzied Regeneration
 		function self.castFrenziedRegeneration()
-			return castSpell("player",self.spell.frenziedRegeneration,false,false) == true or false
+			if self.level>=68 and self.cd.frenziedRegeneration==0 and self.buff.bearForm and self.power>0 then
+				if castSpell("player",self.spell.frenziedRegeneration,false,false,false) then return end
+			end
 		end
-
 		-- Healing Touch - Set target via thisUnit variable
 		function self.castHealingTouch(thisUnit)
-			return castSpell(thisUnit,self.spell.healingTouch,false,false) == true or false
+			local isLivePlayer = UnitIsPlayer(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and UnitIsFriend(thisUnit,"player")
+			
+			if self.level>=26 and self.powerPercentMana>10.35 and isLivePlayer and getDistance(thisUnit)<40 then
+				if castSpell(thisUnit,self.spell.healingTouch,false,false,false) then return end
+			end
 		end
-
 		-- Nature's Vigil
 		function self.castNaturesVigil()
-			return castSpell("player",self.spell.naturesVigil,false,false) == true or false
+			if self.talent.naturesVigil and self.cd.naturesVigil==0 then
+				if castSpell("player",self.spell.naturesVigil,false,false,false) then return end
+			end
 		end
-
 		-- Rejuvenation - Set target via thisUnit variable
 		function self.castRejuvenation(thisUnit)
-			return castSpell(thisUnit,self.spell.rejuvenation,false,false) == true or false
+			local isLivePlayer = UnitIsPlayer(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and UnitIsFriend(thisUnit,"player")
+			
+			if self.level>=4 and self.powerPercentMana>9.45 and isLivePlayer and getDistance(thisUnit)<40 then
+				if castSpell(thisUnit,self.spell.rejuvenation,false,false,false) then return end
+			end
 		end
-
-
 		-- Remove Corruption - Set target via thisUnit variable
 		function self.castRemoveCorruption(thisUnit)
-			return castSpell(thisUnit,self.spell.removeCorruption,false,false,false) == true or false
+			if (self.spec=="Balance" or self.spec=="Feral" or self.spec=="Guardian") and self.level>=22 and self.powerPercentMana>15.8 and self.cd.removeCorruption==0 and canDispel(thisUnit,self.spell.removeCorruption) and getDistance(thisUnit)<40 then
+				if castSpell(thisUnit,self.spell.removeCorruption,false,false,false) then return end
+			end
 		end
-
 		-- Renewal
 		function self.castRenewal()
-			return castSpell("player",self.spell.renewal,false,false) == true or false
+			if self.talent.renewal and self.cd.renewal==0 and self.health<70 then
+				if castSpell("player",self.spell.renewal,false,false,false) then return end
+			end
 		end
-
 		-- Survival Instincts
 		function self.castSurvivalInstincts()
-			return castSpell("player",self.spell.survivalInstincts,false,false) == true or false
+			if (self.spec=="Feral" or self.spec=="Guardian") and self.level>=56 and self.charges.survivalInstincts>0 then
+				if castSpell("player",self.spell.survivalInstincts,false,false,false) then return end
+			end
 		end
 
 	----------------------
@@ -498,22 +520,27 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		-- Bear Form
 		function self.castBearForm()
-			return castSpell("player",self.spell.bearForm,false,false) == true or false
+			if self.level>=8 and self.powerPercentMana>7.4 then
+				if castSpell("player",self.spell.bearForm,false,false,false) then return end
+			end
 		end
-
 		-- Cat Form
 		function self.castCatForm()
-			return castSpell("player",self.spell.catForm,false,false) == true or false
+			if self.level>=6 and self.powerPercentMana>7.4 then
+				if castSpell("player",self.spell.catForm,false,false,false) then return end
+			end
 		end
-
 		-- Flight Form
 		function self.castFlightForm()
-			return castSpell("player",self.spell.flightForm,false,false) == true or false
+			if self.level>=58 and self.powerPercentMana>7.4 and not self.inCombat then
+				if castSpell("player",self.spell.flightForm,false,false,false) then return end
+			end
 		end
-
 		-- Travel Form
 		function self.castTravelForm()
-			return castSpell("player",self.spell.travelForm,false,false) == true or false
+			if self.level>=16 and self.powerPercentMana>7.4 then
+				if castSpell("player",self.spell.travelForm,false,false,false) then return end
+			end
 		end
 
 	--------------------------
@@ -522,67 +549,76 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		-- Berserk
 		function self.castBerserk()
-			if self.cd.berserk==0 then
-				return castSpell("player",self.spell.berserk,false,false) == true or false
+			if (self.spec=="Feral" or self.spec=="Guardian") and self.level>=48 and self.cd.berserk==0 and (self.buff.bearForm or self.buff.catForm) then
+				if castSpell("player",self.spell.berserk,false,false,false) then return end
 			end
 		end
-
 		-- Faerie Fire
-		function self.castFaerieFire()
-			return castSpell(self.units.dyn35AoE,self.spell.faerieFire,false,false) == true or false
+		function self.castFaerieFire(thisUnit)
+			if (self.spec=="Feral" or self.spec=="Guardian") and self.level>=28 and getDistance(thisunit)<35 then
+				if castSpell(thisUnit,self.spell.faerieFire,false,false,false) then return end
+			end
 		end
-
 		-- Faerie Swarm
-		function self.castFaerieSwarm()
-			return castSpell(self.units.dyn35AoE,self.spell.faerieSwarm,false,false) == true or false
+		function self.castFaerieSwarm(thisUnit)
+			if (self.spec=="Feral" or self.spec=="Guardian") and self.talent.faerieSwarm and getDistance(thisunit)<35 then
+				if castSpell(thisUnit,self.spell.faerieSwarm,false,false,false) then return end
+			end
 		end
-
 		-- Ferocious Bite - Set target via thisUnit variable
 		function self.castFerociousBite(thisUnit)
-			if self.power > 25 and ObjectExists(self.units.dyn5) then
-				return castSpell(thisUnit,self.spell.ferociousBite,false,false) == true or false
+			if self.level>=6 and self.power>25 and self.buff.catForm and self.comboPoints>0 and getDistance(thisUnit)<5 then
+				if castSpell(thisUnit,self.spell.ferociousBite,false,false,false) then return end
 			end
 		end
-
 		-- Mark of the Wild
 		function self.castMarkOfTheWild()
-	        local totalCount = GetNumGroupMembers()
-	        local currentCount = currentCount or 0
-	        local solo = (select(2,IsInInstance())=="none")
-	        for i=1,#nNova do
-	            local thisUnit = nNova[i].unit
-	            local distance = getDistance(thisUnit)
-	            if distance<30 then
-	                currentCount = currentCount+1
-	            end
-	        end
-	        if currentCount==totalCount or solo then
-	            return castSpell("player",self.spell.markOfTheWild,false,false) == true or false
-	        else
-	            return false
-	        end
+			if self.level>=62 and self.powerPercentMana>5 then
+		        if self.instance=="none" and not isBuffed("player",{1126,115921,116781,20217,160206,69378,159988,160017,90363,160077}) then
+		        	if castSpell("player",self.spell.markOfTheWild,false,false,false) then return end
+		        else
+			        local totalCount = GetNumGroupMembers()
+			        local currentCount = currentCount or 0
+			        local needsBuff = needsBuff or 0
+			        for i=1,#nNova do
+			            local thisUnit = nNova[i].unit
+			            local distance = getDistance(thisUnit)
+			            if distance<30 then
+			                currentCount = currentCount+1
+			            end
+			            if not isBuffed(thisUnit,{1126,115921,116781,20217,160206,69378,159988,160017,90363,160077}) then
+			            	needsBuff = needsBuff+1
+			            end
+			        end
+			        if currentCount>=totalCount and needsBuff>0 then
+			            if castSpell("player",self.spell.markOfTheWild,false,false,false) then return end
+			        end
+			    end
+		    end
 		end
-
 		-- Mangle
-		function self.castMangle()
-			return castSpell(self.units.dyn5,self.spell.mangle,false,false) == true or false
-		end
-
-		-- Moonfire - Set target via thisUnit variable
-		function self.castMoonfire(thisUnit)
-			return castSpell(thisUnit,self.spell.moonfire,false,false) == true or false
-		end
-
-		-- Shred
-		function self.castShred()
-			if self.power > 40 and ObjectExists(self.units.dyn5) then
-				return castSpell(self.units.dyn5,self.spell.shred,false,false) == true or false
+		function self.castMangle(thisUnit)
+			if self.level>=8 and self.cd.mangle==0 and self.buff.bearForm and getDistance(thisUnit)<5 then
+				if castSpell(thisUnit,self.spell.mangle,false,false,false) then return end
 			end
 		end
-
+		-- Moonfire - Set target via thisUnit variable
+		function self.castMoonfire(thisUnit)
+			if self.level>=3 and self.powerPercentMana>1.5 and getDistance(thisUnit)<40 then
+				if castSpell(thisUnit,self.spell.moonfire,false,false,false) then return end
+			end
+		end
+		-- Shred
+		function self.castShred(thisUnit)
+			if self.level>=6 and self.buff.catForm and self.power>40 and getDistance(thisUnit)<5 then
+				if castSpell(thisUnit,self.spell.shred,false,false,false) then return end
+			end
+		end
 		-- Wrath
-		function self.castWrath()
-			return castSpell(self.units.dyn40,self.spell.wrath,false,false) == true or false
+		function self.castWrath(thisUnit)
+			if self.level>=1 and self.powerPercentMana>3.5 and getDistance(thisUnit)<40 then
+				if castSpell(thisUnit,self.spell.wrath,false,false,false) then return end
+			end
 		end
 
 	------------------------
@@ -591,64 +627,61 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		-- Dash
 		function self.castDash()
-			return castSpell("player",self.spell.dash,false,false) == true or false
-		end
-
-		-- Displacer Beast
-		function self.castDisplacerBeast()
-			return castSpell(self.units.dyn20AoE,self.spell.displacerBeast,false,false) == true or false
-		end
-
-		-- Growl
-		function self.castGrowl()
-			return castSpell(self.units.dyn30AoE,self.spell.growl,false,false) == true or false
-		end
-
-		-- Innervate - Set target via thisUnit variable
-		function self.castInnervate(thisUnit)
-			return castSpell(thisUnit,self.spell.innervate,false,false) == true or false
-		end
-
-		-- Prowl
-		function self.castProwl()
-			return castSpell("player",self.spell.prowl,false,false) == true or false
-		end
-
-		-- Rebirth - Set target via thisUnit variable
-		function self.castRebirth(thisUnit)
-			return castSpell(thisUnit,self.spell.rebirth,false,false,false,false,true) == true or false
-		end
-
-		-- Revive - Set target via thisUnit variable
-		function self.castRevive(thisUnit)
-			return castSpell(thisUnit,self.spell.revive,false,false,false,false,true) == true or false
-		end
-
-		-- Skull Bash - Set target via thisUnit variable
-		function self.castSkullBash(thisUnit)
-			if ObjectExists(self.units.dyn13) then 
-				return castSpell(thisUnit,self.spell.skullBash,false,false) == true or false
+			if self.level>=24 and self.cd.dash==0 then
+				if castSpell("player",self.spell.dash,false,false,false) then return end
 			end
 		end
+		-- Displacer Beast
+		function self.castDisplacerBeast()
+			if self.talent.displacerBeast and self.cd.displacerBeast==0 then
+				if castSpell("player",self.spell.displacerBeast,false,false,false) then return end
+			end
+		end
+		-- Growl
+		function self.castGrowl(thisUnit)
+			if self.level>=8 and self.cd.growl==0 and self.buff.bearForm and getDistance(thisUnit)<30 then
+				if castSpell(thisUnit,self.spell.growl,false,false,false) then return end
+			end
+		end
+		-- Prowl
+		function self.castProwl()
+			if self.level>=6 and self.cd.prowl==0 and not self.buff.prowl then
+				if castSpell("player",self.spell.prowl,false,false,false) then return end
+			end
+		end
+		-- Rebirth - Set target via thisUnit variable
+		function self.castRebirth(thisUnit)
+			local isDeadPlayer = UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and UnitIsFriend(thisUnit,"player")
 
+			if self.level>=56 and self.cd.rebirth==0 and self.inCombat and isDeadPlayer and getDistance(thisUnit)<40 then
+				if castSpell(thisUnit,self.spell.rebirth,false,false,false,false,true) then return end
+			end
+		end
+		-- Revive - Set target via thisUnit variable
+		function self.castRevive(thisUnit)
+			local isDeadPlayer = UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and UnitIsFriend(thisUnit,"player")
+
+			if self.level>=12 and self.powerPercentMana>4 and not inCombat and isDeadPlayer and getDistance(thisUnit)<40 then
+				if castSpell(thisUnit,self.spell.revive,false,false,false,false,true) then return end
+			end
+		end
+		-- Skull Bash - Set target via thisUnit variable
+		function self.castSkullBash(thisUnit)
+			if (self.spec=="Feral" or self.spec=="Guardian") and self.level>=64 and self.cd.skullBash==0 and (self.buff.bearForm or self.buff.catForm) and getDistance(thisUnit)<13 then 
+				if castSpell(thisUnit,self.spell.skullBash,false,false,false) then return end
+			end
+		end
 		-- Soothe - Set target via thisUnit variable
 		function self.castSoothe(thisUnit)
-			return castSpell(thisUnit,self.spell.soothe,false,false) == true or false
+			if self.level>=60 and self.powerPercentMana>5.6 and canDispel(thisUnit,self.spell.soothe) and getDistance(thisUnit)<40 then
+				if castSpell(thisUnit,self.spell.soothe,false,false,false) then return end
+			end
 		end
-
-		-- Teleport: Moonglade
-		function self.castTeleportMoonglade()
-			return castSpell("player",self.spell.teleportMoonglade,false,false) == true or false
-		end
-
-		-- Track Humanoids
-		function self.castTrackHumanoids()
-			return castSpell("player",self.spell.trackHumanoids,false,false) == true or false
-		end
-
 		-- Wild Charge - Set target via thisUnit variable
 		function self.castWildCharge(thisUnit)
-			return self.castSpell(thisUnit,self.spell.wildCharge,false,false) == true or false
+			if self.talent.wildCharge and self.cd.wildCharge==0 and getDistance(thisUnit)>=5 and getDistance(thisUnit)<25 then
+				if self.castSpell(thisUnit,self.spell.wildCharge,false,false,false) then return end
+			end
 		end
 
 		-- Return

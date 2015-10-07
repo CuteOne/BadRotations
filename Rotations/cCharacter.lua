@@ -26,14 +26,13 @@ function cCharacter:new(class)
 	self.glyph          = {}        -- Glyphs
 	self.health         = 100       -- Health Points in %
 	self.ignoreCombat   = false     -- Ignores combat status if set to true
-	self.power          = 0         -- Primary Resource (e.g. Mana for Retribution, Holy Power must be specified)
-	self.powerMax		= 100		-- Max Primary Resource
-	self.powerDeficit	= 0			-- Difference between Max Power and Power
+	self.power          = 0     	-- Primary Resource (e.g. Mana for Retribution, Holy Power must be specified)
 	self.timeToMax		= 0			-- Time To Max Power
 	self.level			= 0 		-- Player Level
 	self.mode           = {}        -- Toggles
 	self.rotation       = 1         -- Default: First avaiable rotation
 	self.inCombat       = false     -- if is in combat
+	self.instance 		= "none" 	-- Get type of group we are in (none, party, instance, raid, etc)
 	self.talent         = {}        -- Talents
 	self.characterSpell = {}        -- Spells all classes may have (e.g. Racials, Mass Ressurection)
 	self.recharge       = {}        -- Time for current recharge (for spells with charges)
@@ -121,18 +120,26 @@ function cCharacter:new(class)
 		-- Get base options
 		self.baseGetOptions()
 
-		-- Level, Health
-		self.level 		= UnitLevel("player")
-		self.health 	= getHP("player")
+		-- Specialization
+		self.spec 				= select(2, GetSpecializationInfo(GetSpecialization())) or "None"
 
+		-- Level, Health
+		self.level 				= UnitLevel("player")
+		self.health 			= getHP("player")
+
+		-- Instance
+		self.instance 			= select(2,IsInInstance())
 		-- Power
-		self.power  		= getPower("player")
-		self.powerMax 		= UnitPowerMax("player")
-		self.powerDeficit 	= UnitPowerMax("player")-getPower("player")
-		self.timeToMax 		= getTimeToMax("player")
+		self.power  			= getPower("player")
+		self.powerMax 			= UnitPowerMax("player")
+		self.powerDeficit 		= UnitPowerMax("player")-getPower("player")
+		self.powerPercent 		= ((UnitPower("player")/UnitPowerMax("player"))*100)
+		self.powerPercentMana 	= ((UnitPower("player",0)/UnitPowerMax("player",0))*100)
+		self.powerRegen 		= getRegen("player")
+		self.timeToMax 			= getTimeToMax("player")
 
 		-- Racial Cooldown
-		self.cd.racial = getSpellCD(self.racial)
+		self.cd.racial 			= getSpellCD(self.racial)
 
 		-- Crystal
 		self.useCrystal()
@@ -146,7 +153,7 @@ function cCharacter:new(class)
 		end
 
 		-- Set Global Cooldown
-		self.gcd = self.getGlobalCooldown()
+		self.gcd 				= self.getGlobalCooldown()
 
 		-- Get toggle modes
 		self.getToggleModes()

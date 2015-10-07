@@ -227,7 +227,23 @@ function canDispel(Unit,spellID)
 		if spellID == 88423 then typesList = { "Poison","Curse","Magic" } end
 		-- Symbiosis: Cleanse
 		if spellID == 122288 then typesList = { "Poison","Disease" } end
+		-- -- Soothe
+		-- if sellID == 2908 then typeList = { "Enrage" } end
 	end
+	-- local function Enraged()
+	-- 	local enrageBuff = select(5,UnitAura(Unit))=="" or false
+	-- 	if typesList == nil then
+	-- 		return false
+	-- 	else
+	-- 		for i = 1,#typesList do
+	-- 			if typesList[i]=="Enrage" and enrageBuff then
+	-- 				return true
+	-- 			else
+	-- 				return false
+	-- 			end
+	-- 		end
+	-- 	end
+	-- end
 	local function ValidType(debuffType)
 		if typesList == nil then
 			return false
@@ -246,7 +262,7 @@ function canDispel(Unit,spellID)
 	while UnitDebuff(Unit,i) do
 		local _,_,_,_,debuffType,_,_,_,_,_,debuffid = UnitDebuff(Unit,i)
 		-- Blackout Debuffs
-		if debuffType and ValidType(debuffType)
+		if ((debuffType and ValidType(debuffType))) --or Enraged())
 			and debuffid ~= 138732 --Ionization from Jin'rokh the Breaker - ptr
 			and debuffid ~= 138733 --Ionization from Jin'rokh the Breaker - live
 		then
@@ -404,8 +420,17 @@ function canUse(itemID)
 			goOn = true
 		end
 	end
-	if goOn == true and (GetItemCount(itemID,false,false) > 0 or PlayerHasToy(itemID)) then
-		if GetItemCooldown(itemID)==0 then
+	if goOn == true and (GetItemCount(itemID,false,false) > 0 or PlayerHasToy(itemID) or itemID<19) then
+		if itemID<=19 then
+			if GetItemSpell(GetInventoryItemID("player",itemID))~=nil then 
+				local slotItemID = GetInventoryItemID("player",itemID)
+				if GetItemCooldown(slotItemID)==0 then
+					return true
+				end
+			else
+				return false
+			end
+		elseif itemID>19 and GetItemCooldown(itemID)==0 then
 			return true
 		else
 			return false
@@ -1617,7 +1642,8 @@ function isAlive(Unit)
 	end
 end
 -- isBoss()
-function isBoss()
+function isBoss(unit)
+	if unit==nil then unit="target" end
 	------Boss Check------
 	for x=1,5 do
 		if UnitExists("boss1") then
@@ -1779,11 +1805,14 @@ function isBoss()
 		boss5,--Boss 5
 	}
 	local BossUnits = BossUnits
-	if UnitExists("target") then
-		local npcID = tonumber(string.match(UnitGUID("target"),"-(%d+)-%x+$"))--tonumber(UnitGUID("target"):sub(6,10),16)
-		if (UnitClassification("target") == "rare" or UnitClassification("target") == "rareelite" or UnitClassification("target") == "worldboss" or (UnitClassification("target") == "elite" and UnitLevel("target") >= UnitLevel("player")+3) or UnitLevel("target") < 0)
-			--and select(2,IsInInstance())=="none"
-			and not UnitIsTrivial("target")
+	if UnitExists(unit) then
+		local npcID = tonumber(string.match(UnitGUID(unit),"-(%d+)-%x+$"))--tonumber(UnitGUID("target"):sub(6,10),16)
+		if (UnitClassification(unit) == "rare" 
+			or UnitClassification(unit) == "rareelite" 
+			or UnitClassification(unit) == "worldboss" 
+			or (UnitClassification(unit) == "elite" and UnitLevel(unit) >= UnitLevel("player")+3) 
+			or UnitLevel(unit) < 0)
+				and not UnitIsTrivial(unit)
 		then
 			return true
 		else
@@ -2308,7 +2337,20 @@ end
 -- useItem(12345)
 function useItem(itemID)
 	local spamDelay = spamDelay or 0
-	if GetItemCount(itemID) > 0 or PlayerHasToy(itemID) then
+	if itemID<=19 then
+		if GetItemSpell(GetInventoryItemID("player",itemID))~=nil then 
+			local slotItemID = GetInventoryItemID("player",itemID)
+			if GetItemCooldown(slotItemID)==0 then
+				if not spamDelay or GetTime() > spamDelay then
+					UseItemByName(tostring(select(1,GetItemInfo(slotItemID))));
+					spamDelay = GetTime() + 1;
+					return true
+				end
+			end
+		else
+			return false
+		end
+	elseif itemID>19 and (GetItemCount(itemID) > 0 or PlayerHasToy(itemID)) then
 		if GetItemCooldown(itemID)==0 then
 			if not spamDelay or GetTime() > spamDelay then
 				UseItemByName(tostring(select(1,GetItemInfo(itemID))));

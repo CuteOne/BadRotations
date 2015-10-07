@@ -172,6 +172,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 						end
 					end
 				end
+		-- lightning Shield
+				if not buff.lightningShield then
+					if self.castLightningShield() then return end
+				end
 		-- Shamanistic Rage
 		        if isChecked("Shamanistic Rage") and inCombat and php <= getOptionValue("Shamanistic Rage") then
 		          	if self.castShamanisticRage() then return end
@@ -311,7 +315,9 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 		function actionList_Single()
 		-- Searing Totem
 			-- searing_totem,if=!totem.fire.active
-			if self.castSearingTotem() then return end
+			if (not totem.searingTotem and not totem.fireElementalTotem) or totem.magmaTotem then
+				if self.castSearingTotem() then return end
+			end
 		-- Unleash Elements
 			-- unleash_elements,if=talent.unleashed_fury.enabled
 			if talent.unleashedFury then
@@ -427,7 +433,9 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			end
 		-- Magma Totem
 			-- magma_totem,if=!totem.fire.active
-			if self.castMagmaTotem() then return end
+			if (not totem.magmaTotem and not totem.fireElementalTotem) or totem.searingTotem then
+				if self.castMagmaTotem() then return end
+			end
 		-- Lava Lash
 			-- lava_lash,if=dot.flame_shock.ticking&active_dot.flame_shock<spell_targets.fire_nova_explosion
 			if debuff.flameShock and debuff.count.flameShock<enemies.yards10 then
