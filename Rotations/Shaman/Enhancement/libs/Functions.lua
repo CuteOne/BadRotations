@@ -70,7 +70,14 @@ if select(3,UnitClass("player")) == 7 then
       return false
     end
   end
-  function useCDs()
+  function isBoss2(unit)
+    if UnitHealthMax(unit)>=(UnitHealthMax("player")*3) then
+      return true
+    else
+      return false
+    end
+  end
+  function useCDs(spellid)
     if (BadBoy_data['Cooldowns'] == 1 and isBoss()) or BadBoy_data['Cooldowns'] == 2 then
       return true
     else

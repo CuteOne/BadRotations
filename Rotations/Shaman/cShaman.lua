@@ -474,7 +474,7 @@ function cShaman:new(spec)
 	end
 	-- Chain Lightning
 	function self.castChainLightning()
-		local hasThreat = UnitThreatSituation("player",thisUnit)~=nil or false
+		local hasThreat = UnitThreatSituation("player",thisUnit)~=nil or isInCombat(thisUnit) or false
 		if self.level>=28 and self.powerPercent>1 and getDistance(self.units.dyn30)<30 and (hasThreat or isDummy()) then
 			if castSpell(self.units.dyn30,self.spell.chainLightning,false,false,false) then return end
 		end
@@ -493,14 +493,14 @@ function cShaman:new(spec)
 	end
 	-- Flame Shock
 	function self.castFlameShock()
-		local hasThreat = UnitThreatSituation("player",thisUnit)~=nil or false
+		local hasThreat = UnitThreatSituation("player",thisUnit)~=nil or isInCombat(thisUnit) or false
 		if self.level>=12 and self.cd.flameShock==0 and self.powerPercent>1.25 and getDistance(self.units.dyn25)<25 and (hasThreat or isDummy()) then
 			if castSpell(self.units.dyn25,self.spell.flameShock,false,false,false) then return end
 		end
 	end
 	-- Frost Shock
 	function self.castFrostShock()
-		local hasThreat = UnitThreatSituation("player",thisUnit)~=nil or false
+		local hasThreat = UnitThreatSituation("player",thisUnit)~=nil or isInCombat(thisUnit) or false
 		if self.level>=22 and self.cd.frostShock==0 and self.powerPercent>=1.25 and getDistance(self.units.dyn25)<25 and (hasThreat or isDummy()) then
 			if castSpell(self.units.dyn25,self.spell.frostShock,false,false,false) then return end
 		end
@@ -518,7 +518,7 @@ function cShaman:new(spec)
 	end
 	-- Lightning Bolt
 	function self.castLightningBolt()
-		local hasThreat = UnitThreatSituation("player",thisUnit)~=nil or false
+		local hasThreat = UnitThreatSituation("player",thisUnit)~=nil or isInCombat(thisUnit) or false
 		if self.level>=1 and self.powerPercent>1.75 and getDistance(self.units.dyn30)<30 and (hasThreat or isDummy()) then
 			if castSpell(self.units.dyn30,self.spell.lightningBolt,false,false,false) then return end
 		end
