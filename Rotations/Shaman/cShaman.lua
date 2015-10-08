@@ -474,7 +474,8 @@ function cShaman:new(spec)
 	end
 	-- Chain Lightning
 	function self.castChainLightning()
-		if self.level>=28 and self.powerPercent>1 and getDistance(self.units.dyn30)<30 then
+		local hasThreat = hasThreat(self.units.dyn30)
+		if self.level>=28 and self.powerPercent>1 and getDistance(self.units.dyn30)<30 and (hasThreat or isDummy()) then
 			if castSpell(self.units.dyn30,self.spell.chainLightning,false,false,false) then return end
 		end
 	end
@@ -492,13 +493,15 @@ function cShaman:new(spec)
 	end
 	-- Flame Shock
 	function self.castFlameShock()
-		if self.level>=12 and self.cd.flameShock==0 and self.powerPercent>1.25 and getDistance(self.units.dyn25)<25 then
+		local hasThreat = hasThreat(self.units.dyn25)
+		if self.level>=12 and self.cd.flameShock==0 and self.powerPercent>1.25 and getDistance(self.units.dyn25)<25 and (hasThreat or isDummy()) then
 			if castSpell(self.units.dyn25,self.spell.flameShock,false,false,false) then return end
 		end
 	end
 	-- Frost Shock
 	function self.castFrostShock()
-		if self.level>=22 and self.cd.frostShock==0 and self.powerPercent>=1.25 and getDistance(self.units.dyn25)<25 then
+		local hasThreat = hasThreat(self.units.dyn25)
+		if self.level>=22 and self.cd.frostShock==0 and self.powerPercent>=1.25 and getDistance(self.units.dyn25)<25 and (hasThreat or isDummy()) then
 			if castSpell(self.units.dyn25,self.spell.frostShock,false,false,false) then return end
 		end
 	end
@@ -515,7 +518,8 @@ function cShaman:new(spec)
 	end
 	-- Lightning Bolt
 	function self.castLightningBolt()
-		if self.level>=1 and self.powerPercent>1.75 and getDistance(self.units.dyn30)<30 then
+		local hasThreat = hasThreat(self.units.dyn30)
+		if self.level>=1 and self.powerPercent>1.75 and getDistance(self.units.dyn30)<30 and (hasThreat or isDummy()) then
 			if castSpell(self.units.dyn30,self.spell.lightningBolt,false,false,false) then return end
 		end
 	end
@@ -577,9 +581,11 @@ function cShaman:new(spec)
 			if castSpell("player",self.spell.healingStreamTotem,false,false,false) then return end
 		end
 	end
-	-- Searing Elemental Totem
+	-- Searing Totem
 	function self.castSearingTotem()
-		if self.level>=16 and ((not self.totem.searingTotem) or (self.totem.searingTotem and ObjectExists("target") and getTotemDistance("target")>=25 and getDistance("target")<25)) and self.powerPercent>3 and ObjectExists("target") then
+		if self.level>=16 and ((not self.totem.searingTotem) or (self.totem.searingTotem and ObjectExists("target") and getTotemDistance("target")>=25 and getDistance("target")<25)) 
+			and self.powerPercent>3 and ObjectExists("target") and getTimeToDie("target")>5 and (getEnemies("target",10)==1 or BadBoy_data['AoE'] == 3) 
+		then
 			if castSpell("player",self.spell.searingTotem,false,false,false) then return end
 		end
 	end
@@ -603,7 +609,7 @@ function cShaman:new(spec)
 	function self.castAncestralSpirit(thisUnit)
 		local thisUnit = thisUnit
 		if self.level>=14 and self.powerPercent>4 and not isMoving("player") and UnitIsDeadOrGhost(thisUnit) and UnitIsPlayer(thisUnit) and UnitIsFriend(thisUnit,"player") and getDistance(thisUnit)<40 then
-			if castSpell(thisUnit,self.spell.ancestralSpirit,false,false,false) then return end
+			if castSpell(thisUnit,self.spell.ancestralSpirit,false,false,false,false,true) then return end
 		end
 	end
 	-- Cleanse Spirit

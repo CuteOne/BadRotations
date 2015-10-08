@@ -1,7 +1,8 @@
 --- Feral Class
 -- Inherit from: ../cCharacter.lua and ../cDruid.lua
 if select(2, UnitClass("player")) == "DRUID" then
-
+    rakeApplied = {}
+    ripApplied = {}
 	cFeral = {}
 
 	-- Creates Feral Druid
@@ -13,8 +14,13 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-----------------
         --- VARIABLES ---
         -----------------
-        self.trinket = {}        -- Trinket Procs
-        self.enemies = {
+        self.bleed              = {}        -- Bleed/Moonfire Tracking
+        self.bleed.rake         = {}        -- Rake Bleed
+        self.bleed.rip          = {}        -- Rip Bleed
+        self.bleed.thrash       = {}        -- Thrash Bleed
+        self.bleed.moonfire     = {}        -- Moonfire Debuff
+        self.trinket            = {}        -- Trinket Procs
+        self.enemies    = {
             yards5,
             yards8,
             yards13,
@@ -116,10 +122,13 @@ if select(2, UnitClass("player")) == "DRUID" then
     --------------
 
         function self.update()
+
             -- Call Base and Class update
             self.classUpdate()
             -- Updates OOC things
             if not UnitAffectingCombat("player") then self.updateOOC() end
+            -- self.feral_bleed_table()
+            self.getBleedUnits()
             self.getBuffs()
             self.getBuffsDuration()
             self.getBuffsRemain()
@@ -162,6 +171,112 @@ if select(2, UnitClass("player")) == "DRUID" then
             self.units.dyn8AoE = dynamicTarget(8, false) -- Thrash
         end
 
+    --------------
+    --- BLEEDS ---
+    --------------
+        function self.getSnapshotValue(dot)
+            if dot ~= "rip" and dot ~= "rake" then return 0 end
+            local multiplier        = 1.00
+            local Bloodtalons       = 1.30
+            local SavageRoar        = 1.40
+            local TigersFury        = 1.15
+            local RakeMultiplier    = 1
+            local Incarnation       = 2
+            local Prowl             = 2
+            local Versatility       = GetCombatRatingBonus(29)
+
+            -- Bloodtalons
+            if UnitBuffID("player",155672) then
+                multiplier = multiplier*Bloodtalons
+            end
+            -- Savage Roar
+            if UnitBuffID("player",52610) then
+                multiplier = multiplier*SavageRoar
+            end
+            -- Tigers Fury
+            if UnitBuffID("player",5217) then
+                multiplier = multiplier*TigersFury
+            end
+
+            -- rip
+            if dot == "rip" then
+                -- -- Versatility
+                -- multiplier = multiplier*(1+Versatility*0.1)
+
+                -- return rip
+                return 5*multiplier
+            end
+            -- rake
+            if dot == "rake" then
+                -- Incarnation
+                if UnitBuffID("player",102543) then
+                    RakeMultiplier = Incarnation
+                end
+                -- Prowl
+                if UnitBuffID("player",5215) then
+                    RakeMultiplier = Prowl
+                end
+                -- return rake
+                return multiplier*RakeMultiplier
+            end
+        end
+
+        function self.getBleedUnits()
+            if self.bleed == nil then
+                self.bleed = {rake={},rip={},thrash={},moonfire={}}
+            else
+                table.wipe(self.bleed.rake)
+                table.wipe(self.bleed.rip)
+                table.wipe(self.bleed.thrash)
+                table.wipe(self.bleed.moonfire)
+            end                
+            local enemies = getEnemies("player", 40)
+            local getDebuffRemain = getDebuffRemain
+            local getDebuffDuration = getDebuffDuration
+            local rakeCalc = self.getSnapshotValue("rake")
+            local ripCalc = self.getSnapshotValue("rip")
+            local rakeDot = rakeDot
+            local ripDot = ripDot
+            -- Find Bleed Units
+            if #enemies>0 then
+                for i = 1, #enemies do
+                    -- Get Bleed Unit
+                    local thisUnit = enemies[i]
+                    local distance = getDistance(thisUnit)
+                    -- Get Bleed Remain
+                    local rakeRemain = getDebuffRemain(thisUnit,self.spell.rakeDebuff,"player")
+                    local ripRemain = getDebuffRemain(thisUnit,self.spell.ripDebuff,"player")
+                    local thrashRemain = getDebuffRemain(thisUnit,self.spell.thrashDebuff,"player")
+                    local moonfireRemain = getDebuffRemain(thisUnit,self.spell.moonfireDebuff,"player")
+                    -- Get Bleed Applied
+                    if rakeApplied[thisUnit]~=nil then 
+                        rakeDot = rakeApplied[thisUnit] --rake
+                    else
+                        rakeDot = 1
+                    end
+                    if ripApplied[thisUnit]~=nil then 
+                        ripDot = ripApplied[thisUnit] --rake
+                    else
+                        ripDot = 2.5
+                    end
+                    -- Get Bleed Percent
+                    local rakePercent = floor(rakeCalc/rakeDot*100+0.5)
+                    local ripPercent = floor(ripCalc/ripDot*100+0.5)
+                    -- Add Bleed Units
+                    if distance<5 then
+                        tinsert(self.bleed.rake,{unit = thisUnit, remain = rakeRemain, calc = rakeCalc, applied = rakeDot, percent = rakePercent})
+                        tinsert(self.bleed.rip,{unit = thisUnit, remain = ripRemain, calc = ripCalc, applied = ripDot, percent = ripPercent})
+                    end
+                    if distance<8 then
+                        tinsert(self.bleed.thrash,{unit = thisUnit, remain = thrashRemain})
+                    end
+                    if distance<40 then
+                        tinsert(self.bleed.moonfire,{unit = thisUnit, remain = moonfireRemain})
+                    end
+                end
+            end
+        end
+        
    	-------------
     --- BUFFS ---
     -------------
@@ -443,9 +558,9 @@ if select(2, UnitClass("player")) == "DRUID" then
                 checkOp("Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
                 textOp("Auto Shapeshifts")
 
-                -- Mouseover Targeting
-                checkOp("Mouseover Targeting","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFmouseover target validation.|cffFFBB00.")
-                textOp("Mouseover Targeting")
+                -- Break Crowd Control
+                checkOp("Break Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to break crowd control.|cffFFBB00.")
+                textOp("Break Crowd Control")
 
             -- Spacer
             textOp(" ")
@@ -459,23 +574,65 @@ if select(2, UnitClass("player")) == "DRUID" then
                 checkOp("Flask / Crystal")
                 textOp("Flask / Crystal")
 
+                -- Force of Nature
+                checkOp("Force of Nature")
+                textOp(tostring(select(1,GetSpellInfo(self.spell.forceOfNature))))
+
+                -- Berserk
+                checkOp("Berserk")
+                textOp(tostring(select(1,GetSpellInfo(self.spell.berserk))))
+
+                -- Legendary Ring
+                checkOp("Legendary Ring")
+                textOp("Legendary Ring")
+
+                -- Racial
+                checkOp("Racial")
+                textOp("Racial")
+
+                -- Tiger's Fury
+                checkOp("Tiger's Fury")
+                textOp(tostring(select(1,GetSpellInfo(self.spell.tigersFury))))
+
+                -- Incarnation: King of the Jungle
+                checkOp("Incarnation")
+                textOp(tostring(select(1,GetSpellInfo(self.spell.incarnationKingOfTheJungle))))
+
+                -- Trinkets
+                checkOp("Trinkets")
+                textOp("Trinkets")
+
             -- Spacer
             textOp(" ")
             wrapOp("--- Defensive ---")
 
+                -- Rebirth
+                checkOp("Rebirth")
+                textOp(tostring(select(1,GetSpellInfo(self.spell.rebirth))))
+                dropOp("Rebirth - Target",1,"|cffFFFFFFTarget to cast on","|cff00FF00Target","|cffFF0000Mouseover")
+                textOp(tostring(select(1,GetSpellInfo(self.spell.rebirth))).." - Target");
+
+                -- Revive
+                checkOp("Revive")
+                textOp(tostring(select(1,GetSpellInfo(self.spell.revive))))
+                dropOp("Revive - Target",1,"|cffFFFFFFTarget to cast on","|cff00FF00Target","|cffFF0000Mouseover")
+                textOp(tostring(select(1,GetSpellInfo(self.spell.revive))).." - Target");
+
+                -- Remove Corruption
+                checkOp("Remove Corruption")
+                textOp(tostring(select(1,GetSpellInfo(self.spell.removeCorruption))))
+                dropOp("Remove Corruption - Target",1,"|cffFFFFFFTarget to cast on","|cff00FF00Player","|cffFFFF00Target","|cffFF0000Mouseover")
+                textOp(tostring(select(1,GetSpellInfo(self.spell.removeCorruption))).." - Target");
+
                 -- Rejuvenation
-                if isKnown(rej) then
-                    checkOp("Rejuvenation")
-                    boxOp("Rejuvenation", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-                    textOp("Rejuvenation")
-                end
+                checkOp("Rejuvenation")
+                boxOp("Rejuvenation", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+                textOp(tostring(select(1,GetSpellInfo(self.spell.rejuvenation))))
 
                 -- Auto Rejuvenation
-                if isKnown(rej) then
-                    checkOp("Auto Rejuvenation")
-                    boxOp("Auto Rejuvenation", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-                    textOp("Auto Rejuvenation")
-                end
+                checkOp("Auto Rejuvenation")
+                boxOp("Auto Rejuvenation", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
+                textOp("Auto "..tostring(select(1,GetSpellInfo(self.spell.rejuvenation))))
 
                 -- Healthstone
                 checkOp("Pot/Stoned")
@@ -493,56 +650,42 @@ if select(2, UnitClass("player")) == "DRUID" then
                 textOp("Shield-o-tronic")
 
                 -- Nature's Vigil
-                if getTalent(6,3) then
-                    checkOp("Nature's Vigil")
-                    boxOp("Nature's Vigil", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At")
-                    textOp(tostring(select(1,GetSpellInfo(nv))))
-                end
+                checkOp("Nature's Vigil")
+                boxOp("Nature's Vigil", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At")
+                textOp(tostring(select(1,GetSpellInfo(self.spell.naturesVigil))))
 
                 -- Survival Instincts
-                if isKnown(si) then
-                    checkOp("Survival Instincts")
-                    boxOp("Survival Instincts", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
-                    textOp(tostring(select(1,GetSpellInfo(si))))
-                end
+                checkOp("Survival Instincts")
+                boxOp("Survival Instincts", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
+                textOp(tostring(select(1,GetSpellInfo(self.spell.survivalInstincts))))
 
                 -- Healing Touch
-                if isKnown(ht) then
-                    checkOp("Healing Touch")
-                    boxOp("Healing Touch", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At")
-                    textOp(tostring(select(1,GetSpellInfo(ht))))
-                end
+                checkOp("Healing Touch")
+                boxOp("Healing Touch", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At")
+                textOp(tostring(select(1,GetSpellInfo(self.spell.healingTouch))))
 
                 -- Dream of Cenarius Auto-Heal
-                --if getTalent(6,2) then
-                    checkOp("Auto Heal")
-                    dropOp("Auto Heal", 1, "|cffFFFFFFSelect Target to Auto-Heal",
-                        "|cffFFDD11LowestHP",
-                        "|cffFFDD11Self")
-                    textOp("Auto Heal")
-                --end
+                checkOp("Auto Heal")
+                dropOp("Auto Heal", 1, "|cffFFFFFFSelect Target to Auto-Heal",
+                    "|cffFFDD11LowestHP",
+                    "|cffFFDD11Self")
+                textOp("Auto Heal")
 
             -- Spacer --
             textOp(" ")
             wrapOp("--- Interrupts ---")
 
                 -- Skull Bash
-                if isKnown(sb) then
-                    checkOp("Skull Bash")
-                    textOp(tostring(select(1,GetSpellInfo(sb))))
-                end
+                checkOp("Skull Bash")
+                textOp(tostring(select(1,GetSpellInfo(self.spell.skullBash))))
 
                 -- Mighty Bash
-                if getTalent(5,3) then
-                    checkOp("Mighty Bash")
-                    textOp(tostring(select(1,GetSpellInfo(mb))))
-                end
+                checkOp("Mighty Bash")
+                textOp(tostring(select(1,GetSpellInfo(self.spell.mightyBash))))
 
                 -- Maim
-                if isKnown(ma) then
-                    checkOp("Maim")
-                    textOp(tostring(select(1,GetSpellInfo(ma))))
-                end
+                checkOp("Maim")
+                textOp(tostring(select(1,GetSpellInfo(self.spell.maim))))
 
                 -- Interrupt Percentage
                 checkOp("Interrupts")
@@ -599,8 +742,8 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         -- Maim - Set target via thisUnit variable
     	function self.castMaim(thisUnit)
-    		if self.power>35 and self.cd.maim==0 and self.comboPoints>0 and ObjectExists(thisUnit) then
-    			return castSpell(thisUnit,self.spell.maim,false,false) == true or false
+    		if self.level>=82 and self.power>35 and self.cd.maim==0 and self.comboPoints>0 and self.buff.catForm and hasThreat(thisUnit) and getDistance(thisUnit)<5 then
+    			if castSpell(thisUnit,self.spell.maim,false,false,false) then return end
     		end
     	end
 
@@ -610,7 +753,9 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         -- Heart of the Wild
         function self.castHeartOfTheWild()
-        	return castSpell("player",self.spell.heartOfTheWild,false,false) == true or false
+            if self.talent.heartOfTheWild and self.cd.heartOfTheWild==0 then
+        	   if castSpell("player",self.spell.heartOfTheWild,false,false,false) then return end
+            end
         end
 
     ----------------------
@@ -619,7 +764,9 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         -- Claws of Shirvallah
         function self.castClawsOfShirvallah()
-        	return castSpell("player",self.spell.clawsOfShirvallah,false,false) == true or false
+            if self.talent.clawsOfShirvallah then
+        	   if castSpell("player",self.spell.clawsOfShirvallah,false,false,false) then return end
+            end
         end
 
     --------------------------
@@ -627,64 +774,58 @@ if select(2, UnitClass("player")) == "DRUID" then
     --------------------------
 
         -- Force of Nature
-        function self.castForceOfNature()
-        	if self.charges.forceOfNature > 0 and ObjectExists(self.units.dyn5) then
-        		return castSpell(self.units.dyn5,self.spell.forceOfNature,false,false) == true or false
+        function self.castForceOfNature(thisUnit)
+        	if self.talent.forceOfNature and self.charges.forceOfNature > 0 and hasThreat(thisUnit) and getDistance(thisUnit)<40 then
+        		if castSpell(thisUnit,self.spell.forceOfNature,false,false,false) then return end
         	end
         end
-
         -- Incarnation: King of the Jungle
         function self.castIncarnationKingOfTheJungle()
-        	if self.cd.incarnationKingOfTheJungle == 0 and ObjectExists(self.units.dyn5) then
-        		return castSpell("player",self.spell.incarnationKingOfTheJungle,false,false) == true or false
+        	if self.talent.incarnationKingOfTheJungle and self.cd.incarnationKingOfTheJungle == 0 then
+        		if castSpell("player",self.spell.incarnationKingOfTheJungle,false,false,false) then return end
         	end
         end
-
         -- Rake - Set target via thisUnit variable
         function self.castRake(thisUnit)
-        	if self.power > 35 and (getDebuffDuration(thisUnit,self.spell.rakeDebuff,"player")>4 or getDebuffDuration(thisUnit,self.spell.rakeDebuff,"player")==0) and ObjectExists(thisUnit) then
-        		return castSpell(thisUnit,self.spell.rake,false,false,false) == true or false
+        	if self.level>=6 and self.power > 35 and self.buff.catForm and (getDebuffDuration(thisUnit,self.spell.rakeDebuff,"player")>4 or getDebuffDuration(thisUnit,self.spell.rakeDebuff,"player")==0) and hasThreat(thisUnit) and getDistance(thisUnit)<5 then
+        		if castSpell(thisUnit,self.spell.rake,false,false,false) then return end
         	end
         end
-
         -- Rip - Set target via thisUnit variable
         function self.castRip(thisUnit)
-        	if self.power > 30 and self.comboPoints==5 and ObjectExists(thisUnit) then
-        		return castSpell(thisUnit,self.spell.rip,false,false) == true or false
+        	if self.level>=20 and self.power > 30 and self.buff.catForm and self.comboPoints>0 and hasThreat(thisUnit) and getDistance(thisUnit)<5 then
+        		if castSpell(thisUnit,self.spell.rip,false,false,false) then return end
         	end
         end
-
         -- Savage Roar
         function self.castSavageRoar()
-        	if self.power > 25 and self.comboPoints>0 and ObjectExists(self.units.dyn5) then
-        		return castSpell("player",self.spell.savageRoar,false,false) == true or false
+        	if self.level>=18 and self.power > 25 and (self.comboPoints>0 or self.glyph.savageRoar) and not self.glyph.savagery then
+        		if castSpell("player",self.spell.savageRoar,false,false,false) then return end
         	end
         end
-
-        -- Swipe
-        function self.castSwipe()
-        	if self.power > 45 and ObjectExists(self.units.dyn8) then
-        		return castSpell(self.units.dyn8,self.spell.swipe,false,false) == true or false
-        	end
-        end
-
-        -- Tiger's Fury
-        function self.castTigersFury()
-        	if self.cd.tigersFury==0 and ObjectExists(self.units.dyn5) then
-        		return castSpell("player",self.spell.tigersFury,false,false) == true or false
-        	end
-        end
-
-        -- Thrash - Set target via thisUnit variable
-        function self.castThrash(thisUnit)
-        	if self.power>50 and ObjectExists(thisUnit) and BadBoy_data['Cleave']==1 and BadBoy_data['AoE'] < 3 then
-        		return castSpell(thisUnit,self.spell.thrash,false,false) == true or false
-        	end
-        end
-
         -- Stampeding Roar
         function self.castStampedingRoar()
-        	return castSpell("player",self.spell.stampedingRoar,false,false) == true or false
+            if self.level>=84 and self.cd.stampedingRoar==0 then
+                if castSpell("player",self.spell.stampedingRoar,false,false,false) then return end
+            end
+        end
+        -- Swipe
+        function self.castSwipe(thisUnit)
+        	if self.level>=22 and self.power > 45 and self.buff.catForm and hasThreat(thisUnit) and getDistance(thisUnit)<8 then
+        		if castSpell(thisUnit,self.spell.swipe,false,false,false) then return end
+        	end
+        end
+        -- Thrash - Set target via thisUnit variable
+        function self.castThrash(thisUnit)
+        	if self.level>=28 and self.power>50 and self.buff.catForm and hasThreat(thisUnit) and getDistance(thisUnit)<8 and BadBoy_data['Cleave']==1 and BadBoy_data['AoE'] < 3 then
+        		if castSpell(thisUnit,self.spell.thrash,false,false,false) then return end
+        	end
+        end
+        -- Tiger's Fury
+        function self.castTigersFury()
+            if self.level>=10 and self.cd.tigersFury==0 and self.powerDeficit>60 then
+                if castSpell("player",self.spell.tigersFury,false,false,false) then return end
+            end
         end
 
     -----------------------------

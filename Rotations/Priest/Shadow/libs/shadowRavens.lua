@@ -1,13 +1,12 @@
 -- ragnar T18 rotation
--- Last Update: 2015-06-25
 if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 
-	function cShadow:shadowRagnar()
+function cShadow:shadowRavens()
 		-- Locals
 		local player,orbs,health = "player",self.orbs,self.health
 		local buff,cd,mode,talent,glyph,gcd = self.buff,self.cd,self.mode,self.talent,self.glyph,self.gcd
 		local isChecked,enemies,units = isChecked,self.enemies,self.units
-		local spell,options,set_bonus,eq = self.spell,self.options,self.set_bonus,self.eq
+		local spell,options,eq = self.spell,self.options,self.eq
 		local AS = self.AS
 		local active_enemies_30, active_enemies_40 = self.enemies.active_enemies_30, self.enemies.active_enemies_40
 
@@ -43,7 +42,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		end
 		if _Queues[spell.cascade] == true then
 			ChatOverlay("Q - CASCADE")
-			if self.castCascadeBiggestCluster() then return end
+			if self.castCascade() then return end
 		end
 		if _Queues[spell.devouring_plague] == true then
 			ChatOverlay("Q - DP")
@@ -70,9 +69,9 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		end
 		
 		-- Pause toggle
-		if options.utilities.pause.enabled and SpecificToggle("Pause Toggle") == true then
-			ChatOverlay("|cffFF0000BadBoy Paused", 0) return
-		end
+		-- if options.utilities.pause.enabled and SpecificToggle("Pause Toggle") == true then
+		-- 	ChatOverlay("|cffFF0000BadBoy Paused", 0) return
+		-- end
 
 		-- shadow form
 		if not shadowform then
@@ -98,69 +97,66 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		-- Defensive -----------------------------------------------------------------------------------------
 		------------------------------------------------------------------------------------------------------
 		if mode.defensive == 2 then
-			-- dispersion
-			if options.defensive.dispersion.enabled then
-				if health <= options.defensive.dispersion.value then
-					if self.castDispersion() then return end
-				end
-			end
-			-- desperate prayer
-			if options.defensive.desperate_prayer.enabled then
-				if health <= options.defensive.desperate_prayer.value then
-					if self.castDesperatePrayer() then return end
-				end
-			end
 			-- power word: shield
-			if options.defensive.pws.enabled then
-				if health <= options.defensive.pws.value then
+			if options.defensive.PWS then
+				if health <= options.defensive.PWSvalue then
 					if self.castPWS("player") then return end
 				end
 			end
-			-- healing tonic
-			if options.defensive.healing_tonic.enabled then
-				if health <= options.defensive.healing_tonic.value then
-					if canUse(109223) then UseItemByName("Healing Tonic") return end
-				end
-			end
-			-- fade aggro
-			if options.defensive.fade_aggro.enabled then
-				if IsInRaid() ~= false and getThreat()>=3 then
-					if self.castFade() then return end
+			-- desperate prayer
+			if options.defensive.Desperate_Prayer then
+				if health <= options.defensive.Desperate_Prayervalue then
+					if self.castDesperatePrayer() then return end
 				end
 			end
 			-- fade glyph
-			if options.defensive.fade_glyph.enabled then
+			if options.defensive.Fade then
 				if glyph.fade then
-					if health <= options.defensive.fade_glyph.value then
+					if health <= options.defensive.Fadevalue then
 						if self.castFade() then return end
 					end
 				end
 			end
+			-- healing tonic
+			if options.defensive.Healing_Tonic then
+				if health <= options.defensive.Healing_Tonicvalue then
+					if canUse(109223) then useItem(109223) return end
+				end
+			end
+			-- dispersion
+			if options.defensive.Dispersion then
+				if health <= options.defensive.Dispersionvalue then
+					if self.castDispersion() then return end
+				end
+			end			
 		end
 
 		------------------------------------------------------------------------------------------------------
 		-- Offensive -----------------------------------------------------------------------------------------
 		------------------------------------------------------------------------------------------------------
+		if options.cooldowns.PI then
+			if self.castPowerInfusion() then return end
+		end
 
 		------------------------------------------------------------------------------------------------------
 		-- Special keys --------------------------------------------------------------------------------------
 		------------------------------------------------------------------------------------------------------
-		if options.rotation.msi_key.enabled then
-			if SpecificToggle("MSinsanity Key") then
+		if options.rotation.Burst_SI then
+			if SpecificToggle("Burst SI") then
 				-- Mind Blast
-				if options.rotation.msi_burst.enabled == false then
+				if options.rotation.Burst_SI == false then
 					if orbs <= 3 then
 						if self.castMindBlast("target") then return end
 					end
 				end
 				-- DP
 				if select(1,UnitChannelInfo("player")) ~= "Searing Insanity" then
-					if buff.insanity <= 0 then
+					if not buff.insanity then
 						if self.castDP("target") then return end
 					end
 				end
 				-- Clip it
-				if buff.insanity > 0 and buff.insanity <= 2*gcd then
+				if buff.insanity and buff.remain.insanity <= 2*gcd then
 					if select(1,UnitChannelInfo("player")) ~= nil then
 						local cEnd = select(6,UnitChannelInfo("player"))
 						local cRem = cEnd - GetTime()*1000
@@ -172,7 +168,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					end
 				end
 				-- Searing Insanity
-				if buff.insanity > 0 then
+				if buff.insanity then
 					if select(1,UnitChannelInfo("player")) ~= "Searing Insanity" then
 						if self.castMindSear("target") then return end
 					end
@@ -187,7 +183,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 		-- dot farm ------------------------------------------------------------------------------------------
 		------------------------------------------------------------------------------------------------------
 
-		if options.utilities.dot_farm.enabled then return end
+		--if options.utilities.dot_farm.enabled then return end
 
 		------------------------------------------------------------------------------------------------------
 		-- Rotation ------------------------------------------------------------------------------------------
@@ -206,14 +202,13 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 
 			-- Shadow Word: Death
 			if self.castSWDAuto("target") then return end
-			--if self.castSWDAuto("target") then return end
 
 			-- Mind Blast with Mind Harvest TBD
 
 			-- DP logics
-				-- 10 spread DPx5 on SoD
+				-- spread DPx5 on SoD
 				if orbs == 5 then
-					if talent.surge_of_darkness or set_bonus.tier17_4pc then
+					if talent.surge_of_darkness then
 						if getDebuffRemain("target",spell.devouring_plague,"player") == 0 then
 							if self.castDP("target") then return end
 						else
@@ -226,58 +221,35 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 						end
 					end
 				end
-				-- -- 20 spread DPx4 on SoD
-				-- if orbs >= 4 then
-				-- 		if talent.surge_of_darkness then
-				-- 			if getDebuffRemain("target",spell.devouring_plague,"player") == 0 then
-				-- 				if castDP("target") then return end
-				-- 			else
-				-- 				for i=1,#enemiesTable do
-				-- 					local thisUnit = enemiesTable[i].unit
-				-- 					if getDebuffRemain(thisUnit,spell.devouring_plague,"player") <= 0 then
-				-- 						if castDP(thisUnit) then return end
-				-- 					end
-				-- 				end
-				-- 			end
-				-- 	end
-				-- end
-				-- 30 DPx5
+				-- DP 5 orbs
 				if orbs == 5 then
 					if self.castDP("target") then return end
 				end
-				--40 dump for incoming spirits
+				-- dump for incoming spirits 3+3
 				if orbs >= 3 then
-					if AS.flying >= 2 then
+					if AS.flying >= 3 then
 						--if AS.nextImpactRemaining <= 1.5*gcd then
 							if self.castDP("target") then return end
 						--end
 					end
 				end
-				-- 50 dump for incoming spirits
+				-- dump for incoming spirits 4+2
 				if orbs >= 4 then
 					if AS.flying >= 2 then
 						if self.castDP("target") then return end
 					end
 				end
-				-- 60 extend mental instinct
+				-- t18_4pc
 				if orbs >= 3 then
-					if buff.mental_instinct > 0 then
-						if buff.mental_instinct < 2.5 then
+					if eq.t18_4pc then
+						if buff.premonition or AS.flying > 2 then
 							if self.castDP("target") then return end
 						end
 					end
 				end
-				-- 70 t18_4pc
+				-- without any 4pc
 				if orbs >= 3 then
-					if set_bonus.tier18_4pc then
-						if buff.premonition > 0 or AS.flying > 2 then
-							if self.castDP("target") then return end
-						end
-					end
-				end
-				-- 80 without any 4pc
-				if orbs >= 3 then
-					if not set_bonus.tier17_4pc and not set_bonus.tier18_4pc then
+					if not eq.t18_4pc then
 						if getDebuffRemain("target",spell.devouring_plague,"player") <= 0 then
 							if self.castDP("target") then return end
 						end
@@ -288,30 +260,24 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			-- Mind Blast: Mind Harvest -- TBD
 
 			-- Mind Blast
-			if self.castMindBlast("target") then 
-				return 
-			end
+			if self.castMindBlast("target") then return end
 
 			-- SWP cycle targets 7
-			if self.castSWPAutoApply(options.rotation.max_targets.value) then return end
-
-			-- Insanity: extend mental fatigue
-			if set_bonus.class_trinket then
-				if buff.insanity > 0 then
-					if getDebuffRemain("target",spell.mental_fatigue,"player") < 3 then
-						if getDebuffRemain("target",spell.mental_fatigue,"player") > 0 then
-							if self.castMindFlay("target") then return end
-						end
-					end
-				end
-			end
+			if self.castSWPAutoApply(options.rotation.max_Targetsvalue) then return end
 
 			-- Searing Insanity: Automode
 				-- TBD
 
 			-- Insanity
-			if buff.insanity > 0 then
-				if self.castMindFlay("target") then return end
+			if buff.insanity then
+				if select(1,UnitChannelInfo("player")) == "Insanity" then
+					if getCastTimeRemain("player") < 0.61 then
+						if self.castMindFlay("target") then return end
+					end
+				end
+				if select(1,UnitChannelInfo("player")) == nil then
+					if self.castMindFlay("target") then return end
+				end
 			end
 
 			-- Halo
@@ -329,26 +295,26 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			if mode.t90 == 2 then
 				if talent.cascade then
 					if active_enemies_40 > 2 then
-						if self.castCascadeBiggestCluster() then return end
+						if self.castCascade() then return end
 					end
 				end
 			end
 
 			-- Vampiric Touch cycle targets 5
 			--if mode.multidot == 3 or mode.multidot == 4 then
-				if self.castVTAutoApply(options.rotation.max_targets.value) then return end
+				if self.castVTAutoApply(options.rotation.max_Targetsvalue) then return end
 			--end
 
 			-- SoD proc
-			if buff.surge_of_darkness > 0 then
-				if buff.premonition > 0 then
-					if self.castMindSpike("target",proc) then return end
+			if buff.surge_of_darkness then
+				if buff.premonition then
+					if self.castMindSpike("target") then return end
 				end
 			end
 
 			-- SoD proc
 			if getBuffStacks("player",spell.surge_of_darkness) >= 3 then
-				if self.castMindSpike("target",proc) then return end
+				if self.castMindSpike("target") then return end
 			end
 
 			-- Halo
@@ -366,7 +332,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			if mode.t90 == 2 then
 				if talent.cascade then
 					if (active_enemies_40 > 1 or getDistance("player","target") >= 28) then
-						if self.castCascadeBiggestCluster() then return end
+						if self.castCascade() then return end
 					end
 				end
 			end
@@ -386,28 +352,28 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			-- end
 
 			-- SoD procs not T18_4pc
-			if not set_bonus.tier18_4pc then
-				if buff.surge_of_darkness > 0 then
-					if self.castMindSpike("target",proc) then return end
+			if not eq.t18_4pc then
+				if buff.surge_of_darkness then
+					if self.castMindSpike("target") then return end
 				end
 			end
 
 			-- SoD procs with T18_4pc
-			if set_bonus.tier18_4pc then
-				if buff.surge_of_darkness > 0 then
-					if buff.premonition > 0 or talent.mindbender then
-						if self.castMindSpike("target",proc) then return end
+			if eq.t18_4pc then
+				if buff.surge_of_darkness then
+					if buff.premonition or talent.mindbender then
+						if self.castMindSpike("target") then return end
 					end
 				end
 			end
 
 			-- SoD procs with T18_4pc
-			if set_bonus.tier18_4pc then
-				if buff.surge_of_darkness > 0 then
+			if eq.t18_4pc then
+				if buff.surge_of_darkness then
 					if not talent.mindbender then
 						if cd.shadowfiend > 13 then
 							if buff.surge_of_darkness < (1.1*gcd*getBuffStacks("player",spell.surge_of_darkness)) then
-								if self.castMindSpike("target",proc) then return end
+								if self.castMindSpike("target") then return end
 							end
 						end
 					end
@@ -415,7 +381,14 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			end
 
 			-- Mind Flay
-			if self.castMindFlay("target") then return end
+			if select(1,UnitChannelInfo("player")) ~= "Insanity" then
+				if select(1,UnitChannelInfo("player")) == "Mind Flay" then
+						if getCastTimeRemain("player") < 0.61 then
+							if self.castMindFlay("target") then return end
+						end
+					end
+				if self.castMindFlay("target") then return end
+			end
 
 			-- -- moving
 			-- if IsMovingTime(0.3) then
@@ -434,48 +407,70 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 
 		--[[ clarity_of_power ]]
 		if talent.clarity_of_power then
-			if 1==1 then
-				--[[ start stopcasting ]]
-				local mfrefreshtime = 2*gcd
+			--[[ start stopcasting ]]
+			local mfrefreshtime = 2*gcd
 
-				-- mindflay if full t18 class trinket stacks
-				if UnitChannelInfo("player") == "Mind Flay" and eq.t18_classTrinket then
-					if getDebuffStacks("target",spell.mental_fatigue,"player") >= 5 and getDebuffRemain("target",spell.mental_fatigue,"player") > mfrefreshtime then
+			-- mindflay if full t18 class trinket stacks
+			if UnitChannelInfo("player") == "Mind Flay" and eq.t18_classTrinket then
+				if getDebuffStacks("target",spell.mental_fatigue,"player") >= 5 and getDebuffRemain("target",spell.mental_fatigue,"player") > mfrefreshtime then
+					SpellStopCasting()
+					return
+				end
+			end
+
+			-- clip mindflay while building stacks
+			if UnitChannelInfo("player") == "Mind Flay" and eq.t18_classTrinket then
+				if getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
+					if getCastTimeRemain("player") < 0.61 then
 						SpellStopCasting()
 						return
 					end
 				end
+			end
 
-				-- clip mindflay while building stacks
-				if UnitChannelInfo("player") == "Mind Flay" and eq.t18_classTrinket then
-					if getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
-						if getCastTimeRemain("player") < 0.61 then
-							SpellStopCasting()
-							return
-						end
-					end
-				end
-
-				-- MB ready
-				if UnitChannelInfo("player") == "Mind Flay" or UnitChannelInfo("Insanity") then
-					if cd.mind_blast < 0.1 and cd.mind_blast > 0
-					or cd.shadow_word_death < 0.1 and cd.shadow_word_death > 0 then
-						SpellStopCasting()
+			-- clip mindflay while building stacks
+			if eq.t18_classTrinket then
+			--if UnitChannelInfo("player") == "Insanity" and eq.t18_classTrinket then
+				if buff.insanity and buff.remain.insanity < 1 then
+					--if getCastTimeRemain("player") < (3 / ((UnitSpellHaste("player")/100)+1))*0.25 then
+						if self.castMindFlay("target") then return end
 						return
-					end
+					--end
 				end
+			end
 
-				-- return rest
-				if UnitCastingInfo("player") ~= nil or UnitChannelInfo("player") ~= nil then return end
-				--[[ end stopcasting ]]
+			-- MB ready
+			if UnitChannelInfo("player") == "Mind Flay" or UnitChannelInfo("Insanity") then
+				if cd.mind_blast < 0.1 and cd.mind_blast > 0
+				or cd.shadow_word_death < 0.1 and cd.shadow_word_death > 0 then
+					SpellStopCasting()
+					return
+				end
+			end
 
-
+			-- return rest
+			if UnitCastingInfo("player") ~= nil or UnitChannelInfo("player") ~= nil then return end
+			--[[ end stopcasting ]]
+			
+			--[[ ravens ]]
+			if talent.mindbender then
 				-- High Priority
 				-- Shadow Word: Death
 				if self.castSWDAuto("target") then return end
 
 				-- Mind Blast
-				if self.castMindBlast("target") then return end
+				if orbs < 5 then
+					if self.castMindBlast("target") then return end
+				end
+
+				-- DP before stacks
+				if eq.t18_classTrinket then
+					if getDebuffStacks("player",spell.mental_fatigue,"player") < 5 and getDebuffRemain("target",spell.mental_fatigue,"player") > 1.2*gcd then
+						if orbs >= 3 then
+							if self.castDP("target") then return end
+						end
+					end
+				end
 
 				-- Insanity: extend mental fatigue
 				if eq.t18_classTrinket then
@@ -485,41 +480,18 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					end
 				end
 
-				-- DP
-				if getDebuffRemain("target",spell.shadow_word_pain,"player") > 0 or not talent.insanity or not self.options.rotation.dot_weave.enabled then
-					if getDebuffRemain("target",spell.vampiric_touch,"player") > 0 or not talent.insanity or not self.options.rotation.dot_weave.enabled then
-						if self.castDP("target") then return end
-					end
-				end
-				
 				-- Below 20%, Devouring Plague
 				if getHP("target") <= 20 then
 					if self.castDP("target") then return end
 				end
 
-				-- DoTweave cast sequence
-				if talent.insanity and self.options.rotation.dot_weave.enabled then
-					if orbs >= 4 then
-						if cd.mind_blast <= gcd then
-							if getDebuffRemain("target",spell.shadow_word_pain,"player") <= 0 then
-								if self.castSWP("target") then return end
-							end
-						end
-					end
-					if orbs == 5 then
-						if getDebuffRemain("target",spell.vampiric_touch,"player") <= 0 then
-							if self.castVT("target") then return end
-						end
-					end
-				end
-				
 				-- Filler
 				-- Shadowfiend
 				if self.castShadowfiend("target") then return end
 
 				-- Cascade/Halo
 				if mode.t90 == 2 then
-					if self.castCascadeBiggestCluster() then return end
+					if self.castCascade() then return end
 					if self.castHalo() then return end
 				end
 
@@ -532,21 +504,22 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					end
 				--end
 
-				-- Insanity (only when the Insanity buff is active)
-				if buff.insanity > 0 then
+				-- Mind Flay while DP on target
+				if getDebuffRemain("target",spell.devouring_plague,"player") >= select(4,GetSpellInfo(spell.mind_spike))/1000 then
 					if self.castMindFlay("target") then return end
 				end	
 
 				-- Mind Spike
 				if select(1,UnitChannelInfo("player")) == nil
-				or buff.insanity <= 0 and not select(1,UnitChannelInfo("player")) == "Insanity"
+				or getDebuffRemain("target",spell.devouring_plague,"player") <= select(4,GetSpellInfo(spell.mind_spike))/1000
 				or select(1,UnitChannelInfo("player")) == "Mind Flay" and getDebuffStacks("target",185104,"player")>=5 then
 					if self.castMindSpike("target") then return end
 				end
 			end
 
 			---------------------------------------------------------------------------------------------------------------------------------------- the other rotation
-			if 1==0 then
+			--[[ simcraft ]]
+			if talent.insanity then
 				-- Simcraft: CoP_Insanity
 
 				-- actions.cop_insanity=devouring_plague,if=shadow_orb=5|(active_enemies>=5&!buff.insanity.remains)
@@ -555,16 +528,16 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				end
 
 				-- actions.cop_insanity+=/mind_blast,if=active_enemies<=5&cooldown_react
-				if #enemiesTable <= 5 then
+				--if #enemiesTable <= 5 then
 					if self.castMindBlast("target") then return end
-				end
+				--end
 
 				-- actions.cop_insanity+=/shadow_word_death,if=target.health.pct<20,cycle_targets=1
 				if self.castSWDAuto("target") then return end
 
 				-- actions.cop_insanity+=/insanity,if=t18_class_trinket&target.debuff.mental_fatigue.remains<gcd,interrupt_if=target.debuff.mental_fatigue.remains>gcd
 				if eq.t18_classTrinket then
-					if (getDebuffRemain("target",spell.mental_fatigue,"player") > 0 and getDebuffRemain("target",spell.mental_fatigue,"player") < gcd) 
+					if (getDebuffRemain("target",spell.mental_fatigue,"player") > 0 and getDebuffRemain("target",spell.mental_fatigue,"player") < mfrefreshtime) 
 					or getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
 						if self.castMindFlay("target") then return end
 					end
@@ -572,7 +545,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 
 				-- actions.cop_insanity+=/devouring_plague,if=shadow_orb>=3&!set_bonus.tier17_2pc&!set_bonus.tier17_4pc&(cooldown.mind_blast.remains<gcd|(target.health.pct<20&cooldown.shadow_word_death.remains<gcd)),cycle_targets=1
 				if orbs >= 3 then
-					if (cd.mind_blast < gcd or (getHP("target") < 20 and cd.shadow_word_death < gcd)) then
+					if getHP("target")<20 and (cd.shadow_word_death<gcd or cd.mind_blast<gcd) then
 						if self.castDP("target") then return end
 					end
 				end
@@ -598,7 +571,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				if self.castShadowfiend("target") then return end
 				
 				-- actions.cop_insanity+=/mind_flay,if=t18_class_trinket&(target.debuff.mental_fatigue.remains<gcd|(cooldown.mind_blast.remains<2*gcd&target.debuff.mental_fatigue.remains<2*gcd)),interrupt_if=target.debuff.mental_fatigue.remains>gcd
-				if eq.class_trinket then
+				if eq.t18_classTrinket then
 					if getDebuffRemain("target",spell.mental_fatigue,"player") > 0 then
 						if getDebuffRemain("target",spell.mental_fatigue,"player") < gcd or (cd.mind_blast < 2*gcd and getDebuffRemain("target",spell.mental_fatigue,"player") < 2*gcd) then
 							if self.castMindFlay("target") then return end
@@ -611,25 +584,25 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				-- actions.cop_insanity+=/vampiric_touch,if=remains<(15*0.3+cast_time)&target.time_to_die>(15*0.75+cast_time)&miss_react&active_enemies<=5&primary_target=0,cycle_targets=1,max_cycle_targets=5
 				
 				-- actions.cop_insanity+=/insanity,if=buff.insanity.remains<0.5*gcd&active_enemies<=2,chain=1,interrupt_if=(cooldown.mind_blast.remains<=0.1|(cooldown.shadow_word_death.remains<=0.1&target.health.pct<20))
-				if buff.insanity < 0.5*gcd and buff.insanity > 0 then
+				if buff.insanity and buff.remain.insanity<0.5*gcd then
 					if self.castMindFlay("target") then return end
 				end
 				
 				-- actions.cop_insanity+=/insanity,if=active_enemies<=2,chain=1,interrupt_if=(cooldown.mind_blast.remains<=0.1|(cooldown.shadow_word_death.remains<=0.1&target.health.pct<20))
-				if buff.insanity > 0 then
+				if buff.insanity then
 					if self.castMindFlay("target") then return end
 				end
 				
 				-- actions.cop_insanity+=/halo,if=talent.halo.enabled&!set_bonus.tier18_4pc&target.distance<=30&target.distance>=17
 				if mode.t90 == 2 then
-					if (not eq.tier18_4pc or buff.premonition > 0) and getDistance("player","target") <= 30 and getDistance("player","target") >= 17 then
+					if (not eq.tier18_4pc or buff.premonition) and getDistance("player","target") <= 30 and getDistance("player","target") >= 17 then
 						if self.castHalo() then return end
 					end
 				end
 				
 				-- actions.cop_insanity+=/cascade,if=talent.cascade.enabled&!set_bonus.tier18_4pc&((active_enemies>1|target.distance>=28)&target.distance<=40&target.distance>=11)
 				if mode.t90 == 2 then
-					if not eq.tier18_4pc or buff.premonition > 0 then
+					if not eq.tier18_4pc or buff.premonition then
 						if getDistance("player","target") >= 28 and getDistance("player","target") >= 11 then
 							if self.castCascade("target") then return end
 						end
@@ -637,7 +610,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				end
 													
 				-- actions.cop_insanity+=/mind_flay,if=t18_class_trinket&(target.debuff.mental_fatigue.remains<gcd|(cooldown.mind_blast.remains<2*gcd&target.debuff.mental_fatigue.remains<2*gcd)),interrupt_if=target.debuff.mental_fatigue.remains>gcd
-				if eq.class_trinket then
+				if eq.t18_classTrinket then
 					if getDebuffRemain("target",spell.mental_fatigue,"player") > 0 then
 						if getDebuffRemain("target",spell.mental_fatigue,"player") < gcd or (cd.mind_blast < 2*gcd and getDebuffRemain("target",spell.mental_fatigue,"player") < 2*gcd) then
 							if self.castMindFlay("target") then return end
@@ -648,7 +621,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				-- actions.cop_insanity+=/mind_sear,if=active_enemies>=8,interrupt_if=(cooldown.mind_blast.remains<=0.1|cooldown.shadow_word_death.remains<=0.1),target_if=max:spell_targets.mind_sear_tick
 				
 				-- actions.cop_insanity+=/mind_flay,if=t18_class_trinket&target.debuff.mental_fatigue.stack<5
-				if eq.class_trinket then
+				if eq.t18_classTrinket then
 					if getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
 						if self.castMindFlay("target") then return end
 					end

@@ -158,10 +158,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 					if ((getOptionValue("Healing Surge - Target")==1 and charges.maelstromWeapon>3) or not inCombat) and php < getOptionValue("Healing Surge - Level") then
 						if self.castHealingSurge("player") then return end
 					end
-					if getOptionValue("Healing Surge - Target")==3 and ObjectExists("mouseover") and getHP("mouseover") < getOptionValue("Healing Surge - Level") then
+					if getOptionValue("Healing Surge - Target")==3 and charges.maelstromWeapon>3 and ObjectExists("mouseover") and getHP("mouseover") < getOptionValue("Healing Surge - Level") then
 						if self.castHealingSurge("mouseover") then return end
 					end
-					if getOptionValue("Healing Surge - Target")==2 then
+					if getOptionValue("Healing Surge - Target")==2 and charges.maelstromWeapon>3 then
 						for i=1,#nNova do
 							local thisUnit = nNova[i].unit
 							local thisUnitHP = getHP(thisUnit)
@@ -171,6 +171,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 							end
 						end
 					end
+				end
+		-- lightning Shield
+				if not buff.lightningShield then
+					if self.castLightningShield() then return end
 				end
 		-- Shamanistic Rage
 		        if isChecked("Shamanistic Rage") and inCombat and php <= getOptionValue("Shamanistic Rage") then
@@ -271,7 +275,15 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 	    		-- ascendance
 	    		if isChecked("Ascendance") then
 	    			if self.castAscendance() then return end
-	    		end		
+	    		end
+	    -- Touch of the Void
+	            if isChecked("Touch of the Void") and getDistance(self.units.dyn5)<5 then
+	                if hasEquiped(128318) then
+	                    if GetItemCooldown(128318)==0 then
+	                        useItem(128318)
+	                    end
+	                end
+	            end		
 	    	end
     	end -- End Action List - Cooldowns
     -- Action List - Pre-Combat
@@ -303,7 +315,9 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 		function actionList_Single()
 		-- Searing Totem
 			-- searing_totem,if=!totem.fire.active
-			if self.castSearingTotem() then return end
+			if (not totem.searingTotem and not totem.fireElementalTotem) or totem.magmaTotem then
+				if self.castSearingTotem() then return end
+			end
 		-- Unleash Elements
 			-- unleash_elements,if=talent.unleashed_fury.enabled
 			if talent.unleashedFury then
@@ -395,6 +409,14 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 		end -- End Action List - Single
 	-- Action List - MultiTarget
 		function actionList_MultiTarget()
+		-- Touch of the Void
+            if isChecked("Touch of the Void") and getDistance(self.units.dyn5)<5 then
+                if hasEquiped(128318) then
+                    if GetItemCooldown(128318)==0 then
+                        useItem(128318)
+                    end
+                end
+            end	
 		-- Unleash Elements
 			-- unleash_elements,if=spell_targets.fire_nova_explosion>=4&dot.flame_shock.ticking&(cooldown.shock.remains>cooldown.fire_nova.remains|cooldown.fire_nova.remains=0)
 			if enemies.yards10>=4 and debuff.flameShock and (cd.flameShock>cd.fireNova or cd.fireNova==0) then
@@ -411,7 +433,9 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			end
 		-- Magma Totem
 			-- magma_totem,if=!totem.fire.active
-			if self.castMagmaTotem() then return end
+			if (not totem.magmaTotem and not totem.fireElementalTotem) or totem.searingTotem then
+				if self.castMagmaTotem() then return end
+			end
 		-- Lava Lash
 			-- lava_lash,if=dot.flame_shock.ticking&active_dot.flame_shock<spell_targets.fire_nova_explosion
 			if debuff.flameShock and debuff.count.flameShock<enemies.yards10 then
