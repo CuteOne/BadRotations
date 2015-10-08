@@ -24,6 +24,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local t18_4pc 										= self.eq.t18_4pc 
 		local racial 										= self.getRacial()
 		local healPot 										= getHealthPot()
+		local lowestHP 										= nNova[1].unit
 		-- Specific Player Variables
 		local combo 										= self.comboPoints
 		local clearcast 									= self.buff.clearcast
@@ -59,7 +60,8 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local dynTable40AoE 								= (BadBoy_data['Cleave']==1 and enemiesTable) or { [1] = {["unit"]=dynTar40AoE, ["distance"] = getDistance(dynTar40AoE)}}
 		local deadtar, attacktar, hastar, playertar 		= deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
 		local friendly 										= friendly or UnitIsFriend("target", "player")
-	    local mfTick 										= 20.0/(1+UnitSpellHaste("player")/100)/10  
+	    local mfTick 										= 20.0/(1+UnitSpellHaste("player")/100)/10
+	    local multidot 										= (useCleave() or BadBoy_data['AoE'] ~= 3)   
 --------------------
 --- Action Lists ---
 --------------------
@@ -159,28 +161,38 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local function actionList_Defensive()
 			if useDefensive() and not stealth and not flight then
 		--Revive/Rebirth
-				if isChecked("Mouseover Targeting") then
+				if isChecked("Rebirth") then
 					if buff.remain.predatorySwiftness>0 then
-						if self.castRebirth("mouseover") then return end
-					else
-						if self.castRevive("mouseover") then return end
+						if getOptionValue("Rebirth - Target")==1 then
+							if self.castRebirth("target") then return end
+						end
+						if getOptionValue("Rebirth - Target")==2 then
+							if self.castRebirth("mouseover") then return end
+						end
 					end
-				elseif hastar and deadtar and playertar then
-					if buff.remain.predatorySwiftness>0 then
-						if self.castRebirth("target") then return end
-					else
+				end
+				if isChecked("Revive") then
+					if getOptionValue("Revive - Target")==1 then
 						if self.castRevive("target") then return end
+					end
+					if getOptionValue("Revive - Target")==2 then
+						if self.castRevive("mouseover") then return end
 					end
 				end
 		-- Remove Corruption
-				if isChecked("Mouseover Targeting") then
-					if self.castRemoveCorruption("mouseover") then return end
-				else
-					if self.castRemoveCorruption("target") then return end
+				if isChecked("Remove Corruption") then
+					if getOptionValue("Remove Corruption - Target")==1 then
+						if self.castRemoveCorruption("player") then return end
+					end
+					if getOptionValue("Remove Corruption - Target")==2 then
+						if self.castRemoveCorruption("target") then return end
+					end
+					if getOptionValue("Remove Corruption - Target")==3 then
+						if self.castRemoveCorruption("mouseover") then return end
+					end
 				end
-				if self.castRemoveCorruption("player") then return end
 		-- PowerShift - Breaks Crowd Control
-			    if hasNoControl() then
+			    if isChecked("Break Crowd Control") and hasNoControl() then
 			        for i=1, 6 do
 			            if i == GetShapeshiftForm() then
 			                CastShapeshiftForm(i)
@@ -190,14 +202,18 @@ if select(2, UnitClass("player")) == "DRUID" then
 			    end
 		-- Rejuvenation
 	            if isChecked("Rejuvenation") and php <= getOptionValue("Rejuvenation") then
-	                if not stealth and buff.remain.rejuvenation==0 and ((not inCombat) or self.perk.enhancedRejuvenation) then
+	                if not stealth and buff.remain.rejuvenation==0 and ((not inCombat) or perk.enhancedRejuvenation) then
 	                	if self.castRejuvenation("player") then return end
 	                end
 	            end
 		-- Auto Rejuvenation
-				if isChecked("Auto Rejuvenation") and self.perk.enhancedRejuvenation then
-					if getOptionValue("Auto Heal")==1 and getBuffRemain(nNova[1].unit,self.spell.rejuvenationBuff)==0 and getHP(nNova[1].unit)<=getOptionValue("Auto Rejuvenation") and nNova[1].unit~="player" then
-	                    if self.castRejuvenation(nNova[1].unit) then return end
+				if isChecked("Auto Rejuvenation") and perk.enhancedRejuvenation then
+					if getOptionValue("Auto Heal")==1 
+						and getBuffRemain(lowestHP,self.spell.rejuvenationBuff)==0 
+						and getHP(lowestHP)<=getOptionValue("Auto Rejuvenation") 
+						and lowestHP~="player" 
+					then
+	                    if self.castRejuvenation(lowestHP) then return end
 	                end
 				end
 		-- Pot/Stoned
@@ -219,7 +235,9 @@ if select(2, UnitClass("player")) == "DRUID" then
 	    			end
 	    		end
 		-- Engineering: Shield-o-tronic
-				if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic") and inCombat and canUse(118006) then
+				if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic") 
+					and inCombat and canUse(118006) 
+				then
 					useItem(118006)
 				end
 		-- Tier 6 Talent: Nature's Vigil
@@ -278,54 +296,64 @@ if select(2, UnitClass("player")) == "DRUID" then
 			if getDistance(dynTar5)<5 then
 		-- Force of Nature
 				-- if=charges=3|trinket.proc.all.react|target.time_to_die<20
-				if useCDs() then
+				if useCDs() and isChecked("Force of Nature") then
 					if charges.forceOfNature==3 or trinketProc or ttd(dynTar5)<20 then
 						if self.castForceOfNature(dynTar5) then return end
 					end
 				end
 		-- Berserk
 				--if=buff.tigers_fury.up&(buff.incarnation.up|!talent.incarnation_king_of_the_jungle.enabled)
-	            if useCDs() and buff.tigersFury and (buff.incarnationKingOfTheJungle or not talent.incarnationKingOfTheJungle) and ttd(dynTar5) >= 18 then
-	            	if self.castBerserk() then return end
+	            if useCDs() and isChecked("Berserk") then
+	            	if buff.tigersFury and (buff.incarnationKingOfTheJungle or not talent.incarnationKingOfTheJungle) and ttd(dynTar5) >= 18 then
+	            		if self.castBerserk() then return end
+	            	end
 	            end
 		-- Legendary Ring
 				-- use_item,slot=finger1
-				if useCDs() and hasEquiped(124636) and canUse(124636) then
-					useItem(124636)
+				if useCDs() and isChecked("Legendary Ring") then
+					if hasEquiped(124636) and canUse(124636) then
+						useItem(124636)
+						return true
+					end
 				end
 		-- Agi-Pot
 				-- if=(buff.berserk.remains>10&(target.time_to_die<180|(trinket.proc.all.react&target.health.pct<25)))|target.time_to_die<=40
-	            if useCDs() and canUse(109217) and inRaid and isChecked("Agi-Pot") then
+	            if useCDs() and isChecked("Agi-Pot") and canUse(109217) and inRaid then
 	            	if (buff.remain.berserk>10 and (ttd(dynTar5)<180 or (trinketProc and thp(dynTar5)<25))) or ttd(dynTar5)<=40 then
 	                	useItem(109217)
+	                	return true
 	                end
 	            end
 		-- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
 				-- blood_fury,sync=tigers_fury | berserking,sync=tigers_fury | arcane_torrent,sync=tigers_fury
-				if useCDs() and (self.race == "Orc" or self.race == "Troll" or self.race == "Blood Elf") then
+				if useCDs() and isChecked("Racial") and (self.race == "Orc" or self.race == "Troll" or self.race == "Blood Elf") then
 					if (not clearcast and self.powerDeficit>=60) or self.powerDeficit>=80 or (hasEquiped(124514) and buff.berserk and not buff.tigersFury) then
 						if castSpell("player",racial,false,false,false) then return end
 					end
 	            end            
 		-- Tiger's Fury
 				-- if=(!buff.omen_of_clarity.react&energy.deficit>=60)|energy.deficit>=80|(t18_class_trinket&buff.berserk.up&buff.tigers_fury.down)
-				if (not clearcast and self.powerDeficit>=60) or self.powerDeficit>=80 or (hasEquiped(124514) and buff.berserk and not buff.tigersFury) then
-					if self.castTigersFury() then return end
+				if isChecked("Tiger's Fury") then
+					if (not clearcast and self.powerDeficit>=60) or self.powerDeficit>=80 or (hasEquiped(124514) and buff.berserk and not buff.tigersFury) then
+						if self.castTigersFury() then return end
+					end
 				end
 		-- Incarnation - King of the Jungle
 				-- if=cooldown.berserk.remains<10&energy.time_to_max>1
-	            if useCDs() and buff.remain.berserk<10 and ttm>1 then
-	            	if self.castIncarnationKingOfTheJungle() then return end
+	            if useCDs() and isChecked("Incarnation") then
+	            	if buff.remain.berserk<10 and ttm>1 then
+	            		if self.castIncarnationKingOfTheJungle() then return end
+	            	end
 	            end
 		-- Racial: Night Elf Shadowmeld
 				-- if=energy>=35&dot.rake.pmultiplier<2&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(!talent.incarnation.enabled|cooldown.incarnation.remains>15)&!buff.incarnation.up
-				if useCDs() and self.race == "Night Elf" and (power>=35 and rakeAppliedDotDmg(dynTar5)<2 
+				if useCDs() and isChecked("Racial") and self.race == "Night Elf" and (power>=35 and rakeAppliedDotDmg(dynTar5)<2 
 					and (buff.bloodtalons or not talent.bloodtalons) and (not talent.incarnationKingOfTheJungle or cd.incarnationKingOfTheJungle>15) and not buff.incarnationKingOfTheJungle) and not solo
 				then
 					if self.castRacial() then return end
 				end
 		-- Trinkets
-				if useCDs() then
+				if useCDs() and isChecked("Trinkets") then
 					if canUse(13) then
 						useItem(13)
 					end
@@ -395,7 +423,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			for i=1, #bleed.rip do
 				local rip = bleed.rip[i]
 				local thisUnit = rip.unit
-				if rip.remain<2 and ttd(thisUnit)-rip.remain>18 and (thp(thisUnit)>25 or rip.remain<2) then
+				if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) and rip.remain<2 and ttd(thisUnit)-rip.remain>18 and (thp(thisUnit)>25 or rip.remain<2) then
 					if self.castRip(thisUnit) then return end
 				end
 			end
@@ -404,7 +432,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			for i=1, #bleed.rip do
 				local rip = bleed.rip[i]
 				local thisUnit = rip.unit
-				if power>50 and thp(thisUnit)<=25 and rip.remain>0 then
+				if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) and power>50 and thp(thisUnit)<=25 and rip.remain>0 then
 					if self.castFerociousBite(thisUnit) then return end
 				end
 			end
@@ -413,7 +441,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			for i=1, #bleed.rip do
 				local rip = bleed.rip[i]
 				local thisUnit = rip.unit
-				if rip.remain<7.2 and rip.calc>rip.applied and ttd(thisUnit)-rip.remain>18 then
+				if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) and rip.remain<7.2 and rip.calc>rip.applied and ttd(thisUnit)-rip.remain>18 then
 					if self.castRip(thisUnit) then return end
 				end
 			end
@@ -421,7 +449,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			for i=1, #bleed.rip do
 				local rip = bleed.rip[i]
 				local thisUnit = rip.unit
-				if rip.remain<7.2 and rip.calc==rip.applied and (ttm<=1 or (t18_4pc and power>50) or (t18_4pc and clearcast) or (not talent.bloodtalons)) and ttd(thisUnit)-rip.remain>18 then
+				if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) and rip.remain<7.2 and rip.calc==rip.applied and (ttm<=1 or (t18_4pc and power>50) or (t18_4pc and clearcast) or (not talent.bloodtalons)) and ttd(thisUnit)-rip.remain>18 then
 					if self.castRip(thisUnit) then return end
 				end
 			end
@@ -443,7 +471,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		 	for i=1, #bleed.rake do
 				local rake = bleed.rake[i]
 				local thisUnit = rake.unit
-				if rake.remain<3 and ((ttd(thisUnit)-rake.remain>3 and enemies.yards8<3) or ttd(thisUnit)-rake.remain>6) then
+				if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) and rake.remain<3 and ((ttd(thisUnit)-rake.remain>3 and enemies.yards8<3) or ttd(thisUnit)-rake.remain>6) then
 					if self.castRake(thisUnit) then return end
 				end
 			end
@@ -451,7 +479,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			for i=1, #bleed.rake do
 				local rake = bleed.rake[i]
 				local thisUnit = rake.unit
-				if rake.remain<4.5 and (rake.calc>=rake.applied or (talent.bloodtalons and (buff.bloodtalons or not buff.predatorySwiftness))) and ((ttd(thisUnit)-rake.remain>3 and enemies.yards8<3) or ttd(thisUnit)-rake.remain>6) then
+				if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) and rake.remain<4.5 and (rake.calc>=rake.applied or (talent.bloodtalons and (buff.bloodtalons or not buff.predatorySwiftness))) and ((ttd(thisUnit)-rake.remain>3 and enemies.yards8<3) or ttd(thisUnit)-rake.remain>6) then
 					if self.castRake(thisUnit) then return end
 				end
 			end 
@@ -461,7 +489,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 				for i=1, #bleed.moonfire do
 					local moonfire = bleed.moonfire[i]
 					local thisUnit = moonfire.unit
-					if moonfire.remain<4.2 and enemies.yards8<=5 and ttd(thisUnit)-moonfire.remain>mfTick*5 then
+					if (multidot or (UnitIsUnit(thisUnit,dynTar40AoE) and not multidot)) and moonfire.remain<4.2 and enemies.yards8<=5 and ttd(thisUnit)-moonfire.remain>mfTick*5 then
 						if self.castMoonfire(thisUnit) then return end
 			    	end
 			    end
@@ -471,7 +499,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			for i=1, #bleed.rake do
 				local rake = bleed.rake[i]
 				local thisUnit = rake.unit
-				if rake.calc>rake.applied and enemies.yards8==1 and ((ttd(thisUnit)-rake.remain>3 and enemies.yards8<3) or ttd(thisUnit)-rake.remain>6) then
+				if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) and rake.calc>rake.applied and enemies.yards8==1 and ((ttd(thisUnit)-rake.remain>3 and enemies.yards8<3) or ttd(thisUnit)-rake.remain>6) then
 					if self.castRake(thisUnit) then return end
 				end
 			end	
@@ -549,7 +577,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 					for i=1, #bleed.rip do
 						local rip = bleed.rip[i]
 						local thisUnit = rip.unit
-						if rip.remain>0 and rip.remain<3 and thp(thisUnit)<25 then
+						if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) and rip.remain>0 and rip.remain<3 and thp(thisUnit)<25 then
 							if self.castFerociousBite(thisUnit) then return end
 						end
 					end
@@ -578,7 +606,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 					for i=1, #bleed.thrash do
 						local thrash = bleed.thrash[i]
 						local thisUnit = thrash.unit
-						if thrash.remain<4.5 and ((enemies.yards8>=2 and t17_2pc) or enemies.yards8>=4) then
+						if (multidot or (UnitIsUnit(thisUnit,dynTar8AoE) and not multidot)) and thrash.remain<4.5 and ((enemies.yards8>=2 and t17_2pc) or enemies.yards8>=4) then
 							if self.castThrash(thisUnit) then return end
 						end
 					end
@@ -602,7 +630,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 					for i=1, #bleed.thrash do
 						local thrash = bleed.thrash[i]
 						local thisUnit = thrash.unit
-						if thrash.remain<4.5 and enemies.yards8>=2 then
+						if (multidot or (UnitIsUnit(thisUnit,dynTar8AoE) and not multidot)) and thrash.remain<4.5 and enemies.yards8>=2 then
 							if self.castThrash(thisUnit) then return end
 						end
 					end
