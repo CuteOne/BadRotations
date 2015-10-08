@@ -136,13 +136,28 @@ local frame = CreateFrame("FRAME")
 frame:RegisterEvent("ADDON_LOADED")
 frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterUnitEvent("ACTIVE_TALENT_GROUP_CHANGED")
+function reloadOnSpecChange()
+    if BadBoy_data["Power"] == 1 then
+        ReloadUI()
+    end
+end
+-- Sets 'talentHasChanged' to true
+function characterTalentChanged()
+    if talentHasChanged == nil then
+        talentHasChanged = true
+    end
+end
+
 function frame:OnEvent(event, arg1)
 	if event == "ADDON_LOADED" and arg1 == "BadBoy" then
 		bb:Run()
 	end
 	if event == "ACTIVE_TALENT_GROUP_CHANGED" then
-		ReloadUI(); -- Reloads UI when spec changed, prevents some bugs
-	end
+        reloadOnSpecChange() -- Reloads UI when spec changed, prevents some bugs
+    end
+    if event == "CHARACTER_POINTS_CHANGED" and arg1 == -1 then
+        characterTalentChanged() -- Sets a global to indicate a talent was changed
+    end
 end
 frame:SetScript("OnEvent", frame.OnEvent)
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
