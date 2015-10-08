@@ -1616,6 +1616,23 @@ function hasNoControl(spellID,unit)
 	end
 	return false
 end
+-- if hasThreat("target") then
+function hasThreat(unit,playerUnit)
+	local unit = unit or "target"
+	local playerUnit = playerUnit or "player"
+	local unitThreat = UnitThreatSituation(playerUnit, unit)~=nil
+	local targetOfTarget = UnitTarget(unit)
+	local targetFriend = (UnitInParty(targetOfTarget) or UnitInRaid(targetOfTarget))
+
+	if UnitAffectingCombat(unit)~=nil then
+		if unitThreat then
+			return true
+		elseif targetOfTarget~=nil and targetFriend then
+			return true
+		end
+	end
+	return false
+end
 -- if isAggroed("target") then
 function isAggroed(unit)
 local nNova = nNova

@@ -408,43 +408,43 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		-- Cyclone
 		function self.castCyclone()
-			if self.level>=78 and self.powerPercentMana>7.5 and getDistance(self.units.dyn20AoE)<20 then
+			if self.level>=78 and self.powerPercentMana>7.5 and hasThreat(self.units.dyn20AoE) and getDistance(self.units.dyn20AoE)<20 then
 				if castSpell(self.units.dyn20AoE,self.spell.cyclone,false,false,false) then return end
 			end
 		end
 		-- Entangling Roots
 		function self.castEntanglingRoots()
-			if self.level>=10 and self.powerPercentMana>6.5 and getDistance(self.units.dyn35AoE)<35 then
+			if self.level>=10 and self.powerPercentMana>6.5 and hasThreat(self.units.dyn35AoE) and getDistance(self.units.dyn35AoE)<35 then
 				if castSpell(self.units.dyn35AoE,self.spell.entanglingRoots,false,false,false) then return end
 			end
 		end
 		-- Hurricane
 		function self.castHurricane()
-			if self.level>=42 and self.powerPercentMana>10 and getDistance(self.units.dyn35AoE)<35 then
+			if self.level>=42 and self.powerPercentMana>10 and hasThreat(self.units.dyn35AoE) and getDistance(self.units.dyn35AoE)<35 then
 				if castGoundAtBestLocation(self.spell.hurricane,8,1,35) then return end
 			end
 		end
 		-- Incapacitating Roar
 		function self.castIncapacitatingRoar()
-			if self.level>=75 and self.cd.incapacitatingRoar==0 and getDistance(self.units.dyn10AoE)<10 then
+			if self.level>=75 and self.cd.incapacitatingRoar==0 and hasThreat(self.units.dyn10AoE) and getDistance(self.units.dyn10AoE)<10 then
 				if castSpell(self.units.dyn10AoE,self.spell.incapacitatingRoar,false,false,false) then return end
 			end
 		end
 		-- Mighty Bash
 		function self.castMightyBash()
-			if self.talent.mightyBash and self.cd.mightyBash==0 and getDistance(self.units.dyn5)<5 then
+			if self.talent.mightyBash and self.cd.mightyBash==0 and hasThreat(self.units.dyn5) and getDistance(self.units.dyn5)<5 then
 				if castSpell(self.units.dyn5,self.spell.mightyBash,false,false,false) then return end
 			end
 		end
 		-- Typhoon
 		function self.castTyphoon()
-			if self.talent.typhoon and self.cd.typhoon==0 and getDistance(self.units.dyn15)<15 then
+			if self.talent.typhoon and self.cd.typhoon==0 and hasThreat(self.units.dyn15) and getDistance(self.units.dyn15)<15 then
 				if castSpell(self.units.dyn15,self.spell.typhoon,false,false,false) then return end
 			end
 		end
 		-- Ursol's Vortex
 		function self.castUrsolsVortex()
-			if self.talent.ursolsVortex and self.cd.ursolsVortex==0 and getDistance(self.units.dyn30AoE)<30 then
+			if self.talent.ursolsVortex and self.cd.ursolsVortex==0 and hasThreat(self.units.dyn30AoE) and getDistance(self.units.dyn30AoE)<30 then
 				if castGoundAtBestLocation(self.spell.ursolsVortex,8,1,30) then return end
 			end
 		end
@@ -555,19 +555,19 @@ if select(2, UnitClass("player")) == "DRUID" then
 		end
 		-- Faerie Fire
 		function self.castFaerieFire(thisUnit)
-			if (self.spec=="Feral" or self.spec=="Guardian") and self.level>=28 and getDistance(thisunit)<35 then
+			if (self.spec=="Feral" or self.spec=="Guardian") and self.level>=28 and hasThreat(thisunit) and getDistance(thisunit)<35 then
 				if castSpell(thisUnit,self.spell.faerieFire,false,false,false) then return end
 			end
 		end
 		-- Faerie Swarm
 		function self.castFaerieSwarm(thisUnit)
-			if (self.spec=="Feral" or self.spec=="Guardian") and self.talent.faerieSwarm and getDistance(thisunit)<35 then
+			if (self.spec=="Feral" or self.spec=="Guardian") and self.talent.faerieSwarm and hasThreat(thisUnit) and getDistance(thisunit)<35 then
 				if castSpell(thisUnit,self.spell.faerieSwarm,false,false,false) then return end
 			end
 		end
 		-- Ferocious Bite - Set target via thisUnit variable
 		function self.castFerociousBite(thisUnit)
-			if self.level>=6 and self.power>25 and self.buff.catForm and self.comboPoints>0 and getDistance(thisUnit)<5 then
+			if self.level>=6 and self.power>25 and self.buff.catForm and self.comboPoints>0 and hasThreat(thisUnit) and getDistance(thisUnit)<5 then
 				if castSpell(thisUnit,self.spell.ferociousBite,false,false,false) then return end
 			end
 		end
@@ -598,25 +598,25 @@ if select(2, UnitClass("player")) == "DRUID" then
 		end
 		-- Mangle
 		function self.castMangle(thisUnit)
-			if self.level>=8 and self.cd.mangle==0 and self.buff.bearForm and getDistance(thisUnit)<5 then
+			if self.level>=8 and self.cd.mangle==0 and self.buff.bearForm and hasThreat(thisUnit) and getDistance(thisUnit)<5 then
 				if castSpell(thisUnit,self.spell.mangle,false,false,false) then return end
 			end
 		end
 		-- Moonfire - Set target via thisUnit variable
 		function self.castMoonfire(thisUnit)
-			if self.level>=3 and self.powerPercentMana>1.5 and getDistance(thisUnit)<40 then
+			if self.level>=3 and self.powerPercentMana>1.5 and hasThreat(thisUnit) and getDistance(thisUnit)<40 then
 				if castSpell(thisUnit,self.spell.moonfire,false,false,false) then return end
 			end
 		end
 		-- Shred
 		function self.castShred(thisUnit)
-			if self.level>=6 and self.buff.catForm and self.power>40 and getDistance(thisUnit)<5 then
+			if self.level>=6 and self.buff.catForm and self.power>40 and hasThreat(thisUnit) and getDistance(thisUnit)<5 then
 				if castSpell(thisUnit,self.spell.shred,false,false,false) then return end
 			end
 		end
 		-- Wrath
 		function self.castWrath(thisUnit)
-			if self.level>=1 and self.powerPercentMana>3.5 and getDistance(thisUnit)<40 then
+			if self.level>=1 and self.powerPercentMana>3.5 and hasThreat(thisUnit) and getDistance(thisUnit)<40 then
 				if castSpell(thisUnit,self.spell.wrath,false,false,false) then return end
 			end
 		end
@@ -639,7 +639,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		end
 		-- Growl
 		function self.castGrowl(thisUnit)
-			if self.level>=8 and self.cd.growl==0 and self.buff.bearForm and getDistance(thisUnit)<30 then
+			if self.level>=8 and self.cd.growl==0 and self.buff.bearForm and hasThreat(thisUnit) and getDistance(thisUnit)<30 then
 				if castSpell(thisUnit,self.spell.growl,false,false,false) then return end
 			end
 		end
@@ -661,25 +661,25 @@ if select(2, UnitClass("player")) == "DRUID" then
 		function self.castRevive(thisUnit)
 			local isDeadPlayer = UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and UnitIsFriend(thisUnit,"player")
 
-			if self.level>=12 and self.powerPercentMana>4 and not inCombat and isDeadPlayer and getDistance(thisUnit)<40 then
+			if self.level>=12 and self.powerPercentMana>4 and not inCombat and isDeadPlayer and hasThreat(thisUnit) and getDistance(thisUnit)<40 then
 				if castSpell(thisUnit,self.spell.revive,false,false,false,false,true) then return end
 			end
 		end
 		-- Skull Bash - Set target via thisUnit variable
 		function self.castSkullBash(thisUnit)
-			if (self.spec=="Feral" or self.spec=="Guardian") and self.level>=64 and self.cd.skullBash==0 and (self.buff.bearForm or self.buff.catForm) and getDistance(thisUnit)<13 then 
+			if (self.spec=="Feral" or self.spec=="Guardian") and self.level>=64 and self.cd.skullBash==0 and (self.buff.bearForm or self.buff.catForm) and hasThreat(thisUnit) and getDistance(thisUnit)<13 then 
 				if castSpell(thisUnit,self.spell.skullBash,false,false,false) then return end
 			end
 		end
 		-- Soothe - Set target via thisUnit variable
 		function self.castSoothe(thisUnit)
-			if self.level>=60 and self.powerPercentMana>5.6 and canDispel(thisUnit,self.spell.soothe) and getDistance(thisUnit)<40 then
+			if self.level>=60 and self.powerPercentMana>5.6 and canDispel(thisUnit,self.spell.soothe) and hasThreat(thisUnit) and getDistance(thisUnit)<40 then
 				if castSpell(thisUnit,self.spell.soothe,false,false,false) then return end
 			end
 		end
 		-- Wild Charge - Set target via thisUnit variable
 		function self.castWildCharge(thisUnit)
-			if self.talent.wildCharge and self.cd.wildCharge==0 and getDistance(thisUnit)>=5 and getDistance(thisUnit)<25 then
+			if self.talent.wildCharge and self.cd.wildCharge==0 and getDistance(thisUnit)>=5 and hasThreat(thisUnit) and getDistance(thisUnit)<25 then
 				if self.castSpell(thisUnit,self.spell.wildCharge,false,false,false) then return end
 			end
 		end
