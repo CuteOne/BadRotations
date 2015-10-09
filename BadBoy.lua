@@ -264,13 +264,14 @@ function bb:PulseUI()
 	-- Check if FH got injected correctly
 	-- has a bug, if bug happen shouldBePlayer = nil
 	-- turns distance color to red
-	local shouldBePlayer,_ = UnitName(ObjectPointer("Player"))
-	if shouldBePlayer == GetUnitName("player") then
-		displayDistance = math.ceil(targetDistance)
-	else
-		displayDistance = "|cffFF0011"..math.ceil(targetDistance)
-	end
+	--local shouldBePlayer,_ = UnitName(ObjectPointer("Player"))
+	--if shouldBePlayer == GetUnitName("player") then
+	--	displayDistance = math.ceil(targetDistance)
+	--else
+	--	displayDistance = "|cffFF0011"..math.ceil(targetDistance)
+	--end
 	-- End Bug Check
+    -- Disabled as of october 2015, bug seems to be fixed for awhile
 
 	mainText:SetText(displayDistance)
 	-- enemies
