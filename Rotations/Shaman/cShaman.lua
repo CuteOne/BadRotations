@@ -156,6 +156,7 @@ function cShaman:new(spec)
 		self.units.dyn8AoE 	= dynamicTarget(8, false)
 		self.units.dyn10AoE = dynamicTarget(10, false)
 		self.units.dyn25 	= dynamicTarget(25, true)
+		self.units.dyn25AoE = dynamicTarget(25, false)
 	end
 
 -- Buff updates
@@ -583,8 +584,8 @@ function cShaman:new(spec)
 	end
 	-- Searing Totem
 	function self.castSearingTotem()
-		if self.level>=16 and ((not self.totem.searingTotem) or (self.totem.searingTotem and ObjectExists("target") and getTotemDistance("target")>=25 and getDistance("target")<25)) 
-			and self.powerPercent>3 and ObjectExists("target") and getTimeToDie("target")>5 and (getEnemies("target",10)==1 or BadBoy_data['AoE'] == 3) 
+		if self.level>=16 and ((not self.totem.searingTotem) or (self.totem.searingTotem and ObjectExists(self.units.dyn25AoE) and getTotemDistance(self.units.dyn25AoE)>=25 and getDistance(self.units.dyn25AoE)<25)) 
+			and self.powerPercent>3 and ObjectExists(self.units.dyn25AoE) and getTimeToDie(self.units.dyn25AoE)>5 and (getEnemies(self.units.dyn25AoE,10)==1 or BadBoy_data['AoE'] == 3) 
 		then
 			if castSpell("player",self.spell.searingTotem,false,false,false) then return end
 		end

@@ -787,13 +787,13 @@ if select(2, UnitClass("player")) == "DRUID" then
         end
         -- Rake - Set target via thisUnit variable
         function self.castRake(thisUnit)
-        	if self.level>=6 and self.power > 35 and self.buff.catForm and (getDebuffDuration(thisUnit,self.spell.rakeDebuff,"player")>4 or getDebuffDuration(thisUnit,self.spell.rakeDebuff,"player")==0) and hasThreat(thisUnit) and getDistance(thisUnit)<5 then
+        	if self.level>=6 and self.power > 35 and self.buff.catForm and (getDebuffDuration(thisUnit,self.spell.rakeDebuff,"player")>4 or getDebuffDuration(thisUnit,self.spell.rakeDebuff,"player")==0) and getDistance(thisUnit)<5 then
         		if castSpell(thisUnit,self.spell.rake,false,false,false) then return end
         	end
         end
         -- Rip - Set target via thisUnit variable
         function self.castRip(thisUnit)
-        	if self.level>=20 and self.power > 30 and self.buff.catForm and self.comboPoints>0 and hasThreat(thisUnit) and getDistance(thisUnit)<5 then
+        	if self.level>=20 and self.power > 30 and self.buff.catForm and self.comboPoints>0 and getDistance(thisUnit)<5 then
         		if castSpell(thisUnit,self.spell.rip,false,false,false) then return end
         	end
         end
