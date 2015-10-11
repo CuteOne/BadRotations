@@ -401,16 +401,16 @@ if select(2, UnitClass("player")) == "DRUID" then
 					    end
 					end
 				end -- End No Stealth
-				if stealth then
+				if buff.prowl or buff.shadowmeld then
 		-- TODO: snapshot_stats
 		-- TODO: potion,name=draenic_agility
 		-- TODO: incarnation
 		-- Rake/Shred
 			        if hastar and attacktar then
 			        	if perk.improvedRake and debuff.remain.rake==0 then
-			        		if self.castRake(dynTar5) then StopAttack(); return end
+			        		if self.castRake(dynTar5) then return end
 			        	else
-			        		if self.castShred(dynTar5) then StopAttack(); return end
+			        		if self.castShred(dynTar5) then return end
 			            end
 			        end
 			    end -- End Stealth
@@ -551,10 +551,10 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-- Rake/Shred from Stealth
 				-- rake,if=buff.prowl.up|buff.shadowmeld.up
 				if buff.prowl or buff.shadowmeld then
-					if perk.improvedRake and debuff.remain.rake==0 and not buff.incarnationKingOfTheJungle then
-						if self.castRake(dynTar5) then StopAttack(); return end
+					if perk.improvedRake and debuff.remain.rake==0 then
+						if self.castRake(dynTar5) then return end
 		        	else
-		        		if self.castShred(dynTar5) then StopAttack(); return end
+		        		if self.castShred(dynTar5) then return end
 		            end
 				elseif not stealth and BadBoy_data['AoE'] ~= 4 then
 					-- auto_attack

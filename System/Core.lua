@@ -136,6 +136,7 @@ local frame = CreateFrame("FRAME")
 frame:RegisterEvent("ADDON_LOADED")
 frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterUnitEvent("ACTIVE_TALENT_GROUP_CHANGED")
+frame:RegisterUnitEvent("CHARACTER_POINTS_CHANGED")
 function reloadOnSpecChange()
     if BadBoy_data["Power"] == 1 then
         ReloadUI()

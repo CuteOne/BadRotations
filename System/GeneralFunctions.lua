@@ -1824,10 +1824,10 @@ function isBoss(unit)
 	local BossUnits = BossUnits
 	if UnitExists(unit) then
 		local npcID = tonumber(string.match(UnitGUID(unit),"-(%d+)-%x+$"))--tonumber(UnitGUID("target"):sub(6,10),16)
-		if (UnitClassification(unit) == "rare" 
+		if ((UnitClassification(unit) == "rare" and UnitHealthMax(unit)>(4*UnitHealthMax("player")))
 			or UnitClassification(unit) == "rareelite" 
 			or UnitClassification(unit) == "worldboss" 
-			or (UnitClassification(unit) == "elite" and UnitLevel(unit) >= UnitLevel("player")+3) 
+			or (UnitClassification(unit) == "elite" and UnitHealthMax(unit)>(4*UnitHealthMax("player")))--UnitLevel(unit) >= UnitLevel("player")+3) 
 			or UnitLevel(unit) < 0)
 				and not UnitIsTrivial(unit)
 		then

@@ -567,7 +567,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		end
 		-- Ferocious Bite - Set target via thisUnit variable
 		function self.castFerociousBite(thisUnit)
-			if self.level>=6 and self.power>25 and self.buff.catForm and self.comboPoints>0 and hasThreat(thisUnit) and getDistance(thisUnit)<5 then
+			if self.level>=6 and self.power>25 and self.buff.catForm and self.comboPoints>0 and getDistance(thisUnit)<5 then
 				if castSpell(thisUnit,self.spell.ferociousBite,false,false,false) then return end
 			end
 		end
@@ -598,7 +598,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		end
 		-- Mangle
 		function self.castMangle(thisUnit)
-			if self.level>=8 and self.cd.mangle==0 and self.buff.bearForm and hasThreat(thisUnit) and getDistance(thisUnit)<5 then
+			if self.level>=8 and self.cd.mangle==0 and self.buff.bearForm and getDistance(thisUnit)<5 then
 				if castSpell(thisUnit,self.spell.mangle,false,false,false) then return end
 			end
 		end
@@ -610,7 +610,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		end
 		-- Shred
 		function self.castShred(thisUnit)
-			if self.level>=6 and self.buff.catForm and self.power>40 and hasThreat(thisUnit) and getDistance(thisUnit)<5 then
+			if self.level>=6 and self.buff.catForm and self.power>40 and getDistance(thisUnit)<5 then
 				if castSpell(thisUnit,self.spell.shred,false,false,false) then return end
 			end
 		end

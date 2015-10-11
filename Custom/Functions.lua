@@ -118,7 +118,7 @@ function castGoundAtBestLocation(spellID, radius, minUnits, maxRange)
 		--print("goodUnits > 0")
 		if #goodUnits > 1 then
 			--print("goodUnits > 1")
-			local mX,my,mZ = 0,0,0
+			local mX, mY,mZ = 0,0,0
 			for i=1,#goodUnits do
 				local thisUnit = goodUnits[i]
 				local thisX,thisY,thisZ = GetObjectPosition(thisUnit)
@@ -126,7 +126,7 @@ function castGoundAtBestLocation(spellID, radius, minUnits, maxRange)
 					mX,mY,mZ = thisX,thisY,thisZ
 				else
 					mX = 0.5*(mX + thisX)
-					my = 0.5*(mY + thisY)
+					mY = 0.5*(mY + thisY)
 					mZ = 0.5*(mZ + thisZ)
 				end
 			end
