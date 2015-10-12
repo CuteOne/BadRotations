@@ -62,6 +62,8 @@ ClassLibs\Rogue\Toggles.lua
 ## Custom Functions
 Custom\Functions.lua
 
+Rotations\cCharacter.lua
+
 ## DeathKnight ---------------------------------------------------
 Rotations\Deathknight\cDeathKnight.lua
 Rotations\Deathknight\Frost\cFrost.lua
@@ -167,10 +169,7 @@ Rotations\Monk\Windwalker\SpellList.lua
 ## Rotations\Monk\Windwalker\Toggles.lua
 
 ## Paladin ---------------------------------------------------
-Rotations\cCharacter.lua
 Rotations\Paladin\cPaladin.lua
-Rotations\Paladin\Retribution\cRetribution.lua
-Rotations\Paladin\Retribution\retributionSimC.lua
 
 Rotations\Paladin\Holy\Holy.lua
 Rotations\Paladin\Holy\Libs\Functions.lua
@@ -178,12 +177,18 @@ Rotations\Paladin\Holy\Libs\Options.lua
 Rotations\Paladin\Holy\Libs\SpellList.lua
 Rotations\Paladin\Holy\Libs\Toggles.lua
 
+Rotations\Paladin\Protection\cProtection.lua
+Rotations\Paladin\Protection\protectionSimC.lua
 Rotations\Paladin\Protection\Protection.lua
-Rotations\Paladin\Protection\Libs\Functions.lua
-Rotations\Paladin\Protection\Libs\Options.lua
+
+##Rotations\Paladin\Protection\Libs\Functions.lua
+##Rotations\Paladin\Protection\Libs\Options.lua
 Rotations\Paladin\Protection\Libs\Toggles.lua
 
+Rotations\Paladin\Retribution\cRetribution.lua
+Rotations\Paladin\Retribution\retributionSimC.lua
 Rotations\Paladin\Retribution\Retribution.lua
+
 Rotations\Paladin\Retribution\Libs\Functions.lua
 Rotations\Paladin\Retribution\Libs\Options.lua
 Rotations\Paladin\Retribution\Libs\Toggles.lua

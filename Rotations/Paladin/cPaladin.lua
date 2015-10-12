@@ -18,6 +18,7 @@ function cPaladin:new(spec)
 	self.seal        = true
 	self.paladinSpell = {
 		crusaderStrike      = 35395,
+        divineProtection    = 498,
 		divineShield        = 642,
 		eternalFlame        = 114163,
 		executionSentence   = 114157,
@@ -37,6 +38,7 @@ function cPaladin:new(spec)
 		sealOfRighteousness = 20154,
 		sealOfThruth        = 31801,
         selflessHealer      = 85804,
+        selflessHealerBuff  = 114250,
 		wordOfGlory         = 85673,
     }
 

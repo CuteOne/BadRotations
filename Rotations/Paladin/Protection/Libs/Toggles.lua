@@ -11,16 +11,16 @@ if select(3,UnitClass("player")) == 2 then
       CreateButton("AoE",0,1)
       AoEModesLoaded = "Prot Pal AoE Modes"
     end
-    if  RotaModesLoaded ~= "Prot Pal Rota Modes" then
-      RotaModes = {
-        [1] = { mode = "Norm", value = 1 , overlay = "Normal Rotation", tip = "|cff00FF00Recommended for \n|cffFFDD11Normal Rotation.", highlight = 0, icon = 25780 },
-        [2] = { mode = "DPS", value = 2 , overlay = "Maximum DPS Rotation", tip = "|cffFF0000Recommended for \n|cffFFDD11Maximum DPS Rotation.", highlight = 0, icon = 85043 },
-        [3] = { mode = "Surv", value = 3 , overlay = "Maximum Survivability Rotation", tip = "|cffFFDD11Recommended for \n|cffFFDD11Maximum survivability Rotation.", highlight = 0, icon = 157488 },
-        [4] = { mode = "Auto", value = 4, overlay = "Auto Rotation", tip = "|cffFFDD11Will change dynamically.", highlight = 1, icon = 83950 }
-      }
-      CreateButton("Rota",3,0)
-      RotaModesLoaded = "Prot Pal Rota Modes"
-    end
+    --if  RotaModesLoaded ~= "Prot Pal Rota Modes" then
+    --  RotaModes = {
+    --    [1] = { mode = "Norm", value = 1 , overlay = "Normal Rotation", tip = "|cff00FF00Recommended for \n|cffFFDD11Normal Rotation.", highlight = 0, icon = 25780 },
+    --    [2] = { mode = "DPS", value = 2 , overlay = "Maximum DPS Rotation", tip = "|cffFF0000Recommended for \n|cffFFDD11Maximum DPS Rotation.", highlight = 0, icon = 85043 },
+    --    [3] = { mode = "Surv", value = 3 , overlay = "Maximum Survivability Rotation", tip = "|cffFFDD11Recommended for \n|cffFFDD11Maximum survivability Rotation.", highlight = 0, icon = 157488 },
+    --    [4] = { mode = "Auto", value = 4, overlay = "Auto Rotation", tip = "|cffFFDD11Will change dynamically.", highlight = 1, icon = 83950 }
+    --  }
+    --  CreateButton("Rota",3,0)
+    --  RotaModesLoaded = "Prot Pal Rota Modes"
+    --end
     -- Interrupts Button
     if  InterruptsModesLoaded ~= "Prot Pal Interrupts Modes" then
       InterruptsModes = {
