@@ -585,7 +585,7 @@ function cShaman:new(spec)
 	-- Searing Totem
 	function self.castSearingTotem()
 		if self.level>=16 and ((not self.totem.searingTotem) or (self.totem.searingTotem and ObjectExists(self.units.dyn25AoE) and getTotemDistance(self.units.dyn25AoE)>=25 and getDistance(self.units.dyn25AoE)<25)) 
-			and self.powerPercent>3 and ObjectExists(self.units.dyn25AoE) and getTimeToDie(self.units.dyn25AoE)>5 and (getEnemies(self.units.dyn25AoE,10)==1 or BadBoy_data['AoE'] == 3) 
+			and self.powerPercent>3 and ObjectExists(self.units.dyn25AoE) and getTimeToDie(self.units.dyn25AoE)>5 and (#getEnemies(self.units.dyn25AoE,10)==1 or BadBoy_data['AoE'] == 3) 
 		then
 			if castSpell("player",self.spell.searingTotem,false,false,false) then return end
 		end

@@ -1624,10 +1624,12 @@ function hasThreat(unit,playerUnit)
 	local targetOfTarget = UnitTarget(unit)
 	local targetFriend = (UnitInParty(targetOfTarget) or UnitInRaid(targetOfTarget))
 
-	if UnitAffectingCombat(unit)~=nil then
-		if unitThreat then
+	if UnitAffectingCombat(unit)~=nil then 
+		if unitThreat then --You have threat
 			return true
-		elseif targetOfTarget~=nil and targetFriend then
+		elseif targetOfTarget~=nil and targetFriend then --The target's target is your friend
+			return true
+		elseif getDistance(unit)<20 then --Target is within aggro radius and thus would have threat
 			return true
 		end
 	end
@@ -1636,6 +1638,7 @@ end
 -- if isAggroed("target") then
 function isAggroed(unit)
 local nNova = nNova
+local hasAggro = hasAggro
 	if hasAggro == nil then hasAggro = false end
 	for i=1,#nNova do
 		local threat = select(5,UnitDetailedThreatSituation(nNova[i].unit,unit))
