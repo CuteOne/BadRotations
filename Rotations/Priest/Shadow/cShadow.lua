@@ -25,13 +25,6 @@ function cShadow:new()
 		nextImpactTime = 99,
 		nextImpactTwoSeconds = 99,
 	}
-	self.set_bonus = {
-		tier17_2pc =  false,
-		tier17_4pc =  false,
-		tier18_2pc =  false,
-		tier18_4pc =  false,
-		class_trinket = false,
-	}
 
 	--   _____            _ _     
 	--  / ____|          | | |    
