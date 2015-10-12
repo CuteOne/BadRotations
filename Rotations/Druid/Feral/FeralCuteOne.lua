@@ -340,7 +340,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 				end
 		-- Incarnation - King of the Jungle
 				-- if=cooldown.berserk.remains<10&energy.time_to_max>1
-	            if useCDs() and isChecked("Incarnation") then
+	            if useCDs() and isChecked("Incarnation: King of the Jungle") then
 	            	if buff.remain.berserk<10 and ttm>1 then
 	            		if self.castIncarnationKingOfTheJungle() then return end
 	            	end
