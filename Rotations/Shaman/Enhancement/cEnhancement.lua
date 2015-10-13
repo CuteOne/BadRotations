@@ -604,7 +604,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         end
         -- Lava Lash
         function self.castLavaLash()
-            if self.level>=10 and self.cd.lavaLash==0 and (getDistance(self.units.dyn5)<5 or IsSpellInRange(GetSpellInfo(self.spell.lavalLash),self.units.dyn5)~=nil) then
+            if self.level>=10 and self.cd.lavaLash==0 and (getDistance(self.units.dyn5)<5 or IsSpellInRange(GetSpellInfo(self.spell.lavaLash),self.units.dyn5)~=nil) then
                 if castSpell(self.units.dyn5,self.spell.lavaLash,false,false,false) then return end
             end 
         end
