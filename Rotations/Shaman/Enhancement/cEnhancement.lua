@@ -604,7 +604,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         end
         -- Lava Lash
         function self.castLavaLash()
-            if self.level>=10 and self.cd.lavaLash==0 and getDistance(self.units.dyn5)<5 then
+            if self.level>=10 and self.cd.lavaLash==0 and (getDistance(self.units.dyn5)<5 or IsSpellInRange(GetSpellInfo(self.spell.lavalLash),self.units.dyn5)~=nil) then
                 if castSpell(self.units.dyn5,self.spell.lavaLash,false,false,false) then return end
             end 
         end
@@ -617,10 +617,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         -- Stormstrike
         function self.castStormstrike(thisUnit)
             local thisUnit = thisUnit or self.units.dyn5
-            if self.level>=26 and self.cd.stormstrike==0 and not self.buff.ascendance and getDistance(self.units.dyn5)<5 then
+            if self.level>=26 and self.cd.stormstrike==0 and not self.buff.ascendance and (getDistance(self.units.dyn5)<5 or IsSpellInRange(GetSpellInfo(self.spell.stormstrike),self.units.dyn5)~=nil) then
                 if castSpell(self.units.dyn5,self.spell.stormstrike,false,false,false) then return end
             end
-            if self.level<26 and self.cd.primalStrike==0 and getDistance(self.units.dyn5)<5 then
+            if self.level<26 and self.cd.primalStrike==0 and (getDistance(self.units.dyn5)<5 or IsSpellInRange(GetSpellInfo(self.spell.primalStrike),self.units.dyn5)~=nil) then
                if castSpell(self.units.dyn5,self.spell.primalStrike,false,false,false) then return end
             end 
         end
@@ -633,7 +633,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         -- Windstrike
         function self.castWindstrike(thisUnit)
             local thisUnit = thisUnit or self.units.dyn5
-            if self.buff.ascendance and self.cd.windstrike==0 and getDistance(self.units.dyn5)<5 then
+            if self.buff.ascendance and self.cd.windstrike==0 and (getDistance(self.units.dyn5)<5 or IsSpellInRange(GetSpellInfo(self.spell.windstrike),self.units.dyn5)~=nil) then
                 if castSpell(self.units.dyn5,self.spell.stormstrike,false,false,false) then return end
             end
         end
