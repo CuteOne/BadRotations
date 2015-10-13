@@ -2,11 +2,11 @@
 function TTDRefresh()
 	if not enemyTable then
 		enemyTable = {
-		units = {},
-		ttd = {},
-		dps = {},
-		health = {},
-		totalUnits = 0,
+			units = {},
+			ttd = {},
+			dps = {},
+			health = {},
+			totalUnits = 0,
 		}
 	end
 

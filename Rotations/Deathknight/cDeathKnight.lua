@@ -463,19 +463,19 @@ function cDK:new(spec)
 	end
 	-- Death and Decay
 	function self.castDeathAndDecay()
-		if (not getTalent(7,2)) and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and self.cd.deathAndDecay==0 and getDistance(self.units.dyn30AoE)<30 then
+		if (not getTalent(7,2)) and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and self.cd.deathAndDecay==0 and hasThreat(self.units.dyn30) and getDistance(self.units.dyn30AoE)<30 then
 			if castGoundAtBestLocation(self.spell.defile,10,1,30) then return end
 		end
 	end
 	-- Death Siphon
 	function self.castDeathSiphon()
-		if getTalent(5,2) and self.rune.count.death>=1 and getDistance(self.units.dyn40)<40 then
+		if getTalent(5,2) and self.rune.count.death>=1 and hasThreat(self.units.dyn40) and getDistance(self.units.dyn40)<40 then
 			if castSpell(self.units.dyn40,self.spell.deathSiphon,false,false,false) then return end
 		end
 	end
 	-- Defile
 	function self.castDefile()
-		if getTalent(7,2) and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and self.cd.defile==0 and getDistance(self.units.dyn30AoE)<30 then
+		if getTalent(7,2) and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and self.cd.defile==0 and hasThreat(self.units.dyn30) and getDistance(self.units.dyn30AoE)<30 then
 			if castGoundAtBestLocation(self.spell.defile,8,1,30) then return end
 		end
 	end
@@ -499,19 +499,19 @@ function cDK:new(spec)
 	end
 	-- Icy Touch
     function self.castIcyTouch()
-        if self.level>=55 and (self.rune.count.frost>=1 or self.rune.count.death>=1) and getDistance(self.units.dyn30)<30 then
+        if self.level>=55 and (self.rune.count.frost>=1 or self.rune.count.death>=1) and hasThreat(self.units.dyn30) and getDistance(self.units.dyn30)<30 then
             if castSpell(self.units.dyn30,self.spell.icyTouch,false,false,false) then return end
         end
     end
 	-- Outbreak
 	function self.castOutbreak()
-		if self.level>=81 and self.cd.outbreak==0 and getDistance(self.units.dyn30)<30 then
+		if self.level>=81 and self.cd.outbreak==0 and hasThreat(self.units.dyn30) and getDistance(self.units.dyn30)<30 then
 			if castSpell(self.units.dyn30,self.spell.outbreak,true,false,false) then return end
 		end
 	end
 	-- Plague Leech
 	function self.castPlagueLeech()
-		if getTalent(1,2) and self.cd.plagueLeech==0 and ((self.debuff.frostFever and self.debuff.bloodPlague) or self.debuff.necroticPlague) and getDistance(self.units.dyn30)<30 then
+		if getTalent(1,2) and self.cd.plagueLeech==0 and ((self.debuff.frostFever and self.debuff.bloodPlague) or self.debuff.necroticPlague) and hasThreat(self.units.dyn30) and getDistance(self.units.dyn30)<30 then
 			if castSpell(self.units.dyn30,self.spell.plagueLeech,true,false,false) then return end
 		end
 	end

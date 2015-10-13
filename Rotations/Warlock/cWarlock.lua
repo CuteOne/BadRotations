@@ -1,16 +1,16 @@
---- Priest Class
+--- Warlock Class
 -- Inherit from: ../cCharacter.lua
--- All Priest specs inherit from cPriest.lua
+-- All Warlock specs inherit from cWarlock.lua
 
-if select(3, UnitClass("player")) == 5 then
-	cPriest = {}
+if select(3, UnitClass("player")) == 9 then
+	cWarlock = {}
 
 	-- Creates Priest with given specialisation
-	function cPriest:new(spec)
-		local self = cCharacter:new("Priest")
+	function cWarlock:new(spec)
+		local self = cCharacter:new("Warlock")
 
 		self.profile     = spec
-		self.priestSpell = {
+		self.WarlockSpell = {
 
 		}
 
