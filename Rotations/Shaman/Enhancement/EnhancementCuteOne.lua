@@ -218,10 +218,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
     	end -- End Action List - Interrupts
     -- Action List - Cooldowns
     	function actionList_Cooldowns()
-    		if useCDs() and getDistance(dyn5)<5 then
+    		if getDistance(dyn5)<5 then
     	-- Heroism/Bloodlust
 	    		-- bloodlust,if=target.health.pct<25|time>0.500
-	    		if isChecked("HeroLust") and not raid and (thp<25 or combatTime>0.500) then
+	    		if useCDs() and isChecked("HeroLust") and not raid and (thp<25 or combatTime>0.500) then
 	    			if self.castHeroLust() then return end
 	    		end
 	    -- Legendary Ring
@@ -229,7 +229,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 	    		-- TODO
 	    -- Potion
 	    		-- potion,name=draenic_agility,if=(talent.storm_elemental_totem.enabled&(pet.storm_elemental_totem.remains>=25|(cooldown.storm_elemental_totem.remains>target.time_to_die&pet.fire_elemental_totem.remains>=25)))|(!talent.storm_elemental_totem.enabled&pet.fire_elemental_totem.remains>=25)|target.time_to_die<=30
-	    		if canUse(109217) and inRaid and isChecked("Agi-Pot") then
+	    		if useCDs() and canUse(109217) and inRaid and isChecked("Agi-Pot") then
 	    			if (talent.stormElementalTotem and (totem.remain.stormElementalTotem>=25 or (cd.stormElementalTotem>ttd and totem.remaim.fireElementalTotem>=25))) or (not talent.stormElementalTotem and totem.remain.fireElementalTotem>=25) or ttd<=30 then
 	    				useItem(109217)
 	    			end
@@ -238,27 +238,27 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 	    		-- blood_fury
 	    		-- arcane_torrent
 	    		-- berserking
-	    		if (self.race == "Orc" or self.race == "Troll" or self.race == "Blood Elf") then
+	    		if useCDs() and (self.race == "Orc" or self.race == "Troll" or self.race == "Blood Elf") then
 	    			if self.castRacial() then return end
 	    		end
 	    -- Elemental Mastery
 	    		-- elemental_mastery
-	    		if isChecked("Elemental Mastery") then
+	    		if useCDs() and isChecked("Elemental Mastery") then
 	    			if self.castElementalMastery() then return end
 	    		end
 	    -- Storm Elemental Totem
 	    		-- storm_elemental_totem
-	    		if isChecked("Storm Elemental Totem") then
+	    		if useCDs() and isChecked("Storm Elemental Totem") then
 	    			if self.castStormElementalTotem() then return end
 	    		end
 	    -- Fire Elemental Totem
 	    		-- fire_elemental_totem
-	    		if isChecked("Fire Elemental Totem") then
+	    		if useCDs() and isChecked("Fire Elemental Totem") then
 	    			if self.castFireElementalTotem() then return end
 	    		end
 	    -- Feral Spirit
 	    		-- feral_spirit
-	    		if isChecked("Feral Spirit") then
+	    		if useCDs() and isChecked("Feral Spirit") then
 	    			if self.castFeralSpirit() then return end
 	    		end
 	    -- Liquid Magma
@@ -268,22 +268,31 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 	    		end
 	    -- Ancestral Swiftness
 	    		-- ancestral_swiftness
-	    		if isChecked("Ancestral Swiftness") then
+	    		if useCDs() and isChecked("Ancestral Swiftness") then
 	    			if self.castAncestralSwiftness() then return end
 	    		end
 	    -- Ascendance
 	    		-- ascendance
-	    		if isChecked("Ascendance") then
+	    		if useCDs() and isChecked("Ascendance") then
 	    			if self.castAscendance() then return end
 	    		end
 	    -- Touch of the Void
-	            if isChecked("Touch of the Void") and getDistance(self.units.dyn5)<5 then
+	            if useCDs() and isChecked("Touch of the Void") and getDistance(self.units.dyn5)<5 then
 	                if hasEquiped(128318) then
 	                    if GetItemCooldown(128318)==0 then
 	                        useItem(128318)
 	                    end
 	                end
-	            end		
+	            end
+	    -- Trinkets
+				if useCDs() and isChecked("Trinkets") then
+					if canUse(13) then
+						useItem(13)
+					end
+					if canUse(14) then
+						useItem(14)
+					end
+				end		
 	    	end
     	end -- End Action List - Cooldowns
     -- Action List - Pre-Combat
