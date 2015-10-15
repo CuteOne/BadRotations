@@ -452,7 +452,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         end
         -- Howling Blast
         function self.castHowlingBlast()
-            if self.level>=55 and (self.rune.count.frost>=1 or self.rune.count.death>=1) and getDistance(self.units.dyn30)<30 then
+            if self.level>=55 and (self.rune.count.frost>=1 or self.rune.count.death>=1) and hasThreat(self.units.dyn30) and getDistance(self.units.dyn30)<30 then
                 if castSpell(self.units.dyn30,self.spell.howlingBlast,false,false,false) then return end
             end
         end

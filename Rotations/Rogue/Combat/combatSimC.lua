@@ -6,7 +6,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 function cCombat:combatSimC()
 -- Locals
 	local player,comboPoints,recharge,stealth,power = "player",self.comboPoints,self.recharge,self.stealth,self.power
-	local buff,cd,mode,talent,glyph,gcd = self.buff,self.cd,self.mode,self.talent,self.glyph,self.gcd
+	local buff,cd,charges,mode,talent,glyph,gcd = self.buff,self.cd,self.charges,self.mode,self.talent,self.glyph,self.gcd
 	local isChecked,enemies,units,eq,getCombatTime = isChecked,self.enemies,self.units,self.eq,getCombatTime
 	local lastSpellCast,getTimeToDie,UnitExists = lastSpellCast,getTimeToDie,UnitExists
 	local timeToDie = getTimeToDie("target")
@@ -159,7 +159,7 @@ function cCombat:combatSimC()
 	-- TODO: fucking long line
 
 	-- actions+=/slice_and_dice,if=buff.slice_and_dice.remains<2|((target.time_to_die>45&combo_points=5&buff.slice_and_dice.remains<12)&buff.deep_insight.down)
-	if buff.sliceAndDice < 2 or ((getTimeToDie("target") > 45 and comboPoints == 5 and buff.sliceAndDice < 12) and buff.deepInsight == 0) then
+	if buff.remain.sliceAndDice < 2 or ((getTimeToDie("target") > 45 and comboPoints == 5 and buff.remain.sliceAndDice < 12) and buff.deepInsight == 0) then
 		if self:castSliceAndDice() then return end
 	end
 
@@ -169,12 +169,12 @@ function cCombat:combatSimC()
 	end
 
 	-- actions+=/call_action_list,name=killing_spree,if=(energy<40|(buff.bloodlust.up&time<10)|buff.bloodlust.remains>20)&buff.adrenaline_rush.down&(!talent.shadow_reflection.enabled|cooldown.shadow_reflection.remains>30|buff.shadow_reflection.remains>3)
-	if (power < 40 or (hasBloodLust() and getCombatTime() < 10)) and buff.adrenalineRush == 0 and (not talent.shadowReflection or cd.shadowReflection > 30 or buff.shadowReflection > 3) then
+	if (power < 40 or (hasBloodLust() and getCombatTime() < 10)) and buff.adrenalineRush == 0 and (not talent.shadowReflection or cd.shadowReflection > 30 or buff.remain.shadowReflection > 3) then
 		if actionList_KillingSpree() then return end
 	end
 
 	-- actions+=/marked_for_death,if=combo_points<=1&dot.revealing_strike.ticking&(!talent.shadow_reflection.enabled|buff.shadow_reflection.up|cooldown.shadow_reflection.remains>30)
-	if comboPoints <= 1 and self:getRevealingStrikeDebuff() > 0 and (not talent.shadowReflection or buff.shadowReflection > 0 or cd.shadowReflection > 30) then
+	if comboPoints <= 1 and self:getRevealingStrikeDebuff() > 0 and (not talent.shadowReflection or buff.remain.shadowReflection > 0 or cd.shadowReflection > 30) then
 		if self:castMarkedForDeath() then return end
 	end
 

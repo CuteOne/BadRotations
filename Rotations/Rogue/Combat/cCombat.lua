@@ -82,11 +82,11 @@ function cCombat:new()
 	function self.getBuffs()
 		local getBuffRemain,UnitBuffID = getBuffRemain,UnitBuffID
 
-		self.buff.adrenalineRush = getBuffRemain(player,self.spell.adrenalineRush)
-		self.buff.bladeFlurry    = UnitBuffID(player,self.spell.bladeFlurry) -- TODO: richtig machen
-		self.buff.deepInsight    = getBuffRemain(player,self.spell.deepInsight)
-		self.buff.instantPoison  = getBuffRemain(player,self.spell.instantPoison)
-		self.buff.killingSpree   = getBuffRemain(player,self.spell.killingSpree)
+		self.buff.adrenalineRush = getBuffRemain(player,self.spell.adrenalineRush) or 0
+		self.buff.bladeFlurry    = UnitBuffID(player,self.spell.bladeFlurry)~=nil or false -- TODO: richtig machen
+		self.buff.deepInsight    = getBuffRemain(player,self.spell.deepInsight) or 0
+		self.buff.instantPoison  = getBuffRemain(player,self.spell.instantPoison) or 0
+		self.buff.killingSpree   = getBuffRemain(player,self.spell.killingSpree) or 0
 	end
 
 ---------------
@@ -306,7 +306,7 @@ function cCombat:new()
     -- Cancel Blade Flurry
     function self.cancelBladeFlurry()
         if isChecked("Blade Flurry") and self.mode.bladeFlurry ~= 1 then
-            CancelUnitBuff("player", buff.bladeFlurry )
+            CancelUnitBuff("player",self.spell.bladeFlurryBuff )
         end
     end
 
