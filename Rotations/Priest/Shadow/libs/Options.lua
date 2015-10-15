@@ -46,7 +46,6 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewBox(thisConfig, "Desperate Prayer",0,100,1,30,"|cffFFFFFFhealth percent to cast at")
 			CreateNewText(thisConfig,"Desperate Prayer")
 
-
 			-- Fade with glyph
 			CreateNewCheck(thisConfig,"Fade","glyphed fade: 10% Damage reduction")
 			CreateNewBox(thisConfig, "Fade", 0, 100 , 2, 70, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFade")
@@ -112,10 +111,19 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewBox(thisConfig,"max dot targets", 0, 10, 1, 4, "|cffFFFFFFnumber of running dots of each")
 			CreateNewText(thisConfig,"max dot targets")
 
+			-- ttd SWP
+			CreateNewBox(thisConfig,"ttd swp", 0, 13.5, 0.1, 13.5, "|cffFFFFFFSWP TTD:\nstandard (simcraft): 13.5s\nCast SWP only on a unit that lives longer than chosen value.")
+			CreateNewText(thisConfig,"ttd swp")
+
+			-- ttd VT
+			CreateNewBox(thisConfig,"ttd vt", 0, 11.25, 0.1, 11.25, "|cffFFFFFFSWP TTD:\nstandard (simcraft): 11.25s + castTime\nCast VT only on a unit that lives longer than chosen value.")
+			CreateNewText(thisConfig,"ttd vt")
+
 			-- Mind Sear / Searing Insanity Key
 			CreateNewCheck(thisConfig,"Burst SI", "Burst Searing Insanity")
 			CreateNewDrop(thisConfig,"Burst SI", 3, "Toggle2")
 			CreateNewText(thisConfig,"Burst SI")
+
 
 
 			--  _    _ _   _ _ _ _   _           
