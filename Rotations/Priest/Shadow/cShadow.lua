@@ -282,6 +282,8 @@ function cShadow:new()
 		self.options.rotation.Burst_SI 					= isChecked("Burst SI")
 		self.options.rotation.SWD_ignore_orbs			= isChecked("SWD ignore Orbs")
 		self.options.rotation.max_Targetsvalue			= getValue("max dot targets")
+		self.options.rotation.ttdSWP 					= getValue("ttd swp")
+		self.options.rotation.ttdVT 					= getValue("ttd vt")
 
 		self.options.utilities 							= {}
 		self.options.utilities.pause 					= isChecked("Pause Toggle")
@@ -534,7 +536,7 @@ function cShadow:new()
 				96077,		-- Kilrogg: Fel Blood Globule
 				90477,		-- Kilrogg: Blood Globule
 				93288,		-- Gorefiend: Corrupted Players
-				95101,		-- Socrethar: Phase1 Voracious Soulstalker
+				--95101,		-- Socrethar: Phase1 Voracious Soulstalker
 				--92919,		-- Zakuun: Mythic dat orb
 			}
 			local Blacklist_BuffID = {
@@ -859,7 +861,7 @@ function cShadow:new()
 								-- in range?
 								if distance < 40 then
 									-- TTD or dummy
-									if ttd > 18*0.75 or isDummy(thisUnit) then
+									if ttd > self.options.rotation.ttdSWP or isDummy(thisUnit) then
 										return castSpell(thisUnit,self.spell.shadow_word_pain,true,false) == true or false
 									end
 								end
@@ -881,7 +883,7 @@ function cShadow:new()
 							-- in range?
 							if getDistance("player","target") < 40 then
 								-- TTD or dummy
-								if getTTD("target") > 18*0.75 or isDummy("target") then
+								if getTTD("target") > self.options.rotation.ttdSWP  or isDummy("target") then
 									return castSpell("target",self.spell.shadow_word_pain,true,false) == true or false
 								end
 							end
@@ -932,7 +934,7 @@ function cShadow:new()
 					local ttd = enemiesTable[i].ttd
 					local distance = enemiesTable[i].distance
 					local castTime = 0.001*select(4,GetSpellInfo(34914))
-					local refreshTime = 15*0.75+castTime
+					local refreshTime = self.options.rotation.ttdSWP+castTime
 					-- infight
 					if UnitIsTappedByPlayer(thisUnit) then
 						-- last VT check
@@ -974,7 +976,7 @@ function cShadow:new()
 								-- in range?
 								if getDistance("player","target") < 40 then
 									-- TTD or dummy
-									if getTTD("target") > 15*0.75+castTime or isDummy("target") then
+									if getTTD("target") > self.options.rotation.ttdSWP+castTime or isDummy("target") then
 										return castSpell("target",self.spell.vampiric_touch,true,true) == true or false
 									end
 								end

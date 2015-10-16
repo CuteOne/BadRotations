@@ -383,10 +383,11 @@ function cShadow:shadowRavens()
 			-- Mind Flay
 			if select(1,UnitChannelInfo("player")) ~= "Insanity" then
 				if select(1,UnitChannelInfo("player")) == "Mind Flay" then
-						if getCastTimeRemain("player") < 0.61 then
-							if self.castMindFlay("target") then return end
-						end
+					if getCastTimeRemain("player") < 0.61 then
+						if self.castMindFlay("target") then return end
 					end
+					return false
+				end
 				if self.castMindFlay("target") then return end
 			end
 
