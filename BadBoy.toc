@@ -323,5 +323,8 @@ LibStub-1.0\LibStub.lua
 System\Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
 System\Libs\LibRangeCheck-2.0\LibRangeCheck-2.0.lua
 
+## BossLibs
+System\Libs\LibBossIDs-1.0\LibBossIDs-1.0.xml
+
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Always: delayed

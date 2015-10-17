@@ -61,7 +61,8 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local deadtar, attacktar, hastar, playertar 		= deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
 		local friendly 										= friendly or UnitIsFriend("target", "player")
 	    local mfTick 										= 20.0/(1+UnitSpellHaste("player")/100)/10
-	    local multidot 										= (useCleave() or BadBoy_data['AoE'] ~= 3)   
+	    local multidot 										= (useCleave() or BadBoy_data['AoE'] ~= 3)
+	    local fbDamage 										= getFbDamage()   
 --------------------
 --- Action Lists ---
 --------------------
@@ -572,6 +573,13 @@ if select(2, UnitClass("player")) == "DRUID" then
 	---------------------------
 	--- In Combat - Attacks ---
 	---------------------------
+		-- Ferocious Bite
+					for i=1, #getEnemies("player",5) do
+						local thisUnit = getEnemies("player",5)[i]
+						if fbDamage > UnitHealth(thisUnit) then
+							if self.castFerociousBite(thisUnit) then return end
+						end
+					end
 		-- Ferocious Bite
 					-- cycle_targets=1,if=dot.rip.ticking&dot.rip.remains<3&target.health.pct<25
 					for i=1, #bleed.rip do
