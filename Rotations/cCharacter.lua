@@ -334,7 +334,17 @@ function cCharacter:new(class)
 
 		-- Spacer
 		CreateNewText(thisConfig, " ");
-	end
+    end
+
+    function self.createBaseOptionsNEW()
+        -- Base Wrap
+        local section_base = createNewSection("Base Options",1,profile_window)
+        createNewCheckbox("Ignore Combat", 10, 1, section_base)
+        createNewCheckbox("Use Crystal", 10, 2, section_base)
+        createNewCheckbox("Use emp. Rune", 10, 3, section_base)
+        createNewCheckbox("Use Racial", 10, 4, section_base)
+        section_base:Expand()
+    end
 
  -- Get option modes
 	function self.baseGetOptions()

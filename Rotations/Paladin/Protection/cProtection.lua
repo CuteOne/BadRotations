@@ -11,6 +11,11 @@ function cProtection:new()
 
 	local player = "player" -- if someone forgets ""
 
+    self.rotations = {
+        "Defmaster",
+        "Cute",
+    }
+    self.rotation = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"]
     self.cast = {}
 	self.enemies = {
 		yards5,
@@ -69,7 +74,7 @@ function cProtection:new()
 		self.getJudgmentRecharge()
 		self.getDynamicUnits()
 		self.getEnemies()
-		--self.getRotation()
+		self.getRotation()
 
         -- Right = 1, Insight = 2
 		self.seal = GetShapeshiftForm() == 1
@@ -141,6 +146,23 @@ function cProtection:new()
     -- Rotation selection update
 	function self.getRotation()
 		self.rotation = getValue("Rotation")
+        --self.rotation = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"]
+        if bb.rotation_changed then
+            profile_window.closeButton:Click()
+            -- test
+            if self.rotation == 1 then
+                PaladinProtToggles()
+            elseif self.rotation == 2 then
+                GarbageButtons()
+                    AoEModes = {
+                        [1] = { mode = "CUTE", value = 1 , overlay = "Single Target Enabled", tip = "|cff00FF00Cfor \n|cffFFDD11Single Target(1-2).", highlight = 0, icon = 35395 },
+                    }
+                    CreateButton("AoE",0,1)
+            end
+
+            self.createOptionsNEW()
+            bb.rotation_changed = false
+        end
 	end
 
     -- Update Dynamic units
@@ -189,7 +211,7 @@ function cProtection:new()
 		else
 			self.recharge.judgment = 4.5
 		end
-	end
+    end
 
     -- Starts rotation, uses default if no other specified; starts if inCombat == true
 	function self.startRotation()
@@ -197,6 +219,8 @@ function cProtection:new()
 			if self.rotation == 1 then
 				self:protectionSimC()
 			-- put different rotations below; dont forget to setup your rota in options
+            elseif self.rotation == 2 then
+                ChatOverlay("THATS CUTE!",1)
 			else
 				ChatOverlay("No ROTATION ?!", 2000)
 			end
@@ -302,6 +326,70 @@ function cProtection:new()
         -- General Configs
         CreateGeneralsConfig()
         WrapsManager()
+    end
+
+    function self.createOptionsNEW()
+        profile_window = createNewProfileWindow("Protection")
+
+        self.createClassOptionsNEW()
+
+        if self.rotation == 1 then
+            -- Buffs
+            local section_buffs = createNewSection("Buffs",3,profile_window)
+            createNewCheckbox("Righteous Fury", 10, 1, section_buffs)
+            section_buffs:Expand()
+
+            -- Rota
+            local section_rotation = createNewSection("Rotation Managment",4,profile_window)
+            createNewCheckbox("Holy Avenger", 10, 1, section_rotation)
+            createNewDropdown("Holy Avenger", -10, 1, section_rotation, {"Never","CDs","Always"})
+            section_rotation:Expand()
+
+            -- Healing
+            local section_healing = createNewSection("Healing",5,profile_window)
+
+            createNewCheckbox("Word Of Glory On Self", 10, 1, section_healing)
+            createNewSpinner("Word Of Glory On Self",60, -10 , 1,section_healing)
+
+            createNewCheckbox("Lay On Hands", 10, 2, section_healing)
+            createNewSpinner("Lay On Hands",12, -10 , 2, section_healing)
+            section_healing:Expand()
+
+            -- Defensive
+            local section_defensive = createNewSection("Defensive",6,profile_window)
+
+            createNewCheckbox("Divine Protection", 10, 1, section_defensive)
+            createNewSpinner("Divine Protection",65, -10 , 1,section_defensive)
+
+            createNewCheckbox("Ardent Defender", 10, 2, section_defensive)
+            createNewSpinner("Ardent Defender",20, -10 , 2,section_defensive)
+
+            createNewCheckbox("Guardian of Anchient Kings", 10, 3, section_defensive)
+            createNewSpinner("Guardian of Anchient Kings",40, -10 , 3,section_defensive)
+            section_defensive:Expand()
+
+            -- Interrupt
+            local section_interrupts = createNewSection("Interrupts",7,profile_window)
+
+            createNewCheckbox("Rebuke", 10, 1, section_interrupts)
+            createNewSpinner("Rebuke",35, -10 , 1,section_interrupts)
+
+            createNewCheckbox("Avengers Shield Interrupt", 10, 2, section_interrupts)
+            createNewSpinner("Avengers Shield Interrupt",35, -10 , 2,section_interrupts)
+            section_interrupts:Expand()
+        end
+
+        if self.rotation == 2 then
+            -- CUTE
+            local section_cute = createNewSection("Cuteness",3,profile_window)
+            createNewCheckbox("Righteous Cuteness", 10, 1, section_cute)
+            section_cute:Expand()
+        end
+
+        --[[ Rotation Dropdown ]]--
+        createNewRotationDropdown("Rotation", profile_window, self.rotations)
+
+        bb:checkProfileWindowStatus()
     end
 
 
