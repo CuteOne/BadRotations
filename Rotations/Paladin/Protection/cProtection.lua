@@ -75,6 +75,7 @@ function cProtection:new()
 		self.getDynamicUnits()
 		self.getEnemies()
 		self.getRotation()
+        self.getOptions()
 
         -- Right = 1, Insight = 2
 		self.seal = GetShapeshiftForm() == 1
@@ -145,11 +146,9 @@ function cProtection:new()
 
     -- Rotation selection update
 	function self.getRotation()
-		self.rotation = getValue("Rotation")
-        --self.rotation = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"]
+		self.rotation = bb.selectedProfile
+
         if bb.rotation_changed then
-            profile_window.closeButton:Click()
-            -- test
             if self.rotation == 1 then
                 PaladinProtToggles()
             elseif self.rotation == 2 then
@@ -161,6 +160,7 @@ function cProtection:new()
             end
 
             self.createOptionsNEW()
+
             bb.rotation_changed = false
         end
 	end
@@ -215,16 +215,16 @@ function cProtection:new()
 
     -- Starts rotation, uses default if no other specified; starts if inCombat == true
 	function self.startRotation()
-		if self.inCombat then
+		--if self.inCombat then
 			if self.rotation == 1 then
 				self:protectionSimC()
 			-- put different rotations below; dont forget to setup your rota in options
             elseif self.rotation == 2 then
-                ChatOverlay("THATS CUTE!",1)
+                --ChatOverlay("THATS CUTE!",1)
 			else
 				ChatOverlay("No ROTATION ?!", 2000)
 			end
-		end
+		--end
 	end
 
 ---------------------------------------------------------------
@@ -329,69 +329,99 @@ function cProtection:new()
     end
 
     function self.createOptionsNEW()
-        profile_window = createNewProfileWindow("Protection")
+        bb.profile_window = createNewProfileWindow("Protection")
 
         self.createClassOptionsNEW()
 
         if self.rotation == 1 then
             -- Buffs
-            local section_buffs = createNewSection("Buffs",3,profile_window)
-            createNewCheckbox("Righteous Fury", 10, 1, section_buffs)
-            section_buffs:Expand()
+            local section_buffs = createNewSection(bb.profile_window, "Buffs")
+            createNewCheckbox(section_buffs, "Righteous Fury")
+            checkSectionState(section_buffs)
 
             -- Rota
-            local section_rotation = createNewSection("Rotation Managment",4,profile_window)
-            createNewCheckbox("Holy Avenger", 10, 1, section_rotation)
-            createNewDropdown("Holy Avenger", -10, 1, section_rotation, {"Never","CDs","Always"})
-            section_rotation:Expand()
+            local section_rotation = createNewSection(bb.profile_window, "Rotation Managment")
+            createNewDropdown(section_rotation, "Holy Avenger", {"Never","CDs","Always"})
+            checkSectionState(section_rotation)
 
             -- Healing
-            local section_healing = createNewSection("Healing",5,profile_window)
-
-            createNewCheckbox("Word Of Glory On Self", 10, 1, section_healing)
-            createNewSpinner("Word Of Glory On Self",60, -10 , 1,section_healing)
-
-            createNewCheckbox("Lay On Hands", 10, 2, section_healing)
-            createNewSpinner("Lay On Hands",12, -10 , 2, section_healing)
-            section_healing:Expand()
+            local section_healing = createNewSection(bb.profile_window, "Healing")
+            createNewSpinner(section_healing, "Word Of Glory On Self", 60)
+            createNewSpinner(section_healing, "Lay On Hands", 12)
+            checkSectionState(section_healing)
 
             -- Defensive
-            local section_defensive = createNewSection("Defensive",6,profile_window)
+            local section_defensive = createNewSection(bb.profile_window, "Defensive")
 
-            createNewCheckbox("Divine Protection", 10, 1, section_defensive)
-            createNewSpinner("Divine Protection",65, -10 , 1,section_defensive)
-
-            createNewCheckbox("Ardent Defender", 10, 2, section_defensive)
-            createNewSpinner("Ardent Defender",20, -10 , 2,section_defensive)
-
-            createNewCheckbox("Guardian of Anchient Kings", 10, 3, section_defensive)
-            createNewSpinner("Guardian of Anchient Kings",40, -10 , 3,section_defensive)
-            section_defensive:Expand()
+            createNewSpinner(section_defensive, "Divine Protection", 65)
+            createNewSpinner(section_defensive, "Ardent Defender", 20)
+            createNewSpinner(section_defensive, "Guardian of Anchient Kings", 40)
+            checkSectionState(section_defensive)
 
             -- Interrupt
-            local section_interrupts = createNewSection("Interrupts",7,profile_window)
+            local section_interrupts = createNewSection(bb.profile_window, "Interrupts")
 
-            createNewCheckbox("Rebuke", 10, 1, section_interrupts)
-            createNewSpinner("Rebuke",35, -10 , 1,section_interrupts)
-
-            createNewCheckbox("Avengers Shield Interrupt", 10, 2, section_interrupts)
-            createNewSpinner("Avengers Shield Interrupt",35, -10 , 2,section_interrupts)
-            section_interrupts:Expand()
+            createNewSpinner(section_interrupts, "Rebuke", 35)
+            createNewSpinner(section_interrupts, "Avengers Shield Interrupt", 35)
+            checkSectionState(section_interrupts)
         end
 
         if self.rotation == 2 then
             -- CUTE
-            local section_cute = createNewSection("Cuteness",3,profile_window)
-            createNewCheckbox("Righteous Cuteness", 10, 1, section_cute)
-            section_cute:Expand()
+            local section_cute = createNewSection(bb.profile_window, "Cuteness")
+            createNewCheckbox(section_cute, "Righteous Cuteness")
+            checkSectionState(section_cute)
         end
 
         --[[ Rotation Dropdown ]]--
-        createNewRotationDropdown("Rotation", profile_window, self.rotations)
+        createNewRotationDropdown(bb.profile_window, self.rotations)
 
         bb:checkProfileWindowStatus()
     end
 
+    function self.getOptions()
+        local options = self.options
+
+        options.ardentDefender = {
+            isChecked = isChecked("Ardent Defender", true),
+            value = getValue("Ardent Defender", true)
+        }
+
+        options.divineProtection = {
+            isChecked = isChecked("Divine Protection", true),
+            value = getValue("Divine Protection", true)
+        }
+
+        options.divineShield = {
+            isChecked = isChecked("Divine Shield", true),
+            value = getValue("Divine Shield", true)
+        }
+
+        --options.executionSentence = {
+        --    isChecked = isChecked("Divine Shield", true),
+        --    value = getValue("Divine Shield", true)
+        --}
+--
+        --options.guardianOfAncientKings = {
+        --    isChecked = isChecked("Divine Shield", true),
+        --    value = getValue("Divine Shield", true)
+        --}
+        --
+        --options.holyAvenger = {
+        --    isChecked = isChecked("Divine Shield", true),
+        --    value = getValue("Divine Shield", true)
+        --}
+--
+        --options.lightsHammer = {
+        --    isChecked = isChecked("Divine Shield", true),
+        --    value = getValue("Divine Shield", true)
+        --}
+--
+        --options.righteousFury = {
+        --    isChecked = isChecked("Divine Shield", true),
+        --    value = getValue("Divine Shield", true)
+        --}
+    end
 
 ---------------------------------------------------------------
 -------------------- Spell functions --------------------------
@@ -399,7 +429,7 @@ function cProtection:new()
 
     -- Ardent Defender
     function self.cast.ArdentDefender()
-        return isChecked("Ardent Defender") and self.health <= getValue("Ardent Defender") and castSpell(player,self.spell.ardentDefender,true,false)
+        return self.options.ardentDefender.isChecked and self.health <= self.options.ardentDefender.value and castSpell(player,self.spell.ardentDefender,true,false)
     end
 
     -- Avenger's Shield
@@ -453,21 +483,21 @@ function cProtection:new()
 
     -- Divine Protection
     function self.cast.DivineProtection()
-        return isChecked("Divine Protection") and self.health <= getValue("Divine Protection") and castSpell(player,self.spell.divineProtection,true,false)
+        return self.options.divineProtection.isChecked and self.health <= self.options.divineProtection.value and castSpell(player,self.spell.divineProtection,true,false)
     end
 
     -- Divine Shield
     function self.cast.DivineShield()
-        if (isChecked("Divine Shield") and mode.defense == 2) or mode.defense == 3 then
-            return self.health < getValue("Divine Shield") and castSpell(player,self.spell.divineShield,true,false) == true or false
+        if (self.options.divineShield.isChecked and mode.defense == 2) or mode.defense == 3 then
+            return self.health < self.options.divineShield.value and castSpell(player,self.spell.divineShield,true,false) == true or false
         end
     end
 
     -- Execution sentence
     -- Todo: make sure we cast on a unit with as much HP as possible
     function self.cast.ExecutionSentence()
-        if isSelected("Execution Sentence") then
-            if not self.talent.seraphim or not isSelected("Seraphim") or self.buff.seraphim > 5 then
+        if isSelected("Execution Sentence",true) then
+            if not self.talent.seraphim or not isSelected("Seraphim",true) or self.buff.seraphim > 5 then
                 if (isDummy(self.units.dyn40) or (UnitHealth(self.units.dyn40) >= 4*UnitHealthMax("player"))) then
                     return castSpell(self.units.dyn30,self.spell.executionSentence,false,false) == true or false
                 end
@@ -478,7 +508,7 @@ function cProtection:new()
 
     -- Guardian Of Ancient Kings
     function self.cast.GuardianOfAncientKings()
-        return isChecked("Guardian Of Ancient Kings") and self.health <= getValue("Guardian Of Ancient Kings") and castSpell(player,self.spell.guardianOfAncientKings,true,false)
+        return isChecked("Guardian Of Ancient Kings",true) and self.health <= getValue("Guardian Of Ancient Kings",true) and castSpell(player,self.spell.guardianOfAncientKings,true,false)
     end
 
     -- Hammer of the Righteous
@@ -524,7 +554,7 @@ function cProtection:new()
 
     -- Holy Avenger
     function self.cast.HolyAvenger()
-        if isSelected("Holy Avenger") then
+        if isSelected("Holy Avenger",true) then
             if isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4*UnitHealthMax(player)) then
                 if self.talent.seraphim and self.buff.seraphim or (not self.talent.seraphim and self.holyPower <= 2) then
                     return castSpell(player,self.spell.holyAvenger,true,false) == true or false
@@ -619,7 +649,7 @@ function cProtection:new()
     -- Todo: find best cluster of mobs/allies
     function self.cast.LightsHammer()
         -- Todo: Could use enhanced logic here, cluster of mobs, cluster of damaged friendlies etc
-        if isSelected("Light's Hammer") then
+        if isSelected("Light's Hammer",true) then
             local thisUnit = self.units.dyn30AoE
             if UnitExists(thisUnit) and (isDummy(thisUnit) or not isMoving(thisUnit)) then
                 if getGround(thisUnit) then
@@ -631,7 +661,7 @@ function cProtection:new()
 
     -- Righteous fury
     function self.cast.RighteousFury()
-        if isChecked("Righteous Fury") then
+        if isChecked("Righteous Fury",true) then
             if not self.buff.righteousFury then
                 return castSpell(player,self.spell.righteousFury,true,false) == true or false
             end
@@ -653,7 +683,7 @@ function cProtection:new()
     -- Todo: We should find friendly candidate to cast on
     function self.cast.SelfLessHealer()
         if getBuffStacks(player,self.spell.selflessHealerBuff) == 3 then
-            if self.health <= getValue("Selfless Healer") then
+            if self.health <= getValue("Selfless Healer",true) then
                 return castSpell(player,self.spell.flashOfLight,true,false) == true or false
             end
         end
@@ -662,7 +692,7 @@ function cProtection:new()
     -- Seraphim
     -- Todo: need to handle holy power during holy avenger
     function self.cast.Seraphim()
-        if isSelected("Seraphim") then
+        if isSelected("Seraphim",true) then
             if self.talent.seraphim and self.holyPower == 5 then
                 --if isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4*UnitHealthMax(player)) then
                 return castSpell(player,self.spell.seraphim,true,false) == true or false
@@ -693,7 +723,7 @@ function cProtection:new()
     function self.cast.holyPowerConsumers()
         -- If we have bastion of Glory stacks >= 4
         if getBuffStacks("player",self.spell.bastionOfGlory) >= 4 then
-            if self.health < getValue("Word Of Glory On Self") then
+            if self.health < getValue("Word Of Glory On Self",true) then
                 if self.cast.WordOfGlory(player) then
                     return true
                 end
@@ -743,7 +773,7 @@ function cProtection:new()
     --- CALL CREATE FUNCTIONS ---
     -----------------------------
 
-    self.createOptions()
+    --self.createOptions()
 
 
 -- Return

@@ -115,10 +115,9 @@ function cPaladin:new(spec)
         -- Create Base Options
         self.createBaseOptionsNEW()
 
-        local section_class = createNewSection("Class Options",2,profile_window)
-        createNewCheckbox("Blessings", 10, 1, section_class)
-        createNewDropdown("Blessings", -10, 1, section_class, {"Kings","Might","Auto"})
-        section_class:Expand()
+        local section_class = createNewSection(bb.profile_window, "Class Options")
+        createNewDropdown(section_class,"Blessings", {"Kings","Might","Auto"})
+        checkSectionState(section_class)
     end
     --------------
     --- SPELLS ---

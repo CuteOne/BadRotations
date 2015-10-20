@@ -63,7 +63,11 @@ function bb:Run()
 		BadBoy_data.options[2] = {}
 		BadBoy_data.options[3] = {}
 		BadBoy_data.options[4] = {}
-	end
+    end
+    bb.selectedProfile = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"] or 1
+    if BadBoy_data.options[GetSpecialization()][bb.selectedProfile]  == nil then
+        BadBoy_data.options[GetSpecialization()][bb.selectedProfile] = {}
+    end
 	-- uncomment that when all ready
 	if BadBoy_data.BadBoyUI == nil then
 		BadBoy_data.BadBoyUI = {
@@ -242,6 +246,12 @@ function bb:Run()
 	bb:MinimapButton()
 	-- build up UI
 	bb:StartUI()
+
+    if BadBoy_data.options[GetSpecialization()] == nil then BadBoy_data.options[GetSpecialization()] = {} end
+    if BadBoy_data.options[GetSpecialization()][bb.selectedProfile] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile] = {} end
+    bb.selectedProfile = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"] or 1
+    bb:createConfigWindowNew()
+
 	-- start up enemies Engine
 	enemiesEngineRange = 55
 	EnemiesEngine()

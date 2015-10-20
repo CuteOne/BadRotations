@@ -3,9 +3,12 @@ local DiesalStyle = LibStub("DiesalStyle-1.0")
 local DiesalGUI = LibStub("DiesalGUI-1.0")
 local DiesalMenu = LibStub("DiesalMenu-1.0")
 
-guit = {}
+--if BadBoy_data.options[GetSpecialization()] == nil then BadBoy_data.options[GetSpecialization()] = {} end
+--if BadBoy_data.options[GetSpecialization()][bb.selectedProfile] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile] = {} end
 
--- TODO: make options profile/rotation based atm its always eg. protection instead of protection/defmaster protection/cute etc.
+-- TODO: save window position and restore it
+
+
 
 local buttonStyleSheet = {
     ['frame-color'] = {
@@ -68,55 +71,115 @@ function createNewProfileWindow(name, width, height)
     window.settings.height = height or 250
     window:ApplySettings()
 
+    --bb:checkProfileWindowStatus()
     return window
 end
 
-function createNewCheckbox(text, x, y, parent)
+function createNewCheckbox(parent, text)
     local newBox = DiesalGUI:Create('Toggle')
     local parent = parent
     local anchor = anchor or "TOPLEFT"
+    -- todo: profile updaten
 
+    -- Set text
     newBox:SetText(text)
+
+    -- Change size
     --newBox.settings.height = 12
     --newBox.settings.width = 12
-    local y = y
+
+    -- Calculate Position
+    local howManyBoxes = 1
+    for i=1, #parent.children do
+        if parent.children[i].type == "Toggle" then
+            howManyBoxes = howManyBoxes + 1
+        end
+    end
+
+    local y = howManyBoxes
     if y  ~= 1 then y = ((y-1) * -15) -5 end
     if y == 1 then y = -5 end
 
+    -- Set parent
     newBox:SetParent(parent.content)
-    newBox:SetPoint("TOPLEFT", parent.content, anchor, x, y)
-    local check = BadBoy_data.options[GetSpecialization()][text.."Check"] or false
+
+    -- Set anchor
+    newBox:SetPoint("TOPLEFT", parent.content, anchor, 10, y)
+
+    -- Read check value from config, false if nothing found
+    -- Set default
+    if BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Check"] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Check"] = false end
+    local check = BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Check"]
     if check == 0 then check = false end
     if check == 1 then check = true end
+
+
     newBox:SetChecked(check)
+
+    -- Event: OnValueChanged
     newBox:SetEventListener('OnValueChanged', function(this, event, checked)
-        BadBoy_data.options[GetSpecialization()][text.."Check"] = checked
+        BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Check"] = checked
+
+        -- Create Chat Overlay
+        if checked then
+            ChatOverlay("|cff15FF00"..text.." Enabled")
+        else
+            ChatOverlay("|cFFED0000"..text.." Disabled")
+        end
     end)
 
+    -- Apply changed settings like size, position, etc
     newBox:ApplySettings()
+
+    -- Add as a child element to parent
     parent:AddChild(newBox)
 
     return newBox
 end
 
-function createNewSpinner(text, number, x, y, parent, min, max, step)
+function createNewSpinner(parent, text, number, min, max, step)
     local newSpinner = DiesalGUI:Create('Spinner')
     local parent = parent
+    local profile = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"]
 
-    local y = y
+    -- Create Checkbox for Spinner
+    createNewCheckbox(parent, text)
+
+    -- Calculate position
+    local howManyBoxes = 0
+    for i=1, #parent.children do
+        if parent.children[i].type == "Toggle" then
+            howManyBoxes = howManyBoxes + 1
+        end
+    end
+    local y = howManyBoxes
     if y  ~= 1 then y = ((y-1) * -15) -5 end
     if y == 1 then y = -5 end
+
+    -- Set size
     newSpinner.settings.height = 12
+
+    -- Set Steps
     newSpinner.settings.min = min or 0
     newSpinner.settings.max = max or 100
     newSpinner.settings.step = step or 5
-    newSpinner:SetParent(parent.content)
-    newSpinner:SetPoint("TOPRIGHT", parent.content, "TOPRIGHT", x, y)
-    newSpinner:SetNumber(BadBoy_data.options[GetSpecialization()][text.."Status"] or number)
 
+    newSpinner:SetParent(parent.content)
+
+    -- Set anchor
+    newSpinner:SetPoint("TOPRIGHT", parent.content, "TOPRIGHT", -10, y)
+
+    -- Read number from config or set default
+    if BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Status"] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Status"] = number end
+    local state = BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Status"]
+    newSpinner:SetNumber(state)
+
+
+    -- Event: OnValueChange
     newSpinner:SetEventListener('OnValueChanged', function(this, event, checked)
-        BadBoy_data.options[GetSpecialization()][text.."Status"] = newSpinner:GetNumber()
+        BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Status"] = newSpinner:GetNumber()
     end)
+
     newSpinner:ApplySettings()
 
     parent:AddChild(newSpinner)
@@ -124,61 +187,101 @@ function createNewSpinner(text, number, x, y, parent, min, max, step)
     return newSpinner
 end
 
-function createNewDropdown(text, x, y, parent, itemlist)
+function createNewDropdown(parent, text, itemlist)
     local newDropdown = DiesalGUI:Create('DropdownBB')
     local parent = parent
     local itemlist = itemlist
 
-    local y = y
+    -- Create Checkbox for Spinner
+    createNewCheckbox(parent,text)
+
+    -- Calculate position
+    local howManyBoxes = 0
+    for i=1, #parent.children do
+        if parent.children[i].type == "Toggle" then
+            howManyBoxes = howManyBoxes + 1
+        end
+    end
+    local y = howManyBoxes
     if y  ~= 1 then y = ((y-1) * -15) -5 end
     if y == 1 then y = -5 end
+
     --newDropdown.settings.text = text
     newDropdown.settings.height = 12
     newDropdown:SetParent(parent.content)
-    newDropdown:SetPoint("TOPRIGHT", parent.content, "TOPRIGHT", x, y)
+    newDropdown:SetPoint("TOPRIGHT", parent.content, "TOPRIGHT", -10, y)
 
     newDropdown:SetEventListener('OnValueChanged', function(this, event, key, value, selection)
-        BadBoy_data.options[GetSpecialization()][text.."Drop"]  = key
+        BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Drop"]  = key
     end)
     newDropdown:ApplySettings()
 
     parent:AddChild(newDropdown)
 
+    -- Create the Dropdown List
     newDropdown:SetList(itemlist)
-    newDropdown:SetValue(BadBoy_data.options[GetSpecialization()][text.."Drop"] or 1)
+
+    -- Read from config or set default
+    local value = BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Drop"] or 1
+    newDropdown:SetValue(value)
+    if BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Drop"] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Drop"] = value end
 
     return newDropdown
 end
 
-function createNewRotationDropdown(text, parent, itemlist)
+function createNewRotationDropdown(parent, itemlist)
     local newDropdown = DiesalGUI:Create('DropdownBB')
     local parent = parent
+    local text = "Rotation"
+    --local profile = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"]
 
     newDropdown:SetParent(parent.titleBar)
     newDropdown:SetPoint("TOPRIGHT", parent.closeButton, "TOPLEFT", 0, -2)
+
+    newDropdown:SetList(itemlist)
+
+    if BadBoy_data.options[GetSpecialization()][text.."Drop"] == nil then BadBoy_data.options[GetSpecialization()][text.."Drop"] = 1 end
+    local value = BadBoy_data.options[GetSpecialization()][text.."Drop"]
+    newDropdown:SetValue(value)
+    if BadBoy_data.options[GetSpecialization()][text.."Drop"] == nil then BadBoy_data.options[GetSpecialization()][text.."Drop"] = value end
+
     newDropdown:SetEventListener('OnValueChanged', function(this, event, key, value, selection)
         BadBoy_data.options[GetSpecialization()][text.."Drop"]  = key
         BadBoy_data.options[GetSpecialization()][text.."DropValue"]  = value
+        bb.selectedProfile = key
+        bb:recreateWindows()
         bb.rotation_changed = true
     end)
     newDropdown:ApplySettings()
 
     parent:AddChild(newDropdown)
 
-    newDropdown:SetList(itemlist)
-    newDropdown:SetValue(BadBoy_data.options[GetSpecialization()][text.."Drop"] or 1)
-
     return newDropdown
 end
 
-function createNewSection(sectionName, position, parent)
+function createNewSection(parent, sectionName)
     local newSection = DiesalGUI:Create('AccordianSectionBB')
     local parent = parent
+
+    -- Calculate Position
+    local howManySections = 1
+    for i=1, #parent.children do
+        if parent.children[i].type == "AccordianSectionBB" then
+            howManySections = howManySections + 1
+        end
+    end
+
+    local position = howManySections
 
     newSection:SetParentObject(parent)
     newSection.settings.position = position
     newSection.settings.sectionName = sectionName
+    newSection.settings.expanded = BadBoy_data.options[GetSpecialization()][bb.selectedProfile][sectionName.."Section"]
     --newSection.settings.contentPad = {0,0,12,32}
+
+    newSection:SetEventListener('OnStateChange', function(this, event)
+       BadBoy_data.options[GetSpecialization()][bb.selectedProfile][sectionName.."Section"] = newSection.settings.expanded
+    end)
 
     newSection:ApplySettings()
     newSection:UpdateHeight()
@@ -186,6 +289,17 @@ function createNewSection(sectionName, position, parent)
     parent:AddChild(newSection)
 
     return newSection
+end
+
+-- Restore last saved state of section (collapsed or expanded)
+function checkSectionState(section)
+    local state = BadBoy_data.options[GetSpecialization()][bb.selectedProfile][section.settings.sectionName.."Section"]
+
+    if state then
+        section:Expand()
+    else
+        section:Collapse()
+    end
 end
 
 function createNewButton(buttonName, parent)
@@ -209,50 +323,107 @@ function createNewButton(buttonName, parent)
 end
 
 -- Checks if profile button was shown or closed on last logout and restores it
--- TODO: Bug atm as it only saves state when uses via minimap icon, doesnt save if window is closed by clickin on X
+-- TODO: BUG atm as it only saves state when uses via minimap icon, doesnt save if window is closed by clickin on X
+-- TODO: BUG on / off toggle doesnt behave correctly
 function bb:checkProfileWindowStatus()
-    if BadBoy_data.options[GetSpecialization()][currentProfileName.."Frame"] ~= true then
-        if profile_window then
-            profile_window:Show()
+    if BadBoy_data.options[GetSpecialization()]["configFrame"] ~= true then
+        if bb.profile_window then
+            bb.profile_window:Show()
+            return true
         end
-        --_G[currentProfileName.."Frame"]:Show()
-        BadBoy_data.options[GetSpecialization()][currentProfileName.."Frame"] = true
     else
-        if profile_window then
-            profile_window.closeButton:Click()
+        if bb.profile_window then
+            bb.profile_window.closeButton:Click()
+            return false
         end
-        --_G[currentProfileName.."Frame"]:Hide()
-        BadBoy_data.options[GetSpecialization()][currentProfileName.."Frame"] = false
     end
 end
 
-function guit.GUI()
-
-	window = DiesalGUI:Create('Window')
-	window:SetTitle('BadBoy', 'Option Selecter')
-	window.settings.width = 250
-	window.settings.height = 250
-
-	window:ApplySettings()
-
-    local boxClassOption = createNewButton("Class Options",window)
-    boxClassOption:SetEventListener("OnClick", function()
-        windowClassOption = DiesalGUI:Create('Window')
-        windowClassOption:SetTitle('BadBoy', 'Protection Defmaster')
-        windowClassOption.settings.width = 250
-        windowClassOption.settings.height = 250
-
-        windowClassOption:ApplySettings()
-
-
-        createNewCheckbox("Use emp. Rune new", 10, -10, windowClassOption)
-    end)
-
+function bb:checkConfigWindowStatus()
+    if BadBoy_data.options[GetSpecialization()] then
+        if BadBoy_data.options[GetSpecialization()]["optionsFrame"] then
+            if bb.config_window then
+                bb.config_window.closeButton:Click()
+                optionsFrame:Hide()
+                BadBoy_data.options[GetSpecialization()]["optionsFrame"] = false
+            end
+        else
+            if bb.config_window then
+                bb.config_window:Show()
+                optionsFrame:Show()
+                BadBoy_data.options[GetSpecialization()]["optionsFrame"] = true
+            end
+        end
+    end
 end
 
---FHAugment.init()
+function bb:recreateWindows()
+    bb.config_window.closeButton:Click()
+    bb.profile_window.closeButton:Click()
 
-SLASH_GUIT1 = '/guit'
-function SlashCmdList.GUIT(msg, editbox)
-	guit.GUI()
+    bb:createConfigWindowNew()
+end
+
+
+function bb:createConfigWindowNew()
+    bb.config_window = createNewWindow("Configuration", 275, 400)
+
+    -- General
+    local section_general = createNewSection(bb.config_window, "General")
+    createNewCheckbox(section_general, "Start/Stop BadBoy")
+    createNewCheckbox(section_general, "Debug Frame")
+    createNewCheckbox(section_general, "Display Failcasts")
+    createNewCheckbox(section_general, "Queue Casting")
+    createNewSpinner(section_general,  "Auto Loot" ,0.5, 0.1, 3, 0.1)
+    createNewCheckbox(section_general, "Auto-Sell/Repair")
+    createNewCheckbox(section_general, "Accept Queues")
+    createNewCheckbox(section_general, "Overlay Messages")
+    checkSectionState(section_general)
+
+    -- Enemies Engine
+    local section_enemies = createNewSection(bb.config_window, "Enemies Engine")
+    createNewCheckbox(section_enemies, "Dynamic Targetting")
+    createNewDropdown(section_enemies, "Wise Target", {"Highest", "Lowest"})
+    createNewCheckbox(section_enemies, "Forced Burn")
+    createNewCheckbox(section_enemies, "Avoid Shields")
+    createNewCheckbox(section_enemies, "Tank Threat")
+    createNewCheckbox(section_enemies, "Safe Damage Check")
+    createNewCheckbox(section_enemies, "Don't break CCs")
+    createNewCheckbox(section_enemies, "Skull First")
+    createNewDropdown(section_enemies, "Interrupts Handler", {"Target", "T/M", "T/M/F", "All"})
+    createNewCheckbox(section_enemies, "Only Known Units")
+    createNewCheckbox(section_enemies, "Crowd Control")
+    createNewCheckbox(section_enemies, "Enrages Handler")
+    checkSectionState(section_enemies)
+
+    -- Healing Engine
+    local section_healing = createNewSection(bb.config_window, "Healing Engine")
+    createNewCheckbox(section_healing, "HE Active")
+    createNewCheckbox(section_healing, "Heal Pets")
+    createNewDropdown(section_healing, "Special Heal", {"Target", "T/M", "T/M/F", "T/F"})
+    createNewCheckbox(section_healing, "Sorting with Role")
+    createNewDropdown(section_healing, "Prioritize Special Targets", {"Special", "All"})
+    createNewSpinner(section_healing, "Blacklist", 95)
+    createNewCheckbox(section_healing, "Ignore Absorbs")
+    createNewCheckbox(section_healing, "Incoming Heals")
+    createNewSpinner(section_healing, "Overhealing Cancel", 95)
+    createNewCheckbox(section_healing, "Healing Debug")
+    createNewSpinner(section_healing, "Debug Refresh", 500, 0, 1000, 25)
+    createNewSpinner(section_healing, "Dispel delay", 15, 5, 90, 5)
+    checkSectionState(section_healing)
+
+    -- Other Features
+    local section_other = createNewSection(bb.config_window, "Other Features")
+    createNewSpinner(section_other, "Profession Helper", 0.5, 0, 1, 0.1)
+    createNewDropdown(section_other, "Prospect Ores", {"WoD", "MoP", "Cata", "All"})
+    createNewDropdown(section_other, "Mill Herbs", {"WoD", "MoP", "Cata", "All"})
+    createNewCheckbox(section_other, "Disenchant")
+    createNewCheckbox(section_other, "Leather Scraps")
+    createNewSpinner(section_other, "Salvage", 15, 5, 30, 1)
+    checkSectionState(section_other)
+
+    -- temp
+    if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()]["optionsFrame"] ~= true then
+        bb.config_window.closeButton:Click()
+    end
 end

@@ -338,19 +338,19 @@ function cCharacter:new(class)
 
     function self.createBaseOptionsNEW()
         -- Base Wrap
-        local section_base = createNewSection("Base Options",1,profile_window)
-        createNewCheckbox("Ignore Combat", 10, 1, section_base)
-        createNewCheckbox("Use Crystal", 10, 2, section_base)
-        createNewCheckbox("Use emp. Rune", 10, 3, section_base)
-        createNewCheckbox("Use Racial", 10, 4, section_base)
-        section_base:Expand()
+        local section_base = createNewSection(bb.profile_window, "Base Options")
+        createNewCheckbox(section_base, "Ignore Combat")
+        createNewCheckbox(section_base, "Use Crystal")
+        createNewCheckbox(section_base, "Use emp. Rune")
+        createNewCheckbox(section_base, "Use Racial")
+        checkSectionState(section_base)
     end
 
  -- Get option modes
 	function self.baseGetOptions()
 		self.ignoreCombat             = isChecked("Ignore Combat")==true or false
 		self.options.useCrystal       = isChecked("Use Crystal")==true or false
-		self.options.useEmpoweredRune = isChecked("Use emp. Rune")==true or false
+		self.options.useEmpoweredRune = isChecked("Use emp. Rune",true)==true or false
 		self.options.useRacial        = isSelected("Use Racial")==true or false
 	end
 
