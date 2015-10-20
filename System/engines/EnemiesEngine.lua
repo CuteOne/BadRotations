@@ -245,6 +245,8 @@ function EnemiesEngine()
 					if getOptionValue("Wise Target") == 1 then
 						-- if highest is selected
 						coef = unitHP
+					elseif getOptionValue("Wise Target") == 3 then
+						coef = UnitHealth(unit)
 					else
 						-- if lowest is selected
 						coef = 100 - unitHP

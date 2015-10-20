@@ -410,6 +410,7 @@ function cShadow:shadowRavens()
 		if talent.clarity_of_power then
 			--[[ start stopcasting ]]
 			local mfrefreshtime = 2*gcd
+			self.autofocus()
 
 			-- mindflay if full t18 class trinket stacks
 			if UnitChannelInfo("player") == "Mind Flay" and eq.t18_classTrinket then
@@ -473,11 +474,18 @@ function cShadow:shadowRavens()
 					end
 				end
 
-				-- Insanity: extend mental fatigue
+				-- Mind Flay: extend mental fatigue
 				if eq.t18_classTrinket then
 					if (getDebuffRemain("target",spell.mental_fatigue,"player") > 0 and getDebuffRemain("target",spell.mental_fatigue,"player") < mfrefreshtime) 
 					or getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
 						if self.castMindFlay("target") then return end
+					end
+				end
+
+				-- DP without class trinket
+				if not eq.t18_classTrinket then
+					if orbs >= 3 then
+						if self.castDP("target") then return end
 					end
 				end
 
@@ -494,6 +502,12 @@ function cShadow:shadowRavens()
 				if mode.t90 == 2 then
 					if self.castCascade() then return end
 					if self.castHalo() then return end
+				end
+
+				-- offdot
+				if UnitGUID("target") ~= UnitGUID("focus") then
+					if self.castSWPOnUnit("focus") then return end
+					if self.castVTOnUnit("focus") then return end
 				end
 
 				-- Power Word: Shield (only when taking damage)
@@ -522,6 +536,14 @@ function cShadow:shadowRavens()
 			--[[ simcraft ]]
 			if talent.insanity then
 				-- Simcraft: CoP_Insanity
+
+				-- actions.cop_insanity+=/insanity,if=t18_class_trinket&target.debuff.mental_fatigue.remains<gcd,interrupt_if=target.debuff.mental_fatigue.remains>gcd
+				if eq.t18_classTrinket then
+					if (getDebuffRemain("target",spell.mental_fatigue,"player") > 0 and getDebuffRemain("target",spell.mental_fatigue,"player") < mfrefreshtime) 
+					or getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
+						if self.castMindFlay("target") then return end
+					end
+				end
 
 				-- actions.cop_insanity=devouring_plague,if=shadow_orb=5|(active_enemies>=5&!buff.insanity.remains)
 				if orbs == 5 then
@@ -582,9 +604,15 @@ function cShadow:shadowRavens()
 				 
 				-- actions.cop_insanity+=/shadow_word_pain,if=remains<(18*0.3)&target.time_to_die>(18*0.75)&miss_react&active_enemies<=5&primary_target=0,cycle_targets=1,max_cycle_targets=5
 				--if self.castSWPOnUnit("boss2") then return end
+				if UnitGUID("target") ~= UnitGUID("focus") then
+					if self.castSWPOnUnit("focus") then return end
+				end
 				
 				-- actions.cop_insanity+=/vampiric_touch,if=remains<(15*0.3+cast_time)&target.time_to_die>(15*0.75+cast_time)&miss_react&active_enemies<=5&primary_target=0,cycle_targets=1,max_cycle_targets=5
 				--if self.castVTonUnit("boss2") then return end
+				if UnitGUID("target") ~= UnitGUID("focus") then
+					if self.castVTonUnit("focus") then return end
+				end
 
 				-- actions.cop_insanity+=/insanity,if=buff.insanity.remains<0.5*gcd&active_enemies<=2,chain=1,interrupt_if=(cooldown.mind_blast.remains<=0.1|(cooldown.shadow_word_death.remains<=0.1&target.health.pct<20))
 				if buff.insanity and buff.remain.insanity<0.5*gcd then

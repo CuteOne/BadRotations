@@ -124,6 +124,10 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewDrop(thisConfig,"Burst SI", 3, "Toggle2")
 			CreateNewText(thisConfig,"Burst SI")
 
+			-- Auto Focus
+			CreateNewCheck(thisConfig,"AutoFocus", "Focus units on CoP rotation autmatically for offDot and offDP")
+			CreateNewText(thisConfig,"AutoFocus")
+
 
 
 			--  _    _ _   _ _ _ _   _           

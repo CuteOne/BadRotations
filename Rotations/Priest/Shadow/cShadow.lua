@@ -292,6 +292,7 @@ function cShadow:new()
 		self.options.rotation.max_Targetsvalue			= getValue("max dot targets")
 		self.options.rotation.ttdSWP 					= getValue("ttd swp")
 		self.options.rotation.ttdVT 					= getValue("ttd vt")
+		self.options.rotation.Auto_Focus 				= isChecked("AutoFocus")
 
 		self.options.utilities 							= {}
 		self.options.utilities.pause 					= isChecked("Pause Toggle")
@@ -481,6 +482,34 @@ function cShadow:new()
 	end
 
 	function self.getTimeTillNextOrb()
+	end
+
+	--  _    _ _   _ _ _ _   _           
+	-- | |  | | | (_) (_) | (_)          
+	-- | |  | | |_ _| |_| |_ _  ___  ___ 
+	-- | |  | | __| | | | __| |/ _ \/ __|
+	-- | |__| | |_| | | | |_| |  __/\__ \
+	--  \____/ \__|_|_|_|\__|_|\___||___/
+	-- auto focus
+	function self.autofocus()
+		if self.talent.clarity_of_power then
+			if self.options.rotation.Auto_Focus then
+				-- clear focus
+				if UnitExists("focus") and UnitExists("target") then
+					if UnitGUID("focus") == UnitGUID("target") then
+						ClearFocus()
+					end
+				end
+				-- get focus
+				if not UnitExists("focus") then
+					-- if UnitExists("boss2") and UnitCanAttack("player","boss2") then
+					-- 	FocusUnit("boss2")
+					if getNumEnemies("player",40) > 1 then
+						FocusUnit(getNextBiggestUnit("target",40))
+					end
+				end
+			end
+		end
 	end
 
 	--  _____     _______  
@@ -723,6 +752,11 @@ function cShadow:new()
 		end
 		-- devouring_plague
 		function self.castDP(thisTarget)
+			if self.talent.clarity_of_power and not self.talent.insanity then
+				if UnitExists("focus") and UnitCanAttack("player","focus") then
+					return castSpell("focus",self.spell.devouring_plague,true,false) == true or false
+				end
+			end
 			return castSpell(thisTarget,self.spell.devouring_plague,true,false) == true or false
 		end
 		-- dispel_magic
@@ -891,7 +925,7 @@ function cShadow:new()
 							-- in range?
 							if getDistance("player","target") < 40 then
 								-- TTD or dummy
-								if getTTD("target") > self.options.rotation.ttdSWP  or isDummy("target") then
+								if getTTD("target") > self.options.rotation.ttdSWP or isDummy("target") then
 									return castSpell("target",self.spell.shadow_word_pain,true,false) == true or false
 								end
 							end
@@ -902,6 +936,7 @@ function cShadow:new()
 			return false
 		end
 		function self.castSWPOnUnit(thisTarget)
+			if UnitExists(thisTarget) and UnitCanAttack("player",thisTarget) then
 			--if self.getSWPrunning() < maxTargets then
 				-- infight
 				if UnitIsTappedByPlayer(thisTarget) then
@@ -912,14 +947,14 @@ function cShadow:new()
 							-- in range?
 							if getDistance("player",thisTarget) < 40 then
 								-- TTD or dummy
-								if getTTD(thisTarget) > self.options.rotation.ttdSWP  or isDummy(thisTarget) then
+								if getTTD(thisTarget) > self.options.rotation.ttdSWP or isDummy(thisTarget) then
 									return castSpell(thisTarget,self.spell.shadow_word_pain,true,false) == true or false
 								end
 							end
 						end
 					end
 				end
-			--end
+			end
 			return false
 		end
 		function self.castSWP(thisTarget)
@@ -1017,7 +1052,8 @@ function cShadow:new()
 			return false
 		end
 		function self.castVTOnUnit(thisTarget)
-			if self.getVTrunning() < maxTargets then
+			if UnitExists(thisTarget) and UnitCanAttack("player",thisTarget) then
+			--if self.getVTrunning() < maxTargets then
 				local castTime = 0.001*select(4,GetSpellInfo(34914))
 				-- infight
 				if UnitIsTappedByPlayer(thisTarget) then

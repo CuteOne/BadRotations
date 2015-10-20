@@ -6,6 +6,27 @@
 --[[                                                                                                ]]
 --[[ ragnar                                                                                         ]]
 --[[                                                                                                ]]
+function getNextBiggestUnit(exceptionUnit,range)
+	-- returns next biggest unit in range from enemiesTable
+	if not UnitExists(exceptionUnit) then
+		exceptionUnit = "player"
+	end
+
+	local exceptionGUID = UnitGUID(exceptionUnit)
+	for i=1, #enemiesTable do
+		local thisUnit = enemiesTable[i].unit
+		local thisGUID = enemiesTable[i].guid
+		if thisGUID ~= exceptionGUID then
+			if enemiesTable[i].distance < range then
+				if UnitCanAttack("player",thisUnit) then
+					return thisUnit
+				end
+			end
+		end
+	end
+	return false
+end
+
 function unitLookup(Unit,returnType)
 	for i=1,#enemiesTable do
 		if enemiesTable[i].guid == Unit or enemiesTable[i].unit == Unit then
