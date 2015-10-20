@@ -15,6 +15,16 @@ if select(3, UnitClass("player")) == 11 then
         return getDistance(unit)
     end
 
+    -- Calculate Ferocious Bite Damage
+    function getFbDamage()
+        fbD = (UnitAttackPower("player")*4)*FeralCuteOne.comboPoints/5
+        if FeralCuteOne.power>50 then
+            return fbD*2
+        else
+            return fbD
+        end
+    end
+
     function useCDs()
         if (BadBoy_data['Cooldowns'] == 1 and isBoss()) or BadBoy_data['Cooldowns'] == 2 then
             return true

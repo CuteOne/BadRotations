@@ -1664,189 +1664,27 @@ end
 -- isBoss()
 function isBoss(unit)
 	if unit==nil then unit="target" end
-	------Boss Check------
-	for x=1,5 do
-		if UnitExists("boss1") then
-			boss1 = tonumber(string.match(UnitGUID("boss1"),"-(%d+)-%x+$"))
-		else
-			boss1 = 0
-		end
-		if UnitExists("boss2") then
-			boss2 = tonumber(string.match(UnitGUID("boss2"),"-(%d+)-%x+$"))
-		else
-			boss2 = 0
-		end
-		if UnitExists("boss3") then
-			boss3 = tonumber(string.match(UnitGUID("boss3"),"-(%d+)-%x+$"))
-		else
-			boss3 = 0
-		end
-		if UnitExists("boss4") then
-			boss4 = tonumber(string.match(UnitGUID("boss4"),"-(%d+)-%x+$"))
-		else
-			boss4 = 0
-		end
-		if UnitExists("boss5") then
-			boss5 = tonumber(string.match(UnitGUID("boss5"),"-(%d+)-%x+$"))
-		else
-			boss5 = 0
-		end
-	end
-	BossUnits = {
-		-- Cataclysm Dungeons --
-		-- Abyssal Maw: Throne of the Tides
-		40586,-- Lady Naz'jar
-		40765,-- Commander Ulthok
-		40825,-- Erunak Stonespeaker
-		40788,-- Mindbender Ghur'sha
-		42172,-- Ozumat
-		-- Blackrock Caverns
-		39665,-- Rom'ogg Bonecrusher
-		39679,-- Corla,Herald of Twilight
-		39698,-- Karsh Steelbender
-		39700,-- Beauty
-		39705,-- Ascendant Lord Obsidius
-		-- The Stonecore
-		43438,-- Corborus
-		43214,-- Slabhide
-		42188,-- Ozruk
-		42333,-- High Priestess Azil
-		-- The Vortex Pinnacle
-		43878,-- Grand Vizier Ertan
-		43873,-- Altairus
-		43875,-- Asaad
-		-- Grim Batol
-		39625,-- General Umbriss
-		40177,-- Forgemaster Throngus
-		40319,-- Drahga Shadowburner
-		40484,-- Erudax
-		-- Halls of Origination
-		39425,-- Temple Guardian Anhuur
-		39428,-- Earthrager Ptah
-		39788,-- Anraphet
-		39587,-- Isiset
-		39731,-- Ammunae
-		39732,-- Setesh
-		39378,-- Rajh
-		-- Lost City of the Tol'vir
-		44577,-- General Husam
-		43612,-- High Prophet Barim
-		43614,-- Lockmaw
-		49045,-- Augh
-		44819,-- Siamat
-		-- Zul'Aman
-		23574,-- Akil'zon
-		23576,-- Nalorakk
-		23578,-- Jan'alai
-		23577,-- Halazzi
-		24239,-- Hex Lord Malacrass
-		23863,-- Daakara
-		-- Zul'Gurub
-		52155,-- High Priest Venoxis
-		52151,-- Bloodlord Mandokir
-		52271,-- Edge of Madness
-		52059,-- High Priestess Kilnara
-		52053,-- Zanzil
-		52148,-- Jin'do the Godbreaker
-		-- End Time
-		54431,-- Echo of Baine
-		54445,-- Echo of Jaina
-		54123,-- Echo of Sylvanas
-		54544,-- Echo of Tyrande
-		54432,-- Murozond
-		-- Hour of Twilight
-		54590,-- Arcurion
-		54968,-- Asira Dawnslayer
-		54938,-- Archbishop Benedictus
-		-- Well of Eternity
-		55085,-- Peroth'arn
-		54853,-- Queen Azshara
-		54969,-- Mannoroth
-		55419,-- Captain Varo'then
-		-- Mists of Pandaria Dungeons --
-		-- Scarlet Halls
-		59303,-- Houndmaster Braun
-		58632,-- Armsmaster Harlan
-		59150,-- Flameweaver Koegler
-		-- Scarlet Monastery
-		59789,-- Thalnos the Soulrender
-		59223,-- Brother Korloff
-		3977,-- High Inquisitor Whitemane
-		60040,-- Commander Durand
-		-- Scholomance
-		58633,-- Instructor Chillheart
-		59184,-- Jandice Barov
-		59153,-- Rattlegore
-		58722,-- Lilian Voss
-		58791,-- Lilian's Soul
-		59080,-- Darkmaster Gandling
-		-- Stormstout Brewery
-		56637,-- Ook-Ook
-		56717,-- Hoptallus
-		59479,-- Yan-Zhu the Uncasked
-		-- Tempe of the Jade Serpent
-		56448,-- Wise Mari
-		56843,-- Lorewalker Stonestep
-		59051,-- Strife
-		59726,-- Peril
-		58826,-- Zao Sunseeker
-		56732,-- Liu Flameheart
-		56762,-- Yu'lon
-		56439,-- Sha of Doubt
-		-- Mogu'shan Palace
-		61444,-- Ming the Cunning
-		61442,-- Kuai the Brute
-		61445,-- Haiyan the Unstoppable
-		61243,-- Gekkan
-		61398,-- Xin the Weaponmaster
-		-- Shado-Pan Monastery
-		56747,-- Gu Cloudstrike
-		56541,-- Master Snowdrift
-		56719,-- Sha of Violence
-		56884,-- Taran Zhu
-		-- Gate of the Setting Sun
-		56906,-- Saboteur Kip'tilak
-		56589,-- Striker Ga'dok
-		56636,-- Commander Ri'mok
-		56877,-- Raigonn
-		-- Siege of Niuzao Temple
-		61567,-- Vizier Jin'bak
-		61634,-- Commander Vo'jak
-		61485,-- General Pa'valak
-		62205,-- Wing Leader Ner'onok
-		-- Training Dummies --
-		46647,-- Level 85 Training Dummy
-		67127,-- Level 90 Training Dummy
-		-- Instance Bosses --
-		boss1,--Boss 1
-		boss2,--Boss 2
-		boss3,--Boss 3
-		boss4,--Boss 4
-		boss5,--Boss 5
-	}
-	local BossUnits = BossUnits
 	if UnitExists(unit) then
-		local npcID = tonumber(string.match(UnitGUID(unit),"-(%d+)-%x+$"))--tonumber(UnitGUID("target"):sub(6,10),16)
+		local npcID = string.match(UnitGUID(unit),"-(%d+)-%x+$")
+		local bossCheck = LibStub("LibBossIDs-1.0").BossIDs[tonumber(npcID)] or false
 		if ((UnitClassification(unit) == "rare" and UnitHealthMax(unit)>(4*UnitHealthMax("player")))
 			or UnitClassification(unit) == "rareelite" 
 			or UnitClassification(unit) == "worldboss" 
-			or (UnitClassification(unit) == "elite" and UnitHealthMax(unit)>(4*UnitHealthMax("player")))--UnitLevel(unit) >= UnitLevel("player")+3) 
+			--or (UnitClassification(unit) == "elite" and UnitHealthMax(unit)>(4*UnitHealthMax("player")))--UnitLevel(unit) >= UnitLevel("player")+3) 
 			or UnitLevel(unit) < 0)
 				and not UnitIsTrivial(unit)
 		then
 			return true
+		elseif bossCheck then
+			return true
 		else
-			for i=1,#BossUnits do
-				if BossUnits[i] == npcID then
-					return true
-				end
-			end
 			return false
 		end
 	else
 		return false
 	end
 end
+
 --- if isBuffed()
 function isBuffed(UnitID,SpellID,TimeLeft,Filter)
 	if not TimeLeft then TimeLeft = 0 end
