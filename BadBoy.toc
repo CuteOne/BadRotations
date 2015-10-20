@@ -21,6 +21,14 @@ System\LootManager.lua
 System\readers\combatlog.lua
 System\readers\common.lua
 
+## LIBS
+System\Libs\LibStub\LibStub.lua
+System\Libs\DiesalTools-1.0\DiesalTools-1.0.lua
+System\Libs\DiesalStyle-1.0\DiesalStyle-1.0.lua
+System\Libs\DiesalGUI-1.0\DiesalGUI-1.0.xml
+System\Libs\DiesalMenu-1.0\DiesalMenu-1.0.xml
+System\newui.lua
+
 ## Engines
 System\engines\EnemiesEngine.lua
 System\engines\EnemiesEngineCollections.lua

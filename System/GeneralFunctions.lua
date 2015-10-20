@@ -2227,7 +2227,7 @@ end
 -- if isChecked("Debug") then
 function isChecked(Value)
 	--print(BadBoy_data.options[GetSpecialization()]["profile"..Value.."Check"])
-	if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()][Value.."Check"] == 1 then
+	if BadBoy_data.options[GetSpecialization()] and (BadBoy_data.options[GetSpecialization()][Value.."Check"] == 1 or BadBoy_data.options[GetSpecialization()][Value.."Check"] == true) then
 		return true
 	end
 end
