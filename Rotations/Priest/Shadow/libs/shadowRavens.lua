@@ -581,9 +581,11 @@ function cShadow:shadowRavens()
 				end
 				 
 				-- actions.cop_insanity+=/shadow_word_pain,if=remains<(18*0.3)&target.time_to_die>(18*0.75)&miss_react&active_enemies<=5&primary_target=0,cycle_targets=1,max_cycle_targets=5
+				--if self.castSWPOnUnit("boss2") then return end
 				
 				-- actions.cop_insanity+=/vampiric_touch,if=remains<(15*0.3+cast_time)&target.time_to_die>(15*0.75+cast_time)&miss_react&active_enemies<=5&primary_target=0,cycle_targets=1,max_cycle_targets=5
-				
+				--if self.castVTonUnit("boss2") then return end
+
 				-- actions.cop_insanity+=/insanity,if=buff.insanity.remains<0.5*gcd&active_enemies<=2,chain=1,interrupt_if=(cooldown.mind_blast.remains<=0.1|(cooldown.shadow_word_death.remains<=0.1&target.health.pct<20))
 				if buff.insanity and buff.remain.insanity<0.5*gcd then
 					if self.castMindFlay("target") then return end

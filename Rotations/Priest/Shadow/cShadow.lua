@@ -277,6 +277,14 @@ function cShadow:new()
 		self.options.defensive.Healing_Tonicvalue 		= getValue("Healing Tonic")
 		self.options.defensive.Dispersion 				= isChecked("Dispersion")
 		self.options.defensive.Dispersionvalue 			= getValue("Dispersion")
+
+		-- self.options.bosshelper 						= {}
+		-- self.options.bosshelper.Guise					= isChecked("")
+		-- self.options.bosshelper.Mass_Dispel				= isChecked("")
+		-- self.options.bosshelper.Dispel					= isChecked("")
+		-- self.options.bosshelper.Silence 				= isChecked("")
+		-- self.options.bosshelper.Target 					= isChecked("")
+		-- self.options.bosshelper.Gorefiend				= isChecked("")
 		
 		self.options.rotation 							= {}
 		self.options.rotation.Burst_SI 					= isChecked("Burst SI")
@@ -893,6 +901,27 @@ function cShadow:new()
 			end
 			return false
 		end
+		function self.castSWPOnUnit(thisTarget)
+			--if self.getSWPrunning() < maxTargets then
+				-- infight
+				if UnitIsTappedByPlayer(thisTarget) then
+					-- blacklists: CC, DoT Blacklist
+					if not isCCed(thisTarget) and self.SWP_allowed(thisTarget) then
+						-- check for running dot and remaining time
+						if getDebuffRemain(thisTarget,self.spell.shadow_word_pain,"player") <= 18*0.3 then
+							-- in range?
+							if getDistance("player",thisTarget) < 40 then
+								-- TTD or dummy
+								if getTTD(thisTarget) > self.options.rotation.ttdSWP  or isDummy(thisTarget) then
+									return castSpell(thisTarget,self.spell.shadow_word_pain,true,false) == true or false
+								end
+							end
+						end
+					end
+				end
+			--end
+			return false
+		end
 		function self.castSWP(thisTarget)
 			return castSpell(thisTarget,self.spell.shadow_word_pain,true,false) == true or false
 		end
@@ -978,6 +1007,31 @@ function cShadow:new()
 									-- TTD or dummy
 									if getTTD("target") > self.options.rotation.ttdSWP+castTime or isDummy("target") then
 										return castSpell("target",self.spell.vampiric_touch,true,true) == true or false
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+			return false
+		end
+		function self.castVTOnUnit(thisTarget)
+			if self.getVTrunning() < maxTargets then
+				local castTime = 0.001*select(4,GetSpellInfo(34914))
+				-- infight
+				if UnitIsTappedByPlayer(thisTarget) then
+					-- last VT check
+					if lastVTTarget ~= thisUnitGUID and lastVTTime+5 < GetTime() then
+						-- blacklists: CC, DoT Blacklist
+						if not isCCed(thisTarget) and self.VT_allowed(thisTarget) then
+							-- check for running dot and remaining time
+							if getDebuffRemain(thisTarget,self.spell.vampiric_touch,"player") <= 15*0.3+castTime then
+								-- in range?
+								if getDistance("player",thisTarget) < 40 then
+									-- TTD or dummy
+									if getTTD(thisTarget) > self.options.rotation.ttdSWP+castTime or isDummy(thisTarget) then
+										return castSpell(thisTarget,self.spell.vampiric_touch,true,true) == true or false
 									end
 								end
 							end
