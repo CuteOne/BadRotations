@@ -68,119 +68,69 @@ This function will use table row #1.]]
   --[[           ]]	--[[]]	   --[[]]	--[[           ]]	 --[[]]   --[[]]
 
   function MonkBrewConfig()
-    if currentConfig ~= "Brewmaster Chumii" then
-      ClearConfig();
-      thisConfig = 0
+      bb.profile_window = createNewProfileWindow("Brewmaster")
 
-      -- Title
-      CreateNewTitle(thisConfig,"Brewmaster |cffFF0000Chumii");
-      --Spacer
-      CreateNewText(thisConfig," ");
-      -- Wrapper -----------------------------------------
-      CreateNewWrap(thisConfig,"-------- General Rotation --------");
+      local dropOptionsToggle = bb.dropOptions.Toggle
+      local dropOptionsToggle2 = bb.dropOptions.Toggle2
+      local dropOptionsCD = bb.dropOptions.CD
+      local section
 
+      section = createNewSection(bb.profile_window, "General")
       -- Stats Buff
-      CreateNewCheck(thisConfig,"Stats Buff");
-      CreateNewText(thisConfig,"Stats Buff");
-
+      createNewCheckbox(section, "Stats Buff")
       -- Detox
-      CreateNewCheck(thisConfig,"Detox");
-      CreateNewText(thisConfig,"Detox");
-
+      createNewCheckbox(section, "Detox")
       -- Pause Toggle
-      CreateNewCheck(thisConfig,"Pause Toggle");
-      CreateNewDrop(thisConfig,"Pause Toggle", 4, "Toggle")
-      CreateNewText(thisConfig,"Pause Toggle");
-
+      createNewDropdown(section, "Pause Toggle", dropOptionsToggle ,4)
       -- Dizzying Haze
-      CreateNewCheck(thisConfig,"Dizzying Haze Key");
-      CreateNewDrop(thisConfig,"Dizzying Haze Key", 2, "Toggle2")
-      CreateNewText(thisConfig,"Dizzying Haze Key");
-
+      createNewDropdown(section, "Dizzying Haze Key", dropOptionsToggle2 ,2)
       -- Dizzying Haze
-      CreateNewCheck(thisConfig,"Black Ox Statue Key");
-      CreateNewDrop(thisConfig,"Black Ox Statue Key", 2, "Toggle2")
-      CreateNewText(thisConfig,"Black Ox Statue Key");
+      createNewDropdown(section, "Black Ox Statue Key", dropOptionsToggle2 ,2)
+      checkSectionState(section)
 
-      --Spacer
-      CreateNewText(thisConfig," ");
-      -- Wrapper -----------------------------------------
-      CreateNewWrap(thisConfig,"------ Cooldowns ------");
 
+
+      section = createNewSection(bb.profile_window, "Cooldowns")
       -- Xuen
-      CreateNewCheck(thisConfig,"Invoke Xuen");
-      CreateNewText(thisConfig,"Invoke Xuen");
-
+      createNewCheckbox(section, "Invoke Xuen")
       -- Breath of Fire
-      CreateNewCheck(thisConfig,"Breath of Fire","Disable usage of Breath of Fire");
-      CreateNewText(thisConfig,"Breath of Fire");
+      createNewCheckbox(section, "Breath of Fire", "Disable usage of Breath of Fire")
+      -- Elusive Brew"
+      createNewSpinner(section, "Elusive Brew", 9, 0, 16, 1, "At what |cffFF0000Stack to use |cffFFFFFFElusive Brew")
+      checkSectionState(section)
 
-      CreateNewCheck(thisConfig,"Elusive Brew");
-      CreateNewBox(thisConfig, "Elusive Brew", 0, 16  , 1, 9, "|cffFFBB00At what |cffFF0000Stack|cffFFBB00 to use |cffFFFFFFElusive Brew");
-      CreateNewText(thisConfig,"Elusive Brew");
 
-      --Spacer
-      CreateNewText(thisConfig," ");
-      -- Wrapper -----------------------------------------
-      CreateNewWrap(thisConfig,"------- Defensive ------");
 
-      -- -- Dazzling Brew
-      -- CreateNewCheck(thisConfig,"Dazzling Brew");
-      -- CreateNewText(thisConfig,"Dazzling Brew");
-
+      section = createNewSection(bb.profile_window, "Defensive")
+      -- Dazzling Brew
+      --createNewCheckbox(section, "Dazzling Brew")
       -- Fortifying Brew
-      CreateNewCheck(thisConfig,"Fortifying Brew");
-      CreateNewBox(thisConfig, "Fortifying Brew", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
-      CreateNewText(thisConfig,"Fortifying Brew");
-
+      createNewSpinner(section, "Fortifying Brew", 30, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFFortifying Brew")
       -- Diffuse Magic
-      CreateNewCheck(thisConfig,"Diffuse Magic");
-      CreateNewBox(thisConfig, "Diffuse Magic", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
-      CreateNewText(thisConfig,"Diffuse Magic");
-
+      createNewSpinner(section, "Diffuse Magic", 30, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFDiffuse Magic")
       -- Dampen Harm
-      CreateNewCheck(thisConfig,"Dampen Harm");
-      CreateNewBox(thisConfig, "Dampen Harm", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
-      CreateNewText(thisConfig,"Dampen Harm");
-
+      createNewSpinner(section, "Dampen Harm", 30, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFDampen Harm")
       -- Guard
-      CreateNewCheck(thisConfig,"Guard on CD");
-      CreateNewText(thisConfig,"Guard on CD");
-
-      -- Diffuse Magic
-      CreateNewCheck(thisConfig,"Expel Harm");
-      CreateNewBox(thisConfig, "Expel Harm", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
-      CreateNewText(thisConfig,"Expel Harm");
-
+      createNewCheckbox(section, "Guard on CD")
+      -- Expel Harm
+      createNewSpinner(section, "Expel Harm", 30, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFExpel Harm")
       -- Healthstone
-      CreateNewCheck(thisConfig,"Healthstone");
-      CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
-      CreateNewText(thisConfig,"Healthstone");
+      createNewSpinner(section, "Healthstone", 20, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFHealthstone")
+      checkSectionState(section)
 
 
-      --Spacer
-      CreateNewText(thisConfig," ");
-      -- Wrapper -----------------------------------------
-      CreateNewWrap(thisConfig,"------ Utilities ------");
-
-
+      section = createNewSection(bb.profile_window, "Utilities")
       -- Angry Monk
-      CreateNewCheck(thisConfig,"Angry Monk","|cffFF0000Disable Combat Check.");
-      CreateNewText(thisConfig,"Angry Monk");
-
-
+      createNewCheckbox(section, "Angry Monk", "|cffFF0000Disable Combat Check.")
       -- Resuscitate
-      CreateNewCheck(thisConfig,"Resuscitate");
-      CreateNewText(thisConfig,"Resuscitate");
-
-      --Spacer
-      CreateNewText(thisConfig," ");
-      -- General Configs
-      CreateGeneralsConfig();
+      createNewCheckbox(section, "Resuscitate")
+      checkSectionState(section)
 
 
-      WrapsManager();
-    end
+      --[[ Rotation Dropdown ]]--
+      createNewRotationDropdown(bb.profile_window.parent, {"Chumii"})
+
+      bb:checkProfileWindowStatus()
   end
 
   --[[]]     --[[]]	--[[           ]]	--[[           ]]	--[[           ]]
@@ -212,7 +162,7 @@ This function will use table row #1.]]
 
       -- Nature's Cure
       CreateNewCheck(thisConfig,"Detox")
-      CreateNewDrop(thisConfig,"Detox", 1, "|cffFFBB00MMouse:|cffFFFFFFMouse / Match List. \n|cffFFBB00MRaid:|cffFFFFFFRaid / Match List. \n|cffFFBB00AMouse:|cffFFFFFFMouse / All. \n|cffFFBB00ARaid:|cffFFFFFFRaid / All.",
+      CreateNewDrop(thisConfig,"Detox", 1, "MMouse:|cffFFFFFFMouse / Match List. \nMRaid:|cffFFFFFFRaid / Match List. \nAMouse:|cffFFFFFFMouse / All. \nARaid:|cffFFFFFFRaid / All.",
         "|cffFFDD11MMouse",
         "|cffFFDD11MRaid",
         "|cff00FF00AMouse",
@@ -227,27 +177,27 @@ This function will use table row #1.]]
 
       -- Chi Wave
       CreateNewCheck(thisConfig,"Chi Wave");
-      CreateNewBox(thisConfig, "Chi Wave", 0, 100  , 5, 55, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFChi Wave.");
+      CreateNewBox(thisConfig, "Chi Wave", 0, 100  , 5, 55, "Under what |cffFF0000%HP to use |cffFFFFFFChi Wave.");
       CreateNewText(thisConfig,"Chi Wave");
 
       -- Enveloping Mist
       CreateNewCheck(thisConfig,"Enveloping Mist");
-      CreateNewBox(thisConfig, "Enveloping Mist", 0, 100  , 5, 45, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFEnveloping Mist.");
+      CreateNewBox(thisConfig, "Enveloping Mist", 0, 100  , 5, 45, "Under what |cffFF0000%HP to use |cffFFFFFFEnveloping Mist.");
       CreateNewText(thisConfig,"Enveloping Mist");
 
       -- Renewing Mist
       CreateNewCheck(thisConfig,"Renewing Mist");
-      CreateNewBox(thisConfig, "Renewing Mist", 0, 100  , 5, 85, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRenewing Mist.");
+      CreateNewBox(thisConfig, "Renewing Mist", 0, 100  , 5, 85, "Under what |cffFF0000%HP to use |cffFFFFFFRenewing Mist.");
       CreateNewText(thisConfig,"Renewing Mist");
 
       -- Soothing Mist
       CreateNewCheck(thisConfig,"Soothing Mist");
-      CreateNewBox(thisConfig, "Soothing Mist", 0, 100  , 5, 75, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFSoothing Mist.");
+      CreateNewBox(thisConfig, "Soothing Mist", 0, 100  , 5, 75, "Under what |cffFF0000%HP to use |cffFFFFFFSoothing Mist.");
       CreateNewText(thisConfig,"Soothing Mist");
 
       -- Surging Mist
       CreateNewCheck(thisConfig,"Surging Mist");
-      CreateNewBox(thisConfig, "Surging Mist", 0, 100  , 5, 65, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFSurging Mist.");
+      CreateNewBox(thisConfig, "Surging Mist", 0, 100  , 5, 65, "Under what |cffFF0000%HP to use |cffFFFFFFSurging Mist.");
       CreateNewText(thisConfig,"Surging Mist");
 
       -- Wrapper -----------------------------------------
@@ -259,17 +209,17 @@ This function will use table row #1.]]
 
       -- Expel Harm
       CreateNewCheck(thisConfig,"Expel Harm");
-      CreateNewBox(thisConfig, "Expel Harm", 0, 100  , 5, 80, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFExpel Harm");
+      CreateNewBox(thisConfig, "Expel Harm", 0, 100  , 5, 80, "Under what |cffFF0000%HP to use |cffFFFFFFExpel Harm");
       CreateNewText(thisConfig,"Expel Harm");
 
       -- Fortifying Brew
       CreateNewCheck(thisConfig,"Fortifying Brew");
-      CreateNewBox(thisConfig, "Fortifying Brew", 0, 100  , 5, 30, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFortifying Brew");
+      CreateNewBox(thisConfig, "Fortifying Brew", 0, 100  , 5, 30, "Under what |cffFF0000%HP to use |cffFFFFFFFortifying Brew");
       CreateNewText(thisConfig,"Fortifying Brew");
 
       -- Healthstone
       CreateNewCheck(thisConfig,"Healthstone");
-      CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
+      CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 20, "Under what |cffFF0000%HP to use |cffFFFFFFHealthstone");
       CreateNewText(thisConfig,"Healthstone");
 
       -- Wrapper -----------------------------------------
@@ -300,17 +250,17 @@ This function will use table row #1.]]
 
       -- Follow Tank
       CreateNewCheck(thisConfig,"Follow Tank");
-      CreateNewBox(thisConfig, "Follow Tank", 10, 40  , 1, 25, "|cffFFBB00Range from focus...");
+      CreateNewBox(thisConfig, "Follow Tank", 10, 40  , 1, 25, "Range from focus...");
       CreateNewText(thisConfig,"Follow Tank");
 
       -- Spear Hand Strike
       CreateNewCheck(thisConfig,"Spear Hand Strike");
-      CreateNewBox(thisConfig, "Spear Hand Strike", 0, 100  , 5, 60 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFSpear and Strike.");
+      CreateNewBox(thisConfig, "Spear Hand Strike", 0, 100  , 5, 60 , "Over what % of cast we want to \n|cffFFFFFFSpear and Strike.");
       CreateNewText(thisConfig,"Spear Hand Strike");
 
       -- Quaking Palm
       CreateNewCheck(thisConfig,"Quaking Palm");
-      CreateNewBox(thisConfig, "Quaking Palm", 0, 100  , 5, 30 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFQuaking Palm.");
+      CreateNewBox(thisConfig, "Quaking Palm", 0, 100  , 5, 30 , "Over what % of cast we want to \n|cffFFFFFFQuaking Palm.");
       CreateNewText(thisConfig,"Quaking Palm");
 
       -- Resuscitate

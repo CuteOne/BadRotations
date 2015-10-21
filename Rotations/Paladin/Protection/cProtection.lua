@@ -379,45 +379,48 @@ function cProtection:new()
         bb.profile_window = createNewProfileWindow("Protection")
 
         self.createClassOptions()
+        local dropOptionsCD = bb.dropOptions.CD
 
+        local section
         if self.rotation == 1 then
             -- Buffs
-            local section_buffs = createNewSection(bb.profile_window, "Buffs")
-            createNewCheckbox(section_buffs, "Righteous Fury")
-            checkSectionState(section_buffs)
+            section = createNewSection(bb.profile_window, "Buffs")
+            createNewCheckbox(section, "Righteous Fury")
+            checkSectionState(section)
 
             -- Rota
-            local section_rotation = createNewSection(bb.profile_window, "Rotation Managment")
-            createNewDropdown(section_rotation, "Holy Avenger", {"Never","CDs","Always"})
-            checkSectionState(section_rotation)
+            section = createNewSection(bb.profile_window, "Rotation Managment")
+            createNewDropdown(section, "Holy Avenger", {"Never","CDs","Always"})
+            createNewDropdown(section, "Seraphim", {"Never","CDs","Always"})
+            checkSectionState(section)
 
             -- Healing
-            local section_healing = createNewSection(bb.profile_window, "Healing")
-            createNewSpinner(section_healing, "Word Of Glory On Self", 60)
-            createNewSpinner(section_healing, "Lay On Hands", 12)
-            checkSectionState(section_healing)
+            section = createNewSection(bb.profile_window, "Healing")
+            createNewSpinner(section, "Word Of Glory On Self", 60)
+            createNewSpinner(section, "Lay On Hands", 12)
+            checkSectionState(section)
 
             -- Defensive
-            local section_defensive = createNewSection(bb.profile_window, "Defensive")
+            section = createNewSection(bb.profile_window, "Defensive")
 
-            createNewSpinner(section_defensive, "Divine Protection", 65)
-            createNewSpinner(section_defensive, "Ardent Defender", 20)
-            createNewSpinner(section_defensive, "Guardian of Anchient Kings", 40)
-            checkSectionState(section_defensive)
+            createNewSpinner(section, "Divine Protection", 65)
+            createNewSpinner(section, "Ardent Defender", 20)
+            createNewSpinner(section, "Guardian of Anchient Kings", 40)
+            checkSectionState(section)
 
             -- Interrupt
-            local section_interrupts = createNewSection(bb.profile_window, "Interrupts")
+            section = createNewSection(bb.profile_window, "Interrupts")
 
-            createNewSpinner(section_interrupts, "Rebuke", 35)
-            createNewSpinner(section_interrupts, "Avengers Shield Interrupt", 35)
-            checkSectionState(section_interrupts)
+            createNewSpinner(section, "Rebuke", 35)
+            createNewSpinner(section, "Avengers Shield Interrupt", 35)
+            checkSectionState(section)
         end
 
         if self.rotation == 2 then
             -- CUTE
-            local section_cute = createNewSection(bb.profile_window, "Cuteness")
-            createNewCheckbox(section_cute, "Righteous Cuteness")
-            checkSectionState(section_cute)
+            local section = createNewSection(bb.profile_window, "Cuteness")
+            createNewCheckbox(section, "Righteous Cuteness")
+            checkSectionState(section)
         end
 
         --[[ Rotation Dropdown ]]--

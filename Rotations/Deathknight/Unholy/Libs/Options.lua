@@ -1,137 +1,119 @@
 if select(3,UnitClass("player")) == 6 then
   function UnholyConfig()
-    if currentConfig ~= "Unholy Chumii" then
-      ClearConfig();
-      thisConfig = 0;
-      -- Title
-      CreateNewTitle(thisConfig,"Unholy |cffFF0000Chumii");
+      bb.profile_window = createNewProfileWindow("Unholy")
 
-      -- Wrapper
-      CreateNewWrap(thisConfig,"--- General Rotation ---");
+      local section
+
+      --- General Rotation
+      section = createNewSection(bb.profile_window, "General Rotation")
 
       -- Pause Toggle
-      CreateNewCheck(thisConfig,"Pause Key");
-      CreateNewDrop(thisConfig,"Pause Key", 4, "Toggle2")
-      CreateNewText(thisConfig,"Pause Key");
+      createNewDropdown(section, "Pause Key", bb.dropOptions.Toggle2 ,4)
 
       -- 2nd Pause Toggle
-      CreateNewCheck(thisConfig,"2nd Pause Key");
-      CreateNewDrop(thisConfig,"2nd Pause Key", 4, "Toggle2")
-      CreateNewText(thisConfig,"2nd Pause Key");
+      createNewDropdown(section, "2nd Pause Key", bb.dropOptions.Toggle2 ,4)
 
       -- DnD / Defile Key
-      CreateNewCheck(thisConfig,"DnD / Defile Key");
-      CreateNewDrop(thisConfig,"DnD / Defile Key", 4, "Toggle2")
-      CreateNewText(thisConfig,"DnD / Defile Key");
+      createNewDropdown(section, "DnD / Defile Key", bb.dropOptions.Toggle2 ,4)
 
       -- AMZ Key
-      CreateNewCheck(thisConfig,"AMZ Key");
-      CreateNewDrop(thisConfig,"AMZ Key", 4, "Toggle2")
-      CreateNewText(thisConfig,"AMZ Key");
+      createNewDropdown(section, "AMZ Key", bb.dropOptions.Toggle2 ,4)
 
       -- Blood Boil Spam Targets
-      CreateNewBox(thisConfig, "Blood Boil Spam", 0, 10  , 1, 5, "Start spamming Blood Boil at |cffFF0000XX|cffFFBB00 targets.");
-      CreateNewText(thisConfig,"Blood Boil Spam");
+      createNewSpinner(section, "Start spamming Blood Boil at |cffFF0000XX|cffFFBB00 targets.",5,0,10,1,"Start spamming Blood Boil at |cffFF0000XX|cffFFBB00 targets.")
 
-      CreateNewCheck(thisConfig,"Rotation")
-      CreateNewDrop(thisConfig,"Rotation",1,"Choose Rotation to use.","Simc","Simple")
-      CreateNewText(thisConfig,"Rotation")
+      checkSectionState(section)
+
+
+
 
       -- Wrapper
-      CreateNewWrap(thisConfig,"--- Buffs ---");
+      section = createNewSection(bb.profile_window, "Buffs")
 
       -- Horn of Winter
-      CreateNewCheck(thisConfig,"Horn of Winter");
-      CreateNewText(thisConfig,"Horn of Winter");
+      createNewCheckbox(section,"Horn of Winter")
+
+      checkSectionState(section)
+
+
 
       -- Wrapper
-      CreateNewWrap(thisConfig,"--- Cooldowns ---");
+      section = createNewSection(bb.profile_window, "Cooldowns")
 
       -- Potion
-      CreateNewCheck(thisConfig,"Potion");
-      CreateNewText(thisConfig,"Potion");
+      createNewCheckbox(section,"Potion")
 
       -- Empower Rune Weapon
-      CreateNewCheck(thisConfig,"Empower Rune Weapon");
-      CreateNewText(thisConfig,"Empower Rune Weapon");
+      createNewCheckbox(section,"Empower Rune Weapon")
 
       -- Summon Gargoyle
-      CreateNewCheck(thisConfig,"Summon Gargoyle");
-      CreateNewText(thisConfig,"Summon Gargoyle");
+      createNewCheckbox(section,"Summon Gargoyle")
 
       -- Breath of Sindragosa
-      CreateNewCheck(thisConfig,"Breath of Sindragosa");
-      CreateNewText(thisConfig,"Breath of Sindragosa");
+      createNewCheckbox(section,"Breath of Sindragosa")
 
-      -- -- Dark Transformation
-      -- CreateNewCheck(thisConfig,"Dark Transformation");
-      -- CreateNewText(thisConfig,"Dark Transformation");
+      -- Dark Transformation
+      -- createNewCheckbox(section,"Dark Transformation")
 
       -- Racial (Orc/Troll)
-      CreateNewCheck(thisConfig,"Racial (Orc/Troll)");
-      CreateNewText(thisConfig,"Racial (Orc/Troll)");
+      createNewCheckbox(section,"Racial (Orc/Troll)")
+
+      checkSectionState(section)
+
+
 
       -- Wrapper
-      CreateNewWrap(thisConfig,"--- Defensives ---");
+      section = createNewSection(bb.profile_window, "Defensives")
 
       -- Icebound Fortitude
-      CreateNewCheck(thisConfig,"Icebound Fortitude");
-      CreateNewBox(thisConfig, "Icebound Fortitude", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFIcebound Fortitude");
-      CreateNewText(thisConfig,"Icebound Fortitude");
+      createNewSpinner(section, "Icebound Fortitude", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFIcebound Fortitude")
 
       -- Anti Magic Shell
-      CreateNewCheck(thisConfig,"Anti Magic Shell");
-      CreateNewBox(thisConfig, "Anti Magic Shell", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFAnti Magic Shell");
-      CreateNewText(thisConfig,"Anti Magic Shell");
+      createNewSpinner(section, "Anti-Magic Shell", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFAnti Magic Shell")
 
       -- Healthstone / Pot
-      CreateNewCheck(thisConfig,"Healthstone / Potion");
-      CreateNewBox(thisConfig, "Healthston / Potion", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone / Healing Potion");
-      CreateNewText(thisConfig,"Healthstone / Potion");
+      createNewSpinner(section, "Healthstone / Potion", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone / Healing Potion")
 
       -- Death Pact
-      CreateNewCheck(thisConfig,"Death Pact");
-      CreateNewBox(thisConfig, "Death Pact", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Pact");
-      CreateNewText(thisConfig,"Death Pact");
+      createNewSpinner(section, "Death Pact", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Pact")
 
       -- Death Siphon
-      CreateNewCheck(thisConfig,"Death Siphon");
-      CreateNewBox(thisConfig, "Death Siphon", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Siphon");
-      CreateNewText(thisConfig,"Death Siphon");
+      createNewSpinner(section, "Death Siphon", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Siphon")
 
       -- Death Strike
-      CreateNewCheck(thisConfig,"Death Strike");
-      CreateNewBox(thisConfig, "Death Strike", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Strike");
-      CreateNewText(thisConfig,"Death Strike");
+      createNewSpinner(section, "Death Strike", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Strike")
 
       -- Death Strike (Dark Succor)
-      -- CreateNewCheck(thisConfig,"Death Strike (Dark Succor)");
-      -- CreateNewBox(thisConfig, "Death Strike (Dark Succor)", 0, 100  , 5, 20, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Strike (Dark Succor)");
-      -- CreateNewText(thisConfig,"Death Strike (Dark Succor)");
+      -- createNewSpinner(section, "Death Strike (Dark Succor)", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Strike (Dark Succor)")
+
+      checkSectionState(section)
+
+
 
       -- Wrapper
-      CreateNewWrap(thisConfig,"--- Interrupts ---");
+      section = createNewSection(bb.profile_window, "Interrupts")
 
       -- Mind Freeze
-      CreateNewCheck(thisConfig,"Mind Freeze");
-      CreateNewBox(thisConfig, "Mind Freeze", 0, 100  , 5, 20, "Interrupt at % casttime with Mind Freeze");
-      CreateNewText(thisConfig,"Mind Freeze");
+      createNewSpinner(section, "Mind Freeze", 20, 0, 100, 5, "Interrupt at % casttime with Mind Freeze")
 
       -- Strangulate
-      CreateNewCheck(thisConfig,"Strangulate");
-      CreateNewBox(thisConfig, "Strangulate", 0, 100  , 5, 20, "Interrupt at % casttime with Strangulate");
-      CreateNewText(thisConfig,"Strangulate");
+      createNewSpinner(section, "Mind Freeze", 20, 0, 100, 5, "Interrupt at % casttime with Strangulate");
+
+      checkSectionState(section)
+
+
 
       -- Wrapper
-      CreateNewWrap(thisConfig,"--- Misc ---");
+      section = createNewSection(bb.profile_window, "Misc")
 
       -- Dummy DPS Test
-      CreateNewCheck(thisConfig,"DPS Testing");
-      CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 5, "Set to desired time for test in minutes. Min: 1 / Max: 15 / Interval: 1");
-      CreateNewText(thisConfig,"DPS Testing");
+      createNewSpinner(section, "DPS Testing", 5, 1, 15, 1, "Set to desired time for test in minutes. Min: 1 / Max: 15 / Interval: 1")
 
-      CreateGeneralsConfig();
-      WrapsManager();
-    end
+      checkSectionState(section)
+
+
+      --[[ Rotation Dropdown ]]--
+      createNewRotationDropdown(bb.profile_window, {"Chumii"})
+      bb:checkProfileWindowStatus()
   end
 end

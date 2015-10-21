@@ -4,113 +4,115 @@ if select(3,UnitClass("player")) == 6 then
 
         bb.profile_window = createNewProfileWindow("Blood")
 
-        local dropOptionsToggles = {"LeftCtrl","LeftShift","LeftAlt","RightCtrl","RightShift","RightAlt","MMouse","Mouse4","Mouse5","None" }
-        local dropOptionsCD = {"Never","CDs","Always"}
+        local dropOptionsToggles = bb.dropOptions.Toggle2
+        local dropOptionsCD = bb.dropOptions.CD
+        local section
 
         -- Buffs
-        local section_buffs = createNewSection(bb.profile_window, "Buffs")
-        createNewDropdown(section_buffs, "Pause Key", dropOptionsToggles ,4)
-        createNewDropdown(section_buffs, "DnD / Defile Key", dropOptionsToggles ,4)
+        section = createNewSection(bb.profile_window, "Buffs")
+        createNewDropdown(section, "Pause Key", dropOptionsToggles ,4)
+        createNewDropdown(section, "DnD / Defile Key", dropOptionsToggles ,4)
         -- Horn of Winter
         if isKnown(_HornOfWinter) then
-            createNewCheckbox(section_buffs,"Horn of Winter")
+            createNewCheckbox(section,"Horn of Winter")
         end
         -- Blood Presence
         if isKnown(_BloodPresence) then
-            createNewDropdown(section_buffs, "Presence", {"|cffFF0000Blood","|cff00EEFFFrost"})
+            createNewDropdown(section, "Presence", {"|cffFF0000Blood","|cff00EEFFFrost"})
         else
-            createNewCheckbox(section_buffs,"Frost Presence")
+            createNewCheckbox(section,"Frost Presence")
         end
         -- Bone Shield
         if isKnown(_BoneShield) then
-            createNewCheckbox(section_buffs,"Bone Shield")
+            createNewCheckbox(section,"Bone Shield")
         end
-        checkSectionState(section_buffs)
+        checkSectionState(section)
 
 
         -- Wrapper
-        local section_cooldowns = createNewSection(bb.profile_window, "Cooldowns")
+        section = createNewSection(bb.profile_window, "Cooldowns")
 
         -- Raise Dead
-        createNewDropdown(section_cooldowns, "Raise Dead", dropOptionsCD)
-        checkSectionState(section_cooldowns)
+        createNewDropdown(section, "Raise Dead", dropOptionsCD)
+        checkSectionState(section)
 
 
         -- Wrapper
-        local section_dps = createNewSection(bb.profile_window, "DPS Tweaks")
+        section = createNewSection(bb.profile_window, "DPS Tweaks")
 
         -- Death And Decay
         if isKnown(_DeathAndDecay) then
-            createNewDropdown(section_dps, "Death And Decay", dropOptionsCD)
+            createNewDropdown(section, "Death And Decay", dropOptionsCD)
         end
-        checkSectionState(section_dps)
+        checkSectionState(section)
 
 
 
         -- Wrapper
-        local section_defensive = createNewSection(bb.profile_window, "Defensive")
+        section = createNewSection(bb.profile_window, "Defensive")
 
         -- Anti-Magic Shell
         if isKnown(_AntiMagicShell) then
-            createNewSpinner(section_defensive, "Anti-Magic Shell",70,0,100,5)
+            createNewSpinner(section, "Anti-Magic Shell",70,0,100,5)
         end
 
         -- Conversion
         if isKnown(_Conversion) then
-            createNewSpinner(section_defensive, "Conversion",30,0,100,5)
+            createNewSpinner(section, "Conversion",30,0,100,5)
         end
 
         -- Dancing Rune Weapon
         if isKnown(_DancingRuneWeapon) then
-            createNewSpinner(section_defensive, "Dancing Rune Weapon",90,0,100,5)
+            createNewSpinner(section, "Dancing Rune Weapon",90,0,100,5)
         end
 
         -- Empower Rune Weapon
         if isKnown(_EmpowerRuneWeapon) then
-            createNewSpinner(section_defensive, "Empower Rune Weapon",70,0,100,5)
+            createNewSpinner(section, "Empower Rune Weapon",70,0,100,5)
         end
 
         -- Icebound Fortitude
         if isKnown(_IceboundFortitude) then
-            createNewSpinner(section_defensive, "Icebound Fortitude",30,0,100,5)
+            createNewSpinner(section, "Icebound Fortitude",30,0,100,5)
         end
 
         -- Rune Tap
         if isKnown(_RuneTap) then
-            createNewSpinner(section_defensive, "Rune Tap",50,0,100,5)
+            createNewSpinner(section, "Rune Tap",50,0,100,5)
         end
 
         -- Vampiric Blood
         if isKnown(_VampiricBlood) then
-            createNewSpinner(section_defensive, "Vampiric Blood",50,0,100,5)
+            createNewSpinner(section, "Vampiric Blood",50,0,100,5)
         end
 
-        checkSectionState(section_defensive)
+        checkSectionState(section)
 
 
         -- Wrapper
-        local section_healing = createNewSection(bb.profile_window, "Healing")
+        section = createNewSection(bb.profile_window, "Healing")
 
         -- Death Siphon
-        createNewSpinner(section_healing, "Death Siphon",30,0,100,5)
-        checkSectionState(section_healing)
+        createNewSpinner(section, "Death Siphon",30,0,100,5)
+        checkSectionState(section)
 
         -- Wrapper
-        local section_utilities = createNewSection(bb.profile_window, "Utilities")
+        section = createNewSection(bb.profile_window, "Utilities")
 
         -- Mind Freeze
         if isKnown(_MindFreeze) then
-            createNewSpinner(section_utilities, "Mind Freeze",35,0,100,5)
+            createNewSpinner(section, "Mind Freeze",35,0,100,5)
         end
 
         if isKnown(_Strangulate) then
-            createNewSpinner(section_utilities, "Strangulate",35,0,100,5)
+            createNewSpinner(section, "Strangulate",35,0,100,5)
         end
-        checkSectionState(section_utilities)
+        checkSectionState(section)
 
 
         --[[ Rotation Dropdown ]]--
         createNewRotationDropdown(bb.profile_window, {"CodeMyLife"})
+        bb:checkProfileWindowStatus()
     end
 
   function BloodOptions_old()
