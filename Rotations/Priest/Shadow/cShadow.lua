@@ -512,6 +512,46 @@ function cShadow:new()
 		end
 	end
 
+	-- get next biggest unit in range from enemiesTable with exceptions
+	function getNextBiggestUnit(exceptionUnit,range)
+		if not UnitExists(exceptionUnit) then
+			exceptionUnit = "player"
+		end
+
+		-- static blacklist table
+		local exceptionTable = {
+		-- HFC: Hellfire Citadel
+			93288,		-- Gorefiend: Corrupted Players
+			91326,		-- Mannoroth: Gul'dan
+			95101,		-- Socrethar: Phase1 Voracious Soulstalker
+		}
+
+		local exceptionGUID = UnitGUID(exceptionUnit)
+		for i=1, #enemiesTable do
+			local thisUnit = enemiesTable[i].unit
+			local thisGUID = enemiesTable[i].guid
+			local thisCheck = true
+
+			-- check for blacklist
+			for i=1, #exceptionTable do
+				if getUnitID(thisUnit) == exceptionTable[i] then 
+					thisCheck = false
+				end
+			end
+
+			if thisCheck then
+				if thisGUID ~= exceptionGUID then
+					if enemiesTable[i].distance < range then
+						if UnitCanAttack("player",thisUnit) then
+							return thisUnit
+						end
+					end
+				end
+			end
+		end
+		return false
+	end
+
 	--  _____     _______  
 	-- |  __ \   |__   __| 
 	-- | |  | | ___ | |___ 
@@ -568,7 +608,7 @@ function cShadow:new()
 				77665,		-- Blackhand: Iron Soldier
 			-- HFC: Hellfire Citadel
 				90114,		-- Hellfire Assault: damn small ads
-				94326,		-- Iron Reaver: Reactive Bomb
+				--94326,		-- Iron Reaver: Reactive Bomb
 				90513,		-- Kilrogg: Fel Blood Globule
 				96077,		-- Kilrogg: Fel Blood Globule
 				90477,		-- Kilrogg: Blood Globule
