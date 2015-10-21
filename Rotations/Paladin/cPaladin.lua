@@ -95,7 +95,7 @@ function cPaladin:new(spec)
 
     -- Class options
     -- Options which every Paladin should have
-    function self.createClassOptions()
+    function self.createClassOptionsOLD()
         -- Create Base Options
         self.createBaseOptions()
 
@@ -111,9 +111,9 @@ function cPaladin:new(spec)
         CreateNewText(" ");
     end
 
-    function self.createClassOptionsNEW()
+    function self.createClassOptions()
         -- Create Base Options
-        self.createBaseOptionsNEW()
+        self.createBaseOptions()
 
         local section_class = createNewSection(bb.profile_window, "Class Options")
         createNewDropdown(section_class,"Blessings", {"Kings","Might","Auto"})
@@ -178,7 +178,7 @@ function cPaladin:new(spec)
 			for i = 1, #nNova do
 				local thisUnit = nNova[i]
 				-- i think only these 3 class buff kings
-				local MemberClass = nNova[i].class
+				--local MemberClass = nNova[i].class
 				if not UnitIsUnit("player",thisUnit.unit) and thisUnit.hp < 250 and thisUnit.isPlayer and
 					(thisUnit.class == "DRUID" or thisUnit.class == "MONK" or thisUnit.class == "PALADIN") then
 					myBlessing = _BlessingOfMight

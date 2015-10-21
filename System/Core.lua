@@ -72,7 +72,12 @@ function bb:MinimapButton()
                     end
 				end
 			end
-		end
+        end
+        if button == "MiddleButton" then
+            if bb.help_window then
+                bb.help_window.parent:Show()
+            end
+        end
 		if IsShiftKeyDown() and IsAltKeyDown() then
 			self:SetScript("OnUpdate",moveButton)
 		end
@@ -101,7 +106,7 @@ function bb:MinimapButton()
 				--		BadBoy_data.options[GetSpecialization()]["optionsFrame"] = false
 				--	end
 				--end
-			end
+            end
 		end
 	end)
 	button:SetScript("OnEnter", function(self)
@@ -181,6 +186,14 @@ function BadBoyUpdate(self)
 	end
 	-- pulse enemiesEngine
 	bb:PulseUI()
+
+    -- Show Debug Frame TEMP
+    if isChecked("Debug Frame") then
+        _G["debugFrame"]:Show()
+    else
+        _G["debugFrame"]:Hide()
+    end
+
 	-- accept dungeon queues
 	bb:AcceptQueues()
 	--[[Class/Spec Selector]]

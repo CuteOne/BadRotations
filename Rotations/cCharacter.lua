@@ -312,7 +312,7 @@ function cCharacter:new(class)
  -- Character options
  -- Options which every Class should have
  -- Call after Title
-	function self.createBaseOptions()
+	function self.createBaseOptionsOLD()
 		-- Base Wrap
 		CreateNewWrap(thisConfig, "--- Base Options ---")
 
@@ -336,7 +336,7 @@ function cCharacter:new(class)
 		CreateNewText(thisConfig, " ");
     end
 
-    function self.createBaseOptionsNEW()
+    function self.createBaseOptions()
         -- Base Wrap
         local section_base = createNewSection(bb.profile_window, "Base Options")
         createNewCheckbox(section_base, "Ignore Combat")

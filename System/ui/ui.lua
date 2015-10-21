@@ -704,6 +704,7 @@ function ConstructUI()
 		BadBoy_data.options.selected = "General"
 	end
 	_G["options"..BadBoy_data.options.selected.."Button"]:Click()
+    optionsFrame:Hide()
 	if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()]["optionsFrame"] ~= true then
 		optionsFrame:Hide()
 	end
