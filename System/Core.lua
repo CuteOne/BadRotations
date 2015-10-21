@@ -68,9 +68,15 @@ function bb:MinimapButton()
 					end
 				else
 					if BadBoy_data.options[GetSpecialization()][currentProfileName.."Frame"] ~= true then
+                        if profile_window then
+                            profile_window:Show()
+                        end
 						_G[currentProfileName.."Frame"]:Show()
 						BadBoy_data.options[GetSpecialization()][currentProfileName.."Frame"] = true
-					else
+                    else
+                        if profile_window then
+                            profile_window.closeButton:Click()
+                        end
 						_G[currentProfileName.."Frame"]:Hide()
 						BadBoy_data.options[GetSpecialization()][currentProfileName.."Frame"] = false
 					end

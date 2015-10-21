@@ -277,6 +277,14 @@ function cShadow:new()
 		self.options.defensive.Healing_Tonicvalue 		= getValue("Healing Tonic")
 		self.options.defensive.Dispersion 				= isChecked("Dispersion")
 		self.options.defensive.Dispersionvalue 			= getValue("Dispersion")
+
+		-- self.options.bosshelper 						= {}
+		-- self.options.bosshelper.Guise					= isChecked("")
+		-- self.options.bosshelper.Mass_Dispel				= isChecked("")
+		-- self.options.bosshelper.Dispel					= isChecked("")
+		-- self.options.bosshelper.Silence 				= isChecked("")
+		-- self.options.bosshelper.Target 					= isChecked("")
+		-- self.options.bosshelper.Gorefiend				= isChecked("")
 		
 		self.options.rotation 							= {}
 		self.options.rotation.Burst_SI 					= isChecked("Burst SI")
@@ -284,6 +292,7 @@ function cShadow:new()
 		self.options.rotation.max_Targetsvalue			= getValue("max dot targets")
 		self.options.rotation.ttdSWP 					= getValue("ttd swp")
 		self.options.rotation.ttdVT 					= getValue("ttd vt")
+		self.options.rotation.Auto_Focus 				= isChecked("AutoFocus")
 
 		self.options.utilities 							= {}
 		self.options.utilities.pause 					= isChecked("Pause Toggle")
@@ -475,6 +484,74 @@ function cShadow:new()
 	function self.getTimeTillNextOrb()
 	end
 
+	--  _    _ _   _ _ _ _   _           
+	-- | |  | | | (_) (_) | (_)          
+	-- | |  | | |_ _| |_| |_ _  ___  ___ 
+	-- | |  | | __| | | | __| |/ _ \/ __|
+	-- | |__| | |_| | | | |_| |  __/\__ \
+	--  \____/ \__|_|_|_|\__|_|\___||___/
+	-- auto focus
+	function self.autofocus()
+		if self.talent.clarity_of_power then
+			if self.options.rotation.Auto_Focus then
+				-- clear focus
+				if UnitExists("focus") and UnitExists("target") then
+					if UnitGUID("focus") == UnitGUID("target") then
+						ClearFocus()
+					end
+				end
+				-- get focus
+				if not UnitExists("focus") then
+					-- if UnitExists("boss2") and UnitCanAttack("player","boss2") then
+					-- 	FocusUnit("boss2")
+					if getNumEnemies("player",40) > 1 then
+						FocusUnit(getNextBiggestUnit("target",40))
+					end
+				end
+			end
+		end
+	end
+
+	-- get next biggest unit in range from enemiesTable with exceptions
+	function getNextBiggestUnit(exceptionUnit,range)
+		if not UnitExists(exceptionUnit) then
+			exceptionUnit = "player"
+		end
+
+		-- static blacklist table
+		local exceptionTable = {
+		-- HFC: Hellfire Citadel
+			93288,		-- Gorefiend: Corrupted Players
+			91326,		-- Mannoroth: Gul'dan
+			95101,		-- Socrethar: Phase1 Voracious Soulstalker
+		}
+
+		local exceptionGUID = UnitGUID(exceptionUnit)
+		for i=1, #enemiesTable do
+			local thisUnit = enemiesTable[i].unit
+			local thisGUID = enemiesTable[i].guid
+			local thisCheck = true
+
+			-- check for blacklist
+			for i=1, #exceptionTable do
+				if getUnitID(thisUnit) == exceptionTable[i] then 
+					thisCheck = false
+				end
+			end
+
+			if thisCheck then
+				if thisGUID ~= exceptionGUID then
+					if enemiesTable[i].distance < range then
+						if UnitCanAttack("player",thisUnit) then
+							return thisUnit
+						end
+					end
+				end
+			end
+		end
+		return false
+	end
+
 	--  _____     _______  
 	-- |  __ \   |__   __| 
 	-- | |  | | ___ | |___ 
@@ -531,7 +608,7 @@ function cShadow:new()
 				77665,		-- Blackhand: Iron Soldier
 			-- HFC: Hellfire Citadel
 				90114,		-- Hellfire Assault: damn small ads
-				94326,		-- Iron Reaver: Reactive Bomb
+				--94326,		-- Iron Reaver: Reactive Bomb
 				90513,		-- Kilrogg: Fel Blood Globule
 				96077,		-- Kilrogg: Fel Blood Globule
 				90477,		-- Kilrogg: Blood Globule
@@ -715,6 +792,11 @@ function cShadow:new()
 		end
 		-- devouring_plague
 		function self.castDP(thisTarget)
+			if self.talent.clarity_of_power and not self.talent.insanity then
+				if UnitExists("focus") and UnitCanAttack("player","focus") then
+					return castSpell("focus",self.spell.devouring_plague,true,false) == true or false
+				end
+			end
 			return castSpell(thisTarget,self.spell.devouring_plague,true,false) == true or false
 		end
 		-- dispel_magic
@@ -883,8 +965,30 @@ function cShadow:new()
 							-- in range?
 							if getDistance("player","target") < 40 then
 								-- TTD or dummy
-								if getTTD("target") > self.options.rotation.ttdSWP  or isDummy("target") then
+								if getTTD("target") > self.options.rotation.ttdSWP or isDummy("target") then
 									return castSpell("target",self.spell.shadow_word_pain,true,false) == true or false
+								end
+							end
+						end
+					end
+				end
+			end
+			return false
+		end
+		function self.castSWPOnUnit(thisTarget)
+			if UnitExists(thisTarget) and UnitCanAttack("player",thisTarget) then
+			--if self.getSWPrunning() < maxTargets then
+				-- infight
+				if UnitIsTappedByPlayer(thisTarget) then
+					-- blacklists: CC, DoT Blacklist
+					if not isCCed(thisTarget) and self.SWP_allowed(thisTarget) then
+						-- check for running dot and remaining time
+						if getDebuffRemain(thisTarget,self.spell.shadow_word_pain,"player") <= 18*0.3 then
+							-- in range?
+							if getDistance("player",thisTarget) < 40 then
+								-- TTD or dummy
+								if getTTD(thisTarget) > self.options.rotation.ttdSWP or isDummy(thisTarget) then
+									return castSpell(thisTarget,self.spell.shadow_word_pain,true,false) == true or false
 								end
 							end
 						end
@@ -978,6 +1082,32 @@ function cShadow:new()
 									-- TTD or dummy
 									if getTTD("target") > self.options.rotation.ttdSWP+castTime or isDummy("target") then
 										return castSpell("target",self.spell.vampiric_touch,true,true) == true or false
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+			return false
+		end
+		function self.castVTOnUnit(thisTarget)
+			if UnitExists(thisTarget) and UnitCanAttack("player",thisTarget) then
+			--if self.getVTrunning() < maxTargets then
+				local castTime = 0.001*select(4,GetSpellInfo(34914))
+				-- infight
+				if UnitIsTappedByPlayer(thisTarget) then
+					-- last VT check
+					if lastVTTarget ~= thisUnitGUID and lastVTTime+5 < GetTime() then
+						-- blacklists: CC, DoT Blacklist
+						if not isCCed(thisTarget) and self.VT_allowed(thisTarget) then
+							-- check for running dot and remaining time
+							if getDebuffRemain(thisTarget,self.spell.vampiric_touch,"player") <= 15*0.3+castTime then
+								-- in range?
+								if getDistance("player",thisTarget) < 40 then
+									-- TTD or dummy
+									if getTTD(thisTarget) > self.options.rotation.ttdSWP+castTime or isDummy(thisTarget) then
+										return castSpell(thisTarget,self.spell.vampiric_touch,true,true) == true or false
 									end
 								end
 							end

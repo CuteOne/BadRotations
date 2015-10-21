@@ -269,7 +269,8 @@ function ConstructUI()
 					dropdown = "Choose Units to prioritize. Lowest Units or Highest Units.",
 					dropOptions = {
 						[1] = "Highest",
-						[2] = "Lowest"
+						[2] = "Lowest",
+						[3] = "abs Highest"
 					}
 				},
 				[3] = {

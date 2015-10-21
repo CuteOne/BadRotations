@@ -110,6 +110,16 @@ function cPaladin:new(spec)
         -- Spacer
         CreateNewText(" ");
     end
+
+    function self.createClassOptionsNEW()
+        -- Create Base Options
+        self.createBaseOptionsNEW()
+
+        local section_class = createNewSection("Class Options",2,profile_window)
+        createNewCheckbox("Blessings", 10, 1, section_class)
+        createNewDropdown("Blessings", -10, 1, section_class, {"Kings","Might","Auto"})
+        section_class:Expand()
+    end
     --------------
     --- SPELLS ---
     --------------

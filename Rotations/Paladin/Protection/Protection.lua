@@ -4,11 +4,10 @@ if select(3, UnitClass("player")) == 2 then
     if currentConfig ~= "Protection Gabbz & CML" and protPaladin == nil then
       protPaladin = cProtection:new("Protection")
       setmetatable(protPaladin, {__index = cProtection})
+      --- TEMP
+      protPaladin:createOptionsNEW()
+      --- TEMP
       PaladinProtToggles()
-      --PaladinProtOptions()
-      --if not (core and core.profile == "Protection") then
-      --  PaladinProtFunctions()
-      --end
       protPaladin:update()
 
       currentConfig = "Protection Gabbz & CML"

@@ -112,17 +112,21 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewText(thisConfig,"max dot targets")
 
 			-- ttd SWP
-			CreateNewBox(thisConfig,"ttd swp", 0, 13.5, 0.1, 13.5, "|cffFFFFFFSWP TTD:\nstandard (simcraft): 13.5s\nCast SWP only on a unit that lives longer than chosen value.")
+			CreateNewBox(thisConfig,"ttd swp", 0, 13.5, 0.25, 13.5, "|cffFFFFFFSWP TTD:\nstandard (simcraft): 13.5s\nCast SWP only on a unit that lives longer than chosen value.")
 			CreateNewText(thisConfig,"ttd swp")
 
 			-- ttd VT
-			CreateNewBox(thisConfig,"ttd vt", 0, 11.25, 0.1, 11.25, "|cffFFFFFFSWP TTD:\nstandard (simcraft): 11.25s + castTime\nCast VT only on a unit that lives longer than chosen value.")
+			CreateNewBox(thisConfig,"ttd vt", 0, 11.25, 0.25, 11.25, "|cffFFFFFFSWP TTD:\nstandard (simcraft): 11.25s + castTime\nCast VT only on a unit that lives longer than chosen value.")
 			CreateNewText(thisConfig,"ttd vt")
 
 			-- Mind Sear / Searing Insanity Key
 			CreateNewCheck(thisConfig,"Burst SI", "Burst Searing Insanity")
 			CreateNewDrop(thisConfig,"Burst SI", 3, "Toggle2")
 			CreateNewText(thisConfig,"Burst SI")
+
+			-- Auto Focus
+			CreateNewCheck(thisConfig,"AutoFocus", "Focus units on CoP rotation autmatically for offDot and offDP")
+			CreateNewText(thisConfig,"AutoFocus")
 
 
 
