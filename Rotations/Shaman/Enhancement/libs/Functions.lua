@@ -79,7 +79,7 @@ if select(3,UnitClass("player")) == 7 then
         lowestCD = min(self.cd.stormstrike,self.cd.lavaLash,self.cd.flameShock,self.cd.unleashElements)
       end
     end
-    if lightning <= lowestCD and getTimeToDie("target") >= lightning then
+    if (lightning <= lowestCD or lightning <= self.gcd) and getTimeToDie("target") >= lightning then
       return true
     elseif castingUnit("player") and (isCastingSpell(_LightningBolt) or isCastingSpell(_ChainLightning)) and lightning > lowestCD then
       StopCasting()
