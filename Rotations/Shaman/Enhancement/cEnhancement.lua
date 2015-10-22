@@ -276,7 +276,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         function self.getGlyphs()
             local hasGlyph = hasGlyph
 
-            self.glyph.fireNova = hasGlypg(self.spell.fireNovaGlyph)
+            self.glyph.fireNova = hasGlyph(self.spell.fireNovaGlyph)
         end
 
         ---------------
