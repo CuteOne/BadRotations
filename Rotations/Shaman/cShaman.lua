@@ -376,7 +376,7 @@ function cShaman:new(spec)
 	function self.getClassGlyphs()
 		local hasGlyph = hasGlyph
 
-		self.glyph.chainLightning = hasGlyph(self.spell.chainLightningGlyph)
+		self.glyph.chainLightning 	= hasGlyph(self.spell.chainLightningGlyph)
 	end
 
 -- Talent updates
@@ -475,7 +475,7 @@ function cShaman:new(spec)
 	-- Chain Lightning
 	function self.castChainLightning()
 		local hasThreat = hasThreat(self.units.dyn30)
-		if self.level>=28 and self.powerPercent>1 and (getDistance(self.units.dyn30)<30 or IsSpellInRange(GetSpellInfo(self.spell.chainLightning),self.units.dyn30)~=nil) and (hasThreat or isDummy()) then
+		if self.level>=28 and self.powerPercent>1 and (getDistance(self.units.dyn30)<30 or IsSpellInRange(GetSpellInfo(self.spell.chainLightning),self.units.dyn30)~=nil) and (hasThreat or isDummy()) and shouldBolt() then
 			if castSpell(self.units.dyn30,self.spell.chainLightning,false,false,false) then return end
 		end
 	end
@@ -519,7 +519,7 @@ function cShaman:new(spec)
 	-- Lightning Bolt
 	function self.castLightningBolt()
 		local hasThreat = hasThreat(self.units.dyn30)
-		if self.level>=1 and self.powerPercent>1.75 and (getDistance(self.units.dyn30)<30 or IsSpellInRange(GetSpellInfo(self.spell.lightningBolt),self.units.dyn30)~=nil) and (hasThreat or isDummy()) then
+		if self.level>=1 and self.powerPercent>1.75 and (getDistance(self.units.dyn30)<30 or IsSpellInRange(GetSpellInfo(self.spell.lightningBolt),self.units.dyn30)~=nil) and (hasThreat or isDummy()) and shouldBolt() then
 			if castSpell(self.units.dyn30,self.spell.lightningBolt,false,false,false) then return end
 		end
 	end
@@ -583,8 +583,8 @@ function cShaman:new(spec)
 	end
 	-- Searing Totem
 	function self.castSearingTotem()
-		if self.level>=16 and ((not self.totem.searingTotem) or (self.totem.searingTotem and ObjectExists(self.units.dyn25AoE) and getTotemDistance(self.units.dyn25AoE)>=25 and getDistance(self.units.dyn25AoE)<25)) 
-			and self.powerPercent>3 and ObjectExists(self.units.dyn25AoE) and getTimeToDie(self.units.dyn25AoE)>5 and (#getEnemies(self.units.dyn25AoE,10)==1 or BadBoy_data['AoE'] == 3) 
+		if self.level>=16 and ((not self.totem.searingTotem) or (self.totem.searingTotem and ObjectExists("target") and getTotemDistance("target")>=25 and getDistance("target")<25)) 
+			and self.powerPercent>3 and ObjectExists("target") and getTimeToDie("target")>5 and (#getEnemies("target",10)==1 or BadBoy_data['AoE'] == 3) 
 		then
 			if castSpell("player",self.spell.searingTotem,false,false,false) then return end
 		end
