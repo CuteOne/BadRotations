@@ -255,6 +255,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 	    		-- fire_elemental_totem
 	    		if useCDs() and isChecked("Fire Elemental Totem") then
 	    			if self.castFireElementalTotem() then return end
+	    			if self.castEarthElementalTotem() then return end
 	    		end
 	    -- Feral Spirit
 	    		-- feral_spirit
