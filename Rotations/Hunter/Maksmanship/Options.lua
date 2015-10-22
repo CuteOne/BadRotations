@@ -75,30 +75,23 @@ if select(3, UnitClass("player")) == 3 then
         -- Wrapper
         section = createNewSection(bb.profile_window, "Other")
         -- Kill Shot
-        CreateNewCheck(thisConfig,"Stop for Kill Shot","Check if you want to stop casting to use Kill Shot");
-        CreateNewText(thisConfig,"Stop for Kill Shot");
+        createNewCheckbox(section,"Stop for Kill Shot","Check if you want to stop casting to use Kill Shot");
 
         -- Trap Launcher
-        CreateNewCheck(thisConfig,"Trap Launcher","Check if you want to use Trap Launcher");
-        CreateNewText(thisConfig,"Trap Launcher");
+        createNewCheckbox(section,"Trap Launcher","Check if you want to use Trap Launcher");
 
         -- Explosive Trap
-        CreateNewCheck(thisConfig,"Explosive Trap","Check if you want to use Explosive Trap in rotation");
-        CreateNewText(thisConfig,"Explosive Trap");
+        createNewCheckbox(section,"Explosive Trap","Check if you want to use Explosive Trap in rotation");
 
         -- Exotic Munitions
-        CreateNewCheck(thisConfig,"Exotic Munitions");
-        CreateNewDrop(thisConfig, "Exotic Munitions", 1, "|cffFFDD11Set which ammo to use", "|cffFFDD11Incendiary", "|cffFFDD11Poison", "|cffFFDD11Frozen");
-        CreateNewText(thisConfig,"Exotic Munitions");
+        createNewDropdown(section,  "Exotic Munitions", { "|cffFFDD11Incendiary", "|cffFFDD11Poison", "|cffFFDD11Frozen"},  1,  "|cffFFDD11Set which ammo to use");
 
         -- Auto-Aspect Toggle
-        CreateNewCheck(thisConfig,"Auto-Cheetah");
-        CreateNewText(thisConfig,"Auto-Cheetah");
+        createNewCheckbox(section,"Auto-Cheetah");
 
         -- Standard Interrupt
-        CreateNewCheck(thisConfig,"Counter Shot");
-        CreateNewBox(thisConfig, "Counter Shot", 0, 100  , 5, 35 , "|cffFFDD11What % of cast remaining to |cffFFFFFFCounter Shot.");
-        CreateNewText(thisConfig,"Counter Shot");
+        createNewSpinner(section,  "Counter Shot",  35 ,  0,  100  ,  5,  "|cffFFDD11What % of cast remaining to |cffFFFFFFCounter Shot.");
+
         checkSectionState(section)
 
 

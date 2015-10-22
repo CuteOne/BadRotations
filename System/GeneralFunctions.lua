@@ -2390,7 +2390,7 @@ end
 function isChecked(Value,new)
 	--print(BadBoy_data.options[GetSpecialization()]["profile"..Value.."Check"])
     --TEST
-    new = false
+    new = true
     if new then
         if BadBoy_data.options[GetSpecialization()] and (BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Check"] == 1 or BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Check"] == true) then
             return true
@@ -2404,7 +2404,7 @@ end
 -- if isSelected("Stormlash Totem") then
 function isSelected(Value,new)
     --TEST
-    new = false
+    new = true
 	if BadBoy_data["Cooldowns"] == 3 or (isChecked(Value,new)
 		and (getValue(Value,new) == 3 or (getValue(Value,new) == 2 and BadBoy_data["Cooldowns"] == 2))) then
 		return true
@@ -2413,7 +2413,7 @@ end
 -- if getValue("player") <= getValue("Eternal Flame") then
 function getValue(Value,new)
     --TEST
-    new = false
+    new = true
 	if BadBoy_data.options[GetSpecialization()] then
         if new then
             if BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Status"] ~= nil then
