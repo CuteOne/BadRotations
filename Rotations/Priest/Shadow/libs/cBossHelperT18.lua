@@ -207,7 +207,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					if UnitTarget("player")==nil or UnitIsDeadOrGhost("target") then TargetUnit("Archimonde") end
 				--end
 
-				if UnitName(UnitTarget("player"))=="Doomfire Spirit" then
+				-- Doomfire Spirit
+				if getUnitID("target")==92208 then
 					if self.castDP("target") then return end
 				end
 

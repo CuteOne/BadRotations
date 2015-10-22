@@ -190,6 +190,9 @@ function cShadow:shadowRavens()
 		------------------------------------------------------------------------------------------------------
 		--[[ auspicious_spirits ]]
 		if talent.auspicious_spirits then
+			
+			self.autotarget()
+
 			-- Mindbender
 			if talent.mindbender then 
 				if self.castMindbender("target") then return end
@@ -410,7 +413,14 @@ function cShadow:shadowRavens()
 		if talent.clarity_of_power then
 			--[[ start stopcasting ]]
 			local mfrefreshtime = 2*gcd
+			self.autotarget()
 			self.autofocus()
+
+			-- Shadowfiend/Mindbender
+			if getCombatTime() < 5 then
+				if self.castShadowfiend("target") then return end
+				if self.castMindbender("target") then return end
+			end
 
 			-- mindflay if full t18 class trinket stacks
 			if UnitChannelInfo("player") == "Mind Flay" and eq.t18_classTrinket then
@@ -476,10 +486,12 @@ function cShadow:shadowRavens()
 
 				-- Mind Flay: extend mental fatigue
 				if eq.t18_classTrinket then
-					if (getDebuffRemain("target",spell.mental_fatigue,"player") > 0 and getDebuffRemain("target",spell.mental_fatigue,"player") < mfrefreshtime) 
-					or getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
-						if self.castMindFlay("target") then return end
-					end
+					--if getUnitID("target")~=92208 then
+						if (getDebuffRemain("target",spell.mental_fatigue,"player") > 0 and getDebuffRemain("target",spell.mental_fatigue,"player") < mfrefreshtime) 
+						or getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
+							if self.castMindFlay("target") then return end
+						end
+					--end
 				end
 
 				-- DP without class trinket
