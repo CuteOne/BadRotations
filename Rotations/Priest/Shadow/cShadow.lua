@@ -490,13 +490,48 @@ function cShadow:new()
 	-- | |  | | __| | | | __| |/ _ \/ __|
 	-- | |__| | |_| | | | |_| |  __/\__ \
 	--  \____/ \__|_|_|_|\__|_|\___||___/
+	-- auto target
+	function self.autotarget()
+		-- static blacklist table
+		local exceptionTable = {
+		-- HFC: Hellfire Citadel
+			91326,		-- Mannoroth: Gul'dan
+		}
+		if not UnitExists("target") or UnitIsDeadOrGhost("target") then
+			for i=1, #enemiesTable do
+				local thisUnit = enemiesTable[i].unit
+				local thisCheck = true
+				-- check for blacklist
+				for i=1, #exceptionTable do
+					if getUnitID(thisUnit) == exceptionTable[i] then 
+						thisCheck = false
+					end
+				end
+				-- get unit from enemiesTable
+				if thisCheck then
+					if enemiesTable[i].distance < 40 then
+						if UnitCanAttack("player",thisUnit) then
+							TargetUnit(thisUnit)
+							if UnitExists("target") then 
+								return 
+							end
+						end
+					end
+				end
+			end
+		end
+		return false
+	end
+
 	-- auto focus
 	function self.autofocus()
 		if self.talent.clarity_of_power then
 			if self.options.rotation.Auto_Focus then
 				-- clear focus
 				if UnitExists("focus") and UnitExists("target") then
-					if UnitGUID("focus") == UnitGUID("target") then
+					if UnitGUID("focus") == UnitGUID("target")
+					or getDistance("player","focus") >= 40
+					or UnitIsDeadOrGhost("focus") then
 						ClearFocus()
 					end
 				end
@@ -514,7 +549,7 @@ function cShadow:new()
 
 	-- get next biggest unit in range from enemiesTable with exceptions
 	function getNextBiggestUnit(exceptionUnit,range)
-		if not UnitExists(exceptionUnit) then
+		if not UnitExists(exceptionUnit) or exceptionsUnit == "player" then
 			exceptionUnit = "player"
 		end
 
@@ -531,14 +566,13 @@ function cShadow:new()
 			local thisUnit = enemiesTable[i].unit
 			local thisGUID = enemiesTable[i].guid
 			local thisCheck = true
-
 			-- check for blacklist
 			for i=1, #exceptionTable do
 				if getUnitID(thisUnit) == exceptionTable[i] then 
 					thisCheck = false
 				end
 			end
-
+			-- get the unit from enemiesTable
 			if thisCheck then
 				if thisGUID ~= exceptionGUID then
 					if enemiesTable[i].distance < range then
@@ -589,6 +623,36 @@ function cShadow:new()
 		end
 
 	-- Blacklist
+		-- CoP: offdot
+		function self.CoP_offdot_allowed(targetUnit)
+			if targetUnit == nil or not UnitExists(targetUnit) then 
+				return true 
+			end
+			
+			local thisUnit = targetUnit
+			local thisUnitID = getUnitID(thisUnit)
+			local Blacklist_UnitID = {
+			-- HM: Highmaul
+
+			-- BRF: Blackrock Foundry
+
+			-- HFC: Hellfire Citadel
+				91331,		-- Archimonde
+			}
+			local Blacklist_BuffID = {
+			-- blackrock foundry
+			}
+
+			-- check for buffs
+			for i = 1, #Blacklist_BuffID do
+				if getBuffRemain(thisUnit,Blacklist_BuffID[i]) > 0 or getDebuffRemain(thisUnit,Blacklist_BuffID[i]) > 0 then return false end
+			end
+			-- check for unit id
+			for i = 1, #Blacklist_UnitID do
+				if thisUnitID == Blacklist_UnitID[i] then return false end
+			end
+			return true
+		end
 		-- SWP
 		function self.SWP_allowed(targetUnit)
 			if targetUnit == nil or not UnitExists(targetUnit) then 
@@ -615,6 +679,7 @@ function cShadow:new()
 				93288,		-- Gorefiend: Corrupted Players
 				--95101,		-- Socrethar: Phase1 Voracious Soulstalker
 				--92919,		-- Zakuun: Mythic dat orb
+				92208,		-- Archimonde: Doomfire Spirit
 			}
 			local Blacklist_BuffID = {
 			-- blackrock foundry
@@ -632,7 +697,6 @@ function cShadow:new()
 			end
 			return true
 		end
-
 		-- VT
 		function self.VT_allowed(targetUnit)
 			if targetUnit == nil or not UnitExists(targetUnit) then 
@@ -665,6 +729,8 @@ function cShadow:new()
 				93288,		-- Gorefiend: Corrupted Players
 				95101,		-- Socrethar: Phase1 Voracious Soulstalker
 				91259,		-- Mannoroth: Fel Imp
+				92208,		-- Archimonde: Doomfire Spirit
+				93616,		-- Archimonde: Dreadstalker
 			}
 
 			local Blacklist_BuffID = {
@@ -981,13 +1047,13 @@ function cShadow:new()
 				-- infight
 				if UnitIsTappedByPlayer(thisTarget) then
 					-- blacklists: CC, DoT Blacklist
-					if not isCCed(thisTarget) and self.SWP_allowed(thisTarget) then
+					if not isCCed(thisTarget) and self.SWP_allowed(thisTarget) and self.CoP_offdot_allowed(thisTarget) then
 						-- check for running dot and remaining time
 						if getDebuffRemain(thisTarget,self.spell.shadow_word_pain,"player") <= 18*0.3 then
 							-- in range?
 							if getDistance("player",thisTarget) < 40 then
 								-- TTD or dummy
-								if getTTD(thisTarget) > self.options.rotation.ttdSWP or isDummy(thisTarget) then
+								if getTTD(GetObjectWithGUID(UnitGUID(thisTarget))) > self.options.rotation.ttdSWP or isDummy(thisTarget) then
 									return castSpell(thisTarget,self.spell.shadow_word_pain,true,false) == true or false
 								end
 							end
@@ -1100,13 +1166,13 @@ function cShadow:new()
 					-- last VT check
 					if lastVTTarget ~= thisUnitGUID and lastVTTime+5 < GetTime() then
 						-- blacklists: CC, DoT Blacklist
-						if not isCCed(thisTarget) and self.VT_allowed(thisTarget) then
+						if not isCCed(thisTarget) and self.VT_allowed(thisTarget) and self.CoP_offdot_allowed(thisTarget) then
 							-- check for running dot and remaining time
 							if getDebuffRemain(thisTarget,self.spell.vampiric_touch,"player") <= 15*0.3+castTime then
 								-- in range?
 								if getDistance("player",thisTarget) < 40 then
 									-- TTD or dummy
-									if getTTD(thisTarget) > self.options.rotation.ttdSWP+castTime or isDummy(thisTarget) then
+									if getTTD(GetObjectWithGUID(UnitGUID(thisTarget))) > self.options.rotation.ttdSWP+castTime or isDummy(thisTarget) then
 										return castSpell(thisTarget,self.spell.vampiric_touch,true,true) == true or false
 									end
 								end

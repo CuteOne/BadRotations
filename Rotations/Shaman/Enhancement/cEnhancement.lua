@@ -50,7 +50,8 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             windstrikeDebuff        = 115356,
 
             -- Glyphs
- 
+            fireNovaGlyph           = 55450,
+
             -- Perks
 
             -- Talent
@@ -275,7 +276,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         function self.getGlyphs()
             local hasGlyph = hasGlyph
 
-            -- self.glyph.touchOfKarma = hasGlyph(self.spell.touchOfKarmaGlyph)
+            self.glyph.fireNova = hasGlyph(self.spell.fireNovaGlyph)
         end
 
         ---------------
@@ -310,6 +311,8 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 
             -- -- AoE
             self.units.dyn10AoE  = dynamicTarget(10,false)
+            self.units.dyn15AoE  = dynamicTarget(15,false)
+            self.units.dyn20AoE  = dynamicTarget(20,false)
         end
 
         ---------------
@@ -598,8 +601,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         end
         -- Fire Nova
         function self.castFireNova()
-            if self.level>=44 and self.cd.fireNova==0 and self.powerPercent>13.7 and getDebuffRemain(self.units.dyn10AoE,self.spell.flameShock,"player")>0 then
-                if castSpell(self.units.dyn10AoE,self.spell.fireNova,false,false,false) then return end
+            local fireNovaTarget = fireNovaTarget
+            if self.glyph.fireNova then fireNovaTarget = self.units.dyn20AoE else fireNovaTarget = self.units.dyn15AoE end
+            if self.level>=44 and self.cd.fireNova==0 and self.powerPercent>13.7 and getDebuffRemain(fireNovaTarget,self.spell.flameShock,"player")>0 then
+                if castSpell(fireNovaTarget,self.spell.fireNova,false,false,false) then return end
             end
         end
         -- Lava Lash
@@ -610,7 +615,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         end
         -- Magma Totem
         function self.castMagmaTotem()
-            if self.level>=36 and ((not self.totem.magmaTotem) or (self.totem.magmaTotem and ObjectExists("target") and getTotemDistance("target")>=8 and getDistance("target")<8)) and self.powerPercent>21.1 and not isMoving("player") and ObjectExists("target") then
+            if self.level>=36 and ((not self.totem.magmaTotem) or (self.totem.magmaTotem and (self.talent.liquidMagma and self.cd.liquidMagma<35) and ObjectExists("target") and getTotemDistance("target")>=8 and getDistance("target")<8)) and self.powerPercent>21.1 and not isMoving("player") and ObjectExists("target") then
                 if castSpell("player",self.spell.magmaTotem,false,false,false) then return end
             end
         end

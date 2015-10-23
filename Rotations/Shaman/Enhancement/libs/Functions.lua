@@ -36,49 +36,50 @@ if select(3,UnitClass("player")) == 7 then
   end
 
   function shouldBolt()
+    local self = enhancementShaman
     local lightning = 0
     local lowestCD = 0
     if useAoE() then
-      if getSpellCD(_ChainLightning)==0 and UnitLevel("player")>=28 then
-        if UnitBuffID("player",_AncestralSwiftness) and (select(7,GetSpellInfo(_ChainLightning))/1000)<10 then
+      if self.cd.chainLightning==0 and self.level>=28 then
+        if self.buff.ancestralSwiftness and (select(7,GetSpellInfo(self.spell.chainLightning))/1000)<10 then
           lightning = 0
         else
-          lightning = select(7,GetSpellInfo(_ChainLightning))/1000
+          lightning = select(7,GetSpellInfo(self.spell.chainLightning))/1000
         end
       else
-        if UnitBuffID("player",_AncestralSwiftness) and (select(7,GetSpellInfo(_LightningBolt))/1000)<10 then
+        if self.buff.ancestralSwiftness and select(7,GetSpellInfo(self.spell.lightningBolt)/1000)<10 then
           lightning = 0
         else
-          lightning = select(7,GetSpellInfo(_LightningBolt))/1000
+          lightning = select(7,GetSpellInfo(self.spell.lightningBolt))/1000
         end
       end
     else
-      if UnitBuffID("player",_AncestralSwiftness) and (select(7,GetSpellInfo(_LightningBolt))/1000)<10 then
+      if self.buff.ancestralSwiftness and select(7,GetSpellInfo(self.spell.lightningBolt)/1000)<10 then
         lightning = 0
       else
-        lightning = select(7,GetSpellInfo(_LightningBolt))/1000
+        lightning = select(7,GetSpellInfo(self.spell.lightningBolt))/1000
       end
     end
-    if UnitLevel("player") < 3 then
+    if self.level < 3 then
       lowestCD = lightning+1
-    elseif UnitLevel("player") < 10 then
-      lowestCD = min(getSpellCD(_PrimalStrike))
-    elseif UnitLevel("player") < 12 then
-      lowestCD = min(getSpellCD(_PrimalStrike),getSpellCD(_LavaLash))
-    elseif UnitLevel("player") < 26 then
-      lowestCD = min(getSpellCD(_PrimalStrike),getSpellCD(_LavaLash),getSpellCD(_FlameShock))
-    elseif UnitLevel("player") < 81 then
-      lowestCD = min(getSpellCD(_Stormstrike),getSpellCD(_LavaLash),getSpellCD(_FlameShock))
-    elseif UnitLevel("player") < 87 then
-      lowestCD = min(getSpellCD(_Stormstrike),getSpellCD(_FlameShock),getSpellCD(_LavaLash),getSpellCD(_UnleashElements))
-    elseif UnitLevel("player") >= 87 then
-      if getBuffRemain("player",_AscendanceEnhancement) > 0 then
-        lowestCD = min(getSpellCD(_Stormblast),getSpellCD(_FlameShock),getSpellCD(_LavaLash),getSpellCD(_UnleashElements))
+    elseif self.level < 10 then
+      lowestCD = min(self.cd.primalStrike)
+    elseif self.level < 12 then
+      lowestCD = min(self.cd.primalStrike,self.cd.lavaLash)
+    elseif self.level < 26 then
+      lowestCD = min(self.cd.primalStrike,self.cd.lavaLash,self.cd.flameShock)
+    elseif self.level < 81 then
+      lowestCD = min(self.cd.stormstrike,self.cd.lavaLash,self.cd.flameShock)
+    elseif self.level < 87 then
+      lowestCD = min(self.cd.stormstrike,self.cd.lavaLash,self.cd.flameShock,self.cd.unleashElements)
+    elseif self.level >= 87 then
+      if self.buff.remain.ascendance > 0 then
+        lowestCD = min(self.cd.windstrike,self.cd.lavaLash,self.cd.flameShock,self.cd.unleashElements)
       else
-        lowestCD = min(getSpellCD(_Stormstrike),getSpellCD(_FlameShock),getSpellCD(_LavaLash),getSpellCD(_UnleashElements))
+        lowestCD = min(self.cd.stormstrike,self.cd.lavaLash,self.cd.flameShock,self.cd.unleashElements)
       end
     end
-    if lightning <= lowestCD and getTimeToDie("target") >= lightning then
+    if (lightning <= lowestCD or lightning <= self.gcd) and getTimeToDie("target") >= lightning then
       return true
     elseif castingUnit("player") and (isCastingSpell(_LightningBolt) or isCastingSpell(_ChainLightning)) and lightning > lowestCD then
       StopCasting()
