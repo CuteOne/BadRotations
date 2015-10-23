@@ -97,7 +97,7 @@ if select(3, UnitClass("player")) == 3 then
 
 
         --[[ Rotation Dropdown ]]--
-        createNewRotationDropdown(bb.profile_window, {"Mavmins"})
+        createNewRotationDropdown(bb.profile_window.parent, {"Mavmins"})
         bb:checkProfileWindowStatus()
     end
 

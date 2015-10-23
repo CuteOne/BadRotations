@@ -42,7 +42,7 @@ if select(3, UnitClass("player")) == 8 then
 
 
         --[[ Rotation Dropdown ]]--
-        createNewRotationDropdown(bb.profile_window, {"ragnar"})
+        createNewRotationDropdown(bb.profile_window.parent, {"ragnar"})
         bb:checkProfileWindowStatus()
     end
 
@@ -82,7 +82,7 @@ if select(3, UnitClass("player")) == 8 then
 
 
         --[[ Rotation Dropdown ]]--
-        createNewRotationDropdown(bb.profile_window, {"ragnar & Gabbz"})
+        createNewRotationDropdown(bb.profile_window.parent, {"ragnar & Gabbz"})
         bb:checkProfileWindowStatus()
     end
 
@@ -120,7 +120,7 @@ if select(3, UnitClass("player")) == 8 then
 
 
         --[[ Rotation Dropdown ]]--
-        createNewRotationDropdown(bb.profile_window, {"Gabbz"})
+        createNewRotationDropdown(bb.profile_window.parent, {"Gabbz"})
         bb:checkProfileWindowStatus()
     end
 end

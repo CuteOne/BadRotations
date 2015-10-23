@@ -193,16 +193,16 @@ function cProtection:new()
     end
 
     -- Rotation selection update
-    function self.getRotation()
-        self.rotation = bb.selectedProfile
-
-        if bb.rotation_changed then
-            self.createToggles()
-            self.createOptions()
-
-            bb.rotation_changed = false
-        end
-    end
+    --function self.getRotation()
+    --    self.rotation = bb.selectedProfile
+--
+    --    if bb.rotation_changed then
+    --        self.createToggles()
+    --        self.createOptions()
+--
+    --        bb.rotation_changed = false
+    --    end
+    --end
 
     -- Starts rotation, uses default if no other specified; starts if inCombat == true
 	function self.startRotation()
@@ -219,103 +219,6 @@ function cProtection:new()
 ---------------------------------------------------------------
 -------------------- OPTIONS ----------------------------------
 ---------------------------------------------------------------
-
-    function self.createOptionsOLD()
-        thisConfig = 0
-
-        -- Title
-        CreateNewTitle(thisConfig, "Protection Defmaster")
-
-        -- Create Base and Class options
-        self.createClassOptions()
-
-        local myColor,redColor,whiteColor  = "|cffC0C0C0","|cffFF0011","|cffFFFFFF"
-        local myClassColor = classColors[select(3,UnitClass("player"))].hex
-
-        local function generateWrapper(wrapName)
-            CreateNewWrap(thisConfig,whiteColor.."- "..redColor..wrapName..whiteColor.." -")
-        end
-
-        -- Wrapper
-        generateWrapper("Buffs")
-
-        -- Righteous Fury
-        CreateNewCheck(thisConfig,"Righteous Fury")
-        CreateNewText(thisConfig,"Righteous Fury")
-
-        -- Wrapper
-        generateWrapper("Rotation Management")
-
-        -- Light's Hammer
-        if isKnown(114158) then
-            CreateNewCheck(thisConfig,"Light's Hammer",nil,1)
-            CreateNewDrop(thisConfig,"Light's Hammer",2,"CD")
-            CreateNewText(thisConfig,"Light's Hammer")
-        end
-        -- Execution Sentence
-        if isKnown(114157) then
-            CreateNewCheck(thisConfig,"Execution Sentence",nil,1)
-            CreateNewDrop(thisConfig,"Execution Sentence",2,"CD")
-            CreateNewText(thisConfig,"Execution Sentence")
-        end
-        -- Holy Avenger
-        if isKnown(105809) then
-            CreateNewCheck(thisConfig,"Holy Avenger",nil,1)
-            CreateNewDrop(thisConfig,"Holy Avenger",2,"CD")
-            CreateNewText(thisConfig,"Holy Avenger")
-        end
-        -- Seraphim
-        if isKnown(152262) then
-            CreateNewCheck(thisConfig,"Seraphim",nil,1)
-            CreateNewDrop(thisConfig,"Seraphim",2,"CD")
-            CreateNewText(thisConfig,"Seraphim")
-        end
-
-        -- Wrapper
-        generateWrapper("Healing")
-
-        -- Word Of Glory Party
-        CreateNewCheck(thisConfig,"Word Of Glory On Self","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFWord of Glory|cffFFBB00 on self.",1)
-        CreateNewBox(thisConfig,"Word Of Glory On Self",0,100,1,30,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to heal self with \n|cffFFFFFFWords Of Glory")
-        CreateNewText(thisConfig,"Word Of Glory On Self")
-
-        -- LoH options
-        generalPaladinOptions()
-
-        -- Todo: reimplement later
-        --CreateNewCheck(thisConfig,"Hand Of Freedom","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHand Of Freedom|cffFFBB00.",1)
-        --CreateNewDrop(thisConfig,"Hand Of Freedom",1,"Under which conditions do we use Hand of Freedom on self.","|cffFFFFFFWhitelist","|cff00FF00All")
-        --CreateNewText(thisConfig,"Hand Of Freedom")
-
-        generateWrapper("Defensive")
-
-        CreateNewCheck(thisConfig,"Divine Protection","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFDivine Protection.",1)
-        CreateNewBox(thisConfig,"Divine Protection",0,100,1,65,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFDivine Protection")
-        CreateNewText(thisConfig,"Divine Protection")
-
-        CreateNewCheck(thisConfig,"Ardent Defender","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFArdent Defender.",1)
-        CreateNewBox(thisConfig,"Ardent Defender",0,100,1,20,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFArdent Defender")
-        CreateNewText(thisConfig,"Ardent Defender")
-
-        CreateNewCheck(thisConfig,"Guardian Of Ancient Kings","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFGuardian Of Ancients Kings.",1)
-        CreateNewBox(thisConfig,"Guardian Of Ancient Kings",0,100,1,30,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFGuardian Of Ancients Kings")
-        CreateNewText(thisConfig,"Guardian Of Ancient Kings")
-
-        -- Wrapper Interrupt
-        generateWrapper("Interrupts")
-
-        CreateNewCheck(thisConfig,"Rebuke","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFRebuke|cffFFBB00.",1)
-        CreateNewBox(thisConfig,"Rebuke",0,100,5,35,"|cffFFBB00Over what % of cast we want to \n|cffFFFFFFRebuke.")
-        CreateNewText(thisConfig,"Rebuke")
-
-        CreateNewCheck(thisConfig,"Avengers Shield Interrupt","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFusing AS as Interrupt|cffFFBB00.",1)
-        CreateNewBox(thisConfig,"Avengers Shield Interrupt",0,100,5,35,"|cffFFBB00Over what % of cast we want to \n|cffFFFFFFAS as interrupt.")
-        CreateNewText(thisConfig,"Avengers Shield Interrupt")
-
-        -- General Configs
-        CreateGeneralsConfig()
-        WrapsManager()
-    end
 
     function self.createToggles()
         GarbageButtons()
@@ -379,7 +282,6 @@ function cProtection:new()
         bb.profile_window = createNewProfileWindow("Protection")
 
         self.createClassOptions()
-        local dropOptionsCD = bb.dropOptions.CD
 
         local section
         if self.rotation == 1 then
@@ -390,8 +292,10 @@ function cProtection:new()
 
             -- Rota
             section = createNewSection(bb.profile_window, "Rotation Managment")
-            createNewDropdown(section, "Holy Avenger", {"Never","CDs","Always"})
-            createNewDropdown(section, "Seraphim", {"Never","CDs","Always"})
+            createNewDropdown(section, "Light's Hammer", bb.dropOptions.CD)
+            createNewDropdown(section, "Execution Sentence", bb.dropOptions.CD)
+            createNewDropdown(section, "Holy Avenger", bb.dropOptions.CD)
+            createNewDropdown(section, "Seraphim", bb.dropOptions.CD)
             checkSectionState(section)
 
             -- Healing

@@ -113,7 +113,7 @@ if select(3,UnitClass("player")) == 6 then
 
 
       --[[ Rotation Dropdown ]]--
-      createNewRotationDropdown(bb.profile_window, {"Chumii"})
+      createNewRotationDropdown(bb.profile_window.parent, {"Chumii"})
       bb:checkProfileWindowStatus()
   end
 end

@@ -239,9 +239,16 @@ function cCharacter:new(class)
 	end
 
 -- Rotation selection update
-	function self.getRotation()
-		self.rotation = getValue("Rotation")
-	end
+    function self.getRotation()
+        self.rotation = bb.selectedProfile
+
+        if bb.rotation_changed then
+            self.createToggles()
+            self.createOptions()
+
+            bb.rotation_changed = false
+        end
+    end
 
 -- Updates special Equipslots
 	function self.baseGetEquip()

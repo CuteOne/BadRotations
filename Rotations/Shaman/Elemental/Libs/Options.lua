@@ -1,121 +1,74 @@
 if select(3,UnitClass("player")) == 7 then
+    function ElementalConfig()
+        bb.profile_window = createNewProfileWindow("Elemental")
+        local section
 
-  function ElementalConfig()
-    local redColor = "|cffFF0011"
-    local whiteColor = "|cffFFFFFF"
-    local myClassColor = classColors[select(3,UnitClass("player"))].hex
-    local function generateWrapper(wrapName)
-      CreateNewWrap(thisConfig,whiteColor.."- "..redColor..wrapName..whiteColor.." -")
+        -- Wrapper
+        section = createNewSection(bb.profile_window, "Buffs")
+        -- Lightning Shield
+        createNewCheckbox(section,"Lightning Shield")
+        checkSectionState(section)
+
+
+        -- Wrapper
+        section = createNewSection(bb.profile_window, "Cooldowns")
+        -- Ancestral Swiftness
+        if isKnown(_AncestralSwiftness) then
+            createNewDropdown(section,  "Ancestral Swiftness", bb.dropOptions.CD,  1)
+        end
+        -- Ascendance
+        createNewDropdown(section,  "Ascendance", bb.dropOptions.CD,  1)
+        -- Elemental Mastery
+        if isKnown(_ElementalMastery) then
+            createNewDropdown(section, "Elemental Mastery", bb.dropOptions.CD, 1)
+        end
+        -- Fire Elemental
+        createNewDropdown(section, "Fire Elemental", bb.dropOptions.CD, 1)
+        -- Storm Elemental Totem
+        if isKnown(_StormElementalTotem) then
+            createNewDropdown(section, "Storm Elemental Totem", bb.dropOptions.CD, 1)
+        end
+        -- Searing
+        createNewCheckbox(section,"Searing")
+        checkSectionState(section)
+
+
+        -- Wrapper
+        section = createNewSection(bb.profile_window, "DPS Tweaks")
+        -- EarthQuake
+        createNewDropdown(section, "EarthQuake", bb.dropOptions.CD, 1)
+        -- Thunderstorm
+        createNewDropdown(section, "Thunderstorm", bb.dropOptions.CD, 1)
+        checkSectionState(section)
+
+
+        -- Wrapper
+        section = createNewSection(bb.profile_window, "Defensive")
+        -- Astral Shift
+        createNewSpinner(section, "Astral Shift", 30, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFAstral Shit")
+        -- Healing Stream
+        createNewSpinner(section, "Healing Stream", 50, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream")
+        -- Healing Rain
+        createNewSpinner(section, "Healing Rain", 50, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream")
+        -- Shamanistic Rage
+        createNewSpinner(section, "Shamanistic Rage", 70, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFShamanistic Rage")
+        checkSectionState(section)
+
+
+        -- Wrapper
+        section = createNewSection(bb.profile_window, "Utilities")
+        -- Healing Surge Toggle
+        createNewDropdown(section, "Healing Surge Toggle", bb.dropOptions.Toggle2, 4)
+        -- Pause Toggle
+        createNewDropdown(section, "Pause Toggle", bb.dropOptions.Toggle2, 3)
+        -- Standard Interrupt
+        createNewSpinner(section, "Wind Shear", 35, 0, 100, 5, "|cffFFBB00Over what % of cast we want to |cffFFFFFFWind Shear.")
+        checkSectionState(section)
+
+        
+
+        --[[ Rotation Dropdown ]]--
+        createNewRotationDropdown(bb.profile_window.parent, {"CodeMyLife"})
+        bb:checkProfileWindowStatus()
     end
-
-    ClearConfig()
-    thisConfig = 0
-    -- Title
-    CreateNewTitle(thisConfig,"Elemental CodeMyLife")
-
-    -- Wrapper
-    generateWrapper("Buffs")
-
-    -- Lightning Shield
-    CreateNewCheck(thisConfig,"Lightning Shield")
-    CreateNewText(thisConfig,"Lightning Shield")
-
-    -- Wrapper
-    generateWrapper("Cooldowns")
-
-    -- Ancestral Swiftness
-    if isKnown(_AncestralSwiftness) then
-      CreateNewCheck(thisConfig,"Ancestral Swiftness")
-      CreateNewDrop(thisConfig, "Ancestral Swiftness", 1,"CD")
-      CreateNewText(thisConfig,"Ancestral Swiftness")
-    end
-
-    -- Ascendance
-    CreateNewCheck(thisConfig,"Ascendance")
-    CreateNewDrop(thisConfig, "Ascendance", 1,"CD")
-    CreateNewText(thisConfig,"Ascendance")
-
-    -- Elemental Mastery
-    if isKnown(_ElementalMastery) then
-      CreateNewCheck(thisConfig,"Elemental Mastery")
-      CreateNewDrop(thisConfig,"Elemental Mastery",1,"CD")
-      CreateNewText(thisConfig,"Elemental Mastery")
-    end
-
-    -- Fire Elemental
-    CreateNewCheck(thisConfig,"Fire Elemental")
-    CreateNewDrop(thisConfig,"Fire Elemental",1,"CD")
-    CreateNewText(thisConfig,"Fire Elemental")
-
-    -- Storm Elemental Totem
-    if isKnown(_StormElementalTotem) then
-      CreateNewCheck(thisConfig,"Storm Elemental Totem")
-      CreateNewDrop(thisConfig,"Storm Elemental Totem",1,"CD")
-      CreateNewText(thisConfig,"Storm Elemental Totem")
-    end
-
-    -- Searing
-    CreateNewCheck(thisConfig,"Searing")
-    CreateNewText(thisConfig,"Searing")
-
-    -- Wrapper
-    generateWrapper("DPS Tweaks")
-
-    -- EarthQuake
-    CreateNewCheck(thisConfig,"EarthQuake")
-    CreateNewDrop(thisConfig,"EarthQuake",1,"CD")
-    CreateNewText(thisConfig,"EarthQuake")
-
-    -- Thunderstorm
-    CreateNewCheck(thisConfig,"Thunderstorm")
-    CreateNewDrop(thisConfig,"Thunderstorm",1,"CD")
-    CreateNewText(thisConfig,"Thunderstorm")
-
-    -- Wrapper
-    generateWrapper("Defensive")
-
-    -- Astral Shift
-    CreateNewCheck(thisConfig,"Astral Shift")
-    CreateNewBox(thisConfig,"Astral Shift",0,100,5,30,"|cffFFBB00Under what %HP to use |cffFFFFFFAstral Shit")
-    CreateNewText(thisConfig,"Astral Shift")
-
-    -- Healing Stream
-    CreateNewCheck(thisConfig,"Healing Stream")
-    CreateNewBox(thisConfig,"Healing Stream",0,100,5,50,"|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream")
-    CreateNewText(thisConfig,"Healing Stream")
-
-    -- Healing Rain
-    CreateNewCheck(thisConfig,"Healing Rain")
-    CreateNewBox(thisConfig,"Healing Rain",0,100,5,50,"|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream")
-    CreateNewText(thisConfig,"Healing Rain")
-
-    -- Shamanistic Rage
-    CreateNewCheck(thisConfig,"Shamanistic Rage")
-    CreateNewBox(thisConfig,"Shamanistic Rage",0,100,5,70,"|cffFFBB00Under what %HP to use |cffFFFFFFShamanistic Rage")
-    CreateNewText(thisConfig,"Shamanistic Rage")
-
-    -- Wrapper
-    generateWrapper("Utilities")
-
-    -- Healing Surge Toggle
-    CreateNewCheck(thisConfig,"Healing Surge Toggle")
-    CreateNewDrop(thisConfig,"Healing Surge Toggle",4,"Toggle2")
-    CreateNewText(thisConfig,"Healing Surge Toggle")
-
-    -- Pause Toggle
-    CreateNewCheck(thisConfig,"Pause Toggle")
-    CreateNewDrop(thisConfig,"Pause Toggle",3,"Toggle2")
-    CreateNewText(thisConfig,"Pause Toggle")
-
-    -- Standard Interrupt
-    CreateNewCheck(thisConfig,"Wind Shear")
-    CreateNewBox(thisConfig,"Wind Shear",0,100,5,35,"|cffFFBB00Over what % of cast we want to |cffFFFFFFWind Shear.")
-    CreateNewText(thisConfig,"Wind Shear")
-
-    -- General Configs
-    CreateGeneralsConfig()
-
-    WrapsManager()
-  end
-
 end

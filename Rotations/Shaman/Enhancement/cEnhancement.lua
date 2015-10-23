@@ -32,7 +32,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             windstrike              = 115356,
 
             -- Buff - Defensive
-            
+
             -- Buff - Offensive
             ascendanceBuff          = 114051,
             unleashFlameBuff        = 73683,
@@ -50,7 +50,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             windstrikeDebuff        = 115356,
 
             -- Glyphs
- 
+
             -- Perks
 
             -- Talent
@@ -163,7 +163,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             local getRecharge = getRecharge
 
             self.recharge.lavaLash      = getRecharge(self.spell.lavaLashStacks) or 0
-            self.recharge.stormstrike   = getRecharge(self.spell.stormstrikeStacks) or 0 
+            self.recharge.stormstrike   = getRecharge(self.spell.stormstrikeStacks) or 0
             self.recharge.windstrike    = getRecharge(self.spell.windstrikeStacks) or 0
         end
 
@@ -327,11 +327,23 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         --- START ROTATION ---
         ----------------------
 
+        -- Rotation selection update
+        function self.getRotation()
+            self.rotation = bb.selectedProfile
+
+            if bb.rotation_changed then
+                --self.createToggles()
+                self.createOptions()
+
+                bb.rotation_changed = false
+            end
+        end
+
         function self.startRotation()
             if self.rotation == 1 then
                 self:EnhancementCuteOne()
-            elseif self.rotation == 2 then
-                self:EnhancementOld()
+                --elseif self.rotation == 2 then
+                --    self:EnhancementOld()
             else
                 ChatOverlay("No ROTATION ?!", 2000)
             end
@@ -342,243 +354,203 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         ---------------
 
         function self.createOptions()
-            thisConfig = 0
-
-            -- Title
-            CreateNewTitle(thisConfig, "Enhancement")
+            bb.profile_window = createNewProfileWindow("Enhancement")
+            local section
 
             -- Create Base and Class options
             self.createClassOptions()
 
-            -- Combat options
-            CreateNewWrap(thisConfig, "--- General ---");
+            --   _____                           _
+            --  / ____|                         | |
+            -- | |  __  ___ _ __   ___ _ __ __ _| |
+            -- | | |_ |/ _ \ '_ \ / _ \ '__/ _` | |
+            -- | |__| |  __/ | | |  __/ | | (_| | |
+            --  \_____|\___|_| |_|\___|_|  \__,_|_|
+            section = createNewSection(bb.profile_window,  "--- General ---")
+            -- Dummy DPS Test
+            createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
-                -- Rotation
-                CreateNewDrop(thisConfig, "Rotation", 1, "Select Rotation.", "|cff00FF00CuteOne", "|cff00FF00Old");
-                CreateNewText(thisConfig, "Rotation");
+            -- Earthbind/Earthgrab Totem
+            if self.talent.earthgrabTotem then
+                createNewCheckbox(section,"Earthgrab Totem")
+            else
+                createNewCheckbox(section,"Earthbind Totem")
+            end
 
-                -- Dummy DPS Test
-                CreateNewCheck(thisConfig,"DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.");
-                CreateNewBox(thisConfig,"DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-                CreateNewText(thisConfig,"DPS Testing");
+            -- Ghost Wolf
+            createNewCheckbox(section,"Ghost Wolf")
 
-                -- Earthbind/Earthgrab Totem
-                if self.talent.earthgrabTotem then
-                    CreateNewCheck(thisConfig,"Earthgrab Totem");
-                    CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.earthgrabTotem))));
-                else
-                    CreateNewCheck(thisConfig,"Earthbind Totem");
-                    CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.earthbindTotem))));
-                end
+            -- Spirit Walk
+            createNewCheckbox(section,"Spirit Walk")
 
-                -- Ghost Wolf
-                CreateNewCheck(thisConfig,"Ghost Wolf");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.ghostWolf))));
+            -- Tremor Totem
+            createNewCheckbox(section,"Tremor Totem")
 
-                -- Spirit Walk
-                CreateNewCheck(thisConfig,"Spirit Walk");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.spiritWalk))));
+            -- Water Walking
+            createNewCheckbox(section,"Water Walking")
+            checkSectionState(section)
 
-                -- Tremor Totem
-                CreateNewCheck(thisConfig,"Tremor Totem");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.tremorTotem))));
+            
+            --   _____            _     _
+            --  / ____|          | |   | |
+            -- | |     ___   ___ | | __| | _____      ___ __  ___
+            -- | |    / _ \ / _ \| |/ _` |/ _ \ \ /\ / / '_ \/ __|
+            -- | |___| (_) | (_) | | (_| | (_) \ V  V /| | | \__ \
+            --  \_____\___/ \___/|_|\__,_|\___/ \_/\_/ |_| |_|___/
+            section = createNewSection(bb.profile_window,  "--- Cooldowns ---")
+            -- Agi Pot
+            createNewCheckbox(section,"Agi-Pot")
 
-                -- Water Walking
-                CreateNewCheck(thisConfig,"Water Walking");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.waterWalking))));
+            -- Legendary Ring
+            createNewCheckbox(section, "Legendary Ring", "Enable or Disable usage of Legendary Ring.")
+            -- createNewDropdown(section,  "Legendary Ring", { "CD"},  2)
 
-            -- Spacer
-            CreateNewText(thisConfig, " ");
-            CreateNewWrap(thisConfig, "--- Cooldowns ---");
+            -- Flask / Crystal
+            createNewCheckbox(section,"Flask / Crystal")
 
-                -- Agi Pot
-                CreateNewCheck(thisConfig,"Agi-Pot");
-                CreateNewText(thisConfig,"Agi-Pot");
+            -- Trinkets
+            createNewCheckbox(section,"Trinkets")
 
-                -- Legendary Ring
-                CreateNewCheck(thisConfig, "Legendary Ring", "Enable or Disable usage of Legendary Ring.");
-                -- CreateNewDrop(thisConfig, "Legendary Ring", 2, "CD")
-                CreateNewText(thisConfig, "Legendary Ring");
+            -- Touch of the Void
+            createNewCheckbox(section,"Touch of the Void")
 
-                -- Flask / Crystal
-                CreateNewCheck(thisConfig,"Flask / Crystal")
-                CreateNewText(thisConfig,"Flask / Crystal")
-
-                -- Trinkets
-                CreateNewCheck(thisConfig,"Trinkets")
-                CreateNewText(thisConfig,"Trinkets")
-
-                -- Touch of the Void
-                CreateNewCheck(thisConfig,"Touch of the Void");
-                CreateNewText(thisConfig,"Touch of the Void");
-
-                -- Heroism/Bloodlust
-                CreateNewCheck(thisConfig,"HeroLust");
-                if self.faction=="Alliance" then
-                    CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.heroism))));
-                end
-                if self.faction=="Horde" then
-                    CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.bloodlust))));
-                end
-
-                -- Elemental Mastery
-                CreateNewCheck(thisConfig,"Elemental Mastery");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.elementalMastery))));
-
-                -- Storm Elemental Totem
-                CreateNewCheck(thisConfig,"Storm Elemental Totem");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.stormElementalTotem))));
-
-                -- Fire Elemental Totem
-                CreateNewCheck(thisConfig,"Fire Elemental Totem");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.fireElementalTotem))));
-
-                -- Feral Spirit
-                CreateNewCheck(thisConfig,"Feral Spirit");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.feralSpirit))));
-
-                -- Liquid Magma
-                CreateNewCheck(thisConfig,"Liquid Magma");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.liquidMagma))));
-
-                -- Ancestral Swiftness
-                CreateNewCheck(thisConfig,"Ancestral Swiftness");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.ancestralSwiftness))));
-
-                -- Ascendance
-                CreateNewCheck(thisConfig,"Ascendance");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.ascendance))));
-
-             -- Spacer
-            CreateNewText(thisConfig," ");
-            CreateNewWrap(thisConfig,"--- Defensive ---");
-
-                -- Healthstone
-                CreateNewCheck(thisConfig,"Healthstone");
-                CreateNewBox(thisConfig,"Healthstone", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
-                CreateNewText(thisConfig,"Healthstone");
-
-                -- Heirloom Neck
-                CreateNewCheck(thisConfig,"Heirloom Neck");
-                CreateNewBox(thisConfig,"Heirloom Neck", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
-                CreateNewText(thisConfig,"Heirloom Neck");
-
-                -- Gift of The Naaru
-                if self.race == "Draenei" then
-                    CreateNewCheck(thisConfig,"Gift of the Naaru");
-                    CreateNewBox(thisConfig,"Gift of the Naaru", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-                    CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.getRacial()))));
-                end
-
-                -- Ancestral Guidance
-                CreateNewCheck(thisConfig,"Ancestral Guidance");
-                CreateNewBox(thisConfig,"Ancestral Guidance", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.ancestralGuidance))));
-
-                -- Ancestral Spirit
-                CreateNewCheck(thisConfig,"Ancestral Spirit");
-                CreateNewDrop(thisConfig,"Ancestral Spirit",1,"|ccfFFFFFFTarget to Cast On","|cffFFFF00Selected Target","|cffFF0000Mouseover Target")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.ancestralSpirit))));
-
-                -- Astral Shift
-                CreateNewCheck(thisConfig,"Astral Shift");
-                CreateNewBox(thisConfig,"Astral Shift", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.astralShift))));
-
-                -- Capacitor Totem
-                CreateNewCheck(thisConfig,"Capacitor Totem - Defensive");
-                CreateNewBox(thisConfig,"Capacitor Totem", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.capacitorTotem))).." - Defensive");
-
-                -- Earth Elemental Totem
-                CreateNewCheck(thisConfig,"Earth Elemental Totem");
-                CreateNewBox(thisConfig,"Earth Elemental Totem", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.earthElementalTotem))));
+            -- Heroism/Bloodlust
+            createNewCheckbox(section,"HeroLust")
+            if self.faction=="Alliance" then
                 
-                -- Healing Rain
-                CreateNewCheck(thisConfig,"Healing Rain");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.healingRain))));
-
-                -- Healing Stream Totem
-                CreateNewCheck(thisConfig,"Healing Stream Totem");
-                CreateNewBox(thisConfig,"Healing Stream Totem", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.healingStreamTotem))));
-
-                -- Healing Surge
-                CreateNewCheck(thisConfig,"Healing Surge");
-                CreateNewBox(thisConfig,"Healing Surge - Level", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.healingSurge))).." - Level");
-                CreateNewDrop(thisConfig,"Healing Surge - Target",1,"|cffFFFFFFTarget to cast on","|cff00FF00Player Only","|cffFFFF00Lowest Target","|cffFF0000Mouseover Target")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.healingSurge))).." - Target");
-
-                -- Shamanistic Rage
-                CreateNewCheck(thisConfig,"Shamanistic Rage");
-                CreateNewBox(thisConfig,"Shamanistic Rage", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.shamanisticRage))));
-
-                -- Cleanse Spirit
-                CreateNewCheck(thisConfig,"Cleanse Spirit");
-                CreateNewDrop(thisConfig,"Clease Spirit",1,"|cffFFFFFFTarget to Cast On","|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.cleanseSpirit))));
-
-                -- Purge
-                CreateNewCheck(thisConfig,"Purge");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.purge))));
-
-            -- Spacer --
-            CreateNewText(thisConfig," ");
-            CreateNewWrap(thisConfig,"--- Interrupts ---");
-
-                -- Capacitor Totem
-                CreateNewCheck(thisConfig,"Capacitor Totem - Interrupt")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.capacitorTotem))).." - Interrupt")
-
-                -- Grounding Totem
-                CreateNewCheck(thisConfig,"Grounding Totem")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.groundingTotem))))
-
-                -- Wind Shear
-                CreateNewCheck(thisConfig,"Wind Shear")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.windShear))))
+            end
+            if self.faction=="Horde" then
                 
-                -- Interrupt Percentage
-                CreateNewCheck(thisConfig,"InterruptAt");
-                CreateNewBox(thisConfig, "InterruptAt", 0, 95, 5, 0, "|cffFFBB00Cast Percentage to use at.");
-                CreateNewText(thisConfig,"InterruptAt");
+            end
 
-            -- Spacer
-            CreateNewText(thisConfig, " ");
-            CreateNewWrap(thisConfig, "--- Toggle Keys ---");
+            -- Elemental Mastery
+            createNewCheckbox(section,"Elemental Mastery")
 
-                -- Single/Multi Toggle
-                CreateNewCheck(thisConfig, "Rotation Mode", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.");
-                CreateNewDrop(thisConfig, "Rotation Mode", 4, "Toggle")
-                CreateNewText(thisConfig, "Rotation Mode");
+            -- Storm Elemental Totem
+            createNewCheckbox(section,"Storm Elemental Totem")
 
-                --Cooldown Key Toggle
-                CreateNewCheck(thisConfig, "Cooldown Mode", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.");
-                CreateNewDrop(thisConfig, "Cooldown Mode", 3, "Toggle")
-                CreateNewText(thisConfig, "Cooldown Mode")
+            -- Fire Elemental Totem
+            createNewCheckbox(section,"Fire Elemental Totem")
 
-                --Defensive Key Toggle
-                CreateNewCheck(thisConfig, "Defensive Mode", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.");
-                CreateNewDrop(thisConfig, "Defensive Mode", 6, "Toggle")
-                CreateNewText(thisConfig, "Defensive Mode")
+            -- Feral Spirit
+            createNewCheckbox(section,"Feral Spirit")
 
-                -- Interrupts Key Toggle
-                CreateNewCheck(thisConfig, "Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.")
-                CreateNewDrop(thisConfig, "Interrupt Mode", 6, "Toggle")
-                CreateNewText(thisConfig, "Interrupts")
+            -- Liquid Magma
+            createNewCheckbox(section,"Liquid Magma")
 
-                -- Pause Toggle
-                CreateNewCheck(thisConfig, "Pause Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFPause Toggle Key - None Defaults to LeftAlt|cffFFBB00.")
-                CreateNewDrop(thisConfig, "Pause Mode", 6, "Toggle")
-                CreateNewText(thisConfig, "Pause Mode")
+            -- Ancestral Swiftness
+            createNewCheckbox(section,"Ancestral Swiftness")
 
-            -- General Configs
-            CreateGeneralsConfig();
+            -- Ascendance
+            createNewCheckbox(section,"Ascendance")
+            checkSectionState(section)
 
-            WrapsManager();
+            --  _____        __               _
+            -- |  __ \      / _|             (_)
+            -- | |  | | ___| |_ ___ _ __  ___ ___   _____
+            -- | |  | |/ _ \  _/ _ \ '_ \/ __| \ \ / / _ \
+            -- | |__| |  __/ ||  __/ | | \__ \ |\ V /  __/
+            -- |_____/ \___|_| \___|_| |_|___/_| \_/ \___|
+            section = createNewSection(bb.profile_window, "--- Defensive ---")
+            -- Healthstone
+            createNewSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+
+            -- Heirloom Neck
+            createNewSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+
+            -- Gift of The Naaru
+            if self.race == "Draenei" then
+                createNewSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            end
+
+            -- Ancestral Guidance
+            createNewSpinner(section, "Ancestral Guidance",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+
+            -- Ancestral Spirit
+            createNewDropdown(section, "Ancestral Spirit", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
+
+            -- Astral Shift
+            createNewSpinner(section, "Astral Shift",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+
+            -- Capacitor Totem
+            createNewSpinner(section, "Capacitor Totem - Defensive",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            
+            -- Earth Elemental Totem
+            createNewSpinner(section, "Earth Elemental Totem",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            
+            -- Healing Rain
+            createNewCheckbox(section,"Healing Rain")
+            
+            -- Healing Stream Totem
+            createNewSpinner(section, "Healing Stream Totem",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            
+            -- Healing Surge
+            createNewCheckbox(section,"Healing Surge")
+            createNewSpinner(section, "Healing Surge - Level",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            createNewDropdown(section, "Healing Surge - Target", {"|cff00FF00Player Only","|cffFFFF00Lowest Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
+            
+            -- Shamanistic Rage
+            createNewSpinner(section, "Shamanistic Rage",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            
+            -- Cleanse Spirit
+            createNewDropdown(section, "Clease Spirit", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
+            
+            -- Purge
+            createNewCheckbox(section,"Purge")
+            checkSectionState(section)
+
+            --  _____       _                             _
+            -- |_   _|     | |                           | |
+            --   | |  _ __ | |_ ___ _ __ _ __ _   _ _ __ | |_ ___
+            --   | | | '_ \| __/ _ \ '__| '__| | | | '_ \| __/ __|
+            --  _| |_| | | | ||  __/ |  | |  | |_| | |_) | |_\__ \
+            -- |_____|_| |_|\__\___|_|  |_|   \__,_| .__/ \__|___/
+            --                                     | |
+            --                                     |_|
+            section = createNewSection(bb.profile_window, "--- Interrupts ---")
+            -- Capacitor Totem
+            createNewCheckbox(section,"Capacitor Totem - Interrupt")
+            
+            -- Grounding Totem
+            createNewCheckbox(section,"Grounding Totem")
+            
+            -- Wind Shear
+            createNewCheckbox(section,"Wind Shear")
+            
+            -- Interrupt Percentage
+            createNewSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+            checkSectionState(section)
+
+            -- _______                _        _  __
+            --|__   __|              | |      | |/ /
+            --   | | ___   __ _  __ _| | ___  | ' / ___ _   _ ___
+            --   | |/ _ \ / _` |/ _` | |/ _ \ |  < / _ \ | | / __|
+            --   | | (_) | (_| | (_| | |  __/ | . \  __/ |_| \__ \
+            --   |_|\___/ \__, |\__, |_|\___| |_|\_\___|\__, |___/
+            --             __/ | __/ |                   __/ |
+            --            |___/ |___/                   |___/
+            section = createNewSection(bb.profile_window,  "--- Toggle Keys ---")
+            -- Single/Multi Toggle
+            createNewDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
+
+            --Cooldown Key Toggle
+            createNewDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
+
+            --Defensive Key Toggle
+            createNewDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
+
+            -- Interrupts Key Toggle
+            createNewDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
+
+            -- Pause Toggle
+            createNewDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
+            checkSectionState(section)
+
+
+
+            --[[ Rotation Dropdown ]]--
+            createNewRotationDropdown(bb.profile_window.parent, {"CuteOne"})
+            bb:checkProfileWindowStatus()
         end
 
         --------------
@@ -606,7 +578,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         function self.castLavaLash()
             if self.level>=10 and self.cd.lavaLash==0 and (getDistance(self.units.dyn5)<5 or IsSpellInRange(GetSpellInfo(self.spell.lavaLash),self.units.dyn5)~=nil) then
                 if castSpell(self.units.dyn5,self.spell.lavaLash,false,false,false) then return end
-            end 
+            end
         end
         -- Magma Totem
         function self.castMagmaTotem()
@@ -621,8 +593,8 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 if castSpell(self.units.dyn5,self.spell.stormstrike,false,false,false) then return end
             end
             if self.level<26 and self.cd.primalStrike==0 and (getDistance(self.units.dyn5)<5 or IsSpellInRange(GetSpellInfo(self.spell.primalStrike),self.units.dyn5)~=nil) then
-               if castSpell(self.units.dyn5,self.spell.primalStrike,false,false,false) then return end
-            end 
+                if castSpell(self.units.dyn5,self.spell.primalStrike,false,false,false) then return end
+            end
         end
         -- Unleash Elements
         function self.castUnleashElements()

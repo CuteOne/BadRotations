@@ -95,29 +95,13 @@ function cPaladin:new(spec)
 
     -- Class options
     -- Options which every Paladin should have
-    function self.createClassOptionsOLD()
-        -- Create Base Options
-        self.createBaseOptions()
-
-        -- Class Wrap
-        CreateNewWrap(thisConfig, "--- Class Options ---")
-
-        -- Blessing
-        CreateNewCheck(thisConfig,"Blessings")
-        CreateNewDrop(thisConfig,"Blessings",1,"|cffFFFFFFWhich blessing do you want to maintain on raid","|cff0374FEKings","|cffFFBC40Might","|cff00FF0DAuto")
-        CreateNewText(thisConfig,"Blessings")
-
-        -- Spacer
-        CreateNewText(" ");
-    end
-
     function self.createClassOptions()
         -- Create Base Options
         self.createBaseOptions()
 
-        local section_class = createNewSection(bb.profile_window, "Class Options")
-        createNewDropdown(section_class,"Blessings", {"Kings","Might","Auto"})
-        checkSectionState(section_class)
+        local section = createNewSection(bb.profile_window, "Class Options")
+        createNewDropdown(section,"Blessings", {"Kings","Might","Auto"})
+        checkSectionState(section)
     end
     --------------
     --- SPELLS ---
