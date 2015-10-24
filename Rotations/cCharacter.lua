@@ -147,6 +147,9 @@ function cCharacter:new(class)
 		-- Empowered Augment Rune
 		self.useEmpoweredRune()
 
+        -- TEMP
+        self.getRotation()
+
 		-- Food/Invis Check
 		if canRun() ~= true then
 			return false

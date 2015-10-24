@@ -366,7 +366,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             -- | | |_ |/ _ \ '_ \ / _ \ '__/ _` | |
             -- | |__| |  __/ | | |  __/ | | (_| | |
             --  \_____|\___|_| |_|\___|_|  \__,_|_|
-            section = createNewSection(bb.profile_window,  "--- General ---")
+            section = createNewSection(bb.profile_window,  "General")
             -- Dummy DPS Test
             createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
@@ -397,7 +397,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             -- | |    / _ \ / _ \| |/ _` |/ _ \ \ /\ / / '_ \/ __|
             -- | |___| (_) | (_) | | (_| | (_) \ V  V /| | | \__ \
             --  \_____\___/ \___/|_|\__,_|\___/ \_/\_/ |_| |_|___/
-            section = createNewSection(bb.profile_window,  "--- Cooldowns ---")
+            section = createNewSection(bb.profile_window,  "Cooldowns")
             -- Agi Pot
             createNewCheckbox(section,"Agi-Pot")
 
@@ -451,7 +451,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             -- | |  | |/ _ \  _/ _ \ '_ \/ __| \ \ / / _ \
             -- | |__| |  __/ ||  __/ | | \__ \ |\ V /  __/
             -- |_____/ \___|_| \___|_| |_|___/_| \_/ \___|
-            section = createNewSection(bb.profile_window, "--- Defensive ---")
+            section = createNewSection(bb.profile_window, "Defensive")
             -- Healthstone
             createNewSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
@@ -507,7 +507,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             -- |_____|_| |_|\__\___|_|  |_|   \__,_| .__/ \__|___/
             --                                     | |
             --                                     |_|
-            section = createNewSection(bb.profile_window, "--- Interrupts ---")
+            section = createNewSection(bb.profile_window, "Interrupts")
             -- Capacitor Totem
             createNewCheckbox(section,"Capacitor Totem - Interrupt")
             
@@ -529,7 +529,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             --   |_|\___/ \__, |\__, |_|\___| |_|\_\___|\__, |___/
             --             __/ | __/ |                   __/ |
             --            |___/ |___/                   |___/
-            section = createNewSection(bb.profile_window,  "--- Toggle Keys ---")
+            section = createNewSection(bb.profile_window,  "Toggle Keys")
             -- Single/Multi Toggle
             createNewDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
 

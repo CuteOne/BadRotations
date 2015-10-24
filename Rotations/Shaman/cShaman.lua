@@ -411,7 +411,7 @@ function cShaman:new(spec)
 		self.createBaseOptions()
 
 		-- Class Wrap
-        local section = createNewSection(bb.profile_window,  "--- Class Options ---")
+        local section = createNewSection(bb.profile_window,  "Class Options")
         checkSectionState(section)
 	end
 

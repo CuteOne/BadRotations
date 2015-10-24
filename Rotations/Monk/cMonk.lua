@@ -306,14 +306,12 @@ function cMonk:new(spec)
 	-- Class options
 	-- Options which every Monk should have
 	function self.createClassOptions()
-		-- Create Base Options
-		self.createBaseOptions()
+        -- Create Base Options
+        self.createBaseOptions()
 
-		-- Class Wrap
-		CreateNewWrap(thisConfig, "--- Class Options ---")
-
-        -- Spacer
-		CreateNewText(" ");
+        -- Class Wrap
+        local section = createNewSection(bb.profile_window,  "Class Options")
+        checkSectionState(section)
 	end
 
 ------------------------------
