@@ -293,6 +293,7 @@ function cShadow:new()
 		self.options.rotation.ttdSWP 					= getValue("ttd swp")
 		self.options.rotation.ttdVT 					= getValue("ttd vt")
 		self.options.rotation.Auto_Focus 				= isChecked("AutoFocus")
+		self.options.rotation.Auto_Burn					= isChecked("AutoBurn")
 
 		self.options.utilities 							= {}
 		self.options.utilities.pause 					= isChecked("Pause Toggle")
@@ -540,7 +541,7 @@ function cShadow:new()
 					-- if UnitExists("boss2") and UnitCanAttack("player","boss2") then
 					-- 	FocusUnit("boss2")
 					if getNumEnemies("player",40) > 1 then
-						FocusUnit(getNextBiggestUnit("target",40))
+						FocusUnit(self.getNextBiggestUnit("target",40))
 					end
 				end
 			end
@@ -548,7 +549,7 @@ function cShadow:new()
 	end
 
 	-- get next biggest unit in range from enemiesTable with exceptions
-	function getNextBiggestUnit(exceptionUnit,range)
+	function self.getNextBiggestUnit(exceptionUnit,range)
 		if not UnitExists(exceptionUnit) or exceptionsUnit == "player" then
 			exceptionUnit = "player"
 		end
@@ -582,6 +583,26 @@ function cShadow:new()
 					end
 				end
 			end
+		end
+		return false
+	end
+
+	function self.BurnRotation()
+		if self.options.rotation.Auto_Burn then
+			-- SWD
+			if self.castSWD("target") then return true end
+			-- DP
+			if self.orbs>3 then
+				if self.castDP("target") then return true end
+			end
+			-- SWP
+			if getDebuffRemain("target",self.spell.shadow_word_pain,"player")<=0 then
+				if self.castSWP("target") then return true end
+			end
+			-- MB
+			if self.castMindBlast("target") then return true end
+			-- MF
+			if self.castMindFlay("target") then return true end
 		end
 		return false
 	end
@@ -986,6 +1007,12 @@ function cShadow:new()
 						end
 					end
 				end
+			end
+			return false
+		end
+		function self.castSWD(thisTarget)
+			if getHP(thisTarget)<=20 then
+				return castSpell(thisTarget,self.spell.shadow_word_death,true,false) == true or false
 			end
 			return false
 		end

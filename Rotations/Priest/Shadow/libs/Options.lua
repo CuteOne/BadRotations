@@ -91,6 +91,10 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewCheck(thisConfig,"Target Helper", "Assists to target the correct unit")
 			CreateNewText(thisConfig,"Target Helper")
 
+			-- Auto Burn
+			CreateNewCheck(thisConfig,"AutoBurn", "Auto target burn defined units like doomfire on archimonde")
+			CreateNewText(thisConfig,"AutoBurn")
+
 			-- Gorefiend SWP
 			CreateNewCheck(thisConfig,"Gorefiend SWP", "SWP every Corrupted Soul in Mythic")
 			CreateNewText(thisConfig,"Gorefiend SWP")
@@ -128,6 +132,7 @@ if select(3, UnitClass("player")) == 5 then
 			CreateNewCheck(thisConfig,"AutoFocus", "Focus units on CoP rotation autmatically for offDot and offDP")
 			CreateNewText(thisConfig,"AutoFocus")
 
+			
 
 
 			--  _    _ _   _ _ _ _   _           

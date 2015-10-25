@@ -209,8 +209,22 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 
 				-- Doomfire Spirit
 				if getUnitID("target")==92208 then
-					if self.castDP("target") then return end
+					if self.BurnRotation() then return end
 				end
+
+				-- dot all dogs (Dreadstalker: 93616)
+				for i=1, #enemiesTable do
+					local thisUnit = enemiesTable[i].unit
+					local thisUnitID = enemiesTable[i].id
+					if thisUnitID == 93616 then
+						if getDebuffRemain(thisUnit,self.spell.shadow_word_pain,"player") <= 18*0.3 then
+							if getHP(thisUnit) > 20 then
+								if castSpell(thisUnit,self.spell.shadow_word_pain,true,false) then return end
+							end
+						end
+					end
+				end
+
 
 				-- if GetObjectExists("target")==false then TargetUnit("Archimonde") end
 				
@@ -227,6 +241,11 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				-- 		if self.castCascade() then return end
 				-- 	end
 				-- end
+
+				-- Doomfire Spirit burn
+				if getUnitID("target")==92208 then
+					if self.BurnRotation() then return end
+				end
 			end
 		end
 	end
