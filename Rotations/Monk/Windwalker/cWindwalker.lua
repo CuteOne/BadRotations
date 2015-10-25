@@ -35,7 +35,7 @@ if select(2, UnitClass("player")) == "MONK" then
 
             -- Buff - Defensive
             touchOfKarmaBuff                = 122470,
-            
+
             -- Buff - Offensive
             comboBreakerBlackoutKickBuff    = 116768,
             comboBreakerChiExplosionBuff    = 159407,
@@ -160,7 +160,7 @@ if select(2, UnitClass("player")) == "MONK" then
         end
 
         function self.getCharges()
-        local getBuffStacks = getBuffStacks
+            local getBuffStacks = getBuffStacks
 
             self.charges.stormEarthAndFire  = getBuffStacks("player",self.spell.stormEarthAndFireStacks,"player") or 0
             self.charges.tigereyeBrew       = getBuffStacks("player",self.spell.tigereyeBrewStacks,"player") or 0
@@ -267,10 +267,10 @@ if select(2, UnitClass("player")) == "MONK" then
         function self.startRotation()
             if self.rotation == 1 then
                 self:WindwalkerCuteOne()
-            elseif self.rotation == 2 then
-                self:WindwalkerDef()
-            elseif self.rotation == 3 then
-                self:WindwalkerOld()
+                --elseif self.rotation == 2 then
+                --    self:WindwalkerDef()
+                --elseif self.rotation == 3 then
+                --    self:WindwalkerOld()
             else
                 ChatOverlay("No ROTATION ?!", 2000)
             end
@@ -281,248 +281,125 @@ if select(2, UnitClass("player")) == "MONK" then
         ---------------
 
         function self.createOptions()
-            thisConfig = 0
-
-            -- Title
-            CreateNewTitle(thisConfig, "Windwalker")
+            bb.profile_window = createNewProfileWindow("Windwalker")
+            local section
 
             -- Create Base and Class options
             self.createClassOptions()
 
             -- Combat options
-            CreateNewWrap(thisConfig, "--- General ---");
-
-            -- Rotation
-            CreateNewDrop(thisConfig, "Rotation", 1, "Select Rotation.", "|cff00FF00CuteOne", "|cff00FF00Def", "|cff00FF00Old");
-            CreateNewText(thisConfig, "Rotation");
-
+            section = createNewSection(bb.profile_window,  "General")
             -- Dummy DPS Test
-            CreateNewCheck(thisConfig,"DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.");
-            CreateNewBox(thisConfig,"DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-            CreateNewText(thisConfig,"DPS Testing");
+            createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
-            if self.rotation == 1 then -- CuteOne Rotation
-                -- Death Monk
-                CreateNewCheck(thisConfig,"Death Monk Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.");
-                CreateNewText(thisConfig,"Death Monk Mode");
+            -- Death Monk
+            createNewCheckbox(section,"Death Monk Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.")
 
-                -- Legacy of the White Tiger
-                CreateNewCheck(thisConfig,"Legacy of the White Tiger","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Legacy of the White Tiger usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_LegacyOfTheWhiteTiger))));
-            end
+            -- Legacy of the White Tiger
+            createNewCheckbox(section,"Legacy of the White Tiger","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Legacy of the White Tiger usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
+            checkSectionState(section)
+         
 
-            if self.rotation == 2 then -- Def Rotation
-                -- -- Legacy of the White Tiger
-                CreateNewCheck(thisConfig,"Legacy of the White Tiger","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Not yet implemented");
-                CreateNewText(thisConfig,"Legacy of the White Tiger");
-            end
-
-            -- Spacer
-            CreateNewText(thisConfig, " ");
-            CreateNewWrap(thisConfig, "--- Cooldowns ---");
-
+            section = createNewSection(bb.profile_window,  "Cooldowns")
             -- Agi Pot
-            --CreateNewCheck(thisConfig,"Agi-Pot");
-            --CreateNewText(thisConfig,"Agi-Pot");
+            --createNewCheckbox(section,"Agi-Pot")
 
             -- Legendary Ring
-            CreateNewCheck(thisConfig, "Legendary Ring", "Enable or Disable usage of Legendary Ring.");
-            CreateNewDrop(thisConfig, "Legendary Ring", 2, "CD")
-            CreateNewText(thisConfig, "Legendary Ring");
+            createNewDropdown(section,  "Legendary Ring", bb.dropOptions.CD,  2)
 
             -- Flask / Crystal
-            CreateNewCheck(thisConfig,"Flask / Crystal")
-            CreateNewText(thisConfig,"Flask / Crystal")
+            createNewCheckbox(section,"Flask / Crystal")
 
             -- Trinkets
-            CreateNewCheck(thisConfig,"Trinkets")
-            CreateNewText(thisConfig,"Trinkets")
+            createNewCheckbox(section,"Trinkets")
 
             -- Touch of the Void
-            CreateNewCheck(thisConfig,"Touch of the Void");
-            CreateNewText(thisConfig,"Touch of the Void");
+            createNewCheckbox(section,"Touch of the Void")
 
-            if self.rotation == 1 then
-                -- Xuen
-                CreateNewCheck(thisConfig,"Xuen");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_InvokeXuen))));
-            end
+            -- Xuen
+            createNewCheckbox(section,"Xuen")
+            checkSectionState(section)
 
-            if self.rotaion == 2 then
-                -- Xuen
-                CreateNewCheck(thisConfig,"Invoke Xuen");
-                CreateNewDrop(thisConfig,"Invoke Xuen",1,"CD");
-                CreateNewText(thisConfig,"Invoke Xuen");
 
-                -- Chi Brew
-                CreateNewCheck(thisConfig,"Chi Brew");
-                CreateNewDrop(thisConfig,"Chi Brew",1,"CD");
-                CreateNewText(thisConfig,"Chi Brew");
-
-                -- Zen Sphere / Chi Wave / Chi Burst
-                CreateNewCheck(thisConfig,"Talent Row 2","|cffFFFFFFUses your 2. Talentrow spell. Sphere/Wave/Burst");
-                CreateNewDrop(thisConfig,"Talent Row 2",1,"CD");
-                CreateNewText(thisConfig,"Talent Row 2");
-
-                -- Energizing Brew
-                CreateNewCheck(thisConfig,"Energizing Brew");
-                CreateNewDrop(thisConfig,"Energizing Brew",1,"CD");
-                CreateNewText(thisConfig,"Energizing Brew");
-
-                -- Fortifying Brew
-                CreateNewCheck(thisConfig,"Fortifying Brew","|cffFFFFFFUsed offensivly with Touch of Death.");
-                CreateNewDrop(thisConfig,"Fortifying Brew",1,"CD");
-                CreateNewText(thisConfig,"Fortifying Brew");
-
-                -- Serenity
-                CreateNewCheck(thisConfig,"Serenity");
-                CreateNewDrop(thisConfig,"Serenity",1,"CD");
-                CreateNewText(thisConfig,"Serenity");
-
-                -- Touch Of Death
-                CreateNewCheck(thisConfig,"Touch Of Death");
-                CreateNewDrop(thisConfig,"Touch Of Death",1,"CD");
-                CreateNewText(thisConfig,"Touch Of Death");
-            end
-
-            -- Spacer
-            CreateNewText(thisConfig," ");
-            CreateNewWrap(thisConfig,"--- Defensive ---");
-
+            section = createNewSection(bb.profile_window, "Defensive")
             -- Healthstone
-            CreateNewCheck(thisConfig,"Healthstone");
-            CreateNewBox(thisConfig,"Healthstone", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
-            CreateNewText(thisConfig,"Healthstone");
+            createNewSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Heirloom Neck
-            CreateNewCheck(thisConfig,"Heirloom Neck");
-            CreateNewBox(thisConfig,"Heirloom Neck", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
-            CreateNewText(thisConfig,"Heirloom Neck");
+            createNewSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
-            if self.rotation == 1 then
-                --  Expel Harm
-                CreateNewCheck(thisConfig,"Expel Harm");
-                CreateNewBox(thisConfig,"Expel Harm", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_ExpelHarm))));
+            --  Expel Harm
+            createNewSpinner(section, "Expel Harm",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
-                -- Surging Mist
-                CreateNewCheck(thisConfig,"Surging Mist");
-                CreateNewBox(thisConfig,"Surging Mist", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_SurgingMist))));
+            -- Surging Mist
+            createNewSpinner(section, "Surging Mist",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
-                -- Touch of Karma
-                CreateNewCheck(thisConfig,"Touch of Karma");
-                CreateNewBox(thisConfig,"Touch of Karma", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_TouchOfKarma))));
+            -- Touch of Karma
+            createNewSpinner(section, "Touch of Karma",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
-                -- Fortifying Brew
-                CreateNewCheck(thisConfig,"Fortifying Brew");
-                CreateNewBox(thisConfig,"Fortifying Brew", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_FortifyingBrew))));
+            -- Fortifying Brew
+            createNewSpinner(section, "Fortifying Brew",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
-                -- Diffuse Magic/Dampen Harm
-                CreateNewCheck(thisConfig,"Diffuse/Dampen");
-                CreateNewBox(thisConfig,"Diffuse/Dampen", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-                if getTalent(5,2) then
-                  CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_DampenHarm))));
-                else
-                  CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_DiffuseMagic))));
-                end
+            -- Diffuse Magic/Dampen Harm
+            createNewSpinner(section, "Diffuse/Dampen",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
-                -- Zen Meditation
-                CreateNewCheck(thisConfig,"Zen Meditation");
-                CreateNewBox(thisConfig,"Zen Meditation", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_ZenMeditation))));
+            -- Zen Meditation
+            createNewSpinner(section, "Zen Meditation",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
-                -- Nimble Brew
-                CreateNewCheck(thisConfig,"Nimble Brew");
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_NimbleBrew))));
-            end
+            -- Nimble Brew
+            createNewCheckbox(section,"Nimble Brew")
+            checkSectionState(section)
 
-            -- Spacer --
-            CreateNewText(thisConfig," ");
-            wrapOp("--- Interrupts ---");
 
-            if self.rotation == 1 then
-                --Quaking Palm
-                CreateNewCheck(thisConfig,"Quaking Palm")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_QuakingPalm))))
+            section = createNewSection(bb.profile_window,  "Interrupts")
+            --Quaking Palm
+            createNewCheckbox(section,"Quaking Palm")
 
-                -- Spear Hand Strike
-                CreateNewCheck(thisConfig,"Spear Hand Strike")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_SpearHandStrike))))
+            -- Spear Hand Strike
+            createNewCheckbox(section,"Spear Hand Strike")
 
-                -- Paralysis
-                CreateNewCheck(thisConfig,"Paralysis")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_Paralysis))))
+            -- Paralysis
+            createNewCheckbox(section,"Paralysis")
 
-                -- Leg Sweep
-                CreateNewCheck(thisConfig,"Leg Sweep")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_LegSweep))))
-            end
+            -- Leg Sweep
+            createNewCheckbox(section,"Leg Sweep")
 
             -- Interrupt Percentage
-            CreateNewCheck(thisConfig,"InterruptAt");
-            CreateNewBox(thisConfig, "InterruptAt", 0, 95, 5, 0, "|cffFFBB00Cast Percentage to use at.");
-            CreateNewText(thisConfig,"InterruptAt");
+            createNewSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+            checkSectionState(section)
 
-            -- Spacer
-            CreateNewText(thisConfig, " ");
-            CreateNewWrap(thisConfig, "--- Toggle Keys ---");
 
-            if self.rotation == 1 then
-                -- Single/Multi Toggle
-                CreateNewCheck(thisConfig, "Rotation Mode", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.");
-                CreateNewDrop(thisConfig, "Rotation Mode", 4, "Toggle")
-                CreateNewText(thisConfig, "Rotation Mode");
+            section = createNewSection(bb.profile_window,  "Toggle Keys")
+            -- Single/Multi Toggle
+            createNewDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
 
-                --Cooldown Key Toggle
-                CreateNewCheck(thisConfig, "Cooldown Mode", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.");
-                CreateNewDrop(thisConfig, "Cooldown Mode", 3, "Toggle")
-                CreateNewText(thisConfig, "Cooldown Mode")
+            --Cooldown Key Toggle
+            createNewDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
 
-                --Defensive Key Toggle
-                CreateNewCheck(thisConfig, "Defensive Mode", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.");
-                CreateNewDrop(thisConfig, "Defensive Mode", 6, "Toggle")
-                CreateNewText(thisConfig, "Defensive Mode")
+            --Defensive Key Toggle
+            createNewDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
 
-                -- Interrupts Key Toggle
-                CreateNewCheck(thisConfig, "Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.")
-                CreateNewDrop(thisConfig, "Interrupt Mode", 6, "Toggle")
-                CreateNewText(thisConfig, "Interrupts")
+            -- Interrupts Key Toggle
+            createNewDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
 
-                -- SEF Toggle
-                CreateNewCheck(thisConfig,"SEF Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFSEF Toggle Key|cffFFBB00.");
-                CreateNewBox(thisConfig,"SEF Mode", 5, "Toggle")
-                CreateNewText(thisConfig,"SEF Mode");
+            -- SEF Toggle
+            createNewDropdown(section,  "SEF Mode", bb.dropOptions.Toggle,  5)
 
-                -- FSK Toggle
-                CreateNewCheck(thisConfig,"FSK Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFFSK Toggle Key|cffFFBB00.");
-                CreateNewBox(thisConfig,"FSK Mode", 5, "Toggle")
-                CreateNewText(thisConfig,"FSK Mode");
+            -- FSK Toggle
+            createNewDropdown(section,  "FSK Mode", bb.dropOptions.Toggle,  5)
 
-                -- Chi Builder Toggle
-                CreateNewCheck(thisConfig,"Builder Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFChi Builder Toggle Key|cffFFBB00.");
-                CreateNewBox(thisConfig,"Builder Mode", 5, "Toggle")
-                CreateNewText(thisConfig,"Builder Mode");
-            end
-
-            if self.rotation == 2 then
-                -- SEF Toggle
-                CreateNewCheck(thisConfig,"SEF Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFSEF Toggle Key|cffFFBB00.");
-                CreateNewDrop(thisConfig,"SEF Mode", 5, "Toggle")
-                CreateNewText(thisConfig,"SEF Mode");
-            end
+            -- Chi Builder Toggle
+            createNewDropdown(section,  "Builder Mode", bb.dropOptions.Toggle,  5)
 
             -- Pause Toggle
-            CreateNewCheck(thisConfig, "Pause Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFPause Toggle Key - None Defaults to LeftAlt|cffFFBB00.")
-            CreateNewDrop(thisConfig, "Pause Mode", 6, "Toggle")
-            CreateNewText(thisConfig, "Pause Mode")
+            createNewDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
+            checkSectionState(section)
 
-            -- General Configs
-            CreateGeneralsConfig();
 
-            WrapsManager();
+
+            --[[ Rotation Dropdown ]]--
+            createNewRotationDropdown(bb.profile_window.parent, {"Gabbz"})
+            bb:checkProfileWindowStatus()
         end
 
         --------------

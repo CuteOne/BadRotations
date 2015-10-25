@@ -434,25 +434,15 @@ function cRogue:new(spec)
 		self.createBaseOptions()
 
 		-- Class Wrap
-		CreateNewWrap(thisConfig, "--- Class Options ---")
-
-		-- Leathal Poison
-		CreateNewCheck(thisConfig, "Lethal");
-		CreateNewDrop(thisConfig, "Lethal",1,"Lethal Poison.","|cffFF8000Wound","|cff13A300Instant");
-		CreateNewText(thisConfig, "Lethal");
-
-		-- Non-Leathal Poison
-		CreateNewCheck(thisConfig, "Non-Lethal");
-		CreateNewDrop(thisConfig, "Non-Lethal",1,"Non-Lethal Poison.","|cff6600FFCrip","|cff00CF1CLeech");
-		CreateNewText(thisConfig, "Non-Lethal");
-
-		-- Poison re-apply timer
-		-- Use poison if X minutes remain
-		CreateNewBox(thisConfig,"Poison remain",5,50,1,10,"How many minutes left until reapply?")
-		CreateNewText(thisConfig, "Poison remain");
-
-		-- Spacer
-		CreateNewText(" ");
+		local section = createNewSection(bb.profile_window,  "--- Class Options ---")
+        -- Leathal Poison
+        createNewDropdown(section,  "Lethal", {"|cffFF8000Wound","|cff13A300Instant"}, 1)
+        -- Non-Leathal Poison
+        createNewDropdown(section,  "Non-Lethal", {"|cff6600FFCrip","|cff00CF1CLeech"}, 1)
+        -- Poison re-apply timer
+        -- Use poison if X minutes remain
+        createNewSpinner(section, "Poison remain", 10, 5, 50, 1, "How many minutes left until reapply?")
+        checkSectionState(section)
 	end
 
 ------------------------------
@@ -560,7 +550,7 @@ function cRogue:new(spec)
 	-- Vanish
 	function self.castVanish()
 		if self.cd.vanish==0 and self.level>=34 then
-			if castSpell("player",self.spell.vanish,true,false,false) then StopAttack(); return end
+			if castSpell("player",self.spell.vanish,true,false,false) then StopAttack() return end
 		end
 	end
 

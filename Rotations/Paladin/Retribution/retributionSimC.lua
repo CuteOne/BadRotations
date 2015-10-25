@@ -10,7 +10,7 @@ function cRetribution:retributionSimC()
 	local isChecked,enemies,units,eq,getCombatTime = isChecked,self.enemies,self.units,self.eq,getCombatTime
 	local lastSpellCast = lastSpellCast
 
-
+if self.inCombat then
 -- actions+=/execution_sentence,if=!talent.seraphim.enabled
 -- actions+=/execution_sentence,sync=seraphim,if=talent.seraphim.enabled
 	if (not talent.seraphim) or
@@ -37,10 +37,9 @@ function cRetribution:retributionSimC()
 -- actions+=/avenging_wrath,if=prev.lights_hammer&set_bonus.tier18_4pc=1&talent.lights_hammer.enabled&!talent.seraphim.enabled
 	if (talent.seraphim and buff.seraphim > 0) or 
 		(not talent.seraphim and not eq.t18_4pc) or
-		(not talent.seraphim and eq.t18_4pc and getCombatTime() < 20) or
-		(not talent.seraphim and eq.t18_4pc and (lastSpellCast == self.spell.executionSentence or lastSpellCast == self.spell.lightsHammer))
+		(not talent.seraphim and eq.t18_4pc and getCombatTime() < 20) --or
+		--(not talent.seraphim and eq.t18_4pc and (lastSpellCast == self.spell.executionSentence or lastSpellCast == self.spell.lightsHammer))
 		then
-            -- TODO: charge left option
             if self.castAvengingWrath() then return end
 	end
 
@@ -424,5 +423,6 @@ function cRetribution:retributionSimC()
 		if self.castHolyPrism(1) then return end
 
 	end	-- End if single or cleave
+    end -- inCombat
 end -- Main rota function
 end -- Select Paladin and Retribution

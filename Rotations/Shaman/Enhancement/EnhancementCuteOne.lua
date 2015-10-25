@@ -122,7 +122,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 		          	if self.castAstralShift() then return end
 		        end
 		-- Capacitor Totem
-				if isChecked("Capacitor Totem - Defensive") and inCombat and php<=getOptionValue("Capacitor Totem") and ttd>5 then
+				if isChecked("Capacitor Totem - Defensive") and inCombat and php<=getOptionValue("Capacitor Totem - Defensive") and ttd>5 then
 					if self.castCapacitorTotem() then return end
 				end
 		-- Cleanse Spirit

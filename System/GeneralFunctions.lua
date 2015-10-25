@@ -2225,45 +2225,69 @@ function spellDebug(Message)
 	end
 end
 -- if isChecked("Debug") then
-function isChecked(Value)
+function isChecked(Value,new)
 	--print(BadBoy_data.options[GetSpecialization()]["profile"..Value.."Check"])
-	if BadBoy_data.options[GetSpecialization()] and (BadBoy_data.options[GetSpecialization()][Value.."Check"] == 1 or BadBoy_data.options[GetSpecialization()][Value.."Check"] == true) then
-		return true
-	end
+    --TEST
+    new = true
+    if new then
+        if BadBoy_data.options[GetSpecialization()] and (BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Check"] == 1 or BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Check"] == true) then
+            return true
+        end
+    else
+        if BadBoy_data.options[GetSpecialization()] and (BadBoy_data.options[GetSpecialization()][Value.."Check"] == 1 or BadBoy_data.options[GetSpecialization()][Value.."Check"] == true) then
+            return true
+        end
+    end
 end
 -- if isSelected("Stormlash Totem") then
-function isSelected(Value)
-	if BadBoy_data["Cooldowns"] == 3 or (isChecked(Value)
-		and (getValue(Value) == 3 or (getValue(Value) == 2 and BadBoy_data["Cooldowns"] == 2))) then
+function isSelected(Value,new)
+    --TEST
+    new = true
+	if BadBoy_data["Cooldowns"] == 3 or (isChecked(Value,new)
+		and (getValue(Value,new) == 3 or (getValue(Value,new) == 2 and BadBoy_data["Cooldowns"] == 2))) then
 		return true
 	end
 end
 -- if getValue("player") <= getValue("Eternal Flame") then
-function getValue(Value)
+function getValue(Value,new)
+    --TEST
+    new = true
 	if BadBoy_data.options[GetSpecialization()] then
-		if BadBoy_data.options[GetSpecialization()][Value.."Status"] ~= nil then
-			return BadBoy_data.options[GetSpecialization()][Value.."Status"]
-		elseif BadBoy_data.options[GetSpecialization()][Value.."Drop"] ~= nil then
-			return BadBoy_data.options[GetSpecialization()][Value.."Drop"]
-		else
-			return 0
-		end
+        if new then
+            if BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Status"] ~= nil then
+                return BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Status"]
+            elseif BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Drop"] ~= nil then
+                return BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Drop"]
+            else
+                return 0
+            end
+        else
+            if BadBoy_data.options[GetSpecialization()][Value.."Status"] ~= nil then
+                return BadBoy_data.options[GetSpecialization()][Value.."Status"]
+            elseif BadBoy_data.options[GetSpecialization()][Value.."Drop"] ~= nil then
+                return BadBoy_data.options[GetSpecialization()][Value.."Drop"]
+            else
+                return 0
+            end
+        end
 	end
 end
 -- used to gather informations from the bot options frame
 function getOptionCheck(Value)
-	if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()][Value.."Check"] == 1 then
-		return true
-	end
+    return isChecked(Value)
+	--if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()][Value.."Check"] == 1 then
+	--	return true
+	--end
 end
 function getOptionValue(Value)
-	if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()][Value.."Status"] then
-		return BadBoy_data.options[GetSpecialization()][Value.."Status"]
-	elseif BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()][Value.."Drop"] then
-		return BadBoy_data.options[GetSpecialization()][Value.."Drop"]
-	else
-		return 0
-	end
+    return getValue(Value)
+	--if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()][Value.."Status"] then
+	--	return BadBoy_data.options[GetSpecialization()][Value.."Status"]
+	--elseif BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()][Value.."Drop"] then
+	--	return BadBoy_data.options[GetSpecialization()][Value.."Drop"]
+	--else
+	--	return 0
+	--end
 end
 --[[Health Potion Table]]
 function healthPotTable()

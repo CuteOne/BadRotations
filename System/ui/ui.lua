@@ -149,46 +149,46 @@ function ConstructUI()
 			refreshOptions()
 		end
 		function createProfile()
-			if currentProfile ~= nil and currentProfile ~= BadBoy_data.options[GetSpecialization()].profile then
-				_G[currentProfileName.."Frame"]:Hide()
-			end
-			currentProfile = BadBoy_data.options[GetSpecialization()].profile
-			currentProfileName = currentProfile[1].name
-			if currentProfile ~= nil and _G[currentProfileName.."Frame"] and BadBoy_data.options[GetSpecialization()].profile[1].name ~= BadBoy_data.options[GetSpecialization()].profile then
-				_G[currentProfileName.."Frame"]:Show()
-			end
-			frameCreation(currentProfileName,270,400)
-			local scale = BadBoy_data.BadBoyUI.optionsFrame.scale
-			for i = 1, #currentProfile do
-				local ypos = (-27*i)+27
-				local thisOption = currentProfile[i]
-				if thisOption.wrap ~= nil then
-					-- wrap
-					itemName = thisOption.wrap
-					createWrapper(currentProfileName,itemName,7*scale,(ypos)*scale-5,i)
-				elseif thisOption.title ~= nil then
-					-- title
-					itemName = thisOption.title
-					createTitleString(currentProfileName,itemName,7*scale,(ypos)*scale)
-				elseif thisOption.name ~= nil then
-					-- text
-					itemName = thisOption.name
-					createTextString(currentProfileName,itemName,30*scale,ypos*scale-10,25*scale,158*scale,i)
-				end
-				if thisOption.dropdown ~= nil then
-					-- dropdown
-					createDropDownMenu(currentProfileName,thisOption,186*scale,ypos*scale-10,i)
-				end
-				if thisOption.check ~= nil then
-					-- check                1               2             3         4          5
-					createCheckBox(currentProfileName,thisOption,7*scale,ypos*scale-10,thisOption.checkBase)
-				end
-				if thisOption.status ~= nil then
-					-- status
-					createStatusBar(currentProfileName,thisOption,186*scale,ypos*scale-10,i)
-				end
-			end
-			_G[currentProfileName.."Frame"]:SetHeight(#currentProfile*27*scale+13)
+			--if currentProfile ~= nil and currentProfile ~= BadBoy_data.options[GetSpecialization()].profile then
+			--	_G[currentProfileName.."Frame"]:Hide()
+			--end
+			--currentProfile = BadBoy_data.options[GetSpecialization()].profile
+			--currentProfileName = currentProfile[1].name
+			--if currentProfile ~= nil and _G[currentProfileName.."Frame"] and BadBoy_data.options[GetSpecialization()].profile[1].name ~= BadBoy_data.options[GetSpecialization()].profile then
+            --    _G[currentProfileName.."Frame"]:Hide()--_G[currentProfileName.."Frame"]:Show()
+			--end
+			--frameCreation(currentProfileName,270,400)
+			--local scale = BadBoy_data.BadBoyUI.optionsFrame.scale
+			--for i = 1, #currentProfile do
+			--	local ypos = (-27*i)+27
+			--	local thisOption = currentProfile[i]
+			--	if thisOption.wrap ~= nil then
+			--		-- wrap
+			--		itemName = thisOption.wrap
+			--		createWrapper(currentProfileName,itemName,7*scale,(ypos)*scale-5,i)
+			--	elseif thisOption.title ~= nil then
+			--		-- title
+			--		itemName = thisOption.title
+			--		createTitleString(currentProfileName,itemName,7*scale,(ypos)*scale)
+			--	elseif thisOption.name ~= nil then
+			--		-- text
+			--		itemName = thisOption.name
+			--		createTextString(currentProfileName,itemName,30*scale,ypos*scale-10,25*scale,158*scale,i)
+			--	end
+			--	if thisOption.dropdown ~= nil then
+			--		-- dropdown
+			--		createDropDownMenu(currentProfileName,thisOption,186*scale,ypos*scale-10,i)
+			--	end
+			--	if thisOption.check ~= nil then
+			--		-- check                1               2             3         4          5
+			--		createCheckBox(currentProfileName,thisOption,7*scale,ypos*scale-10,thisOption.checkBase)
+			--	end
+			--	if thisOption.status ~= nil then
+			--		-- status
+			--		createStatusBar(currentProfileName,thisOption,186*scale,ypos*scale-10,i)
+			--	end
+			--end
+			--_G[currentProfileName.."Frame"]:SetHeight(#currentProfile*27*scale+13)
 		end
 		local colorBlue = "|cff00CCFF"
 		local colorGold = "|cffFFDD11"
@@ -705,6 +705,7 @@ function ConstructUI()
 		BadBoy_data.options.selected = "General"
 	end
 	_G["options"..BadBoy_data.options.selected.."Button"]:Click()
+    optionsFrame:Hide()
 	if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()]["optionsFrame"] ~= true then
 		optionsFrame:Hide()
 	end

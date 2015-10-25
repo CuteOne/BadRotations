@@ -147,6 +147,9 @@ function cCharacter:new(class)
 		-- Empowered Augment Rune
 		self.useEmpoweredRune()
 
+        -- TEMP
+        self.getRotation()
+
 		-- Food/Invis Check
 		if canRun() ~= true then
 			return false
@@ -239,9 +242,16 @@ function cCharacter:new(class)
 	end
 
 -- Rotation selection update
-	function self.getRotation()
-		self.rotation = getValue("Rotation")
-	end
+    function self.getRotation()
+        self.rotation = bb.selectedProfile
+
+        if bb.rotation_changed then
+            self.createToggles()
+            self.createOptions()
+
+            bb.rotation_changed = false
+        end
+    end
 
 -- Updates special Equipslots
 	function self.baseGetEquip()
@@ -312,7 +322,7 @@ function cCharacter:new(class)
  -- Character options
  -- Options which every Class should have
  -- Call after Title
-	function self.createBaseOptions()
+	function self.createBaseOptionsOLD()
 		-- Base Wrap
 		CreateNewWrap(thisConfig, "--- Base Options ---")
 
@@ -336,21 +346,21 @@ function cCharacter:new(class)
 		CreateNewText(thisConfig, " ");
     end
 
-    function self.createBaseOptionsNEW()
+    function self.createBaseOptions()
         -- Base Wrap
-        local section_base = createNewSection("Base Options",1,profile_window)
-        createNewCheckbox("Ignore Combat", 10, 1, section_base)
-        createNewCheckbox("Use Crystal", 10, 2, section_base)
-        createNewCheckbox("Use emp. Rune", 10, 3, section_base)
-        createNewCheckbox("Use Racial", 10, 4, section_base)
-        section_base:Expand()
+        local section_base = createNewSection(bb.profile_window, "Base Options")
+        createNewCheckbox(section_base, "Ignore Combat")
+        createNewCheckbox(section_base, "Use Crystal")
+        createNewCheckbox(section_base, "Use emp. Rune")
+        createNewCheckbox(section_base, "Use Racial")
+        checkSectionState(section_base)
     end
 
  -- Get option modes
 	function self.baseGetOptions()
 		self.ignoreCombat             = isChecked("Ignore Combat")==true or false
 		self.options.useCrystal       = isChecked("Use Crystal")==true or false
-		self.options.useEmpoweredRune = isChecked("Use emp. Rune")==true or false
+		self.options.useEmpoweredRune = isChecked("Use emp. Rune",true)==true or false
 		self.options.useRacial        = isSelected("Use Racial")==true or false
 	end
 

@@ -1,21 +1,18 @@
 if select(3, UnitClass("player")) == 9 then
 	function WarlockAffliction()
-		if currentConfig ~= "Affliction ragnar" then
-			AfflictionConfig()
+		if affliWarlock == nil then
 			AfflictionToggles()
 
-			affli = cAffliction:new()
-			setmetatable(affli, {__index = cAffliction})
-			affli:updateOOC()
-			affli:update()
-
-			currentConfig = "Affliction ragnar"
+			affliWarlock = cAffliction:new()
+			setmetatable(affliWarlock, {__index = cAffliction})
+			affliWarlock:updateOOC()
+			affliWarlock:update()
 		end
 
 		if not UnitAffectingCombat("player") then
-			affli:updateOOC()
+			affliWarlock:updateOOC()
 		end
 		
-		affli:update()
+		affliWarlock:update()
 	end
 end

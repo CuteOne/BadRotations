@@ -60,29 +60,24 @@ function bb:MinimapButton()
 	button:SetScript("OnMouseDown",function(self, button)
 		if button == "RightButton" then
 			if BadBoy_data.options[GetSpecialization()] then
-				if currentProfileName == nil then
-					if FireHack == true then
-						print("|cffFF1100BadBoy |cffFFFFFFStart/Stop is |cffFF1100Stopped |cffFFFFFFin General Options. Use left click to see the Options panel.")
-					else
+				if FireHack ~= true then
 						print("|cffFF1100BadBoy |cffFFFFFFCannot Start... |cffFF1100Firehack |cffFFFFFFis not loaded. Please attach Firehack.")
-					end
 				else
-					if BadBoy_data.options[GetSpecialization()][currentProfileName.."Frame"] ~= true then
-                        if profile_window then
-                            profile_window:Show()
-                        end
-						_G[currentProfileName.."Frame"]:Show()
-						BadBoy_data.options[GetSpecialization()][currentProfileName.."Frame"] = true
+                    if bb:checkProfileWindowStatus() then
+                        BadBoy_data.options[GetSpecialization()]["configFrame"] = true
+                        bb:checkProfileWindowStatus()
                     else
-                        if profile_window then
-                            profile_window.closeButton:Click()
-                        end
-						_G[currentProfileName.."Frame"]:Hide()
-						BadBoy_data.options[GetSpecialization()][currentProfileName.."Frame"] = false
-					end
+                        BadBoy_data.options[GetSpecialization()]["configFrame"] = false
+                        bb:checkProfileWindowStatus()
+                    end
 				end
 			end
-		end
+        end
+        if button == "MiddleButton" then
+            if bb.help_window then
+                bb.help_window.parent:Show()
+            end
+        end
 		if IsShiftKeyDown() and IsAltKeyDown() then
 			self:SetScript("OnUpdate",moveButton)
 		end
@@ -101,16 +96,17 @@ function bb:MinimapButton()
 					mainButton:Show()
 				end
 			elseif not IsShiftKeyDown() and not IsAltKeyDown() then
-				if BadBoy_data.options[GetSpecialization()] then
-					if BadBoy_data.options[GetSpecialization()]["optionsFrame"] ~= true then
-						optionsFrame:Show()
-						BadBoy_data.options[GetSpecialization()]["optionsFrame"] = true
-					else
-						optionsFrame:Hide()
-						BadBoy_data.options[GetSpecialization()]["optionsFrame"] = false
-					end
-				end
-			end
+                bb:checkConfigWindowStatus()
+				--if BadBoy_data.options[GetSpecialization()] then
+				--	if BadBoy_data.options[GetSpecialization()]["optionsFrame"] ~= true then
+				--		optionsFrame:Show()
+				--		BadBoy_data.options[GetSpecialization()]["optionsFrame"] = true
+				--	else
+				--		optionsFrame:Hide()
+				--		BadBoy_data.options[GetSpecialization()]["optionsFrame"] = false
+				--	end
+				--end
+            end
 		end
 	end)
 	button:SetScript("OnEnter", function(self)
@@ -124,6 +120,7 @@ function bb:MinimapButton()
 		GameTooltip:AddLine("Shift+Left Click to toggle toggles frame.", 1, 1, 1, 1)
 		GameTooltip:AddLine("Alt+Shift+LeftButton to drag.", 1, 1, 1, 1)
 		GameTooltip:AddLine("Right Click to open profile options.", 1, 1, 1, 1)
+        GameTooltip:AddLine("Middle Click to open help frame.", 1, 1, 1, 1)
 		GameTooltip:Show()
 	end)
 	button:SetScript("OnLeave", function(self)
@@ -150,8 +147,8 @@ function reloadOnSpecChange()
 end
 -- Sets 'talentHasChanged' to true
 function characterTalentChanged()
-    if talentHasChanged == nil then
-        talentHasChanged = true
+    if bb.talentHasChanged == nil then
+        bb.talentHasChanged = true
     end
 end
 
@@ -190,9 +187,18 @@ function BadBoyUpdate(self)
 	end
 	-- pulse enemiesEngine
 	bb:PulseUI()
+
+    -- Show Debug Frame TEMP
+    if isChecked("Debug Frame") then
+        _G["debugFrame"]:Show()
+    else
+        _G["debugFrame"]:Hide()
+    end
+
 	-- accept dungeon queues
 	bb:AcceptQueues()
 	--[[Class/Spec Selector]]
+    bb.selectedProfile = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"] or 1
 	local playerClass = select(3,UnitClass("player"))
 	local playerSpec = GetSpecialization()
 	if playerClass == 1 then -- Warrior

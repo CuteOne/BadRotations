@@ -44,15 +44,15 @@ This function will use table row #1.]]
   end
   -- Config Panel
   function NewRogueConfig()
-    --if not doneConfig then
-    thisConfig = 0
-    -- Title
-    titleOp("CuteOne New Rogue");
-    -- Spacer
-    CreateGeneralsConfig();
+      bb.profile_window = createNewProfileWindow("Rogue")
+      local section
 
-    WrapsManager();
-  --end
+      section = createNewSection(bb.profile_window, "NOTHING")
+      checkSectionState(section)
+
+      --[[ Rotation Dropdown ]]--
+      createNewRotationDropdown(bb.profile_window.parent, {"CuteOn"})
+      bb:checkProfileWindowStatus()
   end
 
   --[[]]		--[[           ]]	--[[           ]]		  --[[]]		--[[           ]]	--[[           ]]

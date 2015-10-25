@@ -1,5 +1,9 @@
 #BadBoy - Ultimate Raider
 
+## First Setup
+
+Little How-To for the first run: https://gyazo.com/d11da29a9d7dba4c93e5b65c008c433c
+
 ## Updates
 If you have code to improve a class you can send a "pull request".
 We will look over it and may merge it with BadBoy.

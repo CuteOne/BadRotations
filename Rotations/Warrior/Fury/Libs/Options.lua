@@ -1,140 +1,88 @@
 if select(3,UnitClass("player")) == 1 then
-
-  function FuryOptions()
-    if GetSpecialization() == 2 then
-      if Currentconfig ~= "Fury Warrior" then
-        ClearConfig()
-        thisConfig = 0
-
-        -- Title
-        CreateNewTitle(thisConfig,"Fury Warrior")
+    function FuryOptions()
+        bb.profile_window = createNewProfileWindow("Fury")
+        local section
 
         -- Wrapper
-        CreateNewWrap(thisConfig,"-------- General Rotation --------");
-
+        section = createNewSection(bb.profile_window, "General Rotation")
+        -- Multi-Rend
+        -- createNewCheckbox(section,"Multi-Rend","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRend spreading|cffFFBB00.")
         -- Pause Toggle
-        CreateNewCheck(thisConfig,"Pause Key");
-        CreateNewDrop(thisConfig,"Pause Key", 4, "Toggle")
-        CreateNewText(thisConfig,"Pause Key");
-
+        createNewDropdown(section, "Pause Key", bb.dropOptions.Toggle,  4)
         -- Heroic Leap
-        CreateNewCheck(thisConfig,"Heroic Leap Key");
-        CreateNewDrop(thisConfig,"Heroic Leap Key", 2, "Toggle2")
-        CreateNewText(thisConfig,"Heroic Leap Key");
-
+        createNewDropdown(section, "Heroic Leap Key", bb.dropOptions.Toggle2,  2)
         -- Ravager
-        CreateNewCheck(thisConfig,"Ravager Key");
-        CreateNewDrop(thisConfig,"Ravager Key", 2, "Toggle2")
-        CreateNewText(thisConfig,"Ravager Key");
-
+        createNewDropdown(section, "Ravager Key", bb.dropOptions.Toggle2,  2)
         -- Auto Bladestorm / DragonRoar Single Target
-        CreateNewCheck(thisConfig,"Single BS/DR/RV");
-        CreateNewText(thisConfig,"Single BS/DR/RV")
+        createNewCheckbox(section,"Single BS/DR/RV")
+        -- Auto Bladestorm / DragonRoar Multi Target
+        createNewCheckbox(section,"AoE BS/DR/RV")
+        checkSectionState(section)
 
-        -- Auto Ravager AoE
-        CreateNewCheck(thisConfig,"AoE BS/DR/RV");
-        CreateNewText(thisConfig,"AoE BS/DR/RV")
 
         -- Wrapper
-        CreateNewWrap(thisConfig,"---------- Buffs ---------");
-
+        section = createNewSection(bb.profile_window, "Buffs")
         -- Shout
-        CreateNewCheck(thisConfig,"Shout");
-        CreateNewDrop(thisConfig, "Shout", 2, "Choose Shout to use.", "|cffFFBB00Command", "|cff0077FFBattle")
-        CreateNewText(thisConfig,"Shout");
+        createNewDropdown(section,  "Shout", { "|cffFFBB00Command", "|cff0077FFBattle"},  2,  "Choose Shout to use.")
+        checkSectionState(section)
+
 
         -- Wrapper
-        CreateNewWrap(thisConfig,"------ Cooldowns ------");
-
+        section = createNewSection(bb.profile_window, "Cooldowns")
         -- Potion
-        CreateNewCheck(thisConfig,"Use Potion");
-        CreateNewText(thisConfig,"Use Potion");
-
+        createNewCheckbox(section,"Use Potion")
         -- Recklessness
-        CreateNewCheck(thisConfig,"Recklessness");
-        CreateNewText(thisConfig,"Recklessness");
-
+        createNewCheckbox(section,"Recklessness")
         -- Avatar
-        CreateNewCheck(thisConfig,"Avatar");
-        CreateNewText(thisConfig,"Avatar");
-
+        createNewCheckbox(section,"Avatar")
         -- Racial
-        CreateNewCheck(thisConfig,"Racial (Orc / Troll)");
-        CreateNewText(thisConfig,"Racial (Orc / Troll)");
-
+        createNewCheckbox(section,"Racial (Orc / Troll)")
         -- StormBolt
-        CreateNewCheck(thisConfig,"StormBolt");
-        CreateNewText(thisConfig,"StormBolt");
-
+        createNewCheckbox(section,"StormBolt")
         -- Trinket
-        CreateNewCheck(thisConfig,"Use Trinket");
-        CreateNewText(thisConfig,"Use Trinket");
+        createNewCheckbox(section,"Use Trinket")
+        checkSectionState(section)
+
 
         -- Wrapper
-        CreateNewWrap(thisConfig,"------- Defensive ------");
-
+        section = createNewSection(bb.profile_window, "Defensive")
         -- Die by the Sword
-        CreateNewCheck(thisConfig,"Die by the Sword");
-        CreateNewBox(thisConfig, "Die by the Sword", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDie by the Sword");
-        CreateNewText(thisConfig,"Die by the Sword");
-
+        createNewSpinner(section,  "Die by the Sword",  40,  0,  100  ,  5,  "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDie by the Sword")
         -- Rallying Cry
-        CreateNewCheck(thisConfig,"Rallying Cry");
-        CreateNewBox(thisConfig, "Rallying Cry", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRallying Cry");
-        CreateNewText(thisConfig,"Rallying Cry");
-
+        createNewSpinner(section,  "Rallying Cry",  40,  0,  100  ,  5,  "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFRallying Cry")
         -- Enraged Regeneration
-        CreateNewCheck(thisConfig,"Enraged Regeneration");
-        CreateNewBox(thisConfig, "Enraged Regeneration", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFEnraged Regeneration");
-        CreateNewText(thisConfig,"Enraged Regeneration");
-
+        createNewSpinner(section,  "Enraged Regeneration",  25,  0,  100  ,  5,  "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFEnraged Regeneration")
         -- ImpendingVictory/Victory Rush
-        CreateNewCheck(thisConfig,"Impending Victory");
-        CreateNewBox(thisConfig, "Impending Victory", 0, 100  , 5, 40, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFImpending Victory (Victory Rush)");
-        CreateNewText(thisConfig,"Impending Victory");
-
+        createNewSpinner(section,  "Impending Victory",  40,  0,  100  ,  5,  "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFImpending Victory (Victory Rush)")
         -- Vigilance Focus
-        CreateNewCheck(thisConfig,"Vigilance on Focus");
-        CreateNewBox(thisConfig, "Vigilance on Focus", 0, 100  , 5, 25, "% HP of Focustarget to use Vigilance on Focustarget");
-        CreateNewText(thisConfig,"Vigilance on Focus");
-
+        createNewSpinner(section,  "Vigilance on Focus",  25,  0,  100  ,  5,  "% HP of Focustarget to use Vigilance on Focustarget")
         -- Def Stance
-        CreateNewCheck(thisConfig,"Defensive Stance");
-        CreateNewBox(thisConfig, "Defensive Stance", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDefensive Stance");
-        CreateNewText(thisConfig,"Defensive Stance");
-
+        createNewSpinner(section,  "Defensive Stance",  25,  0,  100  ,  5,  "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDefensive Stance")
         -- Healthstone
-        CreateNewCheck(thisConfig,"Healthstone");
-        CreateNewBox(thisConfig, "Healthstone", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone");
-        CreateNewText(thisConfig,"Healthstone");
+        createNewSpinner(section,  "Healthstone",  25,  0,  100  ,  5,  "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone")
+        checkSectionState(section)
+
 
         -- Wrapper
-        CreateNewWrap(thisConfig,"-------- Interrupts --------");
-
+        section = createNewSection(bb.profile_window, "Interrupts")
         -- Pummel
-        CreateNewCheck(thisConfig,"Pummel");
-        CreateNewBox(thisConfig, "Pummel", 0, 100  , 5, 60 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFPummel.");
-        CreateNewText(thisConfig,"Pummel");
-
+        createNewSpinner(section,  "Pummel",  60 ,  0,  100  ,  5,  "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFPummel.")
         -- Disrupting Shout
-        CreateNewCheck(thisConfig,"Disrupting Shout");
-        CreateNewBox(thisConfig, "Disrupting Shout", 0, 100  , 5, 60 , "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFDisrupting Shout.");
-        CreateNewText(thisConfig,"Disrupting Shout");
+        createNewSpinner(section,  "Disrupting Shout",  60 ,  0,  100  ,  5,  "|cffFFBB00Over what % of cast we want to \n|cffFFFFFFDisrupting Shout.")
+        checkSectionState(section)
 
 
         -- Wrapper
-        CreateNewWrap(thisConfig,"---------- Misc -----------");
-
+        section = createNewSection(bb.profile_window, "Misc")
         -- Dummy DPS Test
-        CreateNewCheck(thisConfig,"DPS Testing");
-        CreateNewBox(thisConfig,"DPS Testing", 1, 15, 1, 5, "Set to desired time for test in minutes. Min: 1 / Max: 15 / Interval: 1");
-        CreateNewText(thisConfig,"DPS Testing");
+        createNewCheckbox(section,"DPS Testing")
+        createNewSpinner(section, "DPS Testing",  5,  1,  15,  1,  "Set to desired time for test in minutes. Min: 1 / Max: 15 / Interval: 1")
+        checkSectionState(section)
 
-        -- Healing/general/poke/hacks/tracking
-        CreateGeneralsConfig();
-        WrapsManager();
-      end
+
+
+        --[[ Rotation Dropdown ]]--
+        createNewRotationDropdown(bb.profile_window.parent, {"chumii"})
+        bb:checkProfileWindowStatus()
     end
-  end
-
 end

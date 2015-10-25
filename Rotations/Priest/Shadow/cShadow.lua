@@ -151,7 +151,7 @@ function cShadow:new()
 		self.getDynamicUnits()
 		self.getEnemies()
 		self.getOptions()
-		--self.getRotation()
+		self.getRotation()
 
 		-- shadowform
 		self.shadowform = GetShapeshiftForm() == 1
@@ -297,7 +297,13 @@ function cShadow:new()
 
 		self.options.utilities 							= {}
 		self.options.utilities.pause 					= isChecked("Pause Toggle")
-	end
+    end
+
+    function self.createOptions()
+        if self.rotation == 1 then
+            ShadowConfig()
+        end
+    end
 
 	--  ____         __  __     
 	-- |  _ \       / _|/ _|    
@@ -388,7 +394,14 @@ function cShadow:new()
 	-- | |__| |  __/ |_   ____) |  __/ |  __/ (__| ||  __/ (_| | | |____| | \ \ 
 	--  \_____|\___|\__| |_____/ \___|_|\___|\___|\__\___|\__,_|  \_____|_|  \_\
 	function self.getRotation()
-		self.rotation = getValue("Rotation")
+        self.rotation = bb.selectedProfile
+
+        if bb.rotation_changed then
+            --self.createToggles()
+            self.createOptions()
+
+            bb.rotation_changed = false
+        end
 	end
 
 	--  _____                              _        _    _       _ _       
@@ -1212,9 +1225,11 @@ function cShadow:new()
 		end
 		function self.castVT(thisTarget)
 			return castSpell(thisTarget,self.spell.vampiric_touch,true,true) == true or false
-		end
+        end
 
-
+    -- Create Options
+    self.createOptions()
+    --self.createToggles()
 
 	-- Return
 	return self

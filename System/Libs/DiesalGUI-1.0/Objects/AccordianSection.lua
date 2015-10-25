@@ -187,6 +187,12 @@ local function Constructor()
 		DiesalGUI:OnMouse(this,button)
 		self[self.settings.expanded and "Collapse" or "Expand"](self)			
 	end)
+    button:SetScript('OnEnter', function(this)
+        self:FireEvent("OnEnter")
+    end)
+    button:SetScript('OnLeave', function(this)
+        self:FireEvent("OnLeave")
+    end)
 	local arrow = self:CreateRegion("Texture", 'arrow', button)
 	DiesalStyle:StyleTexture(arrow,{
 		offset 	= {1,nil,-1,nil},

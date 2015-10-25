@@ -405,16 +405,14 @@ function cShaman:new(spec)
 ---------------
 
 	-- Class options
-	-- Options which every Monk should have
+	-- Options which every Shaman should have
 	function self.createClassOptions()
 		-- Create Base Options
 		self.createBaseOptions()
 
 		-- Class Wrap
-		CreateNewWrap(thisConfig, "--- Class Options ---")
-
-        -- Spacer
-		CreateNewText(" ");
+        local section = createNewSection(bb.profile_window,  "Class Options")
+        checkSectionState(section)
 	end
 
 ------------------------------

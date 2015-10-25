@@ -1,210 +1,126 @@
 if select(3, UnitClass("player")) == 8 then
 
-  --- Mage ClassColor = |cff69ccf0
-  function titleOp(string)
-    return CreateNewTitle(thisConfig,string)
-  end
-  function checkOp(string,tip)
-    if tip == nil then
-      return CreateNewCheck(thisConfig,string)
-    else
-      return CreateNewCheck(thisConfig,string,tip)
+    function FrostMageConfig()
+        bb.profile_window = createNewProfileWindow("Frost")
+        local section
+
+        -- Wrapper -----------------------------------------
+        section = createNewSection(bb.profile_window,"--- Buffs ---")
+        --[[Arcane Brilliance]]
+        createNewCheckbox(section,"Arcane Brilliance");
+        checkSectionState(section) ;
+
+        
+        -- Wrapper -----------------------------------------
+        section = createNewSection(bb.profile_window,"--- Cooldowns ---")
+        createNewCheckbox(section,"Mirror Image");
+        createNewCheckbox(section,"Icy Veins");
+        createNewCheckbox(section,"Racial");
+        checkSectionState(section) ;
+
+
+        -- Wrapper -----------------------------------------
+        section = createNewSection(bb.profile_window,"--- Defensives ---")
+        checkSectionState(section) ;
+
+
+        -- Wrapper -----------------------------------------
+        section = createNewSection(bb.profile_window,"--- Toggles")
+        --[[Pause Toggle]]
+        createNewDropdown(section, "Pause Toggle", bb.dropOptions.Toggle2,  3)
+        -- [[Focus Toggle]]
+        -- createNewDropdown(section, "Focus Toggle", bb.dropOptions.Toggle2,  2)
+        checkSectionState(section) ;
+
+
+        -- Wrapper -----------------------------------------
+        section = createNewSection(bb.profile_window,"--- Rotation ---")
+        -- Rotation
+        createNewDropdown(section,  "RotationSelect", { "|cffFFBB00IcyVeins", "|cff0077FFSimCraft"},  1,  "Choose Rotation to use.") ;
+        checkSectionState(section) ;
+
+
+
+        --[[ Rotation Dropdown ]]--
+        createNewRotationDropdown(bb.profile_window.parent, {"ragnar"})
+        bb:checkProfileWindowStatus()
     end
-  end
-  function textOp(string)
-    return CreateNewText(thisConfig,string)
-  end
-  function wrapOp(string)
-    return CreateNewWrap(thisConfig,string)
-  end
-  function boxOp(string, minnum, maxnum, stepnum, defaultnum, tip)
-    if tip == nil then
-      return CreateNewBox(thisConfig,string, minnum, maxnum, stepnum, defaultnum)
-    else
-      return CreateNewBox(thisConfig,string, minnum, maxnum, stepnum, defaultnum, tip)
+
+    function ArcaneMageConfig()
+        bb.profile_window = createNewProfileWindow("Arcane")
+        local section
+
+        -- Wrapper -----------------------------------------
+        section = createNewSection(bb.profile_window,"--- Buffs ---")
+        --[[Arcane Brilliance]]
+        createNewCheckbox(section,"Arcane Brilliance")
+        checkSectionState(section)
+
+
+        -- Wrapper -----------------------------------------
+        section = createNewSection(bb.profile_window,"--- Cooldowns ---")
+        createNewCheckbox(section,"Mirror Image")
+        createNewCheckbox(section,"Arcane Power")
+        createNewCheckbox(section,"Racial")
+        createNewCheckbox(section,"Cold Snap")
+        checkSectionState(section)
+
+
+        -- Wrapper -----------------------------------------
+        section = createNewSection(bb.profile_window,"--- Defensives ---")
+        createNewSpinner(section, "Evanesce",  30,  0,  100  ,  5,  "|cffFFBB00Under what |cff69ccf0%HP|cffFFBB00 cast |cff69ccf0Evanesce.")
+        -- Healthstone
+        createNewSpinner(section, "Healthstone",  25,  0,  100  ,  5,  "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone")
+        checkSectionState(section)
+
+
+        -- Wrapper -----------------------------------------
+        section = createNewSection(bb.profile_window,"--- Rotation ---")
+        createNewSpinner(section, "ArcaneBlast (x4)",  93,  80,  100  ,  1,  "|cffFFBB00Under what |cff69ccf0%Mana|cffFFBB00 dont cast |cff69ccf0Arcane Blast at 4 stacks.")
+        createNewCheckbox(section,"Burn Phase", "Do not enable on Dummy.")
+        checkSectionState(section)
+
+
+        --[[ Rotation Dropdown ]]--
+        createNewRotationDropdown(bb.profile_window.parent, {"ragnar & Gabbz"})
+        bb:checkProfileWindowStatus()
     end
-  end
-  function dropOp(string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
-    return CreateNewDrop(thisConfig, string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
-  end
 
-  function FrostMageConfig()
-    if currentConfig ~= "Frost ragnar" then
-      ClearConfig()
-      thisConfig = 0
-      --[[Title]]
-      CreateNewTitle(thisConfig,"Frost |cffFF0000ragnar");
+    function FireMageConfig()
+        bb.profile_window = createNewProfileWindow("Fire")
+        local section
 
-      -- Wrapper -----------------------------------------
-      CreateNewWrap(thisConfig,"--- Buffs ---");
-
-      --[[Arcane Brilliance]]
-      CreateNewCheck(thisConfig,"Arcane Brilliance");
-      CreateNewText(thisConfig,"Arcane Brilliance");
-
-      -- Wrapper -----------------------------------------
-      CreateNewWrap(thisConfig,"--- Cooldowns ---");
-
-      if isKnown(MirrorImage) then
-        CreateNewCheck(thisConfig,"Mirror Image");
-        CreateNewText(thisConfig,"Mirror Image");
-      end
-
-      CreateNewCheck(thisConfig,"Icy Veins");
-      CreateNewText(thisConfig,"Icy Veins");
-
-      CreateNewCheck(thisConfig,"Racial");
-      CreateNewText(thisConfig,"Racial");
-
-      -- Wrapper -----------------------------------------
-      CreateNewWrap(thisConfig,"--- Defensives ---");
+        -- Wrapper -----------------------------------------
+        section = createNewSection(bb.profile_window,"--- Buffs ---")
+        checkSectionState(section)
 
 
-
-      -- Wrapper -----------------------------------------
-      CreateNewWrap(thisConfig,"--- Toggles");
-
-      --[[Pause Toggle]]
-      CreateNewCheck(thisConfig,"Pause Toggle");
-      CreateNewDrop(thisConfig,"Pause Toggle", 3, "Toggle2")
-      CreateNewText(thisConfig,"Pause Toggle");
-
-      -- --[[Focus Toggle]]
-      -- CreateNewCheck(thisConfig,"Focus Toggle");
-      -- CreateNewDrop(thisConfig,"Focus Toggle", 2, "Toggle2")
-      -- CreateNewText(thisConfig,"Focus Toggle");
-
-      -- Wrapper -----------------------------------------
-      CreateNewWrap(thisConfig,"--- Rotation ---");
-
-      -- Rotation
-      CreateNewDrop(thisConfig, "RotationSelect", 1, "Choose Rotation to use.", "|cffFFBB00IcyVeins", "|cff0077FFSimCraft");
-      CreateNewText(thisConfig, "RotationSelect");
-
-      --[[General Configs]]
-      CreateGeneralsConfig();
+        -- Wrapper -----------------------------------------
+        section = createNewSection(bb.profile_window,"--- Cooldowns ---")
+        createNewCheckbox(section,"Mirror Image")
+        createNewCheckbox(section,"Cold Snap")
+        createNewCheckbox(section,"Racial")
+        createNewCheckbox(section,"Potions")
+        checkSectionState(section)
 
 
-      WrapsManager();
+        -- Wrapper -----------------------------------------
+        section = createNewSection(bb.profile_window,"--- Defensives ---")
+        createNewSpinner(section, "Evanesce",  30,  0,  100  ,  5,  "|cffFFBB00Under what |cff69ccf0%HP|cffFFBB00 cast |cff69ccf0Evanesce.")
+        -- Healthstone
+        createNewSpinner(section, "Healthstone",  25,  0,  100  ,  5,  "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone")
+        checkSectionState(section)
+
+
+        -- Wrapper -----------------------------------------
+        section = createNewSection(bb.profile_window,"--- Rotation ---")
+        createNewCheckbox(section,"Gabbz")
+        createNewCheckbox(section,"Burst")
+        checkSectionState(section)
+
+
+        --[[ Rotation Dropdown ]]--
+        createNewRotationDropdown(bb.profile_window.parent, {"Gabbz"})
+        bb:checkProfileWindowStatus()
     end
-  end
-
-  function ArcaneMageConfig()
-    if currentConfig ~= "Arcane Ragnar & Gabbz" then
-      ClearConfig()
-      thisConfig = 0
-      --[[Title]]
-      titleOp("Arcane |cffFF0000Ragnar & Gabbz")
-
-      -- Wrapper -----------------------------------------
-      wrapOp("--- Buffs ---")
-
-      --[[Arcane Brilliance]]
-      checkOp("Arcane Brilliance")
-      textOp("Arcane Brilliance")
-
-      -- Wrapper -----------------------------------------
-      wrapOp("--- Cooldowns ---")
-
-      if isKnown(MirrorImage) then
-        checkOp("Mirror Image")
-        textOp("Mirror Image")
-      end
-
-      checkOp("Arcane Power")
-      textOp("Arcane Power")
-
-      checkOp("Racial")
-      textOp("Racial")
-
-      if isKnown(ColdSnap) then
-        checkOp("Cold Snap")
-        textOp("Cold Snap")
-      end
-
-      -- Wrapper -----------------------------------------
-      wrapOp("--- Defensives ---")
-
-      if isKnown(Evanesce) then
-        CreateNewCheck(thisConfig,"Evanesce");
-        boxOp("Evanesce", 0, 100  , 5, 30, "|cffFFBB00Under what |cff69ccf0%HP|cffFFBB00 cast |cff69ccf0Evanesce.")
-        textOp("Evanesce")
-      end
-
-      -- Healthstone
-      checkOp("Healthstone")
-      boxOp("Healthstone", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone")
-      textOp("Healthstone")
-
-      -- Wrapper -----------------------------------------
-      wrapOp("--- Rotation ---")
-      checkOp("Arcane Blast")
-      boxOp("ArcaneBlast (x4)", 80, 100  , 1, 93, "|cffFFBB00Under what |cff69ccf0%Mana|cffFFBB00 dont cast |cff69ccf0Arcane Blast at 4 stacks.")
-      textOp("ArcaneBlast (x4)")
-
-      checkOp("Burn Phase", "Do not enable on Dummy.")
-      textOp("Burn Phase")
-
-      --[[General Configs]]
-      CreateGeneralsConfig()
-      WrapsManager()
-    end
-  end
-  function FireMageConfig()
-    if currentConfig ~= "Fire Mage Gabbz" then
-      ClearConfig()
-      thisConfig = 0
-      --[[Title]]
-      titleOp("Fire Gabbz")
-
-      -- Wrapper -----------------------------------------
-      wrapOp("--- Buffs ---")
-
-
-      -- Wrapper -----------------------------------------
-      wrapOp("--- Cooldowns ---")
-
-      if isKnown(MirrorImage) then
-        checkOp("Mirror Image")
-        textOp("Mirror Image")
-      end
-
-      if isKnown(ColdSnap) then
-        checkOp("Cold Snap")
-        textOp("Cold Snap")
-      end
-
-      checkOp("Racial")
-      textOp("Racial")
-
-      checkOp("Potions")
-      textOp("Potions")
-
-      -- Wrapper -----------------------------------------
-      wrapOp("--- Defensives ---")
-
-      if isKnown(Evanesce) then
-        CreateNewCheck(thisConfig,"Evanesce");
-        boxOp("Evanesce", 0, 100  , 5, 30, "|cffFFBB00Under what |cff69ccf0%HP|cffFFBB00 cast |cff69ccf0Evanesce.")
-        textOp("Evanesce")
-      end
-
-      -- Healthstone
-      checkOp("Healthstone")
-      boxOp("Healthstone", 0, 100  , 5, 25, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone")
-      textOp("Healthstone")
-
-      -- Wrapper -----------------------------------------
-      wrapOp("--- Rotation ---")
-      checkOp("Gabbz")
-      textOp("Gabbz Standard")
-
-      checkOp("Burst")
-      textOp("Burst")
-
-      --[[General Configs]]
-      CreateGeneralsConfig()
-      WrapsManager()
-    end
-  end
 end

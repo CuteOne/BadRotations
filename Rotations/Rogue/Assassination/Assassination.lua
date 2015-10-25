@@ -1,21 +1,16 @@
 if select(3, UnitClass("player")) == 4 then
     function AssassinationRogue()
-        if Currentconfig ~= "Assassination CuteOne" and rogueAssassination == nil then
+        if rogueAssassination == nil then
             --AssOptions()
             rogueAssassination = cAssassination:new()
             setmetatable(rogueAssassination, {__index = cAssassination})
             AssToggles()
             rogueAssassination:update()
-            Currentconfig = "Assassination CuteOne"
         end
 
         if not canRun() then
             return true
         end
-        --poisonAssData()
-        --GroupInfo()
-        --makeEnemiesTable(40)
-        --getLoot2()
 
         -- ToDo add pause toggle
         -- Manual Input
