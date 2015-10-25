@@ -644,7 +644,7 @@ function bb:createConfigWindowNew()
     -- Enemies Engine
     section = createNewSection(bb.config_window, "Enemies Engine")
     createNewCheckbox(section, "Dynamic Targetting")
-    createNewDropdown(section, "Wise Target", {"Highest", "Lowest"})
+    createNewDropdown(section, "Wise Target", {"Highest", "Lowest", "abs Highest"})
     createNewCheckbox(section, "Forced Burn")
     createNewCheckbox(section, "Avoid Shields")
     createNewCheckbox(section, "Tank Threat")
