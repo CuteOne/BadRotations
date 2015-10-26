@@ -348,18 +348,14 @@ function cDK:new(spec)
 	-- Class options
 	-- Options which every Rogue should have
 	function self.createClassOptions()
-		-- Create Base Options
-		self.createBaseOptions()
+        -- Create Base Options
+        self.createBaseOptions()
 
-		-- Class Wrap
-		CreateNewWrap(thisConfig, "--- Class Options ---")
-
+        -- Class Wrap
+        local section = createNewSection(bb.profile_window,  "Class Options")
         -- Horn of Winter
-        CreateNewCheck(thisConfig,"Horn of Winter","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Horn of Winter usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
-        CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.hornOfWinter))))
-
-        -- Spacer
-		CreateNewText(" ");
+        createNewCheckbox(section,"Horn of Winter","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Horn of Winter usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
+        checkSectionState(section)
 	end
 
 ------------------------------

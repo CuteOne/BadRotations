@@ -396,10 +396,14 @@ if select(2, UnitClass("player")) == "DRUID" then
 	---------------
 
 		-- Class options
-		-- Options which every Rogue should have
+		-- Options which every Druid should have
 		function self.createClassOptions()
-			-- Create Base Options
-			self.createBaseOptions()
+            -- Create Base Options
+            self.createBaseOptions()
+
+            -- Class Wrap
+            local section = createNewSection(bb.profile_window,  "Class Options")
+            checkSectionState(section)
 		end
 
 	------------------------------

@@ -1,8 +1,7 @@
 if select(3,UnitClass("player")) == 2 then
   function PaladinRetToggles()
     GarbageButtons()
-    -- Aoe Button
-    if AoEModesLoaded ~= "Ret Pal AoE Modes" then
+
       AoEModes = {
         [1] = {
           mode = "1-2",
@@ -30,10 +29,7 @@ if select(3,UnitClass("player")) == 2 then
         }
       }
       CreateButton("AoE",0,1)
-      AoEModesLoaded = "Ret Pal AoE Modes"
-    end
     -- Interrupts Button
-    if  InterruptsModesLoaded ~= "Ret Pal Interrupts Modes" then
       InterruptsModes = {
         [1] = {
           mode = "None",
@@ -61,10 +57,7 @@ if select(3,UnitClass("player")) == 2 then
         }
       }
       CreateButton("Interrupts",1,0)
-      InterruptsModesLoaded = "Ret Pal Interrupts Modes"
-    end
     -- Defensive Button
-    if  DefensiveModesLoaded ~= "Ret Pal Defensive Modes" then
       DefensiveModes = {
         [1] = {
           mode = "None",
@@ -92,10 +85,7 @@ if select(3,UnitClass("player")) == 2 then
         }
       }
       CreateButton("Defensive",1,1)
-      DefensiveModesLoaded = "Ret Pal Defensive Modes"
-    end
     -- Cooldowns Button
-    if  CooldownsModesLoaded ~= "Ret Pal Cooldowns Modes" then
       CooldownsModes = {
         [1] = {
           mode = "None",
@@ -123,10 +113,7 @@ if select(3,UnitClass("player")) == 2 then
         }
       }
       CreateButton("Cooldowns",2,0)
-      CooldownsModesLoaded = "Ret Pal Cooldowns Modes";
-    end
     -- Healing Button
-    if  TrashModesLoaded ~= "Ret Pal Healing Modes" then
       HealingModes = {
         [1] = {
           mode = "Self",
@@ -146,7 +133,5 @@ if select(3,UnitClass("player")) == 2 then
         }
       }
       CreateButton("Healing",2,1)
-      HealingModesLoaded = "Ret Pal Healing Modes"
-    end
   end
 end

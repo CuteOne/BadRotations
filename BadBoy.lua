@@ -1,5 +1,9 @@
 -- define bb global that will hold the bot global background features
-bb = { }
+bb = {}
+bb.dropOptions = {}
+bb.dropOptions.Toggle = {"LeftCtrl","LeftShift","RightCtrl","RightShift","RightAlt","None"}
+bb.dropOptions.Toggle2 ={"LeftCtrl","LeftShift","LeftAlt","RightCtrl","RightShift","RightAlt","MMouse","Mouse4","Mouse5","None" }
+bb.dropOptions.CD = {"Never","CDs","Always" }
 -- developers debug, use /run BadBoy_data["Development Debug"] = true
 function bb:debug(message)
 	if BadBoy_data["Development Debug"] == true then
@@ -63,7 +67,11 @@ function bb:Run()
 		BadBoy_data.options[2] = {}
 		BadBoy_data.options[3] = {}
 		BadBoy_data.options[4] = {}
-	end
+    end
+    bb.selectedProfile = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"] or 1
+    if BadBoy_data.options[GetSpecialization()][bb.selectedProfile]  == nil then
+        BadBoy_data.options[GetSpecialization()][bb.selectedProfile] = {}
+    end
 	-- uncomment that when all ready
 	if BadBoy_data.BadBoyUI == nil then
 		BadBoy_data.BadBoyUI = {
@@ -242,6 +250,12 @@ function bb:Run()
 	bb:MinimapButton()
 	-- build up UI
 	bb:StartUI()
+
+    if BadBoy_data.options[GetSpecialization()] == nil then BadBoy_data.options[GetSpecialization()] = {} end
+    if BadBoy_data.options[GetSpecialization()][bb.selectedProfile] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile] = {} end
+    bb.selectedProfile = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"] or 1
+    bb:createConfigWindowNew()
+
 	-- start up enemies Engine
 	enemiesEngineRange = 55
 	EnemiesEngine()

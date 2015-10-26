@@ -5,7 +5,7 @@ if select(3,UnitClass("player")) == 2 then
     local redColor = "|cffFF0011"
     local whiteColor = "|cffFFFFFF"
     local myClassColor = classColors[select(3,UnitClass("player"))].hex
-    local function generateWrapper(wrapName)
+    local function CreateNewWrap(thisConfig,wrapName)
       CreateNewWrap(thisConfig,whiteColor.."- "..redColor..wrapName..whiteColor.." -")
     end
 
@@ -15,7 +15,7 @@ if select(3,UnitClass("player")) == 2 then
     retPaladin:baseOptions()
 
     -- Wrapper
-    generateWrapper("Buffs")
+    CreateNewWrap(thisConfig,"Buffs")
 
     -- Blessing
     CreateNewCheck(thisConfig,"Blessings")
@@ -23,7 +23,7 @@ if select(3,UnitClass("player")) == 2 then
     CreateNewText(thisConfig,"Blessings")
 
     -- Wrapper
-    generateWrapper("Coooldowns")
+    CreateNewWrap(thisConfig,"Coooldowns")
 
     -- Avenging Wrath
     CreateNewCheck(thisConfig,"Avenging Wrath")
@@ -62,7 +62,7 @@ if select(3,UnitClass("player")) == 2 then
     end
 
     -- Wrapper
-    generateWrapper("Defensive")
+    CreateNewWrap(thisConfig,"Defensive")
 
     -- Divine Protection
     CreateNewCheck(thisConfig,"Divine Protection","Divine Protection",1)
@@ -75,7 +75,7 @@ if select(3,UnitClass("player")) == 2 then
     CreateNewText(thisConfig,"Divine Shield")
 
     -- Wrapper
-    generateWrapper("Healing")
+    CreateNewWrap(thisConfig,"Healing")
 
 
 
@@ -120,7 +120,7 @@ if select(3,UnitClass("player")) == 2 then
     end
 
     -- Wrapper
-    generateWrapper("Utilities")
+    CreateNewWrap(thisConfig,"Utilities")
 
     -- Rebuke
     CreateNewCheck(thisConfig,"Rebuke",redColor.."Check" ..whiteColor.."to use "..redColor.."Rebuke"..whiteColor..".",1)

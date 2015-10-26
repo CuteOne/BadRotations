@@ -120,7 +120,7 @@ function cAffliction:new()
 		self.getDynamicUnits()
 		self.getEnemies()
 		self.getOptions()
-		--self.getRotation()
+		self.getRotation()
 
 		-- orbs
 		self.shards = UnitPower("player", SPELL_POWER_SOUL_SHARDS)
@@ -213,7 +213,26 @@ function cAffliction:new()
 	-- | |__| | |_) | |_| | (_) | | | \__ \ | || (_| | |_) | |  __/
 	--  \____/| .__/ \__|_|\___/|_| |_|___/  \__\__,_|_.__/|_|\___|
 	--        | |                                                  
-	--        |_|                                                  
+	--        |_|
+    function self.createToggle()
+    end
+
+    function self.createOptions()
+        bb.profile_window = createNewProfileWindow("Affliction")
+
+        self.createClassOptions()
+
+        local section
+
+        if self.rotation == 1 then
+            section = createNewSection(bb.profile_window, "NYI", "No options here.")
+        end
+
+        --[[ Rotation Dropdown ]]--
+        createNewRotationDropdown(bb.profile_window.parent, {"ragnar"})
+        bb:checkProfileWindowStatus()
+    end
+
 	function self.getOptions()
 		local getValue,isChecked = getValue,isChecked
 
@@ -856,7 +875,13 @@ function cAffliction:new()
 		function self.castUnstableAffliction(thisTarget)
 			return castSpell(thisTarget,self.spell.unstable_affliction,true,true) == true or false
 		end
-		
+
+    -----------------------------
+    --- CALL CREATE FUNCTIONS ---
+    -----------------------------
+
+    self.createOptions()
+    self.createToggles()
 
 	-- Return
 	return self

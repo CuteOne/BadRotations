@@ -491,249 +491,154 @@ if select(2, UnitClass("player")) == "DRUID" then
     ---------------
 
         function self.createOptions()
-    	    function titleOp(string)
-		        return CreateNewTitle(thisConfig,string)
-		    end
-		    function checkOp(string,tip)
-		        if tip == nil then
-		            return CreateNewCheck(thisConfig,string)
-		        else
-		            return CreateNewCheck(thisConfig,string,tip)
-		        end
-		    end
-		    function textOp(string)
-		        return CreateNewText(thisConfig,string)
-		    end
-		    function wrapOp(string)
-		        return CreateNewWrap(thisConfig,string)
-		    end
-		    function boxOp(string, minnum, maxnum, stepnum, defaultnum, tip)
-		        if tip == nil then
-		            return CreateNewBox(thisConfig,string, minnum, maxnum, stepnum, defaultnum)
-		        else
-		            return CreateNewBox(thisConfig,string, minnum, maxnum, stepnum, defaultnum, tip)
-		        end
-		    end
-		    function dropOp(string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
-		        return CreateNewDrop(thisConfig, string, base, tip1, value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
-		    end
+            bb.profile_window = createNewProfileWindow("Feral")
+            local section
 
-            thisConfig = 0
-            -- Title
-            titleOp("Feral")
-            -- Spacer
             -- Create Base and Class options
             self.createClassOptions()
 
-            textOp(" ")
-            wrapOp("--- Select Rotation ---")
 
-                -- Rotation
-                dropOp("Rotation", 1, "Select Rotation.", "|cff00FF00CuteOne", "|cffD60000OLD Feral","|cffD60000No Rotation");
-                textOp("Rotation");
+            
+            section = createNewSection(bb.profile_window, "General")
+            -- Death Cat
+            createNewCheckbox(section,"Death Cat Mode","|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.")
 
-            textOp(" ")
-            wrapOp("--- General ---")
+            -- Fire Cat
+            createNewCheckbox(section,"Perma Fire Cat","|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic use of Fandrel's Seed Pouch or Burning Seeds.")
 
-                -- Death Cat
-                checkOp("Death Cat Mode","|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.")
-                textOp("Death Cat Mode")
+            -- Mark Of The Wild
+            if isKnown(mow) then
+                createNewCheckbox(section,"Mark of the Wild","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFautomatic Mark of Wild usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
+            end
 
-                -- Fire Cat
-                checkOp("Perma Fire Cat","|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic use of Fandrel's Seed Pouch or Burning Seeds.")
-                textOp("Perma Fire Cat")
+            -- Dummy DPS Test
+            createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
-                -- Mark Of The Wild
-                if isKnown(mow) then
-                    checkOp("Mark of the Wild","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFautomatic Mark of Wild usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
-                    textOp(tostring(select(1,GetSpellInfo(mow))))
-                end
+            -- Travel Shapeshifts
+            createNewCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
 
-                -- Dummy DPS Test
-                checkOp("DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.")
-                boxOp("DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-                textOp("DPS Testing")
+            -- Break Crowd Control
+            createNewCheckbox(section,"Break Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to break crowd control.|cffFFBB00.")
+            checkSectionState(section)
 
-                -- Travel Shapeshifts
-                checkOp("Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
-                textOp("Auto Shapeshifts")
+            
+            section = createNewSection(bb.profile_window, "Cooldowns")
+            -- Agi Pot
+            createNewCheckbox(section,"Agi-Pot")
 
-                -- Break Crowd Control
-                checkOp("Break Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to break crowd control.|cffFFBB00.")
-                textOp("Break Crowd Control")
+            -- Flask / Crystal
+            createNewCheckbox(section,"Flask / Crystal")
 
-            -- Spacer
-            textOp(" ")
-            wrapOp("--- Cooldowns ---")
+            -- Force of Nature
+            createNewCheckbox(section,"Force of Nature")
 
-                -- Agi Pot
-                checkOp("Agi-Pot")
-                textOp("Agi-Pot")
+            -- Berserk
+            createNewCheckbox(section,"Berserk")
 
-                -- Flask / Crystal
-                checkOp("Flask / Crystal")
-                textOp("Flask / Crystal")
+            -- Legendary Ring
+            createNewCheckbox(section,"Legendary Ring")
 
-                -- Force of Nature
-                checkOp("Force of Nature")
-                textOp(tostring(select(1,GetSpellInfo(self.spell.forceOfNature))))
+            -- Racial
+            createNewCheckbox(section,"Racial")
 
-                -- Berserk
-                checkOp("Berserk")
-                textOp(tostring(select(1,GetSpellInfo(self.spell.berserk))))
+            -- Tiger's Fury
+            createNewCheckbox(section,"Tiger's Fury")
 
-                -- Legendary Ring
-                checkOp("Legendary Ring")
-                textOp("Legendary Ring")
+            -- Incarnation: King of the Jungle
+            createNewCheckbox(section,"Incarnation")
 
-                -- Racial
-                checkOp("Racial")
-                textOp("Racial")
+            -- Trinkets
+            createNewCheckbox(section,"Trinkets")
+            checkSectionState(section)
 
-                -- Tiger's Fury
-                checkOp("Tiger's Fury")
-                textOp(tostring(select(1,GetSpellInfo(self.spell.tigersFury))))
+            
+            section = createNewSection(bb.profile_window, "Defensive")
+            -- Rebirth
+            createNewCheckbox(section,"Rebirth")
+            createNewDropdown(section, "Rebirth - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
 
-                -- Incarnation: King of the Jungle
-                checkOp("Incarnation")
-                textOp(tostring(select(1,GetSpellInfo(self.spell.incarnationKingOfTheJungle))))
+            -- Revive
+            createNewCheckbox(section,"Revive")
+            createNewDropdown(section, "Revive - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
 
-                -- Trinkets
-                checkOp("Trinkets")
-                textOp("Trinkets")
+            -- Remove Corruption
+            createNewCheckbox(section,"Remove Corruption")
+            createNewDropdown(section, "Remove Corruption - Target", {"|cff00FF00Player","|cffFFFF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
 
-            -- Spacer
-            textOp(" ")
-            wrapOp("--- Defensive ---")
+            -- Rejuvenation
+            createNewSpinner(section, "Rejuvenation",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
-                -- Rebirth
-                checkOp("Rebirth")
-                textOp(tostring(select(1,GetSpellInfo(self.spell.rebirth))))
-                dropOp("Rebirth - Target",1,"|cffFFFFFFTarget to cast on","|cff00FF00Target","|cffFF0000Mouseover")
-                textOp(tostring(select(1,GetSpellInfo(self.spell.rebirth))).." - Target");
+            -- Auto Rejuvenation
+            createNewSpinner(section, "Auto Rejuvenation",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
-                -- Revive
-                checkOp("Revive")
-                textOp(tostring(select(1,GetSpellInfo(self.spell.revive))))
-                dropOp("Revive - Target",1,"|cffFFFFFFTarget to cast on","|cff00FF00Target","|cffFF0000Mouseover")
-                textOp(tostring(select(1,GetSpellInfo(self.spell.revive))).." - Target");
+            -- Healthstone
+            createNewSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
-                -- Remove Corruption
-                checkOp("Remove Corruption")
-                textOp(tostring(select(1,GetSpellInfo(self.spell.removeCorruption))))
-                dropOp("Remove Corruption - Target",1,"|cffFFFFFFTarget to cast on","|cff00FF00Player","|cffFFFF00Target","|cffFF0000Mouseover")
-                textOp(tostring(select(1,GetSpellInfo(self.spell.removeCorruption))).." - Target");
+            -- Heirloom Neck
+            createNewSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
 
-                -- Rejuvenation
-                checkOp("Rejuvenation")
-                boxOp("Rejuvenation", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-                textOp(tostring(select(1,GetSpellInfo(self.spell.rejuvenation))))
+            -- Engineering: Shield-o-tronic
+            createNewSpinner(section, "Shield-o-tronic",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
-                -- Auto Rejuvenation
-                checkOp("Auto Rejuvenation")
-                boxOp("Auto Rejuvenation", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-                textOp("Auto "..tostring(select(1,GetSpellInfo(self.spell.rejuvenation))))
+            -- Nature's Vigil
+            createNewSpinner(section, "Nature's Vigil",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
-                -- Healthstone
-                checkOp("Pot/Stoned")
-                boxOp("Pot/Stoned", 0, 100, 5, 60, "|cffFFFFFFHealth Percent to Cast At")
-                textOp("Pot/Stoned")
+            -- Survival Instincts
+            createNewSpinner(section, "Survival Instincts",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
-                -- Heirloom Neck
-                checkOp("Heirloom Neck");
-                boxOp("Heirloom Neck", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
-                textOp("Heirloom Neck");
+            -- Healing Touch
+            createNewSpinner(section, "Healing Touch",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
-                -- Engineering: Shield-o-tronic
-                checkOp("Shield-o-tronic")
-                boxOp("Shield-o-tronic", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At")
-                textOp("Shield-o-tronic")
+            -- Dream of Cenarius Auto-Heal
+            createNewDropdown(section, "Auto Heal", { "|cffFFDD11LowestHP", "|cffFFDD11Self"},  1,  "|cffFFFFFFSelect Target to Auto-Heal")
+            checkSectionState(section)
 
-                -- Nature's Vigil
-                checkOp("Nature's Vigil")
-                boxOp("Nature's Vigil", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At")
-                textOp(tostring(select(1,GetSpellInfo(self.spell.naturesVigil))))
 
-                -- Survival Instincts
-                checkOp("Survival Instincts")
-                boxOp("Survival Instincts", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
-                textOp(tostring(select(1,GetSpellInfo(self.spell.survivalInstincts))))
 
-                -- Healing Touch
-                checkOp("Healing Touch")
-                boxOp("Healing Touch", 0, 100, 5, 50, "|cffFFFFFFHealth Percent to Cast At")
-                textOp(tostring(select(1,GetSpellInfo(self.spell.healingTouch))))
+            
+            section = createNewSection(bb.profile_window, "Interrupts")
+            -- Skull Bash
+            createNewCheckbox(section,"Skull Bash")
 
-                -- Dream of Cenarius Auto-Heal
-                checkOp("Auto Heal")
-                dropOp("Auto Heal", 1, "|cffFFFFFFSelect Target to Auto-Heal",
-                    "|cffFFDD11LowestHP",
-                    "|cffFFDD11Self")
-                textOp("Auto Heal")
+            -- Mighty Bash
+            createNewCheckbox(section,"Mighty Bash")
 
-            -- Spacer --
-            textOp(" ")
-            wrapOp("--- Interrupts ---")
+            -- Maim
+            createNewCheckbox(section,"Maim")
 
-                -- Skull Bash
-                checkOp("Skull Bash")
-                textOp(tostring(select(1,GetSpellInfo(self.spell.skullBash))))
+            -- Interrupt Percentage
+            createNewSpinner(section, "Interrupts",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
+            checkSectionState(section)
 
-                -- Mighty Bash
-                checkOp("Mighty Bash")
-                textOp(tostring(select(1,GetSpellInfo(self.spell.mightyBash))))
 
-                -- Maim
-                checkOp("Maim")
-                textOp(tostring(select(1,GetSpellInfo(self.spell.maim))))
+            section = createNewSection(bb.profile_window, "Toggle Keys")
+            -- Single/Multi Toggle
+            createNewDropdown(section, "Rotation Mode", bb.dropOptions.Toggle,  4)
 
-                -- Interrupt Percentage
-                checkOp("Interrupts")
-                boxOp("Interrupts", 0, 95, 5, 0, "|cffFFFFFFCast Percent to Cast At")
-                textOp("Interrupt At")
+            -- Cooldown Key Toggle
+            createNewDropdown(section, "Cooldown Mode", bb.dropOptions.Toggle,  3)
 
-            -- Spacer
-            textOp(" ")
-            wrapOp("--- Toggle Keys ---")
+            -- Defensive Key Toggle
+            createNewDropdown(section, "Defensive Mode", bb.dropOptions.Toggle,  6)
 
-                -- Single/Multi Toggle
-                checkOp("Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.")
-                dropOp("Rotation Mode", 4, "Toggle")
-                textOp("Rotation Mode")
+            -- Interrupts Key Toggle
+            createNewDropdown(section, "Interrupt Mode", bb.dropOptions.Toggle,  6)
 
-                -- Cooldown Key Toggle
-                checkOp("Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.")
-                dropOp("Cooldown Mode", 3, "Toggle")
-                textOp("Cooldown Mode")
+            -- Cleave Toggle
+            createNewDropdown(section, "Cleave Mode", bb.dropOptions.Toggle,  6)
 
-                -- Defensive Key Toggle
-                checkOp("Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.")
-                dropOp("Defensive Mode", 6, "Toggle")
-                textOp("Defensive Mode")
+            -- Prowl Toggle
+            createNewDropdown(section, "Prowl Mode", bb.dropOptions.Toggle,  6)
 
-                -- Interrupts Key Toggle
-                checkOp("Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.")
-                dropOp("Interrupt Mode", 6, "Toggle")
-                textOp("Interrupt Mode")
+            -- Pause Toggle
+            createNewDropdown(section, "Pause Mode", bb.dropOptions.Toggle,  6)
+            checkSectionState(section)
 
-                -- Cleave Toggle
-                checkOp("Cleave Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCleave Toggle Key|cffFFBB00.")
-                dropOp("Cleave Mode", 6, "Toggle")
-                textOp("Cleave Mode")
 
-                -- Prowl Toggle
-                checkOp("Prowl Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFProwl Toggle Key|cffFFBB00.")
-                dropOp("Prowl Mode", 6, "Toggle")
-                textOp("Prowl Mode")
 
-                -- Pause Toggle
-                checkOp("Pause Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFPause Toggle Key - None Defaults to LeftAlt|cffFFBB00.")
-                dropOp("Pause Mode", 6, "Toggle")
-                textOp("Pause Mode")
-
-            -- General Configs
-            CreateGeneralsConfig()
-            WrapsManager()
+            --[[ Rotation Dropdown ]]--
+            createNewRotationDropdown(bb.profile_window.parent, {"CuteOn", "OLD"})
+            bb:checkProfileWindowStatus()
         end
 
     ------------------------------

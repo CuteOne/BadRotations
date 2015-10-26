@@ -99,26 +99,9 @@ function cPaladin:new(spec)
         -- Create Base Options
         self.createBaseOptions()
 
-        -- Class Wrap
-        CreateNewWrap(thisConfig, "--- Class Options ---")
-
-        -- Blessing
-        CreateNewCheck(thisConfig,"Blessings")
-        CreateNewDrop(thisConfig,"Blessings",1,"|cffFFFFFFWhich blessing do you want to maintain on raid","|cff0374FEKings","|cffFFBC40Might","|cff00FF0DAuto")
-        CreateNewText(thisConfig,"Blessings")
-
-        -- Spacer
-        CreateNewText(" ");
-    end
-
-    function self.createClassOptionsNEW()
-        -- Create Base Options
-        self.createBaseOptionsNEW()
-
-        local section_class = createNewSection("Class Options",2,profile_window)
-        createNewCheckbox("Blessings", 10, 1, section_class)
-        createNewDropdown("Blessings", -10, 1, section_class, {"Kings","Might","Auto"})
-        section_class:Expand()
+        local section = createNewSection(bb.profile_window, "Class Options")
+        createNewDropdown(section,"Blessings", {"Kings","Might","Auto"})
+        checkSectionState(section)
     end
     --------------
     --- SPELLS ---
@@ -179,7 +162,7 @@ function cPaladin:new(spec)
 			for i = 1, #nNova do
 				local thisUnit = nNova[i]
 				-- i think only these 3 class buff kings
-				local MemberClass = nNova[i].class
+				--local MemberClass = nNova[i].class
 				if not UnitIsUnit("player",thisUnit.unit) and thisUnit.hp < 250 and thisUnit.isPlayer and
 					(thisUnit.class == "DRUID" or thisUnit.class == "MONK" or thisUnit.class == "PALADIN") then
 					myBlessing = _BlessingOfMight

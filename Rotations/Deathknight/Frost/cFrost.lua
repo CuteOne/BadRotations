@@ -27,11 +27,11 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             obliterate          = 49020,
             pillarOfFrost       = 51271,
             soulReaper          = 130735,
-            
+
             -- Buff - Offensive
             killingMachineBuff  = 51124,
             freezingFogBuff     = 59052,
-            pillarOfFrostBuff   = 51271, 
+            pillarOfFrostBuff   = 51271,
 
             -- Debuff - Offensive
 
@@ -46,7 +46,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             strengthFlaskBigBuff= self.flask.wod.buff.strengthBig,
             strengthPotBasic    = self.potion.wod.strengthBasic,
             strengthPotGarrison = self.potion.wod.strengthPotGarrison,
-            strengthPotBuff     = self.potion.wod.buff.strength, 
+            strengthPotBuff     = self.potion.wod.buff.strength,
         }
         -- Merge all spell tables into self.spell
         self.spell = {}
@@ -242,203 +242,181 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         --- OPTIONS ---
         ---------------
 
-        function self.createOptions()
-            thisConfig = 0
+        -- TODO: change toggles to this one
+        function self.createToggles()
+            --GarbageButtons()
 
-            -- Title
-            CreateNewTitle(thisConfig, "Frost")
+            if self.rotation == 1 then
+            end
+        end
+
+        function self.createOptions()
+            bb.profile_window = createNewProfileWindow("Frost")
+            local section
 
             -- Create Base and Class options
             self.createClassOptions()
 
-            -- Combat options
-            CreateNewWrap(thisConfig, "--- General ---");
-
-            -- Rotation
-            CreateNewDrop(thisConfig, "Rotation", 1, "Select Rotation.", "|cff00FF00CuteOne", "|cff00FF00OLD");
-            CreateNewText(thisConfig, "Rotation");
-
+            --   _____                           _
+            --  / ____|                         | |
+            -- | |  __  ___ _ __   ___ _ __ __ _| |
+            -- | | |_ |/ _ \ '_ \ / _ \ '__/ _` | |
+            -- | |__| |  __/ | | |  __/ | | (_| | |
+            --  \_____|\___|_| |_|\___|_|  \__,_|_|
+            section = createNewSection(bb.profile_window,  "General")
             -- Dummy DPS Test
-            CreateNewCheck(thisConfig,"DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.");
-            CreateNewBox(thisConfig,"DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-            CreateNewText(thisConfig,"DPS Testing");
+            createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
             -- Mouseover Targeting
-            CreateNewCheck(thisConfig,"Mouseover Targeting","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFmouseover target validation.|cffFFBB00.")
-            CreateNewText(thisConfig,"Mouseover Targeting")
+            createNewCheckbox(section,"Mouseover Targeting","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFmouseover target validation.|cffFFBB00.")
+            checkSectionState(section)
 
-            -- Spacer
-            CreateNewText(thisConfig, " ");
-            CreateNewWrap(thisConfig, "--- Cooldowns ---");
 
-            -- Agi Pot
-            --CreateNewCheck(thisConfig,"Agi-Pot");
-            --CreateNewText(thisConfig,"Agi-Pot");
-
+            --   _____            _     _
+            --  / ____|          | |   | |
+            -- | |     ___   ___ | | __| | _____      ___ __  ___
+            -- | |    / _ \ / _ \| |/ _` |/ _ \ \ /\ / / '_ \/ __|
+            -- | |___| (_) | (_) | | (_| | (_) \ V  V /| | | \__ \
+            --  \_____\___/ \___/|_|\__,_|\___/ \_/\_/ |_| |_|___/
+            section = createNewSection(bb.profile_window,  "Cooldowns")
             -- Legendary Ring
-            CreateNewCheck(thisConfig, "Legendary Ring", "Enable or Disable usage of Legendary Ring.");
-            CreateNewDrop(thisConfig, "Legendary Ring", 2, "CD")
-            CreateNewText(thisConfig, "Legendary Ring");
+            createNewDropdown(section,  "Legendary Ring", bb.dropOptions.CD,  2, "Enable or Disable usage of Legendary Ring.")
 
             -- Flask / Crystal
-            CreateNewCheck(thisConfig,"Flask / Crystal")
-            CreateNewText(thisConfig,"Flask / Crystal")
+            createNewCheckbox(section,"Flask / Crystal")
 
             -- Trinkets
-            CreateNewCheck(thisConfig,"Trinkets")
-            CreateNewText(thisConfig,"Trinkets")
+            createNewCheckbox(section,"Trinkets")
 
             -- Empower Rune Weapon
-            if isKnown(_EmpowerRuneWeapon) then
-              CreateNewCheck(thisConfig,"Empower Rune Weapon")
-              CreateNewText(thisConfig,"Empower Rune Weapon")
-            end
+            --if isKnown(_EmpowerRuneWeapon) then
+                createNewCheckbox(section,"Empower Rune Weapon")
+            --end
+            checkSectionState(section)
 
-            -- Spacer
-            CreateNewText(thisConfig," ");
-            CreateNewWrap(thisConfig,"--- Defensive ---");
 
+            --  _____        __               _
+            -- |  __ \      / _|             (_)
+            -- | |  | | ___| |_ ___ _ __  ___ ___   _____
+            -- | |  | |/ _ \  _/ _ \ '_ \/ __| \ \ / / _ \
+            -- | |__| |  __/ ||  __/ | | \__ \ |\ V /  __/
+            -- |_____/ \___|_| \___|_| |_|___/_| \_/ \___|
+            section = createNewSection(bb.profile_window, "Defensive")
             -- Healthstone
-            CreateNewCheck(thisConfig,"Healthstone");
-            CreateNewBox(thisConfig,"Healthstone", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
-            CreateNewText(thisConfig,"Healthstone");
+            createNewSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Heirloom Neck
-            CreateNewCheck(thisConfig,"Heirloom Neck");
-            CreateNewBox(thisConfig,"Heirloom Neck", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
-            CreateNewText(thisConfig,"Heirloom Neck");
+            createNewSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Blood Presence
-            CreateNewCheck(thisConfig,"Blood Presence")
-            CreateNewBox(thisConfig,"Blood Presence", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-            CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_BloodPresence))))
+            createNewSpinner(section, "Blood Presence",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Death Strike
-            CreateNewCheck(thisConfig,"Death Strike")
-            CreateNewBox(thisConfig,"Death Strike", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-            CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_DeathStrike))))
+            createNewSpinner(section, "Death Strike",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Icebound Fortitude
-            CreateNewCheck(thisConfig,"Icebound Fortitude")
-            CreateNewBox(thisConfig,"Icebound Fortitude", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-            CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_IceboundFortitude))))
+            createNewSpinner(section, "Icebound Fortitude",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Lichbourne
-            if getTalent(2,1) then
-              CreateNewCheck(thisConfig,"Lichborne")
-              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_Lichborne))))
-            end
+            --if getTalent(2,1) then
+            createNewCheckbox(section,"Lichborne")
+            --end
 
             -- Anti-Magic Shell/Zone
-            if getTalent(2,2) then
-              CreateNewCheck(thisConfig,"Anti-Magic Zone")
-              CreateNewBox(thisConfig,"Anti-Magic Zone", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_AntiMagicZone))))
-            else
-              CreateNewCheck(thisConfig,"Anti-Magic Shell")
-              CreateNewBox(thisConfig,"Anti-Magic Shell", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_AntiMagicShell))))
-            end
+            --if getTalent(2,2) then
+            createNewSpinner(section, "Anti-Magic Zone",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            --else
+            createNewSpinner(section, "Anti-Magic Shell",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            --end
 
             -- Death Pact
-            if getTalent(5,1) then
-              CreateNewCheck(thisConfig,"Death Pact")
-              CreateNewBox(thisConfig,"Death Pact", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_DeathPact))))
-            end
+            --if getTalent(5,1) then
+            createNewSpinner(section, "Death Pact",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            --end
 
             -- Death Siphon
-            if getTalent(5,2) then
-              CreateNewCheck(thisConfig,"Death Siphon")
-              CreateNewBox(thisConfig,"Death Siphon", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_DeathSiphon))))
-            end
+            --if getTalent(5,2) then
+            createNewSpinner(section, "Death Siphon",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            --end
 
             -- Conversion
-            if getTalent(5,3) then
-              CreateNewCheck(thisConfig,"Conversion")
-              CreateNewBox(thisConfig,"Conversion", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_Conversion))))
-            end
+            --if getTalent(5,3) then
+            createNewSpinner(section, "Conversion",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            --end
 
             -- Remorseless Winter
-            if getTalent(6,2) then
-              CreateNewCheck(thisConfig,"Remorseless Winter")
-              CreateNewBox(thisConfig,"Remorseless Winter", 0, 100, 5, 75, "|cffFFFFFFHealth Percent to Cast At")
-              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_RemorselessWinter))))
-            end
+            --if getTalent(6,2) then
+            createNewSpinner(section, "Remorseless Winter",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            --end
 
             -- Desecrated Ground
-            if getTalent(6,3) then
-              CreateNewCheck(thisConfig,"Desecrated Ground")
-              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_DesecratedGround))))
-            end
+            --if getTalent(6,3) then
+            createNewCheckbox(section,"Desecrated Ground")
+            --end
+            checkSectionState(section)
 
-            -- Spacer --
-            CreateNewText(thisConfig," ");
-            CreateNewWrap(thisConfig,"--- Interrupts ---");
 
+            --  _____       _                             _
+            -- |_   _|     | |                           | |
+            --   | |  _ __ | |_ ___ _ __ _ __ _   _ _ __ | |_ ___
+            --   | | | '_ \| __/ _ \ '__| '__| | | | '_ \| __/ __|
+            --  _| |_| | | | ||  __/ |  | |  | |_| | |_) | |_\__ \
+            -- |_____|_| |_|\__\___|_|  |_|   \__,_| .__/ \__|___/
+            --                                     | |
+            --                                     |_|
+            section = createNewSection(bb.profile_window, "Interrupts")
             -- Mind Freeze
-            CreateNewCheck(thisConfig,"Mind Freeze")
-            CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_MindFreeze))))
+            createNewCheckbox(section,"Mind Freeze")
 
-            if isKnown(_Asphyxiate) then
-              -- Asphyxiate
-              CreateNewCheck(thisConfig,"Asphyxiate")
-              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_Asphyxiate))))
-            else
-              -- Strangulate
-              CreateNewCheck(thisConfig,"Strangulate")
-              CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_Strangulate))))
-            end
+            --if isKnown(_Asphyxiate) then
+            -- Asphyxiate
+            createNewCheckbox(section,"Asphyxiate")
+            --else
+            -- Strangulate
+            createNewCheckbox(section,"Strangulate")
+            --end
 
             -- Dark Simulacrum
-            CreateNewCheck(thisConfig,"Dark Simulacrum")
-            CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(_DarkSimulacrum))))
+            createNewCheckbox(section,"Dark Simulacrum")
 
             -- Interrupt Percentage
-            CreateNewCheck(thisConfig,"InterruptAt");
-            CreateNewBox(thisConfig, "InterruptAt", 0, 95, 5, 0, "|cffFFBB00Cast Percentage to use at.");
-            CreateNewText(thisConfig,"InterruptAt");
+            createNewSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+            checkSectionState(section)
 
-            -- Spacer
-            CreateNewText(thisConfig, " ");
-            CreateNewWrap(thisConfig, "--- Toggle Keys ---");
 
+            -- _______                _        _  __
+            --|__   __|              | |      | |/ /
+            --   | | ___   __ _  __ _| | ___  | ' / ___ _   _ ___
+            --   | |/ _ \ / _` |/ _` | |/ _ \ |  < / _ \ | | / __|
+            --   | | (_) | (_| | (_| | |  __/ | . \  __/ |_| \__ \
+            --   |_|\___/ \__, |\__, |_|\___| |_|\_\___|\__, |___/
+            --             __/ | __/ |                   __/ |
+            --            |___/ |___/                   |___/
+            section = createNewSection(bb.profile_window,  "Toggle Keys")
             -- Single/Multi Toggle
-            CreateNewCheck(thisConfig, "Rotation Mode", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.");
-            CreateNewDrop(thisConfig, "Rotation Mode", 4, "Toggle")
-            CreateNewText(thisConfig, "Rotation Mode");
+            createNewDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
 
             --Cooldown Key Toggle
-            CreateNewCheck(thisConfig, "Cooldown Mode", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.");
-            CreateNewDrop(thisConfig, "Cooldown Mode", 3, "Toggle")
-            CreateNewText(thisConfig, "Cooldown Mode")
+            createNewDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
 
             --Defensive Key Toggle
-            CreateNewCheck(thisConfig, "Defensive Mode", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.");
-            CreateNewDrop(thisConfig, "Defensive Mode", 6, "Toggle")
-            CreateNewText(thisConfig, "Defensive Mode")
+            createNewDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
 
             -- Interrupts Key Toggle
-            CreateNewCheck(thisConfig, "Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.")
-            CreateNewDrop(thisConfig, "Interrupt Mode", 6, "Toggle")
-            CreateNewText(thisConfig, "Interrupts")
+            createNewDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
 
             -- Cleave Toggle
-            CreateNewCheck(thisConfig, "Cleave Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCleave Toggle Key|cffFFBB00.")
-            CreateNewDrop(thisConfig, "Cleave Mode", 6, "Toggle")
-            CreateNewText(thisConfig, "Cleave Mode")
+            createNewDropdown(section,  "Cleave Mode", bb.dropOptions.Toggle,  6)
 
             -- Pause Toggle
-            CreateNewCheck(thisConfig, "Pause Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFPause Toggle Key - None Defaults to LeftAlt|cffFFBB00.")
-            CreateNewDrop(thisConfig, "Pause Mode", 6, "Toggle")
-            CreateNewText(thisConfig, "Pause Mode")
+            createNewDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
+            checkSectionState(section)
 
-            -- General Configs
-            CreateGeneralsConfig();
 
-            WrapsManager();
+
+            --[[ Rotation Dropdown ]]--
+            createNewRotationDropdown(bb.profile_window.parent, {"CuteOn", "OLD"})
+            bb:checkProfileWindowStatus()
         end
 
         --------------
@@ -478,7 +456,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         -----------------------------
         --- CALL CREATE FUNCTIONS ---
         -----------------------------
-
+        self.createToggles()
         self.createOptions()
 
 

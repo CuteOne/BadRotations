@@ -75,6 +75,7 @@ function cProtection:new()
 		self.getDynamicUnits()
 		self.getEnemies()
 		self.getRotation()
+        self.getOptions()
 
         -- Right = 1, Insight = 2
 		self.seal = GetShapeshiftForm() == 1
@@ -143,28 +144,6 @@ function cProtection:new()
 		self.talent.seraphim        = isKnown(self.spell.seraphim)
 	end
 
-    -- Rotation selection update
-	function self.getRotation()
-		self.rotation = getValue("Rotation")
-        --self.rotation = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"]
-        if bb.rotation_changed then
-            profile_window.closeButton:Click()
-            -- test
-            if self.rotation == 1 then
-                PaladinProtToggles()
-            elseif self.rotation == 2 then
-                GarbageButtons()
-                    AoEModes = {
-                        [1] = { mode = "CUTE", value = 1 , overlay = "Single Target Enabled", tip = "|cff00FF00Cfor \n|cffFFDD11Single Target(1-2).", highlight = 0, icon = 35395 },
-                    }
-                    CreateButton("AoE",0,1)
-            end
-
-            self.createOptionsNEW()
-            bb.rotation_changed = false
-        end
-	end
-
     -- Update Dynamic units
 	function self.getDynamicUnits()
 		local dynamicTarget = dynamicTarget
@@ -213,185 +192,190 @@ function cProtection:new()
 		end
     end
 
+    -- Rotation selection update
+    --function self.getRotation()
+    --    self.rotation = bb.selectedProfile
+--
+    --    if bb.rotation_changed then
+    --        self.createToggles()
+    --        self.createOptions()
+--
+    --        bb.rotation_changed = false
+    --    end
+    --end
+
     -- Starts rotation, uses default if no other specified; starts if inCombat == true
 	function self.startRotation()
-		if self.inCombat then
-			if self.rotation == 1 then
-				self:protectionSimC()
-			-- put different rotations below; dont forget to setup your rota in options
-            elseif self.rotation == 2 then
-                ChatOverlay("THATS CUTE!",1)
-			else
-				ChatOverlay("No ROTATION ?!", 2000)
-			end
-		end
+        if self.rotation == 1 then
+            self:protectionSimC()
+        -- put different rotations below; dont forget to setup your rota in options
+        elseif self.rotation == 2 then
+            --ChatOverlay("THATS CUTE!",1)
+        else
+            ChatOverlay("No ROTATION ?!", 2000)
+        end
 	end
 
 ---------------------------------------------------------------
 -------------------- OPTIONS ----------------------------------
 ---------------------------------------------------------------
 
-    function self.createOptions()
-        thisConfig = 0
-
-        -- Title
-        CreateNewTitle(thisConfig, "Protection Defmaster")
-
-        -- Create Base and Class options
-        self.createClassOptions()
-
-        local myColor,redColor,whiteColor  = "|cffC0C0C0","|cffFF0011","|cffFFFFFF"
-        local myClassColor = classColors[select(3,UnitClass("player"))].hex
-
-        local function generateWrapper(wrapName)
-            CreateNewWrap(thisConfig,whiteColor.."- "..redColor..wrapName..whiteColor.." -")
-        end
-
-        -- Wrapper
-        generateWrapper("Buffs")
-
-        -- Righteous Fury
-        CreateNewCheck(thisConfig,"Righteous Fury")
-        CreateNewText(thisConfig,"Righteous Fury")
-
-        -- Wrapper
-        generateWrapper("Rotation Management")
-
-        -- Light's Hammer
-        if isKnown(114158) then
-            CreateNewCheck(thisConfig,"Light's Hammer",nil,1)
-            CreateNewDrop(thisConfig,"Light's Hammer",2,"CD")
-            CreateNewText(thisConfig,"Light's Hammer")
-        end
-        -- Execution Sentence
-        if isKnown(114157) then
-            CreateNewCheck(thisConfig,"Execution Sentence",nil,1)
-            CreateNewDrop(thisConfig,"Execution Sentence",2,"CD")
-            CreateNewText(thisConfig,"Execution Sentence")
-        end
-        -- Holy Avenger
-        if isKnown(105809) then
-            CreateNewCheck(thisConfig,"Holy Avenger",nil,1)
-            CreateNewDrop(thisConfig,"Holy Avenger",2,"CD")
-            CreateNewText(thisConfig,"Holy Avenger")
-        end
-        -- Seraphim
-        if isKnown(152262) then
-            CreateNewCheck(thisConfig,"Seraphim",nil,1)
-            CreateNewDrop(thisConfig,"Seraphim",2,"CD")
-            CreateNewText(thisConfig,"Seraphim")
-        end
-
-        -- Wrapper
-        generateWrapper("Healing")
-
-        -- Word Of Glory Party
-        CreateNewCheck(thisConfig,"Word Of Glory On Self","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFWord of Glory|cffFFBB00 on self.",1)
-        CreateNewBox(thisConfig,"Word Of Glory On Self",0,100,1,30,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to heal self with \n|cffFFFFFFWords Of Glory")
-        CreateNewText(thisConfig,"Word Of Glory On Self")
-
-        -- LoH options
-        generalPaladinOptions()
-
-        -- Todo: reimplement later
-        --CreateNewCheck(thisConfig,"Hand Of Freedom","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFHand Of Freedom|cffFFBB00.",1)
-        --CreateNewDrop(thisConfig,"Hand Of Freedom",1,"Under which conditions do we use Hand of Freedom on self.","|cffFFFFFFWhitelist","|cff00FF00All")
-        --CreateNewText(thisConfig,"Hand Of Freedom")
-
-        generateWrapper("Defensive")
-
-        CreateNewCheck(thisConfig,"Divine Protection","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFDivine Protection.",1)
-        CreateNewBox(thisConfig,"Divine Protection",0,100,1,65,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFDivine Protection")
-        CreateNewText(thisConfig,"Divine Protection")
-
-        CreateNewCheck(thisConfig,"Ardent Defender","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFArdent Defender.",1)
-        CreateNewBox(thisConfig,"Ardent Defender",0,100,1,20,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFArdent Defender")
-        CreateNewText(thisConfig,"Ardent Defender")
-
-        CreateNewCheck(thisConfig,"Guardian Of Ancient Kings","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFGuardian Of Ancients Kings.",1)
-        CreateNewBox(thisConfig,"Guardian Of Ancient Kings",0,100,1,30,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFGuardian Of Ancients Kings")
-        CreateNewText(thisConfig,"Guardian Of Ancient Kings")
-
-        -- Wrapper Interrupt
-        generateWrapper("Interrupts")
-
-        CreateNewCheck(thisConfig,"Rebuke","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFRebuke|cffFFBB00.",1)
-        CreateNewBox(thisConfig,"Rebuke",0,100,5,35,"|cffFFBB00Over what % of cast we want to \n|cffFFFFFFRebuke.")
-        CreateNewText(thisConfig,"Rebuke")
-
-        CreateNewCheck(thisConfig,"Avengers Shield Interrupt","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable \n|cffFFFFFFusing AS as Interrupt|cffFFBB00.",1)
-        CreateNewBox(thisConfig,"Avengers Shield Interrupt",0,100,5,35,"|cffFFBB00Over what % of cast we want to \n|cffFFFFFFAS as interrupt.")
-        CreateNewText(thisConfig,"Avengers Shield Interrupt")
-
-        -- General Configs
-        CreateGeneralsConfig()
-        WrapsManager()
-    end
-
-    function self.createOptionsNEW()
-        profile_window = createNewProfileWindow("Protection")
-
-        self.createClassOptionsNEW()
+    function self.createToggles()
+        GarbageButtons()
 
         if self.rotation == 1 then
+            -- Aoe Button
+            AoEModes = {
+                [1] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "|cff00FF00Recommended for \n|cffFFDD11Single Target(1-2).", highlight = 0, icon = 35395 },
+                [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "|cffFF0000Recommended for \n|cffFFDD11AoE(3+).", highlight = 0, icon = 53595 },
+                [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "|cffFFDD11Recommended for \n|cffFFDD11Lazy people.", highlight = 1, icon = 114158 }
+            }
+            CreateButton("AoE",0,1)
+
+            -- Interrupts Button
+            InterruptsModes = {
+                [1] = { mode = "None", value = 1 , overlay = "Interrupts Disabled", tip = "|cffFF0000No Interrupts will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
+                [2] = { mode = "All", value = 2 , overlay = "Interrupts Enabled", tip = "|cffFF0000Spells Included: \n|cffFFDD11Rebuke.", highlight = 1, icon = 96231 }
+            }
+            CreateButton("Interrupts",1,0)
+
+            -- Cooldowns Button
+            CooldownsModes = {
+                [1] = { mode = "None", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffFF0000No cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
+                [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "|cffFF0000Cooldowns Included: \n|cffFFDD11Config's selected spells.", highlight = 1, icon = [[INTERFACE\ICONS\inv_misc_blackironbomb]] },
+                [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "|cffFF0000Cooldowns Included: \n|cffFFDD11Holy Avenger.", highlight = 1, icon = 31884 }
+            }
+            CreateButton("Cooldowns",2,0)
+
+            -- Defensive Button
+
+            DefensiveModes = {
+                [1] = { mode = "None", value = 1 , overlay = "Defensive Disabled", tip = "|cffFF0000No Defensive Cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
+                [2] = { mode = "All", value = 2 , overlay = "Defensive Enabled", tip = "|cffFF0000Spells Included: \n|cffFFDD11Ardent Defender, \nDivine Protection, \nGuardian of Ancient Kings.", highlight = 1, icon = 86659 }
+            }
+            CreateButton("Defensive",1,1)
+
+            -- Healing Button
+            HealingModes = {
+                [1] = { mode = "None", value = 1 , overlay = "Disable Healing.", tip = "|cffFF0000No healing will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
+                [2] = { mode = "Self", value = 2 , overlay = "Heal only Self.", tip = "|cffFF0000Healing: |cffFFDD11On self only.", highlight = 1, icon = 19750 },
+                [3] = { mode = "All", value = 3 , overlay = "Heal Everyone.", tip = "|cffFF0000Healing: |cffFFDD11On Everyone.", highlight = 1, icon = 114163 }
+            }
+            CreateButton("Healing",2,1)
+
+            -- Empowered Seals Button
+            EmpSModes = {
+                [1] = { mode = "Twist", value = 1 , overlay = "Twist.", tip = "|cffFF0000Twist between Right and Insight.", highlight = 1, icon = 152263 },
+                [2] = { mode = "Right", value = 2 , overlay = "Right.", tip = "|cffFF0000Stays in Righteousness.", highlight = 0, icon = 20154 },
+                [3] = { mode = "Insight", value = 3 , overlay = "Insight.", tip = "|cffFF0000Stays in Insight.", highlight = 0, icon = 20165 }
+            }
+            CreateButton("EmpS",3,1)
+        elseif self.rotation == 2 then
+            AoEModes = {
+                [1] = { mode = "CUTE", value = 1 , overlay = "Single Target Enabled", tip = "|cff00FF00Cfor \n|cffFFDD11Single Target(1-2).", highlight = 0, icon = 35395 },
+            }
+            CreateButton("AoE",0,1)
+        end
+    end
+
+    function self.createOptions()
+        bb.profile_window = createNewProfileWindow("Protection")
+
+        self.createClassOptions()
+
+        local section
+        if self.rotation == 1 then
             -- Buffs
-            local section_buffs = createNewSection("Buffs",3,profile_window)
-            createNewCheckbox("Righteous Fury", 10, 1, section_buffs)
-            section_buffs:Expand()
+            section = createNewSection(bb.profile_window, "Buffs")
+            createNewCheckbox(section, "Righteous Fury")
+            checkSectionState(section)
 
             -- Rota
-            local section_rotation = createNewSection("Rotation Managment",4,profile_window)
-            createNewCheckbox("Holy Avenger", 10, 1, section_rotation)
-            createNewDropdown("Holy Avenger", -10, 1, section_rotation, {"Never","CDs","Always"})
-            section_rotation:Expand()
+            section = createNewSection(bb.profile_window, "Rotation Managment")
+            createNewDropdown(section, "Light's Hammer", bb.dropOptions.CD)
+            createNewDropdown(section, "Execution Sentence", bb.dropOptions.CD)
+            createNewDropdown(section, "Holy Avenger", bb.dropOptions.CD)
+            createNewDropdown(section, "Seraphim", bb.dropOptions.CD)
+            checkSectionState(section)
 
             -- Healing
-            local section_healing = createNewSection("Healing",5,profile_window)
-
-            createNewCheckbox("Word Of Glory On Self", 10, 1, section_healing)
-            createNewSpinner("Word Of Glory On Self",60, -10 , 1,section_healing)
-
-            createNewCheckbox("Lay On Hands", 10, 2, section_healing)
-            createNewSpinner("Lay On Hands",12, -10 , 2, section_healing)
-            section_healing:Expand()
+            section = createNewSection(bb.profile_window, "Healing")
+            createNewSpinner(section, "Word Of Glory On Self", 60)
+            createNewSpinner(section, "Lay On Hands", 12)
+            checkSectionState(section)
 
             -- Defensive
-            local section_defensive = createNewSection("Defensive",6,profile_window)
+            section = createNewSection(bb.profile_window, "Defensive")
 
-            createNewCheckbox("Divine Protection", 10, 1, section_defensive)
-            createNewSpinner("Divine Protection",65, -10 , 1,section_defensive)
-
-            createNewCheckbox("Ardent Defender", 10, 2, section_defensive)
-            createNewSpinner("Ardent Defender",20, -10 , 2,section_defensive)
-
-            createNewCheckbox("Guardian of Anchient Kings", 10, 3, section_defensive)
-            createNewSpinner("Guardian of Anchient Kings",40, -10 , 3,section_defensive)
-            section_defensive:Expand()
+            createNewSpinner(section, "Divine Protection", 65)
+            createNewSpinner(section, "Ardent Defender", 20)
+            createNewSpinner(section, "Guardian of Anchient Kings", 40)
+            checkSectionState(section)
 
             -- Interrupt
-            local section_interrupts = createNewSection("Interrupts",7,profile_window)
+            section = createNewSection(bb.profile_window, "Interrupts")
 
-            createNewCheckbox("Rebuke", 10, 1, section_interrupts)
-            createNewSpinner("Rebuke",35, -10 , 1,section_interrupts)
-
-            createNewCheckbox("Avengers Shield Interrupt", 10, 2, section_interrupts)
-            createNewSpinner("Avengers Shield Interrupt",35, -10 , 2,section_interrupts)
-            section_interrupts:Expand()
+            createNewSpinner(section, "Rebuke", 35)
+            createNewSpinner(section, "Avengers Shield Interrupt", 35)
+            checkSectionState(section)
         end
 
         if self.rotation == 2 then
             -- CUTE
-            local section_cute = createNewSection("Cuteness",3,profile_window)
-            createNewCheckbox("Righteous Cuteness", 10, 1, section_cute)
-            section_cute:Expand()
+            local section = createNewSection(bb.profile_window, "Cuteness")
+            createNewCheckbox(section, "Righteous Cuteness")
+            checkSectionState(section)
         end
 
         --[[ Rotation Dropdown ]]--
-        createNewRotationDropdown("Rotation", profile_window, self.rotations)
+        createNewRotationDropdown(bb.profile_window.parent, self.rotations, "Defmaster - real rotation\nCute - just here for some testing")
 
         bb:checkProfileWindowStatus()
     end
 
+    function self.getOptions()
+        local options = self.options
+
+        options.ardentDefender = {
+            isChecked = isChecked("Ardent Defender", true),
+            value = getValue("Ardent Defender", true)
+        }
+
+        options.divineProtection = {
+            isChecked = isChecked("Divine Protection", true),
+            value = getValue("Divine Protection", true)
+        }
+
+        options.divineShield = {
+            isChecked = isChecked("Divine Shield", true),
+            value = getValue("Divine Shield", true)
+        }
+
+        --options.executionSentence = {
+        --    isChecked = isChecked("Divine Shield", true),
+        --    value = getValue("Divine Shield", true)
+        --}
+--
+        --options.guardianOfAncientKings = {
+        --    isChecked = isChecked("Divine Shield", true),
+        --    value = getValue("Divine Shield", true)
+        --}
+        --
+        --options.holyAvenger = {
+        --    isChecked = isChecked("Divine Shield", true),
+        --    value = getValue("Divine Shield", true)
+        --}
+--
+        --options.lightsHammer = {
+        --    isChecked = isChecked("Divine Shield", true),
+        --    value = getValue("Divine Shield", true)
+        --}
+--
+        --options.righteousFury = {
+        --    isChecked = isChecked("Divine Shield", true),
+        --    value = getValue("Divine Shield", true)
+        --}
+    end
 
 ---------------------------------------------------------------
 -------------------- Spell functions --------------------------
@@ -399,7 +383,7 @@ function cProtection:new()
 
     -- Ardent Defender
     function self.cast.ArdentDefender()
-        return isChecked("Ardent Defender") and self.health <= getValue("Ardent Defender") and castSpell(player,self.spell.ardentDefender,true,false)
+        return self.options.ardentDefender.isChecked and self.health <= self.options.ardentDefender.value and castSpell(player,self.spell.ardentDefender,true,false)
     end
 
     -- Avenger's Shield
@@ -453,21 +437,21 @@ function cProtection:new()
 
     -- Divine Protection
     function self.cast.DivineProtection()
-        return isChecked("Divine Protection") and self.health <= getValue("Divine Protection") and castSpell(player,self.spell.divineProtection,true,false)
+        return self.options.divineProtection.isChecked and self.health <= self.options.divineProtection.value and castSpell(player,self.spell.divineProtection,true,false)
     end
 
     -- Divine Shield
     function self.cast.DivineShield()
-        if (isChecked("Divine Shield") and mode.defense == 2) or mode.defense == 3 then
-            return self.health < getValue("Divine Shield") and castSpell(player,self.spell.divineShield,true,false) == true or false
+        if (self.options.divineShield.isChecked and mode.defense == 2) or mode.defense == 3 then
+            return self.health < self.options.divineShield.value and castSpell(player,self.spell.divineShield,true,false) == true or false
         end
     end
 
     -- Execution sentence
     -- Todo: make sure we cast on a unit with as much HP as possible
     function self.cast.ExecutionSentence()
-        if isSelected("Execution Sentence") then
-            if not self.talent.seraphim or not isSelected("Seraphim") or self.buff.seraphim > 5 then
+        if isSelected("Execution Sentence",true) then
+            if not self.talent.seraphim or not isSelected("Seraphim",true) or self.buff.seraphim > 5 then
                 if (isDummy(self.units.dyn40) or (UnitHealth(self.units.dyn40) >= 4*UnitHealthMax("player"))) then
                     return castSpell(self.units.dyn30,self.spell.executionSentence,false,false) == true or false
                 end
@@ -478,7 +462,7 @@ function cProtection:new()
 
     -- Guardian Of Ancient Kings
     function self.cast.GuardianOfAncientKings()
-        return isChecked("Guardian Of Ancient Kings") and self.health <= getValue("Guardian Of Ancient Kings") and castSpell(player,self.spell.guardianOfAncientKings,true,false)
+        return isChecked("Guardian Of Ancient Kings",true) and self.health <= getValue("Guardian Of Ancient Kings",true) and castSpell(player,self.spell.guardianOfAncientKings,true,false)
     end
 
     -- Hammer of the Righteous
@@ -524,7 +508,7 @@ function cProtection:new()
 
     -- Holy Avenger
     function self.cast.HolyAvenger()
-        if isSelected("Holy Avenger") then
+        if isSelected("Holy Avenger",true) then
             if isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4*UnitHealthMax(player)) then
                 if self.talent.seraphim and self.buff.seraphim or (not self.talent.seraphim and self.holyPower <= 2) then
                     return castSpell(player,self.spell.holyAvenger,true,false) == true or false
@@ -619,7 +603,7 @@ function cProtection:new()
     -- Todo: find best cluster of mobs/allies
     function self.cast.LightsHammer()
         -- Todo: Could use enhanced logic here, cluster of mobs, cluster of damaged friendlies etc
-        if isSelected("Light's Hammer") then
+        if isSelected("Light's Hammer",true) then
             local thisUnit = self.units.dyn30AoE
             if UnitExists(thisUnit) and (isDummy(thisUnit) or not isMoving(thisUnit)) then
                 if getGround(thisUnit) then
@@ -631,7 +615,7 @@ function cProtection:new()
 
     -- Righteous fury
     function self.cast.RighteousFury()
-        if isChecked("Righteous Fury") then
+        if isChecked("Righteous Fury",true) then
             if not self.buff.righteousFury then
                 return castSpell(player,self.spell.righteousFury,true,false) == true or false
             end
@@ -653,7 +637,7 @@ function cProtection:new()
     -- Todo: We should find friendly candidate to cast on
     function self.cast.SelfLessHealer()
         if getBuffStacks(player,self.spell.selflessHealerBuff) == 3 then
-            if self.health <= getValue("Selfless Healer") then
+            if self.health <= getValue("Selfless Healer",true) then
                 return castSpell(player,self.spell.flashOfLight,true,false) == true or false
             end
         end
@@ -662,7 +646,7 @@ function cProtection:new()
     -- Seraphim
     -- Todo: need to handle holy power during holy avenger
     function self.cast.Seraphim()
-        if isSelected("Seraphim") then
+        if isSelected("Seraphim",true) then
             if self.talent.seraphim and self.holyPower == 5 then
                 --if isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4*UnitHealthMax(player)) then
                 return castSpell(player,self.spell.seraphim,true,false) == true or false
@@ -693,7 +677,7 @@ function cProtection:new()
     function self.cast.holyPowerConsumers()
         -- If we have bastion of Glory stacks >= 4
         if getBuffStacks("player",self.spell.bastionOfGlory) >= 4 then
-            if self.health < getValue("Word Of Glory On Self") then
+            if self.health < getValue("Word Of Glory On Self",true) then
                 if self.cast.WordOfGlory(player) then
                     return true
                 end
@@ -744,7 +728,7 @@ function cProtection:new()
     -----------------------------
 
     self.createOptions()
-
+    self.createToggles()
 
 -- Return
 	return self

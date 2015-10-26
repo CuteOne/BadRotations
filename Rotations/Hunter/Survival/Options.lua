@@ -1,135 +1,106 @@
 if select(3, UnitClass("player")) == 3 then
 
-  -- Config Panel
-  function SurvConfig()
-    thisConfig = 0
-    -- Title
-    CreateNewTitle(thisConfig,"Mavmins Survival");
+    -- Config Panel
+    function SurvConfig()
+        bb.profile_window = createNewProfileWindow("Survival")
+        local section
 
-    -- Wrapper
-    CreateNewWrap(thisConfig,"<-Cooldowns->");
+        -- Wrapper
+        section = createNewSection(bb.profile_window, "<-Cooldowns->")
+        -- Trinkets
+        createNewCheckbox(section,"Trinkets","Check if you want to use Trinkets automatically");
 
-    -- Trinkets
-    CreateNewCheck(thisConfig,"Trinkets","Check if you want to use Trinkets automatically");
-    CreateNewText(thisConfig,"Trinkets");
+        -- Potions
+        -- createNewCheckbox(section,"Potions","Check if you want to use Potions automatically");
 
-    -- Potions
-    -- CreateNewCheck(thisConfig,"Potions","Check if you want to use Potions automatically");
-    -- CreateNewText(thisConfig,"Potions");
+        -- Racials
+        createNewCheckbox(section,"Racials","Check if you want to use Bloodfury/Berserking/Arcane Torrent automatically");
 
-    -- Racials
-    CreateNewCheck(thisConfig,"Racials","Check if you want to use Bloodfury/Berserking/Arcane Torrent automatically");
-    CreateNewText(thisConfig,"Racials");
+        -- Dire Beast
+        createNewCheckbox(section,"Dire Beast","Check if you want to use Dire Beast automatically");
 
-    -- Dire Beast
-    CreateNewCheck(thisConfig,"Dire Beast","Check if you want to use Dire Beast automatically");
-    CreateNewText(thisConfig,"Dire Beast");
+        -- A Murder of Crows
+        createNewCheckbox(section,"A Murder of Crows","Check if you want to use A Murder of Crows automatically");
 
-    -- A Murder of Crows
-    CreateNewCheck(thisConfig,"A Murder of Crows","Check if you want to use A Murder of Crows automatically");
-    CreateNewText(thisConfig,"A Murder of Crows");
+        -- Stampede
+        createNewCheckbox(section,"Stampede","Check if you want to use Stampede automatically");
 
-    -- Stampede
-    CreateNewCheck(thisConfig,"Stampede","Check if you want to use Stampede automatically");
-    CreateNewText(thisConfig,"Stampede");
+        -- Glaive Toss
+        createNewCheckbox(section,"Glaive Toss","Check if you want to use Glaive Toss automatically");
 
-    -- Glaive Toss
-    CreateNewCheck(thisConfig,"Glaive Toss","Check if you want to use Glaive Toss automatically");
-    CreateNewText(thisConfig,"Glaive Toss");
+        -- Power Shot
+        createNewCheckbox(section,"Power Shot","Check if you want to use Power Shot automatically");
 
-    -- Power Shot
-    CreateNewCheck(thisConfig,"Power Shot","Check if you want to use Power Shot automatically");
-    CreateNewText(thisConfig,"Power Shot");
+        -- Barrage
+        createNewCheckbox(section,"Barrage","Check if you want to use Barrage automatically");
+        checkSectionState(section)
 
-    -- Barrage
-    CreateNewCheck(thisConfig,"Barrage","Check if you want to use Barrage automatically");
-    CreateNewText(thisConfig,"Barrage");
 
-    -- Wrapper
-    CreateNewWrap(thisConfig,"<-Defensive->");
 
-    -- Healthstone
-    CreateNewCheck(thisConfig,"Healthstone/Potion");
-    CreateNewBox(thisConfig, "Healthstone/Potion", 0, 100  , 5, 20, "|cffFFDD11At what %HP to use |cffFFFFFFHealthstone");
-    CreateNewText(thisConfig,"Healthstone/Potion");
+        -- Wrapper
+        section = createNewSection(bb.profile_window, "<-Defensive->")
+        -- Healthstone
+        createNewSpinner(section,  "Healthstone/Potion",  20,  0,  100  ,  5,  "|cffFFDD11At what %HP to use |cffFFFFFFHealthstone");
 
-    -- Misdirection
-    CreateNewCheck(thisConfig,"Misdirection");
-    CreateNewDrop(thisConfig,"Misdirection", 2,"|cffFFDD11Sets target for |cffFFFFFFMisdirection |cffFFDD11on Aggro", "|cffFFDD11Pet", "|cffFFFF00Focus")
-    CreateNewText(thisConfig,"Misdirection");
+        -- Misdirection
+        createNewDropdown(section, "Misdirection", { "|cffFFDD11Pet", "|cffFFFF00Focus"},  2, "|cffFFDD11Sets target for |cffFFFFFFMisdirection |cffFFDD11on Aggro")
 
-    -- Feign Death
-    CreateNewCheck(thisConfig,"Feign Death");
-    CreateNewBox(thisConfig, "Feign Death", 0, 100  , 5, 20, "|cffFFDD11At what %HP to use |cffFFFFFFFeign Death");
-    CreateNewText(thisConfig,"Feign Death");
+        -- Feign Death
+        createNewSpinner(section,  "Feign Death",  20,  0,  100  ,  5,  "|cffFFDD11At what %HP to use |cffFFFFFFFeign Death");
 
-    -- Deterrence
-    CreateNewCheck(thisConfig,"Deterrence");
-    CreateNewBox(thisConfig, "Deterrence", 0, 100  , 5, 20, "|cffFFDD11At what %HP to use |cffFFFFFFDeterrence");
-    CreateNewText(thisConfig,"Deterrence");
+        -- Deterrence
+        createNewSpinner(section,  "Deterrence",  20,  0,  100  ,  5,  "|cffFFDD11At what %HP to use |cffFFFFFFDeterrence");
 
-    -- Disengage
-    CreateNewCheck(thisConfig,"Disengage");
-    CreateNewBox(thisConfig, "Disengage", 0, 100  , 5, 20, "|cffFFDD11Auto use |cffFFFFFFDeterrence |cffFFDD11at set range");
-    CreateNewText(thisConfig,"Disengage");
+        -- Disengage
+        createNewSpinner(section,  "Disengage",  20,  0,  100  ,  5,  "|cffFFDD11Auto use |cffFFFFFFDeterrence |cffFFDD11at set range");
+        
+        checkSectionState(section)
 
-    -- Wrapper
-    CreateNewWrap(thisConfig,"<-Pet->");
 
-    -- Auto Call Pet Toggle
-    CreateNewCheck(thisConfig,"Auto Summon");
-    CreateNewDrop(thisConfig, "Auto Summon", 1, "|cffFFDD11Set to desired |cffFFFFFFPet to Whistle.", "|cffFFDD11Pet 1", "|cffFFDD11Pet 2", "|cffFFDD11Pet 3", "|cffFFDD11Pet 4", "|cffFFDD11Pet 5");
-    CreateNewText(thisConfig,"Auto Summon");
 
-    -- Mend Pet
-    CreateNewCheck(thisConfig,"Mend Pet");
-    CreateNewBox(thisConfig, "Mend Pet", 0, 100  , 5, 75, "|cffFFDD11Under what Pet %HP to use |cffFFFFFFMend Pet");
-    CreateNewText(thisConfig,"Mend Pet");
+        -- Wrapper
+        section = createNewSection(bb.profile_window, "<-Pet->")
+        -- Auto Call Pet Toggle
+        createNewDropdown(section,  "Auto Summon", { "|cffFFDD11Pet 1", "|cffFFDD11Pet 2", "|cffFFDD11Pet 3", "|cffFFDD11Pet 4", "|cffFFDD11Pet 5"},  1,  "|cffFFDD11Set to desired |cffFFFFFFPet to Whistle.");
 
-    -- Intimidation
-    CreateNewCheck(thisConfig,"Intimidation");
-    CreateNewDrop(thisConfig,"Intimidation", 2,"|cffFFDD11Sets how you want |cffFFFFFFIntimidation |cffFFDD11to react.", "|cffFF0000Aggro", "|cff00FF00Interrupt", "|cffFFDD11Both")
-    CreateNewText(thisConfig,"Intimidation");
+        -- Mend Pet
+        createNewSpinner(section,  "Mend Pet",  75,  0,  100  ,  5,  "|cffFFDD11Under what Pet %HP to use |cffFFFFFFMend Pet");
 
-    -- Wrapper
-    CreateNewWrap(thisConfig,"<-Other->");
+        -- Intimidation
+        createNewDropdown(section, "Intimidation", { "|cffFF0000Aggro", "|cff00FF00Interrupt", "|cffFFDD11Both"},  2, "|cffFFDD11Sets how you want |cffFFFFFFIntimidation |cffFFDD11to react.")
+        checkSectionState(section)
 
-    CreateNewCheck(thisConfig,"Oralius Crystal","Check if you want to use Flask / Crystal");
-    CreateNewText(thisConfig,"Oralius Crystal");
 
-    CreateNewCheck(thisConfig,"Trap Launcher","Check if you want to use Trap Launcher");
-    CreateNewText(thisConfig,"Trap Launcher");
 
-    -- Explosive Trap
-    CreateNewCheck(thisConfig,"Explosive Trap","Check if you want to use Explosive Trap in rotation");
-    CreateNewText(thisConfig,"Explosive Trap");
+        -- Wrapper
+        section = createNewSection(bb.profile_window, "<-Other->")
+        createNewCheckbox(section,"Oralius Crystal","Check if you want to use Flask / Crystal");
 
-    -- Exotic Munitions
-    CreateNewCheck(thisConfig,"Exotic Munitions");
-    CreateNewDrop(thisConfig, "Exotic Munitions", 1, "|cffFFDD11Set which ammo to use", "|cffFFDD11Incendiary", "|cffFFDD11Poison", "|cffFFDD11Frozen");
-    CreateNewText(thisConfig,"Exotic Munitions");
+        createNewCheckbox(section,"Trap Launcher","Check if you want to use Trap Launcher");
 
-    -- Auto-Aspect Toggle
-    CreateNewCheck(thisConfig,"Auto-Cheetah");
-    CreateNewText(thisConfig,"Auto-Cheetah");
+        -- Explosive Trap
+        createNewCheckbox(section,"Explosive Trap","Check if you want to use Explosive Trap in rotation");
 
-    -- Standard Interrupt
-    CreateNewCheck(thisConfig,"Counter Shot");
-    CreateNewBox(thisConfig, "Counter Shot", 0, 100  , 5, 35 , "|cffFFDD11What % of cast remaining to |cffFFFFFFCounter Shot.");
-    CreateNewText(thisConfig,"Counter Shot");
+        -- Exotic Munitions
+        createNewDropdown(section,  "Exotic Munitions", { "|cffFFDD11Incendiary", "|cffFFDD11Poison", "|cffFFDD11Frozen"},  1,  "|cffFFDD11Set which ammo to use");
 
-    -- Tranquilizing Shot Toggle
-    CreateNewCheck(thisConfig,"Tranq Shot-Magic");
-    CreateNewDrop(thisConfig,"Tranq Shot-Magic", 2,"|cffFFDD11Sets what you want |cffFFFFFFTranq Shot |cffFFDD11to dispel on TARGET.", "|cffFF0000All", "|cff00FF00Preset")
-    CreateNewText(thisConfig,"Tranq Shot-Magic");
+        -- Auto-Aspect Toggle
+        createNewCheckbox(section,"Auto-Cheetah");
 
-    CreateNewCheck(thisConfig,"Tranq Shot-Enrage");
-    CreateNewText(thisConfig,"Tranq Shot-Enrage");
+        -- Standard Interrupt
+        createNewSpinner(section,  "Counter Shot",  35 ,  0,  100  ,  5,  "|cffFFDD11What % of cast remaining to |cffFFFFFFCounter Shot.");
 
-    -- General Configs
-    CreateGeneralsConfig();
+        -- Tranquilizing Shot Toggle
+        createNewDropdown(section, "Tranq Shot-Magic", { "|cffFF0000All", "|cff00FF00Preset"},  2, "|cffFFDD11Sets what you want |cffFFFFFFTranq Shot |cffFFDD11to dispel on TARGET.")
 
-    WrapsManager();
-  end
+        createNewCheckbox(section,"Tranq Shot-Enrage");
+        checkSectionState(section)
+
+
+
+        --[[ Rotation Dropdown ]]--
+        createNewRotationDropdown(bb.profile_window.parent, {"Mavmins"})
+        bb:checkProfileWindowStatus()
+    end
 
 end

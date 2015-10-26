@@ -1,57 +1,35 @@
 if select(3, UnitClass("player")) == 5 then
 
-	function DisciplineConfig()
-		if currentConfig ~= "Discipline ragnar" then
-			ClearConfig()
-			thisConfig = 0
-			-- Title
-			CreateNewTitle(thisConfig,"semi auto disc |cffBA55D3by ragnar")
+    function DisciplineConfig()
+        bb.profile_window = createNewProfileWindow("semi auto disc")
+        local section
 
-			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"|cffBA55D3Offensive")
-
-			-- Smite
-			CreateNewCheck(thisConfig,"Smite Filler","use smite")
-			CreateNewBox(thisConfig,"Smite Filler", 1, 100, 2, 50, "Smite until %Mana")
-			CreateNewText(thisConfig,"Smite Filler")
-
-			-- PWS
-			CreateNewCheck(thisConfig,"PW:Shield","max PWS count in raid")
-			CreateNewBox(thisConfig,"PW:Shield", 1, 40, 1, 5, "Set to max count for PWS in raid")
-			CreateNewText(thisConfig,"PW:Shield")
-
-			-- heal
-			CreateNewCheck(thisConfig,"Heal","use heal")
-			CreateNewBox(thisConfig,"Heal", 1, 40, 1, 4, "Heal under %HP")
-			CreateNewText(thisConfig,"Heal")
-
-			-- flash heal
-			CreateNewCheck(thisConfig,"Flash Heal","use Flash Heal")
-			CreateNewBox(thisConfig,"Flash Heal", 1, 100, 2, 30, "Flash Heal under %HP")
-			CreateNewText(thisConfig,"Flash Heal")
-
-			-- penance
-			--CreateNewCheck(thisConfig,"Penance","use Penance")
-			--CreateNewBox(thisConfig,"Penance", 1, 40, 1, 4, "")
-			--CreateNewText(thisConfig,"Penance")
-
-			-- Wrapper -----------------------------------------
-			CreateNewWrap(thisConfig,"|cffBA55D3Utilities")
-
-			-- Pause Toggle
-			CreateNewCheck(thisConfig,"Pause Toggle")
-			CreateNewDrop(thisConfig,"Pause Toggle", 10, "Toggle2")
-			CreateNewText(thisConfig,"Pause Toggle")
-
-			--Power Word: Fortitude
-			CreateNewCheck(thisConfig,"PW:Fortitude")
-			CreateNewText(thisConfig,"PW:Fortitude")
+        -- Wrapper -----------------------------------------
+        section = createNewSection(bb.profile_window, "|cffBA55D3Offensive")
+        -- Smite
+        createNewSpinner(section, "Smite Filler",  50,  1,  100,  2,  "Smite until %Mana")
+        -- PWS
+        createNewSpinner(section, "PW:Shield",  5,  1,  40,  1,  "Set to max count for PWS in raid")
+        -- heal
+        createNewSpinner(section, "Heal",  4,  1,  40,  1,  "Heal under %HP")
+        -- flash heal
+        createNewSpinner(section, "Flash Heal",  30,  1,  100,  2,  "Flash Heal under %HP")
+        -- penance
+        --createNewSpinner(section, "Penance",  4,  1,  40,  1,  "")
+        checkSectionState(section)
 
 
+        -- Wrapper -----------------------------------------
+        section = createNewSection(bb.profile_window, "|cffBA55D3Utilities")
+        -- Pause Toggle
+        createNewCheckbox(section,"Pause Toggle")
+        createNewDropdown(section, "Pause Toggle", bb.dropOptions.Toggle2,  10)
+        --Power Word: Fortitude
+        createNewCheckbox(section,"PW:Fortitude")
+        checkSectionState(section)
 
-			-- General Configs ---------------------------------
-			CreateGeneralsConfig()
-			WrapsManager()
-		end
-	end
+        --[[ Rotation Dropdown ]]--
+        createNewRotationDropdown(bb.profile_window.parent, {"ragnar"})
+        bb:checkProfileWindowStatus()
+    end
 end

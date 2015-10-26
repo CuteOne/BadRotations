@@ -210,10 +210,22 @@ if select(2, UnitClass("player")) == "ROGUE" then
         --- START ROTATION ---
         ----------------------
 
+        -- Rotation selection update
+        function self.getRotation()
+            self.rotation = bb.selectedProfile
+
+            if bb.rotation_changed then
+                --self.createToggles()
+                self.createOptions()
+
+                bb.rotation_changed = false
+            end
+        end
+
         function self.startRotation()
             if self.rotation == 1 then
                 self:assassinationSimC()
-                -- put different rotations below; dont forget to setup your rota in options
+                -- put different rotations below dont forget to setup your rota in options
             elseif self.rotation == 2 then
                 self:AssassinationCuteOne()
             elseif self.rotation == 3 then
@@ -228,213 +240,117 @@ if select(2, UnitClass("player")) == "ROGUE" then
         ---------------
 
         function self.createOptions()
-            thisConfig = 0
-
-            -- Title
-            CreateNewTitle(thisConfig, "Assassination")
+            bb.profile_window = createNewProfileWindow("Assassination")
+            local section
 
             -- Create Base and Class options
             self.createClassOptions()
 
             -- Combat options
-            CreateNewWrap(thisConfig, "--- General ---");
-
-            -- Rotation
-            CreateNewDrop(thisConfig, "Rotation", 1, "Select Rotation.", "|cff00FF00SimC", "|cff00FF00CuteOne", "|cff00FF00OLD_ONE");
-            CreateNewText(thisConfig, "Rotation");
-
-            -- Dummy DPS Test
-            --CreateNewCheck(thisConfig,"DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.");
-            --CreateNewBox(thisConfig,"DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-            --CreateNewText(thisConfig,"DPS Testing");
-
+            section = createNewSection(bb.profile_window,  "--- General ---")
             -- Stealth
-            CreateNewCheck(thisConfig, "Stealth");
-            CreateNewDrop(thisConfig, "Stealth", 1, "Stealthing method.", "|cff00FF00Always", "|cffFFDD00PrePot", "|cffFF000020Yards");
-            CreateNewText(thisConfig, "Stealth");
-            CreateNewBox(thisConfig, "Stealth Timer", 0, 2, 0.25, 1, "|cffFFBB00How long to wait(seconds) before using \n|cffFFFFFFStealth.");
-            CreateNewText(thisConfig, "Stealth Timer");
-
+            createNewDropdown(section,  "Stealth", {"|cff00FF00Always", "|cffFFDD00PrePot", "|cffFF000020Yards"},  1, "Stealthing method.")
+            createNewSpinner(section,  "Stealth Timer",  1,  0,  2,  0.25,  "|cffFFBB00How long to wait(seconds) before using \n|cffFFFFFFStealth.")
             -- Opening Attack
-            CreateNewDrop(thisConfig,"Opener", 1, "|cffFFFFFFSelect Attack to Break Stealth with",
-                "Ambush",
-                "Mutilate",
-                "Cheap Shot")
-            CreateNewText(thisConfig,"Opener")
+            createNewDropdown(section, "Opener", {"Ambush", "Mutilate", "Cheap Shot"},  1, "|cffFFFFFFSelect Attack to Break Stealth with")
+            checkSectionState(section) 
 
-            -- Spacer
-            CreateNewText(thisConfig, " ");
-            CreateNewWrap(thisConfig, "--- Cooldowns ---");
-
+            
+            section = createNewSection(bb.profile_window,  "--- Cooldowns ---")
             -- Agi Pot
-            --CreateNewCheck(thisConfig,"Agi-Pot");
-            --CreateNewText(thisConfig,"Agi-Pot");
-
+            --createNewCheckbox(section,"Agi-Pot")
             -- Legendary Ring
-            CreateNewCheck(thisConfig, "Legendary Ring", "Enable or Disable usage of Legendary Ring.");
-            CreateNewDrop(thisConfig, "Legendary Ring", 2, "CD")
-            CreateNewText(thisConfig, "Legendary Ring");
-
+            createNewDropdown(section,  "Legendary Ring", bb.dropOptions.CD,  2, "Enable or Disable usage of Legendary Ring.")
             -- Preparation
-            CreateNewCheck(thisConfig, "Preparation", "Enable or Disable usage of Preparation.");
-            CreateNewDrop(thisConfig, "Preparation", 2, "CD")
-            CreateNewText(thisConfig, "Preparation");
-
+            createNewDropdown(section,  "Preparation", bb.dropOptions.CD,  2, "Enable or Disable usage of Preparation.")
             -- Shadow Reflection
             if getTalent(7,2) then
-                CreateNewCheck(thisConfig, "Shadow Reflection", "Enable or Disable usage of Shadow Reflection.");
-                CreateNewDrop(thisConfig, "Shadow Reflection", 2, "CD")
-                CreateNewText(thisConfig, "Shadow Reflection");
+                createNewDropdown(section,  "Shadow Reflection", bb.dropOptions.CD,  2, "Enable or Disable usage of Shadow Reflection.")
             end
-
             -- Vanish
-            CreateNewCheck(thisConfig, "Vanish - Offensive", "Enable or Disable usage of Vanish.");
-            CreateNewDrop(thisConfig, "Vanish - Offensive", 2, "CD")
-            CreateNewText(thisConfig, "Vanish - Offensive");
-
+            createNewDropdown(section,  "Vanish - Offensive", bb.dropOptions.CD,  2, "Enable or Disable usage of Vanish.")
             -- Vendetta
-            CreateNewCheck(thisConfig, "Vendetta", "Enable or Disable usage of Vendetta.");
-            CreateNewDrop(thisConfig, "Vendetta", 2, "CD")
-            CreateNewText(thisConfig, "Vendetta");
+            createNewDropdown(section,  "Vendetta", bb.dropOptions.CD,  2, "Enable or Disable usage of Vendetta.")
+            checkSectionState(section) 
 
-            -- Spacer
-            CreateNewText(thisConfig," ");
-            CreateNewWrap(thisConfig,"--- Defensive ---");
-
+            
+            section = createNewSection(bb.profile_window, "--- Defensive ---")
             -- Cloak of Shadows
             if isKnown(self.spell.cloakOfShadows) then
-                CreateNewCheck(thisConfig,"Cloak of Shadows","Enable or Disable the usage to auto dispel")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.cloakOfShadows))))
+                createNewCheckbox(section,"Cloak of Shadows","Enable or Disable the usage to auto dispel")
             end
-
             -- Combat Readiness
             if self.talent.combatReadiness then
-                CreateNewCheck(thisConfig,"Combat Readiness","Set health percent threshhold to cast at - In Combat Only!")
-                CreateNewBox(thisConfig,"Combat Readiness", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.combatReadiness))))
+                createNewSpinner(section, "Combat Readiness",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!",  "|cffFFFFFFHealth Percent to Cast At")
             end
-
             -- Evasion
             if isKnown(self.spell.evasion) then
-                CreateNewCheck(thisConfig,"Evasion","Set health percent threshhold to cast at - In Combat Only!")
-                CreateNewBox(thisConfig,"Evasion", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.evasion))))
+                createNewSpinner(section, "Evasion",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!",  "|cffFFFFFFHealth Percent to Cast At")
             end
-
             -- Feint
             if isKnown(self.spell.feint) then
-                CreateNewCheck(thisConfig,"Feint","Set health percent threshhold to cast at - In Combat Only!")
-                CreateNewBox(thisConfig,"Feint", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.feint))))
+                createNewSpinner(section, "Feint",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!",  "|cffFFFFFFHealth Percent to Cast At")
             end
-
             -- Healthstone
-            CreateNewCheck(thisConfig,"Healthstone");
-            CreateNewBox(thisConfig,"Healthstone", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
-            CreateNewText(thisConfig,"Healthstone");
-
+            createNewSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Heirloom Neck
-            CreateNewCheck(thisConfig,"Heirloom Neck");
-            CreateNewBox(thisConfig,"Heirloom Neck", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
-            CreateNewText(thisConfig,"Heirloom Neck");
-
+            createNewSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Recuperate
             if isKnown(self.spell.recuperate) then
-                CreateNewCheck(thisConfig,"Recuperate","Set health percent and combo point threshhold to cast at")
-                CreateNewBox(thisConfig,"Recuperate Health %", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.recuperate))).." Health %")
-                CreateNewBox(thisConfig,"Recuperate Combo Point", 1, 5, 1, 3, "|cffFFFFFFCombo Points to Use At")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.recuperate))).." Combo Points")
+                createNewSpinner(section, "Recuperate Health %",  40,  0,  100,  5, "Set health percent and combo point threshhold to cast at",  "|cffFFFFFFHealth Percent to Cast At")
+                createNewSpinner(section, "Recuperate Combo Point",  3,  1,  5,  1, "Set health percent and combo point threshhold to cast at",  "|cffFFFFFFCombo Points to Use At")
             end
-
             --Shiv
             if isKnown(self.spell.shiv) and getTalent(3,2) then
-                CreateNewCheck(thisConfig,"Shiv","Set health percent threshhold to cast at - In Combat Only!")
-                CreateNewBox(thisConfig,"Shiv", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.shiv))))
-            end 
-
+                createNewSpinner(section, "Shiv",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!", "|cffFFFFFFHealth Percent to Cast At")
+            end
             -- Smoke Bomb
             if isKnown(self.spell.smokeBomb) then
-                CreateNewCheck(thisConfig,"Smoke Bomb","Set health percent threshhold to cast at - In Combat Only!")
-                CreateNewBox(thisConfig,"Smoke Bomb", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.smokeBomb))))
+                createNewSpinner(section, "Smoke Bomb",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!", "|cffFFFFFFHealth Percent to Cast At")
             end
-
             -- Vanish - Defensive
             if isKnown(self.spell.vanish) then
-                CreateNewCheck(thisConfig,"Vanish - Defensive","Set health percent threshhold to cast at - Defensive Use Only, see Cooldowns for Offensive Use")
-                CreateNewBox(thisConfig,"Vanish - Defensive", 0, 100, 5, 40, "|cffFFFFFFHealth Percent to Cast At")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.vanish))).." - Defensive")
-            end 
-
-            -- Spacer --
-            CreateNewText(thisConfig," ");
-            CreateNewWrap(thisConfig,"--- Interrupts ---");
-
-            -- Kick
-            CreateNewCheck(thisConfig,"Kick")
-            CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.kick))))
-
-          
-            if getTalent(5,3) then
-            -- Gouge
-                CreateNewCheck(thisConfig,"Gouge")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.gouge))))
-
-            -- Blind
-                CreateNewCheck(thisConfig,"Blind")
-                CreateNewText(thisConfig,tostring(select(1,GetSpellInfo(self.spell.blind)))) 
+                createNewSpinner(section, "Vanish - Defensive",  40,  0,  100,  5, "Set health percent threshhold to cast at - Defensive Use Only, see Cooldowns for Offensive Use", "|cffFFFFFFHealth Percent to Cast At")
             end
-
+            checkSectionState(section)
+            
+            
+            section = createNewSection(bb.profile_window, "--- Interrupts ---")
+            -- Kick
+            createNewCheckbox(section,"Kick")
+            if getTalent(5,3) then
+                -- Gouge
+                createNewCheckbox(section,"Gouge")
+                -- Blind
+                createNewCheckbox(section,"Blind")
+            end
             -- Interrupt Percentage
-            CreateNewCheck(thisConfig,"Interrupt At");
-            CreateNewBox(thisConfig, "Interrupt At", 0, 95, 5, 0, "|cffFFBB00Cast Percentage to use at.");
-            CreateNewText(thisConfig,"Interrupt At");
+            createNewSpinner(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+            checkSectionState(section)
+            
 
-            -- Spacer
-            CreateNewText(thisConfig, " ");
-            CreateNewWrap(thisConfig, "--- Toggle Keys ---");
-
+            section = createNewSection(bb.profile_window,  "--- Toggle Keys ---")
             -- Single/Multi Toggle
-            CreateNewCheck(thisConfig, "Rotation Mode", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.");
-            CreateNewDrop(thisConfig, "Rotation Mode", 4, "Toggle")
-            CreateNewText(thisConfig, "Rotation Mode");
-
+            createNewDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
             --Cooldown Key Toggle
-            CreateNewCheck(thisConfig, "Cooldown Mode", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.");
-            CreateNewDrop(thisConfig, "Cooldown Mode", 3, "Toggle")
-            CreateNewText(thisConfig, "Cooldown Mode")
-
+            createNewDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
             --Defensive Key Toggle
-            CreateNewCheck(thisConfig, "Defensive Mode", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.");
-            CreateNewDrop(thisConfig, "Defensive Mode", 6, "Toggle")
-            CreateNewText(thisConfig, "Defensive Mode")
-
+            createNewDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
             -- Interrupts Key Toggle
-            CreateNewCheck(thisConfig, "Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.")
-            CreateNewDrop(thisConfig, "Interrupt Mode", 6, "Toggle")
-            CreateNewText(thisConfig, "Interrupts")
-
+            createNewDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
             -- Cleave Toggle
-            CreateNewCheck(thisConfig, "Cleave Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCleave Toggle Key|cffFFBB00.")
-            CreateNewDrop(thisConfig, "Cleave Mode", 6, "Toggle")
-            CreateNewText(thisConfig, "Cleave Mode")
-
+            createNewDropdown(section,  "Cleave Mode", bb.dropOptions.Toggle,  6)
             -- Pick Pocket Toggle
-            CreateNewCheck(thisConfig, "Pick Pocket Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFPick Pocket Toggle Key|cffFFBB00.")
-            CreateNewDrop(thisConfig, "Pick Pocket Mode", 6, "Toggle")
-            CreateNewText(thisConfig, "Pick Pocket Mode")
-
+            createNewDropdown(section,  "Pick Pocket Mode", bb.dropOptions.Toggle,  6)
             -- Pause Toggle
-            CreateNewCheck(thisConfig, "Pause Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFPause Toggle Key - None Defaults to LeftAlt|cffFFBB00.")
-            CreateNewDrop(thisConfig, "Pause Mode", 6, "Toggle")
-            CreateNewText(thisConfig, "Pause Mode")
+            createNewDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
+            checkSectionState(section)
 
-            -- General Configs
-            CreateGeneralsConfig();
 
-            WrapsManager();
+
+            --[[ Rotation Dropdown ]]--
+            createNewRotationDropdown(bb.profile_window.parent, {"SimC", "CuteOne", "OLD_ONE"})
+            bb:checkProfileWindowStatus()
         end
 
         --------------

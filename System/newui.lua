@@ -2,10 +2,15 @@ local DiesalTools = LibStub("DiesalTools-1.0")
 local DiesalStyle = LibStub("DiesalStyle-1.0") 
 local DiesalGUI = LibStub("DiesalGUI-1.0")
 local DiesalMenu = LibStub("DiesalMenu-1.0")
+local SharedMedia = LibStub("LibSharedMedia-3.0")
 
-guit = {}
+--if BadBoy_data.options[GetSpecialization()] == nil then BadBoy_data.options[GetSpecialization()] = {} end
+--if BadBoy_data.options[GetSpecialization()][bb.selectedProfile] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile] = {} end
 
--- TODO: make options profile/rotation based atm its always eg. protection instead of protection/defmaster protection/cute etc.
+-- TODO: save window position and restore it
+
+
+
 
 local buttonStyleSheet = {
     ['frame-color'] = {
@@ -58,7 +63,13 @@ function createNewWindow(name, width, height)
     window.settings.height = height or 250
     window:ApplySettings()
 
-    return window
+    local scrollFrame = DiesalGUI:Create('ScrollFrame')
+    window:AddChild(scrollFrame)
+    scrollFrame:SetParent(window.content)
+    scrollFrame:SetAllPoints(window.content)
+    scrollFrame.parent = window
+
+    return scrollFrame
 end
 
 function createNewProfileWindow(name, width, height)
@@ -68,55 +79,157 @@ function createNewProfileWindow(name, width, height)
     window.settings.height = height or 250
     window:ApplySettings()
 
-    return window
+    local scrollFrame = DiesalGUI:Create('ScrollFrame')
+    window:AddChild(scrollFrame)
+    scrollFrame:SetParent(window.content)
+    scrollFrame:SetAllPoints(window.content)
+    scrollFrame.parent = window
+
+    return scrollFrame
 end
 
-function createNewCheckbox(text, x, y, parent)
+function createNewMessageWindow(name, width, height)
+    local window = DiesalGUI:Create('Window')
+    window:SetTitle('BadBoy', name)
+    window.settings.width = width or 300
+    window.settings.height = height or 250
+    window:ApplySettings()
+
+    local newMessageFrame = DiesalGUI:Create('ScrollingMessageFrameBB')
+    window:AddChild(newMessageFrame)
+    newMessageFrame:SetParent(window.content)
+    newMessageFrame:SetAllPoints(window.content)
+    newMessageFrame.parent = window
+
+    return newMessageFrame
+end
+
+function createNewCheckbox(parent, text, tooltip)
     local newBox = DiesalGUI:Create('Toggle')
     local parent = parent
     local anchor = anchor or "TOPLEFT"
 
+    -- Set text
     newBox:SetText(text)
+
+    -- Change size
     --newBox.settings.height = 12
     --newBox.settings.width = 12
-    local y = y
+
+    -- Calculate Position
+    local howManyBoxes = 1
+    for i=1, #parent.children do
+        if parent.children[i].type == "Toggle" then
+            howManyBoxes = howManyBoxes + 1
+        end
+    end
+
+    local y = howManyBoxes
     if y  ~= 1 then y = ((y-1) * -15) -5 end
     if y == 1 then y = -5 end
 
+    -- Set parent
     newBox:SetParent(parent.content)
-    newBox:SetPoint("TOPLEFT", parent.content, anchor, x, y)
-    local check = BadBoy_data.options[GetSpecialization()][text.."Check"] or false
+
+    -- Set anchor
+    newBox:SetPoint("TOPLEFT", parent.content, anchor, 10, y)
+
+    -- Read check value from config, false if nothing found
+    -- Set default
+    if BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Check"] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Check"] = false end
+    local check = BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Check"]
     if check == 0 then check = false end
     if check == 1 then check = true end
-    newBox:SetChecked(check)
-    newBox:SetEventListener('OnValueChanged', function(this, event, checked)
-        BadBoy_data.options[GetSpecialization()][text.."Check"] = checked
-    end)
 
+
+    newBox:SetChecked(check)
+
+    -- Event: OnValueChanged
+    newBox:SetEventListener('OnValueChanged', function(this, event, checked)
+        BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Check"] = checked
+
+        -- Create Chat Overlay
+        if checked then
+            ChatOverlay("|cff15FF00"..text.." Enabled")
+        else
+            ChatOverlay("|cFFED0000"..text.." Disabled")
+        end
+    end)
+    -- Event: Tooltip
+    if tooltip then
+        newBox:SetEventListener("OnEnter", function(this, event)
+            GameTooltip:SetOwner(Minimap, "ANCHOR_CURSOR", 50 , 50)
+            GameTooltip:SetText(tooltip, 214/255, 25/255, 25/255)
+            GameTooltip:Show()
+        end)
+        newBox:SetEventListener("OnLeave", function(this, event)
+            GameTooltip:Hide()
+        end)
+    end
+
+    -- Apply changed settings like size, position, etc
     newBox:ApplySettings()
+
+    -- Add as a child element to parent
     parent:AddChild(newBox)
 
     return newBox
 end
 
-function createNewSpinner(text, number, x, y, parent, min, max, step)
+function createNewSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin)
     local newSpinner = DiesalGUI:Create('Spinner')
     local parent = parent
 
-    local y = y
+    -- Create Checkbox for Spinner
+    createNewCheckbox(parent, text, tooltip)
+
+    -- Calculate position
+    local howManyBoxes = 0
+    for i=1, #parent.children do
+        if parent.children[i].type == "Toggle" then
+            howManyBoxes = howManyBoxes + 1
+        end
+    end
+    local y = howManyBoxes
     if y  ~= 1 then y = ((y-1) * -15) -5 end
     if y == 1 then y = -5 end
+
+    -- Set size
     newSpinner.settings.height = 12
+
+    -- Set Steps
     newSpinner.settings.min = min or 0
     newSpinner.settings.max = max or 100
     newSpinner.settings.step = step or 5
-    newSpinner:SetParent(parent.content)
-    newSpinner:SetPoint("TOPRIGHT", parent.content, "TOPRIGHT", x, y)
-    newSpinner:SetNumber(BadBoy_data.options[GetSpecialization()][text.."Status"] or number)
 
+    newSpinner:SetParent(parent.content)
+
+    -- Set anchor
+    newSpinner:SetPoint("TOPRIGHT", parent.content, "TOPRIGHT", -10, y)
+
+    -- Read number from config or set default
+    if BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Status"] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Status"] = number end
+    local state = BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Status"]
+    newSpinner:SetNumber(state)
+
+
+    -- Event: OnValueChange
     newSpinner:SetEventListener('OnValueChanged', function(this, event, checked)
-        BadBoy_data.options[GetSpecialization()][text.."Status"] = newSpinner:GetNumber()
+        BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Status"] = newSpinner:GetNumber()
     end)
+    -- Event: Tooltip
+    if tooltip or tooltipSpin then
+        local tooltip = tooltipSpin or tooltip
+        newSpinner:SetEventListener("OnEnter", function(this, event)
+            GameTooltip:SetOwner(Minimap, "ANCHOR_CURSOR", 50 , 50)
+            GameTooltip:SetText(tooltip, 214/255, 25/255, 25/255)
+            GameTooltip:Show()
+        end)
+        newSpinner:SetEventListener("OnLeave", function(this, event)
+            GameTooltip:Hide()
+        end)
+    end
+
     newSpinner:ApplySettings()
 
     parent:AddChild(newSpinner)
@@ -124,61 +237,135 @@ function createNewSpinner(text, number, x, y, parent, min, max, step)
     return newSpinner
 end
 
-function createNewDropdown(text, x, y, parent, itemlist)
+function createNewDropdown(parent, text, itemlist, default, tooltip, tooltipDrop)
     local newDropdown = DiesalGUI:Create('DropdownBB')
     local parent = parent
     local itemlist = itemlist
+    local default = default or 1
 
-    local y = y
+    -- Create Checkbox for Spinner
+    createNewCheckbox(parent,text,tooltip)
+
+    -- Calculate position
+    local howManyBoxes = 0
+    for i=1, #parent.children do
+        if parent.children[i].type == "Toggle" then
+            howManyBoxes = howManyBoxes + 1
+        end
+    end
+    local y = howManyBoxes
     if y  ~= 1 then y = ((y-1) * -15) -5 end
     if y == 1 then y = -5 end
+
     --newDropdown.settings.text = text
     newDropdown.settings.height = 12
     newDropdown:SetParent(parent.content)
-    newDropdown:SetPoint("TOPRIGHT", parent.content, "TOPRIGHT", x, y)
+    newDropdown:SetPoint("TOPRIGHT", parent.content, "TOPRIGHT", -10, y)
+
+    -- Create the Dropdown List
+    newDropdown:SetList(itemlist)
+
+    -- Read from config or set default
+    if BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Drop"] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Drop"] = default end
+    local value = BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Drop"]
+    newDropdown:SetValue(value)
 
     newDropdown:SetEventListener('OnValueChanged', function(this, event, key, value, selection)
-        BadBoy_data.options[GetSpecialization()][text.."Drop"]  = key
+        BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Drop"]  = key
     end)
+    -- Event: Tooltip
+    if tooltip or tooltipDrop then
+        local tooltip = tooltipDrop or tooltip
+        newDropdown:SetEventListener("OnEnter", function(this, event)
+            GameTooltip:SetOwner(Minimap, "ANCHOR_CURSOR", 50 , 50)
+            GameTooltip:SetText(tooltip, 214/255, 25/255, 25/255)
+            GameTooltip:Show()
+        end)
+        newDropdown:SetEventListener("OnLeave", function(this, event)
+            GameTooltip:Hide()
+        end)
+    end
     newDropdown:ApplySettings()
 
     parent:AddChild(newDropdown)
 
-    newDropdown:SetList(itemlist)
-    newDropdown:SetValue(BadBoy_data.options[GetSpecialization()][text.."Drop"] or 1)
-
     return newDropdown
 end
 
-function createNewRotationDropdown(text, parent, itemlist)
+function createNewRotationDropdown(parent, itemlist, tooltip)
     local newDropdown = DiesalGUI:Create('DropdownBB')
     local parent = parent
+    local text = "Rotation"
 
     newDropdown:SetParent(parent.titleBar)
     newDropdown:SetPoint("TOPRIGHT", parent.closeButton, "TOPLEFT", 0, -2)
+
+    newDropdown:SetList(itemlist)
+
+    if BadBoy_data.options[GetSpecialization()][text.."Drop"] == nil then BadBoy_data.options[GetSpecialization()][text.."Drop"] = 1 end
+    local value = BadBoy_data.options[GetSpecialization()][text.."Drop"]
+    newDropdown:SetValue(value)
+    if BadBoy_data.options[GetSpecialization()][text.."Drop"] == nil then BadBoy_data.options[GetSpecialization()][text.."Drop"] = value end
+
     newDropdown:SetEventListener('OnValueChanged', function(this, event, key, value, selection)
         BadBoy_data.options[GetSpecialization()][text.."Drop"]  = key
         BadBoy_data.options[GetSpecialization()][text.."DropValue"]  = value
+        bb.selectedProfile = key
+        bb:recreateWindows()
         bb.rotation_changed = true
     end)
+    -- Event: Tooltip
+    if tooltip then
+        newDropdown:SetEventListener("OnEnter", function(this, event)
+            GameTooltip:SetOwner(Minimap, "ANCHOR_CURSOR", 50 , 50)
+            GameTooltip:SetText(tooltip, 214/255, 25/255, 25/255)
+            GameTooltip:Show()
+        end)
+        newDropdown:SetEventListener("OnLeave", function(this, event)
+            GameTooltip:Hide()
+        end)
+    end
     newDropdown:ApplySettings()
 
     parent:AddChild(newDropdown)
 
-    newDropdown:SetList(itemlist)
-    newDropdown:SetValue(BadBoy_data.options[GetSpecialization()][text.."Drop"] or 1)
-
     return newDropdown
 end
 
-function createNewSection(sectionName, position, parent)
+function createNewSection(parent, sectionName, tooltip)
     local newSection = DiesalGUI:Create('AccordianSectionBB')
     local parent = parent
+
+    -- Calculate Position
+    local howManySections = 1
+    for i=1, #parent.children do
+        if parent.children[i].type == "AccordianSectionBB" then
+            howManySections = howManySections + 1
+        end
+    end
+
+    local position = howManySections
 
     newSection:SetParentObject(parent)
     newSection.settings.position = position
     newSection.settings.sectionName = sectionName
+    newSection.settings.expanded = BadBoy_data.options[GetSpecialization()][bb.selectedProfile][sectionName.."Section"]
     --newSection.settings.contentPad = {0,0,12,32}
+
+    newSection:SetEventListener('OnStateChange', function(this, event)
+       BadBoy_data.options[GetSpecialization()][bb.selectedProfile][sectionName.."Section"] = newSection.settings.expanded
+    end)
+    -- Event: Tooltip
+    if tooltip then
+        newSection:SetEventListener("OnEnter", function(this, event)
+            GameTooltip:SetOwner(Minimap, "ANCHOR_CURSOR", 50 , 50)
+            GameTooltip:SetText(tooltip, 214/255, 25/255, 25/255)
+            GameTooltip:Show()
+        end)
+        newSection:SetEventListener("OnLeave", function(this, event)
+            GameTooltip:Hide()
+        end)
+    end
 
     newSection:ApplySettings()
     newSection:UpdateHeight()
@@ -188,14 +375,162 @@ function createNewSection(sectionName, position, parent)
     return newSection
 end
 
-function createNewButton(buttonName, parent)
+--[[ FROM PE ]]--
+
+DiesalGUI:RegisterObjectConstructor("FontString", function()
+    local self 		= DiesalGUI:CreateObjectBase(Type)
+    local frame		= CreateFrame('Frame',nil,UIParent)
+    local fontString = frame:CreateFontString(nil, "OVERLAY", 'DiesalFontNormal')
+    self.frame		= frame
+    self.fontString = fontString
+    self.SetParent = function(self, parent)
+        self.frame:SetParent(parent)
+    end
+    self.OnRelease = function(self)
+        self.fontString:SetText('')
+    end
+    self.OnAcquire = function(self)
+        self:Show()
+    end
+    self.type = "FontString"
+    return self
+end, 1)
+
+DiesalGUI:RegisterObjectConstructor("Rule", function()
+    local self 		= DiesalGUI:CreateObjectBase(Type)
+    local frame		= CreateFrame('Frame',nil,UIParent)
+    self.frame		= frame
+    frame:SetHeight(1)
+    frame.texture = frame:CreateTexture()
+    frame.texture:SetTexture(0,0,0,0.5)
+    frame.texture:SetAllPoints(frame)
+    self.SetParent = function(self, parent)
+        self.frame:SetParent(parent)
+    end
+    self.OnRelease = function(self)
+        self:Hide()
+    end
+    self.OnAcquire = function(self)
+        self:Show()
+    end
+    self.type = "Rule"
+    return self
+end, 1)
+
+local statusBarStylesheet = {
+    ['frame-texture'] = {
+        type		= 'texture',
+        layer		= 'BORDER',
+        gradient	= 'VERTICAL',
+        color		= '000000',
+        alpha 		= 0.7,
+        alphaEnd	= 0.1,
+        offset		= 0,
+    }
+}
+
+DiesalGUI:RegisterObjectConstructor("StatusBar", function()
+    local self  = DiesalGUI:CreateObjectBase(Type)
+    local frame = CreateFrame('StatusBar',nil,UIParent)
+    self.frame  = frame
+
+    self:AddStyleSheet(statusBarStylesheet)
+
+    frame.Left = frame:CreateFontString()
+    frame.Left:SetFont(SharedMedia:Fetch('font', 'Calibri Bold'), 10)
+    frame.Left:SetShadowColor(0,0,0, 0)
+    frame.Left:SetShadowOffset(-1,-1)
+    frame.Left:SetPoint("LEFT", frame)
+
+    frame.Right = frame:CreateFontString()
+    frame.Right:SetFont(SharedMedia:Fetch('font', 'Calibri Bold'), 10)
+    frame.Right:SetShadowColor(0,0,0, 0)
+    frame.Right:SetShadowOffset(-1,-1)
+
+    frame:SetStatusBarTexture(1,1,1,0.8)
+    frame:GetStatusBarTexture():SetHorizTile(false)
+    frame:SetMinMaxValues(0, 100)
+    frame:SetHeight(15)
+
+    self.SetValue = function(self, value)
+        self.frame:SetValue(value)
+    end
+    self.SetParent = function(self, parent)
+        self.parent = parent
+        self.frame:SetParent(parent)
+        self.frame:SetPoint("LEFT", parent, "LEFT")
+        self.frame:SetPoint("RIGHT", parent, "RIGHT")
+        self.frame.Right:SetPoint("RIGHT", self.frame, "RIGHT", -2, 2)
+        self.frame.Left:SetPoint("LEFT", self.frame, "LEFT", 2, 2)
+    end
+    self.OnRelease = function(self)
+        self:Hide()
+    end
+    self.OnAcquire = function(self)
+        self:Show()
+    end
+    self.type = "Rule"
+    return self
+end, 1)
+
+
+--[[ ]]--
+
+function createNewText(parent, text)
+    local newText = DiesalGUI:Create("FontString")
+    local offset = -2
+    local anchor = parent.content
+
+    -- Calculate Position
+    local howManyTexts = 1
+    for i=1, #parent.children do
+        if parent.children[i].type == "FontString" then
+            anchor = parent.children[i]
+        end
+    end
+
+    local y = howManyTexts
+    if y  ~= 1 then y = ((y-1) * -15) -5 end
+    if y == 1 then y = -5 end
+
+    newText:SetParent(parent.content)
+    parent:AddChild(newText)
+    newText = newText.fontString
+
+
+    newText:SetPoint("TOPLEFT", anchor.content, "TOPLEFT", 5, offset)
+    newText:SetPoint("TOPRIGHT", anchor.content, "TOPRIGHT", -5, offset)
+
+    newText:SetText(text)
+    newText:SetJustifyH('LEFT')
+    newText:SetJustifyV('TOP')
+    newText:SetFont(SharedMedia:Fetch('font', 'Calibri Bold'), 10)
+    newText:SetWidth(parent.content:GetWidth()-10)
+    newText:SetWordWrap(true)
+
+    return newText
+end
+
+
+-- Restore last saved state of section (collapsed or expanded)
+function checkSectionState(section)
+    local state = BadBoy_data.options[GetSpecialization()][bb.selectedProfile][section.settings.sectionName.."Section"]
+
+    if state then
+        section:Expand()
+    else
+        section:Collapse()
+    end
+end
+
+function createNewButton(parent, buttonName, x, y)
     local newButton = DiesalGUI:Create('Button')
     local parent = parent
 
     parent:AddChild(newButton)
     newButton:SetParent(parent.content)
     newButton:AddStyleSheet(buttonStyleSheet)
-    newButton:SetPoint("TOPLEFT", parent.content, "TOPLEFT", 10, -10)
+    newButton:SetPoint("TOPLEFT", parent.content, "TOPLEFT", x, y)
     newButton:SetText(buttonName)
     newButton:SetWidth(100)
     newButton:SetHeight(20)
@@ -209,50 +544,152 @@ function createNewButton(buttonName, parent)
 end
 
 -- Checks if profile button was shown or closed on last logout and restores it
--- TODO: Bug atm as it only saves state when uses via minimap icon, doesnt save if window is closed by clickin on X
+-- TODO: BUG atm as it only saves state when uses via minimap icon, doesnt save if window is closed by clickin on X
+-- TODO: BUG on / off toggle doesnt behave correctly
 function bb:checkProfileWindowStatus()
-    if BadBoy_data.options[GetSpecialization()][currentProfileName.."Frame"] ~= true then
-        if profile_window then
-            profile_window:Show()
+    if BadBoy_data.options[GetSpecialization()]["configFrame"] ~= true then
+        if bb.profile_window then
+            bb.profile_window.parent:Show()
+            return true
         end
-        --_G[currentProfileName.."Frame"]:Show()
-        BadBoy_data.options[GetSpecialization()][currentProfileName.."Frame"] = true
     else
-        if profile_window then
-            profile_window.closeButton:Click()
+        if bb.profile_window then
+            bb.profile_window.parent.closeButton:Click()
+            return false
         end
-        --_G[currentProfileName.."Frame"]:Hide()
-        BadBoy_data.options[GetSpecialization()][currentProfileName.."Frame"] = false
     end
 end
 
-function guit.GUI()
+function bb:checkConfigWindowStatus()
+    if BadBoy_data.options[GetSpecialization()] then
+        if BadBoy_data.options[GetSpecialization()]["optionsFrame"] then
+            if bb.config_window then
+                bb.config_window.parent.closeButton:Click()
+                --optionsFrame:Hide()
+                BadBoy_data.options[GetSpecialization()]["optionsFrame"] = false
+            end
+        else
+            if bb.config_window then
+                bb.config_window.parent:Show()
+                --optionsFrame:Show()
+                BadBoy_data.options[GetSpecialization()]["optionsFrame"] = true
+            end
+        end
+    end
+end
 
-	window = DiesalGUI:Create('Window')
-	window:SetTitle('BadBoy', 'Option Selecter')
-	window.settings.width = 250
-	window.settings.height = 250
+function bb:recreateWindows()
+    bb.config_window.parent.closeButton:Click()
+    bb.profile_window.parent.closeButton:Click()
 
-	window:ApplySettings()
+    bb:createConfigWindowNew()
+end
 
-    local boxClassOption = createNewButton("Class Options",window)
-    boxClassOption:SetEventListener("OnClick", function()
-        windowClassOption = DiesalGUI:Create('Window')
-        windowClassOption:SetTitle('BadBoy', 'Protection Defmaster')
-        windowClassOption.settings.width = 250
-        windowClassOption.settings.height = 250
+-- todo
+function bb:createOverviewWindow()
+    bb.overview_window = createNewWindow("Overview")
 
-        windowClassOption:ApplySettings()
-
-
-        createNewCheckbox("Use emp. Rune new", 10, -10, windowClassOption)
+    -- Open ABOUT window
+    local buttonAbout = createNewButton(bb.overview_window, "About", 10, -10)
+    buttonAbout:SetEventListener("OnClick", function()
+        bb.about_window:Show()
     end)
+end
+
+-- todo
+function bb:createAboutWindow()
+    bb.about_window = createNewWindow("About")
+
 
 end
 
---FHAugment.init()
+function bb:createHelpWindow()
+    bb.help_window = createNewMessageWindow("Help")
+    local colorBlue = "|cff00CCFF"
+    local colorGreen = "|cff00FF00"
+    local colorRed = "|cffFF0011"
+    local colorWhite = "|cffFFFFFF"
+    local colorGold = "|cffFFDD11"
+    bb.help_window:AddMessage(colorGreen.."--- [[ AUTHORS ]] ---")
+    bb.help_window:AddMessage(colorRed.."CodeMyLife - CuteOne - Ragnar - Defmaster")
+    bb.help_window:AddMessage(colorRed.."Gabbz - Chumii - AveryKey")
+    bb.help_window:AddMessage(colorRed.."Masoud - Cpoworks - Tocsin")
+    bb.help_window:AddMessage(colorRed.."Mavmins - CukieMunster - Magnu")
+    bb.help_window:AddMessage("----------------------------------------")
+    --
+    bb.help_window:AddMessage(colorGreen.."--- [[ TODO ]] ---")
+    bb.help_window:AddMessage(colorGold.."HELP WINDOW NOT FINISHED YET ! ")
+    bb.help_window.parent:Hide()
+end
 
-SLASH_GUIT1 = '/guit'
-function SlashCmdList.GUIT(msg, editbox)
-	guit.GUI()
+
+-- This creates the normal BadBay Configuration Window
+function bb:createConfigWindowNew()
+    bb:createHelpWindow()
+    bb.config_window = createNewWindow("Configuration", 275, 400)
+
+    local section
+    -- General
+    section = createNewSection(bb.config_window, "General")
+    createNewCheckbox(section, "Start/Stop BadBoy")
+    createNewCheckbox(section, "Debug Frame")
+    createNewCheckbox(section, "Display Failcasts")
+    createNewCheckbox(section, "Queue Casting")
+    createNewSpinner(section,  "Auto Loot" ,0.5, 0.1, 3, 0.1, "Sets Autloot on/off.", "Sets a delay for Auto Loot.")
+    createNewCheckbox(section, "Auto-Sell/Repair")
+    createNewCheckbox(section, "Accept Queues")
+    createNewCheckbox(section, "Overlay Messages")
+    checkSectionState(section)
+
+    -- Enemies Engine
+    section = createNewSection(bb.config_window, "Enemies Engine")
+    createNewCheckbox(section, "Dynamic Targetting")
+    createNewDropdown(section, "Wise Target", {"Highest", "Lowest", "abs Highest"})
+    createNewCheckbox(section, "Forced Burn")
+    createNewCheckbox(section, "Avoid Shields")
+    createNewCheckbox(section, "Tank Threat")
+    createNewCheckbox(section, "Safe Damage Check")
+    createNewCheckbox(section, "Don't break CCs")
+    createNewCheckbox(section, "Skull First")
+    createNewDropdown(section, "Interrupts Handler", {"Target", "T/M", "T/M/F", "All"})
+    createNewCheckbox(section, "Only Known Units")
+    createNewCheckbox(section, "Crowd Control")
+    createNewCheckbox(section, "Enrages Handler")
+    checkSectionState(section)
+
+    -- Healing Engine
+    section = createNewSection(bb.config_window, "Healing Engine")
+    createNewCheckbox(section, "HE Active")
+    createNewCheckbox(section, "Heal Pets")
+    createNewDropdown(section, "Special Heal", {"Target", "T/M", "T/M/F", "T/F"})
+    createNewCheckbox(section, "Sorting with Role")
+    createNewDropdown(section, "Prioritize Special Targets", {"Special", "All"})
+    createNewSpinner(section, "Blacklist", 95)
+    createNewCheckbox(section, "Ignore Absorbs")
+    createNewCheckbox(section, "Incoming Heals")
+    createNewSpinner(section, "Overhealing Cancel", 95)
+    createNewCheckbox(section, "Healing Debug")
+    createNewSpinner(section, "Debug Refresh", 500, 0, 1000, 25)
+    createNewSpinner(section, "Dispel delay", 15, 5, 90, 5)
+    checkSectionState(section)
+
+    -- Other Features
+    section = createNewSection(bb.config_window, "Other Features")
+    createNewSpinner(section, "Profession Helper", 0.5, 0, 1, 0.1)
+    createNewDropdown(section, "Prospect Ores", {"WoD", "MoP", "Cata", "All"})
+    createNewDropdown(section, "Mill Herbs", {"WoD", "MoP", "Cata", "All"})
+    createNewCheckbox(section, "Disenchant")
+    createNewCheckbox(section, "Leather Scraps")
+    createNewSpinner(section, "Salvage", 15, 5, 30, 1)
+    checkSectionState(section)
+
+    -- temp
+    if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()]["optionsFrame"] ~= true then
+        bb.config_window.parent.closeButton:Click()
+    end
+end
+
+-- TODO: create new debug frame
+function bb.createDebugWindow()
+
 end

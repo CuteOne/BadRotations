@@ -156,10 +156,23 @@ function cCombat:new()
 ----------------------
 --- START ROTATION ---
 ----------------------
+
+    -- Rotation selection update
+    function self.getRotation()
+        self.rotation = bb.selectedProfile
+
+        if bb.rotation_changed then
+            --self.createToggles()
+            self.createOptions()
+
+            bb.rotation_changed = false
+        end
+    end
+
 	function self.startRotation()
 		if self.rotation == 1 then
 			self:combatSimC()
-		-- put different rotations below; dont forget to setup your rota in options
+		-- put different rotations below dont forget to setup your rota in options
 		else
 			ChatOverlay("No ROTATION ?!", 2000)
 		end
@@ -169,101 +182,65 @@ function cCombat:new()
 --- OPTIONS ---
 ---------------
 	function self.createOptions()
-		thisConfig = 0
-
-		-- Title
-		CreateNewTitle(thisConfig,"Combat Defmaster")
+        bb.profile_window = createNewProfileWindow("Combat")
+        local section
 
 		-- Create Base and Class options
 		self.createClassOptions()
 
 		-- Combat options
-		CreateNewWrap(thisConfig,"--- General ---");
-
-		-- Rotation
-		CreateNewDrop(thisConfig,"Rotation",1,"Select Rotation.","|cff00FF00SimC");
-		CreateNewText(thisConfig,"Rotation");
-
-		-- Dummy DPS Test
-		--CreateNewCheck(thisConfig,"DPS Testing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFtimed tests on Training Dummies. This mode stops the rotation after the specified time if the target is a Training Dummy.");
-		--CreateNewBox(thisConfig,"DPS Testing", 5, 60, 5, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-		--CreateNewText(thisConfig,"DPS Testing");
-
-		-- Stealth Timer
-		CreateNewCheck(thisConfig,"Stealth Timer");
-		CreateNewBox(thisConfig,"Stealth Timer", 0, 2, 0.25, 1, "|cffFFBB00How long to wait(seconds) before using \n|cffFFFFFFStealth.");
-		CreateNewText(thisConfig,"Stealth Timer");
-
-		-- Stealth
-		CreateNewCheck(thisConfig,"Stealth");
-		CreateNewDrop(thisConfig,"Stealth",1,"Stealthing method.","|cff00FF00Always","|cffFFDD00PrePot","|cffFF000020Yards");
-		CreateNewText(thisConfig,"Stealth");
-
-		-- Spacer
-		CreateNewText(thisConfig," ");
-		CreateNewWrap(thisConfig,"--- Cooldowns ---");
-
-		-- Agi Pot
-		--CreateNewCheck(thisConfig,"Agi-Pot");
-		--CreateNewText(thisConfig,"Agi-Pot");
-
-		-- Vanish
-		CreateNewCheck(thisConfig,"Vanish","Enable or Disable usage of Vanish.");
-		CreateNewDrop(thisConfig,"Vanish",2,"CD")
-		CreateNewText(thisConfig,"Vanish");
-
-		-- Adrenaline Rush
-		CreateNewCheck(thisConfig,"Adrenaline Rush","Enable or Disable usage of Adrenaline Rush.");
-		CreateNewDrop(thisConfig,"Adrenaline Rush",2,"CD")
-		CreateNewText(thisConfig,"Adrenaline Rush");
-
-		-- Killing Spree
-		CreateNewCheck(thisConfig,"Killing Spree","Enable or Disable usage of Killing Spree.");
-		CreateNewDrop(thisConfig,"Killing Spree",2,"CD")
-		CreateNewText(thisConfig,"Killing Spree");
-
-		-- Blade Flurry
-		CreateNewCheck(thisConfig,"Blade Flurry","Enable or Disable usage of Blade Flurry.",1);
-		CreateNewText(thisConfig,"Blade Flurry");
-
-		-- Spacer
-		CreateNewText(thisConfig," ");
-		CreateNewWrap(thisConfig,"--- Defensive ---");
-
-		-- Healthstone
-		--CreateNewCheck(thisConfig,"Pot/Stoned");
-		--CreateNewBox(thisConfig,"Pot/Stoned", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.");
-		--CreateNewText(thisConfig,"Pot/Stoned");
-
-		-- Spacer
-		CreateNewText(thisConfig," ");
-		CreateNewWrap(thisConfig,"--- Toggle Keys ---");
-
-		-- Single/Multi Toggle
-		CreateNewCheck(thisConfig,"Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.");
-		CreateNewDrop(thisConfig,"Rotation Mode", 4, "Toggle")
-		CreateNewText(thisConfig,"Rotation Mode");
-
-		--Cooldown Key Toggle
-		CreateNewCheck(thisConfig,"Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.");
-		CreateNewDrop(thisConfig,"Cooldown Mode", 3, "Toggle")
-		CreateNewText(thisConfig,"Cooldowns")
-
-		--Defensive Key Toggle
-		CreateNewCheck(thisConfig,"Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.");
-		CreateNewDrop(thisConfig,"Defensive Mode", 6, "Toggle")
-		CreateNewText(thisConfig,"Defensive")
-
-		--Interrupts Key Toggle
-		CreateNewCheck(thisConfig,"Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.");
-		CreateNewDrop(thisConfig,"Interrupt Mode", 6, "Toggle")
-		CreateNewText(thisConfig,"Interrupts")
+		section = createNewSection(bb.profile_window, "--- General ---")
+        -- Stealth Timer
+        CreateNewBox(thisConfig,"Stealth Timer", 0, 2, 0.25, 1, "|cffFFBB00How long to wait(seconds) before using \n|cffFFFFFFStealth.")
+        -- Stealth
+        createNewDropdown(section, "Stealth", {"|cff00FF00Always","|cffFFDD00PrePot","|cffFF000020Yards"}, 1, "Stealthing method.")
+        checkSectionState(section) 
 
 
-		-- General Configs
-		CreateGeneralsConfig();
+		section = createNewSection(bb.profile_window, "--- Cooldowns ---")
+        -- Agi Pot
+        --createNewCheckbox(section,"Agi-Pot")
+        -- Vanish
+        createNewCheckbox(section,"Vanish","Enable or Disable usage of Vanish.")
+        createNewDropdown(section, "Vanish", bb.dropOptions.CD, 2)
+        -- Adrenaline Rush
+        createNewCheckbox(section,"Adrenaline Rush","Enable or Disable usage of Adrenaline Rush.")
+        createNewDropdown(section, "Adrenaline Rush", bb.dropOptions.CD, 2)
+        -- Killing Spree
+        createNewCheckbox(section,"Killing Spree","Enable or Disable usage of Killing Spree.")
+        createNewDropdown(section, "Killing Spree", bb.dropOptions.CD, 2)
+        -- Blade Flurry
+        createNewCheckbox(section,"Blade Flurry","Enable or Disable usage of Blade Flurry.",1)
+        checkSectionState(section) 
 
-		WrapsManager();
+
+		section = createNewSection(bb.profile_window, "--- Defensive ---")
+        -- Healthstone
+        --createNewCheckbox(section,"Pot/Stoned")
+        --CreateNewBox(thisConfig,"Pot/Stoned", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.")
+        checkSectionState(section) 
+
+
+		section = createNewSection(bb.profile_window, "--- Toggle Keys ---")
+        -- Single/Multi Toggle
+        createNewCheckbox(section,"Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.")
+        createNewDropdown(section, "Rotation Mode", bb.dropOptions.Toggle,  4)
+        --Cooldown Key Toggle
+        createNewCheckbox(section,"Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.")
+        createNewDropdown(section, "Cooldown Mode", bb.dropOptions.Toggle,  3)
+        --Defensive Key Toggle
+        createNewCheckbox(section,"Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.")
+        createNewDropdown(section, "Defensive Mode", bb.dropOptions.Toggle,  6)
+        --Interrupts Key Toggle
+        createNewCheckbox(section,"Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.")
+        createNewDropdown(section, "Interrupt Mode", bb.dropOptions.Toggle,  6)
+        checkSectionState(section) 
+
+
+
+        --[[ Rotation Dropdown ]]--
+        createNewRotationDropdown(bb.profile_window.parent, {"Defmaster"})
+        bb:checkProfileWindowStatus()
 	end
 
 --------------

@@ -1,7 +1,7 @@
 if select(3, UnitClass("player")) == 11 and GetSpecialization() == 2 then
 	function cFeral:OLDFeral()
    	-- Global Functions
-    	GroupInfo() -- Determings Player with Lowest HP
+    	--GroupInfo() -- Determings Player with Lowest HP
     	KeyToggles() -- Keyboard Toggles
 --------------
 --- Locals ---

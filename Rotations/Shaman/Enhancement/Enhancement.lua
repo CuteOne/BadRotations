@@ -1,6 +1,6 @@
 if select(3, UnitClass("player")) == 7 then
     function ShamanEnhancement()
-        if Currentconfig ~= "Enhancement Shaman" and enhancementShaman == nil then
+        if enhancementShaman == nil then
             enhancementShaman = cEnhancement:new()
             setmetatable(enhancementShaman, {__index = cEnhancement})
             enhancementShaman:update()
@@ -8,7 +8,6 @@ if select(3, UnitClass("player")) == 7 then
             if enhancementShaman.rotation == 1 then 
                 KeyToggles()
             end
-            Currentconfig = "Enhancement Shaman"
         end
 
         if not canRun() then
@@ -29,5 +28,5 @@ if select(3, UnitClass("player")) == 7 then
 
         enhancementShaman:update()
 
-    end --Monk Function End
+    end -- Function End
 end --Class Check End
