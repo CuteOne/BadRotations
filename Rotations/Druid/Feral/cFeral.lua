@@ -497,147 +497,141 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Create Base and Class options
             self.createClassOptions()
 
-
             
             section = createNewSection(bb.profile_window, "General")
             -- Death Cat
-            createNewCheckbox(section,"Death Cat Mode","|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.")
+                createNewCheckbox(section,"Death Cat Mode","|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.")
 
             -- Fire Cat
-            createNewCheckbox(section,"Perma Fire Cat","|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic use of Fandrel's Seed Pouch or Burning Seeds.")
+                createNewCheckbox(section,"Perma Fire Cat","|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic use of Fandrel's Seed Pouch or Burning Seeds.")
 
             -- Mark Of The Wild
-            if isKnown(mow) then
                 createNewCheckbox(section,"Mark of the Wild","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFautomatic Mark of Wild usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
-            end
 
             -- Dummy DPS Test
-            createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+                createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
             -- Travel Shapeshifts
-            createNewCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
+                createNewCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
 
             -- Break Crowd Control
-            createNewCheckbox(section,"Break Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to break crowd control.|cffFFBB00.")
+                createNewCheckbox(section,"Break Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to break crowd control.|cffFFBB00.")
             checkSectionState(section)
 
             
             section = createNewSection(bb.profile_window, "Cooldowns")
             -- Agi Pot
-            createNewCheckbox(section,"Agi-Pot")
+                createNewCheckbox(section,"Agi-Pot")
 
             -- Flask / Crystal
-            createNewCheckbox(section,"Flask / Crystal")
+                createNewCheckbox(section,"Flask / Crystal")
 
             -- Force of Nature
-            createNewCheckbox(section,"Force of Nature")
+                createNewCheckbox(section,"Force of Nature")
 
             -- Berserk
-            createNewCheckbox(section,"Berserk")
+                createNewCheckbox(section,"Berserk")
 
             -- Legendary Ring
-            createNewCheckbox(section,"Legendary Ring")
+                createNewCheckbox(section,"Legendary Ring")
 
             -- Racial
-            createNewCheckbox(section,"Racial")
+                createNewCheckbox(section,"Racial")
 
             -- Tiger's Fury
-            createNewCheckbox(section,"Tiger's Fury")
+                createNewCheckbox(section,"Tiger's Fury")
 
             -- Incarnation: King of the Jungle
-            createNewCheckbox(section,"Incarnation")
+                createNewCheckbox(section,"Incarnation")
 
             -- Trinkets
-            createNewCheckbox(section,"Trinkets")
+                createNewCheckbox(section,"Trinkets")
             checkSectionState(section)
+ 
 
-            
             section = createNewSection(bb.profile_window, "Defensive")
             -- Rebirth
-            createNewCheckbox(section,"Rebirth")
-            createNewDropdown(section, "Rebirth - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
+                createNewCheckbox(section,"Rebirth")
+                createNewDropdown(section, "Rebirth - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
 
             -- Revive
-            createNewCheckbox(section,"Revive")
-            createNewDropdown(section, "Revive - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
+                createNewCheckbox(section,"Revive")
+                createNewDropdown(section, "Revive - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
 
             -- Remove Corruption
-            createNewCheckbox(section,"Remove Corruption")
-            createNewDropdown(section, "Remove Corruption - Target", {"|cff00FF00Player","|cffFFFF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
+                createNewCheckbox(section,"Remove Corruption")
+                createNewDropdown(section, "Remove Corruption - Target", {"|cff00FF00Player","|cffFFFF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
 
             -- Rejuvenation
-            createNewSpinner(section, "Rejuvenation",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                createNewSpinner(section, "Rejuvenation",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Auto Rejuvenation
-            createNewSpinner(section, "Auto Rejuvenation",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                createNewSpinner(section, "Auto Rejuvenation",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Healthstone
-            createNewSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                createNewSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Heirloom Neck
-            createNewSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+                createNewSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
 
             -- Engineering: Shield-o-tronic
-            createNewSpinner(section, "Shield-o-tronic",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                createNewSpinner(section, "Shield-o-tronic",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Nature's Vigil
-            createNewSpinner(section, "Nature's Vigil",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                createNewSpinner(section, "Nature's Vigil",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Survival Instincts
-            createNewSpinner(section, "Survival Instincts",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                createNewSpinner(section, "Survival Instincts",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Healing Touch
-            createNewSpinner(section, "Healing Touch",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                createNewSpinner(section, "Healing Touch",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Dream of Cenarius Auto-Heal
-            createNewDropdown(section, "Auto Heal", { "|cffFFDD11LowestHP", "|cffFFDD11Self"},  1,  "|cffFFFFFFSelect Target to Auto-Heal")
+                createNewDropdown(section, "Auto Heal", { "|cffFFDD11LowestHP", "|cffFFDD11Self"},  1,  "|cffFFFFFFSelect Target to Auto-Heal")
             checkSectionState(section)
+   
 
-
-
-            
             section = createNewSection(bb.profile_window, "Interrupts")
             -- Skull Bash
-            createNewCheckbox(section,"Skull Bash")
+                createNewCheckbox(section,"Skull Bash")
 
             -- Mighty Bash
-            createNewCheckbox(section,"Mighty Bash")
+                createNewCheckbox(section,"Mighty Bash")
 
             -- Maim
-            createNewCheckbox(section,"Maim")
+                createNewCheckbox(section,"Maim")
 
             -- Interrupt Percentage
-            createNewSpinner(section, "Interrupts",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
+                createNewSpinner(section, "Interrupts",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
             checkSectionState(section)
 
 
             section = createNewSection(bb.profile_window, "Toggle Keys")
             -- Single/Multi Toggle
-            createNewDropdown(section, "Rotation Mode", bb.dropOptions.Toggle,  4)
+                createNewDropdown(section, "Rotation Mode", bb.dropOptions.Toggle,  4)
 
             -- Cooldown Key Toggle
-            createNewDropdown(section, "Cooldown Mode", bb.dropOptions.Toggle,  3)
+                createNewDropdown(section, "Cooldown Mode", bb.dropOptions.Toggle,  3)
 
             -- Defensive Key Toggle
-            createNewDropdown(section, "Defensive Mode", bb.dropOptions.Toggle,  6)
+                createNewDropdown(section, "Defensive Mode", bb.dropOptions.Toggle,  6)
 
             -- Interrupts Key Toggle
-            createNewDropdown(section, "Interrupt Mode", bb.dropOptions.Toggle,  6)
+                createNewDropdown(section, "Interrupt Mode", bb.dropOptions.Toggle,  6)
 
             -- Cleave Toggle
-            createNewDropdown(section, "Cleave Mode", bb.dropOptions.Toggle,  6)
+                createNewDropdown(section, "Cleave Mode", bb.dropOptions.Toggle,  6)
 
             -- Prowl Toggle
-            createNewDropdown(section, "Prowl Mode", bb.dropOptions.Toggle,  6)
+                createNewDropdown(section, "Prowl Mode", bb.dropOptions.Toggle,  6)
 
             -- Pause Toggle
-            createNewDropdown(section, "Pause Mode", bb.dropOptions.Toggle,  6)
+                createNewDropdown(section, "Pause Mode", bb.dropOptions.Toggle,  6)
             checkSectionState(section)
 
 
-
             --[[ Rotation Dropdown ]]--
-            createNewRotationDropdown(bb.profile_window.parent, {"CuteOn", "OLD"})
+            createNewRotationDropdown(bb.profile_window.parent, {"CuteOne", "OLD"})
             bb:checkProfileWindowStatus()
         end
 

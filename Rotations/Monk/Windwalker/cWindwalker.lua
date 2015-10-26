@@ -290,115 +290,115 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Combat options
             section = createNewSection(bb.profile_window,  "General")
             -- Dummy DPS Test
-            createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+                createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
             -- Death Monk
-            createNewCheckbox(section,"Death Monk Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.")
+                createNewCheckbox(section,"Death Monk Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.")
 
             -- Legacy of the White Tiger
-            createNewCheckbox(section,"Legacy of the White Tiger","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Legacy of the White Tiger usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
+                createNewCheckbox(section,"Legacy of the White Tiger","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Legacy of the White Tiger usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
             checkSectionState(section)
          
 
             section = createNewSection(bb.profile_window,  "Cooldowns")
             -- Agi Pot
-            --createNewCheckbox(section,"Agi-Pot")
+                --createNewCheckbox(section,"Agi-Pot")
 
             -- Legendary Ring
-            createNewDropdown(section,  "Legendary Ring", bb.dropOptions.CD,  2)
+                createNewCheckbox(section,"Legendary Ring")
 
             -- Flask / Crystal
-            createNewCheckbox(section,"Flask / Crystal")
+                createNewCheckbox(section,"Flask / Crystal")
 
             -- Trinkets
-            createNewCheckbox(section,"Trinkets")
+                createNewCheckbox(section,"Trinkets")
 
             -- Touch of the Void
-            createNewCheckbox(section,"Touch of the Void")
+                createNewCheckbox(section,"Touch of the Void")
 
             -- Xuen
-            createNewCheckbox(section,"Xuen")
+                createNewCheckbox(section,"Xuen")
             checkSectionState(section)
 
 
             section = createNewSection(bb.profile_window, "Defensive")
             -- Healthstone
-            createNewSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                createNewSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Heirloom Neck
-            createNewSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                createNewSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             --  Expel Harm
-            createNewSpinner(section, "Expel Harm",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                createNewSpinner(section, "Expel Harm",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Surging Mist
-            createNewSpinner(section, "Surging Mist",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                createNewSpinner(section, "Surging Mist",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Touch of Karma
-            createNewSpinner(section, "Touch of Karma",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                createNewSpinner(section, "Touch of Karma",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Fortifying Brew
-            createNewSpinner(section, "Fortifying Brew",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                createNewSpinner(section, "Fortifying Brew",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Diffuse Magic/Dampen Harm
-            createNewSpinner(section, "Diffuse/Dampen",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                createNewSpinner(section, "Diffuse/Dampen",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Zen Meditation
-            createNewSpinner(section, "Zen Meditation",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                createNewSpinner(section, "Zen Meditation",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Nimble Brew
-            createNewCheckbox(section,"Nimble Brew")
+                createNewCheckbox(section,"Nimble Brew")
             checkSectionState(section)
 
 
             section = createNewSection(bb.profile_window,  "Interrupts")
             --Quaking Palm
-            createNewCheckbox(section,"Quaking Palm")
+                createNewCheckbox(section,"Quaking Palm")
 
             -- Spear Hand Strike
-            createNewCheckbox(section,"Spear Hand Strike")
+                createNewCheckbox(section,"Spear Hand Strike")
 
             -- Paralysis
-            createNewCheckbox(section,"Paralysis")
+                createNewCheckbox(section,"Paralysis")
 
             -- Leg Sweep
-            createNewCheckbox(section,"Leg Sweep")
+                createNewCheckbox(section,"Leg Sweep")
 
             -- Interrupt Percentage
-            createNewSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+                createNewSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
             checkSectionState(section)
 
 
             section = createNewSection(bb.profile_window,  "Toggle Keys")
             -- Single/Multi Toggle
-            createNewDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
+                createNewDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
 
             --Cooldown Key Toggle
-            createNewDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
+                createNewDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
 
             --Defensive Key Toggle
-            createNewDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
+                createNewDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
 
             -- Interrupts Key Toggle
-            createNewDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
+                createNewDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
 
             -- SEF Toggle
-            createNewDropdown(section,  "SEF Mode", bb.dropOptions.Toggle,  5)
+                createNewDropdown(section,  "SEF Mode", bb.dropOptions.Toggle,  5)
 
             -- FSK Toggle
-            createNewDropdown(section,  "FSK Mode", bb.dropOptions.Toggle,  5)
+                createNewDropdown(section,  "FSK Mode", bb.dropOptions.Toggle,  5)
 
             -- Chi Builder Toggle
-            createNewDropdown(section,  "Builder Mode", bb.dropOptions.Toggle,  5)
+                createNewDropdown(section,  "Builder Mode", bb.dropOptions.Toggle,  5)
 
             -- Pause Toggle
-            createNewDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
+                createNewDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
             checkSectionState(section)
 
 
 
             --[[ Rotation Dropdown ]]--
-            createNewRotationDropdown(bb.profile_window.parent, {"Gabbz"})
+            createNewRotationDropdown(bb.profile_window.parent, {"CuteOne"})
             bb:checkProfileWindowStatus()
         end
 

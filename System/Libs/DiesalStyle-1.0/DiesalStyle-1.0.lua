@@ -25,7 +25,7 @@ do -- ~~ find current MediaPath
 	if AddonName == 'DiesalLibs' then -- in DiesalStyle in DeisalLibs
 		MediaPath = string.format("Interface\\AddOns\\%s\\%s\\Media\\",AddonName,MAJOR)
 	else -- in a library instance of DiesalStyle
-		MediaPath = string.format("Interface\\AddOns\\%s\\Libs\\%s\\Media\\",AddonName,MAJOR)
+		MediaPath = string.format("Interface\\AddOns\\%s\\System\\Libs\\%s\\Media\\",AddonName,MAJOR)
 	end
 end
 local function addMedia(mediaType,name,mediaFile)	
