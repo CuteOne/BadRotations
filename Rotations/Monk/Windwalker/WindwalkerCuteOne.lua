@@ -107,13 +107,7 @@ if select(2, UnitClass("player")) == "MONK" then
             if self.castResuscitate() then return end
         -- Legacy of the White Tiger
             if not inCombat and isChecked("Legacy of the White Tiger") then
-                for i = 1, #nNova do
-                    if (#nNova==select(5,GetInstanceInfo()) or solo) then
-                        if not isBuffed(nNova[i].unit,{17007,1459,61316,116781,90309,126373,160052,126309,24604}) then
-                            if self.castLegacyOfTheWhiteTiger() then return end
-                        end
-                    end
-                end
+                if self.castLegacyOfTheWhiteTiger() then return end
             end
         -- Expel Harm (Chi Builer)
             if not inCombat and BadBoy_data['Builder']==1 and chi.diff>=2 then
