@@ -441,8 +441,28 @@ function cMonk:new(spec)
 	-- Legacy of the Whie Tiger
 	function self.castLegacyOfTheWhiteTiger()
 		if self.level>=81 and self.power>20 then
-			if castSpell("player",self.spell.legacyOfTheWhiteTiger,false,false,false) then return end
-		end
+	        if self.instance=="none" and not isBuffed("player",{1126,115921,116781,20217,160206,69378,159988,160017,90363,160077}) then
+	        	if castSpell("player",self.spell.legacyOfTheWhiteTiger,false,false,false) then return end
+	        else
+		        local totalCount = GetNumGroupMembers()
+		        local currentCount = currentCount or 0
+		        local needsBuff = needsBuff or 0
+		        for i=1,#nNova do
+		            local thisUnit = nNova[i].unit
+		            local distance = getDistance(thisUnit)
+		            local dead = UnitIsDeadOrGhost(thisUnit)
+		            if distance<30 then
+		                currentCount = currentCount+1
+		            end
+		            if not isBuffed(thisUnit,{1126,115921,116781,20217,160206,69378,159988,160017,90363,160077}) and not dead then
+		            	needsBuff = needsBuff+1
+		            end
+		        end
+		        if currentCount>=totalCount and needsBuff>0 then
+		            if castSpell("player",self.spell.legacyOfTheWhiteTiger,false,false,false) then return end
+		        end
+		    end
+	    end
 	end
 	-- Rising Sun Kick
 	function self.castRisingSunKick()
