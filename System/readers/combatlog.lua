@@ -221,6 +221,7 @@ function bb.read.combatLog()
       if spell ~= 155521 then     -- Auspicious Spirits
         secondLastSpellCastSucess = lastSpellCastSuccess
         lastSpellCastSuccess = spell
+        lastSpellCastSuccessTime = GetTime()
       end
     end
     --[[ Last Spell Cast Started ]]

@@ -306,9 +306,9 @@ function cShadow:shadowRavens()
 			end
 
 			-- Vampiric Touch cycle targets 5
-			--if mode.multidot == 3 or mode.multidot == 4 then
+			if not buff.insanity then
 				if self.castVTAutoApply(options.rotation.max_Targetsvalue) then return end
-			--end
+			end
 
 			-- SoD proc
 			if buff.surge_of_darkness then
@@ -424,50 +424,63 @@ function cShadow:shadowRavens()
 				if self.castMindbender("target") then return end
 			end
 
-			-- mindflay if full t18 class trinket stacks
-			if UnitChannelInfo("player") == "Mind Flay" and eq.t18_classTrinket then
-				if getDebuffStacks("target",spell.mental_fatigue,"player") >= 5 and getDebuffRemain("target",spell.mental_fatigue,"player") > mfrefreshtime then
-					SpellStopCasting()
-					return
-				end
-			end
+			
 
-			-- clip mindflay while building stacks
-			if UnitChannelInfo("player") == "Mind Flay" and eq.t18_classTrinket then
-				if getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
-					if getCastTimeRemain("player") < 0.61 then
-						SpellStopCasting()
-						return
-					end
-				end
-			end
+			-- -- clip mindflay while building stacks
+			-- if eq.t18_classTrinket then
+			-- --if UnitChannelInfo("player") == "Insanity" and eq.t18_classTrinket then
+			-- 	if buff.insanity and buff.remain.insanity < 1 then
+			-- 		--if getCastTimeRemain("player") < (3 / ((UnitSpellHaste("player")/100)+1))*0.25 then
+			-- 			if self.castMindFlay("target") then return end
+			-- 			return
+			-- 		--end
+			-- 	end
+			-- end
 
-			-- clip mindflay while building stacks
-			if eq.t18_classTrinket then
-			--if UnitChannelInfo("player") == "Insanity" and eq.t18_classTrinket then
-				if buff.insanity and buff.remain.insanity < 1 then
-					--if getCastTimeRemain("player") < (3 / ((UnitSpellHaste("player")/100)+1))*0.25 then
-						if self.castMindFlay("target") then return end
-						return
-					--end
-				end
-			end
+			-- -- MB ready
+			-- if UnitChannelInfo("player") == "Mind Flay" or UnitChannelInfo("Insanity") then
+			-- 	if cd.mind_blast < 0.1 or cd.shadow_word_death < 0.1 and cd.shadow_word_death > 0 then
+			-- 		SpellStopCasting()
+			-- 		return
+			-- 	end
+			-- end
 
-			-- MB ready
-			if UnitChannelInfo("player") == "Mind Flay" or UnitChannelInfo("Insanity") then
-				if cd.mind_blast < 0.1 and cd.mind_blast > 0
-				or cd.shadow_word_death < 0.1 and cd.shadow_word_death > 0 then
-					SpellStopCasting()
-					return
-				end
-			end
-
-			-- return rest
-			if UnitCastingInfo("player") ~= nil or UnitChannelInfo("player") ~= nil then return end
+			
 			--[[ end stopcasting ]]
 			
 			--[[ ravens ]]
 			if talent.mindbender then
+
+				--   _____ _ _       
+				--  / ____| (_)      
+				-- | |    | |_ _ __  
+				-- | |    | | | '_ \ 
+				-- | |____| | | |_) |
+				--  \_____|_|_| .__/ 
+				--            | |    
+				--            |_|    
+				-- mindflay if full t18 class trinket stacks
+				if UnitChannelInfo("player") == "Mind Flay" and eq.t18_classTrinket then
+					if getDebuffStacks("target",spell.mental_fatigue,"player") >= 5 and getDebuffRemain("target",spell.mental_fatigue,"player") > mfrefreshtime then
+						SpellStopCasting()
+						return
+					end
+				end
+
+				-- clip mindflay while building stacks
+				if UnitChannelInfo("player") == "Mind Flay" and eq.t18_classTrinket then
+					if getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
+						if getCastTimeRemain("player") < 0.61 then
+							SpellStopCasting()
+							return
+						end
+					end
+				end
+				-- return rest
+				if UnitCastingInfo("player") ~= nil or UnitChannelInfo("player") ~= nil then return end
+
+
+
 				-- High Priority
 				-- Shadow Word: Death
 				if self.castSWDAuto("target") then return end
@@ -479,7 +492,8 @@ function cShadow:shadowRavens()
 
 				-- DP before stacks
 				if eq.t18_classTrinket then
-					if getDebuffStacks("player",spell.mental_fatigue,"player") < 5 and getDebuffRemain("target",spell.mental_fatigue,"player") > 1.2*gcd then
+					if getDebuffRemain("target",spell.mental_fatigue,"player") > 1.2*gcd then
+					--if getDebuffStacks("target",spell.mental_fatigue,"player") < 5 and getDebuffRemain("target",spell.mental_fatigue,"player") > 1.2*gcd then
 						if orbs >= 3 then
 							if self.castDP("target") then return end
 						end
@@ -549,131 +563,205 @@ function cShadow:shadowRavens()
 			---------------------------------------------------------------------------------------------------------------------------------------- the other rotation
 			--[[ simcraft ]]
 			if talent.insanity then
-				-- Simcraft: CoP_Insanity
+				-- ravens CoP insanity
 
-				-- actions.cop_insanity+=/insanity,if=t18_class_trinket&target.debuff.mental_fatigue.remains<gcd,interrupt_if=target.debuff.mental_fatigue.remains>gcd
-				if eq.t18_classTrinket then
-					if (getDebuffRemain("target",spell.mental_fatigue,"player") > 0 and getDebuffRemain("target",spell.mental_fatigue,"player") < mfrefreshtime) 
-					or getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
-						if self.castMindFlay("target") then return end
+				-- -- Mental Fatigue
+				-- if orbs < 3 then
+				-- 	if eq.t18_classTrinket then
+				-- 		if (getDebuffRemain("target",spell.mental_fatigue,"player") > 0 and getDebuffRemain("target",spell.mental_fatigue,"player") < mfrefreshtime) 
+				-- 		or getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
+				-- 			if self.castMindFlay("target") then return end
+				-- 		end
+				-- 	end
+				-- end
+
+				if orbs>=3 and lastSpellCast==8092 then
+					if cd.shadowfiend<=0 then
+						if self.castShadowfiend("target") then return end
+					elseif talent.halo and cd.halo<=0 and getDistance("player","target")<30 then
+						if self.castHalo() then return end
+					elseif glyph.reflectiveShield and not UnitDebuffID("player",6788) then
+						if self.castPWS("player") then return end
+					else
+						if self.castSWP("target") then return end
 					end
 				end
 
-				-- actions.cop_insanity=devouring_plague,if=shadow_orb=5|(active_enemies>=5&!buff.insanity.remains)
-				if orbs == 5 then
+				-- DP
+				if orbs>=3 then
 					if self.castDP("target") then return end
 				end
 
-				-- actions.cop_insanity+=/mind_blast,if=active_enemies<=5&cooldown_react
-				--if #enemiesTable <= 5 then
-					if self.castMindBlast("target") then return end
-				--end
-
-				-- actions.cop_insanity+=/shadow_word_death,if=target.health.pct<20,cycle_targets=1
-				if self.castSWDAuto("target") then return end
-
-				-- actions.cop_insanity+=/insanity,if=t18_class_trinket&target.debuff.mental_fatigue.remains<gcd,interrupt_if=target.debuff.mental_fatigue.remains>gcd
-				if eq.t18_classTrinket then
-					if (getDebuffRemain("target",spell.mental_fatigue,"player") > 0 and getDebuffRemain("target",spell.mental_fatigue,"player") < mfrefreshtime) 
-					or getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
-						if self.castMindFlay("target") then return end
-					end
+				-- MB
+				if self.castMindBlast("target") then return end
+				
+				if getHP("target")<20 then
+					if self.castSWDAuto("target") then return end
 				end
 
-				-- actions.cop_insanity+=/devouring_plague,if=shadow_orb>=3&!set_bonus.tier17_2pc&!set_bonus.tier17_4pc&(cooldown.mind_blast.remains<gcd|(target.health.pct<20&cooldown.shadow_word_death.remains<gcd)),cycle_targets=1
-				if orbs >= 3 then
-					if getHP("target")<20 and (cd.shadow_word_death<gcd or cd.mind_blast<gcd) then
-						if self.castDP("target") then return end
-					end
-				end
-				
-				-- actions.cop_insanity+=/shadowfiend,if=!talent.mindbender.enabled&set_bonus.tier18_2pc
-				if eq.tier18_2pc then
-					if self.castShadowfiend("target") then return end
-				end
-				
-				-- actions.cop_insanity+=/mindbender,if=talent.mindbender.enabled&set_bonus.tier18_2pc
-				if eq.tier18_2pc then
-					if self.castMindbender("target") then return end
-				end
-				
-				-- actions.cop_insanity+=/searing_insanity,if=buff.insanity.remains<0.5*gcd&active_enemies>=3&cooldown.mind_blast.remains>0.5*gcd,chain=1,interrupt_if=(cooldown.mind_blast.remains<=0.1|cooldown.shadow_word_death.remains<=0.1),target_if=max:spell_targets.mind_sear_tick
-				
-				-- actions.cop_insanity+=/searing_insanity,if=active_enemies>=5,chain=1,interrupt_if=(cooldown.mind_blast.remains<=0.1|cooldown.shadow_word_death.remains<=0.1),target_if=max:spell_targets.mind_sear_tick
-				
-				-- actions.cop_insanity+=/mindbender,if=talent.mindbender.enabled
-				if self.castMindbender("target") then return end
-				
-				-- actions.cop_insanity+=/shadowfiend,if=!talent.mindbender.enabled
-				if self.castShadowfiend("target") then return end
-				
-				-- actions.cop_insanity+=/mind_flay,if=t18_class_trinket&(target.debuff.mental_fatigue.remains<gcd|(cooldown.mind_blast.remains<2*gcd&target.debuff.mental_fatigue.remains<2*gcd)),interrupt_if=target.debuff.mental_fatigue.remains>gcd
-				if eq.t18_classTrinket then
-					if getDebuffRemain("target",spell.mental_fatigue,"player") > 0 then
-						if getDebuffRemain("target",spell.mental_fatigue,"player") < gcd or (cd.mind_blast < 2*gcd and getDebuffRemain("target",spell.mental_fatigue,"player") < 2*gcd) then
-							if self.castMindFlay("target") then return end
-						end
-					end
-				end
-				 
-				-- actions.cop_insanity+=/shadow_word_pain,if=remains<(18*0.3)&target.time_to_die>(18*0.75)&miss_react&active_enemies<=5&primary_target=0,cycle_targets=1,max_cycle_targets=5
-				--if self.castSWPOnUnit("boss2") then return end
-				if UnitGUID("target") ~= UnitGUID("focus") then
-					if self.castSWPOnUnit("focus") then return end
-				end
-				
-				-- actions.cop_insanity+=/vampiric_touch,if=remains<(15*0.3+cast_time)&target.time_to_die>(15*0.75+cast_time)&miss_react&active_enemies<=5&primary_target=0,cycle_targets=1,max_cycle_targets=5
-				--if self.castVTonUnit("boss2") then return end
-				if UnitGUID("target") ~= UnitGUID("focus") then
-					if self.castVTonUnit("focus") then return end
-				end
-
-				-- actions.cop_insanity+=/insanity,if=buff.insanity.remains<0.5*gcd&active_enemies<=2,chain=1,interrupt_if=(cooldown.mind_blast.remains<=0.1|(cooldown.shadow_word_death.remains<=0.1&target.health.pct<20))
-				if buff.insanity and buff.remain.insanity<0.5*gcd then
-					if self.castMindFlay("target") then return end
-				end
-				
-				-- actions.cop_insanity+=/insanity,if=active_enemies<=2,chain=1,interrupt_if=(cooldown.mind_blast.remains<=0.1|(cooldown.shadow_word_death.remains<=0.1&target.health.pct<20))
+				-- Mind Flay: Insanity
 				if buff.insanity then
 					if self.castMindFlay("target") then return end
 				end
-				
-				-- actions.cop_insanity+=/halo,if=talent.halo.enabled&!set_bonus.tier18_4pc&target.distance<=30&target.distance>=17
+
+				-- do not interrupt insanity with filler
+				if UnitChannelInfo("player")=="Insanity" then return end
+
+				-- MB
+				if self.castMindBlast("target") then return end
+
+				-- Shadow Word: Death
+				if self.castSWDAuto("target") then return end
+
+				-- Filler
+				-- Shadowfiend
+				if self.castShadowfiend("target") then return end
+
+				-- Cascade/Halo
 				if mode.t90 == 2 then
-					if (not eq.tier18_4pc or buff.premonition) and getDistance("player","target") <= 30 and getDistance("player","target") >= 17 then
-						if self.castHalo() then return end
-					end
+					if self.castCascade() then return end
+					if self.castHalo() then return end
 				end
+
+				-- offdot
+				if UnitGUID("target") ~= UnitGUID("focus") then
+					if self.castSWPOnUnit("focus") then return end
+					if self.castVTOnUnit("focus") then return end
+				end
+
+				-- Mind Spike
+				if not buff.insanity then
+					if self.castMindSpike("target") then return end
+				end
+
+
+
+
+				-- Simcraft: CoP_Insanity
+
+				-- -- actions.cop_insanity+=/insanity,if=t18_class_trinket&target.debuff.mental_fatigue.remains<gcd,interrupt_if=target.debuff.mental_fatigue.remains>gcd
+				-- if eq.t18_classTrinket then
+				-- 	if (getDebuffRemain("target",spell.mental_fatigue,"player") > 0 and getDebuffRemain("target",spell.mental_fatigue,"player") < mfrefreshtime) 
+				-- 	or getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
+				-- 		if self.castMindFlay("target") then return end
+				-- 	end
+				-- end
+
+				-- -- actions.cop_insanity=devouring_plague,if=shadow_orb=5|(active_enemies>=5&!buff.insanity.remains)
+				-- if orbs == 5 then
+				-- 	if self.castDP("target") then return end
+				-- end
+
+				-- -- actions.cop_insanity+=/mind_blast,if=active_enemies<=5&cooldown_react
+				-- --if #enemiesTable <= 5 then
+				-- 	if self.castMindBlast("target") then return end
+				-- --end
+
+				-- -- actions.cop_insanity+=/shadow_word_death,if=target.health.pct<20,cycle_targets=1
+				-- if self.castSWDAuto("target") then return end
+
+				-- -- actions.cop_insanity+=/insanity,if=t18_class_trinket&target.debuff.mental_fatigue.remains<gcd,interrupt_if=target.debuff.mental_fatigue.remains>gcd
+				-- if eq.t18_classTrinket then
+				-- 	if (getDebuffRemain("target",spell.mental_fatigue,"player") > 0 and getDebuffRemain("target",spell.mental_fatigue,"player") < mfrefreshtime) 
+				-- 	or getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
+				-- 		if self.castMindFlay("target") then return end
+				-- 	end
+				-- end
+
+				-- -- actions.cop_insanity+=/devouring_plague,if=shadow_orb>=3&!set_bonus.tier17_2pc&!set_bonus.tier17_4pc&(cooldown.mind_blast.remains<gcd|(target.health.pct<20&cooldown.shadow_word_death.remains<gcd)),cycle_targets=1
+				-- if orbs >= 3 then
+				-- 	if getHP("target")<20 and (cd.shadow_word_death<gcd or cd.mind_blast<gcd) then
+				-- 		if self.castDP("target") then return end
+				-- 	end
+				-- end
 				
-				-- actions.cop_insanity+=/cascade,if=talent.cascade.enabled&!set_bonus.tier18_4pc&((active_enemies>1|target.distance>=28)&target.distance<=40&target.distance>=11)
-				if mode.t90 == 2 then
-					if not eq.tier18_4pc or buff.premonition then
-						if getDistance("player","target") >= 28 and getDistance("player","target") >= 11 then
-							if self.castCascade("target") then return end
-						end
-					end
-				end
+				-- -- actions.cop_insanity+=/shadowfiend,if=!talent.mindbender.enabled&set_bonus.tier18_2pc
+				-- if eq.tier18_2pc then
+				-- 	if self.castShadowfiend("target") then return end
+				-- end
+				
+				-- -- actions.cop_insanity+=/mindbender,if=talent.mindbender.enabled&set_bonus.tier18_2pc
+				-- if eq.tier18_2pc then
+				-- 	if self.castMindbender("target") then return end
+				-- end
+				
+				-- -- actions.cop_insanity+=/searing_insanity,if=buff.insanity.remains<0.5*gcd&active_enemies>=3&cooldown.mind_blast.remains>0.5*gcd,chain=1,interrupt_if=(cooldown.mind_blast.remains<=0.1|cooldown.shadow_word_death.remains<=0.1),target_if=max:spell_targets.mind_sear_tick
+				
+				-- -- actions.cop_insanity+=/searing_insanity,if=active_enemies>=5,chain=1,interrupt_if=(cooldown.mind_blast.remains<=0.1|cooldown.shadow_word_death.remains<=0.1),target_if=max:spell_targets.mind_sear_tick
+				
+				-- -- actions.cop_insanity+=/mindbender,if=talent.mindbender.enabled
+				-- if self.castMindbender("target") then return end
+				
+				-- -- actions.cop_insanity+=/shadowfiend,if=!talent.mindbender.enabled
+				-- if self.castShadowfiend("target") then return end
+				
+				-- -- actions.cop_insanity+=/mind_flay,if=t18_class_trinket&(target.debuff.mental_fatigue.remains<gcd|(cooldown.mind_blast.remains<2*gcd&target.debuff.mental_fatigue.remains<2*gcd)),interrupt_if=target.debuff.mental_fatigue.remains>gcd
+				-- if eq.t18_classTrinket then
+				-- 	if getDebuffRemain("target",spell.mental_fatigue,"player") > 0 then
+				-- 		if getDebuffRemain("target",spell.mental_fatigue,"player") < gcd or (cd.mind_blast < 2*gcd and getDebuffRemain("target",spell.mental_fatigue,"player") < 2*gcd) then
+				-- 			if self.castMindFlay("target") then return end
+				-- 		end
+				-- 	end
+				-- end
+				 
+				-- -- actions.cop_insanity+=/shadow_word_pain,if=remains<(18*0.3)&target.time_to_die>(18*0.75)&miss_react&active_enemies<=5&primary_target=0,cycle_targets=1,max_cycle_targets=5
+				-- --if self.castSWPOnUnit("boss2") then return end
+				-- if UnitGUID("target") ~= UnitGUID("focus") then
+				-- 	if self.castSWPOnUnit("focus") then return end
+				-- end
+				
+				-- -- actions.cop_insanity+=/vampiric_touch,if=remains<(15*0.3+cast_time)&target.time_to_die>(15*0.75+cast_time)&miss_react&active_enemies<=5&primary_target=0,cycle_targets=1,max_cycle_targets=5
+				-- --if self.castVTonUnit("boss2") then return end
+				-- if UnitGUID("target") ~= UnitGUID("focus") then
+				-- 	if self.castVTonUnit("focus") then return end
+				-- end
+
+				-- -- actions.cop_insanity+=/insanity,if=buff.insanity.remains<0.5*gcd&active_enemies<=2,chain=1,interrupt_if=(cooldown.mind_blast.remains<=0.1|(cooldown.shadow_word_death.remains<=0.1&target.health.pct<20))
+				-- if buff.insanity and buff.remain.insanity<0.5*gcd then
+				-- 	if self.castMindFlay("target") then return end
+				-- end
+				
+				-- -- actions.cop_insanity+=/insanity,if=active_enemies<=2,chain=1,interrupt_if=(cooldown.mind_blast.remains<=0.1|(cooldown.shadow_word_death.remains<=0.1&target.health.pct<20))
+				-- if buff.insanity then
+				-- 	if self.castMindFlay("target") then return end
+				-- end
+				
+				-- -- actions.cop_insanity+=/halo,if=talent.halo.enabled&!set_bonus.tier18_4pc&target.distance<=30&target.distance>=17
+				-- if mode.t90 == 2 then
+				-- 	if (not eq.tier18_4pc or buff.premonition) and getDistance("player","target") <= 30 and getDistance("player","target") >= 17 then
+				-- 		if self.castHalo() then return end
+				-- 	end
+				-- end
+				
+				-- -- actions.cop_insanity+=/cascade,if=talent.cascade.enabled&!set_bonus.tier18_4pc&((active_enemies>1|target.distance>=28)&target.distance<=40&target.distance>=11)
+				-- if mode.t90 == 2 then
+				-- 	if not eq.tier18_4pc or buff.premonition then
+				-- 		if getDistance("player","target") >= 28 and getDistance("player","target") >= 11 then
+				-- 			if self.castCascade("target") then return end
+				-- 		end
+				-- 	end
+				-- end
 													
-				-- actions.cop_insanity+=/mind_flay,if=t18_class_trinket&(target.debuff.mental_fatigue.remains<gcd|(cooldown.mind_blast.remains<2*gcd&target.debuff.mental_fatigue.remains<2*gcd)),interrupt_if=target.debuff.mental_fatigue.remains>gcd
-				if eq.t18_classTrinket then
-					if getDebuffRemain("target",spell.mental_fatigue,"player") > 0 then
-						if getDebuffRemain("target",spell.mental_fatigue,"player") < gcd or (cd.mind_blast < 2*gcd and getDebuffRemain("target",spell.mental_fatigue,"player") < 2*gcd) then
-							if self.castMindFlay("target") then return end
-						end
-					end
-				end
+				-- -- actions.cop_insanity+=/mind_flay,if=t18_class_trinket&(target.debuff.mental_fatigue.remains<gcd|(cooldown.mind_blast.remains<2*gcd&target.debuff.mental_fatigue.remains<2*gcd)),interrupt_if=target.debuff.mental_fatigue.remains>gcd
+				-- if eq.t18_classTrinket then
+				-- 	if getDebuffRemain("target",spell.mental_fatigue,"player") > 0 then
+				-- 		if getDebuffRemain("target",spell.mental_fatigue,"player") < gcd or (cd.mind_blast < 2*gcd and getDebuffRemain("target",spell.mental_fatigue,"player") < 2*gcd) then
+				-- 			if self.castMindFlay("target") then return end
+				-- 		end
+				-- 	end
+				-- end
 				
-				-- actions.cop_insanity+=/mind_sear,if=active_enemies>=8,interrupt_if=(cooldown.mind_blast.remains<=0.1|cooldown.shadow_word_death.remains<=0.1),target_if=max:spell_targets.mind_sear_tick
+				-- -- actions.cop_insanity+=/mind_sear,if=active_enemies>=8,interrupt_if=(cooldown.mind_blast.remains<=0.1|cooldown.shadow_word_death.remains<=0.1),target_if=max:spell_targets.mind_sear_tick
 				
-				-- actions.cop_insanity+=/mind_flay,if=t18_class_trinket&target.debuff.mental_fatigue.stack<5
-				if eq.t18_classTrinket then
-					if getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
-						if self.castMindFlay("target") then return end
-					end
-				end
+				-- -- actions.cop_insanity+=/mind_flay,if=t18_class_trinket&target.debuff.mental_fatigue.stack<5
+				-- if eq.t18_classTrinket then
+				-- 	if getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
+				-- 		if self.castMindFlay("target") then return end
+				-- 	end
+				-- end
 				
-				-- actions.cop_insanity+=/mind_spike
-				if self.castMindSpike("target") then return end
+				-- -- actions.cop_insanity+=/mind_spike
+				-- if self.castMindSpike("target") then return end
 			end
 		end -- CoP rotation
 	end
