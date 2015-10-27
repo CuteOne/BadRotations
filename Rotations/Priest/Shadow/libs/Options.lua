@@ -98,16 +98,16 @@ if select(3, UnitClass("player")) == 5 then
 		createNewCheckbox(section,"SWD ignore Orbs","use SWD despite 5 Orbs")
 
 		-- Max Targets
-		createNewSpinner(section,"max dot targets",4,0,10,1,"|cffFFFFFFnumber of running dots of each",true)
+		createNewSpinnerWithout(section,"max dot targets",4,0,10,1,"|cffFFFFFFnumber of running dots of each")
 
 		-- Mind Sear / Searing Insanity Key
 		createNewDropdown(section,"Burst SI",bb.dropOptions.Toggle2,3,"Burst Searing Insanity")
 		
 		-- ttd SWP
-		createNewSpinner(section,"ttd swp",13.5,0,13.5,0.25,"|cffFFFFFFSWP TTD:\nstandard (simcraft): 13.5s\nCast SWP only on a unit that lives longer than chosen value.",true)
+		createNewSpinnerWithout(section,"ttd swp",13.5,0,13.5,0.25,"|cffFFFFFFSWP TTD:\nstandard (simcraft): 13.5s\nCast SWP only on a unit that lives longer than chosen value.")
 		
 		-- ttd VT
-		createNewSpinner(section,"ttd vt",11.25,0,11.25,0.25,"|cffFFFFFFSWP TTD:\nstandard (simcraft): 11.25s + castTime\nCast VT only on a unit that lives longer than chosen value.",true)
+		createNewSpinnerWithout(section,"ttd vt",11.25,0,11.25,0.25,"|cffFFFFFFSWP TTD:\nstandard (simcraft): 11.25s + castTime\nCast VT only on a unit that lives longer than chosen value.")
 
 		createNewCheckbox(section,"AutoFocus","Focus units on CoP rotation autmatically for offDot and offDP")
 
