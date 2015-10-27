@@ -1670,7 +1670,7 @@ function isBoss(unit)
 		if ((UnitClassification(unit) == "rare" and UnitHealthMax(unit)>(4*UnitHealthMax("player")))
 			or UnitClassification(unit) == "rareelite" 
 			or UnitClassification(unit) == "worldboss" 
-			or (UnitClassification(unit) == "elite" and UnitHealthMax(unit)>(4*UnitHealthMax("player")) and not raid)--UnitLevel(unit) >= UnitLevel("player")+3) 
+			or (UnitClassification(unit) == "elite" and UnitHealthMax(unit)>(4*UnitHealthMax("player")) and select(2,IsInInstance())~="raid")--UnitLevel(unit) >= UnitLevel("player")+3) 
 			or UnitLevel(unit) < 0)
 				and not UnitIsTrivial(unit)
 		then

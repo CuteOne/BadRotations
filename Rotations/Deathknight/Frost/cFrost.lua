@@ -415,7 +415,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
 
 
             --[[ Rotation Dropdown ]]--
-            createNewRotationDropdown(bb.profile_window.parent, {"CuteOn", "OLD"})
+            createNewRotationDropdown(bb.profile_window.parent, {"CuteOne", "OLD"})
             bb:checkProfileWindowStatus()
         end
 
