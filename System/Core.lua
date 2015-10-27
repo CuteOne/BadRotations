@@ -60,7 +60,7 @@ function bb:MinimapButton()
 	button:SetScript("OnMouseDown",function(self, button)
 		if button == "RightButton" then
 			if BadBoy_data.options[GetSpecialization()] then
-				if FireHack ~= true then
+				if not FireHack then
 						print("|cffFF1100BadBoy |cffFFFFFFCannot Start... |cffFF1100Firehack |cffFFFFFFis not loaded. Please attach Firehack.")
 				else
                     if bb:checkProfileWindowStatus() then
