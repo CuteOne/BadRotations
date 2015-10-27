@@ -275,12 +275,12 @@ function createNewCheckbox(parent, text, tooltip)
     return newBox
 end
 
-function createNewSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin)
+function createNewSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, hideCheckbox)
     local newSpinner = DiesalGUI:Create('Spinner')
     local parent = parent
 
     -- Create Checkbox for Spinner
-    createNewCheckbox(parent, text, tooltip)
+    local checkBox = createNewCheckbox(parent, text, tooltip)
 
     -- Calculate position
     local howManyBoxes = 0
@@ -292,6 +292,11 @@ function createNewSpinner(parent, text, number, min, max, step, tooltip, tooltip
     local y = howManyBoxes
     if y  ~= 1 then y = ((y-1) * -15) -5 end
     if y == 1 then y = -5 end
+
+    if hideCheckbox then
+        checkBox:Disable()
+        checkBox:ReleaseTextures()
+    end
 
     -- Set size
     newSpinner.settings.height = 12
@@ -336,14 +341,18 @@ function createNewSpinner(parent, text, number, min, max, step, tooltip, tooltip
     return newSpinner
 end
 
-function createNewDropdown(parent, text, itemlist, default, tooltip, tooltipDrop)
+function createNewSpinnerWithout(parent, text, number, min, max, step, tooltip, tooltipSpin)
+    return createNewSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, true)
+end
+
+function createNewDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, hideCheckbox)
     local newDropdown = DiesalGUI:Create('DropdownBB')
     local parent = parent
     local itemlist = itemlist
     local default = default or 1
 
-    -- Create Checkbox for Spinner
-    createNewCheckbox(parent,text,tooltip)
+    -- Create Checkbox for Dropdown
+    local checkBox = createNewCheckbox(parent,text,tooltip)
 
     -- Calculate position
     local howManyBoxes = 0
@@ -355,6 +364,11 @@ function createNewDropdown(parent, text, itemlist, default, tooltip, tooltipDrop
     local y = howManyBoxes
     if y  ~= 1 then y = ((y-1) * -15) -5 end
     if y == 1 then y = -5 end
+
+    if hideCheckbox then
+        checkBox:Disable()
+        checkBox:ReleaseTextures()
+    end
 
     --newDropdown.settings.text = text
     newDropdown.settings.height = 12
@@ -389,6 +403,10 @@ function createNewDropdown(parent, text, itemlist, default, tooltip, tooltipDrop
     parent:AddChild(newDropdown)
 
     return newDropdown
+end
+
+function createNewDropdownWithout(parent, text, itemlist, default, tooltip, tooltipDrop)
+    return createNewDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, true)
 end
 
 function createNewRotationDropdown(parent, itemlist, tooltip)
