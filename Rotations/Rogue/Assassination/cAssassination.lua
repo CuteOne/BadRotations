@@ -190,6 +190,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             -- Normal
             self.units.dyn15 = dynamicTarget(15, true) -- Death from Above
             self.units.dyn20 = dynamicTarget(20, true) -- Shadow Reflection
+            self.units.dyn20AoE = dynamicTarget(20, false)
 
             -- AoE
         end

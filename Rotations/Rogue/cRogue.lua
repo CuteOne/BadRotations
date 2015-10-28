@@ -628,7 +628,7 @@ function cRogue:new(spec)
 
     -- Shadow Reflection
 	function self.castShadowReflection()
-		if self.talent.shadowReflection and self.cd.shadowReflection==0 and self.level>=100 and ObjectExists(self.units.dyn5) and (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4 * UnitHealthMax("player"))) then
+		if self.talent.shadowReflection and self.cd.shadowReflection==0 and self.level>=100 and ObjectExists(self.units.dyn5) and (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4 * UnitHealthMax("player")) or useCDs()) then
 			return castSpell(self.units.dyn5,self.spell.shadowReflection,false,false) == true or false
 		end
 	end
