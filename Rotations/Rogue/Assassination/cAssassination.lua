@@ -260,17 +260,15 @@ if select(2, UnitClass("player")) == "ROGUE" then
             -- Agi Pot
             --createNewCheckbox(section,"Agi-Pot")
             -- Legendary Ring
-            createNewDropdown(section,  "Legendary Ring", bb.dropOptions.CD,  2, "Enable or Disable usage of Legendary Ring.")
+            createNewCheckbox(section,  "Legendary Ring")
             -- Preparation
-            createNewDropdown(section,  "Preparation", bb.dropOptions.CD,  2, "Enable or Disable usage of Preparation.")
+            createNewCheckbox(section,  "Preparation")
             -- Shadow Reflection
-            if getTalent(7,2) then
-                createNewDropdown(section,  "Shadow Reflection", bb.dropOptions.CD,  2, "Enable or Disable usage of Shadow Reflection.")
-            end
+            createNewCheckbox(section,  "Shadow Reflection")
             -- Vanish
-            createNewDropdown(section,  "Vanish - Offensive", bb.dropOptions.CD,  2, "Enable or Disable usage of Vanish.")
+            createNewCheckbox(section,  "Vanish - Offensive")
             -- Vendetta
-            createNewDropdown(section,  "Vendetta", bb.dropOptions.CD,  2, "Enable or Disable usage of Vendetta.")
+            createNewCheckbox(section,  "Vendetta")
             checkSectionState(section) 
 
             
@@ -280,9 +278,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 createNewCheckbox(section,"Cloak of Shadows","Enable or Disable the usage to auto dispel")
             end
             -- Combat Readiness
-            if self.talent.combatReadiness then
-                createNewSpinner(section, "Combat Readiness",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!",  "|cffFFFFFFHealth Percent to Cast At")
-            end
+            createNewSpinner(section, "Combat Readiness",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!",  "|cffFFFFFFHealth Percent to Cast At")
+
             -- Evasion
             if isKnown(self.spell.evasion) then
                 createNewSpinner(section, "Evasion",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!",  "|cffFFFFFFHealth Percent to Cast At")

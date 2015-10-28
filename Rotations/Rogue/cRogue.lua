@@ -536,7 +536,7 @@ function cRogue:new(spec)
 	-- Recuperate
 	function self.castRecuperate()
 		if self.power>30 and self.level>=16 and self.comboPoints>0 then
-			return castSpell("player",self.spell.recuperate) == true or false
+			return castSpell("player",self.spell.recuperate,true,false,false) == true or false
 		end
 	end
 
