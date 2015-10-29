@@ -291,6 +291,8 @@ function bb:PulseUI()
 	mainText:SetText(displayDistance)
 	-- enemies
 	makeEnemiesTable(maxDistance)
+	-- ttd
+	TTDRefresh()
 	-- allies
     if isChecked("HE Active") then
 	    nNova:Update()

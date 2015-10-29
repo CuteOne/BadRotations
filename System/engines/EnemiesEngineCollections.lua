@@ -50,7 +50,7 @@ end
 -- could declare more filters
 burnUnitCandidates = {
 	-- old content stuff
-	[71603] = { coef = 100, name = "Immersus Oozes" }, -- kill on sight
+	[71603] = { coef = 100, name = "Immerseus Oozes" }, -- kill on sight
 	-- Shadowmoon Burial Grounds
 	[75966] = { coef = 100, name = "Defiled Spirit" }, -- need to be cc and snared and is not allowed to reach boss.
 	[75899] = { coef = 100, name = "Possessed Soul" },

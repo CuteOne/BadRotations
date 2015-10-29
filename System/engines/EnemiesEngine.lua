@@ -33,8 +33,6 @@ function EnemiesEngine()
 			else
 				table.wipe(enemiesTable)
 			end
-			-- refresh enemyTable (the TTD one)
-			TTDRefresh()
 			-- use objectmanager to build up table
 			for i = 1, GetObjectCountBB() do
 				--for i = 1, ObjectCount() do
