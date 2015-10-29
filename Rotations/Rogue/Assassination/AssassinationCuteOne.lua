@@ -193,7 +193,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		-- Potion
 				-- draenic_agility,if=buff.bloodlust.react|target.time_to_die<40|debuff.vendetta.up
 				if useCDs() and canUse(109217) and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") then
-	            	if hasBloodLust() or ttd(dynTar5) or debuff.vendetta then
+	            	if hasBloodLust() or getTimeToDie(dynTar5) or debuff.vendetta then
 	                	useItem(109217)
 	                end
 	            end
@@ -328,7 +328,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				end
 		-- Pool/Death From Above
 				-- if=(cooldown.vendetta.remains>10|debuff.vendetta.up|target.time_to_die<=25)
-				if useCDs() and (cd.vendetta>10 or debuff.vendetta or ttd(dynTar5)<=25) then
+				if useCDs() and (cd.vendetta>10 or debuff.vendetta or getTimeToDie(dynTar5)<=25) then
 					if power<=50 then
 
 						return true
@@ -510,12 +510,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				end
 		-- Shadow Reflection
 				-- if=combo_points>4|target.time_to_die<=20
-				if useCDs() and isChecked("Shadow Reflection") and (combo>4 or ttd(dynTar20AoE)<=20) then
+				if useCDs() and isChecked("Shadow Reflection") and (combo>4 or getTimeToDie(dynTar20AoE)<=20) then
 					if self.castShadowReflection() then return end
 				end
 		-- Vendetta
 				-- if=buff.shadow_reflection.up|!talent.shadow_reflection.enabled|target.time_to_die<=20|(target.time_to_die<=30&glyph.vendetta.enabled)
-				if useCDs() and isChecked("Vendetta") and (buff.shadowReflection or not talent.shadowReflection or ttd(dynTar5)<=20 or (ttd(dynTar5)<=30 and glyph.vendetta)) then
+				if useCDs() and isChecked("Vendetta") and (buff.shadowReflection or not talent.shadowReflection or getTimeToDie(dynTar5)<=20 or (getTimeToDie(dynTar5)<=30 and glyph.vendetta)) then
 					if self.castVendetta() then return end
 				end
 		-- Rupture
