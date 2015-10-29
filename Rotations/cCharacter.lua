@@ -150,10 +150,7 @@ function cCharacter:new(class)
         -- TEMP
         self.getRotation()
 
-		-- Food/Invis Check
-		if canRun() ~= true then
-			return false
-		end
+		
 
 		-- Set Global Cooldown
 		self.gcd 				= self.getGlobalCooldown()
@@ -166,6 +163,11 @@ function cCharacter:new(class)
 
 		-- Combat state update
 		self.getInCombat()
+
+		-- Food/Invis Check
+		if canRun() ~= true then
+			return false
+		end
 
 		-- Start attacking (melee)
 		if not self.class=="Priest" and (self.stealth == false or self.stealth == nil) then
