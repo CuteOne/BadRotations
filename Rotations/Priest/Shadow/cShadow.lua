@@ -79,57 +79,6 @@ function cShadow:new()
 		mental_fatigue = 184915,
 	}
 
-	-- --   ____        _   _                 
-	-- --  / __ \      | | (_)                
-	-- -- | |  | |_ __ | |_ _  ___  _ __  ___ 
-	-- -- | |  | | '_ \| __| |/ _ \| '_ \/ __|
-	-- -- | |__| | |_) | |_| | (_) | | | \__ \
-	-- --  \____/| .__/ \__|_|\___/|_| |_|___/
-	-- --        | |                          
-	-- --        |_|                          
-	-- self.options = {
-	-- 	offensive = {
-	-- 		isBoss 	= 			{enabled=isChecked("isBoss")},
-	-- 		power_infusion = 	{enabled=isChecked("Power Infusion")},
-	-- 		berserking = 		{enabled=isChecked("Berserking")},
-	-- 		shadowfiend = 		{enabled=isChecked("Shadowfiend/Mindbender")},
-	-- 		trinket1 = 			{enabled=isChecked("Trinket 1")},
-	-- 		trinket2 = 			{enabled=isChecked("Trinket 2")},
-	-- 		scanToF = 			{enabled=isChecked("Scan for ToF")},
-	-- 	},
-	-- 	defensive = {
-	-- 		pws = 				{enabled=isChecked("PW: Shield"),value=getValue("PW: Shield"),},
-	-- 		healing_tonic = 	{enabled=isChecked("Healing Tonic"),value=getValue("Healing Tonic"),},
-	-- 		desperate_prayer = 	{enabled=isChecked("Desperate Prayer"),value=getValue("Desperate Prayer"),},
-	-- 		dispersion = 		{enabled=isChecked("Dispersion"),value=getValue("Dispersion"),},
-	-- 		fade_glyph = 		{enabled=isChecked("Fade Glyph"),value=getValue("Fade Glyph"),},
-	-- 		fade_aggro = 		{enabled=isChecked("Fade Aggro")},
-	-- 	},
-	-- 	bosshelper = {
-	-- 		guise = 			{enabled=isChecked("Auto Guise")},
-	-- 		mass_dispel = 		{enabled=isChecked("Auto Mass Dispel")},
-	-- 		dispel = 			{enabled=isChecked("Auto Dispel")},
-	-- 		silence = 			{enabled=isChecked("Auto Silence")},
-	-- 		target = 			{enabled=isChecked("Target Helper")},
-	-- 		gorefiendSWP = 		{enabled=isChecked("Gorefiend SWP")},
-	-- 	},
-	-- 	rotation = {
-	-- 		dot_weave = 		{enabled=isChecked("DoTWeave")},
-	-- 		swd_ignore = 		{enabled=isChecked("SWD ignore Orbs")},
-	-- 		min_health = 		{enabled=isChecked("Min Health"),value=getValue("Min Health")*1000000,},
-	-- 		max_targets = 		{enabled=isChecked("Max Targets"),value=getValue("Max Targets"),},
-	-- 		dp_on_orbs = 		{enabled=isChecked("DP on Orbs"),value=getValue("DP on Orbs"),},
-	-- 		ms_targets = 		{enabled=isChecked("MS Targets"),value=getValue("MS Targets"),},
-	-- 		msi_key = 			{enabled=isChecked("MSinsanity Key")},
-	-- 		msi_burst = 		{enabled=isChecked("Burst MSi")},
-	-- 	},
-	-- 	utilities = {
-	-- 		pause = 			{enabled=isChecked("Pause Toggle")},
-	-- 		pwf = 				{enabled=isChecked("PW: Fortitude")},
-	-- 		dps_test = 			{enabled=isChecked("DPS Testing"),value=getValue("DPS Testing"),},
-	-- 		dot_farm = 			{enabled=isChecked("Dot Farm")},
-	-- 	},
-	-- }
 
 	-- Merge all spell tables into self.spell
 	self.spell = {}
@@ -278,13 +227,15 @@ function cShadow:new()
 		self.options.defensive.Dispersion 				= isChecked("Dispersion")
 		self.options.defensive.Dispersionvalue 			= getValue("Dispersion")
 
-		-- self.options.bosshelper 						= {}
+		self.options.bosshelper 						= {}
 		-- self.options.bosshelper.Guise					= isChecked("")
 		-- self.options.bosshelper.Mass_Dispel				= isChecked("")
 		-- self.options.bosshelper.Dispel					= isChecked("")
 		-- self.options.bosshelper.Silence 				= isChecked("")
 		-- self.options.bosshelper.Target 					= isChecked("")
 		-- self.options.bosshelper.Gorefiend				= isChecked("")
+		self.options.bosshelper.Auto_Burn				= isChecked("AutoBurn")
+		self.options.bosshelper.test 					= isChecked("Test Stuff")
 		
 		self.options.rotation 							= {}
 		self.options.rotation.Burst_SI 					= isChecked("Burst SI")
@@ -293,7 +244,7 @@ function cShadow:new()
 		self.options.rotation.ttdSWP 					= getValue("ttd swp")
 		self.options.rotation.ttdVT 					= getValue("ttd vt")
 		self.options.rotation.Auto_Focus 				= isChecked("AutoFocus")
-		self.options.rotation.Auto_Burn					= isChecked("AutoBurn")
+		
 
 		self.options.utilities 							= {}
 		self.options.utilities.pause 					= isChecked("Pause Toggle")
@@ -345,6 +296,7 @@ function cShadow:new()
 		self.cd.mindbender 			= getSpellCD(self.spell.mindbender)
 		self.cd.shadowfiend 		= getSpellCD(self.spell.shadowfiend)
 		self.cd.cascade 			= getSpellCD(self.spell.cascade)
+		self.cd.halo 				= getSpellCD(self.spell.halo)
 	end
 
 	--   _____ _             _         
@@ -357,8 +309,9 @@ function cShadow:new()
 	--           |___/|_|              
 	function self.getGlyphs()
 		local hasGlyph = hasGlyph
-		self.glyph.fade 	= hasGlyph(55684)
-		self.glyph.pws 		= hasGlyph(263)
+		self.glyph.fade 				= hasGlyph(55684)
+		self.glyph.pws 					= hasGlyph(263)
+		self.glyph.reflectiveShield		= hasGlyph(462)
 	end
 
 	--  _______    _            _       
@@ -601,7 +554,7 @@ function cShadow:new()
 	end
 
 	function self.BurnRotation()
-		if self.options.rotation.Auto_Burn then
+		if self.options.bosshelper.Auto_Burn then
 			-- SWD
 			if self.castSWD("target") then return true end
 			-- DP
@@ -960,7 +913,19 @@ function cShadow:new()
 		end
 		-- mind_flay
 		function self.castMindFlay(thisTarget)
-			return castSpell(thisTarget,self.spell.mind_flay,false,true) == true or false
+			-- Mind Flay
+			if not self.talent.insanity then
+				--if UnitChannelInfo("player")=="Mind Flay" then
+					return castSpell(thisTarget,self.spell.mind_flay,false,true) == true or false
+				--end
+			end
+			-- Insanity
+			if self.talent.insanity then
+				if UnitChannelInfo("player")==nil then
+					return castSpell(thisTarget,self.spell.mind_flay,false,true) == true or false
+				end
+			end
+			return false
 		end
 		-- mind_sear
 		function self.castMindSear(thisTarget)

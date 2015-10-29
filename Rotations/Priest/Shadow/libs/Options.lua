@@ -1,127 +1,143 @@
 if select(3, UnitClass("player")) == 5 then
-    function ShadowConfig()
-        bb.profile_window = createNewProfileWindow("Shadow")
-        local section
+	function ShadowConfig()
+		bb.profile_window = createNewProfileWindow("Shadow")
+		local section
 
-        --   _____            _     _
-        --  / ____|          | |   | |
-        -- | |     ___   ___ | | __| | _____      ___ __  ___
-        -- | |    / _ \ / _ \| |/ _` |/ _ \ \ /\ / / '_ \/ __|
-        -- | |___| (_) | (_) | | (_| | (_) \ V  V /| | | \__ \
-        --  \_____\___/ \___/|_|\__,_|\___/ \_/\_/ |_| |_|___/
-        section = createNewSection(bb.profile_window, "|cffBA55D3Offensive")
+		--   _____            _     _
+		--  / ____|          | |   | |
+		-- | |     ___   ___ | | __| | _____      ___ __  ___
+		-- | |    / _ \ / _ \| |/ _` |/ _ \ \ /\ / / '_ \/ __|
+		-- | |___| (_) | (_) | | (_| | (_) \ V  V /| | | \__ \
+		--  \_____\___/ \___/|_|\__,_|\___/ \_/\_/ |_| |_|___/
+		section = createNewSection(bb.profile_window,"|cffBA55D3Offensive")
 
-        -- bosscheck
-        createNewCheckbox(section,"isBoss","use CDs only on Boss Units")
+		-- bosscheck
+		createNewCheckbox(section,"isBoss","use CDs only on Boss Units")
 
-        -- Power Infusion
-        createNewCheckbox(section,"PI","Power Infusion")
+		-- Power Infusion
+		createNewCheckbox(section,"PI","Power Infusion")
 
-        -- Shadowfien / Mindbender
-        createNewCheckbox(section,"MB/SF","Mindbender / Shadowfiend")
-        checkSectionState(section)
+		-- Shadowfiend / Mindbender
+		createNewCheckbox(section,"MB/SF","Mindbender / Shadowfiend")
 
-
-        --  _____        __               _
-        -- |  __ \      / _|             (_)
-        -- | |  | | ___| |_ ___ _ __  ___ ___   _____
-        -- | |  | |/ _ \  _/ _ \ '_ \/ __| \ \ / / _ \
-        -- | |__| |  __/ ||  __/ | | \__ \ |\ V /  __/
-        -- |_____/ \___|_| \___|_| |_|___/_| \_/ \___|
-        section = createNewSection(bb.profile_window, "|cffBA55D3Defensive")
-
-        -- Shield
-        createNewSpinner(section,  "PW:S", 75, 0, 100, 1, "|cffFFFFFFhealth percent to cast at")
-
-        -- Desperate Prayer
-        createNewSpinner(section,  "Desperate Prayer", 30, 0, 100, 1, "|cffFFFFFFhealth percent to cast at")
-
-        -- Fade with glyph
-        createNewSpinner(section,  "Fade",  70,  0,  100 ,  2,  "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFade")
-
-        -- Healing Tonic
-        createNewSpinner(section,  "Healing Tonic", 25, 0, 100, 1, "|cffFFFFFFhealth percent to cast at")
-
-        -- Dispersion
-        createNewSpinner(section,  "Dispersion", 20, 0, 100, 1, "|cffFFFFFFhealth percent to cast at")
-        checkSectionState(section)
+		checkSectionState(section)
 
 
-        --  ____                  _    _      _
-        -- |  _ \                | |  | |    | |
-        -- | |_) | ___  ___ ___  | |__| | ___| |_ __   ___ _ __
-        -- |  _ < / _ \/ __/ __| |  __  |/ _ \ | '_ \ / _ \ '__|
-        -- | |_) | (_) \__ \__ \ | |  | |  __/ | |_) |  __/ |
-        -- |____/ \___/|___/___/ |_|  |_|\___|_| .__/ \___|_|
-        --                                     | |
-        --                                     |_|
-        section = createNewSection(bb.profile_window, "|cffBA55D3Bosshelper")
+		--  _____        __               _
+		-- |  __ \      / _|             (_)
+		-- | |  | | ___| |_ ___ _ __  ___ ___   _____
+		-- | |  | |/ _ \  _/ _ \ '_ \/ __| \ \ / / _ \
+		-- | |__| |  __/ ||  __/ | | \__ \ |\ V /  __/
+		-- |_____/ \___|_| \___|_| |_|___/_| \_/ \___|
+		section = createNewSection(bb.profile_window,"|cffBA55D3Defensive")
 
-        -- Auto Guise
-        createNewCheckbox(section,"Auto Guise", "Auto Spectral Guise on: \nBRF: Iron Maidens")
+		-- Power Word: Shield
+		createNewSpinner(section,"PW:S",75,0,100,1,"|cffFFFFFFhealth percent to cast at")
 
-        -- Auto Mass Dispel
-        createNewCheckbox(section,"Auto Mass Dispel", "Auto Mass Dispel on: \nBRF: Operator Thogar")
+		-- Desperate Prayer
+		createNewSpinner(section,"Desperate Prayer",30,0,100,1,"|cffFFFFFFhealth percent to cast at")
 
-        -- Auto Dispel
-        createNewCheckbox(section,"Auto Dispel", "Auto Dispel on: \nBRF: Blast Furnace")
+		-- Fade with glyph
+		createNewSpinner(section,"Fade",70,0,100,2,"|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFFade")
 
-        -- Auto Silence
-        createNewCheckbox(section,"Auto Silence", "Auto Silence on: \nBRF: Blast Furnace\nBRF: Operator Thogar")
+		-- Healing Tonic
+		createNewSpinner(section,"Healing Tonic",25,0,100,1,"|cffFFFFFFhealth percent to cast at")
 
-        -- Target Helper
-        createNewCheckbox(section,"Target Helper", "Assists to target the correct unit")
+		-- Dispersion
+		createNewSpinner(section,"Dispersion",20,0,100,1,"|cffFFFFFFhealth percent to cast at")
 
-        -- Gorefiend SWP
-        createNewCheckbox(section,"Gorefiend SWP", "SWP every Corrupted Soul in Mythic")
+		checkSectionState(section)
+
+
+		--  ____                  _    _      _
+		-- |  _ \                | |  | |    | |
+		-- | |_) | ___  ___ ___  | |__| | ___| |_ __   ___ _ __
+		-- |  _ < / _ \/ __/ __| |  __  |/ _ \ | '_ \ / _ \ '__|
+		-- | |_) | (_) \__ \__ \ | |  | |  __/ | |_) |  __/ |
+		-- |____/ \___/|___/___/ |_|  |_|\___|_| .__/ \___|_|
+		--                                     | |
+		--                                     |_|
+		section = createNewSection(bb.profile_window,"|cffBA55D3Bosshelper")
+
+		-- -- Gorefiend SWP
+		-- createNewCheckbox(section,"Gorefiend SWP","SWP every Corrupted Soul in Mythic")
+
+		-- -- Auto Guise
+		-- createNewCheckbox(section,"Auto Guise","Auto Spectral Guise on: \nBRF: Iron Maidens")
+
+		-- -- Auto Mass Dispel
+		-- createNewCheckbox(section,"Auto Mass Dispel","Auto Mass Dispel on: \nBRF: Operator Thogar")
+
+		-- -- Auto Dispel
+		-- createNewCheckbox(section,"Auto Dispel", "Auto Dispel on: \nBRF: Blast Furnace")
+
+		-- -- Auto Silence
+		-- createNewCheckbox(section,"Auto Silence", "Auto Silence on: \nBRF: Blast Furnace\nBRF: Operator Thogar")
+
+		-- -- Target Helper
+		-- createNewCheckbox(section,"Target Helper", "Assists to target the correct unit")
+
+		-- Dot Test
+		createNewCheckbox(section,"Test Stuff", "Do not use this!\n - Archimonde: dot all dogs")
+
+		-- Auto Burn
 		createNewCheckbox(section,"AutoBurn", "Auto target burn defined units like doomfire on archimonde")
-        checkSectionState(section)
+
+		checkSectionState(section)
 
 
-        --  _____       _        _   _
-        -- |  __ \     | |      | | (_)
-        -- | |__) |___ | |_ __ _| |_ _  ___  _ __
-        -- |  _  // _ \| __/ _` | __| |/ _ \| '_ \
-        -- | | \ \ (_) | || (_| | |_| | (_) | | | |
-        -- |_|  \_\___/ \__\__,_|\__|_|\___/|_| |_|
-        section = createNewSection(bb.profile_window, "|cffBA55D3Rotation")
+		--  _____       _        _   _
+		-- |  __ \     | |      | | (_)
+		-- | |__) |___ | |_ __ _| |_ _  ___  _ __
+		-- |  _  // _ \| __/ _` | __| |/ _ \| '_ \
+		-- | | \ \ (_) | || (_| | |_| | (_) | | | |
+		-- |_|  \_\___/ \__\__,_|\__|_|\___/|_| |_|
+		section = createNewSection(bb.profile_window,"|cffBA55D3Rotation")
 
-        -- Ignore orbs for SWD
-        createNewCheckbox(section,"SWD ignore Orbs","use SWD despite 5 Orbs")
+		-- Ignore orbs for SWD
+		createNewCheckbox(section,"SWD ignore Orbs","use SWD despite 5 Orbs")
 
-        -- Max Targets
-        createNewSpinner(section, "max dot targets",  4,  0,  10,  1,  "|cffFFFFFFnumber of running dots of each")
+		-- Max Targets
+		createNewSpinnerWithout(section,"max dot targets",4,0,10,1,"|cffFFFFFFnumber of running dots of each")
 
-        -- Mind Sear / Searing Insanity Key
-        createNewDropdown(section, "Burst SI", bb.dropOptions.Toggle2,  3, "Burst Searing Insanity")
-        -- ttd SWP
-		createNewSpinner(section, "ttd swp", 13.5, 0, 13.5, 0.25, "|cffFFFFFFSWP TTD:\nstandard (simcraft): 13.5s\nCast SWP only on a unit that lives longer than chosen value.")
-        -- ttd VT
-		createNewSpinner(section, "ttd vt", 11.25, 0, 11.25, 0.25, "|cffFFFFFFSWP TTD:\nstandard (simcraft): 11.25s + castTime\nCast VT only on a unit that lives longer than chosen value.")
-        checkSectionState(section)
+		-- Mind Sear / Searing Insanity Key
+		createNewDropdown(section,"Burst SI",bb.dropOptions.Toggle2,3,"Burst Searing Insanity")
+		
+		-- ttd SWP
+		createNewSpinnerWithout(section,"ttd swp",13.5,0,13.5,0.25,"|cffFFFFFFSWP TTD:\nstandard (simcraft): 13.5s\nCast SWP only on a unit that lives longer than chosen value.")
+		
+		-- ttd VT
+		createNewSpinnerWithout(section,"ttd vt",11.25,0,11.25,0.25,"|cffFFFFFFSWP TTD:\nstandard (simcraft): 11.25s + castTime\nCast VT only on a unit that lives longer than chosen value.")
 
+		createNewCheckbox(section,"AutoFocus","Focus units on CoP rotation autmatically for offDot and offDP")
 
-        --  _    _ _   _ _ _ _   _
-        -- | |  | | | (_) (_) | (_)
-        -- | |  | | |_ _| |_| |_ _  ___  ___
-        -- | |  | | __| | | | __| |/ _ \/ __|
-        -- | |__| | |_| | | | |_| |  __/\__ \
-        --  \____/ \__|_|_|_|\__|_|\___||___/
-        section = createNewSection(bb.profile_window, "|cffBA55D3Utilities")
-
-        -- Rotation
-        --createNewDropdown(section, "Rotation", {"Choose rotation to use.","|cffBA55D3ravens","|cffBA55D3SimC"}, 1)
-
-        -- Pause Toggle
-        createNewDropdown(section, "Pause Toggle", bb.dropOptions.Toggle2,  10)
-
-        -- -- Dummy DPS Test
-        -- createNewSpinner(section, "DPS Testing",  4,  1,  15,  1,  "Set to desired time for test in minutes.\nMin: 1 / Max: 15 / Interval: 1")
-        checkSectionState(section)
+		checkSectionState(section)
 
 
-        --[[ Rotation Dropdown ]]--
-        createNewRotationDropdown(bb.profile_window.parent, {"ravens v3beta by ragnar"})
-        bb:checkProfileWindowStatus()
-    end
+
+
+		--  _    _ _   _ _ _ _   _
+		-- | |  | | | (_) (_) | (_)
+		-- | |  | | |_ _| |_| |_ _  ___  ___
+		-- | |  | | __| | | | __| |/ _ \/ __|
+		-- | |__| | |_| | | | |_| |  __/\__ \
+		--  \____/ \__|_|_|_|\__|_|\___||___/
+		section = createNewSection(bb.profile_window, "|cffBA55D3Utilities")
+
+		-- Rotation
+		--createNewDropdown(section, "Rotation", {"Choose rotation to use.","|cffBA55D3ravens","|cffBA55D3SimC"}, 1)
+
+		-- Pause Toggle
+		createNewDropdown(section,"Pause Toggle",bb.dropOptions.Toggle2,10)
+
+		-- -- Dummy DPS Test
+		-- createNewSpinner(section,DPS Testing",4,1,15,1,"Set to desired time for test in minutes.\nMin: 1 / Max: 15 / Interval: 1")
+
+		checkSectionState(section)
+
+
+		--[[ Rotation Dropdown ]]--
+		createNewRotationDropdown(bb.profile_window.parent,{"ravens v3beta by ragnar"})
+		bb:checkProfileWindowStatus()
+	end
 end

@@ -536,7 +536,7 @@ function cRogue:new(spec)
 	-- Recuperate
 	function self.castRecuperate()
 		if self.power>30 and self.level>=16 and self.comboPoints>0 then
-			return castSpell("player",self.spell.recuperate) == true or false
+			return castSpell("player",self.spell.recuperate,true,false,false) == true or false
 		end
 	end
 
@@ -628,7 +628,7 @@ function cRogue:new(spec)
 
     -- Shadow Reflection
 	function self.castShadowReflection()
-		if self.talent.shadowReflection and self.cd.shadowReflection==0 and self.level>=100 and ObjectExists(self.units.dyn5) and (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4 * UnitHealthMax("player"))) then
+		if self.talent.shadowReflection and self.cd.shadowReflection==0 and self.level>=100 and ObjectExists(self.units.dyn5) and (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4 * UnitHealthMax("player")) or useCDs()) then
 			return castSpell(self.units.dyn5,self.spell.shadowReflection,false,false) == true or false
 		end
 	end

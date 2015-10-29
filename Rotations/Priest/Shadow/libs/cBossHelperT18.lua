@@ -26,17 +26,17 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			-- 		end
 			-- 	end
 
-			-- -- Kormrok
-			-- 	if currentBoss=="Kormrok" then
-			-- 		-- auto target
+			-- Kormrok
+				if currentBoss=="Kormrok" then
+					-- auto target
 					
-			-- 		-- cascade
-			-- 		if getSpellCD(self.spell.cascade) <= 0 then
-			-- 			if isUnitThere("Grasping Hand",40) then
-			-- 				if self.castCascade() then return end
-			-- 			end
-			-- 		end
-			-- 	end
+					-- cascade
+					if getSpellCD(self.spell.cascade) <= 0 then
+						if isUnitThere("Grasping Hand",40) then
+							if self.castCascade() then return end
+						end
+					end
+				end
 
 
 			-- -- Hellfire High Council
@@ -184,17 +184,17 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					end
 				end
 
-			-- -- Mannoroth
-			-- if currentBoss=="Fel Iron Summoner" then
-			-- 	-- auto target
+			-- Mannoroth
+			if currentBoss=="Fel Iron Summoner" then
+				-- auto target
 				
-			-- 	-- cascade
-			-- 	if getSpellCD(self.spell.cascade) <= 0 then
-			-- 		if isUnitThere("Fel Imp",40) then
-			-- 			if self.castCascade() then return end
-			-- 		end
-			-- 	end
-			-- end
+				-- cascade
+				if getSpellCD(self.spell.cascade) <= 0 then
+					if isUnitThere("Fel Imp",40) then
+						if self.castCascade() then return end
+					end
+				end
+			end
 
 			-- Archimonde
 			if currentBoss=="Archimonde" then

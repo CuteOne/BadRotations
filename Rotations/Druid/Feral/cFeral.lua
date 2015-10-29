@@ -552,15 +552,15 @@ if select(2, UnitClass("player")) == "DRUID" then
             section = createNewSection(bb.profile_window, "Defensive")
             -- Rebirth
                 createNewCheckbox(section,"Rebirth")
-                createNewDropdown(section, "Rebirth - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
+                createNewDropdownWithout(section, "Rebirth - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
 
             -- Revive
                 createNewCheckbox(section,"Revive")
-                createNewDropdown(section, "Revive - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
+                createNewDropdownWithout(section, "Revive - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
 
             -- Remove Corruption
                 createNewCheckbox(section,"Remove Corruption")
-                createNewDropdown(section, "Remove Corruption - Target", {"|cff00FF00Player","|cffFFFF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
+                createNewDropdownWithout(section, "Remove Corruption - Target", {"|cff00FF00Player","|cffFFFF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
 
             -- Rejuvenation
                 createNewSpinner(section, "Rejuvenation",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")

@@ -8,6 +8,7 @@ local SharedMedia = LibStub("LibSharedMedia-3.0")
 --if BadBoy_data.options[GetSpecialization()][bb.selectedProfile] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile] = {} end
 
 -- TODO: save window position and restore it
+
 --[[ FROM PE ]]--
 
 DiesalGUI:RegisterObjectConstructor("FontString", function()
@@ -160,6 +161,7 @@ function createNewWindow(name, width, height)
     window:SetTitle('BadBoy', name)
     window.settings.width = width or 250
     window.settings.height = height or 250
+    window.frame:SetClampedToScreen(true)
     window:ApplySettings()
 
     local scrollFrame = DiesalGUI:Create('ScrollFrame')
@@ -176,6 +178,7 @@ function createNewProfileWindow(name, width, height)
     window:SetTitle('BadBoy', name)
     window.settings.width = width or 300
     window.settings.height = height or 250
+    window.frame:SetClampedToScreen(true)
     window:ApplySettings()
 
     local scrollFrame = DiesalGUI:Create('ScrollFrame')
@@ -192,6 +195,7 @@ function createNewMessageWindow(name, width, height)
     window:SetTitle('BadBoy', name)
     window.settings.width = width or 300
     window.settings.height = height or 250
+    window.frame:SetClampedToScreen(true)
     window:ApplySettings()
 
     local newMessageFrame = DiesalGUI:Create('ScrollingMessageFrameBB')
@@ -275,12 +279,12 @@ function createNewCheckbox(parent, text, tooltip)
     return newBox
 end
 
-function createNewSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin)
+function createNewSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, hideCheckbox)
     local newSpinner = DiesalGUI:Create('Spinner')
     local parent = parent
 
     -- Create Checkbox for Spinner
-    createNewCheckbox(parent, text, tooltip)
+    local checkBox = createNewCheckbox(parent, text, tooltip)
 
     -- Calculate position
     local howManyBoxes = 0
@@ -292,6 +296,11 @@ function createNewSpinner(parent, text, number, min, max, step, tooltip, tooltip
     local y = howManyBoxes
     if y  ~= 1 then y = ((y-1) * -15) -5 end
     if y == 1 then y = -5 end
+
+    if hideCheckbox then
+        checkBox:Disable()
+        checkBox:ReleaseTextures()
+    end
 
     -- Set size
     newSpinner.settings.height = 12
@@ -336,14 +345,18 @@ function createNewSpinner(parent, text, number, min, max, step, tooltip, tooltip
     return newSpinner
 end
 
-function createNewDropdown(parent, text, itemlist, default, tooltip, tooltipDrop)
+function createNewSpinnerWithout(parent, text, number, min, max, step, tooltip, tooltipSpin)
+    return createNewSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, true)
+end
+
+function createNewDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, hideCheckbox)
     local newDropdown = DiesalGUI:Create('DropdownBB')
     local parent = parent
     local itemlist = itemlist
     local default = default or 1
 
-    -- Create Checkbox for Spinner
-    createNewCheckbox(parent,text,tooltip)
+    -- Create Checkbox for Dropdown
+    local checkBox = createNewCheckbox(parent,text,tooltip)
 
     -- Calculate position
     local howManyBoxes = 0
@@ -355,6 +368,11 @@ function createNewDropdown(parent, text, itemlist, default, tooltip, tooltipDrop
     local y = howManyBoxes
     if y  ~= 1 then y = ((y-1) * -15) -5 end
     if y == 1 then y = -5 end
+
+    if hideCheckbox then
+        checkBox:Disable()
+        checkBox:ReleaseTextures()
+    end
 
     --newDropdown.settings.text = text
     newDropdown.settings.height = 12
@@ -389,6 +407,10 @@ function createNewDropdown(parent, text, itemlist, default, tooltip, tooltipDrop
     parent:AddChild(newDropdown)
 
     return newDropdown
+end
+
+function createNewDropdownWithout(parent, text, itemlist, default, tooltip, tooltipDrop)
+    return createNewDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, true)
 end
 
 function createNewRotationDropdown(parent, itemlist, tooltip)
@@ -473,107 +495,6 @@ function createNewSection(parent, sectionName, tooltip)
 
     return newSection
 end
-
--- --[[ FROM PE ]]--
-
--- DiesalGUI:RegisterObjectConstructor("FontString", function()
---     local self 		= DiesalGUI:CreateObjectBase(Type)
---     local frame		= CreateFrame('Frame',nil,UIParent)
---     local fontString = frame:CreateFontString(nil, "OVERLAY", 'DiesalFontNormal')
---     self.frame		= frame
---     self.fontString = fontString
---     self.SetParent = function(self, parent)
---         self.frame:SetParent(parent)
---     end
---     self.OnRelease = function(self)
---         self.fontString:SetText('')
---     end
---     self.OnAcquire = function(self)
---         self:Show()
---     end
---     self.type = "FontString"
---     return self
--- end, 1)
-
--- DiesalGUI:RegisterObjectConstructor("Rule", function()
---     local self 		= DiesalGUI:CreateObjectBase(Type)
---     local frame		= CreateFrame('Frame',nil,UIParent)
---     self.frame		= frame
---     frame:SetHeight(1)
---     frame.texture = frame:CreateTexture()
---     frame.texture:SetTexture(0,0,0,0.5)
---     frame.texture:SetAllPoints(frame)
---     self.SetParent = function(self, parent)
---         self.frame:SetParent(parent)
---     end
---     self.OnRelease = function(self)
---         self:Hide()
---     end
---     self.OnAcquire = function(self)
---         self:Show()
---     end
---     self.type = "Rule"
---     return self
--- end, 1)
-
--- local statusBarStylesheet = {
---     ['frame-texture'] = {
---         type		= 'texture',
---         layer		= 'BORDER',
---         gradient	= 'VERTICAL',
---         color		= '000000',
---         alpha 		= 0.7,
---         alphaEnd	= 0.1,
---         offset		= 0,
---     }
--- }
-
--- DiesalGUI:RegisterObjectConstructor("StatusBar", function()
---     local self  = DiesalGUI:CreateObjectBase(Type)
---     local frame = CreateFrame('StatusBar',nil,UIParent)
---     self.frame  = frame
-
---     self:AddStyleSheet(statusBarStylesheet)
-
---     frame.Left = frame:CreateFontString()
---     frame.Left:SetFont(SharedMedia:Fetch('font', 'Calibri Bold'), 10)
---     frame.Left:SetShadowColor(0,0,0, 0)
---     frame.Left:SetShadowOffset(-1,-1)
---     frame.Left:SetPoint("LEFT", frame)
-
---     frame.Right = frame:CreateFontString()
---     frame.Right:SetFont(SharedMedia:Fetch('font', 'Calibri Bold'), 10)
---     frame.Right:SetShadowColor(0,0,0, 0)
---     frame.Right:SetShadowOffset(-1,-1)
-
---     frame:SetStatusBarTexture(1,1,1,0.8)
---     frame:GetStatusBarTexture():SetHorizTile(false)
---     frame:SetMinMaxValues(0, 100)
---     frame:SetHeight(15)
-
---     self.SetValue = function(self, value)
---         self.frame:SetValue(value)
---     end
---     self.SetParent = function(self, parent)
---         self.parent = parent
---         self.frame:SetParent(parent)
---         self.frame:SetPoint("LEFT", parent, "LEFT")
---         self.frame:SetPoint("RIGHT", parent, "RIGHT")
---         self.frame.Right:SetPoint("RIGHT", self.frame, "RIGHT", -2, 2)
---         self.frame.Left:SetPoint("LEFT", self.frame, "LEFT", 2, 2)
---     end
---     self.OnRelease = function(self)
---         self:Hide()
---     end
---     self.OnAcquire = function(self)
---         self:Show()
---     end
---     self.type = "Rule"
---     return self
--- end, 1)
-
-
--- --[[ ]]--
 
 function createNewText(parent, text)
     local newText = DiesalGUI:Create("FontString")
