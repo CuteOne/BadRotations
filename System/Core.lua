@@ -140,16 +140,53 @@ frame:RegisterEvent("ADDON_LOADED")
 frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterUnitEvent("ACTIVE_TALENT_GROUP_CHANGED")
 frame:RegisterUnitEvent("CHARACTER_POINTS_CHANGED")
-function reloadOnSpecChange()
+function bb:reloadOnSpecChange()
     if BadBoy_data["Power"] == 1 then
         ReloadUI()
     end
 end
 -- Sets 'talentHasChanged' to true
-function characterTalentChanged()
+function bb:characterTalentChanged()
     if bb.talentHasChanged == nil then
         bb.talentHasChanged = true
     end
+end
+function bb:saveWindowPosition()
+    -- Profile Window
+    local point, relativeTo, relativePoint, xOfs, yOfs = bb.profile_window.parent:GetPoint(1)
+    BadBoy_data.options[GetSpecialization()]["configFrame".."_point"] = point
+    BadBoy_data.options[GetSpecialization()]["configFrame".."_relativeTo"] = relativeTo:GetName()
+    BadBoy_data.options[GetSpecialization()]["configFrame".."_relativePoint"] = relativePoint
+    BadBoy_data.options[GetSpecialization()]["configFrame".."_xOfs"] = xOfs
+    BadBoy_data.options[GetSpecialization()]["configFrame".."_yOfs"] = yOfs
+
+    point, relativeTo, relativePoint, xOfs, yOfs = bb.profile_window.parent:GetPoint(2)
+    BadBoy_data.options[GetSpecialization()]["configFrame".."_point2"] = point
+    BadBoy_data.options[GetSpecialization()]["configFrame".."_relativeTo2"] = relativeTo:GetName()
+    BadBoy_data.options[GetSpecialization()]["configFrame".."_relativePoint2"] = relativePoint
+    BadBoy_data.options[GetSpecialization()]["configFrame".."_xOfs2"] = xOfs
+    BadBoy_data.options[GetSpecialization()]["configFrame".."_yOfs2"] = yOfs
+
+    BadBoy_data.options[GetSpecialization()]["configFrame".."_width"]  = bb.profile_window.parent:GetWidth()
+    BadBoy_data.options[GetSpecialization()]["configFrame".."_height"] = bb.profile_window.parent:GetHeight()
+
+    -- Config Window
+    point, relativeTo, relativePoint, xOfs, yOfs = bb.config_window.parent:GetPoint(1)
+    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_point"] = point
+    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativeTo"] = relativeTo:GetName()
+    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativePoint"] = relativePoint
+    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_xOfs"] = xOfs
+    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_yOfs"] = yOfs
+
+    point, relativeTo, relativePoint, xOfs, yOfs = bb.config_window.parent:GetPoint(2)
+    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_point2"] = point
+    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativeTo2"] = relativeTo:GetName()
+    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativePoint2"] = relativePoint
+    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_xOfs2"] = xOfs
+    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_yOfs2"] = yOfs
+
+    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_width"]  = bb.config_window.parent:GetWidth()
+    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_height"] = bb.config_window.parent:GetHeight()
 end
 
 function frame:OnEvent(event, arg1)
@@ -157,10 +194,13 @@ function frame:OnEvent(event, arg1)
 		bb:Run()
 	end
 	if event == "ACTIVE_TALENT_GROUP_CHANGED" then
-        reloadOnSpecChange() -- Reloads UI when spec changed, prevents some bugs
+        bb:reloadOnSpecChange() -- Reloads UI when spec changed, prevents some bugs
     end
     if event == "CHARACTER_POINTS_CHANGED" and arg1 == -1 then
-        characterTalentChanged() -- Sets a global to indicate a talent was changed
+        bb:characterTalentChanged() -- Sets a global to indicate a talent was changed
+    end
+    if event == "PLAYER_LOGOUT" then
+        bb:saveWindowPosition()
     end
 end
 frame:SetScript("OnEvent", frame.OnEvent)

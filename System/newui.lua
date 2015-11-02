@@ -170,6 +170,22 @@ function createNewWindow(name, width, height)
     scrollFrame:SetAllPoints(window.content)
     scrollFrame.parent = window
 
+    -- Load saved position
+    if BadBoy_data.options[GetSpecialization()]["optionsFrame".."_point"] ~= nil then
+        local point, relativeTo = BadBoy_data.options[GetSpecialization()]["optionsFrame".."_point"], BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativeTo"]
+        local relativePoint = BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativePoint"]
+        local xOfs, yOfs = BadBoy_data.options[GetSpecialization()]["optionsFrame".."_xOfs"], BadBoy_data.options[GetSpecialization()]["optionsFrame".."_yOfs"]
+        scrollFrame.parent:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
+
+        point, relativeTo = BadBoy_data.options[GetSpecialization()]["optionsFrame".."_point2"], BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativeTo2"]
+        relativePoint = BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativePoint2"]
+        xOfs, yOfs = BadBoy_data.options[GetSpecialization()]["optionsFrame".."_xOfs2"], BadBoy_data.options[GetSpecialization()]["optionsFrame".."_yOfs2"]
+        scrollFrame.parent:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
+
+        scrollFrame.parent:SetWidth(BadBoy_data.options[GetSpecialization()]["optionsFrame".."_width"])
+        scrollFrame.parent:SetHeight(BadBoy_data.options[GetSpecialization()]["optionsFrame".."_height"])
+    end
+
     return scrollFrame
 end
 
@@ -186,6 +202,22 @@ function createNewProfileWindow(name, width, height)
     scrollFrame:SetParent(window.content)
     scrollFrame:SetAllPoints(window.content)
     scrollFrame.parent = window
+
+    -- Load saved position
+    if BadBoy_data.options[GetSpecialization()]["configFrame".."_point"] ~= nil then
+        local point, relativeTo = BadBoy_data.options[GetSpecialization()]["configFrame".."_point"], BadBoy_data.options[GetSpecialization()]["configFrame".."_relativeTo"]
+        local relativePoint = BadBoy_data.options[GetSpecialization()]["configFrame".."_relativePoint"]
+        local xOfs, yOfs = BadBoy_data.options[GetSpecialization()]["configFrame".."_xOfs"], BadBoy_data.options[GetSpecialization()]["configFrame".."_yOfs"]
+        scrollFrame.parent:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
+
+        point, relativeTo = BadBoy_data.options[GetSpecialization()]["configFrame".."_point2"], BadBoy_data.options[GetSpecialization()]["configFrame".."_relativeTo2"]
+        relativePoint = BadBoy_data.options[GetSpecialization()]["configFrame".."_relativePoint2"]
+        xOfs, yOfs = BadBoy_data.options[GetSpecialization()]["configFrame".."_xOfs2"], BadBoy_data.options[GetSpecialization()]["configFrame".."_yOfs2"]
+        scrollFrame.parent:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
+
+        scrollFrame.parent:SetWidth(BadBoy_data.options[GetSpecialization()]["configFrame".."_width"])
+        scrollFrame.parent:SetHeight(BadBoy_data.options[GetSpecialization()]["configFrame".."_height"])
+    end
 
     return scrollFrame
 end
@@ -647,6 +679,7 @@ end
 function bb:createConfigWindowNew()
     bb:createHelpWindow()
     bb.config_window = createNewWindow("Configuration", 275, 400)
+
 
     local section
     -- General
