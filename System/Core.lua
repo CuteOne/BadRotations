@@ -228,6 +228,10 @@ function BadBoyUpdate(self)
 	-- pulse enemiesEngine
 	bb:PulseUI()
 
+    -- get DBM Timer/Bars
+    -- global -> bb.DBM.Timer
+    bb.DBM:getBars()
+
     -- Show Debug Frame TEMP
     if isChecked("Debug Frame") then
         _G["debugFrame"]:Show()

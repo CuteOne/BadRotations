@@ -456,3 +456,107 @@ function hasBuff(spellID)
     end
     return false
 end
+
+--[[ DBM Timer ]]--
+
+bb.DBM = {}
+
+--- Return: All current DBM Timer
+function bb.DBM:getBars()
+    if DBM then
+        if not bb.DBM.Timer then
+            bb.DBM.Timer = {}
+        else
+            wipe(bb.DBM.Timer)
+        end
+
+        for bar in pairs(DBM.Bars.bars) do
+            local number = string.match(bar.id ,"%d+")
+            table.insert(bb.DBM.Timer, {id = bar.id,timer = bar.timer,spellid = number})
+        end
+    end
+end
+
+--- Usage:
+-- 1 - bb.DBM:getPulltimer() -> return (number) pulltimer count
+-- 2 - bb.DBM:getPulltimer(5) -> return (boolean) if pulltimer is below given time TRUE else FALSE
+-- specificID can be set if Pulltimer is NOT "Pull in"
+function bb.DBM:getPulltimer(time, specificID)
+    if bb.DBM.Timer then
+        specificID = specificID or "Pull in"
+        local hasPulltimer = false
+        local isBelowTime = false
+        local pullTimer = 0
+
+        for i = 1, #bb.DBM.Timer do
+            -- Check if a Pulltimer is present
+            if bb.DBM.Timer[i].id == specificID then
+                hasPulltimer = true
+                pullTimer = bb.DBM.Timer[i].timer
+
+                -- if a time is given set var to true
+                if time then
+                    if pullTimer <= time then
+                        isBelowTime = true
+                    end
+                end
+            end
+        end
+
+        -- if a time is given return true if pulltimer and below given time
+        -- else return time
+        if time ~= nil then
+            if hasPulltimer and isBelowTime then
+                return true
+            else
+                return false
+            end
+        else
+            if hasPulltimer then
+                return pullTimer
+            end
+        end
+    end
+    return 999 -- return number to avoid conflicts but to high so it should never trigger
+end
+
+--- Usage:
+-- 1 - bb.DBM:getTimer(spellID) -> return (number) the count of given spell ID timer
+-- 2 - bb.DBM:getTimer(spellID, time) -> return (boolean) TRUE if spellid is below given time else FALSE
+function bb.DBM:getTimer(spellID, time)
+    if bb.DBM.Timer then
+        local hasTimer = false
+        local isBelowTime = false
+        local currentTimer = 0
+
+        for i = 1, #bb.DBM.Timer do
+            -- Check if timer with spell id is present
+            if bb.DBM.Timer[i].spellid == spellID then
+                hasTimer = true
+                currentTimer = bb.DBM.Timer[i].timer
+
+                -- if a time is given set var to true
+                if time then
+                    if currentTimer <= time then
+                        isBelowTime = true
+                    end
+                end
+            end
+        end
+
+        -- if a time is given return true if timer and below given time
+        -- else return time
+        if time ~= nil then
+            if hasTimer and isBelowTime then
+                return true
+            else
+                return false
+            end
+        else
+            if hasTimer then
+                return currentTimer
+            end
+        end
+    end
+    return 999 -- return number to avoid conflicts but to high so it should never trigger
+end

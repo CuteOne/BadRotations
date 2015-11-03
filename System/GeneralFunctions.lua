@@ -2194,14 +2194,14 @@ function useItem_old(itemID)
 end
 -- useItem(12345)
 function useItem(itemID)
-	local spamDelay = spamDelay or 0
+	--bb.itemSpamDelay = bb.itemSpamDelay or 0
 	if itemID<=19 then
 		if GetItemSpell(GetInventoryItemID("player",itemID))~=nil then 
 			local slotItemID = GetInventoryItemID("player",itemID)
 			if GetItemCooldown(slotItemID)==0 then
-				if not spamDelay or GetTime() > spamDelay then
+				if not bb.itemSpamDelay or GetTime() > bb.itemSpamDelay then
 					UseItemByName(tostring(select(1,GetItemInfo(slotItemID))));
-					spamDelay = GetTime() + 1;
+					bb.itemSpamDelay = GetTime() + 1;
 					return true
 				end
 			end
@@ -2210,9 +2210,9 @@ function useItem(itemID)
 		end
 	elseif itemID>19 and (GetItemCount(itemID) > 0 or PlayerHasToy(itemID)) then
 		if GetItemCooldown(itemID)==0 then
-			if not spamDelay or GetTime() > spamDelay then
+			if not bb.itemSpamDelay or GetTime() > bb.itemSpamDelay then
 				UseItemByName(tostring(select(1,GetItemInfo(itemID))));
-				spamDelay = GetTime() + 1;
+				bb.itemSpamDelay = GetTime() + 1;
 				return true
 			end
 		end
