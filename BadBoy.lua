@@ -1,5 +1,6 @@
 -- define bb global that will hold the bot global background features
 bb = {}
+bb.selectedProfile = 1
 bb.dropOptions = {}
 bb.dropOptions.Toggle = {"LeftCtrl","LeftShift","RightCtrl","RightShift","RightAlt","None"}
 bb.dropOptions.Toggle2 ={"LeftCtrl","LeftShift","LeftAlt","RightCtrl","RightShift","RightAlt","MMouse","Mouse4","Mouse5","None" }
@@ -68,7 +69,12 @@ function bb:Run()
 		BadBoy_data.options[3] = {}
 		BadBoy_data.options[4] = {}
     end
-    bb.selectedProfile = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"] or 1
+    if BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"] == nil then
+        bb.selectedProfile = 1
+    else
+        bb.selectedProfile = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"]
+    end
+    --bb.selectedProfile = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"] or 1
     if BadBoy_data.options[GetSpecialization()][bb.selectedProfile]  == nil then
         BadBoy_data.options[GetSpecialization()][bb.selectedProfile] = {}
     end
@@ -253,7 +259,7 @@ function bb:Run()
 
     if BadBoy_data.options[GetSpecialization()] == nil then BadBoy_data.options[GetSpecialization()] = {} end
     if BadBoy_data.options[GetSpecialization()][bb.selectedProfile] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile] = {} end
-    bb.selectedProfile = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"] or 1
+    --bb.selectedProfile = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"] or 1
     bb:createConfigWindowNew()
 
 	-- start up enemies Engine
