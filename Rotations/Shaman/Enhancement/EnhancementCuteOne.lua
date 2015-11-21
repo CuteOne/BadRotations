@@ -37,6 +37,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         local ttd               = getTimeToDie(self.units.dyn5)
         local ttm               = self.timeToMax
         if t18_4pc then t18_4pcBonus = 1 else t18_4pcBonus = 0 end
+        --ChatOverlay("Can Stormstrike..."..tostring(self.castStormstrikeCheck(self.units.dyn5)))
     --------------------
     --- Action Lists ---
     --------------------
@@ -341,7 +342,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 		-- Windstrike
 			-- windstrike,if=!talent.echo_of_the_elements.enabled|(talent.echo_of_the_elements.enabled&(charges=2|(action.windstrike.charges_fractional>1.75)|(charges=1&buff.ascendance.remains<1.5)))
 			if not talent.echoOfTheElements or (talent.echoOfTheElements and (charges.windstrike==2 or (frac.windstrike>1.75) or (charges.windstrike==1 and buff.remain.ascendance<1.5))) then
-				if self.castWindstrike() then return end
+				if self.castWindstrike(self.units.dyn5) then return end
 			end
 		-- Lightning Bolt
 			-- lightning_bolt,if=buff.maelstrom_weapon.react>=5+3*set_bonus.tier18_4pc
@@ -351,7 +352,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 		-- Stormstrike
 			-- stormstrike,if=!talent.echo_of_the_elements.enabled|(talent.echo_of_the_elements.enabled&(charges=2|(action.stormstrike.charges_fractional>1.75)|target.time_to_die<6))
 			if not talent.echoOfTheElements or (talent.echoOfTheElements and (charges.stormstrike==2 or (frac.stormstrike>1.75) or ttd<6)) then
-				if self.castStormstrike() then return end
+				if self.castStormstrike(self.units.dyn5) then return end
 			end
 		-- Lava Lash
 			-- lava_lash,if=!talent.echo_of_the_elements.enabled|(talent.echo_of_the_elements.enabled&(charges=2|(action.lava_lash.charges_fractional>1.8)|target.time_to_die<8))
@@ -369,7 +370,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 		-- Windstrike
 			-- windstrike,if=talent.echo_of_the_elements.enabled
 			if talent.echoOfTheElements then
-				if self.castWindstrike() then return end
+				if self.castWindstrike(self.units.dyn5) then return end
 			end
 		-- Elemental Blast
 			-- elemental_blast,if=(!set_bonus.tier18_4pc&buff.maelstrom_weapon.react>=3)|buff.ancestral_swiftness.up
@@ -404,7 +405,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 		-- Stormstrike
 			-- stormstrike,if=talent.echo_of_the_elements.enabled
 			if talent.echoOfTheElements then
-				if self.castStormstrike() then return end
+				if self.castStormstrike(self.units.dyn5) then return end
 			end
 		-- Lightning Bolt
 			-- lightning_bolt,if=(!set_bonus.tier18_4pc&(buff.maelstrom_weapon.react>=1&!buff.ascendance.up))|(set_bonus.tier18_4pc&((talent.unleashed_fury.enabled&buff.unleashed_fury.up)|!talent.unleashed_fury.enabled)&(buff.maelstrom_weapon.react>=5|(buff.maelstrom_weapon.react>=3&!buff.ascendance.up)))|buff.ancestral_swiftness.up

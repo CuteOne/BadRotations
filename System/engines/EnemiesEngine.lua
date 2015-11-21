@@ -193,7 +193,7 @@ function EnemiesEngine()
 				thisUnit = enemiesTable[i].unit
 				-- check if unit is valid
 				if GetObjectExists(thisUnit) then
-					if getDistanceXYZ(unit,thisUnit) <= Radius then
+					if getDistance(unit,thisUnit) <= Radius then --changed getDistanceXYZ to getDistance to solve issue with bosses like Kromog and Gorefiend
 						tinsert(getEnemiesTable,thisUnit)
 					end
 				end
