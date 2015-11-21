@@ -473,13 +473,13 @@ function cShaman:new(spec)
 	-- Chain Lightning
 	function self.castChainLightning()
 		local hasThreat = hasThreat(self.units.dyn30)
-		if self.level>=28 and self.powerPercent>1 and (getDistance(self.units.dyn30)<30 or IsSpellInRange(GetSpellInfo(self.spell.chainLightning),self.units.dyn30)~=nil) and (hasThreat or isDummy()) and shouldBolt() then
+		if self.level>=28 and self.powerPercent>1 and getDistance(self.units.dyn30)<30 and (hasThreat or isDummy()) and shouldBolt() then
 			if castSpell(self.units.dyn30,self.spell.chainLightning,false,false,false) then return end
 		end
 	end
 	-- Elemental Blast
 	function self.castElementalBlast()
-		if self.talent.elementalBlast and self.cd.elementalBlast==0 and (getDistance(self.units.dyn40)<40 or IsSpellInRange(GetSpellInfo(self.spell.elementalBlast),self.units.dyn40)~=nil) then
+		if self.talent.elementalBlast and self.cd.elementalBlast==0 and getDistance(self.units.dyn40)<40 then
 			if castSpell(self.units.dyn40,self.spell.elementalBlast,false,false,false) then return end
 		end
 	end
@@ -492,14 +492,14 @@ function cShaman:new(spec)
 	-- Flame Shock
 	function self.castFlameShock()
 		local hasThreat = hasThreat(self.units.dyn25)
-		if self.level>=12 and self.cd.flameShock==0 and self.powerPercent>1.25 and (getDistance(self.units.dyn25)<25 or IsSpellInRange(GetSpellInfo(self.spell.flameShock),self.units.dyn25)~=nil) and (hasThreat or isDummy()) then
+		if self.level>=12 and self.cd.flameShock==0 and self.powerPercent>1.25 and getDistance(self.units.dyn25)<25 and (hasThreat or isDummy()) then
 			if castSpell(self.units.dyn25,self.spell.flameShock,false,false,false) then return end
 		end
 	end
 	-- Frost Shock
 	function self.castFrostShock()
 		local hasThreat = hasThreat(self.units.dyn25)
-		if self.level>=22 and self.cd.frostShock==0 and self.powerPercent>=1.25 and (getDistance(self.units.dyn25)<25 or IsSpellInRange(GetSpellInfo(self.spell.frostShock),self.units.dyn25)~=nil) and (hasThreat or isDummy()) then
+		if self.level>=22 and self.cd.frostShock==0 and self.powerPercent>=1.25 and getDistance(self.units.dyn25)<25 and (hasThreat or isDummy()) then
 			if castSpell(self.units.dyn25,self.spell.frostShock,false,false,false) then return end
 		end
 	end
@@ -517,7 +517,7 @@ function cShaman:new(spec)
 	-- Lightning Bolt
 	function self.castLightningBolt()
 		local hasThreat = hasThreat(self.units.dyn30)
-		if self.level>=1 and self.powerPercent>1.75 and (getDistance(self.units.dyn30)<30 or IsSpellInRange(GetSpellInfo(self.spell.lightningBolt),self.units.dyn30)~=nil) and (hasThreat or isDummy()) and shouldBolt() then
+		if self.level>=1 and self.powerPercent>1.75 and getDistance(self.units.dyn30)<30 and (hasThreat or isDummy()) and shouldBolt() then
 			if castSpell(self.units.dyn30,self.spell.lightningBolt,false,false,false) then return end
 		end
 	end
