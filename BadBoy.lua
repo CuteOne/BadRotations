@@ -274,7 +274,7 @@ end
 function bb:PulseUI()
 	-- distance on main icon
 	targetDistance = getDistance("target") or 0
-    displayDistance = math.ceil(targetDistance)
+	displayDistance = math.ceil(targetDistance)
 
 	-- Check if FH got injected correctly
 	-- has a bug, if bug happen shouldBePlayer = nil
@@ -294,9 +294,9 @@ function bb:PulseUI()
 	-- ttd
 	TTDRefresh()
 	-- allies
-    if isChecked("HE Active") then
-	    nNova:Update()
-    end
+	if isChecked("HE Active") then
+		nNova:Update()
+	end
 	-- Pulse other features
 	-- PokeEngine()
 	ProfessionHelper()
