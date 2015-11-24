@@ -1673,6 +1673,7 @@ function isBoss(unit)
 			or (UnitClassification(unit) == "elite" and UnitHealthMax(unit)>(4*UnitHealthMax("player")) and select(2,IsInInstance())~="raid")--UnitLevel(unit) >= UnitLevel("player")+3) 
 			or UnitLevel(unit) < 0)
 				and not UnitIsTrivial(unit)
+				and select(2,IsInInstance())~="party"
 		then
 			return true
 		elseif bossCheck or isDummy() then

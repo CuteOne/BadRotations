@@ -29,6 +29,7 @@ if select(2, UnitClass("player")) == "MONK" then
         local php               = self.health
         local power             = self.power
         local race              = self.race
+        local racial            = self.getRacial()
         local recharge          = self.recharge
         local regen             = self.powerRegen
         local solo              = select(2,IsInInstance())=="none"
@@ -755,10 +756,10 @@ if select(2, UnitClass("player")) == "MONK" then
                 if useCDs() then
                     if buff.tigereyeBrew or ttd<18 then
                         if (self.race == "Orc" or self.race == "Troll") then
-                            if self.castRacial() then return end
+                            if castSpell("player",racial,false,false,false) then return end
                         end
                         if self.race == "Blood Elf" and chi.diff>=1 then
-                            if self.castRacial() then return end
+                            if castSpell("player",racial,false,false,false) then return end
                         end
                     end
                 end

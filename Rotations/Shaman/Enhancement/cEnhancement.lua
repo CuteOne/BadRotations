@@ -581,7 +581,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         end
         -- Lava Lash
         function self.castLavaLash()
-            if self.level>=10 and self.cd.lavaLash==0 and (getDistance(self.units.dyn5)<5 or IsSpellInRange(GetSpellInfo(self.spell.lavaLash),self.units.dyn5)~=nil) then
+            if self.level>=10 and self.cd.lavaLash==0 and getDistance(self.units.dyn5)<5 then
                 if castSpell(self.units.dyn5,self.spell.lavaLash,false,false,false) then return end
             end 
         end
@@ -593,14 +593,20 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         end
         -- Stormstrike
         function self.castStormstrike(thisUnit)
-            local thisUnit = thisUnit or self.units.dyn5
-            if self.level>=26 and self.cd.stormstrike==0 and not self.buff.ascendance and (getDistance(self.units.dyn5)<5 or IsSpellInRange(GetSpellInfo(self.spell.stormstrike),self.units.dyn5)~=nil) then
-                if castSpell(self.units.dyn5,self.spell.stormstrike,false,false,false) then return end
+            if self.level>=26 and self.cd.stormstrike==0 and not self.buff.ascendance and getDistance(thisUnit)<5 then
+                if castSpell(thisUnit,self.spell.stormstrike,false,false,false) then return end
             end
-            if self.level<26 and self.cd.primalStrike==0 and (getDistance(self.units.dyn5)<5 or IsSpellInRange(GetSpellInfo(self.spell.primalStrike),self.units.dyn5)~=nil) then
-               if castSpell(self.units.dyn5,self.spell.primalStrike,false,false,false) then return end
+            if self.level<26 and self.cd.primalStrike==0 and getDistance(thisUnit)<5 then
+               if castSpell(thisUnit,self.spell.primalStrike,false,false,false) then return end
             end 
         end
+        -- function self.castStormstrikeCheck(thisUnit)
+        --     if self.level>=26 and self.cd.stormstrike==0 and not self.buff.ascendance and getDistance(thisUnit)<5 then
+        --         return castSpell(thisUnit,self.spell.stormstrike,false,false,false)
+        --     else
+        --         return false
+        --     end
+        -- end
         -- Unleash Elements
         function self.castUnleashElements()
             if self.level>=81 and self.cd.unleashElements==0 and self.powerPercent>7.5 then
@@ -609,9 +615,8 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         end
         -- Windstrike
         function self.castWindstrike(thisUnit)
-            local thisUnit = thisUnit or self.units.dyn5
-            if self.buff.ascendance and self.cd.windstrike==0 and (getDistance(self.units.dyn5)<5 or IsSpellInRange(GetSpellInfo(self.spell.windstrike),self.units.dyn5)~=nil) then
-                if castSpell(self.units.dyn5,self.spell.stormstrike,false,false,false) then return end
+            if self.buff.ascendance and self.cd.windstrike==0 and getDistance(thisUnit)<5 then
+                if castSpell(thisUnit,self.spell.stormstrike,false,false,false) then return end
             end
         end
 
