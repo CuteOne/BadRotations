@@ -284,11 +284,12 @@ Rotations\Shaman\Restoration\Libs\Toggles.lua
 Rotations\Shaman\SpellList.lua
 
 ## Warrior ---------------------------------------------------
+Rotations\Warrior\cWarrior.lua
+Rotations\Warrior\Arms\cArms.lua
+Rotations\Warrior\Arms\libs\Options.lua
+Rotations\Warrior\Arms\libs\Toggles.lua
+Rotations\Warrior\Arms\armsSimc.lua
 Rotations\Warrior\Arms\Arms.lua
-Rotations\Warrior\Arms\Libs\Functions.lua
-Rotations\Warrior\Arms\Libs\Options.lua
-Rotations\Warrior\Arms\Libs\SpellList.lua
-Rotations\Warrior\Arms\Libs\Toggles.lua
 
 Rotations\Warrior\Fury\Fury.lua
 Rotations\Warrior\Fury\Libs\Functions.lua
