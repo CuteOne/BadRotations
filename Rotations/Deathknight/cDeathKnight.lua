@@ -374,17 +374,36 @@ function cDK:new(spec)
 		end
 	end
 	-- Death Grip
-	function self.castDeathGrip()
-		if self.level>=55 and self.cd.deathGrip==0 and getDistance(self.units.dyn30AoE)>=8 and getDistance(self.units.dyn30AoE)<30 then
-			if castSpell(self.units.dyn30AoE,self.spell.deathGrip,false,false,false) then return end
-		end	
+	function self.castDeathGrip(thisUnit)
+		local enemies = getEnemies("player",30)
+		if #enemies > 0 then
+			for i = 1, #enemies do
+				local thisUnit = enemies[i]
+				local distance = getDistance(thisUnit)
+				if self.level>=55 and self.cd.deathGrip==0 and not isMoving(thisUnit) and hasThreat(thisUnit) and distance>=5 and distance<30 then
+				-- 	if castSpell(thisUnit,self.spell.deathGrip,false,false,false) then return end
+				-- end
+					for x=1,#nNova do
+		            	local partyUnit = nNova[x].unit
+		            	local partyDist = getDistance(partyDist,thisUnit)
+		            	local partyDead = UnitIsDeadOrGhost(partyUnit)
+		            	if not partyDead and partyDist>0 then
+		            		if castSpell(thisUnit,self.spell.deathGrip,false,false,false) then return end
+		            	end
+		            end
+		        end
+		    end
+		end
+		-- if self.level>=55 and self.cd.deathGrip==0 and hasThreat(thisUnit) and not isMoving(thisUnit) and getDistance(thisUnit)>=5 and getDistance(thisUnit)<30 then
+		-- 	if castSpell(thisUnit,self.spell.deathGrip,false,false,false) then return end
+		-- end	
 	end
 	-- Gorefiend's Grasp
-	function self.castDeathGrip()
-		if getTalent(6,1) and self.cd.gorefiendsGrasp==0 and getDistance(self.units.dyn20AoE)>=8 and getDistance(self.units.dyn20AoE)<20 then
-			if castSpell(self.units.dyn20AoE,self.spell.deathGrip,false,false,false) then return end
-		end	
-	end
+	-- function self.castDeathGrip()
+	-- 	if getTalent(6,1) and self.cd.gorefiendsGrasp==0 and getDistance(self.units.dyn20AoE)>=8 and getDistance(self.units.dyn20AoE)<20 then
+	-- 		if castSpell(self.units.dyn20AoE,self.spell.deathGrip,false,false,false) then return end
+	-- 	end	
+	-- end
 --------------------------
 --- SPELLS - DEFENSIVE ---
 --------------------------
@@ -441,7 +460,7 @@ function cDK:new(spec)
 --------------------------
 	-- Blood Boil
 	function self.castBloodBoil()
-		if self.level>=55 and (self.rune.count.blood>=1 or self.rune.count.death>=1) and getDistance(self.units.dyn10AoE)<10 then
+		if self.level>=55 and (self.rune.count.blood>=1 or self.rune.count.death>=1) and getDistance(self.units.dyn10AoE)<10 and useCleave() then
 			if castSpell("player",self.spell.bloodBoil,false,false,false) then return end
 		end
 	end
@@ -453,13 +472,13 @@ function cDK:new(spec)
 	end
 	-- Breath of Sindragosa
 	function self.castBreathOfSindragosa()
-		if getTalent(7,3) and self.cd.breathOfSindragosa==0 and self.power>15 and getDistance(self.units.dyn12)<12 then
+		if getTalent(7,3) and self.cd.breathOfSindragosa==0 and self.power>15 and getDistance(self.units.dyn12)<12 and useCleave() then
 			if castSpell("player",self.spell.breathOfSindragosa,false,false,false) then return end
 		end
 	end
 	-- Death and Decay
 	function self.castDeathAndDecay()
-		if (not getTalent(7,2)) and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and self.cd.deathAndDecay==0 and hasThreat(self.units.dyn30) and getDistance(self.units.dyn30AoE)<30 then
+		if (not getTalent(7,2)) and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and self.cd.deathAndDecay==0 and hasThreat(self.units.dyn30) and getDistance(self.units.dyn30AoE)<30 and useCleave() and not isMoving(self.units.dyn30AoE) then
 			if castGoundAtBestLocation(self.spell.defile,10,1,30) then return end
 		end
 	end
@@ -471,7 +490,7 @@ function cDK:new(spec)
 	end
 	-- Defile
 	function self.castDefile()
-		if getTalent(7,2) and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and self.cd.defile==0 and hasThreat(self.units.dyn30) and getDistance(self.units.dyn30AoE)<30 then
+		if getTalent(7,2) and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and self.cd.defile==0 and hasThreat(self.units.dyn30) and getDistance(self.units.dyn30AoE)<30 and useCleave() and not isMoving(self.units.dyn30AoE) then
 			if castGoundAtBestLocation(self.spell.defile,8,1,30) then return end
 		end
 	end
@@ -490,8 +509,28 @@ function cDK:new(spec)
 	-- Horn of Winter
 	function self.castHornOfWinter()
 		if self.level>=65 then
-			if castSpell("player",self.spell.hornOfWinter,true,false,false) then return end
-		end
+	        if self.instance=="none" and not isBuffed("player",{self.spell.hornOfWinter,19506,6673}) then
+	        	if castSpell("player",self.spell.hornOfWinter,false,false,false) then return end
+	        else
+		        local totalCount = GetNumGroupMembers()
+		        local currentCount = currentCount or 0
+		        local needsBuff = needsBuff or 0
+		        for i=1,#nNova do
+		            local thisUnit = nNova[i].unit
+		            local distance = getDistance(thisUnit)
+		            local dead = UnitIsDeadOrGhost(thisUnit)
+		            if distance<30 then
+		                currentCount = currentCount+1
+		            end
+		            if not isBuffed(thisUnit,{self.spell.hornOfWinter,19506,6673}) and not dead then
+		            	needsBuff = needsBuff+1
+		            end
+		        end
+		        if currentCount>=totalCount and needsBuff>0 then
+		            if castSpell("player",self.spell.hornOfWinter,false,false,false) then return end
+		        end
+		    end
+	    end
 	end
 	-- Icy Touch
     function self.castIcyTouch()
@@ -519,7 +558,7 @@ function cDK:new(spec)
 	end
 	-- Unholy Blight
 	function self.castUnholyBlight()
-		if getTalent(1,3) and self.cd.unholyBlight==0 and getDistance(self.units.dyn10AoE)<10 then
+		if getTalent(1,3) and self.cd.unholyBlight==0 and getDistance(self.units.dyn10AoE)<10 and useCleave() then
 			if castSpell("player",self.spell.unholyBlight,false,false,false) then return end
 		end
 	end
@@ -567,12 +606,12 @@ function cDK:new(spec)
 	-- Raise Ally
 	function self.castRaiseAlly()
 		if self.level>=72 and self.power>30 and self.cd.raiseAlly==0 and getDistance("target")<40 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") then
-			if castSpell("target",self.spell.raiseAlly,false,false,false) then return end
+			if castSpell("target",self.spell.raiseAlly,false,false,false,false,true) then return end
 		end
 	end
 	function self.castRaiseAllyMouseover()
 		if self.level>=72 and self.power>30 and self.cd.raiseAlly==0 and getDistance("mouseover")<40 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") then
-			if castSpell("mouseover",self.spell.raiseAlly,false,false,false) then return end
+			if castSpell("mouseover",self.spell.raiseAlly,false,false,false,false,true) then return end
 		end
 	end
 	-- Stangulate

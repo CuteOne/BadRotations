@@ -1,5 +1,5 @@
+
 function TTDRefresh()
-	if not UnitAffectingCombat("player") then return end
 	if not enemyTable then
 		enemyTable = {
 			units = {},
@@ -17,7 +17,7 @@ function TTDRefresh()
 	local health = enemyTable.health
 
 	-- refresh timer
-	if ttdTimer == nil or ttdTimer <= GetTime() - 0.1 then
+	if ttdTimer == nil or ttdTimer <= GetTime() - 0.5 then
 		ttdTimer = GetTime()
 
 		local totalObjects = ObjectCount()
@@ -47,7 +47,7 @@ function TTDRefresh()
 					local death = currentHP / _dps
 					dps[object] = math.floor(_dps)
 					if death == math.huge then
-						ttd[object] = 1000
+						ttd[object] = -1
 					elseif death < 0 then
 						ttd[object] = 0
 					else
@@ -71,17 +71,6 @@ end
 
 
 function getTTD(unit)
-	-- if enemyTable then
-	-- 	if enemyTable.ttd[unit] ~= nil then 
-	-- 		return enemyTable.ttd[unit]
-	-- 	elseif unit=="target" and enemyTable.ttd[ObjectPointer("target")] ~=nil then
-	-- 		return enemyTable.ttd[ObjectPointer("target")]
-	-- 	end
-	-- end
-	-- -- unit not found
-	-- return -1
-
-
 	local thisUnit = unit
 	if not string.find(thisUnit,"0x") then
 		if UnitExists(thisUnit) then

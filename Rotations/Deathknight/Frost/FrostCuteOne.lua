@@ -3,7 +3,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
 ------------------------
 --- Global Functions ---
 ------------------------
-        GroupInfo()
+        KeyToggles()
 --------------
 --- Locals ---
 --------------
@@ -83,9 +83,11 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 if self.castDeathsAdvance() then return end
             end
         -- Death Grip
-            if ((solo and #nNova==1) or hasThreat(self.units.dyn30AoE)) then
-                if self.castDeathGrip() then return end
+            --if ((solo and #nNova==1) or hasThreat(self.units.dyn30AoE)) then
+            if inCombat then
+                if self.castDeathGrip(thisUnit) then return end
             end
+            -- end
         -- Gorefiend's Grasp
             if ((solo and #nNova==1) or hasThreat(self.units.dyn20AoE)) then
                 if self.castDeathGrip() then return end
@@ -107,7 +109,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         end -- End Action List - Utility
     -- Action List - Defensive
         function actionList_Defensive()
-            if useDefensive() then
+            if useDefensive() and not IsMounted() then
         -- Anti-Magic Shell
                 -- antimagic_shell,damage=100000,if=((dot.breath_of_sindragosa.ticking&runic_power<25)|cooldown.breath_of_sindragosa.remains>40)|!talent.breath_of_sindragosa.enabled
                 if isChecked("Anti-Magic Shell") and php<=getOptionValue("Anti-Magic Shell") and not talent.antiMagicZone and ((buff.breathOfSindragosa and power<25) or cd.breathOfSindragosa>40 or (not talent.breathOfSindragosa)) then
@@ -202,16 +204,16 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             if useCDs() then
         -- Potion
                 -- potion,name=draenic_strength,if=target.time_to_die<=30|(target.time_to_die<=60&buff.pillar_of_frost.up)
-                if raid and (getTimeToDie(self.units.dyn5)<=30 or (getTimeToDie(self.units.dyn5)<=60 and buff.pillarOfFrost)) then
-                    -- Draenic Strength Potion
-                    if canUse(self.spell.strengthPotBasic) then
-                        useItem(self.spell.strengthPotBasic)
-                    end
-                    -- Commander's Draenic Strength Potion
-                    if canUse(self.spell.strengthPotGarrison) then
-                        useItem(self.spell.strengthPotGarrison)
-                    end
-                end
+                -- if raid and (getTimeToDie(self.units.dyn5)<=30 or (getTimeToDie(self.units.dyn5)<=60 and buff.pillarOfFrost)) then
+                --     -- Draenic Strength Potion
+                --     if canUse(self.spell.strengthPotBasic) then
+                --         useItem(self.spell.strengthPotBasic)
+                --     end
+                --     -- Commander's Draenic Strength Potion
+                --     if canUse(self.spell.strengthPotGarrison) then
+                --         useItem(self.spell.strengthPotGarrison)
+                --     end
+                -- end
         -- Empower Rune Weapon
                 -- empower_rune_weapon,if=target.time_to_die<=60&buff.potion.up
                 if getTimeToDie(self.units.dyn5)<=60 and buff.strengthPot then
@@ -649,7 +651,12 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         if actionList_Extras() then return end
         if actionList_Utility() then return end
         if actionList_Defensive() then return end
-        if actionList_PreCombat() then return end
+        if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+            if actionList_PreCombat() then return end
+            if getDistance("target")<5 then
+                StartAttack()
+            end
+        end
 -----------------
 --- In Combat ---
 -----------------
