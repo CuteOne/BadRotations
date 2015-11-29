@@ -1629,8 +1629,8 @@ function hasThreat(unit,playerUnit)
 			return true
 		elseif targetOfTarget~=nil and targetFriend then --The target's target is your friend
 			return true
-		elseif getDistance(unit)<20 then --Target is within aggro radius and thus would have threat
-			return true
+		--elseif getDistance(unit)<20 then --Target is within aggro radius and thus would have threat
+		--	return true
 		end
 	end
 	return false
