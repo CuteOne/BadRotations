@@ -199,13 +199,6 @@ function cCharacter:new(class)
 			self.mode.cooldowns  =  BadBoy_data['Cooldowns']
 			self.mode.feather    =  BadBoy_data['Feather']
 		end
-		-- Warrior
-		if self.class == "Warrior" then
-			self.mode.defensive  = BadBoy_data["Defensive"]
-			self.mode.bosshelper = BadBoy_data["BossHelper"]
-			self.mode.cooldowns  = BadBoy_data["Cooldowns"]
-			self.mode.aoe        = BadBoy_data["AoE"]			
-		end
 	end
 
 -- Dynamic unit update

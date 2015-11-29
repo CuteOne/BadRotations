@@ -3,7 +3,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
 ------------------------
 --- Global Functions ---
 ------------------------
-        GroupInfo()
+        KeyToggles()
 --------------
 --- Locals ---
 --------------
@@ -83,16 +83,22 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 if self.castDeathsAdvance() then return end
             end
         -- Death Grip
-            if ((solo and #nNova==1) or hasThreat(self.units.dyn30AoE)) then
-                if self.castDeathGrip() then return end
+            --if ((solo and #nNova==1) or hasThreat(self.units.dyn30AoE)) then
+            if inCombat then
+                if self.castDeathGrip(thisUnit) then return end
             end
+            -- end
         -- Gorefiend's Grasp
             if ((solo and #nNova==1) or hasThreat(self.units.dyn20AoE)) then
                 if self.castDeathGrip() then return end
             end
         -- Unholy Presence
-            if not buff.unholyPresence and self.enemies.yards30==0 and moving and (not inCombat or (inCombat and (power<40 or (power<70 and glyph.shiftingPresences)))) then
+            if not buff.unholyPresence and moving and (not inCombat or (inCombat and getDistance(self.units.dyn5)>10)) then --and (power<40 or (power<70 and glyph.shiftingPresences)))) then
                 if self.castUnholyPresence() then return end
+            end
+        -- Frost Presence
+            if not buff.frostPresence and php > getOptionValue("Blood Presence") and getDistance(self.units.dyn5)<=10 then --and (power<40 or (power<70 and glyph.shiftingPresences)) then
+                if self.castFrostPresence() then return end
             end
         -- Path of Frost
             if not inCombat and swimming and not buff.pathOfFrost then
@@ -107,7 +113,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         end -- End Action List - Utility
     -- Action List - Defensive
         function actionList_Defensive()
-            if useDefensive() then
+            if useDefensive() and not IsMounted() then
         -- Anti-Magic Shell
                 -- antimagic_shell,damage=100000,if=((dot.breath_of_sindragosa.ticking&runic_power<25)|cooldown.breath_of_sindragosa.remains>40)|!talent.breath_of_sindragosa.enabled
                 if isChecked("Anti-Magic Shell") and php<=getOptionValue("Anti-Magic Shell") and not talent.antiMagicZone and ((buff.breathOfSindragosa and power<25) or cd.breathOfSindragosa>40 or (not talent.breathOfSindragosa)) then
@@ -119,7 +125,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                     if self.castAntiMagicZone() then return end
                 end
         -- Blood Presence
-                if isChecked("Blood Presence") and php<=getOptionValue("Blood Presence") and not buff.bloodPresence and self.enemies.yards30>0 then
+                if isChecked("Blood Presence") and php<=getOptionValue("Blood Presence") and not buff.bloodPresence and getDistance(self.units.dyn5)<5 then --and (power<40 or (power<70 and glyph.shiftingPresences)) then
                     if self.castBloodPresence() then return end
                 end
         -- Conversion
@@ -202,16 +208,16 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             if useCDs() then
         -- Potion
                 -- potion,name=draenic_strength,if=target.time_to_die<=30|(target.time_to_die<=60&buff.pillar_of_frost.up)
-                if raid and (getTimeToDie(self.units.dyn5)<=30 or (getTimeToDie(self.units.dyn5)<=60 and buff.pillarOfFrost)) then
-                    -- Draenic Strength Potion
-                    if canUse(self.spell.strengthPotBasic) then
-                        useItem(self.spell.strengthPotBasic)
-                    end
-                    -- Commander's Draenic Strength Potion
-                    if canUse(self.spell.strengthPotGarrison) then
-                        useItem(self.spell.strengthPotGarrison)
-                    end
-                end
+                -- if raid and (getTimeToDie(self.units.dyn5)<=30 or (getTimeToDie(self.units.dyn5)<=60 and buff.pillarOfFrost)) then
+                --     -- Draenic Strength Potion
+                --     if canUse(self.spell.strengthPotBasic) then
+                --         useItem(self.spell.strengthPotBasic)
+                --     end
+                --     -- Commander's Draenic Strength Potion
+                --     if canUse(self.spell.strengthPotGarrison) then
+                --         useItem(self.spell.strengthPotGarrison)
+                --     end
+                -- end
         -- Empower Rune Weapon
                 -- empower_rune_weapon,if=target.time_to_die<=60&buff.potion.up
                 if getTimeToDie(self.units.dyn5)<=60 and buff.strengthPot then
@@ -249,7 +255,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 end
             end
         -- Frost Presence
-            if not buff.frostPresence and php > getOptionValue("Blood Presence") and self.enemies.yards30>0 then
+            if not buff.frostPresence and php > getOptionValue("Blood Presence") and getDistance(self.units.dyn5)<=8 then
                 if self.castFrostPresence() then return end
             end
         -- army_of_the_dead
@@ -646,54 +652,63 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
 ---------------------
 --- Out Of Combat ---
 ---------------------
-        if actionList_Extras() then return end
-        if actionList_Utility() then return end
-        if actionList_Defensive() then return end
-        if actionList_PreCombat() then return end
+        if pause() then
+            return true
+        else
+            if actionList_Extras() then return end
+            if actionList_Utility() then return end
+            if actionList_Defensive() then return end
+            if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+                if actionList_PreCombat() then return end
+                if getDistance("target")<5 then
+                    StartAttack()
+                end
+            end
 -----------------
 --- In Combat ---
 -----------------
-        if inCombat then
-        -- Auto Attack
-            -- auto_attack
-            if ObjectExists("target") then
-                StartAttack()
-            end
-            if actionList_Interrupts() then return end
-        -- Pillar of Frost
-            -- pillar_of_frost
-            if self.castPillarOfFrost() then return end
-            if actionList_Cooldowns() then return end
-        -- Plague Leech
-            -- if=disease.min_remains<1
-            if disease.min.dyn30<1 then
-                if self.castPlagueLeech() then return end
-            end
-        -- Soul Reaper
-            -- if=target.health.pct-3*(target.health.pct%target.time_to_die)<=35
-            if thp-3*(thp/getTimeToDie(self.units.dyn5))<=35 then
-                if self.castSoulReaper() then return end
-            end
-        -- Blood Tap
-            -- blood_tap,if=(target.health.pct-3*(target.health.pct%target.time_to_die)<=35&cooldown.soul_reaper.remains=0)
-            if (thp-3*(thp/getTimeToDie(self.units.dyn5))<35 and cd.soulReaper==0) then
-                if self.castBloodTap() then return end
-            end
-        -- Run Action List - Single Target: Two Hand
-            -- run_action_list,name=single_target_2h,if=spell_targets.howling_blast<4&main_hand.2h
-            if self.enemies.yards30<4 then
-                if actionList_Single2H() then return end
-            end
-        -- Run Action List - Single Target: One Hand
-            --  run_action_list,name=single_target_1h,if=spell_targets.howling_blast<3&main_hand.1h
-            if self.enemies.yards30<3 then
-                if actionList_Single1H() then return end
-            end
-        -- Run Action List - Mutli-Target
-            -- run_action_list,name=multi_target,if=spell_targets.howling_blast>=3+main_hand.2h
-            if (self.enemies.yards30>=3 and oneHand) or (self.enemies.yards30>=4 and twoHand) then
-                if actionList_MultiTarget() then return end
-            end   
-        end -- End Combat Check
+            if inCombat then
+            -- Auto Attack
+                -- auto_attack
+                if ObjectExists("target") then
+                    StartAttack()
+                end
+                if actionList_Interrupts() then return end
+            -- Pillar of Frost
+                -- pillar_of_frost
+                if self.castPillarOfFrost() then return end
+                if actionList_Cooldowns() then return end
+            -- Plague Leech
+                -- if=disease.min_remains<1
+                if disease.min.dyn30<1 then
+                    if self.castPlagueLeech() then return end
+                end
+            -- Soul Reaper
+                -- if=target.health.pct-3*(target.health.pct%target.time_to_die)<=35
+                if thp-3*(thp/getTimeToDie(self.units.dyn5))<=35 then
+                    if self.castSoulReaper() then return end
+                end
+            -- Blood Tap
+                -- blood_tap,if=(target.health.pct-3*(target.health.pct%target.time_to_die)<=35&cooldown.soul_reaper.remains=0)
+                if (thp-3*(thp/getTimeToDie(self.units.dyn5))<35 and cd.soulReaper==0) then
+                    if self.castBloodTap() then return end
+                end
+            -- Run Action List - Single Target: Two Hand
+                -- run_action_list,name=single_target_2h,if=spell_targets.howling_blast<4&main_hand.2h
+                if self.enemies.yards10<4 and twoHand and not useAoE() then
+                    if actionList_Single2H() then return end
+                end
+            -- Run Action List - Single Target: One Hand
+                --  run_action_list,name=single_target_1h,if=spell_targets.howling_blast<3&main_hand.1h
+                if self.enemies.yards10<3 and oneHand and not useAoE() then
+                    if actionList_Single1H() then return end
+                end
+            -- Run Action List - Mutli-Target
+                -- run_action_list,name=multi_target,if=spell_targets.howling_blast>=3+main_hand.2h
+                if (self.enemies.yards10>=3 and oneHand) or (self.enemies.yards10>=4 and twoHand) or useAoE() then
+                    if actionList_MultiTarget() then return end
+                end   
+            end -- End Combat Check
+        end -- End Rotation Pause
     end -- End cFrost:FrostCuteOne()
 end -- End Class Select

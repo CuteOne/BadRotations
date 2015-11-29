@@ -446,7 +446,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
                 for i=1, #sefEnemies do
                     local thisUnit                  = sefEnemies[i]
-                    local hasThreat                 = UnitThreatSituation("player",thisUnit)~=nil or false
+                    local hasThreat                 = hasThreat(self.units.dyn40AoE) -- UnitThreatSituation("player",thisUnit)~=nil or false
                     local debuffStormEarthAndFire   = UnitDebuffID(thisUnit,self.spell.stormEarthAndFireDebuff,"player")~=nil or false
 
                     if not debuffStormEarthAndFire and thisUnit~=myTarget and self.charges.stormEarthAndFire<2 and hasThreat then

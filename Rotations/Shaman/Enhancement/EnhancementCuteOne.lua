@@ -37,7 +37,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         local ttd               = getTimeToDie(self.units.dyn5)
         local ttm               = self.timeToMax
         if t18_4pc then t18_4pcBonus = 1 else t18_4pcBonus = 0 end
-        --ChatOverlay("Can Stormstrike..."..tostring(self.castStormstrikeCheck(self.units.dyn5)))
+
     --------------------
     --- Action Lists ---
     --------------------
@@ -94,7 +94,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
     	end -- End Action List - Extra
     -- Action List - Defensive
     	function actionList_Defensive()
-    		if useDefensive() then 
+    		if useDefensive() then	 
 		-- Ancestral Guidance
 				if isChecked("Ancestral Guidance") then
 					if not inCombat and needsHealing>0 then needsHealing=0 end
@@ -173,6 +173,14 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 						end
 					end
 				end
+		-- Heirloom Neck
+	    		if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
+	    			if hasEquiped(122668) then
+	    				if GetItemCooldown(122668)==0 then
+	    					useItem(122668)
+	    				end
+	    			end
+	    		end
 		-- lightning Shield
 				if not buff.lightningShield then
 					if self.castLightningShield() then return end

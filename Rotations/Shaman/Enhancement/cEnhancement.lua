@@ -600,13 +600,6 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                if castSpell(thisUnit,self.spell.primalStrike,false,false,false) then return end
             end 
         end
-        -- function self.castStormstrikeCheck(thisUnit)
-        --     if self.level>=26 and self.cd.stormstrike==0 and not self.buff.ascendance and getDistance(thisUnit)<5 then
-        --         return castSpell(thisUnit,self.spell.stormstrike,false,false,false)
-        --     else
-        --         return false
-        --     end
-        -- end
         -- Unleash Elements
         function self.castUnleashElements()
             if self.level>=81 and self.cd.unleashElements==0 and self.powerPercent>7.5 then

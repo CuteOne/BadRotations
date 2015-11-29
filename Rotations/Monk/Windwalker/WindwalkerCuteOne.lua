@@ -706,7 +706,12 @@ if select(2, UnitClass("player")) == "MONK" then
 --- Pre-Combat ---
 ------------------
     -- Run Action List - Pre-Combat
-            if actionList_PreCombat() then return end
+            if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+                if actionList_PreCombat() then return end
+                if getDistance("target")<5 then
+                    StartAttack()
+                end
+            end
 -----------------
 --- In Combat ---
 -----------------
