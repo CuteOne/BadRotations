@@ -417,7 +417,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         --- SPELLS ---
         --------------
         function self.castColossusSmash()
-            if self.level>=81 and self.buff.battleStance and self.cd.colossusSmash==0 and power>10 and getDistance(self.units.dyn5)<5 then
+            if self.level>=81 and self.buff.battleStance and self.cd.colossusSmash==0 and self.power>10 and getDistance(self.units.dyn5)<5 then
                 if castSpell(self.units.dyn5,self.spell.colossusSmash,false,false,false) then return end
             end
         end

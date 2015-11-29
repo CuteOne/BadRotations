@@ -375,28 +375,30 @@ function cDK:new(spec)
 	end
 	-- Death Grip
 	function self.castDeathGrip(thisUnit)
-		local enemies = getEnemies("player",30)
-		if #enemies > 0 then
-			for i = 1, #enemies do
-				local thisUnit = enemies[i]
-				local distance = getDistance(thisUnit)
-				if self.level>=55 and self.cd.deathGrip==0 and not isMoving(thisUnit) and hasThreat(thisUnit) and distance>=5 and distance<30 then
-				-- 	if castSpell(thisUnit,self.spell.deathGrip,false,false,false) then return end
-				-- end
-					for x=1,#nNova do
-		            	local partyUnit = nNova[x].unit
-		            	local partyDist = getDistance(partyDist,thisUnit)
-		            	local partyDead = UnitIsDeadOrGhost(partyUnit)
-		            	if not partyDead and partyDist>0 then
-		            		if castSpell(thisUnit,self.spell.deathGrip,false,false,false) then return end
-		            	end
-		            end
-		        end
-		    end
+		if self.inCombat then
+			local enemies = getEnemies("player",30)
+			if #enemies > 0 then
+				for i = 1, #enemies do
+					local thisUnit = enemies[i]
+					local distance = getDistance(thisUnit)
+					if self.level>=55 and self.cd.deathGrip==0 and not isMoving(thisUnit) and not isMoving("player") and hasThreat(thisUnit) and distance>=5 and distance<30 then
+						pullTarget = true
+						for x=1,#nNova do
+			            	local partyUnit = nNova[x].unit
+			            	local partyDist = getDistance(partyDist,thisUnit)
+			            	local partyDead = UnitIsDeadOrGhost(partyUnit)
+			            	if not partyDead and partyDist<5 then
+			            		pullTarget = false
+			            		break
+			            	end
+			            end
+			            if pullTarget == true then
+			            	if castSpell(thisUnit,self.spell.deathGrip,false,false,false) then return end
+			            end
+			        end
+			    end
+			end
 		end
-		-- if self.level>=55 and self.cd.deathGrip==0 and hasThreat(thisUnit) and not isMoving(thisUnit) and getDistance(thisUnit)>=5 and getDistance(thisUnit)<30 then
-		-- 	if castSpell(thisUnit,self.spell.deathGrip,false,false,false) then return end
-		-- end	
 	end
 	-- Gorefiend's Grasp
 	-- function self.castDeathGrip()
