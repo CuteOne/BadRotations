@@ -239,31 +239,31 @@ function cDK:new(spec)
 	function self.getClassDebuffs()
 		local UnitDebuffID = UnitDebuffID
 
-		self.debuff.bloodPlague 		= UnitDebuffID(self.units.dyn30AoE,self.spell.bloodPlagueDebuff,"player")~=nil or false
+		self.debuff.bloodPlague 		= UnitDebuffID(self.units.dyn5,self.spell.bloodPlagueDebuff,"player")~=nil or false
 		self.debuff.chainsOfIce 		= UnitDebuffID(self.units.dyn30AoE,self.spell.chainsOfIceDebuff,"player")~=nil or false
 		self.debuff.defile 				= UnitDebuffID(self.units.dyn30AoE,self.spell.defileDebuff,"player")~=nil or false
-		self.debuff.frostFever 			= UnitDebuffID(self.units.dyn30AoE,self.spell.frostFeverDebuff,"player")~=nil or false
-		self.debuff.necroticPlague 		= UnitDebuffID(self.units.dyn30AoE,self.spell.necroticPlagueDebuff,"player")~=nil or false
+		self.debuff.frostFever 			= UnitDebuffID(self.units.dyn5,self.spell.frostFeverDebuff,"player")~=nil or false
+		self.debuff.necroticPlague 		= UnitDebuffID(self.units.dyn5,self.spell.necroticPlagueDebuff,"player")~=nil or false
 	end
 
 	function self.getClassDebuffsDuration()
 		local getDebuffDuration = getDebuffDuration
 
-		self.debuff.duration.bloodPlague 		= getDebuffDuration(self.units.dyn30AoE,self.spell.bloodPlagueDebuff,"player") or 0
+		self.debuff.duration.bloodPlague 		= getDebuffDuration(self.units.dyn5,self.spell.bloodPlagueDebuff,"player") or 0
 		self.debuff.duration.chainsOfIce 		= getDebuffDuration(self.units.dyn30AoE,self.spell.chainsOfIceDebuff,"player") or 0
 		self.debuff.duration.defile 			= getDebuffDuration(self.units.dyn30AoE,self.spell.defileDebuff,"player") or 0
-		self.debuff.duration.frostFever 		= getDebuffDuration(self.units.dyn30AoE,self.spell.frostFeverDebuff,"player") or 0
-		self.debuff.duration.necroticPlague 	= getDebuffDuration(self.units.dyn30AoE,self.spell.necroticPlagueDebuff,"player") or 0
+		self.debuff.duration.frostFever 		= getDebuffDuration(self.units.dyn5,self.spell.frostFeverDebuff,"player") or 0
+		self.debuff.duration.necroticPlague 	= getDebuffDuration(self.units.dyn5,self.spell.necroticPlagueDebuff,"player") or 0
 	end
 
 	function self.getClassDebuffsRemain()
 		local getDebuffRemain = getDebuffRemain
 
-		self.debuff.remain.bloodPlague 			= getDebuffRemain(self.units.dyn30AoE,self.spell.bloodPlagueDebuff,"player") or 0
+		self.debuff.remain.bloodPlague 			= getDebuffRemain(self.units.dyn5,self.spell.bloodPlagueDebuff,"player") or 0
 		self.debuff.remain.chainsOfIce 			= getDebuffRemain(self.units.dyn30AoE,self.spell.chainsOfIceDebuff,"player") or 0
 		self.debuff.remain.defile 				= getDebuffRemain(self.units.dyn30AoE,self.spell.defileDebuff,"player") or 0
-		self.debuff.remain.frostFever 			= getDebuffRemain(self.units.dyn30AoE,self.spell.frostFeverDebuff,"player") or 0
-		self.debuff.remain.necroticPlague 		= getDebuffRemain(self.units.dyn30AoE,self.spell.necroticPlagueDebuff,"player") or 0
+		self.debuff.remain.frostFever 			= getDebuffRemain(self.units.dyn5,self.spell.frostFeverDebuff,"player") or 0
+		self.debuff.remain.necroticPlague 		= getDebuffRemain(self.units.dyn5,self.spell.necroticPlagueDebuff,"player") or 0
 	end
 
 -- Glyph updates
@@ -480,19 +480,19 @@ function cDK:new(spec)
 	end
 	-- Death and Decay
 	function self.castDeathAndDecay()
-		if (not getTalent(7,2)) and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and self.cd.deathAndDecay==0 and hasThreat(self.units.dyn30) and getDistance(self.units.dyn30AoE)<30 and useCleave() and not isMoving(self.units.dyn30AoE) then
+		if (not getTalent(7,2)) and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and self.cd.deathAndDecay==0 and (hasThreat(self.units.dyn30) or isDummy()) and getDistance(self.units.dyn30AoE)<30 and useCleave() and not isMoving(self.units.dyn30AoE) then
 			if castGoundAtBestLocation(self.spell.defile,10,1,30) then return end
 		end
 	end
 	-- Death Siphon
 	function self.castDeathSiphon()
-		if getTalent(5,2) and self.rune.count.death>=1 and hasThreat(self.units.dyn40) and getDistance(self.units.dyn40)<40 then
+		if getTalent(5,2) and self.rune.count.death>=1 and (hasThreat(self.units.dyn40) or isDummy()) and getDistance(self.units.dyn40)<40 then
 			if castSpell(self.units.dyn40,self.spell.deathSiphon,false,false,false) then return end
 		end
 	end
 	-- Defile
 	function self.castDefile()
-		if getTalent(7,2) and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and self.cd.defile==0 and hasThreat(self.units.dyn30) and getDistance(self.units.dyn30AoE)<30 and useCleave() and not isMoving(self.units.dyn30AoE) then
+		if getTalent(7,2) and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and self.cd.defile==0 and (hasThreat(self.units.dyn30) or isDummy()) and getDistance(self.units.dyn30AoE)<30 and useCleave() and not isMoving(self.units.dyn30AoE) then
 			if castGoundAtBestLocation(self.spell.defile,8,1,30) then return end
 		end
 	end
@@ -536,20 +536,20 @@ function cDK:new(spec)
 	end
 	-- Icy Touch
     function self.castIcyTouch()
-        if self.level>=55 and (self.rune.count.frost>=1 or self.rune.count.death>=1) and hasThreat(self.units.dyn30) and getDistance(self.units.dyn30)<30 then
-            if castSpell(self.units.dyn30,self.spell.icyTouch,false,false,false) then return end
+        if self.level>=55 and (self.rune.count.frost>=1 or self.rune.count.death>=1) and (hasThreat(self.units.dyn5) or isDummy()) and getDistance(self.units.dyn5)<30 then
+            if castSpell(self.units.dyn5,self.spell.icyTouch,false,false,false) then return end
         end
     end
 	-- Outbreak
 	function self.castOutbreak()
-		if self.level>=81 and self.cd.outbreak==0 and hasThreat(self.units.dyn30) and getDistance(self.units.dyn30)<30 then
+		if self.level>=81 and self.cd.outbreak==0 and (hasThreat(self.units.dyn30) or isDummy()) and getDistance(self.units.dyn30)<30 then
 			if castSpell(self.units.dyn30,self.spell.outbreak,true,false,false) then return end
 		end
 	end
 	-- Plague Leech
 	function self.castPlagueLeech()
-		if getTalent(1,2) and self.cd.plagueLeech==0 and ((self.debuff.frostFever and self.debuff.bloodPlague) or self.debuff.necroticPlague) and hasThreat(self.units.dyn30) and getDistance(self.units.dyn30)<30 then
-			if castSpell(self.units.dyn30,self.spell.plagueLeech,true,false,false) then return end
+		if getTalent(1,2) and self.cd.plagueLeech==0 and ((self.debuff.frostFever and self.debuff.bloodPlague) or self.debuff.necroticPlague) and (hasThreat(self.units.dyn5) or isDummy()) and getDistance(self.units.dyn5)<30 then
+			if castSpell(self.units.dyn5,self.spell.plagueLeech,true,false,false) then return end
 		end
 	end
 	-- Plague Strike

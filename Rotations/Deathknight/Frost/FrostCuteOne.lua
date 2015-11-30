@@ -21,6 +21,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         local dynTable30AoE     = (BadBoy_data['Cleave']==1 and enemiesTable) or { [1] = {["unit"]=dynTar30AoE, ["distance"] = getDistance(dynTar30AoE)}} 
         local glyph             = self.glyph
         local inCombat          = self.inCombat
+        local level             = self.level
         local moving            = GetUnitSpeed("player")>0
         local oneHand, twoHand  = IsEquippedItemType("One-Hand"), IsEquippedItemType("Two-Hand")
         local party             = select(2,IsInInstance())=="party"
@@ -298,7 +299,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             end
         -- Howling Blast
             -- howling_blast,if=((death=1&frost=0&unholy=0)|death=0&frost=1&unholy=0)&runic_power<88
-            if ((rune.death==1 and rune.frost==0 and rune.unholy==0) or rune.death==0 and rune.frost==1 and rune.unholy==0) and power<88 then
+            if ((rune.death==1 and rune.frost==0 and rune.unholy==0) or (rune.death==0 and rune.frost==1 and rune.unholy==0)) and power<88 then
                 if self.castHowlingBlast() then return end
             end
         end -- End Action List - Single Target: Boss
@@ -420,9 +421,9 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 if charges.bloodTap>10 and power>76 then
                     if self.castBloodTap() then return end
                 end
-        -- Frost Stike
+        -- Frost Strike
                 -- frost_strike,if=runic_power>76
-                if power>76 then
+                if power>76 or (level<63 and power>40) then
                     if self.castFrostStrike() then return end
                 end
         -- Howling Blast
@@ -530,7 +531,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 end
         -- Frost Strike
                 -- frost_strike,if=runic_power>76
-                if power>76 then
+                if power>76 or (level<63 and power>40) then
                     if self.castFrostStrike() then return end
                 end
         -- Unholy Blight
