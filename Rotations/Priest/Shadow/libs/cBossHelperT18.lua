@@ -106,7 +106,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			-- Shadow Lord Iskar
 				if currentBoss=="Shadow-Lord Iskar" then
 					-- escape fel chakram: 182200, 182178
-					if talent.spectral_guise then
+					if isKnown(112833) then
 						if UnitDebuffID("player",18220) or UnitDebuffID("player",182178) then
 							if self.castSpectralGuise() then return end
 						end
@@ -129,22 +129,27 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- 	end
 				end
 
-			-- -- Socrethar the Eternal
-			-- 	if currentBoss=="Soulbound Construct" then
-			-- 		-- auto target
+			-- Socrethar the Eternal
+				if currentBoss=="Soulbound Construct" then
+					-- auto target
+					--dominator
+					if isUnitThere(92767,40) then
+						TargetUnit("Sargerei Dominator")
+						return
+					end
 					
-			-- 		-- cascade
-			-- 		-- if getSpellCD(self.spell.cascade) <= 0 then
-			-- 		-- 	if isUnitThere("Haunting Soul",40) or isUnitThere("Sargerei Shadowcaller",40) then
-			-- 		-- 		if self.castCascadeBiggestCluster() then return end
-			-- 		-- 	end
-			-- 		-- end
-			-- 		if getSpellCD(self.spell.cascade) <= 0 then
-			-- 			if isUnitThere("Haunting Soul",40) then
-			-- 				if self.castCascadeOn("Haunting Soul") then return end
-			-- 			end
-			-- 		end
-			-- 	end
+					-- cascade
+					-- if getSpellCD(self.spell.cascade) <= 0 then
+					-- 	if isUnitThere("Haunting Soul",40) or isUnitThere("Sargerei Shadowcaller",40) then
+					-- 		if self.castCascadeBiggestCluster() then return end
+					-- 	end
+					-- end
+					if getSpellCD(self.spell.cascade) <= 0 then
+						if isUnitThere("Haunting Soul",40) then
+							if self.castCascadeOn("Haunting Soul") then return end
+						end
+					end
+				end
 
 			-- -- Feld Lord Zakuun
 
@@ -166,7 +171,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					if UnitTarget("player")==nil then TargetUnit("boss1") end
 
 					-- Spectral Guise on ANnihilating Strike (id=180260)
-					if self.talent.spectral_guise then
+					if talent.spectral_guise then
 						if UnitName(UnitTarget("boss1"))==UnitName("player") then
 							if isCastingSpell(180260,"boss1") then
 								if self.castSpectralGuise() then return end

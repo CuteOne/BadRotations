@@ -44,10 +44,10 @@ function cShadow:shadowRavens()
 			ChatOverlay("Q - CASCADE")
 			if self.castCascade() then return end
 		end
-		if _Queues[spell.devouring_plague] == true then
-			ChatOverlay("Q - DP")
-			if self.castDP("target") then return end
-		end
+		-- if _Queues[spell.devouring_plague] == true then
+		-- 	ChatOverlay("Q - DP")
+		-- 	if self.castDP("target") then return end
+		-- end
 		if _Queues[spell.shadowfiend] == true then
 			ChatOverlay("Q - SHADOWFIEND")
 			if self.castShadowfiend("target") then return end
@@ -145,12 +145,12 @@ function cShadow:shadowRavens()
 		------------------------------------------------------------------------------------------------------
 		if options.rotation.Burst_SI then
 			if SpecificToggle("Burst SI") then
-				-- Mind Blast
-				if options.rotation.Burst_SI == false then
-					if orbs <= 3 then
-						if self.castMindBlast("target") then return end
-					end
-				end
+				-- -- Mind Blast
+				-- if options.rotation.Burst_SI == false then
+				-- 	if orbs <= 3 then
+				-- 		if self.castMindBlast("target") then return end
+				-- 	end
+				-- end
 				-- DP
 				if select(1,UnitChannelInfo("player")) ~= "Searing Insanity" then
 					if not buff.insanity then
@@ -192,6 +192,8 @@ function cShadow:shadowRavens()
 		------------------------------------------------------------------------------------------------------
 		--[[ auspicious_spirits ]]
 		if talent.auspicious_spirits then
+
+			currentRotation = "AS"
 			
 			self.autotarget()
 
@@ -232,7 +234,7 @@ function cShadow:shadowRavens()
 				end
 				-- dump for incoming spirits 3+3
 				if orbs >= 3 then
-					if AS.flying >= 3 then
+					if AS.flying>=3 or options.rotation.DumpDP then
 						--if AS.nextImpactRemaining <= 1.5*gcd then
 							if self.castDP("target") then return end
 						--end
@@ -448,8 +450,10 @@ function cShadow:shadowRavens()
 			
 			--[[ end stopcasting ]]
 			
-			--[[ ravens ]]
+			--[[ Mindbender ]]
 			if talent.mindbender then
+
+				currentRotation = "CoP Mindbender"
 
 				--   _____ _ _       
 				--  / ____| (_)      
@@ -486,7 +490,7 @@ function cShadow:shadowRavens()
 				if self.castSWDAuto("target") then return end
 
 				-- Mind Blast
-				if orbs < 5 then
+				if orbs<5 then
 					if self.castMindBlast("target") then return end
 				end
 
@@ -494,7 +498,7 @@ function cShadow:shadowRavens()
 				if eq.t18_classTrinket then
 					if getDebuffRemain("target",spell.mental_fatigue,"player") > 1.2*gcd then
 					--if getDebuffStacks("target",spell.mental_fatigue,"player") < 5 and getDebuffRemain("target",spell.mental_fatigue,"player") > 1.2*gcd then
-						if orbs >= 3 then
+						if orbs >= options.rotation.DPx then
 							if self.castDP("target") then return end
 						end
 					end
@@ -512,13 +516,13 @@ function cShadow:shadowRavens()
 
 				-- DP without class trinket
 				if not eq.t18_classTrinket then
-					if orbs >= 3 then
+					if orbs>=3 then
 						if self.castDP("target") then return end
 					end
 				end
 
 				-- Below 20%, Devouring Plague
-				if getHP("target") <= 20 then
+				if getHP("target")<=20 then
 					if self.castDP("target") then return end
 				end
 
@@ -534,8 +538,12 @@ function cShadow:shadowRavens()
 
 				-- offdot
 				if UnitGUID("target") ~= UnitGUID("focus") then
-					if self.castSWPOnUnit("focus") then return end
-					if self.castVTOnUnit("focus") then return end
+					if options.rotation.CoPSWP then
+						if self.castSWPOnUnit("focus") then return end
+					end
+					if options.rotation.CoPVT then
+						if self.castVTOnUnit("focus") then return end
+					end
 				end
 
 				-- Power Word: Shield (only when taking damage)
@@ -561,42 +569,78 @@ function cShadow:shadowRavens()
 			end
 
 			---------------------------------------------------------------------------------------------------------------------------------------- the other rotation
-			--[[ simcraft ]]
+			--[[ Insanity ]]
 			if talent.insanity then
+				currentRotation = "CoP Insanity"
 				-- ravens CoP insanity
+				mfrefreshtime = getValue("mf Refresh")
 
-				-- -- Mental Fatigue
-				-- if orbs < 3 then
-				-- 	if eq.t18_classTrinket then
-				-- 		if (getDebuffRemain("target",spell.mental_fatigue,"player") > 0 and getDebuffRemain("target",spell.mental_fatigue,"player") < mfrefreshtime) 
-				-- 		or getDebuffStacks("target",spell.mental_fatigue,"player") < 5 then
-				-- 			if self.castMindFlay("target") then return end
-				-- 		end
-				-- 	end
+				if getCombatTime() < 3 then
+					if self.castMindBlast("target") then return end
+				end
+
+				-- Mind Flay: extend mental fatigue
+				if eq.t18_classTrinket and orbs<5 then
+					--if getUnitID("target")~=92208 then
+						if getDebuffRemain("target",spell.mental_fatigue,"player") < mfrefreshtime and getDebuffStacks("target",spell.mental_fatigue,"player") >= 3 then
+							if self.castMindFlay("target") then return end
+						end
+					--end
+				end
+				
+				-- if orbs==5 then
+				-- 	if self.castDP("target") then return end
 				-- end
-
-				if orbs>=3 and lastSpellCast==8092 then
-					if cd.shadowfiend<=0 then
-						if self.castShadowfiend("target") then return end
-					elseif talent.halo and cd.halo<=0 and getDistance("player","target")<30 then
-						if self.castHalo() then return end
-					elseif glyph.reflectiveShield and not UnitDebuffID("player",6788) then
-						if self.castPWS("player") then return end
-					else
-						if self.castSWP("target") then return end
+				if getHP("target")>20 then
+					if orbs>=options.rotation.DPx then
+						if UnitSpellHaste("player")>36 or not options.rotation.CoPGap then
+							if orbs>=options.rotation.DPx then
+								if cd.mind_blast<2*gcd then
+									if self.castDP("target") then return end
+								end
+							end
+							if cd.shadowfiend<=0 then
+								if self.castShadowfiend("target") then return end
+							elseif talent.halo and cd.halo<=0 and getDistance("player","target")<30 then
+								if self.castHalo() then return end
+							elseif not isMoving("player") then
+								if self.castMindSpike("target") then return end
+							elseif glyph.reflectiveShield and not UnitDebuffID("player",6788) then
+								if self.castPWS("player") then return end
+							else
+								if self.castSWP("target") then return end
+							end
+						elseif options.rotation.CoPGap then
+							if (GetTime()-lastSpellCastSuccessTime > gcd+getValue("gap time")*gcd and cd.mind_blast>0)
+							or (GetTime()-lastSpellCastSuccessTime > gcd+getValue("gap time")*gcd and not hasEquiped(124519)) then
+								-- DP
+								if self.castDP("target") then return end
+							else 
+								return
+							end
+						end
 					end
 				end
 
-				-- DP
-				if orbs>=3 then
-					if self.castDP("target") then return end
+				if select(2,GetSpellCooldown(61304))>0 then return end
+
+
+				if getHP("target")<20 then
+					if orbs>=3 then
+						if self.castDP("target") then return end
+					end
 				end
 
 				-- MB
 				if self.castMindBlast("target") then return end
 				
+				-- if getHP("target")<20 then
+				-- 	if self.castSWDAuto("target") then return end
+				-- end
+
+				-- Shadowfiend
 				if getHP("target")<20 then
-					if self.castSWDAuto("target") then return end
+					if self.castShadowfiend("target") then return end
 				end
 
 				-- Mind Flay: Insanity
@@ -611,7 +655,9 @@ function cShadow:shadowRavens()
 				if self.castMindBlast("target") then return end
 
 				-- Shadow Word: Death
-				if self.castSWDAuto("target") then return end
+				--if isMoving("player") or getHP("target")>20 then
+					if self.castSWDAuto("target") then return end
+				--end
 
 				-- Filler
 				-- Shadowfiend
@@ -625,8 +671,12 @@ function cShadow:shadowRavens()
 
 				-- offdot
 				if UnitGUID("target") ~= UnitGUID("focus") then
-					if self.castSWPOnUnit("focus") then return end
-					if self.castVTOnUnit("focus") then return end
+					if options.rotation.CoPSWP then
+						if self.castSWPOnUnit("focus") then return end
+					end
+					if options.rotation.CoPVT then
+						if self.castVTOnUnit("focus") then return end
+					end
 				end
 
 				-- Mind Spike

@@ -5,6 +5,7 @@ if select(3, UnitClass("player")) == 5 then
 
 			shdw = cShadow:new()
 			setmetatable(shdw, {__index = cShadow})
+			
 			shdw:updateOOC()
 			shdw:update()
 		end
