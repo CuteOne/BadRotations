@@ -1,6 +1,7 @@
 --- Shadow Class
 -- Inherit from: ../cCharacter.lua and ../cPriest.lua
 -- All Priest specs inherit from cPriest.lua
+
 if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 cShadow = {}
 
@@ -164,12 +165,12 @@ function cShadow:new()
 		if _Queues == nil or #_Queues <= 0 then
 			--if _Queues[120644] == nil then
 				_Queues = {
-					[120644]  = false,		-- Halo
-					[127632] = 	false,		-- Cascade
-					[2944] = 	false,		-- Devouring Plague
-					[34433] = 	false,		-- Shadowfiend
-					[123040] = 	false,		-- Mindbender
-					[47585] = 	false, 		-- Dispersion
+					[120644]  	= false,	-- Halo
+					[127632] 	= false,	-- Cascade
+					--[2944] 		= false,	-- Devouring Plague
+					[34433] 	= false,	-- Shadowfiend
+					[123040] 	= false,	-- Mindbender
+					[47585] 	= false,	-- Dispersion
 				}
 			--end
 		end
@@ -243,8 +244,13 @@ function cShadow:new()
 		self.options.rotation.max_Targetsvalue			= getValue("max dot targets")
 		self.options.rotation.ttdSWP 					= getValue("ttd swp")
 		self.options.rotation.ttdVT 					= getValue("ttd vt")
+		self.options.rotation.CoPGap 					= isChecked("gap time")
 		self.options.rotation.Auto_Focus 				= isChecked("AutoFocus")
-		
+		self.options.rotation.CoPSWP					= isChecked("offSWP")
+		self.options.rotation.CoPVT						= isChecked("offVT")
+		self.options.rotation.DPx 						= getValue("DPx")
+		self.options.rotation.DumpDP					= isChecked("DumpDP")
+
 
 		self.options.utilities 							= {}
 		self.options.utilities.pause 					= isChecked("Pause Toggle")
@@ -347,14 +353,14 @@ function cShadow:new()
 	-- | |__| |  __/ |_   ____) |  __/ |  __/ (__| ||  __/ (_| | | |____| | \ \ 
 	--  \_____|\___|\__| |_____/ \___|_|\___|\___|\__\___|\__,_|  \_____|_|  \_\
 	function self.getRotation()
-        self.rotation = bb.selectedProfile
-
-        if bb.rotation_changed then
-            --self.createToggles()
-            self.createOptions()
-
-            bb.rotation_changed = false
-        end
+		self.rotation = bb.selectedProfile
+		
+		if bb.rotation_changed then
+			--self.createToggles()
+			self.createOptions()
+			
+			bb.rotation_changed = false
+		end
 	end
 
 	--  _____                              _        _    _       _ _       
@@ -512,6 +518,7 @@ function cShadow:new()
 				end
 			end
 		end
+		return
 	end
 
 	-- get next biggest unit in range from enemiesTable with exceptions
@@ -528,19 +535,55 @@ function cShadow:new()
 			95101,		-- Socrethar: Phase1 Voracious Soulstalker
 		}
 
+		-- blacklist
+		local function unit_allowed(targetUnit)
+			if targetUnit == nil or not UnitExists(targetUnit) then 
+				return true 
+			end
+			local thisUnit = targetUnit
+			local thisUnitID = getUnitID(thisUnit)
+			local Blacklist_UnitID = {
+			-- HM: Highmaul
+				79956,		-- Ko'ragh: Volatile Anomaly
+				78077,		-- Mar'gok: Volatile Anomaly
+			-- BRF: Blackrock Foundry
+				77128,		-- Darmac: Pack Beast
+				77394,		-- Thogar: Iron Raider (Train Ads)
+				77893,		-- Kromog: Grasping Earth (Hands)
+				77665,		-- Blackhand: Iron Soldier
+			-- HFC: Hellfire Citadel
+				90114,		-- Hellfire Assault: damn small ads
+				--94326,		-- Iron Reaver: Reactive Bomb
+				90513,		-- Kilrogg: Fel Blood Globule
+				96077,		-- Kilrogg: Fel Blood Globule
+				90477,		-- Kilrogg: Blood Globule
+				93288,		-- Gorefiend: Corrupted Players
+				95101,		-- Socrethar: Phase1 Voracious Soulstalker
+				91326,		-- Mannoroth: Gul'dan
+			}
+			local Blacklist_BuffID = {
+			-- blackrock foundry
+				155176, 	-- Blast Furnace: Primal Elementalist: http://www.wowhead.com/spell=155176/damage-shield
+				176141, 	-- Blast Furnace: Slag Elemental: http://www.wowhead.com/spell=176141/hardened-slag
+			}
+			-- check for buffs
+			for i = 1, #Blacklist_BuffID do
+				if getBuffRemain(thisUnit,Blacklist_BuffID[i]) > 0 or getDebuffRemain(thisUnit,Blacklist_BuffID[i]) > 0 then return false end
+			end
+			-- check for unit id
+			for i = 1, #Blacklist_UnitID do
+				if thisUnitID == Blacklist_UnitID[i] then return false end
+			end
+			return true
+		end
+
 		local exceptionGUID = UnitGUID(exceptionUnit)
 		for i=1, #enemiesTable do
 			local thisUnit = enemiesTable[i].unit
 			local thisGUID = enemiesTable[i].guid
 			local thisCheck = true
-			-- check for blacklist
-			for i=1, #exceptionTable do
-				if getUnitID(thisUnit) == exceptionTable[i] then 
-					thisCheck = false
-				end
-			end
 			-- get the unit from enemiesTable
-			if thisCheck then
+			if unit_allowed(thisUnit) then
 				if thisGUID ~= exceptionGUID then
 					if enemiesTable[i].distance < range then
 						if UnitCanAttack("player",thisUnit) then
@@ -624,6 +667,8 @@ function cShadow:new()
 			-- BRF: Blackrock Foundry
 
 			-- HFC: Hellfire Citadel
+				91349,		-- Mannoroth
+				91259,		-- Mannoroth: Fel Imp
 				91331,		-- Archimonde
 			}
 			local Blacklist_BuffID = {
@@ -910,6 +955,7 @@ function cShadow:new()
 			else
 				return castSpell(thisTarget,self.spell.mind_blast,false,true) == true or false
 			end
+			return false
 		end
 		-- mind_flay
 		function self.castMindFlay(thisTarget)
@@ -1122,11 +1168,7 @@ function cShadow:new()
 									if distance < 40 then
 										-- TTD or dummy
 										if ttd > refreshTime or isDummy(thisUnit) then
-											if castSpell(thisUnit,self.spell.vampiric_touch,true,true) then
-												lastVTTarget = thisUnitGUID
-												lastVTTime = GetTime()
-												return true
-											end
+											return castSpell(thisUnit,self.spell.vampiric_touch,true,true) == true or false
 										end
 									end
 								end
