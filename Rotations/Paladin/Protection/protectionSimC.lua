@@ -11,13 +11,33 @@ function cProtection:protectionSimC()
 	local lastSpellCast = lastSpellCast
 
     -- OOC Action List
-    function actionList_OOC()
+    local function actionList_OOC()
         -- Buffs logic
         cast.Buffs()
+
+        -- TEST PRE PULL
+        if bb.DBM:getPulltimer(2) then
+            useItem(109220)
+            cast.SacredShield()
+        end
+    end
+
+    -- Special DMG cheasing with T18 Class Trinket
+    -- TODO: improve by only iterate 1 time through buffs with buff list
+    local function actionList_T18cancelShields()
+        -- Cancel Powerword:Shield, 2T18 Buff, Sacred Shield, (Clarity of Will)
+        if eq.t18_classTrinket and self.health > getValue("Trinket % Trigger") and isChecked("Trinket % Trigger") and mode.classTrinket == 1 then
+            if protPaladinClassTrinketProc == nil or GetTime()-12 > protPaladinClassTrinketProc then
+                if isChecked("Cancel Power Word: Shield") then cancelBuff(17) end
+                if isChecked("Cancel Clarity of Will") then cancelBuff(152118) end
+                if isChecked("Cancel Sacred Shield") then cancelBuff(65148) end
+                if isChecked("Cancel Avenger's Reprieve") then cancelBuff(185676) end
+            end
+        end
     end
 
     -- inCombat Action List
-    function actionList_inCombat()
+    local function actionList_inCombat()
         -- make sure we have a seal(often removed by changing talents/glyph)
         -- Default: Insight
         if seal == 0 then
@@ -220,6 +240,7 @@ function cProtection:protectionSimC()
 
     -- inCombat Rotation
     if self.inCombat then
+        actionList_T18cancelShields()
         if actionList_inCombat() then return true end
     end
 

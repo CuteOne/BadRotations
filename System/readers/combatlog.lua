@@ -362,6 +362,9 @@ function bb.read.combatLog()
     if (source == bb.guid and (spell == 35395 or spell == 53595)) then
       previousT18classTrinket = destination
     end
+    if (source == bb.guid and param == "SPELL_HEAL" and (spell == 184910 or spell == 185101)) then
+        protPaladinClassTrinketProc = GetTime()
+    end
     --[[ Double Jeopardy ]]
     if spell == 20271 and source == bb.guid and previousJudgmentTarget ~= destination then
       previousJudgmentTarget = destination
