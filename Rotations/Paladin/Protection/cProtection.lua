@@ -178,6 +178,7 @@ function cProtection:new()
         self.mode.defensive = BadBoy_data["Defensive"]
         self.mode.healing   = BadBoy_data["Healing"]
         self.mode.empS      = BadBoy_data["EmpS"]
+        self.mode.classTrinket = BadBoy_data["classTrinket"]
     end
 
     -- Updates Judgment recharge time (cooldown)
@@ -270,6 +271,13 @@ function cProtection:new()
                 [3] = { mode = "Insight", value = 3 , overlay = "Insight.", tip = "|cffFF0000Stays in Insight.", highlight = 0, icon = 20165 }
             }
             CreateButton("EmpS",3,1)
+
+            -- Class Trinket Shield Cancel
+            classTrinketModes = {
+                [1] = { mode = "DPS", value = 1 , overlay = "PUSH DPS.", tip = "|cffFF0000Cancels shields.", highlight = 1, icon = 184910 },
+                [2] = { mode = "Save", value = 2 , overlay = "Shields.", tip = "|cffFF0000Shields are here to stay.", highlight = 0, icon = 184910 },
+            }
+            CreateButton("classTrinket",3,0)
         elseif self.rotation == 2 then
             AoEModes = {
                 [1] = { mode = "CUTE", value = 1 , overlay = "Single Target Enabled", tip = "|cff00FF00Cfor \n|cffFFDD11Single Target(1-2).", highlight = 0, icon = 35395 },
@@ -296,6 +304,15 @@ function cProtection:new()
             createNewDropdown(section, "Execution Sentence", bb.dropOptions.CD)
             createNewDropdown(section, "Holy Avenger", bb.dropOptions.CD)
             createNewDropdown(section, "Seraphim", bb.dropOptions.CD)
+            checkSectionState(section)
+
+            -- T18 Class Trinket DMG pushing
+            section = createNewSection(bb.profile_window, "T18 Class Trinket", "Choose which absorb buffs should be canceled to make trinket proc.")
+            createNewSpinner(section, "Trinket % Trigger", 59, 59, 100, 1, "Enter your Trinket % when it will trigger.")
+            createNewCheckbox(section, "Cancel Power Word: Shield")
+            createNewCheckbox(section, "Cancel Clarity of Will")
+            createNewCheckbox(section, "Cancel Sacred Shield", "Only cancels the short duration absorb buff.")
+            createNewCheckbox(section, "Cancel Avenger's Reprieve", "2 T18 Buff")
             checkSectionState(section)
 
             -- Healing
@@ -451,7 +468,8 @@ function cProtection:new()
     -- Todo: make sure we cast on a unit with as much HP as possible
     function self.cast.ExecutionSentence()
         if isSelected("Execution Sentence",true) then
-            if not self.talent.seraphim or not isSelected("Seraphim",true) or self.buff.seraphim > 5 then
+            local noSeraCheck = true
+            if not self.talent.seraphim or not isSelected("Seraphim",true) or self.buff.seraphim > 5 or noSeraCheck then
                 if (isDummy(self.units.dyn40) or (UnitHealth(self.units.dyn40) >= 4*UnitHealthMax("player"))) then
                     return castSpell(self.units.dyn30,self.spell.executionSentence,false,false) == true or false
                 end

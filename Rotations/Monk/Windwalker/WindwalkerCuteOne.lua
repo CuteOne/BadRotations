@@ -427,7 +427,7 @@ if select(2, UnitClass("player")) == "MONK" then
         -- Tiger Palm
             -- tiger_palm,if=buff.combo_breaker_tp.react&buff.combo_breaker_tp.remains<=2
             if buff.comboBreakerTigerPalm and buff.remain.comboBreakerTigerPalm<=2 then
-                if sself.castTigerPalm() then return end
+                if self.castTigerPalm() then return end
             end
         -- Rising Sun Kick
             -- rising_sun_kick
