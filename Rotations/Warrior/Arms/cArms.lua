@@ -212,6 +212,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             self.cd.colossusSmash   = getSpellCD(self.spell.colossusSmash)
             self.cd.mortalStrike    = getSpellCD(self.spell.mortalStrike)
             self.cd.siegebreaker    = getSpellCD(self.spell.siegebreaker)
+            self.cd.sweepingStrikes = getSpellCD(self.spell.sweepingStrikes)
             self.cd.thunderClap     = getSpellCD(self.spell.thunderClap)
         end
 
