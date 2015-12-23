@@ -85,20 +85,20 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             end
         -- Death Grip
             --if ((solo and #nNova==1) or hasThreat(self.units.dyn30AoE)) then
-            if inCombat then
-                if self.castDeathGrip(thisUnit) then return end
-            end
+            -- if inCombat then
+            --     if self.castDeathGrip(thisUnit) then return end
+            -- end
             -- end
         -- Gorefiend's Grasp
-            if ((solo and #nNova==1) or hasThreat(self.units.dyn20AoE)) then
-                if self.castDeathGrip() then return end
-            end
+            -- if ((solo and #nNova==1) or hasThreat(self.units.dyn20AoE)) then
+            --     if self.castDeathGrip() then return end
+            -- end
         -- Unholy Presence
-            if not buff.unholyPresence and moving and (not inCombat or (inCombat and getDistance(self.units.dyn5)>10)) then --and (power<40 or (power<70 and glyph.shiftingPresences)))) then
-                if self.castUnholyPresence() then return end
-            end
+            -- if not buff.unholyPresence and moving and (not inCombat or (inCombat and getDistance(self.units.dyn5)>10)) then --and (power<40 or (power<70 and glyph.shiftingPresences)))) then
+            --     if self.castUnholyPresence() then return end
+            -- end
         -- Frost Presence
-            if not buff.frostPresence and php > getOptionValue("Blood Presence") and getDistance(self.units.dyn5)<=10 then --and (power<40 or (power<70 and glyph.shiftingPresences)) then
+            if not buff.frostPresence --[[and php > getOptionValue("Blood Presence")]] and getDistance(self.units.dyn5)<=10 then --and (power<40 or (power<70 and glyph.shiftingPresences)) then
                 if self.castFrostPresence() then return end
             end
         -- Path of Frost
@@ -247,13 +247,13 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             end
         -- food,type=buttered_sturgeon
         -- Horn of Winter
-            if isChecked("Horn of Winter") and not (IsFlying() or IsMounted()) and not inCombat then
-                for i = 1, #nNova do
-                    if not isBuffed(nNova[i].unit,{57330,19506,6673}) and (#nNova==select(5,GetInstanceInfo()) or solo or (party and not UnitInParty("player")))
-                    then
+            if --[[isChecked("Horn of Winter") and]] not (IsFlying() or IsMounted()) and not inCombat then
+                -- for i = 1, #nNova do
+                --     if not isBuffed(nNova[i].unit,{57330,19506,6673}) and (#nNova==select(5,GetInstanceInfo()) or solo or (party and not UnitInParty("player")))
+                --     then
                         if self.castHornOfWinter() then return end
-                    end
-                end
+                --     end
+                -- end
             end
         -- Frost Presence
             if not buff.frostPresence and php > getOptionValue("Blood Presence") and getDistance(self.units.dyn5)<=8 then
@@ -659,8 +659,8 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             if actionList_Extras() then return end
             if actionList_Utility() then return end
             if actionList_Defensive() then return end
+            if actionList_PreCombat() then return end
             if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
-                if actionList_PreCombat() then return end
                 if getDistance("target")<5 then
                     StartAttack()
                 end

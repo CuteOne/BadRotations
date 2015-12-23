@@ -239,7 +239,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 	    -- Potion
 	    		-- potion,name=draenic_agility,if=(talent.storm_elemental_totem.enabled&(pet.storm_elemental_totem.remains>=25|(cooldown.storm_elemental_totem.remains>target.time_to_die&pet.fire_elemental_totem.remains>=25)))|(!talent.storm_elemental_totem.enabled&pet.fire_elemental_totem.remains>=25)|target.time_to_die<=30
 	    		if useCDs() and canUse(109217) and inRaid and isChecked("Agi-Pot") then
-	    			if (talent.stormElementalTotem and (totem.remain.stormElementalTotem>=25 or (cd.stormElementalTotem>ttd and totem.remaim.fireElementalTotem>=25))) or (not talent.stormElementalTotem and totem.remain.fireElementalTotem>=25) or ttd<=30 then
+	    			if (talent.stormElementalTotem and (totem.remain.stormElementalTotem>=25 or (cd.stormElementalTotem>ttd and totem.remain.fireElementalTotem>=25))) or (not talent.stormElementalTotem and totem.remain.fireElementalTotem>=25) or ttd<=30 then
 	    				useItem(109217)
 	    			end
 	    		end
