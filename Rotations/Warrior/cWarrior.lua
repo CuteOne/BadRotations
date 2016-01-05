@@ -152,6 +152,7 @@ function cWarrior:new(spec)
 		local UnitBuffID = UnitBuffID
 
 		self.buff.avatar 			= UnitBuffID("player",self.spell.avatarBuff)~=nil or false
+		self.buff.battleShout 		= UnitBuffID("player",self.spell.battleShoutBuff)~=nil or false
 		self.buff.battleStance 		= UnitBuffID("player",self.spell.battleStanceBuff)~=nil or false
 		self.buff.bloodbath 		= UnitBuffID("player",self.spell.bloodbathBuff)~=nil or false
 		self.buff.defensiveStance 	= UnitBuffID("player",self.spell.defensiveStanceBuff)~=nil or false
@@ -292,6 +293,31 @@ function cWarrior:new(spec)
 		if self.talent.avatar and self.cd.avatar==0 and getDistance(self.units.dyn5)<5 then
 			if castSpell("player",self.spell.avatar,false,false,false) then return end
 		end
+	end
+	function self.castBattleShout()
+		if self.level>=42 then
+	        if self.instance=="none" and not isBuffed("player",{self.spell.battleShout,19506,57330}) then
+	        	if castSpell("player",self.spell.battleShout,false,false,false) then return end
+	        else
+		        local totalCount = GetNumGroupMembers()
+		        local currentCount = currentCount or 0
+		        local needsBuff = needsBuff or 0
+		        for i=1,#nNova do
+		            local thisUnit = nNova[i].unit
+		            local distance = getDistance(thisUnit)
+		            local dead = UnitIsDeadOrGhost(thisUnit)
+		            if distance<30 then
+		                currentCount = currentCount+1
+		            end
+		            if not isBuffed(thisUnit,{self.spell.battleShout,19506,57330}) and not dead then
+		            	needsBuff = needsBuff+1
+		            end
+		        end
+		        if currentCount>=totalCount and needsBuff>0 then
+		            if castSpell("player",self.spell.battleShout,false,false,false) then return end
+		        end
+		    end
+	    end
 	end
 	function self.castBladestorm()
 		if self.talent.bladestorm and self.cd.bladestorm==0 and getDistance(self.units.dyn8AoE)<8 then

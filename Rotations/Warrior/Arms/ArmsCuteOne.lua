@@ -50,7 +50,8 @@ if select(3,UnitClass("player")) == 1 then
     --------------------
     -- Action list - Extras
         function actionList_Extra()
-
+            -- Battle Shout
+            if self.castBattleShout() then return end
         end -- End Action List - Extra
     -- Action List - Defensive
         function actionList_Defensive()
