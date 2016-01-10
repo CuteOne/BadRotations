@@ -682,69 +682,69 @@ if select(2, UnitClass("player")) == "MONK" then
                 if self.castJab() then return end
             end
         end -- End Action List - Multi-Target: Rushing Jade Wind
-    -- Profile Stop
-        if profileStop==true then
+---------------------
+--- Begin Profile ---
+---------------------
+    -- Profile Stop | Pause
+        if not inCombat and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and profileStop==true then
+            profileStop = false
+        elseif (inCombat and profileStop==true) or pause() then
             return true
         else
-            profileStop=false
-        end
 --------------
 --- Extras ---
 --------------
     -- Run Action List - Extras
-        if actionList_Extras() then return end
-        -- Pause
-        if pause() then
-          return true
-        elseif not isChecked("Death Monk Mode") then
+            if actionList_Extras() then return end
+            if not isChecked("Death Monk Mode") then
 -----------------
 --- Defensive ---
 -----------------
     -- Run Action List - Defensive
-            if actionList_Defensive() then return end
+                if actionList_Defensive() then return end
 ------------------
 --- Pre-Combat ---
 ------------------
     -- Run Action List - Pre-Combat
-            if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
-                if actionList_PreCombat() then return end
-                if getDistance("target")<5 then
-                    StartAttack()
+                if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+                    if actionList_PreCombat() then return end
+                    if getDistance("target")<5 then
+                        StartAttack()
+                    end
                 end
-            end
 -----------------
 --- In Combat ---
 -----------------
-            if inCombat and profileStop==false then
+                if inCombat and profileStop==false then
     ------------------
     --- Interrupts ---
     ------------------
     -- Run Action List - Interrupts
-                if actionList_Interrupts() then return end
+                    if actionList_Interrupts() then return end
     ----------------------
     --- Start Rotation ---
     ----------------------
     -- Auto Attack
-                -- auto_attack
-                if getDistance(self.units.dyn5)<5 then
-                    StartAttack()
-                end
+                    -- auto_attack
+                    if getDistance(self.units.dyn5)<5 then
+                        StartAttack()
+                    end
     --  Invoke Xuen
-                -- invoke_xuen
-                if useCDs() then
-                    if self.castInvokeXuen() then return end
-                end
+                    -- invoke_xuen
+                    if useCDs() then
+                        if self.castInvokeXuen() then return end
+                    end
     -- Storm, Earth, and Fire
-                -- storm_earth_and_fire,target=2,if=debuff.storm_earth_and_fire_target.down
-                -- storm_earth_and_fire,target=3,if=debuff.storm_earth_and_fire_target.down
-                if BadBoy_data['SEF']==1 then
-                    if self.castStormEarthAndFire() then return end
-                end
+                    -- storm_earth_and_fire,target=2,if=debuff.storm_earth_and_fire_target.down
+                    -- storm_earth_and_fire,target=3,if=debuff.storm_earth_and_fire_target.down
+                    if BadBoy_data['SEF']==1 then
+                        if self.castStormEarthAndFire() then return end
+                    end
     -- Call Action List - Opener
-                -- call_action_list,name=opener,if=talent.serenity.enabled&talent.chi_brew.enabled&cooldown.fists_of_fury.up&time<20
-                if talent.serenity and talent.chiBrew and cd.fistsOfFury==0 and combatTime<20 then
-                    if actionList_Opener() then return end
-                end
+                    -- call_action_list,name=opener,if=talent.serenity.enabled&talent.chi_brew.enabled&cooldown.fists_of_fury.up&time<20
+                    if talent.serenity and talent.chiBrew and cd.fistsOfFury==0 and combatTime<20 then
+                        if actionList_Opener() then return end
+                    end
     -- Chi Sphere
                 -- chi_sphere,if=talent.power_strikes.enabled&buff.chi_sphere.react&chi<chi.max
                 -- No way to code this
@@ -755,129 +755,130 @@ if select(2, UnitClass("player")) == "MONK" then
                 -- use_item,name=maalus_the_blood_drinker,if=buff.tigereye_brew_use.up|target.time_to_die<18
                 -- TODO: Legendary Ring Usage
     -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                -- blood_fury,if=buff.tigereye_brew_use.up|target.time_to_die<18
-                -- berserking,if=buff.tigereye_brew_use.up|target.time_to_die<18
-                -- arcane_torrent,if=chi.max-chi>=1&(buff.tigereye_brew_use.up|target.time_to_die<18)
-                if useCDs() then
-                    if buff.tigereyeBrew or ttd<18 then
-                        if (self.race == "Orc" or self.race == "Troll") then
-                            if castSpell("player",racial,false,false,false) then return end
-                        end
-                        if self.race == "Blood Elf" and chi.diff>=1 then
-                            if castSpell("player",racial,false,false,false) then return end
+                    -- blood_fury,if=buff.tigereye_brew_use.up|target.time_to_die<18
+                    -- berserking,if=buff.tigereye_brew_use.up|target.time_to_die<18
+                    -- arcane_torrent,if=chi.max-chi>=1&(buff.tigereye_brew_use.up|target.time_to_die<18)
+                    if useCDs() then
+                        if buff.tigereyeBrew or ttd<18 then
+                            if (self.race == "Orc" or self.race == "Troll") then
+                                if castSpell("player",racial,false,false,false) then return end
+                            end
+                            if self.race == "Blood Elf" and chi.diff>=1 then
+                                if castSpell("player",racial,false,false,false) then return end
+                            end
                         end
                     end
-                end
     -- Chi Brew
-                -- chi_brew,if=chi.max-chi>=2&((charges=1&recharge_time<=10)|charges=2|target.time_to_die<charges*10)&buff.tigereye_brew.stack<=16
-                if chi.diff>=2 and ((charges.chiBrew==1 and recharge.chiBrew<=10) or charges.chiBrew==2 or ttd<charges.chiBrew*10) and charges.tigereyeBrew<=16 then
-                    if self.castChiBrew() then return end
-            end
+                    -- chi_brew,if=chi.max-chi>=2&((charges=1&recharge_time<=10)|charges=2|target.time_to_die<charges*10)&buff.tigereye_brew.stack<=16
+                    if chi.diff>=2 and ((charges.chiBrew==1 and recharge.chiBrew<=10) or charges.chiBrew==2 or ttd<charges.chiBrew*10) and charges.tigereyeBrew<=16 then
+                        if self.castChiBrew() then return end
+                    end
     -- Tiger Palm
-                -- tiger_palm,if=!talent.chi_explosion.enabled&buff.tiger_power.remains<6.6
-                if not talent.chiExplosion and buff.remain.tigerPower<6.6 then
-                    if self.castTigerPalm() then return end
-                end
-                -- tiger_palm,if=talent.chi_explosion.enabled&(cooldown.fists_of_fury.remains<5|cooldown.fists_of_fury.up)&buff.tiger_power.remains<5
-                if talent.chiExplosion and (cd.fistsOfFury<5 or cd.fistsOfFury==0) and buff.remain.tigerPower<5 then
-                    if self.castTigerPalm() then return end
-                end
+                    -- tiger_palm,if=!talent.chi_explosion.enabled&buff.tiger_power.remains<6.6
+                    if not talent.chiExplosion and buff.remain.tigerPower<6.6 then
+                        if self.castTigerPalm() then return end
+                    end
+                    -- tiger_palm,if=talent.chi_explosion.enabled&(cooldown.fists_of_fury.remains<5|cooldown.fists_of_fury.up)&buff.tiger_power.remains<5
+                    if talent.chiExplosion and (cd.fistsOfFury<5 or cd.fistsOfFury==0) and buff.remain.tigerPower<5 then
+                        if self.castTigerPalm() then return end
+                    end
     -- Tigereye Brew
-                -- tigereye_brew,if=buff.tigereye_brew_use.down&buff.tigereye_brew.stack=20
-                if not buff.tigereyeBrew and charges.tigereyeBrew==20 then
-                    if self.castTigereyeBrew() then return end
-                end
-                -- tigereye_brew,if=buff.tigereye_brew_use.down&buff.tigereye_brew.stack>=9&buff.serenity.up
-                if not buff.tigereyeBrew and charges.tigereyeBrew>=9 and buff.serenity then
-                    if self.castTigereyeBrew() then return end
-                end
-                -- tigereye_brew,if=talent.chi_explosion.enabled&buff.tigereye_brew_use.down
-                if talent.chiExplosion and not buff.tigereyeBrew then
-                    if self.castTigereyeBrew() then return end
-                end
-                -- tigereye_brew,if=buff.tigereye_brew_use.down&buff.tigereye_brew.stack>=9&cooldown.fists_of_fury.up&chi>=3&debuff.rising_sun_kick.up&buff.tiger_power.up
-                if not buff.tigereyeBrew and charges.tigereyeBrew>=9 and cd.fistsOfFury==0 and chi.count>=3 and debuff.risingSunKick and buff.tigerPower then
-                    if self.castTigereyeBrew() then return end
-                end
-                -- tigereye_brew,if=talent.hurricane_strike.enabled&buff.tigereye_brew_use.down&buff.tigereye_brew.stack>=9&cooldown.hurricane_strike.up&chi>=3&debuff.rising_sun_kick.up&buff.tiger_power.up
-                if talent.hurricaneStrike and not buff.tigereyeBrew and charges.tigereyeBrew>=9 and cd.hurricaneStrike==0 and debuff.risingSunKick and buff.tigerPower then
-                    if self.castTigereyeBrew() then return end
-                end
-                -- tigereye_brew,if=buff.tigereye_brew_use.down&chi>=2&(buff.tigereye_brew.stack>=16|target.time_to_die<40)&debuff.rising_sun_kick.up&buff.tiger_power.up
-                if not buff.tigereyeBrew and chi.count>=2 and (charges.tigereyeBrew>=16 or ttd<40) and debuff.risingSunKick and buff.tigerPower then
-                    if self.castTigereyeBrew() then return end
-                end
+                    -- tigereye_brew,if=buff.tigereye_brew_use.down&buff.tigereye_brew.stack=20
+                    if not buff.tigereyeBrew and charges.tigereyeBrew==20 then
+                        if self.castTigereyeBrew() then return end
+                    end
+                    -- tigereye_brew,if=buff.tigereye_brew_use.down&buff.tigereye_brew.stack>=9&buff.serenity.up
+                    if not buff.tigereyeBrew and charges.tigereyeBrew>=9 and buff.serenity then
+                        if self.castTigereyeBrew() then return end
+                    end
+                    -- tigereye_brew,if=talent.chi_explosion.enabled&buff.tigereye_brew_use.down
+                    if talent.chiExplosion and not buff.tigereyeBrew then
+                        if self.castTigereyeBrew() then return end
+                    end
+                    -- tigereye_brew,if=buff.tigereye_brew_use.down&buff.tigereye_brew.stack>=9&cooldown.fists_of_fury.up&chi>=3&debuff.rising_sun_kick.up&buff.tiger_power.up
+                    if not buff.tigereyeBrew and charges.tigereyeBrew>=9 and cd.fistsOfFury==0 and chi.count>=3 and debuff.risingSunKick and buff.tigerPower then
+                        if self.castTigereyeBrew() then return end
+                    end
+                    -- tigereye_brew,if=talent.hurricane_strike.enabled&buff.tigereye_brew_use.down&buff.tigereye_brew.stack>=9&cooldown.hurricane_strike.up&chi>=3&debuff.rising_sun_kick.up&buff.tiger_power.up
+                    if talent.hurricaneStrike and not buff.tigereyeBrew and charges.tigereyeBrew>=9 and cd.hurricaneStrike==0 and debuff.risingSunKick and buff.tigerPower then
+                        if self.castTigereyeBrew() then return end
+                    end
+                    -- tigereye_brew,if=buff.tigereye_brew_use.down&chi>=2&(buff.tigereye_brew.stack>=16|target.time_to_die<40)&debuff.rising_sun_kick.up&buff.tiger_power.up
+                    if not buff.tigereyeBrew and chi.count>=2 and (charges.tigereyeBrew>=16 or ttd<40) and debuff.risingSunKick and buff.tigerPower then
+                        if self.castTigereyeBrew() then return end
+                    end
     -- Fortifying Brew
-                -- fortifying_brew,if=target.health.percent<10&cooldown.touch_of_death.remains=0&(glyph.touch_of_death.enabled|chi>=3)
-                if (thp<10 or UnitHealth("player")*1.2>=UnitHealth("target")) and cd.touchOfDeath==0 and (glyph.touchOfDeath or chi.count>=3) and ObjectExists("target") then
-                    if self.castFortifyingBrew() then return end
-                end
+                    -- fortifying_brew,if=target.health.percent<10&cooldown.touch_of_death.remains=0&(glyph.touch_of_death.enabled|chi>=3)
+                    if (thp<10 or UnitHealth("player")*1.2>=UnitHealth("target")) and cd.touchOfDeath==0 and (glyph.touchOfDeath or chi.count>=3) and ObjectExists("target") then
+                        if self.castFortifyingBrew() then return end
+                    end
     -- Touch of Death
-                -- touch_of_death,if=target.health.percent<10&(glyph.touch_of_death.enabled|chi>=3)
-                if (thp<10 or UnitHealth("player")>=UnitHealth("target")) and (glyph.touchOfDeath or chi.count>=3) then
-                    if self.castTouchOfDeath() then return end
-                end
+                    -- touch_of_death,if=target.health.percent<10&(glyph.touch_of_death.enabled|chi>=3)
+                    if (thp<10 or UnitHealth("player")>=UnitHealth("target")) and (glyph.touchOfDeath or chi.count>=3) then
+                        if self.castTouchOfDeath() then return end
+                    end
     -- Rising Sun Kick
-                -- rising_sun_kick,if=(debuff.rising_sun_kick.down|debuff.rising_sun_kick.remains<3)
-                if (not debuff.risingSunKick or debuff.remain.risingSunKick<3) then
-                    if self.castRisingSunKick() then return end
-                end
+                    -- rising_sun_kick,if=(debuff.rising_sun_kick.down|debuff.rising_sun_kick.remains<3)
+                    if (not debuff.risingSunKick or debuff.remain.risingSunKick<3) then
+                        if self.castRisingSunKick() then return end
+                    end
     -- Serenity
-                -- serenity,if=chi>=2&buff.tiger_power.up&debuff.rising_sun_kick.up
-                if chi.count>=2 and buff.tigerPower and debuff.risingSunKick then
-                    if self.castSerenity() then return end
-                end
+                    -- serenity,if=chi>=2&buff.tiger_power.up&debuff.rising_sun_kick.up
+                    if chi.count>=2 and buff.tigerPower and debuff.risingSunKick then
+                        if self.castSerenity() then return end
+                    end
     -- Fists of Fury
-                -- fists_of_fury,if=buff.tiger_power.remains>cast_time&debuff.rising_sun_kick.remains>cast_time&energy.time_to_max>cast_time&!buff.serenity.up
-                if buff.remain.tigerPower>castTimeFoF and debuff.remain.risingSunKick>castTimeFoF and ttm>castTimeFoF and not buff.serenity then
-                    if self.castFistsOfFury() then return end
-                end
+                    -- fists_of_fury,if=buff.tiger_power.remains>cast_time&debuff.rising_sun_kick.remains>cast_time&energy.time_to_max>cast_time&!buff.serenity.up
+                    if buff.remain.tigerPower>castTimeFoF and debuff.remain.risingSunKick>castTimeFoF and ttm>castTimeFoF and not buff.serenity then
+                        if self.castFistsOfFury() then return end
+                    end
     -- Hurricane Strike
-                -- hurricane_strike,if=energy.time_to_max>cast_time&buff.tiger_power.remains>cast_time&debuff.rising_sun_kick.remains>cast_time&buff.energizing_brew.down
-                if ttm>castTimeHS and buff.remain.tigerPower>castTimeHS and debuff.remain.risingSunKick>castTimeHS and not buff.energizingBrew then
-                    if self.castHurricaneStrike() then return end
-                end
+                    -- hurricane_strike,if=energy.time_to_max>cast_time&buff.tiger_power.remains>cast_time&debuff.rising_sun_kick.remains>cast_time&buff.energizing_brew.down
+                    if ttm>castTimeHS and buff.remain.tigerPower>castTimeHS and debuff.remain.risingSunKick>castTimeHS and not buff.energizingBrew then
+                        if self.castHurricaneStrike() then return end
+                    end
     -- Energizing Brew
-                -- energizing_brew,if=cooldown.fists_of_fury.remains>6&(!talent.serenity.enabled|(!buff.serenity.remains&cooldown.serenity.remains>4))&energy+energy.regen<50
-                if cd.fistsOfFury>6 and (not talent.serenity or (not buff.serenity and cd.serenity>4)) and power+regen<50 then
-                    if self.castEnergizingBrew() then return end
-                end
+                    -- energizing_brew,if=cooldown.fists_of_fury.remains>6&(!talent.serenity.enabled|(!buff.serenity.remains&cooldown.serenity.remains>4))&energy+energy.regen<50
+                    if cd.fistsOfFury>6 and (not talent.serenity or (not buff.serenity and cd.serenity>4)) and power+regen<50 then
+                        if self.castEnergizingBrew() then return end
+                    end
     -- Call Action List - Single Target
-                -- call_action_list,name=st,if=active_enemies<3&(level<100|!talent.chi_explosion.enabled)
-                if enemies.yards8<3 and (level<100 or not talent.chiExplosion) then
-                    if actionList_SingleTarget() then return end
-                end
+                    -- call_action_list,name=st,if=active_enemies<3&(level<100|!talent.chi_explosion.enabled)
+                    if enemies.yards8<3 and (level<100 or not talent.chiExplosion) then
+                        if actionList_SingleTarget() then return end
+                    end
     -- Call Action List - Single Target: Chi Explosion
-                -- call_action_list,name=st_chix,if=active_enemies=1&talent.chi_explosion.enabled
-                if enemies.yards8==1 and talent.chiExplosion then
-                    if actionList_SingleTargetChiExplosion() then return end
-                end
+                    -- call_action_list,name=st_chix,if=active_enemies=1&talent.chi_explosion.enabled
+                    if enemies.yards8==1 and talent.chiExplosion then
+                        if actionList_SingleTargetChiExplosion() then return end
+                    end
     -- Call Action List - Cleave Target: Chi Explosion
-                -- call_action_list,name=cleave_chix,if=(active_enemies=2|active_enemies=3&!talent.rushing_jade_wind.enabled)&talent.chi_explosion.enabled
-                if (enemies.yards8==2 or enemies==3 and not talent.rushingJadeWind) and talent.chiExplosion then
-                    if actionList_CleaveTargetChiExplosion() then return end
-                end
+                    -- call_action_list,name=cleave_chix,if=(active_enemies=2|active_enemies=3&!talent.rushing_jade_wind.enabled)&talent.chi_explosion.enabled
+                    if (enemies.yards8==2 or enemies==3 and not talent.rushingJadeWind) and talent.chiExplosion then
+                        if actionList_CleaveTargetChiExplosion() then return end
+                    end
     -- Call Action List - Multi-Target: No Rushing Jade Wind
-                -- call_action_list,name=aoe_norjw,if=active_enemies>=3&!talent.rushing_jade_wind.enabled&!talent.chi_explosion.enabled
-                if enemies.yards8>=3 and not talent.rushingJadeWind and not talent.chiExplosion then
-                    if actionList_MultiTargetNoRushingJadeWind() then return end
-                end
+                    -- call_action_list,name=aoe_norjw,if=active_enemies>=3&!talent.rushing_jade_wind.enabled&!talent.chi_explosion.enabled
+                    if enemies.yards8>=3 and not talent.rushingJadeWind and not talent.chiExplosion then
+                        if actionList_MultiTargetNoRushingJadeWind() then return end
+                    end
     -- Call Action List - Multi-Target: No Rushing Jade Wind - Chi Explosion
-                -- call_action_list,name=aoe_norjw_chix,if=active_enemies>=4&!talent.rushing_jade_wind.enabled&talent.chi_explosion.enabled
-                if enemies.yards8>=4 and not talent.rushingJadeWind and talent.chiExplosion then
-                    if actionList_MultiTargetNoRushingJadeWindChiExplosion() then return end
-                end
+                    -- call_action_list,name=aoe_norjw_chix,if=active_enemies>=4&!talent.rushing_jade_wind.enabled&talent.chi_explosion.enabled
+                    if enemies.yards8>=4 and not talent.rushingJadeWind and talent.chiExplosion then
+                        if actionList_MultiTargetNoRushingJadeWindChiExplosion() then return end
+                    end
     -- Call Action List - Multi-Target: Rushing Jade Wind
-                -- call_action_list,name=aoe_rjw,if=active_enemies>=3&talent.rushing_jade_wind.enabled
-                if enemies.yards8>=3 and talent.rushingJadeWind then
-                    if actionList_MultiTargetRushingJadeWind() then return end
-                end
+                    -- call_action_list,name=aoe_rjw,if=active_enemies>=3&talent.rushing_jade_wind.enabled
+                    if enemies.yards8>=3 and talent.rushingJadeWind then
+                        if actionList_MultiTargetRushingJadeWind() then return end
+                    end
     -- Tiger Palm
-                -- tiger_palm,if=buff.combo_breaker_tp.react
-                if buff.comboBreakerTigerPalm then
-                    if self.castTigerPalm() then return end
-                end
-            end -- End Combat Check 
-        end -- End Pause/Death Monk Mode Check
+                    -- tiger_palm,if=buff.combo_breaker_tp.react
+                    if buff.comboBreakerTigerPalm then
+                        if self.castTigerPalm() then return end
+                    end
+                end -- End Combat Check 
+            end -- End Death Monk Mode Check
+        end -- End Pause
     end -- End Rotation Function
 end -- End Class Check
