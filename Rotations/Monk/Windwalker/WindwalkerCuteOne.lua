@@ -688,7 +688,7 @@ if select(2, UnitClass("player")) == "MONK" then
     -- Profile Stop | Pause
         if not inCombat and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or pause() or UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player") then
+        elseif (inCombat and profileStop==true) or pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) then
             return true
         else
 --------------
