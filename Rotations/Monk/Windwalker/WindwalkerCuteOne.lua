@@ -201,11 +201,11 @@ if select(2, UnitClass("player")) == "MONK" then
                     if self.castFortifyingBrew() then return end
                 end
         -- Diffuse Magic
-                if isChecked("Diffuse Magic") and (php<=getValue("Diffuse Magic") and inCombat) or canDispel("player",self.spell.diffuseMagic) then
+                if isChecked("Diffuse/Dampen") and (php<=getValue("Diffuse Magic") and inCombat) or canDispel("player",self.spell.diffuseMagic) then
                     if self.castDiffuseMagic() then return end
                 end
         -- Dampen Harm
-                if isChecked("Dampen Harm") and php<=getValue("Dampen Harm") and inCombat then
+                if isChecked("Diffuse/Dampen") and php<=getValue("Dampen Harm") and inCombat then
                     if self.castDampenHarm() then return end
                 end
         -- Zen Meditation
