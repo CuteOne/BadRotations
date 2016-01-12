@@ -685,10 +685,8 @@ if select(2, UnitClass("player")) == "MONK" then
 ---------------------
 --- Begin Profile ---
 ---------------------
-    -- Profile Stop | Pause
-        if not inCombat and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and profileStop==true then
-            profileStop = false
-        elseif (inCombat and profileStop==true) or pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) then
+    -- Pause
+        if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) then
             return true
         else
 --------------
@@ -708,14 +706,11 @@ if select(2, UnitClass("player")) == "MONK" then
     -- Run Action List - Pre-Combat
                 if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
                     if actionList_PreCombat() then return end
-                    if getDistance("target")<5 then
-                        StartAttack()
-                    end
                 end
 -----------------
 --- In Combat ---
 -----------------
-                if inCombat and profileStop==false then
+                if inCombat then
     ------------------
     --- Interrupts ---
     ------------------
@@ -747,7 +742,7 @@ if select(2, UnitClass("player")) == "MONK" then
                     end
     -- Chi Sphere
                 -- chi_sphere,if=talent.power_strikes.enabled&buff.chi_sphere.react&chi<chi.max
-                -- No way to code this
+                -- No way to code this?
     -- Potion
                 -- potion,name=draenic_agility,if=buff.serenity.up|(!talent.serenity.enabled&(trinket.proc.agility.react|trinket.proc.multistrike.react))|buff.bloodlust.react|target.time_to_die<=60
                 -- TODO: Potion usage

@@ -71,6 +71,8 @@ if select(3,UnitClass("player")) == 1 then
             -- Defensive Stance
                 if isChecked("Defensive Stance") and inCombat and php <= getOptionValue("Defensive Stance") then
                     if self.castDefensiveStance() then return end
+                elseif buff.defensiveStance then
+                    if self.castBattleStance() then return end
                 end 
             end -- End Defensive Check
         end -- End Action List - Defensive

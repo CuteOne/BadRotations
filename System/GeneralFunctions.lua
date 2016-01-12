@@ -2172,6 +2172,8 @@ function pause()
 	then
 		ChatOverlay("Profile Paused")
 		return true
+	else 
+		return false
 	end
 end
 -- feed a var
