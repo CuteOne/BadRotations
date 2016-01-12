@@ -2233,7 +2233,9 @@ function isChecked(Value,new)
     --TEST
     new = true
     if new then
-        if BadBoy_data.options[GetSpecialization()] and (BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Check"] == 1 or BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Check"] == true) then
+        if BadBoy_data.options[GetSpecialization()] 
+        	and (BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Check"] == 1 or BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Check"] == true) 
+        then
             return true
         end
     else
@@ -2241,6 +2243,7 @@ function isChecked(Value,new)
             return true
         end
     end
+    return false
 end
 -- if isSelected("Stormlash Totem") then
 function isSelected(Value,new)
