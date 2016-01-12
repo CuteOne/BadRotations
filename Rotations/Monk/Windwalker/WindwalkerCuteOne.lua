@@ -804,7 +804,7 @@ if select(2, UnitClass("player")) == "MONK" then
                     end
     -- Fortifying Brew
                     -- fortifying_brew,if=target.health.percent<10&cooldown.touch_of_death.remains=0&(glyph.touch_of_death.enabled|chi>=3)
-                    if (thp<10 or UnitHealth("player")*1.2>=UnitHealth("target")) and cd.touchOfDeath==0 and (glyph.touchOfDeath or chi.count>=3) and ObjectExists("target") then
+                    if isChecked("Fort Brew w/ ToD") and (thp<10 or UnitHealth("player")*1.2>=UnitHealth("target")) and cd.touchOfDeath==0 and (glyph.touchOfDeath or chi.count>=3) and ObjectExists("target") then
                         if self.castFortifyingBrew() then return end
                     end
     -- Touch of Death
