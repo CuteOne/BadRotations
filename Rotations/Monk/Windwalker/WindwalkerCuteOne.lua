@@ -151,7 +151,9 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
             end
         -- Crackling Jade Lightning
-            if getDistance("target")>=8 and ((BadBoy_data['FSK']==1 and cd.flyingSerpentKick>1) or BadBoy_data['FSK']==0) and not isCastingSpell(self.spell.cracklingJadeLightning) and isInCombat("target") and not isMoving("player") then
+            if getDistance("target")>=8 and ((BadBoy_data['FSK']==1 and cd.flyingSerpentKick>1) or BadBoy_data['FSK']==2) 
+                and not isCastingSpell(self.spell.cracklingJadeLightning) and (isInCombat("target") or isDummy()) and not isMoving("player") 
+            then
                 if self.castCracklingJadeLightning() then return end
             end
         -- Touch of the Void
