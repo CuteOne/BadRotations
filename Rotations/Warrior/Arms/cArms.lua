@@ -210,6 +210,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             local getSpellCD = getSpellCD
 
             self.cd.colossusSmash   = getSpellCD(self.spell.colossusSmash)
+            self.cd.dieByTheSword   = getSpellCD(self.spell.dieByTheSword)
             self.cd.mortalStrike    = getSpellCD(self.spell.mortalStrike)
             self.cd.siegebreaker    = getSpellCD(self.spell.siegebreaker)
             self.cd.sweepingStrikes = getSpellCD(self.spell.sweepingStrikes)
@@ -320,6 +321,9 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             -- Dummy DPS Test
             createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
+            -- Berserker Rage
+            createNewCheckbox(section,"Berserker Rage")
+
             checkSectionState(section)
             
             --   _____            _     _
@@ -365,6 +369,12 @@ if select(2, UnitClass("player")) == "WARRIOR" then
 
             -- Defensive Stance
             createNewSpinner(section, "Defensive Stance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+
+            -- Die By The Sword
+            createNewSpinner(section, "Die by the Sword",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+
+            -- Intimidating Shout
+            createNewSpinner(section, "Intimidating Shout",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             --  _____       _                             _
             -- |_   _|     | |                           | |
@@ -420,6 +430,11 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         function self.castColossusSmash()
             if self.level>=81 and self.buff.battleStance and self.cd.colossusSmash==0 and self.power>10 and getDistance(self.units.dyn5)<5 then
                 if castSpell(self.units.dyn5,self.spell.colossusSmash,false,false,false) then return end
+            end
+        end
+        function self.castDieByTheSword()
+            if self.level>=56 and self.cd.dieByTheSword==0 then
+                if castSpell("player",self.spell.dieByTheSword,false,false,false) then return end
             end
         end
         function self.castExecute(thisUnit)

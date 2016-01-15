@@ -184,6 +184,7 @@ function cWarrior:new(spec)
 
 		self.cd.avatar 				= getSpellCD(self.spell.avatar)
 		self.cd.battleStance 		= getSpellCD(self.spell.battleStance)
+		self.cd.berserkerRage 		= getSpellCD(self.spell.berserkerRage)
 		self.cd.bladestorm 			= getSpellCD(self.spell.bladestorm)
 		self.cd.bloodbath 			= getSpellCD(self.spell.bloodbath)
 		self.cd.charge 		 		= getSpellCD(self.spell.charge)
@@ -192,6 +193,7 @@ function cWarrior:new(spec)
 		self.cd.heroicLeap   		= getSpellCD(self.spell.heroicLeap)
 		self.cd.heroicThrow 		= getSpellCD(self.spell.heroicThrow)
 		self.cd.impendingVictory 	= getSpellCD(self.spell.impendingVictory)
+		self.cd.intimidatingShout 	= getSpellCD(self.spell.intimidatingShout)
 		self.cd.shockwave 			= getSpellCD(self.spell.shockwave)
 		self.cd.stormBolt 			= getSpellCD(self.spell.stormBolt)
 		self.cd.pummel 				= getSpellCD(self.spell.pummel)
@@ -285,6 +287,11 @@ function cWarrior:new(spec)
 			if castSpell(thisUnit,self.spell.pummel,false,false,false) then return end
 		end
 	end
+	function self.castIntimidatingShout()
+		if self.level>=52 and self.cd.intimidatingShout==0 and getDistance("target")<8 then
+			if castSpell("player",self.spell.intimidatingShout,false,false,false) then return end
+		end
+	end
 
 --------------------------
 --- SPELLS - OFFENSIVE ---
@@ -328,6 +335,35 @@ function cWarrior:new(spec)
 		if self.talent.bloodbath and self.cd.bloodbath==0 and getDistance(self.units.dyn5)<5 then
 			if castSpell("player",self.spell.bloodbath,false,false,false) then return end
 		end
+	end
+	function self.castCommandingShout()
+		if self.level>=42 then
+	        if self.instance=="none" and isBuffed("player",{self.spell.battleShout,19506,57330}) and select(8,UnitBuffID("player",self.spell.battleShout))~="player" 
+	        	and not isBuffed("player",{self.spell.commandingShout,21562,109773,160014,90364,160003,111922})
+	        then
+	        	if castSpell("player",self.spell.commandingShout,false,false,false) then return end
+	        else
+		        local totalCount = GetNumGroupMembers()
+		        local currentCount = currentCount or 0
+		        local needsBuff = needsBuff or 0
+		        for i=1,#nNova do
+		            local thisUnit = nNova[i].unit
+		            local distance = getDistance(thisUnit)
+		            local dead = UnitIsDeadOrGhost(thisUnit)
+		            if distance<30 then
+		                currentCount = currentCount+1
+		            end
+		            if not isBuffed(thisUnit,{self.spell.commandingShout,19506,57330}) and not dead then
+		            	needsBuff = needsBuff+1
+		            end
+		        end
+		        if currentCount>=totalCount and needsBuff>0 and select(8,UnitBuffID("player",self.spell.battleShout))~="player" 
+		        	and not isBuffed("player",{self.spell.commandingShout,21562,109773,160014,90364,160003,111922}) 
+		        then
+		            if castSpell("player",self.spell.commandingShout,false,false,false) then return end
+		        end
+		    end
+	    end
 	end
 	function self.castDragonRoar()
 		if self.talent.dragonRoar and self.cd.dragonRoar==0 and getDistance(self.units.dyn8AoE)<8 then
@@ -383,6 +419,11 @@ function cWarrior:new(spec)
 ------------------------
 --- SPELLS - UTILITY ---
 ------------------------
+ 	function self.castBeserkerRage()
+ 		if self.level>=54 and self.cd.berserkerRage==0 and hasNoControl(self.spell.berserkerRage) then
+ 			if castSpell("player",self.spell.berserkerRage,false,false,false) then return end
+ 		end
+ 	end
 	function self.castCharge()
 		local hasThreat = hasThreat("target")
 		if self.level>=3 and self.cd.charge==0 and (hasThreat or select(2,IsInInstance())=="none") and getDistance("target")>5 and getDistance("target")<25 then

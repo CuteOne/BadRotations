@@ -52,6 +52,12 @@ if select(3,UnitClass("player")) == 1 then
         function actionList_Extra()
             -- Battle Shout
             if self.castBattleShout() then return end
+            -- Commanding Shout
+            if self.castCommandingShout() then return end
+            -- Berserker Rage
+            if isChecked("Berserker Rage") then
+                if self.castBeserkerRage() then return end
+            end
         end -- End Action List - Extra
     -- Action List - Defensive
         function actionList_Defensive()
@@ -74,6 +80,14 @@ if select(3,UnitClass("player")) == 1 then
                 elseif buff.defensiveStance then
                     if self.castBattleStance() then return end
                 end 
+            -- Die by the Sword
+                if isChecked("Die by the Sword") and inCombat and php <= getOptionValue("Die by the Sword") then
+                    if self.castDieByTheSword() then return end
+                end
+            -- Intimidating Shout
+                if isChecked("Intimidating Shout") and inCombat and php <= getOptionValue("Intimidating Shout") then
+                    if self.castIntimidatingShout() then return end
+                end
             end -- End Defensive Check
         end -- End Action List - Defensive
     -- Action List - Interrupts

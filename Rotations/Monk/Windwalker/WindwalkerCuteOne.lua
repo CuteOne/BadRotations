@@ -111,7 +111,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 if self.castLegacyOfTheWhiteTiger() then return end
             end
         -- Expel Harm (Chi Builer)
-            if not inCombat and BadBoy_data['Builder']==1 and chi.diff>=2 then
+            if not inCombat and BadBoy_data['Builder']==1 and chi.diff>=2 and not isUnitCasting("player") and GetNumLootItems()==0 then
                 if self.castExpelHarm() then return end
             end
         -- Provoke
