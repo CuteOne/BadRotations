@@ -87,4 +87,10 @@ if select(3,UnitClass("player")) == 10 then
   _SoothingMist				=	115175;
   _SerpentsZeal 				= 	127722;
   _VitalMists		 			= 	118674;
+  _ManaTea            = 115294;
+  _Revival            = 115310;
+  _Uplift             = 116670;
+  _LifeCocoon         = 116849;
+  _EnvelopingMist     = 124682;
+  _MistExpelHarm      = 147489;
 end
