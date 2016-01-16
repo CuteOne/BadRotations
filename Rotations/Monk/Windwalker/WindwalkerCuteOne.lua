@@ -344,7 +344,7 @@ if select(2, UnitClass("player")) == "MONK" then
             end
         -- Serenity
             -- serenity,if=chi.max-chi<=2
-            if useCooldowns() and isChecked("Serenity") and chi.diff<=2 then
+            if useCDs() and isChecked("Serenity") and chi.diff<=2 then
                 if self.castSerenity() then return end
             end
         -- Jab
@@ -821,7 +821,7 @@ if select(2, UnitClass("player")) == "MONK" then
                     end
     -- Serenity
                     -- serenity,if=chi>=2&buff.tiger_power.up&debuff.rising_sun_kick.up
-                    if useCooldowns() and isChecked("Serenity") and chi.count>=2 and buff.tigerPower and debuff.risingSunKick then
+                    if useCDs() and isChecked("Serenity") and chi.count>=2 and buff.tigerPower and debuff.risingSunKick then
                         if self.castSerenity() then return end
                     end
     -- Fists of Fury
