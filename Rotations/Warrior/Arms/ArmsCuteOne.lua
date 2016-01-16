@@ -58,6 +58,19 @@ if select(3,UnitClass("player")) == 1 then
             if isChecked("Berserker Rage") then
                 if self.castBeserkerRage() then return end
             end
+            -- Hamstring
+            if isChecked("Hamstring") then
+                for i=1,#getEnemies("player",5) do
+                    thisUnit = getEnemies("player",5)[i]
+                    if isMoving(thisUnit) and getFacing(thisUnit,"player") == false then
+                        if self.castHamstring() then return end
+                    end
+                end
+            end
+            -- Intervene
+            if isChecked("Intervene") then
+                if self.castIntervene("target") then return end
+            end
         end -- End Action List - Extra
     -- Action List - Defensive
         function actionList_Defensive()
@@ -84,6 +97,15 @@ if select(3,UnitClass("player")) == 1 then
                 if isChecked("Die by the Sword") and inCombat and php <= getOptionValue("Die by the Sword") then
                     if self.castDieByTheSword() then return end
                 end
+            -- Intervene
+                if isChecked("Intervene") then
+                    for i=1,#nNova do
+                        thisUnit = nNova[i].unit
+                        if UnitGroupRolesAssigned(thisUnit)=="HEALER" and getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
+                            if self.castIntervene(thisUnit) then return end
+                        end
+                    end
+                end
             -- Intimidating Shout
                 if isChecked("Intimidating Shout") and inCombat and php <= getOptionValue("Intimidating Shout") then
                     if self.castIntimidatingShout() then return end
@@ -99,6 +121,26 @@ if select(3,UnitClass("player")) == 1 then
                         thisUnit = getEnemies("player",5)[i]
                         if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
                             if self.castPummel(thisUnit) then return end
+                        end
+                    end
+                end
+            -- Intimidating Shout
+                if isChecked("Intimidating Shout - Int") then
+                    for i=1, #getEnemies("player",8) do
+                        thisUnit = getEnemies("player",8)[i]
+                        if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                            if self.castIntimidatingShout() then return end
+                        end
+                    end
+                end
+            -- Spell Reflection
+                if isChecked("Spell Reflection") then
+                    for i=1, #getEnemies("player",40) do
+                        thisUnit = getEnemies("player",40)[i]
+                        if UnitCastingInfo(thisUnit) ~= nil then
+                            if (select(6,UnitCastingInfo(thisUnit))/1000 - GetTime())<5 and UnitName("targettarget") == UnitName("player") then
+                                if self.castSpellReflection() then return end
+                            end
                         end
                     end
                 end

@@ -175,7 +175,7 @@ function cWarrior:new(spec)
 		local getBuffStacks = getBuffStacks
 		local getCharges = getCharges
 
-		-- self.charges.elementalFusion 	= getBuffStacks("player",self.spell.elementalFusionStacks,"player") or 0
+		self.charges.charge = getCharges(self.spell.charge) or 0
 	end
 
 -- Cooldown updates
@@ -190,11 +190,14 @@ function cWarrior:new(spec)
 		self.cd.charge 		 		= getSpellCD(self.spell.charge)
 		self.cd.defensiveStance 	= getSpellCD(self.spell.defensiveStance)
 		self.cd.dragonRoar 			= getSpellCD(self.spell.dragonRoar)
+		self.cd.hamstring 			= getSpellCD(self.spell.hamstring)
 		self.cd.heroicLeap   		= getSpellCD(self.spell.heroicLeap)
 		self.cd.heroicThrow 		= getSpellCD(self.spell.heroicThrow)
 		self.cd.impendingVictory 	= getSpellCD(self.spell.impendingVictory)
+		self.cd.intervene 			= getSpellCD(self.spell.intervene)
 		self.cd.intimidatingShout 	= getSpellCD(self.spell.intimidatingShout)
 		self.cd.shockwave 			= getSpellCD(self.spell.shockwave)
+		self.cd.spellReflection 	= getSpellCD(self.spell.spellReflection)
 		self.cd.stormBolt 			= getSpellCD(self.spell.stormBolt)
 		self.cd.pummel 				= getSpellCD(self.spell.pummel)
 	end
@@ -276,13 +279,16 @@ function cWarrior:new(spec)
 ------------------------------
 --- SPELLS - CROWD CONTROL --- 
 ------------------------------
-
+	function self.castHamstring(thisUnit)
+		if self.level>=36 and self.cd.hamstring==0 and getDebuffRemain(thisUnit,self.spell.hamstringDebuff,"player")==0 and getDistance(thisUnit)<5 then
+			if castSpell(thisUnit,self.spell.hamstring,false,false,false) then return end
+		end
+	end
 
 --------------------------
 --- SPELLS - DEFENSIVE ---
 --------------------------
 	function self.castPummel(thisUnit)
-		local thisUnit = thisUnit
 		if self.level>=24 and self.cd.pummel==0 and getDistance(thisUnit)<5 then
 			if castSpell(thisUnit,self.spell.pummel,false,false,false) then return end
 		end
@@ -290,6 +296,11 @@ function cWarrior:new(spec)
 	function self.castIntimidatingShout()
 		if self.level>=52 and self.cd.intimidatingShout==0 and getDistance("target")<8 then
 			if castSpell("player",self.spell.intimidatingShout,false,false,false) then return end
+		end
+	end
+	function self.castSpellReflection()
+		if self.level>=66 and self.cd.spellReflection==0 then
+			if castSpell("player",self.spell.spellReflection,false,false,false) then return end
 		end
 	end
 
@@ -372,8 +383,10 @@ function cWarrior:new(spec)
 	end
 	function self.castHeroicThrow()
 		local hasThreat = hasThreat("target")
-		if self.level>=22 and self.cd.heroicThrow==0 and (hasThreat or select(2,IsInInstance())=="none") and getDistance("target")>5 and getDistance("target")<30 then
-			if castSpell("target",self.spell.heroicThrow,false,false,false) then return end
+		if self.level>=22 and self.cd.heroicThrow==0 and (hasThreat or select(2,IsInInstance())=="none") and getDistance("target")>5 then
+			if (self.charges.charge==0 and getDistance("target")<30) or getDistance("target")<25 then
+				if castSpell("target",self.spell.heroicThrow,false,false,false) then return end
+			end
 		end
 	end
 	function self.castImpendingVictory()
@@ -434,6 +447,12 @@ function cWarrior:new(spec)
 		local hasThreat = hasThreat("target")
 		if self.level>=85 and self.cd.heroicLeap==0 and (hasThreat or select(2,IsInInstance())=="none") and getDistance("target")>5 and getDistance("target")<40 then
 			if castGround("target",self.spell.heroicLeap,40) then return end
+		end
+	end
+	function self.castIntervene(thisUnit)
+		if thisUnit == nil then thisUnit = "target" end
+		if self.level>=72 and self.cd.intervene==0 and UnitIsPlayer(thisUnit) and UnitIsFriend(thisUnit,"player") and getDistance(thisUnit)>5 and getDistance(thisUnit)<25 then
+			if castSpell(thisUnit,self.spell.intervene,false,false,false) then return end
 		end
 	end
 

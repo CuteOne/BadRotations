@@ -324,6 +324,9 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             -- Berserker Rage
             createNewCheckbox(section,"Berserker Rage")
 
+            -- Hamstring
+            createNewCheckbox(section,"Hamstring")
+
             checkSectionState(section)
             
             --   _____            _     _
@@ -373,6 +376,9 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             -- Die By The Sword
             createNewSpinner(section, "Die by the Sword",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
+            -- Intervene
+            createNewSpinner(section, "Intervene",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+
             -- Intimidating Shout
             createNewSpinner(section, "Intimidating Shout",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
@@ -385,9 +391,16 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             --                                     | |
             --                                     |_|
             section = createNewSection(bb.profile_window, "Interrupts")
+            
             -- Pummel
             createNewCheckbox(section,"Pummel")
+
+            -- Intimidating Shout
+            createNewCheckbox(section,"Intimidating Shoult - Int")
             
+            -- Spell Reflection
+            createNewCheckbox(section,"Spell Refelection")
+
             -- Interrupt Percentage
             createNewSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
             checkSectionState(section)

@@ -320,6 +320,9 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Touch of the Void
                 createNewCheckbox(section,"Touch of the Void")
 
+            -- Serenity
+                createNewCheckbox(section,"Serenity")
+
             -- Xuen
                 createNewCheckbox(section,"Xuen")
             checkSectionState(section)
