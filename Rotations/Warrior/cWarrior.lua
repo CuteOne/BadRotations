@@ -200,6 +200,7 @@ function cWarrior:new(spec)
 		self.cd.spellReflection 	= getSpellCD(self.spell.spellReflection)
 		self.cd.stormBolt 			= getSpellCD(self.spell.stormBolt)
 		self.cd.pummel 				= getSpellCD(self.spell.pummel)
+		self.cd.vigilance 			= getSpellCD(self.spell.vigilance)
 	end
 
 -- Debuff updates
@@ -249,6 +250,7 @@ function cWarrior:new(spec)
 		self.talent.stormBolt 			= getTalent(4,1)
 		self.talent.shockwave 			= getTalent(4,2)
 		self.talent.dragonRoar 			= getTalent(4,3)
+		self.talent.vigilance 			= getTalent(5,3)
 		self.talent.avatar 				= getTalent(6,1)
 		self.talent.bloodbath 			= getTalent(6,2)
 		self.talent.bladestorm 			= getTalent(6,3)
@@ -301,6 +303,11 @@ function cWarrior:new(spec)
 	function self.castSpellReflection()
 		if self.level>=66 and self.cd.spellReflection==0 then
 			if castSpell("player",self.spell.spellReflection,false,false,false) then return end
+		end
+	end
+	function self.castVigilance(thisUnit)
+		if self.talent.vigilance and self.cd.vigilance==0 and getDistance(thisUnit)<40 then
+			if castSpell(thisUnit,self.spell.vigilance,false,false,false) then return end
 		end
 	end
 

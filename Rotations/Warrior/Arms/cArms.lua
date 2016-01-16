@@ -382,6 +382,9 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             -- Intimidating Shout
             createNewSpinner(section, "Intimidating Shout",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
+            -- Vigilance
+            createNewSpinner(section, "Vigilance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+
             --  _____       _                             _
             -- |_   _|     | |                           | |
             --   | |  _ __ | |_ ___ _ __ _ __ _   _ _ __ | |_ ___
