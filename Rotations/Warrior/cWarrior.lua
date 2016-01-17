@@ -196,6 +196,7 @@ function cWarrior:new(spec)
 		self.cd.impendingVictory 	= getSpellCD(self.spell.impendingVictory)
 		self.cd.intervene 			= getSpellCD(self.spell.intervene)
 		self.cd.intimidatingShout 	= getSpellCD(self.spell.intimidatingShout)
+		self.cd.recklessness 		= getSpellCD(self.spell.recklessness)
 		self.cd.shockwave 			= getSpellCD(self.spell.shockwave)
 		self.cd.spellReflection 	= getSpellCD(self.spell.spellReflection)
 		self.cd.stormBolt 			= getSpellCD(self.spell.stormBolt)
@@ -403,7 +404,8 @@ function cWarrior:new(spec)
 	end
 	function self.castRavager()
 		if self.talent.ravager and self.cd.ravager==0 and getDistance(self.units.dyn40)<40 then
-			if castSpell(self.units.dyn40,self.spell.ravager,false,false,false) then return end
+			if castGoundAtBestLocation(self.spell.ravager,6,1,40) then return end
+			-- if castSpell(self.units.dyn40,self.spell.ravager,false,false,false) then return end
 		end
 	end
 	function self.castShockwave()
@@ -440,7 +442,7 @@ function cWarrior:new(spec)
 --- SPELLS - UTILITY ---
 ------------------------
  	function self.castBeserkerRage()
- 		if self.level>=54 and self.cd.berserkerRage==0 and hasNoControl(self.spell.berserkerRage) then
+ 		if self.level>=54 and self.cd.berserkerRage==0 and (hasNoControl(self.spell.berserkerRage) or GetSpecialization()==2) then
  			if castSpell("player",self.spell.berserkerRage,false,false,false) then return end
  		end
  	end
@@ -453,7 +455,8 @@ function cWarrior:new(spec)
 	function self.castHeroicLeap()
 		local hasThreat = hasThreat("target")
 		if self.level>=85 and self.cd.heroicLeap==0 and (hasThreat or select(2,IsInInstance())=="none") and getDistance("target")>5 and getDistance("target")<40 then
-			if castGround("target",self.spell.heroicLeap,40) then return end
+			if castGoundAtBestLocation(self.spell.heroicLeap,8,1,40,8) then return end
+			--if castGround("target",self.spell.heroicLeap,40) then return end
 		end
 	end
 	function self.castIntervene(thisUnit)

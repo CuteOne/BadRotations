@@ -1546,7 +1546,8 @@ function hasNoControl(spellID,unit)
 				-- Fear, Sap and Incapacitate
 				and (text == LOSS_OF_CONTROL_DISPLAY_FEAR
 				or text == LOSS_OF_CONTROL_DISPLAY_ROOT 
-				or text == LOSS_OF_CONTROL_DISPLAY_SNARE)
+				or text == LOSS_OF_CONTROL_DISPLAY_SNARE
+				or text == LOSS_OF_CONTROL_DISPLAY_STUN)
 			then
 				return true
 			end

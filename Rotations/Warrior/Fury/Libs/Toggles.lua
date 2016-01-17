@@ -4,8 +4,9 @@ if select(3, UnitClass("player")) == 1 then
 
       if AoEModesLoaded ~= "Fury Warrior AoE Modes" then
         CustomAoEModes = {
-          [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 0, icon = Whirlwind },
-          [2] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = Bloodthirst }
+          [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = Whirlwind },
+          [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = Bladestorm },
+          [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = WildStrike }
         };
         AoEModes = CustomAoEModes
         CreateButton("AoE",1,0)
