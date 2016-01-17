@@ -448,8 +448,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             end
         end
         function self.castExecute(thisUnit)
-            local thisUnit = thisUnit
-            if self.level>=7 and self.power>10 and (getHP(thisUnit)<20 or self.buff.suddenDeath) and getDistance(thisUnit)<5 then
+            if self.level>=7 and (self.power>30 or self.buff.suddenDeath) and (getHP(thisUnit)<20 or self.buff.suddenDeath) and getDistance(thisUnit)<5 then
                 if castSpell(thisUnit,self.spell.execute,false,false,false) then return end
             end
         end
@@ -469,7 +468,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             end
         end
         function self.castWhirlwind()
-            if self.level>=26 and self.power>20 and getDistance(self.units.dyn8AoE)<8 then
+            if self.level>=26 and self.power>30 and getDistance(self.units.dyn8AoE)<8 then
                 if castSpell(self.units.dyn8AoE,self.spell.whirlwind,false,false,false) then return end
             end
         end
