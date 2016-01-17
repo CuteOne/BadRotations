@@ -474,7 +474,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             end
         end
         function self.castWildStrike()
-            if self.level>=18 and (self.power>45 or (self.talent.furiousStrikes and self.power>20)) and getDistance(self.units.dyn5)<5 then
+            if self.level>=18 and (self.power>45 or self.buff.bloodsurge or (self.talent.furiousStrikes and self.power>20)) and getDistance(self.units.dyn5)<5 then
                 if castSpell(self.units.dyn5,self.spell.wildStrike,false,false,false) then return end
             end
         end
