@@ -64,6 +64,7 @@ if select(3,UnitClass("player")) == 10 then
   _PowerGuard                 =   118636 --Power Guard
   _Shuffle                    =   115307 --Shuffle (parry)
   _ElusiveBrewStacks            =   128939 --Elusive Brew Buff
+  _RenewingMistBuff           =   119611 --Renewing Mist Buff
 
   ------Racials------
   _GiftOfTheNaaru             =   59547   --Gift of the Naaru
