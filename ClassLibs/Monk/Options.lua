@@ -109,7 +109,7 @@ function MonkMistConfig()
     -- Wrapper -----------------------------------------
     section = createNewSection(bb.profile_window, "Cooldowns")
     createNewSpinner(section, "Revival", 20, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFRevival")
-    createNewSpinner(section,  "Revival People",  5,  0 , 25 ,  5,  "How many people need to be at the % to activate.")
+    createNewSpinner(section,  "Revival People",  5,  0 , 25 ,  1,  "How many people need to be at the % to activate.")
     createNewSpinner(section, "Life Cocoon", 15, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFLife Cocoon")
     checkSectionState(section)
 

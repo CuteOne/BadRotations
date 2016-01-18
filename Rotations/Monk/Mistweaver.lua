@@ -134,13 +134,6 @@ if select(3,UnitClass("player")) == 10 then
     ----------------------
     -- Pause toggle
     if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then ChatOverlay("|cffFF0000BadBoy Paused", 0); return; end
-    -- Focus Toggle
-    if isChecked("Focus Toggle") and SpecificToggle("Focus Toggle") == 1 then
-      RunMacroText("/focus mouseover");
-    end
-
-
-    --[[SoothingStops()]]
 
     -- Summon Jade Serpent Statue
     --[["115313","JadeSerpentStatue.pqikeybind","ground"},]]
@@ -252,6 +245,8 @@ if select(3,UnitClass("player")) == 10 then
       if isChecked("Renewing Mist") and getCharges(_RenewingMist) > 0 then
         for i = 1, #nNova do
           if not UnitBuffID(nNova[i].unit, _RenewingMistBuff) then
+            if castSpell("player",_ThunderFocusTea,true) then
+            end
             if castSpell(nNova[i].unit,_RenewingMist,true) then return; end
           end
         end
@@ -259,7 +254,9 @@ if select(3,UnitClass("player")) == 10 then
     elseif isChecked ("Renewing Mist") then
       for i = 1, #nNova do
         if not UnitBuffID(nNova[i].unit, _RenewingMistBuff) then
-          if castSpell(nNova[i].unit,_RenewingMist,true) then return; end
+          if castSpell("player",_ThunderFocusTea,true) then
+            if castSpell(nNova[i].unit,_RenewingMist,true) then return; end
+          end
         end
       end
     end

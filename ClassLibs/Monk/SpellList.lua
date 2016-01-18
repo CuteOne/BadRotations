@@ -83,7 +83,7 @@ if select(3,UnitClass("player")) == 10 then
   _StaggerModerate = 124274;
   _StaggerHeavy = 124273;
 
-
+  ------Mist------
   _RenewingMist				=	115151;
   _SoothingMist				=	115175;
   _SerpentsZeal 				= 	127722;
@@ -94,4 +94,5 @@ if select(3,UnitClass("player")) == 10 then
   _LifeCocoon         = 116849;
   _EnvelopingMist     = 124682;
   _MistExpelHarm      = 147489;
+  _ThunderFocusTea    = 116680;
 end
