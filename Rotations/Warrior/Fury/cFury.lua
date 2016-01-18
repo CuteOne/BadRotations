@@ -42,6 +42,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             meatCleaverBuff             = 85739,
             ragingBlowBuff              = 131116,
             recklessnessBuff            = 1719,
+            suddenDeathBuff             = 52437,
             
             -- Buff - Stacks
 
@@ -125,6 +126,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             self.buff.meatCleaver   = UnitBuffID("player",self.spell.meatCleaverBuff)~=nil or false
             self.buff.ragingBlow    = UnitBuffID("player",self.spell.ragingBlowBuff)~=nil or false
             self.buff.recklessness  = UnitBuffID("player",self.spell.recklessnessBuff)~=nil or false
+            self.buff.suddenDeath   = UnitBuffID("player",self.spell.suddenDeathBuff)~=nil or false
         end
 
         function self.getBuffsDuration()
@@ -313,13 +315,13 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             --  \_____|\___|_| |_|\___|_|  \__,_|_|
             section = createNewSection(bb.profile_window,  "General")
             -- Dummy DPS Test
-            createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+                createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
             -- Berserker Rage
-            createNewCheckbox(section,"Berserker Rage")
+                createNewCheckbox(section,"Berserker Rage")
 
             -- Hamstring
-            createNewCheckbox(section,"Hamstring")
+                createNewCheckbox(section,"Hamstring")
 
             checkSectionState(section)
             
@@ -331,20 +333,49 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             --  \_____\___/ \___/|_|\__,_|\___/ \_/\_/ |_| |_|___/
             section = createNewSection(bb.profile_window,  "Cooldowns")
             -- Agi Pot
-            createNewCheckbox(section,"Str-Pot")
+                createNewCheckbox(section,"Str-Pot")
 
             -- Legendary Ring
-            createNewCheckbox(section, "Legendary Ring", "Enable or Disable usage of Legendary Ring.")
-            -- createNewDropdown(section,  "Legendary Ring", { "CD"},  2)
+                createNewCheckbox(section, "Legendary Ring", "Enable or Disable usage of Legendary Ring.")
+                -- createNewDropdown(section,  "Legendary Ring", { "CD"},  2)
 
             -- Flask / Crystal
-            createNewCheckbox(section,"Flask / Crystal")
+                createNewCheckbox(section,"Flask / Crystal")
+
+            -- Racials
+                createNewCheckbox(section,"Racial")
 
             -- Trinkets
-            createNewCheckbox(section,"Trinkets")
+                createNewCheckbox(section,"Trinkets")
 
             -- Touch of the Void
-            createNewCheckbox(section,"Touch of the Void")
+                createNewCheckbox(section,"Touch of the Void")
+
+            -- Avatar
+                createNewCheckbox(section,"Avatar")
+
+            -- Bladestorm
+                createNewCheckbox(section,"Bladestorm")
+
+            -- Bloodbath
+                createNewCheckbox(section,"Bloodbath")
+
+            -- Dragon Roar
+                createNewCheckbox(section,"Dragon Roar")
+
+            -- Ravager
+                createNewSection(section,"Ravager")
+
+            -- Recklessness
+                createNewCheckbox(section,"Recklessness")
+
+            -- Shockwave
+                createNewCheckbox(section,"Shockwave")
+
+            -- Siegebreaker
+                createNewCheckbox(section,"Siegebreaker")
+
+            checkSectionState(section)
             
             --  _____        __               _
             -- |  __ \      / _|             (_)
@@ -354,30 +385,32 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             -- |_____/ \___|_| \___|_| |_|___/_| \_/ \___|
             section = createNewSection(bb.profile_window, "Defensive")
             -- Healthstone
-            createNewSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                createNewSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Heirloom Neck
-            createNewSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                createNewSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Gift of The Naaru
-            if self.race == "Draenei" then
-                createNewSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            end
+                if self.race == "Draenei" then
+                    createNewSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                end
 
             -- Defensive Stance
-            createNewSpinner(section, "Defensive Stance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                createNewSpinner(section, "Defensive Stance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Die By The Sword
-            createNewSpinner(section, "Die by the Sword",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                createNewSpinner(section, "Die by the Sword",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Intervene
-            createNewSpinner(section, "Intervene",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                createNewSpinner(section, "Intervene",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Intimidating Shout
-            createNewSpinner(section, "Intimidating Shout",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                createNewSpinner(section, "Intimidating Shout",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Vigilance
-            createNewSpinner(section, "Vigilance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                createNewSpinner(section, "Vigilance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+
+            checkSectionState(section)
 
             --  _____       _                             _
             -- |_   _|     | |                           | |
@@ -390,16 +423,17 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             section = createNewSection(bb.profile_window, "Interrupts")
             
             -- Pummel
-            createNewCheckbox(section,"Pummel")
+                createNewCheckbox(section,"Pummel")
 
             -- Intimidating Shout
-            createNewCheckbox(section,"Intimidating Shoult - Int")
+                createNewCheckbox(section,"Intimidating Shoult - Int")
             
             -- Spell Reflection
-            createNewCheckbox(section,"Spell Refelection")
+                createNewCheckbox(section,"Spell Refelection")
 
             -- Interrupt Percentage
-            createNewSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+                createNewSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+
             checkSectionState(section)
 
             -- _______                _        _  __
@@ -412,22 +446,21 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             --            |___/ |___/                   |___/
             section = createNewSection(bb.profile_window,  "Toggle Keys")
             -- Single/Multi Toggle
-            createNewDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
+                createNewDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
 
             --Cooldown Key Toggle
-            createNewDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
+                createNewDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
 
             --Defensive Key Toggle
-            createNewDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
+                createNewDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
 
             -- Interrupts Key Toggle
-            createNewDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
+                createNewDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
 
             -- Pause Toggle
-            createNewDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
+                createNewDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
+
             checkSectionState(section)
-
-
 
             --[[ Rotation Dropdown ]]--
             createNewRotationDropdown(bb.profile_window.parent, {"CuteOne"})
@@ -448,7 +481,8 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             end
         end
         function self.castExecute(thisUnit)
-            if self.level>=7 and (self.power>30 or self.buff.suddenDeath) and (getHP(thisUnit)<20 or self.buff.suddenDeath) and getDistance(thisUnit)<5 then
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if self.level>=7 and ((self.power>30 and getHP(thisUnit)<20) or self.buff.suddenDeath) and getDistance(thisUnit)<5 then
                 if castSpell(thisUnit,self.spell.execute,false,false,false) then return end
             end
         end

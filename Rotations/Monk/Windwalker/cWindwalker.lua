@@ -456,7 +456,7 @@ if select(2, UnitClass("player")) == "MONK" then
                     local hasThreat                 = hasThreat(thisUnit) -- UnitThreatSituation("player",thisUnit)~=nil or false
                     local debuffStormEarthAndFire   = UnitDebuffID(thisUnit,self.spell.stormEarthAndFireDebuff,"player")~=nil or false
 
-                    if not debuffStormEarthAndFire and thisUnit~=myTarget and self.charges.stormEarthAndFire<2 and hasThreat then
+                    if not debuffStormEarthAndFire and thisUnit~=myTarget and self.charges.stormEarthAndFire<2 and hasThreat and UnitName(thisUnit)~="Dungeoneer's Training Dummy" then
                         if castSpell(thisUnit,self.spell.stormEarthAndFire,false,false,false) then return end
                     end
                     if debuffStormEarthAndFire and thisUnit==myTarget then

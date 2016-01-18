@@ -455,7 +455,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         end
         function self.castExecute(thisUnit)
             local thisUnit = thisUnit
-            if self.level>=7 and (self.power>10 or self.buff.suddenDeath) and (getHP(thisUnit)<20 or self.buff.suddenDeath) and getDistance(thisUnit)<5 then
+            if self.level>=7 and ((self.power>10 and getHP(thisUnit)<20) or self.buff.suddenDeath) and getDistance(thisUnit)<5 then
                 if castSpell(thisUnit,self.spell.execute,false,false,false) then return end
             end
         end

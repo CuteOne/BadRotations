@@ -156,12 +156,6 @@ if select(3,UnitClass("player")) == 1 then
                 end
             end
         end -- End Action List - Interrupts
-    -- Action List - Cooldowns
-        function actionList_Cooldowns()
-            if getDistance(dyn5)<5 then
-            
-            end
-        end -- End Action List - Cooldowns
     -- Action List - Pre-Combat
         function actionList_PreCombat()
         -- Flask
@@ -198,28 +192,36 @@ if select(3,UnitClass("player")) == 1 then
             -- heroic_throw
             if self.castHeroicThrow() then return end
         end
-    -- Action List - Bladestorm
+    -- Action List - Bladestorm (OH GOD WHY!?!?!)
         function actionList_Bladestorm() 
         -- Recklessness
             -- recklessness,sync=bladestorm,if=buff.enrage.remains>6&((talent.anger_management.enabled&raid_event.adds.in>45)|(!talent.anger_management.enabled&raid_event.adds.in>60)|!raid_event.adds.exists|spell_targets.bladestorm_mh>desired_targets)
-            if buff.remain.enrage>6 then
-                if self.castRecklessness() then return end
+            if useCDs() and isChecked("Recklessness") and getDistance(self.units.dyn8AoE)<8 then
+                if buff.remain.enrage>6 then
+                    if self.castRecklessness() then return end
+                end
             end
         -- Bladestorm
             -- bladestorm,if=buff.enrage.remains>6&((talent.anger_management.enabled&raid_event.adds.in>45)|(!talent.anger_management.enabled&raid_event.adds.in>60)|!raid_event.adds.exists|spell_targets.bladestorm_mh>desired_targets)
-            if buff.remain.enrage>6 then
-                if self.castBladestorm() then return end
+            if useCDs() and isChecked("Bladestorm") and getDistance(self.units.dyn8AoE)<8 then
+                if buff.remain.enrage>6 then
+                    if self.castBladestorm() then return end
+                end
             end
-        end -- End Action List - Bladestorm
+        end -- End Action List - Bladestorm (OH GOD WHY!?!?!)
     -- Action List - Single
         function actionList_Single()
         -- Bloodbath
             -- bloodbath
-            if self.castBloodbath() then return end
+            if useCDs() and isChecked("Bloodbath") and getDistance(self.units.dyn8AoE)<8 then
+                if self.castBloodbath() then return end
+            end
         -- Recklessness
             -- recklessness,if=target.health.pct<20&raid_event.adds.exists
-            if thp<20 then
-                if self.castRecklessness() then return end
+            if useCDs() and isChecked("Recklessness") then
+                if thp<20 then
+                    if self.castRecklessness() then return end
+                end
             end
         -- Wild Strike
             -- wild_strike,if=(rage>rage.max-20)&target.health.pct>20
@@ -233,12 +235,16 @@ if select(3,UnitClass("player")) == 1 then
             end
         -- Ravager
             -- ravager,if=buff.bloodbath.up|(!talent.bloodbath.enabled&(!raid_event.adds.exists|raid_event.adds.in>60|target.time_to_die<40))
-            if buff.bloodbath or (not talent.bloodbath and ttd<40) then
-                if self.castRavager() then return end
+            if useCDs() and isChecked("Ravager") then
+                if buff.bloodbath or (not talent.bloodbath and ttd<40) then
+                    if self.castRavager() then return end
+                end
             end
         -- Siegebreaker
             -- siegebreaker
-            if self.castSiegebreaker() then return end
+            if useCDs() and isChecked("Siegebreaker") and getDistance(self.units.dyn5)<5 then
+                if self.castSiegebreaker() then return end
+            end
         -- Execute
             -- execute,if=buff.sudden_death.react
             if buff.suddenDeath then
@@ -255,12 +261,14 @@ if select(3,UnitClass("player")) == 1 then
         -- Execute
             -- execute,if=buff.enrage.up|target.time_to_die<12
             if buff.enrage or ttd<12 then
-                if self.castExecute() then return end
+                if self.castExecute(self.units.dyn5) then return end
             end
         -- Dragon Roar
             -- dragon_roar,if=buff.bloodbath.up|!talent.bloodbath.enabled
-            if buff.bloodbath or not talent.bloodbath then
-                if self.castDragonRoar() then return end
+            if useCDs() and isChecked("Dragon Roar") and getDistance(self.units.dyn8AoE)<8 then
+                if buff.bloodbath or not talent.bloodbath then
+                    if self.castDragonRoar() then return end
+                end
             end
         -- Raging Blow
             -- raging_blow
@@ -277,11 +285,15 @@ if select(3,UnitClass("player")) == 1 then
             end
         -- Bladestorm
             -- bladestorm,if=!raid_event.adds.exists
-            if self.castBladestorm() then return end
+            if useCDs() and isChecked("Bladestorm") and getDistance(self.units.dyn8AoE)<8 then 
+                if self.castBladestorm() then return end
+            end
         -- Shockwave
             -- shockwave,if=!talent.unquenchable_thirst.enabled
-            if not talent.unquenchableThirst then
-                if self.castShockwave() then return end
+            if useCDs() and isChecked("Shockwave") and getDistance(self.units.dyn8AoE)<8 then
+                if not talent.unquenchableThirst then
+                    if self.castShockwave() then return end
+                end
             end
         -- Impending Victory
             -- impending_victory,if=!talent.unquenchable_thirst.enabled&target.health.pct>20
@@ -296,16 +308,22 @@ if select(3,UnitClass("player")) == 1 then
         function actionList_TwoTargets()
         -- Bloodbath
             -- bloodbath
-            if self.castBloodbath() then return end
+            if useCDs() and isChecked("Bloodbath") and getDistance(self.units.dyn8AoE)<8 then
+                if self.castBloodbath() then return end
+            end
         -- Ravager
             -- ravager,if=buff.bloodbath.up|!talent.bloodbath.enabled
-            if buff.bloodbath or not talent.bloodbath then
-                if self.castRavager() then return end
+            if useCDs() and isChecked("Ravager") then
+                if buff.bloodbath or not talent.bloodbath then
+                    if self.castRavager() then return end
+                end
             end
         -- Dragon Roar
             -- dragon_roar,if=buff.bloodbath.up|!talent.bloodbath.enabled
-            if buff.bloodbath or not talent.bloodbath then
-                if self.castDragonRoar() then return end
+            if useCDs() and isChecked("Dragon Roar") and getDistance(self.units.dyn8AoE)<8 then
+                if buff.bloodbath or not talent.bloodbath then
+                    if self.castDragonRoar() then return end
+                end
             end
         -- Call Action List - Bladestorm (OH GOD WHY!?!?!)
             -- call_action_list,name=bladestorm
@@ -317,7 +335,9 @@ if select(3,UnitClass("player")) == 1 then
             end
         -- Siegebreaker
             -- siegebreaker
-            if self.castSiegebreaker() then return end
+            if useCDs() and isChecked("Siegebreaker") and getDistance(self.units.dyn5)<5 then
+                if self.castSiegebreaker() then return end
+            end
         -- Execute
             -- execute,cycle_targets=1
             for i=1, #getEnemies("player",5) do
@@ -350,11 +370,15 @@ if select(3,UnitClass("player")) == 1 then
         function actionList_ThreeTargets()
         -- Bloodbath
             -- bloodbath
-            if self.castBloodbath() then return end
+            if useCDs() and isChecked("Bloodbath") and getDistance(self.units.dyn8AoE)<8 then
+                if self.castBloodbath() then return end
+            end
         -- Ravager
             -- ravager,if=buff.bloodbath.up|!talent.bloodbath.enabled
-            if buff.bloodbath or not talent.bloodbath then
-                if self.castRavager() then return end
+            if useCDs() and isChecked("Ravager") then
+                if buff.bloodbath or not talent.bloodbath then
+                    if self.castRavager() then return end
+                end
             end
         -- Call Action List - Bladestorm (OH GOD WHY!?!?!)
             if actionList_Bladestorm() then return end
@@ -370,7 +394,9 @@ if select(3,UnitClass("player")) == 1 then
             end
         -- Siegebreaker
             -- siegebreaker
-            if self.castSiegebreaker() then return end
+            if useCDs() and isChecked("Siegebreaker") and getDistance(self.units.dyn5)<5 then
+                if self.castSiegebreaker() then return end
+            end
         -- Execute
             -- execute,cycle_targets=1
             for i=1, #getEnemies("player",5) do
@@ -379,8 +405,10 @@ if select(3,UnitClass("player")) == 1 then
             end
         -- Dragon Roar
             -- dragon_roar,if=buff.bloodbath.up|!talent.bloodbath.enabled
-            if buff.bloodbath or not talent.bloodbath then
-                if self.castDragonRoar() then return end
+            if useCDs() and isChecked("Dragon Roar") and getDistance(self.units.dyn8AoE)<8 then
+                if buff.bloodbath or not talent.bloodbath then
+                    if self.castDragonRoar() then return end
+                end
             end
         -- Whirlwind
             -- whirlwind,if=target.health.pct>20
@@ -410,11 +438,15 @@ if select(3,UnitClass("player")) == 1 then
             end
         -- Bloodbath
             -- bloodbath
-            if self.castBloodbath() then return end
+            if useCDs() and isChecked("Bloodbath") and getDistance(self.units.dyn8AoE)<8 then
+                if self.castBloodbath() then return end
+            end
         -- Ravager
             -- ravager,if=buff.bloodbath.up|!talent.bloodbath.enabled
-            if buff.bloodbath or not talent.bloodbath then
-                if self.castRavager() then return end
+            if useCDs() and isChecked("Ravager") then
+                if buff.bloodbath or not talent.bloodbath then
+                    if self.castRavager() then return end
+                end
             end
         -- Raging Blow
             -- if=buff.meat_cleaver.stack>=3&buff.enrage.up
@@ -434,16 +466,20 @@ if select(3,UnitClass("player")) == 1 then
             if self.castWhirlwind() then return end
         -- Siegebreaker
             -- siegebreaker
-            if self.castSiegebreaker() then return end
+            if useCDs() and isChecked("Siegebreaker") and getDistance(self.units.dyn5)<5 then
+                if self.castSiegebreaker() then return end
+            end
         -- Execute
             -- execute,if=buff.sudden_death.react
             if buff.suddenDeath then
-                if self.castExecute() then return end
+                if self.castExecute(self.units.dyn5) then return end
             end
         -- Dragon Roar
             -- dragon_roar,if=buff.bloodbath.up|!talent.bloodbath.enabled
-            if buff.bloodbath or not talent.bloodbath then
-                if self.castDragonRoar() then return end
+            if useCDs() and isChecked("Dragon Roar") and getDistance(self.units.dyn8AoE)<8 then
+                if buff.bloodbath or not talent.bloodbath then
+                    if self.castDragonRoar() then return end
+                end
             end  
         -- Bloodthirst
             -- bloodthirst
@@ -458,16 +494,20 @@ if select(3,UnitClass("player")) == 1 then
         function actionList_ReckAngerManagement()
         -- Recklessness
             -- recklessness,if=(target.time_to_die>140|target.health.pct<20)&(buff.bloodbath.up|!talent.bloodbath.enabled|target.time_to_die<15)
-            if (ttd>140 or thp<20) and (buff.bloodbath or not talent.bloodbath or ttd<15) then
-                if self.castRecklessness() then return end
+            if useCDs() and isChecked("Recklessness") then
+                if (ttd>140 or thp<20) and (buff.bloodbath or not talent.bloodbath or ttd<15) then
+                    if self.castRecklessness() then return end
+                end
             end
         end -- End Action List - Recklessness w/ Anger Management
     -- Action List - Recklessness w/o Anger Management
         function actionList_ReckNoAnger()
         -- Recklessness
             -- recklessness,if=(target.time_to_die>190|target.health.pct<20)&(buff.bloodbath.up|!talent.bloodbath.enabled|target.time_to_die<15)
-            if (ttd>190 or thp<20) and (buff.bloodbath or not talent.bloodbath or ttd<15) then
-                if self.castRecklessness() then return end
+            if useCDs() and isChecked("Recklessness") then
+                if (ttd>190 or thp<20) and (buff.bloodbath or not talent.bloodbath or ttd<15) then
+                    if self.castRecklessness() then return end
+                end
             end 
         end -- End Action List - Recklessness w/o Anger Management
   -----------------
@@ -551,30 +591,40 @@ if select(3,UnitClass("player")) == 1 then
                 end
             -- Recklessness
                 -- recklessness,if=(buff.bloodbath.up|cooldown.bloodbath.remains>25|!talent.bloodbath.enabled|target.time_to_die<15)&((talent.bladestorm.enabled&(!raid_event.adds.exists|enemies=1))|!talent.bladestorm.enabled)&set_bonus.tier18_4pc
-                if useCDs() and getDistance(self.units.dyn5)<5 and (buff.bloodbath or cd.bloodbath > 25 or not talent.bloodbath or ttd<15) and ((talent.bladestorm and (targets==1)) or not talent.bladestorm) and t18_4pc then
-                    if self.castRecklessness() then return end
+                if useCDs() and isChecked("Recklessness") and getDistance(self.units.dyn5)<5 then
+                    if (buff.bloodbath or cd.bloodbath > 25 or not talent.bloodbath or ttd<15) and ((talent.bladestorm and (targets==1)) or not talent.bladestorm) and t18_4pc then
+                        if self.castRecklessness() then return end
+                    end
                 end
             -- Call Action List - Recklessness w/ Anger Management
                 -- call_action_list,name=reck_anger_management,if=talent.anger_management.enabled&((talent.bladestorm.enabled&(!raid_event.adds.exists|enemies=1))|!talent.bladestorm.enabled)&!set_bonus.tier18_4pc
                 if useCDs() and getDistance(self.units.dyn5)<5 then
-                    if actionList_ReckAngerManagement() then return end
+                    if talent.angerManagement and ((talent.bladestorm and enemies==1) or not talent.bladestorm) and not t18_4pc then
+                        if actionList_ReckAngerManagement() then return end
+                    end
                 end
             -- Call Action List - Recklessness w/o Anger Management
                 -- call_action_list,name=reck_no_anger,if=!talent.anger_management.enabled&((talent.bladestorm.enabled&(!raid_event.adds.exists|enemies=1))|!talent.bladestorm.enabled)&!set_bonus.tier18_4pc
                 if useCDs() and getDistance(self.units.dyn5)<5 then
-                    if actionList_ReckNoAnger() then return end
+                    if not talent.angerManagement and ((talent.bladestorm and enemies==1) or not talent.bladestorm) and not t18_4pc then
+                        if actionList_ReckNoAnger() then return end
+                    end
                 end
             -- Avatar
                 -- avatar,if=buff.recklessness.up|cooldown.recklessness.remains>60|target.time_to_die<30
-                if useCDs() and getDistance(self.units.dyn5)<5 and buff.recklessness or cd.recklessness>60 or ttd<30 then
-                    if self.castAvatar() then return end
+                if useCDs() and isChecked("Avatar") and getDistance(self.units.dyn5)<5 then
+                    if buff.recklessness or cd.recklessness>60 or ttd<30 then
+                        if self.castAvatar() then return end
+                    end
                 end
             -- Racials
                 -- blood_fury
                 -- arcane_torrent
                 -- berserking
-                if useCDs() and getDistance(self.units.dyn5)<5 and (self.race == "Orc" or self.race == "Troll" or self.race == "Blood Elf") then
-                    if self.castRacial() then return end
+                if useCDs() and isChecked("Racial") and getDistance(self.units.dyn5)<5 then
+                    if (self.race == "Orc" or self.race == "Troll" or self.race == "Blood Elf") then
+                        if self.castRacial() then return end
+                    end
                 end
             -- Action List - Two Targets
                 -- call_action_list,name=two_targets,if=spell_targets.whirlwind=2
