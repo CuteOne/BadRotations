@@ -472,7 +472,7 @@ function cMonk:new(spec)
 	end
 	-- Rushing Jade Wind
 	function self.castRushingJadeWind()
-		if getTalent(6,1) and cd.rushingJadeWind==0 and self.power>40 then
+		if getTalent(6,1) and self.cd.rushingJadeWind==0 and self.power>40 then
 			if castSpell("player",self.spell.rushingJadeWind,false,false,false) then return end
 		end
 	end

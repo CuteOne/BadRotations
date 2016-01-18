@@ -98,14 +98,19 @@ function MonkMistConfig()
     -- Wrapper -----------------------------------------
     section = createNewSection(bb.profile_window, "Buffs")
     -- Stance
-    createNewDropdown(section,  "Stance", { "|cff00FF55Serpent", "|cff0077FFTiger"},  1,  "Choose Stance to use.")
+    createNewDropdown(section,  "Stance", { "|cff00FF55Serpent", "|cff0077FFCrane"},  1,  "Choose Stance to use.")
     -- Legacy of the Emperor
     createNewCheckbox(section,"Legacy of the Emperor")
+
+    createNewCheckbox(section,"Jade Serpent Statue (Left Shift)")
     checkSectionState(section)
 
     
     -- Wrapper -----------------------------------------
     section = createNewSection(bb.profile_window, "Cooldowns")
+    createNewSpinner(section, "Revival", 20, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFRevival")
+    createNewSpinner(section,  "Revival People",  5,  0 , 25 ,  1,  "How many people need to be at the % to activate.")
+    createNewSpinner(section, "Life Cocoon", 15, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFLife Cocoon")
     checkSectionState(section)
 
 
@@ -113,6 +118,8 @@ function MonkMistConfig()
     section = createNewSection(bb.profile_window, "Healing")
     -- Nature's Cure
     createNewDropdown(section, "Detox", { "|cffFFDD11MMouse", "|cffFFDD11MRaid", "|cff00FF00AMouse", "|cff00FF00ARaid"},  1,  "MMouse:|cffFFFFFFMouse / Match List. \nMRaid:|cffFFFFFFRaid / Match List. \nAMouse:|cffFFFFFFMouse / All. \nARaid:|cffFFFFFFRaid / All.")
+    -- Mana Tea
+    createNewSpinner(section, "Mana Tea", 90, 0 , 100, 5,  "Under what |cffFF0000%MP to use |cffFFFFFFMana Tea.")
     -- Chi Wave
     createNewSpinner(section,  "Chi Wave",  55,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFChi Wave.")
     -- Enveloping Mist
@@ -128,6 +135,9 @@ function MonkMistConfig()
     
     -- Wrapper -----------------------------------------
     section = createNewSection(bb.profile_window, "AoE Healing")
+    createNewSpinner(section,  "Uplift",  75,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFUplift.")
+    createNewSpinner(section,  "Uplift People",  5,  0 , 25 ,  5,  "How many people need to be at the % to activate.")
+    createNewSpinner(section,  "Spinning Crane Kick",  75,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFSCK.")
     checkSectionState(section)
 
 
@@ -144,35 +154,22 @@ function MonkMistConfig()
     
     -- Wrapper -----------------------------------------
     section = createNewSection(bb.profile_window, "Toggles")
-    -- Uplift Toggle
-    createNewDropdown(section, "Uplift Toggle", bb.dropOptions.Toggle2,  4)
     -- Pause Toggle
     createNewDropdown(section, "Pause Toggle", bb.dropOptions.Toggle2,  3)
-    -- Focus Toggle
-    createNewDropdown(section, "Focus Toggle", bb.dropOptions.Toggle2,  2)
     -- DPS Toggle
-    createNewDropdown(section, "DPS Toggle", bb.dropOptions.Toggle2,  1)
-    checkSectionState(section)
-
 
     -- Wrapper -----------------------------------------
     section = createNewSection(bb.profile_window, "Utilities")
-    -- Follow Tank
-    createNewSpinner(section,  "Follow Tank",  25,  10,  40  ,  1,  "Range from focus...")
     -- Spear Hand Strike
-    createNewSpinner(section,  "Spear Hand Strike",  60 ,  0,  100  ,  5,  "Over what % of cast we want to \n|cffFFFFFFSpear and Strike.")
+    createNewSpinner(section,  "Spear Hand Strike",  60 ,  0,  100  ,  5,  "Over what % of cast we want to \n|cffFFFFFFSpear Hand Strike.")
     -- Quaking Palm
-    createNewSpinner(section,  "Quaking Palm",  30 ,  0,  100  ,  5,  "Over what % of cast we want to \n|cffFFFFFFQuaking Palm.")
-    -- Resuscitate
-    createNewCheckbox(section,"Resuscitate")
-    -- Roll
-    createNewCheckbox(section,"Roll")
+    createNewSpinner(section,  "Paralysis",  30 ,  0,  100  ,  5,  "Over what % of cast we want to \n|cffFFFFFFParalysis.")
     checkSectionState(section)
 
 
 
     --[[ Rotation Dropdown ]]--
-    createNewRotationDropdown(bb.profile_window.parent, {"CodeMyLife"})
+    createNewRotationDropdown(bb.profile_window.parent, {"Kuukuu"})
     bb:checkProfileWindowStatus()
 end
 end

@@ -46,7 +46,7 @@ Raiable means if its good to raid with.
 |Moonkin|work in progress|ragnar| ? |:x:
 ||||
 | **Death Knight** |||
-|Frost|80%|CuteOne|6.1|:heavy_check_mark:
+|Frost|100%|CuteOne|**6.2**|:white_check_mark:
 |Blood|90%|CodeMyLife|6.1|:white_check_mark:
 |Unholy|85%|chumii|6.1|:heavy_check_mark:
 ||||
@@ -63,7 +63,7 @@ Raiable means if its good to raid with.
 | **Monk** |||
 |Brewmaster|95%|chumii,Defmaster|6.1|:white_check_mark:
 |Mistweaver|70%|CodeMyLife|6.1|:interrobang:
-|Windwalker|90% (SimC)|Defmaster|6.1|:white_check_mark:
+|Windwalker|100% (SimC)|CuteOne|**6.2**|:white_check_mark:
 ||||
 | **Paladin**  |||
 |Holy|50%|Gabbz & CodeMyLife|6.1|:interrobang:
@@ -76,13 +76,13 @@ Raiable means if its good to raid with.
 |Shadow|90%(CoP&AS)|ragnar|**6.2**|:white_check_mark: BH
 ||||
 | **Rogue**  |||
-|Assassination|90%|CuteOne|6.1|:interrobang:
+|Assassination|90%|CuteOne|6.2|:heavy_check_mark:
 |Combat|80%|Toxin|6.1|:white_check_mark:
 |Subtlety|0%|CuteOne|?|:x:
 ||||
 | **Shaman** |||
 |Elemental|90%|CodeMyLife|6.1|:white_check_mark:
-|Enhancement|100%|Cpoworks|6.1|:white_check_mark:
+|Enhancement|100%|CuteOne|6.2|:white_check_mark:
 |Restoration|90%|CodeMyLife|6.1|:interrobang:
 ||||
 | **Warlock**  |||
@@ -91,6 +91,6 @@ Raiable means if its good to raid with.
 |Destruction|0%||?|:x:
 ||||
 | **Warrior**  |||
-|Arms|75%|chumii|6.1|:interrobang:
-|Fury|100%|Averykey|6.1|:interrobang:
+|Arms|90%|CuteOne,chumii|6.2|:heavy_check_mark:
+|Fury|90%|CuteOne,Averykey|6.1|:heavy_check_mark:
 |Protection|85%|chumii|6.1|:interrobang:

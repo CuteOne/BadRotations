@@ -297,6 +297,10 @@ if select(2, UnitClass("player")) == "MONK" then
 
             -- Legacy of the White Tiger
                 createNewCheckbox(section,"Legacy of the White Tiger","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Legacy of the White Tiger usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
+
+            -- Fortifying Brew w/ Touch of Death
+                createNewCheckbox(section,"Fort Brew w/ ToD","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Fortifying to empower Touch of Death.")
+
             checkSectionState(section)
          
 
@@ -315,6 +319,9 @@ if select(2, UnitClass("player")) == "MONK" then
 
             -- Touch of the Void
                 createNewCheckbox(section,"Touch of the Void")
+
+            -- Serenity
+                createNewCheckbox(section,"Serenity")
 
             -- Xuen
                 createNewCheckbox(section,"Xuen")
@@ -449,7 +456,7 @@ if select(2, UnitClass("player")) == "MONK" then
                     local hasThreat                 = hasThreat(thisUnit) -- UnitThreatSituation("player",thisUnit)~=nil or false
                     local debuffStormEarthAndFire   = UnitDebuffID(thisUnit,self.spell.stormEarthAndFireDebuff,"player")~=nil or false
 
-                    if not debuffStormEarthAndFire and thisUnit~=myTarget and self.charges.stormEarthAndFire<2 and hasThreat then
+                    if not debuffStormEarthAndFire and thisUnit~=myTarget and self.charges.stormEarthAndFire<2 and hasThreat and UnitName(thisUnit)~="Dungeoneer's Training Dummy" then
                         if castSpell(thisUnit,self.spell.stormEarthAndFire,false,false,false) then return end
                     end
                     if debuffStormEarthAndFire and thisUnit==myTarget then

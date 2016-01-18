@@ -1,12 +1,12 @@
---- Arms Class
+--- Fury Class
 -- Inherit from: ../cCharacter.lua and ../cWarrior.lua
 if select(2, UnitClass("player")) == "WARRIOR" then
 
-    cArms = {}
+    cFury = {}
 
-    -- Creates Arms Warrior
-    function cArms:new()
-        local self = cWarrior:new("Arms")
+    -- Creates Fury Warrior
+    function cFury:new()
+        local self = cWarrior:new("Fury")
 
         local player = "player" -- if someone forgets ""
 
@@ -18,55 +18,51 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             -- yards10,
             -- yards30,
         }
-        self.armsSpell = {
+        self.furySpell = {
             -- Ability - Defensive
-            dieByTheSword           = 118038,
-            rallyingCry             = 97462,
-            shieldBarrier           = 174926,
+            dieByTheSword               = 118038,
+            piercingHowl                = 12323,
+            rallyingCry                 = 97462,
+            shieldBarrier               = 174926,
 
             -- Ability - Offensive
-            colossusSmash           = 167105,
-            execute                 = 163201,
-            mortalStrike            = 12294,
-            recklessness            = 1719,
-            rend                    = 772,
-            siegebreaker            = 176289,
-            slam                    = 1464,
-            sweepingStrikes         = 12328,
-            thunderClap             = 6343,
-            whirlwind               = 1680,
+            bloodthirst                 = 23881,
+            execute                     = 5308,
+            ragingBlow                  = 85288,
+            recklessness                = 1719,
+            siegebreaker                = 176289,
+            whirlwind                   = 1680,
+            wildStrike                  = 100130,
 
             -- Buff - Defensive
-            dieByTheSwordBuff       = 118038,
-            shieldBarrierBuff       = 174926,
-
+            
             -- Buff - Offensive
-            recklessnessBuff        = 1719,
-            slamBuff                = 1464,
-            suddenDeathBuff         = 52437,
-            sweepingStrikesBuff     = 12328,
-
+            bloodsurgeBuff              = 46915,
+            enrageBuff                  = 13046,
+            meatCleaverBuff             = 85739,
+            ragingBlowBuff              = 131116,
+            recklessnessBuff            = 1719,
+            suddenDeathBuff             = 52437,
+            
             -- Buff - Stacks
 
             -- Debuff - Offensive
-            colossusSmashDebuff     = 167105,
-            rendDebuff              = 772,
-
+            
             -- Glyphs
-            resonatingPowerGlyph    = 58356,
+            
             -- Perks
 
             -- Talent
-            siegebreakerTalent      = 176289,
-            slamTalent              = 1464,
-            tasteForBloodTalent     = 56636,
-
+            furiousStrikesTalent        = 169679,
+            siegebreakerTalent          = 176289,
+            unquenchableThirstTalent    = 169683,
+            
             -- Totems
         }
         self.frac  = {}
         -- Merge all spell tables into self.spell
         self.spell = {}
-        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.warriorSpell, self.armsSpell)
+        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.warriorSpell, self.furySpell)
 
         ------------------
         --- OOC UPDATE ---
@@ -125,8 +121,11 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         function self.getBuffs()
             local UnitBuffID = UnitBuffID
 
+            self.buff.bloodsurge    = UnitBuffID("player",self.spell.bloodsurgeBuff)~=nil or false
+            self.buff.enrage        = UnitBuffID("player",self.spell.enrageBuff)~=nil or false
+            self.buff.meatCleaver   = UnitBuffID("player",self.spell.meatCleaverBuff)~=nil or false
+            self.buff.ragingBlow    = UnitBuffID("player",self.spell.ragingBlowBuff)~=nil or false
             self.buff.recklessness  = UnitBuffID("player",self.spell.recklessnessBuff)~=nil or false
-            self.buff.slam          = UnitBuffID("player",self.spell.slamBuff)~=nil or false
             self.buff.suddenDeath   = UnitBuffID("player",self.spell.suddenDeathBuff)~=nil or false
         end
 
@@ -139,14 +138,16 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         function self.getBuffsRemain()
             local getBuffRemain = getBuffRemain
 
-            self.buff.remain.recklessness = getBuffRemain("player",self.spell.recklessnessBuff) or 0
+            self.buff.remain.enrage         = getBuffRemain("player",self.spell.enrageBuff) or 0
+            self.buff.remain.recklessness   = getBuffRemain("player",self.spell.recklessnessBuff) or 0
         end
 
         function self.getCharges()
             local getBuffStacks = getBuffStacks
             local getCharges = getCharges
 
-            -- self.charges.lavaLash           = getCharges(self.spell.lavaLashStacks) or 0
+            self.charges.meatCleaver    = getBuffStacks("player",self.spell.meatCleaverBuff) or 0
+            self.charges.ragingBlow     = getBuffStacks("player",self.spell.ragingBlowBuff) or 0
         end
 
         function self.getRecharge()
@@ -169,37 +170,34 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         function self.getDebuffs()
             local UnitDebuffID = UnitDebuffID
 
-            self.debuff.colossusSmash   = UnitDebuffID(self.units.dyn5,self.spell.colossusSmashDebuff,"player")~=nil or false
-            self.debuff.rend            = UnitDebuffID(self.units.dyn5,self.spell.rendDebuff,"player")~=nil or false
+            -- self.debuff.colossusSmash   = UnitDebuffID(self.units.dyn5,self.spell.colossusSmashDebuff,"player")~=nil or false
         end
 
         function self.getDebuffsDuration()
             local getDebuffDuration = getDebuffDuration
 
-            self.debuff.duration.colossusSmash  = getDebuffDuration(self.units.dyn5,self.spell.colossusSmashDebuff,"player") or 0
-            self.debuff.duration.rend           = getDebuffDuration(self.units.dyn5,self.spell.rendDebuff,"player") or 0
+            -- self.debuff.duration.colossusSmash  = getDebuffDuration(self.units.dyn5,self.spell.colossusSmashDebuff,"player") or 0
         end
 
         function self.getDebuffsRemain()
             local getDebuffRemain = getDebuffRemain
 
-            self.debuff.remain.colossusSmash    = getDebuffRemain(self.units.dyn5,self.spell.colossusSmashDebuff,"player") or 0
-            self.debuff.remain.rend             = getDebuffRemain(self.units.dyn5,self.spell.rendDebuff,"player") or 0
+            -- self.debuff.remain.colossusSmash    = getDebuffRemain(self.units.dyn5,self.spell.colossusSmashDebuff,"player") or 0
         end
 
         function self.getDebuffsCount()
             local UnitDebuffID = UnitDebuffID
-            local rendCount = 0
+            -- local rendCount = 0
 
-            if rendCount>0 and not inCombat then rendCount = 0 end
+            -- if rendCount>0 and not inCombat then rendCount = 0 end
 
-            for i=1,#getEnemies("player",5) do
-                local thisUnit = getEnemies("player",5)[i]
-                if UnitDebuffID(thisUnit,self.spell.rendDebuff,"player") then
-                    rendCount = rendCount+1
-                end
-            end
-            self.debuff.count.rend    = rendCount or 0
+            -- for i=1,#getEnemies("player",5) do
+            --     local thisUnit = getEnemies("player",5)[i]
+            --     if UnitDebuffID(thisUnit,self.spell.rendDebuff,"player") then
+            --         rendCount = rendCount+1
+            --     end
+            -- end
+            -- self.debuff.count.rend    = rendCount or 0
         end
 
         -----------------
@@ -209,12 +207,9 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         function self.getCooldowns()
             local getSpellCD = getSpellCD
 
-            self.cd.colossusSmash   = getSpellCD(self.spell.colossusSmash)
+            self.cd.bloodthirst     = getSpellCD(self.spell.bloodthirst)
             self.cd.dieByTheSword   = getSpellCD(self.spell.dieByTheSword)
-            self.cd.mortalStrike    = getSpellCD(self.spell.mortalStrike)
             self.cd.siegebreaker    = getSpellCD(self.spell.siegebreaker)
-            self.cd.sweepingStrikes = getSpellCD(self.spell.sweepingStrikes)
-            self.cd.thunderClap     = getSpellCD(self.spell.thunderClap)
         end
 
         --------------
@@ -224,7 +219,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         function self.getGlyphs()
             local hasGlyph = hasGlyph
 
-            self.glyph.resonatingPower = hasGlyph(self.spell.resonatingPowerGlyph)
+            -- self.glyph.resonatingPower = hasGlyph(self.spell.resonatingPowerGlyph)
         end
 
         ---------------
@@ -234,8 +229,9 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         function self.getTalents()
             local getTalent = getTalent
 
-            self.talent.slam         = getTalent(3,3)
-            self.talent.siegebreaker = getTalent(7,3)
+            self.talent.furiousStrikes      = getTalent(3,1)
+            self.talent.unquenchableThirst  = getTalent(3,3)
+            self.talent.siegebreaker        = getTalent(7,3)
         end
 
         -------------
@@ -290,9 +286,9 @@ if select(2, UnitClass("player")) == "WARRIOR" then
 
         function self.startRotation()
             if self.rotation == 1 then
-                self:ArmsCuteOne()
+                self:FuryCuteOne()
             elseif self.rotation == 2 then
-                self:ArmsOld()
+                self:FuryAvery()
             elseif self.rotation == 3 then
                 ChatOverlay("No Rotation Selected!")
             else
@@ -305,7 +301,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         ---------------
 
         function self.createOptions()
-            bb.profile_window = createNewProfileWindow("Arms")
+            bb.profile_window = createNewProfileWindow("Fury")
             local section
 
             -- Create Base and Class options
@@ -319,13 +315,13 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             --  \_____|\___|_| |_|\___|_|  \__,_|_|
             section = createNewSection(bb.profile_window,  "General")
             -- Dummy DPS Test
-            createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+                createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
             -- Berserker Rage
-            createNewCheckbox(section,"Berserker Rage")
+                createNewCheckbox(section,"Berserker Rage")
 
             -- Hamstring
-            createNewCheckbox(section,"Hamstring")
+                createNewCheckbox(section,"Hamstring")
 
             checkSectionState(section)
             
@@ -337,20 +333,49 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             --  \_____\___/ \___/|_|\__,_|\___/ \_/\_/ |_| |_|___/
             section = createNewSection(bb.profile_window,  "Cooldowns")
             -- Agi Pot
-            createNewCheckbox(section,"Str-Pot")
+                createNewCheckbox(section,"Str-Pot")
 
             -- Legendary Ring
-            createNewCheckbox(section, "Legendary Ring", "Enable or Disable usage of Legendary Ring.")
-            -- createNewDropdown(section,  "Legendary Ring", { "CD"},  2)
+                createNewCheckbox(section, "Legendary Ring", "Enable or Disable usage of Legendary Ring.")
+                -- createNewDropdown(section,  "Legendary Ring", { "CD"},  2)
 
             -- Flask / Crystal
-            createNewCheckbox(section,"Flask / Crystal")
+                createNewCheckbox(section,"Flask / Crystal")
+
+            -- Racials
+                createNewCheckbox(section,"Racial")
 
             -- Trinkets
-            createNewCheckbox(section,"Trinkets")
+                createNewCheckbox(section,"Trinkets")
 
             -- Touch of the Void
-            createNewCheckbox(section,"Touch of the Void")
+                createNewCheckbox(section,"Touch of the Void")
+
+            -- Avatar
+                createNewCheckbox(section,"Avatar")
+
+            -- Bladestorm
+                createNewCheckbox(section,"Bladestorm")
+
+            -- Bloodbath
+                createNewCheckbox(section,"Bloodbath")
+
+            -- Dragon Roar
+                createNewCheckbox(section,"Dragon Roar")
+
+            -- Ravager
+                createNewSection(section,"Ravager")
+
+            -- Recklessness
+                createNewCheckbox(section,"Recklessness")
+
+            -- Shockwave
+                createNewCheckbox(section,"Shockwave")
+
+            -- Siegebreaker
+                createNewCheckbox(section,"Siegebreaker")
+
+            checkSectionState(section)
             
             --  _____        __               _
             -- |  __ \      / _|             (_)
@@ -360,30 +385,32 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             -- |_____/ \___|_| \___|_| |_|___/_| \_/ \___|
             section = createNewSection(bb.profile_window, "Defensive")
             -- Healthstone
-            createNewSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                createNewSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Heirloom Neck
-            createNewSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                createNewSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Gift of The Naaru
-            if self.race == "Draenei" then
-                createNewSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            end
+                if self.race == "Draenei" then
+                    createNewSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                end
 
             -- Defensive Stance
-            createNewSpinner(section, "Defensive Stance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                createNewSpinner(section, "Defensive Stance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Die By The Sword
-            createNewSpinner(section, "Die by the Sword",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                createNewSpinner(section, "Die by the Sword",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Intervene
-            createNewSpinner(section, "Intervene",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                createNewSpinner(section, "Intervene",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Intimidating Shout
-            createNewSpinner(section, "Intimidating Shout",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                createNewSpinner(section, "Intimidating Shout",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Vigilance
-            createNewSpinner(section, "Vigilance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                createNewSpinner(section, "Vigilance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+
+            checkSectionState(section)
 
             --  _____       _                             _
             -- |_   _|     | |                           | |
@@ -396,16 +423,17 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             section = createNewSection(bb.profile_window, "Interrupts")
             
             -- Pummel
-            createNewCheckbox(section,"Pummel")
+                createNewCheckbox(section,"Pummel")
 
             -- Intimidating Shout
-            createNewCheckbox(section,"Intimidating Shoult - Int")
+                createNewCheckbox(section,"Intimidating Shoult - Int")
             
             -- Spell Reflection
-            createNewCheckbox(section,"Spell Refelection")
+                createNewCheckbox(section,"Spell Refelection")
 
             -- Interrupt Percentage
-            createNewSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+                createNewSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+
             checkSectionState(section)
 
             -- _______                _        _  __
@@ -418,22 +446,21 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             --            |___/ |___/                   |___/
             section = createNewSection(bb.profile_window,  "Toggle Keys")
             -- Single/Multi Toggle
-            createNewDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
+                createNewDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
 
             --Cooldown Key Toggle
-            createNewDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
+                createNewDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
 
             --Defensive Key Toggle
-            createNewDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
+                createNewDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
 
             -- Interrupts Key Toggle
-            createNewDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
+                createNewDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
 
             -- Pause Toggle
-            createNewDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
+                createNewDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
+
             checkSectionState(section)
-
-
 
             --[[ Rotation Dropdown ]]--
             createNewRotationDropdown(bb.profile_window.parent, {"CuteOne"})
@@ -443,9 +470,9 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         --------------
         --- SPELLS ---
         --------------
-        function self.castColossusSmash()
-            if self.level>=81 and self.buff.battleStance and self.cd.colossusSmash==0 and self.power>10 and getDistance(self.units.dyn5)<5 then
-                if castSpell(self.units.dyn5,self.spell.colossusSmash,false,false,false) then return end
+        function self.castBloodthirst()
+            if self.level>=10 and self.cd.bloodthirst==0 and getDistance(self.units.dyn5)<5 then
+                if castSpell(self.units.dyn5,self.spell.bloodthirst,false,false,false) then return end
             end
         end
         function self.castDieByTheSword()
@@ -454,14 +481,14 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             end
         end
         function self.castExecute(thisUnit)
-            local thisUnit = thisUnit
-            if self.level>=7 and ((self.power>10 and getHP(thisUnit)<20) or self.buff.suddenDeath) and getDistance(thisUnit)<5 then
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if self.level>=7 and ((self.power>30 and getHP(thisUnit)<20) or self.buff.suddenDeath) and getDistance(thisUnit)<5 then
                 if castSpell(thisUnit,self.spell.execute,false,false,false) then return end
             end
         end
-        function self.castMortalStrike()
-            if self.level>=10 and self.cd.mortalStrike==0 and self.power>20 and getDistance(self.units.dyn5)<5 then
-                if castSpell(self.units.dyn5,self.spell.mortalStrike,false,false,false) then return end
+        function self.castRagingBlow()
+            if self.level>=30 and self.power>10 and self.buff.ragingBlow and getDistance(self.units.dyn5)<5 then
+                if castSpell(self.units.dyn5,self.spell.ragingBlow,false,false,false) then return end
             end
         end
         function self.castRecklessness()
@@ -469,35 +496,19 @@ if select(2, UnitClass("player")) == "WARRIOR" then
                 if castSpell("player",self.spell.recklessness,false,false,false) then return end
             end
         end
-        function self.castRend(thisUnit)
-            local thisUnit = thisUnit
-            if self.level>=7 and self.power>5 and getDistance(thisUnit)<5 then
-                if castSpell(thisUnit,self.spell.rend,false,false,false) then return end
-            end
-        end
         function self.castSiegebreaker()
             if self.talent.siegebreaker and self.cd.siegebreaker==0 and getDistance(self.units.dyn5)<5 then
                 if castSpell(self.units.dyn5,self.spell.siegebreaker,false,false,false) then return end
             end
         end
-        function self.castSlam()
-            if self.talent.slam and ((self.power>10 and not self.buff.slam) or (self.buff.slam and self.power>20)) and getDistance(self.units.dyn5)<5 then
-                if castSpell(self.units.dyn5,self.spell.slam,false,false,false) then return end
-            end
-        end
-        function self.castSweepingStrikes()
-            if self.level>=60 and self.cd.sweepingStrikes==0 and self.power>10 and getDistance(self.units.dyn8AoE)<8 then
-                if castSpell(self.units.dyn8AoE,self.spell.sweepingStrikes,false,false,false) then return end
-            end
-        end
-        function self.castThunderClap()
-            if self.level>=14 and self.cd.thunderClap==0 and self.power>10 and getDistance(self.units.dyn8AoE)<8 then
-                if castSpell(self.units.dyn8AoE,self.spell.thunderClap,false,false,false) then return end
-            end
-        end
         function self.castWhirlwind()
-            if self.level>=26 and self.power>20 and getDistance(self.units.dyn8AoE)<8 then
+            if self.level>=26 and self.power>30 and getDistance(self.units.dyn8AoE)<8 then
                 if castSpell(self.units.dyn8AoE,self.spell.whirlwind,false,false,false) then return end
+            end
+        end
+        function self.castWildStrike()
+            if self.level>=18 and (self.power>45 or self.buff.bloodsurge or (self.talent.furiousStrikes and self.power>20)) and getDistance(self.units.dyn5)<5 then
+                if castSpell(self.units.dyn5,self.spell.wildStrike,false,false,false) then return end
             end
         end
         -----------------------------
@@ -509,5 +520,5 @@ if select(2, UnitClass("player")) == "WARRIOR" then
 
         -- Return
         return self
-    end-- cArms
+    end-- cFury
 end-- select Warrior

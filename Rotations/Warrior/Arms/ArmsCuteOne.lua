@@ -52,6 +52,25 @@ if select(3,UnitClass("player")) == 1 then
         function actionList_Extra()
             -- Battle Shout
             if self.castBattleShout() then return end
+            -- Commanding Shout
+            if self.castCommandingShout() then return end
+            -- Berserker Rage
+            if isChecked("Berserker Rage") then
+                if self.castBeserkerRage() then return end
+            end
+            -- Hamstring
+            if isChecked("Hamstring") then
+                for i=1,#getEnemies("player",5) do
+                    thisUnit = getEnemies("player",5)[i]
+                    if isMoving(thisUnit) and getFacing(thisUnit,"player") == false then
+                        if self.castHamstring(thisUnit) then return end
+                    end
+                end
+            end
+            -- Intervene
+            if isChecked("Intervene") then
+                if self.castIntervene("target") then return end
+            end
         end -- End Action List - Extra
     -- Action List - Defensive
         function actionList_Defensive()
@@ -71,7 +90,35 @@ if select(3,UnitClass("player")) == 1 then
             -- Defensive Stance
                 if isChecked("Defensive Stance") and inCombat and php <= getOptionValue("Defensive Stance") then
                     if self.castDefensiveStance() then return end
+                elseif buff.defensiveStance then
+                    if self.castBattleStance() then return end
                 end 
+            -- Die by the Sword
+                if isChecked("Die by the Sword") and inCombat and php <= getOptionValue("Die by the Sword") then
+                    if self.castDieByTheSword() then return end
+                end
+            -- Intervene
+                if isChecked("Intervene") then
+                    for i=1,#nNova do
+                        thisUnit = nNova[i].unit
+                        if UnitGroupRolesAssigned(thisUnit)=="HEALER" and getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
+                            if self.castIntervene(thisUnit) then return end
+                        end
+                    end
+                end
+            -- Intimidating Shout
+                if isChecked("Intimidating Shout") and inCombat and php <= getOptionValue("Intimidating Shout") then
+                    if self.castIntimidatingShout() then return end
+                end
+            -- Vigilance
+                if isChecked("Vigilance") then
+                    for i=1,#nNova do
+                        thisUnit = nNova[i].unit
+                        if UnitGroupRolesAssigned(thisUnit)=="HEALER" and getHP(thisUnit)<getOptionValue("Vigilance") and getDistance(thisUnit)<40 then
+                            if self.castVigilance(thisUnit) then return end
+                        end
+                    end
+                end
             end -- End Defensive Check
         end -- End Action List - Defensive
     -- Action List - Interrupts
@@ -83,6 +130,26 @@ if select(3,UnitClass("player")) == 1 then
                         thisUnit = getEnemies("player",5)[i]
                         if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
                             if self.castPummel(thisUnit) then return end
+                        end
+                    end
+                end
+            -- Intimidating Shout
+                if isChecked("Intimidating Shout - Int") then
+                    for i=1, #getEnemies("player",8) do
+                        thisUnit = getEnemies("player",8)[i]
+                        if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                            if self.castIntimidatingShout() then return end
+                        end
+                    end
+                end
+            -- Spell Reflection
+                if isChecked("Spell Reflection") then
+                    for i=1, #getEnemies("player",40) do
+                        thisUnit = getEnemies("player",40)[i]
+                        if UnitCastingInfo(thisUnit) ~= nil then
+                            if (select(6,UnitCastingInfo(thisUnit))/1000 - GetTime())<5 and UnitName("targettarget") == UnitName("player") then
+                                if self.castSpellReflection() then return end
+                            end
                         end
                     end
                 end
@@ -384,44 +451,51 @@ if select(3,UnitClass("player")) == 1 then
   -----------------
         if actionList_Extra() then return end
         if actionList_Defensive() then return end
+        -- Pause
+        if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) then
+            return true
+        else
   ---------------------------------
   --- Out Of Combat - Rotations ---
   ---------------------------------
-        if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
-            if actionList_PreCombat() then return end
-            if distance<5 then
-                StartAttack()
-            else
-                if self.castCharge() then return end
+            if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+                if actionList_PreCombat() then return end
+                if distance<5 then
+                    StartAttack()
+                else
+                    if self.castCharge() then return end
+                end
             end
-        end
   -----------------------------
   --- In Combat - Rotations --- 
   -----------------------------
-        if inCombat then
-        -- Charge
-            -- charge,if=debuff.charge.down
-            if self.castCharge() then return end
-        -- Auto Attack
-            --auto_attack
-            if distance<5 then
-                StartAttack()
-            end
-        -- Action List - Movement
-            -- run_action_list,name=movement,if=movement.distance>5
-            if distance>5 then
-                if actionList_Movement() then return end
-            end
-        -- Action List - Cooldowns
-            if actionList_Cooldowns() then return end
-        -- Action List - Multi Target
-            if targets>1 and useAoE() then
-                if actionList_MultiTarget() then return end
-            end
-        -- Action List - Single Target
-            if targets==1 or not useAoE() then
-                if actionList_Single() then return end
-            end
-        end -- End Combat Rotation
+            if inCombat then
+            -- Charge
+                -- charge,if=debuff.charge.down
+                if self.castCharge() then return end
+            -- Auto Attack
+                --auto_attack
+                if distance<5 then
+                    StartAttack()
+                end
+            -- Action List - Movement
+                -- run_action_list,name=movement,if=movement.distance>5
+                if distance>5 then
+                    if actionList_Movement() then return end
+                end
+            -- Action List - Interrupts
+                if actionList_Interrupts() then return end
+            -- Action List - Cooldowns
+                if actionList_Cooldowns() then return end
+            -- Action List - Multi Target
+                if targets>1 and useAoE() then
+                    if actionList_MultiTarget() then return end
+                end
+            -- Action List - Single Target
+                if targets==1 or not useAoE() then
+                    if actionList_Single() then return end
+                end
+            end -- End Combat Rotation
+        end -- Pause
     end -- End cArms:ArmsCuteOne()
 end -- End Select Warrior

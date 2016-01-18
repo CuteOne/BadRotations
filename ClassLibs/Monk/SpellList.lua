@@ -64,6 +64,7 @@ if select(3,UnitClass("player")) == 10 then
   _PowerGuard                 =   118636 --Power Guard
   _Shuffle                    =   115307 --Shuffle (parry)
   _ElusiveBrewStacks            =   128939 --Elusive Brew Buff
+  _RenewingMistBuff           =   119611 --Renewing Mist Buff
 
   ------Racials------
   _GiftOfTheNaaru             =   59547   --Gift of the Naaru
@@ -82,9 +83,16 @@ if select(3,UnitClass("player")) == 10 then
   _StaggerModerate = 124274;
   _StaggerHeavy = 124273;
 
-
+  ------Mist------
   _RenewingMist				=	115151;
   _SoothingMist				=	115175;
   _SerpentsZeal 				= 	127722;
   _VitalMists		 			= 	118674;
+  _ManaTea            = 115294;
+  _Revival            = 115310;
+  _Uplift             = 116670;
+  _LifeCocoon         = 116849;
+  _EnvelopingMist     = 124682;
+  _MistExpelHarm      = 147489;
+  _ThunderFocusTea    = 116680;
 end

@@ -1542,6 +1542,15 @@ function hasNoControl(spellID,unit)
 		local _,_,text = C_LossOfControl.GetEventInfo(eventIndex)
 		-- Warrior
 		if select(3,UnitClass("player")) == 1 then
+			if spellID == 18499 
+				-- Fear, Sap and Incapacitate
+				and (text == LOSS_OF_CONTROL_DISPLAY_FEAR
+				or text == LOSS_OF_CONTROL_DISPLAY_ROOT 
+				or text == LOSS_OF_CONTROL_DISPLAY_SNARE
+				or text == LOSS_OF_CONTROL_DISPLAY_STUN)
+			then
+				return true
+			end
 		end
 		-- Paladin
 		if select(3,UnitClass("player")) == 2 then
@@ -2075,6 +2084,19 @@ function isCasting(SpellID,Unit)
 		return false
 	end
 end
+-- if isCastingSpell(12345) == true then
+function isUnitCasting(unit)
+	if unit == nil then unit = "player" end
+	local spellCasting = UnitCastingInfo(unit)
+	if spellCasting == nil then
+		spellCasting = UnitChannelInfo(unit)
+	end
+	if spellCasting ~= nil then
+		return true
+	else
+		return false
+	end
+end
 -- if isValidTarget("target") then
 function isValidTarget(Unit)
 	if UnitIsEnemy("player",Unit) then
@@ -2172,6 +2194,8 @@ function pause()
 	then
 		ChatOverlay("Profile Paused")
 		return true
+	else 
+		return false
 	end
 end
 -- feed a var
@@ -2231,7 +2255,9 @@ function isChecked(Value,new)
     --TEST
     new = true
     if new then
-        if BadBoy_data.options[GetSpecialization()] and (BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Check"] == 1 or BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Check"] == true) then
+        if BadBoy_data.options[GetSpecialization()] 
+        	and (BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Check"] == 1 or BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Check"] == true) 
+        then
             return true
         end
     else
@@ -2239,6 +2265,7 @@ function isChecked(Value,new)
             return true
         end
     end
+    return false
 end
 -- if isSelected("Stormlash Totem") then
 function isSelected(Value,new)

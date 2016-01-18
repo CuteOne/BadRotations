@@ -13,12 +13,15 @@ if select(3,UnitClass("player")) == 10 then
     local chiMax = UnitPowerMax("player", SPELL_POWER_CHI)
     local energy = getPower("player");
     local myHP = getHP("player");
-    local ennemyUnits = getNumEnemies("player", 5)
+    local ennemyUnits = getNumEnemies("player", 5);
+    local totUnits = 0;
     ------------------------
     --- Food/Invis Check ---
     ------------------------
     if canRun() ~= true or UnitInVehicle("Player") then return false; end
     if IsMounted("player") then return false; end
+    if UnitBuffID("player", 80169) then return false; end -- Food
+    if UnitBuffID("player", 87959) then return false; end -- Drink
     --------------------
     --- Ressurection ---
     --------------------
@@ -72,10 +75,22 @@ if select(3,UnitClass("player")) == 10 then
     ------------------
     --- Defensives ---
     ------------------
-    -- Expel Harm
-    if getHP("player")<=80 and (getChiMax("player")-getChi("player"))>=2 and getPower("player")>=40 and not castingUnit("player") then
-      if castSpell("player",_ExpelHarm,true) then return; end
+
+    --Healthstone/Pot
+    if isChecked("Healthstone") and getHP("player") <= getValue("Healthstone") and inCombat then
+      if canUse(5512) then
+          useItem(5512)
+      end
     end
+
+    
+    -- Fortifying Brew
+    if getHP("player") <= getValue("Fortifying Brew") then
+       if castSpell("player",_FortifyingBrew,true) then
+        return;
+      end
+    end
+
     -- Nimble Brew
     if hasNoControl() then
       if castSpell("player",_NimbleBrew,true) then
@@ -86,9 +101,27 @@ if select(3,UnitClass("player")) == 10 then
     end
 
     ---------------------
-    --- Out of Combat ---
+    --- Utility ---
     ---------------------
+    -- Spear Hand Strike
+    if isChecked("Spear Hand Strike") then
+      for i=1, #getEnemies("player",5) do
+        thisUnit = getEnemies("player",5)[i]
+        if canInterrupt(thisUnit,getOptionValue("Spear Hand Strike")) then
+          if castSpell(thisUnit,_SpearHandStrike,true) then return end
+        end
+      end
+    end
 
+    -- Paralysis
+    if isChecked("Paralysis") then
+      for i=1, #getEnemies("player",20) do
+        thisUnit = getEnemies("player",20)[i]
+        if canInterrupt(thisUnit,getOptionValue("Paralysis")) then
+          if castSpell(thisUnit,_Paralysis,true) then return end
+        end
+      end
+    end
 
     -----------------
     --- In Combat ---
@@ -101,21 +134,18 @@ if select(3,UnitClass("player")) == 10 then
     ----------------------
     -- Pause toggle
     if isChecked("Pause Toggle") and SpecificToggle("Pause Toggle") == 1 then ChatOverlay("|cffFF0000BadBoy Paused", 0); return; end
-    -- Focus Toggle
-    if isChecked("Focus Toggle") and SpecificToggle("Focus Toggle") == 1 then
-      RunMacroText("/focus mouseover");
-    end
-
-
-    --[[SoothingStops()]]
-
-    --[[Expel Harm]]
-    if chi < chiMax and getHP("player") <= getValue("Expel Harm") then
-      if castSpell("player",_ExpelHarm, true) then return; end
-    end
 
     -- Summon Jade Serpent Statue
     --[["115313","JadeSerpentStatue.pqikeybind","ground"},]]
+    if isChecked("Jade Serpent Statue (Left Shift)") and IsLeftShiftKeyDown() then
+      if not IsMouselooking() then
+        CastSpellByName(GetSpellInfo(115313))
+        if SpellIsTargeting() then
+          CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop()
+          return true
+        end
+      end
+    end
 
     -- Detox
     --[["115450",{"Detox.maincheck","@CML.Dispel()"}},]]
@@ -168,33 +198,74 @@ if select(3,UnitClass("player")) == 10 then
     --[[Invoke Xuen, the White Tiger]]
 
     --[[Revival]]
+    local revivalUnits = 0
+    if isChecked("Revival") then
+      for i = 1, #nNova do
+    	  if nNova[i].hp <= getValue("Revival") then
+      	   	revivalUnits = revivalUnits + 1
+      		  if revivalUnits >= getValue("Revival People") then
+      			  if castSpell("player",_Revival,true) then
+       			 	  revivalUnits = 0
+      				  return;
+      			  end
+      		  end
+      	  end
+      end
+    end
+  
 
     --[[Life Cocoon]]
+    if isInCombat("player") and isChecked("Life Cocoon") then
+    	for i = 1, #nNova do
+    		if nNova[i].hp <= getValue("Life Cocoon") then
+    			if castSpell(nNova[i].unit,_LifeCocoon,true) then
+    				return;
+    			end
+    		end
+    	end
+    end
 
     ------------------------
     --- Healing Rotation ---
     ------------------------
-
-    --[[Uplift]]
-
-    --[[Renewing Mist]]
-    if isChecked("Renewing Mist") == true and canCast(_RenewingMist) == true then
-      for i = 1, #nNova do
-        if nNova[i].hp <= getValue("Renewing Mist") then
-          if castSpell(nNova[i].unit,_RenewingMist,true) then return; end
-        end
-      end
-    end
-
-    -- Mana Tea without Glyph of Mana Tea
-    --[["123761",{"@CML.IsGlyphed(123763,false)","123761.stopcasting","!player.moving","player.buff(115867).count >= 10","ManaTea.pqiMana(0)"}},]]
-
     -- Mana Tea with Glyph of Mana Tea
     --[["!123761",{"@CML.IsGlyphed(123763,true)","player.buff(115867).count >= 2","ManaTea.pqiMana(0)"}},]]
 
-    -- Chi Wave
+    if isChecked ("Mana Tea") then
+      if hasGlyph(123763) then
+        if getMana("player") <= getValue("Mana Tea") and getBuffStacks("player",115867) >= 2 then
+          if castSpell("player",_ManaTea,true) then return; end
+        end
+      end
+    end
+    
+
+    --[[Renewing Mist]]
+    if getTalent(7,3) then
+      if isChecked("Renewing Mist") and getCharges(_RenewingMist) > 0 then
+        for i = 1, #nNova do
+          if not UnitBuffID(nNova[i].unit, _RenewingMistBuff) then
+            if castSpell("player",_ThunderFocusTea,true) then
+            end
+            if castSpell(nNova[i].unit,_RenewingMist,true) then return; end
+          end
+        end
+      end
+    elseif isChecked ("Renewing Mist") then
+      for i = 1, #nNova do
+        if not UnitBuffID(nNova[i].unit, _RenewingMistBuff) then
+          if castSpell("player",_ThunderFocusTea,true) then
+            if castSpell(nNova[i].unit,_RenewingMist,true) then return; end
+          end
+        end
+      end
+    end
+  
+    
+
+     -- Chi Wave
     --[["115098",{"ChiWave.novaHealing(1)"}},]]
-    if isChecked("Chi Wave") == true and canCast(_ChiWave) == true then
+    if isChecked("Chi Wave") == true and getTalent(2,1) then
       for i = 1, #nNova do
         if nNova[i].hp <= getValue("Chi Wave") then
           if castSpell(nNova[i].unit,_ChiWave,true) then return; end
@@ -202,41 +273,123 @@ if select(3,UnitClass("player")) == 10 then
       end
     end
 
-    -- Surging Mist/Vital Mists
-    --[["116694",{"player.buff(118674).count = 5","SurgingMist.novaHealing(1)"}},]]
+    --[[Uplift]]
+    local totUnits = 0
+    if isChecked("Uplift") then
+	   for i = 1, #nNova do
+ 		   if nNova[i].hp <= getValue("Uplift") and UnitBuffID(nNova[i].unit, 119611) then
+  		   totUnits = totUnits + 1
+  			 if totUnits >= getValue("Uplift People") then
+  			    if chi < 2 and getCharges(_ChiBrew) > 0 then
+  				   if castSpell("player",_ChiBrew,true) then
+  			  	    if castSpell("player",_Uplift,true) then
+  					 	 	  totUnits = 0
+  					 	 	  return;
+    					 	end
+    					end
+  	 			  elseif chi >= 2 then
+  					  if castSpell("player",_Uplift,true) then
+  						  totUnits = 0
+  						  return;
+  					  end
+  				  end
+  			  end
+ 		    end
+	    end   
+    end
+
+    -- Spinning Crane Kick/Rushing Jade Wind
+    local sckUnits = 0
+    if isChecked("Spinning Crane Kick") then
+      for i = 1, #nNova do
+        if nNova[i].hp <= getValue("Spinning Crane Kick") and nNova[i].distance <= 8 then
+          sckUnits = sckUnits + 1
+          if sckUnits >= 3 then
+            if getTalent(6,1) then
+              if castSpell("player",_RushingJadeWind,true) then
+                sckUnits = 0
+                return;
+              end
+            else
+              if castSpell("player",_SpinningCraneKick,true) then
+                sckUnits = 0
+                return;
+              end
+            end
+          end
+        end
+      end
+    end
+    
+    -- Surging Mist
+    --[["116694",{"@CML.SurgingMist()"}},]]
+    for i = 1, #nNova do
+    	if nNova[i].hp <= getValue("Surging Mist") then
+    		if isSoothing then
+	        	if castSpell(nNova[i].unit, _SurgingMist, true) then 
+	        		return; 
+	        	end
+	        else
+	        	if castSpell(nNova[i].unit, _SoothingMist,true) then
+	        		if castSpell(nNova[i].unit, _SurgingMist,true) then
+	        			return;
+	        		end
+	        	end
+	        end
+	    end
+	  end
 
     -- Enveloping Mist
     --[["124682",{"@CML.EnvelopingMist()"}},]]
-    if isChecked("Enveloping Mist") == true and isSoothing and chi >= 3 then
-      if getHP("current") <= getValue("Enveloping Mist") then
-        CastSpellByName(GetSpellInfo(124682))
-        if castSpell("current", _EnvelopingMist, true, true) then return; end
-      end
+    for i = 1, #nNova do
+    	if isChecked("Enveloping Mist") == true and chi >= 3 then
+      		if nNova[i].hp <= getValue("Enveloping Mist") then
+      			if isSoothing then
+	        		if castSpell(nNova[i].unit, _EnvelopingMist, true) then 
+	        			return; 
+	        		end
+	        	else
+	        		if castSpell(nNova[i].unit, _SoothingMist,true) then
+	        			if castSpell(nNova[i].unit, _EnvelopingMist,true) then
+	        				return;
+	        			end
+	        		end
+	        	end
+    	  	end
+    	end
     end
-
-    -- Surging Mist
-    --[["116694",{"@CML.SurgingMist()"}},]]
-    if isSoothing then
-      if getHP("current") <= getValue("Surging Mist") then
-        if castSpell("current", _SurgingMist, true) then return; end
-      end
-    end
+   
 
     -- Soothing Mist
     --[["115175",{"115175.stopcasting","SoothingMist.novaHealing(1)"}},]]
     if isChecked("Soothing Mist") == true and canCast(_SoothingMist) == true and getMana("player") >= 12 then
-      if isSoothing ~= true then
-        for i = 1, #nNova do
-          if nNova[i].hp <= getValue("Soothing Mist") then
-            if castSpell(nNova[i].unit,_SoothingMist,true) then return; end
-          end
-        end
-      else
-        if getHP("current") >= 100 then
-          SpellStopCasting(); return;
-        end
+      for i = 1, #nNova do
+      	if isSoothing ~= true then
+         	if nNova[i].hp <= getValue("Soothing Mist") then
+	          if castSpell(nNova[i].unit,_SoothingMist,true) then return; end
+         	end
+       	end
       end
     end
+        
+    
+
+    --Expel Harm party heal
+	  for i = 1, #nNova do
+    	if nNova[i].hp <= getValue("Expel Harm") then
+      		if castSpell(nNova[i].unit,_MistExpelHarm, true) then return; end
+    	end
+    end
+
+    
+
+    --ChiGen
+    if chi < 2 then
+    	if castSpell("player",_MistExpelHarm,true) then 
+    		return;
+    	end
+    end
+
 
     -- Legendary Meta Support
     --[["!108557",{"player.buff(137331)","108557.multiTarget","!modifier.last"}},]] -- Jab
