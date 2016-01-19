@@ -107,7 +107,7 @@ if select(2, UnitClass("player")) == "MONK" then
 
 
             -- Start selected rotation
-           -- self:startRotation()
+            self:startRotation()
         end
 
         -------------

@@ -15,6 +15,7 @@ if select(3,UnitClass("player")) == 10 then
     -- Cooldowns Button
     if CooldownsModesLoaded ~= "Cute Cooldowns Modes" then
       CustomCooldownsModes = {
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = _InvokeXuen},
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = _InvokeXuen},
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = _InvokeXuen}
       };
