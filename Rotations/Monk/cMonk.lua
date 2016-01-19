@@ -73,6 +73,7 @@ function cMonk:new(spec)
         comboBreakerBlackoutKickBuff 	= 116768,
         comboBreakerTigerPalmBuff       = 118864,
         legacyOfTheWhiteTigerBuff 		= 116781,
+        legacyoftheEmperorBuff          = 115921,  
         serenityBuff 					= 152173,
         touchOfDeathBuff 				= 121125,
         tigerPowerBuff 					= 125359,

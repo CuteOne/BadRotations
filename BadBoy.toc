@@ -169,6 +169,13 @@ Rotations\Monk\Windwalker\WindwalkerDef.lua
 Rotations\Monk\Windwalker\TogglesDef.lua
 Rotations\Monk\Windwalker\OptionsDef.lua
 
+Rotations\Monk\Mistweaver\cMistweaver.lua
+Rotations\Monk\Mistweaver\MistweaverKuu.lua
+Rotations\Monk\Mistweaver\Mistweaver.lua
+Rotations\Monk\Mistweaver\TogglesKuu.lua
+Rotations\Monk\Mistweaver\OptionsKuu.lua
+Rotations\Monk\Mistweaver\Functions.lua
+
 Rotations\Monk\Brewmaster.lua
 Rotations\Monk\Mistweaver.lua
 Rotations\Monk\NewMonk.lua
