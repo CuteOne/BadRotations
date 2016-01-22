@@ -7,8 +7,7 @@ if select(2,UnitClass("player")) == "MONK" then
         local self = cMonk:new("Mistweaver")
 
         local player = "player" -- if someone forgets ""
-       
-        
+        local isSoothing        = UnitChannelInfo("player") == GetSpellInfo(_SoothingMist) or nil;
 
         -----------------
         --- VARIABLES ---
@@ -39,9 +38,11 @@ if select(2,UnitClass("player")) == "MONK" then
             -- Buff - Offensive
             legacyoftheEmperorBuff          = 115921,
             renewingMistBuff                = 119611,
+            craneZealBuff                   = 127722,
 
             -- Buff - Stacks
             manaTeaStacks                   = 115867,
+            vitalMistsStacks                = 118647,
 
             -- Glyphs
             manaTeaGlyph                    = 123763,
@@ -85,6 +86,7 @@ if select(2,UnitClass("player")) == "MONK" then
             self.getCharges()
             self.getEnemies()
             self.getRotation()
+            self.getClassCooldowns()
 
 
             -- Casting and GCD check
@@ -102,9 +104,17 @@ if select(2,UnitClass("player")) == "MONK" then
         function self.getBuffs()
             local UnitBuffID = UnitBuffID
 
+            self.buff.craneZeal     = UnitBuffID("player",self.spell.craneZealBuff)~=nil or false
             self.buff.renewingMist  = UnitBuffID("player",self.spell.renewingMistBuff)~=nil or false
             self.buff.soothingMist  = UnitChannelInfo("player") == GetSpellInfo(self.spell.soothingMist) or nil;
         end
+
+        function self.getClassCooldowns()
+        local getSpellCD = getSpellCD
+
+        self.cd.chiBrew         = getSpellCD(self.spell.chiBrew)
+        self.cd.manaTea         = getSpellCD(self.spell.manaTea)
+    end
 
         --------------
         --- GLYPHS ---
@@ -150,6 +160,7 @@ if select(2,UnitClass("player")) == "MONK" then
           local getCharges = getCharges
           local getBuffStacks = getBuffStacks
           self.charges.manaTea = getBuffStacks("player",self.spell.manaTeaStacks,"player") or 0
+          self.charges.vitalMists = getBuffStacks("player",self.spell.vitalMistsStacks,"player") or 0
           self.charges.renewingMist = getCharges(self.spell.renewingMist) or 0
         end
 
@@ -207,7 +218,7 @@ if select(2,UnitClass("player")) == "MONK" then
             -- Enveloping Mist
             createNewSpinner(section,  "Enveloping Mist",  45,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFEnveloping Mist.")
             -- Renewing Mist
-            createNewSpinner(section,  "Renewing Mist",  85,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFRenewing Mist.")
+            createNewCheckbox(section,  "Renewing Mist")
             -- Soothing Mist
             createNewSpinner(section,  "Soothing Mist",  75,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFSoothing Mist.")
             -- Surging Mist
@@ -264,6 +275,12 @@ if select(2,UnitClass("player")) == "MONK" then
             if castSpell("player",103985,true) then return; end
           end
         end
+        -- Chi Brew
+        function self.castChiBrew()
+            if self.charges.chiBrew >= 1 then
+                if castSpell("player", self.spell.chiBrew, false) then return end
+            end
+        end
         -- Chi Explosion
         function self.castChiExplosion()
         end
@@ -293,12 +310,26 @@ if select(2,UnitClass("player")) == "MONK" then
         end
         -- Legacy of the Emperor
         function self.castLegacyoftheEmperor()
-            if not UnitExists("mouseover") then
-             for i = 1, #nNova do
-                if (UnitInParty(nNova[i].unit) or UnitInRaid(nNova[i].unit) or UnitIsUnit("player",nNova[i].unit)) and UnitIsVisible(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) then
-                  if castSpell("player", self.spell.legacyoftheEmperor ,true) then return; end
+            if self.instance=="none" and not isBuffed("player",{115921,20217,1126,90363}) then
+                if castSpell("player",self.spell.legacyoftheEmperor,false,false,false) then return end
+            else
+                local totalCount = GetNumGroupMembers()
+                local currentCount = currentCount or 0
+                local needsBuff = needsBuff or 0
+                for i=1,#nNova do
+                    local thisUnit = nNova[i].unit
+                    local distance = getDistance(thisUnit)
+                    local dead = UnitIsDeadOrGhost(thisUnit)
+                    if distance<30 then
+                        currentCount = currentCount+1
+                    end
+                    if not isBuffed(thisUnit,{115921,20217,1126,90363}) and not dead then
+                        needsBuff = needsBuff+1
+                    end
                 end
-              end
+                if currentCount>=totalCount and needsBuff>0 then
+                    if castSpell("player",self.spell.legacyoftheEmperor,false,false,false) then return end
+                end
             end
         end
         --Life Cocoon
@@ -307,23 +338,23 @@ if select(2,UnitClass("player")) == "MONK" then
         end
         -- Mana Tea
         function self.castManaTea()
-            if self.glyph.manaTea then
-              if castSpell("player",self.spell.manaTea,true) then return; end
+            if self.glyph.manaTea and self.cd.manaTea == 0 then
+              if castSpell("player",self.spell.manaTea,false) then return; end
             end
         end
         -- Renewing Mist
         function self.castRenewingMist(unit)
-            if self.talent.renewingMist and self.charges.renewingMist > 0 then
-              if castSpell("player",self.spell.thunderFocusTea,true) then end
+            if self.talent.renewingMist and self.charges.renewingMist > 0 and getMana("player") > 4 then
+              if castSpell("player",self.spell.thunderFocusTea,false) then end
               if castSpell(unit,self.spell.renewingMist,true) then return; end
-            else
-              if castSpell("player",self.spell.thunderFocusTea,true) then end
+            elseif not self.talent.renewingMist then
+              if castSpell("player",self.spell.thunderFocusTea,false) then end
               if castSpell(unit,self.spell.renewingMist,true) then return; end
             end
         end
         -- Revival
-        function self.castRevival(unit)
-          if castSpell(unit,self.spell.revival,true) then return; end
+        function self.castRevival()
+          if castSpell("player",self.spell.revival,false) then return; end
         end
         -- Soothing Mist
         function self.castSoothingMist(unit)
@@ -336,9 +367,9 @@ if select(2,UnitClass("player")) == "MONK" then
         -- Spinning Crane Kick/RJW
         function self.castHealingSpinningCraneKick()
           if self.talent.rushingJadeWind then
-            if castSpell("player",self.spell.rushingJadeWind,true) then return end
+            if castSpell("player",self.spell.rushingJadeWind,false) then return end
           else
-            if castSpell("player",self.spell.spinningCraneKick,true) then return end     
+            if castSpell("player",self.spell.spinningCraneKick,false) then return end     
           end
         end
         -- Surging Mist
@@ -347,15 +378,11 @@ if select(2,UnitClass("player")) == "MONK" then
         end
         -- Uplift
         function self.castUplift()
-          if self.chi.count < 2 and self.charges.chiBrew > 0 then
-            if castSpell("player",self.spell.chiBrew,true) then
-              if castSpell("player",self.spell.uplift,true) then
-                return;
-              end
-            end
-          elseif self.chi.count >= 2 then
-            if castSpell("player",self.spell.uplift,true) then
-              return;
+          if self.chi.count >= 2 then
+            if castSpell("player",self.spell.uplift,false) then return end
+          elseif self.charges.chiBrew >= 1 and self.chi.count < 2 then
+            if castSpell("player",self.spell.chiBrew) then
+                if castSpell("player",self.spell.uplift) then return end
             end
           end
         end

@@ -317,6 +317,8 @@ Rotations\Warrior\Protection\Libs\Options.lua
 Rotations\Warrior\Protection\Libs\Toggles.lua
 
 ## Warlock ---------------------------------------------------
+Rotations\Warlock\cWarlock.lua
+
 Rotations\Warlock\Affliction\Affliction.lua
 Rotations\Warlock\Affliction\Libs\Functions.lua
 Rotations\Warlock\Affliction\Libs\Options.lua
@@ -327,7 +329,9 @@ Rotations\Warlock\Demonology\Libs\Functions.lua
 Rotations\Warlock\Demonology\Libs\Options.lua
 Rotations\Warlock\Demonology\Libs\Toggles.lua
 
+Rotations\Warlock\Destruction\cDestruction.lua
 Rotations\Warlock\Destruction\Destruction.lua
+Rotations\Warlock\Destruction\DestructionKuu.lua
 Rotations\Warlock\Destruction\Libs\Functions.lua
 Rotations\Warlock\Destruction\Libs\Options.lua
 Rotations\Warlock\Destruction\Libs\Toggles.lua

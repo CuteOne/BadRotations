@@ -1,47 +1,67 @@
-if select(3, UnitClass("player")) == 9 then
-
+if select(3,UnitClass("player")) == 9 then
   function DestructionToggles()
-
-    -- Aoe Button
-    if  AoEModesLoaded ~= "Destruction Warlock AoE Modes" then
-      print("aoe")
+    -- AoE Button
+   if  AoEModesLoaded ~= "Destruction Warlock AoE Modes" then
       AoEModes = {
-        [1] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Recommended for \n|cff00FF00Single Target (1-2)", highlight = 0, icon = 108557 },
-        [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Recommended for \n|cffFF0000AoE (3+)", highlight = 0, icon = 101546 },
-        [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "|cffC0C0C0AoE \n|cffFFDD11Auto-AoE", highlight = 1, icon = 116812 }
+        [1] = { mode = "Off", value = 1 , overlay = "AoE Disabled", tip = "Will not AoE.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
+        [2] = { mode = "On", value = 2 , overlay = "AoE Enabled", tip = "Will allow AoE.", highlight = 1, icon = 104232 },
       };
-      CreateButton("AoE",0.5,1)
+      CreateButton("AoE",1,0);
       AoEModesLoaded = "Destruction Warlock AoE Modes";
     end
-
-    -- Interrupts Button
-    if  InterruptsModesLoaded ~= "Destruction Warlock Interrupts Modes" then
-      InterruptsModes = {
-        [1] = { mode = "None", value = 1 , overlay = "Interrupts Disabled", tip = "|cffC0C0C0Interrupts \n|cffFF0000No Interrupts will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
-        [2] = { mode = "All", value = 2 , overlay = "Interrupts Enabled", tip = "|cffC0C0C0Interrupts \n|cffFF0000Spells Included: \n|cffFFDD11Spear Hand Strike.", highlight = 1, icon = 116705 }
+    -- DPS Button
+    if  STModesLoaded ~= "Destruction Warlock ST Modes" then
+      STModes = {
+        [1] = { mode = "Off", value = 1 , overlay = "Single Target Disabled", tip = "Will not allow Single Target.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
+        [2] = { mode = "On", value = 2 , overlay = "Single Target Enabled", tip = "Will allow Single Target.", highlight = 1, icon = 116858 },
       };
-      CreateButton("Interrupts",1,0)
-      InterruptsModesLoaded = "Destruction Warlock Interrupts Modes";
+      CreateButton("ST",2,0);
+      STModesLoaded = "Destruction Warlock ST Modes";
     end
-
     -- Defensive Button
     if  DefensiveModesLoaded ~= "Destruction Warlock Defensive Modes" then
       DefensiveModes = {
-        [1] = { mode = "None", value = 1 , overlay = "Defensive Disabled", tip = "|cffC0C0C0Defensive \n|cffFF0000No Defensive Cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
-        [2] = { mode = "All", value = 2 , overlay = "Defensive Enabled", tip = "|cffC0C0C0Defensive \n|cffFF0000Spells Included: \n|cffFFDD11Fortifying Brew, \nElusive Brew, \nGuard", highlight = 1, icon = 115203 }
+        [1] = { mode = "Off", value = 1 , overlay = "Defensive Disabled", tip = "No Defensive Cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
+        [2] = { mode = "On", value = 2 , overlay = "Defensive Enabled", tip = "|cffFF0000Includes: \n|cffFFdd11Fortifying Brew.", highlight = 1, icon = 104773 }
       };
-      CreateButton("Defensive",1.5,1)
+      CreateButton("Defensive",0.5,1);
       DefensiveModesLoaded = "Destruction Warlock Defensive Modes";
     end
     -- Cooldowns Button
     if  CooldownsModesLoaded ~= "Destruction Warlock Cooldowns Modes" then
       CooldownsModes = {
-        [1] = { mode = "None", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffC0C0C0Cooldowns \n|cffFF0000No cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
-        [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "|cffC0C0C0Cooldowns \n|cffFF0000Spells Included: \n|cffFFDD11Config's selected spells.", highlight = 1, icon = [[INTERFACE\ICONS\inv_misc_blackironbomb]]},
-        [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "|cffC0C0C0Cooldowns \n|cffFF0000Spells Included: \n|cffFFDD11Avenging Wrath, \nHoly Avenger.", highlight = 1, icon = 115080 }
+        [1] = { mode = "Off", value = 1 , overlay = "Cooldowns Disabled", tip = "No cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "|cffFF0000Includes: \n|cffFFdd11Revival.", highlight = 1, icon = 113858 }
       };
-      CreateButton("Cooldowns",2,0)
+      CreateButton("Cooldowns",1.5,1);
       CooldownsModesLoaded = "Destruction Warlock Cooldowns Modes";
+    end
+    if InterruptsModesLoaded ~= "Destruction Warlock Interrupts Modes" then
+      InterruptsModes = {
+        [1] = { mode = "Off", value = 1 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]]},
+        [2] = { mode = "On", value = 2 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = 30283}
+      };
+      CreateButton("Interrupts",3,0)
+      InterruptsModesLoaded = "Destruction Warlock Interrupts Modes";
+    end
+
+
+    function SpecificToggle(toggle)
+      if getValue(toggle) == 1 then
+        return IsLeftControlKeyDown();
+      elseif getValue(toggle) == 2 then
+        return IsLeftShiftKeyDown();
+      elseif getValue(toggle) == 3 then
+        return IsLeftAltKeyDown();
+      elseif getValue(toggle) == 4 then
+        return IsRightControlKeyDown();
+      elseif getValue(toggle) == 5 then
+        return IsRightShiftKeyDown();
+      elseif getValue(toggle) == 6 then
+        return IsRightAltKeyDown();
+      elseif getValue(toggle) == 7 then
+        return 1
+      end
     end
   end
 end

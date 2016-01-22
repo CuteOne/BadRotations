@@ -1008,6 +1008,12 @@ function getDistanceToObject(Unit1,X2,Y2,Z2)
 		return 100
 	end
 end
+function getEmber(Unit)
+	return UnitPower(Unit,14)
+end
+function getEmberMax(Unit)
+	return UnitPowerMax(Unit,14)
+end
 -- findTarget(10,true,1)   will find closest target in 10 yard front that have more or equal to 1%hp
 function findTarget(range,facingCheck,minimumHealth)
 	if enemiesTable ~= nil then

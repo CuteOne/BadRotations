@@ -164,10 +164,17 @@ if not metaTable1 then
 						if SpecificHPBuffs[i].value ~= nil then
 							PercentWithIncoming = 100 + (SpecificHPBuffs[i].value/UnitHealthMax(o.unit)*100) -- we set its amount + 100 to make sure its within 50-100 range
 							break
+						end
 					end
 				end
-			end
 			PercentWithIncoming = PercentWithIncoming/2 -- no mather what as long as we are on miasma buff our life is cut in half so unshielded ends up 0-50
+			end
+			-- Tyrant Velhair Aura logic
+			if UnitDebuffID(o.unit, 179986) then -- If Aura of Contempt found
+				local max_percentage = select(15,UnitAura("boss1",GetSpellInfo(179986))) -- find current reduction % in healing
+				if max_percentage then 
+					PercentWithIncoming = PercentWithIncoming/max_percentage -- Calculate Actual HP % after reduction
+				end
 			end
 			-- Debuffs HP compensation
 			local HpDebuffs = novaEngineTables.SpecificHPDebuffs
