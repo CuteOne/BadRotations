@@ -316,7 +316,7 @@ function cWarrior:new(spec)
 --- SPELLS - OFFENSIVE ---
 --------------------------
 	function self.castAvatar()
-		if self.talent.avatar and self.cd.avatar==0 and getDistance(self.units.dyn5)<5 then
+		if self.talent.avatar and self.cd.avatar==0 and getDistance(self.units.dyn5)<5 and getTimeToDie(self.units.dyn5)>5 then
 			if castSpell("player",self.spell.avatar,false,false,false) then return end
 		end
 	end
@@ -346,12 +346,12 @@ function cWarrior:new(spec)
 	    end
 	end
 	function self.castBladestorm()
-		if self.talent.bladestorm and self.cd.bladestorm==0 and getDistance(self.units.dyn8AoE)<8 then
+		if self.talent.bladestorm and self.cd.bladestorm==0 and getDistance(self.units.dyn8AoE)<8 and getTimeToDie(self.units.dyn8AoE)>3 then
 			if castSpell("player",self.spell.bladestorm,false,false,false) then return end
 		end
 	end
 	function self.castBloodbath()
-		if self.talent.bloodbath and self.cd.bloodbath==0 and getDistance(self.units.dyn5)<5 then
+		if self.talent.bloodbath and self.cd.bloodbath==0 and getDistance(self.units.dyn5)<5 and getTimeToDie(self.units.dyn5)>6 then
 			if castSpell("player",self.spell.bloodbath,false,false,false) then return end
 		end
 	end
@@ -385,7 +385,7 @@ function cWarrior:new(spec)
 	    end
 	end
 	function self.castDragonRoar()
-		if self.talent.dragonRoar and self.cd.dragonRoar==0 and getDistance(self.units.dyn8AoE)<8 then
+		if self.talent.dragonRoar and self.cd.dragonRoar==0 and getDistance(self.units.dyn8AoE)<8 and (getTimeToDie(self.units.dyn8AoE)>5 or #getEnemies("player",8)>1) then
 			if castSpell(self.units.dyn8AoE,self.spell.dragonRoar,false,false,false) then return end
 		end
 	end
@@ -403,13 +403,13 @@ function cWarrior:new(spec)
 		end
 	end
 	function self.castRavager()
-		if self.talent.ravager and self.cd.ravager==0 and getDistance(self.units.dyn40)<40 then
+		if self.talent.ravager and self.cd.ravager==0 and getDistance(self.units.dyn40)<40 and getTimeToDie(self.units.dyn40)>5 then
 			if castGoundAtBestLocation(self.spell.ravager,6,1,40) then return end
 			-- if castSpell(self.units.dyn40,self.spell.ravager,false,false,false) then return end
 		end
 	end
 	function self.castShockwave()
-		if self.talent.shockwave and self.cd.shockwave==0 and power>10 and getDistance(self.units,dyn10)<10 then
+		if self.talent.shockwave and self.cd.shockwave==0 and power>10 and getDistance(self.units,dyn10)<10 and getTimeToDie(self.units.dyn10)>5 then
 			if castSpell(self.units.dyn10,self.spell.shockwave,false,false,false) then return end
 		end
 	end

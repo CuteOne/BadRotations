@@ -444,7 +444,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         --- SPELLS ---
         --------------
         function self.castColossusSmash()
-            if self.level>=81 and self.buff.battleStance and self.cd.colossusSmash==0 and self.power>10 and getDistance(self.units.dyn5)<5 then
+            if self.level>=81 and self.buff.battleStance and self.cd.colossusSmash==0 and self.power>10 and getDistance(self.units.dyn5)<5 and getTimeToDie(self.units.dyn5)>5 then
                 if castSpell(self.units.dyn5,self.spell.colossusSmash,false,false,false) then return end
             end
         end
@@ -465,7 +465,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             end
         end
         function self.castRecklessness()
-            if self.level>=87 and self.buff.battleStance and self.cd.recklessness==0 and getDistance(self.units.dyn5)<5 then
+            if self.level>=87 and self.buff.battleStance and self.cd.recklessness==0 and getDistance(self.units.dyn5)<5 and getTimeToDie(self.units.dyn5)>5 then
                 if castSpell("player",self.spell.recklessness,false,false,false) then return end
             end
         end
@@ -476,7 +476,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             end
         end
         function self.castSiegebreaker()
-            if self.talent.siegebreaker and self.cd.siegebreaker==0 and getDistance(self.units.dyn5)<5 then
+            if self.talent.siegebreaker and self.cd.siegebreaker==0 and getDistance(self.units.dyn5)<5 and getTimeToDie(self.units.dyn5)>5 then
                 if castSpell(self.units.dyn5,self.spell.siegebreaker,false,false,false) then return end
             end
         end
@@ -486,7 +486,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             end
         end
         function self.castSweepingStrikes()
-            if self.level>=60 and self.cd.sweepingStrikes==0 and self.power>10 and getDistance(self.units.dyn8AoE)<8 then
+            if self.level>=60 and self.cd.sweepingStrikes==0 and self.power>10 and getDistance(self.units.dyn8AoE)<8 and getTimeToDie(self.units.dyn8AoE)>5 then
                 if castSpell(self.units.dyn8AoE,self.spell.sweepingStrikes,false,false,false) then return end
             end
         end
