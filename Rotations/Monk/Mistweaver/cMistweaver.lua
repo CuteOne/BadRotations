@@ -311,6 +311,7 @@ if select(2,UnitClass("player")) == "MONK" then
         -- Legacy of the Emperor
         function self.castLegacyoftheEmperor()
             if self.instance=="none" and not isBuffed("player",{115921,20217,1126,90363}) then
+                print ("1")
                 if castSpell("player",self.spell.legacyoftheEmperor,false,false,false) then return end
             else
                 local totalCount = GetNumGroupMembers()
@@ -323,7 +324,7 @@ if select(2,UnitClass("player")) == "MONK" then
                     if distance<30 then
                         currentCount = currentCount+1
                     end
-                    if not isBuffed(thisUnit,{115921,20217,1126,90363}) and not dead then
+                    if not isBuffed(thisUnit,{115921,20217,1126,90363}) and not dead and UnitIsPlayer(thisUnit) and not UnitInVehicle(thisUnit) then
                         needsBuff = needsBuff+1
                     end
                 end
