@@ -212,6 +212,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             self.cd.colossusSmash   = getSpellCD(self.spell.colossusSmash)
             self.cd.dieByTheSword   = getSpellCD(self.spell.dieByTheSword)
             self.cd.mortalStrike    = getSpellCD(self.spell.mortalStrike)
+            self.cd.rallyingCry     = getSpellCD(self.spell.rallyingCry)
             self.cd.siegebreaker    = getSpellCD(self.spell.siegebreaker)
             self.cd.sweepingStrikes = getSpellCD(self.spell.sweepingStrikes)
             self.cd.thunderClap     = getSpellCD(self.spell.thunderClap)
@@ -352,6 +353,8 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             -- Touch of the Void
             createNewCheckbox(section,"Touch of the Void")
             
+            checkSectionState(section)
+
             --  _____        __               _
             -- |  __ \      / _|             (_)
             -- | |  | | ___| |_ ___ _ __  ___ ___   _____
@@ -382,8 +385,14 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             -- Intimidating Shout
             createNewSpinner(section, "Intimidating Shout",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
+            -- Rallying Cry
+            createNewSpinner(section, "Rallying Cry",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")            
+
             -- Vigilance
             createNewSpinner(section, "Vigilance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+
+            checkSectionState(section)
+
 
             --  _____       _                             _
             -- |_   _|     | |                           | |
@@ -462,6 +471,11 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         function self.castMortalStrike()
             if self.level>=10 and self.cd.mortalStrike==0 and self.power>20 and getDistance(self.units.dyn5)<5 then
                 if castSpell(self.units.dyn5,self.spell.mortalStrike,false,false,false) then return end
+            end
+        end
+        function self.castRallyingCry()
+            if self.level>=83 and self.cd.rallyingCry==0 then
+                if castSpell("player",self.spell.rallyingCry,false,false,false) then return end
             end
         end
         function self.castRecklessness()

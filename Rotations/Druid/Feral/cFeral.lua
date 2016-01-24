@@ -710,7 +710,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         end
         -- Swipe
         function self.castSwipe(thisUnit)
-        	if self.level>=22 and self.power > 45 and self.buff.catForm and hasThreat(thisUnit) and getDistance(thisUnit)<8 then
+        	if self.level>=22 and self.power > 45 and self.buff.catForm and getDistance(thisUnit)<8 then
         		if castSpell(thisUnit,self.spell.swipe,false,false,false) then return end
         	end
         end

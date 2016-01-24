@@ -509,7 +509,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local function actionList_Generator()
 		-- Generator: Swipe
 	   		-- if=spell_targets.swipe>=4|(spell_targets.swipe>=3&buff.incarnation.down)
-	   		if BadBoy_data['AoE']==2 or (BadBoy_data['AoE']==1 and (enemies.yards8>=4 or (enemies.yards8>=3 and not buff.incarnationKingOfTheJungle))) and getDistance(dynTar8)<8 then
+	   		if BadBoy_data['AoE']==2 or (BadBoy_data['AoE']==1 and (enemies.yards8>=3 or (enemies.yards8>=3 and not buff.incarnationKingOfTheJungle))) and getDistance(dynTar8)<8 then
 	   			if self.castSwipe(dynTar8) then return end
 	      	end
 		-- Generator: Shred

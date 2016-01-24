@@ -269,8 +269,14 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
 
             -- Mouseover Targeting
             createNewCheckbox(section,"Mouseover Targeting","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFmouseover target validation.|cffFFBB00.")
-            checkSectionState(section)
+            
+            -- Death Grip
+            createNewCheckbox(section,"Death Grip")
 
+            -- Gorefiend's Crasp
+            createNewCheckbox(section,"Gorefiend's Grasp")
+
+            checkSectionState(section)
 
             --   _____            _     _
             --  / ____|          | |   | |

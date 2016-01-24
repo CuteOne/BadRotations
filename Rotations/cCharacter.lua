@@ -380,7 +380,7 @@ function cCharacter:new(class)
 -- Use Empowered Augment Rune +50 to prim. Stat - ID: 128482 Alliance / ID: 128475 Horde
 	function self.useEmpoweredRune()
 		if self.options.useEmpoweredRune then
-			if getBuffRemain("player",self.augmentRune[self.primaryStat]) < 600 then
+			if getBuffRemain("player",self.augmentRune[self.primaryStat]) < 600 and not IsFlying() then
 				if self.faction == "Alliance" then
 					useItem(128482)
 				else

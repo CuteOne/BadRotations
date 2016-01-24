@@ -84,15 +84,15 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 if self.castDeathsAdvance() then return end
             end
         -- Death Grip
-            --if ((solo and #nNova==1) or hasThreat(self.units.dyn30AoE)) then
-            -- if inCombat then
-            --     if self.castDeathGrip(thisUnit) then return end
-            -- end
-            -- end
+            if isChecked("Death Grip") and ((solo and #nNova==1) or hasThreat(self.units.dyn30AoE)) then
+                if inCombat then
+                    if self.castDeathGrip(thisUnit) then return end
+                end
+            end
         -- Gorefiend's Grasp
-            -- if ((solo and #nNova==1) or hasThreat(self.units.dyn20AoE)) then
-            --     if self.castDeathGrip() then return end
-            -- end
+            if isChecked("Gorefiend's Grasp") and ((solo and #nNova==1) or hasThreat(self.units.dyn20AoE)) then
+                if self.castGorefiendsGrasp() then return end
+            end
         -- Unholy Presence
             -- if not buff.unholyPresence and moving and (not inCombat or (inCombat and getDistance(self.units.dyn5)>10)) then --and (power<40 or (power<70 and glyph.shiftingPresences)))) then
             --     if self.castUnholyPresence() then return end
@@ -117,7 +117,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             if useDefensive() and not IsMounted() then
         -- Anti-Magic Shell
                 -- antimagic_shell,damage=100000,if=((dot.breath_of_sindragosa.ticking&runic_power<25)|cooldown.breath_of_sindragosa.remains>40)|!talent.breath_of_sindragosa.enabled
-                if isChecked("Anti-Magic Shell") and php<=getOptionValue("Anti-Magic Shell") and not talent.antiMagicZone and ((buff.breathOfSindragosa and power<25) or cd.breathOfSindragosa>40 or (not talent.breathOfSindragosa)) then
+                if isChecked("Anti-Magic Shell") and php<=getOptionValue("Anti-Magic Shell") and incombat and not talent.antiMagicZone and ((buff.breathOfSindragosa and power<25) or cd.breathOfSindragosa>40 or (not talent.breathOfSindragosa)) then
                     if self.castAntiMagicShell() then return end
                 end
         -- Anti-Magic Zone
@@ -653,7 +653,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
 ---------------------
 --- Out Of Combat ---
 ---------------------
-        if pause() then
+        if pause() or BadBoy_data['AoE']==4 then
             return true
         else
             if actionList_Extras() then return end

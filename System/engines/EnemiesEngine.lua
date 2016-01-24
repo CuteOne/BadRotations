@@ -186,14 +186,14 @@ function EnemiesEngine()
 	end
 	-- /dump UnitGUID("target")
 	-- /dump getEnemies("target",10)
-	function getEnemies(unit,Radius)
+	function getEnemies(unit,Radius,InCombat)
 		if GetObjectExists(unit) and UnitIsVisible(unit) then
 			local getEnemiesTable = { }
 			for i = 1, #enemiesTable do
 				thisUnit = enemiesTable[i].unit
 				-- check if unit is valid
-				if GetObjectExists(thisUnit) then
-					if getDistance(unit,thisUnit) <= Radius then --changed getDistanceXYZ to getDistance to solve issue with bosses like Kromog and Gorefiend
+				if GetObjectExists(thisUnit) and (not InCombat or enemiesTable[i].inCombat) then
+					if getDistance(unit,thisUnit) <= Radius then
 						tinsert(getEnemiesTable,thisUnit)
 					end
 				end

@@ -335,7 +335,7 @@ function cWarrior:new(spec)
 		            if distance<30 then
 		                currentCount = currentCount+1
 		            end
-		            if not isBuffed(thisUnit,{self.spell.battleShout,19506,57330}) and not dead then
+		            if not isBuffed(thisUnit,{self.spell.battleShout,19506,57330}) and not dead and UnitIsPlayer(thisUnit) and not UnitInVehicle(thisUnit) then
 		            	needsBuff = needsBuff+1
 		            end
 		        end
@@ -372,7 +372,7 @@ function cWarrior:new(spec)
 		            if distance<30 then
 		                currentCount = currentCount+1
 		            end
-		            if not isBuffed(thisUnit,{self.spell.commandingShout,19506,57330}) and not dead then
+		            if not isBuffed(thisUnit,{self.spell.commandingShout,19506,57330}) and not dead and UnitIsPlayer(thisUnit) and not UnitInVehicle(thisUnit) then
 		            	needsBuff = needsBuff+1
 		            end
 		        end

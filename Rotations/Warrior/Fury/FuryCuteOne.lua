@@ -85,7 +85,7 @@ if select(3,UnitClass("player")) == 1 then
                     end
                 end 
             -- Gift of the Naaru
-                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and self.race=="Draenei" then
+                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and cd.racial==0 and self.race=="Draenei" then
                     if castSpell("player",racial,false,false,false) then return end
                 end
             -- Defensive Stance
@@ -110,6 +110,10 @@ if select(3,UnitClass("player")) == 1 then
             -- Intimidating Shout
                 if isChecked("Intimidating Shout") and inCombat and php <= getOptionValue("Intimidating Shout") then
                     if self.castIntimidatingShout() then return end
+                end
+            -- Rallying Cry
+                if isChecked("Rallying Cry") and inCombat and php <= getOptionValue("Rallying Cry") then
+                    if self.castRallyingCry() then return end
                 end
             -- Vigilance
                 if isChecked("Vigilance") then
@@ -265,7 +269,7 @@ if select(3,UnitClass("player")) == 1 then
             end
         -- Dragon Roar
             -- dragon_roar,if=buff.bloodbath.up|!talent.bloodbath.enabled
-            if isChecked("Dragon Roar") and getDistance(self.units.dyn8AoE)<8 then
+            if isChecked("Dragon Roar") then
                 if buff.bloodbath or not talent.bloodbath then
                     if self.castDragonRoar() then return end
                 end

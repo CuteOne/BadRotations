@@ -455,7 +455,7 @@ function cMonk:new(spec)
 		            if distance<30 then
 		                currentCount = currentCount+1
 		            end
-		            if not isBuffed(thisUnit,{1126,115921,116781,20217,160206,69378,159988,160017,90363,160077}) and not dead then
+		            if not isBuffed(thisUnit,{1126,115921,116781,20217,160206,69378,159988,160017,90363,160077}) and not dead and UnitIsPlayer(thisUnit) and not UnitInVehicle(thisUnit) then
 		            	needsBuff = needsBuff+1
 		            end
 		        end
