@@ -321,7 +321,7 @@ function BadBoyUpdate(self)
 		if playerSpec == 2 then
 			WarlockDemonology()
 		elseif playerSpec == 3 then
-			WarlockDestruction()
+			DestructionWarlock()
 		end
 	elseif playerClass == 10 then -- Monk
 		if playerSpec == nil then

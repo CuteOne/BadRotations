@@ -1,13 +1,17 @@
- if select(3,UnitClass("player")) == 9 then
+ if select(3,UnitClass("player")) == 10 then
 -- Config Panel
-   function DestructionConfig()
-            bb.profile_window = createNewProfileWindow("Destruction")
+   function MistMonkConfig()
+            bb.profile_window = createNewProfileWindow("Mistweaver")
             local section
 
             -- Wrapper -----------------------------------------
             section = createNewSection(bb.profile_window, "Buffs")
+            -- Stance
+            createNewDropdown(section,  "Stance", { "|cff00FF55Serpent", "|cff0077FFCrane"},  1,  "Choose Stance to use.")
             -- Legacy of the Emperor
-            createNewCheckbox(section,"Dark Intent")
+            createNewCheckbox(section,"Legacy of the Emperor")
+            --Jade Serpent Statue
+            createNewCheckbox(section,"Jade Serpent Statue (Left Shift)")
             checkSectionState(section)
     
             -- Wrapper -----------------------------------------

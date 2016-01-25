@@ -85,7 +85,7 @@ if select(3,UnitClass("player")) == 1 then
                     end
                 end 
             -- Gift of the Naaru
-                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and self.race=="Draenei" then
+                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and cd.racial==0 and self.race=="Draenei" then
                     if castSpell("player",racial,false,false,false) then return end
                 end
             -- Defensive Stance
@@ -110,6 +110,10 @@ if select(3,UnitClass("player")) == 1 then
             -- Intimidating Shout
                 if isChecked("Intimidating Shout") and inCombat and php <= getOptionValue("Intimidating Shout") then
                     if self.castIntimidatingShout() then return end
+                end
+            -- Rallying Cry
+                if isChecked("Rallying Cry") and inCombat and php <= getOptionValue("Rallying Cry") then
+                    if self.castRallyingCry() then return end
                 end
             -- Vigilance
                 if isChecked("Vigilance") then
@@ -213,7 +217,7 @@ if select(3,UnitClass("player")) == 1 then
         function actionList_Single()
         -- Bloodbath
             -- bloodbath
-            if useCDs() and isChecked("Bloodbath") and getDistance(self.units.dyn8AoE)<8 then
+            if isChecked("Bloodbath") and getDistance(self.units.dyn8AoE)<8 then
                 if self.castBloodbath() then return end
             end
         -- Recklessness
@@ -235,14 +239,14 @@ if select(3,UnitClass("player")) == 1 then
             end
         -- Ravager
             -- ravager,if=buff.bloodbath.up|(!talent.bloodbath.enabled&(!raid_event.adds.exists|raid_event.adds.in>60|target.time_to_die<40))
-            if useCDs() and isChecked("Ravager") then
+            if isChecked("Ravager") then
                 if buff.bloodbath or (not talent.bloodbath and ttd<40) then
                     if self.castRavager() then return end
                 end
             end
         -- Siegebreaker
             -- siegebreaker
-            if useCDs() and isChecked("Siegebreaker") and getDistance(self.units.dyn5)<5 then
+            if isChecked("Siegebreaker") and getDistance(self.units.dyn5)<5 then
                 if self.castSiegebreaker() then return end
             end
         -- Execute
@@ -265,7 +269,7 @@ if select(3,UnitClass("player")) == 1 then
             end
         -- Dragon Roar
             -- dragon_roar,if=buff.bloodbath.up|!talent.bloodbath.enabled
-            if useCDs() and isChecked("Dragon Roar") and getDistance(self.units.dyn8AoE)<8 then
+            if isChecked("Dragon Roar") then
                 if buff.bloodbath or not talent.bloodbath then
                     if self.castDragonRoar() then return end
                 end
@@ -285,12 +289,12 @@ if select(3,UnitClass("player")) == 1 then
             end
         -- Bladestorm
             -- bladestorm,if=!raid_event.adds.exists
-            if useCDs() and isChecked("Bladestorm") and getDistance(self.units.dyn8AoE)<8 then 
+            if isChecked("Bladestorm") and getDistance(self.units.dyn8AoE)<8 then 
                 if self.castBladestorm() then return end
             end
         -- Shockwave
             -- shockwave,if=!talent.unquenchable_thirst.enabled
-            if useCDs() and isChecked("Shockwave") and getDistance(self.units.dyn8AoE)<8 then
+            if isChecked("Shockwave") and getDistance(self.units.dyn8AoE)<8 then
                 if not talent.unquenchableThirst then
                     if self.castShockwave() then return end
                 end
@@ -308,19 +312,19 @@ if select(3,UnitClass("player")) == 1 then
         function actionList_TwoTargets()
         -- Bloodbath
             -- bloodbath
-            if useCDs() and isChecked("Bloodbath") and getDistance(self.units.dyn8AoE)<8 then
+            if isChecked("Bloodbath") and getDistance(self.units.dyn8AoE)<8 then
                 if self.castBloodbath() then return end
             end
         -- Ravager
             -- ravager,if=buff.bloodbath.up|!talent.bloodbath.enabled
-            if useCDs() and isChecked("Ravager") then
+            if isChecked("Ravager") then
                 if buff.bloodbath or not talent.bloodbath then
                     if self.castRavager() then return end
                 end
             end
         -- Dragon Roar
             -- dragon_roar,if=buff.bloodbath.up|!talent.bloodbath.enabled
-            if useCDs() and isChecked("Dragon Roar") and getDistance(self.units.dyn8AoE)<8 then
+            if isChecked("Dragon Roar") and getDistance(self.units.dyn8AoE)<8 then
                 if buff.bloodbath or not talent.bloodbath then
                     if self.castDragonRoar() then return end
                 end
@@ -335,7 +339,7 @@ if select(3,UnitClass("player")) == 1 then
             end
         -- Siegebreaker
             -- siegebreaker
-            if useCDs() and isChecked("Siegebreaker") and getDistance(self.units.dyn5)<5 then
+            if isChecked("Siegebreaker") and getDistance(self.units.dyn5)<5 then
                 if self.castSiegebreaker() then return end
             end
         -- Execute
@@ -370,12 +374,12 @@ if select(3,UnitClass("player")) == 1 then
         function actionList_ThreeTargets()
         -- Bloodbath
             -- bloodbath
-            if useCDs() and isChecked("Bloodbath") and getDistance(self.units.dyn8AoE)<8 then
+            if isChecked("Bloodbath") and getDistance(self.units.dyn8AoE)<8 then
                 if self.castBloodbath() then return end
             end
         -- Ravager
             -- ravager,if=buff.bloodbath.up|!talent.bloodbath.enabled
-            if useCDs() and isChecked("Ravager") then
+            if isChecked("Ravager") then
                 if buff.bloodbath or not talent.bloodbath then
                     if self.castRavager() then return end
                 end
@@ -394,7 +398,7 @@ if select(3,UnitClass("player")) == 1 then
             end
         -- Siegebreaker
             -- siegebreaker
-            if useCDs() and isChecked("Siegebreaker") and getDistance(self.units.dyn5)<5 then
+            if isChecked("Siegebreaker") and getDistance(self.units.dyn5)<5 then
                 if self.castSiegebreaker() then return end
             end
         -- Execute
@@ -405,7 +409,7 @@ if select(3,UnitClass("player")) == 1 then
             end
         -- Dragon Roar
             -- dragon_roar,if=buff.bloodbath.up|!talent.bloodbath.enabled
-            if useCDs() and isChecked("Dragon Roar") and getDistance(self.units.dyn8AoE)<8 then
+            if isChecked("Dragon Roar") and getDistance(self.units.dyn8AoE)<8 then
                 if buff.bloodbath or not talent.bloodbath then
                     if self.castDragonRoar() then return end
                 end
@@ -438,12 +442,12 @@ if select(3,UnitClass("player")) == 1 then
             end
         -- Bloodbath
             -- bloodbath
-            if useCDs() and isChecked("Bloodbath") and getDistance(self.units.dyn8AoE)<8 then
+            if isChecked("Bloodbath") and getDistance(self.units.dyn8AoE)<8 then
                 if self.castBloodbath() then return end
             end
         -- Ravager
             -- ravager,if=buff.bloodbath.up|!talent.bloodbath.enabled
-            if useCDs() and isChecked("Ravager") then
+            if isChecked("Ravager") then
                 if buff.bloodbath or not talent.bloodbath then
                     if self.castRavager() then return end
                 end
@@ -466,7 +470,7 @@ if select(3,UnitClass("player")) == 1 then
             if self.castWhirlwind() then return end
         -- Siegebreaker
             -- siegebreaker
-            if useCDs() and isChecked("Siegebreaker") and getDistance(self.units.dyn5)<5 then
+            if isChecked("Siegebreaker") and getDistance(self.units.dyn5)<5 then
                 if self.castSiegebreaker() then return end
             end
         -- Execute
@@ -476,7 +480,7 @@ if select(3,UnitClass("player")) == 1 then
             end
         -- Dragon Roar
             -- dragon_roar,if=buff.bloodbath.up|!talent.bloodbath.enabled
-            if useCDs() and isChecked("Dragon Roar") and getDistance(self.units.dyn8AoE)<8 then
+            if isChecked("Dragon Roar") and getDistance(self.units.dyn8AoE)<8 then
                 if buff.bloodbath or not talent.bloodbath then
                     if self.castDragonRoar() then return end
                 end
@@ -552,7 +556,9 @@ if select(3,UnitClass("player")) == 1 then
             -- Berserker Rage
                 -- berserker_rage,if=buff.enrage.down|(prev_gcd.bloodthirst&buff.raging_blow.stack<2)
                 if not buff.enrage or (lastSpellCast==self.spell.bloodthirst and charges.ragingBlow<2) then
-                    if self.castBeserkerRage() then return end
+                    if getDistance(self.units.dyn5)<5 then
+                        if self.castBeserkerRage() then return end
+                    end
                 end
             -- Heroic Leap
                 -- heroic_leap,if=(raid_event.movement.distance>25&raid_event.movement.in>45)|!raid_event.movement.exists

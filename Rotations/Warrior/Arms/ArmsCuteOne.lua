@@ -119,6 +119,10 @@ if select(3,UnitClass("player")) == 1 then
                         end
                     end
                 end
+            -- Rallying Cry
+                if isChecked("Rallying Cry") and inCombat and php <= getOptionValue("Rallying Cry") then
+                    if self.castRallyingCry() then return end
+                end
             end -- End Defensive Check
         end -- End Action List - Defensive
     -- Action List - Interrupts

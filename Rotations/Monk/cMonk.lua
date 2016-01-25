@@ -73,6 +73,7 @@ function cMonk:new(spec)
         comboBreakerBlackoutKickBuff 	= 116768,
         comboBreakerTigerPalmBuff       = 118864,
         legacyOfTheWhiteTigerBuff 		= 116781,
+        legacyoftheEmperorBuff          = 115921,  
         serenityBuff 					= 152173,
         touchOfDeathBuff 				= 121125,
         tigerPowerBuff 					= 125359,
@@ -454,7 +455,7 @@ function cMonk:new(spec)
 		            if distance<30 then
 		                currentCount = currentCount+1
 		            end
-		            if not isBuffed(thisUnit,{1126,115921,116781,20217,160206,69378,159988,160017,90363,160077}) and not dead then
+		            if not isBuffed(thisUnit,{1126,115921,116781,20217,160206,69378,159988,160017,90363,160077}) and not dead and UnitIsPlayer(thisUnit) and not UnitInVehicle(thisUnit) then
 		            	needsBuff = needsBuff+1
 		            end
 		        end

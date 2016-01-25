@@ -401,11 +401,41 @@ function cDK:new(spec)
 		end
 	end
 	-- Gorefiend's Grasp
-	-- function self.castDeathGrip()
-	-- 	if getTalent(6,1) and self.cd.gorefiendsGrasp==0 and getDistance(self.units.dyn20AoE)>=8 and getDistance(self.units.dyn20AoE)<20 then
-	-- 		if castSpell(self.units.dyn20AoE,self.spell.deathGrip,false,false,false) then return end
-	-- 	end	
-	-- end
+	function self.castGorefiendsGrasp()
+		-- local the variables to make a clean start every time
+		local bestUnit, bestUnitEnemies = nil, 0
+		-- cycle all the enemies
+		for i = 1, #enemiesTable do
+			-- check if the unit is close enough
+			if enemiesTable[i].distance < 8 and enemiesTable[i].inCombat then -- oh we filter these both places you are right but use the .inCombat as it is already part of the unit
+				-- define this ally values if it is close enough, we do the unit scan as second move as it will more ressource hunger
+				local thisUnit, thisUnitEnemiesOutOfRange, thisUnitEnemiesInRange = enemiesTable[i].unit, getEnemies(enemiesTable[i].unit, 20, true), getEnemies(enemiesTable[i].unit, 8, true)
+				local thisUnitEnemies = thisUnitEnemiesOutOfRange - thisUnitEnemiesInRange
+				-- if this ally as more units around it than our best Unit then we set this one as best
+				if thisUnitEnemies > bestUnitEnemies and hasThreat(thisUnit) then
+					bestUnit, bestUnitEnemies = thisUnit, thisUnitEnemies
+				end
+			end
+		end
+		-- cycle all the allies
+		for i = 1, #nNova do
+			-- check if the unit is close enough
+			if getDistance(nNova[i].unit) < 8 then
+				-- define this ally values if it is close enough, we do the unit scan as second move as it will more ressource hunger
+				local thisUnit, thisUnitEnemiesOutOfRange, thisUnitEnemiesInRange = nNova[i].unit, getEnemies(nNova[i].unit, 20, true), getEnemies(nNova[i].unit, 8, true)
+				local thisUnitEnemies = #thisUnitEnemiesOutOfRange - #thisUnitEnemiesInRange
+				-- if this ally as more units around it than our best Unit then we set this one as best
+				if thisUnitEnemies > bestUnitEnemies or (thisUnitEnemies >= bestUnitEnemies and thisUnit.role == "TANK") then	
+					bestUnit, bestUnitEnemies = thisUnit, thisUnitEnemies
+				end
+			end
+		end
+		-- if we found a best unit then we can cast on it
+		if bestUnit and self.talent.gorefiendsGrasp and self.cd.gorefiendsGrasp==0 then
+			if castSpell(self.units.dyn20AoE,self.spell.gorefiendsGrasp,false,false,false) then return end
+		end	
+	end
+
 --------------------------
 --- SPELLS - DEFENSIVE ---
 --------------------------
@@ -481,7 +511,7 @@ function cDK:new(spec)
 	-- Death and Decay
 	function self.castDeathAndDecay()
 		if (not getTalent(7,2)) and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and self.cd.deathAndDecay==0 and (hasThreat(self.units.dyn30) or isDummy()) and getDistance(self.units.dyn30AoE)<30 and useCleave() and not isMoving(self.units.dyn30AoE) then
-			if castGoundAtBestLocation(self.spell.defile,10,1,30) then return end
+			if castGoundAtBestLocation(self.spell.deathAndDecay,10,1,30) then return end
 		end
 	end
 	-- Death Siphon
@@ -524,7 +554,7 @@ function cDK:new(spec)
 		            if distance<30 then
 		                currentCount = currentCount+1
 		            end
-		            if not isBuffed(thisUnit,{self.spell.hornOfWinter,19506,6673}) and not dead then
+		            if not isBuffed(thisUnit,{self.spell.hornOfWinter,19506,6673}) and not dead and UnitIsPlayer(thisUnit) and not UnitInVehicle(thisUnit) then
 		            	needsBuff = needsBuff+1
 		            end
 		        end

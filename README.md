@@ -62,7 +62,7 @@ Raiable means if its good to raid with.
 ||||
 | **Monk** |||
 |Brewmaster|95%|chumii,Defmaster|6.1|:white_check_mark:
-|Mistweaver|70%|CodeMyLife|6.1|:interrobang:
+|Mistweaver|70%|Kuukuu|**6.2**|:heavy_check_mark:
 |Windwalker|100% (SimC)|CuteOne|**6.2**|:white_check_mark:
 ||||
 | **Paladin**  |||

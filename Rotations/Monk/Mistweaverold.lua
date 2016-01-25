@@ -10,10 +10,7 @@ if select(3,UnitClass("player")) == 10 then
     --------------
     local isSoothing = UnitChannelInfo("player") == GetSpellInfo(_SoothingMist) or nil;
     local chi = UnitPower("player", SPELL_POWER_CHI);
-    local chiMax = UnitPowerMax("player", SPELL_POWER_CHI)
-    local energy = getPower("player");
-    local myHP = getHP("player");
-    local ennemyUnits = getNumEnemies("player", 5);
+    local chiMax              = UnitPowerMax("player", SPELL_POWER_CHI)
     local totUnits = 0;
     ------------------------
     --- Food/Invis Check ---
@@ -238,30 +235,46 @@ if select(3,UnitClass("player")) == 10 then
         end
       end
     end
-    
 
-    --[[Renewing Mist]]
-    if getTalent(7,3) then
-      if isChecked("Renewing Mist") and getCharges(_RenewingMist) > 0 then
-        for i = 1, #nNova do
-          if not UnitBuffID(nNova[i].unit, _RenewingMistBuff) then
-            if castSpell("player",_ThunderFocusTea,true) then
+    -- Surging Mist
+    --[["116694",{"@CML.SurgingMist()"}},]]
+    for i = 1, #nNova do
+      if isChecked("Surging Mist") then
+        if nNova[i].hp <= getValue("Surging Mist") then
+          if isSoothing then
+              if castSpell(nNova[i].unit, _SurgingMist, true) then 
+                return; 
+              end
+          else
+            if castSpell(nNova[i].unit, _SoothingMist,true) then
+              if castSpell(nNova[i].unit, _SurgingMist,true) then
+                return;
+              end
             end
-            if castSpell(nNova[i].unit,_RenewingMist,true) then return; end
-          end
-        end
-      end
-    elseif isChecked ("Renewing Mist") then
-      for i = 1, #nNova do
-        if not UnitBuffID(nNova[i].unit, _RenewingMistBuff) then
-          if castSpell("player",_ThunderFocusTea,true) then
-            if castSpell(nNova[i].unit,_RenewingMist,true) then return; end
           end
         end
       end
     end
-  
-    
+
+    -- Enveloping Mist
+    --[["124682",{"@CML.EnvelopingMist()"}},]]
+    for i = 1, #nNova do
+      if isChecked("Enveloping Mist") == true and chi >= 3 then
+          if nNova[i].hp <= getValue("Enveloping Mist") then
+            if isSoothing then
+              if castSpell(nNova[i].unit, _EnvelopingMist, true) then 
+                return; 
+              end
+            else
+              if castSpell(nNova[i].unit, _SoothingMist,true) then
+                if castSpell(nNova[i].unit, _EnvelopingMist,true) then
+                  return;
+                end
+              end
+            end
+          end
+      end
+    end
 
      -- Chi Wave
     --[["115098",{"ChiWave.novaHealing(1)"}},]]
@@ -320,43 +333,25 @@ if select(3,UnitClass("player")) == 10 then
         end
       end
     end
-    
-    -- Surging Mist
-    --[["116694",{"@CML.SurgingMist()"}},]]
-    for i = 1, #nNova do
-    	if nNova[i].hp <= getValue("Surging Mist") then
-    		if isSoothing then
-	        	if castSpell(nNova[i].unit, _SurgingMist, true) then 
-	        		return; 
-	        	end
-	        else
-	        	if castSpell(nNova[i].unit, _SoothingMist,true) then
-	        		if castSpell(nNova[i].unit, _SurgingMist,true) then
-	        			return;
-	        		end
-	        	end
-	        end
-	    end
-	  end
 
-    -- Enveloping Mist
-    --[["124682",{"@CML.EnvelopingMist()"}},]]
-    for i = 1, #nNova do
-    	if isChecked("Enveloping Mist") == true and chi >= 3 then
-      		if nNova[i].hp <= getValue("Enveloping Mist") then
-      			if isSoothing then
-	        		if castSpell(nNova[i].unit, _EnvelopingMist, true) then 
-	        			return; 
-	        		end
-	        	else
-	        		if castSpell(nNova[i].unit, _SoothingMist,true) then
-	        			if castSpell(nNova[i].unit, _EnvelopingMist,true) then
-	        				return;
-	        			end
-	        		end
-	        	end
-    	  	end
-    	end
+    --[[Renewing Mist]]
+    if getTalent(7,3) then
+      if isChecked("Renewing Mist") and getCharges(_RenewingMist) > 0 then
+        for i = 1, #nNova do
+          if not UnitBuffID(nNova[i].unit, _RenewingMistBuff) then
+            if castSpell("player",_ThunderFocusTea,true) then
+            end
+            if castSpell(nNova[i].unit,_RenewingMist,true) then return; end
+          end
+        end
+      end
+    elseif isChecked ("Renewing Mist") then
+      for i = 1, #nNova do
+        if not UnitBuffID(nNova[i].unit, _RenewingMistBuff) then
+          if castSpell("player",_ThunderFocusTea,true) then end
+            if castSpell(nNova[i].unit,_RenewingMist,true) then return; end
+        end
+      end
     end
    
 

@@ -225,10 +225,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		-- Potion
 					-- potion,name=draenic_agility
 		-- Stealth
-					if isChecked("Stealth") and (stealthTimer == nil or stealthTimer <= GetTime() - getValue("Stealth Timer")) and not stealth then
+					if isChecked("Stealth") and (stealthTimer == nil or stealthTimer < GetTime() - getValue("Stealth Timer")) and not stealth then
 	                    -- Always
 	                    if getValue("Stealth") == 1 then
-	                        if self.castStealth() then stealthTimer = GetTime()+2; return end
+	                        if self.castStealth() then stealthTimer = GetTime(); return end
 	                    end
 	                    -- Pre-Pot
 	                    if getValue("Stealth") == 2 and getBuffRemain("player",105697) > 0 and getDistance(dynTar20AoE) < 20 then

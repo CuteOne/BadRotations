@@ -364,7 +364,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
                 createNewCheckbox(section,"Dragon Roar")
 
             -- Ravager
-                createNewSection(section,"Ravager")
+                createNewCheckbox(section,"Ravager")
 
             -- Recklessness
                 createNewCheckbox(section,"Recklessness")
@@ -406,6 +406,9 @@ if select(2, UnitClass("player")) == "WARRIOR" then
 
             -- Intimidating Shout
                 createNewSpinner(section, "Intimidating Shout",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+
+            -- Rallying Cry
+                createNewSpinner(section, "Rallying Cry",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Vigilance
                 createNewSpinner(section, "Vigilance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
@@ -491,13 +494,18 @@ if select(2, UnitClass("player")) == "WARRIOR" then
                 if castSpell(self.units.dyn5,self.spell.ragingBlow,false,false,false) then return end
             end
         end
+        function self.castRallyingCry()
+            if self.level>=83 and self.cd.rallyingCry==0 then
+                if castSpell("player",self.spell.rallyingCry,false,false,false) then return end
+            end
+        end
         function self.castRecklessness()
-            if self.level>=87 and self.buff.battleStance and self.cd.recklessness==0 and getDistance(self.units.dyn5)<5 then
+            if self.level>=87 and self.buff.battleStance and self.cd.recklessness==0 and getDistance(self.units.dyn5)<5 and getTimeToDie(self.units.dyn5)>5 then
                 if castSpell("player",self.spell.recklessness,false,false,false) then return end
             end
         end
         function self.castSiegebreaker()
-            if self.talent.siegebreaker and self.cd.siegebreaker==0 and getDistance(self.units.dyn5)<5 then
+            if self.talent.siegebreaker and self.cd.siegebreaker==0 and getDistance(self.units.dyn5)<5 and getTimeToDie(self.units.dyn5)>5 then
                 if castSpell(self.units.dyn5,self.spell.siegebreaker,false,false,false) then return end
             end
         end
