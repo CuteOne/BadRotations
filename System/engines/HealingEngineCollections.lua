@@ -14,6 +14,7 @@ novaEngineTables.DispelID = {
 	{ id = 145206, stacks = 0 }, -- Aqua Bomb(Proving Grounds)
 	-- Ko'ragh
 	{ id = 142913, stacks = 0, range = 5}, -- http://www.wowhead.com/spell=162185/expel-magic-fire
+	{ id = 185066, stacks = 0}, -- Mark of Necromancer red level
 }
 -- This is where we house the Debuffs that are bad for our users, and should not be healed when they have it
 novaEngineTables.BadDebuffList= {
@@ -32,6 +33,7 @@ novaEngineTables.BadDebuffList= {
 	145071, -- Empowered Touch of Y'Shaarj (mind control garrosh)
 	--Brackenspore
 	159220, -- http://www.wowhead.com/spell=159220  A debuff that removes 99% of healing so no point healing them
+	184587, -- Touch of Mortality  Prevents all healing for 9 seconds
 }
 -- list of special units we want to heal, these npc will go directly into healing engine(Special Heal must be checked)
 novaEngineTables.SpecialHealUnitList = {
@@ -39,6 +41,7 @@ novaEngineTables.SpecialHealUnitList = {
 	[6459] = "Boss#3 SoO",
 	[6460] = "Boss#3 SoO",
 	[6464] = "Boss#3 SoO",
+	[90388] = "Tortured Essence",
 };
 -- set dot that need to be healed to max(needs to be topped) to very low values so that engine will prioritize them
 -- the value used here will be substract from current health, we could use negative values to add back health instead
@@ -88,6 +91,8 @@ novaEngineTables.SpecificHPDebuffs = {
 	{ debuff = 158315 , value = 15 }, --http://www.wowhead.com/spell=158315/dark-hunt
 	--Trains
 	{ debuff = 165195 , value = 30 }, --http://www.wowhead.com/spell=165195/prototype-pulse-grenade
+	-- Tyrant Velhari
+	{ debuff = 180116 , value = 30}, --http://www.wowhead.com/spell=180166/touch-of-harm
 }
 -- this table will assign role to any unit wearing the unit name
 novaEngineTables.roleTable = {

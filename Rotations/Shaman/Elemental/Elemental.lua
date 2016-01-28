@@ -75,7 +75,6 @@ if select(3, UnitClass("player")) == 7 then
         timeToDie = getTimeToDie(dynamicUnit.dyn40),
         enemiesIn10 = getEnemies(dynamicUnit.dyn40,10)
       },
-      time = BadBoy_data["Combat Started"] - GetTime(),
       totem = {
         air = {
           current = select(2,GetTotemInfo(4)),
@@ -208,7 +207,7 @@ if select(3, UnitClass("player")) == 7 then
       -- ascendance,if=active_enemies>1|
       if ((player.cooldowns == 2 and isChecked("Ascendance")) or player.cooldowns == 3) and not player.buff.ascendance.up and player.spell.ascendance.cooldown == 0 and (#player.target.enemiesIn10 > 1
         -- (dot.flame_shock.remains>buff.ascendance.duration&(target.time_to_die<20|buff.bloodlust.up|time>=60)
-        or (player.target.debuff.flameShock.remains > player.buff.ascendance.duration and (player.target.timeToDie < 20 or player.buff.bloodlust.up or player.time >= 60)
+        or (player.target.debuff.flameShock.remains > player.buff.ascendance.duration and (player.target.timeToDie < 20 or player.buff.bloodlust.up )
         -- &cooldown.lava_burst.remains>0)
         and player.spell.lavaBurst.cooldown > 0)) then
         if castSpell("player",_AscendanceElemental,true,false) then
@@ -282,7 +281,7 @@ if select(3, UnitClass("player")) == 7 then
         end
         -- #After the initial Ascendance, use Flame Shock pre-emptively just before Ascendance to guarantee Flame Shock staying up for the full duration of the Ascendance buff
         -- flame_shock,if=time>60&remains<=buff.ascendance.duration&cooldown.ascendance.remains+buff.ascendance.duration<duration
-        if player.time > 60 and player.target.debuff.flameShock < player.buff.ascendance.remains
+        if player.target.debuff.flameShock.remains < player.buff.ascendance.remains
           and player.spell.ascendance.cooldown + player.buff.ascendance.duration < player.target.debuff.flameShock.remains then
           if castSpell(dynamicUnit.dyn40,_FlameShock,false,false) then
             return

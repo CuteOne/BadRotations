@@ -171,9 +171,10 @@ if not metaTable1 then
 			end
 			-- Tyrant Velhair Aura logic
 			if UnitDebuffID(o.unit, 179986) then -- If Aura of Contempt found
-				local max_percentage = select(15,UnitAura("boss1",GetSpellInfo(179986))) -- find current reduction % in healing
+				max_percentage = select(15,UnitAura("boss1",GetSpellInfo(179986))) -- find current reduction % in healing
 				if max_percentage then 
-					PercentWithIncoming = PercentWithIncoming/max_percentage -- Calculate Actual HP % after reduction
+					PercentWithIncoming = (PercentWithIncoming/max_percentage)* 100 -- Calculate Actual HP % after reduction
+					print(PercentWithIncoming)
 				end
 			end
 			-- Debuffs HP compensation

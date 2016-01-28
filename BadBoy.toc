@@ -283,7 +283,10 @@ Rotations\Shaman\Elemental\Libs\Functions.lua
 Rotations\Shaman\Elemental\Libs\Options.lua
 Rotations\Shaman\Elemental\Libs\Toggles.lua
 
+Rotations\Shaman\Restoration\cRestoration.lua
 Rotations\Shaman\Restoration\Restoration.lua
+Rotations\Shaman\Restoration\RestorationKuu.lua
+Rotations\Shaman\Restoration\Restorationold.lua
 Rotations\Shaman\Restoration\Libs\Functions.lua
 Rotations\Shaman\Restoration\Libs\Options.lua
 Rotations\Shaman\Restoration\Libs\Toggles.lua

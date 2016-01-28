@@ -43,6 +43,7 @@ if select(2,UnitClass("player")) == "MONK" then
             -- Buff - Stacks
             manaTeaStacks                   = 115867,
             vitalMistsStacks                = 118647,
+            detoxStacks                     = 115450,
 
             -- Glyphs
             manaTeaGlyph                    = 123763,
@@ -159,8 +160,9 @@ if select(2,UnitClass("player")) == "MONK" then
         function self.getCharges()
           local getCharges = getCharges
           local getBuffStacks = getBuffStacks
-          self.charges.manaTea = getBuffStacks("player",self.spell.manaTeaStacks,"player") or 0
-          self.charges.vitalMists = getBuffStacks("player",self.spell.vitalMistsStacks,"player") or 0
+
+          self.charges.manaTea      = getBuffStacks("player",self.spell.manaTeaStacks,"player") or 0
+          self.charges.vitalMists   = getBuffStacks("player",self.spell.vitalMistsStacks,"player") or 0
           self.charges.renewingMist = getCharges(self.spell.renewingMist) or 0
         end
 
@@ -294,6 +296,12 @@ if select(2,UnitClass("player")) == "MONK" then
         -- Detonate Chi
         function self.castDetonateChi()
         end
+        -- Detox
+        function self.castDetoxMist(unit)
+            if self.level>=20 and getSpellCD(self.spell.detox) == 0 then
+                if castSpell(unit,self.spell.detox,false,false,false) then return end
+            end
+        end
         -- Enveloping Mist
         function self.castEnvelopingMist(unit)
           if self.chi.count >= 3 then
@@ -311,7 +319,6 @@ if select(2,UnitClass("player")) == "MONK" then
         -- Legacy of the Emperor
         function self.castLegacyoftheEmperor()
             if self.instance=="none" and not isBuffed("player",{115921,20217,1126,90363}) then
-                print ("1")
                 if castSpell("player",self.spell.legacyoftheEmperor,false,false,false) then return end
             else
                 local totalCount = GetNumGroupMembers()
@@ -339,7 +346,7 @@ if select(2,UnitClass("player")) == "MONK" then
         end
         -- Mana Tea
         function self.castManaTea()
-            if self.glyph.manaTea and self.cd.manaTea == 0 then
+            if self.glyph.manaTea and self.charges.manaTea >= 2 then
               if castSpell("player",self.spell.manaTea,false) then return; end
             end
         end

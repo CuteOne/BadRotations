@@ -19,13 +19,13 @@ if select(2, UnitClass("player")) == "MONK" then
         local  function actionList_Extras()
           -- Change Stance
           if isChecked("Stance") then
-            if self.castChangeStance() then return end
+            if self.castChangeStance() then end
           end
           -- Tiger's Lust/Nimble Brew
           if hasNoControl() and self.talent.tigersLust then
-              if self.castTigersLust() then return end
+              if self.castTigersLust() then end
           elseif hasNoControl() then
-              if self.castNimbleBrew() then return end
+              if self.castNimbleBrew() then end
           end
           -- Detox
           if isChecked("Detox") then
@@ -33,14 +33,14 @@ if select(2, UnitClass("player")) == "MONK" then
               if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
                 for i = 1, #nNova do
                   if nNova[i].guid == UnitGUID("mouseover") and nNova[i].dispel == true then
-                    if self.castDetox("mouseover") then return end
+                    if self.castDetoxMist("mouseover") then end
                   end
                 end
               end
             elseif getValue("Detox") == 2 then -- Raid Match
               for i = 1, #nNova do
                 if nNova[i].dispel == true then
-                  if self.castDetox(nNova[i].unit) then return end
+                  if self.castDetoxMist(nNova[i].unit) then end
                 end
               end
             elseif getValue("Detox") == 3 then -- Mouse All
@@ -49,7 +49,7 @@ if select(2, UnitClass("player")) == "MONK" then
                   local buff,_,_,count,bufftype,duration = UnitDebuff("mouseover", n)
                   if buff then
                     if bufftype == "Magic" or bufftype == "Disease" or bufftype == "Poison" then
-                      if self.castDetox("mouseover") then return end
+                      if self.castDetoxMist("mouseover") then end
                     end
                   else
                     break;
@@ -62,7 +62,7 @@ if select(2, UnitClass("player")) == "MONK" then
                   local buff,_,_,count,bufftype,duration = UnitDebuff(nNova[i].unit, n)
                   if buff then
                     if bufftype == "Magic" or bufftype == "Disease" or bufftype == "Poison" then
-                      if self.castDetox(nNova[i].unit) then return end
+                      if self.castDetoxMist(nNova[i].unit) then end
                     end
                   else
                     break;
@@ -74,8 +74,8 @@ if select(2, UnitClass("player")) == "MONK" then
           -- Resuscitate
           if self.castResuscitate() then return end
           -- Legacy of the Emperor
-          if not inCombat and isChecked("Legacy of the Emperor") then
-              if self.castLegacyoftheEmperor() then return end
+          if isChecked("Legacy of the Emperor") then
+              if self.castLegacyoftheEmperor() then end
           end
           -- Summon Jade Statue
           if isChecked("Jade Serpent Statue (Left Shift)") and IsLeftShiftKeyDown() then
@@ -87,10 +87,6 @@ if select(2, UnitClass("player")) == "MONK" then
               end
             end
           end
-          --Mana Tea
-          if isChecked("Mana Tea") and getMana("player") <= getValue("Mana Tea") and charges.manaTea >= 2 then
-            if self.castManaTea() then return end
-          end
         end -- End Action List - Extras
         -- Action List - Defensive
         local function actionList_Defensive()
@@ -98,6 +94,7 @@ if select(2, UnitClass("player")) == "MONK" then
             if isChecked("Healthstone") and getHP("player") <= getValue("Healthstone") and inCombat then
                 if canUse(5512) then
                     useItem(5512)
+                    return
                 end
             end
             -- Fortifying Brew
@@ -155,6 +152,10 @@ if select(2, UnitClass("player")) == "MONK" then
         --Action List - Healing
         local function actionList_Healing()
           if myStance == 1 then
+            --Mana Tea
+            if isChecked("Mana Tea") and getMana("player") <= getValue("Mana Tea") then
+              if self.castManaTea() then end
+            end
             --ReM Tracker
             for i = 1, #nNova do
               if UnitBuffID(nNova[i].unit,self.spell.renewingMistBuff) then
@@ -162,14 +163,6 @@ if select(2, UnitClass("player")) == "MONK" then
               elseif not UnitBuffID(nNova[i].unit,self.spell.renewingMistBuff) and reMBuffed ~= 0 then
                   reMBuffed = reMBuffed - 1
               end 
-            end
-            --Renewing Mist
-            if isChecked("Renewing Mist") and not isSoothing then
-              for i = 1, #nNova do
-                if not UnitBuffID(nNova[i].unit,self.spell.renewingMistBuff) then
-                  if self.castRenewingMist(nNova[i].unit) then return end
-                end
-              end
             end
             -- Uplift
             local totUnits = 0
@@ -191,15 +184,6 @@ if select(2, UnitClass("player")) == "MONK" then
                 upliftTimer = GetTime()
               end
             end
-            --Surging Mist
-            if isChecked("Surging Mist") and isSoothing then
-              for i = 1, #nNova do
-                if nNova[i].hp <= getValue("Surging Mist") and (currentTarget == nNova[i].guid) then
-               -- if nNova[i].hp <= 105 then
-                  if self.castHealingSurgingMist(nNova[i].unit) then return end
-                end
-              end
-            end
             -- Enveloping Mist
             if isSoothing and isChecked("Enveloping Mist") then
               for i = 1, #nNova do
@@ -209,10 +193,26 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
               end
             end
-            
+            --Renewing Mist
+            if isChecked("Renewing Mist") and not isSoothing then
+              for i = 1, #nNova do
+                if not UnitBuffID(nNova[i].unit,self.spell.renewingMistBuff) then
+                  if self.castRenewingMist(nNova[i].unit) then return end
+                end
+              end
+            end
+            --Surging Mist
+            if isChecked("Surging Mist") and isSoothing then
+              for i = 1, #nNova do
+                if nNova[i].hp <= getValue("Surging Mist") and (currentTarget == nNova[i].guid) then
+               -- if nNova[i].hp <= 105 then
+                  if self.castHealingSurgingMist(nNova[i].unit) then return end
+                end
+              end
+            end
             --Spinning Crane Kick/RJW
             local sckUnits = 0
-            if isChecked("Spinning Crane Kick") then
+            if isChecked("Spinning Crane Kick") and getMana("player") > 35 then
               for i = 1, #nNova do
                 if nNova[i].hp <= getValue("Spinning Crane Kick") and nNova[i].distance <= 8 then
                   sckUnits = sckUnits + 1
@@ -284,7 +284,7 @@ if select(2, UnitClass("player")) == "MONK" then
             --Surging Mist
             if self.charges.vitalMists == 5 then
               for i = 1, #nNova do
-                if nNova[i].hp <= getValue("Surging Mist") then
+                if nNova[i].hp < 100 then
                   if self.castSurgingMist(nNova[i].unit) then return end
                 end
               end
@@ -313,33 +313,42 @@ if select(2, UnitClass("player")) == "MONK" then
 --------------
 --- Extras ---
 --------------
-        -- Run Action List - Extras
-          if actionList_Extras() then return end
------------------
---- Defensive ---
------------------
-          if useDefensiveMist() == true then
-        -- Run Action List - Defensive
-            if actionList_Defensive() then return end
-          end
-    ------------------
-    --- Interrupts ---
-    ------------------
-          if useInterruptsMist() then
-    -- Run Action List - Interrupts
-            if actionList_Interrupts() then return end
-          end
-    ----------------------
-    --- Start Rotation ---
-    ----------------------
-          if useCDsMist() then
-    -- Call Action List - Emergency Healing
-            if actionList_EmergencyHealing() then return end
-          end
-          if useHealing() then
-    -- Call Action List - Healing
-            if actionList_Healing() then return end
-          end
-          if actionList_Damage() then return end
+		  if not UnitInVehicle("player") then
+	        -- Run Action List - Extras
+	          actionList_Extras() 
+
+	-----------------
+	--- Defensive ---
+	-----------------
+	          if useDefensiveMist() == true then
+	        -- Run Action List - Defensive
+	            actionList_Defensive() 
+	          end
+      ---------------------
+      --- Emerg Healing ---
+      ---------------------      
+            if useCDsMist() then
+            -- Run Action List - Emergency Healing
+              actionList_EmergencyHealing()
+            end
+	    ------------------
+	    --- Interrupts ---
+	    ------------------
+	          if useInterruptsMist() then
+	          -- Run Action List - Interrupts
+	            actionList_Interrupts() 
+	          end
+	    ----------------------
+	    --- Start Rotation ---
+	    ----------------------
+	          if useHealing() then
+	          -- Run Action List - Healing
+	            actionList_Healing() 
+	          end
+	          if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+            -- Run Action List - Damage
+	          	actionList_Damage() 
+	          end
+	      end
     end -- End cMistweaver
 end -- End Select Monk

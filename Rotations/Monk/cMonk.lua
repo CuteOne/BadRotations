@@ -320,13 +320,13 @@ function cMonk:new(spec)
 ------------------------------
 	-- Leg Sweep
 	function self.castLegSweep(thisUnit)
-		if getTalent(4,3) and self.cd.legSweep==0 and getDistance(thisUnit)<5 then
+		if getTalent(4,3) and getSpellCD(self.spell.legSweep)==0 and getDistance(thisUnit)<5 then
 			if castSpell(thisUnit,self.spell.legSweep,false,false,false) then return end
 		end
 	end
 	-- Paralysis
 	function self.castParalysis(thisUnit)
-		if self.level>=44 and self.cd.paralysis==0 and self.power>20 and getDistance(thisUnit)<20 then
+		if self.level>=44 and getSpellCD(self.spell.paralysis)==0 and self.power>20 and getDistance(thisUnit)<20 then
 			if castSpell(thisUnit,self.spell.paralysis,false,false,false) then return end
 		end
 	end
@@ -338,7 +338,7 @@ function cMonk:new(spec)
 	end
 	-- Spear Hand Strike
 	function self.castSpearHandStrike(thisUnit)
-		if self.level>=32 and self.cd.spearHandStrike==0 and getDistance(thisUnit)<5 then
+		if self.level>=32 and getSpellCD(self.spell.spearHandStrike)==0 and getDistance(thisUnit)<5 then
 			if castSpell(thisUnit,self.spell.spearHandStrike,false,false,false) then return end
 		end
 	end
