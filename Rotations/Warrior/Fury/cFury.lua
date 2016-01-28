@@ -251,11 +251,11 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         function self.getDynamicUnits()
             local dynamicTarget = dynamicTarget
 
-            -- -- Normal
-            -- self.units.dyn10     = dynamicTarget(10, true)
+            -- Normal
+            self.units.dyn8     = dynamicTarget(8, true)
 
-            -- -- AoE
-            -- self.units.dyn10AoE  = dynamicTarget(10,false)
+            -- AoE
+            self.units.dyn8AoE  = dynamicTarget(8,false)
         end
 
         ---------------

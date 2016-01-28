@@ -283,7 +283,7 @@ function cWarrior:new(spec)
 --- SPELLS - CROWD CONTROL --- 
 ------------------------------
 	function self.castHamstring(thisUnit)
-		if self.level>=36 and self.cd.hamstring==0 and getDebuffRemain(thisUnit,self.spell.hamstringDebuff,"player")==0 and getDistance(thisUnit)<5 then
+		if self.level>=36 and self.cd.hamstring==0 and getDebuffRemain(thisUnit,self.spell.hamstringDebuff,"player")==0 and (getDistance(thisUnit)<5 or inRange(self.spell.hamstring,thisUnit)) then
 			if castSpell(thisUnit,self.spell.hamstring,false,false,false) then return end
 		end
 	end
@@ -292,7 +292,7 @@ function cWarrior:new(spec)
 --- SPELLS - DEFENSIVE ---
 --------------------------
 	function self.castPummel(thisUnit)
-		if self.level>=24 and self.cd.pummel==0 and getDistance(thisUnit)<5 then
+		if self.level>=24 and self.cd.pummel==0 and (getDistance(thisUnit)<5 or inRange(self.spell.pummel,thisUnit)) then
 			if castSpell(thisUnit,self.spell.pummel,false,false,false) then return end
 		end
 	end
@@ -307,7 +307,7 @@ function cWarrior:new(spec)
 		end
 	end
 	function self.castVigilance(thisUnit)
-		if self.talent.vigilance and self.cd.vigilance==0 and getDistance(thisUnit)<40 then
+		if self.talent.vigilance and self.cd.vigilance==0 and (getDistance(thisUnit)<40 or inRange(self.spell.vigilance,thisUnit)) then
 			if castSpell(thisUnit,self.spell.vigilance,false,false,false) then return end
 		end
 	end
@@ -316,7 +316,7 @@ function cWarrior:new(spec)
 --- SPELLS - OFFENSIVE ---
 --------------------------
 	function self.castAvatar()
-		if self.talent.avatar and self.cd.avatar==0 and getDistance(self.units.dyn5)<5 and getTimeToDie(self.units.dyn5)>5 then
+		if self.talent.avatar and self.cd.avatar==0 and (getDistance(self.units.dyn5)<5 or inRange(self.spell.pummel,self.units.dyn5)) and getTimeToDie(self.units.dyn5)>5 then
 			if castSpell("player",self.spell.avatar,false,false,false) then return end
 		end
 	end
@@ -351,7 +351,7 @@ function cWarrior:new(spec)
 		end
 	end
 	function self.castBloodbath()
-		if self.talent.bloodbath and self.cd.bloodbath==0 and getDistance(self.units.dyn5)<5 and getTimeToDie(self.units.dyn5)>6 then
+		if self.talent.bloodbath and self.cd.bloodbath==0 and (getDistance(self.units.dyn5)<5 or inRange(self.spell.pummel,self.units.dyn5)) and getTimeToDie(self.units.dyn5)>6 then
 			if castSpell("player",self.spell.bloodbath,false,false,false) then return end
 		end
 	end
@@ -398,7 +398,7 @@ function cWarrior:new(spec)
 		end
 	end
 	function self.castImpendingVictory()
-		if self.talent.impendingVictory and self.cd.impendingVictory and getDistance(self.units.dyn5)<5 then
+		if self.talent.impendingVictory and self.cd.impendingVictory and (getDistance(self.units.dyn5)<5 or inRange(self.spell.impendingVictory,self.units.dyn5)) then
 			if castSpell(self.units.dyn5,self.spell.impendingVictory,false,false,false) then return end
 		end
 	end
@@ -419,7 +419,7 @@ function cWarrior:new(spec)
 		end
 	end
 	function self.castVictoryRush()
-		if not self.talent.impendingVictory and self.level>=5 and self.buff.victoryRush and getDistance(self.units.dyn5)<5 then
+		if not self.talent.impendingVictory and self.level>=5 and self.buff.victoryRush and (getDistance(self.units.dyn5)<5 or inRange(self.spell.victoryRush,self.units.dyn5)) then
 			if castSpell(self.units.dyn5,self.spell.victoryRush,false,false,false) then return end
 		end
 	end

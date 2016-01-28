@@ -269,7 +269,7 @@ if select(3,UnitClass("player")) == 1 then
             end
         -- Dragon Roar
             -- dragon_roar,if=buff.bloodbath.up|!talent.bloodbath.enabled
-            if isChecked("Dragon Roar") then
+            if isChecked("Dragon Roar") and getDistance(self.units.dyn8AoE)<8 then
                 if buff.bloodbath or not talent.bloodbath then
                     if self.castDragonRoar() then return end
                 end
