@@ -8,7 +8,9 @@ Little How-To for the first run: https://gyazo.com/d11da29a9d7dba4c93e5b65c008c4
 If you have code to improve a class you can send a "pull request".
 We will look over it and may merge it with BadBoy.
 
-Current Coders: ragnar, Defmaster, CuteOne 
+Current Coders: CuteOne, kuukuukuatchu
+
+Pausing Coders until Legion: ragnar, Defmaster
 
 If you want to know what changes read the commit messages.
 Most of the time they contain the most changes.
