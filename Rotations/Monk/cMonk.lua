@@ -45,7 +45,7 @@ function cMonk:new(spec)
         hurricanStrike 					= 152175,
         invokeXuen 						= 123904,
         legacyOfTheWhiteTiger 			= 116781,
-        risingSunKick 					= 107428,
+        risingSunKick 					= 107428, 
         rushingJadeWind 				= 116847,
         serenity 						= 152173,
         spinningCraneKick				= 101546,
@@ -84,7 +84,7 @@ function cMonk:new(spec)
         -- Buff - Utility
 
         -- Debuff - Offensive
-        risingSunKickDebuff 			= 107428,
+        risingSunKickDebuff 			= 107428, --130320
 
         -- Debuff - Defensive
 

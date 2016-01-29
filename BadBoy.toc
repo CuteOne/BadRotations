@@ -24,9 +24,9 @@ System\readers\common.lua
 ## LIBS
 System\Libs\LibStub\LibStub.lua
 System\Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+System\Libs\LibSpellRange-1.0\LibSpellRange-1.0.lua
 System\Libs\LibRangeCheck-2.0\LibRangeCheck-2.0.lua
 System\Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
-System\Libs\LibSpellRange-1.0\LibSpellRange-1.0.lua
 System\Libs\DiesalTools-1.0\DiesalTools-1.0.lua
 System\Libs\DiesalStyle-1.0\DiesalStyle-1.0.lua
 System\Libs\DiesalGUI-1.0\DiesalGUI-1.0.xml

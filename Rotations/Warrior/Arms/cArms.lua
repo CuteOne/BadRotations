@@ -453,9 +453,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         --- SPELLS ---
         --------------
         function self.castColossusSmash()
-            if self.level>=81 and self.buff.battleStance and self.cd.colossusSmash==0 and self.power>10 
-                and (getDistance(self.units.dyn5)<5 or inRange(self.spell.colossusSmash,self.units.dyn5)) and getTimeToDie(self.units.dyn5)>5 
-            then
+            if self.level>=81 and self.buff.battleStance and self.cd.colossusSmash==0 and self.power>10 and getTimeToDie(self.units.dyn5)>5 then
                 if castSpell(self.units.dyn5,self.spell.colossusSmash,false,false,false) then return end
             end
         end
@@ -466,12 +464,12 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         end
         function self.castExecute(thisUnit)
             local thisUnit = thisUnit
-            if self.level>=7 and ((self.power>10 and getHP(thisUnit)<20) or self.buff.suddenDeath) and (getDistance(thisUnit)<5 or inRange(self.spell.execute,self.units.dyn5)) then
+            if self.level>=7 and ((self.power>10 and getHP(thisUnit)<20) or self.buff.suddenDeath) then
                 if castSpell(thisUnit,self.spell.execute,false,false,false) then return end
             end
         end
         function self.castMortalStrike()
-            if self.level>=10 and self.cd.mortalStrike==0 and self.power>20 and (getDistance(self.units.dyn5)<5 or inRange(self.spell.mortalStrike,self.units.dyn5)) then
+            if self.level>=10 and self.cd.mortalStrike==0 and self.power>20 then
                 if castSpell(self.units.dyn5,self.spell.mortalStrike,false,false,false) then return end
             end
         end
@@ -481,23 +479,23 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             end
         end
         function self.castRecklessness()
-            if self.level>=87 and self.buff.battleStance and self.cd.recklessness==0 and (getDistance(self.units.dyn5)<5 or inRange(self.spell.rend,self.units.dyn5)) and getTimeToDie(self.units.dyn5)>5 then
+            if self.level>=87 and self.buff.battleStance and self.cd.recklessness==0 and inRange(self.spell.rend,self.units.dyn5) and getTimeToDie(self.units.dyn5)>5 then
                 if castSpell("player",self.spell.recklessness,false,false,false) then return end
             end
         end
         function self.castRend(thisUnit)
             local thisUnit = thisUnit
-            if self.level>=7 and self.power>5 and (getDistance(thisUnit)<5 or inRange(self.spell.rend,self.units.dyn5)) then
+            if self.level>=7 and self.power>5 then
                 if castSpell(thisUnit,self.spell.rend,false,false,false) then return end
             end
         end
         function self.castSiegebreaker()
-            if self.talent.siegebreaker and self.cd.siegebreaker==0 and (getDistance(self.units.dyn5)<5 or inRange(self.spell.rend,self.units.dyn5)) and getTimeToDie(self.units.dyn5)>5 then
+            if self.talent.siegebreaker and self.cd.siegebreaker==0 and inRange(self.spell.rend,self.units.dyn5) then
                 if castSpell(self.units.dyn5,self.spell.siegebreaker,false,false,false) then return end
             end
         end
         function self.castSlam()
-            if self.talent.slam and ((self.power>10 and not self.buff.slam) or (self.buff.slam and self.power>20)) and (getDistance(self.units.dyn5)<5 or inRange(self.spell.slam,self.units.dyn5)) then
+            if self.talent.slam and ((self.power>10 and not self.buff.slam) or (self.buff.slam and self.power>20)) then
                 if castSpell(self.units.dyn5,self.spell.slam,false,false,false) then return end
             end
         end

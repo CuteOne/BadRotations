@@ -105,7 +105,7 @@ if select(3,UnitClass("player")) == 1 then
                 if isChecked("Intervene") then
                     for i=1,#nNova do
                         thisUnit = nNova[i].unit
-                        if UnitGroupRolesAssigned(thisUnit)=="HEALER" and getHP(thisUnit)<getOptionValue("Intervene") and (getDistance(thisUnit)<25 or inRange(self.spell.intervene,thisUnit)) then
+                        if UnitGroupRolesAssigned(thisUnit)=="HEALER" and getHP(thisUnit)<getOptionValue("Intervene") then
                             if self.castIntervene(thisUnit) then return end
                         end
                     end
@@ -118,7 +118,7 @@ if select(3,UnitClass("player")) == 1 then
                 if isChecked("Vigilance") then
                     for i=1,#nNova do
                         thisUnit = nNova[i].unit
-                        if UnitGroupRolesAssigned(thisUnit)=="HEALER" and getHP(thisUnit)<getOptionValue("Vigilance") and (getDistance(thisUnit)<40 or inRange(self.spell.vigilance,thisUnit))then
+                        if UnitGroupRolesAssigned(thisUnit)=="HEALER" and getHP(thisUnit)<getOptionValue("Vigilance") then
                             if self.castVigilance(thisUnit) then return end
                         end
                     end
@@ -165,7 +165,7 @@ if select(3,UnitClass("player")) == 1 then
         end -- End Action List - Interrupts
     -- Action List - Cooldowns
         function actionList_Cooldowns()
-            if (getDistance(dyn5)<5 or inRange(self.spell.rend,self.units.dyn5)) then
+            if inRange(self.spell.rend,self.units.dyn5) then
             -- Legendary Ring
                 -- use_item,name=thorasus_the_stone_heart_of_draenor,if=(buff.bloodbath.up|(!talent.bloodbath.enabled&debuff.colossus_smash.up))
                 -- TODO
@@ -199,7 +199,7 @@ if select(3,UnitClass("player")) == 1 then
                     if self.castRacial() then return end
                 end
             -- Touch of the Void
-                if useCDs() and isChecked("Touch of the Void") and (getDistance(self.units.dyn5)<5 or inRange(self.spell.rend,self.units.dyn5)) then
+                if useCDs() and isChecked("Touch of the Void") then
                     if hasEquiped(128318) then
                         if GetItemCooldown(128318)==0 then
                             useItem(128318)
@@ -217,7 +217,7 @@ if select(3,UnitClass("player")) == 1 then
                 end
             -- Heroic Leap 
                 -- heroic_leap,if=(raid_event.movement.distance>25&raid_event.movement.in>45)|!raid_event.movement.exists
-                -- TODO   
+                if self.castHeroicLeap() then return end
             end
         end -- End Action List - Cooldowns
     -- Action List - Pre-Combat
@@ -355,7 +355,7 @@ if select(3,UnitClass("player")) == 1 then
     -- Action List - MultiTarget
         function actionList_MultiTarget()
         -- Touch of the Void
-            if isChecked("Touch of the Void") and (getDistance(self.units.dyn5)<5 or inRange(self.spell.rend,self.units.dyn5)) then
+            if isChecked("Touch of the Void") and inRange(self.spell.rend,self.units.dyn5) then
                 if hasEquiped(128318) then
                     if GetItemCooldown(128318)==0 then
                         useItem(128318)
@@ -468,7 +468,7 @@ if select(3,UnitClass("player")) == 1 then
   ---------------------------------
             if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
                 if actionList_PreCombat() then return end
-                if distance<=5 or inRange(self.spell.rend,self.units.dyn5) then
+                if inRange(self.spell.rend,self.units.dyn5) then
                     StartAttack()
                 else
                     if self.castCharge() then return end
@@ -483,12 +483,12 @@ if select(3,UnitClass("player")) == 1 then
                 if self.castCharge() then return end
             -- Auto Attack
                 --auto_attack
-                if distance<5 or inRange(self.spell.rend,self.units.dyn5) then
+                if inRange(self.spell.rend,self.units.dyn5) then
                     StartAttack()
                 end
             -- Action List - Movement
                 -- run_action_list,name=movement,if=movement.distance>5
-                if distance>5 or not inRange(self.spell.rend,self.units.dyn5) then
+                if not inRange(self.spell.rend,self.units.dyn5) then
                     if actionList_Movement() then return end
                 end
             -- Action List - Interrupts
