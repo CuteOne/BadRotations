@@ -46,7 +46,7 @@ function isCCed(Unit)
 	return false
 end
 
-function castGoundAtBestLocation(spellID, radius, minUnits, maxRange, minRange)
+function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange)
 	-- description:
 		-- find best position for AoE spell and cast it there
 

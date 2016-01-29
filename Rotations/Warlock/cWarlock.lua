@@ -387,7 +387,7 @@ cWarlock = {}
 	------------------------
 	    -- Summon DoomGuard
 	    function self.castSummonDoomGuard(thisUnit)
-			if self.cd.summonDoomGuard ==0 and getDistance("target")< 40 then
+			if not self.talent.demonicServitude and self.cd.summonDoomGuard ==0 and getDistance("target")< 40 then
 				if castSpell(thisUnit,self.spell.summonDoomGuard,true,false,false) then return end
 			end
 		end

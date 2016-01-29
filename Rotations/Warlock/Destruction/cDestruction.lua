@@ -35,6 +35,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             incinerate                      = 29722,
             rainofFire                      = 104232,
             shadowburn                      = 17877,
+            backdraft                       = 117896,
 
 
             -- Buff - Defensive
@@ -42,6 +43,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             -- Buff - Offensive
             darkSoulInstabilityBuff         = 113858,
             fireandBrimstoneBuff            = 108683,
+            havocBuff                       = 80240, 
             
             -- Buff - Stacks
             
@@ -96,9 +98,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
 
             -- Casting and GCD check
             -- TODO: -> does not use off-GCD stuff like pots, dp etc
-            if castingUnit() then
-                return
-            end
+       --     if castingUnit() then
+         --       return
+            --end
 
 
             -- Start selected rotation
@@ -113,6 +115,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
 
             self.buff.darkSoulInstability       = UnitBuffID("player",self.spell.darkSoulInstabilityBuff)~=nil or false
             self.buff.fireandBrimstone          = UnitBuffID("player",self.spell.fireandBrimstoneBuff)~=nil or false
+            self.buff.havoc                     = UnitBuffID("player",self.spell.havoc)~=nill or false
         end
 
         function self.getBuffsDuration()
@@ -120,6 +123,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
 
             self.buff.duration.darkSoulInstability = getBuffDuration("player",self.spell.darkSoulInstabilityBuff) or 0
             self.buff.duration.fireandBrimstone    = getBuffDuration("player",self.spell.fireandBrimstoneBuff) or 0
+            self.buff.duration.havoc               = getBuffDuration("player",self.spell.havocBuff) or 0
         end
 
         function self.getBuffsRemain()
@@ -127,6 +131,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
 
             self.buff.remain.darkSoulInstability        = getBuffRemain("player",self.spell.darkSoulInstabilityBuff) or 0
             self.buff.remain.fireandBrimstone           = getBuffRemain("player",self.spell.fireandBrimstoneBuff) or 0
+            self.buff.remain.havoc                      = getBuffRemain("player",self.spell.havoc) or 0
         end
 
         function self.getCharges()
@@ -135,6 +140,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
 
             self.charges.conflagrate               = getCharges(self.spell.conflagrate) or 0
             self.charges.darkSoulInstability       = getCharges(self.spell.darkSoulInstability) or 0
+            self.charges.havoc                     = getBuffStacks("player",self.spell.havoc,"player") or 0
+            self.charges.backdraft                 = getBuffStacks("player",self.spell.backdraft,"player") or 0
         end
 
         ---------------
