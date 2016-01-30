@@ -49,6 +49,7 @@ cWarlock = {}
 	        summonInfernal					= 1122,
 	        summonSuccubus					= 712,
 	        summonVoidWalker				= 697,
+	        grimoireFel 					= 111897,
 
 	        -- Ability - Utility
 	        burningRush 					= 111400,
@@ -191,6 +192,7 @@ cWarlock = {}
 			self.cd.kjsCunning 			= getSpellCD(self.spell.kjsCunning)
 			self.cd.ritualofSummoning	= getSpellCD(self.spell.ritualofSummoning)
 			self.cd.soulstone			= getSpellCD(self.spell.soulstone)
+			self.cd.grimoireFel 		= getSpellCD(self.spell.grimoireFel)
 		end
 
 	-- Debuff updates
@@ -419,6 +421,12 @@ cWarlock = {}
 		function self.castSummonVoidWalker()
 			if not UnitExists("pet") then
 				if castSpell("player",self.spell.summonVoidWalker,false,false,false) then return end
+			end
+		end
+		-- Grimoire Fel
+		function self.castGrimoireFel(thisUnit)
+			if self.talent.grimoireofService then
+				if castSpell(thisUnit, self.spell.grimoireFel, true, false, false) then return end
 			end
 		end
 	------------------------

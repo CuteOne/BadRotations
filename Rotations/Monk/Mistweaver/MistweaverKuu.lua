@@ -271,6 +271,14 @@ if select(2, UnitClass("player")) == "MONK" then
             if isChecked("Mana Tea") and getMana("player") <= getValue("Mana Tea") and charges.manaTea >= 2 then
                 if self.castManaTea() then return end
             end
+            --Surging Mist
+            if self.charges.vitalMists == 5 then
+              for i = 1, #nNova do
+                if nNova[i].hp < 100 then
+                  if self.castSurgingMist(nNova[i].unit) then return end
+                end
+              end
+            end
             -- Chi Wave
             if isChecked("Chi Wave") then
               for i = 1, #nNova do
@@ -285,27 +293,18 @@ if select(2, UnitClass("player")) == "MONK" then
                 if self.castHealingExpelHarm(nNova[i].unit) then return end
               end
             end
-            --Surging Mist
-            if self.charges.vitalMists == 5 then
-              for i = 1, #nNova do
-                if nNova[i].hp < 100 then
-                  if self.castSurgingMist(nNova[i].unit) then return end
-                end
-              end
-            end
             -- Tiger Palm
             if not self.buff.tigerPower then
               if self.castTigerPalm() then return end
             end
             -- Blackout Kick
-            if not self.buff.craneZeal then
+            if not self.buff.craneZeal or self.charges.risingSunKick == 0 then
               if self.castBlackoutKick() then return end
             end
             -- Rising Sun Kick
             if self.chi.count >= 2 then
               CastSpellByName(GetSpellInfo(107428)) return 
             end
-            
             -- Jab
             if self.castJab() then return end
           end

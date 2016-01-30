@@ -42,7 +42,7 @@ if select(2,UnitClass("player")) == "MONK" then
 
             -- Buff - Stacks
             manaTeaStacks                   = 115867,
-            vitalMistsStacks                = 118647,
+            vitalMistsStacks                = 118674,
             detoxStacks                     = 115450,
 
             -- Glyphs
@@ -164,6 +164,7 @@ if select(2,UnitClass("player")) == "MONK" then
           self.charges.manaTea      = getBuffStacks("player",self.spell.manaTeaStacks,"player") or 0
           self.charges.vitalMists   = getBuffStacks("player",self.spell.vitalMistsStacks,"player") or 0
           self.charges.renewingMist = getCharges(self.spell.renewingMist) or 0
+          self.charges.risingSunKick= getCharges(self.spell.risingSunKick) or 0
         end
 
         ----------------------

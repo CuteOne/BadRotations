@@ -31,7 +31,8 @@ if select(3,UnitClass("player")) == 9 then
     if  CooldownsModesLoaded ~= "Destruction Warlock Cooldowns Modes" then
       CooldownsModes = {
         [1] = { mode = "Off", value = 1 , overlay = "Cooldowns Disabled", tip = "No cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "All cooldowns will be used.", highlight = 1, icon = 113858 }
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "All cooldowns will be used.", highlight = 1, icon = 113858 },
+        [3] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = 119898}
       };
       CreateButton("Cooldowns",1.5,1);
       CooldownsModesLoaded = "Destruction Warlock Cooldowns Modes";

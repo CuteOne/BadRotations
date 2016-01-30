@@ -49,6 +49,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             
             -- Debuff - Offensive
             immolateDebuff                  = 348,
+            shadowburnDebuff                = 29341,
 
             -- Glyphs
             
@@ -297,7 +298,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         --Immolate
         function self.castImmolate(thisUnit)
             if getDistance(thisUnit)< 40 then
-                if castSpell(thisUnit,self.spell.immolate,true,false,false) then return end
+                if immolateTimer == nil then immolateTimer = 0; end
+                if GetTime() - immolateTimer > 2.75 then
+                    if castSpell(thisUnit,self.spell.immolate,true,false,false) then immolateTimer = GetTime() end   
+                end
             end
         end
         -- Incinerate
@@ -309,7 +313,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         -- Rain of Fire
         function self.castRainofFire()
             if getDistance(self.units.dyn40)< 35 then
-                if castGoundAtBestLocation(self.spell.rainofFire, 8, 3, 35, 5) then return end
+                if castGroundAtBestLocation(self.spell.rainofFire, 8, 3, 35, 5) then return end
             end
         end
         -- Shadowburn
