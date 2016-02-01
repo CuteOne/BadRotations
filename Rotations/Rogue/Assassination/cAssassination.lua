@@ -261,7 +261,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             
             section = createNewSection(bb.profile_window,  "--- Cooldowns ---")
             -- Agi Pot
-            --createNewCheckbox(section,"Agi-Pot")
+            createNewCheckbox(section,"Agi-Pot")
             -- Legendary Ring
             createNewCheckbox(section,  "Legendary Ring")
             -- Preparation

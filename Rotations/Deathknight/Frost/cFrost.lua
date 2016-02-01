@@ -291,6 +291,9 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             -- Legendary Ring
             createNewDropdown(section,  "Legendary Ring", bb.dropOptions.CD,  2, "Enable or Disable usage of Legendary Ring.")
 
+            -- Strength Potion
+            createNewCheckbox(section,"Str-Pot")
+
             -- Flask / Crystal
             createNewCheckbox(section,"Flask / Crystal")
 

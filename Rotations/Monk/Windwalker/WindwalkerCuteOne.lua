@@ -291,7 +291,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
         -- Potion
                 -- potion,name=draenic_agility
-                if useCDs() and canUse(109217) and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                if useCDs() and canUse(109217) and inRaid and isChecked("Agi-Pot") and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
                     useItem(109217)
                 end
         -- Start Attack
@@ -758,7 +758,7 @@ if select(2, UnitClass("player")) == "MONK" then
                     -- No way to code this?
     -- Potion
                     -- potion,name=draenic_agility,if=buff.serenity.up|(!talent.serenity.enabled&(trinket.proc.agility.react|trinket.proc.multistrike.react))|buff.bloodlust.react|target.time_to_die<=60
-                    if useCDs() and canUse(109217) and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") then
+                    if useCDs() and canUse(109217) and inRaid and isChecked("Agi-Pot") then
                         if buff.serenity or (not talent.serenity and trinketProc) or hasBloodLust() or ttd<=60 then
                             useItem(109217)
                         end

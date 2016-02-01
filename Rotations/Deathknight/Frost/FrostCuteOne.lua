@@ -212,7 +212,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 -- potion,name=draenic_strength,if=target.time_to_die<=30|(target.time_to_die<=60&buff.pillar_of_frost.up)
                 if raid and (getTimeToDie(self.units.dyn5)<=30 or (getTimeToDie(self.units.dyn5)<=60 and buff.pillarOfFrost)) then
                     -- Draenic Strength Potion
-                    if canUse(109219) then
+                    if isChecked("Str-Pot") and canUse(109219) then
                         useItem(109219)
                     end
                     -- -- Commander's Draenic Strength Potion
@@ -266,7 +266,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 if self.castArmyOfTheDead() then return end
         -- Pre-Pot
                 -- potion,name=draenic_strength
-                if canUse(109219) then
+                if isChecked("Str-Pot") and canUse(109219) then
                     useItem(109219)
                 end
         -- Pillar of Frost

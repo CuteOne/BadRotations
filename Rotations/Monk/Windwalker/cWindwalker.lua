@@ -14,6 +14,7 @@ if select(2, UnitClass("player")) == "MONK" then
         --- VARIABLES ---
         -----------------
 
+        self.trinket = {} -- Trinket Procs
         self.enemies = {
             yards5,
             yards8,
@@ -342,7 +343,7 @@ if select(2, UnitClass("player")) == "MONK" then
 
             section = createNewSection(bb.profile_window,  "Cooldowns")
             -- Agi Pot
-                --createNewCheckbox(section,"Agi-Pot")
+                createNewCheckbox(section,"Agi-Pot")
 
             -- Legendary Ring
                 createNewCheckbox(section,"Legendary Ring")
