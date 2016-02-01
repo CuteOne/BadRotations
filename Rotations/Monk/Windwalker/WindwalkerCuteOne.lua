@@ -28,6 +28,7 @@ if select(2, UnitClass("player")) == "MONK" then
         local multistrike       = GetMultistrike()
         local php               = self.health
         local power             = self.power
+        local pullTimer         = bb.DBM:getPulltimer()
         local race              = self.race
         local racial            = self.getRacial()
         local recharge          = self.recharge
@@ -38,6 +39,7 @@ if select(2, UnitClass("player")) == "MONK" then
         local t18_4pc           = self.eq.t18_4pc
         local talent            = self.talent
         local thp               = getHP(self.units.dyn5)
+        local trinketProc       = self.hasTrinketProc()
         local ttd               = getTimeToDie(self.units.dyn5)
         local ttm               = self.timeToMax
         
@@ -289,6 +291,9 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
         -- Potion
                 -- potion,name=draenic_agility
+                if useCDs() and canUse(109217) and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                    useItem(109217)
+                end
         -- Start Attack
                 -- auto_attack
                 if ObjectExists("target") and not UnitIsDeadOrGhost("target") and getDistance("target")<5 then
@@ -329,6 +334,12 @@ if select(2, UnitClass("player")) == "MONK" then
             end
         -- Legendary Ring
             -- use_item,name=maalus_the_blood_drinker
+            if useCDs() and isChecked("Legendary Ring") then
+                if hasEquiped(124636) and canUse(124636) then
+                    useItem(124636)
+                    return true
+                end
+            end
         -- Rising Sun Kick
             -- rising_sun_kick
             if self.castRisingSunKick() then return end
@@ -743,14 +754,23 @@ if select(2, UnitClass("player")) == "MONK" then
                         if actionList_Opener() then return end
                     end
     -- Chi Sphere
-                -- chi_sphere,if=talent.power_strikes.enabled&buff.chi_sphere.react&chi<chi.max
-                -- No way to code this?
+                    -- chi_sphere,if=talent.power_strikes.enabled&buff.chi_sphere.react&chi<chi.max
+                    -- No way to code this?
     -- Potion
-                -- potion,name=draenic_agility,if=buff.serenity.up|(!talent.serenity.enabled&(trinket.proc.agility.react|trinket.proc.multistrike.react))|buff.bloodlust.react|target.time_to_die<=60
-                -- TODO: Potion usage
+                    -- potion,name=draenic_agility,if=buff.serenity.up|(!talent.serenity.enabled&(trinket.proc.agility.react|trinket.proc.multistrike.react))|buff.bloodlust.react|target.time_to_die<=60
+                    if useCDs() and canUse(109217) and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") then
+                        if buff.serenity or (not talent.serenity and trinketProc) or hasBloodLust() or ttd<=60 then
+                            useItem(109217)
+                        end
+                    end
     -- Legendary Ring
-                -- use_item,name=maalus_the_blood_drinker,if=buff.tigereye_brew_use.up|target.time_to_die<18
-                -- TODO: Legendary Ring Usage
+                    -- use_item,name=maalus_the_blood_drinker,if=buff.tigereye_brew_use.up|target.time_to_die<18
+                    if useCDs() and isChecked("Legendary Ring") and (buff.tigereyeBrew or ttd<18) then
+                        if hasEquiped(124636) and canUse(124636) then
+                            useItem(124636)
+                            return true
+                        end
+                    end
     -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                     -- blood_fury,if=buff.tigereye_brew_use.up|target.time_to_die<18
                     -- berserking,if=buff.tigereye_brew_use.up|target.time_to_die<18

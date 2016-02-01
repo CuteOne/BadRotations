@@ -60,7 +60,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			clawsOfShirvallahFormBuff 			= 171745,
 
 			-- Buff - Offensive
-			bloodtalonsBuff						= 155672,
+			bloodtalonsBuff						= 145152,
 			incarnationKingOfTheJungleBuff 		= 102543,
 			savageRoarGlyphBuff 				= 174544,
 			savageRoarNoGlyphBuff				= 52610,
@@ -516,6 +516,10 @@ if select(2, UnitClass("player")) == "DRUID" then
 
             -- Break Crowd Control
                 createNewCheckbox(section,"Break Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to break crowd control.|cffFFBB00.")
+            
+            -- Pre-Pull Timer
+                createNewSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+
             checkSectionState(section)
 
             

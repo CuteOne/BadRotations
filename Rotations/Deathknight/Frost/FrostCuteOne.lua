@@ -27,6 +27,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         local party             = select(2,IsInInstance())=="party"
         local php               = self.health
         local power             = self.power
+        local pullTimer         = bb.DBM:getPulltimer()
         local raid              = select(2,IsInInstance())=="raid"
         local rune              = self.rune.count
         local runeFrac          = self.rune.percent
@@ -209,16 +210,16 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             if useCDs() then
         -- Potion
                 -- potion,name=draenic_strength,if=target.time_to_die<=30|(target.time_to_die<=60&buff.pillar_of_frost.up)
-                -- if raid and (getTimeToDie(self.units.dyn5)<=30 or (getTimeToDie(self.units.dyn5)<=60 and buff.pillarOfFrost)) then
-                --     -- Draenic Strength Potion
-                --     if canUse(self.spell.strengthPotBasic) then
-                --         useItem(self.spell.strengthPotBasic)
-                --     end
-                --     -- Commander's Draenic Strength Potion
-                --     if canUse(self.spell.strengthPotGarrison) then
-                --         useItem(self.spell.strengthPotGarrison)
-                --     end
-                -- end
+                if raid and (getTimeToDie(self.units.dyn5)<=30 or (getTimeToDie(self.units.dyn5)<=60 and buff.pillarOfFrost)) then
+                    -- Draenic Strength Potion
+                    if canUse(109219) then
+                        useItem(109219)
+                    end
+                    -- -- Commander's Draenic Strength Potion
+                    -- if canUse(self.spell.strengthPotGarrison) then
+                    --     useItem(self.spell.strengthPotGarrison)
+                    -- end
+                end
         -- Empower Rune Weapon
                 -- empower_rune_weapon,if=target.time_to_die<=60&buff.potion.up
                 if getTimeToDie(self.units.dyn5)<=60 and buff.strengthPot then
@@ -231,7 +232,12 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                 end
         -- Legendary Ring
                 -- use_item,slot=finger1
-                -- TODO: Write Legendary Ring Usage 
+                if useCDs() and isChecked("Legendary Ring") then
+                    if hasEquiped(124634) and canUse(124634) then
+                        useItem(124634)
+                        return true
+                    end
+                end
             end -- End Use Cooldowns Check
         end -- End Action List - Cooldowns
     -- Action List - Pre-Combat
@@ -247,21 +253,26 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             end
         -- food,type=buttered_sturgeon
         -- Horn of Winter
-            if --[[isChecked("Horn of Winter") and]] not (IsFlying() or IsMounted()) and not inCombat then
-                -- for i = 1, #nNova do
-                --     if not isBuffed(nNova[i].unit,{57330,19506,6673}) and (#nNova==select(5,GetInstanceInfo()) or solo or (party and not UnitInParty("player")))
-                --     then
-                        if self.castHornOfWinter() then return end
-                --     end
-                -- end
+            if isChecked("Horn of Winter") and not (IsFlying() or IsMounted()) and not inCombat then
+                if self.castHornOfWinter() then return end
             end
         -- Frost Presence
             if not buff.frostPresence and php > getOptionValue("Blood Presence") and getDistance(self.units.dyn5)<=8 then
                 if self.castFrostPresence() then return end
             end
-        -- army_of_the_dead
-        -- potion,name=draenic_strength
-        -- pillar_of_frost
+            if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+        -- Army of the Dead
+                -- army_of_the_dead
+                if self.castArmyOfTheDead() then return end
+        -- Pre-Pot
+                -- potion,name=draenic_strength
+                if canUse(109219) then
+                    useItem(109219)
+                end
+        -- Pillar of Frost
+                -- pillar_of_frost
+                if self.castPillarOfFrost() then return end
+            end -- Pre-Pull
         -- Start Attack
             if attacktar and not deadtar and getDistance("target")<5 and not inCombat then
                 StartAttack()

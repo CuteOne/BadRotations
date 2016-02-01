@@ -391,6 +391,9 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 
             -- Water Walking
             createNewCheckbox(section,"Water Walking")
+
+             -- Pre-Pull Timer
+            createNewSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             checkSectionState(section)
 
             

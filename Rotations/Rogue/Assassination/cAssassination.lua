@@ -254,6 +254,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
             createNewSpinner(section,  "Stealth Timer",  1,  0,  2,  0.25,  "|cffFFBB00How long to wait(seconds) before using \n|cffFFFFFFStealth.")
             -- Opening Attack
             createNewDropdown(section, "Opener", {"Ambush", "Mutilate", "Cheap Shot"},  1, "|cffFFFFFFSelect Attack to Break Stealth with")
+            -- Pre-Pull Timer
+            createNewSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             checkSectionState(section) 
 
             

@@ -25,6 +25,7 @@ if select(3,UnitClass("player")) == 1 then
         local level             = self.level
         local php               = self.health
         local power             = self.power
+        local pullTimer         = bb.DBM:getPulltimer()
         local race              = self.race
         local racial            = self.getRacial()
         local raidAdd           = false --Need to determine how to check raid add
@@ -44,10 +45,6 @@ if select(3,UnitClass("player")) == 1 then
         local ttd               = getTimeToDie(self.units.dyn5)
         local ttm               = self.timeToMax
         if t18_4pc then t18_4pcBonus = 1 else t18_4pcBonus = 0 end
-
-        -- if UnitExists("target") then
-        --     ChatOverlay(getDistance("target").." | "..round2(getRealDistance("target","player"),0).." | "..round2(getAccDistance("target"),0).." | "..tostring(meleeRange("target","player")))
-        -- end
 
     --------------------
     --- Action Lists ---
@@ -168,7 +165,12 @@ if select(3,UnitClass("player")) == 1 then
             if inRange(self.spell.rend,self.units.dyn5) then
             -- Legendary Ring
                 -- use_item,name=thorasus_the_stone_heart_of_draenor,if=(buff.bloodbath.up|(!talent.bloodbath.enabled&debuff.colossus_smash.up))
-                -- TODO
+                if useCDs() and isChecked("Legendary Ring") and (buff.bloodbath or (not talent.bloodbath and debuff.colossusSmash)) then
+                    if hasEquiped(124634) and canUse(124634) then
+                        useItem(124634)
+                        return true
+                    end
+                end
             -- Potion
                 -- potion,name=draenic_strength,if=(target.health.pct<20&buff.recklessness.up)|target.time_to_die<25
                 if useCDs() and canUse(strPot) and inRaid and isChecked("Agi-Pot") then
@@ -240,6 +242,11 @@ if select(3,UnitClass("player")) == 1 then
             end
             -- snapshot_stats
             -- potion,name=draenic_strength
+            if useCDs() and inRaid and isChecked("Str-Pot") and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                if canUse(109219) then
+                    useItem(109219)
+                end
+            end
         end  -- End Action List - Pre-Combat
     -- Action List - Movement
         function actionList_Movement()
@@ -248,7 +255,7 @@ if select(3,UnitClass("player")) == 1 then
             if self.castHeroicLeap() then return end
         -- Charge
             -- charge,cycle_targets=1,if=debuff.charge.down
-            -- TODO
+            if self.castCharge() then return end
         -- Storm Bolt
             -- storm_bolt
             if self.castStormBolt() then return end

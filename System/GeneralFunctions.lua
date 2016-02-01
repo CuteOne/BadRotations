@@ -1763,6 +1763,11 @@ function isCastingTime(lagTolerance)
 		return false
 	end
 end
+-- if getCastTime("Healing Touch")<3 then
+function getCastTime(spellID)
+	local castTime = select(4,GetSpellInfo(spellID))/1000
+	return castTime
+end
 function getCastTimeRemain(unit)
 	if UnitCastingInfo(unit) ~= nil then
 		return select(6,UnitCastingInfo(unit))/1000 - GetTime()

@@ -25,6 +25,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local racial 										= self.getRacial()
 		local healPot 										= getHealthPot()
 		local lowestHP 										= nNova[1].unit
+		local pullTimer 									= bb.DBM:getPulltimer()
 		-- Specific Player Variables
 		local combo 										= self.comboPoints
 		local clearcast 									= self.buff.clearcast
@@ -62,7 +63,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		local friendly 										= friendly or UnitIsFriend("target", "player")
 	    local mfTick 										= 20.0/(1+UnitSpellHaste("player")/100)/10
 	    local multidot 										= (useCleave() or BadBoy_data['AoE'] ~= 3)
-	    local fbDamage 										= getFbDamage()   
+	    local fbDamage 										= getFbDamage()
 --------------------
 --- Action Lists ---
 --------------------
@@ -388,10 +389,8 @@ if select(2, UnitClass("player")) == "DRUID" then
 			        if isChecked("Mark of the Wild") and not stealth then
 	                	if self.castMarkOfTheWild() then return end
 		        	end
-		-- TODO: healing_touch,if=talent.bloodtalons.enabled
-		-- TODO: Cat Form
-		-- Prowl
-		 			if cat then --and (not friendly or isDummy()) 
+		-- Prowl - Non-PrePull
+					if cat then --and (not friendly or isDummy()) 
 						for i=1, #dynTable20AoE do
 							local thisUnit = dynTable20AoE[i].unit
 							if dynTable20AoE[i].distance < 20 then
@@ -402,19 +401,38 @@ if select(2, UnitClass("player")) == "DRUID" then
 					    end
 					end
 				end -- End No Stealth
-				if buff.prowl or buff.shadowmeld then
-		-- TODO: snapshot_stats
-		-- TODO: potion,name=draenic_agility
-		-- TODO: incarnation
-		-- Rake/Shred
-			        if hastar and attacktar then
-			        	if perk.improvedRake and debuff.remain.rake==0 then
-			        		if self.castRake(dynTar5) then return end
-			        	else
-			        		if self.castShred(dynTar5) then return end
+	        	if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+		-- Healing Touch
+					-- healing_touch,if=talent.bloodtalons.enabled
+					if talent.bloodtalons and not buff.bloodtalons and (htTimer == nil or htTimer < GetTime() - 1) then
+						if self.castHealingTouch("player") then htTimer = GetTime(); return end
+					end
+		-- Prowl 
+				    if buff.bloodtalons then
+				    	if self.castProwl() then return end
+				    end
+					if buff.prowl then
+		-- Pre-Pot
+						-- potion,name=draenic_agility
+			            if useCDs() and isChecked("Agi-Pot") and canUse(109217) then
+			            	useItem(109217)
+			                return true
 			            end
-			        end
-			    end -- End Stealth
+		-- Incarnation
+						-- incarnation
+						if useCDs() and isChecked("Incarnation") then
+		            		if self.castIncarnationKingOfTheJungle() then return end
+		            	end
+					end -- End Prowl
+				end -- End Pre-Pull
+		-- Rake/Shred
+		        if hastar and attacktar then
+		        	if perk.improvedRake and debuff.remain.rake==0 then
+		        		if self.castRake(dynTar5) then return end
+		        	else
+		        		if self.castShred(dynTar5) then return end
+		            end
+		        end
 			end -- End No Combat
 		end -- End Action List - PreCombat 
 	-- Action List - Finisher

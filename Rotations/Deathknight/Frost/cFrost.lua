@@ -276,6 +276,9 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             -- Gorefiend's Crasp
             createNewCheckbox(section,"Gorefiend's Grasp")
 
+            -- Pre-Pull Timer
+            createNewSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+
             checkSectionState(section)
 
             --   _____            _     _
@@ -452,7 +455,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         end
         -- Pillar of Frost
         function self.castPillarOfFrost()
-            if self.level>=68 and self.cd.pillarOfFrost==0 and (self.rune.count.frost>=1 or self.rune.count.death>=1) and getDistance(self.units.dyn5)<5 then
+            if self.level>=68 and self.cd.pillarOfFrost==0 and (self.rune.count.frost>=1 or self.rune.count.death>=1 or isKnown(157389)) then
                 if castSpell("player",self.spell.pillarOfFrost,false,false,false) then return end
             end
         end
