@@ -452,7 +452,7 @@ function cShaman:new(spec)
 	-- Healing Rain
 	function self.castHealingRain()
 		if self.level>=60 and self.cd.healingRain==0 and self.powerPercent>21.6 then
-	        if castHealGround(self.spell.healingRain,18,100,1) then return; end
+	        if castHealGround(self.spell.healingRain,18,30,1) then return; end
 	   	end
 	end
 	-- Healing Surge

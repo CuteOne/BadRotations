@@ -529,7 +529,7 @@ function cDK:new(spec)
 	-- Death and Decay
 	function self.castDeathAndDecay()
 		if (not getTalent(7,2)) and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and self.cd.deathAndDecay==0 and (hasThreat(self.units.dyn30) or isDummy()) and getDistance(self.units.dyn30AoE)<30 and useCleave() and not isMoving(self.units.dyn30AoE) then
-			if castGoundAtBestLocation(self.spell.deathAndDecay,10,1,30) then return end
+			if castGroundAtBestLocation(self.spell.deathAndDecay,10,1,30) then return end
 		end
 	end
 	-- Death Siphon
@@ -541,7 +541,8 @@ function cDK:new(spec)
 	-- Defile
 	function self.castDefile()
 		if getTalent(7,2) and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and self.cd.defile==0 and (hasThreat(self.units.dyn30) or isDummy()) and getDistance(self.units.dyn30AoE)<30 and useCleave() and not isMoving(self.units.dyn30AoE) then
-			if castGoundAtBestLocation(self.spell.defile,8,1,30) then return end
+			if castGroundAtBestLocation(self.spell.defile,8,1,30) then return end
+			--if castGround(self.units.dyn30AoE,self.spell.defile,30) then return end
 		end
 	end
 	-- Empower Rune Weapon
