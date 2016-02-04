@@ -452,7 +452,8 @@ function cShaman:new(spec)
 	-- Healing Rain
 	function self.castHealingRain()
 		if self.level>=60 and self.cd.healingRain==0 and self.powerPercent>21.6 then
-	        if castHealGround(self.spell.healingRain,18,30,1) then return; end
+	        if castHealGround(self.spell.healingRain,18,getOptionValue("Healing Rain"),getOptionValue("Healing Rain Targets")) then return end
+	        --if castAoEHeal(self.spell.healingRain,1,getOptionValue("Healing Rain"),40) then return; end
 	   	end
 	end
 	-- Healing Surge
@@ -619,7 +620,7 @@ function cShaman:new(spec)
 	-- Ancestral Spirit
 	function self.castAncestralSpirit()
 		if self.level>=18 and self.power>50 and not self.inCombat and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and getDistance("mouseover")<40 then
-			if castSpell("mouseover",self.spell.ancestralSpirit,false,false,false) then return end
+			if castSpell("mouseover",self.spell.ancestralSpirit,false,false,false,false,true) then return end
 		end
 	end
 	-- Cleanse Spirit

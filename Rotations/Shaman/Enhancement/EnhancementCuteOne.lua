@@ -148,7 +148,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 		          	if castSpell("player",racial,false,false,false) then return end
 		        end
 		-- Healing Rain
-				if isChecked("Healing Rain") then
+				if isChecked("Healing Rain") and (not inCombat or getCastTime(self.spell.healingRain)<1) then
 					if self.castHealingRain() then return end
 				end
 		-- Healing Stream Totem

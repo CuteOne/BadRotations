@@ -552,7 +552,9 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 				if UnitIsVisible(nNova[i].unit) and GetObjectExists(nNova[i].unit) then
 					local X,Y,Z = GetObjectPosition(nNova[i].unit)
 					tinsert(lowHPTargets,{ unit = nNova[i].unit,x = X,y = Y,z = Z })
-				end end end
+				end 
+			end 
+		end
 		if #lowHPTargets >= NumberOfPlayers then
 			for i = 1,#lowHPTargets do
 				for j = 1,#lowHPTargets do
@@ -560,11 +562,19 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 						if math.sqrt(((lowHPTargets[j].x-lowHPTargets[i].x)^2)+((lowHPTargets[j].y-lowHPTargets[i].y)^2)) < Radius then
 							for k = 1,#lowHPTargets do
 								if lowHPTargets[i].unit ~= lowHPTargets[k].unit and lowHPTargets[j].unit ~= lowHPTargets[k].unit then
-									if math.sqrt(((lowHPTargets[k].x-lowHPTargets[i].x)^2)+((lowHPTargets[k].y-lowHPTargets[i].y)^2)) < Radius and math.sqrt(((lowHPTargets[k].x-lowHPTargets[j].x)^2)+((lowHPTargets[k].y-lowHPTargets[j].y)^2)) < Radius then
+									if math.sqrt(((lowHPTargets[k].x-lowHPTargets[i].x)^2)+((lowHPTargets[k].y-lowHPTargets[i].y)^2)) < Radius 
+										and math.sqrt(((lowHPTargets[k].x-lowHPTargets[j].x)^2)+((lowHPTargets[k].y-lowHPTargets[j].y)^2)) < Radius 
+									then
 										tinsert(foundTargets,{ unit = lowHPTargets[i].unit,x = lowHPTargets[i].x,y = lowHPTargets[i].y,z = lowHPTargets[i].z })
 										tinsert(foundTargets,{ unit = lowHPTargets[j].unit,x = lowHPTargets[j].x,y = lowHPTargets[j].y,z = lowHPTargets[i].z })
 										tinsert(foundTargets,{ unit = lowHPTargets[k].unit,x = lowHPTargets[k].x,y = lowHPTargets[k].y,z = lowHPTargets[i].z })
-									end end end end end end end
+									end 
+								end 
+							end 
+						end 
+					end 
+				end 
+			end
 			local medX,medY,medZ = 0,0,0
 			if foundTargets ~= nil and #foundTargets >= NumberOfPlayers then
 				for i = 1,3 do
@@ -580,8 +590,21 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 						ClickPosition(medX,medY,medZ,true)
 						if SpellID == 145205 then shroomsTable[1] = { x = medX,y = medY,z = medZ} end
 						return true
-					end end end end end
-	return false
+					end 
+				end
+			elseif lowHPTargets~=nil and #lowHPTargets==1 and lowHPTargets[1].unit=="player" then
+				local myX,myY,myZ = GetObjectPosition("player")
+				CastSpellByName(GetSpellInfo(SpellID),"player")
+				if IsAoEPending() then
+					ClickPosition(myX,myY,myZ,true)
+					if SpellID == 145205 then shroomsTable[1] = { x = medX,y = medY,z = medZ} end
+					return true
+				end
+			end 
+		end 
+	else
+		return false
+	end
 end
 -- getLatency()
 function getLatency()
