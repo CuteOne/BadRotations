@@ -275,7 +275,7 @@ cWarlock = {}
 		-- Fear
 		function self.castFear(thisUnit)
 			if getDistance(thisUnit) < 30 then
-				if castSpell(thisUnit,self.spell.fear,true,false,false) then return end
+				if castSpell(thisUnit,self.spell.fear,true,true,false) then return end
 			end		
 		end
 		-- Howl of Terror
@@ -396,13 +396,13 @@ cWarlock = {}
 		-- Summon FelHunter
 		function self.castSummonFelHunter()
 			if not UnitExists("pet") then
-				if castSpell("player",self.spell.summonFelHunter,false,false,false) then return end
+				if castSpell("player",self.spell.summonFelHunter,false,true,false) then return end
 			end
 		end
 		-- Summon Imp
 		function self.castSummonImp()
 			if not UnitExists("pet") then
-				if castSpell("player",self.spell.summonImp,false,false,false) then return end
+				if castSpell("player",self.spell.summonImp,false,true,false) then return end
 			end
 		end
 		-- Summon Infernal
@@ -414,19 +414,19 @@ cWarlock = {}
 		-- Summon Succubus
 		function self.castSummonSuccubus()
 			if not UnitExists("pet") then
-				if castSpell("player",self.spell.summonSuccubus,false,false,false) then return end
+				if castSpell("player",self.spell.summonSuccubus,false,true,false) then return end
 			end
 		end
 		-- Summon VoidWalker
 		function self.castSummonVoidWalker()
 			if not UnitExists("pet") then
-				if castSpell("player",self.spell.summonVoidWalker,false,false,false) then return end
+				if castSpell("player",self.spell.summonVoidWalker,false,true,false) then return end
 			end
 		end
 		-- Grimoire Fel
 		function self.castGrimoireFel(thisUnit)
 			if self.talent.grimoireofService then
-				if castSpell(thisUnit, self.spell.grimoireFel, true, false, false) then return end
+				if castSpell(thisUnit, self.spell.grimoireFel,true, false, false) then return end
 			end
 		end
 	------------------------
@@ -440,11 +440,11 @@ cWarlock = {}
 		end
 		-- Create Healthstone
 		function self.castCreateHealthstone()
-			if castSpell("player",self.spell.createHealthstone,false,false,false) then return end
+			if castSpell("player",self.spell.createHealthstone,false,true,false) then return end
 		end
 		-- Create Soul Well
 		function self.castCreateSoulWell()
-				if castSpell("player",self.spell.createSoulWell,false,false,false) then return end
+				if castSpell("player",self.spell.createSoulWell,false,true,false) then return end
 		end
 		-- Kil'jaeden's Cunning
 		function self.castKJsCunning()
@@ -454,12 +454,12 @@ cWarlock = {}
 		end
 		-- Ritual of Summoning
 		function self.castRitualofSummoning()
-				if castSpell("player",self.spell.ritualofSummoning,false,false,false) then return end
+				if castSpell("player",self.spell.ritualofSummoning,false,true,false) then return end
 		end
 		-- Soulstone
 		function self.castSoulstone(thisUnit)
 			if self.cd.soulstone ==0 then
-				if castSpell(thisUnit,self.spell.soulstone,true,false,false) then return end
+				if castSpell(thisUnit,self.spell.soulstone,true,true,false) then return end
 			end
 		end
 		-- Unending Breath

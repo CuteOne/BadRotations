@@ -273,15 +273,15 @@ if select(2,UnitClass("player")) == "MONK" then
         function self.castChangeStance()
           local myStance = GetShapeshiftForm()
           if getValue("Stance") == 1 and myStance ~= 1 then
-            if castSpell("player",115070,true) then return; end
+            if castSpell("player",115070,true,false,false) then return; end
           elseif getValue("Stance") == 2 and myStance ~= 2 then
-            if castSpell("player",103985,true) then return; end
+            if castSpell("player",103985,true,false,false) then return; end
           end
         end
         -- Chi Brew
         function self.castChiBrew()
             if self.charges.chiBrew >= 1 then
-                if castSpell("player", self.spell.chiBrew, false) then return end
+                if castSpell("player", self.spell.chiBrew, false,false,false) then return end
             end
         end
         -- Chi Explosion
@@ -290,7 +290,7 @@ if select(2,UnitClass("player")) == "MONK" then
         --Chi Wave
         function self.castHealingChiWave(unit)
           if self.talent.chiWave and self.cd.chiWave == 0 then
-            if castSpell(unit, self.spell.chiWave, true) then return end
+            if castSpell(unit, self.spell.chiWave, true,false,false) then return end
           end
         end
 
@@ -300,13 +300,13 @@ if select(2,UnitClass("player")) == "MONK" then
         -- Detox
         function self.castDetoxMist(unit)
             if self.level>=20 and getSpellCD(self.spell.detox) == 0 then
-                if castSpell(unit,self.spell.detox,false,false,false) then return end
+                if castSpell(unit,self.spell.detox,false,false,false,false) then return end
             end
         end
         -- Enveloping Mist
         function self.castEnvelopingMist(unit)
           if self.chi.count >= 3 then
-              if castSpell(unit, self.spell.envelopingMist, true) then 
+              if castSpell(unit, self.spell.envelopingMist, true,true,false) then 
                 return; 
               end
           end
@@ -314,7 +314,7 @@ if select(2,UnitClass("player")) == "MONK" then
         --Expel Harm Heal
         function self.castHealingExpelHarm(unit)
           if self.glyph.mistExpelHarm then
-            if castSpell(unit,self.spell.mistExpelHarm, true) then return; end
+            if castSpell(unit,self.spell.mistExpelHarm, true,false,false) then return; end
           end
         end
         -- Legacy of the Emperor
@@ -343,42 +343,42 @@ if select(2,UnitClass("player")) == "MONK" then
         end
         --Life Cocoon
         function self.castLifeCocoon(unit)
-          if castSpell(unit, self.spell.lifeCocoon,true) then return; end
+          if castSpell(unit, self.spell.lifeCocoon,true,false,false) then return; end
         end
         -- Mana Tea
         function self.castManaTea()
             if self.glyph.manaTea and self.charges.manaTea >= 2 then
-              if castSpell("player",self.spell.manaTea,false) then return; end
+              if castSpell("player",self.spell.manaTea,false,false,false) then return; end
             end
         end
         -- Renewing Mist
         function self.castRenewingMist(unit)
             if self.talent.renewingMist and self.charges.renewingMist > 0 and getMana("player") > 4 then
-              if castSpell("player",self.spell.thunderFocusTea,false) then end
-              if castSpell(unit,self.spell.renewingMist,true) then return; end
+              if castSpell("player",self.spell.thunderFocusTea,false, false,false) then end
+              if castSpell(unit,self.spell.renewingMist,true,false) then return; end
             elseif not self.talent.renewingMist then
-              if castSpell("player",self.spell.thunderFocusTea,false) then end
-              if castSpell(unit,self.spell.renewingMist,true) then return; end
+              if castSpell("player",self.spell.thunderFocusTea,false,false,false) then end
+              if castSpell(unit,self.spell.renewingMist,true,false) then return; end
             end
         end
         -- Revival
         function self.castRevival()
-          if castSpell("player",self.spell.revival,false) then return; end
+          if castSpell("player",self.spell.revival,false,false,false) then return; end
         end
         -- Soothing Mist
         function self.castSoothingMist(unit)
           if getMana("player") >= 12 then
             if not self.buff.soothingMist then
-              if castSpell(unit,self.spell.soothingMist,true) then return end
+              if castSpell(unit,self.spell.soothingMist,true,true,false) then return end
             end
           end
         end
         -- Spinning Crane Kick/RJW
         function self.castHealingSpinningCraneKick()
           if self.talent.rushingJadeWind then
-            if castSpell("player",self.spell.rushingJadeWind,false) then return end
+            if castSpell("player",self.spell.rushingJadeWind,false,false,false) then return end
           else
-            if castSpell("player",self.spell.spinningCraneKick,false) then return end     
+            if castSpell("player",self.spell.spinningCraneKick,false,false,false) then return end     
           end
         end
         -- Surging Mist
@@ -388,10 +388,10 @@ if select(2,UnitClass("player")) == "MONK" then
         -- Uplift
         function self.castUplift()
           if self.chi.count >= 2 then
-            if castSpell("player",self.spell.uplift,false) then return end
+            if castSpell("player",self.spell.uplift,false,true,false) then return end
           elseif self.charges.chiBrew >= 1 and self.chi.count < 2 then
-            if castSpell("player",self.spell.chiBrew) then
-                if castSpell("player",self.spell.uplift) then return end
+            if castSpell("player",self.spell.chiBrew,false, false,false) then
+                if castSpell("player",self.spell.uplift,false,true,false) then return end
             end
           end
         end

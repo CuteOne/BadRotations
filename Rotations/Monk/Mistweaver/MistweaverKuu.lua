@@ -171,19 +171,19 @@ if select(2, UnitClass("player")) == "MONK" then
                 if nNova[i].hp <= getValue("Uplift") and buff.renewingMist then
                   totUnits = totUnits + 1
                   if totUnits >= getValue("Uplift People") then
-                    if upliftTimer == nil then upliftTimer = 0; end
+                   if upliftTimer == nil then upliftTimer = 0; end
                     if GetTime() - upliftTimer > 0.75 then
                       if self.castUplift() then
-                      totUnits = 0 
-                      upliftTimer = GetTime()
-                      return  
+                        totUnits = 0 
+                        upliftTimer = GetTime()
+                        return  
                       end
                     end
                   end
                 end
               end
               if upliftTimer == nil then upliftTimer = 0; end
-              if self.chi.count == self.chi.max and GetTime() - upliftTimer > 0.75 then
+              if self.chi.count == self.chi.max and GetTime() - upliftTimer > 0.75 and inCombat then
                 if self.castUplift() then return end
                 upliftTimer = GetTime()
               end

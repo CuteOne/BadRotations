@@ -50,45 +50,45 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                     end
                 elseif self.talent.demonicServitude and getEnemies("player",40) < 9 then
                     if petTimer == nil then petTimer = 0; end
-                        if GetTime() - petTimer > 0.75 then
-                            if self.castSummonDoomGuard("player") then petTimer = GetTime() end
-                        end
+                    if GetTime() - petTimer > 0.75 then
+                        if self.castSummonDoomGuard("player") then petTimer = GetTime() end
+                    end
                 elseif self.talent.demonicServitude and getEnemies("player", 40) >= 9 then
                     if petTimer == nil then petTimer = 0; end
-                        if GetTime() - petTimer > 0.75 then
+                    if GetTime() - petTimer > 0.75 then
                             if self.castSummonInfernal("player") then petTimer = GetTime() end
-                        end
+                    end
                 end
             end
             --actions.precombat+=/grimoire_of_sacrifice,if=talent.grimoire_of_sacrifice.enabled&!talent.demonic_servitude.enabled
-                if self.talent.grimoireofSacrifice and not self.talent.demonicServitude and UnitExists("pet") then
-                    if self.castGrimoireofSacrifice() then end
-                end
+            if self.talent.grimoireofSacrifice and not self.talent.demonicServitude and UnitExists("pet") then
+                if self.castGrimoireofSacrifice() then end
+            end
         end -- End Action List - Extras
     -- Action List - Defensive
         function actionList_Defensive()
-                -- Pot/Stoned
-                if isChecked("Pot/Stoned") and getHP("player") <= getValue("Pot/Stoned") and inCombat then
-                    if canUse(5512) then
-                        useItem(5512)
+            -- Pot/Stoned
+            if isChecked("Pot/Stoned") and getHP("player") <= getValue("Pot/Stoned") and inCombat then
+                if canUse(5512) then
+                    useItem(5512)
+                end
+            end
+            -- Heirloom Neck
+            if isChecked("Heirloom Neck") and getHP("player") <= getValue("Heirloom Neck") then
+                if hasEquiped(122668) then
+                    if GetItemCooldown(122668)==0 then
+                        useItem(122668)
                     end
                 end
-                -- Heirloom Neck
-                if isChecked("Heirloom Neck") and getHP("player") <= getValue("Heirloom Neck") then
-                    if hasEquiped(122668) then
-                        if GetItemCooldown(122668)==0 then
-                            useItem(122668)
-                        end
-                    end
-                end
-                -- Ember Tap
-                if isChecked("Ember Tap") and getHP("player") <= getValue ("Ember Tap") and inCombat then
-                    if self.castEmberTap() then return end
-                end
-                -- Unending Resolve
-                if isChecked("Unending Resolve") and getHP("player") <= getValue("Unending Resolve") and inCombat then
-                    if self.castUnendingResolve() then return end
-                end
+            end
+            -- Ember Tap
+            if isChecked("Ember Tap") and getHP("player") <= getValue ("Ember Tap") and inCombat then
+                if self.castEmberTap() then return end
+            end
+            -- Unending Resolve
+            if isChecked("Unending Resolve") and getHP("player") <= getValue("Unending Resolve") and inCombat then
+                if self.castUnendingResolve() then return end
+            end
         end -- End Action List - Defensive
     -- Action List - Interrupts
         function actionList_Interrupts()
@@ -141,27 +141,25 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             if not self.talent.archiesDarkness or (self.talent.archiesDarkness and (self.charges.darkSoulInstability == 2 or ttd<40)) then
                 if dsTimer == nil then dsTimer = 0; end
                 if GetTime() - dsTimer > 0.75 then
-                   if self.castDarkSoulInstability() then dsTimer = GetTime() return end
+                   if self.castDarkSoulInstability() then dsTimer = GetTime() end
                 end
             end
             --actions+=/service_pet,if=talent.grimoire_of_service.enabled&(target.time_to_die>120|target.time_to_die<=25|(buff.dark_soul.remains&target.health.pct<20))
             if self.talent.grimoireofService and (ttd> 120 or ttd <=25 or(self.buff.darkSoulInstability and getHP(self.units.dyn40) < 20)) then
-                if self.castGrimoireFel(self.units.dyn40) then return end
+                if self.castGrimoireFel(self.units.dyn40) then end
             end
         end -- End Action List - Cooldowns
     -- Action List - Single Target
         function actionList_SingleTarget()
-            --actions.single_target+=/havoc,target=2,if=!raid_event.adds.exists
-            if self.enemies.yards40 < 2 then
-                for i = 1, #getEnemies("player",40) do
-                    local thisUnit = getEnemies("player",40)[i]
-                    if hasThreat(thisUnit) and not UnitIsUnit(thisUnit,"target") then
-                        if self.castHavoc(thisUnit) then return end
+            if getHP(self.units.dyn40) < 20 and ((self.ember.count > 3.5 and not self.talent.charredRemains) or (self.ember.count > 2.5 and self.talent.charredRemains) or self.buff.darkSoulInstability or ttd <= 25) and not UnitDebuffID(self.units.dyn40,self.spell.shadowburnDebuff,"player") then
+                if #getEnemies("player",40) > 2 and #getEnemies("player",40) < 5 then              
+                    for i = 1, #getEnemies("player",40) do
+                        local thisUnit = getEnemies("player",40)[i]
+                        if hasThreat(thisUnit) and not UnitIsUnit(thisUnit,self.units.dyn40) and not self.buff.havoc then
+                            if self.castHavoc(thisUnit) then end
+                        end
                     end
                 end
-            end
-            --actions.single_target+=/shadowburn,if=talent.charred_remains.enabled&target.time_to_die<10
-            if ttd<10 or getHP(self.units.dyn40) < 20 and not self.spell.shadowburnDebuff then
                 if self.castShadowburn(self.units.dyn40) then return end
             end
             --actions.single_target+=/kiljaedens_cunning,if=(talent.cataclysm.enabled&!cooldown.cataclysm.remains)
@@ -185,7 +183,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 for i=1, #getEnemies("player",40) do
                     local thisUnit = getEnemies("player",40)[i]
                     if hasThreat(thisUnit) and ((getDebuffRemain(thisUnit,self.spell.immolateDebuff,"player") <= select(4,GetSpellInfo(self.spell.immolate))/1000)) and (self.cd.cataclysm > select(4,GetSpellInfo(self.spell.immolate))/1000 or not self.talent.cataclysm) then
-                        if self.castImmolate(thisUnit) then return end
+                        if immolateTimer == nil then immolateTimer = 0; end
+                        if GetTime() - immolateTimer > 2.75 then
+                            if self.castImmolate(thisUnit) then immolateTimer = GetTime() return end
+                        end
                     end
                 end
             end
@@ -219,8 +220,6 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             end
             --actions.single_target+=/rain_of_fire,if=remains<=tick_time&(spell_targets.rain_of_fire>4|(buff.mannoroths_fury.up&spell_targets.rain_of_fire>2))
             if self.enemies.yards40 > 4 or (self.buff.mannsFury and self.enemies.yards40 > 2) then
-  --              for i=1, #getEnemies("player",40) do
---                    if hasThreat("player", getEnemies("player",40)[i]) then
                 if self.castRainofFire() then return end
             end
             --actions.single_target+=/chaos_bolt,if=talent.charred_remains.enabled&spell_targets.fire_and_brimstone>1&target.health.pct>20
@@ -278,7 +277,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 for i=1, #getEnemies("player",40) do
                     local thisUnit = getEnemies("player",40)[i]
                     if hasThreat(thisUnit) and (getDebuffRemain(thisUnit,self.spell.immolateDebuff,"player") - select(4,GetSpellInfo(self.spell.immolate))/1000) <= getDebuffDuration(thisUnit,self.spell.immolateDebuff,"player")*0.3 then
-                        if self.castImmolate(thisUnit) then  return end
+                        if immolateTimer == nil then immolateTimer = 0; end
+                        if GetTime() - immolateTimer > 2.75 then
+                            if self.castImmolate(thisUnit) then immolateTimer = GetTime() print("1")return end
+                        end
                     end
                 end
             end
@@ -292,29 +294,38 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             end
             --actions.single_target+=/incinerate
             if hasThreat(self.units.dyn40) then
-                    if self.castIncinerate(self.units.dyn40) then return end
-                elseif UnitExists("target") then
-                    if self.castIncinerate("target") then return end
-                end
+                if self.castIncinerate(self.units.dyn40) then return end
+            elseif UnitExists("target") then
+                if self.castIncinerate("target") then return end
+            end
         end -- End Action List - Single Target
     -- Action List - AoE
         function actionList_MultiTarget()
-            --actions.aoe+=/havoc,target=2,if=!talent.charred_remains.enabled&buff.fire_and_brimstone.down
-            if #getEnemies("player",40) >= 2 and not self.talent.charredRemains and not self.buff.fireandBrimstone then
-                if hasThreat(self.units.dyn40) and not UnitIsUnit(self.units.dyn40,"target") then
-                    if self.castHavoc(self.units.dyn40) then return end
+            if getHP(self.units.dyn40) < 20 and not self.buff.fireandBrimstone and ((self.ember.count > 3.5 and not self.talent.charredRemains) or (self.ember.count > 2.5 and self.talent.charredRemains) or self.buff.darkSoulInstability or ttd <= 25) and not UnitDebuffID(self.units.dyn40,self.spell.shadowburnDebuff,"player") then
+                if #getEnemies("player",40) > 2 then              
+                    for i = 1, #getEnemies("player",40) do
+                        local thisUnit = getEnemies("player",40)[i]
+                        if hasThreat(thisUnit) and not UnitIsUnit(thisUnit,self.units.dyn40) and not self.buff.havoc then
+                            if self.castHavoc(thisUnit) then end
+                        end
+                    end
                 end
-            end
-            --actions.aoe+=/shadowburn,if=!talent.charred_remains.enabled&buff.havoc.remains
-            if not self.talent.charredRemains and self.buff.havoc and not self.spell.shadowburnDebuff then
                 if self.castShadowburn(self.units.dyn40) then return end
             end
             --actions.aoe+=/chaos_bolt,if=!talent.charred_remains.enabled&buff.havoc.remains>cast_time&buff.havoc.stack>=3
-            if not self.talent.charredRemains and self.buff.remain.havoc > select(4,GetSpellInfo(self.spell.chaosBolt))/1000 and self.charges.havoc >= 3 then
-                if hasThreat(self.units.dyn40) then
+            if not self.talent.charredRemains and (self.ember.count > 3.5 or self.buff.darkSoulInstability or ttd <= 25) then
+                if #getEnemies("player",40) > 2 then              
+                    for i = 1, #getEnemies("player",40) do
+                        local thisUnit = getEnemies("player",40)[i]
+                        if hasThreat(thisUnit) and not UnitIsUnit(thisUnit,self.units.dyn40) and not self.buff.havoc then
+                            if self.castHavoc(thisUnit) then end
+                        end
+                    end
+                end
+                if hasThreat(self.units.dyn40) and self.charges.havoc >= 3 and self.buff.remain.havoc > select(4,GetSpellInfo(self.spell.chaosBolt))/1000 then
                     if self.castChaosBolt(self.units.dyn40) then return end
-                elseif UnitExists("target") then
-                    if self.castChaosBolt("target") then return end
+                elseif UnitExists("target") and self.charges.havoc >= 3 and self.buff.remain.havoc > select(4,GetSpellInfo(self.spell.chaosBolt))/1000 then
+                    if self.castChaosBolt("target")  then return end
                 end
             end
             --actions.aoe+=/kiljaedens_cunning,if=(talent.cataclysm.enabled&!cooldown.cataclysm.remains)
@@ -329,14 +340,20 @@ if select(2, UnitClass("player")) == "WARLOCK" then
              if self.castCataclysm() then return end
             --actions.aoe+=/fire_and_brimstone,if=buff.fire_and_brimstone.down
             if not self.buff.fireandBrimstone then
-                if self.castFireandBrimstone then return end
+                if self.castFireandBrimstone then end
             end
             --actions.aoe+=/immolate,if=buff.fire_and_brimstone.up&!dot.immolate.ticking&burning_ember>=2
             if self.buff.fireandBrimstone and not getDebuffRemain(self.units.dyn40,self.spell.immolateDebuff,"player") and self.ember.count >= 2 then
                 if hasThreat(self.units.dyn40) then
-                    if self.castImmolate(self.units.dyn40) then return end
+                    if immolateTimer == nil then immolateTimer = 0; end
+                        if GetTime() - immolateTimer > 2.75 then
+                            if self.castImmolate(self.units.dyn40) then immolateTimer = GetTime() return end
+                        end
                 elseif UnitExists("target") then
-                    if self.castImmolate("target") then return end
+                    if immolateTimer == nil then immolateTimer = 0; end
+                        if GetTime() - immolateTimer > 2.75 then
+                            if self.castImmolate("target") then immolateTimer = GetTime() return end
+                        end
                 end
             end
             --actions.aoe+=/conflagrate,if=buff.fire_and_brimstone.up&charges=2&(burning_ember>=2|!talent.charred_remains.enabled)
@@ -349,19 +366,29 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             end
             --actions.aoe+=/immolate,if=buff.fire_and_brimstone.up&dot.immolate.remains-action.immolate.cast_time<=(dot.immolate.duration*0.3)&(burning_ember>=2|!talent.charred_remains.enabled)
             if self.buff.fireandBrimstone and ((getDebuffRemain(self.units.dyn40,self.spell.immolateDebuff,"player") - select(4,GetSpellInfo(self.spell.immolate))/1000) <= getDebuffDuration(self.units.dyn40,self.spell.immolateDebuff,"player")*0.3) and self.ember.count >= 2 then
-                if hasThreat(self.units.dyn40) then
-                    if self.castImmolate(self.units.dyn40) then return end
+                    if hasThreat(self.units.dyn40) then
+                    if immolateTimer == nil then immolateTimer = 0; end
+                        if GetTime() - immolateTimer > 2.75 then
+                            if self.castImmolate(self.units.dyn40) then immolateTimer = GetTime() return end
+                        end
                 elseif UnitExists("target") then
-                    if self.castImmolate("target") then return end
+                    if immolateTimer == nil then immolateTimer = 0; end
+                        if GetTime() - immolateTimer > 2.75 then
+                            if self.castImmolate("target") then immolateTimer = GetTime() return end
+                        end
                 end
             end
             --actions.aoe+=/chaos_bolt,if=talent.charred_remains.enabled&buff.fire_and_brimstone.up&burning_ember>=3
-            if self.talent.charredRemains and self.buff.fireandBrimstone and self.ember.count >=3 then
+            if self.talent.charredRemains and self.buff.fireandBrimstone and self.ember.count >=2.5 then
                 if hasThreat(self.units.dyn40) then
                     if self.castChaosBolt(self.units.dyn40) then return end
                 elseif UnitExists("target") then
                     if self.castChaosBolt("target") then return end
                 end
+            end
+            --cancel fire and brimstone if out of embers
+            if self.ember.count < 2 then
+                if self.castFireandBrimstone() then return end
             end
             --actions.aoe=rain_of_fire,if=!talent.charred_remains.enabled&remains<=tick_time
             if not self.talent.charredRemains then
@@ -441,6 +468,3 @@ if select(2, UnitClass("player")) == "WARLOCK" then
 --        end -- End Pause
     end -- End Rotation Function
 end -- End Class Check
-
-
-

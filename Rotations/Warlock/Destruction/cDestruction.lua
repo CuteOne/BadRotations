@@ -61,6 +61,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         self.spell = {}
         self.spell = mergeSpellTables(self.spell, self.characterSpell, self.warlockSpell, self.destructionSpell)
 
+
         ------------------
         --- OOC UPDATE ---
         ------------------
@@ -117,6 +118,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             self.buff.darkSoulInstability       = UnitBuffID("player",self.spell.darkSoulInstabilityBuff)~=nil or false
             self.buff.fireandBrimstone          = UnitBuffID("player",self.spell.fireandBrimstoneBuff)~=nil or false
             self.buff.havoc                     = UnitBuffID("player",self.spell.havoc)~=nill or false
+            self.buff.emberTap                  = UnitBuffID("player",self.spell.emberTap)~= nil or false
+
         end
 
         function self.getBuffsDuration()
@@ -257,14 +260,14 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             
         -- Ember Tap
         function self.castEmberTap()
-            if self.ember.count>=1 then
+            if self.ember.count>=1 and not self.buff.emberTap then
                 if castSpell("player",self.spell.emberTap,false,false,false) then return end
             end
         end
         -- Chaos Bolt
         function self.castChaosBolt(thisUnit)
             if self.ember.count >= 1 and getDistance(thisUnit) < 40 then
-                if castSpell(thisUnit,self.spell.chaosBolt,true,false,false) then return end
+                if castSpell(thisUnit,self.spell.chaosBolt,true,true,false) then return end
             end
         end
         -- Conflagrate
@@ -281,7 +284,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         end
         --Fire and Brimstone
         function self.castFireandBrimstone()
-            if castSpell("player",self.spell.fireandBrimstone,false,false,false) then return end
+            if FnBTimer == nil then FnBTimer = 0 end
+            if GetTime() - FnBTimer > 0.75 then
+                if castSpell("player",self.spell.fireandBrimstone,false,false,false) then FnBTimer = GetTime() return end
+            end
         end
         -- Flames of Xoroth
         function self.castFlamesofXoroth()
@@ -298,16 +304,13 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         --Immolate
         function self.castImmolate(thisUnit)
             if getDistance(thisUnit)< 40 then
-                if immolateTimer == nil then immolateTimer = 0; end
-                if GetTime() - immolateTimer > 2.75 then
-                    if castSpell(thisUnit,self.spell.immolate,true,false,false) then immolateTimer = GetTime() end   
-                end
+                    if castSpell(thisUnit,self.spell.immolate,true,true,false) then return end   
             end
         end
         -- Incinerate
         function self.castIncinerate(thisUnit)
             if getDistance(thisUnit)< 40 then
-                if castSpell(thisUnit,self.spell.incinerate,false,false,false) then return end
+                if castSpell(thisUnit,self.spell.incinerate,true,true,false) then return end
             end
         end
         -- Rain of Fire
@@ -327,3 +330,5 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         return self
     end-- cDestruction
 end-- select Warlock
+
+ 
