@@ -24,6 +24,7 @@ System\readers\common.lua
 ## LIBS
 System\Libs\LibStub\LibStub.lua
 System\Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+System\Libs\LibSpellRange-1.0\LibSpellRange-1.0.lua
 System\Libs\LibRangeCheck-2.0\LibRangeCheck-2.0.lua
 System\Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
 System\Libs\DiesalTools-1.0\DiesalTools-1.0.lua
@@ -283,7 +284,10 @@ Rotations\Shaman\Elemental\Libs\Functions.lua
 Rotations\Shaman\Elemental\Libs\Options.lua
 Rotations\Shaman\Elemental\Libs\Toggles.lua
 
+Rotations\Shaman\Restoration\cRestoration.lua
 Rotations\Shaman\Restoration\Restoration.lua
+Rotations\Shaman\Restoration\RestorationKuu.lua
+Rotations\Shaman\Restoration\Restorationold.lua
 Rotations\Shaman\Restoration\Libs\Functions.lua
 Rotations\Shaman\Restoration\Libs\Options.lua
 Rotations\Shaman\Restoration\Libs\Toggles.lua

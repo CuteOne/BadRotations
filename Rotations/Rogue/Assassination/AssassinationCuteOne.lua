@@ -30,6 +30,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		local perk											= self.perk
 		local php											= self.health
 		local power, powerRegen								= self.power, self.powerRegen
+		local pullTimer 									= bb.DBM:getPulltimer()
 		local ruptureTick 									= self.debuff.remain.rupture/2
 		local solo											= select(2,IsInInstance())=="none"	
 		local stealth 										= self.stealth
@@ -224,6 +225,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
 					-- NOTHING TO CODE - PROFILE APPLIES BY DEFAULT!
 		-- Potion
 					-- potion,name=draenic_agility
+					if useCDs() and canUse(109217) and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+	                	useItem(109217)
+		            end
 		-- Stealth
 					if isChecked("Stealth") and (stealthTimer == nil or stealthTimer < GetTime() - getValue("Stealth Timer")) and not stealth then
 	                    -- Always

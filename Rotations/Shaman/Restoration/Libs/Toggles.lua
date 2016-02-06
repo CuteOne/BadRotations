@@ -1,42 +1,46 @@
 if select(3, UnitClass("player")) == 7 then
 
-
   function RestorationToggles()
-    -- Aoe Button
-    if  AoEModesLoaded ~= "CML Restoration AoE Modes" then
-      AoEModes = {
-        [1] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "Recommended for one or two targets.", highlight = 0 },
-        [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "Recommended for three targets or more.", highlight = 0 },
-        [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "Recommended for lazy people like me.", highlight = 1 }
-      }
-      AoEModesLoaded = "CML Restoration AoE Modes"
+    -- Healing Button
+    if  HealingModesLoaded ~= "Restoration Shaman Healing Modes" then
+      HealingModes = {
+        [1] = { mode = "Off", value = 1 , overlay = "Healing Disabled", tip = "Will not allow healing.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
+        [2] = { mode = "On", value = 2 , overlay = "Healing Enabled", tip = "Will allow healing.", highlight = 1, icon = 73920 },
+      };
+      CreateButton("Healing",0.5,1);
+      HealingModesLoaded = "Restoration Shaman Healing Modes";
     end
     -- Interrupts Button
-    if  InterruptsModesLoaded ~= "CML Restoration Interrupts Modes" then
+    if  InterruptsModesLoaded ~= "Restoration Shaman Interrupts Modes" then
       InterruptsModes = {
-        [1] = { mode = "None", value = 1 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0 },
-        [2] = { mode = "All", value = 2 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1 }
+        [1] = { mode = "None", value = 1 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0,icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
+        [2] = { mode = "All", value = 2 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1 , icon = 57994}
       }
-      InterruptsModesLoaded = "CML Restoration Interrupts Modes"
+      CreateButton("Interrupts",1.5,1)
+      InterruptsModesLoaded = "Restoration Shaman Interrupts Modes"
     end
 
     -- Defensive Button
-    if  DefensiveModesLoaded ~= "CML Restoration Defensive Modes" then
+    if  DefensiveModesLoaded ~= "Restoration Shaman Defensive Modes" then
       DefensiveModes = {
-        [1] = { mode = "None", value = 1 , overlay = "Defensive Disabled", tip = "No Defensive Cooldowns will be used.", highlight = 0 },
-        [2] = { mode = "All", value = 2 , overlay = "Defensive Enabled", tip = "Includes Deterrence.", highlight = 1 }
+        [1] = { mode = "None", value = 1 , overlay = "Defensive Disabled", tip = "No Defensive Cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
+        [2] = { mode = "All", value = 2 , overlay = "Defensive Enabled", tip = "Includes Deterrence.", highlight = 1 , icon = 108271}
       }
-      DefensiveModesLoaded = "CML Restoration Defensive Modes"
+      CreateButton("Defensive",1,0)
+      DefensiveModesLoaded = "Restoration Shaman Defensive Modes"
     end
     -- Cooldowns Button
-    if  CooldownsModesLoaded ~= "CML Restoration Cooldowns Modes" then
+    if  CooldownsModesLoaded ~= "Restoration Shaman Cooldowns Modes" then
       CooldownsModes = {
-        [1] = { mode = "None", value = 1 , overlay = "Cooldowns Disabled", tip = "No cooldowns will be used.", highlight = 0 },
-        [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "Includes config's selected spells.", highlight = 1 },
-        [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "Includes Ascendance, Stormlash.", highlight = 1 }
+        [1] = { mode = "None", value = 1 , overlay = "Cooldowns Disabled", tip = "No cooldowns will be used.", highlight = 0 , icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]]},
+        [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "Includes config's selected spells.", highlight = 1,icon = 2825 },
+        [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "Includes Ascendance, Stormlash.", highlight = 1, icon = 114052 }
       }
-      CooldownsModesLoaded = "CML Restoration Cooldowns Modes"
+      CreateButton("Cooldowns",2,0)
+      CooldownsModesLoaded = "Restoration Shaman Cooldowns Modes"
     end
   end
 
 end
+
+  

@@ -35,6 +35,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             incinerate                      = 29722,
             rainofFire                      = 104232,
             shadowburn                      = 17877,
+            backdraft                       = 117896,
 
 
             -- Buff - Defensive
@@ -42,11 +43,13 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             -- Buff - Offensive
             darkSoulInstabilityBuff         = 113858,
             fireandBrimstoneBuff            = 108683,
+            havocBuff                       = 80240, 
             
             -- Buff - Stacks
             
             -- Debuff - Offensive
             immolateDebuff                  = 348,
+            shadowburnDebuff                = 29341,
 
             -- Glyphs
             
@@ -57,6 +60,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         -- Merge all spell tables into self.spell
         self.spell = {}
         self.spell = mergeSpellTables(self.spell, self.characterSpell, self.warlockSpell, self.destructionSpell)
+
 
         ------------------
         --- OOC UPDATE ---
@@ -96,9 +100,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
 
             -- Casting and GCD check
             -- TODO: -> does not use off-GCD stuff like pots, dp etc
-            if castingUnit() then
-                return
-            end
+       --     if castingUnit() then
+         --       return
+            --end
 
 
             -- Start selected rotation
@@ -113,6 +117,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
 
             self.buff.darkSoulInstability       = UnitBuffID("player",self.spell.darkSoulInstabilityBuff)~=nil or false
             self.buff.fireandBrimstone          = UnitBuffID("player",self.spell.fireandBrimstoneBuff)~=nil or false
+            self.buff.havoc                     = UnitBuffID("player",self.spell.havoc)~=nill or false
+            self.buff.emberTap                  = UnitBuffID("player",self.spell.emberTap)~= nil or false
+
         end
 
         function self.getBuffsDuration()
@@ -120,6 +127,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
 
             self.buff.duration.darkSoulInstability = getBuffDuration("player",self.spell.darkSoulInstabilityBuff) or 0
             self.buff.duration.fireandBrimstone    = getBuffDuration("player",self.spell.fireandBrimstoneBuff) or 0
+            self.buff.duration.havoc               = getBuffDuration("player",self.spell.havocBuff) or 0
         end
 
         function self.getBuffsRemain()
@@ -127,6 +135,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
 
             self.buff.remain.darkSoulInstability        = getBuffRemain("player",self.spell.darkSoulInstabilityBuff) or 0
             self.buff.remain.fireandBrimstone           = getBuffRemain("player",self.spell.fireandBrimstoneBuff) or 0
+            self.buff.remain.havoc                      = getBuffRemain("player",self.spell.havoc) or 0
         end
 
         function self.getCharges()
@@ -135,6 +144,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
 
             self.charges.conflagrate               = getCharges(self.spell.conflagrate) or 0
             self.charges.darkSoulInstability       = getCharges(self.spell.darkSoulInstability) or 0
+            self.charges.havoc                     = getBuffStacks("player",self.spell.havoc,"player") or 0
+            self.charges.backdraft                 = getBuffStacks("player",self.spell.backdraft,"player") or 0
         end
 
         ---------------
@@ -249,14 +260,14 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             
         -- Ember Tap
         function self.castEmberTap()
-            if self.ember.count>=1 then
+            if self.ember.count>=1 and not self.buff.emberTap then
                 if castSpell("player",self.spell.emberTap,false,false,false) then return end
             end
         end
         -- Chaos Bolt
         function self.castChaosBolt(thisUnit)
             if self.ember.count >= 1 and getDistance(thisUnit) < 40 then
-                if castSpell(thisUnit,self.spell.chaosBolt,true,false,false) then return end
+                if castSpell(thisUnit,self.spell.chaosBolt,true,true,false) then return end
             end
         end
         -- Conflagrate
@@ -273,7 +284,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         end
         --Fire and Brimstone
         function self.castFireandBrimstone()
-            if castSpell("player",self.spell.fireandBrimstone,false,false,false) then return end
+            if FnBTimer == nil then FnBTimer = 0 end
+            if GetTime() - FnBTimer > 0.75 then
+                if castSpell("player",self.spell.fireandBrimstone,false,false,false) then FnBTimer = GetTime() return end
+            end
         end
         -- Flames of Xoroth
         function self.castFlamesofXoroth()
@@ -290,19 +304,19 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         --Immolate
         function self.castImmolate(thisUnit)
             if getDistance(thisUnit)< 40 then
-                if castSpell(thisUnit,self.spell.immolate,true,false,false) then return end
+                    if castSpell(thisUnit,self.spell.immolate,true,true,false) then return end   
             end
         end
         -- Incinerate
         function self.castIncinerate(thisUnit)
             if getDistance(thisUnit)< 40 then
-                if castSpell(thisUnit,self.spell.incinerate,false,false,false) then return end
+                if castSpell(thisUnit,self.spell.incinerate,true,true,false) then return end
             end
         end
         -- Rain of Fire
         function self.castRainofFire()
             if getDistance(self.units.dyn40)< 35 then
-                if castGoundAtBestLocation(self.spell.rainofFire, 8, 3, 35, 5) then return end
+                if castGroundAtBestLocation(self.spell.rainofFire, 8, 3, 35, 5) then return end
             end
         end
         -- Shadowburn
@@ -316,3 +330,5 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         return self
     end-- cDestruction
 end-- select Warlock
+
+ 

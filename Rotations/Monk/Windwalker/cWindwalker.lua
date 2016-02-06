@@ -14,6 +14,7 @@ if select(2, UnitClass("player")) == "MONK" then
         --- VARIABLES ---
         -----------------
 
+        self.trinket = {} -- Trinket Procs
         self.enemies = {
             yards5,
             yards8,
@@ -97,6 +98,8 @@ if select(2, UnitClass("player")) == "MONK" then
             self.getCooldowns()
             self.getEnemies()
             self.getRotation()
+            self.getTrinketProc()
+            self.hasTrinketProc()
 
 
             -- Casting and GCD check
@@ -220,6 +223,37 @@ if select(2, UnitClass("player")) == "MONK" then
             self.talent.chiExplosion = getTalent(7,2)
         end
 
+        --------------------
+        --- TRINKET PROC ---
+        --------------------
+
+        function self.getTrinketProc()
+            local UnitBuffID = UnitBuffID
+
+            -- self.trinket.WitherbarksBranch              = UnitBuffID("player",165822)~=nil or false --Haste Proc
+            -- self.trinket.TurbulentVialOfToxin           = UnitBuffID("player",176883)~=nil or false --Mastery Proc
+            -- self.trinket.KihrasAdrenalineInjector       = UnitBuffID("player",165485)~=nil or false --Mastery Proc
+            self.trinket.GorashansLodestoneSpike        = UnitBuffID("player",165542)~=nil or false --Multi-Strike Proc
+            self.trinket.DraenicPhilosophersStone       = UnitBuffID("player",157136)~=nil or false --Agility Proc
+            self.trinket.BlackheartEnforcersMedallion   = UnitBuffID("player",176984)~=nil or false --Multi-Strike Proc
+            -- self.trinket.MunificentEmblemOfTerror       = UnitBuffID("player",165830)~=nil or false --Critical Strike Proc
+            self.trinket.PrimalCombatantsInsignia       = UnitBuffID("player",182059)~=nil or false --Agility Proc
+            -- self.trinket.SkullOfWar                     = UnitBuffID("player",162915)~=nil or false --Critical Strike Proc
+            self.trinket.ScalesOfDoom                   = UnitBuffID("player",177038)~=nil or false --Multi-Strike Proc
+            self.trinket.LuckyDoubleSidedCoin           = UnitBuffID("player",177597)~=nil or false --Agility Proc
+            -- self.trinket.MeatyDragonspineTrophy         = UnitBuffID("player",177035)~=nil or false --Haste Proc
+            self.trinket.PrimalGladiatorsInsignia       = UnitBuffID("player",182068)~=nil or false --Agility Proc
+            self.trinket.BeatingHeartOfTheMountain      = UnitBuffID("player",176878)~=nil or false --Multi-Strike Proc
+            -- self.trinket.HummingBlackironTrigger        = UnitBuffID("player",177067)~=nil or false --Critical Stike Proc
+            self.trinket.MaliciousCenser                = UnitBuffID("player",183926)~=nil or false --Agility Proc
+        end
+
+        function self.hasTrinketProc()
+            for i = 1, #self.trinket do
+                if self.trinket[i]==true then return true else return false end
+            end
+        end
+
         -------------
         --- PERKS ---
         -------------
@@ -301,12 +335,15 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Fortifying Brew w/ Touch of Death
                 createNewCheckbox(section,"Fort Brew w/ ToD","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Fortifying to empower Touch of Death.")
 
+            -- Pre-Pull Timer
+                createNewSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+                
             checkSectionState(section)
          
 
             section = createNewSection(bb.profile_window,  "Cooldowns")
             -- Agi Pot
-                --createNewCheckbox(section,"Agi-Pot")
+                createNewCheckbox(section,"Agi-Pot")
 
             -- Legendary Ring
                 createNewCheckbox(section,"Legendary Ring")

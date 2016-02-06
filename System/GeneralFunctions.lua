@@ -552,7 +552,9 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 				if UnitIsVisible(nNova[i].unit) and GetObjectExists(nNova[i].unit) then
 					local X,Y,Z = GetObjectPosition(nNova[i].unit)
 					tinsert(lowHPTargets,{ unit = nNova[i].unit,x = X,y = Y,z = Z })
-				end end end
+				end 
+			end 
+		end
 		if #lowHPTargets >= NumberOfPlayers then
 			for i = 1,#lowHPTargets do
 				for j = 1,#lowHPTargets do
@@ -560,11 +562,19 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 						if math.sqrt(((lowHPTargets[j].x-lowHPTargets[i].x)^2)+((lowHPTargets[j].y-lowHPTargets[i].y)^2)) < Radius then
 							for k = 1,#lowHPTargets do
 								if lowHPTargets[i].unit ~= lowHPTargets[k].unit and lowHPTargets[j].unit ~= lowHPTargets[k].unit then
-									if math.sqrt(((lowHPTargets[k].x-lowHPTargets[i].x)^2)+((lowHPTargets[k].y-lowHPTargets[i].y)^2)) < Radius and math.sqrt(((lowHPTargets[k].x-lowHPTargets[j].x)^2)+((lowHPTargets[k].y-lowHPTargets[j].y)^2)) < Radius then
+									if math.sqrt(((lowHPTargets[k].x-lowHPTargets[i].x)^2)+((lowHPTargets[k].y-lowHPTargets[i].y)^2)) < Radius 
+										and math.sqrt(((lowHPTargets[k].x-lowHPTargets[j].x)^2)+((lowHPTargets[k].y-lowHPTargets[j].y)^2)) < Radius 
+									then
 										tinsert(foundTargets,{ unit = lowHPTargets[i].unit,x = lowHPTargets[i].x,y = lowHPTargets[i].y,z = lowHPTargets[i].z })
 										tinsert(foundTargets,{ unit = lowHPTargets[j].unit,x = lowHPTargets[j].x,y = lowHPTargets[j].y,z = lowHPTargets[i].z })
 										tinsert(foundTargets,{ unit = lowHPTargets[k].unit,x = lowHPTargets[k].x,y = lowHPTargets[k].y,z = lowHPTargets[i].z })
-									end end end end end end end
+									end 
+								end 
+							end 
+						end 
+					end 
+				end 
+			end
 			local medX,medY,medZ = 0,0,0
 			if foundTargets ~= nil and #foundTargets >= NumberOfPlayers then
 				for i = 1,3 do
@@ -580,8 +590,21 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 						ClickPosition(medX,medY,medZ,true)
 						if SpellID == 145205 then shroomsTable[1] = { x = medX,y = medY,z = medZ} end
 						return true
-					end end end end end
-	return false
+					end 
+				end
+			elseif lowHPTargets~=nil and #lowHPTargets==1 and lowHPTargets[1].unit=="player" then
+				local myX,myY,myZ = GetObjectPosition("player")
+				CastSpellByName(GetSpellInfo(SpellID),"player")
+				if IsAoEPending() then
+					ClickPosition(myX,myY,myZ,true)
+					if SpellID == 145205 then shroomsTable[1] = { x = medX,y = medY,z = medZ} end
+					return true
+				end
+			end 
+		end 
+	else
+		return false
+	end
 end
 -- getLatency()
 function getLatency()
@@ -639,7 +662,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 			or UnitBuffID("player",79206) ~= nil then
 			-- if ability is ready and in range
             -- if getSpellCD(SpellID) < select(4,GetNetStats()) / 1000
-			if (getSpellCD(SpellID) < select(4,GetNetStats()) / 1000) and (getOptionCheck("Skip Distance Check") or getDistance("player",Unit) <= spellRange or DistanceSkip == true) then
+			if (getSpellCD(SpellID) < select(4,GetNetStats()) / 1000) and (getOptionCheck("Skip Distance Check") or getDistance("player",Unit) <= spellRange or DistanceSkip == true or inRange(SpellID,Unit)) then
 				-- if spam is not allowed
 				if SpamAllowed == false then
 					-- get our last/current cast
@@ -986,6 +1009,27 @@ function getDistance(Unit1,Unit2)
 		return 100
 	end
 end
+function getAccDistance(Unit1,Unit2)
+	-- If both units are visible
+	if GetObjectExists(Unit1) and UnitIsVisible(Unit1) == true and (Unit2 == nil or (GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true)) then
+		-- If Unit2 is nil we compare player to Unit1
+		if Unit2 == nil then
+			Unit2 = Unit1
+			Unit1 = "player"
+		end
+		-- if unit1 is player, we can use our lib to get precise range
+		if Unit1 == "player" and (isDummy(Unit2) or UnitCanAttack(Unit2,"player") == true) then
+		-- 	return rc:GetRange(Unit2) or 1000
+		-- 		-- else, we use FH positions
+		-- else
+			local X1,Y1,Z1 = GetObjectPosition(Unit1)
+			local X2,Y2,Z2 = GetObjectPosition(Unit2)
+			return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (math.max(UnitCombatReach(Unit2) + UnitCombatReach(Unit1) + 4 / 3 + ((isMoving(Unit2) and isMoving(Unit1)) and 8 / 3 or 0), 5)) --(UnitCombatReach(Unit2)+UnitBoundingRadius(Unit2))
+		end
+	else
+		return 100
+	end
+end
 function getRealDistance(Unit1,Unit2)
 	if GetObjectExists(Unit1) and UnitIsVisible(Unit1) == true
 		and GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true then
@@ -997,6 +1041,10 @@ function getRealDistance(Unit1,Unit2)
 		return 100
 	end
 end
+function meleeRange(unit,otherUnit)
+	otherUnit = otherUnit or "player";
+	return getRealDistance(otherUnit,unit) <= (math.max(UnitCombatReach(otherUnit) + UnitCombatReach(unit) + 4 / 3 + ((isMoving(otherUnit) and isMoving(unit)) and 8 / 3 or 0), 5));
+end
 function getDistanceToObject(Unit1,X2,Y2,Z2)
 	if Unit1 == nil then
 		Unit1 = "player"
@@ -1006,6 +1054,15 @@ function getDistanceToObject(Unit1,X2,Y2,Z2)
 		return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2))
 	else
 		return 100
+	end
+end
+function inRange(spellID,unit)
+	local SpellRange = LibStub("SpellRange-1.0")
+	local inRange = SpellRange.IsSpellInRange(spellID,unit)
+	if inRange == 1 then
+		return true
+	else
+		return false
 	end
 end
 function getEmber(Unit)
@@ -1728,6 +1785,11 @@ function isCastingTime(lagTolerance)
 	else
 		return false
 	end
+end
+-- if getCastTime("Healing Touch")<3 then
+function getCastTime(spellID)
+	local castTime = select(4,GetSpellInfo(spellID))/1000
+	return castTime
 end
 function getCastTimeRemain(unit)
 	if UnitCastingInfo(unit) ~= nil then

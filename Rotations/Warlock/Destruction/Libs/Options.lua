@@ -6,70 +6,52 @@
 
             -- Wrapper -----------------------------------------
             section = createNewSection(bb.profile_window, "Buffs")
-            -- Legacy of the Emperor
+            -- Dark Intent
             createNewCheckbox(section,"Dark Intent")
-            checkSectionState(section)
-    
-            -- Wrapper -----------------------------------------
-            section = createNewSection(bb.profile_window, "Cooldowns")
-            -- Revival
-            createNewSpinner(section, "Revival", 20, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFRevival")
-            -- Revival People
-            createNewSpinner(section,  "Revival People",  5,  0 , 25 ,  1,  "How many people need to be at the % to activate.")
-            -- Life Coccon
-            createNewSpinner(section, "Life Cocoon", 15, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFLife Cocoon")
             checkSectionState(section)
 
             -- Wrapper -----------------------------------------
-            section = createNewSection(bb.profile_window, "Healing")
-            -- Nature's Cure
-            createNewDropdown(section, "Detox", { "|cffFFDD11MMouse", "|cffFFDD11MRaid", "|cff00FF00AMouse", "|cff00FF00ARaid"},  1,  "MMouse:|cffFFFFFFMouse / Match List. \nMRaid:|cffFFFFFFRaid / Match List. \nAMouse:|cffFFFFFFMouse / All. \nARaid:|cffFFFFFFRaid / All.")
-            -- Mana Tea
-            createNewSpinner(section, "Mana Tea", 90, 0 , 100, 5,  "Under what |cffFF0000%MP to use |cffFFFFFFMana Tea.")
-            -- Chi Wave
-            createNewSpinner(section,  "Chi Wave",  55,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFChi Wave.")
-            -- Enveloping Mist
-            createNewSpinner(section,  "Enveloping Mist",  45,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFEnveloping Mist.")
-            -- Renewing Mist
-            createNewCheckbox(section,  "Renewing Mist")
-            -- Soothing Mist
-            createNewSpinner(section,  "Soothing Mist",  75,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFSoothing Mist.")
-            -- Surging Mist
-            createNewSpinner(section,  "Surging Mist",  65,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFSurging Mist.")
+            section = createNewSection(bb.profile_window,  "General")
+            -- Dummy DPS Test
+            createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            -- Demon
+            createNewDropdown(section,  "Summon Demon", { "Felhunter","Imp","Succubus","VoidWalker"},  1,  "Choose Demon to Summon.")
+            -- Flask / Crystal
+            createNewCheckbox(section,"Flask")
             checkSectionState(section)
-    
+
             -- Wrapper -----------------------------------------
-            section = createNewSection(bb.profile_window, "AoE Healing")
-            -- Uplift
-            createNewSpinner(section,  "Uplift",  75,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFUplift.")
-            -- Uplift People
-            createNewSpinner(section,  "Uplift People",  5,  0 , 25 ,  5,  "How many people need to be at the % to activate.")
-            -- Spinning Crane Kick/RJW
-            createNewSpinner(section,  "Spinning Crane Kick",  75,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFSCK.")
-            checkSectionState(section)
+            --section = createNewSection(bb.profile_window,  "Cooldowns")
+            -- Legendary Ring
+                --createNewCheckbox(section,"Legendary Ring")
+            -- Trinkets
+                --createNewCheckbox(section,"Trinkets")
+            -- Touch of the Void
+                --createNewCheckbox(section,"Touch of the Void")
+            --checkSectionState(section)
 
             -- Wrapper -----------------------------------------
             section = createNewSection(bb.profile_window, "Defensive")
             -- Expel Harm
-            createNewSpinner(section,  "Expel Harm",  80,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFExpel Harm")
+            createNewSpinner(section,  "Ember Tap",  80,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFEmber Tap")
             -- Fortifying Brew
-            createNewSpinner(section,  "Fortifying Brew",  30,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFFortifying Brew")
+            createNewSpinner(section,  "Heirloom Neck",  30,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHeirloom Neck")
             -- Healthstone
-            createNewSpinner(section,  "Healthstone",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHealthstone")
+            createNewSpinner(section,  "Pot/Stoned",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHealthstone")
+            -- Unending Resolve
+            createNewSpinner(section,  "Unending Resolve",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFUnending Resolve")
             checkSectionState(section)
     
             -- Wrapper -----------------------------------------
-            section = createNewSection(bb.profile_window, "Toggles")
+            --section = createNewSection(bb.profile_window, "Toggles")
             -- Pause Toggle
-            createNewDropdown(section, "Pause Toggle", bb.dropOptions.Toggle2,  3)
+            --createNewDropdown(section, "Pause Toggle", bb.dropOptions.Toggle2,  3)
 
             -- Wrapper -----------------------------------------
-            section = createNewSection(bb.profile_window, "Utilities")
-            -- Spear Hand Strike
-            createNewSpinner(section,  "Spear Hand Strike",  60 ,  0,  100  ,  5,  "Over what % of cast we want to \n|cffFFFFFFSpear Hand Strike.")
-            -- Paralysis
-            createNewSpinner(section,  "Paralysis",  30 ,  0,  100  ,  5,  "Over what % of cast we want to \n|cffFFFFFFParalysis.")
-            checkSectionState(section)
+            --section = createNewSection(bb.profile_window, "Utilities")
+            -- Shadowfury
+            --createNewSpinner(section,  "Shadowfury",  60 ,  0,  100  ,  5,  "Over what % of cast we want to \n|cffFFFFFFShadowfury.")
+            --checkSectionState(section)
 
             --[[ Rotation Dropdown ]]--
             createNewRotationDropdown(bb.profile_window.parent, {"Kuukuu"})

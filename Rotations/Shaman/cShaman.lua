@@ -36,6 +36,7 @@ function cShaman:new(spec)
 
         -- Ability - Offensive
         ancestralSwiftness 			= 16188,
+        ascendance					= 114052,
         bloodlust 					= 2825,
         chainLightning 				= 421,
         elementalBlast 				= 117014,
@@ -66,6 +67,7 @@ function cShaman:new(spec)
         ancestralSpirit 			= 2008,
         cleanseSpirit 				= 51886,
         ghostWolf 					= 2645,
+        hex							= 51514,
         purge 						= 370,
         spiritWalk 					= 58875,
         totemicRecall 				= 36936,
@@ -80,6 +82,7 @@ function cShaman:new(spec)
 
         -- Buff - Offensive
         ancestralSwiftnessBuff 		= 16188,
+        ascendanceBuff				= 114052,
         bloodlustBuff 				= 2825,
         elementalMasteryBuff 		= 16166,
         heroismBuff 				= 32182,
@@ -165,6 +168,7 @@ function cShaman:new(spec)
 
 		self.buff.ancestralGuidance 	= UnitBuffID("player",self.spell.ancestralGuidanceBuff)~=nil or false
 		self.buff.ancestralSwiftness 	= UnitBuffID("player",self.spell.ancestralSwiftnessBuff)~=nil or false
+		self.buff.ascendance 			= UnitBuffID("player",self.spell.ascendanceBuff) ~= nil or false
 		self.buff.astralShift 			= UnitBuffID("player",self.spell.astralShiftBuff)~=nil or false
 		self.buff.bloodlust 			= UnitBuffID("player",self.spell.bloodlustBuff)~=nil or false
 		self.buff.elementalMastery 		= UnitBuffID("player",self.spell.elementalMasteryBuff)~=nil or false
@@ -179,7 +183,8 @@ function cShaman:new(spec)
 	function self.getClassBuffsDuration()
 		local getBuffDuration = getBuffDuration
 
-		self.buff.duration.ancestralGuidance	= getBuffDuration("player",self.spell.ancestralGuidanceBuff) or 0 		
+		self.buff.duration.ancestralGuidance	= getBuffDuration("player",self.spell.ancestralGuidanceBuff) or 0 
+		self.buff.duration.ascendance 			= getBuffDuration("player",self.spell.ascendanceBuff) or 0
 		self.buff.duration.astralShift 			= getBuffDuration("player",self.spell.astralShiftBuff) or 0 		
 		self.buff.duration.bloodlust 			= getBuffDuration("player",self.spell.bloodlustBuff) or 0
 		self.buff.duration.elementalMastery 	= getBuffDuration("player",self.spell.elementalMasteryBuff) or 0
@@ -193,6 +198,7 @@ function cShaman:new(spec)
 		local getBuffRemain = getBuffRemain
 
 		self.buff.remain.ancestralGuidance	= getBuffRemain("player",self.spell.ancestralGuidanceBuff) or 0
+		self.buff.remain.ascendance 		= getBuffRemain("player",self.spell.ascendanceBuff) or 0
 		self.buff.remain.astralShift 		= getBuffRemain("player",self.spell.astralShiftBuff) or 0
 		self.buff.remain.bloodlust 			= getBuffRemain("player",self.spell.bloodlustBuff) or 0
 		self.buff.remain.elementalMastery 	= getBuffRemain("player",self.spell.elementalMasteryBuff) or 0
@@ -215,6 +221,7 @@ function cShaman:new(spec)
 
 		self.cd.ancestralGuidance 	= getSpellCD(self.spell.ancestralGuidance)
 		self.cd.ancestralSwiftness 	= getSpellCD(self.spell.ancestralSwiftness)
+		self.cd.ascendance 			= getSpellCD(self.spell.ascendance)
 		self.cd.astralShift 		= getSpellCD(self.spell.astralShift)
 		self.cd.bloodlust 			= getSpellCD(self.spell.bloodlust)
 		self.cd.capacitorTotem 		= getSpellCD(self.spell.capacitorTotem)
@@ -231,6 +238,7 @@ function cShaman:new(spec)
 		self.cd.healingRain 		= getSpellCD(self.spell.healingRain)
 		self.cd.healingStreamTotem 	= getSpellCD(self.spell.healingStreamTotem)
 		self.cd.heroism 			= getSpellCD(self.spell.heroism)
+		self.cd.hex					= getSpellCD(self.spell.hex)
 		self.cd.liquidMagma 		= getSpellCD(self.spell.liquidMagma)
 		self.cd.shamanisticRage 	= getSpellCD(self.spell.shamanisticRage)
 		self.cd.stormElementalTotem = getSpellCD(self.spell.stormElementalTotem)
@@ -421,7 +429,7 @@ function cShaman:new(spec)
 	-- Wind Shear
 	function self.castWindShear(thisUnit)
 		local thisUnit = thisUnit
-		if self.level>=16 and self.powerPercent>9.4 and self.cd.windShear==0 and getDistance(thisUnit)<25 then
+		if self.level>=16 and self.powerPercent>9.4 and getSpellCD(self.spell.windShear)==0 and getDistance(thisUnit)<25 then
 			if castSpell(thisUnit,self.spell.windShear,false,false,false) then return end
 		end
 	end
@@ -444,8 +452,9 @@ function cShaman:new(spec)
 	-- Healing Rain
 	function self.castHealingRain()
 		if self.level>=60 and self.cd.healingRain==0 and self.powerPercent>21.6 then
-	        if castHealGround(self.spell.healingRain,18,60,2) then return; end
-     	end
+	        if castHealGround(self.spell.healingRain,18,getOptionValue("Healing Rain"),getOptionValue("Healing Rain Targets")) then return end
+	        --if castAoEHeal(self.spell.healingRain,1,getOptionValue("Healing Rain"),40) then return; end
+	   	end
 	end
 	-- Healing Surge
 	function self.castHealingSurge(thisUnit)
@@ -468,6 +477,11 @@ function cShaman:new(spec)
 	function self.castAncestralSwiftness()
 		if self.level>=60 and self.cd.ancestralSwiftness==0 then
 			if castSpell("player",self.spell.ancestralSwiftness,false,false,false) then return end
+		end
+	end
+	function self.castAscendance()
+		if self.cd.ascendance ==0 then
+			if castSpell("player",self.spell.ascendance,false,false,false) then return end
 		end
 	end
 	-- Chain Lightning
@@ -575,7 +589,7 @@ function cShaman:new(spec)
 	end
 	-- Healing Stream Totem
 	function self.castHealingStreamTotem()
-		if self.level>=30 and self.cd.healingStreamTotem==0 and self.powerPercent>8.6 then
+		if self.level>=30 and getSpellCD(5394) ==0 then 
 			if castSpell("player",self.spell.healingStreamTotem,false,false,false) then return end
 		end
 	end
@@ -604,10 +618,9 @@ function cShaman:new(spec)
 --- SPELLS - UTILITY ---
 ------------------------
 	-- Ancestral Spirit
-	function self.castAncestralSpirit(thisUnit)
-		local thisUnit = thisUnit
-		if self.level>=14 and self.powerPercent>4 and not isMoving("player") and UnitIsDeadOrGhost(thisUnit) and UnitIsPlayer(thisUnit) and UnitIsFriend(thisUnit,"player") and getDistance(thisUnit)<40 then
-			if castSpell(thisUnit,self.spell.ancestralSpirit,false,false,false,false,true) then return end
+	function self.castAncestralSpirit()
+		if self.level>=18 and self.power>50 and not self.inCombat and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and getDistance("mouseover")<40 then
+			if castSpell("mouseover",self.spell.ancestralSpirit,false,false,false,false,true) then return end
 		end
 	end
 	-- Cleanse Spirit

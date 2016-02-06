@@ -46,7 +46,7 @@ function isCCed(Unit)
 	return false
 end
 
-function castGoundAtBestLocation(spellID, radius, minUnits, maxRange, minRange)
+function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange)
 	-- description:
 		-- find best position for AoE spell and cast it there
 
@@ -75,10 +75,11 @@ function castGoundAtBestLocation(spellID, radius, minUnits, maxRange, minRange)
 	for i=1,#enemiesTable do
 		local thisUnit = enemiesTable[i].unit
 		local thisDistance = enemiesTable[i].distance
+		local hasThreat = hasThreat(enemiesTable[i].unit)
 		--print(thisUnit.." - "..thisDistance)
 		if isNotBlacklisted(thisUnit) then
 			--print("blacklist passed")
-			if thisDistance < maxRange and thisDistance >= minRange then
+			if thisDistance < maxRange and thisDistance >= minRange and hasThreat then
 				--print("distance passed")
 				if not UnitIsDeadOrGhost(thisUnit) then
 					--print("ghost passed")

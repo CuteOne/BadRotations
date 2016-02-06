@@ -40,6 +40,7 @@ function cDK:new(spec)
         -- Ability - Forms
 
         -- Ability - Offensive
+        armyOfTheDead 				= 42650,
         bloodTap 					= 45529,
         breathOfSindragosa 			= 152279,
         deathAndDecay 				= 43265,
@@ -213,6 +214,7 @@ function cDK:new(spec)
 
 		self.cd.antiMagicShell 		= getSpellCD(self.spell.antiMagicShell)
 		self.cd.antiMagicZone 		= getSpellCD(self.spell.antiMagicZone)
+		self.cd.armyOfTheDead 		= getSpellCD(self.spell.armyOfTheDead)
 		self.cd.asphyxiate 			= getSpellCD(self.spell.asphyxiate)
 		self.cd.breathOfSindragosa 	= getSpellCD(self.spell.breathOfSindragosa)
 		self.cd.darkSimulacrum 		= getSpellCD(self.spell.darkSimulacrum)
@@ -321,6 +323,7 @@ function cDK:new(spec)
 	function self.getRuneCounts()
 		local getRuneCount = getRuneCount
 
+		self.rune.count.all 	= getRuneCount("death")+getRuneCount("blood")+getRuneCount("frost")+getRuneCount("unholy")
 		self.rune.count.death 	= getRuneCount("death")
 		self.rune.count.blood 	= getRuneCount("blood")
 		self.rune.count.frost 	= getRuneCount("frost")
@@ -490,6 +493,21 @@ function cDK:new(spec)
 --------------------------
 --- SPELLS - OFFENSIVE ---
 --------------------------
+	-- Army of the Dead
+	function self.castArmyOfTheDead()
+		if self.level>=80 and self.cd.armyOfTheDead==0 
+			and ((self.rune.count.blood>=1 and self.rune.count.frost>=1 and self.rune.count.unholy>=1) 
+				or (self.rune.count.death>=1 and self.rune.count.frost>=1 and self.rune.count.unholy>=1) 
+				or (self.rune.count.blood>=1 and self.rune.count.death>=1 and self.rune.count.unholy>=1) 
+				or (self.rune.count.blood>=1 and self.rune.count.frost>=1 and self.rune.count.death>=1) 
+				or (self.rune.count.death>=2 and self.rune.count.blood>=1) 
+				or (self.rune.count.death>=2 and self.rune.count.frost>=1) 
+				or (self.rune.count.death>=2 and self.rune.count.unholy>=1) 
+				or self.rune.count.death>=3)
+		then
+			if castSpell("player",self.spell.armyOfTheDead,false,false,false) then return end
+		end
+	end
 	-- Blood Boil
 	function self.castBloodBoil()
 		if self.level>=55 and (self.rune.count.blood>=1 or self.rune.count.death>=1) and getDistance(self.units.dyn10AoE)<10 and useCleave() then
@@ -511,7 +529,7 @@ function cDK:new(spec)
 	-- Death and Decay
 	function self.castDeathAndDecay()
 		if (not getTalent(7,2)) and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and self.cd.deathAndDecay==0 and (hasThreat(self.units.dyn30) or isDummy()) and getDistance(self.units.dyn30AoE)<30 and useCleave() and not isMoving(self.units.dyn30AoE) then
-			if castGoundAtBestLocation(self.spell.deathAndDecay,10,1,30) then return end
+			if castGroundAtBestLocation(self.spell.deathAndDecay,10,1,30) then return end
 		end
 	end
 	-- Death Siphon
@@ -523,7 +541,8 @@ function cDK:new(spec)
 	-- Defile
 	function self.castDefile()
 		if getTalent(7,2) and (self.rune.count.unholy>=1 or self.rune.count.death>=1) and self.cd.defile==0 and (hasThreat(self.units.dyn30) or isDummy()) and getDistance(self.units.dyn30AoE)<30 and useCleave() and not isMoving(self.units.dyn30AoE) then
-			if castGoundAtBestLocation(self.spell.defile,8,1,30) then return end
+			if castGroundAtBestLocation(self.spell.defile,8,1,30) then return end
+			--if castGround(self.units.dyn30AoE,self.spell.defile,30) then return end
 		end
 	end
 	-- Empower Rune Weapon

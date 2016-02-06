@@ -23,6 +23,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         local needsHealing 		= needsHealing or 0
         local php               = self.health
         local power             = self.power
+        local pullTimer 		= bb.DBM:getPulltimer()
         local race              = self.race
         local racial 			= self.getRacial()
         local recharge          = self.recharge
@@ -147,7 +148,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 		          	if castSpell("player",racial,false,false,false) then return end
 		        end
 		-- Healing Rain
-				if isChecked("Healing Rain") then
+				if isChecked("Healing Rain") and (not inCombat or getCastTime(self.spell.healingRain)<1) then
 					if self.castHealingRain() then return end
 				end
 		-- Healing Stream Totem
@@ -235,7 +236,12 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 	    		end
 	    -- Legendary Ring
 	    		-- use_item,name=maalus_the_blood_drinker
-	    		-- TODO
+	    		if useCDs() and isChecked("Legendary Ring") then
+					if hasEquiped(124636) and canUse(124636) then
+						useItem(124636)
+						return true
+					end
+				end
 	    -- Potion
 	    		-- potion,name=draenic_agility,if=(talent.storm_elemental_totem.enabled&(pet.storm_elemental_totem.remains>=25|(cooldown.storm_elemental_totem.remains>target.time_to_die&pet.fire_elemental_totem.remains>=25)))|(!talent.storm_elemental_totem.enabled&pet.fire_elemental_totem.remains>=25)|target.time_to_die<=30
 	    		if useCDs() and canUse(109217) and inRaid and isChecked("Agi-Pot") then
@@ -329,6 +335,9 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			-- snapshot_stats
 		-- Potion
 			-- potion,name=draenic_agility
+			if useCDs() and canUse(109217) and inRaid and isChecked("Agi-Pot") and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+            	useItem(109217)
+            end
 	    end  -- End Action List - Pre-Combat
 	-- Action List - Single
 		function actionList_Single()

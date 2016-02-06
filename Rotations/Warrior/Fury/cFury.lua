@@ -251,11 +251,11 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         function self.getDynamicUnits()
             local dynamicTarget = dynamicTarget
 
-            -- -- Normal
-            -- self.units.dyn10     = dynamicTarget(10, true)
+            -- Normal
+            self.units.dyn8     = dynamicTarget(8, true)
 
-            -- -- AoE
-            -- self.units.dyn10AoE  = dynamicTarget(10,false)
+            -- AoE
+            self.units.dyn8AoE  = dynamicTarget(8,false)
         end
 
         ---------------
@@ -322,6 +322,9 @@ if select(2, UnitClass("player")) == "WARRIOR" then
 
             -- Hamstring
                 createNewCheckbox(section,"Hamstring")
+
+            -- Pre-Pull Timer
+                createNewSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
 
             checkSectionState(section)
             

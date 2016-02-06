@@ -149,6 +149,7 @@ HarmSpells["ROGUE"] = {
 --    8676, -- ["Ambush"], -- 5 (Glyph of Ambush: +5)
 --    921, -- ["Pick Pocket"], -- 5 (Glyph of Pick Pocket: + 5)
     2098, -- ["Eviscerate"], -- 5
+    1943, -- ["Rupture"], -- 5
 }
 
 FriendSpells["SHAMAN"] = {
@@ -171,6 +172,7 @@ HarmSpells["WARRIOR"] = {
     20252, -- ["Intercept"], -- 8-25
     5246, -- ["Intimidating Shout"], -- 8
     88161, -- ["Strike"], -- 5
+    6552. -- ["Pummel"], -- 5
 }
 
 FriendSpells["WARLOCK"] = {

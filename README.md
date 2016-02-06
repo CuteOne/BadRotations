@@ -8,7 +8,9 @@ Little How-To for the first run: https://gyazo.com/d11da29a9d7dba4c93e5b65c008c4
 If you have code to improve a class you can send a "pull request".
 We will look over it and may merge it with BadBoy.
 
-Current Coders: ragnar, Defmaster, CuteOne 
+Current Coders: CuteOne, kuukuukuatchu
+
+Pausing Coders until Legion: ragnar, Defmaster
 
 If you want to know what changes read the commit messages.
 Most of the time they contain the most changes.
@@ -62,7 +64,7 @@ Raiable means if its good to raid with.
 ||||
 | **Monk** |||
 |Brewmaster|95%|chumii,Defmaster|6.1|:white_check_mark:
-|Mistweaver|70%|Kuukuu|**6.2**|:heavy_check_mark:
+|Mistweaver|99%|Kuukuu|**6.2**|:white_check_mark:
 |Windwalker|100% (SimC)|CuteOne|**6.2**|:white_check_mark:
 ||||
 | **Paladin**  |||
@@ -83,7 +85,7 @@ Raiable means if its good to raid with.
 | **Shaman** |||
 |Elemental|90%|CodeMyLife|6.1|:white_check_mark:
 |Enhancement|100%|CuteOne|6.2|:white_check_mark:
-|Restoration|90%|CodeMyLife|6.1|:interrobang:
+|Restoration|90%|Kuukuu|6.2|:heavy_check_mark:
 ||||
 | **Warlock**  |||
 |Affliction|0%||?|:x:

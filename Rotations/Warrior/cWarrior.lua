@@ -283,7 +283,7 @@ function cWarrior:new(spec)
 --- SPELLS - CROWD CONTROL --- 
 ------------------------------
 	function self.castHamstring(thisUnit)
-		if self.level>=36 and self.cd.hamstring==0 and getDebuffRemain(thisUnit,self.spell.hamstringDebuff,"player")==0 and getDistance(thisUnit)<5 then
+		if self.level>=36 and self.cd.hamstring==0 and getDebuffRemain(thisUnit,self.spell.hamstringDebuff,"player")==0 then
 			if castSpell(thisUnit,self.spell.hamstring,false,false,false) then return end
 		end
 	end
@@ -292,7 +292,7 @@ function cWarrior:new(spec)
 --- SPELLS - DEFENSIVE ---
 --------------------------
 	function self.castPummel(thisUnit)
-		if self.level>=24 and self.cd.pummel==0 and getDistance(thisUnit)<5 then
+		if self.level>=24 and self.cd.pummel==0 then
 			if castSpell(thisUnit,self.spell.pummel,false,false,false) then return end
 		end
 	end
@@ -307,7 +307,7 @@ function cWarrior:new(spec)
 		end
 	end
 	function self.castVigilance(thisUnit)
-		if self.talent.vigilance and self.cd.vigilance==0 and getDistance(thisUnit)<40 then
+		if self.talent.vigilance and self.cd.vigilance==0 then
 			if castSpell(thisUnit,self.spell.vigilance,false,false,false) then return end
 		end
 	end
@@ -316,7 +316,7 @@ function cWarrior:new(spec)
 --- SPELLS - OFFENSIVE ---
 --------------------------
 	function self.castAvatar()
-		if self.talent.avatar and self.cd.avatar==0 and getDistance(self.units.dyn5)<5 and getTimeToDie(self.units.dyn5)>5 then
+		if self.talent.avatar and self.cd.avatar==0 and inRange(self.spell.pummel,self.units.dyn5) and getTimeToDie(self.units.dyn5)>5 then
 			if castSpell("player",self.spell.avatar,false,false,false) then return end
 		end
 	end
@@ -351,7 +351,7 @@ function cWarrior:new(spec)
 		end
 	end
 	function self.castBloodbath()
-		if self.talent.bloodbath and self.cd.bloodbath==0 and getDistance(self.units.dyn5)<5 and getTimeToDie(self.units.dyn5)>6 then
+		if self.talent.bloodbath and self.cd.bloodbath==0 and inRange(self.spell.pummel,self.units.dyn5) and getTimeToDie(self.units.dyn5)>6 then
 			if castSpell("player",self.spell.bloodbath,false,false,false) then return end
 		end
 	end
@@ -391,14 +391,14 @@ function cWarrior:new(spec)
 	end
 	function self.castHeroicThrow()
 		local hasThreat = hasThreat("target")
-		if self.level>=22 and self.cd.heroicThrow==0 and (hasThreat or select(2,IsInInstance())=="none") and getDistance("target")>5 then
-			if (self.charges.charge==0 and getDistance("target")<30) or getDistance("target")<25 then
+		if self.level>=22 and self.cd.heroicThrow==0 and (hasThreat or select(2,IsInInstance())=="none") then
+			if self.charges.charge==0 or inRange(self.spell.charge,"target") then
 				if castSpell("target",self.spell.heroicThrow,false,false,false) then return end
 			end
 		end
 	end
 	function self.castImpendingVictory()
-		if self.talent.impendingVictory and self.cd.impendingVictory and getDistance(self.units.dyn5)<5 then
+		if self.talent.impendingVictory and self.cd.impendingVictory then
 			if castSpell(self.units.dyn5,self.spell.impendingVictory,false,false,false) then return end
 		end
 	end
@@ -414,12 +414,12 @@ function cWarrior:new(spec)
 		end
 	end
 	function self.castStormBolt()
-		if self.talent.stormBolt and self.cd.stormBolt==0 and getDistance("target")<30 then
+		if self.talent.stormBolt and self.cd.stormBolt==0 then
 			if castSpell("target",self.spell.stormBolt,false,false,false) then return end
 		end
 	end
 	function self.castVictoryRush()
-		if not self.talent.impendingVictory and self.level>=5 and self.buff.victoryRush and getDistance(self.units.dyn5)<5 then
+		if not self.talent.impendingVictory and self.level>=5 and self.buff.victoryRush then
 			if castSpell(self.units.dyn5,self.spell.victoryRush,false,false,false) then return end
 		end
 	end
@@ -448,20 +448,20 @@ function cWarrior:new(spec)
  	end
 	function self.castCharge()
 		local hasThreat = hasThreat("target")
-		if self.level>=3 and self.cd.charge==0 and (hasThreat or select(2,IsInInstance())=="none") and getDistance("target")>5 and getDistance("target")<25 then
+		if self.level>=3 and self.cd.charge==0 and (hasThreat or select(2,IsInInstance())=="none") and inRange(self.spell.charge,"target") then
 			if castSpell("target",self.spell.charge,false,false,false) then return end
 		end
 	end
 	function self.castHeroicLeap()
 		local hasThreat = hasThreat("target")
-		if self.level>=85 and self.cd.heroicLeap==0 and (hasThreat or select(2,IsInInstance())=="none") and getDistance("target")>5 and getDistance("target")<40 then
+		if self.level>=85 and self.cd.heroicLeap==0 and (hasThreat or select(2,IsInInstance())=="none") and lastSpellCast~=self.spell.charge then --and inRange(self.spell.heroicLeap,"target") then
 			if castGoundAtBestLocation(self.spell.heroicLeap,8,1,40,8) then return end
 			--if castGround("target",self.spell.heroicLeap,40) then return end
 		end
 	end
 	function self.castIntervene(thisUnit)
 		if thisUnit == nil then thisUnit = "target" end
-		if self.level>=72 and self.cd.intervene==0 and UnitIsPlayer(thisUnit) and UnitIsFriend(thisUnit,"player") and getDistance(thisUnit)>5 and getDistance(thisUnit)<25 then
+		if self.level>=72 and self.cd.intervene==0 and UnitIsPlayer(thisUnit) and UnitIsFriend(thisUnit,"player") and not inRange(self.spell.pummel,thisUnit) then
 			if castSpell(thisUnit,self.spell.intervene,false,false,false) then return end
 		end
 	end

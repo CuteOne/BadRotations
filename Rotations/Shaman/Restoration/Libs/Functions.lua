@@ -37,8 +37,35 @@ if select(3,UnitClass("player")) == 7 then
     end
   end
 
+  function useCDsResto()
+    if BadBoy_data['Cooldowns'] == 2 then
+      return true
+    else
+      return false
+    end
+  end
 
+  function useDefensiveResto()
+    if BadBoy_data['Defensive'] == 2 then
+      return true
+    else
+      return false
+    end
+  end
 
-
+  function useInterruptsResto()
+    if BadBoy_data['Interrupts'] == 2 then
+      return true
+    else
+      return false
+    end
+  end
+  function useHealing()
+    if BadBoy_data['Healing'] == 2 then
+      return true
+    else
+      return false
+    end
+  end
 end
 
