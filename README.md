@@ -90,7 +90,7 @@ Raiable means if its good to raid with.
 | **Warlock**  |||
 |Affliction|0%||?|:x:
 |Demonology|80%|Kink|6.1|:interrobang:
-|Destruction|60%||Kuukuu|:heavy_check_mark:
+|Destruction|60%|Kuukuu|6.2|:heavy_check_mark:
 ||||
 | **Warrior**  |||
 |Arms|90%|CuteOne,chumii|6.2|:heavy_check_mark:
