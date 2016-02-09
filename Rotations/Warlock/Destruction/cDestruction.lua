@@ -50,6 +50,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             -- Debuff - Offensive
             immolateDebuff                  = 348,
             shadowburnDebuff                = 29341,
+            rainofFireDebuff                = 104232,
 
             -- Glyphs
             
@@ -100,9 +101,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
 
             -- Casting and GCD check
             -- TODO: -> does not use off-GCD stuff like pots, dp etc
-       --     if castingUnit() then
-         --       return
-            --end
+            if castingUnit() then
+               return
+            end
 
 
             -- Start selected rotation
@@ -315,7 +316,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         end
         -- Rain of Fire
         function self.castRainofFire()
-            if getDistance(self.units.dyn40)< 35 then
+            if getDistance(self.units.dyn40)< 35 and UnitDebuffID(self.units.dyn40,self.spell.rainofFireDebuff,"player") then
                 if castGroundAtBestLocation(self.spell.rainofFire, 8, 3, 35, 5) then return end
             end
         end

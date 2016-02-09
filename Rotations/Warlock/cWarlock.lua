@@ -362,7 +362,7 @@ cWarlock = {}
 		end
 		-- Dark Intent
 		function self.castDarkIntent()
-	        if self.instance=="none" and not isBuffed("player",{1459,61316,160205,128433,90364,126309,109773}) then
+	        if self.instance=="none" and not isBuffed("player",{1459,61316,160205,128433,90364,126309,109773, 21562, 469, 160014, 90364, 160003, 773, 111922}) then
 	        	if castSpell("player",self.spell.darkIntent,false,false,false) then return end
 	        else
 		        local totalCount = GetNumGroupMembers()
@@ -375,7 +375,7 @@ cWarlock = {}
 		            if distance<30 then
 		                currentCount = currentCount+1
 		            end
-		            if not isBuffed(thisUnit,{1459,61316,160205,128433,90364,126309,109773}) and not dead then
+		            if not isBuffed(thisUnit,{1459,61316,160205,128433,90364,126309,109773, 21562, 469, 160014, 90364, 160003, 773, 111922}) and not dead then
 		            	needsBuff = needsBuff+1
 		            end
 		        end
