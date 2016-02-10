@@ -7,7 +7,7 @@ if select(3, UnitClass("player")) == 9 then
             --KeyToggles()
             if destructionWarlock.rotation == 1 then 
               --  DestructionToggles()
-                DestructionConfig() 
+               -- DestructionConfig() 
             end
             Currentconfig = "Destruction Warlock"
         end

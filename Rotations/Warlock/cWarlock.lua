@@ -256,10 +256,15 @@ cWarlock = {}
 	        -- Create Base Options
 	        self.createBaseOptions()
 
-	        -- Class Wrap
-	        local section = createNewSection(bb.profile_window,  "Class Options")
+	        local section = createNewSection(bb.profile_window, "Class Options")
+	        -- Dummy DPS Test
+            createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+	        -- Dark Intent
+	        createNewCheckbox(section,"Dark Intent")
+	        -- Demon
+            createNewDropdown(section,  "Summon Demon", { "Felhunter","Imp","Succubus","VoidWalker"},  1,  "Choose Demon to Summon.")
 	        checkSectionState(section)
-		end
+	    end
 
 	------------------------------
 	--- SPELLS - CROWD CONTROL --- 
@@ -362,7 +367,7 @@ cWarlock = {}
 		end
 		-- Dark Intent
 		function self.castDarkIntent()
-	        if self.instance=="none" and not isBuffed("player",{1459,61316,160205,128433,90364,126309,109773}) then
+	        if self.instance=="none" and not isBuffed("player",{1459,61316,160205,128433,90364,126309,109773}) or not isBuffed("player",{109773,166916,49868,113742,172968,50519,57386,58604,34889,24844}) then
 	        	if castSpell("player",self.spell.darkIntent,false,false,false) then return end
 	        else
 		        local totalCount = GetNumGroupMembers()
@@ -375,7 +380,7 @@ cWarlock = {}
 		            if distance<30 then
 		                currentCount = currentCount+1
 		            end
-		            if not isBuffed(thisUnit,{1459,61316,160205,128433,90364,126309,109773}) and not dead then
+		            if (not isBuffed(thisUnit,{1459,61316,160205,128433,90364,126309,109773}) or not isBuffed("player",{109773,166916,49868,113742,172968,50519,57386,58604,34889,24844})) and not dead and UnitIsPlayer(thisUnit) and not UnitInVehicle(thisUnit) and (UnitInParty(thisUnit) or UnitInRaid(thisUnit)) then
 		            	needsBuff = needsBuff+1
 		            end
 		        end

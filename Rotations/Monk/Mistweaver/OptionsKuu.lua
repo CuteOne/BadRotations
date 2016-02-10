@@ -47,7 +47,7 @@
             -- Uplift
             createNewSpinner(section,  "Uplift",  75,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFUplift.")
             -- Uplift People
-            createNewSpinner(section,  "Uplift People",  5,  0 , 25 ,  5,  "How many people need to be at the % to activate.")
+            createNewSpinner(section,  "Uplift People",  1,  0 , 25 ,  5,  "How many people need to be at the % to activate.")
             -- Spinning Crane Kick/RJW
             createNewSpinner(section,  "Spinning Crane Kick",  75,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFSCK.")
             checkSectionState(section)

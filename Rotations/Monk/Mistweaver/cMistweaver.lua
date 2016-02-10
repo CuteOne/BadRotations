@@ -332,7 +332,7 @@ if select(2,UnitClass("player")) == "MONK" then
                     if distance<30 then
                         currentCount = currentCount+1
                     end
-                    if not isBuffed(thisUnit,{115921,20217,1126,90363}) and not dead and UnitIsPlayer(thisUnit) and not UnitInVehicle(thisUnit) then
+                    if not isBuffed(thisUnit,{115921,20217,1126,90363}) and not dead and UnitIsPlayer(thisUnit) and not UnitInVehicle(thisUnit) and (UnitInParty(thisUnit) or UnitInRaid(thisUnit)) then
                         needsBuff = needsBuff+1
                     end
                 end

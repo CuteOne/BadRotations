@@ -54,7 +54,7 @@
             --checkSectionState(section)
 
             --[[ Rotation Dropdown ]]--
-            createNewRotationDropdown(bb.profile_window.parent, {"Kuukuu"})
+            createNewRotationDropdown(bb.profile_window.parent, {"Kuukuu","Test"})
             bb:checkProfileWindowStatus()
         end
   end
