@@ -1,5 +1,5 @@
---- Windwalker Class
--- Inherit from: ../cCharacter.lua and ../cMonk.lua
+--- Destruction Class
+-- Inherit from: ../cCharacter.lua and ../cWarlock.lua
 if select(2, UnitClass("player")) == "WARLOCK" then
 
     cDestruction = {}
@@ -102,7 +102,19 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             -- Casting and GCD check
             -- TODO: -> does not use off-GCD stuff like pots, dp etc
             if castingUnit() then
-               return
+                if isCastingSpell(self.spell.summonFelHunter) and UnitExists("pet") then
+                    RunMacroText("/stopcasting") 
+                end
+                if isCastingSpell(self.spell.summonSuccubus) and UnitExists("pet") then
+                    RunMacroText("/stopcasting") 
+                end
+                if isCastingSpell(self.spell.summonImp) and UnitExists("pet") then
+                    RunMacroText("/stopcasting") 
+                end
+                if isCastingSpell(self.spell.summonVoidWalker) and UnitExists("pet") then
+                    RunMacroText("/stopcasting") 
+                end
+                return
             end
 
 
@@ -245,13 +257,55 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         function self.startRotation()
             if self.rotation == 1 then
                 self:DestructionKuu()
-                --elseif self.rotation == 2 then
-                --    self:WindwalkerDef()
+                elseif self.rotation == 2 then
+                    self:DestructionTest()
                 --elseif self.rotation == 3 then
                 --    self:WindwalkerOld()
             else
                 ChatOverlay("No ROTATION ?!", 2000)
             end
+        end
+
+         ---------------
+        --- OPTIONS ---
+        ---------------
+
+        function self.createOptions()
+            bb.profile_window = createNewProfileWindow("Destruction")
+            local section
+
+            -- Create Base and Class options
+            self.createClassOptions()
+
+             -- Wrapper -----------------------------------------
+            section = createNewSection(bb.profile_window,  "General")
+
+            -- Flask / Crystal
+            createNewCheckbox(section,"Flask/Crystal")
+            checkSectionState(section)
+
+
+             -- Wrapper -----------------------------------------
+            section = createNewSection(bb.profile_window, "Defensive")
+            -- Expel Harm
+            createNewSpinner(section,  "Ember Tap",  80,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFEmber Tap")
+            -- Fortifying Brew
+            createNewSpinner(section,  "Heirloom Neck",  30,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHeirloom Neck")
+            -- Healthstone
+            createNewSpinner(section,  "Pot/Stoned",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHealthstone")
+            -- Unending Resolve
+            createNewSpinner(section,  "Unending Resolve",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFUnending Resolve")
+            checkSectionState(section)
+
+
+            section = createNewSection(bb.profile_window,  "Interrupts")
+            --Shadowfury
+            createNewSpinner(section, "Shadowfury", 40, 0, 100, 5, "At what |cffFF0000% Cast to use |cffFFFFFFShadowfury")
+            checkSectionState(section)
+
+            --[[ Rotation Dropdown ]]--
+            createNewRotationDropdown(bb.profile_window.parent, {"Kuukuu","Test"})
+            bb:checkProfileWindowStatus()
         end
 
         
@@ -326,6 +380,13 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 if castSpell(thisUnit,self.spell.shadowburn,true,false,false) then return end
             end
         end
+
+        -----------------------------
+        --- CALL CREATE FUNCTIONS ---
+        -----------------------------
+
+        self.createOptions()
+
 
         -- Return
         return self
