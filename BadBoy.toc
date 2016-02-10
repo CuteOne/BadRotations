@@ -336,6 +336,7 @@ Rotations\Warlock\Demonology\Libs\Toggles.lua
 Rotations\Warlock\Destruction\cDestruction.lua
 Rotations\Warlock\Destruction\Destruction.lua
 Rotations\Warlock\Destruction\DestructionKuu.lua
+Rotations\Warlock\Destruction\DestructionTest.lua
 Rotations\Warlock\Destruction\Libs\Functions.lua
 Rotations\Warlock\Destruction\Libs\Options.lua
 Rotations\Warlock\Destruction\Libs\Toggles.lua
