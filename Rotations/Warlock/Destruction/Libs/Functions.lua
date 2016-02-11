@@ -16,7 +16,7 @@ if select(3,UnitClass("player")) == 9 then
   end
 
   function useCDsDestro()
-    if (BadBoy_data['Cooldowns'] == 3 and isBoss()) or BadBoy_data['Cooldowns'] == 2 then
+    if (BadBoy_data['Cooldowns'] == 3 and isBoss() and not UnitIsDeadOrGhost("target") and UnitCanAttack("player","target")) or BadBoy_data['Cooldowns'] == 2 then
       return true
     else
       return false

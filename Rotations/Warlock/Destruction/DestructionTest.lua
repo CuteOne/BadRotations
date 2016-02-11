@@ -8,7 +8,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         local solo              = select(2,IsInInstance())=="none"
         local ttd               = getTimeToDie(self.units.dyn40)      
         local t17_2pc           = self.eq.t17_2pc
-        local shadowburnRange   = (getHP("target") < 20 and ttd <= 5) and not UnitDebuffID(self.units.dyn40,self.spell.shadowburnDebuff,"player")
+        local shadowburnRange   = (getHP("target") < 20 and ttd <= 5) and not UnitDebuffID(self.units.dyn40,self.spell.shadowburnDebuff,"player") and self.ember.count > 2.5
         local lastPet           = lastPet or 0
         local threats           = threats or 0 
         local petTimer          = petTimer or 0           
@@ -153,6 +153,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
     -- Action List - Single Target
         function actionList_SingleTarget()
             if  #getEnemies("target", 10) == 1 then -- One Enemy
+                if self.buff.fireandBrimstoneBuff then
+                    if self.castFireandBrimstone() then return end
+                end
                 --Shadowburn
                 if getHP("target") < 20 and ((self.ember.count > 3.5 and not self.talent.charredRemains) or (self.ember.count > 2.5 and self.talent.charredRemains) or self.buff.darkSoulInstability) and ttd <= 5 and not UnitDebuffID("target",self.spell.shadowburnDebuff,"player") and ObjectIsFacing("player","target") then
                    if self.castShadowburn("target") then return end
@@ -191,7 +194,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             end -- One Enemy End
 
             if  #getEnemies("target", 10) >= 2 and #getEnemies("target", 10) < 4 and (self.talent.demonicServitude or self.talent.cataclysm) then -- 2 to 4 enemies with DS or Cata
-                if self.buff.fireandBrimstoneBuff and self.ember.count < 2 then
+                if self.buff.fireandBrimstoneBuff then
                     if self.castFireandBrimstone() then return end
                 end
                 -- Cataclysm
@@ -330,7 +333,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             end -- End 5 DS Cata   
 
             if  #getEnemies("target", 10) >= 2 and #getEnemies("target", 10) <= 3 and self.talent.charredRemains then -- 2 or 3 enemies with Charred Remains
-                if self.buff.fireandBrimstoneBuff and self.ember.count < 2 then
+                if self.buff.fireandBrimstoneBuff then
                     if self.castFireandBrimstone() then return end
                 end
                 --Shadowburn
@@ -548,7 +551,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                     if not shadowburnRange then
                         for i = 1, #getEnemies("player",40) do
                                local havocUnit = getEnemies("player",40)[i]
-                               if hasThreat(havocUnit) and not UnitIsUnit(havocUnit,"target") and not self.buff.havoc then
+                               if hasThreat(havocUnit) and not UnitIsUnit(havocUnit,"target") and not self.buff.havoc and not self.buff.fireandBrimstone then
                                    if self.castHavoc(havocUnit) then end
                                end
                         end
@@ -597,6 +600,24 @@ if select(2, UnitClass("player")) == "WARLOCK" then
     ----------------------
     --- Start Rotation ---
     ----------------------
+    -- Aquire Target if None
+                if not ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+                    if solo then
+                        for i = 1, #getEnemies("player", 40) do
+                            local thisUnit = getEnemies("player",40)[i]
+                            if hasThreat(thisUnit) then
+                                TargetUnit(thisUnit) return
+                            end
+                        end
+                    else
+                        for i = 1, #getAllies("player", 30) do
+                            local thisUnit = getAllies("player", 30)[i]
+                            if  UnitGroupRolesAssigned(thisUnit) == "TANK" then
+                                AssistUnit(thisUnit) return
+                            end
+                        end
+                    end
+                end
     -- Call Action List - Cooldowns      
                 if useCDsDestro() then
                     if actionList_Cooldowns() then end
