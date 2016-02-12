@@ -79,7 +79,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         		if self.castTotemicRecall() then return end
         	end
         -- Tremor Totem
-        	if isChecked("Tremor Totem") and cd.tremorTotem==0 then
+        	if isChecked("Tremor Totem") then
         		for i=1,#nNova do
         			local thisUnit=nNova[i].unit
         			local thisUnitDist=getDistance(thisUnit)
@@ -149,7 +149,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 		        end
 		-- Healing Rain
 				if isChecked("Healing Rain") and (not inCombat or getCastTime(self.spell.healingRain)<1) then
-					if self.castHealingRain() then return end
+					if self.castHealingRain(getOptionValue("Healing Rain"),getOptionValue("Healing Rain Targets")) then return end
 				end
 		-- Healing Stream Totem
 			    if isChecked("Healing Stream Totem") and php < getOptionValue("Healing Stream Totem") and not totem.healingStreamTotem then
