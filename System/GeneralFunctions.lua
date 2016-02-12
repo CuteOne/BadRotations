@@ -548,7 +548,7 @@ function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 	if shouldStopCasting(SpellID) ~= true then
 		local lowHPTargets,foundTargets = { },{ }
 		for i = 1,#nNova do
-			if nNova[i].hp <= Health then
+			if getHP(nNova[i].unit) <= Health then
 				if UnitIsVisible(nNova[i].unit) and GetObjectExists(nNova[i].unit) then
 					local X,Y,Z = GetObjectPosition(nNova[i].unit)
 					tinsert(lowHPTargets,{ unit = nNova[i].unit,x = X,y = Y,z = Z })

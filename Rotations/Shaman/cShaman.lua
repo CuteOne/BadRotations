@@ -450,10 +450,12 @@ function cShaman:new(spec)
 		end
 	end
 	-- Healing Rain
-	function self.castHealingRain()
+	function self.castHealingRain(hpPercent,numOfUnits)
+		local hpPercent = hpPercent
+		local numOfUnits = numOfUnits
 		if self.level>=60 and self.cd.healingRain==0 and self.powerPercent>21.6 then
-	        if castHealGround(self.spell.healingRain,18,getOptionValue("Healing Rain"),getOptionValue("Healing Rain Targets")) then return end
-	        --if castAoEHeal(self.spell.healingRain,1,getOptionValue("Healing Rain"),40) then return; end
+	        if castHealGround(self.spell.healingRain,18,hpPercent,numOfUnits) then return end
+	        --if castAoEHeal(self.spell.healingRain,numOfUnits,hpPercent,40) then return; end
 	   	end
 	end
 	-- Healing Surge
