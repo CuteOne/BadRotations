@@ -404,7 +404,7 @@ function cWarrior:new(spec)
 	end
 	function self.castRavager()
 		if self.talent.ravager and self.cd.ravager==0 and getDistance(self.units.dyn40)<40 and getTimeToDie(self.units.dyn40)>5 then
-			if castGoundAtBestLocation(self.spell.ravager,6,1,40) then return end
+			if castGroundAtBestLocation(self.spell.ravager,6,1,40) then return end
 			-- if castSpell(self.units.dyn40,self.spell.ravager,false,false,false) then return end
 		end
 	end
@@ -455,7 +455,7 @@ function cWarrior:new(spec)
 	function self.castHeroicLeap()
 		local hasThreat = hasThreat("target")
 		if self.level>=85 and self.cd.heroicLeap==0 and (hasThreat or select(2,IsInInstance())=="none") and lastSpellCast~=self.spell.charge then --and inRange(self.spell.heroicLeap,"target") then
-			if castGoundAtBestLocation(self.spell.heroicLeap,8,1,40,8) then return end
+			if castGroundAtBestLocation(self.spell.heroicLeap,8,1,40,8) then return end
 			--if castGround("target",self.spell.heroicLeap,40) then return end
 		end
 	end

@@ -785,6 +785,15 @@ if select(2, UnitClass("player")) == "MONK" then
                             end
                         end
                     end
+    -- Trinkets
+                    if useCDs() and isChecked("Trinkets") then
+                        if canUse(13) then
+                            useItem(13)
+                        end
+                        if canUse(14) then
+                            useItem(14)
+                        end
+                    end 
     -- Chi Brew
                     -- chi_brew,if=chi.max-chi>=2&((charges=1&recharge_time<=10)|charges=2|target.time_to_die<charges*10)&buff.tigereye_brew.stack<=16
                     if chi.diff>=2 and ((charges.chiBrew==1 and recharge.chiBrew<=10) or charges.chiBrew==2 or ttd<charges.chiBrew*10) and charges.tigereyeBrew<=16 then
