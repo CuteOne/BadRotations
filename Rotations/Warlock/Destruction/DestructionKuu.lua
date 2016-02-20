@@ -178,14 +178,12 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             end
             --actions.single_target+=/immolate,cycle_targets=1,if=(sim.target=target|!buff.havoc.remains|!raid_event.adds.exists)&remains<=cast_time&(cooldown.cataclysm.remains>cast_time|!talent.cataclysm.enabled)
             if not self.buff.havoc then
-                if not shadowburnRange then
-                    for i=1, #getEnemies("player",40) do
-                        local thisUnit = getEnemies("player",40)[i]
-                        if hasThreat(thisUnit) and ((getDebuffRemain(thisUnit,self.spell.immolateDebuff,"player") <= select(4,GetSpellInfo(self.spell.immolate))/1000)) and (self.cd.cataclysm > select(4,GetSpellInfo(self.spell.immolate))/1000 or not self.talent.cataclysm) and ObjectIsFacing("player",thisUnit)then
-                            if immolateTimer == nil then immolateTimer = 0; end
-                            if GetTime() - immolateTimer > 2.75 then
-                                if self.castImmolate(thisUnit) then immolateTimer = GetTime() return end
-                            end
+                for i=1, #getEnemies("player",40) do
+                    local thisUnit = getEnemies("player",40)[i]
+                    if hasThreat(thisUnit) and ((getDebuffRemain(thisUnit,self.spell.immolateDebuff,"player") <= select(4,GetSpellInfo(self.spell.immolate))/1000)) and (self.cd.cataclysm > select(4,GetSpellInfo(self.spell.immolate))/1000 or not self.talent.cataclysm) and ObjectIsFacing("player",thisUnit)then
+                        if immolateTimer == nil then immolateTimer = 0; end
+                        if GetTime() - immolateTimer > 2.75 then
+                            if self.castImmolate(thisUnit) then immolateTimer = GetTime() return end
                         end
                     end
                 end
