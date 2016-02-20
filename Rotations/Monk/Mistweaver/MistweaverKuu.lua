@@ -78,7 +78,7 @@ if select(2, UnitClass("player")) == "MONK" then
               if self.castLegacyoftheEmperor() then end
           end
           -- Summon Jade Statue
-          if isChecked("Jade Serpent Statue (Left Shift)") and IsLeftShiftKeyDown() then
+          if isChecked("Jade Serpent Statue (Left Shift)") and IsLeftShiftKeyDown() and (IsInRaid() or UnitInParty("player") or inCombat) then
             if not IsMouselooking() then
               CastSpellByName(GetSpellInfo(115313))
               if SpellIsTargeting() then
@@ -344,7 +344,7 @@ if select(2, UnitClass("player")) == "MONK" then
 	    ----------------------
 	    --- Start Rotation ---
 	    ----------------------
-	          if useHealing() then
+	          if useHealing() and (IsInRaid() or UnitInParty("player") or inCombat) then
 	          -- Run Action List - Healing
 	            actionList_Healing() 
 	          end

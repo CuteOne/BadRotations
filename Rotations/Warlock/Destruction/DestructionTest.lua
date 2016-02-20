@@ -8,10 +8,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         local solo              = select(2,IsInInstance())=="none"
         local ttd               = getTimeToDie(self.units.dyn40)      
         local t17_2pc           = self.eq.t17_2pc
-        local shadowburnRange   = (getHP("target") < 20 and ttd <= 5) and not UnitDebuffID(self.units.dyn40,self.spell.shadowburnDebuff,"player") and self.ember.count > 2.5
         local lastPet           = lastPet or 0
-        local threats           = threats or 0 
-        local petTimer          = petTimer or 0           
+        local threats           = threats or 0
+        local immolateTimer     = immolateTimer or 0           
     --------------------
     --- Action Lists ---
     --------------------
@@ -34,25 +33,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 if self.castDarkIntent() then end
             end
          -- Summon Pet
-            if isChecked("Summon Demon") then
-                if lastPet ~= nil and lastPet == getValue("Summon Demon") then
-                    if self.castFlamesofXoroth() then end
-                elseif not self.talent.demonicServitude and not UnitExists("pet") and not UnitBuffID("player",self.spell.grimoireofSacrificeBuff) then
-                    if getValue("Summon Demon") == 1 then
-                        if self.castSummonFelHunter() then lastPet = 1 end  
-                    elseif getValue("Summon Demon") == 2 then
-                        if self.castSummonImp() then lastPet = 2 end
-                    elseif getValue("Summon Demon") == 3 then
-                        if self.castSummonSuccubus() then lastPet = 3 end
-                    elseif getValue("Summon Demon") == 4 then
-                        if self.castSummonVoidWalker() then lastPet = 4 end
-                    end
-                elseif self.talent.demonicServitude and getEnemies("player",40) < 9 then
-                        if self.castSummonDoomGuard("player") then lastPet = "Doom Guard" end
-                elseif self.talent.demonicServitude and getEnemies("player", 40) >= 9 then
-                        if self.castSummonInfernal("player") then lastPet = "Infernal" end
-                end
-            end
+            if self.summonDemon() then end
             --actions.precombat+=/grimoire_of_sacrifice,if=talent.grimoire_of_sacrifice.enabled&!talent.demonic_servitude.enabled
             if self.talent.grimoireofSacrifice and not self.talent.demonicServitude and UnitExists("pet") then
                 if self.castGrimoireofSacrifice() then end
@@ -160,37 +141,30 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 if getHP("target") < 20 and ((self.ember.count > 3.5 and not self.talent.charredRemains) or (self.ember.count > 2.5 and self.talent.charredRemains) or self.buff.darkSoulInstability) and ttd <= 5 and not UnitDebuffID("target",self.spell.shadowburnDebuff,"player") and ObjectIsFacing("player","target") then
                    if self.castShadowburn("target") then return end
                 end   -- Immolate
-                if not shadowburnRange then
-                    if hasThreat("target") and ((getDebuffRemain("target",self.spell.immolateDebuff,"player") <= select(4,GetSpellInfo(self.spell.immolate))/1000)) and (self.cd.cataclysm > select(4,GetSpellInfo(self.spell.immolate))/1000 or not self.talent.cataclysm) and ObjectIsFacing("player","target") then
-                        if immolateTimer == nil then immolateTimer = 0; end
-                        if GetTime() - immolateTimer > 2.75 then
-                            if self.castImmolate("target") then immolateTimer = GetTime() return end
-                        end
+                if hasThreat("target") and ((getDebuffRemain("target",self.spell.immolateDebuff,"player") <= select(4,GetSpellInfo(self.spell.immolate))/1000)) and (self.cd.cataclysm > select(4,GetSpellInfo(self.spell.immolate))/1000 or not self.talent.cataclysm) and ObjectIsFacing("player","target") then
+                    if GetTime() - immolateTimer > 0.5 then
+                        if self.castImmolate("target") then immolateTimer = GetTime() return end
                     end
-                end -- Conflagrate
+                end
+                -- Conflagrate
                 if self.charges.conflagrate == 2 then
-                    if not shadowburnRange then
-                        if self.castConflagrate("target") then return end
-                    end
+                    if self.castConflagrate("target") then return end
                 end
                  -- Cataclysm
                 if self.cd.cataclysm == 0 and self.talent.cataclysm then
                     if self.castCataclysm() then return end
                 end
                 -- Chaos Bolt
-                if ((self.ember.count > 3.5 and not self.talent.charredRemains) or (self.ember.count > 2.5 and self.talent.charredRemains) or self.buff.darkSoulInstability) and not shadowburnRange and ObjectIsFacing("player","target") and hasThreat("target") then
+                if ((self.ember.count > 3.5 and not self.talent.charredRemains) or (self.ember.count > 2.5 and self.talent.charredRemains) or self.buff.darkSoulInstability) and ObjectIsFacing("player","target") and hasThreat("target") then
                    if self.castChaosBolt("target") then return end
                 end
                 -- Conflagrate 1 Charge
                 if self.charges.conflagrate == 1 then
-                    if not shadowburnRange then
-                        if self.castConflagrate("target") then return end
-                    end
+
+                    if self.castConflagrate("target") then return end
                 end
                 -- Incinerate Filler
-                if not shadowburnRange then
-                    if self.castIncinerate("target") then return end
-                end
+                if self.castIncinerate("target") then return end
             end -- One Enemy End
 
             if  #getEnemies("target", 10) >= 2 and #getEnemies("target", 10) < 4 and (self.talent.demonicServitude or self.talent.cataclysm) then -- 2 to 4 enemies with DS or Cata
@@ -215,25 +189,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         if self.castShadowburn(sbtarget) then return end
                     end
                 end
-                -- Immolate
-                if not self.buff.havoc then
-                    if not shadowburnRange then
-                        for i=1, #getEnemies("player",40) do
-                            local thisUnit = getEnemies("player",40)[i]
-                            if hasThreat(thisUnit) and ((getDebuffRemain(thisUnit,self.spell.immolateDebuff,"player") <= select(4,GetSpellInfo(self.spell.immolate))/1000)) and (self.cd.cataclysm > select(4,GetSpellInfo(self.spell.immolate))/1000 or not self.talent.cataclysm) and ObjectIsFacing("player",thisUnit)then
-                                if immolateTimer == nil then immolateTimer = 0; end
-                                if GetTime() - immolateTimer > 2.75 then
-                                    if self.castImmolate(thisUnit) then immolateTimer = GetTime() return end
-                                end
-                            end
-                        end
-                    end
-                end
                 -- Conflagrate
                 if self.charges.conflagrate == 2 then
-                    if not shadowburnRange then
-                        if self.castConflagrate("target") then return end
-                    end
+                    if self.castConflagrate("target") then return end
                 end
                 -- Chaos Bolt
                 for i = 1, #getEnemies("player",40) do
@@ -249,14 +207,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 end
                 -- Conflagrate 1 Charge
                 if self.charges.conflagrate == 1 then
-                    if not shadowburnRange then
-                            if self.castConflagrate("target") then return end
-                    end
+                        if self.castConflagrate("target") then return end
                 end
                 -- Incinerate Filler
-                if not shadowburnRange then
-                    if self.castIncinerate("target") then return end
-                end
+                if self.castIncinerate("target") then return end
             end -- End 2 to 4 DS Cata
 
             if  #getEnemies("target", 10) == 5 and (self.talent.demonicServitude or self.talent.cataclysm) then -- 5 enemies with DS or Cata
@@ -286,10 +240,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 if not self.buff.havoc and self.ember.count >= 2 then
                     for i=1, #getEnemies("player",40) do
                         local thisUnit = getEnemies("player",40)[i]
-                        if not shadowburnRange and ObjectIsFacing("player",thisUnit) then
+                        if ObjectIsFacing("player",thisUnit) then
                             if hasThreat(thisUnit) and (getDebuffRemain(thisUnit,self.spell.immolateDebuff,"player") - select(4,GetSpellInfo(self.spell.immolate))/1000) <= getDebuffDuration(thisUnit,self.spell.immolateDebuff,"player")*0.3 then
-                                if immolateTimer == nil then immolateTimer = 0; end
-                                if GetTime() - immolateTimer > 2.75 then
+                                if GetTime() - immolateTimer > 0.5 then
                                     if not self.buff.fireandBrimstone then
                                         if self.castFireandBrimstone() then end
                                     end
@@ -304,9 +257,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 end
                 -- Conflagrate
                 if self.charges.conflagrate == 2 then
-                    if not shadowburnRange then
-                        if self.castConflagrate("target") then return end
-                    end
+                    if self.castConflagrate("target") then return end
                 end
                 -- Chaos Bolt
                 for i = 1, #getEnemies("player",40) do
@@ -322,14 +273,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 end
                 -- Conflagrate 1 Charge
                 if self.charges.conflagrate == 1 then
-                    if not shadowburnRange then
-                        if self.castConflagrate("target") then return end
-                    end
+                    if self.castConflagrate("target") then return end
                 end
                 -- Incinerate Filler
-                if not shadowburnRange then
-                    if self.castIncinerate("target") then return end
-                end
+                if self.castIncinerate("target") then return end
             end -- End 5 DS Cata   
 
             if  #getEnemies("target", 10) >= 2 and #getEnemies("target", 10) <= 3 and self.talent.charredRemains then -- 2 or 3 enemies with Charred Remains
@@ -352,23 +299,19 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 end
                 -- Immolate
                 if not self.buff.havoc then
-                    if not shadowburnRange then
-                        for i=1, #getEnemies("player",40) do
-                            local thisUnit = getEnemies("player",40)[i]
-                            if hasThreat(thisUnit) and ((getDebuffRemain(thisUnit,self.spell.immolateDebuff,"player") <= select(4,GetSpellInfo(self.spell.immolate))/1000)) and (self.cd.cataclysm > select(4,GetSpellInfo(self.spell.immolate))/1000 or not self.talent.cataclysm) and ObjectIsFacing("player",thisUnit)then
-                                if immolateTimer == nil then immolateTimer = 0; end
-                                if GetTime() - immolateTimer > 2.75 then
-                                    if self.castImmolate(thisUnit) then immolateTimer = GetTime() return end
-                                end
+                    for i=1, #getEnemies("player",40) do
+                        local thisUnit = getEnemies("player",40)[i]
+                        if hasThreat(thisUnit) and ((getDebuffRemain(thisUnit,self.spell.immolateDebuff,"player") <= select(4,GetSpellInfo(self.spell.immolate))/1000)) and (self.cd.cataclysm > select(4,GetSpellInfo(self.spell.immolate))/1000 or not self.talent.cataclysm) and ObjectIsFacing("player",thisUnit)then
+                            if GetTime() - immolateTimer > 0.5 then
+                                if self.castImmolate(thisUnit) then immolateTimer = GetTime() return end
                             end
                         end
                     end
                 end
                 -- Conflagrate
                 if self.charges.conflagrate == 2 then
-                    if not shadowburnRange then
-                        if self.castConflagrate("target") then return end
-                    end
+                    if self.castConflagrate("target") then return end
+
                 end
                 -- Chaos Bolt
                 for i = 1, #getEnemies("player",40) do
@@ -384,14 +327,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 end
                 -- Conflagrate 1 Charge
                 if self.charges.conflagrate == 1 then
-                    if not shadowburnRange then
-                        if self.castConflagrate("target") then return end
-                    end
+                    if self.castConflagrate("target") then return end
                 end
                 -- Incinerate Filler
-                if not shadowburnRange then
-                    if self.castIncinerate("target") then return end
-                end
+                if self.castIncinerate("target") then return end
             end -- 2 or 3 CR End                     
         end -- End Action List - Single Target
     -- Action List - AoE
@@ -423,10 +362,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 if not self.buff.havoc and self.ember.count >= 2 then
                     for i=1, #getEnemies("player",40) do
                         local thisUnit = getEnemies("player",40)[i]
-                        if not shadowburnRange and ObjectIsFacing("player",thisUnit)  then
+                        if ObjectIsFacing("player",thisUnit)  then
                             if hasThreat(thisUnit) and (getDebuffRemain(thisUnit,self.spell.immolateDebuff,"player") - select(4,GetSpellInfo(self.spell.immolate))/1000) <= getDebuffDuration(thisUnit,self.spell.immolateDebuff,"player")*0.3 then
-                                if immolateTimer == nil then immolateTimer = 0; end
-                                if GetTime() - immolateTimer > 2.75 then
+                                if GetTime() - immolateTimer > 0.5 then
                                     if not self.buff.fireandBrimstone then
                                         if self.castFireandBrimstone() then end
                                     end
@@ -438,9 +376,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 end
                 -- Conflagrate
                 if self.charges.conflagrate == 2 then
-                    if not shadowburnRange then
-                        if self.castConflagrate("target") then return end
-                    end
+                    if self.castConflagrate("target") then return end
                 end
                 -- Chaos Bolt
                 for i = 1, #getEnemies("player",40) do
@@ -456,14 +392,11 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 end
                 -- Conflagrate 1 Charge
                 if self.charges.conflagrate == 1 then
-                    if not shadowburnRange then
-                        if self.castConflagrate("target") then return end
-                    end
+                    if self.castConflagrate("target") then return end
                 end
                 -- Incinerate Filler
-                if not shadowburnRange then
-                    if self.castIncinerate("target") then return end
-                end
+                if self.castIncinerate("target") then return end
+
             end -- End 6+ DS Cata 
 
             if  #getEnemies("target", 10) >= 4 and self.talent.charredRemains then -- 4+ enemies with Charred Remains
@@ -488,10 +421,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 if not self.buff.havoc and self.ember.count >= 2 then
                     for i=1, #getEnemies("player",40) do
                         local thisUnit = getEnemies("player",40)[i]
-                        if not shadowburnRange and ObjectIsFacing("player",thisUnit) then
+                        if ObjectIsFacing("player",thisUnit) then
                             if hasThreat(thisUnit) and (getDebuffRemain(thisUnit,self.spell.immolateDebuff,"player") - select(4,GetSpellInfo(self.spell.immolate))/1000) <= getDebuffDuration(thisUnit,self.spell.immolateDebuff,"player")*0.3 then
-                                if immolateTimer == nil then immolateTimer = 0; end
-                                if GetTime() - immolateTimer > 2.75 then
+                                if GetTime() - immolateTimer > 0.5 then
                                     if not self.buff.fireandBrimstone then
                                         if self.castFireandBrimstone() then end
                                     end
@@ -503,21 +435,19 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 end
                 -- Conflagrate
                 if self.charges.conflagrate == 2 then
-                    if not shadowburnRange then
-                       if hasThreat("target") and self.ember.count >= 2 and not self.buff.havoc then
-                            if not self.buff.fireandBrimstone then
-                                if self.castFireandBrimstone() then end
-                            end
-                        elseif self.ember.count < 2 and not self.buff.fireandBrimstone then
-                            for i = 1, #getEnemies("player",40) do
-                               local havocUnit = getEnemies("player",40)[i]
-                               if hasThreat(havocUnit) and not UnitIsUnit(havocUnit,"target") and not self.buff.havoc then
-                                   if self.castHavoc(havocUnit) then end
-                               end
-                           end
+                   if hasThreat("target") and self.ember.count >= 2 and not self.buff.havoc then
+                        if not self.buff.fireandBrimstone then
+                            if self.castFireandBrimstone() then end
                         end
-                        if self.castConflagrate("target") then return end
+                    elseif self.ember.count < 2 and not self.buff.fireandBrimstone then
+                        for i = 1, #getEnemies("player",40) do
+                           local havocUnit = getEnemies("player",40)[i]
+                           if hasThreat(havocUnit) and not UnitIsUnit(havocUnit,"target") and not self.buff.havoc then
+                               if self.castHavoc(havocUnit) then end
+                           end
+                       end
                     end
+                    if self.castConflagrate("target") then return end
                 end
                 -- Chaos Bolt
                 if (self.ember.count > 2.5 or self.buff.darkSoulInstability or ttd <= 25) and ObjectIsFacing("player",thisUnit) then
@@ -530,33 +460,29 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 end
                 -- Conflagrate 1 Charge
                if self.charges.conflagrate == 1 then
-                    if not shadowburnRange then
-                       if self.ember.count >= 2 and not self.buff.havoc then
-                            if not self.buff.fireandBrimstone then
-                                if self.castFireandBrimstone() then end
-                            end
-                        elseif self.ember.count < 2 and not self.buff.fireandBrimstone then
-                            for i = 1, #getEnemies("player",40) do
-                               local havocUnit = getEnemies("player",40)[i]
-                               if hasThreat(havocUnit) and not UnitIsUnit(havocUnit,"target") and not self.buff.havoc then
-                                   if self.castHavoc(havocUnit) then end
-                               end
-                           end
+                   if self.ember.count >= 2 and not self.buff.havoc then
+                        if not self.buff.fireandBrimstone then
+                            if self.castFireandBrimstone() then end
                         end
-                        if self.castConflagrate("target") then return end
+                    elseif self.ember.count < 2 and not self.buff.fireandBrimstone then
+                        for i = 1, #getEnemies("player",40) do
+                           local havocUnit = getEnemies("player",40)[i]
+                           if hasThreat(havocUnit) and not UnitIsUnit(havocUnit,"target") and not self.buff.havoc then
+                               if self.castHavoc(havocUnit) then end
+                           end
+                       end
                     end
+                    if self.castConflagrate("target") then return end
                 end
                 -- Incinerate Filler
                 if hasThreat("target") then
-                    if not shadowburnRange then
-                        for i = 1, #getEnemies("player",40) do
-                               local havocUnit = getEnemies("player",40)[i]
-                               if hasThreat(havocUnit) and not UnitIsUnit(havocUnit,"target") and not self.buff.havoc and not self.buff.fireandBrimstone then
-                                   if self.castHavoc(havocUnit) then end
-                               end
-                        end
-                        if self.castIncinerate("target") then return end
+                    for i = 1, #getEnemies("player",40) do
+                           local havocUnit = getEnemies("player",40)[i]
+                           if hasThreat(havocUnit) and not UnitIsUnit(havocUnit,"target") and not self.buff.havoc and not self.buff.fireandBrimstone then
+                               if self.castHavoc(havocUnit) then end
+                           end
                     end
+                    if self.castIncinerate("target") then return end
                 end
             end -- 4+ CR End
         end -- End Multitarget
@@ -601,7 +527,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
     --- Start Rotation ---
     ----------------------
     -- Aquire Target if None
-                if not ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+                if not ObjectExists("target") or UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player") then
                     if solo then
                         for i = 1, #getEnemies("player", 40) do
                             local thisUnit = getEnemies("player",40)[i]
@@ -632,13 +558,13 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 end
                 if useSTDestro() then
                     if  (threats < 6 and not self.talent.charredRemains) or (threats < 4) then
-                        if actionList_SingleTarget() then attackTimer = GetTime() return end
+                        if actionList_SingleTarget() then return end
                     end
                 end
                 --actions+=/run_action_list,name=aoe,if=spell_targets.fire_and_brimstone>=6|(talent.charred_remains.enabled&spell_targets.rain_of_fire>=4)
                 if useAoEDestro() then
                     if (threats >= 6 and not self.talent.charredRemains) or (threats >= 4) then
-                        if actionList_MultiTarget() then attackTimer = GetTime() return end
+                        if actionList_MultiTarget() then return end
                     end
                 end
             end -- End Combat Check 

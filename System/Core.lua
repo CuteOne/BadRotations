@@ -318,7 +318,9 @@ function BadBoyUpdate(self)
 			FrostMage()
 		end
 	elseif playerClass == 9 then -- Warlock
-		if playerSpec == 2 then
+		if playerSpec == 1 then
+			WarlockAffliction()
+		elseif playerSpec == 2 then
 			WarlockDemonology()
 		elseif playerSpec == 3 then
 			DestructionWarlock()
