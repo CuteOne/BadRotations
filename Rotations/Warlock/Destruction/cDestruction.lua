@@ -316,68 +316,70 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         -- Ember Tap
         function self.castEmberTap()
             if self.ember.count>=1 and not self.buff.emberTap then
-                if castSpell("player",self.spell.emberTap,false,false,false) then return end
+                if castSpell("player",self.spell.emberTap,false,false,false) then return true end
             end
         end
         -- Chaos Bolt
         function self.castChaosBolt(thisUnit)
             if self.ember.count >= 1 and getDistance(thisUnit) < 40 then
-                if castSpell(thisUnit,self.spell.chaosBolt,true,true,false) then return end
+                if castSpell(thisUnit,self.spell.chaosBolt,true,true,false) then return true end
             end
         end
         -- Conflagrate
         function self.castConflagrate(thisUnit)
             if self.charges.conflagrate >=1 and getDistance(thisUnit)< 40 then
-                if castSpell(thisUnit,self.spell.conflagrate,true,false,false) then return end
+                if castSpell(thisUnit,self.spell.conflagrate,true,false,false) then return true end
             end
         end
         -- Dark Soul: Instability
         function self.castDarkSoulInstability()
             if self.charges.darkSoulInstability >= 1 then
-                if castSpell("player",self.spell.darkSoulInstability,false,false,false) then return end
+                if castSpell("player",self.spell.darkSoulInstability,false,false,false) then return true end
             end
         end
         --Fire and Brimstone
         function self.castFireandBrimstone()
             if FnBTimer == nil then FnBTimer = 0 end
             if GetTime() - FnBTimer > 0.75 then
-                if castSpell("player",self.spell.fireandBrimstone,false,false,false) then FnBTimer = GetTime() return end
+                if castSpell("player",self.spell.fireandBrimstone,false,false,false) then FnBTimer = GetTime() return true end
             end
         end
         -- Flames of Xoroth
         function self.castFlamesofXoroth()
             if not UnitExists("pet") and not self.buff.grimoireofSacrifice and self.ember.count >= 1 and self.cd.flamesofXoroth then
-                if castSpell("player",self.spell.flamesofXoroth,false,false,false) then return end
+                if castSpell("player",self.spell.flamesofXoroth,false,false,false) then return true end
             end
         end
         -- Havoc
         function self.castHavoc(thisUnit)
             if self.cd.havoc and getDistance(thisUnit)< 40 then
-                if castSpell(thisUnit,self.spell.havoc,true,false,false) then return end
+                if castSpell(thisUnit,self.spell.havoc,true,false,false) then return true end
             end
         end
         --Immolate
         function self.castImmolate(thisUnit)
             if getDistance(thisUnit)< 40 then
-                    if castSpell(thisUnit,self.spell.immolate,true,true,false) then return end   
+                if castSpell(thisUnit,self.spell.immolate,true,true,false) then 
+                    return true
+                end   
             end
         end
         -- Incinerate
         function self.castIncinerate(thisUnit)
             if getDistance(thisUnit)< 40 then
-                if castSpell(thisUnit,self.spell.incinerate,true,true,false) then return end
+                if castSpell(thisUnit,self.spell.incinerate,true,true,false) then return true end
             end
         end
         -- Rain of Fire
         function self.castRainofFire()
             if getDistance(self.units.dyn40)< 35 and UnitDebuffID(self.units.dyn40,self.spell.rainofFireDebuff,"player") then
-                if castGroundAtBestLocation(self.spell.rainofFire, 8, 3, 35, 5) then return end
+                if castGroundAtBestLocation(self.spell.rainofFire, 8, 3, 35, 5) then return true end
             end
         end
         -- Shadowburn
         function self.castShadowburn(thisUnit)
             if self.ember.count >= 1 and getDistance(thisUnit) < 40 then
-                if castSpell(thisUnit,self.spell.shadowburn,true,false,false) then return end
+                if castSpell(thisUnit,self.spell.shadowburn,true,false,false) then return true end
             end
         end
 

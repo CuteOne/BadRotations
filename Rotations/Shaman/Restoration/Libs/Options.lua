@@ -23,7 +23,9 @@ if select(3,UnitClass("player")) == 7 then
         -- Chain Heal People
         createNewSpinner(section,  "CH People",  5,  0 , 25 ,  1,  "How many people need to be at the % to activate.")
         -- Healing Rain
-        createNewCheckbox(section,"Healing Rain")
+        createNewSpinner(section,"Healing Rain", 90, 0, 100, 1, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Rain.")
+        -- Healing Rain Targets
+        createNewSpinner(section, "Healing Rain Targets",  5,  0 , 25 ,  1,  "How many people need to be at the % to activate.")
         -- Healing Stream Totem
         createNewCheckbox(section, "Healing Stream Totem")
         -- Healing Surge

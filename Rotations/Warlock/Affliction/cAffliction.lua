@@ -2,7 +2,7 @@
 -- Inherit from: ../cCharacter.lua and ../cWarlock.lua
 -- All Warlock specs inherit from cWarlock.lua
 if select(3, UnitClass("player")) == 9 and GetSpecialization() == 1 then
-cShadow = {}
+cAffliction = {}
 
 -- Creates Shadow Priest
 function cAffliction:new()
@@ -214,7 +214,7 @@ function cAffliction:new()
 	--  \____/| .__/ \__|_|\___/|_| |_|___/  \__\__,_|_.__/|_|\___|
 	--        | |                                                  
 	--        |_|
-    function self.createToggle()
+    function self.createToggles()
     end
 
     function self.createOptions()

@@ -434,6 +434,29 @@ cWarlock = {}
 				if castSpell(thisUnit, self.spell.grimoireFel,true, false, false) then return end
 			end
 		end
+
+		function self.summonDemon()
+			if isChecked("Summon Demon") then
+                if lastPet ~= nil and lastPet == getValue("Summon Demon") then
+                    if self.castFlamesofXoroth() then end
+                elseif not self.talent.demonicServitude and not UnitExists("pet") and not UnitBuffID("player",self.spell.grimoireofSacrificeBuff) then
+                    if getValue("Summon Demon") == 1 then
+                        if self.castSummonFelHunter() then lastPet = 1 end  
+                    elseif getValue("Summon Demon") == 2 then
+                        if self.castSummonImp() then lastPet = 2 end
+                    elseif getValue("Summon Demon") == 3 then
+                        if self.castSummonSuccubus() then lastPet = 3 end
+                    elseif getValue("Summon Demon") == 4 then
+                        if self.castSummonVoidWalker() then lastPet = 4 end
+                    end
+                elseif self.talent.demonicServitude and getEnemies("player",40) < 9 then
+                        if self.castSummonDoomGuard("player") then lastPet = "Doom Guard" end
+                elseif self.talent.demonicServitude and getEnemies("player", 40) >= 9 then
+                        if self.castSummonInfernal("player") then lastPet = "Infernal" end
+                end
+                return lastPet
+            end
+        end
 	------------------------
 	--- SPELLS - UTILITY ---
 	------------------------
