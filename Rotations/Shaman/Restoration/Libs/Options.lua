@@ -65,6 +65,8 @@ if select(3,UnitClass("player")) == 7 then
         section = createNewSection(bb.profile_window, "--- |cffFF0011Utilities ---")
         -- Standard Interrupt
         createNewSpinner(section, "Wind Shear", 35 , 0, 100, 5, "|cffFFBB00Over what % of cast we want to |cffFFFFFFWind Shear.")
+        -- Purge
+        createNewCheckbox(section,"Purge")
         checkSectionState(section)
 
         --[[ Rotation Dropdown ]]--

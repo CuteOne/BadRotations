@@ -8,21 +8,14 @@ if select(2, UnitClass("player")) == "MONK" then
         local buff              = self.buff
         local charges           = self.charges
         local inCombat          = self.inCombat
-        local isSoothing        = UnitChannelInfo("player") == GetSpellInfo(_SoothingMist) or nil;
+        local isSoothing        = UnitChannelInfo("player") == GetSpellInfo(_SoothingMist) or nil
         local myStance          = GetShapeshiftForm()
         local reMBuffed         = 0
-
-        lowestHP, lowestUnit, lowestTankHP, lowestTankUnit, averageHealth = 100, "player", 100, "player", 0;
+        local averageHealth     = 0
+        
         for i = 1, #nNova do
-          if nNova[i].role == "TANK" then
-            if nNova[i].hp < lowestTankHP then
-              lowestTankHP = nNova[i].hp;
-              lowestTankUnit = nNova[i].unit;
-            end
-          end
-          if nNova[i].hp < lowestHP then
-            lowestHP = nNova[i].hp;
-            lowestUnit = nNova[i].unit;
+          if UnitIsDeadOrGhost(nNova[i].unit) or getDistance(nNova[i].unit) > 40 then 
+            nNova[i].hp = 100 
           end
           averageHealth = averageHealth + nNova[i].hp;
         end

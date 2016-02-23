@@ -7,18 +7,11 @@ if select(3, UnitClass("player")) == 7 then
         -------------
         local buff              = self.buff
         local inCombat          = self.inCombat
-
-        lowestHP, lowestUnit, lowestTankHP, lowestTankUnit, averageHealth = 100, "player", 100, "player", 0;
+        local averageHealth     = 0
+        
         for i = 1, #nNova do
-          if nNova[i].role == "TANK" then
-            if nNova[i].hp < lowestTankHP then
-              lowestTankHP = nNova[i].hp;
-              lowestTankUnit = nNova[i].unit;
-            end
-          end
-          if nNova[i].hp < lowestHP then
-            lowestHP = nNova[i].hp;
-            lowestUnit = nNova[i].unit;
+          if UnitIsDeadOrGhost(nNova[i].unit) or getDistance(nNova[i].unit) > 40 then 
+            nNova[i].hp = 100 
           end
           averageHealth = averageHealth + nNova[i].hp;
         end
@@ -109,6 +102,10 @@ if select(3, UnitClass("player")) == 7 then
                 end
               end
             end
+          end
+          --Purge
+          if isChecked("Purge") and canDispel("target",self.spell.purge) and not isBoss and ObjectExists("target") then
+            if self.castPurge() then return end
           end
           -- Resuscitate
           if self.castAncestralSpirit() then return end
@@ -265,7 +262,7 @@ if select(3, UnitClass("player")) == 7 then
 --------------
 --- Extras ---
 --------------
-      if not UnitInVehicle("player") or not self.buff.ghostwolf then
+      if not UnitInVehicle("player") and not self.buff.ghostWolf then
           -- Run Action List - Extras
             if actionList_Extras() then return end
   -----------------
