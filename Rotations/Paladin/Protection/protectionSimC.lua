@@ -22,6 +22,19 @@ function cProtection:protectionSimC()
         end
     end
 
+    local function actionList_Interrupts()
+        --Rebuke
+        if isChecked("Rebuke") then
+            for i=1, #getEnemies("player",5) do
+                thisUnit = getEnemies("player",5)[i]
+                if canInterrupt(thisUnit,getOptionValue("Rebuke")) then
+                    if self.castRebuke(thisUnit) then return end
+                end
+            end
+        end
+    end
+
+
     -- Special DMG cheasing with T18 Class Trinket
     -- TODO: improve by only iterate 1 time through buffs with buff list
     local function actionList_T18cancelShields()
@@ -240,6 +253,7 @@ function cProtection:protectionSimC()
 
     -- inCombat Rotation
     if self.inCombat then
+        actionList_Interrupts()
         actionList_T18cancelShields()
         if actionList_inCombat() then return true end
     end

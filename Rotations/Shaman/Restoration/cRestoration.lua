@@ -269,7 +269,12 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 		-- Lava Burst
 		function self.castLavaBurst(thisUnit)
 			if self.cd.lavaBurst==0 and getDistance(thisUnit) < 30 then
-				if castSpell(thisUnit,self.spell.lavaBurst,false,false,false) then return end
+				if castSpell(thisUnit,self.spell.lavaBurst,true,true,false) then return end
+			end
+		end
+		function self.castLightningBoltResto(thisUnit)
+			if getDistance(thisUnit) < 30 then
+				if castSpell(thisUnit,self.spell.lightningBolt,true,true,false) then return end
 			end
 		end
 	-----------------------

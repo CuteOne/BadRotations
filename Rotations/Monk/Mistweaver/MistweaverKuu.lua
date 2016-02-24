@@ -8,9 +8,18 @@ if select(2, UnitClass("player")) == "MONK" then
         local buff              = self.buff
         local charges           = self.charges
         local inCombat          = self.inCombat
-        local isSoothing        = UnitChannelInfo("player") == GetSpellInfo(_SoothingMist) or nil;
+        local isSoothing        = UnitChannelInfo("player") == GetSpellInfo(_SoothingMist) or nil
         local myStance          = GetShapeshiftForm()
         local reMBuffed         = 0
+        local averageHealth     = 0
+        
+        for i = 1, #nNova do
+          if UnitIsDeadOrGhost(nNova[i].unit) or getDistance(nNova[i].unit) > 40 then 
+            nNova[i].hp = 100 
+          end
+          averageHealth = averageHealth + nNova[i].hp;
+        end
+        averageHealth = averageHealth/#nNova;
 
         --------------------
         --- Action Lists ---
@@ -78,7 +87,7 @@ if select(2, UnitClass("player")) == "MONK" then
               if self.castLegacyoftheEmperor() then end
           end
           -- Summon Jade Statue
-          if isChecked("Jade Serpent Statue (Left Shift)") and IsLeftShiftKeyDown() then
+          if isChecked("Jade Serpent Statue (Left Shift)") and IsLeftShiftKeyDown() and (IsInRaid() or UnitInParty("player") or inCombat) then
             if not IsMouselooking() then
               CastSpellByName(GetSpellInfo(115313))
               if SpellIsTargeting() then
@@ -153,7 +162,7 @@ if select(2, UnitClass("player")) == "MONK" then
         local function actionList_Healing()
           if myStance == 1 then
             --Mana Tea
-            if isChecked("Mana Tea") and getMana("player") <= getValue("Mana Tea") then
+            if isChecked("Mana Tea") and getMana("player") <= getValue("Mana Tea") and (averageHealth > 80 or getMana("player") < 50) then
               if self.castManaTea() then end
             end
             --ReM Tracker
@@ -198,7 +207,7 @@ if select(2, UnitClass("player")) == "MONK" then
               end
             end
             --Renewing Mist
-            if isChecked("Renewing Mist") and not isSoothing then
+            if isChecked("Renewing Mist") and not isSoothing and (averageHealth > 80 or reMBuffed < 5) then
               for i = 1, #nNova do
                 if not UnitBuffID(nNova[i].unit,self.spell.renewingMistBuff) then
                   if self.castRenewingMist(nNova[i].unit) then return end
@@ -344,7 +353,7 @@ if select(2, UnitClass("player")) == "MONK" then
 	    ----------------------
 	    --- Start Rotation ---
 	    ----------------------
-	          if useHealing() then
+	          if useHealing() and (IsInRaid() or UnitInParty("player") or inCombat) then
 	          -- Run Action List - Healing
 	            actionList_Healing() 
 	          end

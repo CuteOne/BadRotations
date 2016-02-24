@@ -7,11 +7,24 @@ if select(3, UnitClass("player")) == 7 then
         -------------
         local buff              = self.buff
         local inCombat          = self.inCombat
+        local averageHealth     = 0
+        
+        for i = 1, #nNova do
+          if UnitIsDeadOrGhost(nNova[i].unit) or getDistance(nNova[i].unit) > 40 then 
+            nNova[i].hp = 100 
+          end
+          averageHealth = averageHealth + nNova[i].hp;
+        end
+        averageHealth = averageHealth/#nNova;
+
+        if averageHealth < 80 and (isCastingSpell(self.spell.lavaBurst,"target") or isCastingSpell(self.spell.lightningBolt,"target")) then
+          RunMacroText("/stopcasting")
+        end
         --------------------
         --- Action Lists ---
         --------------------
         -- Action List - Extras
-        local  function actionList_Extras()
+        local function actionList_Extras()
           -- Earth Shield
           -- We look if someone in Nova have our shield
           local foundShield = false
@@ -89,6 +102,10 @@ if select(3, UnitClass("player")) == 7 then
                 end
               end
             end
+          end
+          --Purge
+          if isChecked("Purge") and canDispel("target",self.spell.purge) and not isBoss and ObjectExists("target") then
+            if self.castPurge() then return end
           end
           -- Resuscitate
           if self.castAncestralSpirit() then return end
@@ -223,15 +240,20 @@ if select(3, UnitClass("player")) == 7 then
             end
         end -- end function
         function actionList_Damage()
---          Put down Searing Totem Icon Searing Totem and refresh it when it expires.
---Apply Flame Shock Icon Flame Shock and refresh it when there are 9 seconds or less remaining.
---Cast Lava Burst Icon Lava Burst.
---Cast Frost Shock Icon Frost Shock.
---Cast Lightning Bolt Icon Lightning Bolt, as a filler.
-        -- Searing Totem
-        if isChecked("Searing Totem") and not self.totem.searingTotem and inCombat then
-              if self.castSearingTotem() then return end
-            end
+          -- Searing Totem
+          if not self.totem.searingTotem and inCombat then
+            if self.castSearingTotem() then return end
+          end
+          -- Flame Shock
+          if not self.debuff.flameshock or self.debuff.duration.flameshock <= 9 then
+            if self.castFlameShock("target") then return end
+          end
+          -- Lava Burst
+          if self.castLavaBurst("target") then return end
+          -- Frost Shock
+          if self.castFrostShock() then return end
+          -- Lightning Bolt
+          if self.castLightningBoltResto("target") then return end
         end
    
 ---------------------
@@ -240,13 +262,13 @@ if select(3, UnitClass("player")) == 7 then
 --------------
 --- Extras ---
 --------------
-      if not UnitInVehicle("player") then
+      if not UnitInVehicle("player") and not self.buff.ghostWolf then
           -- Run Action List - Extras
             if actionList_Extras() then return end
   -----------------
   --- Defensive ---
   -----------------
-            if useDefensiveResto() == true then
+            if useDefensiveResto() then
           -- Run Action List - Defensive
               if actionList_Defensive() then return end
             end
@@ -268,9 +290,11 @@ if select(3, UnitClass("player")) == 7 then
       -- Call Action List - Healing
               if actionList_Healing() then return end
             end
-            if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
-              if actionList_Damage() then return end
+            if useDamageResto() and averageHealth >= 80 then
+              if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+                if actionList_Damage() then return end
+              end
             end
         end
-    end -- End cMistweaver
-end -- End Select Monk
+    end -- End cResto
+end -- End Select Shaman

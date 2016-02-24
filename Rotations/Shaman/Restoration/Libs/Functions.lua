@@ -67,5 +67,12 @@ if select(3,UnitClass("player")) == 7 then
       return false
     end
   end
+  function useDamageResto()
+    if BadBoy_data['Damage'] == 2 then
+      return true
+    else
+      return false
+    end
+  end
 end
 

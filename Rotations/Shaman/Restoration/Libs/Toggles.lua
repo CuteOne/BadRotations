@@ -33,11 +33,19 @@ if select(3, UnitClass("player")) == 7 then
     if  CooldownsModesLoaded ~= "Restoration Shaman Cooldowns Modes" then
       CooldownsModes = {
         [1] = { mode = "None", value = 1 , overlay = "Cooldowns Disabled", tip = "No cooldowns will be used.", highlight = 0 , icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]]},
-        [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "Includes config's selected spells.", highlight = 1,icon = 2825 },
-        [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "Includes Ascendance, Stormlash.", highlight = 1, icon = 114052 }
+        [2] = { mode = "All", value = 2 , overlay = "Cooldowns Enabled", tip = "Includes Ascendance, Stormlash.", highlight = 1, icon = 114052 }
       }
       CreateButton("Cooldowns",2,0)
       CooldownsModesLoaded = "Restoration Shaman Cooldowns Modes"
+    end
+    -- Cooldowns Button
+    if  DamageModesLoaded ~= "Restoration Shaman Damage Modes" then
+      DamageModes = {
+        [1] = { mode = "None", value = 1 , overlay = "Damage Disabled", tip = "Will not use Damage.", highlight = 0 , icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]]},
+        [2] = { mode = "All", value = 2 , overlay = "Damage Enabled", tip = "Will DPS", highlight = 1, icon = 51505 }
+      }
+      CreateButton("Damage",2.5,1)
+      DamageModesLoaded = "Restoration Shaman Damage Modes"
     end
   end
 

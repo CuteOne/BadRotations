@@ -176,6 +176,11 @@ function cPaladin:new(spec)
 		return myBlessing
 	end
 
+	function self.castRebuke(thisUnit)
+		if getDistance(thisUnit)<5 then
+			if castSpell(thisUnit,self.spell.rebuke,false,false,false) then return end
+		end
+	end
     -- Return
 	return self
 end

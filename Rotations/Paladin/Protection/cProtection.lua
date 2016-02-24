@@ -730,9 +730,13 @@ function cProtection:new()
 
     -- Survival
     function self.cast.survival() -- Check if we are close to dying and act accoridingly
-        --if enhancedLayOnHands() then
-        --    return
-        --end
+        if isChecked("Lay On Hands") then
+            if getHP("player") <= getValue("Lay On Hands") then
+              if castLayOnHands("player") then
+                return true
+              end
+            end
+        end
         if self.health < 40 then
             if useItem(5512) then -- Healthstone
                 return true

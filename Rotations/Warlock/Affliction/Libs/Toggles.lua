@@ -1,6 +1,6 @@
 if select(3, UnitClass("player")) == 9 then
 
-	function ShadowToggles()
+	function AfflictionToggles()
 
 		-- Defensive Button
 		if DefensiveModesLoaded ~= "Shadow Priest Defensive Modes" then
@@ -42,16 +42,6 @@ if select(3, UnitClass("player")) == 9 then
 			CooldownsModesLoaded = "Shadow Priest Cooldowns Modes";
 		end
 
-		-- Feather Button
-		if FeathertModesLoaded ~= "Shadow Priest Feather Modes" then
-			FeatherModes = {
-				[1] = { mode = "off", value = 1 , overlay = "Feather Disabled", tip = "|cffFF0000Auto feather disabled", highlight = 0, icon = 121536 },
-				[2] = { mode = "auto", value = 2 , overlay = "Feather Auto", tip = "|cff00FF00Auto feather enabled", highlight = 1, icon = 121536 }
-			};
-			--CreateButton("Feather",0,1)
-			CreateButton("Feather",5,0)
-			FeatherModesLoaded = "Shadow Priest Feather Modes";
-		end
 	end -- END TOGGLES
 
 
