@@ -16,6 +16,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 
         self.enemies = {
             yards10,
+            yards20,
             yards30,
         }
         self.enhancementSpell = {
@@ -323,6 +324,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             local getEnemies = getEnemies
 
             self.enemies.yards10 = #getEnemies("player",10)
+            self.enemies.yards20 = #getEnemies("player",20)
             self.enemies.yards30 = #getEnemies("player",30)
         end
 
@@ -591,7 +593,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         end
         -- Magma Totem
         function self.castMagmaTotem()
-            if self.level>=36 and ((not self.totem.magmaTotem) or (self.totem.magmaTotem and (self.talent.liquidMagma and self.cd.liquidMagma<35) and ObjectExists("target") and getTotemDistance("target")>=8 and getDistance("target")<8)) and self.powerPercent>21.1 and not isMoving("player") and ObjectExists("target") then
+            if self.level>=36 and ((not self.totem.magmaTotem) or (self.totem.magmaTotem and (self.talent.liquidMagma and self.cd.liquidMagma<35) and ObjectExists(self.units.dyn10AoE) 
+                and getTotemDistance(self.units.dyn10AoE)>=8 and getDistance(self.units.dyn10AoE)<8)) 
+                and self.powerPercent>21.1 and not isMoving("player") and ObjectExists(self.units.dyn10AoE) 
+            then
                 if castSpell("player",self.spell.magmaTotem,false,false,false) then return end
             end
         end

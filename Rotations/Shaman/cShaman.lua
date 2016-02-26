@@ -506,10 +506,11 @@ function cShaman:new(spec)
 		end
 	end
 	-- Flame Shock
-	function self.castFlameShock()
-		local hasThreat = hasThreat(self.units.dyn25)
-		if self.level>=12 and self.cd.flameShock==0 and self.powerPercent>1.25 and getDistance(self.units.dyn25)<25 and (hasThreat or isDummy()) then
-			if castSpell(self.units.dyn25,self.spell.flameShock,false,false,false) then return end
+	function self.castFlameShock(thisUnit)
+		if thisUnit == nil then thisUnit = self.units.dyn25 end
+		local hasThreat = hasThreat(thisUnit)
+		if self.level>=12 and self.cd.flameShock==0 and self.powerPercent>1.25 and getDistance(thisUnit)<25 and (hasThreat or isDummy()) then
+			if castSpell(thisUnit,self.spell.flameShock,false,false,false) then return end
 		end
 	end
 	-- Frost Shock
@@ -597,8 +598,9 @@ function cShaman:new(spec)
 	end
 	-- Searing Totem
 	function self.castSearingTotem()
-		if self.level>=16 and ((not self.totem.searingTotem) or (self.totem.searingTotem and ObjectExists("target") and getTotemDistance("target")>=25 and getDistance("target")<25)) 
-			and self.powerPercent>3 and ObjectExists("target") and getTimeToDie("target")>5 and (#getEnemies("target",10)==1 or BadBoy_data['AoE'] == 3) 
+		if self.level>=16 
+			and ((not self.totem.searingTotem) or (self.totem.searingTotem and ObjectExists(self.units.dyn10AoE) and getTotemDistance(self.units.dyn10AoE)>=25 and getDistance(self.units.dyn10AoE)<25)) 
+			and self.powerPercent>3 and ObjectExists(self.units.dyn10AoE) and getTimeToDie(self.units.dyn10AoE)>5 and (#getEnemies(self.units.dyn10AoE,10)==1 or BadBoy_data['AoE'] == 3) 
 		then
 			if castSpell("player",self.spell.searingTotem,false,false,false) then return end
 		end
