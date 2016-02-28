@@ -259,17 +259,32 @@ function canDispel(Unit,spellID)
 	end
 	local ValidDebuffType = false
 	local i = 1
-	while UnitDebuff(Unit,i) do
-		local _,_,_,_,debuffType,_,_,_,_,_,debuffid = UnitDebuff(Unit,i)
-		-- Blackout Debuffs
-		if ((debuffType and ValidType(debuffType))) --or Enraged())
-			and debuffid ~= 138732 --Ionization from Jin'rokh the Breaker - ptr
-			and debuffid ~= 138733 --Ionization from Jin'rokh the Breaker - live
-		then
-			HasValidDispel = true
-			break
+	if UnitIsFriend("player",Unit) then 
+		while UnitDebuff(Unit,i) do
+			local _,_,_,_,debuffType,_,_,_,_,_,debuffid = UnitDebuff(Unit,i)
+			-- Blackout Debuffs
+			if ((debuffType and ValidType(debuffType))) --or Enraged())
+				and debuffid ~= 138732 --Ionization from Jin'rokh the Breaker - ptr
+				and debuffid ~= 138733 --Ionization from Jin'rokh the Breaker - live
+			then
+				HasValidDispel = true
+				break
+			end
+			i = i + 1
 		end
-		i = i + 1
+	else
+		while UnitBuff(Unit,i) do
+			local _,_,_,_,buffType,_,_,_,_,_,buffid = UnitBuff(Unit,i)
+			-- Blackout Debuffs
+			if ((buffType and ValidType(buffType))) --or Enraged())
+				and buffid ~= 138732 --Ionization from Jin'rokh the Breaker - ptr
+				and buffid ~= 138733 --Ionization from Jin'rokh the Breaker - live
+			then
+				HasValidDispel = true
+				break
+			end
+			i = i + 1
+		end
 	end
 	return HasValidDispel
 end

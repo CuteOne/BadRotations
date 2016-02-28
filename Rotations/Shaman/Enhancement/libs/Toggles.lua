@@ -6,7 +6,8 @@ if select(3, UnitClass("player")) == 7 then
       CustomAoEModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = _ChainLightning},
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = _ChainLightning},
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = _LightningBolt}
+        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = _LightningBolt},
+        [4] = { mode = "Off", value = 3 , overlay = "No Rotation", tip = "No rotation used.", highlight = 0}
       };
       AoEModes = CustomAoEModes
       CreateButton("AoE",1,0)
@@ -48,43 +49,47 @@ if select(3, UnitClass("player")) == 7 then
     end
 
     function SpecificToggle(toggle)
-      if getValue(toggle) == 1 then
-        return IsLeftControlKeyDown();
-      elseif getValue(toggle) == 2 then
-        return IsLeftShiftKeyDown();
-      elseif getValue(toggle) == 3 then
-        return IsRightControlKeyDown();
-      elseif getValue(toggle) == 4 then
-        return IsRightShiftKeyDown();
-      elseif getValue(toggle) == 5 then
-        return IsRightAltKeyDown();
-      elseif getValue(toggle) == 6 then
-        return 0
-      end
+        if getOptionValue(toggle) == 1 then
+            return IsLeftControlKeyDown();
+        elseif getOptionValue(toggle) == 2 then
+            return IsLeftShiftKeyDown();
+        elseif getOptionValue(toggle) == 3 then
+            return IsRightControlKeyDown();
+        elseif getOptionValue(toggle) == 4 then
+            return IsRightShiftKeyDown();
+        elseif getOptionValue(toggle) == 5 then
+            return IsRightAltKeyDown();
+        elseif getOptionValue(toggle) == 6 then
+            return false
+        end
     end
 
     --AoE Key Toggle
     if AOETimer == nil then AOETimer = 0; end
-    if SpecificToggle("Rotation Mode") == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - AOETimer > 0.25 then
-      AOETimer = GetTime()
-      if BadBoy_data['AoE'] ~= #AoEModes then
-        BadBoy_data['AoE'] = BadBoy_data['AoE']+1
-      else
-        BadBoy_data['AoE'] = 1
-      end
-      UpdateButton("AoE")
+    if SpecificToggle("Rotation Mode") and not GetCurrentKeyBoardFocus() and GetTime() - AOETimer > 0.25 then
+        AOETimer = GetTime()
+        UpdateButton("AoE")
     end
 
     --Cooldown Key Toggle
     if CDTimer == nil then CDTimer = 0; end
-    if IsRightControlKeyDown() == 1 and GetCurrentKeyBoardFocus() == nil and GetTime() - CDTimer > 0.25 then
-      CDTimer = GetTime()
-      if BadBoy_data['Cooldowns'] ~= #CooldownsModes then
-        BadBoy_data['Cooldowns'] = BadBoy_data['Cooldowns']+1
-      else
-        BadBoy_data['Cooldowns'] = 1
-      end
-      UpdateButton("Cooldowns")
+    if SpecificToggle("Cooldown Mode") and not GetCurrentKeyBoardFocus() and GetTime() - CDTimer > 0.25 then
+        CDTimer = GetTime()
+        UpdateButton("Cooldowns")
+    end
+
+    --Defensive Key Toggle
+    if DefTimer == nil then DefTimer = 0; end
+    if SpecificToggle("Defensive Mode") and not GetCurrentKeyBoardFocus() and GetTime() - DefTimer > 0.25 then
+        DefTimer = GetTime()
+        UpdateButton("Defensive")
+    end
+
+    --Interrupt Key Toggle
+    if IntTimer == nil then IntTimer = 0; end
+    if SpecificToggle("Interrupt Mode") and not GetCurrentKeyBoardFocus() and GetTime() - IntTimer > 0.25 then
+        IntTimer = GetTime()
+        UpdateButton("Interrupts")
     end
   end
 end

@@ -63,11 +63,21 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                	end
         	end
         -- Ghost Wolf
-        	if isChecked("Ghost Wolf") and isMoving("player") and ((not inCombat) or (inCombat and getDistance("target")>10)) then
-        		if self.castGhostWolf() then return end
+        	if isChecked("Ghost Wolf") then
+     --    		for i=1, #enemiesTable do
+					-- local thisUnit = enemiesTable[i].unit
+					-- local unitDistance = enemiesTable[i].distance
+
+					-- if ((unitDistance <= 20 and not inCombat) or (unitDistance <= 10 and inCombat)) and buff.ghostWolf then
+					-- 	CancelShapeshiftForm();
+					-- end
+     --    		end
+        		if ((self.enemies.yards20==0 and not inCombat) or (self.enemies.yards10==0 and inCombat)) and isMoving("player") then
+					if self.castGhostWolf() then return end
+    			end
         	end
         -- Purge
-        	if isChecked("Purge") and canDispel("target",self.spell.purge) and not isBoss and ObjectExists("target") then
+        	if isChecked("Purge") and canDispel("target",self.spell.purge) and not isBoss() and ObjectExists("target") then
         		if self.castPurge() then return end
         	end
         -- Spirit Walk
@@ -75,7 +85,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         		if self.castSpiritWalk() then return end
         	end
         -- Totemic Recall
-        	if not inCombat and totem.exist and not (totem.healingStreamTotem or totem.fireElementalTotem or totem.earthElementalTotem or totem.stormElementalTotem) then
+        	if not inCombat and totem.exist and not (totem.healingStreamTotem or totem.fireElementalTotem or totem.earthElementalTotem or totem.stormElementalTotem) and not UnitExists("target") then
         		if self.castTotemicRecall() then return end
         	end
         -- Tremor Totem
@@ -95,7 +105,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
     	end -- End Action List - Extra
     -- Action List - Defensive
     	function actionList_Defensive()
-    		if useDefensive() then	 
+    		if useDefensive() and getHP("player")>0 then	 
 		-- Ancestral Guidance
 				if isChecked("Ancestral Guidance") then
 					if not inCombat and needsHealing>0 then needsHealing=0 end
@@ -338,12 +348,19 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			if useCDs() and canUse(109217) and inRaid and isChecked("Agi-Pot") and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
             	useItem(109217)
             end
+        -- Totems
+        	if enemies.yards10==1 then
+        		if self.castSearingTotem() then return end
+        	end
+        	if enemies.yards10>1 then
+        		if self.castMagmaTotem() then return end
+        	end
 	    end  -- End Action List - Pre-Combat
 	-- Action List - Single
 		function actionList_Single()
 		-- Searing Totem
 			-- searing_totem,if=!totem.fire.active
-			if (not totem.searingTotem and not totem.fireElementalTotem) or totem.magmaTotem then
+			if (not totem.searingTotem and not totem.fireElementalTotem) or totem.magmaTotem then 
 				if self.castSearingTotem() then return end
 			end
 		-- Unleash Elements
@@ -434,6 +451,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			if totem.remain.searingTotem<=20 and not totem.fireElementalTotem and not buff.liquidMagma then
 				if self.castSearingTotem() then return end
 			end
+		-- Lightning Bolt
+			if not isMoving("player") and getDistance(self.units.dyn5)>=5 then
+				if self.castLightningBolt() then return end
+			end  
 		end -- End Action List - Single
 	-- Action List - MultiTarget
 		function actionList_MultiTarget()
@@ -466,9 +487,15 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			end
 		-- Lava Lash
 			-- lava_lash,if=dot.flame_shock.ticking&active_dot.flame_shock<spell_targets.fire_nova_explosion
-			if debuff.flameShock and debuff.count.flameShock<enemies.yards10 then
-				if self.castLavaLash() then return end
+			-- if debuff.flameShock and debuff.count.flameShock<enemies.yards10 then
+			for i=1, #enemiesTable do
+				local thisUnit = enemiesTable[i].unit
+				local fsDebuff = UnitDebuffID(thisUnit,self.spell.flameShock,"player")~=nil or false
+				if fsDebuff and debuff.count.flameShock<enemies.yards10 then
+					if self.castLavaLash(thisUnit) then return end
+				end
 			end
+			-- end
 		-- Elemental Blast
 			-- elemental_blast,if=!buff.unleash_flame.up&(buff.maelstrom_weapon.react>=4|buff.ancestral_swiftness.up)
 			if not buff.unleashFlame and (charges.maelstromWeapon>=4 or buff.ancestralSwiftness) then
@@ -567,6 +594,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			if debuff.count.flameShock>=1 and enemies.yards10>=1 then
 				if self.castFireNova() then return end
 			end
+		-- Chain Lightning 
+			if not isMoving("player") and getDistance(self.units.dyn5)>=5 then
+				if self.castChainLightning() then return end
+			end 
 		end -- End Action List - MultiTarget
 	-----------------
 	--- Rotations ---
@@ -590,12 +621,12 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			if actionList_Cooldowns() then return end
 	-- Run Action List - MultiTarget
 			-- call_action_list,name=aoe,if=spell_targets.chain_lightning>1
-			if (enemies.yards10>1 and useAoE()) or BadBoy_data['AoE'] == 2 then
+			if (enemies.yards10>1 and useAuto()) or useAoE() then
 				if actionList_MultiTarget() then return end
 			end
 	-- Run Action List - Single Target
 			-- call_action_list,name=single
-			if (enemies.yards10==1 and useSingle()) or BadBoy_data['AoE'] == 3 then
+			if (enemies.yards10==1 and useAuto()) or useSingle() then
 				if actionList_Single() then return end
 			end
 		end -- End Combat Rotation
