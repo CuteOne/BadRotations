@@ -371,7 +371,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 				if not stealth then
 		-- Flask / Crystal
 					-- flask,type=greater_draenic_agility_flask
-					if isChecked("Agi-Pot") and not stealth then
+					if isChecked("Flask / Crystal") and not stealth then
 						if inRaid and canFlask and flaskBuff==0 and not UnitBuffID("player",176151) then
 							useItem(self.flask.wod.agilityBig)
 							return true
