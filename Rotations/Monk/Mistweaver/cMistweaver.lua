@@ -319,7 +319,7 @@ if select(2,UnitClass("player")) == "MONK" then
         end
         -- Legacy of the Emperor
         function self.castLegacyoftheEmperor()
-            if self.instance=="none" and not isBuffed("player",{115921,20217,1126,90363}) then
+            if self.instance=="none" and not UnitInParty("player") and not isBuffed("player",{115921,20217,1126,90363}) then
                 if castSpell("player",self.spell.legacyoftheEmperor,false,false,false) then return end
             else
                 local totalCount = GetNumGroupMembers()

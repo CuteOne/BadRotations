@@ -11,11 +11,21 @@ if select(2, UnitClass("player")) == "MONK" then
         local isSoothing        = UnitChannelInfo("player") == GetSpellInfo(_SoothingMist) or nil
         local myStance          = GetShapeshiftForm()
         local reMBuffed         = 0
-        local averageHealth     = 0
+        local lowestHP, lowestUnit, lowestTankHP, lowestTankUnit, averageHealth = 100, "player", 100, "player", 0;
         
         for i = 1, #nNova do
           if UnitIsDeadOrGhost(nNova[i].unit) or getDistance(nNova[i].unit) > 40 then 
             nNova[i].hp = 100 
+          end
+          if nNova[i].role == "TANK" then
+            if nNova[i].hp < lowestTankHP then
+              lowestTankHP = nNova[i].hp;
+              lowestTankUnit = nNova[i].unit;
+            end
+          end
+          if nNova[i].hp < lowestHP then
+            lowestHP = nNova[i].hp;
+            lowestUnit = nNova[i].unit;
           end
           averageHealth = averageHealth + nNova[i].hp;
         end
@@ -162,7 +172,7 @@ if select(2, UnitClass("player")) == "MONK" then
         local function actionList_Healing()
           if myStance == 1 then
             --Mana Tea
-            if isChecked("Mana Tea") and getMana("player") <= getValue("Mana Tea") and (averageHealth > 80 or getMana("player") < 50) then
+            if isChecked("Mana Tea") and getMana("player") <= getValue("Mana Tea") and lowestHP > 50 then
               if self.castManaTea() then end
             end
             --ReM Tracker
