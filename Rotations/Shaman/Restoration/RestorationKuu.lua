@@ -8,6 +8,7 @@ if select(3, UnitClass("player")) == 7 then
         local buff              = self.buff
         local inCombat          = self.inCombat
         local averageHealth     = 0
+        local foundShield       = foundShield or false
         
         for i = 1, #nNova do
           if UnitIsDeadOrGhost(nNova[i].unit) or getDistance(nNova[i].unit) > 40 then 
@@ -27,10 +28,9 @@ if select(3, UnitClass("player")) == 7 then
         local function actionList_Extras()
           -- Earth Shield
           -- We look if someone in Nova have our shield
-          local foundShield = false
           if isChecked("Earth Shield") then
             for i = 1, #nNova do
-              if self.charges.earthShield > 2 then
+              if getBuffStacks(nNova[i].unit,self.spell.earthShieldStacks,"player") > 2 then
                 if nNova[i].role == "TANK" or UnitIsUnit("focus",nNova[i].unit) then
                 foundShield = true
                 end
@@ -104,7 +104,7 @@ if select(3, UnitClass("player")) == 7 then
             end
           end
           --Purge
-          if isChecked("Purge") and canDispel("target",self.spell.purge) and not isBoss and ObjectExists("target") then
+          if isChecked("Purge") and canDispel("target",self.spell.purge) and not isBoss() and ObjectExists("target") then
             if self.castPurge() then return end
           end
           -- Resuscitate
@@ -220,7 +220,7 @@ if select(3, UnitClass("player")) == 7 then
             end
               -- Healing Rain
             if isChecked("Healing Rain") then
-              if self.castHealingRain() then return end
+              if self.castHealingRain(getOptionValue("Healing Rain"),getOptionValue("Healing Rain Targets")) then return end
             end
             --Healing Wave
             if isChecked("Healing Wave") then

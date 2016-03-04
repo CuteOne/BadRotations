@@ -87,7 +87,7 @@ if select(2,UnitClass("player")) == "MONK" then
             self.getCharges()
             self.getEnemies()
             self.getRotation()
-            self.getClassCooldowns()
+            self.getCooldowns()
 
 
             -- Casting and GCD check
@@ -110,7 +110,7 @@ if select(2,UnitClass("player")) == "MONK" then
             self.buff.soothingMist  = UnitChannelInfo("player") == GetSpellInfo(self.spell.soothingMist) or nil;
         end
 
-        function self.getClassCooldowns()
+        function self.getCooldowns()
         local getSpellCD = getSpellCD
 
         self.cd.chiBrew         = getSpellCD(self.spell.chiBrew)
