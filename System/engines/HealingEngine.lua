@@ -174,7 +174,6 @@ if not metaTable1 then
 				max_percentage = select(15,UnitAura("boss1",GetSpellInfo(179986))) -- find current reduction % in healing
 				if max_percentage then 
 					PercentWithIncoming = (PercentWithIncoming/max_percentage)* 100 -- Calculate Actual HP % after reduction
-					print(PercentWithIncoming)
 				end
 			end
 			-- Debuffs HP compensation

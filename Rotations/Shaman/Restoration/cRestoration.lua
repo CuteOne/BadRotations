@@ -89,7 +89,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			self.getBuffsDuration()
 			self.getBuffsRemain()
 			self.getCharges()
-			self.getClassCooldowns()
+			self.getCooldowns()
 			self.getDebuffs()
 			self.getDebuffsDuration()
 			self.getDebuffsRemain()
@@ -124,11 +124,11 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 		function self.getCharges()
 			local getBuffStacks = getBuffStacks
 
-			self.charges.earthShield 	= getBuffStacks("player",self.spell.earthShieldStacks,"player") or 0
+			--self.charges.earthShield 	= getBuffStacks("player",self.spell.earthShieldStacks,"player") or 0
 		end
 
 	-- Cooldown updates
-		function self.getClassCooldowns()
+		function self.getCooldowns()
 			local getSpellCD = getSpellCD
 
 			self.cd.earthShield 		= getSpellCD(self.spell.earthShield)

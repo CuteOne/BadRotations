@@ -87,7 +87,7 @@ if select(2,UnitClass("player")) == "MONK" then
             self.getCharges()
             self.getEnemies()
             self.getRotation()
-            self.getClassCooldowns()
+            self.getCooldowns()
 
 
             -- Casting and GCD check
@@ -110,7 +110,7 @@ if select(2,UnitClass("player")) == "MONK" then
             self.buff.soothingMist  = UnitChannelInfo("player") == GetSpellInfo(self.spell.soothingMist) or nil;
         end
 
-        function self.getClassCooldowns()
+        function self.getCooldowns()
         local getSpellCD = getSpellCD
 
         self.cd.chiBrew         = getSpellCD(self.spell.chiBrew)
@@ -319,7 +319,7 @@ if select(2,UnitClass("player")) == "MONK" then
         end
         -- Legacy of the Emperor
         function self.castLegacyoftheEmperor()
-            if self.instance=="none" and not isBuffed("player",{115921,20217,1126,90363}) then
+            if self.instance=="none" and not UnitInParty("player") and not isBuffed("player",{115921,20217,1126,90363}) then
                 if castSpell("player",self.spell.legacyoftheEmperor,false,false,false) then return end
             else
                 local totalCount = GetNumGroupMembers()
