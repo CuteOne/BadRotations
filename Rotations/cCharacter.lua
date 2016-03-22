@@ -257,6 +257,8 @@ function cCharacter:new(class)
 
 -- Updates special Equipslots
 	function self.baseGetEquip()
+        if bb.equipHasChanged == nil or bb.equipHasChanged then
+            print("changed equip")
 		-- Checks T17 Set
 			local t17 = TierScan("T17")
 			self.eq.t17_2pc = t17>=2 or false
@@ -280,6 +282,9 @@ function cCharacter:new(class)
 				warrior     = 124523, -- Worldbreaker's Resolve
 			}
 			self.eq.t18_classTrinket = isTrinketEquipped(classTrinket[string.lower(self.class)])
+
+            bb.equipHasChanged = false
+        end
 	end
 
 -- Sets the racial

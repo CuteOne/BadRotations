@@ -140,6 +140,7 @@ frame:RegisterEvent("ADDON_LOADED")
 frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterUnitEvent("ACTIVE_TALENT_GROUP_CHANGED")
 frame:RegisterUnitEvent("CHARACTER_POINTS_CHANGED")
+frame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
 function bb:reloadOnSpecChange()
     if BadBoy_data["Power"] == 1 then
         ReloadUI()
@@ -149,6 +150,12 @@ end
 function bb:characterTalentChanged()
     if bb.talentHasChanged == nil then
         bb.talentHasChanged = true
+    end
+end
+-- Sets 'equipHasChanged' to true
+function bb:characterEquipChanged()
+    if bb.equipHasChanged ~= true then
+        bb.equipHasChanged = true
     end
 end
 function bb:saveWindowPosition()
@@ -201,6 +208,9 @@ function frame:OnEvent(event, arg1)
     end
     if event == "PLAYER_LOGOUT" then
         bb:saveWindowPosition()
+    end
+    if event == "PLAYER_EQUIPMENT_CHANGED" then
+        bb:characterEquipChanged() -- Sets a global to indicate equip was changed
     end
 end
 frame:SetScript("OnEvent", frame.OnEvent)
