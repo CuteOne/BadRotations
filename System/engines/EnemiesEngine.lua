@@ -39,7 +39,7 @@ function EnemiesEngine()
 				-- define our unit
 				local thisUnit = GetObjectIndex(i)
 				-- check if unit is valid
-				if GetObjectExists(thisUnit) then
+				--if GetObjectExists(thisUnit) then
 					-- sanity checks
 					if getSanity(thisUnit) == true then
 						-- get the unit distance
@@ -99,7 +99,7 @@ function EnemiesEngine()
 							)
 						end
 					end
-				end
+				--end
 			end
 			-- sort them by coeficient
 			table.sort(enemiesTable, function(x,y)
@@ -186,16 +186,22 @@ function EnemiesEngine()
 	end
 	-- /dump UnitGUID("target")
 	-- /dump getEnemies("target",10)
-	function getEnemies(unit,Radius,InCombat)
+	function getEnemies(unit,Radius,InCombat,precise)
 		if GetObjectExists(unit) and UnitIsVisible(unit) then
 			local getEnemiesTable = { }
 			for i = 1, #enemiesTable do
-				thisUnit = enemiesTable[i].unit
+				local thisUnit = enemiesTable[i].unit
 				-- check if unit is valid
 				if GetObjectExists(thisUnit) and (not InCombat or enemiesTable[i].inCombat) then
-					if getDistance(unit,thisUnit) <= Radius then
-						tinsert(getEnemiesTable,thisUnit)
-					end
+                    if unit == "player" and not precise then
+                        if enemiesTable[i].distance <= Radius then
+                            tinsert(getEnemiesTable,thisUnit)
+                        end
+                    else
+                        if getDistance(unit,thisUnit) <= Radius then
+                            tinsert(getEnemiesTable,thisUnit)
+                        end
+                    end
 				end
 			end
 			return getEnemiesTable
@@ -217,7 +223,7 @@ function EnemiesEngine()
 	end
 	-- returns true if Unit is a valid enemy
 	function getSanity(unit)
-		if GetObjectExists(unit) and bit.band(GetObjectType(unit), ObjectTypes.Unit) == 8
+		if bit.band(GetObjectType(unit), ObjectTypes.Unit) == 8
 			and UnitIsVisible(unit) == true and getCreatureType(unit) == true
 			and UnitCanAttack(unit, "player") == true and UnitIsDeadOrGhost(unit) == false
 			and (UnitAffectingCombat(unit) or isDummy(unit) or true) then

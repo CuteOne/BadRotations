@@ -159,10 +159,22 @@ function cProtection:new()
 	function self.getEnemies()
 		local getEnemies = getEnemies
 
-		self.enemies.yards5  = #getEnemies("player",5) -- (meleeEnemies)
-		self.enemies.yards9  = #getEnemies("player",9) -- (Consecration)
-		self.enemies.yards10 = #getEnemies("player",10) -- (Holy Wrath)
+        -- TODO: use a general method for this?
+        self.enemies.yards15 = 0
+        self.enemies.yards10 = 0
+        self.enemies.yards9  = 0
+        self.enemies.yards5  = 0
+
         self.enemies.yards15 = #getEnemies("player",15) -- Holy Prism on friendly AoE
+        if self.enemies.yards15 > 0 then
+            self.enemies.yards10 = #getEnemies("player",10) -- (Holy Wrath)
+        end
+        if self.enemies.yards10 > 0 then
+            self.enemies.yards9  = #getEnemies("player",9) -- (Consecration)
+        end
+        if self.enemies.yards9 > 0 then
+		    self.enemies.yards5  = #getEnemies("player",5) -- (meleeEnemies)
+        end
 
         self.aroundTarget7Yards = #getEnemies(self.units.dyn5,7) -- (Hammer of the Righteous)
 
