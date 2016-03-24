@@ -124,7 +124,7 @@ function cCharacter:new(class)
 		self.spec 				= select(2, GetSpecializationInfo(GetSpecialization())) or "None"
 
 		-- Level, Health
-		self.level 				= UnitLevel("player")
+		self.level 				= UnitLevel("player") -- TODO: EVENT - UNIT_LEVEL
 		self.health 			= getHP("player")
 
 		-- Instance
