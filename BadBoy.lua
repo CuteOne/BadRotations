@@ -175,7 +175,14 @@ function bb:Run()
 	SLASH_BadBoy1 = "/BadBoy"
 	function SlashCmdList.BadBoy(msg, editbox, ...)
 		print(...)
-		mainButton:Click()
+        if msg == "" then
+		    mainButton:Click()
+        elseif msg == "hide" then
+            BadBoyButton:Hide()
+        elseif msg == "show" then
+            BadBoyButton:Show()
+        end
+
 	end
 	SLASH_AoE1 = "/aoe"
 	function SlashCmdList.AoE(msg, editbox)
@@ -276,11 +283,26 @@ function bb:StartUI()
 	-- Build up buttons frame (toggles)
 	BadBoyFrame()
 end
+
+bb.pulse = {}
+-- debug
+function bb.pulse:getDist()
+    targetDistance = getDistance("target") or 0
+end
+function bb.pulse:dispDist()
+    displayDistance = math.ceil(targetDistance)
+end
+function bb.pulse:makeEnTable()
+    makeEnemiesTable(maxDistance)
+end
+function bb.pulse:ttd()
+    TTDRefresh()
+end
 --[[Updating UI]]
 function bb:PulseUI()
 	-- distance on main icon
-	targetDistance = getDistance("target") or 0
-    displayDistance = math.ceil(targetDistance)
+    bb.pulse:getDist()
+    bb.pulse:dispDist()
 
 	-- Check if FH got injected correctly
 	-- has a bug, if bug happen shouldBePlayer = nil
@@ -296,9 +318,9 @@ function bb:PulseUI()
 
 	mainText:SetText(displayDistance)
 	-- enemies
-	makeEnemiesTable(maxDistance)
+    bb.pulse:makeEnTable()
 	-- ttd
-	TTDRefresh()
+    bb.pulse:ttd()
 	-- allies
     if isChecked("HE Active") then
 	    nNova:Update()
@@ -308,3 +330,4 @@ function bb:PulseUI()
 	ProfessionHelper()
 	SalvageHelper()
 end
+
