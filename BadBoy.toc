@@ -13,6 +13,7 @@ System\Core.lua
 System\GeneralFunctions.lua
 System\Config.lua
 System\DebugFrame.lua
+System\Debugging.lua
 System\UI.lua
 System\UsefulFeatures.lua
 System\LootManager.lua
