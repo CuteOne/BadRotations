@@ -26,6 +26,11 @@ function EnemiesEngine()
 		local  maxDistance = maxDistance or 50
 		if enemiesTable then cleanupEngine() end
 		if enemiesTable == nil or enemiesTableTimer == nil or enemiesTableTimer <= GetTime() - 1 then
+            local startTime
+            if BadBoy_data["isDebugging"] == true then
+                startTime = debugprofilestop()
+            end
+
 			enemiesTableTimer = GetTime()
 			-- create/empty table
 			if enemiesTable == nil then
@@ -38,8 +43,8 @@ function EnemiesEngine()
 				--for i = 1, ObjectCount() do
 				-- define our unit
 				local thisUnit = GetObjectIndex(i)
-				-- check if unit is valid
-				--if GetObjectExists(thisUnit) then
+				-- check if it a unit first
+                if ObjectIsType(thisUnit, ObjectTypes.Unit)  then
 					-- sanity checks
 					if getSanity(thisUnit) == true then
 						-- get the unit distance
@@ -98,13 +103,18 @@ function EnemiesEngine()
 								}
 							)
 						end
-					end
-				--end
+                    end
+				end
 			end
 			-- sort them by coeficient
 			table.sort(enemiesTable, function(x,y)
 				return x.coeficient and y.coeficient and x.coeficient > y.coeficient or false
 			end)
+
+            if BadBoy_data["isDebugging"] == true then
+                bb.debug.cpu.enemiesEngine.makeEnemiesTable = debugprofilestop()-startTime
+            end
+
 		end
 	end
 	-- remove invalid units on pulse
@@ -223,8 +233,7 @@ function EnemiesEngine()
 	end
 	-- returns true if Unit is a valid enemy
 	function getSanity(unit)
-		if bit.band(GetObjectType(unit), ObjectTypes.Unit) == 8
-			and UnitIsVisible(unit) == true and getCreatureType(unit) == true
+		if  UnitIsVisible(unit) == true and getCreatureType(unit) == true
 			and UnitCanAttack(unit, "player") == true and UnitIsDeadOrGhost(unit) == false
 			and (UnitAffectingCombat(unit) or isDummy(unit) or true) then
 			return true

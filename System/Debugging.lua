@@ -18,7 +18,10 @@ bb.debug.cpu.healingEngine = {
     GetPosition = 0,
     absorbANDhp = 0,
 }
-
+bb.debug.cpu.enemiesEngine = {
+    preCheck = false,
+    makeEnemiesTable = 0,
+}
 -- just for testing
 function bb.debug.cpu:getHealingEngine()
     local usage, calls
