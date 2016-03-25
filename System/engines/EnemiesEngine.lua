@@ -39,15 +39,22 @@ function EnemiesEngine()
 				table.wipe(enemiesTable)
 			end
 			-- use objectmanager to build up table
-			for i = 1, GetObjectCountBB() do
-				--for i = 1, ObjectCount() do
+            -- DEBUG
+            bb.debug.cpu.enemiesEngine.sanityTargets = 0
+            bb.debug.cpu.enemiesEngine.unitTargets = 0
+            -- DEBUG --
+            --for i = 1, GetObjectCountBB() do
+            for i = 1, ObjectCount() do
 				-- define our unit
-				local thisUnit = GetObjectIndex(i)
+				--local thisUnit = GetObjectIndex(i)
+                local thisUnit = GetObjectWithIndex(i)
 				-- check if it a unit first
                 if ObjectIsType(thisUnit, ObjectTypes.Unit)  then
+                    bb.debug.cpu.enemiesEngine.unitTargets = bb.debug.cpu.enemiesEngine.unitTargets + 1
 					-- sanity checks
 					if getSanity(thisUnit) == true then
-						-- get the unit distance
+                        bb.debug.cpu.enemiesEngine.sanityTargets = bb.debug.cpu.enemiesEngine.sanityTargets + 1
+                        -- get the unit distance
 						--local _, ObjectPosition1 = pcall(ObjectPosition,"player")
 						--local _, ObjectPosition2 = pcall(ObjectPosition,thisUnit)
 						--local playerX, playerY, playerZ = GetObjectPosition("player")
@@ -112,7 +119,10 @@ function EnemiesEngine()
 			end)
 
             if BadBoy_data["isDebugging"] == true then
-                bb.debug.cpu.enemiesEngine.makeEnemiesTable = debugprofilestop()-startTime
+                bb.debug.cpu.enemiesEngine.makeEnemiesTableCount = bb.debug.cpu.enemiesEngine.makeEnemiesTableCount + 1
+                bb.debug.cpu.enemiesEngine.makeEnemiesTableCurrent = debugprofilestop()-startTime
+                bb.debug.cpu.enemiesEngine.makeEnemiesTable = bb.debug.cpu.enemiesEngine.makeEnemiesTable + debugprofilestop()-startTime
+                bb.debug.cpu.enemiesEngine.makeEnemiesTableAverage = bb.debug.cpu.enemiesEngine.makeEnemiesTable / bb.debug.cpu.enemiesEngine.makeEnemiesTableCount
             end
 
 		end

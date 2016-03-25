@@ -21,6 +21,11 @@ bb.debug.cpu.healingEngine = {
 bb.debug.cpu.enemiesEngine = {
     preCheck = false,
     makeEnemiesTable = 0,
+    makeEnemiesTableCount = 0,
+    makeEnemiesTableCurrent = 0,
+    makeEnemiesTableAverage = 0,
+    sanityTargets = 0,
+    unitTargets = 0,
 }
 -- just for testing
 function bb.debug.cpu:getHealingEngine()
