@@ -19,7 +19,6 @@ bb.debug.cpu.healingEngine = {
     absorbANDhp = 0,
 }
 bb.debug.cpu.enemiesEngine = {
-    preCheck = false,
     makeEnemiesTable = 0,
     makeEnemiesTableCount = 0,
     makeEnemiesTableCurrent = 0,
@@ -46,4 +45,18 @@ function bb.debug.cpu:getHealingEngine()
     --    nNova[i]:UpdateUnit()
     --end
     -- usage, calls = GetFunctionCPUUsage(, true)
+end
+
+--- Get Execution Speed
+--  Prints the time needed to run a function X times
+function bb.debug.getEXspeed(cycles, func)
+    local startTime = debugprofilestop()
+
+    for i = 1, cycles do
+        func()
+    end
+
+    local duration = debugprofilestop()-startTime
+    local average = duration/cycles
+    print(format("Function %i times executed in %f ms (%f average)", cycles, duration, average))
 end

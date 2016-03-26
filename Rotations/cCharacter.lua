@@ -36,6 +36,8 @@ function cCharacter:new(class)
 	self.talent         = {}        -- Talents
 	self.characterSpell = {}        -- Spells all classes may have (e.g. Racials, Mass Ressurection)
 	self.recharge       = {}        -- Time for current recharge (for spells with charges)
+    self.dynTargetTimer = 0.5       -- Timer to reduce Dynamic Target updating (1/X = calls per second)
+    self.dynLastUpdate  = 0         -- Timer variable to reduce Dynamic Target updating
 	self.units          = {         -- Dynamic Units (used for dynamic targeting, if false then target)
 		dyn5,
 		dyn30,
@@ -205,15 +207,20 @@ function cCharacter:new(class)
 	function self.baseGetDynamicUnits()
 		local dynamicTarget = dynamicTarget
 
-		-- Normal
-		self.units.dyn5  = dynamicTarget(5,true) -- Melee
-		self.units.dyn30 = dynamicTarget(30,true) -- used for most range attacks
-		self.units.dyn40 = dynamicTarget(40,true) -- used for most heals
+        -- Throttle dynamic target updating
+        if GetTime()-self.dynLastUpdate >= self.dynTargetTimer then
+            -- Normal
+            self.units.dyn5  = dynamicTarget(5,true) -- Melee
+            self.units.dyn30 = dynamicTarget(30,true) -- used for most range attacks
+            self.units.dyn40 = dynamicTarget(40,true) -- used for most heals
 
-		-- AoE
-		self.units.dyn5AoE  = dynamicTarget(5,false) -- Melee
-		self.units.dyn30AoE = dynamicTarget(30,false) -- used for most range attacks
-		self.units.dyn40AoE = dynamicTarget(40,false) -- used for most heals
+            -- AoE
+            self.units.dyn5AoE  = dynamicTarget(5,false) -- Melee
+            self.units.dyn30AoE = dynamicTarget(30,false) -- used for most range attacks
+            self.units.dyn40AoE = dynamicTarget(40,false) -- used for most heals
+
+            self.dynLastUpdate = GetTime()
+        end
 	end
 
 -- Returns the Global Cooldown time

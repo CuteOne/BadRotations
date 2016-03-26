@@ -1,4 +1,43 @@
 function GetObjectExists(Unit)
+    if ObjectExists(Unit) == true then
+        return true
+    else
+        return false
+    end
+end
+function GetObjectFacing(Unit)
+    if GetObjectExists(Unit) then
+        return ObjectFacing(Unit)
+    else
+        return false
+    end
+end
+function GetObjectPosition(Unit)
+    if GetObjectExists(Unit) then
+        return ObjectPosition(Unit)
+    else
+        return false
+    end
+end
+function GetObjectType(Unit)
+    if GetObjectExists(Unit) then
+        return ObjectType(Unit)
+    else
+        return false
+    end
+end
+function GetObjectIndex(Index)
+    if GetObjectExists(GetObjectWithIndex(Index)) then
+        return GetObjectWithIndex(Index)
+    else
+        return false
+    end
+end
+function GetObjectCountBB()
+    return GetObjectCount()
+end
+--[[ OLD pcall functions
+function GetObjectExists(Unit)
 	if select(2,pcall(ObjectExists,Unit)) == true then
 		return true
 	else
@@ -36,6 +75,7 @@ end
 function GetObjectCountBB()
 	return select(2,pcall(GetObjectCount))
 end
+]]
 
 function castInterrupt(SpellID,Percent,Unit)
 if Unit == nil then Unit = "target" end
