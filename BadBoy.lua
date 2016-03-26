@@ -5,9 +5,10 @@ bb.dropOptions = {}
 bb.dropOptions.Toggle = {"LeftCtrl","LeftShift","RightCtrl","RightShift","RightAlt","None"}
 bb.dropOptions.Toggle2 ={"LeftCtrl","LeftShift","LeftAlt","RightCtrl","RightShift","RightAlt","MMouse","Mouse4","Mouse5","None" }
 bb.dropOptions.CD = {"Never","CDs","Always" }
--- developers debug, use /run BadBoy_data["Development Debug"] = true
-function bb:debug(message)
-	if BadBoy_data["Development Debug"] == true then
+-- developers debug, use /run BadBoy_data["isDebugging"] = true
+bb.debug = {}
+function bb.debug:print(message)
+	if BadBoy_data["isDebugging"] == true then
 		print(message)
 	end
 end
@@ -285,6 +286,7 @@ function bb:StartUI()
 end
 
 bb.pulse = {}
+bb.pulse.makeTable = true
 -- debug
 function bb.pulse:getDist()
     targetDistance = getDistance("target") or 0
@@ -293,7 +295,9 @@ function bb.pulse:dispDist()
     displayDistance = math.ceil(targetDistance)
 end
 function bb.pulse:makeEnTable()
-    makeEnemiesTable(maxDistance)
+    if bb.pulse.makeTable then
+        makeEnemiesTable(maxDistance)
+    end
 end
 function bb.pulse:ttd()
     TTDRefresh()

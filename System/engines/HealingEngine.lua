@@ -256,40 +256,121 @@ if not metaTable1 then
 		end
 		-- Updating the values of the Unit
 		function o:UpdateUnit()
-			-- assign Name of unit
-			o.name = UnitName(o.unit)
-			-- assign real GUID of unit
-			o.guid = o:nGUID()
-			-- assign unit role
-			o.role = o:GetRole()
-			-- subgroup number
-			o.subgroup = o:getUnitGroupNumber()
-			-- Short GUID of unit for the SetupTable
-			o.guidsh = select(2, o:nGUID())
-			-- set to true if unit should be dispelled
-			o.dispel = o:Dispel(o.unit)
-			-- distance to player
-			o.distance = o:getUnitDistance()
-			-- Unit's threat situation(1-4)
-			o.threat = UnitThreatSituation(o.unit)
-			-- Unit HP absolute
-			o.hpabs = UnitHealth(o.unit)
-			-- Unit HP missing absolute
-			o.hpmissing = UnitHealthMax(o.unit) - UnitHealth(o.unit)
-			-- Unit HP
-			o.hp = o:CalcHP()
-			-- Unit Absorb
-			o.absorb = select(3, o:CalcHP())
-			-- Target's target
-			o.target = tostring(o.unit).."target"
-			-- Unit Class
-			o.class = o:GetClass()
-			-- Unit is player
-			o.isPlayer = UnitIsPlayer(o.unit)
-			-- precise unit position
-			if o.refresh == nil or o.refresh < GetTime() - 1 then
-				o.x,o.y,o.z = o:GetPosition()
-			end
+            if BadBoy_data["isDebugging"] == true then
+                local startTime, duration
+                local debugprofilestop = debugprofilestop
+
+                -- assign Name of unit
+                startTime = debugprofilestop()
+                o.name = UnitName(o.unit)
+                bb.debug.cpu.healingEngine.UnitName = bb.debug.cpu.healingEngine.UnitName + debugprofilestop()-startTime
+
+                -- assign real GUID of unit
+                startTime = debugprofilestop()
+                o.guid = o:nGUID()
+                bb.debug.cpu.healingEngine.nGUID = bb.debug.cpu.healingEngine.nGUID + debugprofilestop()-startTime
+
+                -- assign unit role
+                startTime = debugprofilestop()
+                o.role = o:GetRole()
+                bb.debug.cpu.healingEngine.GetRole = bb.debug.cpu.healingEngine.GetRole + debugprofilestop()-startTime
+
+                -- subgroup number
+                startTime = debugprofilestop()
+                o.subgroup = o:getUnitGroupNumber()
+                bb.debug.cpu.healingEngine.getUnitGroupNumber = bb.debug.cpu.healingEngine.getUnitGroupNumber+ debugprofilestop()-startTime
+
+                -- Short GUID of unit for the SetupTable
+                o.guidsh = select(2, o:nGUID())
+
+                -- set to true if unit should be dispelled
+                startTime = debugprofilestop()
+                o.dispel = o:Dispel(o.unit)
+                bb.debug.cpu.healingEngine.Dispel = bb.debug.cpu.healingEngine.Dispel + debugprofilestop()-startTime
+
+                -- distance to player
+                startTime = debugprofilestop()
+                o.distance = o:getUnitDistance()
+                bb.debug.cpu.healingEngine.getUnitDistance = bb.debug.cpu.healingEngine.getUnitDistance + debugprofilestop()-startTime
+
+                -- Unit's threat situation(1-4)
+                startTime = debugprofilestop()
+                o.threat = UnitThreatSituation(o.unit)
+                bb.debug.cpu.healingEngine.UnitThreatSituation = bb.debug.cpu.healingEngine.UnitThreatSituation + debugprofilestop()-startTime
+
+                -- Unit HP absolute
+                startTime = debugprofilestop()
+                o.hpabs = UnitHealth(o.unit)
+                bb.debug.cpu.healingEngine.UnitHealth = bb.debug.cpu.healingEngine.UnitHealth + debugprofilestop()-startTime
+
+                -- Unit HP missing absolute
+                startTime = debugprofilestop()
+                o.hpmissing = UnitHealthMax(o.unit) - UnitHealth(o.unit)
+                bb.debug.cpu.healingEngine.hpMissing = bb.debug.cpu.healingEngine.hpMissing + debugprofilestop()-startTime
+
+                -- Unit HP
+                startTime = debugprofilestop()
+                o.hp = o:CalcHP()
+                o.absorb = select(3, o:CalcHP())
+                bb.debug.cpu.healingEngine.absorb = bb.debug.cpu.healingEngine.absorb + debugprofilestop()-startTime
+
+                -- Target's target
+                o.target = tostring(o.unit).."target"
+
+                -- Unit Class
+                startTime = debugprofilestop()
+                o.class = o:GetClass()
+                bb.debug.cpu.healingEngine.GetClass = bb.debug.cpu.healingEngine.GetClass + debugprofilestop()-startTime
+
+                -- Unit is player
+                startTime = debugprofilestop()
+                o.isPlayer = UnitIsPlayer(o.unit)
+                bb.debug.cpu.healingEngine.UnitIsPlayer = bb.debug.cpu.healingEngine.UnitIsPlayer + debugprofilestop()-startTime
+
+                -- precise unit position
+                startTime = debugprofilestop()
+                if o.refresh == nil or o.refresh < GetTime() - 1 then
+                    o.x,o.y,o.z = o:GetPosition()
+                end
+                bb.debug.cpu.healingEngine.GetPosition = bb.debug.cpu.healingEngine.GetPosition + debugprofilestop()-startTime
+
+                --debug
+                startTime = debugprofilestop()
+                o.hp, _, o.absorb = o:CalcHP()
+                bb.debug.cpu.healingEngine.absorbANDhp = bb.debug.cpu.healingEngine.absorbANDhp + debugprofilestop()-startTime
+
+            else
+                -- assign Name of unit
+                o.name = UnitName(o.unit)
+                -- assign real GUID of unit and Short GUID of unit for the SetupTable
+                o.guid, o.guidsh = o:nGUID()
+                -- assign unit role
+                o.role = o:GetRole()
+                -- subgroup number
+                o.subgroup = o:getUnitGroupNumber()
+                -- set to true if unit should be dispelled
+                o.dispel = o:Dispel(o.unit)
+                -- distance to player
+                o.distance = o:getUnitDistance()
+                -- Unit's threat situation(1-4)
+                o.threat = UnitThreatSituation(o.unit)
+                -- Unit HP absolute
+                o.hpabs = UnitHealth(o.unit)
+                -- Unit HP missing absolute
+                o.hpmissing = UnitHealthMax(o.unit) - UnitHealth(o.unit)
+                -- Unit HP and Absorb
+                o.hp, _, o.absorb = o:CalcHP()
+                -- Target's target
+                o.target = tostring(o.unit).."target"
+                -- Unit Class
+                o.class = o:GetClass()
+                -- Unit is player
+                o.isPlayer = UnitIsPlayer(o.unit)
+                -- precise unit position
+                if o.refresh == nil or o.refresh < GetTime() - 1 then
+                    o.x,o.y,o.z = o:GetPosition()
+                end
+            end
 			-- add unit to setup cache
 			memberSetup.cache[select(2, getGUID(o.unit))] = o -- Add unit to SetupTable
 		end
