@@ -294,7 +294,7 @@ if select(3, UnitClass("player")) == 1  then
     -- Shockwave
     -- TODO add check box checks
     function protCore:castShockwave()
-      return self.mode.cooldowns and isChecked("Auto Shockwave") and  castSpell(self.units.dyn5,self.spell.Shockwave,true,false)
+      return castSpell(self.units.dyn5,self.spell.Shockwave,true,false)
     end
 
     -- Bladestorm
