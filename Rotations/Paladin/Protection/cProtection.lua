@@ -148,11 +148,14 @@ function cProtection:new()
 	function self.getDynamicUnits()
 		local dynamicTarget = dynamicTarget
 
-		-- Normal
-		self.units.dyn8 = dynamicTarget(8,true) --
+        -- Throttle dynamic target updating
+        if GetTime()-self.dynLastUpdate >= self.dynTargetTimer then
+            -- Normal
+            self.units.dyn8 = dynamicTarget(8,true) --
 
-		-- AoE
-		self.units.dyn8AoE  = dynamicTarget(8,false) --
+            -- AoE
+            self.units.dyn8AoE  = dynamicTarget(8,false) --
+        end
 	end
 
     -- Update Number of Enemies around player

@@ -26,7 +26,7 @@ function cProtection:protectionSimC()
         --Rebuke
         if isChecked("Rebuke") then
             for i=1, #getEnemies("player",5) do
-                thisUnit = getEnemies("player",5)[i]
+                local thisUnit = getEnemies("player",5)[i]
                 if canInterrupt(thisUnit,getOptionValue("Rebuke")) then
                     if self.castRebuke(thisUnit) then return end
                 end
