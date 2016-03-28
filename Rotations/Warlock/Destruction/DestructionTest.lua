@@ -146,8 +146,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 --Shadowburn
                 if getHP("target") < 20 and ((self.ember.count > 3.5 and not self.talent.charredRemains) or (self.ember.count > 2.5 and self.talent.charredRemains) or self.buff.darkSoulInstability) and ttd <= 5 and not UnitDebuffID("target",self.spell.shadowburnDebuff,"player") and ObjectIsFacing("player","target") then
                    if self.castShadowburn("target") then return end
-                end   -- Immolate
-                if hasThreat("target") and ((getDebuffRemain("target",self.spell.immolateDebuff,"player") <= select(4,GetSpellInfo(self.spell.immolate))/1000)) and (self.cd.cataclysm > select(4,GetSpellInfo(self.spell.immolate))/1000 or not self.talent.cataclysm) and ObjectIsFacing("player","target") then
+                end   
+                -- Immolate
+                if hasThreat("target") and ((getDebuffRemain("target",self.spell.immolateDebuff,"player") <= select(4,GetSpellInfo(self.spell.immolate))/1000)) and (self.cd.cataclysm > select(4,GetSpellInfo(self.spell.immolate))/1000 or not self.talent.cataclysm) and ObjectIsFacing("player","target") and not isMoving("player") then
                     if GetTime() - immolateTimer > 0.5 then
                         if self.castImmolate("target") then immolateTimer = GetTime() return end
                     end
@@ -253,7 +254,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                     end
                 end
                 -- Immolate
-                if not self.buff.havoc and self.ember.count >= 2 then
+                if not self.buff.havoc and self.ember.count >= 2 and not isMoving("player") then
                     for i=1, #getEnemies("player",40) do
                         local thisUnit = getEnemies("player",40)[i]
                         if ObjectIsFacing("player",thisUnit) then
@@ -322,7 +323,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                     end
                 end
                 -- Immolate
-                if not self.buff.havoc then
+                if not self.buff.havoc and not isMoving("player") then
                     for i=1, #getEnemies("player",40) do
                         local thisUnit = getEnemies("player",40)[i]
                         if hasThreat(thisUnit) and ((getDebuffRemain(thisUnit,self.spell.immolateDebuff,"player") <= select(4,GetSpellInfo(self.spell.immolate))/1000)) and (self.cd.cataclysm > select(4,GetSpellInfo(self.spell.immolate))/1000 or not self.talent.cataclysm) and ObjectIsFacing("player",thisUnit)then
@@ -388,7 +389,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                     end
                 end
                 -- Immolate
-                if not self.buff.havoc and self.ember.count >= 2 then
+                if not self.buff.havoc and self.ember.count >= 2 and not isMoving("player") then
                     for i=1, #getEnemies("player",40) do
                         local thisUnit = getEnemies("player",40)[i]
                         if ObjectIsFacing("player",thisUnit)  then
@@ -453,7 +454,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                     end
                 end
                 -- Immolate
-                if not self.buff.havoc and self.ember.count >= 2 then
+                if not self.buff.havoc and self.ember.count >= 2 and not isMoving("player") then
                     for i=1, #getEnemies("player",40) do
                         local thisUnit = getEnemies("player",40)[i]
                         if ObjectIsFacing("player",thisUnit) then

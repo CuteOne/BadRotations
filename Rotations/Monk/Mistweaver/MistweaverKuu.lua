@@ -41,11 +41,13 @@ if select(2, UnitClass("player")) == "MONK" then
             if self.castChangeStance() then end
           end
           -- Tiger's Lust/Nimble Brew
-          if hasNoControl() and self.talent.tigersLust then
-              if self.castTigersLust() then end
-          elseif hasNoControl() then
-              if self.castNimbleBrew() then end
-          end
+          if isChecked("Control") then
+            if hasNoControl() and self.talent.tigersLust then
+                if self.castTigersLust() then end
+            elseif hasNoControl() then
+                if self.castNimbleBrew() then end
+            end
+          end  
           -- Detox
           if isChecked("Detox") then
             if getValue("Detox") == 1 then -- Mouse Match

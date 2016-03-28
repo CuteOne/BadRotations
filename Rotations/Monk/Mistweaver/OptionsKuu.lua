@@ -69,6 +69,8 @@
 
             -- Wrapper -----------------------------------------
             section = createNewSection(bb.profile_window, "Utilities")
+            -- Loss of Control
+            createNewCheckbox(section,"Control", "Use Loss of Control Abilities")
             -- Spear Hand Strike
             createNewSpinner(section,  "Spear Hand Strike",  60 ,  0,  100  ,  5,  "Over what % of cast we want to \n|cffFFFFFFSpear Hand Strike.")
             -- Paralysis
