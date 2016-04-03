@@ -287,6 +287,7 @@ end
 
 bb.pulse = {}
 bb.pulse.makeTable = true
+bb.pulse.gathering = true
 -- debug
 function bb.pulse:getDist()
     targetDistance = getDistance("target") or 0
@@ -333,5 +334,9 @@ function bb:PulseUI()
 	-- PokeEngine()
 	ProfessionHelper()
 	SalvageHelper()
+    -- TODO: TEMP
+    if bb.pulse.gathering then
+        if bb.timer:useTimer("gathering", 0.3) then bb.helper:startGathering() end
+    end
 end
 

@@ -18,6 +18,11 @@ System\UI.lua
 System\UsefulFeatures.lua
 System\LootManager.lua
 
+# Helper
+System\helper\profession.lua
+System\helper\mining.lua
+System\helper\herbalism.lua
+
 ## Readers
 System\readers\combatlog.lua
 System\readers\common.lua

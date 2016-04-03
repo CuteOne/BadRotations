@@ -141,6 +141,9 @@ frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterUnitEvent("ACTIVE_TALENT_GROUP_CHANGED")
 frame:RegisterUnitEvent("CHARACTER_POINTS_CHANGED")
 frame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
+frame:RegisterUnitEvent("PLAYER_ENTERING_WORLD")
+frame:RegisterUnitEvent("ZONE_CHANGED_NEW_AREA")
+frame:RegisterUnitEvent("ZONE_CHANGED")
 function bb:reloadOnSpecChange()
     if BadBoy_data["Power"] == 1 then
         ReloadUI()
@@ -198,6 +201,7 @@ end
 
 function frame:OnEvent(event, arg1)
 	if event == "ADDON_LOADED" and arg1 == "BadBoy" then
+        bb.helper:getPossibleNodes()
 		bb:Run()
 	end
 	if event == "ACTIVE_TALENT_GROUP_CHANGED" then
@@ -211,6 +215,12 @@ function frame:OnEvent(event, arg1)
     end
     if event == "PLAYER_EQUIPMENT_CHANGED" then
         bb:characterEquipChanged() -- Sets a global to indicate equip was changed
+    end
+    if event == "PLAYER_ENTERING_WORLD" or event == "ZONE_CHANGED_NEW_AREA" then
+        bb.helper:getPossibleNodes()
+    end
+    if event == "ZONE_CHANGED" then
+        -- temp
     end
 end
 frame:SetScript("OnEvent", frame.OnEvent)
