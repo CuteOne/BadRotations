@@ -60,3 +60,16 @@ function bb.debug.getEXspeed(cycles, func)
     local average = duration/cycles
     print(format("Function %i times executed in %f ms (%f average)", cycles, duration, average))
 end
+
+-- INTO TIMER LUA
+
+bb.timer = {}
+function bb.timer:useTimer(timerName, interval)
+    if self[timerName] == nil then self[timerName] = 0 end
+    if GetTime()-self[timerName] >= interval then
+        self[timerName] = GetTime()
+        return true
+    else
+        return false
+    end
+end

@@ -577,7 +577,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
     -- Aquire Target if None
                 if not ObjectExists("target") or UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player") then
                     if solo then
-                        for i = 1, #getEnemies("player", 40) do
+                        for i = 1, #enemiesTable40y do
                             local thisUnit = enemiesTable40y[i]
                             if hasThreat(thisUnit) then
                                 TargetUnit(thisUnit) return

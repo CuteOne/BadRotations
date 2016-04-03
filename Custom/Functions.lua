@@ -431,6 +431,40 @@ function mergeSpellTables(tSpell, tCharacter, tClass, tSpec)
   tSpell = mergeTables(tSpell, tSpec)
   return tSpell
 end
+
+--- Checks if a table contains given value
+-- local myTable = {"hello", "world"}
+-- inTable(myTable, "hello") == true
+-- inTable(myTable, "WHAT?") == false
+-- TODO: check if tContains() does the same wow api
+function inTable(tbl, item)
+    for key, value in pairs(tbl) do
+        if value == item then return key end
+    end
+    return false
+end
+
+--- Checks if table contains a number or string
+--- TEST FROM FHaugument
+--function inTable(tbl, item)
+--    for i, v in pairs(tbl) do
+--        if type(v) == 'string' then
+--            local match = string.find(strlower(item), strlower(v))
+--            if match then return true end
+--        else
+--            if v == tonumber(item) then return true end
+--        end
+--    end
+--    return false
+--end
+
+--- Inserts table values into a table
+--  No nested table (table in a table)
+function insertTableIntoTable(originalTable, insertTable)
+    for i = 1,#insertTable do
+        table.insert(originalTable, insertTable[i])
+    end
+end
 	
 --- Returns if specified trinket is equipped in either slot
 -- if isTrinketEquipped(124518) then trinket = "Libram of Vindication" end
