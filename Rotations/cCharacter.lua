@@ -149,10 +149,9 @@ function cCharacter:new(class)
 		-- Empowered Augment Rune
 		self.useEmpoweredRune()
 
-        -- TEMP
+        -- Get selected rotation
         self.getRotation()
 
-		
 
 		-- Set Global Cooldown
 		self.gcd 				= self.getGlobalCooldown()
@@ -208,7 +207,7 @@ function cCharacter:new(class)
 		local dynamicTarget = dynamicTarget
 
         -- Throttle dynamic target updating
-        if GetTime()-self.dynLastUpdate >= self.dynTargetTimer then
+        if bb.timer:useTimer("dynTarUpdate", self.dynTargetTimer) then
             -- Normal
             self.units.dyn5  = dynamicTarget(5,true) -- Melee
             self.units.dyn30 = dynamicTarget(30,true) -- used for most range attacks
@@ -218,8 +217,6 @@ function cCharacter:new(class)
             self.units.dyn5AoE  = dynamicTarget(5,false) -- Melee
             self.units.dyn30AoE = dynamicTarget(30,false) -- used for most range attacks
             self.units.dyn40AoE = dynamicTarget(40,false) -- used for most heals
-
-            self.dynLastUpdate = GetTime()
         end
 	end
 
