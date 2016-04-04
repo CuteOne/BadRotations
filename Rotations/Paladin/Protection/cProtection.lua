@@ -74,7 +74,6 @@ function cProtection:new()
 		self.getJudgmentRecharge()
 		self.getDynamicUnits()
 		self.getEnemies()
-		self.getRotation()
         self.getOptions()
 
         -- Right = 1, Insight = 2
@@ -149,7 +148,7 @@ function cProtection:new()
 		local dynamicTarget = dynamicTarget
 
         -- Throttle dynamic target updating
-        if GetTime()-self.dynLastUpdate >= self.dynTargetTimer then
+        if bb.timer:useTimer("dynTarUpdate", self.dynTargetTimer) then
             -- Normal
             self.units.dyn8 = dynamicTarget(8,true) --
 
@@ -207,18 +206,6 @@ function cProtection:new()
 			self.recharge.judgment = 4.5
 		end
     end
-
-    -- Rotation selection update
-    --function self.getRotation()
-    --    self.rotation = bb.selectedProfile
---
-    --    if bb.rotation_changed then
-    --        self.createToggles()
-    --        self.createOptions()
---
-    --        bb.rotation_changed = false
-    --    end
-    --end
 
     -- Starts rotation, uses default if no other specified; starts if inCombat == true
 	function self.startRotation()
