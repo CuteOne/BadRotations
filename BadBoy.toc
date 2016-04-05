@@ -22,6 +22,8 @@ System\LootManager.lua
 System\helper\profession.lua
 System\helper\mining.lua
 System\helper\herbalism.lua
+System\helper\unit.lua
+System\helper\object.lua
 
 ## Readers
 System\readers\combatlog.lua

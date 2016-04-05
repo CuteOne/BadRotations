@@ -1,5 +1,6 @@
 --- Checks which mining nodes can be gathered
---- and puts them into the global table
+--  and puts them into the global table
+--  Uses a range of 6y
 function bb.helper:getMiningNodes()
     -- Garrison
     -- Check if Continent = Draenor and SubMap is Shadowmoon Valley
@@ -47,6 +48,7 @@ function bb.helper:getMiningNodes()
                 237360,
             })
         end
+        -- Legion
     end
 
 end

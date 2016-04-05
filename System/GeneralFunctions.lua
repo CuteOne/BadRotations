@@ -1052,7 +1052,7 @@ function getDistance(Unit1,Unit2)
 			Unit1 = "player"
 		end
 		-- if unit1 is player, we can use our lib to get precise range
-		if Unit1 == "player" and (isDummy(Unit2) or UnitCanAttack(Unit2,"player") == true) then
+		if Unit1 == "player" and (--[[isDummy(Unit2) or]] UnitCanAttack(Unit2,"player") == true) then
 			return rc:GetRange(Unit2) or 1000
 				-- else, we use FH positions
 		else
