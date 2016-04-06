@@ -1,5 +1,6 @@
 --- Checks which herb nodes can be gathered
---- and puts them into the global table
+--  and puts them into the global table
+--  Uses a range of 6y
 function bb.helper:getHerbalismNodes()
     -- Garrison
     -- Check if Continent = Draenor and SubMap is Shadowmoon Valley
@@ -35,5 +36,6 @@ function bb.helper:getHerbalismNodes()
                 243334, -- Withered Herb
             })
         end
+        -- Legion
     end
 end
