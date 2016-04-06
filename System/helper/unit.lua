@@ -12,6 +12,9 @@ function bb.helper:getUnitNodes()
         -- Tanaan Jungle
         if GetCurrentMapZone() == 11 then
             insertTableIntoTable(self.unitNodes, {
+                -- Fel Forge
+                {91901, 5}, -- Hellfire Shell
+                {92741, 5}, -- Hellfire Shell Stack
                 -- Zeth' Gol Daily
                 {90704, 6}, -- Blood Ritual Orb
                 {90781, 3}, -- Unused Razor Net Trap

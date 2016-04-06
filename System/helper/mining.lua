@@ -16,6 +16,10 @@ function bb.helper:getMiningNodes()
 
     -- Checks if 'Find minerals' is known
     if isKnown(2580) then
+        -- Vanilla
+        -- Burning Crusade
+        -- WotLK
+        -- Cataclysm
         -- Mists of Pandaria
         if GetCurrentMapContinent() == 6 then
             insertTableIntoTable(self.gatherNodes, {
