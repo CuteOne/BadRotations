@@ -10,16 +10,27 @@ function bb.helper:getObjectNodes()
     -- Check if Continent = Draenor and SubMap is Shadowmoon Valley
     if GetCurrentMapContinent() == 7 and GetCurrentMapZone() == 5 then
         insertTableIntoTable(self.objectNodes, {
-            {235885, 6} -- Work Order: Herb Garden
+            {235886, 6}, -- Work Order: Mine
+            {235885, 6}, -- Work Order: Herb Garden
         })
     end
 
-    -- zeth gol 241283 rage potion
     -- Draenor
     if GetCurrentMapContinent() == 7 then
-        --    insertTableIntoTable(self.objectNodes, {
-        --
-        --    })
+        -- Tanaan Jungle
+        if GetCurrentMapZone() == 11 then
+            insertTableIntoTable(self.objectNodes, {
+                -- Treasure
+                {243796, 6}, -- Suspiciously Glowing Chest
+                -- Fel Forge
+                {241669, 5}, -- Siege Equipment Blueprints
+                {241728, 6}, -- Reckless Power
+                {241507, 5}, -- Ironbound Crate
+                --
+                {241283, 4}, -- Rage Potion
+            })
+        end
+
     end
 
 end

@@ -17,6 +17,17 @@ function bb.helper:getHerbalismNodes()
 
     -- Checks if 'Find herbs' is known
     if isKnown(2383) then
+        -- Vanilla
+        -- Burning Crusade
+        -- WotLK
+        -- Cataclysm
+        -- Mists of Pandaria
+        if GetCurrentMapContinent() == 6 then
+            insertTableIntoTable(self.gatherNodes, {
+                209349, -- Green Tea Leaf
+                209353, -- Rain Poppy
+            })
+        end
         -- Draenor
         if GetCurrentMapContinent() == 7 then
             insertTableIntoTable(self.gatherNodes, {

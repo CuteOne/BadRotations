@@ -40,38 +40,42 @@ function bb.helper:startGathering()
             local thisObject = GetObjectWithIndex(i)
 
             -- Check if object is a GameObject
-            if ObjectIsType(thisObject, ObjectTypes.GameObject) then
+            if (#self.gatherNodes > 0 or #self.objectNodes > 0) and ObjectIsType(thisObject, ObjectTypes.GameObject) then
 
                 -- Profession gathering, check if can gather
-                if not isMoving("player") and not IsFlying() and #self.gatherNodes > 0 and #self.objectNodes > 0 then
+                if not isMoving("player") and not IsFlying() then
                     -- Locals
                     local guid = UnitGUID(thisObject)
                     local objectName = ObjectName(thisObject)
                     local objectType, _, _, _, _, objectID, _ = strsplit("-", guid)
                     objectID = tonumber(objectID)
 
-                    -- Check if ObjectID or ObjectName is within the gathering table
-                    if inTable(self.gatherNodes, objectName) or inTable(self.gatherNodes, objectID) then
-                        --tinsert(bb.helper.deposits, {guid, objectName})
-                        if GetDistanceBetweenObjects("player", thisObject) < 6 then
-                            ObjectInteract(thisObject)
-                            return
-                        end
-                    end
-                    -- Object gathering/clicking
-                    for j=1,#self.objectNodes do
-                        if (self.objectNodes[j][1] == objectName) or (self.objectNodes[j][1] == objectID) then
+                    if #self.gatherNodes > 0 then
+                        -- Check if ObjectID or ObjectName is within the gathering table
+                        if tContains(self.gatherNodes, objectName) or tContains(self.gatherNodes, objectID) then
                             --tinsert(bb.helper.deposits, {guid, objectName})
-                            if GetDistanceBetweenObjects("player", thisObject) < self.objectNodes[j][2] then
+                            if GetDistanceBetweenObjects("player", thisObject) < 6 then
                                 ObjectInteract(thisObject)
                                 return
                             end
                         end
                     end
+                    -- Object gathering/clicking
+                    if #self.objectNodes > 0 then
+                        for j=1,#self.objectNodes do
+                            if (self.objectNodes[j][1] == objectName) or (self.objectNodes[j][1] == objectID) then
+                                --tinsert(bb.helper.deposits, {guid, objectName})
+                                if GetDistanceBetweenObjects("player", thisObject) < self.objectNodes[j][2] then
+                                    ObjectInteract(thisObject)
+                                    return
+                                end
+                            end
+                        end
+                    end
                 end
             -- Checking for Units as some quests objects etc. are declared as NPC
-            elseif ObjectIsType(thisObject, ObjectTypes.Unit) then
-                if not isMoving("player") and not IsFlying() and #self.unitNodes > 0 then
+            elseif #self.unitNodes > 0 and ObjectIsType(thisObject, ObjectTypes.Unit) then
+                if not isMoving("player") and not IsFlying() then
                     -- Locals
                     local guid = UnitGUID(thisObject)
                     local objectName = ObjectName(thisObject)
@@ -91,4 +95,64 @@ function bb.helper:startGathering()
             end
         end
     end
+end
+
+--- Prints the ObjectID of a given name
+--  Helps to identify the objectID of things which have no tooltip
+--  name - the name of the object
+--  objectType - must be "GameObject" or "Unit"
+--  nearestObject - if true, it will sort and displays distance to the nearest given object
+--  Use:
+--  /run bb.helper:getObjectID(GameTooltipTextLeft1:GetText(),"g")
+--  to get the GameObject ID of the object the tootlip is displayed, usallly the mouseover
+function bb.helper:getObjectID(name, objectType, nearestObject)
+    local nrObjects = GetObjectCount()
+    local nearest = {
+        objName,
+        objID,
+        objDistance = 999,
+    }
+    local tmpDistance
+
+    if objectType == "u" then objectType = "Unit" end
+    if objectType == "g" then objectType = "GameObject" end
+
+    if (objectType ~= "Unit" and objectType ~= "GameObject") then
+        print("Wrong objectType. Use (u)'Unit' or (g)'GameObject'.")
+        return
+    end
+
+    for i=1, nrObjects do
+        -- Locals
+        local thisObject = GetObjectWithIndex(i)
+
+        if ObjectIsType(thisObject, ObjectTypes[objectType]) then
+            -- Locals
+            local guid = UnitGUID(thisObject)
+            local objectName = ObjectName(thisObject)
+            local objectType, _, _, _, _, objectID, _ = strsplit("-", guid)
+            objectID = tonumber(objectID)
+            if objectName == name and not nearestObject then
+                print("ObjectName: "..objectName.." | ID: "..objectID)
+                return
+            elseif objectName == name and nearestObject == true then
+                -- Sort by nearest found object
+                tmpDistance = GetDistanceBetweenObjects("player",thisObject)
+                if nearest.objDistance > tmpDistance then
+                    nearest.objDistance = tmpDistance
+                    nearest.objName = objectName
+                    nearest.objID = objectID
+                end
+            end
+        end
+    end
+    -- Print nearest object
+    if nearestObject == true and nearest.objDistance ~= 999 then
+        print("ObjectName: "..nearest.objName.." | ID: "..nearest.objID.." | Dist: "..nearest.objDistance)
+        print("{"..nearest.objID..", "..floor(nearest.objDistance).."}, -- "..nearest.objName)
+        return
+    end
+
+
+    print(name.." not found.")
 end
