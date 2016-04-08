@@ -411,6 +411,25 @@ function SalvageHelper()
 				end
 			else
 				salvageTimer = GetTime() -- if no more free slots, start timer
+                -- TEMP ! Trys to sell to close merchant (needs addon which sells items when opening merchant window)
+                CloseMerchant()
+                for i=1, GetObjectCount() do
+                    -- Locals
+                    local thisObject = GetObjectWithIndex(i)
+                    if ObjectIsType(thisObject, ObjectTypes.Unit) then
+                        -- Locals
+                        local guid = UnitGUID(thisObject)
+                        local objectName = ObjectName(thisObject)
+                        local objectType, _, _, _, _, objectID, _ = strsplit("-", guid)
+                        objectID = tonumber(objectID)
+
+                        if objectID == 77378 and GetDistanceBetweenObjects("player", thisObject) < 6 then
+                            ObjectInteract(thisObject)
+                            return
+                        end
+                    end
+                end
+                -- TEMP !
 			end -- freeSlots
 		end -- gettime()
 	end -- isChecked()

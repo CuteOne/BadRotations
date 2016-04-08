@@ -33,7 +33,7 @@ function bb.helper:startGathering()
     local nrObjects = GetObjectCount()
     --bb.helper.deposits = {}
 
-    if not UnitAffectingCombat("player") and UnitCastingInfo("player") == nil then
+    if not UnitAffectingCombat("player") and UnitCastingInfo("player") == nil and not isLooting() then
 
         for i=1, nrObjects do
             -- Locals
@@ -156,3 +156,6 @@ function bb.helper:getObjectID(name, objectType, nearestObject)
 
     print(name.." not found.")
 end
+
+--[[    TODO: add personal & account Nodes, which user can set themself
+ ]]
