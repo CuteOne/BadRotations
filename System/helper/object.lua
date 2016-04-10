@@ -35,6 +35,9 @@ function bb.helper:getObjectNodes()
             insertTableIntoTable(self.objectNodes, {
                 -- Treasure
                 {243796, 6}, -- Suspiciously Glowing Chest
+                -- Ironhold Harbor
+                {239839, 6}, -- Box of Iron Horde Equipment
+                {239979, 6}, -- Bottle of Machinery Grease
                 -- Fel Forge
                 {241669, 5}, -- Siege Equipment Blueprints
                 {241728, 6}, -- Reckless Power

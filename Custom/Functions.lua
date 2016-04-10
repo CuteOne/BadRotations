@@ -463,20 +463,6 @@ function inTable(tbl, item)
     return false
 end
 
---- Checks if table contains a number or string
---- TEST FROM FHaugument
---function inTable(tbl, item)
---    for i, v in pairs(tbl) do
---        if type(v) == 'string' then
---            local match = string.find(strlower(item), strlower(v))
---            if match then return true end
---        else
---            if v == tonumber(item) then return true end
---        end
---    end
---    return false
---end
-
 --- Inserts table values into a table
 --  No nested table (table in a table)
 function insertTableIntoTable(originalTable, insertTable)

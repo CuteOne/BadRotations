@@ -1,6 +1,12 @@
 --- bb.drawer - Module to draw with the help of LibDraw cycles, lines, etc into WoW
 
 bb.drawer = {}
+-- Contains the objects/units to draw
+bb.drawer.objects = {
+    -- ID, Shape, Parameter
+    236683
+}
+bb.drawer.units   = {}
 
 local LibDraw = LibStub("LibDraw-1.0")
 
@@ -25,7 +31,7 @@ local cubeShape = {
 
 LibDraw.Sync(function()
     if FireHack and isChecked("Use Drawer") == true then
-        local drawTbl = {}
+        local drawTable = {}
 
         for i=1, GetObjectCount() do
             -- Locals
@@ -37,44 +43,50 @@ LibDraw.Sync(function()
                 local objectType, _, _, _, _, objectID, _ = strsplit("-", guid)
                 objectID = tonumber(objectID)
 
-                if objectID == 236683 then
-                    tinsert(drawTbl, thisObject)
-                    break
+                -- Check if object is in global table
+                for j=1, #bb.drawer.objects do
+                    if objectID == bb.drawer.objects[j] then
+                        tinsert(drawTable, thisObject)
+                    end
                 end
             end
         end
 
        local playerX, playerY, playerZ = ObjectPosition("player")
-
-        if drawTbl == nil then return end
-        for i=1, #drawTbl do
-            local targetX, targetY, targetZ = ObjectPosition(drawTbl[i])
-            LibDraw.Line(playerX, playerY, playerZ, targetX, targetY, targetZ)
-        end
-
-
-       --local targetX, targetY, targetZ = ObjectPosition("target")
-
-       --LibDraw.Line(playerX, playerY, playerZ, targetX, targetY, targetZ)
-
-       --LibDraw.Circle(playerX, playerY, playerZ, 10)
-
-       --LibDraw.Box(playerX, playerY, playerZ, 5, 5)
-       ----LibDraw.Box(playerX, playerY, playerZ, 5, 5, rotation)
-       ----LibDraw.Box(playerX, playerY, playerZ, 5, 15, rotation, 0, 7.5)
-
        local rotation = ObjectFacing("player")
        LibDraw.Arc(playerX, playerY, playerZ, 10, 70, rotation)
 
-       --LibDraw.Texture(texture, targetX, targetY, targetZ + 3)
 
-       --local name = ObjectName("target")
-       --LibDraw.Text(name, "GameFontNormal", targetX, targetY, targetZ)
+        -- Dont draw if nothing is in table
+        if drawTable == nil then return end
 
-       --LibDraw.Array(cubeShape, playerX, playerY, playerZ + 3)
+        -- Start drawing object/unit specific things
+        for i=1, #drawTable do
 
+            local targetX, targetY, targetZ = ObjectPosition(drawTable[i])
+            LibDraw.Line(playerX, playerY, playerZ, targetX, targetY, targetZ)
+        end
     end
 end)
 
+
 -- Starts the drawing
 bb.drawer.drawTicker = LibDraw.Enable(0.01)
+
+
+--[[
+LibDraw.Texture(texture, targetX, targetY, targetZ + 3)
+local targetX, targetY, targetZ = ObjectPosition("target")
+
+LibDraw.Line(playerX, playerY, playerZ, targetX, targetY, targetZ)
+
+LibDraw.Circle(playerX, playerY, playerZ, 10)
+
+LibDraw.Box(playerX, playerY, playerZ, 5, 5)
+--LibDraw.Box(playerX, playerY, playerZ, 5, 5, rotation)
+--LibDraw.Box(playerX, playerY, playerZ, 5, 15, rotation, 0, 7.5)
+local name = ObjectName("target")
+LibDraw.Text(name, "GameFontNormal", targetX, targetY, targetZ)
+
+LibDraw.Array(cubeShape, playerX, playerY, playerZ + 3)
+ ]]

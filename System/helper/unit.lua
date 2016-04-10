@@ -15,10 +15,15 @@ function bb.helper:getUnitNodes()
                 -- Fel Forge
                 {91901, 5}, -- Hellfire Shell
                 {92741, 5}, -- Hellfire Shell Stack
+                -- Ironhold Harbor
+                {90069, 4}, -- True Iron Bomb
+                {90126, 4}, -- True Iron Bomb
+                {90486, 4}, -- Inferno Shot
+                {90433, 4}, -- Iron Horde Banner
                 -- Zeth' Gol Daily
                 {90704, 6}, -- Blood Ritual Orb
                 {90781, 3}, -- Unused Razor Net Trap
-                -- Templ of Sha naar
+                -- Temple of Sha naar
                 {90302, 5}, -- Defiled Corpse
                 {90703, 5}, -- Bound Spirit
                 {90501, 5}, -- Fel Pylon
