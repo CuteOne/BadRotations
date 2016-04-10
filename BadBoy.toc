@@ -25,12 +25,15 @@ System\helper\herbalism.lua
 System\helper\unit.lua
 System\helper\object.lua
 
+System\drawer\drawer.lua
+
 ## Readers
 System\readers\combatlog.lua
 System\readers\common.lua
 
 ## LIBS
 System\Libs\LibStub\LibStub.lua
+System\Libs\!LibDraw\LibDraw.lua
 System\Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
 System\Libs\LibSpellRange-1.0\LibSpellRange-1.0.lua
 System\Libs\LibRangeCheck-2.0\LibRangeCheck-2.0.lua

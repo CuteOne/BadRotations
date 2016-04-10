@@ -18,6 +18,11 @@ function bb.helper:getUnitNodes()
                 -- Zeth' Gol Daily
                 {90704, 6}, -- Blood Ritual Orb
                 {90781, 3}, -- Unused Razor Net Trap
+                -- Templ of Sha naar
+                {90302, 5}, -- Defiled Corpse
+                {90703, 5}, -- Bound Spirit
+                {90501, 5}, -- Fel Pylon
+                {92597, 5}, -- Demonic Focus
             })
         end
 
