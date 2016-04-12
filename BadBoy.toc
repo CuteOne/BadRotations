@@ -25,8 +25,6 @@ System\helper\herbalism.lua
 System\helper\unit.lua
 System\helper\object.lua
 
-System\drawer\drawer.lua
-
 ## Readers
 System\readers\combatlog.lua
 System\readers\common.lua
@@ -43,6 +41,8 @@ System\Libs\DiesalStyle-1.0\DiesalStyle-1.0.lua
 System\Libs\DiesalGUI-1.0\DiesalGUI-1.0.xml
 System\Libs\DiesalMenu-1.0\DiesalMenu-1.0.xml
 System\newui.lua
+
+System\drawer\drawer.lua
 
 ## Engines
 System\engines\EnemiesEngine.lua
