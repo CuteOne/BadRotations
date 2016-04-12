@@ -213,6 +213,7 @@ function bb.read.combatLog()
           ..red..debugdest..color..debugSpell.."|cffFFDD11"..Power
         -- pulse display
         bb.read:display(textString)
+        bb.ui.window.debug:AddMessage(textString:gsub("\n", " | "))
       end
     end
     --[[ Last Spell Cast Success ]]

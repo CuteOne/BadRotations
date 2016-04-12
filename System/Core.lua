@@ -254,9 +254,9 @@ function BadBoyUpdate(self)
 
     -- Show Debug Frame TEMP
     if isChecked("Debug Frame") then
-        _G["debugFrame"]:Show()
+        bb.ui.window.debug.parent:Show()--_G["debugFrame"]:Show()
     else
-        _G["debugFrame"]:Hide()
+        bb.ui.window.debug.parent:Hide()--_G["debugFrame"]:Hide()
     end
 
 	-- accept dungeon queues

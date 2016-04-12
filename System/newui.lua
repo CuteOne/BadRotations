@@ -688,6 +688,7 @@ end
 -- This creates the normal BadBay Configuration Window
 function bb.ui:createConfigWindow()
     bb.ui:createHelpWindow()
+    bb.ui:createDebugWindow()
     bb.ui.window.config = bb.ui:createWindow("Configuration", 275, 400)
 
     local section
@@ -755,7 +756,9 @@ end
 
 -- TODO: create new debug frame
 function bb.ui:createDebugWindow()
+    bb.ui.window.debug = bb.ui:createMessageWindow("Debug")
 
+    bb.ui.window.debug.parent:Hide()
 end
 
 -- TODO: re arrange files, put function and window into different files
