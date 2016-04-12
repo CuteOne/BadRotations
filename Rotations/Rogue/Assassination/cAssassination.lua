@@ -241,115 +241,115 @@ if select(2, UnitClass("player")) == "ROGUE" then
         ---------------
 
         function self.createOptions()
-            bb.profile_window = createNewProfileWindow("Assassination")
+            bb.ui.window.profile = bb.ui:createProfileWindow("Assassination")
             local section
 
             -- Create Base and Class options
             self.createClassOptions()
 
             -- Combat options
-            section = createNewSection(bb.profile_window,  "--- General ---")
+            section = bb.ui:createSection(bb.ui.window.profile,  "--- General ---")
             -- Stealth
-            createNewDropdown(section,  "Stealth", {"|cff00FF00Always", "|cffFFDD00PrePot", "|cffFF000020Yards"},  1, "Stealthing method.")
-            createNewSpinner(section,  "Stealth Timer",  1,  0,  2,  0.25,  "|cffFFBB00How long to wait(seconds) before using \n|cffFFFFFFStealth.")
+            bb.ui:createDropdown(section,  "Stealth", {"|cff00FF00Always", "|cffFFDD00PrePot", "|cffFF000020Yards"},  1, "Stealthing method.")
+            bb.ui:createSpinner(section,  "Stealth Timer",  1,  0,  2,  0.25,  "|cffFFBB00How long to wait(seconds) before using \n|cffFFFFFFStealth.")
             -- Opening Attack
-            createNewDropdown(section, "Opener", {"Ambush", "Mutilate", "Cheap Shot"},  1, "|cffFFFFFFSelect Attack to Break Stealth with")
+            bb.ui:createDropdown(section, "Opener", {"Ambush", "Mutilate", "Cheap Shot"},  1, "|cffFFFFFFSelect Attack to Break Stealth with")
             -- Pre-Pull Timer
-            createNewSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-            checkSectionState(section) 
+            bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            bb.ui:checkSectionState(section)
 
             
-            section = createNewSection(bb.profile_window,  "--- Cooldowns ---")
+            section = bb.ui:createSection(bb.ui.window.profile,  "--- Cooldowns ---")
             -- Agi Pot
-            createNewCheckbox(section,"Agi-Pot")
+            bb.ui:createCheckbox(section,"Agi-Pot")
             -- Legendary Ring
-            createNewCheckbox(section,  "Legendary Ring")
+            bb.ui:createCheckbox(section,  "Legendary Ring")
             -- Preparation
-            createNewCheckbox(section,  "Preparation")
+            bb.ui:createCheckbox(section,  "Preparation")
             -- Shadow Reflection
-            createNewCheckbox(section,  "Shadow Reflection")
+            bb.ui:createCheckbox(section,  "Shadow Reflection")
             -- Vanish
-            createNewCheckbox(section,  "Vanish - Offensive")
+            bb.ui:createCheckbox(section,  "Vanish - Offensive")
             -- Vendetta
-            createNewCheckbox(section,  "Vendetta")
-            checkSectionState(section) 
+            bb.ui:createCheckbox(section,  "Vendetta")
+            bb.ui:checkSectionState(section)
 
             
-            section = createNewSection(bb.profile_window, "--- Defensive ---")
+            section = bb.ui:createSection(bb.ui.window.profile, "--- Defensive ---")
             -- Cloak of Shadows
             if isKnown(self.spell.cloakOfShadows) then
-                createNewCheckbox(section,"Cloak of Shadows","Enable or Disable the usage to auto dispel")
+                bb.ui:createCheckbox(section,"Cloak of Shadows","Enable or Disable the usage to auto dispel")
             end
             -- Combat Readiness
-            createNewSpinner(section, "Combat Readiness",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!",  "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:createSpinner(section, "Combat Readiness",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!",  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Evasion
             if isKnown(self.spell.evasion) then
-                createNewSpinner(section, "Evasion",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!",  "|cffFFFFFFHealth Percent to Cast At")
+                bb.ui:createSpinner(section, "Evasion",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!",  "|cffFFFFFFHealth Percent to Cast At")
             end
             -- Feint
             if isKnown(self.spell.feint) then
-                createNewSpinner(section, "Feint",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!",  "|cffFFFFFFHealth Percent to Cast At")
+                bb.ui:createSpinner(section, "Feint",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!",  "|cffFFFFFFHealth Percent to Cast At")
             end
             -- Healthstone
-            createNewSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            bb.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Heirloom Neck
-            createNewSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Recuperate
             if isKnown(self.spell.recuperate) then
-                createNewSpinner(section, "Recuperate Health %",  40,  0,  100,  5, "Set health percent and combo point threshhold to cast at",  "|cffFFFFFFHealth Percent to Cast At")
-                createNewSpinner(section, "Recuperate Combo Point",  3,  1,  5,  1, "Set health percent and combo point threshhold to cast at",  "|cffFFFFFFCombo Points to Use At")
+                bb.ui:createSpinner(section, "Recuperate Health %",  40,  0,  100,  5, "Set health percent and combo point threshhold to cast at",  "|cffFFFFFFHealth Percent to Cast At")
+                bb.ui:createSpinner(section, "Recuperate Combo Point",  3,  1,  5,  1, "Set health percent and combo point threshhold to cast at",  "|cffFFFFFFCombo Points to Use At")
             end
             --Shiv
             if isKnown(self.spell.shiv) and getTalent(3,2) then
-                createNewSpinner(section, "Shiv",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!", "|cffFFFFFFHealth Percent to Cast At")
+                bb.ui:createSpinner(section, "Shiv",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!", "|cffFFFFFFHealth Percent to Cast At")
             end
             -- Smoke Bomb
             if isKnown(self.spell.smokeBomb) then
-                createNewSpinner(section, "Smoke Bomb",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!", "|cffFFFFFFHealth Percent to Cast At")
+                bb.ui:createSpinner(section, "Smoke Bomb",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!", "|cffFFFFFFHealth Percent to Cast At")
             end
             -- Vanish - Defensive
             if isKnown(self.spell.vanish) then
-                createNewSpinner(section, "Vanish - Defensive",  40,  0,  100,  5, "Set health percent threshhold to cast at - Defensive Use Only, see Cooldowns for Offensive Use", "|cffFFFFFFHealth Percent to Cast At")
+                bb.ui:createSpinner(section, "Vanish - Defensive",  40,  0,  100,  5, "Set health percent threshhold to cast at - Defensive Use Only, see Cooldowns for Offensive Use", "|cffFFFFFFHealth Percent to Cast At")
             end
-            checkSectionState(section)
+            bb.ui:checkSectionState(section)
             
             
-            section = createNewSection(bb.profile_window, "--- Interrupts ---")
+            section = bb.ui:createSection(bb.ui.window.profile, "--- Interrupts ---")
             -- Kick
-            createNewCheckbox(section,"Kick")
+            bb.ui:createCheckbox(section,"Kick")
             if getTalent(5,3) then
                 -- Gouge
-                createNewCheckbox(section,"Gouge")
+                bb.ui:createCheckbox(section,"Gouge")
                 -- Blind
-                createNewCheckbox(section,"Blind")
+                bb.ui:createCheckbox(section,"Blind")
             end
             -- Interrupt Percentage
-            createNewSpinner(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
-            checkSectionState(section)
+            bb.ui:createSpinner(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+            bb.ui:checkSectionState(section)
             
 
-            section = createNewSection(bb.profile_window,  "--- Toggle Keys ---")
+            section = bb.ui:createSection(bb.ui.window.profile,  "--- Toggle Keys ---")
             -- Single/Multi Toggle
-            createNewDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
+            bb.ui:createDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
             --Cooldown Key Toggle
-            createNewDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
+            bb.ui:createDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
             --Defensive Key Toggle
-            createNewDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
+            bb.ui:createDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
             -- Interrupts Key Toggle
-            createNewDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
+            bb.ui:createDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
             -- Cleave Toggle
-            createNewDropdown(section,  "Cleave Mode", bb.dropOptions.Toggle,  6)
+            bb.ui:createDropdown(section,  "Cleave Mode", bb.dropOptions.Toggle,  6)
             -- Pick Pocket Toggle
-            createNewDropdown(section,  "Pick Pocket Mode", bb.dropOptions.Toggle,  6)
+            bb.ui:createDropdown(section,  "Pick Pocket Mode", bb.dropOptions.Toggle,  6)
             -- Pause Toggle
-            createNewDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
-            checkSectionState(section)
+            bb.ui:createDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
+            bb.ui:checkSectionState(section)
 
 
 
             --[[ Rotation Dropdown ]]--
-            createNewRotationDropdown(bb.profile_window.parent, {"SimC", "CuteOne", "OLD_ONE"})
+            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"SimC", "CuteOne", "OLD_ONE"})
             bb:checkProfileWindowStatus()
         end
 

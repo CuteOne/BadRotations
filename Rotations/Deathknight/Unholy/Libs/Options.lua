@@ -1,119 +1,119 @@
 if select(3,UnitClass("player")) == 6 then
   function UnholyConfig()
-      bb.profile_window = createNewProfileWindow("Unholy")
+      bb.ui.window.profile = bb.ui:createProfileWindow("Unholy")
 
       local section
 
       --- General Rotation
-      section = createNewSection(bb.profile_window, "General Rotation")
+      section = bb.ui:createSection(bb.ui.window.profile, "General Rotation")
 
       -- Pause Toggle
-      createNewDropdown(section, "Pause Key", bb.dropOptions.Toggle2 ,4)
+      bb.ui:createDropdown(section, "Pause Key", bb.dropOptions.Toggle2 ,4)
 
       -- 2nd Pause Toggle
-      createNewDropdown(section, "2nd Pause Key", bb.dropOptions.Toggle2 ,4)
+      bb.ui:createDropdown(section, "2nd Pause Key", bb.dropOptions.Toggle2 ,4)
 
       -- DnD / Defile Key
-      createNewDropdown(section, "DnD / Defile Key", bb.dropOptions.Toggle2 ,4)
+      bb.ui:createDropdown(section, "DnD / Defile Key", bb.dropOptions.Toggle2 ,4)
 
       -- AMZ Key
-      createNewDropdown(section, "AMZ Key", bb.dropOptions.Toggle2 ,4)
+      bb.ui:createDropdown(section, "AMZ Key", bb.dropOptions.Toggle2 ,4)
 
       -- Blood Boil Spam Targets
-      createNewSpinner(section, "Start spamming Blood Boil at |cffFF0000XX|cffFFBB00 targets.",5,0,10,1,"Start spamming Blood Boil at |cffFF0000XX|cffFFBB00 targets.")
+      bb.ui:createSpinner(section, "Start spamming Blood Boil at |cffFF0000XX|cffFFBB00 targets.",5,0,10,1,"Start spamming Blood Boil at |cffFF0000XX|cffFFBB00 targets.")
 
-      checkSectionState(section)
+      bb.ui:checkSectionState(section)
 
 
 
 
       -- Wrapper
-      section = createNewSection(bb.profile_window, "Buffs")
+      section = bb.ui:createSection(bb.ui.window.profile, "Buffs")
 
       -- Horn of Winter
-      createNewCheckbox(section,"Horn of Winter")
+      bb.ui:createCheckbox(section,"Horn of Winter")
 
-      checkSectionState(section)
+      bb.ui:checkSectionState(section)
 
 
 
       -- Wrapper
-      section = createNewSection(bb.profile_window, "Cooldowns")
+      section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
 
       -- Potion
-      createNewCheckbox(section,"Potion")
+      bb.ui:createCheckbox(section,"Potion")
 
       -- Empower Rune Weapon
-      createNewCheckbox(section,"Empower Rune Weapon")
+      bb.ui:createCheckbox(section,"Empower Rune Weapon")
 
       -- Summon Gargoyle
-      createNewCheckbox(section,"Summon Gargoyle")
+      bb.ui:createCheckbox(section,"Summon Gargoyle")
 
       -- Breath of Sindragosa
-      createNewCheckbox(section,"Breath of Sindragosa")
+      bb.ui:createCheckbox(section,"Breath of Sindragosa")
 
       -- Dark Transformation
-      -- createNewCheckbox(section,"Dark Transformation")
+      -- bb.ui:createCheckbox(section,"Dark Transformation")
 
       -- Racial (Orc/Troll)
-      createNewCheckbox(section,"Racial (Orc/Troll)")
+      bb.ui:createCheckbox(section,"Racial (Orc/Troll)")
 
-      checkSectionState(section)
+      bb.ui:checkSectionState(section)
 
 
 
       -- Wrapper
-      section = createNewSection(bb.profile_window, "Defensives")
+      section = bb.ui:createSection(bb.ui.window.profile, "Defensives")
 
       -- Icebound Fortitude
-      createNewSpinner(section, "Icebound Fortitude", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFIcebound Fortitude")
+      bb.ui:createSpinner(section, "Icebound Fortitude", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFIcebound Fortitude")
 
       -- Anti Magic Shell
-      createNewSpinner(section, "Anti-Magic Shell", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFAnti Magic Shell")
+      bb.ui:createSpinner(section, "Anti-Magic Shell", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFAnti Magic Shell")
 
       -- Healthstone / Pot
-      createNewSpinner(section, "Healthstone / Potion", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone / Healing Potion")
+      bb.ui:createSpinner(section, "Healthstone / Potion", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone / Healing Potion")
 
       -- Death Pact
-      createNewSpinner(section, "Death Pact", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Pact")
+      bb.ui:createSpinner(section, "Death Pact", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Pact")
 
       -- Death Siphon
-      createNewSpinner(section, "Death Siphon", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Siphon")
+      bb.ui:createSpinner(section, "Death Siphon", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Siphon")
 
       -- Death Strike
-      createNewSpinner(section, "Death Strike", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Strike")
+      bb.ui:createSpinner(section, "Death Strike", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Strike")
 
       -- Death Strike (Dark Succor)
-      -- createNewSpinner(section, "Death Strike (Dark Succor)", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Strike (Dark Succor)")
+      -- bb.ui:createSpinner(section, "Death Strike (Dark Succor)", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDeath Strike (Dark Succor)")
 
-      checkSectionState(section)
+      bb.ui:checkSectionState(section)
 
 
 
       -- Wrapper
-      section = createNewSection(bb.profile_window, "Interrupts")
+      section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
 
       -- Mind Freeze
-      createNewSpinner(section, "Mind Freeze", 20, 0, 100, 5, "Interrupt at % casttime with Mind Freeze")
+      bb.ui:createSpinner(section, "Mind Freeze", 20, 0, 100, 5, "Interrupt at % casttime with Mind Freeze")
 
       -- Strangulate
-      createNewSpinner(section, "Mind Freeze", 20, 0, 100, 5, "Interrupt at % casttime with Strangulate");
+      bb.ui:createSpinner(section, "Mind Freeze", 20, 0, 100, 5, "Interrupt at % casttime with Strangulate");
 
-      checkSectionState(section)
+      bb.ui:checkSectionState(section)
 
 
 
       -- Wrapper
-      section = createNewSection(bb.profile_window, "Misc")
+      section = bb.ui:createSection(bb.ui.window.profile, "Misc")
 
       -- Dummy DPS Test
-      createNewSpinner(section, "DPS Testing", 5, 1, 15, 1, "Set to desired time for test in minutes. Min: 1 / Max: 15 / Interval: 1")
+      bb.ui:createSpinner(section, "DPS Testing", 5, 1, 15, 1, "Set to desired time for test in minutes. Min: 1 / Max: 15 / Interval: 1")
 
-      checkSectionState(section)
+      bb.ui:checkSectionState(section)
 
 
       --[[ Rotation Dropdown ]]--
-      createNewRotationDropdown(bb.profile_window.parent, {"Chumii"})
+      bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"Chumii"})
       bb:checkProfileWindowStatus()
   end
 end

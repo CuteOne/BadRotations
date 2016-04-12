@@ -44,14 +44,14 @@ This function will use table row #1.]]
   end
   -- Config Panel
   function NewRogueConfig()
-      bb.profile_window = createNewProfileWindow("Rogue")
+      bb.ui.window.profile = bb.ui:createProfileWindow("Rogue")
       local section
 
-      section = createNewSection(bb.profile_window, "NOTHING")
-      checkSectionState(section)
+      section = bb.ui:createSection(bb.ui.window.profile, "NOTHING")
+      bb.ui:checkSectionState(section)
 
       --[[ Rotation Dropdown ]]--
-      createNewRotationDropdown(bb.profile_window.parent, {"CuteOn"})
+      bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"CuteOn"})
       bb:checkProfileWindowStatus()
   end
 

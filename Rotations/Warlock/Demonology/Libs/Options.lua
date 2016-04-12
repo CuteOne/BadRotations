@@ -1,46 +1,46 @@
 if select(3,UnitClass("player")) == 9 then
     function DemonologyConfig()
 
-        bb.profile_window = createNewProfileWindow("Demonology")
+        bb.ui.window.profile = bb.ui:createProfileWindow("Demonology")
         local section
 
-        section = createNewSection(bb.profile_window, "Buffs")
-        checkSectionState(section)
+        section = bb.ui:createSection(bb.ui.window.profile, "Buffs")
+        bb.ui:checkSectionState(section)
 
 
-        section = createNewSection(bb.profile_window, "DPS")
+        section = bb.ui:createSection(bb.ui.window.profile, "DPS")
         -- Multi-Moonfire
-        createNewCheckbox(section,"Multi-Dotting")
-        checkSectionState(section)
+        bb.ui:createCheckbox(section,"Multi-Dotting")
+        bb.ui:checkSectionState(section)
 
 
-        section = createNewSection(bb.profile_window, "Cooldowns")
-        checkSectionState(section)
+        section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
+        bb.ui:checkSectionState(section)
 
 
-        section = createNewSection(bb.profile_window, "Healing")
+        section = bb.ui:createSection(bb.ui.window.profile, "Healing")
         -- Drain Life
-        createNewSpinner(section,  "Drain Life",  65,  0,  100  ,  5,  "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDrain Life")
+        bb.ui:createSpinner(section,  "Drain Life",  65,  0,  100  ,  5,  "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFDrain Life")
         -- Healthstone
-        createNewSpinner(section,  "Healthstone",  35,  0,  100  ,  5,  "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone")
-        checkSectionState(section)
+        bb.ui:createSpinner(section,  "Healthstone",  35,  0,  100  ,  5,  "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone")
+        bb.ui:checkSectionState(section)
 
 
-        section = createNewSection(bb.profile_window, "Defensive")
-        checkSectionState(section)
+        section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
+        bb.ui:checkSectionState(section)
 
 
-        section = createNewSection(bb.profile_window, "Toggles")
+        section = bb.ui:createSection(bb.ui.window.profile, "Toggles")
         -- Pause Toggle
-        createNewDropdown(section, "Pause Toggle", bb.dropOptions.Toggle2,  3)
+        bb.ui:createDropdown(section, "Pause Toggle", bb.dropOptions.Toggle2,  3)
         -- Focus Toggle
-        createNewDropdown(section, "Focus Toggle", bb.dropOptions.Toggle2,  2)
-        checkSectionState(section)
+        bb.ui:createDropdown(section, "Focus Toggle", bb.dropOptions.Toggle2,  2)
+        bb.ui:checkSectionState(section)
 
 
 
         --[[ Rotation Dropdown ]]--
-        createNewRotationDropdown(bb.profile_window.parent, {"CodeMyLife"})
+        bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"CodeMyLife"})
         bb:checkProfileWindowStatus()
 
     end

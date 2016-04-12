@@ -182,64 +182,64 @@ function cCombat:new()
 --- OPTIONS ---
 ---------------
 	function self.createOptions()
-        bb.profile_window = createNewProfileWindow("Combat")
+        bb.ui.window.profile = bb.ui:createProfileWindow("Combat")
         local section
 
 		-- Create Base and Class options
 		self.createClassOptions()
 
 		-- Combat options
-		section = createNewSection(bb.profile_window, "--- General ---")
+		section = bb.ui:createSection(bb.ui.window.profile, "--- General ---")
         -- Stealth Timer
         CreateNewBox(thisConfig,"Stealth Timer", 0, 2, 0.25, 1, "|cffFFBB00How long to wait(seconds) before using \n|cffFFFFFFStealth.")
         -- Stealth
-        createNewDropdown(section, "Stealth", {"|cff00FF00Always","|cffFFDD00PrePot","|cffFF000020Yards"}, 1, "Stealthing method.")
-        checkSectionState(section) 
+        bb.ui:createDropdown(section, "Stealth", {"|cff00FF00Always","|cffFFDD00PrePot","|cffFF000020Yards"}, 1, "Stealthing method.")
+        bb.ui:checkSectionState(section)
 
 
-		section = createNewSection(bb.profile_window, "--- Cooldowns ---")
+		section = bb.ui:createSection(bb.ui.window.profile, "--- Cooldowns ---")
         -- Agi Pot
-        --createNewCheckbox(section,"Agi-Pot")
+        --bb.ui:createCheckbox(section,"Agi-Pot")
         -- Vanish
-        createNewCheckbox(section,"Vanish","Enable or Disable usage of Vanish.")
-        createNewDropdown(section, "Vanish", bb.dropOptions.CD, 2)
+        bb.ui:createCheckbox(section,"Vanish","Enable or Disable usage of Vanish.")
+        bb.ui:createDropdown(section, "Vanish", bb.dropOptions.CD, 2)
         -- Adrenaline Rush
-        createNewCheckbox(section,"Adrenaline Rush","Enable or Disable usage of Adrenaline Rush.")
-        createNewDropdown(section, "Adrenaline Rush", bb.dropOptions.CD, 2)
+        bb.ui:createCheckbox(section,"Adrenaline Rush","Enable or Disable usage of Adrenaline Rush.")
+        bb.ui:createDropdown(section, "Adrenaline Rush", bb.dropOptions.CD, 2)
         -- Killing Spree
-        createNewCheckbox(section,"Killing Spree","Enable or Disable usage of Killing Spree.")
-        createNewDropdown(section, "Killing Spree", bb.dropOptions.CD, 2)
+        bb.ui:createCheckbox(section,"Killing Spree","Enable or Disable usage of Killing Spree.")
+        bb.ui:createDropdown(section, "Killing Spree", bb.dropOptions.CD, 2)
         -- Blade Flurry
-        createNewCheckbox(section,"Blade Flurry","Enable or Disable usage of Blade Flurry.",1)
-        checkSectionState(section) 
+        bb.ui:createCheckbox(section,"Blade Flurry","Enable or Disable usage of Blade Flurry.",1)
+        bb.ui:checkSectionState(section)
 
 
-		section = createNewSection(bb.profile_window, "--- Defensive ---")
+		section = bb.ui:createSection(bb.ui.window.profile, "--- Defensive ---")
         -- Healthstone
-        --createNewCheckbox(section,"Pot/Stoned")
+        --bb.ui:createCheckbox(section,"Pot/Stoned")
         --CreateNewBox(thisConfig,"Pot/Stoned", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.")
-        checkSectionState(section) 
+        bb.ui:checkSectionState(section)
 
 
-		section = createNewSection(bb.profile_window, "--- Toggle Keys ---")
+		section = bb.ui:createSection(bb.ui.window.profile, "--- Toggle Keys ---")
         -- Single/Multi Toggle
-        createNewCheckbox(section,"Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.")
-        createNewDropdown(section, "Rotation Mode", bb.dropOptions.Toggle,  4)
+        bb.ui:createCheckbox(section,"Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.")
+        bb.ui:createDropdown(section, "Rotation Mode", bb.dropOptions.Toggle,  4)
         --Cooldown Key Toggle
-        createNewCheckbox(section,"Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.")
-        createNewDropdown(section, "Cooldown Mode", bb.dropOptions.Toggle,  3)
+        bb.ui:createCheckbox(section,"Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.")
+        bb.ui:createDropdown(section, "Cooldown Mode", bb.dropOptions.Toggle,  3)
         --Defensive Key Toggle
-        createNewCheckbox(section,"Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.")
-        createNewDropdown(section, "Defensive Mode", bb.dropOptions.Toggle,  6)
+        bb.ui:createCheckbox(section,"Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.")
+        bb.ui:createDropdown(section, "Defensive Mode", bb.dropOptions.Toggle,  6)
         --Interrupts Key Toggle
-        createNewCheckbox(section,"Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.")
-        createNewDropdown(section, "Interrupt Mode", bb.dropOptions.Toggle,  6)
-        checkSectionState(section) 
+        bb.ui:createCheckbox(section,"Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.")
+        bb.ui:createDropdown(section, "Interrupt Mode", bb.dropOptions.Toggle,  6)
+        bb.ui:checkSectionState(section)
 
 
 
         --[[ Rotation Dropdown ]]--
-        createNewRotationDropdown(bb.profile_window.parent, {"Defmaster"})
+        bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"Defmaster"})
         bb:checkProfileWindowStatus()
 	end
 

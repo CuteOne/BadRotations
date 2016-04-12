@@ -256,14 +256,14 @@ cWarlock = {}
 	        -- Create Base Options
 	        self.createBaseOptions()
 
-	        local section = createNewSection(bb.profile_window, "Class Options")
+	        local section = bb.ui:createSection(bb.ui.window.profile, "Class Options")
 	        -- Dummy DPS Test
-            createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 	        -- Dark Intent
-	        createNewCheckbox(section,"Dark Intent")
+	        bb.ui:createCheckbox(section,"Dark Intent")
 	        -- Demon
-            createNewDropdown(section,  "Summon Demon", { "Felhunter","Imp","Succubus","VoidWalker"},  1,  "Choose Demon to Summon.")
-	        checkSectionState(section)
+            bb.ui:createDropdown(section,  "Summon Demon", { "Felhunter","Imp","Succubus","VoidWalker"},  1,  "Choose Demon to Summon.")
+	        bb.ui:checkSectionState(section)
 	    end
 
 	------------------------------

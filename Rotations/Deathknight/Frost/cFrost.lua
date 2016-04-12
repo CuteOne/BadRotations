@@ -251,7 +251,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         end
 
         function self.createOptions()
-            bb.profile_window = createNewProfileWindow("Frost")
+            bb.ui.window.profile = bb.ui:createProfileWindow("Frost")
             local section
 
             -- Create Base and Class options
@@ -263,23 +263,23 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             -- | | |_ |/ _ \ '_ \ / _ \ '__/ _` | |
             -- | |__| |  __/ | | |  __/ | | (_| | |
             --  \_____|\___|_| |_|\___|_|  \__,_|_|
-            section = createNewSection(bb.profile_window,  "General")
+            section = bb.ui:createSection(bb.ui.window.profile,  "General")
             -- Dummy DPS Test
-            createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
             -- Mouseover Targeting
-            createNewCheckbox(section,"Mouseover Targeting","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFmouseover target validation.|cffFFBB00.")
+            bb.ui:createCheckbox(section,"Mouseover Targeting","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFmouseover target validation.|cffFFBB00.")
             
             -- Death Grip
-            createNewCheckbox(section,"Death Grip")
+            bb.ui:createCheckbox(section,"Death Grip")
 
             -- Gorefiend's Crasp
-            createNewCheckbox(section,"Gorefiend's Grasp")
+            bb.ui:createCheckbox(section,"Gorefiend's Grasp")
 
             -- Pre-Pull Timer
-            createNewSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
 
-            checkSectionState(section)
+            bb.ui:checkSectionState(section)
 
             --   _____            _     _
             --  / ____|          | |   | |
@@ -287,24 +287,24 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             -- | |    / _ \ / _ \| |/ _` |/ _ \ \ /\ / / '_ \/ __|
             -- | |___| (_) | (_) | | (_| | (_) \ V  V /| | | \__ \
             --  \_____\___/ \___/|_|\__,_|\___/ \_/\_/ |_| |_|___/
-            section = createNewSection(bb.profile_window,  "Cooldowns")
+            section = bb.ui:createSection(bb.ui.window.profile,  "Cooldowns")
             -- Legendary Ring
-            createNewDropdown(section,  "Legendary Ring", bb.dropOptions.CD,  2, "Enable or Disable usage of Legendary Ring.")
+            bb.ui:createDropdown(section,  "Legendary Ring", bb.dropOptions.CD,  2, "Enable or Disable usage of Legendary Ring.")
 
             -- Strength Potion
-            createNewCheckbox(section,"Str-Pot")
+            bb.ui:createCheckbox(section,"Str-Pot")
 
             -- Flask / Crystal
-            createNewCheckbox(section,"Flask / Crystal")
+            bb.ui:createCheckbox(section,"Flask / Crystal")
 
             -- Trinkets
-            createNewCheckbox(section,"Trinkets")
+            bb.ui:createCheckbox(section,"Trinkets")
 
             -- Empower Rune Weapon
             --if isKnown(_EmpowerRuneWeapon) then
-                createNewCheckbox(section,"Empower Rune Weapon")
+                bb.ui:createCheckbox(section,"Empower Rune Weapon")
             --end
-            checkSectionState(section)
+            bb.ui:checkSectionState(section)
 
 
             --  _____        __               _
@@ -313,59 +313,59 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             -- | |  | |/ _ \  _/ _ \ '_ \/ __| \ \ / / _ \
             -- | |__| |  __/ ||  __/ | | \__ \ |\ V /  __/
             -- |_____/ \___|_| \___|_| |_|___/_| \_/ \___|
-            section = createNewSection(bb.profile_window, "Defensive")
+            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
             -- Healthstone
-            createNewSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            bb.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Heirloom Neck
-            createNewSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Blood Presence
-            createNewSpinner(section, "Blood Presence",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:createSpinner(section, "Blood Presence",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Death Strike
-            createNewSpinner(section, "Death Strike",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:createSpinner(section, "Death Strike",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Icebound Fortitude
-            createNewSpinner(section, "Icebound Fortitude",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:createSpinner(section, "Icebound Fortitude",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Lichbourne
             --if getTalent(2,1) then
-            createNewCheckbox(section,"Lichborne")
+            bb.ui:createCheckbox(section,"Lichborne")
             --end
 
             -- Anti-Magic Shell/Zone
             --if getTalent(2,2) then
-            createNewSpinner(section, "Anti-Magic Zone",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:createSpinner(section, "Anti-Magic Zone",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             --else
-            createNewSpinner(section, "Anti-Magic Shell",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:createSpinner(section, "Anti-Magic Shell",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             --end
 
             -- Death Pact
             --if getTalent(5,1) then
-            createNewSpinner(section, "Death Pact",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:createSpinner(section, "Death Pact",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             --end
 
             -- Death Siphon
             --if getTalent(5,2) then
-            createNewSpinner(section, "Death Siphon",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:createSpinner(section, "Death Siphon",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             --end
 
             -- Conversion
             --if getTalent(5,3) then
-            createNewSpinner(section, "Conversion",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:createSpinner(section, "Conversion",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             --end
 
             -- Remorseless Winter
             --if getTalent(6,2) then
-            createNewSpinner(section, "Remorseless Winter",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:createSpinner(section, "Remorseless Winter",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             --end
 
             -- Desecrated Ground
             --if getTalent(6,3) then
-            createNewCheckbox(section,"Desecrated Ground")
+            bb.ui:createCheckbox(section,"Desecrated Ground")
             --end
-            checkSectionState(section)
+            bb.ui:checkSectionState(section)
 
 
             --  _____       _                             _
@@ -376,24 +376,24 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             -- |_____|_| |_|\__\___|_|  |_|   \__,_| .__/ \__|___/
             --                                     | |
             --                                     |_|
-            section = createNewSection(bb.profile_window, "Interrupts")
+            section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
             -- Mind Freeze
-            createNewCheckbox(section,"Mind Freeze")
+            bb.ui:createCheckbox(section,"Mind Freeze")
 
             --if isKnown(_Asphyxiate) then
             -- Asphyxiate
-            createNewCheckbox(section,"Asphyxiate")
+            bb.ui:createCheckbox(section,"Asphyxiate")
             --else
             -- Strangulate
-            createNewCheckbox(section,"Strangulate")
+            bb.ui:createCheckbox(section,"Strangulate")
             --end
 
             -- Dark Simulacrum
-            createNewCheckbox(section,"Dark Simulacrum")
+            bb.ui:createCheckbox(section,"Dark Simulacrum")
 
             -- Interrupt Percentage
-            createNewSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
-            checkSectionState(section)
+            bb.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+            bb.ui:checkSectionState(section)
 
 
             -- _______                _        _  __
@@ -404,30 +404,30 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             --   |_|\___/ \__, |\__, |_|\___| |_|\_\___|\__, |___/
             --             __/ | __/ |                   __/ |
             --            |___/ |___/                   |___/
-            section = createNewSection(bb.profile_window,  "Toggle Keys")
+            section = bb.ui:createSection(bb.ui.window.profile,  "Toggle Keys")
             -- Single/Multi Toggle
-            createNewDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
+            bb.ui:createDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
 
             --Cooldown Key Toggle
-            createNewDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
+            bb.ui:createDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
 
             --Defensive Key Toggle
-            createNewDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
+            bb.ui:createDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
 
             -- Interrupts Key Toggle
-            createNewDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
+            bb.ui:createDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
 
             -- Cleave Toggle
-            createNewDropdown(section,  "Cleave Mode", bb.dropOptions.Toggle,  6)
+            bb.ui:createDropdown(section,  "Cleave Mode", bb.dropOptions.Toggle,  6)
 
             -- Pause Toggle
-            createNewDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
-            checkSectionState(section)
+            bb.ui:createDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
+            bb.ui:checkSectionState(section)
 
 
 
             --[[ Rotation Dropdown ]]--
-            createNewRotationDropdown(bb.profile_window.parent, {"CuteOne", "OLD"})
+            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"CuteOne", "OLD"})
             bb:checkProfileWindowStatus()
         end
 

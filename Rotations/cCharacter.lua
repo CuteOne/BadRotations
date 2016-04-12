@@ -358,12 +358,12 @@ function cCharacter:new(class)
 
     function self.createBaseOptions()
         -- Base Wrap
-        local section_base = createNewSection(bb.profile_window, "Base Options")
-        createNewCheckbox(section_base, "Ignore Combat")
-        createNewCheckbox(section_base, "Use Crystal")
-        createNewCheckbox(section_base, "Use emp. Rune")
-        createNewCheckbox(section_base, "Use Racial")
-        checkSectionState(section_base)
+        local section_base = bb.ui:createSection(bb.ui.window.profile, "Base Options")
+        bb.ui:createCheckbox(section_base, "Ignore Combat")
+        bb.ui:createCheckbox(section_base, "Use Crystal")
+        bb.ui:createCheckbox(section_base, "Use emp. Rune")
+        bb.ui:createCheckbox(section_base, "Use Racial")
+        bb.ui:checkSectionState(section_base)
     end
 
  -- Get option modes

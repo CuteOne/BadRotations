@@ -1,14 +1,14 @@
 if select(3,UnitClass("player")) == 10 then
 -- Config Panel
 function NewMonkConfig()
-    bb.profile_window = createNewProfileWindow("Monk")
+    bb.ui.window.profile = bb.ui:createProfileWindow("Monk")
     local section
 
-    section = createNewSection(bb.profile_window, "NOTHING")
-    checkSectionState(section)
+    section = bb.ui:createSection(bb.ui.window.profile, "NOTHING")
+    bb.ui:checkSectionState(section)
 
     --[[ Rotation Dropdown ]]--
-    createNewRotationDropdown(bb.profile_window.parent, {"CuteOn"})
+    bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"CuteOn"})
     bb:checkProfileWindowStatus()
 end
 
@@ -21,64 +21,64 @@ end
 --[[           ]]	--[[]]	   --[[]]	--[[           ]]	 --[[]]   --[[]]
 
 function MonkBrewConfig()
-    bb.profile_window = createNewProfileWindow("Brewmaster")
+    bb.ui.window.profile = bb.ui:createProfileWindow("Brewmaster")
 
     local section
 
-    section = createNewSection(bb.profile_window, "General")
+    section = bb.ui:createSection(bb.ui.window.profile, "General")
     -- Stats Buff
-    createNewCheckbox(section, "Stats Buff")
+    bb.ui:createCheckbox(section, "Stats Buff")
     -- Detox
-    createNewCheckbox(section, "Detox")
+    bb.ui:createCheckbox(section, "Detox")
     -- Pause Toggle
-    createNewDropdown(section, "Pause Toggle", bb.dropOptions.Toggle ,4)
+    bb.ui:createDropdown(section, "Pause Toggle", bb.dropOptions.Toggle ,4)
     -- Dizzying Haze
-    createNewDropdown(section, "Dizzying Haze Key", bb.dropOptions.Toggle2 ,2)
+    bb.ui:createDropdown(section, "Dizzying Haze Key", bb.dropOptions.Toggle2 ,2)
     -- Dizzying Haze
-    createNewDropdown(section, "Black Ox Statue Key", bb.dropOptions.Toggle2 ,2)
-    checkSectionState(section)
+    bb.ui:createDropdown(section, "Black Ox Statue Key", bb.dropOptions.Toggle2 ,2)
+    bb.ui:checkSectionState(section)
 
 
 
-    section = createNewSection(bb.profile_window, "Cooldowns")
+    section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
     -- Xuen
-    createNewCheckbox(section, "Invoke Xuen")
+    bb.ui:createCheckbox(section, "Invoke Xuen")
     -- Breath of Fire
-    createNewCheckbox(section, "Breath of Fire", "Disable usage of Breath of Fire")
+    bb.ui:createCheckbox(section, "Breath of Fire", "Disable usage of Breath of Fire")
     -- Elusive Brew"
-    createNewSpinner(section, "Elusive Brew", 9, 0, 16, 1, "At what |cffFF0000Stack to use |cffFFFFFFElusive Brew")
-    checkSectionState(section)
+    bb.ui:createSpinner(section, "Elusive Brew", 9, 0, 16, 1, "At what |cffFF0000Stack to use |cffFFFFFFElusive Brew")
+    bb.ui:checkSectionState(section)
 
 
 
-    section = createNewSection(bb.profile_window, "Defensive")
+    section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
     -- Dazzling Brew
-    --createNewCheckbox(section, "Dazzling Brew")
+    --bb.ui:createCheckbox(section, "Dazzling Brew")
     -- Fortifying Brew
-    createNewSpinner(section, "Fortifying Brew", 30, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFFortifying Brew")
+    bb.ui:createSpinner(section, "Fortifying Brew", 30, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFFortifying Brew")
     -- Diffuse Magic
-    createNewSpinner(section, "Diffuse Magic", 30, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFDiffuse Magic")
+    bb.ui:createSpinner(section, "Diffuse Magic", 30, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFDiffuse Magic")
     -- Dampen Harm
-    createNewSpinner(section, "Dampen Harm", 30, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFDampen Harm")
+    bb.ui:createSpinner(section, "Dampen Harm", 30, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFDampen Harm")
     -- Guard
-    createNewCheckbox(section, "Guard on CD")
+    bb.ui:createCheckbox(section, "Guard on CD")
     -- Expel Harm
-    createNewSpinner(section, "Expel Harm", 30, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFExpel Harm")
+    bb.ui:createSpinner(section, "Expel Harm", 30, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFExpel Harm")
     -- Healthstone
-    createNewSpinner(section, "Healthstone", 20, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFHealthstone")
-    checkSectionState(section)
+    bb.ui:createSpinner(section, "Healthstone", 20, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFHealthstone")
+    bb.ui:checkSectionState(section)
 
 
-    section = createNewSection(bb.profile_window, "Utilities")
+    section = bb.ui:createSection(bb.ui.window.profile, "Utilities")
     -- Angry Monk
-    createNewCheckbox(section, "Angry Monk", "|cffFF0000Disable Combat Check.")
+    bb.ui:createCheckbox(section, "Angry Monk", "|cffFF0000Disable Combat Check.")
     -- Resuscitate
-    createNewCheckbox(section, "Resuscitate")
-    checkSectionState(section)
+    bb.ui:createCheckbox(section, "Resuscitate")
+    bb.ui:checkSectionState(section)
 
 
     --[[ Rotation Dropdown ]]--
-    createNewRotationDropdown(bb.profile_window.parent, {"Chumii"})
+    bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"Chumii"})
 
     bb:checkProfileWindowStatus()
 end
@@ -92,84 +92,84 @@ end
 --[[]]	   --[[]]	--[[           ]]	--[[           ]]		 --[[ ]]
 
 function MonkMistConfig()
-    bb.profile_window = createNewProfileWindow("Mistweaver")
+    bb.ui.window.profile = bb.ui:createProfileWindow("Mistweaver")
     local section
 
     -- Wrapper -----------------------------------------
-    section = createNewSection(bb.profile_window, "Buffs")
+    section = bb.ui:createSection(bb.ui.window.profile, "Buffs")
     -- Stance
-    createNewDropdown(section,  "Stance", { "|cff00FF55Serpent", "|cff0077FFCrane"},  1,  "Choose Stance to use.")
+    bb.ui:createDropdown(section,  "Stance", { "|cff00FF55Serpent", "|cff0077FFCrane"},  1,  "Choose Stance to use.")
     -- Legacy of the Emperor
-    createNewCheckbox(section,"Legacy of the Emperor")
+    bb.ui:createCheckbox(section,"Legacy of the Emperor")
 
-    createNewCheckbox(section,"Jade Serpent Statue (Left Shift)")
-    checkSectionState(section)
+    bb.ui:createCheckbox(section,"Jade Serpent Statue (Left Shift)")
+    bb.ui:checkSectionState(section)
 
     
     -- Wrapper -----------------------------------------
-    section = createNewSection(bb.profile_window, "Cooldowns")
-    createNewSpinner(section, "Revival", 20, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFRevival")
-    createNewSpinner(section,  "Revival People",  5,  0 , 25 ,  1,  "How many people need to be at the % to activate.")
-    createNewSpinner(section, "Life Cocoon", 15, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFLife Cocoon")
-    checkSectionState(section)
+    section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
+    bb.ui:createSpinner(section, "Revival", 20, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFRevival")
+    bb.ui:createSpinner(section,  "Revival People",  5,  0 , 25 ,  1,  "How many people need to be at the % to activate.")
+    bb.ui:createSpinner(section, "Life Cocoon", 15, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFLife Cocoon")
+    bb.ui:checkSectionState(section)
 
 
     -- Wrapper -----------------------------------------
-    section = createNewSection(bb.profile_window, "Healing")
+    section = bb.ui:createSection(bb.ui.window.profile, "Healing")
     -- Nature's Cure
-    createNewDropdown(section, "Detox", { "|cffFFDD11MMouse", "|cffFFDD11MRaid", "|cff00FF00AMouse", "|cff00FF00ARaid"},  1,  "MMouse:|cffFFFFFFMouse / Match List. \nMRaid:|cffFFFFFFRaid / Match List. \nAMouse:|cffFFFFFFMouse / All. \nARaid:|cffFFFFFFRaid / All.")
+    bb.ui:createDropdown(section, "Detox", { "|cffFFDD11MMouse", "|cffFFDD11MRaid", "|cff00FF00AMouse", "|cff00FF00ARaid"},  1,  "MMouse:|cffFFFFFFMouse / Match List. \nMRaid:|cffFFFFFFRaid / Match List. \nAMouse:|cffFFFFFFMouse / All. \nARaid:|cffFFFFFFRaid / All.")
     -- Mana Tea
-    createNewSpinner(section, "Mana Tea", 90, 0 , 100, 5,  "Under what |cffFF0000%MP to use |cffFFFFFFMana Tea.")
+    bb.ui:createSpinner(section, "Mana Tea", 90, 0 , 100, 5,  "Under what |cffFF0000%MP to use |cffFFFFFFMana Tea.")
     -- Chi Wave
-    createNewSpinner(section,  "Chi Wave",  55,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFChi Wave.")
+    bb.ui:createSpinner(section,  "Chi Wave",  55,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFChi Wave.")
     -- Enveloping Mist
-    createNewSpinner(section,  "Enveloping Mist",  45,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFEnveloping Mist.")
+    bb.ui:createSpinner(section,  "Enveloping Mist",  45,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFEnveloping Mist.")
     -- Renewing Mist
-    createNewSpinner(section,  "Renewing Mist",  85,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFRenewing Mist.")
+    bb.ui:createSpinner(section,  "Renewing Mist",  85,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFRenewing Mist.")
     -- Soothing Mist
-    createNewSpinner(section,  "Soothing Mist",  75,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFSoothing Mist.")
+    bb.ui:createSpinner(section,  "Soothing Mist",  75,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFSoothing Mist.")
     -- Surging Mist
-    createNewSpinner(section,  "Surging Mist",  65,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFSurging Mist.")
-    checkSectionState(section)
+    bb.ui:createSpinner(section,  "Surging Mist",  65,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFSurging Mist.")
+    bb.ui:checkSectionState(section)
     
     
     -- Wrapper -----------------------------------------
-    section = createNewSection(bb.profile_window, "AoE Healing")
-    createNewSpinner(section,  "Uplift",  75,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFUplift.")
-    createNewSpinner(section,  "Uplift People",  5,  0 , 25 ,  5,  "How many people need to be at the % to activate.")
-    createNewSpinner(section,  "Spinning Crane Kick",  75,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFSCK.")
-    checkSectionState(section)
+    section = bb.ui:createSection(bb.ui.window.profile, "AoE Healing")
+    bb.ui:createSpinner(section,  "Uplift",  75,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFUplift.")
+    bb.ui:createSpinner(section,  "Uplift People",  5,  0 , 25 ,  5,  "How many people need to be at the % to activate.")
+    bb.ui:createSpinner(section,  "Spinning Crane Kick",  75,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFSCK.")
+    bb.ui:checkSectionState(section)
 
 
     -- Wrapper -----------------------------------------
-    section = createNewSection(bb.profile_window, "Defensive")
+    section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
     -- Expel Harm
-    createNewSpinner(section,  "Expel Harm",  80,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFExpel Harm")
+    bb.ui:createSpinner(section,  "Expel Harm",  80,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFExpel Harm")
     -- Fortifying Brew
-    createNewSpinner(section,  "Fortifying Brew",  30,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFFortifying Brew")
+    bb.ui:createSpinner(section,  "Fortifying Brew",  30,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFFortifying Brew")
     -- Healthstone
-    createNewSpinner(section,  "Healthstone",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHealthstone")
-    checkSectionState(section)
+    bb.ui:createSpinner(section,  "Healthstone",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHealthstone")
+    bb.ui:checkSectionState(section)
 
     
     -- Wrapper -----------------------------------------
-    section = createNewSection(bb.profile_window, "Toggles")
+    section = bb.ui:createSection(bb.ui.window.profile, "Toggles")
     -- Pause Toggle
-    createNewDropdown(section, "Pause Toggle", bb.dropOptions.Toggle2,  3)
+    bb.ui:createDropdown(section, "Pause Toggle", bb.dropOptions.Toggle2,  3)
     -- DPS Toggle
 
     -- Wrapper -----------------------------------------
-    section = createNewSection(bb.profile_window, "Utilities")
+    section = bb.ui:createSection(bb.ui.window.profile, "Utilities")
     -- Spear Hand Strike
-    createNewSpinner(section,  "Spear Hand Strike",  60 ,  0,  100  ,  5,  "Over what % of cast we want to \n|cffFFFFFFSpear Hand Strike.")
+    bb.ui:createSpinner(section,  "Spear Hand Strike",  60 ,  0,  100  ,  5,  "Over what % of cast we want to \n|cffFFFFFFSpear Hand Strike.")
     -- Quaking Palm
-    createNewSpinner(section,  "Paralysis",  30 ,  0,  100  ,  5,  "Over what % of cast we want to \n|cffFFFFFFParalysis.")
-    checkSectionState(section)
+    bb.ui:createSpinner(section,  "Paralysis",  30 ,  0,  100  ,  5,  "Over what % of cast we want to \n|cffFFFFFFParalysis.")
+    bb.ui:checkSectionState(section)
 
 
 
     --[[ Rotation Dropdown ]]--
-    createNewRotationDropdown(bb.profile_window.parent, {"Kuukuu"})
+    bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"Kuukuu"})
     bb:checkProfileWindowStatus()
 end
 end

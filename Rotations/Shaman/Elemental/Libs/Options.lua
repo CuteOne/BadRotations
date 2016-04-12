@@ -1,74 +1,74 @@
 if select(3,UnitClass("player")) == 7 then
     function ElementalConfig()
-        bb.profile_window = createNewProfileWindow("Elemental")
+        bb.ui.window.profile = bb.ui:createProfileWindow("Elemental")
         local section
 
         -- Wrapper
-        section = createNewSection(bb.profile_window, "Buffs")
+        section = bb.ui:createSection(bb.ui.window.profile, "Buffs")
         -- Lightning Shield
-        createNewCheckbox(section,"Lightning Shield")
-        checkSectionState(section)
+        bb.ui:createCheckbox(section,"Lightning Shield")
+        bb.ui:checkSectionState(section)
 
 
         -- Wrapper
-        section = createNewSection(bb.profile_window, "Cooldowns")
+        section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
         -- Ancestral Swiftness
         if isKnown(_AncestralSwiftness) then
-            createNewDropdown(section,  "Ancestral Swiftness", bb.dropOptions.CD,  1)
+            bb.ui:createDropdown(section,  "Ancestral Swiftness", bb.dropOptions.CD,  1)
         end
         -- Ascendance
-        createNewDropdown(section,  "Ascendance", bb.dropOptions.CD,  1)
+        bb.ui:createDropdown(section,  "Ascendance", bb.dropOptions.CD,  1)
         -- Elemental Mastery
         if isKnown(_ElementalMastery) then
-            createNewDropdown(section, "Elemental Mastery", bb.dropOptions.CD, 1)
+            bb.ui:createDropdown(section, "Elemental Mastery", bb.dropOptions.CD, 1)
         end
         -- Fire Elemental
-        createNewDropdown(section, "Fire Elemental", bb.dropOptions.CD, 1)
+        bb.ui:createDropdown(section, "Fire Elemental", bb.dropOptions.CD, 1)
         -- Storm Elemental Totem
         if isKnown(_StormElementalTotem) then
-            createNewDropdown(section, "Storm Elemental Totem", bb.dropOptions.CD, 1)
+            bb.ui:createDropdown(section, "Storm Elemental Totem", bb.dropOptions.CD, 1)
         end
         -- Searing
-        createNewCheckbox(section,"Searing")
-        checkSectionState(section)
+        bb.ui:createCheckbox(section,"Searing")
+        bb.ui:checkSectionState(section)
 
 
         -- Wrapper
-        section = createNewSection(bb.profile_window, "DPS Tweaks")
+        section = bb.ui:createSection(bb.ui.window.profile, "DPS Tweaks")
         -- EarthQuake
-        createNewDropdown(section, "EarthQuake", bb.dropOptions.CD, 1)
+        bb.ui:createDropdown(section, "EarthQuake", bb.dropOptions.CD, 1)
         -- Thunderstorm
-        createNewDropdown(section, "Thunderstorm", bb.dropOptions.CD, 1)
-        checkSectionState(section)
+        bb.ui:createDropdown(section, "Thunderstorm", bb.dropOptions.CD, 1)
+        bb.ui:checkSectionState(section)
 
 
         -- Wrapper
-        section = createNewSection(bb.profile_window, "Defensive")
+        section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
         -- Astral Shift
-        createNewSpinner(section, "Astral Shift", 30, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFAstral Shit")
+        bb.ui:createSpinner(section, "Astral Shift", 30, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFAstral Shit")
         -- Healing Stream
-        createNewSpinner(section, "Healing Stream", 50, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream")
+        bb.ui:createSpinner(section, "Healing Stream", 50, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream")
         -- Healing Rain
-        createNewSpinner(section, "Healing Rain", 50, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream")
+        bb.ui:createSpinner(section, "Healing Rain", 50, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream")
         -- Shamanistic Rage
-        createNewSpinner(section, "Shamanistic Rage", 70, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFShamanistic Rage")
-        checkSectionState(section)
+        bb.ui:createSpinner(section, "Shamanistic Rage", 70, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFShamanistic Rage")
+        bb.ui:checkSectionState(section)
 
 
         -- Wrapper
-        section = createNewSection(bb.profile_window, "Utilities")
+        section = bb.ui:createSection(bb.ui.window.profile, "Utilities")
         -- Healing Surge Toggle
-        createNewDropdown(section, "Healing Surge Toggle", bb.dropOptions.Toggle2, 4)
+        bb.ui:createDropdown(section, "Healing Surge Toggle", bb.dropOptions.Toggle2, 4)
         -- Pause Toggle
-        createNewDropdown(section, "Pause Toggle", bb.dropOptions.Toggle2, 3)
+        bb.ui:createDropdown(section, "Pause Toggle", bb.dropOptions.Toggle2, 3)
         -- Standard Interrupt
-        createNewSpinner(section, "Wind Shear", 35, 0, 100, 5, "|cffFFBB00Over what % of cast we want to |cffFFFFFFWind Shear.")
-        checkSectionState(section)
+        bb.ui:createSpinner(section, "Wind Shear", 35, 0, 100, 5, "|cffFFBB00Over what % of cast we want to |cffFFFFFFWind Shear.")
+        bb.ui:checkSectionState(section)
 
         
 
         --[[ Rotation Dropdown ]]--
-        createNewRotationDropdown(bb.profile_window.parent, {"CodeMyLife"})
+        bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"CodeMyLife"})
         bb:checkProfileWindowStatus()
     end
 end

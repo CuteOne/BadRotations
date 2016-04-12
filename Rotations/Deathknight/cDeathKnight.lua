@@ -355,10 +355,10 @@ function cDK:new(spec)
         self.createBaseOptions()
 
         -- Class Wrap
-        local section = createNewSection(bb.profile_window,  "Class Options")
+        local section = bb.ui:createSection(bb.ui.window.profile,  "Class Options")
         -- Horn of Winter
-        createNewCheckbox(section,"Horn of Winter","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Horn of Winter usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
-        checkSectionState(section)
+        bb.ui:createCheckbox(section,"Horn of Winter","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Horn of Winter usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
+        bb.ui:checkSectionState(section)
 	end
 
 ------------------------------

@@ -1,126 +1,126 @@
 if select(3, UnitClass("player")) == 8 then
 
     function FrostMageConfig()
-        bb.profile_window = createNewProfileWindow("Frost")
+        bb.ui.window.profile = bb.ui:createProfileWindow("Frost")
         local section
 
         -- Wrapper -----------------------------------------
-        section = createNewSection(bb.profile_window,"--- Buffs ---")
+        section = bb.ui:createSection(bb.ui.window.profile,"--- Buffs ---")
         --[[Arcane Brilliance]]
-        createNewCheckbox(section,"Arcane Brilliance");
-        checkSectionState(section) ;
+        bb.ui:createCheckbox(section,"Arcane Brilliance");
+        bb.ui:checkSectionState(section) ;
 
         
         -- Wrapper -----------------------------------------
-        section = createNewSection(bb.profile_window,"--- Cooldowns ---")
-        createNewCheckbox(section,"Mirror Image");
-        createNewCheckbox(section,"Icy Veins");
-        createNewCheckbox(section,"Racial");
-        checkSectionState(section) ;
+        section = bb.ui:createSection(bb.ui.window.profile,"--- Cooldowns ---")
+        bb.ui:createCheckbox(section,"Mirror Image");
+        bb.ui:createCheckbox(section,"Icy Veins");
+        bb.ui:createCheckbox(section,"Racial");
+        bb.ui:checkSectionState(section) ;
 
 
         -- Wrapper -----------------------------------------
-        section = createNewSection(bb.profile_window,"--- Defensives ---")
-        checkSectionState(section) ;
+        section = bb.ui:createSection(bb.ui.window.profile,"--- Defensives ---")
+        bb.ui:checkSectionState(section) ;
 
 
         -- Wrapper -----------------------------------------
-        section = createNewSection(bb.profile_window,"--- Toggles")
+        section = bb.ui:createSection(bb.ui.window.profile,"--- Toggles")
         --[[Pause Toggle]]
-        createNewDropdown(section, "Pause Toggle", bb.dropOptions.Toggle2,  3)
+        bb.ui:createDropdown(section, "Pause Toggle", bb.dropOptions.Toggle2,  3)
         -- [[Focus Toggle]]
-        -- createNewDropdown(section, "Focus Toggle", bb.dropOptions.Toggle2,  2)
-        checkSectionState(section) ;
+        -- bb.ui:createDropdown(section, "Focus Toggle", bb.dropOptions.Toggle2,  2)
+        bb.ui:checkSectionState(section) ;
 
 
         -- Wrapper -----------------------------------------
-        section = createNewSection(bb.profile_window,"--- Rotation ---")
+        section = bb.ui:createSection(bb.ui.window.profile,"--- Rotation ---")
         -- Rotation
-        createNewDropdown(section,  "RotationSelect", { "|cffFFBB00IcyVeins", "|cff0077FFSimCraft"},  1,  "Choose Rotation to use.") ;
-        checkSectionState(section) ;
+        bb.ui:createDropdown(section,  "RotationSelect", { "|cffFFBB00IcyVeins", "|cff0077FFSimCraft"},  1,  "Choose Rotation to use.") ;
+        bb.ui:checkSectionState(section) ;
 
 
 
         --[[ Rotation Dropdown ]]--
-        createNewRotationDropdown(bb.profile_window.parent, {"ragnar"})
+        bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"ragnar"})
         bb:checkProfileWindowStatus()
     end
 
     function ArcaneMageConfig()
-        bb.profile_window = createNewProfileWindow("Arcane")
+        bb.ui.window.profile = bb.ui:createProfileWindow("Arcane")
         local section
 
         -- Wrapper -----------------------------------------
-        section = createNewSection(bb.profile_window,"--- Buffs ---")
+        section = bb.ui:createSection(bb.ui.window.profile,"--- Buffs ---")
         --[[Arcane Brilliance]]
-        createNewCheckbox(section,"Arcane Brilliance")
-        checkSectionState(section)
+        bb.ui:createCheckbox(section,"Arcane Brilliance")
+        bb.ui:checkSectionState(section)
 
 
         -- Wrapper -----------------------------------------
-        section = createNewSection(bb.profile_window,"--- Cooldowns ---")
-        createNewCheckbox(section,"Mirror Image")
-        createNewCheckbox(section,"Arcane Power")
-        createNewCheckbox(section,"Racial")
-        createNewCheckbox(section,"Cold Snap")
-        checkSectionState(section)
+        section = bb.ui:createSection(bb.ui.window.profile,"--- Cooldowns ---")
+        bb.ui:createCheckbox(section,"Mirror Image")
+        bb.ui:createCheckbox(section,"Arcane Power")
+        bb.ui:createCheckbox(section,"Racial")
+        bb.ui:createCheckbox(section,"Cold Snap")
+        bb.ui:checkSectionState(section)
 
 
         -- Wrapper -----------------------------------------
-        section = createNewSection(bb.profile_window,"--- Defensives ---")
-        createNewSpinner(section, "Evanesce",  30,  0,  100  ,  5,  "|cffFFBB00Under what |cff69ccf0%HP|cffFFBB00 cast |cff69ccf0Evanesce.")
+        section = bb.ui:createSection(bb.ui.window.profile,"--- Defensives ---")
+        bb.ui:createSpinner(section, "Evanesce",  30,  0,  100  ,  5,  "|cffFFBB00Under what |cff69ccf0%HP|cffFFBB00 cast |cff69ccf0Evanesce.")
         -- Healthstone
-        createNewSpinner(section, "Healthstone",  25,  0,  100  ,  5,  "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone")
-        checkSectionState(section)
+        bb.ui:createSpinner(section, "Healthstone",  25,  0,  100  ,  5,  "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone")
+        bb.ui:checkSectionState(section)
 
 
         -- Wrapper -----------------------------------------
-        section = createNewSection(bb.profile_window,"--- Rotation ---")
-        createNewSpinner(section, "ArcaneBlast (x4)",  93,  80,  100  ,  1,  "|cffFFBB00Under what |cff69ccf0%Mana|cffFFBB00 dont cast |cff69ccf0Arcane Blast at 4 stacks.")
-        createNewCheckbox(section,"Burn Phase", "Do not enable on Dummy.")
-        checkSectionState(section)
+        section = bb.ui:createSection(bb.ui.window.profile,"--- Rotation ---")
+        bb.ui:createSpinner(section, "ArcaneBlast (x4)",  93,  80,  100  ,  1,  "|cffFFBB00Under what |cff69ccf0%Mana|cffFFBB00 dont cast |cff69ccf0Arcane Blast at 4 stacks.")
+        bb.ui:createCheckbox(section,"Burn Phase", "Do not enable on Dummy.")
+        bb.ui:checkSectionState(section)
 
 
         --[[ Rotation Dropdown ]]--
-        createNewRotationDropdown(bb.profile_window.parent, {"ragnar & Gabbz"})
+        bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"ragnar & Gabbz"})
         bb:checkProfileWindowStatus()
     end
 
     function FireMageConfig()
-        bb.profile_window = createNewProfileWindow("Fire")
+        bb.ui.window.profile = bb.ui:createProfileWindow("Fire")
         local section
 
         -- Wrapper -----------------------------------------
-        section = createNewSection(bb.profile_window,"--- Buffs ---")
-        checkSectionState(section)
+        section = bb.ui:createSection(bb.ui.window.profile,"--- Buffs ---")
+        bb.ui:checkSectionState(section)
 
 
         -- Wrapper -----------------------------------------
-        section = createNewSection(bb.profile_window,"--- Cooldowns ---")
-        createNewCheckbox(section,"Mirror Image")
-        createNewCheckbox(section,"Cold Snap")
-        createNewCheckbox(section,"Racial")
-        createNewCheckbox(section,"Potions")
-        checkSectionState(section)
+        section = bb.ui:createSection(bb.ui.window.profile,"--- Cooldowns ---")
+        bb.ui:createCheckbox(section,"Mirror Image")
+        bb.ui:createCheckbox(section,"Cold Snap")
+        bb.ui:createCheckbox(section,"Racial")
+        bb.ui:createCheckbox(section,"Potions")
+        bb.ui:checkSectionState(section)
 
 
         -- Wrapper -----------------------------------------
-        section = createNewSection(bb.profile_window,"--- Defensives ---")
-        createNewSpinner(section, "Evanesce",  30,  0,  100  ,  5,  "|cffFFBB00Under what |cff69ccf0%HP|cffFFBB00 cast |cff69ccf0Evanesce.")
+        section = bb.ui:createSection(bb.ui.window.profile,"--- Defensives ---")
+        bb.ui:createSpinner(section, "Evanesce",  30,  0,  100  ,  5,  "|cffFFBB00Under what |cff69ccf0%HP|cffFFBB00 cast |cff69ccf0Evanesce.")
         -- Healthstone
-        createNewSpinner(section, "Healthstone",  25,  0,  100  ,  5,  "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone")
-        checkSectionState(section)
+        bb.ui:createSpinner(section, "Healthstone",  25,  0,  100  ,  5,  "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFHealthstone")
+        bb.ui:checkSectionState(section)
 
 
         -- Wrapper -----------------------------------------
-        section = createNewSection(bb.profile_window,"--- Rotation ---")
-        createNewCheckbox(section,"Gabbz")
-        createNewCheckbox(section,"Burst")
-        checkSectionState(section)
+        section = bb.ui:createSection(bb.ui.window.profile,"--- Rotation ---")
+        bb.ui:createCheckbox(section,"Gabbz")
+        bb.ui:createCheckbox(section,"Burst")
+        bb.ui:checkSectionState(section)
 
 
         --[[ Rotation Dropdown ]]--
-        createNewRotationDropdown(bb.profile_window.parent, {"Gabbz"})
+        bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"Gabbz"})
         bb:checkProfileWindowStatus()
     end
 end

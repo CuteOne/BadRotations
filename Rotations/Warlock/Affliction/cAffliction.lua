@@ -222,20 +222,20 @@ function cAffliction:new()
     end
 
     function self.createOptions()
-        bb.profile_window = createNewProfileWindow("Affliction")
+        bb.ui.window.profile = bb.ui:createProfileWindow("Affliction")
 
         self.createClassOptions()
 
         local section
 
         if self.rotation == 1 then
-            section = createNewSection(bb.profile_window, "NYI", "No options here.")
+            section = bb.ui:createSection(bb.ui.window.profile, "NYI", "No options here.")
         elseif self.rotation == 2 then
-            section = createNewSection(bb.profile_window, "NYI", "No options here.")
+            section = bb.ui:createSection(bb.ui.window.profile, "NYI", "No options here.")
         end
 
         --[[ Rotation Dropdown ]]--
-        createNewRotationDropdown(bb.profile_window.parent, self.rotations)
+        bb.ui:createRotationDropdown(bb.ui.window.profile.parent, self.rotations)
         bb:checkProfileWindowStatus()
     end
 

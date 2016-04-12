@@ -1,60 +1,60 @@
  if select(3,UnitClass("player")) == 9 then
 -- Config Panel
    function DestructionConfig()
-            bb.profile_window = createNewProfileWindow("Destruction")
+            bb.ui.window.profile = bb.ui:createProfileWindow("Destruction")
             local section
 
             -- Wrapper -----------------------------------------
-            section = createNewSection(bb.profile_window, "Buffs")
+            section = bb.ui:createSection(bb.ui.window.profile, "Buffs")
             -- Dark Intent
-            createNewCheckbox(section,"Dark Intent")
-            checkSectionState(section)
+            bb.ui:createCheckbox(section,"Dark Intent")
+            bb.ui:checkSectionState(section)
 
             -- Wrapper -----------------------------------------
-            section = createNewSection(bb.profile_window,  "General")
+            section = bb.ui:createSection(bb.ui.window.profile,  "General")
             -- Dummy DPS Test
-            createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Demon
-            createNewDropdown(section,  "Summon Demon", { "Felhunter","Imp","Succubus","VoidWalker"},  1,  "Choose Demon to Summon.")
+            bb.ui:createDropdown(section,  "Summon Demon", { "Felhunter","Imp","Succubus","VoidWalker"},  1,  "Choose Demon to Summon.")
             -- Flask / Crystal
-            createNewCheckbox(section,"Flask")
-            checkSectionState(section)
+            bb.ui:createCheckbox(section,"Flask")
+            bb.ui:checkSectionState(section)
 
             -- Wrapper -----------------------------------------
-            --section = createNewSection(bb.profile_window,  "Cooldowns")
+            --section = bb.ui:createSection(bb.ui.window.profile,  "Cooldowns")
             -- Legendary Ring
-                --createNewCheckbox(section,"Legendary Ring")
+                --bb.ui:createCheckbox(section,"Legendary Ring")
             -- Trinkets
-                --createNewCheckbox(section,"Trinkets")
+                --bb.ui:createCheckbox(section,"Trinkets")
             -- Touch of the Void
-                --createNewCheckbox(section,"Touch of the Void")
-            --checkSectionState(section)
+                --bb.ui:createCheckbox(section,"Touch of the Void")
+            --bb.ui:checkSectionState(section)
 
             -- Wrapper -----------------------------------------
-            section = createNewSection(bb.profile_window, "Defensive")
+            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
             -- Expel Harm
-            createNewSpinner(section,  "Ember Tap",  80,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFEmber Tap")
+            bb.ui:createSpinner(section,  "Ember Tap",  80,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFEmber Tap")
             -- Fortifying Brew
-            createNewSpinner(section,  "Heirloom Neck",  30,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHeirloom Neck")
+            bb.ui:createSpinner(section,  "Heirloom Neck",  30,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHeirloom Neck")
             -- Healthstone
-            createNewSpinner(section,  "Pot/Stoned",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHealthstone")
+            bb.ui:createSpinner(section,  "Pot/Stoned",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHealthstone")
             -- Unending Resolve
-            createNewSpinner(section,  "Unending Resolve",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFUnending Resolve")
-            checkSectionState(section)
+            bb.ui:createSpinner(section,  "Unending Resolve",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFUnending Resolve")
+            bb.ui:checkSectionState(section)
     
             -- Wrapper -----------------------------------------
-            --section = createNewSection(bb.profile_window, "Toggles")
+            --section = bb.ui:createSection(bb.ui.window.profile, "Toggles")
             -- Pause Toggle
-            --createNewDropdown(section, "Pause Toggle", bb.dropOptions.Toggle2,  3)
+            --bb.ui:createDropdown(section, "Pause Toggle", bb.dropOptions.Toggle2,  3)
 
             -- Wrapper -----------------------------------------
-            --section = createNewSection(bb.profile_window, "Utilities")
+            --section = bb.ui:createSection(bb.ui.window.profile, "Utilities")
             -- Shadowfury
-            --createNewSpinner(section,  "Shadowfury",  60 ,  0,  100  ,  5,  "Over what % of cast we want to \n|cffFFFFFFShadowfury.")
-            --checkSectionState(section)
+            --bb.ui:createSpinner(section,  "Shadowfury",  60 ,  0,  100  ,  5,  "Over what % of cast we want to \n|cffFFFFFFShadowfury.")
+            --bb.ui:checkSectionState(section)
 
             --[[ Rotation Dropdown ]]--
-            createNewRotationDropdown(bb.profile_window.parent, {"Kuukuu","Test"})
+            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"Kuukuu","Test"})
             bb:checkProfileWindowStatus()
         end
   end

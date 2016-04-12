@@ -74,8 +74,8 @@ function bb:MinimapButton()
 			end
         end
         if button == "MiddleButton" then
-            if bb.help_window then
-                bb.help_window.parent:Show()
+            if bb.ui.window.help then
+                bb.ui.window.help.parent:Show()
             end
         end
 		if IsShiftKeyDown() and IsAltKeyDown() then
@@ -163,40 +163,40 @@ function bb:characterEquipChanged()
 end
 function bb:saveWindowPosition()
     -- Profile Window
-    local point, relativeTo, relativePoint, xOfs, yOfs = bb.profile_window.parent:GetPoint(1)
+    local point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.profile.parent:GetPoint(1)
     BadBoy_data.options[GetSpecialization()]["configFrame".."_point"] = point
     BadBoy_data.options[GetSpecialization()]["configFrame".."_relativeTo"] = relativeTo:GetName()
     BadBoy_data.options[GetSpecialization()]["configFrame".."_relativePoint"] = relativePoint
     BadBoy_data.options[GetSpecialization()]["configFrame".."_xOfs"] = xOfs
     BadBoy_data.options[GetSpecialization()]["configFrame".."_yOfs"] = yOfs
 
-    point, relativeTo, relativePoint, xOfs, yOfs = bb.profile_window.parent:GetPoint(2)
+    point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.profile.parent:GetPoint(2)
     BadBoy_data.options[GetSpecialization()]["configFrame".."_point2"] = point
     BadBoy_data.options[GetSpecialization()]["configFrame".."_relativeTo2"] = relativeTo:GetName()
     BadBoy_data.options[GetSpecialization()]["configFrame".."_relativePoint2"] = relativePoint
     BadBoy_data.options[GetSpecialization()]["configFrame".."_xOfs2"] = xOfs
     BadBoy_data.options[GetSpecialization()]["configFrame".."_yOfs2"] = yOfs
 
-    BadBoy_data.options[GetSpecialization()]["configFrame".."_width"]  = bb.profile_window.parent:GetWidth()
-    BadBoy_data.options[GetSpecialization()]["configFrame".."_height"] = bb.profile_window.parent:GetHeight()
+    BadBoy_data.options[GetSpecialization()]["configFrame".."_width"]  = bb.ui.window.profile.parent:GetWidth()
+    BadBoy_data.options[GetSpecialization()]["configFrame".."_height"] = bb.ui.window.profile.parent:GetHeight()
 
     -- Config Window
-    point, relativeTo, relativePoint, xOfs, yOfs = bb.config_window.parent:GetPoint(1)
+    point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.config.parent:GetPoint(1)
     BadBoy_data.options[GetSpecialization()]["optionsFrame".."_point"] = point
     BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativeTo"] = relativeTo:GetName()
     BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativePoint"] = relativePoint
     BadBoy_data.options[GetSpecialization()]["optionsFrame".."_xOfs"] = xOfs
     BadBoy_data.options[GetSpecialization()]["optionsFrame".."_yOfs"] = yOfs
 
-    point, relativeTo, relativePoint, xOfs, yOfs = bb.config_window.parent:GetPoint(2)
+    point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.config.parent:GetPoint(2)
     BadBoy_data.options[GetSpecialization()]["optionsFrame".."_point2"] = point
     BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativeTo2"] = relativeTo:GetName()
     BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativePoint2"] = relativePoint
     BadBoy_data.options[GetSpecialization()]["optionsFrame".."_xOfs2"] = xOfs
     BadBoy_data.options[GetSpecialization()]["optionsFrame".."_yOfs2"] = yOfs
 
-    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_width"]  = bb.config_window.parent:GetWidth()
-    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_height"] = bb.config_window.parent:GetHeight()
+    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_width"]  = bb.ui.window.config.parent:GetWidth()
+    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_height"] = bb.ui.window.config.parent:GetHeight()
 end
 
 function frame:OnEvent(event, arg1)

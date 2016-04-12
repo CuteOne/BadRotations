@@ -275,8 +275,8 @@ function cWarrior:new(spec)
 		self.createBaseOptions()
 
 		-- Class Wrap
-        local section = createNewSection(bb.profile_window,  "Class Options")
-        checkSectionState(section)
+        local section = bb.ui:createSection(bb.ui.window.profile,  "Class Options")
+        bb.ui:checkSectionState(section)
 	end
 
 ------------------------------
