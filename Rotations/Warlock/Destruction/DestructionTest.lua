@@ -5,11 +5,12 @@ if select(2, UnitClass("player")) == "WARLOCK" then
        DestructionToggles()
 		local inCombat          = self.inCombat 
         local canFlask          = canUse(self.flask.wod.intellectBig) 
-        local solo              = select(2,IsInInstance())=="none"
-        local ttd               = getTimeToDie(self.units.dyn40)      
+        local combatTime        = getCombatTime()
+        local solo              = select(2,IsInInstance())=="none"     
         local t17_2pc           = self.eq.t17_2pc
         local lastPet           = lastPet or 0
         local threats           = threats or 0
+        local trinketProc       = self.hasTrinketProc()
         local immolateTimer     = immolateTimer or 0  
         local FnBTimer          = FnBTimer or 0 
         local conflagrateTimer  = conflagrateTimer or 0
@@ -47,6 +48,12 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                    if self.castFireandBrimstone() then FnBTimer = GetTime() end
                 end
             end
+        -- Soulstone
+            if isInCombat("player") and isStanding(0.3) and UnitIsDeadOrGhost("mouseover")
+              and UnitIsFriend("player","mouseover") and getSpellCD(20707) == 0 then
+                CastSpellByName(GetSpellInfo(20707),"mouseover")
+                return
+            end
         end -- End Action List - Extras
     -- Action List - Defensive
         function actionList_Defensive()
@@ -81,6 +88,14 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                     thisUnit = getEnemies("player",30)[i]
                     if canInterrupt(thisUnit,getOptionValue("Shadowfury")) then
                         if self.castShadowFury(thisUnit) then return end
+                    end
+                end
+            end
+            if isChecked("Spell Lock") then
+                for i=1, #getEnemies("player",30) do
+                    thisUnit = getEnemies("player",30)[i]
+                    if canInterrupt(thisUnit,getOptionValue("Spell Lock")) then
+                        if self.castSpellLock(thisUnit) then return end
                     end
                 end
             end
@@ -126,14 +141,14 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 if self.castMannsFury() then end
             end
             --actions+=/dark_soul,if=!talent.archimondes_darkness.enabled|(talent.archimondes_darkness.enabled&(charges=2|target.time_to_die<40|trinket.proc.any.react|trinket.stacking_proc.any.react))
-            if not self.talent.archiesDarkness or (self.talent.archiesDarkness and (self.charges.darkSoulInstability == 2 or ttd<40)) then
+            if not self.talent.archiesDarkness or (self.talent.archiesDarkness and (self.charges.darkSoulInstability == 2 or getTimeToDie("target")<40 or trinketProc)) and not self.buff.darkSoulInstability then
                 if dsTimer == nil then dsTimer = 0; end
                 if GetTime() - dsTimer > 0.75 then
                    if self.castDarkSoulInstability() then dsTimer = GetTime() end
                 end
             end
             --actions+=/service_pet,if=talent.grimoire_of_service.enabled&(target.time_to_die>120|target.time_to_die<=25|(buff.dark_soul.remains&target.health.pct<20))
-            if self.talent.grimoireofService and (ttd> 120 or ttd <=25 or(self.buff.darkSoulInstability and getHP(self.units.dyn40) < 20)) then
+            if self.talent.grimoireofService and (getTimeToDie("target")> 120 or getTimeToDie("target") <=25 or(self.buff.darkSoulInstability and getHP(self.units.dyn40) < 20)) then
                 if self.castGrimoireFel(self.units.dyn40) then end
             end
         end -- End Action List - Cooldowns
@@ -146,13 +161,13 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                     end
                 end
                 --Shadowburn
-                if getHP("target") < 20 and ((self.ember.count > 3.5 and not self.talent.charredRemains) or (self.ember.count > 2.5 and self.talent.charredRemains) or self.buff.darkSoulInstability) and ttd <= 5 and not UnitDebuffID("target",self.spell.shadowburnDebuff,"player") and ObjectIsFacing("player","target") then
+                if getHP("target") < 20 and ((self.ember.count < 2 and not self.talent.charredRemains) or (self.ember.count < 2.5 and self.talent.charredRemains) or self.buff.darkSoulInstability) and getTimeToDie("target") <= 5 and not UnitDebuffID("target",self.spell.shadowburnDebuff,"player") and ObjectIsFacing("player","target") then
                    if self.castShadowburn("target") then return end
                 end   
                 -- Immolate
                 if hasThreat("target") and ((getDebuffRemain("target",self.spell.immolateDebuff,"player") <= select(4,GetSpellInfo(self.spell.immolate))/1000)) and (self.cd.cataclysm > select(4,GetSpellInfo(self.spell.immolate))/1000 or not self.talent.cataclysm) and ObjectIsFacing("player","target") and not isMoving("player") then
-                    if GetTime() - immolateTimer > 0.5 then
-                        if self.castImmolate("target") then immolateTimer = GetTime() return end
+                    if lastImmolateTarget ~= UnitGUID("target") and lastImmolateTime+5 < GetTime() then
+                            if self.castImmolate("target") then return end
                     end
                 end
                 -- Conflagrate
@@ -191,7 +206,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 --Shadowburn
                 for i = 1, #enemiesTable40y do
                     local thisUnit = enemiesTable40y[i]
-                    if getHP(thisUnit) < 20 and (self.ember.count > 3.5 or self.buff.darkSoulInstability) and ttd <= 25 and not UnitDebuffID(thisUnit,self.spell.shadowburnDebuff,"player") and ObjectIsFacing("player",thisUnit) then
+                    if getHP(thisUnit) < 20 and (self.ember.count < 3.5 or self.buff.darkSoulInstability) and getTimeToDie(thisUnit) <= 25 and not UnitDebuffID(thisUnit,self.spell.shadowburnDebuff,"player") and ObjectIsFacing("player",thisUnit) then
                         local sbtarget = thisUnit
                         for i = 1, #enemiesTable40y do
                             local havocUnit = enemiesTable40y[i]
@@ -210,7 +225,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 end
                 -- Chaos Bolt
                 for i = 1, #enemiesTable40y do
-                    if (self.ember.count > 3.5 or self.buff.darkSoulInstability or ttd <= 25) and ObjectIsFacing("player",thisUnit) then
+                    if (self.ember.count > 3.5 or self.buff.darkSoulInstability) and ObjectIsFacing("player",thisUnit) then
                         for i = 1, #enemiesTable40y do
                             local havocUnit = enemiesTable40y[i]
                             if hasThreat(havocUnit) and not UnitIsUnit(havocUnit,"target") and not self.buff.havoc and not self.buff.fireandBrimestone then
@@ -244,7 +259,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 --Shadowburn
                 for i = 1, #enemiesTable40y do
                     local thisUnit = enemiesTable40y[i]
-                    if getHP(thisUnit) < 20 and (self.ember.count > 3.5 or self.buff.darkSoulInstability) and ttd <= 25 and not UnitDebuffID(thisUnit,self.spell.shadowburnDebuff,"player") and ObjectIsFacing("player",thisUnit) then
+                    if getHP(thisUnit) < 20 and (self.ember.count < 3.5 or self.buff.darkSoulInstability) and getTimeToDie(thisUnit) <= 25 and not UnitDebuffID(thisUnit,self.spell.shadowburnDebuff,"player") and ObjectIsFacing("player",thisUnit) then
                         local sbtarget = thisUnit
                         for i = 1, #enemiesTable40y do
                             local havocUnit = enemiesTable40y[i]
@@ -255,19 +270,22 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         if self.castShadowburn(sbtarget) then return end
                     end
                 end
+
                 -- Immolate
-                if not self.buff.havoc and self.ember.count >= 2 and not isMoving("player") then
+                if not self.buff.havoc and self.ember.count >= 3.5 and not isMoving("player") then
                     for i=1, #enemiesTable40y do
                         local thisUnit = enemiesTable40y[i]
                         if ObjectIsFacing("player",thisUnit) then
                             if hasThreat(thisUnit) and (getDebuffRemain(thisUnit,self.spell.immolateDebuff,"player") - select(4,GetSpellInfo(self.spell.immolate))/1000) <= getDebuffDuration(thisUnit,self.spell.immolateDebuff,"player")*0.3 then
-                                if GetTime() - immolateTimer > 0.5 then
+                                if lastImmolateTarget ~= thisUnit.guid and lastImmolateTime+5 < GetTime() then
                                     if not self.buff.fireandBrimstone then
                                         if GetTime() - FnBTimer > 0.75 then
-                                            if self.castFireandBrimstone() then FnBTimer = GetTime() return end
+                                            if self.castFireandBrimstone() then FnBTimer = GetTime() end
                                         end
                                     end
-                                    if self.castImmolate(thisUnit) then immolateTimer = GetTime() end
+                                    if not isCCed(thisUnit) then 
+                                        if self.castImmolate(thisUnit) then end
+                                    end
                                 end
                             end
                         end
@@ -284,12 +302,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 end
                 -- Chaos Bolt
                 for i = 1, #enemiesTable40y do
-                    if (self.ember.count > 3.5 or self.buff.darkSoulInstability or ttd <= 25) and ObjectIsFacing("player",thisUnit) then
-                        for i = 1, #enemiesTable40y do
-                            local havocUnit = enemiesTable40y[i]
-                            if hasThreat(havocUnit) and not UnitIsUnit(havocUnit,"target") and not self.buff.havoc and not self.buff.fireandBrimestone then
-                                if self.castHavoc(havocUnit) then end
-                            end
+                    local havocUnit = enemiesTable40y[i]
+                    if (self.ember.count > 3.5 or self.buff.darkSoulInstability) and ObjectIsFacing("player",havocUnit) then
+                        if hasThreat(havocUnit) and not UnitIsUnit(havocUnit,"target") and not self.buff.havoc and not self.buff.fireandBrimestone then
+                            if self.castHavoc(havocUnit) then end
                         end
                         if self.castChaosBolt("target") then return end
                     end
@@ -313,7 +329,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 --Shadowburn
                for i = 1, #enemiesTable40y do
                     local thisUnit = enemiesTable40y[i]
-                    if getHP(thisUnit) < 20 and (self.ember.count > 2.5 or self.buff.darkSoulInstability) and ttd <= 25 and not UnitDebuffID(thisUnit,self.spell.shadowburnDebuff,"player") and ObjectIsFacing("player",thisUnit) then
+                    if getHP(thisUnit) < 20 and (self.ember.count < 2.5 or self.buff.darkSoulInstability) and getTimeToDie(thisUnit) <= 25 and not UnitDebuffID(thisUnit,self.spell.shadowburnDebuff,"player") and ObjectIsFacing("player",thisUnit) then
                         local sbtarget = thisUnit
                         for i = 1, #enemiesTable40y do
                            local havocUnit = enemiesTable40y[i]
@@ -329,8 +345,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                     for i=1, #enemiesTable40y do
                         local thisUnit = enemiesTable40y[i]
                         if hasThreat(thisUnit) and ((getDebuffRemain(thisUnit,self.spell.immolateDebuff,"player") <= select(4,GetSpellInfo(self.spell.immolate))/1000)) and (self.cd.cataclysm > select(4,GetSpellInfo(self.spell.immolate))/1000 or not self.talent.cataclysm) and ObjectIsFacing("player",thisUnit)then
-                            if GetTime() - immolateTimer > 0.5 then
-                                if self.castImmolate(thisUnit) then immolateTimer = GetTime() return end
+                             if lastImmolateTarget ~= thisUnit.guid and lastImmolateTime+5 < GetTime() then
+                                if not isCCed(thisUnit) then
+                                    if self.castImmolate(thisUnit) then return end
+                                end
                             end
                         end
                     end
@@ -343,12 +361,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 end
                 -- Chaos Bolt
                 for i = 1, #enemiesTable40y do
-                    if (self.ember.count > 2.5 or self.buff.darkSoulInstability or ttd <= 25) and ObjectIsFacing("player",thisUnit) then
-                        for i = 1, #enemiesTable40y do
-                            local havocUnit = enemiesTable40y[i]
-                            if hasThreat(havocUnit) and not UnitIsUnit(havocUnit,"target") and not self.buff.havoc and not self.buff.fireandBrimstone then
-                                if self.castHavoc(havocUnit) then end
-                            end
+                    local havocUnit = enemiesTable40y[i]    
+                    if (self.ember.count > 2.5 or self.buff.darkSoulInstability) and getTimeToDie(havocUnit) >= 25 and ObjectIsFacing("player",havocUnit) then
+                        if hasThreat(havocUnit) and not UnitIsUnit(havocUnit,"target") and not self.buff.havoc and not self.buff.fireandBrimstone then
+                            if self.castHavoc(havocUnit) then end
                         end
                         if self.castChaosBolt("target") then return end
                     end
@@ -379,7 +395,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 --Shadowburn
                 for i = 1, #enemiesTable40y do
                     local thisUnit = enemiesTable40y[i]
-                    if getHP(thisUnit) < 20 and ((self.ember.count > 3.5 and not self.talent.charredRemains) or (self.ember.count > 2.5 and self.talent.charredRemains) or self.buff.darkSoulInstability or ttd <= 25) and not UnitDebuffID(thisUnit,self.spell.shadowburnDebuff,"player") and ObjectIsFacing("player",thisUnit) then
+                    if getHP(thisUnit) < 20 and ((self.ember.count < 3.5 and not self.talent.charredRemains) or (self.ember.count < 2.5 and self.talent.charredRemains) or self.buff.darkSoulInstability or getTimeToDie(thisUnit) <= 25) and not UnitDebuffID(thisUnit,self.spell.shadowburnDebuff,"player") and ObjectIsFacing("player",thisUnit) then
                         local sbtarget = thisUnit
                         for i = 1, #enemiesTable40y do
                             local havocUnit = enemiesTable40y[i]
@@ -391,16 +407,18 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                     end
                 end
                 -- Immolate
-                if not self.buff.havoc and self.ember.count >= 2 and not isMoving("player") then
+                if not self.buff.havoc and self.ember.count >= 3.5 and not isMoving("player") then
                     for i=1, #enemiesTable40y do
                         local thisUnit = enemiesTable40y[i]
                         if ObjectIsFacing("player",thisUnit)  then
                             if hasThreat(thisUnit) and (getDebuffRemain(thisUnit,self.spell.immolateDebuff,"player") - select(4,GetSpellInfo(self.spell.immolate))/1000) <= getDebuffDuration(thisUnit,self.spell.immolateDebuff,"player")*0.3 then
-                                if GetTime() - immolateTimer > 0.5 then
+                                if lastImmolateTarget ~= thisUnit.guid and lastImmolateTime+5 < GetTime() then
                                     if not self.buff.fireandBrimstone then
                                         if self.castFireandBrimstone() then end
                                     end
-                                    if self.castImmolate(thisUnit) then immolateTimer = GetTime() return end
+                                    if not isCCed(thisUnit) then
+                                        if self.castImmolate(thisUnit) then return end
+                                    end
                                 end
                             end
                         end
@@ -414,9 +432,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 end
                 -- Chaos Bolt
                 for i = 1, #enemiesTable40y do
-                    if ((self.ember.count > 3.5 and not self.talent.charredRemains) or (self.ember.count > 2.5 and self.talent.charredRemains) or self.buff.darkSoulInstability or ttd <= 25) and ObjectIsFacing("player",thisUnit) then
+                    local havocUnit = enemiesTable40y[i]
+                    if ((self.ember.count > 3.5 and not self.talent.charredRemains) or (self.ember.count > 2.5 and self.talent.charredRemains) or self.buff.darkSoulInstability) and getTimeToDie(havocUnit) >= 25 and ObjectIsFacing("player",thisUnit) then
                         for i = 1, #enemiesTable40y do
-                            local havocUnit = enemiesTable40y[i]
                             if hasThreat(havocUnit) and not UnitIsUnit(havocUnit,"target") and not self.buff.havoc and not self.buff.fireandBrimstone then
                                 if self.castHavoc(havocUnit) then end
                             end
@@ -444,7 +462,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 --Shadowburn
                for i = 1, #enemiesTable40y do
                     local thisUnit = enemiesTable40y[i]
-                    if getHP(thisUnit) < 20 and (self.ember.count > 2.5 or self.buff.darkSoulInstability) and ttd <= 25 and not UnitDebuffID(thisUnit,self.spell.shadowburnDebuff,"player") and ObjectIsFacing("player",thisUnit) and not self.buff.fireandBrimstone then
+                    if getHP(thisUnit) < 20 and (self.ember.count < 2.5 or self.buff.darkSoulInstability) and getTimeToDie(thisUnit) <= 25 and not UnitDebuffID(thisUnit,self.spell.shadowburnDebuff,"player") and ObjectIsFacing("player",thisUnit) and not self.buff.fireandBrimstone then
                         local sbtarget = thisUnit
                         for i = 1, #enemiesTable40y do
                            local havocUnit = enemiesTable40y[i]
@@ -461,11 +479,13 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                         local thisUnit = enemiesTable40y[i]
                         if ObjectIsFacing("player",thisUnit) then
                             if hasThreat(thisUnit) and (getDebuffRemain(thisUnit,self.spell.immolateDebuff,"player") - select(4,GetSpellInfo(self.spell.immolate))/1000) <= getDebuffDuration(thisUnit,self.spell.immolateDebuff,"player")*0.3 then
-                                if GetTime() - immolateTimer > 0.5 then
+                                 if lastImmolateTarget ~= thisUnit.guid and lastImmolateTime+5 < GetTime() then
                                     if not self.buff.fireandBrimstone then
                                         if self.castFireandBrimstone() then end
                                     end
-                                    if self.castImmolate(thisUnit) then immolateTimer = GetTime() return end
+                                    if not isCCed(thisUnit) then
+                                        if self.castImmolate(thisUnit) then return end
+                                    end
                                 end
                             end
                         end
@@ -492,7 +512,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                     end
                 end
                 -- Chaos Bolt
-                if (self.ember.count > 2.5 or self.buff.darkSoulInstability or ttd <= 25) and ObjectIsFacing("player",thisUnit) then
+                if (self.ember.count > 2.5 or self.buff.darkSoulInstability) and getTimeToDie("target") >= 25 and ObjectIsFacing("player","target") then
                     if not self.buff.havoc then
                         if not self.buff.fireandBrimstone then
                             if GetTime() - FnBTimer > 0.75 then

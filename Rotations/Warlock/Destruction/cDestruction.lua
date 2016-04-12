@@ -14,6 +14,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         --- VARIABLES ---
         -----------------
 
+        self.trinket = {
+            -- Trinket Procs
+            165832,         -- Coagulated Genesaur Blood
+        } 
         self.enemies = {
             yards5,
             yards8,
@@ -97,6 +101,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             self.getCooldowns()
             self.getEnemies()
             self.getRotation()
+
+            if lastImmolateTime == nil then lastImmolateTime=GetTime()-10 end
+            if lastImmolateTarget == nil then lastImmolateTarget="0" end
 
 
             -- Casting and GCD check
@@ -210,6 +217,25 @@ if select(2, UnitClass("player")) == "WARLOCK" then
 
         end
 
+        --------------------
+        --- TRINKET PROC ---
+        --------------------
+
+        function self.getTrinketProc()
+            local UnitBuffID = UnitBuffID
+
+            -- self.trinket.WitherbarksBranch              = UnitBuffID("player",165822)~=nil or false --Haste Proc
+            -- self.trinket.TurbulentVialOfToxin           = UnitBuffID("player",176883)~=nil or false --Mastery Proc
+            -- self.trinket.KihrasAdrenalineInjector       = UnitBuffID("player",165485)~=nil or false --Mastery Proc
+            self.trinket.CoagulatedBlood                = UnitBuffID("player",165832)~=nil or false --Multi-Strike Proc
+        end
+
+        function self.hasTrinketProc()
+            for i = 1, #self.trinket do
+                if UnitBuff("player",GetSpellInfo(self.trinket[i])) ~= nil then return true else return false end
+            end
+        end
+
         -------------
         --- PERKS ---
         -------------
@@ -301,6 +327,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             section = bb.ui:createSection(bb.ui.window.profile,  "Interrupts")
             --Shadowfury
             bb.ui:createSpinner(section, "Shadowfury", 40, 0, 100, 5, "At what |cffFF0000% Cast to use |cffFFFFFFShadowfury")
+            -- Spell Lock
+            bb.ui:createSpinner(section, "Spell Lock", 40, 0, 100, 5, "At what |cffFF0000% Cast to use |cffFFFFFFSpell Lock")
             bb.ui:checkSectionState(section)
 
             --[[ Rotation Dropdown ]]--
