@@ -28,6 +28,9 @@ function bb.helper:getUnitNodes()
                 {90703, 5}, -- Bound Spirit
                 {90501, 5}, -- Fel Pylon
                 {92597, 5}, -- Demonic Focus
+                -- Iron Front
+                {90370, 4}, -- Iron Horde Banner
+                {93013, 5}, -- Siege Weapon Schematics
             })
         end
 
