@@ -15,6 +15,11 @@ Pausing Coders until Legion: ragnar, Defmaster
 If you want to know what changes read the commit messages.
 Most of the time they contain the most changes.
 
+## Regarding Lua Errors
+1. Use AddonLoader: http://www.wowace.com/addons/addon-loader/
+
+If it doesnt fix the error (mostly startup ones) post them as issue.
+
 ## Regarding Crashing
 What to do if you have crash to desktop or 132 errors.(not necessarily in this order)
 * Download Windows Updates.
