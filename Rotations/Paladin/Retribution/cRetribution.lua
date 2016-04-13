@@ -336,7 +336,7 @@ if select(3, UnitClass("player")) == 2 and GetSpecialization() == 3 then
         end
 
         function self.createOptions()
-            bb.profile_window = createNewProfileWindow("Retribution")
+            bb.ui.window.profile = bb.ui:createProfileWindow("Retribution")
 
             self.createClassOptions()
 
@@ -344,53 +344,53 @@ if select(3, UnitClass("player")) == 2 and GetSpecialization() == 3 then
             local section
             if self.rotation == 1 then
                 -- Wrapper
-                --section = createNewSection(bb.profile_window, "Buffs")
-                --checkSectionState(section)
+                --section = bb.ui:createSection(bb.ui.window.profile, "Buffs")
+                --bb.ui:checkSectionState(section)
 
                 -- Wrapper
-                section = createNewSection(bb.profile_window, "Cooldowns")
+                section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
                 -- Avenging Wrath
-                createNewDropdown(section, "Avenging Wrath", bb.dropOptions.CD, 1)
-                createNewSpinner(section, "AW Charges", 1, 0, 3, 1, "|cffFFBB00How many charges should be unused from \n|cffFFFFFFAvenging Wrath ?")
+                bb.ui:createDropdown(section, "Avenging Wrath", bb.dropOptions.CD, 1)
+                bb.ui:createSpinner(section, "AW Charges", 1, 0, 3, 1, "|cffFFBB00How many charges should be unused from \n|cffFFFFFFAvenging Wrath ?")
                 -- Light's Hammer
-                createNewDropdown(section, "Light's Hammer", bb.dropOptions.CD, 1)
+                bb.ui:createDropdown(section, "Light's Hammer", bb.dropOptions.CD, 1)
                 -- Execution sentence
-                createNewDropdown(section, "Execution Sentence", bb.dropOptions.CD, 1)
+                bb.ui:createDropdown(section, "Execution Sentence", bb.dropOptions.CD, 1)
                 -- Execution sentence
-                createNewDropdown(section, "Holy Prism", bb.dropOptions.CD, 1)
+                bb.ui:createDropdown(section, "Holy Prism", bb.dropOptions.CD, 1)
                 -- Holy Avenger
-                createNewDropdown(section, "Holy Avenger", bb.dropOptions.CD, 1)
+                bb.ui:createDropdown(section, "Holy Avenger", bb.dropOptions.CD, 1)
                 -- Seraphim
-                createNewDropdown(section, "Seraphim", bb.dropOptions.CD, 1)
-                checkSectionState(section)
+                bb.ui:createDropdown(section, "Seraphim", bb.dropOptions.CD, 1)
+                bb.ui:checkSectionState(section)
 
 
                 -- Wrapper
-                section = createNewSection(bb.profile_window, "Defensive")
+                section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
                 -- Divine Protection
-                createNewSpinner(section, "Divine Protection", 75, 0, 100, 1, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFDivine Protection")
+                bb.ui:createSpinner(section, "Divine Protection", 75, 0, 100, 1, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFDivine Protection")
                 -- Divine Shield
-                createNewSpinner(section, "Divine Shield", 10, 0, 100, 1, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFDivine Shield")
-                checkSectionState(section)
+                bb.ui:createSpinner(section, "Divine Shield", 10, 0, 100, 1, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFDivine Shield")
+                bb.ui:checkSectionState(section)
 
 
                 -- Wrapper
-                section = createNewSection(bb.profile_window, "Healing")
+                section = bb.ui:createSection(bb.ui.window.profile, "Healing")
                 -- LoH options
                 --generalPaladinOptions()
 
                 -- Tier 3 talents
-                createNewSpinner(section, "Sacred Shield", 95, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFSacred Shield")
-                createNewSpinner(section, "Selfless Healer", 35, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFSelfless Healer on Raid")
-                createNewSpinner(section, "Self Flame", 35, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFEternal Flame on Self")
-                createNewSpinner(section, "Eternal Flame", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFEternal Flame on Raid")
-                createNewSpinner(section, "Self Glory", 70, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFWord Of Glory on Self")
-                createNewSpinner(section, "Word Of Glory", 70, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFWord Of Glory on Raid")
-                checkSectionState(section)
+                bb.ui:createSpinner(section, "Sacred Shield", 95, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFSacred Shield")
+                bb.ui:createSpinner(section, "Selfless Healer", 35, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFSelfless Healer on Raid")
+                bb.ui:createSpinner(section, "Self Flame", 35, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFEternal Flame on Self")
+                bb.ui:createSpinner(section, "Eternal Flame", 20, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFEternal Flame on Raid")
+                bb.ui:createSpinner(section, "Self Glory", 70, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use \n|cffFFFFFFWord Of Glory on Self")
+                bb.ui:createSpinner(section, "Word Of Glory", 70, 0, 100, 5, "|cffFFBB00Under what |cffFF0000%HP|cffFFBB00 to use |cffFFFFFFWord Of Glory on Raid")
+                bb.ui:checkSectionState(section)
 
 
                 --[[ Rotation Dropdown ]]--
-                createNewRotationDropdown(bb.profile_window.parent, self.rotations)
+                bb.ui:createRotationDropdown(bb.ui.window.profile.parent, self.rotations)
 
                 bb:checkProfileWindowStatus()
             end

@@ -268,7 +268,7 @@ function bb:Run()
     if BadBoy_data.options[GetSpecialization()] == nil then BadBoy_data.options[GetSpecialization()] = {} end
     if BadBoy_data.options[GetSpecialization()][bb.selectedProfile] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile] = {} end
     --bb.selectedProfile = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"] or 1
-    bb:createConfigWindowNew()
+    bb.ui:createConfigWindow()
 
 	-- start up enemies Engine
 	enemiesEngineRange = 55

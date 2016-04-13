@@ -57,6 +57,7 @@ cWarlock = {}
 	        createSoulwell					= 29893,
 	        kjsCunning 						= 137587,
 	        ritualofSummoning				= 698,
+	        spellLock						= 132409,
 	        soulstone	 					= 20707,
 	        unendingBreath					= 5697,
 	        
@@ -192,6 +193,7 @@ cWarlock = {}
 			self.cd.kjsCunning 			= getSpellCD(self.spell.kjsCunning)
 			self.cd.ritualofSummoning	= getSpellCD(self.spell.ritualofSummoning)
 			self.cd.soulstone			= getSpellCD(self.spell.soulstone)
+			self.cd.spellLock 			= getSpellCD(self.spell.spellLock)
 			self.cd.grimoireFel 		= getSpellCD(self.spell.grimoireFel)
 		end
 
@@ -256,14 +258,14 @@ cWarlock = {}
 	        -- Create Base Options
 	        self.createBaseOptions()
 
-	        local section = createNewSection(bb.profile_window, "Class Options")
+	        local section = bb.ui:createSection(bb.ui.window.profile, "Class Options")
 	        -- Dummy DPS Test
-            createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 	        -- Dark Intent
-	        createNewCheckbox(section,"Dark Intent")
+	        bb.ui:createCheckbox(section,"Dark Intent")
 	        -- Demon
-            createNewDropdown(section,  "Summon Demon", { "Felhunter","Imp","Succubus","VoidWalker"},  1,  "Choose Demon to Summon.")
-	        checkSectionState(section)
+            bb.ui:createDropdown(section,  "Summon Demon", { "Felhunter","Imp","Succubus","VoidWalker"},  1,  "Choose Demon to Summon.")
+	        bb.ui:checkSectionState(section)
 	    end
 
 	------------------------------
@@ -395,37 +397,37 @@ cWarlock = {}
 	    -- Summon DoomGuard
 	    function self.castSummonDoomGuard(thisUnit)
 			if not self.talent.demonicServitude and self.cd.summonDoomGuard ==0 and getDistance("target")< 40 then
-				if castSpell(thisUnit,self.spell.summonDoomGuard,true,false,false) then return end
+				if castSpell(thisUnit,self.spell.summonDoomGuard,true,false,false) then return true end
 			end
 		end
 		-- Summon FelHunter
 		function self.castSummonFelHunter()
 			if not UnitExists("pet") then
-				if castSpell("player",self.spell.summonFelHunter,false,true,false) then return end
+				if castSpell("player",self.spell.summonFelHunter,false,true,false) then return true end
 			end
 		end
 		-- Summon Imp
 		function self.castSummonImp()
 			if not UnitExists("pet") then
-				if castSpell("player",self.spell.summonImp,false,true,false) then return end
+				if castSpell("player",self.spell.summonImp,false,true,false) then return true end
 			end
 		end
 		-- Summon Infernal
 		function self.castSummonInfernal(thisUnit)
 			if self.cd.summonInfernal ==0 and getDistance("target")< 30 then
-				if castSpell(thisUnit,self.spell.summonInfernal,true,false,false) then return end
+				if castSpell(thisUnit,self.spell.summonInfernal,true,false,false) then return true end
 			end
 		end
 		-- Summon Succubus
 		function self.castSummonSuccubus()
 			if not UnitExists("pet") then
-				if castSpell("player",self.spell.summonSuccubus,false,true,false) then return end
+				if castSpell("player",self.spell.summonSuccubus,false,true,false) then return true end
 			end
 		end
 		-- Summon VoidWalker
 		function self.castSummonVoidWalker()
 			if not UnitExists("pet") then
-				if castSpell("player",self.spell.summonVoidWalker,false,true,false) then return end
+				if castSpell("player",self.spell.summonVoidWalker,false,true,false) then return true end
 			end
 		end
 		-- Grimoire Fel
@@ -437,10 +439,10 @@ cWarlock = {}
 
 		function self.summonDemon()
 			if isChecked("Summon Demon") then
-                if lastPet ~= nil and lastPet == getValue("Summon Demon") then
-                    if self.castFlamesofXoroth() then end
-                elseif not self.talent.demonicServitude and not UnitExists("pet") and not UnitBuffID("player",self.spell.grimoireofSacrificeBuff) then
-                    if getValue("Summon Demon") == 1 then
+                if not self.talent.demonicServitude and not UnitExists("pet") and not UnitBuffID("player",self.spell.grimoireofSacrificeBuff) then
+                	if lastPet ~= nil and lastPet == getValue("Summon Demon") then
+           		        if self.castFlamesofXoroth() then end
+                    elseif getValue("Summon Demon") == 1 then
                         if self.castSummonFelHunter() then lastPet = 1 end  
                     elseif getValue("Summon Demon") == 2 then
                         if self.castSummonImp() then lastPet = 2 end
@@ -450,9 +452,9 @@ cWarlock = {}
                         if self.castSummonVoidWalker() then lastPet = 4 end
                     end
                 elseif self.talent.demonicServitude and getEnemies("player",40) < 9 then
-                        if self.castSummonDoomGuard("player") then lastPet = "Doom Guard" end
+                        if self.castSummonDoomGuard("player") then lastPet = "5" end
                 elseif self.talent.demonicServitude and getEnemies("player", 40) >= 9 then
-                        if self.castSummonInfernal("player") then lastPet = "Infernal" end
+                        if self.castSummonInfernal("player") then lastPet = "5" end
                 end
                 return lastPet
             end
@@ -488,6 +490,13 @@ cWarlock = {}
 		function self.castSoulstone(thisUnit)
 			if self.cd.soulstone ==0 then
 				if castSpell(thisUnit,self.spell.soulstone,true,true,false) then return end
+			end
+		end
+		function self.castSpellLock(thisUnit)
+			if lastPet == 1 then
+				if self.cd.spellLock==0 and getDistance(thisUnit) < 40 and self.cd.spellLock == 0 then
+					if castSpell(thisUnit,self.spell.spellLock,true,false,false,true) then return end
+				end
 			end
 		end
 		-- Unending Breath

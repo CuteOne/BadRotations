@@ -315,134 +315,134 @@ if select(2, UnitClass("player")) == "MONK" then
         ---------------
 
         function self.createOptions()
-            bb.profile_window = createNewProfileWindow("Windwalker")
+            bb.ui.window.profile = bb.ui:createProfileWindow("Windwalker")
             local section
 
             -- Create Base and Class options
             self.createClassOptions()
 
             -- Combat options
-            section = createNewSection(bb.profile_window,  "General")
+            section = bb.ui:createSection(bb.ui.window.profile,  "General")
             -- Dummy DPS Test
-                createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+                bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
             -- Death Monk
-                createNewCheckbox(section,"Death Monk Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.")
+                bb.ui:createCheckbox(section,"Death Monk Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.")
 
             -- Legacy of the White Tiger
-                createNewCheckbox(section,"Legacy of the White Tiger","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Legacy of the White Tiger usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
+                bb.ui:createCheckbox(section,"Legacy of the White Tiger","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic Legacy of the White Tiger usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
 
             -- Fortifying Brew w/ Touch of Death
-                createNewCheckbox(section,"Fort Brew w/ ToD","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Fortifying to empower Touch of Death.")
+                bb.ui:createCheckbox(section,"Fort Brew w/ ToD","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Fortifying to empower Touch of Death.")
 
             -- Pre-Pull Timer
-                createNewSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+                bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
                 
-            checkSectionState(section)
+            bb.ui:checkSectionState(section)
          
 
-            section = createNewSection(bb.profile_window,  "Cooldowns")
+            section = bb.ui:createSection(bb.ui.window.profile,  "Cooldowns")
             -- Agi Pot
-                createNewCheckbox(section,"Agi-Pot")
+                bb.ui:createCheckbox(section,"Agi-Pot")
 
             -- Legendary Ring
-                createNewCheckbox(section,"Legendary Ring")
+                bb.ui:createCheckbox(section,"Legendary Ring")
 
             -- Flask / Crystal
-                createNewCheckbox(section,"Flask / Crystal")
+                bb.ui:createCheckbox(section,"Flask / Crystal")
 
             -- Trinkets
-                createNewCheckbox(section,"Trinkets")
+                bb.ui:createCheckbox(section,"Trinkets")
 
             -- Touch of the Void
-                createNewCheckbox(section,"Touch of the Void")
+                bb.ui:createCheckbox(section,"Touch of the Void")
 
             -- Serenity
-                createNewCheckbox(section,"Serenity")
+                bb.ui:createCheckbox(section,"Serenity")
 
             -- Xuen
-                createNewCheckbox(section,"Xuen")
-            checkSectionState(section)
+                bb.ui:createCheckbox(section,"Xuen")
+            bb.ui:checkSectionState(section)
 
 
-            section = createNewSection(bb.profile_window, "Defensive")
+            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
             -- Healthstone
-                createNewSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                bb.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Heirloom Neck
-                createNewSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             --  Expel Harm
-                createNewSpinner(section, "Expel Harm",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                bb.ui:createSpinner(section, "Expel Harm",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Surging Mist
-                createNewSpinner(section, "Surging Mist",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                bb.ui:createSpinner(section, "Surging Mist",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Touch of Karma
-                createNewSpinner(section, "Touch of Karma",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                bb.ui:createSpinner(section, "Touch of Karma",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Fortifying Brew
-                createNewSpinner(section, "Fortifying Brew",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                bb.ui:createSpinner(section, "Fortifying Brew",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Diffuse Magic/Dampen Harm
-                createNewSpinner(section, "Diffuse/Dampen",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                bb.ui:createSpinner(section, "Diffuse/Dampen",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Zen Meditation
-                createNewSpinner(section, "Zen Meditation",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                bb.ui:createSpinner(section, "Zen Meditation",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Nimble Brew
-                createNewCheckbox(section,"Nimble Brew")
-            checkSectionState(section)
+                bb.ui:createCheckbox(section,"Nimble Brew")
+            bb.ui:checkSectionState(section)
 
 
-            section = createNewSection(bb.profile_window,  "Interrupts")
+            section = bb.ui:createSection(bb.ui.window.profile,  "Interrupts")
             --Quaking Palm
-                createNewCheckbox(section,"Quaking Palm")
+                bb.ui:createCheckbox(section,"Quaking Palm")
 
             -- Spear Hand Strike
-                createNewCheckbox(section,"Spear Hand Strike")
+                bb.ui:createCheckbox(section,"Spear Hand Strike")
 
             -- Paralysis
-                createNewCheckbox(section,"Paralysis")
+                bb.ui:createCheckbox(section,"Paralysis")
 
             -- Leg Sweep
-                createNewCheckbox(section,"Leg Sweep")
+                bb.ui:createCheckbox(section,"Leg Sweep")
 
             -- Interrupt Percentage
-                createNewSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
-            checkSectionState(section)
+                bb.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+            bb.ui:checkSectionState(section)
 
 
-            section = createNewSection(bb.profile_window,  "Toggle Keys")
+            section = bb.ui:createSection(bb.ui.window.profile,  "Toggle Keys")
             -- Single/Multi Toggle
-                createNewDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
+                bb.ui:createDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
 
             --Cooldown Key Toggle
-                createNewDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
+                bb.ui:createDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
 
             --Defensive Key Toggle
-                createNewDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
+                bb.ui:createDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
 
             -- Interrupts Key Toggle
-                createNewDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
+                bb.ui:createDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
 
             -- SEF Toggle
-                createNewDropdown(section,  "SEF Mode", bb.dropOptions.Toggle,  5)
+                bb.ui:createDropdown(section,  "SEF Mode", bb.dropOptions.Toggle,  5)
 
             -- FSK Toggle
-                createNewDropdown(section,  "FSK Mode", bb.dropOptions.Toggle,  5)
+                bb.ui:createDropdown(section,  "FSK Mode", bb.dropOptions.Toggle,  5)
 
             -- Chi Builder Toggle
-                createNewDropdown(section,  "Builder Mode", bb.dropOptions.Toggle,  5)
+                bb.ui:createDropdown(section,  "Builder Mode", bb.dropOptions.Toggle,  5)
 
             -- Pause Toggle
-                createNewDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
-            checkSectionState(section)
+                bb.ui:createDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
+            bb.ui:checkSectionState(section)
 
 
 
             --[[ Rotation Dropdown ]]--
-            createNewRotationDropdown(bb.profile_window.parent, {"CuteOne"})
+            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"CuteOne"})
             bb:checkProfileWindowStatus()
         end
 

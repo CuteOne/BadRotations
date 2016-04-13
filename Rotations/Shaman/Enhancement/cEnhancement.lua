@@ -359,7 +359,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         ---------------
 
         function self.createOptions()
-            bb.profile_window = createNewProfileWindow("Enhancement")
+            bb.ui.window.profile = bb.ui:createProfileWindow("Enhancement")
             local section
 
             -- Create Base and Class options
@@ -371,32 +371,32 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             -- | | |_ |/ _ \ '_ \ / _ \ '__/ _` | |
             -- | |__| |  __/ | | |  __/ | | (_| | |
             --  \_____|\___|_| |_|\___|_|  \__,_|_|
-            section = createNewSection(bb.profile_window,  "General")
+            section = bb.ui:createSection(bb.ui.window.profile,  "General")
             -- Dummy DPS Test
-            createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
             -- Earthbind/Earthgrab Totem
             if self.talent.earthgrabTotem then
-                createNewCheckbox(section,"Earthgrab Totem")
+                bb.ui:createCheckbox(section,"Earthgrab Totem")
             else
-                createNewCheckbox(section,"Earthbind Totem")
+                bb.ui:createCheckbox(section,"Earthbind Totem")
             end
 
             -- Ghost Wolf
-            createNewCheckbox(section,"Ghost Wolf")
+            bb.ui:createCheckbox(section,"Ghost Wolf")
 
             -- Spirit Walk
-            createNewCheckbox(section,"Spirit Walk")
+            bb.ui:createCheckbox(section,"Spirit Walk")
 
             -- Tremor Totem
-            createNewCheckbox(section,"Tremor Totem")
+            bb.ui:createCheckbox(section,"Tremor Totem")
 
             -- Water Walking
-            createNewCheckbox(section,"Water Walking")
+            bb.ui:createCheckbox(section,"Water Walking")
 
              -- Pre-Pull Timer
-            createNewSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-            checkSectionState(section)
+            bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            bb.ui:checkSectionState(section)
 
             
             --   _____            _     _
@@ -405,25 +405,25 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             -- | |    / _ \ / _ \| |/ _` |/ _ \ \ /\ / / '_ \/ __|
             -- | |___| (_) | (_) | | (_| | (_) \ V  V /| | | \__ \
             --  \_____\___/ \___/|_|\__,_|\___/ \_/\_/ |_| |_|___/
-            section = createNewSection(bb.profile_window,  "Cooldowns")
+            section = bb.ui:createSection(bb.ui.window.profile,  "Cooldowns")
             -- Agi Pot
-            createNewCheckbox(section,"Agi-Pot")
+            bb.ui:createCheckbox(section,"Agi-Pot")
 
             -- Legendary Ring
-            createNewCheckbox(section, "Legendary Ring", "Enable or Disable usage of Legendary Ring.")
-            -- createNewDropdown(section,  "Legendary Ring", { "CD"},  2)
+            bb.ui:createCheckbox(section, "Legendary Ring", "Enable or Disable usage of Legendary Ring.")
+            -- bb.ui:createDropdown(section,  "Legendary Ring", { "CD"},  2)
 
             -- Flask / Crystal
-            createNewCheckbox(section,"Flask / Crystal")
+            bb.ui:createCheckbox(section,"Flask / Crystal")
 
             -- Trinkets
-            createNewCheckbox(section,"Trinkets")
+            bb.ui:createCheckbox(section,"Trinkets")
 
             -- Touch of the Void
-            createNewCheckbox(section,"Touch of the Void")
+            bb.ui:createCheckbox(section,"Touch of the Void")
 
             -- Heroism/Bloodlust
-            createNewCheckbox(section,"HeroLust")
+            bb.ui:createCheckbox(section,"HeroLust")
             if self.faction=="Alliance" then
                 
             end
@@ -432,26 +432,26 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             end
 
             -- Elemental Mastery
-            createNewCheckbox(section,"Elemental Mastery")
+            bb.ui:createCheckbox(section,"Elemental Mastery")
 
             -- Storm Elemental Totem
-            createNewCheckbox(section,"Storm Elemental Totem")
+            bb.ui:createCheckbox(section,"Storm Elemental Totem")
 
             -- Fire Elemental Totem
-            createNewCheckbox(section,"Fire Elemental Totem")
+            bb.ui:createCheckbox(section,"Fire Elemental Totem")
 
             -- Feral Spirit
-            createNewCheckbox(section,"Feral Spirit")
+            bb.ui:createCheckbox(section,"Feral Spirit")
 
             -- Liquid Magma
-            createNewCheckbox(section,"Liquid Magma")
+            bb.ui:createCheckbox(section,"Liquid Magma")
 
             -- Ancestral Swiftness
-            createNewCheckbox(section,"Ancestral Swiftness")
+            bb.ui:createCheckbox(section,"Ancestral Swiftness")
 
             -- Ascendance
-            createNewCheckbox(section,"Ascendance")
-            checkSectionState(section)
+            bb.ui:createCheckbox(section,"Ascendance")
+            bb.ui:checkSectionState(section)
 
             --  _____        __               _
             -- |  __ \      / _|             (_)
@@ -459,54 +459,54 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             -- | |  | |/ _ \  _/ _ \ '_ \/ __| \ \ / / _ \
             -- | |__| |  __/ ||  __/ | | \__ \ |\ V /  __/
             -- |_____/ \___|_| \___|_| |_|___/_| \_/ \___|
-            section = createNewSection(bb.profile_window, "Defensive")
+            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
             -- Healthstone
-            createNewSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            bb.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Heirloom Neck
-            createNewSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Gift of The Naaru
             if self.race == "Draenei" then
-                createNewSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                bb.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             end
 
             -- Ancestral Guidance
-            createNewSpinner(section, "Ancestral Guidance",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:createSpinner(section, "Ancestral Guidance",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Ancestral Spirit
-            createNewDropdown(section, "Ancestral Spirit", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
+            bb.ui:createDropdown(section, "Ancestral Spirit", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
 
             -- Astral Shift
-            createNewSpinner(section, "Astral Shift",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:createSpinner(section, "Astral Shift",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 
             -- Capacitor Totem
-            createNewSpinner(section, "Capacitor Totem - Defensive",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:createSpinner(section, "Capacitor Totem - Defensive",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             
             -- Earth Elemental Totem
-            createNewSpinner(section, "Earth Elemental Totem",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:createSpinner(section, "Earth Elemental Totem",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             
             -- Healing Rain
-            createNewSpinner(section, "Healing Rain",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            createNewSpinner(section, "Healing Rain Targets",  3,  1,  10,  1,  "|cffFFFFFFNumber of targets to consider before casting")
+            bb.ui:createSpinner(section, "Healing Rain",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:createSpinner(section, "Healing Rain Targets",  3,  1,  10,  1,  "|cffFFFFFFNumber of targets to consider before casting")
             
             -- Healing Stream Totem
-            createNewSpinner(section, "Healing Stream Totem",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:createSpinner(section, "Healing Stream Totem",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             
             -- Healing Surge
-            createNewCheckbox(section,"Healing Surge")
-            createNewSpinner(section, "Healing Surge - Level",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            createNewDropdown(section, "Healing Surge - Target", {"|cff00FF00Player Only","|cffFFFF00Lowest Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
+            bb.ui:createCheckbox(section,"Healing Surge")
+            bb.ui:createSpinner(section, "Healing Surge - Level",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:createDropdown(section, "Healing Surge - Target", {"|cff00FF00Player Only","|cffFFFF00Lowest Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
             
             -- Shamanistic Rage
-            createNewSpinner(section, "Shamanistic Rage",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:createSpinner(section, "Shamanistic Rage",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             
             -- Cleanse Spirit
-            createNewDropdown(section, "Clease Spirit", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
+            bb.ui:createDropdown(section, "Clease Spirit", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
             
             -- Purge
-            createNewCheckbox(section,"Purge")
-            checkSectionState(section)
+            bb.ui:createCheckbox(section,"Purge")
+            bb.ui:checkSectionState(section)
 
             --  _____       _                             _
             -- |_   _|     | |                           | |
@@ -516,19 +516,19 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             -- |_____|_| |_|\__\___|_|  |_|   \__,_| .__/ \__|___/
             --                                     | |
             --                                     |_|
-            section = createNewSection(bb.profile_window, "Interrupts")
+            section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
             -- Capacitor Totem
-            createNewCheckbox(section,"Capacitor Totem - Interrupt")
+            bb.ui:createCheckbox(section,"Capacitor Totem - Interrupt")
             
             -- Grounding Totem
-            createNewCheckbox(section,"Grounding Totem")
+            bb.ui:createCheckbox(section,"Grounding Totem")
             
             -- Wind Shear
-            createNewCheckbox(section,"Wind Shear")
+            bb.ui:createCheckbox(section,"Wind Shear")
             
             -- Interrupt Percentage
-            createNewSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
-            checkSectionState(section)
+            bb.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+            bb.ui:checkSectionState(section)
 
             -- _______                _        _  __
             --|__   __|              | |      | |/ /
@@ -538,27 +538,27 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             --   |_|\___/ \__, |\__, |_|\___| |_|\_\___|\__, |___/
             --             __/ | __/ |                   __/ |
             --            |___/ |___/                   |___/
-            section = createNewSection(bb.profile_window,  "Toggle Keys")
+            section = bb.ui:createSection(bb.ui.window.profile,  "Toggle Keys")
             -- Single/Multi Toggle
-            createNewDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
+            bb.ui:createDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
 
             --Cooldown Key Toggle
-            createNewDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
+            bb.ui:createDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
 
             --Defensive Key Toggle
-            createNewDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
+            bb.ui:createDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
 
             -- Interrupts Key Toggle
-            createNewDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
+            bb.ui:createDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
 
             -- Pause Toggle
-            createNewDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
-            checkSectionState(section)
+            bb.ui:createDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
+            bb.ui:checkSectionState(section)
 
 
 
             --[[ Rotation Dropdown ]]--
-            createNewRotationDropdown(bb.profile_window.parent, {"CuteOne"})
+            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"CuteOne"})
             bb:checkProfileWindowStatus()
         end
 

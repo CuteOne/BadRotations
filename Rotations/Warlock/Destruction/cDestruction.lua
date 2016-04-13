@@ -14,6 +14,10 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         --- VARIABLES ---
         -----------------
 
+        self.trinket = {
+            -- Trinket Procs
+            165832,         -- Coagulated Genesaur Blood
+        } 
         self.enemies = {
             yards5,
             yards8,
@@ -97,6 +101,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             self.getCooldowns()
             self.getEnemies()
             self.getRotation()
+
+            if lastImmolateTime == nil then lastImmolateTime=GetTime()-10 end
+            if lastImmolateTarget == nil then lastImmolateTarget="0" end
 
 
             -- Casting and GCD check
@@ -210,6 +217,25 @@ if select(2, UnitClass("player")) == "WARLOCK" then
 
         end
 
+        --------------------
+        --- TRINKET PROC ---
+        --------------------
+
+        function self.getTrinketProc()
+            local UnitBuffID = UnitBuffID
+
+            -- self.trinket.WitherbarksBranch              = UnitBuffID("player",165822)~=nil or false --Haste Proc
+            -- self.trinket.TurbulentVialOfToxin           = UnitBuffID("player",176883)~=nil or false --Mastery Proc
+            -- self.trinket.KihrasAdrenalineInjector       = UnitBuffID("player",165485)~=nil or false --Mastery Proc
+            self.trinket.CoagulatedBlood                = UnitBuffID("player",165832)~=nil or false --Multi-Strike Proc
+        end
+
+        function self.hasTrinketProc()
+            for i = 1, #self.trinket do
+                if UnitBuff("player",GetSpellInfo(self.trinket[i])) ~= nil then return true else return false end
+            end
+        end
+
         -------------
         --- PERKS ---
         -------------
@@ -271,40 +297,42 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         ---------------
 
         function self.createOptions()
-            bb.profile_window = createNewProfileWindow("Destruction")
+            bb.ui.window.profile = bb.ui:createProfileWindow("Destruction")
             local section
 
             -- Create Base and Class options
             self.createClassOptions()
 
              -- Wrapper -----------------------------------------
-            section = createNewSection(bb.profile_window,  "General")
+            section = bb.ui:createSection(bb.ui.window.profile,  "General")
 
             -- Flask / Crystal
-            createNewCheckbox(section,"Flask/Crystal")
-            checkSectionState(section)
+            bb.ui:createCheckbox(section,"Flask/Crystal")
+            bb.ui:checkSectionState(section)
 
 
              -- Wrapper -----------------------------------------
-            section = createNewSection(bb.profile_window, "Defensive")
+            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
             -- Expel Harm
-            createNewSpinner(section,  "Ember Tap",  80,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFEmber Tap")
+            bb.ui:createSpinner(section,  "Ember Tap",  80,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFEmber Tap")
             -- Fortifying Brew
-            createNewSpinner(section,  "Heirloom Neck",  30,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHeirloom Neck")
+            bb.ui:createSpinner(section,  "Heirloom Neck",  30,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHeirloom Neck")
             -- Healthstone
-            createNewSpinner(section,  "Pot/Stoned",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHealthstone")
+            bb.ui:createSpinner(section,  "Pot/Stoned",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFHealthstone")
             -- Unending Resolve
-            createNewSpinner(section,  "Unending Resolve",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFUnending Resolve")
-            checkSectionState(section)
+            bb.ui:createSpinner(section,  "Unending Resolve",  20,  0,  100  ,  5,  "Under what |cffFF0000%HP to use |cffFFFFFFUnending Resolve")
+            bb.ui:checkSectionState(section)
 
 
-            section = createNewSection(bb.profile_window,  "Interrupts")
+            section = bb.ui:createSection(bb.ui.window.profile,  "Interrupts")
             --Shadowfury
-            createNewSpinner(section, "Shadowfury", 40, 0, 100, 5, "At what |cffFF0000% Cast to use |cffFFFFFFShadowfury")
-            checkSectionState(section)
+            bb.ui:createSpinner(section, "Shadowfury", 40, 0, 100, 5, "At what |cffFF0000% Cast to use |cffFFFFFFShadowfury")
+            -- Spell Lock
+            bb.ui:createSpinner(section, "Spell Lock", 40, 0, 100, 5, "At what |cffFF0000% Cast to use |cffFFFFFFSpell Lock")
+            bb.ui:checkSectionState(section)
 
             --[[ Rotation Dropdown ]]--
-            createNewRotationDropdown(bb.profile_window.parent, {"Kuukuu","Test"})
+            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"Kuukuu","Test"})
             bb:checkProfileWindowStatus()
         end
 

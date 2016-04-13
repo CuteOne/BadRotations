@@ -99,9 +99,9 @@ function cPaladin:new(spec)
         -- Create Base Options
         self.createBaseOptions()
 
-        local section = createNewSection(bb.profile_window, "Class Options")
-        createNewDropdown(section,"Blessings", {"Kings","Might","Auto"})
-        checkSectionState(section)
+        local section = bb.ui:createSection(bb.ui.window.profile, "Class Options")
+        bb.ui:createDropdown(section,"Blessings", {"Kings","Might","Auto"})
+        bb.ui:checkSectionState(section)
     end
     --------------
     --- SPELLS ---

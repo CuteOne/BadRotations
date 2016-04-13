@@ -1,76 +1,76 @@
 if select(3,UnitClass("player")) == 7 then
 
     function RestorationConfig()
-        bb.profile_window = createNewProfileWindow("Restoration")
+        bb.ui.window.profile = bb.ui:createProfileWindow("Restoration")
         local section
 
 
         -- Wrapper
-        section = createNewSection(bb.profile_window, "--- |cffFF0011Buffs ---")
+        section = bb.ui:createSection(bb.ui.window.profile, "--- |cffFF0011Buffs ---")
         -- Earthliving Weapon
-        createNewCheckbox(section,"Earth Shield")
+        bb.ui:createCheckbox(section,"Earth Shield")
         -- Water Shield
-        createNewCheckbox(section,"Water Shield")
-        checkSectionState(section)
+        bb.ui:createCheckbox(section,"Water Shield")
+        bb.ui:checkSectionState(section)
         
 
         -- Wrapper
-        section = createNewSection(bb.profile_window, "--- |cffFF0011Healing ---")
+        section = bb.ui:createSection(bb.ui.window.profile, "--- |cffFF0011Healing ---")
         -- Purify Spirit
-        createNewDropdown(section, "Purify Spirit", { "|cffFFDD11MMouse", "|cffFFDD11MRaid", "|cff00FF00AMouse", "|cff00FF00ARaid"},  1,  "MMouse:|cffFFFFFFMouse / Match List. \nMRaid:|cffFFFFFFRaid / Match List. \nAMouse:|cffFFFFFFMouse / All. \nARaid:|cffFFFFFFRaid / All.")
+        bb.ui:createDropdown(section, "Purify Spirit", { "|cffFFDD11MMouse", "|cffFFDD11MRaid", "|cff00FF00AMouse", "|cff00FF00ARaid"},  1,  "MMouse:|cffFFFFFFMouse / Match List. \nMRaid:|cffFFFFFFRaid / Match List. \nAMouse:|cffFFFFFFMouse / All. \nARaid:|cffFFFFFFRaid / All.")
         -- Chain Heal
-        createNewSpinner(section, "Chain Heal", 70, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFChain Heal on targets.")
+        bb.ui:createSpinner(section, "Chain Heal", 70, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFChain Heal on targets.")
         -- Chain Heal People
-        createNewSpinner(section,  "CH People",  5,  0 , 25 ,  1,  "How many people need to be at the % to activate.")
+        bb.ui:createSpinner(section,  "CH People",  5,  0 , 25 ,  1,  "How many people need to be at the % to activate.")
         -- Healing Rain
-        createNewSpinner(section,"Healing Rain", 90, 0, 100, 1, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Rain.")
+        bb.ui:createSpinner(section,"Healing Rain", 90, 0, 100, 1, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Rain.")
         -- Healing Rain Targets
-        createNewSpinner(section, "Healing Rain Targets",  5,  0 , 25 ,  1,  "How many people need to be at the % to activate.")
+        bb.ui:createSpinner(section, "Healing Rain Targets",  5,  0 , 25 ,  1,  "How many people need to be at the % to activate.")
         -- Healing Stream Totem
-        createNewCheckbox(section, "Healing Stream Totem")
+        bb.ui:createCheckbox(section, "Healing Stream Totem")
         -- Healing Surge
-        createNewSpinner(section, "Healing Surge", 40, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Surge.")
+        bb.ui:createSpinner(section, "Healing Surge", 40, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Surge.")
         -- Healing Wave
-        createNewSpinner(section, "Healing Wave", 85, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Wave.")
+        bb.ui:createSpinner(section, "Healing Wave", 85, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Wave.")
         -- Riptide
-        createNewSpinner(section, "Riptide", 85, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFRiptide.")
-        checkSectionState(section)
+        bb.ui:createSpinner(section, "Riptide", 85, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFRiptide.")
+        bb.ui:checkSectionState(section)
         
 
         -- Wrapper
-        section = createNewSection(bb.profile_window, "--- |cffFF0011Cooldowns ---")
+        section = bb.ui:createSection(bb.ui.window.profile, "--- |cffFF0011Cooldowns ---")
         -- Ascendance
-        createNewSpinner(section, "Ascendance", 20, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFAscendance")
+        bb.ui:createSpinner(section, "Ascendance", 20, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFAscendance")
         -- Ascendance People
-        createNewSpinner(section,  "Ascendance People",  5,  0 , 25 ,  1,  "How many people need to be at the % to activate.")
+        bb.ui:createSpinner(section,  "Ascendance People",  5,  0 , 25 ,  1,  "How many people need to be at the % to activate.")
         -- Healing Tide Totem
-        createNewSpinner(section, "Healing Tide Totem", 20, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFHealing Tide Totem")
+        bb.ui:createSpinner(section, "Healing Tide Totem", 20, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFHealing Tide Totem")
         -- Healing Tide Totem People
-        createNewSpinner(section,  "HT Totem People",  5,  0 , 25 ,  1,  "How many people need to be at the % to activate.")
+        bb.ui:createSpinner(section,  "HT Totem People",  5,  0 , 25 ,  1,  "How many people need to be at the % to activate.")
         -- Spirit Link Totem
-        createNewSpinner(section, "Spirit Link Totem", 20, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFSpirit Link Totem")
+        bb.ui:createSpinner(section, "Spirit Link Totem", 20, 0, 100, 5, "Under what |cffFF0000%HP to use |cffFFFFFFSpirit Link Totem")
         -- Spirit Link Totem People
-        createNewSpinner(section,  "SL Totem People",  5,  0 , 25 ,  1,  "How many people need to be at the % to activate.")
-        checkSectionState(section)
+        bb.ui:createSpinner(section,  "SL Totem People",  5,  0 , 25 ,  1,  "How many people need to be at the % to activate.")
+        bb.ui:checkSectionState(section)
 
         -- Wrapper
-        section = createNewSection(bb.profile_window, "--- |cffFF0011Defensive ---")
+        section = bb.ui:createSection(bb.ui.window.profile, "--- |cffFF0011Defensive ---")
         -- Astral Shift
-        createNewSpinner(section, "Astral Shift", 30, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFAstral Shit")
+        bb.ui:createSpinner(section, "Astral Shift", 30, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFAstral Shit")
         -- Healing Stream
-        createNewSpinner(section, "Healthstone", 50, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream")
-        checkSectionState(section)
+        bb.ui:createSpinner(section, "Healthstone", 50, 0, 100, 5, "|cffFFBB00Under what %HP to use |cffFFFFFFHealing Stream")
+        bb.ui:checkSectionState(section)
 
         -- Wrapper
-        section = createNewSection(bb.profile_window, "--- |cffFF0011Utilities ---")
+        section = bb.ui:createSection(bb.ui.window.profile, "--- |cffFF0011Utilities ---")
         -- Standard Interrupt
-        createNewSpinner(section, "Wind Shear", 35 , 0, 100, 5, "|cffFFBB00Over what % of cast we want to |cffFFFFFFWind Shear.")
+        bb.ui:createSpinner(section, "Wind Shear", 35 , 0, 100, 5, "|cffFFBB00Over what % of cast we want to |cffFFFFFFWind Shear.")
         -- Purge
-        createNewCheckbox(section,"Purge")
-        checkSectionState(section)
+        bb.ui:createCheckbox(section,"Purge")
+        bb.ui:checkSectionState(section)
 
         --[[ Rotation Dropdown ]]--
-        createNewRotationDropdown(bb.profile_window.parent, {"Kuukuu"})
+        bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"Kuukuu"})
         bb:checkProfileWindowStatus()
     end
 end

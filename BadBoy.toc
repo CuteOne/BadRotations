@@ -19,13 +19,11 @@ System\UsefulFeatures.lua
 System\LootManager.lua
 
 # Helper
-System\helper\profession.lua
+System\helper\gathering.lua
 System\helper\mining.lua
 System\helper\herbalism.lua
 System\helper\unit.lua
 System\helper\object.lua
-
-System\drawer\drawer.lua
 
 ## Readers
 System\readers\combatlog.lua
@@ -43,6 +41,8 @@ System\Libs\DiesalStyle-1.0\DiesalStyle-1.0.lua
 System\Libs\DiesalGUI-1.0\DiesalGUI-1.0.xml
 System\Libs\DiesalMenu-1.0\DiesalMenu-1.0.xml
 System\newui.lua
+
+System\drawer\drawer.lua
 
 ## Engines
 System\engines\EnemiesEngine.lua
@@ -335,6 +335,8 @@ Rotations\Warrior\Protection\Libs\Toggles.lua
 Rotations\Warlock\cWarlock.lua
 
 Rotations\Warlock\Affliction\Affliction.lua
+Rotations\Warlock\Affliction\cAffliction.lua
+Rotations\Warlock\Affliction\levelingWL.lua
 Rotations\Warlock\Affliction\Libs\Functions.lua
 Rotations\Warlock\Affliction\Libs\Options.lua
 Rotations\Warlock\Affliction\Libs\Toggles.lua

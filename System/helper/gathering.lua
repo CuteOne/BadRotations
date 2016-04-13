@@ -31,7 +31,7 @@ end
 --  Check the name of the node => only english locale
 function bb.helper:startGathering()
     local nrObjects = GetObjectCount()
-    --bb.helper.deposits = {}
+    bb.helper.deposits = {}
 
     if not UnitAffectingCombat("player") and UnitCastingInfo("player") == nil and not isLooting() then
 
@@ -100,40 +100,34 @@ end
 --- Prints the ObjectID of a given name
 --  Helps to identify the objectID of things which have no tooltip
 --  name - the name of the object
---  objectType - must be "GameObject" or "Unit"
 --  nearestObject - if true, it will sort and displays distance to the nearest given object
 --  Use:
---  /run bb.helper:getObjectID(GameTooltipTextLeft1:GetText(),"g")
+--  /run bb.helper:getObjectID(GameTooltipTextLeft1:GetText())
 --  to get the GameObject ID of the object the tootlip is displayed, usallly the mouseover
-function bb.helper:getObjectID(name, objectType, nearestObject)
+function bb.helper:getObjectID(name, nearestObject)
     local nrObjects = GetObjectCount()
     local nearest = {
         objName,
         objID,
         objDistance = 999,
+        objType,
     }
     local tmpDistance
-
-    if objectType == "u" then objectType = "Unit" end
-    if objectType == "g" then objectType = "GameObject" end
-
-    if (objectType ~= "Unit" and objectType ~= "GameObject") then
-        print("Wrong objectType. Use (u)'Unit' or (g)'GameObject'.")
-        return
-    end
 
     for i=1, nrObjects do
         -- Locals
         local thisObject = GetObjectWithIndex(i)
 
-        if ObjectIsType(thisObject, ObjectTypes[objectType]) then
+        if ObjectIsType(thisObject, ObjectTypes.Unit) or ObjectIsType(thisObject, ObjectTypes.GameObject) then
             -- Locals
             local guid = UnitGUID(thisObject)
             local objectName = ObjectName(thisObject)
             local objectType, _, _, _, _, objectID, _ = strsplit("-", guid)
             objectID = tonumber(objectID)
+            if objectType == "Creature" then objectType = "Unit" end
+
             if objectName == name and not nearestObject then
-                print("ObjectName: "..objectName.." | ID: "..objectID)
+                print(objectType.." Name: "..objectName.." | ID: "..objectID)
                 return
             elseif objectName == name and nearestObject == true then
                 -- Sort by nearest found object
@@ -142,13 +136,14 @@ function bb.helper:getObjectID(name, objectType, nearestObject)
                     nearest.objDistance = tmpDistance
                     nearest.objName = objectName
                     nearest.objID = objectID
+                    nearest.objType = objectType
                 end
             end
         end
     end
     -- Print nearest object
     if nearestObject == true and nearest.objDistance ~= 999 then
-        print("ObjectName: "..nearest.objName.." | ID: "..nearest.objID.." | Dist: "..nearest.objDistance)
+        print(nearest.objType.." Name: "..nearest.objName.." | ID: "..nearest.objID.." | Dist: "..nearest.objDistance)
         print("{"..nearest.objID..", "..floor(nearest.objDistance).."}, -- "..nearest.objName)
         return
     end

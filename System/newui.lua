@@ -4,6 +4,10 @@ local DiesalGUI = LibStub("DiesalGUI-1.0")
 local DiesalMenu = LibStub("DiesalMenu-1.0")
 local SharedMedia = LibStub("LibSharedMedia-3.0")
 
+-- Global setup
+bb.ui = {}
+bb.ui.window = {}
+
 --if BadBoy_data.options[GetSpecialization()] == nil then BadBoy_data.options[GetSpecialization()] = {} end
 --if BadBoy_data.options[GetSpecialization()][bb.selectedProfile] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile] = {} end
 
@@ -156,7 +160,7 @@ local buttonStyleSheet = {
     },
 }
 
-function createNewWindow(name, width, height)
+function bb.ui:createWindow(name, width, height)
     local window = DiesalGUI:Create('Window')
     window:SetTitle('BadBoy', name)
     window.settings.width = width or 250
@@ -191,7 +195,7 @@ function createNewWindow(name, width, height)
     return scrollFrame
 end
 
-function createNewProfileWindow(name, width, height)
+function bb.ui:createProfileWindow(name, width, height)
     local window = DiesalGUI:Create('Window')
     window:SetTitle('BadBoy', name)
     window.settings.width = width or 300
@@ -226,7 +230,7 @@ function createNewProfileWindow(name, width, height)
     return scrollFrame
 end
 
-function createNewMessageWindow(name, width, height)
+function bb.ui:createMessageWindow(name, width, height)
     local window = DiesalGUI:Create('Window')
     window:SetTitle('BadBoy', name)
     window.settings.width = width or 300
@@ -243,7 +247,9 @@ function createNewMessageWindow(name, width, height)
     return newMessageFrame
 end
 
-function createNewCheckbox(parent, text, tooltip)
+bb.spacing = 15
+
+function bb.ui:createCheckbox(parent, text, tooltip)
     local newBox = DiesalGUI:Create('Toggle')
     local parent = parent
     local anchor = anchor or "TOPLEFT"
@@ -264,7 +270,7 @@ function createNewCheckbox(parent, text, tooltip)
     end
 
     local y = howManyBoxes
-    if y  ~= 1 then y = ((y-1) * -15) -5 end
+    if y  ~= 1 then y = ((y-1) * -bb.spacing) -5 end
     if y == 1 then y = -5 end
 
     -- Set parent
@@ -315,12 +321,12 @@ function createNewCheckbox(parent, text, tooltip)
     return newBox
 end
 
-function createNewSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, hideCheckbox)
+function bb.ui:createSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, hideCheckbox)
     local newSpinner = DiesalGUI:Create('Spinner')
     local parent = parent
 
     -- Create Checkbox for Spinner
-    local checkBox = createNewCheckbox(parent, text, tooltip)
+    local checkBox = bb.ui:createCheckbox(parent, text, tooltip)
 
     -- Calculate position
     local howManyBoxes = 0
@@ -330,7 +336,7 @@ function createNewSpinner(parent, text, number, min, max, step, tooltip, tooltip
         end
     end
     local y = howManyBoxes
-    if y  ~= 1 then y = ((y-1) * -15) -5 end
+    if y  ~= 1 then y = ((y-1) * -bb.spacing) -5 end
     if y == 1 then y = -5 end
 
     if hideCheckbox then
@@ -381,18 +387,18 @@ function createNewSpinner(parent, text, number, min, max, step, tooltip, tooltip
     return newSpinner
 end
 
-function createNewSpinnerWithout(parent, text, number, min, max, step, tooltip, tooltipSpin)
-    return createNewSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, true)
+function bb.ui:createSpinnerWithout(parent, text, number, min, max, step, tooltip, tooltipSpin)
+    return bb.ui:createSpinner(parent, text, number, min, max, step, tooltip, tooltipSpin, true)
 end
 
-function createNewDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, hideCheckbox)
+function bb.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, hideCheckbox)
     local newDropdown = DiesalGUI:Create('DropdownBB')
     local parent = parent
     local itemlist = itemlist
     local default = default or 1
 
     -- Create Checkbox for Dropdown
-    local checkBox = createNewCheckbox(parent,text,tooltip)
+    local checkBox = bb.ui:createCheckbox(parent,text,tooltip)
 
     -- Calculate position
     local howManyBoxes = 0
@@ -402,7 +408,7 @@ function createNewDropdown(parent, text, itemlist, default, tooltip, tooltipDrop
         end
     end
     local y = howManyBoxes
-    if y  ~= 1 then y = ((y-1) * -15) -5 end
+    if y  ~= 1 then y = ((y-1) * -bb.spacing) -5 end
     if y == 1 then y = -5 end
 
     if hideCheckbox then
@@ -445,11 +451,11 @@ function createNewDropdown(parent, text, itemlist, default, tooltip, tooltipDrop
     return newDropdown
 end
 
-function createNewDropdownWithout(parent, text, itemlist, default, tooltip, tooltipDrop)
-    return createNewDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, true)
+function bb.ui:createDropdownWithout(parent, text, itemlist, default, tooltip, tooltipDrop)
+    return bb.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, true)
 end
 
-function createNewRotationDropdown(parent, itemlist, tooltip)
+function bb.ui:createRotationDropdown(parent, itemlist, tooltip)
     local newDropdown = DiesalGUI:Create('DropdownBB')
     local parent = parent
     local text = "Rotation"
@@ -468,7 +474,7 @@ function createNewRotationDropdown(parent, itemlist, tooltip)
         BadBoy_data.options[GetSpecialization()][text.."Drop"]  = key
         BadBoy_data.options[GetSpecialization()][text.."DropValue"]  = value
         bb.selectedProfile = key
-        bb:recreateWindows()
+        bb.ui:recreateWindows()
         bb.rotation_changed = true
     end)
     -- Event: Tooltip
@@ -489,7 +495,7 @@ function createNewRotationDropdown(parent, itemlist, tooltip)
     return newDropdown
 end
 
-function createNewSection(parent, sectionName, tooltip)
+function bb.ui:createSection(parent, sectionName, tooltip)
     local newSection = DiesalGUI:Create('AccordianSectionBB')
     local parent = parent
 
@@ -546,7 +552,7 @@ function createNewText(parent, text)
     end
 
     local y = howManyTexts
-    if y  ~= 1 then y = ((y-1) * -15) -5 end
+    if y  ~= 1 then y = ((y-1) * -bb.spacing) -5 end
     if y == 1 then y = -5 end
 
     newText:SetParent(parent.content)
@@ -569,7 +575,7 @@ end
 
 
 -- Restore last saved state of section (collapsed or expanded)
-function checkSectionState(section)
+function bb.ui:checkSectionState(section)
     local state = BadBoy_data.options[GetSpecialization()][bb.selectedProfile][section.settings.sectionName.."Section"]
 
     if state then
@@ -579,7 +585,7 @@ function checkSectionState(section)
     end
 end
 
-function createNewButton(parent, buttonName, x, y)
+function bb.ui:createButton(parent, buttonName, x, y)
     local newButton = DiesalGUI:Create('Button')
     local parent = parent
 
@@ -604,13 +610,13 @@ end
 -- TODO: BUG on / off toggle doesnt behave correctly
 function bb:checkProfileWindowStatus()
     if BadBoy_data.options[GetSpecialization()]["configFrame"] ~= true then
-        if bb.profile_window then
-            bb.profile_window.parent:Show()
+        if bb.ui.window.profile then
+            bb.ui.window.profile.parent:Show()
             return true
         end
     else
-        if bb.profile_window then
-            bb.profile_window.parent.closeButton:Click()
+        if bb.ui.window.profile then
+            bb.ui.window.profile.parent.closeButton:Click()
             return false
         end
     end
@@ -619,14 +625,14 @@ end
 function bb:checkConfigWindowStatus()
     if BadBoy_data.options[GetSpecialization()] then
         if BadBoy_data.options[GetSpecialization()]["optionsFrame"] then
-            if bb.config_window then
-                bb.config_window.parent.closeButton:Click()
+            if bb.ui.window.config then
+                bb.ui.window.config.parent.closeButton:Click()
                 --optionsFrame:Hide()
                 BadBoy_data.options[GetSpecialization()]["optionsFrame"] = false
             end
         else
-            if bb.config_window then
-                bb.config_window.parent:Show()
+            if bb.ui.window.config then
+                bb.ui.window.config.parent:Show()
                 --optionsFrame:Show()
                 BadBoy_data.options[GetSpecialization()]["optionsFrame"] = true
             end
@@ -634,119 +640,126 @@ function bb:checkConfigWindowStatus()
     end
 end
 
-function bb:recreateWindows()
-    bb.config_window.parent.closeButton:Click()
-    bb.profile_window.parent.closeButton:Click()
+function bb.ui:recreateWindows()
+    bb.ui.window.config.parent.closeButton:Click()
+    bb.ui.window.profile.parent.closeButton:Click()
 
-    bb:createConfigWindowNew()
+    bb.ui:createConfigWindow()
 end
 
 -- todo
-function bb:createOverviewWindow()
-    bb.overview_window = createNewWindow("Overview")
+function bb.ui:createOverviewWindow()
+    bb.ui.window.overview = bb.ui:createWindow("Overview")
 
     -- Open ABOUT window
-    local buttonAbout = createNewButton(bb.overview_window, "About", 10, -10)
+    local buttonAbout = bb.ui:createButton(bb.ui.window.overview, "About", 10, -10)
     buttonAbout:SetEventListener("OnClick", function()
-        bb.about_window:Show()
+        bb.ui.window.about.parent:Show()
     end)
 end
 
 -- todo
-function bb:createAboutWindow()
-    bb.about_window = createNewWindow("About")
+function bb.ui:createAboutWindow()
+    bb.ui.window.about = bb.ui:createWindow("About")
 
 
 end
 
-function bb:createHelpWindow()
-    bb.help_window = createNewMessageWindow("Help")
+function bb.ui:createHelpWindow()
+    bb.ui.window.help = bb.ui:createMessageWindow("Help")
     local colorBlue = "|cff00CCFF"
     local colorGreen = "|cff00FF00"
     local colorRed = "|cffFF0011"
     local colorWhite = "|cffFFFFFF"
     local colorGold = "|cffFFDD11"
-    bb.help_window:AddMessage(colorGreen.."--- [[ AUTHORS ]] ---")
-    bb.help_window:AddMessage(colorRed.."CodeMyLife - CuteOne - Ragnar - Defmaster")
-    bb.help_window:AddMessage(colorRed.."Gabbz - Chumii - AveryKey")
-    bb.help_window:AddMessage(colorRed.."Masoud - Cpoworks - Tocsin")
-    bb.help_window:AddMessage(colorRed.."Mavmins - CukieMunster - Magnu")
-    bb.help_window:AddMessage("----------------------------------------")
+    bb.ui.window.help:AddMessage(colorGreen.."--- [[ AUTHORS ]] ---")
+    bb.ui.window.help:AddMessage(colorRed.."CodeMyLife - CuteOne - Ragnar - Defmaster")
+    bb.ui.window.help:AddMessage(colorRed.."Gabbz - Chumii - AveryKey")
+    bb.ui.window.help:AddMessage(colorRed.."Masoud - Cpoworks - Tocsin")
+    bb.ui.window.help:AddMessage(colorRed.."Mavmins - CukieMunster - Magnu")
+    bb.ui.window.help:AddMessage("----------------------------------------")
     --
-    bb.help_window:AddMessage(colorGreen.."--- [[ TODO ]] ---")
-    bb.help_window:AddMessage(colorGold.."HELP WINDOW NOT FINISHED YET ! ")
-    bb.help_window.parent:Hide()
+    bb.ui.window.help:AddMessage(colorGreen.."--- [[ TODO ]] ---")
+    bb.ui.window.help:AddMessage(colorGold.."HELP WINDOW NOT FINISHED YET ! ")
+    bb.ui.window.help.parent:Hide()
 end
 
 
 -- This creates the normal BadBay Configuration Window
-function bb:createConfigWindowNew()
-    bb:createHelpWindow()
-    bb.config_window = createNewWindow("Configuration", 275, 400)
-
+function bb.ui:createConfigWindow()
+    bb.ui:createHelpWindow()
+    bb.ui:createDebugWindow()
+    bb.ui.window.config = bb.ui:createWindow("Configuration", 275, 400)
 
     local section
     -- General
-    section = createNewSection(bb.config_window, "General")
-    createNewCheckbox(section, "Start/Stop BadBoy", "Uncheck to prevent BadBoy pulsing.")
-    createNewCheckbox(section, "Debug Frame", "Display Debug Frame.")
-    createNewCheckbox(section, "Display Failcasts", "Dispaly Failcasts in Debug.")
-    createNewCheckbox(section, "Queue Casting", "Allow Queue Casting on some profiles.")
-    createNewSpinner(section,  "Auto Loot" ,0.5, 0.1, 3, 0.1, "Sets Autloot on/off.", "Sets a delay for Auto Loot.")
-    createNewCheckbox(section, "Auto-Sell/Repair", "Automatically sells grays and repais when you open a repairman trade.")
-    createNewCheckbox(section, "Accept Queues", "Automatically accept LFD, LFR, .. queue.")
-    createNewCheckbox(section, "Overlay Messages", "Check to enable chat overlay messages.")
-    checkSectionState(section)
+    section = bb.ui:createSection(bb.ui.window.config, "General")
+    bb.ui:createCheckbox(section, "Start/Stop BadBoy", "Uncheck to prevent BadBoy pulsing.")
+    bb.ui:createCheckbox(section, "Debug Frame", "Display Debug Frame.")
+    bb.ui:createCheckbox(section, "Display Failcasts", "Dispaly Failcasts in Debug.")
+    bb.ui:createCheckbox(section, "Queue Casting", "Allow Queue Casting on some profiles.")
+    bb.ui:createSpinner(section,  "Auto Loot" ,0.5, 0.1, 3, 0.1, "Sets Autloot on/off.", "Sets a delay for Auto Loot.")
+    bb.ui:createCheckbox(section, "Auto-Sell/Repair", "Automatically sells grays and repais when you open a repairman trade.")
+    bb.ui:createCheckbox(section, "Accept Queues", "Automatically accept LFD, LFR, .. queue.")
+    bb.ui:createCheckbox(section, "Overlay Messages", "Check to enable chat overlay messages.")
+    bb.ui:checkSectionState(section)
 
     -- Enemies Engine
-    section = createNewSection(bb.config_window, "Enemies Engine")
-    createNewCheckbox(section, "Dynamic Targetting", "Check this to allow dynamic targetting. If unchecked, profile will only attack current target.")
-    createNewDropdown(section, "Wise Target", {"Highest", "Lowest", "abs Highest"}, 1, "|cffFFDD11Check if you want to use Wise Targetting, if unchecked there will be no priorisation from hp.")
-    createNewCheckbox(section, "Forced Burn", "Check to allow forced Burn on specific whitelisted units.")
-    createNewCheckbox(section, "Avoid Shields", "Check to avoid attacking shielded units.")
-    createNewCheckbox(section, "Tank Threat", "Check add more priority to taregts you lost aggro on(tank only).")
-    createNewCheckbox(section, "Safe Damage Check", "Check to prevent damage to targets you dont want to attack.")
-    createNewCheckbox(section, "Don't break CCs", "Check to prevent damage to targets that are CC.")
-    createNewCheckbox(section, "Skull First", "Check to enable focus skull dynamically.")
-    createNewDropdown(section, "Interrupts Handler", {"Target", "T/M", "T/M/F", "All"}, 1, "Check this to allow Interrupts Handler. DO NOT USE YET!")
-    createNewCheckbox(section, "Only Known Units", "Check this to interrupt only on known units using whitelist.")
-    createNewCheckbox(section, "Crowd Control", "Check to use crowd controls on select units/buffs.")
-    createNewCheckbox(section, "Enrages Handler", "Check this to allow Enrages Handler.")
-    checkSectionState(section)
+    section = bb.ui:createSection(bb.ui.window.config, "Enemies Engine")
+    bb.ui:createCheckbox(section, "Dynamic Targetting", "Check this to allow dynamic targetting. If unchecked, profile will only attack current target.")
+    bb.ui:createDropdown(section, "Wise Target", {"Highest", "Lowest", "abs Highest"}, 1, "|cffFFDD11Check if you want to use Wise Targetting, if unchecked there will be no priorisation from hp.")
+    bb.ui:createCheckbox(section, "Forced Burn", "Check to allow forced Burn on specific whitelisted units.")
+    bb.ui:createCheckbox(section, "Avoid Shields", "Check to avoid attacking shielded units.")
+    bb.ui:createCheckbox(section, "Tank Threat", "Check add more priority to taregts you lost aggro on(tank only).")
+    bb.ui:createCheckbox(section, "Safe Damage Check", "Check to prevent damage to targets you dont want to attack.")
+    bb.ui:createCheckbox(section, "Don't break CCs", "Check to prevent damage to targets that are CC.")
+    bb.ui:createCheckbox(section, "Skull First", "Check to enable focus skull dynamically.")
+    bb.ui:createDropdown(section, "Interrupts Handler", {"Target", "T/M", "T/M/F", "All"}, 1, "Check this to allow Interrupts Handler. DO NOT USE YET!")
+    bb.ui:createCheckbox(section, "Only Known Units", "Check this to interrupt only on known units using whitelist.")
+    bb.ui:createCheckbox(section, "Crowd Control", "Check to use crowd controls on select units/buffs.")
+    bb.ui:createCheckbox(section, "Enrages Handler", "Check this to allow Enrages Handler.")
+    bb.ui:checkSectionState(section)
 
     -- Healing Engine
-    section = createNewSection(bb.config_window, "Healing Engine")
-    createNewCheckbox(section, "HE Active", "Uncheck to disable Healing Engine.\nCan improves FPS if you dont rely on Healing Engine.")
-    createNewCheckbox(section, "Heal Pets", "Check this to Heal Pets.")
-    createNewDropdown(section, "Special Heal", {"Target", "T/M", "T/M/F", "T/F"}, 1, "Check this to Heal Special Whitelisted Units.", "Choose who you want to Heal.")
-    createNewCheckbox(section, "Sorting with Role", "Sorting with Role")
-    createNewDropdown(section, "Prioritize Special Targets", {"Special", "All"}, 1, "Prioritize Special targets(mouseover/target/focus).", "Choose Which Special Units to consider.")
-    createNewSpinner(section, "Blacklist", 95, nil, nil, nil, "|cffFFBB00How much |cffFF0000%HP|cffFFBB00 do we want to add to |cffFFDD00Blacklisted |cffFFBB00units. Use /Blacklist while mouse-overing someone to add it to the black list.")
-    createNewCheckbox(section, "Ignore Absorbs", "Check this if you want to ignore absorb shields. If checked, it will add shieldBuffValue/4 to hp. May end up as overheals, disable to save mana.")
-    createNewCheckbox(section, "Incoming Heals", "If checked, it will add incoming health from other healers to hp. Uncheck this if you want to prevent overhealing units.")
-    createNewSpinner(section, "Overhealing Cancel", 95, nil, nil, nil, "Set Desired Threshold at which you want to prevent your own casts.")
-    createNewCheckbox(section, "Healing Debug", "Check to display Healing Engine Debug.")
-    createNewSpinner(section, "Debug Refresh", 500, 0, 1000, 25, "Set desired Healing Engine Debug Table refresh for rate in ms.")
-    createNewSpinner(section, "Dispel delay", 15, 5, 90, 5, "Set desired dispel delay in % of debuff duration.\n|cffFF0000Will randomise around the value you set.")
-    checkSectionState(section)
+    section = bb.ui:createSection(bb.ui.window.config, "Healing Engine")
+    bb.ui:createCheckbox(section, "HE Active", "Uncheck to disable Healing Engine.\nCan improves FPS if you dont rely on Healing Engine.")
+    bb.ui:createCheckbox(section, "Heal Pets", "Check this to Heal Pets.")
+    bb.ui:createDropdown(section, "Special Heal", {"Target", "T/M", "T/M/F", "T/F"}, 1, "Check this to Heal Special Whitelisted Units.", "Choose who you want to Heal.")
+    bb.ui:createCheckbox(section, "Sorting with Role", "Sorting with Role")
+    bb.ui:createDropdown(section, "Prioritize Special Targets", {"Special", "All"}, 1, "Prioritize Special targets(mouseover/target/focus).", "Choose Which Special Units to consider.")
+    bb.ui:createSpinner(section, "Blacklist", 95, nil, nil, nil, "|cffFFBB00How much |cffFF0000%HP|cffFFBB00 do we want to add to |cffFFDD00Blacklisted |cffFFBB00units. Use /Blacklist while mouse-overing someone to add it to the black list.")
+    bb.ui:createCheckbox(section, "Ignore Absorbs", "Check this if you want to ignore absorb shields. If checked, it will add shieldBuffValue/4 to hp. May end up as overheals, disable to save mana.")
+    bb.ui:createCheckbox(section, "Incoming Heals", "If checked, it will add incoming health from other healers to hp. Uncheck this if you want to prevent overhealing units.")
+    bb.ui:createSpinner(section, "Overhealing Cancel", 95, nil, nil, nil, "Set Desired Threshold at which you want to prevent your own casts.")
+    bb.ui:createCheckbox(section, "Healing Debug", "Check to display Healing Engine Debug.")
+    bb.ui:createSpinner(section, "Debug Refresh", 500, 0, 1000, 25, "Set desired Healing Engine Debug Table refresh for rate in ms.")
+    bb.ui:createSpinner(section, "Dispel delay", 15, 5, 90, 5, "Set desired dispel delay in % of debuff duration.\n|cffFF0000Will randomise around the value you set.")
+    bb.ui:checkSectionState(section)
 
     -- Other Features
-    section = createNewSection(bb.config_window, "Other Features")
-    createNewSpinner(section, "Profession Helper", 0.5, 0, 1, 0.1, "Check to enable Professions Helper.", "Set Desired Recast Delay.")
-    createNewDropdown(section, "Prospect Ores", {"WoD", "MoP", "Cata", "All"}, 1, "Prospect Desired Ores.")
-    createNewDropdown(section, "Mill Herbs", {"WoD", "MoP", "Cata", "All"}, 1, "Mill Desired Herbs.")
-    createNewCheckbox(section, "Disenchant", "Disenchant Cata blues/greens.")
-    createNewCheckbox(section, "Leather Scraps", "Combine leather scraps.")
-    createNewSpinner(section, "Salvage", 15, 5, 30, 1, "Check to enable Salvage Helper.", "Set Desired waiting after full inventory.")
-    checkSectionState(section)
+    section = bb.ui:createSection(bb.ui.window.config, "Other Features")
+    bb.ui:createSpinner(section, "Profession Helper", 0.5, 0, 1, 0.1, "Check to enable Professions Helper.", "Set Desired Recast Delay.")
+    bb.ui:createDropdown(section, "Prospect Ores", {"WoD", "MoP", "Cata", "All"}, 1, "Prospect Desired Ores.")
+    bb.ui:createDropdown(section, "Mill Herbs", {"WoD", "MoP", "Cata", "All"}, 1, "Mill Desired Herbs.")
+    bb.ui:createCheckbox(section, "Disenchant", "Disenchant Cata blues/greens.")
+    bb.ui:createCheckbox(section, "Leather Scraps", "Combine leather scraps.")
+    bb.ui:createSpinner(section, "Salvage", 15, 5, 30, 1, "Check to enable Salvage Helper.", "Set Desired waiting after full inventory.")
+    bb.ui:createCheckbox(section, "Automatic Gathering", "Automatic gathering of things like herbs,mining nodes, quest items, ...")
+    bb.ui:createCheckbox(section, "Use Drawer", "EXPERIMENTAL!")
+    bb.ui:checkSectionState(section)
 
     -- temp
     if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()]["optionsFrame"] ~= true then
-        bb.config_window.parent.closeButton:Click()
+        bb.ui.window.config.parent.closeButton:Click()
     end
 end
 
 -- TODO: create new debug frame
-function bb.createDebugWindow()
+function bb.ui:createDebugWindow()
+    bb.ui.window.debug = bb.ui:createMessageWindow("Debug")
 
+    bb.ui.window.debug.parent:Hide()
 end
+
+-- TODO: re arrange files, put function and window into different files
+-- TODO: use bb.ui.window.window.config ... instead of bb.config ...

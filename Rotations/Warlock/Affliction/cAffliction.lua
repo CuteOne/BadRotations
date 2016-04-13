@@ -10,6 +10,10 @@ function cAffliction:new()
 
 	local player = "player" -- if someone forgets ""
 
+    self.rotations = {
+        "ragnar",
+        "leveling",
+    }
 	-- __      __                              _   _______    _     _           
 	-- \ \    / /                             | | |__   __|  | |   | |          
 	--  \ \  / /_ _ _ __ ___    __ _ _ __   __| |    | | __ _| |__ | | ___  ___ 
@@ -218,18 +222,20 @@ function cAffliction:new()
     end
 
     function self.createOptions()
-        bb.profile_window = createNewProfileWindow("Affliction")
+        bb.ui.window.profile = bb.ui:createProfileWindow("Affliction")
 
         self.createClassOptions()
 
         local section
 
         if self.rotation == 1 then
-            section = createNewSection(bb.profile_window, "NYI", "No options here.")
+            section = bb.ui:createSection(bb.ui.window.profile, "NYI", "No options here.")
+        elseif self.rotation == 2 then
+            section = bb.ui:createSection(bb.ui.window.profile, "NYI", "No options here.")
         end
 
         --[[ Rotation Dropdown ]]--
-        createNewRotationDropdown(bb.profile_window.parent, {"ragnar"})
+        bb.ui:createRotationDropdown(bb.ui.window.profile.parent, self.rotations)
         bb:checkProfileWindowStatus()
     end
 
@@ -350,9 +356,9 @@ function cAffliction:new()
 	-- | | |_ |/ _ \ __|  \___ \ / _ \ |/ _ \/ __| __/ _ \/ _` | | |    |  _  / 
 	-- | |__| |  __/ |_   ____) |  __/ |  __/ (__| ||  __/ (_| | | |____| | \ \ 
 	--  \_____|\___|\__| |_____/ \___|_|\___|\___|\__\___|\__,_|  \_____|_|  \_\
-	function self.getRotation()
-		self.rotation = getValue("Rotation")
-	end
+	--function self.getRotation()
+	--	self.rotation = getValue("Rotation")
+	--end
 
 	--  _____                              _        _    _       _ _       
 	-- |  __ \                            (_)      | |  | |     (_) |      
@@ -616,6 +622,8 @@ function cAffliction:new()
 		if self.inCombat then
 			if self.rotation == 1 then
 				self:orbituary()
+            elseif self.rotation == 2 then
+                self:levelingWL()
 			else
 				ChatOverlay("ERROR: NO ROTATION", 2000)
 			end

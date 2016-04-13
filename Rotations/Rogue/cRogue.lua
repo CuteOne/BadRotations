@@ -434,15 +434,15 @@ function cRogue:new(spec)
 		self.createBaseOptions()
 
 		-- Class Wrap
-		local section = createNewSection(bb.profile_window,  "--- Class Options ---")
+		local section = bb.ui:createSection(bb.ui.window.profile,  "--- Class Options ---")
         -- Leathal Poison
-        createNewDropdown(section,  "Lethal", {"|cffFF8000Wound","|cff13A300Instant"}, 1)
+        bb.ui:createDropdown(section,  "Lethal", {"|cffFF8000Wound","|cff13A300Instant"}, 1)
         -- Non-Leathal Poison
-        createNewDropdown(section,  "Non-Lethal", {"|cff6600FFCrip","|cff00CF1CLeech"}, 1)
+        bb.ui:createDropdown(section,  "Non-Lethal", {"|cff6600FFCrip","|cff00CF1CLeech"}, 1)
         -- Poison re-apply timer
         -- Use poison if X minutes remain
-        createNewSpinner(section, "Poison remain", 10, 5, 50, 1, "How many minutes left until reapply?")
-        checkSectionState(section)
+        bb.ui:createSpinner(section, "Poison remain", 10, 5, 50, 1, "How many minutes left until reapply?")
+        bb.ui:checkSectionState(section)
 	end
 
 ------------------------------

@@ -306,7 +306,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         ---------------
 
         function self.createOptions()
-            bb.profile_window = createNewProfileWindow("Arms")
+            bb.ui.window.profile = bb.ui:createProfileWindow("Arms")
             local section
 
             -- Create Base and Class options
@@ -318,20 +318,20 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             -- | | |_ |/ _ \ '_ \ / _ \ '__/ _` | |
             -- | |__| |  __/ | | |  __/ | | (_| | |
             --  \_____|\___|_| |_|\___|_|  \__,_|_|
-            section = createNewSection(bb.profile_window,  "General")
+            section = bb.ui:createSection(bb.ui.window.profile,  "General")
             -- Dummy DPS Test
-            createNewSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 
             -- Berserker Rage
-            createNewCheckbox(section,"Berserker Rage")
+            bb.ui:createCheckbox(section,"Berserker Rage")
 
             -- Hamstring
-            createNewCheckbox(section,"Hamstring")
+            bb.ui:createCheckbox(section,"Hamstring")
 
             -- Pre-Pull Timer
-            createNewSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
 
-            checkSectionState(section)
+            bb.ui:checkSectionState(section)
             
             --   _____            _     _
             --  / ____|          | |   | |
@@ -339,24 +339,24 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             -- | |    / _ \ / _ \| |/ _` |/ _ \ \ /\ / / '_ \/ __|
             -- | |___| (_) | (_) | | (_| | (_) \ V  V /| | | \__ \
             --  \_____\___/ \___/|_|\__,_|\___/ \_/\_/ |_| |_|___/
-            section = createNewSection(bb.profile_window,  "Cooldowns")
+            section = bb.ui:createSection(bb.ui.window.profile,  "Cooldowns")
             -- Agi Pot
-            createNewCheckbox(section,"Str-Pot")
+            bb.ui:createCheckbox(section,"Str-Pot")
 
             -- Legendary Ring
-            createNewCheckbox(section, "Legendary Ring", "Enable or Disable usage of Legendary Ring.")
-            -- createNewDropdown(section,  "Legendary Ring", { "CD"},  2)
+            bb.ui:createCheckbox(section, "Legendary Ring", "Enable or Disable usage of Legendary Ring.")
+            -- bb.ui:createDropdown(section,  "Legendary Ring", { "CD"},  2)
 
             -- Flask / Crystal
-            createNewCheckbox(section,"Flask / Crystal")
+            bb.ui:createCheckbox(section,"Flask / Crystal")
 
             -- Trinkets
-            createNewCheckbox(section,"Trinkets")
+            bb.ui:createCheckbox(section,"Trinkets")
 
             -- Touch of the Void
-            createNewCheckbox(section,"Touch of the Void")
+            bb.ui:createCheckbox(section,"Touch of the Void")
             
-            checkSectionState(section)
+            bb.ui:checkSectionState(section)
 
             --  _____        __               _
             -- |  __ \      / _|             (_)
@@ -364,37 +364,37 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             -- | |  | |/ _ \  _/ _ \ '_ \/ __| \ \ / / _ \
             -- | |__| |  __/ ||  __/ | | \__ \ |\ V /  __/
             -- |_____/ \___|_| \___|_| |_|___/_| \_/ \___|
-            section = createNewSection(bb.profile_window, "Defensive")
+            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
             -- Healthstone
-            createNewSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            bb.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Heirloom Neck
-            createNewSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Gift of The Naaru
             if self.race == "Draenei" then
-                createNewSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+                bb.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             end
 
             -- Defensive Stance
-            createNewSpinner(section, "Defensive Stance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            bb.ui:createSpinner(section, "Defensive Stance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Die By The Sword
-            createNewSpinner(section, "Die by the Sword",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            bb.ui:createSpinner(section, "Die by the Sword",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Intervene
-            createNewSpinner(section, "Intervene",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            bb.ui:createSpinner(section, "Intervene",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Intimidating Shout
-            createNewSpinner(section, "Intimidating Shout",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            bb.ui:createSpinner(section, "Intimidating Shout",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Rallying Cry
-            createNewSpinner(section, "Rallying Cry",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")            
+            bb.ui:createSpinner(section, "Rallying Cry",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
             -- Vigilance
-            createNewSpinner(section, "Vigilance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            bb.ui:createSpinner(section, "Vigilance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 
-            checkSectionState(section)
+            bb.ui:checkSectionState(section)
 
 
             --  _____       _                             _
@@ -405,20 +405,20 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             -- |_____|_| |_|\__\___|_|  |_|   \__,_| .__/ \__|___/
             --                                     | |
             --                                     |_|
-            section = createNewSection(bb.profile_window, "Interrupts")
+            section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
             
             -- Pummel
-            createNewCheckbox(section,"Pummel")
+            bb.ui:createCheckbox(section,"Pummel")
 
             -- Intimidating Shout
-            createNewCheckbox(section,"Intimidating Shoult - Int")
+            bb.ui:createCheckbox(section,"Intimidating Shoult - Int")
             
             -- Spell Reflection
-            createNewCheckbox(section,"Spell Refelection")
+            bb.ui:createCheckbox(section,"Spell Refelection")
 
             -- Interrupt Percentage
-            createNewSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
-            checkSectionState(section)
+            bb.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+            bb.ui:checkSectionState(section)
 
             -- _______                _        _  __
             --|__   __|              | |      | |/ /
@@ -428,27 +428,27 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             --   |_|\___/ \__, |\__, |_|\___| |_|\_\___|\__, |___/
             --             __/ | __/ |                   __/ |
             --            |___/ |___/                   |___/
-            section = createNewSection(bb.profile_window,  "Toggle Keys")
+            section = bb.ui:createSection(bb.ui.window.profile,  "Toggle Keys")
             -- Single/Multi Toggle
-            createNewDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
+            bb.ui:createDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
 
             --Cooldown Key Toggle
-            createNewDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
+            bb.ui:createDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
 
             --Defensive Key Toggle
-            createNewDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
+            bb.ui:createDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
 
             -- Interrupts Key Toggle
-            createNewDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
+            bb.ui:createDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
 
             -- Pause Toggle
-            createNewDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
-            checkSectionState(section)
+            bb.ui:createDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
+            bb.ui:checkSectionState(section)
 
 
 
             --[[ Rotation Dropdown ]]--
-            createNewRotationDropdown(bb.profile_window.parent, {"CuteOne"})
+            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"CuteOne"})
             bb:checkProfileWindowStatus()
         end
 

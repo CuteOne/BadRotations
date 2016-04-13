@@ -289,65 +289,65 @@ function cProtection:new()
     end
 
     function self.createOptions()
-        bb.profile_window = createNewProfileWindow("Protection")
+        bb.ui.window.profile = bb.ui:createProfileWindow("Protection")
 
         self.createClassOptions()
 
         local section
         if self.rotation == 1 then
             -- Buffs
-            section = createNewSection(bb.profile_window, "Buffs")
-            createNewCheckbox(section, "Righteous Fury")
-            checkSectionState(section)
+            section = bb.ui:createSection(bb.ui.window.profile, "Buffs")
+            bb.ui:createCheckbox(section, "Righteous Fury")
+            bb.ui:checkSectionState(section)
 
             -- Rota
-            section = createNewSection(bb.profile_window, "Rotation Managment")
-            createNewDropdown(section, "Light's Hammer", bb.dropOptions.CD)
-            createNewDropdown(section, "Execution Sentence", bb.dropOptions.CD)
-            createNewDropdown(section, "Holy Avenger", bb.dropOptions.CD)
-            createNewDropdown(section, "Seraphim", bb.dropOptions.CD)
-            checkSectionState(section)
+            section = bb.ui:createSection(bb.ui.window.profile, "Rotation Managment")
+            bb.ui:createDropdown(section, "Light's Hammer", bb.dropOptions.CD)
+            bb.ui:createDropdown(section, "Execution Sentence", bb.dropOptions.CD)
+            bb.ui:createDropdown(section, "Holy Avenger", bb.dropOptions.CD)
+            bb.ui:createDropdown(section, "Seraphim", bb.dropOptions.CD)
+            bb.ui:checkSectionState(section)
 
             -- T18 Class Trinket DMG pushing
-            section = createNewSection(bb.profile_window, "T18 Class Trinket", "Choose which absorb buffs should be canceled to make trinket proc.")
-            createNewSpinner(section, "Trinket % Trigger", 59, 59, 100, 1, "Enter your Trinket % when it will trigger.")
-            createNewCheckbox(section, "Cancel Power Word: Shield")
-            createNewCheckbox(section, "Cancel Clarity of Will")
-            createNewCheckbox(section, "Cancel Sacred Shield", "Only cancels the short duration absorb buff.")
-            createNewCheckbox(section, "Cancel Avenger's Reprieve", "2 T18 Buff")
-            checkSectionState(section)
+            section = bb.ui:createSection(bb.ui.window.profile, "T18 Class Trinket", "Choose which absorb buffs should be canceled to make trinket proc.")
+            bb.ui:createSpinner(section, "Trinket % Trigger", 59, 59, 100, 1, "Enter your Trinket % when it will trigger.")
+            bb.ui:createCheckbox(section, "Cancel Power Word: Shield")
+            bb.ui:createCheckbox(section, "Cancel Clarity of Will")
+            bb.ui:createCheckbox(section, "Cancel Sacred Shield", "Only cancels the short duration absorb buff.")
+            bb.ui:createCheckbox(section, "Cancel Avenger's Reprieve", "2 T18 Buff")
+            bb.ui:checkSectionState(section)
 
             -- Healing
-            section = createNewSection(bb.profile_window, "Healing")
-            createNewSpinner(section, "Word Of Glory On Self", 60)
-            createNewSpinner(section, "Lay On Hands", 12)
-            checkSectionState(section)
+            section = bb.ui:createSection(bb.ui.window.profile, "Healing")
+            bb.ui:createSpinner(section, "Word Of Glory On Self", 60)
+            bb.ui:createSpinner(section, "Lay On Hands", 12)
+            bb.ui:checkSectionState(section)
 
             -- Defensive
-            section = createNewSection(bb.profile_window, "Defensive")
+            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
 
-            createNewSpinner(section, "Divine Protection", 65)
-            createNewSpinner(section, "Ardent Defender", 20)
-            createNewSpinner(section, "Guardian of Anchient Kings", 40)
-            checkSectionState(section)
+            bb.ui:createSpinner(section, "Divine Protection", 65)
+            bb.ui:createSpinner(section, "Ardent Defender", 20)
+            bb.ui:createSpinner(section, "Guardian of Anchient Kings", 40)
+            bb.ui:checkSectionState(section)
 
             -- Interrupt
-            section = createNewSection(bb.profile_window, "Interrupts")
+            section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
 
-            createNewSpinner(section, "Rebuke", 35)
-            createNewSpinner(section, "Avengers Shield Interrupt", 35)
-            checkSectionState(section)
+            bb.ui:createSpinner(section, "Rebuke", 35)
+            bb.ui:createSpinner(section, "Avengers Shield Interrupt", 35)
+            bb.ui:checkSectionState(section)
         end
 
         if self.rotation == 2 then
             -- CUTE
-            local section = createNewSection(bb.profile_window, "Cuteness")
-            createNewCheckbox(section, "Righteous Cuteness")
-            checkSectionState(section)
+            local section = bb.ui:createSection(bb.ui.window.profile, "Cuteness")
+            bb.ui:createCheckbox(section, "Righteous Cuteness")
+            bb.ui:checkSectionState(section)
         end
 
         --[[ Rotation Dropdown ]]--
-        createNewRotationDropdown(bb.profile_window.parent, self.rotations, "Defmaster - real rotation\nCute - just here for some testing")
+        bb.ui:createRotationDropdown(bb.ui.window.profile.parent, self.rotations, "Defmaster - real rotation\nCute - just here for some testing")
 
         bb:checkProfileWindowStatus()
     end

@@ -35,15 +35,22 @@ function bb.helper:getObjectNodes()
             insertTableIntoTable(self.objectNodes, {
                 -- Treasure
                 {243796, 6}, -- Suspiciously Glowing Chest
+                -- Ironhold Harbor
+                {239839, 6}, -- Box of Iron Horde Equipment
+                {239979, 6}, -- Bottle of Machinery Grease
                 -- Fel Forge
                 {241669, 5}, -- Siege Equipment Blueprints
                 {241728, 6}, -- Reckless Power
                 {241507, 5}, -- Ironbound Crate
-                --
-                {241283, 4}, -- Rage Potion
+                -- Zeth' Gol
+                {241283, 5}, -- Rage Potion
                 -- Templ of Sha naar
                 {240165, 6}, -- Grimoire of Haste
                 {240173, 6}, -- Sargerei Soulcharger
+                -- Iron Front
+                {241612, 6}, -- Battlefield Rations
+                {239971, 6}, -- Medical Supplies
+
             })
         end
 

@@ -213,6 +213,7 @@ function bb.read.combatLog()
           ..red..debugdest..color..debugSpell.."|cffFFDD11"..Power
         -- pulse display
         bb.read:display(textString)
+        bb.ui.window.debug:AddMessage(textString:gsub("\n", " | "))
       end
     end
     --[[ Last Spell Cast Success ]]
@@ -398,6 +399,11 @@ function bb.read.combatLog()
   function cl:Warlock(...) -- 9
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
       destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
+      -- last Immolate
+      if param == "SPELL_CAST_SUCCESS" and spell==348 then
+        lastImmolateTarget=destination
+        lastImmolateTime=GetTime()
+      end
   ---------------------
   --[[ Pet Manager --]]
   if class == 9 then
