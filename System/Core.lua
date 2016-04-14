@@ -138,6 +138,7 @@ end
 local frame = CreateFrame("FRAME")
 frame:RegisterEvent("ADDON_LOADED")
 frame:RegisterEvent("PLAYER_LOGOUT")
+frame:RegisterEvent("PLAYER_LOGIN")
 frame:RegisterUnitEvent("ACTIVE_TALENT_GROUP_CHANGED")
 frame:RegisterUnitEvent("CHARACTER_POINTS_CHANGED")
 frame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
@@ -201,7 +202,6 @@ end
 
 function frame:OnEvent(event, arg1)
 	if event == "ADDON_LOADED" and arg1 == "BadBoy" then
-        bb.helper:getPossibleNodes()
 		bb:Run()
 	end
 	if event == "ACTIVE_TALENT_GROUP_CHANGED" then
