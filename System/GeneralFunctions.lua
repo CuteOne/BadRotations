@@ -2378,7 +2378,8 @@ function isChecked(Value,new)
     --TEST
     new = true
     if new then
-        if BadBoy_data.options[GetSpecialization()] 
+        if BadBoy_data.options[GetSpecialization()] == nil or BadBoy_data.options[GetSpecialization()][bb.selectedProfile] == nil then return false end
+        if BadBoy_data.options[GetSpecialization()]
         	and (BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Check"] == 1 or BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Check"] == true) 
         then
             return true

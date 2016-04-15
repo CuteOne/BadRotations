@@ -31,6 +31,14 @@ function bb.helper:getUnitNodes()
                 -- Iron Front
                 {90370, 4}, -- Iron Horde Banner
                 {93013, 5}, -- Siege Weapon Schematics
+                -- Ruins of Kra'nak
+                {90300, 8}, -- Ritual Circle
+                {90790, 4}, -- Lessons on Demon Summoning
+                {90794, 4}, -- How to Awaken the Warlock Within
+                {90795, 4}, -- Corrupt, Dominate, Banish
+                {90796, 4}, -- The Art of Nethermancy
+                {90706, 4}, -- Felflame Orb
+                {91068, 7}, -- Inactive Sentry
             })
         end
 

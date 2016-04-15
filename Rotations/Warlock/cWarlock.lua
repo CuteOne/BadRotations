@@ -440,7 +440,7 @@ cWarlock = {}
 		function self.summonDemon()
 			if isChecked("Summon Demon") then
                 if not self.talent.demonicServitude and not UnitExists("pet") and not UnitBuffID("player",self.spell.grimoireofSacrificeBuff) then
-                	if lastPet ~= nil and lastPet == getValue("Summon Demon") then
+                	if lastPet ~= nil and lastPet == getValue("Summon Demon") and self.spell.flamesofXoroth then
            		        if self.castFlamesofXoroth() then end
                     elseif getValue("Summon Demon") == 1 then
                         if self.castSummonFelHunter() then lastPet = 1 end  
