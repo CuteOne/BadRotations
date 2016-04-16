@@ -50,6 +50,9 @@ function bb.helper:getObjectNodes()
                 -- Iron Front
                 {241612, 6}, -- Battlefield Rations
                 {239971, 6}, -- Medical Supplies
+                -- Ruins of Kra'nak
+                {243852, 6}, -- Radiating Apexis Shard
+                {240190, 5}, -- Tanaan Camu Seed
 
             })
         end

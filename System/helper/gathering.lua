@@ -144,7 +144,7 @@ function bb.helper:getObjectID(name, nearestObject)
     -- Print nearest object
     if nearestObject == true and nearest.objDistance ~= 999 then
         print(nearest.objType.." Name: "..nearest.objName.." | ID: "..nearest.objID.." | Dist: "..nearest.objDistance)
-        print("{"..nearest.objID..", "..floor(nearest.objDistance).."}, -- "..nearest.objName)
+        print("{"..nearest.objID..", "..tostring(floor(nearest.objDistance)+1).."}, -- "..nearest.objName)
         return
     end
 
