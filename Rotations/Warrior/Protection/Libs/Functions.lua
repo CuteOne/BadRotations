@@ -253,12 +253,12 @@ if select(3, UnitClass("player")) == 1  then
 
     -- ShieldSlam
     function protCore:castShieldSlam()
-      return castSpell(self.units.dyn5,self.spell.ShieldSlam,false,false)
+      return castSpell(self.units.dyn5,self.spell.ShieldSlam,false,false)==true or false
     end
 
     -- Revenge
     function protCore:castRevenge()
-      return castSpell(self.units.dyn5,self.spell.Revenge,false,false)
+      return castSpell(self.units.dyn5,self.spell.Revenge,false,false)==true or false
     end
 
     -- Ravager
@@ -283,12 +283,12 @@ if select(3, UnitClass("player")) == 1  then
 
     -- Execute
     function protCore:castExecute()
-      return castSpell(self.units.dyn5,self.spell.Execute,false,false)
+      return castSpell(self.units.dyn5,self.spell.Execute,false,false)==true or false
     end
 
     -- Devastate
     function protCore:castDevastate()
-      return castSpell(self.units.dyn5,self.spell.Devastate,false,false)
+      return castSpell(self.units.dyn5,self.spell.Devastate,false,false)==true or false
     end
 
     -- Shockwave
@@ -315,7 +315,7 @@ if select(3, UnitClass("player")) == 1  then
 
     -- ThunderClap
     function protCore:castThunderClap()
-      return castSpell(self.units.dyn5,self.spell.ThunderClap,true, false)
+      return castSpell(self.units.dyn5,self.spell.ThunderClap,true, false)==true or false
     end
   end  --end for ProtWArriorFunctions
 
