@@ -744,7 +744,6 @@ function bb.ui:createConfigWindow()
     bb.ui:createCheckbox(section, "Disenchant", "Disenchant Cata blues/greens.")
     bb.ui:createCheckbox(section, "Leather Scraps", "Combine leather scraps.")
     bb.ui:createSpinner(section, "Salvage", 15, 5, 30, 1, "Check to enable Salvage Helper.", "Set Desired waiting after full inventory.")
-    bb.ui:createCheckbox(section, "Automatic Gathering", "Automatic gathering of things like herbs,mining nodes, quest items, ...")
     bb.ui:createCheckbox(section, "Use Drawer", "EXPERIMENTAL!")
     bb.ui:checkSectionState(section)
 
