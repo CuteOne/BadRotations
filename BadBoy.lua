@@ -334,10 +334,5 @@ function bb:PulseUI()
 	-- PokeEngine()
 	ProfessionHelper()
 	SalvageHelper()
-    -- TODO: TEMP
-    --if bb.pulse.gathering then
-    if isChecked("Automatic Gathering") then
-        if bb.timer:useTimer("gathering", 0.3) then bb.helper:startGathering() end
-    end
 end
 

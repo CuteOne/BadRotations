@@ -146,15 +146,15 @@ if select(3,UnitClass("player")) == 1 then
           core:castAvatar()
           --thunder_clap,if=!dot.deep_wounds.ticking
           if not UnitDebuffID("target", 115767) then
-            core:castThunderClap()
+            if core:castThunderClap() then return end
           end
           --heroic_strike,if=buff.ultimatum.up|rage>110|(talent.unyielding_strikes.enabled&buff.unyielding_strikes.stack>=6)
           if buff.Ultimatum > 0 or core.rage > 110 or (talent.UnyieldingStrikes and buff.UnyieldingStrikesStack >= 6) then
-            core:castHeroicStrike()
+            if core:castHeroicStrike() then return end
           end
           --shield_slam,if=buff.shield_block.up
           if buff.ShieldBlock > 0 then
-            core:castShieldSlam()
+            if core:castShieldSlam() then return end
           end
           --ravager,if=(buff.avatar.up|cooldown.avatar.remains>10)|!talent.avatar.enabled
           core:castRavager()
@@ -165,30 +165,30 @@ if select(3,UnitClass("player")) == 1 then
           --shockwave
           core:castShockwave()
           --revenge
-          core:castRevenge()
+          if core:castRevenge() then return end
           --thunder_clap
-          core:castThunderClap()
+          if core:castThunderClap() then return end
           --bladestorm
           core:castBladestorm()
           --shield_slam
-          core:castShieldSlam()
+          if core:castShieldSlam() then return end
           --storm_bolt
           core:castStormBolt()
           --shield_slam
-          core:castShieldSlam()
+          if core:castShieldSlam() then return end
           --execute,if=buff.sudden_death.react
           if buff.SuddenDeath > 0 then
-            core:castExecute()
+            if core:castExecute() then return end
           end
           --devastate
-          core:castDevastate()
+          if core:castDevastate() then return end
         end
 
         -- Single Target
         if rotationMode == 1 then
           --heroic_strike,if=buff.ultimatum.up|(talent.unyielding_strikes.enabled&buff.unyielding_strikes.stack>=6)
           if buff.Ultimatum > 0 or (talent.UnyieldingStrikes and buff.UnyieldingStrikesStack >= 6) then
-            core:castHeroicStrike()
+            if core:castHeroicStrike() then return end
           end
 
           --bloodbath,if=talent.bloodbath.enabled&((cooldown.dragon_roar.remains=0&talent.dragon_roar.enabled)|(cooldown.storm_bolt.remains=0&talent.storm_bolt.enabled)|talent.shockwave.enabled)
@@ -198,9 +198,9 @@ if select(3,UnitClass("player")) == 1 then
           --avatar,if=talent.avatar.enabled&((cooldown.ravager.remains=0&talent.ravager.enabled)|(cooldown.dragon_roar.remains=0&talent.dragon_roar.enabled)|(talent.storm_bolt.enabled&cooldown.storm_bolt.remains=0)|(!(talent.dragon_roar.enabled|talent.ravager.enabled|talent.storm_bolt.enabled)))
 
           --shield_slam
-          core:castShieldSlam()
+          if core:castShieldSlam() then return end
           --revenge
-          core:castRevenge()
+          if core:castRevenge() then return end
           --ravager
           core:castRavager()
           --storm_bolt
@@ -213,10 +213,10 @@ if select(3,UnitClass("player")) == 1 then
 
           --execute,if=buff.sudden_death.react
           if buff.SuddenDeath > 0 then
-            core:castExecute()
+            if core:castExecute() then return end
           end
           --devastate
-          core:castDevastate()
+          if core:castDevastate() then return end
         end
       end
     end
