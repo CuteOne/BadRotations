@@ -239,15 +239,16 @@ function cProtection:new()
     function self.createOptions()
         bb.ui.window.profile = bb.ui:createProfileWindow("Protection")
 
-        self.createClassOptions()
+        --self.createClassOptions()
 
         local section
-        if self.rotation == 1 then
+        local function pageBuffs()
             -- Buffs
             section = bb.ui:createSection(bb.ui.window.profile, "Buffs")
             bb.ui:createCheckbox(section, "Righteous Fury")
             bb.ui:checkSectionState(section)
-
+        end
+        local function pageCooldowns()
             -- Rota
             section = bb.ui:createSection(bb.ui.window.profile, "Rotation Managment")
             bb.ui:createDropdown(section, "Light's Hammer", bb.dropOptions.CD)
@@ -255,7 +256,8 @@ function cProtection:new()
             bb.ui:createDropdown(section, "Holy Avenger", bb.dropOptions.CD)
             bb.ui:createDropdown(section, "Seraphim", bb.dropOptions.CD)
             bb.ui:checkSectionState(section)
-
+        end
+        local function pageT18Trinket()
             -- T18 Class Trinket DMG pushing
             section = bb.ui:createSection(bb.ui.window.profile, "T18 Class Trinket", "Choose which absorb buffs should be canceled to make trinket proc.")
             bb.ui:createSpinner(section, "Trinket % Trigger", 59, 59, 100, 1, "Enter your Trinket % when it will trigger.")
@@ -264,13 +266,15 @@ function cProtection:new()
             bb.ui:createCheckbox(section, "Cancel Sacred Shield", "Only cancels the short duration absorb buff.")
             bb.ui:createCheckbox(section, "Cancel Avenger's Reprieve", "2 T18 Buff")
             bb.ui:checkSectionState(section)
-
+        end
+        local function pageHealing()
             -- Healing
             section = bb.ui:createSection(bb.ui.window.profile, "Healing")
             bb.ui:createSpinner(section, "Word Of Glory On Self", 60)
             bb.ui:createSpinner(section, "Lay On Hands", 12)
             bb.ui:checkSectionState(section)
-
+        end
+        local function pageDefensive()
             -- Defensive
             section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
 
@@ -278,7 +282,8 @@ function cProtection:new()
             bb.ui:createSpinner(section, "Ardent Defender", 20)
             bb.ui:createSpinner(section, "Guardian of Anchient Kings", 40)
             bb.ui:checkSectionState(section)
-
+        end
+        local function pageInterrupt()
             -- Interrupt
             section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
 
@@ -287,15 +292,42 @@ function cProtection:new()
             bb.ui:checkSectionState(section)
         end
 
-        if self.rotation == 2 then
-            -- CUTE
-            local section = bb.ui:createSection(bb.ui.window.profile, "Cuteness")
-            bb.ui:createCheckbox(section, "Righteous Cuteness")
-            bb.ui:checkSectionState(section)
-        end
-
+        bb.ui:createPagesDropdown(bb.ui.window.profile, {
+            {
+                [1] = "Base Options",
+                [2] = self.createBaseOptions,
+            },
+            {
+                [1] = "Class Options",
+                [2] = self.createClassOptions,
+            },
+            {
+                [1] = "Buffs",
+                [2] = pageBuffs,
+            },
+            {
+                [1] = "Cooldowns",
+                [2] = pageCooldowns,
+            },
+            {
+                [1] = "T18 Trinket",
+                [2] = pageT18Trinket,
+            },
+            {
+                [1] = "Healing",
+                [2] = pageHealing,
+            },
+            {
+                [1] = "Defensive",
+                [2] = pageDefensive,
+            },
+            {
+                [1] = "Interrupt",
+                [2] = pageInterrupt,
+            },
+        })
         --[[ Rotation Dropdown ]]--
-        bb.ui:createRotationDropdown(bb.ui.window.profile.parent, self.rotations, "Defmaster - real rotation\nCute - just here for some testing")
+        --bb.ui:createRotationDropdown(bb.ui.window.profile.parent, self.rotations, "Defmaster - real rotation\nCute - just here for some testing")
 
         bb:checkProfileWindowStatus()
     end
