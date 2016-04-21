@@ -202,12 +202,13 @@ function bb.ui:createRightArrow(window)
     end)
     rArr:SetEventListener('OnClick', function()
         local page = window.currentPage
-        if page+1 > #window.pages  then
-            window.pageDD:SetValue(1)
-        else
-            window.pageDD:SetValue(page+1)
+        if page then
+            if page+1 > #window.pages  then
+                window.pageDD:SetValue(1)
+            else
+                window.pageDD:SetValue(page+1)
+            end
         end
-
     end)
     window.parent:AddChild(rArr)
 end
@@ -231,12 +232,13 @@ function bb.ui:createLeftArrow(window)
     end)
     lArr:SetEventListener('OnClick', function()
         local page = window.currentPage
-        if page-1 == 0  then
-            window.pageDD:SetValue(#window.pages)
-        else
-            window.pageDD:SetValue(page-1)
+        if page then
+            if page-1 == 0  then
+                window.pageDD:SetValue(#window.pages)
+            else
+                window.pageDD:SetValue(page-1)
+            end
         end
-
     end)
     window.parent:AddChild(lArr)
 end
