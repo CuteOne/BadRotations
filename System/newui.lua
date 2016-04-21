@@ -7,6 +7,8 @@ local SharedMedia = LibStub("LibSharedMedia-3.0")
 -- Global setup
 bb.ui = {}
 bb.ui.window = {}
+bb.ui.window.config = {}
+bb.ui.window.profile = {}
 
 --if BadBoy_data.options[GetSpecialization()] == nil then BadBoy_data.options[GetSpecialization()] = {} end
 --if BadBoy_data.options[GetSpecialization()][bb.selectedProfile] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile] = {} end
@@ -112,10 +114,8 @@ DiesalGUI:RegisterObjectConstructor("StatusBar", function()
 end, 1)
 
 
---[[ ]]--
 
-
-
+-- Styles
 local buttonStyleSheet = {
     ['frame-color'] = {
         type			= 'texture',
@@ -159,12 +159,124 @@ local buttonStyleSheet = {
         color			= 'b8c2cc',
     },
 }
+local arrowRight = {
+    type            = 'texture',
+    offset     = {-2,nil,-2,nil},
+    height    = 16,
+    width        = 16,
+    alpha         = .7,
+    texFile    = 'DiesalGUIcons',
+    --texColor    = 'ffff00',
+    texCoord    = {7,5,16,256,128},
+}
+local arrowLeft =    {
+    type            = 'texture',
+    offset     = {-2,nil,-2,nil},
+    height    = 16,
+    width        = 16,
+    alpha         = .7,
+    texFile    = 'DiesalGUIcons',
+    --texColor    = 'ffff00',
+    texCoord    = {8,5,16,256,128},
+}
 
+
+-- Header Arrows and Dropdown
+-- Right Arrow
+function bb.ui:createRightArrow(window)
+    local rArr = DiesalGUI:Create('Button')
+    rArr:SetParent(window.parent.header)
+    rArr:SetPoint('TOPRIGHT',0,0)
+    rArr:SetSettings({
+        width            = 20,
+        height        = 20,
+    },true)
+    rArr:SetStyle('frame',arrowRight)
+    rArr:SetEventListener('OnEnter',     function()
+        GameTooltip:SetOwner(rArr.frame, "ANCHOR_TOPLEFT",0,2)
+        GameTooltip:AddLine('Next')
+        GameTooltip:Show()
+    end)
+    rArr:SetEventListener('OnLeave', function()
+        GameTooltip:Hide()
+    end)
+    rArr:SetEventListener('OnClick', function()
+        local page = window.currentPage
+        if page+1 > #window.pages  then
+            window.pageDD:SetValue(1)
+        else
+            window.pageDD:SetValue(page+1)
+        end
+
+    end)
+    window.parent:AddChild(rArr)
+end
+-- Left Arrow
+function bb.ui:createLeftArrow(window)
+    local lArr = DiesalGUI:Create('Button')
+    lArr:SetParent(window.parent.header)
+    lArr:SetPoint('TOPLEFT',0,0)
+    lArr:SetSettings({
+        width            = 20,
+        height        = 20,
+    },true)
+    lArr:SetStyle('frame',arrowLeft)
+    lArr:SetEventListener('OnEnter',     function()
+        GameTooltip:SetOwner(lArr.frame, "ANCHOR_TOPLEFT",0,2)
+        GameTooltip:AddLine('Previous')
+        GameTooltip:Show()
+    end)
+    lArr:SetEventListener('OnLeave', function()
+        GameTooltip:Hide()
+    end)
+    lArr:SetEventListener('OnClick', function()
+        local page = window.currentPage
+        if page-1 == 0  then
+            window.pageDD:SetValue(#window.pages)
+        else
+            window.pageDD:SetValue(page-1)
+        end
+
+    end)
+    window.parent:AddChild(lArr)
+end
+-- Dropdown for pages
+-- todo: save last active page and restore
+function bb.ui:createPagesDropdown(window, menuPages)
+    window.pages = menuPages
+    window.pageDD = DiesalGUI:Create('DropdownBB')
+    local newDropdown = window.pageDD
+    newDropdown:SetParent(window.parent.header)
+    newDropdown.settings.width = 150
+    newDropdown:SetPoint('CENTER',0,0)
+
+    -- Get pagename and set the list
+    -- window.pages = { {[1] = PAGE_NAME, [2] = PAGE_FUNCTION}, { ....} }
+    local pageNames = {}
+    for i=1,#window.pages do
+        tinsert(pageNames, window.pages[i][1])
+    end
+    newDropdown:SetList(pageNames)
+
+    newDropdown:SetEventListener('OnValueChanged', function(this, event, key, value, selection)
+        window:ReleaseChildren()
+        window.currentPage = key
+        window.currentPageName = value
+        window.pages[key][2]()
+        --print(key.." - "..tostring(value))
+    end)
+    newDropdown:SetValue(1)
+    newDropdown:ApplySettings()
+    window.parent:AddChild(newDropdown)
+end
+
+-- Window creators
 function bb.ui:createWindow(name, width, height)
     local window = DiesalGUI:Create('Window')
     window:SetTitle('BadBoy', name)
     window.settings.width = width or 250
     window.settings.height = height or 250
+    window.settings.header = true
     window.frame:SetClampedToScreen(true)
     window:ApplySettings()
 
@@ -192,6 +304,8 @@ function bb.ui:createWindow(name, width, height)
         scrollFrame.parent:SetHeight(BadBoy_data.options[GetSpecialization()]["optionsFrame".."_height"])
     end
 
+    bb.ui:createLeftArrow(scrollFrame)
+    bb.ui:createRightArrow(scrollFrame)
     return scrollFrame
 end
 
@@ -200,6 +314,7 @@ function bb.ui:createProfileWindow(name, width, height)
     window:SetTitle('BadBoy', name)
     window.settings.width = width or 300
     window.settings.height = height or 250
+    window.settings.header = true
     window.frame:SetClampedToScreen(true)
     window:ApplySettings()
 
@@ -227,6 +342,8 @@ function bb.ui:createProfileWindow(name, width, height)
         scrollFrame.parent:SetHeight(BadBoy_data.options[GetSpecialization()]["configFrame".."_height"])
     end
 
+    bb.ui:createLeftArrow(scrollFrame)
+    bb.ui:createRightArrow(scrollFrame)
     return scrollFrame
 end
 
@@ -692,60 +809,89 @@ function bb.ui:createConfigWindow()
     bb.ui.window.config = bb.ui:createWindow("Configuration", 275, 400)
 
     local section
-    -- General
-    section = bb.ui:createSection(bb.ui.window.config, "General")
-    bb.ui:createCheckbox(section, "Start/Stop BadBoy", "Uncheck to prevent BadBoy pulsing.")
-    bb.ui:createCheckbox(section, "Debug Frame", "Display Debug Frame.")
-    bb.ui:createCheckbox(section, "Display Failcasts", "Dispaly Failcasts in Debug.")
-    bb.ui:createCheckbox(section, "Queue Casting", "Allow Queue Casting on some profiles.")
-    bb.ui:createSpinner(section,  "Auto Loot" ,0.5, 0.1, 3, 0.1, "Sets Autloot on/off.", "Sets a delay for Auto Loot.")
-    bb.ui:createCheckbox(section, "Auto-Sell/Repair", "Automatically sells grays and repais when you open a repairman trade.")
-    bb.ui:createCheckbox(section, "Accept Queues", "Automatically accept LFD, LFR, .. queue.")
-    bb.ui:createCheckbox(section, "Overlay Messages", "Check to enable chat overlay messages.")
-    bb.ui:checkSectionState(section)
 
-    -- Enemies Engine
-    section = bb.ui:createSection(bb.ui.window.config, "Enemies Engine")
-    bb.ui:createCheckbox(section, "Dynamic Targetting", "Check this to allow dynamic targetting. If unchecked, profile will only attack current target.")
-    bb.ui:createDropdown(section, "Wise Target", {"Highest", "Lowest", "abs Highest"}, 1, "|cffFFDD11Check if you want to use Wise Targetting, if unchecked there will be no priorisation from hp.")
-    bb.ui:createCheckbox(section, "Forced Burn", "Check to allow forced Burn on specific whitelisted units.")
-    bb.ui:createCheckbox(section, "Avoid Shields", "Check to avoid attacking shielded units.")
-    bb.ui:createCheckbox(section, "Tank Threat", "Check add more priority to taregts you lost aggro on(tank only).")
-    bb.ui:createCheckbox(section, "Safe Damage Check", "Check to prevent damage to targets you dont want to attack.")
-    bb.ui:createCheckbox(section, "Don't break CCs", "Check to prevent damage to targets that are CC.")
-    bb.ui:createCheckbox(section, "Skull First", "Check to enable focus skull dynamically.")
-    bb.ui:createDropdown(section, "Interrupts Handler", {"Target", "T/M", "T/M/F", "All"}, 1, "Check this to allow Interrupts Handler. DO NOT USE YET!")
-    bb.ui:createCheckbox(section, "Only Known Units", "Check this to interrupt only on known units using whitelist.")
-    bb.ui:createCheckbox(section, "Crowd Control", "Check to use crowd controls on select units/buffs.")
-    bb.ui:createCheckbox(section, "Enrages Handler", "Check this to allow Enrages Handler.")
-    bb.ui:checkSectionState(section)
+    local function callGeneral()
+        -- General
+        section = bb.ui:createSection(bb.ui.window.config, "General")
+        bb.ui:createCheckbox(section, "Start/Stop BadBoy", "Uncheck to prevent BadBoy pulsing.")
+        bb.ui:createCheckbox(section, "Debug Frame", "Display Debug Frame.")
+        bb.ui:createCheckbox(section, "Display Failcasts", "Dispaly Failcasts in Debug.")
+        bb.ui:createCheckbox(section, "Queue Casting", "Allow Queue Casting on some profiles.")
+        bb.ui:createSpinner(section,  "Auto Loot" ,0.5, 0.1, 3, 0.1, "Sets Autloot on/off.", "Sets a delay for Auto Loot.")
+        bb.ui:createCheckbox(section, "Auto-Sell/Repair", "Automatically sells grays and repais when you open a repairman trade.")
+        bb.ui:createCheckbox(section, "Accept Queues", "Automatically accept LFD, LFR, .. queue.")
+        bb.ui:createCheckbox(section, "Overlay Messages", "Check to enable chat overlay messages.")
+        bb.ui:checkSectionState(section)
+    end
 
-    -- Healing Engine
-    section = bb.ui:createSection(bb.ui.window.config, "Healing Engine")
-    bb.ui:createCheckbox(section, "HE Active", "Uncheck to disable Healing Engine.\nCan improves FPS if you dont rely on Healing Engine.")
-    bb.ui:createCheckbox(section, "Heal Pets", "Check this to Heal Pets.")
-    bb.ui:createDropdown(section, "Special Heal", {"Target", "T/M", "T/M/F", "T/F"}, 1, "Check this to Heal Special Whitelisted Units.", "Choose who you want to Heal.")
-    bb.ui:createCheckbox(section, "Sorting with Role", "Sorting with Role")
-    bb.ui:createDropdown(section, "Prioritize Special Targets", {"Special", "All"}, 1, "Prioritize Special targets(mouseover/target/focus).", "Choose Which Special Units to consider.")
-    bb.ui:createSpinner(section, "Blacklist", 95, nil, nil, nil, "|cffFFBB00How much |cffFF0000%HP|cffFFBB00 do we want to add to |cffFFDD00Blacklisted |cffFFBB00units. Use /Blacklist while mouse-overing someone to add it to the black list.")
-    bb.ui:createCheckbox(section, "Ignore Absorbs", "Check this if you want to ignore absorb shields. If checked, it will add shieldBuffValue/4 to hp. May end up as overheals, disable to save mana.")
-    bb.ui:createCheckbox(section, "Incoming Heals", "If checked, it will add incoming health from other healers to hp. Uncheck this if you want to prevent overhealing units.")
-    bb.ui:createSpinner(section, "Overhealing Cancel", 95, nil, nil, nil, "Set Desired Threshold at which you want to prevent your own casts.")
-    bb.ui:createCheckbox(section, "Healing Debug", "Check to display Healing Engine Debug.")
-    bb.ui:createSpinner(section, "Debug Refresh", 500, 0, 1000, 25, "Set desired Healing Engine Debug Table refresh for rate in ms.")
-    bb.ui:createSpinner(section, "Dispel delay", 15, 5, 90, 5, "Set desired dispel delay in % of debuff duration.\n|cffFF0000Will randomise around the value you set.")
-    bb.ui:checkSectionState(section)
+    local function callEnemiesEngine()
+        -- Enemies Engine
+        section = bb.ui:createSection(bb.ui.window.config, "Enemies Engine")
+        bb.ui:createCheckbox(section, "Dynamic Targetting", "Check this to allow dynamic targetting. If unchecked, profile will only attack current target.")
+        bb.ui:createDropdown(section, "Wise Target", {"Highest", "Lowest", "abs Highest"}, 1, "|cffFFDD11Check if you want to use Wise Targetting, if unchecked there will be no priorisation from hp.")
+        bb.ui:createCheckbox(section, "Forced Burn", "Check to allow forced Burn on specific whitelisted units.")
+        bb.ui:createCheckbox(section, "Avoid Shields", "Check to avoid attacking shielded units.")
+        bb.ui:createCheckbox(section, "Tank Threat", "Check add more priority to taregts you lost aggro on(tank only).")
+        bb.ui:createCheckbox(section, "Safe Damage Check", "Check to prevent damage to targets you dont want to attack.")
+        bb.ui:createCheckbox(section, "Don't break CCs", "Check to prevent damage to targets that are CC.")
+        bb.ui:createCheckbox(section, "Skull First", "Check to enable focus skull dynamically.")
+        bb.ui:createDropdown(section, "Interrupts Handler", {"Target", "T/M", "T/M/F", "All"}, 1, "Check this to allow Interrupts Handler. DO NOT USE YET!")
+        bb.ui:createCheckbox(section, "Only Known Units", "Check this to interrupt only on known units using whitelist.")
+        bb.ui:createCheckbox(section, "Crowd Control", "Check to use crowd controls on select units/buffs.")
+        bb.ui:createCheckbox(section, "Enrages Handler", "Check this to allow Enrages Handler.")
+        bb.ui:checkSectionState(section)
+    end
 
-    -- Other Features
-    section = bb.ui:createSection(bb.ui.window.config, "Other Features")
-    bb.ui:createSpinner(section, "Profession Helper", 0.5, 0, 1, 0.1, "Check to enable Professions Helper.", "Set Desired Recast Delay.")
-    bb.ui:createDropdown(section, "Prospect Ores", {"WoD", "MoP", "Cata", "All"}, 1, "Prospect Desired Ores.")
-    bb.ui:createDropdown(section, "Mill Herbs", {"WoD", "MoP", "Cata", "All"}, 1, "Mill Desired Herbs.")
-    bb.ui:createCheckbox(section, "Disenchant", "Disenchant Cata blues/greens.")
-    bb.ui:createCheckbox(section, "Leather Scraps", "Combine leather scraps.")
-    bb.ui:createSpinner(section, "Salvage", 15, 5, 30, 1, "Check to enable Salvage Helper.", "Set Desired waiting after full inventory.")
-    bb.ui:createCheckbox(section, "Use Drawer", "EXPERIMENTAL!")
-    bb.ui:checkSectionState(section)
+    local function callHealingEngine()
+        -- Healing Engine
+        section = bb.ui:createSection(bb.ui.window.config, "Healing Engine")
+        bb.ui:createCheckbox(section, "HE Active", "Uncheck to disable Healing Engine.\nCan improves FPS if you dont rely on Healing Engine.")
+        bb.ui:createCheckbox(section, "Heal Pets", "Check this to Heal Pets.")
+        bb.ui:createDropdown(section, "Special Heal", {"Target", "T/M", "T/M/F", "T/F"}, 1, "Check this to Heal Special Whitelisted Units.", "Choose who you want to Heal.")
+        bb.ui:createCheckbox(section, "Sorting with Role", "Sorting with Role")
+        bb.ui:createDropdown(section, "Prioritize Special Targets", {"Special", "All"}, 1, "Prioritize Special targets(mouseover/target/focus).", "Choose Which Special Units to consider.")
+        bb.ui:createSpinner(section, "Blacklist", 95, nil, nil, nil, "|cffFFBB00How much |cffFF0000%HP|cffFFBB00 do we want to add to |cffFFDD00Blacklisted |cffFFBB00units. Use /Blacklist while mouse-overing someone to add it to the black list.")
+        bb.ui:createCheckbox(section, "Ignore Absorbs", "Check this if you want to ignore absorb shields. If checked, it will add shieldBuffValue/4 to hp. May end up as overheals, disable to save mana.")
+        bb.ui:createCheckbox(section, "Incoming Heals", "If checked, it will add incoming health from other healers to hp. Uncheck this if you want to prevent overhealing units.")
+        bb.ui:createSpinner(section, "Overhealing Cancel", 95, nil, nil, nil, "Set Desired Threshold at which you want to prevent your own casts.")
+        bb.ui:createCheckbox(section, "Healing Debug", "Check to display Healing Engine Debug.")
+        bb.ui:createSpinner(section, "Debug Refresh", 500, 0, 1000, 25, "Set desired Healing Engine Debug Table refresh for rate in ms.")
+        bb.ui:createSpinner(section, "Dispel delay", 15, 5, 90, 5, "Set desired dispel delay in % of debuff duration.\n|cffFF0000Will randomise around the value you set.")
+        bb.ui:checkSectionState(section)
+    end
+
+    local function callOtherFeaturesEngine()
+        -- Other Features
+        section = bb.ui:createSection(bb.ui.window.config, "Other Features")
+        bb.ui:createSpinner(section, "Profession Helper", 0.5, 0, 1, 0.1, "Check to enable Professions Helper.", "Set Desired Recast Delay.")
+        bb.ui:createDropdown(section, "Prospect Ores", {"WoD", "MoP", "Cata", "All"}, 1, "Prospect Desired Ores.")
+        bb.ui:createDropdown(section, "Mill Herbs", {"WoD", "MoP", "Cata", "All"}, 1, "Mill Desired Herbs.")
+        bb.ui:createCheckbox(section, "Disenchant", "Disenchant Cata blues/greens.")
+        bb.ui:createCheckbox(section, "Leather Scraps", "Combine leather scraps.")
+        bb.ui:createSpinner(section, "Salvage", 15, 5, 30, 1, "Check to enable Salvage Helper.", "Set Desired waiting after full inventory.")
+        bb.ui:createCheckbox(section, "Use Drawer", "EXPERIMENTAL!")
+        bb.ui:checkSectionState(section)
+    end
+
+    -- Add Page Dropdown
+    bb.ui:createPagesDropdown(bb.ui.window.config, {
+        {
+            [1] = "General",
+            [2] = callGeneral,
+        },
+        {
+            [1] = "Enemies Engine",
+            [2] = callEnemiesEngine,
+        },
+        {
+            [1] = "Healing Engine",
+            [2] = callHealingEngine,
+        },
+        {
+            [1] = "Other Features",
+            [2] = callOtherFeaturesEngine,
+        },
+    })
 
     -- temp
     if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()]["optionsFrame"] ~= true then
@@ -761,4 +907,3 @@ function bb.ui:createDebugWindow()
 end
 
 -- TODO: re arrange files, put function and window into different files
--- TODO: use bb.ui.window.window.config ... instead of bb.config ...

@@ -97,7 +97,7 @@ function cPaladin:new(spec)
     -- Options which every Paladin should have
     function self.createClassOptions()
         -- Create Base Options
-        self.createBaseOptions()
+        -- self.createBaseOptions()
 
         local section = bb.ui:createSection(bb.ui.window.profile, "Class Options")
         bb.ui:createDropdown(section,"Blessings", {"Kings","Might","Auto"})

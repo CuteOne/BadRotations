@@ -184,7 +184,7 @@ local methods = {
 						dropdownText = self.children[i].settings.value
 						selectionTable = {key}
 						selectedKey	= key
-						selectedValue	= value				
+						selectedValue	= self.children[i].settings.value
 					end
 				end
 			end		
