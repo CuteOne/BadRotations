@@ -209,14 +209,7 @@ function cProtection:new()
 
     -- Starts rotation, uses default if no other specified; starts if inCombat == true
 	function self.startRotation()
-        if self.rotation == 1 then
-            self:protectionSimC()
-        -- put different rotations below; dont forget to setup your rota in options
-        elseif self.rotation == 2 then
-            --ChatOverlay("THATS CUTE!",1)
-        else
-            ChatOverlay("No ROTATION ?!", 2000)
-        end
+        self:protectionSimC()
 	end
 
 ---------------------------------------------------------------
@@ -226,14 +219,7 @@ function cProtection:new()
     function self.createToggles()
         GarbageButtons()
 
-        if self.rotation == 1 then
-            self.protectionSimC_createToggles()
-        elseif self.rotation == 2 then
-            AoEModes = {
-                [1] = { mode = "CUTE", value = 1 , overlay = "Single Target Enabled", tip = "|cff00FF00Cfor \n|cffFFDD11Single Target(1-2).", highlight = 0, icon = 35395 },
-            }
-            CreateButton("AoE",0,1)
-        end
+        self.protectionSimC_createToggles()
     end
 
     function self.createOptions()
