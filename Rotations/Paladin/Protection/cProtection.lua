@@ -209,14 +209,7 @@ function cProtection:new()
 
     -- Starts rotation, uses default if no other specified; starts if inCombat == true
 	function self.startRotation()
-        if self.rotation == 1 then
-            self:protectionSimC()
-        -- put different rotations below; dont forget to setup your rota in options
-        elseif self.rotation == 2 then
-            --ChatOverlay("THATS CUTE!",1)
-        else
-            ChatOverlay("No ROTATION ?!", 2000)
-        end
+        self:protectionSimC()
 	end
 
 ---------------------------------------------------------------
@@ -226,80 +219,22 @@ function cProtection:new()
     function self.createToggles()
         GarbageButtons()
 
-        if self.rotation == 1 then
-            -- Aoe Button
-            AoEModes = {
-                [1] = { mode = "Sin", value = 1 , overlay = "Single Target Enabled", tip = "|cff00FF00Recommended for \n|cffFFDD11Single Target(1-2).", highlight = 0, icon = 35395 },
-                [2] = { mode = "AoE", value = 2 , overlay = "AoE Enabled", tip = "|cffFF0000Recommended for \n|cffFFDD11AoE(3+).", highlight = 0, icon = 53595 },
-                [3] = { mode = "Auto", value = 3 , overlay = "Auto-AoE Enabled", tip = "|cffFFDD11Recommended for \n|cffFFDD11Lazy people.", highlight = 1, icon = 114158 }
-            }
-            CreateButton("AoE",0,1)
-
-            -- Interrupts Button
-            InterruptsModes = {
-                [1] = { mode = "None", value = 1 , overlay = "Interrupts Disabled", tip = "|cffFF0000No Interrupts will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
-                [2] = { mode = "All", value = 2 , overlay = "Interrupts Enabled", tip = "|cffFF0000Spells Included: \n|cffFFDD11Rebuke.", highlight = 1, icon = 96231 }
-            }
-            CreateButton("Interrupts",1,0)
-
-            -- Cooldowns Button
-            CooldownsModes = {
-                [1] = { mode = "None", value = 1 , overlay = "Cooldowns Disabled", tip = "|cffFF0000No cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
-                [2] = { mode = "User", value = 2 , overlay = "User Cooldowns Enabled", tip = "|cffFF0000Cooldowns Included: \n|cffFFDD11Config's selected spells.", highlight = 1, icon = [[INTERFACE\ICONS\inv_misc_blackironbomb]] },
-                [3] = { mode = "All", value = 3 , overlay = "Cooldowns Enabled", tip = "|cffFF0000Cooldowns Included: \n|cffFFDD11Holy Avenger.", highlight = 1, icon = 31884 }
-            }
-            CreateButton("Cooldowns",2,0)
-
-            -- Defensive Button
-
-            DefensiveModes = {
-                [1] = { mode = "None", value = 1 , overlay = "Defensive Disabled", tip = "|cffFF0000No Defensive Cooldowns will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
-                [2] = { mode = "All", value = 2 , overlay = "Defensive Enabled", tip = "|cffFF0000Spells Included: \n|cffFFDD11Ardent Defender, \nDivine Protection, \nGuardian of Ancient Kings.", highlight = 1, icon = 86659 }
-            }
-            CreateButton("Defensive",1,1)
-
-            -- Healing Button
-            HealingModes = {
-                [1] = { mode = "None", value = 1 , overlay = "Disable Healing.", tip = "|cffFF0000No healing will be used.", highlight = 0, icon = [[INTERFACE\ICONS\INV_Misc_AhnQirajTrinket_03]] },
-                [2] = { mode = "Self", value = 2 , overlay = "Heal only Self.", tip = "|cffFF0000Healing: |cffFFDD11On self only.", highlight = 1, icon = 19750 },
-                [3] = { mode = "All", value = 3 , overlay = "Heal Everyone.", tip = "|cffFF0000Healing: |cffFFDD11On Everyone.", highlight = 1, icon = 114163 }
-            }
-            CreateButton("Healing",2,1)
-
-            -- Empowered Seals Button
-            EmpSModes = {
-                [1] = { mode = "Twist", value = 1 , overlay = "Twist.", tip = "|cffFF0000Twist between Right and Insight.", highlight = 1, icon = 152263 },
-                [2] = { mode = "Right", value = 2 , overlay = "Right.", tip = "|cffFF0000Stays in Righteousness.", highlight = 0, icon = 20154 },
-                [3] = { mode = "Insight", value = 3 , overlay = "Insight.", tip = "|cffFF0000Stays in Insight.", highlight = 0, icon = 20165 }
-            }
-            CreateButton("EmpS",3,1)
-
-            -- Class Trinket Shield Cancel
-            classTrinketModes = {
-                [1] = { mode = "DPS", value = 1 , overlay = "PUSH DPS.", tip = "|cffFF0000Cancels shields.", highlight = 1, icon = 184910 },
-                [2] = { mode = "Save", value = 2 , overlay = "Shields.", tip = "|cffFF0000Shields are here to stay.", highlight = 0, icon = 184910 },
-            }
-            CreateButton("classTrinket",3,0)
-        elseif self.rotation == 2 then
-            AoEModes = {
-                [1] = { mode = "CUTE", value = 1 , overlay = "Single Target Enabled", tip = "|cff00FF00Cfor \n|cffFFDD11Single Target(1-2).", highlight = 0, icon = 35395 },
-            }
-            CreateButton("AoE",0,1)
-        end
+        self.protectionSimC_createToggles()
     end
 
     function self.createOptions()
         bb.ui.window.profile = bb.ui:createProfileWindow("Protection")
 
-        self.createClassOptions()
+        --self.createClassOptions()
 
         local section
-        if self.rotation == 1 then
+        local function pageBuffs()
             -- Buffs
             section = bb.ui:createSection(bb.ui.window.profile, "Buffs")
             bb.ui:createCheckbox(section, "Righteous Fury")
             bb.ui:checkSectionState(section)
-
+        end
+        local function pageCooldowns()
             -- Rota
             section = bb.ui:createSection(bb.ui.window.profile, "Rotation Managment")
             bb.ui:createDropdown(section, "Light's Hammer", bb.dropOptions.CD)
@@ -307,7 +242,8 @@ function cProtection:new()
             bb.ui:createDropdown(section, "Holy Avenger", bb.dropOptions.CD)
             bb.ui:createDropdown(section, "Seraphim", bb.dropOptions.CD)
             bb.ui:checkSectionState(section)
-
+        end
+        local function pageT18Trinket()
             -- T18 Class Trinket DMG pushing
             section = bb.ui:createSection(bb.ui.window.profile, "T18 Class Trinket", "Choose which absorb buffs should be canceled to make trinket proc.")
             bb.ui:createSpinner(section, "Trinket % Trigger", 59, 59, 100, 1, "Enter your Trinket % when it will trigger.")
@@ -316,13 +252,15 @@ function cProtection:new()
             bb.ui:createCheckbox(section, "Cancel Sacred Shield", "Only cancels the short duration absorb buff.")
             bb.ui:createCheckbox(section, "Cancel Avenger's Reprieve", "2 T18 Buff")
             bb.ui:checkSectionState(section)
-
+        end
+        local function pageHealing()
             -- Healing
             section = bb.ui:createSection(bb.ui.window.profile, "Healing")
             bb.ui:createSpinner(section, "Word Of Glory On Self", 60)
             bb.ui:createSpinner(section, "Lay On Hands", 12)
             bb.ui:checkSectionState(section)
-
+        end
+        local function pageDefensive()
             -- Defensive
             section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
 
@@ -330,7 +268,8 @@ function cProtection:new()
             bb.ui:createSpinner(section, "Ardent Defender", 20)
             bb.ui:createSpinner(section, "Guardian of Anchient Kings", 40)
             bb.ui:checkSectionState(section)
-
+        end
+        local function pageInterrupt()
             -- Interrupt
             section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
 
@@ -339,15 +278,42 @@ function cProtection:new()
             bb.ui:checkSectionState(section)
         end
 
-        if self.rotation == 2 then
-            -- CUTE
-            local section = bb.ui:createSection(bb.ui.window.profile, "Cuteness")
-            bb.ui:createCheckbox(section, "Righteous Cuteness")
-            bb.ui:checkSectionState(section)
-        end
-
+        bb.ui:createPagesDropdown(bb.ui.window.profile, {
+            {
+                [1] = "Base Options",
+                [2] = self.createBaseOptions,
+            },
+            {
+                [1] = "Class Options",
+                [2] = self.createClassOptions,
+            },
+            {
+                [1] = "Buffs",
+                [2] = pageBuffs,
+            },
+            {
+                [1] = "Cooldowns",
+                [2] = pageCooldowns,
+            },
+            {
+                [1] = "T18 Trinket",
+                [2] = pageT18Trinket,
+            },
+            {
+                [1] = "Healing",
+                [2] = pageHealing,
+            },
+            {
+                [1] = "Defensive",
+                [2] = pageDefensive,
+            },
+            {
+                [1] = "Interrupt",
+                [2] = pageInterrupt,
+            },
+        })
         --[[ Rotation Dropdown ]]--
-        bb.ui:createRotationDropdown(bb.ui.window.profile.parent, self.rotations, "Defmaster - real rotation\nCute - just here for some testing")
+        --bb.ui:createRotationDropdown(bb.ui.window.profile.parent, self.rotations, "Defmaster - real rotation\nCute - just here for some testing")
 
         bb:checkProfileWindowStatus()
     end
@@ -752,7 +718,7 @@ function cProtection:new()
     -----------------------------
 
     self.createOptions()
-    self.createToggles()
+    --self.createToggles()
 
 -- Return
 	return self

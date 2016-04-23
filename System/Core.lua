@@ -202,7 +202,6 @@ end
 
 function frame:OnEvent(event, arg1)
 	if event == "ADDON_LOADED" and arg1 == "BadBoy" then
-        bb.helper:getPossibleNodes()
 		bb:Run()
 	end
 	if event == "ACTIVE_TALENT_GROUP_CHANGED" then
@@ -218,7 +217,7 @@ function frame:OnEvent(event, arg1)
         bb:characterEquipChanged() -- Sets a global to indicate equip was changed
     end
     if event == "PLAYER_ENTERING_WORLD" or event == "ZONE_CHANGED_NEW_AREA" then
-        bb.helper:getPossibleNodes()
+        -- temp
     end
     if event == "ZONE_CHANGED" then
         -- temp
