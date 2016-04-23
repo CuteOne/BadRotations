@@ -1105,7 +1105,7 @@ function getDistanceToObject(Unit1,X2,Y2,Z2)
 		Unit1 = "player"
 	end
 	if GetObjectExists(Unit1) and UnitIsVisible(Unit1) then
-		local X1,Y1 = GetObjectPosition(Unit1)
+		local X1,Y1,Z1 = GetObjectPosition(Unit1)
 		return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2))
 	else
 		return 100
