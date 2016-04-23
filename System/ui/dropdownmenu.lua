@@ -2,8 +2,8 @@
 function createDropDownMenu(parent,option,x,y,textString)
 	local value,tip,dropdown,dropOptions = option.name,option.dropTip,option.dropdown,option.dropOptions
 	local currentValue = 1
-	if BadBoy_data.options[GetSpecialization()] then
-		currentValue = BadBoy_data.options[GetSpecialization()][value.."Drop"]
+	if BadBoy_data.options[bb.selectedSpec] then
+		currentValue = BadBoy_data.options[bb.selectedSpec][value.."Drop"]
 	end
 	local textString = option.name
 	if tip == "Toggle2" then
@@ -81,9 +81,9 @@ function createDropDownMenu(parent,option,x,y,textString)
 	_G[parent..value.."DropText"]:SetFont(BadBoy_data.BadBoyUI.font,BadBoy_data.BadBoyUI.fontsize*scale,"THICKOUTLINE")
 	-- assign the actually selected value to the option
 	local textDisplay
-	if BadBoy_data.options[GetSpecialization()] then
-		if dropOptions[BadBoy_data.options[GetSpecialization()][value.."Drop"]] ~= nil then
-			textDisplay = dropOptions[BadBoy_data.options[GetSpecialization()][value.."Drop"]]
+	if BadBoy_data.options[bb.selectedSpec] then
+		if dropOptions[BadBoy_data.options[bb.selectedSpec][value.."Drop"]] ~= nil then
+			textDisplay = dropOptions[BadBoy_data.options[bb.selectedSpec][value.."Drop"]]
 		end
 	end
 	_G[parent..value.."DropText"]:SetText(textDisplay,nil,nil,nil,nil,false)
@@ -131,8 +131,8 @@ function createDropDownChild(grandParent,parent,value,x,y,tag,dropOptions,tip)
 	_G[parent..value.."DropChild"]:SetScript("OnClick", function(self)
 		-- print(parent..value.."DropChild")
 		-- on click child frame select value
-		if BadBoy_data.options[GetSpecialization()][parent.."Drop"] ~= tag then
-			BadBoy_data.options[GetSpecialization()][parent.."Drop"] = tag
+		if BadBoy_data.options[bb.selectedSpec][parent.."Drop"] ~= tag then
+			BadBoy_data.options[bb.selectedSpec][parent.."Drop"] = tag
 		end
 		-- we need to hide childs
 		for i = 1, #dropOptions do

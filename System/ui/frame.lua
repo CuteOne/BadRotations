@@ -60,7 +60,7 @@ function frameCreation(name,width,heigth,title)
 		_G[name.."FrameTitle"]:SetJustifyH("CENTER")
 		_G[name.."FrameTitle"]:SetTextColor(225/255, 225/255, 225/255,1)
 		_G[name.."FrameTitle"]:SetText(title)
-		if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()][name.."Frame"] == false then
+		if BadBoy_data.options[bb.selectedSpec] and BadBoy_data.options[bb.selectedSpec][name.."Frame"] == false then
 			_G[name.."Frame"]:Hide()
 		end
 		-- when we roll mouse (delta +1,-1)

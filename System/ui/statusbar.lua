@@ -9,8 +9,8 @@ function createStatusBar(parent,option,x,y)
 	local width = width or 75
 	local heigth = heigth or 22
 	local currentValue
-	if  BadBoy_data.options[GetSpecialization()] then
-		currentValue = BadBoy_data.options[GetSpecialization()][value.."Status"]
+	if  BadBoy_data.options[bb.selectedSpec] then
+		currentValue = BadBoy_data.options[bb.selectedSpec][value.."Status"]
 	end
 	if currentValue == nil then
 		currentValue = statusBase or 0
@@ -50,7 +50,7 @@ function createStatusBar(parent,option,x,y)
 				if currentValue and currentValue > statusMax then
 					currentValue = statusMax
 				end
-				BadBoy_data.options[GetSpecialization()][value.."Status"] = currentValue or 0
+				BadBoy_data.options[bb.selectedSpec][value.."Status"] = currentValue or 0
 				_G[parent..value.."Status"]:SetValue(currentValue)
 				_G[parent..value.."StatusText"]:SetText(currentValue)
 			end)

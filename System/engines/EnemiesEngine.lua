@@ -20,7 +20,7 @@ function EnemiesEngine()
 	--[[------------------------------------------------------------------------------------------------------------------]]
 	--[[------------------------------------------------------------------------------------------------------------------]]
 	--[[------------------------------------------------------------------------------------------------------------------]]
-	local varDir = BadBoy_data.options[GetSpecialization()]
+	local varDir = BadBoy_data.options[bb.selectedSpec]
 	function makeEnemiesTable(maxDistance)
 		--local LibDraw = LibStub("LibDraw-1.0")
 		local  maxDistance = maxDistance or 50

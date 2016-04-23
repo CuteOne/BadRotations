@@ -1,5 +1,6 @@
 -- define bb global that will hold the bot global background features
 bb = {}
+bb.selectedSpec = 1
 bb.selectedProfile = 1
 bb.dropOptions = {}
 bb.dropOptions.Toggle = {"LeftCtrl","LeftShift","RightCtrl","RightShift","RightAlt","None"}
@@ -63,21 +64,31 @@ function bb:Run()
 	}
 	-- load common used stuff on first load
 	-- options table that will hold specs subtable
+	if BadBoy_data.options[5] == nil then
+    	BadBoy_data.options = nil
+    end
 	if BadBoy_data.options == nil then
 		BadBoy_data.options = {}
 		BadBoy_data.options[1] = {}
 		BadBoy_data.options[2] = {}
 		BadBoy_data.options[3] = {}
 		BadBoy_data.options[4] = {}
+		BadBoy_data.options[5] = {}
     end
-    if BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"] == nil then
+    if GetSpecialization() == nil then
+    	bb.selectedSpec = 5
+    	bb.selectedProfile = 1
+    else
+    	bb.selectedSpec = GetSpecialization()
+    end
+    if BadBoy_data.options[bb.selectedSpec]["Rotation".."Drop"] == nil then
         bb.selectedProfile = 1
     else
-        bb.selectedProfile = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"]
+        bb.selectedProfile = BadBoy_data.options[bb.selectedSpec]["Rotation".."Drop"]
     end
-    --bb.selectedProfile = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"] or 1
-    if BadBoy_data.options[GetSpecialization()][bb.selectedProfile]  == nil then
-        BadBoy_data.options[GetSpecialization()][bb.selectedProfile] = {}
+    --bb.selectedProfile = BadBoy_data.options[bb.selectedSpec]["Rotation".."Drop"] or 1
+    if BadBoy_data.options[bb.selectedSpec][bb.selectedProfile]  == nil then
+        BadBoy_data.options[bb.selectedSpec][bb.selectedProfile] = {}
     end
 	-- uncomment that when all ready
 	if BadBoy_data.BadBoyUI == nil then
@@ -265,9 +276,9 @@ function bb:Run()
 	-- build up UI
 	bb:StartUI()
 
-    if BadBoy_data.options[GetSpecialization()] == nil then BadBoy_data.options[GetSpecialization()] = {} end
-    if BadBoy_data.options[GetSpecialization()][bb.selectedProfile] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile] = {} end
-    --bb.selectedProfile = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"] or 1
+    if BadBoy_data.options[bb.selectedSpec] == nil then BadBoy_data.options[bb.selectedSpec] = {} end
+    if BadBoy_data.options[bb.selectedSpec][bb.selectedProfile] == nil then BadBoy_data.options[bb.selectedSpec][bb.selectedProfile] = {} end
+    --bb.selectedProfile = BadBoy_data.options[bb.selectedSpec]["Rotation".."Drop"] or 1
     bb.ui:createConfigWindow()
 
 	-- start up enemies Engine

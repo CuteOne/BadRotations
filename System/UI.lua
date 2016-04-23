@@ -101,20 +101,20 @@ function BadBoyFrame()
 			local InterruptsModes = InterruptsModes
 			if newValue == 1 and InterruptsModes[1].mode == "None" then
 				-- no interupts mode
-				if BadBoy_data.options[GetSpecialization()]["Interrupts HandlerCheck"] ~= 0 then
+				if BadBoy_data.options[bb.selectedSpec]["Interrupts HandlerCheck"] ~= 0 then
 					_G["optionsInterrupts HandlerCheck"]:Click()
 				end
 			elseif newValue == 2 and InterruptsModes[2].mode == "Raid" then
 				-- on/off switch
-				if BadBoy_data.options[GetSpecialization()]["Interrupts HandlerCheck"] ~= 1 then
+				if BadBoy_data.options[bb.selectedSpec]["Interrupts HandlerCheck"] ~= 1 then
 					_G["optionsInterrupts HandlerCheck"]:Click()
 				end
 				-- only known switch
-				if BadBoy_data.options[GetSpecialization()]["Only Known UnitsCheck"] ~= 1 then
+				if BadBoy_data.options[bb.selectedSpec]["Only Known UnitsCheck"] ~= 1 then
 					_G["optionsOnly Known UnitsCheck"]:Click()
 				end
 				-- if we want to change drop down here is code.
-				--[[if BadBoy_data.options[GetSpecialization()]["Interrupts HandlerDrop"] ~= 4 then
+				--[[if BadBoy_data.options[bb.selectedSpec]["Interrupts HandlerDrop"] ~= 4 then
 
 					-- _G[parent..value.."DropChild"]
 
@@ -126,11 +126,11 @@ function BadBoyFrame()
 			elseif newValue == 3 and InterruptsModes[3].mode == "All" then
 				-- interrupt all mode
 				-- on/off switch
-				if BadBoy_data.options[GetSpecialization()]["Interrupts HandlerCheck"] ~= 1 then
+				if BadBoy_data.options[bb.selectedSpec]["Interrupts HandlerCheck"] ~= 1 then
 					_G["optionsInterrupts HandlerCheck"]:Click()
 				end
 				-- only known switch
-				if BadBoy_data.options[GetSpecialization()]["Only Known UnitsCheck"] ~= 0 then
+				if BadBoy_data.options[bb.selectedSpec]["Only Known UnitsCheck"] ~= 0 then
 					_G["optionsOnly Known UnitsCheck"]:Click()
 				end
 			end
@@ -203,16 +203,28 @@ function BadBoyFrame()
 			BadBoy_data['Power'] = 0
 			mainButton:SetNormalTexture(backIconOff)
 			-- on/off switch
-			if BadBoy_data.options[GetSpecialization()]["Start/Stop BadBoyCheck"] ~= 0 then
-				_G["optionsStart/Stop BadBoyCheck"]:Click()
+			if bb.selectedSpec == 5 then
+				if BadBoy_data.options[bb.selectedSpec][bb.selectedProfile]["Start/Stop BadBoyCheck"] ~= 0 then
+					_G["optionsStart/Stop BadBoyCheck"]:Click()
+				end
+			else
+				if BadBoy_data.options[bb.selectedSpec]["Start/Stop BadBoyCheck"] ~= 0 then
+					_G["optionsStart/Stop BadBoyCheck"]:Click()
+				end
 			end
 			GameTooltip:SetText("|cff00FF00Enable |cffFF0000BadBoy \n|cffFFDD11Hold Left Alt and scroll mouse to adjust size.", 225/255, 225/255, 225/255)
 			mainButtonFrame.texture:SetTexture(genericIconOff)
 		else
 			BadBoy_data['Power'] = 1
 			-- on/off switch
-			if BadBoy_data.options[GetSpecialization()]["Start/Stop BadBoyCheck"] ~= 1 then
-				_G["optionsStart/Stop BadBoyCheck"]:Click()
+			if bb.selectedSpec == 5 then
+				if BadBoy_data.options[bb.selectedSpec][bb.selectedProfile]["Start/Stop BadBoyCheck"] ~= 1 then
+					_G["optionsStart/Stop BadBoyCheck"]:Click()
+				end
+			else
+				if BadBoy_data.options[bb.selectedSpec]["Start/Stop BadBoyCheck"] ~= 1 then
+					_G["optionsStart/Stop BadBoyCheck"]:Click()
+				end
 			end
 			GameTooltip:SetText("|cffFF0000Disable BadBoy \n|cffFFDD11Hold Left Alt and scroll mouse to adjust size.", 225/255, 225/255, 225/255)
 			mainButton:SetNormalTexture(backIconOn)
