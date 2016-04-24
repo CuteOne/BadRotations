@@ -152,7 +152,6 @@ function cCharacter:new(class)
         -- Get selected rotation
         self.getRotation()
 
-
 		-- Set Global Cooldown
 		self.gcd 				= self.getGlobalCooldown()
 
@@ -360,6 +359,7 @@ function cCharacter:new(class)
         -- Base Wrap
         local section_base = bb.ui:createSection(bb.ui.window.profile, "Base Options")
         bb.ui:createCheckbox(section_base, "Ignore Combat")
+        bb.ui:createDropdown(section_base, "Pause Mode", bb.dropOptions.Toggle, 2, "Define a key which pauses the rotation.")
         bb.ui:createCheckbox(section_base, "Use Crystal")
         bb.ui:createCheckbox(section_base, "Use emp. Rune")
         bb.ui:createCheckbox(section_base, "Use Racial")
