@@ -39,17 +39,17 @@ function ConstructUI()
 		-- these functions are called when a profile is loaded
 		-- startup
 		function ClearConfig()
-			if BadBoy_data.options[GetSpecialization()] == nil then
-				BadBoy_data.options[GetSpecialization()] = {}
+			if BadBoy_data.options[bb.selectedSpec] == nil then
+				BadBoy_data.options[bb.selectedSpec] = {}
 			end
 			tempTable = {}
-			BadBoy_data.options[GetSpecialization()].profile = {}
+			BadBoy_data.options[bb.selectedSpec].profile = {}
 		end
 		-- on first load, i want to gather the values from the currentProfile
 		-- and push them into wtf if they were not there already
 		-- when im making the profile for the first time, i will gather the values from profile
 		-- when im remaking the profile, i will gather the values from the wtf
-		-- wtf will be in BadBoy_data.options[GetSpecialization()]
+		-- wtf will be in BadBoy_data.options[bb.selectedSpec]
 		-- my options are in the params
 		-- take options from param to wtf on first pass
 		-- status
@@ -58,10 +58,10 @@ function ConstructUI()
 			tempTable.statusMin = minValue
 			tempTable.statusMax = maxValue
 			tempTable.statusStep = step
-			if BadBoy_data.options[GetSpecialization()][textString.."Status"] == nil then
-				BadBoy_data.options[GetSpecialization()][textString.."Status"] = base
+			if BadBoy_data.options[bb.selectedSpec][textString.."Status"] == nil then
+				BadBoy_data.options[bb.selectedSpec][textString.."Status"] = base
 			else
-				base = BadBoy_data.options[GetSpecialization()][textString.."Status"]
+				base = BadBoy_data.options[bb.selectedSpec][textString.."Status"]
 			end
 			tempTable.statusBase = base
 		end
@@ -81,34 +81,34 @@ function ConstructUI()
 				[9] = value9 or nil,
 				[10] = value10 or nil,
 			}
-			if BadBoy_data.options[GetSpecialization()][textString.."Drop"] == nil then
-				BadBoy_data.options[GetSpecialization()][textString.."Drop"] = base
+			if BadBoy_data.options[bb.selectedSpec][textString.."Drop"] == nil then
+				BadBoy_data.options[bb.selectedSpec][textString.."Drop"] = base
 			else
-				base = BadBoy_data.options[GetSpecialization()][textString.."Drop"]
+				base = BadBoy_data.options[bb.selectedSpec][textString.."Drop"]
 			end
 			tempTable.base = base
 		end
 		-- checkbox
 		function CreateNewCheck(value,textString,tip1,base)
 			tempTable.check = true
-			if BadBoy_data.options[GetSpecialization()][textString.."Check"] == nil then
-				BadBoy_data.options[GetSpecialization()][textString.."Check"] = base
+			if BadBoy_data.options[bb.selectedSpec][textString.."Check"] == nil then
+				BadBoy_data.options[bb.selectedSpec][textString.."Check"] = base
 			else
-				base = BadBoy_data.options[GetSpecialization()][textString.."Check"]
+				base = BadBoy_data.options[bb.selectedSpec][textString.."Check"]
 			end
 			tempTable.checkBase = base or 0
 			tempTable.tip = tip1
 		end
 		-- new title and text need to insert in real array
 		function CreateNewTitle(value,textString)
-			BadBoy_data.options[GetSpecialization()].profile = {}
+			BadBoy_data.options[bb.selectedSpec].profile = {}
 			tempTable = {}
 			if textString == nil then
 				textString = value
 			end
 			tempTable.title = textString
 			tempTable.name = textString
-			BadBoy_data.options[GetSpecialization()].profile[#BadBoy_data.options[GetSpecialization()].profile+1] = tempTable
+			BadBoy_data.options[bb.selectedSpec].profile[#BadBoy_data.options[bb.selectedSpec].profile+1] = tempTable
 			tempTable = {}
 		end
 		function CreateNewText(value,textString)
@@ -116,7 +116,7 @@ function ConstructUI()
 				textString = value
 			end
 			tempTable.name = textString
-			BadBoy_data.options[GetSpecialization()].profile[#BadBoy_data.options[GetSpecialization()].profile+1] = tempTable
+			BadBoy_data.options[bb.selectedSpec].profile[#BadBoy_data.options[bb.selectedSpec].profile+1] = tempTable
 			tempTable = {}
 		end
 		-- wrap separation
@@ -126,9 +126,9 @@ function ConstructUI()
 			end
 			tempTable.name = textString
 			tempTable.wrap = textString
-			BadBoy_data.options[GetSpecialization()].profile[#BadBoy_data.options[GetSpecialization()].profile+1] = tempTable
-			if BadBoy_data.options[GetSpecialization()][textString.."Wrapper"] == nil then
-				BadBoy_data.options[GetSpecialization()][textString.."Wrapper"] = true
+			BadBoy_data.options[bb.selectedSpec].profile[#BadBoy_data.options[bb.selectedSpec].profile+1] = tempTable
+			if BadBoy_data.options[bb.selectedSpec][textString.."Wrapper"] == nil then
+				BadBoy_data.options[bb.selectedSpec][textString.."Wrapper"] = true
 			end
 			tempTable = {}
 		end
@@ -138,23 +138,23 @@ function ConstructUI()
 				textString = value
 			end
 			tempTable.name = textString
-			BadBoy_data.options[GetSpecialization()].profile[#BadBoy_data.options[GetSpecialization()].profile+1] = tempTable
+			BadBoy_data.options[bb.selectedSpec].profile[#BadBoy_data.options[bb.selectedSpec].profile+1] = tempTable
 			tempTable = {}
 		end
 		-- this is called at the end, we could use it to trigger value that state that the current spec is loaded into memory
 		function WrapsManager()
-			BadBoy_data.options[GetSpecialization()].profile.name = BadBoy_data.options[GetSpecialization()].profile[1].name
+			BadBoy_data.options[bb.selectedSpec].profile.name = BadBoy_data.options[bb.selectedSpec].profile[1].name
 			createProfile()
-			replaceWraps(BadBoy_data.options[GetSpecialization()].profile.name)
+			replaceWraps(BadBoy_data.options[bb.selectedSpec].profile.name)
 			refreshOptions()
 		end
 		function createProfile()
-			--if currentProfile ~= nil and currentProfile ~= BadBoy_data.options[GetSpecialization()].profile then
+			--if currentProfile ~= nil and currentProfile ~= BadBoy_data.options[bb.selectedSpec].profile then
 			--	_G[currentProfileName.."Frame"]:Hide()
 			--end
-			--currentProfile = BadBoy_data.options[GetSpecialization()].profile
+			--currentProfile = BadBoy_data.options[bb.selectedSpec].profile
 			--currentProfileName = currentProfile[1].name
-			--if currentProfile ~= nil and _G[currentProfileName.."Frame"] and BadBoy_data.options[GetSpecialization()].profile[1].name ~= BadBoy_data.options[GetSpecialization()].profile then
+			--if currentProfile ~= nil and _G[currentProfileName.."Frame"] and BadBoy_data.options[bb.selectedSpec].profile[1].name ~= BadBoy_data.options[bb.selectedSpec].profile then
             --    _G[currentProfileName.."Frame"]:Hide()--_G[currentProfileName.."Frame"]:Show()
 			--end
 			--frameCreation(currentProfileName,270,400)
@@ -615,7 +615,7 @@ function ConstructUI()
 							-- name of the option
 							local name = thisOption.name
 							-- actual profile options
-							local profileOptions = BadBoy_data.options[GetSpecialization()]
+							local profileOptions = BadBoy_data.options[bb.selectedSpec]
 							if profileOptions ~= nil then
 								-- if i have values saved for a checkbox
 								if profileOptions[name.."Check"] == 1 then
@@ -706,7 +706,7 @@ function ConstructUI()
 	end
 	_G["options"..BadBoy_data.options.selected.."Button"]:Click()
     optionsFrame:Hide()
-	if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()]["optionsFrame"] ~= true then
+	if BadBoy_data.options[bb.selectedSpec] and BadBoy_data.options[bb.selectedSpec]["optionsFrame"] ~= true then
 		optionsFrame:Hide()
 	end
 	-- if frames ar already loaded we only have to bring them back shown so we will

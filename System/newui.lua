@@ -10,8 +10,8 @@ bb.ui.window = {}
 bb.ui.window.config = {}
 bb.ui.window.profile = {}
 
---if BadBoy_data.options[GetSpecialization()] == nil then BadBoy_data.options[GetSpecialization()] = {} end
---if BadBoy_data.options[GetSpecialization()][bb.selectedProfile] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile] = {} end
+--if BadBoy_data.options[bb.selectedSpec] == nil then BadBoy_data.options[bb.selectedSpec] = {} end
+--if BadBoy_data.options[bb.selectedSpec][bb.selectedProfile] == nil then BadBoy_data.options[bb.selectedSpec][bb.selectedProfile] = {} end
 
 -- TODO: save window position and restore it
 
@@ -289,21 +289,21 @@ function bb.ui:createWindow(name, width, height)
     scrollFrame.parent = window
 
     -- Load saved position
-    if BadBoy_data.options[GetSpecialization()]["optionsFrame".."_point"] ~= nil then
-        local point, relativeTo = BadBoy_data.options[GetSpecialization()]["optionsFrame".."_point"], BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativeTo"]
-        local relativePoint = BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativePoint"]
-        local xOfs, yOfs = BadBoy_data.options[GetSpecialization()]["optionsFrame".."_xOfs"], BadBoy_data.options[GetSpecialization()]["optionsFrame".."_yOfs"]
+    if BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_point"] ~= nil then
+        local point, relativeTo = BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_point"], BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativeTo"]
+        local relativePoint = BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativePoint"]
+        local xOfs, yOfs = BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_xOfs"], BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_yOfs"]
         scrollFrame.parent:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
     end
-    if BadBoy_data.options[GetSpecialization()]["optionsFrame".."_point2"] ~= nil then
-        local point, relativeTo = BadBoy_data.options[GetSpecialization()]["optionsFrame".."_point2"], BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativeTo2"]
-        local relativePoint = BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativePoint2"]
-        local xOfs, yOfs = BadBoy_data.options[GetSpecialization()]["optionsFrame".."_xOfs2"], BadBoy_data.options[GetSpecialization()]["optionsFrame".."_yOfs2"]
+    if BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_point2"] ~= nil then
+        local point, relativeTo = BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_point2"], BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativeTo2"]
+        local relativePoint = BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativePoint2"]
+        local xOfs, yOfs = BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_xOfs2"], BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_yOfs2"]
         scrollFrame.parent:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
     end
-    if BadBoy_data.options[GetSpecialization()]["optionsFrame".."_width"] and BadBoy_data.options[GetSpecialization()]["optionsFrame".."_height"] then
-        scrollFrame.parent:SetWidth(BadBoy_data.options[GetSpecialization()]["optionsFrame".."_width"])
-        scrollFrame.parent:SetHeight(BadBoy_data.options[GetSpecialization()]["optionsFrame".."_height"])
+    if BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_width"] and BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_height"] then
+        scrollFrame.parent:SetWidth(BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_width"])
+        scrollFrame.parent:SetHeight(BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_height"])
     end
 
     bb.ui:createLeftArrow(scrollFrame)
@@ -327,21 +327,21 @@ function bb.ui:createProfileWindow(name, width, height)
     scrollFrame.parent = window
 
     -- Load saved position
-    if BadBoy_data.options[GetSpecialization()]["configFrame".."_point"] ~= nil then
-        local point, relativeTo = BadBoy_data.options[GetSpecialization()]["configFrame".."_point"], BadBoy_data.options[GetSpecialization()]["configFrame".."_relativeTo"]
-        local relativePoint = BadBoy_data.options[GetSpecialization()]["configFrame".."_relativePoint"]
-        local xOfs, yOfs = BadBoy_data.options[GetSpecialization()]["configFrame".."_xOfs"], BadBoy_data.options[GetSpecialization()]["configFrame".."_yOfs"]
+    if BadBoy_data.options[bb.selectedSpec]["configFrame".."_point"] ~= nil then
+        local point, relativeTo = BadBoy_data.options[bb.selectedSpec]["configFrame".."_point"], BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativeTo"]
+        local relativePoint = BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativePoint"]
+        local xOfs, yOfs = BadBoy_data.options[bb.selectedSpec]["configFrame".."_xOfs"], BadBoy_data.options[bb.selectedSpec]["configFrame".."_yOfs"]
         scrollFrame.parent:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
     end
-    if BadBoy_data.options[GetSpecialization()]["configFrame".."_point2"] ~= nil then
-        local point, relativeTo = BadBoy_data.options[GetSpecialization()]["configFrame".."_point2"], BadBoy_data.options[GetSpecialization()]["configFrame".."_relativeTo2"]
-        local relativePoint = BadBoy_data.options[GetSpecialization()]["configFrame".."_relativePoint2"]
-        local xOfs, yOfs = BadBoy_data.options[GetSpecialization()]["configFrame".."_xOfs2"], BadBoy_data.options[GetSpecialization()]["configFrame".."_yOfs2"]
+    if BadBoy_data.options[bb.selectedSpec]["configFrame".."_point2"] ~= nil then
+        local point, relativeTo = BadBoy_data.options[bb.selectedSpec]["configFrame".."_point2"], BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativeTo2"]
+        local relativePoint = BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativePoint2"]
+        local xOfs, yOfs = BadBoy_data.options[bb.selectedSpec]["configFrame".."_xOfs2"], BadBoy_data.options[bb.selectedSpec]["configFrame".."_yOfs2"]
         scrollFrame.parent:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
     end
-    if BadBoy_data.options[GetSpecialization()]["configFrame".."_width"] and BadBoy_data.options[GetSpecialization()]["configFrame".."_height"] then
-        scrollFrame.parent:SetWidth(BadBoy_data.options[GetSpecialization()]["configFrame".."_width"])
-        scrollFrame.parent:SetHeight(BadBoy_data.options[GetSpecialization()]["configFrame".."_height"])
+    if BadBoy_data.options[bb.selectedSpec]["configFrame".."_width"] and BadBoy_data.options[bb.selectedSpec]["configFrame".."_height"] then
+        scrollFrame.parent:SetWidth(BadBoy_data.options[bb.selectedSpec]["configFrame".."_width"])
+        scrollFrame.parent:SetHeight(BadBoy_data.options[bb.selectedSpec]["configFrame".."_height"])
     end
 
     bb.ui:createLeftArrow(scrollFrame)
@@ -400,8 +400,8 @@ function bb.ui:createCheckbox(parent, text, tooltip)
 
     -- Read check value from config, false if nothing found
     -- Set default
-    if BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Check"] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Check"] = false end
-    local check = BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Check"]
+    if BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][text.."Check"] == nil then BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][text.."Check"] = false end
+    local check = BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][text.."Check"]
     if check == 0 then check = false end
     if check == 1 then check = true end
 
@@ -410,7 +410,7 @@ function bb.ui:createCheckbox(parent, text, tooltip)
 
     -- Event: OnValueChanged
     newBox:SetEventListener('OnValueChanged', function(this, event, checked)
-        BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Check"] = checked
+        BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][text.."Check"] = checked
 
         -- Create Chat Overlay
         if checked then
@@ -477,14 +477,14 @@ function bb.ui:createSpinner(parent, text, number, min, max, step, tooltip, tool
     newSpinner:SetPoint("TOPRIGHT", parent.content, "TOPRIGHT", -10, y)
 
     -- Read number from config or set default
-    if BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Status"] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Status"] = number end
-    local state = BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Status"]
+    if BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][text.."Status"] == nil then BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][text.."Status"] = number end
+    local state = BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][text.."Status"]
     newSpinner:SetNumber(state)
 
 
     -- Event: OnValueChange
     newSpinner:SetEventListener('OnValueChanged', function(this, event, checked)
-        BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Status"] = newSpinner:GetNumber()
+        BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][text.."Status"] = newSpinner:GetNumber()
     end)
     -- Event: Tooltip
     if tooltip or tooltipSpin then
@@ -544,12 +544,12 @@ function bb.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
     newDropdown:SetList(itemlist)
 
     -- Read from config or set default
-    if BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Drop"] == nil then BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Drop"] = default end
-    local value = BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Drop"]
+    if BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][text.."Drop"] == nil then BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][text.."Drop"] = default end
+    local value = BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][text.."Drop"]
     newDropdown:SetValue(value)
 
     newDropdown:SetEventListener('OnValueChanged', function(this, event, key, value, selection)
-        BadBoy_data.options[GetSpecialization()][bb.selectedProfile][text.."Drop"]  = key
+        BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][text.."Drop"]  = key
     end)
     -- Event: Tooltip
     if tooltip or tooltipDrop then
@@ -584,14 +584,14 @@ function bb.ui:createRotationDropdown(parent, itemlist, tooltip)
 
     newDropdown:SetList(itemlist)
 
-    if BadBoy_data.options[GetSpecialization()][text.."Drop"] == nil then BadBoy_data.options[GetSpecialization()][text.."Drop"] = 1 end
-    local value = BadBoy_data.options[GetSpecialization()][text.."Drop"]
+    if BadBoy_data.options[bb.selectedSpec][text.."Drop"] == nil then BadBoy_data.options[bb.selectedSpec][text.."Drop"] = 1 end
+    local value = BadBoy_data.options[bb.selectedSpec][text.."Drop"]
     newDropdown:SetValue(value)
-    if BadBoy_data.options[GetSpecialization()][text.."Drop"] == nil then BadBoy_data.options[GetSpecialization()][text.."Drop"] = value end
+    if BadBoy_data.options[bb.selectedSpec][text.."Drop"] == nil then BadBoy_data.options[bb.selectedSpec][text.."Drop"] = value end
 
     newDropdown:SetEventListener('OnValueChanged', function(this, event, key, value, selection)
-        BadBoy_data.options[GetSpecialization()][text.."Drop"]  = key
-        BadBoy_data.options[GetSpecialization()][text.."DropValue"]  = value
+        BadBoy_data.options[bb.selectedSpec][text.."Drop"]  = key
+        BadBoy_data.options[bb.selectedSpec][text.."DropValue"]  = value
         bb.selectedProfile = key
         bb.ui:recreateWindows()
         bb.rotation_changed = true
@@ -631,11 +631,11 @@ function bb.ui:createSection(parent, sectionName, tooltip)
     newSection:SetParentObject(parent)
     newSection.settings.position = position
     newSection.settings.sectionName = sectionName
-    newSection.settings.expanded = BadBoy_data.options[GetSpecialization()][bb.selectedProfile][sectionName.."Section"]
+    newSection.settings.expanded = BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][sectionName.."Section"]
     --newSection.settings.contentPad = {0,0,12,32}
 
     newSection:SetEventListener('OnStateChange', function(this, event)
-       BadBoy_data.options[GetSpecialization()][bb.selectedProfile][sectionName.."Section"] = newSection.settings.expanded
+       BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][sectionName.."Section"] = newSection.settings.expanded
     end)
     -- Event: Tooltip
     if tooltip then
@@ -695,7 +695,7 @@ end
 
 -- Restore last saved state of section (collapsed or expanded)
 function bb.ui:checkSectionState(section)
-    local state = BadBoy_data.options[GetSpecialization()][bb.selectedProfile][section.settings.sectionName.."Section"]
+    local state = BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][section.settings.sectionName.."Section"]
 
     if state then
         section:Expand()
@@ -728,7 +728,7 @@ end
 -- TODO: BUG atm as it only saves state when uses via minimap icon, doesnt save if window is closed by clickin on X
 -- TODO: BUG on / off toggle doesnt behave correctly
 function bb:checkProfileWindowStatus()
-    if BadBoy_data.options[GetSpecialization()]["configFrame"] ~= true then
+    if BadBoy_data.options[bb.selectedSpec]["configFrame"] ~= true then
         if bb.ui.window.profile then
             bb.ui.window.profile.parent:Show()
             return true
@@ -742,18 +742,18 @@ function bb:checkProfileWindowStatus()
 end
 
 function bb:checkConfigWindowStatus()
-    if BadBoy_data.options[GetSpecialization()] then
-        if BadBoy_data.options[GetSpecialization()]["optionsFrame"] then
+    if BadBoy_data.options[bb.selectedSpec] then
+        if BadBoy_data.options[bb.selectedSpec]["optionsFrame"] then
             if bb.ui.window.config then
                 bb.ui.window.config.parent.closeButton:Click()
                 --optionsFrame:Hide()
-                BadBoy_data.options[GetSpecialization()]["optionsFrame"] = false
+                BadBoy_data.options[bb.selectedSpec]["optionsFrame"] = false
             end
         else
             if bb.ui.window.config then
                 bb.ui.window.config.parent:Show()
                 --optionsFrame:Show()
-                BadBoy_data.options[GetSpecialization()]["optionsFrame"] = true
+                BadBoy_data.options[bb.selectedSpec]["optionsFrame"] = true
             end
         end
     end
@@ -896,7 +896,7 @@ function bb.ui:createConfigWindow()
     })
 
     -- temp
-    if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()]["optionsFrame"] ~= true then
+    if BadBoy_data.options[bb.selectedSpec] and BadBoy_data.options[bb.selectedSpec]["optionsFrame"] ~= true then
         bb.ui.window.config.parent.closeButton:Click()
     end
 end

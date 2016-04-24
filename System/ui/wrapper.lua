@@ -18,7 +18,7 @@ function createWrapper(parent,value,x,y,wrapperRank)
 		-- texture part
 		_G[parent..value.."Wrapper"].texture = _G[parent..value.."Wrapper"]:CreateTexture(_G[parent..value.."Texture"],"ARTWORK",_G[parent..value.."Frame"])
 		_G[parent..value.."Wrapper"].texture:SetAllPoints()
-		if BadBoy_data.options[GetSpecialization()][value.."Wrapper"] == true then
+		if BadBoy_data.options[bb.selectedSpec][value.."Wrapper"] == true then
 			_G[parent..value.."Wrapper"].texture:SetTexture(100/255,100/255,100/255,BadBoy_data.BadBoyUI.optionsFrame.color.a)
 		else
 			_G[parent..value.."Wrapper"].texture:SetTexture(60/255,60/255,60/255,BadBoy_data.BadBoyUI.optionsFrame.color.a)
@@ -29,11 +29,11 @@ function createWrapper(parent,value,x,y,wrapperRank)
 		-- click event
 		_G[parent..value.."Wrapper"]:SetScript("OnClick",function(self)
 			-- if wrapper shown we need to know it
-			if BadBoy_data.options[GetSpecialization()][value.."Wrapper"] ~= true then
-				BadBoy_data.options[GetSpecialization()][value.."Wrapper"] = true
+			if BadBoy_data.options[bb.selectedSpec][value.."Wrapper"] ~= true then
+				BadBoy_data.options[bb.selectedSpec][value.."Wrapper"] = true
 				replaceWraps(parent,value)
 			else
-				BadBoy_data.options[GetSpecialization()][value.."Wrapper"] = false
+				BadBoy_data.options[bb.selectedSpec][value.."Wrapper"] = false
 				replaceWraps(parent,value)
 			end
 		end)
@@ -43,7 +43,7 @@ function createWrapper(parent,value,x,y,wrapperRank)
 		end)
 		-- leave event
 		_G[parent..value.."Wrapper"]:SetScript("OnLeave",function(self)
-			if BadBoy_data.options[GetSpecialization()][value.."Wrapper"] == true then
+			if BadBoy_data.options[bb.selectedSpec][value.."Wrapper"] == true then
 				_G[parent..value.."Wrapper"].texture:SetTexture(100/255,100/255,100/255,BadBoy_data.BadBoyUI.optionsFrame.color.a)
 			else
 				_G[parent..value.."Wrapper"].texture:SetTexture(60/255,60/255,60/255,BadBoy_data.BadBoyUI.optionsFrame.color.a)
@@ -61,7 +61,7 @@ function createWrapper(parent,value,x,y,wrapperRank)
 	end
 end
 function hideRow(parent,i)
-	local value = BadBoy_data.options[GetSpecialization()].profile[i].name
+	local value = BadBoy_data.options[bb.selectedSpec].profile[i].name
 	_G[parent..value.."Text"]:Hide()
 	if _G[parent..value.."Check"] then
 		_G[parent..value.."Check"]:Hide()
@@ -74,7 +74,7 @@ function hideRow(parent,i)
 	end
 end
 function showRow(parent,i)
-	local value = BadBoy_data.options[GetSpecialization()].profile[i].name
+	local value = BadBoy_data.options[bb.selectedSpec].profile[i].name
 	_G[parent..value.."Text"]:Show()
 	if _G[parent..value.."Check"] then
 		_G[parent..value.."Check"]:Show()
@@ -88,7 +88,7 @@ function showRow(parent,i)
 end
 function replaceRow(parent,ypos,i)
 	local scale = BadBoy_data.BadBoyUI.optionsFrame.scale or 1
-	local value = BadBoy_data.options[GetSpecialization()].profile[i].name
+	local value = BadBoy_data.options[bb.selectedSpec].profile[i].name
 	if _G[parent..value.."Wrapper"] then
 		_G[parent..value.."Wrapper"]:SetPoint("TOPLEFT",7*scale,((ypos*-(27*scale))+27)*scale)
 	end
@@ -106,7 +106,7 @@ function replaceRow(parent,ypos,i)
 	end
 end
 function replaceWraps(parent)
-	currentProfile = BadBoy_data.options[GetSpecialization()].profile
+	currentProfile = BadBoy_data.options[bb.selectedSpec].profile
 	local currentProfileName = currentProfile[1].name
 	local isShown = true
 	local shownRows = 0
@@ -124,9 +124,9 @@ function replaceWraps(parent)
 		-- replace all rows
 		replaceRow(parent,shownRows,i)
 		-- set hidden for next wraps
-		if BadBoy_data.options[GetSpecialization()][name.."Wrapper"] == true then
+		if BadBoy_data.options[bb.selectedSpec][name.."Wrapper"] == true then
 			isShown = true
-		elseif BadBoy_data.options[GetSpecialization()][name.."Wrapper"] == false then
+		elseif BadBoy_data.options[bb.selectedSpec][name.."Wrapper"] == false then
 			isShown = false
 		end
 	end

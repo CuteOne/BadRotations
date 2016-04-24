@@ -59,15 +59,15 @@ function bb:MinimapButton()
 	button:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-Background.blp")
 	button:SetScript("OnMouseDown",function(self, button)
 		if button == "RightButton" then
-			if BadBoy_data.options[GetSpecialization()] then
+			if BadBoy_data.options[bb.selectedSpec] then
 				if not FireHack then
 						print("|cffFF1100BadBoy |cffFFFFFFCannot Start... |cffFF1100Firehack |cffFFFFFFis not loaded. Please attach Firehack.")
 				else
                     if bb:checkProfileWindowStatus() then
-                        BadBoy_data.options[GetSpecialization()]["configFrame"] = true
+                        BadBoy_data.options[bb.selectedSpec]["configFrame"] = true
                         bb:checkProfileWindowStatus()
                     else
-                        BadBoy_data.options[GetSpecialization()]["configFrame"] = false
+                        BadBoy_data.options[bb.selectedSpec]["configFrame"] = false
                         bb:checkProfileWindowStatus()
                     end
 				end
@@ -97,13 +97,13 @@ function bb:MinimapButton()
 				end
 			elseif not IsShiftKeyDown() and not IsAltKeyDown() then
                 bb:checkConfigWindowStatus()
-				--if BadBoy_data.options[GetSpecialization()] then
-				--	if BadBoy_data.options[GetSpecialization()]["optionsFrame"] ~= true then
+				--if BadBoy_data.options[bb.selectedSpec] then
+				--	if BadBoy_data.options[bb.selectedSpec]["optionsFrame"] ~= true then
 				--		optionsFrame:Show()
-				--		BadBoy_data.options[GetSpecialization()]["optionsFrame"] = true
+				--		BadBoy_data.options[bb.selectedSpec]["optionsFrame"] = true
 				--	else
 				--		optionsFrame:Hide()
-				--		BadBoy_data.options[GetSpecialization()]["optionsFrame"] = false
+				--		BadBoy_data.options[bb.selectedSpec]["optionsFrame"] = false
 				--	end
 				--end
             end
@@ -165,39 +165,39 @@ end
 function bb:saveWindowPosition()
     -- Profile Window
     local point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.profile.parent:GetPoint(1)
-    BadBoy_data.options[GetSpecialization()]["configFrame".."_point"] = point
-    BadBoy_data.options[GetSpecialization()]["configFrame".."_relativeTo"] = relativeTo:GetName()
-    BadBoy_data.options[GetSpecialization()]["configFrame".."_relativePoint"] = relativePoint
-    BadBoy_data.options[GetSpecialization()]["configFrame".."_xOfs"] = xOfs
-    BadBoy_data.options[GetSpecialization()]["configFrame".."_yOfs"] = yOfs
+    BadBoy_data.options[bb.selectedSpec]["configFrame".."_point"] = point
+    BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativeTo"] = relativeTo:GetName()
+    BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativePoint"] = relativePoint
+    BadBoy_data.options[bb.selectedSpec]["configFrame".."_xOfs"] = xOfs
+    BadBoy_data.options[bb.selectedSpec]["configFrame".."_yOfs"] = yOfs
 
     point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.profile.parent:GetPoint(2)
-    BadBoy_data.options[GetSpecialization()]["configFrame".."_point2"] = point
-    BadBoy_data.options[GetSpecialization()]["configFrame".."_relativeTo2"] = relativeTo:GetName()
-    BadBoy_data.options[GetSpecialization()]["configFrame".."_relativePoint2"] = relativePoint
-    BadBoy_data.options[GetSpecialization()]["configFrame".."_xOfs2"] = xOfs
-    BadBoy_data.options[GetSpecialization()]["configFrame".."_yOfs2"] = yOfs
+    BadBoy_data.options[bb.selectedSpec]["configFrame".."_point2"] = point
+    BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativeTo2"] = relativeTo:GetName()
+    BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativePoint2"] = relativePoint
+    BadBoy_data.options[bb.selectedSpec]["configFrame".."_xOfs2"] = xOfs
+    BadBoy_data.options[bb.selectedSpec]["configFrame".."_yOfs2"] = yOfs
 
-    BadBoy_data.options[GetSpecialization()]["configFrame".."_width"]  = bb.ui.window.profile.parent:GetWidth()
-    BadBoy_data.options[GetSpecialization()]["configFrame".."_height"] = bb.ui.window.profile.parent:GetHeight()
+    BadBoy_data.options[bb.selectedSpec]["configFrame".."_width"]  = bb.ui.window.profile.parent:GetWidth()
+    BadBoy_data.options[bb.selectedSpec]["configFrame".."_height"] = bb.ui.window.profile.parent:GetHeight()
 
     -- Config Window
     point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.config.parent:GetPoint(1)
-    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_point"] = point
-    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativeTo"] = relativeTo:GetName()
-    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativePoint"] = relativePoint
-    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_xOfs"] = xOfs
-    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_yOfs"] = yOfs
+    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_point"] = point
+    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativeTo"] = relativeTo:GetName()
+    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativePoint"] = relativePoint
+    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_xOfs"] = xOfs
+    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_yOfs"] = yOfs
 
     point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.config.parent:GetPoint(2)
-    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_point2"] = point
-    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativeTo2"] = relativeTo:GetName()
-    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_relativePoint2"] = relativePoint
-    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_xOfs2"] = xOfs
-    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_yOfs2"] = yOfs
+    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_point2"] = point
+    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativeTo2"] = relativeTo:GetName()
+    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativePoint2"] = relativePoint
+    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_xOfs2"] = xOfs
+    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_yOfs2"] = yOfs
 
-    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_width"]  = bb.ui.window.config.parent:GetWidth()
-    BadBoy_data.options[GetSpecialization()]["optionsFrame".."_height"] = bb.ui.window.config.parent:GetHeight()
+    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_width"]  = bb.ui.window.config.parent:GetWidth()
+    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_height"] = bb.ui.window.config.parent:GetHeight()
 end
 
 function frame:OnEvent(event, arg1)
@@ -262,7 +262,7 @@ function BadBoyUpdate(self)
 	-- accept dungeon queues
 	bb:AcceptQueues()
 	--[[Class/Spec Selector]]
-    bb.selectedProfile = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"] or 1
+    bb.selectedProfile = BadBoy_data.options[bb.selectedSpec]["Rotation".."Drop"] or 1
 	local playerClass = select(3,UnitClass("player"))
 	local playerSpec = GetSpecialization()
 	if playerClass == 1 then -- Warrior

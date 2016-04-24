@@ -1105,7 +1105,7 @@ function getDistanceToObject(Unit1,X2,Y2,Z2)
 		Unit1 = "player"
 	end
 	if GetObjectExists(Unit1) and UnitIsVisible(Unit1) then
-		local X1,Y1 = GetObjectPosition(Unit1)
+		local X1,Y1,Z1 = GetObjectPosition(Unit1)
 		return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2))
 	else
 		return 100
@@ -2374,18 +2374,18 @@ function spellDebug(Message)
 end
 -- if isChecked("Debug") then
 function isChecked(Value,new)
-	--print(BadBoy_data.options[GetSpecialization()]["profile"..Value.."Check"])
+	--print(BadBoy_data.options[bb.selectedSpec]["profile"..Value.."Check"])
     --TEST
     new = true
     if new then
-        if BadBoy_data.options[GetSpecialization()] == nil or BadBoy_data.options[GetSpecialization()][bb.selectedProfile] == nil then return false end
-        if BadBoy_data.options[GetSpecialization()]
-        	and (BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Check"] == 1 or BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Check"] == true) 
+        if BadBoy_data.options[bb.selectedSpec] == nil or BadBoy_data.options[bb.selectedSpec][bb.selectedProfile] == nil then return false end
+        if BadBoy_data.options[bb.selectedSpec]
+        	and (BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Check"] == 1 or BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Check"] == true) 
         then
             return true
         end
     else
-        if BadBoy_data.options[GetSpecialization()] and (BadBoy_data.options[GetSpecialization()][Value.."Check"] == 1 or BadBoy_data.options[GetSpecialization()][Value.."Check"] == true) then
+        if BadBoy_data.options[bb.selectedSpec] and (BadBoy_data.options[bb.selectedSpec][Value.."Check"] == 1 or BadBoy_data.options[bb.selectedSpec][Value.."Check"] == true) then
             return true
         end
     end
@@ -2404,20 +2404,20 @@ end
 function getValue(Value,new)
     --TEST
     new = true
-	if BadBoy_data.options[GetSpecialization()] then
+	if BadBoy_data.options[bb.selectedSpec] then
         if new then
-            if BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Status"] ~= nil then
-                return BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Status"]
-            elseif BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Drop"] ~= nil then
-                return BadBoy_data.options[GetSpecialization()][bb.selectedProfile][Value.."Drop"]
+            if BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Status"] ~= nil then
+                return BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Status"]
+            elseif BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Drop"] ~= nil then
+                return BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Drop"]
             else
                 return 0
             end
         else
-            if BadBoy_data.options[GetSpecialization()][Value.."Status"] ~= nil then
-                return BadBoy_data.options[GetSpecialization()][Value.."Status"]
-            elseif BadBoy_data.options[GetSpecialization()][Value.."Drop"] ~= nil then
-                return BadBoy_data.options[GetSpecialization()][Value.."Drop"]
+            if BadBoy_data.options[bb.selectedSpec][Value.."Status"] ~= nil then
+                return BadBoy_data.options[bb.selectedSpec][Value.."Status"]
+            elseif BadBoy_data.options[bb.selectedSpec][Value.."Drop"] ~= nil then
+                return BadBoy_data.options[bb.selectedSpec][Value.."Drop"]
             else
                 return 0
             end
@@ -2427,16 +2427,16 @@ end
 -- used to gather informations from the bot options frame
 function getOptionCheck(Value)
     return isChecked(Value)
-	--if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()][Value.."Check"] == 1 then
+	--if BadBoy_data.options[bb.selectedSpec] and BadBoy_data.options[bb.selectedSpec][Value.."Check"] == 1 then
 	--	return true
 	--end
 end
 function getOptionValue(Value)
     return getValue(Value)
-	--if BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()][Value.."Status"] then
-	--	return BadBoy_data.options[GetSpecialization()][Value.."Status"]
-	--elseif BadBoy_data.options[GetSpecialization()] and BadBoy_data.options[GetSpecialization()][Value.."Drop"] then
-	--	return BadBoy_data.options[GetSpecialization()][Value.."Drop"]
+	--if BadBoy_data.options[bb.selectedSpec] and BadBoy_data.options[bb.selectedSpec][Value.."Status"] then
+	--	return BadBoy_data.options[bb.selectedSpec][Value.."Status"]
+	--elseif BadBoy_data.options[bb.selectedSpec] and BadBoy_data.options[bb.selectedSpec][Value.."Drop"] then
+	--	return BadBoy_data.options[bb.selectedSpec][Value.."Drop"]
 	--else
 	--	return 0
 	--end

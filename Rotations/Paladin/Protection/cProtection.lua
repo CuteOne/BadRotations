@@ -15,7 +15,7 @@ function cProtection:new()
         "Defmaster",
         "Cute",
     }
-    self.rotation = BadBoy_data.options[GetSpecialization()]["Rotation".."Drop"]
+    self.rotation = BadBoy_data.options[bb.selectedSpec]["Rotation".."Drop"]
     self.cast = {}
 	self.enemies = {
 		yards5,
