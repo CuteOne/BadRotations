@@ -1,7 +1,7 @@
 --- Protection Class
 -- Inherit from: ../cCharacter.lua and ../cPaladin.lua
 -- All Paladin specs inherit from cPaladin.lua
-if select(3, UnitClass("player")) == 2 and GetSpecialization() == 2 then
+if select(3, UnitClass("player")) == 2 then
 
 cProtection = {}
 

@@ -1,7 +1,7 @@
 -- SimC Rotation
 -- Based on Version: unknown
 -- Improved by Defmaster with T18 logic
-if select(3, UnitClass("player")) == 2 and GetSpecialization() == 2 then
+if select(3, UnitClass("player")) == 2 then
 
 function cProtection:protectionSimC()
 -- Locals

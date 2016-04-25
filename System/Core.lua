@@ -62,13 +62,14 @@ function bb:MinimapButton()
 			if BadBoy_data.options[bb.selectedSpec] then
 				if not FireHack then
 						print("|cffFF1100BadBoy |cffFFFFFFCannot Start... |cffFF1100Firehack |cffFFFFFFis not loaded. Please attach Firehack.")
-				else
-                    if bb:checkProfileWindowStatus() then
-                        BadBoy_data.options[bb.selectedSpec]["configFrame"] = true
-                        bb:checkProfileWindowStatus()
-                    else
-                        BadBoy_data.options[bb.selectedSpec]["configFrame"] = false
-                        bb:checkProfileWindowStatus()
+                else
+                    if bb.ui.window.profile.parent then
+                        if BadBoy_data.options[bb.selectedSpec]["configFrame"] == true then
+                            bb.ui.window.profile.parent.closeButton:Click()
+                        else
+                            bb.ui.window.profile.parent:Show()
+                            BadBoy_data.options[bb.selectedSpec]["configFrame"] = true
+                        end
                     end
 				end
 			end
@@ -96,16 +97,15 @@ function bb:MinimapButton()
 					mainButton:Show()
 				end
 			elseif not IsShiftKeyDown() and not IsAltKeyDown() then
-                bb:checkConfigWindowStatus()
-				--if BadBoy_data.options[bb.selectedSpec] then
-				--	if BadBoy_data.options[bb.selectedSpec]["optionsFrame"] ~= true then
-				--		optionsFrame:Show()
-				--		BadBoy_data.options[bb.selectedSpec]["optionsFrame"] = true
-				--	else
-				--		optionsFrame:Hide()
-				--		BadBoy_data.options[bb.selectedSpec]["optionsFrame"] = false
-				--	end
-				--end
+                if bb.ui.window.config.parent then
+                    if BadBoy_data.options[bb.selectedSpec]["optionsFrame"] == true then
+                        bb.ui.window.config.parent.closeButton:Click()
+                    else
+                        bb.ui.window.config.parent:Show()
+                        BadBoy_data.options[bb.selectedSpec]["optionsFrame"] = true
+                    end
+
+                end
             end
 		end
 	end)
@@ -162,42 +162,55 @@ function bb:characterEquipChanged()
         bb.equipHasChanged = true
     end
 end
-function bb:saveWindowPosition()
+function bb:saveProfileWindowPosition()
     -- Profile Window
-    local point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.profile.parent:GetPoint(1)
-    BadBoy_data.options[bb.selectedSpec]["configFrame".."_point"] = point
-    BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativeTo"] = relativeTo:GetName()
-    BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativePoint"] = relativePoint
-    BadBoy_data.options[bb.selectedSpec]["configFrame".."_xOfs"] = xOfs
-    BadBoy_data.options[bb.selectedSpec]["configFrame".."_yOfs"] = yOfs
+    if bb.ui.window.profile.parent then
+        local point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.profile.parent:GetPoint(1)
+        BadBoy_data.options[bb.selectedSpec]["configFrame".."_point"] = point
+        BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativeTo"] = relativeTo:GetName()
+        BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativePoint"] = relativePoint
+        BadBoy_data.options[bb.selectedSpec]["configFrame".."_xOfs"] = xOfs
+        BadBoy_data.options[bb.selectedSpec]["configFrame".."_yOfs"] = yOfs
 
-    point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.profile.parent:GetPoint(2)
-    BadBoy_data.options[bb.selectedSpec]["configFrame".."_point2"] = point
-    BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativeTo2"] = relativeTo:GetName()
-    BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativePoint2"] = relativePoint
-    BadBoy_data.options[bb.selectedSpec]["configFrame".."_xOfs2"] = xOfs
-    BadBoy_data.options[bb.selectedSpec]["configFrame".."_yOfs2"] = yOfs
+        point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.profile.parent:GetPoint(2)
+        if point then
+            BadBoy_data.options[bb.selectedSpec]["configFrame".."_point2"] = point
+            BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativeTo2"] = relativeTo:GetName()
+            BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativePoint2"] = relativePoint
+            BadBoy_data.options[bb.selectedSpec]["configFrame".."_xOfs2"] = xOfs
+            BadBoy_data.options[bb.selectedSpec]["configFrame".."_yOfs2"] = yOfs
+        end
 
-    BadBoy_data.options[bb.selectedSpec]["configFrame".."_width"]  = bb.ui.window.profile.parent:GetWidth()
-    BadBoy_data.options[bb.selectedSpec]["configFrame".."_height"] = bb.ui.window.profile.parent:GetHeight()
-
+        BadBoy_data.options[bb.selectedSpec]["configFrame".."_width"]  = bb.ui.window.profile.parent:GetWidth()
+        BadBoy_data.options[bb.selectedSpec]["configFrame".."_height"] = bb.ui.window.profile.parent:GetHeight()
+    end
+end
+function bb:saveConfigWindowPosition()
     -- Config Window
-    point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.config.parent:GetPoint(1)
-    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_point"] = point
-    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativeTo"] = relativeTo:GetName()
-    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativePoint"] = relativePoint
-    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_xOfs"] = xOfs
-    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_yOfs"] = yOfs
+    if bb.ui.window.config.parent then
+        local point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.config.parent:GetPoint(1)
+        BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_point"] = point
+        BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativeTo"] = relativeTo:GetName()
+        BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativePoint"] = relativePoint
+        BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_xOfs"] = xOfs
+        BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_yOfs"] = yOfs
 
-    point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.config.parent:GetPoint(2)
-    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_point2"] = point
-    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativeTo2"] = relativeTo:GetName()
-    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativePoint2"] = relativePoint
-    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_xOfs2"] = xOfs
-    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_yOfs2"] = yOfs
+        point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.config.parent:GetPoint(2)
+        if point then
+            BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_point2"] = point
+            BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativeTo2"] = relativeTo:GetName()
+            BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativePoint2"] = relativePoint
+            BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_xOfs2"] = xOfs
+            BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_yOfs2"] = yOfs
+        end
 
-    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_width"]  = bb.ui.window.config.parent:GetWidth()
-    BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_height"] = bb.ui.window.config.parent:GetHeight()
+        BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_width"]  = bb.ui.window.config.parent:GetWidth()
+        BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_height"] = bb.ui.window.config.parent:GetHeight()
+    end
+end
+function bb:saveWindowPosition()
+    bb:saveProfileWindowPosition()
+    bb:saveConfigWindowPosition()
 end
 
 function frame:OnEvent(event, arg1)
@@ -205,7 +218,15 @@ function frame:OnEvent(event, arg1)
 		bb:Run()
 	end
 	if event == "ACTIVE_TALENT_GROUP_CHANGED" then
-        bb:reloadOnSpecChange() -- Reloads UI when spec changed, prevents some bugs
+        -- Closing the windows will save the position
+        bb.ui.window.config.parent.closeButton:Click()
+        bb.ui.window.profile.parent.closeButton:Click()
+
+        -- Update Selected Spec
+        bb.selectedSpec = GetSpecialization()--bb:reloadOnSpecChange() -- Reloads UI when spec changed, prevents some bugs
+
+        -- Recreate ConfigWindow with new Spec
+        bb.ui:createConfigWindow()
     end
     if event == "CHARACTER_POINTS_CHANGED" and arg1 == -1 then
         bb:characterTalentChanged() -- Sets a global to indicate a talent was changed

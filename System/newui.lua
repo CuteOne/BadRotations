@@ -282,6 +282,15 @@ function bb.ui:createWindow(name, width, height)
     window.frame:SetClampedToScreen(true)
     window:ApplySettings()
 
+    window.closeButton:SetScript("OnClick", function(this, button)
+        bb:saveConfigWindowPosition()
+        BadBoy_data.options[bb.selectedSpec]["optionsFrame"] = false
+        DiesalGUI:OnMouse(this,button)
+        PlaySound("gsTitleOptionExit")
+        window:FireEvent("OnClose")
+        window:Hide()
+    end)
+
     local scrollFrame = DiesalGUI:Create('ScrollFrame')
     window:AddChild(scrollFrame)
     scrollFrame:SetParent(window.content)
@@ -319,6 +328,15 @@ function bb.ui:createProfileWindow(name, width, height)
     window.settings.header = true
     window.frame:SetClampedToScreen(true)
     window:ApplySettings()
+
+    window.closeButton:SetScript("OnClick", function(this, button)
+        bb:saveProfileWindowPosition()
+        BadBoy_data.options[bb.selectedSpec]["configFrame"] = false
+        DiesalGUI:OnMouse(this,button)
+        PlaySound("gsTitleOptionExit")
+        window:FireEvent("OnClose")
+        window:Hide()
+    end)
 
     local scrollFrame = DiesalGUI:Create('ScrollFrame')
     window:AddChild(scrollFrame)
@@ -573,7 +591,7 @@ end
 function bb.ui:createDropdownWithout(parent, text, itemlist, default, tooltip, tooltipDrop)
     return bb.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, true)
 end
-
+-- todo: dd
 function bb.ui:createRotationDropdown(parent, itemlist, tooltip)
     local newDropdown = DiesalGUI:Create('DropdownBB')
     local parent = parent
@@ -584,15 +602,30 @@ function bb.ui:createRotationDropdown(parent, itemlist, tooltip)
 
     newDropdown:SetList(itemlist)
 
-    if BadBoy_data.options[bb.selectedSpec][text.."Drop"] == nil then BadBoy_data.options[bb.selectedSpec][text.."Drop"] = 1 end
+    -- Set selected profile to 1 if not found
+    if BadBoy_data.options[bb.selectedSpec][text.."Drop"] == nil then
+        BadBoy_data.options[bb.selectedSpec][text.."Drop"] = 1
+    elseif BadBoy_data.options[bb.selectedSpec][text.."Drop"] > #itemlist then
+        --[[ Rest the profile which is no longer found
+             If someone adds a profile then the old options from profile befopre would be loaded
+        --]]
+        local notFoundProfile = BadBoy_data.options[bb.selectedSpec][text.."Drop"]
+        BadBoy_data.options[bb.selectedSpec][notFoundProfile] = {}
+
+        BadBoy_data.options[bb.selectedSpec][text.."Drop"] = 1
+        print("BadBoy: Selected profile not found fallback to profile 1.")
+    end
+
     local value = BadBoy_data.options[bb.selectedSpec][text.."Drop"]
+    bb.selectedProfile = value
+    bb.selectedProfileName = itemlist[value]
     newDropdown:SetValue(value)
-    if BadBoy_data.options[bb.selectedSpec][text.."Drop"] == nil then BadBoy_data.options[bb.selectedSpec][text.."Drop"] = value end
 
     newDropdown:SetEventListener('OnValueChanged', function(this, event, key, value, selection)
         BadBoy_data.options[bb.selectedSpec][text.."Drop"]  = key
         BadBoy_data.options[bb.selectedSpec][text.."DropValue"]  = value
         bb.selectedProfile = key
+        bb.selectedProfileName = value
         bb.ui:recreateWindows()
         bb.rotation_changed = true
     end)
@@ -631,7 +664,8 @@ function bb.ui:createSection(parent, sectionName, tooltip)
     newSection:SetParentObject(parent)
     newSection.settings.position = position
     newSection.settings.sectionName = sectionName
-    newSection.settings.expanded = BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][sectionName.."Section"]
+    if BadBoy_data.options[bb.selectedSpec][bb.selectedProfile] == nil then BadBoy_data.options[bb.selectedSpec][bb.selectedProfile] = {} end
+    newSection.settings.expanded = BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][sectionName.."Section"] or true
     --newSection.settings.contentPad = {0,0,12,32}
 
     newSection:SetEventListener('OnStateChange', function(this, event)
@@ -728,33 +762,32 @@ end
 -- TODO: BUG atm as it only saves state when uses via minimap icon, doesnt save if window is closed by clickin on X
 -- TODO: BUG on / off toggle doesnt behave correctly
 function bb:checkProfileWindowStatus()
-    if BadBoy_data.options[bb.selectedSpec]["configFrame"] ~= true then
-        if bb.ui.window.profile then
+    if BadBoy_data.options[bb.selectedSpec]["configFrame"] == true or BadBoy_data.options[bb.selectedSpec]["configFrame"] == nil then
+        if bb.ui.window.profile.parent then
             bb.ui.window.profile.parent:Show()
-            return true
+            return
+        else
+            print("No profile window defined!")
         end
     else
-        if bb.ui.window.profile then
+        if bb.ui.window.profile.parent then
             bb.ui.window.profile.parent.closeButton:Click()
-            return false
+            return
+        else
+            print("No profile window defined!")
         end
     end
 end
-
 function bb:checkConfigWindowStatus()
-    if BadBoy_data.options[bb.selectedSpec] then
-        if BadBoy_data.options[bb.selectedSpec]["optionsFrame"] then
-            if bb.ui.window.config then
-                bb.ui.window.config.parent.closeButton:Click()
-                --optionsFrame:Hide()
-                BadBoy_data.options[bb.selectedSpec]["optionsFrame"] = false
-            end
-        else
-            if bb.ui.window.config then
-                bb.ui.window.config.parent:Show()
-                --optionsFrame:Show()
-                BadBoy_data.options[bb.selectedSpec]["optionsFrame"] = true
-            end
+    if BadBoy_data.options[bb.selectedSpec]["optionsFrame"] == true or BadBoy_data.options[bb.selectedSpec]["optionsFrame"] == nil then
+        if bb.ui.window.config.parent then
+            bb.ui.window.config.parent:Show()
+            return
+        end
+    else
+        if bb.ui.window.config.parent then
+            bb.ui.window.config.parent.closeButton:Click()
+            return
         end
     end
 end
@@ -815,7 +848,9 @@ function bb.ui:createConfigWindow()
     local function callGeneral()
         -- General
         section = bb.ui:createSection(bb.ui.window.config, "General")
-        bb.ui:createCheckbox(section, "Start/Stop BadBoy", "Uncheck to prevent BadBoy pulsing.")
+        -- As you should use the toggle to stop, i (defmaster) just activated this toggle default and made it non interactive
+        local startStop = bb.ui:createCheckbox(section, "Start/Stop BadBoy", "Uncheck to prevent BadBoy pulsing.");
+        startStop:SetChecked(true); BadBoy_data.options[bb.selectedSpec][bb.selectedProfile]["Start/Stop BadBoyCheck"] = true; startStop.frame:Disable()
         bb.ui:createCheckbox(section, "Debug Frame", "Display Debug Frame.")
         bb.ui:createCheckbox(section, "Display Failcasts", "Dispaly Failcasts in Debug.")
         bb.ui:createCheckbox(section, "Queue Casting", "Allow Queue Casting on some profiles.")
@@ -896,9 +931,10 @@ function bb.ui:createConfigWindow()
     })
 
     -- temp
-    if BadBoy_data.options[bb.selectedSpec] and BadBoy_data.options[bb.selectedSpec]["optionsFrame"] ~= true then
-        bb.ui.window.config.parent.closeButton:Click()
-    end
+    --if BadBoy_data.options[bb.selectedSpec] and BadBoy_data.options[bb.selectedSpec]["optionsFrame"] ~= true then
+    --    bb.ui.window.config.parent.closeButton:Click()
+    --end
+    bb:checkConfigWindowStatus()
 end
 
 -- TODO: create new debug frame
