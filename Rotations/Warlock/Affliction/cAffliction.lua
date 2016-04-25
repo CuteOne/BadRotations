@@ -1,7 +1,7 @@
 --- Affliction Class
 -- Inherit from: ../cCharacter.lua and ../cWarlock.lua
 -- All Warlock specs inherit from cWarlock.lua
-if select(3, UnitClass("player")) == 9 and GetSpecialization() == 1 then
+if select(3, UnitClass("player")) == 9 then
 cAffliction = {}
 
 -- Creates Shadow Priest

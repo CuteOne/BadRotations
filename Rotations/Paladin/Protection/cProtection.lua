@@ -81,7 +81,7 @@ function cProtection:new()
 
 		-- Casting and GCD check
 		-- TODO: -> does not use off-GCD stuff like pots, dp etc
-		if UnitCastingInfo("player") ~= nil or UnitChannelInfo("player") ~= nil then
+		if UnitCastingInfo("player") ~= nil or UnitChannelInfo("player") ~= nil or pause() then
 			return
 		end
 
