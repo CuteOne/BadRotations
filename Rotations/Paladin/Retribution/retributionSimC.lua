@@ -1,7 +1,7 @@
 -- SimC Rotation
 -- Based on Version: 6.2.0 r1
 -- Released on 23 Jun 2015
-if select(3, UnitClass("player")) == 2 and GetSpecialization() == 3 then
+if select(3, UnitClass("player")) == 2 then
 
 function cRetribution:retributionSimC()
 -- Locals

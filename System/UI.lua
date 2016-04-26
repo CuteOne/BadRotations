@@ -315,6 +315,7 @@ function BadBoyFrame()
 	-- /run CreateButton("AoE",2,2)
 	function CreateButton(Name,x,y)
 		local Icon
+        -- todo: extend to use spec + profile specific variable; ATM it shares between profile AND spec, -> global for char
 		if BadBoy_data[Name] == nil or BadBoy_data[Name] > #_G[Name.."Modes"] then BadBoy_data[Name] = 1 end
 		tinsert(buttonsTable, { name = Name, bx = x, by = y })
 		_G["button"..Name] = CreateFrame("Button", "MyButton", mainButton, "SecureHandlerClickTemplate")

@@ -2147,7 +2147,9 @@ function SpecificToggle(toggle)
     end
 end
 -- if pause() then
-function pause()
+-- set skipCastingCheck to true, to not check if player is casting
+-- (useful if you want to use off-cd stuff, or spells which can be cast while other is casting)
+function pause(skipCastingCheck)
 	if SpecificToggle("Pause Mode") == nil or getValue("Pause Mode") == 6 then
 		pausekey = IsLeftAltKeyDown()
 	else
@@ -2171,13 +2173,13 @@ function pause()
 			end
 		end
 	end
-	if (pausekey and GetCurrentKeyBoardFocus() == nil)
+	if (pausekey and GetCurrentKeyBoardFocus() == nil and isChecked("Pause Mode"))
 		or profileStop
 		or (IsMounted() and getUnitID("target") ~= 56877 and not UnitBuffID("player",164222) and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) and not UnitBuffID("player",157060))
 		or SpellIsTargeting()
 		or (not UnitCanAttack("player","target") and not UnitIsPlayer("target") and UnitExists("target"))
-		or UnitCastingInfo("player")
-		or UnitChannelInfo("player")
+		or (UnitCastingInfo("player") and not skipCastingCheck)
+		or (UnitChannelInfo("player") and not skipCastingCheck)
 		or UnitIsDeadOrGhost("player")
 		or (UnitIsDeadOrGhost("target") and not UnitIsPlayer("target"))
 		or UnitBuffID("player",80169) -- Eating

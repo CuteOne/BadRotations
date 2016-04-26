@@ -6,7 +6,7 @@ cCharacter = {}
 -- Creates new character with given class
 function cCharacter:new(class)
 	local self = {}
-
+    self.rotations = {}
 	self.profile        = "None"    -- Spec
 	self.class          = class     -- Class
 	self.buff           = {}        -- Buffs
@@ -251,11 +251,19 @@ function cCharacter:new(class)
         self.rotation = bb.selectedProfile
 
         if bb.rotation_changed then
-            self.createToggles()
             self.createOptions()
+            self.createToggles()
+            bb.ui.window.profile.parent:Show()
 
             bb.rotation_changed = false
         end
+    end
+
+-- Start the rotation or return if pause
+    function self.startRotation()
+        -- dont check if player is casting to allow off-cd usage and cast while other spell is casting
+        if pause(true) then return end
+        self.rotations[bb.selectedProfile].run()
     end
 
 -- Updates special Equipslots

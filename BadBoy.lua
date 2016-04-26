@@ -64,9 +64,6 @@ function bb:Run()
 	}
 	-- load common used stuff on first load
 	-- options table that will hold specs subtable
-	if BadBoy_data.options[5] == nil then
-    	BadBoy_data.options = nil
-    end
 	if BadBoy_data.options == nil then
 		BadBoy_data.options = {}
 		BadBoy_data.options[1] = {}
@@ -74,6 +71,9 @@ function bb:Run()
 		BadBoy_data.options[3] = {}
 		BadBoy_data.options[4] = {}
 		BadBoy_data.options[5] = {}
+    end
+    if BadBoy_data.options[5] == nil then
+        BadBoy_data.options = nil
     end
     if GetSpecialization() == nil then
     	bb.selectedSpec = 5
