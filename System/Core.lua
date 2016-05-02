@@ -287,12 +287,14 @@ function BadBoyUpdate(self)
 	local playerClass = select(3,UnitClass("player"))
 	local playerSpec = GetSpecialization()
 	if playerClass == 1 then -- Warrior
-		if playerSpec == 2 then
+		if playerSpec == 1 then
+			ArmsWarrior()
+		elseif playerSpec == 2 then
 			FuryWarrior()
 		elseif playerSpec == 3 then
 			ProtectionWarrior()
 		else
-			ArmsWarrior()
+			NewWarrior()
 		end
 	elseif playerClass == 2 then -- Paladin
 		if playerSpec == 1 then
@@ -301,62 +303,68 @@ function BadBoyUpdate(self)
 			PaladinProtection()
 		elseif playerSpec == 3 then
 			PaladinRetribution()
+		else
+			NewPaladin()
 		end
 	elseif playerClass == 3 then -- Hunter
 		if playerSpec == 1 then
 			BeastHunter()
 		elseif playerSpec == 2 then
 			MarkHunter()
-		else
+		elseif playerSpec == 3 then
 			SurvHunter()
+		else
+			NewHunter()
 		end
 	elseif playerClass == 4 then -- Rogue
-		if playerSpec == nil then
-			NewRogue()
-		end
 		if playerSpec == 1 then
 			AssassinationRogue()
 		elseif playerSpec == 2 then
 			CombatRogue()
 		elseif playerSpec == 3 then
 			SubRogue()
+		else
+			NewRogue()
 		end
 	elseif playerClass == 5 then -- Priest
-		if playerSpec == 3 then
-			PriestShadow()
-		end
 		if playerSpec == 1 then
 			PriestDiscipline()
+		elseif playerSpec == 2 then
+			PriestHoly()
+		elseif playerSpec == 3 then
+			PriestShadow()
+		else
+			NewPriest()
 		end
 	elseif playerClass == 6 then -- Deathknight
 		if playerSpec == 1 then
 			Blood()
-		end
-		if playerSpec == 2 then
+		elseif playerSpec == 2 then
 			FrostDK()
-		end
-		if playerSpec == 3 then
+		elseif playerSpec == 3 then
 			UnholyDK()
+		else
+			return true
 		end
 	elseif playerClass == 7 then -- Shaman
 		if playerSpec == 1 then
 			ShamanElemental()
-		end
-		if playerSpec == 2 then
+		elseif playerSpec == 2 then
 			ShamanEnhancement()
-		end
-		if playerSpec == 3 then
+		elseif playerSpec == 3 then
 			ShamanRestoration()
+		else
+			NewShaman()
 		end
 	elseif playerClass == 8 then -- Mage
 		if playerSpec == 1 then
 			ArcaneMage()
-		end
-		if playerSpec == 2 then
+		elseif playerSpec == 2 then
 			FireMage()
-		end
-		if playerSpec == 3 then
+		elseif playerSpec == 3 then
 			FrostMage()
+		else
+			NewMage()
 		end
 	elseif playerClass == 9 then -- Warlock
 		if playerSpec == 1 then
@@ -365,30 +373,30 @@ function BadBoyUpdate(self)
 			WarlockDemonology()
 		elseif playerSpec == 3 then
 			DestructionWarlock()
+		else
+			NewWarlock()
 		end
 	elseif playerClass == 10 then -- Monk
-		if playerSpec == nil then
-			NewMonk()
-		end
 		if playerSpec == 1 then
 			BrewmasterMonk()
 		elseif playerSpec == 2 then
-			MistweaverMonk();
+			MistweaverMonk()
 		elseif playerSpec == 3 then
 			WindwalkerMonk()
+		else
+			NewMonk()
 		end
 	elseif playerClass == 11 then -- Druid
 		if playerSpec == 1 then
 			DruidMoonkin()
-		end
-		if playerSpec == 2 then
+		elseif playerSpec == 2 then
 			DruidFeral()
-		end
-		if playerSpec == 3 then
+		elseif playerSpec == 3 then
 			DruidGuardian()
-		end
-		if playerSpec == 4 then
+		elseif playerSpec == 4 then
 			DruidRestoration()
+		else
+			NewDruid()
 		end
 	end
 end

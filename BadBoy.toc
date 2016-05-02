@@ -133,6 +133,7 @@ Rotations\Druid\Restoration\Libs\Functions.lua
 Rotations\Druid\Restoration\Libs\Toggles.lua
 
 Rotations\Druid\SpellList.lua
+Rotations\Druid\NewDruid.lua
 
 ## Hunter ---------------------------------------------------
 Rotations\Hunter\Beastmaster\Beastmaster.lua
@@ -152,6 +153,7 @@ Rotations\Hunter\Survival\Toggles.lua
 
 Rotations\Hunter\SpellList.lua
 Rotations\Hunter\Functions.lua
+Rotations\Hunter\NewHunter.lua
 
 ## Mage ---------------------------------------------------
 Rotations\Mage\Frost.lua
@@ -161,6 +163,7 @@ Rotations\Mage\Options.lua
 Rotations\Mage\Functions.lua
 Rotations\Mage\SpellList.lua
 Rotations\Mage\Toggles.lua
+Rotations\Mage\NewMage.lua
 
 ## Monk ---------------------------------------------------
 Rotations\Monk\cMonk.lua
@@ -181,6 +184,7 @@ Rotations\Monk\Mistweaver\TogglesKuu.lua
 Rotations\Monk\Mistweaver\OptionsKuu.lua
 Rotations\Monk\Mistweaver\Functions.lua
 
+Rotations\Monk\SpellList.lua
 Rotations\Monk\Brewmaster.lua
 Rotations\Monk\Mistweaver.lua
 Rotations\Monk\NewMonk.lua
@@ -219,9 +223,9 @@ Rotations\Paladin\Retribution\Libs\Toggles.lua
 Rotations\Paladin\SpellList.lua
 Rotations\Paladin\Functions.lua
 Rotations\Paladin\Options.lua
+Rotations\Paladin\NewPaladin.lua
 
 ## Priest ---------------------------------------------------
-
 Rotations\Priest\cPriest.lua
 Rotations\Priest\Shadow\cShadow.lua
 Rotations\Priest\Shadow\libs\cBossHelperT17.lua
@@ -232,13 +236,12 @@ Rotations\Priest\Shadow\libs\shadowRavens.lua
 Rotations\Priest\Shadow\libs\shadowSimC.lua
 Rotations\Priest\Shadow\libs\Toggles.lua
 
-
-
 Rotations\Priest\Discipline\Discipline.lua
 Rotations\Priest\Discipline\libs\Functions.lua
 Rotations\Priest\Discipline\libs\Options.lua
 Rotations\Priest\Discipline\libs\Toggles.lua
 
+Rotations\Priest\NewPriest.lua
 
 ## Rogue ---------------------------------------------------
 Rotations\Rogue\cRogue.lua
@@ -297,6 +300,7 @@ Rotations\Shaman\Restoration\Libs\Options.lua
 Rotations\Shaman\Restoration\Libs\Toggles.lua
 
 Rotations\Shaman\SpellList.lua
+Rotations\Shaman\NewShaman.lua
 
 ## Warrior ---------------------------------------------------
 Rotations\Warrior\cWarrior.lua
@@ -324,6 +328,8 @@ Rotations\Warrior\Protection\Libs\Functions.lua
 Rotations\Warrior\Protection\Libs\Options.lua
 Rotations\Warrior\Protection\Libs\Toggles.lua
 
+Rotations\Warrior\NewWarrior.lua
+
 ## Warlock ---------------------------------------------------
 Rotations\Warlock\cWarlock.lua
 
@@ -346,6 +352,8 @@ Rotations\Warlock\Destruction\DestructionTest.lua
 Rotations\Warlock\Destruction\Libs\Functions.lua
 Rotations\Warlock\Destruction\Libs\Options.lua
 Rotations\Warlock\Destruction\Libs\Toggles.lua
+
+Rotations\Warlock\NewWarlock.lua
 
 ## PokeRotation
 Rotations\PokeRotation\PokeAbilities.lua
