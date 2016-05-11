@@ -182,6 +182,7 @@ function cCharacter:new(class)
 	end
 
 -- Updates toggle data
+    -- TODO: here should only happen generic ones like Defensive etc.
 	function self.getToggleModes()
 		local BadBoy_data   = BadBoy_data
 		-- Paladin:
