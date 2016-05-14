@@ -226,10 +226,10 @@ function bb.read.combatLog()
           ripApplied = ripApplied or {}
           rakeApplied = rakeApplied or {}
           if spell == 1079 and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") then
-            ripApplied[thisUnit] = FeralCuteOne.getSnapshotValue("rip")
+            ripApplied[thisUnit] = bb.player.getSnapshotValue("rip")
           end
           if spell == 155722 and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") then
-            rakeApplied[thisUnit] = FeralCuteOne.getSnapshotValue("rake")
+            rakeApplied[thisUnit] = bb.player.getSnapshotValue("rake")
           end
         end
       elseif (not UnitAffectingCombat("player")) and (not IsEncounterInProgress()) then

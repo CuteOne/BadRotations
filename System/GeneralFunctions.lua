@@ -2146,6 +2146,15 @@ function SpecificToggle(toggle)
         return false
     end
 end
+
+function UpdateToggle(toggle,delay)
+	--if toggle == nil then toggle = "toggle" end
+	if _G[toggle.."Timer"] == nil then _G[toggle.."Timer"] = 0; end
+    if SpecificToggle(toggle.." Mode") and not GetCurrentKeyBoardFocus() and GetTime() - _G[toggle.."Timer"] > delay then
+        _G[toggle.."Timer"] = GetTime()
+        UpdateButton(tostring(toggle))
+    end
+end
 -- if pause() then
 -- set skipCastingCheck to true, to not check if player is casting
 -- (useful if you want to use off-cd stuff, or spells which can be cast while other is casting)
@@ -2237,15 +2246,16 @@ function spellDebug(Message)
 end
 -- if isChecked("Debug") then
 function isChecked(Value)
-	--print(BadBoy_data.options[bb.selectedSpec]["profile"..Value.."Check"])
-    if BadBoy_data.options[bb.selectedSpec] == nil or BadBoy_data.options[bb.selectedSpec][bb.selectedProfile] == nil then return false end
+	if BadBoy_data~=nil then
+		--print(BadBoy_data.options[bb.selectedSpec]["profile"..Value.."Check"])
+	    if BadBoy_data.options[bb.selectedSpec] == nil or BadBoy_data.options[bb.selectedSpec][bb.selectedProfile] == nil then return false end
 
-    if BadBoy_data.options[bb.selectedSpec]
-        and (BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Check"] == 1 or BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Check"] == true)
-    then
-        return true
-    end
-
+	    if BadBoy_data.options[bb.selectedSpec]
+	        and (BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Check"]==1 or BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Check"] == true)
+	    then
+	        return true
+	    end
+	end
     return false
 end
 -- if isSelected("Stormlash Totem") then
@@ -2257,14 +2267,18 @@ function isSelected(Value)
 end
 -- if getValue("player") <= getValue("Eternal Flame") then
 function getValue(Value)
-	if BadBoy_data.options[bb.selectedSpec] then
-        if BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Status"] ~= nil then
-            return BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Status"]
-        elseif BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Drop"] ~= nil then
-            return BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Drop"]
-        else
-            return 0
-        end
+	if BadBoy_data~=nil then
+		if BadBoy_data.options[bb.selectedSpec][bb.selectedProfile]~=nil then
+	        if BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Status"] ~= nil then
+	            return BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Status"]
+	        elseif BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Drop"] ~= nil then
+	            return BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Drop"]
+	        else
+	            return 0
+	        end
+		end
+	else
+		return 0
 	end
 end
 -- used to gather informations from the bot options frame
