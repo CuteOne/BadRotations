@@ -485,22 +485,6 @@ if select(2, UnitClass("player")) == "DRUID" then
             self.mode.defensive = BadBoy_data["Defensive"]
         end
 
-    -- ----------------------
-    -- --- START ROTATION ---
-    -- ----------------------
-
-    --     function self.startRotation()
-    --     	if self.rotation == 1 then
-    --             self:FeralCuteOne()
-    --         elseif self.rotation == 2 then
-    --             self:OLDFeral()
-    --         elseif self.rotation == 3 then
-    --             ChatOverlay("No Rotation Selected!")
-    --         else
-    --             ChatOverlay("No ROTATION ?!", 2000)
-    --         end
-    --     end
-
     ---------------
     --- OPTIONS ---
     ---------------
@@ -741,7 +725,6 @@ if select(2, UnitClass("player")) == "DRUID" then
     -----------------------------
 
         self.createOptions()
-
 
         -- Return
         return self

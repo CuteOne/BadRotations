@@ -172,7 +172,6 @@ if select(2, UnitClass("player")) == "DRUID" then
 		function self.classUpdate()
 			-- Call baseUpdate()
 			self.baseUpdate()
-			-- self.getClassOptions()
 			self.getClassDynamicUnits()
 			self.getClassBuffs()
 			self.getClassBuffsRemain()
@@ -420,16 +419,13 @@ if select(2, UnitClass("player")) == "DRUID" then
 	--- OPTIONS ---
 	---------------
 
-		-- -- Class options
-		-- -- Options which every Druid should have
-		-- function self.createClassOptions()
-  --           -- Create Base Options
-  --           self.createBaseOptions()
-
-  --           -- Class Wrap
-  --           local section = bb.ui:createSection(bb.ui.window.profile,  "Class Options", "Nothing")
-  --           bb.ui:checkSectionState(section)
-		-- end
+		-- Class options
+		-- Options which every Druid should have
+		function self.createClassOptions()
+            -- Class Wrap
+            local section = bb.ui:createSection(bb.ui.window.profile,  "Class Options", "Nothing")
+            bb.ui:checkSectionState(section)
+		end
 
 	--------------
 	--- SPELLS ---
