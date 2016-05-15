@@ -431,35 +431,8 @@ function canRun()
 end
 -- if canUse(1710) then
 function canUse(itemID)
-	local Pot = getHealthPot()
-	local goOn = true
-	local DPSPotionsSet = {
-		[1] = {Buff = 105702, Item = 76093}, -- Int
-		[2] = {Buff = 156423, Item = 109217}, -- Agi - Draenor
-		[3] = {Buff = 105706, Item = 76095}, -- Str
-		[4] = {Buff = nil,    Item = 5512}, --Healthstone
-		[5] = {Buff = nil,    Item = Pot}, --Healing Pot
-	}
 	if itemID==0 then return false end
-	for i = 1, #DPSPotionsSet do
-		if DPSPotionsSet[i].Item == itemID then
-			if potionUsed then
-				if potionUsed <= GetTime() - 60000 then
-					goOn = false
-				else
-					if potionUsed > GetTime() - 60000 and potionReuse == true then
-						goOn = true
-					end
-					if potionReuse == false then
-						goOn = false
-					end
-				end
-			end
-		else
-			goOn = true
-		end
-	end
-	if goOn == true and (GetItemCount(itemID,false,false) > 0 or PlayerHasToy(itemID) or itemID<19) then
+	if (GetItemCount(itemID,false,false) > 0 or PlayerHasToy(itemID) or itemID<19) then
 		if itemID<=19 then
 			if GetItemSpell(GetInventoryItemID("player",itemID))~=nil then 
 				local slotItemID = GetInventoryItemID("player",itemID)
@@ -715,6 +688,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 							if getOptionCheck("Start/Stop BadBoy") then
 								mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
 								lastSpellCast = SpellID
+								lastSpellTarget = UnitGUID(Unit)
 							end
 							return true
 						end
@@ -725,6 +699,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 					if getOptionCheck("Start/Stop BadBoy") then
 						mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
 						lastSpellCast = SpellID
+						lastSpellTarget = UnitGUID(Unit)
 					end
 					return true
 				end
@@ -1578,6 +1553,21 @@ function hasBloodLust()
 		return false
 	end
 end
+-- if hasEmptySlots() then
+function hasEmptySlots()
+	local openSlots = 0
+	for i = 0, 4 do --Let's look at each bag
+		local numBagSlots = GetContainerNumSlots(i)
+		if numBagSlots>0 then -- Only look for slots if bag present
+			openSlots = openSlots + select(1,GetContainerNumFreeSlots(i))
+		end
+	end
+	if openSlots>0 then
+		return true
+	else
+		return false
+	end
+end
 -- if hasGlyph(1234) == true then
 function hasGlyph(glyphid)
 	for i=1,6 do
@@ -1586,6 +1576,22 @@ function hasGlyph(glyphid)
 		end
 	end
 	return false
+end
+-- if hasItem(1234) == true then
+function hasItem(itemID)
+	local itemFound = false
+	for i = 0, 4 do --Let's look at each bag
+		local numBagSlots = GetContainerNumSlots(i)
+		if numBagSlots>0 then -- Only look for slots if bag present
+			for x = 1, numBagSlots do --Let's look at each bag slot
+				local bagItemID = GetContainerItemID(i,x)
+				if tostring(bagItemID)==tostring(itemID) then
+					itemFound = true
+				end
+			end
+		end
+	end
+	return itemFound
 end
 -- if hasNoControl(12345) == true then
 function hasNoControl(spellID,unit)
@@ -2292,35 +2298,38 @@ end
 function healthPotTable()
 	healthPot = { }
 	for i = 0, 4 do --Let's look at each bag
-		for x = 1, GetContainerNumSlots(i) do --Let's look at each bag slot
-			local itemID = GetContainerItemID(i,x)
-			if itemID~=nil then
-				local ItemName = select(1,GetItemInfo(itemID))
-				local MinLevel = select(5,GetItemInfo(itemID))
-				local ItemType = select(7,GetItemInfo(itemID))
-				local ItemEffect = select(1,GetItemSpell(itemID))
-				if ItemType == select(7,GetItemInfo(2459)) then
-					if strmatch(ItemEffect,strmatch(tostring(select(1,GetItemSpell(76097))),"%a+")) then
-						local ItemCount = GetItemCount(itemID)
-						local ItemCooldown = GetItemCooldown(itemID)
-						if MinLevel<=UnitLevel("player") and ItemCooldown == 0 then
-							table.insert(healthPot,
-								{
-									item = itemID,
-									itemName = ItemName,
-									minLevel = MinLevel,
-									itemType = ItemType,
-									itemEffect = ItemEffect,
-									itemCount = ItemCount
-								}
-							)
+		local numBagSlots = GetContainerNumSlots(i)
+		if numBagSlots>0 then
+			for x = 1, numBagSlots do --Let's look at each bag slot
+				local itemID = GetContainerItemID(i,x)
+				if itemID~=nil then
+					local ItemName = select(1,GetItemInfo(itemID))
+					local MinLevel = select(5,GetItemInfo(itemID))
+					local ItemType = select(7,GetItemInfo(itemID))
+					local ItemEffect = select(1,GetItemSpell(itemID))
+					if ItemType == select(7,GetItemInfo(2459)) then
+						if strmatch(ItemEffect,strmatch(tostring(select(1,GetItemSpell(76097))),"%a+")) then
+							local ItemCount = GetItemCount(itemID)
+							local ItemCooldown = GetItemCooldown(itemID)
+							if MinLevel<=UnitLevel("player") and ItemCooldown == 0 then
+								table.insert(healthPot,
+									{
+										item = itemID,
+										itemName = ItemName,
+										minLevel = MinLevel,
+										itemType = ItemType,
+										itemEffect = ItemEffect,
+										itemCount = ItemCount
+									}
+								)
+							end
 						end
 					end
 				end
+				table.sort(healthPot, function(x,y)
+					return x.minLevel and y.minLevel and x.minLevel > y.minLevel or false
+				end)
 			end
-			table.sort(healthPot, function(x,y)
-				return x.minLevel and y.minLevel and x.minLevel > y.minLevel or false
-			end)
 		end
 	end
 end

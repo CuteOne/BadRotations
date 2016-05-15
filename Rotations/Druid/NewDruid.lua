@@ -83,10 +83,10 @@ if select(3, UnitClass("player")) == 11 then
 	        	end 
 	        	-- Wrath
 	        	if distance < 40 and not isMoving("player") then
-	        		if not inCombat and hasDelay("wrath",5) and level>=3 then
+	        		if not inCombat and (lastSpellCast~=wrath or lastSpellTarget~=UnitGUID("target")) and level>=3 then
 	        			if castSpell("target",wrath,false,false,false) then return end
 	        		end
-	        		if inCombat or level<3 then
+	        		if isInCombat("player") or level<3 then
 	        			if castSpell("target",wrath,false,false,false) then return end
 	        		end
 	        	end

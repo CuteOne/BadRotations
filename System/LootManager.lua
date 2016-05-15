@@ -73,16 +73,14 @@ function lootManager:debug(message)
 end
 -- Check if availables bag slots, return true if at least 1 free bag space
 function lootManager:emptySlots()
-	local openCount = 0
-	for i = 1, NUM_BAG_SLOTS do
-		openCount = openCount + select(1,GetContainerNumFreeSlots(i))
+	local openSlots = 0
+	for i = 0, 4 do --Let's look at each bag
+		local numBagSlots = GetContainerNumSlots(i)
+		if numBagSlots>0 then -- Only look for slots if bag present
+			openSlots = openSlots + select(1,GetContainerNumFreeSlots(i))
+		end
 	end
-	--lM:debug("Counts of "..openCount.." empty slots.")
-	if openCount > 0 then
-		return true
-	else
-		return false
-	end
+	return openSlots
 end
 function lootManager:getLoot()
 	if looted == nil then looted = 0 end
