@@ -8,6 +8,10 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		local player = "player" -- if someone forgets ""
 
+	-----------------
+    --- VARIABLES ---
+    -----------------
+
 		self.profile         = spec
 		self.comboPoints     = getCombo("player")
 		self.stealth		 = false
@@ -149,11 +153,25 @@ if select(2, UnitClass("player")) == "DRUID" then
 			yserasGiftTalent 			= 145108,
 		}
 
-	-- Update 
+    ------------------
+    --- OOC UPDATE ---
+    ------------------
+
+		function self.classUpdateOOC()
+			-- Call baseUpdateOOC()
+			self.baseUpdateOOC()
+			self.getClassGlyphs()
+			self.getClassTalents()
+			self.getClassPerks()
+		end
+
+    --------------
+    --- UPDATE ---
+    --------------
+
 		function self.classUpdate()
 			-- Call baseUpdate()
 			self.baseUpdate()
-			self.getClassOptions()
 			self.getClassDynamicUnits()
 			self.getClassBuffs()
 			self.getClassBuffsRemain()
@@ -178,15 +196,6 @@ if select(2, UnitClass("player")) == "DRUID" then
 			end
 		end
 
-	-- Update OOC
-		function self.classUpdateOOC()
-			-- Call baseUpdateOOC()
-			self.baseUpdateOOC()
-			self.getClassGlyphs()
-			self.getClassTalents()
-			self.getClassPerks()
-		end
-
 	---------------------
     --- DYNAMIC UNITS ---
     ---------------------
@@ -203,7 +212,10 @@ if select(2, UnitClass("player")) == "DRUID" then
             self.units.dyn35AoE = dynamicTarget(35, false) -- Entangling Roots
         end
 
-	-- Buff updates
+    -------------
+    --- BUFFS ---
+    -------------
+	
 		function self.getClassBuffs()
 			local UnitBuffID = UnitBuffID
 
@@ -257,14 +269,19 @@ if select(2, UnitClass("player")) == "DRUID" then
 			self.buff.remain.survivalInstincts 		= getBuffRemain("player",self.spell.survivalInstinctsBuff) or 0
 		end
 
-	-- Charge updates
+	---------------
+	--- CHARGES ---
+	---------------
 		function self.getClassCharges()
 			local getCharges = getCharges
 
 			self.charges.survivalInstincts = getCharges(self.spell.survivalInstincts)
 		end
 
-	-- Cooldown updates
+	-----------------
+	--- COOLDOWNS ---
+	-----------------
+
 		function self.getClassCooldowns()
 			local getSpellCD = getSpellCD
 
@@ -289,7 +306,10 @@ if select(2, UnitClass("player")) == "DRUID" then
 			self.cd.wildCharge 				= getSpellCD(self.spell.wildCharge)
 		end
 
-	-- Debuff updates
+	---------------
+	--- DEBUFFS ---
+	---------------
+
 		function self.getClassDebuffs()
 			local UnitDebuffID = UnitDebuffID
 
@@ -332,7 +352,10 @@ if select(2, UnitClass("player")) == "DRUID" then
 			self.debuff.remain.growl 					= getDebuffRemain(self.units.dyn30AoE,self.spell.growlDebuff,"player") or 0
 		end
 
-	-- Glyph updates
+	--------------
+	--- GLYPHS ---
+	--------------
+
 		function self.getClassGlyphs()
 			local hasGlyph = hasGlyph
 
@@ -360,7 +383,10 @@ if select(2, UnitClass("player")) == "DRUID" then
 			self.glyph.travel 					= hasGlyph(self.spell.travelGlyph)
 		end
 
-	-- Talent updates
+	----------------
+	--- TAALENTS ---
+	----------------
+
 		function self.getClassTalents()
 			local getTalent = getTalent
 
@@ -379,16 +405,14 @@ if select(2, UnitClass("player")) == "DRUID" then
 			self.talent.naturesVigil 		= getTalent(6,3)	
 		end
 
-	-- Perk updates
+	-------------
+	--- PERKS ---
+	-------------
+
 		function self.getClassPerks()
 			local isKnown = isKnown
 
 			self.perk.enhancedRebirth = isKnown(self.spell.enhancedRebirth)
-		end
-
-	-- Get Class option modes
-		function self.getClassOptions()
-			--self.poisonTimer = getValue("Poison remain")
 		end
 
 	---------------
@@ -398,17 +422,18 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-- Class options
 		-- Options which every Druid should have
 		function self.createClassOptions()
-            -- Create Base Options
-            self.createBaseOptions()
-
             -- Class Wrap
-            local section = bb.ui:createSection(bb.ui.window.profile,  "Class Options")
+            local section = bb.ui:createSection(bb.ui.window.profile,  "Class Options", "Nothing")
             bb.ui:checkSectionState(section)
 		end
 
-	------------------------------
-	--- SPELLS - CROWD CONTROL ---
-	------------------------------
+	--------------
+	--- SPELLS ---
+	--------------
+
+		---------------------
+		--- CROWD CONTROL ---
+		---------------------
 
 		-- Cyclone
 		function self.castCyclone()
@@ -453,9 +478,9 @@ if select(2, UnitClass("player")) == "DRUID" then
 			end
 		end
 
-	--------------------------
-	--- SPELLS - DEFENSIVE ---
-	--------------------------
+		-----------------
+		--- DEFENSIVE ---
+		-----------------
 
 		-- Barkskin
 		function self.castBarkskin()
@@ -518,9 +543,9 @@ if select(2, UnitClass("player")) == "DRUID" then
 			end
 		end
 
-	----------------------
-	--- SPELLS - FORMS ---
-	----------------------
+		-------------
+		--- FORMS ---
+		-------------
 
 		-- Bear Form
 		function self.castBearForm()
@@ -547,9 +572,9 @@ if select(2, UnitClass("player")) == "DRUID" then
 			end
 		end
 
-	--------------------------
-	--- SPELLS - OFFENSIVE ---
-	--------------------------
+		-----------------
+		--- OFFENSIVE ---
+		-----------------
 
 		-- Berserk
 		function self.castBerserk()
@@ -626,9 +651,9 @@ if select(2, UnitClass("player")) == "DRUID" then
 			end
 		end
 
-	------------------------
-	--- SPELLS - UTILITY ---
-	------------------------
+		---------------
+		--- UTILITY ---
+		---------------
 
 		-- Dash
 		function self.castDash()
