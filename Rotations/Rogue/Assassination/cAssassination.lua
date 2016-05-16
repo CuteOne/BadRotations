@@ -3,12 +3,16 @@
 if select(2, UnitClass("player")) == "ROGUE" then
 
     cAssassination = {}
+    cAssassination.rotations = {}
 
     -- Creates Combat Rogue
     function cAssassination:new()
         local self = cRogue:new("Assassination")
 
         local player = "player" -- if someone forgets ""
+
+        -- Mandatory !
+        self.rotations = cAssassination.rotations
 
         -----------------
         --- VARIABLES ---
@@ -207,149 +211,61 @@ if select(2, UnitClass("player")) == "ROGUE" then
             self.enemies.yards12 = #getEnemies("player", 12)
         end
 
-        ----------------------
-        --- START ROTATION ---
-        ----------------------
+        ---------------
+        --- TOGGLES ---
+        ---------------
 
-        -- Rotation selection update
-        function self.getRotation()
-            self.rotation = bb.selectedProfile
+        function self.getToggleModes()
+            local BadBoy_data   = BadBoy_data
 
-            if bb.rotation_changed then
-                --self.createToggles()
-                self.createOptions()
-
-                bb.rotation_changed = false
-            end
-        end
-
-        function self.startRotation()
-            if self.rotation == 1 then
-                self:assassinationSimC()
-                -- put different rotations below dont forget to setup your rota in options
-            elseif self.rotation == 2 then
-                self:AssassinationCuteOne()
-            elseif self.rotation == 3 then
-                self:oldAssassination()
-            else
-                ChatOverlay("No ROTATION ?!", 2000)
-            end
+            self.mode.aoe       = BadBoy_data["AoE"]
+            self.mode.cooldowns = BadBoy_data["Cooldowns"]
+            self.mode.defensive = BadBoy_data["Defensive"]
         end
 
         ---------------
         --- OPTIONS ---
         ---------------
 
+        -- Create the toggle defined within rotation files
+        function self.createToggles()
+            GarbageButtons()
+            self.rotations[bb.selectedProfile].toggles()
+        end
+
+        -- Creates the option/profile window
         function self.createOptions()
-            bb.ui.window.profile = bb.ui:createProfileWindow("Assassination")
-            local section
+            bb.ui.window.profile = bb.ui:createProfileWindow(self.profile)
 
-            -- Create Base and Class options
-            self.createClassOptions()
-
-            -- Combat options
-            section = bb.ui:createSection(bb.ui.window.profile,  "--- General ---")
-            -- Stealth
-            bb.ui:createDropdown(section,  "Stealth", {"|cff00FF00Always", "|cffFFDD00PrePot", "|cffFF000020Yards"},  1, "Stealthing method.")
-            bb.ui:createSpinner(section,  "Stealth Timer",  1,  0,  2,  0.25,  "|cffFFBB00How long to wait(seconds) before using \n|cffFFFFFFStealth.")
-            -- Opening Attack
-            bb.ui:createDropdown(section, "Opener", {"Ambush", "Mutilate", "Cheap Shot"},  1, "|cffFFFFFFSelect Attack to Break Stealth with")
-            -- Pre-Pull Timer
-            bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-            bb.ui:checkSectionState(section)
-
-            
-            section = bb.ui:createSection(bb.ui.window.profile,  "--- Cooldowns ---")
-            -- Agi Pot
-            bb.ui:createCheckbox(section,"Agi-Pot")
-            -- Legendary Ring
-            bb.ui:createCheckbox(section,  "Legendary Ring")
-            -- Preparation
-            bb.ui:createCheckbox(section,  "Preparation")
-            -- Shadow Reflection
-            bb.ui:createCheckbox(section,  "Shadow Reflection")
-            -- Vanish
-            bb.ui:createCheckbox(section,  "Vanish - Offensive")
-            -- Vendetta
-            bb.ui:createCheckbox(section,  "Vendetta")
-            bb.ui:checkSectionState(section)
-
-            
-            section = bb.ui:createSection(bb.ui.window.profile, "--- Defensive ---")
-            -- Cloak of Shadows
-            if isKnown(self.spell.cloakOfShadows) then
-                bb.ui:createCheckbox(section,"Cloak of Shadows","Enable or Disable the usage to auto dispel")
+            -- Get the names of all profiles and create rotation dropdown
+            local names = {}
+            for i=1,#self.rotations do
+                tinsert(names, self.rotations[i].name)
             end
-            -- Combat Readiness
-            bb.ui:createSpinner(section, "Combat Readiness",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!",  "|cffFFFFFFHealth Percent to Cast At")
+            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, names)
 
-            -- Evasion
-            if isKnown(self.spell.evasion) then
-                bb.ui:createSpinner(section, "Evasion",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!",  "|cffFFFFFFHealth Percent to Cast At")
-            end
-            -- Feint
-            if isKnown(self.spell.feint) then
-                bb.ui:createSpinner(section, "Feint",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!",  "|cffFFFFFFHealth Percent to Cast At")
-            end
-            -- Healthstone
-            bb.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-            -- Heirloom Neck
-            bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-            -- Recuperate
-            if isKnown(self.spell.recuperate) then
-                bb.ui:createSpinner(section, "Recuperate Health %",  40,  0,  100,  5, "Set health percent and combo point threshhold to cast at",  "|cffFFFFFFHealth Percent to Cast At")
-                bb.ui:createSpinner(section, "Recuperate Combo Point",  3,  1,  5,  1, "Set health percent and combo point threshhold to cast at",  "|cffFFFFFFCombo Points to Use At")
-            end
-            --Shiv
-            if isKnown(self.spell.shiv) and getTalent(3,2) then
-                bb.ui:createSpinner(section, "Shiv",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!", "|cffFFFFFFHealth Percent to Cast At")
-            end
-            -- Smoke Bomb
-            if isKnown(self.spell.smokeBomb) then
-                bb.ui:createSpinner(section, "Smoke Bomb",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!", "|cffFFFFFFHealth Percent to Cast At")
-            end
-            -- Vanish - Defensive
-            if isKnown(self.spell.vanish) then
-                bb.ui:createSpinner(section, "Vanish - Defensive",  40,  0,  100,  5, "Set health percent threshhold to cast at - Defensive Use Only, see Cooldowns for Offensive Use", "|cffFFFFFFHealth Percent to Cast At")
-            end
-            bb.ui:checkSectionState(section)
-            
-            
-            section = bb.ui:createSection(bb.ui.window.profile, "--- Interrupts ---")
-            -- Kick
-            bb.ui:createCheckbox(section,"Kick")
-            if getTalent(5,3) then
-                -- Gouge
-                bb.ui:createCheckbox(section,"Gouge")
-                -- Blind
-                bb.ui:createCheckbox(section,"Blind")
-            end
-            -- Interrupt Percentage
-            bb.ui:createSpinner(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
-            bb.ui:checkSectionState(section)
-            
+            -- Create Base and Class option table
+            local optionTable = {
+                {
+                    [1] = "Base Options",
+                    [2] = self.createBaseOptions,
+                },
+                {
+                    [1] = "Class Options",
+                    [2] = self.createClassOptions,
+                },
+            }
 
-            section = bb.ui:createSection(bb.ui.window.profile,  "--- Toggle Keys ---")
-            -- Single/Multi Toggle
-            bb.ui:createDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
-            --Cooldown Key Toggle
-            bb.ui:createDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
-            --Defensive Key Toggle
-            bb.ui:createDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
-            -- Interrupts Key Toggle
-            bb.ui:createDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
-            -- Cleave Toggle
-            bb.ui:createDropdown(section,  "Cleave Mode", bb.dropOptions.Toggle,  6)
-            -- Pick Pocket Toggle
-            bb.ui:createDropdown(section,  "Pick Pocket Mode", bb.dropOptions.Toggle,  6)
-            -- Pause Toggle
-            bb.ui:createDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
-            bb.ui:checkSectionState(section)
+            -- Get profile defined options
+            local profileTable = self.rotations[bb.selectedProfile].options()
 
+            -- Only add profile pages if they are found
+            if profileTable then
+                insertTableIntoTable(optionTable, profileTable)
+            end
 
-
-            --[[ Rotation Dropdown ]]--
-            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"SimC", "CuteOne", "OLD_ONE"})
+            -- Create pages dropdown
+            bb.ui:createPagesDropdown(bb.ui.window.profile, optionTable)
             bb:checkProfileWindowStatus()
         end
 
@@ -447,12 +363,137 @@ if select(2, UnitClass("player")) == "ROGUE" then
             end
         end
 
+        ------------------------
+        --- CUSTOM FUNCTIONS ---
+        ------------------------
+
+        --Rupture Debuff Time Remaining
+        function ruptureRemain(unit)
+            return getDebuffRemain(unit,rogueAssassination.spell.ruptureDebuff,"player")
+        end
+
+        --Rupture Debuff Total Time
+        function ruptureDuration(unit)
+            return getDebuffDuration(unit,rogueAssassination.spell.ruptureDebuff,"player")
+        end
+
+        --Deadly Poison Remain
+        function deadlyRemain(unit)
+            return getDebuffRemain(unit,rogueAssassination.spell.deadlyPoisonDebuff,"player")
+        end
+
+        --Envenom Remain
+        function envenomRemain(unit)
+            return getBuffRemain("player",rogueAssassination.spell.envenomBuff)
+        end
+
+        --Internal Bleeding Debuff Time Remaining
+        function internalBleedingRemain(unit)
+            return getDebuffRemain(unit,rogueAssassination.spell.internalBleedingDebuff,"player")
+        end
+
+        --Internal Bleeding Debuff Total Time
+        function internalBleedingDuration(unit)
+            return getDebuffDuration(unit,rogueAssassination.spell.internalBleedingDebuff,"player")
+        end
+
+        --Sap Debuff Time Remaining
+        function sapRemain(unit)
+            return getDebuffRemain(unit,rogueAssassination.spell.sapDebuff,"player")
+        end
+
+        --Target HP
+        function thp(unit)
+          return getHP(unit)
+        end
+
+        --Target Time to Die
+        function ttd(unit)
+          return getTTD(unit)
+        end
+
+        function useCDs()
+            if (BadBoy_data['Cooldown'] == 1 and isBoss()) or BadBoy_data['Cooldown'] == 2 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useAoE()
+            if (BadBoy_data['Rotation'] == 1 and #getEnemies("player",8) > 1) or BadBoy_data['Rotation'] == 2 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useDefensive()
+            if BadBoy_data['Defensive'] == 1 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useInterrupts()
+            if BadBoy_data['Interrupt'] == 1 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useCleave()
+            if BadBoy_data['Cleave']==1 and BadBoy_data['Rotation'] < 3 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function canPP() --Pick Pocket Toggle State
+            if BadBoy_data['Picker'] == 1 or BadBoy_data['Picker'] == 2 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function noattack() --Pick Pocket Toggle State
+            if BadBoy_data['Picker'] == 2 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function isPicked()   --  Pick Pocket Testing
+            if GetObjectExists("target") then
+                if myTarget ~= UnitGUID("target") then
+                    canPickpocket = true
+                    myTarget = UnitGUID("target")
+                end
+            end
+            if (canPickpocket == false or BadBoy_data['Picker'] == 3 or GetNumLootItems()>0) then
+                return true
+            else
+                return false
+            end
+        end
+
+        function hasThreat()
+            local dynTar = dynamicTarget(40,true)
+            if select(1,UnitDetailedThreatSituation("player", "target")) == nil then
+                return false
+            elseif select(1,UnitDetailedThreatSituation("player", "target"))==true then
+                return true
+            end
+        end
+
         -----------------------------
         --- CALL CREATE FUNCTIONS ---
         -----------------------------
-
-        self.createOptions()
-
 
         -- Return
         return self

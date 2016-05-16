@@ -12,16 +12,10 @@ if select(3, UnitClass("player")) == 5 then
     	local flashHeal 		= 2061
     	local distance 			= getDistance(dynamicTarget(5,true))
     	local moving 			= isMoving("player")
-    	local power 			= getPower("player")
     	local powerPerc 		= ((UnitPower("player")/UnitPowerMax("player"))*100)
-    	local thisUnit 			= dynamicTarget(5,true)
     	local inCombat			= isInCombat("target")
         local level 			= UnitLevel("player")
         local hp 				= getHP("player")
-
-        local function hasDelay(name, time)
-			return bb.timer:useTimer(name, time)
-		end
 
     ---===ROTATION===---
     	-- Flash Heal
@@ -39,10 +33,10 @@ if select(3, UnitClass("player")) == 5 then
         	end 
         -- Smite
         	if distance < 30 and not isMoving("player") and powerPerc>1.5 then
-        		if not inCombat and hasDelay("smite",2) and level>=3 then
+        		if not inCombat and (lastSpellCast~=smite or lastSpellTarget~=UnitGUID("target")) and level>=3 then
         			if castSpell("target",smite,false,false,false) then return end
         		end
-        		if inCombat or level<3 then
+        		if isInCombat("player") or level<3 then
         			if castSpell("target",smite,false,false,false) then return end
         		end
         	end

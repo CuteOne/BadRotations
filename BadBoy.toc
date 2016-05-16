@@ -82,22 +82,16 @@ Rotations\cCharacter.lua
 
 ## DeathKnight ---------------------------------------------------
 Rotations\Deathknight\cDeathKnight.lua
+
 Rotations\Deathknight\Frost\cFrost.lua
 Rotations\Deathknight\Frost\Frost.lua
 Rotations\Deathknight\Frost\FrostCuteOne.lua
-Rotations\Deathknight\Frost\FrostOld.lua
 
 Rotations\Deathknight\Blood\Blood.lua
 Rotations\Deathknight\Blood\Libs\Functions.lua
 Rotations\Deathknight\Blood\Libs\Options.lua
 Rotations\Deathknight\Blood\Libs\SpellList.lua
 Rotations\Deathknight\Blood\Libs\Toggles.lua
-
-## Rotations\Deathknight\Frost\Frost.lua
-Rotations\Deathknight\Frost\Libs\Functions.lua
-Rotations\Deathknight\Frost\Libs\Options.lua
-Rotations\Deathknight\Frost\Libs\SpellList.lua
-Rotations\Deathknight\Frost\Libs\Toggles.lua
 
 Rotations\Deathknight\Unholy\Unholy.lua
 Rotations\Deathknight\Unholy\Libs\Functions.lua
@@ -161,15 +155,14 @@ Rotations\Mage\NewMage.lua
 
 ## Monk ---------------------------------------------------
 Rotations\Monk\cMonk.lua
+Rotations\Monk\Brewmaster.lua
+Rotations\Monk\Mistweaver.lua
+Rotations\Monk\NewMonk.lua
+
 Rotations\Monk\Windwalker\cWindwalker.lua
 Rotations\Monk\Windwalker\Windwalker.lua
 Rotations\Monk\Windwalker\WindwalkerCuteOne.lua
-Rotations\Monk\Windwalker\WindwalkerOld.lua
-Rotations\Monk\Windwalker\TogglesCuteOne.lua
-Rotations\Monk\Windwalker\OptionsCuteOne.lua
 Rotations\Monk\Windwalker\WindwalkerDef.lua
-Rotations\Monk\Windwalker\TogglesDef.lua
-Rotations\Monk\Windwalker\OptionsDef.lua
 
 Rotations\Monk\Mistweaver\cMistweaver.lua
 Rotations\Monk\Mistweaver\MistweaverKuu.lua
@@ -177,17 +170,6 @@ Rotations\Monk\Mistweaver\Mistweaver.lua
 Rotations\Monk\Mistweaver\TogglesKuu.lua
 Rotations\Monk\Mistweaver\OptionsKuu.lua
 Rotations\Monk\Mistweaver\Functions.lua
-
-Rotations\Monk\SpellList.lua
-Rotations\Monk\Brewmaster.lua
-Rotations\Monk\Mistweaver.lua
-Rotations\Monk\NewMonk.lua
-
-## Rotations\Monk\Windwalker\Windwalker.lua
-## Rotations\Monk\Windwalker\Options.lua
-Rotations\Monk\Windwalker\Functions.lua
-Rotations\Monk\Windwalker\SpellList.lua
-## Rotations\Monk\Windwalker\Toggles.lua
 
 ## Paladin ---------------------------------------------------
 Rotations\Paladin\cPaladin.lua
@@ -238,22 +220,16 @@ Rotations\Priest\Discipline\libs\Toggles.lua
 Rotations\Priest\NewPriest.lua
 
 ## Rogue ---------------------------------------------------
+Rotations\Rogue\NewRogue.lua
 Rotations\Rogue\cRogue.lua
-Rotations\Rogue\Combat\cCombat.lua
-Rotations\Rogue\Combat\combatSimC.lua
 
 Rotations\Rogue\Assassination\cAssassination.lua
-Rotations\Rogue\Assassination\assassinationSimC.lua
-Rotations\Rogue\Assassination\oldAssassination.lua
+Rotations\Rogue\Assassination\Assassination.lua
 Rotations\Rogue\Assassination\AssassinationCuteOne.lua
 
-Rotations\Rogue\Assassination\Assassination.lua
-Rotations\Rogue\Assassination\Functions.lua
-Rotations\Rogue\Assassination\Options.lua
-Rotations\Rogue\Assassination\SpellList.lua
-Rotations\Rogue\Assassination\Toggles.lua
-
+Rotations\Rogue\Combat\cCombat.lua
 Rotations\Rogue\Combat\Combat.lua
+Rotations\Rogue\Combat\combatSimC.lua
 Rotations\Rogue\Combat\Functions.lua
 Rotations\Rogue\Combat\Options.lua
 Rotations\Rogue\Combat\SpellList.lua
@@ -265,20 +241,14 @@ Rotations\Rogue\Subtlety\Options.lua
 Rotations\Rogue\Subtlety\SpellList.lua
 Rotations\Rogue\Subtlety\Toggles.lua
 
-Rotations\Rogue\NewRogue.lua
-
 ## Shaman  ---------------------------------------------------
+Rotations\Shaman\SpellList.lua
+Rotations\Shaman\NewShaman.lua
 Rotations\Shaman\cShaman.lua
+
 Rotations\Shaman\Enhancement\cEnhancement.lua
 Rotations\Shaman\Enhancement\Enhancement.lua
 Rotations\Shaman\Enhancement\EnhancementCuteOne.lua
-Rotations\Shaman\Enhancement\EnhancementOld.lua
-
-##Rotations\Shaman\Enhancement\Enhancement.lua
-Rotations\Shaman\Enhancement\libs\Functions.lua
-Rotations\Shaman\Enhancement\libs\Options.lua
-Rotations\Shaman\Enhancement\libs\Toggles.lua
-Rotations\Shaman\Enhancement\libs\Reader.lua
 
 Rotations\Shaman\Elemental\Elemental.lua
 Rotations\Shaman\Elemental\Libs\Functions.lua
@@ -293,36 +263,22 @@ Rotations\Shaman\Restoration\Libs\Functions.lua
 Rotations\Shaman\Restoration\Libs\Options.lua
 Rotations\Shaman\Restoration\Libs\Toggles.lua
 
-Rotations\Shaman\SpellList.lua
-Rotations\Shaman\NewShaman.lua
-
 ## Warrior ---------------------------------------------------
+Rotations\Warrior\NewWarrior.lua
 Rotations\Warrior\cWarrior.lua
 
 Rotations\Warrior\Arms\cArms.lua
 Rotations\Warrior\Arms\Arms.lua
 Rotations\Warrior\Arms\ArmsCuteOne.lua
-Rotations\Warrior\Arms\ArmsOld.lua
-Rotations\Warrior\Arms\Libs\Functions.lua
-Rotations\Warrior\Arms\Libs\Options.lua
-Rotations\Warrior\Arms\Libs\SpellList.lua
-Rotations\Warrior\Arms\Libs\Toggles.lua
 
 Rotations\Warrior\Fury\cFury.lua
 Rotations\Warrior\Fury\Fury.lua
 Rotations\Warrior\Fury\FuryCuteOne.lua
-Rotations\Warrior\Fury\FuryAvery.lua
-Rotations\Warrior\Fury\Libs\Functions.lua
-Rotations\Warrior\Fury\Libs\Options.lua
-Rotations\Warrior\Fury\Libs\SpellList.lua
-Rotations\Warrior\Fury\Libs\Toggles.lua
 
 Rotations\Warrior\Protection\Protection.lua
 Rotations\Warrior\Protection\Libs\Functions.lua
 Rotations\Warrior\Protection\Libs\Options.lua
 Rotations\Warrior\Protection\Libs\Toggles.lua
-
-Rotations\Warrior\NewWarrior.lua
 
 ## Warlock ---------------------------------------------------
 Rotations\Warlock\cWarlock.lua

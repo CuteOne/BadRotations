@@ -141,11 +141,21 @@ function cRogue:new(spec)
         venomRushTalent 		= 152152,
 	}
 
+-- Update OOC
+	function self.classUpdateOOC()
+		-- Call baseUpdateOOC()
+		self.baseUpdateOOC()
+		self.getClassGlyphs()
+		self.getClassTalents()
+
+		-- Apply Poison
+		self.applyPoison()
+	end
+
 -- Update 
 	function self.classUpdate()
 		-- Call baseUpdate()
 		self.baseUpdate()
-		self.getClassOptions()
 		self.getClassBuffs()
 		self.getClassBuffsDuration()
 		self.getClassBuffsRemain()
@@ -164,17 +174,6 @@ function cRogue:new(spec)
 
 		-- Stealth
 		self.stealth = GetShapeshiftForm() == 1
-	end
-
--- Update OOC
-	function self.classUpdateOOC()
-		-- Call baseUpdateOOC()
-		self.baseUpdateOOC()
-		self.getClassGlyphs()
-		self.getClassTalents()
-
-		-- Apply Poison
-		self.applyPoison()
 	end
 
 -- Dynamic Units updates
@@ -362,11 +361,6 @@ function cRogue:new(spec)
 		self.talent.deathFromAbove   = getTalent(7,3)
 	end
 
--- Get Class option modes
-	function self.getClassOptions()
-		self.poisonTimer = getValue("Poison remain")
-	end
-
 -- Applies Poison
 	function self.applyPoison()
 		local getValue = getValue
@@ -379,7 +373,7 @@ function cRogue:new(spec)
 		--- Everybody has Crippling Poison hence its always Value != 2   ---
 		--- If its not selected Leeching will be used                    ---
 		--------------------------------------------------------------------
-
+		self.poisonTimer = getValue("Poison remain")
 		-- Lethal
 		self.lethalPoison    = getValue("Lethal")
 		if self.lethalPoison == 1 then
@@ -430,8 +424,6 @@ function cRogue:new(spec)
 	-- Class options
 	-- Options which every Rogue should have
 	function self.createClassOptions()
-		-- Create Base Options
-		self.createBaseOptions()
 
 		-- Class Wrap
 		local section = bb.ui:createSection(bb.ui.window.profile,  "--- Class Options ---")

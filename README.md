@@ -119,13 +119,13 @@ Raiable means if its good to raid with.
 |Shadow|90%(CoP&AS)|ragnar|**6.2**|:white_check_mark: BH
 ||||
 | **Rogue**  |||
-|Assassination|90%|CuteOne|6.2|:heavy_check_mark:
+|Assassination|90%|CuteOne|**6.2**|:heavy_check_mark:
 |Combat|80%|Toxin|6.1|:white_check_mark:
 |Subtlety|0%|CuteOne|?|:x:
 ||||
 | **Shaman** |||
 |Elemental|90%|CodeMyLife|6.1|:white_check_mark:
-|Enhancement|100%|CuteOne|6.2|:white_check_mark:
+|Enhancement|100%|CuteOne|**6.2**|:white_check_mark:
 |Restoration|90%|Kuukuu|6.2|:heavy_check_mark:
 ||||
 | **Warlock**  |||
@@ -134,6 +134,6 @@ Raiable means if its good to raid with.
 |Destruction|60%|Kuukuu|6.2|:heavy_check_mark:
 ||||
 | **Warrior**  |||
-|Arms|90%|CuteOne,chumii|6.2|:heavy_check_mark:
-|Fury|90%|CuteOne,Averykey|6.1|:heavy_check_mark:
+|Arms|100%|CuteOne|**6.2**|:white_check_mark:
+|Fury|100%|CuteOne|**6.2**|:white_check_mark:
 |Protection|85%|chumii|6.1|:interrobang:

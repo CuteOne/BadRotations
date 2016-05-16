@@ -113,11 +113,18 @@ function cWarrior:new(spec)
         suddenDeathTalent 			= 29725,
 	}
 
+-- Update OOC
+	function self.classUpdateOOC()
+		-- Call baseUpdateOOC()
+		self.baseUpdateOOC()
+		self.getClassGlyphs()
+		self.getClassTalents()
+	end
+
 -- Update 
 	function self.classUpdate()
 		-- Call baseUpdate()
 		self.baseUpdate()
-		self.getClassOptions()
 		self.getClassBuffs()
 		self.getClassBuffsDuration()
 		self.getClassBuffsRemain()
@@ -129,14 +136,6 @@ function cWarrior:new(spec)
 		self.getClassDebuffsRemain()
 		self.getClassDebuffsCount()
 		self.getClassRecharge()
-	end
-
--- Update OOC
-	function self.classUpdateOOC()
-		-- Call baseUpdateOOC()
-		self.baseUpdateOOC()
-		self.getClassGlyphs()
-		self.getClassTalents()
 	end
 
 -- Dynamic Units updates
@@ -259,11 +258,6 @@ function cWarrior:new(spec)
 		self.talent.ravager 			= getTalent(7,2)
 	end
 
--- Get Class option modes
-	function self.getClassOptions()
-		--self.poisonTimer = getValue("Poison remain")
-	end
-
 ---------------
 --- OPTIONS ---
 ---------------
@@ -271,8 +265,6 @@ function cWarrior:new(spec)
 	-- Class options
 	-- Options which every Shaman should have
 	function self.createClassOptions()
-		-- Create Base Options
-		self.createBaseOptions()
 
 		-- Class Wrap
         local section = bb.ui:createSection(bb.ui.window.profile,  "Class Options")

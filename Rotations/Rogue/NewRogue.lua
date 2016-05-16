@@ -10,6 +10,7 @@ if select(3, UnitClass("player")) == 4 then
         local ambush          = 8676
         local sinisterStrike  = 1752
         local eviscerate      = 2098
+        
         if tarDist < 20 and canAttack("target","player") and not UnitIsDeadOrGhost("target") then
             if not UnitBuffID("player",stealth) and not isInCombat("player") then
                 if castSpell("player",stealth,true,false,false) then return end
