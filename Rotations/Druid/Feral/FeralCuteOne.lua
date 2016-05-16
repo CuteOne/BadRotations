@@ -397,7 +397,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 					end
 			-- Pot/Stoned
 		            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
-		            	and inCombat and hasHealthPot() 
+		            	and inCombat and (hasHealthPot() or hasItem(5512)) 
 		            then
 	                    if canUse(5512) then
 	                        useItem(5512)
