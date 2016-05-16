@@ -112,6 +112,14 @@ function cMonk:new(spec)
 
 	}
 
+-- Update OOC
+	function self.classUpdateOOC()
+		-- Call baseUpdateOOC()
+		self.baseUpdateOOC()
+		self.getClassGlyphs()
+		self.getClassTalents()
+	end
+
 -- Update 
 	function self.classUpdate()
 		-- Call baseUpdate()
@@ -119,7 +127,6 @@ function cMonk:new(spec)
 		self.chi.count 	= getChi("player")
 		self.chi.max 	= getChiMax("player")
 		self.chi.diff 	= getChiMax("player")-getChi("player")
-		self.getClassOptions()
 		self.getClassBuffs()
 		self.getClassBuffsDuration()
 		self.getClassBuffsRemain()
@@ -130,14 +137,6 @@ function cMonk:new(spec)
 		self.getClassDebuffsDuration()
 		self.getClassDebuffsRemain()
 		self.getClassRecharge()
-	end
-
--- Update OOC
-	function self.classUpdateOOC()
-		-- Call baseUpdateOOC()
-		self.baseUpdateOOC()
-		self.getClassGlyphs()
-		self.getClassTalents()
 	end
 
 -- Dynamic Units updates
@@ -307,11 +306,9 @@ function cMonk:new(spec)
 	-- Class options
 	-- Options which every Monk should have
 	function self.createClassOptions()
-        -- Create Base Options
-        self.createBaseOptions()
 
         -- Class Wrap
-        local section = bb.ui:createSection(bb.ui.window.profile,  "Class Options")
+        local section = bb.ui:createSection(bb.ui.window.profile,  "Class Options", "Nothing")
         bb.ui:checkSectionState(section)
 	end
 

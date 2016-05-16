@@ -127,11 +127,18 @@ function cDK:new(spec)
 
 	}
 
+-- Update OOC
+	function self.classUpdateOOC()
+		-- Call baseUpdateOOC()
+		self.baseUpdateOOC()
+		self.getClassGlyphs()
+		self.getClassTalents()
+	end
+
 -- Update 
 	function self.classUpdate()
 		-- Call baseUpdate()
 		self.baseUpdate()
-		self.getClassOptions()
 		self.getClassBuffs()
 		self.getClassBuffsDuration()
 		self.getClassBuffsRemain()
@@ -146,14 +153,6 @@ function cDK:new(spec)
 		self.getRunes()
 		self.getRuneCounts()
 		self.getRunePercents()
-	end
-
--- Update OOC
-	function self.classUpdateOOC()
-		-- Call baseUpdateOOC()
-		self.baseUpdateOOC()
-		self.getClassGlyphs()
-		self.getClassTalents()
 	end
 
 -- Dynamic Units updates
@@ -339,11 +338,6 @@ function cDK:new(spec)
 		self.rune.percent.unholy 	= getRunePercent("unholy")
 	end
 
--- Get Class option modes
-	function self.getClassOptions()
-		--self.poisonTimer = getValue("Poison remain")
-	end
-
 ---------------
 --- OPTIONS ---
 ---------------
@@ -351,8 +345,6 @@ function cDK:new(spec)
 	-- Class options
 	-- Options which every Rogue should have
 	function self.createClassOptions()
-        -- Create Base Options
-        self.createBaseOptions()
 
         -- Class Wrap
         local section = bb.ui:createSection(bb.ui.window.profile,  "Class Options")

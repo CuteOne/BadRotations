@@ -3,12 +3,16 @@
 if select(2, UnitClass("player")) == "SHAMAN" then
 
     cEnhancement = {}
+    cEnhancement.rotations = {}
 
     -- Creates Enhancement Shaman
     function cEnhancement:new()
         local self = cShaman:new("Enhancement")
 
         local player = "player" -- if someone forgets ""
+
+        -- Mandatory !
+        self.rotations = cEnhancement.rotations
 
         -----------------
         --- VARIABLES ---
@@ -243,9 +247,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             self.cd.windstrike      = getSpellCD(self.spell.windstrike)
         end
 
-        ---------------------
-        --- Totem Updates ---
-        ---------------------
+        --------------
+        --- TOTEMS ---
+        --------------
+
         function self.getTotems()
             local fire, earth, water, air = 1, 2, 3, 4
             local GetTotemInfo = GetTotemInfo
@@ -328,243 +333,68 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             self.enemies.yards30 = #getEnemies("player",30)
         end
 
-        ----------------------
-        --- START ROTATION ---
-        ----------------------
+        ---------------
+        --- TOGGLES ---
+        ---------------
 
-        -- Rotation selection update
-        function self.getRotation()
-            self.rotation = bb.selectedProfile
+        function self.getToggleModes()
+            local BadBoy_data   = BadBoy_data
 
-            if bb.rotation_changed then
-                --self.createToggles()
-                self.createOptions()
-
-                bb.rotation_changed = false
-            end
-        end
-
-        function self.startRotation()
-            if self.rotation == 1 then
-                self:EnhancementCuteOne()
-                --elseif self.rotation == 2 then
-                --    self:EnhancementOld()
-            else
-                ChatOverlay("No ROTATION ?!", 2000)
-            end
+            self.mode.aoe       = BadBoy_data["AoE"]
+            self.mode.cooldowns = BadBoy_data["Cooldowns"]
+            self.mode.defensive = BadBoy_data["Defensive"]
         end
 
         ---------------
         --- OPTIONS ---
         ---------------
 
+        -- Create the toggle defined within rotation files
+        function self.createToggles()
+            GarbageButtons()
+            self.rotations[bb.selectedProfile].toggles()
+        end
+
+        -- Creates the option/profile window
         function self.createOptions()
-            bb.ui.window.profile = bb.ui:createProfileWindow("Enhancement")
-            local section
+            bb.ui.window.profile = bb.ui:createProfileWindow(self.profile)
 
-            -- Create Base and Class options
-            self.createClassOptions()
+            -- Get the names of all profiles and create rotation dropdown
+            local names = {}
+            for i=1,#self.rotations do
+                tinsert(names, self.rotations[i].name)
+            end
+            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, names)
 
-            --   _____                           _
-            --  / ____|                         | |
-            -- | |  __  ___ _ __   ___ _ __ __ _| |
-            -- | | |_ |/ _ \ '_ \ / _ \ '__/ _` | |
-            -- | |__| |  __/ | | |  __/ | | (_| | |
-            --  \_____|\___|_| |_|\___|_|  \__,_|_|
-            section = bb.ui:createSection(bb.ui.window.profile,  "General")
-            -- Dummy DPS Test
-            bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            -- Create Base and Class option table
+            local optionTable = {
+                {
+                    [1] = "Base Options",
+                    [2] = self.createBaseOptions,
+                },
+                {
+                    [1] = "Class Options",
+                    [2] = self.createClassOptions,
+                },
+            }
 
-            -- Earthbind/Earthgrab Totem
-            if self.talent.earthgrabTotem then
-                bb.ui:createCheckbox(section,"Earthgrab Totem")
-            else
-                bb.ui:createCheckbox(section,"Earthbind Totem")
+            -- Get profile defined options
+            local profileTable = self.rotations[bb.selectedProfile].options()
+
+            -- Only add profile pages if they are found
+            if profileTable then
+                insertTableIntoTable(optionTable, profileTable)
             end
 
-            -- Ghost Wolf
-            bb.ui:createCheckbox(section,"Ghost Wolf")
-
-            -- Spirit Walk
-            bb.ui:createCheckbox(section,"Spirit Walk")
-
-            -- Tremor Totem
-            bb.ui:createCheckbox(section,"Tremor Totem")
-
-            -- Water Walking
-            bb.ui:createCheckbox(section,"Water Walking")
-
-             -- Pre-Pull Timer
-            bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-            bb.ui:checkSectionState(section)
-
-            
-            --   _____            _     _
-            --  / ____|          | |   | |
-            -- | |     ___   ___ | | __| | _____      ___ __  ___
-            -- | |    / _ \ / _ \| |/ _` |/ _ \ \ /\ / / '_ \/ __|
-            -- | |___| (_) | (_) | | (_| | (_) \ V  V /| | | \__ \
-            --  \_____\___/ \___/|_|\__,_|\___/ \_/\_/ |_| |_|___/
-            section = bb.ui:createSection(bb.ui.window.profile,  "Cooldowns")
-            -- Agi Pot
-            bb.ui:createCheckbox(section,"Agi-Pot")
-
-            -- Legendary Ring
-            bb.ui:createCheckbox(section, "Legendary Ring", "Enable or Disable usage of Legendary Ring.")
-            -- bb.ui:createDropdown(section,  "Legendary Ring", { "CD"},  2)
-
-            -- Flask / Crystal
-            bb.ui:createCheckbox(section,"Flask / Crystal")
-
-            -- Trinkets
-            bb.ui:createCheckbox(section,"Trinkets")
-
-            -- Touch of the Void
-            bb.ui:createCheckbox(section,"Touch of the Void")
-
-            -- Heroism/Bloodlust
-            bb.ui:createCheckbox(section,"HeroLust")
-            if self.faction=="Alliance" then
-                
-            end
-            if self.faction=="Horde" then
-                
-            end
-
-            -- Elemental Mastery
-            bb.ui:createCheckbox(section,"Elemental Mastery")
-
-            -- Storm Elemental Totem
-            bb.ui:createCheckbox(section,"Storm Elemental Totem")
-
-            -- Fire Elemental Totem
-            bb.ui:createCheckbox(section,"Fire Elemental Totem")
-
-            -- Feral Spirit
-            bb.ui:createCheckbox(section,"Feral Spirit")
-
-            -- Liquid Magma
-            bb.ui:createCheckbox(section,"Liquid Magma")
-
-            -- Ancestral Swiftness
-            bb.ui:createCheckbox(section,"Ancestral Swiftness")
-
-            -- Ascendance
-            bb.ui:createCheckbox(section,"Ascendance")
-            bb.ui:checkSectionState(section)
-
-            --  _____        __               _
-            -- |  __ \      / _|             (_)
-            -- | |  | | ___| |_ ___ _ __  ___ ___   _____
-            -- | |  | |/ _ \  _/ _ \ '_ \/ __| \ \ / / _ \
-            -- | |__| |  __/ ||  __/ | | \__ \ |\ V /  __/
-            -- |_____/ \___|_| \___|_| |_|___/_| \_/ \___|
-            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
-            -- Healthstone
-            bb.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-
-            -- Heirloom Neck
-            bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-
-            -- Gift of The Naaru
-            if self.race == "Draenei" then
-                bb.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            end
-
-            -- Ancestral Guidance
-            bb.ui:createSpinner(section, "Ancestral Guidance",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-
-            -- Ancestral Spirit
-            bb.ui:createDropdown(section, "Ancestral Spirit", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
-
-            -- Astral Shift
-            bb.ui:createSpinner(section, "Astral Shift",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-
-            -- Capacitor Totem
-            bb.ui:createSpinner(section, "Capacitor Totem - Defensive",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            
-            -- Earth Elemental Totem
-            bb.ui:createSpinner(section, "Earth Elemental Totem",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            
-            -- Healing Rain
-            bb.ui:createSpinner(section, "Healing Rain",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            bb.ui:createSpinner(section, "Healing Rain Targets",  3,  1,  10,  1,  "|cffFFFFFFNumber of targets to consider before casting")
-            
-            -- Healing Stream Totem
-            bb.ui:createSpinner(section, "Healing Stream Totem",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            
-            -- Healing Surge
-            bb.ui:createCheckbox(section,"Healing Surge")
-            bb.ui:createSpinner(section, "Healing Surge - Level",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            bb.ui:createDropdown(section, "Healing Surge - Target", {"|cff00FF00Player Only","|cffFFFF00Lowest Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
-            
-            -- Shamanistic Rage
-            bb.ui:createSpinner(section, "Shamanistic Rage",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            
-            -- Cleanse Spirit
-            bb.ui:createDropdown(section, "Clease Spirit", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
-            
-            -- Purge
-            bb.ui:createCheckbox(section,"Purge")
-            bb.ui:checkSectionState(section)
-
-            --  _____       _                             _
-            -- |_   _|     | |                           | |
-            --   | |  _ __ | |_ ___ _ __ _ __ _   _ _ __ | |_ ___
-            --   | | | '_ \| __/ _ \ '__| '__| | | | '_ \| __/ __|
-            --  _| |_| | | | ||  __/ |  | |  | |_| | |_) | |_\__ \
-            -- |_____|_| |_|\__\___|_|  |_|   \__,_| .__/ \__|___/
-            --                                     | |
-            --                                     |_|
-            section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
-            -- Capacitor Totem
-            bb.ui:createCheckbox(section,"Capacitor Totem - Interrupt")
-            
-            -- Grounding Totem
-            bb.ui:createCheckbox(section,"Grounding Totem")
-            
-            -- Wind Shear
-            bb.ui:createCheckbox(section,"Wind Shear")
-            
-            -- Interrupt Percentage
-            bb.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
-            bb.ui:checkSectionState(section)
-
-            -- _______                _        _  __
-            --|__   __|              | |      | |/ /
-            --   | | ___   __ _  __ _| | ___  | ' / ___ _   _ ___
-            --   | |/ _ \ / _` |/ _` | |/ _ \ |  < / _ \ | | / __|
-            --   | | (_) | (_| | (_| | |  __/ | . \  __/ |_| \__ \
-            --   |_|\___/ \__, |\__, |_|\___| |_|\_\___|\__, |___/
-            --             __/ | __/ |                   __/ |
-            --            |___/ |___/                   |___/
-            section = bb.ui:createSection(bb.ui.window.profile,  "Toggle Keys")
-            -- Single/Multi Toggle
-            bb.ui:createDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
-
-            --Cooldown Key Toggle
-            bb.ui:createDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
-
-            --Defensive Key Toggle
-            bb.ui:createDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
-
-            -- Interrupts Key Toggle
-            bb.ui:createDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
-
-            -- Pause Toggle
-            bb.ui:createDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
-            bb.ui:checkSectionState(section)
-
-
-
-            --[[ Rotation Dropdown ]]--
-            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"CuteOne"})
+            -- Create pages dropdown
+            bb.ui:createPagesDropdown(bb.ui.window.profile, optionTable)
             bb:checkProfileWindowStatus()
         end
 
         --------------
         --- SPELLS ---
         --------------
+
         -- Ascendance
         function self.castAscendance()
             if self.level>=87 and self.cd.ascendance==0 then
@@ -619,6 +449,105 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         function self.castWindstrike(thisUnit)
             if self.buff.ascendance and self.cd.windstrike==0 and getDistance(thisUnit)<5 then
                 if castSpell(thisUnit,self.spell.stormstrike,false,false,false) then return end
+            end
+        end
+
+        ------------------------
+        --- CUSTOM FUNCTIONS ---
+        ------------------------
+        function useCDs(spellid)
+            if (BadBoy_data['Cooldown'] == 1 and isBoss()) or BadBoy_data['Cooldown'] == 2 then
+                return true
+            else
+                return false
+            end
+        end
+        function useAuto()
+            if BadBoy_data['Rotation'] == 1 then
+                return true
+            else
+                return false
+            end
+        end
+        function useAoE()
+            if BadBoy_data['Rotation'] == 2 then
+               return true
+            else
+                return false
+            end
+        end
+        function useSingle()
+            if BadBoy_data['Rotation'] == 3 then
+                return true
+            else
+                return false
+            end
+        end
+        function useInterrupts()
+            if BadBoy_data['Interrupt'] == 1 then
+               return true
+            else
+                return false
+            end
+        end
+        function useDefensive()
+            if BadBoy_data['Defensive'] == 1 then
+                return true
+            else
+                return false
+            end
+        end
+        function shouldBolt()
+            local self = enhancementShaman
+            local lightning = 0
+            local lowestCD = 0
+            if useAoE() then
+                if self.cd.chainLightning==0 and self.level>=28 then
+                    if self.buff.ancestralSwiftness and (select(7,GetSpellInfo(self.spell.chainLightning))/1000)<10 then
+                        lightning = 0
+                    else
+                        lightning = select(7,GetSpellInfo(self.spell.chainLightning))/1000
+                    end
+                else
+                    if self.buff.ancestralSwiftness and select(7,GetSpellInfo(self.spell.lightningBolt)/1000)<10 then
+                        lightning = 0
+                    else
+                        lightning = select(7,GetSpellInfo(self.spell.lightningBolt))/1000
+                    end
+                end
+            else
+                if self.buff.ancestralSwiftness and select(7,GetSpellInfo(self.spell.lightningBolt)/1000)<10 then
+                    lightning = 0
+                else
+                    lightning = select(7,GetSpellInfo(self.spell.lightningBolt))/1000
+                end
+            end
+            if self.level < 3 then
+                lowestCD = lightning+1
+            elseif self.level < 10 then
+                lowestCD = min(self.cd.primalStrike)
+            elseif self.level < 12 then
+                lowestCD = min(self.cd.primalStrike,self.cd.lavaLash)
+            elseif self.level < 26 then
+                lowestCD = min(self.cd.primalStrike,self.cd.lavaLash,self.cd.flameShock)
+            elseif self.level < 81 then
+                lowestCD = min(self.cd.stormstrike,self.cd.lavaLash,self.cd.flameShock)
+            elseif self.level < 87 then
+                lowestCD = min(self.cd.stormstrike,self.cd.lavaLash,self.cd.flameShock,self.cd.unleashElements)
+            elseif self.level >= 87 then
+                if self.buff.remain.ascendance > 0 then
+                    lowestCD = min(self.cd.windstrike,self.cd.lavaLash,self.cd.flameShock,self.cd.unleashElements)
+                else
+                    lowestCD = min(self.cd.stormstrike,self.cd.lavaLash,self.cd.flameShock,self.cd.unleashElements)
+                end
+            end
+            if (lightning <= lowestCD or lightning <= self.gcd) and getTimeToDie("target") >= lightning then
+                return true
+            elseif castingUnit("player") and (isCastingSpell(_LightningBolt) or isCastingSpell(_ChainLightning)) and lightning > lowestCD then
+                StopCasting()
+                return false
+            else
+                return false
             end
         end
 

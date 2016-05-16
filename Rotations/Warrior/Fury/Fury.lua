@@ -1,32 +1,15 @@
 if select(3, UnitClass("player")) == 1 then
     function FuryWarrior()
-        if furyWarrior == nil then
-            furyWarrior = cFury:new()
-            setmetatable(furyWarrior, {__index = cFury})
-            furyWarrior:update()
-            --KeyToggles()
-            if furyWarrior.rotation == 1 then 
-                FuryKeyToggles();
-            end
+        if bb.player == nil or bb.player.profile ~= "Fury" then
+            bb.player = cFury:new("Fury")
+            setmetatable(bb.player, {__index = cFury})
+
+            bb.player:createOptions()
+            bb.player:createToggles()
+            bb.player:update()
         end
 
-        if not canRun() then
-            return true
-        end
-
-        -- ToDo add pause toggle
-        -- Manual Input
-        -- if IsLeftShiftKeyDown() then -- Pause the script, keybind in wow shift+1 etc for manual cast
-        -- return true
-        -- end
-        -- if IsLeftControlKeyDown() then -- Pause the script, keybind in wow ctrl+1 etc for manual cast
-        -- return true
-        -- end
-        -- if IsLeftAltKeyDown() then
-        --     return true
-        -- end
-
-        furyWarrior:update()
+        bb.player:update()
 
     end -- Function End
 end --Class Check End

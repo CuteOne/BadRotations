@@ -3,12 +3,16 @@
 if select(2, UnitClass("player")) == "WARRIOR" then
 
     cFury = {}
+    cFury.rotations = {}
 
     -- Creates Fury Warrior
     function cFury:new()
         local self = cWarrior:new("Fury")
 
         local player = "player" -- if someone forgets ""
+
+        -- Mandatory !
+        self.rotations = cFury.rotations
 
         -----------------
         --- VARIABLES ---
@@ -100,7 +104,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             self.getEnemies()
             -- self.getFrac()
             self.getRecharge()
-            self.getRotation()
+            self.getToggleModes()
 
 
             -- Casting and GCD check
@@ -268,208 +272,63 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             -- self.enemies.yards10 = #getEnemies("player",10)
         end
 
-        ----------------------
-        --- START ROTATION ---
-        ----------------------
+        ---------------
+        --- TOGGLES ---
+        ---------------
 
-        -- Rotation selection update
-        function self.getRotation()
-            self.rotation = bb.selectedProfile
+        function self.getToggleModes()
+            local BadBoy_data   = BadBoy_data
 
-            if bb.rotation_changed then
-                --self.createToggles()
-                self.createOptions()
-
-                bb.rotation_changed = false
-            end
+            self.mode.rotation  = BadBoy_data["Rotation"]
+            self.mode.cooldowns = BadBoy_data["Cooldowns"]
+            self.mode.defensive = BadBoy_data["Defensive"]
+            self.mode.interrupt = BadBoy_data["Interrupt"]
+            self.mode.cleave    = BadBoy_data["Mover"]
         end
 
-        function self.startRotation()
-            if self.rotation == 1 then
-                self:FuryCuteOne()
-            elseif self.rotation == 2 then
-                self:FuryAvery()
-            elseif self.rotation == 3 then
-                ChatOverlay("No Rotation Selected!")
-            else
-                ChatOverlay("No ROTATION ?!", 2000)
-            end
+        -- Create the toggle defined within rotation files
+        function self.createToggles()
+            GarbageButtons()
+            self.rotations[bb.selectedProfile].toggles()
         end
 
         ---------------
         --- OPTIONS ---
         ---------------
 
+        -- Creates the option/profile window
         function self.createOptions()
-            bb.ui.window.profile = bb.ui:createProfileWindow("Fury")
-            local section
+            bb.ui.window.profile = bb.ui:createProfileWindow(self.profile)
 
-            -- Create Base and Class options
-            self.createClassOptions()
+            -- Get the names of all profiles and create rotation dropdown
+            local names = {}
+            for i=1,#self.rotations do
+                tinsert(names, self.rotations[i].name)
+            end
+            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, names)
 
-            --   _____                           _
-            --  / ____|                         | |
-            -- | |  __  ___ _ __   ___ _ __ __ _| |
-            -- | | |_ |/ _ \ '_ \ / _ \ '__/ _` | |
-            -- | |__| |  __/ | | |  __/ | | (_| | |
-            --  \_____|\___|_| |_|\___|_|  \__,_|_|
-            section = bb.ui:createSection(bb.ui.window.profile,  "General")
-            -- Dummy DPS Test
-                bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            -- Create Base and Class option table
+            local optionTable = {
+                {
+                    [1] = "Base Options",
+                    [2] = self.createBaseOptions,
+                },
+                {
+                    [1] = "Class Options",
+                    [2] = self.createClassOptions,
+                },
+            }
 
-            -- Berserker Rage
-                bb.ui:createCheckbox(section,"Berserker Rage")
+            -- Get profile defined options
+            local profileTable = self.rotations[bb.selectedProfile].options()
 
-            -- Hamstring
-                bb.ui:createCheckbox(section,"Hamstring")
+            -- Only add profile pages if they are found
+            if profileTable then
+                insertTableIntoTable(optionTable, profileTable)
+            end
 
-            -- Pre-Pull Timer
-                bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-
-            bb.ui:checkSectionState(section)
-            
-            --   _____            _     _
-            --  / ____|          | |   | |
-            -- | |     ___   ___ | | __| | _____      ___ __  ___
-            -- | |    / _ \ / _ \| |/ _` |/ _ \ \ /\ / / '_ \/ __|
-            -- | |___| (_) | (_) | | (_| | (_) \ V  V /| | | \__ \
-            --  \_____\___/ \___/|_|\__,_|\___/ \_/\_/ |_| |_|___/
-            section = bb.ui:createSection(bb.ui.window.profile,  "Cooldowns")
-            -- Agi Pot
-                bb.ui:createCheckbox(section,"Str-Pot")
-
-            -- Legendary Ring
-                bb.ui:createCheckbox(section, "Legendary Ring", "Enable or Disable usage of Legendary Ring.")
-                -- bb.ui:createDropdown(section,  "Legendary Ring", { "CD"},  2)
-
-            -- Flask / Crystal
-                bb.ui:createCheckbox(section,"Flask / Crystal")
-
-            -- Racials
-                bb.ui:createCheckbox(section,"Racial")
-
-            -- Trinkets
-                bb.ui:createCheckbox(section,"Trinkets")
-
-            -- Touch of the Void
-                bb.ui:createCheckbox(section,"Touch of the Void")
-
-            -- Avatar
-                bb.ui:createCheckbox(section,"Avatar")
-
-            -- Bladestorm
-                bb.ui:createCheckbox(section,"Bladestorm")
-
-            -- Bloodbath
-                bb.ui:createCheckbox(section,"Bloodbath")
-
-            -- Dragon Roar
-                bb.ui:createCheckbox(section,"Dragon Roar")
-
-            -- Ravager
-                bb.ui:createCheckbox(section,"Ravager")
-
-            -- Recklessness
-                bb.ui:createCheckbox(section,"Recklessness")
-
-            -- Shockwave
-                bb.ui:createCheckbox(section,"Shockwave")
-
-            -- Siegebreaker
-                bb.ui:createCheckbox(section,"Siegebreaker")
-
-            bb.ui:checkSectionState(section)
-            
-            --  _____        __               _
-            -- |  __ \      / _|             (_)
-            -- | |  | | ___| |_ ___ _ __  ___ ___   _____
-            -- | |  | |/ _ \  _/ _ \ '_ \/ __| \ \ / / _ \
-            -- | |__| |  __/ ||  __/ | | \__ \ |\ V /  __/
-            -- |_____/ \___|_| \___|_| |_|___/_| \_/ \___|
-            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
-            -- Healthstone
-                bb.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-
-            -- Heirloom Neck
-                bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-
-            -- Gift of The Naaru
-                if self.race == "Draenei" then
-                    bb.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-                end
-
-            -- Defensive Stance
-                bb.ui:createSpinner(section, "Defensive Stance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-
-            -- Die By The Sword
-                bb.ui:createSpinner(section, "Die by the Sword",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-
-            -- Intervene
-                bb.ui:createSpinner(section, "Intervene",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-
-            -- Intimidating Shout
-                bb.ui:createSpinner(section, "Intimidating Shout",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-
-            -- Rallying Cry
-                bb.ui:createSpinner(section, "Rallying Cry",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-
-            -- Vigilance
-                bb.ui:createSpinner(section, "Vigilance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-
-            bb.ui:checkSectionState(section)
-
-            --  _____       _                             _
-            -- |_   _|     | |                           | |
-            --   | |  _ __ | |_ ___ _ __ _ __ _   _ _ __ | |_ ___
-            --   | | | '_ \| __/ _ \ '__| '__| | | | '_ \| __/ __|
-            --  _| |_| | | | ||  __/ |  | |  | |_| | |_) | |_\__ \
-            -- |_____|_| |_|\__\___|_|  |_|   \__,_| .__/ \__|___/
-            --                                     | |
-            --                                     |_|
-            section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
-            
-            -- Pummel
-                bb.ui:createCheckbox(section,"Pummel")
-
-            -- Intimidating Shout
-                bb.ui:createCheckbox(section,"Intimidating Shoult - Int")
-            
-            -- Spell Reflection
-                bb.ui:createCheckbox(section,"Spell Refelection")
-
-            -- Interrupt Percentage
-                bb.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
-
-            bb.ui:checkSectionState(section)
-
-            -- _______                _        _  __
-            --|__   __|              | |      | |/ /
-            --   | | ___   __ _  __ _| | ___  | ' / ___ _   _ ___
-            --   | |/ _ \ / _` |/ _` | |/ _ \ |  < / _ \ | | / __|
-            --   | | (_) | (_| | (_| | |  __/ | . \  __/ |_| \__ \
-            --   |_|\___/ \__, |\__, |_|\___| |_|\_\___|\__, |___/
-            --             __/ | __/ |                   __/ |
-            --            |___/ |___/                   |___/
-            section = bb.ui:createSection(bb.ui.window.profile,  "Toggle Keys")
-            -- Single/Multi Toggle
-                bb.ui:createDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
-
-            --Cooldown Key Toggle
-                bb.ui:createDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
-
-            --Defensive Key Toggle
-                bb.ui:createDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
-
-            -- Interrupts Key Toggle
-                bb.ui:createDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
-
-            -- Pause Toggle
-                bb.ui:createDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
-
-            bb.ui:checkSectionState(section)
-
-            --[[ Rotation Dropdown ]]--
-            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"CuteOne"})
+            -- Create pages dropdown
+            bb.ui:createPagesDropdown(bb.ui.window.profile, optionTable)
             bb:checkProfileWindowStatus()
         end
 
@@ -522,12 +381,68 @@ if select(2, UnitClass("player")) == "WARRIOR" then
                 if castSpell(self.units.dyn5,self.spell.wildStrike,false,false,false) then return end
             end
         end
+
+        ------------------------
+        --- CUSTOM FUNCTIONS ---
+        ------------------------
+        function hasLust()
+            if UnitBuffID("player",2825)        -- Bloodlust
+                or UnitBuffID("player",80353)   -- Timewarp
+                or UnitBuffID("player",32182)   -- Heroism
+                or UnitBuffID("player",90355)   -- Ancient Hysteria
+            then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useAoE()
+            local rotation = self.mode.rotation
+            if (rotation == 1 and #getEnemies("player",8) >= 2) or rotation == 2 then
+            -- if BadBoy_data['AoE'] == 1 or BadBoy_data['AoE'] == 2 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useCDs()
+            local cooldown = self.mode.cooldown 
+            if (cooldown == 1 and isBoss()) or cooldown == 2 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useDefensive()
+            if self.mode.defensive == 1 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useInterrupts()
+            if self.mode.interrupt == 1 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useMover()
+            if self.mode.mover == 1 then
+                return true
+            else
+                return false
+            end
+        end
+
         -----------------------------
         --- CALL CREATE FUNCTIONS ---
         -----------------------------
-
-        self.createOptions()
-
 
         -- Return
         return self

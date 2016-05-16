@@ -145,7 +145,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             self.hasTrinketProc()
             self.getEnemies()
             self.getRecharges()
-            self.getRotation()
+            self.getToggleModes()
 
 
             -- Casting and GCD check
@@ -480,20 +480,24 @@ if select(2, UnitClass("player")) == "DRUID" then
         function self.getToggleModes()
             local BadBoy_data   = BadBoy_data
 
-            self.mode.aoe       = BadBoy_data["AoE"]
+            self.mode.rotation  = BadBoy_data["Rotation"]
             self.mode.cooldowns = BadBoy_data["Cooldowns"]
             self.mode.defensive = BadBoy_data["Defensive"]
+            self.mode.interrupt = BadBoy_data["Interrupt"]
+            self.mode.cleave    = BadBoy_data["Cleave"]
+            self.mode.prowl     = BadBoy_data["Prowl"]
         end
 
-    ---------------
-    --- OPTIONS ---
-    ---------------
         -- Create the toggle defined within rotation files
         function self.createToggles()
             GarbageButtons()
             self.rotations[bb.selectedProfile].toggles()
         end
 
+    ---------------
+    --- OPTIONS ---
+    ---------------
+        
         -- Creates the option/profile window
         function self.createOptions()
             bb.ui.window.profile = bb.ui:createProfileWindow(self.profile)
@@ -653,7 +657,8 @@ if select(2, UnitClass("player")) == "DRUID" then
         end
 
         function useCDs()
-            if (BadBoy_data['Cooldowns'] == 1 and isBoss()) or BadBoy_data['Cooldowns'] == 2 then
+            local cooldown = self.mode.cooldown
+            if (cooldown == 1 and isBoss()) or cooldown == 2 then
                 return true
             else
                 return false
@@ -661,7 +666,8 @@ if select(2, UnitClass("player")) == "DRUID" then
         end
 
         function useAoE()
-            if (BadBoy_data['Rotation'] == 1 and #getEnemies("player",8) >= 3) or BadBoy_data['Rotation'] == 2 then
+            local rotation = self.mode.rotation
+            if (rotation == 1 and #getEnemies("player",8) >= 3) or rotation == 2 then
                 return true
             else
                 return false
@@ -669,7 +675,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         end
 
         function useDefensive()
-            if BadBoy_data['Defensive'] == 1 then
+            if self.mode.defensive == 1 then
                 return true
             else
                 return false
@@ -677,7 +683,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         end
 
         function useInterrupts()
-            if BadBoy_data['Interrupts'] == 1 then
+            if self.mode.interrupt == 1 then
                 return true
             else
                 return false
@@ -685,7 +691,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         end
 
         function useCleave()
-            if BadBoy_data['Cleave']==1 and BadBoy_data['AoE'] < 3 then
+            if self.mode.cleave==1 and self.mode.rotation < 3 then
                 return true
             else
                 return false
@@ -693,7 +699,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         end
 
         function useProwl()
-            if BadBoy_data['Prowl']==1 then
+            if self.mode.prowl==1 then
                 return true
             else
                 return false
@@ -723,8 +729,6 @@ if select(2, UnitClass("player")) == "DRUID" then
     -----------------------------
     --- CALL CREATE FUNCTIONS ---
     -----------------------------
-
-        self.createOptions()
 
         -- Return
         return self

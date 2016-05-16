@@ -73,7 +73,7 @@ function bb:Run()
 		BadBoy_data.options[5] = {}
     end
     if BadBoy_data.options[5] == nil then
-        BadBoy_data.options = nil
+        BadBoy_data.options[5] = {}
     end
     if GetSpecialization() == nil then
     	bb.selectedSpec = 5

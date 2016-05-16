@@ -1,7 +1,7 @@
 if select(3, UnitClass("player")) == 2 then
 	function NewPaladin()
-		if Currentconfig ~= "New Mage CuteOne" then
-            Currentconfig = "New Mage CuteOne";
+		if Currentconfig ~= "New Paladin CuteOne" then
+            Currentconfig = "New Paladin CuteOne";
         end
     ---===LOCALS===---
     	local crusaderStrike 	= 35395

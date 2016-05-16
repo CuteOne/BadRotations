@@ -1,30 +1,15 @@
 if select(3, UnitClass("player")) == 4 then
     function AssassinationRogue()
-        if rogueAssassination == nil then
-            --AssOptions()
-            rogueAssassination = cAssassination:new()
-            setmetatable(rogueAssassination, {__index = cAssassination})
-            AssToggles()
-            rogueAssassination:update()
+        if bb.player == nil or bb.player.profile ~= "Assassination" then
+            bb.player = cAssassination:new("Assassination")
+            setmetatable(bb.player, {__index = cAssassination})
+
+            bb.player:createOptions()
+            bb.player:createToggles()
+            bb.player:update()
         end
 
-        if not canRun() then
-            return true
-        end
-
-        -- ToDo add pause toggle
-        -- Manual Input
-        -- if IsLeftShiftKeyDown() then -- Pause the script, keybind in wow shift+1 etc for manual cast
-        -- return true
-        -- end
-        -- if IsLeftControlKeyDown() then -- Pause the script, keybind in wow ctrl+1 etc for manual cast
-        -- return true
-        -- end
-        -- if IsLeftAltKeyDown() then
-        --     return true
-        -- end
-
-        rogueAssassination:update()
+        bb.player:update()
 
     end --Rogue Function End
 end --Class Check End

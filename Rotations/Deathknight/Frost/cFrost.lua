@@ -3,12 +3,16 @@
 if select(2, UnitClass("player")) == "DEATHKNIGHT" then
 
     cFrost = {}
+    cFrost.rotations = {}
 
     -- Creates Frost Death Knight
     function cFrost:new()
         local self = cDK:new("Frost")
 
         local player = "player" -- if someone forgets ""
+
+        -- Mandatory !
+        self.rotations = cFrost.rotations
 
         -----------------
         --- VARIABLES ---
@@ -224,210 +228,61 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             self.enemies.yards30 = #getEnemies("player", 30)
         end
 
-        ----------------------
-        --- START ROTATION ---
-        ----------------------
+        ---------------
+        --- TOGGLES ---
+        ---------------
 
-        function self.startRotation()
-            if self.rotation == 1 then
-                self:FrostCuteOne()
-            elseif self.rotation == 2 then
-                self:FrostOld()
-            else
-                ChatOverlay("No ROTATION ?!", 2000)
-            end
+        function self.getToggleModes()
+            local BadBoy_data   = BadBoy_data
+
+            self.mode.aoe       = BadBoy_data["AoE"]
+            self.mode.cooldowns = BadBoy_data["Cooldowns"]
+            self.mode.defensive = BadBoy_data["Defensive"]
         end
 
         ---------------
         --- OPTIONS ---
         ---------------
 
-        -- TODO: change toggles to this one
+        -- Create the toggle defined within rotation files
         function self.createToggles()
-            --GarbageButtons()
-
-            if self.rotation == 1 then
-            end
+            GarbageButtons()
+            self.rotations[bb.selectedProfile].toggles()
         end
 
+        -- Creates the option/profile window
         function self.createOptions()
-            bb.ui.window.profile = bb.ui:createProfileWindow("Frost")
-            local section
+            bb.ui.window.profile = bb.ui:createProfileWindow(self.profile)
 
-            -- Create Base and Class options
-            self.createClassOptions()
+            -- Get the names of all profiles and create rotation dropdown
+            local names = {}
+            for i=1,#self.rotations do
+                tinsert(names, self.rotations[i].name)
+            end
+            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, names)
 
-            --   _____                           _
-            --  / ____|                         | |
-            -- | |  __  ___ _ __   ___ _ __ __ _| |
-            -- | | |_ |/ _ \ '_ \ / _ \ '__/ _` | |
-            -- | |__| |  __/ | | |  __/ | | (_| | |
-            --  \_____|\___|_| |_|\___|_|  \__,_|_|
-            section = bb.ui:createSection(bb.ui.window.profile,  "General")
-            -- Dummy DPS Test
-            bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            -- Create Base and Class option table
+            local optionTable = {
+                {
+                    [1] = "Base Options",
+                    [2] = self.createBaseOptions,
+                },
+                {
+                    [1] = "Class Options",
+                    [2] = self.createClassOptions,
+                },
+            }
 
-            -- Mouseover Targeting
-            bb.ui:createCheckbox(section,"Mouseover Targeting","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFmouseover target validation.|cffFFBB00.")
-            
-            -- Death Grip
-            bb.ui:createCheckbox(section,"Death Grip")
+            -- Get profile defined options
+            local profileTable = self.rotations[bb.selectedProfile].options()
 
-            -- Gorefiend's Crasp
-            bb.ui:createCheckbox(section,"Gorefiend's Grasp")
+            -- Only add profile pages if they are found
+            if profileTable then
+                insertTableIntoTable(optionTable, profileTable)
+            end
 
-            -- Pre-Pull Timer
-            bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-
-            bb.ui:checkSectionState(section)
-
-            --   _____            _     _
-            --  / ____|          | |   | |
-            -- | |     ___   ___ | | __| | _____      ___ __  ___
-            -- | |    / _ \ / _ \| |/ _` |/ _ \ \ /\ / / '_ \/ __|
-            -- | |___| (_) | (_) | | (_| | (_) \ V  V /| | | \__ \
-            --  \_____\___/ \___/|_|\__,_|\___/ \_/\_/ |_| |_|___/
-            section = bb.ui:createSection(bb.ui.window.profile,  "Cooldowns")
-            -- Legendary Ring
-            bb.ui:createDropdown(section,  "Legendary Ring", bb.dropOptions.CD,  2, "Enable or Disable usage of Legendary Ring.")
-
-            -- Strength Potion
-            bb.ui:createCheckbox(section,"Str-Pot")
-
-            -- Flask / Crystal
-            bb.ui:createCheckbox(section,"Flask / Crystal")
-
-            -- Trinkets
-            bb.ui:createCheckbox(section,"Trinkets")
-
-            -- Empower Rune Weapon
-            --if isKnown(_EmpowerRuneWeapon) then
-                bb.ui:createCheckbox(section,"Empower Rune Weapon")
-            --end
-            bb.ui:checkSectionState(section)
-
-
-            --  _____        __               _
-            -- |  __ \      / _|             (_)
-            -- | |  | | ___| |_ ___ _ __  ___ ___   _____
-            -- | |  | |/ _ \  _/ _ \ '_ \/ __| \ \ / / _ \
-            -- | |__| |  __/ ||  __/ | | \__ \ |\ V /  __/
-            -- |_____/ \___|_| \___|_| |_|___/_| \_/ \___|
-            section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
-            -- Healthstone
-            bb.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-
-            -- Heirloom Neck
-            bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-
-            -- Blood Presence
-            bb.ui:createSpinner(section, "Blood Presence",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-
-            -- Death Strike
-            bb.ui:createSpinner(section, "Death Strike",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-
-            -- Icebound Fortitude
-            bb.ui:createSpinner(section, "Icebound Fortitude",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-
-            -- Lichbourne
-            --if getTalent(2,1) then
-            bb.ui:createCheckbox(section,"Lichborne")
-            --end
-
-            -- Anti-Magic Shell/Zone
-            --if getTalent(2,2) then
-            bb.ui:createSpinner(section, "Anti-Magic Zone",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            --else
-            bb.ui:createSpinner(section, "Anti-Magic Shell",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            --end
-
-            -- Death Pact
-            --if getTalent(5,1) then
-            bb.ui:createSpinner(section, "Death Pact",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            --end
-
-            -- Death Siphon
-            --if getTalent(5,2) then
-            bb.ui:createSpinner(section, "Death Siphon",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            --end
-
-            -- Conversion
-            --if getTalent(5,3) then
-            bb.ui:createSpinner(section, "Conversion",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            --end
-
-            -- Remorseless Winter
-            --if getTalent(6,2) then
-            bb.ui:createSpinner(section, "Remorseless Winter",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            --end
-
-            -- Desecrated Ground
-            --if getTalent(6,3) then
-            bb.ui:createCheckbox(section,"Desecrated Ground")
-            --end
-            bb.ui:checkSectionState(section)
-
-
-            --  _____       _                             _
-            -- |_   _|     | |                           | |
-            --   | |  _ __ | |_ ___ _ __ _ __ _   _ _ __ | |_ ___
-            --   | | | '_ \| __/ _ \ '__| '__| | | | '_ \| __/ __|
-            --  _| |_| | | | ||  __/ |  | |  | |_| | |_) | |_\__ \
-            -- |_____|_| |_|\__\___|_|  |_|   \__,_| .__/ \__|___/
-            --                                     | |
-            --                                     |_|
-            section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
-            -- Mind Freeze
-            bb.ui:createCheckbox(section,"Mind Freeze")
-
-            --if isKnown(_Asphyxiate) then
-            -- Asphyxiate
-            bb.ui:createCheckbox(section,"Asphyxiate")
-            --else
-            -- Strangulate
-            bb.ui:createCheckbox(section,"Strangulate")
-            --end
-
-            -- Dark Simulacrum
-            bb.ui:createCheckbox(section,"Dark Simulacrum")
-
-            -- Interrupt Percentage
-            bb.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
-            bb.ui:checkSectionState(section)
-
-
-            -- _______                _        _  __
-            --|__   __|              | |      | |/ /
-            --   | | ___   __ _  __ _| | ___  | ' / ___ _   _ ___
-            --   | |/ _ \ / _` |/ _` | |/ _ \ |  < / _ \ | | / __|
-            --   | | (_) | (_| | (_| | |  __/ | . \  __/ |_| \__ \
-            --   |_|\___/ \__, |\__, |_|\___| |_|\_\___|\__, |___/
-            --             __/ | __/ |                   __/ |
-            --            |___/ |___/                   |___/
-            section = bb.ui:createSection(bb.ui.window.profile,  "Toggle Keys")
-            -- Single/Multi Toggle
-            bb.ui:createDropdown(section,  "Rotation Mode", bb.dropOptions.Toggle,  4)
-
-            --Cooldown Key Toggle
-            bb.ui:createDropdown(section,  "Cooldown Mode", bb.dropOptions.Toggle,  3)
-
-            --Defensive Key Toggle
-            bb.ui:createDropdown(section,  "Defensive Mode", bb.dropOptions.Toggle,  6)
-
-            -- Interrupts Key Toggle
-            bb.ui:createDropdown(section,  "Interrupt Mode", bb.dropOptions.Toggle,  6)
-
-            -- Cleave Toggle
-            bb.ui:createDropdown(section,  "Cleave Mode", bb.dropOptions.Toggle,  6)
-
-            -- Pause Toggle
-            bb.ui:createDropdown(section,  "Pause Mode", bb.dropOptions.Toggle,  6)
-            bb.ui:checkSectionState(section)
-
-
-
-            --[[ Rotation Dropdown ]]--
-            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"CuteOne", "OLD"})
+            -- Create pages dropdown
+            bb.ui:createPagesDropdown(bb.ui.window.profile, optionTable)
             bb:checkProfileWindowStatus()
         end
 
@@ -469,12 +324,135 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             end
         end
 
+        ------------------------
+        --- CUSTOM FUNCTIONS ---
+        ------------------------
+        function useAoE()
+            local enemies = #getEnemies("player",10)
+            local oneHand, twoHand  = IsEquippedItemType("One-Hand"), IsEquippedItemType("Two-Hand")
+            if (BadBoy_data['Rotation'] == 1 and ((enemies>=3 and oneHand) or (enemies>=4 and twoHand))) or BadBoy_data['Rotation'] == 2 then
+                -- if BadBoy_data['AoE'] == 1 or BadBoy_data['AoE'] == 2 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useCDs()
+            if (BadBoy_data['Cooldown'] == 1 and isBoss()) or BadBoy_data['Cooldowns'] == 2 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useDefensive()
+            if BadBoy_data['Defensive'] == 1 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useInterrupts()
+            if BadBoy_data['Interrupt'] == 1 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useCleave()
+            if BadBoy_data['Cleave']==1 and BadBoy_data['AoE'] ~= 3 then
+                return true
+            else
+                return false
+            end
+        end
+
+        simList = {
+            -- Highmaul
+            {spell = 161630, spelltype = "Damage",}, --Bladespire Sorcerer - Molten Bomb
+            {spell = 161634, spelltype = "Damage",}, --Bladespire Sorcerer - Molten Bomb
+            {spell = 175610, spelltype = "Damage",}, --Night-Twisted Shadowsworn - Chaos Blast
+            {spell = 175614, spelltype = "Damage",}, --Night-Twisted Shadowsworn - Chaos Blast
+            {spell = 175899, spelltype = "Damage",}, --Gorian Runemaster - Rune of Unmaking
+            {spell = 172066, spelltype = "Damage",}, --Oro - Radiating Poison
+            -- Auchindoun
+            {spell = 176518, spelltype = "Damage",}, --Sargerei Soulpriest - Shadow Word: Pain
+            {spell = 154477, spelltype = "Damage",}, --Soulbinder Nyami - Shadow Word: Pain
+            {spell = 167092, spelltype = "Damage",}, --Cackling Pyromaniac - Felblast
+            {spell = 178837, spelltype = "Damage",}, --Cackling Pyromaniac - Felblast
+            {spell = 154221, spelltype = "Damage",}, --Cackling Pyromaniac - Felblast
+            {spell = 157053, spelltype = "Damage",}, --Durag the Dominator - Shadow Bolt
+            {spell = 156954, spelltype = "Damage",}, --Gul'kosh - Unstable Affliction
+            {spell = 157049, spelltype = "Damage",}, --Grom'tash the Destructor - Immolate
+            {spell = 156842, spelltype = "Damage",}, --Teron'gor - Corruption
+            {spell = 156925, spelltype = "Damage",}, --Teron'gor - Agony
+            {spell = 156829, spelltype = "Damage",}, --Teron'gor - Shadow Bolt
+            {spell = 156975, spelltype = "Damage",}, --Teron'gor - Chaos Bolt
+            {spell = 156964, spelltype = "Damage",}, --Teron'gor - Immolate
+            {spell = 156965, spelltype = "Damage",}, --Teron'gor - Doom
+            -- Bloodmaul Slag Mines
+            {spell = 151558, spelltype = "Damage",}, --Bloodmaul Ogre Mage - Lava Burst
+            {spell = 152427, spelltype = "Damage",}, --Magma Lord - Fireball
+            {spell = 150290, spelltype = "Damage",}, --Calamity - Scorch
+            {spell = 164615, spelltype = "Damage",}, --Bloodmaul Flamespeaker - Channel Flames
+            {spell = 164616, spelltype = "Damage",}, --Bloodmaul Flamespeaker - Channel Flames
+            {spell = 150677, spelltype = "Damage",}, --Gug'rokk - Molten Blast
+            -- Grimrail Depot
+            -- Iron Docks
+            {spell = 165122, spelltype = "Damage",}, --Ahri'ok Dugru - Blood Bolt
+            -- Shadowmoon Burial Grounds
+            {spell = 152819, spelltype = "Damage",}, --Shadowmoon Bone-Mender - Shadow Word: Frailty
+            {spell = 156776, spelltype = "Damage",}, --Shadowmoon Enslaver - Rending Voidlash
+            {spell = 156722, spelltype = "Damage",}, --Shadowmoon Exhumer - Void Bolt
+            {spell = 156717, spelltype = "Damage",}, --Monstrous Corpse Spider - Death Venom
+            {spell = 153524, spelltype = "Damage",}, --Plagued Bat - Plague Spit
+            -- Skyreach
+            {spell = 152894, spelltype = "Non-Damage",}, --Adept of the Dawn - Flash Heal
+            {spell = 154396, spelltype = "Damage",}, --High Sage Viryx - Solar Burst
+            -- The Everbloom
+            {spell = 165213, spelltype = "Non-Damage",}, --Everbloom Tender - Enraged Growth
+            {spell = 167966, spelltype = "Damage",}, --Earthshaper Telu - Bramble Patch
+            {spell = 169843, spelltype = "Damage",}, --Putrid Pyromancer - Dragon's Breath
+            {spell = 169844, spelltype = "Damage",}, --Putrid Pyromancer - Dragon's Breath
+            -- Upper Blackrock Spire
+            {spell = 155588, spelltype = "Damage",}, --Black Iron Dreadweaver - Shadow Bolt Volley
+            {spell = 155587, spelltype = "Damage",}, --Black Iron Dreadweaver - Shadow Bolt
+            {spell = 155590, spelltype = "Damage",}, --Black Iron Summoner - Fireball
+            {spell = 163057, spelltype = "Damage",}, --Black Iron Flame Reaver - Flame Shock
+        }
+
+        function isSimSpell()
+            local simSpell = self.darkSimulacrum
+            for i=1, #enemiesTable do
+                if enemiesTable[i].distance<40 then
+                    local thisUnit = enemiesTable[i].unit
+                    if castingUnit(thisUnit) then
+                        for f=1, #simList do
+                            local simListSpell = simList[f].spell
+                            if isCastingSpell(simListSpell,thisUnit) then
+                              simSpell = simListSpell
+                              simUnit = thisUnit
+                              break
+                            else
+                              simSpell = self.darkSimulacrum
+                              simUnit = "target"
+                            end
+                        end
+                    end
+                end
+            end
+            if simSpell~=self.darkSimulacrum then
+                return true
+            else
+                return false
+            end
+        end
         -----------------------------
         --- CALL CREATE FUNCTIONS ---
         -----------------------------
-        self.createToggles()
-        self.createOptions()
-
 
         -- Return
         return self
