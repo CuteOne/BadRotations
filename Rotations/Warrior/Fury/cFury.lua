@@ -41,8 +41,8 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             -- Buff - Defensive
             
             -- Buff - Offensive
-            bloodsurgeBuff              = 46915,
-            enrageBuff                  = 13046,
+            bloodsurgeBuff              = 46916,
+            enrageBuff                  = 12880,
             meatCleaverBuff             = 85739,
             ragingBlowBuff              = 131116,
             recklessnessBuff            = 1719,
@@ -280,7 +280,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             local BadBoy_data   = BadBoy_data
 
             self.mode.rotation  = BadBoy_data["Rotation"]
-            self.mode.cooldowns = BadBoy_data["Cooldowns"]
+            self.mode.cooldown  = BadBoy_data["Cooldown"]
             self.mode.defensive = BadBoy_data["Defensive"]
             self.mode.interrupt = BadBoy_data["Interrupt"]
             self.mode.cleave    = BadBoy_data["Mover"]

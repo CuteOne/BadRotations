@@ -171,6 +171,7 @@ if select(3,UnitClass("player")) == 1 then
             local glyph             = bb.player.glyph
             local hasThreat         = hasThreat("target")
             local healthPot         = getHealthPot() or 0
+            local heirloomNeck      = 122667 or 122668
             local inCombat          = bb.player.inCombat
             local inRaid            = select(2,IsInInstance())=="raid"
             local level             = bb.player.level
@@ -229,9 +230,9 @@ if select(3,UnitClass("player")) == 1 then
                 if useDefensive() then
                 -- Heirloom Neck
                     if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
-                        if hasEquiped(122668) then
-                            if GetItemCooldown(122668)==0 then
-                                useItem(122668)
+                        if hasEquiped(heirloomNeck) then
+                            if GetItemCooldown(heirloomNeck)==0 then
+                                useItem(heirloomNeck)
                             end
                         end
                     end 
