@@ -375,7 +375,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             end
         end
         function self.castShieldBarrier()
-            if self.level>=81 and self.power>20 and self.buff.defensiveStance and self.cd.shieldBarrier==0 then
+            if self.level>=81 and self.power>20 and self.buff.defensiveStance and self.cd.shieldBarrier==0 and not self.buff.shieldBarrier then
                 if castSpell("player",self.spell.shieldBarrier,false,false,false) then return end
             end
         end

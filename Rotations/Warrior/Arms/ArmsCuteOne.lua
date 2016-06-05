@@ -91,14 +91,19 @@ if select(3,UnitClass("player")) == 1 then
                 bb.ui:createSpinner(section, "Defensive Stance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
                 -- Die By The Sword
                 bb.ui:createSpinner(section, "Die by the Sword",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                -- Enraged Regeneration
+                bb.ui:createSpinner(section, "Enraged Regeneration", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
                 -- Intervene
                 bb.ui:createSpinner(section, "Intervene",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
                 -- Intimidating Shout
                 bb.ui:createSpinner(section, "Intimidating Shout",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
                 -- Rallying Cry
                 bb.ui:createSpinner(section, "Rallying Cry",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                -- Shield Barrier
+                bb.ui:createSpinner(section, "Shield Barrier", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
                 -- Vigilance
                 bb.ui:createSpinner(section, "Vigilance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                bb.ui:createDropdownWithout(section, "Vigilance - Target", {"|cff00FF00TANK","|cffFFFF00HEALER","|cffFF0000TANK/HEALER","ANY"}, 4, "|cffFFFFFFFriendly to cast on")
             bb.ui:checkSectionState(section)
             -------------------------
             --- INTERRUPT OPTIONS ---
@@ -204,7 +209,9 @@ if select(3,UnitClass("player")) == 1 then
         -- Action list - Extras
             function actionList_Extra()
                 -- Battle Shout
-                if bb.player.castBattleShout() then return end
+                --if not isChecked("Shield Barrier") or level<81 or php > getOptionValue("Shield Barrier") or buff.shieldBarrier then
+                    if bb.player.castBattleShout() then return end
+                --end
                 -- Commanding Shout
                 if bb.player.castCommandingShout() then return end
                 -- Berserker Rage
@@ -250,6 +257,10 @@ if select(3,UnitClass("player")) == 1 then
                     if isChecked("Die by the Sword") and inCombat and php <= getOptionValue("Die by the Sword") then
                         if bb.player.castDieByTheSword() then return end
                     end
+                -- Enraged Regeneration
+                    if isChecked("Enraged Regeneration") and inCombat and php <= getOptionValue("Enraged Regeneration") then
+                        if bb.player.castEnragedRegeneration() then return end
+                    end
                 -- Intervene
                     if isChecked("Intervene") then
                         for i=1,#nNova do
@@ -263,12 +274,37 @@ if select(3,UnitClass("player")) == 1 then
                     if isChecked("Intimidating Shout") and inCombat and php <= getOptionValue("Intimidating Shout") then
                         if bb.player.castIntimidatingShout() then return end
                     end
+                -- Shield Barrier
+                    if isChecked("Shield Barrier") --[[and inCombat]] and php <= getOptionValue("Shield Barrier") then
+                        if not buff.defensiveStance and not buff.shieldBarrier and power>20 then
+                            if bb.player.castDefensiveStance() then return end
+                        else
+                            if bb.player.castShieldBarrier() then return end
+                        end
+                    end
                 -- Vigilance
                     if isChecked("Vigilance") then
                         for i=1,#nNova do
                             thisUnit = nNova[i].unit
-                            if UnitGroupRolesAssigned(thisUnit)=="HEALER" and getHP(thisUnit)<getOptionValue("Vigilance") then
-                                if bb.player.castVigilance(thisUnit) then return end
+                            if getOptionValue("Vigilance - Target")==4 then
+                                if getHP(thisUnit)<getOptionValue("Vigilance") and getDistance(thisUnit)<40 then
+                                    if bb.player.castVigilance(thisUnit) then return end
+                                end
+                            end
+                            if getOptionValue("Vigilance - Target")==3 then
+                                if (UnitGroupRolesAssigned(thisUnit)=="HEALER" or UnitGroupRolesAssigned(thisUnit)=="TANK") and getHP(thisUnit)<getOptionValue("Vigilance") and getDistance(thisUnit)<40 then
+                                    if bb.player.castVigilance(thisUnit) then return end
+                                end
+                            end
+                            if getOptionValue("Vigilance - Target")==2 then
+                                if UnitGroupRolesAssigned(thisUnit)=="HEALER" and getHP(thisUnit)<getOptionValue("Vigilance") and getDistance(thisUnit)<40 then
+                                    if bb.player.castVigilance(thisUnit) then return end
+                                end
+                            end
+                            if getOptionValue("Vigilance - Target")==1 then
+                                if UnitGroupRolesAssigned(thisUnit)=="TANK" and getHP(thisUnit)<getOptionValue("Vigilance") and getDistance(thisUnit)<40 then
+                                    if bb.player.castVigilance(thisUnit) then return end
+                                end
                             end
                         end
                     end

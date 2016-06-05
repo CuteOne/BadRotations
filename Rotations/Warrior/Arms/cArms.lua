@@ -132,6 +132,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             self.buff.recklessness  = UnitBuffID("player",self.spell.recklessnessBuff)~=nil or false
             self.buff.slam          = UnitBuffID("player",self.spell.slamBuff)~=nil or false
             self.buff.suddenDeath   = UnitBuffID("player",self.spell.suddenDeathBuff)~=nil or false
+            self.buff.shieldBarrier = UnitBuffID("player",self.spell.shieldBarrierBuff)~=nil or false
         end
 
         function self.getBuffsDuration()
@@ -217,6 +218,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             self.cd.dieByTheSword   = getSpellCD(self.spell.dieByTheSword)
             self.cd.mortalStrike    = getSpellCD(self.spell.mortalStrike)
             self.cd.rallyingCry     = getSpellCD(self.spell.rallyingCry)
+            self.cd.shieldBarrier   = getSpellCD(self.spell.shieldBarrier)
             self.cd.siegebreaker    = getSpellCD(self.spell.siegebreaker)
             self.cd.sweepingStrikes = getSpellCD(self.spell.sweepingStrikes)
             self.cd.thunderClap     = getSpellCD(self.spell.thunderClap)
@@ -375,6 +377,11 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             local thisUnit = thisUnit
             if self.level>=7 and self.power>5 then
                 if castSpell(thisUnit,self.spell.rend,false,false,false) then return end
+            end
+        end
+        function self.castShieldBarrier()
+            if self.level>=81 and self.power>20 and self.buff.defensiveStance and self.cd.shieldBarrier==0 and not self.buff.shieldBarrier then
+                if castSpell("player",self.spell.shieldBarrier,false,false,false) then return end
             end
         end
         function self.castSiegebreaker()

@@ -105,6 +105,7 @@ function cWarrior:new(spec)
         bloodbathTalent 			= 12292,
         doubleTimeTalent 			= 103827,
         dragonRoarTalent 			= 118000,
+        enragedRegenerationTalent 	= 55694,
         impendingVictoryTalent 		= 103840,
         massSpellReflectionTalent 	= 114028,
         ravagerTalent 				= 152277,
@@ -191,6 +192,7 @@ function cWarrior:new(spec)
 		self.cd.charge 		 		= getSpellCD(self.spell.charge)
 		self.cd.defensiveStance 	= getSpellCD(self.spell.defensiveStance)
 		self.cd.dragonRoar 			= getSpellCD(self.spell.dragonRoar)
+		self.cd.enragedRegeneration = getSpellCD(self.spell.enragedRegeneration)
 		self.cd.hamstring 			= getSpellCD(self.spell.hamstring)
 		self.cd.heroicLeap   		= getSpellCD(self.spell.heroicLeap)
 		self.cd.heroicThrow 		= getSpellCD(self.spell.heroicThrow)
@@ -248,6 +250,7 @@ function cWarrior:new(spec)
 	function self.getClassTalents()
 		local getTalent = getTalent
 
+		self.talent.enragedRegeneration = getTalent(2,1)
 		self.talent.impendingVictory 	= getTalent(2,3)
 		self.talent.stormBolt 			= getTalent(4,1)
 		self.talent.shockwave 			= getTalent(4,2)
@@ -294,6 +297,18 @@ function cWarrior:new(spec)
 --------------------------
 --- SPELLS - DEFENSIVE ---
 --------------------------
+		function self.castEnragedRegeneration(thisUnit)
+			self.EnragedRegeneration=false
+			if self.talent.enragedRegeneration and self.cd.enragedRegeneration==0 then
+				if thisUnit == "debug" then
+					self.EnragedRegeneration=true
+				else
+					if castSpell("player",self.spell.enragedRegeneration,false,false,false) then return end
+				end
+			end
+			if thisUnit == "debug" then return self.EnragedRegeneration end
+		end
+		self.warriorFunction.EnragedRegeneration = self.castEnragedRegeneration("debug")
 		function self.castPummel(thisUnit)
 			self.Pummel=false
 			if self.level>=24 and self.cd.pummel==0 then
