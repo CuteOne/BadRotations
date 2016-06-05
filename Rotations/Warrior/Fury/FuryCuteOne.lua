@@ -102,7 +102,7 @@ if select(3,UnitClass("player")) == 1 then
             -------------------------
             section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
                 -- Healthstone
-                bb.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                bb.ui:createSpinner(section, "Healthstone/Potion",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
                 -- Heirloom Neck
                 bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
                 -- Gift of The Naaru
@@ -268,6 +268,16 @@ if select(3,UnitClass("player")) == 1 then
         -- Action List - Defensive
             function actionList_Defensive()
                 if useDefensive() then
+                -- Healthstone/Health Potion
+                    if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") 
+                        and inCombat and (hasHealthPot() or hasItem(5512)) 
+                    then
+                        if canUse(5512) then
+                            useItem(5512)
+                        elseif canUse(getHealthPot()) then
+                            useItem(getHealthPot())
+                        end
+                    end
                 -- Heirloom Neck
                     if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
                         if hasEquiped(heirloomNeck) then
