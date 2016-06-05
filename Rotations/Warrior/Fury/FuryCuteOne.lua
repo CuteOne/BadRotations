@@ -256,7 +256,7 @@ if select(3,UnitClass("player")) == 1 then
                     for i=1,#getEnemies("player",15) do
                         thisUnit = getEnemies("player",15)[i]
                         if isMoving(thisUnit) and getFacing(thisUnit,"player") == false then
-                            if bb.player.castEnrangedRegeneration(thisUnit) then return end
+                            if bb.player.castPiercingHowl(thisUnit) then return end
                         end
                     end
                 end
