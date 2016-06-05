@@ -115,6 +115,8 @@ if select(3,UnitClass("player")) == 1 then
                 bb.ui:createSpinner(section, "Intimidating Shout",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
                 -- Rallying Cry
                 bb.ui:createSpinner(section, "Rallying Cry",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                -- Shield Barrier
+                bb.ui:createSpinner(section, "Shield Barrier", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
                 -- Vigilance
                 bb.ui:createSpinner(section, "Vigilance",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             bb.ui:checkSectionState(section)
@@ -286,6 +288,14 @@ if select(3,UnitClass("player")) == 1 then
                     if isChecked("Rallying Cry") and inCombat and php <= getOptionValue("Rallying Cry") then
                         if bb.player.castRallyingCry() then return end
                     end
+                -- Shield Barrier
+                    if isChecked("Shield Barrier") and inCombat and php <= getOptionValue("Shield Barrier") then
+                        if not buff.defensiveStance then
+                            if bb.player.castDefensiveStance() then return end
+                        else
+                            if bb.player.castShieldBarrier() then return end
+                        end
+                    end
                 -- Vigilance
                     if isChecked("Vigilance") then
                         for i=1,#nNova do
@@ -366,7 +376,9 @@ if select(3,UnitClass("player")) == 1 then
                 end
             -- Charge
                 -- charge,cycle_targets=1,if=debuff.charge.down
-                -- TODO
+                if useMover() then
+                    if bb.player.castCharge() then return end
+                end 
             -- Storm Bolt
                 -- storm_bolt
                 if bb.player.castStormBolt() then return end
