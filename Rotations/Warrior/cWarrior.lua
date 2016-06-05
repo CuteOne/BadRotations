@@ -32,6 +32,7 @@ function cWarrior:new(spec)
         massSpellReflection 		= 114028,
         safeguard 					= 114029,
         spellReflection 			= 23920,
+        vallyingCry 				= 97462,
         vigilance 					= 114030,
 
         -- Ability - Forms/Presense/Stance
@@ -199,6 +200,7 @@ function cWarrior:new(spec)
 		self.cd.impendingVictory 	= getSpellCD(self.spell.impendingVictory)
 		self.cd.intervene 			= getSpellCD(self.spell.intervene)
 		self.cd.intimidatingShout 	= getSpellCD(self.spell.intimidatingShout)
+		self.cd.rallyingCry 		= getSpellCD(self.spell.rallyingCry)
 		self.cd.recklessness 		= getSpellCD(self.spell.recklessness)
 		self.cd.shockwave 			= getSpellCD(self.spell.shockwave)
 		self.cd.spellReflection 	= getSpellCD(self.spell.spellReflection)
@@ -333,6 +335,18 @@ function cWarrior:new(spec)
 			if thisUnit == "debug" then return self.IntimidatingShout end
 		end
 		self.warriorFunction.IntimidatingShout = self.castIntimidatingShout("debug")
+		function self.castRallyingCry(thisUnit)
+			self.RallyingCry=false
+			if self.level>=83 and self.cd.rallyingCry==0 then
+				if thisUnit == "debug" then
+					self.RallyingCry=true
+				else
+					if castSpell("player",self.spell.rallyingCry,false,false,false) then return end
+				end
+			end
+			if thisUnit == "debug" then return self.RallyingCry end
+		end
+		self.warriorFunction.RallyingCry = self.castRallyingCry("debug")
 		function self.castSpellReflection(thisUnit)
 			self.SpellReflection=false
 			if self.level>=66 and self.cd.spellReflection==0 then

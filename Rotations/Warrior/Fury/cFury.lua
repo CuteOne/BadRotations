@@ -51,6 +51,9 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             
             -- Buff - Stacks
 
+            -- Debuff - Defensice
+            piercingHowlDebuff          = 12323,
+
             -- Debuff - Offensive
             
             -- Glyphs
@@ -176,7 +179,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         function self.getDebuffs()
             local UnitDebuffID = UnitDebuffID
 
-            -- self.debuff.colossusSmash   = UnitDebuffID(self.units.dyn5,self.spell.colossusSmashDebuff,"player")~=nil or false
+            -- self.debuff.piercingHowl = UnitDebuffID(self.units.dyn15,self.spell.piercingHowlDebuff,"player")~=nil or false
         end
 
         function self.getDebuffsDuration()
@@ -352,6 +355,11 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if self.level>=7 and ((self.power>30 and getHP(thisUnit)<20) or self.buff.suddenDeath) and getDistance(thisUnit)<5 then
                 if castSpell(thisUnit,self.spell.execute,false,false,false) then return end
+            end
+        end
+        function self.castPiercingHowl(thisUnit)
+            if self.level>=19 and self.power>10 and getDebuffRemain(thisUnit,self.spell.piercingHowlDebuff,"player")==0 then
+                if castSpell(thisUnit,self.spell.piercingHowl,false,false,false) then return end
             end
         end
         function self.castRagingBlow()

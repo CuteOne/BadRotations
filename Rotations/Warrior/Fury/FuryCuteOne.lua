@@ -53,10 +53,14 @@ if select(3,UnitClass("player")) == 1 then
             section = bb.ui:createSection(bb.ui.window.profile,  "General")
                 -- Dummy DPS Test
                 bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+                -- Battle/Commanding
+                bb.ui:createCheckbox(section, "Battle/Commanding", "Check to use Battle/Commanding Shouts")
                 -- Berserker Rage
-                bb.ui:createCheckbox(section,"Berserker Rage")
+                bb.ui:createCheckbox(section,"Berserker Rage", "Check to use Berserker Rage")
                 -- Hamstring
-                bb.ui:createCheckbox(section,"Hamstring")
+                bb.ui:createCheckbox(section,"Hamstring", "Check to use Hamstring")
+                -- Piercing Howl
+                bb.ui:createCheckbox(section,"Piercing Howl", "Check to use Piercing Howl")
                 -- Pre-Pull Timer
                 bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             bb.ui:checkSectionState(section)
@@ -113,6 +117,7 @@ if select(3,UnitClass("player")) == 1 then
                 bb.ui:createSpinner(section, "Enraged Regeneration", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
                 -- Intervene
                 bb.ui:createSpinner(section, "Intervene",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+                bb.ui:createDropdownWithout(section, "Intervene - Target", {"|cff00FF00TANK","|cffFFFF00HEALER","|cffFF0000TANK/HEALER","ANY"}, 4, "|cffFFFFFFFriendly to cast on")
                 -- Intimidating Shout
                 bb.ui:createSpinner(section, "Intimidating Shout",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
                 -- Rallying Cry
@@ -227,10 +232,12 @@ if select(3,UnitClass("player")) == 1 then
     --------------------
         -- Action list - Extras
             function actionList_Extra()
+                if isChecked("Battle/Commanding") then
                 -- Battle Shout
-                if bb.player.castBattleShout() then return end
+                    if bb.player.castBattleShout() then return end
                 -- Commanding Shout
-                if bb.player.castCommandingShout() then return end
+                    if bb.player.castCommandingShout() then return end
+                end
                 -- Berserker Rage
                 if isChecked("Berserker Rage") and hasNoControl(bb.player.spell.berserkerRage) then
                     if bb.player.castBeserkerRage() then return end
@@ -241,6 +248,15 @@ if select(3,UnitClass("player")) == 1 then
                         thisUnit = getEnemies("player",5)[i]
                         if isMoving(thisUnit) and getFacing(thisUnit,"player") == false then
                             if bb.player.castHamstring(thisUnit) then return end
+                        end
+                    end
+                end
+                -- Piercing Howl
+                if isChecked("Piercing Howl") then
+                    for i=1,#getEnemies("player",15) do
+                        thisUnit = getEnemies("player",15)[i]
+                        if isMoving(thisUnit) and getFacing(thisUnit,"player") == false then
+                            if bb.player.castEnrangedRegeneration(thisUnit) then return end
                         end
                     end
                 end
@@ -282,8 +298,25 @@ if select(3,UnitClass("player")) == 1 then
                     if isChecked("Intervene") then
                         for i=1,#nNova do
                             thisUnit = nNova[i].unit
-                            if UnitGroupRolesAssigned(thisUnit)=="HEALER" and getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
-                                if bb.player.castIntervene(thisUnit) then return end
+                            if getOptionValue("Intervene - Target")==4 then
+                                if getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
+                                    if bb.player.castVigilance(thisUnit) then return end
+                                end
+                            end
+                            if getOptionValue("Intervene - Target")==3 then
+                                if (UnitGroupRolesAssigned(thisUnit)=="HEALER" or UnitGroupRolesAssigned(thisUnit)=="TANK") and getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
+                                    if bb.player.castVigilance(thisUnit) then return end
+                                end
+                            end
+                            if getOptionValue("Intervene - Target")==2 then
+                                if UnitGroupRolesAssigned(thisUnit)=="HEALER" and getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
+                                    if bb.player.castVigilance(thisUnit) then return end
+                                end
+                            end
+                            if getOptionValue("Intervene - Target")==1 then
+                                if UnitGroupRolesAssigned(thisUnit)=="TANK" and getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
+                                    if bb.player.castVigilance(thisUnit) then return end
+                                end
                             end
                         end
                     end
