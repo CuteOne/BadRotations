@@ -17,6 +17,7 @@ function cWarrior:new(spec)
 	self.debuff.duration 	= {}		-- Debuff Durations
 	self.debuff.remain 	 	= {}		-- Debuff Time Remaining
 	self.debuff.count 		= {} 		-- Debuff Target Count
+	self.warriorFunction 	= {} 		-- Warrior Functions
 	self.warriorSpell 		= {
 
 		-- Ability - Crowd Control
@@ -136,6 +137,7 @@ function cWarrior:new(spec)
 		self.getClassDebuffsRemain()
 		self.getClassDebuffsCount()
 		self.getClassRecharge()
+		self.getClassFunctions()
 	end
 
 -- Dynamic Units updates
@@ -271,191 +273,264 @@ function cWarrior:new(spec)
         bb.ui:checkSectionState(section)
 	end
 
+	function self.getClassFunctions()
 ------------------------------
 --- SPELLS - CROWD CONTROL --- 
 ------------------------------
-	function self.castHamstring(thisUnit)
-		if self.level>=36 and self.cd.hamstring==0 and getDebuffRemain(thisUnit,self.spell.hamstringDebuff,"player")==0 then
-			if castSpell(thisUnit,self.spell.hamstring,false,false,false) then return end
+		function self.castHamstring(thisUnit)
+			self.Hamstring=false
+			if thisUnit == nil then thisUnit = "target" end
+			if self.level>=36 and self.cd.hamstring==0 and getDebuffRemain(thisUnit,self.spell.hamstringDebuff,"player")==0 then
+				if thisUnit =="debug" then 
+					self.Hamstring=true 
+				else
+					if castSpell(thisUnit,self.spell.hamstring,false,false,false) then return end
+				end
+			end
+			if thisUnit=="debug" then return self.Hamstring end
 		end
-	end
+		self.warriorFunction.Hamstring = self.castHamstring("debug")
 
 --------------------------
 --- SPELLS - DEFENSIVE ---
 --------------------------
-	function self.castPummel(thisUnit)
-		if self.level>=24 and self.cd.pummel==0 then
-			if castSpell(thisUnit,self.spell.pummel,false,false,false) then return end
+		function self.castPummel(thisUnit)
+			self.Pummel=false
+			if self.level>=24 and self.cd.pummel==0 then
+				if thisUnit == "debug" then
+					self.Pummel=true
+				else
+					if castSpell(thisUnit,self.spell.pummel,false,false,false) then return end
+				end
+			end
+			if thisUnit == "debug" then return self.Pummel end
 		end
-	end
-	function self.castIntimidatingShout()
-		if self.level>=52 and self.cd.intimidatingShout==0 and getDistance("target")<8 then
-			if castSpell("player",self.spell.intimidatingShout,false,false,false) then return end
+		self.warriorFunction.Pummel = self.castPummel("debug")
+		function self.castIntimidatingShout(thisUnit)
+			self.IntimidatingShout=false
+			if self.level>=52 and self.cd.intimidatingShout==0 and getDistance(self.units.dyn8AoE)<8 then
+				if thisUnit == "debug" then
+					self.IntimidatingShout=true
+				else
+					if castSpell("player",self.spell.intimidatingShout,false,false,false) then return end
+				end
+			end
+			if thisUnit == "debug" then return self.IntimidatingShout end
 		end
-	end
-	function self.castSpellReflection()
-		if self.level>=66 and self.cd.spellReflection==0 then
-			if castSpell("player",self.spell.spellReflection,false,false,false) then return end
+		self.warriorFunction.IntimidatingShout = self.castIntimidatingShout("debug")
+		function self.castSpellReflection(thisUnit)
+			self.SpellReflection=false
+			if self.level>=66 and self.cd.spellReflection==0 then
+				if thisUnit == "debug" then
+					self.SpellReflection=true
+				else
+					if castSpell("player",self.spell.spellReflection,false,false,false) then return end
+				end
+			end
+			if thisUnit == "debug" then return self.SpellReflection end
 		end
-	end
-	function self.castVigilance(thisUnit)
-		if self.talent.vigilance and self.cd.vigilance==0 then
-			if castSpell(thisUnit,self.spell.vigilance,false,false,false) then return end
+		self.warriorFunction.SpellReflection = self.castSpellReflection("debug")
+		function self.castVigilance(thisUnit)
+			self.Vigilance=false
+			if self.talent.vigilance and self.cd.vigilance==0 then
+				if thisUnit == "debug" then
+					self.Vigilance=true
+				else
+					if castSpell(thisUnit,self.spell.vigilance,false,false,false) then return end
+				end
+			end
+			if thisUnit == "debug" then return self.Vigilance end
 		end
-	end
+		self.warriorFunction.Vigilance = self.castVigilance("debug")
 
 --------------------------
 --- SPELLS - OFFENSIVE ---
 --------------------------
-	function self.castAvatar()
-		if self.talent.avatar and self.cd.avatar==0 and inRange(self.spell.pummel,self.units.dyn5) and getTimeToDie(self.units.dyn5)>5 then
-			if castSpell("player",self.spell.avatar,false,false,false) then return end
-		end
-	end
-	function self.castBattleShout()
-		if self.level>=42 then
-	        if self.instance=="none" and not isBuffed("player",{self.spell.battleShout,19506,57330}) then
-	        	if castSpell("player",self.spell.battleShout,false,false,false) then return end
-	        else
-		        local totalCount = GetNumGroupMembers()
-		        local currentCount = currentCount or 0
-		        local needsBuff = needsBuff or 0
-		        for i=1,#nNova do
-		            local thisUnit = nNova[i].unit
-		            local distance = getDistance(thisUnit)
-		            local dead = UnitIsDeadOrGhost(thisUnit)
-		            if distance<30 then
-		                currentCount = currentCount+1
-		            end
-		            if not isBuffed(thisUnit,{self.spell.battleShout,19506,57330}) and not dead and UnitIsPlayer(thisUnit) and not UnitInVehicle(thisUnit) then
-		            	needsBuff = needsBuff+1
-		            end
-		        end
-		        if currentCount>=totalCount and needsBuff>0 then
-		            if castSpell("player",self.spell.battleShout,false,false,false) then return end
-		        end
-		    end
-	    end
-	end
-	function self.castBladestorm()
-		if self.talent.bladestorm and self.cd.bladestorm==0 and getDistance(self.units.dyn8AoE)<8 and getTimeToDie(self.units.dyn8AoE)>3 then
-			if castSpell("player",self.spell.bladestorm,false,false,false) then return end
-		end
-	end
-	function self.castBloodbath()
-		if self.talent.bloodbath and self.cd.bloodbath==0 and inRange(self.spell.pummel,self.units.dyn5) and getTimeToDie(self.units.dyn5)>6 then
-			if castSpell("player",self.spell.bloodbath,false,false,false) then return end
-		end
-	end
-	function self.castCommandingShout()
-		if self.level>=42 then
-	        if self.instance=="none" and isBuffed("player",{self.spell.battleShout,19506,57330}) and select(8,UnitBuffID("player",self.spell.battleShout))~="player" 
-	        	and not isBuffed("player",{self.spell.commandingShout,21562,109773,160014,90364,160003,111922})
-	        then
-	        	if castSpell("player",self.spell.commandingShout,false,false,false) then return end
-	        else
-		        local totalCount = GetNumGroupMembers()
-		        local currentCount = currentCount or 0
-		        local needsBuff = needsBuff or 0
-		        for i=1,#nNova do
-		            local thisUnit = nNova[i].unit
-		            local distance = getDistance(thisUnit)
-		            local dead = UnitIsDeadOrGhost(thisUnit)
-		            if distance<30 then
-		                currentCount = currentCount+1
-		            end
-		            if not isBuffed(thisUnit,{self.spell.commandingShout,19506,57330}) and not dead and UnitIsPlayer(thisUnit) and not UnitInVehicle(thisUnit) then
-		            	needsBuff = needsBuff+1
-		            end
-		        end
-		        if currentCount>=totalCount and needsBuff>0 and select(8,UnitBuffID("player",self.spell.battleShout))~="player" 
-		        	and not isBuffed("player",{self.spell.commandingShout,21562,109773,160014,90364,160003,111922}) 
-		        then
-		            if castSpell("player",self.spell.commandingShout,false,false,false) then return end
-		        end
-		    end
-	    end
-	end
-	function self.castDragonRoar()
-		if self.talent.dragonRoar and self.cd.dragonRoar==0 and getDistance(self.units.dyn8AoE)<8 and (getTimeToDie(self.units.dyn8AoE)>5 or #getEnemies("player",8)>1) then
-			if castSpell(self.units.dyn8AoE,self.spell.dragonRoar,false,false,false) then return end
-		end
-	end
-	function self.castHeroicThrow()
-		local hasThreat = hasThreat("target")
-		if self.level>=22 and self.cd.heroicThrow==0 and (hasThreat or select(2,IsInInstance())=="none") then
-			if self.charges.charge==0 or inRange(self.spell.charge,"target") then
-				if castSpell("target",self.spell.heroicThrow,false,false,false) then return end
+		function self.castAvatar()
+			if self.talent.avatar and self.cd.avatar==0 and inRange(self.spell.pummel,self.units.dyn5) and getTimeToDie(self.units.dyn5)>5 then
+				if castSpell("player",self.spell.avatar,false,false,false) then return end
 			end
 		end
-	end
-	function self.castImpendingVictory()
-		if self.talent.impendingVictory and self.cd.impendingVictory then
-			if castSpell(self.units.dyn5,self.spell.impendingVictory,false,false,false) then return end
+		--self.functionAvater = self.castAvatar()
+		function self.castBattleShout(thisUnit)
+			self.battleShout = false
+			if self.level>=42 then
+		        if self.instance=="none" and not isBuffed("player",{self.spell.battleShout,19506,57330}) then
+		        	if thisUnit == "debug" then
+		        		self.battleShout=true
+		        	else
+		        		if castSpell("player",self.spell.battleShout,false,false,false) then return end
+		        	end
+		        else
+			        local totalCount = GetNumGroupMembers()
+			        local currentCount = currentCount or 0
+			        local needsBuff = needsBuff or 0
+			        for i=1,#nNova do
+			            local thisUnit = nNova[i].unit
+			            local distance = getDistance(thisUnit)
+			            local dead = UnitIsDeadOrGhost(thisUnit)
+			            if distance<30 then
+			                currentCount = currentCount+1
+			            end
+			            if not isBuffed(thisUnit,{self.spell.battleShout,19506,57330}) and not dead and UnitIsPlayer(thisUnit) and not UnitInVehicle(thisUnit) then
+			            	needsBuff = needsBuff+1
+			            end
+			        end
+			        if currentCount>=totalCount and needsBuff>0 then
+			        	if thisUnit == "debug" then
+			        		self.battleShout=true
+			        	else
+			            	if castSpell("player",self.spell.battleShout,false,false,false) then return end
+			            end
+			        end
+			    end
+		    end
+		    if thisUnit == "debug" then return self.battleShout end
 		end
-	end
-	function self.castRavager()
-		if self.talent.ravager and self.cd.ravager==0 and getDistance(self.units.dyn40)<40 and getTimeToDie(self.units.dyn40)>5 then
-			if castGroundAtBestLocation(self.spell.ravager,6,1,40) then return end
-			-- if castSpell(self.units.dyn40,self.spell.ravager,false,false,false) then return end
+		self.warriorFunction.BattleShout = self.castBattleShout("debug")
+		function self.castBladestorm()
+			if self.talent.bladestorm and self.cd.bladestorm==0 and getDistance(self.units.dyn8AoE)<8 and getTimeToDie(self.units.dyn8AoE)>3 then
+				if castSpell("player",self.spell.bladestorm,false,false,false) then return end
+			end
 		end
-	end
-	function self.castShockwave()
-		if self.talent.shockwave and self.cd.shockwave==0 and power>10 and getDistance(self.units,dyn10)<10 and getTimeToDie(self.units.dyn10)>5 then
-			if castSpell(self.units.dyn10,self.spell.shockwave,false,false,false) then return end
+		--self.functionBladestorm = self.castBladestorm()
+		function self.castBloodbath()
+			if self.talent.bloodbath and self.cd.bloodbath==0 and inRange(self.spell.pummel,self.units.dyn5) and getTimeToDie(self.units.dyn5)>6 then
+				if castSpell("player",self.spell.bloodbath,false,false,false) then return end
+			end
 		end
-	end
-	function self.castStormBolt()
-		if self.talent.stormBolt and self.cd.stormBolt==0 then
-			if castSpell("target",self.spell.stormBolt,false,false,false) then return end
+		--self.functionBloodbath = self.castBloodbath()
+		function self.castCommandingShout()
+			if self.level>=42 then
+		        if self.instance=="none" and isBuffed("player",{self.spell.battleShout,19506,57330}) and select(8,UnitBuffID("player",self.spell.battleShout))~="player" 
+		        	and not isBuffed("player",{self.spell.commandingShout,21562,109773,160014,90364,160003,111922})
+		        then
+		        	if castSpell("player",self.spell.commandingShout,false,false,false) then return end
+		        else
+			        local totalCount = GetNumGroupMembers()
+			        local currentCount = currentCount or 0
+			        local needsBuff = needsBuff or 0
+			        for i=1,#nNova do
+			            local thisUnit = nNova[i].unit
+			            local distance = getDistance(thisUnit)
+			            local dead = UnitIsDeadOrGhost(thisUnit)
+			            if distance<30 then
+			                currentCount = currentCount+1
+			            end
+			            if not isBuffed(thisUnit,{self.spell.commandingShout,19506,57330}) and not dead and UnitIsPlayer(thisUnit) and not UnitInVehicle(thisUnit) then
+			            	needsBuff = needsBuff+1
+			            end
+			        end
+			        if currentCount>=totalCount and needsBuff>0 and select(8,UnitBuffID("player",self.spell.battleShout))~="player" 
+			        	and not isBuffed("player",{self.spell.commandingShout,21562,109773,160014,90364,160003,111922}) 
+			        then
+			            if castSpell("player",self.spell.commandingShout,false,false,false) then return end
+			        end
+			    end
+		    end
 		end
-	end
-	function self.castVictoryRush()
-		if not self.talent.impendingVictory and self.level>=5 and self.buff.victoryRush then
-			if castSpell(self.units.dyn5,self.spell.victoryRush,false,false,false) then return end
+		--self.functionCommandingShout = self.castCommandingShout()
+		function self.castDragonRoar(thisUnit)
+			self.DragonRoar = false
+			if self.talent.dragonRoar and self.cd.dragonRoar==0 and getDistance(self.units.dyn8AoE)<8 and (getTimeToDie(self.units.dyn8AoE)>5 or #getEnemies("player",8)>1) then
+				if thisUnit == "debug" then 
+					self.DragonRoar = true
+				else
+					if castSpell(self.units.dyn8AoE,self.spell.dragonRoar,false,false,false) then return end
+				end
+			end
+			if thisUnit == "debug" then return self.DragonRoar end
 		end
-	end
+		self.warriorFunction.DragonRoar = self.castDragonRoar("debug")
+		function self.castHeroicThrow()
+			local hasThreat = hasThreat("target")
+			if self.level>=22 and self.cd.heroicThrow==0 and (hasThreat or select(2,IsInInstance())=="none") then
+				if self.charges.charge==0 or inRange(self.spell.charge,"target") then
+					if castSpell("target",self.spell.heroicThrow,false,false,false) then return end
+				end
+			end
+		end
+		--self.functionHeroicThrow = self.castHeroicThrow()
+		function self.castImpendingVictory()
+			if self.talent.impendingVictory and self.cd.impendingVictory then
+				if castSpell(self.units.dyn5,self.spell.impendingVictory,false,false,false) then return end
+			end
+		end
+		--self.functionImpendingVictory = self.castImpendingVictory()
+		function self.castRavager()
+			if self.talent.ravager and self.cd.ravager==0 and getDistance(self.units.dyn40)<40 and getTimeToDie(self.units.dyn40)>5 then
+				if castGroundAtBestLocation(self.spell.ravager,6,1,40) then return end
+				-- if castSpell(self.units.dyn40,self.spell.ravager,false,false,false) then return end
+			end
+		end
+		--self.functionRavager = self.castRavager()
+		function self.castShockwave()
+			if self.talent.shockwave and self.cd.shockwave==0 and power>10 and getDistance(self.units,dyn10)<10 and getTimeToDie(self.units.dyn10)>5 then
+				if castSpell(self.units.dyn10,self.spell.shockwave,false,false,false) then return end
+			end
+		end
+		--self.functionShockwave = self.castShockwave()
+		function self.castStormBolt()
+			if self.talent.stormBolt and self.cd.stormBolt==0 then
+				if castSpell("target",self.spell.stormBolt,false,false,false) then return end
+			end
+		end
+		--self.functionStormBolt = self.castStormBolt()
+		function self.castVictoryRush()
+			if not self.talent.impendingVictory and self.level>=5 and self.buff.victoryRush then
+				if castSpell(self.units.dyn5,self.spell.victoryRush,false,false,false) then return end
+			end
+		end
+		--self.functionVictoryRush = self.castVictoryRush()
 
 -----------------------
 --- SPELLS - STANCE ---
 -----------------------
-	function self.castBattleStance()
-		if not self.buff.battleStance and self.cd.battleStance==0 then
-			if castSpell("player",self.spell.battleStance,false,false,false) then return end
+		function self.castBattleStance()
+			if not self.buff.battleStance and self.cd.battleStance==0 then
+				if castSpell("player",self.spell.battleStance,false,false,false) then return end
+			end
 		end
-	end
-	function self.castDefensiveStance()
-		if self.level>=9 and not self.buff.defensiveStance and self.cd.defensiveStance==0 then
-			if castSpell("player",self.spell.defensiveStance,false,false,false) then return end
+		--self.functionBattleStance = self.castBattleStance()
+		function self.castDefensiveStance()
+			if self.level>=9 and not self.buff.defensiveStance and self.cd.defensiveStance==0 then
+				if castSpell("player",self.spell.defensiveStance,false,false,false) then return end
+			end
 		end
-	end
+		--self.functionDefensiveStance = self.castDefensiveStance()
 
 ------------------------
 --- SPELLS - UTILITY ---
 ------------------------
- 	function self.castBeserkerRage()
- 		if self.level>=54 and self.cd.berserkerRage==0 and (hasNoControl(self.spell.berserkerRage) or GetSpecialization()==2) then
- 			if castSpell("player",self.spell.berserkerRage,false,false,false) then return end
- 		end
- 	end
-	function self.castCharge()
-		local hasThreat = hasThreat("target")
-		if self.level>=3 and self.cd.charge==0 and (hasThreat or select(2,IsInInstance())=="none") and inRange(self.spell.charge,"target") then
-			if castSpell("target",self.spell.charge,false,false,false) then return end
+	 	function self.castBeserkerRage()
+	 		if self.level>=54 and self.cd.berserkerRage==0 and (hasNoControl(self.spell.berserkerRage) or GetSpecialization()==2) then
+	 			if castSpell("player",self.spell.berserkerRage,false,false,false) then return end
+	 		end
+	 	end
+	 	--self.functionBerserkerRage = self.castBeserkerRage()
+		function self.castCharge()
+			local hasThreat = hasThreat("target")
+			if self.level>=3 and self.cd.charge==0 and (hasThreat or select(2,IsInInstance())=="none" or UnitIsTappedByPlayer("target")~=nil) and inRange(self.spell.charge,"target") then
+				if castSpell("target",self.spell.charge,false,false,false) then return end
+			end
 		end
-	end
-	function self.castHeroicLeap()
-		local hasThreat = hasThreat("target")
-		if self.level>=85 and self.cd.heroicLeap==0 and (hasThreat or select(2,IsInInstance())=="none") and lastSpellCast~=self.spell.charge then --and inRange(self.spell.heroicLeap,"target") then
-			if castGroundAtBestLocation(self.spell.heroicLeap,8,1,40,8) then return end
-			--if castGround("target",self.spell.heroicLeap,40) then return end
+		--self.functionCharge = self.castCharge()
+		function self.castHeroicLeap()
+			local hasThreat = hasThreat("target")
+			if self.level>=85 and self.cd.heroicLeap==0 and (hasThreat or select(2,IsInInstance())=="none" or UnitIsTappedByPlayer("target")~=nil) and lastSpellCast~=self.spell.charge then --and inRange(self.spell.heroicLeap,"target") then
+				if castGroundAtBestLocation(self.spell.heroicLeap,8,1,40,8) then return end
+				--if castGround("target",self.spell.heroicLeap,40) then return end
+			end
 		end
-	end
-	function self.castIntervene(thisUnit)
-		if thisUnit == nil then thisUnit = "target" end
-		if self.level>=72 and self.cd.intervene==0 and UnitIsPlayer(thisUnit) and UnitIsFriend(thisUnit,"player") and not inRange(self.spell.pummel,thisUnit) then
-			if castSpell(thisUnit,self.spell.intervene,false,false,false) then return end
+		--self.functionHeroicLeap = self.castHeroicLeap()
+		function self.castIntervene(thisUnit)
+			if thisUnit == nil then thisUnit = "target" end
+			if self.level>=72 and self.cd.intervene==0 and UnitIsPlayer(thisUnit) and UnitIsFriend(thisUnit,"player") and not inRange(self.spell.pummel,thisUnit) then
+				if castSpell(thisUnit,self.spell.intervene,false,false,false) then return end
+			end
 		end
+		--self.functionIntervene = self.castIntervene()
+
 	end
 
 -- Return

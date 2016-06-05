@@ -39,6 +39,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             wildStrike                  = 100130,
 
             -- Buff - Defensive
+            shieldBarrierBuff           = 174926,
             
             -- Buff - Offensive
             bloodsurgeBuff              = 46916,
@@ -130,6 +131,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             self.buff.meatCleaver   = UnitBuffID("player",self.spell.meatCleaverBuff)~=nil or false
             self.buff.ragingBlow    = UnitBuffID("player",self.spell.ragingBlowBuff)~=nil or false
             self.buff.recklessness  = UnitBuffID("player",self.spell.recklessnessBuff)~=nil or false
+            self.buff.shieldBarrier = UnitBuffID("player",self.spell.shieldBarrierBuff)~=nil or false
             self.buff.suddenDeath   = UnitBuffID("player",self.spell.suddenDeathBuff)~=nil or false
         end
 
@@ -214,6 +216,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             self.cd.bloodthirst     = getSpellCD(self.spell.bloodthirst)
             self.cd.dieByTheSword   = getSpellCD(self.spell.dieByTheSword)
             self.cd.siegebreaker    = getSpellCD(self.spell.siegebreaker)
+            self.cd.shieldBarrier   = getSpellCD(self.spell.shieldBarrier)
         end
 
         --------------
@@ -369,6 +372,11 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         function self.castSiegebreaker()
             if self.talent.siegebreaker and self.cd.siegebreaker==0 and getDistance(self.units.dyn5)<5 and getTimeToDie(self.units.dyn5)>5 then
                 if castSpell(self.units.dyn5,self.spell.siegebreaker,false,false,false) then return end
+            end
+        end
+        function self.castShieldBarrier()
+            if self.level>=81 and self.power>20 and self.buff.defensiveStance and self.cd.shieldBarrier==0 then
+                if castSpell("player",self.spell.shieldBarrier,false,false,false) then return end
             end
         end
         function self.castWhirlwind()
