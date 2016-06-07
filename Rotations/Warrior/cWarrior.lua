@@ -213,7 +213,20 @@ function cWarrior:new(spec)
 	function self.getClassDebuffs()
 		local UnitDebuffID = UnitDebuffID
 
-		-- self.debuff.exhaustion = UnitDebuffID("player",self.spell.exhaustionDebuff)~=nil or false
+		if getTalent(1,2) then
+			if chargeDebuff == nil then chargeDebuff = 0 end
+			if lastSpellCast == self.spell.charge and chargeDebuff==0 then
+				chargeDebuff = GetTime()+12
+			end
+			if GetTime()>=chargeDebuff then 
+				chargeDebuff = 0
+				self.debuff.charge = false 
+			else
+				self.debuff.charge = true
+			end
+		else
+			self.debuff.charge = false
+		end
 	end
 
 	function self.getClassDebuffsDuration()
@@ -546,7 +559,7 @@ function cWarrior:new(spec)
 		--self.functionCharge = self.castCharge()
 		function self.castHeroicLeap()
 			local hasThreat = hasThreat("target")
-			if self.level>=85 and self.cd.heroicLeap==0 and (hasThreat or select(2,IsInInstance())=="none" or UnitIsTappedByPlayer("target")~=nil) and lastSpellCast~=self.spell.charge then --and inRange(self.spell.heroicLeap,"target") then
+			if self.level>=85 and self.cd.heroicLeap==0 and (hasThreat or select(2,IsInInstance())=="none") and not (lastSpellCast==self.spell.charge or lastSpellCast==self.spell.heroicThrow) then
 				if castGroundAtBestLocation(self.spell.heroicLeap,8,1,40,8) then return end
 				--if castGround("target",self.spell.heroicLeap,40) then return end
 			end

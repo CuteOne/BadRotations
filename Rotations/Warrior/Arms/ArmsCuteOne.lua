@@ -441,7 +441,7 @@ if select(3,UnitClass("player")) == 1 then
                     end
                 -- Heroic Leap 
                     -- heroic_leap,if=(raid_event.movement.distance>25&raid_event.movement.in>45)|!raid_event.movement.exists
-                    if useMover() and lastSpellCast~=bb.player.spell.charge then
+                    if useMover() then
                         if bb.player.castHeroicLeap() then return end
                     end
                 end
@@ -476,12 +476,12 @@ if select(3,UnitClass("player")) == 1 then
             function actionList_Movement()
             -- Heroic Leap
                 -- heroic_leap
-                if useMover() and lastSpellCast~=bb.player.spell.charge then
+                if useMover() then
                     if bb.player.castHeroicLeap() then return end
                 end
             -- Charge
                 -- charge,cycle_targets=1,if=debuff.charge.down
-                if useMover() then
+                if useMover() and not debuff.charge then
                     if bb.player.castCharge() then return end
                 end
             -- Storm Bolt
@@ -715,7 +715,7 @@ if select(3,UnitClass("player")) == 1 then
                 if inCombat then
                 -- Charge
                     -- charge,if=debuff.charge.down
-                    if useMover() then
+                    if useMover() and not debuff.charge then
                         if bb.player.castCharge() then return end
                     end
                 -- Auto Attack
