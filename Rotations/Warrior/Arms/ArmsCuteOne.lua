@@ -278,24 +278,26 @@ if select(3,UnitClass("player")) == 1 then
                     if isChecked("Intervene") then
                         for i=1,#nNova do
                             thisUnit = nNova[i].unit
-                            if getOptionValue("Intervene - Target")==4 then
-                                if getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
-                                    if bb.player.castVigilance(thisUnit) then return end
+                            if thisUnit ~= "player" then
+                                if getOptionValue("Intervene - Target")==4 then
+                                    if getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
+                                        if bb.player.castVigilance(thisUnit) then return end
+                                    end
                                 end
-                            end
-                            if getOptionValue("Intervene - Target")==3 then
-                                if (UnitGroupRolesAssigned(thisUnit)=="HEALER" or UnitGroupRolesAssigned(thisUnit)=="TANK") and getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
-                                    if bb.player.castVigilance(thisUnit) then return end
+                                if getOptionValue("Intervene - Target")==3 then
+                                    if (UnitGroupRolesAssigned(thisUnit)=="HEALER" or UnitGroupRolesAssigned(thisUnit)=="TANK") and getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
+                                        if bb.player.castVigilance(thisUnit) then return end
+                                    end
                                 end
-                            end
-                            if getOptionValue("Intervene - Target")==2 then
-                                if UnitGroupRolesAssigned(thisUnit)=="HEALER" and getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
-                                    if bb.player.castVigilance(thisUnit) then return end
+                                if getOptionValue("Intervene - Target")==2 then
+                                    if UnitGroupRolesAssigned(thisUnit)=="HEALER" and getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
+                                        if bb.player.castVigilance(thisUnit) then return end
+                                    end
                                 end
-                            end
-                            if getOptionValue("Intervene - Target")==1 then
-                                if UnitGroupRolesAssigned(thisUnit)=="TANK" and getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
-                                    if bb.player.castVigilance(thisUnit) then return end
+                                if getOptionValue("Intervene - Target")==1 then
+                                    if UnitGroupRolesAssigned(thisUnit)=="TANK" and getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
+                                        if bb.player.castVigilance(thisUnit) then return end
+                                    end
                                 end
                             end
                         end
@@ -316,24 +318,26 @@ if select(3,UnitClass("player")) == 1 then
                     if isChecked("Vigilance") then
                         for i=1,#nNova do
                             thisUnit = nNova[i].unit
-                            if getOptionValue("Vigilance - Target")==4 then
-                                if getHP(thisUnit)<getOptionValue("Vigilance") and getDistance(thisUnit)<40 then
-                                    if bb.player.castVigilance(thisUnit) then return end
+                            if thisUnit ~= "player" then
+                                if getOptionValue("Vigilance - Target")==4 then
+                                    if getHP(thisUnit)<getOptionValue("Vigilance") and getDistance(thisUnit)<40 then
+                                        if bb.player.castVigilance(thisUnit) then return end
+                                    end
                                 end
-                            end
-                            if getOptionValue("Vigilance - Target")==3 then
-                                if (UnitGroupRolesAssigned(thisUnit)=="HEALER" or UnitGroupRolesAssigned(thisUnit)=="TANK") and getHP(thisUnit)<getOptionValue("Vigilance") and getDistance(thisUnit)<40 then
-                                    if bb.player.castVigilance(thisUnit) then return end
+                                if getOptionValue("Vigilance - Target")==3 then
+                                    if (UnitGroupRolesAssigned(thisUnit)=="HEALER" or UnitGroupRolesAssigned(thisUnit)=="TANK") and getHP(thisUnit)<getOptionValue("Vigilance") and getDistance(thisUnit)<40 then
+                                        if bb.player.castVigilance(thisUnit) then return end
+                                    end
                                 end
-                            end
-                            if getOptionValue("Vigilance - Target")==2 then
-                                if UnitGroupRolesAssigned(thisUnit)=="HEALER" and getHP(thisUnit)<getOptionValue("Vigilance") and getDistance(thisUnit)<40 then
-                                    if bb.player.castVigilance(thisUnit) then return end
+                                if getOptionValue("Vigilance - Target")==2 then
+                                    if UnitGroupRolesAssigned(thisUnit)=="HEALER" and getHP(thisUnit)<getOptionValue("Vigilance") and getDistance(thisUnit)<40 then
+                                        if bb.player.castVigilance(thisUnit) then return end
+                                    end
                                 end
-                            end
-                            if getOptionValue("Vigilance - Target")==1 then
-                                if UnitGroupRolesAssigned(thisUnit)=="TANK" and getHP(thisUnit)<getOptionValue("Vigilance") and getDistance(thisUnit)<40 then
-                                    if bb.player.castVigilance(thisUnit) then return end
+                                if getOptionValue("Vigilance - Target")==1 then
+                                    if UnitGroupRolesAssigned(thisUnit)=="TANK" and getHP(thisUnit)<getOptionValue("Vigilance") and getDistance(thisUnit)<40 then
+                                        if bb.player.castVigilance(thisUnit) then return end
+                                    end
                                 end
                             end
                         end

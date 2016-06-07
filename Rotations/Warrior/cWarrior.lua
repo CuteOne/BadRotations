@@ -539,7 +539,7 @@ function cWarrior:new(spec)
 	 	--self.functionBerserkerRage = self.castBeserkerRage()
 		function self.castCharge()
 			local hasThreat = hasThreat("target")
-			if self.level>=3 and self.cd.charge==0 and (hasThreat or select(2,IsInInstance())=="none" or UnitIsTappedByPlayer("target")~=nil) and inRange(self.spell.charge,"target") then
+			if self.level>=3 and self.cd.charge==0 and (hasThreat or select(2,IsInInstance())=="none") and inRange(self.spell.charge,"target") then
 				if castSpell("target",self.spell.charge,false,false,false) then return end
 			end
 		end

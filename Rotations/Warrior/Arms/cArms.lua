@@ -290,7 +290,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
             self.mode.cooldown  = BadBoy_data["Cooldown"]
             self.mode.defensive = BadBoy_data["Defensive"]
             self.mode.interrupt = BadBoy_data["Interrupt"]
-            self.mode.cleave    = BadBoy_data["Mover"]
+            self.mode.mover     = BadBoy_data["Mover"]
         end
 
         -- Create the toggle defined within rotation files
