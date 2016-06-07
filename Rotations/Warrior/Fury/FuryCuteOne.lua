@@ -261,7 +261,7 @@ if select(3,UnitClass("player")) == 1 then
                     end
                 end
                 -- Intervene
-                if isChecked("Intervene") then
+                if isChecked("Intervene") and not inCombat then
                     if bb.player.castIntervene("target") then return end
                 end
             end -- End Action List - Extra
@@ -311,22 +311,22 @@ if select(3,UnitClass("player")) == 1 then
                             if thisUnit ~= "player" then
                                 if getOptionValue("Intervene - Target")==4 then
                                     if getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
-                                        if bb.player.castVigilance(thisUnit) then return end
+                                        if bb.player.castIntervene(thisUnit) then return end
                                     end
                                 end
                                 if getOptionValue("Intervene - Target")==3 then
                                     if (UnitGroupRolesAssigned(thisUnit)=="HEALER" or UnitGroupRolesAssigned(thisUnit)=="TANK") and getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
-                                        if bb.player.castVigilance(thisUnit) then return end
+                                        if bb.player.castIntervene(thisUnit) then return end
                                     end
                                 end
                                 if getOptionValue("Intervene - Target")==2 then
                                     if UnitGroupRolesAssigned(thisUnit)=="HEALER" and getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
-                                        if bb.player.castVigilance(thisUnit) then return end
+                                        if bb.player.castIntervene(thisUnit) then return end
                                     end
                                 end
                                 if getOptionValue("Intervene - Target")==1 then
                                     if UnitGroupRolesAssigned(thisUnit)=="TANK" and getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
-                                        if bb.player.castVigilance(thisUnit) then return end
+                                        if bb.player.castIntervene(thisUnit) then return end
                                     end
                                 end
                             end
@@ -403,8 +403,9 @@ if select(3,UnitClass("player")) == 1 then
                     if isChecked("Spell Reflection") then
                         for i=1, #getEnemies("player",40) do
                             thisUnit = getEnemies("player",40)[i]
+                            targetMe = UnitIsUnit("player",thisUnit) or false
                             if UnitCastingInfo(thisUnit) ~= nil then
-                                if (select(6,UnitCastingInfo(thisUnit))/1000 - GetTime())<5 and UnitName("targettarget") == UnitName("player") then
+                                if (select(6,UnitCastingInfo(thisUnit))/1000 - GetTime())<5 and targetMe then
                                     if bb.player.castSpellReflection() then return end
                                 end
                             end
