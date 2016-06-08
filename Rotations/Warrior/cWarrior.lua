@@ -567,6 +567,14 @@ function cWarrior:new(spec)
                 if thisUnit=="Target" and (hasThreat or select(2,IsInInstance())=="none") then
                     if castGround("target",self.spell.heroicLeap,40) then return end
                 end
+                -- if thisUnit=="Mouse" then
+                -- 	if castSpell("player",self.spell.heroicLeap,false,false,false) then 
+                -- 		if IsAoEPending() then
+                -- 			Button:Click("LeftButton", down)
+                -- 			return 
+                -- 		end
+                -- 	end
+                -- end
 				--if castGround("target",self.spell.heroicLeap,40) then return end
 			end
 		end
