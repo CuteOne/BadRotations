@@ -59,6 +59,11 @@ if select(3,UnitClass("player")) == 1 then
                 bb.ui:createCheckbox(section,"Berserker Rage", "Check to use Berserker Rage")
                 -- Hamstring
                 bb.ui:createCheckbox(section,"Hamstring", "Check to use Hamstring")
+                -- Heroic Leap
+                bb.ui:createDropdown(section,"Heroic Leap", bb.dropOptions.Toggle, 6, "Set auto usage (No Hotkey) or desired hotkey to use Heroic Leap.")
+                bb.ui:createDropdownWithout(section,"Heroic Leap - Traget",{"Best","Target"},1,"Desired Target of Heroic Leap")
+                -- Intervene - Movement
+                bb.ui:createCheckbox(section,"Intervene - Movement", "Check to use Intervene as a gap closer")
                 -- Pre-Pull Timer
                 bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             bb.ui:checkSectionState(section)
@@ -231,9 +236,13 @@ if select(3,UnitClass("player")) == 1 then
                     end
                 end
                 -- Intervene
-                if isChecked("Intervene") and not inCombat then
+                if isChecked("Intervene") and isChecked("Intervene - Movement") then
                     if bb.player.castIntervene("target") then return end
                 end
+                -- -- Heroic Leap
+                -- if isChecked("Heroic Leap") and SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus() then
+                --     if bb.player.castHeroicLeap("Mouse") then return end
+                -- end
             end -- End Action List - Extra
         -- Action List - Defensive
             function actionList_Defensive()
@@ -443,7 +452,17 @@ if select(3,UnitClass("player")) == 1 then
                 -- Heroic Leap 
                     -- heroic_leap,if=(raid_event.movement.distance>25&raid_event.movement.in>45)|!raid_event.movement.exists
                     if useMover() then
-                        if bb.player.castHeroicLeap() then return end
+                        if isChecked("Heroic Leap") and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
+                            if getOptionValue("Heroic Leap - Target")==1 then
+                                if bb.player.castHeroicLeap("Best") then return end
+                            end
+                            if getOptionValue("Heroic Leap - Target")==2 then
+                                if bb.player.castHeroicLeap("Target") then return end
+                            end
+                            -- if getOptionValue("Heroic Leap - Target")==3 then
+                            --     if bb.player.castHeroicLeap("Mouse") then return end
+                            -- end
+                        end
                     end
                 end
             end -- End Action List - Cooldowns
@@ -478,7 +497,17 @@ if select(3,UnitClass("player")) == 1 then
             -- Heroic Leap
                 -- heroic_leap
                 if useMover() then
-                    if bb.player.castHeroicLeap() then return end
+                    if isChecked("Heroic Leap") and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
+                        if getOptionValue("Heroic Leap - Target")==1 then
+                            if bb.player.castHeroicLeap("Best") then return end
+                        end
+                        if getOptionValue("Heroic Leap - Target")==2 then
+                            if bb.player.castHeroicLeap("Target") then return end
+                        end
+                        -- if getOptionValue("Heroic Leap - Target")==3 then
+                        --     if bb.player.castHeroicLeap("Mouse") then return end
+                        -- end
+                    end
                 end
             -- Charge
                 -- charge,cycle_targets=1,if=debuff.charge.down

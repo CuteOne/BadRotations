@@ -557,17 +557,23 @@ function cWarrior:new(spec)
 			end
 		end
 		--self.functionCharge = self.castCharge()
-		function self.castHeroicLeap()
+		function self.castHeroicLeap(thisUnit)
+			if thisUnit==nil then thisUnit = "Best" end
 			local hasThreat = hasThreat("target")
-			if self.level>=85 and self.cd.heroicLeap==0 and (hasThreat or select(2,IsInInstance())=="none") and not (lastSpellCast==self.spell.charge or lastSpellCast==self.spell.heroicThrow) then
-				if castGroundAtBestLocation(self.spell.heroicLeap,8,1,40,8) then return end
+			if self.level>=85 and self.cd.heroicLeap==0 and not (lastSpellCast==self.spell.charge or lastSpellCast==self.spell.heroicThrow) then
+				if thisUnit=="Best" and (hasThreat or select(2,IsInInstance())=="none") then
+                    if castGroundAtBestLocation(self.spell.heroicLeap,8,1,40,8) then return end
+                end
+                if thisUnit=="Target" and (hasThreat or select(2,IsInInstance())=="none") then
+                    if castGround("target",self.spell.heroicLeap,40) then return end
+                end
 				--if castGround("target",self.spell.heroicLeap,40) then return end
 			end
 		end
 		--self.functionHeroicLeap = self.castHeroicLeap()
 		function self.castIntervene(thisUnit)
 			if thisUnit == nil then thisUnit = "target" end
-			if self.level>=72 and self.cd.intervene==0 and UnitIsPlayer(thisUnit) and UnitIsFriend(thisUnit,"player") and not inRange(self.spell.pummel,thisUnit) then
+			if self.level>=72 and self.cd.intervene==0 and UnitIsPlayer(thisUnit) and UnitIsFriend(thisUnit,"player") and inRange(self.spell.charge,thisUnit) then
 				if castSpell(thisUnit,self.spell.intervene,false,false,false) then return end
 			end
 		end
