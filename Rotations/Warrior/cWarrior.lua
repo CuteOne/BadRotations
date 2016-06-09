@@ -171,8 +171,9 @@ function cWarrior:new(spec)
 	function self.getClassBuffsRemain()
 		local getBuffRemain = getBuffRemain
 
-		self.buff.remain.bloodbath = getBuffRemain("player",self.spell.bloodbathBuff) or 0
-	end
+		self.buff.remain.bloodbath 		= getBuffRemain("player",self.spell.bloodbathBuff) or 0
+		self.buff.remain.victoryRush 	= getBuffRemain("player",self.spell.victoryRushBuff) or 0
+ 	end
 
 	function self.getClassCharges()
 		local getBuffStacks = getBuffStacks

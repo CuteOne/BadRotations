@@ -269,6 +269,10 @@ if select(3,UnitClass("player")) == 1 then
                 if isChecked("Intervene") and isChecked("Intervene - Movement") then
                     if bb.player.castIntervene("target") then return end
                 end
+                -- Victory Rush
+                if php < 85 or buff.remain.victoryRush<2 then
+                    if bb.player.castVictoryRush() then return end
+                end
             end -- End Action List - Extra
         -- Action List - Defensive
             function actionList_Defensive()

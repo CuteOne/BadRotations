@@ -597,7 +597,9 @@ if select(3,UnitClass("player")) == 1 then
                     if bb.player.castImpendingVictory() then return end
                 end
             -- Victory Rush
-                if bb.player.castVictoryRush() then return end
+                if php < 85 or buff.remain.victoryRush<2 then
+                    if bb.player.castVictoryRush() then return end
+                end
             -- Slam
                 -- slam,if=rage>20&!set_bonus.tier18_4pc
                 if power>20 and not t18_4pc then
