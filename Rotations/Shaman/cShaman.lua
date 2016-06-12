@@ -499,7 +499,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 		-- Chain Lightning
 		function self.castChainLightning()
 			local hasThreat = hasThreat(self.units.dyn30)
-			if self.level>=28 and self.powerPercent>1 and getDistance(self.units.dyn30)<30 and (hasThreat or isDummy()) and shouldBolt() then
+			if self.level>=28 and self.powerPercent>1 and getDistance(self.units.dyn30)<30 and (hasThreat or isDummy()) and self.shouldBolt() then
 				if castSpell(self.units.dyn30,self.spell.chainLightning,false,false,false) then return end
 			end
 		end
@@ -544,7 +544,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 		-- Lightning Bolt
 		function self.castLightningBolt()
 			local hasThreat = hasThreat(self.units.dyn30)
-			if self.level>=1 and self.powerPercent>1.75 and getDistance(self.units.dyn30)<30 and (hasThreat or isDummy()) and shouldBolt() then
+			if self.level>=1 and self.powerPercent>1.75 and getDistance(self.units.dyn30)<30 and (hasThreat or isDummy()) and self.shouldBolt() then
 				if castSpell(self.units.dyn30,self.spell.lightningBolt,false,false,false) then return end
 			end
 		end
@@ -674,6 +674,60 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 				if castSpell("player",self.spell.waterWalking,false,false,false) then return end
 			end
 		end
+
+		function self.shouldBolt()
+            --local self = enhancementShaman
+            local lightning = 0
+            local lowestCD = 0
+            if useAoE() then
+                if self.cd.chainLightning==0 and self.level>=28 then
+                    if self.buff.ancestralSwiftness and (select(7,GetSpellInfo(self.spell.chainLightning))/1000)<10 then
+                        lightning = 0
+                    else
+                        lightning = select(7,GetSpellInfo(self.spell.chainLightning))/1000
+                    end
+                else
+                    if self.buff.ancestralSwiftness and select(7,GetSpellInfo(self.spell.lightningBolt)/1000)<10 then
+                        lightning = 0
+                    else
+                        lightning = select(7,GetSpellInfo(self.spell.lightningBolt))/1000
+                    end
+                end
+            else
+                if self.buff.ancestralSwiftness and select(7,GetSpellInfo(self.spell.lightningBolt)/1000)<10 then
+                    lightning = 0
+                else
+                    lightning = select(7,GetSpellInfo(self.spell.lightningBolt))/1000
+                end
+            end
+            if self.level < 3 then
+                lowestCD = lightning+1
+            elseif self.level < 10 then
+                lowestCD = min(self.cd.primalStrike)
+            elseif self.level < 12 then
+                lowestCD = min(self.cd.primalStrike,self.cd.lavaLash)
+            elseif self.level < 26 then
+                lowestCD = min(self.cd.primalStrike,self.cd.lavaLash,self.cd.flameShock)
+            elseif self.level < 81 then
+                lowestCD = min(self.cd.stormstrike,self.cd.lavaLash,self.cd.flameShock)
+            elseif self.level < 87 then
+                lowestCD = min(self.cd.stormstrike,self.cd.lavaLash,self.cd.flameShock,self.cd.unleashElements)
+            elseif self.level >= 87 then
+                if self.buff.remain.ascendance > 0 then
+                    lowestCD = min(self.cd.windstrike,self.cd.lavaLash,self.cd.flameShock,self.cd.unleashElements)
+                else
+                    lowestCD = min(self.cd.stormstrike,self.cd.lavaLash,self.cd.flameShock,self.cd.unleashElements)
+                end
+            end
+            if (lightning <= lowestCD or lightning <= self.gcd) and getTimeToDie("target") >= lightning then
+                return true
+            elseif castingUnit("player") and (isCastingSpell(self.spell.lightningBolt) or isCastingSpell(self.spell.chainLightning)) and lightning > lowestCD then
+                StopCasting()
+                return false
+            else
+                return false
+            end
+        end
 
 	-- Return
 		return self

@@ -340,9 +340,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         function self.getToggleModes()
             local BadBoy_data   = BadBoy_data
 
-            self.mode.aoe       = BadBoy_data["AoE"]
-            self.mode.cooldowns = BadBoy_data["Cooldowns"]
+            self.mode.rotation  = BadBoy_data["Rotation"]
+            self.mode.cooldown  = BadBoy_data["Cooldown"]
             self.mode.defensive = BadBoy_data["Defensive"]
+            self.mode.interrupt = BadBoy_data["Interrupt"]
         end
 
         ---------------
@@ -497,60 +498,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 return false
             end
         end
-        function shouldBolt()
-            local self = enhancementShaman
-            local lightning = 0
-            local lowestCD = 0
-            if useAoE() then
-                if self.cd.chainLightning==0 and self.level>=28 then
-                    if self.buff.ancestralSwiftness and (select(7,GetSpellInfo(self.spell.chainLightning))/1000)<10 then
-                        lightning = 0
-                    else
-                        lightning = select(7,GetSpellInfo(self.spell.chainLightning))/1000
-                    end
-                else
-                    if self.buff.ancestralSwiftness and select(7,GetSpellInfo(self.spell.lightningBolt)/1000)<10 then
-                        lightning = 0
-                    else
-                        lightning = select(7,GetSpellInfo(self.spell.lightningBolt))/1000
-                    end
-                end
-            else
-                if self.buff.ancestralSwiftness and select(7,GetSpellInfo(self.spell.lightningBolt)/1000)<10 then
-                    lightning = 0
-                else
-                    lightning = select(7,GetSpellInfo(self.spell.lightningBolt))/1000
-                end
-            end
-            if self.level < 3 then
-                lowestCD = lightning+1
-            elseif self.level < 10 then
-                lowestCD = min(self.cd.primalStrike)
-            elseif self.level < 12 then
-                lowestCD = min(self.cd.primalStrike,self.cd.lavaLash)
-            elseif self.level < 26 then
-                lowestCD = min(self.cd.primalStrike,self.cd.lavaLash,self.cd.flameShock)
-            elseif self.level < 81 then
-                lowestCD = min(self.cd.stormstrike,self.cd.lavaLash,self.cd.flameShock)
-            elseif self.level < 87 then
-                lowestCD = min(self.cd.stormstrike,self.cd.lavaLash,self.cd.flameShock,self.cd.unleashElements)
-            elseif self.level >= 87 then
-                if self.buff.remain.ascendance > 0 then
-                    lowestCD = min(self.cd.windstrike,self.cd.lavaLash,self.cd.flameShock,self.cd.unleashElements)
-                else
-                    lowestCD = min(self.cd.stormstrike,self.cd.lavaLash,self.cd.flameShock,self.cd.unleashElements)
-                end
-            end
-            if (lightning <= lowestCD or lightning <= self.gcd) and getTimeToDie("target") >= lightning then
-                return true
-            elseif castingUnit("player") and (isCastingSpell(_LightningBolt) or isCastingSpell(_ChainLightning)) and lightning > lowestCD then
-                StopCasting()
-                return false
-            else
-                return false
-            end
-        end
-
+        
         -----------------------------
         --- CALL CREATE FUNCTIONS ---
         -----------------------------

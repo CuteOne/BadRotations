@@ -260,7 +260,7 @@ if select(3,UnitClass("player")) == 1 then
                 -- Heirloom Neck
                     if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
                         if hasEquiped(heirloomNeck) then
-                            if GetItemCooldown(heirloomNeck)==0 then
+                            if canUse(heirloomNeck) then
                                 useItem(heirloomNeck)
                             end
                         end

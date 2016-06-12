@@ -193,6 +193,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 	        local charges           = bb.player.charges
 	        local combatTime        = getCombatTime()
 	        local debuff            = bb.player.debuff
+            local distance          = getDistance("target")
 	        local enemies           = bb.player.enemies
 	        local flaskBuff         = getBuffRemain("player",bb.player.flask.wod.buff.agilityBig) or 0
 	        local frac 				= bb.player.frac
@@ -335,7 +336,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 						if bb.player.castEarthElementalTotem() then return end
 					end
 			-- Gift of the Naaru
-			        if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and bb.player.race=="Draenei" then
+			        if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and bb.player.race=="Draenei" then
 			          	if castSpell("player",racial,false,false,false) then return end
 			        end
 			-- Healing Rain
@@ -368,7 +369,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			-- Heirloom Neck
 		    		if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
 		    			if hasEquiped(122668) then
-		    				if GetItemCooldown(122668)==0 then
+		    				if canUse(122668) then
 		    					useItem(122668)
 		    				end
 		    			end
@@ -810,6 +811,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 				if (enemies.yards10==1 and useAuto()) or useSingle() then
 					if actionList_Single() then return end
 				end
+        -- StartAttack
+                if distance<5 then
+                    StartAttack()
+                end
 			end -- End Combat Rotation
 	    end -- End Timer
 	end -- Run Rotation

@@ -290,13 +290,13 @@ if select(3,UnitClass("player")) == 1 then
                 -- Heirloom Neck
                     if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
                         if hasEquiped(heirloomNeck) then
-                            if GetItemCooldown(heirloomNeck)==0 then
+                            if canUse(heirloomNeck) then
                                 useItem(heirloomNeck)
                             end
                         end
                     end 
                 -- Gift of the Naaru
-                    if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and cd.racial==0 and bb.player.race=="Draenei" then
+                    if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and cd.racial==0 and bb.player.race=="Draenei" then
                         if castSpell("player",racial,false,false,false) then return end
                     end
                 -- Defensive Stance
@@ -949,6 +949,10 @@ if select(3,UnitClass("player")) == 1 then
                 -- Action List - Single Target
                     if targets==1 or not useAoE() then
                         if actionList_Single() then return end
+                    end
+                -- StartAttack
+                    if distance<5 then
+                        StartAttack()
                     end
                 end -- End Combat Rotation
             end -- Pause
