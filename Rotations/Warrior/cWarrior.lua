@@ -343,7 +343,7 @@ function cWarrior:new(spec)
 				if thisUnit == "debug" then
 					self.IntimidatingShout=true
 				else
-					if castSpell("player",self.spell.intimidatingShout,false,false,false) then return end
+					if castSpell(self.units.dyn8AoE,self.spell.intimidatingShout,false,false,false) then return end
 				end
 			end
 			if thisUnit == "debug" then return self.IntimidatingShout end
