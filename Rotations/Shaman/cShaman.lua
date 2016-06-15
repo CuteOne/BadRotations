@@ -633,7 +633,9 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 	------------------------
 		-- Ancestral Spirit
 		function self.castAncestralSpirit()
-			if self.level>=18 and self.power>50 and not self.inCombat and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and getDistance("mouseover")<40 then
+			local isDeadPlayer = UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+
+			if self.level>=18 and self.power>50 and not self.inCombat and isDeadPlayer and getDistance("mouseover")<40 then
 				if castSpell("mouseover",self.spell.ancestralSpirit,false,false,false,false,true) then return end
 			end
 		end

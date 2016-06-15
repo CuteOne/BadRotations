@@ -48,11 +48,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 -- Dummy DPS Test
                 bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
                 -- Earthbind/Earthgrab Totem
-                if bb.player.talent.earthgrabTotem then
-                    bb.ui:createCheckbox(section,"Earthgrab Totem")
-                else
-                    bb.ui:createCheckbox(section,"Earthbind Totem")
-                end
+                bb.ui:createCheckbox(section,"Earthbind/grab Totem")
                 -- Ghost Wolf
                 bb.ui:createCheckbox(section,"Ghost Wolf")
                 -- Spirit Walk
@@ -226,34 +222,21 @@ if select(2, UnitClass("player")) == "SHAMAN" then
     --------------------
 	    -- Action list - Extras
 	    	function actionList_Extra()
-	    	-- Earthbind Totem
-	    		if isChecked("Earthbind Totem") and not talent.earthgrabTotem and not isBoss() and cd.EarthbindTotem==0 then
+	    	-- Earthbind/grab Totem
+	    		if isChecked("Earthbind/grab Totem") and not isBoss() then
 	                for i=1, #getEnemies("player",10) do
 	                    thisUnit = getEnemies("player",10)[i]
-	                    if not ObjectIsFacing(thisUnit,"player") and isMoving(thisUnit) then
-	                    	if bb.player.castEarthbindTotem() then return end
+	                    if isMoving(thisUnit) and getFacing(thisUnit,"player") == false then
+                            if talent.earthgrabTotem then
+                                if bb.player.castEarthgrabTotem() then return end
+                            else
+	                    	    if bb.player.castEarthbindTotem() then return end
+                            end
 	                    end
 	               	end
 	            end
-	        -- Earthgrab Totem
-	        	if isChecked("Earthgrab Totem") and talent.earthgrabTotem and not isBoss() and cd.EarthgrabTotem==0 then
-	        		for i=1, #getEnemies("player",10) do
-	                    thisUnit = getEnemies("player",10)[i]
-	                    if not ObjectIsFacing(thisUnit,"player") and isMoving(thisUnit) then
-	                    	if bb.player.castEarthgrabTotem() then return end
-	                    end
-	               	end
-	        	end
 	        -- Ghost Wolf
 	        	if isChecked("Ghost Wolf") then
-	     --    		for i=1, #enemiesTable do
-						-- local thisUnit = enemiesTable[i].unit
-						-- local unitDistance = enemiesTable[i].distance
-
-						-- if ((unitDistance <= 20 and not inCombat) or (unitDistance <= 10 and inCombat)) and buff.ghostWolf then
-						-- 	CancelShapeshiftForm();
-						-- end
-	     --    		end
 	        		if ((bb.player.enemies.yards20==0 and not inCombat) or (bb.player.enemies.yards10==0 and inCombat)) and isMoving("player") then
 						if bb.player.castGhostWolf() then return end
 	    			end
@@ -271,7 +254,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 	        		if bb.player.castTotemicRecall() then return end
 	        	end
 	        -- Tremor Totem
-	        	if isChecked("Tremor Totem") then
+	        	if isChecked("Tremor Totem") and inCombat then
 	        		for i=1,#nNova do
 	        			local thisUnit=nNova[i].unit
 	        			local thisUnitDist=getDistance(thisUnit)
@@ -348,7 +331,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 				      	if bb.player.castHealingStreamTotem() then return end
 				    end
 			-- Healing Surge
-					if isChecked("Healing Surge") then
+					if isChecked("Healing Surge") and not isMoving("player") then
 						if ((getOptionValue("Healing Surge - Target")==1 and charges.maelstromWeapon>3) or not inCombat) and php < getOptionValue("Healing Surge - Level") then
 							if bb.player.castHealingSurge("player") then return end
 						end
@@ -402,7 +385,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 		    		if isChecked("Gounding Totem") then
 		    			for i=1, #getEnemies("player",25) do
 		    				thisUnit = getEnemies("player",25)[i]
-		                    if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+		                    if UnitCastingInfo(thisUnit) ~= nil and canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
 		                        if bb.player.castGroundingTotem() then return end
 		                    end
 		                end

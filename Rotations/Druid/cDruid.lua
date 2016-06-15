@@ -691,7 +691,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		function self.castRevive(thisUnit)
 			local isDeadPlayer = UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and UnitIsFriend(thisUnit,"player")
 
-			if self.level>=12 and self.powerPercentMana>4 and not inCombat and isDeadPlayer and hasThreat(thisUnit) and getDistance(thisUnit)<40 then
+			if self.level>=12 and self.powerPercentMana>4 and not self.inCombat and isDeadPlayer and getDistance(thisUnit)<40 then
 				if castSpell(thisUnit,self.spell.revive,false,false,false,false,true) then return end
 			end
 		end
