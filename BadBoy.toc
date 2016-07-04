@@ -105,6 +105,7 @@ Rotations\Druid\NewDruid.lua
 
 Rotations\Druid\Feral\cFeral.lua
 Rotations\Druid\Feral\FeralCuteOne.lua
+Rotations\Druid\Feral\FeralAveryKey.lua
 Rotations\Druid\Feral\Feral.lua
 
 Rotations\Druid\Guardian\Guardian.lua
@@ -118,10 +119,9 @@ Rotations\Druid\Moonkin\Options.lua
 Rotations\Druid\Moonkin\Functions.lua
 Rotations\Druid\Moonkin\Toggles.lua
 
-Rotations\Druid\Restoration\Restoration.lua
-Rotations\Druid\Restoration\Libs\Options.lua
-Rotations\Druid\Restoration\Libs\Functions.lua
-Rotations\Druid\Restoration\Libs\Toggles.lua
+Rotations\Druid\Restoration\cResto.lua
+Rotations\Druid\Restoration\RestoAveryKey.lua
+Rotations\Druid\Restoration\Resto.lua
 
 ## Hunter ---------------------------------------------------
 Rotations\Hunter\Beastmaster\Beastmaster.lua

@@ -394,7 +394,7 @@ function BadBoyUpdate(self)
 		elseif playerSpec == 3 then
 			DruidGuardian()
 		elseif playerSpec == 4 then
-			DruidRestoration()
+			DruidResto()
 		else
 			NewDruid()
 		end
