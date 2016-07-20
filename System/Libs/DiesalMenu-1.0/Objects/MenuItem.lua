@@ -1,4 +1,4 @@
--- $Id: MenuItem.lua 52 2014-04-08 11:52:40Z diesal@reece-tech.com $
+-- $Id: MenuItem.lua 53 2016-07-12 21:56:30Z diesal2010 $
 local DiesalMenu 	= LibStub('DiesalMenu-1.0')
 -- ~~| Libraries |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local DiesalTools = LibStub('DiesalTools-1.0')
@@ -87,19 +87,19 @@ local methods = {
 	['OnEnter'] = function(self)
 		DiesalMenu:StopCloseTimer()			
 		local menuChildren = self.settings.parentObject.children
-		local menuData	= self.settings.itemData.menuData		
+		local menuData = self.settings.itemData.menuData		
 		for i=1, #menuChildren do menuChildren[i]:ReleaseChildren()	end		
 		self:BuildSubMenu(menuData)
 	end,
 	['BuildSubMenu'] = function(self,menuData)
 		if not menuData then return end
-		local subMenu = DiesalGUI:Create('Menu')			
-		subMenu:SetSettings({ menuData = menuData },true)
+		local subMenu = DiesalGUI:Create('Menu')	
+		if not subMenu:BuildMenu(menuData) then DiesalGUI:Release(subMenu) return end
 		self:AddChild(subMenu)	
 		subMenu:SetParent(self.frame)	
-		subMenu:Show()	
 		subMenu:ClearAllPoints()
-		subMenu:SetPoint('TOPLEFT',self.frame,'TOPRIGHT',0,0)		
+		subMenu:SetPoint('TOPLEFT',self.frame,'TOPRIGHT',0,0)	
+		subMenu:Show()	
 	end,
 }
 -- | Constructor |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

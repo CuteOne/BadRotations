@@ -1,4 +1,4 @@
--- $Id: ScrollFrame.lua 52 2014-04-08 11:52:40Z diesal@reece-tech.com $
+-- $Id: ScrollFrame.lua 53 2016-07-12 21:56:30Z diesal2010 $
 
 local DiesalGUI = LibStub("DiesalGUI-1.0")
 -- ~~| Libraries |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -13,9 +13,9 @@ local floor, ceil, min, max, abs, modf								= math.floor, math.ceil, math.min,
 local GetCursorPosition 												= GetCursorPosition
 -- ~~| ScrollFrame |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local Type 		= 'ScrollFrame'
-local Version 	= 2
+local Version 	= 3
 -- ~~| ScrollFrame StyleSheets |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-local styleSheet = {		
+local styleSheet = {	
 	['track-background'] = {					
 		type			= 'texture',
 		layer			= 'BACKGROUND',
@@ -29,9 +29,9 @@ local styleSheet = {
 	['grip-background'] = {	
 		type			= 'texture',
 		layer			= 'BACKGROUND',
-		gradient		= 'HORIZONTAL',		
-		color			= '5d5d5d',
-		colorEnd		= '252525',
+		gradient	= 'HORIZONTAL',		
+		color			= '3a454d',
+		colorEnd	= '2a3f4c',	
 	},		
 	['grip-outline'] = {		
 		type			= 'outline',
@@ -67,7 +67,7 @@ local wireFrame = {
 	},	
 }
 -- ~~| ScrollFrame Locals |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+local internal 
 -- ~~| ScrollFrame Methods |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local methods = {		
 	['OnAcquire'] = function(self)					
@@ -127,15 +127,35 @@ local methods = {
 			self.scrollBar:Hide()
 			self.scrollFrameContainer:SetPoint('BOTTOMRIGHT',0,0)						
 		end		
-	end,		
+	end,
+	['ScrollToBottom'] = function(self)			
+		local scrollRange = self.scrollFrame:GetVerticalScrollRange()
+		if scrollRange > 0 and scrollRange ~= self.scrollFrame:GetVerticalScroll() then
+			self.scrollFrame:SetVerticalScroll(scrollRange)
+		end
+	end,
+	['SetVerticalScroll'] = function(self,num)	
+		self.scrollFrame:SetVerticalScroll(num)
+	end,
+	['GetVerticalScroll'] = function(self)	
+		return self.scrollFrame:GetVerticalScroll()
+	end,
+	['GetVerticalScrollRange'] = function(self)	
+		return self.scrollFrame:GetVerticalScrollRange()
+	end,
+	['VerticallyScroll'] = function(self,num)	
+		if num < 0 then				
+			self.scrollFrame:SetVerticalScroll(max( self.scrollFrame:GetVerticalScroll() + num, 0))				
+		else			
+			self.scrollFrame:SetVerticalScroll(min( self.scrollFrame:GetVerticalScroll() + num, self.scrollFrame:GetVerticalScrollRange()))
+		end	
+	end,			
 }
 -- ~~| ScrollFrame Constructor |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local function Constructor()
 	local self 		= DiesalGUI:CreateObjectBase(Type)
 	local frame		= CreateFrame('Frame',nil,UIParent)		
-	self.frame		= frame	
-	
-		
+	self.frame		= frame			
 	-- ~~ Default Settings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	self.defaults = {
 		height 						= 300,
@@ -145,7 +165,7 @@ local function Constructor()
 		contentPadLeft				= 4,
 		contentPadRight			= 1,
 		contentPadTop				= 2,
-		contentPadBottom			= 2,
+		contentPadBottom		= 2,
 		contentHeight				= 1,		
 	}
 	-- ~~ Events ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -161,12 +181,12 @@ local function Constructor()
 	local scrollFrame = self:CreateRegion("ScrollFrame", 'scrollFrame', scrollFrameContainer)		
 	scrollFrame:EnableMouseWheel(true)
 	scrollFrame:SetScript("OnMouseWheel", function(this,delta)
-		DiesalGUI:OnMouse(this,'MouseWheel')			
-		if delta > 0 then	
-			this:SetVerticalScroll(max( this:GetVerticalScroll() - 50, 0))				
-		else			
-			this:SetVerticalScroll(min( this:GetVerticalScroll() + 50, this:GetVerticalScrollRange()))
-		end		
+		DiesalGUI:OnMouse(this,'MouseWheel')	
+		if delta > 0 then
+			self:VerticallyScroll(-25)
+		else
+			self:VerticallyScroll(25)
+		end	
 	end) 
 	scrollFrame:SetScript("OnVerticalScroll", function(this,offset)
 		-- self.scrollFrame:GetVerticalScrollRange() windowScrollAreaSize		
@@ -190,7 +210,12 @@ local function Constructor()
 	scrollFrame:SetScript("OnSizeChanged", function(this,width,height)				
 		self.content:SetWidth(width)				
 	end)		
-	scrollFrame:SetScrollChild(self:CreateRegion("Frame", 'content', scrollFrame))	
+	scrollFrame:SetScrollChild(self:CreateRegion("Frame", 'content', scrollFrame))		
+	scrollFrame:RegisterForDrag("LeftButton")
+	scrollFrame:SetScript( "OnDragStart", function(this,...)
+		print('dsfgsdfgdfg')
+		self:FireEvent("OnDragStart",...)
+	end)	
 	
 	local scrollBar = self:CreateRegion("Frame", 'scrollBar', frame)	
 	scrollBar:SetPoint('TOPRIGHT')

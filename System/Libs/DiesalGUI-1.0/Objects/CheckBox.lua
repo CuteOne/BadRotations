@@ -1,4 +1,4 @@
--- $Id: Button.lua 43 2014-02-23 18:40:01Z diesal@reece-tech.com $
+-- $Id: CheckBox.lua 53 2016-07-12 21:56:30Z diesal2010 $
 
 local DiesalGUI = LibStub("DiesalGUI-1.0")
 -- ~~| Libraries |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -18,44 +18,26 @@ local TYPE 		= "CheckBox"
 local VERSION 	= 1
 -- ~~| Button StyleSheets |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local styleSheet = {
-	['frame-shadow'] = {
-		type			= 'outline',
-		layer			= 'BORDER',
-		color			= '000000',
-		alpha 		= .17,
-		offset		= 0,
-	},
-	['frame-highlight'] = {
+	
+	['frame-border'] = {
 		type			= 'texture',
 		layer			= 'BORDER',
-		gradient		= 'VERTICAL',
-		color			= 'ffffff',
-		alpha 		= 0,
-		alphaEnd		= .07,
-		offset		= -1,
-	},
-	['frame-innerShadow'] = {
-		type			= 'texture',
-		layer			= 'BORDER',
-		color			= '000000',
+		gradient	= 'VERTICAL',
+		color			= '000000',		
 		offset		= -2,
-	},
+	},	
 	['frame-innerColor'] = {
 		type			= 'texture',
 		layer			= 'BORDER',
-		color			= '080808',
-		offset		= -3,
+		color			= '080a0d',
+		offset		= -2,
 	},
 }
 local checkStyle = {
 		type			= 'texture',
 		layer			= 'ARTWORK',
-		texFile		= 'DiesalGUIcons',
-		texCoord		= {10,5,16,256,128},
-		texColor		= 'ffff00',
-		offset		= {1,nil,2,nil},
-		width			= 16,
-		height		= 16,
+		color			= '4aa4ff',
+		offset		= -3,
 }
 local checkDisabled = {
 		type			= 'texture',
@@ -63,7 +45,6 @@ local checkDisabled = {
 }
 local checkEnabled = {
 		type			= 'texture',
-		texColor		= 'ffff00',
 		aplha			= 1,
 }
 local wireFrame = {
@@ -123,8 +104,8 @@ local function Constructor()
 
 	-- ~~ Default Settings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	self.defaults = {
-		height 		= 12,
-		width 		= 12,
+		height 		= 11,
+		width 		= 11,
 	}
 	-- ~~ Events ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-- OnAcquire, OnRelease, OnHeightSet, OnWidthSet

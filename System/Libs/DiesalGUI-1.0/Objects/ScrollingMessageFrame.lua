@@ -1,4 +1,4 @@
--- $Id: ScrollingMessageFrame.lua 52 2014-04-08 11:52:40Z diesal@reece-tech.com $
+-- $Id: ScrollingMessageFrame.lua 53 2016-07-12 21:56:30Z diesal2010 $
 
 local DiesalGUI = LibStub('DiesalGUI-1.0')
 -- ~~| Libraries |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -11,7 +11,7 @@ local floor, ceil, min, max, abs, modf								= math.floor, math.ceil, math.min,
 -- ~~| WoW Upvalues |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local GetCursorPosition 												= GetCursorPosition
 -- ~~| ScrollingMessageFrame |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-local Type 		= 'ScrollingMessageFrameBB'
+local Type 		= 'ScrollingMessageFrame'
 local Version 	= 1
 -- ~~| ScrollingMessageFrame StyleSheets |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local styleSheet = {		
@@ -39,38 +39,38 @@ local styleSheet = {
 	},		
 }
 
-local wireFrame = {
-	['frame-white'] = {
+local wireFrame = {	
+	['frame-white'] = {				
 		type			= 'outline',
 		layer			= 'OVERLAY',
-		color			= 'ffffff',
-	},
-	['scrollFrameContainer-yellow'] = {
+		color			= 'ffffff',	
+	},		
+	['scrollFrameContainer-yellow'] = {			
 		type			= 'outline',
 		layer			= 'OVERLAY',
-		color			= 'fffc00',
-	},
-	['scrollFrame-orange'] = {
+		color			= 'fffc00',		
+	},	
+	['scrollFrame-orange'] = {			
 		type			= 'outline',
 		layer			= 'OVERLAY',
-		color			= 'ffd400',
+		color			= 'ffd400',		
 	},
-	['scrollingMessageFrame-red'] = {
+	['scrollingMessageFrame-red'] = {		
 		type			= 'outline',
-		layer			= 'BORDER',
+		layer			= 'BORDER',	
 		color			= 'ff0000',
 		aplha			= .5,
-	},
-	['scrollBar-blue'] = {
+	},	
+	['scrollBar-blue'] = {			
 		type			= 'outline',
 		layer			= 'OVERLAY',
-		color			= '00aaff',
-	},
-	['track-green'] = {
+		color			= '00aaff',			
+	},	
+	['track-green'] = {			
 		type			= 'outline',
 		layer			= 'OVERLAY',
-		color			= '55ff00',
-	},
+		color			= '55ff00',					
+	},	
 }
 -- ~~| ScrollingMessageFrame Locals |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -79,7 +79,7 @@ local methods = {
 	['OnAcquire'] = function(self)					
 		self:ApplySettings()
 		self:AddStyleSheet(styleSheet)
-		--self:AddStyleSheet(wireFrame)
+		self:AddStyleSheet(wireFrame)	
 		self:Show()
 	end,
 	['OnRelease'] = function(self)						
@@ -140,7 +140,7 @@ local methods = {
 	['AddMessage'] = function(self,msg)			
 		if not msg then return end	
 		self.scrollingMessageFrame:AddMessage(msg) 
-		--ChatFrame1:AddMessage(self.scrollingMessageFrame:GetNumRegions()		)
+		ChatFrame1:AddMessage(self.scrollingMessageFrame:GetNumRegions()		)
 	end,
 	['SetText'] = function(self,txt)			
 		-- self.editBox:SetText(txt or '')			
@@ -215,7 +215,7 @@ local function Constructor()
 	scrollingMessageFrame:SetJustifyV("TOP")	
 	scrollingMessageFrame:SetInsertMode("BOTTOM")
 	scrollingMessageFrame:SetMaxLines(500)
-	scrollingMessageFrame:SetHeight(200) -- BadBoy Adjust
+	scrollingMessageFrame:SetHeight(500)
 	scrollingMessageFrame:SetFading(false)	
 	scrollFrame:SetScrollChild(scrollingMessageFrame)	
 	

@@ -1,4 +1,4 @@
--- $Id: Button.lua 52 2014-04-08 11:52:40Z diesal@reece-tech.com $
+-- $Id: Button.lua 54 2016-07-19 00:35:10Z diesal2010 $
 
 local DiesalGUI = LibStub("DiesalGUI-1.0")
 -- ~~| Libraries |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -15,7 +15,7 @@ local GetSpellInfo, GetBonusBarOffset, GetDodgeChance			= GetSpellInfo, GetBonus
 local GetPrimaryTalentTree, GetCombatRatingBonus				= GetPrimaryTalentTree, GetCombatRatingBonus
 -- ~~| Button |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local TYPE 		= "Button"
-local VERSION 	= 4
+local VERSION 	= 5
 -- ~~| Button StyleSheets |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local styleSheet = {
 	['text-color'] = {
@@ -81,11 +81,10 @@ local function Constructor(name)
 	text:SetPoint("TOPLEFT", 4, -2)
 	text:SetPoint("BOTTOMRIGHT", -4, 0)
 	text:SetJustifyV("MIDDLE")	
-	frame:SetFontString(text)
-	
+	frame:SetFontString(text)	
 	frame:SetScript("OnClick", function(this,button,...)
 		DiesalGUI:OnMouse(this,button)
-		PlaySound("ACTIONBARBUTTONDOWN")
+		
 		self:FireEvent("OnClick",button,...)	
 	end)
 	frame:SetScript("OnEnter", function(this)

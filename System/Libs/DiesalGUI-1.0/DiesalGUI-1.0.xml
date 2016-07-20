@@ -15,8 +15,8 @@
 	<Script file="Objects\ComboBox.lua"/>
 	<Script file="Objects\ComboBoxItem.lua"/>	
 	<Script file="Objects\Accordian.lua"/>
-	<Script file="Objects\AccordianSection.lua"/>
-    <Script file="Objects\Toggle.lua"/>
+	<Script file="Objects\AccordianSection.lua"/>	
 	<Script file="Objects\Tree.lua"/>
-	<Script file="Objects\Branch.lua"/>		
+	<Script file="Objects\Branch.lua"/>	
+	<Script file="Objects\Bar.lua"/>	
 </Ui>

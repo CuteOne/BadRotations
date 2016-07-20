@@ -1,4 +1,4 @@
--- $Id: ComboBox.lua 52 2014-04-08 11:52:40Z diesal@reece-tech.com $
+-- $Id: ComboBox.lua 53 2016-07-12 21:56:30Z diesal2010 $
 
 local DiesalGUI = LibStub('DiesalGUI-1.0')
 -- ~~| Libraries |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -250,14 +250,14 @@ local function Constructor()
 	self.frame		= frame	
 	-- ~~ Default Settings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	self.defaults = {
-		dropdownPadLeft	= 4,
+		dropdownPadLeft		= 4,
 		dropdownPadRight	= 4,
 		dropdownPadTop		= 4,
 		dropdownPadBottom	= 4,
-		itemHeight			= 16,
-		width					= 100,
-		height				= 16,
-		buttonWidth			= 16,
+		itemHeight				= 16,
+		width							= 100,
+		height						= 16,
+		buttonWidth				= 16,
 	}
 	-- ~~ Registered Events ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-- OnValueSelected, OnRenameValue

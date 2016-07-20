@@ -5,40 +5,36 @@ local DiesalStyle = LibStub("DiesalStyle-1.0")
 -- | Lua Upvalues |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -- | WoW Upvalues |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -- | AccordianSection |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-local Type = 'AccordianSectionBB'
+local Type = 'AccordianSection'
 local Version = 2
 -- | StyleSheets |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local styleSheet = {	
 	['button-background'] = {			
 		type			= 'texture',
 		layer			= 'BACKGROUND',							
-		color			= '333740',
+		color			= '232f38',
+		colorEnd	= '2d3c47',
+		gradient	= 'VERTICAL',		
 		alpha			= .95,		
 		offset 		= {0,0,-1,0},		
-	},	
+	},
+	
+		
 	['button-outline'] = {			
 		type			= 'outline',
 		layer			= 'BACKGROUND',							
 		color			= '000000',		
 		offset 		= {1,1,0,1},		
 	},
-	['button-gloss'] = {			
-		type			= 'texture',
-		layer			= 'ARTWORK',		
-		gradient	= 'VERTICAL',				
-		color			= 'FFFFFF',		
-		alpha			= 0,
-		alphaEnd	= .05,		
-		offset		= {0,0,-1,0},	
-	},			
+			
 	['button-inline'] = {			
 		type			= 'outline',
 		layer			= 'ARTWORK',					
 		color			= 'FFFFFF',		
 		gradient	= 'VERTICAL',		
-		alpha			= 0,
-		alphaEnd	= .09,				
-		offset		= {0,0,-1,-8},		
+		alpha			= .02,
+		alphaEnd	= .07,				
+		offset		= {0,0,-1,0},		
 	},	
 	['button-hover'] = {
 		type			= 'texture',
@@ -49,7 +45,7 @@ local styleSheet = {
 	['content-background'] = {
 		type			= 'texture',
 		layer			= 'BACKGROUND',				
-		color			= '1b1e21',		
+		color			= '182228',		
 		alpha			= .95,	
 		offset		= {0,0,-1,0},			
 	},		
@@ -77,7 +73,7 @@ local styleSheet = {
 		type			= 'outline',
 		layer			= 'ARTWORK',				
 		color			= 'ffffff',		
-		alpha			= .03,	
+		alpha			= .02,	
 		offset		= {0,0,-1,0},			
 	},
 }
@@ -127,8 +123,11 @@ local methods = {
 		self.text:SetText(self.settings.sectionName)	
 		-- set section state
 		self[self.settings.expanded and 'Expand' or 'Collapse'](self)
+		-- set button visibility
+		self:SetButtonVisbility(self.settings.buttonVisbility)
 	end,	
-	['Collapse'] = function(self)		
+	['Collapse'] = function(self)	
+		if not self.settings.collapsable then	self:UpdateHeight()	return end 	
 		self.settings.expanded = false
 		self:FireEvent("OnStateChange", self.settings.position, 'Collapse') 		
 		self.arrow:SetTexCoord(DiesalTools:GetIconCoords(7,5,16,256,128))
@@ -142,26 +141,22 @@ local methods = {
 		self.content:Show()
 		self:UpdateHeight()
 	end,	
+	['SetButtonVisbility'] = function(self,state)			
+		self.settings.buttonVisbility = state
+		self.button[state and 'Show' or 'Hide'](self.button)
+		self:UpdateHeight()
+	end,	
 	['UpdateHeight'] = function(self)
 		local settings, children = self.settings, self.children
 		local contentHeight = 0
-
-		if settings.expanded and #children > 0 then
+		self.content:SetPoint('TOPLEFT',self.frame,0,settings.buttonVisbility and settings.buttonHeight *-1 or 0)
+		
+		if settings.expanded then
 			contentHeight = settings.contentPad[3] + settings.contentPad[4]		
-			--for i=1 , #children do contentHeight = contentHeight + children[i].frame:GetHeight() end
-            if #children ~= 1 then
-                local addBecauseOfToggle = 0
-                if children[#children].type == "Toggle" then
-                    addBecauseOfToggle = 15
-                end
-                contentHeight = contentHeight + (select(5,children[#children-1].frame:GetPoint())*-1) + 10 + addBecauseOfToggle
-            elseif #children == 1 then
-             contentHeight = contentHeight + (select(5,children[#children].frame:GetPoint())*-1) + 10
-            end
-
+			for i=1 , #children do contentHeight = contentHeight + children[i].frame:GetHeight() end			
 		end
 		self.content:SetHeight(contentHeight)
-		self:SetHeight(settings.buttonHeight + contentHeight)		
+		self:SetHeight((settings.buttonVisbility and settings.buttonHeight or 0) + contentHeight)		
 		self:FireEvent("OnHeightChange",contentHeight) 		
 	end,
 }
@@ -172,9 +167,11 @@ local function Constructor()
 	self.frame		= frame
 	-- ~~ Default Settings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	self.defaults = {
-		contentPad	= {0,0,3,2},				
-		expanded		= true,
-		buttonHeight= 17,
+		collapsable		 	=	true,
+		buttonVisbility	=	true,
+		contentPad			= {0,0,3,2},				
+		expanded				= true,
+		buttonHeight		= 17,
 	}
 	-- ~~ Events ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-- OnAcquire, OnRelease, OnHeightSet, OnWidthSet
@@ -187,12 +184,6 @@ local function Constructor()
 		DiesalGUI:OnMouse(this,button)
 		self[self.settings.expanded and "Collapse" or "Expand"](self)			
 	end)
-    button:SetScript('OnEnter', function(this)
-        self:FireEvent("OnEnter")
-    end)
-    button:SetScript('OnLeave', function(this)
-        self:FireEvent("OnLeave")
-    end)
 	local arrow = self:CreateRegion("Texture", 'arrow', button)
 	DiesalStyle:StyleTexture(arrow,{
 		offset 	= {1,nil,-1,nil},
@@ -209,9 +200,9 @@ local function Constructor()
 	text:SetJustifyH("LEFT")
 	text:SetWordWrap(false)
 
-	local content = self:CreateRegion("Frame", 'content', button)
-	content:SetPoint('TOPLEFT',button,'BOTTOMLEFT',0,0)
-	content:SetPoint('TOPRIGHT',button,'BOTTOMRIGHT',0,0)
+	local content = self:CreateRegion("Frame", 'content', frame)
+	content:SetPoint('TOPLEFT',frame,0,0)
+	content:SetPoint('TOPRIGHT',frame,0,0)
 	content:SetHeight(10)
 	-- ~~ Methods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	for method, func in pairs(methods) do	self[method] = func	end
