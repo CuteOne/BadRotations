@@ -841,7 +841,7 @@ function getCreatureType(Unit)
 end
 -- if getCombo() >= 1 then
 function getCombo()
-	return GetComboPoints("player")
+	return UnitPower("player",4) --GetComboPoints("player") - Legion Change
 end
 -- if getDebuffDuration("target",12345) < 3 then
 function getDebuffDuration(Unit,DebuffID,Source)

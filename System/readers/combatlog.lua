@@ -229,7 +229,9 @@ function bb.read.combatLog()
             ripApplied[thisUnit] = bb.player.getSnapshotValue("rip")
           end
           if spell == 155722 and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") then
-            rakeApplied[thisUnit] = bb.player.getSnapshotValue("rake")
+            if UnitLevel("player") >= 10 then
+              rakeApplied[thisUnit] = bb.player.getSnapshotValue("rake")
+            end
           end
         end
       elseif (not UnitAffectingCombat("player")) and (not IsEncounterInProgress()) then

@@ -298,91 +298,91 @@ function BadBoyUpdate(self)
 			NewWarrior()
 		end
 	elseif playerClass == 2 then -- Paladin
-		if playerSpec == 1 then
+		if playerSpec == 1 and playerLevel>=10 then
 			PaladinHoly()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 2 and playerLevel>=10 then
 			PaladinProtection()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 3 and playerLevel>=10 then
 			PaladinRetribution()
 		else
 			NewPaladin()
 		end
 	elseif playerClass == 3 then -- Hunter
-		if playerSpec == 1 then
+		if playerSpec == 1 and playerLevel>=10 then
 			BeastHunter()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 2 and playerLevel>=10 then
 			MarkHunter()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 3 and playerLevel>=10 then
 			SurvHunter()
 		else
 			NewHunter()
 		end
 	elseif playerClass == 4 then -- Rogue
-		if playerSpec == 1 then
+		if playerSpec == 1 and playerLevel>=10 then
 			AssassinationRogue()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 2 and playerLevel>=10 then
 			CombatRogue()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 3 and playerLevel>=10 then
 			SubRogue()
 		else
 			NewRogue()
 		end
 	elseif playerClass == 5 then -- Priest
-		if playerSpec == 1 then
+		if playerSpec == 1 and playerLevel>=10 then
 			PriestDiscipline()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 2 and playerLevel>=10 then
 			PriestHoly()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 3 and playerLevel>=10 then
 			PriestShadow()
 		else
 			NewPriest()
 		end
 	elseif playerClass == 6 then -- Deathknight
-		if playerSpec == 1 then
+		if playerSpec == 1 and playerLevel>=10 then
 			Blood()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 2 and playerLevel>=10 then
 			FrostDK()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 3 and playerLevel>=10 then
 			UnholyDK()
 		else
 			return true
 		end
 	elseif playerClass == 7 then -- Shaman
-		if playerSpec == 1 then
+		if playerSpec == 1 and playerLevel>=10 then
 			ShamanElemental()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 2 and playerLevel>=10 then
 			ShamanEnhancement()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 3 and playerLevel>=10 then
 			ShamanRestoration()
 		else
 			NewShaman()
 		end
 	elseif playerClass == 8 then -- Mage
-		if playerSpec == 1 then
+		if playerSpec == 1 and playerLevel>=10 then
 			ArcaneMage()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 2 and playerLevel>=10 then
 			FireMage()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 3 and playerLevel>=10 then
 			FrostMage()
 		else
 			NewMage()
 		end
 	elseif playerClass == 9 then -- Warlock
-		if playerSpec == 1 then
+		if playerSpec == 1 and playerLevel>=10 then
 			WarlockAffliction()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 2 and playerLevel>=10 then
 			WarlockDemonology()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 3 and playerLevel>=10 then
 			DestructionWarlock()
 		else
 			NewWarlock()
 		end
 	elseif playerClass == 10 then -- Monk
-		if playerSpec == 1 then
+		if playerSpec == 1 and playerLevel>=10 then
 			BrewmasterMonk()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 2 and playerLevel>=10 then
 			MistweaverMonk()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 3 and playerLevel>=10 then
 			WindwalkerMonk()
 		else
 			NewMonk()

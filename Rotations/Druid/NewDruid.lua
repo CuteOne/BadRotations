@@ -21,6 +21,7 @@ if select(3, UnitClass("player")) == 11 then
         local moonfired 	= UnitDebuffID("target",164812,"player")~=nil or false
         local power 		= getPower("player")
         local rake 			= 1822
+        local rakeRemain 	= getDebuffRemain(dynamicTarget(5,true),1822,"player") or 0
         local rejuv			= 774
         local rejuved 		= UnitBuffID("player",774)~=nil or false
         local shred 		= 5221
@@ -58,11 +59,11 @@ if select(3, UnitClass("player")) == 11 then
 			-- end
 			if UnitExists("target") and canAttack("target","player") and not UnitIsDeadOrGhost("target") and not UnitIsFriend("target","player") and not pause() then
 			-- Ferocious Bite
-				if combo > 0 and ttd < 2 and power > 25 then
+				if combo > 0 and ttd < 2 and power > 25 and level >= 3 then
 					if castSpell(thisUnit,ferociousBite,false,false,false) then return end
 				end
-			-- Rake
-				if getDebuffRemain(thisunit,rake,"player")<3 then
+			-- Rake 
+				if rakeRemain<3 and level >= 6 then
 					if castSpell(thisUnit,rake,false,false,false) then return end
 				end
 			-- Shred
@@ -70,7 +71,7 @@ if select(3, UnitClass("player")) == 11 then
 					if castSpell(thisUnit,shred,false,false,false) then return end
 				end
 			-- Ferocious Bite
-				if combo == 5 and power > 25 then
+				if combo == 5 and power > 25 and level >= 3 then
 					if castSpell(thisUnit,ferociousBite,false,false,false) then return end
 				end
 			end
