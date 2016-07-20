@@ -1,5 +1,10 @@
 #BadBoy - Ultimate Raider
 
+## Patch 7.0
+
+As of now BB does **NOT** support 7.0 and there is no ETA if/when this will happen as most developer are on a hiatus because of not playing actively or being hit by a ban-hammer.
+
+
 ## First Setup
 
 Little How-To for the first run: https://gyazo.com/d11da29a9d7dba4c93e5b65c008c433c
