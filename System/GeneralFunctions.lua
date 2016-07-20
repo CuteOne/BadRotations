@@ -77,6 +77,21 @@ function GetObjectCountBB()
 end
 ]]
 
+function UnitIsTappedByPlayer(mob)
+	-- if UnitTarget("player") and mob == UnitTarget("player") then return true end
+	-- if UnitAffectingCombat(mob) and UnitTarget(mob) then
+	--    	mobPlaceHolderOne = UnitTarget(mob)
+	--    	mobPlaceHolderOne = UnitCreator(mobPlaceHolderOne) or mobPlaceHolderOne
+	--    	if UnitInParty(mobPlaceHolderOne) then return true end
+	-- end
+	-- return false
+	if UnitIsTapDenied(mob)==false then
+		return true
+	else
+		return false
+	end
+end
+
 function castInterrupt(SpellID,Percent,Unit)
 if Unit == nil then Unit = "target" end
 	if GetObjectExists(Unit) then

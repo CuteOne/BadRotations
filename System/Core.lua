@@ -286,12 +286,13 @@ function BadBoyUpdate(self)
     bb.selectedProfile = BadBoy_data.options[bb.selectedSpec]["Rotation".."Drop"] or 1
 	local playerClass = select(3,UnitClass("player"))
 	local playerSpec = GetSpecialization()
+	local playerLevel = UnitLevel("player")
 	if playerClass == 1 then -- Warrior
-		if playerSpec == 1 then
+		if playerSpec == 1 and playerLevel>=10 then
 			ArmsWarrior()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 2 and playerLevel>=10 then
 			FuryWarrior()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 3 and playerLevel>=10 then
 			ProtectionWarrior()
 		else
 			NewWarrior()
@@ -387,13 +388,13 @@ function BadBoyUpdate(self)
 			NewMonk()
 		end
 	elseif playerClass == 11 then -- Druid
-		if playerSpec == 1 then
+		if playerSpec == 1 and playerLevel>=10 then
 			DruidMoonkin()
-		elseif playerSpec == 2 then
+		elseif playerSpec == 2 and playerLevel>=10 then
 			DruidFeral()
-		elseif playerSpec == 3 then
+		elseif playerSpec == 3 and playerLevel>=10 then
 			DruidGuardian()
-		elseif playerSpec == 4 then
+		elseif playerSpec == 4 and playerLevel>=10 then
 			DruidResto()
 		else
 			NewDruid()
