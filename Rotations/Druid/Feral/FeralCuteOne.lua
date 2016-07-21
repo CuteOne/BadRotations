@@ -704,7 +704,11 @@ if select(2, UnitClass("player")) == "DRUID" then
 			-- Generator: Swipe
 		   		-- if=spell_targets.swipe>=4|(spell_targets.swipe>=3&buff.incarnation.down)
 		   		if BadBoy_data['AoE']==2 or (BadBoy_data['AoE']==1 and (enemies.yards8>=3 or (enemies.yards8>=3 and not buff.incarnationKingOfTheJungle))) and getDistance(dynTar8)<8 then
-		   			if bb.player.castSwipe(dynTar8) then return end
+		   			if level < 32 then
+                        if bb.player.castSwipe(dynTar5) then return end
+                    else
+                        if bb.player.castSwipe(dynTar8) then return end
+                    end
 		      	end
 			-- Generator: Shred
 		   		-- if=spell_targets.swipe<3|(spell_targets.swipe=3&buff.incarnation.up)

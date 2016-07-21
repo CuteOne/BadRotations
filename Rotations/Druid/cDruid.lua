@@ -356,7 +356,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		-- Moonfire - Set target via thisUnit variable
 		function self.castMoonfire(thisUnit)
-			if self.level>=3 and self.powerPercentMana>1.5 and hasThreat(thisUnit) and getDistance(thisUnit)<40 then
+			if self.level>=3 and (self.powerPercentMana>1.5 or (self.spec=="Feral" and self.power > 30)) and hasThreat(thisUnit) and getDistance(thisUnit)<40 then
 				if castSpell(thisUnit,self.spell.moonfire,false,false,false) then return end
 			end
 		end

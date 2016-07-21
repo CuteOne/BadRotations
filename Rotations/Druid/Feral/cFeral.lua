@@ -298,7 +298,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             self.buff.bloodtalons                  = UnitBuffID("player",self.spell.bloodtalonsBuff)~=nil or false
         	self.buff.incarnationKingOfTheJungle   = UnitBuffID("player",self.spell.incarnationKingOfTheJungleBuff)~=nil or false
             self.buff.predatorySwiftness           = UnitBuffID("player",self.spell.predatorySwiftnessBuff)~=nil or false
-            -- self.buff.savageRoar                   = UnitBuffID("player",self.spell.savageRoarBuff)~=nil or false
+            self.buff.savageRoar                   = UnitBuffID("player",self.spell.savageRoarBuff)~=nil or false
         	self.buff.stampedingRoar               = UnitBuffID("player",self.spell.stampedingRoarBuff)~=nil or false
             self.buff.survivalInstincts            = UnitBuffID("player",self.spell.survivalInstinctsBuff)~=nil or false
             self.buff.tigersFury                   = UnitBuffID("player",self.spell.tigersFuryBuff)~=nil or false
@@ -307,10 +307,11 @@ if select(2, UnitClass("player")) == "DRUID" then
         function self.getBuffsDuration()
         	local getBuffDuration = getBuffDuration
 
-        	self.buff.duration.predatorySwiftness          = getBuffDuration("player",self.spell.predatorySwiftnessBuff) or 0
+        	self.buff.duration.berserk                     = getBuffDuration("player",self.spell.berserkBuff) or 0
+            self.buff.duration.predatorySwiftness          = getBuffDuration("player",self.spell.predatorySwiftnessBuff) or 0
         	self.buff.duration.incarnationKingOfTheJungle  = getBuffDuration("player",self.spell.incarnationKingOfTheJungleBuff) or 0
         	self.buff.duration.bloodtalons                 = getBuffDuration("player",self.spell.bloodtalonsBuff) or 0
-        	-- self.buff.duration.savageRoar                  = getBuffDuration("player",self.spell.savageRoarBuff) or 0
+        	self.buff.duration.savageRoar                  = getBuffDuration("player",self.spell.savageRoarBuff) or 0
         	self.buff.duration.tigersFury                  = getBuffDuration("player",self.spell.tigersFuryBuff) or 0
         	self.buff.duration.stampedingRoar              = getBuffDuration("player",self.spell.stampedingRoarBuff) or 0
         end
@@ -318,10 +319,11 @@ if select(2, UnitClass("player")) == "DRUID" then
         function self.getBuffsRemain()
         	local getBuffRemain = getBuffRemain
 
-        	self.buff.remain.predatorySwiftness 		= getBuffRemain("player",self.spell.predatorySwiftnessBuff) or 0
+        	self.buff.remain.berserk                    = getBuffRemain("player",self.spell.berserkBuff) or 0
+            self.buff.remain.predatorySwiftness 		= getBuffRemain("player",self.spell.predatorySwiftnessBuff) or 0
         	self.buff.remain.incarnationKingOfTheJungle = getBuffRemain("player",self.spell.incarnationKingOfTheJungleBuff) or 0
         	self.buff.remain.bloodtalons				= getBuffRemain("player",self.spell.bloodtalonsBuff) or 0
-        	-- self.buff.remain.savageRoar					= getBuffRemain("player",self.spell.savageRoarBuff) or 0
+        	self.buff.remain.savageRoar					= getBuffRemain("player",self.spell.savageRoarBuff) or 0
         	self.buff.remain.tigersFury					= getBuffRemain("player",self.spell.tigersFuryBuff) or 0
         	self.buff.remain.stampedingRoar 			= getBuffRemain("player",self.spell.stampedingRoarBuff) or 0
         end
@@ -389,7 +391,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			local getBuffStacks = getBuffStacks
 
 			self.charges.bloodtalons 	   = getBuffStacks("player",self.spell.bloodtalonsBuff,"player")
-            self.charges.survivalInstincts = getCharges(survivalInstincts)
+            self.charges.survivalInstincts = getCharges(self.spell.survivalInstincts)
 		end
         
     -----------------
@@ -664,13 +666,15 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         -- Calculate Ferocious Bite Damage
         function getFbDamage(cp)
+            local weaponDPS = (select(2,UnitDamage("player")) - select(1,UnitDamage("player"))) / 2
+            local weaponDMG = (weaponDPS + UnitAttackPower("player") / 3.5) 
             local cp = cp
             if cp == nil then cp = bb.player.comboPoints end 
-            fbD = (UnitAttackPower("player")*4)*(cp/5)
-            if bb.player.power>50 and bb.player.inCombat then
-                return fbD*2
-            else
+            fbD = 0.749 * cp * UnitAttackPower("player") * (1 + (bb.player.power - 25) / 25)
+            if bb.player.inCombat then
                 return fbD
+            else
+                return 0
             end
         end
 
