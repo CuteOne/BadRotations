@@ -1,5 +1,5 @@
--- $Id: DiesalGUI-1.0.lua 53 2016-07-12 21:56:30Z diesal2010 $
-local MAJOR, MINOR = "DiesalGUI-1.0", "$Rev: 53 $"
+-- $Id: DiesalGUI-1.0.lua 52 2014-04-08 11:52:40Z diesal@reece-tech.com $
+local MAJOR, MINOR = "DiesalGUI-1.0", "$Rev: 52 $"
 local DiesalGUI, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 if not DiesalGUI then return end -- No Upgrade needed.
 -- ~~| Libraries |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -201,7 +201,7 @@ ObjectBase.SetParentObject = function(self, parent)
 	
 	frame:SetParent(nil)
 	frame:SetParent(parent.content)	
-	settings.parent 				= parent.content	
+	settings.parent 			= parent.content	
 	settings.parentObject 	= parent	
 end
 ObjectBase.SetSettings = function(self,settings,apply)					
@@ -235,12 +235,6 @@ ObjectBase.SetStyle = function(self,name,style)
 	DiesalStyle:SetObjectStyle(self,name,style)		
 end
 ObjectBase.AddStyleSheet = function(self,stylesheet)
-	for name,style in pairs(stylesheet) do 
-		self:SetStyle(name,style)		
-	end
-end
-ObjectBase.SetStyleSheet = function(self,stylesheet)
-	DiesalStyle:ReleaseTextures(self)
 	for name,style in pairs(stylesheet) do 
 		self:SetStyle(name,style)		
 	end

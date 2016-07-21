@@ -1,4 +1,4 @@
- -- $Id: Spinner.lua 53 2016-07-12 21:56:30Z diesal2010 $
+ -- $Id: Spinner.lua 52 2014-04-08 11:52:40Z diesal@reece-tech.com $
 local DiesalGUI = LibStub("DiesalGUI-1.0")
 -- | Libraries |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local DiesalTools = LibStub("DiesalTools-1.0")
@@ -206,7 +206,7 @@ local methods = {
 		if not self.settings.bar then return end
 		local settings = self.settings	
 		local number = self:GetNumber() or settings.min				
-		local width = DiesalTools:Round(((number - settings.min) / (settings.max - settings.min) * settings.barWidth ))	
+		local width = DiesalTools:Round(((number - settings.min) / (settings.max - settings.min)* settings.barWidth ))	
 		if width == 0 then 
 			self.bar:Hide()
 		else

@@ -1,5 +1,5 @@
--- $Id: DiesalMenu-1.0.lua 53 2016-07-12 21:56:30Z diesal2010 $
-local MAJOR, MINOR = "DiesalMenu-1.0", "$Rev: 53 $"
+-- $Id: DiesalMenu-1.0.lua 44 2014-02-23 18:42:02Z diesal@reece-tech.com $
+local MAJOR, MINOR = "DiesalMenu-1.0", "$Rev: 44 $"
 local DiesalMenu, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 if not DiesalMenu then return end -- No Upgrade needed.
 -- ~~| Libraries |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -38,7 +38,12 @@ end)
 function DiesalMenu:Menu(menuData,anchor,x,y,closeDelay)
 	MENU = MENU or DiesalGUI:Create('Menu')		
 	MENU:ResetSettings()
-	if not MENU:BuildMenu(menuData) then MENU:Hide() return end
+	MENU:SetSettings({
+		check		= menuData.check,
+		arrow		= menuData.arrow,			
+		menuData	= menuData,							
+	},true)	
+	
 	MENU:Show()		
 	MENU:ClearAllPoints()
 	MENU:SetPoint('TOPLEFT',anchor,'TOPLEFT',x,y)

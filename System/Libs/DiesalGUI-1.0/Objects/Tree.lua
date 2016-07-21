@@ -1,4 +1,4 @@
--- $Id: Tree.lua 53 2016-07-12 21:56:30Z diesal2010 $
+-- $Id: tableExplorerTree.lua 20 2014-04-13 18:02:32Z diesal2010 $
 -- ~~| Libraries |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local DiesalGUI = LibStub("DiesalGUI-1.0")
 local DiesalTools = LibStub("DiesalTools-1.0")
@@ -10,7 +10,7 @@ local tsort														= table.sort
 
 -- ~~| Tree |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local Type = "Tree"
-local Version = 4
+local Version = 2
 -- ~~| Tree StyleSheets |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local styleSheet = {
 	['content-background'] = {		
@@ -21,14 +21,7 @@ local styleSheet = {
 	},
 }
 -- ~~| Tree Locals |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-local function collapse(branch)
-	if branch.Collapse then branch:Collapse() end
-	if branch.children and next(branch.children) then					
-		for i=1, #branch.children do 
-			collapse(branch.children[i])
-		end
-	end			
-end		
+
 -- ~~| Tree Methods |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local methods = {
 	['OnAcquire'] = function(self)				
@@ -58,14 +51,10 @@ local methods = {
 			self:FireEvent("OnHeightChange",height) 
 		end
 	end,
-	['CollapseAll'] = function(self, subBranches)	
-		if subBranches then
-			collapse(self)			
-		else			
-			for i=1, #self.children do
-				self.children[i]:Collapse()
-			end	
-		end	
+	['CollapseAll'] = function(self)
+		for i=1 , #self.children do 
+			self.children[i]:Collapse()				
+		end		
 	end,
 	['ExpandAll'] = function(self)
 		for i=1 , #self.children do 

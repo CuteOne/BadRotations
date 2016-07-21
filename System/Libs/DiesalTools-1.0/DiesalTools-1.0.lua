@@ -1,5 +1,5 @@
--- $Id: DiesalTools-1.0.lua 54 2016-07-19 00:35:10Z diesal2010 $
-local MAJOR, MINOR = "DiesalTools-1.0", "$Rev: 54 $"
+-- $Id: DiesalTools-1.0.lua 52 2014-04-08 11:52:40Z diesal@reece-tech.com $
+local MAJOR, MINOR = "DiesalTools-1.0", "$Rev: 52 $"
 local DiesalTools, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 if not DiesalTools then return end -- No Upgrade needed.
 -- ~~| Libraries |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -12,13 +12,7 @@ local floor, ceil, abs, modf										= math.floor, math.ceil, math.abs, math.mo
 -- ~~| WoW Upvalues |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local CreateFrame, UIParent, GetCursorPosition 	= CreateFrame, UIParent, GetCursorPosition
 local GetScreenWidth, GetScreenHeight						= GetScreenWidth, GetScreenHeight	
--- ~~| Locals |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-local function getColor(value)
-	if not value then return end	
-		
-	if type(value) =='table' then value = string.format("%02x%02x%02x", value[1], value[2], value[3]) end	
-	return format('|cff%s',value)		
-end
+-- ~~| DiesalStyle Locals |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local escapeSequences = {
 		[ "\a" ] = "\\a", -- Bell
 		[ "\b" ] = "\\b", -- Backspace
@@ -43,70 +37,7 @@ local lua_keywords = {
 local sub_table = {
 	
 }	
-local colors = {
-	blue				= getColor('00aaff'),
-	darkblue		= getColor('004466'),
-	orange			= getColor('ffaa00'),
-	darkorange	= getColor('4c3300'),
-	grey				= getColor('7f7f7f'),
-	darkgrey		= getColor('414141'),
-	white				= getColor('ffffff'),
-	red					= getColor('ff0000'),
-	green				= getColor('00ff2b'),
-	yellow			= getColor('ffff00'),
-	lightyellow	= getColor('ffea7f'),
-}
-
-local formattedArgs = {}
-
-local function GetCaller(level)
-	-- ADDON:LogMessage(debugstack(10,2, 0))	
-	for trace in debugstack(level,2, 0):gmatch("(.-)\n") do
-		-- Blizzard Sandbox
-		local match, _, file, line = trace:find("^.*\\(.-):(%d+)")
-		if match then return format('%s[%s%s: %s%s%s]|r',colors.orange,colors.yellow,file,colors.lightyellow,line,colors.orange) end
-		-- PQI DataFile
-		local match, _, file,line = trace:find('^%[string "[%s%-]*(.-%.lua).-"%]:(%d+)')
-		if match then return format('%s[%s%s: %s%s%s]|r',colors.orange,colors.yellow,file,colors.lightyellow,line,colors.orange) end
-		-- PQR Ability code
-		local match, _, file,line = trace:find('^%[string "(.-)"%]:(%d+)')
-		if match then return format('%s[%s%s: %s%s%s]|r',colors.orange,colors.yellow,file,colors.lightyellow,line,colors.orange) end
-	end
-	return format('%s[%sUnknown Caller%s]|r',colors.orange,colors.red,colors.orange)
-end
--- ~~| API |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-
--- lua API edits
-
---[[ string = string.splice(string, start, End, txt)
-	@Arguments:
-		string			string to splice
-		start				starting index of splice 
-		End					ending index of splice
-		txt					new text to splice in (string)						
-	@Returns:	
-		string			resulting string of the splice
-		
-	@example:	
-		string.splice("123456789",2,4,'NEW') -- returns: "1NEW56789"		
---]]
-function string.splice(string,start,End,txt) return string:sub(1, start-1)..txt..string:sub(End+1,-1) end
-
-
-function DiesalTools:Stack()
-	print("|r------------------------------| Stack Trace |-------------------------------")
-	local stack = debugstack(1,12, 0)
-	for trace in stack:gmatch("(.-)\n") do		
-		match, _, file, line, func = trace:find("^.*\\(.-):(%d+).-`(.*)'$")
-		if match then print(format("%s[%s%s: %s%s%s] %sfunction|r %s|r",colors.orange,colors.yellow,file,colors.lightyellow,line,colors.orange,colors.blue,func)) end		
-	end
-	print("|r--------------------------------------------------------------------------------")
-end
-
-
-
+-- ~~| DiesalStyle API |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 --[[ copy = TableCopy(src, dest, metatable)
 	@Arguments:
 		dest				Table to copy to 
@@ -213,15 +144,8 @@ end
 -- @Param 	base		the number to round to (can be a decimal)	[Default:1]							
 -- @Return	the rounded number to base		]]			
 function DiesalTools:Round(number, base)
-	base = base or 1
-	return floor((number + base/2)/base) * base
-end
---[[ Round a number for printing
--- @Param 	number 	the number to round
--- @Param 	idp			number of decimal points to round to	[Default:1]							
--- @Return	the rounded number ]]	
-function DiesalTools:RoundPrint(num, idp)	
-	return string.format("%." .. (idp or 0) .. "f", num)
+    base = base or 1
+    return floor((number + base/2)/base) * base
 end
 --[[ Capitalize a string 
 --	@Param 	str	the string to capatilize					

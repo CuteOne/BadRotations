@@ -1,4 +1,4 @@
--- $Id: ScrollingEditBox.lua 53 2016-07-12 21:56:30Z diesal2010 $
+-- $Id: ScrollingEditBox.lua 52 2014-04-08 11:52:40Z diesal@reece-tech.com $
 
 local DiesalGUI = LibStub('DiesalGUI-1.0')
 -- ~~| Libraries |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -12,7 +12,7 @@ local floor, ceil, min, max, abs, modf								= math.floor, math.ceil, math.min,
 local GetCursorPosition 												= GetCursorPosition
 -- ~~| ScrollingEditBox |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local Type 		= 'ScrollingEditBox'
-local Version 	= 3
+local Version 	= 1
 -- ~~| ScrollingEditBox StyleSheets |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local styleSheet = {		
 	['track-background'] = {					
@@ -216,25 +216,7 @@ local function Constructor()
 	editBox:HookScript('OnEditFocusLost',function(this) 
 		this:HighlightText(0,0)
 		this:SetText(self.settings.text)
-	end)	
-	editBox:HookScript('OnEditFocusGained',function(this) 
-		self:FireEvent("OnEditFocusGained")
-	end)	
-	editBox:HookScript('OnEscapePressed',function(this) 
-		self:FireEvent("OnEscapePressed")
-	end)
-	editBox:HookScript('OnTabPressed',function(this) 
-		self:FireEvent("OnTabPressed")
-	end)
-	editBox:HookScript('OnCursorChanged',function(this,...) 
-		self:FireEvent("OnCursorChanged",...)
-	end)
-	editBox:HookScript('OnTextChanged',function(this) 
-		self:FireEvent("OnTextChanged")
-	end)
-	
-	
-		 			
+	end)		 			
 	scrollFrame:SetScrollChild(editBox)	
 	
 	local scrollBar = self:CreateRegion("Frame", 'scrollBar', frame)	

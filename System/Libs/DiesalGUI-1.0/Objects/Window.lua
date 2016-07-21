@@ -1,4 +1,4 @@
--- $Id: Window.lua 53 2016-07-12 21:56:30Z diesal2010 $
+-- $Id: Window.lua 52 2014-04-08 11:52:40Z diesal@reece-tech.com $
 
 local DiesalGUI = LibStub("DiesalGUI-1.0")
 -- | Libraries |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -45,9 +45,9 @@ local styleSheet = {
 		type			= 'texture',
 		layer			= 'ARTWORK',
 		texFile		= 'DiesalGUIcons',
-		texCoord	= {9,5,16,256,128},
-		alpha 		= .3,
-		offset		= {-2,nil,-1,nil},
+		texCoord		= {9,5,16,256,128},
+		alpha 		= .7,
+		offset		= {-2,nil,-2,nil},
 		width			= 16,
 		height		= 16,
 	},
@@ -58,7 +58,7 @@ local styleSheet = {
 		texCoord		= {9,5,16,256,128},
 		texColor		= 'b30000',
 		alpha			= 1,
-		offset		= {-2,nil,-1,nil},
+		offset		= {-2,nil,-2,nil},
 		width			= 16,
 		height		= 16,
 	},
@@ -66,19 +66,24 @@ local styleSheet = {
 	['header-background'] = {
 		type			= 'texture',
 		layer			= 'BACKGROUND',
-		gradient	= 'VERTICAL',				
-		color			= '232f38',
-		colorEnd	= '2d3c47',
-		alpha			= .95,		
+		color			= '333740',
+		alpha			= .95,
 		offset 		= {0,0,0,-1},
-	},	
+	},
+	['header-gloss'] = {
+		type			= 'texture',
+		layer			= 'ARTWORK',
+		gradient	= 'VERTICAL',
+		color			= 'FFFFFF',
+		alpha			= 0,
+		alphaEnd	= .05,
+		offset		= {0,0,0,-1},
+	},
 	['header-inline'] = {
 		type			= 'outline',
-		layer			= 'BORDER',
-		gradient	= 'VERTICAL',	
-		color			= 'ffffff',
-		alpha 		= .02,
-		alphaEnd	= .05,			
+		layer			= 'ARTWORK',
+		color			= 'FFFFFF',
+		alpha			= .04,
 		offset		= {0,0,0,-1},
 	},
 	['header-divider'] = {
@@ -92,7 +97,7 @@ local styleSheet = {
 	['content-background'] = {
 		type			= 'texture',
 		layer			= 'BACKGROUND',
-		color			= '151e24',
+		color			= '1b1e21',
 		alpha			= .95,
 		offset		= 0,
 
@@ -101,15 +106,13 @@ local styleSheet = {
 		type			= 'outline',
 		layer			= 'BORDER',
 		color			= 'FFFFFF',
-		alpha			= .03,
+		alpha			= .04,
 		offset		= 0,
 	},
 	['footer-background'] = {			
 		type			= 'texture',
-		layer			= 'BACKGROUND',
-		gradient	= 'VERTICAL',				
-		color			= '232f38',
-		colorEnd	= '2d3c47',
+		layer			= 'BACKGROUND',							
+		color			= '2f353b',
 		alpha			= .95,		
 		offset 		= {0,0,-1,0},
 	},
@@ -119,13 +122,22 @@ local styleSheet = {
 		color			= '000000',
 		offset		= {0,0,0,nil},
 		height		= 1,
-	},				
+	},	
+	['footer-gloss'] = {			
+		type			= 'texture',
+		layer			= 'ARTWORK',		
+		gradient	= 'VERTICAL',				
+		color			= 'FFFFFF',		
+		alpha			= 0,
+		alphaEnd	= .05,		
+		offset		= {0,0,-1,0}	
+	},			
 	['footer-inline'] = {			
 		type			= 'outline',
 		layer			= 'BORDER',
 		gradient	= 'VERTICAL',	
 		color			= 'ffffff',
-		alpha 		= .02,
+		alpha 		= .03,
 		alphaEnd	= .05,			
 		offset		= {0,0,-1,0}	
 	},	
@@ -335,7 +347,7 @@ local function Constructor()
 		self:FireEvent( "OnDragStop", self.settings.left, self.settings.top )
 	end)
 	local closeButton = self:CreateRegion("Button", 'closeButton', titleBar)
-	closeButton:SetPoint("TOPRIGHT", -1, 1)
+	closeButton:SetPoint("TOPRIGHT", 0, 0)
 	closeButton:SetScript("OnClick", function(this,button)
 		DiesalGUI:OnMouse(this,button)
 		PlaySound("gsTitleOptionExit")
@@ -343,7 +355,6 @@ local function Constructor()
 		self:Hide()
 	end)
 	local titletext = self:CreateRegion("FontString", 'titletext', titleBar)
-	titletext:SetWordWrap(false) 
 	titletext:SetPoint("TOPLEFT", 4, -5)
 	titletext:SetPoint("TOPRIGHT", -20, -5)
 	titletext:SetJustifyH("TOP")

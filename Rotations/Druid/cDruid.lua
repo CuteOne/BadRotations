@@ -20,56 +20,39 @@ if select(2, UnitClass("player")) == "DRUID" then
 		self.debuff.duration = {}		-- Debuff Durations
 		self.debuff.remain 	 = {}		-- Debuff Time Remaining
 		self.druidAbilities	 = { 		-- Abilities Available To All Druids
-
-			-- Ability - Crowd Control
-			entanglingRoots 			= 339,
-
-			-- Ability - Defensive
-			
-			-- Ability - Forms
+			-- Actions
 			bearForm 					= 5487,
 			catForm 					= 768,
-			flightForm 					= 165962,
-			stagForm 					= 210053,
-			travelForm 					= 783,
-
-			-- Ability - Offensive
-			moonfire 					= 8921,
-			
-			-- Ability - Utility
 			dash 						= 1850,
 			dreamwalk 					= 193753,
+			entanglingRoots 			= 339,
+			flightForm 					= 165962,
 			growl 						= 6795,
+			moonfire 					= 8921,
 			rebirth 					= 20484,
 			revive 						= 50769,
-			
-			-- Buff - Defensive
-			
-			-- Buff - Forms
-			bearFormBuff 				= 5487,
-			catFormBuff					= 768,
-			flightFormBuff 				= 165962,
-			stagFormBuff 				= 210053,
-			travelFormBuff 				= 783,
-
-			-- Buff - Offensive
-			
-			-- Buff - Utility
-			dashBuff 					= 1850,
-			
-			-- Debuff - Crowd Control
-			entanglingRootsDebuff 		= 339,
-			
-			-- Debuff - Offensive
-			moonfireDebuff 				= 8921,
-
-			-- Debuff - Utility
-			growlDebuff 				= 6795,
+			stagForm 					= 210053,
+			travelForm 					= 783,
 		}
-		self.druidArtifacts = {			-- Artifact Traits Available To ALl Druids
+		self.druidArtifacts  = {		-- Artifact Traits Available To All Druids
 			artificialStamina 			= 211309,
 		}
-		self.druidGlyphs 	= {			-- Glyphs Available To All Druids
+		self.druidBuffs 	 = {		-- Buffs Available To All Druids
+			bearFormBuff 				= 5487,
+			catFormBuff					= 768,
+			dashBuff 					= 1850,
+			displacerBeastBuff 			= 137452,
+			flightFormBuff 				= 165962,
+			prowlBuff 					= 5215,
+			stagFormBuff 				= 210053,
+			travelFormBuff 				= 783,
+		}
+		self.druidDebuffs 	 = {		-- Debuffs Available To All Druids
+			entanglingRootsDebuff 		= 339,
+			growlDebuff 				= 6795,
+			moonfireDebuff 				= 8921,
+		}
+		self.druidGlyphs 	 = {		-- Glyphs Available To All Druids
 			glyphOfTheCheetah 			= 131113,
 			glyphOfTheDoe 				= 224122,
 			glyphOfTheFeralChameleon 	= 210333,
@@ -77,33 +60,26 @@ if select(2, UnitClass("player")) == "DRUID" then
 			glyphOfTheSentinel 			= 219062,
 			glyphOfTheUrsolChameleon 	= 107059,
 		}
-		self.druidSpecial 	= { 		-- Specializations Available To All Druids
-			-- Ability - Defensive
+		self.druidSpecials 	 = { 		-- Specializations Available To All Druids
 			healingTouch 				= 5185,
-
-			-- Ability - Utility
 			prowl 						= 5215,
-
-			-- Buff - Utility
-			prowlBuff 					= 5215,
 		}
-		self.druidTalents 	= {			-- Talents Available To All Druids
+		self.druidTalents 	 = {		-- Talents Available To All Druids
 			-- Ability
 			displacerBeast 				= 102280,
 			massEntanglement 			= 102359,
 			mightyBash 					= 5211,
 			typhoon 					= 132469,
 			wildCharge 					= 102401,
-
-			-- Buff
-			displacerBeastBuff 			= 137452,
 		}
 		-- Merge all spell tables into self.druidSpell
 		self.druidSpell = {} 
 		self.druidSpell = mergeTables(self.druidSpell,self.druidAbilities)
 		self.druidSpell = mergeTables(self.druidSpell,self.druidArtifacts)
+		self.druidSpell = mergeTables(self.druidSpell,self.druidBuffs)
+		self.druidSpell = mergeTables(self.druidSpell,self.druidDebuffs)
 		self.druidSpell = mergeTables(self.druidSpell,self.druidGlyphs)
-		self.druidSpell = mergeTables(self.druidSpell,self.druidSpecial)
+		self.druidSpell = mergeTables(self.druidSpell,self.druidSpecials)
 		self.druidSpell = mergeTables(self.druidSpell,self.druidTalents) 
 
     ------------------
@@ -272,9 +248,9 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 			self.talent.displacerBeast 		= getTalent(2,2)
 			self.talent.wildCharge 			= getTalent(2,3)
-			self.talent.massEntanglement 	= getTalent(3,2)
-			self.talent.typhoon 			= getTalent(3,3)
-			self.talent.mightyBash 			= getTalent(5,3)
+			self.talent.mightyBash 			= getTalent(4,1)
+			self.talent.massEntanglement 	= getTalent(4,2)
+			self.talent.typhoon 			= getTalent(4,3)
 		end
 			
 	-------------

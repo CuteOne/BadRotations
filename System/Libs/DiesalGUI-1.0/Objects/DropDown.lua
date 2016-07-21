@@ -1,4 +1,4 @@
--- $Id: DropDown.lua 53 2016-07-12 21:56:30Z diesal2010 $
+-- $Id: DropDown.lua 52 2014-04-08 11:52:40Z diesal@reece-tech.com $
 
 local DiesalGUI = LibStub('DiesalGUI-1.0')
 -- ~~| Libraries |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -10,16 +10,14 @@ local sub, format, lower, upper,gsub								= string.sub, string.format, string.
 -- ~~| WoW Upvalues |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -- ~~| Dropdown |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-local Type 		= 'Dropdown'
+local Type 		= 'DropdownBB'
 local Version 	= 2
 -- ~~| Dropdown StyleSheets |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local styleSheet = {	
 	['frame-color'] = {			
 		type			= 'texture',
 		layer			= 'BACKGROUND',								
-		gradient	= 'VERTICAL',				
-		color			= '263037',
-		colorEnd	= '2d3b45',	
+		color			= '2f353b',			
 		offset		= 0,	
 	},
 	['frame-outline'] = {			
@@ -27,7 +25,16 @@ local styleSheet = {
 		layer			= 'BORDER',								
 		color			= '000000',		
 		offset		= 0,		
-	},	
+	},
+	['frame-highlight'] = {			
+		type			= 'texture',
+		layer			= 'BORDER',
+		gradient	= 'VERTICAL',							
+		color			= 'FFFFFF',			
+		alpha 		= 0,
+		alphaEnd	= .1,
+		offset		= -1,		
+	},
 	['frame-inline'] = {		
 		type			= 'outline',
 		layer			= 'BORDER',
@@ -177,7 +184,7 @@ local methods = {
 						dropdownText = self.children[i].settings.value
 						selectionTable = {key}
 						selectedKey	= key
-						selectedValue	= value				
+						selectedValue	= self.children[i].settings.value
 					end
 				end
 			end		
