@@ -58,8 +58,8 @@ function cCharacter:new(class)
     self.flask = {}
     self.flask.wod = {
         -- Agility
-        agilityLow = 109145,
-        agilityBig = 109153,
+        agilityLow = 127848, 		-- Flask of the Seventh Demon (Legion)
+        agilityBig = 127848, 		-- Flask of the Seventh Demon (Legion)
         -- Intellect
         intellectLow = 109147,
         intellectBig = 109155,
@@ -72,8 +72,8 @@ function cCharacter:new(class)
     }
     self.flask.wod.buff = {
         -- Agility
-        agilityLow = 156073,
-        agilityBig = 156064,
+        agilityLow = 188033, 		-- Flask of the Seventh Demon (Legion)
+        agilityBig = 188033, 		-- Flask of the Seventh Demon (Legion)
         -- Intellect
         intellectLow = 156070,
         intellectBig = 156079,

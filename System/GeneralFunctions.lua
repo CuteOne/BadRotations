@@ -801,6 +801,15 @@ end
 function getCharges(spellID)
 	return select(1,GetSpellCharges(spellID))
 end
+function getChargesFrac(spellID)
+	local charges,maxCharges,start,duration = GetSpellCharges(spellID)
+	local percentRemaining = ((duration - start) / duration)
+	if percentRemaining < 1 then
+		return charges + ((duration - start) / duration)
+	else
+		return charges 
+	end
+end
 function getChi(Unit)
 	return UnitPower(Unit,12)
 end
@@ -1990,6 +1999,10 @@ function isKnown(spellID)
 	if IsPlayerSpell(tonumber(spellID)) == true then
 		return true
 	end
+	-- artifact
+    if bb.artifact:hasPerk(spellID) == true then
+        return true
+    end
 	return false
 end
 --if isLongTimeCCed("target") then

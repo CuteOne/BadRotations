@@ -38,6 +38,7 @@ System\newui.lua
 System\drawer\drawer.lua
 
 ## Engines
+System\engines\ArtifactTable.lua
 System\engines\EnemiesEngine.lua
 System\engines\EnemiesEngineCollections.lua
 System\engines\EnemiesEngineFrame.lua

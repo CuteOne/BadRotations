@@ -15,6 +15,8 @@ if select(2, UnitClass("player")) == "DRUID" then
 		self.profile         = spec
 		self.comboPoints     = getCombo("player")
 		self.stealth		 = false
+		self.artifact 		 = {}
+		self.artifact.perks  = {}
 		self.buff.duration	 = {}		-- Buff Durations
 		self.buff.remain 	 = {}		-- Buff Time Remaining
 		self.debuff.duration = {}		-- Debuff Durations
@@ -89,6 +91,8 @@ if select(2, UnitClass("player")) == "DRUID" then
 		function self.classUpdateOOC()
 			-- Call baseUpdateOOC()
 			self.baseUpdateOOC()
+			self.getClassArtifacts()
+			self.getClassArtifactRanks()
 			self.getClassGlyphs()
 			self.getClassTalents()
 			self.getClassPerks()
@@ -138,6 +142,20 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- AoE
             self.units.dyn35AoE = dynamicTarget(35, false) -- Entangling Roots
         end
+
+    -----------------
+    --- ARTIFACTS ---
+    -----------------
+
+    	function self.getClassArtifacts()
+    		local isKnown = isKnown
+
+    		self.artifact.artificialStamina = isKnown(self.spell.artificialStamina)
+    	end
+
+    	function self.getClassArtifactRanks()
+
+    	end
 
     -------------
     --- BUFFS ---
