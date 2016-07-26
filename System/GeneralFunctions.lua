@@ -651,24 +651,24 @@ Third 		Facing 			True to allow 360 degrees,false to use facing check
 Fourth 		MovementCheck	True to make sure player is standing to cast,false to allow cast while moving
 Fifth 		SpamAllowed 	True to skip that check,false to prevent spells that we dont want to spam from beign recast for 1 second
 Sixth 		KnownSkip 		True to skip isKnown check for some spells that are not managed correctly in wow's spell book.
+Seventh 	DeadCheck 		True to skip checking for dead units. (IE: Resurrection Spells)
+Eigth 		DistanceSkip    True to skip range checking.
+Ninth 		usableSkip 		True to skip usability checks.
+Tenth 		noCast			True to return True/False instead of casting spell.
 ]]
 -- castSpell("target",12345,true)
 --                ( 1  ,    2  ,     3     ,     4       ,      5    ,   6     ,   7     ,    8       ,   9    )
-function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,DeadCheck,DistanceSkip,usableSkip)
+function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,DeadCheck,DistanceSkip,usableSkip,noCast)
 	if GetObjectExists(Unit) and betterStopCasting(SpellID) ~= true
 		and (not UnitIsDeadOrGhost(Unit) or DeadCheck) then
 		-- we create an usableSkip for some specific spells like hammer of wrath aoe mode
-		if usableSkip == nil then
-			usableSkip = false
-		end
+		if usableSkip == nil then usableSkip = false end
 		-- stop if not enough power for that spell
-		if usableSkip ~= true and IsUsableSpell(SpellID) ~= true then
-			return false
-		end
+		if usableSkip ~= true and IsUsableSpell(SpellID) ~= true then return false end
 		-- Table used to prevent refiring too quick
-		if timersTable == nil then
-			timersTable = {}
-		end
+		if timersTable == nil then timersTable = {}	end
+		-- default noCast to false
+		if noCast == nil then nocast = false end
 		-- make sure it is a known spell
 		if not (KnownSkip == true or isKnown(SpellID)) then return false end
 		-- gather our spell range information
@@ -695,33 +695,45 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 					-- get our last/current cast
 					if timersTable == nil or (timersTable ~= nil and (timersTable[SpellID] == nil or timersTable[SpellID] <= GetTime() -0.6)) then
 						if (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true) then
-							timersTable[SpellID] = GetTime()
-							currentTarget = UnitGUID(Unit)
-							CastSpellByName(GetSpellInfo(SpellID),Unit)
-							--lastSpellCast = SpellID
-							-- change main button icon
-							if getOptionCheck("Start/Stop BadBoy") then
-								mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
-								lastSpellCast = SpellID
-								lastSpellTarget = UnitGUID(Unit)
+							if noCast then 
+								return true
+							else 
+								timersTable[SpellID] = GetTime()
+								currentTarget = UnitGUID(Unit)
+								CastSpellByName(GetSpellInfo(SpellID),Unit)
+								--lastSpellCast = SpellID
+								-- change main button icon
+								if getOptionCheck("Start/Stop BadBoy") then
+									mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
+									lastSpellCast = SpellID
+									lastSpellTarget = UnitGUID(Unit)
+								end
+								return true
 							end
-							return true
 						end
 					end
 				elseif (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true) then
-					currentTarget = UnitGUID(Unit)
-					CastSpellByName(GetSpellInfo(SpellID),Unit)
-					if getOptionCheck("Start/Stop BadBoy") then
-						mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
-						lastSpellCast = SpellID
-						lastSpellTarget = UnitGUID(Unit)
+					if noCast then
+						return true
+					else
+						currentTarget = UnitGUID(Unit)
+						CastSpellByName(GetSpellInfo(SpellID),Unit)
+						if getOptionCheck("Start/Stop BadBoy") then
+							mainButton:SetNormalTexture(select(3,GetSpellInfo(SpellID)))
+							lastSpellCast = SpellID
+							lastSpellTarget = UnitGUID(Unit)
+						end
+						return true
 					end
-					return true
 				end
 			end
 		end
 	end
 	return false
+end
+function canCast(spellID,unit)
+	if unit == nil then unit = "target" end
+	return castSpell(unit,spellID,false,false,false,false,false,false,false,true)
 end
 function castMouseoverHealing(Class)
 	if UnitAffectingCombat("player") then
@@ -1027,6 +1039,7 @@ function getDisease(range,aoe,mod)
 -- end
 -- if getDistance("player","target") <= 40 then
 function getDistance(Unit1,Unit2)
+	if actual == nil then actual = false end
 	-- If both units are visible
 	if GetObjectExists(Unit1) and UnitIsVisible(Unit1) == true and (Unit2 == nil or (GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true)) then
 		-- If Unit2 is nil we compare player to Unit1
@@ -1041,14 +1054,42 @@ function getDistance(Unit1,Unit2)
 		else
 			local X1,Y1,Z1 = GetObjectPosition(Unit1)
 			local X2,Y2,Z2 = GetObjectPosition(Unit2)
-			return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - ((UnitCombatReach(Unit1)) + (UnitCombatReach(Unit2)))
+			local dist = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (UnitBoundingRadius(Unit2)-0.45)
+			local dist2 = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (UnitCombatReach(Unit1) + UnitCombatReach(Unit2))
+			if dist2>8 then
+				return dist2
+			elseif dist2<8 and dist>5 then
+				return 6
+			else
+				return dist 
+			end
 		end
 	else
 		return 100
 	end
 end
+function getDistance2(Unit1,Unit2)
+	-- If Unit2 is nil we compare player to Unit1
+	if Unit2 == nil then
+		Unit2 = Unit1
+		Unit1 = "player"
+	end
+	if GetObjectExists(Unit1) and UnitIsVisible(Unit1) == true
+		and GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true then
 
-function getRealDistance(Unit1,Unit2)
+		local X1,Y1,Z1 = GetObjectPosition(Unit1)
+		local X2,Y2,Z2 = GetObjectPosition(Unit2)
+		return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2))
+	else
+		return 100
+	end
+end
+function getDistance3(Unit1,Unit2)
+	-- If Unit2 is nil we compare player to Unit1
+	if Unit2 == nil then
+		Unit2 = Unit1
+		Unit1 = "player"
+	end
 	if GetObjectExists(Unit1) and UnitIsVisible(Unit1) == true
 		and GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true then
 
@@ -1059,8 +1100,55 @@ function getRealDistance(Unit1,Unit2)
 		return 100
 	end
 end
+function getDistance4(spellID,Unit1)
+	-- If Unit2 is nil we compare player to Unit1
+	if Unit2 == nil then
+		Unit2 = Unit1
+		Unit1 = "player"
+	end
+	if GetObjectExists(Unit1) and UnitIsVisible(Unit1) == true
+		and GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true then
+
+		local X1,Y1,Z1 = GetObjectPosition(Unit1)
+		local X2,Y2,Z2 = GetObjectPosition(Unit2)
+		local name, rank, icon, castingTime, minRange, maxRange, spellID = GetSpellInfo(spellID)
+		if maxRange<=5 then
+			return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2))
+		elseif minRange>=8 then
+			return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (UnitCombatReach(Unit1) + UnitCombatReach(Unit2))
+		else
+			return 6.5
+		end
+	else
+		return 100
+	end
+end
+function getRealDistance(Unit1,Unit2)
+	-- If Unit2 is nil we compare player to Unit1
+	if Unit2 == nil then
+		Unit2 = Unit1
+		Unit1 = "player"
+	end
+	if GetObjectExists(Unit1) and UnitIsVisible(Unit1) == true
+		and GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true then
+
+		local X1,Y1,Z1 = GetObjectPosition(Unit1)
+		local X2,Y2,Z2 = GetObjectPosition(Unit2)
+		local dist = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (UnitBoundingRadius(Unit2)-0.45)
+		local dist2 = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (UnitCombatReach(Unit1) + UnitCombatReach(Unit2))
+		if dist2>=8 then return dist2 end
+		if dist2<8 and dist>=8 then return 7.9 end
+		if dist<8 and dist>5 then return 5.9 end
+		if dist<=5 then return dist end
+	else
+		return 100
+	end
+end
+function isInRange(spellID,unit)
+	return LibStub("SpellRange-1.0").IsSpellInRange(spellID,unit)
+end
 function meleeRange(unit,otherUnit)
-	otherUnit = otherUnit or "player";
+	otherUnit = "player"
 	return getRealDistance(otherUnit,unit) <= (math.max(UnitCombatReach(otherUnit) + UnitCombatReach(unit) + 4 / 3 + ((isMoving(otherUnit) and isMoving(unit)) and 8 / 3 or 0), 5));
 end
 function getDistanceToObject(Unit1,X2,Y2,Z2)

@@ -60,16 +60,16 @@ if select(2, UnitClass("player")) == "DRUID" then
                 bb.ui:createCheckbox(section,"Death Cat Mode","|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.")
             -- Fire Cat
                 bb.ui:createCheckbox(section,"Perma Fire Cat","|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic use of Fandrel's Seed Pouch or Burning Seeds.")
-            -- Mark Of The Wild
-                bb.ui:createCheckbox(section,"Mark of the Wild","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFautomatic Mark of Wild usage. When enabled rotation will scan party/raid groups and cast if anyone in range in missing a similar buff.")
             -- Dummy DPS Test
                 bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            -- Pre-Pull Timer
+                bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Travel Shapeshifts
                 bb.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
             -- Break Crowd Control
                 bb.ui:createCheckbox(section,"Break Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to break crowd control.|cffFFBB00.")
-            -- Pre-Pull Timer
-                bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            -- Wild Charge
+                bb.ui:createCheckbox(section,"Displacer Beast / Wild Charge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00.")
             bb.ui:checkSectionState(section)
         -- Cooldown Options
             section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
@@ -77,8 +77,6 @@ if select(2, UnitClass("player")) == "DRUID" then
                 bb.ui:createCheckbox(section,"Agi-Pot")
             -- Flask / Crystal
                 bb.ui:createCheckbox(section,"Flask / Crystal")
-            -- Force of Nature
-                bb.ui:createCheckbox(section,"Force of Nature")
             -- Berserk
                 bb.ui:createCheckbox(section,"Berserk")
             -- Legendary Ring
@@ -103,6 +101,8 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Remove Corruption
                 bb.ui:createCheckbox(section,"Remove Corruption")
                 bb.ui:createDropdownWithout(section, "Remove Corruption - Target", {"|cff00FF00Player","|cffFFFF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
+            -- Renewal
+                bb.ui:createSpinner(section, "Renewal",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Rejuvenation
                 bb.ui:createSpinner(section, "Rejuvenation",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Auto Rejuvenation
@@ -113,8 +113,6 @@ if select(2, UnitClass("player")) == "DRUID" then
                 bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
             -- Engineering: Shield-o-tronic
                 bb.ui:createSpinner(section, "Shield-o-tronic",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            -- Nature's Vigil
-                bb.ui:createSpinner(section, "Nature's Vigil",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Survival Instincts
                 bb.ui:createSpinner(section, "Survival Instincts",  40,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Healing Touch
@@ -162,7 +160,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 --- ROTATION ---
 ----------------
 	local function runRotation()
-        if bb.timer:useTimer("debugFeral", 0.1) then
+        if bb.timer:useTimer("debugFeral", math.random(0.15,0.3)) then
             --print("Running: "..rotationName)
 
     ---------------
@@ -193,9 +191,10 @@ if select(2, UnitClass("player")) == "DRUID" then
 			local ttm 											= bb.player.timeToMax
 			local falling, swimming, flying, moving				= getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
 			local gcd 											= bb.player.gcd
-			local t17_2pc 										= bb.player.eq.t17_2pc
-			local t18_2pc 										= bb.player.eq.t18_2pc 
-			local t18_4pc 										= bb.player.eq.t18_4pc 
+			local t17_2pc 										= TierScan("T17")>=2 --bb.player.eq.t17_2pc
+			local t18_2pc 										= TierScan("T18")>=2 --bb.player.eq.t18_2pc 
+			local t18_4pc 										= TierScan("T18")>=4 --bb.player.eq.t18_4pc
+            local talent                                        = bb.player.talent 
 			local racial 										= bb.player.getRacial()
             local mode                                          = bb.player.mode
 			local healPot 										= getHealthPot()
@@ -230,19 +229,32 @@ if select(2, UnitClass("player")) == "DRUID" then
 			local dynTar13 										= bb.player.units.dyn13 --Skull Bash
 			local dynTar20AoE 									= bb.player.units.dyn20AoE --Prowl
 			local dynTar40AoE 									= bb.player.units.dyn40AoE --Cat Form/Moonfire	
-			local dynTable5 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar5, ["distance"] = getDistance(dynTar5)}}
-			local dynTable8 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar8, ["distance"] = getDistance(dynTar8)}}
-			local dynTable8AoE 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar8AoE, ["distance"] = getDistance(dynTar8AoE)}}
-			local dynTable13 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar13, ["distance"] = getDistance(dynTar13)}}
-			local dynTable20AoE 								= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getDistance(dynTar20AoE)}}
-			local dynTable40AoE 								= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar40AoE, ["distance"] = getDistance(dynTar40AoE)}}
+			local dynTable5 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar5, ["distance"] = getRealDistance(dynTar5)}}
+			local dynTable8 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar8, ["distance"] = getRealDistance(dynTar8)}}
+			local dynTable8AoE 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar8AoE, ["distance"] = getRealDistance(dynTar8AoE)}}
+			local dynTable13 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar13, ["distance"] = getRealDistance(dynTar13)}}
+			local dynTable20AoE 								= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getRealDistance(dynTar20AoE)}}
+			local dynTable40AoE 								= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar40AoE, ["distance"] = getRealDistance(dynTar40AoE)}}
 			local deadtar, attacktar, hastar, playertar 		= deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
 			local friendly 										= friendly or UnitIsFriend("target", "player")
 		    local mfTick 										= 20.0/(1+UnitSpellHaste("player")/100)/10
+            local rkTick                                        = 3
+            local rpTick                                        = 2
 		    local multidot 										= (useCleave() or bb.player.mode.rotation ~= 3)
 		    local fbDamage 										= getFbDamage()
+            local ttd                                           = getTTD
+            if talent.jaggedWounds then
+                if rkTick==3 then
+                    rkTick = rkTick-rkTick*0.3
+                end
+                if rpTick==2 then
+                    rpTick = rpTick-rpTick*0.3
+                end
+            end
 
-	-- 	    --ChatOverlay(getFbDamage(5))
+
+		    --ChatOverlay(round2(debuff.remain.rake,2)..", "..debuff.duration.rake)
+            --ChatOverlay(round2(getDistance("target"),2)..", "..round2(getDistance2("target"),2)..", "..round2(getDistance3("target"),2)..", "..round2(getRealDistance("target"),2))
 	--------------------
 	--- Action Lists ---
 	--------------------
@@ -269,7 +281,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			        		if bb.player.castCatForm() then return end
 			        	end
 			        	-- Cat Form when not in combat and target selected and within 20yrds
-			        	if not inCombat and hastar and attacktar and not deadtar and getDistance("target")<20 then
+			        	if not inCombat and hastar and attacktar and not deadtar and getRealDistance("target")<20 then
 			        		if bb.player.castCatForm() then return end
 			        	end
 			        	--Cat Form when in combat and not flying
@@ -301,7 +313,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 				end -- End Perma Fire Cat
 			-- Death Cat mode
 				if isChecked("Death Cat Mode") and cat then
-			        if hastar and getDistance(dynTar8AoE) > 8 then
+			        if hastar and getRealDistance(dynTar8AoE) > 8 then
 			            ClearTarget()
 			        end
 		            if bb.player.enemies.yards20 > 0 then
@@ -372,6 +384,10 @@ if select(2, UnitClass("player")) == "DRUID" then
 							if bb.player.castRemoveCorruption("mouseover") then return end
 						end
 					end
+            -- Renewal
+                    if isChecked("Renewal") and php <= getOptionValue("Renewal") and inCombat then
+                        if bb.player.castRenewal() then return end
+                    end
 			-- PowerShift - Breaks Crowd Control
 				    if isChecked("Break Crowd Control") and hasNoControl() then
 				        for i=1, 6 do
@@ -421,16 +437,14 @@ if select(2, UnitClass("player")) == "DRUID" then
 					then
 						useItem(118006)
 					end
-	-- 		-- Tier 6 Talent: Nature's Vigil
-	-- 	            if isChecked("Nature's Vigil") and php <= getOptionValue("Nature's Vigil") then
-	-- 	            	if bb.player.castNaturesVigil() then return end
-	-- 	            end
 			-- Healing Touch
-		            if isChecked("Healing Touch") 
-		            	and ((buff.remain.predatorySwiftness > 0 and php <= getOptionValue("Healing Touch")) or not inCombat) 
-		            		--or (not inCombat and buff.remain.rejuvenation > 0 and php <= getOptionValue("Rejuvenation"))) 
-		            then
-		            	if bb.player.castHealingTouch("player") then return end
+		            if isChecked("Healing Touch") and php <= getOptionValue("Healing Touch") and (buff.remain.predatorySwiftness > 0 or not inCombat) then
+		            	if getOptionValue("Auto Heal")==1 then
+                            if bb.player.castHealingTouch(nNova[1].unit) then return end
+                        end
+                        if getOptionValue("Auto Heal")==2 then
+                            if bb.player.castHealingTouch("player") then return end
+                        end
 		            end
 			-- Survival Instincts
 		            if isChecked("Survival Instincts") and php <= getOptionValue("Survival Instincts") 
@@ -474,16 +488,20 @@ if select(2, UnitClass("player")) == "DRUID" then
 			end -- End Action List - Interrupts
 		-- Action List - Cooldowns
 			local function actionList_Cooldowns()
-				if getDistance(dynTar5)<5 then
+				if getRealDistance(dynTar5)<5 then
             -- Elunes Guidance
                     -- if=combo_points=0&(!artifact.ashamanes_bite.enabled|!dot.ashamanes_rip.ticking)
                     if combo == 0 and (not artifact.ashamanesBite or not debuff.ashamainsRip) then
-                        if bb.player.castElunesGuidance() then return end
+                        if talent.elunesGuidance and cd.elunesGuidance==0 and power < 50 then
+                            return true
+                        else
+                            if bb.player.castElunesGuidance() then return end
+                        end
                     end
 			-- Berserk
 					--if=buff.tigers_fury.up&(buff.incarnation.up|!talent.incarnation_king_of_the_jungle.enabled)
 		            if useCDs() and isChecked("Berserk") then
-		            	if buff.tigersFury and (buff.incarnationKingOfTheJungle or not talent.incarnationKingOfTheJungle) and ttd(dynTar5) >= 18 then
+		            	if (buff.tigersFury or (cd.tigersFury>5 and power>50)) and (buff.incarnationKingOfTheJungle or not talent.incarnationKingOfTheJungle) then
 		            		if bb.player.castBerserk() then return end
 		            	end
 		            end
@@ -530,7 +548,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		            end
 			-- Trinkets
                     -- TODO: if=(prev.tigers_fury&(target.time_to_die>trinket.stat.any.cooldown|target.time_to_die<45))|prev.berserk|(buff.incarnation.up&time<10)
-					if useCDs() and isChecked("Trinkets") then
+					if useCDs() and isChecked("Trinkets") and getDistance(dynTar5)<5 then
 						if canUse(13) then
 							useItem(13)
 						end
@@ -597,11 +615,11 @@ if select(2, UnitClass("player")) == "DRUID" then
 					end -- End Pre-Pull
 			-- Rake/Shred
 			        if hastar and attacktar then
-			        	-- if perk.improvedRake and debuff.remain.rake==0 then
-			        		if bb.player.castRake(dynTar5) then return end
-			        	-- else
-			        		-- if bb.player.castShred(dynTar5) then return end
-			            -- end
+                        if level < 6 then
+                            if bb.player.castShred(dynTar5) then return end
+                        else
+		        		   if bb.player.castRake(dynTar5) then return end
+                        end
 			        end
 				end -- End No Combat
 			end -- End Action List - PreCombat 
@@ -639,7 +657,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 					if bb.player.castFerociousBite(dynTar5) then return end
 				end
 				-- max_energy=1,if=energy.time_to_max<1
-                if power > 50 and ttm<1 and getDistance(dynTar5)<5 then
+                if power > 50 and ttm<1 and getRealDistance(dynTar5)<5 then
 					if bb.player.castFerociousBite(dynTar5) then return end
 		   		end
 			end -- End Action List - Finisher
@@ -650,8 +668,8 @@ if select(2, UnitClass("player")) == "DRUID" then
 			 	for i=1, #bleed.rake do
 					local rake = bleed.rake[i]
 					local thisUnit = rake.unit
-					if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) then
-                        if rake.remain < 3 and ((ttd(thisUnit) - rake.remain > 3 and enemies.yards8 < 3) or ttd(thisUnit) - rake.remain > 6) then
+					if multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot) then
+                        if rake.remain < rkTick and ((ttd(thisUnit) - rake.remain > 3 and enemies.yards8 < 3) or ttd(thisUnit) - rake.remain > 6) then
 					        if bb.player.castRake(thisUnit) then return end
                         end
 					end
@@ -660,7 +678,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                 for i=1, #bleed.rake do
 					local rake = bleed.rake[i]
 					local thisUnit = rake.unit
-					if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) then
+					if multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot) then
                         if rake.remain <= rake.duration * 0.3 and (rake.calc >= rake.applied or (talent.bloodtalons and (buff.bloodtalons or not buff.predatorySwiftness))) and ((ttd(thisUnit) - rake.remain > 3 and enemies.yards8 < 3) or ttd(thisUnit) - rake.remain > 6) then
 						    if bb.player.castRake(thisUnit) then return end
                         end
@@ -668,17 +686,15 @@ if select(2, UnitClass("player")) == "DRUID" then
 				end 
 			-- Maintain: Moonfire
 				-- cycle_targets=1,if=remains<=4.2&spell_targets.swipe_cat<=5&target.time_to_die-remains>tick_time*5
-				if bb.player.talent.lunarInspiration and power>30 then
-					for i=1, #bleed.moonfire do
-						local moonfire = bleed.moonfire[i]
-						local thisUnit = moonfire.unit
-						if (multidot or (UnitIsUnit(thisUnit,dynTar40AoE) and not multidot)) then
-                            if moonfire.remain <= 4.2 and enemies.yards8 <= 5 and ttd(thisUnit) - moonfire.remain > mfTick * 5 then
-							   if bb.player.castMoonfire(thisUnit) then return end
-                            end
-				    	end
-				    end
-				end      
+				for i=1, #bleed.moonfire do
+					local moonfire = bleed.moonfire[i]
+					local thisUnit = moonfire.unit
+					if multidot or (UnitIsUnit(thisUnit,dynTar40AoE) and not multidot) then
+                        if moonfire.remain <= 4.2 and enemies.yards8 <= 5 and ((ttd(thisUnit) - moonfire.remain > mfTick * 5) or isDummy()) then
+						   if bb.player.castFeralMoonfire(thisUnit) then return end
+                        end
+			    	end
+			    end     
 			end -- End Action List - Maintain
 		-- Action List - Generator
 			local function actionList_Generator()
@@ -690,15 +706,27 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Generator: Brutal Slash
                 -- if=spell_targets.brutal_slash>desired_targets
                 if mode.rotation==2 or (mode.rotation==1 and enemies.yards8>=4) then
-                    if bb.player.castBrutalSlash(dynTar8) then return end
+                    if talent.brutalSlash and (charges.brutalSlash == 0 or power < 20) then
+                        return true
+                    else
+                        if bb.player.castBrutalSlash(dynTar8) then return end
+                    end
                 end
                 -- if=active_enemies>=2&raid_event.adds.exists&raid_event.adds.in>(1+max_charges-charges_fractional)*15
                 -- if mode.rotation==2 or (mode.rotation==1 and enemies.yards8>=2) then
-                --     if bb.player.castBrutalSlash(dynTar8) then return end
+                    -- if talent.brutalSlash and (charges.brutalSlash == 0 or power < 20) then
+                    --     return true
+                    -- else
+                    --     if bb.player.castBrutalSlash(dynTar8) then return end
+                    -- end
                 -- end
                 -- if=active_enemies>=2&!raid_event.adds.exists&(charges_fractional>2.66&time>10)
                 if mode.rotation==2 or (mode.rotation==1 and enemies.yards8>=2 and (getChargesFrac(bb.player.spell.brutalSlash)>2.66 and combatTime > 10)) then
-                    if bb.player.castBrutalSlash(dynTar8) then return end
+                    if talent.brutalSlash and (charges.brutalSlash == 0 or power < 20) then
+                        return true
+                    else
+                        if bb.player.castBrutalSlash(dynTar8) then return end
+                    end
                 end
 			-- Generator: Swipe
 		   		-- if=spell_targets.swipe>=4
@@ -721,7 +749,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		-- Profile Stop | Pause
 			if not inCombat and not hastar and profileStop==true then
 				profileStop = false
-			elseif (inCombat and profileStop==true) or pause() then
+			elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
 				return true
 			else
 	-----------------------
@@ -743,20 +771,23 @@ if select(2, UnitClass("player")) == "DRUID" then
 				if inCombat and not cat and not (flight or travel) then
 					if bb.player.castCatForm() then return end
 				elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") then
-			-- TODO: Wild Charge
+			-- Wild Charge
+                    if isChecked("Displacer Beast / Wild Charge") then
+                        if bb.player.castWildCharge("target") then return end 
+                    end
 			-- TODO: Displacer Beast
 			-- TODO: Dash/Worgen Racial
 			-- Rake/Shred from Stealth
 					-- rake,if=buff.prowl.up|buff.shadowmeld.up
 					if buff.prowl or buff.shadowmeld then
-						-- if perk.improvedRake and debuff.remain.rake==0 then
-							if bb.player.castRake(dynTar5) then return end
-			        	-- else
-			        		-- if bb.player.castShred(dynTar5) then return end
-			            -- end
-					elseif not stealth and BadBoy_data['AoE'] ~= 4 then
+						if level < 6 then
+                            if bb.player.castShred(dynTar5) then return end
+                        else
+                           if bb.player.castRake(dynTar5) then return end
+                        end
+					elseif not stealth then
 						-- auto_attack
-						if getDistance(dynTar5)<5 then
+						if getRealDistance(dynTar5)<5 then
 							StartAttack()
 						end
 		------------------------------
@@ -773,7 +804,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			-- Ferocious Bite
 						for i=1, #getEnemies("player",5) do
 							local thisUnit = getEnemies("player",5)[i]
-							if fbDamage > UnitHealth(thisUnit) then
+							if fbDamage > UnitHealth(thisUnit) and not isDummy() then
 								if bb.player.castFerociousBite(thisUnit) then return end
 							end
 						end
@@ -803,7 +834,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			            end
 			-- Thrash with T18 4pc
                         -- if=set_bonus.tier18_4pc&buff.clearcasting.react&remains<=duration*0.3&combo_points+buff.bloodtalons.stack!=6
-						if t18_4pc and clearcast and debuff.remain.thrash <= debuff.duration.thrash * 0.3 and (combo + charges.bloodtalons) ~= 6 then
+						if t18_4pc and clearcast and debuff.remain.thrash <= debuff.duration.thrash * 0.3 and (combo + charges.bloodtalons) ~= 6 and getRealDistance(dynTar8AoE)<8 then
 							if bb.player.castThrash(dynTar8AoE) then return end
 						end
 			-- Thrash with T17 2pc
@@ -812,8 +843,12 @@ if select(2, UnitClass("player")) == "DRUID" then
 							local thrash = bleed.thrash[i]
 							local thisUnit = thrash.unit
 							if (multidot or (UnitIsUnit(thisUnit,dynTar8AoE) and not multidot)) then 
-                                if thrash.remain <= thrash.duration * 0.3 and ((enemies.yards8 >= 2 and t17_2pc) or enemies.yards8 >= 4) then
-								    if bb.player.castThrash(thisUnit) then return end
+                                if thrash.remain <= thrash.duration * 0.3 and ((enemies.yards8 >= 2 and t17_2pc) or enemies.yards8 >= 4) and getRealDistance(thisUnit)<8 then
+                                    if power < 50 then
+                                        return true
+                                    else
+								        if bb.player.castThrash(thisUnit) then return end
+                                    end
                                 end
 							end
 						end
@@ -824,7 +859,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 						end --End Finishers
 			-- Savage Roar
 						-- if=buff.savage_roar.remains<gcd
-						if bb.player.buff.remain.savageRoar<gcd then
+						if buff.remain.savageRoar<gcd then
 							if bb.player.castSavageRoar() then return end
 						end
             -- Ashamane's Frenzy
@@ -843,8 +878,12 @@ if select(2, UnitClass("player")) == "DRUID" then
 							local thrash = bleed.thrash[i]
 							local thisUnit = thrash.unit
 							if (multidot or (UnitIsUnit(thisUnit,dynTar8AoE) and not multidot)) then
-                                if thrash.remain <= thrash.duration * 0.3 and enemies.yards8 >= 2 then
-								    if bb.player.castThrash(thisUnit) then return end
+                                if thrash.remain <= thrash.duration * 0.3 and enemies.yards8 >= 2 and getRealDistance(thisUnit)<8 then
+                                    if power < 50 then
+                                        return true
+                                    else
+								        if bb.player.castThrash(thisUnit) then return end
+                                    end
                                 end
 							end
 						end

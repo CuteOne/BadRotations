@@ -85,7 +85,11 @@ function getTTD(unit)
 			return enemyTable.ttd[thisUnit]
 		end
 	end
-	return -1
+	if isDummy() then
+		return 99
+	else
+		return -1
+	end
 end
 
 --- example for rotate through table

@@ -303,19 +303,19 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		-- Entangling Roots
 		function self.castEntanglingRoots()
-			if self.level>=22 and self.powerPercentMana>6.5 and hasThreat(self.units.dyn35AoE) and getDistance(self.units.dyn35AoE)<35 then
+			if self.level>=22 and self.powerPercentMana>6.5 and hasThreat(self.units.dyn35AoE) and getRealDistance(self.units.dyn35AoE)<35 then
 				if castSpell(self.units.dyn35AoE,self.spell.entanglingRoots,false,false,false) then return end
 			end
 		end
 		-- Mighty Bash
 		function self.castMightyBash()
-			if self.talent.mightyBash and self.cd.mightyBash==0 and hasThreat(self.units.dyn5) and getDistance(self.units.dyn5)<5 then
+			if self.talent.mightyBash and self.cd.mightyBash==0 and hasThreat(self.units.dyn5) and getRealDistance(self.units.dyn5)<5 then
 				if castSpell(self.units.dyn5,self.spell.mightyBash,false,false,false) then return end
 			end
 		end
 		-- Typhoon
 		function self.castTyphoon()
-			if self.talent.typhoon and self.cd.typhoon==0 and hasThreat(self.units.dyn15) and getDistance(self.units.dyn15)<15 then
+			if self.talent.typhoon and self.cd.typhoon==0 and hasThreat(self.units.dyn15) and getRealDistance(self.units.dyn15)<15 then
 				if castSpell(self.units.dyn15,self.spell.typhoon,false,false,false) then return end
 			end
 		end
@@ -328,7 +328,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		function self.castHealingTouch(thisUnit)
 			local isLivePlayer = UnitIsPlayer(thisUnit) and not UnitIsDeadOrGhost(thisUnit) and UnitIsFriend(thisUnit,"player")
 			
-			if self.level>=26 and self.powerPercentMana>10.35 and isLivePlayer and getDistance(thisUnit)<40 then
+			if self.level>=26 and self.powerPercentMana>10.35 and isLivePlayer and getRealDistance(thisUnit)<40 then
 				if castSpell(thisUnit,self.spell.healingTouch,false,false,false) then return end
 			end
 		end
@@ -345,7 +345,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		end
 		-- Cat Form
 		function self.castCatForm()
-			if self.level>=6 then
+			if self.level>=1 then
 				if castSpell("player",self.spell.catForm,false,false,false) then return end
 			end
 		end
@@ -374,7 +374,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		-- Moonfire - Set target via thisUnit variable
 		function self.castMoonfire(thisUnit)
-			if self.level>=3 and (self.powerPercentMana>1.5 or (self.spec=="Feral" and self.power > 30)) and hasThreat(thisUnit) and getDistance(thisUnit)<40 then
+			if self.level>=10 and self.powerPercentMana>1.5 and hasThreat(thisUnit) and getRealDistance(thisUnit)<40 then
 				if castSpell(thisUnit,self.spell.moonfire,false,false,false) then return end
 			end
 		end
@@ -397,13 +397,13 @@ if select(2, UnitClass("player")) == "DRUID" then
 		end
 		-- Growl
 		function self.castGrowl(thisUnit)
-			if self.level>=8 and self.cd.growl==0 and self.buff.bearForm and hasThreat(thisUnit) and getDistance(thisUnit)<30 then
+			if self.level>=8 and self.cd.growl==0 and self.buff.bearForm and hasThreat(thisUnit) and getRealDistance(thisUnit)<30 then
 				if castSpell(thisUnit,self.spell.growl,false,false,false) then return end
 			end
 		end
 		-- Prowl
 		function self.castProwl()
-			if self.level>=6 and self.cd.prowl==0 and not self.buff.prowl then
+			if self.level>=5 and self.cd.prowl==0 and not self.buff.prowl then
 				if castSpell("player",self.spell.prowl,false,false,false) then return end
 			end
 		end
@@ -411,7 +411,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		function self.castRebirth(thisUnit)
 			local isDeadPlayer = UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and UnitIsFriend(thisUnit,"player")
 
-			if self.level>=56 and self.cd.rebirth==0 and self.inCombat and isDeadPlayer and getDistance(thisUnit)<40 then
+			if self.level>=56 and self.cd.rebirth==0 and self.inCombat and isDeadPlayer and getRealDistance(thisUnit)<40 then
 				if castSpell(thisUnit,self.spell.rebirth,false,false,false,false,true) then return end
 			end
 		end
@@ -419,14 +419,14 @@ if select(2, UnitClass("player")) == "DRUID" then
 		function self.castRevive(thisUnit)
 			local isDeadPlayer = UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and UnitIsFriend(thisUnit,"player")
 
-			if self.level>=12 and self.powerPercentMana>4 and not self.inCombat and isDeadPlayer and getDistance(thisUnit)<40 then
+			if self.level>=12 and self.powerPercentMana>4 and not self.inCombat and isDeadPlayer and getRealDistance(thisUnit)<40 then
 				if castSpell(thisUnit,self.spell.revive,false,false,false,false,true) then return end
 			end
 		end
 		-- Wild Charge - Set target via thisUnit variable
 		function self.castWildCharge(thisUnit)
-			if self.talent.wildCharge and self.cd.wildCharge==0 and getDistance(thisUnit)>=5 and hasThreat(thisUnit) and getDistance(thisUnit)<25 then
-				if self.castSpell(thisUnit,self.spell.wildCharge,false,false,false) then return end
+			if self.talent.wildCharge and self.cd.wildCharge==0 and getRealDistance(thisUnit)>=8 and hasThreat(thisUnit) and getRealDistance(thisUnit)<25 then
+				if castSpell(thisUnit,self.spell.wildCharge,false,false,false) then return end
 			end
 		end
 

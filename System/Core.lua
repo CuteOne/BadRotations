@@ -390,7 +390,7 @@ function BadBoyUpdate(self)
 	elseif playerClass == 11 then -- Druid
 		if playerSpec == 1 and playerLevel>=10 then
 			DruidMoonkin()
-		elseif playerSpec == 2 and playerLevel>=10 then
+		elseif playerSpec == 2 then
 			DruidFeral()
 		elseif playerSpec == 3 and playerLevel>=10 then
 			DruidGuardian()

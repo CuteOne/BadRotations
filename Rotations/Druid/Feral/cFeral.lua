@@ -54,6 +54,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         self.feralBuffs         = {
             berserkBuff                     = 106951,
             bloodtalonsBuff                 = 145152,
+            clearcastingBuff                = 135700,
             incarnationKingOfTheJungleBuff  = 102543,
             predatorySwiftnessBuff          = 69369,
             savageRoarBuff                  = 52610,
@@ -64,18 +65,20 @@ if select(2, UnitClass("player")) == "DRUID" then
         self.feralDebuffs       = {
             ashamanesFrenzyDebuff           = 210723,
             ashamanesRipDebuff              = 210705,
+            feralMoonfireDebuff             = 155625,
             rakeDebuff                      = 155722,
             ripDebuff                       = 1079,
             thrashDebuff                    = 106830,
         }
-        self.feralPerks         = {
-            enhancedBerserk                 = 157269,
-            enhancedProwl                   = 157274,
+        self.feralPerks         = { -- Removed in Legion
+            -- enhancedBerserk                 = 157269,
+            -- enhancedProwl                   = 157274,
             -- enhancedRejuvenation             = 157280,
-            improvedRake                    = 157276,
+            -- improvedRake                    = 157276,
         }
         self.feralSpecials      = {
             berserk                         = 106951,
+            feralMoonfire                   = 155625,
             ferociousBite                   = 22568,
             maim                            = 22570,
             rake                            = 1822,
@@ -129,7 +132,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             self.getArtifactRanks()
             self.getGlyphs()
             self.getTalents()
-            self.getPerks()
+            -- self.getPerks() --Removed in Legion
         end
 
     --------------
@@ -271,7 +274,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                 for i = 1, #enemies do
                     -- Get Bleed Unit
                     local thisUnit = enemies[i]
-                    local distance = getDistance(thisUnit)
+                    local distance = getRealDistance(thisUnit)
                     -- Get Bleed Remain
                     local rakeRemain        = getDebuffRemain(thisUnit,self.spell.rakeDebuff,"player")
                     local rakeDuration      = getDebuffDuration(thisUnit,self.spell.rakeDebuff,"player")
@@ -279,8 +282,8 @@ if select(2, UnitClass("player")) == "DRUID" then
                     local ripDuration       = getDebuffDuration(thisUnit,self.spell.ripDebuff,"player")
                     local thrashRemain      = getDebuffRemain(thisUnit,self.spell.thrashDebuff,"player")
                     local thrashDuration    = getDebuffDuration(thisUnit,self.spell.thrashDebuff,"player")
-                    local moonfireRemain    = getDebuffRemain(thisUnit,self.spell.moonfireDebuff,"player")
-                    local moonfireDuration  = getDebuffDuration(thisUnit,self.spell.moonfireDebuff,"player")
+                    local moonfireRemain    = getDebuffRemain(thisUnit,self.spell.feralMoonfireDebuff,"player")
+                    local moonfireDuration  = getDebuffDuration(thisUnit,self.spell.feralMoonfireDebuff,"player")
                     -- Get Bleed Applied
                     if rakeApplied[thisUnit]~=nil then 
                         rakeDot = rakeApplied[thisUnit] --rake
@@ -288,7 +291,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                         rakeDot = 1
                     end
                     if ripApplied[thisUnit]~=nil then 
-                        ripDot = ripApplied[thisUnit] --rake
+                        ripDot = ripApplied[thisUnit] --rip
                     else
                         ripDot = 2.5
                     end
@@ -304,7 +307,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                         tinsert(self.bleed.thrash,{unit = thisUnit, remain = thrashRemain, duration = thrashDuration})
                     end
                     if distance<40 then
-                        tinsert(self.bleed.moonfire,{unit = thisUnit, remain = moonfireRemain, duration = thrashDuration})
+                        tinsert(self.bleed.moonfire,{unit = thisUnit, remain = moonfireRemain, duration = moonfireDuration})
                     end
                 end
             end
@@ -319,7 +322,8 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         	self.buff.berserk                      = UnitBuffID("player",self.spell.berserkBuff)~=nil or false
             self.buff.bloodtalons                  = UnitBuffID("player",self.spell.bloodtalonsBuff)~=nil or false
-        	self.buff.incarnationKingOfTheJungle   = UnitBuffID("player",self.spell.incarnationKingOfTheJungleBuff)~=nil or false
+        	self.buff.clearcasting                 = UnitBuffID("player",self.spell.clearcastingBuff)~=nil or false
+            self.buff.incarnationKingOfTheJungle   = UnitBuffID("player",self.spell.incarnationKingOfTheJungleBuff)~=nil or false
             self.buff.predatorySwiftness           = UnitBuffID("player",self.spell.predatorySwiftnessBuff)~=nil or false
             self.buff.savageRoar                   = UnitBuffID("player",self.spell.savageRoarBuff)~=nil or false
         	self.buff.stampedingRoar               = UnitBuffID("player",self.spell.stampedingRoarBuff)~=nil or false
@@ -331,6 +335,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         	local getBuffDuration = getBuffDuration
 
         	self.buff.duration.berserk                     = getBuffDuration("player",self.spell.berserkBuff) or 0
+            self.buff.duration.clearcasting                = getBuffDuration("player",self.spell.clearcastingBuff) or 0
             self.buff.duration.predatorySwiftness          = getBuffDuration("player",self.spell.predatorySwiftnessBuff) or 0
         	self.buff.duration.incarnationKingOfTheJungle  = getBuffDuration("player",self.spell.incarnationKingOfTheJungleBuff) or 0
         	self.buff.duration.bloodtalons                 = getBuffDuration("player",self.spell.bloodtalonsBuff) or 0
@@ -343,6 +348,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         	local getBuffRemain = getBuffRemain
 
         	self.buff.remain.berserk                    = getBuffRemain("player",self.spell.berserkBuff) or 0
+            self.buff.remain.clearcasting               = getBuffRemain("player",self.spell.clearcastingBuff) or 0
             self.buff.remain.predatorySwiftness 		= getBuffRemain("player",self.spell.predatorySwiftnessBuff) or 0
         	self.buff.remain.incarnationKingOfTheJungle = getBuffRemain("player",self.spell.incarnationKingOfTheJungleBuff) or 0
         	self.buff.remain.bloodtalons				= getBuffRemain("player",self.spell.bloodtalonsBuff) or 0
@@ -354,28 +360,28 @@ if select(2, UnitClass("player")) == "DRUID" then
         function self.getTrinketProc()
             local UnitBuffID = UnitBuffID
 
-            -- self.trinket.WitherbarksBranch              = UnitBuffID("player",165822)~=nil or false --Haste Proc
-            -- self.trinket.TurbulentVialOfToxin           = UnitBuffID("player",176883)~=nil or false --Mastery Proc
-            -- self.trinket.KihrasAdrenalineInjector       = UnitBuffID("player",165485)~=nil or false --Mastery Proc
-            -- self.trinket.GorashansLodestoneSpike        = UnitBuffID("player",165542)~=nil or false --Multi-Strike Proc
-            -- self.trinket.DraenicPhilosophersStone       = UnitBuffID("player",157136)~=nil or false --Agility Proc
-            -- self.trinket.BlackheartEnforcersMedallion   = UnitBuffID("player",176984)~=nil or false --Multi-Strike Proc
-            -- self.trinket.MunificentEmblemOfTerror       = UnitBuffID("player",165830)~=nil or false --Critical Strike Proc
-            -- self.trinket.PrimalCombatantsInsignia       = UnitBuffID("player",182059)~=nil or false --Agility Proc
-            -- self.trinket.SkullOfWar                     = UnitBuffID("player",162915)~=nil or false --Critical Strike Proc
-            -- self.trinket.ScalesOfDoom                   = UnitBuffID("player",177038)~=nil or false --Multi-Strike Proc
-            -- self.trinket.LuckyDoubleSidedCoin           = UnitBuffID("player",177597)~=nil or false --Agility Proc
-            -- self.trinket.MeatyDragonspineTrophy         = UnitBuffID("player",177035)~=nil or false --Haste Proc
-            -- self.trinket.PrimalGladiatorsInsignia       = UnitBuffID("player",182068)~=nil or false --Agility Proc
-            -- self.trinket.BeatingHeartOfTheMountain      = UnitBuffID("player",176878)~=nil or false --Multi-Strike Proc
-            -- self.trinket.HummingBlackironTrigger        = UnitBuffID("player",177067)~=nil or false --Critical Stike Proc
-            -- self.trinket.MaliciousCenser                = UnitBuffID("player",183926)~=nil or false --Agility Proc
+            self.trinket.WitherbarksBranch              = UnitBuffID("player",165822)~=nil or false --Haste Proc
+            self.trinket.TurbulentVialOfToxin           = UnitBuffID("player",176883)~=nil or false --Mastery Proc
+            self.trinket.KihrasAdrenalineInjector       = UnitBuffID("player",165485)~=nil or false --Mastery Proc
+            self.trinket.GorashansLodestoneSpike        = UnitBuffID("player",165542)~=nil or false --Multi-Strike Proc
+            self.trinket.DraenicPhilosophersStone       = UnitBuffID("player",157136)~=nil or false --Agility Proc
+            self.trinket.BlackheartEnforcersMedallion   = UnitBuffID("player",176984)~=nil or false --Multi-Strike Proc
+            self.trinket.MunificentEmblemOfTerror       = UnitBuffID("player",165830)~=nil or false --Critical Strike Proc
+            self.trinket.PrimalCombatantsInsignia       = UnitBuffID("player",182059)~=nil or false --Agility Proc
+            self.trinket.SkullOfWar                     = UnitBuffID("player",162915)~=nil or false --Critical Strike Proc
+            self.trinket.ScalesOfDoom                   = UnitBuffID("player",177038)~=nil or false --Multi-Strike Proc
+            self.trinket.LuckyDoubleSidedCoin           = UnitBuffID("player",177597)~=nil or false --Agility Proc
+            self.trinket.MeatyDragonspineTrophy         = UnitBuffID("player",177035)~=nil or false --Haste Proc
+            self.trinket.PrimalGladiatorsInsignia       = UnitBuffID("player",182068)~=nil or false --Agility Proc
+            self.trinket.BeatingHeartOfTheMountain      = UnitBuffID("player",176878)~=nil or false --Multi-Strike Proc
+            self.trinket.HummingBlackironTrigger        = UnitBuffID("player",177067)~=nil or false --Critical Stike Proc
+            self.trinket.MaliciousCenser                = UnitBuffID("player",183926)~=nil or false --Agility Proc
         end
 
         function self.hasTrinketProc()
-            -- for i = 1, #self.trinket do
-            --     if self.trinket[i]==true then return true else return false end
-            -- end
+            for i = 1, #self.trinket do
+                if self.trinket[i]==true then return true else return false end
+            end
         end
 
     ---------------
@@ -386,6 +392,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         	self.debuff.ashamanesFrenzy   = UnitDebuffID(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player")~=nil or false
             self.debuff.ashamanesRip      = UnitDebuffID(self.units.dyn5,self.spell.ashamanesRipDebuff,"player")~=nil or false
+            self.debuff.feralMoonfire     = UnitDebuffID(self.units.dyn5,self.spell.feralMoonfireDebuff,"player")~=nil or false
             self.debuff.rake 	          = UnitDebuffID(self.units.dyn5,self.spell.rakeDebuff,"player")~=nil or false
         	self.debuff.rip 	          = UnitDebuffID(self.units.dyn5,self.spell.ripDebuff,"player")~=nil or false
         	self.debuff.thrash 	          = UnitDebuffID(self.units.dyn8AoE,self.spell.thrashDebuff,"player")~=nil or false
@@ -396,6 +403,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 			self.debuff.duration.ashamanesFrenzy    = getDebuffDuration(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player") or 0
             self.debuff.duration.ashamanesRip       = getDebuffDuration(self.units.dyn5,self.spell.ashamanesRipDebuff,"player") or 0
+            self.debuff.duration.feralMoonfire      = getDebuffDuration(self.units.dyn5,self.spell.feralMoonfireDebuff,"player") or 0
             self.debuff.duration.rake               = getDebuffDuration(self.units.dyn5,self.spell.rakeDebuff,"player") or 0
             self.debuff.duration.rip                = getDebuffDuration(self.units.dyn5,self.spell.ripDebuff,"player") or 0
 			self.debuff.duration.thrash             = getDebuffDuration(self.units.dyn8AoE,self.spell.thrashDebuff,"player") or 0
@@ -406,6 +414,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 			self.debuff.remain.ashamanesFrenzy  = getDebuffRemain(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player") or 0
             self.debuff.remain.ashamanesRip     = getDebuffRemain(self.units.dyn5,self.spell.ashamanesRipDebuff,"player") or 0
+            self.debuff.remain.feralMoonfire    = getDebuffRemain(self.units.dyn5,self.spell.feralMoonfireDebuff,"player") or 0
             self.debuff.remain.rake             = getDebuffRemain(self.units.dyn5,self.spell.rakeDebuff,"player") or 0
             self.debuff.remain.rip              = getDebuffRemain(self.units.dyn5,self.spell.ripDebuff,"player") or 0
 			self.debuff.remain.thrash           = getDebuffRemain(self.units.dyn8AoE,self.spell.thrashDebuff,"player") or 0
@@ -432,6 +441,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             local getSpellCD = getSpellCD
 
             self.cd.ashamanesFrenzy                 = getSpellCD(self.spell.ashamanesFrenzy)
+            self.cd.berserk                         = getSpellCD(self.spell.berserk)
             self.cd.elunesGuidance                  = getSpellCD(self.spell.elunesGuidance)
             self.cd.incarnationKingOfTheJungle  	= getSpellCD(self.spell.incarnationKingOfTheJungle)
             self.cd.maim                            = getSpellCD(self.spell.maim)
@@ -484,7 +494,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         	self.perk.enhancedBerserk 		= isKnown(self.spell.enhancedBerserk)
         	self.perk.enhancedProwl 		= isKnown(self.spell.enhancedProwl)
-        	-- self.perk.enhancedRejuvenation 	= isKnown(self.spell.enhancedRejuvenation)
+        	self.perk.enhancedRejuvenation 	= isKnown(self.spell.enhancedRejuvenation)
         	self.perk.improvedRake 			= isKnown(self.spell.improvedRake)
         end
 
@@ -579,7 +589,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         -- Maim - Set target via thisUnit variable
     	function self.castMaim(thisUnit)
-    		if self.level>=72 and self.power>35 and self.cd.maim==0 and self.comboPoints>0 and self.buff.catForm and hasThreat(thisUnit) and getDistance(thisUnit)<5 then
+    		if self.level>=72 and self.power>35 and self.cd.maim==0 and self.comboPoints>0 and self.buff.catForm and hasThreat(thisUnit) and getRealDistance(thisUnit)<5 then
     			if castSpell(thisUnit,self.spell.maim,false,false,false) then return end
     		end
     	end
@@ -590,8 +600,14 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         -- Remove Corruption - Set target via thisUnit variable
         function self.castRemoveCorruption(thisUnit)
-            if self.level>=18 and self.powerPercentMana>15.8 and self.cd.removeCorruption==0 and canDispel(thisUnit,self.spell.removeCorruption) and getDistance(thisUnit)<40 then
+            if self.level>=18 and self.powerPercentMana>15.8 and self.cd.removeCorruption==0 and canDispel(thisUnit,self.spell.removeCorruption) and getRealDistance(thisUnit)<40 then
                 if castSpell(thisUnit,self.spell.removeCorruption,false,false,false) then return end
+            end
+        end
+        -- Renewal
+        function self.castRenewal()
+            if self.talent.renewal and self.cd.renewal == 0 then
+                if castSpell("player",self.spell.renewal,false,false,false) then return end
             end
         end
         -- Survival Instincts
@@ -606,7 +622,7 @@ if select(2, UnitClass("player")) == "DRUID" then
     --------------------------
         -- Ashamane's Frenzy
         function self.castAshamanesFrenzy(thisUnit)
-            if self.artifact.ashamanesFrenzy and self.buff.catForm and self.cd.ashamanesFrenzy == 0 and getDistance(thisUnit)<5 then
+            if self.artifact.ashamanesFrenzy and self.buff.catForm and self.cd.ashamanesFrenzy == 0 and getRealDistance(thisUnit)<5 then
                 if castSpell(thisUnit,self.spell.ashamanesFrenzy,false,false,false) then return end
             end
         end
@@ -618,7 +634,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         end
         -- Brutal Slash
         function self.castBrutalSlash(thisUnit)
-            if self.talent.brutalSlash and self.charges.brutalSlash > 0 and power > 20 and self.buff.catForm and getDistance(thisUnit)<8 then
+            if self.talent.brutalSlash and self.charges.brutalSlash > 0 and power > 20 and self.buff.catForm and getRealDistance(thisUnit)<8 then
                 if castSpell(thisUnit,self.spell.brutalSlash,false,false,false) then return end
             end
         end
@@ -630,7 +646,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         end
         -- Ferocious Bite - Set target via thisUnit variable
         function self.castFerociousBite(thisUnit)
-            if self.level>=3 and self.power>25 and self.buff.catForm and self.comboPoints>0 and getDistance(thisUnit)<5 then
+            if self.level>=3 and self.power>25 and self.buff.catForm and self.comboPoints>0 and getRealDistance(thisUnit)<5 then
                 if castSpell(thisUnit,self.spell.ferociousBite,false,false,false) then return end
             end
         end
@@ -640,15 +656,21 @@ if select(2, UnitClass("player")) == "DRUID" then
         		if castSpell("player",self.spell.incarnationKingOfTheJungle,false,false,false) then return end
         	end
         end
+        -- Moonfire - Set target via thisUnit variable
+        function self.castFeralMoonfire(thisUnit)
+            if self.talent.lunarInspiration and self.power>30 and (hasThreat(thisUnit) or (isDummy() and UnitIsUnit(thisUnit,"target"))) and getRealDistance(thisUnit)<40 then
+                if castSpell(thisUnit,self.spell.feralMoonfire,false,false,false) then return end
+            end
+        end
         -- Rake - Set target via thisUnit variable
         function self.castRake(thisUnit)
-        	if self.level>=6 and self.power > 35 and self.buff.catForm --[[and (getDebuffDuration(thisUnit,self.spell.rakeDebuff,"player")>4 or getDebuffDuration(thisUnit,self.spell.rakeDebuff,"player")==0) ]]and getDistance(thisUnit)<5 then
+        	if self.level>=6 and self.power > 35 and self.buff.catForm and (getDebuffDuration(thisUnit,self.spell.rake,"player")==0 or getDebuffDuration(thisUnit,self.spell.rake,"player")>4) and getRealDistance(thisUnit)<5 then
         		if castSpell(thisUnit,self.spell.rake,false,false,false) then return end
         	end
         end
         -- Rip - Set target via thisUnit variable
         function self.castRip(thisUnit)
-        	if self.level>=20 and self.power > 30 and self.buff.catForm and self.comboPoints>0 and getDistance(thisUnit)<5 then
+        	if self.level>=20 and self.power > 30 and self.buff.catForm and self.comboPoints>0 and getRealDistance(thisUnit)<5 then
         		if castSpell(thisUnit,self.spell.rip,false,false,false) then return end
         	end
         end
@@ -660,13 +682,13 @@ if select(2, UnitClass("player")) == "DRUID" then
         end
         -- Shred
         function self.castShred(thisUnit)
-            if self.level>=1 and self.buff.catForm and self.power>40 and getDistance(thisUnit)<5 then
+            if self.level>=1 and self.buff.catForm and self.power>40 and getRealDistance(thisUnit)<5 then
                 if castSpell(thisUnit,self.spell.shred,false,false,false) then return end
             end
         end
         -- Skull Bash - Set target via thisUnit variable
         function self.castSkullBash(thisUnit)
-            if (self.spec=="Feral" or self.spec=="Guardian") and self.level>=64 and self.cd.skullBash==0 and (self.buff.bearForm or self.buff.catForm) and hasThreat(thisUnit) and getDistance(thisUnit)<13 then 
+            if (self.spec=="Feral" or self.spec=="Guardian") and self.level>=64 and self.cd.skullBash==0 and (self.buff.bearForm or self.buff.catForm) and hasThreat(thisUnit) and getRealDistance(thisUnit)<13 then 
                 if castSpell(thisUnit,self.spell.skullBash,false,false,false) then return end
             end
         end
@@ -678,14 +700,14 @@ if select(2, UnitClass("player")) == "DRUID" then
         end
         -- Swipe
         function self.castSwipe(thisUnit)
-        	if not self.talent.brutalSlash and self.level>=32 and self.buff.catForm and self.power>45 and getDistance(thisUnit)<8 then
+        	if not self.talent.brutalSlash and self.level>=32 and self.buff.catForm and self.power>45 and getRealDistance(thisUnit)<8 then
         		if castSpell(thisUnit,self.spell.swipe,false,false,false) then return end
         	end
         end
         -- Thrash - Set target via thisUnit variable
         function self.castThrash(thisUnit)
-        	if self.level>=14 and self.power>50 and self.buff.catForm and hasThreat(thisUnit) and getDistance(thisUnit)<8 and self.mode.cleave==1 and self.mode.rotation < 3 then
-        		if castSpell(thisUnit,self.spell.thrash,false,false,false) then return end
+        	if self.level>=14 and self.power>50 and self.buff.catForm and hasThreat(thisUnit) and getRealDistance(thisUnit)<8 and self.mode.cleave==1 and self.mode.rotation < 3 then
+        		if castSpell("player",self.spell.thrash,false,false,false) then return end
         	end
         end
         -- Tiger's Fury
@@ -710,7 +732,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         --Target Distance
         function tarDist(unit)
-            return getDistance(unit)
+            return getRealDistance(unit)
         end
 
         -- Calculate Ferocious Bite Damage
