@@ -2,7 +2,7 @@
 
 ## Patch 7.0
 
-As of now BB does **NOT** support 7.0 and there is no ETA if/when this will happen as most developer are on a hiatus because of not playing actively or being hit by a ban-hammer.
+As of now BB does support 7.0; however, as most developer are on a hiatus because of not playing actively or being hit by a ban-hammer updates to profiles will be slow. Please refer to list below for status of profiles.
 
 
 ## First Setup
@@ -88,7 +88,7 @@ Raiable means if its good to raid with.
 |spec |status|author|patch|raidable?|
 |:----|------:|:-------|:---:|:-----:|
 |**Druid**||||
-|Feral|100%|CuteOne|**6.2**|:white_check_mark:|
+|Feral|100%|CuteOne|**7.0**|:white_check_mark:|
 |Guardian|70%|chumii|6.1|:white_check_mark:
 |Restoration|100%|Masoud|6.1|:interrobang:
 |Moonkin|work in progress|ragnar| ? |:x:
