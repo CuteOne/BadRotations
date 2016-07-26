@@ -45,11 +45,11 @@ If you are a developer or are interested in being a beta tester, feel free to ge
 If you have code to improve a class you can send a "pull request".
 We will look over it and may merge it with BadBoy.
 
-Current Coders: CuteOne, kuukuukatchu
+Current Coders: CuteOne
 
 Pausing Coders until Legion: ragnar, Defmaster
 
-Past Contributors: Masoud, Gabbz, AveryKey, Chumii, cpowroks, Kinks, NOCARRIER and Sphoenix
+Past Contributors: Masoud, Gabbz, AveryKey, Chumii, cpowroks, Kinks, kuukuukatchu, NOCARRIER and Sphoenix
 
 **If you've contributed and you are not list here then please let CuteOne know so you can be added!
 
