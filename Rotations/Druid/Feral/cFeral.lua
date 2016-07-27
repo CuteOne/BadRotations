@@ -161,6 +161,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             self.getEnemies()
             self.getRecharges()
             self.getToggleModes()
+            self.getCastable()
 
 
             -- Casting and GCD check
@@ -274,7 +275,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                 for i = 1, #enemies do
                     -- Get Bleed Unit
                     local thisUnit = enemies[i]
-                    local distance = getRealDistance(thisUnit)
+                    local distance = getDistance(thisUnit)
                     -- Get Bleed Remain
                     local rakeRemain        = getDebuffRemain(thisUnit,self.spell.rakeDebuff,"player")
                     local rakeDuration      = getDebuffDuration(thisUnit,self.spell.rakeDebuff,"player")
@@ -446,6 +447,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             self.cd.incarnationKingOfTheJungle  	= getSpellCD(self.spell.incarnationKingOfTheJungle)
             self.cd.maim                            = getSpellCD(self.spell.maim)
             self.cd.removeCorruption                = getSpellCD(self.spell.removeCorruption)
+            self.cd.skullBash                       = getSpellCD(self.spell.skullBash)
             self.cd.stampedingRoar 					= getSpellCD(self.spell.stampedingRoar)
             self.cd.tigersFury                      = getSpellCD(self.spell.tigersFury)
         end
@@ -583,14 +585,29 @@ if select(2, UnitClass("player")) == "DRUID" then
             bb:checkProfileWindowStatus()
         end
 
+    --------------
+    --- SPELLS ---
+    --------------
+
+        function self.getCastable()
+
+            self.castable.maim              = self.castMaim("target",true)
+            self.castable.removeCorruption  = self.castRemoveCorruption("player",true)
+        end
+
     ------------------------------
     --- SPELLS - CROWD CONTROL ---
     ------------------------------
 
         -- Maim - Set target via thisUnit variable
-    	function self.castMaim(thisUnit)
-    		if self.level>=72 and self.power>35 and self.cd.maim==0 and self.comboPoints>0 and self.buff.catForm and hasThreat(thisUnit) and getRealDistance(thisUnit)<5 then
-    			if castSpell(thisUnit,self.spell.maim,false,false,false) then return end
+    	function self.castMaim(thisUnit,debug)
+            if debug == nil then debug = false end
+    		if self.level>=72 and self.power>35 and self.cd.maim==0 and self.comboPoints>0 and self.buff.catForm and hasThreat(thisUnit) and getDistance(thisUnit)<5 then
+                if debug == true then
+                    return castSpell(thisUnit,self.spell.maim,false,false,false,false,false,false,false,true)
+                else
+    			    if castSpell(thisUnit,self.spell.maim,false,false,false) then return end
+                end
     		end
     	end
 
@@ -599,15 +616,26 @@ if select(2, UnitClass("player")) == "DRUID" then
     --------------------------
 
         -- Remove Corruption - Set target via thisUnit variable
-        function self.castRemoveCorruption(thisUnit)
-            if self.level>=18 and self.powerPercentMana>15.8 and self.cd.removeCorruption==0 and canDispel(thisUnit,self.spell.removeCorruption) and getRealDistance(thisUnit)<40 then
-                if castSpell(thisUnit,self.spell.removeCorruption,false,false,false) then return end
+        function self.castRemoveCorruption(thisUnit,debug)
+            if debug == nil then debug = false end
+            if self.level>=18 and self.powerPercentMana>15.8 and self.cd.removeCorruption==0 and canDispel(thisUnit,self.spell.removeCorruption) and getDistance(thisUnit)<40 then
+                if debug == true then
+                    return castSpell(thisUnit,self.spell.removeCorruption,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,self.spell.removeCorruption,false,false,false) then return end
+                end
             end
         end
         -- Renewal
         function self.castRenewal()
             if self.talent.renewal and self.cd.renewal == 0 then
                 if castSpell("player",self.spell.renewal,false,false,false) then return end
+            end
+        end
+        -- Skull Bash - Set target via thisUnit variable
+        function self.castSkullBash(thisUnit)
+            if self.level>=64 and self.cd.skullBash==0 and self.buff.catForm and hasThreat(thisUnit) and getDistance(thisUnit)<13 then 
+                if castSpell(thisUnit,self.spell.skullBash,false,false,false) then return end
             end
         end
         -- Survival Instincts
@@ -622,7 +650,7 @@ if select(2, UnitClass("player")) == "DRUID" then
     --------------------------
         -- Ashamane's Frenzy
         function self.castAshamanesFrenzy(thisUnit)
-            if self.artifact.ashamanesFrenzy and self.buff.catForm and self.cd.ashamanesFrenzy == 0 and getRealDistance(thisUnit)<5 then
+            if self.artifact.ashamanesFrenzy and self.buff.catForm and self.cd.ashamanesFrenzy == 0 and getDistance(thisUnit)<5 then
                 if castSpell(thisUnit,self.spell.ashamanesFrenzy,false,false,false) then return end
             end
         end
@@ -634,7 +662,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         end
         -- Brutal Slash
         function self.castBrutalSlash(thisUnit)
-            if self.talent.brutalSlash and self.charges.brutalSlash > 0 and power > 20 and self.buff.catForm and getRealDistance(thisUnit)<8 then
+            if self.talent.brutalSlash and self.charges.brutalSlash > 0 and power > 20 and self.buff.catForm and getDistance(thisUnit)<8 then
                 if castSpell(thisUnit,self.spell.brutalSlash,false,false,false) then return end
             end
         end
@@ -646,7 +674,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         end
         -- Ferocious Bite - Set target via thisUnit variable
         function self.castFerociousBite(thisUnit)
-            if self.level>=3 and self.power>25 and self.buff.catForm and self.comboPoints>0 and getRealDistance(thisUnit)<5 then
+            if self.level>=3 and self.power>25 and self.buff.catForm and self.comboPoints>0 and getDistance(thisUnit)<5 then
                 if castSpell(thisUnit,self.spell.ferociousBite,false,false,false) then return end
             end
         end
@@ -658,19 +686,19 @@ if select(2, UnitClass("player")) == "DRUID" then
         end
         -- Moonfire - Set target via thisUnit variable
         function self.castFeralMoonfire(thisUnit)
-            if self.talent.lunarInspiration and self.power>30 and (hasThreat(thisUnit) or (isDummy() and UnitIsUnit(thisUnit,"target"))) and getRealDistance(thisUnit)<40 then
+            if self.talent.lunarInspiration and self.power>30 and (hasThreat(thisUnit) or (isDummy() and UnitIsUnit(thisUnit,"target"))) and getDistance(thisUnit)<40 then
                 if castSpell(thisUnit,self.spell.feralMoonfire,false,false,false) then return end
             end
         end
         -- Rake - Set target via thisUnit variable
         function self.castRake(thisUnit)
-        	if self.level>=6 and self.power > 35 and self.buff.catForm and (getDebuffDuration(thisUnit,self.spell.rake,"player")==0 or getDebuffDuration(thisUnit,self.spell.rake,"player")>4) and getRealDistance(thisUnit)<5 then
+        	if self.level>=6 and self.power > 35 and self.buff.catForm and (getDebuffDuration(thisUnit,self.spell.rake,"player")==0 or getDebuffDuration(thisUnit,self.spell.rake,"player")>4) and getDistance(thisUnit)<5 then
         		if castSpell(thisUnit,self.spell.rake,false,false,false) then return end
         	end
         end
         -- Rip - Set target via thisUnit variable
         function self.castRip(thisUnit)
-        	if self.level>=20 and self.power > 30 and self.buff.catForm and self.comboPoints>0 and getRealDistance(thisUnit)<5 then
+        	if self.level>=20 and self.power > 30 and self.buff.catForm and self.comboPoints>0 and getDistance(thisUnit)<5 then
         		if castSpell(thisUnit,self.spell.rip,false,false,false) then return end
         	end
         end
@@ -682,13 +710,13 @@ if select(2, UnitClass("player")) == "DRUID" then
         end
         -- Shred
         function self.castShred(thisUnit)
-            if self.level>=1 and self.buff.catForm and self.power>40 and getRealDistance(thisUnit)<5 then
+            if self.level>=1 and self.buff.catForm and self.power>40 and getDistance(thisUnit)<5 then
                 if castSpell(thisUnit,self.spell.shred,false,false,false) then return end
             end
         end
         -- Skull Bash - Set target via thisUnit variable
         function self.castSkullBash(thisUnit)
-            if (self.spec=="Feral" or self.spec=="Guardian") and self.level>=64 and self.cd.skullBash==0 and (self.buff.bearForm or self.buff.catForm) and hasThreat(thisUnit) and getRealDistance(thisUnit)<13 then 
+            if (self.spec=="Feral" or self.spec=="Guardian") and self.level>=64 and self.cd.skullBash==0 and (self.buff.bearForm or self.buff.catForm) and hasThreat(thisUnit) and getDistance(thisUnit)<13 then 
                 if castSpell(thisUnit,self.spell.skullBash,false,false,false) then return end
             end
         end
@@ -700,13 +728,13 @@ if select(2, UnitClass("player")) == "DRUID" then
         end
         -- Swipe
         function self.castSwipe(thisUnit)
-        	if not self.talent.brutalSlash and self.level>=32 and self.buff.catForm and self.power>45 and getRealDistance(thisUnit)<8 then
+        	if not self.talent.brutalSlash and self.level>=32 and self.buff.catForm and self.power>45 and getDistance(thisUnit)<8 then
         		if castSpell(thisUnit,self.spell.swipe,false,false,false) then return end
         	end
         end
         -- Thrash - Set target via thisUnit variable
         function self.castThrash(thisUnit)
-        	if self.level>=14 and self.power>50 and self.buff.catForm and hasThreat(thisUnit) and getRealDistance(thisUnit)<8 and self.mode.cleave==1 and self.mode.rotation < 3 then
+        	if self.level>=14 and self.power>50 and self.buff.catForm and hasThreat(thisUnit) and getDistance(thisUnit)<8 and self.mode.cleave==1 and self.mode.rotation < 3 then
         		if castSpell("player",self.spell.thrash,false,false,false) then return end
         	end
         end
@@ -732,7 +760,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
         --Target Distance
         function tarDist(unit)
-            return getRealDistance(unit)
+            return getDistance(unit)
         end
 
         -- Calculate Ferocious Bite Damage

@@ -118,7 +118,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Healing Touch
                 bb.ui:createSpinner(section, "Healing Touch",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Dream of Cenarius Auto-Heal
-                bb.ui:createDropdown(section, "Auto Heal", { "|cffFFDD11LowestHP", "|cffFFDD11bb.player"},  1,  "|cffFFFFFFSelect Target to Auto-Heal")
+                bb.ui:createDropdown(section, "Auto Heal", { "|cffFFDD11LowestHP", "|cffFFDD11Player"},  1,  "|cffFFFFFFSelect Target to Auto-Heal")
             bb.ui:checkSectionState(section)
         -- Interrupt Options
             section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
@@ -229,12 +229,12 @@ if select(2, UnitClass("player")) == "DRUID" then
 			local dynTar13 										= bb.player.units.dyn13 --Skull Bash
 			local dynTar20AoE 									= bb.player.units.dyn20AoE --Prowl
 			local dynTar40AoE 									= bb.player.units.dyn40AoE --Cat Form/Moonfire	
-			local dynTable5 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar5, ["distance"] = getRealDistance(dynTar5)}}
-			local dynTable8 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar8, ["distance"] = getRealDistance(dynTar8)}}
-			local dynTable8AoE 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar8AoE, ["distance"] = getRealDistance(dynTar8AoE)}}
-			local dynTable13 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar13, ["distance"] = getRealDistance(dynTar13)}}
-			local dynTable20AoE 								= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getRealDistance(dynTar20AoE)}}
-			local dynTable40AoE 								= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar40AoE, ["distance"] = getRealDistance(dynTar40AoE)}}
+			local dynTable5 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar5, ["distance"] = getDistance(dynTar5)}}
+			local dynTable8 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar8, ["distance"] = getDistance(dynTar8)}}
+			local dynTable8AoE 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar8AoE, ["distance"] = getDistance(dynTar8AoE)}}
+			local dynTable13 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar13, ["distance"] = getDistance(dynTar13)}}
+			local dynTable20AoE 								= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getDistance(dynTar20AoE)}}
+			local dynTable40AoE 								= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar40AoE, ["distance"] = getDistance(dynTar40AoE)}}
 			local deadtar, attacktar, hastar, playertar 		= deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
 			local friendly 										= friendly or UnitIsFriend("target", "player")
 		    local mfTick 										= 20.0/(1+UnitSpellHaste("player")/100)/10
@@ -254,7 +254,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 
 		    --ChatOverlay(round2(debuff.remain.rake,2)..", "..debuff.duration.rake)
-            --ChatOverlay(round2(getDistance("target"),2)..", "..round2(getDistance2("target"),2)..", "..round2(getDistance3("target"),2)..", "..round2(getRealDistance("target"),2))
+            --ChatOverlay(round2(getDistance("target"),2)..", "..round2(getDistance2("target"),2)..", "..round2(getDistance3("target"),2)..", "..round2(getDistance("target"),2))
 	--------------------
 	--- Action Lists ---
 	--------------------
@@ -281,7 +281,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			        		if bb.player.castCatForm() then return end
 			        	end
 			        	-- Cat Form when not in combat and target selected and within 20yrds
-			        	if not inCombat and hastar and attacktar and not deadtar and getRealDistance("target")<20 then
+			        	if not inCombat and hastar and attacktar and not deadtar and getDistance("target")<20 then
 			        		if bb.player.castCatForm() then return end
 			        	end
 			        	--Cat Form when in combat and not flying
@@ -313,7 +313,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 				end -- End Perma Fire Cat
 			-- Death Cat mode
 				if isChecked("Death Cat Mode") and cat then
-			        if hastar and getRealDistance(dynTar8AoE) > 8 then
+			        if hastar and getDistance(dynTar8AoE) > 8 then
 			            ClearTarget()
 			        end
 		            if bb.player.enemies.yards20 > 0 then
@@ -392,8 +392,10 @@ if select(2, UnitClass("player")) == "DRUID" then
 				    if isChecked("Break Crowd Control") and hasNoControl() then
 				        for i=1, 6 do
 				            if i == GetShapeshiftForm() then
-				                CastShapeshiftForm(i)
-				                return true
+				                if select(5,GetShapeshiftFormInfo(i)) == cat then
+                                    RunMacroText("/cast !Cat Form")
+				                    return true
+                                end
 				            end
 				        end
 				    end
@@ -438,11 +440,17 @@ if select(2, UnitClass("player")) == "DRUID" then
 						useItem(118006)
 					end
 			-- Healing Touch
-		            if isChecked("Healing Touch") and php <= getOptionValue("Healing Touch") and (buff.remain.predatorySwiftness > 0 or not inCombat) then
-		            	if getOptionValue("Auto Heal")==1 then
+		            if isChecked("Healing Touch") and (buff.remain.predatorySwiftness > 0 or not inCombat) then
+		            	if getOptionValue("Auto Heal")==1 
+                            and ((getHP(nNova[1].unit) <= getOptionValue("Healing Touch")/2 and inCombat) 
+                                or (getHP(nNova[1].unit) <= getOptionValue("Healing Touch") and not inCombat) 
+                                or (buff.remain.predatorySwiftness < 1 and buff.predatorySwiftness)) 
+                        then
                             if bb.player.castHealingTouch(nNova[1].unit) then return end
                         end
-                        if getOptionValue("Auto Heal")==2 then
+                        if getOptionValue("Auto Heal")==2 
+                            and (php <= getOptionValue("Healing Touch") or (buff.remain.predatorySwiftness < 1 and buff.predatorySwiftness)) 
+                        then
                             if bb.player.castHealingTouch("player") then return end
                         end
 		            end
@@ -488,7 +496,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			end -- End Action List - Interrupts
 		-- Action List - Cooldowns
 			local function actionList_Cooldowns()
-				if getRealDistance(dynTar5)<5 then
+				if getDistance(dynTar5)<5 then
             -- Elunes Guidance
                     -- if=combo_points=0&(!artifact.ashamanes_bite.enabled|!dot.ashamanes_rip.ticking)
                     if combo == 0 and (not artifact.ashamanesBite or not debuff.ashamainsRip) then
@@ -589,6 +597,10 @@ if select(2, UnitClass("player")) == "DRUID" then
 						    end
 						end
 					end -- End No Stealth
+            -- Wild Charge
+                    if isChecked("Displacer Beast / Wild Charge") and solo and attacktar and not deadtar and not friendly then
+                        if bb.player.castWildCharge("target") then return end 
+                    end
 		        	if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
 			-- Healing Touch
 						-- healing_touch,if=talent.bloodtalons.enabled
@@ -657,7 +669,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 					if bb.player.castFerociousBite(dynTar5) then return end
 				end
 				-- max_energy=1,if=energy.time_to_max<1
-                if power > 50 and ttm<1 and getRealDistance(dynTar5)<5 then
+                if power > 50 and ttm<1 and getDistance(dynTar5)<5 then
 					if bb.player.castFerociousBite(dynTar5) then return end
 		   		end
 			end -- End Action List - Finisher
@@ -787,7 +799,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                         end
 					elseif not stealth then
 						-- auto_attack
-						if getRealDistance(dynTar5)<5 then
+						if getDistance(dynTar5)<5 then
 							StartAttack()
 						end
 		------------------------------
@@ -834,7 +846,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			            end
 			-- Thrash with T18 4pc
                         -- if=set_bonus.tier18_4pc&buff.clearcasting.react&remains<=duration*0.3&combo_points+buff.bloodtalons.stack!=6
-						if t18_4pc and clearcast and debuff.remain.thrash <= debuff.duration.thrash * 0.3 and (combo + charges.bloodtalons) ~= 6 and getRealDistance(dynTar8AoE)<8 then
+						if t18_4pc and clearcast and debuff.remain.thrash <= debuff.duration.thrash * 0.3 and (combo + charges.bloodtalons) ~= 6 and getDistance(dynTar8AoE)<8 then
 							if bb.player.castThrash(dynTar8AoE) then return end
 						end
 			-- Thrash with T17 2pc
@@ -843,7 +855,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 							local thrash = bleed.thrash[i]
 							local thisUnit = thrash.unit
 							if (multidot or (UnitIsUnit(thisUnit,dynTar8AoE) and not multidot)) then 
-                                if thrash.remain <= thrash.duration * 0.3 and ((enemies.yards8 >= 2 and t17_2pc) or enemies.yards8 >= 4) and getRealDistance(thisUnit)<8 then
+                                if thrash.remain <= thrash.duration * 0.3 and ((enemies.yards8 >= 2 and t17_2pc) or enemies.yards8 >= 4) and getDistance(thisUnit)<8 then
                                     if power < 50 then
                                         return true
                                     else
@@ -878,7 +890,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 							local thrash = bleed.thrash[i]
 							local thisUnit = thrash.unit
 							if (multidot or (UnitIsUnit(thisUnit,dynTar8AoE) and not multidot)) then
-                                if thrash.remain <= thrash.duration * 0.3 and enemies.yards8 >= 2 and getRealDistance(thisUnit)<8 then
+                                if thrash.remain <= thrash.duration * 0.3 and enemies.yards8 >= 2 and getDistance(thisUnit)<8 then
                                     if power < 50 then
                                         return true
                                     else
