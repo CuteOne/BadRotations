@@ -136,7 +136,7 @@ if select(3,UnitClass("player")) == 2 then
 
   function castStrike()
     local strike = strike
-    if BadBoy_data["AoE"] == 2 or (BadBoy_data["AoE"] == 3 and numberOfTargetsForHammerOfRighteous > 2) or keyPressAoE then  --If Toggle to 2(AoE) or 3(Auto and more then 2 targets, its actually 4 but its just simplier to do aoe
+    if bb.data["AoE"] == 2 or (bb.data["AoE"] == 3 and numberOfTargetsForHammerOfRighteous > 2) or keyPressAoE then  --If Toggle to 2(AoE) or 3(Auto and more then 2 targets, its actually 4 but its just simplier to do aoe
       strike = _HammerOfTheRighteous
     else
       strike = _CrusaderStrike
@@ -198,9 +198,9 @@ if select(3,UnitClass("player")) == 2 then
     if isKnown(157496) then
       hpHammerOfWrath = 35
     end
-    for i = 1, #enemiesTable do
+    for i = 1, #bb.enemy do
       -- define thisUnit
-      local thisUnit = enemiesTable[i]
+      local thisUnit = bb.enemy[i]
       if castHammerOfWrath(thisUnit,hpHammerOfWrath,buffAvengingWrath,false) then
         return true
       end
@@ -248,13 +248,13 @@ if select(3,UnitClass("player")) == 2 then
     end
     -- Cast on enemies first
     if getValue("Holy Prism Mode") == 2 or 3 then
-      if castWiseAoEHeal(enemiesTable,_HolyPrism,15,95,1,5,false) then
+      if castWiseAoEHeal(bb.enemy,_HolyPrism,15,95,1,5,false) then
         return true
       end
     else
-      for i = 1, #nNova do
-        if nNova[i].hp <= getValue("Holy Prism") then
-          if castSpell(nNova[i].unit,_HolyPrism,true, false) then
+      for i = 1, #bb.friend do
+        if bb.friend[i].hp <= getValue("Holy Prism") then
+          if castSpell(bb.friend[i].unit,_HolyPrism,true, false) then
             return true
           end
         end
@@ -264,8 +264,8 @@ if select(3,UnitClass("player")) == 2 then
   end
 
   function castJeopardy()
-    for i = 1, #enemiesTable do
-      thisEnemy = enemiesTable[i]
+    for i = 1, #bb.enemy do
+      thisEnemy = bb.enemy[i]
       if getDistance("player",thisEnemy.unit) then
         -- here i will need to compare my previous judgment target with the previous one
         -- i will declare a var in the Reader that will hold this value previousJudgmentTarget
@@ -314,9 +314,9 @@ if select(3,UnitClass("player")) == 2 then
             return true
           end
         else
-          for i = 1, #nNova do
-            if nNova[i].hp <= LoHValue then
-              if castLayOnHands(nNova[i].unit) then
+          for i = 1, #bb.friend do
+            if bb.friend[i].hp <= LoHValue then
+              if castLayOnHands(bb.friend[i].unit) then
                 return true
               end
             end
@@ -328,18 +328,18 @@ if select(3,UnitClass("player")) == 2 then
             return true
           end
         else
-          for i = 1, #nNova do
-            if nNova[i].hp <= LoHValue and (nNova[i].role == "HEALER" or nNova[i].role == "TANK") then
-              if castLayOnHands(nNova[i].unit) then
+          for i = 1, #bb.friend do
+            if bb.friend[i].hp <= LoHValue and (bb.friend[i].role == "HEALER" or bb.friend[i].role == "TANK") then
+              if castLayOnHands(bb.friend[i].unit) then
                 return true
               end
             end
           end
         end
       elseif LoHTargets == 4 then
-        for i = 1, #nNova do
-          if nNova[i].hp <= LoHValue then
-            if castLayOnHands(nNova[i].unit) then
+        for i = 1, #bb.friend do
+          if bb.friend[i].hp <= LoHValue then
+            if castLayOnHands(bb.friend[i].unit) then
               return true
             end
           end
@@ -378,11 +378,11 @@ if select(3,UnitClass("player")) == 2 then
     return false
   end
   --function SacredShield()
-  --       local SacredShieldCheck = BadBoy_data["Check Sacred Shield"];
-  --  -      local SacredShield = BadBoy_data["Box Sacred Shield"];
+  --       local SacredShieldCheck = bb.data["Check Sacred Shield"];
+  --  -      local SacredShield = bb.data["Box Sacred Shield"];
   --        if UnitBuffID("player",20925) then SacredShieldTimer = select(7, UnitBuffID("player",20925)) - GetTime() else SacredShieldTimer = 0 end
   --       if SacredShieldCheck and getHP("player") <= SacredShield then
-  --            if ((isMoving("player") or UnitAffectingCombat("player")) and not UnitBuffID("player",20925)) or (LastVengeance ~= nil and (GetVengeance() > (BadBoy_data["Box Sacred Vengeance"] + LastVengeance))) then
+  --            if ((isMoving("player") or UnitAffectingCombat("player")) and not UnitBuffID("player",20925)) or (LastVengeance ~= nil and (GetVengeance() > (bb.data["Box Sacred Vengeance"] + LastVengeance))) then
   --                LastVengeance = GetVengeance()
   --               return true;
   --            end
@@ -434,7 +434,7 @@ if select(3,UnitClass("player")) == 2 then
     end
     -- Gabbz: Handle this via config? getHP does it include incoming heals? Bastion of Glory checks?
     -- CML: I have it in ret as  getValue("Self Glory"), you should use same name as anyway the config values are saved into specs
-    -- the getHP method will use selected healing engines values as it will first try to find the unit in nnova
+    -- the getHP method will use selected healing engines values as it will first try to find the unit in bb.friend
     if getHP(unit) <= health and (_HolyPower > HolyPower or UnitBuffID("player", _DivinePurposeBuff)) then
       if castSpell(unit,_WordOfGlory,true,false) then
         return true

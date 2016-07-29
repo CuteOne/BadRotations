@@ -303,11 +303,11 @@ if select(2, UnitClass("player")) == "MONK" then
         ---------------
 
         function self.getToggleModes()
-            local BadBoy_data   = BadBoy_data
+            local data   = bb.data
 
-            self.mode.aoe       = BadBoy_data["AoE"]
-            self.mode.cooldowns = BadBoy_data["Cooldowns"]
-            self.mode.defensive = BadBoy_data["Defensive"]
+            self.mode.aoe       = data["AoE"]
+            self.mode.cooldowns = data["Cooldowns"]
+            self.mode.defensive = data["Defensive"]
         end
 
         ---------------
@@ -452,7 +452,7 @@ if select(2, UnitClass("player")) == "MONK" then
         end
 
         function useAoE()
-            if ((BadBoy_data['Rotation'] == 1 and #getEnemies("player",8) >= 3) or BadBoy_data['Rotation'] == 2) and UnitLevel("player")>=46 then
+            if ((bb.data['Rotation'] == 1 and #getEnemies("player",8) >= 3) or bb.data['Rotation'] == 2) and UnitLevel("player")>=46 then
                 return true
             else
                 return false
@@ -460,7 +460,7 @@ if select(2, UnitClass("player")) == "MONK" then
         end
 
         function useCDs()
-            if (BadBoy_data['Cooldown'] == 1 and isBoss()) or BadBoy_data['Cooldown'] == 2 then
+            if (bb.data['Cooldown'] == 1 and isBoss()) or bb.data['Cooldown'] == 2 then
                 return true
             else
                 return false
@@ -468,7 +468,7 @@ if select(2, UnitClass("player")) == "MONK" then
         end
 
         function useDefensive()
-            if BadBoy_data['Defensive'] == 1 then
+            if bb.data['Defensive'] == 1 then
                 return true
             else
                 return false
@@ -476,7 +476,7 @@ if select(2, UnitClass("player")) == "MONK" then
         end
 
         function useInterrupts()
-            if BadBoy_data['Interrupt'] == 1 then
+            if bb.data['Interrupt'] == 1 then
                 return true
             else
                 return false
@@ -628,10 +628,10 @@ if select(2, UnitClass("player")) == "MONK" then
               -- localise commonly used functions
               local getHP,getChi,getChiMax,hasGlyph,UnitPower,UnitPowerMax,getBuffRemain,getBuffStacks = getHP,getChi,getChiMax,hasGlyph,UnitPower,UnitPowerMax,getBuffRemain,getBuffStacks
               local UnitBuffID,IsSpellOverlayed,getSpellCD,getEnemies = UnitBuffID,IsSpellOverlayed,getSpellCD,getEnemies
-              local player,BadBoy_data,GetShapeshiftForm,dynamicTarget = "player",BadBoy_data,GetShapeshiftForm,dynamicTarget
+              local player,data,GetShapeshiftForm,dynamicTarget = "player",bb.data,GetShapeshiftForm,dynamicTarget
               local GetSpellCooldown,select,getValue,isChecked,castInterrupt = GetSpellCooldown,select,getValue,isChecked,castInterrupt
               local isSelected,UnitExists,isDummy,isMoving,castSpell,castGround = isSelected,UnitExists,isDummy,isMoving,castSpell,castGround
-              local getGround,canCast,isKnown,enemiesTable,sp = getGround,canCast,isKnown,enemiesTable,core.spells
+              local getGround,canCast,isKnown,sp = getGround,canCast,isKnown,core.spells
               local UnitHealth,print,UnitHealthMax,getCharges = UnitHealth,print,UnitHealthMax,getCharges
               local canTrinket,useItem,GetInventoryItemID,UnitSpellHaste = canTrinket,useItem,GetInventoryItemID,UnitSpellHaste
               local getPower,getRegen,getRecharge,GetInventorySlotInfo,GetItemInfo = getPower,getRegen,getRecharge,GetInventorySlotInfo,GetItemInfo
@@ -741,10 +741,10 @@ if select(2, UnitClass("player")) == "MONK" then
                 self.melee12Yards   = #getEnemies(player,12) 
 
                 -- Modes
-                self.mode.sef     = BadBoy_data["SEF"]
-                self.mode.cooldowns = BadBoy_data["Cooldowns"]
-                --self.mode.defensive = BadBoy_data["Defensive"]
-                --self.mode.healing = BadBoy_data["Healing"]
+                self.mode.sef     = data["SEF"]
+                self.mode.cooldowns = data["Cooldowns"]
+                --self.mode.defensive = bb.data["Defensive"]
+                --self.mode.healing = bb.data["Healing"]
 
                 -- dynamic units
                 self.units.dyn5   = dynamicTarget(5,true)

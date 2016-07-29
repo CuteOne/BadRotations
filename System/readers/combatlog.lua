@@ -159,17 +159,17 @@ function bb.read.combatLog()
         local red = "|cffFF001E"
         -- add counters
         if param == "SPELL_CAST_SUCCESS" then
-          if BadBoy_data.successCasts == nil then
-            BadBoy_data.successCasts = 0
+          if bb.data.successCasts == nil then
+            bb.data.successCasts = 0
           end
           color = "|cff12C8FF"
-          BadBoy_data.successCasts = BadBoy_data.successCasts + 1
+          bb.data.successCasts = bb.data.successCasts + 1
         elseif param == "SPELL_CAST_FAILED" then
-          if BadBoy_data.failCasts == nil then
-            BadBoy_data.failCasts = 0
+          if bb.data.failCasts == nil then
+            bb.data.failCasts = 0
           end
           color = red
-          BadBoy_data.failCasts = BadBoy_data.failCasts + 1
+          bb.data.failCasts = bb.data.failCasts + 1
         end
         -- set destination
         if destination == nil or destName == nil then
@@ -185,7 +185,7 @@ function bb.read.combatLog()
         end
         local Power = "\nPower : "..UnitPower("player")
         -- create display row
-        local textString = color..BadBoy_data.successCasts..red.."/"..white..getCombatTime()..red.."/"..color..spellName
+        local textString = color..bb.data.successCasts..red.."/"..white..getCombatTime()..red.."/"..color..spellName
           ..red..debugdest..color..debugSpell.."|cffFFDD11"..Power
         -- pulse display
         bb.read:display(textString)
@@ -270,10 +270,10 @@ function bb.read.combatLog()
       destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
     --[[ Steady Focus ]]
     if spell == 77767 and param == "SPELL_CAST_SUCCESS" then
-      if BadBoy_data["1stFocus"] ~= true then
-        BadBoy_data["1stFocus"] = true
+      if bb.data["1stFocus"] ~= true then
+        bb.data["1stFocus"] = true
       else
-        BadBoy_data["1stFocus"] = false
+        bb.data["1stFocus"] = false
       end
     end
   end

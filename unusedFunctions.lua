@@ -43,12 +43,12 @@ end
 
 -- findTarget(10,true,1)   will find closest target in 10 yard front that have more or equal to 1%hp
 function findTarget(range,facingCheck,minimumHealth)
-    if enemiesTable ~= nil then
-        for i = 1,#enemiesTable do
-            if enemiesTable[i].distance <= range then
-                if FacingCheck == false or getFacing("player",enemiesTable[i].unit) == true then
-                    if not minimumHealth or minimumHealth and minimumHealth >= enemiesTable[i].hp then
-                        TargetUnit(enemiesTable[i].unit)
+    if bb.enemy ~= nil then
+        for i = 1,#bb.enemy do
+            if bb.enemy[i].distance <= range then
+                if FacingCheck == false or getFacing("player",bb.enemy[i].unit) == true then
+                    if not minimumHealth or minimumHealth and minimumHealth >= bb.enemy[i].hp then
+                        TargetUnit(bb.enemy[i].unit)
                     end
                 end
             else

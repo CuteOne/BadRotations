@@ -283,13 +283,13 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         ---------------
 
         function self.getToggleModes()
-            local BadBoy_data   = BadBoy_data
+            local data   = bb.data
 
-            self.mode.rotation  = BadBoy_data["Rotation"]
-            self.mode.cooldown  = BadBoy_data["Cooldown"]
-            self.mode.defensive = BadBoy_data["Defensive"]
-            self.mode.interrupt = BadBoy_data["Interrupt"]
-            self.mode.mover     = BadBoy_data["Mover"]
+            self.mode.rotation  = data["Rotation"]
+            self.mode.cooldown  = data["Cooldown"]
+            self.mode.defensive = data["Defensive"]
+            self.mode.interrupt = data["Interrupt"]
+            self.mode.mover     = data["Mover"]
         end
 
         -- Create the toggle defined within rotation files
@@ -416,7 +416,7 @@ if select(2, UnitClass("player")) == "WARRIOR" then
         function useAoE()
             local rotation = self.mode.rotation
             if (rotation == 1 and #getEnemies("player",8) >= 2) or rotation == 2 then
-            -- if BadBoy_data['AoE'] == 1 or BadBoy_data['AoE'] == 2 then
+            -- if bb.data['AoE'] == 1 or bb.data['AoE'] == 2 then
                 return true
             else
                 return false

@@ -206,8 +206,8 @@ if select(3,UnitClass("player")) == 6 then
     -- Buffs ---------------------------------------------------------------------------------------------
     ------------------------------------------------------------------------------------------------------
     if isChecked("Horn of Winter") == true and (lastHOW == nil or lastHOW <= GetTime() - 5) then
-      for i = 1, #nNova do
-        if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{57330,19506,6673}) and (UnitInRange(nNova[i].unit) or UnitIsUnit(nNova[i].unit,"player")) then
+      for i = 1, #bb.friend do
+        if isPlayer(bb.friend[i].unit) == true and not isBuffed(bb.friend[i].unit,{57330,19506,6673}) and (UnitInRange(bb.friend[i].unit) or UnitIsUnit(bb.friend[i].unit,"player")) then
           if castSpell("player",_HornOfWinter,true) then lastHOW = GetTime(); return; end
         end
       end
@@ -429,10 +429,10 @@ if select(3,UnitClass("player")) == 6 then
             if canCast(_BloodBoil) then
               local unitDebuffed = false
               local unitNotDebuffed = false
-              for i = 1, #enemiesTable do
-                if GetObjectExists(enemiesTable[i].unit) then
-                  if enemiesTable[i].distance < 8 then
-                    if UnitDebuffID(enemiesTable[i].unit,55078,"player") then
+              for i = 1, #bb.enemy do
+                if GetObjectExists(bb.enemy[i].unit) then
+                  if bb.enemy[i].distance < 8 then
+                    if UnitDebuffID(bb.enemy[i].unit,55078,"player") then
                       unitDebuffed = true
                     else
                       unitNotDebuffed = true
@@ -579,10 +579,10 @@ if select(3,UnitClass("player")) == 6 then
               if canCast(_BloodBoil) then
                 local unitDebuffed = false
                 local unitNotDebuffed = false
-                for i = 1, #enemiesTable do
-                  if GetObjectExists(enemiesTable[i].unit) then
-                    if enemiesTable[i].distance < 8 then
-                      if UnitDebuffID(enemiesTable[i].unit,155159,"player") then
+                for i = 1, #bb.enemy do
+                  if GetObjectExists(bb.enemy[i].unit) then
+                    if bb.enemy[i].distance < 8 then
+                      if UnitDebuffID(bb.enemy[i].unit,155159,"player") then
                         unitDebuffed = true
                       else
                         unitNotDebuffed = true

@@ -84,7 +84,7 @@ function bb.read.commonReaders()
 		if event == "PLAYER_REGEN_DISABLED" then
 			-- here we should manage stats snapshots
 			AgiSnap = getAgility()
-			BadBoy_data["Combat Started"] = GetTime()
+			bb.data["Combat Started"] = GetTime()
 			ChatOverlay("|cffFF0000Entering Combat")
 		end
 	end
@@ -109,9 +109,9 @@ function bb.read.commonReaders()
 			AgiSnap = 0
 			usePot = true
 			leftCombat = GetTime()
-			BadBoy_data.successCasts = 0
-			BadBoy_data.failCasts = 0
-			BadBoy_data["Combat Started"] = 0
+			bb.data.successCasts = 0
+			bb.data.failCasts = 0
+			bb.data["Combat Started"] = 0
 			ChatOverlay("|cff00FF00Leaving Combat")
 			-- clean up out of combat
 			Rip_sDamage = {}
@@ -129,27 +129,27 @@ function bb.read.commonReaders()
 		lastError = ...; lastErrorTime = GetTime()
 		local param = (...)
 		if param == ERR_PET_SPELL_DEAD  then
-			BadBoy_data["Pet Dead"] = true
-			BadBoy_data["Pet Whistle"] = false
+			bb.data["Pet Dead"] = true
+			bb.data["Pet Whistle"] = false
 		end
 		if param == PETTAME_NOTDEAD.. "." then
-			BadBoy_data["Pet Dead"] = false
-			BadBoy_data["Pet Whistle"] = true
+			bb.data["Pet Dead"] = false
+			bb.data["Pet Whistle"] = true
 		end
 		if param == SPELL_FAILED_ALREADY_HAVE_PET then
-			BadBoy_data["Pet Dead"] = true
-			BadBoy_data["Pet Whistle"] = false
+			bb.data["Pet Dead"] = true
+			bb.data["Pet Whistle"] = false
 		end
 		if param == PETTAME_CANTCONTROLEXOTIC.. "." then
-			if BadBoy_data["Box PetManager"] < 5 then
-				BadBoy_data["Box PetManager"] = BadBoy_data["Box PetManager"] + 1
+			if bb.data["Box PetManager"] < 5 then
+				bb.data["Box PetManager"] = bb.data["Box PetManager"] + 1
 			else
-				BadBoy_data["Box PetManager"] = 1
+				bb.data["Box PetManager"] = 1
 			end
 		end
 		if param == PETTAME_NOPETAVAILABLE.. "." then
-			BadBoy_data["Pet Dead"] = false
-			BadBoy_data["Pet Whistle"] = true
+			bb.data["Pet Dead"] = false
+			bb.data["Pet Whistle"] = true
 		end
 		if param == SPELL_FAILED_TARGET_NO_WEAPONS then
 			isDisarmed = true

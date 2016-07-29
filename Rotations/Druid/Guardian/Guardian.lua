@@ -119,8 +119,8 @@ function DruidGuardian()
     if not isInCombat("player") then
         -- Mark of the Wild
         if isChecked("Mark Of The Wild") == true and canCast(1126, false, false) and (lastMotw == nil or lastMotw <= GetTime() - 5) then
-            for i = 1, #nNova do
-                if isPlayer(nNova[i].unit) == true and not isBuffed(nNova[i].unit, { 115921, 20217, 1126, 90363 }) and UnitInRange(nNova[i].unit) then
+            for i = 1, #bb.friend do
+                if isPlayer(bb.friend[i].unit) == true and not isBuffed(bb.friend[i].unit, { 115921, 20217, 1126, 90363 }) and UnitInRange(bb.friend[i].unit) then
                     if castSpell("player", 1126, true) then lastMotw = GetTime(); return; end
                 end
             end
@@ -169,12 +169,12 @@ function DruidGuardian()
         -- Do everytime --------------------------------------------------------------------------------------
         ------------------------------------------------------------------------------------------------------
         -- SD / FR Mode
-        if BadBoy_data['Defensive'] == 1 then
+        if bb.data['Defensive'] == 1 then
             if castSpell("player", sd) then
                 return;
             end
         end
-        if BadBoy_data['Defensive'] == 2 then
+        if bb.data['Defensive'] == 2 then
             if getPower("player") >= 60 then
                 if getHP("player") < 75 then
                     if castSpell("player", fr) then
@@ -213,7 +213,7 @@ function DruidGuardian()
         -- actions+=/cenarion_ward
         if getTalent(2, 3) then
             if getValue("CenWard") == 2 then
-                if castSpell(nNova[1].unit, 102351, true, false, false) then return; end
+                if castSpell(bb.friend[1].unit, 102351, true, false, false) then return; end
             end
             if getValue("CenWard") == 1 then
                 if castSpell("player", 102351, true, false, false) then return; end
@@ -319,7 +319,7 @@ function DruidGuardian()
                 if getTalent(6, 2) and isChecked("DoCHT") then
                     if docBuff then
                         if getValue("DoCHT") == 2 then
-                            if castSpell(nNova[1].unit, ht, true, false, false) then return; end
+                            if castSpell(bb.friend[1].unit, ht, true, false, false) then return; end
                         end
                         if getValue("DoCHT") == 1 then
                             if castSpell("player", ht, true, false, false) then return; end

@@ -62,8 +62,8 @@ if select(3,UnitClass("player")) == 10 then
       end
       -- Legacy of the Emperor
       if not UnitExists("mouseover") then
-        for i = 1, #nNova do
-          if (UnitInParty(nNova[i].unit) or UnitInRaid(nNova[i].unit) or UnitIsUnit("player",nNova[i].unit)) and UnitIsVisible(nNova[i].unit) == true and not isBuffed(nNova[i].unit,{115921,20217,1126,90363}) then
+        for i = 1, #bb.friend do
+          if (UnitInParty(bb.friend[i].unit) or UnitInRaid(bb.friend[i].unit) or UnitIsUnit("player",bb.friend[i].unit)) and UnitIsVisible(bb.friend[i].unit) == true and not isBuffed(bb.friend[i].unit,{115921,20217,1126,90363}) then
             if castSpell("player",_LegacyOfTheEmperor,true) then return; end
           end
         end
@@ -149,16 +149,16 @@ if select(3,UnitClass("player")) == 10 then
     if isChecked("Detox") then
       if getValue("Detox") == 1 then -- Mouse Match
         if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
-          for i = 1, #nNova do
-            if nNova[i].guid == UnitGUID("mouseover") and nNova[i].dispel == true then
-              if castSpell(nNova[i].unit,_Detox, true,false) then return; end
+          for i = 1, #bb.friend do
+            if bb.friend[i].guid == UnitGUID("mouseover") and bb.friend[i].dispel == true then
+              if castSpell(bb.friend[i].unit,_Detox, true,false) then return; end
             end
           end
       end
       elseif getValue("Detox") == 2 then -- Raid Match
-        for i = 1, #nNova do
-          if nNova[i].dispel == true then
-            if castSpell(nNova[i].unit,_Detox, true,false) then return; end
+        for i = 1, #bb.friend do
+          if bb.friend[i].dispel == true then
+            if castSpell(bb.friend[i].unit,_Detox, true,false) then return; end
           end
       end
       elseif getValue("Detox") == 3 then -- Mouse All
@@ -175,12 +175,12 @@ if select(3,UnitClass("player")) == 10 then
           end
       end
       elseif getValue("Detox") == 4 then -- Raid All
-        for i = 1, #nNova do
+        for i = 1, #bb.friend do
           for n = 1,40 do
-            local buff,_,_,count,bufftype,duration = UnitDebuff(nNova[i].unit, n)
+            local buff,_,_,count,bufftype,duration = UnitDebuff(bb.friend[i].unit, n)
             if buff then
               if bufftype == "Magic" or bufftype == "Disease" or bufftype == "Poison" then
-                if castSpell(nNova[i].unit,_Detox, true,false) then return; end
+                if castSpell(bb.friend[i].unit,_Detox, true,false) then return; end
               end
             else
               break;
@@ -197,8 +197,8 @@ if select(3,UnitClass("player")) == 10 then
     --[[Revival]]
     local revivalUnits = 0
     if isChecked("Revival") then
-      for i = 1, #nNova do
-    	  if nNova[i].hp <= getValue("Revival") then
+      for i = 1, #bb.friend do
+    	  if bb.friend[i].hp <= getValue("Revival") then
       	   	revivalUnits = revivalUnits + 1
       		  if revivalUnits >= getValue("Revival People") then
       			  if castSpell("player",_Revival,true) then
@@ -213,9 +213,9 @@ if select(3,UnitClass("player")) == 10 then
 
     --[[Life Cocoon]]
     if isInCombat("player") and isChecked("Life Cocoon") then
-    	for i = 1, #nNova do
-    		if nNova[i].hp <= getValue("Life Cocoon") then
-    			if castSpell(nNova[i].unit,_LifeCocoon,true) then
+    	for i = 1, #bb.friend do
+    		if bb.friend[i].hp <= getValue("Life Cocoon") then
+    			if castSpell(bb.friend[i].unit,_LifeCocoon,true) then
     				return;
     			end
     		end
@@ -238,16 +238,16 @@ if select(3,UnitClass("player")) == 10 then
 
     -- Surging Mist
     --[["116694",{"@CML.SurgingMist()"}},]]
-    for i = 1, #nNova do
+    for i = 1, #bb.friend do
       if isChecked("Surging Mist") then
-        if nNova[i].hp <= getValue("Surging Mist") then
+        if bb.friend[i].hp <= getValue("Surging Mist") then
           if isSoothing then
-              if castSpell(nNova[i].unit, _SurgingMist, true) then 
+              if castSpell(bb.friend[i].unit, _SurgingMist, true) then 
                 return; 
               end
           else
-            if castSpell(nNova[i].unit, _SoothingMist,true) then
-              if castSpell(nNova[i].unit, _SurgingMist,true) then
+            if castSpell(bb.friend[i].unit, _SoothingMist,true) then
+              if castSpell(bb.friend[i].unit, _SurgingMist,true) then
                 return;
               end
             end
@@ -258,16 +258,16 @@ if select(3,UnitClass("player")) == 10 then
 
     -- Enveloping Mist
     --[["124682",{"@CML.EnvelopingMist()"}},]]
-    for i = 1, #nNova do
+    for i = 1, #bb.friend do
       if isChecked("Enveloping Mist") == true and chi >= 3 then
-          if nNova[i].hp <= getValue("Enveloping Mist") then
+          if bb.friend[i].hp <= getValue("Enveloping Mist") then
             if isSoothing then
-              if castSpell(nNova[i].unit, _EnvelopingMist, true) then 
+              if castSpell(bb.friend[i].unit, _EnvelopingMist, true) then 
                 return; 
               end
             else
-              if castSpell(nNova[i].unit, _SoothingMist,true) then
-                if castSpell(nNova[i].unit, _EnvelopingMist,true) then
+              if castSpell(bb.friend[i].unit, _SoothingMist,true) then
+                if castSpell(bb.friend[i].unit, _EnvelopingMist,true) then
                   return;
                 end
               end
@@ -279,9 +279,9 @@ if select(3,UnitClass("player")) == 10 then
      -- Chi Wave
     --[["115098",{"ChiWave.novaHealing(1)"}},]]
     if isChecked("Chi Wave") == true and getTalent(2,1) then
-      for i = 1, #nNova do
-        if nNova[i].hp <= getValue("Chi Wave") then
-          if castSpell(nNova[i].unit,_ChiWave,true) then return; end
+      for i = 1, #bb.friend do
+        if bb.friend[i].hp <= getValue("Chi Wave") then
+          if castSpell(bb.friend[i].unit,_ChiWave,true) then return; end
         end
       end
     end
@@ -289,8 +289,8 @@ if select(3,UnitClass("player")) == 10 then
     --[[Uplift]]
     local totUnits = 0
     if isChecked("Uplift") then
-	   for i = 1, #nNova do
- 		   if nNova[i].hp <= getValue("Uplift") and UnitBuffID(nNova[i].unit, 119611) then
+	   for i = 1, #bb.friend do
+ 		   if bb.friend[i].hp <= getValue("Uplift") and UnitBuffID(bb.friend[i].unit, 119611) then
   		   totUnits = totUnits + 1
   			 if totUnits >= getValue("Uplift People") then
   			    if chi < 2 and getCharges(_ChiBrew) > 0 then
@@ -314,8 +314,8 @@ if select(3,UnitClass("player")) == 10 then
     -- Spinning Crane Kick/Rushing Jade Wind
     local sckUnits = 0
     if isChecked("Spinning Crane Kick") then
-      for i = 1, #nNova do
-        if nNova[i].hp <= getValue("Spinning Crane Kick") and nNova[i].distance <= 8 then
+      for i = 1, #bb.friend do
+        if bb.friend[i].hp <= getValue("Spinning Crane Kick") and bb.friend[i].distance <= 8 then
           sckUnits = sckUnits + 1
           if sckUnits >= 3 then
             if getTalent(6,1) then
@@ -337,19 +337,19 @@ if select(3,UnitClass("player")) == 10 then
     --[[Renewing Mist]]
     if getTalent(7,3) then
       if isChecked("Renewing Mist") and getCharges(_RenewingMist) > 0 then
-        for i = 1, #nNova do
-          if not UnitBuffID(nNova[i].unit, _RenewingMistBuff) then
+        for i = 1, #bb.friend do
+          if not UnitBuffID(bb.friend[i].unit, _RenewingMistBuff) then
             if castSpell("player",_ThunderFocusTea,true) then
             end
-            if castSpell(nNova[i].unit,_RenewingMist,true) then return; end
+            if castSpell(bb.friend[i].unit,_RenewingMist,true) then return; end
           end
         end
       end
     elseif isChecked ("Renewing Mist") then
-      for i = 1, #nNova do
-        if not UnitBuffID(nNova[i].unit, _RenewingMistBuff) then
+      for i = 1, #bb.friend do
+        if not UnitBuffID(bb.friend[i].unit, _RenewingMistBuff) then
           if castSpell("player",_ThunderFocusTea,true) then end
-            if castSpell(nNova[i].unit,_RenewingMist,true) then return; end
+            if castSpell(bb.friend[i].unit,_RenewingMist,true) then return; end
         end
       end
     end
@@ -358,10 +358,10 @@ if select(3,UnitClass("player")) == 10 then
     -- Soothing Mist
     --[["115175",{"115175.stopcasting","SoothingMist.novaHealing(1)"}},]]
     if isChecked("Soothing Mist") == true and canCast(_SoothingMist) == true and getMana("player") >= 12 then
-      for i = 1, #nNova do
+      for i = 1, #bb.friend do
       	if isSoothing ~= true then
-         	if nNova[i].hp <= getValue("Soothing Mist") then
-	          if castSpell(nNova[i].unit,_SoothingMist,true) then return; end
+         	if bb.friend[i].hp <= getValue("Soothing Mist") then
+	          if castSpell(bb.friend[i].unit,_SoothingMist,true) then return; end
          	end
        	end
       end
@@ -370,9 +370,9 @@ if select(3,UnitClass("player")) == 10 then
     
 
     --Expel Harm party heal
-	  for i = 1, #nNova do
-    	if nNova[i].hp <= getValue("Expel Harm") then
-      		if castSpell(nNova[i].unit,_MistExpelHarm, true) then return; end
+	  for i = 1, #bb.friend do
+    	if bb.friend[i].hp <= getValue("Expel Harm") then
+      		if castSpell(bb.friend[i].unit,_MistExpelHarm, true) then return; end
     	end
     end
 

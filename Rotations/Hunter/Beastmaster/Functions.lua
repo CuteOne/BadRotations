@@ -62,9 +62,9 @@ if select(3, UnitClass("player")) == 3 then
         -- Units
         self.targetEnemiesIn10 = #getEnemies(target,10)
         -- Modes
-        self.mode.aoe = BadBoy_data["AoE"]
-        self.mode.cooldowns = BadBoy_data["Cooldowns"]
-        self.mode.defensive = BadBoy_data["Defensive"]
+        self.mode.aoe = bb.data["AoE"]
+        self.mode.cooldowns = bb.data["Cooldowns"]
+        self.mode.defensive = bb.data["Defensive"]
         -- dynamic units
         self.units.dyn25 = dynamicTarget(25,true)
         self.units.dyn30 = dynamicTarget(30,true)

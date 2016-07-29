@@ -218,11 +218,11 @@ if select(3, UnitClass("player")) == 3 then
 
       --Cooldowns--------------------------------------------------------------------------------------------------
       -- Rapid Fire
-      if BadBoy_data["Cooldowns"] == 3 or (isChecked("Rapid Fire") and BadBoy_data["Cooldowns"] == 2) then
+      if bb.data["Cooldowns"] == 3 or (isChecked("Rapid Fire") and bb.data["Cooldowns"] == 2) then
         if castSpell("player",3045,false,false) then return; end
       end
       -- Stampede
-      if BadBoy_data["Cooldowns"] == 3 or (isChecked("Stampede") and BadBoy_data["Cooldowns"] == 2) then
+      if bb.data["Cooldowns"] == 3 or (isChecked("Stampede") and bb.data["Cooldowns"] == 2) then
         if castSpell("target",121818,false,false) then return; end
       end
 
@@ -238,7 +238,7 @@ if select(3, UnitClass("player")) == 3 then
       end
 
       -- actions+=/arcane_torrent,if=focus.deficit>=30
-      if (BadBoy_data['Cooldowns'] == 2 and isChecked("Racials") == true) or BadBoy_data['Cooldowns'] == 3 then
+      if (bb.data['Cooldowns'] == 2 and isChecked("Racials") == true) or bb.data['Cooldowns'] == 3 then
         if isKnown(80483) then
           if focus_defecit >= 30 then
             if castSpell("player",80483,true,false) then
@@ -249,7 +249,7 @@ if select(3, UnitClass("player")) == 3 then
       end
 
       -- actions+=/blood_fury
-      if (BadBoy_data['Cooldowns'] == 2 and isChecked("Racials") == true) or BadBoy_data['Cooldowns'] == 3 then
+      if (bb.data['Cooldowns'] == 2 and isChecked("Racials") == true) or bb.data['Cooldowns'] == 3 then
         if isKnown(20572) then
           if castSpell("player",20572,true,false) then
             return;
@@ -258,7 +258,7 @@ if select(3, UnitClass("player")) == 3 then
       end
 
       -- actions+=/berserking
-      if (BadBoy_data['Cooldowns'] == 2 and isChecked("Racials") == true) or BadBoy_data['Cooldowns'] == 3 then
+      if (bb.data['Cooldowns'] == 2 and isChecked("Racials") == true) or bb.data['Cooldowns'] == 3 then
         if isKnown(26297) then
           if castSpell("player",26297,true,false) then
             return;
@@ -267,7 +267,7 @@ if select(3, UnitClass("player")) == 3 then
       end
 
       -- actions+=/potion,name=draenic_agility,if=((buff.rapid_fire.up|buff.bloodlust.up)&(cooldown.stampede.remains<1))|target.time_to_die<=25
-      if (BadBoy_data['Cooldowns'] == 2 and isChecked("Potions") == true) or BadBoy_data['Cooldowns'] == 3 then
+      if (bb.data['Cooldowns'] == 2 and isChecked("Potions") == true) or bb.data['Cooldowns'] == 3 then
         if ((UnitBuffID("player",3045) ~= nil or hasBloodLust() == true) and ((isKnown(121818) and getSpellCD(121818) <1) or isKnown(121818) == false)) or getTimeToDie("target") <= 25 then
           if canUse(76089) and UnitBuffID("player",76089) == nil then -- MoP Potion (Virmens Bite)
             UseItemByName(tostring(select(1,GetItemInfo(76089))))
@@ -308,7 +308,7 @@ if select(3, UnitClass("player")) == 3 then
       end
 
       -- actions+=/rapid_fire
-      if (BadBoy_data['Cooldowns'] == 2 and isChecked("Rapid Fire") == true) or BadBoy_data['Cooldowns'] == 3 then
+      if (bb.data['Cooldowns'] == 2 and isChecked("Rapid Fire") == true) or bb.data['Cooldowns'] == 3 then
         if isKnown(3045) and getSpellCD(3045) == 0 then
           if castSpell("player",3045,true,false) then
             return;
@@ -317,7 +317,7 @@ if select(3, UnitClass("player")) == 3 then
       end
 
       -- actions+=/stampede,if=buff.rapid_fire.up|buff.bloodlust.up|target.time_to_die<=25
-      if (BadBoy_data['Cooldowns'] == 2 and isChecked("Stampede") == true) or BadBoy_data['Cooldowns'] == 3 then
+      if (bb.data['Cooldowns'] == 2 and isChecked("Stampede") == true) or bb.data['Cooldowns'] == 3 then
         if isKnown(121818) and getSpellCD(121818) == 0 then
           if castSpell("target",121818,false,false) then
             return;
@@ -330,21 +330,21 @@ if select(3, UnitClass("player")) == 3 then
 
         -- actions.careful_aim=glaive_toss,if=active_enemies>2
         if isKnown(117050) and getSpellCD(117050) == 0 then
-          if BadBoy_data['AoE'] == 2 or (BadBoy_data['AoE'] == 3 and myEnemies > 2) then
+          if bb.data['AoE'] == 2 or (bb.data['AoE'] == 3 and myEnemies > 2) then
             if castSpell("target",117050,false,false) then return; end
           end
         end
 
         -- actions.careful_aim+=/powershot,if=active_enemies>1&cast_regen<focus.deficit
         if isKnown(109259) then
-          if BadBoy_data['AoE'] == 2 or (BadBoy_data['AoE'] == 3 and myEnemies > 1) and power_shot_regen < focus_defecit then
+          if bb.data['AoE'] == 2 or (bb.data['AoE'] == 3 and myEnemies > 1) and power_shot_regen < focus_defecit then
             if castSpell("target",109259,false,false) then return; end
           end
         end
 
         -- actions.careful_aim+=/barrage,if=active_enemies>1
         if isKnown(120360) then
-          if BadBoy_data['AoE'] == 2 or (BadBoy_data['AoE'] == 3 and myEnemies > 1) then
+          if bb.data['AoE'] == 2 or (bb.data['AoE'] == 3 and myEnemies > 1) then
             if castSpell("target",120360,false,false) then return; end
           end
         end
@@ -370,20 +370,20 @@ if select(3, UnitClass("player")) == 3 then
 
       -- actions+=/explosive_trap,if=active_enemies>1
       if (isKnown(82939) and isChecked("Explosive Trap") and getSpellCD(82939) == 0) and UnitBuffID("player",77769) ~= nil then
-        if BadBoy_data['AoE'] == 2 or (BadBoy_data['AoE'] == 3 and myEnemies > 1) and getGround("target") == true and isMoving("target") ~= true then
+        if bb.data['AoE'] == 2 or (bb.data['AoE'] == 3 and myEnemies > 1) and getGround("target") == true and isMoving("target") ~= true then
           if castGround("target",82939,40) then return; end
         end
       end
 
       -- actions+=/a_murder_of_crows
-      if (BadBoy_data['Cooldowns'] == 2 and isChecked("A Murder of Crows") == true) or BadBoy_data['Cooldowns'] == 3 then
+      if (bb.data['Cooldowns'] == 2 and isChecked("A Murder of Crows") == true) or bb.data['Cooldowns'] == 3 then
         if isKnown(131894) and getSpellCD(131894) == 0 then
           if castSpell("target",131894,true,false) then return; end
         end
       end
 
       -- actions+=/dire_beast,if=cast_regen+action.aimed_shot.cast_regen<focus.deficit FINISH THIS ONE LATER
-      if (BadBoy_data['Cooldowns'] == 2 and isChecked("Dire Beast") == true) or BadBoy_data['Cooldowns'] == 3 then
+      if (bb.data['Cooldowns'] == 2 and isChecked("Dire Beast") == true) or bb.data['Cooldowns'] == 3 then
         if isKnown(120679) and getSpellCD(120679) == 0 then
           if aimed_shot_regen + 18 < focus_defecit then
             if castSpell("target",120679,true,false) then return; end
@@ -409,7 +409,7 @@ if select(3, UnitClass("player")) == 3 then
       end
 
       -- actions+=/steady_shot,if=focus.deficit*cast_time%(14+cast_regen)>cooldown.rapid_fire.remains -added CD check because this is pooling focus for rapid fire use
-      if (BadBoy_data['Cooldowns'] == 2 and isChecked("Rapid Fire") == true) or BadBoy_data['Cooldowns'] == 3 then
+      if (bb.data['Cooldowns'] == 2 and isChecked("Rapid Fire") == true) or bb.data['Cooldowns'] == 3 then
         if isKnown(56641) then
           if focus_defecit * steady_shot_cast_time / (14 + steady_shot_regen) > getSpellCD(3045) then
             if castSpell("target",56641,false,false) then return; end
@@ -418,7 +418,7 @@ if select(3, UnitClass("player")) == 3 then
       end
 
       -- actions+=/focusing_shot,if=focus.deficit*cast_time%(50+cast_regen)>cooldown.rapid_fire.remains&focus<100    -added CD check because this is pooling focus for rapid fire use
-      if (BadBoy_data['Cooldowns'] == 2 and isChecked("Rapid Fire") == true) or BadBoy_data['Cooldowns'] == 3 then
+      if (bb.data['Cooldowns'] == 2 and isChecked("Rapid Fire") == true) or bb.data['Cooldowns'] == 3 then
         if isKnown(163485) then
           if focus_defecit * focusing_shot_cast_time / (50 + focusing_shot_regen) > getSpellCD(3045) and current_focus < 100 then
             if castSpell("target",163485,false,false) then return; end
@@ -436,7 +436,7 @@ if select(3, UnitClass("player")) == 3 then
 
       -- actions+=/multishot,if=active_enemies>6
       if isKnown(2643) and getSpellCD(2643) == 0 then
-        if BadBoy_data['AoE'] == 2 or (BadBoy_data['AoE'] == 3 and myEnemies >= 5) then
+        if bb.data['AoE'] == 2 or (bb.data['AoE'] == 3 and myEnemies >= 5) then
           if castSpell("target",2643,false,false) then return; end
         end
       end

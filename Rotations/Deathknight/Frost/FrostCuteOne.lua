@@ -175,8 +175,8 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
             local disease           = bb.player.disease
             local dynTar5AoE        = bb.player.units.dyn5AoE
             local dynTar30AoE       = bb.player.units.dyn30AoE
-            local dynTable5AoE      = (BadBoy_data['Cleave']==1 and enemiesTable) or { [1] = {["unit"]=dynTar5AoE, ["distance"] = getDistance(dynTar5AoE)}} 
-            local dynTable30AoE     = (BadBoy_data['Cleave']==1 and enemiesTable) or { [1] = {["unit"]=dynTar30AoE, ["distance"] = getDistance(dynTar30AoE)}} 
+            local dynTable5AoE      = (bb.data['Cleave']==1 and bb.enemy) or { [1] = {["unit"]=dynTar5AoE, ["distance"] = getDistance(dynTar5AoE)}} 
+            local dynTable30AoE     = (bb.data['Cleave']==1 and bb.enemy) or { [1] = {["unit"]=dynTar30AoE, ["distance"] = getDistance(dynTar30AoE)}} 
             local glyph             = bb.player.glyph
             local inCombat          = bb.player.inCombat
             local level             = bb.player.level
@@ -243,13 +243,13 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
                     if bb.player.castDeathsAdvance() then return end
                 end
             -- Death Grip
-                if isChecked("Death Grip") and ((solo and #nNova==1) or hasThreat(bb.player.units.dyn30AoE)) then
+                if isChecked("Death Grip") and ((solo and #bb.friend==1) or hasThreat(bb.player.units.dyn30AoE)) then
                     if inCombat then
                         if bb.player.castDeathGrip(thisUnit) then return end
                     end
                 end
             -- Gorefiend's Grasp
-                if isChecked("Gorefiend's Grasp") and ((solo and #nNova==1) or hasThreat(bb.player.units.dyn20AoE)) then
+                if isChecked("Gorefiend's Grasp") and ((solo and #bb.friend==1) or hasThreat(bb.player.units.dyn20AoE)) then
                     if bb.player.castGorefiendsGrasp() then return end
                 end
             -- Unholy Presence
@@ -822,7 +822,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
     ---------------------
     --- Out Of Combat ---
     ---------------------
-            if pause() or BadBoy_data['AoE']==4 then
+            if pause() or bb.data['AoE']==4 then
                 return true
             else
                 if actionList_Extras() then return end

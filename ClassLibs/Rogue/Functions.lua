@@ -11,8 +11,8 @@ if select(3, UnitClass("player")) == 4 then
       if UnitExists("target") then
         bb.combo = GetComboPoints("player","target")
         -- if we have a valid enemi
-      elseif GetObjectExists(enemiesTable[1].unit) then
-        bb.combo = GetComboPoints("player",enemiesTable[1].unit)
+      elseif GetObjectExists(bb.enemy[1].unit) then
+        bb.combo = GetComboPoints("player",bb.enemy[1].unit)
       end
     else
       -- if we are not in combat, it can only be a -1

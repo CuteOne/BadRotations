@@ -85,14 +85,14 @@ if select(3, UnitClass("player")) == 1  then
     -- localise commonly used functions
     local getHP,hasGlyph,UnitPower,getBuffRemain,getBuffStacks = getHP,hasGlyph,UnitPower,getBuffRemain,getBuffStacks
     local UnitBuffID,isInMelee,getSpellCD,getEnemies = UnitBuffID,isInMelee,getSpellCD,getEnemies
-    local player,BadBoy_data,GetShapeshiftForm,dynamicTarget = "player",BadBoy_data,GetShapeshiftForm,dynamicTarget
+    local player,data,GetShapeshiftForm,dynamicTarget = "player",bb.data,GetShapeshiftForm,dynamicTarget
     local GetSpellCooldown,select,getValue,isChecked,castInterrupt = GetSpellCooldown,select,getValue,isChecked,castInterrupt
     local isSelected,UnitExists,isDummy,isMoving,castSpell,castGround = isSelected,UnitExists,isDummy,isMoving,castSpell,castGround
-    local getGround,canCast,isKnown,enemiesTable,sp = getGround,canCast,isKnown,enemiesTable,core.spells
+    local getGround,canCast,isKnown,sp = getGround,canCast,isKnown,core.spells
     local UnitHealth,print,UnitHealthMax = UnitHealth,print,UnitHealthMax
     local getDistance,getDebuffRemain,GetTime,getFacing = getDistance,getDebuffRemain,GetTime,getFacing
     local getOptionCheck = getOptionCheck
-    local useItem, nNova, isBuffed, isBoss = useItem, nNova, isBuffed, isBoss
+    local useItem, isBuffed, isBoss = useItem, isBuffed, isBoss
     -- no external access after here
     setfenv(1,protCore)
 
@@ -149,10 +149,10 @@ if select(3, UnitClass("player")) == 1  then
       -- Units
       self.melee5Yards = #getEnemies(player,5) -- (meleeEnemies)
       -- Modes
-      self.mode.aoe = BadBoy_data["AoE"]
+      self.mode.aoe = data["AoE"]
       self.mode.cooldowns = UseCDs()
-      self.mode.defensive = BadBoy_data["Defensive"]
-      self.mode.interupts = BadBoy_data["Interrupts"]
+      self.mode.defensive = data["Defensive"]
+      self.mode.interupts = data["Interrupts"]
       -- truth = true, right = false
       self.stance = GetShapeshiftForm()
       -- dynamic units
@@ -169,12 +169,12 @@ if select(3, UnitClass("player")) == 1  then
 
       -- others
       self.unitInFront = getFacing("player",self.units.dyn5) == true or false
-      self.combatLenght = GetTime() - BadBoy_data["Combat Started"]
+      self.combatLenght = GetTime() - bb.data["Combat Started"]
     end
 
     --Cooldowns
     function UseCDs()
-      if (BadBoy_data['Cooldowns'] == 1 and isBoss()) or BadBoy_data['Cooldowns'] == 2 then
+      if (bb.data['Cooldowns'] == 1 and isBoss()) or bb.data['Cooldowns'] == 2 then
         return true
       else
         return false
@@ -217,8 +217,8 @@ if select(3, UnitClass("player")) == 1  then
       end
       -- Commanding Shout
       if isChecked("Shout") == true and getValue("Shout") == 1 and not UnitExists("mouseover") then
-        for i = 1, #nNova do
-          local unit = nNova[i]
+        for i = 1, #bb.friend do
+          local unit = bb.friend[i]
           if not isBuffed(unit.unit,{21562,109773,469,90364})  and getDistance("player", unit.unit) < 40 then
             if castSpell("player",self.spell.CommandingShout,false,false) then return; end
           end
@@ -226,8 +226,8 @@ if select(3, UnitClass("player")) == 1  then
       end
       -- Battle Shout
       if isChecked("Shout") == true and getValue("Shout") == 2 and not UnitExists("mouseover") then
-        for i = 1, #nNova do
-          local unit = nNova[i]
+        for i = 1, #bb.friend do
+          local unit = bb.friend[i]
           if not isBuffed(unit.unit,{57330,19506,6673}) and getDistance("player", unit.unit) < 40 then
             if castSpell("player",self.spell.BattleShout,false,false) then return; end
           end

@@ -73,10 +73,10 @@ if select(3,UnitClass("player")) == 2 then
     -- localise commonly used functions
     local getHP,hasGlyph,UnitPower,getBuffRemain,getBuffStacks = getHP,hasGlyph,UnitPower,getBuffRemain,getBuffStacks
     local UnitBuffID,isInMelee,getSpellCD,getEnemies = UnitBuffID,isInMelee,getSpellCD,getEnemies
-    local player,BadBoy_data,GetShapeshiftForm,dynamicTarget = "player",BadBoy_data,GetShapeshiftForm,dynamicTarget
+    local player,data,GetShapeshiftForm,dynamicTarget = "player",bb.data,GetShapeshiftForm,dynamicTarget
     local GetSpellCooldown,select,getValue,isChecked,castInterrupt = GetSpellCooldown,select,getValue,isChecked,castInterrupt
     local isSelected,UnitExists,isDummy,isMoving,castSpell,castGround = isSelected,UnitExists,isDummy,isMoving,castSpell,castGround
-    local getGround,canCast,isKnown,enemiesTable,sp = getGround,canCast,isKnown,enemiesTable,core.spells
+    local getGround,canCast,isKnown,bb.enemy,sp = getGround,canCast,isKnown,bb.enemy,core.spells
     local UnitHealth,previousJudgmentTarget,print,UnitHealthMax = UnitHealth,previousJudgmentTarget,print,UnitHealthMax
     local getDistance,getDebuffRemain,GetTime,getFacing = getDistance,getDebuffRemain,GetTime,getFacing
     local spellCastersTable,enhancedLayOnHands,getOptionCheck = bb.im.casters,enhancedLayOnHands,getOptionCheck
@@ -141,12 +141,12 @@ if select(3,UnitClass("player")) == 2 then
       self.melee15Yards = #getEnemies(player,15) -- Holy Prism on friendly AoE
       self.aroundTarget7Yards = #getEnemies(self.units.dyn5,7) -- (Hammer of the Righteous)
       -- Modes
-      self.mode.aoe = BadBoy_data["AoE"]
-      self.mode.cooldowns = BadBoy_data["Cooldowns"]
-      self.mode.defensive = BadBoy_data["Defensive"]
-      self.mode.healing = BadBoy_data["Healing"]
-      self.mode.rotation = BadBoy_data["Rota"]
-      self.mode.empS = BadBoy_data["EmpS"]
+      self.mode.aoe = data["AoE"]
+      self.mode.cooldowns = data["Cooldowns"]
+      self.mode.defensive = data["Defensive"]
+      self.mode.healing = data["Healing"]
+      self.mode.rotation = data["Rota"]
+      self.mode.empS = data["EmpS"]
       -- Right = 1, Insight = 2
       self.seal = GetShapeshiftForm()
       -- dynamic units
@@ -163,7 +163,7 @@ if select(3,UnitClass("player")) == 2 then
 
       -- others
       self.unitInFront = getFacing("player",self.units.dyn5) == true or false
-      self.combatLenght = GetTime() - BadBoy_data["Combat Started"]
+      self.combatLenght = GetTime() - bb.data["Combat Started"]
       local cdCheckJudgment = select(2,GetSpellCooldown(self.spell.judgment))
       if cdCheckJudgment ~= nil and cdCheckJudgment > 2 then
         self.recharge.judgment = select(2,GetSpellCooldown(self.spell.judgment))
@@ -278,9 +278,9 @@ if select(3,UnitClass("player")) == 2 then
     -- Hammer of Wrath
     function protCore:castHammerOfWrath()
       if canCast(self.spell.hammerOfWrath) then
-        for i = 1,#enemiesTable do
-          if enemiesTable[i].hp < 20 then
-            return castSpell(enemiesTable[i].unit,self.spell.hammerOfWrath,false,false) == true or false
+        for i = 1,#bb.enemy do
+          if bb.enemy[i].hp < 20 then
+            return castSpell(bb.enemy[i].unit,self.spell.hammerOfWrath,false,false) == true or false
           end
         end
       end
@@ -378,10 +378,10 @@ if select(3,UnitClass("player")) == 2 then
       -- Check if glyph is present
       if self.glyph.doubleJeopardy then 
         -- scan enemies for a different unit
-        local enemiesTable = enemiesTable
-        if #enemiesTable > 1 then
-          for i = 1, #enemiesTable do
-            local thisEnemy = enemiesTable[i]
+      -- local bb.enemy = bb.enemy
+        if #bb.enemy > 1 then
+          for i = 1, #bb.enemy do
+            local thisEnemy = bb.enemy[i]
             -- if its in range
             if thisEnemy.distance < 30 then
               -- here i will need to compare my previous judgment target with the previous one

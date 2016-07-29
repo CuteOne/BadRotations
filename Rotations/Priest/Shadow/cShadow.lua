@@ -471,8 +471,8 @@ function cShadow:new()
 			91326,		-- Mannoroth: Gul'dan
 		}
 		if not UnitExists("target") or UnitIsDeadOrGhost("target") then
-			for i=1, #enemiesTable do
-				local thisUnit = enemiesTable[i].unit
+			for i=1, #bb.enemy do
+				local thisUnit = bb.enemy[i].unit
 				local thisCheck = true
 				-- check for blacklist
 				for i=1, #exceptionTable do
@@ -480,9 +480,9 @@ function cShadow:new()
 						thisCheck = false
 					end
 				end
-				-- get unit from enemiesTable
+				-- get unit from bb.enemy
 				if thisCheck then
-					if enemiesTable[i].distance < 40 then
+					if bb.enemy[i].distance < 40 then
 						if UnitCanAttack("player",thisUnit) then
 							TargetUnit(thisUnit)
 							if UnitExists("target") then 
@@ -521,7 +521,7 @@ function cShadow:new()
 		return
 	end
 
-	-- get next biggest unit in range from enemiesTable with exceptions
+	-- get next biggest unit in range from bb.enemy with exceptions
 	function self.getNextBiggestUnit(exceptionUnit,range)
 		if not UnitExists(exceptionUnit) or exceptionsUnit == "player" then
 			exceptionUnit = "player"
@@ -578,14 +578,14 @@ function cShadow:new()
 		end
 
 		local exceptionGUID = UnitGUID(exceptionUnit)
-		for i=1, #enemiesTable do
-			local thisUnit = enemiesTable[i].unit
-			local thisGUID = enemiesTable[i].guid
+		for i=1, #bb.enemy do
+			local thisUnit = bb.enemy[i].unit
+			local thisGUID = bb.enemy[i].guid
 			local thisCheck = true
-			-- get the unit from enemiesTable
+			-- get the unit from bb.enemy
 			if unit_allowed(thisUnit) then
 				if thisGUID ~= exceptionGUID then
-					if enemiesTable[i].distance < range then
+					if bb.enemy[i].distance < range then
 						if UnitCanAttack("player",thisUnit) then
 							return thisUnit
 						end
@@ -627,8 +627,8 @@ function cShadow:new()
 		function self.getSWPrunning()
 			local counter = 0
 			-- iterate units for SWP
-			for i=1,#enemiesTable do
-				local thisUnit = enemiesTable[i].unit
+			for i=1,#bb.enemy do
+				local thisUnit = bb.enemy[i].unit
 				-- increase counter for each SWP
 				if (UnitAffectingCombat(thisUnit) or isDummy(thisUnit)) and UnitDebuffID(thisUnit,self.spell.shadow_word_pain,"player") then
 					counter=counter+1
@@ -641,8 +641,8 @@ function cShadow:new()
 		function self.getVTrunning()
 			local counter = 0
 			-- iterate units for SWP
-			for i=1,#enemiesTable do
-				local thisUnit = enemiesTable[i].unit
+			for i=1,#bb.enemy do
+				local thisUnit = bb.enemy[i].unit
 				-- increase counter for each SWP
 				if (UnitAffectingCombat(thisUnit) or isDummy(thisUnit)) and UnitDebuffID(thisUnit,self.spell.vampiric_touch,"player") then
 					counter=counter+1
@@ -869,7 +869,7 @@ function cShadow:new()
 		-- cascade
 		function self.castCascade()
 			if self.cd.cascade <= 0 then
-				for i=1,#enemiesTable do
+				for i=1,#bb.enemy do
 					local thisUnit = getBiggestUnitCluster(40,40)
 					if UnitExists(thisUnit) and getLineOfSight(thisUnit) then
 						return castSpell(thisUnit,self.spell.cascade,true,false) == true or false
@@ -1022,10 +1022,10 @@ function cShadow:new()
 							return castSpell(thisUnit,self.spell.shadow_word_death,true,false) == true or false
 						end
 					end
-					for i=1,#enemiesTable do
-						local thisUnit = enemiesTable[i].unit
-						local range = enemiesTable[i].distance
-						local hp = enemiesTable[i].hp
+					for i=1,#bb.enemy do
+						local thisUnit = bb.enemy[i].unit
+						local range = bb.enemy[i].distance
+						local hp = bb.enemy[i].hp
 						if hp < 20 and range < 40 then
 							return castSpell(thisUnit,self.spell.shadow_word_death,true,false,false,false,false,false,true) == true or false
 						end
@@ -1046,11 +1046,11 @@ function cShadow:new()
 			if self.castSWPOnTarget(maxTargets) then return true end
 			-- then apply on others
 			if self.getSWPrunning() < maxTargets then
-				for i=1,#enemiesTable do
-					local thisUnit = enemiesTable[i].unit
-					local hp = enemiesTable[i].hpabs
-					local ttd = enemiesTable[i].ttd
-					local distance = enemiesTable[i].distance
+				for i=1,#bb.enemy do
+					local thisUnit = bb.enemy[i].unit
+					local hp = bb.enemy[i].hpabs
+					local ttd = bb.enemy[i].ttd
+					local distance = bb.enemy[i].distance
 					-- infight
 					if UnitIsTappedByPlayer(thisUnit) then
 						-- blacklists: CC, DoT Blacklist
@@ -1148,12 +1148,12 @@ function cShadow:new()
 			--if self.castVTOnTarget(maxTargets) then return true end
 			-- then apply on others
 			if self.getVTrunning() < maxTargets then
-				for i=1,#enemiesTable do
-					local thisUnit = enemiesTable[i].unit
-					local thisUnitGUID = enemiesTable[i].guid
-					local hp = enemiesTable[i].hpabs
-					local ttd = enemiesTable[i].ttd
-					local distance = enemiesTable[i].distance
+				for i=1,#bb.enemy do
+					local thisUnit = bb.enemy[i].unit
+					local thisUnitGUID = bb.enemy[i].guid
+					local hp = bb.enemy[i].hpabs
+					local ttd = bb.enemy[i].ttd
+					local distance = bb.enemy[i].distance
 					local castTime = 0.001*select(4,GetSpellInfo(34914))
 					local refreshTime = self.options.rotation.ttdSWP+castTime
 					-- infight

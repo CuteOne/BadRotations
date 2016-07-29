@@ -445,8 +445,8 @@ function cMonk:new(spec)
 		        local totalCount = GetNumGroupMembers()
 		        local currentCount = currentCount or 0
 		        local needsBuff = needsBuff or 0
-		        for i=1,#nNova do
-		            local thisUnit = nNova[i].unit
+		        for i=1,#bb.friend do
+		            local thisUnit = bb.friend[i].unit
 		            local distance = getDistance(thisUnit)
 		            local dead = UnitIsDeadOrGhost(thisUnit)
 		            if distance<30 then

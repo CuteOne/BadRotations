@@ -49,7 +49,7 @@
 --		unit = enemyFH tag
 --	}
 -- function will need to find positions trought crossing x-y so we need to gather units positions
--- we can get enemy position in enemiesTable and the players positions trought nNova
+-- we can get enemy position in bb.enemy and the players positions trought bb.friend
 
 
 --[[On GCD Out of Combat]]
@@ -94,27 +94,27 @@ if select(3, UnitClass("player")) == 2 then
 
     lowestHP, lowestUnit, lowestTankHP, lowestTankUnit, highestTankHP, highestTankUnit, averageHealth = 100, "player", 100, "player", 100, "player", 0
 
-    for i = 1, #nNova do
-      if nNova[i].role == "TANK" then
-        if nNova[i].hp < lowestTankHP then
-          lowestTankHP = nNova[i].hp
-          lowestTankUnit = nNova[i].unit
+    for i = 1, #bb.friend do
+      if bb.friend[i].role == "TANK" then
+        if bb.friend[i].hp < lowestTankHP then
+          lowestTankHP = bb.friend[i].hp
+          lowestTankUnit = bb.friend[i].unit
         end
       end
-      if nNova[i].hp < lowestHP then
-        lowestHP = nNova[i].hp
-        lowestUnit = nNova[i].unit
+      if bb.friend[i].hp < lowestHP then
+        lowestHP = bb.friend[i].hp
+        lowestUnit = bb.friend[i].unit
       end
-      averageHealth = averageHealth + nNova[i].hp
+      averageHealth = averageHealth + bb.friend[i].hp
     end
-    averageHealth = averageHealth/#nNova
+    averageHealth = averageHealth/#bb.friend
 
     --iterate one more time to get highest hp tank
-    for i = 1, #nNova do
-      if nNova[i].role == "TANK" then
-        if nNova[i].unit ~= lowestTankUnit then
-          highestTankHP = nNova[i].hp
-          highestTankUnit = nNova[i].unit
+    for i = 1, #bb.friend do
+      if bb.friend[i].role == "TANK" then
+        if bb.friend[i].unit ~= lowestTankUnit then
+          highestTankHP = bb.friend[i].hp
+          highestTankUnit = bb.friend[i].unit
         end
       end
     end
@@ -133,9 +133,9 @@ if select(3, UnitClass("player")) == 2 then
       end
     end
     if UnitExists("focus") == nil and favoriteTank.name == "NONE" then
-      for i = 1, # nNova do
-        if UnitIsDeadOrGhost("focus") == nil and nNova[i].role == "TANK" and UnitHealthMax(nNova[i].unit) > favoriteTank.health then
-          favoriteTank = { name = UnitName(nNova[i].unit), health = UnitHealthMax(nNova[i].unit) }
+      for i = 1, # bb.friend do
+        if UnitIsDeadOrGhost("focus") == nil and bb.friend[i].role == "TANK" and UnitHealthMax(bb.friend[i].unit) > favoriteTank.health then
+          favoriteTank = { name = UnitName(bb.friend[i].unit), health = UnitHealthMax(bb.friend[i].unit) }
           RunMacroText("/focus "..favoriteTank.name)
         end
       end

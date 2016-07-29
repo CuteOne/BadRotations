@@ -87,31 +87,8 @@ function cCharacter:new(class)
 	self.options = {}               -- Contains options
 	self.primaryStat = nil          -- Contains the primary Stat: Strength, Agility or Intellect
 	self.perk = {}
-	self.potion = {}
-	self.potion.wod = {
-		-- Agility
-		agilityBasic    = 109217,
-		agilityGarrison = 122453,
-		-- Intellect
-		intellectBasic    = 109218,
-		intellectGarrison = 122454,
-		-- Armor
-		armorBasic    = 109220,
-		armorGarrison = 122456,
-		-- Strength
-		strengthBasic 	 = 109219,
-		strengthGarrison = 122455,
-	}
-	self.potion.wod.buff = {
-		-- Agility
-		agility = 156423,
-		-- Intellect
-		intellect = 156426,
-		-- Armor
-		armor = 156430,
-		-- Strength
-		strength = 156428,
-	} 
+	self.potion = {}				-- Potion Table
+	
 
 -- Things which get updated for every class in combat
 -- All classes call the baseUpdate()
@@ -128,6 +105,23 @@ function cCharacter:new(class)
 		-- Level, Health
 		self.level 				= UnitLevel("player") -- TODO: EVENT - UNIT_LEVEL
 		self.health 			= getHP("player")
+
+		-- Get Consumables
+		self.potion.action 		= {}
+		self.potion.agility		= {}	-- Agility Potions
+		self.potion.armor 		= {}	-- Armor Potions
+		self.potion.breathing  	= {}
+		self.potion.health		= {}	-- Health Potions
+		self.potion.intellect 	= {}	-- Intellect Potions
+		self.potion.invis 		= {}
+		self.potion.mana 		= {}	-- Mana Potions
+		self.potion.rage 		= {}
+		self.potion.rejuve 		= {}
+		self.potion.speed		= {}
+		self.potion.strength 	= {}	-- Strength Potions
+		self.potion.versatility = {} 	-- Versatility Potions
+		self.potion.waterwalk 	= {}
+		self.getConsumables()			-- Find All The Tasty Things!
 
 		-- Instance
 		self.instance 			= select(2,IsInInstance())
@@ -184,21 +178,20 @@ function cCharacter:new(class)
 -- Updates toggle data
     -- TODO: here should only happen generic ones like Defensive etc.
 	function self.getToggleModes()
-		local BadBoy_data   = BadBoy_data
 		-- Paladin:
 		if self.class == "Paladin" then
-			self.mode.aoe       = BadBoy_data["AoE"]
-			self.mode.cooldowns = BadBoy_data["Cooldowns"]
-			self.mode.defensive = BadBoy_data["Defensive"]
-			self.mode.healing   = BadBoy_data["Healing"]
+			self.mode.aoe       = bb.data["AoE"]
+			self.mode.cooldowns = bb.data["Cooldowns"]
+			self.mode.defensive = bb.data["Defensive"]
+			self.mode.healing   = bb.data["Healing"]
 		end
 		-- Priest - Shadow:
 		if self.class == "Priest" and self.profile == "Shadow" then
-			self.mode.defensive  =  BadBoy_data['Defensive']
-			self.mode.bosshelper =  BadBoy_data['BossHelper']
-			self.mode.t90        =  BadBoy_data['T90']
-			self.mode.cooldowns  =  BadBoy_data['Cooldowns']
-			self.mode.feather    =  BadBoy_data['Feather']
+			self.mode.defensive  =  bb.data['Defensive']
+			self.mode.bosshelper =  bb.data['BossHelper']
+			self.mode.t90        =  bb.data['T90']
+			self.mode.cooldowns  =  bb.data['Cooldowns']
+			self.mode.feather    =  bb.data['Feather']
 		end
 	end
 
@@ -431,6 +424,72 @@ function cCharacter:new(class)
 	end
 	self.primaryStat = self.getPrimaryStat()
 
+	function self.getConsumables()
+		for i = 0, 4 do --Let's look at each bag
+			local numBagSlots = GetContainerNumSlots(i)
+			if numBagSlots>0 then
+				for x = 1, numBagSlots do --Let's look at each bag slot
+					local itemID = GetContainerItemID(i,x)
+					if itemID~=nil then -- Is there and item in the slot?
+						local itemEffect = select(1,GetItemSpell(itemID))
+						if itemEffect~=nil then --Does the item provide a use effect? 
+							local itemInfo = { --Collect Item Data
+								itemID 		= itemID,
+								itemCD 		= GetItemCooldown(itemID),
+								itemName 	= select(1,GetItemInfo(itemID)),
+								minLevel 	= select(5,GetItemInfo(itemID)),
+								itemType 	= select(7,GetItemInfo(itemID)),
+								itemEffect 	= itemEffect,
+								itemCount 	= GetItemCount(itemID)
+							}
+							if itemInfo.itemType == "Potion" and self.level >= itemInfo.minLevel then -- Is the item a Potion and am I level to use it?
+								local potionList = {
+									{ptype = "action", 		effect = "Action"},
+									{ptype = "agility", 	effect = "Agility"},
+									{ptype = "armor", 		effect = "Armor"},
+									{ptype = "breathing", 	effect = "Underwater"},
+									{ptype = "health", 		effect = "Healing"},
+									{ptype = "intellect", 	effect = "Intellect"},
+									{ptype = "invis", 		effect = "Invisibility"},
+									{ptype = "mana", 		effect = "Mana"},
+									{ptype = "rage", 		effect = "Rage"},
+									{ptype = "rejuve", 		effect = "Rejuvenation"},
+									{ptype = "speed", 		effect = "Swiftness"},
+									{ptype = "strength", 	effect = "Strength"},
+									{ptype = "versatility", effect = "Versatility"},
+									{ptype = "waterwalk", 	effect = "Water Walking"}
+								}
+								for y = 1, #potionList do --Look for and add to right potion table
+									local potionEffect = potionList[y].effect
+									local potionType = potionList[y].ptype
+									if strmatch(itemEffect,potionEffect)~=nil then
+										tinsert(self.potion[potionType],itemInfo)
+										table.sort(self.potion[potionType], function(x,y)
+											return x.minLevel and y.minLevel and x.minLevel > y.minLevel or false
+										end)
+									end
+								end
+							end
+							if itemInfo.itemType == "Flask" and self.level >= itemInfo.minLevel then -- Is the item a Flask and am I level to use it?
+								--TODO
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+								-- if strmatch(itemEffect,"Agility")~=nil then
+								-- 	tinsert(self.potion.agility, itemInfo)
+								-- elseif strmatch(itemEffect,"Healing")~=nil or strmatch(itemEffect,"Rejuvenation")~=nil then
+								-- 	tinsert(self.potion.health, itemInfo)
+								-- elseif strmatch(itemEffect,"Intellect")~=nil then
+								-- 	tinsert(self.potion.intellect, itemInfo)
+								-- elseif strmatch(itemEffect,"Mana")~=nil or strmatch(itemEffect,"Rejuvenation")~=nil then
+								-- 	tinsert(self.potion.mana, itemInfo)
+								-- elseif strmatch(itemEffect,"Versatility")~=nil then
+								-- 	tinsert(self.potion.versatility, itemInfo)
+								-- end
 --[[ TODO:
 	- add Flask usage
 	- add Potion usage based on class and spec (both)

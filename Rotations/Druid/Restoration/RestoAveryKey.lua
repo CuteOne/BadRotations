@@ -252,13 +252,13 @@ if select(3, UnitClass("player")) == 11 then
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 			--Healing Touch Natures Swiftness
 				if isChecked("Healing Touch NS Tank") then
-					for i = 1, #nNova do		
-						if nNova[i].role == "TANK" or UnitGroupRolesAssigned(nNova[i].unit) == "TANK" then						
-							if unitHP(nNova[i].unit) <= getValue("Healing Touch NS Tank") then						
-								if canCast(nNova[i].unit, 40, false, false) then	
+					for i = 1, #bb.friend do		
+						if bb.friend[i].role == "TANK" or UnitGroupRolesAssigned(bb.friend[i].unit) == "TANK" then						
+							if unitHP(bb.friend[i].unit) <= getValue("Healing Touch NS Tank") then						
+								if canCast(bb.friend[i].unit, 40, false, false) then	
 									if NaturesSwiftnessBuff == nil and NaturesSwiftnessCD == 0 then CastSpellByName(GetSpellInfo(NaturesSwiftnessID)) end
 									if NaturesSwiftnessBuff ~= nil then			
-										CastSpellByName(GetSpellInfo(HealingTouchID),nNova[i].unit)		
+										CastSpellByName(GetSpellInfo(HealingTouchID),bb.friend[i].unit)		
 									end
 								end						
 							end
@@ -267,11 +267,11 @@ if select(3, UnitClass("player")) == 11 then
 				end
 			--Swiftmend
 				if isChecked("Swiftmend Tank") then
-					for i = 1, #nNova do								
-						if nNova[i].role == "TANK" or UnitGroupRolesAssigned(nNova[i].unit) == "TANK" then
-							if unitHP(nNova[i].unit) <= getValue("Swiftmend Tank") then						
-								if canCast(nNova[i].unit, 40, false, false) then							
-									CastSpellByName(GetSpellInfo(SwiftmendID),nNova[i].unit)		
+					for i = 1, #bb.friend do								
+						if bb.friend[i].role == "TANK" or UnitGroupRolesAssigned(bb.friend[i].unit) == "TANK" then
+							if unitHP(bb.friend[i].unit) <= getValue("Swiftmend Tank") then						
+								if canCast(bb.friend[i].unit, 40, false, false) then							
+									CastSpellByName(GetSpellInfo(SwiftmendID),bb.friend[i].unit)		
 								end						
 							end
 						end
@@ -279,12 +279,12 @@ if select(3, UnitClass("player")) == 11 then
 				end
 			--Rejuvenation
 				if isChecked("Rejuvenation Tank") then
-					for i = 1, #nNova do		
-						if nNova[i].role == "TANK" or UnitGroupRolesAssigned(nNova[i].unit) == "TANK" then						
-							if unitHP(nNova[i].unit) <= getValue("Rejuvenation Tank") then						
-								if canCast(nNova[i].unit, 40, false, false) then
-									if buffRemain(nNova[i].unit, RejuvenationID, "player") < 6 then									
-										CastSpellByName(GetSpellInfo(RejuvenationID),nNova[i].unit)
+					for i = 1, #bb.friend do		
+						if bb.friend[i].role == "TANK" or UnitGroupRolesAssigned(bb.friend[i].unit) == "TANK" then						
+							if unitHP(bb.friend[i].unit) <= getValue("Rejuvenation Tank") then						
+								if canCast(bb.friend[i].unit, 40, false, false) then
+									if buffRemain(bb.friend[i].unit, RejuvenationID, "player") < 6 then									
+										CastSpellByName(GetSpellInfo(RejuvenationID),bb.friend[i].unit)
 									end				
 								end		
 							end				
@@ -293,13 +293,13 @@ if select(3, UnitClass("player")) == 11 then
 				end
 			--Germination
 				if isChecked("Germination Tank") then
-					for i = 1, #nNova do				
-						if nNova[i].role == "TANK" or UnitGroupRolesAssigned(nNova[i].unit) == "TANK" then				
-							if unitHP(nNova[i].unit) <= getValue("Germination Tank") then						
-								if canCast(nNova[i].unit, 40, false, false) then
-									if buffRemain(nNova[i].unit, RejuvenationID, "player") >= 6 then	
-										if buffRemain(nNova[i].unit, GerminationID, "player") < 6 then							
-											CastSpellByName(GetSpellInfo(RejuvenationID),nNova[i].unit)
+					for i = 1, #bb.friend do				
+						if bb.friend[i].role == "TANK" or UnitGroupRolesAssigned(bb.friend[i].unit) == "TANK" then				
+							if unitHP(bb.friend[i].unit) <= getValue("Germination Tank") then						
+								if canCast(bb.friend[i].unit, 40, false, false) then
+									if buffRemain(bb.friend[i].unit, RejuvenationID, "player") >= 6 then	
+										if buffRemain(bb.friend[i].unit, GerminationID, "player") < 6 then							
+											CastSpellByName(GetSpellInfo(RejuvenationID),bb.friend[i].unit)
 										end
 									end				
 								end				
@@ -309,12 +309,12 @@ if select(3, UnitClass("player")) == 11 then
 				end
 			--Regrowth Clearcasting
 				if isChecked("Regrowth CC Tank") then
-					for i = 1, #nNova do			
-						if nNova[i].role == "TANK" or UnitGroupRolesAssigned(nNova[i].unit) == "TANK" then					
-							if unitHP(nNova[i].unit) <= getValue("Regrowth CC Tank") then						
-								if (canCast(nNova[i].unit, 40, false, false) and IncarnationTOLBuff ~= nil) or canCast(nNova[i].unit, 40, false, true, true) then		
+					for i = 1, #bb.friend do			
+						if bb.friend[i].role == "TANK" or UnitGroupRolesAssigned(bb.friend[i].unit) == "TANK" then					
+							if unitHP(bb.friend[i].unit) <= getValue("Regrowth CC Tank") then						
+								if (canCast(bb.friend[i].unit, 40, false, false) and IncarnationTOLBuff ~= nil) or canCast(bb.friend[i].unit, 40, false, true, true) then		
 									if ClearCastingBuff ~= nil then					
-										CastSpellByName(GetSpellInfo(RegrowthID),nNova[i].unit)		
+										CastSpellByName(GetSpellInfo(RegrowthID),bb.friend[i].unit)		
 									end
 								end		
 							end				
@@ -323,11 +323,11 @@ if select(3, UnitClass("player")) == 11 then
 				end
 			--Regrowth
 				if isChecked("Regrowth Tank") then
-					for i = 1, #nNova do		
-						if nNova[i].role == "TANK" or UnitGroupRolesAssigned(nNova[i].unit) == "TANK" then						
-							if unitHP(nNova[i].unit) <= getValue("Regrowth Tank") then						
-								if (canCast(nNova[i].unit, 40, false, false) and IncarnationTOLBuff ~= nil) or canCast(nNova[i].unit, 40, false, true, true) then						
-									CastSpellByName(GetSpellInfo(RegrowthID),nNova[i].unit)		
+					for i = 1, #bb.friend do		
+						if bb.friend[i].role == "TANK" or UnitGroupRolesAssigned(bb.friend[i].unit) == "TANK" then						
+							if unitHP(bb.friend[i].unit) <= getValue("Regrowth Tank") then						
+								if (canCast(bb.friend[i].unit, 40, false, false) and IncarnationTOLBuff ~= nil) or canCast(bb.friend[i].unit, 40, false, true, true) then						
+									CastSpellByName(GetSpellInfo(RegrowthID),bb.friend[i].unit)		
 								end						
 							end
 						end
@@ -335,12 +335,12 @@ if select(3, UnitClass("player")) == 11 then
 				end
 			--Healing Touch
 				if isChecked("Healing Touch Tank") then
-					for i = 1, #nNova do					
-						if nNova[i].role == "TANK" or UnitGroupRolesAssigned(nNova[i].unit) == "TANK" then			
-							if (unitHP(nNova[i].unit) > getValue("Regrowth CC Tank") and
-								unitHP(nNova[i].unit) > getValue("Regrowth Tank")) and unitHP(nNova[i].unit) <= getValue("Healing Touch Tank") then						
-								if canCast(nNova[i].unit, 40, false, true, true) then				
-									CastSpellByName(GetSpellInfo(HealingTouchID),nNova[i].unit)		
+					for i = 1, #bb.friend do					
+						if bb.friend[i].role == "TANK" or UnitGroupRolesAssigned(bb.friend[i].unit) == "TANK" then			
+							if (unitHP(bb.friend[i].unit) > getValue("Regrowth CC Tank") and
+								unitHP(bb.friend[i].unit) > getValue("Regrowth Tank")) and unitHP(bb.friend[i].unit) <= getValue("Healing Touch Tank") then						
+								if canCast(bb.friend[i].unit, 40, false, true, true) then				
+									CastSpellByName(GetSpellInfo(HealingTouchID),bb.friend[i].unit)		
 								end						
 							end
 						end
@@ -351,12 +351,12 @@ if select(3, UnitClass("player")) == 11 then
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 			--Healing Touch Natures Swiftness
 				if isChecked("Healing Touch NS STH") then
-					for i = 1, #nNova do								
-						if unitHP(nNova[i].unit) <= getValue("Healing Touch NS STH") then						
-							if canCast(nNova[i].unit, 40, false, false) then	
+					for i = 1, #bb.friend do								
+						if unitHP(bb.friend[i].unit) <= getValue("Healing Touch NS STH") then						
+							if canCast(bb.friend[i].unit, 40, false, false) then	
 								if NaturesSwiftnessBuff == nil and NaturesSwiftnessCD == 0 then CastSpellByName(GetSpellInfo(NaturesSwiftnessID)) end
 								if NaturesSwiftnessBuff ~= nil then			
-									CastSpellByName(GetSpellInfo(HealingTouchID),nNova[i].unit)		
+									CastSpellByName(GetSpellInfo(HealingTouchID),bb.friend[i].unit)		
 								end
 							end						
 						end
@@ -364,21 +364,21 @@ if select(3, UnitClass("player")) == 11 then
 				end
 			--Swiftmend
 				if isChecked("Swiftmend STH") then
-					for i = 1, #nNova do								
-						if unitHP(nNova[i].unit) <= getValue("Swiftmend STH") then						
-							if canCast(nNova[i].unit, 40, false, false) then							
-								CastSpellByName(GetSpellInfo(SwiftmendID),nNova[i].unit)		
+					for i = 1, #bb.friend do								
+						if unitHP(bb.friend[i].unit) <= getValue("Swiftmend STH") then						
+							if canCast(bb.friend[i].unit, 40, false, false) then							
+								CastSpellByName(GetSpellInfo(SwiftmendID),bb.friend[i].unit)		
 							end						
 						end
 					end
 				end
 			--Rejuvenation
 				if isChecked("Rejuvenation STH") then
-					for i = 1, #nNova do								
-						if unitHP(nNova[i].unit) <= getValue("Rejuvenation STH") then						
-							if canCast(nNova[i].unit, 40, false, false) then
-								if buffRemain(nNova[i].unit, RejuvenationID, "player") < 6 then									
-									CastSpellByName(GetSpellInfo(RejuvenationID),nNova[i].unit)
+					for i = 1, #bb.friend do								
+						if unitHP(bb.friend[i].unit) <= getValue("Rejuvenation STH") then						
+							if canCast(bb.friend[i].unit, 40, false, false) then
+								if buffRemain(bb.friend[i].unit, RejuvenationID, "player") < 6 then									
+									CastSpellByName(GetSpellInfo(RejuvenationID),bb.friend[i].unit)
 								end				
 							end						
 						end
@@ -386,12 +386,12 @@ if select(3, UnitClass("player")) == 11 then
 				end
 			--Germination
 				if isChecked("Germination STH") then
-					for i = 1, #nNova do								
-						if unitHP(nNova[i].unit) <= getValue("Germination STH") then						
-							if canCast(nNova[i].unit, 40, false, false) then
-								if buffRemain(nNova[i].unit, RejuvenationID, "player") >= 6 then	
-									if buffRemain(nNova[i].unit, GerminationID, "player") < 6 then								
-										CastSpellByName(GetSpellInfo(RejuvenationID),nNova[i].unit)
+					for i = 1, #bb.friend do								
+						if unitHP(bb.friend[i].unit) <= getValue("Germination STH") then						
+							if canCast(bb.friend[i].unit, 40, false, false) then
+								if buffRemain(bb.friend[i].unit, RejuvenationID, "player") >= 6 then	
+									if buffRemain(bb.friend[i].unit, GerminationID, "player") < 6 then								
+										CastSpellByName(GetSpellInfo(RejuvenationID),bb.friend[i].unit)
 									end
 								end				
 							end						
@@ -400,11 +400,11 @@ if select(3, UnitClass("player")) == 11 then
 				end
 			--Regrowth Clearcasting
 				if isChecked("Regrowth CC STH") then
-					for i = 1, #nNova do								
-						if unitHP(nNova[i].unit) <= getValue("Regrowth CC STH") then						
-							if (canCast(nNova[i].unit, 40, false, false) and IncarnationTOLBuff ~= nil) or canCast(nNova[i].unit, 40, false, true, true) then		
+					for i = 1, #bb.friend do								
+						if unitHP(bb.friend[i].unit) <= getValue("Regrowth CC STH") then						
+							if (canCast(bb.friend[i].unit, 40, false, false) and IncarnationTOLBuff ~= nil) or canCast(bb.friend[i].unit, 40, false, true, true) then		
 								if ClearCastingBuff ~= nil then					
-									CastSpellByName(GetSpellInfo(RegrowthID),nNova[i].unit)		
+									CastSpellByName(GetSpellInfo(RegrowthID),bb.friend[i].unit)		
 								end
 							end						
 						end
@@ -412,21 +412,21 @@ if select(3, UnitClass("player")) == 11 then
 				end
 			--Regrowth
 				if isChecked("Regrowth STH") then
-					for i = 1, #nNova do								
-						if unitHP(nNova[i].unit) <= getValue("Regrowth STH") then						
-							if (canCast(nNova[i].unit, 40, false, false) and IncarnationTOLBuff ~= nil) or canCast(nNova[i].unit, 40, false, true, true) then						
-								CastSpellByName(GetSpellInfo(RegrowthID),nNova[i].unit)		
+					for i = 1, #bb.friend do								
+						if unitHP(bb.friend[i].unit) <= getValue("Regrowth STH") then						
+							if (canCast(bb.friend[i].unit, 40, false, false) and IncarnationTOLBuff ~= nil) or canCast(bb.friend[i].unit, 40, false, true, true) then						
+								CastSpellByName(GetSpellInfo(RegrowthID),bb.friend[i].unit)		
 							end						
 						end
 					end
 				end
 			--Healing Touch
 				if isChecked("Healing Touch STH") then
-					for i = 1, #nNova do								
-						if (unitHP(nNova[i].unit) > getValue("Regrowth CC STH") and
-							unitHP(nNova[i].unit) > getValue("Regrowth STH")) and unitHP(nNova[i].unit) <= getValue("Healing Touch STH") then						
-							if canCast(nNova[i].unit, 40, false, true, true) then				
-								CastSpellByName(GetSpellInfo(HealingTouchID),nNova[i].unit)		
+					for i = 1, #bb.friend do								
+						if (unitHP(bb.friend[i].unit) > getValue("Regrowth CC STH") and
+							unitHP(bb.friend[i].unit) > getValue("Regrowth STH")) and unitHP(bb.friend[i].unit) <= getValue("Healing Touch STH") then						
+							if canCast(bb.friend[i].unit, 40, false, true, true) then				
+								CastSpellByName(GetSpellInfo(HealingTouchID),bb.friend[i].unit)		
 							end						
 						end
 					end

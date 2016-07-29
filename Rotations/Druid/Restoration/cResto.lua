@@ -229,12 +229,12 @@ if select(2, UnitClass("player")) == "DRUID" then
     ---------------
 
         function self.getToggleModes()
-            local BadBoy_data   = BadBoy_data
+            local data   = bb.data
 
-            self.mode.rotation  = BadBoy_data["Rotation"]
-            self.mode.cooldown  = BadBoy_data["Cooldown"]
-            self.mode.defensive = BadBoy_data["Defensive"]
-            self.mode.interrupt = BadBoy_data["Interrupt"]
+            self.mode.rotation  = data["Rotation"]
+            self.mode.cooldown  = data["Cooldown"]
+            self.mode.defensive = data["Defensive"]
+            self.mode.interrupt = data["Interrupt"]
         end
 
         -- Create the toggle defined within rotation files
@@ -360,7 +360,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             end
         return false
         end
-        --faceUnit(nNova[i].unit)   
+        --faceUnit(bb.friend[i].unit)   
         function faceUnit(unit)
             if unit ~= "player" then
                 if getFacing("player",unit) == false and isMoving("player") ~= true then

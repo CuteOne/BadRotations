@@ -74,18 +74,18 @@ if select(3, UnitClass("player")) == 8 then
         castIceFloes()
       end
 
-      if BadBoy_data['Defensive'] == 2 then
+      if bb.data['Defensive'] == 2 then
       --	FireMageDefensives()
       end
 
 
-      if BadBoy_data['Cooldowns'] == 2 then
+      if bb.data['Cooldowns'] == 2 then
       --	FireMageCooldowns()
       end
 
       -- AOE Todo : Add Simcraft numbers
       if getNumEnemies("player",10) > 5 then -- This is only checking for melee
-        if BadBoy_data['AoE'] == 2 or BadBoy_data['AoE'] == 3 then -- We need to sort out the auto aoe, ie == 3
+        if bb.data['AoE'] == 2 or bb.data['AoE'] == 3 then -- We need to sort out the auto aoe, ie == 3
 
         end
       end

@@ -29,9 +29,9 @@ end
 -- find tanks
 function getTanksTable()
 	local tanksTable = {}
-	for i = 1, #nNova do
-		if nNova[i].role == "TANK" then
-			tinsert(tanksTable, nNova[i])
+	for i = 1, #bb.friend do
+		if bb.friend[i].role == "TANK" then
+			tinsert(tanksTable, bb.friend[i])
 		end
 	end
 	return tanksTable
@@ -75,7 +75,7 @@ function getNovaDistance(Unit1,Unit2)
 		return 1000
 	end
 end
--- now that we have our units in nNova with their positions, we can compare them to our enemies
+-- now that we have our units in bb.friend with their positions, we can compare them to our enemies
 -- we will send them as object args to our distance functions... since both engines have x and y, we will be able to mix them up
 function getUnitsToHealAround(UnitID,radius,health,count)
 	-- if we provide an unitID, we get this units location once
@@ -83,15 +83,15 @@ function getUnitsToHealAround(UnitID,radius,health,count)
 	-- if an unit of type string is passed we consider it as a UnitID
 	if type(UnitID) == "string" then
 		X1,Y1,Z1 = GetObjectPosition(UnitID)
-		-- if we provide it a table, take that object position(accepts enemiesTable[i] or nNova[i])
+		-- if we provide it a table, take that object position(accepts bb.enemy[i] or bb.friend[i])
 	elseif UnitID and UnitID.x ~= 0 then
 		X1,Y1,Z1 = UnitID.x,UnitID.y,UnitID.z
 	end
 	local unit = {x = X1,y = Y1,z = Z1,guid = UnitGUID(UnitID),name = UnitName(UnitID)}
 	-- once we get our unit location we call our getdistance
 	local lowHealthCandidates = {}
-	for i = 1, #nNova do
-		local thisUnit = nNova[i]
+	for i = 1, #bb.friend do
+		local thisUnit = bb.friend[i]
 		-- if in given radius
 		if thisUnit.hp <= health and getNovaDistance(unit,thisUnit) < radius then
 			-- if its first item in table, insert
@@ -145,10 +145,10 @@ end
 -- if getAllies("player",40) > 5 then
 function getAllies(Unit,Radius)
 	local alliesTable = {}
-	for i=1,#nNova do
-		if not UnitIsDeadOrGhost(nNova[i].unit) then
-			if getDistance(Unit,nNova[i].unit) <= Radius then
-				tinsert(alliesTable,nNova[i].unit)
+	for i=1,#bb.friend do
+		if not UnitIsDeadOrGhost(bb.friend[i].unit) then
+			if getDistance(Unit,bb.friend[i].unit) <= Radius then
+				tinsert(alliesTable,bb.friend[i].unit)
 			end
 		end
 	end
@@ -157,10 +157,10 @@ end
 -- if getAlliesInLocation("player",X,Y,Z) > 5 then
 function getAlliesInLocation(myX,myY,myZ,Radius)
 	local alliesTable = {}
-	for i=1,#nNova do
-		if not UnitIsDeadOrGhost(nNova[i].unit) then
-			if getDistanceToObject(nNova[i].unit,myX,myY,myZ) <= Radius then
-				tinsert(alliesTable,nNova[i].unit)
+	for i=1,#bb.friend do
+		if not UnitIsDeadOrGhost(bb.friend[i].unit) then
+			if getDistanceToObject(bb.friend[i].unit,myX,myY,myZ) <= Radius then
+				tinsert(alliesTable,bb.friend[i].unit)
 			end
 		end
 	end

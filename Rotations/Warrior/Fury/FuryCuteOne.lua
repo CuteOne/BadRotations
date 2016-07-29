@@ -315,8 +315,8 @@ if select(3,UnitClass("player")) == 1 then
                     end
                 -- Intervene
                     if isChecked("Intervene") then
-                        for i=1,#nNova do
-                            thisUnit = nNova[i].unit
+                        for i=1,#bb.friend do
+                            thisUnit = bb.friend[i].unit
                             if thisUnit ~= "player" then
                                 if getOptionValue("Intervene - Target")==4 then
                                     if getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
@@ -359,8 +359,8 @@ if select(3,UnitClass("player")) == 1 then
                     end
                 -- Vigilance
                     if isChecked("Vigilance") then
-                        for i=1,#nNova do
-                            thisUnit = nNova[i].unit
+                        for i=1,#bb.friend do
+                            thisUnit = bb.friend[i].unit
                             if thisUnit ~= "player" then
                                 if getOptionValue("Vigilance - Target")==4 then
                                     if getHP(thisUnit)<getOptionValue("Vigilance") and getDistance(thisUnit)<40 then
@@ -390,30 +390,21 @@ if select(3,UnitClass("player")) == 1 then
         -- Action List - Interrupts
             function actionList_Interrupts()
                 if useInterrupts() then
-                -- Pummel
-                    if isChecked("Pummel") then
-                        for i=1, #getEnemies("player",5) do
-                            thisUnit = getEnemies("player",5)[i]
-                            if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                    for i=1, #getEnemies("player",40) do
+                        thisUnit = getEnemies("player",40)[i]
+                        unitDist = getDistance(thisUnit)
+                        targetMe = UnitIsUnit("player",thisUnit) or false
+                        if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                        -- Pummel
+                            if isChecked("Pummel") and unitDist<5 then
                                 if bb.player.castPummel(thisUnit) then return end
                             end
-                        end
-                    end
-                -- Intimidating Shout
-                    if isChecked("Intimidating Shout - Int") then
-                        for i=1, #getEnemies("player",8) do
-                            thisUnit = getEnemies("player",8)[i]
-                            if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                        -- Intimidating Shout
+                            if isChecked("Intimidating Shout - Int") and unitDist<8 then
                                 if bb.player.castIntimidatingShout() then return end
                             end
-                        end
-                    end
-                -- Spell Reflection
-                    if isChecked("Spell Reflection") then
-                        for i=1, #getEnemies("player",40) do
-                            thisUnit = getEnemies("player",40)[i]
-                            targetMe = UnitIsUnit("player",thisUnit) or false
-                            if UnitCastingInfo(thisUnit) ~= nil then
+                        -- Spell Reflection
+                            if isChecked("Spell Reflection") and UnitCastingInfo(thisUnit) ~= nil then
                                 if (select(6,UnitCastingInfo(thisUnit))/1000 - GetTime())<5 and targetMe then
                                     if bb.player.castSpellReflection() then return end
                                 end
@@ -421,6 +412,37 @@ if select(3,UnitClass("player")) == 1 then
                         end
                     end
                 end
+                -- -- Pummel
+                --     if isChecked("Pummel") then
+                --         for i=1, #getEnemies("player",5) do
+                --             thisUnit = getEnemies("player",5)[i]
+                --             if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                --                 if bb.player.castPummel(thisUnit) then return end
+                --             end
+                --         end
+                --     end
+                -- -- Intimidating Shout
+                --     if isChecked("Intimidating Shout - Int") then
+                --         for i=1, #getEnemies("player",8) do
+                --             thisUnit = getEnemies("player",8)[i]
+                --             if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                --                 if bb.player.castIntimidatingShout() then return end
+                --             end
+                --         end
+                --     end
+                -- -- Spell Reflection
+                --     if isChecked("Spell Reflection") then
+                --         for i=1, #getEnemies("player",40) do
+                --             thisUnit = getEnemies("player",40)[i]
+                --             targetMe = UnitIsUnit("player",thisUnit) or false
+                --             if UnitCastingInfo(thisUnit) ~= nil then
+                --                 if (select(6,UnitCastingInfo(thisUnit))/1000 - GetTime())<5 and targetMe then
+                --                     if bb.player.castSpellReflection() then return end
+                --                 end
+                --             end
+                --         end
+                --     end
+                -- end
             end -- End Action List - Interrupts
         -- Action List - Pre-Combat
             function actionList_PreCombat()

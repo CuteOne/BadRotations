@@ -51,8 +51,8 @@ if select(3, UnitClass("player")) == 11 then
 
         -- Wrapper -----------------------------------------
         section = bb.ui:createSection(bb.ui.window.profile, "|cffBA55D3Multitarget")
-        -- Sort EnemiesTable by HPabs
-        -- bb.ui:createCheckbox(section,"sortByHPabs","Sort enemiesTable by descending health, so the highest absolute health unit will be dotted first.")
+        -- Sort bb.enemy by HPabs
+        -- bb.ui:createCheckbox(section,"sortByHPabs","Sort bb.enemy by descending health, so the highest absolute health unit will be dotted first.")
 
         -- Min Health
         bb.ui:createSpinner(section, "Min Health",  0.1,  0.0,  7.5,  0.1,  "Minimum Health in |cffFF0000million HP|cffFFBB00.\nMin: 0 / Max: 7.5  / Interval: 0.1")

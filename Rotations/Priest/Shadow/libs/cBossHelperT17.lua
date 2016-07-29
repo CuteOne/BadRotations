@@ -25,8 +25,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- Pack Beast - cascade
 					if getTalent(6,1) then
 						if getSpellCD(cascade)<=0 then
-							for i=1,#enemiesTable do
-								local thisUnit = enemiesTable[i].unit
+							for i=1,#bb.enemy do
+								local thisUnit = bb.enemy[i].unit
 								if UnitName(thisUnit) == "Pack Beast" then
 									if getDistance("player",thisUnit)<40 then
 										if castSpell(thisUnit,spell.cascade,true,false) then return end
@@ -73,11 +73,11 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- cascade Dogs
 					if getTalent(6,1) then
 						if getSpellCD(cascade)<=0 then
-							-- sort enemiesTable by distance
+							-- sort bb.enemy by distance
 							sortByDistance()
 							-- cascade farest dog
-							for i=1,#enemiesTable do
-								local thisUnit = enemiesTable[i].unit
+							for i=1,#bb.enemy do
+								local thisUnit = bb.enemy[i].unit
 								if getDistance("player",thisUnit)<40 then
 									if UnitName(thisUnit) == "Cinder Wolf" then
 										if castSpell(thisUnit,spell.cascade,true,false) then return end
@@ -92,8 +92,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				if currentBoss=="Operator Thogar" then
 					-- Auto Mass Dispel
 					if options.isChecked.AutoMassDispel then
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
+						for i=1,#bb.enemy do
+							local thisUnit = bb.enemy[i].unit
 							if getSpellCD(spell.mass_dispel)<=0 then
 								if getBuffRemain(thisUnit,160140)>0 then
 									if castGround(thisUnit,spell.mass_dispel,30) then
@@ -106,10 +106,10 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					end
 					-- Halo/cascade Reinforcements
 					if (getSpellCD(spell.halo) and talent.halo) or (getSpellCD(spell.cascade) and talent.cascade) then
-						-- sort enemiesTable by distance
+						-- sort bb.enemy by distance
 						self.sortByDistance()
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
+						for i=1,#bb.enemy do
+							local thisUnit = bb.enemy[i].unit
 							if getDistance("player",thisUnit)<40 then
 								if UnitName("Iron Raider") or UnitName("Iron Crack-Shot") then
 									if getTalent(6,1) then
@@ -125,8 +125,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- Auto Silence
 					if options.isChecked.AutoSilence then
 						-- Grom'kar Firemender: Cauterizing Bolt
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
+						for i=1,#bb.enemy do
+							local thisUnit = bb.enemy[i].unit
 							if UnitCastingInfo(thisUnit) == "Cauterizing Bolt" then
 								ShadowSimpleKick(thisUnit)
 								-- local cRem = select(6,UnitCastingInfo(thisUnit)) - GetTime()*1000
@@ -159,8 +159,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			--[[ The Blast Furnace ]]
 				if currentBoss=="Heart of the Mountain" then
 					-- Burn Elementalist (http://www.wowhead.com/spell=158345/shields-down)
-					for i=1,#enemiesTable do
-						local thisUnit = enemiesTable[i].unit
+					for i=1,#bb.enemy do
+						local thisUnit = bb.enemy[i].unit
 						if UnitName(thisUnit) == "Primal Elementalist" then
 							if getBuffRemain(thisUnit,158345)>0 then
 								TargetUnit(thisUnit)
@@ -170,8 +170,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- cascade
 					if getTalent(6,1) then
 						-- cascade farest enemy in LoS
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
+						for i=1,#bb.enemy do
+							local thisUnit = bb.enemy[i].unit
 							if getLineOfSight(thisUnit) then
 								if getDistance("player",thisUnit)<40 then
 									if castSpell(thisUnit,spell.cascade,true,false) then return end
@@ -182,8 +182,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- Auto Dispel
 					if options.isChecked.AutoDispel then
 						-- Reactive Earth Shield
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
+						for i=1,#bb.enemy do
+							local thisUnit = bb.enemy[i].unit
 							if getBuffRemain(thisUnit,155173)>0 then
 								if castSpell(thisUnit,DispM,true,false) then return end
 							end
@@ -192,8 +192,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- Auto Silence
 					if options.isChecked.AutoSilence then
 						-- Furnace Engineer: Repair
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
+						for i=1,#bb.enemy do
+							local thisUnit = bb.enemy[i].unit
 							if UnitCastingInfo(thisUnit) == "Repair" 
 							and UnitName(thisUnit) == "Furnace Engineer" then
 								ShadowSimpleKick(thisUnit)
@@ -211,8 +211,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 							end
 						end
 						-- Firecaller: Cauterize Wounds
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
+						for i=1,#bb.enemy do
+							local thisUnit = bb.enemy[i].unit
 							if UnitCastingInfo(thisUnit) == "Cauterize Wounds" 
 							and UnitName(thisUnit) == "Firecaller" then
 								ShadowSimpleKick(thisUnit)
@@ -236,11 +236,11 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				if currentBoss=="Kromog" then
 					-- cascade farest possible hand
 					if getSpellCD(cascade)<=0 then
-						-- sort enemiesTable by distance
+						-- sort bb.enemy by distance
 						sortByDistance()
 						-- cascade farest dog
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
+						for i=1,#bb.enemy do
+							local thisUnit = bb.enemy[i].unit
 							if getDistance("player",thisUnit)<40 then
 								if UnitName(thisUnit) == "Grasping Earth" then
 									if castSpell(thisUnit,spell.cascade,true,false) then return end
@@ -262,8 +262,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- cascade
 					if getTalent(6,1) then
 						-- cascade farest enemy in LoS
-						for i=1,#enemiesTable do
-							local thisUnit = enemiesTable[i].unit
+						for i=1,#bb.enemy do
+							local thisUnit = bb.enemy[i].unit
 							if getLineOfSight(thisUnit) then
 								if getDistance("player",thisUnit)<40 and getDistance("player",thisUnit)>25 then
 									if castSpell(thisUnit,spell.cascade,true,false) then return end
@@ -284,8 +284,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 					-- Auto Mass Dispel
 					if options.isChecked.AutoMassDispel then
 						-- Burning Cinders (162498)
-						for i=1,#nNova do
-							local thisUnit = nNova[i].unit
+						for i=1,#bb.friend do
+							local thisUnit = bb.friend[i].unit
 							if getDebuffRemain(thisUnit,162498)>0 then
 								if castGround(thisUnit,MD,30) then
 									SpellStopTargeting()

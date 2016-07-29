@@ -86,19 +86,19 @@ if select(3, UnitClass("player")) == 8 then
 
 
 
-      if BadBoy_data['Defensive'] == 2 then
+      if bb.data['Defensive'] == 2 then
         ArcaneMageDefensives()
       end
 
 
-      if BadBoy_data['Cooldowns'] == 2 then
+      if bb.data['Cooldowns'] == 2 then
         ArcaneMageCooldowns()
       end
 
 
       -- actions+=/call_action_list,name=aoe,if=active_enemies>=5
       -- AoE
-      --		if BadBoy_data['AoE'] == 2 then
+      --		if bb.data['AoE'] == 2 then
       --			ArcaneMageAoESimcraft()
       --		end
       -- AutoAoE
@@ -118,7 +118,7 @@ if select(3, UnitClass("player")) == 8 then
       --runeOfPower()
 
       if getNumEnemies("player",10) > 5 then -- This is only checking for melee
-        if BadBoy_data['AoE'] == 2 or BadBoy_data['AoE'] == 3 then -- We need to sort out the auto aoe, ie == 3
+        if bb.data['AoE'] == 2 or bb.data['AoE'] == 3 then -- We need to sort out the auto aoe, ie == 3
           ArcaneMageAoESimcraft()
       end
       end

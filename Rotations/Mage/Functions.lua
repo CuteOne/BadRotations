@@ -534,7 +534,7 @@ if select(3, UnitClass("player")) == 8 then
     --# High mana usage, "Burn" sequence
     -- actions.burn=call_action_list,name=cooldowns
     -- actions.burn+=/arcane_blast,if=buff.arcane_charge.stack=4&mana.pct>93
-    if BadBoy_data['Cooldowns'] == 2 then
+    if bb.data['Cooldowns'] == 2 then
       ArcaneMageCooldowns()
     end
     -- actions.burn+=/arcane_missiles,if=buff.arcane_missiles.react=3
@@ -962,7 +962,7 @@ if select(3, UnitClass("player")) == 8 then
     -------------------
     -- Rune Of Power --
     -------------------
-    if BadBoy_data["Rune"] == 1 and getOptionCheck("Start/Stop BadBoy") then
+    if bb.data["Rune"] == 1 and getOptionCheck("Start/Stop BadBoy") then
       --[[ begin Rune Stuff ]]					-- add rune of power toggle!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       AoESpell, AoESpellTarget= nil, nil;

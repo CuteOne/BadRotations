@@ -285,8 +285,8 @@ if select(3,UnitClass("player")) == 1 then
                     end
                 -- Intervene
                     if isChecked("Intervene") then
-                        for i=1,#nNova do
-                            thisUnit = nNova[i].unit
+                        for i=1,#bb.friend do
+                            thisUnit = bb.friend[i].unit
                             if thisUnit ~= "player" then
                                 if getOptionValue("Intervene - Target")==4 then
                                     if getHP(thisUnit)<getOptionValue("Intervene") and getDistance(thisUnit)<25 then
@@ -325,8 +325,8 @@ if select(3,UnitClass("player")) == 1 then
                     end
                 -- Vigilance
                     if isChecked("Vigilance") then
-                        for i=1,#nNova do
-                            thisUnit = nNova[i].unit
+                        for i=1,#bb.friend do
+                            thisUnit = bb.friend[i].unit
                             if thisUnit ~= "player" then
                                 if getOptionValue("Vigilance - Target")==4 then
                                     if getHP(thisUnit)<getOptionValue("Vigilance") and getDistance(thisUnit)<40 then

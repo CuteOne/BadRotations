@@ -428,10 +428,10 @@ if select(3, UnitClass("player")) == 2 then
         -- Crusader Strike
         function self.castCrusaderStrike()
             if self.eq.t18_classTrinket or isDummy(self.units.dyn5) then
-                local enemiesTable = enemiesTable
-                if #enemiesTable > 1 then
-                    for i=1,#enemiesTable do
-                        local thisEnemy = enemiesTable[i]
+                -- local bb.enemy = bb.enemy
+                if #bb.enemy > 1 then
+                    for i=1,#bb.enemy do
+                        local thisEnemy = bb.enemy[i]
                         if thisEnemy.distance <= 5 then
                             if previousT18classTrinket == thisEnemy.guid and getFacing("player", thisEnemy.unit) then
                                 return castSpell(thisEnemy.unit,self.spell.crusaderStrike,false,false) == true or false
@@ -475,10 +475,10 @@ if select(3, UnitClass("player")) == 2 then
         -- Hammer of the Righteous
         function self.castHammerOfTheRighteous()
             if self.eq.t18_classTrinket or isDummy(self.units.dyn5) then
-                local enemiesTable = enemiesTable
-                if #enemiesTable > 1 then
-                    for i=1,#enemiesTable do
-                        local thisEnemy = enemiesTable[i]
+                -- local bb.enemy = bb.enemy
+                if #bb.enemy > 1 then
+                    for i=1,#bb.enemy do
+                        local thisEnemy = bb.enemy[i]
                         if thisEnemy.distance <= 5 then
                             if previousT18classTrinket == thisEnemy.guid and getFacing("player", thisEnemy.unit) then
                                 return castSpell(thisEnemy.unit,self.spell.hammerOfTheRighteous,false,false) == true or false
@@ -496,10 +496,10 @@ if select(3, UnitClass("player")) == 2 then
                 return castSpell(self.units.dyn30,self.spell.hammerOfWrath,false,false) == true or false
             else
                 local hpHammerOfWrath = 35
-                local enemiesTable = enemiesTable
-                for i = 1,#enemiesTable do
-                    if enemiesTable[i].hp < hpHammerOfWrath then
-                        return castSpell(enemiesTable[i].unit,self.spell.hammerOfWrath,false,false,false,false,false,false,true) == true or false
+              -- local bb.enemy = bb.enemy
+                for i = 1,#bb.enemy do
+                    if bb.enemy[i].hp < hpHammerOfWrath then
+                        return castSpell(bb.enemy[i].unit,self.spell.hammerOfWrath,false,false,false,false,false,false,true) == true or false
                     end
                 end
             end
@@ -532,10 +532,10 @@ if select(3, UnitClass("player")) == 2 then
         function self.castJeopardy()
             if self.glyph.doubleJeopardy then
                 -- scan enemies for a different unit
-                local enemiesTable = enemiesTable
-                if #enemiesTable > 1 then
-                    for i = 1, #enemiesTable do
-                        local thisEnemy = enemiesTable[i]
+              -- local bb.enemy = bb.enemy
+                if #bb.enemy > 1 then
+                    for i = 1, #bb.enemy do
+                        local thisEnemy = bb.enemy[i]
                         -- if its in range
                         if thisEnemy.distance < 30 then
                             -- here i will need to compare my previous judgment target with the previous one
@@ -571,7 +571,7 @@ if select(3, UnitClass("player")) == 2 then
         -- Rebuke
         function self.castRebuke()
             -- TODO: implement interrupt
-            --if BadBoy_data["Interrupts"] ~= 1 and isChecked("Rebuke") then
+            --if bb.data["Interrupts"] ~= 1 and isChecked("Rebuke") then
             --	castInterrupt(self.spell.rebuke, getValue("Rebuke"))
             --end
         end

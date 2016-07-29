@@ -8,18 +8,18 @@ if not metaTable1 then
 	local getDistance,tinsert,tremove,UnitGUID,UnitClass,UnitIsUnit = getDistance,tinsert,tremove,UnitGUID,UnitClass,UnitIsUnit
 	local UnitDebuff,UnitExists,UnitHealth,UnitHealthMax = UnitDebuff,UnitExists,UnitHealth,UnitHealthMax
 	local GetSpellInfo,GetTime,UnitDebuffID,getBuffStacks = GetSpellInfo,GetTime,UnitDebuffID,getBuffStacks
-	nNova = {} -- This is our main Table that the world will see
+	bb.friend = {} -- This is our main Table that the world will see
 	memberSetup = {} -- This is one of our MetaTables that will be the default user/contructor
 	memberSetup.cache = { } -- This is for the cache Table to check against
 	metaTable1 = {} -- This will be the MetaTable attached to our Main Table that the world will see
 	metaTable1.__call = function(_, ...) -- (_, forceRetable, excludePets, onlyInRange) [Not Implemented]
 		local group =  IsInRaid() and "raid" or "party" -- Determining if the UnitID will be raid or party based
 		local groupSize = IsInRaid() and GetNumGroupMembers() or GetNumGroupMembers() - 1 -- If in raid, we check the entire raid. If in party, we remove one from max to account for the player.
-		if group == "party" then tinsert(nNova, memberSetup:new("player")) end -- We are creating a new User for player if in a Group
+		if group == "party" then tinsert(bb.friend, memberSetup:new("player")) end -- We are creating a new User for player if in a Group
 		for i=1, groupSize do -- start of the loop to read throught the party/raid
 			local groupUnit = group..i
 			local groupMember = memberSetup:new(groupUnit)
-			if groupMember then tinsert(nNova, groupMember) end -- Inserting a newly created Unit into the Main Frame
+			if groupMember then tinsert(bb.friend, groupMember) end -- Inserting a newly created Unit into the Main Frame
 		end
 	end
 	metaTable1.__index =  {-- Setting the Metamethod of Index for our Main Table
@@ -41,7 +41,7 @@ if not metaTable1 then
 	local updateHealingTable = CreateFrame("frame", nil)
 	updateHealingTable:RegisterEvent("GROUP_ROSTER_UPDATE")
 	updateHealingTable:SetScript("OnEvent", function()
-		table.wipe(nNova)
+		table.wipe(bb.friend)
 		table.wipe(memberSetup.cache)
 		SetupTables()
 	end)
@@ -187,9 +187,9 @@ if not metaTable1 then
 					break
 				end
 			end
-			if getOptionCheck("Blacklist") == true and BadBoy_data.blackList ~= nil then
-				for i = 1, #BadBoy_data.blackList do
-					if o.guid == BadBoy_data.blackList[i].guid then
+			if getOptionCheck("Blacklist") == true and bb.data.blackList ~= nil then
+				for i = 1, #bb.data.blackList do
+					if o.guid == bb.data.blackList[i].guid then
 						PercentWithIncoming,ActualWithIncoming,nAbsorbs = PercentWithIncoming + getValue("Blacklist"),ActualWithIncoming + getValue("Blacklist"),nAbsorbs + getValue("Blacklist")
 						break
 					end
@@ -258,7 +258,7 @@ if not metaTable1 then
 		end
 		-- Updating the values of the Unit
 		function o:UpdateUnit()
-            if BadBoy_data["isDebugging"] == true then
+            if bb.data["isDebugging"] == true then
                 local startTime, duration
                 local debugprofilestop = debugprofilestop
 
@@ -384,11 +384,11 @@ if not metaTable1 then
 	end
 	-- Setting up the tables on either Wipe or Initial Setup
 	function SetupTables() -- Creating the cache (we use this to check if some1 is already in the table)
-		setmetatable(nNova, metaTable1) -- Set the metaTable of Main to Meta
-		function nNova:Update()
+		setmetatable(bb.friend, metaTable1) -- Set the metaTable of Main to Meta
+		function bb.friend:Update()
 			local refreshTimer = 0.666
-			if nNovaTableTimer == nil or nNovaTableTimer <= GetTime() - refreshTimer then
-				nNovaTableTimer = GetTime()
+			if bb.friendTableTimer == nil or bb.friendTableTimer <= GetTime() - refreshTimer then
+				bb.friendTableTimer = GetTime()
 				-- print("HEAL PULSE: "..GetTime())		-- debug print to check update time
 				-- This is for special situations, IE world healing or NPC healing in encounters
 				local selectedMode,SpecialTargets = getOptionValue("Special Heal"), {}
@@ -410,30 +410,30 @@ if not metaTable1 then
 							local SpecialCase = memberSetup:new(SpecialTargets[p])
 							if SpecialCase then
 								-- Creating a new user, if not already tabled, will return with the User
-								for j=1, #nNova do
-									if nNova[j].unit == SpecialTargets[p] then
+								for j=1, #bb.friend do
+									if bb.friend[j].unit == SpecialTargets[p] then
 										-- Now we add the Unit we just created to the Main Table
 										for k,v in pairs(memberSetup.cache) do
-											if nNova[j].guidsh == k then
+											if bb.friend[j].guidsh == k then
 												memberSetup.cache[k] = nil
 											end
 										end
-										tremove(nNova, j)
+										tremove(bb.friend, j)
 										break
 									end
 								end
 							end
-							tinsert(nNova, SpecialCase)
+							tinsert(bb.friend, SpecialCase)
 							novaEngineTables.SavedSpecialTargets[SpecialTargets[p]] = select(2,getGUID(SpecialTargets[p]))
 						end
 					end
 				end
 				for p=1, #SpecialTargets do
 					local removedTarget = false
-					for j=1, #nNova do
+					for j=1, #bb.friend do
 						-- Trying to find a case of the unit inside the Main Table to remove
-						if nNova[j].unit == SpecialTargets[p] and (nNova[j].guid ~= 0 and nNova[j].guid ~= UnitGUID(SpecialTargets[p])) then
-							tremove(nNova, j)
+						if bb.friend[j].unit == SpecialTargets[p] and (bb.friend[j].guid ~= 0 and bb.friend[j].guid ~= UnitGUID(SpecialTargets[p])) then
+							tremove(bb.friend, j)
 							removedTarget = true
 							break
 						end
@@ -447,17 +447,17 @@ if not metaTable1 then
 						end
 					end
 				end
-				for i=1, #nNova do
+				for i=1, #bb.friend do
 					-- We are updating all of the User Info (Health/Range/Name)
-					nNova[i]:UpdateUnit()
+					bb.friend[i]:UpdateUnit()
 				end
 				-- We are sorting by Health first
-				table.sort(nNova, function(x,y)
+				table.sort(bb.friend, function(x,y)
 					return x.hp < y.hp
 				end)
 				-- Sorting with the Role
 				if getOptionCheck("Sorting with Role") then
-					table.sort(nNova, function(x,y)
+					table.sort(bb.friend, function(x,y)
 						if x.role and y.role then return x.role > y.role
 						elseif x.role then return true
 						elseif y.role then return false end
@@ -465,7 +465,7 @@ if not metaTable1 then
 				end
 				if getOptionCheck("Special Priority") == true then
 					if UnitExists("focus") and memberSetup.cache[select(2, getGUID("focus"))] then
-						table.sort(nNova, function(x)
+						table.sort(bb.friend, function(x)
 							if x.unit == "focus" then
 								return true
 							else
@@ -474,7 +474,7 @@ if not metaTable1 then
 						end)
 					end
 					if UnitExists("target") and memberSetup.cache[select(2, getGUID("target"))] then
-						table.sort(nNova, function(x)
+						table.sort(bb.friend, function(x)
 							if x.unit == "target" then
 								return true
 							else
@@ -483,7 +483,7 @@ if not metaTable1 then
 						end)
 					end
 					if UnitExists("mouseover") and memberSetup.cache[select(2, getGUID("mouseover"))] then
-						table.sort(nNova, function(x)
+						table.sort(bb.friend, function(x)
 							if x.unit == "mouseover" then
 								return true
 							else
@@ -496,11 +496,11 @@ if not metaTable1 then
 					pulseNovaDebugTimer = GetTime() + 0.5
 					pulseNovaDebug()
 				end
-				-- update these frames to current nNova values via a pulse in nova engine
+				-- update these frames to current bb.friend values via a pulse in nova engine
 			end -- timer capsule
 		end
 		-- We are creating the initial Main Table
-		nNova()
+		bb.friend()
 	end
 	-- We are setting up the Tables for the first time
 	SetupTables()

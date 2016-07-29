@@ -234,8 +234,8 @@ if select(3, UnitClass("player")) == 11 then
 		function getSunfire()
 			local counter = 0
 			-- iterate units for Sunfire
-			for i=1,#enemiesTable do
-				local thisUnit = enemiesTable[i].unit
+			for i=1,#bb.enemy do
+				local thisUnit = bb.enemy[i].unit
 				-- increase counter for each Sunfire
 				if (UnitAffectingCombat(thisUnit) or isDummy(thisUnit)) and UnitDebuffID(thisUnit,164815,"player") then
 					counter=counter+1
@@ -248,8 +248,8 @@ if select(3, UnitClass("player")) == 11 then
 		function getMoonfire()
 			local counter = 0
 			-- iterate units for Sunfire
-			for i=1,#enemiesTable do
-				local thisUnit = enemiesTable[i].unit
+			for i=1,#bb.enemy do
+				local thisUnit = bb.enemy[i].unit
 				-- increase counter for each Sunfire
 				if (UnitAffectingCombat(thisUnit) or isDummy(thisUnit)) and UnitDebuffID(thisUnit,164812,"player") then
 					counter=counter+1
@@ -263,10 +263,10 @@ if select(3, UnitClass("player")) == 11 then
 			if isSunfire() then
 				local SunfireCount = getSunfire()
 				if SunfireCount<=maxTargets then
-					for i=1, #enemiesTable do
-						local thisUnit = enemiesTable[i].unit
-						local range = enemiesTable[i].distance
-						local thisHP = enemiesTable[i].hpabs
+					for i=1, #bb.enemy do
+						local thisUnit = bb.enemy[i].unit
+						local range = bb.enemy[i].distance
+						local thisHP = bb.enemy[i].hpabs
 						-- check for target and safeDoT
 						if safeDoT(thisUnit) then
 							if range < 40 then
@@ -287,8 +287,8 @@ if select(3, UnitClass("player")) == 11 then
 			if isSunfire() then
 				local SunfireCount = getSunfire()
 				if SunfireCount<=maxTargets then
-					local range = enemiesTable[i].distance
-					local thisHP = enemiesTable[i].hpabs
+					local range = bb.enemy[i].distance
+					local thisHP = bb.enemy[i].hpabs
 					-- get biggest cluster
 					thisClusterUnit = getBiggestUnitCluster(5)
 					if safeDoT(thisClusterUnit) then
@@ -307,10 +307,10 @@ if select(3, UnitClass("player")) == 11 then
 		function throwMoonfire(maxTargets,minHP)
 			local MoonfireCount = getMoonfire()
 			if MoonfireCount<=maxTargets then
-				for i=1, #enemiesTable do
-					local thisUnit = enemiesTable[i].unit
-					local range = enemiesTable[i].distance
-					local thisHP = enemiesTable[i].hpabs
+				for i=1, #bb.enemy do
+					local thisUnit = bb.enemy[i].unit
+					local range = bb.enemy[i].distance
+					local thisHP = bb.enemy[i].hpabs
 					-- check for target and safeDoT
 					if safeDoT(thisUnit) then
 						if range < 40 and getLineOfSight(thisUnit) then
@@ -331,10 +331,10 @@ if select(3, UnitClass("player")) == 11 then
 		function refreshMoonfire(maxTargets,minHP)
 			local MoonfireCount = getMoonfire()
 			if MoonfireCount<=maxTargets then
-				for i=1, #enemiesTable do
-					local thisUnit = enemiesTable[i].unit
-					local range = enemiesTable[i].distance
-					local thisHP = enemiesTable[i].hpabs
+				for i=1, #bb.enemy do
+					local thisUnit = bb.enemy[i].unit
+					local range = bb.enemy[i].distance
+					local thisHP = bb.enemy[i].hpabs
 					-- check for target and safeDoT
 					if safeDoT(thisUnit) then
 						if range < 40 and getLineOfSight(thisUnit) then

@@ -378,8 +378,8 @@ function cDK:new(spec)
 					local distance = getDistance(thisUnit)
 					if self.level>=55 and self.cd.deathGrip==0 and not isMoving(thisUnit) and not isMoving("player") and hasThreat(thisUnit) and distance>=5 and distance<30 then
 						pullTarget = true
-						for x=1,#nNova do
-			            	local partyUnit = nNova[x].unit
+						for x=1,#bb.friend do
+			            	local partyUnit = bb.friend[x].unit
 			            	local partyDist = getDistance(partyDist,thisUnit)
 			            	local partyDead = UnitIsDeadOrGhost(partyUnit)
 			            	if not partyDead and partyDist<5 then
@@ -400,11 +400,11 @@ function cDK:new(spec)
 		-- local the variables to make a clean start every time
 		local bestUnit, bestUnitEnemies = nil, 0
 		-- cycle all the enemies
-		for i = 1, #enemiesTable do
+		for i = 1, #bb.enemy do
 			-- check if the unit is close enough
-			if enemiesTable[i].distance < 8 and enemiesTable[i].inCombat then -- oh we filter these both places you are right but use the .inCombat as it is already part of the unit
+			if bb.enemy[i].distance < 8 and bb.enemy[i].inCombat then -- oh we filter these both places you are right but use the .inCombat as it is already part of the unit
 				-- define this ally values if it is close enough, we do the unit scan as second move as it will more ressource hunger
-				local thisUnit, thisUnitEnemiesOutOfRange, thisUnitEnemiesInRange = enemiesTable[i].unit, getEnemies(enemiesTable[i].unit, 20, true), getEnemies(enemiesTable[i].unit, 8, true)
+				local thisUnit, thisUnitEnemiesOutOfRange, thisUnitEnemiesInRange = bb.enemy[i].unit, getEnemies(bb.enemy[i].unit, 20, true), getEnemies(bb.enemy[i].unit, 8, true)
 				local thisUnitEnemies = thisUnitEnemiesOutOfRange - thisUnitEnemiesInRange
 				-- if this ally as more units around it than our best Unit then we set this one as best
 				if thisUnitEnemies > bestUnitEnemies and hasThreat(thisUnit) then
@@ -413,11 +413,11 @@ function cDK:new(spec)
 			end
 		end
 		-- cycle all the allies
-		for i = 1, #nNova do
+		for i = 1, #bb.friend do
 			-- check if the unit is close enough
-			if getDistance(nNova[i].unit) < 8 then
+			if getDistance(bb.friend[i].unit) < 8 then
 				-- define this ally values if it is close enough, we do the unit scan as second move as it will more ressource hunger
-				local thisUnit, thisUnitEnemiesOutOfRange, thisUnitEnemiesInRange = nNova[i].unit, getEnemies(nNova[i].unit, 20, true), getEnemies(nNova[i].unit, 8, true)
+				local thisUnit, thisUnitEnemiesOutOfRange, thisUnitEnemiesInRange = bb.friend[i].unit, getEnemies(bb.friend[i].unit, 20, true), getEnemies(bb.friend[i].unit, 8, true)
 				local thisUnitEnemies = #thisUnitEnemiesOutOfRange - #thisUnitEnemiesInRange
 				-- if this ally as more units around it than our best Unit then we set this one as best
 				if thisUnitEnemies > bestUnitEnemies or (thisUnitEnemies >= bestUnitEnemies and thisUnit.role == "TANK") then	
@@ -558,8 +558,8 @@ function cDK:new(spec)
 		        local totalCount = GetNumGroupMembers()
 		        local currentCount = currentCount or 0
 		        local needsBuff = needsBuff or 0
-		        for i=1,#nNova do
-		            local thisUnit = nNova[i].unit
+		        for i=1,#bb.friend do
+		            local thisUnit = bb.friend[i].unit
 		            local distance = getDistance(thisUnit)
 		            local dead = UnitIsDeadOrGhost(thisUnit)
 		            if distance<30 then

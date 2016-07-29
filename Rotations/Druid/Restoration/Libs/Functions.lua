@@ -83,9 +83,9 @@ if select(3, UnitClass("player")) == 11 then
       if UnitExists("target") == true and UnitCanAttack("target","player") == true then
         myTarget = "target"
         myDistance = targetDistance
-      elseif enemiesTable and enemiesTable[1] ~= nil then
-        myTarget = enemiesTable[1].unit
-        myDistance = enemiesTable[1].distance
+      elseif bb.enemy and bb.enemy[1] ~= nil then
+        myTarget = bb.enemy[1].unit
+        myDistance = bb.enemy[1].distance
       else
         myTarget = "target"
       end

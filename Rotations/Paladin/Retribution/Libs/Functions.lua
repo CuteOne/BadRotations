@@ -64,10 +64,10 @@ if select(3,UnitClass("player")) == 2 then
 			-- localise commonly used functions
 			local getHP,hasGlyph,UnitPower,getBuffRemain,getBuffStacks = getHP,hasGlyph,UnitPower,getBuffRemain,getBuffStacks
 			local UnitBuffID,IsSpellOverlayed,getSpellCD,getEnemies = UnitBuffID,IsSpellOverlayed,getSpellCD,getEnemies
-			local player,BadBoy_data,GetShapeshiftForm,dynamicTarget = "player",BadBoy_data,GetShapeshiftForm,dynamicTarget
+			local player,data,GetShapeshiftForm,dynamicTarget = "player",bb.data,GetShapeshiftForm,dynamicTarget
 			local GetSpellCooldown,select,getValue,isChecked,castInterrupt = GetSpellCooldown,select,getValue,isChecked,castInterrupt
 			local isSelected,UnitExists,isDummy,isMoving,castSpell,castGround = isSelected,UnitExists,isDummy,isMoving,castSpell,castGround
-			local getGround,canCast,isKnown,enemiesTable,sp = getGround,canCast,isKnown,enemiesTable,core.spells
+			local getGround,canCast,isKnown,sp = getGround,canCast,isKnown,core.spells
 			local UnitHealth,previousJudgmentTarget,print,UnitHealthMax = UnitHealth,previousJudgmentTarget,print,UnitHealthMax
 			local canTrinket,useItem,GetInventoryItemID,UnitSpellHaste = canTrinket,useItem,GetInventoryItemID,UnitSpellHaste
 
@@ -123,10 +123,10 @@ if select(3,UnitClass("player")) == 2 then
 				self.melee8Yards = #getEnemies(player,8)
 				self.melee12Yards = #getEnemies(player,12) -- 12y DS w/ Final Verdict Buff
 				-- Modes
-				self.mode.aoe = BadBoy_data["AoE"]
-				self.mode.cooldowns = BadBoy_data["Cooldowns"]
-				self.mode.defensive = BadBoy_data["Defensive"]
-				self.mode.healing = BadBoy_data["Healing"]
+				self.mode.aoe = data["AoE"]
+				self.mode.cooldowns = data["Cooldowns"]
+				self.mode.defensive = data["Defensive"]
+				self.mode.healing = data["Healing"]
 				-- truth = true, right = false
 				self.seal = GetShapeshiftForm() == 1
 
@@ -218,10 +218,10 @@ if select(3,UnitClass("player")) == 2 then
 				else
 					local hpHammerOfWrath = 35
 					-- 158392 = HoW SpellID HP < 35%; hpHammerOfWrath is also 2 times set to 35 ?!; Profile for LVL 100
-					local enemiesTable = enemiesTable
-					for i = 1,#enemiesTable do
-						if enemiesTable[i].hp < hpHammerOfWrath then
-							return castSpell(enemiesTable[i].unit,self.spell.hammerOfWrath,false,false,false,false,false,false,true) == true or false
+					-- local bb.enemy = bb.enemy
+					for i = 1,#bb.enemy do
+						if bb.enemy[i].hp < hpHammerOfWrath then
+							return castSpell(bb.enemy[i].unit,self.spell.hammerOfWrath,false,false,false,false,false,false,true) == true or false
 						end
 					end
 				end
@@ -253,10 +253,10 @@ if select(3,UnitClass("player")) == 2 then
 			-- Jeopardy
 			function retCore:castJeopardy()
 				-- scan enemies for a different unit
-				local enemiesTable = enemiesTable
-				if #enemiesTable > 1 then
-					for i = 1, #enemiesTable do
-						local thisEnemy = enemiesTable[i]
+				-- local bb.enemy = bb.enemy
+				if #bb.enemy > 1 then
+					for i = 1, #bb.enemy do
+						local thisEnemy = bb.enemy[i]
 						-- if its in range
 						if thisEnemy.distance < 30 then
 							-- here i will need to compare my previous judgment target with the previous one
@@ -290,7 +290,7 @@ if select(3,UnitClass("player")) == 2 then
 
 			-- Rebuke
 			function retCore:castRebuke()
-				if BadBoy_data["Interrupts"] ~= 1 and isChecked("Rebuke") then
+				if data["Interrupts"] ~= 1 and isChecked("Rebuke") then
 					castInterrupt(self.spell.rebuke, getValue("Rebuke"))
 				end
 			end

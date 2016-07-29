@@ -182,9 +182,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local dynTar15 										= bb.player.units.dyn15 
 			local dynTar20AoE 									= bb.player.units.dyn20AoE --Stealth
 			local dynTar30AoE 									= bb.player.units.dyn30AoE
-			local dynTable5										= (BadBoy_data['Cleave']==1 and enemiesTable) or { [1] = {["unit"]=dynTar5, ["distance"] = getDistance(dynTar5)}}
-			local dynTable15									= (BadBoy_data['Cleave']==1 and enemiesTable) or { [1] = {["unit"]=dynTar15, ["distance"] = getDistance(dynTar15)}}
-			local dynTable20AoE 								= (BadBoy_data['Cleave']==1 and enemiesTable) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getDistance(dynTar20AoE)}}
+			local dynTable5										= (bb.data['Cleave']==1 and bb.enemy) or { [1] = {["unit"]=dynTar5, ["distance"] = getDistance(dynTar5)}}
+			local dynTable15									= (bb.data['Cleave']==1 and bb.enemy) or { [1] = {["unit"]=dynTar15, ["distance"] = getDistance(dynTar15)}}
+			local dynTable20AoE 								= (bb.data['Cleave']==1 and bb.enemy) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getDistance(dynTar20AoE)}}
 			local enemies10										= bb.player.enemies.yards10
 			local flaskBuff, canFlask							= getBuffRemain("player",bb.player.flask.wod.buff.agilityBig), canUse(bb.player.flask.wod.agilityBig)	
 			local gcd 											= bb.player.gcd
@@ -483,7 +483,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			end -- End Action List - Opener
 		-- Action List - Finishers
 			local function actionList_Finishers()
-				if enemies10>5 and level>=83 and (useCleave() or BadBoy_data['AoE'] == 2) then
+				if enemies10>5 and level>=83 and (useCleave() or bb.data['AoE'] == 2) then
 			-- Crimson Tempest
 					if bb.player.castCrimsonTempest() then return end
 				else
@@ -542,7 +542,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		-- Action List - Generators
 			local function actionList_Generators()
 				-- Fan of Knives
-				if enemies10>3 and level>=66 and (useCleave() or BadBoy_data['AoE'] == 2) then
+				if enemies10>3 and level>=66 and (useCleave() or bb.data['AoE'] == 2) then
 					if bb.player.castFanOfKnives() then return end
 				else
 					-- Dispatch
@@ -657,12 +657,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	----------------------------------
 			-- Mutilate
 					-- if=buff.stealth.up|buff.vanish.up
-					if (stealth or buff.vanish) and (enemies10<6 or level<83 or not useCleave() or BadBoy_data['AoE'] == 3) then
+					if (stealth or buff.vanish) and (enemies10<6 or level<83 or not useCleave() or bb.data['AoE'] == 3) then
 						if bb.player.castMutilate2(dynTar5) then return end
 					end
 			-- Rupture
 					-- if=((combo_points>=4&!talent.anticipation.enabled)|combo_points=5)&ticks_remain<3
-					if ((combo>=4 and not talent.anticipation) or combo==5) and ruptureTick<3 and (enemies10<6 or level<83 or not useCleave() or BadBoy_data['AoE'] == 3) then
+					if ((combo>=4 and not talent.anticipation) or combo==5) and ruptureTick<3 and (enemies10<6 or level<83 or not useCleave() or bb.data['AoE'] == 3) then
 						if bb.player.castRupture(dynTar5) then return end
 					end
 					-- cycle_targets=1,if=spell_targets.fan_of_knives>1&!ticking&combo_points=5
@@ -689,7 +689,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 					end
 			-- Rupture
 					-- cycle_targets=1,if=combo_points=5&remains<=duration*0.3&spell_targets.fan_of_knives>1
-					if (enemies10<6 or level<83 or not useCleave() or BadBoy_data['AoE'] == 3) then
+					if (enemies10<6 or level<83 or not useCleave() or bb.data['AoE'] == 3) then
 						for i=1, #dynTable5 do
 							local thisUnit = dynTable5[i].unit
 							if combo==5 and ruptureRemain(thisUnit)<=ruptureDuration(thisUnit)*0.3 and targets10>1 then

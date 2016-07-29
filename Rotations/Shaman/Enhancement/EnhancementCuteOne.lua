@@ -223,7 +223,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 	    -- Action list - Extras
 	    	function actionList_Extra()
 	    	-- Earthbind/grab Totem
-	    		if isChecked("Earthbind/grab Totem") and not isBoss() then
+	    		if isChecked("Earthbind/grab Totem") and not isBoss() and inCombat then
 	                for i=1, #getEnemies("player",10) do
 	                    thisUnit = getEnemies("player",10)[i]
 	                    if isMoving(thisUnit) and getFacing(thisUnit,"player") == false then
@@ -255,8 +255,8 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 	        	end
 	        -- Tremor Totem
 	        	if isChecked("Tremor Totem") and inCombat then
-	        		for i=1,#nNova do
-	        			local thisUnit=nNova[i].unit
+	        		for i=1,#bb.friend do
+	        			local thisUnit=bb.friend[i].unit
 	        			local thisUnitDist=getDistance(thisUnit)
 	        			if thisUnitDist<30 and hasNoControl(bb.player.spell.tremorTotem,thisUnit) then
 	        				if bb.player.castTremorTotem() then return end
@@ -274,14 +274,14 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			-- Ancestral Guidance
 					if isChecked("Ancestral Guidance") then
 						if not inCombat and needsHealing>0 then needsHealing=0 end
-						for i=1,#nNova do
-							local thisUnit = nNova[i].unit
+						for i=1,#bb.friend do
+							local thisUnit = bb.friend[i].unit
 							local thisUnitHP = getHP(thisUnit)
 							if thisUnitHP < getOptionValue("Ancestral Guidance") then
 								needsHealing = needsHealing+1
 							end
 						end
-						if inCombat and (needsHealing >= 3 or needsHealing==#nNova) then
+						if inCombat and (needsHealing >= 3 or needsHealing==#bb.friend) then
 							if bb.player.castAncestralGuidance() then return end
 						end
 					end
@@ -339,8 +339,8 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 							if bb.player.castHealingSurge("mouseover") then return end
 						end
 						if getOptionValue("Healing Surge - Target")==2 and charges.maelstromWeapon>3 then
-							for i=1,#nNova do
-								local thisUnit = nNova[i].unit
+							for i=1,#bb.friend do
+								local thisUnit = bb.friend[i].unit
 								local thisUnitHP = getHP(thisUnit)
 								local thisUnitDist = getDistance(thisUnit)
 								if thisUnitDist<40 and thisUnitHP < getOptionValue("Healing Surge - Level") then
@@ -653,8 +653,8 @@ if select(2, UnitClass("player")) == "SHAMAN" then
 			-- Lava Lash
 				-- lava_lash,if=dot.flame_shock.ticking&active_dot.flame_shock<spell_targets.fire_nova_explosion
 				-- if debuff.flameShock and debuff.count.flameShock<enemies.yards10 then
-				for i=1, #enemiesTable do
-					local thisUnit = enemiesTable[i].unit
+				for i=1, #bb.enemy do
+					local thisUnit = bb.enemy[i].unit
 					local fsDebuff = UnitDebuffID(thisUnit,bb.player.spell.flameShock,"player")~=nil or false
 					if fsDebuff and debuff.count.flameShock<enemies.yards10 then
 						if bb.player.castLavaLash(thisUnit) then return end

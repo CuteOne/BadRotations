@@ -483,15 +483,15 @@ function castAoEHeal(spellID,numUnits,missingHP,rangeValue)
 	-- i start an iteration that i use to build each units Table,which i will reuse for the next second
 	if not holyRadianceRangeTable or not holyRadianceRangeTableTimer or holyRadianceRangeTable <= GetTime() - 1 then
 		holyRadianceRangeTable = { }
-		for i = 1,#nNova do
+		for i = 1,#bb.friend do
 			-- i declare a sub-table for this unit if it dont exists
-			if nNova[i].distanceTable == nil then nNova[i].distanceTable = { } end
+			if bb.friend[i].distanceTable == nil then bb.friend[i].distanceTable = { } end
 			-- i start a second iteration where i scan unit ranges from one another.
-			for j = 1,#nNova do
+			for j = 1,#bb.friend do
 				-- i make sure i dont compute unit range to hisself.
-				if not UnitIsUnit(nNova[i].unit,nNova[j].unit) then
+				if not UnitIsUnit(bb.friend[i].unit,bb.friend[j].unit) then
 					-- table the units
-					nNova[i].distanceTable[j] = { distance = getDistance(nNova[i].unit,nNova[j].unit),unit = nNova[j].unit,hp = nNova[j].hp }
+					bb.friend[i].distanceTable[j] = { distance = getDistance(bb.friend[i].unit,bb.friend[j].unit),unit = bb.friend[j].unit,hp = bb.friend[j].hp }
 				end
 			end
 		end
@@ -500,16 +500,16 @@ function castAoEHeal(spellID,numUnits,missingHP,rangeValue)
 	local bestTarget,bestTargetUnits = 1,1
 	-- now that nova range is built,i can iterate it
 	local inRange,missingHealth,mostMissingHealth = 0,0,0
-	for i = 1,#nNova do
-		if nNova[i].distanceTable ~= nil then
+	for i = 1,#bb.friend do
+		if bb.friend[i].distanceTable ~= nil then
 			-- i count units in range
-			for j = 1,#nNova do
-				if nNova[i].distanceTable[j] and nNova[i].distanceTable[j].distance < rangeValue then
+			for j = 1,#bb.friend do
+				if bb.friend[i].distanceTable[j] and bb.friend[i].distanceTable[j].distance < rangeValue then
 					inRange = inRange + 1
-					missingHealth = missingHealth + (100 - nNova[i].distanceTable[j].hp)
+					missingHealth = missingHealth + (100 - bb.friend[i].distanceTable[j].hp)
 				end
 			end
-			nNova[i].inRangeForHolyRadiance = inRange
+			bb.friend[i].inRangeForHolyRadiance = inRange
 			-- i check if this is going to be the best unit for my spell
 			if missingHealth > mostMissingHealth then
 				bestTarget,bestTargetUnits,mostMissingHealth = i,inRange,missingHealth
@@ -517,7 +517,7 @@ function castAoEHeal(spellID,numUnits,missingHP,rangeValue)
 		end
 	end
 	if bestTargetUnits and bestTargetUnits > 3 and mostMissingHealth and missingHP and mostMissingHealth > missingHP then
-		if castSpell(nNova[bestTarget].unit,spellID,true,true) then return true end
+		if castSpell(bb.friend[bestTarget].unit,spellID,true,true) then return true end
 	end
 end
 -- castGround("target",12345,40)
@@ -574,11 +574,11 @@ end
 function castHealGround(SpellID,Radius,Health,NumberOfPlayers)
 	if shouldStopCasting(SpellID) ~= true then
 		local lowHPTargets,foundTargets = { },{ }
-		for i = 1,#nNova do
-			if getHP(nNova[i].unit) <= Health then
-				if UnitIsVisible(nNova[i].unit) and GetObjectExists(nNova[i].unit) then
-					local X,Y,Z = GetObjectPosition(nNova[i].unit)
-					tinsert(lowHPTargets,{ unit = nNova[i].unit,x = X,y = Y,z = Z })
+		for i = 1,#bb.friend do
+			if getHP(bb.friend[i].unit) <= Health then
+				if UnitIsVisible(bb.friend[i].unit) and GetObjectExists(bb.friend[i].unit) then
+					local X,Y,Z = GetObjectPosition(bb.friend[i].unit)
+					tinsert(lowHPTargets,{ unit = bb.friend[i].unit,x = X,y = Y,z = Z })
 				end 
 			end 
 		end
@@ -830,8 +830,8 @@ function getChiMax(Unit)
 end
 -- if getCombatTime() <= 5 then
 function getCombatTime()
-	local combatStarted = BadBoy_data["Combat Started"]
-	local combatTime = BadBoy_data["Combat Time"]
+	local combatStarted = bb.data["Combat Started"]
+	local combatTime = bb.data["Combat Time"]
 	if combatStarted == nil then
 		return 0
 	end
@@ -843,7 +843,7 @@ function getCombatTime()
 	else
 		combatTime = 0
 	end
-	BadBoy_data["Combat Time"] = combatTime
+	bb.data["Combat Time"] = combatTime
 	return (math.floor(combatTime*1000)/1000)
 end
 -- if getCreatureType(Unit) == true then
@@ -973,70 +973,6 @@ function getDisease(range,aoe,mod)
       	end
     end
  end
--- if getDisease(30,true,min) < 2 then
--- function getDisease(range,aoe,mod)
---     if mod == nil then mod = "min" end
---     if range == nil then range = 5 end
---     if aoe == nil then aoe = false end
-
---     local range = tonumber(range)
---     local mod = tostring(mod)
-
---     local frost_feaver = 55095
---     local blood_plague = 55078
---     local necrotic_plague = 155159
-
---     local lowest_disease = 99
---     local highest_disease = 0
-
---     if #enemiesTable == 0 then
---     	return 0
---     else
--- 	    for i=1, #enemiesTable do
--- 	        local thisUnit  = enemiesTable[i].unit
--- 	        local distance  = enemiesTable[i].distance
--- 	        local facing    = enemiesTable[i].facing
--- 	        -- check for range
--- 	        if range < distance then
--- 	            -- check for facing
--- 	            if aoe == true or (aoe == false and facing == true) then
--- 	                -- buffer debuff remain times
--- 	                local frost_feaver_remain = getDebuffRemain(thisUnit,frost_feaver,"player") or 0
--- 	                local blood_plague_remain = getDebuffRemain(thisUnit,blood_plague,"player") or 0
--- 	                local necrotic_plague_remain = getDebuffRemain(thisUnit,necrotic_plague,"player") or 0
--- 	                -- find lowest disease time
--- 	                if mod == "min" then
--- 	                    if frost_feaver_remain < lowest_disease and frost_feaver_remain > 0 then
--- 	                        lowest_disease = frost_feaver_remain
--- 	                    end
--- 	                    if blood_plague_remain < lowest_disease and blood_plague_remain > 0 then
--- 	                        lowest_disease = blood_plague_remain
--- 	                    end
--- 	                    if necrotic_plague_remain < lowest_disease and necrotic_plague_remain > 0 then
--- 	                        lowest_disease = necrotic_plague_remain
--- 	                    end
--- 	                    -- return lowest disease remain time
--- 	                    return lowest_disease
--- 	                end
--- 	                -- find highest disease time
--- 	                if mod == "max" then
--- 	                    if frost_feaver_remain > highest_disease and frost_feaver_remain > 0 then
--- 	                        highest_disease = frost_feaver_remain
--- 	                    end
--- 	                    if blood_plague_remain > highest_disease and blood_plague_remain > 0 then
--- 	                        highest_disease = blood_plague_remain
--- 	                    end
--- 	                    if necrotic_plague_remain > highest_disease and necrotic_plague_remain > 0 then
--- 	                        highest_disease = necrotic_plague_remain
--- 	                    end
--- 	                    -- return highest disease remain time
--- 	                    return highest_disease
--- 	                end
--- 	            end
--- 	        end
--- 	    end
--- 	end
--- end
 -- if getDistance("player","target") <= 40 then
 function getDistance(Unit1,Unit2)
 	if actual == nil then actual = false end
@@ -1251,9 +1187,9 @@ function getHP(Unit)
 			return 100*UnitHealth(Unit)/UnitHealthMax(Unit)
 		else
 			if not UnitIsDeadOrGhost(Unit) and UnitIsVisible(Unit) then
-				for i = 1,#nNova do
-					if nNova[i].guidsh == string.sub(UnitGUID(Unit),-5) then
-						return nNova[i].hp
+				for i = 1,#bb.friend do
+					if bb.friend[i].guidsh == string.sub(UnitGUID(Unit),-5) then
+						return bb.friend[i].hp
 					end
 				end
 				if getOptionCheck("No Incoming Heals") ~= true and UnitGetIncomingHeals(Unit,"player") ~= nil then
@@ -1269,8 +1205,8 @@ end
 -- if getLowAllies(60) > 3 then
 function getLowAllies(Value)
 	local lowAllies = 0
-	for i = 1,#nNova do
-		if nNova[i].hp < Value then
+	for i = 1,#bb.friend do
+		if bb.friend[i].hp < Value then
 			lowAllies = lowAllies + 1
 		end
 	end
@@ -1817,11 +1753,11 @@ function hasThreat(unit,playerUnit)
 end
 -- if isAggroed("target") then
 function isAggroed(unit)
-local nNova = nNova
+local friend = bb.friend
 local hasAggro = hasAggro
 	if hasAggro == nil then hasAggro = false end
-	for i=1,#nNova do
-		local threat = select(5,UnitDetailedThreatSituation(nNova[i].unit,unit))
+	for i=1,#friend do
+		local threat = select(5,UnitDetailedThreatSituation(friend[i].unit,unit))
 		if threat~=nil then
 			if threat>=0 then
 	  			hasAggro = true
@@ -2368,12 +2304,12 @@ function spellDebug(Message)
 end
 -- if isChecked("Debug") then
 function isChecked(Value)
-	if BadBoy_data~=nil then
-		--print(BadBoy_data.options[bb.selectedSpec]["profile"..Value.."Check"])
-	    if BadBoy_data.options[bb.selectedSpec] == nil or BadBoy_data.options[bb.selectedSpec][bb.selectedProfile] == nil then return false end
+	if bb.data~=nil then
+		--print(bb.data.options[bb.selectedSpec]["profile"..Value.."Check"])
+	    if bb.data.options[bb.selectedSpec] == nil or bb.data.options[bb.selectedSpec][bb.selectedProfile] == nil then return false end
 
-	    if BadBoy_data.options[bb.selectedSpec]
-	        and (BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Check"]==1 or BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Check"] == true)
+	    if bb.data.options[bb.selectedSpec]
+	        and (bb.data.options[bb.selectedSpec][bb.selectedProfile][Value.. "Check"]==1 or bb.data.options[bb.selectedSpec][bb.selectedProfile][Value.. "Check"] == true)
 	    then
 	        return true
 	    end
@@ -2382,19 +2318,19 @@ function isChecked(Value)
 end
 -- if isSelected("Stormlash Totem") then
 function isSelected(Value)
-	if BadBoy_data["Cooldowns"] == 3 or (isChecked(Value)
-		and (getValue(Value) == 3 or (getValue(Value) == 2 and BadBoy_data["Cooldowns"] == 2))) then
+	if bb.data["Cooldowns"] == 3 or (isChecked(Value)
+		and (getValue(Value) == 3 or (getValue(Value) == 2 and bb.data["Cooldowns"] == 2))) then
 		return true
 	end
 end
 -- if getValue("player") <= getValue("Eternal Flame") then
 function getValue(Value)
-	if BadBoy_data~=nil then
-		if BadBoy_data.options[bb.selectedSpec][bb.selectedProfile]~=nil then
-	        if BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Status"] ~= nil then
-	            return BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Status"]
-	        elseif BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Drop"] ~= nil then
-	            return BadBoy_data.options[bb.selectedSpec][bb.selectedProfile][Value.."Drop"]
+	if bb.data~=nil then
+		if bb.data.options[bb.selectedSpec][bb.selectedProfile]~=nil then
+	        if bb.data.options[bb.selectedSpec][bb.selectedProfile][Value.."Status"] ~= nil then
+	            return bb.data.options[bb.selectedSpec][bb.selectedProfile][Value.."Status"]
+	        elseif bb.data.options[bb.selectedSpec][bb.selectedProfile][Value.."Drop"] ~= nil then
+	            return bb.data.options[bb.selectedSpec][bb.selectedProfile][Value.."Drop"]
 	        else
 	            return 0
 	        end
@@ -2410,61 +2346,22 @@ end
 function getOptionValue(Value)
     return getValue(Value)
 end
---[[Health Potion Table]]
-function healthPotTable()
-	healthPot = { }
-	for i = 0, 4 do --Let's look at each bag
-		local numBagSlots = GetContainerNumSlots(i)
-		if numBagSlots>0 then
-			for x = 1, numBagSlots do --Let's look at each bag slot
-				local itemID = GetContainerItemID(i,x)
-				if itemID~=nil then
-					local ItemName = select(1,GetItemInfo(itemID))
-					local MinLevel = select(5,GetItemInfo(itemID))
-					local ItemType = select(7,GetItemInfo(itemID))
-					local ItemEffect = select(1,GetItemSpell(itemID))
-					if ItemType == select(7,GetItemInfo(2459)) then
-						if strmatch(ItemEffect,strmatch(tostring(select(1,GetItemSpell(76097))),"%a+")) then
-							local ItemCount = GetItemCount(itemID)
-							local ItemCooldown = GetItemCooldown(itemID)
-							if MinLevel<=UnitLevel("player") and ItemCooldown == 0 then
-								table.insert(healthPot,
-									{
-										item = itemID,
-										itemName = ItemName,
-										minLevel = MinLevel,
-										itemType = ItemType,
-										itemEffect = ItemEffect,
-										itemCount = ItemCount
-									}
-								)
-							end
-						end
-					end
-				end
-				table.sort(healthPot, function(x,y)
-					return x.minLevel and y.minLevel and x.minLevel > y.minLevel or false
-				end)
-			end
-		end
-	end
-end
 function hasHealthPot()
-	healthPotTable()
-	local healthPot = healthPot
-	if healthPot[1]==nil then
+	local potion = bb.player.potion
+	if potion.health[1]==nil and potion.rejuve[1]==nil then
 		return false
 	else
 		return true
 	end
 end
 function getHealthPot()
-	healthPotTable()
-	local healthPot = healthPot
-	if healthPot[1]==nil then
-		return 0
+	local potion = bb.player.potion
+	if potion.health[1]~=nil then
+		return potion.health[1].itemID
+	elseif potion.rejuve[1]~=nil then
+		return potion.rejuve[1].itemID
 	else
-		return healthPot[1].item
+		return 0
 	end
 end
 

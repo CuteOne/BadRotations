@@ -184,9 +184,9 @@ if select(3, UnitClass("player")) == 5 then
 		------------------------------------------------------------------------------------------------------
 		-- Always check/do -----------------------------------------------------------------------------------
 		------------------------------------------------------------------------------------------------------
-		-- if enemiesTable then
-		-- 	if enemiesTableTimer <= GetTime() - 0.5 then
-		-- 		table.sort(enemiesTable, function(x,y)
+		-- if bb.enemy then
+		-- 	if bb.enemyTimer <= GetTime() - 0.5 then
+		-- 		table.sort(bb.enemy, function(x,y)
 		-- 			return x.hpabs and y.hpabs and x.hpabs > y.hpabs or false
 		-- 		end)
 		-- 	end

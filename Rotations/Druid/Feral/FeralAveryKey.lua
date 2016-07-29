@@ -100,7 +100,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			end
 			
 			--Skull Bash
-			if BadBoy_data["Interrupt"] == 1 then
+			if bb.data["Interrupt"] == 1 then
 				for i = 1, #getEnemies("player",13) do
 					local thisUnit = getEnemies("player",13)[i]
 					local distance = getDistance("player",thisUnit)						
@@ -113,7 +113,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			
 			local targetDistance = getDistance("player","target")
 			--Berserk
-			if BadBoy_data["Cooldown"] == 1 then			
+			if bb.data["Cooldown"] == 1 then			
 				if buff.tigersFury and (buff.incarnationKingOfTheJungle or not talent.incarnationKingOfTheJungle) and targetDistance < 5 then
 					if isChecked("Debug") then print("Berserk") end
 					CastSpellByName(GetSpellInfo(106951))
@@ -127,7 +127,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			end
 			
 			--Incarnation - King of the Jungle
-			if BadBoy_data["Cooldown"] == 1 then
+			if bb.data["Cooldown"] == 1 then
 				if buff.remain.berserk < 10 and ttm > 1 and targetDistance < 5 then
 					if isChecked("Debug") then print("Incarnation - King of the Jungle") end
 					CastSpellByName(GetSpellInfo(102543))
@@ -135,7 +135,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			end
 			
 			--Trinkets
-			if BadBoy_data["Cooldown"] == 1 then
+			if bb.data["Cooldown"] == 1 then
 				if canUse(13) and canTrinket(13) and targetDistance < 5 then
 					if isChecked("Debug") then print("/use 13") end
 					RunMacroText("/use 13")

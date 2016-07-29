@@ -338,12 +338,12 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         ---------------
 
         function self.getToggleModes()
-            local BadBoy_data   = BadBoy_data
+            local data   = bb.data
 
-            self.mode.rotation  = BadBoy_data["Rotation"]
-            self.mode.cooldown  = BadBoy_data["Cooldown"]
-            self.mode.defensive = BadBoy_data["Defensive"]
-            self.mode.interrupt = BadBoy_data["Interrupt"]
+            self.mode.rotation  = data["Rotation"]
+            self.mode.cooldown  = data["Cooldown"]
+            self.mode.defensive = data["Defensive"]
+            self.mode.interrupt = data["Interrupt"]
         end
 
         ---------------
@@ -457,42 +457,42 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         --- CUSTOM FUNCTIONS ---
         ------------------------
         function useCDs(spellid)
-            if (BadBoy_data['Cooldown'] == 1 and isBoss()) or BadBoy_data['Cooldown'] == 2 then
+            if (bb.data['Cooldown'] == 1 and isBoss()) or bb.data['Cooldown'] == 2 then
                 return true
             else
                 return false
             end
         end
         function useAuto()
-            if BadBoy_data['Rotation'] == 1 then
+            if bb.data['Rotation'] == 1 then
                 return true
             else
                 return false
             end
         end
         function useAoE()
-            if BadBoy_data['Rotation'] == 2 then
+            if bb.data['Rotation'] == 2 then
                return true
             else
                 return false
             end
         end
         function useSingle()
-            if BadBoy_data['Rotation'] == 3 then
+            if bb.data['Rotation'] == 3 then
                 return true
             else
                 return false
             end
         end
         function useInterrupts()
-            if BadBoy_data['Interrupt'] == 1 then
+            if bb.data['Interrupt'] == 1 then
                return true
             else
                 return false
             end
         end
         function useDefensive()
-            if BadBoy_data['Defensive'] == 1 then
+            if bb.data['Defensive'] == 1 then
                 return true
             else
                 return false

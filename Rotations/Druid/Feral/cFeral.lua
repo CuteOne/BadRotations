@@ -529,14 +529,13 @@ if select(2, UnitClass("player")) == "DRUID" then
     ---------------
 
         function self.getToggleModes()
-            local BadBoy_data   = BadBoy_data
 
-            self.mode.rotation  = BadBoy_data["Rotation"]
-            self.mode.cooldown  = BadBoy_data["Cooldown"]
-            self.mode.defensive = BadBoy_data["Defensive"]
-            self.mode.interrupt = BadBoy_data["Interrupt"]
-            self.mode.cleave    = BadBoy_data["Cleave"]
-            self.mode.prowl     = BadBoy_data["Prowl"]
+            self.mode.rotation  = bb.data["Rotation"]
+            self.mode.cooldown  = bb.data["Cooldown"]
+            self.mode.defensive = bb.data["Defensive"]
+            self.mode.interrupt = bb.data["Interrupt"]
+            self.mode.cleave    = bb.data["Cleave"]
+            self.mode.prowl     = bb.data["Prowl"]
         end
 
         -- Create the toggle defined within rotation files

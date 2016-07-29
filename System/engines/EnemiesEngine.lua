@@ -15,28 +15,30 @@ function EnemiesEngine()
 	-- isSafeToAttack(unit) - Bool - True if we can attack target according to doNotTouchUnitCandidates
 	-- getEnemies(unit,Radius) - Number - Returns number of valid units within radius of unit
 	-- castInterrupt(spell,percent) - Multi-Target Interupts - for facing/in movements spells of all ranges.
-	-- makeEnemiesTable(55) - Triggered in badboy.lua - generate the enemiesTable
+	-- makeEnemiesTable(55) - Triggered in badboy.lua - generate the bb.enemy
 	--[[------------------------------------------------------------------------------------------------------------------]]
 	--[[------------------------------------------------------------------------------------------------------------------]]
 	--[[------------------------------------------------------------------------------------------------------------------]]
 	--[[------------------------------------------------------------------------------------------------------------------]]
-	local varDir = BadBoy_data.options[bb.selectedSpec]
+	local varDir = bb.data.options[bb.selectedSpec]
 	function makeEnemiesTable(maxDistance)
+		bb.enemy = {}
+		bb.enemy.timer = 0
 		--local LibDraw = LibStub("LibDraw-1.0")
 		local  maxDistance = maxDistance or 50
-		if enemiesTable then cleanupEngine() end
-		if enemiesTable == nil or enemiesTableTimer == nil or enemiesTableTimer <= GetTime() - 1 then
+		if bb.enemy then cleanupEngine() end
+		if bb.enemy == nil or bb.enemy.timer == nil or bb.enemy.timer <= GetTime() - 1 then
             local startTime
-            if BadBoy_data["isDebugging"] == true then
+            if bb.data["isDebugging"] == true then
                 startTime = debugprofilestop()
             end
 
-			enemiesTableTimer = GetTime()
+			bb.enemy.timer = GetTime()
 			-- create/empty table
-			if enemiesTable == nil then
-				enemiesTable = { }
+			if bb.enemy == nil then
+				bb.enemy = { }
 			else
-				table.wipe(enemiesTable)
+				table.wipe(bb.enemy)
 			end
 			-- use objectmanager to build up table
             -- DEBUG
@@ -84,7 +86,7 @@ function EnemiesEngine()
 							end
 							local shouldDispel = getOffensiveBuffs(thisUnit,unitGUID)
 							-- insert unit as a sub-array holding unit informations
-							tinsert(enemiesTable,
+							tinsert(bb.enemy,
 								{
 									name = unitName,
 									guid = unitGUID,
@@ -114,11 +116,11 @@ function EnemiesEngine()
 				end
 			end
 			-- sort them by coeficient
-			table.sort(enemiesTable, function(x,y)
+			table.sort(bb.enemy, function(x,y)
 				return x.coeficient and y.coeficient and x.coeficient > y.coeficient or false
 			end)
 
-            if BadBoy_data["isDebugging"] == true then
+            if bb.data["isDebugging"] == true then
                 bb.debug.cpu.enemiesEngine.makeEnemiesTableCount = bb.debug.cpu.enemiesEngine.makeEnemiesTableCount + 1
                 bb.debug.cpu.enemiesEngine.makeEnemiesTableCurrent = debugprofilestop()-startTime
                 bb.debug.cpu.enemiesEngine.makeEnemiesTable = bb.debug.cpu.enemiesEngine.makeEnemiesTable + debugprofilestop()-startTime
@@ -129,11 +131,11 @@ function EnemiesEngine()
 	end
 	-- remove invalid units on pulse
 	function cleanupEngine()
-		for i = #enemiesTable, 1, -1 do
+		for i = #bb.enemy, 1, -1 do
 			-- here i want to scan the enemies table and find any occurances of invalid units
-			if not GetObjectExists(enemiesTable[i].unit) then
+			if not GetObjectExists(bb.enemy[i].unit) then
 				-- i will remove such units from table
-				tremove(enemiesTable,i)
+				tremove(bb.enemy,i)
 			end
 		end
 	end
@@ -142,8 +144,8 @@ function EnemiesEngine()
 		if getOptionCheck("Dynamic Targetting") then
 			local bestUnitCoef = 0
 			local bestUnit = "target"
-			for i = 1, #enemiesTable do
-				local thisUnit = enemiesTable[i]
+			for i = 1, #bb.enemy do
+				local thisUnit = bb.enemy[i]
 				if GetObjectExists(thisUnit.unit) then
 					if (not safeCheck or thisUnit.safe) and thisUnit.isCC == false and thisUnit.distance < range and (facing == false or thisUnit.facing == true) then
 						if thisUnit.coeficient >= 0 and thisUnit.coeficient >= bestUnitCoef then
@@ -183,8 +185,8 @@ function EnemiesEngine()
 	end
 	function getDebuffCount(spellID)
 		local counter = 0
-		for i=1,#enemiesTable do
-			local thisUnit = enemiesTable[i].unit
+		for i=1,#bb.enemy do
+			local thisUnit = bb.enemy[i].unit
 			-- check if unit is valid
 			if GetObjectExists(thisUnit) then
 				-- increase counter for each occurences
@@ -209,12 +211,12 @@ function EnemiesEngine()
 	function getEnemies(unit,Radius,InCombat,precise)
 		if GetObjectExists(unit) and UnitIsVisible(unit) then
 			local getEnemiesTable = { }
-			for i = 1, #enemiesTable do
-				local thisUnit = enemiesTable[i].unit
+			for i = 1, #bb.enemy do
+				local thisUnit = bb.enemy[i].unit
 				-- check if unit is valid
-				if GetObjectExists(thisUnit) and (not InCombat or enemiesTable[i].inCombat) then
+				if GetObjectExists(thisUnit) and (not InCombat or bb.enemy[i].inCombat) then
                     if unit == "player" and not precise then
-                        if enemiesTable[i].distance <= Radius then
+                        if bb.enemy[i].distance <= Radius then
                             tinsert(getEnemiesTable,thisUnit)
                         end
                     else

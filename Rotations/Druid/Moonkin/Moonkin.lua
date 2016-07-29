@@ -168,11 +168,11 @@ if select(3, UnitClass("player")) == 11 then
 		}
 
 		toggles = {
-			defensive = 	BadBoy_data['Defensive'],
-			multidot = 		BadBoy_data['DoT'],
-			bossHelper = 	BadBoy_data['BossHeler'],
-			cooldowns = 	BadBoy_data['Cooldowns'],
-			starfall = 		BadBoy_data['Starfall'],
+			defensive = 	bb.data['Defensive'],
+			multidot = 		bb.data['DoT'],
+			bossHelper = 	bb.data['BossHeler'],
+			cooldowns = 	bb.data['Cooldowns'],
+			starfall = 		bb.data['Starfall'],
 		}
 
 
@@ -206,11 +206,11 @@ if select(3, UnitClass("player")) == 11 then
 		-- Always check --------------------------------------------------------------------------------------
 		------------------------------------------------------------------------------------------------------
 
-		-- Sort enemiesTable by absolute HP
+		-- Sort bb.enemy by absolute HP
 		--if options.multitarget.sortByHPabs.check then
-			if enemiesTable then
-				if enemiesTableTimer <= GetTime() - 0.5 then
-					table.sort(enemiesTable, function(x,y)
+			if bb.enemy then
+				if bb.enemyTimer <= GetTime() - 0.5 then
+					table.sort(bb.enemy, function(x,y)
 						return x.hpabs and y.hpabs and x.hpabs > y.hpabs or false
 					end)
 				end
@@ -480,7 +480,7 @@ if select(3, UnitClass("player")) == 11 then
 					-- 3b) Sunfire more targets
 					-- if toggles.multidot==2 then
 					-- 	if getSunfire() <= options.multitarget.maxTargets.value then
-					-- 		if getSunfire() < #enemiesTable then
+					-- 		if getSunfire() < #bb.enemy then
 					-- 			if not UnitIsUnit("target",getBiggestUnitCluster(5)) then
 					-- 				print("4a")
 					-- 				if throwSunfireMax(options.multitarget.maxTargets.value) then return end

@@ -63,7 +63,7 @@ function cCombat:new()
 		self.getEnemies()
 		self.getRotation()
 
-		self.mode.bladeFlurry = BadBoy_data["BladeFlurry"]
+		self.mode.bladeFlurry = bb.data["BladeFlurry"]
 
 		-- Casting and GCD check
 		-- TODO: -> does not use off-GCD stuff like pots, dp etc

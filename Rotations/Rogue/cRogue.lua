@@ -598,9 +598,9 @@ function cRogue:new(spec)
 
     -- Rupture Cycle - used in simC
     function self.castRuptureCycle()
-        for i = 1, #enemiesTable do
-            if enemiesTable[i].distance < 5 then
-                local thisUnit = enemiesTable[i].unit
+        for i = 1, #bb.enemy do
+            if bb.enemy[i].distance < 5 then
+                local thisUnit = bb.enemy[i].unit
                 local ruptureRemain   = getDebuffRemain(thisUnit,self.spell.rupture,"player")
                 local ruptureDuration = getDebuffDuration(thisUnit, self.spell.rupture, "player")
                 if ruptureRemain <= ruptureDuration*0.3 then
@@ -681,7 +681,7 @@ function cRogue:new(spec)
     -- Pick Pocket
     -- TODO: improve pick pocket, does not always loot correctly
     function self.canPickPocket() --Pick Pocket Toggle State
-        if BadBoy_data['Picker'] == 1 or BadBoy_data['Picker'] == 2 then
+        if bb.data['Picker'] == 1 or bb.data['Picker'] == 2 then
             return true
         else
             return false
@@ -689,7 +689,7 @@ function cRogue:new(spec)
     end
 
    	function self.noAttack() --Pick Pocket Toggle State
-   	   if BadBoy_data['Picker'] == 2 then
+   	   if bb.data['Picker'] == 2 then
    	       return true
    	   else
    	       return false
@@ -700,7 +700,7 @@ function cRogue:new(spec)
     	local myTarget = myTarget or "target"
     	local thisUnit = thisUnit or "target"
     	if myTarget~=thisUnit then canPickpocket = true end
-        if (canPickpocket == false or BadBoy_data['Picker'] == 3 or GetNumLootItems() > 0) then
+        if (canPickpocket == false or bb.data['Picker'] == 3 or GetNumLootItems() > 0) then
             return true
         else
             return false

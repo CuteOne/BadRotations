@@ -35,13 +35,13 @@ if select(3,UnitClass("player")) == 9 then
       -- localise commonly used functions
       local getHP,hasGlyph,UnitPower,getBuffRemain,getBuffStacks = getHP,hasGlyph,UnitPower,getBuffRemain,getBuffStacks
       local UnitBuffID,IsSpellOverlayed,getSpellCD,getEnemies = UnitBuffID,IsSpellOverlayed,getSpellCD,getEnemies
-      local player,BadBoy_data,GetShapeshiftForm,dynamicTarget = "player",BadBoy_data,GetShapeshiftForm,dynamicTarget
+      local player,data,GetShapeshiftForm,dynamicTarget = "player",bb.data,GetShapeshiftForm,dynamicTarget
       local GetSpellCooldown,select,getValue,isChecked,castInterrupt = GetSpellCooldown,select,getValue,isChecked,castInterrupt
       local isSelected,UnitExists,isDummy,isMoving,castSpell,castGround = isSelected,UnitExists,isDummy,isMoving,castSpell,castGround
-      local canCast,isKnown,enemiesTable,GetSpellCharges = canCast,isKnown,enemiesTable,GetSpellCharges
+      local canCast,isKnown,GetSpellCharges = canCast,isKnown,GetSpellCharges
       local UnitHealth,castDotCycle,print,UnitHealthMax = UnitHealth,castDotCycle,print,UnitHealthMax
       local GetSpellInfo,UnitCastingInfo,GetTime,floor = GetSpellInfo,UnitCastingInfo,GetTime,math.floor
-      local nNova,useItem,getDebuffRemain = nNova,useItem,getDebuffRemain
+      local useItem,getDebuffRemain = useItem,getDebuffRemain
 
       -- no external access after here
       setfenv(1,demoCore)
@@ -90,7 +90,7 @@ if select(3,UnitClass("player")) == 9 then
         combatTime = GetTime()
         inCombat = false
         health = getHP(player)
-        nNova = nNova
+        bb.friend = bb.friend
         buff.meta = UnitBuffID(player,103958)
       end
 
@@ -99,7 +99,7 @@ if select(3,UnitClass("player")) == 9 then
         -- update modes
         updateModes()
         -- player stats
-        nNova = nNova
+        bb.friend = bb.friend
         inCombat = true
         health = getHP(player)
         mana = UnitPower(player,0)
@@ -123,10 +123,10 @@ if select(3,UnitClass("player")) == 9 then
       -- modes
       function demoCore:updateModes()
         -- Modes
-        mode.aoe = BadBoy_data["DemoAoE"]
-        mode.cooldowns = BadBoy_data["DemoCooldowns"]
-        mode.defensive = BadBoy_data["DemoDefensive"]
-        mode.healing = BadBoy_data["DemoInterrupts"]
+        mode.aoe = data["DemoAoE"]
+        mode.cooldowns = data["DemoCooldowns"]
+        mode.defensive = data["DemoDefensive"]
+        mode.healing = data["DemoInterrupts"]
         debugEnabled = isChecked("Debug")
       end
 

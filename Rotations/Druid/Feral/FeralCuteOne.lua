@@ -198,7 +198,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 			local racial 										= bb.player.getRacial()
             local mode                                          = bb.player.mode
 			local healPot 										= getHealthPot()
-			local lowestHP 										= nNova[1].unit
+			local lowestHP 										= bb.friend[1].unit
 			local pullTimer 									= bb.DBM:getPulltimer()
             local combatTime                                    = getCombatTime()
 			-- Specific Player Variables
@@ -229,12 +229,12 @@ if select(2, UnitClass("player")) == "DRUID" then
 			local dynTar13 										= bb.player.units.dyn13 --Skull Bash
 			local dynTar20AoE 									= bb.player.units.dyn20AoE --Prowl
 			local dynTar40AoE 									= bb.player.units.dyn40AoE --Cat Form/Moonfire	
-			local dynTable5 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar5, ["distance"] = getDistance(dynTar5)}}
-			local dynTable8 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar8, ["distance"] = getDistance(dynTar8)}}
-			local dynTable8AoE 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar8AoE, ["distance"] = getDistance(dynTar8AoE)}}
-			local dynTable13 									= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar13, ["distance"] = getDistance(dynTar13)}}
-			local dynTable20AoE 								= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getDistance(dynTar20AoE)}}
-			local dynTable40AoE 								= (bb.player.mode.cleave==1 and enemiesTable) or { [1] = {["unit"]=dynTar40AoE, ["distance"] = getDistance(dynTar40AoE)}}
+			local dynTable5 									= (bb.player.mode.cleave==1 and bb.enemy) or { [1] = {["unit"]=dynTar5, ["distance"] = getDistance(dynTar5)}}
+			local dynTable8 									= (bb.player.mode.cleave==1 and bb.enemy) or { [1] = {["unit"]=dynTar8, ["distance"] = getDistance(dynTar8)}}
+			local dynTable8AoE 									= (bb.player.mode.cleave==1 and bb.enemy) or { [1] = {["unit"]=dynTar8AoE, ["distance"] = getDistance(dynTar8AoE)}}
+			local dynTable13 									= (bb.player.mode.cleave==1 and bb.enemy) or { [1] = {["unit"]=dynTar13, ["distance"] = getDistance(dynTar13)}}
+			local dynTable20AoE 								= (bb.player.mode.cleave==1 and bb.enemy) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getDistance(dynTar20AoE)}}
+			local dynTable40AoE 								= (bb.player.mode.cleave==1 and bb.enemy) or { [1] = {["unit"]=dynTar40AoE, ["distance"] = getDistance(dynTar40AoE)}}
 			local deadtar, attacktar, hastar, playertar 		= deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
 			local friendly 										= friendly or UnitIsFriend("target", "player")
 		    local mfTick 										= 20.0/(1+UnitSpellHaste("player")/100)/10
@@ -442,11 +442,11 @@ if select(2, UnitClass("player")) == "DRUID" then
 			-- Healing Touch
 		            if isChecked("Healing Touch") and (buff.remain.predatorySwiftness > 0 or not inCombat) then
 		            	if getOptionValue("Auto Heal")==1 
-                            and ((getHP(nNova[1].unit) <= getOptionValue("Healing Touch")/2 and inCombat) 
-                                or (getHP(nNova[1].unit) <= getOptionValue("Healing Touch") and not inCombat) 
+                            and ((getHP(bb.friend[1].unit) <= getOptionValue("Healing Touch")/2 and inCombat) 
+                                or (getHP(bb.friend[1].unit) <= getOptionValue("Healing Touch") and not inCombat) 
                                 or (buff.remain.predatorySwiftness < 1 and buff.predatorySwiftness)) 
                         then
-                            if bb.player.castHealingTouch(nNova[1].unit) then return end
+                            if bb.player.castHealingTouch(bb.friend[1].unit) then return end
                         end
                         if getOptionValue("Auto Heal")==2 
                             and (php <= getOptionValue("Healing Touch") or (buff.remain.predatorySwiftness < 1 and buff.predatorySwiftness)) 
@@ -833,7 +833,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 						-- if=talent.bloodtalons.enabled&buff.predatory_swiftness.up&((combo_points>=4&!set_bonus.tier18_4pc)|combo_points=5|buff.predatory_swiftness.remains<1.5)
 						if talent.bloodtalons and buff.predatorySwiftness and ((combo >= 4 and not t18_4pc) or combo == 5 or buff.remain.predatorySwiftness < 1.5) then
 							if getOptionValue("Auto Heal")==1 then
-								if bb.player.castHealingTouch(nNova[1].unit) then return end
+								if bb.player.castHealingTouch(bb.friend[1].unit) then return end
 			                end
 			                if getOptionValue("Auto Heal")==2 then
 			                	if bb.player.castHealingTouch("player") then return end

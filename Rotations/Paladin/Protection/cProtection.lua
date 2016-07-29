@@ -15,7 +15,7 @@ function cProtection:new()
         "Defmaster",
         "Cute",
     }
-    self.rotation = BadBoy_data.options[bb.selectedSpec]["Rotation".."Drop"]
+    self.rotation = bb.data.options[bb.selectedSpec]["Rotation".."Drop"]
     self.cast = {}
 	self.enemies = {
 		yards5,
@@ -185,14 +185,14 @@ function cProtection:new()
 
     -- Updates toggle data
     function self.getToggleModes()
-        local BadBoy_data   = BadBoy_data
+        local data   = bb.data
 
-        self.mode.aoe       = BadBoy_data["AoE"]
-        self.mode.cooldowns = BadBoy_data["Cooldowns"]
-        self.mode.defensive = BadBoy_data["Defensive"]
-        self.mode.healing   = BadBoy_data["Healing"]
-        self.mode.empS      = BadBoy_data["EmpS"]
-        self.mode.classTrinket = BadBoy_data["classTrinket"]
+        self.mode.aoe       = data["AoE"]
+        self.mode.cooldowns = data["Cooldowns"]
+        self.mode.defensive = data["Defensive"]
+        self.mode.healing   = data["Healing"]
+        self.mode.empS      = data["EmpS"]
+        self.mode.classTrinket = data["classTrinket"]
     end
 
     -- Updates Judgment recharge time (cooldown)
@@ -460,9 +460,9 @@ function cProtection:new()
     -- Hammer of Wrath
     function self.cast.HammerOfWrath()
         if canCast(self.spell.hammerOfWrath) then
-            for i = 1,#enemiesTable do
-                if enemiesTable[i].hp < 20 then
-                    return castSpell(enemiesTable[i].unit,self.spell.hammerOfWrath,false,false) == true or false
+            for i = 1,#bb.enemy do
+                if bb.enemy[i].hp < 20 then
+                    return castSpell(bb.enemy[i].unit,self.spell.hammerOfWrath,false,false) == true or false
                 end
             end
         end
@@ -560,10 +560,10 @@ function cProtection:new()
         -- Check if glyph is present
         if self.glyph.doubleJeopardy then
             -- scan enemies for a different unit
-            local enemiesTable = enemiesTable
-            if #enemiesTable > 1 then
-                for i = 1, #enemiesTable do
-                    local thisEnemy = enemiesTable[i]
+            -- local bb.enemy = bb.enemy
+            if #bb.enemy > 1 then
+                for i = 1, #bb.enemy do
+                    local thisEnemy = bb.enemy[i]
                     -- if its in range
                     if thisEnemy.distance < 30 then
                         -- here i will need to compare my previous judgment target with the previous one

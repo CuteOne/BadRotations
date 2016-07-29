@@ -7,14 +7,14 @@
 --[[ ragnar                                                                                         ]]
 --[[                                                                                                ]]
 function unitLookup(Unit,returnType)
-	for i=1,#enemiesTable do
-		if enemiesTable[i].guid == Unit or enemiesTable[i].unit == Unit then
+	for i=1,#bb.enemy do
+		if bb.enemy[i].guid == Unit or bb.enemy[i].unit == Unit then
 			if returnType == "guid" then
-				return enemiesTable[i].guid
+				return bb.enemy[i].guid
 			elseif returnType == "table" then
 				return i
 			else
-				return enemiesTable[i].unit
+				return bb.enemy[i].unit
 			end
 		end
 	end
@@ -22,11 +22,11 @@ end
 
 function getUnitCount(ID,maxRange,tapped)
 	local counter = 0
-	for i=1,#enemiesTable do
-		local thisUnit = enemiesTable[i].unit
-		local thisUnitID = enemiesTable[i].id
+	for i=1,#bb.enemy do
+		local thisUnit = bb.enemy[i].unit
+		local thisUnitID = bb.enemy[i].id
 		if thisUnitID == ID then
-			if enemiesTable[i].distance < maxRange then
+			if bb.enemy[i].distance < maxRange then
 				if (tapped == true and UnitIsTappedByPlayer(thisUnit)) or tapped == nil or tapped == false then
 					counter = counter + 1
 				end
@@ -72,10 +72,10 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange)
 	local allUnitsInRange = {}
 	-- fill allUnitsInRange with data from enemiesEngine
 	--print("______________________1")
-	for i=1,#enemiesTable do
-		local thisUnit = enemiesTable[i].unit
-		local thisDistance = enemiesTable[i].distance
-		local hasThreat = hasThreat(enemiesTable[i].unit)
+	for i=1,#bb.enemy do
+		local thisUnit = bb.enemy[i].unit
+		local thisDistance = bb.enemy[i].distance
+		local hasThreat = hasThreat(bb.enemy[i].unit)
 		--print(thisUnit.." - "..thisDistance)
 		if isNotBlacklisted(thisUnit) then
 			--print("blacklist passed")
@@ -163,8 +163,8 @@ function isUnitThere(unitNameOrID,distance)
 		-- isUnitThere("Shadowfel Warden")
 
 	if type(unitNameOrID)=="number" then
-		for i=1,#enemiesTable do
-			local thisUnit = enemiesTable[i].unit
+		for i=1,#bb.enemy do
+			local thisUnit = bb.enemy[i].unit
 			if getUnitID(thisUnit) then
 				if distance==nil or getDistance("player",thisUnit) < distance then
 					return true 
@@ -173,8 +173,8 @@ function isUnitThere(unitNameOrID,distance)
 		end
 	end
 	if type(unitNameOrID)=="string" then
-		for i=1,#enemiesTable do
-			local thisUnit = enemiesTable[i].unit
+		for i=1,#bb.enemy do
+			local thisUnit = bb.enemy[i].unit
 			if UnitName(thisUnit)==unitNameOrID then 
 				if distance==nil or getDistance("player",thisUnit) < distance then
 					return true 
@@ -327,11 +327,11 @@ function getUnitCluster(minUnits,maxRange,radius)
 	local enemiesInRange = 0
 	local theReturnUnit
 
-	for i=1,#enemiesTable do
-		local thisUnit = enemiesTable[i].unit
+	for i=1,#bb.enemy do
+		local thisUnit = bb.enemy[i].unit
 		local thisEnemies = getNumEnemies(thisUnit,radius)
 		if getLineOfSight(thisUnit) == true then
-		if enemiesTable[i].distance < maxRange then
+		if bb.enemy[i].distance < maxRange then
 				if thisEnemies >= minUnits and thisEnemies > enemiesInRange then
 					theReturnUnit = thisUnit
 				end
@@ -358,10 +358,10 @@ function getBiggestUnitCluster(maxRange,radius)
 	local enemiesInRange = 0
 	local theReturnUnit
 
-	for i=1,#enemiesTable do
-		local thisUnit = enemiesTable[i].unit
+	for i=1,#bb.enemy do
+		local thisUnit = bb.enemy[i].unit
 		if getLineOfSight(thisUnit) == true then
-			if enemiesTable[i].distance < maxRange then
+			if bb.enemy[i].distance < maxRange then
 				if getNumEnemies(thisUnit,radius) > enemiesInRange then
 					theReturnUnit = thisUnit
 				end

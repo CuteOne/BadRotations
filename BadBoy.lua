@@ -6,10 +6,10 @@ bb.dropOptions = {}
 bb.dropOptions.Toggle = {"LeftCtrl","LeftShift","RightCtrl","RightShift","RightAlt","None"}
 bb.dropOptions.Toggle2 ={"LeftCtrl","LeftShift","LeftAlt","RightCtrl","RightShift","RightAlt","MMouse","Mouse4","Mouse5","None" }
 bb.dropOptions.CD = {"Never","CDs","Always" }
--- developers debug, use /run BadBoy_data["isDebugging"] = true
+-- developers debug, use /run bb.data["isDebugging"] = true
 bb.debug = {}
 function bb.debug:print(message)
-	if BadBoy_data["isDebugging"] == true then
+	if bb.data["isDebugging"] == true then
 		print(message)
 	end
 end
@@ -17,11 +17,13 @@ function bb:Run()
 	rc = LibStub("LibRangeCheck-2.0")
 	minRange, maxRange = rc:GetRange('target')
 	-- lets wipe and start up fresh.
-	if BadBoy_data == nil or BadBoy_data and BadBoy_data.wiped ~= true then
-		BadBoy_data = {
+	bb.data = bbdata
+	if bb.data == nil or bb.data and bb.data.wiped ~= true then
+		bb.data = {
 			buttonSize = 32,
 			wiped = true
 		}
+		bbdata = bb.data
 	end
 	--[[Init the readers codes (System/Reader.lua)]]
 	-- combat log
@@ -64,16 +66,16 @@ function bb:Run()
 	}
 	-- load common used stuff on first load
 	-- options table that will hold specs subtable
-	if BadBoy_data.options == nil then
-		BadBoy_data.options = {}
-		BadBoy_data.options[1] = {}
-		BadBoy_data.options[2] = {}
-		BadBoy_data.options[3] = {}
-		BadBoy_data.options[4] = {}
-		BadBoy_data.options[5] = {}
+	if bb.data.options == nil then
+		bb.data.options = {}
+		bb.data.options[1] = {}
+		bb.data.options[2] = {}
+		bb.data.options[3] = {}
+		bb.data.options[4] = {}
+		bb.data.options[5] = {}
     end
-    if BadBoy_data.options[5] == nil then
-        BadBoy_data.options[5] = {}
+    if bb.data.options[5] == nil then
+        bb.data.options[5] = {}
     end
     if GetSpecialization() == nil then
     	bb.selectedSpec = 5
@@ -81,18 +83,18 @@ function bb:Run()
     else
     	bb.selectedSpec = GetSpecialization()
     end
-    if BadBoy_data.options[bb.selectedSpec]["Rotation".."Drop"] == nil then
+    if bb.data.options[bb.selectedSpec]["Rotation".."Drop"] == nil then
         bb.selectedProfile = 1
     else
-        bb.selectedProfile = BadBoy_data.options[bb.selectedSpec]["Rotation".."Drop"]
+        bb.selectedProfile = bb.data.options[bb.selectedSpec]["Rotation".."Drop"]
     end
-    --bb.selectedProfile = BadBoy_data.options[bb.selectedSpec]["Rotation".."Drop"] or 1
-    if BadBoy_data.options[bb.selectedSpec][bb.selectedProfile]  == nil then
-        BadBoy_data.options[bb.selectedSpec][bb.selectedProfile] = {}
+    --bb.selectedProfile = bb.data.options[bb.selectedSpec]["Rotation".."Drop"] or 1
+    if bb.data.options[bb.selectedSpec][bb.selectedProfile]  == nil then
+        bb.data.options[bb.selectedSpec][bb.selectedProfile] = {}
     end
 	-- uncomment that when all ready
-	if BadBoy_data.BadBoyUI == nil then
-		BadBoy_data.BadBoyUI = {
+	if bb.data.BadBoyUI == nil then
+		bb.data.BadBoyUI = {
 			mainButton = {
 				pos = {
 					anchor = "CENTER",
@@ -215,17 +217,17 @@ function bb:Run()
 	end
 	SLASH_BlackList1, SLASH_BlackList2 = "/blacklist", "/bbb"
 	function SlashCmdList.BlackList(msg, editbox)
-		if BadBoy_data.blackList == nil then BadBoy_data.blackList = { } end
+		if bb.data.blackList == nil then bb.data.blackList = { } end
 		if msg == "dump" then
 			print("|cffFF0000BadBoy Blacklist:")
-			if #BadBoy_data.blackList == (0 or nil) then print("|cffFFDD11Empty") end
-			if BadBoy_data.blackList then
-				for i = 1, #BadBoy_data.blackList do
-					print("|cffFFDD11- "..BadBoy_data.blackList[i].name)
+			if #bb.data.blackList == (0 or nil) then print("|cffFFDD11Empty") end
+			if bb.data.blackList then
+				for i = 1, #bb.data.blackList do
+					print("|cffFFDD11- "..bb.data.blackList[i].name)
 				end
 			end
 		elseif msg == "clear" then
-			BadBoy_data.blackList = { }
+			bb.data.blackList = { }
 			print("|cffFF0000BadBoy Blacklist Cleared")
 		else
 			if UnitExists("mouseover") then
@@ -233,10 +235,10 @@ function bb:Run()
 				local mouseoverGUID = UnitGUID("mouseover")
 				-- Now we're trying to find that unit in the blackList table to remove
 				local found
-				for k,v in pairs(BadBoy_data.blackList) do
+				for k,v in pairs(bb.data.blackList) do
 					-- Now we're trying to find that unit in the Cache table to remove
 					if UnitGUID("mouseover") == v.guid then
-						tremove(BadBoy_data.blackList, k)
+						tremove(bb.data.blackList, k)
 						print("|cffFFDD11"..mouseoverName.."|cffFF0000 Removed from Blacklist")
 						found = true
 						--blackList[k] = nil
@@ -244,29 +246,29 @@ function bb:Run()
 				end
 				if not found then
 					print("|cffFFDD11"..mouseoverName.."|cffFF0000 Added to Blacklist")
-					tinsert(BadBoy_data.blackList, { guid = mouseoverGUID, name = mouseoverName})
+					tinsert(bb.data.blackList, { guid = mouseoverGUID, name = mouseoverName})
 				end
 			end
 		end
 	end
 	SLASH_Pause1 = "/Pause"
 	function SlashCmdList.Pause(msg, editbox)
-		if BadBoy_data['Pause'] == 0 then
+		if bb.data['Pause'] == 0 then
 			ChatOverlay("\124cFFED0000 -- Paused -- ")
-			BadBoy_data['Pause'] = 1
+			bb.data['Pause'] = 1
 		else
 			ChatOverlay("\124cFF3BB0FF -- Pause Removed -- ")
-			BadBoy_data['Pause'] = 0
+			bb.data['Pause'] = 0
 		end
 	end
 	SLASH_Power1 = "/Power"
 	function SlashCmdList.Power(msg, editbox)
-		if BadBoy_data['Power'] == 0 then
+		if bb.data['Power'] == 0 then
 			ChatOverlay("\124cFF3BB0FF -- BadBoy Enabled -- ")
-			BadBoy_data['Power'] = 1
+			bb.data['Power'] = 1
 		else
 			ChatOverlay("\124cFFED0000 -- BadBoy Disabled -- ")
-			BadBoy_data['Power'] = 0
+			bb.data['Power'] = 0
 		end
 	end
 	-- Build up pulse frame (hearth)
@@ -276,9 +278,9 @@ function bb:Run()
 	-- build up UI
 	bb:StartUI()
 
-    if BadBoy_data.options[bb.selectedSpec] == nil then BadBoy_data.options[bb.selectedSpec] = {} end
-    if BadBoy_data.options[bb.selectedSpec][bb.selectedProfile] == nil then BadBoy_data.options[bb.selectedSpec][bb.selectedProfile] = {} end
-    --bb.selectedProfile = BadBoy_data.options[bb.selectedSpec]["Rotation".."Drop"] or 1
+    if bb.data.options[bb.selectedSpec] == nil then bb.data.options[bb.selectedSpec] = {} end
+    if bb.data.options[bb.selectedSpec][bb.selectedProfile] == nil then bb.data.options[bb.selectedSpec][bb.selectedProfile] = {} end
+    --bb.selectedProfile = bb.data.options[bb.selectedSpec]["Rotation".."Drop"] or 1
     bb.ui:createConfigWindow()
 
 	-- start up enemies Engine
@@ -291,7 +293,7 @@ function bb:StartUI()
 	-- trigger frame creation in ui.lua
 	ConstructUI()
 	-- select the active option(refresh)
-	_G["options"..BadBoy_data.options.selected.."Button"]:Click()
+	_G["options"..bb.data.options.selected.."Button"]:Click()
 	-- Build up buttons frame (toggles)
 	BadBoyFrame()
 end
@@ -339,7 +341,7 @@ function bb:PulseUI()
     bb.pulse:ttd()
 	-- allies
     if isChecked("HE Active") then
-	    nNova:Update()
+	    bb.friend:Update()
     end
 	-- Pulse other features
 	-- PokeEngine()

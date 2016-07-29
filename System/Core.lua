@@ -59,16 +59,16 @@ function bb:MinimapButton()
 	button:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-Background.blp")
 	button:SetScript("OnMouseDown",function(self, button)
 		if button == "RightButton" then
-			if BadBoy_data.options[bb.selectedSpec] then
+			if bb.data.options[bb.selectedSpec] then
 				if not FireHack then
 						print("|cffFF1100BadBoy |cffFFFFFFCannot Start... |cffFF1100Firehack |cffFFFFFFis not loaded. Please attach Firehack.")
                 else
                     if bb.ui.window.profile.parent then
-                        if BadBoy_data.options[bb.selectedSpec]["configFrame"] == true then
+                        if bb.data.options[bb.selectedSpec]["configFrame"] == true then
                             bb.ui.window.profile.parent.closeButton:Click()
                         else
                             bb.ui.window.profile.parent:Show()
-                            BadBoy_data.options[bb.selectedSpec]["configFrame"] = true
+                            bb.data.options[bb.selectedSpec]["configFrame"] = true
                         end
                     end
 				end
@@ -89,20 +89,20 @@ function bb:MinimapButton()
 	button:SetScript("OnClick",function(self, button)
 		if button == "LeftButton" then
 			if IsShiftKeyDown() and not IsAltKeyDown() then
-				if BadBoy_data["Main"] == 1 then
-					BadBoy_data["Main"] = 0
+				if bb.data["Main"] == 1 then
+					bb.data["Main"] = 0
 					mainButton:Hide()
 				else
-					BadBoy_data["Main"] = 1
+					bb.data["Main"] = 1
 					mainButton:Show()
 				end
 			elseif not IsShiftKeyDown() and not IsAltKeyDown() then
                 if bb.ui.window.config.parent then
-                    if BadBoy_data.options[bb.selectedSpec]["optionsFrame"] == true then
+                    if bb.data.options[bb.selectedSpec]["optionsFrame"] == true then
                         bb.ui.window.config.parent.closeButton:Click()
                     else
                         bb.ui.window.config.parent:Show()
-                        BadBoy_data.options[bb.selectedSpec]["optionsFrame"] = true
+                        bb.data.options[bb.selectedSpec]["optionsFrame"] = true
                     end
 
                 end
@@ -146,7 +146,7 @@ frame:RegisterUnitEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterUnitEvent("ZONE_CHANGED_NEW_AREA")
 frame:RegisterUnitEvent("ZONE_CHANGED")
 function bb:reloadOnSpecChange()
-    if BadBoy_data["Power"] == 1 then
+    if bb.data["Power"] == 1 then
         ReloadUI()
     end
 end
@@ -166,46 +166,46 @@ function bb:saveProfileWindowPosition()
     -- Profile Window
     if bb.ui.window.profile.parent then
         local point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.profile.parent:GetPoint(1)
-        BadBoy_data.options[bb.selectedSpec]["configFrame".."_point"] = point
-        BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativeTo"] = relativeTo:GetName()
-        BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativePoint"] = relativePoint
-        BadBoy_data.options[bb.selectedSpec]["configFrame".."_xOfs"] = xOfs
-        BadBoy_data.options[bb.selectedSpec]["configFrame".."_yOfs"] = yOfs
+        bb.data.options[bb.selectedSpec]["configFrame".."_point"] = point
+        bb.data.options[bb.selectedSpec]["configFrame".."_relativeTo"] = relativeTo:GetName()
+        bb.data.options[bb.selectedSpec]["configFrame".."_relativePoint"] = relativePoint
+        bb.data.options[bb.selectedSpec]["configFrame".."_xOfs"] = xOfs
+        bb.data.options[bb.selectedSpec]["configFrame".."_yOfs"] = yOfs
 
         point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.profile.parent:GetPoint(2)
         if point then
-            BadBoy_data.options[bb.selectedSpec]["configFrame".."_point2"] = point
-            BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativeTo2"] = relativeTo:GetName()
-            BadBoy_data.options[bb.selectedSpec]["configFrame".."_relativePoint2"] = relativePoint
-            BadBoy_data.options[bb.selectedSpec]["configFrame".."_xOfs2"] = xOfs
-            BadBoy_data.options[bb.selectedSpec]["configFrame".."_yOfs2"] = yOfs
+            bb.data.options[bb.selectedSpec]["configFrame".."_point2"] = point
+            bb.data.options[bb.selectedSpec]["configFrame".."_relativeTo2"] = relativeTo:GetName()
+            bb.data.options[bb.selectedSpec]["configFrame".."_relativePoint2"] = relativePoint
+            bb.data.options[bb.selectedSpec]["configFrame".."_xOfs2"] = xOfs
+            bb.data.options[bb.selectedSpec]["configFrame".."_yOfs2"] = yOfs
         end
 
-        BadBoy_data.options[bb.selectedSpec]["configFrame".."_width"]  = bb.ui.window.profile.parent:GetWidth()
-        BadBoy_data.options[bb.selectedSpec]["configFrame".."_height"] = bb.ui.window.profile.parent:GetHeight()
+        bb.data.options[bb.selectedSpec]["configFrame".."_width"]  = bb.ui.window.profile.parent:GetWidth()
+        bb.data.options[bb.selectedSpec]["configFrame".."_height"] = bb.ui.window.profile.parent:GetHeight()
     end
 end
 function bb:saveConfigWindowPosition()
     -- Config Window
     if bb.ui.window.config.parent then
         local point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.config.parent:GetPoint(1)
-        BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_point"] = point
-        BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativeTo"] = relativeTo:GetName()
-        BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativePoint"] = relativePoint
-        BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_xOfs"] = xOfs
-        BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_yOfs"] = yOfs
+        bb.data.options[bb.selectedSpec]["optionsFrame".."_point"] = point
+        bb.data.options[bb.selectedSpec]["optionsFrame".."_relativeTo"] = relativeTo:GetName()
+        bb.data.options[bb.selectedSpec]["optionsFrame".."_relativePoint"] = relativePoint
+        bb.data.options[bb.selectedSpec]["optionsFrame".."_xOfs"] = xOfs
+        bb.data.options[bb.selectedSpec]["optionsFrame".."_yOfs"] = yOfs
 
         point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.config.parent:GetPoint(2)
         if point then
-            BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_point2"] = point
-            BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativeTo2"] = relativeTo:GetName()
-            BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_relativePoint2"] = relativePoint
-            BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_xOfs2"] = xOfs
-            BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_yOfs2"] = yOfs
+            bb.data.options[bb.selectedSpec]["optionsFrame".."_point2"] = point
+            bb.data.options[bb.selectedSpec]["optionsFrame".."_relativeTo2"] = relativeTo:GetName()
+            bb.data.options[bb.selectedSpec]["optionsFrame".."_relativePoint2"] = relativePoint
+            bb.data.options[bb.selectedSpec]["optionsFrame".."_xOfs2"] = xOfs
+            bb.data.options[bb.selectedSpec]["optionsFrame".."_yOfs2"] = yOfs
         end
 
-        BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_width"]  = bb.ui.window.config.parent:GetWidth()
-        BadBoy_data.options[bb.selectedSpec]["optionsFrame".."_height"] = bb.ui.window.config.parent:GetHeight()
+        bb.data.options[bb.selectedSpec]["optionsFrame".."_width"]  = bb.ui.window.config.parent:GetWidth()
+        bb.data.options[bb.selectedSpec]["optionsFrame".."_height"] = bb.ui.window.config.parent:GetHeight()
     end
 end
 function bb:saveWindowPosition()
@@ -253,7 +253,7 @@ frame:SetScript("OnEvent", frame.OnEvent)
 function BadBoyUpdate(self)
 	-- prevent ticking when firechack isnt loaded
 	-- if user click power button, stop everything from pulsing.
-	if not getOptionCheck("Start/Stop BadBoy") or BadBoy_data["Power"] ~= 1 then
+	if not getOptionCheck("Start/Stop BadBoy") or bb.data["Power"] ~= 1 then
 		optionsFrame:Hide()
 		_G["debugFrame"]:Hide()
 		return false
@@ -283,7 +283,7 @@ function BadBoyUpdate(self)
 	-- accept dungeon queues
 	bb:AcceptQueues()
 	--[[Class/Spec Selector]]
-    bb.selectedProfile = BadBoy_data.options[bb.selectedSpec]["Rotation".."Drop"] or 1
+    bb.selectedProfile = bb.data.options[bb.selectedSpec]["Rotation".."Drop"] or 1
 	local playerClass = select(3,UnitClass("player"))
 	local playerSpec = GetSpecialization()
 	local playerLevel = UnitLevel("player")

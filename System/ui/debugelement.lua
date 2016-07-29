@@ -5,12 +5,12 @@
 -- width: inherit from the parent frame
 -- height: inherit from the parent frame
 function createRow(parent,value,textString)
-	local scale = BadBoy_data.BadBoyUI[parent.."Frame"].scale or 1
+	local scale = bb.data.BadBoyUI[parent.."Frame"].scale or 1
 	_G[parent..value.."Frame"] = CreateFrame("Frame", "DebugRow", _G[parent.."Frame"])
 	_G[parent..value.."Frame"]:SetWidth(290*scale)
 	_G[parent..value.."Frame"]:SetHeight(24*scale)
 	_G[parent..value.."Frame"]:SetPoint("TOPLEFT",5*scale,-(value*24)*scale)
-	_G[parent..value.."Frame"]:SetAlpha(BadBoy_data.BadBoyUI.alpha)
+	_G[parent..value.."Frame"]:SetAlpha(bb.data.BadBoyUI.alpha)
 	_G[parent..value.."Frame"]:SetScript("OnEnter", function(self)
 		local MyValue = value
 		local tooltip = _G[parent..value.."Text"]:GetText()
@@ -24,9 +24,9 @@ function createRow(parent,value,textString)
 	_G[parent..value.."Text"]:SetWidth(290*scale)
 	_G[parent..value.."Text"]:SetHeight(24*scale)
 	_G[parent..value.."Text"]:SetPoint("TOPLEFT",0,0)
-	_G[parent..value.."Text"]:SetAlpha(BadBoy_data.BadBoyUI.alpha)
+	_G[parent..value.."Text"]:SetAlpha(bb.data.BadBoyUI.alpha)
 	_G[parent..value.."Text"]:SetJustifyH("LEFT")
-	_G[parent..value.."Text"]:SetFont(BadBoy_data.BadBoyUI.font,BadBoy_data.BadBoyUI.fontsize+1*scale,"THICKOUTLINE")
+	_G[parent..value.."Text"]:SetFont(bb.data.BadBoyUI.font,bb.data.BadBoyUI.fontsize+1*scale,"THICKOUTLINE")
 end
 function bb.read:display(...)
 	if getOptionCheck("Debug Frame") then

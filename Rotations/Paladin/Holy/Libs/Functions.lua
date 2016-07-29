@@ -32,9 +32,9 @@ if select(3,UnitClass("player")) == 2 then
     -- Word Of Glory
     function WordOfGlory(hpValue)
       if _HolyPower > 3 then
-        for i = 1, #nNova do
-          if nNova[i].hp < hpValue or (nNova[i].hp < 100 and _HolyPower == 5) then
-            if castSpell(nNova[i].unit, _WordOfGlory, true, false) then return end
+        for i = 1, #bb.friend do
+          if bb.friend[i].hp < hpValue or (bb.friend[i].hp < 100 and _HolyPower == 5) then
+            if castSpell(bb.friend[i].unit, _WordOfGlory, true, false) then return end
           end
         end
       end
@@ -57,9 +57,9 @@ if select(3,UnitClass("player")) == 2 then
       if getValue("Holy Prism Mode") == 3 then --Wise
         --Todo, here we should check how many enemies around lowest HP units and if x then go for it
         --or check if many people need healing and there is a mob close to them
-        for i = 1, #nNova do
-          if nNova[i].hp < hpValue then
-            if castSpell(nNova[i].unit, _HolyPrism, true, false) then return end
+        for i = 1, #bb.friend do
+          if bb.friend[i].hp < hpValue then
+            if castSpell(bb.friend[i].unit, _HolyPrism, true, false) then return end
           end
       end
       end
@@ -70,20 +70,20 @@ if select(3,UnitClass("player")) == 2 then
       local beaconTarget, beaconRole, beaconHP = "player", "HEALER", getHP("player")
       --3 different modes, tank, focus and wise
       -- Find if we have any, note if its a tank.
-      for i = 1, #nNova do
-        if UnitBuffID(nNova[i].unit,_BeaconOfLight,"player") then
-          beaconLightTarget, beaconLightRole, beaconLightHP = nNova[i].unit, nNova[i].role, nNova[i].hp
+      for i = 1, #bb.friend do
+        if UnitBuffID(bb.friend[i].unit,_BeaconOfLight,"player") then
+          beaconLightTarget, beaconLightRole, beaconLightHP = bb.friend[i].unit, bb.friend[i].role, bb.friend[i].hp
         end
-        if UnitBuffID(nNova[i].unit,_BeaconOfFaith,"player") then
-          beaconFaithTarget, beaconFaithRole, beaconFaithHP = nNova[i].unit, nNova[i].role, nNova[i].hp
+        if UnitBuffID(bb.friend[i].unit,_BeaconOfFaith,"player") then
+          beaconFaithTarget, beaconFaithRole, beaconFaithHP = bb.friend[i].unit, bb.friend[i].role, bb.friend[i].hp
         end
       end
       -- if we are not beacon on a tank and on tanks is checked we find a proper tank if focus dont exists.
       if getValue("Beacon Of Light") == 1 then
         if beaconLightRole ~= "TANK" then
-          for i = 1, #nNova do
-            if nNova[i].role == "TANK" and not UnitBuffID("focus",_BeaconOfLight,"player") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
-              if castSpell(nNova[i].unit,_BeaconOfLight,true,false) then
+          for i = 1, #bb.friend do
+            if bb.friend[i].role == "TANK" and not UnitBuffID("focus",_BeaconOfLight,"player") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
+              if castSpell(bb.friend[i].unit,_BeaconOfLight,true,false) then
                 return true
               end
             end
@@ -109,9 +109,9 @@ if select(3,UnitClass("player")) == 2 then
         -- if we are not beacon on a tank and on tanks is checked we find a proper tank if focus dont exists.
         if getValue("Beacon Of Faith") == 1 then
           if beaconFaithRole ~= "TANK" and not UnitBuffID("focus",_BeaconOfLight,"player") and not UnitBuffID("focus",_BeaconOfFaith,"player") then
-            for i = 1, #nNova do
-              if nNova[i].role == "TANK" then
-                if castSpell(nNova[i].unit,_BeaconOfFaith,true,false) then
+            for i = 1, #bb.friend do
+              if bb.friend[i].role == "TANK" then
+                if castSpell(bb.friend[i].unit,_BeaconOfFaith,true,false) then
                   return true
                 end
               end
@@ -138,18 +138,18 @@ if select(3,UnitClass("player")) == 2 then
       if getOptionCheck("Dispell") and canCast(_Cleanse,false,false) and not (getBossID("boss1") == 71734 and not UnitBuffID("player",144359)) then
         if getValue("Dispell") == 2 then -- Mouse Match
           if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
-            for i = 1, #nNova do
-              if nNova[i].guid == UnitGUID("mouseover") and nNova[i].dispel == true then
-                if castSpell(nNova[i].unit,_Cleanse, true,false) then
+            for i = 1, #bb.friend do
+              if bb.friend[i].guid == UnitGUID("mouseover") and bb.friend[i].dispel == true then
+                if castSpell(bb.friend[i].unit,_Cleanse, true,false) then
                   return true
                 end
               end
             end
         end
         elseif getValue("Dispell") == 1 then -- Raid Match
-          for i = 1, #nNova do
-            if nNova[i].hp < 249 and nNova[i].dispel == true then
-              if castSpell(nNova[i].unit,_Cleanse, true,false) then
+          for i = 1, #bb.friend do
+            if bb.friend[i].hp < 249 and bb.friend[i].dispel == true then
+              if castSpell(bb.friend[i].unit,_Cleanse, true,false) then
                 return true
               end
             end
@@ -170,13 +170,13 @@ if select(3,UnitClass("player")) == 2 then
             end
         end
         elseif getValue("Dispell") == 4 then -- Raid All
-          for i = 1, #nNova do
-            if nNova[i].hp < 249 then
+          for i = 1, #bb.friend do
+            if bb.friend[i].hp < 249 then
               for n = 1,40 do
-                local buff,_,_,count,bufftype,duration = UnitDebuff(nNova[i].unit, n)
+                local buff,_,_,count,bufftype,duration = UnitDebuff(bb.friend[i].unit, n)
                 if buff then
                   if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then
-                    if castSpell(nNova[i].unit,_Cleanse, true,false) then
+                    if castSpell(bb.friend[i].unit,_Cleanse, true,false) then
                       return true
                     end
                   end
@@ -224,11 +224,11 @@ if select(3,UnitClass("player")) == 2 then
     end
 
     function getAoeHealingCandidateNova(minimalNumberofUnits, missingHP, rangeValue)
-      local bestAoECandidate = nNova[1].unit
+      local bestAoECandidate = bb.friend[1].unit
       local bestAoeNumberOfUnits = 0
-      for i = 1, #nNova do
-        if nNova[i].hp < 249 then
-          local alliesinRange = getAllies(nNova[i].unit,rangeValue)
+      for i = 1, #bb.friend do
+        if bb.friend[i].hp < 249 then
+          local alliesinRange = getAllies(bb.friend[i].unit,rangeValue)
           local count = 0
           if #alliesinRange >= minimalNumberofUnits then
             for j = 1, #alliesinRange do
@@ -238,7 +238,7 @@ if select(3,UnitClass("player")) == 2 then
             end
           end
           if count > 	bestAoeNumberOfUnits then
-            bestAoECandidate = nNova[i].unit
+            bestAoECandidate = bb.friend[i].unit
             bestAoeNumberOfUnits = count
           end
           -- Todo: Here we have not met the criteria, but we should be able to provide with the best candidate even if we dont meet the criteria

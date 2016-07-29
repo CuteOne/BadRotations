@@ -72,7 +72,7 @@ if select(3,UnitClass("player")) == 10 then
   end
 
   function useCDsBrM()
-    if (BadBoy_data['Cooldowns'] == 1 and (isBoss() or isDummy("target"))) or BadBoy_data['Cooldowns'] == 2 then
+    if (bb.data['Cooldowns'] == 1 and (isBoss() or isDummy("target"))) or bb.data['Cooldowns'] == 2 then
       return true
     else
       return false
@@ -80,7 +80,7 @@ if select(3,UnitClass("player")) == 10 then
   end
 
   function useDefCDsBrM()
-    if BadBoy_data['Defensive'] == 1 then
+    if bb.data['Defensive'] == 1 then
       return true
     else
       return false
@@ -88,7 +88,7 @@ if select(3,UnitClass("player")) == 10 then
   end
 
   function useSingleRJW()
-    if BadBoy_data['Singlerjw'] == 1 then
+    if bb.data['Singlerjw'] == 1 then
       return true
     else
       return false
@@ -104,15 +104,15 @@ if select(3,UnitClass("player")) == 10 then
   end
 
   function useAoEBrM()
-    if BadBoy_data['AoE'] == 1 and getmeleeEnemiesBrM() >= 3 then
-      -- if BadBoy_data['AoE'] == 1 or BadBoy_data['AoE'] == 2 then
+    if bb.data['AoE'] == 1 and getmeleeEnemiesBrM() >= 3 then
+      -- if bb.data['AoE'] == 1 or bb.data['AoE'] == 2 then
       return true
     else
       return false
     end
   end
   -- function useAoEBrM()
-  --     if BadBoy_data['AoE'] == 1 and #enemiesTable >= 3 then
+  --     if bb.data['AoE'] == 1 and #bb.enemy >= 3 then
   --         return true
   --     else
   --         return false

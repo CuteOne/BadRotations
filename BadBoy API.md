@@ -22,7 +22,7 @@
 ***
 `castGround(Unit,SpellID,maxDistance)` Used to cast Spells on ground. Returns true if everything passes.
 `castGroundBetween(Unit,SpellID,maxDistance) ` Used to ground cast between yourself and target. Returns true if everything passes.
-`castHealGround(SpellID,Radius,Health,NumberOfPlayers)` Used to ground cast between lowest nNova members. Returns true if everything passes.
+`castHealGround(SpellID,Radius,Health,NumberOfPlayers)` Used to ground cast between lowest bb.friend members. Returns true if everything passes.
 [castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)](https://github.com/BadBoy-Ultimate-Raider/BadBoy/wiki/castSpell-Method#castspell) Used to cast Spells. Returns true if everything passes.
 **GET - Mixed**
 ***
@@ -41,7 +41,7 @@
 `getGround(Unit) - Bool` Returns true if ground is found under the target
 `getHP(Unit) - Num` Returns Unit HP %
 `getLineOfSight(Unit1,Unit2) - Bool` Returns true if the Unit1 can see Unit2
-`getLowAllies(Value) - Num` Returns number of units under Value HP in nNova
+`getLowAllies(Value) - Num` Returns number of units under Value HP in bb.friend
 `getMana(Unit) - Num` Returns Unit Mana %
 `getNumEnemies(Target,Radius) - Num` Returns number of Enemies found within Radius of the target
 `getPetLineOfSight(Unit) - Bool` Returns true if our pet is in sight of target
@@ -77,7 +77,7 @@
 `isValidTarget(Unit) - Bool` Returns true if the target is valid
 **Uncategorized - Mixed**
 ***
-`makeEnemiesTable()` - does not return anything but create enemiesTable that hold enemiesTable[i].unit enemiesTable[i].distance and enemiesTable[i].hp of all enemies in 40 yards
+`makeEnemiesTable()` - does not return anything but create bb.enemy that hold bb.enemy[i].unit bb.enemy[i].distance and bb.enemy[i].hp of all enemies in 40 yards
 `nDbDmg(tar, spellID, player) - Num` Returns tooltip damage
 `pause() - Bool` Returns true if pause is engaged
 `castingUnit() - Bool` Returns true is said unit is casting.

@@ -1,9 +1,9 @@
 ## Interface: 70000
 ## Title: |cffD90000BadBoy
-## Notes: |cffD90000From/For/By CodeMyLife.
-## Author: CodeMyLife
-## Version: 1.0
-## SavedVariablesPerCharacter: BadBoy_data
+## Notes: |cffD90000By CuteOne.
+## Author: CuteOne
+## Version: 2.0
+## SavedVariablesPerCharacter: bbdata
 
 BadBoy.lua
 

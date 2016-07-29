@@ -225,7 +225,7 @@ if select(2, UnitClass("player")) == "MONK" then
             function actionList_Extras()
             -- Death Monk mode
                 if isChecked("Death Monk Mode") then
-                    if enemies.yards40>1 and BadBoy_data['SEF']==1 then
+                    if enemies.yards40>1 and bb.data['SEF']==1 then
                         local sefEnemies = getEnemies("player",40)
                         for i=1, #sefEnemies do
                             local thisUnit                  = sefEnemies[i]
@@ -261,11 +261,11 @@ if select(2, UnitClass("player")) == "MONK" then
                     end
                 end -- End Death Monk Mode
             -- Stop Casting
-                if ((getDistance("target")<5 or (BadBoy_data['FSK']==1 and cd.flyingSerpentKick==0)) and isCastingSpell(bb.player.spell.cracklingJadeLightning)) or (not useAoE() and isCastingSpell(bb.player.spell.spinningCraneKick)) then
+                if ((getDistance("target")<5 or (bb.data['FSK']==1 and cd.flyingSerpentKick==0)) and isCastingSpell(bb.player.spell.cracklingJadeLightning)) or (not useAoE() and isCastingSpell(bb.player.spell.spinningCraneKick)) then
                     SpellStopCasting()
                 end
             -- Cancel Storm, Earth, and Fire
-                if charges.stormEarthAndFire~=0 and (not inCombat or BadBoy_data['SEF']~=1) then
+                if charges.stormEarthAndFire~=0 and (not inCombat or bb.data['SEF']~=1) then
                     CancelUnitBuff("player", GetSpellInfo(bb.player.spell.stormEarthAndFire))
                 end
             -- Tiger's Lust
@@ -288,17 +288,17 @@ if select(2, UnitClass("player")) == "MONK" then
                     if bb.player.castLegacyOfTheWhiteTiger() then return end
                 end
             -- Expel Harm (Chi Builer)
-                if not inCombat and BadBoy_data['Builder']==1 and chi.diff>=2 and not isUnitCasting("player") and GetNumLootItems()==0 then
+                if not inCombat and bb.data['Builder']==1 and chi.diff>=2 and not isUnitCasting("player") and GetNumLootItems()==0 then
                     if bb.player.castExpelHarm() then return end
                 end
             -- Provoke
                 if not inCombat and select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" and cd.flyingSerpentKick>1 and getDistance("target")>10 and ObjectExists("target") then
-                    if solo or #nNova==1 then
+                    if solo or #bb.friend==1 then
                         if bb.player.castProvoke() then return end
                     end
                 end
             -- Flying Serpent Kick
-                if BadBoy_data['FSK']==1 and ObjectExists("target") then
+                if bb.data['FSK']==1 and ObjectExists("target") then
                     if canFSK("target") and not isDummy() and (solo or inCombat) then
                         if bb.player.castFlyingSerpentKick() then 
                             if inCombat and usingFSK() then 
@@ -328,7 +328,7 @@ if select(2, UnitClass("player")) == "MONK" then
                     end
                 end
             -- Crackling Jade Lightning
-                if getDistance("target")>=8 and ((BadBoy_data['FSK']==1 and cd.flyingSerpentKick>1) or BadBoy_data['FSK']==2) 
+                if getDistance("target")>=8 and ((bb.data['FSK']==1 and cd.flyingSerpentKick>1) or bb.data['FSK']==2) 
                     and not isCastingSpell(bb.player.spell.cracklingJadeLightning) and (isInCombat("target") or isDummy()) and not isMoving("player") 
                 then
                     if bb.player.castCracklingJadeLightning() then return end
@@ -576,8 +576,8 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
             -- Zen Sphere
                 -- zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking&buff.serenity.down
-                for i =1, #nNova do
-                    thisUnit = nNova[i].unit
+                for i =1, #bb.friend do
+                    thisUnit = bb.friend[i].unit
                     if getDistance(thisUnit)<40 then
                         if ttm>2 and getBuffRemain(thisUnit,bb.player.spell.zenSphereBuff)==0 and not buff.serenity then
                             if bb.player.castZenSphere(thisUnit) then return end
@@ -632,8 +632,8 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
             -- Zen Sphere
                 -- zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking
-                for i=1, #nNova do
-                    thisUnit = nNova[i].unit
+                for i=1, #bb.friend do
+                    thisUnit = bb.friend[i].unit
                     if getDistance(thisUnit)<40 then
                         if ttm>2 and getBuffRemain(thisUnit,bb.player.spell.zenSphere)==0 then
                             if bb.player.castZenSphere(thisUnit) then return end
@@ -690,8 +690,8 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
             -- Zen Sphere
                 -- zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking
-                for i =1, #nNova do
-                    thisUnit = nNova[i].unit
+                for i =1, #bb.friend do
+                    thisUnit = bb.friend[i].unit
                     if getDistance(thisUnit)<40 then
                         if ttm>2 and getBuffRemain(thisUnit,bb.player.spell.zenSphere)==0 then
                             if bb.player.castZenSphere(thisUnit) then return end
@@ -728,8 +728,8 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
             -- Zen Sphere
                 -- zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking&buff.serenity.down
-                for i =1, #nNova do
-                    thisUnit = nNova[i].unit
+                for i =1, #bb.friend do
+                    thisUnit = bb.friend[i].unit
                     if getDistance(thisUnit)<40 then
                         if ttm>2 and getBuffRemain(thisUnit,bb.player.spell.zenSphere)==0 and not buff.serenity then
                             if bb.player.castZenSphere(thisUnit) then return end
@@ -788,8 +788,8 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
             -- Zen Sphere
                 -- zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking
-                for i =1, #nNova do
-                    thisUnit = nNova[i].unit
+                for i =1, #bb.friend do
+                    thisUnit = bb.friend[i].unit
                     if getDistance(thisUnit)<40 then
                         if ttm>2 and getBuffRemain(thisUnit,bb.player.spell.zenSphere)==0 then
                             if bb.player.castZenSphere(thisUnit) then return end
@@ -831,8 +831,8 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
             -- Zen Sphere
                 -- zen_sphere,cycle_targets=1,if=energy.time_to_max>2&!dot.zen_sphere.ticking&buff.serenity.down
-                for i =1, #nNova do
-                    thisUnit = nNova[i].unit
+                for i =1, #bb.friend do
+                    thisUnit = bb.friend[i].unit
                     if getDistance(thisUnit)<40 then
                         if ttm>2 and getBuffRemain(thisUnit,bb.player.spell.zenSphere)==0 and not buff.serenity then
                             if bb.player.castZenSphere(thisUnit) then return end
@@ -920,7 +920,7 @@ if select(2, UnitClass("player")) == "MONK" then
         -- Storm, Earth, and Fire
                         -- storm_earth_and_fire,target=2,if=debuff.storm_earth_and_fire_target.down
                         -- storm_earth_and_fire,target=3,if=debuff.storm_earth_and_fire_target.down
-                        if BadBoy_data['SEF']==1 then
+                        if bb.data['SEF']==1 then
                             if bb.player.castStormEarthAndFire() then return end
                         end
         -- Call Action List - Opener

@@ -32,7 +32,7 @@ function bb.castOffensiveDispel(spell)
 				-- if i still dont know which unit it is compared to my fh units, find it.
 				local thisUnit = bb.read.enraged[i].unit
 				if thisUnit == nil then
-					thisUnit = bb.matchUnit(bb.read.enraged[i],enemiesTable)
+					thisUnit = bb.matchUnit(bb.read.enraged[i],bb.enemy)
 				end
 				if thisUnit ~= nil then
 					if GetObjectExists(thisUnit.unit) then
@@ -61,13 +61,13 @@ function castCrowdControl(Unit,SpellID)
 	-- if "any" parameter is provided to target, we scan all the targets
 	if Unit == "any" then
 		-- test all targets
-		for i = 1, #enemiesTable do
+		for i = 1, #bb.enemy do
 			-- check if unit is valid
-			if GetObjectExists(enemiesTable[i].unit) then
+			if GetObjectExists(bb.enemy[i].unit) then
 				-- if this unit is a cc candidate and is in range
-				if enemiesTable[i].cc == true and enemiesTable[i].distance < spellDistance then
+				if bb.enemy[i].cc == true and bb.enemy[i].distance < spellDistance then
 					-- cast the spell
-					if castSpell(enemiesTable[i].unit,SpellID,true,false) then
+					if castSpell(bb.enemy[i].unit,SpellID,true,false) then
 						return true
 					end
 				end
@@ -98,8 +98,8 @@ function castDotCycle(units,spellID,range,facingCheck,movementCheck,duration)
 	duration = duration or 1
 	-- cycle our units if we want MORE DOTS
 	if getDebuffCount(spellID) < units then
-		for i = 1, #enemiesTable do
-			local thisUnit = enemiesTable[i]
+		for i = 1, #bb.enemy do
+			local thisUnit = bb.enemy[i]
 			-- check if unit is valid
 			if GetObjectExists(thisUnit.unit) then
 				if thisUnit.isCC == false and UnitLevel(thisUnit.unit) < UnitLevel("player") + 5 then
@@ -123,8 +123,8 @@ function castDispelOffensiveBuffs(spell)
 		spellDistance = 5
 	end
 	-- iterate our enemies
-	for i = 1,#enemiesTable do
-		local thisUnit = enemiesTable[i]
+	for i = 1,#bb.enemy do
+		local thisUnit = bb.enemy[i]
 		if GetObjectExists(thisUnit.unit) then
 			if thisUnit.distance <= spellDistance and thisUnit.offensiveBuff == true then
 				if castSpell(thisUnit.unit,spell,false,false) then

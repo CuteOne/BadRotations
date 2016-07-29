@@ -85,8 +85,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 
 			-- 		-- SWP every Mirror Image
 			-- 		if self.options.bosshelper.gorefiendSWP.enabled then
-			-- 			for i=1, #enemiesTable do
-			-- 				local thisUnit = enemiesTable[i].unit
+			-- 			for i=1, #bb.enemy do
+			-- 				local thisUnit = bb.enemy[i].unit
 			-- 				if UnitCastingInfo(thisUnit) == "Resisting" or UnitBuffID(thisUnit,189131) or UnitDebuffID(thisUnit,189131) then
 			-- 					if getDebuffRemain(thisUnit,self.spell.shadow_word_pain,"player") <= 18*0.3 then
 			-- 						if getHP(thisUnit) > 20 then
@@ -218,9 +218,9 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				end
 
 				-- dot all dogs (Dreadstalker: 93616)
-				for i=1, #enemiesTable do
-					local thisUnit = enemiesTable[i].unit
-					local thisUnitID = enemiesTable[i].id
+				for i=1, #bb.enemy do
+					local thisUnit = bb.enemy[i].unit
+					local thisUnitID = bb.enemy[i].id
 					if thisUnitID == 93616 then
 						if getDebuffRemain(thisUnit,self.spell.shadow_word_pain,"player") <= 18*0.3 then
 							if getHP(thisUnit) > 20 then

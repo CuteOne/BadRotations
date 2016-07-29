@@ -216,8 +216,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 						if getDebuffRemain("target",spell.devouring_plague,"player") == 0 then
 							if self.castDP("target") then return end
 						else
-							for i=1,#enemiesTable do
-								local thisUnit = enemiesTable[i].unit
+							for i=1,#bb.enemy do
+								local thisUnit = bb.enemy[i].unit
 								if getDebuffRemain(thisUnit,spell.devouring_plague,"player") <= 0 then
 									if self.castDP(thisUnit) then return end
 								end
@@ -231,8 +231,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 				-- 			if getDebuffRemain("target",spell.devouring_plague,"player") == 0 then
 				-- 				if castDP("target") then return end
 				-- 			else
-				-- 				for i=1,#enemiesTable do
-				-- 					local thisUnit = enemiesTable[i].unit
+				-- 				for i=1,#bb.enemy do
+				-- 					local thisUnit = bb.enemy[i].unit
 				-- 					if getDebuffRemain(thisUnit,spell.devouring_plague,"player") <= 0 then
 				-- 						if castDP(thisUnit) then return end
 				-- 					end
@@ -440,7 +440,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization() == 3 then
 			end
 
 			-- actions.cop_insanity+=/mind_blast,if=active_enemies<=5&cooldown_react
-			if #enemiesTable <= 5 then
+			if #bb.enemy <= 5 then
 				if self.castMindBlast("target") then return end
 			end
 

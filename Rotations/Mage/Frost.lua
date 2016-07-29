@@ -11,7 +11,7 @@ if select(3, UnitClass("player")) == 8 then
 		-------------------
 		-- Rune Of Power --
 		-------------------
-		if BadBoy_data["Rune"] == 1 and getOptionCheck("Start/Stop BadBoy") then
+		if bb.data["Rune"] == 1 and getOptionCheck("Start/Stop BadBoy") then
 			--[[ begin Rune Stuff ]]					-- add rune of power toggle!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 			--AoESpell, AoESpellTarget= nil, nil;
@@ -66,7 +66,7 @@ if select(3, UnitClass("player")) == 8 then
 		-- end
 
 		-- Pet active/passive
-			if BadBoy_data["Pet"] == 1 then
+			if bb.data["Pet"] == 1 then
 				-- check if pet is dead
 				if not UnitExists("pet") then
 					if castSpell("player",SummonPet,true,true) then
@@ -123,7 +123,7 @@ if select(3, UnitClass("player")) == 8 then
 			--	  if isChecked("Arcane Brilliance") == true and not UnitExists("mouseover") then
 			--		GroupInfo()
 			--		for i = 1, #members do --members
-			--			if not isBuffed(members[i].Unit,{1459}) and (#nNova==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
+			--			if not isBuffed(members[i].Unit,{1459}) and (#bb.friend==select(5,GetInstanceInfo()) or select(2,IsInInstance())=="none") then
 			--				if castSpell("player",ArcaneBrilliance,false,false) then
 			--					return;
 			--				end
@@ -141,7 +141,7 @@ if select(3, UnitClass("player")) == 8 then
 
 			FrostMageDefensives()
 
-			if BadBoy_data['Cooldowns'] == 2 then
+			if bb.data['Cooldowns'] == 2 then
 				FrostMageCooldowns()
 			end
 

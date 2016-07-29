@@ -395,8 +395,8 @@ function cAffliction:new()
 		function self.getAgonyRunning()
 			local counter = 0
 			-- iterate units for Agony
-			for i=1,#enemiesTable do
-				local thisUnit = enemiesTable[i].unit
+			for i=1,#bb.enemy do
+				local thisUnit = bb.enemy[i].unit
 				-- increase counter for each Agony
 				if (UnitAffectingCombat(thisUnit) or isDummy(thisUnit)) and UnitDebuffID(thisUnit,self.spell.shadow_word_pain,"player") then
 					counter=counter+1
@@ -409,8 +409,8 @@ function cAffliction:new()
 		function self.getCorruptionRunning()
 			local counter = 0
 			-- iterate units for Corruption
-			for i=1,#enemiesTable do
-				local thisUnit = enemiesTable[i].unit
+			for i=1,#bb.enemy do
+				local thisUnit = bb.enemy[i].unit
 				-- increase counter for each Corruption
 				if (UnitAffectingCombat(thisUnit) or isDummy(thisUnit)) and UnitDebuffID(thisUnit,self.spell.vampiric_touch,"player") then
 					counter=counter+1
@@ -423,8 +423,8 @@ function cAffliction:new()
 		function self.getUnstableAfflictionRunning()
 			local counter = 0
 			-- iterate units for UnstableAffliction
-			for i=1,#enemiesTable do
-				local thisUnit = enemiesTable[i].unit
+			for i=1,#bb.enemy do
+				local thisUnit = bb.enemy[i].unit
 				-- increase counter for each UnstableAffliction
 				if (UnitAffectingCombat(thisUnit) or isDummy(thisUnit)) and UnitDebuffID(thisUnit,self.spell.vampiric_touch,"player") then
 					counter=counter+1
@@ -645,11 +645,11 @@ function cAffliction:new()
 			if self.castAgonyOnTarget(maxTargets) then return true end
 			-- then apply on others
 			if self.getAgonyRunning() < maxTargets then
-				for i=1,#enemiesTable do
-					local thisUnit = enemiesTable[i].unit
-					local hp = enemiesTable[i].hpabs
-					local ttd = enemiesTable[i].ttd
-					local distance = enemiesTable[i].distance
+				for i=1,#bb.enemy do
+					local thisUnit = bb.enemy[i].unit
+					local hp = bb.enemy[i].hpabs
+					local ttd = bb.enemy[i].ttd
+					local distance = bb.enemy[i].distance
 					local refreshTime = 0.3*getDotRuntime(1)
 					-- infight
 					if UnitIsTappedByPlayer(thisUnit) then
@@ -724,11 +724,11 @@ function cAffliction:new()
 			if self.castCorruptionOnTarget(maxTargets) then return true end
 			-- then apply on others
 			if self.getCorruptionRunning() < maxTargets then
-				for i=1,#enemiesTable do
-					local thisUnit = enemiesTable[i].unit
-					local hp = enemiesTable[i].hpabs
-					local ttd = enemiesTable[i].ttd
-					local distance = enemiesTable[i].distance
+				for i=1,#bb.enemy do
+					local thisUnit = bb.enemy[i].unit
+					local hp = bb.enemy[i].hpabs
+					local ttd = bb.enemy[i].ttd
+					local distance = bb.enemy[i].distance
 					local refreshTime = 0.3*getDotRuntime(2)
 					-- infight
 					if UnitIsTappedByPlayer(thisUnit) then
@@ -832,11 +832,11 @@ function cAffliction:new()
 			if self.castUnstableAfflictionOnTarget(maxTargets) then return true end
 			-- then apply on others
 			if self.getUnstableAfflictionRunning() < maxTargets then
-				for i=1,#enemiesTable do
-					local thisUnit = enemiesTable[i].unit
-					local hp = enemiesTable[i].hpabs
-					local ttd = enemiesTable[i].ttd
-					local distance = enemiesTable[i].distance
+				for i=1,#bb.enemy do
+					local thisUnit = bb.enemy[i].unit
+					local hp = bb.enemy[i].hpabs
+					local ttd = bb.enemy[i].ttd
+					local distance = bb.enemy[i].distance
 					local refreshTime = 0.3*getDotRuntime(3)
 					-- infight
 					if UnitIsTappedByPlayer(thisUnit) then

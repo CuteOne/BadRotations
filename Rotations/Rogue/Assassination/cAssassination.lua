@@ -216,11 +216,11 @@ if select(2, UnitClass("player")) == "ROGUE" then
         ---------------
 
         function self.getToggleModes()
-            local BadBoy_data   = BadBoy_data
+            local data   = bb.data
 
-            self.mode.aoe       = BadBoy_data["AoE"]
-            self.mode.cooldowns = BadBoy_data["Cooldowns"]
-            self.mode.defensive = BadBoy_data["Defensive"]
+            self.mode.aoe       = data["AoE"]
+            self.mode.cooldowns = data["Cooldowns"]
+            self.mode.defensive = data["Defensive"]
         end
 
         ---------------
@@ -276,9 +276,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
         -- Dispatch
         function self.castDispatch(cycle)
             if cycle ~= nil then
-                for i = 1, #enemiesTable do
-                    if enemiesTable[i].distance < 5 then
-                        local thisUnit = enemiesTable[i].unit
+                for i = 1, #bb.enemy do
+                    if bb.enemy[i].distance < 5 then
+                        local thisUnit = bb.enemy[i].unit
                         local targetHP = getHP(thisUnit)
                         local deadlyPoision = getDebuffRemain(thisUnit, self.spell.deadlyPoison, "player")
                         if (targetHP < 35 or self.buff.blindside) and deadlyPoision < 4 then
@@ -305,9 +305,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
         -- Envenom
         function self.castEnvenom(cycle)
             if cycle ~= nil then
-                for i = 1, #enemiesTable do
-                    if enemiesTable[i].distance < 5 then
-                        local thisUnit = enemiesTable[i].unit
+                for i = 1, #bb.enemy do
+                    if bb.enemy[i].distance < 5 then
+                        local thisUnit = bb.enemy[i].unit
                         local deadlyPoision = getDebuffRemain(thisUnit, self.spell.deadlyPoison, "player")
                         if deadlyPoision < 4 then
                             return castSpell(thisUnit,self.spell.envenom,false,false,false) == true or false
@@ -330,9 +330,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
         -- Mutilate
         function self.castMutilate(cycle)
             if cycle ~= nil then
-                for i = 1, #enemiesTable do
-                    if enemiesTable[i].distance < 5 then
-                        local thisUnit = enemiesTable[i].unit
+                for i = 1, #bb.enemy do
+                    if bb.enemy[i].distance < 5 then
+                        local thisUnit = bb.enemy[i].unit
                         local targetHP = getHP(thisUnit)
                         local deadlyPoision = getDebuffRemain(thisUnit, self.spell.deadlyPoison, "player")
                         if targetHP > 35 and deadlyPoision < 4 then
@@ -413,7 +413,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         end
 
         function useCDs()
-            if (BadBoy_data['Cooldown'] == 1 and isBoss()) or BadBoy_data['Cooldown'] == 2 then
+            if (bb.data['Cooldown'] == 1 and isBoss()) or bb.data['Cooldown'] == 2 then
                 return true
             else
                 return false
@@ -421,7 +421,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         end
 
         function useAoE()
-            if (BadBoy_data['Rotation'] == 1 and #getEnemies("player",8) > 1) or BadBoy_data['Rotation'] == 2 then
+            if (bb.data['Rotation'] == 1 and #getEnemies("player",8) > 1) or bb.data['Rotation'] == 2 then
                 return true
             else
                 return false
@@ -429,7 +429,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         end
 
         function useDefensive()
-            if BadBoy_data['Defensive'] == 1 then
+            if bb.data['Defensive'] == 1 then
                 return true
             else
                 return false
@@ -437,7 +437,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         end
 
         function useInterrupts()
-            if BadBoy_data['Interrupt'] == 1 then
+            if bb.data['Interrupt'] == 1 then
                 return true
             else
                 return false
@@ -445,7 +445,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         end
 
         function useCleave()
-            if BadBoy_data['Cleave']==1 and BadBoy_data['Rotation'] < 3 then
+            if bb.data['Cleave']==1 and bb.data['Rotation'] < 3 then
                 return true
             else
                 return false
@@ -453,7 +453,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         end
 
         function canPP() --Pick Pocket Toggle State
-            if BadBoy_data['Picker'] == 1 or BadBoy_data['Picker'] == 2 then
+            if bb.data['Picker'] == 1 or bb.data['Picker'] == 2 then
                 return true
             else
                 return false
@@ -461,7 +461,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         end
 
         function noattack() --Pick Pocket Toggle State
-            if BadBoy_data['Picker'] == 2 then
+            if bb.data['Picker'] == 2 then
                 return true
             else
                 return false
@@ -475,7 +475,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                     myTarget = UnitGUID("target")
                 end
             end
-            if (canPickpocket == false or BadBoy_data['Picker'] == 3 or GetNumLootItems()>0) then
+            if (canPickpocket == false or bb.data['Picker'] == 3 or GetNumLootItems()>0) then
                 return true
             else
                 return false

@@ -233,11 +233,11 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         ---------------
 
         function self.getToggleModes()
-            local BadBoy_data   = BadBoy_data
+            local data   = bb.data
 
-            self.mode.aoe       = BadBoy_data["AoE"]
-            self.mode.cooldowns = BadBoy_data["Cooldowns"]
-            self.mode.defensive = BadBoy_data["Defensive"]
+            self.mode.aoe       = data["AoE"]
+            self.mode.cooldowns = data["Cooldowns"]
+            self.mode.defensive = data["Defensive"]
         end
 
         ---------------
@@ -330,8 +330,8 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         function useAoE()
             local enemies = #getEnemies("player",10)
             local oneHand, twoHand  = IsEquippedItemType("One-Hand"), IsEquippedItemType("Two-Hand")
-            if (BadBoy_data['Rotation'] == 1 and ((enemies>=3 and oneHand) or (enemies>=4 and twoHand))) or BadBoy_data['Rotation'] == 2 then
-                -- if BadBoy_data['AoE'] == 1 or BadBoy_data['AoE'] == 2 then
+            if (bb.data['Rotation'] == 1 and ((enemies>=3 and oneHand) or (enemies>=4 and twoHand))) or bb.data['Rotation'] == 2 then
+                -- if bb.data['AoE'] == 1 or bb.data['AoE'] == 2 then
                 return true
             else
                 return false
@@ -339,7 +339,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         end
 
         function useCDs()
-            if (BadBoy_data['Cooldown'] == 1 and isBoss()) or BadBoy_data['Cooldowns'] == 2 then
+            if (bb.data['Cooldown'] == 1 and isBoss()) or bb.data['Cooldowns'] == 2 then
                 return true
             else
                 return false
@@ -347,7 +347,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         end
 
         function useDefensive()
-            if BadBoy_data['Defensive'] == 1 then
+            if bb.data['Defensive'] == 1 then
                 return true
             else
                 return false
@@ -355,7 +355,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         end
 
         function useInterrupts()
-            if BadBoy_data['Interrupt'] == 1 then
+            if bb.data['Interrupt'] == 1 then
                 return true
             else
                 return false
@@ -363,7 +363,7 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
         end
 
         function useCleave()
-            if BadBoy_data['Cleave']==1 and BadBoy_data['AoE'] ~= 3 then
+            if bb.data['Cleave']==1 and bb.data['AoE'] ~= 3 then
                 return true
             else
                 return false
@@ -426,9 +426,9 @@ if select(2, UnitClass("player")) == "DEATHKNIGHT" then
 
         function isSimSpell()
             local simSpell = self.darkSimulacrum
-            for i=1, #enemiesTable do
-                if enemiesTable[i].distance<40 then
-                    local thisUnit = enemiesTable[i].unit
+            for i=1, #bb.enemy do
+                if bb.enemy[i].distance<40 then
+                    local thisUnit = bb.enemy[i].unit
                     if castingUnit(thisUnit) then
                         for f=1, #simList do
                             local simListSpell = simList[f].spell

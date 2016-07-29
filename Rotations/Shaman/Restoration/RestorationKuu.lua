@@ -10,13 +10,13 @@ if select(3, UnitClass("player")) == 7 then
         local averageHealth     = 0
         local foundShield       = foundShield or false
         
-        for i = 1, #nNova do
-          if UnitIsDeadOrGhost(nNova[i].unit) or getDistance(nNova[i].unit) > 40 then 
-            nNova[i].hp = 100 
+        for i = 1, #bb.friend do
+          if UnitIsDeadOrGhost(bb.friend[i].unit) or getDistance(bb.friend[i].unit) > 40 then 
+            bb.friend[i].hp = 100 
           end
-          averageHealth = averageHealth + nNova[i].hp;
+          averageHealth = averageHealth + bb.friend[i].hp;
         end
-        averageHealth = averageHealth/#nNova;
+        averageHealth = averageHealth/#bb.friend;
 
         if averageHealth < 80 and (isCastingSpell(self.spell.lavaBurst,"target") or isCastingSpell(self.spell.lightningBolt,"target")) then
           RunMacroText("/stopcasting")
@@ -29,9 +29,9 @@ if select(3, UnitClass("player")) == 7 then
           -- Earth Shield
           -- We look if someone in Nova have our shield
           if isChecked("Earth Shield") then
-            for i = 1, #nNova do
-              if getBuffStacks(nNova[i].unit,self.spell.earthShieldStacks,"player") > 2 then
-                if nNova[i].role == "TANK" or UnitIsUnit("focus",nNova[i].unit) then
+            for i = 1, #bb.friend do
+              if getBuffStacks(bb.friend[i].unit,self.spell.earthShieldStacks,"player") > 2 then
+                if bb.friend[i].role == "TANK" or UnitIsUnit("focus",bb.friend[i].unit) then
                 foundShield = true
                 end
               end
@@ -44,10 +44,10 @@ if select(3, UnitClass("player")) == 7 then
                   if self.castEarthShield("focus") then print("recast focus")return end
                 end
               else
-              -- if focus was already buffed or is invalid then we chek nNova roles for tank.
-                for i = 1, #nNova do
-                  if not UnitBuffID(nNova[i].unit, self.spell.waterShieldBuff) and not UnitBuffID(nNova[i].unit, self.spell.earthShieldBuff) and not UnitBuffID(nNova[i].unit,self.spell.lightningShieldBuff) and nNova[i].role == "TANK" and nNova[i].hp < 100 then
-                    if self.castEarthShield(nNova[i].unit) then return end
+              -- if focus was already buffed or is invalid then we chek bb.friend roles for tank.
+                for i = 1, #bb.friend do
+                  if not UnitBuffID(bb.friend[i].unit, self.spell.waterShieldBuff) and not UnitBuffID(bb.friend[i].unit, self.spell.earthShieldBuff) and not UnitBuffID(bb.friend[i].unit,self.spell.lightningShieldBuff) and bb.friend[i].role == "TANK" and bb.friend[i].hp < 100 then
+                    if self.castEarthShield(bb.friend[i].unit) then return end
                   end
                 end
               end
@@ -63,16 +63,16 @@ if select(3, UnitClass("player")) == 7 then
           if isChecked("Purify Spirit") then
             if getValue("Purify Spirit") == 1 then -- Mouse Match
               if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
-                for i = 1, #nNova do
-                  if nNova[i].guid == UnitGUID("mouseover") and nNova[i].dispel == true then
+                for i = 1, #bb.friend do
+                  if bb.friend[i].guid == UnitGUID("mouseover") and bb.friend[i].dispel == true then
                     if self.castPurifySpirit("mouseover") then return end
                   end
                 end
               end
             elseif getValue("Purify Spirit") == 2 then -- Raid Match
-              for i = 1, #nNova do
-                if nNova[i].dispel == true then
-                  if self.castPurifySpirit(nNova[i].unit) then return end
+              for i = 1, #bb.friend do
+                if bb.friend[i].dispel == true then
+                  if self.castPurifySpirit(bb.friend[i].unit) then return end
                 end
               end
             elseif getValue("Purify Spirit") == 3 then -- Mouse All
@@ -89,12 +89,12 @@ if select(3, UnitClass("player")) == 7 then
                 end
               end
             elseif getValue("Purify Spirit") == 4 then -- Raid All
-              for i = 1, #nNova do
+              for i = 1, #bb.friend do
                 for n = 1,40 do
-                  local buff,_,_,count,bufftype,duration = UnitDebuff(nNova[i].unit, n)
+                  local buff,_,_,count,bufftype,duration = UnitDebuff(bb.friend[i].unit, n)
                   if buff then
                     if bufftype == "Curse" or bufftype == "Magic" then
-                      if self.castPurifySpirit(nNova[i].unit) then return end
+                      if self.castPurifySpirit(bb.friend[i].unit) then return end
                     end
                   else
                     break;
@@ -140,8 +140,8 @@ if select(3, UnitClass("player")) == 7 then
           -- Ascendance
             local ascendUnits = 0
             if isChecked("Ascendance") and inCombat then
-              for i = 1, #nNova do
-                if nNova[i].hp <= getValue("Ascendance") and getDistance(nNova[i].unit) <= 40 then
+              for i = 1, #bb.friend do
+                if bb.friend[i].hp <= getValue("Ascendance") and getDistance(bb.friend[i].unit) <= 40 then
                   ascendUnits = ascendUnits + 1
                   if ascendUnits >= getValue("Ascendance People") then
                     if self.castAscendance() then
@@ -155,8 +155,8 @@ if select(3, UnitClass("player")) == 7 then
             -- Healing Tide Totem
             local htUnits = 0
             if isChecked("Healing Tide Totem") and inCombat then
-              for i = 1, #nNova do
-                if nNova[i].hp <= getValue("Healing Tide Totem") and getDistance(nNova[i].unit) <= 40 then
+              for i = 1, #bb.friend do
+                if bb.friend[i].hp <= getValue("Healing Tide Totem") and getDistance(bb.friend[i].unit) <= 40 then
                   htUnits = htUnits + 1
                   if htUnits >= getValue("HT Totem People") then
                     if self.castHealingTideTotem() then
@@ -170,8 +170,8 @@ if select(3, UnitClass("player")) == 7 then
             -- Spirit Link Totem
             local slUnits = 0
             if isChecked("Spirit Link Totem") and inCombat then
-              for i = 1, #nNova do
-                if nNova[i].hp <= getValue("Spirit Link Totem") and getDistance(nNova[i].unit) <= 10 then
+              for i = 1, #bb.friend do
+                if bb.friend[i].hp <= getValue("Spirit Link Totem") and getDistance(bb.friend[i].unit) <= 10 then
                   slUnits = slUnits + 1
                   if slUnits >= getValue("SL Totem People") then
                     if self.castSpiritLinkTotem() then
@@ -191,18 +191,18 @@ if select(3, UnitClass("player")) == 7 then
             end
             -- Healing Surge
             if isChecked("Healing Surge") then
-              for i = 1, #nNova do
-                if nNova[i].hp <= getValue("Healing Surge") then
+              for i = 1, #bb.friend do
+                if bb.friend[i].hp <= getValue("Healing Surge") then
                   if self.castUnleashLife() then end
-                  if self.castHealingSurge(nNova[i].unit) then return end
+                  if self.castHealingSurge(bb.friend[i].unit) then return end
                 end
               end
             end
             -- Chain Heal
             if isChecked("Chain Heal") then
-              for i = 1, #nNova do
-                if nNova[i].hp < getValue("Chain Heal") then
-                  local allies15Yards = getAllies(nNova[i].unit,15)
+              for i = 1, #bb.friend do
+                if bb.friend[i].hp < getValue("Chain Heal") then
+                  local allies15Yards = getAllies(bb.friend[i].unit,15)
                   if #allies15Yards >= getValue("CH People") then
                     local count = 0;
                     for i = 1, #allies15Yards do
@@ -212,7 +212,7 @@ if select(3, UnitClass("player")) == 7 then
                     end
                     if count > getValue("CH People") then
                       if self.castUnleashLife() then end
-                      if self.castChainHeal(nNova[i].unit) then return; end
+                      if self.castChainHeal(bb.friend[i].unit) then return; end
                     end
                   end
                 end
@@ -224,17 +224,17 @@ if select(3, UnitClass("player")) == 7 then
             end
             --Healing Wave
             if isChecked("Healing Wave") then
-              for i = 1, #nNova do
-                if nNova[i].hp <= getValue("Healing Wave") then
-                  if self.castHealingWave(nNova[i].unit) then return end
+              for i = 1, #bb.friend do
+                if bb.friend[i].hp <= getValue("Healing Wave") then
+                  if self.castHealingWave(bb.friend[i].unit) then return end
                 end
               end
             end
             -- Riptide
             if isChecked("Riptide") then
-              for i = 1, #nNova do
-                if nNova[i].hp <= getValue("Riptide") then
-                  if self.castRiptide(nNova[i].unit) then return end
+              for i = 1, #bb.friend do
+                if bb.friend[i].hp <= getValue("Riptide") then
+                  if self.castRiptide(bb.friend[i].unit) then return end
                 end
               end
             end

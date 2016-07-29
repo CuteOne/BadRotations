@@ -2,8 +2,8 @@
 function createDropDownMenu(parent,option,x,y,textString)
 	local value,tip,dropdown,dropOptions = option.name,option.dropTip,option.dropdown,option.dropOptions
 	local currentValue = 1
-	if BadBoy_data.options[bb.selectedSpec] then
-		currentValue = BadBoy_data.options[bb.selectedSpec][value.."Drop"]
+	if bb.data.options[bb.selectedSpec] then
+		currentValue = bb.data.options[bb.selectedSpec][value.."Drop"]
 	end
 	local textString = option.name
 	if tip == "Toggle2" then
@@ -24,16 +24,16 @@ function createDropDownMenu(parent,option,x,y,textString)
 	end
 	-- when a new dropbox is created
 	-- create the main button that will trigger the frame that will hold values
-	local scale = BadBoy_data.BadBoyUI.optionsFrame.scale or 1
+	local scale = bb.data.BadBoyUI.optionsFrame.scale or 1
 	_G[parent..value.."Drop"] = CreateFrame("Button", _G[parent..value.."Drop"], _G[parent.."Frame"])
 	_G[parent..value.."Drop"]:SetWidth(75*scale)
 	_G[parent..value.."Drop"]:SetHeight(22*scale)
 	_G[parent..value.."Drop"]:SetPoint("TOPLEFT",x*scale,y*scale)
-	_G[parent..value.."Drop"]:SetAlpha(BadBoy_data.BadBoyUI.alpha)
+	_G[parent..value.."Drop"]:SetAlpha(bb.data.BadBoyUI.alpha)
 	-- texture part
 	_G[parent..value.."Drop"].texture = _G[parent..value.."Drop"]:CreateTexture(_G[parent..value.."Drop"],"ARTWORK",_G[parent..value.."Frame"])
 	_G[parent..value.."Drop"].texture:SetAllPoints()
-	_G[parent..value.."Drop"].texture:SetTexture((BadBoy_data.BadBoyUI.optionsFrame.color.r + 25)/255,(BadBoy_data.BadBoyUI.optionsFrame.color.g + 25)/255,(BadBoy_data.BadBoyUI.optionsFrame.color.b + 25)/255,BadBoy_data.BadBoyUI.optionsFrame.color.a)
+	_G[parent..value.."Drop"].texture:SetTexture((bb.data.BadBoyUI.optionsFrame.color.r + 25)/255,(bb.data.BadBoyUI.optionsFrame.color.g + 25)/255,(bb.data.BadBoyUI.optionsFrame.color.b + 25)/255,bb.data.BadBoyUI.optionsFrame.color.a)
 	_G[parent..value.."Drop"].texture:SetBlendMode("BLEND")
 	_G[parent..value.."Drop"].texture:SetWidth(75*scale)
 	_G[parent..value.."Drop"].texture:SetHeight(22*scale)
@@ -62,12 +62,12 @@ function createDropDownMenu(parent,option,x,y,textString)
 			GameTooltip:SetText("|cffFFFFFFSelect option for \n|cffFFFFFF"..value.."|cffFFBB00.", nil, nil, nil, nil, true)
 		end
 		GameTooltip:Show()
-		_G[parent..value.."Drop"].texture:SetTexture((BadBoy_data.BadBoyUI.optionsFrame.color.r + 75)/255,(BadBoy_data.BadBoyUI.optionsFrame.color.g + 75)/255,(BadBoy_data.BadBoyUI.optionsFrame.color.b + 75)/255,BadBoy_data.BadBoyUI.optionsFrame.color.a)
+		_G[parent..value.."Drop"].texture:SetTexture((bb.data.BadBoyUI.optionsFrame.color.r + 75)/255,(bb.data.BadBoyUI.optionsFrame.color.g + 75)/255,(bb.data.BadBoyUI.optionsFrame.color.b + 75)/255,bb.data.BadBoyUI.optionsFrame.color.a)
 	end)
 	-- leave event
 	_G[parent..value.."Drop"]:SetScript("OnLeave", function(self)
 		-- reset button to addon color
-		_G[parent..value.."Drop"].texture:SetTexture((BadBoy_data.BadBoyUI.optionsFrame.color.r + 25)/255,(BadBoy_data.BadBoyUI.optionsFrame.color.g + 25)/255,(BadBoy_data.BadBoyUI.optionsFrame.color.b + 25)/255,BadBoy_data.BadBoyUI.optionsFrame.color.a)
+		_G[parent..value.."Drop"].texture:SetTexture((bb.data.BadBoyUI.optionsFrame.color.r + 25)/255,(bb.data.BadBoyUI.optionsFrame.color.g + 25)/255,(bb.data.BadBoyUI.optionsFrame.color.b + 25)/255,bb.data.BadBoyUI.optionsFrame.color.a)
 		--GameTooltip:Hide()
 		-- we need to start a timer and if next second cursor isnt on a child, we clear it
 	end)
@@ -76,14 +76,14 @@ function createDropDownMenu(parent,option,x,y,textString)
 	_G[parent..value.."DropText"]:SetWidth(75*scale)
 	_G[parent..value.."DropText"]:SetHeight(22*scale)
 	_G[parent..value.."DropText"]:SetPoint("TOPLEFT",0,-2)
-	_G[parent..value.."DropText"]:SetAlpha(BadBoy_data.BadBoyUI.alpha)
+	_G[parent..value.."DropText"]:SetAlpha(bb.data.BadBoyUI.alpha)
 	_G[parent..value.."DropText"]:SetJustifyH("CENTER")
-	_G[parent..value.."DropText"]:SetFont(BadBoy_data.BadBoyUI.font,BadBoy_data.BadBoyUI.fontsize*scale,"THICKOUTLINE")
+	_G[parent..value.."DropText"]:SetFont(bb.data.BadBoyUI.font,bb.data.BadBoyUI.fontsize*scale,"THICKOUTLINE")
 	-- assign the actually selected value to the option
 	local textDisplay
-	if BadBoy_data.options[bb.selectedSpec] then
-		if dropOptions[BadBoy_data.options[bb.selectedSpec][value.."Drop"]] ~= nil then
-			textDisplay = dropOptions[BadBoy_data.options[bb.selectedSpec][value.."Drop"]]
+	if bb.data.options[bb.selectedSpec] then
+		if dropOptions[bb.data.options[bb.selectedSpec][value.."Drop"]] ~= nil then
+			textDisplay = dropOptions[bb.data.options[bb.selectedSpec][value.."Drop"]]
 		end
 	end
 	_G[parent..value.."DropText"]:SetText(textDisplay,nil,nil,nil,nil,false)
@@ -114,16 +114,16 @@ function createDropDownMenu(parent,option,x,y,textString)
 	_G[parent..value.."DropFrame"]:Hide()
 end
 function createDropDownChild(grandParent,parent,value,x,y,tag,dropOptions,tip)
-	local scale = BadBoy_data.BadBoyUI.optionsFrame.scale or 1
+	local scale = bb.data.BadBoyUI.optionsFrame.scale or 1
 	_G[parent..value.."DropChild"] = CreateFrame("Button", _G[parent..value.."DropChild"], _G[grandParent..parent.."Drop"])
 	_G[parent..value.."DropChild"]:SetWidth(75*scale)
 	_G[parent..value.."DropChild"]:SetHeight(22*scale)
 	_G[parent..value.."DropChild"]:SetPoint("TOPLEFT",x*scale,y*scale)
-	_G[parent..value.."DropChild"]:SetAlpha(BadBoy_data.BadBoyUI.alpha)
+	_G[parent..value.."DropChild"]:SetAlpha(bb.data.BadBoyUI.alpha)
 	-- texture part
 	_G[parent..value.."DropChild"].texture = _G[parent..value.."DropChild"]:CreateTexture(_G[parent..value.."Texture"],"ARTWORK",_G[parent..value.."Frame"])
 	_G[parent..value.."DropChild"].texture:SetAllPoints()
-	_G[parent..value.."DropChild"].texture:SetTexture((BadBoy_data.BadBoyUI.optionsFrame.color.r - 25)/255,(BadBoy_data.BadBoyUI.optionsFrame.color.g - 25)/255,(BadBoy_data.BadBoyUI.optionsFrame.color.b - 25)/255,BadBoy_data.BadBoyUI.optionsFrame.color.a)
+	_G[parent..value.."DropChild"].texture:SetTexture((bb.data.BadBoyUI.optionsFrame.color.r - 25)/255,(bb.data.BadBoyUI.optionsFrame.color.g - 25)/255,(bb.data.BadBoyUI.optionsFrame.color.b - 25)/255,bb.data.BadBoyUI.optionsFrame.color.a)
 	_G[parent..value.."DropChild"].texture:SetBlendMode("BLEND")
 	_G[parent..value.."DropChild"].texture:SetWidth(75*scale)
 	_G[parent..value.."DropChild"].texture:SetHeight(22*scale)
@@ -131,8 +131,8 @@ function createDropDownChild(grandParent,parent,value,x,y,tag,dropOptions,tip)
 	_G[parent..value.."DropChild"]:SetScript("OnClick", function(self)
 		-- print(parent..value.."DropChild")
 		-- on click child frame select value
-		if BadBoy_data.options[bb.selectedSpec][parent.."Drop"] ~= tag then
-			BadBoy_data.options[bb.selectedSpec][parent.."Drop"] = tag
+		if bb.data.options[bb.selectedSpec][parent.."Drop"] ~= tag then
+			bb.data.options[bb.selectedSpec][parent.."Drop"] = tag
 		end
 		-- we need to hide childs
 		for i = 1, #dropOptions do
@@ -147,7 +147,7 @@ function createDropDownChild(grandParent,parent,value,x,y,tag,dropOptions,tip)
 	-- hover event
 	_G[parent..value.."DropChild"]:SetScript("OnEnter",function(self)
 		-- set button gray
-		_G[parent..value.."DropChild"].texture:SetTexture(175/255,175/255,175/255,BadBoy_data.BadBoyUI.optionsFrame.color.a)
+		_G[parent..value.."DropChild"].texture:SetTexture(175/255,175/255,175/255,bb.data.BadBoyUI.optionsFrame.color.a)
 		GameTooltip:SetOwner(self,"BOTTOMRIGHT",225,5)
 		if tip ~= nil then
 			GameTooltip:SetText(tip, nil, nil, nil, nil, true)
@@ -159,7 +159,7 @@ function createDropDownChild(grandParent,parent,value,x,y,tag,dropOptions,tip)
 	-- leave event
 	_G[parent..value.."DropChild"]:SetScript("OnLeave",function(self)
 		-- reset button to addon color
-		_G[parent..value.."DropChild"].texture:SetTexture((BadBoy_data.BadBoyUI.optionsFrame.color.r - 25)/255,(BadBoy_data.BadBoyUI.optionsFrame.color.g - 25)/255,(BadBoy_data.BadBoyUI.optionsFrame.color.b - 25)/255,BadBoy_data.BadBoyUI.optionsFrame.color.a)
+		_G[parent..value.."DropChild"].texture:SetTexture((bb.data.BadBoyUI.optionsFrame.color.r - 25)/255,(bb.data.BadBoyUI.optionsFrame.color.g - 25)/255,(bb.data.BadBoyUI.optionsFrame.color.b - 25)/255,bb.data.BadBoyUI.optionsFrame.color.a)
 		--GameTooltip:Hide()
 	end)
 	-- text
@@ -167,9 +167,9 @@ function createDropDownChild(grandParent,parent,value,x,y,tag,dropOptions,tip)
 	_G[parent..value.."TextChild"]:SetWidth(75*scale)
 	_G[parent..value.."TextChild"]:SetHeight(24*scale)
 	_G[parent..value.."TextChild"]:SetPoint("TOPLEFT",0,0)
-	_G[parent..value.."TextChild"]:SetAlpha(BadBoy_data.BadBoyUI.alpha)
+	_G[parent..value.."TextChild"]:SetAlpha(bb.data.BadBoyUI.alpha)
 	_G[parent..value.."TextChild"]:SetJustifyH("CENTER")
-	_G[parent..value.."TextChild"]:SetFont(BadBoy_data.BadBoyUI.font,BadBoy_data.BadBoyUI.fontsize*scale,"THICKOUTLINE")
+	_G[parent..value.."TextChild"]:SetFont(bb.data.BadBoyUI.font,bb.data.BadBoyUI.fontsize*scale,"THICKOUTLINE")
 	_G[parent..value.."TextChild"]:SetText(value, nil, nil, nil, nil, false)
 end
 function clearDropsDowns()

@@ -8,14 +8,14 @@
 bb.im = CreateFrame('Frame')
 -- local the frame while we load it.
 local im = bb.im
-im:RegisterEvent("PLAYER_REGEN_ENABLED") -- wipe when we get out of combat(its needed because enemiesTable will also be cleared)
+im:RegisterEvent("PLAYER_REGEN_ENABLED") -- wipe when we get out of combat(its needed because bb.enemy will also be cleared)
 im:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED") -- pulse when combat log events occurs
 local function spellCastListener(self,category,...)
 	if  getOptionCheck("Interrupts Handler") then
 		-- if event is a combatlog event
 		if category == "COMBAT_LOG_EVENT_UNFILTERED" then
 			-- prevent nils of bot not started
-			if enemiesTable == nil then
+			if bb.enemy == nil then
 				return false
 			end
 			-- commonly used locals inside listener
@@ -25,8 +25,8 @@ local function spellCastListener(self,category,...)
 			local unitType = select(1,strsplit("-", sourceGUID or ""))
 			-- make sure it is a spell cast
 			if event == "SPELL_CAST_START" then
-				-- refresh enemies with current enemiesTable
-				im.enemiesTable = enemiesTable
+				-- refresh enemies with current bb.enemy
+				im.bb.enemy = bb.enemy
 				-- manage cast
 				return im:manageCast(...)
 			end
@@ -192,14 +192,14 @@ function im:manageCast(...)
 	local timestamp,event,sourceGUID,sourceName = select(1,...),select(2,...),select(4,...),select(5,...)
 	local destGUID,destName,spellID = select(8,...),select(9,...),select(12,...)
 	-- find if that unit/spell combination should be interrupted
-	local enemiesTable = enemiesTable
+	-- local bb.enemy = bb.enemy
 	-- Prepare GUID to be reused via UnitID
-	if enemiesTable and #enemiesTable > 0 then
-		for i = #enemiesTable,1,-1 do
+	if bb.enemy and #bb.enemy > 0 then
+		for i = #bb.enemy,1,-1 do
 
-			if GetObjectExists(enemiesTable[i]) then
-				if enemiesTable[i] and enemiesTable[i].unit and sourceGUID == enemiesTable[i].guid  then
-					local thisUnit = enemiesTable[i]
+			if GetObjectExists(bb.enemy[i]) then
+				if bb.enemy[i] and bb.enemy[i].unit and sourceGUID == bb.enemy[i].guid  then
+					local thisUnit = bb.enemy[i]
 					-- gather our infos
 					if getOptionCheck("Only Known Units") and not isInteruptCandidate(thisUnit.unit, spellID) then
 						im:debug(sourceName.." started casting "..spellID.." but is not gonna be interrupt.")

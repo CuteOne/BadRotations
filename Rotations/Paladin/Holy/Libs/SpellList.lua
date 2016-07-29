@@ -17,9 +17,9 @@ if select(3,UnitClass("player")) == 2 then
       end
     else
       if _HolyPower < 5 or lowestHP < 90 then
-        for i = 1, #nNova do
-          if nNova[i].hp < hpValue then
-            if castSpell(nNova[i].unit, _HolyShock, true, false) then return end
+        for i = 1, #bb.friend do
+          if bb.friend[i].hp < hpValue then
+            if castSpell(bb.friend[i].unit, _HolyShock, true, false) then return end
           end
         end
       end
@@ -28,9 +28,9 @@ if select(3,UnitClass("player")) == 2 then
 
   -- Holy Light
   function castHolyLight(hpValue)
-    for i = 1, #nNova do
-      if nNova[i].hp < hpValue then
-        if castSpell(nNova[i].unit, _HolyLight, true, true) then return end
+    for i = 1, #bb.friend do
+      if bb.friend[i].hp < hpValue then
+        if castSpell(bb.friend[i].unit, _HolyLight, true, true) then return end
       end
     end
   end
@@ -42,9 +42,9 @@ if select(3,UnitClass("player")) == 2 then
         return true
       end
     else
-      for i = 1, #nNova do
-        if nNova[i].hp < hpValue then
-          if castSpell(nNova[i].unit, _FlashOfLight, true, true) then
+      for i = 1, #bb.friend do
+        if bb.friend[i].hp < hpValue then
+          if castSpell(bb.friend[i].unit, _FlashOfLight, true, true) then
             return true
           end
         end
@@ -60,9 +60,9 @@ if select(3,UnitClass("player")) == 2 then
           return
         end
       elseif modeHealing == 2 then
-        for i = 1, #nNova do
-          if nNova[i].hp <= getValue("Selfless Healer") then
-            if castSpell(nNova[i].unit,_FlashOfLight,true) then
+        for i = 1, #bb.friend do
+          if bb.friend[i].hp <= getValue("Selfless Healer") then
+            if castSpell(bb.friend[i].unit,_FlashOfLight,true) then
               return
             end
           end

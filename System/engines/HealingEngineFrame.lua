@@ -9,21 +9,21 @@ function pulseNovaDebug()
 		end
 		if not healingDebugStarted then
 			healingDebugStarted = true
-			frameCreation("healingDebug",200,150,"|cffFF001EnNova")
+			frameCreation("healingDebug",200,150,"|cffFF001Ebb.friend")
 			for i = 1, 5 do
 				local thisOption = { name = i, status = 100, statusMin = 0, statusMax = 100, unit = "thisUnit" }
 				createNovaStatusBar("healingDebug",thisOption,10,-i*25,180,20,false)
 			end
 		end
-		-- i will gather frames informations via thisDebugRow = nNovaDebug[i]
-		local novaUnits = #nNova
+		-- i will gather frames informations via thisDebugRow = bb.friendDebug[i]
+		local novaUnits = #bb.friend
 		if novaUnits > 5 then
 			novaUnits = 5
 		end
 		for i = 1, novaUnits do
-			local thisUnit = nNova[i]
-			_G[nNovaDebug[i]]:Show()
-			thisDebugRow = nNovaDebug[i]
+			local thisUnit = bb.friend[i]
+			_G[bb.friendDebug[i]]:Show()
+			thisDebugRow = bb.friendDebug[i]
 			_G[thisDebugRow]:SetValue(thisUnit.hp)
 			_G[thisDebugRow.."Text"]:SetText(math.floor(thisUnit.hp))
 			if classColors[thisUnit.class] ~= nil then
@@ -35,11 +35,11 @@ function pulseNovaDebug()
 				_G[thisDebugRow]:SetStatusBarTexture(0.70,0,0)
 			end
 		end
-		-- show up to 5 frames or #nNova
+		-- show up to 5 frames or #bb.friend
 		if novaUnits < 5 then
 			for i = 1, 5 do
 				if i > novaUnits then
-					_G[nNovaDebug[i]]:Hide()
+					_G[bb.friendDebug[i]]:Hide()
 				end
 			end
 		end

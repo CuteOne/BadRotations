@@ -19,8 +19,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization()==1 then
 
 	function getPoM()
 		local counter = 0
-		for i=1,#nNova do
-			thisUnit = nNova[i]
+		for i=1,#bb.friend do
+			thisUnit = bb.friend[i]
 			if getBuffStacks(thisUnit.unit,41635,"player") then
 				counter = counter + 1
 			end
@@ -30,8 +30,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization()==1 then
 
 	function getPWS()
 		local counter = 0
-		for i=1,#nNova do
-			thisUnit = nNova[i].unit
+		for i=1,#bb.friend do
+			thisUnit = bb.friend[i].unit
 			if getBuffRemain(thisUnit,17,"player") then
 				counter = counter + 1
 			end
@@ -47,7 +47,7 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization()==1 then
 	function castMindbender(targetUnit)
 		if getTalent(3,2) then
 			if targetUnit==nil then
-				return castSpell(enemiesTable[1].unit,spell.mindbender,true,false)
+				return castSpell(bb.enemy[1].unit,spell.mindbender,true,false)
 			else
 				return castSpell(targetUnit,spell.mindbender,true,false)
 			end
@@ -56,24 +56,24 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization()==1 then
 
 	-- Holy Fire
 	function castHolyFire()
-		for i=1,#enemiesTable do
-			local thisUnit = enemiesTable[i].unit
+		for i=1,#bb.enemy do
+			local thisUnit = bb.enemy[i].unit
 			return castSpell(thisUnit,spell.holyFire,false,false)
 		end
 	end
 
 	-- PW Solace
 	function castPWSolace()
-		for i=1,#enemiesTable do
-			local thisUnit = enemiesTable[i].unit
+		for i=1,#bb.enemy do
+			local thisUnit = bb.enemy[i].unit
 			return castSpell(thisUnit,spell.pwSolace,false,false)
 		end
 	end		
 
 	-- Smite
 	function castSmite()
-		for i=1,#enemiesTable do
-			local thisUnit = enemiesTable[i].unit
+		for i=1,#bb.enemy do
+			local thisUnit = bb.enemy[i].unit
 			return castSpell(thisUnit,spell.smite,false,true)
 		end
 	end
@@ -97,10 +97,10 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization()==1 then
 	end
 
 	function castPenanceTank()
-		for i=1,#nNova do
-			local thisUnit = nNova[i]
+		for i=1,#bb.friend do
+			local thisUnit = bb.friend[i]
 			if isTank(thisUnit) then
-				if nNova[i].hpmissing >= heal.penance.heal then
+				if bb.friend[i].hpmissing >= heal.penance.heal then
 					return castPenance(thisUnit.unit)
 				end
 			end
@@ -108,8 +108,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization()==1 then
 	end
 
 	function castPenancePlayer()
-		for i=1,#nNova do
-			local thisUnit = nNova[i]
+		for i=1,#bb.friend do
+			local thisUnit = bb.friend[i]
 			if thisUnit.hpmissing >= heal.penance.heal then
 				return castPenance(thisUnit.unit)
 			end
@@ -117,8 +117,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization()==1 then
 	end
 
 	function castPenanceEnemy()
-		for i=1,#enemiesTable do
-			local thisUnit = enemiesTable[i].unit
+		for i=1,#bb.enemy do
+			local thisUnit = bb.enemy[i].unit
 			return castPenanceE(thisUnit)
 		end
 	end
@@ -132,8 +132,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization()==1 then
 
 	function castPWSTank()
 		if getPWS() <= options.heal.PWS.value then
-			for i=1,#nNova do
-				local thisUnit = nNova[i]
+			for i=1,#bb.friend do
+				local thisUnit = bb.friend[i]
 				if isTank(thisUnit.unit) then
 					if not UnitDebuffID(thisUnit.unit,6788) then
 						return castSpell(thisUnit.unit,spell.pws,true,false)
@@ -145,8 +145,8 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization()==1 then
 
 	function castPWSPlayer()
 		if getPWS() <= options.heal.PWS.value then
-			for i=1,#nNova do
-				local thisUnit = nNova[i]
+			for i=1,#bb.friend do
+				local thisUnit = bb.friend[i]
 				if not UnitDebuffID(thisUnit.unit,6788) then
 					return castSpell(thisUnit.unit,spell.pws,true,false)
 				end
@@ -164,10 +164,10 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization()==1 then
 		if GetNumGroupMembers()>0 then
 			--print("tank check")
 			-- tank
-			for i=1,#nNova do
-				local thisUnit = nNova[i]
+			for i=1,#bb.friend do
+				local thisUnit = bb.friend[i]
 				if isTank(thisUnit) then
-					if nNova[i].hpmissing >= heal.PoM.heal then
+					if bb.friend[i].hpmissing >= heal.PoM.heal then
 						--print("tank cast")
 						return castSpell(thisUnit.unit,spell.PoM,true,true)
 					end
@@ -175,9 +175,9 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization()==1 then
 			end
 			--print("player check")
 			-- player
-			for i=1,#nNova do
-				local thisUnit = nNova[i]
-				if nNova[i].hpmissing >= heal.PoM.heal then
+			for i=1,#bb.friend do
+				local thisUnit = bb.friend[i]
+				if bb.friend[i].hpmissing >= heal.PoM.heal then
 					--print("player cast")
 					return castSpell(thisUnit.unit,spell.PoM,true,true)
 				end
@@ -188,9 +188,9 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization()==1 then
 	-- Heal
 	function castHeal()
 		if options.heal.heal.check then
-			for i=1,#nNova do
-				local thisUnit = nNova[i]
-				if nNova[i].hp <= options.heal.heal.value then
+			for i=1,#bb.friend do
+				local thisUnit = bb.friend[i]
+				if bb.friend[i].hp <= options.heal.heal.value then
 					return castSpell(thisUnit.unit,spell.heal,true,true)
 				end
 			end
@@ -200,9 +200,9 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization()==1 then
 	-- Flash Heal
 	function castFlashHeal()
 		if options.heal.flashHeal.check then
-			for i=1,#nNova do
-				local thisUnit = nNova[i]
-				if nNova[i].hp <=  options.heal.flashHeal.value then
+			for i=1,#bb.friend do
+				local thisUnit = bb.friend[i]
+				if bb.friend[i].hp <=  options.heal.flashHeal.value then
 					return castSpell(thisUnit.unit,spell.heal,true,true)
 				end
 			end
@@ -211,14 +211,14 @@ if select(3, UnitClass("player")) == 5 and GetSpecialization()==1 then
 
 	-- Cascade
 	function castCascadeAuto()
-		for i=1,#nNova do
-			local thisUnit = nNova[i].unit
+		for i=1,#bb.friend do
+			local thisUnit = bb.friend[i].unit
 			local thisUnitdistance = getDistance("player",thisUnit)
 
 			print(thisUnit.." __ "..thisUnitdistance)
-			-- sort nNova for best initial target
-			if nNova then
-				table.sort(nNova, function(x,y)
+			-- sort bb.friend for best initial target
+			if bb.friend then
+				table.sort(bb.friend, function(x,y)
 					return x.distance and y.distance and x.distance > y.distance or false
 				end)
 			end

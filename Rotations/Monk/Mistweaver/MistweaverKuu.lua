@@ -13,23 +13,23 @@ if select(2, UnitClass("player")) == "MONK" then
         local reMBuffed         = 0
         local lowestHP, lowestUnit, lowestTankHP, lowestTankUnit, averageHealth = 100, "player", 100, "player", 0;
         
-        for i = 1, #nNova do
-          if UnitIsDeadOrGhost(nNova[i].unit) or getDistance(nNova[i].unit) > 40 then 
-            nNova[i].hp = 100 
+        for i = 1, #bb.friend do
+          if UnitIsDeadOrGhost(bb.friend[i].unit) or getDistance(bb.friend[i].unit) > 40 then 
+            bb.friend[i].hp = 100 
           end
-          if nNova[i].role == "TANK" then
-            if nNova[i].hp < lowestTankHP then
-              lowestTankHP = nNova[i].hp;
-              lowestTankUnit = nNova[i].unit;
+          if bb.friend[i].role == "TANK" then
+            if bb.friend[i].hp < lowestTankHP then
+              lowestTankHP = bb.friend[i].hp;
+              lowestTankUnit = bb.friend[i].unit;
             end
           end
-          if nNova[i].hp < lowestHP then
-            lowestHP = nNova[i].hp;
-            lowestUnit = nNova[i].unit;
+          if bb.friend[i].hp < lowestHP then
+            lowestHP = bb.friend[i].hp;
+            lowestUnit = bb.friend[i].unit;
           end
-          averageHealth = averageHealth + nNova[i].hp;
+          averageHealth = averageHealth + bb.friend[i].hp;
         end
-        averageHealth = averageHealth/#nNova;
+        averageHealth = averageHealth/#bb.friend;
 
         --------------------
         --- Action Lists ---
@@ -52,16 +52,16 @@ if select(2, UnitClass("player")) == "MONK" then
           if isChecked("Detox") then
             if getValue("Detox") == 1 then -- Mouse Match
               if UnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
-                for i = 1, #nNova do
-                  if nNova[i].guid == UnitGUID("mouseover") and nNova[i].dispel == true then
+                for i = 1, #bb.friend do
+                  if bb.friend[i].guid == UnitGUID("mouseover") and bb.friend[i].dispel == true then
                     if self.castDetoxMist("mouseover") then end
                   end
                 end
               end
             elseif getValue("Detox") == 2 then -- Raid Match
-              for i = 1, #nNova do
-                if nNova[i].dispel == true then
-                  if self.castDetoxMist(nNova[i].unit) then end
+              for i = 1, #bb.friend do
+                if bb.friend[i].dispel == true then
+                  if self.castDetoxMist(bb.friend[i].unit) then end
                 end
               end
             elseif getValue("Detox") == 3 then -- Mouse All
@@ -78,12 +78,12 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
               end
             elseif getValue("Detox") == 4 then -- Raid All
-              for i = 1, #nNova do
+              for i = 1, #bb.friend do
                 for n = 1,40 do
-                  local buff,_,_,count,bufftype,duration = UnitDebuff(nNova[i].unit, n)
+                  local buff,_,_,count,bufftype,duration = UnitDebuff(bb.friend[i].unit, n)
                   if buff then
                     if bufftype == "Magic" or bufftype == "Disease" or bufftype == "Poison" then
-                      if self.castDetoxMist(nNova[i].unit) then end
+                      if self.castDetoxMist(bb.friend[i].unit) then end
                     end
                   else
                     break;
@@ -148,17 +148,17 @@ if select(2, UnitClass("player")) == "MONK" then
         local function actionList_EmergencyHealing()
             -- Life Cocoon
             if isChecked("Life Cocoon") and inCombat then
-              for i = 1, #nNova do
-                if nNova[i].hp <= getValue("Life Cocoon") then
-                    if self.castLifeCocoon(nNova[i].unit) then return end
+              for i = 1, #bb.friend do
+                if bb.friend[i].hp <= getValue("Life Cocoon") then
+                    if self.castLifeCocoon(bb.friend[i].unit) then return end
                 end
               end
             end 
             -- Revival
             local revivalUnits = 0
             if isChecked("Revival") and inCombat then
-              for i = 1, #nNova do
-                if nNova[i].hp <= getValue("Revival") then
+              for i = 1, #bb.friend do
+                if bb.friend[i].hp <= getValue("Revival") then
                   revivalUnits = revivalUnits + 1
                   if revivalUnits >= getValue("Revival People") then
                     if self.castRevival() then
@@ -178,18 +178,18 @@ if select(2, UnitClass("player")) == "MONK" then
               if self.castManaTea() then end
             end
             --ReM Tracker
-            for i = 1, #nNova do
-              if UnitBuffID(nNova[i].unit,self.spell.renewingMistBuff) then
+            for i = 1, #bb.friend do
+              if UnitBuffID(bb.friend[i].unit,self.spell.renewingMistBuff) then
                 reMBuffed = reMBuffed + 1
-              elseif not UnitBuffID(nNova[i].unit,self.spell.renewingMistBuff) and reMBuffed ~= 0 then
+              elseif not UnitBuffID(bb.friend[i].unit,self.spell.renewingMistBuff) and reMBuffed ~= 0 then
                   reMBuffed = reMBuffed - 1
               end 
             end
             -- Uplift
             local totUnits = 0
             if isChecked("Uplift") then
-              for i = 1, #nNova do
-                if nNova[i].hp <= getValue("Uplift") and buff.renewingMist then
+              for i = 1, #bb.friend do
+                if bb.friend[i].hp <= getValue("Uplift") and buff.renewingMist then
                   totUnits = totUnits + 1
                   if totUnits >= getValue("Uplift People") then
                    if upliftTimer == nil then upliftTimer = 0; end
@@ -211,35 +211,35 @@ if select(2, UnitClass("player")) == "MONK" then
             end
             -- Enveloping Mist
             if isSoothing and isChecked("Enveloping Mist") then
-              for i = 1, #nNova do
-                if nNova[i].hp <= getValue("Enveloping Mist") and (currentTarget == nNova[i].guid) then
-             --   if nNova[i].hp <= 105 then
-                  if self.castEnvelopingMist(nNova[i].unit) then return end
+              for i = 1, #bb.friend do
+                if bb.friend[i].hp <= getValue("Enveloping Mist") and (currentTarget == bb.friend[i].guid) then
+             --   if bb.friend[i].hp <= 105 then
+                  if self.castEnvelopingMist(bb.friend[i].unit) then return end
                 end
               end
             end
             --Renewing Mist
             if isChecked("Renewing Mist") and not isSoothing and (averageHealth > 80 or reMBuffed < 5) then
-              for i = 1, #nNova do
-                if not UnitBuffID(nNova[i].unit,self.spell.renewingMistBuff) then
-                  if self.castRenewingMist(nNova[i].unit) then return end
+              for i = 1, #bb.friend do
+                if not UnitBuffID(bb.friend[i].unit,self.spell.renewingMistBuff) then
+                  if self.castRenewingMist(bb.friend[i].unit) then return end
                 end
               end
             end
             --Surging Mist
             if isChecked("Surging Mist") and isSoothing then
-              for i = 1, #nNova do
-                if nNova[i].hp <= getValue("Surging Mist") and (currentTarget == nNova[i].guid) then
-               -- if nNova[i].hp <= 105 then
-                  if self.castHealingSurgingMist(nNova[i].unit) then return end
+              for i = 1, #bb.friend do
+                if bb.friend[i].hp <= getValue("Surging Mist") and (currentTarget == bb.friend[i].guid) then
+               -- if bb.friend[i].hp <= 105 then
+                  if self.castHealingSurgingMist(bb.friend[i].unit) then return end
                 end
               end
             end
             --Spinning Crane Kick/RJW
             local sckUnits = 0
             if isChecked("Spinning Crane Kick") and getMana("player") > 35 then
-              for i = 1, #nNova do
-                if nNova[i].hp <= getValue("Spinning Crane Kick") and nNova[i].distance <= 8 then
+              for i = 1, #bb.friend do
+                if bb.friend[i].hp <= getValue("Spinning Crane Kick") and bb.friend[i].distance <= 8 then
                   sckUnits = sckUnits + 1
                   if sckUnits >= 3 then
                     if self.castHealingSpinningCraneKick() then 
@@ -252,19 +252,19 @@ if select(2, UnitClass("player")) == "MONK" then
             end
              --Expel Harm Heal
             if isChecked("Expel Harm") then
-              for i = 1, #nNova do
-                if nNova[i].hp <= getValue("Expel Harm") then
-                  if self.castHealingExpelHarm(nNova[i].unit) then return end
+              for i = 1, #bb.friend do
+                if bb.friend[i].hp <= getValue("Expel Harm") then
+                  if self.castHealingExpelHarm(bb.friend[i].unit) then return end
                 end
               end
             end
             --Soothing Mist
             if isChecked("Soothing Mist") then
-              for i = 1, #nNova do
-                if nNova[i].hp <= getValue("Soothing Mist") then
-                  if self.castSoothingMist(nNova[i].unit) then return end
-                elseif isSoothing and currentTarget == nNova[i].guid then
-                  if nNova[i].hp >= getValue("Soothing Mist") then
+              for i = 1, #bb.friend do
+                if bb.friend[i].hp <= getValue("Soothing Mist") then
+                  if self.castSoothingMist(bb.friend[i].unit) then return end
+                elseif isSoothing and currentTarget == bb.friend[i].guid then
+                  if bb.friend[i].hp >= getValue("Soothing Mist") then
                     RunMacroText("/stopcasting") return 
                   end
                 end
@@ -272,9 +272,9 @@ if select(2, UnitClass("player")) == "MONK" then
             end 
             -- Chi Wave
             if isChecked("Chi Wave") and not isSoothing then
-              for i = 1, #nNova do
-                if nNova[i].hp <= getValue("Chi Wave") then
-                  if self.castHealingChiWave(nNova[i].unit) then return end
+              for i = 1, #bb.friend do
+                if bb.friend[i].hp <= getValue("Chi Wave") then
+                  if self.castHealingChiWave(bb.friend[i].unit) then return end
                 end
               end
             end 
@@ -294,24 +294,24 @@ if select(2, UnitClass("player")) == "MONK" then
             end
             --Surging Mist
             if self.charges.vitalMists == 5 then
-              for i = 1, #nNova do
-                if nNova[i].hp < 100 then
-                  if self.castSurgingMist(nNova[i].unit) then return end
+              for i = 1, #bb.friend do
+                if bb.friend[i].hp < 100 then
+                  if self.castSurgingMist(bb.friend[i].unit) then return end
                 end
               end
             end
             -- Chi Wave
             if isChecked("Chi Wave") then
-              for i = 1, #nNova do
-                if nNova[i].hp <= getValue("Chi Wave") then
-                  if self.castHealingChiWave(nNova[i].unit) then return end
+              for i = 1, #bb.friend do
+                if bb.friend[i].hp <= getValue("Chi Wave") then
+                  if self.castHealingChiWave(bb.friend[i].unit) then return end
                 end
               end
             end 
             --Expel Harm
             if isChecked("Expel Harm") and inCombat then
-              for i = 1, #nNova do
-                if self.castHealingExpelHarm(nNova[i].unit) then return end
+              for i = 1, #bb.friend do
+                if self.castHealingExpelHarm(bb.friend[i].unit) then return end
               end
             end
             -- Tiger Palm

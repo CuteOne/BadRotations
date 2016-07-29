@@ -9,19 +9,19 @@ function createStatusBar(parent,option,x,y)
 	local width = width or 75
 	local heigth = heigth or 22
 	local currentValue
-	if  BadBoy_data.options[bb.selectedSpec] then
-		currentValue = BadBoy_data.options[bb.selectedSpec][value.."Status"]
+	if  bb.data.options[bb.selectedSpec] then
+		currentValue = bb.data.options[bb.selectedSpec][value.."Status"]
 	end
 	if currentValue == nil then
 		currentValue = statusBase or 0
 	end
 	if _G[parent..value.."Status"] == nil then
-		local scale = BadBoy_data.BadBoyUI.optionsFrame.scale or 1
+		local scale = bb.data.BadBoyUI.optionsFrame.scale or 1
 		_G[parent..value.."Status"] = CreateFrame("StatusBar", _G[parent..value.."Status"], _G[parent.."Frame"])
 		_G[parent..value.."Status"]:SetWidth(width*scale)
 		_G[parent..value.."Status"]:SetHeight(heigth*scale)
 		_G[parent..value.."Status"]:SetPoint("TOPLEFT",x*scale,(y-2)*scale)
-		_G[parent..value.."Status"]:SetAlpha(BadBoy_data.BadBoyUI.alpha)
+		_G[parent..value.."Status"]:SetAlpha(bb.data.BadBoyUI.alpha)
 		-- status part
 		_G[parent..value.."Status"]:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
 		_G[parent..value.."Status"]:GetStatusBarTexture():SetHorizTile(false)
@@ -50,7 +50,7 @@ function createStatusBar(parent,option,x,y)
 				if currentValue and currentValue > statusMax then
 					currentValue = statusMax
 				end
-				BadBoy_data.options[bb.selectedSpec][value.."Status"] = currentValue or 0
+				bb.data.options[bb.selectedSpec][value.."Status"] = currentValue or 0
 				_G[parent..value.."Status"]:SetValue(currentValue)
 				_G[parent..value.."StatusText"]:SetText(currentValue)
 			end)
@@ -60,9 +60,9 @@ function createStatusBar(parent,option,x,y)
 		_G[parent..value.."StatusText"]:SetWidth(width*scale)
 		_G[parent..value.."StatusText"]:SetHeight(heigth*scale)
 		_G[parent..value.."StatusText"]:SetPoint("CENTER",0,-2)
-		_G[parent..value.."StatusText"]:SetAlpha(BadBoy_data.BadBoyUI.alpha)
+		_G[parent..value.."StatusText"]:SetAlpha(bb.data.BadBoyUI.alpha)
 		_G[parent..value.."StatusText"]:SetJustifyH("CENTER")
-		_G[parent..value.."StatusText"]:SetFont(BadBoy_data.BadBoyUI.font,BadBoy_data.BadBoyUI.fontsize,"THICKOUTLINE")
+		_G[parent..value.."StatusText"]:SetFont(bb.data.BadBoyUI.font,bb.data.BadBoyUI.fontsize,"THICKOUTLINE")
 		_G[parent..value.."StatusText"]:SetText(currentValue, nil, nil, nil, nil, false)
 	end
 end
@@ -72,12 +72,12 @@ function createNovaStatusBar(parent,option,x,y,width,heigth)
 	local width = width or 180
 	local heigth = heigth or 22
 	if _G[parent..value.."Nova"] == nil then
-		local scale = BadBoy_data.BadBoyUI.optionsFrame.scale or 1
+		local scale = bb.data.BadBoyUI.optionsFrame.scale or 1
 		_G[parent..value.."Nova"] = CreateFrame("StatusBar", _G[parent..value.."Nova"], _G[parent.."Frame"])
 		_G[parent..value.."Nova"]:SetWidth(width*scale)
 		_G[parent..value.."Nova"]:SetHeight(heigth*scale)
 		_G[parent..value.."Nova"]:SetPoint("TOPLEFT",x*scale,(y-2)*scale)
-		_G[parent..value.."Nova"]:SetAlpha(BadBoy_data.BadBoyUI.alpha)
+		_G[parent..value.."Nova"]:SetAlpha(bb.data.BadBoyUI.alpha)
 		-- status part
 		_G[parent..value.."Nova"]:SetStatusBarTexture(1,1,1)
 		_G[parent..value.."Nova"]:SetMinMaxValues(statusMin,statusMax)
@@ -86,7 +86,7 @@ function createNovaStatusBar(parent,option,x,y,width,heigth)
 		_G[parent..value.."Nova"]:SetBackdropColor(1,1,1)
 		_G[parent..value.."Nova"]:SetScript("OnEnter", function(self)
 			GameTooltip:SetOwner(self, "BOTTOMLEFT", 225, 5)
-			local thisUnit = nNova[value]
+			local thisUnit = bb.friend[value]
 			local color = "|cffFFFFFF"
 			if classColors[thisUnit.class] ~= nil then
 				color = classColors[thisUnit.class].hex
@@ -103,9 +103,9 @@ function createNovaStatusBar(parent,option,x,y,width,heigth)
 		-- leave event
 		_G[parent..value.."Nova"]:SetScript("OnMouseDown", function(self, button)
 			if button == "RightButton" then
-				FocusUnit(nNova[value].unit)
+				FocusUnit(bb.friend[value].unit)
 			else
-				RunMacroText("/target "..UnitName(nNova[value].unit))
+				RunMacroText("/target "..UnitName(bb.friend[value].unit))
 			end
 		end)
 		-- text
@@ -113,13 +113,13 @@ function createNovaStatusBar(parent,option,x,y,width,heigth)
 		_G[parent..value.."NovaText"]:SetWidth(width*scale)
 		_G[parent..value.."NovaText"]:SetHeight(heigth*scale)
 		_G[parent..value.."NovaText"]:SetPoint("CENTER",0,-2)
-		_G[parent..value.."NovaText"]:SetAlpha(BadBoy_data.BadBoyUI.alpha)
+		_G[parent..value.."NovaText"]:SetAlpha(bb.data.BadBoyUI.alpha)
 		_G[parent..value.."NovaText"]:SetJustifyH("CENTER")
-		_G[parent..value.."NovaText"]:SetFont(BadBoy_data.BadBoyUI.font,BadBoy_data.BadBoyUI.fontsize,"THICKOUTLINE")
+		_G[parent..value.."NovaText"]:SetFont(bb.data.BadBoyUI.font,bb.data.BadBoyUI.fontsize,"THICKOUTLINE")
 		_G[parent..value.."NovaText"]:SetText(currentValue, nil, nil, nil, nil, false)
-		if nNovaDebug == nil then
-			nNovaDebug = {}
+		if bb.friendDebug == nil then
+			bb.friendDebug = {}
 		end
-		nNovaDebug[#nNovaDebug+1] = parent..value.."Nova"
+		bb.friendDebug[#bb.friendDebug+1] = parent..value.."Nova"
 	end
 end

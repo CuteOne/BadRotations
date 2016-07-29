@@ -72,8 +72,8 @@ if select(3, UnitClass("player")) == 11 then
 		end
 
 		function useBoomAoE()
-			if (BadBoy_data['AoE'] == 2 and #getEnemies("player",40) >= 2) then
-				-- if BadBoy_data['AoE'] == 1 or BadBoy_data['AoE'] == 2 then
+			if (bb.data['AoE'] == 2 and #getEnemies("player",40) >= 2) then
+				-- if bb.data['AoE'] == 1 or bb.data['AoE'] == 2 then
 				return true
 			else
 				return false
@@ -81,7 +81,7 @@ if select(3, UnitClass("player")) == 11 then
 		end
 
 		function useBoomCDs()
-			if BadBoy_data['MoonCooldowns'] == 2 and (isBoss() or isDummy("target")) then
+			if bb.data['MoonCooldowns'] == 2 and (isBoss() or isDummy("target")) then
 				return true
 			else
 				return false
@@ -89,7 +89,7 @@ if select(3, UnitClass("player")) == 11 then
 		end
 
 		function useBoomDef()
-			if BadBoy_data['MoonDefensive'] == 2 then
+			if bb.data['MoonDefensive'] == 2 then
 				return true
 			else
 				return false
@@ -97,7 +97,7 @@ if select(3, UnitClass("player")) == 11 then
 		end
 
 		function useStarfall()
-			if BadBoy_data['Starfall'] == 1 then
+			if bb.data['Starfall'] == 1 then
 				return true
 			else
 				return false
@@ -105,7 +105,7 @@ if select(3, UnitClass("player")) == 11 then
 		end
 
 		function useMultidot()
-			if BadBoy_data['Multidot'] == 1 then
+			if bb.data['Multidot'] == 1 then
 				return true
 			else
 				return false
@@ -233,8 +233,8 @@ if select(3, UnitClass("player")) == 11 then
 			duration = duration or 1
 			-- cycle our units if we want MORE DOTS
 			if getDebuffCount(164815) < units then
-				for i = 1, #enemiesTable do
-					local thisUnit = enemiesTable[i]
+				for i = 1, #bb.enemy do
+					local thisUnit = bb.enemy[i]
 					if thisUnit.isCC == false and UnitLevel(thisUnit.unit) < UnitLevel("player") + 5 then
 						local dotRemains = getDebuffRemain(thisUnit.unit,164815,"player")
 						if dotRemains < duration then

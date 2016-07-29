@@ -88,7 +88,7 @@ if select(3, UnitClass("player")) == 11 then
 		if isChecked("Mark of the Wild") and not hasmouse and not (IsFlying() or IsMounted()) and not stealth then -- and not isInCombat("player")
 			for i = 1, #members do --members
 				if not isBuffed(members[i].Unit,{115921,20217,1126,90363,159988,160017,160077})
-					and (#nNova==select(5,GetInstanceInfo())
+					and (#bb.friend==select(5,GetInstanceInfo())
 					or select(2,IsInInstance())=="none"
 					or (select(2,IsInInstance())=="party" and not UnitInParty("player")))
 			then
@@ -356,8 +356,8 @@ if select(3, UnitClass("player")) == 11 then
 								end
 							end
 						end
-						-- for i = 1, #enemiesTable do
-						--   local thisUnit = enemiesTable[i].unit
+						-- for i = 1, #bb.enemy do
+						--   local thisUnit = bb.enemy[i].unit
 						--   local mfRem = getDebuffRemain(thisUnit,_moonfire,"player")
 						--   if mfRem < 12 then
 						--     if castSpell(thisUnit,_moonfire,false,false) then

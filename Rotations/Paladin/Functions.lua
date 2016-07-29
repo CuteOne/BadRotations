@@ -24,8 +24,8 @@ if select(3,UnitClass("player")) == 2 then
             end
         end
 
-        for i = 1,#nNova do
-          local thisUnit = nNova[i]
+        for i = 1,#bb.friend do
+          local thisUnit = bb.friend[i]
           if thisUnit.hp < 250 and thisUnit.isPlayer and not UnitBuffID(thisUnit.unit,myBlessing) then
             if castSpell("player",myBlessing,true,false) then
               timerBlessing = GetTime() + random(10,20)
@@ -44,10 +44,10 @@ if select(3,UnitClass("player")) == 2 then
     -- if 3 and king buffer found buff might
     if modeBlessing == 3 then
       -- if theres a druide or monk or paladin, we do might.
-      for i = 1, #nNova do
-        local thisUnit = nNova[i]
+      for i = 1, #bb.friend do
+        local thisUnit = bb.friend[i]
         -- i think only these 3 class buff kings
-        local MemberClass = nNova[i].class
+        local MemberClass = bb.friend[i].class
         if not UnitIsUnit("player",thisUnit.unit) and thisUnit.hp < 250 and thisUnit.isPlayer and
           (thisUnit.class == "DRUID" or thisUnit.class == "MONK" or thisUnit.class == "PALADIN") then
           myBlessing = _BlessingOfMight

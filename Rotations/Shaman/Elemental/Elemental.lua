@@ -34,13 +34,13 @@ if select(3, UnitClass("player")) == 7 then
           stacks = getBuffStacks("player",_LightningShield)
         }
       },
-      cooldowns = BadBoy_data["Cooldowns"],
+      cooldowns = bb.data["Cooldowns"],
       enemiesIn10 = getEnemies("player",10),
       glyph = {
         thunderstorm = hasGlyph(612)
       },
       inCombat = isInCombat("player"),
-      interrupts = BadBoy_data["Interrupts"],
+      interrupts = bb.data["Interrupts"],
       hp = getHP("player"),
       mana = getPower("player"),
       moving = isMoving("player"),

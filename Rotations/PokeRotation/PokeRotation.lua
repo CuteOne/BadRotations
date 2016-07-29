@@ -1,9 +1,9 @@
 function PokeRunner()
-  if BadBoy_data["Check PokeRotation"] ~= 1 then return false; end
+  if bb.data["Check PokeRotation"] ~= 1 then return false; end
   -- pulsed
 
 
-  --print(BadBoy_data.wait .. " " .. BadBoy_data.abilitiesOnCD)
+  --print(bb.data.wait .. " " .. bb.data.abilitiesOnCD)
 
 
 
@@ -34,38 +34,38 @@ function PokeRunner()
     pokePlayerFrame:Hide()
   end
 
-  -- if Attacking BadBoy_data.abilitiesOnCD == 1
+  -- if Attacking bb.data.abilitiesOnCD == 1
   if C_PetBattles.GetAbilityState(1, activePetSlot, 1) ~= true and C_PetBattles.GetAbilityState(1, activePetSlot, 2) ~= true and C_PetBattles.GetAbilityState(1, activePetSlot, 3) ~= true then
-    if BadBoy_data.abilitiesOnCD ~= 1 then
-      BadBoy_data.abilitiesOnCD = 1
+    if bb.data.abilitiesOnCD ~= 1 then
+      bb.data.abilitiesOnCD = 1
     end
   else
-    if BadBoy_data.abilitiesOnCD ~= 0 then
-      BadBoy_data.abilitiesOnCD = 0
+    if bb.data.abilitiesOnCD ~= 0 then
+      bb.data.abilitiesOnCD = 0
     end
   end
   -- if Attacking if wait == 0 then print Attacking and set wait = 2
-  if BadBoy_data.abilitiesOnCD == 1 then
-    if BadBoy_data.wait ~= 2 then
-      --print("ATTACKING "..BadBoy_data.wait)
+  if bb.data.abilitiesOnCD == 1 then
+    if bb.data.wait ~= 2 then
+      --print("ATTACKING "..bb.data.wait)
       waiter = nil;
-      BadBoy_data.wait = 2;
+      bb.data.wait = 2;
     end
     --if pokeValueFrame.Border ~= nil then pokeValueFrame.Border:SetTexture([[Interface\FullScreenTextures\LowHealth]]); end
   end
   -- if attack completed and wait == 2 and waiter == nil then set waiter = GetTime() wait = 1
-  if BadBoy_data.abilitiesOnCD == 0 and BadBoy_data.wait == 2 then
+  if bb.data.abilitiesOnCD == 0 and bb.data.wait == 2 then
     if waiter == nil then
       waiter = GetTime();
       --print("WAIT")
-      BadBoy_data.wait = 1;
+      bb.data.wait = 1;
     end
   end
   -- if wait == 1 and waiter ~= nil and waiter <= GetTime()-0.1 then print Go set waiter = nil wait = 3
-  if BadBoy_data.abilitiesOnCD == 0 and BadBoy_data.wait == 0 and waiter and waiter <= GetTime() - 0.1 then
-    if BadBoy_data.wait ~= 3 then
-      --print(BadBoy_data.wait.. BadBoy_data.abilitiesOnCD)
-      BadBoy_data.wait = 3;
+  if bb.data.abilitiesOnCD == 0 and bb.data.wait == 0 and waiter and waiter <= GetTime() - 0.1 then
+    if bb.data.wait ~= 3 then
+      --print(bb.data.wait.. bb.data.abilitiesOnCD)
+      bb.data.wait = 3;
       pokeValueFrame.Border:SetTexture([[Interface\FullScreenTextures\OutOfControl]]);
     end
   end
@@ -75,7 +75,7 @@ end
 
 function PokeRotationRun()
   if pokeFrame == nil then
-    BadBoy_data.wait = 1;
+    bb.data.wait = 1;
     pokeFrame = true
     pokePlayerFrame = CreateFrame("Frame", nil, UIParent)
     pokePlayerFrame:SetPoint("TOP",-300,-100)
@@ -313,8 +313,8 @@ end
 
 
 function PokeEngine()
-  if BadBoy_data.wait == 3 then
-    local abilityNumber = BadBoy_data.pokeAttack
+  if bb.data.wait == 3 then
+    local abilityNumber = bb.data.pokeAttack
     if abilityNumber == 1 then
       C_PetBattles.UseAbility(1); return;
     elseif abilityNumber == 2 then
@@ -336,9 +336,9 @@ function PokeEngine()
 
   PlayerBuffDisplay();
   EnnemyBuffDisplay();
-  if BadBoy_data.pokeValueanchor == nil then BadBoy_data.pokeValueanchor = "CENTER" end
-  if BadBoy_data.pokeValuex == nil then BadBoy_data.pokeValuex = 0 end
-  if BadBoy_data.pokeValuey == nil then BadBoy_data.pokeValuey = 0 end
+  if bb.data.pokeValueanchor == nil then bb.data.pokeValueanchor = "CENTER" end
+  if bb.data.pokeValuex == nil then bb.data.pokeValuex = 0 end
+  if bb.data.pokeValuey == nil then bb.data.pokeValuey = 0 end
   -- Register Base Values
   if not PokeEngineStarted then
     outOfBattleTimer = 0
@@ -443,7 +443,7 @@ function PokeEngine()
     pokeValueFrame.texture = pokeValueFrame:CreateTexture();
     pokeValueFrame.texture:SetAllPoints();
     pokeValueFrame.texture:SetTexture(25/255,25/255,25/255,1);
-    pokeValueFrame:SetPoint(BadBoy_data.pokeValueanchor,BadBoy_data.pokeValuex,BadBoy_data.pokeValuey);
+    pokeValueFrame:SetPoint(bb.data.pokeValueanchor,bb.data.pokeValuex,bb.data.pokeValuey);
     pokeValueFrame:SetClampedToScreen(true);
     pokeValueFrame:SetScript("OnUpdate", pokeValueFrame_OnUpdate);
     pokeValueFrame:EnableMouse(true);
@@ -644,20 +644,20 @@ function PokeEngine()
       if rotationRun == true then
         if PetAbilitiesTable[activePetSlot].A1 == Ability and C_PetBattles.GetAbilityState(1, activePetSlot, 1) == true then
           pokeValueFrame.valueText:SetText("1", 1, 1, 1, 0.7);
-          BadBoy_data.pokeAttack = 1
-          BadBoy_data.wait = 0
+          bb.data.pokeAttack = 1
+          bb.data.wait = 0
           rotationRun = false
         end
         if PetAbilitiesTable[activePetSlot].A2 == Ability and C_PetBattles.GetAbilityState(1, activePetSlot, 2) == true then
           pokeValueFrame.valueText:SetText("2", 1, 1, 1, 0.7);
-          BadBoy_data.pokeAttack = 2
-          BadBoy_data.wait = 0
+          bb.data.pokeAttack = 2
+          bb.data.wait = 0
           rotationRun = false
         end
         if PetAbilitiesTable[activePetSlot].A3 == Ability and C_PetBattles.GetAbilityState(1, activePetSlot, 3) == true then
           pokeValueFrame.valueText:SetText("3", 1, 1, 1, 0.7);
-          BadBoy_data.pokeAttack = 3
-          BadBoy_data.wait = 0
+          bb.data.pokeAttack = 3
+          bb.data.wait = 0
           rotationRun = false
         end
       end
@@ -712,8 +712,8 @@ function PokeEngine()
         and CaptureCheck then
         if NmeactivePetHP <= 35
           and C_PetBattles.IsTrapAvailable() then
-          BadBoy_data.pokeAttack = 8;
-          BadBoy_data.wait = 0
+          bb.data.pokeAttack = 8;
+          bb.data.wait = 0
           ChatOverlay("\124cFFFFFFFFTrapping pet")
         elseif NmeactivePetHP <= 65 then
           if Stun ~= nil then Stun() end
@@ -906,14 +906,14 @@ function PokeEngine()
             if GetPetStrenght(2) > GetPetStrenght(3)
               and Pet2HP >= SwapInHealthValue then
               pokeValueFrame.valueText:SetText("Pet 2", 1, 1, 1, 0.7);
-              BadBoy_data.pokeAttack = 6
-              BadBoy_data.wait = 0
+              bb.data.pokeAttack = 6
+              bb.data.wait = 0
               rotationRun = false;
             elseif Pet3HP >= SwapInHealthValue
               or Pet1HP == 0 then
               pokeValueFrame.valueText:SetText("Pet 3", 1, 1, 1, 0.7);
-              BadBoy_data.pokeAttack = 7
-              BadBoy_data.wait = 0
+              bb.data.pokeAttack = 7
+              bb.data.wait = 0
               rotationRun = false;
             end
           elseif activePetSlot == 2 then
@@ -921,13 +921,13 @@ function PokeEngine()
               and Pet1HP >= SwapInHealthValue
               and not ( PetLevelingCheck and PetLevelingValue > C_PetBattles.GetLevel(1, 1) ) then
               pokeValueFrame.valueText:SetText("Pet 1", 1, 1, 1, 0.7);
-              BadBoy_data.pokeAttack = 5
-              BadBoy_data.wait = 0
+              bb.data.pokeAttack = 5
+              bb.data.wait = 0
               rotationRun = false;
             elseif Pet3HP >= SwapInHealthValue or Pet2HP == 0 then
               pokeValueFrame.valueText:SetText("Pet 3", 1, 1, 1, 0.7);
-              BadBoy_data.pokeAttack = 7
-              BadBoy_data.wait = 0
+              bb.data.pokeAttack = 7
+              bb.data.wait = 0
               rotationRun = false;
             end
           elseif activePetSlot == 3 then
@@ -935,18 +935,18 @@ function PokeEngine()
               and Pet1HP >= SwapInHealthValue
               and not ( PetLevelingCheck and PetLevelingValue > C_PetBattles.GetLevel(1, 1) ) then
               pokeValueFrame.valueText:SetText("Pet 1", 1, 1, 1, 0.7);
-              BadBoy_data.pokeAttack = 5
-              BadBoy_data.wait = 0
+              bb.data.pokeAttack = 5
+              bb.data.wait = 0
               rotationRun = false;
             elseif Pet2HP >= SwapInHealthValue or Pet3HP == 0 then
               pokeValueFrame.valueText:SetText("Pet 2", 1, 1, 1, 0.7);
-              BadBoy_data.pokeAttack = 6
-              BadBoy_data.wait = 0
+              bb.data.pokeAttack = 6
+              bb.data.wait = 0
               rotationRun = false;
             elseif Pet2HP == 0 and Pet3HP == 0 then
               pokeValueFrame.valueText:SetText("Pet 1", 1, 1, 1, 0.7);
-              BadBoy_data.pokeAttack = 5
-              BadBoy_data.wait = 0
+              bb.data.pokeAttack = 5
+              bb.data.wait = 0
               rotationRun = false;
             end
           end
@@ -2083,8 +2083,8 @@ function PokeEngine()
     function PassTurn()
       if IsMultiBuffed(StunnedDebuffs, 1) then -- if we are stunned
         pokeValueFrame.valueText:SetText("Pass", 1, 1, 1, 0.7); -- skip turn
-        BadBoy_data.pokeAttack = 4
-        BadBoy_data.wait = 0
+        bb.data.pokeAttack = 4
+        bb.data.wait = 0
         rotationRun = false;
       end
     end
@@ -2278,7 +2278,7 @@ function PokeEngine()
 
   -- Rotation
 
-  if inBattle and ObjectiveValue == 1 and BadBoy_data.wait == 1 and BadBoy_data["Check PokeRotation"] == 1 then
+  if inBattle and ObjectiveValue == 1 and bb.data.wait == 1 and bb.data["Check PokeRotation"] == 1 then
     rotationRun = true
     HealingDone = nil
     Switch();

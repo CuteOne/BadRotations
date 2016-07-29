@@ -30,19 +30,19 @@ bb.debug.cpu.enemiesEngine = {
 function bb.debug.cpu:getHealingEngine()
     local usage, calls
 
-    usage, calls = GetFunctionCPUUsage(nNova.Update, true)
-    bb.debug.cpu.healingEngine["nNova_Update"] = {usage = usage, calls = calls }
+    usage, calls = GetFunctionCPUUsage(bb.friend.Update, true)
+    bb.debug.cpu.healingEngine["bb.friend_Update"] = {usage = usage, calls = calls }
 
-    usage, calls = GetFunctionCPUUsage(nNova.UpdateUnit, true)
-    bb.debug.cpu.healingEngine["nNova_UpdateUnit"] = {usage = usage, calls = calls }
+    usage, calls = GetFunctionCPUUsage(bb.friend.UpdateUnit, true)
+    bb.debug.cpu.healingEngine["bb.friend_UpdateUnit"] = {usage = usage, calls = calls }
 
     --local tmpUsage, tmpCalls
-    --for i=1, #nNova do
-    --    usage, calls = GetFunctionCPUUsage(nNova[i].UpdateUnit, true)
+    --for i=1, #bb.friend do
+    --    usage, calls = GetFunctionCPUUsage(bb.friend[i].UpdateUnit, true)
     --    tmpUsage = tmpUsage + usage
     --    tmpCalls = tmpCalls + calls
-    --    bb.debug.cpu.healingEngine["nNova_UpdateUnit"] = {usage = usage, calls = calls }
-    --    nNova[i]:UpdateUnit()
+    --    bb.debug.cpu.healingEngine["bb.friend_UpdateUnit"] = {usage = usage, calls = calls }
+    --    bb.friend[i]:UpdateUnit()
     --end
     -- usage, calls = GetFunctionCPUUsage(, true)
 end

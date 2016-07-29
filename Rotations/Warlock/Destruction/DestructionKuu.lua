@@ -9,7 +9,7 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         local t17_2pc           = self.eq.t17_2pc
         local shadowburnRange   = (getHP(self.units.dyn40) < 20 or ttd <= 25) and not UnitDebuffID(self.units.dyn40,self.spell.shadowburnDebuff,"player")
         local lastPet           = lastPet or 0
-        local enemiesTable40y   = getEnemies("player",40)
+        local enemy40y   = getEnemies("player",40)
         local enemiesAround40yTarget = getEnemies(self.units.dyn40, 10)
     --------------------
     --- Action Lists ---
@@ -46,9 +46,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                     elseif getValue("Summon Demon") == 4 then
                         if self.castSummonVoidWalker() then lastPet = 4 end
                     end
-                elseif self.talent.demonicServitude and enemiesTable40y < 9 then
+                elseif self.talent.demonicServitude and enemy40y < 9 then
                         if self.castSummonDoomGuard("player") then lastPet = "Doom Guard" end
-                elseif self.talent.demonicServitude and enemiesTable40y >= 9 then
+                elseif self.talent.demonicServitude and enemy40y >= 9 then
                         if self.castSummonInfernal("player") then lastPet = "Infernal" end
                 end
             end
@@ -86,9 +86,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
         function actionList_Interrupts()
             -- Shadowfury
             if isChecked("Shadowfury") then
-                local enemiesTable30y = getEnemies("player",30)
-                for i=1, #enemiesTable30y do
-                    thisUnit = enemiesTable30y[i]
+                local enemy30y = getEnemies("player",30)
+                for i=1, #enemy30y do
+                    thisUnit = enemy30y[i]
                     if canInterrupt(thisUnit,getOptionValue("Shadowfury")) then
                         if self.castShadowFury(thisUnit) then return end
                     end
@@ -153,9 +153,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 if self.castFireandBrimstone() then return end
             end
             if getHP(self.units.dyn40) < 20 and ((self.ember.count > 3.5 and not self.talent.charredRemains) or (self.ember.count > 2.5 and self.talent.charredRemains) or self.buff.darkSoulInstability or ttd <= 25) and not UnitDebuffID(self.units.dyn40,self.spell.shadowburnDebuff,"player") and ObjectIsFacing("player",thisUnit) then
-                if #enemiesTable40y >= 2 and #enemiesTable40y < 5 then
-                    for i = 1, #enemiesTable40y do
-                        local thisUnit = enemiesTable40y[i]
+                if #enemy40y >= 2 and #enemy40y < 5 then
+                    for i = 1, #enemy40y do
+                        local thisUnit = enemy40y[i]
                         if hasThreat(thisUnit) and not UnitIsUnit(thisUnit,self.units.dyn40) and not self.buff.havoc then
                             if self.castHavoc(thisUnit) then end
                         end
@@ -181,8 +181,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             end
             --actions.single_target+=/immolate,cycle_targets=1,if=(sim.target=target|!buff.havoc.remains|!raid_event.adds.exists)&remains<=cast_time&(cooldown.cataclysm.remains>cast_time|!talent.cataclysm.enabled)
             if not self.buff.havoc then
-                for i=1, #enemiesTable40y do
-                    local thisUnit = enemiesTable40y[i]
+                for i=1, #enemy40y do
+                    local thisUnit = enemy40y[i]
                     if hasThreat(thisUnit) and ((getDebuffRemain(thisUnit,self.spell.immolateDebuff,"player") <= select(4,GetSpellInfo(self.spell.immolate))/1000)) and (self.cd.cataclysm > select(4,GetSpellInfo(self.spell.immolate))/1000 or not self.talent.cataclysm) and ObjectIsFacing("player",thisUnit)then
                         if immolateTimer == nil then immolateTimer = 0; end
                         if GetTime() - immolateTimer > 2.75 then
@@ -291,8 +291,8 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             --actions.single_target+=/immolate,cycle_targets=1,if=(sim.target=target|!buff.havoc.remains|!raid_event.adds.exists)&remains-cast_time<=(duration*0.3)
             if not self.buff.havoc then
                 if not shadowburnRange and ObjectIsFacing("player",thisUnit) then
-                    for i=1, #enemiesTable40y do
-                        local thisUnit = enemiesTable40y[i]
+                    for i=1, #enemy40y do
+                        local thisUnit = enemy40y[i]
                         if hasThreat(thisUnit) and (getDebuffRemain(thisUnit,self.spell.immolateDebuff,"player") - select(4,GetSpellInfo(self.spell.immolate))/1000) <= getDebuffDuration(thisUnit,self.spell.immolateDebuff,"player")*0.3 then
                             if immolateTimer == nil then immolateTimer = 0; end
                             if GetTime() - immolateTimer > 2.75 then
@@ -327,9 +327,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
                 if self.castFireandBrimstone() then return end
             end
             if getHP(self.units.dyn40) < 20 and not self.buff.fireandBrimstone and ((self.ember.count > 3.5 and not self.talent.charredRemains) or (self.ember.count > 2.5 and self.talent.charredRemains) or self.buff.darkSoulInstability or ttd <= 25) and not UnitDebuffID(self.units.dyn40,self.spell.shadowburnDebuff,"player") and ObjectIsFacing("player",thisUnit) then
-                if #enemiesTable40y > 2 then
-                    for i = 1, #enemiesTable40y do
-                        local thisUnit = enemiesTable40y[i]
+                if #enemy40y > 2 then
+                    for i = 1, #enemy40y do
+                        local thisUnit = enemy40y[i]
                         if hasThreat(thisUnit) and not UnitIsUnit(thisUnit,self.units.dyn40) and not self.buff.havoc then
                             if self.castHavoc(thisUnit) then end
                         end
@@ -340,9 +340,9 @@ if select(2, UnitClass("player")) == "WARLOCK" then
             --actions.aoe+=/chaos_bolt,if=!talent.charred_remains.enabled&buff.havoc.remains>cast_time&buff.havoc.stack>=3
             if not self.talent.charredRemains and (self.ember.count > 3.5 or self.buff.darkSoulInstability or ttd > 25) then
                 if not shadowburnRange and ObjectIsFacing("player",thisUnit) then
-                    if #enemiesTable40y > 2 then
-                        for i = 1, #enemiesTable40y do
-                            local thisUnit = enemiesTable40y[i]
+                    if #enemy40y > 2 then
+                        for i = 1, #enemy40y do
+                            local thisUnit = enemy40y[i]
                             if hasThreat(thisUnit) and not UnitIsUnit(thisUnit,self.units.dyn40) and not self.buff.havoc then
                                 if self.castHavoc(thisUnit) then end
                             end

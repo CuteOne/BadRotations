@@ -10,8 +10,8 @@ if select(3, UnitClass("player")) == 11 then
   end
 
   function chumiiuseAoE()
-    if BadBoy_data['AoE'] == 1 and chumiigetmeleeEnemies() >= 5 then
-      -- if BadBoy_data['AoE'] == 1 or BadBoy_data['AoE'] == 2 then
+    if bb.data['AoE'] == 1 and chumiigetmeleeEnemies() >= 5 then
+      -- if bb.data['AoE'] == 1 or bb.data['AoE'] == 2 then
       return true
     else
       return false
@@ -20,12 +20,12 @@ if select(3, UnitClass("player")) == 11 then
 
   -- TODO: better cylce, prio 1 should be the one with lowest time remain (if < 4sec) -> with lowest stack -> if all at 3 then lowest time remain
   function getLacerateTarget()
-      local enemiesTable = enemiesTable
+      -- local bb.enemy = bb.enemy
       local bestEnemy = "target"
-      if #enemiesTable > 1 then
-          bestEnemy = enemiesTable[1].unit
-          for i = 1, #enemiesTable do
-              local thisEnemy = enemiesTable[i]
+      if #bb.enemy > 1 then
+          bestEnemy = bb.enemy[1].unit
+          for i = 1, #bb.enemy do
+              local thisEnemy = bb.enemy[i]
               local thisLac = getDebuffRemain(thisEnemy.unit, lac) or 0
               local thisLacStacks = getDebuffStacks(thisEnemy.unit, lac) or 0
               local bestLac = getDebuffRemain(bestEnemy, lac) or 0

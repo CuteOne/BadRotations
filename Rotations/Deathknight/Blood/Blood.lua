@@ -202,10 +202,10 @@ if select(3, UnitClass("player")) == 6 then
         local unitDebuffed = false
         local unitNotDebuffed = false
         -- im gonna scan the list of valid units
-        for i = 1, #enemiesTable do
-          if GetObjectExists(enemiesTable[i].unit) then
-            if enemiesTable[i].distance < 8 then
-              if UnitDebuffID(enemiesTable[i].unit,55078,"player") then
+        for i = 1, #bb.enemy do
+          if GetObjectExists(bb.enemy[i].unit) then
+            if bb.enemy[i].distance < 8 then
+              if UnitDebuffID(bb.enemy[i].unit,55078,"player") then
                 unitDebuffed = true
               else
                 unitNotDebuffed = true
