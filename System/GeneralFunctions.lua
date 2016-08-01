@@ -268,9 +268,9 @@ function canDispel(Unit,spellID)
 	end
 	if ClassNum == 10 then --Monk
 		-- Detox
-		if spellID == 115450 then typesList = { "Poison","Disease" } end
+		if spellID == 218164 then typesList = { "Poison","Disease" } end
 		-- Diffuse Magic
-		if spellID == 122783 then typesList = { "Magic" } end
+		-- if spellID == 122783 then typesList = { "Magic" } end
 	end
 	if ClassNum == 11 then --Druid
 		-- Remove Corruption

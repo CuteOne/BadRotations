@@ -382,7 +382,7 @@ function BadBoyUpdate(self)
 			BrewmasterMonk()
 		elseif playerSpec == 2 and playerLevel>=10 then
 			MistweaverMonk()
-		elseif playerSpec == 3 and playerLevel>=10 then
+		elseif playerSpec == 3 then
 			WindwalkerMonk()
 		else
 			NewMonk()

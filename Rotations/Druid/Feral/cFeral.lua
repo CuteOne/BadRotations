@@ -70,12 +70,6 @@ if select(2, UnitClass("player")) == "DRUID" then
             ripDebuff                       = 1079,
             thrashDebuff                    = 106830,
         }
-        self.feralPerks         = { -- Removed in Legion
-            -- enhancedBerserk                 = 157269,
-            -- enhancedProwl                   = 157274,
-            -- enhancedRejuvenation             = 157280,
-            -- improvedRake                    = 157276,
-        }
         self.feralSpecials      = {
             berserk                         = 106951,
             feralMoonfire                   = 155625,
@@ -115,7 +109,6 @@ if select(2, UnitClass("player")) == "DRUID" then
         self.feralSpells = mergeTables(self.feralSpells,self.feralArtifacts)
         self.feralSpells = mergeTables(self.feralSpells,self.feralBuffs)
         self.feralSpells = mergeTables(self.feralSpells,self.feralDebuffs)
-        self.feralSpells = mergeTables(self.feralSpells,self.feralPerks)
         self.feralSpells = mergeTables(self.feralSpells,self.feralSpecials)
         self.feralSpells = mergeTables(self.feralSpells,self.feralTalents)
         self.spell = {}

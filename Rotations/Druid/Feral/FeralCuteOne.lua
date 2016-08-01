@@ -103,10 +103,6 @@ if select(2, UnitClass("player")) == "DRUID" then
                 bb.ui:createDropdownWithout(section, "Remove Corruption - Target", {"|cff00FF00Player","|cffFFFF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
             -- Renewal
                 bb.ui:createSpinner(section, "Renewal",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            -- Rejuvenation
-                bb.ui:createSpinner(section, "Rejuvenation",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            -- Auto Rejuvenation
-                bb.ui:createSpinner(section, "Auto Rejuvenation",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Healthstone
                 bb.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Heirloom Neck
@@ -399,22 +395,6 @@ if select(2, UnitClass("player")) == "DRUID" then
 				            end
 				        end
 				    end
-	-- 		-- Rejuvenation
-	-- 	            if isChecked("Rejuvenation") and php <= getOptionValue("Rejuvenation") then
-	-- 	                if not stealth and buff.remain.rejuvenation==0 and ((not inCombat) or perk.enhancedRejuvenation) then
-	-- 	                	if bb.player.castRejuvenation("player") then return end
-	-- 	                end
-	-- 	            end
-	-- 		-- Auto Rejuvenation
-	-- 				if isChecked("Auto Rejuvenation") and perk.enhancedRejuvenation then
-	-- 					if getOptionValue("Auto Heal")==1 
-	-- 						and getBuffRemain(lowestHP,bb.player.spell.rejuvenationBuff)==0 
-	-- 						and getHP(lowestHP)<=getOptionValue("Auto Rejuvenation") 
-	-- 						and lowestHP~="player" 
-	-- 					then
-	-- 	                    if bb.player.castRejuvenation(lowestHP) then return end
-	-- 	                end
-	-- 				end
 			-- Pot/Stoned
 		            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
 		            	and inCombat and (hasHealthPot() or hasItem(5512)) 

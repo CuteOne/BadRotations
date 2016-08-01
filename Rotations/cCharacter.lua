@@ -479,17 +479,6 @@ function cCharacter:new(class)
 			end
 		end
 	end
-								-- if strmatch(itemEffect,"Agility")~=nil then
-								-- 	tinsert(self.potion.agility, itemInfo)
-								-- elseif strmatch(itemEffect,"Healing")~=nil or strmatch(itemEffect,"Rejuvenation")~=nil then
-								-- 	tinsert(self.potion.health, itemInfo)
-								-- elseif strmatch(itemEffect,"Intellect")~=nil then
-								-- 	tinsert(self.potion.intellect, itemInfo)
-								-- elseif strmatch(itemEffect,"Mana")~=nil or strmatch(itemEffect,"Rejuvenation")~=nil then
-								-- 	tinsert(self.potion.mana, itemInfo)
-								-- elseif strmatch(itemEffect,"Versatility")~=nil then
-								-- 	tinsert(self.potion.versatility, itemInfo)
-								-- end
 --[[ TODO:
 	- add Flask usage
 	- add Potion usage based on class and spec (both)

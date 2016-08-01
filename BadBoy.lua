@@ -1,5 +1,6 @@
 -- define bb global that will hold the bot global background features
 bb = {}
+bbdata = {}
 bb.selectedSpec = 1
 bb.selectedProfile = 1
 bb.dropOptions = {}

@@ -11,106 +11,62 @@ function cMonk:new(spec)
 
 	self.profile         	= spec
     self.powerRegen      	= getRegen("player")
+	self.artifact 			= {}		-- Artifacts
 	self.buff.duration	 	= {}		-- Buff Durations
 	self.buff.remain 	 	= {}		-- Buff Time Remaining
 	self.chi 				= {}		-- Chi Information
 	self.debuff.duration 	= {}		-- Debuff Durations
 	self.debuff.remain 	 	= {}		-- Debuff Time Remaining
-	self.monkSpell 			= {
-
-		-- Ability - Crowd Control
-		legSweep 						= 119381,
-		spearHandStrike 				= 116705,
+	self.monkAbilities		= { 		-- Monk Abilities
+		blackoutKick 					= 100784,
+		cracklingJadeLightning 			= 117952,
 		paralysis 						= 115078,
-
-        -- Ability - Defensive
-        dampenHarm 						= 122278,
-        diffuseMagic 					= 122783,
-        expelHarm 						= 115072,
-        fortifyingBrew 					= 115203,
-        nimbleBrew 						= 137562,
-        surgingMist 					= 116694,
-        zenMeditation 					= 115176,
-        zenSphere 						= 124081,
-
-        -- Ability - Forms
-
-        -- Ability - Offensive
-        blackoutKick 					= 100784,
-        chiBurst 						= 123986,
-        chiTorpedo 						= 115008,
-        chiWave 						= 115098,
-        cracklingJadeLightning 			= 117952,
-        jab 							= 100780,
-        hurricanStrike 					= 152175,
-        invokeXuen 						= 123904,
-        legacyOfTheWhiteTiger 			= 116781,
-        risingSunKick 					= 107428, 
-        rushingJadeWind 				= 116847,
-        serenity 						= 152173,
-        spinningCraneKick				= 101546,
-        tigerPalm 						= 100787,
-        touchOfDeath 					= 115080,
-
-        -- Ability - Presense
-
-        -- Ability - Utility
-        chiBrew 						= 115399,
-        detox 							= 115450,
-        provoke 						= 115546,
-        resuscitate 					= 115178,
-        roll 							= 109132,
-        tigersLust 						= 116841,
-
-        -- Buff - Defensive
+		provoke 						= 115546,
+		resuscitate 					= 115178,
+		roll 							= 109132,
+		tigerPalm 						= 100780,
+	}
+	self.monkArtifacts 		= {
+		artificialStamina 				= 211309,
+	}
+	self.monkBuffs 			= {
+		comboBreakerBuff 				= 116768,
         dampenHarmBuff					= 122278,
-        diffuseMacigBuff 				= 122783,
-        fortifyingBrewBuff 				= 115203,
-
-        -- Buff - Forms
-
-        -- Buff - Offensive
-        comboBreakerBlackoutKickBuff 	= 116768,
-        comboBreakerTigerPalmBuff       = 118864,
-        legacyOfTheWhiteTigerBuff 		= 116781,
-        legacyoftheEmperorBuff          = 115921,  
-        serenityBuff 					= 152173,
-        touchOfDeathBuff 				= 121125,
-        tigerPowerBuff 					= 125359,
-        zenSphereBuff 					= 124081,
-
-        -- Buff - Presense
-
-        -- Buff - Utility
-
-        -- Debuff - Offensive
-        risingSunKickDebuff 			= 107428, --130320
-
-        -- Debuff - Defensive
-
-        -- Glyphs
-        touchOfDeathGlyph 				= 123391,
-        zenMeditationGlyph 				= 120477,
-
-        -- Perks
-
-        -- Talents
-        celerityTalent 					= 115173,
-        chiBrewTalent 					= 115399,
-        chiBurstTalent 					= 123986,
-        chiTorpedoTalent 				= 115008,
-        chiWaveTalent 					= 115098,
-        dampenHarmTalent 				= 122278,
-        diffuseMagicTalent 				= 122783,
-        hurricanStrikeTalent 			= 152175,
-        invokeXuenTalent				= 123904,
-        legSweepTalent 					= 119381,
-        rushingJadeWindTalent 			= 116847,
-        serenityTalent					= 152173,
-        tigersLustTalent 				= 116841,
-        zenSphereTalent 				= 124081,
+        diffuseMagicBuff 				= 122783,
+	}
+	self.monkDebuffs 		= {
 
 	}
+	self.monkGlyphs 		= {
+		glyphOfCracklingCraneLightning 	= 219513,
+		glyphOfCracklingOxLightning 	= 219510,
+		glyphOfCracklingTigerLightning  = 125931,
+		glyphOfFightingPose 			= 125872,
+		glyphOfHonor 					= 125732,
+		glyphOfYulonsGrace 				= 219557,
+	}
+	self.monkSpecials 		= {
+		effuse 							= 116694,
+	}
+	self.monkTalents 		= {
+		celerity 						= 115173,
+		chiBurst 						= 123986,
+		chiTorpedo 						= 115008,
+		dampenHarm 						= 122278,
+		diffuseMagic 					= 122783,
+		legSweep 						= 119381,
+		ringOfPeace 					= 116844,
+		tigersLust 						= 116841,
+	}
+    -- Merge all spell tables into self.druidSpell
+	self.monkSpells = {} 
+	self.monkSpells = mergeTables(self.monkSpells,self.monkAbilities)
+	self.monkSpells = mergeTables(self.monkSpells,self.monkArtifacts)
+	self.monkSpells = mergeTables(self.monkSpells,self.monkBuffs)
+	self.monkSpells = mergeTables(self.monkSpells,self.monkDebuffs)
+	self.monkSpells = mergeTables(self.monkSpells,self.monkGlyphs)
+	self.monkSpells = mergeTables(self.monkSpells,self.monkSpecials)
+	self.monkSpells = mergeTables(self.monkSpells,self.monkTalents) 
 
 -- Update OOC
 	function self.classUpdateOOC()
@@ -152,47 +108,29 @@ function cMonk:new(spec)
 	function self.getClassBuffs()
 		local UnitBuffID = UnitBuffID
 
-		-- self.buff.dampenHarm 	 			= UnitBuffID("player",self.spell.dampenHarmBuff)~=nil or false
-		-- self.buff.diffuseMagic  			= UnitBuffID("player",self.spell.diffuseMagicBuff)~=nil or false
-		self.buff.fortifyingBrew 			= UnitBuffID("player",self.spell.fortifyingBrewBuff)~=nil or false
-		self.buff.legacyOfTheWhiteTiger 	= UnitBuffID("player",self.spell.legacyOfTheWhiteTigerBuff)~=nil or false
-		self.buff.serenity 					= UnitBuffID("player",self.spell.serenityBuff)~=nil or false
-		self.buff.tigerPower 				= UnitBuffID("player",self.spell.tigerPowerBuff)~=nil or false 
-		self.buff.touchOfDeath 				= UnitBuffID("player",self.spell.touchOfDeathBuff)~=nil or false
-		self.buff.zenSphere 				= UnitBuffID("player",self.spell.zenSphereBuff)~=nil or false
+		self.buff.comboBreaker 	= UnitBuffID("player",self.spell.comboBreakerBuff)~=nil or false
+		self.buff.dampenHarm 	= UnitBuffID("player",self.spell.dampenHarmBuff)~=nil or false
+		self.buff.diffuseMagic 	= UnitBuffID("player",self.spell.diffuseMagicBuff)~=nil or false
 	end	
-
+		
 	function self.getClassBuffsDuration()
 		local getBuffDuration = getBuffDuration
 
-		-- self.buff.duration.dampenHarm 				= getBuffDuration("player",self.spell.dampenHarmBuff) or 0
-		-- self.buff.duration.diffuseMagic 			= getBuffDuration("player",self.spell.diffuseMagicBuff) or 0
-		self.buff.duration.fortifyingBrew 			= getBuffDuration("player",self.spell.fortifyingBrewBuff) or 0
-		self.buff.duration.legacyOfTheWhiteTiger 	= getBuffDuration("player",self.spell.legacyOfTheWhiteTigerBuff) or 0		
-		self.buff.duration.serenity 				= getBuffDuration("player",self.spell.serenityBuff) or 0		
-		self.buff.duration.tigerPower 				= getBuffDuration("player",self.spell.tigerPowerBuff) or 0
-		self.buff.duration.touchOfDeath 			= getBuffDuration("player",self.spell.touchOfDeathBuff) or 0
-		self.buff.duration.zenSphere 	 			= getBuffDuration("player",self.spell.zenSphereBuff) or 0
+		self.buff.duration.dampenHarm 	= getBuffDuration("player",self.spell.dampenHarmBuff) or 0
+		self.buff.duration.diffuseMagic = getBuffDuration("player",self.spell.diffuseMagicBuff) or 0
 	end
-
+		
 	function self.getClassBuffsRemain()
 		local getBuffRemain = getBuffRemain
 
-		-- self.buff.remain.dampenHarm  			= getBuffRemain("player",self.spell.dampenHarmBuff) or 0
-		-- self.buff.remain.diffuseMagic 			= getBuffRemain("player",self.spell.diffuseMagicBuff) or 0
-		self.buff.remain.fortifyingBrew 		= getBuffRemain("player",self.spell.fortifyingBrewBuff) or 0
-		self.buff.remain.legacyOfTheWhiteTiger 	= getBuffRemain("player",self.spell.legacyOfTheWhiteTigerBuff) or 0
-		self.buff.remain.serenity 				= getBuffRemain("player",self.spell.serenityBuff) or 0
-		self.buff.remain.tigerPower 			= getBuffRemain("player",self.spell.tigerPowerBuff) or 0
-		self.buff.remain.touchOfDeath 			= getBuffRemain("player",self.spell.touchOfDeathBuff) or 0
-		self.buff.remain.zenSphere 				= getBuffRemain("player",self.spell.zenSphereBuff) or 0
+		self.buff.remain.dampenHarm  	= getBuffRemain("player",self.spell.dampenHarmBuff) or 0
+		self.buff.remain.diffuseMagic 	= getBuffRemain("player",self.spell.diffuseMagicBuff) or 0
 	end
-
+		
 	function self.getClassCharges()
 		local getBuffStacks = getBuffStacks
 		local getCharges = getCharges
 
-		self.charges.chiBrew 	= getCharges(self.spell.chiBrew)
 		self.charges.chiTorpedo = getCharges(self.spell.chiTorpedo)
 		self.charges.roll 		= getCharges(self.spell.roll)
 	end
@@ -201,97 +139,62 @@ function cMonk:new(spec)
 	function self.getClassCooldowns()
 		local getSpellCD = getSpellCD
 
-		self.cd.chiBrew 		= getSpellCD(self.spell.chiBrew)
 		self.cd.chiBurst 		= getSpellCD(self.spell.chiBurst)
 		self.cd.chiTorpedo 		= getSpellCD(self.spell.chiTorpedo)
-		self.cd.chiWave 		= getSpellCD(self.spell.chiWave)
 		self.cd.dampenHarm 		= getSpellCD(self.spell.dampenHarm)
-		self.cd.detox 			= getSpellCD(self.spell.detox) 
 		self.cd.diffuseMagic 	= getSpellCD(self.spell.diffuseMagic)
-		self.cd.expelHarm 		= getSpellCD(self.spell.expelHarm)
-		self.cd.fortifyingBrew 	= getSpellCD(self.spell.fortifyingBrew)
-		self.cd.hurricanStrike  = getSpellCD(self.spell.hurricanStrike)
-		self.cd.invokeXuen 		= getSpellCD(self.spell.invokeXuen)
-		self.cd.legSweep 		= getSpellCD(self.spell.legSweep)
-		self.cd.nimbleBrew 		= getSpellCD(self.spell.nimbleBrew)
 		self.cd.paralysis 		= getSpellCD(self.spell.paralysis)
+		self.cd.legSweep 		= getSpellCD(self.spell.legSweep)
 		self.cd.provoke 		= getSpellCD(self.spell.provoke)
-		self.cd.risingSunKick 	= getSpellCD(self.spell.risingSunKick)
-		self.cd.rushingJadeWind = getSpellCD(self.spell.rushingJadeWind)
-		self.cd.serenity 		= getSpellCD(self.spell.serenity)
-		self.cd.spearHandStrike = getSpellCD(self.spell.spearHandStrike)
 		self.cd.tigersLust 		= getSpellCD(self.spell.tigersLust)
-		self.cd.touchOfDeath 	= getSpellCD(self.spell.touchOfDeath)
-		self.cd.zenMeditation 	= getSpellCD(self.spell.zenMeditation)
-		self.cd.zenSphere 		= getSpellCD(self.spell.zenSphere)
 	end
-
+		
 -- Debuff updates
 	function self.getClassDebuffs()
 		local UnitDebuffID = UnitDebuffID
 
-		if self.level<56 then
-			self.debuff.risingSunKick = true
-		else
-			self.debuff.risingSunKick = UnitDebuffID(self.units.dyn5,self.spell.risingSunKickDebuff,"player")~=nil or false
-		end
+		-- 	self.debuff.risingSunKick = UnitDebuffID(self.units.dyn5,self.spell.risingSunKickDebuff,"player")~=nil or false
 	end
-
+		
 	function self.getClassDebuffsDuration()
 		local getDebuffDuration = getDebuffDuration
 
-		if self.level<56 then
-			self.debuff.duration.risingSunKick = 99
-		else
-			self.debuff.duration.risingSunKick = getDebuffDuration(self.units.dyn5,self.spell.risingSunKickDebuff,"player") or 0
-		end
+		-- 	self.debuff.duration.risingSunKick = getDebuffDuration(self.units.dyn5,self.spell.risingSunKickDebuff,"player") or 0
 	end
-
+		
 	function self.getClassDebuffsRemain()
 		local getDebuffRemain = getDebuffRemain
 
-		if self.level<56 then
-			self.debuff.remain.risingSunKick = 99
-		else
-			self.debuff.remain.risingSunKick = getDebuffRemain(self.units.dyn5,self.spell.risingSunKickDebuff,"player") or 0
-		end
+		-- 	self.debuff.remain.risingSunKick = getDebuffRemain(self.units.dyn5,self.spell.risingSunKickDebuff,"player") or 0
 	end
-
+		
 -- Recharge updates
 	function self.getClassRecharge()
 		local getRecharge = getRecharge
 
-		self.recharge.chiBrew 	 = getRecharge(self.spell.chiBrew)
-		self.recharge.chiTorpedo = getRecharge(self.spell.chiTorpedo)
+		self.recharge.chiTorpedo 	= getRecharge(self.spell.chiTorpedo)
+		self.recharge.roll 			= getRecharge(self.spell.roll)
 	end
 
 -- Glyph updates
 	function self.getClassGlyphs()
 		local hasGlyph = hasGlyph
 
-		self.glyph.touchOfDeath 	= hasGlyph(self.spell.touchOfDeathGlyph)
-		self.glyph.zenMeditation 	= hasGlyph(self.spell.zenMeditationGlyph)
+		-- self.glyph.touchOfDeath 	= hasGlyph(self.spell.touchOfDeathGlyph)
 	end
-
+		
 -- Talent updates
 	function self.getClassTalents()
 		local getTalent = getTalent
 
-		self.talent.celerity 		= getTalent(1,1)
-		self.talent.tigersLust 		= getTalent(1,2)
-		self.talent.chiWave  		= getTalent(2,1)
-		self.talent.zenSphere 		= getTalent(2,2)
-		self.talent.chiBurst 		= getTalent(2,3)
-		self.talent.chiBrew  		= getTalent(3,3)
+		self.talent.chiBurst 		= getTalent(1,1)
+		self.talent.chiTorpedo 		= getTalent(2,1)
+		self.talent.tigersLust 		= getTalent(2,2)
+		self.talent.celerity 		= getTalent(2,3)
+		self.talent.ringOfPeace 	= getTalent(4,1)
 		self.talent.legSweep 		= getTalent(4,3)
-		self.talent.dampenHarm 		= getTalent(5,2)
-		self.talent.diffuseMagic 	= getTalent(5,3)
-		self.talent.rushingJadeWind = getTalent(6,1)
-		self.talent.invokeXuen 		= getTalent(6,2)
-		self.talent.chiTorpedo  	= getTalent(6,3)
-		self.talent.hurricanStrike 	= getTalent(7,1)
-		self.talent.chiExplosion 	= getTalent(7,2)
-		self.talent.serenity 		= getTalent(7,3)
+		self.talent.diffuseMagic 	= getTalent(5,2)
+		self.talent.dampenHarm 		= getTalent(5,3)
 	end
 
 -- Get Class option modes
@@ -317,27 +220,21 @@ function cMonk:new(spec)
 ------------------------------
 	-- Leg Sweep
 	function self.castLegSweep(thisUnit)
-		if getTalent(4,3) and getSpellCD(self.spell.legSweep)==0 and getDistance(thisUnit)<5 then
+		if self.talent.legSweep and self.cd.legSweep == 0 and getDistance(thisUnit) < 5 then
 			if castSpell(thisUnit,self.spell.legSweep,false,false,false) then return end
 		end
 	end
 	-- Paralysis
 	function self.castParalysis(thisUnit)
-		if self.level>=44 and getSpellCD(self.spell.paralysis)==0 and self.power>20 and getDistance(thisUnit)<20 then
+		if self.level >= 48 and self.cd.paralysis == 0 and self.power > 20 and getDistance(thisUnit) < 20 then
 			if castSpell(thisUnit,self.spell.paralysis,false,false,false) then return end
 		end
 	end
 	-- Quaking Palm - Racial
 	function self.castQuakingPalm(thisUnit)
-		if self.race == "Pandaren" and getSpellCD(self.racial)==0 and getDistance(thisUnit)<5 then
+		if self.race == "Pandaren" and getSpellCD(self.racial) == 0 and getDistance(thisUnit) < 5 then
 			if castSpell(thisUnit,self.racial,false,false,false) then return end
 		end		
-	end
-	-- Spear Hand Strike
-	function self.castSpearHandStrike(thisUnit)
-		if self.level>=32 and getSpellCD(self.spell.spearHandStrike)==0 and getDistance(thisUnit)<5 then
-			if castSpell(thisUnit,self.spell.spearHandStrike,false,false,false) then return end
-		end
 	end
 
 --------------------------
@@ -345,202 +242,84 @@ function cMonk:new(spec)
 --------------------------
 	-- Dampen Harm
 	function self.castDampenHarm()
-		if getTalent(5,2) and self.cd.dampenHarm==0 then
+		if self.talent.dampenHarm and self.cd.dampenHarm == 0 then
 			if castSpell("player",self.spell.dampenHarm,false,false,false) then return end
 		end
 	end
 	-- Diffuse Magic
 	function self.castDiffuseMagic()
-		if getTalent(5,3) and self.cd.diffuseMagic==0 then
+		if self.talent.diffuseMagic and self.cd.diffuseMagic == 0 then
 			if castSpell("player",self.spell.diffuseMagic,false,false,false) then return end
 		end
 	end
-	-- Expel Harm
-	function self.castExpelHarm()
-		if self.level>=26 and self.cd.expelHarm==0 and self.power>40 then
-			if castSpell("player",self.spell.expelHarm,false,false,false) then return end
-		end
-	end
-	-- Fortifying Brew
-	function self.castFortifyingBrew()
-		if self.level>=24 and self.cd.fortifyingBrew==0 then
-			if castSpell("player",self.spell.fortifyingBrew,false,false,false) then return end
-		end
-	end
-	-- Nimble Brew
-	function self.castNimbleBrew()
-		if self.level>=30 and self.cd.nimbleBrew==0 then
-			if castSpell("player",self.spell.nimbleBrew,false,false,false) then return end
-		end
-	end
-	-- Surging Mist
-	function self.castSurgingMist()
-		if self.level>=12 and self.power>30 and not isMoving("player") then
-			if castSpell("player",self.spell.surgingMist,false,false,false) then return end
-		end
-	end
-	-- Zen Meditation
-	function self.castZenMeditation()
-		if self.level>=82 and self.cd.zenMeditation==0 and (self.glyph.zenMeditation or (not self.glyph.zenMeditation and not isMoving("player"))) and getDistance(self.units.dyn5)>5 then
-			if castSpell("player",self.spell.zenMeditation,false,false,false) then return end
+	-- Effuse
+	function self.castEffuse()
+		if self.level >= 8 and self.power > 30 and not isMoving("player") then
+			if castSpell("player",self.spell.effuse,false,false,false) then return end
 		end
 	end
 --------------------------
 --- SPELLS - OFFENSIVE ---
 --------------------------
 	-- Blackout Kick
-	function self.castBlackoutKick()
-		if self.level>=7 and (self.chi.count>=2 or getBuffRemain("player",self.spell.comboBreakerBlackoutKickBuff)>0) and getDistance(self.units.dyn5)<5 then
-			if castSpell(self.units.dyn5,self.spell.blackoutKick,false,false,false) then return end
+	function self.castBlackoutKick(thisUnit)
+		if thisUnit == nil then thisUnit = self.units.dyn5 end
+		if self.level >= 3 and (self.chi.count >= 1 or self.buff.comboBreaker) and getDistance(thisUnit) < 5 then
+			if castSpell(thisUnit,self.spell.blackoutKick,false,false,false) then return end
 		end
 	end
 	-- Chi Burst
 	function self.castChiBurst()
-		if getTalent(2,3) and self.cd.chiBurst==0 and getDistance(self.units.dyn40AoE)<40 then
-			if castSpell(self.units.dyn40,self.spell.chiBurst,false,false,false) then return end
+		if self.talent.chiBurst and self.cd.chiBurst == 0 and getDistance(self.units.dyn40AoE) < 40 then
+			if castSpell("player",self.spell.chiBurst,false,false,false) then return end
 		end
 	end
 	-- Chi Torpedo
 	function self.castChiTorpedo()
-		if getTalent(6,3) and self.cd.chiTorpedo==0 and self.charges.chiTorpedo>=1 then
+		if self.talent.chiTorpedo and self.cd.chiTorpedo == 0 and self.charges.chiTorpedo >= 1 then
 			if castSpell("player",self.spell.chiTorpedo,false,false,false) then return end
 		end
 	end
-	-- Chi Wave
-	function self.castChiWave()
-		if getTalent(2,1) and self.cd.chiWave==0 and getDistance(self.units.dyn40AoE)<40 then
-			if castSpell("player",self.spell.chiWave,false,false,false) then return end
-		end
-	end
+
 	-- Crackling Jade Lightning
 	function self.castCracklingJadeLightning()
-		if self.level>=54 and self.power>15 and getDistance("target")<40 then
+		if self.level >= 36 and getDistance("target") < 40 then
 			if castSpell("target",self.spell.cracklingJadeLightning,false,false,false) then return end
 		end
 	end
-	-- Hurricane Strike
-	function self.castHurricaneStrike()
-		if getTalent(7,1) and self.cd.hurricanStrike==0 and self.chi.count>=3 and getDistance(self.units.dyn10)<10 then
-			if castSpell("player",self.spell.hurricanStrike,false,false,false) then return end
-		end
-	end
-	-- Invoke Xuen
-	function self.castInvokeXuen()
-		if getTalent(6,2) and self.cd.invokeXuen==0 and getDistance(self.units.dyn40AoE)<40 then
-			if castSpell(self.units.dyn40AoE,self.spell.invokeXuen,false,false,false) then return end
-		end
-	end
-	-- Jab
-	function self.castJab()
-		if self.level>=1 and self.power>40 and getDistance(self.units.dyn5)<5 then
-			if castSpell(self.units.dyn5,self.spell.jab,false,false,false) then return end
-		end
-	end
-	-- Legacy of the Whie Tiger
-	function self.castLegacyOfTheWhiteTiger()
-		if self.level>=81 and self.power>20 then
-	        if self.instance=="none" and not isBuffed("player",{1126,115921,116781,20217,160206,69378,159988,160017,90363,160077}) then
-	        	if castSpell("player",self.spell.legacyOfTheWhiteTiger,false,false,false) then return end
-	        else
-		        local totalCount = GetNumGroupMembers()
-		        local currentCount = currentCount or 0
-		        local needsBuff = needsBuff or 0
-		        for i=1,#bb.friend do
-		            local thisUnit = bb.friend[i].unit
-		            local distance = getDistance(thisUnit)
-		            local dead = UnitIsDeadOrGhost(thisUnit)
-		            if distance<30 then
-		                currentCount = currentCount+1
-		            end
-		            if not isBuffed(thisUnit,{1126,115921,116781,20217,160206,69378,159988,160017,90363,160077}) and not dead and UnitIsPlayer(thisUnit) and not UnitInVehicle(thisUnit) then
-		            	needsBuff = needsBuff+1
-		            end
-		        end
-		        if currentCount>=totalCount and needsBuff>0 then
-		            if castSpell("player",self.spell.legacyOfTheWhiteTiger,false,false,false) then return end
-		        end
-		    end
-	    end
-	end
-	-- Rising Sun Kick
-	function self.castRisingSunKick()
-		if self.level>=56 and self.cd.risingSunKick==0 and self.chi.count>=2 and getDistance(self.units.dyn5)<5 then
-			if castSpell(self.units.dyn5,self.spell.risingSunKick,false,false,false) then return end
-		end
-	end
-	-- Rushing Jade Wind
-	function self.castRushingJadeWind()
-		if getTalent(6,1) and self.cd.rushingJadeWind==0 and self.power>40 then
-			if castSpell("player",self.spell.rushingJadeWind,false,false,false) then return end
-		end
-	end
-	-- Serenity
-	function self.castSerenity()
-		if getTalent(7,3) and self.cd.serenity==0 and getDistance(self.units.dyn5)<5 then
-			if castSpell("player",self.spell.serenity,false,false,false) then return end
-		end
-	end
-	-- Spinning Crane Kick
-	function self.castSpinningCraneKick()
-		if self.level>=46 and self.power>40 and getDistance(self.units.dyn8AoE)<8 then
-			if castSpell("player",self.spell.spinningCraneKick,false,false,false) then return end
-		end
-	end
 	-- Tiger Palm
-	function self.castTigerPalm()
-		if self.level>=3 and (self.chi.count>=1 or getBuffRemain("player",self.spell.comboBreakerTigerPalmBuff)>0) and getDistance(self.units.dyn5)<5 then
-			if castSpell(self.units.dyn5,self.spell.tigerPalm,false,false,false) then return end
-		end
-	end
-	-- Touch of Death
-	function self.castTouchOfDeath()
-		if self.level>=22 and self.cd.touchOfDeath==0 and (self.chi.count>=3 or self.glyph.touchOfDeath) and getDistance(self.units.dyn5)<5 then
-			if castSpell(self.units.dyn5,self.spell.touchOfDeath,false,false,false) then return end
-		end
-	end
-	-- Zen Sphere
-	function self.castZenSphere(thisUnit)
-		if getTalent(2,2) and self.cd.zenSphere==0 then
-			if castSpell(thisUnit,self.spell.zenSphere,false,false,false) then return end
+	function self.castTigerPalm(thisUnit)
+		if thisUnit == nil then thisUnit = self.units.dyn5 end
+		if self.level >= 1 and self.power > 50 and getDistance(thisUnit) < 5 then
+			if castSpell(thisUnit,self.spell.tigerPalm,false,false,false) then return end
 		end
 	end
 
 ------------------------
 --- SPELLS - UTILITY ---
 ------------------------
-	-- Chi Brew
-	function self.castChiBrew()
-		if getTalent(3,3) and self.charges.chiBrew>=1 and getDistance(self.units.dyn5)<5 then
-			if castSpell("player",self.spell.chiBrew,false,false,false) then return end
-		end
-	end
-	-- Detox
-	function self.castDetox(unit)
-		if self.level>=20 and self.cd.detox==0 then
-			if castSpell(unit,self.spell.detox,false,false,false) then return end
-		end
-	end
+
 	-- Provoke
 	function self.castProvoke()
-		if self.level>=14 and self.cd.provoke==0 and getDistance("target")<30 then
+		if self.level >= 13 and self.cd.provoke == 0 and getDistance("target") < 30 then
 			if castSpell("target",self.spell.provoke,false,false,false) then return end
 		end
 	end
 	-- Resuscitate
 	function self.castResuscitate()
-		if self.level>=18 and self.power>50 and not self.inCombat and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and getDistance("mouseover")<40 then
-			if castSpell("mouseover",self.spell.resuscitate,false,false,false) then return end
+		if self.level >= 14 and not self.inCombat and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and getDistance("mouseover") < 40 then
+			if castSpell("mouseover",self.spell.resuscitate,false,false,false,false,true) then return end
 		end
 	end
 	-- Roll
 	function self.castRoll()
-		if self.level>=5 and self.charges.roll>=1 then
-			if castSpell("plater",self.spell.roll,false,false,false) then return end
+		if self.level >= 5 and self.charges.roll >= 1 and (solo or hasThreat("target")) then
+			if castSpell("player",self.spell.roll,false,false,false) then return end
 		end
 	end
 	-- Tiger's Lust
 	function self.castTigersLust()
-		if getTalent(1,2) and self.cd.tigersLust==0 then
+		if self.talent.tigersLust and self.cd.tigersLust == 0 then
 			if castSpell("player",self.spell.tigersLust,false,false,false) then return end
 		end
 	end
