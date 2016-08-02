@@ -223,7 +223,7 @@ function frame:OnEvent(event, arg1)
         bb.ui.window.profile.parent.closeButton:Click()
 
         -- Update Selected Spec
-        bb.selectedSpec = GetSpecialization()--bb:reloadOnSpecChange() -- Reloads UI when spec changed, prevents some bugs
+        bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))--bb:reloadOnSpecChange() -- Reloads UI when spec changed, prevents some bugs
 
         -- Recreate ConfigWindow with new Spec
         bb.ui:createConfigWindow()

@@ -59,8 +59,6 @@ if select(2, UnitClass("player")) == "MONK" then
             section = bb.ui:createSection(bb.ui.window.profile,  "General")
             -- Dummy DPS Test
                 bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-            -- Death Monk
-                bb.ui:createCheckbox(section,"Death Monk Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFthis mode when running through low level content where you 1 hit kill mobs.")
             -- Pre-Pull Timer
                 bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")         
             bb.ui:checkSectionState(section)
@@ -93,6 +91,11 @@ if select(2, UnitClass("player")) == "MONK" then
                 bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Effuse
                 bb.ui:createSpinner(section, "Effuse",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            -- Healing Elixir
+                bb.ui:createSpinner(section, "Healing Elixer", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            -- Leg Sweep
+                bb.ui:createSpinner(section, "Leg Sweep - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+                bb.ui:createSpinner(section, "Leg Sweep - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
             -- Touch of Karma
                 bb.ui:createSpinner(section, "Touch of Karma",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Diffuse Magic/Dampen Harm
@@ -156,7 +159,6 @@ if select(2, UnitClass("player")) == "MONK" then
             UpdateToggle("Interrupt",0.25)
             UpdateToggle("SEF",0.25)
             UpdateToggle("FSK",0.25)
-            UpdateToggle("Builder",0.25)
             
     --------------
     --- Locals ---
@@ -182,7 +184,7 @@ if select(2, UnitClass("player")) == "MONK" then
             local inRaid            = select(2,IsInInstance())=="raid"
             local lastSpell         = lastSpellCast
             local level             = bb.player.level
-            -- local multistrike       = GetMultistrike()
+            local mode              = bb.player.mode
             local php               = bb.player.health
             local power             = bb.player.power
             local powerMax          = bb.player.powerMax
@@ -201,6 +203,7 @@ if select(2, UnitClass("player")) == "MONK" then
             local trinketProc       = bb.player.hasTrinketProc()
             local ttd               = getTTD(bb.player.units.dyn5)
             local ttm               = bb.player.timeToMax
+            local units             = bb.player.units
             if lastSpell == nil then lastSpell = 0 end
 
     --------------------
@@ -208,53 +211,12 @@ if select(2, UnitClass("player")) == "MONK" then
     --------------------
         -- Action List - Extras
             function actionList_Extras()
-            -- -- Death Monk mode
-            --     if isChecked("Death Monk Mode") then
-            --         if enemies.yards40>1 and bb.data['SEF']==1 then
-            --             local sefEnemies = getEnemies("player",40)
-            --             for i=1, #sefEnemies do
-            --                 local thisUnit                  = sefEnemies[i]
-            --                 local guidThisUnit              = UnitGUID(thisUnit)
-            --                 local guidTarget                = UnitGUID("target")
-            --                 local debuffStormEarthAndFire   = UnitDebuffID(thisUnit,bb.player.spell.stormEarthAndFireDebuff,"player")~=nil or false
-
-            --                 if not debuffStormEarthAndFire and guidThisUnit~=guidTarget and charges.stormEarthAndFire<2 and UnitIsTappedByPlayer(thisUnit) then
-            --                     if castSpell(thisUnit,bb.player.spell.stormEarthAndFire,false,false,false) then return end
-            --                 elseif debuffStormEarthAndFire and guidThisUnit==guidTarget then
-            --                     CancelUnitBuff("player", GetSpellInfo(bb.player.spell.stormEarthAndFire))
-            --                 end
-            --             end
-            --         elseif charges.stormEarthAndFire>0 and enemies.yards40<2 then
-            --             CancelUnitBuff("player", GetSpellInfo(bb.player.spell.stormEarthAndFire))
-            --         end
-            --         if not useAoE() then
-            --             if power>40 then
-            --                 if bb.player.castJab() then return end
-            --             elseif chi.count>2 then
-            --                 if bb.player.castBlackoutKick() then return end
-            --             end
-            --         else
-            --             if power>40 then
-            --                 if bb.player.level<46 then
-            --                     if bb.player.castJab() then return end
-            --                 else
-            --                     if bb.player.castSpinningCraneKick() then return end
-            --                 end
-            --             elseif chi.count>2 then
-            --                 if bb.player.castRisingSunKick() then return end
-            --             end
-            --         end
-            --     end -- End Death Monk Mode
             -- Stop Casting
-                if ((getDistance(bb.player.units.dyn5) < 5 or (useFSK() and cd.flyingSerpentKick == 0)) and isCastingSpell(spell.cracklingJadeLightning)) 
+                if ((getDistance(units.dyn5) < 5 or (useFSK() and cd.flyingSerpentKick == 0)) and isCastingSpell(spell.cracklingJadeLightning)) 
                     or (not useAoE() and isCastingSpell(spell.spinningCraneKick)) 
                 then
                     SpellStopCasting()
                 end
-            -- -- Cancel Storm, Earth, and Fire
-            --     if charges.stormEarthAndFire~=0 and (not inCombat or not useSEF()) then
-            --         CancelUnitBuff("player", GetSpellInfo(bb.player.spell.stormEarthAndFire))
-            --     end
             -- Tiger's Lust
                 if hasNoControl() or (inCombat and getDistance("target") > 10 and ObjectExists("target") and not UnitIsDeadOrGhost("target")) then
                     if bb.player.castTigersLust() then return end
@@ -283,23 +245,6 @@ if select(2, UnitClass("player")) == "MONK" then
                     if bb.player.castFlyingSerpentKick() then return end 
                     if bb.player.castFlyingSerpentKickEnd() then return end
                 end
-                -- if useFSK() and ObjectExists("target") then
-                --     if canFSK() and not isDummy() and (solo or inCombat) then
-                --         if bb.player.castFlyingSerpentKick() then return end 
-                --     end
-                --     if not canFSK() and usingFSK() then 
-                --         if bb.player.castFlyingSerpentKickEnd() then return end
-                --     end
-                --     if (not ObjectIsFacing("player","target") or getRealDistance("target") >= 8) and usingFSK() then
-                --         if bb.player.castFlyingSerpentKickEnd() then return end
-                --     end
-                --     if usingFSK() and getDistance(dynTar8AoE) < 8 then
-                --         if bb.player.castFlyingSerpentKickEnd() then return end
-                --     end
-                --     if stopFSK and usingFSK() then
-                --         if bb.player.castFlyingSerpentKickEnd() then stopSFK = false; return end
-                --     end     
-                -- end
             -- Roll
                 if getDistance("target") > 10 and getFacingDistance() < 5 and getFacing("player","target",10) then
                     if bb.player.castRoll() then return end
@@ -318,13 +263,13 @@ if select(2, UnitClass("player")) == "MONK" then
                     end
                 end
             -- Crackling Jade Lightning
-                if getDistance(bb.player.units.dyn5) >= 5 and ((useFSK() and cd.flyingSerpentKick > 1) or not useFSK()) 
+                if getDistance(units.dyn5) >= 5 and ((useFSK() and cd.flyingSerpentKick > 1) or not useFSK()) 
                     and not isCastingSpell(spell.cracklingJadeLightning) and (hasThreat("target") or isDummy()) and not isMoving("player") 
                 then
                     if bb.player.castCracklingJadeLightning() then return end
                 end
             -- Touch of the Void
-                if (useCDs() or useAoE()) and isChecked("Touch of the Void") and inCombat and getDistance(bb.player.units.dyn5)<5 then
+                if (useCDs() or useAoE()) and isChecked("Touch of the Void") and inCombat and getDistance(units.dyn5)<5 then
                     if hasEquiped(128318) then
                         if GetItemCooldown(128318)==0 then
                             useItem(128318)
@@ -351,21 +296,32 @@ if select(2, UnitClass("player")) == "MONK" then
                             end
                         end
                     end
+            -- Diffuse Magic
+                    if isChecked("Diffuse/Dampen") and ((php <= getValue("Diffuse Magic") and inCombat) or canDispel("player",bb.player.spell.diffuseMagic)) then
+                        if bb.player.castDiffuseMagic() then return end
+                    end
+            -- Dampen Harm
+                    if isChecked("Diffuse/Dampen") and php <= getValue("Dampen Harm") and inCombat then
+                        if bb.player.castDampenHarm() then return end
+                    end
             -- Effuse
                     if isChecked("Effuse") and ((not inCombat and php <= getValue("Effuse")) or (inCombat and php <= getValue("Effuse") / 2)) then
                         if bb.player.castEffuse() then return end
                     end
+            -- Healing Elixir
+                    if isChecked("Healing Elixir") and php <= getValue("Healing Elixer") then
+                        if bb.player.castHealingElixir() then return end
+                    end
+            -- Leg Sweep
+                    if isChecked("Leg Sweep - HP") and php <= getValue("Leg Sweep - HP") and inCombat and enemies.yards5 > 0 then
+                        if bb.player.castLegSweep() then return end
+                    end
+                    if isChecked("Leg Sweep - AoE") and enemies.yards5 >= getValue("Leg Sweep - AoE") then
+                        if bb.player.castLegSweep() then return end
+                    end
             -- Touch of Karma
-                    if isChecked("Touch of Karma") and php<=getValue("Touch of Karma") and inCombat then
+                    if isChecked("Touch of Karma") and php <= getValue("Touch of Karma") and inCombat then
                         if bb.player.castTouchOfKarma() then return end
-                    end
-            -- Diffuse Magic
-                    if isChecked("Diffuse/Dampen") and ((php<=getValue("Diffuse Magic") and inCombat) or canDispel("player",bb.player.spell.diffuseMagic)) then
-                        if bb.player.castDiffuseMagic() then return end
-                    end
-            -- Dampen Harm
-                    if isChecked("Diffuse/Dampen") and php<=getValue("Dampen Harm") and inCombat then
-                        if bb.player.castDampenHarm() then return end
                     end
                 end -- End Defensive Check
             end -- End Action List - Defensive
@@ -552,7 +508,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 if ttm > 2 or not buff.serenity then
                     if bb.player.castChiBurst() then return end
                 end
-                for i = 1, bb.player.enemies.yards5 do
+                for i = 1, enemies.yards5 do
                     local thisUnit = getEnemies("player", 5)[i]
                     local markOfTheCraneDebuff = getDebuffRemain(thisUnit,spell.markOfTheCrane,"player") or 0 
             -- Rising Sun Kick
@@ -577,7 +533,7 @@ if select(2, UnitClass("player")) == "MONK" then
 --- Begin Profile ---
 ---------------------
         -- Pause
-            if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) then
+            if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
                 return true
             else
 --------------
@@ -612,7 +568,7 @@ if select(2, UnitClass("player")) == "MONK" then
     ----------------------
         -- Auto Attack
                         -- auto_attack
-                        if getDistance(bb.player.units.dyn5) < 5 then
+                        if getDistance(units.dyn5) < 5 then
                             StartAttack()
                         end
                         if useCDs() then
@@ -630,7 +586,7 @@ if select(2, UnitClass("player")) == "MONK" then
                                 end
                             end
         -- Trinkets
-                            if isChecked("Trinkets") and getDistance(bb.player.units.dyn5) < 5 then
+                            if isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
                                 if canUse(13) then
                                     useItem(13)
                                 end
@@ -667,16 +623,16 @@ if select(2, UnitClass("player")) == "MONK" then
                                 if bb.player.castTouchOfDeath() then return end
                             end
         -- Storm, Earth, and Fire
-                            -- storm_earth_and_fire,target=2,if=debuff.storm_earth_and_fire_target.down
-                            -- storm_earth_and_fire,target=3,if=debuff.storm_earth_and_fire_target.down
-
                             -- storm_earth_and_fire,if=artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.up&cooldown.fists_of_fury.remains<=9&cooldown.rising_sun_kick.remains<=5
                             -- storm_earth_and_fire,if=!artifact.strike_of_the_windlord.enabled&cooldown.fists_of_fury.remains<=9&cooldown.rising_sun_kick.remains<=5
                             if useSEF() then
                                 if (artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord == 0 and cd.fistsOfFury <= 9 and cd.risingSunKick <= 5) 
-                                    or (not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 9 and cd.risingSunKick <=5 )
+                                    or (not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 9 and cd.risingSunKick <=5)
                                 then
                                     if bb.player.castStormEarthAndFire() then return end
+                                end
+                                if enemies.yards8 == 1 then
+                                    if bb.player.castStormEarthAndFireFixate() then return end
                                 end
                             end
         -- Serenity

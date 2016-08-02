@@ -32,7 +32,7 @@ function cCharacter:new(class)
 	self.mode           = {}        -- Toggles
 	self.rotation       = 1         -- Default: First avaiable rotation
 	self.inCombat       = false     -- if is in combat
-	self.instance 		= "none" 	-- Get type of group we are in (none, party, instance, raid, etc)
+	self.instance 		= select(2,IsInInstance()) 	-- Get type of group we are in (none, party, instance, raid, etc)
 	self.talent         = {}        -- Talents
 	self.characterSpell = {}        -- Spells all classes may have (e.g. Racials, Mass Ressurection)
 	self.recharge       = {}        -- Time for current recharge (for spells with charges)

@@ -203,29 +203,29 @@ function BadBoyFrame()
 			bb.data['Power'] = 0
 			mainButton:SetNormalTexture(backIconOff)
 			-- on/off switch
-			if bb.selectedSpec == 5 then
-				if bb.data.options[bb.selectedSpec][bb.selectedProfile]["Start/Stop BadBoyCheck"] ~= 0 then
-					_G["optionsStart/Stop BadBoyCheck"]:Click()
-				end
-			else
+			-- if bb.selectedSpec == 5 then
+			-- 	if bb.data.options[bb.selectedSpec][bb.selectedProfile]["Start/Stop BadBoyCheck"] ~= 0 then
+			-- 		_G["optionsStart/Stop BadBoyCheck"]:Click()
+			-- 	end
+			-- else
 				if bb.data.options[bb.selectedSpec]["Start/Stop BadBoyCheck"] ~= 0 then
 					_G["optionsStart/Stop BadBoyCheck"]:Click()
 				end
-			end
+			-- end
 			GameTooltip:SetText("|cff00FF00Enable |cffFF0000BadBoy \n|cffFFDD11Hold Left Alt and scroll mouse to adjust size.", 225/255, 225/255, 225/255)
 			mainButtonFrame.texture:SetTexture(genericIconOff)
 		else
 			bb.data['Power'] = 1
 			-- on/off switch
-			if bb.selectedSpec == 5 then
-				if bb.data.options[bb.selectedSpec][bb.selectedProfile]["Start/Stop BadBoyCheck"] ~= 1 then
-					_G["optionsStart/Stop BadBoyCheck"]:Click()
-				end
-			else
+			-- if bb.selectedSpec == 5 then
+			-- 	if bb.data.options[bb.selectedSpec][bb.selectedProfile]["Start/Stop BadBoyCheck"] ~= 1 then
+			-- 		_G["optionsStart/Stop BadBoyCheck"]:Click()
+			-- 	end
+			-- else
 				if bb.data.options[bb.selectedSpec]["Start/Stop BadBoyCheck"] ~= 1 then
 					_G["optionsStart/Stop BadBoyCheck"]:Click()
 				end
-			end
+			-- end
 			GameTooltip:SetText("|cffFF0000Disable BadBoy \n|cffFFDD11Hold Left Alt and scroll mouse to adjust size.", 225/255, 225/255, 225/255)
 			mainButton:SetNormalTexture(backIconOn)
 			mainButtonFrame.texture:SetTexture(genericIconOn)

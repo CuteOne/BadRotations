@@ -1,7 +1,7 @@
 -- define bb global that will hold the bot global background features
 bb = {}
 bbdata = {}
-bb.selectedSpec = 1
+bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
 bb.selectedProfile = 1
 bb.dropOptions = {}
 bb.dropOptions.Toggle = {"LeftCtrl","LeftShift","RightCtrl","RightShift","RightAlt","None"}
@@ -69,21 +69,22 @@ function bb:Run()
 	-- options table that will hold specs subtable
 	if bb.data.options == nil then
 		bb.data.options = {}
-		bb.data.options[1] = {}
-		bb.data.options[2] = {}
-		bb.data.options[3] = {}
-		bb.data.options[4] = {}
-		bb.data.options[5] = {}
+		bb.data.options[bb.selectedSpec] = {}
+		-- bb.data.options[1] = {}
+		-- bb.data.options[2] = {}
+		-- bb.data.options[3] = {}
+		-- bb.data.options[4] = {}
+		-- bb.data.options[5] = {}
     end
-    if bb.data.options[5] == nil then
-        bb.data.options[5] = {}
+    if bb.data.options[bb.selectedSpec] == nil then
+        bb.data.options[bb.selectedSpec] = {}
     end
-    if GetSpecialization() == nil then
-    	bb.selectedSpec = 5
-    	bb.selectedProfile = 1
-    else
-    	bb.selectedSpec = GetSpecialization()
-    end
+    -- if GetSpecialization() == nil then
+    -- 	bb.selectedSpec = 5
+    -- 	bb.selectedProfile = 1
+    -- else
+    	-- bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+    -- end
     if bb.data.options[bb.selectedSpec]["Rotation".."Drop"] == nil then
         bb.selectedProfile = 1
     else
