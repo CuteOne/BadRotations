@@ -1031,12 +1031,12 @@ function getDistance3(Unit1,Unit2)
 
 		local X1,Y1,Z1 = GetObjectPosition(Unit1)
 		local X2,Y2,Z2 = GetObjectPosition(Unit2)
-		return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (UnitCombatReach(Unit1) + UnitCombatReach(Unit2))
+		return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - UnitCombatReach(Unit2)
 	else
 		return 100
 	end
 end
-function getDistance4(spellID,Unit1)
+function getDistance4(Unit1,Unit2)
 	-- If Unit2 is nil we compare player to Unit1
 	if Unit2 == nil then
 		Unit2 = Unit1
@@ -1047,13 +1047,38 @@ function getDistance4(spellID,Unit1)
 
 		local X1,Y1,Z1 = GetObjectPosition(Unit1)
 		local X2,Y2,Z2 = GetObjectPosition(Unit2)
-		local name, rank, icon, castingTime, minRange, maxRange, spellID = GetSpellInfo(spellID)
-		if maxRange<=5 then
-			return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2))
-		elseif minRange>=8 then
-			return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (UnitCombatReach(Unit1) + UnitCombatReach(Unit2))
+		return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (UnitCombatReach(Unit1) + UnitCombatReach(Unit2))
+	else
+		return 100
+	end
+end
+function getDistance5(Unit1,Unit2)
+		-- If Unit2 is nil we compare player to Unit1
+	if Unit2 == nil then
+		Unit2 = Unit1
+		Unit1 = "player"
+	end
+	if GetObjectExists(Unit1) and UnitIsVisible(Unit1) == true
+		and GetObjectExists(Unit2) and UnitIsVisible(Unit2) == true then
+
+		local X1,Y1,Z1 = GetObjectPosition(Unit1)
+		local X2,Y2,Z2 = GetObjectPosition(Unit2)
+		local TCR = UnitCombatReach(Unit2)
+		-- local dist = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2))
+		-- local dist2 = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - UnitCombatReach(Unit2)
+		-- local dist3 = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (UnitCombatReach(Unit1) + UnitCombatReach(Unit2))
+		local dist = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (UnitCombatReach(Unit1) + UnitCombatReach(Unit2))
+		local dist2 = dist+0.03*((13-dist)/0.13)
+		local dist3 = dist+0.05*((8-dist)/0.15)+1
+		if dist > 13 then
+			-- print("dist")
+			return dist
+		elseif dist > 8 then
+			-- print("dist2")
+			return dist2
 		else
-			return 6.5
+			-- print("dist3")
+			return dist3
 		end
 	else
 		return 100
@@ -1647,8 +1672,9 @@ function hasNoControl(spellID,unit)
 	local eventIndex = C_LossOfControl.GetNumEvents()
 	while (eventIndex > 0) do
 		local _,_,text = C_LossOfControl.GetEventInfo(eventIndex)
+		local class = select(3,UnitClass("player"))
 		-- Warrior
-		if select(3,UnitClass("player")) == 1 then
+		if class == 1 then
 			if spellID == 18499 
 				-- Fear, Sap and Incapacitate
 				and (text == LOSS_OF_CONTROL_DISPLAY_FEAR
@@ -1660,22 +1686,22 @@ function hasNoControl(spellID,unit)
 			end
 		end
 		-- Paladin
-		if select(3,UnitClass("player")) == 2 then
+		if class == 2 then
 		end
 		-- Hunter
-		if select(3,UnitClass("player")) == 3 then
+		if class == 3 then
 			if text == LOSS_OF_CONTROL_DISPLAY_ROOT or text == LOSS_OF_CONTROL_DISPLAY_SNARE then
 				return true
 			end
 		end
 		-- Rogue
-		if select(3,UnitClass("player")) == 4 then
+		if class == 4 then
 		end
 		-- Priest
-		if select(3,UnitClass("player")) == 5 then
+		if class == 5 then
 		end
 		-- Death Knight
-		if select(3,UnitClass("player")) == 6 then
+		if class == 6 then
 			if spellID == 49039 --Lichborne
 				and (text == LOSS_OF_CONTROL_DISPLAY_CHARM
 				or text == LOSS_OF_CONTROL_DISPLAY_FEAR
@@ -1691,7 +1717,7 @@ function hasNoControl(spellID,unit)
 			end
 		end
 		-- Shaman
-		if select(3,UnitClass("player")) == 7 then
+		if class == 7 then
 			if spellID == 58875 -- Spirit Walk
 				and (text == LOSS_OF_CONTROL_DISPLAY_ROOT or text == LOSS_OF_CONTROL_DISPLAY_SNARE)
 			then
@@ -1711,26 +1737,48 @@ function hasNoControl(spellID,unit)
 			end
 		end
 		-- Mage
-		if select(3,UnitClass("player")) == 8 then
+		if class == 8 then
 		end
 		-- Warlock
-		if select(3,UnitClass("player")) == 9 then
+		if class == 9 then
 		end
 		-- Monk
-		if select(3,UnitClass("player")) == 10 then
+		if class == 10 then
 			if text == LOSS_OF_CONTROL_DISPLAY_STUN or text == LOSS_OF_CONTROL_DISPLAY_FEAR or text == LOSS_OF_CONTROL_DISPLAY_ROOT or text == LOSS_OF_CONTROL_DISPLAY_HORROR then
 				return true
 			end
 		end
 		-- Druid
-		if select(3,UnitClass("player")) == 11 then
-			if text == LOSS_OF_CONTROL_DISPLAY_ROOT or text == LOSS_OF_CONTROL_DISPLAY_SNARE then
+		if class == 11 then
+			if tostring(text) == "Rooted" --[[LOSS_OF_CONTROL_DISPLAY_ROOT]] or text == LOSS_OF_CONTROL_DISPLAY_SNARE then
 				return true
 			end
 		end
 		eventIndex = eventIndex - 1
 	end
 	return false
+end
+function getSpellCost(spell)
+  local t = GetSpellPowerCost(spell)
+  if not t then
+    return 0
+  elseif not t[1]["minCost"] then
+    return 0
+  else
+    return t[1]["minCost"], t[1]["cost"], t[1]["type"]
+  end
+end
+
+function hasResources(spell,offset)
+  local cost, _, costtype = SpellCost(spell)
+  offset = offset or 0
+  if not cost then
+    return false
+  elseif cost == 0 then
+    return true
+  elseif UnitPower("player",costtype)>cost+offset then
+    return true
+  end
 end
 -- if hasThreat("target") then
 function hasThreat(unit,playerUnit)

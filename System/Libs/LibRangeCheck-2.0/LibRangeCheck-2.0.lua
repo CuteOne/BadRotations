@@ -1,6 +1,6 @@
 --[[
 Name: LibRangeCheck-2.0
-Revision: $Revision: 164 $
+Revision: $Revision: 168 $
 Author(s): mitch0
 Website: http://www.wowace.com/projects/librangecheck-2-0/
 Description: A range checking library based on interact distances and spell ranges
@@ -41,7 +41,7 @@ License: Public Domain
 -- @class file
 -- @name LibRangeCheck-2.0
 local MAJOR_VERSION = "LibRangeCheck-2.0"
-local MINOR_VERSION = tonumber(("$Revision: 164 $"):match("%d+")) + 100000
+local MINOR_VERSION = tonumber(("$Revision: 168 $"):match("%d+")) + 100000
 
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then
@@ -81,37 +81,57 @@ local FriendSpells = {}
 -- list of harmful spells that have different ranges 
 local HarmSpells = {}
 
+FriendSpells["DEATHKNIGHT"] = {
+    47541, -- ["Death Coil"], -- 40
+}
+HarmSpells["DEATHKNIGHT"] = {
+    47541, -- ["Death Coil"], -- 40
+    49576, -- ["Death Grip"], -- 30
+}
+
+FriendSpells["DEMONHUNTER"] = {
+}
+HarmSpells["DEMONHUNTER"] = {
+    185123, -- ["Throw Glaive"], -- 30
+}
+
 FriendSpells["DRUID"] = {
     774, -- ["Rejuvenation"], -- 40
-    1126, -- ["Mark of the Wild"], -- 30
+    2782, -- ["Remove Corruption"], -- 40
 }
 HarmSpells["DRUID"] = {
     5176, -- ["Wrath"], -- 40
     339, -- ["Entangling Roots"], -- 35
     6795, -- ["Growl"], -- 30
     33786, -- ["Cyclone"], -- 20
+    106839, -- ["Skull Bash"], -- 13
     22568, -- ["Ferocious Bite"], -- 5
 }
 
 FriendSpells["HUNTER"] = {}
 HarmSpells["HUNTER"] = {
-    53351, -- ["Kill Shot"], -- 45
     75, -- ["Auto Shot"], -- 40
 }
 
 FriendSpells["MAGE"] = {
-    475, -- ["Remove Curse"], -- 40
-    1459, -- ["Arcane Brilliance"], -- 30
 }
 HarmSpells["MAGE"] = {
     44614, --["Frostfire Bolt"], -- 40
-    2136, -- ["Fire Blast"], -- 30
     5019, -- ["Shoot"], -- 30
 }
 
+FriendSpells["MONK"] = {
+    115450, -- ["Detox"], -- 40
+    115546, -- ["Provoke"], -- 30
+}
+HarmSpells["MONK"] = {
+    115546, -- ["Provoke"], -- 30
+    115078, -- ["Paralysis"], -- 20
+    100780, -- ["Tiger Palm"], -- 5
+}
+
 FriendSpells["PALADIN"] = {
-    85673, -- ["Word of Glory"], -- 40
-    20217, -- ["Blessing of Kings"], -- 30
+    19750, -- ["Flash of Light"], -- 40
 }
 HarmSpells["PALADIN"] = {
     62124, -- ["Reckoning"], -- 30
@@ -121,8 +141,8 @@ HarmSpells["PALADIN"] = {
 } 
 
 FriendSpells["PRIEST"] = {
-    2061, -- ["Flash Heal"], -- 40
-    6346, -- ["Fear Ward"], -- 30
+    527, -- ["Purify"], -- 40
+    17, -- ["Power Word: Shield"], -- 40
 }
 HarmSpells["PRIEST"] = {
     589, -- ["Shadow Word: Pain"], -- 40
@@ -133,7 +153,6 @@ FriendSpells["ROGUE"] = {}
 HarmSpells["ROGUE"] = {
     2764, -- ["Throw"], -- 30
     2094, -- ["Blind"], -- 15
-    1752, -- ["Sinister Strike"], -- 5
 }
 
 FriendSpells["SHAMAN"] = {
@@ -141,9 +160,8 @@ FriendSpells["SHAMAN"] = {
     546, -- ["Water Walking"], -- 30
 }
 HarmSpells["SHAMAN"] = {
-    403, -- ["Lightning Bolt"], -- 30
+    403, -- ["Lightning Bolt"], -- 40
     370, -- ["Purge"], -- 30
-    8050, -- ["Flame Shock"], -- 25
     73899, -- ["Primal Strike"],. -- 5
 }
 
@@ -152,7 +170,6 @@ HarmSpells["WARRIOR"] = {
     355, -- ["Taunt"], -- 30
     100, -- ["Charge"], -- 8-25
     5246, -- ["Intimidating Shout"], -- 8
-    78, -- ["Heroic Strike"], -- 5
 }
 
 FriendSpells["WARLOCK"] = {
@@ -161,26 +178,6 @@ FriendSpells["WARLOCK"] = {
 HarmSpells["WARLOCK"] = {
     686, -- ["Shadow Bolt"], -- 40
     5019, -- ["Shoot"], -- 30
-}
-
-FriendSpells["DEATHKNIGHT"] = {
-    47541, -- ["Death Coil"], -- 40
-}
-HarmSpells["DEATHKNIGHT"] = {
-    47541, -- ["Death Coil"], -- 40
-    49576, -- ["Death Grip"], -- 30
-    45477, -- ["Icy Touch"], -- 30
-    45462, -- ["Plague Strike"], -- 5
-}
-
-FriendSpells["MONK"] = {
-    115546, -- ["Provoke"], -- 40
-}
-HarmSpells["MONK"] = {
-    115546, -- ["Provoke"], -- 40
-    115078, -- ["Paralysis"], -- 20
-    121253, -- ["Keg Smash"], -- 8
-    100780, -- ["Jab"], -- 5
 }
 
 -- Items [Special thanks to Maldivia for the nice list]
@@ -365,9 +362,6 @@ local cacheAllItems
 local friendItemRequests
 local harmItemRequests
 local lastUpdate = 0
-
-local sniperTrainingName
-local hasSniperTraining
 
 -- minRangeCheck is a function to check if spells with minimum range are really out of range, or fail due to range < minRange. See :init() for its setup
 local minRangeCheck = function(unit) return CheckInteractDistance(unit, 2) end
@@ -628,23 +622,6 @@ local function createSmartChecker(friendChecker, harmChecker, miscChecker)
     end
 end
 
-local function isMarksman()
-    local specIndex = GetSpecialization()
-    if specIndex then
-        return GetSpecializationInfo(specIndex) == 254
-    end
-end
-
-local function checkSniperTrainingChange()
-    if sniperTrainingName then
-        local hasSTNow = UnitAura("player", sniperTrainingName) and true
-        if hasSTNow ~= hasSniperTraining then
-            hasSniperTraining = hasSTNow
-            return true
-        end
-    end
-end
-
 -- OK, here comes the actual lib
 
 -- pre-initialize the checkerLists here so that we can return some meaningful result even if
@@ -692,23 +669,12 @@ end
 
 -- initialize RangeCheck if not yet initialized or if "forced"
 function lib:init(forced)
-    if self.initialized and (not forced) and (not checkSniperTrainingChange()) then
+    if self.initialized and (not forced) then
         return
     end
     self.initialized = true
     local _, playerClass = UnitClass("player")
     local _, playerRace = UnitRace("player")
-
-    if playerClass == "HUNTER" and isMarksman() then
-        if not sniperTrainingName then
-            sniperTrainingName = GetSpellInfo(168811)
-            checkSniperTrainingChange()
-            self.frame:RegisterUnitEvent("UNIT_AURA", "player")
-        end
-    else
-        self.frame:UnregisterEvent("UNIT_AURA")
-        sniperTrainingName = nil
-    end
 
     minRangeCheck = nil
     -- first try to find a nice item we can use for minRangeCheck

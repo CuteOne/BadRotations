@@ -23,6 +23,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         self.bleed.rip          = {}        -- Rip Bleed
         self.bleed.thrash       = {}        -- Thrash Bleed
         self.bleed.moonfire     = {}        -- Moonfire Debuff
+        self.charges.frac       = {}        -- Fractional Charges
         self.trinket            = {}        -- Trinket Procs
         self.enemies            = {
             yards5,
@@ -420,10 +421,12 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 		function self.getCharge()
 			local getCharges = getCharges
+            local getChargesFrac = getChargesFrac
 			local getBuffStacks = getBuffStacks
 
 			self.charges.bloodtalons 	   = getBuffStacks("player",self.spell.bloodtalonsBuff,"player")
             self.charges.brutalSlash       = getCharges(self.spell.brutalSlash)
+            self.charges.frac.brutalSlash  = getChargesFrac(self.spell.brutalSlash)
             self.charges.survivalInstincts = getCharges(self.spell.survivalInstincts)
 		end
         
@@ -654,7 +657,7 @@ if select(2, UnitClass("player")) == "DRUID" then
         end
         -- Brutal Slash
         function self.castBrutalSlash(thisUnit)
-            if self.talent.brutalSlash and self.charges.brutalSlash > 0 and power > 20 and self.buff.catForm and getDistance(thisUnit)<8 then
+            if self.talent.brutalSlash and self.charges.brutalSlash > 0 and self.power > 20 and self.buff.catForm and getDistance(thisUnit)<8 then
                 if castSpell(thisUnit,self.spell.brutalSlash,false,false,false) then return end
             end
         end

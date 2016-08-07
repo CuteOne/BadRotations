@@ -76,9 +76,9 @@ if select(2, UnitClass("player")) == "MONK" then
             chiOrbit                        = 196743,
             chiWave                         = 115098,
             dizzyingKicks                   = 196722,
-            energizingElixer                = 115288,
+            energizingElixir                = 115288,
             eyeOfTheTiger                   = 196607,
-            healingElixer                   = 122281,
+            healingElixir                   = 122281,
             hitCombo                        = 196740,
             invokeXuen                      = 123904,
             powerStrikes                    = 121817,
@@ -194,6 +194,7 @@ if select(2, UnitClass("player")) == "MONK" then
         function self.getCharges()
             local getBuffStacks = getBuffStacks
 
+            self.charges.healingElixir      = getCharges(self.spell.healingElixir) or 0
             self.charges.stormEarthAndFire  = getCharges(self.spell.stormEarthAndFire) or 0
         end
 
@@ -226,7 +227,7 @@ if select(2, UnitClass("player")) == "MONK" then
 
             self.cd.chiWave             = getSpellCD(self.spell.chiWave)
             self.cd.detox               = getSpellCD(self.spell.detox)
-            self.cd.energizingElixer    = getSpellCD(self.spell.energizingElixer)
+            self.cd.energizingElixir    = getSpellCD(self.spell.energizingElixir)
             self.cd.fistsOfFury         = getSpellCD(self.spell.fistsOfFury)
             self.cd.flyingSerpentKick   = getSpellCD(self.spell.flyingSerpentKick)
             self.cd.invokeXuen          = getSpellCD(self.spell.invokeXuen)
@@ -235,6 +236,7 @@ if select(2, UnitClass("player")) == "MONK" then
             self.cd.strikeOfTheWindlord = getSpellCD(self.spell.strikeOfTheWindlord)
             self.cd.touchOfDeath        = getSpellCD(self.spell.touchOfDeath)
             self.cd.touchOfKarma        = getSpellCD(self.spell.touchOfKarma)
+            self.cd.whirlingDragonPunch = getSpellCD(self.spell.whirlingDragonPunch)
         end
 
         --------------
@@ -256,11 +258,11 @@ if select(2, UnitClass("player")) == "MONK" then
 
             self.talent.eyeOfTheTiger       = getTalent(1,2)
             self.talent.chiWave             = getTalent(1,3)
-            self.talent.energizingElixer    = getTalent(3,1)
+            self.talent.energizingElixir    = getTalent(3,1)
             self.talent.ascension           = getTalent(3,2)
             self.talent.powerStrikes        = getTalent(3,3)
             self.talent.dizzyingKicks       = getTalent(4,2)
-            self.talent.healingElixer       = getTalent(5,1)
+            self.talent.healingElixir       = getTalent(5,1)
             self.talent.rushingJadeWind     = getTalent(6,1)
             self.talent.invokeXuen          = getTalent(6,2)
             self.talent.hitCombo            = getTalent(6,3)
@@ -423,9 +425,9 @@ if select(2, UnitClass("player")) == "MONK" then
             end
         end
         -- Energizing Elixer
-        function self.castEnergizingElixer()
-            if self.talent.energizingElixer and self.cd.energizingElixer == 0 then
-                if castSpell("player",self.spell.energizingElixer,false,false,false) then return end
+        function self.castEnergizingElixir()
+            if self.talent.energizingElixir and self.cd.energizingElixir == 0 then
+                if castSpell("player",self.spell.energizingElixir,false,false,false) then return end
             end 
         end
         -- Fists of Fury
@@ -446,6 +448,12 @@ if select(2, UnitClass("player")) == "MONK" then
         function self.castFlyingSerpentKickEnd()
             if self.level >= 10 and (getDistance("target") < 5 or getFacingDistance() ~= abs(getFacingDistance())) and select(3,GetSpellInfo(101545)) == 463281 then
                 if castSpell("player",self.spell.flyingSerpentKickEnd,false,false,false) then return end
+            end
+        end
+        -- Healing Elixirs
+        function self.castHealingElixir()
+            if self.talent.healingElixir and self.charges.healingElixir > 0 then
+                if castSpell("player",self.spell.healingElixir,false,false,false) then return end
             end
         end
         -- Invoke Xuen
@@ -517,7 +525,7 @@ if select(2, UnitClass("player")) == "MONK" then
         end
         -- Whirling Dragon Punch
         function self.castWhirlingDragonPunch()
-            if self.talent.whirlingDragonPunch and self.cd.whirlingDragonPunch == 0 and self.cd.fistOfFury == 0 and self.cd.risingSunKick == 0 and getDistance(self.units.dyn8AoE) < 8 then
+            if self.talent.whirlingDragonPunch and self.cd.whirlingDragonPunch == 0 and self.cd.fistsOfFury ~= 0 and self.cd.risingSunKick ~= 0 and getDistance(self.units.dyn8AoE) < 8 then
                 if castSpell("player",self.spell.whirlingDragonPunch,false,false,false) then return end
             end
         end

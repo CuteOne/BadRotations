@@ -92,7 +92,7 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Effuse
                 bb.ui:createSpinner(section, "Effuse",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Healing Elixir
-                bb.ui:createSpinner(section, "Healing Elixer", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+                bb.ui:createSpinner(section, "Healing Elixir", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Leg Sweep
                 bb.ui:createSpinner(section, "Leg Sweep - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
                 bb.ui:createSpinner(section, "Leg Sweep - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
@@ -206,6 +206,7 @@ if select(2, UnitClass("player")) == "MONK" then
             local units             = bb.player.units
             if lastSpell == nil then lastSpell = 0 end
 
+            -- ChatOverlay(round2(getDistance3("target"),2))
     --------------------
     --- Action Lists ---
     --------------------
@@ -263,11 +264,11 @@ if select(2, UnitClass("player")) == "MONK" then
                     end
                 end
             -- Crackling Jade Lightning
-                if getDistance(units.dyn5) >= 5 and ((useFSK() and cd.flyingSerpentKick > 1) or not useFSK()) 
-                    and not isCastingSpell(spell.cracklingJadeLightning) and (hasThreat("target") or isDummy()) and not isMoving("player") 
-                then
-                    if bb.player.castCracklingJadeLightning() then return end
-                end
+                -- if getDistance(units.dyn5) >= 5 and ((useFSK() and cd.flyingSerpentKick > 1) or not useFSK()) 
+                --     and not isCastingSpell(spell.cracklingJadeLightning) and (hasThreat("target") or isDummy()) and not isMoving("player") 
+                -- then
+                --     if bb.player.castCracklingJadeLightning() then return end
+                -- end
             -- Touch of the Void
                 if (useCDs() or useAoE()) and isChecked("Touch of the Void") and inCombat and getDistance(units.dyn5)<5 then
                     if hasEquiped(128318) then
@@ -309,7 +310,7 @@ if select(2, UnitClass("player")) == "MONK" then
                         if bb.player.castEffuse() then return end
                     end
             -- Healing Elixir
-                    if isChecked("Healing Elixir") and php <= getValue("Healing Elixer") then
+                    if isChecked("Healing Elixir") and php <= getValue("Healing Elixir") then
                         if bb.player.castHealingElixir() then return end
                     end
             -- Leg Sweep
@@ -646,7 +647,7 @@ if select(2, UnitClass("player")) == "MONK" then
         -- Energizing Elixer
                             -- energizing_elixir,if=energy<energy.max&chi<=1&buff.serenity.down
                             if power < 50 and chi.count <= 1 and not buff.serenity then
-                                if bb.player.castEnergizingElixer() then return end
+                                if bb.player.castEnergizingElixir() then return end
                             end
                         end
         -- Rushing Jade Wind
