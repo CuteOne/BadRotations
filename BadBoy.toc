@@ -25,6 +25,7 @@ System\readers\common.lua
 ## LIBS
 System\Libs\LibStub\LibStub.lua
 System\Libs\!LibDraw\LibDraw.lua
+System\Libs\LibBossIDs-1.0\LibBossIDs-1.0.xml
 System\Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
 System\Libs\LibSpellRange-1.0\LibSpellRange-1.0.lua
 System\Libs\LibRangeCheck-2.0\LibRangeCheck-2.0.lua
@@ -62,23 +63,10 @@ System\ui\textframe.lua
 System\ui\ui.lua
 System\ui\wrapper.lua
 
-## ClassLibs
-ClassLibs\Monk\Options.lua
-ClassLibs\Monk\Functions.lua
-ClassLibs\Monk\SpellList.lua
-ClassLibs\Monk\Toggles.lua
-ClassLibs\Priest\Options.lua
-ClassLibs\Priest\Functions.lua
-ClassLibs\Priest\SpellList.lua
-ClassLibs\Priest\Toggles.lua
-ClassLibs\Rogue\Options.lua
-ClassLibs\Rogue\Functions.lua
-ClassLibs\Rogue\SpellList.lua
-ClassLibs\Rogue\Toggles.lua
-
 ## Custom Functions
 Custom\Functions.lua
 
+## Rotation
 Rotations\cCharacter.lua
 
 ## DeathKnight ---------------------------------------------------
@@ -88,184 +76,121 @@ Rotations\Deathknight\Frost\cFrost.lua
 Rotations\Deathknight\Frost\Frost.lua
 Rotations\Deathknight\Frost\FrostCuteOne.lua
 
+Rotations\Deathknight\Blood\cBlood.lua
 Rotations\Deathknight\Blood\Blood.lua
-Rotations\Deathknight\Blood\Libs\Functions.lua
-Rotations\Deathknight\Blood\Libs\Options.lua
-Rotations\Deathknight\Blood\Libs\SpellList.lua
-Rotations\Deathknight\Blood\Libs\Toggles.lua
 
+Rotations\Deathknight\Unholy\cUnholy.lua
 Rotations\Deathknight\Unholy\Unholy.lua
-Rotations\Deathknight\Unholy\Libs\Functions.lua
-Rotations\Deathknight\Unholy\Libs\Options.lua
-Rotations\Deathknight\Unholy\Libs\SpellList.lua
-Rotations\Deathknight\Unholy\Libs\Toggles.lua
 
 ## Druid ---------------------------------------------------
 Rotations\Druid\cDruid.lua
-Rotations\Druid\NewDruid.lua
 
 Rotations\Druid\Feral\cFeral.lua
+Rotations\Druid\Feral\Feral.lua
 Rotations\Druid\Feral\FeralCuteOne.lua
 Rotations\Druid\Feral\FeralAveryKey.lua
-Rotations\Druid\Feral\Feral.lua
 
+Rotations\Druid\Guardian\cGuardian.lua
 Rotations\Druid\Guardian\Guardian.lua
-Rotations\Druid\Guardian\Libs\Options.lua
-Rotations\Druid\Guardian\Libs\Functions.lua
-Rotations\Druid\Guardian\Libs\SpellList.lua
-Rotations\Druid\Guardian\Libs\Toggles.lua
 
+Rotations\Druid\Moonkin\cMoonkin.lua
 Rotations\Druid\Moonkin\Moonkin.lua
-Rotations\Druid\Moonkin\Options.lua
-Rotations\Druid\Moonkin\Functions.lua
-Rotations\Druid\Moonkin\Toggles.lua
 
 Rotations\Druid\Restoration\cResto.lua
-Rotations\Druid\Restoration\RestoAveryKey.lua
 Rotations\Druid\Restoration\Resto.lua
+Rotations\Druid\Restoration\RestoAveryKey.lua
 
 ## Hunter ---------------------------------------------------
+Rotations\Hunter\cHunter.lua
+
+Rotations\Hunter\Beastmaster\cBeastmaster.lua
 Rotations\Hunter\Beastmaster\Beastmaster.lua
-Rotations\Hunter\Beastmaster\Options.lua
-Rotations\Hunter\Beastmaster\Functions.lua
-Rotations\Hunter\Beastmaster\Toggles.lua
 
+Rotations\Hunter\Marksmanship\cMarksmanship.lua
 Rotations\Hunter\Maksmanship\Marksmanship.lua
-Rotations\Hunter\Maksmanship\Options.lua
-Rotations\Hunter\Maksmanship\Functions.lua
-Rotations\Hunter\Maksmanship\Toggles.lua
 
+Rotations\Hunter\Survival\cSurvival.lua
 Rotations\Hunter\Survival\Survival.lua
-Rotations\Hunter\Survival\Options.lua
-Rotations\Hunter\Survival\Functions.lua
-Rotations\Hunter\Survival\Toggles.lua
-
-Rotations\Hunter\SpellList.lua
-Rotations\Hunter\Functions.lua
-Rotations\Hunter\NewHunter.lua
 
 ## Mage ---------------------------------------------------
-Rotations\Mage\Frost.lua
-Rotations\Mage\Arcane.lua
-Rotations\Mage\Fire.lua
-Rotations\Mage\Options.lua
-Rotations\Mage\Functions.lua
-Rotations\Mage\SpellList.lua
-Rotations\Mage\Toggles.lua
-Rotations\Mage\NewMage.lua
+Rotations\Mage\cMage.lua
+
+Rotations\Mage\Arcane\cArcane.lua
+Rotations\Mage\Arcane\Arcane.lua
+
+Rotations\Mage\Fire\cFire.lua
+Rotations\Mage\Fire\Fire.lua
+
+Rotations\Mage\Frost\cFrost.lua
+Rotations\Mage\Frost\Frost.lua
 
 ## Monk ---------------------------------------------------
 Rotations\Monk\cMonk.lua
-Rotations\Monk\Brewmaster.lua
-Rotations\Monk\Mistweaver.lua
-Rotations\Monk\NewMonk.lua
+
+Rotations\Monk\Brewmaster\cBrewmaster.lua
+Rotations\Monk\Brewmaster\Brewmaster.lua
+
+Rotations\Monk\Mistweaver\cMistweaver.lua
+Rotations\Monk\Mistweaver\Mistweaver.lua
 
 Rotations\Monk\Windwalker\cWindwalker.lua
 Rotations\Monk\Windwalker\Windwalker.lua
 Rotations\Monk\Windwalker\WindwalkerCuteOne.lua
-Rotations\Monk\Windwalker\WindwalkerDef.lua
-
-Rotations\Monk\Mistweaver\cMistweaver.lua
-Rotations\Monk\Mistweaver\MistweaverKuu.lua
-Rotations\Monk\Mistweaver\Mistweaver.lua
-Rotations\Monk\Mistweaver\TogglesKuu.lua
-Rotations\Monk\Mistweaver\OptionsKuu.lua
-Rotations\Monk\Mistweaver\Functions.lua
 
 ## Paladin ---------------------------------------------------
 Rotations\Paladin\cPaladin.lua
 
+Rotations\Paladin\Holy\cHoly.lua
 Rotations\Paladin\Holy\Holy.lua
-Rotations\Paladin\Holy\Libs\Functions.lua
-Rotations\Paladin\Holy\Libs\Options.lua
-Rotations\Paladin\Holy\Libs\SpellList.lua
-Rotations\Paladin\Holy\Libs\Toggles.lua
 
 Rotations\Paladin\Protection\cProtection.lua
-Rotations\Paladin\Protection\protectionSimC.lua
 Rotations\Paladin\Protection\Protection.lua
-
-##Rotations\Paladin\Protection\Libs\Functions.lua
-##Rotations\Paladin\Protection\Libs\Options.lua
-Rotations\Paladin\Protection\Libs\Toggles.lua
+Rotations\Paladin\Protection\protectionSimC.lua
 
 Rotations\Paladin\Retribution\cRetribution.lua
-Rotations\Paladin\Retribution\retributionSimC.lua
 Rotations\Paladin\Retribution\Retribution.lua
-
-Rotations\Paladin\Retribution\Libs\Functions.lua
-Rotations\Paladin\Retribution\Libs\Options.lua
-Rotations\Paladin\Retribution\Libs\Toggles.lua
-
-Rotations\Paladin\SpellList.lua
-Rotations\Paladin\Functions.lua
-Rotations\Paladin\Options.lua
-Rotations\Paladin\NewPaladin.lua
+Rotations\Paladin\Retribution\retributionSimC.lua
 
 ## Priest ---------------------------------------------------
 Rotations\Priest\cPriest.lua
-Rotations\Priest\Shadow\cShadow.lua
-Rotations\Priest\Shadow\libs\cBossHelperT17.lua
-Rotations\Priest\Shadow\libs\cBossHelperT18.lua
-Rotations\Priest\Shadow\libs\Options.lua
-Rotations\Priest\Shadow\libs\Shadow.lua
-Rotations\Priest\Shadow\libs\shadowRavens.lua
-Rotations\Priest\Shadow\libs\shadowSimC.lua
-Rotations\Priest\Shadow\libs\Toggles.lua
 
+Rotations\Priest\Discipline\cDiscipline.lua
 Rotations\Priest\Discipline\Discipline.lua
-Rotations\Priest\Discipline\libs\Functions.lua
-Rotations\Priest\Discipline\libs\Options.lua
-Rotations\Priest\Discipline\libs\Toggles.lua
 
-Rotations\Priest\NewPriest.lua
+Rotations\Priest\Holy\cHoly.lua
+Rotations\Priest\Holy\Holy.lua
+
+Rotations\Priest\Shadow\cShadow.lua
+Rotations\Priest\Shadow\Shadow.lua
 
 ## Rogue ---------------------------------------------------
-Rotations\Rogue\NewRogue.lua
 Rotations\Rogue\cRogue.lua
 
 Rotations\Rogue\Assassination\cAssassination.lua
 Rotations\Rogue\Assassination\Assassination.lua
 Rotations\Rogue\Assassination\AssassinationCuteOne.lua
 
-Rotations\Rogue\Combat\cCombat.lua
-Rotations\Rogue\Combat\Combat.lua
-Rotations\Rogue\Combat\combatSimC.lua
-Rotations\Rogue\Combat\Functions.lua
-Rotations\Rogue\Combat\Options.lua
-Rotations\Rogue\Combat\SpellList.lua
-Rotations\Rogue\Combat\Toggles.lua
+Rotations\Rogue\Outlaw\cOutlaw.lua
+Rotations\Rogue\Outlaw\Outlaw.lua
 
+Rotations\Rogue\Subtlety\cSubtlety.lua
 Rotations\Rogue\Subtlety\Subtlety.lua
-Rotations\Rogue\Subtlety\Functions.lua
-Rotations\Rogue\Subtlety\Options.lua
-Rotations\Rogue\Subtlety\SpellList.lua
-Rotations\Rogue\Subtlety\Toggles.lua
 
 ## Shaman  ---------------------------------------------------
-Rotations\Shaman\SpellList.lua
-Rotations\Shaman\NewShaman.lua
 Rotations\Shaman\cShaman.lua
 
 Rotations\Shaman\Enhancement\cEnhancement.lua
 Rotations\Shaman\Enhancement\Enhancement.lua
 Rotations\Shaman\Enhancement\EnhancementCuteOne.lua
 
+Rotations\Shaman\Elemental\cElemental.lua
 Rotations\Shaman\Elemental\Elemental.lua
-Rotations\Shaman\Elemental\Libs\Functions.lua
-Rotations\Shaman\Elemental\Libs\Options.lua
-Rotations\Shaman\Elemental\Libs\Toggles.lua
 
 Rotations\Shaman\Restoration\cRestoration.lua
 Rotations\Shaman\Restoration\Restoration.lua
 Rotations\Shaman\Restoration\RestorationKuu.lua
-Rotations\Shaman\Restoration\Restorationold.lua
-Rotations\Shaman\Restoration\Libs\Functions.lua
-Rotations\Shaman\Restoration\Libs\Options.lua
-Rotations\Shaman\Restoration\Libs\Toggles.lua
 
 ## Warrior ---------------------------------------------------
-Rotations\Warrior\NewWarrior.lua
 Rotations\Warrior\cWarrior.lua
 
 Rotations\Warrior\Arms\cArms.lua
@@ -276,53 +201,34 @@ Rotations\Warrior\Fury\cFury.lua
 Rotations\Warrior\Fury\Fury.lua
 Rotations\Warrior\Fury\FuryCuteOne.lua
 
+Rotations\Warrior\Protection\cProtection.lua
 Rotations\Warrior\Protection\Protection.lua
-Rotations\Warrior\Protection\Libs\Functions.lua
-Rotations\Warrior\Protection\Libs\Options.lua
-Rotations\Warrior\Protection\Libs\Toggles.lua
 
 ## Warlock ---------------------------------------------------
 Rotations\Warlock\cWarlock.lua
 
-Rotations\Warlock\Affliction\Affliction.lua
 Rotations\Warlock\Affliction\cAffliction.lua
+Rotations\Warlock\Affliction\Affliction.lua
 Rotations\Warlock\Affliction\levelingWL.lua
-Rotations\Warlock\Affliction\Libs\Functions.lua
-Rotations\Warlock\Affliction\Libs\Options.lua
-Rotations\Warlock\Affliction\Libs\Toggles.lua
 
+Rotations\Warlock\Demonology\cDemonology.lua
 Rotations\Warlock\Demonology\Demonology.lua
-Rotations\Warlock\Demonology\Libs\Functions.lua
-Rotations\Warlock\Demonology\Libs\Options.lua
-Rotations\Warlock\Demonology\Libs\Toggles.lua
 
 Rotations\Warlock\Destruction\cDestruction.lua
 Rotations\Warlock\Destruction\Destruction.lua
 Rotations\Warlock\Destruction\DestructionKuu.lua
 Rotations\Warlock\Destruction\DestructionTest.lua
-Rotations\Warlock\Destruction\Libs\Functions.lua
-Rotations\Warlock\Destruction\Libs\Options.lua
-Rotations\Warlock\Destruction\Libs\Toggles.lua
 
-Rotations\Warlock\NewWarlock.lua
+## Non-Class Specific Rotations
 
 ## PokeRotation
-Rotations\PokeRotation\PokeAbilities.lua
-Rotations\PokeRotation\PokeCollections.lua
-Rotations\PokeRotation\PokeData.lua
-Rotations\PokeRotation\PokeEngine.lua
-Rotations\PokeRotation\PokeSwapper.lua
-Rotations\PokeRotation\PokeUI.lua
-Rotations\PokeRotation\PokeUnitInfo.lua
+Rotations\_NonClass\PokeRotation\PokeAbilities.lua
+Rotations\_NonClass\PokeRotation\PokeCollections.lua
+Rotations\_NonClass\PokeRotation\PokeData.lua
+Rotations\_NonClass\PokeRotation\PokeEngine.lua
+Rotations\_NonClass\PokeRotation\PokeSwapper.lua
+Rotations\_NonClass\PokeRotation\PokeUI.lua
+Rotations\_NonClass\PokeRotation\PokeUnitInfo.lua
 
 ## ProfessionHelper
-Rotations\ProfessionHelper\ProfessionHelper.lua
-
-## RangeLibs
-##LibStub-1.0\LibStub.lua
-
-## BossLibs
-System\Libs\LibBossIDs-1.0\LibBossIDs-1.0.xml
-
-## LoadManagers: AddonLoader
-## X-LoadOn-Always: delayed
+Rotations\_NonClass\ProfessionHelper\ProfessionHelper.lua

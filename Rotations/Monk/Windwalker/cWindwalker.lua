@@ -232,6 +232,7 @@ if select(2, UnitClass("player")) == "MONK" then
             self.cd.flyingSerpentKick   = getSpellCD(self.spell.flyingSerpentKick)
             self.cd.invokeXuen          = getSpellCD(self.spell.invokeXuen)
             self.cd.risingSunKick       = getSpellCD(self.spell.risingSunKick)
+            self.cd.serenity            = getSpellCD(self.spell.serenity)
             self.cd.spearHandStrike     = getSpellCD(self.spell.spearHandStrike)
             self.cd.strikeOfTheWindlord = getSpellCD(self.spell.strikeOfTheWindlord)
             self.cd.touchOfDeath        = getSpellCD(self.spell.touchOfDeath)
@@ -496,13 +497,13 @@ if select(2, UnitClass("player")) == "MONK" then
         -- Storm Earth and Fire
         function self.castStormEarthAndFire()
             if self.level >= 65 and self.charges.stormEarthAndFire > 0 and not self.buff.stormEarthAndFire and getDistance(self.units.dyn5) < 5 then
-                if castSpell(self.units.dyn5,self.spell.stormEarthAndFire,false,false,false) then return end
+                if castSpell("player",self.spell.stormEarthAndFire,false,false,false) then return end
             end
         end
         -- Storm Earth and Fire Fixate
         function self.castStormEarthAndFireFixate()
             if self.level >= 65 and self.buff.stormEarthAndFire then
-                if castSpell(self.units,dyn5,self.spell.stormEarthAndFireFixate,false,false,false) then return end
+                if castSpell("target",self.spell.stormEarthAndFireFixate,false,false,false) then return end
             end
         end
         -- Strike of the Windlord

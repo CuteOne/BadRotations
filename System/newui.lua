@@ -9,9 +9,9 @@ bb.ui = {}
 bb.ui.window = {}
 bb.ui.window.config = {}
 bb.ui.window.profile = {}
-
---if bb.data.options[bb.selectedSpec] == nil then bb.data.options[bb.selectedSpec] = {} end
---if bb.data.options[bb.selectedSpec][bb.selectedProfile] == nil then bb.data.options[bb.selectedSpec][bb.selectedProfile] = {} end
+-- bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+-- if bb.data.options[bb.selectedSpec] == nil then bb.data.options[bb.selectedSpec] = {} end
+-- if bb.data.options[bb.selectedSpec][bb.selectedProfile] == nil then bb.data.options[bb.selectedSpec][bb.selectedProfile] = {} end
 
 -- TODO: save window position and restore it
 
@@ -283,7 +283,7 @@ function bb.ui:createWindow(name, width, height)
     window:ApplySettings()
 
     window.closeButton:SetScript("OnClick", function(this, button)
-        bb:saveConfigWindowPosition()
+        bb:savePosition("config") --bb:saveConfigWindowPosition()
         bb.data.options[bb.selectedSpec]["optionsFrame"] = false
         DiesalGUI:OnMouse(this,button)
         PlaySound("gsTitleOptionExit")
@@ -298,6 +298,7 @@ function bb.ui:createWindow(name, width, height)
     scrollFrame.parent = window
 
     -- Load saved position
+    if bb.selectedSpec == nil then bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
     if bb.data.options[bb.selectedSpec]["optionsFrame".."_point"] ~= nil then
         local point, relativeTo = bb.data.options[bb.selectedSpec]["optionsFrame".."_point"], bb.data.options[bb.selectedSpec]["optionsFrame".."_relativeTo"]
         local relativePoint = bb.data.options[bb.selectedSpec]["optionsFrame".."_relativePoint"]
@@ -330,7 +331,7 @@ function bb.ui:createProfileWindow(name, width, height)
     window:ApplySettings()
 
     window.closeButton:SetScript("OnClick", function(this, button)
-        bb:saveProfileWindowPosition()
+        bb:savePosition("profile")--bb:saveProfileWindowPosition()
         bb.data.options[bb.selectedSpec]["configFrame"] = false
         DiesalGUI:OnMouse(this,button)
         PlaySound("gsTitleOptionExit")
@@ -797,6 +798,7 @@ function bb.ui:recreateWindows()
     bb.ui.window.profile.parent.closeButton:Click()
 
     bb.ui:createConfigWindow()
+    -- bb.ui:createProfileWindow()
 end
 
 -- todo
@@ -824,15 +826,15 @@ function bb.ui:createHelpWindow()
     local colorRed = "|cffFF0011"
     local colorWhite = "|cffFFFFFF"
     local colorGold = "|cffFFDD11"
-    bb.ui.window.help:AddMessage(colorGreen.."--- [[ AUTHORS ]] ---")
-    bb.ui.window.help:AddMessage(colorRed.."CodeMyLife - CuteOne - Ragnar - Defmaster")
-    bb.ui.window.help:AddMessage(colorRed.."Gabbz - Chumii - AveryKey")
-    bb.ui.window.help:AddMessage(colorRed.."Masoud - Cpoworks - Tocsin")
-    bb.ui.window.help:AddMessage(colorRed.."Mavmins - CukieMunster - Magnu")
+    bb.ui.window.help:AddMessage(colorGreen.. "--- [[ AUTHORS ]] ---")
+    bb.ui.window.help:AddMessage(colorRed.. "CodeMyLife - CuteOne - Ragnar - Defmaster")
+    bb.ui.window.help:AddMessage(colorRed.. "Gabbz - Chumii - AveryKey")
+    bb.ui.window.help:AddMessage(colorRed.. "Masoud - Cpoworks - Tocsin")
+    bb.ui.window.help:AddMessage(colorRed.. "Mavmins - CukieMunster - Magnu")
     bb.ui.window.help:AddMessage("----------------------------------------")
     --
-    bb.ui.window.help:AddMessage(colorGreen.."--- [[ TODO ]] ---")
-    bb.ui.window.help:AddMessage(colorGold.."HELP WINDOW NOT FINISHED YET ! ")
+    bb.ui.window.help:AddMessage(colorGreen.. "--- [[ TODO ]] ---")
+    bb.ui.window.help:AddMessage(colorGold.. "HELP WINDOW NOT FINISHED YET ! ")
     bb.ui.window.help.parent:Hide()
 end
 

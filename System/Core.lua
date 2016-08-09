@@ -34,6 +34,7 @@ function ChatOverlay(Message, FadingTime)
 		chatOverlay:Show()
 	end
 end
+-- Minimap Button
 function bb:MinimapButton()
 	local dragMode = nil --"free", nil
 	local function moveButton(self)
@@ -162,62 +163,39 @@ function bb:characterEquipChanged()
         bb.equipHasChanged = true
     end
 end
-function bb:saveProfileWindowPosition()
-    -- Profile Window
-    if bb.ui.window.profile.parent then
-        local point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.profile.parent:GetPoint(1)
-        bb.data.options[bb.selectedSpec]["configFrame".."_point"] = point
-        bb.data.options[bb.selectedSpec]["configFrame".."_relativeTo"] = relativeTo:GetName()
-        bb.data.options[bb.selectedSpec]["configFrame".."_relativePoint"] = relativePoint
-        bb.data.options[bb.selectedSpec]["configFrame".."_xOfs"] = xOfs
-        bb.data.options[bb.selectedSpec]["configFrame".."_yOfs"] = yOfs
+function bb:savePosition(windowName)
+	if bb.selectedSpec == nil then bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
+	if bb.ui.window[windowName].parent then
+		local point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window[windowName].parent:GetPoint(1)
+        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_point"] = point
+        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_relativeTo"] = relativeTo:GetName()
+        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_relativePoint"] = relativePoint
+        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_xOfs"] = xOfs
+        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_yOfs"] = yOfs
 
-        point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.profile.parent:GetPoint(2)
+        point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window[windowName].parent:GetPoint(2)
         if point then
-            bb.data.options[bb.selectedSpec]["configFrame".."_point2"] = point
-            bb.data.options[bb.selectedSpec]["configFrame".."_relativeTo2"] = relativeTo:GetName()
-            bb.data.options[bb.selectedSpec]["configFrame".."_relativePoint2"] = relativePoint
-            bb.data.options[bb.selectedSpec]["configFrame".."_xOfs2"] = xOfs
-            bb.data.options[bb.selectedSpec]["configFrame".."_yOfs2"] = yOfs
+            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_point2"] = point
+            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_relativeTo2"] = relativeTo:GetName()
+            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_relativePoint2"] = relativePoint
+            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_xOfs2"] = xOfs
+            bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_yOfs2"] = yOfs
         end
 
-        bb.data.options[bb.selectedSpec]["configFrame".."_width"]  = bb.ui.window.profile.parent:GetWidth()
-        bb.data.options[bb.selectedSpec]["configFrame".."_height"] = bb.ui.window.profile.parent:GetHeight()
-    end
-end
-function bb:saveConfigWindowPosition()
-    -- Config Window
-    if bb.ui.window.config.parent then
-        local point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.config.parent:GetPoint(1)
-        bb.data.options[bb.selectedSpec]["optionsFrame".."_point"] = point
-        bb.data.options[bb.selectedSpec]["optionsFrame".."_relativeTo"] = relativeTo:GetName()
-        bb.data.options[bb.selectedSpec]["optionsFrame".."_relativePoint"] = relativePoint
-        bb.data.options[bb.selectedSpec]["optionsFrame".."_xOfs"] = xOfs
-        bb.data.options[bb.selectedSpec]["optionsFrame".."_yOfs"] = yOfs
-
-        point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window.config.parent:GetPoint(2)
-        if point then
-            bb.data.options[bb.selectedSpec]["optionsFrame".."_point2"] = point
-            bb.data.options[bb.selectedSpec]["optionsFrame".."_relativeTo2"] = relativeTo:GetName()
-            bb.data.options[bb.selectedSpec]["optionsFrame".."_relativePoint2"] = relativePoint
-            bb.data.options[bb.selectedSpec]["optionsFrame".."_xOfs2"] = xOfs
-            bb.data.options[bb.selectedSpec]["optionsFrame".."_yOfs2"] = yOfs
-        end
-
-        bb.data.options[bb.selectedSpec]["optionsFrame".."_width"]  = bb.ui.window.config.parent:GetWidth()
-        bb.data.options[bb.selectedSpec]["optionsFrame".."_height"] = bb.ui.window.config.parent:GetHeight()
+        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_width"]  = bb.ui.window[windowName].parent:GetWidth()
+        bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_height"] = bb.ui.window[windowName].parent:GetHeight()
     end
 end
 function bb:saveWindowPosition()
-    bb:saveProfileWindowPosition()
-    bb:saveConfigWindowPosition()
+    bb:savePosition("profile")
+    bb.savePosition("config")
 end
 
 function frame:OnEvent(event, arg1)
 	if event == "ADDON_LOADED" and arg1 == "BadBoy" then
-		bb:Run()
+		--bb:Run()
 	end
-	if event == "ACTIVE_TALENT_GROUP_CHANGED" then
+	if event == "ACTIVE_TALENT_GROUP_CHANGED" and bb.loadedIn then
         -- Closing the windows will save the position
         bb.ui.window.config.parent.closeButton:Click()
         bb.ui.window.profile.parent.closeButton:Click()
@@ -227,6 +205,9 @@ function frame:OnEvent(event, arg1)
 
         -- Recreate ConfigWindow with new Spec
         bb.ui:createConfigWindow()
+
+        -- rebuild up UI
+		bb:StartUI()
     end
     if event == "CHARACTER_POINTS_CHANGED" and arg1 == -1 then
         bb:characterTalentChanged() -- Sets a global to indicate a talent was changed
@@ -237,8 +218,13 @@ function frame:OnEvent(event, arg1)
     if event == "PLAYER_EQUIPMENT_CHANGED" then
         bb:characterEquipChanged() -- Sets a global to indicate equip was changed
     end
-    if event == "PLAYER_ENTERING_WORLD" or event == "ZONE_CHANGED_NEW_AREA" then
-        -- temp
+    if event == "PLAYER_ENTERING_WORLD" --[[or event == "ZONE_CHANGED_NEW_AREA"]] then
+    	-- Update Selected Spec
+        bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+    	-- Update Selected Spec
+    	if not bb.loadedIn then
+        	bb:Run()
+        end
     end
     if event == "ZONE_CHANGED" then
         -- temp
@@ -288,116 +274,100 @@ function BadBoyUpdate(self)
 	local playerSpec = GetSpecialization()
 	local playerLevel = UnitLevel("player")
 	if playerClass == 1 then -- Warrior
-		if playerSpec == 1 and playerLevel>=10 then
-			ArmsWarrior()
-		elseif playerSpec == 2 and playerLevel>=10 then
-			FuryWarrior()
-		elseif playerSpec == 3 and playerLevel>=10 then
-			ProtectionWarrior()
-		else
-			NewWarrior()
+		if playerSpec == 1 then
+			WarriorArms()
+		elseif playerSpec == 2 then
+			WarriorFury()
+		elseif playerSpec == 3 then
+			WarriorProtection()
 		end
 	elseif playerClass == 2 then -- Paladin
-		if playerSpec == 1 and playerLevel>=10 then
+		if playerSpec == 1 then
 			PaladinHoly()
-		elseif playerSpec == 2 and playerLevel>=10 then
+		elseif playerSpec == 2 then
 			PaladinProtection()
-		elseif playerSpec == 3 and playerLevel>=10 then
+		elseif playerSpec == 3 then
 			PaladinRetribution()
-		else
-			NewPaladin()
 		end
 	elseif playerClass == 3 then -- Hunter
-		if playerSpec == 1 and playerLevel>=10 then
-			BeastHunter()
-		elseif playerSpec == 2 and playerLevel>=10 then
-			MarkHunter()
-		elseif playerSpec == 3 and playerLevel>=10 then
-			SurvHunter()
-		else
-			NewHunter()
+		if playerSpec == 1 then
+			HunterBeastmaster()
+		elseif playerSpec == 2 then
+			HunterMarksmanship()
+		elseif playerSpec == 3 then
+			HunterSurvival()
 		end
 	elseif playerClass == 4 then -- Rogue
-		if playerSpec == 1 and playerLevel>=10 then
-			AssassinationRogue()
-		elseif playerSpec == 2 and playerLevel>=10 then
-			CombatRogue()
-		elseif playerSpec == 3 and playerLevel>=10 then
-			SubRogue()
-		else
-			NewRogue()
+		if playerSpec == 1 then
+			RogueAssassination()
+		elseif playerSpec == 2 then
+			RogueOutlaw()
+		elseif playerSpec == 3 then
+			RogueSubtlety()
 		end
 	elseif playerClass == 5 then -- Priest
-		if playerSpec == 1 and playerLevel>=10 then
+		if playerSpec == 1 then
 			PriestDiscipline()
-		elseif playerSpec == 2 and playerLevel>=10 then
+		elseif playerSpec == 2 then
 			PriestHoly()
-		elseif playerSpec == 3 and playerLevel>=10 then
+		elseif playerSpec == 3 then
 			PriestShadow()
-		else
-			NewPriest()
 		end
-	elseif playerClass == 6 then -- Deathknight
-		if playerSpec == 1 and playerLevel>=10 then
-			Blood()
-		elseif playerSpec == 2 and playerLevel>=10 then
-			FrostDK()
-		elseif playerSpec == 3 and playerLevel>=10 then
-			UnholyDK()
-		else
-			return true
+	elseif playerClass == 6 then -- Death Knight
+		if playerSpec == 1 then
+			DeathKnightBlood()
+		elseif playerSpec == 2 then
+			DeathKnightFrost()
+		elseif playerSpec == 3 then
+			DeathKnightUnholy()
 		end
 	elseif playerClass == 7 then -- Shaman
-		if playerSpec == 1 and playerLevel>=10 then
+		if playerSpec == 1 then
 			ShamanElemental()
-		elseif playerSpec == 2 and playerLevel>=10 then
+		elseif playerSpec == 2 then
 			ShamanEnhancement()
-		elseif playerSpec == 3 and playerLevel>=10 then
+		elseif playerSpec == 3 then
 			ShamanRestoration()
-		else
-			NewShaman()
 		end
 	elseif playerClass == 8 then -- Mage
-		if playerSpec == 1 and playerLevel>=10 then
-			ArcaneMage()
-		elseif playerSpec == 2 and playerLevel>=10 then
-			FireMage()
-		elseif playerSpec == 3 and playerLevel>=10 then
-			FrostMage()
-		else
-			NewMage()
+		if playerSpec == 1 then
+			MageArcane()
+		elseif playerSpec == 2 then
+			MageFire()
+		elseif playerSpec == 3 then
+			MageFrost()
 		end
 	elseif playerClass == 9 then -- Warlock
-		if playerSpec == 1 and playerLevel>=10 then
+		if playerSpec == 1 then
 			WarlockAffliction()
-		elseif playerSpec == 2 and playerLevel>=10 then
+		elseif playerSpec == 2 then
 			WarlockDemonology()
-		elseif playerSpec == 3 and playerLevel>=10 then
-			DestructionWarlock()
-		else
-			NewWarlock()
+		elseif playerSpec == 3 then
+			WarlockDestruction()
 		end
 	elseif playerClass == 10 then -- Monk
-		if playerSpec == 1 and playerLevel>=10 then
-			BrewmasterMonk()
-		elseif playerSpec == 2 and playerLevel>=10 then
-			MistweaverMonk()
+		if playerSpec == 1 then
+			MonkBrewmaster()
+		elseif playerSpec == 2 then
+			MonkMistweaver()
 		elseif playerSpec == 3 then
-			WindwalkerMonk()
-		else
-			NewMonk()
+			MonkWindwalker()
 		end
 	elseif playerClass == 11 then -- Druid
-		if playerSpec == 1 and playerLevel>=10 then
+		if playerSpec == 1 then
 			DruidMoonkin()
 		elseif playerSpec == 2 then
 			DruidFeral()
-		elseif playerSpec == 3 and playerLevel>=10 then
+		elseif playerSpec == 3 then
 			DruidGuardian()
-		elseif playerSpec == 4 and playerLevel>=10 then
-			DruidResto()
-		else
-			NewDruid()
+		elseif playerSpec == 4 then
+			DruidRestoration()
+		end
+	elseif playerClass == 12 then --Demon Hunter
+		if playerSpec == 1 then
+			DemonHunterHavoc()
+		elseif playerSpec == 2 then
+			DemonHunterVengeance()
 		end
 	end
 end

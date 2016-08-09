@@ -57,9 +57,7 @@ If you want to know what changes read the commit messages.
 Most of the time they contain the most changes.
 
 ## Regarding Lua Errors
-1. Use AddonLoader: http://www.wowace.com/addons/addon-loader/
-
-If it doesnt fix the error (mostly startup ones) post them as issue.
+Please submit any errors as issues here on GitHub.
 
 ## Regarding Crashing
 What to do if you have crash to desktop or 132 errors.(not necessarily in this order)
@@ -78,7 +76,7 @@ What to do if you have crash to desktop or 134 errors.
 
 ## Profile Status
 
-Raiable means if its good to raid with.
+Raidable means if its good to raid with.
 * :white_check_mark: - works good
 * :x: - should not be used in raid
 * :heavy_check_mark: - has basic rotation, but not optimal for serious raiding
@@ -87,58 +85,63 @@ Raiable means if its good to raid with.
 
 |spec |status|author|patch|raidable?|
 |:----|------:|:-------|:---:|:-----:|
-|**Druid**||||
-|Feral|100%|CuteOne|**7.0**|:white_check_mark:|
-|Guardian|70%|chumii|6.1|:white_check_mark:
-|Restoration|100%|Masoud|6.1|:interrobang:
-|Moonkin|work in progress|ragnar| ? |:x:
 ||||
 | **Death Knight** |||
-|Frost|100%|CuteOne|**6.2**|:white_check_mark:
-|Blood|90%|CodeMyLife|6.1|:white_check_mark:
-|Unholy|85%|chumii|6.1|:heavy_check_mark:
+|Frost|0%||7.0|
+|Blood|0%||7.0|
+|Unholy|0%||7.0|
+||||
+| **Demon Hunter** |||
+|Havoc|0%||7.0|
+|Vengeance|0%||7.0|
+||||
+| **Druid** |||
+|Feral|100% (SimC)|CuteOne|7.0|:white_check_mark:
+|Guardian|0%||7.0|
+|Restoration|0%||7.0|
+|Moonkin|0%||7.0|
 ||||
 | **Hunter** |||
-|Beastmaster|100%|CodeMyLife,Defmaster|6.1|:white_check_mark:
-|Marksmanship|100%|Mavmins|6.1|:white_check_mark:
-|Survival|100%|Mavmins|6.1|:white_check_mark:
+|Beastmaster|0%||7.0|
+|Marksmanship|0%||7.0|
+|Survival|0%||7.0|
 ||||
-| **Mage** |  |  |
-|Arcane|unknown|| ? |:x:|
-|Fire|unknown|| ? |:x:
-|Frost| basic|| 6.1|:heavy_check_mark:
+| **Mage** |||
+|Arcane|0%||7.0|
+|Fire|0%||7.0|
+|Frost|0%||7.0|
 ||||
 | **Monk** |||
-|Brewmaster|95%|chumii,Defmaster|6.1|:white_check_mark:
-|Mistweaver|99%|Kuukuu|**6.2**|:white_check_mark:
-|Windwalker|100% (SimC)|CuteOne|**6.2**|:white_check_mark:
+|Brewmaster|0%||7.0|
+|Mistweaver|0%||7.0|
+|Windwalker|100% (SimC/AMR)|CuteOne|7.0|:white_check_mark:
 ||||
-| **Paladin**  |||
-|Holy|50%|Gabbz & CodeMyLife|6.1|:interrobang:
-|Protection|95%(SimC)|Gabbz,Defmaster|**6.2**|:white_check_mark:
-|Retribution|95%(SimC)|Defmaster|**6.2**|:white_check_mark:
+| **Paladin** |||
+|Holy|0%||7.0|
+|Protection|0%||7.0|
+|Retribution|0%||7.0|
 ||||
-| **Priest**  |||
-|Discipline|0%|ragnar| ? |:x:
-|Holy|0%|| ? |:x:
-|Shadow|90%(CoP&AS)|ragnar|**6.2**|:white_check_mark: BH
+| **Priest** |||
+|Discipline|0%|||
+|Holy|0%|||
+|Shadow|0%||7.0|
 ||||
-| **Rogue**  |||
-|Assassination|90%|CuteOne|**6.2**|:heavy_check_mark:
-|Combat|80%|Toxin|6.1|:white_check_mark:
-|Subtlety|0%|CuteOne|?|:x:
+| **Rogue** |||
+|Assassination|0%||7.0|
+|Outlaw|0%||7.0|
+|Subtlety|0%||7.0|
 ||||
 | **Shaman** |||
-|Elemental|90%|CodeMyLife|6.1|:white_check_mark:
-|Enhancement|100%|CuteOne|**6.2**|:white_check_mark:
-|Restoration|90%|Kuukuu|6.2|:heavy_check_mark:
+|Elemental|0%||7.0|
+|Enhancement|0%||7.0|
+|Restoration|0%||7.0|
 ||||
-| **Warlock**  |||
-|Affliction|0%||?|:x:
-|Demonology|80%|Kink|6.1|:interrobang:
-|Destruction|60%|Kuukuu|6.2|:heavy_check_mark:
+| **Warlock** |||
+|Affliction|0%||7.0|
+|Demonology|0%||7.0|
+|Destruction|0%||7.0|
 ||||
-| **Warrior**  |||
-|Arms|100%|CuteOne|**6.2**|:white_check_mark:
-|Fury|100%|CuteOne|**6.2**|:white_check_mark:
-|Protection|85%|chumii|6.1|:interrobang:
+| **Warrior** |||
+|Arms|0%||7.0|
+|Fury|0%||7.0|
+|Protection|0%||7.0|

@@ -12,7 +12,7 @@ function BadBoyFrame()
 	-- when we find a match, we reset tooltip
 	local function ResetTip(toggleValue,thisValue)
 		GameTooltip:SetOwner(_G["button"..toggleValue], mainButton, 0 , 0)
-		GameTooltip:SetText(_G[toggleValue.."Modes"][thisValue].tip, 225/255, 225/255, 225/255, nil, true)
+		GameTooltip:SetText(_G[toggleValue.. "Modes"][thisValue].tip, 225/255, 225/255, 225/255, nil, true)
 		GameTooltip:Show()
 	end
 	function GarbageButtons()
@@ -142,9 +142,9 @@ function BadBoyFrame()
 	-- set to desired button value
 	function changeButton(toggleValue,newValue)
 		-- define text
-		_G["text"..toggleValue]:SetText(_G[toggleValue.."Modes"][newValue].mode)
+		_G["text"..toggleValue]:SetText(_G[toggleValue.. "Modes"][newValue].mode)
 		-- define icon
-		if type(_G[toggleValue.."Modes"][newValue].icon) == "number" then
+		if type(_G[toggleValue.. "Modes"][newValue].icon) == "number" then
 			Icon = select(3,GetSpellInfo(_G[toggleValue.."Modes"][newValue].icon))
 		else
 			Icon = _G[toggleValue.."Modes"][newValue].icon
@@ -157,7 +157,7 @@ function BadBoyFrame()
 			_G["frame"..toggleValue].texture:SetTexture(genericIconOn)
 		end
 		-- We tell the user we changed mode
-		ChatOverlay("\124cFF3BB0FF".._G[toggleValue.."Modes"][newValue].overlay)
+		ChatOverlay("\124cFF3BB0FF".._G[toggleValue.. "Modes"][newValue].overlay)
 		-- We reset the tip
 		ResetTip(toggleValue,newValue)
 	end

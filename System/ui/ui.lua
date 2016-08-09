@@ -626,8 +626,8 @@ function ConstructUI()
 								-- if i have values for a statusbar
 								if thisOption.status ~= nil then
 									if profileOptions[name.."Status"] ~= nil then
-										_G["options"..name.."Status"]:SetValue(profileOptions[name.."Status"])
-										_G["options"..name.."StatusText"]:SetText(profileOptions[name.."Status"])
+										_G["options"..name.."Status"]:SetValue(profileOptions[name.. "Status"])
+										_G["options"..name.."StatusText"]:SetText(profileOptions[name.. "Status"])
 									end
 									-- or if i have values for a
 								elseif thisOption.dropdown ~= nil then

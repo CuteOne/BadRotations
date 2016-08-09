@@ -1,40 +1,44 @@
 function GetObjectExists(Unit)
-    if ObjectExists(Unit) == true then
+    if FireHack and ObjectExists(Unit) == true then
         return true
     else
         return false
     end
 end
 function GetObjectFacing(Unit)
-    if GetObjectExists(Unit) then
+    if FireHack and GetObjectExists(Unit) then
         return ObjectFacing(Unit)
     else
         return false
     end
 end
 function GetObjectPosition(Unit)
-    if GetObjectExists(Unit) then
+    if FireHack and GetObjectExists(Unit) then
         return ObjectPosition(Unit)
     else
         return false
     end
 end
 function GetObjectType(Unit)
-    if GetObjectExists(Unit) then
+    if FireHack and GetObjectExists(Unit) then
         return ObjectType(Unit)
     else
         return false
     end
 end
 function GetObjectIndex(Index)
-    if GetObjectExists(GetObjectWithIndex(Index)) then
+    if FireHack and GetObjectExists(GetObjectWithIndex(Index)) then
         return GetObjectWithIndex(Index)
     else
         return false
     end
 end
 function GetObjectCountBB()
-    return GetObjectCount()
+	if FireHack then
+    	return GetObjectCount()
+    else
+    	return 0
+    end
 end
 --[[ OLD pcall functions
 function GetObjectExists(Unit)

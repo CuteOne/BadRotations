@@ -537,7 +537,11 @@ if select(2, UnitClass("player")) == "DRUID" then
         -- Create the toggle defined within rotation files
         function self.createToggles()
             GarbageButtons()
-            self.rotations[bb.selectedProfile].toggles()
+            if self.rotations[bb.selectedProfile] ~= nil then
+                self.rotations[bb.selectedProfile].toggles()
+            else
+                return
+            end
         end
 
     ---------------
@@ -568,7 +572,12 @@ if select(2, UnitClass("player")) == "DRUID" then
             }
 
             -- Get profile defined options
-            local profileTable = self.rotations[bb.selectedProfile].options()
+            local profileTable = profileTable
+            if self.rotations[bb.selectedProfile] ~= nil then
+                profileTable = self.rotations[bb.selectedProfile].options()
+            else
+                return
+            end
 
             -- Only add profile pages if they are found
             if profileTable then

@@ -257,7 +257,11 @@ function cCharacter:new(class)
     function self.startRotation()
         -- dont check if player is casting to allow off-cd usage and cast while other spell is casting
         if pause(true) then return end
-        self.rotations[bb.selectedProfile].run()
+        if self.rotations[bb.selectedProfile] ~= nil then
+        	self.rotations[bb.selectedProfile].run()
+        else
+        	return
+        end
     end
 
 -- Updates special Equipslots

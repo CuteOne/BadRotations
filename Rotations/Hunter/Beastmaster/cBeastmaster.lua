@@ -106,7 +106,6 @@ if select(3, UnitClass("player")) == 3 then
 
         -- Updates toggle data
         function self.getToggleModes()
-            local bb.data   = bb.data
 
             self.mode.aoe       = bb.data["AoE"]
             self.mode.cooldowns = bb.data["Cooldowns"]

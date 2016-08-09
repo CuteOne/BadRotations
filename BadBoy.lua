@@ -1,12 +1,13 @@
 -- define bb global that will hold the bot global background features
 bb = {}
 bbdata = {}
-bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+bb.selectedSpec = "None"
 bb.selectedProfile = 1
 bb.dropOptions = {}
 bb.dropOptions.Toggle = {"LeftCtrl","LeftShift","RightCtrl","RightShift","RightAlt","None"}
 bb.dropOptions.Toggle2 ={"LeftCtrl","LeftShift","LeftAlt","RightCtrl","RightShift","RightAlt","MMouse","Mouse4","Mouse5","None" }
 bb.dropOptions.CD = {"Never","CDs","Always" }
+bb.loadedIn = false
 -- developers debug, use /run bb.data["isDebugging"] = true
 bb.debug = {}
 function bb.debug:print(message)
@@ -15,11 +16,12 @@ function bb.debug:print(message)
 	end
 end
 function bb:Run()
+	if bb.selectedSpec == nil then bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
 	rc = LibStub("LibRangeCheck-2.0")
 	minRange, maxRange = rc:GetRange('target')
 	-- lets wipe and start up fresh.
 	bb.data = bbdata
-	if bb.data == nil or bb.data and bb.data.wiped ~= true then
+	if bb.data == nil or bbdata == nil or (bb.data and bb.data.wiped ~= true) then
 		bb.data = {
 			buttonSize = 32,
 			wiped = true
@@ -241,13 +243,13 @@ function bb:Run()
 					-- Now we're trying to find that unit in the Cache table to remove
 					if UnitGUID("mouseover") == v.guid then
 						tremove(bb.data.blackList, k)
-						print("|cffFFDD11"..mouseoverName.."|cffFF0000 Removed from Blacklist")
+						print("|cffFFDD11"..mouseoverName.. "|cffFF0000 Removed from Blacklist")
 						found = true
 						--blackList[k] = nil
 					end
 				end
 				if not found then
-					print("|cffFFDD11"..mouseoverName.."|cffFF0000 Added to Blacklist")
+					print("|cffFFDD11"..mouseoverName.. "|cffFF0000 Added to Blacklist")
 					tinsert(bb.data.blackList, { guid = mouseoverGUID, name = mouseoverName})
 				end
 			end
@@ -289,6 +291,7 @@ function bb:Run()
 	enemiesEngineRange = 55
 	EnemiesEngine()
 	ChatOverlay("-= BadBoy Loaded =-")
+	bb.loadedIn = true
 end
 --[[Startup UI]]
 function bb:StartUI()
