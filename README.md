@@ -128,8 +128,8 @@ Raidable means if its good to raid with.
 ||||
 | **Rogue** |||
 |Assassination|10%|CuteOne|7.0|:x:
-|Outlaw|1%||7.0|:x:
-|Subtlety|1%||7.0|:x:
+|Outlaw|1%|CuteOne|7.0|:x:
+|Subtlety|1%|CuteOne|7.0|:x:
 ||||
 | **Shaman** |||
 |Elemental|0%||7.0|
