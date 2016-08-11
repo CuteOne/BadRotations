@@ -299,6 +299,7 @@ function bb.ui:createWindow(name, width, height)
 
     -- Load saved position
     if bb.selectedSpec == nil then bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
+    if bb.data.options[bb.selectedSpec] == nil then bb.data.options[bb.selectedSpec] = {} end
     if bb.data.options[bb.selectedSpec]["optionsFrame".."_point"] ~= nil then
         local point, relativeTo = bb.data.options[bb.selectedSpec]["optionsFrame".."_point"], bb.data.options[bb.selectedSpec]["optionsFrame".."_relativeTo"]
         local relativePoint = bb.data.options[bb.selectedSpec]["optionsFrame".."_relativePoint"]

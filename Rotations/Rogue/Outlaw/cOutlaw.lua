@@ -1,310 +1,386 @@
---- Combat Class
+--- Outlaw Class
 -- Inherit from: ../cCharacter.lua and ../cRogue.lua
 if select(2, UnitClass("player")) == "ROGUE" then
+    cOutlaw = {}
+    cOutlaw.rotations = {}
 
-cCombat = {}
+    -- Creates Outlaw Rogue
+    function cOutlaw:new()
+        local self = cRogue:new("Outlaw")
 
--- Creates Combat Rogue
-function cCombat:new()
-	local self = cRogue:new("Combat")
+        local player = "player" -- if someone forgets ""
 
-	local player = "player" -- if someone forgets ""
+        -- Mandatory !
+        self.rotations = cOutlaw.rotations
+        
+        -----------------
+        --- VARIABLES ---
+        -----------------
+        self.charges.frac       = {}        -- Fractional Charges
+        self.trinket            = {}        -- Trinket Procs
+        self.enemies            = {
+            yards5,
+            yards8,
+            yards13,
+            yards20,
+            yards40,
+        }
+        self.outlawArtifacts     = {
+           
+        }
+        self.outlawBuffs         = {
+            
+        }
+        self.outlawDebuffs       = {
+            
+        }
+        self.outlawSpecials      = {
+            
+        }
+        self.outlawTalents       = {
+            
+        }
+        -- Merge all spell tables into self.spell
+        self.outlawSpells = {}
+        self.outlawSpells = mergeTables(self.outlawSpells,self.outlawArtifacts)
+        self.outlawSpells = mergeTables(self.outlawSpells,self.outlawBuffs)
+        self.outlawSpells = mergeTables(self.outlawSpells,self.outlawDebuffs)
+        self.outlawSpells = mergeTables(self.outlawSpells,self.outlawSpecials)
+        self.outlawSpells = mergeTables(self.outlawSpells,self.outlawTalents)
+        self.spell = {}
+        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.rogueSpell, self.outlawSpells)
+        
+    ------------------
+    --- OOC UPDATE ---
+    ------------------
 
------------------
---- VARIABLES ---
------------------
-	self.enemies = {
-		yards5,
-		yards8,
-		yards12,
-	}
-	self.combatSpell = {
-		-- Buff
-		adrenalineRush  = 13750,
-		bladeFlurry     = 13877,
-		bladeFlurryBuff = 22482,
-		deepInsight     = 84747,
-		-- Defensive
-		-- Offensive
-		killingSpree    = 51690,
-		revealingStrike = 84617,
-		sinisterStrike  = 1752,
-		-- Misc
-		-- Poison
-		instantPoison   = 157584,
-	}
-	-- Merge all spell tables into self.spell
-	self.spell = {}
-	self.spell = mergeSpellTables(self.spell, self.characterSpell, self.rogueSpell, self.combatSpell)
-	
-------------------
---- OOC UPDATE ---
-------------------
-	function self.updateOOC()
-		-- Call classUpdateOOC()
-		self.classUpdateOOC()
-
-		self.getGlyphs()
-		self.getTalents()
-	end
-
---------------
---- UPDATE ---
---------------
-	function self.update()
-		-- Call Base and Class update
-		self.classUpdate()
-		-- Updates OOC things
-		if not UnitAffectingCombat("player") then self.updateOOC() end
-
-		self.getBuffs()
-		self.getCooldowns()
-		self.getDynamicUnits()
-		self.getEnemies()
-		self.getRotation()
-
-		self.mode.bladeFlurry = bb.data["BladeFlurry"]
-
-		-- Casting and GCD check
-		-- TODO: -> does not use off-GCD stuff like pots, dp etc
-		if castingUnit() then
-			return
-		end
-
-
-		-- Start selected rotation
-		self:startRotation()
-	end
-
--------------
---- BUFFS ---
--------------
-	function self.getBuffs()
-		local getBuffRemain,UnitBuffID = getBuffRemain,UnitBuffID
-
-		self.buff.adrenalineRush = getBuffRemain(player,self.spell.adrenalineRush) or 0
-		self.buff.bladeFlurry    = UnitBuffID(player,self.spell.bladeFlurry)~=nil or false -- TODO: richtig machen
-		self.buff.deepInsight    = getBuffRemain(player,self.spell.deepInsight) or 0
-		self.buff.instantPoison  = getBuffRemain(player,self.spell.instantPoison) or 0
-		self.buff.killingSpree   = getBuffRemain(player,self.spell.killingSpree) or 0
-	end
-
----------------
---- DEBUFFS ---
----------------
-	-- Revealing Strike Debuff
-	function self.getRevealingStrikeDebuff()
-		return getDebuffRemain("target",self.spell.revealingStrike)
-	end
-
------------------
---- COOLDOWNS ---
------------------
-	function self.getCooldowns()
-		local getSpellCD = getSpellCD
-
-		self.cd.adrenalineRush = getSpellCD(self.spell.adrenalineRush)
-		self.cd.bladeFlurry    = getSpellCD(self.spell.bladeFlurry)
-		self.cd.killingSpree   = getSpellCD(self.spell.killingSpree)
-	end
-
---------------
---- GLYPHS ---
---------------
-	function self.getGlyphs()
-		--local hasGlyph = hasGlyph
-
-		--self.glyph.   = hasGlyph()
-	end
-
----------------
---- TALENTS ---
----------------
-	function self.getTalents()
-		--local isKnown = isKnown
-
-		--self.talent. = isKnown(self.spell.)
-	end
-
----------------------
---- DYNAMIC UNITS ---
----------------------
-	function self.getDynamicUnits()
-		local dynamicTarget = dynamicTarget
-
-		-- Normal
-		self.units.dyn15 = dynamicTarget(15,true) -- Death from Above
-		self.units.dyn20 = dynamicTarget(20,true) -- Shadow Reflection
-
-		-- AoE
-
-	end
-
----------------
---- ENEMIES ---
----------------
-	function self.getEnemies()
-		local getEnemies = getEnemies
-
-		self.enemies.yards5  = #getEnemies("player",5)
-		self.enemies.yards8  = #getEnemies("player",8)  -- Blade Flurry
-		self.enemies.yards10 = #getEnemies("player",10) -- Crimson Tempest
-		self.enemies.yards12 = #getEnemies("player",12)
-	end
-
-
-----------------------
---- START ROTATION ---
-----------------------
-
-    -- Rotation selection update
-    function self.getRotation()
-        self.rotation = bb.selectedProfile
-
-        if bb.rotation_changed then
-            --self.createToggles()
-            self.createOptions()
-
-            bb.rotation_changed = false
+        function self.updateOOC()
+            -- Call classUpdateOOC()
+            self.classUpdateOOC()
+            self.getArtifacts()
+            self.getArtifactRanks()
+            self.getGlyphs()
+            self.getTalents()
+            -- self.getPerks() --Removed in Legion
         end
-    end
 
-	function self.startRotation()
-		if self.rotation == 1 then
-			self:combatSimC()
-		-- put different rotations below dont forget to setup your rota in options
-		else
-			ChatOverlay("No ROTATION ?!", 2000)
-		end
-	end
+    --------------
+    --- UPDATE ---
+    --------------
 
----------------
---- OPTIONS ---
----------------
-	function self.createOptions()
-        bb.ui.window.profile = bb.ui:createProfileWindow("Combat")
-        local section
+        function self.update()
 
-		-- Create Base and Class options
-		self.createClassOptions()
-
-		-- Combat options
-		section = bb.ui:createSection(bb.ui.window.profile, "--- General ---")
-        -- Stealth Timer
-        CreateNewBox(thisConfig,"Stealth Timer", 0, 2, 0.25, 1, "|cffFFBB00How long to wait(seconds) before using \n|cffFFFFFFStealth.")
-        -- Stealth
-        bb.ui:createDropdown(section, "Stealth", {"|cff00FF00Always","|cffFFDD00PrePot","|cffFF000020Yards"}, 1, "Stealthing method.")
-        bb.ui:checkSectionState(section)
-
-
-		section = bb.ui:createSection(bb.ui.window.profile, "--- Cooldowns ---")
-        -- Agi Pot
-        --bb.ui:createCheckbox(section,"Agi-Pot")
-        -- Vanish
-        bb.ui:createCheckbox(section,"Vanish","Enable or Disable usage of Vanish.")
-        bb.ui:createDropdown(section, "Vanish", bb.dropOptions.CD, 2)
-        -- Adrenaline Rush
-        bb.ui:createCheckbox(section,"Adrenaline Rush","Enable or Disable usage of Adrenaline Rush.")
-        bb.ui:createDropdown(section, "Adrenaline Rush", bb.dropOptions.CD, 2)
-        -- Killing Spree
-        bb.ui:createCheckbox(section,"Killing Spree","Enable or Disable usage of Killing Spree.")
-        bb.ui:createDropdown(section, "Killing Spree", bb.dropOptions.CD, 2)
-        -- Blade Flurry
-        bb.ui:createCheckbox(section,"Blade Flurry","Enable or Disable usage of Blade Flurry.",1)
-        bb.ui:checkSectionState(section)
+            -- Call Base and Class update
+            self.classUpdate()
+            -- Updates OOC things
+            if not UnitAffectingCombat("player") then self.updateOOC() end
+            -- self.outlaw_bleed_table()
+            self.getBuffs()
+            self.getBuffsDuration()
+            self.getBuffsRemain()
+            self.getCharge()
+            self.getCooldowns()
+            self.getDynamicUnits()
+            self.getDebuffs()
+            self.getDebuffsDuration()
+            self.getDebuffsRemain()
+            self.getTrinketProc()
+            self.hasTrinketProc()
+            self.getEnemies()
+            self.getRecharges()
+            self.getToggleModes()
+            self.getCastable()
 
 
-		section = bb.ui:createSection(bb.ui.window.profile, "--- Defensive ---")
-        -- Healthstone
-        --bb.ui:createCheckbox(section,"Pot/Stoned")
-        --CreateNewBox(thisConfig,"Pot/Stoned", 0, 100, 5, 60, "|cffFFBB00Health Percentage to use at.")
-        bb.ui:checkSectionState(section)
+            -- Casting and GCD check
+            -- TODO: -> does not use off-GCD stuff like pots, dp etc
+            if castingUnit() then
+                return
+            end
 
-
-		section = bb.ui:createSection(bb.ui.window.profile, "--- Toggle Keys ---")
-        -- Single/Multi Toggle
-        bb.ui:createCheckbox(section,"Rotation Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFRotation Mode Toggle Key|cffFFBB00.")
-        bb.ui:createDropdown(section, "Rotation Mode", bb.dropOptions.Toggle,  4)
-        --Cooldown Key Toggle
-        bb.ui:createCheckbox(section,"Cooldown Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFCooldown Mode Toggle Key|cffFFBB00.")
-        bb.ui:createDropdown(section, "Cooldown Mode", bb.dropOptions.Toggle,  3)
-        --Defensive Key Toggle
-        bb.ui:createCheckbox(section,"Defensive Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFDefensive Mode Toggle Key|cffFFBB00.")
-        bb.ui:createDropdown(section, "Defensive Mode", bb.dropOptions.Toggle,  6)
-        --Interrupts Key Toggle
-        bb.ui:createCheckbox(section,"Interrupt Mode","|cff15FF00Enables|cffFFFFFF/|cffD60000Disable |cffFFFFFFInterrupt Mode Toggle Key|cffFFBB00.")
-        bb.ui:createDropdown(section, "Interrupt Mode", bb.dropOptions.Toggle,  6)
-        bb.ui:checkSectionState(section)
-
-
-
-        --[[ Rotation Dropdown ]]--
-        bb.ui:createRotationDropdown(bb.ui.window.profile.parent, {"Defmaster"})
-        bb:checkProfileWindowStatus()
-	end
-
---------------
---- SPELLS ---
---------------
-	-- Adrenaline Rush
-	function self.castAdrenalineRush()
-		if isSelected("Adrenaline Rush") then
-			if (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4*UnitHealthMax("player"))) then
-				if castSpell("player",self.spell.adrenalineRush,true,false) then
-					return true
-				end
-			end
-		end
-		return false
-	end
-
-	-- Killing Spree
-	function self.castKillingSpree()
-		if isSelected("Killing Spree") then
-			if (isDummy(self.units.dyn5) or (UnitHealth(self.units.dyn5) >= 4*UnitHealthMax("player"))) then
-				if castSpell(self.units.dyn5,self.spell.killingSpree,false,false) then
-					return true
-				end
-			end
-		end
-		return false
-	end
-
-	-- Blade Flurry
-	function self.castBladeFlurry()
-		if isChecked("Blade Flurry") and self.mode.bladeFlurry ~= 1 then
-			if castSpell("player",self.spell.bladeFlurry,true,false) then
-				return true
-			end
-		end
-		return false
-    end
-
-    -- Cancel Blade Flurry
-    function self.cancelBladeFlurry()
-        if isChecked("Blade Flurry") and self.mode.bladeFlurry ~= 1 then
-            CancelUnitBuff("player",self.spell.bladeFlurryBuff )
+            -- Start selected rotation
+            self:startRotation()
         end
-    end
 
-	-- Revealing Strike
-	function self.castRevealingStrike()
-		return castSpell(self.units.dyn5,self.spell.revealingStrike,false,false) == true or false
-	end
+    ---------------------
+    --- DYNAMIC UNITS ---
+    ---------------------
 
-	-- Sinister Strike
-	function self.castSinisterStrike()
-		return castSpell(self.units.dyn5,self.spell.sinisterStrike,false,false) == true or false
-	end
+        function self.getDynamicUnits()
+            local dynamicTarget = dynamicTarget
 
------------------------------
---- CALL CREATE FUNCTIONS ---
------------------------------
+            -- Normal
+            self.units.dyn8 = dynamicTarget(8, true) -- Swipe
+            self.units.dyn13 = dynamicTarget(13, true) -- Skull Bash
 
-	self.createOptions()
+            -- AoE
+            self.units.dyn8AoE = dynamicTarget(8, false) -- Thrash
+        end
 
+    -----------------
+    --- ARTIFACTS ---
+    -----------------
 
--- Return
-	return self
-end -- cCombat
-end -- select Rogue
+        function self.getArtifacts()
+            local isKnown = isKnown
+
+            --self.artifact.ashamanesBite     = isKnown(self.spell.ashamanesBite)
+        end
+
+        function self.getArtifactRanks()
+
+        end
+       
+    -------------
+    --- BUFFS ---
+    -------------
+
+        function self.getBuffs()
+            local UnitBuffID = UnitBuffID
+
+            -- self.buff.berserk                      = UnitBuffID("player",self.spell.berserkBuff)~=nil or false
+        end
+
+        function self.getBuffsDuration()
+            local getBuffDuration = getBuffDuration
+
+            -- self.buff.duration.berserk                     = getBuffDuration("player",self.spell.berserkBuff) or 0
+        end
+
+        function self.getBuffsRemain()
+            local getBuffRemain = getBuffRemain
+
+            -- self.buff.remain.berserk                    = getBuffRemain("player",self.spell.berserkBuff) or 0
+        end
+
+        function self.getTrinketProc()
+            local UnitBuffID = UnitBuffID
+
+        end
+
+        function self.hasTrinketProc()
+            -- for i = 1, #self.trinket do
+            --     if self.trinket[i]==true then return true else return false end
+            -- end
+        end
+
+    ---------------
+    --- DEBUFFS ---
+    ---------------
+        function self.getDebuffs()
+            local UnitDebuffID = UnitDebuffID
+
+            -- self.debuff.ashamanesFrenzy   = UnitDebuffID(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player")~=nil or false
+        end
+
+        function self.getDebuffsDuration()
+            local getDebuffDuration = getDebuffDuration
+
+            -- self.debuff.duration.ashamanesFrenzy    = getDebuffDuration(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player") or 0
+        end
+
+        function self.getDebuffsRemain()
+            local getDebuffRemain = getDebuffRemain
+
+            -- self.debuff.remain.ashamanesFrenzy  = getDebuffRemain(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player") or 0
+        end
+
+    ---------------
+    --- CHARGES ---
+    ---------------
+
+        function self.getCharge()
+            local getCharges = getCharges
+            local getChargesFrac = getChargesFrac
+            local getBuffStacks = getBuffStacks
+
+            -- self.charges.outlawtalons        = getBuffStacks("player",self.spell.outlawtalonsBuff,"player")
+        end
+        
+    -----------------
+    --- COOLDOWNS ---
+    -----------------
+
+        function self.getCooldowns()
+            local getSpellCD = getSpellCD
+
+            -- self.cd.ashamanesFrenzy                 = getSpellCD(self.spell.ashamanesFrenzy)
+        end
+
+    --------------
+    --- GLYPHS ---
+    --------------
+
+        function self.getGlyphs()
+            local hasGlyph = hasGlyph
+
+            -- self.glyph.catForm           = hasGlyph(self.spell.catFormGlyph))
+        end
+
+    ---------------
+    --- TALENTS ---
+    ---------------
+
+        function self.getTalents()
+            local getTalent = getTalent
+
+            -- self.talent.predator                    = getTalent(1,1)
+        end
+
+    -------------
+    --- PERKS ---
+    -------------
+
+        function self.getPerks()
+            local isKnown = isKnown
+
+            -- self.perk.enhancedBerserk        = isKnown(self.spell.enhancedBerserk)
+        end
+
+    ---------------
+    --- ENEMIES ---
+    ---------------
+
+        function self.getEnemies()
+            local getEnemies = getEnemies
+
+            self.enemies.yards5 = #getEnemies("player", 5) -- Melee
+            self.enemies.yards8 = #getEnemies("player", 8) -- Swipe/Thrash
+            self.enemies.yards13 = #getEnemies("player", 13) -- Skull Bash
+            self.enemies.yards20 = #getEnemies("player", 20) --Prowl
+            self.enemies.yards40 = #getEnemies("player", 40) --Moonfire
+        end
+
+    -----------------
+    --- RECHARGES ---
+    -----------------
+    
+        function self.getRecharges()
+            local getRecharge = getRecharge
+
+            -- self.recharge.forceOfNature = getRecharge(self.spell.forceOfNature)
+        end
+
+    ---------------
+    --- TOGGLES ---
+    ---------------
+
+        function self.getToggleModes()
+
+            self.mode.rotation  = bb.data["Rotation"]
+            self.mode.cooldown  = bb.data["Cooldown"]
+            self.mode.defensive = bb.data["Defensive"]
+            self.mode.interrupt = bb.data["Interrupt"]
+        end
+
+        -- Create the toggle defined within rotation files
+        function self.createToggles()
+            GarbageButtons()
+            if self.rotations[bb.selectedProfile] ~= nil then
+                self.rotations[bb.selectedProfile].toggles()
+            else
+                return
+            end
+        end
+
+    ---------------
+    --- OPTIONS ---
+    ---------------
+        
+        -- Creates the option/profile window
+        function self.createOptions()
+            bb.ui.window.profile = bb.ui:createProfileWindow(self.profile)
+
+            -- Get the names of all profiles and create rotation dropdown
+            local names = {}
+            for i=1,#self.rotations do
+                tinsert(names, self.rotations[i].name)
+            end
+            bb.ui:createRotationDropdown(bb.ui.window.profile.parent, names)
+
+            -- Create Base and Class option table
+            local optionTable = {
+                {
+                    [1] = "Base Options",
+                    [2] = self.createBaseOptions,
+                },
+                {
+                    [1] = "Class Options",
+                    [2] = self.createClassOptions,
+                },
+            }
+
+            -- Get profile defined options
+            local profileTable = profileTable
+            if self.rotations[bb.selectedProfile] ~= nil then 
+                profileTable = self.rotations[bb.selectedProfile].options()
+            else
+                return
+            end
+
+            -- Only add profile pages if they are found
+            if profileTable then
+                insertTableIntoTable(optionTable, profileTable)
+            end
+
+            -- Create pages dropdown
+            bb.ui:createPagesDropdown(bb.ui.window.profile, optionTable)
+            bb:checkProfileWindowStatus()
+        end
+
+    --------------
+    --- SPELLS ---
+    --------------
+
+        function self.getCastable()
+
+            -- self.castable.maim              = self.castMaim("target",true)
+        end
+
+ 
+
+    ------------------------
+    --- CUSTOM FUNCTIONS ---
+    ------------------------
+        function useCDs()
+            local cooldown = self.mode.cooldown
+            if (cooldown == 1 and isBoss()) or cooldown == 2 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useAoE()
+            local rotation = self.mode.rotation
+            if (rotation == 1 and #getEnemies("player",8) >= 3) or rotation == 2 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useDefensive()
+            if self.mode.defensive == 1 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useInterrupts()
+            if self.mode.interrupt == 1 then
+                return true
+            else
+                return false
+            end
+        end
+
+    -----------------------------
+    --- CALL CREATE FUNCTIONS ---
+    -----------------------------
+
+        -- Return
+        return self
+    end-- cOutlaw
+end-- select Rogue

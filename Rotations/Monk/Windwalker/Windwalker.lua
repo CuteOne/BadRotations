@@ -1,5 +1,5 @@
 if select(3, UnitClass("player")) == 10 then
-    function WindwalkerMonk()
+    function MonkWindwalker()
         if bb.player == nil or bb.player.profile ~= "Windwalker" then
             bb.player = cWindwalker:new("Windwalker")
             setmetatable(bb.player, {__index = cWindwalker})

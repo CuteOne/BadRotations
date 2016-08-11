@@ -149,7 +149,7 @@ if select(2, UnitClass("player")) == "MONK" then
 --- ROTATION ---
 ----------------
     local function runRotation()
-        if bb.timer:useTimer("debugWindwalker", 0.1) then
+        if bb.timer:useTimer("debugWindwalker", math.random(0.15,0.3)) then
             --print("Running: "..rotationName)
 
     ---------------
@@ -407,7 +407,7 @@ if select(2, UnitClass("player")) == "MONK" then
                     end
             -- Start Attack
                     -- auto_attack
-                    if ObjectExists("target") and not UnitIsDeadOrGhost("target") and getDistance("target") < 5 then
+                    if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 5 then
                         StartAttack()
                     end
                 end -- End No Combat Check
@@ -563,10 +563,6 @@ if select(2, UnitClass("player")) == "MONK" then
     --- Pre-Combat Rotation ---
     ------------------------------
                 if actionList_PreCombat() then return end
-        -- Run Action List - Pre-Combat
-                if not inCombat and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
-                    if actionList_PreCombat() then return end
-                end
     --------------------------
     --- In Combat Rotation ---
     --------------------------
@@ -698,9 +694,9 @@ if select(2, UnitClass("player")) == "MONK" then
         --- APL Mode: AskMrRobot ---
         ----------------------------
                     if getOptionValue("APL Mode") == 2 then
-            -- Touch of Death
-                        if bb.player.castTouchOfDeath() then return end
                         if useCDs() then
+            -- Touch of Death
+                            if bb.player.castTouchOfDeath() then return end
             -- Trinkets
                             if isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
                                 if canUse(13) then
@@ -738,19 +734,24 @@ if select(2, UnitClass("player")) == "MONK" then
                                     if bb.player.castSerenity() then return end
                                 end
                             end
-                        end -- End Cooldown Check
             -- Energizing Elixir
-                        -- if AlternatePower = 0 and Power < MaxPower and not HasBuff(Serenity)
-                        if chi.count == 0 and power < powerMax and not buff.serenity then
-                            if bb.player.castEnergizingElixir() then return end
-                        end
+                            -- if AlternatePower = 0 and Power < MaxPower and not HasBuff(Serenity)
+                            if chi.count == 0 and power < powerMax and not buff.serenity then
+                                if bb.player.castEnergizingElixir() then return end
+                            end
             -- Storm, Earth, and Fire
-                        -- if not HasBuff(StormEarthAndFire) and CooldownSecRemaining(FistsOfFury) < 11 and CooldownSecRemaining(WhirlingDragonPunch) < 14 and CooldownSecRemaining(StrikeOfTheWindlord) < 14
-                        if not buff.stormEarthAndFire and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 then
-                            if bb.player.castStormEarthAndFire() then return end
-                        end
-            -- Spinning Crane Kick
+                            -- if not HasBuff(StormEarthAndFire) and CooldownSecRemaining(FistsOfFury) < 11 and CooldownSecRemaining(WhirlingDragonPunch) < 14 and CooldownSecRemaining(StrikeOfTheWindlord) < 14
+                            if not buff.stormEarthAndFire and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 then
+                                if bb.player.castStormEarthAndFire() then return end
+                            end
+                        end -- End Cooldown Check
                         if useAoE() then
+            -- Storm, Earth, and Fire
+                            -- if not HasBuff(StormEarthAndFire) and CooldownSecRemaining(FistsOfFury) < 11 and CooldownSecRemaining(WhirlingDragonPunch) < 14 and CooldownSecRemaining(StrikeOfTheWindlord) < 14
+                            if not buff.stormEarthAndFire and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 then
+                                if bb.player.castStormEarthAndFire() then return end
+                            end
+            -- Spinning Crane Kick
                             if bb.player.castSpinningCraneKick() then return end
                         end
             -- Fists of Fury

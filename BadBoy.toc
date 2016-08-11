@@ -172,9 +172,11 @@ Rotations\Rogue\Assassination\AssassinationCuteOne.lua
 
 Rotations\Rogue\Outlaw\cOutlaw.lua
 Rotations\Rogue\Outlaw\Outlaw.lua
+Rotations\ROgue\Outlaw\OutlawCuteOne.lua
 
 Rotations\Rogue\Subtlety\cSubtlety.lua
 Rotations\Rogue\Subtlety\Subtlety.lua
+Rotations\Rogue\Subtlety\SubtletyCuteOne.lua
 
 ## Shaman  ---------------------------------------------------
 Rotations\Shaman\cShaman.lua

@@ -58,9 +58,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
             --- GENERAL OPTIONS ---
             -----------------------
             section = bb.ui:createSection(bb.ui.window.profile,  "General")
-            	-- Poison
-            	bb.ui:createDropdown(section, "Lethal Poison", {"Deadly","Wound"}, 1, "Lethal Poison to Apply")
-            	bb.ui:createDropdown(section, "Non-Lethal Poison", {"Crippling"}, 1, "Non-Lethal Poison to Apply")
             	-- Stealth
 	            bb.ui:createDropdown(section,  "Stealth", {"|cff00FF00Always", "|cffFFDD00PrePot", "|cffFF000020Yards"},  1, "Stealthing method.")
 	            -- Opening Attack
@@ -89,38 +86,15 @@ if select(2, UnitClass("player")) == "ROGUE" then
             --- DEFENSIVE OPTIONS ---
             -------------------------
             section = bb.ui:createSection(bb.ui.window.profile, "Defensive")
-            	-- Cloak of Shadows
-                bb.ui:createCheckbox(section,"Cloak of Shadows","Enable or Disable the usage to auto dispel")
-	            -- Combat Readiness
-	            bb.ui:createSpinner(section, "Combat Readiness",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!",  "|cffFFFFFFHealth Percent to Cast At")
-	            -- Evasion
-                bb.ui:createSpinner(section, "Evasion",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!",  "|cffFFFFFFHealth Percent to Cast At")
-	            -- Feint
-                bb.ui:createSpinner(section, "Feint",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!",  "|cffFFFFFFHealth Percent to Cast At")
-	            -- Healthstone
+            	-- Healthstone
 	            bb.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
 	            -- Heirloom Neck
 	            bb.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-	            -- Recuperate
-                bb.ui:createSpinner(section, "Recuperate Health %",  40,  0,  100,  5, "Set health percent and combo point threshhold to cast at",  "|cffFFFFFFHealth Percent to Cast At")
-                bb.ui:createSpinner(section, "Recuperate Combo Point",  3,  1,  5,  1, "Set health percent and combo point threshhold to cast at",  "|cffFFFFFFCombo Points to Use At")
-	            --Shiv
-                bb.ui:createSpinner(section, "Shiv",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!", "|cffFFFFFFHealth Percent to Cast At")
-	            -- Smoke Bomb
-                bb.ui:createSpinner(section, "Smoke Bomb",  40,  0,  100,  5, "Set health percent threshhold to cast at - In Combat Only!", "|cffFFFFFFHealth Percent to Cast At")
-	            -- Vanish - Defensive
-                bb.ui:createSpinner(section, "Vanish - Defensive",  40,  0,  100,  5, "Set health percent threshhold to cast at - Defensive Use Only, see Cooldowns for Offensive Use", "|cffFFFFFFHealth Percent to Cast At")
             bb.ui:checkSectionState(section)
             -------------------------
             --- INTERRUPT OPTIONS ---
             -------------------------
             section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
-            	-- Kick
-	            bb.ui:createCheckbox(section,"Kick")
-	            -- Gouge
-	            bb.ui:createCheckbox(section,"Gouge")
-	            -- Blind
-	            bb.ui:createCheckbox(section,"Blind")
 	            -- Interrupt Percentage
 	            bb.ui:createSpinner(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
             bb.ui:checkSectionState(section)
@@ -155,7 +129,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 --- ROTATION ---
 ----------------
     local function runRotation()
-        if bb.timer:useTimer("debugAssassination", math.random(0.15,0.3)) then
+        if bb.timer:useTimer("debugOutlaw", math.random(0.15,0.3)) then
             --print("Running: "..rotationName)
 
     ---------------
@@ -198,7 +172,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local php											= bb.player.health
 			local power, powerDeficit, powerRegen				= bb.player.power, bb.player.powerDeficit, bb.player.powerRegen
 			local pullTimer 									= bb.DBM:getPulltimer()
-			-- local ruptureTick 									= bb.player.debuff.remain.rupture/2
 			local solo											= select(2,IsInInstance())=="none"	
 			local stealth 										= bb.player.stealth
 			local t18_4pc 										= bb.player.eq.t18_4pc
@@ -212,7 +185,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	--------------------
 		-- Action List - Extras
 			local function actionList_Extras()
-				-- TODO: Add Extra Features To Base Profile
 			-- Dummy Test
 	            if isChecked("DPS Testing") then
 	                if GetObjectExists("target") then
@@ -251,133 +223,24 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			end -- End Action List - Extras
 		-- Action List - Defensives
 			local function actionList_Defensive()
-				-- -- TODO: Add Defensive Abilities
 				if useDefensive() and not stealth then
-				-- 	-- Cloak of Shadows
-			 --        if isChecked("Cloak of Shadows") and canDispel("player") then
-			 --            if bb.player.castCloakOfShadows() then return end
-			 --        end
-			 --        -- Combat Readiness
-	   --              if isChecked("Combat Readiness") and php<getOptionValue("Combat Readiness") and inCombat then
-	   --                  if bb.player.castCombatReadiness() then return end
-	   --              end
-	   --              -- Evasion
-	                if isChecked("Evasion") and php<getOptionValue("Evasion") and inCombat then
-	                    if bb.player.castEvasion() then return end
-	                end
-	   --              -- Feint
-	   --              if isChecked("Feint") and talent.Elusiveness and php<getOptionValue("Feint") and inCombat then
-	   --              	if bb.player.castFeint() then return end
-	   --              end
-	   --              -- Heirloom Neck
-		  --   		if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") and not inCombat then
-		  --   			if hasEquiped(122668) then
-		  --   				if GetItemCooldown(122668)==0 then
-		  --   					useItem(122668)
-		  --   				end
-		  --   			end
-		  --   		end
-				-- 	-- Pot/Stoned
-		  --           if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and inCombat and hasHealthPot() then
-	   --                  if canUse(5512) then
-	   --                      useItem(5512)
-	   --                  elseif canUse(healPot) then
-	   --                      useItem(healPot)
-	   --                  end
-		  --           end
-		  --           -- Recuperate
-	   --              if isChecked("Recuperate Health %") and php<getOptionValue("Recuperate Health %") and combo>getOptionValue("Recuperate Combo Point") and not buff.recuperate then
-	   --                  if bb.player.castRecuperate() then return end
-	   --              end
-		  --   		-- Shiv
-		  --   		if isChecked("Shiv") and talent.leechingPoison and php<getOptionValue("Shiv") and inCombat then
-		  --   			if bb.player.castShiv() then return end
-		  --   		end
-	 		-- 		-- Smoke Bomb
-				-- 	if isChecked("Smoke Bomb") and php<getOptionValue("Smoke Bomb") and inCombat then
-				-- 		if bb.player.castSmokeBomb() then return end
-				-- 	end
-	   --              -- Vanish
-	   --              if isChecked("Vanish - Defensive") and php<getOptionValue("Vanish - Defensive") then
-	   --                  if bb.player.castVanish() then StopAttack(); ClearTarget(); return end
-	   --              end
+
 	            end
 			end -- End Action List - Defensive
 		-- Action List - Interrupts
 			local function actionList_Interrupts()
-			-- 	if useInterrupts() and not stealth then
-			-- -- Kick
-			-- 		-- kick
-			-- 		if isChecked("Kick") then
-			-- 			for i=1, #dynTable5 do
-			-- 				thisUnit = dynTable5[i].unit
-			-- 				if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-			-- 					if bb.player.castKick(thisUnit) then return end
-			-- 				end
-			-- 			end
-			-- 		end
-			-- 		if talent.dirtyTricks then
-			-- -- Gouge
-			-- 			if isChecked("Gouge") then
-			-- 				for i=1, #dynTable5 do
-			-- 					thisUnit = dynTable5[i].unit
-			-- 					if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-			-- 						if bb.player.castGouge(thisUnit) then return end
-			-- 					end
-			-- 				end
-			-- 			end
-			-- -- Blind
-			-- 			if isChecked("Blind") then
-			-- 				for i=1, #dynTable15 do
-			-- 					thisUnit = dynTable15[i].unit
-			-- 					if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-			-- 						if bb.player.castBlind(thisUnit) then return end
-			-- 					end 
-			-- 				end
-			-- 			end
-			-- 		end -- End Dirty Tricks Talent Check
-			-- 	end -- End Interrupt and No Stealth Check
+				if useInterrupts() and not stealth then
+
+				end -- End Interrupt and No Stealth Check
 			end -- End Action List - Interrupts
 		-- Action List - Cooldowns
 			local function actionList_Cooldowns()
-			-- 	if useCDs() then
-			-- -- Preparation
-			-- 		-- if=!buff.vanish.up&cooldown.vanish.remains>60&time>10
-			-- 		if isChecked("Preparation") and not buff.vanish and cd.vanish>60 and time>10 then
-			-- 			if bb.player.castPreparation() then return end
-			-- 		end
-			-- -- Legendary Ring
-			-- 		-- use_item,slot=finger1,if=spell_targets.fan_of_knives>1|(debuff.vendetta.up&spell_targets.fan_of_knives=1)
-			-- -- Racials - Orc: Blood Fury | Troll: Berserking | Blood Elf: Arcane Torrent
-			-- 		-- blood_fury | berserking | arcane_torrent,if=energy<60
-			-- 		if isChecked("Racials") and bb.player.race == "Orc" or bb.player.race== "Troll" or (bb.player.race == "Blood Elf" and power<60) then
-			-- 			if bb.player.castRacial() then return end
-			-- 		end
-			-- -- Vanish
-			-- 		-- if=time>10&energy>13&!buff.stealth.up&buff.blindside.down&energy.time_to_max>gcd*2&((combo_points+anticipation_charges<8)|(!talent.anticipation.enabled&combo_points<=1))
-			-- 		if isChecked("Vanish - Offensive") and not solo and time>10 and power>13 and not stealth and not buff.blindside and ttm>gcd*2 and ((combo + charge.anticipation<8) or (not talent.anticipation and combo<=1)) then
-			-- 			if bb.player.castVanish() then return end
-			-- 		end
-			-- -- Potion
-			-- 		-- draenic_agility,if=buff.bloodlust.react|target.time_to_die<40|debuff.vendetta.up
-			-- 		if useCDs() and canUse(109217) and select(2,IsInInstance())=="raid" and isChecked("Agi-Pot") then
-		 --            	if hasBloodLust() or getTimeToDie(dynTar5) or debuff.vendetta then
-		 --                	useItem(109217)
-		 --                end
-		 --            end
-			-- 	end -- End Cooldown Usage Check
+				if useCDs() then
+
+				end -- End Cooldown Usage Check
 			end -- End Action List - Cooldowns
 		-- Action List - PreCombat
 			local function actionList_PreCombat()
-			-- Apply Poison
-				-- apply_poison
-				if isChecked("Lethal Poison") then
-					if bb.timer:useTimer("applyPoison", 1) then
-						if getOptionValue("Lethal Poison") == 1 then 
-							if bb.player.castDeadlyPoison() then return end
-						end
-					end
-				end
 			-- Stealth
 				-- stealth
 				if isChecked("Stealth") then
@@ -397,22 +260,11 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			end -- End Action List - Opener
 		-- Action List - Finishers
 			local function actionList_Finishers()
-			-- Envenom
-				-- envenom,if=combo_points>=cp_max_spend-1&!dot.rupture.refreshable&buff.elaborate_planning.remains<2&energy.deficit<40&spell_targets.fan_of_knives<=6
-				-- envenom,if=combo_points>=cp_max_spend&!dot.rupture.refreshable&buff.elaborate_planning.remains<2&cooldown.garrote.remains<1&spell_targets.fan_of_knives<=6
-				if ((combo >= comboMax - 1 and powerDeficit < 40) or (combo >= comboMax and cd.garrote < 1)) 
-					and not debuff.refresh.rupture and buff.remain.elaboratePlanning < 2 and enemies.yards8 <= 6 
-				then
-					if bb.player.castEnvenom() then return end
-				end
+
 			end -- End Action List - Finishers
 		-- Action List - Generators
 			local function actionList_Generators()
-			-- Mutilate
-				-- mutilate,if=combo_points.deficit>=2&cooldown.garrote.remains>2
-				if (comboDeficit >= 2 or level < 3) and (cd.garrote > 2 or level < 48) then
-					if bb.player.castMutilate() then return end
-				end
+
 			end -- End Action List - Generators
 	---------------------
 	--- Begin Profile ---
@@ -423,96 +275,43 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			elseif (inCombat and profileStop == true) or pause() then
 				return true
 			else
--- 	-----------------------
--- 	--- Extras Rotation ---
--- 	-----------------------
+	-----------------------
+	--- Extras Rotation ---
+	-----------------------
 				if actionList_Extras() then return end
--- 	--------------------------
--- 	--- Defensive Rotation ---
--- 	--------------------------
+	--------------------------
+	--- Defensive Rotation ---
+	--------------------------
 				if actionList_Defensive() then return end
--- 	------------------------------
--- 	--- Out of Combat Rotation ---
--- 	------------------------------
+	------------------------------
+	--- Out of Combat Rotation ---
+	------------------------------
 				if actionList_PreCombat() then return end
--- 	----------------------------
--- 	--- Out of Combat Opener ---
--- 	----------------------------
+	----------------------------
+	--- Out of Combat Opener ---
+	----------------------------
 				if actionList_Opener() then return end
--- 	--------------------------
--- 	--- In Combat Rotation ---
--- 	--------------------------
-			-- Assassination is 4 shank!
+	--------------------------
+	--- In Combat Rotation ---
+	--------------------------
 				if inCombat then
--- 					if hartar and deadtar then
--- 						ClearTarget()
--- 					end
--- 	------------------------------
--- 	--- In Combat - Interrupts ---
--- 	------------------------------
--- 					if actionList_Interrupts() then return end
--- 	-----------------------------
--- 	--- In Combat - Cooldowns ---
--- 	-----------------------------
--- 					if actionList_Cooldowns() then return end
--- 	--------------------------
--- 	--- In Combat - Opener ---
--- 	--------------------------
--- 					if actionList_Opener() then return end
--- 	----------------------------------
--- 	--- In Combat - Begin Rotation ---
--- 	----------------------------------
--- 			-- Mutilate
--- 					-- if=buff.stealth.up|buff.vanish.up
--- 					if (stealth or buff.vanish) and (enemies10<6 or level<83 or not useCleave() or bb.data['AoE'] == 3) then
--- 						if bb.player.castMutilate2(dynTar5) then return end
--- 					end
--- 			-- Rupture
--- 					-- if=((combo_points>=4&!talent.anticipation.enabled)|combo_points=5)&ticks_remain<3
--- 					if ((combo>=4 and not talent.anticipation) or combo==5) and ruptureTick<3 and (enemies10<6 or level<83 or not useCleave() or bb.data['AoE'] == 3) then
--- 						if bb.player.castRupture(dynTar5) then return end
--- 					end
--- 					-- cycle_targets=1,if=spell_targets.fan_of_knives>1&!ticking&combo_points=5
--- 					for i=1, #dynTable5 do
--- 						thisUnit = dynTable5[i].unit
--- 						if targets10>1 and ruptureRemain(thisUnit)<2 and combo==5 then
--- 							if bb.player.castRupture(thisUnit) then return end
--- 						end
--- 					end
--- 			-- Marked For Death
--- 					-- if=combo_points=0
--- 					if combo==0 then
--- 						if bb.player.castMarkedForDeath() then return end
--- 					end
--- 			-- Shadow Reflection
--- 					-- if=combo_points>4|target.time_to_die<=20
--- 					if useCDs() and isChecked("Shadow Reflection") and (combo>4 or getTimeToDie(dynTar20AoE)<=20) then
--- 						if bb.player.castShadowReflection() then return end
--- 					end
--- 			-- Vendetta
--- 					-- if=buff.shadow_reflection.up|!talent.shadow_reflection.enabled|target.time_to_die<=20|(target.time_to_die<=30&glyph.vendetta.enabled)
--- 					if useCDs() and isChecked("Vendetta") and (buff.shadowReflection or not talent.shadowReflection or getTimeToDie(dynTar5)<=20 or (getTimeToDie(dynTar5)<=30 and glyph.vendetta)) then
--- 						if bb.player.castVendetta() then return end
--- 					end
--- 			-- Rupture
--- 					-- cycle_targets=1,if=combo_points=5&remains<=duration*0.3&spell_targets.fan_of_knives>1
--- 					if (enemies10<6 or level<83 or not useCleave() or bb.data['AoE'] == 3) then
--- 						for i=1, #dynTable5 do
--- 							local thisUnit = dynTable5[i].unit
--- 							if combo==5 and ruptureRemain(thisUnit)<=ruptureDuration(thisUnit)*0.3 and targets10>1 then
--- 								if bb.player.castRupture(thisUnit) then return end
--- 							end
--- 						end
--- 					end
--- 			-- Finishers
--- 					-- name=finishers,if=combo_points=5&((!cooldown.death_from_above.remains&talent.death_from_above.enabled)|buff.envenom.down|!talent.anticipation.enabled|anticipation_charges+combo_points>=6)
--- 					if combo==5 and ((cd.deathFromAbove==0 and talent.deathFromAbove) or not buff.envenom or not talent.anticipation or charge.anticipation+combo>=6) then
--- 						if actionList_Finishers() then return end
--- 					end
--- 					-- name=finishers,if=dot.rupture.remains<2
--- 					if debuffRemain.rupture<2 then
--- 						if actionList_Finishers() then return end
--- 					end
+	------------------------------
+	--- In Combat - Interrupts ---
+	------------------------------
+					if actionList_Interrupts() then return end
+	-----------------------------
+	--- In Combat - Cooldowns ---
+	-----------------------------
+					if actionList_Cooldowns() then return end
+	--------------------------
+	--- In Combat - Opener ---
+	--------------------------
+					if actionList_Opener() then return end
+	----------------------------------
+	--- In Combat - Begin Rotation ---
+	----------------------------------
+
+			-- Finishers
 					if actionList_Finishers() then return end
 			-- Generators
 					if actionList_Generators() then return end
@@ -520,7 +319,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			end -- End Profile
 	    end -- Timer
 	end -- runRotation
-	tinsert(cAssassination.rotations, {
+	tinsert(cOutlaw.rotations, {
         name = rotationName,
         toggles = createToggles,
         options = createOptions,

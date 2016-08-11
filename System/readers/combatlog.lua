@@ -222,7 +222,12 @@ function bb.read.combatLog()
     if GetSpecialization() == 2 then
       if source == UnitGUID("player") then
         if destination ~= nil and destination ~= "" then
-          local thisUnit = GetObjectWithGUID(destination)
+          local thisUnit = thisUnit
+          if ObjectExists(GetObjectWithGUID(destination)) then
+            thisUnit = GetObjectWithGUID(destination)
+          else 
+            thisUnit = "target"
+          end
           ripApplied = ripApplied or {}
           rakeApplied = rakeApplied or {}
           if spell == 1079 and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") then

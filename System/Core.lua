@@ -165,6 +165,7 @@ function bb:characterEquipChanged()
 end
 function bb:savePosition(windowName)
 	if bb.selectedSpec == nil then bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
+	if bb.data.options[bb.selectedSpec] == nil then bb.data.options[bb.selectedSpec] = {} end
 	if bb.ui.window[windowName].parent then
 		local point, relativeTo, relativePoint, xOfs, yOfs = bb.ui.window[windowName].parent:GetPoint(1)
         bb.data.options[bb.selectedSpec][windowName.. "Frame".. "_point"] = point

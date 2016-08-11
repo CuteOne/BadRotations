@@ -1,5 +1,5 @@
 if select(3, UnitClass("player")) == 4 then
-    function AssassinationRogue()
+    function RogueAssassination()
         if bb.player == nil or bb.player.profile ~= "Assassination" then
             bb.player = cAssassination:new("Assassination")
             setmetatable(bb.player, {__index = cAssassination})
