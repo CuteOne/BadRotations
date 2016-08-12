@@ -26,19 +26,60 @@ if select(2, UnitClass("player")) == "ROGUE" then
             yards40,
         }
         self.outlawArtifacts     = {
-           
+            blackPowder             = 216230,
+            bladeDancer             = 202507,
+            bladeMaster             = 202628,
+            blunderbuss             = 202897,
+            blurredTime             = 202769,
+            curseOfTheDreadblades   = 202665,
+            cursedEdge              = 202463,
+            cursedSteel             = 214929,
+            deception               = 202755,
+            fatesThirst             = 202514,
+            fatebringer             = 202524,
+            fortuneStrikes          = 202530,
+            fortunesBoon            = 202907,
+            fortunesStrike          = 202521,
+            ghostlyShell            = 202533,
+            greed                   = 202820,
+            gunslinger              = 202522,
+            hiddenBlade             = 202573.
         }
         self.outlawBuffs         = {
-            
+            opportunityBuff         = 195627,
         }
         self.outlawDebuffs       = {
-            
+            ghostlyStrikeDebuff     = 196937,
         }
         self.outlawSpecials      = {
-            
+            adrenalineRush          = 13750,
+            ambush                  = 8676,
+            betweenTheEyes          = 199804,
+            bladeFlurry             = 13877,
+            blind                   = 2094,
+            bribe                   = 199740,
+            gouge                   = 1776,
+            masteryMainGauche       = 76806,
+            pistolShot              = 185763,
+            riposte                 = 199754,
+            rollTheBones            = 193316,
+            runThrough              = 2098,
+            saberSlash              = 193315,
+            pistolShot              = 185763,
         }
         self.outlawTalents       = {
-            
+            sliceAndDice            = 5171,
+            cannonballBarrage       = 185767,
+            killingSpree            = 51690,
+            dirtyTricks             = 108216,
+            parley                  = 199743,
+            ironStomach             = 193546,
+            acrobaticStikes         = 196924,
+            grapplingHook           = 195457,
+            hitAndRun               = 196922,
+            ghostlyStrike           = 196937,
+            quickDraw               = 196938,
+            swordmaster             = 200733,  
         }
         -- Merge all spell tables into self.spell
         self.outlawSpells = {}
@@ -110,8 +151,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
             local dynamicTarget = dynamicTarget
 
             -- Normal
-            self.units.dyn8 = dynamicTarget(8, true) -- Swipe
-            self.units.dyn13 = dynamicTarget(13, true) -- Skull Bash
+            self.units.dyn8 = dynamicTarget(8, true) 
+            self.units.dyn13 = dynamicTarget(13, true)
+            self.units.dyn20 = dynamicTarget(20, true) --Pistol Shot 
 
             -- AoE
             self.units.dyn8AoE = dynamicTarget(8, false) -- Thrash
@@ -138,19 +180,19 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getBuffs()
             local UnitBuffID = UnitBuffID
 
-            -- self.buff.berserk                      = UnitBuffID("player",self.spell.berserkBuff)~=nil or false
+            self.buff.opportunity = UnitBuffID("player",self.spell.opportunityBuff) ~= nil or false
         end
 
         function self.getBuffsDuration()
             local getBuffDuration = getBuffDuration
 
-            -- self.buff.duration.berserk                     = getBuffDuration("player",self.spell.berserkBuff) or 0
+            self.buff.duration.opportunity = getBuffDuration("player",self.spell.opportunityBuff) or 0
         end
 
         function self.getBuffsRemain()
             local getBuffRemain = getBuffRemain
 
-            -- self.buff.remain.berserk                    = getBuffRemain("player",self.spell.berserkBuff) or 0
+            self.buff.remain.opportunity = getBuffRemain("player",self.spell.opportunityBuff) or 0
         end
 
         function self.getTrinketProc()
@@ -170,19 +212,19 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getDebuffs()
             local UnitDebuffID = UnitDebuffID
 
-            -- self.debuff.ashamanesFrenzy   = UnitDebuffID(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player")~=nil or false
+            self.debuff.ghostlyStrike = UnitDebuffID(self.units.dyn5,self.spell.ghostlyStrikeDebuff,"player") ~= nil or false
         end
 
         function self.getDebuffsDuration()
             local getDebuffDuration = getDebuffDuration
 
-            -- self.debuff.duration.ashamanesFrenzy    = getDebuffDuration(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player") or 0
+            self.debuff.duration.ghostlyStrike = getDebuffDuration(self.units.dyn5,self.spell.ghostlyStrikeDebuff,"player") or 0
         end
 
         function self.getDebuffsRemain()
             local getDebuffRemain = getDebuffRemain
 
-            -- self.debuff.remain.ashamanesFrenzy  = getDebuffRemain(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player") or 0
+            self.debuff.remain.ghostlyStrike = getDebuffRemain(self.units.dyn5,self.spell.ghostlyStrikeDebuff,"player") or 0
         end
 
     ---------------
@@ -204,7 +246,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getCooldowns()
             local getSpellCD = getSpellCD
 
-            -- self.cd.ashamanesFrenzy                 = getSpellCD(self.spell.ashamanesFrenzy)
+            self.cd.gouge   = getSpellCD(self.spell.gouge)
+            self.cd.riposte = getSpellCD(self.spell.riposte)
         end
 
     --------------
@@ -224,7 +267,18 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getTalents()
             local getTalent = getTalent
 
-            -- self.talent.predator                    = getTalent(1,1)
+            self.talent.ghostlyStrike       = getTalent(1,1)
+            self.talent.swordmaster         = getTalent(1,2)
+            self.talent.quickDraw           = getTalent(1,3)
+            self.talent.grapplingHook       = getTalent(2,1)
+            self.talent.acrobaticStikes     = getTalent(2,2)
+            self.talent.hitAndRun           = getTalent(2,3)
+            self.talent.ironStomach         = getTalent(4,1)
+            self.talent.parley              = getTalent(5,1)
+            self.talent.dirtyTricks         = getTalent(5,3)
+            self.talent.cannonballBarrage   = getTalent(6,1)
+            self.talent.killingSpree        = getTalent(6,3)
+            self.talent.sliceAndDice        = getTalent(7,1)
         end
 
     -------------
@@ -334,10 +388,98 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         function self.getCastable()
 
-            -- self.castable.maim              = self.castMaim("target",true)
+            -- self.castable.ambush        = self.castAmbush(self.units.dyn5,true)
+            -- self.castable.ghostlyStrike = self.castGhostlyStrike(self.units.dyn5,true)
+            -- self.castable.gouge         = self.castGouge(self.units.dyn5,true)
+            -- self.castable.pistolShot    = self.castPistolShot(self.units.dyn20,true)
+            -- self.castable.riposte       = self.castRiposte("player",true)
+            -- self.castable.runThrough    = self.castRunThrough(self.units.dyn5,true)
+            -- self.castable.saberSlash    = self.castSaberSlash(self.units.dyn5,true)
         end
 
- 
+        function self.castAmbush(theUnit,debug)
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 14 and self.power > 60 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,self.spell.ambush,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,self.spell.ambush,false,false,false) then return end
+                end
+            end
+        end
+        function self.castGhostlyStrike(theUnit,debug)
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.talent.ghostlyStrike and self.power > 30 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,self.spell.ghostlyStrike,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,self.spell.ghostlyStrike,false,false,false) then return end
+                end
+            end
+        end 
+        function self.castGouge(theUnit,debug)
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 22 and self.power > 25 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,self.spell.gouge,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,self.spell.gouge,false,false,false) then return end
+                end
+            end
+        end
+        function self.castPistolShot(theUnit,debug)
+            if thisUnit == nil then thisUnit = self.units.dyn20 end
+            if debug == nil then debug = false end
+
+            if self.level >= 11 and (self.power > 40 or self.buff.opportunity) and hasThreat(thisUnit) and getDistance(thisUnit) < 20 then
+                if debug then
+                    return castSpell(thisUnit,self.spell.pistolShot,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,self.spell.pistolShot,false,false,false) then return end
+                end
+            end
+        end 
+        function self.castRiposte(debug)
+            if debug == nil then debug = false end
+
+            if self.level >= 10 and self.cd.riposte == 0 then
+                if debug then 
+                    return castSpell("player",self.spell.riposte,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell("player",self.spell.riposte,false,false,false) then return end
+                end
+            end
+        end
+        function self.castRunThrough(thisUnit,debug)
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 10 and self.power > 35 and self.comboPoints > 0 and getDistance(thisUnit) < 8 then
+                if debug then
+                    return castSpell(thisunit,self.spell.runThrough,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,self.spell.runThrough,false,false,false) then return end
+                end
+            end
+        end
+        function self.castSaberSlash(theUnit,debug)
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 10 and self.power > 50 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,self.spell.saberSlash,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,self.spell.saberSlash,false,false,false) then return end
+                end
+            end
+        end 
 
     ------------------------
     --- CUSTOM FUNCTIONS ---

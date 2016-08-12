@@ -144,6 +144,7 @@ frame:RegisterUnitEvent("ACTIVE_TALENT_GROUP_CHANGED")
 frame:RegisterUnitEvent("CHARACTER_POINTS_CHANGED")
 frame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
 frame:RegisterUnitEvent("PLAYER_ENTERING_WORLD")
+frame:RegisterUnitEvent("PLAYER_LEVEL_UP")
 frame:RegisterUnitEvent("ZONE_CHANGED_NEW_AREA")
 frame:RegisterUnitEvent("ZONE_CHANGED")
 function bb:reloadOnSpecChange()
@@ -196,7 +197,7 @@ function frame:OnEvent(event, arg1)
 	if event == "ADDON_LOADED" and arg1 == "BadBoy" then
 		--bb:Run()
 	end
-	if event == "ACTIVE_TALENT_GROUP_CHANGED" and bb.loadedIn then
+	if (event == "ACTIVE_TALENT_GROUP_CHANGED" and bb.loadedIn) or event == "PLAYER_LEVEL_UP" then
         -- Closing the windows will save the position
         bb.ui.window.config.parent.closeButton:Click()
         bb.ui.window.profile.parent.closeButton:Click()

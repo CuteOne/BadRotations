@@ -31,17 +31,18 @@ if select(2, UnitClass("player")) == "ROGUE" then
             goremawsBite                = 209783, --809784
             kick                        = 1766,
             kingsbane                   = 192760, --222062
+            shadowmeld                  = 58984,
             tricksOfTheTrade            = 57934,
-
         }
         self.rogueArtifacts  = {        -- Artifact Traits Available To All Rogues
             artificialStamina           = 211309,
         }
         self.rogueBuffs      = {        -- Buffs Available To All Rogues
+            shadowmeldBuff              = 58984,
             stealthBuff                 = 1784,
         }
         self.rogueDebuffs    = {        -- Debuffs Available To All Rogues
-
+            sapDebuff                   = 6770,
         }
         self.rogueGlyphs     = {        -- Glyphs Available To All Rogues
             glyphOfBlackout             = 219693,
@@ -52,6 +53,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         self.rogueSpecials   = {        -- Specializations Available To All Rogues
             cheapShot                   = 1833,
             distract                    = 1725,
+            pickLock                    = 1804,
             pickPocket                  = 921,
             sap                         = 6770,
             stealth                     = 1784,
@@ -103,12 +105,14 @@ if select(2, UnitClass("player")) == "ROGUE" then
             self.getClassBuffs()
             self.getClassBuffsRemain()
             self.getClassBuffsDuration()
+            self.getClassCastable()
             self.getClassCharges()
             self.getClassCooldowns()
             self.getClassDebuffs()
             self.getClassDebuffsRemain()
             self.getClassDebuffsDuration()
-            self.getClassCastable()
+            self.getClassToggleModes()
+            
 
             -- Update Combo Points
             self.comboPoints = UnitPower("player",4)
@@ -126,7 +130,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             local dynamicTarget = dynamicTarget
 
             -- Normal
-            self.units.dyn15 = dynamicTarget(15,true) -- Typhoon
+            self.units.dyn10 = dynamicTarget(10,true) -- Sap
 
             -- AoE
             self.units.dyn35AoE = dynamicTarget(35, false) -- Entangling Roots
@@ -153,7 +157,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getClassBuffs()
             local UnitBuffID = UnitBuffID
 
-            self.buff.stealth = UnitBuffID("player",self.spell.stealthBuff) ~= nil or false
+            self.buff.shadowmeld    = UnitBuffID("player",self.spell.shadowmeldBuff) ~= nil or false
+            self.buff.stealth       = UnitBuffID("player",self.spell.stealthBuff) ~= nil or false
         end
 
         function self.getClassBuffsDuration()
@@ -184,7 +189,11 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getClassCooldowns()
             local getSpellCD = getSpellCD
 
-            self.cd.stealth = getSpellCD(self.spell.stealth)
+            self.cd.crimsonVial = getSpellCD(self.spell.crimsonVial)
+            self.cd.kick        = getSpellCD(self.spell.kick)
+            self.cd.pickPocket  = getSpellCD(self.spell.pickPocket)
+            self.cd.shadowmeld  = getSpellCD(self.spell.shadowmeld) 
+            self.cd.stealth     = getSpellCD(self.spell.stealth)
         end
 
     ---------------
@@ -194,19 +203,19 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getClassDebuffs()
             local UnitDebuffID = UnitDebuffID
 
-            -- self.debuff.entanglingRoots     = UnitDebuffID(self.units.dyn35AoE,self.spell.entanglingRootsDebuff,"player")~=nil or false
+            self.debuff.sap = UnitDebuffID(self.units.dyn10,self.spell.sapDebuff,"player") ~= nil or false
         end
 
         function self.getClassDebuffsDuration()
             local getDebuffDuration = getDebuffDuration
 
-            -- self.debuff.duration.entanglingRoots    = getDebuffRemain(self.units.dyn35AoE,self.spell.entanglingRootsDebuff,"player") or 0
+            self.debuff.duration.sap = getDebuffRemain(self.units.dyn10,self.spell.sapDebuff,"player") or 0
         end
 
         function self.getClassDebuffsRemain()
             local getDebuffRemain = getDebuffRemain
 
-            -- self.debuff.remain.entanglingRoots          = getDebuffRemain(self.units.dyn35AoE,self.spell.entanglingRootsDebuff,"player") or 0
+            self.debuff.remain.sap = getDebuffRemain(self.units.dyn10,self.spell.sapDebuff,"player") or 0
         end
 
     --------------
@@ -226,7 +235,15 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getClassTalents()
             local getTalent = getTalent
 
-            -- self.talent.displacerBeast      = getTalent(2,2)
+            self.talent.deeperStratagem = getTalent(3,1)
+            self.talent.anticipation    = getTalent(3,2)
+            self.talent.vigor           = getTalent(3,3)
+            self.talent.elusiveness     = getTalent(4,2)
+            self.talent.cheatDeath      = getTalent(4,3)
+            self.talent.preyOnTheWeak   = getTalent(5,2)
+            self.talent.alacrity        = getTalent(6,2)
+            self.talent.markedForDeath  = getTalent(7,2)
+            self.talent.deathFromAbove  = getTalent(7,3)
         end
             
     -------------
@@ -237,6 +254,29 @@ if select(2, UnitClass("player")) == "ROGUE" then
             local isKnown = isKnown
 
             -- self.perk.enhancedRebirth = isKnown(self.spell.enhancedRebirth)
+        end
+
+    ---------------
+    --- TOGGLES ---
+    ---------------
+
+        function self.getClassToggleModes()
+
+            self.mode.rotation      = bb.data["Rotation"]
+            self.mode.cooldown      = bb.data["Cooldown"]
+            self.mode.defensive     = bb.data["Defensive"]
+            self.mode.interrupt     = bb.data["Interrupt"]
+            self.mode.pickPocket    = bb.data["Picker"]
+        end
+
+        -- Create the toggle defined within rotation files
+        function self.createClassToggles()
+            GarbageButtons()
+            if self.rotations[bb.selectedProfile] ~= nil then
+                self.rotations[bb.selectedProfile].toggles()
+            else
+                return
+            end
         end
 
     ---------------
@@ -259,19 +299,148 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         end
 
-        function self.castStealth(debug)
+        function self.castCrimsonVial(thisUnit,debug)
+            if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
+            local spellCast = self.spell.crimsonVial
 
-            if self.level > 4 and self.cd.stealth == 0 and not self.buff.stealth then
+            if self.level >= 14 and self.power > 30 and self.cd.crimsonVial == 0 then
                 if debug then
-                    return castSpell("player",self.spell.stealth,false,false,false,false,false,false,false,true)
+                    return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell("player",self.spell.stealth,false,false,false) then return end
+                    if castSpell("player",spellCast,false,false,false) then return end
+                end
+            end
+        end
+        function self.castKick(thisUnit,debug)
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+            local spellCast = self.spell.kick
+
+            if self.level >= 18 and self.cd.kick == 0 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            end
+        end
+        function self.castPickPocket(thisUnit,debug)
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+            local spellCast = self.spell.pickPocket
+
+            if self.level >= 16 and self.cd.pickPocket == 0 and self.buff.stealth and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            end
+        end
+        function self.castSap(thisUnit,debug)
+            if thisUnit == nil then thisUnit = self.units.dyn10 end
+            if debug == nil then debug = false end
+            local spellCast = self.spell.sap
+
+            if self.level >= 12 and self.power > 30 and self.buff.stealth and getDistance(thisUnit) < 10 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            end
+        end
+        function self.castShadowmeld(thisUnit,debug)
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+            local spellCast = self.spell.shadowmeld
+
+            if self.level >= 1 and self.cd.shadowmeld == 0 and not isMoving("player") then
+                if debug then
+                    return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell("player",spellCast,false,false,false) then return end
+                end
+            end
+        end
+        function self.castStealth(thisUnit,debug)
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+            local spellCast = self.spell.stealth
+
+            if self.level >= 5 and self.cd.stealth == 0 and not self.buff.stealth then
+                if debug then
+                    return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell("player",spellCast,false,false,false) then return end
                 end
             end
         end
 
+    ------------------------
+    --- CUSTOM FUNCTIONS ---
+    ------------------------
+        function useCDs()
+            local cooldown = self.mode.cooldown
+            if (cooldown == 1 and isBoss()) or cooldown == 2 then
+                return true
+            else
+                return false
+            end
+        end
 
+        function useAoE()
+            local rotation = self.mode.rotation
+            if (rotation == 1 and #getEnemies("player",8) >= 3) or rotation == 2 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useDefensive()
+            if self.mode.defensive == 1 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useInterrupts()
+            if self.mode.interrupt == 1 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function usePickPocket()
+            if self.mode.pickPocket == 1 or self.mode.pickPocket == 2 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function isPicked(thisUnit)   --  Pick Pocket Testing
+            if thisUnit == nil then thisUnit = "target" end
+            if GetObjectExists(thisUnit) then
+                if myTarget ~= UnitGUID(thisUnit) then
+                    canPickpocket = true
+                    myTarget = UnitGUID(thisUnit)
+                end
+            end
+            if (canPickpocket == false or self.mode.pickPocket == 3 or GetNumLootItems()>0) then
+                return true
+            else
+                return false
+            end
+        end
+
+    -----------------------------
+    --- CALL CREATE FUNCTIONS ---
+    -----------------------------
         -- Return
         return self
     end --End function cRogue:new(spec)

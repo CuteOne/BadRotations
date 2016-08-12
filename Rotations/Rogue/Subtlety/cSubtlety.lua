@@ -26,7 +26,24 @@ if select(2, UnitClass("player")) == "ROGUE" then
             yards40,
         }
         self.subtletyArtifacts     = {
-           
+           akaarisSoul              = 209835,
+           catlikeReflexes          = 210144,
+           demonsKiss               = 197233,
+           embraceOfDarkness        = 197604,
+           energeticStabbing        = 197239,
+           finality                 = 197406,
+           flickeringShadows        = 197256,
+           fortunesBite             = 197369,
+           ghostArmor               = 197244,
+           goremawsBite             = 209782,
+           gutRipper                = 197234,
+           legionblade              = 214903,
+           precisionStrike          = 197235,
+           secondShuriken           = 197610,
+           shadowFangs              = 221856,
+           shadowNova               = 209781,
+           shadowSouls              = 197386,
+           theQuietKnife            = 197231,
         }
         self.subtletyBuffs         = {
             
@@ -35,10 +52,35 @@ if select(2, UnitClass("player")) == "ROGUE" then
             
         }
         self.subtletySpecials      = {
-            
+            backstab                = 53,
+            blind                   = 2094,
+            evasion                 = 5277,
+            eviscerate              = 196819,
+            kidneyShot              = 408,
+            masteryExecutioner      = 76808,
+            nightBlade              = 195452,
+            shadowBlades            = 121471,
+            shadowDance             = 185313,
+            shadowstep              = 36554,
+            shadowStrike            = 185438,
+            shurikenStorm           = 197835,
+            shurikenToss            = 114014,
+            symbolsOfDeath          = 212283,
+
         }
         self.subtletyTalents       = {
-            
+            envelopingShadows       = 206237,
+            gloomblade              = 200758,
+            masterOfShadows         = 196976,
+            masterOfSubtlety        = 31223,
+            nightstalker            = 14062,
+            premeditation           = 196979,
+            shadowFocus             = 108209,
+            soothingDarkness        = 200759,
+            subterfuge              = 108208,
+            strikeFromTheShadows    = 196951,
+            tangledShadow           = 200778,
+            weaponmaster            = 193537, 
         }
         -- Merge all spell tables into self.spell
         self.subtletySpells = {}
@@ -204,7 +246,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getCooldowns()
             local getSpellCD = getSpellCD
 
-            -- self.cd.ashamanesFrenzy                 = getSpellCD(self.spell.ashamanesFrenzy)
+            self.cd.shadowstep  = getSpellCD(self.spell.shadowstep)
         end
 
     --------------
@@ -224,7 +266,18 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getTalents()
             local getTalent = getTalent
 
-            -- self.talent.predator                    = getTalent(1,1)
+            self.talent.masterOfSubtlety        = getTalent(1,1)
+            self.talent.weaponmaster            = getTalent(1,2)
+            self.talent.gloomblade              = getTalent(1,3)
+            self.talent.nightstalker            = getTalent(2,1)
+            self.talent.subterfuge              = getTalent(2,2)
+            self.talent.shadowFocus             = getTalent(2,3)
+            self.talent.soothingDarkness        = getTalent(4,1)
+            self.talent.strikeFromTheShadows    = getTalent(5,1)
+            self.talent.tangledShadow           = getTalent(5,3)
+            self.talent.premeditation           = getTalent(6,1)
+            self.talent.envelopingShadows       = getTalent(6,3)
+            self.talent.masterOfShadows         = getTalent(7,1)
         end
 
     -------------
@@ -334,10 +387,77 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         function self.getCastable()
 
-            -- self.castable.maim              = self.castMaim("target",true)
+            self.castable.backstab      = self.castBackstab(self.units.dyn5,true)
+            self.castable.evasion       = self.castEvasion("player",true)
+            self.castable.eviscerate    = self.castEviscerate(self.units.dyn5,true)
         end
 
- 
+        function self.castBackstab(thisUnit,debug)
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+            local spellCast = spellCast
+            if self.talent.gloomblade then
+                spellCast = self.spell.gloomblade
+            else
+                spellCast = self.spell.backstab
+            end
+
+            if self.level >= 10 and self.power >= 35 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            end
+        end
+        function self.castEvasion(debug)
+            if debug == nil then debug = false end
+            if self.level >= 8 and self.cd.evasion == 0 then
+                if debug then
+                    return castSpell("player",self.spell.evasion,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell("player",self.spell.evasion,false,false,false) then return end
+                end
+            end
+        end
+        function self.castEviscerate(thisUnit,debug)
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 10 and self.power >= 35 and self.comboPoints > 0 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,self.spell.eviscerate,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,self.spell.eviscerate,false,false,false) then return end
+                end
+            end
+        end
+        function self.castShadowstep(thisUnit,debug)
+            if thisUnit == nil then thisUnit = "target" end
+            if debug == nil then debug = false end
+            local spellCast = self.spell.shadowstep
+
+            if self.level >= 13 and self.cd.shadowstep == 0 and getDistance(thisUnit) < 25 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            end
+        end
+        function self.castShurikenToss(thisUnit,debug)
+            if thisUnit == nil then thisUnit = self.units.dyn30 end
+            if debug == nil then debug = false end
+            local spellCast = self.spell.shurikenToss
+
+            if self.level >= 11 and self.power > 40 and getDistance(thisUnit) < 30 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            end
+        end
 
     ------------------------
     --- CUSTOM FUNCTIONS ---

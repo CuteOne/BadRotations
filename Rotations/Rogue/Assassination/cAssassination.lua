@@ -46,12 +46,18 @@ if select(2, UnitClass("player")) == "ROGUE" then
             urgeToKill              = 192384,
         }
         self.assassinationBuffs         = {
+
+            cripplingPoisonBuff     = 3408,
             deadlyPoisonBuff        = 2823,
             elaboratePlanningBuff   = 193641,
+            woundPoisonBuff         = 8679,
         }
         self.assassinationDebuffs       = {
+            cripplingPoisonDebuff   = 3409,
             deadlyPoisonDebuff      = 2818,
+            hemorrhageDebuff        = 16511,
             ruptureDebuff           = 1943,
+            woundPoisonDebuff       = 8679,
         }
         self.assassinationSpecials      = {
             assassinsResolve        = 84601,
@@ -69,7 +75,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             poisonedKnife           = 185565,
             rupture                 = 1943,
             sealFate                = 14190,
-            shadowStep              = 36554,
+            shadowstep              = 36554,
             vendetta                = 79140,
             venomousWounds          = 79134,
             woundPoison             = 8679,
@@ -161,7 +167,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
             -- Normal
             self.units.dyn8 = dynamicTarget(8, true) -- Swipe
-            self.units.dyn13 = dynamicTarget(13, true) -- Skull Bash
+            self.units.dyn25 = dynamicTarget(25, true) -- Shadowstep
+            self.units.dyn30 = dynamicTarget(30, true) -- Poisoned Knife
 
             -- AoE
             self.units.dyn8AoE = dynamicTarget(8, false) -- Thrash
@@ -188,22 +195,28 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getBuffs()
             local UnitBuffID = UnitBuffID
 
-            self.buff.deadlyPoison      = UnitBuffID("player",self.spell.deadlyPoisonBuff) ~= nil or false
-            self.buff.elaboratePlanning = UnitBuffID("playe",self.spell.elaboratePlanningBuff) ~= nil or false
+            self.buff.cripplingPoison       = UnitBuffID("player",self.spell.cripplingPoisonBuff) ~= nil or false
+            self.buff.deadlyPoison          = UnitBuffID("player",self.spell.deadlyPoisonBuff) ~= nil or false
+            self.buff.elaboratePlanning     = UnitBuffID("playe",self.spell.elaboratePlanningBuff) ~= nil or false
+            self.buff.woundPoison           = UnitBuffID("player",self.spell.woundPoisonBuff) ~= nil or false
         end
 
         function self.getBuffsDuration()
             local getBuffDuration = getBuffDuration
 
-            self.buff.duration.deadlyPoison         = getBuffDuration("player",self.spell.deadlyPoisonBuff) or 0
-            self.buff.duration.elaboratePlanning    = getBuffDuration("player",self.spell.elaboratePlanningBuff) or 0 
+            self.buff.duration.cripplingPoison          = getBuffDuration("player",self.spell.cripplingPoisonBuff) or 0
+            self.buff.duration.deadlyPoison             = getBuffDuration("player",self.spell.deadlyPoisonBuff) or 0
+            self.buff.duration.elaboratePlanning        = getBuffDuration("player",self.spell.elaboratePlanningBuff) or 0
+            self.buff.duration.woundPoison              = getBuffDuration("player",self.spell.woundPoisonBuff) or 0 
         end
 
         function self.getBuffsRemain()
             local getBuffRemain = getBuffRemain
 
-            self.buff.remain.deadlyPoison       = getBuffRemain("player",self.spell.deadlyPoisonBuff) or 0
-            self.buff.remain.elaboratePlanning  = getBuffRemain("player",self.spell.elaboratePlanningBuff) or 0 
+            self.buff.remain.cripplingPoison        = getBuffRemain("player",self.spell.cripplingPoisonBuff) or 0
+            self.buff.remain.deadlyPoison           = getBuffRemain("player",self.spell.deadlyPoisonBuff) or 0
+            self.buff.remain.elaboratePlanning      = getBuffRemain("player",self.spell.elaboratePlanningBuff) or 0
+            self.buff.remain.woundPoison            = getBuffRemain("player",self.spell.woundPoisonBuff) or 0 
         end
 
         function self.getTrinketProc()
@@ -223,22 +236,31 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getDebuffs()
             local UnitDebuffID = UnitDebuffID
 
-            self.debuff.deadlyPoison = UnitDebuffID(self.units.dyn5,self.spell.deadlyPoisonDebuff,"player")~=nil or false
-            self.debuff.rupture      = UnitDebuffID(self.units.dyn5,self.spell.ruptureDebuff,"player")~=nil or false
+            self.debuff.cripplingPoison = UnitDebuffID(self.units.dyn5,self.spell.cripplingPoisonDebuff,"player")~=nil or false
+            self.debuff.deadlyPoison    = UnitDebuffID(self.units.dyn5,self.spell.deadlyPoisonDebuff,"player")~=nil or false
+            self.debuff.hemorrhage      = UnitDebuffID(self.units.dyn5,self.spell.hemorrhageDebuff,"player")~=nil or false
+            self.debuff.rupture         = UnitDebuffID(self.units.dyn5,self.spell.ruptureDebuff,"player")~=nil or false
+            self.debuff.woundPoison     = UnitDebuffID(self.units.dyn5,self.spell.woundPoisonDebuff,"player")~=nil or false
         end
 
         function self.getDebuffsDuration()
             local getDebuffDuration = getDebuffDuration
 
-            self.debuff.duration.deadlyPoison = getDebuffDuration(self.units.dyn5,self.spell.deadlyPoisonDebuff,"player") or 0
-            self.debuff.duration.rupture      = getDebuffDuration(self.units.dyn5,self.spell.ruptureDebuff,"player") or 0
+            self.debuff.duration.cripplingPoison    = getDebuffDuration(self.units.dyn5,self.spell.cripplingPoisonDebuff,"player") or 0
+            self.debuff.duration.deadlyPoison       = getDebuffDuration(self.units.dyn5,self.spell.deadlyPoisonDebuff,"player") or 0
+            self.debuff.duration.hemorrhage         = getDebuffDuration(self.units.dyn5,self.spell.hemorrhageDebuff,"player") or 0
+            self.debuff.duration.rupture            = getDebuffDuration(self.units.dyn5,self.spell.ruptureDebuff,"player") or 0
+            self.debuff.duration.woundPoison        = getDebuffDuration(self.units.dyn5,self.spell.woundPoisonDebuff,"player") or 0
         end
 
         function self.getDebuffsRemain()
             local getDebuffRemain = getDebuffRemain
 
-            self.debuff.remain.deadlyPoison = getDebuffRemain(self.units.dyn5,self.spell.deadlyPoisonDebuff,"player") or 0
-            self.debuff.remain.rupture      = getDebuffRemain(self.units.dyn5,self.spell.ruptureDebuff,"player") or 0
+            self.debuff.remain.cripplingPoison  = getDebuffRemain(self.units.dyn5,self.spell.cripplingPoisonDebuff,"player") or 0
+            self.debuff.remain.deadlyPoison     = getDebuffRemain(self.units.dyn5,self.spell.deadlyPoisonDebuff,"player") or 0
+            self.debuff.remain.hemorrhage       = getDebuffRemain(self.units.dyn5,self.spell.hemorrhageDebuff,"player") or 0
+            self.debuff.remain.rupture          = getDebuffRemain(self.units.dyn5,self.spell.ruptureDebuff,"player") or 0
+            self.debuff.remain.woundPoison      = getDebuffRemain(self.units.dyn5,self.spell.woundPoisonDebuff,"player") or 0
         end
 
         function self.getDebuffsRefresh()
@@ -265,8 +287,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getCooldowns()
             local getSpellCD = getSpellCD
 
-            self.cd.evasion = getSpellCD(self.spell.evasion)
-            self.cd.garrote = getSpellCD(self.spell.garrote)
+            self.cd.evasion     = getSpellCD(self.spell.evasion)
+            self.cd.garrote     = getSpellCD(self.spell.garrote)
+            self.cd.shadowstep  = getSpellCD(self.spell.shadowstep)
         end
 
     --------------
@@ -286,7 +309,18 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getTalents()
             local getTalent = getTalent
 
-            -- self.talent.predator                    = getTalent(1,1)
+            self.talent.masterPoisoner      = getTalent(1,1)
+            self.talent.elaboratePlanning   = getTalent(1,2)
+            self.talent.hemorrhage          = getTalent(1,3)
+            self.talent.nightstalker        = getTalent(2,1)
+            self.talent.subterfuge          = getTalent(2,2)
+            self.talent.shadowFocus         = getTalent(2,3)
+            self.talent.leechingPoison      = getTalent(4,1)
+            self.talent.thuggee             = getTalent(5,1)
+            self.talent.internalBleeding    = getTalent(5,3)
+            self.talent.agonizingPoison     = getTalent(6,1)
+            self.talent.exsanguinate        = getTalent(6,3)
+            self.talent.venomRush           = getTalent(7,1)
         end
 
     -------------
@@ -329,10 +363,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         function self.getToggleModes()
 
-            self.mode.rotation  = bb.data["Rotation"]
-            self.mode.cooldown  = bb.data["Cooldown"]
-            self.mode.defensive = bb.data["Defensive"]
-            self.mode.interrupt = bb.data["Interrupt"]
         end
 
         -- Create the toggle defined within rotation files
@@ -396,53 +426,129 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         function self.getCastable()
 
-            self.castable.deadlyPoison  = self.castDeadlyPoison(true)
-            self.castable.envenom       = self.castEnvenom(self.units.dyn5,true)
-            self.castable.evasion       = self.castEvasion(true)
-            self.castable.mutilate      = self.castMutilate(self.units.dyn5,true)
+            self.castable.cripplingPoison   = self.castCripplingPoison("player",true)
+            self.castable.deadlyPoison      = self.castDeadlyPoison("player",true)
+            self.castable.envenom           = self.castEnvenom(self.units.dyn5,true)
+            self.castable.evasion           = self.castEvasion("player",true)
+            self.castable.mutilate          = self.castMutilate(self.units.dyn5,true)
+            self.castable.shadowstep        = self.castShadowstep("target",true)
+            self.castable.woundPoison       = self.castWoundPoison("player",true)
         end
 
-        function self.castDeadlyPoison(debug)
+        function self.castCripplingPoison(thisUnit,debug)
+            if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
-            if self.level > 1 and self.buff.remain.deadlyPoison < 600 and not isUnitCasting() then
+            local spellCast = self.spell.cripplingPoison
+
+            if self.level >= 19 and self.buff.remain.cripplingPoison < 600 and not isUnitCasting() then
                 if debug then
-                    return castSpell("player",self.spell.deadlyPoison,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell("player",self.spell.deadlyPoison,false,false,false) then return end
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            end
+        end
+        function self.castDeadlyPoison(thisUnit,debug)
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+            local spellCast = self.spell.deadlyPoison
+
+            if self.level >= 2 and self.buff.remain.deadlyPoison < 600 and not isUnitCasting() then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
                 end
             end
         end
         function self.castEnvenom(thisUnit,debug)
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
+            local spellCast = self.spell.envenom
 
-            if self.level > 2 and self.power > 35 and self.comboPoints > 0 and getDistance(thisUnit) < 5 then
+            if self.level >= 3 and self.power > 35 and self.comboPoints > 0 and getDistance(thisUnit) < 5 then
                 if debug then
-                    return castSpell(thisUnit,self.spell.envenom,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,self.spell.envenom,false,false,false) then return end
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
                 end
             end
         end
-        function self.castEvasion(debug)
+        function self.castEvasion(thisUnit,debug)
+            if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
-            if self.level > 7 and self.cd.evasion == 0 then
+            local spellCast = self.spell.evasion
+
+            if self.level >= 8 and self.cd.evasion == 0 then
                 if debug then
-                    return castSpell("player",self.spell.evasion,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell("player",self.spell.evasion,false,false,false) then return end
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            end
+        end
+        function self.castHemorrhage(thisUnit,debug)
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+            local spellCast = self.spell.hemorrhage
+
+            if self.talent.hemorrhage and self.power > 30 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
                 end
             end
         end
         function self.castMutilate(thisUnit,debug)
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
+            local spellCast = self.spell.mutilate
 
-            if self.level > 0 and self.power > 55 and getDistance(thisUnit) < 5 then
+            if self.level >= 1 and self.power > 55 and getDistance(thisUnit) < 5 then
                 if debug then
-                    return castSpell(thisUnit,self.spell.mutilate,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,self.spell.mutilate,false,false,false) then return end
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            end
+        end
+        function self.castShadowstep(thisUnit,debug)
+            if thisUnit == nil then thisUnit = self.units.dyn30 end
+            if debug == nil then debug = false end
+            local spellCast = self.spell.poisonedKnife
+
+            if self.level >= 10 and self.power > 40 and getDistance(thisUnit) < 30 and getDistance(thisUnit) > 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            end
+        end
+        function self.castShadowstep(thisUnit,debug)
+            if thisUnit == nil then thisUnit = "target" end
+            if debug == nil then debug = false end
+            local spellCast = self.spell.shadowstep
+
+            if self.level >= 13 and self.cd.shadowstep == 0 and getDistance(thisUnit) < 25 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            end
+        end
+        function self.castWoundPoison(thisUnit,debug)
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+            local spellCast = self.spell.woundPoison
+
+            if self.level >= 25 and self.buff.remain.woundPoison < 600 and not isUnitCasting() then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
                 end
             end
         end
@@ -450,39 +556,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
     ------------------------
     --- CUSTOM FUNCTIONS ---
     ------------------------
-        function useCDs()
-            local cooldown = self.mode.cooldown
-            if (cooldown == 1 and isBoss()) or cooldown == 2 then
-                return true
-            else
-                return false
-            end
-        end
-
-        function useAoE()
-            local rotation = self.mode.rotation
-            if (rotation == 1 and #getEnemies("player",8) >= 3) or rotation == 2 then
-                return true
-            else
-                return false
-            end
-        end
-
-        function useDefensive()
-            if self.mode.defensive == 1 then
-                return true
-            else
-                return false
-            end
-        end
-
-        function useInterrupts()
-            if self.mode.interrupt == 1 then
-                return true
-            else
-                return false
-            end
-        end
 
     -----------------------------
     --- CALL CREATE FUNCTIONS ---
