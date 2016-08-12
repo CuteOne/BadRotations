@@ -145,6 +145,7 @@ frame:RegisterUnitEvent("CHARACTER_POINTS_CHANGED")
 frame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
 frame:RegisterUnitEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterUnitEvent("PLAYER_LEVEL_UP")
+frame:RegisterUnitEvent("PLAYER_TALENT_UPDATE")
 frame:RegisterUnitEvent("ZONE_CHANGED_NEW_AREA")
 frame:RegisterUnitEvent("ZONE_CHANGED")
 function bb:reloadOnSpecChange()
@@ -193,26 +194,28 @@ function bb:saveWindowPosition()
     bb.savePosition("config")
 end
 
-function frame:OnEvent(event, arg1)
+function frame:OnEvent(event, arg1, arg2)
 	if event == "ADDON_LOADED" and arg1 == "BadBoy" then
 		--bb:Run()
 	end
-	if (event == "ACTIVE_TALENT_GROUP_CHANGED" and bb.loadedIn) or event == "PLAYER_LEVEL_UP" then
+	if (event == "ACTIVE_TALENT_GROUP_CHANGED" and arg1 ~= arg2 and arg2 ~= 0 and bb.loadedIn) then
         -- Closing the windows will save the position
         bb.ui.window.config.parent.closeButton:Click()
         bb.ui.window.profile.parent.closeButton:Click()
 
-        -- Update Selected Spec
-        bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))--bb:reloadOnSpecChange() -- Reloads UI when spec changed, prevents some bugs
+        -- Update Selected Spec/Profile
+        bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+        if bb.data.options[bb.selectedSpec]["RotationDrop"] == nil then
+	        bb.selectedProfile = 1
+	    else
+	        bb.selectedProfile = bb.data.options[bb.selectedSpec]["RotationDrop"]
+	    end
 
         -- Recreate ConfigWindow with new Spec
         bb.ui:createConfigWindow()
 
         -- rebuild up UI
-		bb:StartUI()
-    end
-    if event == "CHARACTER_POINTS_CHANGED" and arg1 == -1 then
-        bb:characterTalentChanged() -- Sets a global to indicate a talent was changed
+		BadBoyFrame()
     end
     if event == "PLAYER_LOGOUT" then
         bb:saveWindowPosition()
@@ -220,7 +223,7 @@ function frame:OnEvent(event, arg1)
     if event == "PLAYER_EQUIPMENT_CHANGED" then
         bb:characterEquipChanged() -- Sets a global to indicate equip was changed
     end
-    if event == "PLAYER_ENTERING_WORLD" --[[or event == "ZONE_CHANGED_NEW_AREA"]] then
+    if event == "PLAYER_ENTERING_WORLD" then
     	-- Update Selected Spec
         bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
     	-- Update Selected Spec
