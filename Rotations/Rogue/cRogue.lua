@@ -38,11 +38,11 @@ if select(2, UnitClass("player")) == "ROGUE" then
             artificialStamina           = 211309,
         }
         self.rogueBuffs      = {        -- Buffs Available To All Rogues
-            shadowmeldBuff              = 58984,
-            stealthBuff                 = 1784,
+            shadowmeld                  = 58984,
+            stealth                     = 1784,
         }
         self.rogueDebuffs    = {        -- Debuffs Available To All Rogues
-            sapDebuff                   = 6770,
+            sap                         = 6770,
         }
         self.rogueGlyphs     = {        -- Glyphs Available To All Rogues
             glyphOfBlackout             = 219693,
@@ -103,14 +103,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
             self.baseUpdate()
             self.getClassDynamicUnits()
             self.getClassBuffs()
-            self.getClassBuffsRemain()
-            self.getClassBuffsDuration()
             self.getClassCastable()
             self.getClassCharges()
             self.getClassCooldowns()
             self.getClassDebuffs()
-            self.getClassDebuffsRemain()
-            self.getClassDebuffsDuration()
             self.getClassToggleModes()
             
 
@@ -156,21 +152,14 @@ if select(2, UnitClass("player")) == "ROGUE" then
     
         function self.getClassBuffs()
             local UnitBuffID = UnitBuffID
-
-            self.buff.shadowmeld    = UnitBuffID("player",self.spell.shadowmeldBuff) ~= nil or false
-            self.buff.stealth       = UnitBuffID("player",self.spell.stealthBuff) ~= nil or false
-        end
-
-        function self.getClassBuffsDuration()
             local getBuffDuration = getBuffDuration
-
-            -- self.buff.duration.stealth = getBuffDuration("player",self.spell.stealth) or 0
-        end
-
-        function self.getClassBuffsRemain()
             local getBuffRemain = getBuffRemain
 
-            -- self.buff.remain.dash                   = getBuffRemain("player",self.spell.dash) or 0
+            for k,v in pairs(self.rogueBuffs) do
+                self.buff[k] = UnitBuffID("player",v) ~= nil
+                self.buff.duration[k] = getBuffDuration("player",v) or 0
+                self.buff.remain[k] = getBuffRemain("player",v) or 0
+            end
         end
 
     ---------------
@@ -189,11 +178,11 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getClassCooldowns()
             local getSpellCD = getSpellCD
 
-            self.cd.crimsonVial = getSpellCD(self.spell.crimsonVial)
-            self.cd.kick        = getSpellCD(self.spell.kick)
-            self.cd.pickPocket  = getSpellCD(self.spell.pickPocket)
-            self.cd.shadowmeld  = getSpellCD(self.spell.shadowmeld) 
-            self.cd.stealth     = getSpellCD(self.spell.stealth)
+            for k,v in pairs(self.rogueSpell) do
+                if getSpellCD(v) ~= nil then
+                    self.cd[k] = getSpellCD(v)
+                end
+            end
         end
 
     ---------------
@@ -202,20 +191,14 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         function self.getClassDebuffs()
             local UnitDebuffID = UnitDebuffID
-
-            self.debuff.sap = UnitDebuffID(self.units.dyn10,self.spell.sapDebuff,"player") ~= nil or false
-        end
-
-        function self.getClassDebuffsDuration()
             local getDebuffDuration = getDebuffDuration
-
-            self.debuff.duration.sap = getDebuffRemain(self.units.dyn10,self.spell.sapDebuff,"player") or 0
-        end
-
-        function self.getClassDebuffsRemain()
             local getDebuffRemain = getDebuffRemain
 
-            self.debuff.remain.sap = getDebuffRemain(self.units.dyn10,self.spell.sapDebuff,"player") or 0
+            for k,v in pairs(self.rogueDebuffs) do
+                self.debuff[k] = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
+                self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
+                self.debuff.remain[k] = getDebuffRemain(self.units.dyn5,v,"player") or 0
+            end
         end
 
     --------------
@@ -229,21 +212,22 @@ if select(2, UnitClass("player")) == "ROGUE" then
         end
 
     ----------------
-    --- TAALENTS ---
+    --- TALENTS ---
     ----------------
 
         function self.getClassTalents()
             local getTalent = getTalent
 
-            self.talent.deeperStratagem = getTalent(3,1)
-            self.talent.anticipation    = getTalent(3,2)
-            self.talent.vigor           = getTalent(3,3)
-            self.talent.elusiveness     = getTalent(4,2)
-            self.talent.cheatDeath      = getTalent(4,3)
-            self.talent.preyOnTheWeak   = getTalent(5,2)
-            self.talent.alacrity        = getTalent(6,2)
-            self.talent.markedForDeath  = getTalent(7,2)
-            self.talent.deathFromAbove  = getTalent(7,3)
+            for r = 1, 7 do --search each talent row
+                for c = 1, 3 do -- search each talent column
+                    local talentID = select(6,GetTalentInfo(r,c,GetActiveSpecGroup())) -- ID of Talent at current Row and Column
+                    for k,v in pairs(self.rogueTalents) do
+                        if v == talentID then
+                            self.talent[k] = getTalent(r,c)
+                        end
+                    end
+                end
+            end
         end
             
     -------------
@@ -266,6 +250,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             self.mode.cooldown      = bb.data["Cooldown"]
             self.mode.defensive     = bb.data["Defensive"]
             self.mode.interrupt     = bb.data["Interrupt"]
+            self.mode.cleave        = bb.data["Cleave"]
             self.mode.pickPocket    = bb.data["Picker"]
         end
 
@@ -296,13 +281,36 @@ if select(2, UnitClass("player")) == "ROGUE" then
     --------------
 
         function self.getClassCastable()
-
+            self.castable.cheapShot     = self.castCheapShot("target",true)
+            self.castable.crimsonVial   = self.castCrimsonVial("player",true)
+            self.castable.kick          = self.castKick("target",true)
+            self.castable.pickPocket    = self.castPickPocket("target",true)
+            self.castable.sap           = self.castSap("target",true)
+            self.castable.shadowmeld    = self.castShadowmeld("player",true)
+            self.castable.stealth       = self.castStealth("player",true)
         end
 
+        function self.castCheapShot(thisUnit,debug)
+            local spellCast = self.spell.cheapShot
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 29 and self.power > 40 and self.buff.stealth and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
         function self.castCrimsonVial(thisUnit,debug)
+            local spellCast = self.spell.crimsonVial
+            local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
-            local spellCast = self.spell.crimsonVial
 
             if self.level >= 14 and self.power > 30 and self.cd.crimsonVial == 0 then
                 if debug then
@@ -310,12 +318,15 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 else
                     if castSpell("player",spellCast,false,false,false) then return end
                 end
+            elseif debug then
+                return false
             end
         end
         function self.castKick(thisUnit,debug)
+            local spellCast = self.spell.kick
+            local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
-            local spellCast = self.spell.kick
 
             if self.level >= 18 and self.cd.kick == 0 and getDistance(thisUnit) < 5 then
                 if debug then
@@ -323,12 +334,15 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 else
                     if castSpell(thisUnit,spellCast,false,false,false) then return end
                 end
+            elseif debug then
+                return false
             end
         end
         function self.castPickPocket(thisUnit,debug)
+            local spellCast = self.spell.pickPocket
+            local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
-            local spellCast = self.spell.pickPocket
 
             if self.level >= 16 and self.cd.pickPocket == 0 and self.buff.stealth and getDistance(thisUnit) < 5 then
                 if debug then
@@ -336,12 +350,31 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 else
                     if castSpell(thisUnit,spellCast,false,false,false) then return end
                 end
+            elseif debug then
+                return false
+            end
+        end
+        function self.castRupture(thisUnit,debug)
+            local spellCast = self.spell.rupture
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 22 and self.power > 25 and self.comboPoints > 0 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         function self.castSap(thisUnit,debug)
+            local spellCast = self.spell.sap
+            local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn10 end
             if debug == nil then debug = false end
-            local spellCast = self.spell.sap
 
             if self.level >= 12 and self.power > 30 and self.buff.stealth and getDistance(thisUnit) < 10 then
                 if debug then
@@ -349,25 +382,31 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 else
                     if castSpell(thisUnit,spellCast,false,false,false) then return end
                 end
+            elseif debug then
+                return false
             end
         end
         function self.castShadowmeld(thisUnit,debug)
+            local spellCast = self.spell.shadowmeld
+            local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
-            local spellCast = self.spell.shadowmeld
 
-            if self.level >= 1 and self.cd.shadowmeld == 0 and not isMoving("player") then
+            if self.level >= 1 and self.cd.shadowmeld == 0 and not self.buff.stealth and not isMoving("player") then
                 if debug then
                     return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
                 else
                     if castSpell("player",spellCast,false,false,false) then return end
                 end
+            elseif debug then
+                return false
             end
         end
         function self.castStealth(thisUnit,debug)
+            local spellCast = self.spell.stealth
+            local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
-            local spellCast = self.spell.stealth
 
             if self.level >= 5 and self.cd.stealth == 0 and not self.buff.stealth then
                 if debug then
@@ -375,6 +414,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 else
                     if castSpell("player",spellCast,false,false,false) then return end
                 end
+            elseif debug then
+                return false
             end
         end
 
@@ -415,6 +456,14 @@ if select(2, UnitClass("player")) == "ROGUE" then
             end
         end
 
+        function useCleave()
+            if self.mode.cleave==1 and self.mode.rotation < 3 then
+                return true
+            else
+                return false
+            end
+        end
+
         function usePickPocket()
             if self.mode.pickPocket == 1 or self.mode.pickPocket == 2 then
                 return true
@@ -431,7 +480,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                     myTarget = UnitGUID(thisUnit)
                 end
             end
-            if (canPickpocket == false or self.mode.pickPocket == 3 or GetNumLootItems()>0) then
+            if (canPickpocket == false or self.mode.pickPocket == 3 or GetNumLootItems()>0) and not isDummy() then
                 return true
             else
                 return false

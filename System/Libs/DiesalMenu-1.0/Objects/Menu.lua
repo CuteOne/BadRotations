@@ -1,4 +1,4 @@
--- $Id: Menu.lua 52 2014-04-08 11:52:40Z diesal@reece-tech.com $
+-- $Id: Menu.lua 53 2016-07-12 21:56:30Z diesal2010 $
 local DiesalMenu 	= LibStub('DiesalMenu-1.0')
 -- ~~| Libraries |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local DiesalGUI = LibStub('DiesalGUI-1.0')
@@ -75,44 +75,45 @@ local methods = {
 
 	end,
 	['ApplySettings'] = function(self)
-		local settings 	= self.settings
-		local content		= self.content
-
-		content:SetPoint("TOPLEFT",settings.padding[1],-settings.padding[3])
-		content:SetPoint("BOTTOMRIGHT",-settings.padding[2],settings.padding[4])
-
-		if settings.menuData then
-			self:BuildMenu()
-			local children 	= self.children
-			local menuHeight	= 0
-			for i=1 , #children do
-				menuHeight = menuHeight + children[i].frame:GetHeight()
-			end
-			self.frame:SetHeight(settings.padding[3] + menuHeight + settings.padding[4])
-			self.frame:SetWidth(settings.padding[1] + settings.itemWidth + settings.padding[2])
-		end
+		self:UpdatePosition()
 	end,
-	['BuildMenu'] = function(self)
+	['UpdatePosition'] = function(self)
+		self.content:SetPoint("TOPLEFT",self.settings.padding[1],-self.settings.padding[3])
+		self.content:SetPoint("BOTTOMRIGHT",-self.settings.padding[2],self.settings.padding[4])
+	end,
+	['UpdateSize'] = function(self)
+		local menuHeight = 0
+		for i=1, #self.children do
+			menuHeight = menuHeight + self.children[i].frame:GetHeight()
+		end
+		self.frame:SetHeight(self.settings.padding[3] + menuHeight + self.settings.padding[4])
+		self.frame:SetWidth(self.settings.padding[1] + self.settings.itemWidth + self.settings.padding[2])
+	end,
+	['BuildMenu'] = function(self, menuData)	
+		if menuData	then self.settings.menuData = menuData else menuData = self.settings.menuData end
+		if not menuData then return end		
+		-- reset menu
 		self:ReleaseChildren()
 		self:SetWidth(1)
-		local menuData = self.settings.menuData
-		local settings	= self.settings
-		-- set settings
+		-- set menu properties
 		for key in pairs(menuData) do
-			if menuData[key].check then settings.check = true end
-			if menuData[key].menuData then settings.arrow = true end
+			if menuData[key].check then self.settings.check = true end
+			if menuData[key].menuData then self.settings.arrow = true end
 		end
 		-- create menuItems
 		local sortedTable = sortTable(menuData)
 		for i = 1, #sortedTable do
 			local menuItem = DiesalGUI:Create('MenuItem')
 			self:AddChild(menuItem)
-			menuItem:SetParentObject(self)
+			menuItem:SetParentObject(self)			
 			menuItem:SetSettings({
-				itemData			= menuData[sortedTable[i][2]],
-				position			= i,
+				itemData = menuData[sortedTable[i][2]],
+				position = i,
 			},true)			
-		end		
+		end	
+		
+		self:UpdateSize()
+		return true
 	end,
 }
 -- | Constructor |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -124,8 +125,6 @@ local function Constructor()
 		itemWidth	= 0,
 		padding		= {4,4,8,8},
 	}
-	-- ~~ Registered Events ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 	-- ~~ Construct ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	frame:SetClampedToScreen( true )
 	frame:SetScript('OnEnter', function(this) DiesalMenu:StopCloseTimer() end)

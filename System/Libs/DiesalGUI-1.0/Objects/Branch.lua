@@ -1,4 +1,4 @@
--- $Id: tableExplorerBranch.lua 20 2014-04-13 18:02:32Z diesal2010 $
+-- $Id: Branch.lua 53 2016-07-12 21:56:30Z diesal2010 $
 -- ~~| Libraries |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 local DiesalTools = LibStub('DiesalTools-1.0')
 local DiesalStyle = LibStub('DiesalStyle-1.0')
@@ -19,6 +19,12 @@ local styleSheet = {
 		layer			= 'HIGHLIGHT',
 		color			= 'ffffff',
 		alpha			= .1,
+	},
+	['button-selected'] = {
+		type			= 'texture',
+		layer			= 'BORDER',
+		color			= '0059b3',
+		alpha			= 0,
 	},
 }
 local wireFrameSheet = {
@@ -78,6 +84,7 @@ local methods = {
 	end,
 	['Collapse'] = function(self)
 		if self.settings.leaf then return end
+		self:FireEvent("OnStateChange",false)
 		self.settings.expanded = false
 		self:SetIconCollapsed()
 		self:UpdateLines()
@@ -86,6 +93,7 @@ local methods = {
 	end,
 	['Expand'] = function(self)
 		if self.settings.leaf then return end
+		self:FireEvent("OnStateChange",true)
 		self.settings.expanded = true
 		self:SetIconExpanded()
 		self:UpdateLines()
@@ -120,6 +128,12 @@ local methods = {
 	end,
 	['SetIconCollapsed'] = function(self)
 		self.icon:SetTexCoord(DiesalTools:GetIconCoords(1,8,16,256,128))
+	end,
+	['SetSelected'] = function(self,state)		
+		self:SetStyle('button-selected',{
+			type			= 'texture',
+			alpha			= state and 1 or 0,				
+		})		
 	end,
 	['UpdateLines'] = function(self)
 		if not self.settings.branches then return end
@@ -217,11 +231,29 @@ local function Constructor()
 	button:SetPoint('TOPRIGHT')
 	button:SetPoint('TOPLEFT')
 	button:RegisterForClicks('RightButtonUp','LeftButtonUp')
+	button:RegisterForDrag( "LeftButton" )
 	button:SetScript("OnClick", function(this,button)
 		DiesalGUI:OnMouse(this,button)
 		if button == 'LeftButton' then self[not self.settings.expanded and "Expand" or "Collapse"](self) end
 		self:FireEvent("OnClick",button)
+	end)	
+	button:SetScript( "OnDoubleClick", function(this,...)
+		self:FireEvent("OnDoubleClick",...)
 	end)
+	button:SetScript( "OnDragStart", function(this,...)
+		self:FireEvent("OnDragStart",...)
+	end)
+	button:SetScript( "OnDragStop", function(this,...)
+		self:FireEvent("OnDragStop",...)
+	end)
+	button:SetScript("OnEnter",function(this,...)		
+		self:FireEvent("OnEnter",...)				
+	end)
+	button:SetScript("OnLeave", function(this,...)		
+		self:FireEvent("OnLeave",...)					
+	end)	
+		
+	
 	local icon = self:CreateRegion("Texture", 'icon', button)
 	DiesalStyle:StyleTexture(icon,{
 		offset 	= {0,nil,2,nil},

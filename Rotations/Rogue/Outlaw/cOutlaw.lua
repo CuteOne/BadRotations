@@ -46,10 +46,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
             hiddenBlade             = 202573.
         }
         self.outlawBuffs         = {
-            opportunityBuff         = 195627,
+            opportunity             = 195627,
         }
         self.outlawDebuffs       = {
-            ghostlyStrikeDebuff     = 196937,
+            ghostlyStrike           = 196937,
         }
         self.outlawSpecials      = {
             adrenalineRush          = 13750,
@@ -117,14 +117,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if not UnitAffectingCombat("player") then self.updateOOC() end
             -- self.outlaw_bleed_table()
             self.getBuffs()
-            self.getBuffsDuration()
-            self.getBuffsRemain()
             self.getCharge()
             self.getCooldowns()
             self.getDynamicUnits()
             self.getDebuffs()
-            self.getDebuffsDuration()
-            self.getDebuffsRemain()
             self.getTrinketProc()
             self.hasTrinketProc()
             self.getEnemies()
@@ -152,7 +148,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
             -- Normal
             self.units.dyn8 = dynamicTarget(8, true) 
-            self.units.dyn13 = dynamicTarget(13, true)
+            self.units.dyn13 = dynamicTarget(15, true) -- Blind
             self.units.dyn20 = dynamicTarget(20, true) --Pistol Shot 
 
             -- AoE
@@ -179,20 +175,14 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         function self.getBuffs()
             local UnitBuffID = UnitBuffID
-
-            self.buff.opportunity = UnitBuffID("player",self.spell.opportunityBuff) ~= nil or false
-        end
-
-        function self.getBuffsDuration()
             local getBuffDuration = getBuffDuration
-
-            self.buff.duration.opportunity = getBuffDuration("player",self.spell.opportunityBuff) or 0
-        end
-
-        function self.getBuffsRemain()
             local getBuffRemain = getBuffRemain
 
-            self.buff.remain.opportunity = getBuffRemain("player",self.spell.opportunityBuff) or 0
+            for k,v in pairs(self.outlawBuffs) do
+                self.buff[k] = UnitBuffID("player",v) ~= nil
+                self.buff.duration[k] = getBuffDuration("player",v) or 0
+                self.buff.remain[k] = getBuffRemain("player",v) or 0
+            end
         end
 
         function self.getTrinketProc()
@@ -211,20 +201,14 @@ if select(2, UnitClass("player")) == "ROGUE" then
     ---------------
         function self.getDebuffs()
             local UnitDebuffID = UnitDebuffID
-
-            self.debuff.ghostlyStrike = UnitDebuffID(self.units.dyn5,self.spell.ghostlyStrikeDebuff,"player") ~= nil or false
-        end
-
-        function self.getDebuffsDuration()
             local getDebuffDuration = getDebuffDuration
-
-            self.debuff.duration.ghostlyStrike = getDebuffDuration(self.units.dyn5,self.spell.ghostlyStrikeDebuff,"player") or 0
-        end
-
-        function self.getDebuffsRemain()
             local getDebuffRemain = getDebuffRemain
 
-            self.debuff.remain.ghostlyStrike = getDebuffRemain(self.units.dyn5,self.spell.ghostlyStrikeDebuff,"player") or 0
+            for k,v in pairs(self.outlawDebuffs) do
+                self.debuff[k] = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
+                self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
+                self.debuff.remain[k] = getDebuffRemain(self.units.dyn5,v,"player") or 0
+            end
         end
 
     ---------------
@@ -246,8 +230,11 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getCooldowns()
             local getSpellCD = getSpellCD
 
-            self.cd.gouge   = getSpellCD(self.spell.gouge)
-            self.cd.riposte = getSpellCD(self.spell.riposte)
+            for k,v in pairs(self.outlawSpells) do
+                if getSpellCD(v) ~= nil then
+                    self.cd[k] = getSpellCD(v)
+                end
+            end
         end
 
     --------------
@@ -267,18 +254,16 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getTalents()
             local getTalent = getTalent
 
-            self.talent.ghostlyStrike       = getTalent(1,1)
-            self.talent.swordmaster         = getTalent(1,2)
-            self.talent.quickDraw           = getTalent(1,3)
-            self.talent.grapplingHook       = getTalent(2,1)
-            self.talent.acrobaticStikes     = getTalent(2,2)
-            self.talent.hitAndRun           = getTalent(2,3)
-            self.talent.ironStomach         = getTalent(4,1)
-            self.talent.parley              = getTalent(5,1)
-            self.talent.dirtyTricks         = getTalent(5,3)
-            self.talent.cannonballBarrage   = getTalent(6,1)
-            self.talent.killingSpree        = getTalent(6,3)
-            self.talent.sliceAndDice        = getTalent(7,1)
+            for r = 1, 7 do --search each talent row
+                for c = 1, 3 do -- search each talent column
+                    local talentID = select(6,GetTalentInfo(r,c,GetActiveSpecGroup())) -- ID of Talent at current Row and Column
+                    for k,v in pairs(self.outlawTalents) do
+                        if v == talentID then
+                            self.talent[k] = getTalent(r,c)
+                        end
+                    end
+                end
+            end
         end
 
     -------------
@@ -388,96 +373,193 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         function self.getCastable()
 
-            -- self.castable.ambush        = self.castAmbush(self.units.dyn5,true)
-            -- self.castable.ghostlyStrike = self.castGhostlyStrike(self.units.dyn5,true)
-            -- self.castable.gouge         = self.castGouge(self.units.dyn5,true)
-            -- self.castable.pistolShot    = self.castPistolShot(self.units.dyn20,true)
-            -- self.castable.riposte       = self.castRiposte("player",true)
-            -- self.castable.runThrough    = self.castRunThrough(self.units.dyn5,true)
-            -- self.castable.saberSlash    = self.castSaberSlash(self.units.dyn5,true)
+            self.castable.ambush            = self.castAmbush("target",true)
+            self.castable.betweenTheEyes    = self.castBetweenTheEyes("target",true)
+            self.castable.blind             = self.castBlind("target",true)
+            self.castable.cheapShot         = self.castCheapShot("target",true)
+            self.castable.ghostlyStrike     = self.castGhostlyStrike("target",true)
+            self.castable.gouge             = self.castGouge("target",true)
+            self.castable.grapplingHook     = self.castGrapplingHook("target",true)
+            self.castable.pistolShot        = self.castPistolShot("target",true)
+            self.castable.riposte           = self.castRiposte("player",true)
+            self.castable.runThrough        = self.castRunThrough("target",true)
+            self.castable.saberSlash        = self.castSaberSlash("target",true)
         end
 
-        function self.castAmbush(theUnit,debug)
+        function self.castAmbush(thisUnit,debug)
+            local spellCast = self.spell.ambush
+            local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 14 and self.power > 60 and getDistance(thisUnit) < 5 then
+            if self.level >= 14 and self.power > 60 and self.buff.stealth and getDistance(thisUnit) < 5 then
                 if debug then
-                    return castSpell(thisUnit,self.spell.ambush,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,self.spell.ambush,false,false,false) then return end
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
                 end
+            elseif debug then
+                return false
             end
         end
-        function self.castGhostlyStrike(theUnit,debug)
+        function self.castBetweenTheEyes(thisUnit,debug)
+            local spellCast = self.spell.betweenTheEyes
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn20 end
+            if debug == nil then debug = false end
+
+            if self.level >= 25 and self.power > 35 and self.cd.betweenTheEyes == 0 and getDistance(thisUnit) < 20 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.castBlind(thisUnit,debug)
+            local spellCast = self.spell.blind
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn15 end
+            if debug == nil then debug = false end
+
+            if self.level >= 38 and self.cd.blind == 0 and getDistance(thisUnit) < 15 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.castCheapShot(thisUnit,debug)
+            local spellCast = self.spell.cheapShot
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 29 and self.power > 40 and self.buff.stealth and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.castGhostlyStrike(thisUnit,debug)
+            local spellCast = self.spell.ghostlyStrike
+            local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
             if self.talent.ghostlyStrike and self.power > 30 and getDistance(thisUnit) < 5 then
                 if debug then
-                    return castSpell(thisUnit,self.spell.ghostlyStrike,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,self.spell.ghostlyStrike,false,false,false) then return end
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
                 end
+            elseif debug then
+                return false
             end
         end 
-        function self.castGouge(theUnit,debug)
+        function self.castGouge(thisUnit,debug)
+            local spellCast = self.spell.gouge
+            local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
             if self.level >= 22 and self.power > 25 and getDistance(thisUnit) < 5 then
                 if debug then
-                    return castSpell(thisUnit,self.spell.gouge,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,self.spell.gouge,false,false,false) then return end
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
                 end
+            elseif debug then
+                return false
             end
         end
-        function self.castPistolShot(theUnit,debug)
+        function self.castGrapplingHook(thisUnit,debug)
+            local spellCast = self.spell.grapplingHook
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.talent.grapplingHook and self.cd.grapplingHook == 0 and getDistance(thisUnit) < 40 and getDistance(thisUnit) >= 8 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castGround(thisUnit,spellCast,40) --[[castSpell(thisUnit,spellCast,false,false,false)]] then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.castPistolShot(thisUnit,debug)
+            local spellCast = self.spell.pistolShot
+            local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn20 end
             if debug == nil then debug = false end
 
             if self.level >= 11 and (self.power > 40 or self.buff.opportunity) and hasThreat(thisUnit) and getDistance(thisUnit) < 20 then
                 if debug then
-                    return castSpell(thisUnit,self.spell.pistolShot,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,self.spell.pistolShot,false,false,false) then return end
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
                 end
+            elseif debug then
+                return false
             end
         end 
-        function self.castRiposte(debug)
+        function self.castRiposte(thisUnit,debug)
+            local spellCast = self.spell.riposte
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
             if self.level >= 10 and self.cd.riposte == 0 then
                 if debug then 
-                    return castSpell("player",self.spell.riposte,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell("player",self.spell.riposte,false,false,false) then return end
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
                 end
+            elseif debug then
+                return false
             end
         end
         function self.castRunThrough(thisUnit,debug)
+            local spellCast = self.spell.runThrough
+            local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
             if self.level >= 10 and self.power > 35 and self.comboPoints > 0 and getDistance(thisUnit) < 8 then
                 if debug then
-                    return castSpell(thisunit,self.spell.runThrough,false,false,false,false,false,false,false,true)
+                    return castSpell(thisunit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,self.spell.runThrough,false,false,false) then return end
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
                 end
+            elseif debug then
+                return false
             end
         end
-        function self.castSaberSlash(theUnit,debug)
+        function self.castSaberSlash(thisUnit,debug)
+            local spellCast = self.spell.saberSlash
+            local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
             if self.level >= 10 and self.power > 50 and getDistance(thisUnit) < 5 then
                 if debug then
-                    return castSpell(thisUnit,self.spell.saberSlash,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,self.spell.saberSlash,false,false,false) then return end
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
                 end
+            elseif debug then
+                return false
             end
         end 
 

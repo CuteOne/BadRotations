@@ -60,8 +60,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
             section = bb.ui:createSection(bb.ui.window.profile,  "General")
             	-- Stealth
 	            bb.ui:createDropdown(section,  "Stealth", {"|cff00FF00Always", "|cffFFDD00PrePot", "|cffFF000020Yards"},  1, "Stealthing method.")
+	            -- Grappling Hook
+	            bb.ui:createCheckbox(section,  "Grappling Hook")
 	            -- Opening Attack
-	            bb.ui:createDropdown(section, "Opener", {"Ambush", "Mutilate", "Cheap Shot"},  1, "|cffFFFFFFSelect Attack to Break Stealth with")
+	            bb.ui:createDropdown(section, "Opener", {"Ambush", "Cheap Shot"},  1, "|cffFFFFFFSelect Attack to Break Stealth with")
 	            -- Pre-Pull Timer
 	            bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
 	            -- Dummy DPS Test
@@ -94,9 +96,13 @@ if select(2, UnitClass("player")) == "ROGUE" then
             -------------------------
             section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
             	-- Kick
-            	bb.ui:createCheckbox(section,  "Kick")
+            	bb.ui:createCheckbox(section, "Kick")
             	-- Gouge
-            	bb.ui:createCheckbox(section,  "Gouge")	
+            	bb.ui:createCheckbox(section, "Gouge")
+            	-- Blind
+            	bb.ui:createCheckbox(section, "Blind")
+            	-- Between the Eyes
+            	bb.ui:createCheckbox(section, "Between the Eyes")	
 	            -- Interrupt Percentage
 	            bb.ui:createSpinner(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
             bb.ui:checkSectionState(section)
@@ -147,6 +153,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	--------------
 	--- Locals ---
 	--------------
+			if profileStop == nil then profileStop = false end
+			local artifact 										= bb.player.artifact
 			local attacktar 									= UnitCanAttack("target","player")
 			local buff, buffRemain								= bb.player.buff, bb.player.buff.remain
 			local cd 											= bb.player.cd
@@ -166,7 +174,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local gcd 											= bb.player.gcd
 			local glyph				 							= bb.player.glyph
 			local hastar 										= ObjectExists("target")
+			local healPot 										= getHealthPot()
 			local inCombat 										= bb.player.inCombat
+			local lastSpell 									= lastSpellCast
 			local level											= bb.player.level
 			local mode 											= bb.player.mode
 			local perk											= bb.player.perk
@@ -178,8 +188,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local stealth 										= bb.player.stealth
 			local t18_4pc 										= bb.player.eq.t18_4pc
 			local talent 										= bb.player.talent
-			local targets10										= bb.player.enemies.yards10
 			local time 											= getCombatTime()
+			local ttd 											= getTTD
 			local ttm 											= bb.player.timeToMax
 			local units 										= bb.player.units
 
@@ -199,10 +209,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	                    end
 	                end
 	            end
-	     -- Pick Pocket
+	    -- Pick Pocket
 	        	if usePickPocket() then
-	        		if mode.pickPocket ~= 3 then
-	        			if not isPicked(units.dyn5) then
+        			if (UnitExists("target") or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
+	        			if not isPicked(units.dyn5) and not isDummy() then
 	        				if debuff.remain.sap < 1 and mode.pickPocket ~= 1 then
 	        					if bb.player.castSap(units.dyn5) then return end
 	        				end
@@ -237,7 +247,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 						if bb.player.castCrimsonVial() then return end
 					end
 				-- Riposte
-					if isChecked("Riposte") and php < getOptionValue("Riposte") and inCombat then
+					if isChecked("Riposte") and php <= getOptionValue("Riposte") and inCombat then
 						if bb.player.castRiposte() then return end
 					end
 	            end
@@ -245,36 +255,37 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		-- Action List - Interrupts
 			local function actionList_Interrupts()
 				if useInterrupts() and not stealth then
+					for i=1, enemies.yards20 do
+						local thisUnit = getEnemies("player", 20)[i]
+						local distance = getDistance(thisUnit)
+						if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+							if distance < 5 then
 			-- Kick
-					-- kick
-					if isChecked("Kick") then
-						for i=1, #dynTable5 do
-							local thisUnit = dynTable5[i].unit
-							if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-								if bb.player.castKick(thisUnit) then return end
-							end
-						end
-					end
-					if talent.dirtyTricks then
+								-- kick
+								if isChecked("Kick") then
+									if bb.player.castKick(thisUnit) then return end
+								end
+								if cd.kick ~= 0 then
 			-- Gouge
-						if isChecked("Gouge") then
-							for i=1, #dynTable5 do
-								local thisUnit = dynTable5[i].unit
-								if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-									if bb.player.castGouge(thisUnit) then return end
+									if isChecked("Gouge") then
+										if bb.player.castGouge(thisUnit) then return end
+									end
+								end
+							end
+							if (cd.kick ~= 0 and cd.gouge ~= 0) or (distance >= 5 and distance < 15) then 
+			-- Blind
+								if isChecked("Blind") then
+									if bb.player.castBlind(thisUnit) then return end
+								end	 
+							end
+			-- Between the Eyes
+							if ((cd.kick ~= 0 and cd.gouge ~= 0) or distance >= 5) and (cd.blind ~= 0 or level < 38 or distance >= 15) then
+								if isChecked("Between the Eyes") then
+									if bb.player.castBetweenTheEyes(thisUnit) then return end
 								end
 							end
 						end
-			-- Blind
-						-- if isChecked("Blind") then
-						-- 	for i=1, #dynTable15 do
-						-- 		local thisUnit = dynTable15[i].unit
-						-- 		if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-						-- 			if bb.player.castBlind(thisUnit) then return end
-						-- 		end 
-						-- 	end
-						-- end
-					end -- End Dirty Tricks Talent Check
+					end
 				end -- End Interrupt and No Stealth Check
 			end -- End Action List - Interrupts
 		-- Action List - Cooldowns
@@ -295,22 +306,36 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			end -- End Action List - PreCombat
 		-- Action List - Opener
 			local function actionList_Opener()
-				if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 5 then
-				-- Ambush
-					-- pool_resource,for_next=1
-					-- ambush
-					if buff.stealth then
-						if power <= 60 then
-							return true
-						else
-							if bb.player.castAmbush() then return end
-						end
-					end
-			-- Start Attack
-	                -- auto_attack
-	                if (level < 14 or not buff.stealth) then
-	                    StartAttack()
+				if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 40 then
+				-- Grappling Hook
+	                if isChecked("Grappling Hook") and (hasThreat("target") or solo) then
+	                    if bb.player.castGrapplingHook("target") then return end 
 	                end
+	                if getDistance("target") < 5 then
+				-- Ambush / Cheap Shot
+						-- pool_resource,for_next=1
+						-- ambush
+						if buff.stealth then
+							if getOptionValue("Opener") == 1 then
+								if power <= 60 then
+									return true
+								else
+									if bb.player.castAmbush() then return end
+								end
+							else
+								if power <= 40 then
+									return true
+								else
+									if bb.player.castCheapShot() then return end
+								end
+							end
+						end
+				-- Start Attack
+		                -- auto_attack
+		                if (level < 14 or not buff.stealth) then
+		                    StartAttack()
+		                end
+		            end
 	            end
 			end -- End Action List - Opener
 		-- Action List - Finishers
@@ -363,7 +388,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	--------------------------
 	--- In Combat Rotation ---
 	--------------------------
-				if inCombat and profileStop==false then
+				if inCombat and profileStop==false and not buff.stealth and not buff.shadowmeld and lastSpell ~= spell.shadowmeld then
 	------------------------------
 	--- In Combat - Interrupts ---
 	------------------------------

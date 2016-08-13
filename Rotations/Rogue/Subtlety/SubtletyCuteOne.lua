@@ -60,8 +60,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
             section = bb.ui:createSection(bb.ui.window.profile,  "General")
             	-- Stealth
 	            bb.ui:createDropdown(section,  "Stealth", {"|cff00FF00Always", "|cffFFDD00PrePot", "|cffFF000020Yards"},  1, "Stealthing method.")
-	            -- Opening Attack
-	            bb.ui:createDropdown(section, "Opener", {"Ambush", "Mutilate", "Cheap Shot"},  1, "|cffFFFFFFSelect Attack to Break Stealth with")
 	            -- Shadowstep
 	            bb.ui:createCheckbox(section,  "Shadowstep")
 	            -- Pre-Pull Timer
@@ -97,6 +95,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
             section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
             	-- Kick
 	            bb.ui:createCheckbox(section,"Kick")
+	            -- Blind
+            	bb.ui:createCheckbox(section, "Blind")
 	            -- Interrupt Percentage
 	            bb.ui:createSpinner(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
             bb.ui:checkSectionState(section)
@@ -149,13 +149,14 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	--------------
 			if leftCombat == nil then leftCombat = GetTime() end
 			if profileStop == nil then profileStop = false end
+			local artifact 										= bb.player.artifact
 			local attacktar 									= UnitCanAttack("target","player")
 			local buff, buffRemain								= bb.player.buff, bb.player.buff.remain
 			local cd 											= bb.player.cd
 			local charge 										= bb.player.charges
 			local combo, comboDeficit, comboMax					= bb.player.comboPoints, bb.player.comboPointsMax - bb.player.comboPoints, bb.player.comboPointsMax
 			local deadtar										= UnitIsDeadOrGhost("target")
-			local debuff, debuffRemain							= bb.player.debuff, bb.player.debuff.remain
+			local debuff 										= bb.player.debuff
 			local dynTar5 										= bb.player.units.dyn5 --Melee
 			local dynTar15 										= bb.player.units.dyn15 
 			local dynTar20AoE 									= bb.player.units.dyn20AoE --Stealth
@@ -168,20 +169,22 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local gcd 											= bb.player.gcd
 			local glyph				 							= bb.player.glyph
 			local hastar 										= ObjectExists("target")
+			local healPot 										= getHealthPot()
 			local inCombat 										= bb.player.inCombat
+			local lastSpell 									= lastSpellCast
 			local level											= bb.player.level
 			local mode 											= bb.player.mode
 			local perk											= bb.player.perk
 			local php											= bb.player.health
 			local power, powerDeficit, powerRegen				= bb.player.power, bb.player.powerDeficit, bb.player.powerRegen
 			local pullTimer 									= bb.DBM:getPulltimer()
-			local solo											= select(2,IsInInstance())=="none"	
+			local solo											= GetNumGroupMembers() == 0	
 			local spell 										= bb.player.spell
 			local stealth 										= bb.player.stealth
 			local t18_4pc 										= bb.player.eq.t18_4pc
 			local talent 										= bb.player.talent
-			local targets10										= bb.player.enemies.yards10
 			local time 											= getCombatTime()
+			local ttd 											= getTTD
 			local ttm 											= bb.player.timeToMax
 			local units 										= bb.player.units
 
@@ -203,8 +206,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	            end
 	    -- Pick Pocket
 	        	if usePickPocket() then
-	        		if mode.pickPocket ~= 3 then
-	        			if not isPicked(units.dyn5) then
+        			if (UnitExists("target") or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
+	        			if not isPicked(units.dyn5) and not isDummy() then
 	        				if debuff.remain.sap < 1 and mode.pickPocket ~= 1 then
 	        					if bb.player.castSap(units.dyn5) then return end
 	        				end
@@ -245,16 +248,21 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		-- Action List - Interrupts
 			local function actionList_Interrupts()
 				if useInterrupts() and not stealth then
+					for i=1, enemies.yards20 do
+						local thisUnit = getEnemies("player", 20)[i]
+						local distance = getDistance(thisUnit)
+						if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
 				-- Kick
-					-- kick
-					if isChecked("Kick") then
-						for i=1, #dynTable5 do
-							local thisUnit = dynTable5[i].unit
-							if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+							-- kick
+							if isChecked("Kick") and distance < 5 then
 								if bb.player.castKick(thisUnit) then return end
 							end
+							if isChecked("Blind") and (cd.kick ~= 0 or distance >= 5) then
+				-- Blind
+								if bb.player.castBlind(thisUnit) then return end
+							end
 						end
-					end
+					end	
 				end -- End Interrupt and No Stealth Check
 			end -- End Action List - Interrupts
 		-- Action List - Cooldowns
@@ -279,10 +287,17 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if isChecked("Shadowstep") and solo and attacktar and not deadtar and not friendly then
                     if bb.player.castShadowstep("target") then return end 
                 end
+                if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 15 and mode.pickPocket ~= 2 then
+            -- Shadowstrike
+					-- shadowstrike,if=combo_points.max-combo_points>=2
+					if comboDeficit >= 2 then
+						if bb.player.castShadowstrike() then return end
+					end
 			-- Start Attack
-                -- auto_attack
-                if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 5 and mode.pickPocket ~= 2 then
-                    StartAttack()
+                	-- auto_attack
+                	if getDistance("target") < 5 then
+                    	StartAttack()
+                    end
                 end
 			end -- End Action List - Opener
 		-- Action List - Finishers
@@ -293,7 +308,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			end -- End Action List - Finishers
 		-- Action List - Generators
 			local function actionList_Generators()
-			-- Backstab
+			-- Backstab / Gloomblade
+				-- gloomblade,if=energy.time_to_max<2.5
 				-- backstab,if=energy.time_to_max<2.5
 				if ttm < 2.5 then
 					if bb.player.castBackstab() then return end
@@ -327,7 +343,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	--------------------------
 	--- In Combat Rotation ---
 	--------------------------
-				if inCombat and mode.pickPocket ~= 2 then
+				if inCombat and mode.pickPocket ~= 2 and not buff.stealth and not buff.shadowmeld and lastSpell ~= spell.shadowmeld then
 	------------------------------
 	--- In Combat - Interrupts ---
 	------------------------------

@@ -65,8 +65,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	            bb.ui:createDropdown(section,  "Stealth", {"|cff00FF00Always", "|cffFFDD00PrePot", "|cffFF000020Yards"},  1, "Stealthing method.")
 	            -- Shadowstep
 	            bb.ui:createCheckbox(section,  "Shadowstep")
-	            -- Opening Attack
-	            bb.ui:createDropdown(section, "Opener", {"Ambush", "Mutilate", "Cheap Shot"},  1, "|cffFFFFFFSelect Attack to Break Stealth with")
 	            -- Pre-Pull Timer
 	            bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
 	            -- Dummy DPS Test
@@ -152,13 +150,14 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	--------------
 			if leftCombat == nil then leftCombat = GetTime() end
 			if profileStop == nil then profileStop = false end
+			local artifact 										= bb.player.artifact
 			local attacktar 									= UnitCanAttack("target","player")
 			local buff, buffRemain								= bb.player.buff, bb.player.buff.remain
 			local cd 											= bb.player.cd
 			local charge 										= bb.player.charges
 			local combo, comboDeficit, comboMax					= bb.player.comboPoints, bb.player.comboPointsMax - bb.player.comboPoints, bb.player.comboPointsMax
 			local deadtar										= UnitIsDeadOrGhost("target")
-			local debuff, debuffRemain							= bb.player.debuff, bb.player.debuff.remain
+			local debuff 										= bb.player.debuff
 			local dynTar5 										= bb.player.units.dyn5 --Melee
 			local dynTar15 										= bb.player.units.dyn15 
 			local dynTar20AoE 									= bb.player.units.dyn20AoE --Stealth
@@ -168,24 +167,25 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local dynTable20AoE 								= (bb.data['Cleave']==1 and bb.enemy) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getDistance(dynTar20AoE)}}
 			local enemies										= bb.player.enemies
 			local flaskBuff, canFlask							= getBuffRemain("player",bb.player.flask.wod.buff.agilityBig), canUse(bb.player.flask.wod.agilityBig)	
-			local friendly 										= friendly or UnitIsFriend("target", "player")
 			local gcd 											= bb.player.gcd
 			local glyph				 							= bb.player.glyph
 			local hastar 										= ObjectExists("target")
+			local healPot 										= getHealthPot()
 			local inCombat 										= bb.player.inCombat
+			local lastSpell 									= lastSpellCast
 			local level											= bb.player.level
 			local mode 											= bb.player.mode
 			local perk											= bb.player.perk
 			local php											= bb.player.health
 			local power, powerDeficit, powerRegen				= bb.player.power, bb.player.powerDeficit, bb.player.powerRegen
 			local pullTimer 									= bb.DBM:getPulltimer()
+			local solo											= GetNumGroupMembers() == 0	
 			local spell 										= bb.player.spell
-			local solo											= select(2,IsInInstance())=="none"	
 			local stealth 										= bb.player.stealth
 			local t18_4pc 										= bb.player.eq.t18_4pc
 			local talent 										= bb.player.talent
-			local targets										= bb.player.enemies
 			local time 											= getCombatTime()
+			local ttd 											= getTTD
 			local ttm 											= bb.player.timeToMax
 			local units 										= bb.player.units
 
@@ -208,8 +208,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	            end
 	        -- Pick Pocket
 	        	if usePickPocket() then
-	        		if mode.pickPocket ~= 3 then
-	        			if not isPicked(units.dyn5) then
+        			if (UnitExists("target") or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
+	        			if not isPicked(units.dyn5) and not isDummy() then
 	        				if debuff.remain.sap < 1 and mode.pickPocket ~= 1 then
 	        					if bb.player.castSap(units.dyn5) then return end
 	        				end
@@ -251,13 +251,16 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		-- Action List - Interrupts
 			local function actionList_Interrupts()
 				if useInterrupts() and not stealth then
+					for i=1, enemies.yards20 do
+						local thisUnit = getEnemies("player", 20)[i]
+						local distance = getDistance(thisUnit)
+						if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+							if distance < 5 then
 				-- Kick
-					-- kick
-					if isChecked("Kick") then
-						for i=1, #dynTable5 do
-							local thisUnit = dynTable5[i].unit
-							if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-								if bb.player.castKick(thisUnit) then return end
+								-- kick
+								if isChecked("Kick") then
+									if bb.player.castKick(thisUnit) then return end
+								end
 							end
 						end
 					end
@@ -300,6 +303,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
 					if getOptionValue("Lethal Poison") == 1 and not buff.deadlyPoison then 
 						if bb.player.castDeadlyPoison() then return end
 					end
+					if getOptionValue("Lethal Poison") == 2 and not buff.woundPoison then
+						if bb.player.castWoundPoison() then return end
+					end
 				end
 				if isChecked("Non-Lethal Poison") then
 					if getOptionValue("Non-Lethal Poison") == 1 and not buff.cripplingPoison then
@@ -318,17 +324,34 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		-- Action List - Opener
 			local function actionList_Opener()
 			-- Shadowstep
-                if isChecked("Shadowstep") and solo and attacktar and not deadtar and not friendly then
+                if isChecked("Shadowstep") and (hasThreat("target") or solo) then
                     if bb.player.castShadowstep("target") then return end 
                 end
 			-- Start Attack
                 -- auto_attack
                 if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 5 and mode.pickPocket ~= 2 then
-                    StartAttack()
+                	if bb.player.castMutilate() then StartAttack(); return end
                 end
 			end -- End Action List - Opener
 		-- Action List - Finishers
 			local function actionList_Finishers()
+			-- Rupture
+				-- rupture,cycle_targets=1,if=!ticking&combo_points>=cp_max_spend&spell_targets.fan_of_knives>1&target.time_to_die-remains>6
+				-- rupture,if=combo_points>=cp_max_spend&refreshable&!exsanguinated
+				for i=1, enemies.yards5 do
+                    local thisUnit = getEnemies("player",5)[i]
+                    local ruptureRemain = getDebuffRemain(thisUnit,spell.rupture,"player") or 0
+                    if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) then
+                        if ruptureRemain == 0 and combo >= comboMax and enemies.yards5 > 1 and ttd(thisUnit) - ruptureRemain > 6 then 
+                           if bb.player.castRupture(thisUnit) then return end
+                        end
+                    end
+                    if UnitIsUnit(thisUnit,dynTar5) then
+                        if combo >= comboMax and debuff.refresh.rupture then
+                            if bb.player.castRupture(thisUnit) then return end
+                        end
+                    end
+                end
 			-- Envenom
 				-- envenom,if=combo_points>=cp_max_spend-1&!dot.rupture.refreshable&buff.elaborate_planning.remains<2&energy.deficit<40&spell_targets.fan_of_knives<=6
 				-- envenom,if=combo_points>=cp_max_spend&!dot.rupture.refreshable&buff.elaborate_planning.remains<2&cooldown.garrote.remains<1&spell_targets.fan_of_knives<=6
@@ -379,7 +402,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 -- 	--- In Combat Rotation ---
 -- 	--------------------------
 			-- Assassination is 4 shank!
-				if inCombat and mode.pickPocket ~= 2 then
+				if inCombat and mode.pickPocket ~= 2 and not (buff.stealth or buff.shadowmeld) then
 -- 					if hartar and deadtar then
 -- 						ClearTarget()
 -- 					end
@@ -406,6 +429,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	        		if isChecked("Poisoned Knife") and getDistance(units.dyn30) > 5 and hasThreat(units.dyn30) then
 	        			if bb.player.castPoisonedKnife() then return end
 	        		end
+	       	-- Rupture
+	       			-- rupture,if=combo_points>=2&!ticking&time<10&!artifact.urge_to_kill.enabled
+					-- rupture,if=combo_points>=4&!ticking
+					if not debuff.rupture and ((combo >= 2 and cTime < 10 and not artifact.urgeToKill) or combo >= 4) then
+						if bb.player.castRupture() then return end
+					end
 -- 			-- Mutilate
 -- 					-- if=buff.stealth.up|buff.vanish.up
 -- 					if (stealth or buff.vanish) and (enemies10<6 or level<83 or not useCleave() or bb.data['AoE'] == 3) then

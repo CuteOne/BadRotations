@@ -62,7 +62,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             shadowBlades            = 121471,
             shadowDance             = 185313,
             shadowstep              = 36554,
-            shadowStrike            = 185438,
+            shadowstrike            = 185438,
             shurikenStorm           = 197835,
             shurikenToss            = 114014,
             symbolsOfDeath          = 212283,
@@ -118,14 +118,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if not UnitAffectingCombat("player") then self.updateOOC() end
             -- self.subtlety_bleed_table()
             self.getBuffs()
-            self.getBuffsDuration()
-            self.getBuffsRemain()
             self.getCharge()
             self.getCooldowns()
             self.getDynamicUnits()
             self.getDebuffs()
-            self.getDebuffsDuration()
-            self.getDebuffsRemain()
             self.getTrinketProc()
             self.hasTrinketProc()
             self.getEnemies()
@@ -179,20 +175,14 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         function self.getBuffs()
             local UnitBuffID = UnitBuffID
-
-            -- self.buff.berserk                      = UnitBuffID("player",self.spell.berserkBuff)~=nil or false
-        end
-
-        function self.getBuffsDuration()
             local getBuffDuration = getBuffDuration
-
-            -- self.buff.duration.berserk                     = getBuffDuration("player",self.spell.berserkBuff) or 0
-        end
-
-        function self.getBuffsRemain()
             local getBuffRemain = getBuffRemain
 
-            -- self.buff.remain.berserk                    = getBuffRemain("player",self.spell.berserkBuff) or 0
+            for k,v in pairs(self.subtletyBuffs) do
+                self.buff[k] = UnitBuffID("player",v) ~= nil
+                self.buff.duration[k] = getBuffDuration("player",v) or 0
+                self.buff.remain[k] = getBuffRemain("player",v) or 0
+            end
         end
 
         function self.getTrinketProc()
@@ -211,20 +201,14 @@ if select(2, UnitClass("player")) == "ROGUE" then
     ---------------
         function self.getDebuffs()
             local UnitDebuffID = UnitDebuffID
-
-            -- self.debuff.ashamanesFrenzy   = UnitDebuffID(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player")~=nil or false
-        end
-
-        function self.getDebuffsDuration()
             local getDebuffDuration = getDebuffDuration
-
-            -- self.debuff.duration.ashamanesFrenzy    = getDebuffDuration(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player") or 0
-        end
-
-        function self.getDebuffsRemain()
             local getDebuffRemain = getDebuffRemain
 
-            -- self.debuff.remain.ashamanesFrenzy  = getDebuffRemain(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player") or 0
+            for k,v in pairs(self.subtletyDebuffs) do
+                self.debuff[k] = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
+                self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
+                self.debuff.remain[k] = getDebuffRemain(self.units.dyn5,v,"player") or 0
+            end
         end
 
     ---------------
@@ -246,7 +230,11 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getCooldowns()
             local getSpellCD = getSpellCD
 
-            self.cd.shadowstep  = getSpellCD(self.spell.shadowstep)
+            for k,v in pairs(self.subtletySpells) do
+                if getSpellCD(v) ~= nil then
+                    self.cd[k] = getSpellCD(v)
+                end
+            end
         end
 
     --------------
@@ -266,18 +254,16 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getTalents()
             local getTalent = getTalent
 
-            self.talent.masterOfSubtlety        = getTalent(1,1)
-            self.talent.weaponmaster            = getTalent(1,2)
-            self.talent.gloomblade              = getTalent(1,3)
-            self.talent.nightstalker            = getTalent(2,1)
-            self.talent.subterfuge              = getTalent(2,2)
-            self.talent.shadowFocus             = getTalent(2,3)
-            self.talent.soothingDarkness        = getTalent(4,1)
-            self.talent.strikeFromTheShadows    = getTalent(5,1)
-            self.talent.tangledShadow           = getTalent(5,3)
-            self.talent.premeditation           = getTalent(6,1)
-            self.talent.envelopingShadows       = getTalent(6,3)
-            self.talent.masterOfShadows         = getTalent(7,1)
+            for r = 1, 7 do --search each talent row
+                for c = 1, 3 do -- search each talent column
+                    local talentID = select(6,GetTalentInfo(r,c,GetActiveSpecGroup())) -- ID of Talent at current Row and Column
+                    for k,v in pairs(self.subtletyTalents) do
+                        if v == talentID then
+                            self.talent[k] = getTalent(r,c)
+                        end
+                    end
+                end
+            end
         end
 
     -------------
@@ -320,10 +306,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         function self.getToggleModes()
 
-            self.mode.rotation  = bb.data["Rotation"]
-            self.mode.cooldown  = bb.data["Cooldown"]
-            self.mode.defensive = bb.data["Defensive"]
-            self.mode.interrupt = bb.data["Interrupt"]
         end
 
         -- Create the toggle defined within rotation files
@@ -387,20 +369,21 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         function self.getCastable()
 
-            self.castable.backstab      = self.castBackstab(self.units.dyn5,true)
+            self.castable.backstab      = self.castBackstab("target",true)
+            self.castable.blind         = self.castBlind("target",true)
             self.castable.evasion       = self.castEvasion("player",true)
-            self.castable.eviscerate    = self.castEviscerate(self.units.dyn5,true)
+            self.castable.eviscerate    = self.castEviscerate("target",true)
+            self.castable.shadowstep    = self.castShadowstep("target",true)
+            self.castable.shadowstrike  = self.castShadowstrike("target",true)
+            self.castable.shurikenToss  = self.castShurikenToss("target",true)
         end
 
         function self.castBackstab(thisUnit,debug)
+            local spellCast = self.spell.backstab
+            local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
-            local spellCast = spellCast
-            if self.talent.gloomblade then
-                spellCast = self.spell.gloomblade
-            else
-                spellCast = self.spell.backstab
-            end
+            if self.talent.gloomblade then spellCast = self.spell.gloomblade end
 
             if self.level >= 10 and self.power >= 35 and getDistance(thisUnit) < 5 then
                 if debug then
@@ -408,47 +391,96 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 else
                     if castSpell(thisUnit,spellCast,false,false,false) then return end
                 end
+            elseif debug then
+                return false
             end
         end
-        function self.castEvasion(debug)
-            if debug == nil then debug = false end
-            if self.level >= 8 and self.cd.evasion == 0 then
-                if debug then
-                    return castSpell("player",self.spell.evasion,false,false,false,false,false,false,false,true)
-                else
-                    if castSpell("player",self.spell.evasion,false,false,false) then return end
-                end
-            end
-        end
-        function self.castEviscerate(thisUnit,debug)
-            if thisUnit == nil then thisUnit = self.units.dyn5 end
+        function self.castBlind(thisUnit,debug)
+            local spellCast = self.spell.blind
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn15 end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and self.power >= 35 and self.comboPoints > 0 and getDistance(thisUnit) < 5 then
-                if debug then
-                    return castSpell(thisUnit,self.spell.eviscerate,false,false,false,false,false,false,false,true)
-                else
-                    if castSpell(thisUnit,self.spell.eviscerate,false,false,false) then return end
-                end
-            end
-        end
-        function self.castShadowstep(thisUnit,debug)
-            if thisUnit == nil then thisUnit = "target" end
-            if debug == nil then debug = false end
-            local spellCast = self.spell.shadowstep
-
-            if self.level >= 13 and self.cd.shadowstep == 0 and getDistance(thisUnit) < 25 then
+            if self.level >= 38 and self.cd.blind == 0 and getDistance(thisUnit) < 15 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
                     if castSpell(thisUnit,spellCast,false,false,false) then return end
                 end
+            elseif debug then
+                return false
+            end
+        end
+        function self.castEvasion(debug)
+            local spellCast = self.spell.evasion
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 8 and self.cd.evasion == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.castEviscerate(thisUnit,debug)
+            local spellCast = self.spell.eviscerate
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 10 and self.power >= 35 and self.comboPoints > 0 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.castShadowstep(thisUnit,debug)
+            local spellCast = self.spell.shadowstep
+            local spellRange = select(6,GetSpellInfo(spellCast))
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "target" end
+            if debug == nil then debug = false end
+
+            if self.level >= 13 and self.cd.shadowstep == 0 and getDistance(thisUnit) < spellRange and getDistance(thisUnit) >= 8 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.castShadowstrike(thisUnit,debug)
+            local spellCast = self.spell.shadowstrike
+            local spellRange = select(6,GetSpellInfo(spellCast))
+            if thisUnit == nil then thisUnit = "target" end
+            if debug == nil then debug = false end
+
+            if self.level >= 22 and self.power > 22 and self.buff.stealth and getDistance(thisUnit) < spellRange then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         function self.castShurikenToss(thisUnit,debug)
+            local spellCast = self.spell.shurikenToss
+            local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn30 end
             if debug == nil then debug = false end
-            local spellCast = self.spell.shurikenToss
 
             if self.level >= 11 and self.power > 40 and getDistance(thisUnit) < 30 then
                 if debug then
@@ -456,45 +488,14 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 else
                     if castSpell(thisUnit,spellCast,false,false,false) then return end
                 end
+            elseif debug then
+                return false
             end
         end
 
     ------------------------
     --- CUSTOM FUNCTIONS ---
     ------------------------
-        function useCDs()
-            local cooldown = self.mode.cooldown
-            if (cooldown == 1 and isBoss()) or cooldown == 2 then
-                return true
-            else
-                return false
-            end
-        end
-
-        function useAoE()
-            local rotation = self.mode.rotation
-            if (rotation == 1 and #getEnemies("player",8) >= 3) or rotation == 2 then
-                return true
-            else
-                return false
-            end
-        end
-
-        function useDefensive()
-            if self.mode.defensive == 1 then
-                return true
-            else
-                return false
-            end
-        end
-
-        function useInterrupts()
-            if self.mode.interrupt == 1 then
-                return true
-            else
-                return false
-            end
-        end
 
     -----------------------------
     --- CALL CREATE FUNCTIONS ---
