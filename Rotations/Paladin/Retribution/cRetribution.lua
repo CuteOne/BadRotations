@@ -11,46 +11,54 @@ if select(3, UnitClass("player")) == 2 then
 
         local player = "player" -- if someone forgets ""
 
-        self.rotations = {"Defmaster"}
+        self.rotations = {"Gabbz"}
         self.enemies = {
             yards5,
             yards8,
+            yards10,
             yards12,
         }
-        self.previousJudgmentTarget = previousJudgmentTarget
         self.retributionSpell = {
-            avengingWrath        = 31884,
-            divineCrusader       = 144595,
-            divinePurpose        = 86172,
-            divinePurposeBuff    = 90174,
-            divineStorm          = 53385,
-            empoweredSeals       = 152263,
-            finalVerdict         = 157048,
-            hammerOfTheRighteous = 53595,
-            hammerOfWrath        = 158392,
-            massExorcism         = 122032,
-            sanctifiedWrath      = 53376,
-            selflessHealerBuff   = 114250,
-            seraphim             = 152262,
-            templarsVerdict      = 85256,
-            turnEvil             = 10326,
-            -- Empowered Seals
-            liadrinsRighteousness = 156989,
-            maraadsTruth          = 156990,
+            avengingWrath           = 31884,
+            bladeOfWrath            = 202270,
+            blessingOfFreedom       = 1044,
+            blessingOfProtection    = 1022,
+            blindingLight           = 115750, --Talent
+            cleanseToxic            = 213644,
+            consecration            = 205228, --Talent
+            crusade                 = 224668, -- Talent
+            crusaderStrike          = 35395,
+            divineShield            = 642,
+            divineSteed             = 190784,
+            divineStorm             = 53385,
+            divinePurposeBuff       = 223819,
+            executionSentence       = 213757, --Talent
+            eyeForAnEye             = 205191, --Talent
+            flashOfLight            = 19750,            
+            hammerOfJustice         = 853,
+            handOfHindrance         = 183218,
+            handOfReckoning         = 62124,
+            holyWrath               = 210220,
+            judgment                = 20271,
+            justicarsVengeance      = 215661, --Talent
+            layOnHands              = 633,
+            rebuke                  = 96231,
+            redemption              = 7328,
+            repentance              = 20066, --Talent
+            shieldOfVengeance       = 184662,
+            templarsVerdict         = 85256,
+            wordOfGlory             = 210191,
+            zeal                    = 217020,
         }
 
         -- Merge all spell tables into self.spell
         self.spell = {}
         self.spell = mergeSpellTables(self.spell, self.characterSpell, self.paladinSpell, self.retributionSpell)
 
-        self.defaultSeal = self.spell.sealOfThruth
-
         -- Update OOC
         function self.updateOOC()
             -- Call classUpdateOOC()
             self.classUpdateOOC()
-
-            self.getGlyphs()
             self.getTalents()
         end
 
@@ -61,20 +69,16 @@ if select(3, UnitClass("player")) == 2 then
             if not UnitAffectingCombat("player") then self.updateOOC() end
             self.getBuffs()
             self.getCooldowns()
-            self.getJudgmentRecharge()
+           -- self.getJudgmentRecharge() --Todo:Check what this is
             self.getDynamicUnits()
             self.getEnemies()
             self.getRotation()
-
-            -- truth = true, right = false
-            self.seal = GetShapeshiftForm() == 1
 
             -- Casting and GCD check
             -- TODO: -> does not use off-GCD stuff like pots, dp etc
             if castingUnit() then
                 return
             end
-
 
             -- Start selected rotation
             self:startRotation()
@@ -85,30 +89,8 @@ if select(3, UnitClass("player")) == 2 then
         -- Buff updates
         function self.getBuffs()
             local getBuffRemain = getBuffRemain
+           -- self.buff.divinePurpose  = getBuffRemain(player,self.spell.divinePurposeBuff) -- Keep as reference for now
 
-            self.buff.avengingWrath  = getBuffRemain(player,self.spell.avengingWrath)
-            self.buff.divineCrusader = getBuffRemain(player,self.spell.divineCrusader)
-            self.buff.divinePurpose  = getBuffRemain(player,self.spell.divinePurposeBuff)
-            self.buff.finalVerdict   = getBuffRemain(player,self.spell.finalVerdict)
-            self.buff.holyAvenger    = getBuffRemain(player,self.spell.holyAvenger)
-            self.buff.sacredShield   = getBuffRemain(player,self.spell.sacredShield)
-            self.buff.seraphim       = getBuffRemain(player,self.spell.seraphim)
-
-            -- Empowered Seals
-            self.buff.liadrinsRighteousness = getBuffRemain(player,self.spell.liadrinsRighteousness)
-            self.buff.maraadsTruth          = getBuffRemain(player,self.spell.maraadsTruth)
-
-            -- T17
-            self.buff.blazingContempt = getBuffRemain(player,166831)
-            self.buff.crusaderFury    = getBuffRemain(player,165442)
-
-            -- T18
-            self.buff.wingsOfLiberty = getBuffRemain(player,185647)
-
-            -- T18 - Class trinket
-            self.buff.focusOfVengeance    = getBuffRemain(player,184911)
-
-            self.charges.avengingWrath = getCharges(self.spell.avengingWrath)
         end
 
         -- Cooldown updates
@@ -118,24 +100,12 @@ if select(3, UnitClass("player")) == 2 then
             self.cd.avengingWrath  = getSpellCD(self.spell.avengingWrath)
             self.cd.judgment       = getSpellCD(self.spell.judgment)
             self.cd.crusaderStrike = getSpellCD(self.spell.crusaderStrike)
-            self.cd.seraphim       = getSpellCD(self.spell.seraphim)
-        end
-
-        -- Glyph updates
-        function self.getGlyphs()
-            local hasGlyph = hasGlyph
-
-            self.glyph.massExorcism   = hasGlyph(122028)
-            self.glyph.doubleJeopardy = hasGlyph(183)
         end
 
         -- Talent updates
         function self.getTalents()
             local isKnown = isKnown
-
-            self.talent.empoweredSeals = isKnown(self.spell.empoweredSeals)
             self.talent.finalVerdict   = isKnown(self.spell.finalVerdict)
-            self.talent.seraphim       = isKnown(self.spell.seraphim)
         end
 
         -- Update Dynamic units
