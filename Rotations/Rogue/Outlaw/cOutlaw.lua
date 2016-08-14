@@ -16,6 +16,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         -----------------
         --- VARIABLES ---
         -----------------
+        self.buff.count         = {}
         self.charges.frac       = {}        -- Fractional Charges
         self.trinket            = {}        -- Trinket Procs
         self.enemies            = {
@@ -46,7 +47,21 @@ if select(2, UnitClass("player")) == "ROGUE" then
             hiddenBlade             = 202573.
         }
         self.outlawBuffs         = {
+            broadsides              = 193356,
+            buriedTreasure          = 193316,
+            grandMelee              = 193358,
+            jollyRoger              = 199603,
             opportunity             = 195627,
+            sharkInfestedWaters     = 193357,
+            trueBearing             = 193359,
+        }
+        self.rtbBuffs            = {
+            buriedTreasure          = 193316,
+            grandMelee              = 193358,
+            jollyRoger              = 199603,
+            opportunity             = 195627,
+            sharkInfestedWaters     = 193357,
+            trueBearing             = 193359,
         }
         self.outlawDebuffs       = {
             ghostlyStrike           = 196937,
@@ -183,6 +198,16 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 self.buff.duration[k] = getBuffDuration("player",v) or 0
                 self.buff.remain[k] = getBuffRemain("player",v) or 0
             end
+            self.buff.count.rollTheBones    = 0
+            self.buff.duration.rollTheBones = 0
+            self.buff.remain.rollTheBones   = 0 
+            for k,v in pairs(self.rtbBuffs) do
+                if UnitBuffID("player",v) ~= nil then
+                    self.buff.count.rollTheBones    = self.buff.count.rollTheBones + 1
+                    self.buff.duration.rollTheBones = getBuffDuration("player",v)
+                    self.buff.remain.rollTheBones   = getBuffRemain("player",v)
+                end
+            end
         end
 
         function self.getTrinketProc()
@@ -306,10 +331,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         function self.getToggleModes()
 
-            self.mode.rotation  = bb.data["Rotation"]
-            self.mode.cooldown  = bb.data["Cooldown"]
-            self.mode.defensive = bb.data["Defensive"]
-            self.mode.interrupt = bb.data["Interrupt"]
         end
 
         -- Create the toggle defined within rotation files
@@ -376,12 +397,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
             self.castable.ambush            = self.castAmbush("target",true)
             self.castable.betweenTheEyes    = self.castBetweenTheEyes("target",true)
             self.castable.blind             = self.castBlind("target",true)
-            self.castable.cheapShot         = self.castCheapShot("target",true)
             self.castable.ghostlyStrike     = self.castGhostlyStrike("target",true)
             self.castable.gouge             = self.castGouge("target",true)
             self.castable.grapplingHook     = self.castGrapplingHook("target",true)
             self.castable.pistolShot        = self.castPistolShot("target",true)
             self.castable.riposte           = self.castRiposte("player",true)
+            self.castable.rollTheBones      = self.castRollTheBones("player",true)
             self.castable.runThrough        = self.castRunThrough("target",true)
             self.castable.saberSlash        = self.castSaberSlash("target",true)
         end
@@ -434,22 +455,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castCheapShot(thisUnit,debug)
-            local spellCast = self.spell.cheapShot
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn5 end
-            if debug == nil then debug = false end
-
-            if self.level >= 29 and self.power > 40 and self.buff.stealth and getDistance(thisUnit) < 5 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
-                end
-            elseif debug then
-                return false
-            end
-        end
         function self.castGhostlyStrike(thisUnit,debug)
             local spellCast = self.spell.ghostlyStrike
             local thisUnit = thisUnit
@@ -460,6 +465,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
+                    ObjectInteract(thisUnit) --Ghostly Strike requires target to be selected :(
                     if castSpell(thisUnit,spellCast,false,false,false) then return end
                 end
             elseif debug then
@@ -504,7 +510,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if thisUnit == nil then thisUnit = self.units.dyn20 end
             if debug == nil then debug = false end
 
-            if self.level >= 11 and (self.power > 40 or self.buff.opportunity) and hasThreat(thisUnit) and getDistance(thisUnit) < 20 then
+            if self.level >= 11 and (self.power > 40 or self.buff.opportunity) and (hasThreat(thisUnit) or isDummy(thisUnit)) and getDistance(thisUnit) < 20 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -521,6 +527,22 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if debug == nil then debug = false end
 
             if self.level >= 10 and self.cd.riposte == 0 then
+                if debug then 
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.castRollTheBones(thisUnit,debug)
+            local spellCast = self.spell.rollTheBones
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 36 and self.power > 25 and self.comboPoints > 0 then
                 if debug then 
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else

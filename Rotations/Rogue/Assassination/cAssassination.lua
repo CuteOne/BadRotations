@@ -161,7 +161,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             local dynamicTarget = dynamicTarget
 
             -- Normal
-            self.units.dyn8 = dynamicTarget(8, true) -- Swipe
+            -- self.units.dyn8 = dynamicTarget(8, true) -- Swipe
             self.units.dyn25 = dynamicTarget(25, true) -- Shadowstep
             self.units.dyn30 = dynamicTarget(30, true) -- Poisoned Knife
 
@@ -176,7 +176,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getArtifacts()
             local isKnown = isKnown
 
-            self.artifact.urgeToKill = isKnown(self.spell.urgeToKill) or false
+            for k,v in pairs(self.assassinationArtifacts) do
+                self.artifact[k] = isKnown(v)
+            end
         end
 
         function self.getArtifactRanks()
@@ -222,7 +224,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 self.debuff[k] = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
                 self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
                 self.debuff.remain[k] = getDebuffRemain(self.units.dyn5,v,"player") or 0
-                self.debuff.refresh[k] = (self.debuff.remain[k] < self.debuff.duration[k] * 0.3)
+                self.debuff.refresh[k] = (self.debuff.remain[k] < self.debuff.duration[k] * 0.3) or self.debuff.remain[k] == 0
             end
         end
 
@@ -299,10 +301,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
             local getEnemies = getEnemies
 
             self.enemies.yards5 = #getEnemies("player", 5) -- Melee
-            self.enemies.yards8 = #getEnemies("player", 8) -- Swipe/Thrash
-            self.enemies.yards13 = #getEnemies("player", 13) -- Skull Bash
-            self.enemies.yards20 = #getEnemies("player", 20) --Prowl
-            self.enemies.yards40 = #getEnemies("player", 40) --Moonfire
+            self.enemies.yards8 = #getEnemies("player", 8) -- Fan of Knives
+            self.enemies.yards30 = #getEnemies("player", 30) -- Poisoned Knife
         end
 
     -----------------
@@ -389,6 +389,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             self.castable.envenom           = self.castEnvenom("target",true)
             self.castable.evasion           = self.castEvasion("player",true)
             self.castable.hemorrhage        = self.castHemorrhage("target",true)
+            self.castable.kidneyShot        = self.castKidneyShot("target",true)
             self.castable.mutilate          = self.castMutilate("target",true)
             self.castable.poisonKnive       = self.castPoisonedKnife("target",true)
             self.castable.rupture           = self.castRupture("target",true)
@@ -465,6 +466,22 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if debug == nil then debug = false end
 
             if self.talent.hemorrhage and self.power > 30 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.castKidneyShot(thisUnit,debug)
+            local spellCast = self.spell.kidneyShot
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 40 and self.power > 25 and self.comboPoints > 0 and self.cd.kidneyShot == 0 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else

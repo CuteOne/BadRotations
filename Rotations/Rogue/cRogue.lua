@@ -40,6 +40,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         self.rogueBuffs      = {        -- Buffs Available To All Rogues
             shadowmeld                  = 58984,
             stealth                     = 1784,
+            vanish                      = 11327,
         }
         self.rogueDebuffs    = {        -- Debuffs Available To All Rogues
             sap                         = 6770,
@@ -288,6 +289,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             self.castable.sap           = self.castSap("target",true)
             self.castable.shadowmeld    = self.castShadowmeld("player",true)
             self.castable.stealth       = self.castStealth("player",true)
+            self.castable.vanish        = self.castVanish("player",true)
         end
 
         function self.castCheapShot(thisUnit,debug)
@@ -354,22 +356,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castRupture(thisUnit,debug)
-            local spellCast = self.spell.rupture
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn5 end
-            if debug == nil then debug = false end
-
-            if self.level >= 22 and self.power > 25 and self.comboPoints > 0 and getDistance(thisUnit) < 5 then
-                if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-                else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
-                end
-            elseif debug then
-                return false
-            end
-        end
         function self.castSap(thisUnit,debug)
             local spellCast = self.spell.sap
             local thisUnit = thisUnit
@@ -409,6 +395,22 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if debug == nil then debug = false end
 
             if self.level >= 5 and self.cd.stealth == 0 and not self.buff.stealth then
+                if debug then
+                    return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell("player",spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.castVanish(thisUnit,debug)
+            local spellCast = self.spell.vanish
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 32 and self.cd.vanish == 0 and not self.buff.vanish then
                 if debug then
                     return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
                 else

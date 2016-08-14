@@ -72,9 +72,13 @@ if select(2, UnitClass("player")) == "ROGUE" then
             ------------------------
             section = bb.ui:createSection(bb.ui.window.profile,  "Cooldowns")
                 -- Agi Pot
-	            bb.ui:createCheckbox(section,"Agi-Pot")
+	            bb.ui:createCheckbox(section, "Agi-Pot")
 	            -- Legendary Ring
-	            bb.ui:createCheckbox(section,  "Legendary Ring")
+	            bb.ui:createCheckbox(section, "Legendary Ring")
+	            -- Shadow Dance
+	            bb.ui:createCheckbox(section, "Shadow Dance")
+	            -- Vanish
+	            bb.ui:createCheckbox(section, "Vanish")
             bb.ui:checkSectionState(section)
             -------------------------
             --- DEFENSIVE OPTIONS ---
@@ -94,11 +98,13 @@ if select(2, UnitClass("player")) == "ROGUE" then
             -------------------------
             section = bb.ui:createSection(bb.ui.window.profile, "Interrupts")
             	-- Kick
-	            bb.ui:createCheckbox(section,"Kick")
+	            bb.ui:createCheckbox(section, "Kick")
+	            -- Kidney Shot
+	            bb.ui:createCheckbox(section, "Kidney Shot")
 	            -- Blind
             	bb.ui:createCheckbox(section, "Blind")
 	            -- Interrupt Percentage
-	            bb.ui:createSpinner(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
+	            bb.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
             bb.ui:checkSectionState(section)
             ----------------------
             --- TOGGLE OPTIONS ---
@@ -153,7 +159,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local attacktar 									= UnitCanAttack("target","player")
 			local buff, buffRemain								= bb.player.buff, bb.player.buff.remain
 			local cd 											= bb.player.cd
-			local charge 										= bb.player.charges
+			local charges 										= bb.player.charges
 			local combo, comboDeficit, comboMax					= bb.player.comboPoints, bb.player.comboPointsMax - bb.player.comboPoints, bb.player.comboPointsMax
 			local deadtar										= UnitIsDeadOrGhost("target")
 			local debuff 										= bb.player.debuff
@@ -174,6 +180,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local lastSpell 									= lastSpellCast
 			local level											= bb.player.level
 			local mode 											= bb.player.mode
+			local multidot 										= (useCleave() or bb.player.mode.rotation ~= 3)
 			local perk											= bb.player.perk
 			local php											= bb.player.health
 			local power, powerDeficit, powerRegen				= bb.player.power, bb.player.powerDeficit, bb.player.powerRegen
@@ -187,6 +194,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local ttd 											= getTTD
 			local ttm 											= bb.player.timeToMax
 			local units 										= bb.player.units
+
+			if talent.masterOfShadows then
+				mosTalent = 1
+			else
+				mosTalent = 0
+			end
 
 	--------------------
 	--- Action Lists ---
@@ -257,6 +270,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
 							if isChecked("Kick") and distance < 5 then
 								if bb.player.castKick(thisUnit) then return end
 							end
+				-- Kidney Shot
+							if cd.kick ~= 0 and cd.blind == 0 then
+								if isChecked("Kidney Shot") then
+									if bb.player.castKidneyShot(thisUnit) then return end
+								end
+							end
 							if isChecked("Blind") and (cd.kick ~= 0 or distance >= 5) then
 				-- Blind
 								if bb.player.castBlind(thisUnit) then return end
@@ -267,8 +286,30 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			end -- End Action List - Interrupts
 		-- Action List - Cooldowns
 			local function actionList_Cooldowns()
-				if useCDs() then
-
+				if useCDs() and getDistance(units.dyn5) < 5 then
+			-- Vanish
+					-- pool_resource,for_next=1,extra_amount=energy.max-talent.master_of_shadows.enabled*30
+ 					-- vanish,if=(energy.deficit<talent.master_of_shadows.enabled*30&combo_points.max-combo_points>=3&cooldown.shadow_dance.charges<2)|target.time_to_die<8
+					if isChecked("Vanish") then
+						if (powerDeficit < mosTalent * 30 and comboDeficit >= 3 and charges.shadowDance < 2) or ttd(units.dyn5) < 8 then
+							if bb.player.castVanish() then return end
+						end
+					end
+			-- Shadow Dance
+					-- pool_resource,for_next=1,extra_amount=energy.max-talent.master_of_shadows.enabled*30
+					-- shadow_dance,if=combo_points.max-combo_points>=2&((cooldown.vanish.remains&buff.symbols_of_death.remains<=10.5&energy.deficit<talent.master_of_shadows.enabled*30)|cooldown.shadow_dance.charges>=2|target.time_to_die<25) 
+					if isChecked("Shadow Dance") then
+						if comboMax - combo >= 2 and ((cd.vanish ~= 0 and buff.remain.symbolsOfDeath <= 10.5 and powerDeficit < mosTalent * 30) or charges.shadowDance >= 2 or ttd(units.dyn5) < 25) then
+							if bb.player.castShadowDance() then return end
+						end
+					end
+			-- Shadowmeld
+					-- shadowmeld,if=energy>40&combo_points.max-combo_points>=3&!(buff.shadow_dance.up|buff.vanish.up|buff.stealth.up)
+					if isChecked("Use Racial") then
+						if power > 40 and comboDeficit >= 3 and not (buff.shadowDance or buff.vansih or buff.stealth) then
+							if bb.player.castShadowmeld() then return end
+						end
+					end
 				end -- End Cooldown Usage Check
 			end -- End Action List - Cooldowns
 		-- Action List - PreCombat
@@ -288,6 +329,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
                     if bb.player.castShadowstep("target") then return end 
                 end
                 if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 15 and mode.pickPocket ~= 2 then
+            -- Symbols of Death
+            		-- symbols_of_death
+					if bb.player.castSymbolsOfDeath() then return end
             -- Shadowstrike
 					-- shadowstrike,if=combo_points.max-combo_points>=2
 					if comboDeficit >= 2 then
@@ -351,7 +395,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	-----------------------------
 	--- In Combat - Cooldowns ---
 	-----------------------------
-					if actionList_Cooldowns() then return end
+					-- if actionList_Cooldowns() then return end
 	----------------------------------
 	--- In Combat - Begin Rotation ---
 	----------------------------------
@@ -363,6 +407,18 @@ if select(2, UnitClass("player")) == "ROGUE" then
 					if getDistance(units.dyn30) > 5 and hasThreat(units.dyn30) then
 						if bb.player.castShurikenToss() then return end
 					end
+			-- Symbols of Death
+					-- symbols_of_death,if=buff.symbols_of_death.remains<target.time_to_die-4&buff.symbols_of_death.remains<=10.5&buff.shadowmeld.down
+					if buff.remain.symbolsOfDeath < ttd(units.dyn5) - 4 and buff.remain.symbolsOfDeath <= 10.5 and not buff.shadowmeld then
+						if bb.player.castSymbolsOfDeath() then return end
+					end 
+			-- Shadowstrike
+					-- shadowstrike,if=combo_points.max-combo_points>=2
+					if comboDeficit >= 2 then
+						if bb.player.castShadowstrike() then return end
+					end
+			-- Cooldowns
+					if actionList_Cooldowns() then return end
 			-- Finishers
 					-- run_action_list,name=finisher,if=combo_points>=5
 					if combo >= 5 then

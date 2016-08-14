@@ -77,6 +77,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	            bb.ui:createCheckbox(section, "Agi-Pot")
 	            -- Legendary Ring
 	            bb.ui:createCheckbox(section, "Legendary Ring")
+	            -- Vanish
+	            bb.ui:createCheckbox(section,  "Vanish")
             bb.ui:checkSectionState(section)
             -------------------------
             --- DEFENSIVE OPTIONS ---
@@ -179,10 +181,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local lastSpell 									= lastSpellCast
 			local level											= bb.player.level
 			local mode 											= bb.player.mode
+			local multidot 										= (useCleave() or bb.player.mode.rotation ~= 3)
 			local perk											= bb.player.perk
 			local php											= bb.player.health
 			local power, powerDeficit, powerRegen				= bb.player.power, bb.player.powerDeficit, bb.player.powerRegen
 			local pullTimer 									= bb.DBM:getPulltimer()
+			local rtbCount 										= bb.rtbCount
 			local solo											= GetNumGroupMembers() == 0	
 			local spell 										= bb.player.spell
 			local stealth 										= bb.player.stealth
@@ -211,7 +215,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	            end
 	    -- Pick Pocket
 	        	if usePickPocket() then
-        			if (UnitExists("target") or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
+        			if not UnitIsUnit("target","player") and (UnitExists("target") or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
 	        			if not isPicked(units.dyn5) and not isDummy() then
 	        				if debuff.remain.sap < 1 and mode.pickPocket ~= 1 then
 	        					if bb.player.castSap(units.dyn5) then return end
@@ -290,8 +294,23 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			end -- End Action List - Interrupts
 		-- Action List - Cooldowns
 			local function actionList_Cooldowns()
-				if useCDs() then
-
+				if useCDs() and getDistance(units.dyn5) < 5 then
+			-- Vanish/Shadowmeld
+					-- pool_resource,for_next=1,extra_amount=60
+					-- vanish,if=combo_points.deficit>=2&energy>60
+					-- shadowmeld,if=combo_points.deficit>=2&energy>60
+					if not buff.stealth and comboDeficit >= 2 and (cd.vanish == 0 or cd.shadowmeld == 0) and (not solo or isDummy()) then
+						if power <= 60 then
+							return true
+						elseif power > 60 then
+							if isChecked("Vanish") then
+								if bb.player.castVanish() then return end
+							end
+							if isChecked("Use Racial") and bb.player.race == "NightElf" and ((cd.vanish > 0 and cd.vanish < 170) or level < 32) then
+								if bb.player.castShadowmeld() then return end
+							end
+						end
+					end
 				end -- End Cooldown Usage Check
 			end -- End Action List - Cooldowns
 		-- Action List - PreCombat
@@ -306,36 +325,29 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			end -- End Action List - PreCombat
 		-- Action List - Opener
 			local function actionList_Opener()
+			-- Ambush / Cheap Shot
+				-- pool_resource,for_next=1
+				-- ambush
+				if buff.stealth and (not inCombat or (inCombat and hasThreat(units.dyn5))) then
+					if getOptionValue("Opener") == 1 then
+						if power <= 60 then
+							return true
+						else
+							if bb.player.castAmbush() then return end
+						end
+					else
+						if power <= 40 then
+							return true
+						else
+							if bb.player.castCheapShot() then return end
+						end
+					end
+				end
 				if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 40 then
 				-- Grappling Hook
 	                if isChecked("Grappling Hook") and (hasThreat("target") or solo) then
 	                    if bb.player.castGrapplingHook("target") then return end 
 	                end
-	                if getDistance("target") < 5 then
-				-- Ambush / Cheap Shot
-						-- pool_resource,for_next=1
-						-- ambush
-						if buff.stealth then
-							if getOptionValue("Opener") == 1 then
-								if power <= 60 then
-									return true
-								else
-									if bb.player.castAmbush() then return end
-								end
-							else
-								if power <= 40 then
-									return true
-								else
-									if bb.player.castCheapShot() then return end
-								end
-							end
-						end
-				-- Start Attack
-		                -- auto_attack
-		                if (level < 14 or not buff.stealth) then
-		                    StartAttack()
-		                end
-		            end
 	            end
 			end -- End Action List - Opener
 		-- Action List - Finishers
@@ -388,7 +400,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	--------------------------
 	--- In Combat Rotation ---
 	--------------------------
-				if inCombat and profileStop==false and not buff.stealth and not buff.shadowmeld and lastSpell ~= spell.shadowmeld then
+				if inCombat and profileStop==false and not buff.steath and not buff.vanish and not buff.shadowmeld then
 	------------------------------
 	--- In Combat - Interrupts ---
 	------------------------------
@@ -400,16 +412,15 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	----------------------------------
 	--- In Combat - Begin Rotation ---
 	----------------------------------
-			-- Shadowmeld
-					-- pool_resource,for_next=1,extra_amount=60
-					-- shadowmeld,if=combo_points.deficit>=2&energy>60
-					if isChecked("Use Racial") and bb.player.race == "NightElf" and comboDeficit >= 2 and cd.shadowmeld == 0 and (not solo or isDummy()) then 
-						if power <= 60 then
-							return true
-						elseif power > 60 and not buff.stealth then
-							if bb.player.castShadowmeld() then return end
-						end
-					end 
+			-- Roll the Bones
+					-- roll_the_bones,if=combo_points>=5&buff.roll_the_bones.remains<target.time_to_die&(buff.roll_the_bones.remains<3|buff.roll_the_bones.remains<duration*0.3%rtb_buffs|(rtb_buffs<=1|rtb_buffs=2&!buff.shark_infested_waters.up&!buff.jolly_roger.up&!(buff.broadsides.up&buff.true_bearing.up)))
+					if combo >= 5 and buff.remain.rollTheBones < ttd(units.dyn5) and 
+						(buff.remain.rollTheBones < 3 or buff.remain.rollTheBones < buff.duration.rollTheBones * 0.3 / buff.count.rollTheBones 
+							or (buff.count.rollTheBones <= 1 or buff.count.rollTheBones == 2 and not buff.sharkInfestedWaters and not buff.jollyRoger 
+								and not (buff.broadsides and buff.trueBearings))) 
+					then
+						if bb.player.castRollTheBones() then return end
+					end
 			-- Finishers
 					-- call_action_list,name=finisher,if=combo_points>=5+talent.deeper_strategem.enabled
 					if combo >= 5 then

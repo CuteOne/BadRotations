@@ -172,7 +172,7 @@ Rotations\Rogue\Assassination\AssassinationCuteOne.lua
 
 Rotations\Rogue\Outlaw\cOutlaw.lua
 Rotations\Rogue\Outlaw\Outlaw.lua
-Rotations\ROgue\Outlaw\OutlawCuteOne.lua
+Rotations\Rogue\Outlaw\OutlawCuteOne.lua
 
 Rotations\Rogue\Subtlety\cSubtlety.lua
 Rotations\Rogue\Subtlety\Subtlety.lua

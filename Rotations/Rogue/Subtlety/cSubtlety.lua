@@ -46,7 +46,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
            theQuietKnife            = 197231,
         }
         self.subtletyBuffs         = {
-            
+            shadowDance             = 185422,
+            symbolsOfDeath          = 212283,
         }
         self.subtletyDebuffs       = {
             
@@ -149,7 +150,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
             -- Normal
             self.units.dyn8 = dynamicTarget(8, true) -- Swipe
-            self.units.dyn13 = dynamicTarget(13, true) -- Skull Bash
+            self.units.dyn13 = dynamicTarget(15, true) -- Blind
 
             -- AoE
             self.units.dyn8AoE = dynamicTarget(8, false) -- Thrash
@@ -219,6 +220,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
             local getCharges = getCharges
             local getChargesFrac = getChargesFrac
             local getBuffStacks = getBuffStacks
+
+            for k,v in pairs(self.subtletySpells) do
+                self.charges[k] = getCharges(v)
+            end
 
             -- self.charges.subtletytalons        = getBuffStacks("player",self.spell.subtletytalonsBuff,"player")
         end
@@ -297,6 +302,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getRecharges()
             local getRecharge = getRecharge
 
+            for k,v in pairs(self.subtletySpells) do
+                self.recharge[k] = getRecharge(v)
+            end
+
             -- self.recharge.forceOfNature = getRecharge(self.spell.forceOfNature)
         end
 
@@ -369,13 +378,16 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         function self.getCastable()
 
-            self.castable.backstab      = self.castBackstab("target",true)
-            self.castable.blind         = self.castBlind("target",true)
-            self.castable.evasion       = self.castEvasion("player",true)
-            self.castable.eviscerate    = self.castEviscerate("target",true)
-            self.castable.shadowstep    = self.castShadowstep("target",true)
-            self.castable.shadowstrike  = self.castShadowstrike("target",true)
-            self.castable.shurikenToss  = self.castShurikenToss("target",true)
+            self.castable.backstab          = self.castBackstab("target",true)
+            self.castable.blind             = self.castBlind("target",true)
+            self.castable.evasion           = self.castEvasion("player",true)
+            self.castable.eviscerate        = self.castEviscerate("target",true)
+            self.castable.kidneyShot        = self.castKidneyShot("target",true)
+            self.castable.shadowDance       = self.castShadowDance("player",true)
+            self.castable.shadowstep        = self.castShadowstep("target",true)
+            self.castable.shadowstrike      = self.castShadowstrike("target",true)
+            self.castable.shurikenToss      = self.castShurikenToss("target",true)
+            self.castable.symbolsOfDeath    = self.castSymbolsOfDeath("player",true)
         end
 
         function self.castBackstab(thisUnit,debug)
@@ -411,7 +423,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castEvasion(debug)
+        function self.castEvasion(thisUnit,debug)
             local spellCast = self.spell.evasion
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
@@ -434,6 +446,38 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if debug == nil then debug = false end
 
             if self.level >= 10 and self.power >= 35 and self.comboPoints > 0 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.castKidneyShot(thisUnit,debug)
+            local spellCast = self.spell.kidneyShot
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 40 and self.power > 25 and self.comboPoints > 0 and self.cd.kidneyShot == 0 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.castShadowDance(thisUnit,debug)
+            local spellCast = self.spell.shadowDance
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 36 and self.charges.shadowDance > 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -466,7 +510,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if thisUnit == nil then thisUnit = "target" end
             if debug == nil then debug = false end
 
-            if self.level >= 22 and self.power > 22 and self.buff.stealth and getDistance(thisUnit) < spellRange then
+            if self.level >= 22 and self.power > 22 and (self.buff.stealth or self.buff.shadowDance) and getDistance(thisUnit) < spellRange then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -483,6 +527,22 @@ if select(2, UnitClass("player")) == "ROGUE" then
             if debug == nil then debug = false end
 
             if self.level >= 11 and self.power > 40 and getDistance(thisUnit) < 30 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.castSymbolsOfDeath(thisUnit,debug)
+            local spellCast = self.spell.symbolsOfDeath
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 34 and self.power > 35 and self.cd.symbolsOfDeath == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
