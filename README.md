@@ -45,7 +45,7 @@ If you are a developer or are interested in being a beta tester, feel free to ge
 If you have code to improve a class you can send a "pull request".
 We will look over it and may merge it with BadBoy.
 
-Current Coders: CuteOne
+Current Coders: CuteOne, Gabbz
 
 Pausing Coders until Legion: ragnar, Defmaster
 
@@ -119,7 +119,7 @@ Raidable means if its good to raid with.
 | **Paladin** |||
 |Holy|0%||7.0|
 |Protection|0%||7.0|
-|Retribution|0%||7.0|
+|Retribution|0%|Gabbz|7.0|
 ||||
 | **Priest** |||
 |Discipline|0%|||
@@ -127,9 +127,9 @@ Raidable means if its good to raid with.
 |Shadow|0%||7.0|
 ||||
 | **Rogue** |||
-|Assassination|40%|CuteOne|7.0|:x:
-|Outlaw|40%|CuteOne|7.0|:x:
-|Subtlety|40%|CuteOne|7.0|:x:
+|Assassination|45%|CuteOne|7.0|:x:
+|Outlaw|45%|CuteOne|7.0|:x:
+|Subtlety|45%|CuteOne|7.0|:x:
 ||||
 | **Shaman** |||
 |Elemental|0%||7.0|
