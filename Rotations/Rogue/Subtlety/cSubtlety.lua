@@ -50,7 +50,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             symbolsOfDeath          = 212283,
         }
         self.subtletyDebuffs       = {
-            
+            nightblade              = 195452, 
         }
         self.subtletySpecials      = {
             backstab                = 53,
@@ -59,7 +59,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             eviscerate              = 196819,
             kidneyShot              = 408,
             masteryExecutioner      = 76808,
-            nightBlade              = 195452,
+            nightblade              = 195452,
             shadowBlades            = 121471,
             shadowDance             = 185313,
             shadowstep              = 36554,
@@ -383,6 +383,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             self.castable.evasion           = self.castEvasion("player",true)
             self.castable.eviscerate        = self.castEviscerate("target",true)
             self.castable.kidneyShot        = self.castKidneyShot("target",true)
+            self.castable.nightblade        = self.castNightblade("target",true)
             self.castable.shadowDance       = self.castShadowDance("player",true)
             self.castable.shadowstep        = self.castShadowstep("target",true)
             self.castable.shadowstrike      = self.castShadowstrike("target",true)
@@ -401,7 +402,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -417,7 +418,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -433,7 +434,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -449,7 +450,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -465,7 +466,23 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.castNightblade(thisUnit,debug)
+            local spellCast = self.spell.nightblade
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 46 and self.power > 25 and self.comboPoints > 0 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -481,7 +498,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -498,7 +515,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -514,7 +531,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -530,7 +547,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -546,7 +563,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false

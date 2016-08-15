@@ -65,7 +65,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             anticipation                = 114015,
             cheatDeath                  = 31230,
             deathFromAbove              = 152150,
-            deeperStratagem             = 193531,
+            deeperStrategem             = 193531,
             elusiveness                 = 79008,
             markedForDeath              = 137619,
             preyOnTheWeak               = 131511,
@@ -302,7 +302,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -318,7 +318,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if debug then
                     return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell("player",spellCast,false,false,false) then return end
+                    return castSpell("player",spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -334,7 +334,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false) 
                 end
             elseif debug then
                 return false
@@ -350,7 +350,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false) 
                 end
             elseif debug then
                 return false
@@ -366,7 +366,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                    return castSpell(thisUnit,spellCast,false,false,false) 
                 end
             elseif debug then
                 return false
@@ -382,7 +382,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if debug then
                     return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell("player",spellCast,false,false,false) then return end
+                    return castSpell("player",spellCast,false,false,false)
                 end
             elseif debug then
                 return false
@@ -398,7 +398,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if debug then
                     return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell("player",spellCast,false,false,false) then return end
+                    return castSpell("player",spellCast,false,false,false) 
                 end
             elseif debug then
                 return false
@@ -414,7 +414,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 if debug then
                     return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
                 else
-                    if castSpell("player",spellCast,false,false,false) then return end
+                    return castSpell("player",spellCast,false,false,false)
                 end
             elseif debug then
                 return false

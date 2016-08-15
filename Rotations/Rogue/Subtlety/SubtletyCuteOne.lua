@@ -200,6 +200,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			else
 				mosTalent = 0
 			end
+			if vanishTime == nil then vanishTime = GetTime() end
 
 	--------------------
 	--- Action Lists ---
@@ -292,7 +293,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
  					-- vanish,if=(energy.deficit<talent.master_of_shadows.enabled*30&combo_points.max-combo_points>=3&cooldown.shadow_dance.charges<2)|target.time_to_die<8
 					if isChecked("Vanish") then
 						if (powerDeficit < mosTalent * 30 and comboDeficit >= 3 and charges.shadowDance < 2) or ttd(units.dyn5) < 8 then
-							if bb.player.castVanish() then return end
+							if bb.player.castVanish() then vanishTime = GetTime(); return end
 						end
 					end
 			-- Shadow Dance
@@ -307,7 +308,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 					-- shadowmeld,if=energy>40&combo_points.max-combo_points>=3&!(buff.shadow_dance.up|buff.vanish.up|buff.stealth.up)
 					if isChecked("Use Racial") then
 						if power > 40 and comboDeficit >= 3 and not (buff.shadowDance or buff.vansih or buff.stealth) then
-							if bb.player.castShadowmeld() then return end
+							if bb.player.castShadowmeld() then vanishTime = GetTime(); return end
 						end
 					end
 				end -- End Cooldown Usage Check
@@ -339,13 +340,29 @@ if select(2, UnitClass("player")) == "ROGUE" then
 					end
 			-- Start Attack
                 	-- auto_attack
-                	if getDistance("target") < 5 then
+                	if not buff.stealth and getDistance("target") < 5 then
                     	StartAttack()
                     end
                 end
 			end -- End Action List - Opener
 		-- Action List - Finishers
 			local function actionList_Finishers()
+			-- Night Blade
+				-- nightblade,if=!dot.nightblade.ticking|dot.nightblade.remains<duration*0.3
+				-- nightblade,cycle_targets=1,target_if=max:target.time_to_die,if=active_dot.nightblade<6&target.time_to_die>6&(!dot.nightblade.ticking|dot.nightblade.remains<duration*0.3)
+				if not debuff.nightblade or debuff.remain.nightblade < debuff.duration.nightblade * 0.3 then
+					if bb.player.castNightblade() then return end
+				end
+				for i=1, enemies.yards5 do
+                    local thisUnit = getEnemies("player",5)[i]
+                    local nightbladeRemain = getDebuffRemain(thisUnit,spell.nightBlade,"player") or 0
+                    local nightbladeDuration = getDebuffDuration(thisUnit,spell.nightBlade,"player") or 0
+                    if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) then
+                        if nightbladeRemain <6 and ttd(thisUnit) > 6 and (nightbladeRemain == 0 or nightbladeRemain < nightbladeDuration * 0.3) then 
+                           if bb.player.castNightblade(thisUnit) then return end
+                        end
+                    end
+                end
 			-- Eviscerate
 				-- eviscerate
 				if bb.player.castEviscerate() then return end
@@ -403,10 +420,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	                if isChecked("Shadowstep") then
 	                    if bb.player.castShadowstep("target") then return end 
 	                end
-			-- Shuriken Toss
-					if getDistance(units.dyn30) > 5 and hasThreat(units.dyn30) then
-						if bb.player.castShurikenToss() then return end
-					end
 			-- Symbols of Death
 					-- symbols_of_death,if=buff.symbols_of_death.remains<target.time_to_die-4&buff.symbols_of_death.remains<=10.5&buff.shadowmeld.down
 					if buff.remain.symbolsOfDeath < ttd(units.dyn5) - 4 and buff.remain.symbolsOfDeath <= 10.5 and not buff.shadowmeld then
@@ -419,15 +432,21 @@ if select(2, UnitClass("player")) == "ROGUE" then
 					end
 			-- Cooldowns
 					if actionList_Cooldowns() then return end
+					if not buff.steath and not buff.vanish and not buff.shadowmeld and GetTime() > vanishTime + 2 then
+			-- Shuriken Toss
+						if getDistance(units.dyn30) > 5 and hasThreat(units.dyn30) then
+							if bb.player.castShurikenToss() then return end
+						end
 			-- Finishers
-					-- run_action_list,name=finisher,if=combo_points>=5
-					if combo >= 5 then
-						if actionList_Finishers() then return end
-					end
+						-- run_action_list,name=finisher,if=combo_points>=5
+						if combo >= 5 then
+							if actionList_Finishers() then return end
+						end
 			-- Generators
-					-- run_action_list,name=generator,if=combo_points<5
-					if combo < 5 then
-						if actionList_Generators() then return end
+						-- run_action_list,name=generator,if=combo_points<5
+						if combo < 5 then
+							if actionList_Generators() then return end
+						end
 					end
 				end -- End In Combat
 			end -- End Profile

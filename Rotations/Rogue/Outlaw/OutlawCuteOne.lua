@@ -159,6 +159,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local artifact 										= bb.player.artifact
 			local attacktar 									= UnitCanAttack("target","player")
 			local buff, buffRemain								= bb.player.buff, bb.player.buff.remain
+			local castable 										= bb.player.castable
 			local cd 											= bb.player.cd
 			local charge 										= bb.player.charges
 			local combo, comboDeficit, comboMax					= bb.player.comboPoints, bb.player.comboPointsMax - bb.player.comboPoints, bb.player.comboPointsMax
@@ -196,6 +197,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local ttd 											= getTTD
 			local ttm 											= bb.player.timeToMax
 			local units 										= bb.player.units
+
+			if talent.deeperStrategem then dStrat = 1 else dStrat = 0 end
+			if vanishTime == nil then vanishTime = GetTime() end
 
 	--------------------
 	--- Action Lists ---
@@ -303,11 +307,11 @@ if select(2, UnitClass("player")) == "ROGUE" then
 						if power <= 60 then
 							return true
 						elseif power > 60 then
-							if isChecked("Vanish") then
-								if bb.player.castVanish() then return end
+							if isChecked("Vanish") and not buff.stealth then
+								if bb.player.castVanish() then vanishTime = GetTime(); return end
 							end
 							if isChecked("Use Racial") and bb.player.race == "NightElf" and ((cd.vanish > 0 and cd.vanish < 170) or level < 32) then
-								if bb.player.castShadowmeld() then return end
+								if bb.player.castShadowmeld() then vanishTime = GetTime(); return end
 							end
 						end
 					end
@@ -321,33 +325,47 @@ if select(2, UnitClass("player")) == "ROGUE" then
 					if getOptionValue("Stealth") == 1 then
 						if bb.player.castStealth() then return end
 					end
+					if getOptionValue("Stealth") == 2 then
+						for i=1, #dynTable20AoE do
+                            local thisUnit = dynTable20AoE[i].unit
+                            if dynTable20AoE[i].distance < 20 then
+                                if ObjectExists(thisUnit) and UnitCanAttack(thisUnit,"player") and GetTime()-leftCombat > lootDelay then
+                                    if bb.player.castStealth() then return end
+                                end
+                            end
+                        end
+                    end
 				end
 			end -- End Action List - PreCombat
 		-- Action List - Opener
 			local function actionList_Opener()
+				if (not inCombat and UnitExists("target") and UnitCanAttack("target","player") and not UnitIsDeadOrGhost("target")) or (inCombat and hasThreat("target")) then
 			-- Ambush / Cheap Shot
-				-- pool_resource,for_next=1
-				-- ambush
-				if buff.stealth and (not inCombat or (inCombat and hasThreat(units.dyn5))) then
-					if getOptionValue("Opener") == 1 then
-						if power <= 60 then
-							return true
+					-- pool_resource,for_next=1
+					-- ambush
+					if buff.stealth then
+						if getOptionValue("Opener") == 1 then
+							if power <= 60 then
+								return true
+							else
+								if bb.player.castAmbush() then return end
+							end
 						else
-							if bb.player.castAmbush() then return end
-						end
-					else
-						if power <= 40 then
-							return true
-						else
-							if bb.player.castCheapShot() then return end
+							if power <= 40 then
+								return true
+							else
+								if bb.player.castCheapShot() then return end
+							end
 						end
 					end
-				end
-				if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 40 then
 				-- Grappling Hook
 	                if isChecked("Grappling Hook") and (hasThreat("target") or solo) then
 	                    if bb.player.castGrapplingHook("target") then return end 
 	                end
+	            -- Start Attack
+	            	if (not buff.stealth and not buff.shadowmeld and not buff.vanish) or level < 5 then
+	            		StartAttack()
+	            	end
 	            end
 			end -- End Action List - Opener
 		-- Action List - Finishers
@@ -400,7 +418,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	--------------------------
 	--- In Combat Rotation ---
 	--------------------------
-				if inCombat and profileStop==false and not buff.steath and not buff.vanish and not buff.shadowmeld then
+				if inCombat and profileStop==false then
+					if UnitIsDeadOrGhost("target") then ClearTarget(); end
 	------------------------------
 	--- In Combat - Interrupts ---
 	------------------------------
@@ -412,24 +431,27 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	----------------------------------
 	--- In Combat - Begin Rotation ---
 	----------------------------------
+					if not buff.stealth and not buff.vanish and not buff.shadowmeld and GetTime() > vanishTime + 2 then
+						ObjectInteract(units.dyn5)
 			-- Roll the Bones
-					-- roll_the_bones,if=combo_points>=5&buff.roll_the_bones.remains<target.time_to_die&(buff.roll_the_bones.remains<3|buff.roll_the_bones.remains<duration*0.3%rtb_buffs|(rtb_buffs<=1|rtb_buffs=2&!buff.shark_infested_waters.up&!buff.jolly_roger.up&!(buff.broadsides.up&buff.true_bearing.up)))
-					if combo >= 5 and buff.remain.rollTheBones < ttd(units.dyn5) and 
-						(buff.remain.rollTheBones < 3 or buff.remain.rollTheBones < buff.duration.rollTheBones * 0.3 / buff.count.rollTheBones 
-							or (buff.count.rollTheBones <= 1 or buff.count.rollTheBones == 2 and not buff.sharkInfestedWaters and not buff.jollyRoger 
-								and not (buff.broadsides and buff.trueBearings))) 
-					then
-						if bb.player.castRollTheBones() then return end
-					end
+						-- roll_the_bones,if=combo_points>=5&buff.roll_the_bones.remains<target.time_to_die&(buff.roll_the_bones.remains<3|buff.roll_the_bones.remains<duration*0.3%rtb_buffs|(rtb_buffs<=1|rtb_buffs=2&!buff.shark_infested_waters.up&!buff.jolly_roger.up&!(buff.broadsides.up&buff.true_bearing.up)))
+						if combo >= 5 and buff.remain.rollTheBones < ttd(units.dyn5) and 
+							(buff.remain.rollTheBones < 3 or buff.remain.rollTheBones < buff.duration.rollTheBones * 0.3 / buff.count.rollTheBones 
+								or (buff.count.rollTheBones <= 1 or buff.count.rollTheBones == 2 and not buff.sharkInfestedWaters and not buff.jollyRoger 
+									and not (buff.broadsides and buff.trueBearings))) 
+						then
+							if bb.player.castRollTheBones() then return end
+						end
 			-- Finishers
-					-- call_action_list,name=finisher,if=combo_points>=5+talent.deeper_strategem.enabled
-					if combo >= 5 then
-						if actionList_Finishers() then return end
-					end
+						-- call_action_list,name=finisher,if=combo_points>=5+talent.deeper_strategem.enabled
+						if combo >= 5 + dStrat then
+							if actionList_Finishers() then return end
+						end
 			-- Generators
-					-- call_action_list,name=generator,if=combo_points<5+talent.deeper_strategem.enabled
-					if combo < 5 then
-						if actionList_Generators() then return end
+						-- call_action_list,name=generator,if=combo_points<5+talent.deeper_strategem.enabled
+						if combo < 5 + dStrat then
+							if actionList_Generators() then return end
+						end
 					end
 				end -- End In Combat
 			end -- End Profile

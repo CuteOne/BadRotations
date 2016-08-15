@@ -196,6 +196,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local ttm 											= bb.player.timeToMax
 			local units 										= bb.player.units
 
+			if vanishTime == nil then vanishTime = GetTime() end
+
 	--------------------
 	--- Action Lists ---
 	--------------------
@@ -225,7 +227,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	        		end
 	        	end
 	        -- Poisoned Knife
-        		if isChecked("Poisoned Knife") then
+        		if isChecked("Poisoned Knife") and not buff.stealth then
         			for i = 1, enemies.yards30 do
         				local thisUnit = getEnemies("player",30)[i]
         				local distance = getDistance(thisUnit)
@@ -298,7 +300,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
  					-- vanish,if=talent.shadow_focus.enabled&!dot.rupture.exsanguinated&combo_points.deficit>=2
 					if isChecked("Vanish") then
 						if ((talent.subterfuge and combo <= 2) or (talent.shadowFocus and combo >= 2)) then -- and not debuff.exsanguinate.rupture
-							if bb.player.castVanish() then return end
+							if bb.player.castVanish() then vanishTime = GetTime(); return end
 						end
 					end
 				end -- End Cooldown Usage Check
@@ -426,7 +428,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 -- 	--- In Combat Rotation ---
 -- 	--------------------------
 			-- Assassination is 4 shank!
-				if inCombat and mode.pickPocket ~= 2 and not buff.steath and not buff.vanish and not buff.shadowmeld then
+				if inCombat and mode.pickPocket ~= 2 then
 -- 					if hartar and deadtar then
 -- 						ClearTarget()
 -- 					end
@@ -449,24 +451,26 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	                if isChecked("Shadowstep") then
 	                    if bb.player.castShadowstep("target") then return end 
 	                end
+	                if not buff.steath and not buff.vanish and not buff.shadowmeld and GetTime() > vanishTime + 2 then
 	       	-- Rupture
-	       			-- rupture,if=combo_points>=2&!ticking&time<10&!artifact.urge_to_kill.enabled
-					-- rupture,if=combo_points>=4&!ticking
-					if not debuff.rupture and ((combo >= 2 and cTime < 10 and not artifact.urgeToKill) or combo >= 4) then
-						if bb.player.castRupture() then return end
-					end
+		       			-- rupture,if=combo_points>=2&!ticking&time<10&!artifact.urge_to_kill.enabled
+						-- rupture,if=combo_points>=4&!ticking
+						if not debuff.rupture and ((combo >= 2 and cTime < 10 and not artifact.urgeToKill) or combo >= 4) then
+							if bb.player.castRupture() then return end
+						end
 			-- Exsanguinate Combo
-					-- run_action_list,name=exsang_combo,if=cooldown.exsanguinate.remains<3&talent.exsanguinate.enabled
+						-- run_action_list,name=exsang_combo,if=cooldown.exsanguinate.remains<3&talent.exsanguinate.enabled
 			-- Garrote
-					-- call_action_list,name=garrote,if=spell_targets.fan_of_knives<=7
+						-- call_action_list,name=garrote,if=spell_targets.fan_of_knives<=7
 			-- Exsanguinate
-					-- call_action_list,name=exsang,if=dot.rupture.exsanguinated&spell_targets.fan_of_knives<=2
+						-- call_action_list,name=exsang,if=dot.rupture.exsanguinated&spell_targets.fan_of_knives<=2
 			-- Finishers
-					-- call_action_list,name=finish
-					if actionList_Finishers() then return end
+						-- call_action_list,name=finish
+						if actionList_Finishers() then return end
 			-- Generators
-					-- call_action_list,name=build
-					if actionList_Generators() then return end
+						-- call_action_list,name=build
+						if actionList_Generators() then return end
+					end
 				end -- End In Combat
 			end -- End Profile
 	    end -- Timer
