@@ -11,6 +11,7 @@ if select(2, UnitClass("player")) == "CLASS" then -- Changed to name of class. I
     -----------------
     --- VARIABLES --- -- List of tables 
     -----------------
+<<<<<<< HEAD
         self.profile         = spec
         self.artifact        = {}
         self.artifact.perks  = {}
@@ -51,6 +52,13 @@ if select(2, UnitClass("player")) == "CLASS" then -- Changed to name of class. I
         self.classSpell = mergeTables(self.classSpell,self.classGlyphs)
         self.classSpell = mergeTables(self.classSpell,self.classSpecials)
         self.classSpell = mergeTables(self.classSpell,self.classTalents) 
+=======
+
+	self.profile     = spec
+	self.holyPower   = 0
+	self.paladinSpell = {
+    }
+>>>>>>> origin/master
 
     ------------------
     --- OOC UPDATE ---
@@ -74,6 +82,7 @@ if select(2, UnitClass("player")) == "CLASS" then -- Changed to name of class. I
             -- Call baseUpdate()
             self.baseUpdate()
             self.getClassDynamicUnits()
+            self.getClassEnemies()
             self.getClassBuffs()
             self.getClassCastable()
             self.getClassCharges()
@@ -103,7 +112,7 @@ if select(2, UnitClass("player")) == "CLASS" then -- Changed to name of class. I
     --- ENEMIES ---
     ---------------
 
-        function self.getEnemies() -- sets table of enemies for specified ranges useful for knowing number of enemies in a certain ranges or target cycleing
+        function self.getClassEnemies() -- sets table of enemies for specified ranges useful for knowing number of enemies in a certain ranges or target cycleing
             local getEnemies = getEnemies
 
             self.enemies.yards5 = getEnemies("player", 5) -- Melee
@@ -117,6 +126,7 @@ if select(2, UnitClass("player")) == "CLASS" then -- Changed to name of class. I
         function self.getClassArtifacts() -- Dynamicaly creates artifact lists based on the spell table above - NOTE: Change self.classArtifactss to the name of the artifact table)
             local isKnown = isKnown
 
+<<<<<<< HEAD
             for k,v in pairs(self.classArtifacts) do
                 self.artifact[k] = isKnown(v)
             end
@@ -125,6 +135,9 @@ if select(2, UnitClass("player")) == "CLASS" then -- Changed to name of class. I
         function self.getClassArtifactRanks() -- Not yet implemented
 
         end
+=======
+    end
+>>>>>>> origin/master
 
     -------------
     --- BUFFS ---
@@ -276,6 +289,7 @@ if select(2, UnitClass("player")) == "CLASS" then -- Changed to name of class. I
     --- SPELLS --- -- List spell cast functions for spells available to all specs in class here.
     --------------
 
+<<<<<<< HEAD
         function self.getClassCastable()
             self.castable.sampleSpell     = self.castSampleSpell("target",true) -- not required but useful to see if base spell cast conditions are being met
         end
@@ -350,3 +364,15 @@ if select(2, UnitClass("player")) == "CLASS" then -- Changed to name of class. I
         return self
     end --End function cRogue:new(spec)
 end -- End Select 
+=======
+	function self.castRebuke(thisUnit)
+		if getDistance(thisUnit)<5 then
+			if castSpell(thisUnit,self.spell.rebuke,false,false,false) then return end
+		end
+	end
+    -- Return
+	return self
+end
+
+end -- End Select Paladin
+>>>>>>> origin/master
