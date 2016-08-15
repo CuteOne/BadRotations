@@ -305,7 +305,7 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
     --- SPELLS --- -- List spell cast functions for spells available to specific spec here.
     --------------
 
-        function self.getClassCastable()
+        function self.getCastable()
             self.castable.sampleSpell     = self.castSampleSpell("target",true) -- not required but useful to see if base spell cast conditions are being met
         end
 

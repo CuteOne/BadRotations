@@ -10,7 +10,6 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
 
         local player = "player" -- if someone forgets ""
 
-<<<<<<< HEAD
         -- Mandatory ! - DO NOT EDIT
         self.rotations = cSpec.rotations
         
@@ -31,46 +30,6 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
         }
         self.specTalents       = {
              
-=======
-        self.rotations = {"Gabbz"}
-        self.enemies = {
-            yards5,
-            yards8,
-            yards10,
-            yards12,
-        }
-        self.retributionSpell = {
-            avengingWrath           = 31884,
-            bladeOfWrath            = 202270,
-            blessingOfFreedom       = 1044,
-            blessingOfProtection    = 1022,
-            blindingLight           = 115750, --Talent
-            cleanseToxic            = 213644,
-            consecration            = 205228, --Talent
-            crusade                 = 224668, -- Talent
-            crusaderStrike          = 35395,
-            divineShield            = 642,
-            divineSteed             = 190784,
-            divineStorm             = 53385,
-            divinePurposeBuff       = 223819,
-            executionSentence       = 213757, --Talent
-            eyeForAnEye             = 205191, --Talent
-            flashOfLight            = 19750,            
-            hammerOfJustice         = 853,
-            handOfHindrance         = 183218,
-            handOfReckoning         = 62124,
-            holyWrath               = 210220,
-            judgment                = 20271,
-            justicarsVengeance      = 215661, --Talent
-            layOnHands              = 633,
-            rebuke                  = 96231,
-            redemption              = 7328,
-            repentance              = 20066, --Talent
-            shieldOfVengeance       = 184662,
-            templarsVerdict         = 85256,
-            wordOfGlory             = 210191,
-            zeal                    = 217020,
->>>>>>> origin/master
         }
         -- Merge all spell tables into self.spell
         self.specSpells = {}
@@ -80,7 +39,6 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
         self.specSpells = mergeTables(self.specSpells,self.specSpecials)
         self.specSpells = mergeTables(self.specSpells,self.specTalents)
         self.spell = {}
-<<<<<<< HEAD
         self.spell = mergeSpellTables(self.spell, self.characterSpell, self.classSpell, self.specSpells) -- Also change self.classSpell to name of class IE: druid or monk
         
     ------------------
@@ -93,14 +51,6 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
             self.getArtifacts()
             self.getArtifactRanks()
             self.getGlyphs()
-=======
-        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.paladinSpell, self.retributionSpell)
-
-        -- Update OOC
-        function self.updateOOC()
-            -- Call classUpdateOOC()
-            self.classUpdateOOC()
->>>>>>> origin/master
             self.getTalents()
             self.getPerks() --Removed in Legion
         end
@@ -115,12 +65,6 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
             self.classUpdate()
             -- Updates OOC things
             if not UnitAffectingCombat("player") then self.updateOOC() end
-<<<<<<< HEAD
-=======
-            self.getBuffs()
-            self.getCooldowns()
-           -- self.getJudgmentRecharge() --Todo:Check what this is
->>>>>>> origin/master
             self.getDynamicUnits()
             self.getEnemies()
             self.getBuffs()
@@ -131,21 +75,14 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
             self.getToggleModes()
             self.getCastable()
 
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/master
             -- Casting and GCD check
             -- TODO: -> does not use off-GCD stuff like pots, dp etc
             if castingUnit() then
                 return
             end
 
-<<<<<<< HEAD
             -- Start selected rotation - DO NOT EDIT
-=======
-            -- Start selected rotation
->>>>>>> origin/master
             self:startRotation()
         end
 
@@ -153,35 +90,7 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
     --- DYNAMIC UNITS ---
     ---------------------
 
-<<<<<<< HEAD
         function self.getDynamicUnits() -- Dynamic Target Selection based on Range and AoE/Non-AoE - NOTE: some more common ones are already setup in cCharacter.lua - NOTE: Do not relist and already provided Class file or cCharacter
-=======
-
-        -- Buff updates
-        function self.getBuffs()
-            local getBuffRemain = getBuffRemain
-           -- self.buff.divinePurpose  = getBuffRemain(player,self.spell.divinePurposeBuff) -- Keep as reference for now
-
-        end
-
-        -- Cooldown updates
-        function self.getCooldowns()
-            local getSpellCD = getSpellCD
-
-            self.cd.avengingWrath  = getSpellCD(self.spell.avengingWrath)
-            self.cd.judgment       = getSpellCD(self.spell.judgment)
-            self.cd.crusaderStrike = getSpellCD(self.spell.crusaderStrike)
-        end
-
-        -- Talent updates
-        function self.getTalents()
-            local isKnown = isKnown
-            self.talent.finalVerdict   = isKnown(self.spell.finalVerdict)
-        end
-
-        -- Update Dynamic units
-        function self.getDynamicUnits()
->>>>>>> origin/master
             local dynamicTarget = dynamicTarget
 
             -- Normal
@@ -396,7 +305,7 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
     --- SPELLS --- -- List spell cast functions for spells available to specific spec here.
     --------------
 
-        function self.getClassCastable()
+        function self.getCastable()
             self.castable.sampleSpell     = self.castSampleSpell("target",true) -- not required but useful to see if base spell cast conditions are being met
         end
 
