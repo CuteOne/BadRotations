@@ -1,45 +1,45 @@
 --- Spec Class
 -- Inherit from: ../cCharacter.lua and ../cClass.lua
-if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change specID to ID of spec. IE: https://github.com/MrTheSoulz/NerdPack/wiki/Class-&-Spec-IDs
-    cSpec = {} -- Change cSpec to name of spec. IE: cFeral or cWindwalker
-    cSpec.rotations = {} -- Change cSpec to name of spec. IE: cFeral or cWindwalker
+if GetSpecialization() == 3 then -- Change specID to ID of spec. IE: https://github.com/MrTheSoulz/NerdPack/wiki/Class-&-Spec-IDs
+    cRetribution = {} -- Change cSpec to name of spec. IE: cFeral or cWindwalker
+    cRetribution.rotations = {} -- Change cSpec to name of spec. IE: cFeral or cWindwalker
 
     -- Creates Spec
-    function cSpec:new() -- Change cSpec to name of spec. IE: cFeral or cWindwalker
-        local self = cClass:new("Spec") -- Change cClass to name of class and "Spec" to name of spec. IE: cDruid or cMonk for cClass and "Feral" or "Windwalker" for "Spec"
+    function cRetribution:new() -- Change cSpec to name of spec. IE: cFeral or cWindwalker
+        local self = cPaladin:new("Retribution") -- Change cClass to name of class and "Spec" to name of spec. IE: cDruid or cMonk for cClass and "Feral" or "Windwalker" for "Spec"
 
         local player = "player" -- if someone forgets ""
 
         -- Mandatory ! - DO NOT EDIT
-        self.rotations = cSpec.rotations
+        self.rotations = cRetribution.rotations
         
         -----------------
         --- VARIABLES --- -- Only list tables specific to this Spec -- change all spec entries to name of spec IE: feral or windwalker
         -----------------
-        self.specArtifacts     = {
+        self.retributionArtifacts     = {
             
         }
-        self.specBuffs         = {
+        self.retributionBuffs         = {
             
         }
-        self.specDebuffs       = {
+        self.retributionDebuffs       = {
             
         }
-        self.specSpecials      = {
+        self.retributionSpecials      = {
            
         }
-        self.specTalents       = {
+        self.retributionTalents       = {
              
         }
         -- Merge all spell tables into self.spell
-        self.specSpells = {}
-        self.specSpells = mergeTables(self.specSpells,self.specArtifacts)
-        self.specSpells = mergeTables(self.specSpells,self.specBuffs)
-        self.specSpells = mergeTables(self.specSpells,self.specDebuffs)
-        self.specSpells = mergeTables(self.specSpells,self.specSpecials)
-        self.specSpells = mergeTables(self.specSpells,self.specTalents)
+        self.retributionSpells = {}
+        self.retributionSpells = mergeTables(self.retributionSpells,self.retributionArtifacts)
+        self.retributionSpells = mergeTables(self.retributionSpells,self.retributionBuffs)
+        self.retributionSpells = mergeTables(self.retributionSpells,self.retributionDebuffs)
+        self.retributionSpells = mergeTables(self.retributionSpells,self.retributionSpecials)
+        self.retributionSpells = mergeTables(self.retributionSpells,self.retributionTalents)
         self.spell = {}
-        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.classSpell, self.specSpells) -- Also change self.classSpell to name of class IE: druid or monk
+        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.paladinSpell, self.retributionSpells) -- Also change self.classSpell to name of class IE: druid or monk
         
     ------------------
     --- OOC UPDATE ---
@@ -60,7 +60,6 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
     --------------
 
         function self.update() -- Add any functions or variables that need to be updated all the time here
-
             -- Call Base and Class update
             self.classUpdate()
             -- Updates OOC things
@@ -74,7 +73,6 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
             self.getRecharges()
             self.getToggleModes()
             self.getCastable()
-
 
             -- Casting and GCD check
             -- TODO: -> does not use off-GCD stuff like pots, dp etc
@@ -118,7 +116,7 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
         function self.getArtifacts() -- Dynamicaly creates artifact lists based on the spell table above - NOTE: Change self.specArtifactss to the name of the artifact table)
             local isKnown = isKnown
 
-            for k,v in pairs(self.specArtifacts) do
+            for k,v in pairs(self.retributionArtifacts) do
                 self.artifact[k] = isKnown(v)
             end
         end
@@ -136,7 +134,7 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
             local getBuffDuration = getBuffDuration
             local getBuffRemain = getBuffRemain
 
-            for k,v in pairs(self.specBuffs) do
+            for k,v in pairs(self.retributionBuffs) do
                 self.buff[k] = UnitBuffID("player",v) ~= nil
                 self.buff.duration[k] = getBuffDuration("player",v) or 0
                 self.buff.remain[k] = getBuffRemain("player",v) or 0
@@ -149,10 +147,10 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
         function self.getCharges() -- Dynamicaly creates charge lists based on the spell/buff table above - NOTE: Change self.specSpells/self.specBuffs to the name of the spell/buff table)
             local getCharges = getCharges
 
-            for k,v in pairs(self.specSpells) do
+            for k,v in pairs(self.retributionSpells) do
                 self.charges[k] = getCharges(v)
             end
-            for k,v in pairs(self.specBuffs) do
+            for k,v in pairs(self.retributionBuffs) do
                 self.charges[k] = getBuffStacks("player",v,"player")
             end
         end
@@ -164,7 +162,7 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
         function self.getCooldowns() -- Dynamicaly creates cooldown lists based on the spell table above - NOTE: Change self.specCooldowns to the name of the cooldown table)
             local getSpellCD = getSpellCD
 
-            for k,v in pairs(self.specSpell) do
+            for k,v in pairs(self.retributionSpells) do
                 if getSpellCD(v) ~= nil then
                     self.cd[k] = getSpellCD(v)
                 end
@@ -180,7 +178,7 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
             local getDebuffDuration = getDebuffDuration
             local getDebuffRemain = getDebuffRemain
 
-            for k,v in pairs(self.specDebuffs) do
+            for k,v in pairs(self.retributionDebuffs) do
                 self.debuff[k] = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
                 self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
                 self.debuff.remain[k] = getDebuffRemain(self.units.dyn5,v,"player") or 0
@@ -214,7 +212,7 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
         function self.getRecharges() -- Dynamicaly creates recharge list based on the spell table above - NOTE: Change self.specSpells to the name of the spell table)
             local getRecharge = getRecharge
 
-            for k,v in pairs(self.specSpells) do
+            for k,v in pairs(self.retributionSpells) do
                 self.recharge[k] = getRecharge(v)
             end
         end
@@ -229,7 +227,7 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
             for r = 1, 7 do --search each talent row
                 for c = 1, 3 do -- search each talent column
                     local talentID = select(6,GetTalentInfo(r,c,GetActiveSpecGroup())) -- ID of Talent at current Row and Column
-                    for k,v in pairs(self.specTalents) do
+                    for k,v in pairs(self.retributionTalents) do
                         if v == talentID then
                             self.talent[k] = getTalent(r,c)
                         end

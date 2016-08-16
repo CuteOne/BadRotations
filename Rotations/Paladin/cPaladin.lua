@@ -1,10 +1,10 @@
 -- Inherit from: ../cCharacter.lua
 -- All Class specs inherit from this file
-if select(2, UnitClass("player")) == "CLASS" then -- Changed to name of class. IE: DRUID, DEATHKNIGHT
-    cClass = {} -- Change cClass to name of class IE: cDruid or cMonk
+if select(2, UnitClass("player")) == "PALADIN" then -- Changed to name of class. IE: DRUID, DEATHKNIGHT
+    cPaladin = {} -- Change cClass to name of class IE: cDruid or cMonk
     -- Creates Class with given specialisation
-    function cClass:new(spec) -- Change cClass to name of class IE: cDruid or cMonk
-        local self = cCharacter:new("Class") -- Change to name of class. IE: Druid, Deathknigh
+    function cPaladin:new(spec) -- Change cClass to name of class IE: cDruid or cMonk
+        local self = cCharacter:new("Paladin") -- Change to name of class. IE: Druid, Deathknigh
 
         local player = "player" -- if someone forgets ""
 
@@ -21,36 +21,35 @@ if select(2, UnitClass("player")) == "CLASS" then -- Changed to name of class. I
         self.debuff.remain   = {}       -- Debuff Time Remaining
         self.debuff.refresh  = {}       -- Debuff Refreshable
         self.enemies         = {}       -- Enemies 
-        self.classAbilities  = {        -- Abilities Available To All Specs in Class, change class to name of class IE: druid or monk
+        self.paladinAbilities  = {        -- Abilities Available To All Specs in Class, change class to name of class IE: druid or monk
             -- sampleeAbility         = 00000,  
         }
-        self.classArtifacts  = {        -- Artifact Traits Available To All Specs in Class, change class to name of class IE: druid or monk
+        self.paladinArtifacts  = {        -- Artifact Traits Available To All Specs in Class, change class to name of class IE: druid or monk
             -- sampleArtifact         = 00000,
         }
-        self.classBuffs      = {        -- Buffs Available To All Specs in Class, change class to name of class IE: druid or monk
+        self.paladinBuffs      = {        -- Buffs Available To All Specs in Class, change class to name of class IE: druid or monk
             -- sampleBuff             = 00000,
         }
-        self.classDebuffs    = {        -- Debuffs Available To All Specs in Class, change class to name of class IE: druid or monk
+        self.paladinDebuffs    = {        -- Debuffs Available To All Specs in Class, change class to name of class IE: druid or monk
             -- sampleDebuff           = 00000,
         }
-        self.classGlyphs     = {        -- Glyphs Available To All Specs in Class, change class to name of class IE: druid or monk
+        self.paladinGlyphs     = {        -- Glyphs Available To All Specs in Class, change class to name of class IE: druid or monk
             -- sampleGlyph            = 00000,
         }
-        self.classSpecials   = {        -- Specializations Available To All Specs in Class, change class to name of class IE: druid or monk
+        self.paladinSpecials   = {        -- Specializations Available To All Specs in Class, change class to name of class IE: druid or monk
             -- sampleSpecial          = 00000,
         }
-        self.classTalents    = {        -- Talents Available To All Specs in Class, change class to name of class IE: druid or monk
+        self.paladinTalents    = {        -- Talents Available To All Specs in Class, change class to name of class IE: druid or monk
             -- sampleTalent           = 193539,
         }
         -- Merge all spell tables into self.classSpell, change class to name of class IE: druid or monk
-        self.classSpell = {} 
-        self.classSpell = mergeTables(self.classSpell,self.classAbilities)
-        self.classSpell = mergeTables(self.classSpell,self.classArtifacts)
-        self.classSpell = mergeTables(self.classSpell,self.classBuffs)
-        self.classSpell = mergeTables(self.classSpell,self.classDebuffs)
-        self.classSpell = mergeTables(self.classSpell,self.classGlyphs)
-        self.classSpell = mergeTables(self.classSpell,self.classSpecials)
-        self.classSpell = mergeTables(self.classSpell,self.classTalents) 
+        self.paladinSpell = {} 
+        self.paladinSpell = mergeTables(self.paladinSpell,self.paladinAbilities)
+        self.paladinSpell = mergeTables(self.paladinSpell,self.paladinArtifacts)
+        self.paladinSpell = mergeTables(self.paladinSpell,self.paladinBuffs)
+        self.paladinSpell = mergeTables(self.paladinSpell,self.paladinDebuffs)
+        self.paladinSpell = mergeTables(self.paladinSpell,self.paladinSpecials)
+        self.paladinSpell = mergeTables(self.paladinSpell,self.paladinTalents) 
 
     ------------------
     --- OOC UPDATE ---
@@ -61,7 +60,6 @@ if select(2, UnitClass("player")) == "CLASS" then -- Changed to name of class. I
             self.baseUpdateOOC()
             self.getClassArtifacts()
             self.getClassArtifactRanks()
-            self.getClassGlyphs()
             self.getClassTalents()
             self.getClassPerks()
         end
@@ -118,7 +116,7 @@ if select(2, UnitClass("player")) == "CLASS" then -- Changed to name of class. I
         function self.getClassArtifacts() -- Dynamicaly creates artifact lists based on the spell table above - NOTE: Change self.classArtifactss to the name of the artifact table)
             local isKnown = isKnown
 
-            for k,v in pairs(self.classArtifacts) do
+            for k,v in pairs(self.paladinArtifacts) do
                 self.artifact[k] = isKnown(v)
             end
         end
@@ -136,7 +134,7 @@ if select(2, UnitClass("player")) == "CLASS" then -- Changed to name of class. I
             local getBuffDuration = getBuffDuration
             local getBuffRemain = getBuffRemain
 
-            for k,v in pairs(self.classBuffs) do
+            for k,v in pairs(self.paladinBuffs) do
                 self.buff[k] = UnitBuffID("player",v) ~= nil
                 self.buff.duration[k] = getBuffDuration("player",v) or 0
                 self.buff.remain[k] = getBuffRemain("player",v) or 0
@@ -149,10 +147,10 @@ if select(2, UnitClass("player")) == "CLASS" then -- Changed to name of class. I
         function self.getClassCharges() -- Dynamicaly creates charge lists based on the spell/buff table above - NOTE: Change self.classSpells/self.classBuffs to the name of the spell/buff table)
             local getCharges = getCharges
 
-            for k,v in pairs(self.classSpells) do
+            for k,v in pairs(self.paladinSpell) do
                 self.charges[k] = getCharges(v)
             end
-            for k,v in pairs(self.classBuffs) do
+            for k,v in pairs(self.paladinBuffs) do
                 self.charges[k] = getBuffStacks("player",v,"player")
             end
         end
@@ -164,7 +162,7 @@ if select(2, UnitClass("player")) == "CLASS" then -- Changed to name of class. I
         function self.getClassCooldowns() -- Dynamicaly creates cooldown lists based on the spell table above - NOTE: Change self.classCooldowns to the name of the cooldown table)
             local getSpellCD = getSpellCD
 
-            for k,v in pairs(self.classSpell) do
+            for k,v in pairs(self.paladinSpell) do
                 if getSpellCD(v) ~= nil then
                     self.cd[k] = getSpellCD(v)
                 end
@@ -180,7 +178,7 @@ if select(2, UnitClass("player")) == "CLASS" then -- Changed to name of class. I
             local getDebuffDuration = getDebuffDuration
             local getDebuffRemain = getDebuffRemain
 
-            for k,v in pairs(self.classDebuffs) do
+            for k,v in pairs(self.paladinDebuffs) do
                 self.debuff[k] = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
                 self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
                 self.debuff.remain[k] = getDebuffRemain(self.units.dyn5,v,"player") or 0
@@ -214,7 +212,7 @@ if select(2, UnitClass("player")) == "CLASS" then -- Changed to name of class. I
         function self.getClassRecharges() -- Dynamicaly creates recharge list based on the spell table above - NOTE: Change self.classSpells to the name of the spell table)
             local getRecharge = getRecharge
 
-            for k,v in pairs(self.classSpells) do
+            for k,v in pairs(self.paladinSpells) do
                 self.recharge[k] = getRecharge(v)
             end
         end
@@ -229,7 +227,7 @@ if select(2, UnitClass("player")) == "CLASS" then -- Changed to name of class. I
             for r = 1, 7 do --search each talent row
                 for c = 1, 3 do -- search each talent column
                     local talentID = select(6,GetTalentInfo(r,c,GetActiveSpecGroup())) -- ID of Talent at current Row and Column
-                    for k,v in pairs(self.classTalents) do
+                    for k,v in pairs(self.paladinTalents) do
                         if v == talentID then
                             self.talent[k] = getTalent(r,c)
                         end

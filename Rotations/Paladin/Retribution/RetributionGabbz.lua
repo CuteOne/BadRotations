@@ -1,5 +1,6 @@
-if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change specID to ID of spec. IE: https://github.com/MrTheSoulz/NerdPack/wiki/Class-&-Spec-IDs
+if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: https://github.com/MrTheSoulz/NerdPack/wiki/Class-&-Spec-IDs
     local rotationName = "Gabbz" -- Appears in the dropdown of the rotation selector in the Profile Options window
+    print("Yeah")
 
 ---------------
 --- Toggles ---
@@ -11,7 +12,7 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
             [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = bb.player.spell.bladeFlurry },
             [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = bb.player.spell.saberSlash },
             [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = bb.player.spell.crimsonVial }
-        };
+        }
         CreateButton("Rotation",1,0)
     end
 
@@ -174,7 +175,7 @@ if select(2,GetSpecializationInfo(GetSpecialization())) == specID then -- Change
 			end -- End Profile
 	    end -- Timer
 	end -- runRotation
-	tinsert(cSpec.rotations, { --Change cSpec to name of spec IE: cFeral or cWindwalker
+	tinsert(cRetribution.rotations, { --Change cSpec to name of spec IE: cFeral or cWindwalker
         name = rotationName,
         toggles = createToggles,
         options = createOptions,
