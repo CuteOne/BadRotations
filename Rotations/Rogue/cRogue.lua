@@ -12,55 +12,53 @@ if select(2, UnitClass("player")) == "ROGUE" then
     --- VARIABLES ---
     -----------------
 
-        self.profile         = spec
-        self.comboPoints     = UnitPower("player",4)
-        self.comboPointMax   = UnitPowerMax("player",4) 
-        self.stealth         = false
-        self.artifact        = {}
-        self.artifact.perks  = {}
-        self.buff.duration   = {}       -- Buff Durations
-        self.buff.remain     = {}       -- Buff Time Remaining
-        self.castable        = {}        -- Cast Spell Functions
-        self.debuff.duration = {}       -- Debuff Durations
-        self.debuff.remain   = {}       -- Debuff Time Remaining
-        self.debuff.refresh  = {}       -- Debuff Refreshable
-        self.rogueAbilities  = {        -- Abilities Available To All Rogues
+        self.profile                    = spec
+        self.comboPoints                = UnitPower("player",4)
+        self.comboPointMax              = UnitPowerMax("player",4)
+        self.buff.duration              = {}       -- Buff Durations
+        self.buff.remain                = {}       -- Buff Time Remaining
+        self.cast                       = {}       -- Cast Spell Functions
+        self.cast.debug                 = {}       -- Cast Spell Functions Debug
+        self.debuff.duration            = {}       -- Debuff Durations
+        self.debuff.remain              = {}       -- Debuff Time Remaining
+        self.debuff.refresh             = {}       -- Debuff Refreshable
+        self.spell.class                = {}        -- Abilities Available To All Rogues
+        self.spell.class.abilities = {
+            cheapShot                   = 1833,
             cloakOfShadows              = 31224,
             crimsonVial                 = 185311,
+            distract                    = 1725,
             feint                       = 1966,
             goremawsBite                = 209783, --809784
             kick                        = 1766,
             kingsbane                   = 192760, --222062
+            pickLock                    = 1804,
+            pickPocket                  = 921,
+            sap                         = 6770,
             shadowmeld                  = 58984,
+            stealth                     = 1784,
             tricksOfTheTrade            = 57934,
+            vanish                      = 1856,
         }
-        self.rogueArtifacts  = {        -- Artifact Traits Available To All Rogues
+        self.spell.class.artifacts  = {        -- Artifact Traits Available To All Rogues
             artificialStamina           = 211309,
         }
-        self.rogueBuffs      = {        -- Buffs Available To All Rogues
+        self.spell.class.buffs      = {        -- Buffs Available To All Rogues
+            feint                       = 1966,
             shadowmeld                  = 58984,
             stealth                     = 1784,
             vanish                      = 11327,
         }
-        self.rogueDebuffs    = {        -- Debuffs Available To All Rogues
+        self.spell.class.debuffs    = {        -- Debuffs Available To All Rogues
             sap                         = 6770,
         }
-        self.rogueGlyphs     = {        -- Glyphs Available To All Rogues
+        self.spell.class.glyphs     = {        -- Glyphs Available To All Rogues
             glyphOfBlackout             = 219693,
             glyphOfBurnout              = 220279,
             glyphOfDisguise             = 63268,
             glyphOfFlashBang            = 219678,
         }
-        self.rogueSpecials   = {        -- Specializations Available To All Rogues
-            cheapShot                   = 1833,
-            distract                    = 1725,
-            pickLock                    = 1804,
-            pickPocket                  = 921,
-            sap                         = 6770,
-            stealth                     = 1784,
-            vanish                      = 1856,
-        }
-        self.rogueTalents    = {        -- Talents Available To All Rogues
+        self.spell.class.talents    = {        -- Talents Available To All Rogues
             alacrity                    = 193539,
             anticipation                = 114015,
             cheatDeath                  = 31230,
@@ -71,15 +69,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
             preyOnTheWeak               = 131511,
             vigor                       = 14983,
         }
-        -- Merge all spell tables into self.rogueSpell
-        self.rogueSpell = {} 
-        self.rogueSpell = mergeTables(self.rogueSpell,self.rogueAbilities)
-        self.rogueSpell = mergeTables(self.rogueSpell,self.rogueArtifacts)
-        self.rogueSpell = mergeTables(self.rogueSpell,self.rogueBuffs)
-        self.rogueSpell = mergeTables(self.rogueSpell,self.rogueDebuffs)
-        self.rogueSpell = mergeTables(self.rogueSpell,self.rogueGlyphs)
-        self.rogueSpell = mergeTables(self.rogueSpell,self.rogueSpecials)
-        self.rogueSpell = mergeTables(self.rogueSpell,self.rogueTalents) 
 
     ------------------
     --- OOC UPDATE ---
@@ -112,11 +101,11 @@ if select(2, UnitClass("player")) == "ROGUE" then
             
 
             -- Update Combo Points
-            self.comboPoints = UnitPower("player",4)
+            self.comboPoints    = UnitPower("player",4)
             self.comboPointsMax = UnitPowerMax("player",4)
 
             -- Update Energy Regeneration
-            self.powerRegen  = getRegen("player")
+            self.powerRegen     = getRegen("player")
         end
 
     ---------------------
@@ -127,7 +116,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             local dynamicTarget = dynamicTarget
 
             -- Normal
-            self.units.dyn10 = dynamicTarget(10,true) -- Sap
+            self.units.dyn10    = dynamicTarget(10,true) -- Sap
 
             -- AoE
             self.units.dyn35AoE = dynamicTarget(35, false) -- Entangling Roots
@@ -156,10 +145,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
             local getBuffDuration = getBuffDuration
             local getBuffRemain = getBuffRemain
 
-            for k,v in pairs(self.rogueBuffs) do
-                self.buff[k] = UnitBuffID("player",v) ~= nil
-                self.buff.duration[k] = getBuffDuration("player",v) or 0
-                self.buff.remain[k] = getBuffRemain("player",v) or 0
+            for k,v in pairs(self.spell.class.buffs) do
+                self.buff[k]            = UnitBuffID("player",v) ~= nil
+                self.buff.duration[k]   = getBuffDuration("player",v) or 0
+                self.buff.remain[k]     = getBuffRemain("player",v) or 0
             end
         end
 
@@ -179,7 +168,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getClassCooldowns()
             local getSpellCD = getSpellCD
 
-            for k,v in pairs(self.rogueSpell) do
+            for k,v in pairs(self.spell.class.abilities) do
                 if getSpellCD(v) ~= nil then
                     self.cd[k] = getSpellCD(v)
                 end
@@ -195,10 +184,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
             local getDebuffDuration = getDebuffDuration
             local getDebuffRemain = getDebuffRemain
 
-            for k,v in pairs(self.rogueDebuffs) do
-                self.debuff[k] = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
+            for k,v in pairs(self.spell.class.debuffs) do
+                self.debuff[k]          = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
                 self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
-                self.debuff.remain[k] = getDebuffRemain(self.units.dyn5,v,"player") or 0
+                self.debuff.remain[k]   = getDebuffRemain(self.units.dyn5,v,"player") or 0
             end
         end
 
@@ -222,7 +211,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             for r = 1, 7 do --search each talent row
                 for c = 1, 3 do -- search each talent column
                     local talentID = select(6,GetTalentInfo(r,c,GetActiveSpecGroup())) -- ID of Talent at current Row and Column
-                    for k,v in pairs(self.rogueTalents) do
+                    for k,v in pairs(self.spell.class.talents) do
                         if v == talentID then
                             self.talent[k] = getTalent(r,c)
                         end
@@ -282,17 +271,17 @@ if select(2, UnitClass("player")) == "ROGUE" then
     --------------
 
         function self.getClassCastable()
-            self.castable.cheapShot     = self.castCheapShot("target",true)
-            self.castable.crimsonVial   = self.castCrimsonVial("player",true)
-            self.castable.kick          = self.castKick("target",true)
-            self.castable.pickPocket    = self.castPickPocket("target",true)
-            self.castable.sap           = self.castSap("target",true)
-            self.castable.shadowmeld    = self.castShadowmeld("player",true)
-            self.castable.stealth       = self.castStealth("player",true)
-            self.castable.vanish        = self.castVanish("player",true)
+            self.cast.debug.cheapShot     = self.cast.cheapShot("target",true)
+            self.cast.debug.crimsonVial   = self.cast.crimsonVial("player",true)
+            self.cast.debug.kick          = self.cast.kick("target",true)
+            self.cast.debug.pickPocket    = self.cast.pickPocket("target",true)
+            self.cast.debug.sap           = self.cast.sap("target",true)
+            self.cast.debug.shadowmeld    = self.cast.shadowmeld("player",true)
+            self.cast.debug.stealth       = self.cast.stealth("player",true)
+            self.cast.debug.vanish        = self.cast.vanish("player",true)
         end
 
-        function self.castCheapShot(thisUnit,debug)
+        function self.cast.cheapShot(thisUnit,debug)
             local spellCast = self.spell.cheapShot
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
@@ -308,7 +297,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castCrimsonVial(thisUnit,debug)
+        function self.cast.crimsonVial(thisUnit,debug)
             local spellCast = self.spell.crimsonVial
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
@@ -324,7 +313,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castKick(thisUnit,debug)
+        function self.cast.kick(thisUnit,debug)
             local spellCast = self.spell.kick
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
@@ -340,7 +329,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castPickPocket(thisUnit,debug)
+        function self.cast.pickPocket(thisUnit,debug)
             local spellCast = self.spell.pickPocket
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
@@ -356,7 +345,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castSap(thisUnit,debug)
+        function self.cast.sap(thisUnit,debug)
             local spellCast = self.spell.sap
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn10 end
@@ -372,7 +361,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castShadowmeld(thisUnit,debug)
+        function self.cast.shadowmeld(thisUnit,debug)
             local spellCast = self.spell.shadowmeld
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
@@ -388,7 +377,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castStealth(thisUnit,debug)
+        function self.cast.stealth(thisUnit,debug)
             local spellCast = self.spell.stealth
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
@@ -404,7 +393,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castVanish(thisUnit,debug)
+        function self.cast.vanish(thisUnit,debug)
             local spellCast = self.spell.vanish
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
@@ -435,7 +424,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         function useAoE()
             local rotation = self.mode.rotation
-            if (rotation == 1 and #getEnemies("player",8) >= 3) or rotation == 2 then
+            if (rotation == 1 and #getEnemies("player",8) >= 2) or rotation == 2 then
                 return true
             else
                 return false
@@ -459,7 +448,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         end
 
         function useCleave()
-            if self.mode.cleave==1 and self.mode.rotation < 3 then
+            if self.mode.cleave == 1 and self.mode.rotation < 3 then
                 return true
             else
                 return false

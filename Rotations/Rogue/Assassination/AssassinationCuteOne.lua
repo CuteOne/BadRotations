@@ -159,6 +159,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local artifact 										= bb.player.artifact
 			local attacktar 									= UnitCanAttack("target","player")
 			local buff, buffRemain								= bb.player.buff, bb.player.buff.remain
+			local cast 											= bb.player.cast
 			local cd 											= bb.player.cd
 			local charge 										= bb.player.charges
 			local combo, comboDeficit, comboMax					= bb.player.comboPoints, bb.player.comboPointsMax - bb.player.comboPoints, bb.player.comboPointsMax
@@ -220,20 +221,20 @@ if select(2, UnitClass("player")) == "ROGUE" then
         			if (UnitExists("target") or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
 	        			if not isPicked(units.dyn5) and not isDummy() then
 	        				if debuff.remain.sap < 1 and mode.pickPocket ~= 1 then
-	        					if bb.player.castSap(units.dyn5) then return end
+	        					if cast.sap(units.dyn5) then return end
 	        				end
-	        				if bb.player.castPickPocket() then return end
+	        				if cast.pickPocket() then return end
 	        			end
 	        		end
 	        	end
 	        -- Poisoned Knife
         		if isChecked("Poisoned Knife") and not buff.stealth then
-        			for i = 1, enemies.yards30 do
-        				local thisUnit = getEnemies("player",30)[i]
+        			for i = 1, #enemies.yards30 do
+        				local thisUnit = enemies.yards30[i]
         				local distance = getDistance(thisUnit)
         				local deadlyPoisonRemain = getDebuffRemain(thisUnit,spell.deadlyPoison,"player")
         				if deadlyPoisonRemain == 0 and distance > 5 and (hasThreat(thisUnit) or isDummy()) then
-        					if bb.player.castPoisonedKnife(thisUnit) then return end
+        					if cast.poisonedKnife(thisUnit) then return end
         				end
         			end
         		end
@@ -260,31 +261,31 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		            end
 		        -- Crimson Vial
 					if isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") then
-						if bb.player.castCrimsonVial() then return end
+						if cast.crimsonVial() then return end
 					end
 	            -- Evasion
 	                if isChecked("Evasion") and php < getOptionValue("Evasion") and inCombat then
-	                    if bb.player.castEvasion() then return end
+	                    if cast.evasion() then return end
 	                end
 	            end
 			end -- End Action List - Defensive
 		-- Action List - Interrupts
 			local function actionList_Interrupts()
 				if useInterrupts() and not stealth then
-					for i=1, enemies.yards20 do
-						local thisUnit = getEnemies("player", 20)[i]
+					for i=1, #enemies.yards20 do
+						local thisUnit = enemies.yards20[i]
 						local distance = getDistance(thisUnit)
 						if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
 							if distance < 5 then
 				-- Kick
 								-- kick
 								if isChecked("Kick") then
-									if bb.player.castKick(thisUnit) then return end
+									if cast.kick(thisUnit) then return end
 								end
 				-- Kidney Shot
 								if cd.kick ~= 0 then
 									if isChecked("Kidney Shot") then
-										if bb.player.castKidneyShot(thisUnit) then return end
+										if cast.kidneyShot(thisUnit) then return end
 									end
 								end
 							end
@@ -300,7 +301,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
  					-- vanish,if=talent.shadow_focus.enabled&!dot.rupture.exsanguinated&combo_points.deficit>=2
 					if isChecked("Vanish") then
 						if ((talent.subterfuge and combo <= 2) or (talent.shadowFocus and combo >= 2)) then -- and not debuff.exsanguinate.rupture
-							if bb.player.castVanish() then vanishTime = GetTime(); return end
+							if cast.vanish() then vanishTime = GetTime(); return end
 						end
 					end
 				end -- End Cooldown Usage Check
@@ -311,23 +312,23 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				-- apply_poison
 				if isChecked("Lethal Poison") then
 					if getOptionValue("Lethal Poison") == 1 and not buff.deadlyPoison then 
-						if bb.player.castDeadlyPoison() then return end
+						if cast.deadlyPoison() then return end
 					end
 					if getOptionValue("Lethal Poison") == 2 and not buff.woundPoison then
-						if bb.player.castWoundPoison() then return end
+						if cast.woundPoison() then return end
 					end
 				end
 				if isChecked("Non-Lethal Poison") then
 					if getOptionValue("Non-Lethal Poison") == 1 and not buff.cripplingPoison then
 						ChatOverlay("Applying Non-Lethal") 
-						if bb.player.castCripplingPoison() then return end
+						if cast.cripplingPoison() then return end
 					end
 				end
 			-- Stealth
 				-- stealth
 				if isChecked("Stealth") then
 					if getOptionValue("Stealth") == 1 then
-						if bb.player.castStealth() then return end
+						if cast.stealth() then return end
 					end
 				end
 			end -- End Action List - PreCombat
@@ -335,12 +336,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local function actionList_Opener()
 			-- Shadowstep
                 if isChecked("Shadowstep") and (hasThreat("target") or solo) then
-                    if bb.player.castShadowstep("target") then return end 
+                    if cast.shadowstep("target") then return end 
                 end
 			-- Start Attack
                 -- auto_attack
                 if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 5 and mode.pickPocket ~= 2 then
-                	if bb.player.castMutilate() then StartAttack(); return end
+                	if cast.mutilate() then StartAttack(); return end
                 end
 			end -- End Action List - Opener
 		-- Action List - Finishers
@@ -348,17 +349,17 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			-- Rupture
 				-- rupture,cycle_targets=1,if=!ticking&combo_points>=cp_max_spend&spell_targets.fan_of_knives>1&target.time_to_die-remains>6
 				-- rupture,if=combo_points>=cp_max_spend&refreshable&!exsanguinated
-				for i=1, enemies.yards5 do
-                    local thisUnit = getEnemies("player",5)[i]
+				for i=1, #enemies.yards5 do
+                    local thisUnit = enemies.yards5[i]
                     local ruptureRemain = getDebuffRemain(thisUnit,spell.rupture,"player") or 0
                     if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) then
-                        if ruptureRemain == 0 and combo >= comboMax and enemies.yards5 > 1 and ttd(thisUnit) - ruptureRemain > 6 then 
-                           if bb.player.castRupture(thisUnit) then return end
+                        if ruptureRemain == 0 and combo >= comboMax and #enemies.yards5 > 1 and ttd(thisUnit) - ruptureRemain > 6 then 
+                           if cast.rupture(thisUnit) then return end
                         end
                     end
                     if UnitIsUnit(thisUnit,dynTar5) then
                         if combo >= comboMax and debuff.refresh.rupture then -- and not exsanguinated 
-                            if bb.player.castRupture(thisUnit) then return end
+                            if cast.rupture(thisUnit) then return end
                         end
                     end
                 end
@@ -366,23 +367,23 @@ if select(2, UnitClass("player")) == "ROGUE" then
 				-- envenom,if=combo_points>=cp_max_spend-1&!dot.rupture.refreshable&buff.elaborate_planning.remains<2&energy.deficit<40&spell_targets.fan_of_knives<=6
 				-- envenom,if=combo_points>=cp_max_spend&!dot.rupture.refreshable&buff.elaborate_planning.remains<2&cooldown.garrote.remains<1&spell_targets.fan_of_knives<=6
 				if ((combo >= comboMax - 1 and powerDeficit < 40) or (combo >= comboMax and cd.garrote < 1)) 
-					and not debuff.refresh.rupture and buff.remain.elaboratePlanning < 2 and enemies.yards8 <= 6 
+					and not debuff.refresh.rupture and buff.remain.elaboratePlanning < 2 and #enemies.yards8 <= 6 
 				then
-					if bb.player.castEnvenom() then return end
+					if cast.envenom() then return end
 				end
 			end -- End Action List - Finishers
 		-- Action List - Generators
 			local function actionList_Generators()
 			-- Hemorrhage
 				-- hemorrhage,cycle_targets=1,if=combo_points.deficit>=1&refreshable&dot.rupture.remains>6&spell_targets.fan_of_knives>1&spell_targets.fan_of_knives<=4
-				for i=1, enemies.yards5 do
-                    local thisUnit = getEnemies("player",5)[i]
+				for i=1, #enemies.yards5 do
+                    local thisUnit = enemies.yards5[i]
                     local ruptureRemain = getDebuffRemain(thisUnit,spell.rupture,"player") or 0
                     local hemorrhageRemain = getDebuffRemain(thisUnit,spell.hemorrhage,"player") or 0
                     local hemorrhageDuration = getDebuffDuration(thisUnit,spell.hemorrhage,"player") or 0
                     if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) then
-                        if comboDeficit >= 1 and  hemorrhageRemain < hemorrhageDuration * 0.3 and ruptureRemain > 6 and enemies.yards8 > 1 and enemies.yards8 <= 4 then
-                           if bb.player.castHemorrhage(thisUnit) then return end
+                        if comboDeficit >= 1 and  hemorrhageRemain < hemorrhageDuration * 0.3 and ruptureRemain > 6 and #enemies.yards8 > 1 and #enemies.yards8 <= 4 then
+                           if cast.hemorrhage(thisUnit) then return end
                         end
                     end
                 end
@@ -391,12 +392,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
             -- Hemorrhage
             	-- hemorrhage,if=(combo_points.deficit>=1&refreshable)|(combo_points.deficit=1&dot.rupture.refreshable)
             	if (comboDeficit >= 1 and debuff.refresh.hemorrhage) or (comboDeficit == 1 and debuff.refresh.rupture) then
-            		if bb.player.castHemorrhage() then return end
+            		if cast.hemorrhage() then return end
             	end
 			-- Mutilate
 				-- mutilate,if=combo_points.deficit>=2&cooldown.garrote.remains>2
 				if (comboDeficit >= 2 or level < 3) and (cd.garrote > 2 or level < 48) then
-					if bb.player.castMutilate() then return end
+					if cast.mutilate() then return end
 				end
 			end -- End Action List - Generators
 	---------------------
@@ -449,14 +450,14 @@ if select(2, UnitClass("player")) == "ROGUE" then
 -- 	----------------------------------
 			-- Shadowstep
 	                if isChecked("Shadowstep") then
-	                    if bb.player.castShadowstep("target") then return end 
+	                    if cast.shadowstep("target") then return end 
 	                end
 	                if not buff.steath and not buff.vanish and not buff.shadowmeld and GetTime() > vanishTime + 2 then
 	       	-- Rupture
 		       			-- rupture,if=combo_points>=2&!ticking&time<10&!artifact.urge_to_kill.enabled
 						-- rupture,if=combo_points>=4&!ticking
 						if not debuff.rupture and ((combo >= 2 and cTime < 10 and not artifact.urgeToKill) or combo >= 4) then
-							if bb.player.castRupture() then return end
+							if cast.rupture() then return end
 						end
 			-- Exsanguinate Combo
 						-- run_action_list,name=exsang_combo,if=cooldown.exsanguinate.remains<3&talent.exsanguinate.enabled

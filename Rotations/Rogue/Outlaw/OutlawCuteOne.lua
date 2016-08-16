@@ -159,7 +159,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local artifact 										= bb.player.artifact
 			local attacktar 									= UnitCanAttack("target","player")
 			local buff, buffRemain								= bb.player.buff, bb.player.buff.remain
-			local castable 										= bb.player.castable
+			local cast 											= bb.player.cast
+			local castable 										= bb.player.cast.debug
 			local cd 											= bb.player.cd
 			local charge 										= bb.player.charges
 			local combo, comboDeficit, comboMax					= bb.player.comboPoints, bb.player.comboPointsMax - bb.player.comboPoints, bb.player.comboPointsMax
@@ -222,9 +223,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
         			if not UnitIsUnit("target","player") and (UnitExists("target") or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
 	        			if not isPicked(units.dyn5) and not isDummy() then
 	        				if debuff.remain.sap < 1 and mode.pickPocket ~= 1 then
-	        					if bb.player.castSap(units.dyn5) then return end
+	        					if cast.sap(units.dyn5) then return end
 	        				end
-	        				if bb.player.castPickPocket() then return end
+	        				if cast.pickPocket() then return end
 	        			end
 	        		end
 	        	end
@@ -252,44 +253,44 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		    		end
 				-- Crimson Vial
 					if isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") then
-						if bb.player.castCrimsonVial() then return end
+						if cast.crimsonVial() then return end
 					end
 				-- Riposte
 					if isChecked("Riposte") and php <= getOptionValue("Riposte") and inCombat then
-						if bb.player.castRiposte() then return end
+						if cast.riposte() then return end
 					end
 	            end
 			end -- End Action List - Defensive
 		-- Action List - Interrupts
 			local function actionList_Interrupts()
 				if useInterrupts() and not stealth then
-					for i=1, enemies.yards20 do
-						local thisUnit = getEnemies("player", 20)[i]
+					for i = 1, #enemies.yards20 do
+						local thisUnit = enemies.yards20[i]
 						local distance = getDistance(thisUnit)
 						if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
 							if distance < 5 then
 			-- Kick
 								-- kick
 								if isChecked("Kick") then
-									if bb.player.castKick(thisUnit) then return end
+									if cast.kick(thisUnit) then return end
 								end
 								if cd.kick ~= 0 then
 			-- Gouge
 									if isChecked("Gouge") then
-										if bb.player.castGouge(thisUnit) then return end
+										if cast.gouge(thisUnit) then return end
 									end
 								end
 							end
 							if (cd.kick ~= 0 and cd.gouge ~= 0) or (distance >= 5 and distance < 15) then 
 			-- Blind
 								if isChecked("Blind") then
-									if bb.player.castBlind(thisUnit) then return end
+									if cast.blind(thisUnit) then return end
 								end	 
 							end
 			-- Between the Eyes
 							if ((cd.kick ~= 0 and cd.gouge ~= 0) or distance >= 5) and (cd.blind ~= 0 or level < 38 or distance >= 15) then
 								if isChecked("Between the Eyes") then
-									if bb.player.castBetweenTheEyes(thisUnit) then return end
+									if cast.betweenTheEyes(thisUnit) then return end
 								end
 							end
 						end
@@ -308,10 +309,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
 							return true
 						elseif power > 60 then
 							if isChecked("Vanish") and not buff.stealth then
-								if bb.player.castVanish() then vanishTime = GetTime(); return end
+								if cast.vanish() then vanishTime = GetTime(); return end
 							end
 							if isChecked("Use Racial") and bb.player.race == "NightElf" and ((cd.vanish > 0 and cd.vanish < 170) or level < 32) then
-								if bb.player.castShadowmeld() then vanishTime = GetTime(); return end
+								if cast.shadowmeld() then vanishTime = GetTime(); return end
 							end
 						end
 					end
@@ -321,16 +322,16 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local function actionList_PreCombat()
 			-- Stealth
 				-- stealth
-				if isChecked("Stealth") then
+				if isChecked("Stealth") and (GetRestState() ~= 1 or isDummy()) then
 					if getOptionValue("Stealth") == 1 then
-						if bb.player.castStealth() then return end
+						if cast.stealth() then return end
 					end
 					if getOptionValue("Stealth") == 2 then
-						for i=1, #dynTable20AoE do
-                            local thisUnit = dynTable20AoE[i].unit
-                            if dynTable20AoE[i].distance < 20 then
+						for i=1, #enemies.yards20 do
+                            local thisUnit = enemies.yards20
+                            if getDistance(thisUnit) < 20 then
                                 if ObjectExists(thisUnit) and UnitCanAttack(thisUnit,"player") and GetTime()-leftCombat > lootDelay then
-                                    if bb.player.castStealth() then return end
+                                    if cast.stealth() then return end
                                 end
                             end
                         end
@@ -348,23 +349,25 @@ if select(2, UnitClass("player")) == "ROGUE" then
 							if power <= 60 then
 								return true
 							else
-								if bb.player.castAmbush() then return end
+								if cast.ambush() then return end
 							end
 						else
 							if power <= 40 then
 								return true
 							else
-								if bb.player.castCheapShot() then return end
+								if cast.cheapShot() then return end
 							end
 						end
 					end
 				-- Grappling Hook
 	                if isChecked("Grappling Hook") and (hasThreat("target") or solo) then
-	                    if bb.player.castGrapplingHook("target") then return end 
+	                    if cast.grapplingHook("target") then return end 
 	                end
 	            -- Start Attack
 	            	if (not buff.stealth and not buff.shadowmeld and not buff.vanish) or level < 5 then
-	            		StartAttack()
+	            		if mode.rotation ~= 4 then
+	            			StartAttack()
+	            		end
 	            	end
 	            end
 			end -- End Action List - Opener
@@ -372,23 +375,23 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local function actionList_Finishers()
 			-- Run Through
 				-- run_through
-				if bb.player.castRunThrough() then return end
+				if cast.runThrough() then return end
 			end -- End Action List - Finishers
 		-- Action List - Generators
 			local function actionList_Generators()
 			-- Ghostly Strike
 				-- ghostly_strike,if=talent.ghostly_strike.enabled&debuff.ghostly_strike.remains<duration*0.3
 				if talent.ghostlyStrike and (debuff.remain.ghostlyStrike < debuff.duration.ghostlyStrike * 0.3 or not debuff.ghostlyStrike) then
-					if bb.player.castGhostlyStrike() then return end
+					if cast.ghostlyStrike() then return end
 				end
 			-- Pistol Shot
 				-- pistol_shot,if=buff.opportunity.up&energy<60
 				if buff.opportunity and power < 60 then
-					if bb.player.castPistolShot() then return end
+					if cast.pistolShot() then return end
 				end
 			-- Saber Slash
 				-- saber_slash
-				if bb.player.castSaberSlash() then return end
+				if cast.saberSlash() then return end
 			end -- End Action List - Generators
 	---------------------
 	--- Begin Profile ---
@@ -397,6 +400,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			if not inCombat and not hastar and profileStop == true then
 				profileStop = false
 			elseif (inCombat and profileStop == true) or pause() or mode.rotation == 4 then
+				if inCombat and mode.rotation == 4 then StopAttack() end
 				return true
 			else
 	-----------------------
@@ -431,8 +435,13 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	----------------------------------
 	--- In Combat - Begin Rotation ---
 	----------------------------------
-					if not buff.stealth and not buff.vanish and not buff.shadowmeld and GetTime() > vanishTime + 2 then
+					if not buff.stealth and not buff.vanish and not buff.shadowmeld and GetTime() > vanishTime + 2 and getDistance(units.dyn5) < 5 then
 						ObjectInteract(units.dyn5)
+			-- Blade Flurry
+						-- blade_flurry,if=(spell_targets.blade_flurry>=2&!buff.blade_flurry.up)|(spell_targets.blade_flurry<2&buff.blade_flurry.up)
+						if (useAoE() and not buff.bladeFlurry) or (not useAoE() and buff.bladeFlurry) then
+							if cast.bladeFlurry() then return end
+						end
 			-- Roll the Bones
 						-- roll_the_bones,if=combo_points>=5&buff.roll_the_bones.remains<target.time_to_die&(buff.roll_the_bones.remains<3|buff.roll_the_bones.remains<duration*0.3%rtb_buffs|(rtb_buffs<=1|rtb_buffs=2&!buff.shark_infested_waters.up&!buff.jolly_roger.up&!(buff.broadsides.up&buff.true_bearing.up)))
 						if combo >= 5 and buff.remain.rollTheBones < ttd(units.dyn5) and 
@@ -440,7 +449,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 								or (buff.count.rollTheBones <= 1 or buff.count.rollTheBones == 2 and not buff.sharkInfestedWaters and not buff.jollyRoger 
 									and not (buff.broadsides and buff.trueBearings))) 
 						then
-							if bb.player.castRollTheBones() then return end
+							if cast.rollTheBones() then return end
 						end
 			-- Finishers
 						-- call_action_list,name=finisher,if=combo_points>=5+talent.deeper_strategem.enabled

@@ -1,5 +1,5 @@
-if select(3, UnitClass("player")) == 4 then
-    function RogueAssassination()
+function RogueAssassination()
+    if GetSpecializationInfo(GetSpecialization()) == 259 then
         if bb.player == nil or bb.player.profile ~= "Assassination" then
             bb.player = cAssassination:new("Assassination")
             setmetatable(bb.player, {__index = cAssassination})
@@ -11,5 +11,5 @@ if select(3, UnitClass("player")) == 4 then
 
         bb.player:update()
 
-    end --Rogue Function End
-end --Class Check End
+    end --Spec Check End
+end --Rogue Function End

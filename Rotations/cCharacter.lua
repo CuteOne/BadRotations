@@ -6,13 +6,20 @@ cCharacter = {}
 -- Creates new character with given class
 function cCharacter:new(class)
 	local self = {}
-    self.rotations = {}
-	self.profile        = "None"    -- Spec
-	self.class          = class     -- Class
+	self.augmentRune 	= {        -- Contains the different buff IDs for Augment Runes
+		Agility   = 175456,
+		Strength  = 175439,
+		Intellect = 175457,
+    }
+    self.artifact       = {}
 	self.buff           = {}        -- Buffs
     self.debuff         = {}        -- Debuffs on target
+	self.class          = select(2, UnitClass("player")) -- Class
 	self.cd             = {}        -- Cooldowns
 	self.charges        = {}        -- Number of charges
+    self.dynLastUpdate  = 0         -- Timer variable to reduce Dynamic Target updating
+    self.dynTargetTimer = 0.5       -- Timer to reduce Dynamic Target updating (1/X = calls per second)
+	self.enemies  		= {}        -- Number of Enemies around player (must be overwritten by cCLASS or cSPEC)
 	self.eq             = {         -- Special Equip like set bonus or class trinket (archimonde)
 		--T17
 		t17_2pc = false,
@@ -24,20 +31,57 @@ function cCharacter:new(class)
 	}
 	self.gcd            = 1.5       -- Global Cooldown
 	self.glyph          = {}        -- Glyphs
+	self.faction  		= select(1,UnitFactionGroup("player")) -- Faction non-localised name
+    self.flask 			= {}
+    self.flask.wod 		= {
+        -- Agility
+        agilityLow 		= 127848, 	-- Flask of the Seventh Demon (Legion)
+        agilityBig 		= 127848, 	-- Flask of the Seventh Demon (Legion)
+        -- Intellect
+        intellectLow 	= 109147,
+        intellectBig 	= 109155,
+        -- Stamina
+        staminaLow 		= 109152,
+        staminaBig		= 109160,
+        -- Strength
+        strengthLow 	= 109148,
+        strengthBig 	= 109156,
+    }
+    self.flask.wod.buff = {
+        -- Agility
+        agilityLow 		= 188033, 	-- Flask of the Seventh Demon (Legion)
+        agilityBig 		= 188033, 	-- Flask of the Seventh Demon (Legion)
+        -- Intellect
+        intellectLow 	= 156070,
+        intellectBig 	= 156079,
+        -- Stamina
+        staminaLow 		= 156077,
+        staminaBig 		= 156084,
+        -- Strength
+        strengthLow 	= 156071,
+        strengthBig 	= 156080,
+    }
+    self.functions 		= {} 		-- Functions
 	self.health         = 100       -- Health Points in %
 	self.ignoreCombat   = false     -- Ignores combat status if set to true
-	self.power          = 0     	-- Primary Resource (e.g. Mana for Retribution, Holy Power must be specified)
-	self.timeToMax		= 0			-- Time To Max Power
-	self.level			= 0 		-- Player Level
-	self.mode           = {}        -- Toggles
-	self.rotation       = 1         -- Default: First avaiable rotation
 	self.inCombat       = false     -- if is in combat
 	self.instance 		= select(2,IsInInstance()) 	-- Get type of group we are in (none, party, instance, raid, etc)
-	self.talent         = {}        -- Talents
-	self.characterSpell = {}        -- Spells all classes may have (e.g. Racials, Mass Ressurection)
+	self.level			= 0 		-- Player Level
+	self.mode           = {}        -- Toggles
+	self.options 		= {}        -- Contains options
+	self.perk 			= {}		-- Perk Table
+	self.potion 		= {}		-- Potion Table
+	self.power          = 0     	-- Primary Resource (e.g. Mana for Retribution, Holy Power must be specified)
+	self.primaryStat 	= nil       -- Contains the primary Stat: Strength, Agility or Intellect
+	self.profile        = "None"    -- Spec
+	self.race     		= select(2,UnitRace("player")) -- Race as non-localised name (undead = Scourge) !
+	self.racial   		= nil       -- Contains racial spell id
 	self.recharge       = {}        -- Time for current recharge (for spells with charges)
-    self.dynTargetTimer = 0.5       -- Timer to reduce Dynamic Target updating (1/X = calls per second)
-    self.dynLastUpdate  = 0         -- Timer variable to reduce Dynamic Target updating
+	self.rotation       = 1         -- Default: First avaiable rotation
+    self.rotations 		= {} 		-- List of Rotations
+	self.spell			= {}        -- Spells all classes may have (e.g. Racials, Mass Ressurection)
+	self.talent         = {}        -- Talents
+	self.timeToMax		= 0			-- Time To Max Power
 	self.units          = {         -- Dynamic Units (used for dynamic targeting, if false then target)
 		dyn5,
 		dyn30,
@@ -46,48 +90,6 @@ function cCharacter:new(class)
 		dyn30AoE,
 		dyn40AoE,
 	}
-	self.enemies  = {}              -- Number of Enemies around player (must be overwritten by cCLASS or cSPEC)
-	self.race     = select(2,UnitRace("player")) -- Race as non-localised name (undead = Scourge) !
-	self.racial   = nil             -- Contains racial spell id
-	self.faction  = select(1,UnitFactionGroup("player")) -- Faction non-localised name
-	self.augmentRune = {            -- Contains the different buff IDs for Augment Runes
-		Agility   = 175456,
-		Strength  = 175439,
-		Intellect = 175457,
-    }
-    self.flask = {}
-    self.flask.wod = {
-        -- Agility
-        agilityLow = 127848, 		-- Flask of the Seventh Demon (Legion)
-        agilityBig = 127848, 		-- Flask of the Seventh Demon (Legion)
-        -- Intellect
-        intellectLow = 109147,
-        intellectBig = 109155,
-        -- Stamina
-        staminaLow = 109152,
-        staminaBig = 109160,
-        -- Strength
-        strengthLow = 109148,
-        strengthBig = 109156,
-    }
-    self.flask.wod.buff = {
-        -- Agility
-        agilityLow = 188033, 		-- Flask of the Seventh Demon (Legion)
-        agilityBig = 188033, 		-- Flask of the Seventh Demon (Legion)
-        -- Intellect
-        intellectLow = 156070,
-        intellectBig = 156079,
-        -- Stamina
-        staminaLow = 156077,
-        staminaBig = 156084,
-        -- Strength
-        strengthLow = 156071,
-        strengthBig = 156080,
-    }
-	self.options = {}               -- Contains options
-	self.primaryStat = nil          -- Contains the primary Stat: Strength, Agility or Intellect
-	self.perk = {}
-	self.potion = {}				-- Potion Table
 	
 
 -- Things which get updated for every class in combat
@@ -99,43 +101,11 @@ function cCharacter:new(class)
 		-- Get base options
 		self.baseGetOptions()
 
-		-- Specialization
-		self.spec 				= select(2, GetSpecializationInfo(GetSpecialization())) or "None"
+		-- Get Character Info
+		self.getCharacterInfo()
 
-		-- Level, Health
-		self.level 				= UnitLevel("player") -- TODO: EVENT - UNIT_LEVEL
-		self.health 			= getHP("player")
-
-		-- Get Consumables
-		self.potion.action 		= {}
-		self.potion.agility		= {}	-- Agility Potions
-		self.potion.armor 		= {}	-- Armor Potions
-		self.potion.breathing  	= {}
-		self.potion.health		= {}	-- Health Potions
-		self.potion.intellect 	= {}	-- Intellect Potions
-		self.potion.invis 		= {}
-		self.potion.mana 		= {}	-- Mana Potions
-		self.potion.rage 		= {}
-		self.potion.rejuve 		= {}
-		self.potion.speed		= {}
-		self.potion.strength 	= {}	-- Strength Potions
-		self.potion.versatility = {} 	-- Versatility Potions
-		self.potion.waterwalk 	= {}
+		-- Get Consumables	
 		self.getConsumables()			-- Find All The Tasty Things!
-
-		-- Instance
-		self.instance 			= select(2,IsInInstance())
-		-- Power
-		self.power  			= getPower("player")
-		self.powerMax 			= UnitPowerMax("player")
-		self.powerDeficit 		= UnitPowerMax("player")-getPower("player")
-		self.powerPercent 		= ((UnitPower("player")/UnitPowerMax("player"))*100)
-		self.powerPercentMana 	= ((UnitPower("player",0)/UnitPowerMax("player",0))*100)
-		self.powerRegen 		= getRegen("player")
-		self.timeToMax 			= getTimeToMax("player")
-
-		-- Racial Cooldown
-		self.cd.racial 			= getSpellCD(self.racial)
 
 		-- Crystal
 		self.useCrystal()
@@ -145,9 +115,6 @@ function cCharacter:new(class)
 
         -- Get selected rotation
         self.getRotation()
-
-		-- Set Global Cooldown
-		self.gcd 				= self.getGlobalCooldown()
 
 		-- Get toggle modes
 		self.getToggleModes()
@@ -162,11 +129,23 @@ function cCharacter:new(class)
 		if canRun() ~= true then
 			return false
 		end
+	end
 
-		-- Start attacking (melee)
-		if not self.class=="Priest" and (self.stealth == false or self.stealth == nil) then
-			self.startMeleeAttack()
-		end
+-- Update Character Stats
+	function self.getCharacterInfo()
+
+		self.gcd 				= self.getGlobalCooldown()
+		self.health 			= getHP("player")
+		self.instance 			= select(2,IsInInstance())
+		self.level 				= UnitLevel("player") -- TODO: EVENT - UNIT_LEVEL
+		self.power  			= getPower("player")
+		self.powerDeficit 		= UnitPowerMax("player")-getPower("player")
+		self.powerMax 			= UnitPowerMax("player")
+		self.powerPercent 		= ((UnitPower("player")/UnitPowerMax("player"))*100)
+		self.powerPercentMana 	= ((UnitPower("player",0)/UnitPowerMax("player",0))*100)
+		self.powerRegen 		= getRegen("player")
+		self.powerTTM 			= getTimeToMax("player")
+		self.spec 				= select(2, GetSpecializationInfo(GetSpecialization())) or "None"
 	end
 
 -- Updates things Out of Combat like Talents, Gear, etc.
@@ -178,21 +157,11 @@ function cCharacter:new(class)
 -- Updates toggle data
     -- TODO: here should only happen generic ones like Defensive etc.
 	function self.getToggleModes()
-		-- Paladin:
-		if self.class == "Paladin" then
-			self.mode.aoe       = bb.data["AoE"]
-			self.mode.cooldowns = bb.data["Cooldowns"]
-			self.mode.defensive = bb.data["Defensive"]
-			self.mode.healing   = bb.data["Healing"]
-		end
-		-- Priest - Shadow:
-		if self.class == "Priest" and self.profile == "Shadow" then
-			self.mode.defensive  =  bb.data['Defensive']
-			self.mode.bosshelper =  bb.data['BossHelper']
-			self.mode.t90        =  bb.data['T90']
-			self.mode.cooldowns  =  bb.data['Cooldowns']
-			self.mode.feather    =  bb.data['Feather']
-		end
+
+		self.mode.rotation  = bb.data["Rotation"]
+		self.mode.cooldown 	= bb.data["Cooldown"]
+		self.mode.defensive = bb.data["Defensive"]
+		self.mode.interrupt = bb.data["Interrupt"]
 	end
 
 -- Dynamic unit update
@@ -337,30 +306,6 @@ function cCharacter:new(class)
  -- Character options
  -- Options which every Class should have
  -- Call after Title
-	function self.createBaseOptionsOLD()
-		-- Base Wrap
-		CreateNewWrap(thisConfig, "--- Base Options ---")
-
-		-- Ignore Combat option
-		CreateNewCheck(thisConfig,"Ignore Combat","Ignore Combat. Farm mode.","0")
-		CreateNewText(thisConfig, "Ignore Combat");
-
-		-- Use Crystal Flask
-		CreateNewCheck(thisConfig,"Use Crystal","Use Oralius Crystal +100 to all Stats.","0")
-		CreateNewText(thisConfig, "Use Crystal");
-
-		-- Use Empowered Rune (unlimited rune)
-		CreateNewCheck(thisConfig,"Use emp. Rune","Use Empowered Rune. +50 to primary Stat.","0")
-		CreateNewText(thisConfig, "Use emp. Rune");
-
-		-- Use Racial
-		CreateNewCheck(thisConfig,"Use Racial","Use Racial.","0")
-		CreateNewText(thisConfig, "Use Racial");
-
-		-- Spacer
-		CreateNewText(thisConfig, " ");
-    end
-
     function self.createBaseOptions()
         -- Base Wrap
         local section_base = bb.ui:createSection(bb.ui.window.profile, "Base Options")
@@ -466,6 +411,7 @@ function cCharacter:new(class)
 								for y = 1, #potionList do --Look for and add to right potion table
 									local potionEffect = potionList[y].effect
 									local potionType = potionList[y].ptype
+									if self.potion[potionType] == nil then self.potion[potionType] = {} end
 									if strmatch(itemEffect,potionEffect)~=nil then
 										tinsert(self.potion[potionType],itemInfo)
 										table.sort(self.potion[potionType], function(x,y)

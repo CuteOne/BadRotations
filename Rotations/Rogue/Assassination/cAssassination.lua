@@ -1,11 +1,11 @@
 --- Assassination Class
 -- Inherit from: ../cCharacter.lua and ../cRogue.lua
-if select(2, UnitClass("player")) == "ROGUE" then
-    cAssassination = {}
-    cAssassination.rotations = {}
+cAssassination = {}
+cAssassination.rotations = {}
 
-    -- Creates Assassination Rogue
-    function cAssassination:new()
+-- Creates Assassination Rogue
+function cAssassination:new()
+    if GetSpecializationInfo(GetSpecialization()) == 259 then
         local self = cRogue:new("Assassination")
 
         local player = "player" -- if someone forgets ""
@@ -16,16 +16,30 @@ if select(2, UnitClass("player")) == "ROGUE" then
         -----------------
         --- VARIABLES ---
         -----------------
-        self.charges.frac       = {}        -- Fractional Charges
-        self.trinket            = {}        -- Trinket Procs
-        self.enemies            = {
-            yards5,
-            yards8,
-            yards13,
-            yards20,
-            yards40,
+        self.spell.spec             = {}
+        self.spell.spec.abilities   = {
+            assassinsResolve        = 84601,
+            cripplingPoison         = 3408,
+            cutToTheChase           = 51667,
+            deadlyPoison            = 2823,
+            envenom                 = 32645,
+            evasion                 = 5277,
+            fanOfKnives             = 51723,
+            garrote                 = 703,
+            hemorrhage              = 16511,
+            improvedPoisons         = 14117,
+            kidneyShot              = 408,
+            masteryPotentPoisons    = 76803,
+            mutilate                = 1329,
+            poisonedKnife           = 185565,
+            rupture                 = 1943,
+            sealFate                = 14190,
+            shadowstep              = 36554,
+            vendetta                = 79140,
+            venomousWounds          = 79134,
+            woundPoison             = 8679,
         }
-        self.assassinationArtifacts     = {
+        self.spell.spec.artifacts   = {
             assassinsBlades         = 214368,
             bagOfTricks             = 192657,
             balancedBlades          = 192326,
@@ -45,42 +59,20 @@ if select(2, UnitClass("player")) == "ROGUE" then
             toxicBlades             = 192310,
             urgeToKill              = 192384,
         }
-        self.assassinationBuffs         = {
-
+        self.spell.spec.buffs       = {
             cripplingPoison         = 3408,
             deadlyPoison            = 2823,
             elaboratePlanning       = 193641,
             woundPoison             = 8679,
         }
-        self.assassinationDebuffs       = {
+        self.spell.spec.debuffs     = {
             cripplingPoison         = 3409,
             deadlyPoison            = 2818,
             hemorrhage              = 16511,
             rupture                 = 1943,
-            woundPoison             = 8679,
+            woundPoison             = 8680,
         }
-        self.assassinationSpecials      = {
-            assassinsResolve        = 84601,
-            cripplingPoison         = 3408,
-            cutToTheChase           = 51667,
-            deadlyPoison            = 2823,
-            envenom                 = 32645,
-            evasion                 = 5277,
-            fanOfKnives             = 51723,
-            garrote                 = 703,
-            improvedPoisons         = 14117,
-            kidneyShot              = 408,
-            masteryPotentPoisons    = 76803,
-            mutilate                = 1329,
-            poisonedKnife           = 185565,
-            rupture                 = 1943,
-            sealFate                = 14190,
-            shadowstep              = 36554,
-            vendetta                = 79140,
-            venomousWounds          = 79134,
-            woundPoison             = 8679,
-        }
-        self.assassinationTalents       = {
+        self.spell.spec.talents     = {
             agonizingPoison         = 200802,
             elaboratePlanning       = 193640,
             exsanguinate            = 200806,
@@ -92,17 +84,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
             shadowFocus             = 108209,
             subterfuge              = 108208,
             thuggee                 = 196861,
-            venomRush               = 152152,            
+            venomRush               = 152152,
         }
-        -- Merge all spell tables into self.spell
-        self.assassinationSpells = {}
-        self.assassinationSpells = mergeTables(self.assassinationSpells,self.assassinationArtifacts)
-        self.assassinationSpells = mergeTables(self.assassinationSpells,self.assassinationBuffs)
-        self.assassinationSpells = mergeTables(self.assassinationSpells,self.assassinationDebuffs)
-        self.assassinationSpells = mergeTables(self.assassinationSpells,self.assassinationSpecials)
-        self.assassinationSpells = mergeTables(self.assassinationSpells,self.assassinationTalents)
-        self.spell = {}
-        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.rogueSpell, self.assassinationSpells)
+        -- Merge all spell ability tables into self.spell
+        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
         
     ------------------
     --- OOC UPDATE ---
@@ -115,7 +100,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             self.getArtifactRanks()
             self.getGlyphs()
             self.getTalents()
-            -- self.getPerks() --Removed in Legion
+            self.getPerks() --Removed in Legion
         end
 
     --------------
@@ -128,26 +113,16 @@ if select(2, UnitClass("player")) == "ROGUE" then
             self.classUpdate()
             -- Updates OOC things
             if not UnitAffectingCombat("player") then self.updateOOC() end
-            -- self.assassination_bleed_table()
             self.getBuffs()
             self.getCastable()
             self.getCharge()
             self.getCooldowns()
             self.getDynamicUnits()
             self.getDebuffs()
-            self.getTrinketProc()
-            self.hasTrinketProc()
             self.getEnemies()
             self.getRecharges()
             self.getToggleModes()
             self.getCastable()
-
-
-            -- Casting and GCD check
-            -- TODO: -> does not use off-GCD stuff like pots, dp etc
-            if castingUnit() then
-                return
-            end
 
             -- Start selected rotation
             self:startRotation()
@@ -161,12 +136,24 @@ if select(2, UnitClass("player")) == "ROGUE" then
             local dynamicTarget = dynamicTarget
 
             -- Normal
-            -- self.units.dyn8 = dynamicTarget(8, true) -- Swipe
             self.units.dyn25 = dynamicTarget(25, true) -- Shadowstep
             self.units.dyn30 = dynamicTarget(30, true) -- Poisoned Knife
 
             -- AoE
-            self.units.dyn8AoE = dynamicTarget(8, false) -- Thrash
+            self.units.dyn8AoE = dynamicTarget(8, false)
+        end
+
+    ---------------
+    --- ENEMIES ---
+    ---------------
+
+        function self.getEnemies()
+            local getEnemies = getEnemies
+
+            self.enemies.yards5     = getEnemies("player", 5) -- Melee
+            self.enemies.yards8     = getEnemies("player", 8) -- Fan of Knives
+            self.enemies.yards20    = getEnemies("player", 20) -- Interrupts
+            self.enemies.yards30    = getEnemies("player", 30) -- Poisoned Knife
         end
 
     -----------------
@@ -176,8 +163,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getArtifacts()
             local isKnown = isKnown
 
-            for k,v in pairs(self.assassinationArtifacts) do
-                self.artifact[k] = isKnown(v)
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact[k] = isKnown(v) or false
             end
         end
 
@@ -194,22 +181,11 @@ if select(2, UnitClass("player")) == "ROGUE" then
             local getBuffDuration = getBuffDuration
             local getBuffRemain = getBuffRemain
 
-            for k,v in pairs(self.assassinationBuffs) do
-                self.buff[k] = UnitBuffID("player",v) ~= nil
-                self.buff.duration[k] = getBuffDuration("player",v) or 0
-                self.buff.remain[k] = getBuffRemain("player",v) or 0
+            for k,v in pairs(self.spell.spec.buffs) do
+                self.buff[k]            = UnitBuffID("player",v) ~= nil
+                self.buff.duration[k]   = getBuffDuration("player",v) or 0
+                self.buff.remain[k]     = getBuffRemain("player",v) or 0
             end
-        end
-
-        function self.getTrinketProc()
-            local UnitBuffID = UnitBuffID
-
-        end
-
-        function self.hasTrinketProc()
-            -- for i = 1, #self.trinket do
-            --     if self.trinket[i]==true then return true else return false end
-            -- end
         end
 
     ---------------
@@ -220,11 +196,11 @@ if select(2, UnitClass("player")) == "ROGUE" then
             local getDebuffDuration = getDebuffDuration
             local getDebuffRemain = getDebuffRemain
 
-            for k,v in pairs(self.assassinationDebuffs) do
-                self.debuff[k] = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
+            for k,v in pairs(self.spell.spec.debuffs) do
+                self.debuff[k]          = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
                 self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
-                self.debuff.remain[k] = getDebuffRemain(self.units.dyn5,v,"player") or 0
-                self.debuff.refresh[k] = (self.debuff.remain[k] < self.debuff.duration[k] * 0.3) or self.debuff.remain[k] == 0
+                self.debuff.remain[k]   = getDebuffRemain(self.units.dyn5,v,"player") or 0
+                self.debuff.refresh[k]  = (self.debuff.remain[k] < self.debuff.duration[k] * 0.3) or self.debuff.remain[k] == 0
             end
         end
 
@@ -247,7 +223,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getCooldowns()
             local getSpellCD = getSpellCD
 
-            for k,v in pairs(self.assassinationSpells) do
+            for k,v in pairs(self.spell.spec.abilities) do
                 if getSpellCD(v) ~= nil then
                     self.cd[k] = getSpellCD(v)
                 end
@@ -274,7 +250,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             for r = 1, 7 do --search each talent row
                 for c = 1, 3 do -- search each talent column
                     local talentID = select(6,GetTalentInfo(r,c,GetActiveSpecGroup())) -- ID of Talent at current Row and Column
-                    for k,v in pairs(self.assassinationTalents) do
+                    for k,v in pairs(self.spell.spec.talents) do
                         if v == talentID then
                             self.talent[k] = getTalent(r,c)
                         end
@@ -291,18 +267,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
             local isKnown = isKnown
 
             -- self.perk.enhancedBerserk        = isKnown(self.spell.enhancedBerserk)
-        end
-
-    ---------------
-    --- ENEMIES ---
-    ---------------
-
-        function self.getEnemies()
-            local getEnemies = getEnemies
-
-            self.enemies.yards5 = #getEnemies("player", 5) -- Melee
-            self.enemies.yards8 = #getEnemies("player", 8) -- Fan of Knives
-            self.enemies.yards30 = #getEnemies("player", 30) -- Poisoned Knife
         end
 
     -----------------
@@ -384,20 +348,20 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         function self.getCastable()
 
-            self.castable.cripplingPoison   = self.castCripplingPoison("player",true)
-            self.castable.deadlyPoison      = self.castDeadlyPoison("player",true)
-            self.castable.envenom           = self.castEnvenom("target",true)
-            self.castable.evasion           = self.castEvasion("player",true)
-            self.castable.hemorrhage        = self.castHemorrhage("target",true)
-            self.castable.kidneyShot        = self.castKidneyShot("target",true)
-            self.castable.mutilate          = self.castMutilate("target",true)
-            self.castable.poisonKnive       = self.castPoisonedKnife("target",true)
-            self.castable.rupture           = self.castRupture("target",true)
-            self.castable.shadowstep        = self.castShadowstep("target",true)
-            self.castable.woundPoison       = self.castWoundPoison("player",true)
+            self.cast.debug.cripplingPoison   = self.cast.cripplingPoison("player",true)
+            self.cast.debug.deadlyPoison      = self.cast.deadlyPoison("player",true)
+            self.cast.debug.envenom           = self.cast.envenom("target",true)
+            self.cast.debug.evasion           = self.cast.evasion("player",true)
+            self.cast.debug.hemorrhage        = self.cast.hemorrhage("target",true)
+            self.cast.debug.kidneyShot        = self.cast.kidneyShot("target",true)
+            self.cast.debug.mutilate          = self.cast.mutilate("target",true)
+            self.cast.debug.poisonKnive       = self.cast.poisonedKnife("target",true)
+            self.cast.debug.rupture           = self.cast.rupture("target",true)
+            self.cast.debug.shadowstep        = self.cast.shadowstep("target",true)
+            self.cast.debug.woundPoison       = self.cast.woundPoison("player",true)
         end
 
-        function self.castCripplingPoison(thisUnit,debug)
+        function self.cast.cripplingPoison(thisUnit,debug)
             local spellCast = self.spell.cripplingPoison
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
@@ -413,7 +377,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castDeadlyPoison(thisUnit,debug)
+        function self.cast.deadlyPoison(thisUnit,debug)
             local spellCast = self.spell.deadlyPoison
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
@@ -427,7 +391,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 end
             end
         end
-        function self.castEnvenom(thisUnit,debug)
+        function self.cast.envenom(thisUnit,debug)
             local spellCast = self.spell.envenom
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
@@ -443,7 +407,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castEvasion(thisUnit,debug)
+        function self.cast.evasion(thisUnit,debug)
             local spellCast = self.spell.evasion
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
@@ -459,7 +423,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castHemorrhage(thisUnit,debug)
+        function self.cast.hemorrhage(thisUnit,debug)
             local spellCast = self.spell.hemorrhage
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
@@ -475,7 +439,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castKidneyShot(thisUnit,debug)
+        function self.cast.kidneyShot(thisUnit,debug)
             local spellCast = self.spell.kidneyShot
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
@@ -491,7 +455,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castMutilate(thisUnit,debug)
+        function self.cast.mutilate(thisUnit,debug)
             local spellCast = self.spell.mutilate
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
@@ -507,7 +471,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castPoisonedKnife(thisUnit,debug)
+        function self.cast.poisonedKnife(thisUnit,debug)
             local spellCast = self.spell.poisonedKnife
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn30 end
@@ -523,7 +487,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castRupture(thisUnit,debug)
+        function self.cast.rupture(thisUnit,debug)
             local spellCast = self.spell.rupture
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
@@ -539,7 +503,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castShadowstep(thisUnit,debug)
+        function self.cast.shadowstep(thisUnit,debug)
             local spellCast = self.spell.shadowstep
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "target" end
@@ -555,7 +519,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castWoundPoison(thisUnit,debug)
+        function self.cast.woundPoison(thisUnit,debug)
             local spellCast = self.spell.woundPoison
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
