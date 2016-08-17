@@ -336,17 +336,16 @@ function cRetribution:new()
     --------------
 
         function self.getCastable()
-
-            self.cast.debug.cripplingPoison   = self.cast.cripplingPoison("player",true)
+            self.cast.debug.greaterBlessingOfKings   = self.cast.greaterBlessingOfKings("player",true)
         end
 
-        function self.cast.cripplingPoison(thisUnit,debug)
-            local spellCast = self.spell.cripplingPoison
+        function self.cast.greaterBlessingOfKings(thisUnit,debug)
+            local spellCast = self.spell.greaterBlessingOfKings
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 19 and self.buff.remain.cripplingPoison < 600 and not isUnitCasting() then
+            if self.level >= 19 and not isUnitCasting() then --and self.buff.remain.greaterBlessingOfKings < 600
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
