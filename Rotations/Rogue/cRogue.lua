@@ -14,7 +14,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         self.profile                    = spec
         self.comboPoints                = UnitPower("player",4)
-        self.comboPointMax              = UnitPowerMax("player",4)
+        self.comboPointsMax             = UnitPowerMax("player",4)
         self.buff.duration              = {}       -- Buff Durations
         self.buff.remain                = {}       -- Buff Time Remaining
         self.cast                       = {}       -- Cast Spell Functions
@@ -27,11 +27,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
             cheapShot                   = 1833,
             cloakOfShadows              = 31224,
             crimsonVial                 = 185311,
+            deathFromAbove              = 152150,
             distract                    = 1725,
             feint                       = 1966,
             goremawsBite                = 209783, --809784
             kick                        = 1766,
-            kingsbane                   = 192760, --222062
+            markedForDeath              = 137619,
             pickLock                    = 1804,
             pickPocket                  = 921,
             sap                         = 6770,
@@ -413,18 +414,19 @@ if select(2, UnitClass("player")) == "ROGUE" then
     ------------------------
     --- CUSTOM FUNCTIONS ---
     ------------------------
-        function useCDs()
-            local cooldown = self.mode.cooldown
-            if (cooldown == 1 and isBoss()) or cooldown == 2 then
+
+        function useAoE()
+            local rotation = self.mode.rotation
+            if (rotation == 1 and #getEnemies("player",8) >= 2) or rotation == 2 then
                 return true
             else
                 return false
             end
         end
 
-        function useAoE()
-            local rotation = self.mode.rotation
-            if (rotation == 1 and #getEnemies("player",8) >= 2) or rotation == 2 then
+        function useCDs()
+            local cooldown = self.mode.cooldown
+            if (cooldown == 1 and isBoss()) or cooldown == 2 then
                 return true
             else
                 return false

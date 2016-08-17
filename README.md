@@ -119,7 +119,7 @@ Raidable means if its good to raid with.
 | **Paladin** |||
 |Holy|0%||7.0|
 |Protection|0%||7.0|
-|Retribution|0%|Gabbz|7.0|
+|Retribution|10%|Gabbz|7.0|
 ||||
 | **Priest** |||
 |Discipline|0%|||
@@ -127,9 +127,9 @@ Raidable means if its good to raid with.
 |Shadow|0%||7.0|
 ||||
 | **Rogue** |||
-|Assassination|45%|CuteOne|7.0|:x:
-|Outlaw|45%|CuteOne|7.0|:x:
-|Subtlety|45%|CuteOne|7.0|:x:
+|Assassination|50%|CuteOne|7.0|:x:
+|Outlaw|50%|CuteOne|7.0|:x:
+|Subtlety|50%|CuteOne|7.0|:x:
 ||||
 | **Shaman** |||
 |Elemental|0%||7.0|

@@ -23,14 +23,19 @@ function cOutlaw:new()
             bladeFlurry             = 13877,
             blind                   = 2094,
             bribe                   = 199740,
+            cannonballBarrage       = 185767,
+            ghostlyStrike           = 196937,
             gouge                   = 1776,
+            grapplingHook           = 195457,
             masteryMainGauche       = 76806,
+            parley                  = 199743,
             pistolShot              = 185763,
             riposte                 = 199754,
             rollTheBones            = 193316,
             runThrough              = 2098,
             saberSlash              = 193315,
             pistolShot              = 185763,
+            killingSpree            = 51690,
         }
         self.spell.spec.artifacts   = {
             blackPowder             = 216230,
@@ -54,8 +59,7 @@ function cOutlaw:new()
         }
         self.spell.spec.buffs       = {
             bladeFlurry             = 13877,
-        }
-        self.spell.spec.buffs.rollTheBones = {
+            broadsides              = 193356,
             buriedTreasure          = 193316,
             grandMelee              = 193358,
             jollyRoger              = 199603,
@@ -63,22 +67,30 @@ function cOutlaw:new()
             sharkInfestedWaters     = 193357,
             trueBearing             = 193359,
         }
+        self.spell.spec.buffs.rollTheBones = {
+            broadsides              = 193356,
+            buriedTreasure          = 193316,
+            grandMelee              = 193358,
+            jollyRoger              = 199603,
+            sharkInfestedWaters     = 193357,
+            trueBearing             = 193359,
+        }
         self.spell.spec.debuffs     = {
             ghostlyStrike           = 196937,
         }
         self.spell.spec.talents     = {
-            sliceAndDice            = 5171,
-            cannonballBarrage       = 185767,
-            killingSpree            = 51690,
-            dirtyTricks             = 108216,
-            parley                  = 199743,
-            ironStomach             = 193546,
             acrobaticStikes         = 196924,
+            cannonballBarrage       = 185767,
+            dirtyTricks             = 108216,
+            ghostlyStrike           = 196937,
             grapplingHook           = 195457,
             hitAndRun               = 196922,
-            ghostlyStrike           = 196937,
-            quickDraw               = 196938,
+            ironStomach             = 193546,
+            killingSpree            = 51690,
+            parley                  = 199743,
+            sliceAndDice            = 5171,
             swordmaster             = 200733,  
+            quickDraw               = 196938,
         }
         -- Merge all spell ability tables into self.spell
         self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)

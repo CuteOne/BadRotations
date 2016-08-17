@@ -13,22 +13,26 @@ function cAssassination:new()
         -- Mandatory !
         self.rotations = cAssassination.rotations
         
-        -----------------
-        --- VARIABLES ---
-        -----------------
+    -----------------
+    --- VARIABLES ---
+    -----------------
         self.spell.spec             = {}
         self.spell.spec.abilities   = {
+            agonizingPoison         = 200802,
             assassinsResolve        = 84601,
             cripplingPoison         = 3408,
             cutToTheChase           = 51667,
             deadlyPoison            = 2823,
             envenom                 = 32645,
             evasion                 = 5277,
+            exsanguinate            = 200806,
             fanOfKnives             = 51723,
             garrote                 = 703,
             hemorrhage              = 16511,
             improvedPoisons         = 14117,
             kidneyShot              = 408,
+            kingsbane               = 192760, --222062
+            leechingPoison          = 108211,
             masteryPotentPoisons    = 76803,
             mutilate                = 1329,
             poisonedKnife           = 185565,
@@ -68,6 +72,7 @@ function cAssassination:new()
         self.spell.spec.debuffs     = {
             cripplingPoison         = 3409,
             deadlyPoison            = 2818,
+            garrote                 = 703,
             hemorrhage              = 16511,
             rupture                 = 1943,
             woundPoison             = 8680,
@@ -151,7 +156,7 @@ function cAssassination:new()
             local getEnemies = getEnemies
 
             self.enemies.yards5     = getEnemies("player", 5) -- Melee
-            self.enemies.yards8     = getEnemies("player", 8) -- Fan of Knives
+            self.enemies.yards10    = getEnemies("player", 8) -- Fan of Knives
             self.enemies.yards20    = getEnemies("player", 20) -- Interrupts
             self.enemies.yards30    = getEnemies("player", 30) -- Poisoned Knife
         end
@@ -189,6 +194,18 @@ function cAssassination:new()
         end
 
     ---------------
+    --- CHARGES ---
+    ---------------
+
+        function self.getCharge()
+            local getCharges = getCharges
+            local getChargesFrac = getChargesFrac
+            local getBuffStacks = getBuffStacks
+
+            -- self.charges.assassinationtalons        = getBuffStacks("player",self.spell.assassinationtalonsBuff,"player")
+        end
+
+    ---------------
     --- DEBUFFS ---
     ---------------
         function self.getDebuffs()
@@ -202,18 +219,6 @@ function cAssassination:new()
                 self.debuff.remain[k]   = getDebuffRemain(self.units.dyn5,v,"player") or 0
                 self.debuff.refresh[k]  = (self.debuff.remain[k] < self.debuff.duration[k] * 0.3) or self.debuff.remain[k] == 0
             end
-        end
-
-    ---------------
-    --- CHARGES ---
-    ---------------
-
-        function self.getCharge()
-            local getCharges = getCharges
-            local getChargesFrac = getChargesFrac
-            local getBuffStacks = getBuffStacks
-
-            -- self.charges.assassinationtalons        = getBuffStacks("player",self.spell.assassinationtalonsBuff,"player")
         end
         
     -----------------
@@ -352,6 +357,7 @@ function cAssassination:new()
             self.cast.debug.deadlyPoison      = self.cast.deadlyPoison("player",true)
             self.cast.debug.envenom           = self.cast.envenom("target",true)
             self.cast.debug.evasion           = self.cast.evasion("player",true)
+            self.cast.debug.garrote           = self.cast.garrote("target",true)
             self.cast.debug.hemorrhage        = self.cast.hemorrhage("target",true)
             self.cast.debug.kidneyShot        = self.cast.kidneyShot("target",true)
             self.cast.debug.mutilate          = self.cast.mutilate("target",true)
@@ -414,6 +420,22 @@ function cAssassination:new()
             if debug == nil then debug = false end
 
             if self.level >= 8 and self.cd.evasion == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.garrote(thisUnit,debug)
+            local spellCast = self.spell.garrote
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 48 and self.cd.garrote == 0 and self.power > 45 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else

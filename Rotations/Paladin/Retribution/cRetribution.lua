@@ -1,51 +1,102 @@
---- Spec Class
--- Inherit from: ../cCharacter.lua and ../cClass.lua
-if GetSpecialization() == 3 then -- Change specID to ID of spec. IE: https://github.com/MrTheSoulz/NerdPack/wiki/Class-&-Spec-IDs
-    cRetribution = {} -- Change cSpec to name of spec. IE: cFeral or cWindwalker
-    cRetribution.rotations = {} -- Change cSpec to name of spec. IE: cFeral or cWindwalker
+--- Assassination Class
+-- Inherit from: ../cCharacter.lua and ../cPaladin.lua
+cRetribution = {}
+cRetribution.rotations = {}
 
-    -- Creates Spec
-    function cRetribution:new() -- Change cSpec to name of spec. IE: cFeral or cWindwalker
-        local self = cPaladin:new("Retribution") -- Change cClass to name of class and "Spec" to name of spec. IE: cDruid or cMonk for cClass and "Feral" or "Windwalker" for "Spec"
+-- Creates Retribution Paladin
+function cRetribution:new()
+    if GetSpecializationInfo(GetSpecialization()) == 70 then
+        local self = cPaladin:new("Retribution")
 
         local player = "player" -- if someone forgets ""
 
-        -- Mandatory ! - DO NOT EDIT
+        -- Mandatory !
         self.rotations = cRetribution.rotations
         
-        -----------------
-        --- VARIABLES --- -- Only list tables specific to this Spec -- change all spec entries to name of spec IE: feral or windwalker
-        -----------------
-        self.retributionArtifacts     = {
-            
+    -----------------
+    --- VARIABLES ---
+    -----------------
+        self.spell.spec                 = {}
+        self.spell.spec.abilities       = {
+            avengingWrath               = 31884,
+            bladeOfJustice              = 184575,
+            bladeOfWrath                = 202270,
+            cleanceToxins               = 213644,
+            consecration                = 205228,
+            crusade                     = 224668,
+            divineHammer                = 198034,
+            divineStorm                 = 53385,
+            executionSentence           = 213757,
+            eyeForAnEye                 = 205191,
+            greaterBlessingOfKings      = 203538,
+            greaterBlessingOfMight      = 203528,
+            greaterBlessingOfWisdom     = 203539,
+            handOfHinderance            = 183218,
+            holyWrath                   = 210220,
+            justicarsVengeance          = 215661,
+            rebuke                      = 96231,
+            sealOfLight                 = 202273,
+            shieldOfVengeance           = 184662,
+            swordOfLight                = 53503,
+            templarsVerdict             = 85256,
+            wordOfGlory                 = 210191,
+            zeal                        = 217020,
         }
-        self.retributionBuffs         = {
-            
+        self.spell.spec.artifacts       = {
+            ashbringersLight            = 207604,
+            ashesToAshes                = 179546,
+            bladeOfLight                = 214081,
+            deflection                  = 184778,
+            deliverTheJustice           = 186927,
+            divineTempest               = 186773,
+            echoOfTheHighlord           = 186788,
+            embraceTheLight             = 186934,
+            endlessResolve              = 185086,
+            healingStorm                = 193058,
+            highlordsJudgment           = 186941,
+            mightOfTheTemplar           = 185368,
+            protectorOfTheAshenBlade    = 186944,
+            righteousBlade              = 184843,
+            sharpenedEdge               = 184759,
+            unbreakableWill             = 182234,
+            wakeOfAshes                 = 205273,
+            wrathOfTheAshbringer        = 186945,
         }
-        self.retributionDebuffs       = {
-            
+        self.spell.spec.buffs           = {
+
         }
-        self.retributionSpecials      = {
-           
+        self.spell.spec.debuffs         = {
+
         }
-        self.retributionTalents       = {
-             
+        self.spell.spec.glyphs          = {
+            glyphOfWingedVengeance      = 57979,
         }
-        -- Merge all spell tables into self.spell
-        self.retributionSpells = {}
-        self.retributionSpells = mergeTables(self.retributionSpells,self.retributionArtifacts)
-        self.retributionSpells = mergeTables(self.retributionSpells,self.retributionBuffs)
-        self.retributionSpells = mergeTables(self.retributionSpells,self.retributionDebuffs)
-        self.retributionSpells = mergeTables(self.retributionSpells,self.retributionSpecials)
-        self.retributionSpells = mergeTables(self.retributionSpells,self.retributionTalents)
-        self.spell = {}
-        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.paladinSpell, self.retributionSpells) -- Also change self.classSpell to name of class IE: druid or monk
+        self.spell.spec.talents         = {
+            bladeOfWrath                = 202270,
+            consecration                = 205228,
+            crusade                     = 224668,
+            divineHammer                = 198034,
+            divineIntervention          = 213313,
+            executionSentence           = 213757,
+            eyeForAnEye                 = 205191,
+            finalVerdict                = 198038,
+            greaterJudgment             = 218178,
+            holyWrath                   = 210220,
+            justicarsVengeance          = 215661,
+            sealOfLight                 = 202273,
+            theFiresOfJustice           = 203316,
+            virtuesBlade                = 202271,
+            wordOfGlory                 = 210191,
+            zeal                        = 217020,
+        }
+        -- Merge all spell ability tables into self.spell
+        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
         
     ------------------
     --- OOC UPDATE ---
     ------------------
 
-        function self.updateOOC()  -- Add any functions or variables that need to be updated only when not in combat here
+        function self.updateOOC()
             -- Call classUpdateOOC()
             self.classUpdateOOC()
             self.getArtifacts()
@@ -59,28 +110,23 @@ if GetSpecialization() == 3 then -- Change specID to ID of spec. IE: https://git
     --- UPDATE ---
     --------------
 
-        function self.update() -- Add any functions or variables that need to be updated all the time here
+        function self.update()
+
             -- Call Base and Class update
             self.classUpdate()
             -- Updates OOC things
             if not UnitAffectingCombat("player") then self.updateOOC() end
-            self.getDynamicUnits()
-            self.getEnemies()
             self.getBuffs()
-            self.getCharges()
+            self.getCastable()
+            self.getCharge()
             self.getCooldowns()
+            self.getDynamicUnits()
             self.getDebuffs()
-            self.getRecharges()
+            self.getEnemies()
             self.getToggleModes()
             self.getCastable()
 
-            -- Casting and GCD check
-            -- TODO: -> does not use off-GCD stuff like pots, dp etc
-            if castingUnit() then
-                return
-            end
-
-            -- Start selected rotation - DO NOT EDIT
+            -- Start selected rotation
             self:startRotation()
         end
 
@@ -88,100 +134,100 @@ if GetSpecialization() == 3 then -- Change specID to ID of spec. IE: https://git
     --- DYNAMIC UNITS ---
     ---------------------
 
-        function self.getDynamicUnits() -- Dynamic Target Selection based on Range and AoE/Non-AoE - NOTE: some more common ones are already setup in cCharacter.lua - NOTE: Do not relist and already provided Class file or cCharacter
+        function self.getDynamicUnits()
             local dynamicTarget = dynamicTarget
 
             -- Normal
-            self.units.dyn10 = dynamicTarget(10,true) -- Sample Non-AoE
 
             -- AoE
-            self.units.dyn35AoE = dynamicTarget(35, false) -- Sample AoE 
+
         end
 
     ---------------
     --- ENEMIES ---
     ---------------
 
-        function self.getEnemies() -- sets table of enemies for specified ranges useful for knowing number of enemies in a certain ranges or target cycleing - NOTE: Do not relist and already provided Class file
+        function self.getEnemies()
             local getEnemies = getEnemies
 
-            self.enemies.yards5 = getEnemies("player", 5) -- Melee
-            self.enemies.yards8 = getEnemies("player", 8) -- Typical Melee AoE Range
+            self.enemies.yards5     = getEnemies("player", 5) -- Melee
         end
 
     -----------------
     --- ARTIFACTS ---
     -----------------
 
-        function self.getArtifacts() -- Dynamicaly creates artifact lists based on the spell table above - NOTE: Change self.specArtifactss to the name of the artifact table)
+        function self.getArtifacts()
             local isKnown = isKnown
 
-            for k,v in pairs(self.retributionArtifacts) do
-                self.artifact[k] = isKnown(v)
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact[k] = isKnown(v) or false
             end
         end
 
-        function self.getArtifactRanks() -- Not yet implemented
+        function self.getArtifactRanks()
 
         end
-
+       
     -------------
     --- BUFFS ---
     -------------
-    
-        function self.getBuffs() -- Dynamicaly creates buff lists based on the spell table above - NOTE: Change self.specBuffs to the name of the buff table)
+
+        function self.getBuffs()
             local UnitBuffID = UnitBuffID
             local getBuffDuration = getBuffDuration
             local getBuffRemain = getBuffRemain
 
-            for k,v in pairs(self.retributionBuffs) do
-                self.buff[k] = UnitBuffID("player",v) ~= nil
-                self.buff.duration[k] = getBuffDuration("player",v) or 0
-                self.buff.remain[k] = getBuffRemain("player",v) or 0
+            for k,v in pairs(self.spell.spec.buffs) do
+                self.buff[k]            = UnitBuffID("player",v) ~= nil
+                self.buff.duration[k]   = getBuffDuration("player",v) or 0
+                self.buff.remain[k]     = getBuffRemain("player",v) or 0
             end
         end
 
     ---------------
     --- CHARGES ---
     ---------------
-        function self.getCharges() -- Dynamicaly creates charge lists based on the spell/buff table above - NOTE: Change self.specSpells/self.specBuffs to the name of the spell/buff table)
+
+        function self.getCharge()
             local getCharges = getCharges
+            local getChargesFrac = getChargesFrac
+            local getBuffStacks = getBuffStacks
+            local getRecharge = getRecharge
 
-            for k,v in pairs(self.retributionSpells) do
-                self.charges[k] = getCharges(v)
-            end
-            for k,v in pairs(self.retributionBuffs) do
-                self.charges[k] = getBuffStacks("player",v,"player")
-            end
-        end
-
-    -----------------
-    --- COOLDOWNS ---
-    -----------------
-
-        function self.getCooldowns() -- Dynamicaly creates cooldown lists based on the spell table above - NOTE: Change self.specCooldowns to the name of the cooldown table)
-            local getSpellCD = getSpellCD
-
-            for k,v in pairs(self.retributionSpells) do
-                if getSpellCD(v) ~= nil then
-                    self.cd[k] = getSpellCD(v)
-                end
+            for k,v in pairs(self.spell.spec.abilities) do
+                self.charges[k]     = getCharges(v)
+                self.recharge[k]    = getRecharge(v)
             end
         end
 
     ---------------
     --- DEBUFFS ---
     ---------------
-
-        function self.getDebuffs() -- Dynamicaly creates debuff lists based on the debuff table above - NOTE: Change self.specDebuffs to the name of the debuff table)
+        function self.getDebuffs()
             local UnitDebuffID = UnitDebuffID
             local getDebuffDuration = getDebuffDuration
             local getDebuffRemain = getDebuffRemain
 
-            for k,v in pairs(self.retributionDebuffs) do
-                self.debuff[k] = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
+            for k,v in pairs(self.spell.spec.debuffs) do
+                self.debuff[k]          = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
                 self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
-                self.debuff.remain[k] = getDebuffRemain(self.units.dyn5,v,"player") or 0
+                self.debuff.remain[k]   = getDebuffRemain(self.units.dyn5,v,"player") or 0
+                self.debuff.refresh[k]  = (self.debuff.remain[k] < self.debuff.duration[k] * 0.3) or self.debuff.remain[k] == 0
+            end
+        end
+        
+    -----------------
+    --- COOLDOWNS ---
+    -----------------
+
+        function self.getCooldowns()
+            local getSpellCD = getSpellCD
+
+            for k,v in pairs(self.spell.spec.abilities) do
+                if getSpellCD(v) ~= nil then
+                    self.cd[k] = getSpellCD(v)
+                end
             end
         end
 
@@ -189,62 +235,48 @@ if GetSpecialization() == 3 then -- Change specID to ID of spec. IE: https://git
     --- GLYPHS ---
     --------------
 
-        function self.getGlyphs() -- Gylphs not so important in legion so not yet reimplemented
+        function self.getGlyphs()
             local hasGlyph = hasGlyph
 
-            -- self.glyph.cheetah           = hasGlyph(self.spell.glyphOfTheCheetah)
         end
 
-    -------------
-    --- PERKS ---
-    -------------
-
-        function self.getPerks() -- no longer used in Legion
-            local isKnown = isKnown
-
-            -- self.perk.enhancedRebirth = isKnown(self.spell.enhancedRebirth)
-        end
-
-    -----------------
-    --- RECHARGES ---
-    -----------------
-    
-        function self.getRecharges() -- Dynamicaly creates recharge list based on the spell table above - NOTE: Change self.specSpells to the name of the spell table)
-            local getRecharge = getRecharge
-
-            for k,v in pairs(self.retributionSpells) do
-                self.recharge[k] = getRecharge(v)
-            end
-        end
-
-    ----------------
+    ---------------
     --- TALENTS ---
-    ----------------
+    ---------------
 
-        function self.getTalents() -- Dynamicaly creates talent list based on the talent table above - NOTE: Change self.specTalents to the name of the talent table)
+        function self.getTalents()
             local getTalent = getTalent
 
             for r = 1, 7 do --search each talent row
                 for c = 1, 3 do -- search each talent column
                     local talentID = select(6,GetTalentInfo(r,c,GetActiveSpecGroup())) -- ID of Talent at current Row and Column
-                    for k,v in pairs(self.retributionTalents) do
+                    for k,v in pairs(self.spell.spec.talents) do
                         if v == talentID then
                             self.talent[k] = getTalent(r,c)
                         end
                     end
                 end
             end
-        end 
+        end
+
+    -------------
+    --- PERKS ---
+    -------------
+
+        function self.getPerks()
+            local isKnown = isKnown
+
+        end
 
     ---------------
     --- TOGGLES ---
     ---------------
 
-        function self.getToggleModes() -- Toggle State checks for Toggles shared by specific spec
+        function self.getToggleModes()
 
         end
 
-        -- Create the toggle defined within rotation files - DO NOT EDIT
+        -- Create the toggle defined within rotation files
         function self.createToggles()
             GarbageButtons()
             if self.rotations[bb.selectedProfile] ~= nil then
@@ -258,7 +290,7 @@ if GetSpecialization() == 3 then -- Change specID to ID of spec. IE: https://git
     --- OPTIONS ---
     ---------------
         
-        -- Creates the option/profile window - DO NOT EDIT
+        -- Creates the option/profile window
         function self.createOptions()
             bb.ui.window.profile = bb.ui:createProfileWindow(self.profile)
 
@@ -300,34 +332,34 @@ if GetSpecialization() == 3 then -- Change specID to ID of spec. IE: https://git
         end
 
     --------------
-    --- SPELLS --- -- List spell cast functions for spells available to specific spec here.
+    --- SPELLS ---
     --------------
 
         function self.getCastable()
-            self.castable.sampleSpell     = self.castSampleSpell("target",true) -- not required but useful to see if base spell cast conditions are being met
+
+            self.cast.debug.cripplingPoison   = self.cast.cripplingPoison("player",true)
         end
 
-        function self.castSampleSpell(thisUnit,debug)
-            local spellCast = self.spell.sampleSpell -- localized spell id you are trying to cast, this helps standardize cast functions for easy copy paste edit.
+        function self.cast.cripplingPoison(thisUnit,debug)
+            local spellCast = self.spell.cripplingPoison
             local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn5 end -- Nil error catch, change what thisUnit equals to correct default spell target (IE: "player", "target", self.units.dyn5)
+            if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 29 and self.power > 40 and self.buff.stealth and getDistance(thisUnit) < 5 then -- Minimal requirements to cast spell (Level, Talent, Power, Cooldown, Range, Etc)
+            if self.level >= 19 and self.buff.remain.cripplingPoison < 600 and not isUnitCasting() then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true) -- Returns True if debugging and spell is castable
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false) -- Returns actual spell casting
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
                 end
             elseif debug then
-                return false -- Debugging False Return
+                return false
             end
         end
-        
+
     ------------------------
-    --- CUSTOM FUNCTIONS --- -- List all custom functions used only by this spec here 
+    --- CUSTOM FUNCTIONS ---
     ------------------------
-        
 
     -----------------------------
     --- CALL CREATE FUNCTIONS ---
@@ -335,5 +367,5 @@ if GetSpecialization() == 3 then -- Change specID to ID of spec. IE: https://git
 
         -- Return
         return self
-    end-- cSpec
-end-- select Class
+    end-- cRetribution
+end-- select Paladin

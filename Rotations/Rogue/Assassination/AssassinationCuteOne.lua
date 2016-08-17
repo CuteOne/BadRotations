@@ -194,7 +194,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local talent 										= bb.player.talent
 			local cTime 										= getCombatTime()
 			local ttd 											= getTTD
-			local ttm 											= bb.player.timeToMax
+			local ttm 											= bb.player.powerTTM --timeToMax
 			local units 										= bb.player.units
 
 			if vanishTime == nil then vanishTime = GetTime() end
@@ -306,6 +306,99 @@ if select(2, UnitClass("player")) == "ROGUE" then
 					end
 				end -- End Cooldown Usage Check
 			end -- End Action List - Cooldowns
+		-- Action List - Exsanguinate Combo
+			local function actionList_ExsanguinateCombo()
+
+			end -- End Action List - Exsanguinate Combo
+		-- Action List - Garrote
+			local function actionList_Garrote()
+				-- pool_resource,for_next=1
+				-- garrote,cycle_targets=1,if=talent.subterfuge.enabled&!ticking&combo_points.deficit>=1&spell_targets.fan_of_knives>=2
+				for i = 1, #enemies.yards5 do
+					local thisUnit = enemies.yards5[i]
+					local garroteRemain = getDebuffRemain(thisUnit,spell.garrote,"player") or 0
+					if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+						if talent.subterfuge and garroteRemain == 0 and comboDeficit >= 1 and #enemies.yards10 >= 2 then
+							if power < 45 then
+								return true
+							else
+								if cast.garrote(thisUnit) then return end
+							end
+						end
+					end
+				end
+				-- pool_resource,for_next=1
+				-- garrote,if=combo_points.deficit>=1&!exsanguinated
+				if comboDeficit >= 1 then -- and not buff.exsanguinate
+					if power < 45 then
+						return true
+					else
+						if cast.garrote(thisUnit) then return end
+					end
+				end
+			end -- End Action List - Garrote
+		-- Action List - Exsanguinate Finishers
+			local function actionList_ExsanguinateFinishers()
+
+			end -- End Action List - Exsanguinate Finishers
+		-- Action List - Finishers
+			local function actionList_Finishers()
+			-- Rupture
+				-- rupture,cycle_targets=1,if=!ticking&combo_points>=cp_max_spend&spell_targets.fan_of_knives>1&target.time_to_die-remains>6
+				-- rupture,if=combo_points>=cp_max_spend&refreshable&!exsanguinated
+				for i=1, #enemies.yards5 do
+                    local thisUnit = enemies.yards5[i]
+                    local ruptureRemain = getDebuffRemain(thisUnit,spell.rupture,"player") or 0
+                    if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) then
+                        if ruptureRemain == 0 and combo >= comboMax and #enemies.yards10 > 1 and ttd(thisUnit) - ruptureRemain > 6 then 
+                           if cast.rupture(thisUnit) then return end
+                        end
+                    end
+                    if UnitIsUnit(thisUnit,dynTar5) then
+                        if combo >= comboMax and debuff.refresh.rupture then -- and not exsanguinated 
+                            if cast.rupture(thisUnit) then return end
+                        end
+                    end
+                end
+			-- Envenom
+				-- envenom,if=combo_points>=cp_max_spend-1&!dot.rupture.refreshable&buff.elaborate_planning.remains<2&energy.deficit<40&spell_targets.fan_of_knives<=6
+				-- envenom,if=combo_points>=cp_max_spend&!dot.rupture.refreshable&buff.elaborate_planning.remains<2&cooldown.garrote.remains<1&spell_targets.fan_of_knives<=6
+				if ((combo >= comboMax - 1 and powerDeficit < 40) or (combo >= comboMax and cd.garrote < 1)) 
+					and not debuff.refresh.rupture and buff.remain.elaboratePlanning < 2 and #enemies.yards10 <= 6 
+				then
+					if cast.envenom() then return end
+				end
+			end -- End Action List - Finishers
+		-- Action List - Generators
+			local function actionList_Generators()
+			-- Hemorrhage
+				-- hemorrhage,cycle_targets=1,if=combo_points.deficit>=1&refreshable&dot.rupture.remains>6&spell_targets.fan_of_knives>1&spell_targets.fan_of_knives<=4
+				for i=1, #enemies.yards5 do
+                    local thisUnit = enemies.yards5[i]
+                    local ruptureRemain = getDebuffRemain(thisUnit,spell.rupture,"player") or 0
+                    local hemorrhageRemain = getDebuffRemain(thisUnit,spell.hemorrhage,"player") or 0
+                    local hemorrhageDuration = getDebuffDuration(thisUnit,spell.hemorrhage,"player") or 0
+                    if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) then
+                        if comboDeficit >= 1 and  hemorrhageRemain < hemorrhageDuration * 0.3 and ruptureRemain > 6 and #enemies.yards10 > 1 and #enemies.yards10 <= 4 then
+                           if cast.hemorrhage(thisUnit) then return end
+                        end
+                    end
+                end
+            -- Fan of Knives
+            	-- fan_of_knives,if=spell_targets>1&(combo_points.deficit>=1|spell_targets>=7)
+            -- Hemorrhage
+            	-- hemorrhage,if=(combo_points.deficit>=1&refreshable)|(combo_points.deficit=1&dot.rupture.refreshable)
+            	-- hemorrhage,if=(combo_points.deficit>=1&refreshable)|(combo_points.deficit=1&(dot.rupture.exsanguinated&dot.rupture.remains<=2|cooldown.exsanguinate.remains<=2))
+            	if (comboDeficit >= 1 and debuff.refresh.hemorrhage) then --or (comboDeficit == 1 and debuff.refresh.rupture) then
+            		if cast.hemorrhage() then return end
+            	end
+			-- Mutilate
+				-- mutilate,if=combo_points.deficit<=1&energy.deficit<=30
+				-- mutilate,if=combo_points.deficit>=2&cooldown.garrote.remains>2
+				if ((comboDeficit >= 2 or level < 3) and (cd.garrote > 2 or level < 48)) or ((comboDeficit <= 1 or level < 3) and powerDeficit <= 30) then
+					if cast.mutilate() then return end
+				end
+			end -- End Action List - Generators
 		-- Action List - PreCombat
 			local function actionList_PreCombat()
 			-- Apply Poison
@@ -341,65 +434,17 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			-- Start Attack
                 -- auto_attack
                 if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 5 and mode.pickPocket ~= 2 then
-                	if cast.mutilate() then StartAttack(); return end
+                	if combo >= 2 and not debuff.rupture and cTime < 10 and not artifact.urgeToKill then
+                		if cast.rupture() then StartAttack(); return end
+                	elseif combo >= 4 and not debuff.rupture then
+                		if cast.rupture() then StartAttack(); return end
+                	elseif level >= 48 then
+                		if actionList_Garrote() then StartAttack(); return end
+                	else
+                		if cast.mutilate() then StartAttack(); return end
+                	end
                 end
 			end -- End Action List - Opener
-		-- Action List - Finishers
-			local function actionList_Finishers()
-			-- Rupture
-				-- rupture,cycle_targets=1,if=!ticking&combo_points>=cp_max_spend&spell_targets.fan_of_knives>1&target.time_to_die-remains>6
-				-- rupture,if=combo_points>=cp_max_spend&refreshable&!exsanguinated
-				for i=1, #enemies.yards5 do
-                    local thisUnit = enemies.yards5[i]
-                    local ruptureRemain = getDebuffRemain(thisUnit,spell.rupture,"player") or 0
-                    if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) then
-                        if ruptureRemain == 0 and combo >= comboMax and #enemies.yards5 > 1 and ttd(thisUnit) - ruptureRemain > 6 then 
-                           if cast.rupture(thisUnit) then return end
-                        end
-                    end
-                    if UnitIsUnit(thisUnit,dynTar5) then
-                        if combo >= comboMax and debuff.refresh.rupture then -- and not exsanguinated 
-                            if cast.rupture(thisUnit) then return end
-                        end
-                    end
-                end
-			-- Envenom
-				-- envenom,if=combo_points>=cp_max_spend-1&!dot.rupture.refreshable&buff.elaborate_planning.remains<2&energy.deficit<40&spell_targets.fan_of_knives<=6
-				-- envenom,if=combo_points>=cp_max_spend&!dot.rupture.refreshable&buff.elaborate_planning.remains<2&cooldown.garrote.remains<1&spell_targets.fan_of_knives<=6
-				if ((combo >= comboMax - 1 and powerDeficit < 40) or (combo >= comboMax and cd.garrote < 1)) 
-					and not debuff.refresh.rupture and buff.remain.elaboratePlanning < 2 and #enemies.yards8 <= 6 
-				then
-					if cast.envenom() then return end
-				end
-			end -- End Action List - Finishers
-		-- Action List - Generators
-			local function actionList_Generators()
-			-- Hemorrhage
-				-- hemorrhage,cycle_targets=1,if=combo_points.deficit>=1&refreshable&dot.rupture.remains>6&spell_targets.fan_of_knives>1&spell_targets.fan_of_knives<=4
-				for i=1, #enemies.yards5 do
-                    local thisUnit = enemies.yards5[i]
-                    local ruptureRemain = getDebuffRemain(thisUnit,spell.rupture,"player") or 0
-                    local hemorrhageRemain = getDebuffRemain(thisUnit,spell.hemorrhage,"player") or 0
-                    local hemorrhageDuration = getDebuffDuration(thisUnit,spell.hemorrhage,"player") or 0
-                    if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) then
-                        if comboDeficit >= 1 and  hemorrhageRemain < hemorrhageDuration * 0.3 and ruptureRemain > 6 and #enemies.yards8 > 1 and #enemies.yards8 <= 4 then
-                           if cast.hemorrhage(thisUnit) then return end
-                        end
-                    end
-                end
-            -- Fan of Knives
-            	-- fan_of_knives,if=spell_targets>1&(combo_points.deficit>=1|spell_targets>=7)
-            -- Hemorrhage
-            	-- hemorrhage,if=(combo_points.deficit>=1&refreshable)|(combo_points.deficit=1&dot.rupture.refreshable)
-            	if (comboDeficit >= 1 and debuff.refresh.hemorrhage) or (comboDeficit == 1 and debuff.refresh.rupture) then
-            		if cast.hemorrhage() then return end
-            	end
-			-- Mutilate
-				-- mutilate,if=combo_points.deficit>=2&cooldown.garrote.remains>2
-				if (comboDeficit >= 2 or level < 3) and (cd.garrote > 2 or level < 48) then
-					if cast.mutilate() then return end
-				end
-			end -- End Action List - Generators
 	---------------------
 	--- Begin Profile ---
 	---------------------
@@ -409,45 +454,33 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			elseif (inCombat and profileStop == true) or pause() or mode.rotation==4 then
 				return true
 			else
--- 	-----------------------
--- 	--- Extras Rotation ---
--- 	-----------------------
+	-----------------------
+	--- Extras Rotation ---
+	-----------------------
 				if actionList_Extras() then return end
--- 	--------------------------
--- 	--- Defensive Rotation ---
--- 	--------------------------
+	--------------------------
+	--- Defensive Rotation ---
+	--------------------------
 				if actionList_Defensive() then return end
--- 	------------------------------
--- 	--- Out of Combat Rotation ---
--- 	------------------------------
+	------------------------------
+	--- Out of Combat Rotation ---
+	------------------------------
 				if actionList_PreCombat() then return end
--- 	----------------------------
--- 	--- Out of Combat Opener ---
--- 	----------------------------
+	----------------------------
+	--- Out of Combat Opener ---
+	----------------------------
 				if actionList_Opener() then return end
--- 	--------------------------
--- 	--- In Combat Rotation ---
--- 	--------------------------
+	--------------------------
+	--- In Combat Rotation ---
+	--------------------------
 			-- Assassination is 4 shank!
 				if inCombat and mode.pickPocket ~= 2 then
 -- 					if hartar and deadtar then
 -- 						ClearTarget()
 -- 					end
--- 	------------------------------
--- 	--- In Combat - Interrupts ---
--- 	------------------------------
--- 					if actionList_Interrupts() then return end
--- 	-----------------------------
--- 	--- In Combat - Cooldowns ---
--- 	-----------------------------
--- 					if actionList_Cooldowns() then return end
--- 	--------------------------
--- 	--- In Combat - Opener ---
--- 	--------------------------
--- 					if actionList_Opener() then return end
--- 	----------------------------------
--- 	--- In Combat - Begin Rotation ---
--- 	----------------------------------
+	----------------------------------
+	--- In Combat - Begin Rotation ---
+	----------------------------------
 			-- Shadowstep
 	                if isChecked("Shadowstep") then
 	                    if cast.shadowstep("target") then return end 
@@ -459,12 +492,20 @@ if select(2, UnitClass("player")) == "ROGUE" then
 						if not debuff.rupture and ((combo >= 2 and cTime < 10 and not artifact.urgeToKill) or combo >= 4) then
 							if cast.rupture() then return end
 						end
+			-- Kingsbane
+						-- pool_resource,for_next=1
+						-- kingsbane,if=!talent.exsanguinate.enabled&(buff.vendetta.up|cooldown.vendetta.remains>10)|talent.exsanguinate.enabled&dot.rupture.exsanguinated
 			-- Exsanguinate Combo
 						-- run_action_list,name=exsang_combo,if=cooldown.exsanguinate.remains<3&talent.exsanguinate.enabled
 			-- Garrote
-						-- call_action_list,name=garrote,if=spell_targets.fan_of_knives<=7
+						-- call_action_list,name=garrote,if=spell_targets.fan_of_knives<=8
+						if #enemies.yards10 <= 8 then
+							if actionList_Garrote() then return end
+						end
 			-- Exsanguinate
 						-- call_action_list,name=exsang,if=dot.rupture.exsanguinated&spell_targets.fan_of_knives<=2
+			-- Rupture
+						-- rupture,if=talent.exsanguinate.enabled&remains-cooldown.exsanguinate.remains<(4+cp_max_spend*4)*0.3&new_duration-cooldown.exsanguinate.remains>=(4+cp_max_spend*4)*0.3+3
 			-- Finishers
 						-- call_action_list,name=finish
 						if actionList_Finishers() then return end

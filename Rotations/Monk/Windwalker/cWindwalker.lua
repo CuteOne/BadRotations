@@ -119,6 +119,7 @@ function cWindwalker:new()
             self.getCooldowns()
             self.getEnemies()
             self.getCastable()
+            self.getToggleModes()
             self.getRotation()
 
             -- Start selected rotation

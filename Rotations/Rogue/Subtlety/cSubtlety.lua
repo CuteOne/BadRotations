@@ -1,11 +1,11 @@
 --- Subtlety Class
 -- Inherit from: ../cCharacter.lua and ../cRogue.lua
-if select(2, UnitClass("player")) == "ROGUE" then
-    cSubtlety = {}
-    cSubtlety.rotations = {}
+cSubtlety = {}
+cSubtlety.rotations = {}
 
-    -- Creates Subtlety Rogue
-    function cSubtlety:new()
+-- Creates Subtlety Rogue
+function cSubtlety:new()
+    if GetSpecializationInfo(GetSpecialization()) == 261 then
         local self = cRogue:new("Subtlety")
 
         local player = "player" -- if someone forgets ""
@@ -13,50 +13,17 @@ if select(2, UnitClass("player")) == "ROGUE" then
         -- Mandatory !
         self.rotations = cSubtlety.rotations
         
-        -----------------
-        --- VARIABLES ---
-        -----------------
-        self.charges.frac       = {}        -- Fractional Charges
-        self.trinket            = {}        -- Trinket Procs
-        self.enemies            = {
-            yards5,
-            yards8,
-            yards13,
-            yards20,
-            yards40,
-        }
-        self.subtletyArtifacts     = {
-           akaarisSoul              = 209835,
-           catlikeReflexes          = 210144,
-           demonsKiss               = 197233,
-           embraceOfDarkness        = 197604,
-           energeticStabbing        = 197239,
-           finality                 = 197406,
-           flickeringShadows        = 197256,
-           fortunesBite             = 197369,
-           ghostArmor               = 197244,
-           goremawsBite             = 209782,
-           gutRipper                = 197234,
-           legionblade              = 214903,
-           precisionStrike          = 197235,
-           secondShuriken           = 197610,
-           shadowFangs              = 221856,
-           shadowNova               = 209781,
-           shadowSouls              = 197386,
-           theQuietKnife            = 197231,
-        }
-        self.subtletyBuffs         = {
-            shadowDance             = 185422,
-            symbolsOfDeath          = 212283,
-        }
-        self.subtletyDebuffs       = {
-            nightblade              = 195452, 
-        }
-        self.subtletySpecials      = {
+    -----------------
+    --- VARIABLES ---
+    -----------------
+        self.spell.spec             = {}
+        self.spell.spec.abilities   = {
             backstab                = 53,
             blind                   = 2094,
+            envelopingShadows       = 206237,
             evasion                 = 5277,
             eviscerate              = 196819,
+            gloomblade              = 200758,
             kidneyShot              = 408,
             masteryExecutioner      = 76808,
             nightblade              = 195452,
@@ -67,9 +34,35 @@ if select(2, UnitClass("player")) == "ROGUE" then
             shurikenStorm           = 197835,
             shurikenToss            = 114014,
             symbolsOfDeath          = 212283,
-
         }
-        self.subtletyTalents       = {
+        self.spell.spec.artifacts   = {
+            akaarisSoul             = 209835,
+            catlikeReflexes         = 210144,
+            demonsKiss              = 197233,
+            embraceOfDarkness       = 197604,
+            energeticStabbing       = 197239,
+            finality                = 197406,
+            flickeringShadows       = 197256,
+            fortunesBite            = 197369,
+            ghostArmor              = 197244,
+            goremawsBite            = 209782,
+            gutRipper               = 197234,
+            legionblade             = 214903,
+            precisionStrike         = 197235,
+            secondShuriken          = 197610,
+            shadowFangs             = 221856,
+            shadowNova              = 209781,
+            shadowSouls             = 197386,
+            theQuietKnife           = 197231,
+        }
+        self.spell.spec.buffs       = {
+            shadowDance             = 185422,
+            symbolsOfDeath          = 212283,
+        }
+        self.spell.spec.debuffs     = {
+            nightblade              = 195452,
+        }
+        self.spell.spec.talents     = {
             envelopingShadows       = 206237,
             gloomblade              = 200758,
             masterOfShadows         = 196976,
@@ -81,17 +74,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
             subterfuge              = 108208,
             strikeFromTheShadows    = 196951,
             tangledShadow           = 200778,
-            weaponmaster            = 193537, 
+            weaponmaster            = 193537,
         }
-        -- Merge all spell tables into self.spell
-        self.subtletySpells = {}
-        self.subtletySpells = mergeTables(self.subtletySpells,self.subtletyArtifacts)
-        self.subtletySpells = mergeTables(self.subtletySpells,self.subtletyBuffs)
-        self.subtletySpells = mergeTables(self.subtletySpells,self.subtletyDebuffs)
-        self.subtletySpells = mergeTables(self.subtletySpells,self.subtletySpecials)
-        self.subtletySpells = mergeTables(self.subtletySpells,self.subtletyTalents)
-        self.spell = {}
-        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.rogueSpell, self.subtletySpells)
+        -- Merge all spell ability tables into self.spell
+        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
         
     ------------------
     --- OOC UPDATE ---
@@ -123,19 +109,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
             self.getCooldowns()
             self.getDynamicUnits()
             self.getDebuffs()
-            self.getTrinketProc()
-            self.hasTrinketProc()
             self.getEnemies()
-            self.getRecharges()
             self.getToggleModes()
             self.getCastable()
-
-
-            -- Casting and GCD check
-            -- TODO: -> does not use off-GCD stuff like pots, dp etc
-            if castingUnit() then
-                return
-            end
 
             -- Start selected rotation
             self:startRotation()
@@ -149,11 +125,25 @@ if select(2, UnitClass("player")) == "ROGUE" then
             local dynamicTarget = dynamicTarget
 
             -- Normal
-            self.units.dyn8 = dynamicTarget(8, true) -- Swipe
-            self.units.dyn13 = dynamicTarget(15, true) -- Blind
+            self.units.dyn8     = dynamicTarget(8, true) -- Swipe
+            self.units.dyn13    = dynamicTarget(15, true) -- Blind
 
             -- AoE
-            self.units.dyn8AoE = dynamicTarget(8, false) -- Thrash
+            self.units.dyn8AoE  = dynamicTarget(8, false) -- Thrash
+        end
+
+    ---------------
+    --- ENEMIES ---
+    ---------------
+
+        function self.getEnemies()
+            local getEnemies = getEnemies
+
+            self.enemies.yards5     = getEnemies("player", 5) -- Melee
+            self.enemies.yards8     = getEnemies("player", 8) -- Swipe/Thrash
+            self.enemies.yards13    = getEnemies("player", 13) -- Skull Bash
+            self.enemies.yards20    = getEnemies("player", 20) --Prowl
+            self.enemies.yards40    = getEnemies("player", 40) --Moonfire
         end
 
     -----------------
@@ -163,7 +153,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getArtifacts()
             local isKnown = isKnown
 
-            --self.artifact.ashamanesBite     = isKnown(self.spell.ashamanesBite)
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact[k] = isKnown(v) or false
+            end
         end
 
         function self.getArtifactRanks()
@@ -179,36 +171,10 @@ if select(2, UnitClass("player")) == "ROGUE" then
             local getBuffDuration = getBuffDuration
             local getBuffRemain = getBuffRemain
 
-            for k,v in pairs(self.subtletyBuffs) do
-                self.buff[k] = UnitBuffID("player",v) ~= nil
-                self.buff.duration[k] = getBuffDuration("player",v) or 0
-                self.buff.remain[k] = getBuffRemain("player",v) or 0
-            end
-        end
-
-        function self.getTrinketProc()
-            local UnitBuffID = UnitBuffID
-
-        end
-
-        function self.hasTrinketProc()
-            -- for i = 1, #self.trinket do
-            --     if self.trinket[i]==true then return true else return false end
-            -- end
-        end
-
-    ---------------
-    --- DEBUFFS ---
-    ---------------
-        function self.getDebuffs()
-            local UnitDebuffID = UnitDebuffID
-            local getDebuffDuration = getDebuffDuration
-            local getDebuffRemain = getDebuffRemain
-
-            for k,v in pairs(self.subtletyDebuffs) do
-                self.debuff[k] = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
-                self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
-                self.debuff.remain[k] = getDebuffRemain(self.units.dyn5,v,"player") or 0
+            for k,v in pairs(self.spell.spec.buffs) do
+                self.buff[k]            = UnitBuffID("player",v) ~= nil
+                self.buff.duration[k]   = getBuffDuration("player",v) or 0
+                self.buff.remain[k]     = getBuffRemain("player",v) or 0
             end
         end
 
@@ -220,13 +186,30 @@ if select(2, UnitClass("player")) == "ROGUE" then
             local getCharges = getCharges
             local getChargesFrac = getChargesFrac
             local getBuffStacks = getBuffStacks
+            local getRecharge = getRecharge
 
-            for k,v in pairs(self.subtletySpells) do
-                self.charges[k] = getCharges(v)
+            for k,v in pairs(self.spell.spec.abilities) do
+                self.charges[k]     = getCharges(v)
+                self.recharge[k]    = getRecharge(v)
             end
-
-            -- self.charges.subtletytalons        = getBuffStacks("player",self.spell.subtletytalonsBuff,"player")
         end
+
+    ---------------
+    --- DEBUFFS ---
+    ---------------
+        function self.getDebuffs()
+            local UnitDebuffID = UnitDebuffID
+            local getDebuffDuration = getDebuffDuration
+            local getDebuffRemain = getDebuffRemain
+
+            for k,v in pairs(self.spell.spec.debuffs) do
+                self.debuff[k]          = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
+                self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
+                self.debuff.remain[k]   = getDebuffRemain(self.units.dyn5,v,"player") or 0
+                self.debuff.refresh[k]  = (self.debuff.remain[k] < self.debuff.duration[k] * 0.3) or self.debuff.remain[k] == 0
+            end
+        end
+
         
     -----------------
     --- COOLDOWNS ---
@@ -235,7 +218,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getCooldowns()
             local getSpellCD = getSpellCD
 
-            for k,v in pairs(self.subtletySpells) do
+            for k,v in pairs(self.spell.spec.abilities) do
                 if getSpellCD(v) ~= nil then
                     self.cd[k] = getSpellCD(v)
                 end
@@ -262,7 +245,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
             for r = 1, 7 do --search each talent row
                 for c = 1, 3 do -- search each talent column
                     local talentID = select(6,GetTalentInfo(r,c,GetActiveSpecGroup())) -- ID of Talent at current Row and Column
-                    for k,v in pairs(self.subtletyTalents) do
+                    for k,v in pairs(self.spell.spec.talents) do
                         if v == talentID then
                             self.talent[k] = getTalent(r,c)
                         end
@@ -281,33 +264,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
             -- self.perk.enhancedBerserk        = isKnown(self.spell.enhancedBerserk)
         end
 
-    ---------------
-    --- ENEMIES ---
-    ---------------
-
-        function self.getEnemies()
-            local getEnemies = getEnemies
-
-            self.enemies.yards5 = #getEnemies("player", 5) -- Melee
-            self.enemies.yards8 = #getEnemies("player", 8) -- Swipe/Thrash
-            self.enemies.yards13 = #getEnemies("player", 13) -- Skull Bash
-            self.enemies.yards20 = #getEnemies("player", 20) --Prowl
-            self.enemies.yards40 = #getEnemies("player", 40) --Moonfire
-        end
-
-    -----------------
-    --- RECHARGES ---
-    -----------------
-    
-        function self.getRecharges()
-            local getRecharge = getRecharge
-
-            for k,v in pairs(self.subtletySpells) do
-                self.recharge[k] = getRecharge(v)
-            end
-
-            -- self.recharge.forceOfNature = getRecharge(self.spell.forceOfNature)
-        end
 
     ---------------
     --- TOGGLES ---
@@ -378,20 +334,20 @@ if select(2, UnitClass("player")) == "ROGUE" then
 
         function self.getCastable()
 
-            self.castable.backstab          = self.castBackstab("target",true)
-            self.castable.blind             = self.castBlind("target",true)
-            self.castable.evasion           = self.castEvasion("player",true)
-            self.castable.eviscerate        = self.castEviscerate("target",true)
-            self.castable.kidneyShot        = self.castKidneyShot("target",true)
-            self.castable.nightblade        = self.castNightblade("target",true)
-            self.castable.shadowDance       = self.castShadowDance("player",true)
-            self.castable.shadowstep        = self.castShadowstep("target",true)
-            self.castable.shadowstrike      = self.castShadowstrike("target",true)
-            self.castable.shurikenToss      = self.castShurikenToss("target",true)
-            self.castable.symbolsOfDeath    = self.castSymbolsOfDeath("player",true)
+            self.cast.debug.backstab          = self.cast.backstab("target",true)
+            self.cast.debug.blind             = self.cast.blind("target",true)
+            self.cast.debug.evasion           = self.cast.evasion("player",true)
+            self.cast.debug.eviscerate        = self.cast.eviscerate("target",true)
+            self.cast.debug.kidneyShot        = self.cast.kidneyShot("target",true)
+            self.cast.debug.nightblade        = self.cast.nightblade("target",true)
+            self.cast.debug.shadowDance       = self.cast.shadowDance("player",true)
+            self.cast.debug.shadowstep        = self.cast.shadowstep("target",true)
+            self.cast.debug.shadowstrike      = self.cast.shadowstrike("target",true)
+            self.cast.debug.shurikenToss      = self.cast.shurikenToss("target",true)
+            self.cast.debug.symbolsOfDeath    = self.cast.symbolsOfDeath("player",true)
         end
 
-        function self.castBackstab(thisUnit,debug)
+        function self.cast.backstab(thisUnit,debug)
             local spellCast = self.spell.backstab
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
@@ -408,7 +364,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castBlind(thisUnit,debug)
+        function self.cast.blind(thisUnit,debug)
             local spellCast = self.spell.blind
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn15 end
@@ -424,7 +380,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castEvasion(thisUnit,debug)
+        function self.cast.evasion(thisUnit,debug)
             local spellCast = self.spell.evasion
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
@@ -440,7 +396,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castEviscerate(thisUnit,debug)
+        function self.cast.eviscerate(thisUnit,debug)
             local spellCast = self.spell.eviscerate
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
@@ -456,7 +412,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castKidneyShot(thisUnit,debug)
+        function self.cast.kidneyShot(thisUnit,debug)
             local spellCast = self.spell.kidneyShot
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
@@ -472,7 +428,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castNightblade(thisUnit,debug)
+        function self.cast.nightblade(thisUnit,debug)
             local spellCast = self.spell.nightblade
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
@@ -488,7 +444,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castShadowDance(thisUnit,debug)
+        function self.cast.shadowDance(thisUnit,debug)
             local spellCast = self.spell.shadowDance
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end
@@ -504,7 +460,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castShadowstep(thisUnit,debug)
+        function self.cast.shadowstep(thisUnit,debug)
             local spellCast = self.spell.shadowstep
             local spellRange = select(6,GetSpellInfo(spellCast))
             local thisUnit = thisUnit
@@ -521,7 +477,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castShadowstrike(thisUnit,debug)
+        function self.cast.shadowstrike(thisUnit,debug)
             local spellCast = self.spell.shadowstrike
             local spellRange = select(6,GetSpellInfo(spellCast))
             if thisUnit == nil then thisUnit = "target" end
@@ -537,7 +493,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castShurikenToss(thisUnit,debug)
+        function self.cast.shurikenToss(thisUnit,debug)
             local spellCast = self.spell.shurikenToss
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn30 end
@@ -553,7 +509,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
                 return false
             end
         end
-        function self.castSymbolsOfDeath(thisUnit,debug)
+        function self.cast.symbolsOfDeath(thisUnit,debug)
             local spellCast = self.spell.symbolsOfDeath
             local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = "player" end

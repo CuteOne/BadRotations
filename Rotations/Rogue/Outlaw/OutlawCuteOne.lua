@@ -196,10 +196,13 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local talent 										= bb.player.talent
 			local time 											= getCombatTime()
 			local ttd 											= getTTD
-			local ttm 											= bb.player.timeToMax
+			local ttm 											= bb.player.powerTTM
 			local units 										= bb.player.units
 
 			if talent.deeperStrategem then dStrat = 1 else dStrat = 0 end
+			if not debuff.ghostlyStrike then gsBuff = 1 else gsBuff = 0 end
+			if buff.broadsides and buff.jollyRoger then broadRoger = 1 else broadRoger = 0 end
+			if cd.deathFromAbove == 0 then dfaCooldown = 1 else dfaCooldown = 0 end
 			if vanishTime == nil then vanishTime = GetTime() end
 
 	--------------------
@@ -304,7 +307,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 					-- pool_resource,for_next=1,extra_amount=60
 					-- vanish,if=combo_points.deficit>=2&energy>60
 					-- shadowmeld,if=combo_points.deficit>=2&energy>60
-					if not buff.stealth and comboDeficit >= 2 and (cd.vanish == 0 or cd.shadowmeld == 0) and (not solo or isDummy()) then
+					if not buff.stealth and comboDeficit >= 2 + 2 * gsBuff and (cd.vanish == 0 or cd.shadowmeld == 0) and (not solo or isDummy()) then
 						if power <= 60 then
 							return true
 						elseif power > 60 then
@@ -337,11 +340,22 @@ if select(2, UnitClass("player")) == "ROGUE" then
                         end
                     end
 				end
+			-- Marked for Death
+				-- marked_for_death
+			-- Blade Flurry
+				-- blade_flurry,if=(spell_targets.blade_flurry>=2&!buff.blade_flurry.up)|(spell_targets.blade_flurry<2&buff.blade_flurry.up)
+				if (useAoE() and not buff.bladeFlurry) or (not useAoE() and buff.bladeFlurry) then
+					if cast.bladeFlurry() then return end
+				end
 			end -- End Action List - PreCombat
 		-- Action List - Opener
 			local function actionList_Opener()
-				if (not inCombat and UnitExists("target") and UnitCanAttack("target","player") and not UnitIsDeadOrGhost("target")) or (inCombat and hasThreat("target")) then
-			-- Ambush / Cheap Shot
+				if (not inCombat and UnitExists("target") and UnitCanAttack("target","player") and not UnitIsDeadOrGhost("target")) or (inCombat and (hasThreat("target") or isDummy())) then
+				-- Grappling Hook
+	                if isChecked("Grappling Hook") and (hasThreat("target") or solo) then
+	                    if cast.grapplingHook("target") then return end 
+	                end
+	            -- Ambush / Cheap Shot
 					-- pool_resource,for_next=1
 					-- ambush
 					if buff.stealth then
@@ -359,10 +373,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
 							end
 						end
 					end
-				-- Grappling Hook
-	                if isChecked("Grappling Hook") and (hasThreat("target") or solo) then
-	                    if cast.grapplingHook("target") then return end 
-	                end
 	            -- Start Attack
 	            	if (not buff.stealth and not buff.shadowmeld and not buff.vanish) or level < 5 then
 	            		if mode.rotation ~= 4 then
@@ -373,20 +383,25 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			end -- End Action List - Opener
 		-- Action List - Finishers
 			local function actionList_Finishers()
+			-- Between the Eyes
+				-- between_the_eyes,if=equipped.greenskins_waterlogged_wristcuffs&buff.shark_infested_waters.up
+				-- TODO
 			-- Run Through
-				-- run_through
-				if cast.runThrough() then return end
+				-- run_through,if=!talent.death_from_above.enabled|energy.time_to_max<cooldown.death_from_above.remains+3.5
+				if not talent.deathFromAbove or ttm < cd.deathFromAbove + 3.5 then
+					if cast.runThrough() then return end
+				end
 			end -- End Action List - Finishers
 		-- Action List - Generators
 			local function actionList_Generators()
 			-- Ghostly Strike
-				-- ghostly_strike,if=talent.ghostly_strike.enabled&debuff.ghostly_strike.remains<duration*0.3
-				if talent.ghostlyStrike and (debuff.remain.ghostlyStrike < debuff.duration.ghostlyStrike * 0.3 or not debuff.ghostlyStrike) then
+				-- ghostly_strike,if=talent.ghostly_strike.enabled&debuff.ghostly_strike.remains<4.5
+				if talent.ghostlyStrike and debuff.remain.ghostlyStrike < 4.5 then
 					if cast.ghostlyStrike() then return end
 				end
 			-- Pistol Shot
-				-- pistol_shot,if=buff.opportunity.up&energy<60
-				if buff.opportunity and power < 60 then
+				-- pistol_shot,if=buff.opportunity.up&energy.time_to_max>2
+				if buff.opportunity and ttm > 2 then
 					if cast.pistolShot() then return end
 				end
 			-- Saber Slash
@@ -437,28 +452,68 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	----------------------------------
 					if not buff.stealth and not buff.vanish and not buff.shadowmeld and GetTime() > vanishTime + 2 and getDistance(units.dyn5) < 5 then
 						ObjectInteract(units.dyn5)
-			-- Blade Flurry
-						-- blade_flurry,if=(spell_targets.blade_flurry>=2&!buff.blade_flurry.up)|(spell_targets.blade_flurry<2&buff.blade_flurry.up)
-						if (useAoE() and not buff.bladeFlurry) or (not useAoE() and buff.bladeFlurry) then
-							if cast.bladeFlurry() then return end
+			-- Ambush / Cheap Shot
+						-- pool_resource,for_next=1
+						-- ambush
+						if buff.stealth then
+							if getOptionValue("Opener") == 1 then
+								if power <= 60 then
+									return true
+								else
+									if cast.ambush() then return end
+								end
+							else
+								if power <= 40 then
+									return true
+								else
+									if cast.cheapShot() then return end
+								end
+							end
 						end
+			-- Vanish/Shadowmeld
+						-- pool_resource,for_next=1,extra_amount=60
+						-- vanish,if=combo_points.deficit>=2&energy>60
+						-- shadowmeld,if=combo_points.deficit>=2&energy>60
+						if useCDs() and getDistance(units.dyn5) < 5 and not buff.stealth and comboDeficit >= 2 + 2 * gsBuff and (cd.vanish == 0 or cd.shadowmeld == 0) and (not solo or isDummy()) then
+							if power <= 60 then
+								return true
+							elseif power > 60 then
+								if isChecked("Vanish") and not buff.stealth then
+									if cast.vanish() then vanishTime = GetTime(); return end
+								end
+								if isChecked("Use Racial") and bb.player.race == "NightElf" and ((cd.vanish > 0 and cd.vanish < 170) or level < 32) then
+									if cast.shadowmeld() then vanishTime = GetTime(); return end
+								end
+							end
+						end				
+			-- Death from Above
+						-- death_from_above,if=combo_points>=action.run_through.cp_max_spend-(buff.broadsides.up&buff.jolly_roger.up)
+			-- Slice and Dice
+						-- slice_and_dice,if=combo_points>=5&buff.slice_and_dice.remains<target.time_to_die&buff.slice_and_dice.remains<(1+combo_points)*1.8
 			-- Roll the Bones
-						-- roll_the_bones,if=combo_points>=5&buff.roll_the_bones.remains<target.time_to_die&(buff.roll_the_bones.remains<3|buff.roll_the_bones.remains<duration*0.3%rtb_buffs|(rtb_buffs<=1|rtb_buffs=2&!buff.shark_infested_waters.up&!buff.jolly_roger.up&!(buff.broadsides.up&buff.true_bearing.up)))
-						if combo >= 5 and buff.remain.rollTheBones < ttd(units.dyn5) and 
-							(buff.remain.rollTheBones < 3 or buff.remain.rollTheBones < buff.duration.rollTheBones * 0.3 / buff.count.rollTheBones 
-								or (buff.count.rollTheBones <= 1 or buff.count.rollTheBones == 2 and not buff.sharkInfestedWaters and not buff.jollyRoger 
-									and not (buff.broadsides and buff.trueBearings))) 
-						then
+						-- roll_the_bones,if=combo_points>=5&buff.roll_the_bones.remains<target.time_to_die&(buff.roll_the_bones.remains<=3|rtb_buffs<=1)
+						if combo >= 5 and buff.remain.rollTheBones < ttd(units.dyn5) and (buff.remain.rollTheBones < 3 or buff.count.rollTheBones <= 1)	then
 							if cast.rollTheBones() then return end
 						end
+			-- Killing Spree
+						-- killing_spree,if=energy.time_to_max>5|energy<15
+						if useCDs() and getDistance(units.dyn5) < 5 then
+
+						end
+			-- Cannonball Barrage
+						-- cannonball_barrage,if=spell_targets.cannonball_barrage>=1
+			-- Curse of the Dreadblades
+						-- curse_of_the_dreadblades,if=combo_points.deficit>=4
+			-- Marked for Death
+						-- marked_for_death,target_if=min:target.time_to_die,if=combo_points.deficit>=4+talent.deeper_strategem.enabled+talent.anticipation.enabled 
 			-- Finishers
-						-- call_action_list,name=finisher,if=combo_points>=5+talent.deeper_strategem.enabled
-						if combo >= 5 + dStrat then
+						-- call_action_list,name=finish,if=combo_points>=action.run_through.cp_max_spend-1-(buff.broadsides.up&buff.jolly_roger.up)+cooldown.death_from_above.up
+						if combo >= comboMax - 1 - broadRoger + dfaCooldown then
 							if actionList_Finishers() then return end
 						end
 			-- Generators
-						-- call_action_list,name=generator,if=combo_points<5+talent.deeper_strategem.enabled
-						if combo < 5 + dStrat then
+						-- call_action_list,name=build,if=combo_points<action.run_through.cp_max_spend-1-(buff.broadsides.up&buff.jolly_roger.up)+cooldown.death_from_above.up
+						if combo < comboMax - 1 - broadRoger + dfaCooldown then
 							if actionList_Generators() then return end
 						end
 					end

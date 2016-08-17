@@ -158,6 +158,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local artifact 										= bb.player.artifact
 			local attacktar 									= UnitCanAttack("target","player")
 			local buff, buffRemain								= bb.player.buff, bb.player.buff.remain
+			local cast 											= bb.player.cast
 			local cd 											= bb.player.cd
 			local charges 										= bb.player.charges
 			local combo, comboDeficit, comboMax					= bb.player.comboPoints, bb.player.comboPointsMax - bb.player.comboPoints, bb.player.comboPointsMax
@@ -195,11 +196,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			local ttm 											= bb.player.timeToMax
 			local units 										= bb.player.units
 
-			if talent.masterOfShadows then
-				mosTalent = 1
-			else
-				mosTalent = 0
-			end
+			if talent.masterOfShadows then mosTalent = 1 else mosTalent = 0	end
+			if talent.premeditation then premed = 1 else premed = 0 end
 			if vanishTime == nil then vanishTime = GetTime() end
 
 	--------------------
@@ -223,9 +221,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
         			if (UnitExists("target") or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
 	        			if not isPicked(units.dyn5) and not isDummy() then
 	        				if debuff.remain.sap < 1 and mode.pickPocket ~= 1 then
-	        					if bb.player.castSap(units.dyn5) then return end
+	        					if cast.sap(units.dyn5) then return end
 	        				end
-	        				if bb.player.castPickPocket() then return end
+	        				if cast.pickPocket() then return end
 	        			end
 	        		end
 	        	end
@@ -251,35 +249,35 @@ if select(2, UnitClass("player")) == "ROGUE" then
 		            end
 		        -- Crimson Vial
 					if isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") then
-						if bb.player.castCrimsonVial() then return end
+						if cast.crimsonVial() then return end
 					end
 	            -- Evasion
 	                if isChecked("Evasion") and php < getOptionValue("Evasion") and inCombat then
-	                    if bb.player.castEvasion() then return end
+	                    if cast.evasion() then return end
 	                end
 	            end
 			end -- End Action List - Defensive
 		-- Action List - Interrupts
 			local function actionList_Interrupts()
 				if useInterrupts() and not stealth then
-					for i=1, enemies.yards20 do
-						local thisUnit = getEnemies("player", 20)[i]
+					for i=1, #enemies.yards20 do
+						local thisUnit = enemies.yards20[i]
 						local distance = getDistance(thisUnit)
 						if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
 				-- Kick
 							-- kick
 							if isChecked("Kick") and distance < 5 then
-								if bb.player.castKick(thisUnit) then return end
+								if cast.kick(thisUnit) then return end
 							end
 				-- Kidney Shot
 							if cd.kick ~= 0 and cd.blind == 0 then
 								if isChecked("Kidney Shot") then
-									if bb.player.castKidneyShot(thisUnit) then return end
+									if cast.kidneyShot(thisUnit) then return end
 								end
 							end
 							if isChecked("Blind") and (cd.kick ~= 0 or distance >= 5) then
 				-- Blind
-								if bb.player.castBlind(thisUnit) then return end
+								if cast.blind(thisUnit) then return end
 							end
 						end
 					end	
@@ -287,57 +285,112 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			end -- End Action List - Interrupts
 		-- Action List - Cooldowns
 			local function actionList_Cooldowns()
+				-- print("Cooldowns")
 				if useCDs() and getDistance(units.dyn5) < 5 then
-			-- Vanish
-					-- pool_resource,for_next=1,extra_amount=energy.max-talent.master_of_shadows.enabled*30
- 					-- vanish,if=(energy.deficit<talent.master_of_shadows.enabled*30&combo_points.max-combo_points>=3&cooldown.shadow_dance.charges<2)|target.time_to_die<8
-					if isChecked("Vanish") then
-						if (powerDeficit < mosTalent * 30 and comboDeficit >= 3 and charges.shadowDance < 2) or ttd(units.dyn5) < 8 then
-							if bb.player.castVanish() then vanishTime = GetTime(); return end
-						end
-					end
-			-- Shadow Dance
-					-- pool_resource,for_next=1,extra_amount=energy.max-talent.master_of_shadows.enabled*30
-					-- shadow_dance,if=combo_points.max-combo_points>=2&((cooldown.vanish.remains&buff.symbols_of_death.remains<=10.5&energy.deficit<talent.master_of_shadows.enabled*30)|cooldown.shadow_dance.charges>=2|target.time_to_die<25) 
-					if isChecked("Shadow Dance") then
-						if comboMax - combo >= 2 and ((cd.vanish ~= 0 and buff.remain.symbolsOfDeath <= 10.5 and powerDeficit < mosTalent * 30) or charges.shadowDance >= 2 or ttd(units.dyn5) < 25) then
-							if bb.player.castShadowDance() then return end
-						end
-					end
-			-- Shadowmeld
-					-- shadowmeld,if=energy>40&combo_points.max-combo_points>=3&!(buff.shadow_dance.up|buff.vanish.up|buff.stealth.up)
-					if isChecked("Use Racial") then
-						if power > 40 and comboDeficit >= 3 and not (buff.shadowDance or buff.vansih or buff.stealth) then
-							if bb.player.castShadowmeld() then vanishTime = GetTime(); return end
-						end
-					end
+
 				end -- End Cooldown Usage Check
 			end -- End Action List - Cooldowns
+		-- Action List - Stealth Cooldowns
+			local function actionList_StealthCooldowns()
+				if useCDs() and getDistance(units.dyn5) < 5 then
+				-- print("Stealth Cooldowns")
+			-- Shadow Dance
+					-- shadow_dance,if=charges>=3
+					if charges.shadowDance >= 3 then
+						if cast.shadowDance() then return end
+					end
+			-- Vanish
+					-- vanish
+					if cast.vanish() then vanishTime = GetTime(); return end
+			-- Shadow Dance
+					-- shadow_dance,if=charges>=2
+					if charges.shadowDance >= 2 then
+						if cast.shadowDance() then return end
+					end
+			-- Shadowmeld
+					-- pool_resource,for_next=1,extra_amount=40
+					-- shadowmeld,if=energy>=40
+					if power < 40 then
+						return true
+					else
+						if cast.shadowmeld() then vanishTime = GetTime(); return end
+					end
+			-- Shadow Dance
+					-- shadow_dance
+					if cast.shadowDance() then return end
+				end
+			end
+		-- Action List - Finishers
+			local function actionList_Finishers()
+				-- print("Finishers")
+			-- Enveloping Shadows
+				-- enveloping_shadows,if=buff.enveloping_shadows.remains<target.time_to_die&buff.enveloping_shadows.remains<=combo_points*1.8
+			-- Death from Above
+				-- death_from_above,if=spell_targets.death_from_above>=10
+			-- Night Blade
+				-- nightblade,target_if=max:target.time_to_die,if=target.time_to_die>10&refreshable
+				if ttd(units.dyn5) > 10 and debuff.refresh.nightblade then
+					if cast.nightblade() then return end
+				end
+			-- Death from Above
+				-- death_from_above
+			-- Eviscerate
+				-- eviscerate
+				if cast.eviscerate() then return end
+			end -- End Action List - Finishers
+		-- Action List - Stealthed
+			local function actionList_Stealthed()
+				-- print("Stealth")
+			-- Symbols of Death
+				-- symbols_of_death,if=buff.symbols_of_death.remains<target.time_to_die-4&buff.symbols_of_death.remains<=buff.symbols_of_death.duration*0.3&buff.shadowmeld.down
+				if buff.remain.symbolsOfDeath < ttd(units.dyn5) - 4 and buff.remain.symbolsOfDeath <= buff.duration.symbolsOfDeath * 0.3 and not buff.shadowmeld then
+					if cast.symbolsOfDeath() then return end
+				end
+			-- Finisher
+				-- call_action_list,name=finish,if=combo_points>=5
+				if combo >= 5 then
+					if actionList_Finishers() then return end
+				end
+			-- Shuriken Storm
+				-- shuriken_storm,if=(combo_points.deficit>=3&spell_targets.shuriken_storm>=3)|buff.the_dreadlords_deceit.stack>=29
+			-- Shadowstrike
+				-- shadowstrike
+				if cast.shadowstrike() then return end
+			end
+		-- Action List - Generators
+			local function actionList_Generators()
+				-- print("Generator")
+			-- Shuriken Storm
+				-- shuriken_storm,if=spell_targets.shuriken_storm>=2
+			-- Backstab / Gloomblade
+				-- gloomblade
+				-- backstab
+				if cast.backstab() then return end
+			end -- End Action List - Generators
 		-- Action List - PreCombat
 			local function actionList_PreCombat()
+				-- print("PreCombat")
 			-- Stealth
 				-- stealth
 				if isChecked("Stealth") then
 					if getOptionValue("Stealth") == 1 then
-						if bb.player.castStealth() then return end
+						if cast.stealth() then return end
 					end
 				end
 			end -- End Action List - PreCombat
 		-- Action List - Opener
 			local function actionList_Opener()
+				-- print("Opener")
 			-- Shadowstep
                 if isChecked("Shadowstep") and solo and attacktar and not deadtar and not friendly then
-                    if bb.player.castShadowstep("target") then return end 
+                    if cast.shadowstep("target") then return end 
                 end
                 if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 15 and mode.pickPocket ~= 2 then
-            -- Symbols of Death
-            		-- symbols_of_death
-					if bb.player.castSymbolsOfDeath() then return end
-            -- Shadowstrike
-					-- shadowstrike,if=combo_points.max-combo_points>=2
-					if comboDeficit >= 2 then
-						if bb.player.castShadowstrike() then return end
-					end
+            -- Stealthed
+					-- run_action_list,name=stealthed,if=stealthed|buff.shadowmeld.up
+					if buff.stealth or buff.shadowmeld then
+						if actionList_Stealthed() then return end
+					end			
 			-- Start Attack
                 	-- auto_attack
                 	if not buff.stealth and getDistance("target") < 5 then
@@ -345,37 +398,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
                     end
                 end
 			end -- End Action List - Opener
-		-- Action List - Finishers
-			local function actionList_Finishers()
-			-- Night Blade
-				-- nightblade,if=!dot.nightblade.ticking|dot.nightblade.remains<duration*0.3
-				-- nightblade,cycle_targets=1,target_if=max:target.time_to_die,if=active_dot.nightblade<6&target.time_to_die>6&(!dot.nightblade.ticking|dot.nightblade.remains<duration*0.3)
-				if not debuff.nightblade or debuff.remain.nightblade < debuff.duration.nightblade * 0.3 then
-					if bb.player.castNightblade() then return end
-				end
-				for i=1, enemies.yards5 do
-                    local thisUnit = getEnemies("player",5)[i]
-                    local nightbladeRemain = getDebuffRemain(thisUnit,spell.nightBlade,"player") or 0
-                    local nightbladeDuration = getDebuffDuration(thisUnit,spell.nightBlade,"player") or 0
-                    if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) then
-                        if nightbladeRemain <6 and ttd(thisUnit) > 6 and (nightbladeRemain == 0 or nightbladeRemain < nightbladeDuration * 0.3) then 
-                           if bb.player.castNightblade(thisUnit) then return end
-                        end
-                    end
-                end
-			-- Eviscerate
-				-- eviscerate
-				if bb.player.castEviscerate() then return end
-			end -- End Action List - Finishers
-		-- Action List - Generators
-			local function actionList_Generators()
-			-- Backstab / Gloomblade
-				-- gloomblade,if=energy.time_to_max<2.5
-				-- backstab,if=energy.time_to_max<2.5
-				if ttm < 2.5 then
-					if bb.player.castBackstab() then return end
-				end
-			end -- End Action List - Generators
 	---------------------
 	--- Begin Profile ---
 	---------------------
@@ -404,7 +426,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	--------------------------
 	--- In Combat Rotation ---
 	--------------------------
-				if inCombat and mode.pickPocket ~= 2 and not buff.stealth and not buff.shadowmeld and lastSpell ~= spell.shadowmeld then
+				if inCombat and mode.pickPocket ~= 2 and getDistance(units.dyn5) < 5 then
 	------------------------------
 	--- In Combat - Interrupts ---
 	------------------------------
@@ -418,33 +440,36 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	----------------------------------
 			-- Shadowstep
 	                if isChecked("Shadowstep") then
-	                    if bb.player.castShadowstep("target") then return end 
+	                    if cast.shadowstep("target") then return end 
 	                end
-			-- Symbols of Death
-					-- symbols_of_death,if=buff.symbols_of_death.remains<target.time_to_die-4&buff.symbols_of_death.remains<=10.5&buff.shadowmeld.down
-					if buff.remain.symbolsOfDeath < ttd(units.dyn5) - 4 and buff.remain.symbolsOfDeath <= 10.5 and not buff.shadowmeld then
-						if bb.player.castSymbolsOfDeath() then return end
-					end 
-			-- Shadowstrike
-					-- shadowstrike,if=combo_points.max-combo_points>=2
-					if comboDeficit >= 2 then
-						if bb.player.castShadowstrike() then return end
-					end
+			-- Nightblade
+					-- nightblade,if=set_bonus.tier18_4pc&refreshable&time<5
 			-- Cooldowns
+					-- call_action_list,name=cds
 					if actionList_Cooldowns() then return end
+			-- Stealthed
+					-- run_action_list,name=stealthed,if=stealthed|buff.shadowmeld.up
+					if buff.stealth or buff.shadowmeld or buff.shadowDance then
+						if actionList_Stealthed() then return end
+					end
 					if not buff.steath and not buff.vanish and not buff.shadowmeld and GetTime() > vanishTime + 2 then
 			-- Shuriken Toss
 						if getDistance(units.dyn30) > 5 and hasThreat(units.dyn30) then
-							if bb.player.castShurikenToss() then return end
+							if cast.shurikenToss() then return end
 						end
 			-- Finishers
 						-- run_action_list,name=finisher,if=combo_points>=5
 						if combo >= 5 then
 							if actionList_Finishers() then return end
 						end
+			-- Stealth Cooldowns
+						-- call_action_list,name=stealth_cds,if=combo_points.deficit>=2+talent.premeditation.enabled&(energy.deficit<=20|(energy.deficit<=45&talent.master_of_shadows.enabled)|(cooldown.shadowmeld.up&!cooldown.vanish.up&cooldown.shadow_dance.charges<=1))
+						if comboDeficit >= 2 + premed and (powerDeficit <= 20 or (powerDeficit <= 45 and talent.masterOfShadows) or (cd.shadowmeld == 0 and cd.vanish ~= 0 and charges.shadowDance <= 1)) then
+							if actionList_StealthCooldowns() then return end
+						end
 			-- Generators
-						-- run_action_list,name=generator,if=combo_points<5
-						if combo < 5 then
+						-- call_action_list,name=build,if=energy.deficit<=20|(energy.deficit<=45&talent.master_of_shadows.enabled)
+						if powerDeficit <= 20 or (powerDeficit <= 45 and talent.masterOfShadows) then
 							if actionList_Generators() then return end
 						end
 					end

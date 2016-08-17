@@ -1,65 +1,71 @@
 -- Inherit from: ../cCharacter.lua
--- All Class specs inherit from this file
-if select(2, UnitClass("player")) == "PALADIN" then -- Changed to name of class. IE: DRUID, DEATHKNIGHT
-    cPaladin = {} -- Change cClass to name of class IE: cDruid or cMonk
-    -- Creates Class with given specialisation
-    function cPaladin:new(spec) -- Change cClass to name of class IE: cDruid or cMonk
-        local self = cCharacter:new("Paladin") -- Change to name of class. IE: Druid, Deathknigh
+-- All Paladin specs inherit from this file
+if select(2, UnitClass("player")) == "PALADIN" then
+    cPaladin = {}
+    -- Creates Paladin with given specialisation
+    function cPaladin:new(spec)
+        local self = cCharacter:new("Paladin")
 
         local player = "player" -- if someone forgets ""
 
     -----------------
-    --- VARIABLES --- -- List of tables 
+    --- VARIABLES ---
     -----------------
-        self.profile         = spec
-        self.artifact        = {}
-        self.artifact.perks  = {}
-        self.buff.duration   = {}       -- Buff Durations
-        self.buff.remain     = {}       -- Buff Time Remaining
-        self.castable        = {}       -- Cast Spell Functions
-        self.debuff.duration = {}       -- Debuff Durations
-        self.debuff.remain   = {}       -- Debuff Time Remaining
-        self.debuff.refresh  = {}       -- Debuff Refreshable
-        self.enemies         = {}       -- Enemies 
-        self.paladinAbilities  = {        -- Abilities Available To All Specs in Class, change class to name of class IE: druid or monk
-            -- sampleeAbility         = 00000,  
+
+        self.profile                    = spec
+        self.holyPower                  = UnitPower("player",9)
+        self.holyPowerMax               = UnitPowerMax("player",9)
+        self.buff.duration              = {}       -- Buff Durations
+        self.buff.remain                = {}       -- Buff Time Remaining
+        self.cast                       = {}       -- Cast Spell Functions
+        self.cast.debug                 = {}       -- Cast Spell Functions Debug
+        self.debuff.duration            = {}       -- Debuff Durations
+        self.debuff.remain              = {}       -- Debuff Time Remaining
+        self.debuff.refresh             = {}       -- Debuff Refreshable
+        self.spell.class                = {}        -- Abilities Available To All Specs in Class
+        self.spell.class.abilities      = {
+            blessingOfFreedom           = 1044,
+            blessingOfProtection        = 1022,
+            contemplation               = 121183,
+            crusaderStrike              = 35395,
+            divineShield                = 642,
+            flashOfLight                = 19750,
+            hammerOfJustice             = 853,
+            handOfReckoning             = 62124,
+            judgment                    = 20271,
+            layOnHands                  = 633,
+            redemption                  = 7328,
+            tyrsDeliverance             = 200654,
         }
-        self.paladinArtifacts  = {        -- Artifact Traits Available To All Specs in Class, change class to name of class IE: druid or monk
-            -- sampleArtifact         = 00000,
+        self.spell.class.artifacts      = {        -- Artifact Traits Available To All Specs in Class
+            artificialStamina           = 211309,
         }
-        self.paladinBuffs      = {        -- Buffs Available To All Specs in Class, change class to name of class IE: druid or monk
-            -- sampleBuff             = 00000,
+        self.spell.class.buffs          = {        -- Buffs Available To All Specs in Class
+
         }
-        self.paladinDebuffs    = {        -- Debuffs Available To All Specs in Class, change class to name of class IE: druid or monk
-            -- sampleDebuff           = 00000,
+        self.spell.class.debuffs        = {        -- Debuffs Available To All Specs in Class
+
         }
-        self.paladinGlyphs     = {        -- Glyphs Available To All Specs in Class, change class to name of class IE: druid or monk
-            -- sampleGlyph            = 00000,
+        self.spell.class.glyphs         = {        -- Glyphs Available To All Specs in Class
+            glyphOfFireFromHeavens      = 57954,
+            glyphOfPillarOfLight        = 146959,
+            glyphOfTheLuminousCharger   = 89401,
+            glyphOfTheQueen             = 212642,
         }
-        self.paladinSpecials   = {        -- Specializations Available To All Specs in Class, change class to name of class IE: druid or monk
-            -- sampleSpecial          = 00000,
+        self.spell.class.talents        = {        -- Talents Available To All Specs in Class
+
         }
-        self.paladinTalents    = {        -- Talents Available To All Specs in Class, change class to name of class IE: druid or monk
-            -- sampleTalent           = 193539,
-        }
-        -- Merge all spell tables into self.classSpell, change class to name of class IE: druid or monk
-        self.paladinSpell = {} 
-        self.paladinSpell = mergeTables(self.paladinSpell,self.paladinAbilities)
-        self.paladinSpell = mergeTables(self.paladinSpell,self.paladinArtifacts)
-        self.paladinSpell = mergeTables(self.paladinSpell,self.paladinBuffs)
-        self.paladinSpell = mergeTables(self.paladinSpell,self.paladinDebuffs)
-        self.paladinSpell = mergeTables(self.paladinSpell,self.paladinSpecials)
-        self.paladinSpell = mergeTables(self.paladinSpell,self.paladinTalents) 
 
     ------------------
     --- OOC UPDATE ---
     ------------------
 
-        function self.classUpdateOOC() -- Add any functions or variables that need to be updated only when not in combat here
+        function self.classUpdateOOC()
             -- Call baseUpdateOOC()
             self.baseUpdateOOC()
             self.getClassArtifacts()
             self.getClassArtifactRanks()
+            self.getClassGlyphs()
             self.getClassTalents()
             self.getClassPerks()
         end
@@ -68,60 +74,60 @@ if select(2, UnitClass("player")) == "PALADIN" then -- Changed to name of class.
     --- UPDATE ---
     --------------
 
-        function self.classUpdate() -- Add any functions or variables that need to be updated all the time here
+        function self.classUpdate()
             -- Call baseUpdate()
             self.baseUpdate()
             self.getClassDynamicUnits()
             self.getClassEnemies()
             self.getClassBuffs()
-            self.getClassCastable()
             self.getClassCharges()
             self.getClassCooldowns()
             self.getClassDebuffs()
             self.getClassToggleModes()
+            self.getClassCastable()
+            
+
+            -- Update Combo Points
+            self.holyPower    = UnitPower("player",9)
+            self.holyPowerMax = UnitPowerMax("player",9)
 
             -- Update Energy Regeneration
-            self.powerRegen  = getRegen("player")
+            self.powerRegen     = getRegen("player")
         end
 
     ---------------------
     --- DYNAMIC UNITS ---
     ---------------------
 
-        function self.getClassDynamicUnits() -- Dynamic Target Selection based on Range and AoE/Non-AoE - NOTE: some more common ones are already setup in cCharacter.lua
+        function self.getClassDynamicUnits()
             local dynamicTarget = dynamicTarget
 
-            -- Normal
-            self.units.dyn10 = dynamicTarget(10,true) -- Sample Non-AoE
-
-            -- AoE
-            self.units.dyn35AoE = dynamicTarget(35, false) -- Sample AoE 
+            self.units.dyn10 = dynamicTarget(10,true) -- Hammer of Justice
         end
 
     ---------------
     --- ENEMIES ---
     ---------------
 
-        function self.getClassEnemies() -- sets table of enemies for specified ranges useful for knowing number of enemies in a certain ranges or target cycleing
+        function self.getClassEnemies()
             local getEnemies = getEnemies
 
-            self.enemies.yards5 = getEnemies("player", 5) -- Melee
-            self.enemies.yards8 = getEnemies("player", 8) -- Typical Melee AoE Range
+            self.enemies.yards10    = getEnemies("player", 10) -- Hammer of Justice
         end
 
     -----------------
     --- ARTIFACTS ---
     -----------------
 
-        function self.getClassArtifacts() -- Dynamicaly creates artifact lists based on the spell table above - NOTE: Change self.classArtifactss to the name of the artifact table)
+        function self.getClassArtifacts()
             local isKnown = isKnown
 
-            for k,v in pairs(self.paladinArtifacts) do
-                self.artifact[k] = isKnown(v)
+            for k,v in pairs(self.spell.class.artifacts) do
+                self.artifact[k] = isKnown(v) or false
             end
         end
 
-        function self.getClassArtifactRanks() -- Not yet implemented
+        function self.getClassArtifactRanks()
 
         end
 
@@ -129,29 +135,27 @@ if select(2, UnitClass("player")) == "PALADIN" then -- Changed to name of class.
     --- BUFFS ---
     -------------
     
-        function self.getClassBuffs() -- Dynamicaly creates buff lists based on the spell table above - NOTE: Change self.classBuffs to the name of the buff table)
+        function self.getClassBuffs()
             local UnitBuffID = UnitBuffID
             local getBuffDuration = getBuffDuration
             local getBuffRemain = getBuffRemain
 
-            for k,v in pairs(self.paladinBuffs) do
-                self.buff[k] = UnitBuffID("player",v) ~= nil
-                self.buff.duration[k] = getBuffDuration("player",v) or 0
-                self.buff.remain[k] = getBuffRemain("player",v) or 0
+            for k,v in pairs(self.spell.class.buffs) do
+                self.buff[k]            = UnitBuffID("player",v) ~= nil
+                self.buff.duration[k]   = getBuffDuration("player",v) or 0
+                self.buff.remain[k]     = getBuffRemain("player",v) or 0
             end
         end
 
     ---------------
     --- CHARGES ---
     ---------------
-        function self.getClassCharges() -- Dynamicaly creates charge lists based on the spell/buff table above - NOTE: Change self.classSpells/self.classBuffs to the name of the spell/buff table)
+        function self.getClassCharges()
             local getCharges = getCharges
 
-            for k,v in pairs(self.paladinSpell) do
-                self.charges[k] = getCharges(v)
-            end
-            for k,v in pairs(self.paladinBuffs) do
-                self.charges[k] = getBuffStacks("player",v,"player")
+            for k,v in pairs(self.spell.class.abilities) do
+                self.charges[k]     = getCharges(v)
+                self.recharge[k]    = getRecharge(v)
             end
         end
 
@@ -159,10 +163,10 @@ if select(2, UnitClass("player")) == "PALADIN" then -- Changed to name of class.
     --- COOLDOWNS ---
     -----------------
 
-        function self.getClassCooldowns() -- Dynamicaly creates cooldown lists based on the spell table above - NOTE: Change self.classCooldowns to the name of the cooldown table)
+        function self.getClassCooldowns()
             local getSpellCD = getSpellCD
 
-            for k,v in pairs(self.paladinSpell) do
+            for k,v in pairs(self.spell.class.abilities) do
                 if getSpellCD(v) ~= nil then
                     self.cd[k] = getSpellCD(v)
                 end
@@ -173,15 +177,15 @@ if select(2, UnitClass("player")) == "PALADIN" then -- Changed to name of class.
     --- DEBUFFS ---
     ---------------
 
-        function self.getClassDebuffs() -- Dynamicaly creates debuff lists based on the debuff table above - NOTE: Change self.classDebuffs to the name of the debuff table)
+        function self.getClassDebuffs()
             local UnitDebuffID = UnitDebuffID
             local getDebuffDuration = getDebuffDuration
             local getDebuffRemain = getDebuffRemain
 
-            for k,v in pairs(self.paladinDebuffs) do
-                self.debuff[k] = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
+            for k,v in pairs(self.spell.class.debuffs) do
+                self.debuff[k]          = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
                 self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
-                self.debuff.remain[k] = getDebuffRemain(self.units.dyn5,v,"player") or 0
+                self.debuff.remain[k]   = getDebuffRemain(self.units.dyn5,v,"player") or 0
             end
         end
 
@@ -189,58 +193,44 @@ if select(2, UnitClass("player")) == "PALADIN" then -- Changed to name of class.
     --- GLYPHS ---
     --------------
 
-        function self.getClassGlyphs() -- Gylphs not so important in legion so not yet reimplemented
+        function self.getClassGlyphs()
             local hasGlyph = hasGlyph
 
-            -- self.glyph.cheetah           = hasGlyph(self.spell.glyphOfTheCheetah)
-        end
-
-    -------------
-    --- PERKS ---
-    -------------
-
-        function self.getClassPerks() -- no longer used in Legion
-            local isKnown = isKnown
-
-            -- self.perk.enhancedRebirth = isKnown(self.spell.enhancedRebirth)
-        end
-
-    -----------------
-    --- RECHARGES ---
-    -----------------
-    
-        function self.getClassRecharges() -- Dynamicaly creates recharge list based on the spell table above - NOTE: Change self.classSpells to the name of the spell table)
-            local getRecharge = getRecharge
-
-            for k,v in pairs(self.paladinSpells) do
-                self.recharge[k] = getRecharge(v)
-            end
         end
 
     ----------------
     --- TALENTS ---
     ----------------
 
-        function self.getClassTalents() -- Dynamicaly creates talent list based on the talent table above - NOTE: Change self.classTalents to the name of the talent table)
+        function self.getClassTalents()
             local getTalent = getTalent
 
             for r = 1, 7 do --search each talent row
                 for c = 1, 3 do -- search each talent column
                     local talentID = select(6,GetTalentInfo(r,c,GetActiveSpecGroup())) -- ID of Talent at current Row and Column
-                    for k,v in pairs(self.paladinTalents) do
+                    for k,v in pairs(self.spell.class.talents) do
                         if v == talentID then
                             self.talent[k] = getTalent(r,c)
                         end
                     end
                 end
             end
-        end            
+        end
+            
+    -------------
+    --- PERKS ---
+    -------------
+
+        function self.getClassPerks()
+            local isKnown = isKnown
+
+        end
 
     ---------------
     --- TOGGLES ---
     ---------------
 
-        function self.getClassToggleModes() -- Toggle State checks for Toggles shared by all specs
+        function self.getClassToggleModes()
 
             self.mode.rotation      = bb.data["Rotation"]
             self.mode.cooldown      = bb.data["Cooldown"]
@@ -248,7 +238,7 @@ if select(2, UnitClass("player")) == "PALADIN" then -- Changed to name of class.
             self.mode.interrupt     = bb.data["Interrupt"]
         end
 
-        -- Create the toggle defined within rotation files *DO NOT EDIT*
+        -- Create the toggle defined within rotation files
         function self.createClassToggles()
             GarbageButtons()
             if self.rotations[bb.selectedProfile] ~= nil then
@@ -263,55 +253,105 @@ if select(2, UnitClass("player")) == "PALADIN" then -- Changed to name of class.
     ---------------
 
         -- Class options
-        -- Options which every Paladin should have
+        -- Options which every Rogue should have
         function self.createClassOptions()
             -- Class Wrap
             local section = bb.ui:createSection(bb.ui.window.profile,  "Class Options", "Nothing")
-                -- List Class Wide Options Here
             bb.ui:checkSectionState(section)
         end
 
     --------------
-    --- SPELLS --- -- List spell cast functions for spells available to all specs in class here.
+    --- SPELLS ---
     --------------
 
         function self.getClassCastable()
-            self.castable.sampleSpell     = self.castSampleSpell("target",true) -- not required but useful to see if base spell cast conditions are being met
+            self.cast.debug.crusaderStrike  = self.cast.crusaderStrike("target",true)
+            self.cast.debug.judgment        = self.cast.judgment("target",true)
+            self.cast.debug.hammerOfJustice = self.cast.hammerOfJustice("target",true)
+            self.cast.debug.flashOfLight    = self.cast.flashOfLight("player",true)
         end
 
-        function self.castSampleSpell(thisUnit,debug)
-            local spellCast = self.spell.sampleSpell -- localized spell id you are trying to cast, this helps standardize cast functions for easy copy paste edit.
+        function self.cast.crusaderStrike(thisUnit,debug)
+            local spellCast = self.spell.crusaderStrike
             local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = self.units.dyn5 end -- Nil error catch, change what thisUnit equals to correct default spell target (IE: "player", "target", self.units.dyn5)
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 29 and self.power > 40 and self.buff.stealth and getDistance(thisUnit) < 5 then -- Minimal requirements to cast spell (Level, Talent, Power, Cooldown, Range, Etc)
+            if self.level >= 1 and self.charges.crusaderStrike > 0 and getDistance(thisUnit) < 5 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true) -- Returns True if debugging and spell is castable
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false) -- Returns actual spell casting
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
-                return false -- Debugging False Return
+                return false
             end
         end
-        
+        function self.cast.flashOfLight(thisUnit,debug)
+            local spellCast = self.spell.flashOfLight
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 8 and self.powerPercent > 16 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.hammerOfJustice(thisUnit,debug)
+            local spellCast = self.spell.hammerOfJustice
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn10 end
+            if debug == nil then debug = false end
+
+            if self.level >= 5 and self.powerPercent > 3.5 and self.cd.hammerOfJustice == 0 and getDistance(thisUnit) < 10 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        function self.cast.judgment(thisUnit,debug)
+            local spellCast = self.spell.judgment
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn30 end
+            if debug == nil then debug = false end
+
+            if self.level >= 3 and self.powerPercent > 3 and self.cd.judgment == 0 and getDistance(thisUnit) < 30 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
 
     ------------------------
-    --- CUSTOM FUNCTIONS --- -- List all custom functions used by all Paladins here 
+    --- CUSTOM FUNCTIONS ---
     ------------------------
-        function useCDs()
-            local cooldown = self.mode.cooldown
-            if (cooldown == 1 and isBoss()) or cooldown == 2 then
+
+        function useAoE()
+            local rotation = self.mode.rotation
+            if (rotation == 1 and #getEnemies("player",8) >= 3) or rotation == 2 then
                 return true
             else
                 return false
             end
         end
 
-        function useAoE()
-            local rotation = self.mode.rotation
-            if (rotation == 1 and #getEnemies("player",8) >= 3) or rotation == 2 then
+        function useCDs()
+            local cooldown = self.mode.cooldown
+            if (cooldown == 1 and isBoss()) or cooldown == 2 then
                 return true
             else
                 return false
@@ -334,14 +374,6 @@ if select(2, UnitClass("player")) == "PALADIN" then -- Changed to name of class.
             end
         end
 
-        function useCleave()
-            if self.mode.cleave==1 and self.mode.rotation < 3 then
-                return true
-            else
-                return false
-            end
-        end
-
     -----------------------------
     --- CALL CREATE FUNCTIONS ---
     -----------------------------
@@ -349,4 +381,3 @@ if select(2, UnitClass("player")) == "PALADIN" then -- Changed to name of class.
         return self
     end --End function cRogue:new(spec)
 end -- End Select 
-

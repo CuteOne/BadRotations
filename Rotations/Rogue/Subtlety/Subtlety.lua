@@ -1,5 +1,5 @@
-if select(3, UnitClass("player")) == 4 then
-    function RogueSubtlety()
+function RogueSubtlety()
+    if GetSpecializationInfo(GetSpecialization()) == 261 then
         if bb.player == nil or bb.player.profile ~= "Subtlety" then
             bb.player = cSubtlety:new("Subtlety")
             setmetatable(bb.player, {__index = cSubtlety})
@@ -11,5 +11,5 @@ if select(3, UnitClass("player")) == 4 then
 
         bb.player:update()
 
-    end --Rogue Function End
-end --Class Check End
+    end --Class Check End
+end --Rogue Function End
