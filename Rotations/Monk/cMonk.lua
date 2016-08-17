@@ -1,331 +1,575 @@
 -- Inherit from: ../cCharacter.lua
 -- All Monk specs inherit from this file
 if select(2, UnitClass("player")) == "MONK" then
-cMonk = {}
+	cMonk = {}
 
--- Creates Monk with given specialisation
-function cMonk:new(spec)
-	local self = cCharacter:new("Monk")
+	function cMonk:new(spec)
+		local self = cCharacter:new("Monk")
 
-	local player = "player" -- if someone forgets ""
+		local player = "player" -- if someone forgets ""
 
-	self.profile         	= spec
-    self.powerRegen      	= getRegen("player")
-	self.artifact 			= {}		-- Artifacts
-	self.buff.duration	 	= {}		-- Buff Durations
-	self.buff.remain 	 	= {}		-- Buff Time Remaining
-	self.chi 				= {}		-- Chi Information
-	self.debuff.duration 	= {}		-- Debuff Durations
-	self.debuff.remain 	 	= {}		-- Debuff Time Remaining
-	self.monkAbilities		= { 		-- Monk Abilities
-		blackoutKick 					= 100784,
-		cracklingJadeLightning 			= 117952,
-		paralysis 						= 115078,
-		provoke 						= 115546,
-		resuscitate 					= 115178,
-		roll 							= 109132,
-		tigerPalm 						= 100780,
-	}
-	self.monkArtifacts 		= {
-		artificialStamina 				= 211309,
-	}
-	self.monkBuffs 			= {
-		comboBreakerBuff 				= 116768,
-        dampenHarmBuff					= 122278,
-        diffuseMagicBuff 				= 122783,
-	}
-	self.monkDebuffs 		= {
+	-----------------
+    --- VARIABLES ---
+    -----------------
 
-	}
-	self.monkGlyphs 		= {
-		glyphOfCracklingCraneLightning 	= 219513,
-		glyphOfCracklingOxLightning 	= 219510,
-		glyphOfCracklingTigerLightning  = 125931,
-		glyphOfFightingPose 			= 125872,
-		glyphOfHonor 					= 125732,
-		glyphOfYulonsGrace 				= 219557,
-	}
-	self.monkSpecials 		= {
-		effuse 							= 116694,
-	}
-	self.monkTalents 		= {
-		celerity 						= 115173,
-		chiBurst 						= 123986,
-		chiTorpedo 						= 115008,
-		dampenHarm 						= 122278,
-		diffuseMagic 					= 122783,
-		legSweep 						= 119381,
-		ringOfPeace 					= 116844,
-		tigersLust 						= 116841,
-	}
-    -- Merge all spell tables into self.druidSpell
-	self.monkSpells = {} 
-	self.monkSpells = mergeTables(self.monkSpells,self.monkAbilities)
-	self.monkSpells = mergeTables(self.monkSpells,self.monkArtifacts)
-	self.monkSpells = mergeTables(self.monkSpells,self.monkBuffs)
-	self.monkSpells = mergeTables(self.monkSpells,self.monkDebuffs)
-	self.monkSpells = mergeTables(self.monkSpells,self.monkGlyphs)
-	self.monkSpells = mergeTables(self.monkSpells,self.monkSpecials)
-	self.monkSpells = mergeTables(self.monkSpells,self.monkTalents) 
+		self.profile         		= spec
+	    self.powerRegen      		= getRegen("player")
+		self.artifact 				= {}		-- Artifacts
+		self.buff.duration	 		= {}		-- Buff Durations
+		self.buff.remain 	 		= {}		-- Buff Time Remaining
+		self.cast 					= {}		-- Cast Spell Functions
+        self.cast.debug         	= {}        -- Cast Spell Functions Debug
+        self.charges 				= {}
+		self.chi 					= {}		-- Chi Information
+		self.debuff.duration 		= {}		-- Debuff Durations
+		self.debuff.refresh 		= {}
+		self.debuff.remain 	 		= {}		-- Debuff Time Remaining
+		self.recharge 				= {}
+		self.spell.class        	= {}        
+        self.spell.class.abilities 	= {		-- Abilities Available To All in Class
+        	blackoutKick 					= 100784,
+			chiBurst 						= 123986,
+			chiTorpedo 						= 115008,
+			cracklingJadeLightning 			= 117952,
+			dampenHarm 						= 122278,
+			diffuseMagic 					= 122783,
+			effuse 							= 116694,
+			legSweep 						= 119381,
+			paralysis 						= 115078,
+			provoke 						= 115546,
+			resuscitate 					= 115178,
+			ringOfPeace 					= 116844,
+			roll 							= 109132,
+			tigerPalm 						= 100780,
+        }
+        self.spell.class.artifacts  = {        -- Artifact Traits Available To All Rogues
+            artificialStamina           	= 211309,
+        }
+        self.spell.class.buffs      = {        -- Buffs Available To All Rogues
+        	comboBreaker 	 				= 116768,
+        	dampenHarm 						= 122278,
+        	diffuseMagic 	 				= 122783,
+        }
+        self.spell.class.debuffs    = {        -- Debuffs Available To All Rogues
 
--- Update OOC
-	function self.classUpdateOOC()
-		-- Call baseUpdateOOC()
-		self.baseUpdateOOC()
-		self.getClassGlyphs()
-		self.getClassTalents()
-	end
+        }
+        self.spell.class.glyphs     = {        -- Glyphs Available To All Rogues
+        	glyphOfCracklingCraneLightning 	= 219513,
+			glyphOfCracklingOxLightning 	= 219510,
+			glyphOfCracklingTigerLightning  = 125931,
+			glyphOfFightingPose 			= 125872,
+			glyphOfHonor 					= 125732,
+			glyphOfYulonsGrace 				= 219557,
+        }
+        self.spell.class.talents    = {        -- Talents Available To All Rogues
+        	celerity 						= 115173,
+			chiBurst 						= 123986,
+			chiTorpedo 						= 115008,
+			dampenHarm 						= 122278,
+			diffuseMagic 					= 122783,
+			legSweep 						= 119381,
+			ringOfPeace 					= 116844,
+			tigersLust 						= 116841,
+        }
 
--- Update 
-	function self.classUpdate()
-		-- Call baseUpdate()
-		self.baseUpdate()
-		self.chi.count 	= getChi("player")
-		self.chi.max 	= getChiMax("player")
-		self.chi.diff 	= getChiMax("player")-getChi("player")
-		self.getClassBuffs()
-		self.getClassBuffsDuration()
-		self.getClassBuffsRemain()
-		self.getClassCharges()
-		self.getClassCooldowns()
-		self.getClassDynamicUnits()
-		self.getClassDebuffs()
-		self.getClassDebuffsDuration()
-		self.getClassDebuffsRemain()
-		self.getClassRecharge()
-	end
+	------------------
+    --- OOC UPDATE ---
+    ------------------
+		function self.classUpdateOOC()
+			-- Call baseUpdateOOC()
+			self.baseUpdateOOC()
+			self.getClassGlyphs()
+			self.getClassTalents()
+		end
 
--- Dynamic Units updates
-	function self.getClassDynamicUnits()
-		local dynamicTarget = dynamicTarget
+	--------------
+    --- UPDATE ---
+    --------------
+		function self.classUpdate()
+			-- Call baseUpdate()
+			self.baseUpdate()
+			self.chi.count 	= getChi("player")
+			self.chi.max 	= getChiMax("player")
+			self.chi.diff 	= getChiMax("player")-getChi("player")
+			self.getClassBuffs()
+			self.getClassCharges()
+			self.getClassCooldowns()
+			self.getClassDynamicUnits()
+			self.getClassDebuffs()
+			self.getClassToggleModes()
+			self.getClassCastable()
+		end
 
-		self.units.dyn8AoE = dynamicTarget(8, false) 
-		self.units.dyn10 = dynamicTarget(10, true)
-		self.units.dyn15 = dynamicTarget(15, true)
-	end
+	---------------------
+    --- DYNAMIC UNITS ---
+    ---------------------
+		function self.getClassDynamicUnits()
+			local dynamicTarget = dynamicTarget
 
--- Buff updates
-	function self.getClassBuffs()
-		local UnitBuffID = UnitBuffID
+			self.units.dyn8AoE = dynamicTarget(8, false) 
+			self.units.dyn10 = dynamicTarget(10, true)
+			self.units.dyn15 = dynamicTarget(15, true)
+		end
 
-		self.buff.comboBreaker 	= UnitBuffID("player",self.spell.comboBreakerBuff)~=nil or false
-		self.buff.dampenHarm 	= UnitBuffID("player",self.spell.dampenHarmBuff)~=nil or false
-		self.buff.diffuseMagic 	= UnitBuffID("player",self.spell.diffuseMagicBuff)~=nil or false
-	end	
+	-----------------
+    --- ARTIFACTS ---
+    -----------------
+
+        function self.getClassArtifacts()
+            local isKnown = isKnown
+
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact[k] = isKnown(v) or false
+            end
+        end
+
+        function self.getClassArtifactRanks()
+
+        end
+
+	-------------
+    --- BUFFS ---
+    -------------
+    
+        function self.getClassBuffs()
+            local UnitBuffID = UnitBuffID
+            local getBuffDuration = getBuffDuration
+            local getBuffRemain = getBuffRemain
+
+            for k,v in pairs(self.spell.class.buffs) do
+                self.buff[k]            = UnitBuffID("player",v) ~= nil
+                self.buff.duration[k]   = getBuffDuration("player",v) or 0
+                self.buff.remain[k]     = getBuffRemain("player",v) or 0
+            end
+        end
+	
+	---------------
+    --- CHARGES ---
+    ---------------
+
+		function self.getClassCharges()
+			local getBuffStacks = getBuffStacks
+			local getCharges = getCharges
+			local getRecharge = getRecharge
+
+			for k,v in pairs(self.spell.class.abilities) do
+				self.charges[k] 	= getCharges(v)
+				self.recharge[k] 	= getRecharge(v)
+			end
+		end
+
+	-----------------
+    --- COOLDOWNS ---
+    -----------------
+
+        function self.getClassCooldowns()
+            local getSpellCD = getSpellCD
+
+            for k,v in pairs(self.spell.class.abilities) do
+                if getSpellCD(v) ~= nil then
+                    self.cd[k] = getSpellCD(v)
+                end
+            end
+        end
 		
-	function self.getClassBuffsDuration()
-		local getBuffDuration = getBuffDuration
+	---------------
+    --- DEBUFFS ---
+    ---------------
 
-		self.buff.duration.dampenHarm 	= getBuffDuration("player",self.spell.dampenHarmBuff) or 0
-		self.buff.duration.diffuseMagic = getBuffDuration("player",self.spell.diffuseMagicBuff) or 0
-	end
+        function self.getClassDebuffs()
+            local UnitDebuffID = UnitDebuffID
+            local getDebuffDuration = getDebuffDuration
+            local getDebuffRemain = getDebuffRemain
+
+            for k,v in pairs(self.spell.class.debuffs) do
+                self.debuff[k]          = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
+                self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
+                self.debuff.remain[k]   = getDebuffRemain(self.units.dyn5,v,"player") or 0
+            end
+        end
+
+	--------------
+    --- GLYPHS ---
+    --------------
+
+        function self.getClassGlyphs()
+            local hasGlyph = hasGlyph
+
+        end
 		
-	function self.getClassBuffsRemain()
-		local getBuffRemain = getBuffRemain
+	----------------
+    --- TALENTS ---
+    ----------------
 
-		self.buff.remain.dampenHarm  	= getBuffRemain("player",self.spell.dampenHarmBuff) or 0
-		self.buff.remain.diffuseMagic 	= getBuffRemain("player",self.spell.diffuseMagicBuff) or 0
-	end
-		
-	function self.getClassCharges()
-		local getBuffStacks = getBuffStacks
-		local getCharges = getCharges
+        function self.getClassTalents()
+            local getTalent = getTalent
 
-		self.charges.chiTorpedo = getCharges(self.spell.chiTorpedo)
-		self.charges.roll 		= getCharges(self.spell.roll)
-	end
+            for r = 1, 7 do --search each talent row
+                for c = 1, 3 do -- search each talent column
+                    local talentID = select(6,GetTalentInfo(r,c,GetActiveSpecGroup())) -- ID of Talent at current Row and Column
+                    for k,v in pairs(self.spell.class.talents) do
+                        if v == talentID then
+                            self.talent[k] = getTalent(r,c)
+                        end
+                    end
+                end
+            end
+        end
 
--- Cooldown updates
-	function self.getClassCooldowns()
-		local getSpellCD = getSpellCD
+    ---------------
+    --- TOGGLES ---
+    ---------------
 
-		self.cd.chiBurst 		= getSpellCD(self.spell.chiBurst)
-		self.cd.chiTorpedo 		= getSpellCD(self.spell.chiTorpedo)
-		self.cd.dampenHarm 		= getSpellCD(self.spell.dampenHarm)
-		self.cd.diffuseMagic 	= getSpellCD(self.spell.diffuseMagic)
-		self.cd.paralysis 		= getSpellCD(self.spell.paralysis)
-		self.cd.legSweep 		= getSpellCD(self.spell.legSweep)
-		self.cd.provoke 		= getSpellCD(self.spell.provoke)
-		self.cd.tigersLust 		= getSpellCD(self.spell.tigersLust)
-	end
-		
--- Debuff updates
-	function self.getClassDebuffs()
-		local UnitDebuffID = UnitDebuffID
+        function self.getClassToggleModes()
 
-		-- 	self.debuff.risingSunKick = UnitDebuffID(self.units.dyn5,self.spell.risingSunKickDebuff,"player")~=nil or false
-	end
-		
-	function self.getClassDebuffsDuration()
-		local getDebuffDuration = getDebuffDuration
+            self.mode.rotation      = bb.data["Rotation"]
+            self.mode.cooldown      = bb.data["Cooldown"]
+            self.mode.defensive     = bb.data["Defensive"]
+            self.mode.interrupt     = bb.data["Interrupt"]
+        end
 
-		-- 	self.debuff.duration.risingSunKick = getDebuffDuration(self.units.dyn5,self.spell.risingSunKickDebuff,"player") or 0
-	end
-		
-	function self.getClassDebuffsRemain()
-		local getDebuffRemain = getDebuffRemain
+        -- Create the toggle defined within rotation files
+        function self.createClassToggles()
+            GarbageButtons()
+            if self.rotations[bb.selectedProfile] ~= nil then
+                self.rotations[bb.selectedProfile].toggles()
+            else
+                return
+            end
+        end
 
-		-- 	self.debuff.remain.risingSunKick = getDebuffRemain(self.units.dyn5,self.spell.risingSunKickDebuff,"player") or 0
-	end
-		
--- Recharge updates
-	function self.getClassRecharge()
-		local getRecharge = getRecharge
+    ---------------
+    --- OPTIONS ---
+    ---------------
 
-		self.recharge.chiTorpedo 	= getRecharge(self.spell.chiTorpedo)
-		self.recharge.roll 			= getRecharge(self.spell.roll)
-	end
+        -- Class options
+        -- Options which every Rogue should have
+        function self.createClassOptions()
+            -- Class Wrap
+            local section = bb.ui:createSection(bb.ui.window.profile,  "Class Options", "Nothing")
+            bb.ui:checkSectionState(section)
+        end
 
--- Glyph updates
-	function self.getClassGlyphs()
-		local hasGlyph = hasGlyph
+    --------------
+    --- SPELLS ---
+    --------------
 
-		-- self.glyph.touchOfDeath 	= hasGlyph(self.spell.touchOfDeathGlyph)
-	end
-		
--- Talent updates
-	function self.getClassTalents()
-		local getTalent = getTalent
+        function self.getClassCastable()
+            self.cast.debug.blackoutKick     		= self.cast.blackoutKick("target",true)
+            self.cast.debug.chiBurst				= self.cast.chiBurst("target",true)
+            self.cast.debug.chiTorpedo 				= self.cast.chiTorpedo("player",true)
+            self.cast.debug.cracklingJadeLightning 	= self.cast.cracklingJadeLightning("target",true)
+            self.cast.debug.dampenHarm 				= self.cast.dampenHarm("player",true)
+            self.cast.debug.diffuseMagic 			= self.cast.diffuseMagic("player",true)
+            self.cast.debug.effuse 					= self.cast.effuse("player",true)
+            self.cast.debug.legSweep 				= self.cast.legSweep("target",true)
+            self.cast.debug.paralysis 				= self.cast.paralysis("target",true)
+            self.cast.debug.provoke 				= self.cast.provoke("target",true)
+            self.cast.debug.quakingPalm 			= self.cast.quakingPalm("target",true)
+            self.cast.debug.resuscitate 			= self.cast.resuscitate("mouseover",true)
+            self.cast.debug.roll 					= self.cast.roll("target",true)
+            self.cast.debug.tigersLust 				= self.cast.tigersLust("player",true)
+            self.cast.debug.tigerPalm 				= self.cast.tigerPalm("target",true)
+        end
 
-		self.talent.chiBurst 		= getTalent(1,1)
-		self.talent.chiTorpedo 		= getTalent(2,1)
-		self.talent.tigersLust 		= getTalent(2,2)
-		self.talent.celerity 		= getTalent(2,3)
-		self.talent.ringOfPeace 	= getTalent(4,1)
-		self.talent.legSweep 		= getTalent(4,3)
-		self.talent.diffuseMagic 	= getTalent(5,2)
-		self.talent.dampenHarm 		= getTalent(5,3)
-	end
+        -- Blackout Kick
+        function self.cast.blackoutKick(thisUnit,debug)
+            local spellCast = self.spell.blackoutKick
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
 
--- Get Class option modes
-	function self.getClassOptions()
-		--self.poisonTimer = getValue("Poison remain")
-	end
+            if self.level >= 3 and (self.chi.count >= 1 or self.buff.comboBreaker) and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+		-- Chi Burst
+		function self.cast.chiBurst(thisUnit,debug)
+            local spellCast = self.spell.chiBurst
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40AoE end
+            if debug == nil then debug = false end
 
----------------
---- OPTIONS ---
----------------
+            if self.talent.chiBurst and self.cd.chiBurst == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+		-- Chi Torpedo
+		function self.cast.chiTorpedo(thisUnit,debug)
+            local spellCast = self.spell.chiTorpedo
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
 
-	-- Class options
-	-- Options which every Monk should have
-	function self.createClassOptions()
+            if self.talent.chiTorpedo and self.cd.chiTorpedo == 0 and self.charges.chiTorpedo >= 1 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+		-- Crackling Jade Lightning
+		function self.cast.cracklingJadeLightning(thisUnit,debug)
+            local spellCast = self.spell.cracklingJadeLightning
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "target" end
+            if debug == nil then debug = false end
 
-        -- Class Wrap
-        local section = bb.ui:createSection(bb.ui.window.profile,  "Class Options", "Nothing")
-        bb.ui:checkSectionState(section)
-	end
+            if self.level >= 36 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+		-- Dampen Harm
+		function self.cast.dampenHarm(thisUnit,debug)
+            local spellCast = self.spell.dampenHarm
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
 
-------------------------------
---- SPELLS - CROWD CONTROL --- 
-------------------------------
-	-- Leg Sweep
-	function self.castLegSweep(thisUnit)
-		if self.talent.legSweep and self.cd.legSweep == 0 and getDistance(thisUnit) < 5 then
-			if castSpell(thisUnit,self.spell.legSweep,false,false,false) then return end
-		end
-	end
-	-- Paralysis
-	function self.castParalysis(thisUnit)
-		if self.level >= 48 and self.cd.paralysis == 0 and self.power > 20 and getDistance(thisUnit) < 20 then
-			if castSpell(thisUnit,self.spell.paralysis,false,false,false) then return end
-		end
-	end
-	-- Quaking Palm - Racial
-	function self.castQuakingPalm(thisUnit)
-		if self.race == "Pandaren" and getSpellCD(self.racial) == 0 and getDistance(thisUnit) < 5 then
-			if castSpell(thisUnit,self.racial,false,false,false) then return end
-		end		
-	end
+            if self.talent.dampenHarm and self.cd.dampenHarm == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+		-- Diffuse Magic
+		function self.cast.diffuseMagic(thisUnit,debug)
+            local spellCast = self.spell.diffuseMagic
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
 
---------------------------
---- SPELLS - DEFENSIVE ---
---------------------------
-	-- Dampen Harm
-	function self.castDampenHarm()
-		if self.talent.dampenHarm and self.cd.dampenHarm == 0 then
-			if castSpell("player",self.spell.dampenHarm,false,false,false) then return end
-		end
-	end
-	-- Diffuse Magic
-	function self.castDiffuseMagic()
-		if self.talent.diffuseMagic and self.cd.diffuseMagic == 0 then
-			if castSpell("player",self.spell.diffuseMagic,false,false,false) then return end
-		end
-	end
-	-- Effuse
-	function self.castEffuse()
-		if self.level >= 8 and self.power > 30 and not isMoving("player") then
-			if castSpell("player",self.spell.effuse,false,false,false) then return end
-		end
-	end
---------------------------
---- SPELLS - OFFENSIVE ---
---------------------------
-	-- Blackout Kick
-	function self.castBlackoutKick(thisUnit)
-		if thisUnit == nil then thisUnit = self.units.dyn5 end
-		if self.level >= 3 and (self.chi.count >= 1 or self.buff.comboBreaker) and getDistance(thisUnit) < 5 then
-			if castSpell(thisUnit,self.spell.blackoutKick,false,false,false) then return end
-		end
-	end
-	-- Chi Burst
-	function self.castChiBurst()
-		if self.talent.chiBurst and self.cd.chiBurst == 0 and getDistance(self.units.dyn40AoE) < 40 then
-			if castSpell("player",self.spell.chiBurst,false,false,false) then return end
-		end
-	end
-	-- Chi Torpedo
-	function self.castChiTorpedo()
-		if self.talent.chiTorpedo and self.cd.chiTorpedo == 0 and self.charges.chiTorpedo >= 1 then
-			if castSpell("player",self.spell.chiTorpedo,false,false,false) then return end
-		end
-	end
+            if self.talent.diffuseMagic and self.cd.diffuseMagic == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+		-- Effuse
+		function self.cast.effuse(thisUnit,debug)
+            local spellCast = self.spell.effuse
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
 
-	-- Crackling Jade Lightning
-	function self.castCracklingJadeLightning()
-		if self.level >= 36 and getDistance("target") < 40 then
-			if castSpell("target",self.spell.cracklingJadeLightning,false,false,false) then return end
-		end
-	end
-	-- Tiger Palm
-	function self.castTigerPalm(thisUnit)
-		if thisUnit == nil then thisUnit = self.units.dyn5 end
-		if self.level >= 1 and self.power > 50 and getDistance(thisUnit) < 5 then
-			if castSpell(thisUnit,self.spell.tigerPalm,false,false,false) then return end
-		end
-	end
+            if self.level >= 8 and self.power > 30 and not isMoving(thisUnit) then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+		-- Leg Sweep
+		function self.cast.legSweep(thisUnit,debug)
+            local spellCast = self.spell.legSweep
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5AoE end
+            if debug == nil then debug = false end
 
-------------------------
---- SPELLS - UTILITY ---
-------------------------
+            if self.talent.legSweep and self.cd.legSweep == 0 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+		-- Paralysis
+		function self.cast.paralysis(thisUnit,debug)
+            local spellCast = self.spell.paralysis
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn20AoE end
+            if debug == nil then debug = false end
 
-	-- Provoke
-	function self.castProvoke()
-		if self.level >= 13 and self.cd.provoke == 0 and getDistance("target") < 30 then
-			if castSpell("target",self.spell.provoke,false,false,false) then return end
-		end
-	end
-	-- Resuscitate
-	function self.castResuscitate()
-		if self.level >= 14 and not self.inCombat and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and getDistance("mouseover") < 40 then
-			if castSpell("mouseover",self.spell.resuscitate,false,false,false,false,true) then return end
-		end
-	end
-	-- Roll
-	function self.castRoll()
-		if self.level >= 5 and self.charges.roll >= 1 and (solo or hasThreat("target")) then
-			if castSpell("player",self.spell.roll,false,false,false) then return end
-		end
-	end
-	-- Tiger's Lust
-	function self.castTigersLust()
-		if self.talent.tigersLust and self.cd.tigersLust == 0 then
-			if castSpell("player",self.spell.tigersLust,false,false,false) then return end
-		end
-	end
+            if self.level >= 48 and self.cd.paralysis == 0 and self.power > 20 and getDistance(thisUnit) < 20 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+		-- Provoke
+		function self.cast.provoke(thisUnit,debug)
+            local spellCast = self.spell.provoke
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "target" end
+            if debug == nil then debug = false end
 
--- Return
-	return self
-end
+            if self.level >= 13 and self.cd.provoke == 0 and getDistance(thisUnit) < 30 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+		-- Quaking Palm - Racial
+		function self.cast.quakingPalm(thisUnit,debug)
+            local spellCast = self.spell.quakingPalm
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
 
+            if self.race == "Pandaren" and getSpellCD(self.racial) == 0 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+		-- Resuscitate
+		function self.cast.resuscitate(thisUnit,debug)
+            local spellCast = self.spell.resuscitate
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "mouseover" end
+            if debug == nil then debug = false end
+
+            if self.level >= 14 and not self.inCombat and UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+		-- Roll
+		function self.cast.roll(thisUnit,debug)
+            local spellCast = self.spell.roll
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 5 and self.charges.roll >= 1 and (solo or hasThreat("target")) then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+		-- Tiger's Lust
+		function self.cast.tigersLust(thisUnit,debug)
+            local spellCast = self.spell.tigersLust
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.tigersLust and self.cd.tigersLust == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+		-- Tiger Palm
+		function self.cast.tigerPalm(thisUnit,debug)
+            local spellCast = self.spell.tigerPalm
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 1 and self.power > 50 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+    ------------------------
+    --- CUSTOM FUNCTIONS ---
+    ------------------------
+
+    	function useAoE()
+            local rotation = self.mode.rotation
+            if (rotation == 1 and #getEnemies("player",8) >= 3) or rotation == 2 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useCDs()
+            local cooldown = self.mode.cooldown
+            if (cooldown == 1 and isBoss()) or cooldown == 2 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useDefensive()
+            if self.mode.defensive == 1 then
+                return true
+            else
+                return false
+            end
+        end
+
+        function useInterrupts()
+            if self.mode.interrupt == 1 then
+                return true
+            else
+                return false
+            end
+        end
+
+    -----------------------------
+    --- CALL CREATE FUNCTIONS ---
+    -----------------------------
+		-- Return
+		return self
+	end
 end -- End Select 

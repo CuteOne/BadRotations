@@ -228,6 +228,7 @@ function frame:OnEvent(event, arg1, arg2)
         bb.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
     	-- Update Selected Spec
     	if not bb.loadedIn then
+    		bagsUpdated = true
         	bb:Run()
         end
     end

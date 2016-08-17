@@ -171,6 +171,7 @@ if select(2, UnitClass("player")) == "MONK" then
             local baseMultistrike   = 0
             local buff              = bb.player.buff
             local canFlask          = canUse(bb.player.flask.wod.agilityBig)
+            local cast              = bb.player.cast
             local castTimeFoF       = 4-(4*UnitSpellHaste("player")/100)
             local castTimeHS        = 2-(2*UnitSpellHaste("player")/100)
             local cd                = bb.player.cd
@@ -202,7 +203,7 @@ if select(2, UnitClass("player")) == "MONK" then
             local t18_4pc           = bb.player.eq.t18_4pc
             local talent            = bb.player.talent
             local thp               = getHP(bb.player.units.dyn5)
-            local trinketProc       = bb.player.hasTrinketProc()
+            local trinketProc       = false --bb.player.hasTrinketProc()
             local ttd               = getTTD(bb.player.units.dyn5)
             local ttm               = bb.player.timeToMax
             local units             = bb.player.units
@@ -222,35 +223,35 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
             -- Tiger's Lust
                 if hasNoControl() or (inCombat and getDistance("target") > 10 and ObjectExists("target") and not UnitIsDeadOrGhost("target")) then
-                    if bb.player.castTigersLust() then return end
+                    if cast.tigersLust() then return end
                 end
             -- Detox
                 if canDispel("player",spell.detox) then
-                    if bb.player.castDetox("player") then return end
+                    if cast.detox("player") then return end
                 end
                 if UnitIsPlayer("mouseover") and not UnitIsDeadOrGhost("mouseover") then
                     if canDispel("mouseover",spell.detox) then
-                        if bb.player.castDetox("mouseover") then return end
+                        if cast.detox("mouseover") then return end
                     end
                 end
             -- Resuscitate
-                if bb.player.castResuscitate() then return end
+                if cast.resuscitate() then return end
             -- Provoke
                 if not inCombat and select(3,GetSpellInfo(101545)) ~= "INTERFACE\\ICONS\\priest_icon_chakra_green" 
                     and cd.flyingSerpentKick > 1 and getDistance("target") > 10 and ObjectExists("target") 
                 then
                     if solo or #bb.friend == 1 then
-                        if bb.player.castProvoke() then return end
+                        if cast.provoke() then return end
                     end
                 end
             -- Flying Serpent Kick
                 if useFSK() then
-                    if bb.player.castFlyingSerpentKick() then return end 
-                    if bb.player.castFlyingSerpentKickEnd() then return end
+                    if cast.flyingSerpentKick() then return end 
+                    if cast.flyingSerpentKickEnd() then return end
                 end
             -- Roll
                 if getDistance("target") > 10 and getFacingDistance() < 5 and getFacing("player","target",10) then
-                    if bb.player.castRoll() then return end
+                    if cast.roll() then return end
                 end
             -- Dummy Test
                 if isChecked("DPS Testing") then
@@ -269,7 +270,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 -- if getDistance(units.dyn5) >= 5 and ((useFSK() and cd.flyingSerpentKick > 1) or not useFSK()) 
                 --     and not isCastingSpell(spell.cracklingJadeLightning) and (hasThreat("target") or isDummy()) and not isMoving("player") 
                 -- then
-                --     if bb.player.castCracklingJadeLightning() then return end
+                --     if cast.cracklingJadeLightning() then return end
                 -- end
             -- Touch of the Void
                 if (useCDs() or useAoE()) and isChecked("Touch of the Void") and inCombat and getDistance(units.dyn5)<5 then
@@ -281,7 +282,7 @@ if select(2, UnitClass("player")) == "MONK" then
                 end
             -- Fixate - Storm, Earth, and Fire
                 if isDummy() then
-                    if bb.player.castStormEarthAndFireFixate() then return end
+                    if cast.stormEarthAndFireFixate() then return end
                 end
             end -- End Action List - Extras
         -- Action List - Defensive
@@ -305,30 +306,30 @@ if select(2, UnitClass("player")) == "MONK" then
                     end
             -- Diffuse Magic
                     if isChecked("Diffuse/Dampen") and ((php <= getValue("Diffuse Magic") and inCombat) or canDispel("player",bb.player.spell.diffuseMagic)) then
-                        if bb.player.castDiffuseMagic() then return end
+                        if cast.diffuseMagic() then return end
                     end
             -- Dampen Harm
                     if isChecked("Diffuse/Dampen") and php <= getValue("Dampen Harm") and inCombat then
-                        if bb.player.castDampenHarm() then return end
+                        if cast.dampenHarm() then return end
                     end
             -- Effuse
                     if isChecked("Effuse") and ((not inCombat and php <= getValue("Effuse")) or (inCombat and php <= getValue("Effuse") / 2)) then
-                        if bb.player.castEffuse() then return end
+                        if cast.effuse() then return end
                     end
             -- Healing Elixir
                     if isChecked("Healing Elixir") and php <= getValue("Healing Elixir") then
-                        if bb.player.castHealingElixir() then return end
+                        if cast.healingElixir() then return end
                     end
             -- Leg Sweep
-                    if isChecked("Leg Sweep - HP") and php <= getValue("Leg Sweep - HP") and inCombat and enemies.yards5 > 0 then
-                        if bb.player.castLegSweep() then return end
+                    if isChecked("Leg Sweep - HP") and php <= getValue("Leg Sweep - HP") and inCombat and #enemies.yards5 > 0 then
+                        if cast.legSweep() then return end
                     end
-                    if isChecked("Leg Sweep - AoE") and enemies.yards5 >= getValue("Leg Sweep - AoE") then
-                        if bb.player.castLegSweep() then return end
+                    if isChecked("Leg Sweep - AoE") and #enemies.yards5 >= getValue("Leg Sweep - AoE") then
+                        if cast.legSweep() then return end
                     end
             -- Touch of Karma
                     if isChecked("Touch of Karma") and php <= getValue("Touch of Karma") and inCombat then
-                        if bb.player.castTouchOfKarma() then return end
+                        if cast.touchOfKarma() then return end
                     end
                 end -- End Defensive Check
             end -- End Action List - Defensive
@@ -340,7 +341,7 @@ if select(2, UnitClass("player")) == "MONK" then
                         for i=1, #getEnemies("player",5) do
                             thisUnit = getEnemies("player",5)[i]
                             if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
-                                if bb.player.castQuakingPalm(thisUnit) then return end
+                                if cast.quakingPalm(thisUnit) then return end
                             end
                         end
                     end
@@ -349,7 +350,7 @@ if select(2, UnitClass("player")) == "MONK" then
                         for i=1, #getEnemies("player",5) do
                             thisUnit = getEnemies("player",5)[i]
                             if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
-                                if bb.player.castSpearHandStrike(thisUnit) then return end
+                                if cast.spearHandStrike(thisUnit) then return end
                             end
                         end
                     end
@@ -358,7 +359,7 @@ if select(2, UnitClass("player")) == "MONK" then
                         for i=1, #getEnemies("player",20) do
                             thisUnit = getEnemies("player",20)[i]
                             if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
-                                if bb.player.castParalysis(thisUnit) then return end
+                                if cast.paralysis(thisUnit) then return end
                             end
                         end
                     end 
@@ -367,7 +368,7 @@ if select(2, UnitClass("player")) == "MONK" then
                         for i=1, #getEnemies("player",5) do
                             thisUnit = getEnemies("player",5)[i]
                             if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
-                                if bb.player.castLegSweep(thisUnit) then return end
+                                if cast.legSweep(thisUnit) then return end
                             end
                         end
                     end 
@@ -428,72 +429,72 @@ if select(2, UnitClass("player")) == "MONK" then
             --     -- arcane_torrent,if=chi.max-chi>=1 
             --     if useCDs() then
             --         if (bb.player.race == "Orc" or bb.player.race == "Troll") then
-            --             if bb.player.castRacial() then return end
+            --             if cast.racial() then return end
             --         end
             --         if bb.player.race == "Blood Elf" and chi.diff >= 1 then
-            --             if bb.player.castRacial() then return end
+            --             if cast.racial() then return end
             --         end
             --     end 
             -- -- Fists of Fury
             --     -- fists_of_fury,if=buff.serenity.up&buff.serenity.remains<1.5
             --     if buff.serenity and buff.remain.serenity < 1.5 then
-            --         if bb.player.castFistsOfFury() then return end
+            --         if cast.fistsOfFury() then return end
             --     end
             -- -- Rising Sun Kick
             --     -- rising_sun_kick
-            --     if bb.player.castRisingSunKick() then return end
+            --     if cast.risingSunKick() then return end
             -- -- Blackout Kick
             --     -- blackout_kick,if=chi.max-chi<=1&cooldown.chi_brew.up|buff.serenity.up
             --     if chi.diff <= 1 or buff.serenity then
-            --         if bb.player.castBlackoutKick() then return end
+            --         if cast.blackoutKick() then return end
             --     end
             -- -- Serenity
             --     -- serenity,if=chi.max-chi<=2
             --     if useCDs() and isChecked("Serenity") then
             --         if chi.diff <= 2 then
-            --             if bb.player.castSerenity() then return end
+            --             if cast.serenity() then return end
             --         end
             --     end
             -- -- Tiger Palm
             --     -- tiger_palm,if=chi.max-chi>=2&!buff.serenity.up
             --     if chi.diff >= 2 and not buff.serenity then
-            --         if bb.player.castTigerPalm() then return end
+            --         if cast.tigerPalm() then return end
             --     end
             end -- End Action List - Opener
         -- Action List - Single Target
             function actionList_SingleTarget()
             -- Rising Sun Kick
                 -- rising_sun_kick
-                if bb.player.castRisingSunKick() then return end
+                if cast.risingSunKick() then return end
             -- Strike of the Windlord
                 -- strike_of_the_windlord
-                if bb.player.castStrikeOfTheWindlord() then return end
+                if cast.strikeOfTheWindlord() then return end
             -- Rushing Jade Wind
                 -- rushing_jade_wind,if=chi>1&!prev_gcd.rushing_jade_wind
                 if chi.count > 1 and lastSpell ~= spell.rushingJadeWind then
-                    if bb.player.castRushingJadeWind() then return end
+                    if cast.rushingJadeWind() then return end
                 end
             -- Chi Wave
                 -- chi_wave,if=energy.time_to_max>2&buff.serenity.down
                 if ttm > 2 and not buff.serenity then
-                    if bb.player.castChiWave() then return end
+                    if cast.chiWave() then return end
                 end
             -- Chi Burst
                 -- chi_burst,if=energy.time_to_max>2&buff.serenity.down
                 if ttm>2 and not buff.serenity then
-                    if bb.player.castChiBurst() then return end
+                    if cast.chiBurst() then return end
                 end
             -- Blackout Kick
                 -- blackout_kick,if=(chi>1|buff.bok_proc.up)&buff.serenity.down&!prev_gcd.blackout_kick
                 --if (chi.count > 1 or buff.comboBreaker) and not buff.serenity and (lastSpell ~= spell.blackoutKick or chi.count > 2) then
                 if (chi.count > 1 or buff.blackoutKick) and not buff.serenity and lastSpell ~= spell.blackoutKick then
-                    if bb.player.castBlackoutKick() then return end
+                    if cast.blackoutKick() then return end
                 end
             -- Tiger Palm
                 -- tiger_palm,if=(buff.serenity.down&chi<=2)&!prev_gcd.tiger_palm
                 --if (not buff.serenity and chi.count <= 2) and (lastSpell ~= spell.tigerPalm or chi.count <= 2) then
                 if (not buff.serenity and chi.count <= 2) and lastSpell ~= tigerPalm then
-                    if bb.player.castTigerPalm() then return end
+                    if cast.tigerPalm() then return end
                 end
             end -- End Action List - Single Target
  
@@ -501,44 +502,44 @@ if select(2, UnitClass("player")) == "MONK" then
             function actionList_MultiTarget()
             -- Spinning Crane Kick
                 -- spinning_crane_kick
-                if bb.player.castSpinningCraneKick() then return end
+                if cast.spinningCraneKick() then return end
             -- Strike of the Windlord
                 -- strike_of_the_windlord
-                if bb.player.castRushingJadeWind() then return end
+                if cast.rushingJadeWind() then return end
             -- Rushing Jade Wind
                 -- rushing_jade_wind,if=chi>=2&!prev_gcd.rushing_jade_wind
                 if chi.count >= 2 and lastSpell ~= spell.rushingJadeWind then
-                    if bb.player.castRushingJadeWind() then return end
+                    if cast.rushingJadeWind() then return end
                 end
             -- Chi Wave
                 -- chi_wave,if=energy.time_to_max>2|buff.serenity.down
                 if ttm > 2 or not buff.serenity then
-                    if bb.player.castChiWave() then return end
+                    if cast.chiWave() then return end
                 end
             -- Chi Burst
                 -- chi_burst,if=energy.time_to_max>2|buff.serenity.down
                 if ttm > 2 or not buff.serenity then
-                    if bb.player.castChiBurst() then return end
+                    if cast.chiBurst() then return end
                 end
-                for i = 1, enemies.yards5 do
-                    local thisUnit = getEnemies("player", 5)[i]
-                    local markOfTheCraneDebuff = getDebuffRemain(thisUnit,spell.markOfTheCrane,"player") or 0 
+                for i = 1, #enemies.yards5 do
+                    local thisUnit = enemies.yards5[i]
+                    local markOfTheCraneDebuff = getDebuffRemain(thisUnit,spell.spec.debuffs.markOfTheCrane,"player") or 0 
             -- Rising Sun Kick
                     -- rising_sun_kick
                     if markOfTheCraneDebuff < 1 then
-                        if bb.player.castRisingSunKick(thisUnit) then return end
+                        if cast.risingSunKick(thisUnit) then return end
                     end
             -- Blackout Kick
                     -- blackout_kick,if=(chi>1|buff.bok_proc.up)&buff.serenity.down&!prev_gcd.blackout_kick
                     --if (buff.comboBreaker or (chi.count > 0 and markOfTheCraneDebuff < 1)) and not buff.serenity and markOfTheCraneDebuff < 1 then
                     if (chi.count > 1 or buff.blackoutKick) and not buff.serenity and lastSpell ~= spell.blackoutKick then
-                        if bb.player.castBlackoutKick(thisUnit) then return end
+                        if cast.blackoutKick(thisUnit) then return end
                     end
             -- Tiger Palm
                     -- tiger_palm,if=(buff.serenity.down&chi<=2)&!prev_gcd.tiger_palm
                     --if not buff.serenity and (chi.count <= 2 or markOfTheCraneDebuff < 1) then
                     if (not buff.serenity and chi.count <= 2) and lastSpell ~= spell.tigerPalm then
-                        if bb.player.castTigerPalm(thisUnit) then return end
+                        if cast.tigerPalm(thisUnit) then return end
                     end
                 end
             end -- End Action List - Multi-Target
@@ -589,7 +590,7 @@ if select(2, UnitClass("player")) == "MONK" then
             --  Invoke Xuen
                             -- invoke_xuen
                             if isChecked("Xuen") then
-                                if bb.player.castInvokeXuen() then return end
+                                if cast.invokeXuen() then return end
                             end
             -- Legendary Ring
                             -- use_item,name=maalus_the_blood_drinker,if=buff.tigereye_brew_use.up|target.time_to_die<18
@@ -634,7 +635,7 @@ if select(2, UnitClass("player")) == "MONK" then
                                 or (artifact.galeBurst and cd.strikeOfTheWindlord == 0 and talent.serenity and cd.fistsOfFury <= 3 and cd.risingSunKick < 8)) 
                                 and ttd > 8
                             then
-                                if bb.player.castTouchOfDeath() then return end
+                                if cast.touchOfDeath() then return end
                             end
             -- Storm, Earth, and Fire
                             -- storm_earth_and_fire,if=artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.up&cooldown.fists_of_fury.remains<=9&cooldown.rising_sun_kick.remains<=5
@@ -643,10 +644,10 @@ if select(2, UnitClass("player")) == "MONK" then
                                 if (artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord == 0 and cd.fistsOfFury <= 9 and cd.risingSunKick <= 5) 
                                     or (not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 9 and cd.risingSunKick <=5)
                                 then
-                                    if bb.player.castStormEarthAndFire() then return end
+                                    if cast.stormEarthAndFire() then return end
                                 end
-                                if enemies.yards8 == 1 then
-                                    if bb.player.castStormEarthAndFireFixate() then return end
+                                if #enemies.yards8 == 1 then
+                                    if cast.stormEarthAndFireFixate() then return end
                                 end
                             end
             -- Serenity
@@ -655,30 +656,30 @@ if select(2, UnitClass("player")) == "MONK" then
                             if (artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord == 0 and cd.fistsOfFury <= 3 and cd.risingSunKick < 8)
                                 or (not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 3 and cd.risingSunKick < 8)
                             then
-                                if bb.player.castSerenity() then return end
+                                if cast.serenity() then return end
                             end
             -- Energizing Elixer
                             -- energizing_elixir,if=energy<energy.max&chi<=1&buff.serenity.down
                             if power < 50 and chi.count <= 1 and not buff.serenity then
-                                if bb.player.castEnergizingElixir() then return end
+                                if cast.energizingElixir() then return end
                             end
                         end -- End Cooldown Check
             -- Rushing Jade Wind
                         -- rushing_jade_wind,if=buff.serenity.up&!prev_gcd.rushing_jade_wind
                         if buff.serenity and lastSpell ~= spell.rushingJadeWind then
-                            if bb.player.castRushingJadeWind() then return end
+                            if cast.rushingJadeWind() then return end
                         end
             -- Strike of the Windlord
                         -- strike_of_the_windlord,if=artifact.strike_of_the_windlord.enabled
                         if artifact.strikeOfTheWindlord then
-                            if bb.player.castStrikeOfTheWindlord() then return end
+                            if cast.strikeOfTheWindlord() then return end
                         end
             -- Whirling Dragon Punch
                         -- whirling_dragon_punch
-                        if bb.player.castWhirlingDragonPunch() then return end
+                        if cast.whirlingDragonPunch() then return end
             -- Fists of Fury
                         -- fists_of_fury
-                        if bb.player.castFistsOfFury() then return end
+                        if cast.fistsOfFury() then return end
             -- Call Action List - Single Target
                         -- call_action_list,name=st,if=active_enemies<3
                         if not useAoE() then
@@ -696,7 +697,7 @@ if select(2, UnitClass("player")) == "MONK" then
                     if getOptionValue("APL Mode") == 2 then
                         if useCDs() then
             -- Touch of Death
-                            if bb.player.castTouchOfDeath() then return end
+                            if cast.touchOfDeath() then return end
             -- Trinkets
                             if isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
                                 if canUse(13) then
@@ -725,66 +726,66 @@ if select(2, UnitClass("player")) == "MONK" then
                             end
             --  Invoke Xuen
                             if isChecked("Xuen") then
-                                if bb.player.castInvokeXuen() then return end
+                                if cast.invokeXuen() then return end
                             end
             -- Serenity
                             -- if CooldownSecRemaining(FistsOfFury) < 6 and CooldownSecRemaining(StrikeOfTheWindlord) < 5 and CooldownSecRemaining(WhirlingDragonPunch) < 5
                             if isChecked("Serenity") then
                                 if cd.serenity < 6 and cd.strikeOfTheWindlord < 5 and cd.whirlingDragonPunch < 5 then
-                                    if bb.player.castSerenity() then return end
+                                    if cast.serenity() then return end
                                 end
                             end
             -- Energizing Elixir
                             -- if AlternatePower = 0 and Power < MaxPower and not HasBuff(Serenity)
                             if chi.count == 0 and power < powerMax and not buff.serenity then
-                                if bb.player.castEnergizingElixir() then return end
+                                if cast.energizingElixir() then return end
                             end
             -- Storm, Earth, and Fire
                             -- if not HasBuff(StormEarthAndFire) and CooldownSecRemaining(FistsOfFury) < 11 and CooldownSecRemaining(WhirlingDragonPunch) < 14 and CooldownSecRemaining(StrikeOfTheWindlord) < 14
                             if not buff.stormEarthAndFire and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 then
-                                if bb.player.castStormEarthAndFire() then return end
+                                if cast.stormEarthAndFire() then return end
                             end
                         end -- End Cooldown Check
                         if useAoE() then
             -- Storm, Earth, and Fire
                             -- if not HasBuff(StormEarthAndFire) and CooldownSecRemaining(FistsOfFury) < 11 and CooldownSecRemaining(WhirlingDragonPunch) < 14 and CooldownSecRemaining(StrikeOfTheWindlord) < 14
                             if not buff.stormEarthAndFire and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 then
-                                if bb.player.castStormEarthAndFire() then return end
+                                if cast.stormEarthAndFire() then return end
                             end
             -- Spinning Crane Kick
-                            if bb.player.castSpinningCraneKick() then return end
+                            if cast.spinningCraneKick() then return end
                         end
             -- Fists of Fury
-                        if bb.player.castFistsOfFury() then return end
+                        if cast.fistsOfFury() then return end
             -- Whirling Dragon Punch
-                        if bb.player.castWhirlingDragonPunch() then return end
+                        if cast.whirlingDragonPunch() then return end
             -- Strike of the Windlord
-                        if bb.player.castStrikeOfTheWindlord() then return end
+                        if cast.strikeOfTheWindlord() then return end
             -- Tiger Palm
                         -- if not WasLastCast(TigerPalm) and AlternatePower < 4 and Power > (MaxPower*0.9)
                         if lastSpell ~= spell.tigerPalm and chi.count < 4 and power > (powerMax * 0.9) then
-                            if bb.player.castTigerPalm() then return end
+                            if cast.tigerPalm() then return end
                         end
             -- Rising Sun Kick
-                        if bb.player.castRisingSunKick() then return end
+                        if cast.risingSunKick() then return end
             -- Rushing Jade Wind
                         -- if AlternatePower > 1 or HasBuff(Serenity)
                         if chi.count > 1 or buff.serenity then
-                            if bb.player.castRushingJadeWind() then return end
+                            if cast.rushingJadeWind() then return end
                         end
             -- Chi Burst
-                        if bb.player.castChiBurst() then return end
+                        if cast.chiBurst() then return end
             -- Chi Wave
-                        if bb.player.castChiWave() then return end
+                        if cast.chiWave() then return end
             -- Blackout Kick
                         -- if not WasLastCast(BlackoutKick) and (HasBuff(ComboBreaker) or AlternatePower > 1 or HasBuff(Serenity))
                         if lastSpell ~= spell.blackoutKick and (buff.comboBreaker or chi.count > 1 or buff.serenity) then
-                            if bb.player.castBlackoutKick() then return end
+                            if cast.blackoutKick() then return end
                         end
             -- Tiger Palm
                         -- if not WasLastCast(TigerPalm) or AlternatePower < 2
                         if lastSpell ~= spell.tigerPalm or chi.count < 2 then
-                            if bb.player.castTigerPalm() then return end
+                            if cast.tigerPalm() then return end
                         end
                     end -- End AskMrRobot APL  
                 end -- End Combat Check

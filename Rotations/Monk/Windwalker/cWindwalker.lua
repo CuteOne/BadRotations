@@ -1,12 +1,11 @@
 --- Windwalker Class
 -- Inherit from: ../cCharacter.lua and ../cMonk.lua
-if select(2, UnitClass("player")) == "MONK" then
+cWindwalker = {}
+cWindwalker.rotations = {}
 
-    cWindwalker = {}
-    cWindwalker.rotations = {}
-
-    -- Creates Windwalker Monk
-    function cWindwalker:new()
+-- Creates Windwalker Monk
+function cWindwalker:new()
+    if GetSpecializationInfo(GetSpecialization()) == 269 then
         local self = cMonk:new("Windwalker")
 
         local player = "player" -- if someone forgets ""
@@ -14,18 +13,33 @@ if select(2, UnitClass("player")) == "MONK" then
         -- Mandatory !
         self.rotations = cWindwalker.rotations
 
-        -----------------
-        --- VARIABLES ---
-        -----------------
-
-        self.trinket = {} -- Trinket Procs
-        self.enemies = {
-            yards5,
-            yards8,
-            yards12,
-            yards40,
+    -----------------
+    --- VARIABLES ---
+    -----------------
+        self.spell.spec             = {}
+        self.spell.spec.abilities   = {
+            chiWave                         = 115098,
+            detox                           = 218164,
+            disable                         = 116095,
+            energizingElixir                = 115288,
+            fistsOfFury                     = 113656,
+            flyingSerpentKick               = 101545,
+            flyingSerpentKickEnd            = 115057,
+            healingElixir                   = 122281,
+            invokeXuen                      = 123904,
+            risingSunKick                   = 107428,
+            rushingJadeWind                 = 116847,
+            serenity                        = 152173,
+            spearHandStrike                 = 116705,
+            spinningCraneKick               = 101546,
+            stormEarthAndFire               = 137639,
+            stormEarthAndFireFixate         = 221771,
+            strikeOfTheWindlord             = 222029,
+            touchOfDeath                    = 115080,
+            touchOfKarma                    = 122470,
+            whirlingDragonPunch             = 152175,
         }
-        self.windwalkerArtifacts = {
+        self.spell.spec.artifacts   = {
             crosswinds                      = 195650,
             darkSkies                       = 195265,
             deathArt                        = 195266,
@@ -39,39 +53,24 @@ if select(2, UnitClass("player")) == "MONK" then
             risingWinds                     = 195263,
             spiritualFocus                  = 195298,
             strengthOfXuen                  = 195267,
-            strikeOfTheWindlordArtifact     = 205320,
-            strikeOfTheWindlord             = 222029,
+            strikeOfTheWindlord             = 205320,
             tigerClaws                      = 218607,
             tornadoKicks                    = 196082,
             transferOfPower                 = 195300,
             windborneBlows                  = 214922,
         }
-        self.windwalkerBuffs = {
-            serenityBuff                    = 152173,
-            stormEarthAndFireBuff           = 137639,
-            touchOfKarmaBuff                = 122470,
-        }
-        self.windwalkerDebuffs = {
-            markOfTheCrane                  = 228287,
-        }
-        self.windwalkerGlyphs = {
-            glyphOfRisingTigerKick          = 125151,
-        }
-        self.windwalkerSpecials = {
-            detox                           = 218164,
-            disable                         = 116095,
-            fistsOfFury                     = 113656,
-            flyingSerpentKick               = 101545,
-            flyingSerpentKickEnd            = 115057,
-            risingSunKick                   = 107428,
-            spearHandStrike                 = 116705,
-            spinningCraneKick               = 101546,
+        self.spell.spec.buffs       = {
+            serenity                        = 152173,
             stormEarthAndFire               = 137639,
-            stormEarthAndFireFixate         = 221771,
-            touchOfDeath                    = 115080,
             touchOfKarma                    = 122470,
         }
-        self.windwalkerTalents = {
+        self.spell.spec.debuffs     = {
+            markOfTheCrane                  = 228287,
+        }
+        self.spell.spec.glyphs      = {
+            glyphOfRisingTigerKick          = 125151,
+        }
+        self.spell.spec.talents     = {
             ascension                       = 115396,
             chiOrbit                        = 196743,
             chiWave                         = 115098,
@@ -86,21 +85,12 @@ if select(2, UnitClass("player")) == "MONK" then
             serenity                        = 152173,
             whirlingDragonPunch             = 152175,
         }
+        -- Merge all spell ability tables into self.spell
+        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
 
-        -- Merge all spell tables into self.spell
-        self.windwalkerSpells = {}
-        self.windwalkerSpells = mergeTables(self.windwalkerSpells,self.windwalkerArtifacts)
-        self.windwalkerSpells = mergeTables(self.windwalkerSpells,self.windwalkerBuffs)
-        self.windwalkerSpells = mergeTables(self.windwalkerSpells,self.windwalkerDebuffs)
-        self.windwalkerSpells = mergeTables(self.windwalkerSpells,self.windwalkerGlyphs)
-        self.windwalkerSpells = mergeTables(self.windwalkerSpells,self.windwalkerSpecials)
-        self.windwalkerSpells = mergeTables(self.windwalkerSpells,self.windwalkerTalents)
-        self.spell = {}
-        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.monkSpells, self.windwalkerSpells)
-
-        ------------------
-        --- OOC UPDATE ---
-        ------------------
+    ------------------
+    --- OOC UPDATE ---
+    ------------------
 
         function self.updateOOC()
             -- Call classUpdateOOC()
@@ -112,9 +102,9 @@ if select(2, UnitClass("player")) == "MONK" then
             self.getTalents()
         end
 
-        --------------
-        --- UPDATE ---
-        --------------
+    --------------
+    --- UPDATE ---
+    --------------
 
         function self.update()
             -- Call Base and Class update
@@ -123,199 +113,134 @@ if select(2, UnitClass("player")) == "MONK" then
             if not UnitAffectingCombat("player") then self.updateOOC() end
 
             self.getBuffs()
-            self.getBuffsDuration()
-            self.getBuffsRemain()
             self.getCharges()
             self.getDynamicUnits()
             self.getDebuffs()
-            self.getDebuffsDuration()
-            self.getDebuffsRemain()
             self.getCooldowns()
             self.getEnemies()
+            self.getCastable()
             self.getRotation()
-            self.getTrinketProc()
-            self.hasTrinketProc()
-
-
-            -- Casting and GCD check
-            -- TODO: -> does not use off-GCD stuff like pots, dp etc
-            if castingUnit() then
-                return
-            end
-
 
             -- Start selected rotation
             self:startRotation()
         end
 
-        -----------------
-        --- ARTIFACTS ---
-        -----------------
+    -----------------
+    --- ARTIFACTS ---
+    -----------------
 
-            function self.getArtifacts()
-                local isKnown = isKnown
+        function self.getArtifacts()
+            local isKnown = isKnown
 
-                self.artifact.galeBurst             = isKnown(self.spell.galeBurst)
-                self.artifact.strikeOfTheWindlord   = isKnown(self.spell.strikeOfTheWindlordArtifact)
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact[k] = isKnown(v) or false
             end
+        end
 
-            function self.getArtifactRanks()
+        function self.getArtifactRanks()
 
-            end
+        end
 
-        -------------
-        --- BUFFS ---
-        -------------
+    -------------
+    --- BUFFS ---
+    -------------
 
         function self.getBuffs()
             local UnitBuffID = UnitBuffID
-
-            self.buff.serenity          = UnitBuffID("player",self.spell.serenityBuff)~=nil or false
-            self.buff.stormEarthAndFire = UnitBuffID("player",self.spell.stormEarthAndFireBuff)~=nil or false
-            self.buff.touchOfKarma      = UnitBuffID("player",self.spell.touchOfKarmaBuff)~=nil or false
-        end
-
-        function self.getBuffsDuration()
             local getBuffDuration = getBuffDuration
-
-            self.buff.duration.serenity             = getBuffDuration("player",self.spell.serenityBuff) or 0
-            self.buff.duration.stormEarthAndFire    = getBuffDuration("player",self.spell.stormEarthAndFireBuff) or 0
-            self.buff.duration.touchOfKarma         = getBuffDuration("player",self.spell.touchOfKarmaBuff) or 0
-        end
-
-        function self.getBuffsRemain()
             local getBuffRemain = getBuffRemain
 
-            self.buff.remain.serenity           = getBuffRemain("player",self.spell.serenityBuff) or 0
-            self.buff.remain.stormEarthAndFire  = getBuffRemain("player",self.spell.stormEarthAndFireBuff) or 0
-            self.buff.remain.touchOfKarma       = getBuffRemain("player", self.spell.touchOfKarmaBuff) or 0
+            for k,v in pairs(self.spell.spec.buffs) do
+                self.buff[k]            = UnitBuffID("player",v) ~= nil
+                self.buff.duration[k]   = getBuffDuration("player",v) or 0
+                self.buff.remain[k]     = getBuffRemain("player",v) or 0
+            end
         end
+
+    ---------------
+    --- CHARGES ---
+    ---------------
 
         function self.getCharges()
             local getBuffStacks = getBuffStacks
 
-            self.charges.healingElixir      = getCharges(self.spell.healingElixir) or 0
-            self.charges.stormEarthAndFire  = getCharges(self.spell.stormEarthAndFire) or 0
+            for k,v in pairs(self.spell.spec.abilities) do
+                self.charges[k] = getCharges(v) or 0
+            end
         end
 
-        ---------------
-        --- DEBUFFS ---
-        ---------------
+    ---------------
+    --- DEBUFFS ---
+    ---------------
         function self.getDebuffs()
             local UnitDebuffID = UnitDebuffID
-
-            -- self.debuff.vendetta = UnitDebuffID(self.units.dyn5,self.spell.vendettaDebuff,"player")~=nil or false
-        end
-
-        function self.getDebuffsDuration()
             local getDebuffDuration = getDebuffDuration
-
-            -- self.debuff.duration.vendetta = getDebuffDuration(self.units.dyn5,self.spell.vendettaDebuff,"player") or 0
-        end
-
-        function self.getDebuffsRemain()
             local getDebuffRemain = getDebuffRemain
 
-            -- self.debuff.remain.vendetta = getDebuffRemain(self.units.dyn5,self.spell.vendettaDebuff,"player") or 0
+            for k,v in pairs(self.spell.spec.debuffs) do
+                self.debuff[k]          = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
+                self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
+                self.debuff.remain[k]   = getDebuffRemain(self.units.dyn5,v,"player") or 0
+                self.debuff.refresh[k]  = (self.debuff.remain[k] < self.debuff.duration[k] * 0.3) or self.debuff.remain[k] == 0
+            end
         end
-        -----------------
-        --- COOLDOWNS ---
-        -----------------
+
+    -----------------
+    --- COOLDOWNS ---
+    -----------------
 
         function self.getCooldowns()
             local getSpellCD = getSpellCD
 
-            self.cd.chiWave             = getSpellCD(self.spell.chiWave)
-            self.cd.detox               = getSpellCD(self.spell.detox)
-            self.cd.energizingElixir    = getSpellCD(self.spell.energizingElixir)
-            self.cd.fistsOfFury         = getSpellCD(self.spell.fistsOfFury)
-            self.cd.flyingSerpentKick   = getSpellCD(self.spell.flyingSerpentKick)
-            self.cd.invokeXuen          = getSpellCD(self.spell.invokeXuen)
-            self.cd.risingSunKick       = getSpellCD(self.spell.risingSunKick)
-            self.cd.serenity            = getSpellCD(self.spell.serenity)
-            self.cd.spearHandStrike     = getSpellCD(self.spell.spearHandStrike)
-            self.cd.strikeOfTheWindlord = getSpellCD(self.spell.strikeOfTheWindlord)
-            self.cd.touchOfDeath        = getSpellCD(self.spell.touchOfDeath)
-            self.cd.touchOfKarma        = getSpellCD(self.spell.touchOfKarma)
-            self.cd.whirlingDragonPunch = getSpellCD(self.spell.whirlingDragonPunch)
+            for k,v in pairs(self.spell.spec.abilities) do
+                if getSpellCD(v) ~= nil then
+                    self.cd[k] = getSpellCD(v)
+                end
+            end
         end
 
-        --------------
-        --- GLYPHS ---
-        --------------
+    --------------
+    --- GLYPHS ---
+    --------------
 
         function self.getGlyphs()
             local hasGlyph = hasGlyph
 
-            -- self.glyph.touchOfKarma = hasGlyph(self.spell.touchOfKarmaGlyph)
+            -- self.glyph.catForm           = hasGlyph(self.spell.catFormGlyph))
         end
 
-        ---------------
-        --- TALENTS ---
-        ---------------
+    ---------------
+    --- TALENTS ---
+    ---------------
 
         function self.getTalents()
             local getTalent = getTalent
 
-            self.talent.eyeOfTheTiger       = getTalent(1,2)
-            self.talent.chiWave             = getTalent(1,3)
-            self.talent.energizingElixir    = getTalent(3,1)
-            self.talent.ascension           = getTalent(3,2)
-            self.talent.powerStrikes        = getTalent(3,3)
-            self.talent.dizzyingKicks       = getTalent(4,2)
-            self.talent.healingElixir       = getTalent(5,1)
-            self.talent.rushingJadeWind     = getTalent(6,1)
-            self.talent.invokeXuen          = getTalent(6,2)
-            self.talent.hitCombo            = getTalent(6,3)
-            self.talent.chiOrbit            = getTalent(7,1)
-            self.talent.whirlingDragonPunch = getTalent(7,2)
-            self.talent.serenity            = getTalent(7,3)
-        end
-
-        --------------------
-        --- TRINKET PROC ---
-        --------------------
-
-        function self.getTrinketProc()
-            local UnitBuffID = UnitBuffID
-
-            -- -- self.trinket.WitherbarksBranch              = UnitBuffID("player",165822)~=nil or false --Haste Proc
-            -- -- self.trinket.TurbulentVialOfToxin           = UnitBuffID("player",176883)~=nil or false --Mastery Proc
-            -- -- self.trinket.KihrasAdrenalineInjector       = UnitBuffID("player",165485)~=nil or false --Mastery Proc
-            -- self.trinket.GorashansLodestoneSpike        = UnitBuffID("player",165542)~=nil or false --Multi-Strike Proc
-            -- self.trinket.DraenicPhilosophersStone       = UnitBuffID("player",157136)~=nil or false --Agility Proc
-            -- self.trinket.BlackheartEnforcersMedallion   = UnitBuffID("player",176984)~=nil or false --Multi-Strike Proc
-            -- -- self.trinket.MunificentEmblemOfTerror       = UnitBuffID("player",165830)~=nil or false --Critical Strike Proc
-            -- self.trinket.PrimalCombatantsInsignia       = UnitBuffID("player",182059)~=nil or false --Agility Proc
-            -- -- self.trinket.SkullOfWar                     = UnitBuffID("player",162915)~=nil or false --Critical Strike Proc
-            -- self.trinket.ScalesOfDoom                   = UnitBuffID("player",177038)~=nil or false --Multi-Strike Proc
-            -- self.trinket.LuckyDoubleSidedCoin           = UnitBuffID("player",177597)~=nil or false --Agility Proc
-            -- -- self.trinket.MeatyDragonspineTrophy         = UnitBuffID("player",177035)~=nil or false --Haste Proc
-            -- self.trinket.PrimalGladiatorsInsignia       = UnitBuffID("player",182068)~=nil or false --Agility Proc
-            -- self.trinket.BeatingHeartOfTheMountain      = UnitBuffID("player",176878)~=nil or false --Multi-Strike Proc
-            -- -- self.trinket.HummingBlackironTrigger        = UnitBuffID("player",177067)~=nil or false --Critical Stike Proc
-            -- self.trinket.MaliciousCenser                = UnitBuffID("player",183926)~=nil or false --Agility Proc
-        end
-
-        function self.hasTrinketProc()
-            for i = 1, #self.trinket do
-                if self.trinket[i]==true then return true else return false end
+            for r = 1, 7 do --search each talent row
+                for c = 1, 3 do -- search each talent column
+                    local talentID = select(6,GetTalentInfo(r,c,GetActiveSpecGroup())) -- ID of Talent at current Row and Column
+                    for k,v in pairs(self.spell.spec.talents) do
+                        if v == talentID then
+                            self.talent[k] = getTalent(r,c)
+                        end
+                    end
+                end
             end
         end
 
-        -------------
-        --- PERKS ---
-        -------------
+    -------------
+    --- PERKS ---
+    -------------
 
-        function self.getPerks() -- Removed in Legion
+        function self.getPerks()
             local isKnown = isKnown
 
-            -- self.perk.empoweredEnvenom          = isKnown(self.spell.empoweredEnvenom)
+            -- self.perk.enhancedBerserk        = isKnown(self.spell.enhancedBerserk)
         end
 
-        ---------------------
-        --- DYNAMIC UNITS ---
-        ---------------------
+    ---------------------
+    --- DYNAMIC UNITS ---
+    ---------------------
 
         function self.getDynamicUnits()
             local dynamicTarget = dynamicTarget
@@ -330,37 +255,32 @@ if select(2, UnitClass("player")) == "MONK" then
             self.units.dyn20AoE = dynamicTarget(20,false)
         end
 
-        ---------------
-        --- ENEMIES ---
-        ---------------
+    ---------------
+    --- ENEMIES ---
+    ---------------
 
         function self.getEnemies()
             local getEnemies = getEnemies
 
-            self.enemies.yards5     = #getEnemies("player", 5)
-            self.enemies.yards8     = #getEnemies("player", 8)
-            self.enemies.yards12    = #getEnemies("player", 12)
-            self.enemies.yards40    = #getEnemies("player", 40)
+            self.enemies.yards5     = getEnemies("player", 5)
+            self.enemies.yards8     = getEnemies("player", 8)
+            self.enemies.yards12    = getEnemies("player", 12)
+            self.enemies.yards40    = getEnemies("player", 40)
         end
 
-        ---------------
-        --- TOGGLES ---
-        ---------------
+    ---------------
+    --- TOGGLES ---
+    ---------------
 
         function self.getToggleModes()
 
-            self.mode.rotation  = bb.data["Rotation"]
-            self.mode.cooldown  = bb.data["Cooldown"]
-            self.mode.defensive = bb.data["Defensive"]
-            self.mode.interrupt = bb.data["Interrupt"]
             self.mode.sef       = bb.data["SEF"]
             self.mode.fsk       = bb.data["FSK"]
-            self.mode.builder   = bb.data["Builder"]
         end
 
-        ---------------
-        --- OPTIONS ---
-        ---------------
+    ---------------
+    --- OPTIONS ---
+    ---------------
 
         -- Create the toggle defined within rotation files
         function self.createToggles()
@@ -404,130 +324,372 @@ if select(2, UnitClass("player")) == "MONK" then
             bb:checkProfileWindowStatus()
         end
 
-        --------------
-        --- SPELLS ---
-        --------------
+    --------------
+    --- SPELLS ---
+    --------------
+
+        function self.getCastable()
+            self.cast.debug.chiWave                 = self.cast.chiWave("player",true)
+            self.cast.debug.detox                   = self.cast.detox("player",true)
+            self.cast.debug.disable                 = self.cast.disable("target",true)
+            self.cast.debug.energizingElixir        = self.cast.energizingElixir("player",true)
+            self.cast.debug.fistsOfFury             = self.cast.fistsOfFury("target",true)
+            self.cast.debug.flyingSerpentKick       = self.cast.flyingSerpentKick("target",true)            
+            self.cast.debug.flyingSerpentKickEnd    = self.cast.flyingSerpentKickEnd("target",true)            
+            self.cast.debug.healingElixir           = self.cast.healingElixir("player",true)
+            self.cast.debug.invokeXuen              = self.cast.invokeXuen("target",true)
+            self.cast.debug.risingSunKick           = self.cast.risingSunKick("target",true)
+            self.cast.debug.rushingJadeWind         = self.cast.rushingJadeWind("player",true)
+            self.cast.debug.serenity                = self.cast.serenity("player",true)
+            self.cast.debug.spearHandStrike         = self.cast.spearHandStrike("target",true)
+            self.cast.debug.spinningCraneKick       = self.cast.spinningCraneKick("player",true)
+            self.cast.debug.stormEarthAndFire       = self.cast.stormEarthAndFire("player",true)
+            self.cast.debug.stormEarthAndFireFixate = self.cast.stormEarthAndFireFixate("target",true)
+            self.cast.debug.strikeOfTheWindlord     = self.cast.strikeOfTheWindlord("target",true)
+            self.cast.debug.touchOfDeath            = self.cast.touchOfDeath("target",true)
+            self.cast.debug.touchOfKarma            = self.cast.touchOfKarma("target",true)
+            self.cast.debug.whirlingDragonPunch     = self.cast.whirlingDragonPunch("target",true)
+        end
+
         -- Chi Wave
-        function self.castChiWave()
-            if self.talent.chiWave and self.cd.chiWave == 0 and getDistance(self.units.dyn40AoE) < 40 then
-                if castSpell("player",self.spell.chiWave,false,false,false) then return end
+        function self.cast.chiWave(thisUnit,debug)
+            local spellCast = self.spell.chiWave
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.chiWave and self.cd.chiWave == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         -- Detox
-        function self.castDetox(thisUnit)
+        function self.cast.detox(thisUnit,debug)
+            local spellCast = self.spell.detox
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
             if self.level >= 22 and self.cd.detox == 0 and getDistance(thisUnit) < 40 then
-                if castSpell(thisUnit,self.spell.detox,false,false,false) then return end
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         -- Disable
-        function self.castDisable(thisUnit)
+        function self.cast.disable(thisUnit,debug)
+            local spellCast = self.spell.disable
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
             if self.level >= 25 and self.power > 15 and getDistance(thisUnit) < 5 then
-                if castSpell(thisUnit,self.spell.disable,false,false,false) then return end
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         -- Energizing Elixer
-        function self.castEnergizingElixir()
+        function self.cast.energizingElixir(thisUnit,debug)
+            local spellCast = self.spell.energizingElixir
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
             if self.talent.energizingElixir and self.cd.energizingElixir == 0 then
-                if castSpell("player",self.spell.energizingElixir,false,false,false) then return end
-            end 
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
         end
         -- Fists of Fury
-        function self.castFistsOfFury()
-            if self.level >= 28 and self.cd.fistsOfFury == 0 and self.chi.count >= 3 and getDistance(self.units.dyn5) < 5 then
-                if castSpell(self.units.dyn5,self.spell.fistsOfFury,false,false,false) then return end
+        function self.cast.fistsOfFury(thisUnit,debug)
+            local spellCast = self.spell.fistsOfFury
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 28 and self.cd.fistsOfFury == 0 and self.chi.count >= 3 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         -- Flying Serpent Kick
-        function self.castFlyingSerpentKick()
-            if self.level >= 10 and self.cd.flyingSerpentKick == 0 and (self.instance == "none" or hasThreat("target")) 
+        function self.cast.flyingSerpentKick(thisUnit,debug)
+            local spellCast = self.spell.flyingSerpentKick
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "target" end
+            if debug == nil then debug = false end
+
+            if self.level >= 10 and self.cd.flyingSerpentKick == 0 and (self.instance == "none" or hasThreat(thisUnit)) 
                 and getFacingDistance() < 5 and getFacingDistance() > 0 
-                and getDistance("target") >= 5 and getDistance("target") < 60 
+                and getDistance(thisUnit) >= 5 and getDistance(thisUnit) < 60 
             then
-                if castSpell("player",self.spell.flyingSerpentKick,false,false,false) then return end
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
-        function self.castFlyingSerpentKickEnd()
-            if self.level >= 10 and (getDistance("target") < 5 or getFacingDistance() ~= abs(getFacingDistance())) and select(3,GetSpellInfo(101545)) == 463281 then
-                if castSpell("player",self.spell.flyingSerpentKickEnd,false,false,false) then return end
+        function self.cast.flyingSerpentKickEnd(thisUnit,debug)
+            local spellCast = self.spell.flyingSerpentKickEnd
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "target" end
+            if debug == nil then debug = false end
+
+            if self.level >= 10 and (getDistance(thisUnit) < 5 or getFacingDistance() ~= abs(getFacingDistance())) and select(3,GetSpellInfo(101545)) == 463281 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         -- Healing Elixirs
-        function self.castHealingElixir()
+        function self.cast.healingElixir(thisUnit,debug)
+            local spellCast = self.spell.healingElixir
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
             if self.talent.healingElixir and self.charges.healingElixir > 0 then
-                if castSpell("player",self.spell.healingElixir,false,false,false) then return end
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         -- Invoke Xuen
-        function self.castInvokeXuen()
+        function self.cast.invokeXuen(thisUnit,debug)
+            local spellCast = self.spell.invokeXuen
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40AoE end
+            if debug == nil then debug = false end
+
             if self.talent.invokeXuen and self.cd.invokeXuen == 0 and getDistance(self.units.dyn40AoE) < 40 then
-                if castSpell(self.units.dyn40AoE,self.spell.invokeXuen,false,false,false) then return end
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         -- Rising Sun Kick
-        function self.castRisingSunKick(thisUnit)
+        function self.cast.risingSunKick(thisUnit,debug)
+            local spellCast = self.spell.risingSunKick
+            local thisUnit = thisUnit
             if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
             if self.level >= 18 and self.cd.risingSunKick == 0 and self.chi.count >= 2 and getDistance(thisUnit) < 5 then
-                if castSpell(thisUnit,self.spell.risingSunKick,false,false,false) then return end
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         -- Rushing Jade Wind
-        function self.castRushingJadeWind()
-            if self.talent.rushingJadeWind and self.cd.rushingJadeWind == 0 and self.chi >= 1 and getDistance(self.units.dyn8AoE) < 8 then
-                if castSpell("player",self.spell.rushingJadeWind,false,false,false) then return end
+        function self.cast.rushingJadeWind(thisUnit,debug)
+            local spellCast = self.spell.rushingJadeWind
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.rushingJadeWind and self.cd.rushingJadeWind == 0 and self.chi >= 1 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         -- Serenity
-        function self.castSerenity()
-            if self.talent.serenity and self.cd.serenity == 0 and getDistance(self.units.dyn5) < 5 then
-                if castSpell("player",self.spell.serenity,false,false,false) then return end
+        function self.cast.serenity(thisUnit,debug)
+            local spellCast = self.spell.serenity
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.serenity and self.cd.serenity == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         -- Spear Hand Strike
-        function self.castSpearHandStrike(thisUnit)
+        function self.cast.spearHandStrike(thisUnit,debug)
+            local spellCast = self.spell.spearHandStrike
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
             if self.level >= 32 and self.cd.spearHandStrike == 0 and getDistance(thisUnit) < 5 then
-                if castSpell(thisUnit,self.spell.spearHandStrike,false,false,false) then return end
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         -- Spinning Crane Kick
-        function self.castSpinningCraneKick()
-            if self.level >= 40 and self.chi.count >= 3 and getDistance(self.units.dyn8AoE) < 8 then
-                if castSpell("player",self.spell.spinningCraneKick,false,false,false) then return end
+        function self.cast.spinningCraneKick(thisUnit,debug)
+            local spellCast = self.spell.spinningCraneKick
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 40 and self.chi.count >= 3 and getDistance(thisUnit) < 8 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         -- Storm Earth and Fire
-        function self.castStormEarthAndFire()
-            if self.level >= 65 and self.charges.stormEarthAndFire > 0 and not self.buff.stormEarthAndFire and getDistance(self.units.dyn5) < 5 then
-                if castSpell("player",self.spell.stormEarthAndFire,false,false,false) then return end
+        function self.cast.stormEarthAndFire(thisUnit,debug)
+            local spellCast = self.spell.stormEarthAndFire
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 65 and self.charges.stormEarthAndFire > 0 and not self.buff.stormEarthAndFire then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
-        -- Storm Earth and Fire Fixate
-        function self.castStormEarthAndFireFixate()
+        function self.cast.stormEarthAndFireFixate(thisUnit,debug)
+            local spellCast = self.spell.stormEarthAndFireFixate
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
             if self.level >= 65 and self.buff.stormEarthAndFire then
-                if castSpell("target",self.spell.stormEarthAndFireFixate,false,false,false) then return end
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         -- Strike of the Windlord
-        function self.castStrikeOfTheWindlord()
-            if self.artifact.strikeOfTheWindlord and self.cd.strikeOfTheWindlord == 0 and self.chi >= 2 and getDistance(self.units.dyn8) < 8 then
-                if castSpell("player",self.spell.strikeOfTheWindlord,false,false,false) then return end
+        function self.cast.strikeOfTheWindlord(thisUnit,debug)
+            local spellCast = self.spell.strikeOfTheWindlord
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn8 end
+            if debug == nil then debug = false end
+
+            if self.artifact.strikeOfTheWindlord and self.cd.strikeOfTheWindlord == 0 and self.chi >= 2 and getDistance(thisUnit) < 8 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         -- Touch of Death
-        function self.castTouchOfDeath()
-            if self.level >= 24 and self.cd.touchOfDeath == 0 and getDistance(self.units.dyn5) < 5 then
-                if castSpell(self.units.dyn5,self.spell.touchOfDeath,false,false,false) then return end
+        function self.cast.touchOfDeath(thisUnit,debug)
+            local spellCast = self.spell.touchOfDeath
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 24 and self.cd.touchOfDeath == 0 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         -- Touch of Karma
-        function self.castTouchOfKarma()
-            if self.level >= 22 and self.cd.touchOfKarma == 0 and getDistance(self.units.dyn20AoE) < 20 then
-                if castSpell(self.units.dyn20AoE,self.spell.touchOfKarma,false,false,false) then return end
+        function self.cast.touchOfKarma(thisUnit,debug)
+            local spellCast = self.spell.touchOfKarma
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn20AoE end
+            if debug == nil then debug = false end
+
+            if self.level >= 22 and self.cd.touchOfKarma == 0 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         -- Whirling Dragon Punch
-        function self.castWhirlingDragonPunch()
-            if self.talent.whirlingDragonPunch and self.cd.whirlingDragonPunch == 0 and self.cd.fistsOfFury ~= 0 and self.cd.risingSunKick ~= 0 and getDistance(self.units.dyn8AoE) < 8 then
-                if castSpell("player",self.spell.whirlingDragonPunch,false,false,false) then return end
+        function self.cast.whirlingDragonPunch(thisUnit,debug)
+            local spellCast = self.spell.whirlingDragonPunch
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn8AoE end
+            if debug == nil then debug = false end
+
+            if self.talent.whirlingDragonPunch and self.cd.whirlingDragonPunch == 0 and self.cd.fistsOfFury ~= 0 and self.cd.risingSunKick ~= 0 and getDistance(thisUnit) < 8 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
 
@@ -551,39 +713,7 @@ if select(2, UnitClass("player")) == "MONK" then
             else
                 return false
             end
-        end
-
-        function useAoE()
-            if ((self.mode.rotation == 1 and #getEnemies("player",8) >= 3) or self.mode.rotation == 2) and UnitLevel("player")>=40 then
-                return true
-            else
-                return false
-            end
-        end
-
-        function useCDs()
-            if (self.mode.cooldown == 1 and isBoss()) or self.mode.cooldown == 2 then
-                return true
-            else
-                return false
-            end
-        end
-
-        function useDefensive()
-            if self.mode.defensive == 1 then
-                return true
-            else
-                return false
-            end
-        end
-
-        function useInterrupts()
-            if self.mode.interrupt == 1 then
-                return true
-            else
-                return false
-            end
-        end
+        end    
 
         function useSEF()
             if self.mode.sef == 1 then
@@ -672,13 +802,11 @@ if select(2, UnitClass("player")) == "MONK" then
             return tostring(select(1,GetSpellInfo(spellID)))
         end
 
-        -----------------------------
-        --- CALL CREATE FUNCTIONS ---
-        -----------------------------
+    -----------------------------
+    --- CALL CREATE FUNCTIONS ---
+    -----------------------------
 
-        self.createOptions()
-
-
+        -- self.createOptions()
         -- Return
         return self
     end-- cWindwalker

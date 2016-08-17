@@ -105,7 +105,25 @@ function cCharacter:new(class)
 		self.getCharacterInfo()
 
 		-- Get Consumables	
-		self.getConsumables()			-- Find All The Tasty Things!
+		if bagsUpdated then
+			self.potion.action 		= {}
+			self.potion.agility		= {}	-- Agility Potions
+			self.potion.armor 		= {}	-- Armor Potions
+			self.potion.breathing  	= {}
+			self.potion.health		= {}	-- Health Potions
+			self.potion.intellect 	= {}	-- Intellect Potions
+			self.potion.invis 		= {}
+			self.potion.mana 		= {}	-- Mana Potions
+			self.potion.rage 		= {}
+			self.potion.rejuve 		= {}
+			self.potion.speed		= {}
+			self.potion.strength 	= {}	-- Strength Potions
+			self.potion.versatility = {} 	-- Versatility Potions
+			self.potion.waterwalk 	= {}
+			self.getConsumables()			-- Find All The Tasty Things!
+			bagsUpdated = false
+		end
+
 
 		-- Crystal
 		self.useCrystal()
@@ -411,7 +429,7 @@ function cCharacter:new(class)
 								for y = 1, #potionList do --Look for and add to right potion table
 									local potionEffect = potionList[y].effect
 									local potionType = potionList[y].ptype
-									if self.potion[potionType] == nil then self.potion[potionType] = {} end
+									-- if self.potion[potionType] == nil then self.potion[potionType] = {} end
 									if strmatch(itemEffect,potionEffect)~=nil then
 										tinsert(self.potion[potionType],itemInfo)
 										table.sort(self.potion[potionType], function(x,y)

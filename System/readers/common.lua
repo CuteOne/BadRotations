@@ -3,6 +3,16 @@ function bb.read.commonReaders()
 	--[[ Readers ]]
 	---------------
 	-----------------------
+	--[[ Bag Update ]]
+	local Frame = CreateFrame('Frame')
+	Frame:RegisterEvent("BAG_UPDATE")
+	local function BagUpdate(self,event,...)
+		if event == "BAG_UPDATE" then
+			bagsUpdated = true
+		end
+	end
+	Frame:SetScript("OnEvent",BagUpdate)
+	-----------------------
 	--[[ Loss of control ]]
 	local frame = CreateFrame('Frame')
 	frame:RegisterEvent("LOSS_OF_CONTROL_UPDATE")

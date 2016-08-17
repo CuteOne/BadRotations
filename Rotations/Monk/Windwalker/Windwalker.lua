@@ -1,5 +1,5 @@
-if select(3, UnitClass("player")) == 10 then
-    function MonkWindwalker()
+function MonkWindwalker()
+    if GetSpecializationInfo(GetSpecialization()) == 269 then
         if bb.player == nil or bb.player.profile ~= "Windwalker" then
             bb.player = cWindwalker:new("Windwalker")
             setmetatable(bb.player, {__index = cWindwalker})
@@ -11,5 +11,5 @@ if select(3, UnitClass("player")) == 10 then
 
         bb.player:update()
 
-    end --Monk Function End
-end --Class Check End
+    end --Class Check End
+end --Monk Function End
