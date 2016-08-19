@@ -215,34 +215,44 @@ function bb.read.combatLog()
 
   function cl:Druid(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
-      destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
+        destName, destFlags, destRaidFlags, spell, spellName, _, spellType = ...
     -----------
     -- Kitty ---------------
     --[[ Bleed Recorder --]]
     if GetSpecialization() == 2 then
-      if source == UnitGUID("player") then
-        if destination ~= nil and destination ~= "" then
-          local thisUnit = thisUnit
-          if ObjectExists(GetObjectWithGUID(destination)) then
-            thisUnit = GetObjectWithGUID(destination)
-          else 
-            thisUnit = "target"
-          end
-          ripApplied = ripApplied or {}
-          rakeApplied = rakeApplied or {}
-          if spell == 1079 and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") then
-            ripApplied[thisUnit] = bb.player.getSnapshotValue("rip")
-          end
-          if spell == 155722 and (param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH") then
-            if UnitLevel("player") >= 10 then
-              rakeApplied[thisUnit] = bb.player.getSnapshotValue("rake")
+        if source == UnitGUID("player") then
+            if destination ~= nil and destination ~= "" then
+                local thisUnit = thisUnit
+                if FireHack then
+                    if ObjectExists(GetObjectWithGUID(destination)) then
+                        thisUnit = GetObjectWithGUID(destination)
+                    else 
+                        thisUnit = "target"
+                    end
+                    if bb.player ~= nil and getDistance(thisUnit) < 40 then
+                        local bleed = bb.player.bleed
+                        if bleed.combatLog[thisUnit] == nil then bleed.combatLog[thisUnit] = {} end
+                        if spell == bb.player.spell.rake and param == "SPELL_CAST_SUCCESS" then
+                            for k, v in pairs(bleed.rake[thisUnit]) do
+                                if k == "calc" then
+                                    if bleed.rake[thisUnit] ~= nil then bleed.combatLog[thisUnit].rake = v end
+                                end
+                            end
+                        end
+                        if spell == bb.player.spell.rip and param == "SPELL_CAST_SUCCESS" then
+                            for k, v in pairs(bleed.rip[thisUnit]) do
+                                if k == "calc" then
+                                    if bleed.rake[thisUnit] ~= nil then bleed.combatLog[thisUnit].rip = v end
+                                end
+                            end
+                        end
+                    end
+                end
             end
-          end
         end
-      elseif (not UnitAffectingCombat("player")) and (not IsEncounterInProgress()) then
-          ripApplied = {}
-          rakeApplied = {}
-      end
+        if not UnitAffectingCombat("player") then
+            if bb.player ~= nil then bb.player.bleed.combatLog = {} end
+        end
     end
     -----------------------
     --[[ Moonkin ]]

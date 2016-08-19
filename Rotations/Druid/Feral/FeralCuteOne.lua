@@ -72,6 +72,8 @@ if select(2, UnitClass("player")) == "DRUID" then
                 bb.ui:createCheckbox(section,"Break Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to break crowd control.|cffFFBB00.")
             -- Wild Charge
                 bb.ui:createCheckbox(section,"Displacer Beast / Wild Charge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00.")
+            -- Brutal Slash Targets
+                bb.ui:createSpinner(section,"Brutal Slash Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired targets to use Brutal Slash on. Min: 1 / Max: 10 / Interval: 1")
             bb.ui:checkSectionState(section)
         -- Cooldown Options
             section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
@@ -173,83 +175,70 @@ if select(2, UnitClass("player")) == "DRUID" then
 
 	--------------
 	--- Locals ---
-	--------------
+    --------------
+            local addsExist                                     = false 
+            local addsIn                                        = 999
+            local animality                                     = false
+            local artifact                                      = bb.player.artifact
+            local bleed                                         = bb.player.bleed
+            local buff                                          = bb.player.buff
+            local canFlask                                      = canUse(bb.player.flask.wod.agilityBig)
+            local cast                                          = bb.player.cast
+            local clearcast                                     = bb.player.buff.clearcasting
+            local combatTime                                    = getCombatTime()
+            local combo                                         = bb.player.comboPoints
+            local cd                                            = bb.player.cd
+            local charges                                       = bb.player.charges
+            local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
+            local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
+            local debuff                                        = bb.player.debuff
+            local enemies                                       = bb.player.enemies
+            local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
+            local fatality                                      = false
+            local fbDamage                                      = getFbDamage()
+            local flaskBuff                                     = getBuffRemain("player",bb.player.flask.wod.buff.agilityBig)
+            local friendly                                      = friendly or UnitIsFriend("target", "player")
+            local gcd                                           = bb.player.gcd
+            local hasMouse                                      = ObjectExists("mouseover")
+            local healPot                                       = getHealthPot()
+            local inCombat                                      = bb.player.inCombat
+            local inInstance                                    = bb.player.instance=="party"
+            local inRaid                                        = bb.player.instance=="raid"
+            local level                                         = bb.player.level
+            local lootDelay                                     = getOptionValue("LootDelay")
+            local lowestHP                                      = bb.friend[1].unit
+            local mfTick                                        = 20.0/(1+UnitSpellHaste("player")/100)/10
+            local mode                                          = bb.player.mode
+            local multidot                                      = (useCleave() or bb.player.mode.rotation ~= 3)
+            local perk                                          = bb.player.perk        
+            local php                                           = bb.player.health
+            local playerMouse                                   = UnitIsPlayer("mouseover")
+            local power, powmax, powgen                         = bb.player.power, bb.player.powerMax, bb.player.powerRegen
+            local pullTimer                                     = bb.DBM:getPulltimer()
+            local racial                                        = bb.player.getRacial()
+            local recharge                                      = bb.player.recharge
+            local rkTick                                        = 3
+            local rpTick                                        = 2
+            local solo                                          = bb.player.instance=="none"
+            local spell                                         = bb.player.spell
+            local stealth                                       = bb.player.stealth
+            local t17_2pc                                       = TierScan("T17")>=2 --bb.player.eq.t17_2pc
+            local t18_2pc                                       = TierScan("T18")>=2 --bb.player.eq.t18_2pc 
+            local t18_4pc                                       = TierScan("T18")>=4 --bb.player.eq.t18_4pc
+            local talent                                        = bb.player.talent
+            local travel, flight, cat, noform                   = bb.player.buff.travelForm, bb.player.buff.flightForm, bb.player.buff.catForm, GetShapeshiftForm()==0
+            local trinketProc                                   = false
+            local ttd                                           = getTTD
+            local ttm                                           = bb.player.timeToMax
+            local units                                         = bb.player.units
+            
 	   		if leftCombat == nil then leftCombat = GetTime() end
 			if profileStop == nil then profileStop = false end
 			if lastSpellCast == nil then lastSpellCast = bb.player.spell.catForm end
-	   		-- General Player Variables
-			local lootDelay 									= getOptionValue("LootDelay")
-			local hasMouse 										= ObjectExists("mouseover")
-			local deadMouse 									= UnitIsDeadOrGhost("mouseover")
-			local playerMouse 									= UnitIsPlayer("mouseover")
-			local inCombat 										= bb.player.inCombat
-			local level 										= bb.player.level
-			local php	 										= bb.player.health
-			local power, powmax, powgen 						= bb.player.power, bb.player.powerMax, bb.player.powerRegen
-			local ttm 											= bb.player.timeToMax
-			local falling, swimming, flying, moving				= getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-			local gcd 											= bb.player.gcd
-			local t17_2pc 										= TierScan("T17")>=2 --bb.player.eq.t17_2pc
-			local t18_2pc 										= TierScan("T18")>=2 --bb.player.eq.t18_2pc 
-			local t18_4pc 										= TierScan("T18")>=4 --bb.player.eq.t18_4pc
-            local talent                                        = bb.player.talent 
-			local racial 										= bb.player.getRacial()
-            local mode                                          = bb.player.mode
-			local healPot 										= getHealthPot()
-			local lowestHP 										= bb.friend[1].unit
-			local pullTimer 									= bb.DBM:getPulltimer()
-            local combatTime                                    = getCombatTime()
-            local spell                                         = bb.player.spell
-			-- Specific Player Variables
-            local artifact                                      = bb.player.artifact
-			local combo 										= bb.player.comboPoints
-			local clearcast 									= bb.player.buff.clearcasting
-			local travel, flight, cat, noform    				= bb.player.buff.travelForm, bb.player.buff.flightForm, bb.player.buff.catForm, GetShapeshiftForm()==0
-			local stealth 										= bb.player.stealth
-			local buff 											= bb.player.buff
-			local cd 											= bb.player.cd
-			local charges 										= bb.player.charges
-			local debuff 										= bb.player.debuff
-			local recharge 										= bb.player.recharge
-			local talent 										= bb.player.talent
-			local trinketProc									= bb.player.hasTrinketProc()
-		    local flaskBuff										= getBuffRemain("player",bb.player.flask.wod.buff.agilityBig)
-			local canFlask										= canUse(bb.player.flask.wod.agilityBig)
-			local inRaid 										= bb.player.instance=="raid"
-			local inInstance 									= bb.player.instance=="party"
-			local solo 											= bb.player.instance=="none"
-			local perk 											= bb.player.perk		
-			-- -- Target Variables
-			local bleed 										= bb.player.bleed
-			local enemies 										= bb.player.enemies
-			local dynTar5 										= bb.player.units.dyn5 --Melee
-			local dynTar8 										= bb.player.units.dyn8 --Swipe
-			local dynTar8AoE 									= bb.player.units.dyn8AoE --Thrash
-			local dynTar13 										= bb.player.units.dyn13 --Skull Bash
-			local dynTar20AoE 									= bb.player.units.dyn20AoE --Prowl
-			local dynTar40AoE 									= bb.player.units.dyn40AoE --Cat Form/Moonfire	
-			local dynTable5 									= (bb.player.mode.cleave==1 and bb.enemy) or { [1] = {["unit"]=dynTar5, ["distance"] = getDistance(dynTar5)}}
-			local dynTable8 									= (bb.player.mode.cleave==1 and bb.enemy) or { [1] = {["unit"]=dynTar8, ["distance"] = getDistance(dynTar8)}}
-			local dynTable8AoE 									= (bb.player.mode.cleave==1 and bb.enemy) or { [1] = {["unit"]=dynTar8AoE, ["distance"] = getDistance(dynTar8AoE)}}
-			local dynTable13 									= (bb.player.mode.cleave==1 and bb.enemy) or { [1] = {["unit"]=dynTar13, ["distance"] = getDistance(dynTar13)}}
-			local dynTable20AoE 								= (bb.player.mode.cleave==1 and bb.enemy) or { [1] = {["unit"]=dynTar20AoE, ["distance"] = getDistance(dynTar20AoE)}}
-			local dynTable40AoE 								= (bb.player.mode.cleave==1 and bb.enemy) or { [1] = {["unit"]=dynTar40AoE, ["distance"] = getDistance(dynTar40AoE)}}
-			local deadtar, attacktar, hastar, playertar 		= deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
-			local friendly 										= friendly or UnitIsFriend("target", "player")
-		    local mfTick 										= 20.0/(1+UnitSpellHaste("player")/100)/10
-            local rkTick                                        = 3
-            local rpTick                                        = 2
-		    local multidot 										= (useCleave() or bb.player.mode.rotation ~= 3)
-		    local fbDamage 										= getFbDamage()
-            local ttd                                           = getTTD
             if lastForm == nil then lastForm = 0 end
             if talent.jaggedWounds then
-                if rkTick==3 then
-                    rkTick = rkTick - (rkTick * 0.3)
-                end
-                if rpTick==2 then
-                    rpTick = rpTick - (rpTick * 0.3)
-                end
+                if rkTick == 3 then rkTick = rkTick - (rkTick * 0.3) end
+                if rpTick == 2 then rpTick = rpTick - (rpTick * 0.3) end
             end
             -- ChatOverlay(round2(getDistance2("target"),2)..", "..round2(getDistance3("target"),2)..", "..round2(getDistance4("target"),2)..", "..round2(getDistance5("target"),2))
 	--------------------
@@ -261,29 +250,25 @@ if select(2, UnitClass("player")) == "DRUID" then
 				if isChecked("Auto Shapeshifts") then
 				-- Flight Form
 					if IsFlyableArea() and ((not isInDraenor()) or isKnown(191633)) and not swimming and falling > 1 and level>=58 then 
-						-- if stag then
-			   --          	if bb.player.castFlightForm() then return end
-			   --          elseif not stag then
-			                if bb.player.castTravelForm() then return end
-			            -- end
+		                if cast.travelForm() then return end
 			        end
 				-- Aquatic Form
 				    if swimming and not travel and not hastar and not deadtar then
-					  	if bb.player.castTravelForm() then return end
+					  	if cast.travelForm() then return end
 					end
 				-- Cat Form
 					if not cat then
 				    	-- Cat Form when not swimming or flying or stag and not in combat
 				    	if not inCombat and moving and not swimming and not flying and not travel then
-			        		if bb.player.castCatForm() then return end
+			        		if cast.catForm() then return end
 			        	end
 			        	-- Cat Form when not in combat and target selected and within 20yrds
 			        	if not inCombat and hastar and attacktar and not deadtar and getDistance("target")<20 then
-			        		if bb.player.castCatForm() then return end
+			        		if cast.catForm() then return end
 			        	end
 			        	--Cat Form when in combat and not flying
 			        	if inCombat and not flying then
-			        		if bb.player.castCatForm() then return end
+			        		if cast.catForm() then return end
 			        	end
 			        end
 				end -- End Shapeshift Form Management 
@@ -310,27 +295,27 @@ if select(2, UnitClass("player")) == "DRUID" then
 				end -- End Perma Fire Cat
 			-- Death Cat mode
 				if isChecked("Death Cat Mode") and cat then
-			        if hastar and getDistance(dynTar8AoE) > 8 then
+			        if hastar and getDistance(units.dyn8AoE) > 8 then
 			            ClearTarget()
 			        end
-		            if bb.player.enemies.yards20 > 0 then
+		            if #enemies.yards20 > 0 then
 		            -- Tiger's Fury - Low Energy
-	                	if bb.player.castTigersFury() then return end
+	                	if cast.tigersFury() then return end
 		            -- Savage Roar - Use Combo Points
 		                if combo >= 5 then
-		                	if bb.player.castSavageRoar() then return end
+		                	if cast.savageRoar() then return end
 		                end
 		            -- Shred - Single
-		                if bb.player.enemies.yards5 == 1 then
-		                	if bb.player.castShred() then swipeSoon = nil; return end
+		                if #enemies.yards5 == 1 then
+		                	if cast.shred() then swipeSoon = nil; return end
 		                end
 		            -- Swipe - AoE
-		                if bb.player.enemies.yards8 > 1 then
+		                if #enemies.yards8 > 1 then
 		                    if swipeSoon == nil then
 		                        swipeSoon = GetTime();
 		                    end
 		                    if swipeSoon ~= nil and swipeSoon < GetTime() - 1 then
-		                    	if bb.player.castSwipe() then swipeSoon = nil; return end
+		                    	if cast.swipe() then swipeSoon = nil; return end
 		                    end
 		                end
 		            end -- End 20yrd Enemy Scan
@@ -354,36 +339,36 @@ if select(2, UnitClass("player")) == "DRUID" then
 					if isChecked("Rebirth") then
 						if buff.remain.predatorySwiftness>0 then
 							if getOptionValue("Rebirth - Target")==1 then
-								if bb.player.castRebirth("target") then return end
+								if cast.rebirth("target") then return end
 							end
 							if getOptionValue("Rebirth - Target")==2 then
-								if bb.player.castRebirth("mouseover") then return end
+								if cast.rebirth("mouseover") then return end
 							end
 						end
 					end
 					if isChecked("Revive") then
 						if getOptionValue("Revive - Target")==1 then
-							if bb.player.castRevive("target") then return end
+							if cast.revive("target") then return end
 						end
 						if getOptionValue("Revive - Target")==2 then
-							if bb.player.castRevive("mouseover") then return end
+							if cast.revive("mouseover") then return end
 						end
 					end
 			-- Remove Corruption
 					if isChecked("Remove Corruption") then
 						if getOptionValue("Remove Corruption - Target")==1 then
-							if bb.player.castRemoveCorruption("player") then return end
+							if cast.removeCorruption("player") then return end
 						end
 						if getOptionValue("Remove Corruption - Target")==2 then
-							if bb.player.castRemoveCorruption("target") then return end
+							if cast.removeCorruption("target") then return end
 						end
 						if getOptionValue("Remove Corruption - Target")==3 then
-							if bb.player.castRemoveCorruption("mouseover") then return end
+							if cast.removeCorruption("mouseover") then return end
 						end
 					end
             -- Renewal
                     if isChecked("Renewal") and php <= getOptionValue("Renewal") and inCombat then
-                        if bb.player.castRenewal() then return end
+                        if cast.renewal() then return end
                     end
 			-- PowerShift - Breaks Crowd Control (R.I.P Powershifting)
 				    if isChecked("Break Crowd Control") then
@@ -394,7 +379,7 @@ if select(2, UnitClass("player")) == "DRUID" then
                             end
                         elseif hasNoControl() then
                             if GetShapeshiftForm() == 0 then
-                                bb.player.castCatForm()
+                                cast.catForm()
                             else
         				        for i=1, GetNumShapeshiftForms() do
         				            if i == GetShapeshiftForm() then
@@ -437,19 +422,19 @@ if select(2, UnitClass("player")) == "DRUID" then
                                 or (getHP(bb.friend[1].unit) <= getOptionValue("Healing Touch") and not inCombat) 
                                 or (buff.remain.predatorySwiftness < 1 and buff.predatorySwiftness)) 
                         then
-                            if bb.player.castHealingTouch(bb.friend[1].unit) then return end
+                            if cast.healingTouch(bb.friend[1].unit) then return end
                         end
                         if getOptionValue("Auto Heal")==2 
                             and (php <= getOptionValue("Healing Touch") or (buff.remain.predatorySwiftness < 1 and buff.predatorySwiftness)) 
                         then
-                            if bb.player.castHealingTouch("player") then return end
+                            if cast.healingTouch("player") then return end
                         end
 		            end
 			-- Survival Instincts
 		            if isChecked("Survival Instincts") and php <= getOptionValue("Survival Instincts") 
 		            	and inCombat and not buff.survivalInstincts and charges.survivalInstincts>0 
 		            then
-		            	if bb.player.castSurvivalInstincts() then return end
+		            	if cast.survivalInstincts() then return end
 		            end
 	    		end -- End Defensive Toggle
 			end -- End Action List - Defensive
@@ -458,28 +443,28 @@ if select(2, UnitClass("player")) == "DRUID" then
 				if useInterrupts() then
 			-- Skull Bash
 					if isChecked("Skull Bash") then
-						for i=1, #dynTable13 do
-							thisUnit = dynTable13[i].unit
+						for i=1, #enemies.yards13 do
+							thisUnit = enemies.yards13[i]
 							if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
-								if bb.player.castSkullBash(thisUnit) then return end
+								if cast.skullBash(thisUnit) then return end
 							end
 						end
 					end
 			-- Mighty Bash
 	    			if isChecked("Mighty Bash") then
-	    				for i=1, #dynTable5 do
-							thisUnit = dynTable5[i].unit
+	    				for i=1, #enemies.yards5 do
+                            thisUnit = enemies.yards5[i]
 							if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
-								if bb.player.castMightyBash(thisUnit) then return end
+								if cast.mightyBash(thisUnit) then return end
 							end
 						end
 					end
 			-- Maim (PvP)
 	    			if isChecked("Maim") then 
-	    				for i=1, #dynTable5 do
-							thisUnit = dynTable5[i].unit
+	    				for i=1, #enemies.yards5 do
+                            thisUnit = enemies.yards5[i]
 	    					if canInterrupt(thisUnit,getOptionValue("InterruptAt")) and isInPvP() then
-	    						if bb.player.castMaim(thisUnit) then return end
+	    						if cast.maim(thisUnit) then return end
 			    			end
 		            	end
 		          	end
@@ -487,35 +472,25 @@ if select(2, UnitClass("player")) == "DRUID" then
 			end -- End Action List - Interrupts
 		-- Action List - Cooldowns
 			local function actionList_Cooldowns()
-				if getDistance(dynTar5)<5 then
-            -- Elunes Guidance
-                    -- pool_resource,wait=0.1,for_next=1,extra_amount=50
-                    -- if=combo_points=0
-                    if combo == 0 then
-                        if talent.elunesGuidance and cd.elunesGuidance==0 and power < 50 then
-                            return true
-                        else
-                            if bb.player.castElunesGuidance() then return end
-                        end
-                    end
+				if getDistance(units.dyn5) < 5 then
 			-- Berserk
 					--if=buff.tigers_fury.up
 		            if useCDs() and isChecked("Berserk") then
 		            	if buff.tigersFury then
-		            		if bb.player.castBerserk() then return end
+		            		if cast.berserk() then return end
 		            	end
 		            end
 			-- Incarnation - King of the Jungle
                     -- if=cooldown.tigers_fury.remains<gcd
 		            if useCDs() and isChecked("Incarnation") then
 		            	if cd.tigersFury < gcd then
-		            		if bb.player.castIncarnationKingOfTheJungle() then return end
+		            		if cast.incarnationKingOfTheJungle() then return end
 		            	end
 		            end
 			-- Trinkets
-                    -- TODO: if=(prev.tigers_fury&(target.time_to_die>trinket.stat.any.cooldown|target.time_to_die<45))|prev.berserk|(buff.incarnation.up&time<10)
-					if useCDs() and isChecked("Trinkets") and getDistance(dynTar5)<5 then
-                        if (lastSpellCast == spell.tigersFury and ttd(dynTar5) < 45) or lastSpellCast == spell.berserk or (buff.incarnation and combatTime < 10) then 
+                    -- TODO: if=(buff.tigers_fury.up&(target.time_to_die>trinket.stat.any.cooldown|target.time_to_die<45))|buff.incarnation.remains>20
+					if useCDs() and isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
+                        if (buff.tigersFury and (ttd(units.dyn5) > 60 or ttd(units.dyn5) < 45)) or buff.remain.incarnationKingOfTheJungle > 20 then 
     						if canUse(13) then
     							useItem(13)
     						end
@@ -527,7 +502,7 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- Agi-Pot
                     -- if=((buff.berserk.remains>10|buff.incarnation.remains>20)&(target.time_to_die<180|(trinket.proc.all.react&target.health.pct<25)))|target.time_to_die<=40
                     if useCDs() and isChecked("Agi-Pot") and canUse(109217) and inRaid then
-                        if ((buff.remain.berserk > 10 or buff.remain.incarnation > 20) and (ttd(dynTar5) < 180 or (trinketProc and thp(dynTar5)<25))) or ttd(dynTar5)<=40 then
+                        if ((buff.remain.berserk > 10 or buff.remain.incarnationKingOfTheJungle > 20) and (ttd(units.dyn5) < 180 or (trinketProc and thp(units.dyn5)<25))) or ttd(units.dyn5)<=40 then
                             useItem(109217)
                             return true
                         end
@@ -541,28 +516,25 @@ if select(2, UnitClass("player")) == "DRUID" then
                         end
                     end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                    -- blood_fury,sync=tigers_fury | berserking,sync=tigers_fury | arcane_torrent,sync=tigers_fury
+                    -- blood_fury,buff.tigers_fury | berserking,buff.tigers_fury | arcane_torrent,buff.tigers_fury
                     if useCDs() and isChecked("Racial") and (bb.player.race == "Orc" or bb.player.race == "Troll" or bb.player.race == "Blood Elf") then
-                        if lastSpellCast == spell.tigersFury then
+                        if buff.tigersFury then
                             if castSpell("player",racial,false,false,false) then return end
                         end
                     end            
             -- Tiger's Fury
                     if isChecked("Tiger's Fury") then
                         -- if=(!buff.clearcasting.react&energy.deficit>=60)|energy.deficit>=80|(t18_class_trinket&buff.berserk.up&buff.tigers_fury.down)
+                        -- tigers_fury,if=(!buff.clearcasting.react&energy.deficit>=60)|energy.deficit>=80|(t18_class_trinket&buff.berserk.up&buff.tigers_fury.down)
                         if (not clearcast and bb.player.powerDeficit >= 60) or bb.player.powerDeficit >= 80 or (hasEquiped(124514) and buff.berserk and not buff.tigersFury) then
-                            if bb.player.castTigersFury() then return end
-                        end
-                        -- if=talent.sabertooth.enabled&time<10&combo_points=5
-                        if talent.sabertooth and combatTime < 10 and combo == 5 then
-                            if bb.player.castTigersFury() then return end
+                            if cast.tigersFury() then return end
                         end
                     end 
             -- Incarnation - King of the Jungle
                     -- if=energy.time_to_max>1&energy>=35
                     if useCDs() and isChecked("Incarnation") then
                         if ttm > 1 and power >= 35 then
-                            if bb.player.castIncarnationKingOfTheJungle() then return end
+                            if cast.incarnationKingOfTheJungle() then return end
                         end
                     end
                 end -- End useCooldowns check
@@ -588,29 +560,24 @@ if select(2, UnitClass("player")) == "DRUID" then
             -- TODO: food,type=the_hungry_magister
             -- Prowl - Non-PrePull
                         if cat then --and (not friendly or isDummy()) 
-                            for i=1, #dynTable20AoE do
-                                local thisUnit = dynTable20AoE[i].unit
-                                if dynTable20AoE[i].distance < 20 then
-                                    if useProwl() and not inInstance and not inRaid and ((ObjectExists(thisUnit) and UnitCanAttack(thisUnit,"player")) or perk.enhancedProwl) and GetTime()-leftCombat > lootDelay then
-                                        if bb.player.castProwl() then return end
-                                    end
-                                end
+                            if #enemies.yards20 > 0 and useProwl() and not inInstance and not inRaid and ObjectExists(units.dyn20AoE) and UnitCanAttack(units.dyn20AoE,"player") and GetTime()-leftCombat > lootDelay then
+                                if cast.prowl() then return end
                             end
                         end
                     end -- End No Stealth
             -- Wild Charge
                     if isChecked("Displacer Beast / Wild Charge") and solo and attacktar and not deadtar and not friendly then
-                        if bb.player.castWildCharge("target") then return end 
+                        if cast.wildCharge("target") then return end 
                     end
                     if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
             -- Healing Touch
                         -- healing_touch,if=talent.bloodtalons.enabled
                         if talent.bloodtalons and not buff.bloodtalons and (htTimer == nil or htTimer < GetTime() - 1) then
-                            if bb.player.castHealingTouch("player") then htTimer = GetTime(); return end
+                            if cast.healingTouch("player") then htTimer = GetTime(); return end
                         end
             -- Prowl 
                         if buff.bloodtalons then
-                            if bb.player.castProwl() then return end
+                            if cast.prowl() then return end
                         end
                         if buff.prowl then
             -- Pre-Pot
@@ -619,118 +586,27 @@ if select(2, UnitClass("player")) == "DRUID" then
                                 useItem(109217)
                                 return true
                             end
-            -- Incarnation
-                            -- incarnation
-                            if useCDs() and isChecked("Incarnation") then
-                                if bb.player.castIncarnationKingOfTheJungle() then return end
+            -- Elunes Guidance
+                            -- elunes_guidance,if=talent.savage_roar.enabled
+                            if talent.savageRoar then
+                                if cast.elunesGuidance() then return end
                             end
+            -- Savage Roar
+                            -- savage_roar
+                            if cast.savageRoar() then return end
                         end -- End Prowl
                     end -- End Pre-Pull
             -- Rake/Shred
-                    if hastar and attacktar then
+                    -- buff.prowl.up|buff.shadowmeld.up
+                    if hastar and attacktar and (buff.prowl or buff.shadowmeld) then
                         if level < 6 then
-                            if bb.player.castShred(dynTar5) then return end
+                            if cast.shred() then return end
                         else
-                           if bb.player.castRake(dynTar5) then return end
+                           if cast.rake() then return end
                         end
                     end
                 end -- End No Combat
             end -- End Action List - PreCombat 
-        -- Action List - Finisher
-            local function actionList_Finisher()
-            -- Finisher: Rip
-                -- cycle_targets=1,if=(!dot.rip.ticking|(remains<2&target.health.pct>25&!talent.sabertooth.enabled))&target.time_to_die-remains>tick_time*4
-                -- cycle_targets=1,if=remains<=8&target.health.pct>25&!talent.sabertooth.enabled&target.time_to_die-remains>tick_time*4
-                -- if=persistent_multiplier>dot.rip.pmultiplier&target.time_to_die-remains>tick_time*4
-                for i=1, #bleed.rip do
-                    local rip = bleed.rip[i]
-                    local thisUnit = rip.unit
-                    if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) then
-                        if ((rip.remain == 0 or (rip.remain < 2 and thp(thisUnit) > 25 and not talent.sabertooth)) and ttd(thisUnit) - rip.remain > rpTick * 4)
-                            or (rip.remain <= 8 and thp(thisUnit) > 25 and not talent.sabertooth and ttd(thisUnit) - rip.remain > rpTick * 4)
-                        then
-                           if bb.player.castRip(thisUnit) then return end
-                        end
-                    end
-                    if UnitIsUnit(thisUnit,dynTar5) then
-                        if rip.calc > rip.applied and ttd(thisUnit) - rip.remain > rpTick * 4 then
-                            if bb.player.castRip(thisUnit) then return end
-                        end
-                    end
-                end
-             -- Finisher: Savage Roar
-                -- if=buff.savage_roar.remains<=7.2
-                if buff.remain.savageRoar <= 7.2 then
-                    if bb.player.castSavageRoar() then return end
-                end
-            -- Finisher: Ferocious Bite
-                -- max_energy=1,cycle_targets=1,if=target.health.pct<25|talent.sabertooth.enabled|buff.berserk.up|buff.incarnation.up|buff.elunes_guidance.up|(talent.moment_of_clarity.enabled&buff.clearcasting.react)|energy.time_to_max<1|cooldown.tigers_fury.remains<3|set_bonus.tier18_4pc
-                for i=1, #bleed.rip do
-                    local rip = bleed.rip[i]
-                    local thisUnit = rip.unit
-                    if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) then
-                        if power>50 then
-                            if thp(thisUnit) < 25 or talent.sabertooth or buff.berserk or buff.incarnation or buff.elunesGuidance 
-                                or (talent.momentOfClarity and buff.clearcasting) or ttm < 1 or cd.tigersFury < 3 or t18_4pc 
-                            then
-                                if bb.player.castFerociousBite(thisUnit) then return end
-                            end
-                        end
-                    end
-                end
-            end -- End Action List - Finisher
-        -- Action List - Maintain
-            local function actionList_Maintain()
-            -- Maintain: Rake
-                -- cycle_targets=1,if=(remains<2|(!talent.bloodtalons.enabled&remains<=duration*0.3))&target.time_to_die-remains>tick_time
-                -- cycle_targets=1,if=talent.bloodtalons.enabled&buff.bloodtalons.up&(!talent.soul_of_the_forest.enabled&remains<=7|remains<=5)&persistent_multiplier>dot.rake.pmultiplier*0.80&target.time_to_die-remains>tick_time
-                -- if=persistent_multiplier>dot.rake.pmultiplier&target.time_to_die-remains>tick_time
-                for i=1, #bleed.rake do
-                    local rake = bleed.rake[i]
-                    local thisUnit = rake.unit
-                    if multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot) then
-                        if ((rake.remain < 2 or (not talent.bloodtalons and rake.remain <= rake.duration * 0.3)) and ttd(thisUnit) > rkTick)
-                            or (talent.bloodtalons and buff.bloodtalons and (not talent.soulOfTheForest and rake.remain <= 7 or rake.remain <= 5) 
-                                and rake.calc > rake.applied * 0.8 and ttd(thisUnit) - rake.remain > rkTick)
-                        then 
-                            if bb.player.castRake(thisUnit) then return end
-                        end
-                    end
-                    if UnitIsUnit(thisUnit,dynTar5) then
-                        if rake.calc > rake.applied and ttd(thisUnit) - rake.remain > rkTick then
-                           if bb.player.castRake(thisUnit) then return end
-                        end
-                    end  
-                end
-            -- Maintain: Moonfire
-                -- cycle_targets=1,if=remains<=4.2&target.time_to_die-remains>tick_time*2
-                for i=1, #bleed.moonfire do
-                    local moonfire = bleed.moonfire[i]
-                    local thisUnit = moonfire.unit
-                    if multidot or (UnitIsUnit(thisUnit,dynTar40AoE) and not multidot) then
-                        if moonfire.remain <= 4.2 and ((ttd(thisUnit) - moonfire.remain > mfTick * 2) or isDummy()) then
-                           if bb.player.castFeralMoonfire(thisUnit) then return end
-                        end
-                    end
-                end     
-            end -- End Action List - Maintain
-        -- Action List - Generator
-            local function actionList_Generator()
-            -- Generator: Swipe
-                -- if=spell_targets.swipe>=4
-                if mode.rotation==2 or (mode.rotation==1 and enemies.yards8>=4) then
-                    if level < 32 then
-                        if bb.player.castShred(dynTar5) then return end
-                    else
-                        if bb.player.castSwipe(dynTar8) then return end
-                    end
-                end
-            -- Generator: Shred
-                -- if=spell_targets.swipe<=3|talent.brutalSlash
-                if mode.rotation==3 or (mode.rotation==1 and (enemies.yards8<=3 or talent.brutalSlash)) then
-                    if bb.player.castShred(dynTar5) then return end
-                end
-            end -- End Action List - Generator
     ---------------------
     --- Begin Profile ---
     ---------------------
@@ -757,11 +633,11 @@ if select(2, UnitClass("player")) == "DRUID" then
     --------------------------
             -- Cat is 4 fyte!
                 if inCombat and not cat and not (flight or travel) then
-                    if bb.player.castCatForm() then return end
+                    if cast.catForm() then return end
                 elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") then
             -- Wild Charge
                     if isChecked("Displacer Beast / Wild Charge") then
-                        if bb.player.castWildCharge("target") then return end 
+                        if cast.wildCharge("target") then return end 
                     end
             -- TODO: Displacer Beast
             -- TODO: Dash/Worgen Racial
@@ -769,13 +645,13 @@ if select(2, UnitClass("player")) == "DRUID" then
                     -- rake,if=buff.prowl.up|buff.shadowmeld.up
                     if buff.prowl or buff.shadowmeld then
                         if level < 6 then
-                            if bb.player.castShred(dynTar5) then return end
+                            if cast.shred() then return end
                         else
-                           if bb.player.castRake(dynTar5) then return end
+                           if cast.rake() then return end
                         end
                     elseif not stealth then
                         -- auto_attack
-                        if getDistance(dynTar5)<5 then
+                        if getDistance(units.dyn5) < 5 then
                             StartAttack()
                         end
         ------------------------------
@@ -794,123 +670,274 @@ if select(2, UnitClass("player")) == "DRUID" then
                             -- for i=1, #getEnemies("player",5) do
                             --     local thisUnit = getEnemies("player",5)[i]
                             --     if fbDamage > UnitHealth(thisUnit) and not isDummy() then
-                            --         if bb.player.castFerociousBite(thisUnit) then return end
+                            --         if cast.ferociousBite(thisUnit) then return end
                             --     end
                             -- end
             -- Ferocious Bite
-                            -- cycle_targets=1,if=dot.rip.ticking&dot.rip.remains<3&target.time_to_die-dot.rip.remains>2&(target.health.pct<25|talent.sabertooth.enabled)
-                            for i=1, #bleed.rip do
-                                local rip = bleed.rip[i]
-                                local thisUnit = rip.unit
-                                if (multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot)) then
-                                    if rip.remain > 0 and rip.remain < 3 and ttd(thisUnit) - rip.remain > 2 and (thp(thisUnit) < 25 or talent.sabertooth) then
-                                        if bb.player.castFerociousBite(thisUnit) then return end
+                            -- ferocious_bite,cycle_targets=1,if=dot.rip.ticking&dot.rip.remains<3&target.time_to_die>3&(target.health.pct<25|talent.sabertooth.enabled)
+                            for k,v in pairs(bleed.rip) do
+                                local rip = bleed.rip[k]
+                                local thisUnit = k
+                                if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                                    if getDistance(thisUnit) < 5 then
+                                        if rip.remain > 0 and rip.remain < 3 and ttd(thisUnit) > 3 and (thp(thisUnit) < 25 or talent.sabertooth) then
+                                            if cast.ferociousBite(thisUnit) then return end
+                                        end
                                     end
                                 end
                             end
             -- Healing Touch
-                            -- if=talent.bloodtalons.enabled&buff.predatory_swiftness.up
-                            -- if=combo_points>=5
-                            -- if=buff.predatory_swiftness.remains<1.5
-                            -- if=combo_points=2&buff.bloodtalons.down&cooldown.ashamanes_frenzy.remains<gcd
-                            if talent.bloodtalons and buff.predatorySwiftness then
-                                if combo >= 5
-                                    or buff.remain.predatorySwiftness < 1.5
-                                    or (combo == 5 and not buff.predatorySwiftness and cd.ashamanesFrenzy < gcd)
-                                then
-                                    if getOptionValue("Auto Heal")==1 then
-                                        if bb.player.castHealingTouch(bb.friend[1].unit) then return end
-                                    end
-                                    if getOptionValue("Auto Heal")==2 then
-                                        if bb.player.castHealingTouch("player") then return end
-        			                end
+                            -- healing_touch,if=talent.bloodtalons.enabled&buff.predatory_swiftness.up&(combo_points>=5|buff.predatory_swiftness.remains<1.5|(talent.bloodtalons.enabled&combo_points=2&buff.bloodtalons.down&cooldown.ashamanes_frenzy.remains<gcd)|(talent.elunes_guidance.enabled&((cooldown.elunes_guidance.remains<gcd&combo_points=0)|(buff.elunes_guidance.up&combo_points>=4))))
+                            if talent.bloodtalons and buff.predatorySwiftness 
+                                and (combo >= 5 or buff.remain.predatorySwiftness < 1.5 
+                                    or (talent.bloodtalons and combo == 2 and not buff.bloodtalons and cd.ashamanesFrenzy < gcd) 
+                                    or (talent.elunesGuidance and ((cd.elunesGuidance < gcd and combo == 0) or (buff.elunesGuidance and combo >= 4)))) 
+                            then
+                                if getOptionValue("Auto Heal")==1 then
+                                    if cast.healingTouch(bb.friend[1].unit) then return end
                                 end
+                                if getOptionValue("Auto Heal")==2 then
+                                    if cast.healingTouch("player") then return end
+                                end
+                            end
+                            -- healing_touch,if=talent.sabertooth.enabled&time<20&talent.bloodtalons.enabled&combo_points=5&!buff.bloodtalons.up&!dot.rip.ticking
+                            if talent.sabertooth and combatTime < 20 and talent.bloodtalons and combo == 5 and not buff.bloodtalons and not debuff.rip then
+                                if getOptionValue("Auto Heal")==1 then
+                                    if cast.healingTouch(bb.friend[1].unit) then return end
+                                end
+                                if getOptionValue("Auto Heal")==2 then
+                                    if cast.healingTouch("player") then return end
+    			                end
     						end
+            -- Tiger's Fury
+                            -- tigers_fury,if=talent.sabertooth.enabled&time<20&!dot.rip.ticking&combo_points=5
+                            if isChecked("Tiger's Fury") then
+                                if talent.sabertooth and combatTime < 20 and not debuff.rip and combo == 5 then
+                                    if cast.tigersFury() then return end
+                                end
+                            end
+            -- Healing Touch
+                            -- healing_touch,if=talent.bloodtalons.enabled&buff.predatory_swiftness.up&combo_points>=4&dot.rake.remains<dot.rake.duration*0.3+gcd&active_enemies<3
+                            if talent.bloodtalons and buff.predatorySwiftness and combo >= 4 and debuff.remain.rake < debuff.duration.rake * 0.3 + gcd and #enemies.yards5 < 3 then
+                                if getOptionValue("Auto Heal")==1 then
+                                    if cast.healingTouch(bb.friend[1].unit) then return end
+                                end
+                                if getOptionValue("Auto Heal")==2 then
+                                    if cast.healingTouch("player") then return end
+                                end
+                            end
+            -- Finisher Condition
+                            -- combo_points=5&(energy.time_to_max<1|buff.berserk.up|buff.incarnation.up|buff.elunes_guidance.up|cooldown.tigers_fury.remains<3|set_bonus.tier18_4pc|buff.clearcasting.react|talent.soul_of_the_forest.enabled|!dot.rip.ticking|(dot.rake.remains<1.5&spell_targets.swipe_cat<6))
+                            if combo == 5 and (ttm < 1 or buff.berserk or buff.incarnationKingOfTheJungle or buff.elunesGuidance or cd.tigersFury < 3 or t18_4pc 
+                                or buff.clearcasting or talent.soulOfTheForest or not debuff.rip or (debuff.remain.rake < 1.5 and #enemies.yards8 < 6)) 
+                            then
+                                fatality = true
+                            end
+            -- Ferovious Bite Finisher Condition
+                            -- combo_points=5&(energy.time_to_max<1|buff.berserk.up|buff.incarnation.up|buff.elunes_guidance.up|cooldown.tigers_fury.remains<3|set_bonus.tier18_4pc|(talent.moment_of_clarity.enabled&buff.clearcasting.react))
+                            if combo == 5 and (ttm < 1 or buff.berserk or buff.incarnationKingOfTheJungle or buff.elunesGuidance or cd.tigersFury < 3 or t18_4pc 
+                                or (talent.momentOfClarity and buff.clearcasting)) 
+                            then
+                                animality = true
+                            end
 			-- Savage Roar
-    						-- if=buff.savage_roar.down
-    						if not buff.savageRoar then
-    							if bb.player.castSavageRoar() then return end
+    						-- pool_resource,for_next=1
+                            -- savage_roar,if=!buff.savage_roar.up&(combo_points=5|(talent.brutal_slash.enabled&spell_targets.brutal_slash>desired_targets&action.brutal_slash.charges>0))
+    						if not buff.savageRoar and (combo == 5 or (talent.brutalSlash and #enemies.yards8 > getOptionValue("Brutal Slash Targest") and charges.brutalSlash > 0)) then
+                                if power <= 40 then
+                                    return true
+                                else
+                                    if cast.savageRoar() then return end
+                                end
     			            end
 			-- Thrash
                             -- pool_resource,for_next=1
                             -- cycle_targets=1,if=remains<=duration*0.3&spell_targets.thrash_cat>=5
-    						for i=1, #bleed.thrash do
-    							local thrash = bleed.thrash[i]
-    							local thisUnit = thrash.unit
-    							if (multidot or (UnitIsUnit(thisUnit,dynTar8AoE) and not multidot)) then 
-                                    if thrash.remain <= thrash.duration * 0.3 and enemies.yards8 >= 5 and getDistance(thisUnit) < 8 then
-                                        if power < 50 then
-                                            return true
-                                        else
-    								        if bb.player.castThrash(thisUnit) then return end
+    						for k,v in pairs(bleed.thrash) do
+                                local thrash = bleed.thrash[k]
+                                local thisUnit = k
+    							if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) then 
+                                    if getDistance(thisUnit) < 8 then
+                                        if thrash.remain <= thrash.duration * 0.3 and #enemies.yards8 >= 5 then
+                                            if power <= 50 then
+                                                return true
+                                            else
+        								        if cast.thrash(thisUnit) then return end
+                                            end
                                         end
                                     end
     							end
     						end
-			-- Finishers
-    						-- if=combo_points=5
-                            -- combo_points=5&(target.health.pct<25|dot.rip.remains<2|energy.time_to_max<1|talent.soul_of_the_forest.enabled|buff.berserk.up|buff.incarnation.up|dot.rake.remains<1.5|buff.elunes_guidance.up|cooldown.tigers_fury.remains<3|(talent.moment_of_clarity.enabled&buff.clearcasting.react)|set_bonus.tier18_4pc)
-    						if combo==5 
-                                and (thp(dynTar5) < 25 or debuff.remain.rip < 2 or ttm < 1 or talent.soulOfTheForest or buff.berserk or buff.incarnation 
-                                    or debuff.remain.rake < 1.5 or buff.elunesGuidance or cd.tigersFury < 3 or (talent.momentOfClarity and buff.clearcast) or t18_4pc) 
-                            then
-    		  					if actionList_Finisher() then return end
-    						end --End Finishers
-            -- Ashamane's Frenzy
-                            -- if=combo_points<=2&buff.elunes_guidance.down&(buff.bloodtalons.up|!talent.bloodtalons.enabled)
-                            if combo <= 2 and not buff.elunesGuidance and (buff.bloodtalons or not talent.bloodtalons) then
-                                if bb.player.castAshamanesFrenzy(dynTar5) then return end
+            -- Swipe
+                            -- pool_resource,for_next=1
+                            -- swipe_cat,if=spell_targets.swipe_cat>=8
+                            if useAoE() then
+                                if #enemies.yards8 >= 8 then
+                                    if power <= 45 then
+                                        return true
+                                    else
+                                        if cast.swipe() then return end
+                                    end
+                                end
+                            end
+            -- Rip
+                            -- rip,cycle_targets=1,if=(!ticking|(remains<8&target.health.pct>25&!talent.sabertooth.enabled)|persistent_multiplier>dot.rip.pmultiplier)&target.time_to_die-remains>tick_time*4&$(finisher_conditions)
+                            for k,v in pairs(bleed.rip) do
+                                local rip = bleed.rip[k]
+                                local thisUnit = k
+                                if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                                    if getDistance(thisUnit) < 5 then
+                                        print(rip.calc.. ", ".. rip.applied.. ", ".. rip.remain)
+                                        if (rip.remain == 0 or (rip.remain < 8 and thp(thisUnit) > 25 and not talent.sabertooth) 
+                                            or rip.calc > rip.applied) and ttd(thisUnit) - rip.remain > rpTick * 4 and fatality 
+                                        then
+                                           if cast.rip(thisUnit) then return end
+                                        end
+                                    end
+                                end
                             end
             -- Savage Roar
-                            -- if=buff.savage_roar.remains<gcd
-                            if buff.remain.savageRoar<gcd then
-                                if bb.player.castSavageRoar() then return end
+                            -- savage_roar,if=(buff.savage_roar.remains<=10.5|(buff.savage_roar.remains<=7.2&!talent.jagged_wounds.enabled))&$(finisher_conditions)
+                            if (buff.remain.savageRoar <= 10.5 or (buff.remain.savageRoar <= 7.2 and not talent.jaggedWounds)) and fatality then
+                                if cast.savageRoar() then return end
+                            end
+            -- Swipe
+                            -- swipe_cat,if=combo_points=5&(spell_targets.swipe_cat>=6|(spell_targets.swipe_cat>=3&!talent.bloodtalons.enabled))&$(fb_finisher_conditions)
+                            if useAoE() then
+                                if combo == 5 and (#enemies.yards8 >= 6 or (#enemies.yards8 >= 3 and not talent.bloodtalons)) and animality then
+                                    if cast.swipe() then return end
+                                end
+                            end
+            -- Ferocious Bite
+                            -- ferocious_bite,max_energy=1,cycle_targets=1,if=$(fb_finisher_conditions)
+                            for i = 1, #enemies.yards5 do
+                                local thisUnit = enemies.yards5[i]
+                                if power > 50 and animality then
+                                    if cast.ferociousBite(thisUnit) then return end
+                                end
                             end
             -- Brutal Slash
-                            -- if=spell_targets.brutal_slash>=2&(charges_fractional>=2.8|dot.rip.ticking)
-                            if (multidot or (UnitIsUnit(thisUnit,dynTar8AoE) and not multidot)) then
-                                if enemies.yards8 >= 2 and (charges.frac.brutalSlash >= 2.8 or debuff.rip) then
-                                    if bb.player.castBrutalSlash(dynTar5) then return end
+                            -- brutal_slash,cycle_targets=1,if=spell_targets.brutal_slash>desired_targets&combo_points<5
+                            if useAoE() then
+                                if #enemies.yards8 >= getOptionValue("Brutal Slash Targets") and combo < 5 then
+                                    if cast.brutalSlash() then return end
                                 end
+                            end
+            -- Ashamane's Frenzy
+                            -- if=combo_points<=2&buff.elunes_guidance.down&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(buff.savage_roar.up|!talent.savage_roar.enabled)
+                            if combo <= 2 and not buff.elunesGuidance and (buff.bloodtalons or not talent.bloodtalons) and (buff.savageRoar or not talent.savageRoar) then
+                                if cast.ashamanesFrenzy() then return end
+                            end
+            -- Pool for Elunes Guidance
+                            -- pool_resource,if=talent.elunes_guidance.enabled&combo_points=0&energy<action.ferocious_bite.cost+25-energy.regen*cooldown.elunes_guidance.remains
+                            if talent.elunesGuidance and combo == 0 and power < 25 + 25 - powgen * cd.elunesGuidance then
+                                return true
+                            end
+            -- Elunes Guidance
+                            -- elunes_guidance,if=talent.elunes_guidance.enabled&combo_points=0&energy>=action.ferocious_bite.cost+25
+                            if talent.elunesGuidance and combo == 0 and power >= 50 then
+                                if cast.elunesGuidance() then return end
                             end
             -- Thrash
                             -- pool_resource,for_next=1
                             -- if=talent.brutal_slash.enabled&spell_targets.thrash_cat>=9
-                            if (multidot or (UnitIsUnit(thisUnit,dynTar8AoE) and not multidot)) then  
-                                if talent.brutalSlash and enemies.yards8 >= 9 then
+                            if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) then  
+                                if talent.brutalSlash and #enemies.yards8 >= 9 then
                                    if power < 50 then
                                         return true
                                     else
-                                        if bb.player.castThrash(dynTar8) then return end
+                                        if cast.thrash() then return end
                                     end
                                 end
                             end
-			-- Maintain
-    						-- if=combo_points<5&(spell_targets.swipe_cat<=5|talent.brutal_slash.enabled)
-    						if combo < 5 and (enemies.yards8 <= 5 or talent.brutalSlash) then
-    			    			if actionList_Maintain() then return end
-    						end --End Maintain
+            -- Swipe
+                            -- pool_resource,for_next=1
+                            -- swipe_cat,if=spell_targets.swipe_cat>=6
+                            if useAoE() then
+                                if #enemies.yards8 >= 6 then
+                                    if power < 45 then
+                                        return true
+                                    else
+                                        if cast.swipe() then return end
+                                    end
+                                end
+                            end
+            -- Shadowmeld
+                            -- shadowmeld,if=combo_points<5&energy>=action.rake.cost&dot.rake.pmultiplier<2.1&buff.tigers_fury.up&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(!talent.incarnation.enabled|cooldown.incarnation.remains>18)&!buff.incarnation.up
+                            if useCDs() then
+                                for k,v in pairs(bleed.rake) do
+                                    local rake = bleed.rake[k]
+                                    local thisUnit = k
+                                    if UnitIsUnit(thisUnit,units.dyn5) and getDistance(thisUnit) < 5 then
+                                        if combo < 5 and power >= 35 and rake.applied < 2.1 and buff.tigersFury and (buff.bloodtalons or not talent.bloodtalons) 
+                                            and (not talent.incarnationKingOfTheJungle or cd.incarnationKingOfTheJungle > 18) and not buff.incarnationKingOfTheJungle 
+                                        then
+                                            if cast.shadowmeld() then return end
+                                        end
+                                    end
+                                end
+                            end
+            -- Rake
+                            -- pool_resource,for_next=1
+                            -- rake,cycle_targets=1,if=combo_points<5&(!ticking|(!talent.bloodtalons.enabled&remains<duration*0.3)|(talent.bloodtalons.enabled&buff.bloodtalons.up&(!talent.soul_of_the_forest.enabled&remains<=7|remains<=5)&persistent_multiplier>dot.rake.pmultiplier*0.80))&target.time_to_die-remains>tick_time
+                            for k,v in pairs(bleed.rake) do
+                                local rake = bleed.rake[k]
+                                local thisUnit = k
+                                if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and getDistance(thisUnit) < 5 then
+                                    if combo < 5 and (rake.remain == 0 or (not talent.bloodtalons and rake.remain < rake.duration * 0.3) 
+                                        or (talent.bloodtalons and buff.bloodtalons and (not talent.soulOfTheForest and rake.remain <= 7 or rake.remain <= 5) 
+                                            and rake.calc > rake.applied * 0.80)) and ttd(thisUnit) - rake.remain > rkTick 
+                                    then
+                                        if power <= 35 then
+                                            return true
+                                        else
+                                            if cast.rake(thisUnit) then return end
+                                        end
+                                    end
+                                end
+                            end
+            -- Moonfire
+                            -- moonfire_cat,cycle_targets=1,if=combo_points<5&remains<=4.2&target.time_to_die-remains>tick_time*2
+                            for k,v in pairs(bleed.moonfireFeral) do
+                                local moonfire = bleed.moonfireFeral[k]
+                                local thisUnit = k
+                                if multidot or (UnitIsUnit(thisUnit,units.dyn40AoE) and not multidot) then
+                                    if combo < 5 and moonfire.remain <= 4.2 and ((ttd(thisUnit) - moonfire.remain > mfTick * 2) or isDummy()) then
+                                       if cast.moonfireFeral(thisUnit) then return end
+                                    end
+                                end
+                            end 
 			-- Thrash
                             -- pool_resource,for_next=1
                             -- cycle_targets=1,if=remains<=duration*0.3&spell_targets.thrash_cat>=2
-    						for i = 1, #bleed.thrash do
-    							local thrash = bleed.thrash[i]
-    							local thisUnit = thrash.unit
-    							if (multidot or (UnitIsUnit(thisUnit,dynTar8AoE) and not multidot)) then
-                                    if thrash.remain <= thrash.duration * 0.3 and enemies.yards8 >= 2 and getDistance(thisUnit) < 8 then
+    						for k,v in pairs(bleed.thrash) do
+                                local thrash = bleed.thrash[k]
+                                local thisUnit = k
+    							if (multidot or (UnitIsUnit(thisUnit,units.dyn8AoE) and not multidot)) and getDistance(thisUnit) < 5 then
+                                    if thrash.remain <= thrash.duration * 0.3 and #enemies.yards8 >= 2 then
                                         if power < 50 then
                                             return true
                                         else
-    								        if bb.player.castThrash(thisUnit) then return end
+    								        if cast.thrash(thisUnit) then return end
                                         end
                                     end
     							end
     						end
-			-- Generator
-    						-- if=combo_points<5
-    						if combo < 5 then
-    			    			if actionList_Generator() then return end
-    				    	end --End Generator
+            -- Brutal Slash
+                            -- brutal_slash,if=combo_points<5&((raid_event.adds.exists&raid_event.adds.in>(1+max_charges-charges_fractional)*15)|(!raid_event.adds.exists&(charges_fractional>2.66&time>10)))
+                            if combo < 5 and ((addsExist and addsIn > (1 + charges.max.brutalSlash - charges.frac.brutalSlash) * 15) or (not addsExist and (charges.frac.brutalSlash > 2.66 and combatTime > 10))) then
+                                if cast.brutalSlash() then return end
+                            end
+            -- Swipe
+                            -- swipe_cat,if=combo_points<5&spell_targets.swipe_cat>=3
+                            if combo < 5 and #enemies.yards8 >= 3 and useAoE() then
+                                if cast.swipe() then return end
+                            end
+            -- Shred
+                            -- shred,if=combo_points<5&(spell_targets.swipe_cat<3|talent.brutal_slash.enabled)
+                            if combo < 5 and (#enemies.yards8 < 3 or talent.brutalSlash or level < 32 or not useAoE()) then
+                                if cast.shred() then return end
+                            end
                         end -- End SimC APL
         ------------------------
         --- Ask Mr Robot APL ---
@@ -920,47 +947,47 @@ if select(2, UnitClass("player")) == "DRUID" then
                             -- if HasTalent(Bloodtalons) and HasBuff(PredatorySwiftness) and not HasBuff(Prowl)
                             if talent.bloodtalons and buff.predatorySwiftness and not buff.prowl then
                                 if getOptionValue("Auto Heal")==1 then
-                                    if bb.player.castHealingTouch(bb.friend[1].unit) then return end
+                                    if cast.healingTouch(bb.friend[1].unit) then return end
                                 end
                                 if getOptionValue("Auto Heal")==2 then
-                                    if bb.player.castHealingTouch("player") then return end
+                                    if cast.healingTouch("player") then return end
                                 end
                             end
             -- Savage Roar
                             -- if AlternatePower >= 5 and BuffRemainingSec(SavageRoar) < 6 and not CanRefreshDot(Rip)
                             if combo >= 5 and buff.remain.savageRoar < 6 and debuff.remain.rip > (debuff.duration.rip * 0.3) then
-                                if bb.player.castSavageRoar() then return end
+                                if cast.savageRoar() then return end
                             end  
             -- Rake
                             -- multi-DoT = 3
-                            if #bleed.rake < 3 then
-                                for i=1, #bleed.rake do
-                                    local rake = bleed.rake[i]
-                                    local thisUnit = rake.unit
-                                    if multidot or (UnitIsUnit(thisUnit,dynTar5) and not multidot) then
+                            -- if #bleed.rake < 3 then
+                                for k,v in pairs(bleed.rake) do
+                                    local rake = bleed.rake[k]
+                                    local thisUnit = k
+                                    if multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot) then
                                         if rake.remain <= (rake.duration * 0.3) then
-                                            if bb.player.castRake(thisUnit) then return end
+                                            if cast.rake(thisUnit) then return end
                                         end
                                     end
                                 end
-                            end
+                            -- end
             -- Moonfire
                             -- multi-Dot = 3
-                            if #bleed.moonfire < 3 then
-                                for i=1, #bleed.moonfire do
-                                    local moonfire = bleed.moonfire[i]
-                                    local thisUnit = moonfire.unit
-                                    if multidot or (UnitIsUnit(thisUnit,dynTar40AoE) and not multidot) then
-                                        if oonfire.remain <= 4.2 and enemies.yards8 <= 8 then
-                                           if bb.player.castFeralMoonfire(thisUnit) then return end
+                            -- if #bleed.moonfire < 3 then
+                                for k,v in pairs(bleed.moonfireFeral) do
+                                    local rake = bleed.moonfireFeral[k]
+                                    local thisUnit = k
+                                    if multidot or (UnitIsUnit(thisUnit,units.dyn40AoE) and not multidot) then
+                                        if moonfireFeral.remain <= 4.2 and #enemies.yards8 <= 8 then
+                                           if cast.moonfireFeral(thisUnit) then return end
                                         end
                                     end
                                 end 
-                            end
+                            -- end
             -- Elune's Guidance
                             -- if AlternatePower = 0
                             if combo == 0 then
-                                if bb.player.castElunesGuidance() then return end
+                                if cast.elunesGuidance() then return end
                             end
             -- Cooldowns
                             -- if AlternatePower >= 5
@@ -969,26 +996,26 @@ if select(2, UnitClass("player")) == "DRUID" then
                             end
             -- Ferocious Bite
                             -- if AlternatePower >= 5 and (CanExecuteTarget or not CanRefreshDot(Rip))
-                            if combo >= 5 and (thp(dynTar5) < 25 or debuff.remain.rip > (debuff.duration.rip * 0.3)) then
-                                if bb.player.castFerociousBite(dynTar5) then return end
+                            if combo >= 5 and (thp(units.dyn5) < 25 or debuff.remain.rip > (debuff.duration.rip * 0.3)) then
+                                if cast.ferociousBite() then return end
                             end
             -- Rip
                             -- if AlternatePower >= 5
                             if combo >= 5 then
-                                if bb.player.castRip(dynTar5) then return end
+                                if cast.rip() then return end
                             end
             -- Thrash
                             -- if TargetsInRadius(Thrash) >= 3 and CanRefreshDot(ThrashBleedFeral)
                             if useAoE() and debuff.remain.thrash <= (debuff.duration.thrash * 0.3) then
-                                if bb.player.castThrash(dynTar8) then return end
+                                if cast.thrash() then return end
                             end
             -- Swipe
                             -- if TargetsInRadius(Swipe) >= 3
                             if useAoE() then
-                                if bb.player.castSwipe(dynTar8) then return end
+                                if cast.swipe() then return end
                             end
             -- Shred
-                            if bb.player.castShred(dynTar5) then return end
+                            if cast.shred() then return end
                         end
 				    end -- End No Stealth | Rotation Off Check
 				end --End In Combat

@@ -817,14 +817,23 @@ end
 function getCharges(spellID)
 	return select(1,GetSpellCharges(spellID))
 end
-function getChargesFrac(spellID)
+function getChargesFrac(spellID,chargeMax)
 	local charges,maxCharges,start,duration = GetSpellCharges(spellID)
-	local percentRemaining = ((duration - start) / duration)
-	if percentRemaining < 1 then
-		return charges + ((duration - start) / duration)
-	else
-		return charges 
+	if chargeMax == nil then chargeMax = false end
+	if maxCharges ~= nil then
+		if chargeMax then 
+			return maxCharges 
+		else
+			if start <= GetTime() then
+				local endTime = start + duration
+				local percentRemaining = 1-(endTime - GetTime())/duration
+				return charges + percentRemaining
+			else
+				return charges
+			end
+		end
 	end
+	return 0
 end
 function getChi(Unit)
 	return UnitPower(Unit,12)

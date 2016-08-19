@@ -1,8 +1,8 @@
 --- Guardian Class
 -- Inherit from: ../cCharacter.lua and ../cDruid.lua
 if select(2, UnitClass("player")) == "DRUID" then
-    rakeApplied = {}
-    ripApplied = {}
+    -- rakeApplied = {}
+    -- ripApplied = {}
 	cGuardian = {}
     cGuardian.rotations = {}
 
