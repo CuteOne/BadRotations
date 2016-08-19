@@ -787,7 +787,6 @@ if select(2, UnitClass("player")) == "DRUID" then
                                 local thisUnit = k
                                 if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                                     if getDistance(thisUnit) < 5 then
-                                        print(rip.calc.. ", ".. rip.applied.. ", ".. rip.remain)
                                         if (rip.remain == 0 or (rip.remain < 8 and thp(thisUnit) > 25 and not talent.sabertooth) 
                                             or rip.calc > rip.applied) and ttd(thisUnit) - rip.remain > rpTick * 4 and fatality 
                                         then
