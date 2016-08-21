@@ -17,6 +17,9 @@ function cShadow:new()
         -----------------
         --- VARIABLES --- 
         -----------------
+        self.enemies = {
+            yards40,
+        }
         self.shadowArtifacts     = {
             
         }
@@ -24,8 +27,8 @@ function cShadow:new()
             shadowyInsight = 124430 
         }
         self.shadowDebuffs       = {
-            shadowWordPainDebuff = 589,
-            vampiricTouchDebuff = 34914,
+            shadowWordPain = 589,
+            vampiricTouch = 34914,
         }
         self.shadowSpecials      = {
             dispelMagic = 528,
@@ -97,6 +100,7 @@ function cShadow:new()
             self.getDebuffs()
             self.getRecharges()
             self.getToggleModes()
+            self.getDebuffsCount()
             --self.getCastable()
 
 
@@ -118,10 +122,7 @@ function cShadow:new()
             local dynamicTarget = dynamicTarget
 
             -- Normal
-            self.units.dyn10 = dynamicTarget(10,true) -- Sample Non-AoE
-
-            -- AoE
-            self.units.dyn35AoE = dynamicTarget(35, false) -- Sample AoE 
+            self.units.dyn40 = dynamicTarget(40,true) -- Sample Non-AoE
         end
 
     ---------------
@@ -131,8 +132,7 @@ function cShadow:new()
         function self.getEnemies() -- sets table of enemies for specified ranges useful for knowing number of enemies in a certain ranges or target cycleing - NOTE: Do not relist and already provided Class file
             local getEnemies = getEnemies
 
-            self.enemies.active_enemies_30 = #getEnemies("player",30)
-            self.enemies.active_enemies_40 = #getEnemies("player",40)
+            self.enemies.yards40 = #getEnemies("player",40)
         end
 
     -----------------
@@ -205,12 +205,32 @@ function cShadow:new()
             local getDebuffRemain = getDebuffRemain
 
             for k,v in pairs(self.shadowDebuffs) do
-                self.debuff[k] = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
-                self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
-                self.debuff.remain[k] = getDebuffRemain(self.units.dyn5,v,"player") or 0
+                self.debuff[k] = UnitDebuffID(self.units.dyn40,v,"player") ~= nil
+                self.debuff.duration[k] = getDebuffDuration(self.units.dyn40,v,"player") or 0
+                self.debuff.remain[k] = getDebuffRemain(self.units.dyn40,v,"player") or 0
             end
         end
 
+        function self.getDebuffsCount()
+            local UnitDebuffID = UnitDebuffID
+            local vampiricTouchCount = 0
+            local shadowWordPainCount = 0
+
+            if vampiricTouchCount>0 and not inCombat then vampiricTouchCount = 0 end
+            if shadowWordPainCount>0 and not inCombat then shadowWordPainCount = 0 end
+
+            for i=1,#getEnemies("player", 40) do
+                local thisUnit = getEnemies("player", 40)[i]
+                if UnitDebuffID(thisUnit,self.spell.vampiricTouch,"player") then
+                    vampiricTouchCount = vampiricTouchCount+1
+                end
+                if UnitDebuffID(thisUnit,self.spell.shadowWordPain,"player") then
+                    shadowWordPainCount = shadowWordPainCount+1
+                end
+            end
+            self.debuff.count.vampiricTouch     = vampiricTouchCount or 0
+            self.debuff.count.shadowWordPain    = shadowWordPainCount or 0
+        end
     --------------
     --- GLYPHS ---
     --------------
@@ -361,7 +381,7 @@ function cShadow:new()
         end
         -- mind_blast
         function self.castMindBlast(thisTarget)
-            return castSpell(thisTarget,self.spell.mindBlast,false,true) == true or false
+            return castSpell(thisTarget,self.spell.mindBlast,false,true,false,false,false,false,true) == true or false
         end
         -- mind_flay
         function self.castMindFlay(thisTarget)
@@ -407,60 +427,58 @@ function cShadow:new()
             return false
         end
         function self.castSWD(thisTarget)
-            if getHP(thisTarget)<=20 then
                 return castSpell(thisTarget,self.spell.shadowWordDeath,true,false) == true or false
-            end
-            return false
         end
         -- shadow_word_pain
         function self.castSWPAutoApply(maxTargets)
             -- try to apply on target first
             if self.castSWPOnTarget(maxTargets) then return true end
             -- then apply on others
-            if self.getSWPrunning() < maxTargets then
+            if self.debuff.count.shadowWordPain < maxTargets 
+            and self.debuff.count.vampiricTouch >= 1 then
                 for i=1,#bb.enemy do
                     local thisUnit = bb.enemy[i].unit
                     local hp = bb.enemy[i].hpabs
                     local ttd = bb.enemy[i].ttd
                     local distance = bb.enemy[i].distance
                     -- infight
-                    if UnitIsTappedByPlayer(thisUnit) then
+                    --if UnitIsTappedByPlayer(thisUnit) then
                         -- blacklists: CC, DoT Blacklist
-                        if not isCCed(thisUnit) and self.SWP_allowed(thisUnit) then
+                        --if not isCCed(thisUnit) and self.SWP_allowed(thisUnit) then
                             -- check for running dot and remaining time
                             if getDebuffRemain(thisUnit,self.spell.shadowWordPain,"player") <= 18*0.3 then
                                 -- in range?
                                 if distance < 40 then
                                     -- TTD or dummy
-                                    if ttd > self.options.rotation.ttdSWP or isDummy(thisUnit) then
+                                    --if ttd > self.options.rotation.ttdSWP or isDummy(thisUnit) then
                                         return castSpell(thisUnit,self.spell.shadowWordPain,true,false) == true or false
-                                    end
+                                    --end
                                 end
                             end
-                        end
-                    end
+                        --end
+                    --end
                 end
             end
             return false
         end
         function self.castSWPOnTarget(maxTargets)
-            if self.getSWPrunning() < maxTargets then
+            if self.debuff.count.shadowWordPain < maxTargets then
                 -- infight
-                if UnitIsTappedByPlayer("target") then
+                --if UnitIsTappedByPlayer(self.units.dyn40) then
                     -- blacklists: CC, DoT Blacklist
-                    if not isCCed("target") and self.SWP_allowed("target") then
+                    --if not isCCed(self.units.dyn40) and self.SWP_allowed(self.units.dyn40) then
                         -- check for running dot and remaining time
-                        if getDebuffRemain("target",self.spell.shadowWordPain,"player") <= 18*0.3 then
+                        if getDebuffRemain(self.units.dyn40,self.spell.shadowWordPain,"player") <= 18*0.3 then
                             -- in range?
-                            if getDistance("player","target") < 40 then
+                            if getDistance("player",self.units.dyn40) < 40 then
                                 -- TTD or dummy
-                                if getTTD("target") > self.options.rotation.ttdSWP or isDummy("target") then
-                                    return castSpell("target",self.spell.shadowWordPain,true,false) == true or false
-                                end
+                                --if getTTD(self.units.dyn40) > self.options.rotation.ttdSWP or isDummy("target") then
+                                    return castSpell(self.units.dyn40,self.spell.shadowWordPain,true,false) == true or false
+                                --end
                             end
                         end
-                    end
-                end
+                    --end
+                --end
             end
             return false
         end
@@ -468,23 +486,24 @@ function cShadow:new()
             if UnitExists(thisTarget) and UnitCanAttack("player",thisTarget) then
             --if self.getSWPrunning() < maxTargets then
                 -- infight
-                if UnitIsTappedByPlayer(thisTarget) then
+                --if UnitIsTappedByPlayer(thisTarget) then
                     -- blacklists: CC, DoT Blacklist
-                    if not isCCed(thisTarget) and self.SWP_allowed(thisTarget) and self.CoP_offdot_allowed(thisTarget) then
+                    --if not isCCed(thisTarget) and self.SWP_allowed(thisTarget) and self.CoP_offdot_allowed(thisTarget) then
                         -- check for running dot and remaining time
                         if getDebuffRemain(thisTarget,self.spell.shadowWordPain,"player") <= 18*0.3 then
                             -- in range?
                             if getDistance("player",thisTarget) < 40 then
                                 -- TTD or dummy
-                                if getTTD(GetObjectWithGUID(UnitGUID(thisTarget))) > self.options.rotation.ttdSWP or isDummy(thisTarget) then
+                                --if getTTD(GetObjectWithGUID(UnitGUID(thisTarget))) > self.options.rotation.ttdSWP or isDummy(thisTarget) then
                                     return castSpell(thisTarget,self.spell.shadowWordPain,true,false) == true or false
-                                end
+                                --end
                             end
                         end
-                    end
-                end
-            end
+                    --end
+                --end
+            --end
             return false
+            end
         end
         function self.castSWP(thisTarget)
             return castSpell(thisTarget,self.spell.shadowWordPain,true,false) == true or false
@@ -507,28 +526,57 @@ function cShadow:new()
             return castSpell("player",self.spell.vampiricEmbrace,true,false) == true or false
         end
         -- vampiric_touch
-        function self.castVTOnTarget(maxTargets)
-            if self.getVTrunning() < maxTargets then
-                local castTime = 0.001*select(4,GetSpellInfo(34914))
-                -- infight
-                if UnitIsTappedByPlayer("target") then
-                    -- last VT check
-                    if lastVTTarget ~= thisUnitGUID and lastVTTime+5 < GetTime() then
+        function self.castVTAutoApply(maxTargets)
+            -- try to apply on target first
+            if self.castVTOnTarget(maxTargets) then return true end
+            -- then apply on others
+            if self.debuff.count.vampiricTouch < maxTargets
+            and self.debuff.count.shadowWordPain >= 1 then
+                local castTime = 0.001*select(4,GetSpellInfo(self.spell.vampiricTouch))
+                for i=1,#bb.enemy do
+                    local thisUnit = bb.enemy[i].unit
+                    local hp = bb.enemy[i].hpabs
+                    local ttd = bb.enemy[i].ttd
+                    local distance = bb.enemy[i].distance
+                    -- infight
+                    --if UnitIsTappedByPlayer(thisUnit) then
                         -- blacklists: CC, DoT Blacklist
-                        if not isCCed("target") and self.VT_allowed("target") then
+                        --if not isCCed(thisUnit) and self.SWP_allowed(thisUnit) then
                             -- check for running dot and remaining time
-                            if getDebuffRemain("target",self.spell.vampiricTouch,"player") <= 15*0.3+castTime then
+                            if getDebuffRemain(thisUnit,self.spell.vampiricTouch,"player") <= 18*0.3+castTime then
                                 -- in range?
-                                if getDistance("player","target") < 40 then
+                                if distance < 40 then
                                     -- TTD or dummy
-                                    if getTTD("target") > self.options.rotation.ttdSWP+castTime or isDummy("target") then
-                                        return castSpell("target",self.spell.vampiricTouch,true,true) == true or false
-                                    end
+                                    --if ttd > self.options.rotation.ttdSWP or isDummy(thisUnit) then
+                                        return castSpell(thisUnit,self.spell.vampiricTouch,true,false) == true or false
+                                    --end
                                 end
                             end
-                        end
-                    end
+                        --end
+                    --end
                 end
+            end
+            return false
+        end
+        function self.castVTOnTarget(maxTargets)
+            if self.debuff.count.vampiricTouch < maxTargets then
+                local castTime = 0.001*select(4,GetSpellInfo(self.spell.vampiricTouch))
+                -- infight
+                --if UnitIsTappedByPlayer(self.units.dyn40) then
+                    -- blacklists: CC, DoT Blacklist
+                    --if not isCCed(self.units.dyn40) and self.SWP_allowed(self.units.dyn40) then
+                        -- check for running dot and remaining time
+                        if getDebuffRemain(self.units.dyn40,self.spell.vampiricTouch,"player") <= 18*0.3 + castTime then
+                            -- in range?
+                            if getDistance("player",self.units.dyn40) < 40 then
+                                -- TTD or dummy
+                                --if getTTD(self.units.dyn40) > self.options.rotation.ttdSWP or isDummy("target") then
+                                    return castSpell(self.units.dyn40,self.spell.vampiricTouch,true,false) == true or false
+                                --end
+                            end
+                        end
+                    --end
+                --end
             end
             return false
         end
@@ -548,7 +596,7 @@ function cShadow:new()
                                 if getDistance("player",thisTarget) < 40 then
                                     -- TTD or dummy
                                     if getTTD(GetObjectWithGUID(UnitGUID(thisTarget))) > self.options.rotation.ttdSWP+castTime or isDummy(thisTarget) then
-                                        return castSpell(thisTarget,self.spell.vampiricTouch,true,true) == true or false
+                                        return castSpell(thisTarget,self.spell.vampiricTouch,true,false) == true or false
                                     end
                                 end
                             end
@@ -566,8 +614,142 @@ function cShadow:new()
     ------------------------
     --- CUSTOM FUNCTIONS --- -- List all custom functions used only by this spec here 
     ------------------------
-        
+    function useCDs(spellid)
+            if (bb.data['Cooldown'] == 1 and isBoss()) or bb.data['Cooldown'] == 2 then
+                return true
+            else
+                return false
+            end
+        end
+        function useAuto()
+            if bb.data['Rotation'] == 1 then
+                return true
+            else
+                return false
+            end
+        end
+        function useAoE()
+            if bb.data['Rotation'] == 2 then
+               return true
+            else
+                return false
+            end
+        end
+        function useSingle()
+            if bb.data['Rotation'] == 3 then
+                return true
+            else
+                return false
+            end
+        end
+        function useInterrupts()
+            if bb.data['Interrupt'] == 1 then
+               return true
+            else
+                return false
+            end
+        end
+        function useDefensive()
+            if bb.data['Defensive'] == 1 then
+                return true
+            else
+                return false
+            end
+        end      
+        -- Blacklist
+        -- SWP
+        function self.SWP_allowed(targetUnit)
+            if targetUnit == nil or not UnitExists(targetUnit) then 
+                return true 
+            end
+            
+            local thisUnit = targetUnit
+            local thisUnitID = getUnitID(thisUnit)
+            local Blacklist_UnitID = {
+            -- HM: Highmaul
+                79956,      -- Ko'ragh: Volatile Anomaly
+                78077,      -- Mar'gok: Volatile Anomaly
+            -- BRF: Blackrock Foundry
+                77128,      -- Darmac: Pack Beast
+                77394,      -- Thogar: Iron Raider (Train Ads)
+                77893,      -- Kromog: Grasping Earth (Hands)
+                77665,      -- Blackhand: Iron Soldier
+            -- HFC: Hellfire Citadel
+                90114,      -- Hellfire Assault: damn small ads
+                --94326,        -- Iron Reaver: Reactive Bomb
+                90513,      -- Kilrogg: Fel Blood Globule
+                96077,      -- Kilrogg: Fel Blood Globule
+                90477,      -- Kilrogg: Blood Globule
+                93288,      -- Gorefiend: Corrupted Players
+                --95101,        -- Socrethar: Phase1 Voracious Soulstalker
+                --92919,        -- Zakuun: Mythic dat orb
+                92208,      -- Archimonde: Doomfire Spirit
+            }
+            local Blacklist_BuffID = {
+            -- blackrock foundry
+                155176,     -- Blast Furnace: Primal Elementalist: http://www.wowhead.com/spell=155176/damage-shield
+                176141,     -- Blast Furnace: Slag Elemental: http://www.wowhead.com/spell=176141/hardened-slag
+            }
 
+            -- check for buffs
+            for i = 1, #Blacklist_BuffID do
+                if getBuffRemain(thisUnit,Blacklist_BuffID[i]) > 0 or getDebuffRemain(thisUnit,Blacklist_BuffID[i]) > 0 then return false end
+            end
+            -- check for unit id
+            for i = 1, #Blacklist_UnitID do
+                if thisUnitID == Blacklist_UnitID[i] then return false end
+            end
+            return true
+        end
+        -- VT
+        function self.VT_allowed(targetUnit)
+            if targetUnit == nil or not UnitExists(targetUnit) then 
+                return true 
+            end
+
+            local thisUnit = targetUnit
+            local thisUnitID = getUnitID(thisUnit)
+            local Blacklist_UnitID = {
+            -- BRF: Blackrock Foundry
+                77893,      -- Kromog: Grasping Earth (Hands)
+                78981,      -- Thogar: Iron Gunnery Sergeant (canons on trains)
+                80654,      -- Blackhand Mythic Siegemakers
+                80659,      -- Blackhand Mythic Siegemakers
+                80646,      -- Blackhand Mythic Siegemakers
+                80660,      -- Blackhand Mythic Siegemakers
+            -- HFC: Hellfire Citadel
+                --94865,        -- Hellfire Council: Jubei'thos Mirrors
+                94231,      -- Xhul'horac: Wild Pyromaniac
+                --92208,        -- Archimonde: Doomfire Spirit
+                --91938,        -- Socrethar: Haunting Soul
+                --90409,        -- Hellfire Assault: Gorebound Felcaster
+                93717,      -- Iron Reaver: Volatile Firebomb
+                91368,      -- Kormrok: Crushing Hand
+                93830,      -- Hellfire Assault: Iron Dragoon
+                90114,      -- Hellfire Assault: Iron Dragoon
+                93369,      -- Kilrogg: Salivating Bloodthirster
+                90521,      -- Kilrogg: Salivating Bloodthirster
+                --90388,        -- Gorefiend: Digest Mobs
+                93288,      -- Gorefiend: Corrupted Players
+                95101,      -- Socrethar: Phase1 Voracious Soulstalker
+                91259,      -- Mannoroth: Fel Imp
+                92208,      -- Archimonde: Doomfire Spirit
+                93616,      -- Archimonde: Dreadstalker
+            }
+
+            local Blacklist_BuffID = {
+            }
+
+            -- check for buffs
+            for i = 1, #Blacklist_BuffID do
+                if getBuffRemain(thisUnit,Blacklist_BuffID[i]) > 0 or getDebuffRemain(thisUnit,Blacklist_BuffID[i]) > 0 then return false end
+            end
+            -- check for unit id
+            for i = 1, #Blacklist_UnitID do
+                if thisUnitID == Blacklist_UnitID[i] then return false end
+            end
+            return true
+        end
     -----------------------------
     --- CALL CREATE FUNCTIONS ---
     -----------------------------

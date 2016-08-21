@@ -17,6 +17,7 @@ if select(3, UnitClass("player")) == 5 then
         self.debuff.duration = {}       -- Debuff Durations
         self.debuff.remain   = {}       -- Debuff Time Remaining
         self.debuff.refresh  = {}       -- Debuff Refreshable
+        self.debuff.count	 = {}       -- Debuff Count
 		self.profile     = spec
 		self.priestSpell = {
 
