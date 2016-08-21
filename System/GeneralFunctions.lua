@@ -661,7 +661,7 @@ Ninth 		usableSkip 		True to skip usability checks.
 Tenth 		noCast			True to return True/False instead of casting spell.
 ]]
 -- castSpell("target",12345,true)
---                ( 1  ,    2  ,     3     ,     4       ,      5    ,   6     ,   7     ,    8       ,   9    )
+--                ( 1  ,    2  ,     3     ,     4       ,      5    ,   6     ,   7     ,    8       ,   9      ,  10  )
 function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,DeadCheck,DistanceSkip,usableSkip,noCast)
 	if GetObjectExists(Unit) and betterStopCasting(SpellID) ~= true
 		and (not UnitIsDeadOrGhost(Unit) or DeadCheck) then
@@ -2447,6 +2447,9 @@ function TierScan(thisTier)
 				115538, -- hands
 				115539, -- head
 			},
+			["DEMONHUNTER"] = {
+
+			},
 			["HUNTER"] = {
 				115545, -- head
 				115546, -- legs
@@ -2526,6 +2529,9 @@ function TierScan(thisTier)
 				124338, -- legs
 				124344, -- shoulder
 			},
+			["DEMONHUNTER"] = {
+
+			},
 			["HUNTER"] = {
 				124284, -- chest
 				124292, -- hands
@@ -2597,9 +2603,11 @@ function TierScan(thisTier)
 		if GetInventoryItemID("player", i) ~= nil then
 			-- compare to items in our items list
 			for j = 1, 5 do
-				--print(sets[thisTier][myClass][j]) 
-				if GetItemInfo(GetInventoryItemID("player", i)) == GetItemInfo(sets[thisTier][myClass][j]) then
-					equippedItems = equippedItems + 1;
+				if sets[thisTier][myClass][j] ~= nil then
+					--print(sets[thisTier][myClass][j]) 
+					if GetItemInfo(GetInventoryItemID("player", i)) == GetItemInfo(sets[thisTier][myClass][j]) then
+						equippedItems = equippedItems + 1;
+					end
 				end
 			end
 		end

@@ -216,9 +216,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	                    end
 	                end
 	            end
-	    -- Pick Pocket
+	    	-- Pick Pocket
 	        	if usePickPocket() then
-        			if (UnitExists("target") or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
+        			if UnitCanAttack(units.dyn5,"player") and (UnitExists(units.dyn5) or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
 	        			if not isPicked(units.dyn5) and not isDummy() then
 	        				if debuff.remain.sap < 1 and mode.pickPocket ~= 1 then
 	        					if cast.sap(units.dyn5) then return end

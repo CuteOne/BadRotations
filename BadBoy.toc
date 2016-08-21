@@ -70,17 +70,27 @@ Custom\Functions.lua
 Rotations\cCharacter.lua
 
 ## DeathKnight ---------------------------------------------------
-Rotations\Deathknight\cDeathKnight.lua
+Rotations\Death Knight\cDeathKnight.lua
 
-Rotations\Deathknight\Frost\cFrost.lua
-Rotations\Deathknight\Frost\Frost.lua
-Rotations\Deathknight\Frost\FrostCuteOne.lua
+Rotations\Death Knight\Frost\cFrost.lua
+Rotations\Death Knight\Frost\Frost.lua
+Rotations\Death Knight\Frost\FrostCuteOne.lua
 
-Rotations\Deathknight\Blood\cBlood.lua
-Rotations\Deathknight\Blood\Blood.lua
+Rotations\Death Knight\Blood\cBlood.lua
+Rotations\Death Knight\Blood\Blood.lua
 
-Rotations\Deathknight\Unholy\cUnholy.lua
-Rotations\Deathknight\Unholy\Unholy.lua
+Rotations\Death Knight\Unholy\cUnholy.lua
+Rotations\Death Knight\Unholy\Unholy.lua
+
+## DemonHunter
+Rotations\Demon Hunter\cDemonHunter.lua
+
+Rotations\Demon Hunter\Havoc\cHavoc.lua
+Rotations\Demon Hunter\Havoc\Havoc.lua
+Rotations\Demon Hunter\Havoc\HavocCuteOne.lua
+
+Rotations\Demon Hunter\Vengeance\cVengeance.lua
+Rotations\Demon Hunter\Vengeance\Vengeance.lua
 
 ## Druid ---------------------------------------------------
 Rotations\Druid\cDruid.lua

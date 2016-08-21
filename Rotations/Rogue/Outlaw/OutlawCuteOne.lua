@@ -223,8 +223,8 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	            end
 	    -- Pick Pocket
 	        	if usePickPocket() then
-        			if not UnitIsUnit("target","player") and (UnitExists("target") or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
-	        			if not isPicked(units.dyn5) and not isDummy() then
+        			if UnitCanAttack(units.dyn5,"player") and (UnitExists(units.dyn5) or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
+	        			if not isPicked(units.dyn5) and not isDummy(units.dyn5) then
 	        				if debuff.remain.sap < 1 and mode.pickPocket ~= 1 then
 	        					if cast.sap(units.dyn5) then return end
 	        				end
@@ -307,7 +307,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 					-- pool_resource,for_next=1,extra_amount=60
 					-- vanish,if=combo_points.deficit>=2&energy>60
 					-- shadowmeld,if=combo_points.deficit>=2&energy>60
-					if not buff.stealth and comboDeficit >= 2 + 2 * gsBuff and (cd.vanish == 0 or cd.shadowmeld == 0) and (not solo or isDummy()) then
+					if not buff.stealth and comboDeficit >= 2 + 2 * gsBuff and (cd.vanish == 0 or cd.shadowmeld == 0) and (not solo or isDummy(units.dyn5)) then
 						if power <= 60 then
 							return true
 						elseif power > 60 then
@@ -376,7 +376,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	            -- Start Attack
 	            	if (not buff.stealth and not buff.shadowmeld and not buff.vanish) or level < 5 then
 	            		if mode.rotation ~= 4 then
-	            			StartAttack()
+	            			-- StartAttack()
 	            		end
 	            	end
 	            end
@@ -397,6 +397,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 			-- Ghostly Strike
 				-- ghostly_strike,if=talent.ghostly_strike.enabled&debuff.ghostly_strike.remains<4.5
 				if talent.ghostlyStrike and debuff.remain.ghostlyStrike < 4.5 then
+					-- ObjectInteract(units.dyn5)
 					if cast.ghostlyStrike() then return end
 				end
 			-- Pistol Shot
@@ -439,6 +440,12 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	--------------------------
 				if inCombat and profileStop==false then
 					if UnitIsDeadOrGhost("target") then ClearTarget(); end
+			-- Start Attack
+	            	if (not buff.stealth and not buff.shadowmeld and not buff.vanish) or level < 5 then
+	            		if mode.rotation ~= 4 then
+	            			-- StartAttack()
+	            		end
+	            	end
 	------------------------------
 	--- In Combat - Interrupts ---
 	------------------------------
@@ -451,7 +458,6 @@ if select(2, UnitClass("player")) == "ROGUE" then
 	--- In Combat - Begin Rotation ---
 	----------------------------------
 					if not buff.stealth and not buff.vanish and not buff.shadowmeld and GetTime() > vanishTime + 2 and getDistance(units.dyn5) < 5 then
-						ObjectInteract(units.dyn5)
 			-- Ambush / Cheap Shot
 						-- pool_resource,for_next=1
 						-- ambush
@@ -474,7 +480,7 @@ if select(2, UnitClass("player")) == "ROGUE" then
 						-- pool_resource,for_next=1,extra_amount=60
 						-- vanish,if=combo_points.deficit>=2&energy>60
 						-- shadowmeld,if=combo_points.deficit>=2&energy>60
-						if useCDs() and getDistance(units.dyn5) < 5 and not buff.stealth and comboDeficit >= 2 + 2 * gsBuff and (cd.vanish == 0 or cd.shadowmeld == 0) and (not solo or isDummy()) then
+						if useCDs() and getDistance(units.dyn5) < 5 and not buff.stealth and comboDeficit >= 2 + 2 * gsBuff and (cd.vanish == 0 or cd.shadowmeld == 0) and (not solo or isDummy(units.dyn5)) then
 							if power <= 60 then
 								return true
 							elseif power > 60 then

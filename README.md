@@ -92,7 +92,7 @@ Raidable means if its good to raid with.
 |Unholy|0%||7.0|
 ||||
 | **Demon Hunter** |||
-|Havoc|0%||7.0|
+|Havoc|100% (SimC)|CuteOne|7.0|:white_check_mark:
 |Vengeance|0%||7.0|
 ||||
 | **Druid** |||
@@ -119,7 +119,7 @@ Raidable means if its good to raid with.
 | **Paladin** |||
 |Holy|0%||7.0|
 |Protection|0%||7.0|
-|Retribution|10%|Gabbz|7.0|
+|Retribution|1dd0%|Gabbz|7.0|
 ||||
 | **Priest** |||
 |Discipline|0%|||

@@ -451,7 +451,7 @@ function cOutlaw:new()
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
-                    -- ObjectInteract(thisUnit) --Ghostly Strike requires target to be selected :(
+                    ObjectInteract(thisUnit)
                     return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
