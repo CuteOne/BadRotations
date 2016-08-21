@@ -97,7 +97,7 @@ function cShadow:new()
             self.getDebuffs()
             self.getRecharges()
             self.getToggleModes()
-            self.getCastable()
+            --self.getCastable()
 
 
             -- Casting and GCD check

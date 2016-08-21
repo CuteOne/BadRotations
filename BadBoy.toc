@@ -162,6 +162,7 @@ Rotations\Priest\Holy\Holy.lua
 
 Rotations\Priest\Shadow\cShadow.lua
 Rotations\Priest\Shadow\Shadow.lua
+Rotations\Priest\Shadow\CpoworksShadow.lua
 
 ## Rogue ---------------------------------------------------
 Rotations\Rogue\cRogue.lua
