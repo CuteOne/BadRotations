@@ -119,12 +119,12 @@ Raidable means if its good to raid with.
 | **Paladin** |||
 |Holy|0%||7.0|
 |Protection|0%||7.0|
-|Retribution|1dd0%|Gabbz|7.0|
+|Retribution|10%|Gabbz|7.0|
 ||||
 | **Priest** |||
 |Discipline|0%|||
 |Holy|0%|||
-|Shadow|0%||7.0|
+|Shadow|0%|Cpoworks|7.0|
 ||||
 | **Rogue** |||
 |Assassination|50%|CuteOne|7.0|:x:
