@@ -21,7 +21,10 @@ function cHavoc:new()
         self.charges.max                = {}
         self.spell.spec                 = {}
         self.spell.spec.abilities       = {
-
+            chaosBlades                 = 211048,
+            felBarrage                  = 211053,
+            netherwalk                  = 196555,
+            nemesis                     = 206491,
         }
         self.spell.spec.artifacts       = {
             anguishOfTheDeceiver        = 201473,
@@ -29,7 +32,7 @@ function cHavoc:new()
         self.spell.spec.buffs           = {
             chaosBlades                 = 211797,
             momentum                    = 206476,
-            prepared                    = 203551,
+            prepared                    = 203650,
         }
         self.spell.spec.debuffs         = {
             nemesis                     = 206491,

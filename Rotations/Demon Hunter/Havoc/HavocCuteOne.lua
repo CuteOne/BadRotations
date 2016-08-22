@@ -145,6 +145,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
             local buff                                          = bb.player.buff
             local canFlask                                      = canUse(bb.player.flask.wod.agilityBig)
             local cast                                          = bb.player.cast
+            local castable                                      = bb.player.cast.debug
             local combatTime                                    = getCombatTime()
             local cd                                            = bb.player.cd
             local charges                                       = bb.player.charges
@@ -161,6 +162,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
             local inCombat                                      = bb.player.inCombat
             local inInstance                                    = bb.player.instance=="party"
             local inRaid                                        = bb.player.instance=="raid"
+            local lastSpell                                     = lastSpellCast
             local level                                         = bb.player.level
             local lootDelay                                     = getOptionValue("LootDelay")
             local lowestHP                                      = bb.friend[1].unit
@@ -185,6 +187,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
 			if profileStop == nil then profileStop = false end
             if talent.chaosCleave then chaleave = 1 else chaleave = 0 end
             if talent.prepared then prepared = 1 else prepared = 0 end
+            if lastSpell == spell.vengefulRetreat then vaulted = true else vaulted = false end
 	--------------------
 	--- Action Lists ---
 	--------------------
@@ -265,6 +268,99 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                     end
 			 	end -- End useInterrupts check
 			end -- End Action List - Interrupts
+        -- Action List - PostVengeful
+            local function actionList_PostVengeful()
+            -- Fel Rush
+                if cast.felRush() then return end
+            -- Fel Blade
+                -- TODO
+            end -- End Action lsit - Post Vengful Retreat
+        -- Action List - Single Target
+            local function actionList_SingleTarget()
+            -- Fel Eruption
+                -- TODO
+            -- Death Sweep
+                -- if HasTalent(FirstBlood)
+                if talent.firstBlood then
+                    if cast.deathSweep() then return end
+                end
+            -- Annihilation
+                if cast.annihilation() then return end
+            -- Fel Barrage
+                -- if ChargesRemaining(FelBarrage) = SpellCharges(FelBarrage)
+                -- TODO
+            -- Eye Beam
+                if (not talent.demonic or not buff.metamorphosis) and getDistance(units.dyn8) < 8 and getFacing("player",units.dyn5,45) then
+                    if cast.eyeBeam() then return end
+                end
+            -- Blade Dance
+                -- if CooldownSecRemaining(EyeBeam) > 0 and HasTalent(FirstBlood)
+                if (cd.eyeBeam > 0 or not isKnown(spell.eyeBeam)) and not talent.firstBlood then
+                    if cast.bladeDance() then return end
+                end
+            -- Chaos Strike
+                -- if CooldownSecRemaining(EyeBeam) > 0
+                if cd.eyeBeam > 0 or not isKnown(spell.eyeBeam) then
+                    if cast.chaosStrike() then return end
+                end
+            -- Fel Rush
+                -- if not HasTalent(Prepared) and not HasTalent(Momentum)
+                if useMover() and not talent.prepared and not talent.momentum then
+                    if cast.felRush() then return end
+                end
+                -- if (ChargesRemaining(FelRush) >= 2 or (ChargesRemaining(FelRush) >= 1 and ChargeSecRemaining(FelRush) <= CooldownSecRemaining(VengefulRetreat))) and not HasBuff(Momentum)
+                if useMover() and (charges.felRush >= 2 or (charges.felRush >= 1 and recharge.felRush <= cd.vengefulRetreat)) and not buff.momentum then
+                    if cast.felRush() then return end
+                end
+            -- Throw Glaive
+                -- if HasTalent(Bloodlet)
+                if talent.bloodlet then
+                    if cast.throwGlaive() then return end
+                end
+            -- Fel Blade
+                -- if not WasLastCast(VengefulRetreat)
+                -- TODO
+            -- Demon's Bite
+                if cast.demonsBite() then return end
+            end -- End Action List - Single Target
+        -- Action List - MultiTarget
+            local function actionList_MultiTarget()
+            -- Death Sweep
+                if cast.deathSweep() then return end
+            -- Fel Barrage
+                -- if ChargesRemaining(FelBarrage) = SpellCharges(FelBarrage)
+                -- TODO
+            -- Eye Beam
+                if getDistance(units.dyn5) < 5 and getFacing("player",units.dyn5,45) then
+                    if cast.eyeBeam() then return end
+                end
+            -- Fel Rush
+                if useMover() then
+                    if cast.felRush() then return end
+                end
+            -- Blade Dance
+                -- if CooldownSecRemaining(EyeBeam) > 0
+                if cd.eyeBeam > 0 or not isKnown(spell.eyeBeam) then
+                    if cast.bladeDance() then return end
+                end
+            -- Throw Glaive
+                if cast.throwGlaive() then return end
+            -- Annihilation
+                -- if HasTalent(ChaosCleave)
+                if talent.chaosCleave then
+                    if cast.annihilation() then return end
+                end
+            -- Chaos Strike
+                -- if HasTalent(ChaosCleave)
+                if talent.chaosCleave then
+                    if cast.chaosStrike() then return end
+                end
+            -- Chaos Nova
+                -- if CooldownSecRemaining(EyeBeam) > 0 or HasTalent(UnleashedPower)
+                if cd.eyeBeam > 0 or talent.unleashedPower then
+                    if cast.chaosNova() then return end
+                end
+            end -- End Action List - Multi Target
 		-- Action List - Cooldowns
 			local function actionList_Cooldowns()
 				if useCDs() and getDistance(units.dyn5) < 5 then
@@ -292,20 +388,34 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                     if isChecked("Racial") and (bb.player.race == "Orc" or bb.player.race == "Troll" or bb.player.race == "Blood Elf") then
                         if castSpell("player",racial,false,false,false) then return end
                     end
+                    if getOptionValue("APL Mode") == 1 then -- SimC
             -- Nemesis
-                    -- nemesis,target_if=min:target.time_to_die,if=raid_event.adds.exists&debuff.nemesis.down&(active_enemies>desired_targets|raid_event.adds.in>60)
-                    -- nemesis,if=!raid_event.adds.exists&(cooldown.metamorphosis.remains>100|target.time_to_die<70)
-                    -- nemesis,sync=metamorphosis,if=!raid_event.adds.exists
-                    -- TODO
+                        -- nemesis,target_if=min:target.time_to_die,if=raid_event.adds.exists&debuff.nemesis.down&(active_enemies>desired_targets|raid_event.adds.in>60)
+                        -- nemesis,if=!raid_event.adds.exists&(cooldown.metamorphosis.remains>100|target.time_to_die<70)
+                        -- nemesis,sync=metamorphosis,if=!raid_event.adds.exists
+                        -- TODO
             -- Chaos Blades
-                    -- chaos_blades,if=buff.metamorphosis.up|cooldown.metamorphosis.remains>100|target.time_to_die<20
-                    -- TODO
+                        -- chaos_blades,if=buff.metamorphosis.up|cooldown.metamorphosis.remains>100|target.time_to_die<20
+                        -- TODO
             -- Metamorphosis
-                    -- metamorphosis,if=buff.metamorphosis.down&(!talent.demonic.enabled|!cooldown.eye_beam.ready)&(!talent.chaos_blades.enabled|cooldown.chaos_blades.ready)&(!talent.nemesis.enabled|debuff.nemesis.up|cooldown.nemesis.ready)
-                    if isChecked("Metamorphosis") then
-                        if not buff.metamorphosis and (not talent.demonic or cd.eyeBeam ~= 0) and (not talent.chaosBlades or cd.chaosBlades == 0) and (not talent.nemesis or debuff.nemesis or cd.nemesis == 0) then
+                        -- metamorphosis,if=buff.metamorphosis.down&(!talent.demonic.enabled|!cooldown.eye_beam.ready)&(!talent.chaos_blades.enabled|cooldown.chaos_blades.ready)&(!talent.nemesis.enabled|debuff.nemesis.up|cooldown.nemesis.ready)
+                        if isChecked("Metamorphosis") then
+                            if not buff.metamorphosis and (not talent.demonic or cd.eyeBeam ~= 0) and (not talent.chaosBlades or cd.chaosBlades == 0) and (not talent.nemesis or debuff.nemesis or cd.nemesis == 0) then
+                                if cast.metamorphosis() then return end
+                            end
+                        end
+                    end
+                    if getOptionValue("APL Mode") == 2 then -- AMR
+            -- Metamorphosis
+                        -- if (not HasTalent(DemonReborn) or CooldownSecRemaining(EyeBeam) > 0) and not HasBuff(Metamorphosis)
+                        if (not talent.demonReborn or cd.eyeBeam > 0) and not buff.metamorphosis then
                             if cast.metamorphosis() then return end
                         end
+            -- Nemesis
+                        -- TODO
+            -- Chaos Blades
+                        -- if CooldownSecRemaining(Metamorphosis) > SpellCooldownSec(ChaosBlades) - BuffDurationSec(ChaosBlades) or HasBuff(Metamorphosis)
+                        -- TODO  
                     end
             -- Agi-Pot
                     -- potion,name=deadly_grace,if=buff.metamorphosis.remains>25
@@ -314,7 +424,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                             useItem(109217)
                         end
                     end
-                end -- End useCooldowns check
+                end -- End useCDs check
             end -- End Action List - Cooldowns
         -- Action List - PreCombat
             local function actionList_PreCombat()
@@ -341,7 +451,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
 
                     end -- End Pre-Pull
                 -- Fel Rush
-                    if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 15 then
+                    if getOptionValue("APL Mode") == 1 and ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 15 then
                         if useMover() then
                             if cast.felRush() then return end
                         end
@@ -401,7 +511,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         end
                 -- Eye Beam
                         -- eye_beam,if=talent.demonic.enabled&buff.metamorphosis.down&(!talent.first_blood.enabled|fury>=80|fury.deficit<30)
-                        if talent.demonic and not buff.metamorphosis and (not talent.firstBlood or power >= 80 or powerDeficit < 30) and lastSpell ~= spell.vengefulRetreat then
+                        if talent.demonic and not buff.metamorphosis and (not talent.firstBlood or power >= 80 or powerDeficit < 30) and getDistance(units.dyn8) < 8 and getFacing("player",units.dyn5,45) then
                             if cast.eyeBeam() then return end
                         end
                 -- Demon's Bite
@@ -455,7 +565,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         end 
                 -- Eye Beam
                         -- eye_beam,if=!talent.demonic.enabled&(spell_targets.eye_beam_tick>desired_targets|(raid_event.adds.in>45&buff.metamorphosis.down&(artifact.anguish_of_the_deceiver.enabled|active_enemies>1|level=100)))
-                        if not talent.demonic and (#enemies.yards20 > getOptionValue("Eye Beam Targets") or (addsIn > 45 and not buff.metamorphosis and (artifact.anguishOfTheDeceiver or #enemies.yards5 > 1 or level == 100))) and lastSpell ~= spell.vengefulRetreat then
+                        if not talent.demonic and (#enemies.yards20 > getOptionValue("Eye Beam Targets") or (addsIn > 45 and not buff.metamorphosis and (artifact.anguishOfTheDeceiver or #enemies.yards5 > 1 or level == 100))) and getDistance(units.dyn8) < 8 and getFacing("player",units.dyn5,45) then
                             if cast.eyeBeam() then return end
                         end
                 -- Demon's Bite
@@ -499,11 +609,36 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                             if cast.felRush() then return end
                         end
                     end -- End SimC APL
-        ------------------------
-        --- Ask Mr Robot APL ---
-        ------------------------
+        ----------------------
+        --- AskMrRobot APL ---
+        ----------------------
                     if getOptionValue("APL Mode") == 2 then
-
+                -- Blur
+                        -- if ChargesRemaining(FelRush) = 0
+                        if charges.felRush == 0 then
+                            if cast.blur() then return end
+                        end
+                -- PostVengeful
+                        -- if IsSwitchOn(Vaulted) and not WasLastSpell(VengefulRetreat)
+                        if actionList_PostVengeful() then return end
+                -- Vengeful Retreat
+                        -- if (HasTalent(Prepared) or HasTalent(Momentum)) and 
+                        -- ((CooldownSecRemaining(FelRush) <= GlobalCooldownSec or (CanUse(EyeBeam) and CooldownSecRemaining(FelRush) < SpellChannelTimeSec(EyeBeam))) or 
+                        -- (HasTalent(Felblade) and CooldownSecRemaining(Felblade) <= GlobalCooldownSec or (CanUse(EyeBeam) and CooldownSecRemaining(Felblade) < SpellChannelTimeSec(EyeBeam))))
+                        if useMover() and (talent.prepared or talent.momentum) and ((cd.felRush <= gcd or (castable.eyeBeam and cd.felRush < eyeBeamCastRemain())) or (talent.felblade and cd.felblade <= gcd or (castable.eyeBeam and cd.felblade < eyeBeamCastRemain()))) then
+                            if cast.vengefulRetreat() then return end
+                        end
+                -- Cooldowns
+                        if actionList_Cooldowns() then return end
+                -- Fury of the Illidari
+                        -- TODO
+                -- MultiTarget
+                        -- if TargetsInRadius(BladeDanceHitAoE) > 1
+                        if (#enemies.yards8 > 1 and mode.rotation == 1) or mode.rotation == 2 then
+                            if actionList_MultiTarget() then return end
+                        end
+                -- Single Target
+                        if actionList_SingleTarget() then return end
                     end
 				end --End In Combat
 			end --End Rotation Logic

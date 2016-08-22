@@ -112,6 +112,7 @@ function cDemonHunter:new(spec)
         function self.getClassDynamicUnits()
             local dynamicTarget = dynamicTarget
 
+            self.units.dyn8 	= dynamicTarget(8, true)
 			self.units.dyn8AoE 	= dynamicTarget(8, false)
 			self.units.dyn10 	= dynamicTarget(10, true)
             self.units.dyn20 	= dynamicTarget(20, true)
@@ -125,6 +126,7 @@ function cDemonHunter:new(spec)
             local getEnemies = getEnemies
 
             self.enemies.yards5     = getEnemies("player", 5) -- Melee
+            self.enemies.yards8 	= getEnemies("player", 8) -- AoE
             self.enemies.yards20    = getEnemies("player", 20) -- Interrupts
             self.enemies.yards30 	= getEnemies("player", 30) -- Throw Glaive
         end
@@ -286,11 +288,11 @@ function cDemonHunter:new(spec)
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 98 and self.power > 40 and self.buff.metamorphosis and getDistance(thisUnit) < 5 then
+            if self.level >= 98 and self.power > 40 and self.cd.annihilation == 0 and self.buff.metamorphosis and getDistance(thisUnit) < 5 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,true,false,false,true,true)
+                    return castSpell(thisUnit,spellCast,true,false,false,true,false,false,true,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false,true,false,false,true)
+                    return castSpell(thisUnit,spellCast,true,false,false,true,false,false,true)
                 end
             elseif debug then
                 return false
@@ -303,7 +305,7 @@ function cDemonHunter:new(spec)
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 98 and self.power > 40 and not self.buff.metamorphosis and getDistance(self.units.dyn5) < 5 then
+            if self.level >= 98 and self.power > 40 and self.cd.bladeDance == 0 and not self.buff.metamorphosis and getDistance(self.units.dyn5) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -355,11 +357,11 @@ function cDemonHunter:new(spec)
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 98 and self.power > 40 and not self.buff.metamorphosis and getDistance(thisUnit) < 5 then
+            if self.level >= 98 and self.power > 40 and self.cd.chaosStrike == 0 and not self.buff.metamorphosis and getDistance(thisUnit) < 5 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    return castSpell(thisUnit,spellCast,true,false,false)
                 end
             elseif debug then
                 return false
@@ -374,9 +376,9 @@ function cDemonHunter:new(spec)
 
             if self.level >= 98 and isKnown(spellCast) and self.cd.consumeMagic == 0 and getDistance(thisUnit) < 20 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    return castSpell(thisUnit,spellCast,true,false,false)
                 end
             elseif debug then
                 return false
@@ -406,7 +408,7 @@ function cDemonHunter:new(spec)
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 98 and self.power > 40 and self.buff.metamorphosis and getDistance(self.units.dyn5) < 5 then
+            if self.level >= 98 and self.power > 40 and self.cd.deathSweep == 0 and self.buff.metamorphosis and getDistance(self.units.dyn5) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,true,false,false,true,true)
                 else
@@ -425,9 +427,9 @@ function cDemonHunter:new(spec)
 
             if not self.talent.demonBlades and self.level >= 98 and self.power <= 70 and getDistance(thisUnit) < 5 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    return castSpell(thisUnit,spellCast,true,false,false)
                 end
             elseif debug then
                 return false
@@ -440,7 +442,7 @@ function cDemonHunter:new(spec)
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 98 and isKnown(spellCast) and self.cd.eyeBeam == 0 and self.power > 50 and getDistance(self.units.dyn20) < 20 then
+            if self.level >= 98 and isKnown(spellCast) and self.cd.eyeBeam == 0 and self.power > 50 and getDistance(self.units.dyn8) < 8 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -511,15 +513,15 @@ function cDemonHunter:new(spec)
 
             if self.level >= 99 and isKnown(spellCast) and self.charges.throwGlaive > 0 and hasThreat(thisUnit) and getDistance(thisUnit) < 30 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    return castSpell(thisUnit,spellCast,true,false,false)
                 end
             elseif debug then
                 return false
             end
         end
-        -- Throw Glaive
+        -- Vengeful Retreat
 		function self.cast.vengefulRetreat(thisUnit,debug)
             local spellCast = self.spell.vengefulRetreat
             local thisUnit = thisUnit
@@ -543,7 +545,7 @@ function cDemonHunter:new(spec)
 
         function useAoE()
             local rotation = self.mode.rotation
-            if (rotation == 1 and #getEnemies("player",8) >= 3) or rotation == 2 then
+            if (rotation == 1 and #enemies.yards8 > 1) or rotation == 2 then
                 return true
             else
                 return false
@@ -581,6 +583,14 @@ function cDemonHunter:new(spec)
             else
                 return false
             end
+        end
+
+        function eyeBeamCastRemain()
+        	if isCastingSpell(self.spell.eyeBeam,"player") then
+        		return getCastTimeRemain("player")
+        	else
+        		return 0
+        	end
         end
 
     -----------------------------
