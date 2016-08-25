@@ -336,16 +336,16 @@ function cRetribution:new()
     --------------
 
         function self.getCastable()
-            self.cast.debug.greaterBlessingOfKings   = self.cast.greaterBlessingOfKings("player",true)
+            self.cast.debug.templarsVerdict = self.cast.templarsVerdict("target",true)
         end
 
-        function self.cast.greaterBlessingOfKings(thisUnit,debug)
-            local spellCast = self.spell.greaterBlessingOfKings
+        function self.cast.templarsVerdict(thisUnit,debug)
+            local spellCast = self.spell.templarsVerdict
             local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 19 and not isUnitCasting() then --and self.buff.remain.greaterBlessingOfKings < 600
+            if self.level >= 10 and self.holyPower >= 3 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else

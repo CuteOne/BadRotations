@@ -1,361 +1,267 @@
 --- Enhancement Class
 -- Inherit from: ../cCharacter.lua and ../cShaman.lua
-if select(2, UnitClass("player")) == "SHAMAN" then
+cEnhancement = {}
+cEnhancement.rotations = {}
 
-    cEnhancement = {}
-    cEnhancement.rotations = {}
-
-    -- Creates Enhancement Shaman
-    function cEnhancement:new()
+-- Creates Enhancement Shaman
+function cEnhancement:new()
+    if GetSpecializationInfo(GetSpecialization()) == 263 then
         local self = cShaman:new("Enhancement")
 
         local player = "player" -- if someone forgets ""
 
         -- Mandatory !
         self.rotations = cEnhancement.rotations
+        
+    -----------------
+    --- VARIABLES ---
+    -----------------
 
-        -----------------
-        --- VARIABLES ---
-        -----------------
-
-        self.enemies = {
-            yards10,
-            yards20,
-            yards30,
+        self.charges.frac               = {}        -- Fractional Charge
+        self.charges.max                = {}
+        self.spell.spec                 = {}
+        self.spell.spec.abilities       = {
+            boulderfist                 = 201897,
+            cleanseSpirit               = 51886,
+            crashLightning              = 187874,
+            feralLunge                  = 196884,
+            flametongue                 = 193796,
+            frostbrand                  = 196834,
+            healingSurge                = 188070,
+            lavaLash                    = 60103,
+            lightningBolt               = 187837,
+            rainfall                    = 215864,
+            rockbiter                   = 193786,
+            stormstrike                 = 17364,
+            windsong                    = 201898,
         }
-        self.enhancementSpell = {
-            -- Ability - Defensive
+        self.spell.spec.artifacts       = {
 
-            -- Ability - Offensive
-            ascendance              = 114051,
-            feralSpirit             = 51533,
-            fireNova                = 1535,
-            lavaLash                = 60103,
-            primalStrike            = 73899,
-            stormstrike             = 17364,
-            unleashElements         = 73680,
-            windstrike              = 115356,
-
-            -- Buff - Defensive
-            
-            -- Buff - Offensive
-            ascendanceBuff          = 114051,
-            unleashFlameBuff        = 73683,
-            unleashWindBuff         = 73681,
-
-            -- Buff - Stacks
-            lavaLashStacks          = 60103,
-            maelstromWeaponStacks   = 53817,
-            stormstrikeStacks       = 17364,
-            windstrikeStacks        = 115356,
-            unleashWindStacks       = 73681,
-
-            -- Debuff - Offensive
-            stormstrikeDebuff       = 17364,
-            windstrikeDebuff        = 115356,
-
-            -- Glyphs
-            fireNovaGlyph           = 55450,
-
-            -- Perks
-
-            -- Talent
-            unleashedFuryTalent     = 117012,
-
-            -- Totems
-            magmaTotem              = 8190,
         }
-        self.frac  = {}
-        -- Merge all spell tables into self.spell
-        self.spell = {}
-        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.shamanSpell, self.enhancementSpell)
+        self.spell.spec.buffs           = {
+            boulderfist                 = 218825,
+            crashLightning              = 187874,
+            flametongue                 = 194084,
+            frostbrand                  = 196834,
+            hotHand                     = 215785,
+        }
+        self.spell.spec.debuffs         = {
+            frostbrand                  = 147732,
+        }
+        self.spell.spec.glyphs          = {
 
-        ------------------
-        --- OOC UPDATE ---
-        ------------------
+        }
+        self.spell.spec.talents         = {
+            boulderfist                 = 201897,
+            feralLunge                  = 196884,
+            hotHand                     = 201900,
+            rainfall                    = 215864,
+            windsong                    = 201898,
+        }
+        -- Merge all spell ability tables into self.spell
+        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
+        
+    ------------------
+    --- OOC UPDATE ---
+    ------------------
 
         function self.updateOOC()
             -- Call classUpdateOOC()
             self.classUpdateOOC()
-
+            self.getArtifacts()
+            self.getArtifactRanks()
             self.getGlyphs()
-            self.getPerks()
             self.getTalents()
+            self.getPerks() --Removed in Legion
         end
 
-        --------------
-        --- UPDATE ---
-        --------------
+    --------------
+    --- UPDATE ---
+    --------------
 
         function self.update()
+
             -- Call Base and Class update
             self.classUpdate()
             -- Updates OOC things
             if not UnitAffectingCombat("player") then self.updateOOC() end
-
-            self.getBuffs()
-            self.getBuffsDuration()
-            self.getBuffsRemain()
-            self.getCharges()
             self.getDynamicUnits()
-            self.getDebuffs()
-            self.getDebuffsDuration()
-            self.getDebuffsRemain()
-            self.getDebuffsCount()
-            self.getCooldowns()
             self.getEnemies()
-            self.getFrac()
-            self.getRecharge()
-            self.getRotation()
-            self.getTotems()
-            self.getTotemsDuration()
-            self.getTotemsRemain()
-
-
-            -- Casting and GCD check
-            -- TODO: -> does not use off-GCD stuff like pots, dp etc
-            if castingUnit() then
-                return
-            end
-
+            self.getBuffs()
+            self.getCharge()
+            self.getCooldowns()
+            self.getDebuffs()
+            self.getToggleModes()
+            self.getCastable()
 
             -- Start selected rotation
             self:startRotation()
         end
 
-        -------------
-        --- BUFFS ---
-        -------------
-
-        function self.getBuffs()
-            local UnitBuffID = UnitBuffID
-
-            self.buff.ascendance        = UnitBuffID("player",self.spell.ascendanceBuff)~=nil or false
-            self.buff.maelstromWeapon   = UnitBuffID("player",self.spell.maelstromWeaponStacks)~=nil or false
-            self.buff.unleashFlame      = UnitBuffID("player",self.spell.unleashFlameBuff)~=nil or false
-            self.buff.unleashWind       = UnitBuffID("player",self.spell.unleashWindBuff)~=nil or false
-        end
-
-        function self.getBuffsDuration()
-            local getBuffDuration = getBuffDuration
-
-            self.buff.duration.ascendance       = getBuffDuration("player",self.spell.ascendanceBuff) or 0
-            self.buff.duration.maelstromWeapon  = getBuffDuration("player",self.spell.maelstromWeaponStacks) or 0
-            self.buff.duration.unleashFlame     = getBuffDuration("player",self.spell.unleashFlameBuff) or 0
-            self.buff.duration.unleashWind      = getBuffDuration("player",self.spell.unleashWindBuff) or 0
-        end
-
-        function self.getBuffsRemain()
-            local getBuffRemain = getBuffRemain
-
-            self.buff.remain.ascendance         = getBuffRemain("player",self.spell.ascendanceBuff) or 0
-            self.buff.remain.maelstromWeapon    = getBuffRemain("player",self.spell.maelstromWeaponStacks) or 0
-            self.buff.remain.unleashFlame       = getBuffRemain("player",self.spell.unleashFlameBuff) or 0
-            self.buff.remain.unleashWind        = getBuffRemain("player",self.spell.unleashWindBuff) or 0
-        end
-
-        function self.getCharges()
-            local getBuffStacks = getBuffStacks
-            local getCharges = getCharges
-
-            self.charges.lavaLash           = getCharges(self.spell.lavaLashStacks) or 0
-            self.charges.maelstromWeapon    = getBuffStacks("player",self.spell.maelstromWeaponStacks,"player") or 0
-            self.charges.stormstrike        = getCharges(self.spell.stormstrikeStacks) or 0
-            self.charges.windstrike         = getCharges(self.spell.windstrikeStacks) or 0
-            self.charges.unleashWind        = getBuffStacks("player",self.spell.unleashWindStacks,"player") or 0
-        end
-
-        function self.getRecharge()
-            local getRecharge = getRecharge
-
-            self.recharge.lavaLash      = getRecharge(self.spell.lavaLashStacks) or 0
-            self.recharge.stormstrike   = getRecharge(self.spell.stormstrikeStacks) or 0 
-            self.recharge.windstrike    = getRecharge(self.spell.windstrikeStacks) or 0
-        end
-
-        function self.getFrac()
-            local getCharges = getCharges
-            local getRecharge = getRecharge
-            local lavaLashRechargeTime = select(4,GetSpellCharges(self.spell.lavaLashStacks))
-            local stormstrikeRechargeTime = select(4,GetSpellCharges(self.spell.stormstrikeStacks))
-            local windstrikeRechargeTime = select(4,GetSpellCharges(self.spell.windstrikeStacks))
-
-            self.frac.lavaLash      = (getCharges(self.spell.lavaLashStacks)+((lavaLashRechargeTime-getRecharge(self.spell.lavaLashStacks))/lavaLashRechargeTime)) or 0
-            self.frac.stormstrike   = (getCharges(self.spell.stormstrikeStacks)+((stormstrikeRechargeTime-getRecharge(self.spell.stormstrikeStacks))/stormstrikeRechargeTime)) or 0
-            self.frac.windstrike    = (getCharges(self.spell.windstrikeStacks)+((windstrikeRechargeTime-getRecharge(self.spell.windstrikeStacks))/windstrikeRechargeTime)) or 0
-        end
-
-        ---------------
-        --- DEBUFFS ---
-        ---------------
-        function self.getDebuffs()
-            local UnitDebuffID = UnitDebuffID
-
-            self.debuff.stormstrike = UnitDebuffID(self.units.dyn5,self.spell.stormstrikeDebuff,"player")~=nil or false
-            self.debuff.windstrike = UnitDebuffID(self.units.dyn5,self.spell.windstrikeDebuff,"player")~=nil or false
-        end
-
-        function self.getDebuffsDuration()
-            local getDebuffDuration = getDebuffDuration
-
-            self.debuff.duration.stormstrike = getDebuffDuration(self.units.dyn5,self.spell.stormstrikeDebuff,"player") or 0
-            self.debuff.duration.windstrike = getDebuffDuration(self.units.dyn5,self.spell.windstrikeDebuff,"player") or 0
-        end
-
-        function self.getDebuffsRemain()
-            local getDebuffRemain = getDebuffRemain
-
-            self.debuff.remain.stormstrike = getDebuffRemain(self.units.dyn5,self.spell.stormstrikeDebuff,"player") or 0
-            self.debuff.remain.windstrike = getDebuffRemain(self.units.dyn5,self.spell.windstrikeDebuff,"player") or 0
-        end
-
-        function self.getDebuffsCount()
-            local UnitDebuffID = UnitDebuffID
-            local stormstrikeCount = 0
-            local windstrikeCount = 0
-
-            if stormstrikeCount>0 and not inCombat then stormstrikeCount = 0 end
-            if windstrikeCount>0 and not inCombat then windstrikeCount = 0 end
-
-            for i=1,#getEnemies("player",5) do
-                local thisUnit = getEnemies("player",5)[i]
-                if UnitDebuffID(thisUnit,self.spell.stormstrikeDebuff,"player") then
-                    stormstrikeCount = stormstrikeCount+1
-                end
-                if UnitDebuffID(thisUnit,self.spell.windstrikeDebuff,"player") then
-                    windstrikeCount = windstrikeCount+1
-                end
-            end
-            self.debuff.count.stormstrike   = stormstrikeCount or 0
-            self.debuff.count.windstrike    = windstrikeCount or 0
-        end
-
-        -----------------
-        --- COOLDOWNS ---
-        -----------------
-
-        function self.getCooldowns()
-            local getSpellCD = getSpellCD
-
-            self.cd.ascendance      = getSpellCD(self.spell.ascendance)
-            self.cd.feralSpirit     = getSpellCD(self.spell.feralSpirit)
-            self.cd.fireNova        = getSpellCD(self.spell.fireNova)
-            self.cd.lavaLash        = getSpellCD(self.spell.lavaLash)
-            self.cd.primalStrike    = getSpellCD(self.spell.primalStrike)
-            self.cd.stormstrike     = getSpellCD(self.spell.stormstrike)
-            self.cd.unleashElements = getSpellCD(self.spell.unleashElements)
-            self.cd.windstrike      = getSpellCD(self.spell.windstrike)
-        end
-
-        --------------
-        --- TOTEMS ---
-        --------------
-
-        function self.getTotems()
-            local fire, earth, water, air = 1, 2, 3, 4
-            local GetTotemInfo = GetTotemInfo
-            local GetSpellInfo = GetSpellInfo
-
-            self.totem.magmaTotem   = (select(2, GetTotemInfo(fire)) == GetSpellInfo(self.spell.magmaTotem))
-        end
-
-        function self.getTotemsDuration()
-
-            self.totem.duration.magmaTotem  = 60
-        end
-
-        function self.getTotemsRemain()
-            local fire, earth, water, air = 1, 2, 3, 4
-            local GetTotemTimeLeft = GetTotemTimeLeft
-
-            if (select(2, GetTotemInfo(fire)) == GetSpellInfo(self.spell.magmaTotem)) then
-                self.totem.remain.magmaTotem    = GetTotemTimeLeft(fire) or 0
-            else
-                self.totem.remain.magmaTotem    = 0
-            end
-        end
-
-        --------------
-        --- GLYPHS ---
-        --------------
-
-        function self.getGlyphs()
-            local hasGlyph = hasGlyph
-
-            self.glyph.fireNova = hasGlyph(self.spell.fireNovaGlyph)
-        end
-
-        ---------------
-        --- TALENTS ---
-        ---------------
-
-        function self.getTalents()
-            local getTalent = getTalent
-
-            self.talent.unleashedFury = getTalent(6,1)
-        end
-
-        -------------
-        --- PERKS ---
-        -------------
-
-        function self.getPerks()
-            local isKnown = isKnown
-
-            -- self.perk.empoweredEnvenom          = isKnown(self.spell.empoweredEnvenom)
-        end
-
-        ---------------------
-        --- DYNAMIC UNITS ---
-        ---------------------
+    ---------------------
+    --- DYNAMIC UNITS ---
+    ---------------------
 
         function self.getDynamicUnits()
             local dynamicTarget = dynamicTarget
 
-            -- -- Normal
-            self.units.dyn10     = dynamicTarget(10, true)
-
-            -- -- AoE
-            self.units.dyn10AoE  = dynamicTarget(10,false)
-            self.units.dyn15AoE  = dynamicTarget(15,false)
-            self.units.dyn20AoE  = dynamicTarget(20,false)
+            self.units.dyn10 = dynamicTarget(10, true)
         end
 
-        ---------------
-        --- ENEMIES ---
-        ---------------
+    ---------------
+    --- ENEMIES ---
+    ---------------
 
         function self.getEnemies()
             local getEnemies = getEnemies
 
-            self.enemies.yards10 = #getEnemies("player",10)
-            self.enemies.yards20 = #getEnemies("player",20)
-            self.enemies.yards30 = #getEnemies("player",30)
+            self.enemies.yards5  = getEnemies("player", 5)
+            self.enemies.yards10 = getEnemies("player", 10)
         end
 
-        ---------------
-        --- TOGGLES ---
-        ---------------
+    -----------------
+    --- ARTIFACTS ---
+    -----------------
+
+        function self.getArtifacts()
+            local isKnown = isKnown
+
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact[k] = isKnown(v) or false
+            end
+        end
+
+        function self.getArtifactRanks()
+
+        end
+        
+    -------------
+    --- BUFFS ---
+    -------------
+
+        function self.getBuffs()
+            local UnitBuffID = UnitBuffID
+
+            for k,v in pairs(self.spell.spec.buffs) do
+                self.buff[k]            = UnitBuffID("player",v) ~= nil
+                self.buff.duration[k]   = getBuffDuration("player",v) or 0
+                self.buff.remain[k]     = getBuffRemain("player",v) or 0
+            end
+        end
+
+    ---------------
+    --- CHARGES ---
+    ---------------
+
+        function self.getCharge()
+            local getCharges = getCharges
+            local getChargesFrac = getChargesFrac
+            local getBuffStacks = getBuffStacks
+            local getRecharge = getRecharge
+
+            for k,v in pairs(self.spell.spec.abilities) do
+                self.charges[k]     = getCharges(v)
+                self.charges.frac[k]= getChargesFrac(v)
+                self.charges.max[k] = getChargesFrac(v,true)
+                self.recharge[k]    = getRecharge(v)
+            end
+        end
+
+    -----------------
+    --- COOLDOWNS ---
+    -----------------
+
+        function self.getCooldowns()
+            local getSpellCD = getSpellCD
+
+            for k,v in pairs(self.spell.spec.abilities) do
+                if getSpellCD(v) ~= nil then
+                    self.cd[k] = getSpellCD(v)
+                end
+            end
+        end
+
+    ---------------
+    --- DEBUFFS ---
+    ---------------
+        function self.getDebuffs()
+            local UnitDebuffID = UnitDebuffID
+            local getDebuffDuration = getDebuffDuration
+            local getDebuffRemain = getDebuffRemain
+
+            for k,v in pairs(self.spell.spec.debuffs) do
+                if k ~= "bleeds" then
+                    self.debuff[k]          = UnitDebuffID("target",v,"player") ~= nil
+                    self.debuff.duration[k] = getDebuffDuration("target",v,"player") or 0
+                    self.debuff.remain[k]   = getDebuffRemain("target",v,"player") or 0
+                    self.debuff.refresh[k]  = (self.debuff.remain[k] < self.debuff.duration[k] * 0.3) or self.debuff.remain[k] == 0
+                end
+            end
+        end        
+
+    --------------
+    --- GLYPHS ---
+    --------------
+
+        function self.getGlyphs()
+            local hasGlyph = hasGlyph
+
+        end
+
+    ---------------
+    --- TALENTS ---
+    ---------------
+
+        function self.getTalents()
+            local getTalent = getTalent
+
+            for r = 1, 7 do --search each talent row
+                for c = 1, 3 do -- search each talent column
+                    local talentID = select(6,GetTalentInfo(r,c,GetActiveSpecGroup())) -- ID of Talent at current Row and Column
+                    for k,v in pairs(self.spell.spec.talents) do
+                        if v == talentID then
+                            self.talent[k] = getTalent(r,c)
+                        end
+                    end
+                end
+            end
+        end
+
+    -------------
+    --- PERKS ---
+    -------------
+
+        function self.getPerks()
+            local isKnown = isKnown
+
+        end
+
+    ---------------
+    --- TOGGLES ---
+    ---------------
 
         function self.getToggleModes()
-            local data   = bb.data
 
-            self.mode.rotation  = data["Rotation"]
-            self.mode.cooldown  = data["Cooldown"]
-            self.mode.defensive = data["Defensive"]
-            self.mode.interrupt = data["Interrupt"]
+            self.mode.rotation  = bb.data["Rotation"]
+            self.mode.cooldown  = bb.data["Cooldown"]
+            self.mode.defensive = bb.data["Defensive"]
+            self.mode.interrupt = bb.data["Interrupt"]
         end
-
-        ---------------
-        --- OPTIONS ---
-        ---------------
 
         -- Create the toggle defined within rotation files
         function self.createToggles()
             GarbageButtons()
-            self.rotations[bb.selectedProfile].toggles()
+            if self.rotations[bb.selectedProfile] ~= nil then
+                self.rotations[bb.selectedProfile].toggles()
+            else
+                return
+            end
         end
 
+    ---------------
+    --- OPTIONS ---
+    ---------------
+        
         -- Creates the option/profile window
         function self.createOptions()
             bb.ui.window.profile = bb.ui:createProfileWindow(self.profile)
@@ -380,7 +286,12 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             }
 
             -- Get profile defined options
-            local profileTable = self.rotations[bb.selectedProfile].options()
+            local profileTable = profileTable
+            if self.rotations[bb.selectedProfile] ~= nil then
+                profileTable = self.rotations[bb.selectedProfile].options()
+            else
+                return
+            end
 
             -- Only add profile pages if they are found
             if profileTable then
@@ -392,119 +303,269 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             bb:checkProfileWindowStatus()
         end
 
-        --------------
-        --- SPELLS ---
-        --------------
+    --------------
+    --- SPELLS ---
+    --------------
 
-        -- Ascendance
-        function self.castAscendance()
-            if self.level>=87 and self.cd.ascendance==0 then
-                if castSpell("player",self.spell.ascendance,false,false,false) then return end
+        function self.getCastable()
+
+            self.cast.debug.boulderfist     = self.cast.boulderfist("target",true)
+            self.cast.debug.cleanseSpirit   = self.cast.cleanseSpirit("target",true)
+            self.cast.debug.crashLightning  = self.cast.crashLightning("target",true)
+            self.cast.debug.feralLunge      = self.cast.feralLunge("target",true)
+            self.cast.debug.flametongue     = self.cast.flametongue("target",true)
+            self.cast.debug.frostbrand      = self.cast.frostbrand("target",true)
+            self.cast.debug.healingSurge    = self.cast.healingSurge("player",true)
+            self.cast.debug.lavaLash        = self.cast.lavaLash("target",true)
+            self.cast.debug.lightningBolt   = self.cast.lightningBolt("target",true)
+            self.cast.debug.rainfall        = self.cast.rainfall("player",true)
+            self.cast.debug.rockbiter       = self.cast.rockbiter("target",true)
+            self.cast.debug.stormstrike     = self.cast.stormstrike("target",true)
+        end
+
+        -- Boulderfist
+        function self.cast.boulderfist(thisUnit,debug)
+            local spellCast = self.spell.boulderfist
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn10 end
+            if debug == nil then debug = false end
+
+            if self.talent.boulderfist and self.charges.boulderfist > 0 and getDistance(thisUnit) < 10 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
-        -- Feral Spirit
-        function self.castFeralSpirit()
-            if self.level>=60 and self.cd.feralSpirit==0 then
-                if castSpell("player",self.spell.feralSpirit,false,false,false) then return end
+        -- Crash Lightning
+        function self.cast.crashLightning(thisUnit,debug)
+            local spellCast = self.spell.crashLightning
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 28 and self.cd.crashLightning == 0 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
-        -- Fire Nova
-        function self.castFireNova()
-            local fireNovaTarget = fireNovaTarget
-            if self.glyph.fireNova then fireNovaTarget = self.units.dyn20AoE else fireNovaTarget = self.units.dyn15AoE end
-            if self.level>=44 and self.cd.fireNova==0 and self.powerPercent>13.7 and getDebuffRemain(fireNovaTarget,self.spell.flameShock,"player")>0 then
-                if castSpell(fireNovaTarget,self.spell.fireNova,false,false,false) then return end
+        -- Cleanse Spirit
+        function self.cast.cleanseSpirit(thisUnit,debug)
+            local spellCast = self.spell.cleanseSpirit
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40AoE end
+            if debug == nil then debug = false end
+
+            if self.level >= 18 and self.powerPercentMana > 13 and self.cd.cleanseSpirit == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Feral Lunge
+        function self.cast.feralLunge(thisUnit,debug)
+            local spellCast = self.spell.feralLunge
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "target" end
+            if debug == nil then debug = false end
+
+            if self.talent.feralLunge and self.cd.feralLunge == 0 and (hasThreat(thisUnit) or self.instance == "none") and getDistance(thisUnit) >= 8 and getDistance(thisUnit) < 25 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Flametongue
+        function self.cast.flametongue(thisUnit,debug)
+            local spellCast = self.spell.flametongue
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn10 end
+            if debug == nil then debug = false end
+
+            if self.level >= 12 and self.cd.flametongue == 0 and getDistance(thisUnit) < 10 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Frostbrand
+        function self.cast.frostbrand(thisUnit,debug)
+            local spellCast = self.spell.frostbrand
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn10 end
+            if debug == nil then debug = false end
+
+            if self.level >= 19 and self.power > 20 and getDistance(thisUnit) < 10 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Healing Surge
+        function self.cast.healingSurge(thisUnit,debug)
+            local spellCast = self.spell.healingSurge
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 10 and self.powerPercentMana > 22 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         -- Lava Lash
-        function self.castLavaLash()
-            if self.level>=10 and self.cd.lavaLash==0 and getDistance(self.units.dyn5)<5 then
-                if castSpell(self.units.dyn5,self.spell.lavaLash,false,false,false) then return end
-            end 
+        function self.cast.lavaLash(thisUnit,debug)
+            local spellCast = self.spell.lavaLash
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 10 and self.power > 30 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
         end
-        -- Magma Totem
-        function self.castMagmaTotem()
-            if self.level>=36 and ((not self.totem.magmaTotem) or (self.totem.magmaTotem and (self.talent.liquidMagma and self.cd.liquidMagma<35) and ObjectExists(self.units.dyn10AoE) 
-                and getTotemDistance(self.units.dyn10AoE)>=8 and getDistance(self.units.dyn10AoE)<8)) 
-                and self.powerPercent>21.1 and not isMoving("player") and ObjectExists(self.units.dyn10AoE) 
-            then
-                if castSpell("player",self.spell.magmaTotem,false,false,false) then return end
+        -- Lightning Bolt
+        function self.cast.lightningBolt(thisUnit,debug)
+            local spellCast = self.spell.lightningBolt
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn40 end
+            if debug == nil then debug = false end
+
+            if self.level >= 10 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Rainfall
+        function self.cast.rainfall(thisUnit,debug)
+            local spellCast = self.spell.rainfall
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.rainfall and self.cd.rainfall == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castGround(thisUnit,spellCast,40)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Rockbiter
+        function self.cast.rockbiter(thisUnit,debug)
+            local spellCast = self.spell.rockbiter
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn10 end
+            if debug == nil then debug = false end
+
+            if self.level >= 10 and getDistance(thisUnit) < 10 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
         -- Stormstrike
-        function self.castStormstrike(thisUnit)
-            if self.level>=26 and self.cd.stormstrike==0 and not self.buff.ascendance and getDistance(thisUnit)<5 then
-                if castSpell(thisUnit,self.spell.stormstrike,false,false,false) then return end
+        function self.cast.stormstrike(thisUnit,debug)
+            local spellCast = self.spell.stormstrike
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 26 and self.cd.stormstrike == 0 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
-            if self.level<26 and self.cd.primalStrike==0 and getDistance(thisUnit)<5 then
-               if castSpell(thisUnit,self.spell.primalStrike,false,false,false) then return end
-            end 
         end
-        -- Unleash Elements
-        function self.castUnleashElements()
-            if self.level>=81 and self.cd.unleashElements==0 and self.powerPercent>7.5 then
-                if castSpell("player",self.spell.unleashElements,false,false,false) then return end
-            end
-        end
-        -- Windstrike
-        function self.castWindstrike(thisUnit)
-            if self.buff.ascendance and self.cd.windstrike==0 and getDistance(thisUnit)<5 then
-                if castSpell(thisUnit,self.spell.stormstrike,false,false,false) then return end
+        -- Windsong
+        function self.cast.windsong(thisUnit,debug)
+            local spellCast = self.spell.windsong
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn10 end
+            if debug == nil then debug = false end
+
+            if self.talent.windsong and self.cd.windsong == 0 and getDistance(thisUnit) < 10 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
             end
         end
 
-        ------------------------
-        --- CUSTOM FUNCTIONS ---
-        ------------------------
-        function useCDs(spellid)
-            if (bb.data['Cooldown'] == 1 and isBoss()) or bb.data['Cooldown'] == 2 then
-                return true
-            else
-                return false
-            end
+    ------------------------
+    --- CUSTOM FUNCTIONS ---
+    ------------------------
+        --Target HP
+        function thp(unit)
+            return getHP(unit)
         end
-        function useAuto()
-            if bb.data['Rotation'] == 1 then
-                return true
-            else
-                return false
-            end
-        end
-        function useAoE()
-            if bb.data['Rotation'] == 2 then
-               return true
-            else
-                return false
-            end
-        end
-        function useSingle()
-            if bb.data['Rotation'] == 3 then
-                return true
-            else
-                return false
-            end
-        end
-        function useInterrupts()
-            if bb.data['Interrupt'] == 1 then
-               return true
-            else
-                return false
-            end
-        end
-        function useDefensive()
-            if bb.data['Defensive'] == 1 then
-                return true
-            else
-                return false
-            end
-        end
-        
-        -----------------------------
-        --- CALL CREATE FUNCTIONS ---
-        -----------------------------
 
-        self.createOptions()
+        --Target Time to Die
+        function ttd(unit)
+            return getTimeToDie(unit)
+        end
 
+        --Target Distance
+        function tarDist(unit)
+            return getDistance(unit)
+        end
+
+    -----------------------------
+    --- CALL CREATE FUNCTIONS ---
+    -----------------------------
 
         -- Return
         return self

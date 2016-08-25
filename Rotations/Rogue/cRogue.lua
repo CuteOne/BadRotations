@@ -130,7 +130,9 @@ if select(2, UnitClass("player")) == "ROGUE" then
         function self.getClassArtifacts()
             local isKnown = isKnown
 
-            -- self.artifact.artificialStamina = isKnown(self.spell.artificialStamina)
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact[k] = isKnown(v) or false
+            end
         end
 
         function self.getClassArtifactRanks()

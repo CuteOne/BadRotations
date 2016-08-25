@@ -468,9 +468,9 @@ if select(2, UnitClass("player")) == "MONK" then
 
             if self.level >= 14 and not self.inCombat and UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and getDistance(thisUnit) < 40 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,true)
                 end
             elseif debug then
                 return false

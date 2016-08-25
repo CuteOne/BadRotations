@@ -485,9 +485,9 @@ if select(2, UnitClass("player")) == "DRUID" then
 
             if self.level >= 56 and self.cd.rebirth == 0 and self.inCombat and isDeadPlayer and getDistance(thisUnit) < 40 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,true)
                 end
             elseif debug then
                 return false
@@ -503,9 +503,9 @@ if select(2, UnitClass("player")) == "DRUID" then
 
             if self.level >= 14 and self.powerPercentMana > 4 and not self.inCombat and isDeadPlayer and getDistance(thisUnit) < 40 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
-                    return castSpell(thisUnit,spellCast,false,false,false)
+                    return castSpell(thisUnit,spellCast,false,false,false,false,true)
                 end
             elseif debug then
                 return false

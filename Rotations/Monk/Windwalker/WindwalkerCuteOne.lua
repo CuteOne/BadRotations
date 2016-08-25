@@ -313,7 +313,7 @@ if select(2, UnitClass("player")) == "MONK" then
                         if cast.dampenHarm() then return end
                     end
             -- Effuse
-                    if isChecked("Effuse") and ((not inCombat and php <= getValue("Effuse")) or (inCombat and php <= getValue("Effuse") / 2)) then
+                    if isChecked("Effuse") and ((not inCombat and php <= getOptionValue("Effuse")) or (inCombat and php <= getOptionValue("Effuse") / 2)) then
                         if cast.effuse() then return end
                     end
             -- Healing Elixir

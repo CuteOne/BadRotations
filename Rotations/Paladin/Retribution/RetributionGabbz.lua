@@ -222,6 +222,8 @@ if select(3, UnitClass("player")) == 2 then -- Change specID to ID of spec. IE: 
 	----------------------------------
 			-- Judgment
 					if cast.judgment() then return end
+			-- Templar's Verdict
+					if cast.templarsVerdict() then return end
 			-- Crusader Strike
 					if cast.crusaderStrike() then return end
 			-- AoE
