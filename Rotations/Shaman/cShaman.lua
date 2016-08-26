@@ -26,23 +26,27 @@ function cShaman:new(spec)
         self.spell.class                	= {}        -- Abilities Available To All Specs in Class
         self.spell.class.abilities      	= {
             ancestralSpirit                 = 2008,
+            astralShift                     = 108271,
             ghostWolf                       = 2645,
+            hex                             = 51514,
+            lightningSurgeTotem             = 192058,
             windShear                       = 57994,
         }
         self.spell.class.artifacts      	= {        -- Artifact Traits Available To All Specs in Class
 
         }
         self.spell.class.buffs          	= {        -- Buffs Available To All Specs in Class
+            astralShift                     = 108271,
             ghostWolf                       = 2645,
         }
         self.spell.class.debuffs        	= {        -- Debuffs Available To All Specs in Class
-
+            hex                             = 51514,
         }
         self.spell.class.glyphs         	= {        -- Glyphs Available To All Specs in Class
 
         }
         self.spell.class.talents        	= {        -- Talents Available To All Specs in Class
-
+            lightningSurgeTotem             = 192058,
         }
 
     ------------------
@@ -233,9 +237,12 @@ function cShaman:new(spec)
 	--------------
 
 		function self.getClassCastable()
-			self.cast.debug.ancestralSpirit = self.cast.ancestralSpirit("target",true)
-            self.cast.debug.ghostWolf       = self.cast.ghostWolf("player",true)
-            self.cast.debug.windShear       = self.cast.windShear("target",true)
+			self.cast.debug.ancestralSpirit     = self.cast.ancestralSpirit("target",true)
+            self.cast.debug.astralShift         = self.cast.astralShift("player",true)
+            self.cast.debug.ghostWolf           = self.cast.ghostWolf("player",true)
+            self.cast.debug.hex                 = self.cast.hex("target",true)
+            self.cast.debug.lightningSurgeTotem = self.cast.lightningSurgeTotem("player",true)
+            self.cast.debug.windShear           = self.cast.windShear("target",true)
 		end
 
 		-- Ancestral Spirit
@@ -255,6 +262,23 @@ function cShaman:new(spec)
                 return false
             end
         end
+        -- Astral Shift
+        function self.cast.astralShift(thisUnit,debug)
+            local spellCast = self.spell.astralShift
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 44 and self.cd.astralShift == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
         -- Ghost Wolf
         function self.cast.ghostWolf(thisUnit,debug)
             local spellCast = self.spell.ghostWolf
@@ -267,6 +291,41 @@ function cShaman:new(spec)
                     return castSpell(thisUnit,spellCast,false,false,false,true,false,false,false,true)
                 else
                     return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Hex
+        function self.cast.hex(thisUnit,debug)
+            local spellCast = self.spell.hex
+            local thisUnit = thisUnit
+            local unitType = UnitCreatureType(thisUnit) or "None"
+            if thisUnit == nil then thisUnit = "target" end
+            if debug == nil then debug = false end
+
+            if self.level >= 42 and not self.debuff.hex and (unitType == "Humanoid" or unitType == "Beast") and getDistance(thisUnit) >= 10 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,true,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Lightning Surge Totem
+        function self.cast.lightningSurgeTotem(thisUnit,debug)
+            local spellCast = self.spell.lightningSurgeTotem
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.lightningSurgeTotem and self.cd.lightningSurgeTotem == 0 and self.powerPercentMana > 10 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,true,false,false,false,true)
+                else
+                    return castGround(thisUnit,spellCast,35)
                 end
             elseif debug then
                 return false

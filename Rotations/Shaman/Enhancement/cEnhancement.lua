@@ -25,6 +25,7 @@ function cEnhancement:new()
             cleanseSpirit               = 51886,
             crashLightning              = 187874,
             feralLunge                  = 196884,
+            feralSpirit                 = 51533,
             flametongue                 = 193796,
             frostbrand                  = 196834,
             healingSurge                = 188070,
@@ -43,7 +44,9 @@ function cEnhancement:new()
             crashLightning              = 187874,
             flametongue                 = 194084,
             frostbrand                  = 196834,
+            hailstorm                   = 210853,
             hotHand                     = 215785,
+            stormbringer                = 201846,
         }
         self.spell.spec.debuffs         = {
             frostbrand                  = 147732,
@@ -54,6 +57,7 @@ function cEnhancement:new()
         self.spell.spec.talents         = {
             boulderfist                 = 201897,
             feralLunge                  = 196884,
+
             hotHand                     = 201900,
             rainfall                    = 215864,
             windsong                    = 201898,
@@ -313,6 +317,7 @@ function cEnhancement:new()
             self.cast.debug.cleanseSpirit   = self.cast.cleanseSpirit("target",true)
             self.cast.debug.crashLightning  = self.cast.crashLightning("target",true)
             self.cast.debug.feralLunge      = self.cast.feralLunge("target",true)
+            self.cast.debug.feralSpirit     = self.cast.feralSpirit("player",true)
             self.cast.debug.flametongue     = self.cast.flametongue("target",true)
             self.cast.debug.frostbrand      = self.cast.frostbrand("target",true)
             self.cast.debug.healingSurge    = self.cast.healingSurge("player",true)
@@ -330,7 +335,7 @@ function cEnhancement:new()
             if thisUnit == nil then thisUnit = self.units.dyn10 end
             if debug == nil then debug = false end
 
-            if self.talent.boulderfist and self.charges.boulderfist > 0 and getDistance(thisUnit) < 10 then
+            if self.talent.boulderfist and self.cd.boulderfist == 0 and self.charges.boulderfist > 0 and getDistance(thisUnit) < 10 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -382,6 +387,23 @@ function cEnhancement:new()
             if debug == nil then debug = false end
 
             if self.talent.feralLunge and self.cd.feralLunge == 0 and (hasThreat(thisUnit) or self.instance == "none") and getDistance(thisUnit) >= 8 and getDistance(thisUnit) < 25 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Feral Spirit
+        function self.cast.feralSpirit(thisUnit,debug)
+            local spellCast = self.spell.feralSpirit
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 48 and self.cd.feralSpirit == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -500,7 +522,7 @@ function cEnhancement:new()
             if thisUnit == nil then thisUnit = self.units.dyn10 end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and getDistance(thisUnit) < 10 then
+            if self.level >= 10 and not self.talent.boulderfist and getDistance(thisUnit) < 10 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -517,7 +539,7 @@ function cEnhancement:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 26 and self.cd.stormstrike == 0 and getDistance(thisUnit) < 5 then
+            if self.level >= 26 and (self.power > 40 or (self.buff.stormbringer and self.power > 20)) and self.cd.stormstrike == 0 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
