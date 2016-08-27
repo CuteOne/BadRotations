@@ -21,16 +21,34 @@ function cHavoc:new()
         self.charges.max                = {}
         self.spell.spec                 = {}
         self.spell.spec.abilities       = {
+
+            annihilation                = 201427,
+            bladeDance                  = 188499,
+            blur                        = 198589,
             chaosBlades                 = 211048,
+            chaosNova                   = 179057,
+            chaosStrike                 = 162794,
+            darkness                    = 196718,
+            deathSweep                  = 210152,  
+            demonsBite                  = 162243,
+            eyeBeam                     = 198013,
             felBarrage                  = 211053,
+            felblade                    = 213241,
+            felEruption                 = 211881,
+            felRush                     = 195072,
+            furyOfTheIllidari           = 201628,
+            metamorphosis               = 191427,
             netherwalk                  = 196555,
             nemesis                     = 206491,
+            throwGlaive                 = 185123,
+            vengefulRetreat             = 198793,
         }
         self.spell.spec.artifacts       = {
             anguishOfTheDeceiver        = 201473,
         }
         self.spell.spec.buffs           = {
             chaosBlades                 = 211797,
+            metamorphosis               = 162264,
             momentum                    = 206476,
             prepared                    = 203650,
         }
@@ -46,9 +64,9 @@ function cHavoc:new()
             chaosBlades                 = 211048,
             chaosCleave                 = 206475,
             demonBlades                 = 203555,
-            demonReborn                 = 193897,
             demonic                     = 213410,
             demonicAppetite             = 206478,
+            demonReborn                 = 193897,
             desperateInstincts          = 205411,
             felBarrage                  = 211053,
             felMastery                  = 192939,
@@ -310,26 +328,244 @@ function cHavoc:new()
 
         function self.getCastable()
 
-            -- self.cast.debug.ashamanesFrenzy             = self.cast.ashamanesFrenzy("target",true)
+            self.cast.debug.annihilation        = self.cast.annihilation("target",true)
+            self.cast.debug.bladeDance          = self.cast.bladeDance("player",true)
+            self.cast.debug.blur                = self.cast.blur("player",true)
+            self.cast.debug.chaosNova           = self.cast.chaosNova("player",true)
+            self.cast.debug.chaosStrike         = self.cast.chaosStrike("target",true)
+            self.cast.debug.darkness            = self.cast.darkness("player",true)
+            self.cast.debug.deathSweep          = self.cast.deathSweep("player",true)
+            self.cast.debug.demonsBite          = self.cast.demonsBite("target",true)
+            self.cast.debug.eyeBeam             = self.cast.eyeBeam("player",true)
+            self.cast.debug.felRush             = self.cast.felRush("player",true)
+   --       self.cast.debug.furyOfTheIllidari   = self.cast.furyOfTheIllidari
+            self.cast.debug.metamorphosis       = self.cast.metamorphosis("player",true)
+            self.cast.debug.throwGlaive         = self.cast.throwGlaive("target",true)
+            self.cast.debug.vengefulRetreat     = self.cast.vengefulRetreat("player",true)
         end
 
-        -- Ashamane's Frenzy
-        -- function self.cast.ashamanesFrenzy(thisUnit,debug)
-        --     local spellCast = self.spell.ashamanesFrenzy
-        --     local thisUnit = thisUnit
-        --     if thisUnit == nil then thisUnit = self.units.dyn5 end
-        --     if debug == nil then debug = false end
+        -- Annihilation
+        function self.cast.annihilation(thisUnit,debug)
+            local spellCast = self.spell.annihilation
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
 
-        --     if self.artifact.ashamanesFrenzy and self.buff.catForm and self.cd.ashamanesFrenzy == 0 and getDistance(thisUnit) < 5 then
-        --         if debug then
-        --             return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
-        --         else
-        --             if castSpell(thisUnit,spellCast,false,false,false) then return end
-        --         end
-        --     elseif debug then
-        --         return false
-        --     end
-        -- end
+            if self.level >= 98 and self.power > 40 and self.cd.annihilation == 0 and self.buff.metamorphosis and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,true,false,false,true,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false,false,true,false,false,true)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Blade Dance
+        function self.cast.bladeDance(thisUnit,debug)
+            local spellCast = self.spell.bladeDance
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 98 and self.power > 40 and self.cd.bladeDance == 0 and not self.buff.metamorphosis and getDistance(self.units.dyn5) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Blur
+        function self.cast.blur(thisUnit,debug)
+            local spellCast = self.spell.blur
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+            if self.buff.metamorphosis then spellCast = self.spell.deathSweep end
+
+            if self.level >= 100 and isKnown(spellCast) and self.cd.blur == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Chaos Nova
+        function self.cast.chaosNova(thisUnit,debug)
+            local spellCast = self.spell.chaosNova
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 100 and isKnown(spellCast) and self.power > 30 and self.cd.chaosNova == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Chaos Strike
+        function self.cast.chaosStrike(thisUnit,debug)
+            local spellCast = self.spell.chaosStrike
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if self.level >= 98 and self.power > 40 and self.cd.chaosStrike == 0 and not self.buff.metamorphosis and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Darkness
+        function self.cast.darkness(thisUnit,debug)
+            local spellCast = self.spell.darkness
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 100 and isKnown(spellCast) and self.cd.darkness == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Death Sweep
+        function self.cast.deathSweep(thisUnit,debug)
+            local spellCast = self.spell.deathSweep
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 98 and self.power > 40 and self.cd.deathSweep == 0 and self.buff.metamorphosis and getDistance(self.units.dyn5) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,true,false,false,true,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false,true,false,false,true)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Demon's Bite
+        function self.cast.demonsBite(thisUnit,debug)
+            local spellCast = self.spell.demonsBite
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+
+            if not self.talent.demonBlades and self.level >= 98 and self.power <= 70 and getDistance(thisUnit) < 5 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Eye Beam
+        function self.cast.eyeBeam(thisUnit,debug)
+            local spellCast = self.spell.eyeBeam
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 98 and isKnown(spellCast) and self.cd.eyeBeam == 0 and self.power > 50 and getDistance(self.units.dyn8) < 8 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Fel Rush
+        function self.cast.felRush(thisUnit,debug)
+            local spellCast = self.spell.felRush
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 98 and self.charges.felRush > 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Metamorphosis
+        function self.cast.metamorphosis(thisUnit,debug)
+            local spellCast = self.spell.metamorphosis
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn8AoE end
+            if debug == nil then debug = false end
+
+            if self.level >= 99 and self.cd.metamorphosis == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castGround(thisUnit,spellCast,8)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Throw Glaive
+        function self.cast.throwGlaive(thisUnit,debug)
+            local spellCast = self.spell.throwGlaive
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn30 end
+            if debug == nil then debug = false end
+
+            if self.level >= 99 and isKnown(spellCast) and self.charges.throwGlaive > 0 and hasThreat(thisUnit) and getDistance(thisUnit) < 30 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Vengeful Retreat
+        function self.cast.vengefulRetreat(thisUnit,debug)
+            local spellCast = self.spell.vengefulRetreat
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 100 and isKnown(spellCast) and self.cd.vengefulRetreat == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
 
     ------------------------
     --- CUSTOM FUNCTIONS ---

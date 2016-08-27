@@ -1,56 +1,47 @@
 --- Vengeance Class
 -- Inherit from: ../cCharacter.lua and ../cDemonHunter.lua
-if select(2, UnitClass("player")) == "DEMONHUNTER" then
-	cVengeance = {}
-    cVengeance.rotations = {}
+cVengeance = {}
+cVengeance.rotations = {}
 
-	-- Creates Vengeance DemonHunter
-	function cVengeance:new()
-		local self = cDemonHunter:new("Vengeance")
+-- Creates Vengeance DemonHunter
+function cVengeance:new()
+    if GetSpecializationInfo(GetSpecialization()) == 581 then
+        local self = cDemonHunter:new("Vengeance")
 
-		local player = "player" -- if someone forgets ""
+        local player = "player" -- if someone forgets ""
 
         -- Mandatory !
         self.rotations = cVengeance.rotations
-		
-		-----------------
-        --- VARIABLES ---
-        -----------------
-        self.charges.frac       = {}        -- Fractional Charges
-        self.trinket            = {}        -- Trinket Procs
-        self.enemies            = {
-            yards5,
-            yards8,
-            yards13,
-            yards20,
-            yards40,
+        
+    -----------------
+    --- VARIABLES ---
+    -----------------
+
+        self.charges.frac               = {}        -- Fractional Charge
+        self.charges.max                = {}
+        self.spell.spec                 = {}
+        self.spell.spec.abilities       = {
+            soulCarver                  = 214743,
         }
-		self.vengeanceArtifacts     = {
-           
+        self.spell.spec.artifacts       = {
+
         }
-        self.vengeanceBuffs         = {
-            
+        self.spell.spec.buffs           = {
+
         }
-        self.vengeanceDebuffs       = {
-            
+        self.spell.spec.debuffs         = {
+
         }
-        self.vengeanceSpecials      = {
-            
+        self.spell.spec.glyphs          = {
+
         }
-        self.vengeanceTalents       = {
-            
+        self.spell.spec.talents         = {
+
         }
-        -- Merge all spell tables into self.spell
-        self.vengeanceSpells = {}
-        self.vengeanceSpells = mergeTables(self.vengeanceSpells,self.vengeanceArtifacts)
-        self.vengeanceSpells = mergeTables(self.vengeanceSpells,self.vengeanceBuffs)
-        self.vengeanceSpells = mergeTables(self.vengeanceSpells,self.vengeanceDebuffs)
-        self.vengeanceSpells = mergeTables(self.vengeanceSpells,self.vengeanceSpecials)
-        self.vengeanceSpells = mergeTables(self.vengeanceSpells,self.vengeanceTalents)
-        self.spell = {}
-        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.druidSpell, self.vengeanceSpells)
-		
-	------------------
+        -- Merge all spell ability tables into self.spell
+        self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
+        
+    ------------------
     --- OOC UPDATE ---
     ------------------
 
@@ -61,7 +52,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
             self.getArtifactRanks()
             self.getGlyphs()
             self.getTalents()
-            -- self.getPerks() --Removed in Legion
+            self.getPerks() --Removed in Legion
         end
 
     --------------
@@ -74,29 +65,14 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
             self.classUpdate()
             -- Updates OOC things
             if not UnitAffectingCombat("player") then self.updateOOC() end
-            -- self.vengeance_bleed_table()
+            self.getDynamicUnits()
+            self.getEnemies()
             self.getBuffs()
-            self.getBuffsDuration()
-            self.getBuffsRemain()
             self.getCharge()
             self.getCooldowns()
-            self.getDynamicUnits()
             self.getDebuffs()
-            self.getDebuffsDuration()
-            self.getDebuffsRemain()
-            self.getTrinketProc()
-            self.hasTrinketProc()
-            self.getEnemies()
-            self.getRecharges()
             self.getToggleModes()
             self.getCastable()
-
-
-            -- Casting and GCD check
-            -- TODO: -> does not use off-GCD stuff like pots, dp etc
-            if castingUnit() then
-                return
-            end
 
             -- Start selected rotation
             self:startRotation()
@@ -109,132 +85,6 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
         function self.getDynamicUnits()
             local dynamicTarget = dynamicTarget
 
-            -- Normal
-            self.units.dyn8 = dynamicTarget(8, true) -- Swipe
-            self.units.dyn13 = dynamicTarget(13, true) -- Skull Bash
-
-            -- AoE
-            self.units.dyn8AoE = dynamicTarget(8, false) -- Thrash
-        end
-
-    -----------------
-    --- ARTIFACTS ---
-    -----------------
-
-        function self.getArtifacts()
-            local isKnown = isKnown
-
-            --self.artifact.ashamanesBite     = isKnown(self.spell.ashamanesBite)
-        end
-
-        function self.getArtifactRanks()
-
-        end
-       
-   	-------------
-    --- BUFFS ---
-    -------------
-
-        function self.getBuffs()
-        	local UnitBuffID = UnitBuffID
-
-        	-- self.buff.berserk                      = UnitBuffID("player",self.spell.berserkBuff)~=nil or false
-        end
-
-        function self.getBuffsDuration()
-        	local getBuffDuration = getBuffDuration
-
-        	-- self.buff.duration.berserk                     = getBuffDuration("player",self.spell.berserkBuff) or 0
-        end
-
-        function self.getBuffsRemain()
-        	local getBuffRemain = getBuffRemain
-
-        	-- self.buff.remain.berserk                    = getBuffRemain("player",self.spell.berserkBuff) or 0
-        end
-
-        function self.getTrinketProc()
-            local UnitBuffID = UnitBuffID
-
-        end
-
-        function self.hasTrinketProc()
-            -- for i = 1, #self.trinket do
-            --     if self.trinket[i]==true then return true else return false end
-            -- end
-        end
-
-    ---------------
-    --- DEBUFFS ---
-    ---------------
-        function self.getDebuffs()
-        	local UnitDebuffID = UnitDebuffID
-
-        	-- self.debuff.ashamanesFrenzy   = UnitDebuffID(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player")~=nil or false
-		end
-
-		function self.getDebuffsDuration()
-			local getDebuffDuration = getDebuffDuration
-
-			-- self.debuff.duration.ashamanesFrenzy    = getDebuffDuration(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player") or 0
-		end
-
-		function self.getDebuffsRemain()
-			local getDebuffRemain = getDebuffRemain
-
-			-- self.debuff.remain.ashamanesFrenzy  = getDebuffRemain(self.units.dyn5,self.spell.ashamanesFrenzyDebuff,"player") or 0
-		end
-
-    ---------------
-    --- CHARGES ---
-    ---------------
-
-		function self.getCharge()
-			local getCharges = getCharges
-            local getChargesFrac = getChargesFrac
-			local getBuffStacks = getBuffStacks
-
-			-- self.charges.vengeancetalons 	   = getBuffStacks("player",self.spell.vengeancetalonsBuff,"player")
-		end
-        
-    -----------------
-    --- COOLDOWNS ---
-    -----------------
-
-        function self.getCooldowns()
-            local getSpellCD = getSpellCD
-
-            -- self.cd.ashamanesFrenzy                 = getSpellCD(self.spell.ashamanesFrenzy)
-        end
-
-    --------------
-    --- GLYPHS ---
-    --------------
-
-        function self.getGlyphs()
-            local hasGlyph = hasGlyph
-
-            -- self.glyph.catForm   		= hasGlyph(self.spell.catFormGlyph))
-        end
-
-    ---------------
-    --- TALENTS ---
-    ---------------
-
-        function self.getTalents()
-            local getTalent = getTalent
-
-            -- self.talent.predator                    = getTalent(1,1)
-        end
-
-    -------------
-    --- PERKS ---
-    -------------
-
-        function self.getPerks()
-        	local isKnown = isKnown
-
-        	-- self.perk.enhancedBerserk 		= isKnown(self.spell.enhancedBerserk)
         end
 
     ---------------
@@ -244,22 +94,124 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
         function self.getEnemies()
             local getEnemies = getEnemies
 
-            self.enemies.yards5 = #getEnemies("player", 5) -- Melee
-            self.enemies.yards8 = #getEnemies("player", 8) -- Swipe/Thrash
-            self.enemies.yards13 = #getEnemies("player", 13) -- Skull Bash
-            self.enemies.yards20 = #getEnemies("player", 20) --Prowl
-            self.enemies.yards40 = #getEnemies("player", 40) --Moonfire
         end
 
     -----------------
-    --- RECHARGES ---
+    --- ARTIFACTS ---
     -----------------
-    
-    	function self.getRecharges()
-    		local getRecharge = getRecharge
 
-    		-- self.recharge.forceOfNature = getRecharge(self.spell.forceOfNature)
-    	end
+        function self.getArtifacts()
+            local isKnown = isKnown
+
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact[k] = isKnown(v) or false
+            end
+        end
+
+        function self.getArtifactRanks()
+
+        end
+        
+    -------------
+    --- BUFFS ---
+    -------------
+
+        function self.getBuffs()
+            local UnitBuffID = UnitBuffID
+
+            for k,v in pairs(self.spell.spec.buffs) do
+                self.buff[k]            = UnitBuffID("player",v) ~= nil
+                self.buff.duration[k]   = getBuffDuration("player",v) or 0
+                self.buff.remain[k]     = getBuffRemain("player",v) or 0
+            end
+        end
+
+    ---------------
+    --- CHARGES ---
+    ---------------
+
+        function self.getCharge()
+            local getCharges = getCharges
+            local getChargesFrac = getChargesFrac
+            local getBuffStacks = getBuffStacks
+            local getRecharge = getRecharge
+
+            for k,v in pairs(self.spell.spec.abilities) do
+                self.charges[k]     = getCharges(v)
+                self.charges.frac[k]= getChargesFrac(v)
+                self.charges.max[k] = getChargesFrac(v,true)
+                self.recharge[k]    = getRecharge(v)
+            end
+        end
+
+    -----------------
+    --- COOLDOWNS ---
+    -----------------
+
+        function self.getCooldowns()
+            local getSpellCD = getSpellCD
+
+            for k,v in pairs(self.spell.spec.abilities) do
+                if getSpellCD(v) ~= nil then
+                    self.cd[k] = getSpellCD(v)
+                end
+            end
+        end
+
+    ---------------
+    --- DEBUFFS ---
+    ---------------
+        function self.getDebuffs()
+            local UnitDebuffID = UnitDebuffID
+            local getDebuffDuration = getDebuffDuration
+            local getDebuffRemain = getDebuffRemain
+
+            for k,v in pairs(self.spell.spec.debuffs) do
+                if k ~= "bleeds" then
+                    self.debuff[k]          = UnitDebuffID(self.units.dyn5,v,"player") ~= nil
+                    self.debuff.duration[k] = getDebuffDuration(self.units.dyn5,v,"player") or 0
+                    self.debuff.remain[k]   = getDebuffRemain(self.units.dyn5,v,"player") or 0
+                    self.debuff.refresh[k]  = (self.debuff.remain[k] < self.debuff.duration[k] * 0.3) or self.debuff.remain[k] == 0
+                end
+            end
+        end        
+
+    --------------
+    --- GLYPHS ---
+    --------------
+
+        function self.getGlyphs()
+            local hasGlyph = hasGlyph
+
+        end
+
+    ---------------
+    --- TALENTS ---
+    ---------------
+
+        function self.getTalents()
+            local getTalent = getTalent
+
+            for r = 1, 7 do --search each talent row
+                for c = 1, 3 do -- search each talent column
+                    local talentID = select(6,GetTalentInfo(r,c,GetActiveSpecGroup())) -- ID of Talent at current Row and Column
+                    for k,v in pairs(self.spell.spec.talents) do
+                        if v == talentID then
+                            self.talent[k] = getTalent(r,c)
+                        end
+                    end
+                end
+            end
+        end
+
+    -------------
+    --- PERKS ---
+    -------------
+
+        function self.getPerks()
+            local isKnown = isKnown
+
+        end
 
     ---------------
     --- TOGGLES ---
@@ -271,6 +223,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
             self.mode.cooldown  = bb.data["Cooldown"]
             self.mode.defensive = bb.data["Defensive"]
             self.mode.interrupt = bb.data["Interrupt"]
+            self.mode.mover     = bb.data["Mover"]
         end
 
         -- Create the toggle defined within rotation files
@@ -312,7 +265,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
 
             -- Get profile defined options
             local profileTable = profileTable
-            if self.rotations[bb.selectedProfile] ~= nil then 
+            if self.rotations[bb.selectedProfile] ~= nil then
                 profileTable = self.rotations[bb.selectedProfile].options()
             else
                 return
@@ -334,47 +287,31 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
 
         function self.getCastable()
 
-            -- self.castable.maim              = self.castMaim("target",true)
+   --       self.cast.debug.soulCarver          = self.cast.soulCarver 
         end
 
- 
+        -- Annihilation
+        -- function self.cast.annihilation(thisUnit,debug)
+        --     local spellCast = self.spell.annihilation
+        --     local thisUnit = thisUnit
+        --     if thisUnit == nil then thisUnit = self.units.dyn5 end
+        --     if debug == nil then debug = false end
+
+        --     if self.level >= 98 and self.power > 40 and self.cd.annihilation == 0 and self.buff.metamorphosis and getDistance(thisUnit) < 5 then
+        --         if debug then
+        --             return castSpell(thisUnit,spellCast,true,false,false,true,false,false,true,true)
+        --         else
+        --             return castSpell(thisUnit,spellCast,true,false,false,true,false,false,true)
+        --         end
+        --     elseif debug then
+        --         return false
+        --     end
+        -- end
 
     ------------------------
     --- CUSTOM FUNCTIONS ---
     ------------------------
-        function useCDs()
-            local cooldown = self.mode.cooldown
-            if (cooldown == 1 and isBoss()) or cooldown == 2 then
-                return true
-            else
-                return false
-            end
-        end
 
-        function useAoE()
-            local rotation = self.mode.rotation
-            if (rotation == 1 and #getEnemies("player",8) >= 3) or rotation == 2 then
-                return true
-            else
-                return false
-            end
-        end
-
-        function useDefensive()
-            if self.mode.defensive == 1 then
-                return true
-            else
-                return false
-            end
-        end
-
-        function useInterrupts()
-            if self.mode.interrupt == 1 then
-                return true
-            else
-                return false
-            end
-        end
 
     -----------------------------
     --- CALL CREATE FUNCTIONS ---
@@ -382,5 +319,5 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
 
         -- Return
         return self
-    end-- cVengeance
-end-- select DemonHunter
+    end-- cHavoc
+end-- select Demonhunter

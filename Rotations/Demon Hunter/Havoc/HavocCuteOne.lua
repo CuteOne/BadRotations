@@ -58,6 +58,8 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 bb.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Eye Beam Targets
                 bb.ui:createSpinner(section, "Eye Beam Targets", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use at.")
+            -- Glide Fall Time
+                bb.ui:createSpinner(section, "Glide", 2, 0, 10, 1, "|cffFFBB00Seconds until Glide will be used while falling.")
             bb.ui:checkSectionState(section)
         -- Cooldown Options
             section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
@@ -204,6 +206,12 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
 						end
 					end
 				end -- End Dummy Test
+            -- Glide
+                if isChecked("Glide") then
+                    if falling >= getOptionValue("Glide") then
+                        if cast.glide() then return end
+                    end
+                end
 			end -- End Action List - Extras
 		-- Action List - Defensive
 			local function actionList_Defensive()
@@ -432,16 +440,16 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 -- Flask / Crystal
                     -- flask,type=flask_of_the_seventh_demon
                     if isChecked("Flask / Crystal") then
-                        if inRaid and canFlask and flaskBuff==0 and not UnitBuffID("player",188033) then
+                        if inRaid and canFlask and flaskBuff==0 and not UnitBuffID("player",188033) and not UnitBuffID("player",156064) then
                             useItem(bb.player.flask.wod.agilityBig)
                             return true
                         end
                         if flaskBuff==0 then
-                            if not UnitBuffID("player",188033) and canUse(118922) then --Draenor Insanity Crystal
+                            if not UnitBuffID("player",188033) and not UnitBuffID("player",156064) and canUse(118922) then --Draenor Insanity Crystal
                                 useItem(118922)
                                 return true
                             end
-                            if not UnitBuffID("player",193456) and not UnitBuffID("player",188033) and canUse(129192) then -- Gaze of the Legion
+                            if not UnitBuffID("player",193456) and not UnitBuffID("player",188033) and not UnitBuffID("player",156064) and canUse(129192) then -- Gaze of the Legion
                                 useItem(129192)
                                 return true
                             end

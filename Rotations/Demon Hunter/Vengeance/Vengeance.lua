@@ -1,5 +1,5 @@
-if select(3, UnitClass("player")) == 12 then
-    function DemonHunterVengeance()
+function DemonHunterVengeance()
+    if GetSpecializationInfo(GetSpecialization()) == 581 then
         if bb.player == nil or bb.player.profile ~= "Vengeance" then
             bb.player = cVengeance:new("Vengeance")
             setmetatable(bb.player, {__index = cVengeance})
