@@ -25,33 +25,33 @@ function cDemonHunter:new(spec)
 		self.debuff.refresh             	= {}       -- Debuff Refreshable
         self.spell.class                	= {}        -- Abilities Available To All Specs in Class
         self.spell.class.abilities      	= {
-        	annihilation 					= 201427,
-        	bladeDance 						= 188499,
-        	blur 							= 198589,
-        	chaosNova 						= 179057,
-        	chaosStrike 					= 162794,
+        	annihilation 					= 201427, --Havoc
+        	bladeDance 						= 188499, --Havoc
+        	blur 							= 198589, --Havoc
+        	chaosNova 						= 179057, --Havoc
+        	chaosStrike 					= 162794, --Havoc
         	consumeMagic 					= 183752,
-        	darkness 						= 196718,
-        	deathSweep 						= 210152,
-        	demonsBite 						= 162243,
-        	eyeBeam 						= 198013,
-        	felblade 						= 213241, 
+        	darkness 						= 196718, --Havoc
+        	deathSweep 						= 210152, --Havoc
+        	demonsBite 						= 162243, --Havoc | Passive talent
+        	eyeBeam 						= 198013, --Havoc
+        	felblade 						= 213241,
         	felEruption 					= 211881,
-        	felRush 						= 195072,
-        	furyOfTheIllidari 				= 201628,
+        	felRush 						= 195072, --Havoc
+        	furyOfTheIllidari 				= 201628, --Havoc Artifact Ability
         	glide 							= 131347,
         	imprison 						= 217832,
-        	metamorphosis 					= 191427,
-        	soulCarver 						= 214743,
+        	metamorphosis 					= 191427, --Vengeance and Havoc have diff Metamorphosis abilities IDs 187827 & 191427
+        	soulCarver 						= 214743, --Vengeance Artifact Ability
         	spectralSight 					= 188501,
         	throwGlaive 					= 185123,
-        	vengefulRetreat 				= 198793,
+        	vengefulRetreat 				= 198793, --Havoc
         }
         self.spell.class.artifacts      	= {        -- Artifact Traits Available To All Specs in Class
         	artificialStamina 				= 211309,
         }
         self.spell.class.buffs          	= {        -- Buffs Available To All Specs in Class
-        	metamorphosis 					= 162264,
+        	metamorphosis 					= 162264, --Vengeance and Havoc have diff Metamorphosis abilities
         }
         self.spell.class.debuffs        	= {        -- Debuffs Available To All Specs in Class
 
