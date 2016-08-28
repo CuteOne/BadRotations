@@ -133,7 +133,7 @@ Raidable means if its good to raid with.
 ||||
 | **Shaman** |||
 |Elemental|0%||7.0|
-|Enhancement|64%|CuteOne|7.0|:x:
+|Enhancement|100%|CuteOne|7.0|:white_check_mark:
 |Restoration|0%||7.0|
 ||||
 | **Warlock** |||

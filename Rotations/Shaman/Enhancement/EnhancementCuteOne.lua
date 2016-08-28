@@ -54,6 +54,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 bb.ui:createCheckbox(section,"Ghost Wolf")
             -- Feral Lunge
                 bb.ui:createCheckbox(section,"Feral Lunge")
+            -- Spirit Walk
+                bb.ui:createCheckbox(section,"Spirit Walk")
+            -- Water Walking
+                bb.ui:createCheckbox(section,"Water Walking")
             bb.ui:checkSectionState(section)
         -- Cooldown Options
             section = bb.ui:createSection(bb.ui.window.profile, "Cooldowns")
@@ -67,6 +71,8 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 bb.ui:createCheckbox(section,"Racial")
             -- Trinkets
                 bb.ui:createCheckbox(section,"Trinkets")
+            -- Ascendance
+                bb.ui:createCheckbox(section,"Ascendance")
             -- Feral Spirit
                 bb.ui:createCheckbox(section,"Feral Spirit")
             bb.ui:checkSectionState(section)
@@ -91,6 +97,8 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             -- Lightning Surge Totem
                 bb.ui:createSpinner(section, "Lightning Surge Totem - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
                 bb.ui:createSpinner(section, "Lightning Surge Totem - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
+            -- Purge
+                bb.ui:createCheckbox(section,"Purge")
             -- Rainfall
                 bb.ui:createSpinner(section, "Rainfall",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             bb.ui:checkSectionState(section)
@@ -155,10 +163,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             local cd                                            = bb.player.cd
             local charges                                       = bb.player.charges
             local deadMouse, hasMouse, playerMouse              = UnitIsDeadOrGhost("mouseover"), ObjectExists("mouseover"), UnitIsPlayer("mouseover")
-            local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or ObjectExists("target"), UnitIsPlayer("target")
+            local deadtar, attacktar, hastar, playertar         = UnitIsDeadOrGhost("target"), UnitCanAttack("target", "player"), ObjectExists("target"), UnitIsPlayer("target")
             local debuff                                        = bb.player.debuff
             local enemies                                       = bb.player.enemies
-            local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
+            local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player") > 0
             local flaskBuff                                     = getBuffRemain("player",bb.player.flask.wod.buff.agilityBig)
             local friendly                                      = UnitIsFriend("target", "player")
             local gcd                                           = bb.player.gcd
@@ -188,6 +196,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             
             if leftCombat == nil then leftCombat = GetTime() end
             if profileStop == nil then profileStop = false end
+            if feralSpiritCastTime == nil then feralSpiritCastTime = 0 end
+            if feralSpiritRemain == nil then feralSpiritRemain = 0 end
+            if lastSpell == spell.feralSpirit then feralSpiritCastTime = GetTime() + 15 end
+            if feralSpiritCastTime > GetTime() then feralSpiritRemain = feralSpiritCastTime - GetTime() else feralSpiritCastTime = 0; feralSpiritRemain = 0 end
 
     --------------------
     --- Action Lists ---
@@ -210,6 +222,21 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                     if ((#enemies.yards20 == 0 and not inCombat) or (#enemies.yards10 == 0 and inCombat)) and isMoving("player") then
                         if cast.ghostWolf() then return end
                     end
+                end
+            -- Purge
+                if isChecked("Purge") and canDispel("target",spell.purge) and not isBoss() and ObjectExists("target") then
+                    if cast.purge() then return end
+                end
+            -- Spirit Walk
+                if isChecked("Spirit Walk") and hasNoControl(spell.spiritWalk) then
+                    if cast.spiritWalk() then return end
+                end
+            -- Water Walking
+                if falling > 1.5 and buff.waterWalking then
+                    CancelUnitBuffID("player", spell.waterWalking)
+                end
+                if isChecked("Water Walking") and not inCombat and IsSwimming() then
+                    if cast.waterWalking() then return end
                 end
             end -- End Action List - Extras
         -- Action List - Defensive
@@ -282,31 +309,23 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         -- Action List - Interrupts
             local function actionList_Interrupts()
                 if useInterrupts() then
+                    for i=1, #enemies.yards30 do
+                        thisUnit = enemies.yards30[i]
+                        if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
             -- Wind Shear
-                    -- wind_shear
-                    if isChecked("Wind Shear") then
-                        for i=1, #enemies.yards30 do
-                            thisUnit = enemies.yards30[i]
-                            if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                            -- wind_shear
+                            if isChecked("Wind Shear") then
                                 if cast.windShear(thisUnit) then return end
                             end
-                        end
-                    end
             -- Hex
-                    if isChecked("Hex") then
-                        for i=1, #enemies.yards30 do
-                            thisUnit = enemies.yards30[i]
-                            if canInterrupt(thisUnit,getOptionValue("Interrupt At")) or (hasThreat(thisUnit) and not isMoving(thisUnit)) then
+                            if isChecked("Hex") then
                                 if cast.hex(thisUnit) then return end
                             end
-                        end
-                    end
             -- Lightning Surge Totem
-                    if isChecked("Lightning Surge Totem") and cd.windShear ~= 0 then
-                        for i=1, #enemies.yards30 do
-                            thisUnit = enemies.yards30[i]
-                            if canInterrupt(thisUnit,getOptionValue("Interrupt At")) or (hasThreat(thisUnit) and not isMoving(thisUnit)) then
-                                if cast.lightningSurgeTotem(thisUnit) then return end
+                            if isChecked("Lightning Surge Totem") and cd.windShear > gcd then
+                                if hasThreat(thisUnit) and not isMoving(thisUnit) and getCastTimeRemain(thisUnit) > 3 and ttd(thisUnit) > 7 then
+                                    if cast.lightningSurgeTotem(thisUnit) then return end
+                                end
                             end
                         end
                     end
@@ -385,7 +404,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                             if cast.feralLunge("target") then return end
                         end
                 -- Lightning Bolt
-                        if getDistance("target") >= 10 and (not talent.feralLunge or cd.feralLunge > gcd) then
+                        if getDistance("target") >= 10 and (not talent.feralLunge or cd.feralLunge > gcd) and not talent.overcharge then
                             if cast.lightningBolt("target") then return end
                         end
                 -- Start Attack
@@ -419,7 +438,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
     --------------------------
     --- In Combat Rotation ---
     --------------------------
-                if inCombat and profileStop==false and (hasThreat("target") or isDummy("target")) then
+                if inCombat and profileStop==false and (hasThreat(units.dyn5) or isDummy("target") or (UnitIsEnemy(units.dyn5, "player") and getDistance(units.dyn5) < 5)) then
         ------------------------------
         --- In Combat - Interrupts ---
         ------------------------------
@@ -460,10 +479,17 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         if cast.windsong() then return end
                 -- Ascendance
                         -- ascendance
+                        if useCDs() then
+                            if cast.ascendance() then return end
+                        end
                 -- Fury of Air
                         -- fury_of_air,if=!ticking
+                        if not buff.furyOfAir then
+                            if cast.furyOfAir() then return end
+                        end
                 -- Doom Winds
                         -- doom_winds
+                        -- if cast.doomWinds() then return end
                 -- Crash Lightning
                         -- crash_lightning,if=active_enemies>=3
                         if (mode.rotation == 1 and #enemies.yards5 >= 3) or mode.rotation == 2 then
@@ -471,6 +497,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         end
                 -- Windstrike
                         -- windstrike
+                        if cast.windstrike() then return end
                 -- Stormstrike
                         -- stormstrike
                         if cast.stormstrike() then return end
@@ -484,6 +511,11 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         if buff.remain.flametongue < 4.8 then
                             if cast.flametongue() then return end
                         end
+                -- Lightning Bolt
+                        -- /lightning_bolt,if=talent.overcharge.enabled&maelstrom>=60
+                        if talent.overcharge and power >= 60 then
+                            if cast.lightningBolt() then return end
+                        end
                 -- Lava Lash
                         -- lava_lash,if=buff.hot_hand.react
                         if buff.hotHand then
@@ -491,13 +523,15 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         end
                 -- Earthen Spike
                         -- earthen_spike
+                        if cast.earthenSpike() then return end
                 -- Crash Lightning
                         -- crash_lightning,if=active_enemies>1|talent.crashing_storm.enabled|(pet.feral_spirit.remains>5|pet.frost_wolf.remains>5|pet.fiery_wolf.remains>5|pet.lightning_wolf.remains>5)
-                        if (mode.rotation == 1 and #enemies.yards5 > 1) or mode.rotation == 2 then
+                        if (((mode.rotation == 1 and #enemies.yards5 > 1) or talent.crashingStorm or (feralSpiritRemain > 5)) or mode.rotation == 2) and mode.rotation ~= 3 then
                             if cast.crashLightning() then return end
                         end
                 -- Sundering
                         -- sundering
+                        if cast.sundering() then return end
                 -- Lava Lash
                         -- lava_lash,if=maelstrom>=90
                         if power >= 90 then
@@ -517,7 +551,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                             if cast.frostbrand() then return end
                         end
                 -- Lightning bolt
-                        if getDistance("target") >= 10 then
+                        if getDistance("target") >= 10 and (not talent.feralLunge or cd.feralLunge > gcd) and not talent.overcharge then
                             if cast.lightningBolt("target") then return end
                         end
                     end -- End SimC APL
