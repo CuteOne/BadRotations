@@ -46,12 +46,14 @@ function cEnhancement:new()
             windstrike                  = 115356,
         }
         self.spell.spec.artifacts       = {
+            doomWinds                   = 204945,
             gatheringStorms             = 198299,
         }
         self.spell.spec.buffs           = {
             ascendance                  = 114051,
             boulderfist                 = 218825,
             crashLightning              = 187874,
+            doomWinds                   = 204945,
             flametongue                 = 194084,
             frostbrand                  = 196834,
             furyOfAir                   = 197211,
@@ -341,6 +343,7 @@ function cEnhancement:new()
             self.cast.debug.boulderfist     = self.cast.boulderfist("target",true)
             self.cast.debug.cleanseSpirit   = self.cast.cleanseSpirit("target",true)
             self.cast.debug.crashLightning  = self.cast.crashLightning("target",true)
+            self.cast.debug.doomWinds       = self.cast.doomWinds("player",true)
             self.cast.debug.earthenSpike    = self.cast.earthenSpike("target",true)
             self.cast.debug.feralLunge      = self.cast.feralLunge("target",true)
             self.cast.debug.feralSpirit     = self.cast.feralSpirit("player",true)
@@ -418,6 +421,23 @@ function cEnhancement:new()
             if debug == nil then debug = false end
 
             if self.level >= 18 and self.powerPercentMana > 13 and self.cd.cleanseSpirit == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Doom Winds
+        function self.cast.doomWinds(thisUnit,debug)
+            local spellCast = self.spell.doomWinds
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.artifact.doomWinds and self.cd.doomWinds == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else

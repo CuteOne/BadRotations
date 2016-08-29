@@ -504,7 +504,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         end
                 -- Doom Winds
                         -- doom_winds
-                        -- if cast.doomWinds() then return end
+                        if cast.doomWinds() then return end
                 -- Crash Lightning
                         -- crash_lightning,if=active_enemies>=3
                         if (mode.rotation == 1 and #enemies.yards5 >= 3) or mode.rotation == 2 then
@@ -578,8 +578,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                 -- Windsong
                         if cast.windsong() then return end
                 -- Doom Winds
-                        -- if WasLastSpell(DoomWinds)
-                        -- if cast.doomWinds() then return end
+                        if cast.doomWinds() then return end
                 -- Ascendance
                         if useCDs() and lastSpell == spell.doomWinds then
                             if cast.ascendance() then return end
