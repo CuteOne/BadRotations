@@ -200,6 +200,10 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             if feralSpiritRemain == nil then feralSpiritRemain = 0 end
             if lastSpell == spell.feralSpirit then feralSpiritCastTime = GetTime() + 15 end
             if feralSpiritCastTime > GetTime() then feralSpiritRemain = feralSpiritCastTime - GetTime() else feralSpiritCastTime = 0; feralSpiritRemain = 0 end
+            if crashLightningCastTime == nil then crashLightningCastTime = 0 end
+            if crashingStormTimer == nil then crashingStormTimer = 0 end
+            if lastSpell == spell.crashLightning then crashLightningCastTime = GetTime() + 6 end
+            if crashLightningCastTime > GetTime() then crashingStormTimer = crashLightningCastTime - GetTime() else crashLightningCastTime = 0; crashingStormTimer = 0 end
 
     --------------------
     --- Action Lists ---
@@ -274,23 +278,26 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         end
                     end
             -- Astral Shift
-                    if isChecked("Astral Shift") and php <= getOptionValue("Astral Shift") then
+                    if isChecked("Astral Shift") and php <= getOptionValue("Astral Shift") and inCombat then
                         if cast.astralShift() then return end
                     end
             -- Cleanse Spirit
                     if isChecked("Cleanse Spirit") then
-                        if getOptionValue("Cleanse Spirit")==1 and canDispel("player",bb.player.spell.cleanseSpirit) then
+                        if getOptionValue("Cleanse Spirit")==1 and canDispel("player",spell.cleanseSpirit) then
                             if cast.cleanseSpirit("player") then return; end
                         end
-                        if getOptionValue("Cleanse Spirit")==2 and canDispel("target",bb.player.spell.cleanseSpirit) then
+                        if getOptionValue("Cleanse Spirit")==2 and canDispel("target",spell.cleanseSpirit) then
                             if cast.cleanseSpirit("target") then return end
                         end
-                        if getOptionValue("Cleanse Spirit")==3 and canDispel("mouseover",bb.player.spell.cleanseSpirit) then
+                        if getOptionValue("Cleanse Spirit")==3 and canDispel("mouseover",spell.cleanseSpirit) then
                             if cast.cleanseSpirit("mouseover") then return end
                         end
                     end
             -- Healing Surge
-                    if isChecked("Healing Surge") and ((not inCombat and php <= getOptionValue("Healing Surge")) or (inCombat and php <= getOptionValue("Healing Surge") / 2)) then
+                    if isChecked("Healing Surge") 
+                        and ((inCombat and ((php <= getOptionValue("Healing Surge") / 2 and power > 20) 
+                            or (power >= 90 and php <= getOptionValue("Healing Surge")))) or (not inCombat and php <= getOptionValue("Healing Surge"))) 
+                    then
                         if cast.healingSurge() then return end
                     end
             -- Lightning Surge Totem
@@ -323,7 +330,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                             end
             -- Lightning Surge Totem
                             if isChecked("Lightning Surge Totem") and cd.windShear > gcd then
-                                if hasThreat(thisUnit) and not isMoving(thisUnit) and getCastTimeRemain(thisUnit) > 3 and ttd(thisUnit) > 7 then
+                                if hasThreat(thisUnit) and not isMoving(thisUnit) and ttd(thisUnit) > 7 then
                                     if cast.lightningSurgeTotem(thisUnit) then return end
                                 end
                             end
@@ -395,17 +402,20 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                             end
                         end
                     end
+                -- Lightning Shield
+                    -- /lightning_shield
+                    if cast.lightningShield() then return end
                     if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
 
                     end -- End Pre-Pull
                     if ObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+                -- Lightning Bolt
+                        if getDistance("target") >= 10 and not talent.overcharge and (not isChecked("Feral Lunge") or not talent.feralLunge or cd.feralLunge > gcd) then
+                            if cast.lightningBolt("target") then return end
+                        end
                 -- Feral Lunge
                         if isChecked("Feral Lunge") then
                             if cast.feralLunge("target") then return end
-                        end
-                -- Lightning Bolt
-                        if getDistance("target") >= 10 and (not talent.feralLunge or cd.feralLunge > gcd) and not talent.overcharge then
-                            if cast.lightningBolt("target") then return end
                         end
                 -- Start Attack
                         if getDistance("target") < 5 then
@@ -451,6 +461,11 @@ if select(2, UnitClass("player")) == "SHAMAN" then
         --- SimulationCraft APL ---
         ---------------------------
                     if getOptionValue("APL Mode") == 1 then
+                -- Fury of Air - Off
+                        -- if TargetsInRadius(FuryOfAir) = 1
+                        if buff.furyOfAir and #enemies.yards8 < 2 then
+                            if cast.furyOfAir() then return end
+                        end
                 -- Feral Lunge
                         if isChecked("Feral Lunge") and hasThreat("target") then
                             if cast.feralLunge("target") then return end
@@ -484,7 +499,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         end
                 -- Fury of Air
                         -- fury_of_air,if=!ticking
-                        if not buff.furyOfAir then
+                        if not buff.furyOfAir and #enemies.yards8 >= 2 then
                             if cast.furyOfAir() then return end
                         end
                 -- Doom Winds
@@ -550,16 +565,67 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         if not talent.hailstorm and not buff.frostbrand then
                             if cast.frostbrand() then return end
                         end
-                -- Lightning bolt
-                        if getDistance("target") >= 10 and (not talent.feralLunge or cd.feralLunge > gcd) and not talent.overcharge then
-                            if cast.lightningBolt("target") then return end
-                        end
                     end -- End SimC APL
         ----------------------
         --- AskMrRobot APL ---
         ----------------------
                     if getOptionValue("APL Mode") == 2 then
-
+                -- Fury of Air - Off
+                        -- if TargetsInRadius(FuryOfAir) = 1
+                        if buff.furyOfAir and #enemies.yards8 < 2 then
+                            if cast.furyOfAir() then return end
+                        end
+                -- Windsong
+                        if cast.windsong() then return end
+                -- Doom Winds
+                        -- if WasLastSpell(DoomWinds)
+                        -- if cast.doomWinds() then return end
+                -- Ascendance
+                        if useCDs() and lastSpell == spell.doomWinds then
+                            if cast.ascendance() then return end
+                        end
+                -- Earthen Spike
+                        if cast.earthenSpike() then return end
+                -- Frostbrand
+                        -- if HasTalent(Hailstorm) and BuffRemainingSec(Frostbrand) <= 0.3 * BuffDurationSec(Frostbrand)
+                        if talent.hailstorm and buff.remain.frostbrand <= 0.3 * buff.duration.frostbrand then
+                            if cast.frostbrand() then return end
+                        end
+                -- Windstike
+                        if cast.windstrike() then return end
+                -- Stormstrike
+                        if cast.stormstrike() then return end
+                -- Crash Lightning
+                        -- if (HasTalent(CrashingStorm) and TimerSecRemaining(CrashingStormTimer) = 0) or TargetsInRadius(CrashLightning) > 3 or (ArtifactTraitRank(GatheringStorms) > 0 and not HasBuff(GatheringStorms))
+                        if (talent.crashingStorm and crashingStormTimer == 0) or #enemies.yards8 > 8 or (artifact.gatheringStorms and not buff.gatheringStorms) then
+                            if cast.crashLightning() then return end
+                        end
+                -- Flame Tongue
+                        -- if BuffRemainingSec(Flametongue) <= 0.3 * BuffDurationSec(Flametongue)
+                        if buff.remain.flametongue <= 0.3 * buff.duration.flametongue then
+                            if cast.flametongue() then return end
+                        end
+                -- Sundering
+                        if cast.sundering() then return end
+                -- Lightning Bolt
+                        -- if HasTalent(Overcharge) and AlternatePower >= 45
+                        if talent.overcharge and power >= 45 then
+                            if cast.lightningBolt() then return end
+                        end
+                -- Fury of Air
+                        -- if TargetsInRadius(FuryOfAir) > 1
+                        if #enemies.yards8 > 1 then
+                            if cast.furyOfAir() then return end
+                        end
+                -- Lava Lash
+                        -- if HasBuff(HotHand) or AlternatePower > 40
+                        if buff.hotHand or power > 40 then
+                            if cast.lavaLash() then return end
+                        end
+                -- Boulderfist
+                        if cast.boulderfist() then return end
+                -- Rockbiter
+                        if cast.rockbiter() then return end
                     end
                 end --End In Combat
             end --End Rotation Logic

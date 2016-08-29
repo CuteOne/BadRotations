@@ -27,10 +27,12 @@ function cShaman:new(spec)
         self.spell.class.abilities      	= {
             ancestralSpirit                 = 2008,
             astralShift                     = 108271,
+            earthgrabTotem                  = 51485,
             ghostWolf                       = 2645,
             hex                             = 51514,
             lightningSurgeTotem             = 192058,
             purge                           = 370,
+            voodooTotem                     = 196932,
             waterWalking                    = 546,
             windShear                       = 57994,
         }
@@ -49,7 +51,9 @@ function cShaman:new(spec)
 
         }
         self.spell.class.talents        	= {        -- Talents Available To All Specs in Class
+            earthgrabTotem                  = 51485,
             lightningSurgeTotem             = 192058,
+            voodooTotem                     = 196932,
         }
 
     ------------------
@@ -257,7 +261,7 @@ function cShaman:new(spec)
             if thisUnit == nil then thisUnit = self.units.dyn40AoE end
             if debug == nil then debug = false end
 
-            if self.level >= 14 and self.powerPercentMana > 4 and not self.inCombat and getDistance(thisUnit) < 40 then
+            if self.level >= 14 and self.powerPercentMana > 4 and self.cd.ancestralSpirit == 0 and not self.inCombat and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
@@ -291,7 +295,7 @@ function cShaman:new(spec)
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 16 and not self.buff.ghostWolf then
+            if self.level >= 16 and self.cd.ghostWolf == 0 and not self.buff.ghostWolf then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,true,false,false,false,true)
                 else
@@ -309,7 +313,7 @@ function cShaman:new(spec)
             if thisUnit == nil then thisUnit = "target" end
             if debug == nil then debug = false end
 
-            if self.level >= 42 and not self.debuff.hex and (unitType == "Humanoid" or unitType == "Beast") and getDistance(thisUnit) >= 10 then
+            if self.level >= 42 and not self.talent.voodooTotem and self.cd.hex == 0 and not self.debuff.hex and (unitType == "Humanoid" or unitType == "Beast") and getDistance(thisUnit) >= 10 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,true,false,false,false,true)
                 else
@@ -343,7 +347,7 @@ function cShaman:new(spec)
             if thisUnit == nil then thisUnit = "target" end
             if debug == nil then debug = false end
 
-            if self.level >= 58 and self.powerPercentMana > 20 and getDistance("target") < 30 then
+            if self.level >= 58 and self.cd.purge == 0 and self.powerPercentMana > 20 and getDistance("target") < 30 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,true,false,false,false,true)
                 else
@@ -360,7 +364,7 @@ function cShaman:new(spec)
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 24 and not self.buff.ghostWolf and not self.buff.waterWalking and IsSwimming() then
+            if self.level >= 24 and self.cd.waterWalking == 0 and not self.buff.ghostWolf and not self.buff.waterWalking and IsSwimming() then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,true,false,false,false,true)
                 else
