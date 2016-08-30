@@ -2098,9 +2098,10 @@ function isKnown(spellID)
 		return true
 	end
 	-- artifact
-    if bb.artifact:hasPerk(spellID) == true then
+    if hasPerk(spellID) == true then
         return true
     end
+
 	return false
 end
 --if isLongTimeCCed("target") then

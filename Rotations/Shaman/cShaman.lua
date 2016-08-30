@@ -15,7 +15,7 @@ function cShaman:new(spec)
 
 		self.profile         				= spec
 		self.artifact 		 				= {}
-		self.artifact.perks  				= {}
+		self.artifact.rank  				= {}
 		self.buff.duration	 				= {}		-- Buff Durations
 		self.buff.remain 	 				= {}		-- Buff Time Remaining
 		self.cast 		     				= {}        -- Cast Spell Functions
