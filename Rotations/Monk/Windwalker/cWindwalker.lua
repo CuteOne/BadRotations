@@ -34,7 +34,7 @@ function cWindwalker:new()
             spinningCraneKick               = 101546,
             stormEarthAndFire               = 137639,
             stormEarthAndFireFixate         = 221771,
-            strikeOfTheWindlord             = 222029,
+            strikeOfTheWindlord             = 205320,
             touchOfDeath                    = 115080,
             touchOfKarma                    = 122470,
             whirlingDragonPunch             = 152175,
@@ -131,15 +131,19 @@ function cWindwalker:new()
     -----------------
 
         function self.getArtifacts()
-            local isKnown = isKnown
+            local hasPerk = hasPerk
 
             for k,v in pairs(self.spell.spec.artifacts) do
-                self.artifact[k] = isKnown(v) or false
+                self.artifact[k] = hasPerk(v) or false
             end
         end
 
         function self.getArtifactRanks()
+            local getPerkRank = getPerkRank
 
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact.rank[k] = getPerkRank(v) or 0
+            end
         end
 
     -------------
@@ -393,7 +397,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 25 and self.power > 15 and getDistance(thisUnit) < 5 then
+            if self.level >= 25 and self.cd.disable == 0 and self.power > 15 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -463,7 +467,9 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = "target" end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and (getDistance(thisUnit) < 5 or getFacingDistance() ~= abs(getFacingDistance())) and select(3,GetSpellInfo(101545)) == 463281 then
+            if self.level >= 10 and self.cd.flyingSerpentKickEnd == 0 and (getDistance(thisUnit) < 5 or getFacingDistance() ~= abs(getFacingDistance())) 
+                and select(3,GetSpellInfo(101545)) == 463281 
+            then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -582,7 +588,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 40 and self.chi.count >= 3 and getDistance(thisUnit) < 8 then
+            if self.level >= 40 and self.cd.spinningCraneKick == 0 and self.chi.count >= 3 and getDistance(thisUnit) < 8 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -599,7 +605,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 65 and self.charges.stormEarthAndFire > 0 and not self.buff.stormEarthAndFire then
+            if self.level >= 65 and self.cd.stormEarthAndFire == 0 and self.charges.stormEarthAndFire > 0 and not self.buff.stormEarthAndFire then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -615,7 +621,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 65 and self.buff.stormEarthAndFire then
+            if self.level >= 65 and self.cd.stormEarthAndFireFixate == 0 and self.buff.stormEarthAndFire then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -632,7 +638,7 @@ function cWindwalker:new()
             if thisUnit == nil then thisUnit = self.units.dyn8 end
             if debug == nil then debug = false end
 
-            if self.artifact.strikeOfTheWindlord and self.cd.strikeOfTheWindlord == 0 and self.chi >= 2 and getDistance(thisUnit) < 8 then
+            if self.artifact.strikeOfTheWindlord and self.cd.strikeOfTheWindlord == 0 and self.chi.count >= 2 and getDistance(thisUnit) < 8 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else

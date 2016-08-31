@@ -1,0 +1,11 @@
+package-as: LibArtifactData-1.0
+
+externals:
+  LibStub:
+    url: svn://svn.wowace.com/wow/libstub/mainline/trunk
+    tag: latest
+  CallbackHandler-1.0:
+    url: svn://svn.wowace.com/wow/callbackhandler/mainline/trunk/CallbackHandler-1.0
+    tag: latest
+
+enable-nolib-creation: no

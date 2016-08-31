@@ -11,7 +11,8 @@ function cCharacter:new(class)
 		Strength  = 175439,
 		Intellect = 175457,
     }
-    self.artifact       = {}
+    self.artifact       = {} 		-- Artifact Perk IDs
+    self.artifact.rank 	= {} 		-- Artifact Perk ID Ranks
 	self.buff           = {}        -- Buffs
     self.debuff         = {}        -- Debuffs on target
 	self.class          = select(2, UnitClass("player")) -- Class
@@ -168,6 +169,8 @@ function cCharacter:new(class)
 
 -- Updates things Out of Combat like Talents, Gear, etc.
 	function self.baseUpdateOOC()
+		-- Updates Artifact Data
+		updateArtifact()
 		-- Updates special Equip like set bonuses
 		self.baseGetEquip()
 	end

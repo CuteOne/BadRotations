@@ -21,7 +21,6 @@ function cHavoc:new()
         self.charges.max                = {}
         self.spell.spec                 = {}
         self.spell.spec.abilities       = {
-
             annihilation                = 201427,
             bladeDance                  = 188499,
             blur                        = 198589,
@@ -36,7 +35,7 @@ function cHavoc:new()
             felblade                    = 213241,
             felEruption                 = 211881,
             felRush                     = 195072,
-            furyOfTheIllidari           = 201628,
+            furyOfTheIllidari           = 201467,
             metamorphosis               = 191427,
             netherwalk                  = 196555,
             nemesis                     = 206491,
@@ -45,6 +44,8 @@ function cHavoc:new()
         }
         self.spell.spec.artifacts       = {
             anguishOfTheDeceiver        = 201473,
+            furyOfTheIllidari           = 201467,
+            warglaivesOfChaos           = 214795,
         }
         self.spell.spec.buffs           = {
             chaosBlades                 = 211797,
@@ -142,15 +143,19 @@ function cHavoc:new()
     -----------------
 
         function self.getArtifacts()
-            local isKnown = isKnown
+            local hasPerk = hasPerk
 
             for k,v in pairs(self.spell.spec.artifacts) do
-                self.artifact[k] = isKnown(v) or false
+                self.artifact[k] = hasPerk(v) or false
             end
         end
 
         function self.getArtifactRanks()
-
+            local getPerkRank = getPerkRank
+            
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact.rank[k] = getPerkRank(v) or 0
+            end
         end
         
     -------------
@@ -338,7 +343,7 @@ function cHavoc:new()
             self.cast.debug.demonsBite          = self.cast.demonsBite("target",true)
             self.cast.debug.eyeBeam             = self.cast.eyeBeam("player",true)
             self.cast.debug.felRush             = self.cast.felRush("player",true)
-   --       self.cast.debug.furyOfTheIllidari   = self.cast.furyOfTheIllidari
+            self.cast.debug.furyOfTheIllidari   = self.cast.furyOfTheIllidari("player",true)
             self.cast.debug.metamorphosis       = self.cast.metamorphosis("player",true)
             self.cast.debug.throwGlaive         = self.cast.throwGlaive("target",true)
             self.cast.debug.vengefulRetreat     = self.cast.vengefulRetreat("player",true)
@@ -506,6 +511,23 @@ function cHavoc:new()
             if debug == nil then debug = false end
 
             if self.level >= 98 and self.charges.felRush > 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Fury of the Illidari
+        function self.cast.furyOfTheIllidari(thisUnit,debug)
+            local spellCast = self.spell.furyOfTheIllidari
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.artifact.furyOfTheIllidari and self.cd.furyOfTheIllidari == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else

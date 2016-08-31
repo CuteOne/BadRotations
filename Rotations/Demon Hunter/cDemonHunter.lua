@@ -15,7 +15,7 @@ function cDemonHunter:new(spec)
 
 		self.profile         				= spec
 		self.artifact 		 				= {}
-		self.artifact.perks  				= {}
+		self.artifact.rank   				= {}
 		self.buff.duration	 				= {}		-- Buff Durations
 		self.buff.remain 	 				= {}		-- Buff Time Remaining
 		self.cast 		     				= {}        -- Cast Spell Functions
@@ -121,16 +121,20 @@ function cDemonHunter:new(spec)
     -----------------
 
     	function self.getClassArtifacts()
-    		local isKnown = isKnown
+            local hasPerk = hasPerk
 
-    		for k,v in pairs(self.spell.class.artifacts) do
-                self.artifact[k] = isKnown(v) or false
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact[k] = hasPerk(v) or false
             end
-    	end
+        end
 
-    	function self.getClassArtifactRanks()
-
-    	end
+        function self.getClassArtifactRanks()
+            local getPerkRank = getPerkRank
+            
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact.rank[k] = getPerkRank(v) or 0
+            end
+        end
 
     -------------
     --- BUFFS ---

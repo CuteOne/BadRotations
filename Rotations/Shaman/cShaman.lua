@@ -15,7 +15,7 @@ function cShaman:new(spec)
 
 		self.profile         				= spec
 		self.artifact 		 				= {}
-		self.artifact.perks  				= {}
+		self.artifact.rank  				= {}
 		self.buff.duration	 				= {}		-- Buff Durations
 		self.buff.remain 	 				= {}		-- Buff Time Remaining
 		self.cast 		     				= {}        -- Cast Spell Functions
@@ -27,9 +27,13 @@ function cShaman:new(spec)
         self.spell.class.abilities      	= {
             ancestralSpirit                 = 2008,
             astralShift                     = 108271,
+            earthgrabTotem                  = 51485,
             ghostWolf                       = 2645,
             hex                             = 51514,
             lightningSurgeTotem             = 192058,
+            purge                           = 370,
+            voodooTotem                     = 196932,
+            waterWalking                    = 546,
             windShear                       = 57994,
         }
         self.spell.class.artifacts      	= {        -- Artifact Traits Available To All Specs in Class
@@ -38,6 +42,7 @@ function cShaman:new(spec)
         self.spell.class.buffs          	= {        -- Buffs Available To All Specs in Class
             astralShift                     = 108271,
             ghostWolf                       = 2645,
+            waterWalking                    = 546,
         }
         self.spell.class.debuffs        	= {        -- Debuffs Available To All Specs in Class
             hex                             = 51514,
@@ -46,7 +51,9 @@ function cShaman:new(spec)
 
         }
         self.spell.class.talents        	= {        -- Talents Available To All Specs in Class
+            earthgrabTotem                  = 51485,
             lightningSurgeTotem             = 192058,
+            voodooTotem                     = 196932,
         }
 
     ------------------
@@ -113,15 +120,19 @@ function cShaman:new(spec)
     -----------------
 
     	function self.getClassArtifacts()
-    		local isKnown = isKnown
+    		local hasPerk = hasPerk
 
-    		for k,v in pairs(self.spell.class.artifacts) do
-                self.artifact[k] = isKnown(v) or false
+    		for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact[k] = hasPerk(v) or false
             end
     	end
 
     	function self.getClassArtifactRanks()
-
+            local getPerkRank = getPerkRank
+            
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact.rank[k] = getPerkRank(v) or 0
+            end
     	end
 
     -------------
@@ -242,6 +253,8 @@ function cShaman:new(spec)
             self.cast.debug.ghostWolf           = self.cast.ghostWolf("player",true)
             self.cast.debug.hex                 = self.cast.hex("target",true)
             self.cast.debug.lightningSurgeTotem = self.cast.lightningSurgeTotem("player",true)
+            self.cast.debug.purge               = self.cast.purge("target",true)
+            self.cast.debug.waterWalking        = self.cast.waterWalking("player",true)
             self.cast.debug.windShear           = self.cast.windShear("target",true)
 		end
 
@@ -252,7 +265,7 @@ function cShaman:new(spec)
             if thisUnit == nil then thisUnit = self.units.dyn40AoE end
             if debug == nil then debug = false end
 
-            if self.level >= 14 and self.powerPercentMana > 4 and not self.inCombat and getDistance(thisUnit) < 40 then
+            if self.level >= 14 and self.powerPercentMana > 4 and self.cd.ancestralSpirit == 0 and not self.inCombat and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
@@ -286,7 +299,7 @@ function cShaman:new(spec)
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 16 and not self.buff.ghostWolf then
+            if self.level >= 16 and self.cd.ghostWolf == 0 and not self.buff.ghostWolf then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,true,false,false,false,true)
                 else
@@ -304,7 +317,7 @@ function cShaman:new(spec)
             if thisUnit == nil then thisUnit = "target" end
             if debug == nil then debug = false end
 
-            if self.level >= 42 and not self.debuff.hex and (unitType == "Humanoid" or unitType == "Beast") and getDistance(thisUnit) >= 10 then
+            if self.level >= 42 and not self.talent.voodooTotem and self.cd.hex == 0 and not self.debuff.hex and (unitType == "Humanoid" or unitType == "Beast") and getDistance(thisUnit) >= 10 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,true,false,false,false,true)
                 else
@@ -326,6 +339,40 @@ function cShaman:new(spec)
                     return castSpell(thisUnit,spellCast,false,false,false,true,false,false,false,true)
                 else
                     return castGround(thisUnit,spellCast,35)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Purge
+        function self.cast.purge(thisUnit,debug)
+            local spellCast = self.spell.purge
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "target" end
+            if debug == nil then debug = false end
+
+            if self.level >= 58 and self.cd.purge == 0 and self.powerPercentMana > 20 and getDistance("target") < 30 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,true,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Water Walking
+        function self.cast.waterWalking(thisUnit,debug)
+            local spellCast = self.spell.waterWalking
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 24 and self.cd.waterWalking == 0 and not self.buff.ghostWolf and not self.buff.waterWalking and IsSwimming() then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,true,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,false,false,false)
                 end
             elseif debug then
                 return false

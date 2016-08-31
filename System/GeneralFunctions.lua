@@ -149,7 +149,20 @@ if Unit == nil then Unit = "target" end
 	end
 	return false
 end
-
+function CancelUnitBuffID(unit,spellID,filter)
+	local spellName = GetSpellInfo(spellID)
+	for i=1,40 do
+		local _,_,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitBuff(unit,i)
+		if buffSpellID ~= nil then
+			if buffSpellID == spellID then
+				CancelUnitBuff(unit,i);
+				return true
+			end
+		else
+			return false
+		end
+	end
+end
 function UnitBuffID(unit,spellID,filter)
 	local spellName = GetSpellInfo(spellID)
 	if filter == nil then
@@ -2085,9 +2098,10 @@ function isKnown(spellID)
 		return true
 	end
 	-- artifact
-    if bb.artifact:hasPerk(spellID) == true then
+    if hasPerk(spellID) == true then
         return true
     end
+
 	return false
 end
 --if isLongTimeCCed("target") then

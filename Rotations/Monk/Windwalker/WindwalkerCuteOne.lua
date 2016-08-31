@@ -35,13 +35,13 @@ if select(2, UnitClass("player")) == "MONK" then
     -- Storm, Earth, and Fire Button
         SEFModes = {
             [1] = { mode = "On", value = 2 , overlay = "Auto SEF Enabled", tip = "Will cast Storm, Earth, and Fire.", highlight = 1, icon = bb.player.spell.stormEarthAndFire},
-            [2] = { mode = "Off", value = 1 , overlay = "Auto SEF Disabled", tip = "Will NOT cast Storm, Earth, and Fire.", highlight = 0, icon = bb.player.spell.stormEarthFire}
+            [2] = { mode = "Off", value = 1 , overlay = "Auto SEF Disabled", tip = "Will NOT cast Storm, Earth, and Fire.", highlight = 0, icon = bb.player.spell.stormEarthAndFireFixate}
         };
         CreateButton("SEF",5,0)
     -- Flying Serpent Kick Button
         FSKModes = {
             [1] = { mode = "On", value = 2 , overlay = "Auto FSK Enabled", tip = "Will cast Flying Serpent Kick.", highlight = 1, icon = bb.player.spell.flyingSerpentKick},
-            [2] = { mode = "Off", value = 1 , overlay = "Auto FSK Disabled", tip = "Will NOT cast Flying Serpent Kick.", highlight = 0, icon = bb.player.spell.flyingSerpentKick}
+            [2] = { mode = "Off", value = 1 , overlay = "Auto FSK Disabled", tip = "Will NOT cast Flying Serpent Kick.", highlight = 0, icon = bb.player.spell.flyingSerpentKickEnd}
         };
         CreateButton("FSK",6,0)
     end
@@ -281,7 +281,7 @@ if select(2, UnitClass("player")) == "MONK" then
                     end
                 end
             -- Fixate - Storm, Earth, and Fire
-                if isDummy() then
+                if isDummy("target") then
                     if cast.stormEarthAndFireFixate() then return end
                 end
             end -- End Action List - Extras
@@ -466,9 +466,6 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Rising Sun Kick
                 -- rising_sun_kick
                 if cast.risingSunKick() then return end
-            -- Strike of the Windlord
-                -- strike_of_the_windlord
-                if cast.strikeOfTheWindlord() then return end
             -- Rushing Jade Wind
                 -- rushing_jade_wind,if=chi>1&!prev_gcd.rushing_jade_wind
                 if chi.count > 1 and lastSpell ~= spell.rushingJadeWind then
@@ -493,7 +490,7 @@ if select(2, UnitClass("player")) == "MONK" then
             -- Tiger Palm
                 -- tiger_palm,if=(buff.serenity.down&chi<=2)&!prev_gcd.tiger_palm
                 --if (not buff.serenity and chi.count <= 2) and (lastSpell ~= spell.tigerPalm or chi.count <= 2) then
-                if (not buff.serenity and chi.count <= 2) and lastSpell ~= tigerPalm then
+                if (not buff.serenity and chi.count <= 2) and lastSpell ~= spell.tigerPalm then
                     if cast.tigerPalm() then return end
                 end
             end -- End Action List - Single Target
@@ -502,13 +499,22 @@ if select(2, UnitClass("player")) == "MONK" then
             function actionList_MultiTarget()
             -- Spinning Crane Kick
                 -- spinning_crane_kick
-                if cast.spinningCraneKick() then return end
-            -- Strike of the Windlord
-                -- strike_of_the_windlord
-                if cast.rushingJadeWind() then return end
+                -- spinning_crane_kick,if=!prev_gcd.spinning_crane_kick
+                if lastSpell ~= spell.spinningCraneKick then
+                    if cast.spinningCraneKick() then return end
+                end
+            -- Rising Sun Kick
+                -- rising_sun_kick,cycle_targets=1
+                for i = 1, #enemies.yards5 do
+                    local thisUnit = enemies.yards5[i]
+                    local markOfTheCraneDebuff = getDebuffRemain(thisUnit,spell.spec.debuffs.markOfTheCrane,"player") or 0
+                    if markOfTheCraneDebuff < 1 then
+                        if cast.risingSunKick(thisUnit) then return end
+                    end
+                end 
             -- Rushing Jade Wind
-                -- rushing_jade_wind,if=chi>=2&!prev_gcd.rushing_jade_wind
-                if chi.count >= 2 and lastSpell ~= spell.rushingJadeWind then
+                -- rushing_jade_wind,if=chi>1&!prev_gcd.rushing_jade_wind
+                if chi.count > 1 and lastSpell ~= spell.rushingJadeWind then
                     if cast.rushingJadeWind() then return end
                 end
             -- Chi Wave
@@ -524,19 +530,14 @@ if select(2, UnitClass("player")) == "MONK" then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     local markOfTheCraneDebuff = getDebuffRemain(thisUnit,spell.spec.debuffs.markOfTheCrane,"player") or 0 
-            -- Rising Sun Kick
-                    -- rising_sun_kick
-                    if markOfTheCraneDebuff < 1 then
-                        if cast.risingSunKick(thisUnit) then return end
-                    end
             -- Blackout Kick
-                    -- blackout_kick,if=(chi>1|buff.bok_proc.up)&buff.serenity.down&!prev_gcd.blackout_kick
+                    -- blackout_kick,if=(chi>1|buff.bok_proc.up)&buff.serenity.down&!prev_gcd.blackout_kick,cycle_targets=1
                     --if (buff.comboBreaker or (chi.count > 0 and markOfTheCraneDebuff < 1)) and not buff.serenity and markOfTheCraneDebuff < 1 then
                     if (chi.count > 1 or buff.blackoutKick) and not buff.serenity and lastSpell ~= spell.blackoutKick then
                         if cast.blackoutKick(thisUnit) then return end
                     end
             -- Tiger Palm
-                    -- tiger_palm,if=(buff.serenity.down&chi<=2)&!prev_gcd.tiger_palm
+                    -- tiger_palm,if=(buff.serenity.down&chi<=2)&!prev_gcd.tiger_palm,cycle_targets=1
                     --if not buff.serenity and (chi.count <= 2 or markOfTheCraneDebuff < 1) then
                     if (not buff.serenity and chi.count <= 2) and lastSpell ~= spell.tigerPalm then
                         if cast.tigerPalm(thisUnit) then return end
@@ -616,6 +617,12 @@ if select(2, UnitClass("player")) == "MONK" then
                                     useItem(109217)
                                 end
                             end
+            -- Touch of Death
+                            -- touch_of_death,if=!artifact.gale_burst.enabled
+                            -- touch_of_death,if=artifact.gale_burst.enabled&cooldown.strike_of_the_windlord.remains<8&cooldown.fists_of_fury.remains<=3&cooldown.rising_sun_kick.remains<8
+                            if (not artifact.galeBurst or (artifact.galeBurst and cd.strikeOfTheWindlord < 8 and cd.fistsOfFury <= 3 and cd.risingSunKick < 8)) and ttd > 8 then
+                                if cast.touchOfDeath() then return end
+                            end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                             -- blood_fury
                             -- berserking
@@ -626,22 +633,11 @@ if select(2, UnitClass("player")) == "MONK" then
                             if bb.player.race == "Blood Elf" and chi.diff>=1 then
                                 if castSpell("player",racial,false,false,false) then return end
                             end
-            -- Touch of Death
-                            -- touch_of_death,if=!artifact.gale_burst.enabled
-                            -- touch_of_death,if=artifact.gale_burst.enabled&cooldown.strike_of_the_windlord.up&!talent.serenity.enabled&cooldown.fists_of_fury.remains<=9&cooldown.rising_sun_kick.remains<=5
-                            -- touch_of_death,if=artifact.gale_burst.enabled&cooldown.strike_of_the_windlord.up&talent.serenity.enabled&cooldown.fists_of_fury.remains<=3&cooldown.rising_sun_kick.remains<8 
-                            if (not artifact.galeBurst 
-                                or (artifact.galeBurst and cd.strikeOfTheWindlord == 0 and not talent.serenity and cd.fistsOfFury <= 9 and cd.risingSunKick <= 5)
-                                or (artifact.galeBurst and cd.strikeOfTheWindlord == 0 and talent.serenity and cd.fistsOfFury <= 3 and cd.risingSunKick < 8)) 
-                                and ttd > 8
-                            then
-                                if cast.touchOfDeath() then return end
-                            end
             -- Storm, Earth, and Fire
-                            -- storm_earth_and_fire,if=artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.up&cooldown.fists_of_fury.remains<=9&cooldown.rising_sun_kick.remains<=5
+                            -- storm_earth_and_fire,if=artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<14&cooldown.fists_of_fury.remains<=9&cooldown.rising_sun_kick.remains<=5
                             -- storm_earth_and_fire,if=!artifact.strike_of_the_windlord.enabled&cooldown.fists_of_fury.remains<=9&cooldown.rising_sun_kick.remains<=5
                             if useSEF() then
-                                if (artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord == 0 and cd.fistsOfFury <= 9 and cd.risingSunKick <= 5) 
+                                if (artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord < 14 and cd.fistsOfFury <= 9 and cd.risingSunKick <= 5) 
                                     or (not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 9 and cd.risingSunKick <=5)
                                 then
                                     if cast.stormEarthAndFire() then return end
@@ -651,16 +647,16 @@ if select(2, UnitClass("player")) == "MONK" then
                                 end
                             end
             -- Serenity
-                            -- serenity,if=artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.up&cooldown.fists_of_fury.remains<=3&cooldown.rising_sun_kick.remains<8
+                            -- serenity,if=artifact.strike_of_the_windlord.enabled&cooldown.strike_of_the_windlord.remains<7&cooldown.fists_of_fury.remains<=3&cooldown.rising_sun_kick.remains<8
                             -- serenity,if=!artifact.strike_of_the_windlord.enabled&cooldown.fists_of_fury.remains<=3&cooldown.rising_sun_kick.remains<8
-                            if (artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord == 0 and cd.fistsOfFury <= 3 and cd.risingSunKick < 8)
+                            if (artifact.strikeOfTheWindlord and cd.strikeOfTheWindlord < 7 and cd.fistsOfFury <= 3 and cd.risingSunKick < 8)
                                 or (not artifact.strikeOfTheWindlord and cd.fistsOfFury <= 3 and cd.risingSunKick < 8)
                             then
                                 if cast.serenity() then return end
                             end
             -- Energizing Elixer
                             -- energizing_elixir,if=energy<energy.max&chi<=1&buff.serenity.down
-                            if power < 50 and chi.count <= 1 and not buff.serenity then
+                            if power < powerMax and chi.count <= 1 and not buff.serenity then
                                 if cast.energizingElixir() then return end
                             end
                         end -- End Cooldown Check
@@ -670,16 +666,18 @@ if select(2, UnitClass("player")) == "MONK" then
                             if cast.rushingJadeWind() then return end
                         end
             -- Strike of the Windlord
-                        -- strike_of_the_windlord,if=artifact.strike_of_the_windlord.enabled
-                        if artifact.strikeOfTheWindlord then
-                            if cast.strikeOfTheWindlord() then return end
-                        end
+                        -- strike_of_the_windlord
+                        if cast.strikeOfTheWindlord() then return end
             -- Whirling Dragon Punch
                         -- whirling_dragon_punch
                         if cast.whirlingDragonPunch() then return end
             -- Fists of Fury
                         -- fists_of_fury
                         if cast.fistsOfFury() then return end
+            -- Tiger Palm
+                        if chi.count < 2 then
+                            if cast.tigerPalm() then return end
+                        end
             -- Call Action List - Single Target
                         -- call_action_list,name=st,if=active_enemies<3
                         if not useAoE() then
@@ -742,15 +740,19 @@ if select(2, UnitClass("player")) == "MONK" then
                             end
             -- Storm, Earth, and Fire
                             -- if not HasBuff(StormEarthAndFire) and CooldownSecRemaining(FistsOfFury) < 11 and CooldownSecRemaining(WhirlingDragonPunch) < 14 and CooldownSecRemaining(StrikeOfTheWindlord) < 14
-                            if not buff.stormEarthAndFire and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 then
-                                if cast.stormEarthAndFire() then return end
+                            if useSEF() then
+                                if not buff.stormEarthAndFire and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 then
+                                    if cast.stormEarthAndFire() then return end
+                                end
                             end
                         end -- End Cooldown Check
                         if useAoE() then
             -- Storm, Earth, and Fire
                             -- if not HasBuff(StormEarthAndFire) and CooldownSecRemaining(FistsOfFury) < 11 and CooldownSecRemaining(WhirlingDragonPunch) < 14 and CooldownSecRemaining(StrikeOfTheWindlord) < 14
-                            if not buff.stormEarthAndFire and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 then
-                                if cast.stormEarthAndFire() then return end
+                            if useSEF() then
+                                if not buff.stormEarthAndFire and cd.fistsOfFury < 11 and cd.whirlingDragonPunch < 14 and cd.strikeOfTheWindlord < 14 then
+                                    if cast.stormEarthAndFire() then return end
+                                end
                             end
             -- Spinning Crane Kick
                             if cast.spinningCraneKick() then return end

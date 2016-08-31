@@ -16,36 +16,50 @@ function cEnhancement:new()
     -----------------
     --- VARIABLES ---
     -----------------
-
         self.charges.frac               = {}        -- Fractional Charge
         self.charges.max                = {}
         self.spell.spec                 = {}
         self.spell.spec.abilities       = {
+            ascendance                  = 114051,
             boulderfist                 = 201897,
             cleanseSpirit               = 51886,
             crashLightning              = 187874,
+            doomWinds                   = 204945,
+            earthenSpike                = 188089,
             feralLunge                  = 196884,
             feralSpirit                 = 51533,
             flametongue                 = 193796,
             frostbrand                  = 196834,
+            furyOfAir                   = 197211,
             healingSurge                = 188070,
             lavaLash                    = 60103,
             lightningBolt               = 187837,
+            lightningShield             = 192106,
             rainfall                    = 215864,
             rockbiter                   = 193786,
+            spiritWalk                  = 58875,
             stormstrike                 = 17364,
+            sundering                   = 197214,
+            windRushTotem               = 192077,
             windsong                    = 201898,
+            windstrike                  = 115356,
         }
         self.spell.spec.artifacts       = {
-
+            doomWinds                   = 204945,
+            gatheringStorms             = 198299,
         }
         self.spell.spec.buffs           = {
+            ascendance                  = 114051,
             boulderfist                 = 218825,
             crashLightning              = 187874,
+            doomWinds                   = 204945,
             flametongue                 = 194084,
             frostbrand                  = 196834,
+            furyOfAir                   = 197211,
+            gatheringStorms             = 198300,
             hailstorm                   = 210853,
             hotHand                     = 215785,
+            lightningShield             = 192106,
             stormbringer                = 201846,
         }
         self.spell.spec.debuffs         = {
@@ -55,11 +69,22 @@ function cEnhancement:new()
 
         }
         self.spell.spec.talents         = {
+            ancestralSwiftness          = 192087,
+            ascendance                  = 114051,
             boulderfist                 = 201897,
+            crashingStorm               = 192246,
+            earthenSpike                = 188089,
+            empoweredStormLash          = 210731,
             feralLunge                  = 196884,
-
+            furyOfAir                   = 197211,
+            hailstorm                   = 210853,
             hotHand                     = 201900,
+            landslide                   = 197992,
+            lightningShield             = 192106,
+            overcharge                  = 210727,
             rainfall                    = 215864,
+            sundering                   = 197214,
+            windRushTotem               = 192077,
             windsong                    = 201898,
         }
         -- Merge all spell ability tables into self.spell
@@ -128,15 +153,18 @@ function cEnhancement:new()
     -----------------
 
         function self.getArtifacts()
-            local isKnown = isKnown
+            local hasPerk = hasPerk
 
             for k,v in pairs(self.spell.spec.artifacts) do
-                self.artifact[k] = isKnown(v) or false
+                self.artifact[k] = hasPerk(v) or false
             end
         end
 
         function self.getArtifactRanks()
-
+            local getPerkRank = getPerkRank
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact.rank[k] = getPerkRank(v) or 0
+            end
         end
         
     -------------
@@ -313,21 +341,46 @@ function cEnhancement:new()
 
         function self.getCastable()
 
+            self.cast.debug.ascendance      = self.cast.ascendance("player", true)
             self.cast.debug.boulderfist     = self.cast.boulderfist("target",true)
             self.cast.debug.cleanseSpirit   = self.cast.cleanseSpirit("target",true)
             self.cast.debug.crashLightning  = self.cast.crashLightning("target",true)
+            self.cast.debug.doomWinds       = self.cast.doomWinds("player",true)
+            self.cast.debug.earthenSpike    = self.cast.earthenSpike("target",true)
             self.cast.debug.feralLunge      = self.cast.feralLunge("target",true)
             self.cast.debug.feralSpirit     = self.cast.feralSpirit("player",true)
             self.cast.debug.flametongue     = self.cast.flametongue("target",true)
             self.cast.debug.frostbrand      = self.cast.frostbrand("target",true)
+            self.cast.debug.furyOfAir       = self.cast.furyOfAir("player",true)
             self.cast.debug.healingSurge    = self.cast.healingSurge("player",true)
             self.cast.debug.lavaLash        = self.cast.lavaLash("target",true)
             self.cast.debug.lightningBolt   = self.cast.lightningBolt("target",true)
+            self.cast.debug.lightningShield = self.cast.lightningShield("player",true)
             self.cast.debug.rainfall        = self.cast.rainfall("player",true)
             self.cast.debug.rockbiter       = self.cast.rockbiter("target",true)
+            self.cast.debug.spiritWalk      = self.cast.spiritWalk("player",true)
             self.cast.debug.stormstrike     = self.cast.stormstrike("target",true)
+            self.cast.debug.sundering       = self.cast.sundering("target",true)
+            self.cast.debug.windstrike      = self.cast.windstrike("target",true)
         end
 
+        -- Ascendance
+        function self.cast.ascendance(thisUnit,debug)
+            local spellCast = self.spell.ascendance
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.ascendance and self.cd.ascendance == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
         -- Boulderfist
         function self.cast.boulderfist(thisUnit,debug)
             local spellCast = self.spell.boulderfist
@@ -370,6 +423,40 @@ function cEnhancement:new()
             if debug == nil then debug = false end
 
             if self.level >= 18 and self.powerPercentMana > 13 and self.cd.cleanseSpirit == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Doom Winds
+        function self.cast.doomWinds(thisUnit,debug)
+            local spellCast = self.spell.doomWinds
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.artifact.doomWinds and self.cd.doomWinds == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Earthen Spike
+        function self.cast.earthenSpike(thisUnit,debug)
+            local spellCast = self.spell.earthenSpike
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn10 end
+            if debug == nil then debug = false end
+
+            if self.talent.earthenSpike and self.cd.earthenSpike == 0 and self.power > 30 and getDistance(thisUnit) < 10 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -437,7 +524,24 @@ function cEnhancement:new()
             if thisUnit == nil then thisUnit = self.units.dyn10 end
             if debug == nil then debug = false end
 
-            if self.level >= 19 and self.power > 20 and getDistance(thisUnit) < 10 then
+            if self.level >= 19 and self.cd.frostbrand == 0 and self.power > 20 and getDistance(thisUnit) < 10 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Fury of Air
+        function self.cast.furyOfAir(thisUnit,debug)
+            local spellCast = self.spell.furyOfAir
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.furyOfAir and self.cd.furyOfAir == 0 and self.power > 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -454,7 +558,7 @@ function cEnhancement:new()
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and self.powerPercentMana > 22 and getDistance(thisUnit) < 40 then
+            if self.level >= 10 and self.cd.healingSurge == 0 and self.powerPercentMana > 22 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -471,7 +575,7 @@ function cEnhancement:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and self.power > 30 and getDistance(thisUnit) < 5 then
+            if self.level >= 10 and self.cd.lavaLash == 0 and self.power > 30 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -488,7 +592,24 @@ function cEnhancement:new()
             if thisUnit == nil then thisUnit = self.units.dyn40 end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and getDistance(thisUnit) < 40 then
+            if self.level >= 10 and self.cd.lightningBolt == 0 and getDistance(thisUnit) < 40 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Lightning Shield
+        function self.cast.lightningShield(thisUnit,debug)
+            local spellCast = self.spell.lightningShield
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.lightningShield and not self.buff.lightningShield then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -522,7 +643,24 @@ function cEnhancement:new()
             if thisUnit == nil then thisUnit = self.units.dyn10 end
             if debug == nil then debug = false end
 
-            if self.level >= 10 and not self.talent.boulderfist and getDistance(thisUnit) < 10 then
+            if self.level >= 10 and not self.talent.boulderfist and self.cd.rockbiter == 0 and getDistance(thisUnit) < 10 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Spirit Walk
+        function self.cast.spiritWalk(thisUnit,debug)
+            local spellCast = self.spell.spiritWalk
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.level >= 72 and not self.cd.spiritWalk == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -549,6 +687,23 @@ function cEnhancement:new()
                 return false
             end
         end
+        -- Sundering
+        function self.cast.sundering(thisUnit,debug)
+            local spellCast = self.spell.sundering
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = "player" end
+            if debug == nil then debug = false end
+
+            if self.talent.sundering and self.cd.sundering == 0 and self.power > 60 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
         -- Windsong
         function self.cast.windsong(thisUnit,debug)
             local spellCast = self.spell.windsong
@@ -557,6 +712,23 @@ function cEnhancement:new()
             if debug == nil then debug = false end
 
             if self.talent.windsong and self.cd.windsong == 0 and getDistance(thisUnit) < 10 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
+                else
+                    if castSpell(thisUnit,spellCast,false,false,false) then return end
+                end
+            elseif debug then
+                return false
+            end
+        end
+        -- Windstrike
+        function self.cast.windstrike(thisUnit,debug)
+            local spellCast = self.spell.windstrike
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn30 end
+            if debug == nil then debug = false end
+
+            if self.buff.ascendance and self.cd.windstrike == 0 and self.power > 40 and getDistance(thisUnit) < 30 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
