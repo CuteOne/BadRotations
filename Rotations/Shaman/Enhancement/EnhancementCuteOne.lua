@@ -304,7 +304,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                     if isChecked("Lightning Surge Totem - HP") and php <= getOptionValue("Lightning Surge Totem - HP") and inCombat and #enemies.yards5 > 0 then
                         if cast.lightningSurgeTotem() then return end
                     end
-                    if isChecked("Lightning Surge Totem - AoE") and #enemies.yards5 >= getOptionValue("Lightning Surge Totem - AoE") then
+                    if isChecked("Lightning Surge Totem - AoE") and #enemies.yards5 >= getOptionValue("Lightning Surge Totem - AoE") and inCombat then
                         if cast.lightningSurgeTotem() then return end
                     end
             -- Rainfall

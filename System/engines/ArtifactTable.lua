@@ -1,24 +1,27 @@
 local name, addon = ...
 local LAD = LibStub("LibArtifactData-1.0")
 
-LAD:ForceUpdate()
-local artifactId = select(1,C_ArtifactUI.GetEquippedArtifactInfo())
-local id, data = LAD:GetArtifactInfo(artifactId)
--- print(id == artifactID, data.name)
-bb.artifact = {}
-print(artifactId)
-if artifactId ~= nil then
-    bb.artifact.id = artifactId
-    bb.artifact.info = data
+function updateArtifact()
+    LAD:ForceUpdate()
+    local artifactId = select(1,C_ArtifactUI.GetEquippedArtifactInfo())
+    local id, data = LAD:GetArtifactInfo(artifactId)
+    -- print(id == artifactID, data.name)
+    bb.artifact = {}
+    if artifactId ~= nil then
+        bb.artifact.id = artifactId
+        bb.artifact.info = data
+    end
 end
 
 -- checks for perk
 function hasPerk(spellID)
     if bb.artifact ~= nil then
-        if bb.artifact.info.traits ~= nil then
-            for i=1, #bb.artifact.info.traits do
-                if spellID == bb.artifact.info.traits[i]["spellID"] then
-                    return true
+        if bb.artifact.info ~= nil then
+            if bb.artifact.info.traits ~= nil then
+                for i=1, #bb.artifact.info.traits do
+                    if spellID == bb.artifact.info.traits[i]["spellID"] then
+                        return true
+                    end
                 end
             end
         end
@@ -28,10 +31,12 @@ end
 
 function getPerkRank(spellID)
     if bb.artifact ~= nil then
-        if bb.artifact.info.traits ~= nil then
-            for i=1, #bb.artifact.info.traits do
-                if spellID == bb.artifact.info.traits[i]["spellID"] then
-                    return bb.artifact.info.traits[i]["currentRank"]
+        if bb.artifact.info ~= nil then
+            if bb.artifact.info.traits ~= nil then
+                for i=1, #bb.artifact.info.traits do
+                    if spellID == bb.artifact.info.traits[i]["spellID"] then
+                        return bb.artifact.info.traits[i]["currentRank"]
+                    end
                 end
             end
         end

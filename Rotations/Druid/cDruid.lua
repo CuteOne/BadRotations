@@ -16,7 +16,7 @@ if select(2, UnitClass("player")) == "DRUID" then
 		self.comboPoints     = getCombo("player")
 		self.stealth		 = false
 		self.artifact 		 = {}
-		self.artifact.perks  = {}
+		self.artifact.rank   = {}
 		self.buff.duration	 = {}		-- Buff Durations
 		self.buff.remain 	 = {}		-- Buff Time Remaining
 		self.cast 		     = {}        -- Cast Spell Functions
@@ -145,8 +145,8 @@ if select(2, UnitClass("player")) == "DRUID" then
     	function self.getClassArtifacts()
     		local isKnown = isKnown
 
-    		for k,v in pairs(self.spell.class.artifacts) do
-                self.artifact[k] = isKnown(v) or false
+    		for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact[k] = hasPerk(v) or false
             end
     	end
 

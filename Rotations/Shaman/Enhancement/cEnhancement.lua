@@ -56,7 +56,7 @@ function cEnhancement:new()
             flametongue                 = 194084,
             frostbrand                  = 196834,
             furyOfAir                   = 197211,
-            gatheringStorms             = 198299,
+            gatheringStorms             = 198300,
             hailstorm                   = 210853,
             hotHand                     = 215785,
             lightningShield             = 192106,

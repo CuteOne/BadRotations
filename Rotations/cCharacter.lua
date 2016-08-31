@@ -169,6 +169,8 @@ function cCharacter:new(class)
 
 -- Updates things Out of Combat like Talents, Gear, etc.
 	function self.baseUpdateOOC()
+		-- Updates Artifact Data
+		updateArtifact()
 		-- Updates special Equip like set bonuses
 		self.baseGetEquip()
 	end

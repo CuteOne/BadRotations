@@ -142,15 +142,19 @@ function cHavoc:new()
     -----------------
 
         function self.getArtifacts()
-            local isKnown = isKnown
+            local hasPerk = hasPerk
 
             for k,v in pairs(self.spell.spec.artifacts) do
-                self.artifact[k] = isKnown(v) or false
+                self.artifact[k] = hasPerk(v) or false
             end
         end
 
         function self.getArtifactRanks()
-
+            local getPerkRank = getPerkRank
+            
+            for k,v in pairs(self.spell.spec.artifacts) do
+                self.artifact.rank[k] = getPerkRank(v) or 0
+            end
         end
         
     -------------

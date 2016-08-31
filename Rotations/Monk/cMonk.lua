@@ -15,6 +15,7 @@ if select(2, UnitClass("player")) == "MONK" then
 		self.profile         		= spec
 	    self.powerRegen      		= getRegen("player")
 		self.artifact 				= {}		-- Artifacts
+        self.artifact.rank          = {}        -- Artifact Ranks
 		self.buff.duration	 		= {}		-- Buff Durations
 		self.buff.remain 	 		= {}		-- Buff Time Remaining
 		self.cast 					= {}		-- Cast Spell Functions
@@ -279,7 +280,7 @@ if select(2, UnitClass("player")) == "MONK" then
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 3 and (self.chi.count >= 1 or self.buff.comboBreaker) and getDistance(thisUnit) < 5 then
+            if self.level >= 3 and self.cd.blackoutKick == 0 and (self.chi.count >= 1 or self.buff.comboBreaker) and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -330,7 +331,7 @@ if select(2, UnitClass("player")) == "MONK" then
             if thisUnit == nil then thisUnit = "target" end
             if debug == nil then debug = false end
 
-            if self.level >= 36 and getDistance(thisUnit) < 40 then
+            if self.level >= 36 and self.cd.cracklingJadeLightning == 0 and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -381,7 +382,7 @@ if select(2, UnitClass("player")) == "MONK" then
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 8 and self.power > 30 and not isMoving(thisUnit) then
+            if self.level >= 8 and self.cd.effuse == 0 and self.power > 30 and not isMoving(thisUnit) then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -449,7 +450,7 @@ if select(2, UnitClass("player")) == "MONK" then
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.race == "Pandaren" and getSpellCD(self.racial) == 0 and getDistance(thisUnit) < 5 then
+            if self.race == "Pandaren" and self.cd.quakingPalm == 0 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -466,7 +467,7 @@ if select(2, UnitClass("player")) == "MONK" then
             if thisUnit == nil then thisUnit = "mouseover" end
             if debug == nil then debug = false end
 
-            if self.level >= 14 and not self.inCombat and UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and getDistance(thisUnit) < 40 then
+            if self.level >= 14 and self.cd.resuscitate == 0 and not self.inCombat and UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and getDistance(thisUnit) < 40 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,true,false,false,true)
                 else
@@ -483,7 +484,7 @@ if select(2, UnitClass("player")) == "MONK" then
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 5 and self.charges.roll >= 1 and (solo or hasThreat("target")) then
+            if self.level >= 5 and self.cd.roll == 0 and self.charges.roll >= 1 and (solo or hasThreat("target")) then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
@@ -517,7 +518,7 @@ if select(2, UnitClass("player")) == "MONK" then
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
 
-            if self.level >= 1 and self.power > 50 and getDistance(thisUnit) < 5 then
+            if self.level >= 1 and self.cd.tigerPalm == 0 and self.power > 50 and getDistance(thisUnit) < 5 then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
                 else
