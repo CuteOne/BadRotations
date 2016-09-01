@@ -1449,6 +1449,7 @@ function getLineOfSight(Unit1,Unit2)
 		76585,-- Ragewing
 		77692, -- Kromog
 		77182, -- Oregorger
+		96759, -- Helya
 		--86644, -- Ore Crate from Oregorger boss
 	}
 	for i = 1,#skipLoSTable do
