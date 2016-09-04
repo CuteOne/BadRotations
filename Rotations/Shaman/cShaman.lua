@@ -328,17 +328,18 @@ function cShaman:new(spec)
             end
         end
         -- Lightning Surge Totem
-        function self.cast.lightningSurgeTotem(thisUnit,debug)
+        function self.cast.lightningSurgeTotem(numUnits,debug)
             local spellCast = self.spell.lightningSurgeTotem
-            local thisUnit = thisUnit
-            if thisUnit == nil then thisUnit = "player" end
+            local numUnits = numUnits
+            if numUnits == nil then numUnits = 1 end
             if debug == nil then debug = false end
 
             if self.talent.lightningSurgeTotem and self.cd.lightningSurgeTotem == 0 and self.powerPercentMana > 10 then
                 if debug then
-                    return castSpell(thisUnit,spellCast,false,false,false,true,false,false,false,true)
+                    return castSpell("player",spellCast,false,false,false,true,false,false,false,true)
                 else
-                    return castGround(thisUnit,spellCast,35)
+                    return castGroundAtBestLocation(spellCast,8,numUnits,35)
+                    -- return castGround(thisUnit,spellCast,35)
                 end
             elseif debug then
                 return false
@@ -368,7 +369,7 @@ function cShaman:new(spec)
             if thisUnit == nil then thisUnit = "player" end
             if debug == nil then debug = false end
 
-            if self.level >= 24 and self.cd.waterWalking == 0 and not self.buff.ghostWolf and not self.buff.waterWalking and IsSwimming() then
+            if self.level >= 24 and self.cd.waterWalking == 0 and not self.buff.waterWalking and IsSwimming() then
                 if debug then
                     return castSpell(thisUnit,spellCast,false,false,false,true,false,false,false,true)
                 else

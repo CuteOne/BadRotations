@@ -1,17 +1,36 @@
 local name, addon = ...
 local LAD = LibStub("LibArtifactData-1.0")
 
+bb.artifact = {}
 function updateArtifact()
-    LAD:ForceUpdate()
     local artifactId = select(1,C_ArtifactUI.GetEquippedArtifactInfo())
-    local id, data = LAD:GetArtifactInfo(artifactId)
-    -- print(id == artifactID, data.name)
+    local _, data = LAD:GetArtifactInfo(artifactId)
     bb.artifact = {}
-    if artifactId ~= nil then
-        bb.artifact.id = artifactId
-        bb.artifact.info = data
-    end
+    bb.artifact.id = artifactId
+    bb.artifact.info = data
 end
+
+function addon:ARTIFACT_ADDED()
+    updateArtifact()
+end
+function addon:ARTIFACT_EQUIPPED_CHANGED()
+    updateArtifact()
+end
+function addon:ARTIFACT_DATA_MISSING()
+    updateArtifact()
+end
+function addon:ARTIFACT_RELIC_CHANGED()
+    updateArtifact()
+end
+function addon:ARTIFACT_TRAITS_CHANGED()
+    updateArtifact()
+end
+
+LAD.RegisterCallback(addon, "ARTIFACT_ADDED")
+LAD.RegisterCallback(addon, "ARTIFACT_EQUIPPED_CHANGED")
+LAD.RegisterCallback(addon, "ARTIFACT_DATA_MISSING")
+LAD.RegisterCallback(addon, "ARTIFACT_RELIC_CHANGED")
+LAD.RegisterCallback(addon, "ARTIFACT_TRAITS_CHANGED")
 
 -- checks for perk
 function hasPerk(spellID)
@@ -29,6 +48,7 @@ function hasPerk(spellID)
     return false
 end
 
+-- checkes for perk rank
 function getPerkRank(spellID)
     if bb.artifact ~= nil then
         if bb.artifact.info ~= nil then

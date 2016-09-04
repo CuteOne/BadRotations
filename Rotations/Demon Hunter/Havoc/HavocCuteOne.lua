@@ -532,7 +532,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         if actionList_Cooldowns() then return end
                 -- Fury of the Illidari
                         -- fury_of_the_illidari,if=active_enemies>desired_targets|raid_event.adds.in>55
-                        if #enemies.yards8 > 2 or addsIn > 55 then 
+                        if #enemies.yards8 > 2 or (addsIn > 55 and #enemies.yards8 > 0) then 
                             if cast.furyOfTheIllidari() then return end
                         end
                 -- Death Sweep
@@ -641,7 +641,9 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                 -- Cooldowns
                         if actionList_Cooldowns() then return end
                 -- Fury of the Illidari
-                        if cast.furyOfTheIllidari() then return end
+                        if #enemies.yards8 > 0 then
+                            if cast.furyOfTheIllidari() then return end
+                        end
                 -- MultiTarget
                         -- if TargetsInRadius(BladeDanceHitAoE) > 1
                         if (#enemies.yards8 > 1 and mode.rotation == 1) or mode.rotation == 2 then

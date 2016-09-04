@@ -296,7 +296,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
             -- Healing Surge
                     if isChecked("Healing Surge") 
                         and ((inCombat and ((php <= getOptionValue("Healing Surge") / 2 and power > 20) 
-                            or (power >= 90 and php <= getOptionValue("Healing Surge")))) or (not inCombat and php <= getOptionValue("Healing Surge"))) 
+                            or (power >= 90 and php <= getOptionValue("Healing Surge")))) or (not inCombat and php <= getOptionValue("Healing Surge") and not moving)) 
                     then
                         if cast.healingSurge() then return end
                     end
@@ -305,7 +305,7 @@ if select(2, UnitClass("player")) == "SHAMAN" then
                         if cast.lightningSurgeTotem() then return end
                     end
                     if isChecked("Lightning Surge Totem - AoE") and #enemies.yards5 >= getOptionValue("Lightning Surge Totem - AoE") and inCombat then
-                        if cast.lightningSurgeTotem() then return end
+                        if cast.lightningSurgeTotem(getOptionValue("Lightning Surge Totem - AoE")) then return end
                     end
             -- Rainfall
                     if isChecked("Rainfall") and php <= getOptionValue("Rainfall") then
