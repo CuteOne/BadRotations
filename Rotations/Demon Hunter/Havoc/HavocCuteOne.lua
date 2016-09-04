@@ -514,7 +514,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         end
                 -- Fel Rush
                         -- fel_rush,animation_cancel=1,if=(talent.momentum.enabled|talent.fel_mastery.enabled)&(!talent.momentum.enabled|(charges=2|cooldown.vengeful_retreat.remains>4)&buff.momentum.down)&(!talent.fel_mastery.enabled|fury.deficit>=25)&raid_event.movement.in>charges*10
-                        if useMover() and (talent.momentum or talent.felMastery) and (not talent.moment or (charges.felRush == 2 or cd.vengefulRetreat > 4) and not buff.momentum) and (not talent.felMastery or powerDeficit >= 25) and moveIn > charges.felRush * 10 then
+                        if useMover() and (talent.momentum or talent.felMastery) and (not talent.momentum or (charges.felRush == 2 or cd.vengefulRetreat > 4) and not buff.momentum) and (not talent.felMastery or powerDeficit >= 25) and moveIn > charges.felRush * 10 then
                             if cast.felRush() then return end
                         end
                 -- Eye Beam
@@ -615,7 +615,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         if cast.throwGlaive() then return end
                 -- Fel Rush
                         --fel_rush,if=movement.distance>15|(buff.out_of_range.up&!talent.momentum.enabled)
-                        if useMover() and getDistance("target") > 15 then
+                        if useMover() and getDistance("target") > 15 and not talent.momentum then
                             if cast.felRush() then return end
                         end
                     end -- End SimC APL

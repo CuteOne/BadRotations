@@ -24,7 +24,8 @@ function cShadow:new()
             
         }
         self.shadowBuffs         = {
-            shadowyInsight = 124430 
+            shadowyInsight = 124430,
+            voidForm = 194249 
         }
         self.shadowDebuffs       = {
             shadowWordPain = 589,
@@ -37,6 +38,7 @@ function cShadow:new()
             levitate = 1706,
             massDispel = 32375,
             mindBlast = 8092,
+            mindfiend = 34433,
             mindFlay = 15407,
             mindSear = 48045,  
             mindVision = 2096,
@@ -51,11 +53,14 @@ function cShadow:new()
             silence = 15487,
             vampiricEmbrace = 15286,
             vampiricTouch = 34914,
+            voidBolt = 205448,
             voidEruption = 228260
+            
         }
         self.shadowTalents       = {
             mindBomb = 205369,
             powerInfusion = 10060,
+            mindBender = 200174,
             mindSpike = 73510,
         }
         -- Merge all spell tables into self.spell
@@ -106,9 +111,9 @@ function cShadow:new()
 
             -- Casting and GCD check
             -- TODO: -> does not use off-GCD stuff like pots, dp etc
-            if castingUnit() then
-                return
-            end
+            --if castingUnit() then
+            --    return
+            --end
 
             -- Start selected rotation - DO NOT EDIT
             self:startRotation()
@@ -287,7 +292,7 @@ function cShadow:new()
             self.talent.shadowyInsight              = getTalent(5,3)
             self.talent.powerInfusion               = getTalent(6,1)
             self.talent.shadowCrash                 = getTalent(6,2)
-            self.talent.mindbender                  = getTalent(6,3)
+            self.talent.mindBender                  = getTalent(6,3)
             self.talent.legacyOfTheVoid             = getTalent(7,1)
             self.talent.mindSpike                   = getTalent(7,2)
             self.talent.surrenderToMadness          = getTalent(7,3)
@@ -379,13 +384,24 @@ function cShadow:new()
         function self.castLevitate(thisTarget)
             return castSpell(thisTarget,self.spell.levitate,true,false) == true or false
         end
+        -- mind bender
+        function self.castMindBender(thisTarget)
+            return castSpell(thisTarget,self.spell.mindBender,false,true) == true or false
+        end
         -- mind_blast
         function self.castMindBlast(thisTarget)
-            return castSpell(thisTarget,self.spell.mindBlast,false,true,false,false,false,false,true) == true or false
+            return castSpell(thisTarget,self.spell.mindBlast,false,true) == true or false
+        end
+        -- mindfiend
+        function self.castMindfiend(thisTarget)
+            return castSpell(thisTarget,self.spell.mindfiend,false,true) == true or false
         end
         -- mind_flay
         function self.castMindFlay(thisTarget)
-            return castSpell(thisTarget,self.spell.mindFlay,false,true) == true or false
+            if not UnitChannelInfo("player") then
+                return castSpell(thisTarget,self.spell.mindFlay,false,true) == true or false
+            end
+            return false
         end
         -- mind_sear
         function self.castMindSear(thisTarget)
@@ -608,6 +624,14 @@ function cShadow:new()
         end
         function self.castVT(thisTarget)
             return castSpell(thisTarget,self.spell.vampiricTouch,true,true) == true or false
+        end
+        -- void Eruption
+        function self.castVoidEruption()
+            return castSpell("player",self.spell.voidEruption,false,true) == true or false
+        end
+        -- void Bolt
+        function self.castVoidBolt(thisTarget)
+            return castSpell(thisTarget,self.spell.voidBolt,false,false) == true or false
         end
 
         

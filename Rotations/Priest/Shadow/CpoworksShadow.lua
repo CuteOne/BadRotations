@@ -217,14 +217,20 @@ if select(2, UnitClass("player")) == "PRIEST" then
             end  -- End Action List - Pre-Combat
         -- Action List - Single
             function actionList_Auto()
-                print("start")
+
+                -- Void Eruption
+                if useCDs()            
+                and ((talent.legacyOfTheVoid and power > 70) or power > 100) then
+                    if bb.player.castVoidEruption()then return end
+                end
+
                 -- Shadow Word Death
                 if thp < 20
                 or (talent.reaperOfSouls and thp < 35) then
                     if bb.player.castSWD(dyn40)then return end
                 end
                 -- Mind Blast
-                if bb.player.castMindBlast(dyn40) then print("MB") return end
+                if bb.player.castMindBlast(dyn40) then return end
                 -- Shadow Word: Pain
                 if bb.player.castSWPAutoApply(getOptionValue("SWP Max Targets")) then return end
                 -- Vampiric Touch
@@ -236,13 +242,60 @@ if select(2, UnitClass("player")) == "PRIEST" then
                 -- Mind Spike
 
                 -- Mind Flay
-                if bb.player.castMindFlay(dyn40) then print("mindflay") return end
-                print("done")
+                if bb.player.castMindFlay(dyn40) then return end
             end -- End Action List - Single
 
         -- Action List - VoidForm
             function actionList_VoidForm()
             
+                --Cooldowns
+                if actionList_Cooldowns() then return end
+
+                --Void Torrent
+
+
+                --MindBender
+                if bb.player.castMindBender(dyn40) then return end
+
+                --Mindfiend
+                if bb.player.castMindfiend(dyn40) then return end
+
+                --Dispersion
+
+
+                --Power Infusion
+
+
+                --Shadow Crash
+
+
+                --VoidBolt
+                if bb.player.castVoidBolt(dyn40) then return end  
+
+                --SWD
+                if thp < 20
+                or (talent.reaperOfSouls and thp < 35) then
+                    if bb.player.castSWD(dyn40)then return end
+                end
+
+                -- Shadow Word Void
+
+                -- Mind Blast
+                if bb.player.castMindBlast(dyn40) then return end
+                -- Shadow Word: Pain
+                if bb.player.castSWPAutoApply(getOptionValue("SWP Max Targets")) then return end
+                -- Vampiric Touch
+                if bb.player.castVTAutoApply(getOptionValue("VT Max Targets")) then return end
+
+
+                -- Mind Sear
+
+
+                -- Mind Spike
+
+
+                -- Mind Flay
+                if bb.player.castMindFlay(dyn40) then return end
             end -- End Action List - VoidForm
 
     -----------------
@@ -260,9 +313,11 @@ if select(2, UnitClass("player")) == "PRIEST" then
     --- In Combat - Rotations --- 
     -----------------------------
             if inCombat then
-                if actionList_Interrupts() then return end
-                if actionList_Cooldowns() then return end
-                if actionList_Auto() then return end
+                if buff.voidForm == true then
+                    if actionList_VoidForm() then return end
+                else
+                    if actionList_Auto() then return end
+                end
                 
             end -- End Combat Rotation
         end -- End Timer
