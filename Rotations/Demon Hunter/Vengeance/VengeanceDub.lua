@@ -51,7 +51,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
         -- General Options
             section = bb.ui:createSection(bb.ui.window.profile, "General")
             -- APL
-                bb.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
+                bb.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC"}, 1, "|cffFFFFFFSet APL Mode to use.")
             -- Dummy DPS Test
                 bb.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Pre-Pull Timer
@@ -249,7 +249,7 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
 			local function actionList_Interrupts()
 				if useInterrupts() then
             -- Consume Magic
-                    if isChecked("Consume Magic") then
+                    if isChecked("Consume Magic")  then
                         for i=1, #enemies.yards20 do
                             thisUnit = enemies.yards20[i]
                             if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
@@ -338,15 +338,22 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                     -- print(cast.sigilofFlame())
                     -- if true then return end
             -- actions=auto_attack
-                    print()
                     if getDistance(units.dyn5) < 5 then
                         StartAttack()
                     end
+                    if isChecked("Trinkets") and getDistance("target") < 5 then
+                        if canUse(13) then
+                            useItem(13)
+                        end
+                        if canUse(14) and getNumEnemies("player",12) >= 1 then
+                            useItem(14)
+                        end                            
+                    end
             -- actions+=/fiery_brand,if=buff.demon_spikes.down&buff.metamorphosis.down
             --TODO
-                    if power >= 30 and php <= 60 and soulAmount() >= 1 then
-                        if cast.soulCleave() then return end
-                    end
+                    -- if power >= 30 and php <= 60 and soulAmount() >= 1 then
+                    --     if cast.soulCleave() then return end
+                    -- end
             -- actions+=/demon_spikes,if=charges=2|buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down
                     if ( recharge.demonSpikes <= 6 and charges.demonSpikes >= 1) and hasThreat() and not buff.demonSpikes and not debuff.fieryBrand and not buff.metamorphosis then
                         if cast.demonSpikes() then return end
@@ -358,10 +365,16 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                         if cast.infernalStrike("player") then return end
                     end
             -- actions+=/spirit_bomb,if=debuff.frailty.down
+                    if not UnitDebuffID("target",224509) then
+                        if cast.spiritBomb("target") then return end
+                    end
             -- actions+=/soul_carver,if=dot.fiery_brand.ticking
                     if cast.soulCarver() then return end
+                    -- if UnitDebuffID("target",207744) then
+                    --     if cast.soulCarver() then return end
+                    -- end
             -- actions+=/immolation_aura,if=pain<=80
-                    if power <= 80 and getDistance(units.dyn8) < 8 then
+                    if power <= 80 and getDistance("target") < 5 then
                         if cast.immolationAura() then return end
                     end
             -- actions+=/felblade,if=pain<=70
@@ -375,13 +388,14 @@ if select(2, UnitClass("player")) == "DEMONHUNTER" then
                     end
             -- actions+=/metamorphosis,if=buff.demon_spikes.down&!dot.fiery_brand.ticking&buff.metamorphosis.down&incoming_damage_5s>health.max*0.70
             -- actions+=/fel_devastation,if=incoming_damage_5s>health.max*0.70
+                    if cast.felDevastation() then dub.felDevastation = false; return end
             -- actions+=/soul_cleave,if=incoming_damage_5s>=health.max*0.70
-                    if power >= 30 and php <= 75 then
+                    if power >= 30 and php <= 70 then
                         if cast.soulCleave() then return end
                     end
             -- actions+=/fel_eruption
             -- actions+=/sigil_of_flame,if=remains-delay<=0.3*duration
-                    if not isMoving("target") and not isMoving("player") and getTimeToDie() > 8 then
+                    if not isMoving("target") and getTimeToDie() > 10 then
                         if cast.sigilofFlame("target") then return end
                     end
             -- actions+=/fracture,if=pain>=80&soul_fragments<4&incoming_damage_4s<=health.max*0.20

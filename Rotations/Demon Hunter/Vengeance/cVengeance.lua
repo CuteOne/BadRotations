@@ -3,6 +3,11 @@
 cVengeance = {}
 cVengeance.rotations = {}
 
+dub = {
+    felDevastation = false,
+}
+
+
 -- Creates Vengeance DemonHunter
 function cVengeance:new()
     if GetSpecializationInfo(GetSpecialization()) == 581 then
@@ -32,6 +37,8 @@ function cVengeance:new()
             fieryBrand                  = 204021,
             throwGlaive                 = 204157,
             felblade                    = 213241,
+            spiritBomb                  = 218679,
+            felDevastation              = 212084,
         }
         self.spell.spec.artifacts       = {
 
@@ -56,6 +63,8 @@ function cVengeance:new()
             fallout                     = 227174,
             burningAlive                = 207739,
             felblade                    = 213241,
+            spiritBomb                  = 218679,
+            felDevastation              = 212084,
         }
         -- Merge all spell ability tables into self.spell
         self.spell = mergeSpellTables(self.spell, self.characterSpell, self.spell.class.abilities, self.spell.spec.abilities)
@@ -313,6 +322,8 @@ function cVengeance:new()
             self.cast.debug.demonSpikes         = self.cast.demonSpikes("player", true);
             self.cast.debug.throwGlaive         = self.cast.throwGlaive("target", true);
             self.cast.debug.sigilofFlame         = self.cast.sigilofFlame("target", true);
+            self.cast.debug.spiritBomb         = self.cast.spiritBomb("target", true);
+            self.cast.debug.felDevastation         = self.cast.felDevastation("target", true);
    --       self.cast.debug.soulCarver          = self.cast.soulCarver 
         end
 
@@ -446,7 +457,8 @@ function cVengeance:new()
                 if debug then
                     return castSpell("player",spellCast,false,false,false,false,false,false,false,true)
                 else
-                    return castGround(thisUnit,spellCast,10)
+                    --return castGround(thisUnit,spellCast,10)
+                    return castGroundAtBestLocation(spellCast, 8, 1, 10)
                 end
             elseif debug then
                 return false
@@ -477,6 +489,38 @@ function cVengeance:new()
             if thisUnit == nil then thisUnit = self.units.dyn5 end
             if debug == nil then debug = false end
             if self.level >= 102 and self.talent.felblade and getDistance(thisUnit) <= 15 and self.cd.felblade == 0 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        function self.cast.spiritBomb(thisUnit,debug)
+            local spellCast = self.spell.spiritBomb
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+            if self.level >= 108 and self.talent.spiritBomb and getDistance(thisUnit) <= 40 and self.cd.spiritBomb == 0 and soulAmount() >= 1 then
+                if debug then
+                    return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
+                else
+                    return castSpell(thisUnit,spellCast,true,false,false)
+                end
+            elseif debug then
+                return false
+            end
+        end
+
+        function self.cast.felDevastation(thisUnit,debug)
+            local spellCast = self.spell.felDevastation
+            local thisUnit = thisUnit
+            if thisUnit == nil then thisUnit = self.units.dyn5 end
+            if debug == nil then debug = false end
+            if self.level >= 108 and self.power >= 30 and self.talent.felDevastation and getDistance(thisUnit) < 20 and  dub.felDevastation and self.cd.felDevastation == 0 then
                 if debug then
                     return castSpell(thisUnit,spellCast,true,false,false,false,false,false,false,true)
                 else
